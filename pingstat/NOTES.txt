@@ -1,0 +1,35 @@
+PINGSTAT
+
+
+What is there to this thing?
+-----------------------------------------
+
+There is a "ping" table file (PingTab).
+This file contains the names of hosts to ping.
+
+There is also the "pingstat" file that maintains the status of the
+pings.
+
+
+-------------------------------------------------------------------------------
+Synopsis:
+
+$ pingstat [<host(s)> ...] [-u] [-p <pingtab>] [-s <pingstat>] [-m <mintime>]
+
+where:
+
+<host(s)>		are optional hosts to ping
+-u			means to run in update mode doing the work
+-p <pingtab>,...	specifies a pingtab file to read (can be more)
+-s <pingstat>		specified the pingstat file to update
+-m <mintime>		change the minimum time between pings to this
+
+
+-------------------------------------------------------------------------------
+About the code
+
+There is no good reason for sending the VARSUB objects with the
+environment and the 'defines' down to the 'process()' subroutine.  It
+is left over from some previous program.  At least there is no harm!
+
+

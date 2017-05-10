@@ -1,0 +1,23 @@
+#!/usr/bin/ksh
+# SUBRENAME
+
+PN=$( basename ${0} )
+
+F=${1}
+T=${2}
+if [[ -z "${F}" ]] || [[ -z "${T}" ]] ; then
+  print -u2 -- "${PN}: invalid arguments"
+  exit 1
+fi
+
+
+for D in * ; do
+  if [[ -d "${D}" ]] ; then
+    if [[ -f ${D}/${F} ]] ; then
+      mv -f ${D}/${F} ${D}/${T}
+    fi
+  fi
+done
+
+
+

@@ -1,0 +1,219 @@
+'\" t
+.TH TLIADDR 1 "1992-02-13" LOCAL
+.SH NAME
+tliaddr \- print out the Transport Layer Interface address
+.\"_
+.\"_
+.SH SYNOPSIS
+.\"_
+.\"_ some AT&T standard strings
+.\"_
+.if t \{\
+.fp5 CW
+.ds mW \&\f5
+.ds mB \&\f(CB
+.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
+.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
+.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
+.ds rq ''
+.ds lq ``
+.tr * \(**
+'br\}
+.if n \{\
+.ds mW \f3
+.ds mB \f3
+.ds Tm \uTM\d
+.ds Sm \uSM\d
+.ds Rg (Reg.)
+.ds lq \&"
+.ds rq \&"
+'br\}
+.\"_
+.\"_ some AT&T standard macros
+.\"_
+.de HY
+.hy14
+..
+.\"_
+.de MW
+.nh
+.it1 }N
+.ie\\n(.$ \{\
+.ie\\n(.$=1 \*(mW\&\\$1\fP
+.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
+.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
+.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
+.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
+.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
+.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
+.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
+.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
+.el\{\
+.ift .ft 5
+.ifn .ft 3 \}
+.HY
+..
+.\"_
+.de OP
+.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
+.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
+..
+.\"_
+.de EX
+.sp\\n(PDu
+.in+5n
+.ifn .ft 3
+.ift \{\
+.ft5
+.if\\$1-1 \{\
+.ps-1
+.vs-1
+.nreX 1 \}\}
+.nf
+..
+.de EE
+.fi
+.if\\n(eX \{\
+.ps+1
+.vs+1
+.nreX 0 \}
+.ft1
+.in-5n
+.sp\\n(PDu
+..
+.\"_
+.BR tliaddr 
+.I host
+.OP "" "  port" ] [
+.OP "-i" "  interface[:address_family]" ] [
+.OP "-f" "  address_family" ] [
+.OP "-p" "  port" ] [
+.OP "-D" "" ] [
+.OP "-V" "" ] [
+.\"_
+.\"_
+.SH DESCRIPTION
+.PP
+.SS Introduction
+.PP
+The \fItliaddr\fP program
+is most commonly used on a UNIX system to create the Transport Layer
+Interface (TLI) address in hexadecimal for a TCP/IP network host.
+This is needed to setup the Network Listener Service (NLS)
+to listen on the desired network address for incoming
+connections.  Remote File Sharing is often setup to
+accept incoming network connections from the NLS (as
+well as from other possible sources).  Note that the output
+of this program can be used any place that a hexadecimal TLI
+address for the TCP/IP transport provider might be needed.
+Another common place that these types of addresses are needed 
+is in the administration of UUCP TLI addresses for calling out.
+.PP
+This program is a little bit more general than the R&D UNIX
+program \fIhostrfs\fP that is specific to TCP/IP TLI addresses.
+This program can be used to create a hexadecimal TLI address
+for several interface address types (in addition to the socket
+API) and can also process more address families within the
+socket address type than just TCP.
+.PP
+By default, the socket address type interface is assumed and the address
+family of 'INET' is assumed.  These are most commonly used
+and with these as default.
+This program behaves very similarly
+to the \fIhostrfs\fP program (although that program can only
+accept numeric port specifications).
+.\"_
+.SS Arguments
+An address argument (usually the name of a remote host machine)
+is always required.  
+When the 
+.MW socket
+interface address type is being used (the default),
+additional possible host names consisting of :
+.EX
+anyhost
+.EE
+can also be used.  In this case, \fIanyhost\fP is a built-in
+name for the all-host or any-host address.
+A host name of consisting of a single dash character ('-') is
+also taken to be the any-host address.
+Any-host addresses are commonly used for listeners since they
+often want to listen for incoming requests on all addresses
+that the node has.
+Note that RFS, REXEC, UUCP usually do \fBnot\fP want to
+listen on the local-host address (host-name 'localhost')
+since they usually are not setup to accept incoming
+connections from the same machine that originated the connection.
+In these sorts of cases, use actual interface host names.
+For machines that have more than one interface host name, setup
+additional listeners for those other addresses.
+.PP
+An optional TCP port number argument can be specified as the second
+positional argument on invocation. 
+If no TCP port number is specified, the default port of
+2766 (corresponding to the
+.MW listen
+Internet TCP service)
+is used.
+.\"_
+.SS Options
+.\"_
+The options provide a way to set a non-default interface address
+type (other than
+.MW socket
+)
+or an address family (with the 
+.MW socket
+interface address type)
+other than 'INET'.
+.\"_
+.\"_
+.SS Output
+.\"_
+The output of the program will be a character string that represents
+the Transport Layer Interface (TLI) address needed by TLI based
+facilities.  The string is the hexadecimal representation of
+the address used by the programs that interface to the TLI API.
+.\"_
+.SH ENVIRONMENT VARIABLES
+.\"_
+There are no environment variables used by this program.
+.\"_
+.SH EXAMPLES
+.\"_
+.IP \(rh 5
+get the TLI address for a TCP host named
+.MW bob
+on the default port of 2766 :
+.EX
+\f(CWtliaddr bob\fP
+.in -4
+.sp
+.IP \(rh 5
+print out the TLI address for a TCP host named
+.MW fred
+using a port of 1025 :
+.EX
+\f(CWtliaddr fred 1025\fP
+.EE
+.\"_
+.SH SEE ALSO
+.\"_
+hostrfs(1m), nlsadmin(1m), sacadm(1m), pmadm(1m), rfsaddr(1)
+.\"_
+.SH PATH TO
+This program is currently located in \fC/usr/add-on/local/bin\fP
+or possibly where ever "LOCAL" programs are stored on your system.
+This is often at
+.MW "${LOCAL}/bin"
+on some systems.
+.\"_
+.SH AUTHOR
+Dave Morano
+.\"_
+.SH ACKNOWLEDGMENTS
+This program was inspired by the
+.MW hostrfs
+program previously written by the R&D UNIX folks out in Illinois.
+.\"_
+.\"_

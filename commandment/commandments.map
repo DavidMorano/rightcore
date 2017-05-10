@@ -1,0 +1,20 @@
+
+
+DAMcommandments {
+	global:
+		commandments ;
+		commandments_open ;
+		commandments_audit ;
+		commandments_count ;
+		commandments_max ;
+		commandments_read ;
+		commandments_get ;
+		commandments_curbegin ;
+		commandments_curend ;
+		commandments_enum ;
+		commandments_close ;
+	local:
+		* ;
+} ;
+
+

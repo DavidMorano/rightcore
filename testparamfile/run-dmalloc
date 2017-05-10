@@ -1,0 +1,51 @@
+#!/bin/ksh
+# RUN-DMALLOC
+
+
+TF=/tmp/ri${RANDOM}
+
+if [ -w dmalloc.log ] ; then
+
+{
+
+NCHECKHEAP=10
+
+DOPTS=
+DOPTS="${DOPTS} -p log-bad-space"
+DOPTS="${DOPTS} -p log-non-free"
+DOPTS="${DOPTS} -p log-nonfree-space"
+DOPTS="${DOPTS} -p alloc-blank"
+DOPTS="${DOPTS} -p free-blank"
+DOPTS="${DOPTS} -p check-blank"
+DOPTS="${DOPTS} -p check-fence"
+DOPTS="${DOPTS} -p check-heap"
+DOPTS="${DOPTS} -p check-blank"
+DOPTS="${DOPTS} -p check-funcs"
+DOPTS="${DOPTS} -p log-trans"
+
+  dmalloc -l dmalloc.log -i $NCHECKHEAP $DOPTS
+
+} | fgrep DMALLOC_OPTIONS | fgrep -v export | cut -d '=' -f 2-99 > $TF
+
+DMALLOC_OPTIONS=$( < $TF )
+export DMALLOC_OPTIONS
+rm -f $TF
+
+echo DMALLOC_OPTIONS=${DMALLOC_OPTIONS} >&2
+
+if [ -w malloc.log ] ; then
+  cp /dev/null malloc.log
+fi
+
+if [ -w dmalloc.log ] ; then
+  cp /dev/null dmalloc.log
+fi
+
+fi
+
+
+
+${@}
+
+
+

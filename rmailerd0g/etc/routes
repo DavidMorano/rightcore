@@ -1,0 +1,20 @@
+# DOMAINS
+
+
+#
+# domain		mailer
+#
+
+
+rightcore.com		local
+rightcore.org		local
+
+levosim.org		local
+
+# no domain (strickly local)
+-			sendmail
+
+# all remaining domains
+*			sendmail
+
+

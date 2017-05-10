@@ -1,0 +1,44 @@
+
+
+LOCAL=/usr/add-on/local
+P=textset
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+  PATH=/usr/5bin:${PATH}
+
+fi
+
+TH=mthost2
+case $MACH in
+
+dds )
+  TH=mthost2.mt.att.com
+  ;;
+
+esac
+
+
+
+STUFF="*.c *.h *.x *.elf *.aout *.sh Makefile"
+
+sendover() {
+  cpio -oc | rsh ${TH} discobin/cpio-dir $1 2> /dev/null
+}
+
+rcp ${P}.sh ${TH}:discobin/${P}
+rcp ${P}.x ${TH}:discobin/${P}
+
+cp ${P}.sh /home/dam/discobin/${P}
+cp ${P}.x /home/dam/discobin/${P}.x
+cp ${P}.x /home/dam/discobin/${P}.aout
+
+eval find $STUFF -type f -print | sendover src/${P}
+
+
+

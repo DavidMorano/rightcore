@@ -1,0 +1,11 @@
+
+# show the stuff that gets executed by default
+
+INCDIR=${HOME}/include
+
+LIBDIR=${HOME}/lib
+LIBS=" -ldam -lb -luc -lu -lsocket -lnsl"
+
+cc '-###' -o array -I${INCDIR} array.c -L${LIBDIR} ${LIBS} 2> o2
+
+

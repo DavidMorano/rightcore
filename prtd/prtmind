@@ -1,0 +1,20 @@
+# printer daemon to support remote printing from the 3B2 computers
+
+# Dave Morano
+# September 1991
+
+
+PRTMIN=/mt/mtgzy/devtools/hw/bin/prtmin
+
+DST=${1}
+NS=${2}
+F=${3}
+TMPDIR=/tmp/prtd${$}
+
+cd ${TMPDIR} > /dev/null
+cat > $F
+${PRTMIN} -d ${DST} -s ${NS} $F
+cd ..
+rm -fr ${TMPDIR}
+
+

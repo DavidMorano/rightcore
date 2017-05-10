@@ -1,0 +1,36 @@
+GETMAIL
+
+Synopsis:
+
+$ getmail [-r reportfile] [mailbox] [-u user] [-m mailbox] [-s mailspooldir]
+	[-d=[time]] [-P pidfile]
+
+
+
+cookie-escapes passed to servers:
+
+V	GETMAIL version
+S	searchname
+N	nodename
+D	INET domainname
+H	INET hostname
+R	program root
+U	invoking username
+
+s	service name
+a	service arguments
+u	username of mail spool file
+
+efrom	envelope from address
+recip	all recipients
+
+to	TO recipients
+cc	CC recipients
+bcc	BCC recipients
+from	FROM addresses
+sender	SENDER addresses
+subject	subject
+mid	message ID
+
+
+

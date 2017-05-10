@@ -1,0 +1,1034 @@
+.\"_
+.TH UDD 1 "v 0" PCS
+.SH NAME
+udd /- directory update daemon
+.SH SYNOPSIS
+.B udd
+[newsgroup(s) ...] [-subject | -newsgroups | -count]
+.br
+	[-a | -o] [-e] [-r] [-mailbox] [-u usernewsrc]
+.br
+	[-C] [-interactive] [-V?] [-L termlines] 
+.br
+.B bbr
+[newsgroup(s) ...] [-a] [-e]
+.br
+.B bbpost
+[newsgroup] [-edit] [-s subject] [-a attachment]
+.br
+.B rbbpost 
+newsgroup
+.br
+.B datepost 
+newsgroup
+.\"_
+.nr Hy 0
+.ad b
+.\"_
+.SH DESCRIPTION
+.PP
+These programs provide enhancements
+over the standard UNIX \fInews\fP mechanism
+that include simplified preparation,
+the categorization of articles by interest group,
+and the concurrent posting of bulletins on multiple machines.
+This system also provides advantages over the old UNIX \fImsgs\fP
+system.
+These programs are part of a software tool package called \fIPersonal
+Communication Services\fP or
+.BI
+PCS
+in abbreviated form.  The PCS software tools are a set of
+cooperating and integrated programs that perform personal
+communication and management type functions for users.  Some services
+available with the PCS package include : mail, bulletin board, message
+display, calendar, and event reminder type services.
+Only the bulletin board related programs are primarily discussed
+further here.
+.\"_
+.PP
+Basically, the bulletin board facility consists of a newsgroup
+spool area (someplace in the UNIX file systems)
+which contains \fIarticles\fP which have been posted to
+various \fInewsgroups\fP within the news spool area.
+Articles are similar to email messages and are placed on
+various newsgroups or "bulletin boards".
+A newsgroup is a subarea within the entire news spool area
+that contains articles which are usually related by similar subject matter.
+The notion of what articles belong to which newsgroup is
+purely a user one and the system doesn't try to enforce
+any policy of where user articles should be posted.
+Hierarchical newsgroups are
+supported.  When newsgroups are nested within each other, the name
+of the newsgroup is a composite type of name similar to a UNIX
+path name but with periods used to separate parent newsgroup names 
+from the subnewsgroups within them.
+Newsgroups can be nested to any level.
+Some example newsgroup names might look like :
+.EX
+general
+general.newuser
+tools
+tools.i286
+tools.mc68
+tools.latk
+tools.ogs
+news.ho
+news.lz
+news.dr
+msgs.ho
+msgs.lz
+misc
+.EE
+.\"_
+Associated with each newsgroup and user is the concept of currency.
+Currency refers to the last time a user has read the articles on any
+particular newsgroup.
+All articles which have been created or modified since the last
+time the newsgroup was read are considered current.
+.PP
+A user can individually subscribe to the newsgroups of their choice.
+The default list of newsgroups to be selected for reading
+is specified by the environment variable \f(CWBBBDS\fP.
+This can be set by either manual editing of the user's profile
+related information (usually in the user's file \f(CW.pcsprofile\fP)
+or by means of one or more utility type programs designed to aid in
+bulletin board newsgroup selection and subscription.
+Newsgroups can also be subscribed to by manual
+editing of the user's newsgroup list file
+(usually \f(CW.bbnewsrc\fP in the user's HOME directory).  
+Within the user newsgroup
+list file, those newsgroups followed by an exclamation character
+are consider unsubscribed while those followed by a colon character
+are considered subscribed.  A union of the list of newsgroups
+in the environment variable \f(CWBBBDS\fP and the subscription information
+from the user's newsgroup list file is used as the default set of
+newsgroups to scan for new articles.  Other newsgroups can be scanned
+for articles when a newsgroup is given on the command line at invocation
+of the \fIbb\fP program.
+.\"_
+.SS "The \fIbb\fP Program"
+.PP
+When invoked without arguments, the
+.I
+bb
+program prints all unread articles
+on the set of newsgroups selected for reading
+and updates the user's currency time with respect to these newsgroups.
+When invoked with a newsgroup name,
+the program prints the unread articles and updates the
+currency time on that newsgroup.
+.PP
+The default behavior of the program (in the absence of any of the
+options \f(CW-subject\fP, \f(CW-newsgroups\fP, \f(CW-count\fP)
+is to read unread articles from the newsgroups that are selected
+for reading by the user.  By default, selected newsgroups are
+those that the user is subscribed to.  If the user has listed
+one or more newsgroups on the command line, then these are used
+instead of the user's subscribed newsgroups.
+The program displays each unread article from the selected
+newsgroups and then
+pauses to prompt the user for one of the following commands :
+.RS 12
+.TP 10
+.I Command
+.I Action
+.TP
+.B next
+This command displays the next unread article.  
+This is default action and can also
+be entered with a plain carriage return.
+.TP
+.B previous
+This command can be used to possibly display the previous 
+(already read) article in the current newsgroup.  
+Currently, there are limitations to this command.  Since newsgroups
+can actually be realized by multiple directories in the UNIX file
+systems, not all previous articles are currently available for
+retrieval due to limitations in the software.  Only previous articles
+that are stored in the same UNIX directory can be retrieved.
+Also, previous articles that the user read in previous bulletin
+board reading sessions are currently not available either.
+One or both of these restrictions may be removed in the future.
+.TP
+.B review
+Display this article again.
+.TP
+.B follow
+This command is used to follow-up on the current article by posting
+a new article to the same newsgroup.  The \fIbbpost\fP program
+is invoked so that the user can enter a follow-up article.
+.TP
+.B reply
+invoke 
+.I pcsmail
+(or \fIsendmail\fP)
+with the recipient and subject defaulted.  This is analogous to the
+reply in 
+.I readmail
+and facilitates responses to the author of an article.
+.TP
+.B save
+Save the previously read article in the user's "new" mailbox.
+.TP
+.B print
+Print out the previously read article to the user's default printer
+as specified with the \f(CWPRINTER\fP environment variable.
+The article is printed in a specially prepared format for news articles.  
+Essentially, about two pages worth of
+article are printed per paper page in landscape orientation.  
+The underlying
+print mechanism that is invoked is the PCS print program
+\fIprt-pcsmail\fP.  
+This command can take additional options.
+Any options specified are passed down to the \fIprt-pcsmail\fP program.
+This is most commonly used to change the printer destination or
+the number of copies with a command like :
+.EX
+print -d di2 -c 2 -s 2
+.EE
+.\"_
+.TP
+.B Next
+This command is used to skip reading the rest of
+articles in the newsgroups that is currently being read and start displaying
+unread articles from the newsgroup that has any unread articles (if there
+is one).  Articles that are skipped are marked as being read.
+.br
+\fBThis command is not implemented yet\fP.
+.TP
+.B Previous
+This command is used to go back to a previous newsgroup
+and start reading the last article in the newsgroups.
+.br
+\fBThis command is not implemented yet and may not be for quite a while\fP.
+.TP
+.B Skip
+This command is used to skip reading the rest of
+articles in the newsgroups that is currently being read and start displaying
+unread articles from the newsgroup that has any unread articles (if there
+is one).  Articles that are skipped are not marked as being read.
+.TP
+.B Catchup
+This command is used to skip reading the rest of
+articles in the newsgroups that is currently being read and start displaying
+unread articles from the newsgroup that has any unread articles (if there
+is one).  Articles that are skipped are marked as being read.
+.br
+\fBThis command is not implemented yet\fP.
+.TP
+.B quit
+Terminate bulletin board reading (and update currency).
+.TP
+.B ?
+This prints out some brief help consisting of some of the commands and
+their function.
+.TP
+.B Save
+This is a sneaky (previously undocumented) command which appears
+to suspend the current bulletin board reading session but the
+exact consequences of this is not known by the author and the user is
+advised to play with this at her own risk.
+.TP
+.B | \fI(pipe character)\fP
+This is a previously undocumented command which appears to pipe the
+current article out to a program specified after the pipe character.
+Users are advised to use only at their own risk.
+.TP
+.B > \fI(redirect output character)\fP
+This is a previously undocumented command which appears to write the
+current article out to a file name which follows after the output redirect
+character.
+Users are advised to use only at their own risk.
+.RE
+.PP
+The
+.I bb
+program may also be invoked with the following options
+preceded by a "-" character (or "+" in the case of the \f(CWold\fP
+option -- depreciated).
+These options can usually be
+specified in as few letters as
+necessary to distinguish them uniquely.
+Only one option of
+\f(CW-subject\fP, \f(CW-newsgroups\fP, \f(CW+count\fP,
+(or \f(CW+old\fP if still supported by the system), 
+may be specified at one time.  
+In the absense of one of these
+preceding options, the program \fBread\fPs unread articles on
+the newsgroups selected.  These are basically, the four functions
+(not including that provided by \f(CW+old\fP) that the program performs.
+Unless the "\f(CW-e\fP" option 
+is specified, only the newsgroups
+to which the user has subscribed will be accessed.
+The execution mode of the program can be changed with 
+the following command line options :
+.RS 5
+.TP 15
+.B "-subject"
+Print the subjects of articles.
+.TP
+.B "-newsgroups"
+List the names of the newsgroups.  An old option (\fB-boards\fP) 
+performs the same function as this option.
+.TP
+.B "-count"
+This option causes the number of articles on each newsgroup
+to be counted and the counts outputted.
+.TP
+.B "+old"
+Print the subjects of all articles regardless of currency.  This
+option is depreciated in favor of :
+.EX
+bb -subject -a
+.EE
+which provides the same function.
+.RE
+.sp
+The following options display information about the
+program :
+.RS 5
+.TP 15
+.B "-V"
+Print out the version of the program and then exit.
+.TP
+.B "-?"
+This option causes the program to print a brief description of
+command line options and then the program exists.
+.TP
+.B "-D"
+This option causes internal program debugging information to
+be written to standard error as the program executes.
+.RE
+.sp
+The behavior of the \fIbb\fP program can be modified with the following
+options :
+.RS 5
+.TP 15
+.B "-L termlines"
+This option sets the number of terminal lines that will
+be used by the program to \fItermlines\fP.  This will
+override the \f(CWLINES\fP environment variable if it is
+specified.
+.TP
+\fB-o\fP
+This option modifies the program behavior to act only on
+"old" articles rather than the default behavior which is to 
+act only on "new" articles.  The definitions of "old" and "new"
+are relative with respect to the user's newgroup currency time.
+If the \f(CW-a\fP option is also supplied, it takes precedence over
+this option.
+.TP
+\fB-a\fP
+Print all articles for whatever newsgroups are selected,
+regardless of currency, both "old" and "new".
+This option takes precedence over the \f(CW-o\fP option if it is also
+present.
+.TP
+\fB-r\fP
+This option is used to reverse the order in which articles
+are visited.  Normally when this option is omitted, articles
+are visited oldest first and latest last.  If this option is
+given, then articles are visited latest first and oldest last.
+.TP
+\fB-e\fP
+Modify the behavior of the \fIbb\fP program to make reference to every 
+newsgroup that exists in
+the bulletin board spool directory area (BBDIR).  
+When combined with other options,
+this permits newsgroups that are not subscribed to by the user to be accessed.
+.TP
+.B "-interactive"
+This option selects whether \f(CWbb\fP behaves interactively or not.
+The most common use of this is to catch up on unread articles
+non-interactively.
+Some cleaver users
+may use the non-interactive mode of the program to simply get the articles
+written out for postprocessing of some sort.  The "mailbox" option is
+usually better for this sort of use but non-interactive mode is retained
+for backward compatibility for some old time users.
+This option is only used during "read" mode operation.
+.TP
+.B "-mailbox"
+This option is used by the \fIbbr\fP program (described later)
+to have the news articles 
+(selected by currency time) 
+formatted for use by a mail reading program like \fBvmail\fP
+or \fBreadmail\fP.  This option can also be used by those users who
+want to write various article filtering programs or the like for
+article sorting or alternate presentations.  
+This option only has meaning while \fBread\fPing articles.
+This option is only used during "read" mode operation.
+.TP
+.B "-C"
+This option is only useful when the program is in the "read" mode
+of operation.
+This option causes the command output (prompts, et cetera) to 
+be mixed with the message output.  This is sometimes useful
+for when both types of output is filtered through some sort
+of other program while still running the \fIbb\fP program interactively.
+Normally, if standard output is not a terminal, command like output
+is routed to standard error rather than standard output.  This
+behavior is kept for backward compatibility reasons.
+.RE
+.\"_
+.SS "The \fIbbr\fP Program"
+.PP
+The
+.I "bbr"
+program collects all the "current" articles from the user's selected
+newsgroups and
+puts them into the user's mailbox \fIbbtemp\fP (user's file 
+\f(CW${HOME}/mail/bbtemp\fP) suitable for viewing with a
+mail reader program like
+.I
+rdmail
+or
+.I 
+vmail
+\&.
+These articles are no longer considered
+"current" like when \f(CWbb -subject\fP
+is run.
+.\"_
+.SS "The \fIbbpost\fP Program"
+.PP
+The
+.I bbpost
+program is used for preparing and posting
+articles to newsgroups.
+The user is prompted
+for the newsgroups 
+(sometimes referred to as a \fIboard\fP)
+to post to 
+(prompt is \f(CWNEWSGROUP\fP or \f(CWNEWSGROUPS\fP),
+the subject of the article (prompt is 
+\f(CWSUBJECT\fP),
+and the text of the article.
+The
+.I bbpost
+program adds
+\fIFROM\fP
+and 
+\fIDATE\fP
+information to the article before submission into the bulletin
+board system.
+.PP
+After the article is entered by the user,
+.I bbpost
+prompts for one of the following commands :
+.RS 12
+.TP 10
+.I Command
+.I Action
+.TP
+.B post
+Post the article to the specified newsgroup.
+.TP
+.B review
+Print out the article for review by the user.
+.TP
+.B edit
+Edit the article (the NEWSGROUPS and SUBJECT fields may also
+be edited).
+.TP
+.B quit
+Terminate session without posting the article.
+.RE
+.PP
+The
+.I bbpost
+program then posts the article to the bulletin board system.
+Note that posted articles are usually transported throughout the bulletin
+board system which may contain many machines with several different
+newsgroup spool areas.  
+Up to an hour or more of time may be needed
+for an article to appear in other machine spool areas,
+depending on how articles are transported.
+.PP
+If the \f(CWedit\fP option is used, \fIbbpost\fP will enter the editor for
+the typing of the message.
+The "\f(CW-s \fP\fIsubject\fP" command line option will bypass asking
+the user for a subject and will use the supplied subject (specified by
+\fIsubject\fP) instead.  If \fIsubject\fP has spaces or other shell
+offending characters in it, it should be quoted appropriately so that
+the shell will leave it alone.
+The "\f(CW-a \fP\fIattachment\fP" command line option will append a file
+specified as \fIattachment\fP to the composed article.  The program will
+still ask the user to enter some text and after the user types
+the period character to end the text, the program appends the
+specified file.  If the user now "edit"s or "review"s the article,
+the attachment will be seen and can be further edited it desired.
+.\"_
+.SS "The \fIrbbpost\fP Program"
+.PP
+The
+.I rbbpost
+program is similar to the \fIbbpost\fP program in that it is used to
+post an article into the bulletin board system.  This command differs
+significantly from the \fIbbpost\fP program in that it is completely
+non-interactive.  This command reads an article file on its standard
+input only and posts it to the newsgroup specified as the program's
+invocation argument.  The input file is assumed to be
+in an article format already.  An article formatted file is similar
+to a file formatted as a mail message and in fact this is the most
+common use for this command ; namely, to post mail message files
+from a user's mail reading program.  Actually, any input file that
+minimally begins with a blank line is acceptable and the \fIrbbpost\fP
+program will add some additional article headers as appropriate
+if necessary.
+.PP
+A typical example of using this program is to post an article 
+from a user's mail reading program such as PCS \fIvmail\fP or
+PCS \fIreadmail\fP.  In these mail readers, the user would
+"pipe" the current message to the \fIrbbpost\fP program with
+a command sequence similar to :
+.EX
+| rbbpost \fInewsgroup\fP
+.EE
+where \fInewsgroup\fP is the name of a valid newsgroup for the
+system such as :
+.EX
+misc
+general
+.EE
+and so forth.
+.\"_
+.SS "The \fIdatepost\fP Program"
+.PP
+The
+.I datepost
+program is similar to the \fIrbbpost\fP program.  The only difference
+between this program and the \fIrbbpost\fP program is that the
+posted article isn stored in the newsgroup spool area
+in a file name that has a date type format.
+This feature is useful for posting to newsgroups that are linked
+to message storage areas that may be scanned by looking at file names.
+Since articles are implemented as files in the system, storing the
+articles with a file name that reflects the date of the posting
+is sometimes useful.
+.PP
+This program is otherwise used exactly as the \fIrbbpost\fP
+program.
+Postings usually originate from a user's mail reading 
+program such as PCS \fIvmail\fP or
+PCS \fIreadmail\fP.  In these mail readers, the user would
+"pipe" the current message to the \fIdatepost\fP program with
+a command sequence similar to :
+.EX
+| datepost \fInewsgroup\fP
+.EE
+where \fInewsgroup\fP is the name of a valid newsgroup for the
+system such as :
+.EX
+events
+misc
+general
+.EE
+and so forth.
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+Most people put the following command line in their login startup
+profiles to list out the articles posted in the newsgroups for
+which the user is subscribed :
+.EX
+bb -subject
+.EE
+.IP \(rh 5
+To just read unread articles from the user's subscribed newsgroups,
+execute :
+.EX
+bb
+.EE
+.IP \(rh 5
+To catch up on unread articles, without seeing them, execute :
+.EX
+bb -int > /dev/null
+.EE
+.IP \(rh 5
+To read unread articles in the order from the latest one 
+posted to the earliest one
+posted :
+.EX
+bb -r
+.EE
+.IP \(rh 5
+To get the names of all of the user's subscribed newsgroups :
+.EX
+bb -newsgroups
+.EE
+.IP \(rh 5
+To get the names of all of the newsgroups in the system :
+.EX
+bb -newsgroups -e
+.EE
+.IP \(rh 5
+To search for a newsgroup (\f(CWSWAPEX_Classes\fP in this example)
+when you only remember a few characters from
+the name of the newsgroup, execute :
+.EX
+bb -newsgroups -e | fgrep APEX
+.EE
+.IP \(rh 5
+To get the subject header values of unread articles on the user's 
+subscribed newsgroups :
+.EX
+bb -subject
+.EE
+.IP \(rh 5
+To get the subject header values of all (old and new) articles on the user's 
+subscribed newsgroups :
+.EX
+bb -subject -a
+.EE
+.IP \(rh 5
+To get the subject header values of all articles on all
+newsgroups in the system :
+.EX
+bb -subject -a -e
+.EE
+.IP \(rh 5
+To get the count of unread articles on the user's 
+subscribed newsgroups :
+.EX
+bb -count
+.EE
+.IP \(rh 5
+To get the count of all old articles still in a newsgroup (the
+newsgroup \fIgeneral\fP in this case) :
+.EX
+bb -count -o general
+.EE
+.\"_
+.SH "POPULAR NEWSGROUPS"
+.PP
+Some of the more popular newsgroups listed below.
+Some of these newsgrops are read only to normal users.
+Those newsgroups that are read-only or that may have other restricted
+are identified as such below.  Some newsgroups are also
+accessible (can be posted to) from outside of GBCS via email.
+Your PCS bulletin board administrator 
+(listed at the end of this manual page)
+will have information
+on which newsgroups can be posted to via email.
+.PP
+The descriptions of the more popular newsgroups are :
+.RS 5
+.TP 15
+.B general
+This newsgroup is meant to exchange articles on general items
+related to work.  Do not use this newsgroup for non-work related
+topics.
+.TP
+.B "general.newuser"
+This newsgroup carries information useful to new members
+of the GBCS R&D or other basic information useful for using the R&D
+computing environment for the fist time.
+.TP
+.B misc
+Use this newsgroup for all non-work related items.
+.TP
+.B events
+This newsgroup is used for work related events coming up
+like organizational wide meetings or other corporate AT&T 
+activities.
+.TP
+.B "events.courses"
+This newsgroup is used to provide information on general
+courses available that that not normally carried on any other newsgroup.
+.TP
+.B "workplace"
+This newsgroup is used for the exchange of workplace, or quality of
+workplace, related issues.
+.TP
+.B tools
+This newsgroup is used for the exchange of tool realted
+information.  Watch this newsgroup for new R&D-wide computer tools
+and tool updates including PCS related tools.
+.TP
+.B luncheons
+This is used for the posting of all luncheon announcements.
+.TP
+.B jobposts
+This newsgroup is readonly (to normal users) and is used to provide
+information on job openings within GBCS (usually the R&D community).
+.TP
+.B ATT_today
+This newsgroup (also readonly) carries the \fIAT&T Today\fP electronic
+newsletter.
+.TP
+.B test
+This newsgroup can be used by new users to test out posting an article
+to the system.
+.TP
+.B news
+This newsgroup and related subnewsgroups are usually used
+by the computer center to post computing environment related
+information (usually of a transient nature).  This newsgroup
+is special in that it is really cross posted from the UNIX News
+faciality.  Posts may or may not be possible to this newsgroup
+depending on how the computing administors set it up.
+Sometimes, posts can be made to this
+newsgroup but will not be readable using the UNIX \fInews\fP
+prgram.
+Ask your PCS bulletin board administrator (listed at the end of this
+manual page) for information about how posting (if any) can be
+made to this newsgroup.
+.TP
+.B msgs
+This newsgroup, or its subnewsgroups, are used to hold all articles
+that were mailed into the system through the UNIX MSGS facility.
+Although articles can be posted to this newsgroup like any other
+using a PCS program like \fIbbpost\fP,
+these posted articles will normally \fBnot\fP be available
+to the UNIX \fBMSGS\fP system reader program \fImsgs\fP.
+Generally, it is advised that the \fImsgs\fP program be used
+for posting to this newsgroup for articles to be available to both
+systems simulatneously (as generally intended).
+.RE
+.sp
+Many projects usually have project specific newsgroups for
+various purposes.  Contact your project's process or methodology people
+for information on newsgroups specific to your project.
+A full list of all of the newsgroups on the system at any time can
+be made by executing :
+.EX
+bb -newsgroups -a
+.EE
+Requests for the creation of new newsgroups should be made to the
+PCS bulletin board administrator.
+.\"_
+.SH "ADMINISTRATION"
+.PP
+.SS "Newsgroup Spool Area"
+.PP
+Each newsgroup is actually one or more directories in a 
+news spool area someplace
+in the UNIX file systems.  The appearance of a directory any place
+in the hierarchy of the spool area is automatically considered to
+be a newsgroup (possibly a new one) and is scanned for new articles.
+Symbolic links are followed when traversing the newsgroup spool area.
+Symbolic links allow for several possibilities including expanding the
+apparent newsgroup spool area to a size larger than a physical UNIX file
+system.  Other possibilities can include linking more than one newsgroup
+together to provide a physical newsgroup by two or more apparent names.
+The hierarchy of newsgroups follows the UNIX directory hierarchy of
+the newsgroup spool area.  Specifically, subdirectories are taken
+to be subnewsgroups.  Both parent newsgroups and subnewsgroups can
+contain articles.  Newsgroup nesting can occur to any level desired.
+Currently, hierarchical newsgroups are
+also realized when a UNIX directory name has one or more period 
+characters in it.
+The period in these sorts of directory names separates the parent newsgroup
+name (which can never contain any articles since there is no
+actual physical directory associated with it) from the subnewsgroup
+name.  The directory itself is considered to the that which holds the
+article files for the subnewsgroup.  Full newsgroup names made up
+by both of the above mechanisms can exist simultaneously in the 
+spool area and they are taken to reference the same apparent newsgroup
+to the user.  All articles in any newsgroups found with the same
+apparent name are scanned and taken to be in that single apparent
+newsgroup.  This mechanism, along with symbolic links, can make
+for some involved newsgroup structures which may or may not serve
+particular administrators.
+Finally, there is no limit to the number of newsgroups that can exist.
+.\"_
+.SS "Articles"
+.PP
+Each article is actually realized as an individual file in a newsgroup
+directory.  The UNIX modification times of the article files are
+taken to be the posted date of the articles.   Although the UNIX
+modification
+time of an article file is used to determine if that article
+has been read by a user, the UNIX modification time of the newsgroup
+directory that the article file is located in is also important.
+When scanning for new articles, no newsgroup directories are entered
+that have a modification time older than the currency time stored
+for that newsgroup in the user's newsgroup list file.  Old articles
+can only be made to be freshly current by also updating the modification
+time of the newsgroup directory that the article is in.  This is
+rather automatic for new articles placed into a directory since the
+modification time of the directory is updated automatically
+when new directory entries are made.
+.PP
+Articles should be formatted as RFC 822 like mail messages (UNIX
+mail messages) in order to be properly processed by the PCS
+article reading programs.  The PCS requirement for properly
+formatted mail messages is a rather lenient one in that any file
+with at least a leading blank line (a null header section followed
+by a mail message body) is allowed.
+Finally, there is currently a limit of 1000 articles allowed per
+newsgroup.  This is a compile time variable which would require
+a recompile of the program \fIbb\fP in order for this to be changed.
+.\"_
+.SS "Expiring Articles"
+.PP
+The easiest way for an administrator to expire articles is to
+simply have their corresponding files removed from the newsgroup spool
+area.  This can be accomplished with various UNIX utilities for
+selecting files based on modification times.  Administrators can
+also search for files ignoring symbolic links or UNIX mount
+points.  These sorts of techniques can be used to not expire
+articles that are in symbolically linked directories or in other
+file systems.  
+A simple example of expiring articles could be a \fIcron\fP
+program which executes :
+.EX
+find $BBDIR -type f -mtime +22 -exec rm -f {} \;
+.EE
+Other strategies are possible and are left to the
+industrious system administrators out there.
+.\"_
+.SS Other
+.PP
+Secretly, the program \fIbbr\fP simply calls the \fIbb\fP program with the
+\f(CWmailbox\fP option to do most of its work.  Under some circumstances,
+the PCS mail reader
+program \fIvmail\fP also calls the \fIbb\fP program with the \f(CWmailbox\fP
+option when a user of \fIvmail\fP uses it to "change" into their \fIbbtemp\fP
+mailbox.  In this later case, the \fIbb\fP program ensures that the user's
+\fIbbtemp\fP mailbox is "up-to-date" so that the \fIvmail\fP program
+shows the current state of the updated mailbox.
+.PP
+The \fIrbbpost\fP program is suitably capable of being
+executed by the UUCP system as a result of a remotely executed
+\fIuux\fP command.  This provides one means of posting
+articles to a system from outside of the system.
+A remote user would execute something like :
+.EX
+uux -p mtgbcs!rbbpost misc < mail_msg_formatted_file
+.EE
+to get the message in the \fImail_msg_formatted_file\fP posted to
+newsgroup \fImisc\fP within the PCS bulletin board system 
+on machine \fImtgbcs\fP.  Of course, this capability requires the
+UUCP system administrator to setup the \fIrbbpost\fP program
+in the UUCP system \fIPermissions\fP file.
+.PP
+If the administrator has the MSGS system spool area directory
+coincide with a PCS bulletin board newsgroup (reference the
+discussion in the next section), then users can also
+effectively post messages to the coicident newsgroup by emailing
+to the local email alias \fImsgs\fP.  This requires that the \fImsgs\fP
+email alias has been setup on the local mail system.  Users can still
+post messages using something like :
+.EX
+msgs -s < mail_msg_formatted_file
+.EE
+similarly to the previous example with the \fIrbbpost\fP program.
+The \fImsgs\fP program can also be executed by the UUCP system
+due to a remote execution of \fIuux\fP if the command is properly
+setup by the UUCP administrator in the UUCP system \fIPermissions\fP
+file.
+.\"_
+.SH "COMPATIBILITY WITH OTHER NEWS SYSTEMS"
+.PP
+The protocol used for the storage of articles in the PCS bulletin board
+system is
+similar to both the standard \fINetnews\fP system and the old \fImsgs\fP
+facility for UNIX systems.  Since articles are stored in the PCS
+bulletin board system as mail messages (of a sort), 
+a high degree of compatibility
+is achieved with both standard RFC 822 mail systems (including UNIX mail)
+and the old UNIX \fPmsgs\fP system (which was popular on older BSD
+systems).  
+.\"_
+.SS "UNIX MSGS System"
+.PP
+Compatibility is almost automatic with the UNIX \fImsgs\fP
+system.  With the exception of a file usually named \fIbounds\fP
+in the \fImsgs\fP spool area, all message articles
+can be cross posted to the PCS news spool area.  One or more newsgroups
+by the name \fBmsgs\fP or \fBmsgs.\fP\fIlocation\fP can be created
+under the PCS news spool area to hold the message files which are
+created under the \fImsgs\fP (proper) spool area.  If the spool
+areas (the \fImsgs\fP system spool directory and a PCS newsgroup directory) 
+are in fact one and the same, then
+the \fImsgs\fP \fIbounds\fP file will almost always be found to
+be unread (or current) by the PCS system.  This can be overcome by selectively
+cross posting the other files in the \fImsgs\fP area to the
+designated newsgroups under the PCS spool area.  An enhanced version of
+the older UNIX \fImsgs\fP facility is provided with the PCS package
+and can be installed to solve this problem with the \fImsgs\fP \fIbounds\fP
+file.  The PCS version uses a file named \f(CW.msgs_bounds\fP
+as its bounds control file instead 
+and also, by default, locates the \fImsgs\fP spool area
+directory at \f(CW${PCS}/spool/msgs\fP or something similar.  
+This default spool
+directory can be a symbolic link to a regular PCS newsgroup directory
+which is normally desired.  Making the \fImsgs\fP \fIbounds\fP type
+file start with a dot (period character) makes the file invisible
+to the PCS newsgroups reading programs.
+.\"_
+.SS "UNIX News System"
+.PP
+Files (or news items) placed under the UNIX news spool area (usually
+\f(CW/var/news\fP) are not automatically compatible with the PCS
+news system since the UNIX \fInews\fP system's articles are not,
+necessarily, in mail message file format.  If all articles posted to the UNIX
+\fInews\fP system are minimally formatted as mail messages, then
+complete cross posting is supported as well as simply making the
+two corresponding news spool areas one and the same.  A minimally
+conforming mail message file (for purposes of the PCS news system)
+consists of a file with a blank line as the first line.  This leading
+blank line is interpreted as the end of the header section of the
+mail message and therefor meets the minimal requirements for
+a mail message formatted file.  If UNIX \fInews\fP files are not
+known to conform to mail messages, then allowing the PCS system
+to read them will result in totally unpredictable behavior.
+.\"_
+.SS "Netnews"
+.PP
+Full compatibility with the standard Netnews system should be automatic.
+Care should be taken to ensure that PCS posted articles conform to
+the requirements for Netnews articles.  Restrictions on
+the article's FROM header is required for Netnews posting
+that is not present in the PCS system.  This is the only known
+potential problem.
+.\"_
+.SH "ENVIRONMENT VARIABLES"
+.PP
+The following environment variables
+tailor the bulletin board services
+to the user's personal preferences.
+These variables used to be set and updated by the
+PCS profiler program but should now be changed manually by the user
+editing her \f(CW.pcsprofile\fP file in her HOME directory.
+.TP 12
+.B ED
+The default program to use for the editor.
+.TP
+.B EDITOR
+This environment variable is used to specify an editor program when
+\fIED\fP is not set.
+.TP
+.B LINES
+This environment variable sets the number of terminal lines to be used by the
+program.  If the number of terminal lines is given on the command line,
+then that value is used instead of this environment variable.
+.TP
+.B BBNEWSRC
+This environment variable, if specified, gives the name of the user's newsgroup
+list file.  If this variable is not specified, then the default file
+\f(CW${HOME}/.bbnewsrc\fP is used.  The user's newsgroup list file
+can also be specified on the command line with 
+the \f(CW-u\fP \fIuser_news_file\fP option.
+.TP
+.B BBOPTS
+This environment variable contains user preference options for
+use in one or more of the bulletin board system commands.
+Currently only the 
+"\f(CW-edit\fP" option for the program \fIbbpost\fP is supported.
+.TP
+.B BBBDS
+This environment variable contains a
+list of the newsgroups subscribed to, separated by a colon (':') character.
+As mentioned previously, the list of newsgroups that the \fIbb\fP
+program uses is a union of the list of newsgroups in this environment
+variable along with the list of newsgroups in the user's newsgroup
+list file (usually \f(CW${HOME}/.bbnewsrc\fP) which are followed
+by colon characters rather than exclamation point characters.
+.TP
+.B PRINTER
+This variable should contain the printer destination for the user's default
+printer.  This environment variable is used by the \fIprt-pcsmail\fP
+program.  If this variable is not set, then some sort of default
+is used but this is almost guaranteed to not be what the user wants.
+.TP
+.B BBDIR
+This environment variable is used primarily for system testing
+or for a user to have some sort of private newsgroup spool
+area.  Otherwise, this variable should be unset or left alone.
+When used, this variable should hold the directory path to the
+top of the 
+newsgroup spool area
+(usually determined by the system administrator).  
+A typical location for this is \f(CW${PCS}/spool/boards\fP.
+The path to the newsgroup spool area can also be set with the
+command line option \f(CW-N\fP \fInews_spool_dir\fP.
+.TP
+.B PCS
+This environment variable is used to point to the PCS package directory.
+This is usually at \f(CW/usr/add-on/pcs\fP but may not be on some
+systems.  Not all programs in the PCS tool set may be safely 
+relocated by changing this environment variable.  For proper user
+operation, it is recommended that this environment variable always
+point to the location of the properly installed system-wide PCS
+package distribution directory.
+.\"_
+.SH FILES
+.PP
+.TP 30
+${HOME}/.pcsprofile
+default user's profile type file containing PCS related environment variables
+.TP
+${HOME}/.bbnewsrc
+this is the user's default newsgroup list file when one is not specified on
+the command line or in the environment variable \f(CWBBNEWSRC\fP
+.TP
+${HOME}/.user_bds
+this is the user's default newsgroup list file when it is not specifed
+on the command line, in the environment variable \f(CWBBNEWSRC\fP,
+and when the user does \fBnot\fP already have a file named \fI.bbnewsrc\fP
+in her home directory
+.TP
+${HOME}/mail/bbtemp
+user's default mailbox to receive articles scanned by the \fIbbr\fP
+program
+.TP
+${HOME}/mail/new
+user's default mailbox to receive articles "saved" by the user while
+executing the \fIbb\fP
+program
+.TP
+${PCS}/bin/bb
+executable program
+.TP
+${PCS}/bin/bbr
+executable program
+.TP
+${PCS}/bin/bbpost
+executable program
+.TP
+${PCS}/bin/rbbpost
+executable program
+.TP
+${PCS}/bin/datepost
+executable program
+.TP
+${PCS}/bin/pcsjobfile
+utility program
+.TP
+${PCS}/bin/pcscl
+utility program
+.TP
+${PCS}/src/bb
+directory of source files
+.TP
+${PCS}/spool/boards
+default newsgroup spool area directory
+.PD
+.\"_
+.SH "SEE ALSO"
+pcsmail(1), vmail(1), prt-pcsmail(1), msgs(1), news(1)
+.\"_
+.SH "PCS BULLETIN BOARD ADMINISTRATOR"
+.PP
+Mark Leeper
+.\"_
+.SH "PROGRAM AUTHOR"
+.PP
+Dave Morano
+.\"_
+.SH ACKNOWLEDGEMENTS
+.PP
+Many people have worked on the Personal Communication Services (PCS)
+tools and at least a couple probably worked on the bulletin board
+system.  Substantial bug fixes and improvements to the system have been
+made by Dave Morano.  Special thanks are due to John Palframan
+for believing in the PCS system of tools and utilities to keep
+some of them alive and well in our computing environment.
+Thanks are also due to Mark Leeper who is the official administrator
+for routine maintenance of the bulletin board system and 
+the news spool area.
+.\"_

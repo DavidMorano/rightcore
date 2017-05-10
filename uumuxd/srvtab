@@ -1,0 +1,90 @@
+# SRVTAB
+# UUMUXD service table
+#
+#	The format of entries are :
+#
+#	service:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options
+#
+#
+
+#	The following substitutions are made on keyword value strings :
+
+#		%V	UUMUXD version string
+#		%R	UUMUXD program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+
+#		%s	service
+#		%a	service arguments (if available)
+#		%p	socket peername (if available)
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%(pass)	netwotk password (if known)
+#
+#		$(define)	substituted defines
+#		${environment}	substituted environment variable
+#
+
+#
+#	There are some built-in servers on some of the listener daemon
+#	programs.  Some of these are listed below.  These internal
+#	servers can be overridden by making an entry with the same
+#	service name in this file.
+#
+# HELP:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+# TIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+# DAYTIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+# SHELLCMD:
+#	**BUILT-IN** ('rexecd' only)
+#
+# CMD:
+#	**BUILT_IN** ('rexecd' only)
+#
+#
+
+
+echoargs:
+	a= echoargs %a
+
+echostuff:
+	a= echo %V %R %N %D %s
+
+enum:
+#	p= /home/dam/src/tcpmuxd/enum,
+	a= enum '%a'
+
+modlist:
+	a= modlist
+
+env:
+	a= env
+
+whoami:
+	a= echo "whoami: %u" ,
+
+play:
+	a= "echoargs front\"m i d d l e\"back this${THAT}other ",
+	a= <echoargs -opt a,b,c front"m i d d l e"back this${THAT}other >,
+
+bbpost:
+	p=${PCS}/bin/rbbpost,
+	a=rbbpost -opt "a,b,c" -y "this is a comment" # -p exec:%p -u %u,
+
+cat:
+	p="%R/servers/catter",
+	options = upe,
+
+
+

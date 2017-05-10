@@ -1,0 +1,8 @@
+
+com.whois-servers.net
+org.whois-servers.net
+net.whois-servers.net
+info.whois-servers.net
+<country-code>.whois-servers.net
+
+

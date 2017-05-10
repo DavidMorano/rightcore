@@ -1,0 +1,23 @@
+NOTICED
+
+
+The server listens on (for now) a local UNIX domain socket (DGRAM).
+This server just provides an "echo" service and just echos back
+to the originator whatever it receives (if the originator
+provides a return address).
+
+
+
+Other ideas for how to structure a local (UNIX domain) server might
+include using a service code as the first two bytes of the message to
+distinguish different services desired.  Some ideas are presented
+below.
+
+Service codes are :
+
+0		reserved
+1		notice
+2		random
+
+
+

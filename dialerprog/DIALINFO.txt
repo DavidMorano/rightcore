@@ -1,0 +1,25 @@
+# DIALINFO
+
+
+#
+# dialer:
+#	<key>=<value> [, ...]
+#
+
+
+tcpmux:
+	p= ${PCS}/lib/dialers/tcpmux,
+	a= tcpmux,
+	i= socket
+
+tcp:
+	i= socket
+
+secure:
+	o= ${PCS}/lib/dialers/secure.so,
+	i= unix
+
+uucp:
+	root= ${PCS}
+
+

@@ -1,0 +1,12 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+export HOMEPAGE_DEBUGFILE=d
+
+integer i n=1000
+for (( i = 0 ; i < n ; i += 1 )) ; do
+  z d
+  if homepage.x -D=5 2> e > o ; then : ; else break ; fi
+done
+
+

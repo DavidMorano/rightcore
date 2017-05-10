@@ -1,0 +1,17 @@
+MKFIELDTERMS
+
+This program is used to make a terminating character array for
+functions like:
+
+	field_get()
+	field_sharg()
+	field_srvarg()
+
+
+Synopsis :
+
+$ mkfieldterms $'\n /+'
+
+
+
+

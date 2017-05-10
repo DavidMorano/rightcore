@@ -1,0 +1,15 @@
+#!/usr/bin/ksh
+# RBIBLEV
+
+
+TITLE="Bible verse"
+RHOST=www.rightcore.com
+RPORT=5113
+RSVC=biblev
+
+
+echo "${TITLE}"
+TERM="${TERM}_${RSVC}" telnet $RHOST $RPORT
+
+
+

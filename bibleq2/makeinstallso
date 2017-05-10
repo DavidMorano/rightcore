@@ -1,0 +1,21 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLSO
+
+TS=${*}
+if [[ -z "${TS}" ]] ; then
+  TS=bibleqs
+fi
+
+DN=/dev/null
+for T in ${TS} ; do
+  print -u2 T=${T}
+  make ${T}.so > ${DN}
+  for D in ${LOCAL} /root[01]/${EXTRA} ; do 
+    if [[ -d "${D}" ]] ; then
+      mn -r ${T}.so ${D}/lib &
+    fi
+  done
+done
+wait
+
+

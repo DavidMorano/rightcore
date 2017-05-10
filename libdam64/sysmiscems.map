@@ -1,0 +1,13 @@
+
+
+DAMsysmiscems {
+	global:
+		sysmiscems ;
+		sysmiscems_open ;
+		sysmiscems_get ;
+		sysmiscems_close ;
+	local:
+		* ;
+} ;
+
+

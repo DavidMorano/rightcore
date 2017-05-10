@@ -1,0 +1,11 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+
+export MALLOC_DEBUG=WATCH
+export VMAIL_DEBUGFILE=d 
+
+z d ; LD_PRELOAD=watchmalloc.so.1 vmail.x -D=5 2> e
+
+return $?
+

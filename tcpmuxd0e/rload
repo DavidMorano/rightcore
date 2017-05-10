@@ -1,0 +1,38 @@
+#!/usr/bin/ksh
+# RLOAD
+
+
+RHOSTS="frodo "
+
+
+if [ -n "${1}" ] ; then
+  T=$1
+else
+  BPWD=$( pwd )
+  DIR=${PWD-${BPWD}}
+  T=$( basename $DIR )
+fi
+
+
+if [[ -r rpath ]] ; then
+  RPATH=$( < rpath )
+else
+  RPATH=levo/bin
+fi
+
+
+make strip
+
+  rm -f ${T}
+  cp -p ${T}.x ${T}
+  chmod go-w ${T}
+for M in $RHOSTS ; do {
+
+  sl-cp -qp ${T} ${M}:rje/
+  sl ${M} -n mv rje/${T} ${RPATH}/${T}
+
+} & done
+
+wait
+
+

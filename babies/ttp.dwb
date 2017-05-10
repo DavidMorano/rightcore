@@ -1,0 +1,31 @@
+.G1
+graph Density
+frame ht 2.0 wid 5.0
+label top "time-to-pregnancy density" down 0.35
+label left "percent" "pregnancies" left .1
+label bot "time to pregnancy interval (months)" up 0.05
+ymax = 10
+coord x 0,100 y 0,ymax
+ticks left out from 0 to ymax by 2
+ticks bot out from 0 to 100 by 10
+define maxout X 
+  ytop = $2 * 100
+  if (ytop >= ymax) then { 
+    ytop = ymax 
+    delta at $1,ytop
+  }
+  next at $1,ytop
+X
+draw solid
+copy "ttp.nden" thru maxout
+graph Distribution with .Frame.n at Density.Frame.s -(0.0,0.8)
+frame ht 2.0 wid 5.0 
+label top "time-to-pregnancy distribution" down 0.35
+label left "percent" "pregnancies" left .1
+label bot "time-to-pregnancy interval (months)" up 0.05
+coord x 0,100 y 0,100
+ticks left out from 0 to 100 by 20
+ticks bot out from 0 to 100 by 10
+draw solid
+copy "ttp.ndis" thru X next at $1,($2 * 100) X
+.G2

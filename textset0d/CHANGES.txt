@@ -1,0 +1,27 @@
+TEXTSET
+
+
+= version 0
+
+
+= version 0a
+
+
+= versiob 0b
+
+
+= version 0c 1998-02-20
+
+This was slightly modified from the version '0b' in order to
+provide for the more general invocation options.
+
+
+= version 0d 1998-04-13
+
++ This version is supposed to fix a page numbering problem
+when printing out singled sided pages.
+
++ This version also put in the framework for extensive
+system-wide configuation (if we ever think of a good use for it !).
+
+

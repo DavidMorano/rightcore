@@ -1,0 +1,65 @@
+main: starting
+main/procecip: ent
+main/procecip: update() rs=0
+main/procecip: mid rs=0
+main/procecip: deliver() rs=4805
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=1
+main: starting
+main/procecip: ent
+main/procecip: update() rs=1
+main/procecip: mid rs=1
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=0
+main: starting
+main/procecip: ent
+main/procecip: update() rs=1
+main/procecip: mid rs=1
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=0
+main: starting
+main/procecip: ent
+main/procecip: update() rs=1
+main/procecip: mid rs=1
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=0
+main: starting
+main/procecip: ent
+main/procecip: update() rs=1
+main/procecip: mid rs=1
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=0
+main: starting
+main/procecip: ent
+main/procecip: update() rs=1
+main/procecip: mid rs=1
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=0
+main: starting
+main/procecip: ent
+main/procecip: update() rs=0
+main/procecip: mid rs=0
+main/procecip: deliver() rs=4805
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=1
+main: starting
+main/procecip: ent
+main/procecip: update() rs=1
+main/procecip: mid rs=1
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=0
+main: starting
+main/procecip: ent
+main/procecip: update() rs=2
+main/procecip: mid rs=2
+main/procecip: ret rs=0
+main/procecips: ret rs=0
+main/processings: progcomsat() rs=0

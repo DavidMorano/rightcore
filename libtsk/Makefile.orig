@@ -1,0 +1,48 @@
+# Makefile for tsklib
+
+PCSLIB = /usr/add-on/pcs/lib
+CFLAGS=-g
+
+OBJ=	get_today.o \
+	file_date.o \
+	convdt.o \
+	fetch.o \
+	get_month.o \
+	get_time.o \
+	lowercase.o \
+	match.o \
+	num_words.o \
+	partial.o \
+	rmtab.o \
+	split.o \
+	undate.o \
+	num_month.o \
+	uppercase.o \
+	word.o \
+	ischar.o \
+	rmhead.o \
+	rmtail.o \
+	iswhite.o \
+	isalpha.o \
+	isupper.o \
+	islower.o \
+	isdigit.o \
+	rmcntrl.o
+
+all:	tsklib.a
+
+
+tsklib.a:	${OBJ}
+	ar cr tsklib.a ${OBJ}
+
+install: tsklib.a
+	 cp tsklib.a ${PCSLIB}/tsklib.a
+	 chmod 644 ${PCSLIB}/tsklib.a
+clean:
+	-rm -f *.o
+	-rm -f tsklib.a
+
+lpr:
+	-pr Makefile *.c |lpr
+
+

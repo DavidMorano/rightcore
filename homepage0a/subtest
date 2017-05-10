@@ -1,0 +1,18 @@
+#!/usr/extra/bin/ksh
+# SUBTEST
+
+autoload z
+
+export HOMEPAGE_DEBUGFILE=d
+
+integer i n=1000
+for (( i = 0 ; i < n ; i += 1 )) ; do
+  z d main.deb kshlib.deb
+  if homepage.x > o -D=5 2> e ; then :
+  else 
+    break
+  fi
+done
+print -- c=${i}
+
+

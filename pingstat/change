@@ -1,0 +1,33 @@
+#!/usr/bin/ksh
+# CHANGE
+
+
+NAMES=
+NAMES="${NAMES} outfname"
+
+
+for F in "${@}" ; do
+
+  if [[ -r "${F}" ]] ; then
+
+    for N in ${NAMES} ; do
+
+      print -u "${0}: file=${F} str=${N}"
+
+      if fgrep "${N}" $F > /dev/null ; then
+
+      ed - $F <<\EOF
+	g/pip->outfname/s//pip->ofname/g
+	w
+	q
+EOF
+
+      fi
+
+    done
+
+  fi
+
+done
+
+

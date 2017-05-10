@@ -1,0 +1,20 @@
+SMESG
+
+This program manages the session messages for the KSH shell (when
+run as a built-in command).
+
+Synopsis:
+
+$ smesg [-n|-y|-b|-m] -<n> [-o <opt(s)>] [-w <width>] [-f <fromuser>]
+
+where
+
+-m[=<n>]	print session message, optionally only <n> earliest		
+-<n>		only print this many messages (the earliest)
+-o <opt(s)>	options: sort=<type>
+-w <width>	line-width for formatting messages
+-f <fromuser>	restrict messages to those from the given user
+-t <type>	restrict message to those of type <type>
+-v[=<n>]	verbosity level <n> or '1' as default
+-V		
+

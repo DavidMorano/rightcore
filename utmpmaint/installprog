@@ -1,0 +1,24 @@
+#!/usr/bin/ksh
+# INSTALLPROG
+
+
+T=$( basename ${PWD} )
+
+
+: ${PREROOT:=/usr/preroot}
+: ${EXTRA:=/usr/extra}
+export PREROOT EXTRA
+
+
+PRS=" ${PREROOT} ${EXTRA} "
+
+
+if [[ -x ${T}.x ]] ; then
+  for PR in ${PRS} ; do
+    mn -o rmsuf ${T}.help ${PR}/share/help
+    mn -r -o rmsuf ${T}.x ${PR}/bin
+    chmod u+s ${PR}/bin/${T}
+  done
+fi
+
+

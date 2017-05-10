@@ -1,0 +1,1 @@
+#define	CF_DEBUGS	0		/* compile-time debugging */

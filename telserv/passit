@@ -1,0 +1,13 @@
+#!/usr/add-on/ast/bin/ksh
+# PASSIT
+
+
+OPTS=
+#OPTS="${OPTS} -o showsysbanner"
+
+R=${PWD}/testbase
+
+z dp ; TELSERV_DEBUGFILE=dp telserv.x -D=5 2> ep ${OPTS} -pass -R ${R}
+
+
+

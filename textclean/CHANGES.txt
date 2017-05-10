@@ -1,0 +1,18 @@
+TEXTCLEAN
+
+This program cleans up text from the damaging effects of contamination
+with WinTel platform exposure.
+
+
+= version 0a
+
+This is the first verson of this program.  This whole program should be
+rewritten in LEX or YACC!  It is a mess as it is.
+
+= version 0b
+
+Finally fixed, implemented correctly, the "strip leading white space" feature.
+Also, I fixed what appeared to be a bad logical error in that control-Z
+characters were not being removed from the ends of the stupid DOS files!
+
+

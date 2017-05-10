@@ -1,0 +1,1 @@
+extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;

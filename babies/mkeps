@@ -1,0 +1,65 @@
+#!/usr/bin/ksh
+# MKEPS
+
+#
+# Invocation synopsis:
+#
+# $ mkeps <file>.dwb 
+#
+# Outputs:
+#	A file named '<file>.eps' will be created.
+#
+#
+
+
+: ${DWBHOME:=/usr/add-on/dwb}
+export DWBHOME
+
+PATH=${DWBHOME}/bin:${PATH}
+export PATH
+
+
+if [[ ! -r "${1}" ]] ; then
+  echo "${0}: could not read file" >&2
+  exit 1
+fi
+
+
+R=$( echo ${1} | cut -d . -f 1 )
+
+TF=/tmp/mkeps${$}
+DF=/tmp/mkepsd${$}
+PF=/tmp/mkepspf${$}
+FF=/tmp/mkepsff${$}
+
+cleanup() {
+  rm -f ${TF} ${DF} ${PF} ${FF}
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+
+cat <<EOF > $FF
+	MEANFILE	${DF}
+EOF
+
+lastoff() {
+  cat $1
+}
+
+if [[ -r mean.${R} ]] ; then
+
+  varsub -f ${FF} ${1} > ${PF}
+  lastoff mean.${R} > ${DF}
+
+  grap ${PF} | pic | troff -Tpost | dpost -B > ${R}.eps 
+
+else
+
+  echo "${0}: data file not found" >&2
+
+fi
+
+cleanup
+
+

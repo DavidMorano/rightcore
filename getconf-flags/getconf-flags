@@ -1,0 +1,19 @@
+#!/usr/bin/ksh
+# GETCONF-FLAGS
+
+
+VAR=${1}
+if [[ -z "${VAR}" ]] ; then
+  print -u2 "${0}: no variable was specified"
+  exit 1
+fi
+
+VAL="$( getconf ${VAR} 2> /dev/null )"
+
+if [[ "${VAR}" == error ]] ; then
+  VAR=
+fi
+
+print -- "${VAL}"
+
+

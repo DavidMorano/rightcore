@@ -1,0 +1,19 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL-HELP
+
+T=dmail
+PRS=" /usr/add-on/pcs /usr/extra "
+NAMES=" dmail dmailbox"
+
+for PR in ${PRS} ; do
+  if [[ -d "${PR}" ]] ; then
+    HD=${PR}/share/help
+    if [[ -d "${HD}" ]] ; then
+      for N in ${NAMES} ; do
+        makenewer -o rmsuf ${N}.help ${HD}
+      done
+    fi
+  fi
+done
+
+

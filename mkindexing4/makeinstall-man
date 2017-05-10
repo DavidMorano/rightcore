@@ -1,0 +1,33 @@
+#!/usr/bin/ksh
+# MAKEINSTALL-MAN
+
+
+T=mkindexing
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+if [[ $# -gt 0 ]] ; then
+  TARDIR=${1}
+else
+  TARDIR=${LOCAL}/man/man1
+fi
+
+
+ALL="mkkey mkinv mkquery "
+
+
+for N in ${ALL} ; do
+  FM=${N}.man
+  if [[ -r ${FM} ]] ; then
+    F1=${N}.1
+    rm -f ${F1}
+    cp -p ${FM} ${F1}
+    rm -f ${TARDIR}/${F1}
+    makenewer ${F1} ${TARDIR}
+  fi
+done
+
+
+

@@ -1,0 +1,10 @@
+#!/usr/bin/ksh
+
+LOGFILE=/home/dam/src/tcpmuxd/servers.log
+
+/bin/echo "${0}: entered" >>  $LOGFILE
+/bin/cat -u >> /home/dam/src/tcpmuxd/catter.out
+RS=$?
+/bin/echo "${0}: exiting es=${RS}" >>  $LOGFILE
+
+

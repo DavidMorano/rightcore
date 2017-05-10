@@ -1,0 +1,9 @@
+ # <-- force CSH to use Bourne shell
+# INFO (now 'pcsinfo')
+
+echo "the function of this program is now provided by 'pcsinfo'" >&2
+echo "the real 'info' is a standard GNU program installed on some machines" >&2
+
+exec /usr/add-on/pcs/bin/pcsinfo "${@}"
+
+

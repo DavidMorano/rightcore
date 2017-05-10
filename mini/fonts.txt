@@ -1,0 +1,25 @@
+FONTS
+
+Actually only entire font families are used.  Each font family has several
+variants.  These are:
+
++ roman
++ italic
++ bold
++ bold-italic
+
+At present, we only use the Roman and Italic variants.
+
+family_code	troff_codes		font
+--------------------------------------------------------------
+T		R   I	B   BI		Times
+P		PA  PI  PB  PX		Palatino
+B		KR  KI  KB  KX		Bookman
+N		NR  NI  NB  NX		New-century-schoolbook
+H		H   HI  HB  HX		Helvetica
+R		Hr  Hi  Hb  Hx		Helvetica-narrow
+A		AR  AI  AB  AX		Avant-garde
+C		CO  CI  CB  CX		Courier
+
+
+

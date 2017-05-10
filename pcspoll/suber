@@ -1,0 +1,12 @@
+
+while true ; do 
+
+	cp fast.srvtab srvtab
+	sleep 117
+
+	cp slow.srvtab srvtab
+	sleep 149
+
+done
+
+

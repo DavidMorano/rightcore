@@ -1,0 +1,274 @@
+# SVC
+# FINGERS service table
+#
+#	The format of entries are:
+#
+#	service:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options,
+#		access=	netgroup(s)
+#
+#
+
+#	The following substitutions are made on keyword value strings:
+
+#		%V	version string
+#		%S	program searchname
+#		%R	program root
+#		%N	local nodename
+#		%D	local domainname
+#		%H	local hostname
+#		%U	original invoking username
+
+#		%P	socket peername (if available)
+
+#		%s	service
+#		%{ss}	subservice
+#		%a	service arguments (if available)
+#		%w	whether "long-form" was specified at client
+#				0	long was not specified
+#				1	long was specified
+#
+
+#	The following are made on some authenticating servers:
+
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%p	network password (if known)
+#
+#		${define}	substituted defines
+#		${environment}	substituted environment variable
+#
+
+#
+#	There are some built-in servers on some of the listener daemon
+#	programs.  Some of these are listed below.  These internal
+#	servers can be overridden by making an entry with the same
+#	service name in this file.
+#
+# HELP:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is a 'tcpmux' (by appropriate RFC) service requirement.
+#
+# TIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'time' service.
+#
+# DAYTIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'daytime' service.
+#
+# SHELLCMD:
+#	**BUILT-IN** ('rexecd' only)
+#
+#	This is the same as Berkeley 'rsh' and 'rexec' services.
+#
+# CMD:
+#	**BUILT_IN** ('rexecd' only)
+#
+#	This is what is provided by the old PCS 'REX' service.
+#
+#
+
+
+# our weather service (processed from NWS data)
+weather:
+	a= weather %{ss}
+
+# find a partial match (if there are any) of an English word
+look:
+	a= look %{ss}
+
+# find an exact match (if there is one) of an English word
+lookw:
+	a= lookw %{ss}
+
+# GROPE lookup
+grope:
+	p= ${TOOLS}/bin/grope,
+	a= grope %{ss}
+
+# dictionary lookup
+dict:
+	a= dict %{ss}
+
+# machine status
+msinfo:
+	access= rc rightcore ece friends,
+	a= msinfo %{ss}
+
+# system status
+systat:
+	p= /usr/extra/sbin/systatd
+
+netstat:
+	a= echo "The RightCore network is UP."
+
+pingstat:
+	a= pingstat -p "%{ss}" -v=%{ww} 
+
+pingstatv:
+	a= pingstat -p "%{ss}" -v 
+
+sync:
+	p= /usr/bin/sync
+
+bibleb:
+	a= <biblebook "%{ss}" -o indent,book,interactive>
+
+biblebs:
+	a= <biblebook "%{ss}" -mdb spanish -o indent,book,interactive>
+
+biblev:
+	a= <bibleverse "%{ss}" -o indent,book,interactive>
+
+biblevs:
+ a= <bibleverse "%{ss}" -vdb reina -ndb spanish -o indent,book,interactive>
+
+bibleq:
+	p= fingerbibleq,
+	a= fingerbibleq %{ss}
+
+bibleqs:
+	p= fingerbibleqs,
+	a= fingerbibleqs %{ss}
+
+biblel:
+	a= biblel %{ss}
+
+biblew:
+	a= biblew %{ss}
+
+biblews:
+	a= biblews %{ss}
+
+quote:
+	p= fingerquote,
+	a= fingerquote %{ss}
+
+webcounts:
+	p= fingerwebcounts,
+	a= fingerwebcounts %{ss}
+
+cotd:
+	a= cotd %{ss}
+
+votd:
+	so= lkcmd:bibleverse,
+	a= bibleverse -o bookname +%{ss}
+
+hotd:
+	so= lkcmd:calyear,
+	a= calyear +
+
+qotd:
+	a= qotd
+
+cmd:
+	so= lkcmd:commandment,
+	a= <commandment -o defall,sep=0 -db commandments> %{ss}
+
+commandment:
+	so= lkcmd:commandment,
+	a= <commandment -o defall,sep=0 -db commandments> %{ss}
+
+apostle:
+	a= <commandment -o defall,sep=0 -db apostles> %{ss}
+
+apostlematthew:
+	a= <commandment -o defall,sep=0 -db apostlesmatthew> %{ss}
+
+apostlemark:
+	a= <commandment -o defall,sep=0 -db apostlesmark> %{ss}
+
+apostleluke:
+	a= <commandment -o defall,sep=0 -db apostlesluke> %{ss}
+
+herofaith:
+	a= <commandment -o defall,sep=0 -db herosfaith> %{ss}
+
+kingjudah:
+	a= <commandment -o defall,sep=0 -db kingsjudah> %{ss}
+
+kingisrael:
+	a= <commandment -o defall,sep=0 -db kingsisrael> %{ss}
+
+jacobson:
+	a= <commandment -o defall,sep=0 -db sonsjacob> %{ss}
+
+thesis:
+	a= <commandment -o defall,sep=0 -db theses> %{ss}
+
+patriach:
+	a= <commandment -o defall,sep=0 -db patriachs> %{ss}
+
+chivalry:
+	a= <commandment -o defall,sep=0 -db chivalry> %{ss}
+
+name:
+	p= userinfo,
+	a= userinfo "%{ss}" name
+
+fullname:
+	p= userinfo,
+	a= userinfo "%{ss}" fullname
+
+skype:
+	p= skypealert,
+	a= skypealert "%{ss}"
+
+babies:
+	p= babies,
+	a= babies %{ss}
+
+calyear:
+	p= calyear,
+	a= calyear -c "%{ss}" +
+
+calday:
+	p= calyear,
+	a= calyear -o default %{ss}
+
+caldays:
+	p= calyear,
+	a= calyear -o default +2 %{ss}
+
+
+
+# testing junk
+echoargs:
+	a= echoargs ss=%{ss} %a
+
+echostuff:
+	a= echo %V %S %R %N %D %s ss=%{ss} long=%w ,
+	access= rc rightcore ece friends
+
+modlist:
+	a= modlist
+
+whoami:
+	a= echo "host=%P user=%U" ,
+	access= rc rightcore ece friends
+
+peername:
+	a= echo %P
+
+env:
+	access= rc rightcore ece friends,
+	p= /usr/bin/env
+
+ksh:
+	access= rc rightcore ece ,
+	a= ksh -i
+
+helloworld:
+	a= echo hello world 1
+
+
+

@@ -1,0 +1,11 @@
+PRCAT
+
+This program is used to paginate the output of the 'man' program
+(which is a CAT-type format).
+
+Synopsis :
+
+$ toolman what | col -b | prcat | textset | troff -Tpost > what.dit
+$ dpost -n2 < what.dit | prt -l post
+
+

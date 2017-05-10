@@ -1,0 +1,7 @@
+
+GETFILE: /home/dam/rje/thing
+PUTFILE: /tmp/file
+SHELL:cat file
+CMD:cat file
+
+

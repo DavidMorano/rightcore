@@ -1,0 +1,25 @@
+
+#if	defined(SYSHAS_STREAMS) && (SYSHAS_STREAMS > 0)
+
+	    case SR_NOSR:
+	        if (to_nosr-- > 0) goto retry ;
+
+	        break ;
+
+#endif /* defined(SYSHAS_STREAMS) && (SYSHAS_STREAMS > 0) */
+
+	    case SR_NOSPC:
+	        if (to_nospc-- > 0) goto retry ;
+
+	        break ;
+
+	    case SR_NOLCK:
+	        if (to_nolck-- > 0) goto retry ;
+
+	        break ;
+
+	    case SR_AGAIN:
+	        if (to_again-- > 0) goto retry ;
+
+	        break ;
+

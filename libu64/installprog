@@ -1,0 +1,71 @@
+#!/usr/bin/ksh
+# INSTALLPROG (libu)
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+
+export LOCAL EXTRA
+
+
+TDIRS=
+TDIRS=" ${TDIRS} ${LOCAL} /root[01]/${EXTRA} "
+
+T=libu
+
+LIBS="${T}.a ${T}.so "
+
+INCS=" localmisc.h syshas.h vsystem.h"
+
+
+RF_RMSO=false
+
+
+EXTRA=
+fgrep 64 <( basename $PWD ) > /dev/null
+if [[ $? -eq 0 ]] ; then
+  EXTRA=sparcv9
+fi
+
+
+if [ -d /usr/sbin ] ; then
+  NODE=$( uname -n )
+  : ${OFD:-S5}
+else
+  NODE=$( hostname )
+  PATH=/usr/5bin:${PATH}
+  : ${OFD:-S4}
+fi
+
+
+makeit
+
+
+for D in ${TDIRS} ; do
+
+  if [[ -d $D ]] ; then
+
+    if [ -n "${LIBS}" ] ; then
+      makenewer ${LIBS} ${D}/lib
+      if [[ -d ${D}/lib/${OFD} ]] ; then
+        makenewer -Q ${LIBS} ${D}/lib/${OFD}
+      fi
+    fi 
+
+    if [[ -n "${INCS}" ]] ; then
+      makenewer ${INCS} ${D}/include
+    fi 
+
+    rm -f ${D}/lib/usr
+    rm -f ${D}/lib/${OFD}/usr
+
+    if ${RF_RMSO} ; then
+      rm -f ${D}/lib/${T}.so
+      rm -f ${D}/lib/${OFD}/${T}.so
+    fi
+
+  fi
+
+done
+
+

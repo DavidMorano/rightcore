@@ -1,0 +1,20 @@
+KEYAUTH
+
+This program will fetch and decrypt the user's private ONC key and give it to
+the KEYSERV daemon program.
+
+Care has been taken in this program to NOT use any possible NIS services (like
+accessing the system PASSWD information) before a key is given to KEYSERV.
+This is done to try to avoid additional authentication denial messages from
+appearing on the system console (or whatever the administrator has configured)
+showing that an unauthorized access was attempted!  In my view, Sun screwed up
+and should have come up with a way to allow access to the PASSWD information
+(like with the shadow PASSWD arrangement) WITHOUT also allowing access from
+unauthenticated agents!
+
+Anyway, this all means that either the username to authenticate with should be
+passed to the program either on its command invocation or in the environment
+variable 'LOGNAME'.  If no username can be determined with either one of these,
+then the program will just exit without attempting to decrypt any ONC key.
+
+

@@ -1,0 +1,21 @@
+# PROVIDER
+
+#
+# This is the "provider" database.
+#
+#
+# format of entries:
+#
+# provider_name		numerical_assignment	optional_fullname
+#
+#
+
+
+unknown				0
+Sun_Microsystems		1		"Sun Microystems"
+"Apple Computer"		2	
+"Compaq Computer Corporation"	3
+sgi				4		"Silicon Graphics"
+
+
+

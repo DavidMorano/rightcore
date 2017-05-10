@@ -1,0 +1,64 @@
+RBBPOST
+
+This is the PCS program to post articles to the PCS newsgroups.  This
+is the raw interface to the newsgroup system.  The BBPOST program (and
+possibly other programs) call this program to do the actual work of
+posting the article in the newsgroup area and updating any databases
+that may need to be updated.
+
+SYNOPSYS:
+
+$ rbbpost [<newsgroup(s)> ...] [-f <from>] [-s <subject>]
+	[-ROOT <programroot>] [-q] [-N <dir>] [-V]
+
+ARGUMENTS:
+
+-f <from>	sending user's mail address (generic)
+-s <subject>	subject to be placed in article header
+<newsgroup(s)>	the newsgroups that the article is to be spooled on
+-q		be quiet about errors or newsgroups not found
+-MAILER <prog>	mailer used to compose message (the calling program)
+-ROOT		program root directory
+-N <dir>	the directory where the news articles will be spooled
+-V		print program version to standard-error and then exit
+
+ALL CASES:
+
+The article content to be spooled is on standard input.
+
+PROGRAM SPECIFIC CONFIGURATION FILES:
+
+${PCS}/etc/bb/bbhosts	hosts that we are supposed to send out to
+
+The BB spool forward file format:
+
+	RBBPOST_F <len> <cksum> <version>
+	forward-to-host
+	article-id				(file within any newsgroup)
+	newgroup1
+	newgroup2
+	...
+
+This file format is what is spooled when an article needs to be
+forwarded.  The file is spooled in a subdirectory after the name of the
+'forward-to-host' name.  The 'len' and the 'cksum' (if present) cover
+the file starting after the first line.
+
+The BB network forwarding transfer format:
+
+	RBBPOST_F <len> <cksum> <version>
+	forward-to-host
+	article-id				(file within any newsgroup)
+	newgroup1
+	newgroup2
+	...
+	EOH					(just a blank line)
+	article_file_content			(just the whole file)
+
+This file format is constructed when a file is being transmitted
+between hosts.  The header portion of the file contains extra
+information about the article to be transmitted.  The 'len' and 'cksum'
+cover the article file content only.  The header portion is NOT
+protected!
+
+

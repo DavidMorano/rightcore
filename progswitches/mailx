@@ -1,0 +1,32 @@
+#!/usr/bin/ksh
+# MAILX (local version)
+
+
+: ${AST:=/usr/add-on/ast}
+: ${GNU:=/usr/add-on/gnu}
+export AST GNU
+
+
+PDIR=${0%/*}
+A=${0##*/}
+PNAME=${A%.*}
+
+
+PROGS=
+PROGS="${PROGS} /bin/mailx"
+PROGS="${PROGS} ${AST}/bin/mailx"
+PROGS="${PROGS} /usr/ucb/mailx"
+PROGS="${PROGS} /usr/ucb/Mail"
+
+for MX in ${PROGS} ; do
+  if [[ -x ${MX} ]] ; then
+    break
+  fi
+done
+
+if [[ ! -x ${MX} ]] ; then
+  echo "${0}: could not find underlying mailer program" >&2
+  exit 1
+fi
+
+exec execname ${MX} ${PNAME} "${@}"

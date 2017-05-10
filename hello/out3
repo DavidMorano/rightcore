@@ -1,0 +1,12 @@
+testdate.x -> libc.so.1:atexit(func = 0xff3bd61c) = 0x0
+testdate.x -> libc.so.1:atexit(func = 0x238e4) = 0x0
+testdate.x -> libc.so.1:time(tloc = 0x0) = 0x400c98e8
+testdate.x -> libc.so.1:localtime_r(clock = 0xffbeee74, res = 0xffbeee0c) = 0xffbeee0c
+testdate.x -> libc.so.1:strcpy(dst = "4", src = "4") = "4"
+testdate.x -> libc.so.1:strcpy(dst = "1", src = "1") = "1"
+testdate.x -> libc.so.1:strcpy(dst = "19", src = "19") = "19"
+testdate.x -> libc.so.1:strcpy(dst = "21", src = "21") = "21"
+testdate.x -> libc.so.1:strcpy(dst = "56", src = "56") = "56"
+testdate.x -> libc.so.1:strcpy(dst = "40", src = "40") = "40"
+testdate.x -> libc.so.1:fprintf(fp = 0x345c0, format = 0x23be8, ...) = 15
+testdate.x -> libc.so.1:exit(status = 0)

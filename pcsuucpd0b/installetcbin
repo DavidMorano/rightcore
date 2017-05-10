@@ -1,0 +1,10 @@
+#!/bin/ksh
+
+
+mine pcsuucpd.x
+chmod +x pcsuucpd.x
+
+cp -p pcsuucpd.x /etc/bin/pcsuucpd.s5
+chmod u+s /etc/bin/pcsuucpd.s5
+
+

@@ -1,0 +1,173 @@
+# CMDMAP (vmail)
+#
+
+
+#
+# command	keyboard	keysym	param(s)
+#
+
+scanfirst       screen          F
+
+scanlast        screen          L
+
+scanprev        dec             p               
+scanprev        vt520           p               
+scanprev        screen          p               
+scanprev        mac             p               
+scanprev        vt102		p               
+
+scannext        dec             n               
+scannext        vt520           n               
+scannext        screen          n               
+scannext        mac             n               
+scannext        vt102		n               
+
+scanprevmult    dec             P               
+scanprevmult    vt520           P               
+scanprevmult    screen          P               
+scanprevmult    mac             P               
+scanprevmult    vt102           P               
+
+scannextmult    dec             N               
+scannextmult    vt520           N               
+scannextmult    screen          N               
+scannextmult    mac             N               
+scannextmult    vt102		N               
+
+pagebody        dec             v               
+pagebody        vt520           v               
+pagebody        screen          v               
+pagebody        mac             v               
+pagebody        vt102		v               
+
+viewprev        dec             Minus           
+viewprev        vt520           Minus           
+viewprev        screen          Minus           
+viewprev        mac             Minus           
+viewprev        vt102		Minus           
+
+viewnext        dec             Plus            
+viewnext        vt520           Plus            
+viewnext        screen          Plus            
+viewnext        mac             Plus            
+viewnext        vt102		Plus            
+
+scanprev        dec             CurLeft         
+scanprev        vt520           CurLeft         
+scanprev        screen          CurLeft         
+scanprev        mac             CurLeft         
+scanprev        vt102		CurLeft         
+
+scannext        dec             CurRight        
+scannext        vt520           CurRight        
+scannext        screen          CurRight        
+scannext        mac             CurRight        
+scannext        vt102		CurRight        
+
+viewprev        dec             CurUp           
+viewprev        vt520           CurUp           
+viewprev        screen          CurUp           
+viewprev        mac             CurUp           
+viewprev        vt102		CurUp           
+
+viewnext        dec             CurDown         
+viewnext        vt520           CurDown         
+viewnext        screen          CurDown         
+viewnext        mac             CurDown         
+viewnext        vt102		CurDown         
+
+viewnextmult    dec             Next            
+viewnextmult    vt520           Next            
+viewnextmult    screen          Next            
+
+viewprevmult    dec             Previous        
+viewprevmult    vt520           Previous        
+viewprevmult    screen          Previous        
+
+viewprev        dec             PF1             
+viewprev        vt520           PF1             
+viewprev        screen          PF1             
+viewprev        mac             F1              
+viewprev        vt102		PF1              
+
+viewnext        dec             PF2             
+viewnext        vt520           PF2             
+viewnext        screen          PF2             
+viewnext        mac             F2              
+viewnext        vt102		PF2              
+
+scanfirst       dec             F17             
+scanfirst       vt520           F17             
+scanfirst       screen          F17             
+
+scanlast        dec             F18             
+scanlast        vt520           F18             
+scanlast        screen          F18             
+
+scanprevmult    dec             F19             
+scanprevmult    vt520           F19             
+scanprevmult    screen          F19             
+
+scannextmult    dec             F20             
+scannextmult    vt520           F20             
+scannextmult    screen          F20             
+
+scanprev        dec             PF3             
+scanprev        vt520           PF3             
+scanprev        screen          PF3             
+scanprev        mac             F3              
+scanprev        vt102		PF3              
+
+scannext        dec             PF4             
+scannext        vt520           PF4             
+scannext        screen          PF4             
+scannext	mac             F4              
+scannext	vt102		PF4              
+
+help            dec             Help            
+help            vt520           Help            
+help            screen          Help            
+
+msgdelete       dec             Remove          
+msgdelete       vt520           Remove          
+msgdelete       screen          Remove          
+
+searchnext      dec             Find            
+searchnext      vt520           Find            
+searchnext      screen          Find            
+
+pagebody        dec             Do              
+pagebody        vt520           Do              
+pagebody        screen          Do              
+
+msgsubject      dec             F6              
+msgsubject      vt520           F6              
+msgsubject      screen          F6              
+msgsubject      mac		F6              
+msgsubject      vt102		F6              
+
+msgdeletenum    dec             F7              
+msgdeletenum    vt520           F7              
+msgdeletenum    screen          F7              
+msgdeletenum    mac		F7              
+msgdeletenum    vt102		F7              
+
+msgundeletenum  dec             F8              
+msgundeletenum  vt520           F8              
+msgundeletenum  screen          F8              
+msgundeletenum  mac		F8              
+msgundeletenum  vt102		F8              
+
+markspam	dec		F9
+markspam	vt520		F9
+markspam	screen		F9
+markspam	mac		F9
+markspam	vt102		F9
+
+testmsg	dec		F10
+testmsg	vt520		F10
+testmsg	screen		F10
+testmsg	mac		F10
+testmsg	vt102		F10
+
+

@@ -1,0 +1,28 @@
+# CONF (MAILEXPIRE)
+#
+#
+
+# cookies:
+# - P	program-root
+# - S	search-name
+# - N	node-name
+# - D	domain-name
+# - H	host-name
+# - R	program-root
+# - U	user-name
+#
+
+#
+# format of entries:
+#
+# <key>		<arg(s)>
+#
+
+
+# defaults:
+#
+#logfile	-
+#logsize	-
+#
+
+

@@ -1,0 +1,20 @@
+ # <-- force CSH to use Bourne shell
+# STARTDAY
+
+
+DN=/dev/null
+DEBUG=/tmp/daytime.deb
+ERR=/tmp/daytime.err
+
+PATH=${PATH}:${HOME}/bin
+export PATH
+
+TO=`expr 8 '*' 60 `
+
+{
+  ERROR_FD=3 daytime -D=4 -s -o 300 -t ${TO} "${@}" 3> ${DEBUG} 2> ${ERR}
+  chmod ugo+rw ${ERR} ${DEBUG} 2> ${DN}
+} &
+
+
+

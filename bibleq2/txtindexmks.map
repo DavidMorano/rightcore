@@ -1,0 +1,14 @@
+
+
+DAMtxtindexmks {
+	global:
+		txtindexmks ;
+		txtindexmks_open ;
+		txtindexmks_addeigens ;
+		txtindexmks_addtags ;
+		txtindexmks_close ;
+	local:
+		* ;
+} ;
+
+

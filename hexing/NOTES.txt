@@ -1,0 +1,50 @@
+DEHEX
+
+This program reads one or more files and "unhexifies" them.  It is expected
+that the input file contains a series of lines, each of which has some number
+of hexadecimal digits (in pairs) representing encoded bytes of the clear text
+data.
+
+I do not know what in the PCS package may use this program.  We keep it around
+for a possible compatibility reason.  Now-a-days there is UUENCODE, BASE64, and
+other things commonly out there used for sending binary through the mail.  But
+this program is still available for use for any need to restore HEX encoded
+data back to raw binary.
+
+This program should be moved to LOCAL, but there *might* be a hard-coded path
+to it (from the PCS root) somewhere.  Older PCS distributions had hard-coded
+paths in them.  Yes, those were the bad old days.  My guess is that there are
+no longer any programs that use this program, but I'll keep it here (in the PCS
+directibtion) a little longer just in case.
+
+= Decoding
+
+	DECODER	d ;
+	if ((rs = decoder_start(&d)) >= 0) {
+	    const int	ilen = IBUFLEN ;
+	    char	ibuf[IBUFLEN+1] ;
+	    while ((rs = bread(ifp,ibuf,ilen,)) > 0) {
+		if ((rs = decoder_load(&d,ibuf,rs)) >= 0) {
+		    cchar	*lp ;
+		    while ((rs = decoder_get(&d,-1,&lp)) > 0) {
+			rs = bwrite(ofp,lp,rs) ;
+			wlen += rs ;
+			if (rs < 0) break ;
+		    } /* end while */
+		} /* end if (decoder_load) */
+		if (rs < 0) break ;
+	    } /* end while */
+	    if (rs >= 0) {
+		if ((rs = decoder_load(&d,ibuf,0)) >= 0) {
+		    while ((rs = decoder_read(&d,obuf,olen)) > 0) {
+			rs = bwrite(ofp,obuf,rs) ;
+			wlen += rs ;
+			if (rs < 0) break ;
+		    } /* end while */
+		} /* end if (decoder_load) */
+	    } /* end if (ok) */
+	    rs1 = decoder_finish(&d) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (decoder) */
+
+

@@ -1,0 +1,23 @@
+.MAKE_VERSION:	VERSION-1.0
+.BUILT_LAST_MAKE_RUN:
+strip:
+	strip utmp_update
+install:
+	cp -p utmp_update prog
+	chown root prog
+	chgrp sys prog
+	chmod o-w,u+xs prog
+	mv prog /usr/lib/utmp_update
+.BUILT_LAST_MAKE_RUN:
+utmp_update:	/usr/lib/libmp.so.2 /usr/lib/libdl.so.1 /usr/lib/libaio.so.1 /usr/lib/libc.so /usr/extra/lib/libgcc_eh.a /usr/extra/lib/libgcc.a /usr/lib/libnsl.so /usr/lib/libsocket.so /usr/lib/librt.so /usr/extra/lib/libu.so /usr/extra/lib/libuc.a /usr/extra/lib/libb.a /usr/extra/lib/libdam.a 
+	rm -f utmp_update
+	gcc -o utmp_update -R/usr/extra/lib main.o -L/usr/extra/lib -ldam -lb -luc -lu -lrt -lsocket -lnsl
+.BUILT_LAST_MAKE_RUN:
+main.o:	/sb07/swd/gnu/lib/gcc/sparc-sun-solaris2.8/3.4.6/include/sys/types.h /usr/include/sys/isa_defs.h /usr/include/sys/feature_tests.h /usr/include/sys/machtypes.h /usr/include/sys/int_types.h /usr/include/sys/select.h /usr/include/sys/time.h /usr/include/time.h /usr/include/iso/time_iso.h /usr/include/sys/time_impl.h /usr/include/sys/param.h /usr/include/sys/unistd.h /usr/include/sys/stat.h /usr/include/sys/stat_impl.h /usr/include/stropts.h /usr/include/sys/stropts.h
+.BUILT_LAST_MAKE_RUN:
+main.o:	/usr/include/sys/conf.h /usr/include/sys/t_lock.h /usr/include/sys/machlock.h /usr/include/sys/mutex.h /usr/include/sys/rwlock.h /usr/include/sys/semaphore.h /usr/include/sys/condvar.h /usr/include/unistd.h /usr/include/fcntl.h /usr/include/sys/fcntl.h /usr/include/stdlib.h /usr/include/iso/stdlib_iso.h /usr/include/string.h /usr/include/iso/string_iso.h /usr/include/ctype.h /usr/include/iso/ctype_iso.h /usr/include/errno.h /usr/include/sys/errno.h
+.BUILT_LAST_MAKE_RUN:
+main.o:	/usr/include/utmpx.h /usr/include/utmp.h /usr/include/sys/types32.h /usr/include/inttypes.h /usr/include/sys/inttypes.h /usr/include/sys/int_limits.h /usr/include/sys/int_const.h /usr/include/sys/int_fmtio.h /usr/include/syslog.h /usr/include/sys/syslog.h /usr/include/sys/va_list.h /usr/include/pwd.h /sb07/swd/gnu/lib/gcc/sparc-sun-solaris2.8/3.4.6/include/stdio.h /sb07/swd/gnu/lib/gcc/sparc-sun-solaris2.8/3.4.6/include/stdarg.h /usr/include/iso/stdio_iso.h
+.BUILT_LAST_MAKE_RUN:
+main.o:	/sb07/swd/gnu/lib/gcc/sparc-sun-solaris2.8/3.4.6/include/stdio_tag.h /usr/include/stdio_impl.h 
+	gcc -O -mcpu=v8 -I/usr/extra/include  -c  main.c

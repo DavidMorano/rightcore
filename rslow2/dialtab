@@ -1,0 +1,23 @@
+# RSLOW DIALTAB (PCS RSLOW service)
+
+
+mtgbcs:
+	inet=mthost2.mt.lucent.com,
+	user=pcs,
+	password=pcs31,
+
+hocpa:
+	inet=hocpb.ho.lucent.com,
+	user=gwbb,
+	password=b*seb*nd,
+
+hocpw:
+	user=pcs,
+	password=pcs31,
+
+hocpx:
+	user=pcs,
+	password=pcs31,
+
+
+

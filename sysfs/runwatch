@@ -1,0 +1,9 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+
+export SYSFS_DEBUGFILE=d 
+
+LD_PRELOAD=watchmalloc.so.1 sysfs.x 0 1 2 3 4 5 6 -D
+
+

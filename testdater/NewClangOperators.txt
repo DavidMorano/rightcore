@@ -1,0 +1,64 @@
+New C-language operators
+------------------------
+
+- for reference: existing operators
+
+|	bit-wize OR
+&	bit-wise AND
+^	bit-wise XOR
+
+- new operators
+
+^^	logical exclusive OR
+!^^	logical equivalence
+!!	logical equivalence
+|>	rotate right
+<|	rotate left
+<>	equivalence?
+><	exclusion of some kind?
+
+÷	division
+»	?
+«	?
+¡	?
+¿	?
+¦	?
+±	?
+¤	?
+
+||>	*unassigned*
+||<	*unassigned*
+<||	*unassigned*
+>||	*unassigned*
+|<	*unassigned*
+>|	*unassigned*
+|»
+«|
+||»
+»||
+
+**	exponentiation
+
++>	?
+<+	?
+
+- op-equal forms
+
+|>=	rotate right
+<|=	rotate left
+<>=	equivalence
+><=	exclusion of some kind?
+^^=	logical exclusive OR
+!^^=	logical equivalence
+!!=	logical equivalence
+
+||>=	*unassigned*
+||<=	*unassigned*
+<||=	*unassigned*
+>||=	*unassigned*
+|<=	*unassigned*
+>|=	*unassigned*
+
+**=	exponentiation
+
+

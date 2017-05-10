@@ -1,0 +1,49 @@
+PCSPOLL
+
+This program is called by various PCS services to poll for work that
+needs to be done as defined by a service table file.  The service table
+file is administered by the PCS administrator to periodically execute
+PCS programs (or other programs) that are needed for automatic
+operation and maintainence of the PCS system.
+
+There is also an optional configuration file that can set some general
+parameters under which the programs in the service table file will be
+executed.  The defaults are that all programs executed will be executed
+with a user ID of the PCS login on this system.  That is administered
+in the general PCSCONF database.  This program ('PCSPOLL') must be
+SUID to the PCS login user in order for the default action to occur.
+
+Updated note 1994-02-14:
+
+This is an old program and was not really designed to be too
+compute-time efficient.  It gets the job done where it is useful!
+It does not cache polling requests but rather re-evaluates them
+at each poll interval.  If a prospective request is not needed
+during some interval, its request is entirely dropped rather than
+caching it until it comes due.  This has not proved to be a problem
+at all.
+
+
+= Configuration file options:
+
+option		default
+------------------------------------
+
+pidfile		%S
+lockfile	%S
+pathfile	path
+deffile		defs
+
+pollint
+minint
+
+xpathfile	xpath
+xlibpathfile	xlibpath
+xmanpathfile	xmanpath
+
+xenvfile	xenv
+
+export
+
+
+

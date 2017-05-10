@@ -1,0 +1,11 @@
+weather stations
+----------------------------------
+
+kbos	MA Boston 
+kbed	MA Bedford 
+kbvy	MA Beverly 
+kmqe	MA Milton 
+kowd	MA Norwood 
+kewr	NJ Newwark 
+
+

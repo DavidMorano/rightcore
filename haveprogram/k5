@@ -1,0 +1,5 @@
+	if (pip->open.akopts) {
+	    pip->open.akopts = FALSE ;
+	    keyopt_finish(&akopts) ;
+	}
+

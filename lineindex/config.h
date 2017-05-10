@@ -1,0 +1,66 @@
+/* config */
+
+
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)LINEINDEX "
+#define	BANNER		"Line Index"
+
+#define	VARPROGRAMROOT1	"LINEINDEX_PROGRAMROOT"
+#define	VARPROGRAMROOT2	"LOCAL"
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"LINEINDEX_BANNER"
+#define	VARSEARCHNAME	"LINEINDEX_NAME"
+#define	VARERRORFNAME	"LINEINDEX_ERRORFILE"
+
+#define	VARDEBUGFNAME	"LINEINDEX_DEBUGFILE"
+#define	VARDEBUGFD1	"LINEINDEX_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	SEARCHNAME	"lineindex"
+
+#define	TMPDNAME	"/tmp"
+
+#define	ETCDIR1		"etc/lineindex"
+#define	ETCDIR2		"etc"
+#define	CONFIGFILE1	"lineindex.conf"
+#define	CONFIGFILE2	"conf"
+#define	LOGFNAME	"log/lineindex"
+#define	HELPFNAME	"help"
+#define	INDEXNAME	"index"
+
+#define	LOGSIZE		(80*1024)
+
+
+

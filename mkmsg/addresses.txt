@@ -1,0 +1,3 @@
+here @ there .com 
+other @ other.place
+this @ that .org 

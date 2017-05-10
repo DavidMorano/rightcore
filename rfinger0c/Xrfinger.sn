@@ -1,0 +1,87 @@
+# SYSTEMS (rfinger)
+#
+
+#
+# the service-name for the dialers who want one is: "finger"
+#
+
+
+#localhost	uss inet4::finger
+#localhost	uss unix:/tmp/local/fingers/uss
+#localhost	uss unix:testbase/var/fingers/uss
+#localhost	uss testbase/var/fingers/uss
+#localhost	uss testbase
+#localhost	uss testbase -f inet
+#localhost	uss -f inet4
+
+#localhost	uss /tmp/local/fingers/srv -o log
+localhost	ussmux /tmp/local/tcpmuxd/srv -o log
+
+#localhost	prog -o log /usr/add-on/local/bin/fingers +
+
+rca		prog -o log /usr/add-on/local/bin/fingers +
+rcb		prog -o log /usr/add-on/local/bin/fingers +
+rcc		prog -o log /usr/add-on/local/bin/fingers +
+
+localhost	tcpnls
+
+rca		tcpnls
+rcb		tcpnls
+rcc		tcpnls
+
+rca		tcp
+rcb		tcp
+rcc		tcp
+
+rca		tcpmux 5108
+rcb		tcpmux 5108
+rcc		tcpmux 5108
+
+rcd		tcpnls rca:listen
+rce		tcpnls rca:listen
+rcf		tcpnls rca:listen
+rcg		tcpnls rca:listen
+
+*.levosim.org	tcpnls rca:listen
+*.rightcore.com	tcpnls rca:listen
+*.rightcore.org	tcpnls rca:listen
+
+*.christian-update.org \
+		tcpnls rca:listen
+
+
+frodo		tcpmux frodo:5108
+vinson		tcpmux frodo:5108
+olive		tcpmux frodo:5108
+gilmore		tcpmux frodo:5108
+
+ece		tcpmux frodo:5108
+ece		tcpmux vinson:5108
+
+ece.neu.edu	tcpmux frodo:5108
+ece.neu.edu	tcpmux vinson:5108
+
+*.ece.neu.edu	tcpmux frodo:5108
+*.ece.neu.edu	tcpmux vonson:5108
+
+
+#
+# hocpa		uucp ~/uuts/%j.%s
+# hodia		uux rbbpost
+# ece		prog ${LOCAL}/sbin/dialday
+# localhost	uss ${LOCAL}/var/fingers/%N.uss
+# rc		uss ${LOCAL}/var/fingers/%N.uss
+# rca		uss ${LOCAL}/var/fingers/%N.uss
+# rcb		uss ${LOCAL}/var/fingers/%N.uss
+# rcc		uss ${LOCAL}/var/fingers/%N.uss
+#
+
+
+testproghost	prog -o log /usr/add-on/local/bin/fingers +
+
+# everything else
+
+*		tcp
+
+
+

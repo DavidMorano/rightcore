@@ -1,0 +1,12 @@
+
+
+DAMpollprog {
+	global:
+		pollprog ;
+		pollprog_start ;
+		pollprog_finish ;
+	local:
+		* ;
+} ;
+
+

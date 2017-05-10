@@ -1,0 +1,171 @@
+VMAIL
+
+
+Special problems :
+
+This packages still uses the old 'curses' library package.
+The 'curses' library package changed in UNIX Solaris 2.6 to
+use the 'vsnprintf()' function rather than the old proprietary
+'__vsnprintf()' function !!  For this reason, if this program is
+built on a system earlier than Solaris 2.6, it will fail to load
+when executed since Solaris 2.6 and beyond no longer have that
+function is the standard libraries !!  This program is now
+built to statically include the Solaris 2.6 'curses' library
+as well as the Solaris 2.6 'vsnprintf()' function.  This action
+allows (marginally ?) to run on earlier Solaris releases.
+
+
+
+= Dave Morano, 96/06/17
+
+Version '30e'
+
+Fixed :
+
+	1) extra junk being added to mailbox when having messages
+	   in reverse order is fixed (how did this stay in there so long ?)
+
+	2) now will use "content-length" whenever we have it
+
+	3) using new 'logfile' interface
+
+	4) using new 'bitops' interface
+
+	5) using 'rename(2)' to swap in a new mailbox file after a rewrite
+
+	6) log more information about what machine we're running on
+
+	7) we finally always get our INET domain name (not using it very much)
+
+	8) we will delete old mail spool locks (as per the standard)
+
+	9) we log ourself in our mail spool lock (it is kept readable also)
+
+
+
+= Dave Morano, 96/07/18
+
+Version '30f'
+
+Fixed :
+	1) A problem with constructing the HELP file name was fixed.
+
+	2) A problem was fixed with trying to open a NULL help file
+           (when one really was not available).
+
+	3) Rewrote the 'putfile' routine (writes out mail messages to
+	   a file) to handle binary data.
+
+	4) I added some more informative messages when the user
+           uses the "putfile" output message commands.
+
+	5) I rewrote part of the code which fetches new mail to
+	   make it not corrupt a user's mail folder mailbox when
+	   the user's file system is out of free space.  By doing
+	   this we also made the fetch-new-mail process binary
+	   compatible.  We are now also write locking the
+	   user's "new" mailbox when fetching new mail.
+
+	6) I slightly changed the "clear screen" function (is invoked
+	   by a control-L by the user for example) so that it works !
+	   I do not know why it was not working except for the fact
+           that 'curses' thinks it knows what parts of the screen
+	   need clearing and proceeds to only clear those parts !
+	   I got around th is, for the moment, by adding a subroutine
+	   call to the 'callout' routine.  This routine makes a new
+	   'curses' 'pad' and places it on the screen and then
+	   deletes the whole pad.  The rest of the "clear screen"
+	   function remains unchanged and follows this above addition.
+
+
+= Dave Morano, 96/08/28
+
+Version '30g'
+
+	1) Writing files out, using 'putfile' was not truncating
+	   an existing file if one existed.
+
+	2) Attempted to update command line argument processing to 
+	   newer (more expressive) style.
+
+	3) Fixed the processing of terminal line specifications given 
+   on command line.  Apparently, it was broken (badly -- core dump) since
+   the code was first added.  It must have never been tested !
+
+4) Replies search for a 'reply-to' header before the "from" header.
+
+5) I discovered that mailbox names given on the command
+   line do not seem to be working.  I must have broken
+   this at some point !
+
+
+= Dave Morano, 97/01/14
+
+Version '30h'
+
+1) I added code to make a default for the MAIL environment variable.
+
+2) I increaed the maximum number of terminal lines possible to 128.
+
+3) I added code to put the mail spool area lock in the ':readlock'
+   directory if it exists.
+
+4) There is a problem with the 'curses' library (what's new) which
+   is very bad (it causes a core dump).  It is the 'curses' 'initscr'
+   function which I have no control over !!!
+
+5) I have (finally !) gotten around to fixing a problem with leaving
+   'rewriteXXXX' files lying around if we cannot rewrite the mailbox.
+
+6) Now we only display a maximum of like 4 "TO" header lines.
+
+7) Now we only display a maximum of 4 header continuation lines.
+   This gets around these new email messages which are to huge
+   mailing lists and they are ALL listed in the headers !
+   (P.S. : Wow, was this hard to get right !!)
+
+8) We now use 'pcsconf' to get the MAILHOST type information.
+
+9) This version was deployed to MT as the "new" VMAIL version.
+
+10) This version was deployed to MT as the regular version on about
+    97/04/25 or so.
+
+
+= Dave Morano, 97/04/21
+
+Version '30i'
+
+I am trying to find the source of a core dump.  This core dump is
+probably associated with the 'curses' library package !
+
+1) I now process and convert all header dates into internal UNIX standard
+   time and then display as desired.
+
+2) The program now calls the PCS program 'getmail' to get new mail.
+   This means that 'getmail' can have SETGID to 'mail' without VMAIL
+   having to be SETGID to mail.  The 'getmail' program is also a little
+   smarter about finding the mail spool area and locking it properly !!
+
+
+
+= Dave Morano, 99/01/17
+
+Version '30j'
+
+The intention with this release is to create a lean (because I have
+tried the full version for years now) mailbox object and pass this
+around to the many routines which need to read part of it.  We are
+doing this so that the 'scan()' subroutine can get the envelope dates
+out of the message using the 'msg' object on the mailbox file.  I need
+to get the mailbox file out of the mailbox object !
+
+
+= Dave Morano, 00/01/02
+
+Version '30k'
+
+I fixed a Y2K bug with UNIX returning year 100 from 'localtime(3c)'.
+
+
+

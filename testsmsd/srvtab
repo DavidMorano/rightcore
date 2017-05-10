@@ -1,0 +1,144 @@
+# SRVTAB
+# TCPMUXD service table
+#
+#	The format of entries are (example) :
+#
+#	service:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options
+#		groups=	"other, www",
+#		access= "name1 name2 group1 ,group2"
+#
+#
+#
+
+#	The following substitutions are made on keyword value strings :
+#
+#		%V	TCPMUXD version string
+#		%S	program "search" name
+#		%R	TCPMUXD program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+#		%U	running under this username
+
+#		%P	socket peername (if available)
+#		%I	IDENT information (if available)
+#		%s	service
+#		%a	service arguments (if available)
+
+
+#	The following are made on some authenticating servers :
+#
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%p	network password (if known)
+#
+
+#	The following variable substitutions are also made :
+#
+#		${define}	substituted defines
+#		${environment}	substituted environment variable
+#
+
+#
+#	There are some built-in servers on some of the listener daemon
+#	programs.  Some of these are listed below.  These internal
+#	servers can be overridden by making an entry with the same
+#	service name in this file.
+#
+# HELP:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is a 'tcpmux' (by appropriate RFC) requirement.
+#
+# TIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'time' service.
+#
+# DAYTIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'daytime' service.
+#
+# SHELLCMD:
+#	**BUILT-IN** ('rexecd' only)
+#
+#	This is the same as Berkeley 'rsh' and 'rexec' services.
+#
+# CMD:
+#	**BUILT_IN** ('rexecd' only)
+#
+#	This is what is provided by the old PCS 'REX' service.
+#
+#
+
+
+echoargs:
+	a= echoargs %a
+
+echostuff:
+	a= echo PCS=${PCS} %V %R %N %D %H p=%p svc=%s peer=%P
+
+logname:
+	p= ${LOCAL}/bin/logname,
+	access= "rightcore rc uri"
+
+enum2:
+	p= /home/dam/src/tcpmuxd/servers/enum,
+	a= enum '%a'
+
+enum:
+#	p= /home/dam/src/tcpmuxd/enum,
+	a= enum '%a'
+
+modlist:
+	a= modlist,
+	access= modlist
+
+default:
+	a= echo hello
+
+env:
+	a= env
+
+dispath:
+	p= dispath
+
+reportid:
+	p= ${SERVERS}/reportid,
+	user= guest,
+	group= rc,
+	groups= www pcs uucp
+
+echo:
+	p= /home/dam/src/tcpmuxd/servers/echo
+
+cat:
+	p= /home/dam/src/tcpmuxd/servers/catter
+
+
+play:
+	a= "echoargs front\"m i d d l e\"back this${THAT}other ",
+	a= <echoargs -opt a,b,c front"m i d d l e"back this${THAT}other >,
+	options = upe,
+
+bbpost:
+	p=${PCS}/bin/rbbpost,
+	a=rbbpost -opt "a,b,c" -y "this is a comment" # -p exec:%p -u %u,
+	user=	%u,
+	groups= 	"pcs, other"
+
+whoami:
+	a= echo host=%P,
+	access= "rightcore rc uri"
+
+error:
+	p= ${SERVERS}/error
+
+
+

@@ -1,0 +1,52 @@
+NOTES
+
+
+termstr
+
+
+rs = termstr_start(op,termtype) ;
+
+/* clear buffer */
+rs = termstr_clean(op) ;
+
+rs = termstr_write(op,b,blen) ;
+
+bl = termstr_getbuf(op,&bp) ;
+
+rs = termstr_finish(op) ;
+
+
+/* erase */
+termstr_ed(op) ;
+termstr_el(op) ;
+termstr_ec(op) ;
+
+/* cursor-move */
+termstr_curu(op,n) ;
+termstr_curd(op,n) ;
+termstr_curl(op,n) ;
+termstr_curr(op,n) ;
+termstr_curh(op,r,c) ;
+
+/* insert */
+termstr_il(op,n) ;
+termstr_ic(op,n) ;
+
+/* delete */
+termstr_dl(op,n) ;
+termstr_dc(op,n) ;
+
+/* scroll */
+termstr_scroll(op,t,b) ;
+
+/* insert-replacement-mode */
+termstr_irm(op,f) ;
+
+/* cursor-visibility */
+termstr_cvis(op,f) ;
+
+/* crusor-save-restore */
+termstr_csr(op,f) ;
+
+
+

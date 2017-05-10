@@ -1,0 +1,14 @@
+
+
+DAMpcspolls {
+	global:
+		pcspolls ;
+		pcspolls_start ;
+		pcspolls_info ;
+		pcspolls_cmd ;
+		pcspolls_finish ;
+	local:
+		* ;
+} ;
+
+

@@ -1,0 +1,128 @@
+'\" t
+.TH UNIXSTAR 1 1988-03-10 LOCAL
+.SH NAME
+slput, slget \- \s-1UNIX\s+1 system-to-\s-1STARLAN\s+1 system file transfer
+.SH SYNOPSIS
+slput [-b] [-v] [-u user] [source-files ...]
+.br
+slget [-b] [-v] [-r] [destination-files ...]
+.SH DESCRIPTION
+.sp
+.SS \fBslput\fP
+.sp
+.PP
+The \fCslput\fP program is used on a UNIX system to transfer files
+to the STARLAN RJE spool area.  Multiple files can be transferred with
+a single request.  When the files have been successfully spooled by the 
+program, the program will exit.  Although files are first spooled, they 
+are queued
+for immediate transfer to the STARLAN RJE spool area if it is currently
+accessible.  If the STARLAN spool area is not accessible due to network
+or other problems, the files will wait and possibly be transferred later if 
+the target STARLAN RJE area comes back on-line.  Queued files are usually 
+deleted automatically after approximately three days of failed attempts 
+to reach the target spool area.
+.PP
+Note carefully that UNIX file names and PC files names do not always
+compatible.  Some UNIX file names do not make sense to the PC.  
+Files on a PC have
+certain restrictions that are not present on UNIX systems.  Attempts to send
+files to the PC spool area that do not have valid PC file names will
+create files that are not visible to PC MSDOS software.
+.PP
+Normally, files that are transfered to the tartget spool area are put into
+a subdirectory named after the originating user's login name.  
+The \fI-u user\fP option can be used to override the default.  If, for some
+reason, the originating user's login name is not known, the files will
+be transfered into a subdirectory named \fIrje\fP.  The subdirectory
+named \fIrje\fP can also be used with the \fI-u user\fP option.
+.PP
+The \fI-b\fP option instructs the program to not perform any UNIX-to-PC
+file conversion.  If this option is used, all files specified will be
+transferred exactly.  
+By default, files transferred
+will be converted from the UNIX file format to the PC file format.
+This is what is usually desired, but if binary program files or binary data
+files are to be transferred the \fI-b\fP option should be used.
+If you want to transfer some files with conversion and
+some files without conversion, two separate invocations of the program 
+should be used each invocation either with or without the \fB-b\fP
+option specified.
+.PP
+The \fI-v\fP option is used to print to standard error output the version
+of the program.  This option can be used on the command line alone or can
+be specified along with the names of files to be transferred.
+.SS \fBslget\fP
+.sp
+.PP
+The \fCslget\fP program is used to retrieve files from the STARLAN PC
+spool area to the user's local RJE directory.  The program will actually
+search for the specified files in a subdirectory in the spool area
+named \fIrje\fP.
+When the command is
+invoked, a request is generated and queued for transmission to the
+target STARLAN system.  After the request is successfully queued, the 
+command 
+will exit.  The request for the transfer is sent immediately to the
+target system if it is on-line.  Upon reception of the file transfer request,
+the target STARLAN server system will transfer the requested files back
+to the user's RJE directory on the originating host.
+.PP
+Normally all files transferred from the STARLAN RJE spool area are
+converted from PC file format into UNIX file format.  If this conversion
+is not wanted, the \fB-b\fP option can be used on the command line.
+The \fI-b\fP option will cause all files specified in the command to be
+transferred without and conversion.
+.PP
+The \fI-v\fP option is used to print to standard error output the version
+of the program.  It can be used on the command line alone or can be used
+along with the names of files to be transferred.
+.PP
+If the \fI-r\fP option is specified the files located in the spool ares which
+are transfered will be removed after the transfer is started.  If the 
+transfer subsequently fails, the files deleted are lost.
+.SH EXAMPLES
+.sp
+- transfer a file named \fIhello.bat\fP from the current directory on a UNIX
+system to the STARLAN RJE area with the default file format conversion :
+.sp
+.in +4
+slput hello.bat
+.in -4
+.sp
+- transfer a file named \fIhello.exe\fP from the current directory on a UNIX
+system to the STARLAN RJE area with no file format conversion :
+.sp
+.in +4
+slput -b hello.exe
+.in -4
+.sp
+- transfer two files named \fIhello.bat\fP and \fIgoodbye.bat[fP from the 
+current directory on a UNIX
+system to the STARLAN RJE area with the default file format conversion :
+.sp
+.in +4
+slput hello.bat goodbye.bat
+.in -4
+.sp
+- transfer a file named \fIhello.ps\fP from the STARLAN RJE area to the 
+user's local UNIX RJE directory with the default PC-to-UNIX file format
+conversion :
+.sp
+.in +4
+slget hello.ps
+.in -4
+.sp
+.SH CAVEATS
+Since the PC DOS operating system is limited in what it can use as 
+a file name,
+BJ Hudson has written a program which will automatically manage file
+names destinated for a PC.  The program will convert UNIX files which
+would normally be inaccessible from the PC to a PC DOS file name.
+Obviously, some name conflicts can result but this may be a better
+alternative than not being able to use the file on the PC in the first 
+place.  Contact BJ for further information.
+.SH WARNINGS
+Occasionally the target STARLAN server may be down and this may cause the
+delayed transmission of files which may have been queued previously.
+.\"_

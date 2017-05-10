@@ -1,0 +1,15 @@
+CHOSTNAME
+
+This little program takes an argument which is the name of a host for
+which we want to find its internet domain qualified name.
+
+Synopsis:
+
+# chostname name(s) [-v[=n]] [-V]
+
+where:
+
+name(s)		host names to look up
+-v[=n]		verbosity level
+-V		print program version to standard-error and then exit
+

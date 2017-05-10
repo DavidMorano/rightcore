@@ -1,0 +1,33 @@
+ # <-- force CSH to use Bourne shell
+# MAIL-LOCAL
+
+
+CRELAY=emsr
+LRELAY=hocpb
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+case $MACH in
+
+hocp[v-z] )
+  rexec $LRELAY /usr/bin/mail -d "${@}"
+  ;;
+
+* )
+  exec /usr/bin/mail -d "${@}"
+  ;;
+
+esac
+
+
+
+

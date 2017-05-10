@@ -1,0 +1,7 @@
+#!/usr/bin/ksh
+# MP3ENCODE
+
+
+bladeenc -c -copy -crc -160 "${@}"
+
+

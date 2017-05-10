@@ -1,0 +1,343 @@
+#!/bin/ksh
+# FORWARDMAIL.CRON
+
+
+ADDON_ECE=/home/research/dmorano/add-on
+ADDON_URI=/abroad/morano/add-on
+
+
+RNODE=rca
+SERVICE=me
+TO_LOCK=10
+TO_REMOVE=10m
+F_GETMAIL=0
+
+
+FEMA="dam"
+RHOST=mail.rightcore.com
+RDIAL=udp:5110
+
+PROGRAMROOT=${HOME}
+FLAGFILE=${PROGRAMROOT}/etc/fwm
+USERMAILDIR=${HOME}/spool/mail
+
+
+P=forwardmail.cron
+
+
+PROG_PS=/bin/ps
+PROG_UNAME=/bin/uname
+PROG_CUT=/bin/cut
+PROG_CAT=/bin/cat
+PROG_FGREP=/bin/fgrep
+PROG_CP=/bin/cp
+PROG_BASENAME=/bin/basename
+PROG_DIRNAME=/bin/dirname
+PROG_CHMOD=/bin/chmod
+PROG_DOMAINNAME=/bin/domainname
+PROG_BZIP2=bzip2
+PROG_FORMAIL=formail
+PROG_GETMAIL=getmail
+PROG_RME=rme
+PROG_EMA=ema
+
+
+
+getinetdomain() {
+  if [ -n "${LOCALDOMAIN}" ] ; then
+    for D in ${LOCALDOMAIN} ; do
+      print $D
+      break
+    done
+  else
+    if [ -r /etc/resolv.conf ] ; then
+      ${PROG_FGREP} domain /etc/resolv.conf | while read J1 D J2 ; do
+        print $D
+      done
+    else
+      ${PROG_DOMAINNAME}
+    fi
+  fi
+}
+
+
+if [[ -z "${NODE}" ]] ; then
+  ${PROG_UNAME} -s -n -r -p | read SYSNAME NODENAME RELEASE ARCHITECTURE
+  NODE=${NODENAME%%.*}
+fi
+
+if [[ -z "${DOMAIN}" ]] ; then
+
+  case $NODE in
+
+  gilmore | hammett )
+    DOMAIN=ece.neu.edu
+    ;;
+
+  * )
+    DOMAIN=$( getinetdomain )
+    ;;
+
+  esac
+
+fi
+
+export NODE DOMAIN
+
+
+case ${NODE}.${DOMAIN} in
+
+*.uri.edu )
+  : ${LOCAL:=${ADDON_URI}/local}
+  : ${NCMP:=${ADDON_URI}/ncmp}
+  : ${PCS:=${ADDON_URI}/pcs}
+  ;;
+
+*.coe.neu.edu )
+  : ${LOCAL:=${HOME}}
+  : ${NCMP:=${HOME}}
+  : ${PCS:=${HOME}}
+  ;;
+
+*.ece.neu.edu )
+  : ${LOCAL:=${ADDON_ECE}/local}
+  : ${NCMP:=${ADDON_ECE}/ncmp}
+  : ${PCS:=${ADDON_ECE}/pcs}
+  ;;
+
+sparc*.ece.neu.edu )
+  ;;
+
+esac
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${PCS:=/usr/add-on/pcs}
+export LOCAL NCMP PCS
+
+
+if [[ -z "${SYSNAME}" ]] ; then
+  ${PROG_UNAME} -s -r -p | read SYSNAME RELEASE ARCHITECTURE
+fi
+
+case ${SYSNAME}:${RELEASE}:${ARCHITECTURE} in
+
+SunOS:5*:sparc )
+  OFD=S5
+  ;;
+
+SunOS:4*:sparc )
+  OFD=S4
+  ;;
+
+OSF*:*:alpha )
+  OFD=OSF
+  ;;
+
+IRIX*:*:mips )
+  OFD=IRIX
+  ;;
+
+esac
+
+OFF=$( print $OFD | tr '[A-Z]' '[a-z]' )
+
+
+addpath() {
+  VARNAME=$1
+  shift
+  if [ $# -ge 1 -a -d "${1}" ] ; then
+    eval AA=\${${VARNAME}}
+    echo ${AA} | ${PROG_FGREP} "${1}" > /dev/null
+    if [ $? -ne 0 ] ; then
+      if [ -z "${AA}" ] ; then
+          AA=${1}
+      else
+        if [ $# -eq 1 ] ; then
+          AA=${AA}:${1}
+        else
+          case "${2}" in
+          f* | h* )
+            AA=${1}:${AA}
+            ;;
+
+          * )
+            AA=${AA}:${1}
+            ;;
+
+          esac
+        fi
+      fi
+      eval ${VARNAME}=${AA}
+      export ${VARNAME}
+    fi
+  fi
+  unset VARNAME
+}
+
+
+# add the package area BIN to the user's PATH
+
+addpath PATH ${NCMP}/bin f
+addpath PATH ${LOCAL}/bin f
+
+addpath PATH ${PCS}/bin
+addpath PATH ${HOME}/bin
+
+
+addpath LD_LIBRARY_PATH ${NCMP}/lib/${OFD} f
+addpath LD_LIBRARY_PATH ${LOCAL}/lib/${OFD} f
+
+addpath LD_LIBRARY_PATH ${PCS}/lib/${OFD}
+
+
+
+
+LOGFILE=${PROGRAMROOT}/log/forwardmail
+LOCKFILE=${PROGRAMROOT}/spool/locks/forwardmail
+SPOOLDIR=${PROGRAMROOT}/spool/forwardmail
+
+
+PROG_UUX=${PCS}/bin/uux
+PROG_LKFILE=${LOCAL}/bin/lkfile
+
+
+: ${LOGNAME:=$( logname )}
+
+
+if [[ ! -d ${PROGRAMROOT}/spool ]] ; then
+  mkdir ${PROGRAMROOT}/spool
+fi
+
+if [[ ! -d ${PROGRAMROOT}/spool/locks ]] ; then
+  mkdir ${PROGRAMROOT}/spool/locks
+fi
+
+if [[ ! -d ${PROGRAMROOT}/spool/forwardmail ]] ; then
+  mkdir ${PROGRAMROOT}/spool/forwardmail
+fi
+
+${PROG_LKFILE} ${LOCKFILE} -${TO_LOCK} -r $TO_REMOVE
+EC=$?
+if [ $EC -ne 0 ] ; then
+  print "could not capture lock file" | poplog
+  exit $EC
+fi
+
+
+JID=$( print "${NODE}${$}            " | cut -c 1-14 )
+DATE=$( date '+%y%m%d_%H%M:%S' )
+
+{
+  print ${$}
+  print ${DATE} node=${NODE} jobid=${JID}
+} >> $LOCKFILE
+
+
+logfile_print() {
+  print "${JID}\t${*}" >> $LOGFILE
+}
+
+
+  logfile_print "${DATE} ${P}"
+  if [ -n "${FULLNAME}" ] ; then
+    logfile_print "${NODE}!${LOGNAME} (${FULLNAME})"
+  else
+    logfile_print "${NODE}!${LOGNAME}"
+  fi
+
+
+# are we supposed to even run ?
+
+if [ ! -r ${FLAGFILE} ] ; then
+  logfile_print "not enabled to run"
+  exit 1
+fi
+
+
+TF=/tmp/fm${$}${RANDOM}
+TF2=/tmp/fmm${$}${RANDOM}
+TF3=/tmp/fmb${$}${RANDOM}
+
+JF=$( pcsjobfile -r )
+
+if [ -z "${JF}" ] ; then
+  logfile_print "could not create job file"
+  exit 1
+fi
+
+JOBID=$( basename $JF )
+
+cleanup() {
+  rm -f $TF $TF2 $TF3 $LOCKFILE $JF
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+
+
+if whence ${PROG_FORMAIL} > /dev/null ; then
+
+  NEWBOX=${USERMAILDIR}/new
+  SPOOLBOX="${USERMAILDIR}/spool"
+
+
+  A=$( ${PROG_DIRNAME} ${NEWBOX} )
+  if [ ! -d "${A}" ] ; then
+    mkdir $A
+  fi
+
+if [[ $F_GETMAIL -ne 0 ]] ; then
+  ${PROG_GETMAIL} -r $TF -j $JID $SPOOLBOX
+else
+  cp /dev/null $TF
+fi
+
+  ${PROG_CHMOD} o-rw ${SPOOLBOX}
+
+  SIZE=$( < ${TF} )
+  print "${JID}\tnew mail retrieved size=${SIZE}" >> ${LOGFILE}
+
+  if [[ -s $SPOOLBOX ]] ; then
+
+	mbo -if $SPOOLBOX > $TF3
+    SIZE=$( wc -c < $TF3 )
+
+    print "${JID}\ttotal mailbox size=${SIZE}" >> ${LOGFILE}
+#    ${PROG_FORMAIL} < $TF3 -es rmail $FEMA
+#    ${PROG_FORMAIL} < $TF3 -es ${PROG_UUX} -p ${RNODE}!rmail \(${FEMA}\)
+    BTF=$( basename ${TF} )
+    ${PROG_BZIP2} -c $TF3 > ${SPOOLDIR}/${BTF}
+    ${PROG_CAT} $TF3 >> ${NEWBOX}
+    ${PROG_CHMOD} o-rw ${NEWBOX}
+
+    ${PROG_FORMAIL} < $TF3 -es $PROG_EMA -h message-id > $TF2
+
+    ${PROG_FORMAIL} < $TF3 -es $PROG_RME -h ${RNODE} -s ${SERVICE}
+    if [[ $? -eq 0 ]] ; then
+      cp /dev/null $TF3
+    fi
+
+    if [[ -s $TF2 ]] ; then
+
+      logfile_print "message IDs>"
+      while read MSGID ; do
+        logfile_print "| ${MSGID}"
+      done < $TF2
+
+    fi
+
+    mailpop -q -u $FEMA $RHOST -d $RDIAL 2> /dev/null
+    if [[ $? -eq 0 ]] ; then
+      uusched &
+    fi
+
+  fi
+
+fi
+
+cleanup
+
+
+

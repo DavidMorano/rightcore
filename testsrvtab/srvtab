@@ -1,0 +1,85 @@
+# SRVTAB
+# PCSPOLL service table
+#
+#	The format of entries are :
+#
+#	service:
+#		interval= time_period,
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options
+#
+#
+
+#	The following substitutions are made on keyword value strings :
+
+#		%V	PCSPOLL version string
+#		%R	PCSPOLL program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+
+#		%s	service
+#		%i	actual interval since last time (decimal secs)
+
+#
+
+
+
+# TESTING
+
+test1:
+	p= /bin/sleep,
+	a= sleep 1,
+	interval= 7s,
+	access= a
+
+test2:
+	p= /bin/sleep,
+	a= sleep 2,
+	interval= 5s,
+	access= "b a"
+
+test3:
+	p= /bin/sleep,
+	a= sleep 3,
+	interval= 8s
+	access= "b a"
+
+test4:
+	p= /bin/sleep,
+	a= sleep 1,
+	interval= 9s
+	access= "b a"
+
+hostname:
+	p= /bin/echo,
+	a= echo mark host=%N,
+	interval= 10s,
+	access= "b a"
+
+
+dead1:
+	p= /bin/echo,
+	a= echo dead1
+
+dead2:
+	p= /bin/echo,
+	a= echo dead2
+
+dead3:
+	p= /bin/echo,
+	a = echo dead3
+
+dead4:
+	p= /bin/echo,
+	a = echo dead4
+
+dead5:
+	p= /bin/echo,
+	a = echo dead5
+
+
+

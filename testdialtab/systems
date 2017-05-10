@@ -1,0 +1,20 @@
+# SYSTEMS
+
+
+
+# system dialer	arguments
+
+uri	\
+	d1	muxport=5108
+
+uri	\
+	d2	port=5201
+
+ece	\
+	d1	muxport=5108
+
+uri	tcp
+uri	tcpmux
+
+
+

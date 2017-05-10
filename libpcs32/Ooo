@@ -1,0 +1,30 @@
+int hello() 
+{
+if ((rs = msgdata_getbuf(mdp,&mbuf)) >= 0) {
+	struct pcsmsg_gethelp	mreq ;
+	struct pcsmsg_help	mres ;
+	const int	mlen = rs ;
+	memset(&mreq,0,sizeof(struct pcsmsg_gethelp)) ;
+	mreq.tag = op->pid ;
+	mreq.idx = (uchar) idx ;
+	if ((rs = pcsmsg_gethelp(&mreq,0,mbuf,mlen)) >= 0) {
+	    const int	fd = op->fd ;
+	    if ((rs = msgdata_send(mdp,fd,rs,0)) >= 0) {
+	        if ((rs = msgdata_recvto(mdp,fd,to)) >= 0) {
+	            if ((rs = pcsmsg_help(&mres,1,mbuf,rs)) >= 0) {
+	                if (mres.rc == pcsmsgrc_ok) {
+	                    cchar	*rp = mres.val ;
+	                    rl = mres.vl ;
+	                    rs = snwcpy(rbuf,rlen,rp,rl) ;
+	                } else if (mres.rc == pcsmsgrc_notfound) {
+	                    rl = 0 ;
+	                } else {
+	                    rs = SR_BADMSG ;
+	                }
+	            }
+	        } /* end if (msgdata_recvto) */
+	    } /* end if (msgdata_send) */
+	} /* end if (pcsmsg_gethelp) */
+} /* end if (msgdata_getbuf) */
+}
+

@@ -1,0 +1,275 @@
+# MAKEFILE
+
+T= tcpmuxd
+ 
+ALL= $(T) $(T).$(OFF)
+
+#SRCROOT= $(HOME)
+SRCROOT= $(LOCAL)
+
+
+BINDIR= $(SRCROOT)/bin
+INCDIR= $(SRCROOT)/include
+LIBDIR= $(SRCROOT)/lib
+MANDIR= $(SRCROOT)/man/man1
+HELPDIR= $(SRCROOT)/share/help
+
+#LDCRTDIR= /opt/SUNWspro/WS6/lib
+#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
+#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
+#LDCRTDIR= /opt/SUNWspro/lib
+LDCRTDIR= $(SRCROOT)/lib
+
+
+CC= gcc
+
+#CCOPTS= -O -mcpu=v8
+CCOPTS= -g
+
+# HyperSPARC
+#CCOPTS= -xO4 -xtarget=ss20/hs22 -xdepend
+
+# UltraSPARC
+#CCOPTS= -xO4 -xtarget=ultra -xsafe=mem -xdepend
+
+
+DEF0= -DPOSIX=1 -DPTHREAD=1
+DEF1= -DOSNAME_$(SYSNAME) -DOSTYPE_$(OSTYPE) -DOSNUM=$(OSNUM) 
+DEF2=
+DEF3=
+DEF4=
+DEF5=
+DEF6=
+
+DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
+
+INCDIRS= -I$(INCDIR)
+
+CPPFLAGS= $(DEFS) $(INCDIRS)
+
+CFLAGS= $(CCOPTS)
+
+#LD= $(CC)
+#LD= cc
+LD= ld
+
+LDFLAGS= -R$(LIBDIR)
+
+LIBDIRS= -L$(LIBDIR)
+
+LIB0=
+LIB1= -Bstatic -lpcs -ldam -Bdynamic
+LIB2=
+LIB3= -Bstatic -lb -luc -Bdynamic
+#LIB3= -Bstatic libb.a -luc -Bdynamic
+#LIB3= -Bstatic libb.a -luc -Bdynamic -ldmallocth
+LIB4= -Bstatic -lu -Bdynamic
+LIB5= -L$(GNU)/lib -lgcc
+LIB6= -lsecdb -lproject -lkstat -ldl -lrt -lpthread -lsocket -lnsl
+LIB7= -lc
+
+LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
+
+CRTI= $(LDCRTDIR)/crti.o
+CRT1= $(LDCRTDIR)/crt1.o
+VALUES= $(LDCRTDIR)/values-xa.o
+CRTN= $(LDCRTDIR)/crtn.o
+
+CRT0= $(CRTI) $(CRT1) $(VALUES)
+CRTC= makedate.o
+
+LINT= lint
+LINTFLAGS= -uxn
+
+NM= nm
+NMFLAGS= -xs
+
+CPP= cpp
+
+
+
+INCS= config.h defs.h
+
+
+OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
+OBJ01= 
+OBJ02= checklockfile.o
+OBJ03= varsub_extras.o varsub_dumpfd.o expander.o
+OBJ04= watch.o mktmpdir.o checkdirs.o badback.o 
+OBJ05= handle.o handle_srventry.o field_svcargs.o processargs.o execute.o
+OBJ06= srventry.o jobdb.o builtin.o standing.o procse.o imsg.o sysmisc.o
+OBJ07= getrootdname.c printhelp.o
+OBJ08= vecstr_loadfile.o vecstr_env.o
+OBJ09= varsub.o 
+OBJ10= nlspeername.o getgroupname.o
+OBJ11= lockfile.o debug.o 
+OBJ12= snddd.o snsds.o
+OBJ13= timestr_nist.o
+OBJ14= hostent.o headkey.o
+OBJ15= procfileenv.o procfilepaths.o strfieldcmp.o
+OBJ16= bopensched.o bopenroot.o connection.o
+OBJ17= permsched.o pcsgetprogpath.o
+OBJ18= 
+OBJ19= field_srvarg.o
+OBJ20= starmat.o chmods.o getfname.o logfile_userinfo.o mkbangname.o
+OBJ21= sockaddress.o mapstrint.o logfile.o serialbuf.o buffer.o
+OBJ22=
+OBJ23= pwfile.o srvtab.o acctab.o kinfo.o msfile.o msfilee.o
+
+OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07) 
+OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
+OBJC= $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19) $(OBJ20) $(OBJ21) $(OBJ22) $(OBJ23)
+
+OBJ= $(OBJA) $(OBJB) $(OBJC)
+
+OBJS= $(CRT0) $(OBJ) $(CRTC)
+
+
+
+.SUFFIXES:		.ls .i .cx .cs
+
+
+default:		$(T).x
+
+all:			$(ALL)
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
+
+.c.ln:
+	$(LINT) -c -u $(CPPFLAGS) $<
+
+.c.ls:
+	$(LINT) $(LINTFLAGS) $(CPPFLAGS) $<
+
+.c.i:
+	$(CPP) $(CPPFLAGS) $< > $(*).i
+
+.c.cx:
+	$(CXREF) -C $(CXREFFLAGS) $(CPPFLAGS) $<
+
+.c.cs:
+	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
+
+
+$(T):			$(T).ee
+	cp -p $(T).ee $(T)
+
+$(T).x:			$(OBJ) Makefile
+	makedate -m $(T) > makedate.c
+	$(CC) -c makedate.c
+	rm -f $(T).x
+	$(LD) -o $@ -m $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+
+$(T).$(OFF) $(OFF):	$(T).x
+	cp -p $(T).x $(T).$(OFF)
+
+$(T).nm:		$(T).x
+	nm -x $(T).x > $(T).nm
+
+safe:
+	makesafe -v=3 -I $(INCDIR) $(OBJ)
+
+strip:			$(T).x
+	strip $(T).x
+	rm -f $(T).$(OFF) $(T)
+
+install:		install-raw
+
+install-ee:		$(ALL)
+	makenewer -r $(ALL) $(BINDIR)
+
+install-raw:		$(T).x
+	rm -f $(T)
+	ln -f $(T).x $(T)
+	rm -f $(BINDIR)/$(T).$(OFF)
+	makenewer -r $(T) $(BINDIR)
+
+install-help:		$(T).help
+	rm -f $(T)
+	ln -f $(T).help $(T)
+	-mkdir -p $(HELPDIR) 2> /dev/null
+	makenewer $(T) $(HELPDIR)
+
+again:
+	rm -fr $(ALL) $(T) $(T).x
+
+clean:			again
+	rm -f *.o $(ALL)
+
+control:
+	(uname -n ; date) > Control
+
+
+
+
+main.o:			main.c $(INCS)
+
+whatinfo.o:		whatinfo.c config.h
+
+proginfo.o:		proginfo.c defs.h
+
+proginfo_setpiv.o:	proginfo_setpiv.c defs.h
+
+expander.o:		expander.c $(INCS)
+
+watch.o:		watch.c $(INCS) imsg.h acctab.h
+
+builtin.o:		builtin.c builtin.h $(INCS) imsg.h sysmisc.h
+
+standing.o:		standing.c standing.h $(INCS) imsg.h sysmisc.h kinfo.h
+standing.o:		msfile.h msfilee.h
+
+handle.o:		handle.c $(INCS)
+
+handle_srventry.o:	handle_srventry.c $(INCS)
+
+badback.o:		badback.c $(INCS)
+
+mktmpdir.o:		mktmpdir.c $(INCS)
+
+checklockfile.o:	checklockfile.c $(INCS)
+
+
+configfile.o:		configfile.c configfile.h
+
+jobdb.o:		jobdb.c jobdb.h
+
+imsg.o:			imsg.c imsg.h
+
+sysmisc.o:		sysmisc.c sysmisc.h
+
+
+timestr_nist.o:		timestr_nist.c nistinfo.h
+
+
+vecstr_loadfile.o:	vecstr_loadfile.c
+
+vecstr_env.o:		vecstr_env.c
+
+sockaddress.o:		sockaddress.c sockaddress.h
+
+pwfile.o:		pwfile.c pwfile.h
+
+kinfo.o:		kinfo.c kinfo.h
+
+logfile.o:		logfile.c logfile.h
+
+varsub.o:		varsub.c varsub.h
+
+buffer.o:		buffer.c buffer.h
+
+msfile.o:		msfile.c msfile.h msfilee.h msflag.h
+
+msfilee.o:		msfilee.c msfilee.h
+
+mapstrint.o:		mapstrint.c mapstrint.h
+
+keyopt.o:		keyopt.c keyopt.h
+
+srvtab.o:		srvtab.c srvtab.h
+
+acctab.o:		acctab.c acctab.h
+
+
+

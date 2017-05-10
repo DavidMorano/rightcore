@@ -1,0 +1,48 @@
+
+
+TF=/tmp/o${$}
+
+cat <<-EOF > $TF
+
+	#cd /usr/add-on/pcs/bin
+	#cp smail osmail
+	#cp sendmail osendmail
+	#cp pc opc
+	#cp info oinfo
+	#cp vmail ovmail
+
+	cd /usr/add-on/pcs
+
+	if [ ! -d rje ] ; then mkdir rje ; chmod 777 ; fi
+
+	rcp mtgzfs8:/hw/add-on/pcs/src/smail/smail rje/smail
+	install -m 775 rje/smail bin/smail
+	install -m 775 rje/smail bin/sendmail
+	install -m 775 rje/smail bin/info
+	install -m 775 rje/smail bin/pcsinfo
+	install -m 775 rje/smail bin/pcspc
+	install -m 775 rje/smail bin/pc
+	install -m 775 rje/smail bin/nsmail
+	install -m 775 rje/smail bin/nsendmail
+	install -m 775 rje/smail bin/ninfo
+	install -m 775 rje/smail bin/npcsinfo
+	install -m 775 rje/smail bin/npcspc
+	install -m 775 rje/smail bin/npc
+	rm rje/smail
+
+	rcp mtgzfs8:/hw/add-on/pcs/src/vmail/vmail rje/vmail
+	install -m 775 rje/vmail bin/vmail
+	install -m 775 rje/vmail bin/nvmail
+	rm rje/vmail
+
+EOF
+
+for M in mtgzfs2 mtgzfs6 mtgzfs7 mtgzfs8 mtgbs1 ; do
+
+	rsh $M ksh < $TF
+
+done
+
+rm -f $TF
+
+

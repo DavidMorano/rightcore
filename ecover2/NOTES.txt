@@ -1,0 +1,27 @@
+ECOVER
+
+
+Format of encoded file:
+
++ encoded block of noise
++ encoded first block of data masked by the "mask" block
++ encoded blocks of file concatenated with message 
++ encoded variable-length noise 
++ encoded mask block w/ metadata
++ the key
++ variable trailing noise
+
+
+This program creates a file envelope (a cover sheet) well suited to
+facilitate better encryption of the resultant file.
+
+Synopsis:
+
+$ ecover -e < input > output.ec
+$ ecover -d < output.ec > input2
+$ cmp input intput2
+$
+$ # ** no difference **
+$
+
+

@@ -1,0 +1,31 @@
+DIALTABs
+
+These are NOT programs or program invocation arguments!  These are
+dialer specifications.  All dialers take (not shown) a hostname and a
+service name.  These two parameters (hostname and service) are passwed
+directly to the dialer.  The strings after the dialer name (shown
+below) are passed to the dialer in a string argument vector.
+
+The following keys are expanded:
+
+%h		hostname to contact
+%s		service to invoke on host
+
+
+# Format of entries:
+#
+
+#>	uux [host!]service [arguments]
+#>	uux -!uuexec rbbpost
+#>	uumux [host!]service
+#>	uucp [uuname!]dirpath
+#>	rex [-u xxx] [-p xxx] [-a authfile] [host!]progpath [arguments] 
+#>	cp dirpath
+#>	tcp [host!]port
+#>	tcpnls [host:port] service
+#>	tcpmux [host:port] service
+#>
+
+
+
+

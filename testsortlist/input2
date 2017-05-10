@@ -1,0 +1,50 @@
+My question 
+is, What should I expect if I try to run
+that example program 'ex_tpcb.c' ?  Does it do anything
+useful other than fail to fetch any records from the
+first database it tries to access ?
+Sorry, we should have included some documentation with it!  As it is,
+you sort of have to look at the command options to figure out what's
+going on -- not a very user friendly state of affairs, I'm afraid.
+I ran it first with the initialization options
+and then ran it with the '-n' option specifying some
+loops of "transactions" and it fails to ever featch
+anything from the fist database it tries to access in
+the transaction subroutine.  Is this what is expected ?
+This seems odd.  One possibility is that if you specify
+the number of records during initialization (to avoid building
+the large database), you also have to specify them during
+the run (again, not a nice user-interface, but I use that
+information to figure out what valid record IDs are).
+So, in order to do a small test run, you want to try something like:
+> Also, for some reason I could not build a test suite
+> since it seemed to expect (on version 2.0.4 anyway)
+> a "main" symbol from the TCL library and our version
+> of the TCL library (version 7.6) does not seem
+> to supply this.  I am new to this TCL stuff also !!
+
+The tcl library changed between version 7.4 and 7.3 -- prior
+to 7.4, the tcl library included main, now it does not.  However,
+we check for this in the file tclAppInit.c.  Is it possible that
+you ran ../dist/configure on a different machine than on the machine
+on which you built?  You might try removing config.cache (in your
+build directory), doing a make clean, and running:
+	../dist/configure --enable-test
+Then try building.
+
+If this doesn't work, send us the output of the configure and the make.
+
+> Is there some way I can verify that I have a good build
+> of the DB library ?
+
+Once you get dbtest to build, the regression test (see the README in the
+test directory) will tell you that your install is successful (it takes
+a few hours to run).
+
+I hope these suggestions help, but if not, let us know and we'll see
+if we can figure out what's going wrong.
+
+- Margo
+
+
+

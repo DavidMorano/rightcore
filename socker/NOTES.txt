@@ -1,0 +1,9 @@
+SOCKER
+
+This is the Socker super-server program.  Start it as a stand-alone
+daemon as:
+
+$ socker -d
+
+
+

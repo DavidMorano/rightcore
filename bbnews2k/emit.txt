@@ -1,0 +1,1 @@
+	                    rs = (*emit)(pip,dsp,ai,aep,ngd,bname) ;

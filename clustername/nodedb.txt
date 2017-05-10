@@ -1,0 +1,62 @@
+# NODE
+
+#
+# Format of entries:
+#
+# 	node:cluster:system:key=value,...
+#
+# where:
+#
+# 'node'	is a nodename 
+#
+# 'cluster'	is the primary cluster that the node belongs to (other
+#		clusters for the same node can be specified in the
+#		'cluster' database)
+#
+# 'system'	is the system that the node belongs to
+#
+# 'key=value'	arbitrary key=value pairs (separated by a comma) can be 
+#		specified for this node
+#
+#
+# Notes:
+# In general, one or more nodes belong to clusters.  One or more clusters 
+# belong to systems.  And there is no particular name that describes
+# what two or more systems make up! :-)  Clusters are defined by the
+# member nodes sharing one or more filesystem spaces.  Separate clusters
+# do not have to share any filesystem spaces (although they may) in
+# order to belong to the same system.  Clusters are therefor a group of
+# fairly tightly coupled nodes, while systems are a fairly loosely coupled
+# set of clusters.  Systems are (generally) supposed to survive the 
+# loss of one or more clusters and still provide some level of basic
+# service (through synchronized filesystem space or other methods) while
+# clusters are not necessarily expected to survive the loss of one of
+# its nodes.  But mileage varies greatly in real-world data centers!
+#
+#  
+
+
+rca:rc:ark3:
+rcb:rc:ark3:
+rcc:rc:ark3:
+
+rcd::ark3:
+rce::ark3:
+rcf::ark3:
+rcg::ark3:
+
+jig::ark3:
+
+rc:rc:ark3:
+mail:rc:ark3:
+www:rc:ark3:
+
+loghost:rc:ark3:
+mailhost:rc:ark3:
+uucphost:rc:ark3:
+dnscache:rc:ark3:
+
+test::ark3:
+
+
+

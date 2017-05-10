@@ -1,0 +1,101 @@
+# author: Digital Equipment Corporation
+vt420|DEC VT420, 
+ am, mir, xenl, xon, 
+ cols#80, lines#24, vt#3, 
+ bel=^G, blink=\E[5m$<2>, 
+ acsc=‘‘aaffggjjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~, 
+ bold=\E[1m$<2>, clear=\E[;H\E[2J$<50>, cr=\r, 
+ csr=\E[%i%p1%d;%p2%dr, cub1=\b, cud1=\E[B, cuf1=\E[C, 
+ cup=\E[%i%p1%d;%p2%dH$<10>, cuu1=\E[A, dch1=\E[P, 
+ dl1=\E[M, ed=\E[J$<50>, el=\E[K$<3>, home=\E[H, ht=\t, 
+ if=/usr/lib/tabset/vt100, il1=\E[L, ind=\ED, 
+ is2=\E[1;24r\E[24;1H, is3=\E[?67h\E[64;1"p, 
+ kbs=^H, kcub1=\E[D, kcud1=\E[B, kcuf1=\E[C, kcuu1=\E[A, 
+ kf0=\E[29~, kf1=\EOP, kf2=\EOQ, kf3=\EOR, kf4=\EOS, kf5=\E[17~, 
+ kf6=\E[18~, kf7=\E[19~, kf8=\E[20~, kf9=\E[21~, kf10=\E[29~, 
+ rc=\E8, rev=\E[7m$<2>, rf=/usr/lib/tabset/vt100, ri=\EM, 
+ rmacs=\E(B$<4>, rmir=\E[4l, rmso=\E[m, rmul=\E[m, 
+ rs3=\E[?67h\E[64;1"p, 
+ rmsc=\E[?0;0r\E>\E[?3l\E[?4l\E[?5l\E[?7h\E[?8h, 
+ kfnd=\E[1~, kich1=\E[2~, kdch1=\E[3~, 
+ knp=\E[6~, kpp=\E[5~, kslt=\E[4~, 
+ sgr=\E[0%?%p6%t;1%;%?%p2%t;4%;%?%p4%t;5%;%?%p1%p3%|%t;7%;m%?%p9%t 
+ 	\E(0%e\E(B%;, 
+ sgr0=\E[m$<2>, smacs=\E(0$<2>, smir=\E[4h, smso=\E[7m, 
+ smul=\E[4m, 
+# 
+vt420nam|vt420-nam|v420n|DEC VT420 in vt100 emul. mode with NO AUTO WRAP mode, 
+ am@, use=vt420, 
+# 
+vt420pc|DEC VT420 w/PC keyboard, 
+ pctrm=USR_TERM:vt420pcdos:, 
+ kdch1=^?, khome=\E[H, kend=\E[4~, 
+ kf1=\E[11~, kf2=\E[12~, kf3=\E[13~, kf4=\E[14~, kf5=\E[15~, 
+ kf6=\E[17~, kf7=\E[18~, kf8=\E[19~, kf9=\E[20~, kf10=\E[21~, 
+ kf11=\E[23~, kf12=\E[24~, 
+# 
+ kf13=\E[11;2~, kf14=\E[12;2~, kf15=\E[13;2~, kf16=\E[14;2~, 
+ kf17=\E[15;2~, kf18=\E[17;2~, kf19=\E[18;2~, kf20=\E[19;2~, 
+ kf21=\E[20;2~, kf22=\E[21;2~, kf23=\E[23;2~, kf24=\E[24;2~, 
+# 
+ kf25=\E[23~, kf26=\E[24~, kf27=\E[25~, kf28=\E[26~, 
+ kf29=\E[28~, kf30=\E[29~, kf31=\E[31~, kf32=\E[32~, 
+ kf33=\E[33~, kf34=\E[34~, kf35=\E[35~, kf36=\E[36~, 
+# 
+ kf37=\E[23;2~, kf38=\E[24;2~, kf39=\E[25;2~, kf40=\E[26;2~, 
+ kf41=\E[28;2~, kf42=\E[29;2~, kf43=\E[31;2~, kf44=\E[32;2~, 
+ kf45=\E[33;2~, kf46=\E[34;2~, kf47=\E[35;2~, kf48=\E[36;2~, 
+# 
+# DECUDK 
+# if (key < 16) then value = key; 
+# else if (key < 21) then value = key + 1; 
+# else if (key < 25) then value = key + 2; 
+# else if (key < 27) then value = key + 3; 
+# else if (key < 30) then value = key + 4; 
+# else value = key + 5; 
+# 
+ pfx=\EP1;1|%?%{16}%p1%>%t%{0}%e%{21}%p1%>%t%{1}%e%{25}%p1%>%t 
+	%{2}%e%{27}%p1%>%t%{3}%e%{30}%p1%>%t%{4}%e%{5}%;%p1%+%d/%p2%s\E\\, 
+ use=vt420, 
+# 
+vt420pcdos|DEC VT420 w/PC for DOS Merge, 
+ pctrm@, 
+ smsc=\E[?1;2r\E[34h, 
+ rmsc=\E[?0;0r\E>\E[?3l\E[?4l\E[?5l\E[?7h\E[?8h, 
+ u0=eg, 
+ dispc=%?%p2%{19}%=%t\E\023\021%e%p2%{32}%<%t\E%p2%c%e%p2%{127}%=%t 
+ 	\E\177%e%p2%c%;, 
+ sgr@, 
+ sgr0=\E[0m, 
+ lines#25, 
+ use=vt420pc, 
+# 
+vt420f|DEC VT420 with VT kbd; VT400 mode; F1-F5 used as Fkeys, 
+ kdch1=^?, khome=\E[H, 
+ kf1=\E[11~, kf2=\E[12~, kf3=\E[13~, kf4=\E[14~, kf5=\E[15~, 
+ kf6=\E[17~, kf7=\E[18~, kf8=\E[19~, kf9=\E[20~, kf10=\E[21~, 
+ kf11=\E[23~, kf12=\E[24~, kf13=\E[25~, kf14=\E[26~, kf15=\E[28~, 
+ kf16=\E[29~, kf17=\E[31~, kf18=\E[32~, kf19=\E[33~, kf20=\E[34~, 
+ lf1=\EOP, lf2=\EOQ, lf3=\EOR, lf4=\EOS, 
+ use=vt420, 
+# 
+# Use v420fn and v420pcn for LYRIX 
+# 
+vt420f-nam|v420fn|DEC VT420 no auto margins, 
+ am@, use=vt420f, 
+vt420pc-nam|v420pcn|DEC VT420 PC keyboard no auto margins, 
+ am@, use=vt420pc, 
+# 
+# vt520: 
+## 
+vt520|DEC VT520, 
+ use=vt420, 
+vt520nam|vt520-nam|v520n|DEC VT520 in vt100 emul. mode with NO AUTO WRAP mode, 
+ use=vt420nam, 
+vt520pc|DEC VT520 w/PC keyboard, 
+ use=vt420pc, 
+vt520pc-nam|v520pcn|DEC VT520 PC keyboard no auto margins, 
+ am@, use=vt420pc, 
+vt520pcdos|DEC VT520 w/PC for DOS Merge, 
+ use=vt420pcdos, 
+

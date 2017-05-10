@@ -1,0 +1,14 @@
+RCNAME
+
+This program takes a program filepath as an argument and returns an
+RC-ID string on STDOUT.
+
+Synopsis:
+
+$ rcname <filepath>
+
+where:
+
+<filepath>	the filepath to create an RC-ID for
+-V		print the program version to standard-error and then exit
+

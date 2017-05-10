@@ -1,0 +1,29 @@
+MSG headers
+--------------------------------------------------------------
+
+= priority:
+	urgent, ....
+no longer used
+
+
+= precedence:
+	list, bulk, first-class, junk
+
+Google recognizes "bulk" mail
+
+
+= status:
+	U	(unread)
+	R	(read)
+	O	(old)
+	D	(to-be-deleted)
+	N	(new)
+	-	(new)
+
+= Auto-Submitted:
+	no
+	auto-generated
+	auto-replied
+
+
+

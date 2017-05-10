@@ -1,0 +1,26 @@
+  <return>		display current message
+  n(ext)		move to next message
+  N(ext)		move 10 messages forward
+  p(rev)		move to previous message
+  P(rev)		move 10 messages back
+  F(irst)		move to first message
+  L(ast)		move to last message
+  S(earch) <str>	move forward to message contining <str> in its header
+  R(ev search) <str>	move back to message contining <str> in its header
+  d(elete) 		mark current message for deletion
+  u(ndelete) 		remove mark on current message
+  l(ist)		lists all mailboxes
+  m(ove to) <mailbox>	copies current message into <mailbox> and deletes
+  c(hange to) <mailbox>	change to <mailbox>
+  r(eply) 		invokes sendmail to reply to current message
+  f(orward) 		invokes sendmail and appends current message
+  e(dit)		invokes an editor on the current message
+  s(endmail)		invokes sendmail
+  a(ppend to) <file>	appends current message onto specified file
+  w(rite to) <file>	writes current message to specified file
+  C(urrent dir) <dir>	changes current directory for write and append
+  | <command>		pipe current message to command
+  ! <command>		escape to shell
+  h(elp) <command>	displays help on given command
+  q(uit)		leave r
+  ^L (redisplay)	redisplay the screen

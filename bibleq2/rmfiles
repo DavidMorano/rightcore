@@ -1,0 +1,6 @@
+#!/usr/bin/ksh
+# RMFILES
+
+rm -fr ${LOCAL}/var/bibleq
+rm -fr /tmp/local/bibleq
+

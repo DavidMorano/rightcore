@@ -1,0 +1,11 @@
+# Begin customization
+#
+#  "Print Window" 		${SDA_LAB_PATH}/prt_window
+#  "Print Cut Buffer"		/usr/add-on/tools/devt/bin/xprtcut -d ${PRINTER}
+      "Print Cut Buffer" DEFAULT	/home/aja/bin/sunpr
+      "Linefeed"			/home/aja/bin/sunpr -l
+      "Formfeed"			/home/aja/bin/sunpr -f
+      "Print Window" 			${SDA_LAB_PATH}/prt_window
+  "Print" END PIN
+#
+# End customization

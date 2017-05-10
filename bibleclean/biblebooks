@@ -1,0 +1,84 @@
+# BIBLEBOOKS
+# book names of the bible
+#
+# This file contains a list of the names of the books of the Bible.
+# The list is ordered in the same order that the books appear in the Bible.
+# Book names that have whitespace within their names are further quoted
+# with double quotes.  When quoting is needed, the entire book name is
+# quoted (this allows for both SHELL-style parsing as well as other
+# types).
+#
+# Each book name should appear on a line by itself.
+# Comments and blank lines in this file are ignored.
+#
+#
+
+Genesis
+Exodus
+Leviticus
+Numbers
+Deuteronomy
+Joshua
+Judges
+Ruth
+"I Samuel"
+"II Samuel"
+"I Kings"
+"II Kings"
+"I Chronicles"
+"II Chronicles"
+Ezra
+Nehemiah
+Esther
+Job
+Psalms
+Proverbs
+Ecclesiastes
+"Song of Solomon"
+Isaiah
+Jeremiah
+Lamentations
+Ezekiel
+Daniel
+Hosea
+Joel
+Amos
+Obadiah
+Jonah
+Micah
+Nahum
+Habakkuk
+Zephaniah
+Haggai
+Zechariah
+Malachi
+Matthew
+Mark
+Luke
+John
+Acts
+Romans
+"I Corinthians"
+"II Corinthians"
+Galatians
+Ephesians
+Philippians
+Colossians
+"I Thessalonians"
+"II Thessalonians"
+"I Timothy"
+"II Timothy"
+Titus
+Philemon
+Hebrews
+James
+"I Peter"
+"II Peter"
+"I John"
+"II John"
+"III John"
+Jude
+Revelation
+
+
+

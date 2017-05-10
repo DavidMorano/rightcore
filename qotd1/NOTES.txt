@@ -1,0 +1,13 @@
+QOTD
+
+How does this work as a UDP server for quotes?
+
+Synopsis:
+
+$ qotd [-dg[=<runint>]] [-i <runint>]
+
+where:
+
+-dg		specify data-grams on input
+-i <runint>	run interval
+

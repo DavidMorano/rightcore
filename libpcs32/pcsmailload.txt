@@ -1,0 +1,18 @@
+PCSMAILLOAD
+
+struct pcsmailload_i {
+	uint	nmsgs_sys ;		/* system messages in last hour */
+	uint	nmsgs_user ;		/* user messages in last hour */
+	uint	nmsgs_unread ;		/* unread user messages */
+} ;
+
+int pcsmailload(pr,lip,un)
+const char	*pr ;
+PCSMAILLOAD_I	*lip ;
+const char	*un ;
+{
+
+
+}
+
+

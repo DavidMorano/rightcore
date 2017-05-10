@@ -1,0 +1,19 @@
+POSTFACTS
+
+
+= version 0, Dave Morano
+
+This was the initial release back in the early 1990s.
+
+
+= version 0a, Dave Morano 00/01/19
+
+This version added file logging and user file maintenance.  Also, the
+program (nominally RBBPOST) and a newsgroup for it, the program
+(nominally MSGS) and a spooldir for it, are configurable from the
+PCS-wide configuration file.  Also, the mailer name to put in the mail
+header postmarks is configurable from both the invocation arguments and
+the PCS-wide configuration file.
+
+
+

@@ -1,0 +1,83 @@
+# SRVTAB
+# PCSUUCPD service table
+#
+#	The format of entries are (example) :
+#
+#	service:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options
+#		groups=	"other, www",
+#		access= "name1 name2 group1 ,group2"
+#
+#
+#
+
+#	The following substitutions are made on keyword value strings :
+#
+#		%V	PCSUUCPD version string
+#		%R	PCSUUCPD program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+#		%U	invoking user
+
+#		%P	peername
+#		%s	service
+#		%a	service arguments (if available)
+#
+
+#	The following are made on some authenticating servers :
+#
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%p	network password (if known)
+#
+
+
+#
+#	There are some built-in servers on some of the listener daemon
+#	programs.  Some of these are listed below.  These internal
+#	servers can be overridden by making an entry with the same
+#	service name in this file.
+#
+#
+#
+
+
+
+nuucp:
+	a= pcsuucico -u %u ,
+	access= "uri ece rc"
+
+
+# other/testing
+echoargs:
+	p= /usr/add-on/local/bin/echoargs ,
+	a= echoargs %a
+
+echo1:
+	a= echo PCS=${PCS} %V R=%R N=%N D=%D H=%H U=%U  ,
+	access= "rightcore rc uri"
+
+echo2:
+	a= echo peer=%P svc=%s h=%h u=%u p=%p  ,
+	access= "rightcore rc uri"
+
+modlist:
+	a= modlist
+
+echo:
+	p= cat,
+	access= "rightcore rc uri"
+
+whoami:
+	a= echo host=%P
+
+env:
+	p= /bin/env
+
+
+

@@ -1,0 +1,26 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL-HELP
+
+: ${SRCROOT:=/usr/add-on/local}
+
+TS="filefilter fileuniq"
+
+HELPDIR=${1}
+if [[ -z "${HELPDIR}" ]] ; then
+    HELPDIR=${SRCROOT}/share/help
+fi
+
+HF=
+for T in ${TS} ; do
+  F=${T}.help
+  if [[ -r ${F} ]] ; then
+    ln -f ${F} ${T}
+    HF="${HF} ${T}"
+  fi
+done
+
+if [[ -n "${HF}" ]] ; then
+  filesyncer ${HF} -d ${HELPDIR}
+fi
+
+

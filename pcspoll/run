@@ -1,0 +1,10 @@
+#!/usr/bin/ksh
+
+
+PCSPOLL_PROGRAMROOT=${HOME}
+PCSPOLL_NAME=poll
+export PCSPOLL_PROGRAMROOT PCSPOLL_NAME
+
+PCSPOLL_DEBUGFD=3 execname pcspoll.x poll -d -D=5 2> e 3> d
+
+

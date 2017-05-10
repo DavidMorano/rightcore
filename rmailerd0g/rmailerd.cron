@@ -1,0 +1,197 @@
+#!/bin/ksh
+# RMAILERD.CRON
+
+
+P=rmailerd.cron
+NAME=rmailerd
+
+
+PROG_PS=/bin/ps
+PROG_UNAME=/bin/uname
+PROG_CUT=/bin/cut
+PROG_FGREP=/bin/fgrep
+PROG_DOMAINNAME=/bin/domainname
+PROG_WHICH=/bin/which
+
+
+OS_SYSTEM=`${PROG_UNAME} -s`
+OS_RELEASE=`${PROG_UNAME} -r `
+ARCH=`${PROG_UNAME} -p`
+
+
+getinetdomain() {
+  if [ -n "${LOCALDOMAIN}" ] ; then
+    for D in ${LOCALDOMAIN} ; do
+      echo $D
+      break
+    done
+  else
+    if [ -r /etc/resolv.conf ] ; then
+      ${PROG_FGREP} domain /etc/resolv.conf | while read J1 D J2 ; do
+        echo $D
+      done
+    else
+      ${PROG_DOMAINNAME}
+    fi
+  fi
+}
+
+
+MACH=`${PROG_UNAME} -n | ${PROG_CUT} -d . -f 1 `
+
+case $MACH in
+
+hammett* )
+  DOMAIN=ece.neu.edu
+  ;;
+
+* )
+  DOMAIN=`getinetdomain`
+  ;;
+
+esac
+
+
+case ${MACH}.${DOMAIN} in
+
+*.coe.neu.edu )
+  : ${PCS:=${HOME}}
+  : ${LOCAL:=${HOME}}
+  : ${NCMP:=${HOME}}
+  ;;
+
+*.uri.edu )
+  : ${PCS:=/marlin/wtan/add-on/pcs}
+  : ${LOCAL:=/marlin/wtan/add-on/local}
+  : ${NCMP:=/marlin/wtan/add-on/ncmp}
+  ;;
+
+sparc*.ece.neu.edu )
+  ;;
+
+*.ece.neu.edu )
+  : ${PCS:=${HOME}/pcs}
+  : ${LOCAL:=${HOME}}
+  : ${NCMP:=${HOME}}
+  ;;
+
+esac
+
+: ${PCS:=/usr/add-on/pcs}
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+export PCS LOCAL NCMP
+
+
+case ${OS_SYSTEM}:${OS_RELEASE}:${ARCH} in
+
+SunOS:5*:sparc )
+  OFD=S5
+  ;;
+
+SunOS:4*:sparc )
+  OFD=S4
+  ;;
+
+OSF*:*:alpha )
+  OFD=OSF
+  ;;
+
+IRIX*:*:mips )
+  ODS=IRIX )
+  ;;
+
+esac
+
+OFF=`echo $OFD | tr '[A-Z]' '[a-z]' `
+
+
+PATH=${PCS}/bin:${PCS}/sbin:${LOCAL}/bin:${PATH}:${NCMP}/bin
+export PATH
+
+
+if [ -n "${OFD}" -a -d ${PCS}/lib/${OFD} ] ; then
+  if [ -z "${LD_LIBRARY_PATH}" ] ; then
+    LD_LIBRARY_PATH=${PCS}/lib/${OFD}
+  else
+    LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PCS}/lib/${OFD}
+  fi
+fi
+
+export PATH LD_LIBRARY_PATH
+
+
+PROGRAMROOT=${PCS}
+DEMONPROG=${PCS}/sbin/rmailerd
+DEMONPID=${PROGRAMROOT}/spool/run/rmailerd
+
+
+PS="/bin/ps -fu ${LOGNAME}"
+GREP=/bin/grep
+
+DPD=`dirname ${DEMONPROG} `
+DPF=`basename ${DEMONPROG} `
+TFA=/tmp/isa${$}
+TFB=/tmp/isb${$}
+
+
+cd /tmp
+
+
+V=0
+substr() {
+  while read LINE ; do
+
+    F_GOT=true
+    for S in "${@}" ; do
+
+      echo $LINE | fgrep $S > /dev/null
+      if [ $? -ne $V ] ; then
+
+        F_GOT=false
+        break
+
+      fi
+
+    done
+
+    if [ $F_GOT = true ] ; then
+
+      echo $LINE
+
+    fi
+
+  done
+}
+# end function (substr)
+
+
+# find if we already have our little friend running
+
+if [ -s "${DEMONPID}" ] ; then
+
+  PID=`line < ${DEMONPID} `
+
+# it must have ...
+  V=0
+  ${PS} | substr $LOGNAME '?' $PID $NAME > $TFB
+
+# it must NOT have ...
+  V=1
+  substr < $TFB grep rc > $TFA
+
+else
+
+  cp /dev/null $TFA
+
+fi
+
+
+if [ ! -s "${TFA}" ] ; then
+  PATH=${PATH}:${DPD} execname ${DPF}.${OFF} ${NAME} -dq
+fi
+
+rm -f $TFA $TFB
+
+
+

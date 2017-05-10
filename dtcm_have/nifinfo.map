@@ -1,0 +1,13 @@
+
+
+{
+	global:
+		nifinfo_start ;
+		nifinfo_get ;
+		nifinfo_match ;
+		nifinfo_finish ;
+	local:
+		* ;
+} ;
+
+

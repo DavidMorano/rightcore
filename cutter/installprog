@@ -1,0 +1,55 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+T=$( basename ${PWD} )
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+PRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+function sendout {
+  typeset SD=${1} TD TF=${2}
+  if [[ -r "${TF}" ]] && [[ -n "${SD}" ]] ; then
+    for PR in ${PRS} ; do
+      TD=${PR}/${SD} 
+      if [[ -d ${TD} ]] ; then
+        print -u2 -- TD=${TD} TF=${TF}
+        makenewer ${TF} ${TD} -r
+      fi
+    done
+  fi
+}
+
+
+if [[ ! -x "${T}.x" ]] ; then
+  if [[ -x makeit ]] ; then
+    makeit
+  else
+    make
+  fi
+fi
+
+if [[ -r ${T}.x ]] ; then
+  rm -f ${T}
+  ln ${T}.x ${T}
+#  ls -l ${T} ${T}.x >&2
+  sendout bin ${T}
+fi
+
+for TF in *.so ; do
+  if [[ -r "${TF}" ]] ; then
+    sendout lib ${TF}
+  fi
+done
+
+if [[ -r X${T}.help ]] ; then
+  rm -f ${T}
+  ln ${T}.help ${T}
+  sendout share/help ${T}
+fi
+
+rm -f ${T}
+
+

@@ -1,0 +1,47 @@
+PCSCL
+
+Revision history :
+
+
+= version 0b
+  David Morano
+
+1) I added the program invocation option 'f' in order to optionally
+   specify a "from_address" when requesting an envelope header be added.
+
+2) The program has been reorganized so that multiple input files
+   may be processed with a single invocation of the program.
+
+3) The code to process a program configuration file has been
+   added.
+
+
+= version 0c
+  00/03/28, David Morano
+
+1) If envelopes are requested and the existing message has an
+   envelope, it is rewritten so that :
+
+	a) it includes a timezone
+	b) it has a correct date string
+	c) it will have the local timezone (this is a negative)
+
+  Future enhancements should allow for the exiting timezone (if
+  given) to be used in the output envelope as well.  This is way
+  too complicated to have been done at this time.  This really
+  requires a whole new date/time manipulation object to be
+  developed that is way beyond the simplicity of the normal
+  date/time library subroutines provided by UNIX.  If the source
+  code to Solaris ever comes out, maybe we can snarf the date/time
+  code and rewrite it into object form so that arbitrary timezones
+  can be supported.
+
+
+= version 0d
+  01/12/13, David Morano
+
+1) If a new optional argument is given ('-p'), a RFC-822 style
+   "received" postmark is added to the message.
+
+
+

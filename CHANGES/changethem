@@ -1,0 +1,21 @@
+
+P=/home/dam/src
+
+
+for D in "${@}" ; do
+
+if [ -d "${D}" ] ; then (
+
+cd $D
+
+#${P}/ch1 *.c *.h
+#${P}/ch2 *.c *.h
+#${P}/ch3 *.c *.h
+#${P}/ch4 *.c *.h
+${P}/ch6 *.c *.h
+
+) fi
+
+done
+
+

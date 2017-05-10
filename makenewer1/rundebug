@@ -1,0 +1,10 @@
+#!/usr/extra/bin/ksh
+# RUNDEBUG
+
+DD=dstdir
+if [[ ! -d ${DD} ]] ; then mkdir ${DD} ; fi
+rm -f ${DD}/main.yy 
+z d 
+MAKENEWER_DEBUGFILE=d makenewer.x -D=5 2> e -s c=yy -d ${DD} main.c
+
+

@@ -1,0 +1,27 @@
+# PVARS (path vaiables)
+
+#
+# This file contains the names of the path-like variables.  These
+# variables get special processing to remove redundancies and to receive
+# other treatments (cleanups).
+# 
+#
+#
+#
+
+
+PATH
+LD_LIBRARY_PATH
+FPATH
+MANPATH
+
+XUSERFILESEARCHPATH
+XFILESEARCHPATH
+
+CDPATH
+
+MAILDIR
+MAILDIRS
+
+
+

@@ -1,0 +1,15 @@
+DOUBLETEXT
+
+This command prints its positional arguments to a terminal screen in
+double-high double-wide text.
+
+Synopsis:
+$ doubletext [-af <afile>] [-of <ofile>] <word(s)> [-o <opt(s)>] [-V]
+
+Arguments:
+<word(s)>	words to print
+-af <afile>	file containing file names to read as input
+-of <ofile>	write the output to this file instead of to standard-output
+-o <opt(s)>	options: termout[=<b>]
+-V		print command version to standard-error and then exit
+

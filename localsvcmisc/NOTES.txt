@@ -1,0 +1,27 @@
+NOTES (local-svc-misc)
+
+
+= Output for 'notices':
+
+| notifications u=<user> period=<time> n=<n> [from=<from-name>]
+
+
++ Subroutine to get information:
+
+Synopsis:
+
+int localnoticecheck(cchar *pr,char *rbuf,int rlen,cchar *un,int period)
+
+Arhuments:
+
+pr		program-root
+rbuf		result buffer
+rlen		size of result buffer
+un		username
+period		period of time to include
+
+Return:
+
+-		length of result string
+
+

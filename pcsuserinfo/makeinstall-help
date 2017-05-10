@@ -1,0 +1,17 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL-HELP
+
+: ${SRCROOT:=/usr/add-on/local}
+
+T=filefilter
+
+HELPDIR=${1}
+if [[ -z "${HELPDIR}" ]] ; then
+    HELPDIR=${SRCROOT}/share/help
+fi
+
+if [[ -r ${T}.help ]] ; then
+  filesyncer *.help -d ${HELPDIR}
+fi
+
+

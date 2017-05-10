@@ -1,0 +1,36 @@
+EMA
+
+This program extracts EMAs from message headers.
+
+For example:
+
+$ ema -h to < file.msg
+
+would extrat all of the EMAs associated with "to" headers.  The default
+is to extract all of the "to" addresses!
+
+The following will extract all subparts of an address including the EMA:
+
+$ ema -s address,comment,route -h to < file.msg
+
+
+option		description
+--------------------------------------------
+
+-s <what>	selects a component of the address (separated by '|');
+		<what> can be:
+			address, route, comment, best
+		default is "route"
+
+-h <header>	extracts addresses from this header; default is "to"
+
+-info		create and informational report
+
+
+Maybe in the future:
+
+	$ ema -h to=route,from=comment < file.msg
+
+	$ ema -h to=(r,a),from=c < file.msg
+
+

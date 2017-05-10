@@ -1,0 +1,18 @@
+
+
+DAMsysvars {
+	global:
+		sysvars ;
+		sysvars_open ;
+		sysvars_count ;
+		sysvars_curbegin ;
+		sysvars_fetch;
+		sysvars_enum ;
+		sysvars_curend ;
+		sysvars_audit ;
+		sysvars_close ;
+	local:
+		* ;
+} ;
+
+

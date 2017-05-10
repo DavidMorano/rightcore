@@ -1,0 +1,156 @@
+.\"_
+.TH PRT-PCSMAIL 1 1995-02-13 PCS
+.SH NAME
+prt-pcsmail \- print out mail messages to a printer
+.SH SYNOPSIS
+.BR prt-pcsmail
+.OP -d "  dst" ] [
+.OP -c "  copies" ] [
+.OP -s "  sides" ] [
+.OP -p "  mode" ] [
+.OP -f "  form" ] [
+.MW [
+.IR file(s) ...
+.MW ]
+.SH DESCRIPTION
+.sp
+.SS Introduction
+.PP
+The \fCprt-pcsmail\fP program
+is used on a UNIX system to arrange to have one or more mail messages
+printed out to a printer.  This program takes command line arguments
+similarly to the 
+UNISON command \fIprt\fP except that only the options specified in
+this manual page are accepted.  Any option specified other than that
+indicated above will cause the command to fail with an error message.
+.\"_
+.SS Options
+.PP
+Normally a \fB-d\fP option will be specified to select a
+printer destination.  If this option is not specified, a default printer
+may be chosen if the user has a default configured.
+Default printers are configured on the Amdahls and the Suns by use of
+the PRINTER environment variable and possibly the UNISON 
+.MW ${HOME}/.prt
+file.  The UNISON 
+.MW ${HOME}/.prt
+file is only used for option processing when the user has configured,
+via her command execution search path (environment variable PATH),
+to use the UNISON version of the \fIprt\fP command as the underlying
+print command.  Other versions of 
+the \fIprt\fP command can be used in the user's PATH as long as they
+support the standard UNISON command options.
+If a default printer is not explicitly defined
+by the user, a default printer may still be assigned by either the
+system from which the command is executed, the system on which the
+printer spooler is running, or by some other not easily understood mechanism.
+For these reasons, it is usually best for the user to have the PRINTER
+environment variable defined or to specify the printer destination
+on the command line with the \fB-d\fP option.
+.PP
+The \fB-c\fP option allows for the specification of the number of
+copies of the mail message to print out.
+.PP
+The \fB-s\fP option allows for the specification of the number of
+sides of paper to use for the printed out mail message.
+Valid values associated with this option key are '\fB1\fP' and '\fB2\fP'.
+If this option is not specified then the default number of sides
+configured for the printer will be used.  For one-sided printers,
+this value will be set to '\fB1\fP' regardless of the user
+supplied value.
+.PP
+Briefly :
+.IP "-p  \fImode\fP" 10
+This specifies the print mode of the print job.  Possible values
+are :
+.EX
+land
+port
+.EE
+.IP "-f  \fIform\fP" 10
+This specifies the print form to use for the job's output.
+Common values are :
+.EX
+11x17
+hole
+nohole		(the default)
+ledger
+legal
+11x14
+.EE
+Note that most printers now-a-days tend to completely ignore
+these form requests except for maybe the
+.MW 11x17
+value
+on some printers which are both capable of 11x17 output and
+which have been properly configured to adjust to using its 11x17
+paper tray in response to this form request.  Experience has
+shown that this conditions are usually quite rare.
+.PP
+If no files are given on the command line then input from the standard
+input is assumed.  If files are given, then no input is read.
+.SS Execution
+Typically, a user executes this command from within her mail reader 
+program (such as the various PCS mail readers).  A mail message is usually
+sent to this program's standard input using the mail reader program's
+"pipe message" type of facility.  For PCS mail readers, a user
+would use the mailer's "pipe" command (a '\fB|\fP' character for PCS VMAIL)
+to send the current mail message to the standard input of this command.
+.PP
+The command can also print out mail messages that are written out into
+UNIX files.  In this case a file containing a mail message previously
+written out should be either directed to this program's standard input
+(using the standard UNIX system command-line redirection convention) 
+or explicitly specified on the command line.  In this latter case,
+as many files containing mail messages as you want can be printed
+out.  Each mail message in a file will be printed out separately
+as an individual mail message.  Mail messages from multiple file
+are never concatenated before printing.
+.SS Output
+The printed output of this program provides for a "prettied" up
+version of the mail message with the \f(CWFROM\fP address (the person
+who sent you the mail message) distinctly displayed at the top
+of the printout along with the original \f(CWSUBJECT\fP of the
+original mail message.  The output is in a landscape orientation
+suitable for printing as much information on a single piece of
+paper as possible.
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+print a mail message from within PCS \fBreadmail\fP to user's default
+printer :
+.EX
+\f(CW? \fP\fB| prt-pcsmail\fP
+.EE
+.IP \(rh 5
+print a mail message from within PCS \fBvmail\fP to user's default
+printer :
+.EX
+\f(CW? \fP\fB|\fP
+.br
+\f(CWenter command to pipe message to : \fP\fB prt-pcsmail\fP
+.EE
+.IP \(rh 5
+have a mail message in a file named \fIseeya\fP printed out
+to printer \fIgz3c4\fP :
+.EX
+\f(CW$ \fP\fBprt-pcsmail seeya -d gz3c4 \fP
+.EE
+.SH ENVIRONMENT VARIABLES
+.IP PRINTER 20
+This variable, if defined and exported, will be used for a default
+printer if one is not specified on the command line.
+.SH SEE ALSO
+readmail(1p), vmail(1p), prt(1), prtq(1), prtc(1), .prt(4)
+.SH CAVEATS
+Not all platforms are supported equally with respect to
+continued user control over the disposition of the print job
+with respect to
+being either monitored (\fIprtq\fP) or canceled (\fIprtc\fP).
+.SH PATH TO
+This program is currently located in \f(CW/usr/add-on/pcs/bin\fP
+or possibly \f(CW/usr/add-on/local/bin\fP on some systems.
+.SH WARNINGS
+Be careful to put a space between all option key letters and the associated
+key letter parameter.
+.\"_

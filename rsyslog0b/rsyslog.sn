@@ -1,0 +1,18 @@
+# SYSTEMS
+#
+
+
+rca		tcpmux 5108
+rcb		tcpmux 5108
+rcc		tcpmux 5108
+
+*.levosim.org	tcpmux 5108
+
+*.rightcore.com	tcpmux	5108
+*.rightcore.org	tcpmux	5108
+
+*.christian-update.org \
+		tcpmux	5108
+
+
+

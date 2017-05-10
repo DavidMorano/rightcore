@@ -1,0 +1,7 @@
+#!/usr/extra/bin/ksh
+# PRETIME
+
+LT=/usr/lib/secure/libpretime.so
+export LIBPRETIME_BASETIME=201603240909
+LD_PRELOAD="${LD_PRELOAD} ${LT}" "${@}"
+

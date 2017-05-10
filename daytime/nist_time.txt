@@ -1,0 +1,20 @@
+
+# New Yok City (closest to Boston)
+nist1-ny.ustiming.org [dead]
+
+time-a.nist.gov
+time-b.nist.gov [dead]
+time-a.timefreq.bldrdoc.gov
+time-b.timefreq.bldrdoc.gov
+time-c.timefreq.bldrdoc.gov
+utcnist.colorado.edu
+time.nist.gov
+time-nw.nist.gov
+nist1.datum.com
+nist1-dc.glassey.com
+nist1-ny.glassey.com
+nist1-sj.glassey.com
+nist1.aol-ca.truetime.com
+nist1.aol-va.truetime.com
+
+

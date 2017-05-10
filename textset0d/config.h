@@ -1,0 +1,73 @@
+/* config */
+
+
+#define	VERSION		"0d"
+#define	WHATINFO	"@(#)textset "
+#define	BANNER		"Text Set"
+#define	SEARCHNAME	"textset"
+#define	VARPRNAME	"LOCAL"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	VARPROGRAMROOT1	"TEXTSET_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"TEXTSET_BANNER"
+#define	VARSEARCHNAME	"TEXTSET_NAME"
+#define	VAROPTS		"TEXTSET_OPTS"
+#define	VARAFNAME	"TEXTSET_AF"
+#define	VAREFNAME	"TEXTSET_EF"
+
+#define	VARDEBUGFNAME	"TEXTSET_DEBUGFILE"
+#define	VARDEBUGFD1	"TEXTSET_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARNODE		"NODE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARDOMAIN	"DOMAIN"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+#define	VARHZ		"HZ"
+#define	VARTZ		"TZ"
+#define	VARUSERNAME	"USERNAME"
+#define	VARLOGNAME	"LOGNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#define	TMPDNAME	"/tmp"
+
+#define	CONFIGFILE1	"etc/textset/conf"
+#define	CONFIGFILE2	"etc/textset/textset.conf"
+#define	CONFIGFILE3	"etc/textset.conf"
+#define	HELPFNAME	"help"
+
+#define	MAXBLANKLINES	100
+#define	DEFBLANKLINES	2
+#define	DEFLINES	60
+#define	MAXLINES	180
+#define	DEFPOINT	10
+
+

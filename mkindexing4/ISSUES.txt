@@ -1,0 +1,10 @@
+MKKEY (issues)
+
+Q. Should we add an option to "include" the delimiter line(s) in the entry
+range like to use in the quote source input, or for some other purpose?
+
+A. I don't think so -- at least not at this time.  Although this stuff
+all seems simple enough, it is more complicated to implement than to
+think about.
+
+

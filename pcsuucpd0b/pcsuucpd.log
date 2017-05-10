@@ -1,0 +1,306 @@
+33             010820_2144:04 PCS UUCP Daemon (PCSUUCPD) started
+33             pcsuucpd.x     0b/SYSV
+33             ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+33             rca!dam (David A. Morano)
+33             passwd=passwd
+33             configfile=pcsuucpd.conf
+33             daemon listening on TCP port 'test114'
+33             pidfile=/home/dam/src/pcsuucpd/pcsuucpd.pid
+33             PID mutex captured
+33             pidfile device=\x00800006 inode=2159760
+33             srvtab=/home/dam/src/pcsuucpd/etc/srvtab
+33             acctab=acctab
+33             010820_2144:04 finished initializing
+33             010820_2145:08 mark> rca
+33             010820_2146:12 mark> rca
+33             010820_2147:16 mark> rca
+33             010820_2147:46 daemon exiting
+36             010820_2159:08 PCS UUCP Daemon (PCSUUCPD) started
+36             pcsuucpd.x     0b/SYSV
+36             ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+36             rca!dam (David A. Morano)
+36             passwd=passwd
+36             configfile=pcsuucpd.conf
+36             daemon listening on TCP port 'test114'
+36             pidfile=/home/dam/src/pcsuucpd/pcsuucpd.pid
+36             PID mutex captured
+36             pidfile device=\x00800006 inode=2159760
+36             srvtab=/home/dam/src/pcsuucpd/etc/srvtab
+36             acctab=acctab
+36             010820_2159:08 finished initializing
+36             010820_2200:12 mark> rca
+37             010820_2204:46 PCS UUCP Daemon (PCSUUCPD) started
+37             pcsuucpd.x     0b/SYSV
+37             ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+37             rca!dam (David A. Morano)
+37             passwd=passwd
+37             configfile=pcsuucpd.conf
+37             daemon listening on TCP port 'test114'
+37             pidfile=/home/dam/src/pcsuucpd/pcsuucpd.pid
+37             PID mutex captured
+37             pidfile device=\x00800006 inode=2159760
+37             srvtab=/home/dam/src/pcsuucpd/etc/srvtab
+37             acctab=acctab
+37             010820_2204:46 finished initializing
+37             010820_2206:08 mark> rca
+37             010820_2207:09 mark> rca
+37             010820_2207:16 daemon exiting
+38             010820_2209:16 PCS UUCP Daemon (PCSUUCPD) started
+38             pcsuucpd.x     0b/SYSV
+38             ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+38             rca!dam (David A. Morano)
+38             passwd=passwd
+38             configfile=pcsuucpd.conf
+38             daemon listening on TCP port 'test114'
+38             pidfile=/home/dam/src/pcsuucpd/pcsuucpd.pid
+38             PID mutex captured
+38             pidfile device=\x00800006 inode=2159760
+38             srvtab=/home/dam/src/pcsuucpd/etc/srvtab
+38             acctab=acctab
+38             010820_2209:16 finished initializing
+38.0           010820_2209:27 request pid=5223
+38.0           from host=rca
+38.0           010820_2209:27 login=morano
+38.0           server=echo
+38.0           010820_2209:40 server exit, ex=0
+38.0           elapsed time   0-00:00:13
+38             010820_2210:20 mark> rca
+38.1           010820_2211:14 request pid=5345
+38.1           from host=rca
+38.1           010820_2211:14 login=echoargs
+38.1           server did not 'exec'
+38             010820_2211:22 mark> rca
+38             010820_2212:26 mark> rca
+38.2           010820_2212:30 request pid=5438
+38.2           from host=rca
+38.2           010820_2212:30 login=echoargs
+38.2           server did not 'exec'
+38             010820_2213:28 mark> rca
+38             010820_2214:32 mark> rca
+38             010820_2215:36 mark> rca
+38             010820_2216:40 mark> rca
+38.3           010820_2217:14 request pid=5717
+38.3           from host=rca
+38.3           010820_2217:14 login=echoargs
+38.3           server=echoargs
+38.3           010820_2217:22 server exit, ex=0
+38.3           elapsed time   0-00:00:08
+38.4           010820_2217:25 request pid=5719
+38.4           from host=rca
+38.4           010820_2217:25 login=echoargs
+38.4           server=echoargs
+38.4           010820_2217:35 server exit, ex=0
+38.4           elapsed time   0-00:00:10
+38.5           010820_2217:35 request pid=5722
+38.5           from host=rca
+38.5           010820_2217:35 login=nuucp
+38.5           server=pcsuucico
+38             010820_2217:41 mark> rca
+38.5           010820_2217:49 server exit, ex=0
+38.5           elapsed time   0-00:00:14
+38             010820_2218:45 mark> rca
+38             010820_2219:43 daemon exiting
+147     	021115_0015:32 pcsuucpd.x     0a/SYSV
+147     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+147     	rca!dam (David A. Morano)
+147     	configfile=testbase/etc/pcsuucpd.conf
+147     	programroot=testbase
+147     	req=/home/dam/src/pcsuucpd/testbase/var/pcsuucpd/req
+147     	passwd=testbase/etc/passwd
+147     	srvtab=testbase/etc/srvtab
+147     	acctab=acctab
+147.0   	691231_1900:00 request pid=29665
+147.0   	691231_1900:00 login=echo1
+147.0   	server did not 'exec'
+148     	021115_0019:28 pcsuucpd.x     0a/SYSV
+148     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+148     	rca!dam (David A. Morano)
+148     	configfile=testbase/etc/pcsuucpd.conf
+148     	programroot=testbase
+148     	req=/home/dam/src/pcsuucpd/testbase/var/pcsuucpd/req
+148     	passwd=testbase/etc/passwd
+148     	srvtab=testbase/etc/srvtab
+148     	acctab=acctab
+148.0   	691231_1900:00 request pid=29731
+148.0   	691231_1900:00 login=echo1
+148.0   	server did not 'exec'
+149     	021115_0023:26 pcsuucpd.x     0a/SYSV
+149     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+149     	rca!dam (David A. Morano)
+149     	configfile=testbase/etc/pcsuucpd.conf
+149     	programroot=testbase
+149     	req=/home/dam/src/pcsuucpd/testbase/var/pcsuucpd/req
+149     	passwd=testbase/etc/passwd
+149     	srvtab=testbase/etc/srvtab
+149     	acctab=acctab
+149.0   	691231_1900:00 request pid=29787
+149.0   	691231_1900:00 login=echo1
+149.0   	server=echo
+149.0   	021115_0023:30 server exit, ex=0
+149.0   	elapsed time   0-00:00:04
+179     	030605_1424:53 pcsuucpd.x     0a/SYSV
+179     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+179     	rca!dam (David A. Morano)
+179     	configfile=testbase/etc/pcsuucpd.conf
+179     	pr=testbase
+179     	passwd=testbase/etc/passwd
+179     	srvtab=testbase/etc/srvtab
+179     	acctab=acctab
+179.0   	030605_1424:53 request pid=8959
+179.0   	030605_1424:54 incomplete login >  < (-145)
+179.0   	server did not 'exec'
+180     	030605_1425:44 pcsuucpd.x     0a/SYSV
+180     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+180     	rca!dam (David A. Morano)
+180     	configfile=testbase/etc/pcsuucpd.conf
+180     	pr=testbase
+180     	passwd=testbase/etc/passwd
+180     	srvtab=testbase/etc/srvtab
+180     	acctab=acctab
+180.0   	030605_1425:44 request pid=9063
+180.0   	030605_1425:45 incomplete login >  < (-145)
+180.0   	server did not 'exec'
+181     	030605_1428:48 pcsuucpd.x     0a/SYSV
+181     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+181     	rca!dam (David A. Morano)
+181     	configfile=testbase/etc/pcsuucpd.conf
+181     	pr=testbase
+181     	passwd=testbase/etc/passwd
+181     	srvtab=testbase/etc/srvtab
+181     	acctab=acctab
+181.0   	030605_1428:48 request pid=9136
+181.0   	030605_1428:49 incomplete login >  < (-145)
+181.0   	server did not 'exec'
+182     	030605_1431:02 pcsuucpd.x     0a/SYSV
+182     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+182     	rca!dam (David A. Morano)
+182     	configfile=testbase/etc/pcsuucpd.conf
+182     	pr=testbase
+182     	passwd=testbase/etc/passwd
+182     	srvtab=testbase/etc/srvtab
+182     	acctab=acctab
+182.0   	030605_1431:02 request pid=9436
+182.0   	030605_1431:03 incomplete login >  < (-145)
+182.0   	server did not 'exec'
+183     	030605_1433:36 pcsuucpd.x     0a/SYSV
+183     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+183     	rca!dam (David A. Morano)
+183     	configfile=testbase/etc/pcsuucpd.conf
+183     	pr=testbase
+183     	passwd=testbase/etc/passwd
+183     	srvtab=testbase/etc/srvtab
+183     	acctab=acctab
+183.0   	030605_1433:36 request pid=9709
+183.0   	030605_1433:37 incomplete login >  < (-145)
+183.0   	server did not 'exec'
+184     	030605_1435:14 pcsuucpd.x     0a/SYSV
+184     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+184     	rca!dam (David A. Morano)
+184     	configfile=testbase/etc/pcsuucpd.conf
+184     	pr=testbase
+184     	passwd=testbase/etc/passwd
+184     	srvtab=testbase/etc/srvtab
+184     	acctab=acctab
+184.0   	030605_1435:14 request pid=9802
+184.0   	030605_1435:15 incomplete login >  < (-145)
+184.0   	server did not 'exec'
+185     	030605_1437:17 pcsuucpd.x     0a/SYSV
+185     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+185     	rca!dam (David A. Morano)
+185     	configfile=testbase/etc/pcsuucpd.conf
+185     	pr=testbase
+185     	passwd=testbase/etc/passwd
+185     	srvtab=testbase/etc/srvtab
+185     	acctab=acctab
+185.0   	030605_1437:17 request pid=9845
+185.0   	030605_1437:18 incomplete login >  < (-145)
+185.0   	server did not 'exec'
+186     	030605_1440:47 pcsuucpd.x     0a/SYSV
+186     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+186     	rca!dam (David A. Morano)
+186     	configfile=testbase/etc/pcsuucpd.conf
+186     	pr=testbase
+186     	passwd=testbase/etc/passwd
+186     	srvtab=testbase/etc/srvtab
+186     	acctab=acctab
+186.0   	030605_1440:47 request pid=10155
+186.0   	030605_1440:47 login=echo
+186.0   	server=cat
+186.0   	030605_1441:04 server exit, ex=0
+186.0   	elapsed time   0-00:00:17
+187     	030605_1441:20 pcsuucpd.x     0a/SYSV
+187     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+187     	rca!dam (David A. Morano)
+187     	configfile=testbase/etc/pcsuucpd.conf
+187     	pr=testbase
+187     	passwd=testbase/etc/passwd
+187     	srvtab=testbase/etc/srvtab
+187     	acctab=acctab
+187.0   	030605_1441:20 request pid=10191
+187.0   	030605_1441:20 login=echo1
+187.0   	server=echo
+187.0   	030605_1441:24 server exit, ex=0
+187.0   	elapsed time   0-00:00:04
+188     	030605_1443:11 pcsuucpd.x     0a/SYSV
+188     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+188     	rca!dam (David A. Morano)
+188     	configfile=testbase/etc/pcsuucpd.conf
+188     	pr=testbase
+188     	passwd=testbase/etc/passwd
+188     	srvtab=testbase/etc/srvtab
+188     	acctab=acctab
+188.0   	030605_1443:11 request pid=10248
+188.0   	030605_1443:11 login=echo1
+188.0   	server=echo
+188.0   	030605_1443:14 server exit, ex=0
+188.0   	elapsed time   0-00:00:03
+189     	030605_1447:04 pcsuucpd.x     0a/SYSV
+189     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+189     	rca!dam (David A. Morano)
+189     	configfile=testbase/etc/pcsuucpd.conf
+189     	pr=testbase
+189     	passwd=testbase/etc/passwd
+189     	srvtab=testbase/etc/srvtab
+189     	acctab=acctab
+189.0   	030605_1447:04 request pid=10409
+189.0   	030605_1447:04 login=echo2
+189.0   	server=echo
+189.0   	030605_1447:07 server exit, ex=0
+189.0   	elapsed time   0-00:00:03
+373     	031117_0945:17_EST pcsuucpd.x     0a/SYSV
+373     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+373     	rca!dam (David A. Morano)
+373     	configfile=testbase/etc/pcsuucpd.conf
+373     	pr=testbase
+373     	passwd=testbase/etc/passwd
+373     	srvtab=testbase/etc/srvtab
+373     	acctab=acctab
+373.0   	031117_0945:17_EST request pid=15679
+373.0   	031117_0945:17_EST login=echo
+373.0   	server=cat
+373.0   	031117_0945:40_EST server exit, ex=0
+373.0   	elapsed time   0-00:00:23
+397     	031221_0029:25_EST pcsuucpd       0a/SYSV
+397     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+397     	rcb!dam (David A. Morano)
+397     	conf=testbase/etc/pcsuucpd.conf
+397     	pr=/home/dam/src/pcsuucpd/testbase
+397     	passwd=/home/dam/src/pcsuucpd/testbase/etc/passwd
+397     	srvtab=/home/dam/src/pcsuucpd/testbase/etc/srvtab
+397     	acctab=acctab
+397.0   	031221_0029:25_EST request pid=3306
+397.0   	031221_0029:25_EST login=echo
+397.0   	server did not 'exec'
+398     	031221_0029:48_EST pcsuucpd       0a/SYSV
+398     	ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+398     	rcb!dam (David A. Morano)
+398     	conf=testbase/etc/pcsuucpd.conf
+398     	pr=/home/dam/src/pcsuucpd/testbase
+398     	passwd=/home/dam/src/pcsuucpd/testbase/etc/passwd
+398     	srvtab=/home/dam/src/pcsuucpd/testbase/etc/srvtab
+398     	acctab=acctab
+398.0   	031221_0029:48_EST request pid=3312
+398.0   	031221_0029:48_EST login=echo1
+398.0   	server=echo
+398.0   	031221_0029:56_EST server exit, ex=0
+398.0   	elapsed time   0-00:00:08

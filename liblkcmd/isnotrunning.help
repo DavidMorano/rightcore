@@ -1,0 +1,20 @@
+%{SS}
+
+This command tests if a specified process is running by referencing a standard
+PID file.
+
+Synopsis:
+$ %{S} <pidfile(s)> [-<age>] [-V]
+
+Arguments:
+<pidfile(s)>	PID file(s) to check
+-<age>		age of PID file(s) (must be older than specified)
+-V		print command version to standard-error and then exit
+
+Returns:
+0		all criteria met
+>0		some criteria not met
+
+Example:
+$ isNotRunning ${EXTRA}/var/run/xinetd.pid -5m
+

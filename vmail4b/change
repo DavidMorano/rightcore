@@ -1,0 +1,46 @@
+#!/usr/bin/ksh
+# CHANGE
+
+
+NAMES=
+NAMES="${NAMES} entered"
+
+
+DN=/dev/null
+PF=/tmp/pf${$}
+
+function cleanup {
+  rm -f ${PF}
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+for N in ${NAMES} ; do
+  print -- ${N}
+done > ${PF}
+
+
+for F in "${@}" ; do
+
+  if [[ -r "${F}" ]] ; then
+
+      print -u2 -- "${0}: file=${F}"
+
+      if fgrep -f ${PF} ${F} > ${DN} ; then
+
+      ed - $F <<\EOF
+	g/: entered/s//: ent/g
+	w
+	q
+EOF
+
+      fi
+
+  fi
+
+done
+
+cleanup
+
+
+

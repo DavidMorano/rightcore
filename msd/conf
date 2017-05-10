@@ -1,0 +1,22 @@
+# MSD.CONF
+
+
+
+# passed requests
+listen		pass		%R/spool/msd/pass
+
+# requests we get directly
+listen		inet:udp	- 5107
+listen		inet:tcp	- 5113
+listen		inet:tcp	rca 5113
+listen		inet:tcp	\x00020ACEC0A800010000000000000000
+listen		unix:co		%R/spool/msd/co
+listen		unix:cl		%R/spool/msd/cl
+listen		local:coo	%R/spool/msd/request
+
+# file-system transport
+listen		fst		%R/spool/msd/request
+
+
+
+

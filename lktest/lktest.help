@@ -1,0 +1,15 @@
+LKTEST
+
+This program is used for testing for locks on files.
+
+Synopsis:
+
+$ lktest [-v] file(s) [-h holdtime] [-t timeout] [-r removetime]
+
+where:
+
+file		file to lock
+-h holdtime	time to hold the lock
+-t timeout	timeout after this number of seconds
+-r removetime	timeout before the lock file is removed
+

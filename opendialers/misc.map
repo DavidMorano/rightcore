@@ -1,0 +1,18 @@
+
+
+DAMopendialer_misc {
+	global:
+		opendialer_hello ;
+		opendialer_prog ;
+		opendialer_tcp ;
+		opendialer_tcpnls ;
+		opendialer_tcpmux ;
+		opendialer_uss ;
+		opendialer_ussnls ;
+		opendialer_ussmux ;
+		opendialer_finger ;
+	local:
+		* ;
+} ;
+
+

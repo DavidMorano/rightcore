@@ -1,0 +1,72 @@
+# SVC (HOMEPAGE)
+# HOMEPAGE service table
+#
+#	The format of entries are:
+#
+#	service:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		so= 	<lib>[:<entry>]
+#		opts=	options
+#
+#
+
+#
+#	The following substitutions are made on keyword value strings:
+#
+#		%V	program version string
+#		%R	program root directory
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+
+#		%s	service
+#		%i	actual interval since last time (decimal secs)
+
+#
+
+#
+#
+
+
+motd:
+	h= "Message of the Day",
+	so= lkcmd,
+	file= /usr/apache/etc/svcs/motd,
+	opts= termout,
+	a= <motd -o termout=1 -T text>
+
+cotd:
+	h= "Commandment of the Day",
+	so= lkcmd,
+	file= /usr/apache/etc/svcs/cotd,
+	a= cotd
+
+votd:
+	h= "Verse of the Day",
+	so= lkcmd,
+	file= /usr/apache/etc/svcs/votd,
+	a= votd
+
+hotd:
+	h= "History of the Day",
+	so= lkcmd,
+	file= /usr/apache/etc/svcs/hotd,
+	a= hotd
+
+qotd:
+	h= "Quote of the Day",
+	so= lkcmd,
+	file= /usr/apache/etc/svcs/qotd,
+	opts= termout,
+	a= <qotd -o termout=1 -T text>
+
+hols:
+	h= "Imminent Holidays (next 40 days)",
+	file= /etc/hols
+
+wotd:
+	h= "Weather of the Day",
+	include= weather.txt
+
+

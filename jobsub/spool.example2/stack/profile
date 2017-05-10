@@ -1,0 +1,9 @@
+exec on
+nice 2
+maxexec 1
+mail ec
+supervisor stack/This_week
+mailsupervisor sec
+loadsched 3
+loadstop 5
+rlimitcore 0

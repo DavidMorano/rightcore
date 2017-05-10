@@ -1,0 +1,20 @@
+UUX
+
+This is the UUX dialer module.
+
+Synopsis:
+
+uux [-R <pr>] [-g <grade>] [-u <username>] [-n] [-r] 
+	[{ [[<node>!]<svc>] | [[<node>][[!]<svc>]] } [<args>]]
+
+where:
+
+-R <pr>		program-root
+-g <grade>	grade to queue job at (see UUCP(1) for grades)
+-u <username>	alternative username to associate with job
+[-n]		do not notify username on transfer failure
+[-r]		queue job but do not start the transfer
+<node>		node to send job to (can be NUL)
+<svc>		service to invoke on target node
+<args>		arguments for remote service
+

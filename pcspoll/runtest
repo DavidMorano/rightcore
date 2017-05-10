@@ -1,0 +1,42 @@
+#!/usr/bin/ksh
+# POLL.CRON
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${PCS:=/usr/add-on/pcs}
+export LOCAL NCMP PCS
+
+
+FPATH=${LOCAL}/fbin
+export FPATH
+
+
+pathadd PATH ${LOCAL}/bin
+pathadd LD_LIBRARY_PATH ${LOCAL}/lib
+
+pathadd PATH ${PCS}/bin
+pathadd LD_LIBRARY_PATH ${PCS}/lib
+
+pathadd PATH ${NCMP}/bin
+pathadd LD_LIBRARY_PATH ${NCMP}/lib
+
+
+PCSPOLL_PROGRAMROOT=${HOME}
+PCSPOLL_NAME=poll
+export PCSPOLL_PROGRAMROOT PCSPOLL_NAME
+
+DIR=${PWD}
+cd
+
+D=${DIR}/d
+E=${DIR}/e
+
+PCSPOLL_DEBUGFD=3
+export PCSPOLL_DEBUGFD
+execname ${DIR}/pcspoll.x poll -d -D=5 2> $E 3> $D
+
+#execname ${DIR}/pcspoll.x poll -d -Q
+
+
+

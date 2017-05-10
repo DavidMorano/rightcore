@@ -1,0 +1,13 @@
+#!/usr/bin/ksh
+# MKTESTCOTD
+
+OUT=" testcotd.x "
+INCS=" -I${HOME}/include"
+SRCS=" testcotd.cc "
+DAMLIBS=" -L${HOME}/lib -llkcmd -ldam -luc -lu "
+GNULIBS=" -L${GNU}/lib -lstdc++ -lgcc_eh "
+SYSLIBS=" -lsecdb -lproject -lrt -lpthread -lxnet -lsocket -lnsl -ldl "
+
+gcc -o ${OUT} ${INCS} ${SRCS} ${DAMLIBS} ${GNULIBS} ${SYSLIBS}
+
+

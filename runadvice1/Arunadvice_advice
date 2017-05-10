@@ -1,0 +1,27 @@
+ # <-- force CSH to use Bourne shell
+# RUNADVICE_ADVICE
+
+
+ADVHIST=.advhist${$}
+
+
+cleanup() {
+  rm -f ${ADVHIST}
+}
+
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17 
+
+
+rm -f ${ADVHIST}
+cp /dev/null ${ADVHIST}
+chmod 666 ${ADVHIST}
+
+#cat >> runfiles
+HISTFILE=${ADVHIST} tsyscad42 advice -t 0 | tee runadvice.log
+#nice -5 advice -t 0 | tee xadv.log
+#nice -5 tsyscad advice -t 0 | tee xadv.log
+
+cleanup
+
+

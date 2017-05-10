@@ -1,0 +1,352 @@
+
+%Q carrillo95differential
+%T Fully differential basic building blocks based on fully differential 
+difference amplifiers with unity-gain difference feedback
+%A J.F. Duque-Carrillo
+%A G. Torelli
+%A R. Perez-Aloe
+%A J.M. Valverde
+%A F. Maloberti
+%J IEEE Transactions on Circuits and Systems (Part I)
+%V 42
+%N 3
+%P 190-192
+%D March 1995
+%K differential amplifiers difference
+%X This IEEE article describes a Fully Differential Difference
+Amplifier
+
+%Q chiariglione95mpeg
+%T MPEG: A technological basis for multimedia applications
+%A L. Chiariglione
+%J IEEE Multimedia
+%V 2
+%N 1
+%P 85-89
+%D Spring 1995
+%K MPEG multimedia
+%X
+This is the main person who has championed much of the MPEG work.
+
+%Q shlien94mpeg
+%T Guide to MPEG-1 audio standard
+%A Seymour Shlien
+%J IEEE Transactions on Broadcasting
+%V 40
+%N 4
+%P 206-218
+%D December 1994
+%K MPEG audio standard
+
+%Q noll97mpeg
+%T MPEG digital audio coding
+%A P. Noll
+%J IEEE Signal Processing Magazine
+%V 14
+%N 5
+%P 59-81
+%D September 1997
+%K MPEG audio standard digital coding
+
+%Q pan95mpeg
+%T A tutorial on MPEG/audio compression
+%A D. Pan
+%J IEEE Multimedia
+%V 2
+%N 2
+%P 60-74
+%D Summer 1995
+%K MPEG audio standard
+
+%Q bosi96aac
+%T ISO/IEC MPEG-2 advanced audio coding
+%A M. Bosi
+%A K. Brandemburg
+%A S. Quackenbush
+%A L. Fielder
+%A K. Akagin
+%A H. Fuchs
+%A M. Dietz
+%A J. Herre
+%A G. Davidson
+%A Y. Oikawa
+%J 101st Audio Engineering Society Convention
+(preprint 4382)
+%I Audio Engineering Society
+%C Los Angeles
+%MM November
+%DD 8-11
+%YY 1996
+%D November 1996
+%K MPEG advanced audio encoding
+
+%Q bosi97aac
+%T ISO/IEC MPEG-2 advanced audio coding
+%A M. Bosi
+%A K. Brandemburg
+%A S. Quackenbush
+%A L. Fielder
+%A K. Akagin
+%A H. Fuchs
+%A M. Dietz
+%A J. Herre
+%A G. Davidson
+%A Y. Oikawa
+%J Journal of the Audio Engineering Society 
+%I Audio Engineering Society 
+%D 1997
+%K MPEG advanced audio encoding
+%V 45
+%N 10
+
+%Q grill94mpeg
+%T Improved MPEG-2 audio multi-channel encoding
+%A B. Grill
+%A J.  Herre 
+%A K. H.  Brandenburg 
+%A E.  Eberlein 
+%A J.  Koller 
+%J 96th Audio Engineering Convention
+(preprint 3865)
+%I Audio Engineering Society
+%D January 1994
+%MM January
+%YY 1994
+%K MPEG improved MPEG audio encoding
+
+%Q zwicker67ohr
+%T Das ohr als nachrichtenempfanger
+%A E. Zwicker
+%A R. Feldtkeller
+%I Hirzel Verlag
+%C Stutgart, Germany
+%D 1967
+
+%Q blauert74psychophysics
+%T The psychophysics of human sound localization
+%A J. Blauert
+%I MIT Press
+%C Cambridge, MA
+%D 1974
+%X
+Translated from german by J.S.Allen.
+Original title "Raumliches Horen."
+
+%Q jayant93signal
+%T Signal compression based on models of human perception
+%A N. Jayant
+%A J. Johnston
+%A R. Safranek
+%J Proceeding of the IEEE
+%I 81(10)
+%P 1385-1422
+%C Stutgart, Germany
+%D 1993
+
+%Q johnston89perceptual
+%T Perceptual transform coding of wideband stereo signals
+%A J. Johnston
+%J International Conference on Acoustics, Speech and Signal Processing
+%P 1993-1996
+%D 1989
+
+%Q scharf70critical
+%T Critical bands
+%A B. Scharf
+%J Foundations of Modern Auditory Theory
+%I Academic Press
+%C New York, NY
+%P 159-202
+%D 1970
+
+%Q johnston88transform
+%T Transform coding of audio signals using perceptual noise criteria
+%A J. D. Johnston
+%J IEEE Journal on selected areas in Communications
+%V 6
+%P 314-323
+%D February 1988
+
+%Q wiese90bitrate
+%T Bitrate reduction of high quality audio signals by modeling
+the Ears' Masking Thresholds
+%A D. Wiese
+%A G. Stoll
+%J 89th AES Convention (preprint 2970)
+%I Audio Engineering Society
+%C New York, NJ
+%D 1990
+
+%Q lanciani97mpeg
+%T Psychoacoustically-based processing of MPEG-1 Layer 1-2
+encoded signals
+%A C. A. Lanciani
+%A R. W. Schafer
+%A Y. Wang
+%A A. R. Reibman
+%A B. H. Juang
+%A T. Chen
+%A S. Y. Kung
+%J IEEE First Workshop on Multimedia Signal Processing
+%I IEEE Press
+%C Piscataway, NJ
+%P 53-58
+%D 1997
+
+%Q liu97design
+%T The design of a hybrid filter bank for the psychoacoustically mode
+in ISO/MPEG phases 1, 2 audio encoder
+%A Chi-Min Liu
+%A Wen-Chieh Lee
+%J IEEE Transactions on Consumer Electronics
+%I IEEE Press
+%C Piscataway, NJ
+%P 586-592
+%D August 1997
+
+%Q konstantinides94mpeg
+%T Fast subband filtering in MPEG audio coding
+%A K. Konstantinides
+%J IEEE Signal Processing Letters
+%I IEEE Press
+%C Piscataway, NJ
+%P 26-28
+%V 1
+%N 2
+%D February 1994
+
+%Q chiang96mpeg
+%T Regressive implementations for the forward and inverse
+MDCT in MPEG Audio Coding
+%A Hwang-Cheng Chiang
+%A Jie-Cherng Liu
+%J IEEE Signal Processing Letters
+%I IEEE Press
+%C Piscataway, NJ
+%P 116-118
+%V 3
+%N 4
+%D April 1996
+
+%Q hans97mpeg
+%T A mompliant MPEG-1 Layer II audio decoder with 16-b arithmetic
+Operations
+%A M. C. Hans
+%A V. Bhaskaran
+%J IEEE Signal Processing Letters
+%I IEEE Press
+%C Piscataway, NJ
+%P 121-122
+%V 4
+%N 5
+%D May 1997
+
+%Q tsai97mpeg
+%T A novel MPEG-2 audio decoder eith efficient data arrangement
+and Memory Configuration.
+%A Tsung-Han Tsai
+%A Liang-Gee Chen
+%A Yuan-Chen Liu
+%J IEEE Transactions on Consumer Electronics
+%I IEEE Press
+%C Piscataway, NJ
+%P 598-604
+%V 43
+%N 3
+%D August 1997
+
+%Q zucker96mpeg
+%T Improving performance for software MPEG players
+%A D. F. Zucker
+%A M. J. Flynn
+%A R. B. Lee
+%J Compcon '96 'Technologies for the Information Superhighway'
+%P 327-332
+%D 1996
+
+%Q lau97mpeg
+%T A common transform engine for MPEG and AC-3 audio decoder
+%A W. Lau
+%A A. Chwu
+%J IEEE Transactions on Consumer Electronics
+%P 559-566
+%D August 1997
+
+%Q jhung97mpeg
+%T Architecture of dual mode audio dilter for AC-3 and MPEG
+%A Y. Jhung
+%A S. Park
+%J IEEE Transactions on Consumer Electronics
+%P 575-585
+%D August 1997
+
+%Q tsai95mpeg
+%T A MPEG audio decoder chip
+%A Tsung-Han Tsai
+%A Thou-Ho Chen
+%A Liang-Gee Chen
+%J IEEE Transactions on Consumer Electronics
+%I IEEE Press
+%C Piscataway, NJ
+%P 89-96
+%V 41
+%N 1
+%D February 1995
+
+%Q kumar96mpeg
+%T A high performance software implementation of MPEG audio encoder
+%A M. Kumar
+%A M. Zubair
+%J IEEE International Conference on
+Acoustics, Speech, and Signal Processing
+%I IEEE Press
+%C Piscataway, NJ
+%P 1049-1052
+%V 2
+%D 1996
+
+%Q tsai97implementation
+%T Implementation strategy of MPEG-2 audio decoder and efficient
+multichannel architecture
+%A Tsung-Han Tsai
+%A Liang-Gee Chen
+%A Ruei-Xi Chen
+%A M. K. Ibrahim
+%A P. Pirsch
+%A J. McCanny
+%J 1997 IEEE Workshop on Signal Processing Ssytems
+%I IEEE Press
+%C Piscataway, NJ
+%P 293-300
+%D 1997
+
+%Q johnson96nbc
+%T MPEG-2 NBC audio -- stereo and multichannel coding methods 
+%A James D. Johnston
+%A Jürgen Herre
+%A Mark Davis 
+%A Uwe Gbur
+%J 101st Audio Engineering Society Convention
+(preprint 4383)
+%I Audio Engineering Society
+%C Los Angeles
+%D November 1996
+%MM November
+%DD 8-11
+%YY 1996
+
+%Q stoll92codec
+%T The ISO/MPEG-audio CODEC:
+A generic standard for coding of high quality digital audio
+%A Gerhard Stoll 
+%A Karlheinz Brandenburg
+%J 92nd Audio Engineering Society Convention
+(preprint 3336)
+%I Audio Engineering Society
+%D February 1992
+%MM Fevruary
+%YY 1992
+%C New York
+
+
+

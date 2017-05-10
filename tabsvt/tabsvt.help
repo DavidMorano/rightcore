@@ -1,0 +1,24 @@
+TABSVT
+
+This program clears the terminal screen by default.  Optionally it
+can also clear some setting of the terminal back to their defaults.
+
+Synopsis:
+
+$ tabsvt [-i] [-T <termtype>] [-d[=n]] [-o <options>] [-a] [-V]
+
+where:
+
+-i		sets some terminal settings back to their defaults
+-T <termtype>	the terminal type name (as known to the TERMINFO DB)
+-d[=<n>]	display the current date-time (n={0|1})
+-o <options>	invocation options
+-a		initialize all (extra) terminal capabilities
+-V		print command version to standard-error and then exit
+
+options:
+
+sd[=<n>]	use status display (n={0|1})
+clear[=<n>]	clear the display (n={0|1}; the default is YES)
+date[=<n>]	refresh (or display) the date
+

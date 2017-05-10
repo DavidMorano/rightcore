@@ -1,0 +1,10 @@
+#!/bin/ksh
+# RUN-WATCHMALLOC
+
+
+MALLOC_DEBUG=WATCH,RW
+export MALLOC_DEBUG
+
+LD_PRELOAD=watchmalloc.so.1 "${@}"
+
+

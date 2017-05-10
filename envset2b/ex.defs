@@ -1,0 +1,90 @@
+# DEFS
+
+
+# substitution cookies:
+#
+# MACHINE	machine-name
+# ARCHITECTURE	machine-architecture
+# NCPU		number of machine CPUs
+# SYSNAME	OS system-name
+# RELEASE	OS system-release
+# VERSION	OS system-version
+# HZ		OS clock tics
+# U		current user username
+# G		current user groupname
+# HOME		current user home directory
+# SHELL		current user shell
+# GECOSNAME	current user gecos-name
+# REALNAME	current user real-name
+# NAME		current user name
+# ORGANIZATION	current user organization name
+# TZ		current user time-zone
+# N		nodename
+# D		INET domainname (for current user)
+# H		INET hostname
+# R		program-root
+#
+#
+
+
+# system configuation
+MAILDIR=	${MAILDIR=/var/mail}
+
+
+# just some useful variables
+A=		/usr/add-on
+
+
+# Solaris-standard
+XPG4=		${XPG4=/usr/xpg4}
+DT=		${DT=/usr/dt}
+OPENWIN=	${OPENWINHOME=/usr/opwenwin}
+SUNWSPRO=	${SUNWSPRO=/opt/SUNWspro}
+CCS=		${CCS=/usr/ccs}
+SOUND=		${SOUND=/usr/demo/SOUND}
+JAVA=		${JAVA=/usr/java}
+
+# extra-special
+EXTRA=		${EXTRA=/usr/extra}
+
+# general
+LOCAL=		${LOCAL=/usr/add-on/local}
+AST=		${AST=/usr/add-on/ast}
+NCMP=		${NCMP=/usr/add-on/ncmp}
+GNU=		${GNU=/usr/add-on/gnu}
+TOOLS=		${TOOLS=/usr/add-on/exptools}
+
+# specialized
+PCS=		${PCS=/usr/add-on/pcs}
+XDIR=		${XDIR=/usr/add-on/X11}
+DWB=		${DWB=/usr/add-on/dwb}
+WWB=		${WWB=/usr/add-on/wwb}
+TETEX=		${TETEX=/usr/add-on/tetex}
+ATALK=		${ATALK=/usr/atalk}
+SL=		${SL=/usr/sl}
+IPF=		${IPF=/opt/ipf}
+HPNP=		${HPNP=/opt/hpnp}
+ADMIN=		/home/admin
+
+# media content
+
+ARTICLES=	${ARTICLES=/usr/add-on/articles}
+DOCUMENTS=	${DOCUMENTS=/usr/add-on/documents}
+INTERVIEWS=	${INTERVIEWS=/usr/add-on/interviews}
+MOVIES=		${MOVIES=/usr/add-on/movies}
+MUSIC=		${MUSIC=/usr/add-on/music}
+SOUNDS=		${SOUNDS=/usr/add-on/sounds}
+DVDS=		${DVDS=/usr/add-on/dvds}
+LECTURES=	${LECTURES=/usr/add-on/lectures}
+REPORTS=	${REPORTS=/usr/add-on/reports}
+
+# projects
+
+STARBASE=	/proj/starbase
+
+
+# testing
+SPECIAL=	${SPECIAL=special} more_special
+
+
+

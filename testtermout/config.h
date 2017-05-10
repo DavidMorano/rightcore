@@ -1,0 +1,72 @@
+/* config */
+
+
+#define	VERSION		"0a"
+#define	WHATINFO	"@(#)TESTTERMOUT "
+#define	BANNER		"Test TERMOUT Object"
+#define	SEARCHNAME	"testtermout"
+#define	VARPRNAME	"LOCAL"
+
+#define	VARPROGRAMROOT1	"TESTTERMOUT_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"TESTTERMOUT_BANNER"
+#define	VARSEARCHNAME	"TESTTERMOUT_NAME"
+#define	VAROPTS		"TESTTERMOUT_OPTS"
+#define	VARFTYPES	"TESTTERMOUT_FTYPES"
+#define	VARSUFREQ	"TESTTERMOUT_SUFREQ"
+#define	VARSA		"TESTTERMOUT_SUFACC"
+#define	VARSR		"TESTTERMOUT_SUFREJ"
+#define	VARTARDNAME	"TESTTERMOUT_TARDIR"
+#define	VARERRORFNAME	"TESTTERMOUT_ERRORFILE"
+
+#define	VARDEBUGFNAME	"TESTTERMOUT_DEBUGFILE"
+#define	VARDEBUGFD1	"TESTTERMOUT_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+
+#define	CONFIGFNAME	"etc/fileop/conf"
+#define	LOGFNAME	"log/fileop"
+#define	HELPFNAME	"help"
+
+#define	PO_OPTION	"option"
+#define	PO_FTS		"fts"			/* file-types */
+#define	PO_SUFREQ	"sufreq"		/* suffix-required */
+#define	PO_SUFREJ	"sufacc"		/* suffix-reject */
+#define	PO_SUFACC	"sufrej"		/* suffix-accept */
+
+
+

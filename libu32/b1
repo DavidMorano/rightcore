@@ -1,0 +1,7 @@
+	int	to_nosr = TO_NOSR ;
+	int	to_nospc = TO_NOSPC ;
+	int	to_nolck = TO_NOLCK ;
+	int	to_again = TO_AGAIN ;
+
+
+

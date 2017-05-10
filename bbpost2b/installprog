@@ -1,0 +1,42 @@
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+case ${MACH} in
+
+octet* | dds* )
+  RHOST=mthost2.mt.lucent.com
+  ;;
+
+* )
+  RHOST=mthost2
+  ;;
+
+esac
+
+
+PCS=/usr/add-on/pcs
+
+STUFF="*.sh bbpost Makefile"
+
+sendover() {
+  cpio -oc | rsh $RHOST /home/dam/discobin/cpio-dir $1 2> /dev/null
+}
+
+rcp bbpost.sh ${RHOST}:/mt/mtgzfs8/hw/add-on/pcs/bin/nbbpost
+rcp datepost.sh ${RHOST}:/mt/mtgzfs8/hw/add-on/pcs/bin/ndatepost
+cp bbpost.sh ${PCS}/bin/bbpost
+cp datepost.sh ${PCS}/bin/datepost
+cp bbpost.sh ${PCS}/bin/nbbpost
+cp datepost.sh ${PCS}/bin/ndatepost
+eval find $STUFF -type f -print | sendover /home/dam/src/bbpost
+
+
+

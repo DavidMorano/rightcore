@@ -1,0 +1,63 @@
+ # <-- force CSH to use Bourne shell
+# RSLOWSTART
+
+
+R=${HOME}
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+
+# check if the proper directories exist in the UUCP spool area
+
+: ${UUCPPUBLIC:=/var/spool/uucppublic}
+
+if [ ! -d ${UUCPPUBLIC}/receive ] ; then
+
+  mkdir ${UUCPPUBLIC}/receive/pcs
+  chmod 777 ${UUCPPUBLIC}/receive/pcs
+  chown uucp ${UUCPPUBLIC}/receive 2> /dev/null
+
+fi
+
+if [ ! -d ${UUCPPUBLIC}/receive/pcs ] ; then
+
+  mkdir ${UUCPPUBLIC}/receive/pcs
+  chmod 777 ${UUCPPUBLIC}/receive/pcs
+  chown uucp ${UUCPPUBLIC}/receive/pcs 2> /dev/null
+
+fi
+
+  if [ ! -d ${UUCPPUBLIC}/receive/pcs/rslow ] ; then
+
+    mkdir ${UUCPPUBLIC}/receive/pcs/rslow
+    chmod 777 ${UUCPPUBLIC}/receive/pcs/rslow
+
+  fi
+
+
+if [ ! -w ${H}/log/rslowd ] ; then
+
+  rm -f ${H}/log/rslowd
+  ln ${H}/spool/rslow/logfile ${H}/log/rslowd
+
+fi
+
+
+
+# do it
+
+date "+%y/%m/%d %T ${MACH}" > ${R}/spool/rslow/RUN
+rm -f ${R}/spool/rslow/LK
+${R}/spool/rslow/bin/rslowcheck ${R}/spool/rslow
+
+
+

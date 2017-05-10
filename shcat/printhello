@@ -1,0 +1,10 @@
+#!/usr/bin/ksh
+# PRINTHELLO
+
+
+#/usr/bin/env > printhello.env
+
+print hello world
+
+
+

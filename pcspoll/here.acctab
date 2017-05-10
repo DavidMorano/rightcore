@@ -1,0 +1,41 @@
+# ACCTAB (Access Table)
+#
+
+#
+# This is an access table file.  This file is normally used to restrict
+# execution of services to named access netgroups.  This file is usually
+# used in addition to and in a like manner as the system (NIS) netgroups
+# are.  However, the purpose with this file is not really a security one
+# but rather a connectivity issue.  Some hosts in a cluster may have
+# connectivity to (usually) the WAN that others do not.  This is actually
+# quite typical in recent times (late 1980's and early 1990's).  One host
+# of a cluster might have the WAN connections while the others are just
+# on the same LAN as the WAN gateway machine.  Some facilities in the PCS
+# system refer to the WAN gateway machine as a 'userhost'.  This file
+# allows for the specification of those hosts that should serve as
+# execution hosts for specific services listed in the service table
+# file.  If certain services need (for example) the WAN connection, that
+# service should be qualified with a netgroup name so that only the hosts
+# in the netgroup (or netgroups) can execute the server program for the
+# service.
+# 
+#
+
+# Format of entries :
+#
+# netgroup:
+#	machine			[user			[password]]
+#
+#
+
+a:
+	rca
+
+b:
+	rcb
+
+
+
+
+
+

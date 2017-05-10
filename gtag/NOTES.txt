@@ -1,0 +1,79 @@
+TAGDB
+
+Types of things that can be "tagged":
+
+TE	Table
+EE	Example
+FG	Figure
+EN	Equation
+
+
+The following seems to just be a grouping device and not a first class
+object in itself:
+
+DE	Display
+
+The following is always enclosed within a "display" and almost always
+has a "figure" specification associated with it.
+
+EP	(End Picture) end to BG (Begin Graphc)
+
+
+enum tags {
+	tag_table,
+	tag_example,
+	tag_figure,
+	tag_equation,
+	tag_overlast
+} ;
+
+tagtrack_head {
+	uint	c[tag_overlast] ;
+}
+
+/* store escapes in these */
+tagtrack_entry {
+	uint	koff ;
+	char	name[XXX+1] ;
+} 
+
+= SetUp
+
+tagtrack_start
+tagtrack_finish
+
+= Phase-1
+
+/* test for our macros and add macro */
+tagtrack_testmacro(op,lp,ll) ;
+
+/* test for our escape and add escape */
+tagtrack_escape(op,koff,kp,kl)
+uint		koff ;
+const char	*kp ;
+int		kl ;
+
+= Phase-2
+
+tagtrack_curbegin
+
+tagtrack_enum(op,&cur,&ke) ;
+
+tagtrack_curend
+
+= Extra
+
+/* get value for escape */
+tagtrack_get(op,key,&ke,kebuf,kelen) ;
+
+
+= Example text
+
+Look in Figure \_BOMBSHELL for the answers.
+.FG blah, blah, blah
+.TAG BOMBSHELL
+More test here.
+There is more stuff in Figure \tag{BOMBSHELL}.
+
+
+

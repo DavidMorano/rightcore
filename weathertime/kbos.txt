@@ -1,0 +1,13 @@
+Boston, Logan International Airport, MA, United States (KBOS) 42-21-38N
+        071-00-38W 54M
+Sep 01, 2002 - 05:54 PM EST / 2002.09.01 2254 UTC
+Wind: from the E (090 degrees) at 8 MPH (7 KT):0
+Visibility: 10 mile(s):0
+Sky conditions: overcast
+Temperature: 64.0 F (17.8 C)
+Dew Point: 55.9 F (13.3 C)
+Relative Humidity: 74%
+Pressure (altimeter): 30.37 in. Hg (1028 hPa)
+ob: KBOS 012254Z 09007KT 10SM FEW036 OVC130 18/13 A3037 RMK AO2 SLP284
+        T01780133
+cycle: 23

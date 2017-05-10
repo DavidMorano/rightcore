@@ -1,0 +1,11 @@
+
+
+DAMopenint_misc {
+	global:
+		openint_hello ;
+		openint_copyout ;
+	local:
+		* ;
+} ;
+
+

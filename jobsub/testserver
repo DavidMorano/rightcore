@@ -1,0 +1,7 @@
+#!/usr/bin/sh
+# TESTSERVER
+
+
+/bin/env > here.env
+
+

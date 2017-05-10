@@ -1,0 +1,9 @@
+# Bible-Cover Adjustment Map
+
+# format of entries:
+# VS		verticl-adjustment
+#-----------------------------------------------------------------
+
+12		-1.24
+
+

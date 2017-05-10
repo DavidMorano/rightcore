@@ -1,0 +1,38 @@
+CALYEAR
+
+This program reads zero or more standard calendar files in the format of those
+in '${NCMP}/share/calendar/' and prints out entries according to what is
+specified at program invocation.
+
+Synopsis:
+$ calyear [<datespec(s)>] [-<n>] [-c <cal(s)>] [-w <cols>] [-a] 
+	[-o <opt(s)>] [-V]
+
+Arguments:
+<datespec(s)>	date specification to find entries, including:
+			<month><day>	specified month-day
+					ex: 01/01 jan/01 jan1 jan-1 1-1
+			+		today
+			+<number>	today plus optional addditional days
+-<n>		print out <n> dates starting with the one given
+-o <opt(s)>	options:
+			default			print entries from today
+						as default if no dates given
+			audit			perform datbase audit
+			linelen=<w>		specify output line-width <w)
+			indent=<i>		indent <i> spaces
+			separate[=<b>]		blank-line separate entries 
+			interactive[=<b>]	specify interactive mode
+			gmt[=<b>]
+-c <cal(s)>	comma-separated list of calendars or '+'
+-w <cols)	output column width
+-a		print all entries
+-V		print command version to standard-error and then exit
+
+Environment:
+CALYEAR_CALDIRS=<caldir1>[:<caldir2>[:<...>]]
+CALYEAR_CALNAMES=<calname1>[:<calname2>[:<...>]]
+
+Configuration files:
+There is a per-user configuration file and a system configuration file.
+

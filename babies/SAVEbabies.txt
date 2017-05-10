@@ -1,0 +1,62 @@
+# babies
+#
+# This file should contain lines that have two fields.  The first
+# field is the date of the count (of events) given in the second field.
+# The fields should be separated by white-space.  The date should be given
+# in the form of CCYYMMDD.  The count of events should be given
+# in decimal.  The counts should be cummulative.  That is, each count
+# contains the sum of the total number of events since the beginning.
+# Although entries do not have to be ordered (in ascending order of dates)
+# having them so avoids processing time sorting them.
+#
+# Empty lines and lines beginning with the pound ('#') character are
+# ignored.
+# 
+# Example entry:
+# 20080122	50000000
+#
+
+19730122	0
+#20080122	50000000
+
+
+19740101 744600
+19750101 1643200
+19760101 2677400
+19770101 3856700
+19780101 5173400
+19790101 6583000
+19800101 8080700
+19810101 9634600
+19820101 11211900
+19830101 12785800
+19840101 14360800
+19850101 15938000
+19860101 17526600
+19870101 19100600
+19880101 20659700
+19890101 22250500
+19900101 23817400
+19910101 25426000
+19920101 26982500
+19930101 28511400
+19940101 30006400
+19950101 31429400
+19960101 32789090
+19970101 34149820
+19980101 35484820
+19990101 36803820
+20000101 38117820
+20010101 39430810
+20020101 40733810
+20030101 42026810
+20040101 43319810
+20050101 44612810
+20060101 45905810
+20070101 47198810
+
+
+#19730122	0
+
+
+

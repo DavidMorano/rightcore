@@ -1,0 +1,16 @@
+# PERMISSIONS
+#
+#
+#
+#
+# file		permissions
+# -----------------------------------------------
+#
+
+
+.		u+xs
+
+uucp.conf	u+xs,group=levo
+
+
+

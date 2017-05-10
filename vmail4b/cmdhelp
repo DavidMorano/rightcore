@@ -1,0 +1,134 @@
+<return>		display current message
+<mn><return>		go to Message Number specified and start reading
+n (ext)			move count multiples of 1 message forward (default 1)
+ The 'n' command is used to jump ahead to another message in the current
+ mailbox.  The command can optionally be preceded with a count (entered
+ by typing digits) to indicate how many messages ahead to jump.  The
+ default count if none is given is one.
+N (ext)			move count multiples of group messages forward
+ The 'N' command is used like the 'n' command except that it moves
+ forward multiples of the number of messages currently shown in the
+ scan window minus one line instead of multiples of one message as with
+ the 'n' command.  Again, this command can be preceded with an optional
+ count (entered with digit characters).  The count is always multiplied
+ by the number of scan windows lines minus one before being used.  The
+ default count is 1.
+p (rev)			move count multiples of 1 message back (default 1)
+ This command ('p') is used to jump back to a previous message.
+ By default, the mailer jumps back one message in the current mailbox.
+ If the command is preceded by digits, the digits are taken to
+ represent the number of messages to jump back to.
+P (rev)			move some multiple of messages back
+ This command ('P') is similar to the 'p' command but jumps back in
+ multiples of the number of lines that are currently displayed in the
+ scan area minus one line.  This command can be optionally preceded by
+ a count (entered with digits).  If a count is specified, the count is
+ multiplied by the multipling factor above before jumping back.  The
+ default count is 1 resulting in jumping back the number of messages in
+ the scan window minus one.
+F (irst)		move to first message
+ The 'F' command is used to move the current message pointer to the
+ first message in the mailbox.
+L (ast)			move to last message in the current mailbox
+ The 'L' command is used as a fast way to jump to the last message in the
+ mailbox.
+S (earch) <str>		move forward to message containing <str> in its header
+ The 'S' command is used to perform a forward (but circular) search of
+ the mail message FROM, SUBJECT, and DATE header lines for the specified
+ string.
+Z (reverse search)	move back to message containing <str> in its header
+ The 'Z' command is roughly the same as the 'S' command but performs
+ the search in the backwards direction.
+d (elete) 		mark message(s) for deletion, default count is one
+ The 'd' command is used to delete the current message.  If this command
+ is preceded with a number, the number is used as the message number to
+ delete instead of the current message.
+u (ndelete) 		remove mark on current message
+ This command ('u') is used to mark a previously deleted message to
+ not be deleted.  Since messages are really only deleted when you exit
+ the mailbox that it is in, you can delete and undelete a message
+ repeatedly while you stay in the mailbox if you desire.  As soon
+ as you exit the mailbox, any messaged marked for deleted are actually
+ deleted from the mailbox.
+l (ist)			lists all mailboxes
+ This command lists out the names of all of the user's mailboxes.
+m (ove to) <mailbox>	copies current message into <mailbox> and deletes
+ The 'm' command (one of my old time favorites) is used to move a message
+ from one mailbox to another.  Messages which are moved are also marked
+ for deletion from the current mailbox.
+c (hange to) <mailbox>	change to <mailbox>
+ Oh this is one of my favorites.  The 'c' command is used to change
+ to another mailbox.  All messages marked for deletion from the old
+ mailbox are actually deleted and then the new mailbox is entered.
+r (eply) 		invokes SMAIL to reply to current message
+ This command provides the feature of replying to the current mail
+ message.  Normally, the FROM header in the current mail message is
+ used for who to reply to but there are other rules that are applied
+ (according to mailer standards) for finding the person to reply
+ to if this header is not present.
+R (eply)		conference reply including other CC addressees
+ The 'R' command is the "conference reply" command.  This is used to
+ reply to a message by sending a response to the original sender and
+ all of the people that the original sender sent the message to also.
+f (orward) 		invokes SMAIL and appends current message
+ The 'f' command is used to forward a mail message to somebody else.
+e (dit)			invokes an editor on the current message
+ This command, one of my old favorites, it used to invoke the user's
+ favorite editor (as specified with the 'ED' environment variable)
+ to edit a copy of the current message for purposes of sending a new
+ mail message.
+M (ail)			invokes SMAIL to send a new message
+ This command is used to invoke the PCS SMAIL program which is used to
+ original a new mail message.
+a (ppend to) <file>	appends current message onto specified file
+ The 'a' command is used to append the current mail message to the
+ end of a file.
+w (rite to) <file>	writes current message to specified file
+ This command is used to write the current mail message, along with its
+ headers, out to a file.
+C (urrent dir) <dir>	changes current directory for write and append
+ This is used to change the current working directory of the program
+ to that specifiied by the user.  Note that with PCS VMAIL, it is
+ not necessary to change directories to ever access the user's standard
+ mailboxes.
+> <file>		writes current message to specified file
+ This command is identical to the 'w' command and is used to write
+ the current mail message out to a file.  All mail headers associated
+ with the message are writen out to the file along with the body of
+ the mail message.
+| <command>		pipe current message to command
+ This command is used to pipe the contents of the current mail message
+ out to a program of the user's chosing.  Note that the mail message
+ including all of its headers are piped out with the body of the mail
+ message.  This is done so that other mail processing programs have
+ access to the mail header information.  A cute way to see the additional
+ mail headers in a message that are not normally shown while reading the
+ message is to execute this command with a shell command of 'cat'.
+! <command>		escape to shell
+ This command ('!') is used to pop out of PCS VMAIL to a sub shell.
+ The value of the environment variable 'SHELL' is used to determine
+ what sort of shell program to spawn.  If this variable is not set
+ in the environment, then a default shell of some sort will be used.
+h (elp) <command>	displays help on given command
+ This command is used to get additional help on an individual command
+ but then you already know this because you had to use this command
+ in order to see this explanation.
+=			displays current message number in mailbox
+ This command is used to print out the message number of the current
+ message that the mailbox pointer is at (yes PCS mailers know what
+ message number is being read just like the other braindamaged mailers 
+ use - the difference is that PCS just doesn't focus the user's
+ attention on the message number like the other mailers do).  Also 
+ printed out with this command is the number of messages that are before 
+ the top most message shown in the summary scan window and the number of 
+ messages below the bottom most message shown in the summary scan window.
+q (uit)			request an exit from VMAIL
+ This command is used to exit PCS VMAIL.
+^L (redisplay)		redisplay the screen
+	
+	some commands above accept an optional count prefix 
+	(using numeric digits)
+	
+	use the 'h' command to get specific help on a particular command
+	
+	send bug reports and enhancement requests to Dave Morano <mtgbcs!dam>

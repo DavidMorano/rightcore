@@ -1,0 +1,108 @@
+.\"_
+.TH SUEXEC 1 0a LOCAL
+.SH NAME
+suexec \- run a program with superuser privileges
+.SH SYNOPSIS
+.B suexec
+.OP -V "" ] [
+.MW path \fB[\fP arg0 arg(s) ...\fB]\fP
+.\"_
+.SH DESCRIPTION
+.\"_
+.SS Introduction
+.PP
+This program is used to execute an interpreter program
+with superuser privileges.  Normally, on most UNIX systems,
+interpreter programs do not inherit superuser privileges when they
+are set-UID or set-GID.  This program will execute interpreter programs
+that are set-UID or set-GID with the proper effective UID or GID.
+Note that Bourne shell interpreter programs cannot be executed
+set-UID or set-GID on some UNIX systems.  This is because some
+Bourne shells reset the effective user and group IDs before executing
+the Bourne shell program.  Also, shell programs that do not have
+the proper
+.MW exec(2)
+interpreter escape characters ('#!') as the first two characters
+in the file, will not execute set-UID or set-GID.
+.PP
+This program also executes the specified program with a specified
+argument vector.  Usually, programs executed directly from the
+SHELL (for example) have an argument zero passed to them that is the
+same as the file path supplied to the SHELL to specify the
+program to execute.  With this program, any random argument zero can
+be assigned for the execution of a given program.
+.\"_
+.SS Positional Arguments
+Note that the first positional argument is the
+.MW argv[0]
+argument for the executed program.
+All other positional arguments are passed to the
+called program if supplied.
+If no positional arguments are supplied, the the base-name of the
+program path is used as the zero-th argument for the
+called program since all called programs must have a zero-th
+argument supplied.
+.\"_
+.SS Options
+.IP "-V " 10
+This option makes the program print out its version and then
+exit immediately.  No other action is carried out when this
+option is supplied.
+.\"_
+.SS Positional Arguments
+The first positional argument is taken as a path to the program
+to execute.  The second positional argument is the specified
+argument number zero to pass to the newly executed program.
+All other arguments after the "argument zero" argument are passed
+as arguments to the executed program.
+.\"_
+.SH EXAMPLES
+.\"_
+.IP \(rh 5
+To execute the program
+.MW sleep
+but with an argument number zero of 'john', use :
+.EX
+suexec sleep john 10
+.EE
+This particular example will run the program 
+.MW sleep 
+with a zero-th argument of
+.MW john
+\&.
+The program will perform its intended function
+and sleep for ten seconds before exiting.
+.\"_
+.IP \(rh 5
+If you have an interpreter program named
+.MW prog.ksh
+and it is set-GID to
+.MW uucp
+\&, this can be executed with set-GID superuser privilege
+with the command :
+.EX
+suexec prog.ksh program john 10
+.EE
+This particular example will run the program in the file
+.MW prog.ksh
+with a zero-th argument of
+.MW program
+\&.
+A positional argument, argument number one to the program,
+is supplied as
+.MW 10
+\&.
+.\"_
+.SH SEE ALSO
+exec(1), execv(1), suid_exec(1)
+.\"_
+.SH CAVEATS
+Be careful to put a space between all option key letters and the associated
+key letter parameter.
+.\"_
+.SH PATH TO
+This program is currently located in 
+.MW /usr/add-on/local/bin
+on most systems.
+.\"_
+.\"_

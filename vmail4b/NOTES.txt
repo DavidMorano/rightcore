@@ -1,0 +1,8 @@
+VMAIL
+
+1) Add a command that prints the sender's time-zone in the "info" area
+of the screen.  This command can then be assigned to a function key
+for convenient use.
+
+
+

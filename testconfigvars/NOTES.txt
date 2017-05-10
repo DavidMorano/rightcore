@@ -1,0 +1,50 @@
+CONFIGVARS
+
+
+We collect all 'define's from all files and collapse like-names
+into one with colon (':') separators.
+
+We collect all 'unset's but do not collapse them.  We discard
+duplicates since we only need one to be effective.  These will unset
+exported variables that are already being exported before any of the
+newly exported variables in the configuration file are added to the
+export variable list.
+
+We collect all 'set's and free variables similarly (but stored
+separately).  These will not be collapsed.
+
+When a variable is read by the program, the following will occur :
+
+1) all variables will be returned (in turn)
+
+2) each variable value will be processed to substitute in -
+	a) define'd variables ; file dependencies are recorded
+	b) environment variables in the current program space
+	c) the special escapes
+
+4) variable values are shell-parsed series of arguments ; no attempt
+   will be made to separate or process those arguments individually ;
+   this is consistent with the handling of shell-parsed arguments in
+   server table files
+
+5) a copy of a processed variable and its value is cached
+   for use later
+
+6) when any file changes, any variable that had a dependency on that
+   file is flushed from the post-processed cache
+
+
+The following keywords are recognized as special :
+
+root
+nodename
+domainname
+hostname
+version
+
+Only the last of any of these is retained as the value.  They are
+substituted for from previous information at the time they are
+processed.  They are processed before all other variables.
+
+
+

@@ -1,0 +1,28 @@
+#!/usr/bin/ksh
+# RMTEST
+
+
+DIR=${PCS}/spool/boards/test
+
+integer c=0
+
+FILES=
+ls ${DIR} | while read F J ; do
+
+  FILES="${FILES} ${F}"
+  (( c += 1 ))
+
+  if (( c >= 10 )) ; then
+    ( cd ${DIR} ; rm -fr ${FILES} )
+    FILES=
+    (( c = 0 ))
+  fi
+
+done
+
+if (( c > 0 )) ; then
+    ( cd ${DIR} ; rm -fr ${FILES} )
+fi
+
+
+

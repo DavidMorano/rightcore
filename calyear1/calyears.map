@@ -1,0 +1,18 @@
+
+
+DAMcalyears {
+	global:
+		calyears ;
+		calyears_open ;
+		calyears_count ;
+		calyears_curbegin ;
+		calyears_lookcite ;
+		calyears_read ;
+		calyears_curend ;
+		calyears_audit ;
+		calyears_close ;
+	local:
+		* ;
+} ;
+
+

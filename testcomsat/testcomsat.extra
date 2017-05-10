@@ -1,0 +1,8 @@
+#!/bin/ksh
+# TESTCOMSAT
+
+
+execname testcomsat.s5 testcomsat "${@}"
+
+
+

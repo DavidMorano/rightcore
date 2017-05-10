@@ -1,0 +1,22 @@
+#!/usr/bin/ksh
+# PCSPOLL.DEBUG
+
+
+E=/tmp/pcspoll.e
+D=/tmp/pcspoll.d
+N=/dev/null
+
+if [[ ! -f "${E}" ]] || [[ -w "${E}" ]] ; then
+  cp $N $E
+fi
+
+if [[ ! -f "${D}" ]] || [[ -w "${D}" ]] ; then
+  cp $N $D
+fi
+
+export PCSPOLL_DEBUGFNAME=${D}
+
+pcspoll.x -D=5 2> ${E}  "${@}"
+
+
+

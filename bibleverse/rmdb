@@ -1,0 +1,14 @@
+#!/usr/extra/bin/ksh
+# RMDB
+
+PRS="/root[01]/usr/extra ${LOCAL}"
+
+for PR in ${PRS} ; do
+  VDIR=${PR}/var/bvses
+  if [[ -d ${VDIR} ]] ; then
+    rm -f ${VDIR}/*.bvs* &
+  fi
+done
+wait
+
+

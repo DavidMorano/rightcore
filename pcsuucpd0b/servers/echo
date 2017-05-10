@@ -1,0 +1,17 @@
+#!/bin/sh
+# ECHOD
+
+
+LOGFILE=/home/dam/src/tcpmuxd/servers.log
+
+/bin/echo "${0}: entered" >>  $LOGFILE
+while read LINE ; do
+  /bin/echo "${0}: > ${LINE}" >> $LOGFILE
+  /bin/echo "${LINE}"
+done
+#RS=$?
+RS="?"
+/bin/echo "${0}: exiting es=${RS}" >>  $LOGFILE
+
+
+

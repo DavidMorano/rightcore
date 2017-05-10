@@ -1,0 +1,14 @@
+PINGSTAT
+
+Synopsis:
+
+$ pingstat [host(s) [...]] [-u] [-p tabfile[,tabfile(s),...] 
+	[-C configfile] [-m mintime] [-v] [-V]
+
+$ pingstat -i [-C configfile]
+
+This program 'pings' the hosts listed in one or more 'pingtab' files.
+It maintains the status of the hosts in a status file.  If one or more
+hosts change state (up or down), an action can optionally be taken.
+
+

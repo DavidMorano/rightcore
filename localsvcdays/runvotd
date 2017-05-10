@@ -1,0 +1,8 @@
+#!/usr/extra/bin/ksh
+# RUNVOTD
+
+  z d
+  export LD_PRELOAD=/usr/lib/secure/libpretime.so
+  TESTOPENSVC_DEBUGFILE=d testopensvc.x local§votd
+
+

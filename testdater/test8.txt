@@ -1,0 +1,10 @@
+msg		 5 Mar 2010 11:24:01 -0700 
+msg		 6 Apr 2010 11:24:01 -0700 
+msg		16 Jul 2010 14:24:01 -0700 
+msg	Mon, 18 Aug 2003 16:03:50 GMT
+msg	Mon, 18 Aug 2003 16:03:50 (GMT here)
+msg	 Tue, 1 Oct 2013 23:17:26 +0700
+
+std	Wed Apr 09 17:38:33 EDT 2003
+std	Wed Apr 09 17:38:33 EDT 2003 -0400
+std	Wed Apr 09 17:38:33 USEDT 2003 -0400

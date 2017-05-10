@@ -1,0 +1,12 @@
+#!/usr/bin/ksh
+# GRAPPER
+
+
+{
+ print .G1
+ cat sd
+ print .G2
+} | grap | pic | troff -Tpost | dpost -B > o.ps
+
+
+

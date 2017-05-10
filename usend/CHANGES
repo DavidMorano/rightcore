@@ -1,0 +1,33 @@
+USEND
+
+
+Man is this a hack job !  It is amazing what will be hacked together to
+get something transfered from one place to another !  Why is
+networking, in general, so limited ?  The answer is probably because of
+security but that is a debate for some stiff necked security types !
+
+
+= 00/05/17, Dave Morano
+
+I removed all of the hack stuff that tried to find intermediate
+machines to serve as gateways.  Life is too short for this kind
+of hassle.  What should have been done long, long ago is to make
+the whole UUCP system not dependent on source routing !
+
+I also cleaned up a manual page that I found lying around some place.
+No it is not Sun's or AT&T's.  Their versions of the USEND program
+died a long time ago !  Sun had that weirdo 'uusend' program for
+a while after (why, who knows) but I could not find anything on that
+either.  Although the current manual page dates from '94, I think the
+program goes back to the late 80s when we used STARLAN to transfer
+files around !  I think that early versions of this hack would
+use STARLAN for the last leg of the connectivity to the PCs from
+the mainframes.
+
+Later we used UUCP from the PCs to gateway UNIX boxes, and then UUCP
+from those gateway boxes to the rest of the world.  It is this latter
+hack stuff, gatewaying that used intermediate UUCP nodes, that I
+stripped out.
+
+
+

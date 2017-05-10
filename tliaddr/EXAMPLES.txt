@@ -1,0 +1,27 @@
+TPIADDR
+
+Examples.
+
+To get a TLI address for use over regular Internet (not using IP
+version 5) with a host of 'rca' and a port of 'listen' AND using a
+sockets-like transport address format (common for Internet transports) :
+
+$ tliaddr -f inet rca listen
+\x00020ace000000000000000000000000
+$
+
+
+To get a TLI address using a sockets-like (the default) address format
+for a UNIX address family :
+
+$ tliaddr -f unix /tmp/entropy
+\x00012f746d702f656e74726f7079
+
+
+To get a TLI address for a loop-around transport (like 'ticotsord')
+which does NOT use a sockets-like address format :
+
+$ tliaddr -i raw /tmp/entropy
+\x2F746D702F657874726F7079
+
+

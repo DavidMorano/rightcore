@@ -1,0 +1,55 @@
+# SRVTAB
+# REXECD service table
+#
+#	The following substitutions are made on command strings :
+
+#		%V	REXECD version string
+#		%R	REXECD program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+
+#		%s	service
+#		%a	service arguments (if available)
+#		%p	socket peername (if available)
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%(pass)	netwaotk password (if known)
+#
+#		$(define)	substituted defines
+#		${environment}	substituted environment variable
+#
+
+#
+# HELP:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+# SHELL:
+#	**BUILT-IN**
+#
+# CMD:
+#	**BUILT-IN**
+#
+#
+
+
+echoargs:
+	a=<echoargs f=%a p=%p u=%u s=%s V=%V>,
+
+whoami:
+	a= echo "whoami: %u" ,
+
+play:
+	a= "echoargs front\"m i d d l e\"back this${THAT}other ",
+	a= <echoargs -opt a,b,c front"m i d d l e"back this${THAT}other >,
+
+bbpost:
+	p=${PCS}/bin/rbbpost,
+	a=rbbpost -opt "a,b,c" -y "this is a comment" # -p exec:%p -u %u,
+
+cat:
+	p="%R/servers/catter",
+	options = upe,
+
+
+

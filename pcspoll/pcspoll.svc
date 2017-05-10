@@ -1,0 +1,74 @@
+# SVC
+# PCSPOLL service table
+#
+#	The format of entries are:
+#
+#	service:
+#		interval= time_period,
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options
+#
+#
+
+#
+#	The following substitutions are made on keyword value strings:
+#
+#		%V	PCSPOLL version string
+#		%R	PCSPOLL program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+
+#		%s	service
+#		%i	actual interval since last time (decimal secs)
+
+#
+
+
+
+# UUCP stuff
+#
+#	These all are normally run from CRON jobs where the exact
+#	times are programmable.  Since we are running them from
+#	here we try and arrange that they run rather randomly with
+#	respect to each other.  Polling is supposed to happen before
+#	scheduling but the world is not perfect !  Also, I suppose
+#	that executions would normally occur some time after scheduling
+#	has finished carrying out any job file transfers, locally or 
+#	remotely.
+#
+#	Note that the 'pcsuusched' service below should be access
+#	restricted to only execute the server program on a host that
+#	also has your WAN connections.  The UUCP system should simply
+#	fail on hosts where the WAN connection is simply not present.
+#	This may usually resolve itself automatically as the UUCP
+#	daemon program eventually executes on the WAN connected host.
+#	But this is a waste of time and resources and may also cause
+#	delays in UUCP traffic in certain circumstances.  It might be a
+#	good idea to access-restrict the 'pcsuuxqt' service below also
+#	but that is not strictly necessary unless you expect a lot of
+#	UUCP execution requests to also directly require WAN
+#	connectivity.  Administrators should really do whatever they
+#	think best for both the types of UUCP execution requests and
+#	your WAN configurations.
+#
+#
+
+
+testsleep:
+	interval= 20,
+	a= sleep 3
+
+teststdout:
+	interval= 30,
+	a= echo "hello world!"
+
+teststderr:
+	interval= 30,
+	p = teststderr
+
+
+

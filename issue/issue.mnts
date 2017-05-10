@@ -1,0 +1,15 @@
+# MNTS (for ISSUE server)
+
+
+#
+# format:
+#
+# key		mount-point
+#---------------------------------------
+#
+
+default		/etc/issue
+telnet		/etc/telnet.issue
+
+
+

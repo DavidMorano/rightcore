@@ -1,0 +1,47 @@
+# SYSTEMS (maintqotd)
+#
+
+
+#
+# This is the "systems" file for the MAINTQOTD facility.
+# The MAINTQOTD facility is part of the LOCAL software distribution.
+# The MAINTQOTD is responsible for (among other things) getting a
+# new "quote" when one is requested by a client.  This facility
+# can be thought of as sitting at the head or top of a cluster of
+# nodes within a system.  It is assumed that all nodes in a cluster
+# share the same LOCAL distribution file area.  Requests from cluster
+# clients are served (satisfied) by file transfer over the normal
+# cluster remote mounts (from client to server).  Cluster clients
+# cache satisified requests locally.
+#
+# Entries is this file are used for the top of the cluster to get
+# new "quotes" for serve-out to clients.
+#
+# Only dialers that support dialer-arguments are supported by the
+# MAINTQOTD facility.  All dialers must be full-duplex capable.
+# Some dialers of this type are: prog, tcpmux, and ussmux.
+# 
+#
+
+
+#
+# format_of_entries:
+# <sysname>	<dialer> [<dialer_args>]
+#
+
+
+#rc			prog -o log /usr/add-on/local/sbin/mkqotd +
+#rightcore.com		prog -o log /usr/add-on/local/sbin/mkqotd +
+#*.rightcore.com	prog -o log /usr/add-on/local/sbin/mkqotd +
+
+
+# everything else
+# to specify a host also specify a port because unqualled entry is a port only
+rc			tcpmux www.rightcore.com:tcpmux
+www.rightcore.com	tcpmux
+
+# special
+#*		prog -o log /usr/add-on/local/sbin/mkqotd +
+
+
+

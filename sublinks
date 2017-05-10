@@ -1,0 +1,31 @@
+#!/usr/extra/bin/ksh
+# SUBLINKS
+
+
+#
+# Synopsis:
+#
+#
+
+PN=$( basename ${0} )
+DN=/dev/null
+
+for N in ${@} ; do
+  if [[ -f "${N}" ]] && [[ -r "${N}" ]] ; then
+    SDN=$( dirname ${N} )
+    SBN=$( basename ${N} )
+    if [[ -d "${SDN}" ]] ; then
+      ls */${SBN} | fgrep -v "${SDN}/" | while read NN ; do
+        TDN=$( dirname ${NN} )
+        print -- "link ${N} -> ${TDN}"
+#        ln -f ${N} ${TDN} 2> ${DN}
+      done
+    else
+      print -u2 -- "${PN}: no directory for name=${N}"
+    fi
+  else
+    print -u2 -- "${PN}: inaccessible name=${N}"
+  fi
+done
+
+

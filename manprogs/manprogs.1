@@ -1,0 +1,55 @@
+.\"_
+.TH EXECNAME 1 1994-12-02 LOCAL
+.SH NAME
+execname \- run a program with a given name
+.SH SYNOPSIS
+.B execname
+.OP -V ""
+.MW path arg0 \fB[\fParg(s) ...\fB]\fP
+.\"_
+.SH DESCRIPTION
+.\"_
+.SS Introduction
+.PP
+This program is used to execute another program with a specified
+argument number zero.  Usually, programs executed directly from the
+SHELL (for example) have an argument zero passed to them that is the
+same as the file path supplied to the SHELL to specify the
+program to execute.  With this program, any random argument zero can
+be assigned for the execution of a given program.
+.\"_
+.SS Options
+.IP "-V " 10
+This option makes the program print out its version and then
+exit immediately.
+.SS Positional Arguments
+The first positional argument is taken as a path to the program
+to execute.  The second positional argument is the specified
+argument number zero to pass to the newly executed program.
+All other rguments after the "argument zero" argument are passed
+as arguments to the executed program.
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+To execute the program
+.MW sleep
+but with an argument number zero of 'john', use :
+.EX
+execname sleep john 10
+.EE
+This particular example with run the program sleep which will
+sleep for ten seconds before exeting.
+.\"_
+.SH SEE ALSO
+execv(1)
+.\"_
+.SH CAVEATS
+Be careful to put a space between all option key letters and the associated
+key letter parameter.
+.\"_
+.SH PATH TO
+This program is currently located in 
+.MW /usr/add-on/local/bin
+on most systems.
+.\"_
+.\"_

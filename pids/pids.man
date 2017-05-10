@@ -1,0 +1,97 @@
+.\" format with nroff|troff|groff -man
+.fp 5 CW
+.nr mI 0
+.de mI
+.if \\n(mI>\\$1 \{
+.nr mI \\n(mI-1
+.RE
+.mI \\$1
+.\}
+.if \\n(mI<\\$1 \{
+.nr mI \\n(mI+1
+.RS
+.mI \\$1
+.\}
+..
+.de H1
+.mI 1
+.TP
+\fB\\$1\fP
+..
+.de H2
+.mI 2
+.TP
+\fB\\$1\fP
+..
+.de H3
+.mI 3
+.TP
+\fB\\$1\fP
+..
+.de H4
+.mI 4
+.TP
+\fB\\$1\fP
+..
+.de OP
+.mI 0
+.ie !'\\$1'-' \{
+.ds mO \\fB\\-\\$1\\fP
+.ds mS ,\\0
+.\}
+.el \{
+.ds mO \\&
+.ds mS \\&
+.\}
+.ie '\\$2'-' \{
+.if !'\\$4'-' .as mO \\0\\fI\\$4\\fP
+.\}
+.el \{
+.as mO \\*(mS\\fB\\-\\-\\$2\\fP
+.if !'\\$4'-' .as mO =\\fI\\$4\\fP
+.\}
+.TP
+\\*(mO
+..
+.de FN
+.mI 0
+.TP
+\\$1 \\$2
+..
+.TH pids 1 "2008-04-01" AST
+.SH NAME
+pids \- list calling shell process ids
+.SH SYNOPSIS
+\fBpids\fP\ [\ \fIoptions\fP\ ]
+.SH DESCRIPTION
+When invoked as a shell builtin, \fBpids\fP lists one or more of the calling
+process ids determined by \fBgetpid\fP(2), \fBgetppid\fP(2), \fBgetpgrp\fP(2),
+\fBtcgetpgrp\fP(2) and \fBgetsid\fP(2)\&. Unknown or invalid ids have the value
+\fB\-1\fP\&.
+.SH OPTIONS
+.OP f format string format PID=%(pid)d PPID=%(ppid)d PGID=%(pgid)d TID=%(tid)d
+SID=%(sid)d
+List the ids specified by \fIformat\fP\&. \fIformat\fP follows \fBprintf\fP(3)
+conventions, except that \fBsfio\fP(3) inline ids are used instead of
+arguments:
+%[\-+][\fIwidth\fP[\&.\fIprecis\fP[\&.\fIbase\fP]]](\fIid\fP)\fIchar\fP\&. The
+supported \fIid\fPs are:
+.H3 pid
+The process id\&.
+.H3 pgid
+The process group id\&.
+.H3 ppid
+The parent process id\&.
+.H3 tid|tty
+The controlling terminal id\&.
+.H3 sid
+The session id\&.
+.PP
+The default value is \fBPID=%(pid)d PPID=%(ppid)d PGID=%(pgid)d TID=%(tid)d
+SID=%(sid)d\fP\&.
+.SH SEE\ ALSO
+\fBgetpid\fP(2), \fBgetppid\fP(2), \fBgetpgrp\fP(2), \fBtcgetpgrp\fP(2),
+\fBgetsid\fP(2)
+.SH IMPLEMENTATION
+.H1 version
+pids (AT&T Research) 2008\-04\-01

@@ -1,0 +1,29 @@
+PCSPOLL
+
+Synopsis:
+
+$ pcspoll [service(s) [...]] [-interval] [-d[=runtime]]
+	[-m mincheck] [-C configfile]
+
+
+If no service names are given on program invocation, then all services
+in the service-table file that have intervals associated with them will
+be processed.
+
+There are three modes of the program:
+
+If service names are given at program invocation and the program is not
+running in daemon mode, then those services are started once.  The
+program waits for them to complete and then exits.
+
+A daemon mode is defined where the program stays running indefinitely
+looping and spawning jobs as the individual service intervals come
+due.  A time limit on the length of time that daemon mode is active
+can be specified as the 'runtime'.
+
+Finally, and most usually in environments that do not run the program
+in daemon mode at a central machine, if the program is started
+with no service names and is not running in daemon mode, it will
+execute all of the services in the current server table file
+once (if necessary), wait for them to exit, and then exit itself.
+

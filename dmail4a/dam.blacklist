@@ -1,0 +1,109 @@
+# BLACKLIST
+#
+#
+# This file contains a list of mail addresses that are "blacklisted"
+# meaning that they should ALWAYS be considered spam.
+#
+# Warning:
+# Only ONE 'blacklist' configuration file will be used for each
+# user.  A search is made in the following order to find the first
+# blacklist file to use:
+#
+#	${HOME}/etc/%s/%s.blastlist
+#	${HOME}/etc/%s/blastlist
+#	${HOME}/etc/%s.blastlist
+#	${HOME}/etc/mail/mail.blastlist
+#	${HOME}/etc/mail/blastlist
+#	${HOME}/etc/mail.blastlist
+#	${HOME}/etc/blastlist
+#
+# Format of entries:
+# Entries can be either mail addresses or mail domains.  For mail addresses
+# the exact domain name is required in order to get a match.  However, for 
+# domain names, only a prefix match on the higher order components of
+# the domain name is required (all subdomains are essentially automatically 
+# included within each given domain name).
+#
+# Finally, remember that local parts of mail address are CASE SENSITIVE!
+#
+#
+
+
+
+# global security newsletter
+#gsn@actnow.saferworld.org
+#gsn@nti.org
+
+# Sermon-Audio newsletter
+news@sermonaudio.com
+
+# NewsMax
+newsmax@newsmax.sparklist.com
+newsmax@reply.newsmax.com
+
+# WND
+worldnetdaily.com
+#wnd.com
+
+# AIAS
+#EMyrone@aol.com
+#aias-bounces@lists.somewhere.ws
+
+# World Ahead Publishing
+worldaheadpublishing@app.topica.com
+
+# the stupid "irregulars" Yahoo discussion group
+#Irregulars@yahoogroups.com
+
+# that MGC guy at the "irregulars" Yahoo grop
+max_g_cunningham@yahoo.com
+
+# NAS
+owner-nas@radscan.com
+
+# ink-jet selling company (that I previously bought from)
+newsletter@inksell.com
+
+# AST
+#ast-users-bounces@research.att.com
+
+# Solaris-KSH
+ksh93-integration-discuss-bounces@opensolaris.org
+
+# Solaris-Shell
+shell-discuss-bounces@opensolaris.org
+
+# Solaris-Secutity
+security-discuss-bounces@opensolaris.org
+
+# DJB-DNS
+#dns@list.cr.yp.to
+matthew@dempsky.org
+dean@av8.com
+
+# Quantum (disks)
+webinars@info.quantum.com
+info.quantum.com
+
+# crap
+akszemin.com@entermediate.com
+ort93psdf@wal-mart.com
+sales@tclshowcase.com
+niaxujeoih1743@virginmedia.com
+tightwady6@gmail.com
+ovjNotu218@8bitdude.com
+
+
+# spam domains
+sizematters.com
+telecomitalia.it
+seacalendar.pw
+airinformatics.com
+abrartrading.com
+
+
+# I do not know what this really is
+CkuonlongyNanyda@outlook.com
+
+
+

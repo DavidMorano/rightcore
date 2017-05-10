@@ -1,0 +1,27 @@
+ENVWIPE
+
+This little program runs another program with a precise environment.
+
+Symopsis:
+
+$ envwipe [-ims] [-e envfile] progfname {arg0|-} [argn ...]]
+
+where:
+
+-i		add system initialization variables
+-m		include standard machine variables (these are dynamic)
+-s		include searched variables
+-e envfile	include variables from this file
+progfname	program executable to execute
+arg0		first argument to the program
+
+
+Standard machine variables include:
+
+SYSNAME
+RELEASE
+MACHINE
+ARCHITECTURE
+NODE
+DOMAIN
+

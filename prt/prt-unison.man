@@ -1,0 +1,344 @@
+.\"
+.\"	Module:   prt.1, Level 3.21
+.\"	File:     /az07/kls/UNISON.SCCS.3/man/u_man/man1/s.prt.1
+.\"
+.\"	Modified: 7/17/90  16:22:28
+.\"	Fetched:  11/15/90  21:40:24
+.\"
+.ds Un \fIprt\fR
+.ds PN \fIPRT\fR
+.ds Pn \fIprt\fR
+.ig
+..
+.TH PRT 1 "UNISON"
+.SH NAME
+prt \- print file
+.SH SYNOPSIS
+.tr ~
+.B prt \c
+[\c
+.B \-B\c
+]
+[\c
+.BI \-b "~bin"\c
+]
+[\c
+.BI \-c "~copies"\c
+]
+[\c
+.BI \-d "~dest"\c
+]
+[\c
+.BI \-f "~form"\c
+]
+[\c
+.B \-h\c
+]
+[\c
+.BI \-j "~jobname"\c
+]
+[\c
+\fB\-K \fI"KEYWORD value"\fR\c
+]
+[\c
+.BI \-l "~language"\c
+]
+[\c
+.B \-m\c
+]
+[\c
+\fB\-o \fI"filter filter_options"\fR\c
+]
+[\c
+.BI \-p "~printmode"\c
+]
+[\c
+.B \-q\c
+]
+[\c
+.BI \-s "~sides"\c
+]
+[\c
+.BI \-u "~userid"\c
+]
+[\c   
+.B \-z\c
+]
+[\c   
+.B \-\c
+]
+[\c
+\fI filename...\fR\c
+]
+.SH DESCRIPTION
+.ad b
+.I \*(Pn
+submits the named files and associated information (collectively
+called a 
+.IR request )
+to be printed. 
+If no filenames appear or - is specified,
+.I \*(Un
+reads standard input.
+.IR \*(Pn
+queues a request to be printed
+when facilities become available.
+The named files may be reused immediately without affecting the output.
+User defaults for all options can be set up in a \fI.prt\fR file; otherwise,
+system defaults are used.
+.PP
+.I \*(Pn
+associates
+a unique
+ID
+with each request
+and prints it
+to standard output.
+This request ID
+can be used later
+to cancel
+or find the status
+of the request
+(see \fIprtc\fR(1) and \fIprtstat\fR(1)).
+.PP
+For additional information about devices, destinations, defaults,
+languages, etc., see \fIprtinfo(1)\fR.
+.PP
+The following options may appear in any order preceding the file names:
+.TP 13
+.BI \-B
+Input data is binary - suppress the WARNING message that indicates the
+input data contains non-printable characters.  Note: such a WARNING message
+is displayed whenever \fIprt\fR detects that there are more than 25
+non-printable characters in the input.
+.TP 13
+.BI \-b "\ string"
+Forward output to
+.IR string
+where 
+.IR string 
+can be one of the following:
+.TP 25
+.in 6
+\fIbin\fR	
+Put the output in bin number \fIbin\fR (1 to 10 characters).  By default, the 
+bin number is taken from the user's .prt file.
+If it is not set, the bin is taken from the password file.
+.TP 25
+.in 6
+\fB"#\fIIDNO"\fR	
+Hold output in secure area, to be released to 
+person bearing badge with \fIIDNO\fR, normally a 
+payroll account number or social security number.  
+The # symbol must be the first character in string.
+.TP 25
+.in 6
+\fB"%\fIaddress"\fR	
+Send the output to bin \fBMAIL\fP for delivery via 
+company mail.   Use \fIaddress\fP as a string to specify 
+the name and company mail address of the recipient to appear on 
+the banner page.  The % must be the first character
+in the address. Semicolons can be used to split 
+the address string so that a multi-line address 
+(maximum 7 lines) is displayed on the banner page.  
+The \fB-d\fP option can be used to speed mail delivery 
+by printing the job at a site near the 
+recipient where it will enter the company mail for 
+final delivery.
+.TP 25
+.in 6
+Note that \fIprt\fR does NOT get the bin from the environment variable $BIN.
+.TP 13
+.BI \-c "\ n"
+Make
+.IR n
+copies of the output.
+The default is 1.
+The maximum number of copies is 99.
+.TP 13
+.BI \-d "\ dest"
+Print the output at destination \f2dest\f1.
+\f2dest\f1 has two parts;
+both parts can be given together, or either part can be given alone.
+When specifying both parts, the \f2dest\f1 argument should appear
+in the form \f2location\f1/\f2device\f1.
+\f2location\f1 can be a network node name, a site code, or \fIfax\fR. 
+\f2device\f1 can be a specific printer name, a generic device type, or
+a fax phone number.
+The two parts are separated by a slash ( / ).
+.sp
+When specifying \f2location\f1 alone, the slash is required.
+When specifying \f2device\f1 alone, the slash is not necessary.
+The default for \f2location\f1 is the network node name of the current system.
+Examples of \f2dest\f1 are: \f3ho2g4, imagen1, i300, post, x9700, aps,
+prism, hou2a/, ihuxj/, ho/, wh/, /i300, mh/i300, ih/im1, and
+fax/2019491234\f1.
+The \fIdevice\fR must be 8 characters or less.
+.TP 25
+.in 6
+Note that \fIprt\fR does NOT get the dest from the environment variable $DEST.
+.TP 13
+.BI \-f "\ form"
+Print on form \fIform\fR (1 to 8 characters). 
+Examples of form names are:
+.sp
+.nf
+.ta 20n 35n
+\fBvg\fR	viewgraph or transparency
+\fBhole\fR	paper with holes
+\fBnohole\fR	paper with no holes
+\fBlegal\fR	8 1/2 x 14 inch paper
+\fBledger\fR	11 x 17 inch paper
+\fBlibrary\fR	14 x 17 inch paper
+.fi
+.sp
+\fBNote:  Forms are not usually set up for local printers, as Imagen or PostScript printers.  All forms may not be available for all printers.\fR
+.TP 13
+.BI \-h
+Print full help message.
+.TP 13
+.BI \-j "\ jobname"
+Use
+.IR jobname
+(1 to 14 characters) instead of the default
+.IR requestid
+on the banner page of the printout.
+.TP 13
+\fB\-K \fI"KEYWORD value"\fR
+Specify a \fIkeyword\fR and \fIvalue\fR for device-dependent options.
+The \fIkeyword\fR should be specified in upper-case.
+Multiple -K options can be specified.
+For more information on valid keywords, refer to the specific
+device type manual page, such as \fIdevi300(5), devpost(5), devx9700(5)\fR.
+Examples include:  -K"JOBHDR n", and -K"FILTEROPTS x9700 -s xr18".  
+.TP 13
+.BI \-l "\ language"
+Identify the type of file by specifying
+.IR language  
+(1 to 14 characters).
+If no language is specified, the input is assumed to 
+contain ASCII text and should be printed as if on a generic line printer.
+The standard input languages valid across most device types, are:
+.sp
+.nf
+.ta 20n 35n
+\fBprinter\fR	indicates the input contains ASCII text;
+	input should be printed as if on a generic line printer
+\fBtroff\fR	indicates the input contains output from the troff formatter
+\fBnroff\fR	indicates the input contains output from the nroff formatter
+\fBtroffin\fR	indicates the input contains troff input statements
+\fBnroffin\fR	indicates the input contains nroff input statements
+\fBmeta\fR	indicates the input is a DI3000 metafile
+\fBnje\fR	indicates the input was submitted from MVS via NJE
+\fBgr\fR	indicates the input contains gr input statements
+\fBraw\fR	indicates the input requires no translation; 
+	the input contains statements the device understands
+.fi
+.sp
+Additional examples include \fBdimpress\fR, \fBpostscript\fR,
+\fBpcpostscript\fR, \fBtektronix\fR and \fBdaisy\fR.
+
+The language \fBpcpostscript\fR should be used for \fBPostScript\fR files
+generated by MS-DOS\s-2\u\(rg\d\s+2 PC applications.
+.TP 13
+.BI \-m 
+Send a reply via electronic mail to report job completion.
+The default is that no mail is sent.
+Error messages will always be mailed.
+.TP 13
+\fB\-o \fI"filter filter_options"\fR
+Specify a filter and device dependent options.  
+Examples of filters are:  \fBdimpress\fR and \fBx9700\fR.
+For more information on valid 
+\fIfilter_options\fR, see the specific filter man page.
+Multiple \fB-o\fR options can be specified.  A pipeline of filter commands will be
+created in the order the \fB-o\fR options are specified.
+.sp
+\fBThis option will be phased out in a future release.\fR
+See the -K option to specify device-dependent options.
+If desired, you can specify the filter and filter_options
+by using \fB-K"FILTEROPTS \fIfilter filter_options".\fR
+.TP 13
+.BI \-p "\ printmode"
+Print in the mode \fIprintmode\fR. Examples of printmodes are
+.nf
+.ta 20n 35n
+\fBport\fR\fIrait\fR	8.5 x 11 inches, letter orientation
+\fBland\fR\fIscape\fR	11 x 8.5 inches
+\fB2on1\fR	2 logical pages on 1 physical side
+.fi
+.TP 13
+.BI \-q
+Quiet.
+Suppress the one-line message which contains the submitted request ID
+and/or job name.
+.TP 13
+.BI \-s "\ sides"
+Print on \fIsides\fR sides of a sheet of paper.  Examples 
+are \fB-s1\fR and \fB-s2\fR.  Note:  Two-sided output is only available
+at sites that have devices that support the duplexing feature.
+.TP 13
+.BI \-u "\ userid"
+Print \fIuserid\fR (1 to 14 characters) on the banner page.
+.TP 13
+.BI \-z
+Write the request to standard output instead of submitting it. 
+A request header showing the defaults will be listed
+along with the user's data.
+This option is used primarily for debugging.
+
+.SH EXAMPLES
+To print a file (using all the default settings):
+.nf
+	\fBprt \fIfilename\fR
+.fi
+.sp
+To print a file at another location, for example, \fIIH\fR: 
+.nf
+	\fBprt -d ih/     \fIfilename\fR
+.fi
+.sp
+To print a file on a specific printer named \fIimagen1\fR at another 
+location, \fIMH\fR,
+.nf
+	\fBprt -d mh/imagen1 \fIfilename\fR
+.fi
+.sp
+To print a file with line numbers:
+.nf
+	\fBpr -n \fIfilename \fB| prt\fR 
+.fi
+.sp
+To expand input tabs to character positions 10, 19, 28, 37 ...
+and print the file :
+.nf
+	\fBpr -e9 \fIfilename \fB| prt\fR  
+.fi
+.sp
+To print a file containing PostScript language on printer called \fIqms-a\fR,
+.nf
+	\fBprt -d qms-a -l postscript \fIfilename\fR
+.fi
+.sp
+To print 3 copies of a file without the banner page to device \fIbrains\fR,
+.nf
+	\fBprt -c3 -K"JOBHDR n" -d brains \fIfilename\fR
+.fi
+.sp
+To print a file on the Xerox 9700 in portrait mode, using font style XR18:
+.nf
+	\fBprt -d x9700 -p port -K "FILTEROPTS x9700 -s xr18"  \fIfilename\fR
+.fi
+.sp
+See also .prt(4) for setting your own printing defaults.
+.sp
+.SH FILES
+$HOME/.prt
+$UNISONTABLES/.prtsys
+.in
+$UNISON/*
+.in
+/etc/passwd	
+.SH SEE ALSO
+prtfmt(1), prtinfo(1), prtstat(1), prtc(1), .prt(4), .prtsys(4), devi300(5), 
+devpost(5), devprism(5), devstare(5), devx9700(5), dev3203(5), devhp(5).

@@ -1,0 +1,16 @@
+#!/usr/bin/ksh
+# QUP
+
+
+integer i=0 c=4
+
+
+while (( i < c )) ; do
+
+  cp qup q/job${i}.wc
+
+  (( i += 1 ))
+done
+
+
+

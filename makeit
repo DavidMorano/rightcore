@@ -1,0 +1,18 @@
+#!/usr/bin/ksh
+# MAKEIT
+
+
+LIBDIRS="libdam32 libb32 libut32 libuc32 libu32 libpcs32"
+
+
+DIS="${HOME} ${LOCAL} ${NCMP} ${PCS}"
+
+
+for LIBDIR in ${LIBDIRS} ; do (
+  print -- ${LIBDIR}
+  cd ${LIBDIR}
+  makeit "${@}"
+) done
+
+
+

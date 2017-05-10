@@ -1,0 +1,26 @@
+# CONF
+# UUPROXY Configuration File
+
+
+# UU domain specifications take on the following form :
+#
+# 	name	prefix	base_directory
+#
+domain	root	""	/
+domain	pcs	pcs	${PCS}
+domain	area11	bl	boole:pcsuucp
+
+
+# UUPROXY spool base directory
+
+#spool	%R/spool/uuproxy/
+
+
+# additional directory for 'systems' files
+
+systems	%R/etc/uuproxy/systems/
+
+
+
+
+

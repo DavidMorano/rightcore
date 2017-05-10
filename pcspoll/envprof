@@ -1,0 +1,3 @@
+
+function dmalloc { eval `command dmalloc -b $*`; }
+

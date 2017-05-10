@@ -1,0 +1,396 @@
+
+
+
+     rrrrsssshhhheeee((((1111))))              BBBBCCCCSSSS SSSSttttaaaarrrrbbbbaaaasssseeee ((((99996666////00005555////22228888))))              rrrrsssshhhheeee((((1111))))
+
+
+
+     NNNNAAAAMMMMEEEE
+          rshe - execute a command on a remote machine with local
+          environment
+
+     SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+          rrrrsssshhhheeee  [ ----llll  _r_s_u_e_r ]  [ ----nnnn ]  [ ----dddd ]  [ ----eeee _e_n_v_i_r_o_n__f_i_l_e ]
+           [ ----xxxx[[[[====[[[[vvvvaaaarrrr____lllliiiisssstttt]]]]]]]] ]
+           [ ----VVVV ]  [ ----???? ] _h_o_s_t_n_a_m_e _c_o_m_m_a_n_d
+
+     AAAAVVVVAAAAIIIILLLLAAAABBBBIIIILLLLIIIITTTTYYYY
+          BCS Starbase Project on Sun SPARC hardware only, SunOS 4.1.3
+          or higher, SunOS 5.4 or higher
+
+     DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+          The rrrrsssshhhheeee program connects to the specified _h_o_s_t_n_a_m_e and exe-
+          cutes the specified _c_o_m_m_a_n_d.  This program is very similar
+          to the rrrrsssshhhh program and is inspired by it and the RRRRXXXX program
+          which is part of the RRRREEEEXXXXEEEECCCC remote execution package (not
+          related to the common Berkley RRRREEEEXXXXEEEECCCC daemon) developed at
+          AT&T Bell Laboratories.  The rrrrsssshhhheeee program uses the same dae-
+          mon program on the remote machine as the RRRRSSSSHHHH program does.
+          This is both a blessing and a curse.  It is a curse since
+          the program's behavior is restricted somewhat by the fact
+          that the same daemon is used as RRRRSSSSHHHH uses.  It is a blessing
+          because many remote machines now-a-days will not be running
+          any other remote execution daemons and we still want to get
+          the best out of an already bad machine execution environ-
+          ment.  Normally, the entire local environment is sent over
+          to the remote machine (because this is what is usually
+          desired in a tighly coupled local machine group) but this
+          behavior is changed if the ----xxxx option is used.
+
+          The rrrrsssshhhheeee program copies its standard input to the remote
+          command, the standard output of the remote command to its
+          standard output, and the standard error of the remote com-
+          mand to its standard error.  Interrupt, quit and terminate
+          signals are propagated to the remote command; rrrrsssshhhheeee normally
+          terminates when the remote command does.
+
+          If you omit _c_o_m_m_a_n_d, the rrrrsssshhhheeee program will try to execute
+          whatever your SHELL environment variable is set to.  If
+          there is not SHELL environment variable, it will try to exe-
+          cute '/bin/sh' on the remote machine.  Shell metacharacters
+          which are not quoted are interpreted on the local machine,
+          while quoted metacharacters are interpreted on the remote
+          machine. See EXAMPLES.
+
+          Hostnames are given in the _h_o_s_t_s database, which may be con-
+          tained in the ////eeeettttcccc////hhhhoooossssttttssss file, the Internet domain name
+          database, or both.  Each host has one official name (the
+          first name in the database entry) and optionally one or more
+          nicknames.  Official hostnames or nicknames may be given as
+
+
+
+     Page 1                                          (printed 5/31/96)
+
+
+
+
+
+
+     rrrrsssshhhheeee((((1111))))              BBBBCCCCSSSS SSSSttttaaaarrrrbbbbaaaasssseeee ((((99996666////00005555////22228888))))              rrrrsssshhhheeee((((1111))))
+
+
+
+          _h_o_s_t_n_a_m_e.
+
+          Each remote machine may have a file named ////eeeettttcccc////hhhhoooossssttttssss....eeeeqqqquuuuiiiivvvv
+          containing a list of trusted hostnames with which it shares
+          usernames.  Users with the same username on both the local
+          and remote machine may rrrrsssshhhheeee from the machines listed in the
+          remote machine's ////eeeettttcccc////hhhhoooossssttttssss file.  Individual users may set
+          up a similar private equivalence list with the file ....rrrrhhhhoooossssttttssss
+          in their home directories.  Each line in this file contains
+          two names: a _h_o_s_t_n_a_m_e and a _u_s_e_r_n_a_m_e separated by a space.
+          The entry permits the user named _u_s_e_r_n_a_m_e who is logged into
+          _h_o_s_t_n_a_m_e to use rrrrsssshhhheeee to access the remote machine as the
+          remote user.  If the name of the local host is not found in
+          the ////eeeettttcccc////hhhhoooossssttttssss....eeeeqqqquuuuiiiivvvv file on the remote machine, and the
+          local username and hostname are not found in the remote
+          user's ....rrrrhhhhoooossssttttssss file, then the access is denied.  The host-
+          names listed in the ////eeeettttcccc////hhhhoooossssttttssss....eeeeqqqquuuuiiiivvvv and ....rrrrhhhhoooossssttttssss files must
+          be the official hostnames listed in the hhhhoooossssttttssss database;
+          nicknames may not be used in either of these files.
+
+          rrrrsssshhhheeee will not prompt for a password if access is denied on
+          the remote machine.
+
+     OOOOPPPPTTTTIIIIOOOONNNNSSSS
+          Options can appear anywhere on the command line, either
+          before or after the specification of the remote host, but
+          must appear before the specification of the remote command.
+          Option key letters can also be freely concatenated together.
+          If a concatenated option key requires an associated value
+          string, it is picked up as the next tokenized string on the
+          command line.
+
+          ----llll _u_s_e_r_n_a_m_e    Use _u_s_e_r_n_a_m_e as the remote username instead
+                         of your local username.  In the absence of
+                         this option, the remote username is the same
+                         as your local username.
+
+          ----nnnn             Redirect the input of rrrrsssshhhheeee to ////ddddeeeevvvv////nnnnuuuullllllll.  You
+                         sometimes need this option to avoid unfor-
+                         tunate interactions between rrrrsssshhhheeee and the
+                         shell which invokes it. For example, if you
+                         are running rrrrsssshhhheeee and invoke a rrrrsssshhhheeee in the
+                         background without redirecting its input away
+                         from the terminal, it will block even if no
+                         reads are posted by the remote command. The
+                         ----nnnn option will prevent this.
+
+          ----xxxx[[[[====[[[[vvvvaaaarrrr____lllliiiisssstttt]]]]]]]]
+                         The ----xxxx option is used to send some local
+                         environment variables over to the remote sys-
+                         tem instead of all of the local environment
+                         variables.  This is useful where local
+
+
+
+     Page 2                                          (printed 5/31/96)
+
+
+
+
+
+
+     rrrrsssshhhheeee((((1111))))              BBBBCCCCSSSS SSSSttttaaaarrrrbbbbaaaasssseeee ((((99996666////00005555////22228888))))              rrrrsssshhhheeee((((1111))))
+
+
+
+                         environment variables, like PPPPAAAATTTTHHHH and
+                         LLLLDDDD____LLLLIIIIBBBBRRRRAAAARRRRYYYY____PPPPAAAATTTTHHHH may not have the proper mean-
+                         ing on the remote system.  If the ----xxxx option
+                         appears alone, the local environment variable
+                         RRRRXXXXPPPPOOOORRRRTTTT (another inspiration of the AT&T RRRREEEEXXXXEEEECCCC
+                         package) is consulted for a list of local
+                         environment variables to send over to the
+                         remote machine.  If the ----xxxx option has just
+                         the equals sign after it (no spaces between
+                         the xxxx and the ==== sign), then no additional
+                         environment variables are sent over.  If
+                         there is a comma separated list (no interven-
+                         ing white space between list names) then only
+                         those variables are sent over.  In all cases,
+                         environment variables are only sent over to
+                         the remote machine if they exist and are
+                         exported on the local machine.
+
+          ----eeee eeeennnnvvvviiiirrrroooonnnnmmmmeeeennnntttt____ffffiiiilllleeee
+                         The ----eeee option is used to have an environment
+                         file executed on the remote machine before
+                         the user specified command is executed.  For
+                         heterogeneous machine environments, ideally,
+                         each different machine could have a file in
+                         the user's home directory that could be exe-
+                         cuted to provide the proper environment for
+                         the user requested command.  Normally, a
+                         user's ....pppprrrrooooffffiiiilllleeee type file serves this func-
+                         tion but is not always the best choice when
+                         executing many remote commands.  Usually, a
+                         file is created with a list of environment
+                         variables which are the essential set needed
+                         for proper remote execution of commands.
+                         This file should be able to be executed by
+                         ////bbbbiiiinnnn////sssshhhh and should export any environment
+                         variables that are desired to be in the
+                         environment of the user requested command to
+                         be executed.  This file can be the user's
+                         ....pppprrrrooooffffiiiilllleeee type file but that may have
+                         undesireable side effects.  The specified
+                         file (what ever it may be) is executed with
+                         its standard input, output and error
+                         redirected to the ////ddddeeeevvvv////nnnnuuuullllllll file.  The speci-
+                         fied environment file specified will not have
+                         a controlling terminal either.  If this
+                         option is used, the specified file is exe-
+                         cuted before any further environment is sent
+                         over either by default (the entire existing
+                         local environment) or those local environment
+                         variables specified with the ----xxxx option.
+
+          ----dddd             This option is used to have the remote
+
+
+
+     Page 3                                          (printed 5/31/96)
+
+
+
+
+
+
+     rrrrsssshhhheeee((((1111))))              BBBBCCCCSSSS SSSSttttaaaarrrrbbbbaaaasssseeee ((((99996666////00005555////22228888))))              rrrrsssshhhheeee((((1111))))
+
+
+
+                         command executed in the same directory as the
+                         current working directory on the local
+                         machine.  If the remote machine cannot find
+                         or change to this directory, it exits with an
+                         error return code.  The default directory
+                         where the user's specified command is exe-
+                         cuted is the user's home directory on the
+                         remote machine.
+
+          ----VVVV             This option will cause the program to print
+                         its version to the standard error output and
+                         then it will exit.
+
+          ----????             This option will cause a brief help message
+                         to be printed to standard error output and
+                         then the program will exit.
+
+     EEEEXXXXIIIITTTT CCCCOOOODDDDEEEESSSS
+          Returns _0000 upon successful completion, _1111 otherwise.
+
+     EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+          The following command:
+
+               eeeexxxxaaaammmmpppplllleeee%%%% rrrrsssshhhheeee lllliiiizzzzaaaarrrrdddd ccccaaaatttt lllliiiizzzzaaaarrrrdddd....ffffiiiilllleeee >>>>>>>> eeeexxxxaaaammmmpppplllleeee....ffffiiiilllleeee
+
+          appends the remote file lllliiiizzzzaaaarrrrdddd....ffffiiiilllleeee from the machine called
+          ``lizard'' to the file called eeeexxxxaaaammmmpppplllleeee....ffffiiiilllleeee on the machine
+          called ``example.''
+
+     FFFFIIIILLLLEEEESSSS
+          ////eeeettttcccc////hhhhoooossssttttssss
+          ////eeeettttcccc////hhhhoooossssttttssss....eeeeqqqquuuuiiiivvvv
+          $$$${{{{HHHHOOOOMMMMEEEE}}}}////....rrrrhhhhoooossssttttssss
+          ////eeeettttcccc////ppppaaaasssssssswwwwdddd
+
+     SSSSEEEEEEEE AAAALLLLSSSSOOOO
+          rrrrsssshhhh(1), rrrrllll(1), rrrrxxxx(1), rrrreeeexxxxeeeecccc(1), rrrrllllooooggggiiiinnnn(1), vvvviiii(1),
+          iiiinnnn....nnnnaaaammmmeeeedddd(1M), iiiinnnn....rrrrsssshhhhdddd(1M), hhhhoooossssttttssss(4), hhhhoooossssttttssss....eeeeqqqquuuuiiiivvvv(4)
+
+     NNNNOOOOTTTTEEEESSSS
+          When a system is listed in hhhhoooossssttttssss....eeeeqqqquuuuiiiivvvv, its security must be
+          as good as local security.  One insecure system listed in
+          hhhhoooossssttttssss....eeeeqqqquuuuiiiivvvv can compromise the security of the entire sys-
+          tem.
+
+          You cannot run an interactive command (such as vvvviiii(1) ); use
+          rrrrllllooooggggiiiinnnn if you wish to do so.  This is a major short coming
+          of I/O development on the UNIX operating system platform.
+          Even with STREAMS, I/O has not progressed significantly to
+          even match some of the capabilities of other (now almost
+          obsolete) operating systems.  How will the UNIX operating
+          system stack up to MS-Windows, MS-Windows NT, or Apple's
+
+
+
+     Page 4                                          (printed 5/31/96)
+
+
+
+
+
+
+     rrrrsssshhhheeee((((1111))))              BBBBCCCCSSSS SSSSttttaaaarrrrbbbbaaaasssseeee ((((99996666////00005555////22228888))))              rrrrsssshhhheeee((((1111))))
+
+
+
+          MacOS ?  we will see in time.
+
+          Stop signals stop the local rrrrsssshhhheeee process only; this is argu-
+          ably wrong, but currently hard to fix for reasons too com-
+          plicated to explain here.
+
+          Sometimes the ----nnnn option is needed for reasons that are less
+          than obvious.  For example, the command:
+
+               eeeexxxxaaaammmmpppplllleeee%%%% rrrrsssshhhheeee ssssoooommmmeeeehhhhoooosssstttt dddddddd iiiiffff====////ddddeeeevvvv////nnnnrrrrmmmmtttt0000 bbbbssss====22220000bbbb |||| ttttaaaarrrr
+               xxxxvvvvppppBBBBffff ----
+
+          will put your shell into a strange state.  Evidently, what
+          happens is that the ttttaaaarrrr terminates before the rrrrsssshhhheeee.  The
+          rrrrsssshhhheeee then tries to write into the ``broken pipe'' and,
+          instead of terminating neatly, proceeds to compete with your
+          shell for its standard input.  Invoking rrrrsssshhhheeee with the ----nnnn
+          option avoids such incidents.  This bug occurs only when
+          rrrrsssshhhheeee is at the beginning of a pipeline and is not reading
+          standard input.  Do not use the ----nnnn if rrrrsssshhhheeee actually needs to
+          read standard input.  For example,
+
+               eeeexxxxaaaammmmpppplllleeee%%%% ttttaaaarrrr ccccffff ---- .... |||| rrrrsssshhhheeee ssssuuuunnnnddddiiiiaaaallll dddddddd ooooffff====////ddddeeeevvvv////rrrrmmmmtttt0000
+               oooobbbbssss====22220000bbbb
+
+          does not produce the bug.  If you were to use the ----nnnn in a
+          case like this, rrrrsssshhhheeee would incorrectly read from ////ddddeeeevvvv////nnnnuuuullllllll
+          instead of from the pipe.
+
+     CCCCAAAAVVVVEEEEAAAATTTTSSSS
+          A significant difference from this program and the more
+          popular RRRRSSSSHHHH program is that this program will not execute
+          multiple commands enclosed in quotes like the RRRRSSSSHHHH program
+          will.  This program will only execute a single supplied pro-
+          gram along with its arguments (no funny business).
+
+          The ----nnnn option should not have to exist.  It does exist
+          because of some fundamental flaws in the way in which I/O is
+          handled in both old (non-STREAMS) and new (STREAMS) versions
+          of UNIX.  These I/O limitations do not exist in operating
+          systems such as DEC's RSM-11M or DEC's VMS but, of course,
+          these operating systems suffer from other problems (possibly
+          quite numerous) also.  The ----nnnn option simple directs the rrrrsssshhhheeee
+          program to not read its standard input and to instead return
+          an end-of-file indication to the remote command's standard
+          input.  Normally, the rrrrsssshhhheeee program continuously, and
+          naively, reads its standard input becuase it is too stupid
+          to know when the remote command issues a read to its stan-
+          dard input.  This behavior can be ultimately traced to a
+          fundamental flaw in the I/O subsystem of the UNIX operating
+          system.  The UNIX operating system's I/O STREAM head
+          (STREAMS is assumed for this discussion) does not provide
+
+
+
+     Page 5                                          (printed 5/31/96)
+
+
+
+
+
+
+     rrrrsssshhhheeee((((1111))))              BBBBCCCCSSSS SSSSttttaaaarrrrbbbbaaaasssseeee ((((99996666////00005555////22228888))))              rrrrsssshhhheeee((((1111))))
+
+
+
+          any indication of how much data is requested by the program
+          above the STREAM head.  For this reason, any and all STREAMS
+          modules and ultimately programs residing on the client side
+          of a network connection have to assume that the server side
+          program continuouly wants input data.  This could have been
+          long ago fixed in UNIX (circa 1982 at least) but no...ooo !
+          The powers that were thought that they knew how to make
+          operating systems and did not understand the need for a for-
+          malized "read attention" type indication from programs issu-
+          ing reads on the other end of a communications pipe (network
+          or otherwise).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     Page 6                                          (printed 5/31/96)
+
+
+

@@ -1,0 +1,20 @@
+RSHE
+
+
+
+= Dave Morano, 95/08/22
+version '0a'
+
+This program was originally written.  It was inspired by the
+'bopenrcmd' as part of the "Basic I/O" (BIO) package.
+
+
+= Dave Morano, 95/10/12
+version '0b'
+
+1) The meaning of the 'x' program invocation option was changed
+   to match other such modern "remote execution" programs such
+   as 'rex'.
+
+
+

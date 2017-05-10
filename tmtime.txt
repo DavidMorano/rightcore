@@ -1,0 +1,14 @@
+	    TMTIME	tmt ;
+
+	    char	zname[DATER_ZNAMESIZE + 1] ;
+
+
+	    uc_ftime(&now) ;
+
+	    tmtime_localtime(&tmt,now.time) ;
+
+	    now.timezone = (tmt.gmtoff / 60) ;
+	    now.dstflag = tmt.isdst ;
+
+	    strncpy(zname,tmt.zname,DATER_ZNAMESIZE) ;
+

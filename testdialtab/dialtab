@@ -1,0 +1,33 @@
+# RBBPOST DIALTAB
+
+#
+# Format of entries:
+#
+#>
+#> nodename:
+#>
+#>	dialer [dialer_options]
+#>	uux [host!]service parameters
+#>	uux -!uuexec rbbpost
+#>	rex [user=xxx] [passwd=xxx] [host!]progpath [parameters] 
+#>	putfile dirpath
+#>	uucp [uuname!]dirpath
+#>	tcp [host!]port
+#>	tcpnls [host:port] service
+#>	tcpmux [host:port] service
+#>
+#
+#
+
+rca:
+	uux rbbpost
+	tcp bbpost
+	tcpmux - bbpost
+	putfile /net/otherhost/var/spool/incoming/
+	uucp ~/dwd/
+	rex /tmp/srv/rbbpost
+
+
+
+
+

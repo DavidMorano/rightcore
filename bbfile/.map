@@ -1,0 +1,71 @@
+		LINK EDITOR MEMORY MAP
+
+
+output		input		virtual
+section		section		address		size
+
+.interp 			   100d4	      11
+		.interp 	   100d4	      11 (null)
+.hash   			   100e8	     164
+		.hash   	   100e8	     164 (null)
+.dynsym 			   1024c	     380
+		.dynsym 	   1024c	     380 (null)
+.dynstr 			   105cc	     2b2
+		.dynstr 	   105cc	     2b2 (null)
+.SUNW_ve			   10880	      20
+		.SUNW_ve	   10880	      20 (null)
+.rela.te			   108a0	      30
+		.rela.te	   108a0	      30 (null)
+.rela.ex			   108d0	      18
+		.rela.ex	   108d0	      18 (null)
+.rela.bs			   108e8	      18
+		.rela.bs	   108e8	      18 (null)
+.rela.pl			   10900	      30
+		.rela.pl	   10900	      30 (null)
+.text   			   10930	     230
+		.text   	   10930	      00 /opt/SUNWspro/SC4.0/lib/crti.o
+		.text   	   10930	      f4 /opt/SUNWspro/SC4.0/lib/crt1.o
+		.text   	   10a24	     118 bbfile.o
+		.text   	   10b3c	      00 makedate.o
+		.text   	   10b3c	      24 /usr/add-on/pcs/lib/ELF/libdam.a(exit.o)
+		.text   	   10b60	      00 /opt/SUNWspro/SC4.0/lib/crtn.o
+.init   			   10b60	      38
+		.init   	   10b60	      30 /opt/SUNWspro/SC4.0/lib/crti.o
+		.init   	   10b90	      08 /opt/SUNWspro/SC4.0/lib/crtn.o
+.fini   			   10b98	      38
+		.fini   	   10b98	      04 /opt/SUNWspro/SC4.0/lib/crti.o
+		.fini   	   10b9c	      34 /opt/SUNWspro/SC4.0/lib/crtn.o
+.excepti			   10bd0	      04
+		.excepti	   10bd0	      00 /opt/SUNWspro/SC4.0/lib/crti.o
+		.excepti	   10bd0	      04 /opt/SUNWspro/SC4.0/lib/crtn.o
+.got    			   20bd4	      04
+		.got    	   20bd4	      04 (null)
+.plt    			   20bd8	      64
+		.plt    	   20bd8	      64 (null)
+.dynamic			   20c3c	      d0
+		.dynamic	   20c3c	      d0 (null)
+.ex_shar			   20d0c	      20
+		.ex_shar	   20d0c	      18 /opt/SUNWspro/SC4.0/lib/crti.o
+		.ex_shar	   20d24	      08 /opt/SUNWspro/SC4.0/lib/crtn.o
+.data   			   20d30	      41
+		.data   	   20d30	      28 /opt/SUNWspro/SC4.0/lib/crt1.o
+		.data   	   20d58	      19 makedate.o
+.bss    			   20d78	     350
+		.bss    	   20d78	     350 (null)
+
+
+		MULTIPLY DEFINED SYMBOLS
+
+
+symbol				  definition used     also defined in
+
+_environ                            /opt/SUNWspro/SC4.0/lib/crt1.o
+							/usr/lib/libc.so
+exit                                /usr/add-on/pcs/lib/ELF/libdam.a(exit.o)
+							/usr/lib/libc.so
+___Argv                             /opt/SUNWspro/SC4.0/lib/crt1.o
+							/usr/lib/libc.so
+environ                             /opt/SUNWspro/SC4.0/lib/crt1.o
+							/usr/lib/libc.so
+__environ_lock                      /opt/SUNWspro/SC4.0/lib/crt1.o
+							/usr/lib/libc.so

@@ -1,0 +1,9 @@
+* circuit parameters for ADVICE
+*
+*
+.set { vterm=1.2 }
+.set { pow=3.3 }
+
+*
+*
+*

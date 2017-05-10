@@ -1,0 +1,11 @@
+# dumb printer
+
+printer80|dumb printer 80,
+	cr=^M, cud1=^J, ind=^J, bel=^G,
+	cub1=^H, cols#80, hc, os,
+
+printer132|dumb printer 132,
+	cr=^M, cud1=^J, ind=^J, bel=^G,
+	cub1=^H, cols#132, hc, os,
+
+

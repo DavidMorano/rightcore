@@ -1,0 +1,37 @@
+#!/bin/ksh
+# CEXECER
+
+
+#DIALER=prog
+DIALER=cprog
+#DIALER=rcmdr
+#DIALER=tcp
+
+#NODE=rca
+NODE=rcb
+
+
+if [[ -n "${1}" ]] ; then
+  SVC=${1}
+  shift
+else
+  SVC=cat
+fi
+
+
+case $DIALER in
+
+prog )
+  NODE=${SVC}
+  SVC=
+  ;;
+
+esac
+
+
+cp /dev/null /tmp/cexecer.deb 
+
+DEBUGFD=3 testcexecer.x -d $DIALER $NODE -D=5 3> d 2> e $SVC "${@}"
+
+
+

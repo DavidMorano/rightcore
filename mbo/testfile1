@@ -1,0 +1,2178 @@
+/* main */
+
+/* fairly generic (PCS) front-end */
+
+
+#define	F_DEBUGS	0		/* non-switchable */
+#define	F_DEBUG		1
+#define	F_PRINTOUT	0		/* print the message out */
+#define	F_GETEXECNAME	1		/* try to use 'getexecname(3c)' ? */
+#define	F_PCSPOLL	0		/* call 'pcspoll()' */
+#define	F_MAILDIRS	1		/* use built-in maildirs */
+#define	F_ISSAMEHOST	1		/* use 'issamehostname(3d)' */
+
+
+/* revision history :
+
+	= 95/05/01, Dave Morano
+
+	This code module was completely rewritten to 
+	replace any original garbage that was here before.
+
+
+*/
+
+
+/******************************************************************************
+
+	This program just locks a mailbox file and copies it out.
+	After a successful copy, the mailbox file is truncated.
+
+
+******************************************************************************/
+
+
+#include	<sys/types.h>
+#include	<sys/param.h>
+#include	<sys/stat.h>
+#include	<sys/utsname.h>
+#include	<sys/socket.h>
+#include	<netinet/in.h>
+#include	<termios.h>
+#include	<signal.h>
+#include	<unistd.h>
+#include	<time.h>
+#include	<sysexits.h>
+#include	<stdlib.h>
+#include	<string.h>
+#include	<ctype.h>
+#include	<grp.h>
+#include	<syslog.h>
+
+#include	<vsystem.h>
+#include	<bitops.h>
+#include	<keyopt.h>
+#include	<userinfo.h>
+#include	<vecstr.h>
+#include	<vecitem.h>
+#include	<vecobj.h>
+#include	<dater.h>
+#include	<sbuf.h>
+#include	<sockaddress.h>
+#include	<exitcodes.h>
+#include	<mallocstuff.h>
+
+#include	<pcsconf.h>
+
+#include	"msgid.h"
+
+#include	"misc.h"
+#include	"config.h"
+#include	"defs.h"
+
+
+
+/* local defines */
+
+#define	MAXARGINDEX	(1000000 / 20)
+#define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
+
+#define	BUFLEN		(2 * MAXHOSTNAMELEN)
+#define	HOSTBUFLEN	(10 * MAXHOSTNAMELEN)
+
+#define	PROTONAME	"udp"
+#define	LOCALHOST	"localhost"
+
+#ifndef	IPPORT_BIFFUDP
+#define	IPPORT_BIFFUDP	512
+#endif
+
+#define	TO_LOCK		5
+
+
+
+/* external subroutines */
+
+extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
+extern int	snscs(char *,int,const char *,const char *) ;
+extern int	sfshrink(const char *,int,char **) ;
+extern int	sfdirname(const char *,int,char **) ;
+extern int	sfbasename(const char *,int,char **) ;
+extern int	matstr(const char **,const char *,int) ;
+extern int	headkeymat(const char *,const char *,int) ;
+extern int	mkpath2(char *,const char *,const char *) ;
+extern int	cfdeci(const char *,int,int *) ;
+extern int	ctdeci(const char *,int,int) ;
+extern int	getfname(const char *,const char *,int,char *) ;
+extern int	getserial(const char *) ;
+extern int	pcsuserfile() ;
+extern int	optmatch(const char **,char *,int) ;
+extern int	optmatch3(const char **,char *,int) ;
+extern int	mktmpfile(const char *,int,char *) ;
+extern int	lockfile(int,int,off_t,int,int) ;
+extern int	printhelp(bfile *,const char *,const char *,const char *) ;
+extern int	process(struct proginfo *,bfile *,bfile *,vecobj *) ;
+
+extern int	deliver(struct proginfo *,int,struct recip *) ;
+
+extern char	*strdcpy3(char *,int,const char *,const char *,const char *) ;
+extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strnpbrk(const char *,int,const char *) ;
+extern char	*strbasename(char *) ;
+extern char	*timestr_log(time_t,char *) ;
+extern char	*timestr_logz(time_t,char *) ;
+
+
+/* external variables */
+
+#define	A	(__STDC__ != 0) 
+#define	B	defined(_POSIX_C_SOURCE) 
+#define	C	defined(_XOPEN_SOURCE)
+
+#if	(A != 0) || (B != 0) || (C != 0)
+extern long	altzone ;
+#endif
+
+
+/* external variables */
+
+
+/* local structures */
+
+struct errormap {
+	int	rs, ex ;
+} ;
+
+
+/* local typedefs */
+
+#if	defined(IRIX) && (! defined(TYPEDEF_INADDRT))
+#define	TYPEDEF_INADDRT	1
+
+typedef unsigned long	in_addr_t ;
+
+#endif
+
+
+/* forward references */
+
+static int	errormap(int) ;
+static int	getprogopts(struct proginfo *,KEYOPT *,vecstr *) ;
+
+static int	comsat(struct proginfo *,vecobj *,vecobj *) ;
+
+static int	mkcsmsg(char *,int,const char *,int,uint) ;
+static int	parsenodespec(struct proginfo *,int,char *,int,
+			char *,const char *) ;
+
+
+/* local variables */
+
+static const char *argopts[] = {
+	"VERSION",
+	"VERBOSE",
+	"ROOT",
+	"TMPDIR",
+	"HELP",
+	"if",
+	"af",
+	"of",
+	NULL
+} ;
+
+enum argopts {
+	argopt_version,
+	argopt_verbose,
+	argopt_root,
+	argopt_tmpdir,
+	argopt_help,
+	argopt_if,
+	argopt_af,
+	argopt_of,
+	argopt_overlast
+} ;
+
+static const char	*maildirs[] = {
+	"/var/mail",
+	"/var/spool/mail",
+	"/usr/mail",
+	"/usr/spool/mail",
+	NULL
+} ;
+
+static const char	*trustedusers[] = {
+	"root",
+	"uucp",
+	"nuucp",
+	"adm",
+	"admin",
+	"daemon",
+	"listen",
+	"pcs",
+	"post",
+	"smtp",
+	"dam",
+	"morano",
+	NULL
+} ;
+
+static const char *progopts[] = {
+	"maildir",
+	"deadmaildir",
+	"comsat",
+	"spam",
+	"loglen",
+	"logzones",
+	"logenv",
+	"divert",
+	"logmsgid",
+	"nospam",
+	"norepeat",
+	NULL
+} ;
+
+enum progopts {
+	progopt_maildir,
+	progopt_deadmaildir,
+	progopt_comsat,
+	progopt_spam,
+	progopt_loglen,
+	progopt_logzones,
+	progopt_logenv,
+	progopt_divert,
+	progopt_logmsgid,
+	progopt_nospam,
+	progopt_norepeat,
+	progopt_overlast
+} ;
+
+static const struct errormap	errormaps[] = {
+	{ SR_NOENT, EX_NOUSER },
+	{ SR_TXTBSY, EX_TEMPFAIL },
+	{ SR_ACCESS, EX_ACCESS },
+	{ SR_REMOTE, EX_FORWARDED },
+	{ SR_NOSPC, EX_NOSPACE },
+	{ 0, 0 }
+} ;
+
+static const char	*entries[] = {
+	":saved",
+	"root",
+	"adm",
+	"uucp",
+	"staff",
+	"pcs",
+	NULL
+} ;
+
+
+
+
+
+
+int main(argc,argv,envv)
+int	argc ;
+char	*argv[] ;
+char	*envv[] ;
+{
+	struct stat	sb ;
+
+	struct pcsconf	p ;
+
+	struct proginfo	pi, *pip = &pi ;
+
+	struct group	ge ;
+
+	struct userinfo	u ;
+
+	KEYOPT		kopts ;
+
+	bfile	errfile ;
+	bfile	infile, *ifp = &infile ;
+	bfile	outfile, *ofp = &outfile ;
+	bfile	tmpfile, *tfp = &tmpfile ;
+
+	vecstr		sets ;
+
+	vecobj		info ;
+
+	sigset_t	signalmask ;
+	sigset_t	oldsigmask, newsigmask ;
+
+	int	argr, argl, aol, akl, avl, npa, maxai, kwi ;
+	int	argnum, i ;
+	int	rs, rs1, len, fl ;
+	int	ex = EX_INFO ;
+	int	fd, ifd, tfd = -1 ;
+	int	fd_debug ;
+	int	count, c_processed = 0, c_delivered = 0 ;
+	int	sl, cl, bl ;
+	int	ul ;
+	int	f_optminus, f_optplus, f_optequal ;
+	int	f_extra = FALSE ;
+	int	f_usage = FALSE ;
+	int	f_help = FALSE ;
+	int	f_done = FALSE ;
+	int	f_version = FALSE ;
+	int	f_bad ;
+
+	char	*argp, *aop, *akp, *avp ;
+	char	argpresent[MAXARGGROUPS + 1] ;
+	char	userbuf[USERINFO_LEN + 1] ;
+	char	pcsconfbuf[PCSCONF_LEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	logfname[MAXPATHLEN + 1] ;
+	char	buf[BUFSIZE + 1], *bp ;
+	char	timebuf[TIMEBUFLEN + 1] ;
+	char	*pr = NULL ;
+	char	*infname = NULL ;
+	char	*argfname = NULL ;
+	char	*outfname = NULL ;
+	char	*fromaddr = NULL ;
+	char	*uu_machine = NULL ;
+	char	*uu_user = NULL ;
+	char	*protospec = NULL ;
+	char	*up, *sp, *cp ;
+
+
+	if ((cp = getenv(DEBUGFDVAR1)) == NULL)
+	    cp = getenv(DEBUGFDVAR2) ;
+
+	if ((cp != NULL) &&
+	    (cfdeci(cp,-1,&fd_debug) >= 0))
+	    esetfd(fd_debug) ;
+
+
+	proginfo_init(pip,envv,argv[0],VERSION) ;
+
+	proginfo_banner(pip,BANNER) ;
+
+
+	pip->efp = NULL ;
+	rs = bopen(&errfile,BIO_STDERR,"dwca",0644) ;
+
+	if (rs >= 0) {
+
+	    pip->efp = &errfile ;
+	    bcontrol(&errfile,BC_LINEBUF,0) ;
+
+	}
+
+#if	F_DEBUGS
+	eprintf("main: BIO stderr opened, rs=%d\n",rs) ;
+#endif
+
+	tmpfname[0] = '\0' ;
+	logfname[0] = '\0' ;
+
+
+	pip->tmpdname = NULL ;
+	pip->maildname = NULL ;
+	pip->deadmaildname = NULL ;
+
+
+/* get the current time-of-day */
+
+	{
+	    struct tm	st ;
+
+	    char	*tznp ;
+
+	    int	zo ;
+
+
+	    uc_ftime(&pip->now) ;
+
+	    uc_localtime(&pip->now.time,&st) ;
+
+	    zo = (st.tm_isdst <= 0) ? timezone : altzone ;
+	    pip->now.timezone = zo / 60 ;
+	    pip->now.dstflag = daylight ;
+
+	    tznp = (st.tm_isdst <= 0) ? tzname[0] : tzname[1] ;
+	    strncpy(pip->zname,tznp,DATER_ZNAMESIZE) ;
+
+	    dater_init(&pip->tmpdate,&pip->now,pip->zname,-1) ;
+
+	} /* end block (getting some current time stuff) */
+
+	pip->daytime = pip->now.time ;
+
+	timestr_logz(pip->daytime,pip->stamp) ;
+
+	pip->debuglevel = 0 ;
+	pip->verboselevel = 1 ;
+
+	pip->loglen = -1 ;
+
+	pip->f.log = FALSE ;
+
+	pip->f.optlogzones = TRUE ;
+	pip->f.optlogenv = TRUE ;
+	pip->f.optlogmsgid = TRUE ;
+	pip->f.optdivert = TRUE ;
+
+
+#if	defined(SYSV)
+	pip->f.sysv_ct = TRUE ;
+#else
+	pip->f.sysv_ct = FALSE ;
+#endif
+
+	pip->f.sysv_rt = FALSE ;
+	if (u_access("/usr/sbin",R_OK) >= 0)
+	    pip->f.sysv_rt = TRUE ;
+
+
+/* key options */
+
+	keyopt_init(&kopts) ;
+
+
+/* process program arguments */
+
+	for (i = 0 ; i < MAXARGGROUPS ; i += 1) argpresent[i] = 0 ;
+
+	npa = 0 ;			/* number of positional so far */
+	maxai = 0 ;
+	i = 0 ;
+	argr = argc - 1 ;
+	while ((! f_done) && (argr > 0)) {
+
+	    argp = argv[++i] ;
+	    argr -= 1 ;
+	    argl = strlen(argp) ;
+
+	    f_optminus = (*argp == '-') ;
+	    f_optplus = (*argp == '+') ;
+	    if ((argl > 0) && (f_optminus || f_optplus)) {
+
+	        if (argl > 1) {
+
+	            if (isdigit(argp[1])) {
+
+	                if (cfdeci(argp + 1,argl - 1,&argnum))
+	                    goto badargval ;
+
+	            } else {
+
+#if	F_DEBUGS
+	                eprintf("main: got an option\n") ;
+#endif
+
+	                aop = argp + 1 ;
+	                akp = aop ;
+	                aol = argl - 1 ;
+	                f_optequal = FALSE ;
+	                if ((avp = strchr(aop,'=')) != NULL) {
+
+#if	F_DEBUGS
+	                    eprintf("main: got an option key w/ a value\n") ;
+#endif
+
+	                    akl = avp - aop ;
+	                    avp += 1 ;
+	                    avl = aop + argl - 1 - avp ;
+	                    aol = akl ;
+	                    f_optequal = TRUE ;
+
+	                } else {
+
+	                    avl = 0 ;
+	                    akl = aol ;
+
+	                }
+
+/* do we have a keyword match or should we assume only key letters ? */
+
+#if	F_DEBUGS
+	                eprintf("main: key word match ? >%W<\n",
+	                    aop,aol) ;
+#endif
+
+	                if ((kwi = optmatch3(argopts,aop,aol)) >= 0) {
+
+#if	F_DEBUGS
+	                    eprintf("main: got an option keyword, kwi=%d\n",
+	                        kwi) ;
+#endif
+
+	                    switch (kwi) {
+
+/* program root */
+	                    case argopt_root:
+	                        if (f_optequal) {
+
+	                            f_optequal = FALSE ;
+	                            if (avl)
+	                                pr = avp ;
+
+	                        } else {
+
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl)
+	                                pr = argp ;
+
+	                        }
+
+	                        break ;
+
+	                    case argopt_tmpdir:
+	                        if (f_optequal) {
+
+	                            f_optequal = FALSE ;
+	                            if (avl)
+	                                pip->tmpdname = avp ;
+
+	                        } else {
+
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl)
+	                                pip->tmpdname = argp ;
+
+	                        }
+
+	                        break ;
+
+	                    case argopt_if:
+	                        if (f_optequal) {
+
+	                            f_optequal = FALSE ;
+	                            if (avl)
+	                                infname = avp ;
+
+	                        } else {
+
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl)
+	                                infname = argp ;
+
+	                        }
+
+	                        break ;
+
+	                    case argopt_af:
+	                        if (f_optequal) {
+
+	                            f_optequal = FALSE ;
+	                            if (avl)
+	                                argfname = avp ;
+
+	                        } else {
+
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl)
+	                                argfname = argp ;
+
+	                        }
+
+	                        break ;
+
+/* output file */
+	                    case argopt_of:
+	                        if (f_optequal) {
+
+	                            f_optequal = FALSE ;
+	                            if (avl)
+	                                outfname = avp ;
+
+	                        } else {
+
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl)
+	                                outfname = argp ;
+
+	                        }
+
+	                        break ;
+
+/* help */
+	                    case argopt_help:
+	                        f_help = TRUE ;
+	                        if (f_optequal)
+	                            goto badargextra ;
+
+	                        break ;
+
+/* version */
+	                    case argopt_version:
+	                        f_version = TRUE ;
+	                        if (f_optequal)
+	                            goto badargextra ;
+
+	                        break ;
+
+	                    case argopt_verbose:
+	                        pip->verboselevel = 1 ;
+	                        if (f_optequal) {
+
+	                            f_optequal = FALSE ;
+	                            if (avl > 0) {
+
+	                                rs = cfdeci(avp,avl,
+	                                    &pip->verboselevel) ;
+
+	                                if (rs < 0)
+	                                    goto badargval ;
+
+	                            }
+	                        }
+
+	                        break ;
+
+/* default action and user specified help */
+	                    default:
+	                        ex = EX_USAGE ;
+	                        f_usage = TRUE ;
+	                        f_done = TRUE ;
+	                        bprintf(pip->efp,
+	                            "%s: unknown argument keyword \"%s\"\n",
+	                            pip->progname,aop) ;
+
+	                        break ;
+
+	                    } /* end switch (key words) */
+
+	                } else {
+
+#if	F_DEBUGS
+	                    eprintf("main: got an option key letter\n") ;
+#endif
+
+	                    while (aol--) {
+
+#if	F_DEBUGS
+	                        eprintf("main: option key letters\n") ;
+#endif
+
+	                        switch (*aop) {
+
+	                        case 'V':
+	                            f_version = TRUE ;
+	                            break ;
+
+	                        case 'D':
+	                            pip->debuglevel = 1 ;
+	                            if (f_optequal) {
+
+	                                f_optequal = FALSE ;
+	                                if (avl) {
+
+	                                    rs = cfdeci(avp,avl, 
+	                                        &pip->debuglevel) ;
+
+	                                    if (rs < 0)
+	                                        goto badargval ;
+
+	                                }
+	                            }
+
+	                            break ;
+
+/* ignore the "deliver" flag for old compatib
+								    								    								    ility reasons */
+	                        case 'd':
+	                            break ;
+
+/* from email address */
+	                        case 'f':
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl)
+	                                fromaddr = argp ;
+
+	                            break ;
+
+/* multirecip-mode */
+	                        case 'm':
+	                            pip->f.multirecip = TRUE ;
+	                            break ;
+
+/* options */
+	                        case 'o':
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl) {
+
+	                                rs = keyopt_loads(&kopts,argp,argl) ;
+
+	                                if (rs < 0)
+	                                    goto badargval ;
+
+	                            }
+
+	                            break ;
+
+/* caller-supplied protocol specification */
+	                        case 'p':
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl) {
+
+	                                protospec = argp ;
+
+	                            }
+
+	                            break ;
+
+/* quiet */
+	                        case 'q':
+	                            pip->f.quiet = TRUE ;
+	                            break ;
+
+/* mail spool directory */
+	                        case 's':
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl)
+	                                pip->maildname = argp ;
+
+	                            break ;
+
+/* timeout */
+	                        case 't':
+	                            if (argr <= 0)
+	                                goto badargnum ;
+
+	                            argp = argv[++i] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+
+	                            if (argl) {
+
+	                                rs = cfdeci(argp,argl,&pip->timeout) ;
+
+	                                if (rs < 0)
+	                                    goto badargval ;
+
+	                            }
+
+	                            break ;
+
+/* verbose (level) */
+	                        case 'v':
+	                            pip->verboselevel = 1 ;
+	                            if (f_optequal) {
+
+	                                f_optequal = FALSE ;
+	                                if (avl > 0) {
+
+	                                    rs = cfdeci(avp,avl,
+	                                        &pip->verboselevel) ;
+
+	                                    if (rs < 0)
+	                                        goto badargval ;
+
+	                                }
+	                            }
+
+	                            break ;
+
+	                        case '?':
+	                            f_usage = TRUE ;
+	                            break ;
+
+	                        default:
+	                            ex = EX_USAGE ;
+	                            f_usage = TRUE ;
+	                            bprintf(pip->efp,
+	                                "%s: unknown option - %c\n",
+	                                pip->progname,*aop) ;
+
+	                        } /* end switch */
+
+	                        aop += 1 ;
+
+	                    } /* end while */
+
+	                } /* end if (individual option key letters) */
+
+	            } /* end if (digit or not) */
+
+	        } else {
+
+	            if (i < MAXARGINDEX) {
+
+	                BSET(argpresent,i) ;
+	                maxai = i ;
+	                npa += 1 ;	/* increment position count */
+
+	            }
+
+	        } /* end if */
+
+	    } else {
+
+	        if (i < MAXARGGROUPS) {
+
+	            BSET(argpresent,i) ;
+	            maxai = i ;
+	            npa += 1 ;
+
+	        } else {
+
+	            if (! f_extra) {
+
+	                ex = EX_USAGE ;
+	                f_extra = TRUE ;
+	                bprintf(pip->efp,
+	                    "%s: extra arguments ignored\n",
+	                    pip->progname) ;
+
+	            }
+	        }
+
+	    } /* end if (key letter/word or positional) */
+
+	} /* end while (all command line argument processing) */
+
+
+/* check arguments */
+
+#if	F_DEBUGS
+	eprintf("main: debuglevel=%d\n",pip->debuglevel) ;
+#endif
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(1))
+	    eprintf("main: debuglevel=%d debug_FD=%d\n",
+	        pip->debuglevel,egetfd()) ;
+#endif
+
+	if (pip->debuglevel > 0) {
+
+	    bprintf(pip->efp,"%s: debuglevel=%d\n",
+	        pip->progname,pip->debuglevel) ;
+
+#if	F_DEBUGS
+	    eprintf("main: bcontrol\n") ;
+#endif
+
+	    bcontrol(pip->efp,BC_LINEBUF,0) ;
+
+	    bflush(pip->efp) ;
+
+	} /* end if */
+
+
+	if (f_version) {
+
+#if	F_DEBUGS
+	    eprintf("main: error bprintf's\n") ;
+#endif
+
+	    bprintf(pip->efp,"%s: version %s/%s\n",
+	        pip->progname,
+	        VERSION,(pip->f.sysv_ct ? "SYSV" : "BSD")) ;
+
+	} /* end if (printing version) */
+
+	if (f_usage)
+	    goto usage ;
+
+	if (f_version)
+	    goto done ;
+
+
+/* get some program information */
+
+	if (pr == NULL) {
+
+	    pr = getenv(PROGRAMROOTVAR1) ;
+
+	    if (pr == NULL)
+	        pr = getenv(PROGRAMROOTVAR2) ;
+
+	    if (pr == NULL)
+	        pr = getenv(PROGRAMROOTVAR3) ;
+
+/* try to see if a path was given at invocation */
+
+	    if ((pr == NULL) && (pip->progdname != NULL))
+	        proginfo_rootprogdname(pip) ;
+
+/* do the special thing */
+
+#if	F_GETEXECNAME && defined(SOLARIS) && (SOLARIS >= 8)
+	    if ((pr == NULL) && (pip->pr == NULL)) {
+
+	        const char	*pp ;
+
+
+	        pp = getexecname() ;
+
+	        if (pp != NULL)
+	            proginfo_rootexecname(pip,pp) ;
+
+	    }
+#endif /* SOLARIS */
+
+	} /* end if (getting a program root) */
+
+	if (pip->pr == NULL) {
+
+	    if (pr == NULL)
+	        pr = PROGRAMROOT ;
+
+	    proginfo_setroot(pip,pr,-1) ;
+
+	}
+
+
+/* program search name */
+
+	proginfo_searchname(pip,SEARCHNAMEVAR,SEARCHNAME) ;
+
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(2))
+	    eprintf("main: final pr=%s\n", pip->pr) ;
+#endif
+
+	if (pip->debuglevel > 0)
+	    bprintf(pip->efp,"%s: pr=%s\n",
+	        pip->progname,pip->pr) ;
+
+
+/* get help if requested */
+
+	if (f_help) {
+
+#if	F_DEBUG
+	    if (DEBUGLEVEL(4))
+	        eprintf("main: printhelp() helpfname=%s\n",HELPFNAME) ;
+#endif
+
+	    rs = printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
+
+#if	F_DEBUG
+	    if (DEBUGLEVEL(4))
+	        eprintf("main: printhelp() rs=%d\n",rs) ;
+#endif
+
+	    goto help ;
+	}
+
+
+	if (pip->tmpdname == NULL)
+	    pip->tmpdname = getenv("TMPDIR") ;
+
+	if (pip->tmpdname == NULL)
+	    pip->tmpdname = TMPDNAME ;
+
+
+/* validate the timeout */
+
+	if (pip->timeout <= 1)
+	    pip->timeout = DEFTIMEOUT ;
+
+
+/* some UUCP stuff */
+
+	uu_machine = getenv("UU_MACHINE") ;
+
+	uu_user = getenv("UU_USER") ;
+
+
+/* get the group information that we need */
+
+	pip->gid_mail = (gid_t) MAILGID ;
+	if (getgr_name(MAILGROUP,&ge,buf,BUFLEN) >= 0) {
+
+#if	F_DEBUG
+	    if (DEBUGLEVEL(4))
+	        eprintf("main: username mail gid=%d\n",ge.gr_gid) ;
+#endif
+
+	    pip->gid_mail = ge.gr_gid ;
+
+	}
+
+/* get user profile information */
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: userinfo()\n",rs) ;
+#endif
+
+	rs = userinfo(&u,userbuf,USERINFO_LEN) ;
+
+	if (rs < 0)
+	    goto baduser ;
+
+	pip->uip = &u ;
+	pip->pid = u.pid ;
+	pip->username = u.username ;
+	pip->nodename = u.nodename ;
+	pip->domainname = u.domainname ;
+	pip->logid = u.logid ;
+
+	pip->uid = u.uid ;
+	pip->euid = u.euid ;
+	pip->f.setuid = (pip->uid != pip->euid) ;
+
+	pip->gid = u.gid ;
+	pip->egid = u.egid ;
+	pip->f.setgid = (pip->gid != pip->egid) ;
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: rs=%d user=%s homedir=%s euid=%d egid=%d\n",
+	        rs,u.username,u.homedir,u.euid,u.egid) ;
+#endif
+
+
+/* get the system PCS configuration information */
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: pcsconf()\n") ;
+#endif
+
+	rs = vecstr_init(&sets,20,0) ;
+
+	if (rs < 0)
+	    goto badinit1 ;
+
+	rs = pcsconf(pip->pr,NULL,&p,&sets,NULL,
+	    pcsconfbuf,PCSCONF_LEN) ;
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: pcsconf() rs=%d\n",rs) ;
+#endif
+
+#if	F_PCSPOLL
+	if (rs >= 0) {
+
+	    pip->pp = &p ;
+	    (void) pcspoll(pip->pr,&p,&sets) ;
+
+	}
+#endif /* F_PCSPOLL */
+
+
+/* process any program options */
+
+	rs = getprogopts(pip,&kopts,&sets) ;
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: getprogopts() rs=%d\n",rs) ;
+#endif
+
+
+/* the "from" (envelope) address */
+
+	if (fromaddr == NULL) {
+
+	    if (pip->f.trusted && (uu_user != NULL))
+	        fromaddr = uu_user ;
+
+	    else
+	        fromaddr = u.username ;
+
+	}
+
+	pip->fromaddr = mallocstr(fromaddr) ;
+
+/* the protocol specification */
+
+	if (protospec == NULL) {
+
+	    if (uu_machine != NULL) {
+
+	        protospec = buf ;
+	        snscs(buf,BUFLEN,"uucp",uu_machine) ;
+
+	    }
+
+	}
+
+	pip->protospec = mallocstr(protospec) ;
+
+
+/* log ID */
+
+	sp = SERIALFNAME ;
+	if (sp[0] != '/') {
+
+	    mkpath2(tmpfname,pip->pr,sp) ;
+
+	    sp = tmpfname ;
+
+	}
+
+	rs = getserial(tmpfname) ;
+
+	if (rs >= 0) {
+
+	    sp = buf ;
+	    bp = strwcpy(buf,pip->nodename,4) ;
+
+	    cl = ctdeci(bp,20,rs) ;
+
+	    bp[cl] = '\0' ;
+	    buf[15] = '\0' ;
+
+	} else
+	    sp = u.logid ;
+
+	pip->logid = mallocstr(sp) ;
+
+
+/* log file */
+
+	if (logfname[0] == '\0')
+	    mkpath2(logfname,pip->pr,LOGFNAME) ;
+
+	if (logfname[0] != '/') {
+
+	    fl = getfname(pip->pr,logfname,1,tmpfname) ;
+
+	    if (fl > 0)
+	        strcpy(logfname,tmpfname) ;
+
+	}
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    eprintf("main: logfile_open() \n") ;
+	    eprintf("main: logfname=%s logid=>%s<\n",
+	        logfname,u.logid) ;
+	}
+#endif
+
+	rs = logfile_open(&pip->lh,logfname,0666,pip->logid) ;
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: logfile_open() rs=%d\n",rs) ;
+#endif
+
+	if (rs >= 0) {
+
+	    struct utsname	un ;
+
+
+	    pip->f.log = TRUE ;
+	    if (pip->loglen > 0)
+	        logfile_checklen(&pip->lh,pip->loglen) ;
+
+#if	F_DEBUG
+	    if (DEBUGLEVEL(4))
+	        eprintf("main: logfile_printf()\n") ;
+#endif
+
+	    logfile_printf(&pip->lh,"%s %-14s %s/%s",
+	        timestr_logz(pip->now.time,timebuf),
+	        pip->progname,
+	        VERSION,(pip->f.sysv_ct ? "SYSV" : "BSD")) ;
+
+	    (void) u_uname(&un) ;
+
+	    logfile_printf(&pip->lh,"ostype=%s os=%s(%s)",
+	        (pip->f.sysv_rt ? "SYSV" : "BSD"),
+	        un.sysname,un.release) ;
+
+	    buf[0] = '\0' ;
+	    if ((u.fullname != NULL) && (u.fullname[0] != '\0'))
+	        strcpy(buf,u.fullname) ;
+
+	    else if ((u.name != NULL) && (u.name[0] != '\0'))
+	        strcpy(buf,u.name) ;
+
+	    else if ((u.gecosname != NULL) && (u.gecosname[0] != '\0'))
+	        strcpy(buf,u.gecosname) ;
+
+	    else if (u.mailname != NULL)
+	        strcpy(buf,u.mailname) ;
+
+	    if (buf[0] != '\0')
+	        logfile_printf(&pip->lh,"%s!%s (%s)",
+	            u.nodename,u.username,buf) ;
+
+	    else
+	        logfile_printf(&pip->lh,"%s!%s",
+	            u.nodename,u.username) ;
+
+	    if (protospec != NULL)
+	        logfile_printf(&pip->lh,"proto=%s\n",protospec) ;
+
+	    if (uu_machine != NULL)
+	        logfile_printf(&pip->lh,"uu_machine=%s\n",uu_machine) ;
+
+	    if (uu_user != NULL)
+	        logfile_printf(&pip->lh,"uu_user=%s\n",uu_user) ;
+
+	} /* end if */
+
+
+/* write user's mail address (roughly as we have it) into the user list file */
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: adding entry to user list file\n") ;
+#endif
+
+	rs = pcsuserfile(pip->pr,USERFNAME,u.nodename,u.username,buf) ;
+
+	if (pip->f.log) {
+
+	    if (rs == 1)
+	        logfile_printf(&pip->lh,
+	            "created the user list file") ;
+
+	    else if (rs < 0)
+	        logfile_printf(&pip->lh,
+	            "could not access user list file (%d)",
+	            rs) ;
+
+	}
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("main: wrote user file, rs=%d\n",rs) ;
+#endif
+
+
+/* try to open an environment summary log also */
+
+	if (pip->f.optlogenv) {
+
+	    logfname[0] = '\0' ;
+
+	    if (logfname[0] == '\0')
+	        mkpath2(logfname,pip->pr,LOGENVFNAME) ;
+
+	    if (logfname[0] != '/') {
+
+	        fl = getfname(pip->pr,logfname,1,tmpfname) ;
+
+	        if (fl > 0)
+	            strcpy(logfname,tmpfname) ;
+
+	    }
+
+	    rs = logfile_open(&pip->envsum,logfname,0666,pip->logid) ;
+
+#if	F_DEBUG
+	    if (DEBUGLEVEL(4))
+	        eprintf("main: logfile_open() rs=%d\n",rs) ;
+#endif
+
+	    if (rs >= 0)
+	        pip->f.logenv = TRUE ;
+
+	} /* end if (option to log envelope information) */
+
+
+/* make the maillock address */
+
+#ifdef	COMMENT
+	bp = strwcpy(buf,pip->nodename,(BUFLEN - 2)) ;
+
+	*bp++ = '!' ;
+	bp = strwcpy(bp,pip->username,(BUFLEN - (bp - buf))) ;
+
+	bl = bp - buf ;
+
+#else /* COMMENT */
+
+	bl = sncpy3(buf,BUFLEN,pip->nodename,"!",pip->username) ;
+
+#endif /* COMMENT */
+
+	pip->lockaddr = mallocstrn(buf,bl) ;
+
+
+/* get some startup flags if there are any */
+
+#ifdef	COMMENT
+
+#if	F_DEBUG
+	if (pip->debuglevel > 1)
+	    eprintf("main: checking for options\n") ;
+#endif
+
+	(void) getbbopts(&g,&sets) ;
+
+#endif /* COMMENT */
+
+
+	vecstr_free(&sets) ;
+
+
+
+/* other */
+
+
+/* some file initialization */
+
+
+/* process the input message */
+
+	ifd = FD_STDIN ;
+	if ((infname != NULL) && (infname[0] != '-')) {
+
+	    rs = uc_open(infname,O_RDWR,0666) ;
+
+	ifd = rs ;
+	if (rs < 0)
+	    goto badinopen ;
+
+	}
+
+	rs = lockfile(ifd,F_LOCK,0L,0,TO_LOCK) ;
+
+	if (rs < 0)
+		goto badinlock ;
+
+/* output */
+
+	tfd = FD_STDOUT ;
+	    if ((outfname != NULL) && (outfname[0] != '-')) {
+
+		rs = uc_open(outfname,O_WRONLY,0666) ;
+
+		tfd = rs ;
+	if (rs < 0)
+	    goto badtmpopen ;
+
+		}
+
+/* do the copy */
+
+	rs = uc_copyfile(ifd,tfd) ;
+
+	if (rs >= 0) {
+
+		rs = uc_ftruncate(ifd,0L) ;
+
+	}
+
+
+/* print a regular error message to STDERR if we are NOT in multi-recip mode */
+
+	if (rs < 0) {
+
+	    switch (rs) {
+
+	    case SR_NOENT:
+	        ex = EX_NOUSER ;
+	        if (! pip->f.quiet)
+	            bprintf(pip->efp,
+	                "%s: recipient not found\n",
+	                pip->progname) ;
+
+	        break ;
+
+	    case SR_TXTBSY:
+	        ex = EX_TEMPFAIL ;
+	        if (! pip->f.quiet)
+	            bprintf(pip->efp,
+	                "%s: could not capture the mail lock\n",
+	                pip->progname) ;
+
+	        break ;
+
+	    case SR_ACCES:
+	        ex = EX_ACCESS ;
+	        if (! pip->f.quiet)
+	            bprintf(pip->efp,
+	                "%s: could not access the mail spool-file\n",
+	                pip->progname) ;
+
+	        break ;
+
+	    case SR_REMOTE:
+	        ex = EX_FORWARDED ;
+	        if (! pip->f.quiet)
+	            bprintf(pip->efp,"%s: mail is being forwarded\n",
+	                pip->progname) ;
+
+	        break ;
+
+	    case SR_NOSPC:
+	        ex = EX_NOSPACE ;
+	        logfile_printf(&pip->lh,
+	            "file-system is out of space\n") ;
+
+	        if (! pip->f.quiet)
+	            bprintf(pip->efp,
+	                "%s: local file-system is out of space\n",
+	                pip->progname) ;
+
+	        break ;
+
+	    default:
+	        ex = EX_UNKNOWN ;
+	        if (! pip->f.quiet)
+	            bprintf(pip->efp,"%s: unknown bad thing (%d)\n",
+	                pip->progname,rs) ;
+
+	        break ;
+
+	    } /* end switch */
+
+	} else
+	    ex = EX_OK ;
+
+
+	if (pip->f.log)
+	    logfile_printf(&pip->lh,
+	        "recipients processed=%u delivered=%u\n",
+	        c_processed,c_delivered) ;
+
+
+ret6:
+	if (tfd >= 0)
+	    u_close(tfd) ;
+
+ret5:
+	u_close(ifd) ;
+
+/* good return from program */
+retgood:
+	if (pip->debuglevel > 0)
+	    bprintf(pip->efp,"%s: program exiting ex=%d\n",
+	        pip->progname,ex) ;
+
+#if	F_DEBUG
+	if (pip->debuglevel >= 3)
+	    eprintf("main: past 'retgood'\n") ;
+#endif
+
+ret4:
+
+ret3:
+	if (pip->f.logenv)
+	    logfile_close(&pip->envsum) ;
+
+	if (pip->f.log)
+	    logfile_close(&pip->lh) ;
+
+done:
+retearly:
+ret2:
+
+ret1:
+	keyopt_free(&kopts) ;
+
+	dater_free(&pip->tmpdate) ;
+
+	bclose(pip->efp) ;
+
+ret0:
+	proginfo_free(pip) ;
+
+	return ex ;
+
+/* program usage */
+usage:
+	bprintf(pip->efp,
+	    "%s: USAGE> %s [-d] [-f fromaddr] recip1 [recip2 [...]] [-m]\n",
+	    pip->progname,pip->progname) ;
+
+	goto retearly ;
+
+/* help */
+help:
+	ex = EX_INFO ;
+	printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
+
+	goto retearly ;
+
+/* bad stuff */
+badargextra:
+	bprintf(pip->efp,"%s: no value associated with this option key\n",
+	    pip->progname) ;
+
+	goto badarg ;
+
+badargval:
+	bprintf(pip->efp,"%s: bad argument value was specified\n",
+	    pip->progname) ;
+
+	goto badarg ;
+
+badargnum:
+	bprintf(pip->efp,"%s: not enough arguments specified\n",
+	    pip->progname) ;
+
+	goto badarg ;
+
+badarg:
+	ex = EX_USAGE ;
+	goto retearly ;
+
+
+baduser:
+	ex = EX_NOUSER ;
+	bprintf(pip->efp,"%s: could not get user information (%d)\n",
+	    pip->progname,rs) ;
+
+	goto ret3 ;
+
+
+badinit3:
+	ex = EX_OSERR ;
+	goto ret4 ;
+
+badinit2:
+badinit1:
+	ex = EX_OSERR ;
+	goto ret3 ;
+
+
+badspooldir:
+	ex = EX_OSERR ;
+	bprintf(pip->efp,"%s: could not access spool directory (%d)\n",
+	    pip->progname,rs) ;
+
+	goto ret3 ;
+
+/* bad stuff that need some extra attention */
+badinopen:
+	ex = EX_NOINPUT ;
+	bprintf(pip->efp,"%s: could not open standard input (%d)\n",
+	    pip->progname,rs) ;
+
+	goto badret ;
+
+badinlock:
+	u_close(ifd) ;
+
+	ex = EX_TEMPFAIL ;
+	bprintf(pip->efp,"%s: could not open standard input (%d)\n",
+	    pip->progname,rs) ;
+
+	goto badret ;
+
+badtmpfile:
+badtmpopen:
+	u_close(ifd) ;
+
+	ex = EX_CANTCREAT ;
+	bprintf(pip->efp,"%s: could create-open tempory file (%d)\n",
+	    pip->progname,rs) ;
+
+/* come here for a bad return from the program */
+badret:
+
+#if	F_DEBUG
+	if (pip->debuglevel >= 3)
+	    eprintf("main: badret\n") ;
+#endif
+
+	goto ret4 ;
+
+}
+/* end subroutine (main) */
+
+
+
+/* LOCAL SUBROUTINES */
+
+
+
+static int errormap(val)
+int	val ;
+{
+	int	i, ex ;
+
+
+	for (i = 0 ; errormaps[i].rs != 0 ; i += 1) {
+
+	    if (errormaps[i].rs == val)
+	        break ;
+
+	} /* end for */
+
+	ex = (errormaps[i].rs != 0) ? errormaps[i].ex : EX_UNKNOWN ;
+
+	return ex ;
+}
+/* end subroutine (errormap) */
+
+
+/* process program options */
+static int getprogopts(pip,kop,setsp)
+struct proginfo	*pip ;
+KEYOPT		*kop ;
+vecstr		*setsp ;
+{
+	KEYOPT_CURSOR	kcur ;
+
+	int	rs, i, oi, val, cl ;
+	int	nlen, klen, vlen ;
+
+	char	*kp, *vp ;
+	char	*cp ;
+
+
+	nlen = strlen(pip->searchname) ;
+
+/* load up the environment options */
+
+	if ((cp = getenv(OPTSVAR)) != NULL)
+	    keyopt_loads(kop,cp,-1) ;
+
+/* system-wide options ? */
+
+#if	F_DEBUG
+	if (pip->debuglevel > 1)
+	    eprintf("getprogopts: scanning system options\n") ;
+#endif
+
+	for (i = 0 ; vecstr_get(setsp,i,&cp) >= 0 ; i += 1) {
+
+	    char	*cp2 ;
+
+
+	    if (cp == NULL)
+	        continue ;
+
+#if	F_DEBUG
+	    if (pip->debuglevel > 1)
+	        eprintf("getprogopts: conf >%s<\n",cp) ;
+#endif
+
+	    if (! headkeymat(pip->searchname,cp,-1))
+	        continue ;
+
+/* we have one of ours, separate the keyname from the value */
+
+	    cp += (nlen + 1) ;
+
+#if	F_DEBUG
+	    if (pip->debuglevel > 1)
+	        eprintf("getprogopts: key=%s\n",cp) ;
+#endif
+
+#ifdef	COMMENT
+	    keyopt_loads(kop,cp,-1) ;
+#else
+	    kp = cp ;
+	    vp = NULL ;
+	    vlen = 0 ;
+	    if ((cp = strchr(cp,'=')) != NULL) {
+
+	        vp = cp + 1 ;
+	        vlen = -1 ;
+	    }
+
+	    keyopt_loadvalue(kop,kp,vp,vlen) ;
+
+#endif /* COMMENT */
+
+	} /* end for (system options) */
+
+
+/* process all of the options that we have so far */
+
+	keyopt_cursorinit(kop,&kcur) ;
+
+	while ((rs = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
+
+	    KEYOPT_CURSOR	vcur ;
+
+	    int	f_value = FALSE ;
+
+
+	    klen = rs ;
+
+/* get the first (non-zero length) value for this key */
+
+	    vlen = -1 ;
+	    keyopt_cursorinit(kop,&vcur) ;
+
+/* use only the first of any option with the same key */
+
+	    while ((rs = keyopt_enumvalues(kop,kp,&vcur,&vp)) >= 0) {
+
+	        f_value = TRUE ;
+	        vlen = rs ;
+	        if (vlen > 0)
+	            break ;
+
+	    } /* end while */
+
+	    keyopt_cursorfree(kop,&vcur) ;
+
+/* do we support this option ? */
+
+	    if ((oi = optmatch3(progopts,kp,klen)) >= 0) {
+
+#if	F_DEBUG
+	        if (pip->debuglevel > 1)
+	            eprintf("getprogopts: system valid option=%s(%d)\n",
+	                progopts[oi],oi) ;
+#endif
+
+	        switch (oi) {
+
+	        case progopt_maildir:
+	            if ((vlen > 0) && (pip->maildname == NULL))
+	                pip->maildname = mallocstrn(vp,vlen) ;
+
+	            break ;
+
+	        case progopt_deadmaildir:
+	            if ((vlen > 0) && (pip->deadmaildname == NULL))
+	                pip->deadmaildname = mallocstrn(vp,vlen) ;
+
+	            break ;
+
+	        case progopt_comsat:
+	            cp = "+" ;
+	            cl = 1 ;
+	            if (vlen > 0) {
+
+	                if (isdigit(vp[0])) {
+
+	                    if (cfdeci(vp,vlen,&val) >= 0)
+	                        cp = (val > 0) ? "+" : "-" ;
+
+#if	F_DEBUG
+	                    if (pip->debuglevel > 1)
+	                        eprintf("getprogopts: opt comsat=%s\n",cp) ;
+#endif
+
+	                } else {
+
+	                    cp = vp ;
+	                    cl = vlen ;
+
+	                }
+	            }
+
+	            if (pip->comsatfname == NULL)
+	                pip->comsatfname = mallocstrn(cp,cl) ;
+
+	            break ;
+
+	        case progopt_spam:
+	            if ((vlen > 0) && (pip->comsatfname == NULL))
+	                pip->spamfname = mallocstrn(vp,vlen) ;
+
+	            break ;
+
+	        case progopt_loglen:
+	            if ((vlen > 0) && (cfdeci(vp,vlen,&val) >= 0))
+	                pip->loglen = val ;
+
+	            break ;
+
+	        case progopt_logzones:
+	            if ((vlen > 0) && (cfdeci(vp,vlen,&val) >= 0))
+	                pip->f.optlogzones = (val > 0) ;
+
+	            break ;
+
+	        case progopt_logenv:
+	            if ((vlen > 0) && (cfdeci(vp,vlen,&val) >= 0))
+	                pip->f.optlogenv = (val > 0) ;
+
+	            break ;
+
+	        case progopt_divert:
+	            if ((vlen > 0) && (cfdeci(vp,vlen,&val) >= 0))
+	                pip->f.optdivert = (val > 0) ;
+
+	            break ;
+
+	        case progopt_logmsgid:
+	            if ((vlen > 0) && (cfdeci(vp,vlen,&val) >= 0))
+	                pip->f.optlogmsgid = (val > 0) ;
+
+	            break ;
+
+	        case progopt_nospam:
+	            if ((vlen > 0) && (cfdeci(vp,vlen,&val) >= 0))
+	                pip->f.optnospam = (val > 0) ;
+
+	            break ;
+
+	        case progopt_norepeat:
+	            if ((vlen > 0) && (cfdeci(vp,vlen,&val) >= 0))
+	                pip->f.optnorepeat = (val > 0) ;
+
+	            break ;
+
+	        } /* end switch */
+
+	    } /* end if (got a match) */
+
+	} /* end while */
+
+	keyopt_cursorfree(kop,&kcur) ;
+
+	return OK ;
+}
+/* end subroutine (getprogopts) */
+
+
+/* issue notices to COMSAT */
+static int comsat(pip,rsp,mip)
+struct proginfo	*pip ;
+vecobj		*rsp ;
+vecobj		*mip ;
+{
+	struct hostent	he, *hep ;
+
+	struct servent	se ;
+
+	struct recip	*rp ;
+
+	struct md	*mdp ;
+
+	VECSTR		h ;
+
+	SOCKADDRESS	sa ;
+
+	in_addr_t	addr ;
+
+	int	rs, i, j, k, ul, blen, n ;
+	int	sendflags = 0, salen ;
+	int	fd ;
+	int	defport, port ;
+
+	char	nodename[NODENAMELEN + 1] ;
+	char	hostbuf[HOSTBUFLEN + 1] ;
+	char	buf[BUFLEN + 1] ;
+	char	*nsp, *np, *up ;
+
+
+/* get some information about COMSAT */
+
+	defport = IPPORT_BIFFUDP ;
+
+	rs = uc_getservbyname("comsat", PROTONAME, &se,buf,BUFLEN) ;
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("comsat: uc_getservbyname() rs=%d\n",rs) ;
+#endif
+
+	if (rs >= 0)
+	    defport = (int) ntohs(se.s_port) ;
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("comsat: defport=%d\n",defport) ;
+#endif
+
+
+	rs = u_socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP) ;
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("comsat: u_socket() rs=%d\n",rs) ;
+#endif
+
+	fd = rs ;
+	if (rs < 0)
+	    goto ret0 ;
+
+/* get the COMSAT hosts */
+
+	rs = vecstr_init(&h,NNODES,0) ;
+
+	if (rs < 0)
+	    goto ret1 ;
+
+	if (pip->comsatfname[0] != '+')
+	    vecstr_loadfile(&h,pip->comsatfname) ;
+
+	else
+	    vecstr_add(&h,LOCALHOST,-1) ;
+
+/* do the notices */
+
+	n = 0 ;
+	for (i = 0 ; vecstr_get(&h,i,&nsp) >= 0 ; i += 1) {
+
+	    if (nsp == NULL) continue ;
+
+/* separate the node-spec into node and port */
+
+	    np = nodename ;
+	    port = parsenodespec(pip,defport,buf,BUFLEN,nodename,nsp) ;
+
+	    if (port >= 0) {
+
+/* continue */
+
+#if	F_ISSAMEHOST
+	        if (issamehostname(np,pip->nodename,pip->domainname))
+	            np = LOCALHOST ;
+#else
+	        if (strcmp(np,pip->nodename) == 0)
+	            np = LOCALHOST ;
+#endif
+
+#if	F_DEBUG
+	        if (DEBUGLEVEL(4))
+	            eprintf("comsat: i=%d np=%s\n",i,np) ;
+#endif
+
+	        hep = &he ;
+	        rs = gethe(np,NULL,hep,hostbuf,HOSTBUFLEN) ;
+
+#if	F_DEBUG
+	        if (DEBUGLEVEL(4))
+	            eprintf("comsat: gethe() rs=%d\n",rs) ;
+#endif
+
+	        if ((rs >= 0) && (hep->h_addrtype == AF_INET)) {
+
+	            struct msgoff	*mop ;
+
+	            uint	off ;
+
+
+#if	F_DEBUG
+	            if (DEBUGLEVEL(4)) {
+
+	                in_addr_t	ia ;
+
+
+	                memcpy(&ia,hep->h_addr,sizeof(int)) ;
+	                eprintf("comsat: got INET address=\\x%08x\n",
+	                    ntohl(ia)) ;
+
+	            }
+#endif /* F_DEBUG */
+
+	            salen = sockaddress_init(&sa,AF_INET,hep->h_addr,port,0) ;
+
+#if	F_DEBUG
+	            if (DEBUGLEVEL(4))
+	                eprintf("comsat: sockaddress_init() rs=%d\n",salen) ;
+#endif
+
+	            for (j = 0 ; vecobj_get(rsp,j,&rp) >= 0 ; j += 1) {
+
+	                if (rp == NULL) continue ;
+
+#if	F_DEBUG
+	                if (DEBUGLEVEL(4))
+	                    eprintf("comsat: recip=%s rs=%d offset=%u\n",
+	                        rp->recipient,rp->rs,rp->offset) ;
+#endif
+
+	                if (rp->rs < 0) continue ;
+
+	                up = rp->recipient ;
+	                ul = strlen(up) ;
+
+	                off = rp->offset ;
+	                for (k = 0 ; vecitem_get(&rp->mds,k,&mdp) >= 0 ; 
+				k += 1) {
+
+	                    if (mdp == NULL) continue ;
+
+#if	F_DEBUG
+	                    if (DEBUGLEVEL(4))
+	                        eprintf("comsat: msg=%u off=%u mlen=%u\n", 
+	                            k,off,mdp->mlen) ;
+#endif
+
+	                    blen = mkcsmsg(buf,BUFLEN,up,ul,off) ;
+
+	                    if (blen > 1) {
+
+	                        rs = u_sendto(fd,buf,blen,sendflags,
+					&sa,salen) ;
+
+#if	F_DEBUG
+	                        if (DEBUGLEVEL(4))
+	                            eprintf("comsat: u_sendto() rs=%d\n",rs) ;
+#endif
+
+	                        if (rs >= 0)
+	                            n += 1 ;
+
+	                    }
+
+	                    off += mdp->mlen ;
+
+	                } /* end for (messages) */
+
+	            } /* end for (looping through recipients) */
+
+	            sockaddress_free(&sa) ;
+
+	        } /* end if (got an host address) */
+
+	    } /* end if (had a possible port to contact) */
+
+	} /* end for (hosts) */
+
+	vecstr_free(&h) ;
+
+ret1:
+	u_close(fd) ;
+
+ret0:
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(4))
+	    eprintf("comsat: ret rs=%d\n",rs) ;
+#endif
+
+	return (rs >= 0) ? n : rs ;
+}
+/* end subroutine (comsat) */
+
+
+/* parse a COMSAT specification into node and port */
+static int parsenodespec(pip,defport,buf,buflen,nodename,nsp)
+struct proginfo	*pip ;
+int		defport ;
+char		buf[] ;
+int		buflen ;
+char		nodename[] ;
+const char	*nsp ;
+{
+	struct servent	se ;
+
+	int	rs = SR_OK, port = defport ;
+	int	nl, pl ;
+	int	cl ;
+
+	char	*np, *pp ;
+	char	*cp ;
+
+
+	pp = NULL ;
+	if ((cp = strchr(nsp,':')) != NULL) {
+
+	    nl = sfshrink(nsp,(cp - nsp),&np) ;
+
+	    pl = sfshrink((cp + 1),-1,&pp) ;
+
+	    if (pl == 0)
+	        pp = NULL ;
+
+	} else
+	    nl = sfshrink(nsp,-1,&np) ;
+
+	strwcpy(nodename,np,MIN(nl,NODENAMELEN)) ;
+
+	if (pp != NULL) {
+
+	    if (isdigit(pp[0])) {
+
+	        rs = cfdeci(pp,pl,&port) ;
+
+	    } else {
+
+	        rs = uc_getservbyname(pp, PROTONAME, &se,buf,buflen) ;
+
+#if	F_DEBUG
+	        if (DEBUGLEVEL(5))
+	            eprintf("parsenodespec: uc_getservbyname() rs=%d\n",rs) ;
+#endif
+
+	        if (rs >= 0)
+	            port = (int) ntohs(se.s_port) ;
+
+	    } /* end if (numeric or alpha) */
+
+	} /* end if (had a port spec) */
+
+#if	F_DEBUG
+	if (DEBUGLEVEL(5))
+	    eprintf("parsenodespec: ret rs=%d port=%d\n",rs,port) ;
+#endif
+
+	return (rs >= 0) ? port : rs ;
+}
+/* end subroutine (parsenodespec) */
+
+
+/* make (marshall) the COMSAT message itself */
+static int mkcsmsg(buf,buflen,up,ul,val)
+char		buf[] ;
+int		buflen ;
+const char	*up ;
+int		ul ;
+uint		val ;
+{
+	SBUF	b ;
+
+	int	rs ;
+
+
+	rs = sbuf_init(&b,buf,buflen) ;
+
+	if (rs >= 0) {
+
+	sbuf_strw(&b,up,ul,NULL) ;
+
+	sbuf_char(&b,'@',NULL) ;
+
+	sbuf_dec(&b,val,NULL) ;
+
+	rs = sbuf_free(&b) ;
+
+	}
+
+	return rs ;
+}
+/* end subroutine (mkcsmsg) */
+
+
+

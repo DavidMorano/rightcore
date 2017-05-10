@@ -1,0 +1,5 @@
+DAYTIME
+
+$ daytime [<hostname(s)>] [-d <dialer>] [-s <service>] [-x]
+
+

@@ -1,0 +1,71 @@
+MMCITE
+
+This program is a pre-filter that processes citations found in
+Memorandum-type (MM) TROFF documents.  It takes source MM-type TROFF
+source text documents as input and produces output that has the citations
+annotated with their bibliographical data.
+
+Synopsis:
+
+$ mmcite [<file(s)> ...] [-af <argfile>] [-B <incdir(s)>] 
+	[-p <bibfile(s)>] [-V]
+
+where:
+
+<file(s)>		files to process
+-af <argfile>		list of files to process
+-B <incdir(s)>		search directories for unrooted BIB files
+-p <bibfiles(s)>	bibliographical files
+-V			print program version to standard-error and then exit
+
+Usage in document:
+
+Nope, we're going with the TeX style!  To wit:
+
+.BIB testreferm.rbd
+This is a citation \cite{morano99helping} right there!
+
+The REFER database keyletters are as follows:
+
+keyletter	description
+-----------------------------------------
+Q		citation query key (specified in source citation)
+A		author
+T		title
+J		journal
+I		publisher
+C		address
+V		volume
+N		number
+P		pages
+K		keywords
+B		ISBN
+D		general-date
+YY		year
+MM		month
+DD		day
+R		Library of Congress catalogue number
+X		comments
+L		label
+
+Implementation strategy:
+
+We read all files and accumulate information about both bibliographical
+files and citations within the files.  As a file is processed, we add
+any encountered bibliographical files to the BIB DB.  We also store
+all citations to the CITE DB.  The addition to a BIB DB is just the
+bibliographical file that was specified.  The addition the CITE DB
+consists of:
+
++ the filename where the citation was encountered
++ the file offset where the citation begins
++ the length of the source citation (so that we know where the file resumes)
++ the citation key-string itself
+
+As files are read and processed, intermediate file data (most of the
+data from all processed files) is written out to a temporary file.
+All offsets are actually referring to locations in the temporary file.
+After all files are processed, the temporary file is then processed in
+order to substitute into it the expanded citation information that was
+originally called for (cited) from the original source citations.
+

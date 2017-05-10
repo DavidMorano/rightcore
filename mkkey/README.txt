@@ -1,0 +1,41 @@
+MKKEY
+
+This program is similar to the 'mkey' program as distributed with some
+UNIXes but this program can optionally (normally) pass all useful words
+through as keys instead of filtering out useful words like the original
+'mkey' program did!
+
+Dave Morano
+
+
+
+Invocation Synopsis
+------------------------------------
+
+separate entries by BLANK lines (default):
+
+	mkkey -d " " file(s) [...] > keyfile
+
+take whole files as entries:
+
+	mkkey -w file(s) [...] > keyfile
+
+separate entries by lines themselves (each line is a separate entry):
+
+	mkkey -d "" file(s) [...] > keyfile
+
+separate entries by lines that start with '%' character:
+
+	mkkey -d "%" file(s) [...] > keyfile
+
+separate entries by lines that start with '/' character:
+
+	mkkey -d "/" file(s) [...] > keyfile
+
+separate entries by lines that start with '###' characters:
+
+	mkkey -d "###" file(s) [...] > keyfile
+
+
+
+

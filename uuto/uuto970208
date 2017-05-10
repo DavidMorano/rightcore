@@ -1,0 +1,123 @@
+ # <-- force CSH to use Bourne shell
+set -x
+# local UUTO
+
+
+UUCP_MACH=hocpb.ho.lucent.com
+UUCP_RELAY=hocpb
+
+
+: ${LOGNAME:=${USER}}
+
+TFN=uuto${$}
+TF=/tmp/${TFN}
+
+if [ -d /usr/sbin ] ; then
+
+  ARCH=att
+
+else
+
+  ARCH=sun
+
+fi
+
+if [ $# -lt 2 ] ; then
+
+  echo "${0}: not enough arguments" >&2
+  exit 1
+
+fi
+
+OPT=""
+FILES=""
+SYSTEM=""
+S=files
+F_GO=false
+C=""
+
+A=$1
+while [ $F_GO != true -a -n "${A}" ] ; do
+
+  shift
+  case "${A}" in
+
+  -p )
+    ;;
+
+  -m )
+    OPT="${OPT} -m"
+    ;;
+
+  * )
+    case $S in
+
+    files )
+      FILES="${FILES} ${SYSTEM}"
+      SYSTEM=${A}
+      S=files
+      ;;
+
+    esac
+    ;;
+
+  esac
+
+  A=${1}
+
+done
+
+
+J=`echo ${SYSTEM} | cut -d! -f1`
+if [ $J != ${UUCP_RELAY} ] ; then
+
+  SYSTEM="${UUCP_RELAY}!${SYSTEM}"
+
+fi
+
+if [ -z "${FILES}" ] ; then
+
+  echo "${0}: not enough arguments" >&2
+  exit 1
+
+fi
+
+UUCPPUBLIC=/var/spool/uucppublic
+UUTO=uuto${$}
+
+cat > $TF <<-EOF
+	if [ ! -d ${UUCPPUBLIC}/${LOGNAME} ] ; then
+
+	  mkdir ${UUCPPUBLIC}/${LOGNAME}
+
+        fi
+
+	if [ ! -d ${UUCPPUBLIC}/${LOGNAME}/${UUTO} ] ; then
+
+	  mkdir ${UUCPPUBLIC}/${LOGNAME}/${UUTO}
+
+	fi
+EOF
+
+rcp $TF ${UUCP_MACH}:/tmp/${TFN}
+rsh -n ${UUCP_MACH} "ksh /tmp/${TFN}"
+
+rcp -r $FILES ${UUCP_MACH}:${UUCPPUBLIC}/${LOGNAME}/${UUTO}
+
+cat > $TF <<-EOF
+	cd ${UUCPPUBLIC}/${LOGNAME}/${UUTO}
+	uuto -p ${OPTS} ${FILES} ${SYSTEM}
+	echo "cd .. ; rm -fr ${UUTO}" | at now + 4 minutes
+	rm -f /tmp/${TFN}
+EOF
+
+rcp $TF ${UUCP_MACH}:/tmp/${TFN}
+rsh -n ${UUCP_MACH} ksh /tmp/${TFN}
+
+
+# cleanup
+
+rm -f $TF
+
+
+

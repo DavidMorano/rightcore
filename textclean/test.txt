@@ -1,0 +1,298 @@
+* Overview    Switch2OL v4.9
+
+The Switch2OL script will convert the registration or complete distribution of
+either RHEL or CentOS to Oracle Linux such that it can be registered with
+either ULN or Spacewalk for Oracle Linux.
+
+The script has flexibility to be run multiple times allowing a registration
+conversion, (just the subscription management RPMs), a distribution conversion
+or both at once.
+There are several functions added to allow pre- interim- and post- processing.
+These functions can be used to perform specific tasks as required by the user 
+running the script. The actual intent is to allow Professional Services to make 
+adjustments or accommodations for client situations.
+
+Background:
+The genesis of this script was as a DEMO tool for Sales Consultants. The
+intent was to show the ease of altering a registration or complete distribution
+to Oracle Linux and Oracle Linux Support.
+To accomplish this, an Oracle Linux free repository, public-yum, was used to
+pull packages to perform the specific task of registration. Later, conversion
+was added.
+If used solely for altering the subscription management, the goal
+was to do as little harm to the system  and alter as few RPMs as possible.
+However, the use cases of this script grew beyond this initial design.
+Soon, it was found a conversion was desirable but not all packages were
+altered, specifically, the kernel. This lead to among other things, a means
+to replace the running kernel to ensure a complete conversion of packages.
+Still a complete conversion eluded success. Hence, to accomplish a complete
+conversion (especially where a distribution had included updates from a newer
+revision), the task fell to this script to be flexible to which channel or
+channels it would draw packages. In addition, for a complete conversion to
+emulate an Oracle Linux installation, the UEK was pulled in.
+It was not long before a request was made to allow this scrip to pull from
+a local yum server, and then, not soon after, a spacewalk server.
+Today, this script is capable of doing all the above with a good degree of
+flexibility. For instance, either a public yum, or a local yum server can be
+used for the initial package pull for subscription management and/or
+complete conversion along with culminating in a registration to either ULN
+or Spacewalk for Oracle Linux. Multiple flags, or arguments, were added to
+the script to control the method and manner of these functions; including
+altering the revision level during operation, using a proxy or independently
+including or disallowing the UEK.
+AS an interesting artifact of this script's evolution, when using the
+public yum, altering the distributions minor revision level ensured that
+the script could accommodate updates performed on the system prior to a
+conversion. To achieve this, the system is first subscribed to the current
+major.minor release where, the current kernel is pulled in to facilitate
+the changing of the kernel signature to that of Oracle. Once the kernel has
+been altered, then the minor revision is elevated either by the use of a
+revision flag or a flag subscribed to the "latest" channel. An interesting
+side bar, is, if a local yum is used, this action is not permitted, but,
+if the local yum repository file where to duplicate the public-yum-ol?.repo
+file, this script 'could' permit the use of these flags.
+
+
+Operation of the script:
+The script must be run as UID 0. There are a number of flags to control the
+logic flow. Those flags are listed below. The default behavior (no flags) is to
+simply alter the subscription management of the current distribution. This sets
+up the system to allow for connection to either ULN or Spacewalk for Oracle
+Linux.
+Altering the subscription management, by design, affects the least number of
+packages. However, should the -l or -r flags be used (allowed with the
+either Yum as the repository engine) the script will consume more RPMs due to
+dependency rules. The -l flag will cause the script to alter the current
+distribution by using the LATEST subscription management RPMs.
+The -r flag, which takes an integer value, will alter the current distribution
+from a lower minor revision to a greater minor revision up to and including the
+latest minor revision. Once that is done, it will again include the
+subscription management RPMS at the -r # revision value.
+
+At any time, the user can select to include the UEK by using the -k flag.
+The -p (Proxy) flag can always be used.
+
+Multiple execution instances:
+The script may be run multiple times. The first invocation will alter the
+subscription management. Once the subscription management has been altered any
+subsequent run attempting to alter the subscription management will result in
+no action taken. Hence, for example if the user first invoked the script with
+no arguments, then decided to run it again with the -l or -r flags, there will
+be no effective change to the system. However, if the -k flag is included in
+the execution cycle, it will still include the UEK. All subsequent executions
+of the script will accept any of the -o, -u, -y or -s flags. The flags -v or
+-V can always be used.
+
+A brief warning on the use of the “-V” flag. This causes enormous amounts
+of information to be generated. Use with caution so as not to fill up your disk
+if logging to a file.
+
+Using a Local Yum Server:
+This script by default will use Public Yum. It can be made to use an alternate
+Yum repository. To do this the -y flag is used. The -y flag sets the script up
+to look for a local Yum server and therefore takes two required parameters,
+URIrepo and URIgpg. URIrepo and URIgpg point to the repository URI file
+(http:://someplace/some.repo) and the URI location to the GPG Key
+(http:://someplace.com/OracleGPG-Key) respectfully. It takes one optional
+parameter YumLabel. YumLabel is a colon separated list of channel labels. These labels provide equivlant behavior to the -l or -r flags used with the public
+yum or to permit the addition of channels to enable for processing.
+In order to make the execution using a local yum equivalent with using the
+public-yum, the script will attempt to download a repository file and place it 
+in /etc/yum.repos.d. It will also attempt to consume an Oracle RPM-GPG-KEY and 
+place it in /etc/pki/rpm-gpg and /usr/share/rhn. Both these parameters specify 
+a URI, meaning a path to, and the name of the file. No error checking is done 
+on the URIrepo file. This means whatever channel(s) is enabled, will be used. 
+The -l and the -r flags will not be disabled but the YumLabel parameter is
+available to provide equivalent behavior. Again, the -k flag can be used, but 
+if no channel for UEK is available, it may cause a failure.  Lastly, 
+the URIgpg must be present because regardless of whether the script uses 
+public-yum or a local yum server, gpg checking is enabled to ensure only signed 
+packages are installed.
+When using the -y flag, it is the responsibility of the user to ensure the 
+proper repository is being used. There may be a high likelihood of RPM "crumbs" 
+being left behind during a complete conversion. Hence, the user must be 
+prepared to deal with such events, in particular, the kernel RPM.
+
+
+
+Converting the entire distribution to Oracle Linux:
+Converting the entire distribution is accomplished using the -o flag.
+Along with the -o flag any of the -l, -r and -k flags can be used.
+(It is important to note when converting the distribution to Oracle Linux the 
+-k flag is no longer implied. Meaning the UEK will not be pulled in 
+automatically and must be specifically requested). The -o flag will cause the 
+script to first ensure the system is ready for conversion. This is accomplished 
+by first altering the subscription management RPMs. It does this because 
+usually using the -o is a set-up to register with either the ULN or Spacewalk 
+for Oracle Linux.
+The -o will interrogate the RPMs on the machine and install the Oracle 
+equivalent RPMs into the exiting RPM Database. Using the -o also alters the 
+signature authenticity of any kernels found, including the effective kernel 
+(running kernel). In this way, an interrogation of the system following the 
+execution of the script will find no previous distribution packages remain. 
+However, should some predecessor RPMs exist, they will be itemized at the 
+conclusion of the run. 
+
+
+Connecting to ULN:
+The script allows for the registration of the distribution to ULN using
+the -u flag. It will require a single-sign-on and CSI number to succeed.
+Be prepared to enter this information at the prompt. No "batch" mode is 
+provided should this operation be selected. Registering to ULN requires the 
+use of the ULN interface which is interactive.
+
+Connecting to Spacewalk for Oracle Linux
+The script allows for connecting to Spacewalk, using the -s flag, to complete 
+system registration.  However, this operation is mutually exclusive to, and, 
+takes precedents over connecting to ULN. This flag takes up to eight additional 
+pieces of information. To properly allow for connecting to Spacewalk the 
+serverUrl, activationkey, sslCACert and optionally spacewalk clientURI must be 
+provided. Whereas the first three parameters are required, the clientURI is not.
+Should the clientURI not be present, the Oracle Public Yum repository spacewalk 
+client will be used, UNLESS the -y flag is present. If the -y flag is present, 
+the local repository must contain the necessary spacewalk client RPMS in a 
+spacewalk repo separate from the URIrepo file.  Whereas registering with ULN is 
+interactive, registering with Spacewalk for Oracle Linux can batched.
+
+Registration is the last action performed by the script. Any time the script 
+exits successfully a list of files not converted, and any rpmnew or rpmsave 
+files will be identified. Additionally, the repository file will be disabled.
+
+
+NOTE:
+It is not necessary to convert the distribution to Oracle Linux in order to 
+register to ULN or Spacewalk. Hence, a -u or -s flag can be given with the 
+first invocation of the script. That said, once the box is registered, no 
+further action will be taken by the scrip; not even accepting the -k flag at 
+that point. 
+
+     
+This script disables automatic updates during the conversion process. It will 
+restore the state of the packagekit once the script completes.
+
+The following flags are available upon executing the Switch2OL script.
+Usage:Switch2OL [-h] [-v] [-V] [-k] [-l] [-r MinorRevision] [-o] [-u]
+                   [-y URIrepo=<URI of Repo File> URIgpg=<URI of GPG KEY>]
+                   [-p Proxy]
+                   [-s serverUrl=<URI of Spacewalk server XMLRPC> \
+                       activationkey=<channel activation key>\
+                       sslCACert <URI to RHN-ORG-TRUSTED-CERT>\
+                       [[clientURI <URI to client Spacewalk Repo>]]
+                   ]  
+-h      Display this help and exit
+-v      Verbose
+-V      Greater Verbosity
+-k      Install the UEK kernel
+-l      Upgrade to the latest minor revision (default is to leave the
+        system at its current revision). This option is only available
+        if the Oracle Public Yum is used.
+        NOTE: If NOT converting the distribution to Oracle Linux, meaning
+        only altering the subscription management more than the minimal
+        set of packages may be consumed during a subscription management
+        migration.
+-r <number>  Set Distribution Minor revision to a MinorRevision.
+             This option is only available if the Oracle Public Yum repository
+	     file is used. NOTE: If this flag is used without the -o
+	     flag, it could cause more than the minimal set of RPMs to
+             be consumed during the subscription management migration.
+             The Revision flag takes one value (integer)
+        Examples: with and without spaces,   -r 5 or -r11
+-o      Remove all previous packages and replace the authenticity with
+	  Oracle Linux Distribution equivalent RPMs.
+-u      Register with ULN (default is to register to yum.oracle.com)
+-y      Specify and pull the Oracle packages from a private or local
+        YUM repository. The local repo file must have the same labels
+        as that of the public-yum repo file except replacing the "public"
+        with "local". Additionally, the user must ensure the channels
+        needed for both the registration switch (at the same level) or
+        a higher level is present and pointing to a valid repository.
+        If the -l or -r flags are set, those repositories must also
+        be present and available for use. This falg also takes an
+        optional value pair, YumLabel. YumLabel is a colon separated
+        list of channel labels to be turned on along with the already
+        enabled channels in the local yum repository file.
+        The user must ensure the proper repository is used for
+        the conversion. The syntax for this flag takes TWO required KEYWORD
+        value pair parameters. All parameters have a value association.
+        The parameters can be a comma separated list, equivalence pairing ('=')
+        or any combination. The keyword parameters must appear as shown in any
+        order.
+          URIrepo - The value associated with this parameter provides
+                    the path to, and the name of, the repository
+                    file to use.
+          URIgpg - The value associated with this parameter provides a path
+                   to, and the name of, the RPM-GPG-KEY to import.
+        keyword syntax Examples:
+            URIrepo <repository file>,URIgpg <gpgkey file>
+            URIrepo=<repository file> URIgpg <gpgkey file>
+            URIgpg=<gpgkey file> URIrepo <repository file>
+            URIrepo=http://someplace.com/file.repo \
+             URIgpg=http://someplce.com/GPG-KEY \
+             [ YumLabel=my_channel1:gold_channel:uek_channel]
+-p      A Proxy to be used. You only need specify the <Server:port>
+-s      Specify, associate and register to a Spacewalk Server
+        This flag is mutually exclusive with -u. The -l and -r flags
+        may be used but all updating or conversion will be done prior
+        to regisering with the Spacewalk server.
+        SpaceWalk is handled the same way as registering with ULN.
+        It is the last operation performed because there is
+        pre-processing that is required before altering the
+        Subscription Manager. Hence for initial package conversion
+        the -y flag or the default Oracle Public Yum may be used.
+        There is no repository checking done when this flag is
+        set.
+        The user must ensure the proper repository is used for
+        the conversion. The syntax for this flag takes FOUR KEYWORD
+        value pair parameters; with clientURI being an option keyword value
+        pair. All parameters must have a value association.
+        The parameters can be a comma separated list, equivalence
+        pairing ('=') or any combination. The keyword parameters must appear
+        as shown in any order.
+          serverUrl - The value associated with this parameter provides
+                      the path for setting up the remote procedure
+                      calls for the Spacewalk server.
+          activationkey - The value associated with this parameter provides
+                          activation key used to associate the client
+                          to a particular channel or channels.
+          sslCACert - This value pair specifies the path to and the
+                      file consisting of the RHN-ORG-TRUSTED-SSL-CERT
+          [clientURI] - This value pair identifies the spacewalk client
+                        repository URI. NOTE: This is an OPTIONAL pair
+                        and only needed if specific client packages for
+                        initial setup of the spacewalk client is needed.
+                        It can only contain the spacewalk client repo
+                        information.
+        Keyword syntax Examples:
+            serverUrl <server XMLRPC>,activationkey <Key> sslCACert\
+		  <cert> clientURI=<URI repo>
+            clientURI <spacewalk repo> serverUrl=<server XMLRPC> \
+               sslCACert=<cert>, activationkey <Key>
+            serverUrl=<spacewalk server>,activation=<Key>,sslCACert <cert>
+
+
+* Examples
+Run verbose. The -v and -V switch can be used individually or combined for
+desired verbosity. The -V switch however generates a great deal of output.:
+Switch2OL -v
+
+Convert to Oracle Linux Distribution using the latest revision and register
+to ULN:
+Switch2OL -olu
+
+Use a Local YUM server instead of the Public Yum
+Switch2OL -y URIrepo=http://example.com:/path/to/file/repofile.repo \
+             URIgpg=http://example.com:/path/to/GPGKey/RPM-GPG-KEY-oracle
+
+Register the system with ULN:
+Switch2OL -u
+- Note: the system will receive a minimal set of packages identifying it
+        to register properly with ULN.
+
+Convert the distribution to Oracle Linux using ULN and set a specific minor
+revision. (The switches are not positional, but the value for 'r' must follow
+immediately.):
+Switch2OL -ou -r 7
+
+Alter the updates to Public Yum and include the UEK in the distribution:
+Switch2OL -k
+

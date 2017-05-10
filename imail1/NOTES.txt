@@ -1,0 +1,12 @@
+IMAIL
+
+Remaining things to do:
+
++ "stacking" UNIX envelope headers
+
++ extracting from-address from UNIX envelope headers
+
++ extracting a date from UNIX envelope headers (and using it as
+  the DATE header value when there isn't any)
+
+

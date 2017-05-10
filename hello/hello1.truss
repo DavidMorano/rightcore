@@ -1,0 +1,45 @@
+execve("hello", 0xEFFFECFC, 0xEFFFED04)  argc = 1
+resolvepath("/usr/lib/ld.so.1", "/usr/lib/ld.so.1", 1023) = 16
+open("/var/ld/ld.config", O_RDONLY)		Err#2 ENOENT
+mmap(0x00000000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANON, -1, 0) = 0xEF7F0000
+stat("/usr/add-on/ast/lib/libc.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/local/lib/S5/libc.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/ast/lib/libc.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/ncmp/lib/libc.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/opt/SUNWspro/lib/libc.so.1", 0xEFFFE41C)	Err#2 ENOENT
+stat("/usr/dt/lib/libc.so.1", 0xEFFFE41C)	Err#2 ENOENT
+stat("/usr/openwin/lib/libc.so.1", 0xEFFFE41C)	Err#2 ENOENT
+stat("/usr/java/lib/libc.so.1", 0xEFFFE41C)	Err#2 ENOENT
+stat("/usr/add-on/X11/lib/libc.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/gnu/lib/libc.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/lib/libc.so.1", 0xEFFFE41C)		= 0
+open("/usr/lib/libc.so.1", O_RDONLY)		= 3
+fstat(3, 0xEFFFE41C)				= 0
+mmap(0x00000000, 4096, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0xEF700000
+mmap(0x00000000, 802816, PROT_NONE, MAP_PRIVATE|MAP_NORESERVE|MAP_ANON, -1, 0) = 0xEF600000
+mmap(0xEF600000, 702416, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED, 3, 0) = 0xEF600000
+mmap(0xEF6BC000, 24772, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED, 3, 704512) = 0xEF6BC000
+mmap(0xEF6C3000, 2652, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANON, -1, 0) = 0xEF6C3000
+munmap(0xEF6AC000, 65536)			= 0
+memcntl(0xEF600000, 113528, MC_ADVISE, MADV_WILLNEED, 0, 0) = 0
+close(3)					= 0
+stat("/usr/add-on/ast/lib/libdl.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/local/lib/S5/libdl.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/ast/lib/libdl.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/ncmp/lib/libdl.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/opt/SUNWspro/lib/libdl.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/dt/lib/libdl.so.1", 0xEFFFE41C)	Err#2 ENOENT
+stat("/usr/openwin/lib/libdl.so.1", 0xEFFFE41C)	Err#2 ENOENT
+stat("/usr/java/lib/libdl.so.1", 0xEFFFE41C)	Err#2 ENOENT
+stat("/usr/add-on/X11/lib/libdl.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/add-on/gnu/lib/libdl.so.1", 0xEFFFE41C) Err#2 ENOENT
+stat("/usr/lib/libdl.so.1", 0xEFFFE41C)		= 0
+open("/usr/lib/libdl.so.1", O_RDONLY)		= 3
+fstat(3, 0xEFFFE41C)				= 0
+mmap(0xEF700000, 4096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED, 3, 0) = 0xEF700000
+close(3)					= 0
+stat("/usr/platform/SUNW,SPARCstation-20/lib/libc_psr.so.1", 0xEFFFE1E4) Err#2 ENOENT
+ioctl(1, TCGETA, 0xEFFFDEA4)			= 0
+write(1, " h e l l o   w o r l d\n", 12)	= 12
+llseek(0, 0, SEEK_CUR)				= 11324
+_exit(0)

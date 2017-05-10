@@ -1,0 +1,8 @@
+RSYSLOG
+
+The principal RSYSLOG mechanism is the sending of a message from the
+client to the server.  A connection-oriented transport is required
+but only an outgoing half-duplex connection is sifficient.
+
+
+

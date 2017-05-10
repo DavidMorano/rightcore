@@ -1,0 +1,10 @@
+USD
+
+usd <path> [-f <af>] [-t <to>]
+
+where:
+
+<path>		path to service-file
+-f <af>		target address family
+-t <to>		connect timeout
+

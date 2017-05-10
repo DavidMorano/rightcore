@@ -1,0 +1,54 @@
+NTP Time Servers
+
+
+88.US MA timeserver.cs.umb.edu (158.121.104.4) 
+Location: UMass-Boston CS dept, Boston, MA 
+Synchronization: NTP V3 secondary (stratum 2), DEC/Ultrix 
+Service Area: Service Area: New England 
+Access Policy: Open. Please notify 
+Primary Contact: Rick Martin (rickm@cs.umb.edu) 
+Secondary Contact: Leonard David (ldavid@cs.umb.edu) 
+
+100.US NY sundial.columbia.edu (128.59.35.142) 
+Location: Morningside Campus, Columbia University, New York, NY 
+Synchronization: NTP V3 secondary (stratum 2), Sun Sparc10 model 40 
+Service Area: NYSERnet 
+Access Policy: open access 
+Contact: timekeeper@columbia.edu 
+
+101.US NY timex.cs.columbia.edu (128.59.16.20) 
+Location: Columbia University Computer Science Department, New York City, NY 
+Synchronization: NTP secondary (stratum 2), Sun/Unix 
+Service Area: PSINET; NSFNET, NYSER region 
+Access Policy: open access, authenticated NTP (DES/MD5) available 
+Contact: James Tanis (timekeeper@cs.columbia.edu) 
+Note: IP addresses are subject to change; please use DNS 
+
+97.US NY ntp.ctr.columbia.edu (128.59.64.60) 
+Location: Columbia University Center for Telecommunications Research; 
+						New York City, NY 
+Synchronization: NTP secondary (stratum 2), Sun/Unix 
+Service Area: Sprintlink/NYSERnet 
+Access Policy: open access, authenticated NTP (DES/MD5) available 
+Contact: Seth Robertson (timekeeper@ctr.columbia.edu) 
+Note: IP addresses are subject to change; please use DNS 
+
+98.US NY ntp0.cornell.edu 
+Location: Cornell University, Ithaca, NY 
+Synchronization: NTP secondary (stratum 2), Sun/Unix 
+Service Area: NYSERNet, NYSERNet 2000, Internet2/Abilene, vBNS 
+Access Policy: open access 
+Contact: Phil Pishioneri (pgp1@cornell.edu) 
+Note: IP addresses are subject to change; please use DNS. 
+Note: Open access for clients, though an email is appreciated 
+						(especially if peering). 
+
+99.US NY ntp1.magenet.com (206.20.254.50) 
+Location: Valley Of The Mage Consulting, Islandia, New York, USA 
+Synchronization: NTP secondary (stratum 2), 2xi686/Linux 2.4 
+Service area: New York City, USA 
+Access policy: open access, please contact by e-mail to let us know 
+						you are using it. 
+Contact: Brian Bruns (bruns@magenet.com) 
+
+

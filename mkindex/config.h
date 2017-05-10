@@ -1,0 +1,74 @@
+/* config */
+
+
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)MKINDEX "
+#define	BANNER		"Make Index"
+#define	SEARCHNAME	"mkindex"
+#define	VARPRNAME	"LOCAL"
+
+#define	VARPROGRAMROOT1	"MKINDEX_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"MKINDEX_BANNER"
+#define	VARSEARCHNAME	"MKINDEX_NAME"
+#define	VAROPTS		"MKINDEX_OPTS"
+#define	VARAFNAME	"MKINDEX_AF"
+#define	VAREFNAME	"MKINDEX_EF"
+#define	VARIDXNAME	"MKINDEX_IDX"
+#define	VARERRORFNAME	"MKINDEX_ERRORFILE"
+
+#define	VARDEBUGFNAME	"MKINDEX_DEBUGFILE"
+#define	VARDEBUGFD1	"MKINDEX_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+
+#define	ETCDIR1		"etc/mkindex"
+#define	ETCDIR2		"etc"
+
+#define	CONFIGFILE1	"mkindex.conf"
+#define	CONFIGFILE2	"conf"
+#define	LOGFNAME	"log/mkindex"
+#define	HELPFNAME	"help"
+#define	INDEXNAME	"index"
+
+#define	LOGSIZE		(80*1024)
+
+/* tuning defaults */
+
+#define	NHASH		(64 * 1024)
+
+

@@ -1,0 +1,8 @@
+
+C=0
+while [ $C -lt 100 ] ; then
+  cat main.c >> testfile.in
+  C=`expr $C + 1 `
+done
+
+

@@ -1,0 +1,9 @@
+# FSHOME (File-System Home)
+
+function fshome {
+  typeset FNAME=local§fshome U=
+  if [[ -n ${1} ]] ; then U=${1} ; fi
+  shcat -Q ${FNAME}­${U}
+}
+
+

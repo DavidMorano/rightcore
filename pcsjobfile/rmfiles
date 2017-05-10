@@ -1,0 +1,9 @@
+#!/usr/bin/ksh
+
+
+if [[ -d tmpfiles ]] ; then
+  rm -f tmpfiles/* 
+fi
+
+
+

@@ -1,0 +1,77 @@
+# SRVTAB
+# RSLOWD service table
+
+#	The following substitutions are made on command strings :
+#
+#		%j	job name/ID
+#		%s	service name
+#		%u	client username
+#		%g	client groupname
+#		%a	arguments for the service daemon
+#		%l	service program input file length in bytes
+#		%V	RSLOWD version string
+#
+
+
+bbpost:
+	a=rbbpost
+
+echoargs:
+	a="echoargs s=%s u=%u g=%g l=%l V=%V %a",
+
+echo:
+	a="echo test echo s=%s u=%u",
+
+new:
+	a="echo new service s=%s u=%u",
+
+whoami:
+	a="echo whoami: %u",
+
+cat:
+	a="cat",
+
+prt-txt:
+	p=prt,
+	u=guest,
+	a="prt -u %u -d gwbb0",
+
+prt-ps:
+	p=prt
+	u=guest
+	a="prt -u %u -l post -d gwbb0"
+
+prtfmt-mm:
+	p=prtfmt
+	u=guest
+	a="prtfmt -u %u -d gwbb0"
+
+pcsarticle:
+	p=/usr/add-on/pcs/etc/bin/pcsarticle
+	u=guest
+	a="pcsarticle %a"
+
+bbpost:
+	p=/usr/add-on/pcs/bin/rbbpost
+
+
+
+# everything else is trash !!
+#
+#*:
+#	a="echoargs s=%s u=%u g=%g l=%l V=%V"
+#
+
+noprog:
+	a="echoargs s=%s u=%u g=%g l=%l V=%V"
+#	a=noprog
+
+noexec:
+	a=noexec
+
+cat:
+	a=cat
+
+
+
+

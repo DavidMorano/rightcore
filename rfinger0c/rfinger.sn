@@ -1,0 +1,64 @@
+# SYSTEMS (rfinger)
+#
+
+
+#
+#rca		tcp	\x00020acec0a800010000000000000000
+# rca		socket -t stream -f unix /tmp/entropy
+#rca		tcp -f inet6
+# rca		uss /tmp/daytime -o log
+#
+
+localhost	uss /tmp/local/fingers/srv -o log
+localhost	tcp 5112
+localhost	tcp
+localhost	tcpnls
+localhost	tcpmux 5108
+
+rc		tcp 5112
+rc		tcp
+rc		tcpnls
+rc		prog -o log /usr/add-on/local/bin/fingers +
+
+rca		tcp 5112
+rca		tcp 5112
+rcc		tcp 5112
+
+rca		tcp
+rca		tcp
+rcc		tcp
+
+rca		tcpnls
+rca		tcpnls
+rcc		tcpnls
+
+rca		prog -o log /usr/add-on/local/bin/fingers +
+rcb		prog -o log /usr/add-on/local/bin/fingers +
+rcc		prog -o log /usr/add-on/local/bin/fingers +
+
+rightcore.com	tcp ftp.rightcore.com:
+*.rightcore.com	tcp ftp.rightcore.com:
+
+rightcore.org	tcp ftp.rightcore.com:
+*.rightcore.org	tcp ftp.rightcore.com:
+
+rightcore.com	tcpnls ftp.rightcore.com:listen
+*.rightcore.com	tcpnls ftp.rightcore.com:listen
+
+rightcore.org	tcpnls ftp.rightcore.com:listen
+*.rightcore.org	tcpnls ftp.rightcore.com:listen
+
+
+#
+# hocpa		uucp ~/uuts/%j.%s
+# hodia		uux rbbpost
+# ece		prog ${LOCAL}/sbin/dialday
+#
+
+
+# everything else
+
+*		tcp
+
+
+

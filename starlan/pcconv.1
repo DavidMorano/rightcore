@@ -1,0 +1,42 @@
+.\"_
+.TH PCCONV 1 1992-09-17 LOCAL
+.SH NAME
+pcconv \- convert files to or from DOS format to UNIX format
+.SH SYNOPSIS
+pcconv \fB[\fP-u \fB|\fP -p\fB]\fP \fB[\fP-V\fB] [\fP- \fB|\fP
+infile\fB] [\fPoutfile\fB]\fP
+.SH DESCRIPTION
+.sp
+.SS \fBpcconv\fP
+.sp
+.PP
+Program (\fCpcconv\fP) is used on a UNIX system to either convert files
+from UNIX format to DOS format or from DOS format to UNIX format.
+By default the program will convert the specified file from DOS format to
+UNIX format.  The program reads either the optional file specified on the
+command line or standard input if no file is specified or if the argument
+\fI-\fP is specified.  The result of the conversion is always
+written to standard output.
+.PP
+If the \fI-b\fP option is specified, the program performs no conversion.
+.PP
+The \fI-u\fP option will cause a conversion from DOS file format to UNIX file
+format.
+This option should not be used in conjunction with the
+\fI-p\fP option.
+.PP
+The \fI-d\fP option will cause a conversion from UNIX file format to
+DOS file format.  
+This option should not be used in conjunction with the
+\fI-u\fP option.
+.PP
+The \fI-v\fP option is used to print to standard error output the version
+of the program.  This option can be used on the command line alone or can
+be specified along with the names of files to be transferred.
+.SH SEE ALSO
+slxfer(1)
+.SH WARNINGS
+This program makes no attempt to be "smart" about figuring out
+whether a file is already in UNIX or DOS file format before the conversion.
+Through incorrect use of the program, files can also accidentally be 
+encrypted.

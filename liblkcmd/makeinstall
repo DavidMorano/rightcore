@@ -1,0 +1,34 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+: ${PREROOT:=/usr/preroot}
+: ${EXTRA:=/usr/extra}
+export PREROOT EXTRA
+
+TS=${*}
+if [[ -z "${TS}" ]] ; then
+  TS=liblkcmd
+fi
+
+EXTS=" so "
+
+PRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+DN=/dev/null
+for T in ${TS} ; do
+#  print -u2 T=${T}
+  make ${T}.so > ${DN}
+  for PR in ${PRS} ; do 
+    if [[ -d "${PR}" ]] ; then
+      for E in ${EXTS} ; do
+        L=${T}.${E}
+        if [[ -r "${L}" ]] ; then
+          mn -r ${L} ${PR}/lib &
+        fi
+      done
+    fi
+  done
+done
+wait
+
+

@@ -1,0 +1,187 @@
+# MAP
+# PROGSWITCH map file
+#
+# Note:
+# If a search made using this file fails to find a program, then the execution
+# search path of the user (given by the environment variable 'PATH') is 
+# searched.  Ths should usually result in a program being found if one is
+# present.
+#
+#
+
+
+# GNU BASH is required for most modern Shell scripts!
+bash:
+	${GNU}/bin/bash
+
+# XARGS (almost all out there are BROKEN!; these are my fixed up versions)
+xargs:
+	${NCMP}/bin/xargs
+	${EXTRA}/bin/xargs
+	/usr/preroot/bin/xargs
+
+uname:
+	/usr/bin/uname
+
+# the XPG4 version of VI on Slowlaris® is BROKEN!! -- it core dumps!!
+vi:
+	/usr/bin/vi
+
+# GNU shows the proper username when multiple usernames are available
+ls:
+	${GNU}/bin/ls
+	/usr/xpg4/bin/ls
+	${AST}/bin/ls
+
+# no FMT program is really correct
+fmt:
+	${NCMP}/bin/fmt
+	${GNU}/bin/fmt
+
+# C language utilities
+indent:
+	/opt/SUNWspro/bin/indent
+	${GNU}/bin/indent
+	${NCMP}/bin/indent
+
+# these utilies are "stupid" in all but GNU implementations!
+ln:
+	${GNU}/bin/ln
+	/usr/xpg4/bin/ln
+	${AST}/bin/ln
+
+cp:
+	${GNU}/bin/cp
+	/usr/xpg4/bin/cp
+	${AST}/bin/cp
+
+mv:
+	${GNU}/bin/mv
+	/usr/xpg4/bin/mv
+	${AST}/bin/mv
+
+rm:
+	${GNU}/bin/rm
+	/usr/xpg4/bin/rm
+	/usr/bin/rm
+	${AST}/bin/rm
+
+cat:
+	${GNU}/bin/cat
+	${NCMP}/bin/cat
+	/usr/xpg4/bin/cat
+
+# these seem to be OK; most others are broken in one or more ways!
+# update (2017-03-04 DAM, no longer used)
+id:
+	${GNU}/bin/id
+	/usr/xpg4/bin/id
+
+# MORE program
+more:
+	/usr/bin/more
+
+#
+# LESS programs (the GNU version appears to be broken)
+less:
+	/usr/bin/less
+
+#lessecho:
+	${GNU}/bin/lessecho
+
+#lesskey:
+	${GNU}/bin/lesskey
+
+
+# DIFF
+diff:
+	${GNU}/bin/diff
+	/usr/bin/diff
+
+
+# RMAIL
+rmail:
+	${NCMP}/bin/rmail
+
+# so far the Solaris® MAILX seems best (since I cleaned it up myself!)
+mailx:
+	${NCMP}/bin/mailx
+	/usr/bin/mailx
+	${AST}/bin/mailx
+	/usr/ucb/mailx
+	/usr/ucb/Mail
+
+# redirect to use POSTFIX versions
+mailq:
+	${POSTFIX}/bin/mailq
+	${GNU}/bin/mailq
+
+newaliases:
+	${POSTFIX}/bin/newaliases
+	${GNU}/bin/newaliases
+
+sendmail:
+	${POSTFIX}/bin/sendmail
+	${GNU}/bin/sendmail
+
+# yes, GNU TAR is best right now -- others have problems!
+tar:
+	${GNU}/bin/tar
+
+bzip2:
+	${GNU}/bin/bzip2
+
+bunzip2:
+	${GNU}/bin/bunzip2
+
+bzip2recover:
+	${GNU}/bin/bzip2recover
+
+gzip:
+	${GNU}/bin/gzip
+
+gunzip:
+	${GNU}/bin/gunzip
+
+# the NCMP version is broken!
+fortune:
+	/usr/games/fortune
+
+# these support the UUX dialer
+uux:
+	${NCMP}/bin/uux
+
+uuname:
+	${NCMP}/bin/uuname
+
+# FGREP (the Solaris® XPG4 'fgrep' dumps core)
+fgrep:
+	/usr/bin/fgrep
+	${GNU}/bin/fgrep
+	${AST}/bin/fgrep
+	${NCMP}/bin/fgrep
+	/usr/xpg4/bin/fgrep
+
+# SGS tools
+m4:		${GNU}/bin/m4
+cscope:		$(SUNWSPRO)/bin/cscope
+		$(TOOLS)/bin/cscope
+
+# Solaris® system programs (64-bit)
+ps:		/usr/preroot/bin/ps
+w:		/usr/preroot/bin/w
+uptime:		/usr/preroot/bin/uptime
+
+# Solaris® CCS utilities (64-bit)
+ar:		/usr/preroot/bin/ar
+as:		/usr/preroot/bin/as
+ld:		/usr/preroot/bin/ld
+nm:		/usr/preroot/bin/nm
+ranlib:		/usr/preroot/bin/ranlib
+strip:		/usr/preroot/bin/strip
+size:		/usr/preroot/bin/size
+dump:		/usr/preroot/bin/dump
+elfdump:	/usr/preroot/bin/elfdump
+
+
+

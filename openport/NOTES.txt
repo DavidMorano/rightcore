@@ -1,0 +1,22 @@
+OPENPORT
+
+This little program creates a socket and binds it to a reserved (or
+any) port.  Arguments to the program are:
+
++ protocol family
++ protocol type
++ protocol
++ socket_address
+
+It reads the arguments in on STDIN via a message and then passes an
+acknowledgement message back on STDIN.  If the acknowledgement is
+positive, the message is followed by the file descriptor that was
+created.
+
+Synopsis:
+
+$ openport
+
+In practice it is only called by the 'openport(3d)' subroutine.
+
+

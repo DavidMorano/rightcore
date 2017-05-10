@@ -1,0 +1,12 @@
+TAGDB
+
+Types of things that can be "tagged":
+
+DE	Display
+TE	Table
+EE	Example
+FG	Figure
+EN	Equation
+
+
+

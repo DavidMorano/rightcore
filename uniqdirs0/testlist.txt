@@ -1,0 +1,9 @@
+
+/usr/bin
+/bin
+/usr/extra/bin
+
+/home/dam
+/data17/HOME/dam
+
+

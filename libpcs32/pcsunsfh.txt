@@ -1,0 +1,32 @@
+PCSUNS File-Header
+
+
+= header
+
+- magic (16 bytes; including terminating NL)
+- VETU (4 bytes)
+- wtime
+- atime
+- recoff
+- recext
+- reclen (highest overlast used)
+- stroff
+- strext
+- strlen (highest overlast used)
+
+
+= record table
+
+- create-time
+- access-time
+- name-index (to string table)
+- username-buf (USERNAMELEN bytes)
+
+
+= string table
+
+- length of allocation (two-bytes)
+- allocated buffer (always multiple of two bytes)
+
+
+

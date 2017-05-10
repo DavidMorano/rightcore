@@ -1,0 +1,4 @@
+b_calyear: lib_initenviron()
+b_calyear: lib_initenviron() ret
+b_calyear: getenv()
+b_calyear: getenv() ret

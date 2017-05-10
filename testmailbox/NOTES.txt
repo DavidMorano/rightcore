@@ -1,0 +1,35 @@
+MAILBOX
+
+These are notes on the MAILBOX object.
+
+
+= Usage restrictions
+
+It is assumed that the mailbox file is seekable.  Messages are not saved
+while scanning during the "open" so it is expected that the caller will
+want to seek back and read the messages herself.
+
+
+= Future ideas
+
+Semaphore field value:
+
+	version time open_count O-P-R-D
+
++ version	8-bit integer (1 byte, 2 bytes in HEX)
++ space		1 byte
++ time		32-bit UNIX time (4 bytes, 8 bytes in HEX)
++ space		1 byte
++ open_count	16-bit integer (2 bytes, 4 bytes in HEX)
++ space		1 byte
++ O-P-R-D	old-parsed-read-delete bytes (4 bytes allocated)
+
+bytes total	21
+
+O	old
+P	parsed
+R	read
+D	deleted
+
+
+

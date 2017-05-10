@@ -1,0 +1,253 @@
+'\" t
+.TH ENVWIPE 1 2001-04-26 "Levo Research"
+.SH NAME
+envwipe \- run a program with a specified environment
+.\"_
+.\"_ some AT&T standard strings
+.\"_
+.if t \{\
+.fp5 CW
+.ds mW \&\f5
+.ds mB \&\f(CB
+.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
+.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
+.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
+.ds rq ''
+.ds lq ``
+.tr * \(**
+'br\}
+.if n \{\
+.ds mW \f3
+.ds mB \f3
+.ds Tm \uTM\d
+.ds Sm \uSM\d
+.ds Rg (Reg.)
+.ds lq \&"
+.ds rq \&"
+'br\}
+.\"_
+.\"_ some AT&T standard macros
+.\"_
+.de HY
+.hy14
+..
+.\"_
+.de MW
+.nh
+.it1 }N
+.ie\\n(.$ \{\
+.ie\\n(.$=1 \*(mW\&\\$1\fP
+.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
+.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
+.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
+.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
+.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
+.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
+.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
+.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
+.el\{\
+.ift .ft 5
+.ifn .ft 3 \}
+.HY
+..
+.\"_
+.de OP
+.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
+.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
+..
+.\"_
+.de EX
+.sp\\n(PDu
+.in+5n
+.ifn .ft 3
+.ift \{\
+.ft5
+.if\\$1-1 \{\
+.ps-1
+.vs-1
+.nreX 1 \}\}
+.nf
+..
+.de EE
+.fi
+.if\\n(eX \{\
+.ps+1
+.vs+1
+.nreX 0 \}
+.ft1
+.in-5n
+.sp\\n(PDu
+..
+.\"_
+.\"_
+.SH SYNOPSIS
+.BR envwipe
+.OP -e "  envfile" ] [
+.OP -V "" ] [
+.IR program
+.IR arg0
+.MW [
+.IR "argument(s) ..."
+.MW ]
+.\"_
+.\"_
+.SH DESCRIPTION
+.sp
+.\"_
+.SS Introduction
+.\"_
+The 
+.IB envwipe
+program
+is used on a UNIX system to run another program with
+a controlled environment.
+This is sometimes necessary in order to get a precise and
+repeatable instruction execution trace of the program.
+Precise instruction execution traces are useful for comparison
+with the execution of the same program on other machine platforms,
+like simulators.
+This program is essentially the same as the
+.IB execname
+program that is commonly used for starting programs in
+multi-architecture computer environments.
+The difference is that no environment variables are passed
+to the target program by default.
+.PP
+Two arguments to the program are always required.
+These are the program to execute (its file path) and the
+first (or zeroth) argument to the program.
+This second argument forms part of the program environment
+so care should be used if it needs to be matched up
+with some specific value.
+.\"_
+.SS Options
+.\"_
+There is only one important argument option for
+the program.
+.PP
+.RS 5
+.TP 15
+\fB-e\fP  \fIenvfile\fP
+This option allows for the specification of a file that
+holds the environment that should be setup for the target
+program.  The file should contains lines of the form :
+.EX
+key=value
+.EE
+These should look like environment variables being
+set by shell programs like Bourne Shell and Korn Shell.
+Comments and blank lines are allowed in this file.
+Comments are introduced using the pound ('#') character.
+Note that full shell-like quoting is not allowed for the
+value portion of the variable assignment.
+Quoting with the double quote character is allowed.
+.TP 15
+\fB-V\fP  
+This option causes the program to print its program version
+to standard error and then the program exits.
+.RE
+.\"_
+.SS Operation
+.\"_
+The default behavior of the program, when invoked with no
+optional arguments, is to execute the target program with
+no environment variables and only the arguments that
+are specified in addition to the zeroth argument to the program.
+If some optional environment is specified, then that
+environment is setup for the target program in addition
+to the arguments that are specified.
+The combination of the program arguments and its environment
+form the full user specified environment for the target program.
+.\"_
+.SS "Environment File"
+.\"_
+An option file can be specified at program invocation so that
+some environment variables can be setup for the target program.
+By default, no environment variables are setup for the target
+program.
+If this file is given with the 
+.MW -e
+option, then any environment variables given in the file will
+be passed to the target program.
+The format of this file consists of key-value pairs.
+This is similar to how environment variables are assigned
+in the Bourne and Korn shell programs.
+Entries are of the form :
+.EX
+key=value
+.EE
+The value can be quoted with double quotes if it contains
+any white space.
+Blank lines in this file are ignored as well as all
+lines that are introduced with the pound ('#') character.
+Also, the value is taken to only be the first white-space
+terminated string after the equals-sign character.
+.\"_
+.\"_
+.SH EXAMPLES
+.\"_
+.IP \(rh 5
+run the SpecInt program
+.IB compress
+with its first argument being the string
+.MW compress
+.EX
+\f(CWenvwipe /proj/levo/benchmarks/bin/compress compress\fP
+.EE
+.\"_
+.IP \(rh 5
+run the SpecInt program
+.IB compress
+with its first argument being the string
+.MW compress
+ ; its environment should be setup according to that which is
+found in the file
+.MW envfile
+located in the current directory
+.EX
+\f(CWenvwipe -e envfile /proj/levo/benchmarks/bin/compress compress\fP
+.EE
+.\"_
+.SH CAVEATS
+.\"_
+This program is useful for executing a program with precise
+environment.  This can be used to compare execution traces
+of the same program run on different platforms.
+The goal is to have the program traces be precisely identical.
+Note that other factors that cannot be controlled by this
+program can come into play such that the instruction
+execution traces are not the same.
+Care should be used that the stack area and heap are
+setup the same on all machines that are used for comparison
+purposes.  Also, the exact arrangement of program environment
+data needs to be the same across platforms that are expected
+to be compared.
+Of course, this is not usually possible when
+running programs using a vendor supplied OS.
+It is left to the reader to figure out where remaining
+differences in OS setup for program execution occurs
+and to deal with it in some manner (if possible).
+.\"_
+.SH SEE ALSO
+execv(1), execname(1), suexec(1), exec(1)
+.\"_
+.SH PATH TO
+This program is currently located in 
+\f(CW /usr/add-on/local/bin \fP
+or possibly where ever
+.IB local
+programs are stored on your system.
+This is often at
+\f(CW "${LOCAL}/bin" \fP
+on some systems.
+.\"_
+.SH WARNINGS
+Be careful to put at one space between all option key 
+letters and the associated
+key letter parameter.
+.\"_
+.SH AUTHOR
+Dave Morano
+.\"_
+.\"_
+.\"_

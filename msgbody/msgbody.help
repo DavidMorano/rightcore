@@ -1,0 +1,10 @@
+MSGBODY
+
+This program prints out the body of the mail message given
+as standard input.
+
+Synopsis:
+
+$ msgbody < msgfile
+
+

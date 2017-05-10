@@ -1,0 +1,33 @@
+
+static const char *argopts[] = {
+	"VERSION",
+	"VERBOSE",
+	"HELP",
+	"of",
+	NULL
+} ;
+
+enum argopts {
+	argopt_version,
+	argopt_verbose,
+	argopt_help,
+	argopt_of,
+	argopt_overlast
+} ;
+
+#if	CF_DEBUG || CF_DEBUGS
+static const char	*utmptypes[] = {
+	"empty",
+	"runlevel",
+	"boottime",
+	"oldtime",
+	"newtime",
+	"initproc",
+	"loginproc",
+	"userproc",
+	"account",
+	NULL
+} ;
+#endif /* CF_DEBUG */
+
+

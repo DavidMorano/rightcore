@@ -1,0 +1,18 @@
+ISUSER
+
+This tiny program just determines if the name given as the first argument is a
+valid user on the current system or not.
+
+Synopsis:
+
+$ isuser <name>
+
+Arguments:
+
+<name>		is the username to check for
+
+Exits:
+
+0		if the specified username exits on the current system
+!=0		if the specified username does not exit on the current system
+

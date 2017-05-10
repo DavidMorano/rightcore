@@ -1,0 +1,20 @@
+
+
+DAMpretime {
+	global:
+		pretime_init ;
+		pretime_fini ;
+		pretime_getoff ;
+		pretime_modtime ;
+		pretime_modtv ;
+		pretime_modts ;
+		pretime_modtimeb ;
+		time ;
+		gettimeofday ;
+		ftime ;
+		clock_gettime ;
+	local:
+		* ;
+} ;
+
+

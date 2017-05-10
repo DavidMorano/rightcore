@@ -1,0 +1,5 @@
+
+ERROR_FD=3
+export ERROR_FD
+exec socket -lsbf -p "/home/dam/src/rexd/rexd.x -D=3" 3> o3 3000
+

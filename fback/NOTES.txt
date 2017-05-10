@@ -1,0 +1,12 @@
+
+
+function dirname {
+  print ${1%/*}
+}
+
+function basename {
+  print ${1##*/}
+}
+
+
+

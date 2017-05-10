@@ -1,0 +1,12 @@
+XLIBDIRS= -L$(LIBDIR)
+
+XLIB0=
+XLIB1= -ldam -lb
+XLIB2=
+XLIB3= -luc -lu
+XLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+XLIB5= 
+XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+XLIB7= -ldl -lc
+
+XLIBS= $(XLIB0) $(XLIB1) $(XLIB2) $(XLIB3) $(XLIB4) $(XLIB5) $(XLIB6) $(XLIB7)

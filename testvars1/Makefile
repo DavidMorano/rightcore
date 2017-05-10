@@ -1,0 +1,371 @@
+# MAKEFILE
+
+T= testvars
+
+MKST= varmks
+VIST= vars
+
+ALL= $(T)
+
+SRCROOT= $(LOCAL)
+
+
+BINDIR= $(SRCROOT)/bin
+INCDIR= $(SRCROOT)/include
+LIBDIR= $(SRCROOT)/lib
+MANDIR= $(SRCROOT)/man/man1
+HELPDIR= $(SRCROOT)/share/help
+EXTRALIB= $(EXTRA)/lib
+
+#LDCRTDIR= /opt/SUNWspro/WS6/lib
+#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
+#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
+#LDCRTDIR= /opt/SUNWspro/lib
+LDCRTDIR= $(SRCROOT)/lib
+
+
+CC= gcc
+
+CCOPTS= -O -mcpu=ultrasparc
+#CCOPTS= -g
+#CCOPTS= -g -xs
+#CCOPTS= -g -pg
+
+CCOPTS_GCCLIB= -fpic -mno-app-regs
+
+# HyperSPARC
+# regular
+#CCOPTS= -xO5 -xtarget=ss20/hs22 -xdepend
+# profiling 'prof(1)'
+#CCOPTS= -p -xO5 -xtarget=ss20/hs22 -xdepend
+# profiling 'gprof(1)' 
+#CCOPTS= -xpg -xO5 -xtarget=ss20/hs22 -xdepend
+
+# UltraSPARC
+# regular
+#CCOPTS= -xO5 -xtarget=ultra -xsafe=mem -xdepend
+# profiling 'prof(1)'
+#CCOPTS= -p -xO5 -xtarget=ultra -xsafe=mem -xdepend
+# profiling 'gprof(1)' 
+#CCOPTS= -xpg -xO5 -xtarget=ultra -xsafe=mem -xdepend
+
+
+DEF0=
+DEF1=
+DEF2=
+DEF3=
+DEF4=
+DEF5=
+DEF6=
+DEF7= $(LF_DEFS)
+
+DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
+
+
+INCDIRS= -I$(INCDIR)
+
+CPPFLAGS= $(DEFS) $(INCDIRS)
+CFLAGS= $(CCOPTS)
+
+#LD= $(CC)
+#LD= cc
+LD= ld
+
+# regular
+LDFLAGS= -R$(LIBDIR):$(EXTRALIB)
+# for profiling
+LDFLAGS_P= -L/usr/lib/libp # -R$(LIBDIR)
+
+
+LIBDIRS= -L$(LIBDIR)
+
+LIB0=
+LIB1= -Bstatic -ldam -Bdynamic
+LIB2=
+LIB3= -Bstatic -lb -luc -Bdynamic
+LIB4= -Bstatic -lu -Bdynamic
+LIB5= -L$(GNU)/lib -lgcc
+LIB6= -lsecdb -lproject -lpthread -lrt -lsocket -lnsl
+LIB7= -ldl -lc
+
+LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
+
+
+SLIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5)
+
+
+CRTI= $(LDCRTDIR)/crti.o
+CRT1= $(LDCRTDIR)/crt1.o
+MCRT1= $(LDCRTDIR)/mcrt1.o
+GCRT1= $(LDCRTDIR)/gcrt1.o
+VALUES= $(LDCRTDIR)/values-xa.o
+CRTN= $(LDCRTDIR)/crtn.o
+
+# for regular (no profiling)
+CRT0= $(CRTI) $(CRT1) $(VALUES)
+# for 'prof(1)'
+MCRT0= $(CRTI) $(MCRT1) $(VALUES)
+# for 'gprof(1)'
+GCRT0= $(CRTI) $(GCRT1) $(VALUES)
+
+CRTC= makedate.o
+
+LINT= lint
+LINTFLAGS= -uxn -Dlint
+
+NM= nm
+NMFLAGS= -xs -v
+
+CXREF= cxref
+CXREFFLAGS= -R -s
+
+CPP= cpp
+
+LORDER= lorder
+TSORT= tsort
+
+RM= rm -f
+
+
+INCS= config.h defs.h
+
+
+OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
+OBJ01= 
+OBJ02=
+OBJ03= 
+OBJ04= 
+OBJ05= 
+OBJ06=
+OBJ07= printhelp.o 
+OBJ08=
+OBJ09= strtab.o
+OBJ10=
+OBJ11= 
+OBJ12= strnnlen.o
+OBJ13= 
+OBJ14= varmks.o
+OBJ15= vars.o varhdr.o hashagain.o
+
+OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
+OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
+
+OBJ= $(OBJA) $(OBJB)
+
+# for regular (no profiling)
+OBJS= $(CRT0) $(OBJ) $(CRTC)
+# for 'prof(1)'
+MOBJS= $(MCRT0) $(OBJ) $(CRTC)
+# for 'gprof(1)'
+GOBJS= $(GCRT0) $(OBJ) $(CRTC)
+
+
+VISOBJ= vars.o varhdr.o hashagain.o
+
+MKSOBJ= varmks.o varhdr.o
+
+SVSOBJ0= sysvars.o var.o varmk.o dirseen.o 
+SVSOBJ1= sysvarproc.o
+
+SVSOBJ= $(SVSOBJ0) $(SVSOBJ1)
+
+
+SRC= $(OBJ:.c=.o)
+
+
+.SUFFIXES:		.ls .i .cx .cs
+
+
+default:		$(T).x
+
+all:			$(ALL)
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
+
+.c.ln:
+	$(LINT) -c -u $(CPPFLAGS) $<
+
+.c.ls:
+	$(LINT) $(LINTFLAGS) $(CPPFLAGS) $<
+
+.c.i:
+	$(CPP) $(CPPFLAGS) $< > $(*).i
+
+.c.cx:
+	$(CXREF) -C $(CXREFFLAGS) $(CPPFLAGS) $<
+
+.c.cs:
+	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
+
+
+$(T):			$(T).ee
+	cp -p $(T).ee $(T)
+
+$(T).x:			$(OBJ) Makefile
+	rm -f $(T).x
+	makedate -m $(T) > makedate.c
+	$(CC) -c $(CFLAGS) makedate.c
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+
+$(T).prof:		$(OBJ) Makefile
+	makedate -m $(T) > makedate.c
+	$(CC) -c makedate.c
+	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+
+$(T).gprof:		$(OBJ) Makefile
+	makedate -m $(T) > makedate.c
+	$(CC) -c makedate.c
+	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+
+$(T).$(OFF) $(OFF):	$(T).x
+	cp -p $(T).x $(T).$(OFF)
+
+$(T).nm nm:		$(T).x
+	$(NM) $(NMFLAGS) $(T).x > $(T).nm
+
+$(T).cxref:
+	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
+
+so:			$(VIST).so $(MKST).so
+
+$(MKST).so:		$(MKSOBJ) Makefile $(MKST).map
+	$(LD) -G -o $@ -M $(MKST).map $(LDFLAGS) \
+		$(MKSOBJ) $(LIBDIRS) $(SLIBS)
+
+$(VIST).so:		$(VISOBJ) Makefile $(VIST).map
+	$(LD) -G -o $@ -M $(VIST).map $(LDFLAGS) \
+		$(VISOBJ) $(LIBDIRS) $(SLIBS)
+
+safe:
+	makesafe -v=3 -I $(INCDIR) $(OBJ)
+
+strip:			$(T).x
+	strip $(T).x
+	rm -f $(T).$(OFF) $(T)
+
+install:		install-raw
+
+install-ee:		$(ALL)
+	makenewer -r $(ALL) $(BINDIR)
+
+install-raw:		$(T).x
+	rm -f $(T)
+	ln $(T).x $(T)
+	rm -f $(BINDIR)/$(T).$(OFF)
+	makenewer -r $(T) $(BINDIR)
+
+install-so:		$(VIST).so $(MKST).so
+	makenewer -r $(VIST).so $(MKST).so $(LIBDIR)
+
+install-help:		$(T).help
+	rm -f $(T)
+	ln $(T).help $(T)
+	-mkdir -p $(HELPDIR) 2> /dev/null
+	makenewer $(T) $(HELPDIR)
+
+again:
+	rm -f $(ALL) $(T).x $(BIST).so $(MKST).so 
+
+clean:			again
+	rm -f *.o
+
+control:
+	uname -n > Control
+	date >> Control
+
+
+main.o:			main.c $(INCS)
+
+whatinfo.o:		whatinfo.c config.h
+
+proginfo.o:		proginfo.c defs.h
+
+proginfo_setpiv.o:	proginfo_setpiv.c defs.h
+
+b_$(T).o:		b_$(T).c $(INCS) varmk.h var.h
+
+
+getutmpent.o:		getutmpent.c getutmpent.h
+
+
+userinfo.o:		userinfo.c userinfo.h
+
+shio.o:			shio.c shio.h
+
+vecstr_loadfile.o:	vecstr_loadfile.c
+
+vecstr_env.o:		vecstr_env.c
+
+vecstr_adduniq.o:	vecstr_adduniq.c
+
+keyopt.o:		keyopt.c keyopt.h
+
+filemap.o:		filemap.c filemap.h
+
+filebuf.o:		filebuf.c filebuf.h
+
+realname.o:		realname.c realname.h
+
+ipasswd.o:		ipasswd.c ipasswd.h
+
+lastlogfile.o:		lastlogfile.c lastlogfile.h
+
+tmpx.o:			tmpx.c tmpx.h
+
+biblebook.o:		biblebook.c biblebook.h
+
+bibleq.o:		bibleq.c bibleq.h bibleqs.h
+
+bibleqs.o:		bibleqs.c bibleqs.h txtindex.h txtindexmk.h
+
+txtindex.o:		txtindex.c txtindex.h txtindexes.h
+
+txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
+
+txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+
+txtindexfu.o:		txtindexfu.c txtindexfu.h
+
+offindex.o:		offindex.c offindex.h
+
+dirseen.o:		dirseen.c dirseen.h
+
+wordfill.o:		wordfill.c wordfill.h
+
+strstore.o:		strstore.c strstore.h
+
+xwords.o:		xwords.c xwords.h
+
+eigendb.o:		eigendb.c eigendb.h
+
+vecint.o:		vecint.c vecint.h
+
+veclong.o:		veclong.c veclong.h
+
+vechand.o:		vechand.c vechand.h
+
+vecobj.o:		vecobj.c vecobj.h
+
+varmk.o:		varmk.c varmk.h varmks.h dirseen.h
+
+varmks.o:		varmks.c varmks.h varhdr.h
+	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+sysvar.o:		sysvar.c sysvar.h var.h dirseen.h
+	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+var.o:			var.c var.h vars.h dirseen.h
+
+vars.o:			vars.c vars.h varhdr.h
+	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+varhdr.o:		varhdr.c varhdr.h
+	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+strtab.o:		strtab.c strtab.h
+	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+

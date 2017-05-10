@@ -1,0 +1,10 @@
+ICONV
+
+We have two implementations of the ICONV facility (interface). One is from
+Solaris® and is the other is from GNU.
+
+The GNU version (somehow) changes referecens from |iconv_xxx| into
+|libiconv_xxx| when compiling a module that uses ICONV. So a proper build
+requires linking the GNU versoin of the ICONV library as a consequence.
+
+

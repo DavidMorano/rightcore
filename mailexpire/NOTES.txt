@@ -1,0 +1,42 @@
+MAILEXPIRE
+
+This little program expires messages in a mail mailbox.
+
+Synopsis:
+
+$ mailexpire <mailbox(s)> [-t <age>] [-u <user(s)>]
+
+
+= Mailbox operation notes
+
+
+- opening the file
+
+1) open the file
+
+2) acquire read-lock on first (and only) byte of file
+
+3) parse file, see if 'status' and 'semaphore' headers are present
+
+4) if our required headers are not there AND if we opened for WRITE
+   try to acquire a write-lock
+
+5) if we can get a write-lock, re-parse the file and re-write the 
+   file with the required headers 
+
+6) release write-lock, re-acquire read-lock and re-parse file
+
+
+- changing message status
+
+1) acquire read-lock at over-end of file
+
+2) release read-lock on whole of rest of file
+
+3) acquire write-lock on a per-message basis if we can
+
+4) read and then re-write the status header value with what we want
+
+5) release write-lock on message
+
+

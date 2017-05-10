@@ -1,0 +1,14 @@
+#!/usr/bin/ksh
+# RBIBLEQ
+
+
+TITLE="Bible concordance"
+RHOST=www.rightcore.com
+RPORT=5113
+RSVC=bibleq
+
+
+echo "${TITLE}"
+TERM="${TERM}_${RSVC}" telnet ${RHOST} ${RPORT}
+
+

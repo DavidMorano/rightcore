@@ -1,0 +1,23 @@
+# HOMEPAGE (configuration)
+#
+#
+
+# cookies:
+# P	- program-name
+# R	- program root (directory)
+# S	- searchname
+# N	- nodename
+# D	- domainname
+# H	- hostname
+# U	- username
+#
+#
+
+
+#head	etc/%S/head.txt
+
+
+#svcs	motd cotd testvotd testhotd qotd hols wotd
+
+
+

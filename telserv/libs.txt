@@ -1,0 +1,8 @@
+LIB0= -lpcs
+LIB1= -ldam -lb
+LIB2=
+LIB3= -luc -lu
+LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB5= -lpam -lbsm /usr/lib/libcmd.so
+LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+LIB7= -ldl -lc

@@ -1,0 +1,10 @@
+
+DAMmfserve {
+	global:
+		p_mfserve ;
+		b_mfserve ;
+	local:
+		* ;
+} ;
+
+

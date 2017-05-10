@@ -1,0 +1,95 @@
+rca11   	140708_2059:49_EDT dmail 0/SYSV
+rca11   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca11   	rca!dam (David A. Morano)
+rca11   	inaccessible user-list file (-2)
+rca11   	maildir=/var/mail
+rca11   	message    0
+rca11   	  | 140708125853-0400EDT     
+rca11   	  |   U gmail.com!coldspacemachine+caf_=dam=rightcore.com
+rca11   	  > gmail.com!coldspacemachine+caf_=dam=rightcore.com
+rca11   	  F gmail.com!coldspacemachine+caf_=dam=rightcore.com
+rca11   	  mid=| CACZC8kNB+rryPgGLS3JpmAd1=fkYod77BKoUffNd8shu7Ox8YQ@mail
+rca11   	      | .gmail.com
+rca11   	  received 0
+rca11   	    by=10.194.249.200
+rca11   	    with=HTTP
+rca11   	    date=140708095837-0700
+rca11   	  received 1
+rca11   	    by=mail-wg0-f41.google.com
+rca11   	    with=SMTP
+rca11   	    id=k14so3571753wgh.24
+rca11   	    for=morano@computer.org
+rca11   	    date=140708095838-0700
+rca11   	  received 2
+rca11   	    from=mail-wg0-x229.google.com
+rca11   	    by=mx.google.com
+rca11   	    with=ESMTPS
+rca11   	    id=dq8si3765408wid.17.2014.07.08.09.58.38
+rca11   	    for=morano@computer.org
+rca11   	    date=140708095838-0700
+rca11   	  received 3
+rca11   	    by=mail-we0-f169.google.com
+rca11   	    with=SMTP
+rca11   	    id=t60so6304433wes.14
+rca11   	    for=morano@computer.org
+rca11   	    date=140708095838-0700
+rca11   	  received 4
+rca11   	    from=mail-we0-f169.google.com
+rca11   	    by=spmpdv02.ieee.org
+rca11   	    with=ESMTP
+rca11   	    id=s68Gw3xg015900
+rca11   	    for=morano@computer.org
+rca11   	    date=140708125803-0400
+rca11   	  received 5
+rca11   	    from=spmpdv02.ieee.org
+rca11   	    by=hormel10.ieee.org
+rca11   	    with=ESMTP
+rca11   	    id=s68JuqOr001983
+rca11   	    for=morano@computer.org
+rca11   	    date=140708155653-0400
+rca11   	  received 6
+rca11   	    from=hormel10.ieee.org
+rca11   	    by=cs-ems3.ieee.org
+rca11   	    with=ESMTP
+rca11   	    id=s68GwoEQ005261
+rca11   	    for=morano@computer.org
+rca11   	    date=140708125850-0400
+rca11   	  received 7
+rca11   	    from=cs-ems3.ieee.org
+rca11   	    by=mx.google.com
+rca11   	    with=ESMTPS
+rca11   	    id=n49si33825578qge.3.2014.07.08.09.58.51
+rca11   	    for=coldspacemachine@gmail.com
+rca11   	    date=140708095851-0700
+rca11   	  received 8
+rca11   	    by=10.50.225.134
+rca11   	    with=SMTP
+rca11   	    id=rk6csp299383igc
+rca11   	    date=140708095851-0700
+rca11   	  received 9
+rca11   	    by=mail-ig0-f181.google.com
+rca11   	    with=SMTP
+rca11   	    id=h15so898748igd.8
+rca11   	    for=dam@rightcore.com
+rca11   	    date=140708095852-0700
+rca11   	  received 10
+rca11   	    from=mail-ig0-f181.google.com
+rca11   	    by=mail.rightcore.com
+rca11   	    with=ESMTP
+rca11   	    id=1E3432EEF2
+rca11   	    for=dam@rightcore.com
+rca11   	    date=140708125852-0400
+rca11   	  sender=eve.s.silver@gmail.com
+rca11   	  returnpath=coldspacemachine+caf_=dam=rightcore.com@gmail.com
+rca11   	  from=eve@evesilver.com
+rca11   	    (EveSilver)
+rca11   	  to=morano@computer.org
+rca11   	    (RTTC)
+rca11   	  date=140708125837-0400
+rca11   	  subject=>Urgent doctor appt @ 4pm<
+rca11   	  clen=819
+rca11   	recip=dam (David A. Morano)
+rca11   	    0 D   
+rca11   	  delivery=1 offset=0
+rca11   	recipients processed=1 delivered=1
+rca11   	COMSAT messages sent=1

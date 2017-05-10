@@ -1,0 +1,5 @@
+compress	63.3	gspag 512 1024
+ijpeg		53.3	gspag 512 1024
+compress	73.3	gspag 512 2048
+ijpeg		83.3	gspag 512 2048
+

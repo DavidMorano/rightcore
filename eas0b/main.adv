@@ -1,0 +1,97 @@
+* ***************   Audit Summary For    DO-I   ***************
+* Warning: NO I/O WAS DECLARED for subcircuit DO-I.
+* 0 errors and 1 warning were encountered.  
+* **************    SCHEMA     Version:4.2.0    **************
+.MAIN DO-I.1
+.SUBCKT TERM-A(::BUS-,BUS+) { ZE=60,  ZO=40,  VS=0.25,  VN=1.7,  VP=3.3}
+{ r5=(2*ze*zo)/(ze-zo)}
+{ r1=(r5*ze*vp)/((vs/2)*ze+(vn+vs/4)*r5)}
+{ r2=(ze*r1)/(r1-ze)}
+{ r3=(vp*ze*r5)/((vn-vs/4)*r5+ze*(-vs/2))}
+{ r4=(ze*r3)/(r3-ze)}
+*
+*PAGE: TERM-A.1    DATE: 95 Sep  7 16:10:13
+*
+   C1 (::0,C1_2)  0.1UF
+   C2 (::C1_2,0)  1UF
+   V100 (::C1_2,0)  DC ({ vp })  AC 0 0
+   R1 (::BUS-,C1_2)  {R1} 
+   R2 (::0,BUS-)  {R2} 
+   R3 (::BUS+,C1_2)  {R3} 
+   R4 (::0,BUS+)  {R4} 
+   R5 (::BUS+,BUS-)  {R5} 
+.FINIS
+    .use skew2.adv
+    .use ddlo_p.adv
+
+*
+*PAGE: DO-I.1    DATE: 95 Sep  7 16:10:12
+*
+   XX100 (I:F+,F-) SKEW2
+
+*
+*PAGE: DO-I.2    DATE: 95 Sep  7 16:10:13
+*
+   M301 (::COL,F-,VSS,VSS) MN0P5 SW=10
+   M303 (::COH,F-,VSS,VSS) MN0P5 SW=11
+   M305 (::COB,F+,VSS,VSS) MN0P5 SW=10
+   M300 (::COL,F-,VDD,VDD) MP0P6 SW=36
+   M302 (::COH,F-,VDD,VDD) MP0P6 SW=48
+   M304 (::COB,F+,VDD,VDD) MP0P6 SW=36
+
+*
+*PAGE: DO-I.3    DATE: 95 Sep  7 16:10:13
+*
+   D201 (::VSS,O+) DIODEN ( 3621 , 784 , 0 )
+   D203 (::VSS,O-) DIODEN ( 3621 , 784 , 0 )
+   D200 (::O+,VDD) DIODEP ( 2286 , 517 , 0 )
+   D202 (::O-,VDD) DIODEP ( 2286 , 517 , 0 )
+   M401 (::GB,GB,VSS,VSS) MN0P5 SW=60
+   M403 (::GT,GB,VSS,VSS) MN0P5 SW=62
+   M405 (::CB,GB,VSS,VSS) MN0P5 SW=300
+   M407 (::CT,COB,CB,VSS) MN0P5 SW=96
+   M408 (::CT,COH,O+,VSS) MN0P5 SW=250
+   M409 (::O-,COL,CB,VSS) MN0P5 SW=175
+   M411 (::O+,VSS,VSS,VSS) MN0P5 SW=336
+   M413 (::O-,VSS,VSS,VSS) MN0P5 SW=294
+   M400 (::GB,GB,VDD,VDD) MP0P6 SW=48
+   M410 (::O-,VDD,VDD,VDD) MP0P6 SW=294
+   M412 (::O+,VDD,VDD,VDD) MP0P6 SW=336
+   M402 (::GT,GT,VDD,VDD) MP1P0 SW=60
+   M404 (::CT,GT,VDD,VDD) MP1P0 SW=300
+
+*
+*PAGE: DO-I.4    DATE: 95 Sep  7 16:10:13
+*
+   V1001 (::R503_A,0)  DC ({ POW })  AC 0 0
+   V1002 (::R510_B,R511_A)  PULSE (-1 1 .1N .1N .1N 1.8N 3.9N)  AC 0 0
+   V1004 (::R511_A,VSS)  DC ({ POW/2 })  AC 0 0
+   R205 (::VSS,0)  0.001
+   R503 (::R503_A,VDD)  0.1
+   R510 (::I,R510_B)  1K
+   R511 (::R511_A,VSS)  10K
+   XX1000 (::O-,O+) TERM-A {ZO=25, ZE=30, VS=3.3, VN=1.2, VS=0.25} 
+   XX1001 (::O-,O+) TERM-A {ZO=25, ZE=30, VS=3.3, VN=1.2, VS=0.25} 
+
+*
+*PAGE: DO-I.5    DATE: 95 Sep  7 16:10:13
+*
+   .OUT VF+ F+ 0
+   .OUT VF- F- 0
+   .OUT VI I 0
+   .OUT VCOH COH 0
+   .OUT VCOL COL 0
+   .OUT VCB CB 0
+   .OUT VCOB COB 0
+   .OUT VCT CT 0
+   .OUT VGB GB 0
+   .OUT VGT GT 0
+   .OUT VVDD VDD 0
+   .OUT VVSS VSS 0
+    .out vo- o- 0 march=1
+    .out vo+ o+ 0 march=1
+    .init v(o+)=1.2 v(o-)=1.2 v(ct)=2.0 v(cb)=0.5
+    .out i_rb m403 gt
+    .out i_m402-s m402 vdd
+   .TITLE  driver circuit DO-I
+.END

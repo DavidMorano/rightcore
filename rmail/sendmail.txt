@@ -1,0 +1,32 @@
+SENDMAIL
+
+Some of the more useful options to the SENDMAIL daemon program are:
+
+option		description
+-------------------------------------------------------------------------------
+
+-o i		ignore "dots" on the input message data!
+-o IgnoreDots
+-oi
+
+-o 8		declare 8-bit data on input (this is like '8BITMIME'
+		not 'BINARY') ; there is NO way to input binary data
+		to SENDMAIL yet! (one would think this would have
+		beed "fixed" years ago)
+
+-o EightBitMode=<x>
+
+		s	reject any undeclared 8-bit data on input
+		m	convert any 8-bit data on input to '8BITMIME'
+		p	pass any undeclared 8-bit data (just send 8)
+
+-G		declare that we are doing a gateway transfer rather
+		than an initial user injection
+
+-o DeliveryMode=<x>
+		i	deliver interactively (synchronously)
+		b	deliver in background (asynchronously)
+		q	just queue it up (default?)
+		d	defer delivery and map lookups (queue it up)
+
+

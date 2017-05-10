@@ -1,0 +1,4 @@
+hello    -> libc.so.1:atexit(func = 0xef78d61c) = 0x0
+hello    -> libc.so.1:atexit(func = 0x1083c) = 0x0
+hello    -> libc.so.1:fprintf(fp = 0x20a80, format = 0x108c4, ...) = 12
+hello    -> libc.so.1:exit(status = 0)

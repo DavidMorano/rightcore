@@ -1,0 +1,61 @@
+# KEYS (mac)
+#
+
+#
+# The Rules!
+#
+# Each "key" command described by the information in columns two and
+# continuing must map to a single "keysym" name in the first column.
+# However, more than one key-command can map to the *same* keysym
+# in the first column.  That is how the table is used.
+#
+
+#
+# key-types are one of: FKEY (pseudo), ESC, CSI, DCS, PF
+#
+#
+
+#
+# keysym	type	final	inter	param(s)
+#
+
+F5              FKEY	-	-	15
+
+# F6 is also Num-Lock on the Mac when un-functioned
+#
+
+F6              FKEY	-	-	17
+F7              FKEY	-	-	18
+F8              FKEY	-	-	19
+
+# all other function keys on the Mac seem to be used for screen-manager
+
+
+# on the Mac, the regular F1 through F4 return like PF1 through PF4
+
+F1		PF	P
+F2		PF	Q
+F3		PF	R
+F4		PF	S
+
+#PF1		PF	P
+#PF2		PF	Q
+#PF3		PF	R
+#PF4		PF	S
+
+# the Macintosh may return either these keys, or the ones below
+
+CurUp           CSI	A
+CurDown         CSI     B
+CurRight	CSI     C
+CurLeft         CSI     D
+
+# for Macintosh
+
+CurUp           CSI	A	-	1
+CurDown         CSI     B	-	1
+CurRight	CSI     C	-	1
+CurLeft         CSI     D	-	1
+
+
+

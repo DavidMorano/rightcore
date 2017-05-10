@@ -1,0 +1,202 @@
+.\"_
+.TH PRT 1 "1991-02-13" LOCAL
+.SH NAME
+prt \- print out files to a printer
+.SH SYNOPSIS
+.BR prt
+.OP -d "  dst" ] [
+.OP -c "  copies" ] [
+.OP -s "  sides" ] [
+.OP -f "  form" ] [
+.OP -p "  mode" ] [
+.OP -l "  language" ] [
+.MW [
+.IR file(s) ...
+.MW ]
+.\"_
+.SH DESCRIPTION
+.\"_
+.sp
+.SS Introduction
+.PP
+The \fIprt\fP program
+is used on a UNIX system (and remotely from DOS/MS-Windows systems) 
+to send print jobs to a printer.
+Some control over the printing of the job can be specified with
+the options to the program.
+This program takes some arguments similar to the 
+UNISON command \fIprt\fP except that only the options specified in
+this manual page are accepted.  Any option specified other than those
+indicated above will cause the command to fail with an error message.
+.\"_
+.SS Options
+There are a number of options that can be used to tailor the
+print job in certain ways.  Most of the options take an additional
+value after the key word or letter.  The option value is always
+separated from the key letter with one or more spaces.
+.PP
+.RS 5
+.TP 15
+\fB-d\fP  \fIdestination\fP
+Normally a \fB-d\fP option will be specified to select a
+printer destination.  If this option is not specified, a default printer
+may be chosen if the user has a default configured.
+Default printers are configured on a per user basis by the setting of
+the PRINTER environment variable.
+If a default printer is not explicitly defined
+by the user, a default printer may still be assigned by either the
+system from which the command is executed, the system on which the
+printer spooler is running, or by some other not easily understood mechanism.
+For these reasons, it is usually best for the user to have the PRINTER
+environment variable defined or to specify the printer destination
+on the command line with the \fB-d\fP option.
+.TP 15
+\fB-c\fP  \fIcopies\fP
+The \fB-c\fP option allows for the specification of the number of
+copies of the mail message to print out.
+.TP 15
+\fB-s\fP  \fIsides\fP
+The \fB-s\fP option allows for the specification of the number of
+sides of paper to use for the printed out mail message.
+Valid values associated with this option key are '\fB1\fP' and '\fB2\fP'.
+If this option is not specified then the default number of sides
+configured for the printer will be used.  For one-sided printers,
+this value will be set to '\fB1\fP' regardless of the user
+supplied value.
+.TP 15
+\fB-f\fP  \fIform\fP
+The \fB-f\fP option allows for the specification of the form type
+used as the paper in the printer.  Forms vary from printer to printer
+but some of the possible form values for this argument are :
+.EX
+hole
+nohole
+11x17
+ledger
+legal
+.EE
+.TP 15
+\fB-p\fP  \fIprint_mode\fP
+The \fB-p\fP option specifies the print mode to be used.
+Supported print modes are :
+.EX
+portrait
+landscape
+.EE
+.TP 15
+\fB-l\fP  \fIlanguage\fP
+The \fB-l\fP specifies the language of the file to be printed.
+Supported languages are :
+.EX
+text
+postscript
+gif
+tif \fRor\fP tiff
+troff
+tek
+plot
+gplot
+xplot
+pnm (or any "\fIportable\fP" graphics format)
+ras
+pct \fRor\fP pict
+.EE
+The default language is always \fBtext\fP.  The
+.MW postscript
+language above can be abbreviated as
+.MW post
+\&.  The language
+.MW troffout
+is a synonym for 
+.MW troff
+also.  
+Both of these \fItroff\fP language names refer to the
+\fBoutput\fP of the DWD (or other DVI type) TROFF program.
+It is not generally meant to be humanly readable.
+The
+.MW ras
+language is the Sun Microsystem's raster graphics format.
+.RE
+.\"_
+.SS Output
+The printed output of this program provides for about 90 lines per page
+in a point size of about 8.
+.\"_
+.SH ENVIRONMENT VARIABLES
+.PP
+The following environment variables may change the default behavior of the
+program.
+.RS 5
+.TP 15
+.B PRINTER
+This environment variable contains the default printer destination
+when one if not specified on the program invocation with
+the \fB-d\fP argument key.
+.RE
+.\"_
+.SH EXAMPLES
+.PP
+.IP \(rh 5
+print a file to the user's defauilt printer as specified in the
+\f(CWPRINTER\fP environment variable :
+.EX
+\f(CWprt file\fP
+.EE
+.IP \(rh 5
+print a file to the printer specified on the command line :
+.EX
+\f(CWprt file -d \fIprinter\fP\fP
+.EE
+.IP \(rh 5
+print the data from standard input :
+.EX
+\f(CWcat < file | prt -d gz3c4\fP
+.EE
+.IP \(rh 5
+print out a GIF (Graphics Interchange Format) graphics file :
+.EX
+\f(CWprt -d gz3c4 -l gif file.gif\fP
+.EE
+.IP \(rh 5
+print out an Adobe PostScript file :
+.EX
+\f(CWprt -l post file.gif\fP
+.EE
+.\"_
+.SH SEE ALSO
+.PP
+prtfmt(1), prtmin(1)
+.\"_
+.SH PATH TO
+.PP
+This program is currently located in \fC/usr/add-on/local/bin\fP
+or possibly where ever "local" programs are stored on your system.
+This is often at
+.MW "${LOCAL}/bin"
+on some systems.
+.\"_
+.SH CAVEATS
+.PP
+Not all platforms are supported equally with respect to
+continued user control over the disposition of the print job
+with respect to
+being either monitored (\fIprtq\fP) or canceled (\fIprtc\fP).
+This is a locally created \fIhack\fP of the semi-standardized UNISON
+version.
+.\"_
+.SH WARNINGS
+.PP
+Be careful to put at one space between all option key 
+letters and the associated
+key letter parameter.
+.\"_
+.SH AUTHOR
+.PP
+Dave Morano
+.\"_
+.SH ACKNOWLEDGEMENTS
+.PP
+The idea for this program was taken from the UNISON \f(CWprt(1)\fP
+program.
+.\"_
+.\"_

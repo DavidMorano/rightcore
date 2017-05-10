@@ -1,0 +1,13 @@
+#!/usr/bin/ksh
+# RUNTEST
+
+export LD_PRELOAD=/usr/lib/secure/libpretime.so
+export LIBPRETIME_BASETIME=201607180909
+
+sysval ut uts
+daytime
+print -- /usr/bin/date
+/usr/bin/date
+print -- ${AST}/bin/date
+date
+

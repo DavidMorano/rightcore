@@ -1,0 +1,18 @@
+#!/usr/bin/ksh
+# MKGRAPHS
+
+
+T=ttp
+
+
+babies.x > ${T}.den -n 1000000 -sf s
+
+mkden ${T}.den > ${T}.nden
+mkdis ${T}.den > ${T}.ndis
+
+
+GF=ttp.dwb
+
+grap ${GF} | pic | troff -Tpost | dpost -B > ${T}.eps 
+
+

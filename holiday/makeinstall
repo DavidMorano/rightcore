@@ -1,0 +1,35 @@
+#!/usr/bin/ksh
+# MAKEINSTALL
+
+
+T=$( pwd | basename )
+
+TUSERNAME=local
+TGROUPNAME=tools
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+TDIRS="${LOCAL} ${EXTRA}"
+
+
+if [[ ! -r ${T}.x ]] ; then
+  print -u2 "${0}: file not found"
+  exit 1
+fi
+
+
+rm -f ${T}
+mv ${T}.x ${T}
+
+for D in ${TDIRS} ; do
+    BINDIR=${D}/bin
+    makenewer ${T} ${BINDIR} -r
+done
+
+mv ${T} ${T}.x
+
+
+

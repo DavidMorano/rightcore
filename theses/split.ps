@@ -1,0 +1,596 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/resolution 720 def
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+16 ZI f
+( THE POWER AND)3 1294(DISPUTATION OF DOCTOR MARTIN LUTHER ON)5 3386 2 720 1300 t
+(EFFICACY OF INDULGENCES)2 2022 1 720 1480 t
+( 1517)1 315(OCTOBER 31,)1 891 2 720 1840 t
+( the desire to bring it to light, the following)9 2813(Out of love for the truth and)6 1867 2 720 2200 t
+( be discussed at Wittenberg, under the presidency of the Reverend)10 3731(propositions will)1 949 2 720 2380 t
+( of Sacred Theology, and Lecturer in)6 2150(Father Martin Luther, Master of Arts and)6 2530 2 720 2560 t
+( the same at that place. Wherefore he requests that those who are)12 3973(Ordinary on)1 707 2 720 2740 t
+(unable to be present and debate orally with us, may do so by letter.)13 3729 1 720 2920 t
+(In the Name our Lord Jesus Christ. Amen.)7 2379 1 720 3260 t
+14 ZI f
+( whole)1 330(1. Our Lord and Master Jesus Christ, when He said Poenitentiam agite, willed that the)14 4350 2 720 3740 t
+(life of believers should be repentance.)5 1826 1 720 3900 t
+( understood to mean sacramental penance, i.e., confession and)8 3382(2. This word cannot be)4 1298 2 720 4380 t
+(satisfaction, which is administered by the priests.)6 2428 1 720 4540 t
+( means not inward repentance only; nay, there is no inward repentance which does not)14 4273(3. Yet it)2 407 2 720 5020 t
+(outwardly work divers morti\256cations of the \257esh.)6 2450 1 720 5180 t
+( penalty [of sin], therefore, continues so long as hatred of self continues; for this is the)16 4368(4. The)1 312 2 720 5660 t
+(true inward repentance, and continues until our entrance into the kingdom of heaven.)12 4210 1 720 5820 t
+( cannot remit any penalties other than those which he)9 2657(5. The pope does not intend to remit, and)8 2023 2 720 6300 t
+(has imposed either by his own authority or by that of the Canons.)12 3217 1 720 6460 t
+( it has been remitted by God and by)8 1751(6. The pope cannot remit any guilt, except by declaring that)10 2929 2 720 6940 t
+( be sure, he may grant remission in cases reserved to his)11 2704(assenting to God's remission; though, to)5 1976 2 720 7100 t
+( to grant remission in such cases were despised, the guilt would remain)12 3591(judgment. If his right)3 1089 2 720 7260 t
+(entirely unforgiven.)1 968 1 720 7420 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+14 R f
+(- 2 -)2 232 1 2944 640 t
+14 ZI f
+( guilt to no one whom He does not, at the same time, humble in all things and)17 3999(7. God remits)2 681 2 720 1280 t
+(bring into subjection to His vicar, the priest.)7 2178 1 720 1440 t
+( only on the living, and, according to them, nothing)9 2726(8. The penitential canons are imposed)5 1954 2 720 1920 t
+(should be imposed on the dying.)5 1557 1 720 2080 t
+( in the pope is kind to us, because in his decrees he always makes)14 3293(9. Therefore the Holy Spirit)4 1387 2 720 2560 t
+(exception of the article of death and of necessity.)8 2405 1 720 2720 t
+( and wicked are the doings of those priests who, in the case of the dying, reserve)16 4048(10. Ignorant)1 632 2 720 3200 t
+(canonical penances for purgatory.)3 1653 1 720 3360 t
+( of the canonical penalty to the penalty of purgatory is quite evidently one of)14 3807(11. This changing)2 873 2 720 3840 t
+(the tares that were sown while the bishops slept.)8 2402 1 720 4000 t
+( absolution, as)2 737(12. In former times the canonical penalties were imposed not after, but before)12 3943 2 720 4480 t
+(tests of true contrition.)3 1140 1 720 4640 t
+( dead to canonical rules,)4 1234(13. The dying are freed by death from all penalties; they are already)12 3446 2 720 5120 t
+(and have a right to be released from them.)8 2059 1 720 5280 t
+( love, of the dying brings with it,)7 1629(14. The imperfect health [of soul], that is to say, the imperfect)11 3051 2 720 5760 t
+(of necessity, great fear; and the smaller the love, the greater is the fear.)13 3475 1 720 5920 t
+( fear and horror is suf\256cient of itself alone \(to say nothing of other things\) to)15 4252(15. This)1 428 2 720 6400 t
+(constitute the penalty of purgatory, since it is very near to the horror of despair.)14 3923 1 720 6560 t
+( differ as do despair, almost-despair, and the assurance)8 2715(16. Hell, purgatory, and heaven seem to)6 1965 2 720 7040 t
+(of safety.)1 461 1 720 7200 t
+(17. With souls in purgatory it seems necessary that horror should grow less and love increase.)15 4574 1 720 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+14 R f
+(- 3 -)2 232 1 2944 640 t
+14 ZI f
+( reason or Scripture, that they are outside the state of merit,)11 3064(18. It seems unproved, either by)5 1616 2 720 1280 t
+(that is to say, of increasing love.)6 1594 1 720 1440 t
+( at least that all of them, are certain or assured of)11 2551(19. Again, it seems unproved that they, or)7 2129 2 720 1920 t
+(their own blessedness, though we may be quite certain of it.)10 2925 1 720 2080 t
+( penalties" the pope means not actually "of all," but only of)11 2872(20. Therefore by "full remission of all)6 1808 2 720 2560 t
+(those imposed by himself.)3 1244 1 720 2720 t
+( error, who say that by the pope's)7 1933(21. Therefore those preachers of indulgences are in)7 2747 2 720 3200 t
+(indulgences a man is freed from every penalty, and saved;)9 2819 1 720 3360 t
+( purgatory no penalty which, according to the canons, they)9 2992(22. Whereas he remits to souls in)6 1688 2 720 3840 t
+(would have had to pay in this life.)7 1696 1 720 4000 t
+( possible to grant to any one the remission of all penalties whatsoever, it is)14 3828(23. If it is at all)5 852 2 720 4480 t
+(certain that this remission can be granted only to the most perfect, that is, to the very fewest.)17 4583 1 720 4640 t
+( deceived by that)3 918(24. It must needs be, therefore, that the greater part of the people are)13 3762 2 720 5120 t
+(indiscriminate and highsounding promise of release from penalty.)7 3189 1 720 5280 t
+( general way, over purgatory, is just like the power)9 2636(25. The power which the pope has, in a)8 2044 2 720 5760 t
+(which any bishop or curate has, in a special way, within his own diocese or parish.)15 4056 1 720 5920 t
+( when he grants remission to souls [in purgatory], not by the power of)13 3539(26. The pope does well)4 1141 2 720 6400 t
+(the keys \(which he does not possess\), but by way of intercession.)11 3136 1 720 6560 t
+( soon as the penny jingles into the money-box, the soul)10 2779(27. They preach man who say that so)7 1901 2 720 7040 t
+(\257ies out [of purgatory].)3 1151 1 720 7200 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+14 R f
+(- 4 -)2 232 1 2944 640 t
+14 ZI f
+( certain that when the penny jingles into the money-box, gain and avarice can be)14 4246(28. It is)2 434 2 720 1280 t
+(increased, but the result of the intercession of the Church is in the power of God alone.)16 4247 1 720 1440 t
+( the souls in purgatory wish to be bought out of it, as in the legend)15 3305(29. Who knows whether all)4 1375 2 720 1920 t
+(of Sts. Severinus and Paschal.)4 1480 1 720 2080 t
+( sure that his own contrition is sincere; much less that he has attained full)14 3965(30. No one is)3 715 2 720 2560 t
+(remission.)720 2720 w
+( is truly penitent, so rare is also the man who truly buys)12 3149(31. Rare as is the man that)6 1531 2 720 3200 t
+(indulgences, i.e., such men are most rare.)6 1981 1 720 3360 t
+( believe themselves sure)3 1155(32. They will be condemned eternally, together with their teachers, who)10 3525 2 720 3840 t
+(of their salvation because they have letters of pardon.)8 2635 1 720 4000 t
+( pardons are that)3 921(33. Men must be on their guard against those who say that the pope's)13 3759 2 720 4480 t
+(inestimable gift of God by which man is reconciled to Him;)10 2893 1 720 4640 t
+( concern only the penalties of sacramental satisfaction, and)8 3052(34. For these "graces of pardon")5 1628 2 720 5120 t
+(these are appointed by man.)4 1369 1 720 5280 t
+( doctrine who teach that contrition is not necessary in those who)11 3246(35. They preach no Christian)4 1434 2 720 5760 t
+(intend to buy souls out of purgatory or to buy confessionalia.)10 2999 1 720 5920 t
+( Christian has a right to full remission of penalty and guilt, even)12 3371(36. Every truly repentant)3 1309 2 720 6400 t
+(without letters of pardon.)3 1278 1 720 6560 t
+( part in all the blessings of Christ and the)9 2066(37. Every true Christian, whether living or dead, has)8 2614 2 720 7040 t
+(Church; and this is granted him by God, even without letters of pardon.)12 3524 1 720 7200 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Page: 5 5
+DpostDict begin
+/saveobj save def
+mark
+5 pagesetup
+14 R f
+(- 5 -)2 232 1 2944 640 t
+14 ZI f
+(38. Nevertheless, the remission and participation [in the blessings of the Church] which are)13 4680 1 720 1280 t
+( in no way to be despised, for they are, as I have said, the declaration of)16 3529(granted by the pope are)4 1151 2 720 1440 t
+(divine remission.)1 821 1 720 1600 t
+( time to)2 415(39. It is most dif\256cult, even for the very keenest theologians, at one and the same)15 4265 2 720 2080 t
+(commend to the people the abundance of pardons and [the need of] true contrition.)13 4054 1 720 2240 t
+( penalties, but liberal pardons only relax penalties and cause)9 2975(40. True contrition seeks and loves)5 1705 2 720 2720 t
+(them to be hated, or at least, furnish an occasion [for hating them].)12 3297 1 720 2880 t
+( may falsely think them)4 1188(41. Apostolic pardons are to be preached with caution, lest the people)11 3492 2 720 3360 t
+(preferable to other good works of love.)6 1889 1 720 3520 t
+( pope does not intend the buying of pardons to be)10 2618(42. Christians are to be taught that the)7 2062 2 720 4000 t
+(compared in any way to works of mercy.)7 1982 1 720 4160 t
+( better)1 320(43. Christians are to be taught that he who gives to the poor or lends to the needy does a)19 4360 2 720 4640 t
+(work than buying pardons;)3 1335 1 720 4800 t
+( love grows by works of love, and man becomes better; but by pardons man does)15 4087(44. Because)1 593 2 720 5280 t
+(not grow better, only more free from penalty.)7 2204 1 720 5440 t
+( passes him by, and gives)5 1263(45. Christians are to be taught that he who sees a man in need, and)14 3417 2 720 5920 t
+([his money] for pardons, purchases not the indulgences of the pope, but the indignation of God.)15 4669 1 720 6080 t
+( more than they need, they are bound to)8 2021(46. Christians are to be taught that unless they have)9 2659 2 720 6560 t
+(keep back what is necessary for their own families, and by no means to squander it on pardons.)17 4660 1 720 6720 t
+( that the buying of pardons is a matter of free will, and not of)14 3149(47. Christians are to be taught)5 1531 2 720 7200 t
+(commandment.)720 7360 w
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 5 5
+%%Page: 6 6
+DpostDict begin
+/saveobj save def
+mark
+6 pagesetup
+14 R f
+(- 6 -)2 232 1 2944 640 t
+14 ZI f
+( desires,)1 389(48. Christians are to be taught that the pope, in granting pardons, needs, and therefore)14 4291 2 720 1280 t
+(their devout prayer for him more than the money they bring.)10 2939 1 720 1440 t
+( are to be taught that the pope's pardons are useful, if they do not put their trust)17 3991(49. Christians)1 689 2 720 1920 t
+(in them; but altogether harmful, if through them they lose their fear of God.)13 3728 1 720 2080 t
+( to be taught that if the pope knew the exactions of the pardon-preachers, he)14 3807(50. Christians are)2 873 2 720 2560 t
+( should go to ashes, than that it should be built up with)12 2830( church)1 365( Peter's)1 408(would rather that St.)3 1077 4 720 2720 t
+(the skin, \257esh and bones of his sheep.)7 1831 1 720 2880 t
+(51. Christians are to be taught that it would be the pope's wish, as it is his duty, to give of his)21 4680 1 720 3360 t
+( certain hawkers of pardons cajole money, even)7 2364(own money to very many of those from whom)8 2316 2 720 3520 t
+(though the church of St. Peter might have to be sold.)10 2587 1 720 3680 t
+( pardon is vain, even though the commissary, nay,)8 2516(52. The assurance of salvation by letters of)7 2164 2 720 4160 t
+(even though the pope himself, were to stake his soul upon it.)11 2966 1 720 4320 t
+( Christ and of the pope, who bid the Word of God be altogether silent)14 3517(53. They are enemies of)4 1163 2 720 4800 t
+(in some Churches, in order that pardons may be preached in others.)11 3266 1 720 4960 t
+( sermon, an equal or a longer time is)8 1875(54. Injury is done the Word of God when, in the same)11 2805 2 720 5440 t
+(spent on pardons than on this Word.)6 1810 1 720 5600 t
+( the pope that if pardons, which are a very small thing, are)12 3087(55. It must be the intention of)6 1593 2 720 6080 t
+( with single processions and ceremonies, then the Gospel, which is the)11 3466(celebrated with one bell,)3 1214 2 720 6240 t
+( processions, a hundred)3 1144(very greatest thing, should be preached with a hundred bells, a hundred)11 3536 2 720 6400 t
+(ceremonies.)720 6560 w
+( indulgences, are not)3 1122( grants)1 412( the pope.)2 554(56. The "treasures of the Church," out of which)8 2592 4 720 7040 t
+(suf\256ciently named or known among the people of Christ.)8 2783 1 720 7200 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 6 6
+%%Page: 7 7
+DpostDict begin
+/saveobj save def
+mark
+7 pagesetup
+14 R f
+(- 7 -)2 232 1 2944 640 t
+14 ZI f
+( for many of the vendors do not)7 1621(57. That they are not temporal treasures is certainly evident,)9 3059 2 720 1280 t
+(pour out such treasures so easily, but only gather them.)9 2696 1 720 1440 t
+( for even without the pope, these always)7 2049(58. Nor are they the merits of Christ and the Saints,)10 2631 2 720 1920 t
+(work grace for the inner man, and the cross, death, and hell for the outward man.)15 4003 1 720 2080 t
+( spoke)1 316(59. St. Lawrence said that the treasures of the Church were the Church's poor, but he)15 4364 2 720 2560 t
+(according to the usage of the word in his own time.)10 2517 1 720 2720 t
+( keys of the Church, given by Christ's merit, are that)10 2735(60. Without rashness we say that the)6 1945 2 720 3200 t
+(treasure;)720 3360 w
+( reserved cases, the power of the)6 1651(61. For it is clear that for the remission of penalties and of)12 3029 2 720 3840 t
+(pope is of itself suf\256cient.)4 1280 1 720 4000 t
+(62. The true treasure of the Church is the Most Holy Gospel of the glory and the grace of God.)19 4624 1 720 4480 t
+(63. But this treasure is naturally most odious, for it makes the \256rst to be last.)15 3814 1 720 4960 t
+( hand, the treasure of indulgences is naturally most acceptable, for it makes)12 3843(64. On the other)3 837 2 720 5440 t
+(the last to be \256rst.)4 906 1 720 5600 t
+( with which they formerly were wont to \256sh)8 2236(65. Therefore the treasures of the Gospel are nets)8 2444 2 720 6080 t
+(for men of riches.)3 846 1 720 6240 t
+(66. The treasures of the indulgences are nets with which they now \256sh for the riches of men.)17 4525 1 720 6720 t
+( preachers cry as the "greatest graces" are known to be truly such,)12 3194(67. The indulgences which the)4 1486 2 720 7200 t
+(in so far as they promote gain.)6 1486 1 720 7360 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 7 7
+%%Page: 8 8
+DpostDict begin
+/saveobj save def
+mark
+8 pagesetup
+14 R f
+(- 8 -)2 232 1 2944 640 t
+14 ZI f
+( of God and the piety)5 1056(68. Yet they are in truth the very smallest graces compared with the grace)13 3624 2 720 1280 t
+(of the Cross.)2 610 1 720 1440 t
+( commissaries of apostolic pardons, with all)6 2236(69. Bishops and curates are bound to admit the)8 2444 2 720 1920 t
+(reverence.)720 2080 w
+( attend with all their ears, lest)6 1584(70. But still more are they bound to strain all their eyes and)12 3096 2 720 2560 t
+(these men preach their own dreams instead of the commission of the pope.)12 3613 1 720 2720 t
+(71 . He who speaks against the truth of apostolic pardons, let him be anathema and accursed!)16 4604 1 720 3200 t
+(72. But he who guards against the lust and license of the pardon-preachers, let him be blessed!)16 4630 1 720 3680 t
+( injury of the traf\256c in)5 1127(73. The pope justly thunders against those who, by any art, contrive the)12 3553 2 720 4160 t
+(pardons.)720 4320 w
+( much more does he intend to thunder against those who use the pretext of pardons to)16 4296(74. But)1 384 2 720 4800 t
+(contrive the injury of holy love and truth.)7 2045 1 720 4960 t
+( great that they could absolve a man even if he had)11 2844(75. To think the papal pardons so)6 1836 2 720 5440 t
+(committed an impossible sin and violated the Mother of God -- this is madness.)13 3886 1 720 5600 t
+( the very least of)4 867(76. We say, on the contrary, that the papal pardons are not able to remove)14 3813 2 720 6080 t
+(venial sins, so far as its guilt is concerned.)8 2066 1 720 6240 t
+( even St. Peter, if he were now Pope, could not bestow greater graces; this is)15 3801(77. It is said that)4 879 2 720 6720 t
+(blasphemy against St. Peter and against the pope.)7 2451 1 720 6880 t
+( present pope, and any pope at all, has greater graces)10 2601(78. We say, on the contrary, that even the)8 2079 2 720 7360 t
+( is written in I.)4 882(at his disposal; to wit, the Gospel, powers, gifts of healing, etc., as it)13 3798 2 720 7520 t
+(Corinthians xii.)1 767 1 720 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 8 8
+%%Page: 9 9
+DpostDict begin
+/saveobj save def
+mark
+9 pagesetup
+14 R f
+(- 9 -)2 232 1 2944 640 t
+14 ZI f
+( the cross, emblazoned with the papal arms, which is set up [by the preachers of)15 3932(79. To say that)3 748 2 720 1280 t
+(indulgences], is of equal worth with the Cross of Christ, is blasphemy.)11 3432 1 720 1440 t
+( the people,)2 578(80. The bishops, curates and theologians who allow such talk to be spread among)13 4102 2 720 1920 t
+(will have an account to render.)5 1528 1 720 2080 t
+( pardons makes it no easy matter, even for learned men, to)11 3069(81. This unbridled preaching of)4 1611 2 720 2560 t
+( pope from slander, or even from the shrewd questionings of the)11 3165(rescue the reverence due to the)5 1515 2 720 2720 t
+(laity.)720 2880 w
+( dire)1 218(82. To wit: -- "Why does not the pope empty purgatory, for the sake of holy love and of the)19 4462 2 720 3360 t
+( in\256nite number of souls for the sake of)8 2100(need of the souls that are there, if he redeems an)10 2580 2 720 3520 t
+(miserable money with which to build a Church? The former reasons would be most just; the)15 4680 1 720 3680 t
+(latter is most trivial.")3 1050 1 720 3840 t
+( does)1 245(83. Again: -- "Why are mortuary and anniversary masses for the dead continued, and why)14 4435 2 720 4320 t
+( founded on their behalf, since it is)7 1739(he not return or permit the withdrawal of the endowments)9 2941 2 720 4480 t
+(wrong to pray for the redeemed?")5 1615 1 720 4640 t
+( money they allow a man)5 1269(84. Again: -- "What is this new piety of God and the pope, that for)14 3411 2 720 5120 t
+( and their enemy to buy out of purgatory the pious soul of a friend of God, and)17 3934(who is impious)2 746 2 720 5280 t
+(do not rather, because of that pious and beloved soul's own need, free it for pure love's sake?")17 4581 1 720 5440 t
+( fact and through disuse)4 1267(85. Again: -- "Why are the penitential canons long since in actual)11 3413 2 720 5920 t
+( satis\256ed by the granting of indulgences, as though they were still)11 3391(abrogated and dead, now)3 1289 2 720 6080 t
+(alive and in force?")3 936 1 720 6240 t
+( not the pope, whose wealth is to-day greater than the riches of the)13 3456(86. Again: -- "Why does)4 1224 2 720 6720 t
+( money)1 342(richest, build just this one church of St. Peter with his own money, rather than with the)16 4338 2 720 6880 t
+(of poor believers?")2 883 1 720 7040 t
+( pope remits, and what participation does he grant to those)10 2994(87. Again: -- "What is it that the)7 1686 2 720 7520 t
+(who, by perfect contrition, have a right to full remission and participation?")11 3732 1 720 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 9 9
+%%Page: 10 10
+DpostDict begin
+/saveobj save def
+mark
+10 pagesetup
+14 R f
+(- 10 -)2 302 1 2909 640 t
+14 ZI f
+( greater blessing could come to the Church than if the pope were to do a)15 3668(88. Again: -- "What)3 1012 2 720 1280 t
+( and bestow on every believer these remissions and)8 2473(hundred times a day what he now does once,)8 2207 2 720 1440 t
+(participations?")720 1600 w
+( of souls rather than money, why does he)8 2005(89. "Since the pope, by his pardons, seeks the salvation)9 2675 2 720 2080 t
+(suspend the indulgences and pardons granted heretofore, since these have equal ef\256cacy?")11 4367 1 720 2240 t
+(90. To repress these arguments and scruples of the laity by force alone, and not to resolve them)17 4680 1 720 2720 t
+( expose the Church and the pope to the ridicule of their enemies, and to)14 3541(by giving reasons, is to)4 1139 2 720 2880 t
+(make Christians unhappy.)2 1281 1 720 3040 t
+( mind of the pope, all these)6 1353(91. If, therefore, pardons were preached according to the spirit and)10 3327 2 720 3520 t
+(doubts would be readily resolved; nay, they would not exist.)9 2953 1 720 3680 t
+( say to the people of Christ, "Peace, peace," and)9 2399(92. Away, then, with all those prophets who)7 2281 2 720 4160 t
+(there is no peace!)3 841 1 720 4320 t
+( who say to the people of Christ, "Cross, cross," and there is no)13 3077(93. Blessed be all those prophets)5 1603 2 720 4800 t
+(cross!)720 4960 w
+( that they be diligent in following Christ, their Head, through)10 3073(94. Christians are to be exhorted)5 1607 2 720 5440 t
+(penalties, deaths, and hell;)3 1312 1 720 5600 t
+( many tribulations, than)3 1270(95. And thus be con\256dent of entering into heaven rather through)10 3410 2 720 6080 t
+(through the assurance of peace.)4 1537 1 720 6240 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 10 10
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 10
+%%DocumentFonts: Times-Roman ZapfChancery-MediumItalic

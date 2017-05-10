@@ -1,0 +1,10 @@
+ANSCIC
+
+Compile with something like:
+
+$ gcc -o testanscic.x main.c
+
+Execute with:
+
+$ testanscic.x
+

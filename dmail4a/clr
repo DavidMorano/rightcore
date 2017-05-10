@@ -1,0 +1,7 @@
+#!/usr/bin/ksh
+
+
+cp /dev/null ${PCS}/var/dmail.msgidb
+cp /dev/null /var/mail/guest
+
+

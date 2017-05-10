@@ -1,0 +1,11 @@
+#!/usr/bin/ksh
+# RUNIT
+
+OPTS=
+OPTS="${OPTS} -ndb spanish "
+OPTS="${OPTS} -wdb spanish "
+OPTS="${OPTS} -vdb rena "
+
+biblespeak.x ${OPTS} -a > o
+
+

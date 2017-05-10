@@ -1,0 +1,942 @@
+# MAKEFILE
+
+T= liblkcmd
+
+ALL= $(T).so $(T).a
+
+SRCROOT= $(LOCAL)
+
+EXTRA= /usr/extra
+
+PCS= /usr/add-on/pcs
+
+
+BINDIR= $(SRCROOT)/bin
+INCDIR= $(SRCROOT)/include
+LIBDIR= $(SRCROOT)/lib
+MANDIR= $(SRCROOT)/man/man1
+HELPDIR= $(SRCROOT)/share/help
+
+#LDCRTDIR= /opt/SUNWspro/WS6/lib
+#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
+#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
+#LDCRTDIR= /opt/SUNWspro/lib
+LDCRTDIR= $(SRCROOT)/lib
+
+
+CC= gcc
+
+CCOPTSALL= -fPIC -mno-app-regs -fno-builtin-bcopy
+
+CCOPTS= -O3 -mcpu=v8 $(CCOPTSALL)
+#CCOPTS= $(CCOPTSALL)
+#CCOPTS= -g $(CCOPTSALL)
+
+#CCOPTS= -K PIC
+#CCOPTS= -K PIC -xs
+
+# HyperSPARC
+#CCOPTS= -xO5 -K PIC -xtarget=ss20/hs22 -xdepend
+
+# UltraSPARC
+#CCOPTS= -xO5 -K PIC -xtarget=ultra -xsafe=mem -xdepend
+
+
+# OK for AST and non-AST modules
+DEF00= -DOSNAME_$(SYSNAME)=$(OSNUM) -DOSTYPE_$(OSTYPE)=1
+DEF01=
+DEF02=
+#DEF02= -D_FILE_OFFSET_BITS=64
+#DEF02= -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64
+#DEF02= -D_LARGEFILE_SOURCE=1
+DEF03=
+DEF04=
+DEF05=
+DEF06= 
+DEF07=
+
+# OK only for non-AST objects modules
+DEF08=
+DEF09=
+DEF10=
+DEF11=
+DEF12=
+DEF13=
+DEF14=
+DEF15=
+
+# OK for all modules (AST and non-AST)
+DEF16=
+DEF17= -DKSHBUILTIN=1 -DSFIO=1
+DEF18=
+DEF19=
+DEF20=
+DEF21=
+DEF22=
+DEF23=
+
+DEFA= $(DEF00) $(DEF01) $(DEF02) $(DEF03) $(DEF04) $(DEF05) $(DEF06) $(DEF07)
+DEFB= $(DEF08) $(DEF09) $(DEF10) $(DEF11) $(DEF12) $(DEF13) $(DEF14) $(DEF15)
+DEFC= $(DEF16) $(DEF17) $(DEF18) $(DEF19) $(DEF20) $(DEF21) $(DEF22) $(DEF23)
+
+DEFS= $(DEFA) $(DEFB)
+
+ASTDEFS= $(DEFA) $(DEFC)
+
+
+INCDIRS= -I$(INCDIR)
+
+ASTINCDIRS= -I$(AST)/include/ast -I$(INCDIR) 
+#ASTINCDIRS= -I/usr/include -I$(INCDIR) -I$(AST)/include/ast 
+#ASTINCDIRS= -I$(INCDIR)
+
+PCSINCDIRS= -I$(PCS)/include $(INCDIRS)
+
+
+CPPFLAGS= $(DEFS) $(INCDIRS)
+
+ASTCPPFLAGS= $(ASTDEFS) $(ASTINCDIRS)
+
+PCSCPPFLAGS= $(PCSDEFS) $(PCSINCDIRS)
+
+
+CFLAGS= $(CCOPTS) 
+
+ASTCFLAGS= $(CCOPTS)
+
+PCSCFLAGS= $(CCOPTS)
+
+#LD= $(CC)
+#LD= ld
+
+# the 'i' flag causes the LD_LIBRARY_PATH variable to be ignored!
+LDFLAGS= -m -R$(LIBDIR):$(PREROOT)/lib:$(EXTRA)/lib
+LDFLAGS_SO= -m -R$(LIBDIR):$(PREROOT)/lib:$(EXTRA)/lib
+LDFLAGS_R=
+
+DAMLIBDIR= -L$(PCS)/lib -L$(LIBDIR) 
+
+ASTLIBDIR= -L$(AST)/lib
+
+LIBDIRS= $(ASTLIBDIR) $(DAMLIBDIR) 
+#LIBDIRS= $(DAMLIBDIR) $(ASTLIBDIR) 
+#LIBDIRS= $(DAMLIBDIR)
+
+
+LIB0=
+LIB1= -lpcs -ldam -lb -luc 
+LIB2= 
+LIB3=
+LIB4= -Bstatic -lu -Bdynamic
+LIB5=
+LIB6=
+LIB7=
+
+DAMLIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
+
+ASTLIBS= -last
+
+GNULIBS= -L$(GNU)/lib -lgcc
+
+SYSLIBS= -lkstat -lbsm -lsec -lsecdb -lproject -lrt -lxnet -lsocket -lnsl
+
+
+#LIBS= $(DAMLIBS) $(ASTLIBS) $(GNULIBS) $(SYSLIBS)
+LIBS= $(ASTLIBS) $(DAMLIBS) $(GNULIBS) $(SYSLIBS)
+
+MLIBS= -llkcmd $(ASTLIBS) $(DAMLIBS) $(GNULIBS) -ldl -lc
+
+
+CRTI= $(LDCRTDIR)/crti.o
+CRT1= $(LDCRTDIR)/crt1.o
+VALUES= $(LDCRTDIR)/values-xa.o
+CRTN= $(LDCRTDIR)/crtn.o
+
+CRT0= $(CRTI) $(CRT1) $(VALUES)
+
+CRTC= makedate.o
+
+LINT= lint
+LINTFLAGS= -ux -n
+
+NM= nm
+NMFLAGS= -sx -v
+
+CXREF= cxref
+CXREFFLAGS= -R -s
+
+CPP= cpp
+
+LORDER= lorder
+TSORT= tsort
+
+RM= rm -f
+TOUCH= /usr/bin/touch
+
+
+INSTALLINCS0= install.inca install.incb install.incc install.incd
+INSTALLINCS1= install.ince install.incf
+
+INSTALLINCS= $(INSTALLINC0) $(INSTALLINC1)
+
+
+I00=
+I01= defs.h
+I02= shio.h
+I03=
+I04=
+I05=
+I06=
+I07=
+I08=
+I09=
+I10=
+I11=
+I12=
+I13=
+I14=
+I15=
+
+INCA= $(I00) $(I01) $(I02) $(I03)
+INCB= $(I04) $(I05) $(I06) $(I07)
+INCC= $(I08) $(I09) $(I10) $(I11)
+INCD= $(I12) $(I13) $(I14) $(I15)
+INCE= $(I16) $(I17) $(I18) $(I19) 
+INCF= $(I20) $(I21) $(I22) $(I32)
+
+INCS= $(INCA) $(INCB) $(INCC) $(INCD) $(INCE) $(INCF)
+
+
+MSUINCS= msu_config.h msumain.h msulocinfo.h msuconfig.h msuadjunct.h msulog.h
+
+
+OBJ00= b_la.o b_msu.o b_msinfo.o b_wn.o b_touch.o b_rename.o 
+OBJ01= b_l.o b_shcat.o b_imail.o b_holiday.o b_calyear.o b_numcvt.o b_fsinfo.o
+OBJ02= b_commandment.o b_biblebook.o b_bibleverse.o b_bibleq.o b_logadm.o
+OBJ03= b_clustername.o b_s.o b_kshbi.o b_chacl.o b_rest.o b_smesg.o 
+OBJ04= b_sync.o b_fileolder.o b_pathenum.o b_userinfo.o b_groupinfo.o
+OBJ05= b_cutter.o b_scanbad.o b_loghist.o b_pt.o b_pathclean.o b_rmshm.o
+OBJ06= b_mailalias.o b_sanity.o b_ismailaddr.o b_babies.o b_inproject.o
+OBJ07= b_sysvar.o b_mxalias.o b_issue.o b_motd.o b_logfile.o b_logdir.o 
+
+OBJ08= b_querystring.o b_loginblurb.o b_isfile.o b_cal.o b_mkwords.o
+OBJ09= b_pcsname.o
+OBJ10=
+OBJ11= 
+OBJ12= 
+OBJ13= lib_init.o lib_caller.o
+OBJ14= 
+OBJ15= 
+
+OBJ16= proginfo.o proginfo_setpiv.o proginfo_rootname.o 
+OBJ17= progdebugout.o proglogout.o proglogid.o
+OBJ18= getrootdname.o printhelp.o 
+OBJ19= getclusters.o ctdecpi.o lastlogin.o termwritable.o
+OBJ20= upt.o snwcpyopaque.o
+OBJ21= getxusername.o getlogname.o getnodeinfo.o 
+OBJ22=
+OBJ23=
+
+OBJ24= shio.o calyear.o numincr.o modload.o
+OBJ25= fsdir.o pwi.o ipasswd.o filebuf.o userattr.o
+OBJ26= commandment.o biblebook.o bibleverse.o bibleq.o 
+OBJ27= bvs.o bvsmk.o bvsfu.o bvsbook.o
+OBJ28= txtindex.o txtindexmk.o dirseen.o xwords.o
+OBJ29= msfile.o msfile_best.o msfilee.o ebuf.o
+OBJ30= sysvar.o var.o varmk.o varfu.o
+OBJ31= wordfill.o namecache.o gncache.o dirlist.o msumsg.o
+
+OBJ32= mailbox.o mailmsghdrval.o mailmsghdrfold.o mailmsgstage.o
+OBJ33= address.o mxalias.o issue.o motd.o holidays.o 
+OBJ34= outema.o manstr.o
+#OBJ35= bibleqs.o txtindexes.o txtindexmks.o searchkeys.o
+OBJ36= lookaside.o pq.o mailalias.o paramfile.o paramopt.o lastlogfile.o 
+OBJ37= vecstr_loadfile.o vecstr_env.o vecstr_adduniq.o vecstr_adds.o
+OBJ38= babycalc.o cvtdater.o dayspec.o hostinfo.o
+OBJ39= field_word.o field_wordphrase.o
+
+OBJ40= initnow.o spawnproc.o logout.o
+OBJ41= inittimezone.o tcgetlines.o defvarproc.o pwilookup.o
+OBJ42= 
+OBJ43= ipow.o ndig.o ndigits.o optbool.o sfword.o mkaddrpart.o
+OBJ44= mailboxappend.o 
+OBJ45= 
+OBJ46= getfstype.o getuserhome.o getuserorg.o
+OBJ47=
+
+OBJ48= pcsmailcheck.o pcsgetprogpath.o pcsgetnames.o pcssetnames.o
+OBJ49=
+OBJ50= localgetorg.o localgetorgcode.o localgetorgloc.o readfileline.o
+OBJ51=
+OBJ52=
+OBJ53=
+OBJ54=
+#OBJ55= sfreadline.o 
+
+# testing
+OBJ56=
+OBJ57=
+OBJ58= ptrwlock.o
+OBJ59= 
+OBJ60= uc_getdefaultproj.o uc_getauid.o
+OBJ61= uc_openinfo.o uc_openproto.o uc_openfsvc.o
+OBJ62= dialtcp.o
+OBJ63= debug.o
+
+OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07) 
+OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
+OBJC= $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19) $(OBJ20) $(OBJ21) $(OBJ22) $(OBJ23) 
+OBJD= $(OBJ24) $(OBJ25) $(OBJ26) $(OBJ27) $(OBJ28) $(OBJ29) $(OBJ30) $(OBJ31)
+OBJE= $(OBJ32) $(OBJ33) $(OBJ34) $(OBJ35) $(OBJ36) $(OBJ37) $(OBJ38) $(OBJ39)
+OBJF= $(OBJ40) $(OBJ41) $(OBJ42) $(OBJ43) $(OBJ44) $(OBJ45) $(OBJ46) $(OBJ47)
+OBJG= $(OBJ48) $(OBJ49) $(OBJ50) $(OBJ51) $(OBJ52) $(OBJ53) $(OBJ54) $(OBJ55)
+OBJH= $(OBJ56) $(OBJ57) $(OBJ58) $(OBJ59) $(OBJ60) $(OBJ61) $(OBJ62) $(OBJ63)
+
+OBJI= $(OBJ64) $(OBJ65) $(OBJ66) $(OBJ67) $(OBJ68) $(OBJ69) $(OBJ70) $(OBJ71)
+
+OBJ= $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJE) $(OBJF) $(OBJG) $(OBJH) $(OBJI)
+
+#OBJS= objab.o objc.o objd.o obje.o objf.o objg.o objh.o obji.o
+OBJS= objab.o objc.o objd.o obje.o objf.o objg.o objh.o
+
+ASTOBJS= objab.o
+
+MSUOBJS= msumain.o msulocinfo.o msuconfig.o msuadjunct.o msulog.o
+
+MOBJ= main.o proginfo.o
+
+MOBJS= $(CRT0) $(MOBJ) $(CRTC)
+
+
+.SUFFIXES:		.ls .i .cx .cs
+
+
+default:		$(ALL) $(T).x
+
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
+
+.c.ln:
+	$(LINT) -c -u $(CPPFLAGS) $<
+
+# stand-alone LINT analysis
+.c.ls:
+	$(LINT) $(LINTFLAGS) $(CPPFLAGS) $<
+
+.c.i:
+	$(CPP) $(CPPFLAGS) $< > $(*).i
+
+.c.cx:
+	$(CXREF) -C $(CXREFFLAGS) $(CPPFLAGS) $<
+
+# stand-alone cross reference
+.c.cs:
+	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
+
+
+so:			$(T).so
+
+$(T).a:			$(OBJ)
+	$(AR) -cr $(T).a $?
+
+$(T).so:		$(OBJS) Makefile $(T).a $(T).map
+	$(LD) -G -o $@ -M $(T).map $(LDFLAGS_SO) $(OBJS) \
+		$(LIBDIRS) $(LIBS) > $(T).lm
+
+$(T).x:		$(MOBJS) Makefile $(T).so
+	makedate -m $(T) > makedate.c
+	$(CC) -c $(CFLAGS) makedate.c
+	$(LD) -o $@ $(LDFLAGS) $(MOBJS) \
+		$(LIBDIRS) $(MLIBS) $(CRTN) > main.lm
+
+
+$(T).nm nm:		$(T).so
+	$(NM) $(NMFLAGS) $(T).so > $(T).nm
+
+$(T).order order:	$(OBJ) $(T).a
+	$(LORDER) $(T).a | $(TSORT) > $(T).order
+	$(RM) $(T).a
+	while read O ; do $(AR) -cr $(T).a $${O} ; done < $(T).order
+
+safe:
+	makesafe -v=3 -I $(INCDIR) -I $(AST)/include/ast $(OBJA)
+	makesafe -v=3 -I $(INCDIR) -I $(AST)/include/ast $(OBJB)
+	makesafe -v=3 -I $(INCDIR) -I $(AST)/include/ast $(OBJC)
+	makesafe -v=3 -I $(INCDIR) -I $(AST)/include/ast $(OBJD)
+	makesafe -v=3 -I $(INCDIR) -I $(AST)/include/ast $(OBJE)
+	makesafe -v=3 -I $(INCDIR) -I $(AST)/include/ast $(OBJF)
+
+strip:			$(T).x
+	strip $(T).x
+
+install:		install-so install-x
+
+install-x:
+	rm -f $(T)
+	ln -f $(T).x $(T)
+	makenewer -r $(T) $(BINDIR)
+
+install-so:		$(ALL) Makefile 
+	makenewer -r $(ALL) $(LIBDIR)
+
+install-help:
+	makehelp $(HELPDIR)
+
+other:			here
+	makenewer -z -m o=h $(OBJA) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJB) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJC) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJD) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJE) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJF) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJG) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJH) -d $(INCDIR)
+	makenewer -z -m o=h $(OBJI) -d $(INCDIR) -t $@
+
+again:
+	$(RM) $(ALL) $(T).lm
+
+clean:			again
+	rm -f *.o *.i *.ls *.ln
+
+control:
+	(uname -n ; date) > Control
+
+
+$(ASTOBJS):		$(OBJA) $(OBJB) Makefile
+	$(LD) -r -o $@ -M $(T).map $(LDFLAGS_R) $(OBJA) $(OBJB)
+
+objc.o:			$(OBJC) Makefile
+	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJC)
+
+objd.o:			$(OBJD) Makefile
+	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJD)
+
+obje.o:			$(OBJE) Makefile
+	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJE)
+
+objf.o:			$(OBJF) Makefile
+	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJF)
+
+objg.o:			$(OBJG) Makefile
+	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJG)
+
+objh.o:			$(OBJH) Makefile
+	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJH)
+
+obji.o:			$(OBJI) Makefile
+	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJI)
+
+
+b_look.o:		b_look.c
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_la.o:			b_la.c la_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_msu.o:		$(MSUOBJS)
+	$(LD) -r -o $@ -M msu.map -B reduce $(LDFLAGS_R) $(MSUOBJS)
+
+b_msinfo.o:		b_msinfo.c msinfo_config.h $(INCS) msfile.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_wn.o:			b_wn.c wn_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_rename.o:		b_rename.c rename_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_shcat.o:		b_shcat.c shcat_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_touch.o:		b_touch.c touch_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_commandment.o:	b_commandment.c commandment_config.h $(INCS) \
+				commandments.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_biblebook.o:		b_biblebook.c biblebook_config.h $(INCS) biblebooks.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_bibleverse.o:		b_bibleverse.c bibleverse_config.h $(INCS) \
+				bibleverses.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_bibleq.o:		b_bibleq.c bibleq_config.h $(INCS) bibleq.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_l.o:			b_l.c l_config.h $(INCS) fsdir.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_clustername.o:	b_clustername.c clustername_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_s.o:			b_s.c s_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_chacl.o:		b_chacl.c chacl_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_kshbi.o:		b_kshbi.c kshbi_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_rest.o:		b_rest.c rest_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_sync.o:		b_sync.c sync_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_fileolder.o:		b_fileolder.c fileolder_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_pathenum.o:		b_pathenum.c pathenum_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_userinfo.o:		b_userinfo.c userinfo_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_groupinfo.o:		b_groupinfo.c groupinfo_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_smesg.o:		b_smesg.c smesg_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_cutter.o:		b_cutter.c cutter_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_scanbad.o:		b_scanbad.c scanbad_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_loghist.o:		b_loghist.c loghist_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_pt.o:			b_pt.c pt_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_pathclean.o:		b_pathclean.c pathclean_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_mailalias.o:		b_mailalias.c mailalias_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_sanity.o:		b_sanity.c sanity_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_ismailaddr.o:		b_ismailaddr.c ismailaddr_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_babies.o:		b_babies.c babies_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_inproject.o:		b_inproject.c inproject_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_sysvar.o:		b_sysvar.c sysvar_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_mxalias.o:		b_mxalias.c mxalias_config.h $(INCS) mxalias.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_issue.o:		b_issue.c issue_config.h $(INCS) issue.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_motd.o:		b_motd.c motd_config.h $(INCS) motd.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_holiday.o:		b_holiday.c holiday_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_calyear.o:		b_calyear.c calyear_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_logfile.o:		b_logfile.c logfile_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_logdir.o:		b_logdir.c logdir_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_imail.o:		b_imail.c imail_config.h $(INCS) outema.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_numcvt.o:		b_numcvt.c numcvt_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_querystring.o:	b_querystring.c querystring_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_rmshm.o:		b_rmshm.c rmshm_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_fsinfo.o:		b_fsinfo.c fsinfo_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_logadm.o:		b_logadm.c logadm_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_loginblurb.o:		b_loginblurb.c loginblurb_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_isfile.o:		b_isfile.c isfile_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_cal.o:		b_cal.c cal_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_mkwords.o:		b_mkwords.c mkwords_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_pcsname.o:		b_pcsname.c pcsname_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+
+b_null.o:		b_null.c null_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_helloworld.o:		b_helloworld.c helloworld_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_helloworlder.o:	b_helloworlder.c helloworlder_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_testenv.o:		b_testenv.c testenv_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_testcat.o:		b_testcat.c testcat_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_testsfio2.o:		b_testsfio2.c testsfio2_config.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+
+proginfo.o:		proginfo.c defs.h
+
+proginfo_setpiv.o:	proginfo.c defs.h
+
+proginfo_rootname.o:	proginfo_rootname.c defs.h
+
+progdebugout.o:		progdebugout.c defs.h
+
+proglogout.o:		proglogout.c defs.h
+
+proglogid.o:		proglogid.c defs.h config.h
+
+
+# MSU extra code
+msu:			b_msu.o
+msulocinfo.o:		msulocinfo.c msulocinfo.h $(INCS) $(MSUINCS)
+msuconfi.o:		msuconfig.c msulocinfo.h $(INCS) $(MSUINCS)
+msuadjunct.o:		msuadjunct.c msuadjunct.h $(INCS) $(MSUINCS)
+msulog.o:		msulog.c msulog.h $(INCS) $(MSUINCS)
+# special since it needs AST
+msumain.o:		msumain.c $(INCS) msfile.h $(MSUINCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+
+userinfo.o:		userinfo.c userinfo.h
+
+getxusername.o:		getxusername.c getxusername.h
+
+spawnproc.o:		spawnproc.c spawnproc.h
+
+upt.o:			upt.c upt.h
+
+pwilookup.o:		pwilookup.c pwi.h ipasswd.h
+
+lastlogin.o:		lastlogin.c lastlogfile.h
+
+ctdecpi.o:		ctdecpi.c
+
+getrootdname.o:		getrootdname.c
+
+getlogname.o:		getlogname.c
+
+getcluster.o:		getcluster.c
+
+getclusters.o:		getclusters.c
+
+termwritable.o:		termwritable.c
+
+bopen.o:		bopen.c bfile.h
+
+bclose.o:		bclose.c bfile.h
+
+dater_setkey.o:		dater_setkey.c
+
+uc_openinfo.o:		uc_openinfo.c
+
+
+printhelp.o:		printhelp.c shio.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+shio.o:			shio.c shio.h
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+sfreadline.o:		sfreadline.c
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+
+paramfile.o:		paramfile.c paramfile.h
+
+paramopt.o:		paramopt.c paramopt.h
+
+lastlogfile.o:		lastlogfile.c lastlogfile.h
+
+char.o:			char.c char.h
+
+field.o:		field.c field.h
+
+field_word.o:		field_word.c field.h
+
+field_wordphrase.o:	field_wordphrase.c field.h
+
+field_srvarg.o:		field_srvarg.c field.h
+
+modload.o:		modload.c modload.h
+
+fifostr.o:		fifostr.c fifostr.h
+
+fifoelem.o:		fifoelem.c fifoelem.h
+
+vecstr.o:		vecstr.c vecstr.h
+
+vecstr_loadfile.o:	vecstr_loadfile.c vecstr.h
+
+vecstr_env.o:		vecstr_env.c vecstr.h
+
+vecstr_adduniq.o:	vecstr_adduniq.c vecstr.h
+
+keyopt_lastvalue.o:	keyopt_lastvalue.o
+
+vecelem.o:		vecelem.c vecelem.h
+
+veclist.o:		vechand.c vechand.h
+
+hdb.o:			hdb.c hdb.h
+
+loadave.o:		loadave.c loadave.h
+
+entropy.o:		entropy.c entropy.h
+
+sha.o:			sha.c sha.h
+
+buffer.o:		buffer.c buffer.h
+
+bufstr.o:		bufstr.c bufstr.h
+
+sbuf.o:			sbuf.c sbuf.h
+
+lookaside.o:		lookaside.c lookaside.h
+
+plainq.o:		plainq.c plainq.h
+
+filemap.o:		filemap.c filemap.h
+
+q.o:			q.c q.h
+
+plainq.o:		plainq.c plainq.h
+
+pq.o:			pq.c pq.h
+
+charq.o:		charq.c charq.h
+
+mailalias.o:		mailalias.c mailalias.h
+
+serialbuf.o:		serialbuf.c serialbuf.h
+
+netorder.o:		netorder.c netorder.h
+
+storeitem.o:		storeitem.c storeitem.h
+
+outbuf.o:		outbuf.c outbuf.h
+
+mailmsgmatenv.o:	mailmsgmatenv.c mailmsgmatenv.h
+
+mailmsg.o:		mailmsg.c mailmsg.h mailmsgmatenv.h
+
+dater.o:		dater.c dater.h
+
+realname.o:		realname.c realname.h
+
+hostinfo.o:		hostinfo.c hostinfo.h
+
+hostaddr.o:		hostaddr.c hostaddr.h
+
+hostent.o:		hostent.c hostent.h
+
+inetaddr.o:		inetaddr.c inetaddr.h
+
+sockaddress.o:		sockaddress.c sockaddress.h
+
+gecos.o:		gecos.c gecos.h
+
+kinfo.o:		kinfo.c kinfo.h
+
+msfile.o:		msfile.c msfile.h msfilee.h
+
+msfile_best.o:		msfile_best.c msfile.h
+
+msfile_best.o:		msfile_best.c msfile.h msfilee.h
+
+msfilee.o:		msfilee.c msfilee.h
+
+nodedb.o:		nodedb.c nodedb.h
+
+clusterdb.o:		clusterdb.c clusterdb.h
+
+kvsfile.o:		kvsfile.c kvsfile.h
+
+fsdir.o:		fsdir.c fsdir.h
+
+objfile.o:		objfile.c objfile.h
+
+ipasswd.o:		ipasswd.c ipasswd.h
+
+filebuf.o:		filebuf.c filebuf.h
+
+dirlist.o:		dirlist.c dirlist.h
+
+mailbox.o:		mailbox.c mailbox.h
+
+mailmsghdrval.o:	mailmsghdrval.c mailmsghdrval.h
+
+mailmsghdrfold.o:	mailmsghdrfold.c mailmsghdrfold.h
+
+mailmsgstage.o:		mailmsgstage.c mailmsgstage.h
+
+pwi.o:			pwi.c pwi.h ipasswd.h
+
+userattr.o:		userattr.c userattr.h
+
+commandment.o:		commandment.c commandment.h commandments.h
+
+biblebook.o:		biblebook.c biblebook.h biblebooks.h
+
+bibleverse.o:		bibleverse.c bibleverse.h bibleverses.h
+
+bvs.o:			bvs.c bvs.h
+
+bvsmk.o:		bvsmk.c bvsmk.h
+
+bvsbook.o:		bvsbook.c bvsbook.h
+
+bvsfu.o:		bvsfu.c bvsfu.h
+
+bibleq.o:		bibleq.c bibleq.h
+
+txtindex.o:		txtindex.c txtindex.h txtindexes.h
+
+txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
+
+bibleqs.o:		bibleqs.c bibleqs.h
+
+txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+
+txtindexfu.o:		txtindexfu.c txtindexfu.h
+
+searchkeys.o:		searchkeys.c searchkeys.h
+
+dirseen.o:		dirseen.c dirseen.h
+
+offindex.o:		offindex.c offindex.h
+
+wordfill.o:		wordfill.c wordfill.h
+
+strstore.o:		strstore.c strstore.h
+
+xwords.o:		xwords.c xwords.h
+
+eigendb.o:		eigendb.c eigendb.h
+
+vecint.o:		vecint.c vecint.h
+
+namecache.o:		namecache.c namecache.h
+
+gncache.o:		gncache.c gncache.h
+
+address.o:		address.c address.h
+
+babycalc.o:		babycalc.c babycalc.h
+
+babiesfu.o:		babiesfu.c babiesfu.h
+
+cvtdater.o:		cvtdater.c cvtdater.h
+
+dayspec.o:		dayspec.c dayspec.h
+
+sysvar.o:		sysvar.c sysvar.h
+
+var.o:			var.c var.h
+
+varmk.o:		varmk.c varmk.h
+
+varfu.o:		varfu.c varfu.h
+
+mxalias.o:		mxalias.c mxalias.h
+
+issue.o:		issue.c issue.h
+
+motd.o:			motd.c motd.h
+
+holidays.o:		holidays.c holidays.h
+
+calyear.o:		calyear.c calyear.h
+
+calyears.o:		calyears.c calyears.h
+
+dayofmonth.o:		dayofmonth.c dayofmonth.h
+
+outema.o:		outema.c outema.h
+
+manstr.o:		manstr.c manstr.h
+
+cyi.o:			cyi.c cyi.h cyifu.h
+
+cyimk.o:		cyimk.c cyimk.h cyifu.h
+
+cyimkwait.o:		cyimkwait.c cyifu.h
+
+ebuf.o:			ebuf.c ebuf.h
+
+msumsg.o:		msumsg.c msumsg.h
+
+numincr.o:		numincr.c numincr.h
+
+vars.o:			vars.c vars.h
+
+grcache.o:		grcache.c grcache.h
+
+hostinfo.o:		hostinfo.c hostinfo.h
+
+ptrwlock.o:		ptrwlock.c ptrwlock.h
+
+
+# specials
+
+uc_truncate64.o:	uc_truncate64.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -DFUN64=1 $<
+
+uc_open64.o:		uc_open64.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -DFUN64=1 $<
+
+uc_ftruncate64.o:	uc_ftruncate64.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) -DFUN64=1 $<
+
+
+pcsmailcheck.o:		pcsmailcheck.c
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+
+pcsgetprogpath.o:	pcsgetprogpath.c
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+
+pcsgetnames.o:		pcsgetnames.c
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+
+pcssetnames.o:		pcssetnames.c
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+
+
+

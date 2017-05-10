@@ -1,0 +1,84 @@
+# SRVTAB
+# GETMAIL service table
+#
+#	The format of entries are (example):
+#
+#	service:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options
+#		groups=	"other, www",
+#		access= "name1 name2 group1 ,group2"
+#
+#
+#
+
+#	The following substitutions are made on keyword value strings:
+#
+#		%V	TCPMUXD version string
+#		%R	TCPMUXD program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+#		%U	invoking username
+
+#		%s	service
+#		%a	service arguments (if available)
+
+
+#	The following are made on some authenticating servers:
+#
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%{pass}	network password (if known)
+#
+
+#	The following variable substitutions are also made:
+#
+#		${define}	substituted defines
+#		${environment}	substituted environment variable
+#
+
+
+
+x-server=echoargs:
+	a= echoargs %a
+
+x-service=echostuff:
+	a= echo PCS=${PCS} %V %R %N %D %H p=%p svc=%s peer=%P
+
+x-service=logname:
+	p= ${LOCAL}/bin/logname,
+
+x-service=mailagent:
+	p= ${LOCAL}/bin/mailagent,
+	a= mailagent
+
+x-service=procmail:
+	p= ${LOCAL}/bin/procmail,
+	a= procmail
+
+x-service=special:
+	p= ${LOCAL}/bin/special,
+	a= special -u %u
+
+x-service=relay:
+	p= ${LOCAL}/bin/mailrelay,
+	a= mailrelay -u %u -f %{efrom} %{to}
+
+from=esilver@home.com:
+	opts= addr-best,
+	p= /home/dam/src/tcpmuxd/servers/error
+
+from=esilver@home.com:
+	opts= addr,
+	p= /home/dam/src/tcpmuxd/servers/error
+
+from="Eve Silver":
+	opts= addr-comment,
+	p= /home/dam/src/tcpmuxd/servers/error
+
+
+

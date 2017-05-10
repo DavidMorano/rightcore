@@ -1,0 +1,55 @@
+# SYSTEMS
+#
+
+
+rca		tcpmux 5108
+rcb		tcpmux 5108
+rcc		tcpmux 5108
+
+rca		tcp
+rcb		tcp
+rcc		tcp
+
+rca		tcpnls
+rcb		tcpnls
+rcc		tcpnls
+
+rcd		tcpmux rca:tcpmux
+rce		tcpmux rca:tcpmux
+rcf		tcpmux rca:tcpmux
+
+*.levosim.org	tcpnls rca:listen
+*.rightcore.com	tcpnls rca:listen
+*.rightcore.org	tcpnls rca:listen
+
+*.christian-update.org \
+		tcpnls rca:listen
+
+
+vinson		tcpmux 5108
+frodo		tcpmux 5108
+gilmore		tcpmux 5108
+
+ece		tcpmux frodo:5108
+ece		tcpmux vinson:5108
+
+ece.neu.edu	tcpmux frodo:5108
+ece.neu.edu	tcpmux vinson:5108
+
+*.ece.neu.edu	tcpmux frodo:5108
+*.ece.neu.edu	tcpmux vonson:5108
+
+
+#
+# hocpa		uucp ~/uuts/%j.%s
+# hodia		uux rbbpost
+# ece		prog ${LOCAL}/sbin/dialday
+#
+
+
+# everything else
+
+*		tcp
+
+
+

@@ -1,0 +1,15 @@
+/* config */
+
+
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)TESTHDB "
+#define	BANNER		"Test HDB"
+
+#define	VARERRORFNAME	"TESTHDB_ERRORFILE"
+
+#define	VARDEBUGFNAME	"TESTHDB_DEBUGFILE"
+#define	VARDEBUGFD1	"TESTHDB_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+
+

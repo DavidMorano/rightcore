@@ -1,0 +1,48 @@
+#!/usr/bin/ksh
+# installprog (libff)
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${PCS:=/usr/add-on/pcs}
+
+export LOCAL NCMP PCS
+
+T=libff
+
+LIBS="${T}.a "
+RF_RMSO=0
+
+INCS=
+
+
+if [[ -d /usr/sbin ]] ; then
+  MACH=`uname -n`
+  : ${OFD:-S5}
+else
+  MACH=`hostname`
+  PATH=/usr/5bin:${PATH}
+  : ${OFD:-S4}
+fi
+
+
+for D in ${HOME} ${LOCAL} ${NCMP} ${PCS} ${EXTRA} ; do
+
+  if [[ -n "${LIBS}" ]] ; then
+    find ${LIBS} -print 2> /dev/null | cpio -pdm ${D}/lib
+#    find ${LIBS} -print 2> /dev/null | cpio -pdm ${D}/lib/${OFD}
+  fi
+
+  if [[ -n "${INCS}" ]] ; then
+    find ${INCS} -type f -print | cpio -pdm ${D}/include
+  fi
+
+  if [[ ${RF_RMSO} -ne 0 ]] ; then
+    rm -f ${D}/lib/${T}.so
+#    rm -f ${D}/lib/${OFD}/${T}.so
+  fi
+
+done 2> /dev/null
+
+
+

@@ -1,0 +1,184 @@
+hodia21752    960530_1752:47 rshe.elf       0/SYSV
+hodia21752    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21752    rcmd=env
+hodia21752    envfile=".profile"
+hodia21752    rhost=hodid X=0 N=0
+hodia21752    jobfname="/tmp/hodiaAAMa2LAAA"
+hodia21759    960530_1753:34 rshe.elf       0/SYSV
+hodia21759    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21759    rcmd=/bin/ksh
+hodia21759    envfile=".profile"
+hodia21759    rhost=hodid X=0 N=0
+hodia21759    jobfname="/tmp/hodiaAAMa2N8AA"
+hodia21777    960530_1755:00 rshe.elf       0/SYSV
+hodia21777    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21777    rcmd=/bin/ksh
+hodia21777    envfile=".profile"
+hodia21777    rhost=hodid X=0 N=0
+hodia21777    jobfname="/tmp/hodiaAAMa2TQAA"
+hodia21807    960530_1755:28 rshe.elf       0/SYSV
+hodia21807    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21807    rcmd=/bin/ksh
+hodia21807    envfile=".profile"
+hodia21807    rhost=hodid X=0 N=0
+hodia21807    jobfname="/tmp/hodiaAAMa2VAAA"
+hodia21826    960530_1757:00 rshe.elf       0/SYSV
+hodia21826    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21826    rcmd=/bin/ksh
+hodia21826    envfile=".profile"
+hodia21826    rhost=hodid X=0 N=0
+hodia21826    jobfname="/tmp/hodiaAAMa2awAA"
+hodia21832    960530_1757:15 rshe.elf       0/SYSV
+hodia21832    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21832    rcmd=/bin/ksh
+hodia21832    envfile=".profile"
+hodia21832    rhost=hodid X=0 N=0
+hodia21832    jobfname="/tmp/hodiaAAMa2bsAA"
+hodia21838    960530_1757:59 rshe.elf       0/SYSV
+hodia21838    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21838    rcmd=echo
+hodia21838    envfile=".profile"
+hodia21838    rhost=hodid X=0 N=0
+hodia21838    jobfname="/tmp/hodiaAAMa2ecAA"
+hodia21844    960530_1758:42 rshe.elf       0/SYSV
+hodia21844    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia21844    rcmd=echo
+hodia21844    envfile=".profile"
+hodia21844    rhost=hodid X=0 N=0
+hodia21844    jobfname="/tmp/hodiaAAMa2hIAA"
+hodia22664    960530_1816:28 rshe.elf       0/SYSV
+hodia22664    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia22664    rcmd=echo
+hodia22664    envfile=".profile"
+hodia22664    rhost=hodid X=0 N=0
+hodia22664    jobfname="/tmp/hodiaAAMa3jwAA"
+hodia23182    960530_1825:37 rshe.elf       0/SYSV
+hodia23182    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23182    rcmd=echo
+hodia23182    envfile=".profile"
+hodia23182    rhost=hodid X=0 N=0
+hodia23182    jobfname="/tmp/hodiaAAMa4GIAA"
+hodia23187    960530_1825:50 rshe.elf       0/SYSV
+hodia23187    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23187    rcmd=echo
+hodia23187    envfile=".profile"
+hodia23187    rhost=hodid X=0 N=0
+hodia23187    jobfname="/tmp/hodiaAAMa4G4AA"
+hodia23489    960530_1859:33 rshe.elf       0/SYSV
+hodia23489    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23489    rcmd=env
+hodia23489    rhost=hodid X=1 N=0
+hodia23489    jobfname="/tmp/hodiaAAMa6FUAA"
+hodia23494    960530_1859:44 rshe.elf       0/SYSV
+hodia23494    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23494    rcmd=env
+hodia23494    rhost=hodid X=1 N=0
+hodia23533    960530_1903:40 rshe.elf       0/SYSV
+hodia23533    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23533    rcmd=env
+hodia23533    rhost=hodid X=1 N=0
+hodia23546    960530_1904:57 rshe.elf       0/SYSV
+hodia23546    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23546    rcmd=env
+hodia23546    rhost=hodid X=1 N=0
+hodia23546    jobfname="/tmp/hodiaAAMa6ZoAA"
+hodia23552    960530_1905:18 rshe.elf       0/SYSV
+hodia23552    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23552    rcmd=env
+hodia23552    rhost=hodid X=1 N=0
+hodia23552    jobfname="/tmp/hodiaAAMa6a4AA"
+hodia23557    960530_1905:28 rshe.elf       0/SYSV
+hodia23557    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23557    rcmd=env
+hodia23557    rhost=hodid X=1 N=0
+hodia23557    jobfname="/tmp/hodiaAAMa6bgAA"
+hodia23563    960530_1905:46 rshe.elf       0/SYSV
+hodia23563    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23563    rcmd=env
+hodia23563    rhost=hodid X=1 N=0
+hodia23563    jobfname="/tmp/hodiaAAMa6csAA"
+hodia23568    960530_1906:03 rshe.elf       0/SYSV
+hodia23568    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23568    rcmd=env
+hodia23568    rhost=hodid X=1 N=0
+hodia23568    jobfname="/tmp/hodiaAAMa6dsAA"
+hodia23585    960530_1910:20 rshe.elf       0/SYSV
+hodia23585    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23585    rcmd=env
+hodia23585    rhost=hodid X=1 N=0
+hodia23585    jobfname="/tmp/hodiaAAMa6t0AA"
+hodia23597    960530_1911:23 rshe.elf       0/SYSV
+hodia23597    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23597    rcmd=env
+hodia23597    rhost=hodid X=1 N=0
+hodia23597    jobfname="/tmp/hodiaAAMa6xsAA"
+hodia23628    960530_1913:43 rshe.elf       0/SYSV
+hodia23628    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23628    rcmd=env
+hodia23628    rhost=hodid X=1 N=0
+hodia23628    jobfname="/tmp/hodiaAAMa66gAA"
+hodia23645    960530_1914:23 rshe.elf       0/SYSV
+hodia23645    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23645    rcmd=env
+hodia23645    rhost=hodid X=1 N=0
+hodia23645    jobfname="/tmp/hodiaAAMa688AA"
+hodia23650    960530_1914:38 rshe.elf       0/SYSV
+hodia23650    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia23650    rcmd=env
+hodia23650    rhost=hodid X=1 N=0
+hodia23650    jobfname="/tmp/hodiaAAMa694AA"
+hodia26660    960531_1235:49 rshe.elf       0/SYSV
+hodia26660    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26660    rcmd=env
+hodia26660    rhost=mtgpfs1 X=1 N=1
+hodia26660    jobfname="/tmp/hodiaAAMa3+UAA"
+hodia26660    authorization failed> perhodia26675    960531_1239:05 rshe.elf       0/SYSV
+hodia26675    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26675    rcmd=env
+hodia26675    rhost=mtgpfs1 X=1 N=1
+hodia26675    jobfname="/tmp/hodiaAAMa4KkAA"
+hodia26675    authorization failed> permission denied
+
+hodia26892    960531_1254:47 rshe.elf       0/SYSV
+hodia26892    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26892    rcmd=env
+hodia26892    rhost=mtgpfs1 X=1 N=1
+hodia26892    jobfname="/tmp/hodiaAAMa5FcAA"
+hodia26892    authorization failed> permission denied
+
+hodia26907    960531_1255:48 rshe.elf       0/SYSV
+hodia26907    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26907    rcmd=env
+hodia26907    rhost=mtgpfs1 X=1 N=1
+hodia26907    jobfname="/tmp/hodiaAAMa5JQAA"
+hodia26907    authorization failed> permission denied
+hodia26910    960531_1255:55 rshe.elf       0/SYSV
+hodia26910    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26910    rcmd=env
+hodia26910    rhost=mtgpfs1 X=1 N=1
+hodia26910    jobfname="/tmp/hodiaAAMa5JsAA"
+hodia26910    authorization failed> permission denied
+hodia26925    960531_1257:10 rshe.elf       0/SYSV
+hodia26925    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26925    rcmd=env
+hodia26925    rhost=mtgpfs1 X=1 N=1
+hodia26925    jobfname="/tmp/hodiaAAMa5OYAA"
+hodia26925    authorization failed> permission denied
+hodia26928    960531_1257:14 rshe.elf       0/SYSV
+hodia26928    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26928    rcmd=env
+hodia26928    rhost=mtgpfs1 X=1 N=1
+hodia26928    jobfname="/tmp/hodiaAAMa5OoAA"
+hodia26928    authorization failed> permission denied
+hodia26945    960531_1257:43 rshe.elf       0/SYSV
+hodia26945    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26945    rcmd=env
+hodia26945    rhost=mtgpfs1 X=1 N=1
+hodia26945    jobfname="/tmp/hodiaAAMa5QgAA"
+hodia26945    authorization failed> permission denied
+hodia26947    960531_1257:49 rshe.elf       0/SYSV
+hodia26947    os=SYSV hodia!dam(d.a.morano) uid=807
+hodia26947    rcmd=env
+hodia26947    rhost=mtgpfs1 X=1 N=1
+hodia26947    jobfname="/tmp/hodiaAAMa5Q4AA"
+hodia26947    authorization failed> permission denied

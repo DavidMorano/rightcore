@@ -1,0 +1,20 @@
+PMQNAMES
+
+This is the file that is used to record POSIX message queue names
+so that they can be deleted later on if necessary.
+
+
+PMQNAMES\n\0		16
+ident (VETU)		4
+length			4
+cksum			4
+
+wtime			8
+nentries		4
+first_free		4
+
+entries
+
+
+
+

@@ -1,0 +1,12 @@
+USSNLS
+
+ussnls <path> [<svc>] [-f <af>] [-s <svc>] [-t <to>]
+
+where:
+
+<path>		path to service-file
+<svc>		target service
+-f <af>		taget address family
+-s <svc>	target service
+-t <to>		connect timeout
+

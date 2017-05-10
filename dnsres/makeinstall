@@ -1,0 +1,31 @@
+#!/usr/bin/ksh
+# MAKEINSTALL
+
+T=consoletime
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+if [[ $# -gt 0 ]] ; then
+  BINDIR=${1}
+else
+  BINDIR=${LOCAL}/bin
+fi
+
+
+if [[ ! -r ${T}.x ]] ; then
+  print -u2 "${0}: file not found"
+  exit 1
+fi
+
+rm -f ${T}
+mv ${T}.x ${T}
+
+makenewer ${T} ${BINDIR} -r
+chmod g+s ${BINDIR}/${T}
+
+mv ${T} ${T}.x
+
+
+

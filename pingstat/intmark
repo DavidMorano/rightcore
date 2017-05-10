@@ -1,0 +1,540 @@
+main.c:	    pip->efp = &errfile ;
+main.c:	pip->verboselevel = 1 ;
+main.c:	pip->pagesize = getpagesize() ;
+main.c:	pip->intrun = -1 ;
+main.c:	pip->intmark = -1 ;
+main.c:	pip->intminping = -1 ;
+main.c:	pip->intminupdate = -1 ;
+main.c:	pip->intmininput = -1 ;
+main.c:	pip->toping = -1 ;
+main.c:	initnow(&pip->now,pip->zname) ;
+main.c:	pip->open.akopts = (rs >= 0) ;
+main.c:	rs = vecstr_init(&pip->pingtabs,0,0) ;
+main.c:	                            pip->tmpdname = avp ;
+main.c:	                            pip->tmpdname = argp ;
+main.c:	                    pip->verboselevel = 2 ;
+main.c:	                                &pip->verboselevel) ;
+main.c:	                    pip->f.dgram = TRUE ;
+main.c:				    pip->f.dgram = (rs > 0) ;
+main.c:	                    pip->f.logextra = TRUE ;
+main.c:				    pip->f.logextra = (rs > 0) ;
+main.c:	                            pip->intminupdate = val ;
+main.c:	                    bprintf(pip->efp,
+main.c:	                        pip->progname,akp,akl) ;
+main.c:	                        pip->debuglevel = 1 ;
+main.c:	                                    &pip->debuglevel) ;
+main.c:	                        pip->f.quiet = TRUE ;
+main.c:	                        pip->f.binary = TRUE ;
+main.c:	                        pip->f.daemon = TRUE ;
+main.c:	                                rs = cfdecti(avp,avl,&pip->intrun) ;
+main.c:	                                    &pip->intmininput) ;
+main.c:	                            pip->intminping = val ;
+main.c:	                        pip->f.nooutput = TRUE ;
+main.c:	                        pip->verboselevel = 0 ;
+main.c:	                        pip->f.receive = TRUE ;
+main.c:				        pip->have.toping = TRUE ;
+main.c:				        pip->final.toping = TRUE ;
+main.c:					pip->toping = val ;
+main.c:	                        pip->f.update = TRUE ;
+main.c:	                        pip->verboselevel = 2 ;
+main.c:	                                    &pip->verboselevel) ;
+main.c:	                        bprintf(pip->efp,
+main.c:	                            pip->progname,*akp) ;
+main.c:	    debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
+main.c:	if (pip->debuglevel > 0)
+main.c:	    bprintf(pip->efp,"%s: debuglevel=%u\n",
+main.c:	        pip->progname,pip->debuglevel) ;
+main.c:	    bprintf(pip->efp,"%s: version %s\n",
+main.c:	        pip->progname,VERSION) ;
+main.c:	        bprintf(pip->efp,"%s: makedate %w\n",
+main.c:	            pip->progname,cp,cl) ;
+main.c:	if (pip->debuglevel > 0) {
+main.c:	    bprintf(pip->efp,"%s: pr=%s\n",
+main.c:	        pip->progname,pip->pr) ;
+main.c:	    bprintf(pip->efp,"%s: sn=%s\n",
+main.c:	        pip->progname,pip->searchname) ;
+main.c:	    printhelp(NULL,pip->pr,pip->searchname,helpfname) ;
+main.c:	    bprintf(pip->efp,
+main.c:	        pip->progname,rs) ;
+main.c:	pip->nodename = u.nodename ;
+main.c:	pip->domainname = u.domainname ;
+main.c:	pip->username = u.username ;
+main.c:	pip->homedname = u.homedname ;
+main.c:	pip->logid = u.logid ;
+main.c:	pip->uid = u.uid ;
+main.c:	pip->gid = u.gid ;
+main.c:	pip->pid = u.pid ;
+main.c:	pip->euid = u.euid ;
+main.c:	pip->egid = u.egid ;
+main.c:	pip->ppid = pip->pid ;
+main.c:	    rs1 = getgroupname(groupname,GROUPNAMELEN,pip->gid) ;
+main.c:	        proginfo_setentry(pip,&pip->groupname,groupname,rs1) ;
+main.c:	pip->daytime = time(NULL) ;
+main.c:	rs = vecstr_init(&pip->localnames,5,0) ;
+main.c:	        pip->intminping,to) ;
+main.c:	rs = vecstr_init(&pip->svars,6,0) ;
+main.c:	pip->open.svars = (rs >= 0) ;
+main.c:	vecstr_envset(&pip->svars,"p",pip->pr,-1) ;
+main.c:	vecstr_envset(&pip->svars,"e","etc",-1) ;
+main.c:	vecstr_envset(&pip->svars,"n",pip->searchname,-1) ;
+main.c:	pip->f.config = (rs >= 0) ;
+main.c:	if (pip->toping < 0)
+main.c:	    pip->toping = PINGTIMEOUT ;
+main.c:	if (pip->intminping < 0)
+main.c:	    pip->intminping = MINPINGINT ;
+main.c:	if (pip->intmininput < 0)
+main.c:	    pip->intmininput = MININPUTINT ;
+main.c:	if (pip->intminupdate < 0)
+main.c:	    pip->intminupdate = MINUPDATEINT ;
+main.c:	    debugprintf("main: intminping=%d\n",pip->intminping) ;
+main.c:	    debugprintf("main: intmininput=%d\n",pip->intmininput) ;
+main.c:	    debugprintf("main: intminupdate=%d\n",pip->intminupdate) ;
+main.c:	if (pip->debuglevel > 0) {
+main.c:	    bprintf(pip->efp,"%s: toping=%d",pip->toping) ;
+main.c:	    bprintf(pip->efp,"%s: intminping=%d",pip->intminping) ;
+main.c:	    bprintf(pip->efp,"%s: intminupdate=%d",pip->intminupdate) ;
+main.c:	if (pip->workdname == NULL)
+main.c:	    pip->workdname = WORKDNAME ;
+main.c:	else if (pip->workdname[0] == '\0')
+main.c:	    pip->workdname = "." ;
+main.c:	if ((pip->tmpdname == NULL) || (pip->tmpdname[0] == '\0')) {
+main.c:	    pip->tmpdname = getenv(VARTMPDNAME) ;
+main.c:	    if (pip->tmpdname == NULL)
+main.c:	        pip->tmpdname = TMPDNAME ;
+main.c:	        pip->workdname) ;
+main.c:	if ((pip->logfname == NULL) && (logfname != NULL))
+main.c:	    proginfo_setentry(pip,&pip->logfname,logfname,-1) ;
+main.c:	if ((pip->logfname == NULL) || (pip->logfname[0] == '\0')) {
+main.c:	    proginfo_setentry(pip,&pip->logfname,LOGFNAME,-1) ;
+main.c:	if (pip->logfname != NULL) {
+main.c:	    cl = getfname(pip->pr,pip->logfname,logfile_type,tmpfname) ;
+main.c:	        proginfo_setentry(pip,&pip->logfname,tmpfname,cl) ;
+main.c:	if (pip->logfname != NULL)
+main.c:	    rs1 = logfile_open(&pip->lh,pip->logfname,0666,pip->logid) ;
+main.c:	    pip->open.log = TRUE ;
+main.c:	    if (pip->daytime == 0)
+main.c:	        pip->daytime = time(NULL) ;
+main.c:	    logfile_checksize(&pip->lh,loglen) ;
+main.c:	    logfile_userinfo(&pip->lh,&u,pip->daytime,
+main.c:	        pip->progname,pip->version) ;
+main.c:	    if (pip->debuglevel > 0)
+main.c:		bprintf(pip->efp,"%s: log=%s",pip->logfname) ;
+main.c:	    rs = mkpath3(tmpfname,pip->pr,VARDNAME,PSFNAME) ;
+main.c:	if (pip->debuglevel > 1)
+main.c:	if ((rs >= 0) && pip->f.update || f_input)
+main.c:	if (pip->debuglevel > 0)
+main.c:	    bprintf(pip->efp,"%s: ps=%s\n",
+main.c:	        pip->progname,psfname) ;
+main.c:	if (pip->open.log)
+main.c:	    logfile_printf(&pip->lh,"ps=%s\n",psfname) ;
+main.c:	    rs = pingstatdb_open(&pip->ps,psfname,oflags,0666) ;
+main.c:	if (pip->debuglevel > 1)
+main.c:	if ((pip->pidfname != NULL) && (pip->pidfname[0] != '\0')) {
+main.c:	    if (pip->debuglevel > 1)
+main.c:	        debugprintf("main: we have a PIDFNAME=%s\n",pip->pidfname) ;
+main.c:	    logfile_printf(&pip->lh,"pidfile=%s\n",pip->pidfname) ;
+main.c:	    logfile_printf(&pip->lh,"PID mutex captured\n") ;
+main.c:	if (pip->open.svars) {
+main.c:	    pip->open.svars = FALSE ;
+main.c:	    vecstr_free(&pip->svars) ;
+main.c:	if ((pip->sumfname != NULL) && (pip->sumfname[0] != '\0')) {
+main.c:	    rs1 = bopen(&sumfile,pip->sumfname,"wca",0666) ;
+main.c:	            pip->sumfname,rs) ;
+main.c:	        pip->sumfp = &sumfile ;
+main.c:	    if ((rs1 < 0) && (! pip->f.quiet)) {
+main.c:	        bprintf(pip->efp,
+main.c:	            pip->progname,rs1) ;
+main.c:	        logfile_printf(&pip->lh,
+main.c:	    if ((! pip->f.daemon) && (! pip->f.dgram) && isasocket(fd)) {
+main.c:			pip->f.dgram = TRUE ;
+main.c:	    if (pip->debuglevel > 0)
+main.c:	        bprintf(pip->efp,"%s: mode=input\n", pip->progname) ;
+main.c:	    if (pip->open.log) {
+main.c:	        cp = (pip->f.dgram) ? "mode=input (dgram)" : "mode=input" ;
+main.c:	        logfile_printf(&pip->lh,cp) ;
+main.c:	    if (pip->f.daemon) {
+main.c:	        if (pip->debuglevel > 0)
+main.c:	            bprintf(pip->efp,"%s: server\n", pip->progname) ;
+main.c:	        if (pip->open.log)
+main.c:	            logfile_printf(&pip->lh,"server") ;
+main.c:		pip->f.dgram = TRUE ;
+main.c:		if (pip->debuglevel == 0) {
+main.c:		    bflush(pip->efp) ;
+main.c:		    logfile_flush(&pip->lh) ;
+main.c:	    if (pip->open.log && (rs < 0))
+main.c:		logfile_printf(&pip->lh,"exiting (%d)",rs) ;
+main.c:	    pip->argfname = argfname ;
+main.c:	    pip->outfname = outfname ;
+main.c:	if (pip->sumfp != NULL) {
+main.c:	    bclose(pip->sumfp) ;
+main.c:	    pip->sumfp = NULL ;
+main.c:	    bprintf(pip->efp,"%s: no hosts or PINGTAB files specified\n",
+main.c:	        pip->progname) ;
+main.c:	        pip->c_hosts,pip->c_processed,pip->c_up) ;
+main.c:	    if (pip->debuglevel > 0) {
+main.c:	        bprintf(pip->efp,"%s: total hosts=%u processed=%u up=%u\n",
+main.c:	            pip->progname,
+main.c:	            pip->c_hosts,pip->c_processed,pip->c_up) ;
+main.c:	        bprintf(pip->efp,"%s: pingtabs=%u\n",
+main.c:	            pip->progname,
+main.c:	            pip->c_pingtabs) ;
+main.c:	    logfile_printf(&pip->lh,"hosts=%u processed=%u up=%u\n",
+main.c:	        pip->c_hosts,pip->c_processed,pip->c_up) ;
+main.c:	    ex = ((pip->c_hosts - pip->c_up) == 0) ? EX_OK : EX_NOHOST ;
+main.c:	        if (! pip->f.quiet)
+main.c:	            bprintf(pip->efp,"%s: invalid query (%d)\n",
+main.c:	                pip->progname,rs) ;
+main.c:	pingstatdb_close(&pip->ps) ;
+main.c:	if (pip->open.log) {
+main.c:	    pip->open.log = FALSE ;
+main.c:	    logfile_close(&pip->lh) ;
+main.c:	if (pip->f.config) {
+main.c:	    pip->f.config = FALSE ;
+main.c:	if (pip->open.svars) {
+main.c:	    pip->open.svars = FALSE ;
+main.c:	    vecstr_free(&pip->svars) ;
+main.c:	vecstr_free(&pip->localnames) ;
+main.c:	if (pip->debuglevel > 0)
+main.c:	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
+main.c:	        pip->progname,ex,rs) ;
+main.c:	    pip->daytime = time(NULL) ;
+main.c:		timestr_log(pip->daytime,timebuf),
+main.c:		pip->pid,ex,rs) ;
+main.c:	vecstr_free(&pip->pingtabs) ;
+main.c:	if (pip->open.akopts)
+main.c:	bclose(pip->efp) ;
+main.c:	bprintf(pip->efp,"%s: invalid argument specified (%d)\n",
+main.c:	    pip->progname,rs) ;
+main.c:	rs = bprintf(pip->efp,
+main.c:	    pip->progname,pip->progname) ;
+main.c:	rs = bprintf(pip->efp,
+main.c:	    pip->progname) ;
+main.c:	rs = bprintf(pip->efp,
+main.c:	    pip->progname) ;
+main.c:	            if (! pip->final.marktime) {
+main.c:	                pip->have.marktime = TRUE ;
+main.c:	                pip->final.marktime = TRUE ;
+main.c:	                pip->f.marktime = TRUE ;
+main.c:	                    pip->f.marktime = (rs > 0) ;
+main.c:	            if (! pip->final.intminping) {
+main.c:	                pip->have.intminping = TRUE ;
+main.c:	                pip->final.intminping = TRUE ;
+main.c:	                pip->f.intminping = TRUE ;
+main.c:	                    pip->intminping = v ;
+main.c:	            if (! pip->final.intminupdate) {
+main.c:	                pip->have.intminupdate = TRUE ;
+main.c:	                pip->final.intminupdate = TRUE ;
+main.c:	                pip->f.intminupdate = TRUE ;
+main.c:	                    pip->intminupdate = v ;
+main.c:	    pip->nodename,pip->domainname) ;
+main.c:	    hnp = (i == 0) ? pip->nodename : hostnamebuf ;
+main.c:	            if (vecstr_find(&pip->localnames,np) < 0)
+main.c:	                rs = vecstr_add(&pip->localnames,np,-1) ;
+main.c:	    n = vecstr_count(&pip->localnames) ;
+progaddpingtab.c:	vecstr	*ptp = &pip->pingtabs ;
+progconfig.c:	f_secreq = (! pip->f.proglocal) ;
+progconfig.c:	    rs1 = permsched(schedp,&pip->svars,configfname,R_OK,
+progconfig.c:	        rs = mkpath2(tmpfname,pip->pr,configfname) ;
+progconfig.c:	    rs = proginfo_setentry(pip,&pip->configfname,tmpfname,-1) ;
+progconfig.c:	        rs1 = paramfile_open(&pip->params,pip->envv, tmpfname) ;
+progconfig.c:	        pip->open.params = (rs1 >= 0) ;
+progconfig.c:	    pip->f.secure_conf = pip->f.secure_root ;
+progconfig.c:	    if (f_secreq || (! pip->f.secure_conf)) {
+progconfig.c:	        rs1 = securefile(pip->configfname,pip->euid,pip->egid) ;
+progconfig.c:	        pip->f.secure_conf = (rs1 > 0) ;
+progconfig.c:	    pip->f.pc = TRUE ;
+progconfig.c:	if ((rs >= 0) && pip->open.params)
+progconfig.c:	    debugprintf("progconfigbegin: ret rs=%d f_pc=%u\n",rs,pip->f.pc) ;
+progconfig.c:	if (pip->open.params) {
+progconfig.c:	    pip->open.params = FALSE ;
+progconfig.c:	    paramfile_close(&pip->params) ;
+progconfig.c:	pip->f.pc = FALSE ;
+progconfig.c:	pip->open.params = FALSE ;
+progconfig.c:	if (pip->f.pc && pip->open.params) {
+progconfig.c:	    rs = paramfile_check(&pip->params,pip->daytime) ;
+progconfig.c:	if (! pip->f.pc)
+progconfig.c:	if (pip->open.params) {
+progconfig.c:	    pip->open.params = FALSE ;
+progconfig.c:	    rs = paramfile_close(&pip->params) ;
+progconfig.c:	        pip->f.pc,pip->open.params) ;
+progconfig.c:	if (! pip->f.pc)
+progconfig.c:	if (! pip->open.params)
+progconfig.c:	pip->changed.pc = TRUE ;
+progconfig.c:	paramfile_cursorinit(&pip->params,&cur) ;
+progconfig.c:	    kl = paramfile_enum(&pip->params,&cur,&pe,pbuf,PBUFLEN) ;
+progconfig.c:	        elen = expandcookie_expand(&pip->cooks,
+progconfig.c:	        if ((elen > 0) && (! pip->final.logsize)) {
+progconfig.c:	                pip->have.logsize = TRUE ;
+progconfig.c:	                pip->changed.logsize = TRUE ;
+progconfig.c:	                pip->logsize = v ;
+progconfig.c:	                if (! pip->final.intmark) {
+progconfig.c:	                    pip->have.intmark = TRUE ;
+progconfig.c:	                    pip->changed.intmark = TRUE ;
+progconfig.c:	                    pip->intmark = v ;
+progconfig.c:	                if (! pip->final.intminping) {
+progconfig.c:	                    pip->have.intminping = TRUE ;
+progconfig.c:	                    pip->changed.intminping = TRUE ;
+progconfig.c:	                    pip->intminping = v ;
+progconfig.c:	                if (! pip->final.intminupdate) {
+progconfig.c:	                    pip->have.intminupdate = TRUE ;
+progconfig.c:	                    pip->changed.intminupdate = TRUE ;
+progconfig.c:	                    pip->intminupdate = v ;
+progconfig.c:	                if (! pip->final.toping) {
+progconfig.c:	                    pip->have.toping = TRUE ;
+progconfig.c:	                    pip->changed.toping = TRUE ;
+progconfig.c:	                    pip->toping = v ;
+progconfig.c:	        if (! pip->final.sumfile) {
+progconfig.c:	            pip->have.sumfile = TRUE ;
+progconfig.c:	            mkpath2(dname,VARDNAME,pip->searchname) ;
+progconfig.c:	                dname,pip->nodename,SUMFEXT) ;
+progconfig.c:	            f = (pip->sumfname == NULL) ;
+progconfig.c:	            f = f || (strcmp(pip->sumfname,tmpfname) != 0) ;
+progconfig.c:	                pip->changed.sumfile = TRUE ;
+progconfig.c:	                rs = proginfo_setentry(pip,&pip->sumfname,
+progconfig.c:	        if (! pip->final.pidfile) {
+progconfig.c:	            pip->have.pidfile = TRUE ;
+progconfig.c:	                RUNDNAME,pip->nodename,pip->searchname) ;
+progconfig.c:	            f = (pip->pidfname == NULL) ;
+progconfig.c:	            f = f || (strcmp(pip->pidfname,tmpfname) != 0) ;
+progconfig.c:	                pip->changed.pidfile = TRUE ;
+progconfig.c:	                rs = proginfo_setentry(pip,&pip->pidfname,
+progconfig.c:	        if (! pip->final.logfile) {
+progconfig.c:	            pip->have.logfile = TRUE ;
+progconfig.c:	                LOGDNAME,pip->searchname,"") ;
+progconfig.c:	            f = (pip->logfname == NULL) ;
+progconfig.c:	            f = f || (strcmp(pip->logfname,tmpfname) != 0) ;
+progconfig.c:	                pip->changed.logfile = TRUE ;
+progconfig.c:	                rs = proginfo_setentry(pip,&pip->logfname,
+progconfig.c:	paramfile_cursorfree(&pip->params,&cur) ;
+progconfig.c:	            rs = mkpath3(fname,pip->pr,dname,np) ;
+progconfig.c:	            rs = mkpath2(fname, pip->pr,np) ;
+progconfig.c:	            rs = mkpath2(fname,pip->pr,np) ;
+progconfig.c:	                rs = mkpath3(fname,pip->pr,dname,np) ;
+progconfig.c:	                rs = mkpath2(fname,pip->pr,np) ;
+proghost.c:	PINGSTATDB	*psp = &pip->ps ;
+proghost.c:	f_update = pip->f.update ;
+proghost.c:	pip->daytime = time(NULL) ;
+proghost.c:	        timestr_log(pip->daytime,timebuf)) ;
+proghost.c:	    rs = vecstr_find(&pip->localnames,name) ;
+proghost.c:	        if ((pip->daytime - lastcheck) < minpingint)
+proghost.c:	    pingstatdb_check(&pip->ps,pip->daytime) ;
+proghost.c:	    if (pip->debuglevel > 0)
+proghost.c:	        bprintf(pip->efp,"%s: updating host=%s\n",
+proghost.c:	            pip->progname,name) ;
+proghost.c:		pip->daytime = time(NULL) ;
+proghost.c:	        logfile_printf(&pip->lh,"inetping host=%s (%d)\n",
+proghost.c:	        rs1 = pingstatdb_update(psp,name,f_state1,pip->daytime) ;
+proghost.c:	            pip->daytime = time(NULL) ;
+proghost.c:	            logfile_printf(&pip->lh,"%s %s %s\n",
+proghost.c:	                timestr_logz(pip->daytime,timebuf),
+proghost.c:	            if (pip->sumfp != NULL) {
+proghost.c:	                rs = bprintf(pip->sumfp,"%s %s %s\n",
+proghost.c:	                    timestr_logz(pip->daytime,timebuf),
+proghost.c:	if ((! pip->f.update) || (pip->verboselevel > 1)) {
+proghost.c:	    if ((! pip->f.nooutput) && (pip->verboselevel > 0)) {
+proghost.c:		    if (pip->verboselevel > 0)
+proghost.c:			rs = bprintf(pip->ofp,"%c %s\n",
+proghost.c:	            if ((rs >= 0) && (pip->verboselevel > 1)) {
+proghost.c:			time_t	e = (pip->daytime - pe.ti_ping) ;
+proghost.c:			if (pip->verboselevel >= 3) {
+proghost.c:			rs = bprintf(pip->ofp,fmt,
+proghost.c:		    if (pip->verboselevel > 0)
+proghost.c:	                rs = bprintf(pip->ofp,"%c %s\n",'-', name) ;
+proghost.c:	            if (pip->verboselevel > 1)
+proghost.c:	                rs = bprintf(pip->ofp, "*\n") ;
+proginfo.c:	pip->envv = (const char **) envv ;
+proginfo.c:	rs = vecstr_init(&pip->stores,10,opts) ;
+proginfo.c:	    rs = proginfo_setentry(pip,&pip->version,version,-1) ;
+proginfo.c:	vecstr_free(&pip->stores) ;
+proginfo.c:	    oi = vecstr_findaddr(&pip->stores,*epp) ;
+proginfo.c:	    rs = vecstr_add(&pip->stores,v,vnlen) ;
+proginfo.c:	        rs = vecstr_get(&pip->stores,i,&cp) ;
+proginfo.c:	    vecstr_del(&pip->stores,oi) ;
+proginfo.c:	rs = vecstr_free(&pip->stores) ;
+proginfo.c:	rs = vecstr_free(&pip->stores) ;
+proginfo.c:	VECSTR	*vsp = &pip->stores ;
+proginfo.c:	rs = proginfo_setentry(pip,&pip->version,v,-1) ;
+proginfo.c:	rs = proginfo_setentry(pip,&pip->banner,v,-1) ;
+proginfo.c:	if ((cp == NULL) && (pip->progname != NULL)) {
+proginfo.c:	    cp = pip->progname ;
+proginfo.c:	    rs = proginfo_setentry(pip,&pip->searchname,cp,cl) ;
+proginfo.c:	        if (pip->pwd == NULL)
+proginfo.c:	                dp = pip->pwd ;
+proginfo.c:	                dl = pip->pwdlen ;
+proginfo.c:	                dl = sfdirname(pip->pwd,pip->pwdlen,&dp) ;
+proginfo.c:	            rs = proginfo_setentry(pip,&pip->progdname,dp,dl) ;
+proginfo.c:		pip->f.progdash = TRUE ;
+proginfo.c:	        rs = proginfo_setentry(pip,&pip->progname,bp,bl) ;
+proginfo.c:	if (pip->pr != NULL)
+proginfo.c:	    return strlen(pip->pr) ;
+proginfo.c:	if (pip->progdname == NULL)
+proginfo.c:	bl = sfbasename(pip->progdname,-1,&bp) ;
+proginfo.c:	    rs = sfdirname(pip->progdname,-1,&rp) ;
+proginfo.c:	            rs = proginfo_setentry(pip,&pip->pr,buf,(cp - buf)) ;
+proginfo.c:	        rs = proginfo_setentry(pip,&pip->pr,rp,rl) ;
+proginfo.c:	        rs = mkpath2w(tmpdname,pip->pwd,pr,prlen) ;
+proginfo.c:	    rs = proginfo_setentry(pip,&pip->pr,pr,prlen) ;
+proginfo.c:	if (pip->progename != NULL)
+proginfo.c:	    rs = proginfo_setentry(pip,&pip->progename,enp,enl) ;
+proginfo.c:	if (pip->pwd == NULL) {
+proginfo.c:	        pip->pwdlen = pwdlen ;
+proginfo.c:	        rs = proginfo_setentry(pip,&pip->pwd,pwdname,pwdlen) ;
+proginfo.c:	return (rs >= 0) ? pip->pwdlen : rs ;
+proginfo.c:	if (pip->nodename == NULL) {
+proginfo.c:	        rs = proginfo_setentry(pip,&pip->nodename,
+proginfo.c:	    nnlen = strlen(pip->nodename) ;
+proginfo.c:	if (pip->progename == NULL)
+proginfo.c:	    if (pip->progename != NULL)
+proginfo.c:	        rs = sncpy1(buf,buflen,pip->progename) ;
+proginfo.c:	if (pip->pwd == NULL)
+proginfo.c:	    if (buflen >= pip->pwdlen)
+proginfo.c:	        rs = sncpy1(buf,buflen,pip->pwd) ;
+proginfo.c:	if ((pip->progdname == NULL) || (pip->progname == NULL)) {
+proginfo.c:	    if ((rs >= 0) && (pip->progename != NULL)) {
+proginfo.c:	if (pip->progename != NULL)
+proginfo.c:	if (pip->progdname != NULL)
+proginfo.c:	if ((rs >= 0) && (pip->progename != NULL)) {
+proginfo.c:	    cl = sfdirname(pip->progename,-1,&cp) ;
+proginfo.c:		rs = proginfo_setentry(pip,&pip->progdname,cp,cl) ;
+proginfo.c:	if (pip->progname != NULL)
+proginfo.c:	if ((rs >= 0) && (pip->progename != NULL)) {
+proginfo.c:	    cl = sfbasename(pip->progename,-1,&cp) ;
+proginfo.c:		rs = proginfo_setentry(pip,&pip->progdname,cp,cl) ;
+proginfo_setpiv.c:#define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
+proginfo_setpiv.c:		    proginfo_setentry(pip,&pip->nodename,nodename,-1) ;
+proginfo_setpiv.c:		    proginfo_setentry(pip,&pip->domainname,domainname,-1) ;
+proginfo_setpiv.c:	    if ((pr == NULL) && (pip->pr == NULL) && 
+proginfo_setpiv.c:		(pip->progdname != NULL)) {
+proginfo_setpiv.c:	    if ((pr == NULL) && (pip->pr == NULL)) {
+proginfo_setpiv.c:	if ((rs >= 0) && (pip->pr == NULL)) {
+proginfo_setpiv.c:		rs,f,pip->pr) ;
+proginput.c:	if (pip->f.dgram)
+proginput.c:	int	ti_start = pip->daytime ;
+proginput.c:	if (pip->intmininput > 0)
+proginput.c:	    to = pip->intmininput ;
+proginput.c:	if (pip->open.log && pip->f.logextra)
+proginput.c:	    logfile_printf(&pip->lh,"read to=%u",to) ;
+proginput.c:	s = pip->pagesize ;
+proginput.c:	    if (pip->open.log && pip->f.logextra)
+proginput.c:	        logfile_printf(&pip->lh,"read rs=%d",rs) ;
+proginput.c:	    pip->daytime = time(NULL) ;
+proginput.c:	    if ((rs >= 0) && (pip->intrun >= 0) && (bl == mlen)) {
+proginput.c:	        if ((pip->daytime - ti_start) >= pip->intrun) {
+proginput.c:	            if (pip->open.log)
+proginput.c:	                logfile_printf(&pip->lh,"runint to") ;
+proginput.c:		rs = pingstatdb_check(&pip->ps,pip->daytime) ;
+proginput.c:	    if (pip->open.log && (mlen >= 0))
+proginput.c:	        logfile_flush(&pip->lh) ;
+proginput.c:	        if (pip->open.log && pip->f.logextra)
+proginput.c:	            logfile_printf(&pip->lh,"adv rs=%d\n",rs) ;
+proginput.c:	if (pip->open.log && pip->f.logextra)
+proginput.c:	    logfile_printf(&pip->lh,"while-out rs=%d",rs) ;
+proginput.c:	    if (pip->debuglevel > 0)
+proginput.c:	        bprintf(pip->efp,"%s: updates=%u\n",pip->progname,n) ;
+proginput.c:	    if (pip->open.log)
+proginput.c:	        logfile_printf(&pip->lh,"updates=%u",n) ;
+proginput.c:	int	ti_start = pip->daytime ;
+proginput.c:	int	ti_read = pip->daytime ;
+proginput.c:	if (pip->intmininput > 0)
+proginput.c:	    to = pip->intmininput ;
+proginput.c:	if (pip->open.log && pip->f.logextra)
+proginput.c:	    logfile_printf(&pip->lh,"read to=%u",to) ;
+proginput.c:	s = pip->pagesize ;
+proginput.c:	        pip->daytime = time(NULL) ;
+proginput.c:	        if (pip->open.log && pip->f.logextra)
+proginput.c:	            logfile_printf(&pip->lh,"recve rs=%d",rs) ;
+proginput.c:	        ti_read = pip->daytime ;
+proginput.c:	        if ((rs >= 0) && (pip->intrun >= 0)) {
+proginput.c:	            if ((pip->daytime - ti_start) >= pip->intrun) {
+proginput.c:	                if (pip->open.log && pip->f.logextra)
+proginput.c:	                    logfile_printf(&pip->lh,"runint to") ;
+proginput.c:	        if (pip->open.log)
+proginput.c:	            logfile_flush(&pip->lh) ;
+proginput.c:	    rs = pingstatdb_check(&pip->ps,pip->daytime) ;
+proginput.c:	    if ((pip->daytime - ti_read) >= pip->intmininput)
+proginput.c:	    if ((rs >= 0) && (pip->intrun >= 0)) {
+proginput.c:	        if ((pip->daytime - ti_start) >= pip->intrun)
+proginput.c:	if (pip->open.log && pip->f.logextra)
+proginput.c:	    logfile_printf(&pip->lh,"while-out rs=%d",rs) ;
+proginput.c:	    if (pip->debuglevel > 0)
+proginput.c:	        bprintf(pip->efp,"%s: updates=%u\n",pip->progname,n) ;
+proginput.c:	    if (pip->open.log)
+proginput.c:	        logfile_printf(&pip->lh,"updates=%u",n) ;
+proginput.c:	u.timechange = pip->daytime ;
+proginput.c:	PINGSTATDB		*psp = &pip->ps ;
+proginput.c:	if ((timestamp == 0) || (timestamp > pip->daytime))
+proginput.c:	    timestamp = pip->daytime ;
+proginput.c:	    if ((pip->daytime - pe.ti_ping) < pip->intminupdate)
+proginput.c:	    if (pip->debuglevel > 0)
+proginput.c:	        bprintf(pip->efp,"%s: updating host=%s\n",
+proginput.c:	            pip->progname,hostname) ;
+proginput.c:	        if (pip->daytime == 0)
+proginput.c:	            pip->daytime = time(NULL) ;
+proginput.c:	        logfile_printf(&pip->lh,fmt,
+proginput.c:	        if (pip->sumfp != NULL) {
+proginput.c:	            bprintf(pip->sumfp,fmt,
+progoutput.c:	char	*argfname = pip->argfname ;
+progoutput.c:	char	*outfname = pip->outfname ;
+progoutput.c:	min = pip->intminping ;
+progoutput.c:	pip->ofp = NULL ;
+progoutput.c:	if (! pip->f.nooutput) {
+progoutput.c:	        pip->ofp = &outfile ;
+progoutput.c:	        if (! pip->f.quiet) {
+progoutput.c:	            bprintf(pip->efp,
+progoutput.c:	                pip->progname) ;
+progoutput.c:	            bprintf(pip->efp,"\trs=%d argfile=%s\n",rs,argfname) ;
+progoutput.c:	sl = vecstr_count(&pip->pingtabs) ;
+progoutput.c:	if ((rs >= 0) && (pan <= 0) && (sl <= 0) && pip->f.update) {
+progoutput.c:	   if (pip->open.log && (rs1 >= 0))
+progoutput.c:		logfile_printf(&pip->lh,"hosts processed=%u\n", rs1) ;
+progoutput.c:	   if (pip->debuglevel > 0)
+progoutput.c:		bprintf(pip->efp,"%s: hosts processed=%u\n", 
+progoutput.c:		    pip->progname,rs1) ;
+progoutput.c:	if (pip->ofp != NULL) {
+progoutput.c:	    bclose(pip->ofp) ;
+progoutput.c:	    pip->ofp = NULL ;
+progoutput.c:	    pip->c_hosts += 1 ;
+progoutput.c:	        pip->c_processed += 1 ;
+progoutput.c:	        pip->c_up += 1 ;
+progoutput.c:	VECSTR	*ptp = &pip->pingtabs ;
+progoutput.c:	        if (pip->debuglevel > 0)
+progoutput.c:	            bprintf(pip->efp,"%s: pt=%s\n",
+progoutput.c:	                pip->progname,ptname) ;
+progoutput.c:	        if (pip->open.log)
+progoutput.c:	            logfile_printf(&pip->lh,"pt=%s",ptname) ;
+progoutput.c:	        pip->c_pingtabs += 1 ;
+progoutput.c:		    if (pip->intminping >= 0) {
+progoutput.c:		        if ((min < 0) || (pip->intminping < min))
+progoutput.c:			    min = pip->intminping ;
+progoutput.c:	            if ((to <= 0) && (pip->toping >= 0))
+progoutput.c:	                to = pip->toping ;
+progoutput.c:	        if (pip->debuglevel > 0)
+progoutput.c:	            bprintf(pip->efp,"%s: unaccessible pt=%s\n",
+progoutput.c:	                pip->progname,ptname) ;
+progoutput.c:	        if (pip->open.log)
+progoutput.c:	            logfile_printf(&pip->lh,"inaccessible pt=%s",ptname) ;
+progoutput.c:	cl = getfname(pip->pr,cp,0,tmpfname) ;
+progoutput.c:	    cl = mkpath3(tmpfname, pip->pr,cp,ptfname) ;
+xprogconfig.c:	procfileenv(pip->pr,DEFINITFNAME,&exports) ;
+xprogconfig.c:	    sl = getfname(pip->pr,configfname,1,tmpfname) ;
+xprogconfig.c:	    if (pip->debuglevel > 0)
+xprogconfig.c:	        bprintf(pip->efp,"%s: conf=%s\n",
+xprogconfig.c:	            pip->progname,configfname) ;
+xprogconfig.c:	    if ((cf.workdir != NULL) && (pip->workdname == NULL)) {
+xprogconfig.c:	            proginfo_setentry(pip,&pip->workdname,buf2,l2) ;
+xprogconfig.c:	            proginfo_setentry(pip,&pip->logfname,buf2,l2) ;
+xprogconfig.c:	        procfileenv(pip->pr,cf.envfname,&exports) ;
+xprogconfig.c:	        procfile(pip,procfileenv,pip->pr,&svars,
+xprogconfig.c:	        procfilepaths(pip->pr,cf.pathfname,&exports) ;
+xprogconfig.c:	        procfile(pip,procfilepaths,pip->pr,&svars,
+xprogconfig.c:	                            if ((pip->markint <= 0) && (cp2 != NULL) &&
+xprogconfig.c:	                                pip->markint = val ;
+xprogconfig.c:	                            if (pip->sumfname == NULL) {
+xprogconfig.c:	                                        &pip->sumfname,
+xprogconfig.c:	                            if ((pip->minpingint < 0) && 
+xprogconfig.c:	                                pip->minpingint = val ;
+xprogconfig.c:	                            if ((pip->minupdate < 0) && 
+xprogconfig.c:	                                pip->minupdate = val ;
+xprogconfig.c:	            if (pip->debuglevel > 1)
+xprogconfig.c:	    if (pip->debuglevel > 1)
+xprogconfig.c:	if (pip->debuglevel > 1)

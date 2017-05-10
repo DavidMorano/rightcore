@@ -1,0 +1,157 @@
+BB
+
+
+version		description
+-------------------------------------------------------
+
+2	= original for Starbase
+
+2a	= fixed argument initialization
+	= fixed not closing a directory when exiting 'dirlist'
+
+2b	= changed to the new logging file call symantics
+
+2c	= changed default creation permissions on user's mail
+	  directory (usually '~/mail') to 775
+	= changed default create permissions on user's mailbox to
+	  '664'
+	= added the 'delete' command
+	= removed the header files 'bbopts.h' and 'argopts.h' and
+	  included their contents directly where used
+	= cleaned up the 'readdir_r' buffer size in 'dirlist.c'
+
+2d	= as of 96/08/29 this is still being worked on
+	= dynamically try to find the MAILHOST that we use
+	= added support for METAMAIL!!
+	= fixed a bug with the "Skip" command quitting instead
+
+2e
+	= added "subscribe", "unsubscribe" interactive commands
+	= added "subscribe", "unsubscribe" command line options
+	= added "catchup" command line option
+	= added "query" command line option
+	= created the mechanism for NEVER showing/processing an article
+	  more than once to the user
+	= fixed (??) the determination of the BBNEWSRC file
+	= oh, by default, if the user selected no newsgroups,
+	  ALL newsgroups are selected!  this is good for new users
+	= uses the 'pcsconf' facility to find MAILHOST/FROMNODE
+	= added the "description" command line option to print descriptions
+	= will recognize "subj" as a subject (formerly only "title" and
+	  "subject" were good enough!) ; these can be caused by cross
+	  posting from older MSGS systems
+	= fixed a possible problem in calling NBBPOST when it was not
+	  there (in the user's PATH)
+	= the program now has a "-ROOT=programroot" argument for
+	  changing the programroot (to something other than ${PCS})
+	  at command invocation
+
+2f
+	= the program is now POSIX compliant as of 98/06/16,
+	  specifically w.r.t. 'readdir_r'
+
+	= a small problem was fixed in reading out the helpfile
+	  which is stored in the PCS "lib/bb" directory
+
+	= the program now takes an option key "-BBPOST" to 
+	  specify a BBPOST program to use instead of the default
+
+2g
+	= the program now takes an option key "-PAGER" to 
+	  specify a PAGER program to use instead of the default
+
+	= the program accepts a "PAGER" environment variable to 
+	  specify a PAGER program to use instead of the default
+
+	= added the "popscreen" (through BBOPTS only for now) option to 
+	  allow for smooth article content display on ANSI terminals.
+	  The feature is now the default on ANSI terminals.
+
+	  Example:
+
+	  $ BBOPTS="-popscreen" bb
+
+	  will shut OFF the feature.
+
+	= the number of lines of article content displayed is
+	  now adjustable (down only from the number of terminal lines)
+	  through a specification on the program invocation arguments.
+
+	  Example:
+
+	  $ bb -15
+
+	  will cause a display of 15 article content lines per
+	  screenfull of output.
+
+
+= version 2h
+
++ 
+The way in which previous directories that are an alias of the current
+one are not shown has been changed.  Most of the change was to just
+cleanup the 'dirshown' object!  The 'shownp' global variable has been
+removed!! :-)
+
++
+The next step is to rewrite 'outbulls' to not use the global 'bulls'
+array but rather a 'veclist' object.  All articles from all directories
+making up a newsgroup should be put into the list and then the list
+sorted!  This should allow for backing up to previous articles that
+have earlier dates also.
+
+
+= version 2i
+
++ 
+I did it!  (the big re-write).
+The 'outbulls' subroutine is gone!
+The 'initbulls' subroutine is gone!
+the 'read_dir' subroutine and its sorting subroutine(s) are gone!
+All of these are replaced with the new 'procng' subroutine.
+The formerly global 'count' variable is also gone!  Whew, we
+want to get rid of those substantive global variables.
+
+
+= version 2j, 00/01/02, Dave Morano
+
++ 
+Y2K fix for UNIX returning year >= 100 after Jan 1, 2000.
+
++
+All of the processing (reading or writing) of the user newgroup list
+file is now done in its own module named 'bbnewsrc'.
+
++
+I have also removed many global variables from the way back old days.
+Those old global variables were in there from the very beginning back
+over 20 years ago!!
+
+-
+There may be a possible bug in the 'emit_item' subroutine.
+A core dump (!) occurs.  Maybe it occurs on certain message headers
+or combinations there of.
+
+
+= version 2k, 00/04/19, Dave Morano
+
+Well can you believe it ?  I actually found another true bug in this
+software!  It had to do with the number of terminal lines to use for
+the given terminal the user is on.  In subroutine 'gettermlines' it was
+subtracting four (4) from the number of terminal lines that the user's
+terminal is supposed to have!  Yes, yes, this was a hold-over from who
+knows how long ago when the program was crap and they calculated
+everything in the one subroutine.  But for that sort of a (one would
+think more obvious) bug to last all of these years is something
+amazing.  Well it was a relatively simple fix but who knows what
+I may have broken by with this "fix"!
+
+OK, initial feedback is in.  Something IS still broken but it does
+not significantly mess up anything.  The first page of lines
+from a long article does not go all the way down to the end of the
+user's terminal screen area (as I suppose it should do) but instead
+falls one line short of the goal.  Remarkably, this does not
+mess up any following pages or alignments.
+
+
+

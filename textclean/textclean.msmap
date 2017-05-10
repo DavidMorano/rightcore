@@ -1,0 +1,36 @@
+# MSMAP (TEXTCLEAN)
+
+#
+# This is the translation table for the TEXTCLEAN program.
+# This table is only used if the 'mscrap' option is specified
+# at invocation.
+#
+# The idea with this map is the take the characters that Micro$oft messes
+# up, and to return them to what they were supposed to be, or at least close
+# to it.
+#
+# Yes.  Yes, indeed.  Micro$oft sucks cock meat badly!
+#
+
+#
+# format of entries:
+#
+# original	substitute
+#
+
+
+#0032		¥
+#0032		\x0a	
+0032		\x00		# NUL character does not resplace
+
+0320		-
+0321		-
+0223		"
+0224		"
+0322		"
+0323		"
+
+0222		'
+0325		'
+
+

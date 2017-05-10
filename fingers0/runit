@@ -1,0 +1,23 @@
+#!/usr/add-on/ast/bin/ksh
+# RUNIT
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+RUNDIR=/home/dam/src/fingers
+
+PATH=:${PATH}:${LOCAL}/bin
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${LOCAL}/lib
+export PATH LD_LIBRARY_PATH
+
+
+OPTS=
+OPTS="${OPTS} -R ${PWD}/testbase"
+OPTS="${OPTS} -d=120"
+
+#cd ${RUNDIR}
+
+z d ; FINGERS_DEBUGFILE=d fingers.x -D=5 2> e ${OPTS}
+
+
+

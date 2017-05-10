@@ -1,0 +1,17 @@
+#!/usr/bin/ksh
+# MAKEIT
+
+
+TT=psalms
+
+PO="0.75i"
+PW="7.0i"
+
+bibleset.x -ibz -ndb spanish -tc ${TT}.txt > ${TT}.mm
+troff -TLatin1 -rO"${PO}" -rW"${PW}" -mm ${TT}.mm | dpost -y -0.1 > ${TT}.ps
+if [[ -s "${TT}.ps" ]] ; then
+  ps2pdf ${TT}.ps ${TT}.pdf 
+fi
+
+
+

@@ -1,0 +1,614 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: SCHEMA 4.0.0.65
+%%CreationDate: 95 Mar 28 20:43:45
+%%BoundingBox: (atend)
+%%Orientation: Landscape
+%PrinterType: Monochrome
+%%EndComments
+%%BeginProlog
+
+/schemapsdict 200 dict def
+schemapsdict begin
+/schemapsdone { 
+	end } bind def
+
+/Om     [			% orientation matrices using SCHEMA's index
+	[1 0 0 1 0 0]		% R0
+	[-1 0 0 1 0 0]		% FY
+	[1 0 0 -1 0 0]		% FX
+	[-1 0 0 -1 0 0]		% R180
+	[0 1 1 0 0 0]		% R90FY
+	[0 -1 1 0 0 0]		% R270
+	[0 1 -1 0 0 0]		% R90
+	[0 -1 -1 0 0 0]		% R90FX
+	] def
+
+/Oc {			% index concatOrient		-
+	Om exch get concat } bind def
+
+/Oi {			%index invertOrient		-
+	[0 1 2 3 4 6 5 7] exch get Oc } bind def
+
+/L2     {			% dx1 dy1  x0 y0 L2		-
+	newpath moveto rlineto } bind def
+
+/L     {			% dxn dyn ... dx1 dy1 n L		-
+	{rlineto} repeat } bind def
+
+/W     {			% xn yn ... n x0 y0 W		-
+	newpath moveto {lineto} repeat stroke } bind def
+
+/B	{			% set thick lines for buses
+	gsave currentlinewidth 4 mul setlinewidth } bind def
+
+/Gs	{gsave translate} bind def
+
+/Gr	{grestore} bind def
+
+/Ls	[
+	[]			% line style 0 - solid 
+	[]			% line style 1 - solid	
+	[1 16]			% line style 2 - dotted 
+	[1 10 20 10]		% line style 3 - dash-dot
+	[23 23]			% line style 4 - dashed
+	[35 23]			% line style 5 - long-dashed
+	] def
+
+/Ss	{Ls exch get 0 setdash} bind def	% set line style	
+
+/Sw	{setlinewidth} bind def			% set line width
+
+/Sl	{dup dup scale currentlinewidth exch div setlinewidth} bind def
+
+/R     {			% dx dy lox loy R			-
+	newpath moveto
+	1 index 0 rlineto
+	0 exch rlineto
+	neg 0 rlineto
+	closepath 
+	} bind def
+
+/C     {			% cx cy r C			-
+	0 360 newpath arc 
+	} bind def
+
+/P     {			% cx cy r P	%solder dots	-
+	0 360 newpath arc } bind def
+
+/A     {				% cx cy r ang1 ang2 A	-
+	newpath arc 
+	} bind def
+
+% Texture Fill Defs
+/dfltTransf 0 def 		% default transfer
+/dfltScr 0 def			% default screen
+/dfltAngle 0 def		% default angle
+/dfltFreq 0 def			% default frequency
+/setUpScreen
+{	% Set variables for default screen mode
+	currenttransfer cvlit /dfltTransf exch def
+	currentscreen cvlit /dfltScr exch def
+	/dfltAngle exch def /dfltFreq exch def
+} bind def
+/resetScreen	
+{	% Reset to default screen mode (i.e. to cancel out previous bit pattern)
+	dfltTransf cvx settransfer
+	dfltFreq dfltAngle dfltScr cvx setscreen
+	0 setgray
+} bind def
+/dfltMatrix matrix def
+/dpi 72 0 dfltMatrix defaultmatrix dtransform dup mul exch dup mul add sqrt def
+/freq dpi 4 div 8 div round dup 0 eq {pop 1} if 8 mul dpi exch div def
+/scrnAngle 1 0 270 matrix defaultmatrix rotate dtransform exch atan def
+/bw 0 def 		% bitmap width
+/bps 0 def		% bits per side
+/bstr 0 def		% bit string
+/Sat 0 def		% saturation
+/yval 0 def
+/xval 0 def
+/bytevalue 0 def
+/setPattern 
+{	% Note: for pattern fill, colors must be specified using
+	%       HSB values; Saturation is computed here.
+	/bw exch def
+	/bps exch def
+	/bstr exch def
+	/ones 0 def 
+	/zeroes 0 def
+	freq scrnAngle
+		{/yval exch def	 
+		 /xval exch def
+		 /xi xval 1 add 2 div bps mul cvi def
+		 /yi yval 1 add 2 div bps mul cvi def
+		 /bytevalue bstr yi bw mul xi 8 idiv add get def
+		 bytevalue 1 7 xi 8 mod sub bitshift and 0 ne
+		 {/ones ones 1 add def 1}
+		 {/zeroes zeroes 1 add def 0}
+		 ifelse
+		}
+		setscreen
+	{} settransfer
+	zeroes zeroes ones add div 
+	/Sat exch 1.0 exch sub def   %Sat is one of the args for sethsbcolor
+	1.0 Sat sub setgray
+} bind def
+/Bright 0 def
+/Hue 0 def
+/RgbToHsb
+{
+	currenthsbcolor
+	/Bright exch def
+	pop	%Ignore saturation; use previously calculated value
+		% in setPattern instead
+	/Hue exch def
+	Hue 0 eq Bright 0 eq and
+		{1.0 Sat sub setgray}
+		{Hue Sat Bright sethsbcolor}
+		ifelse
+} bind def
+% End of Texture Fill Defs
+%************************* TEXT STUFF ******************************
+/TxtFontHeight			% font size includes space between lines
+	20 def
+/TRS /Times-Roman findfont TxtFontHeight scalefont def
+/HELS /Helvetica findfont TxtFontHeight scalefont def
+/SYMS /Symbol findfont TxtFontHeight scalefont def
+/COS /Courier findfont 22 scalefont def %Courier font has more space bt lines
+
+TRS setfont
+
+/TxtH				% height of text letters
+	TxtFontHeight .7 mul def
+
+/TxtBarH			% distance of overbar from base
+	TxtFontHeight .8 mul def
+
+%for one font, no overbar, R0 text use ezTxt
+/Txt 0 def
+/ezTxt {			% string scale x1 y1 ezTxt		-
+	gsave translate 
+	dup /Txt exch def	% assign string to Txt
+	stringwidth pop div	% get PS stringwidth & figure diff
+	exch scale Txt	% reset scale & retrieve text
+	0 0 moveto show grestore } bind def
+
+%The strategy for plotting rotated or flipped or overbarred text is to:
+%	call iTxt
+%	call doTxt, doBarTxt, or switch fonts for each substr.
+%		For strings plotted left of the text origin, the substrs
+%		must be presented in reverse order: "A,~B~,C" would be
+%		(,C) doTxt (B) doTxtBar (A,) doTxt
+%	call endTxt
+/lscale 0 def
+/TxtOri 0 def
+/iTxt   {	% oriPlgp oriTxt scale oriTxt oriPlgp length text x0 y0 iTxt
+	gsave
+	translate
+	stringwidth pop div
+	/lscale exch def
+	3 le {3 gt {lscale scale} {lscale exch scale} ifelse}
+	{3 gt {lscale exch scale} {lscale scale} ifelse}
+	ifelse
+	Oi		% remove effects of plgp orientation
+	/TxtOri exch def	% set TxtOri to orientation index
+	iTxtOff TxtOri get exec
+	} bind def
+
+/cTxt   {	% oriPlgp oriTxt scale x0 y0 iTxt	- constant width font
+	gsave translate
+	dup scale
+	Oi		% remove effects of plgp orientation
+	/TxtOri exch def	% set TxtOri to orientation index
+	iTxtOff TxtOri get exec
+	} bind def
+
+/rTxt   {	% scale x0 y0 rTxt - only for block text
+	gsave translate 
+	dup scale
+	COS setfont
+	} bind def
+
+/iTxtOff    [		% readable text offsets and orientations 
+	{0 0 moveto} bind				% R0
+	{0 0 moveto} bind				% FY
+	{0 TxtH neg moveto} bind			% FX
+	{0 TxtH neg moveto} bind			% R180
+	{6 Oc 0 TxtH neg moveto} bind		% R90FY
+	{6 Oc 0 TxtH neg moveto} bind		% R270
+	{6 Oc 0 0 moveto} bind			% R90
+	{6 Oc 0 0 moveto} bind			% R90FX
+	] def
+
+/doTxt {			% string doTxt			-
+	TxtOri 1 and 1 eq   {doTxtL} {doTxtR} ifelse } bind def
+
+/doTxtR {			% string doTxtR			-
+	show } bind def		% plot text right of origin
+
+/doTxtL {			% string doTxtL			-
+	setTxtW
+	TxtW neg 0 rmoveto
+	show			%plot text left of origin
+	TxtW neg 0 rmoveto	%leave current point ready for next substr
+	} bind def
+
+/TxtW 0 def
+/setTxtW {			% string setTxtW		string
+	dup stringwidth pop	% duplicate string, get its wx
+	/TxtW exch def		% assign dx of string
+	} bind def
+
+/doTxtBar {			% string doTxtBar		-
+	TxtOri 1 and 1 eq   {doTxtBarL} {doTxtBarR} ifelse } bind def
+
+/doTxtBarR {		% string doTxtBarRight			-
+	setTxtW
+	currentpoint
+	0 TxtBarH rmoveto
+	TxtW 0 rlineto stroke	% NOTE: stroke destroys current point
+	moveto
+	show } bind def		% plot text right of origin
+
+/doTxtBarL {		% string doTxtBarLeft			-
+	setTxtW
+	currentpoint		% save text origin
+	0 TxtBarH rmoveto
+	TxtW neg 0 rlineto stroke
+	moveto			% go back to text origin
+	TxtW neg 0 rmoveto	% move to left by width of string
+	show			%plot text left of origin
+	TxtW neg 0 rmoveto	%leave current point ready for next substr
+	} bind def
+ 
+/endTxt {			% - endTxt			-
+	grestore } bind def
+
+/BeginEPSF {
+	/beforeIncludeState save def	% save state for cleanup
+	/dictCount countdictstack def	% count objects on the dict stack
+	/opCount count 1 sub def	% count objects on the operand stack
+	userdict begin			% push userdict on dict stack
+	/showpage {} def		% redefine showpage, {} = null proc
+	0 setgray 0 setlinecap		% prepare graphics state
+	0 setlinewidth 0 setlinejoin
+	10 setmiterlimit [] 0 setdash
+	newpath
+	/languagelevel where		% if level not equal to 1 then
+	{pop languagelevel		% set strokeadjust and
+	1 ne				% overprint to their defaults.
+		{false setstrokeadjust false setoverprint
+		} if
+	} if
+} bind def
+
+/EndEPSF {
+	count opCount sub {pop} repeat		% clean up stacks
+	countdictstack dictCount sub {end} repeat
+	beforeIncludeState restore
+} bind def
+
+%%EndProlog
+
+%%BeginSetup
+/pageState save def
+1 setmiterlimit
+setUpScreen
+%%EndSetup
+
+%%Page: SPARE.31 1
+570 25 translate 6 Oc 0.376 0.376 scale
+-744 -714 translate
+1945 1260 743 713 R clip
+0 0 Gs
+2 0 1.37 0 2 11 (6) 2239 2163 iTxt
+(6) doTxt
+Gr
+1.37 10 (1) 684 42 ezTxt
+1.37 11 (B) 199 1731 ezTxt
+25 0 197 1615 L2
+1 Sw
+1 Ss stroke
+25 0 197 335 L2
+1 Sw
+1 Ss stroke
+3400 2200 0 0 R
+1 Sw
+1 Ss stroke
+newpath 172 1103 moveto
+16 8
+0 -16
+-16 8
+50 0 4 L
+1 Sw
+1 Ss stroke
+25 0 197 847 L2
+1 Sw
+1 Ss stroke
+25 0 197 591 L2
+1 Sw
+1 Ss stroke
+25 0 197 1359 L2
+1 Sw
+1 Ss stroke
+1.37 11 (F) 199 707 ezTxt
+1.37 11 (H) 199 195 ezTxt
+25 0 197 1871 L2
+1 Sw
+1 Ss stroke
+1.37 11 (G) 199 451 ezTxt
+1.37 11 (D) 199 1219 ezTxt
+1.37 11 (E) 199 963 ezTxt
+1.37 11 (C) 199 1475 ezTxt
+-16 8 222 1103 L2
+1 Sw
+1 Ss stroke
+-16 -6 222 1103 L2
+1 Sw
+1 Ss stroke
+-16 -8 222 1103 L2
+1 Sw
+1 Ss stroke
+1.37 11 (A) 199 1987 ezTxt
+-16 -2 222 1103 L2
+1 Sw
+1 Ss stroke
+-16 -4 222 1103 L2
+1 Sw
+1 Ss stroke
+-16 2 222 1103 L2
+1 Sw
+1 Ss stroke
+1.37 11 (0) 375 42 ezTxt
+-16 6 222 1103 L2
+1 Sw
+1 Ss stroke
+-16 4 222 1103 L2
+1 Sw
+1 Ss stroke
+3125 2059 222 73 R
+1 Sw
+1 Ss stroke
+0 25 541 48 L2
+1 Sw
+1 Ss stroke
+2 0 1.37 0 2 11 (0) 375 2163 iTxt
+(0) doTxt
+Gr
+0 -25 541 2157 L2
+1 Sw
+1 Ss stroke
+0 -25 1161 2157 L2
+1 Sw
+1 Ss stroke
+0 -25 850 2157 L2
+1 Sw
+1 Ss stroke
+2 0 1.37 0 2 10 (1) 684 2163 iTxt
+(1) doTxt
+Gr
+0 25 850 48 L2
+1 Sw
+1 Ss stroke
+2 0 1.37 0 2 11 (2) 994 2163 iTxt
+(2) doTxt
+Gr
+1.37 11 (2) 994 42 ezTxt
+0 25 1161 48 L2
+1 Sw
+1 Ss stroke
+0 -25 1472 2157 L2
+1 Sw
+1 Ss stroke
+2 0 1.37 0 2 11 (3) 1305 2163 iTxt
+(3) doTxt
+Gr
+1.37 11 (3) 1305 42 ezTxt
+0 25 1472 48 L2
+1 Sw
+1 Ss stroke
+2 0 1.37 0 2 11 (4) 1616 2163 iTxt
+(4) doTxt
+Gr
+1.37 11 (4) 1616 42 ezTxt
+newpath 1737 23 moveto
+-8 16
+16 0
+-8 -16
+0 50 4 L
+1 Sw
+1 Ss stroke
+8 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+-2 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+-6 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+-8 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+-4 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+4 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+2 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+6 -16 1737 73 L2
+1 Sw
+1 Ss stroke
+2 0 1.37 0 2 11 (5) 1928 2163 iTxt
+(5) doTxt
+Gr
+0 -25 1784 2157 L2
+1 Sw
+1 Ss stroke
+0 25 1784 48 L2
+1 Sw
+1 Ss stroke
+1.37 11 (5) 1928 42 ezTxt
+0 -25 2096 2157 L2
+1 Sw
+1 Ss stroke
+0 25 2096 48 L2
+1 Sw
+1 Ss stroke
+1.37 11 (6) 2239 42 ezTxt
+2 0 1.37 0 2 11 (9) 3173 2163 iTxt
+(9) doTxt
+Gr
+706 0 2641 123 L2
+1 Sw
+1 Ss stroke
+1.37 11 (7) 2550 42 ezTxt
+0 25 2407 48 L2
+1 Sw
+1 Ss stroke
+0 -25 2407 2157 L2
+1 Sw
+1 Ss stroke
+706 256 2641 73 R
+1 Sw
+1 Ss stroke
+2 0 1.37 0 2 11 (7) 2550 2163 iTxt
+(7) doTxt
+Gr
+newpath 2641 329 moveto
+0 -53
+0 -66
+0 -137 3 L
+1 Sw
+1 Ss stroke
+0 25 2718 48 L2
+1 Sw
+1 Ss stroke
+newpath 2641 329 moveto
+541 0
+165 0 2 L
+1 Sw
+1 Ss stroke
+706 0 2641 273 L2
+1 Sw
+1 Ss stroke
+0.87 39 (AT&T) 2736 92 ezTxt
+1.02343 208 (AT&T - PROPRIETARY) 2896 306 ezTxt
+0 -25 2718 2157 L2
+1 Sw
+1 Ss stroke
+1.02343 362 (Use pursuant to Company Instructions) 2822 282 ezTxt
+2 0 1.37 0 2 11 (8) 2861 2163 iTxt
+(8) doTxt
+Gr
+1.37 11 (8) 2861 42 ezTxt
+0 -50 2883 123 L2
+1 Sw
+1 Ss stroke
+244 0 3103 198 L2
+1 Sw
+1 Ss stroke
+0 -25 3030 2157 L2
+1 Sw
+1 Ss stroke
+0 25 3030 48 L2
+1 Sw
+1 Ss stroke
+0 -150 3103 273 L2
+1 Sw
+1 Ss stroke
+1.8 36 (6S) 3145 136 ezTxt
+0.87 76 (DWG SIZE) 3128 177 ezTxt
+1.37 11 (9) 3173 42 ezTxt
+16 2 3347 1103 L2
+1 Sw
+1 Ss stroke
+-25 0 3372 335 L2
+1 Sw
+1 Ss stroke
+0 -125 3225 198 L2
+1 Sw
+1 Ss stroke
+0.87 48 (ISSUE) 3262 177 ezTxt
+0.87 49 (SHEET) 3263 103 ezTxt
+newpath 3397 1103 moveto
+-16 -8
+0 16
+16 -8
+-50 0 4 L
+1 Sw
+1 Ss stroke
+-25 0 3372 847 L2
+1 Sw
+1 Ss stroke
+-25 0 3372 591 L2
+1 Sw
+1 Ss stroke
+16 -8 3347 1103 L2
+1 Sw
+1 Ss stroke
+16 -4 3347 1103 L2
+1 Sw
+1 Ss stroke
+16 -6 3347 1103 L2
+1 Sw
+1 Ss stroke
+16 -2 3347 1103 L2
+1 Sw
+1 Ss stroke
+1 0 1.37 0 1 11 (H) 3370 195 iTxt
+(H) doTxt
+Gr
+-25 0 3372 1359 L2
+1 Sw
+1 Ss stroke
+16 4 3347 1103 L2
+1 Sw
+1 Ss stroke
+16 6 3347 1103 L2
+1 Sw
+1 Ss stroke
+16 8 3347 1103 L2
+1 Sw
+1 Ss stroke
+-25 0 3372 1871 L2
+1 Sw
+1 Ss stroke
+-25 0 3372 1615 L2
+1 Sw
+1 Ss stroke
+1 0 1.37 0 1 11 (D) 3370 1219 iTxt
+(D) doTxt
+Gr
+1 0 1.37 0 1 11 (F) 3370 707 iTxt
+(F) doTxt
+Gr
+1 0 1.37 0 1 11 (G) 3370 451 iTxt
+(G) doTxt
+Gr
+1 0 1.37 0 1 11 (E) 3370 963 iTxt
+(E) doTxt
+Gr
+1 0 1.37 0 1 11 (B) 3370 1731 iTxt
+(B) doTxt
+Gr
+1 0 1.37 0 1 11 (C) 3370 1475 iTxt
+(C) doTxt
+Gr
+1 0 1.37 0 1 11 (A) 3370 1987 iTxt
+(A) doTxt
+Gr
+0.7 119 (PRINTED IN U.S.A) 3228 51 ezTxt
+Gr
+8 1680 (** IMAGE INCLUDE **) 864 1704 ezTxt
+8 632 (PICTURE) 1344 1176 ezTxt
+8 640 (UNKNOWN) 1320 1440 ezTxt
+8 544 (FORMAT) 1392 912 ezTxt
+pageState restore
+schemapsdone
+showpage
+%%Trailer
+%%BoundingBox: 87 15 580 765
+%%EOF

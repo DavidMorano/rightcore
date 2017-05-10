@@ -1,0 +1,38 @@
+# APTAB (Alias-Profile Table)
+#
+#
+# This file contains mail-alias profiles.  Each profile consists of
+# one or more filepaths specifying mailalias files.  Each mailalias
+# file is in the format of 'aliases(4)'.
+#
+# Format of entries:
+#
+# profile1_name:
+#	mailaliasfile1, mailaliasfile2, mailaliasfile3
+#
+# profile2_name:
+#	mailaliasfile1, mailaliasfile2, mailaliasfile3
+#
+#
+
+
+
+
+default:
+	/etc/mail/aliases, etc/mail/aliases, var/mail/nis.aliases,
+	/etc/mail/aliases,
+	/etc/mail/aliases /etc/mail/aliases
+
+other:
+	/etc/mail/aliases    var/mail/nis.aliases,
+	/usr/add-on/ncmp/etc/mail/aliases
+
+default:
+	/etc/mail/aliases,
+	etc/mail/aliases,
+	var/mail/nis.aliases,
+	/etc/mail/aliases,
+	/etc/mail/aliases, /usr/add-on/ncmp/etc/mail/aliases
+
+
+

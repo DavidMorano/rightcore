@@ -1,0 +1,6 @@
+#define	PROGINFO	struct proginfo
+#define	PROGINFO_FL	struct proginfo_flags
+
+#define	PIVARS		struct pivars
+
+#define	ARGINFO		struct arginfo

@@ -1,0 +1,15 @@
+/* config */
+
+
+#define	VERSION		"0"
+
+#define	WHATINFO	"@(#)linenumber "
+
+#define	VARPROGRAMROOT1	"LINENUMBER_PROGRAMROOT"
+#define	VARPROGRAMROOT2	"PROGRAMROOT"
+
+#define	VARDEBUGFD1	"LINENUMBER_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+
+

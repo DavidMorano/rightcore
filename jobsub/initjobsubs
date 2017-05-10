@@ -1,0 +1,20 @@
+#!/usr/bin/ksh
+# INITJOBSUBS
+
+N=jobsub
+
+
+: ${NODE:=$( nodename )}
+export NODE
+
+JOBSUB_SPOOLDIR=${HOME}/var/spool/${N}/${NODE}
+JOBSUB_PIDFILE=${HOME}/var/run/${NODE}.${N}
+JOBSUB_LOGFILE=${HOME}/log/${N}
+export JOBSUB_SPOOLDIR JOBSUB_PIDFILE JOBSUB_LOGFILE 
+
+JOBSUB_DEBUGFD=3
+export JOBSUB_DEBUGFD
+
+jobsubs -D 3> d 2> e
+
+

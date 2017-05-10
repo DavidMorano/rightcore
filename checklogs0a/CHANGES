@@ -1,0 +1,19 @@
+CHECKLOGS
+
+
+= version 0, 94/05/01, Dave Morano
+
+The program was originally written but was adapted in the log table
+file format from the early Automation Test days, circa 1991 maybe.
+Of course, as always, code was taken from where ever to start this
+program from one that may have been most similar to it !
+
+
+= version 0a, 94/05/08, Dave Morano
+
+The program was enhanced to add some summary output to the program's
+log file about how many files were encountered, how many were checked,
+and how many were found to have been oversized.
+
+
+

@@ -1,0 +1,16 @@
+CEX
+
+This program is used to execute other programs on another machine
+(or also the local machine) on the local cluster.
+
+Synsopsis:
+
+$ cex node [-x=] [-n] [-name progname] program [arg(s) [...]]
+
+
+Notes:
+
+We use a NODEDB object to manage the NODE database.
+We use a KVSTAB object to manage the CLUSTER database.
+
+

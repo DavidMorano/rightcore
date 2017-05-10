@@ -1,0 +1,111 @@
+ # <-- force CSH to use Bourne shell
+# local UUTO
+
+
+UUCP_MACH=hodia.info.att.com
+UUCP_RELAY=mtgzfs3
+
+TFN=uuto${$}
+TF=/tmp/${TFN}
+
+if [ -x /bin/arch ] ; then
+
+  ARCH=sun
+
+else
+
+  ARCH=att
+
+fi
+
+if [ $# -lt 2 ] ; then
+
+  echo "${0}: not enough arguments" >&2
+  exit 1
+
+fi
+
+OPT=""
+FILES=""
+SYSTEM=""
+S=files
+F_GO=false
+C=""
+
+A=$1
+while [ $F_GO != true -a -n "${A}" ] ; do
+
+  shift
+  case "${A}" in
+
+  -p )
+    ;;
+
+  -m )
+    OPT="${OPT} -m"
+    ;;
+
+  * )
+    case $S in
+
+    files )
+      FILES="${FILES} ${SYSTEM}"
+      SYSTEM=${A}
+      S=files
+      ;;
+
+    esac
+    ;;
+
+  esac
+
+  A=${1}
+
+done
+
+J=`echo ${SYSTEM} | cut -d! -f1`
+if [ $J != ${UUCP_RELAY} ] ; then
+
+  SYSTEM="${UUCP_RELAY}!${SYSTEM}"
+
+fi
+
+if [ -z "${FILES}" ] ; then
+
+  echo "${0}: not enough arguments" >&2
+  exit 1
+
+fi
+
+UUCPPUBLIC=/usr/spool/uucppublic
+UUTO=uuto${$}
+
+cat > $TF <<-EOF
+	if [ ! -d ${UUCPPUBLIC}/${LOGNAME} ] ; then
+
+	  mkdir ${UUCPPUBLIC}/${LOGNAME}
+	  if [ ! -d ${UUCPPUBLIC}/${LOGNAME}/${UUTO} ] ; then
+
+	    mkdir ${UUCPPUBLIC}/${LOGNAME}/${UUTO}
+
+	  fi
+
+	fi
+EOF
+
+rcp $TF ${UUCP_MACH}:/tmp/${TFN}
+rsh -n ${UUCP_MACH} "ksh /tmp/${TFN}"
+
+rcp $FILES ${UUCP_MACH}:${UUCPPUBLIC}/${LOGNAME}/${UUTO}
+
+cat > $TF <<-EOF
+	cd ${UUCPPUBLIC}/${LOGNAME}/${UUTO}
+	uuto -p ${OPTS} ${FILES} ${SYSTEM}
+	cd .. ; rm -fr ${UUTO}
+EOF
+
+rcp $TF ${UUCP_MACH}:/tmp/${TFN}
+rm -f $TF
+rsh -n ${UUCP_MACH} "ksh /tmp/${TFN} ; rm -f /tmp/${TFN}" &
+
+

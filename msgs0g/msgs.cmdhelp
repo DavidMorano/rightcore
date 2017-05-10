@@ -1,0 +1,10 @@
+y		print current message
+n		skip current message
+-		redisplay the last message
+q		quit
+s [<filename>]	save current message to "Messages" or optionally "<filename>"
+s- [<filename>]	save previous message to "Messages" or optionally "<filename>"
+m		invoke MAILX on current message
+m-		invoke MAILX on previous message
+h		print help
+?		print help

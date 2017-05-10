@@ -1,0 +1,21 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+T=sysfs
+
+: ${EXTRA:=/usr/extra}
+
+PRS=" /root[01]/${EXTRA} "
+
+for PR in ${PRS} ; do
+  if [[ -d ${PR} ]] ; then
+    BINDIR=${PR}/bin
+    if [[ -d ${BINDIR} ]] ; then
+      mn -r -o rmsuf ${T}.x ${BINDIR}
+      chmod u+s ${BINDIR}/${T}
+    fi &
+  fi
+done
+wait
+
+

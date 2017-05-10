@@ -1,0 +1,24 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLOTHER
+
+LIB=libu
+
+: ${EXTRA:=/usr/extra}
+
+DIRS=" /root[01]/${EXTRA}/lib "
+
+for D in ${DIRS} ; do
+  if [[ -d ${D} ]] ; then
+    mn -r ${LIB}.so ${LIB}.a ${D} &
+  fi
+done
+
+for D in /root[01]/usr/lib/secure ; do
+  if [[ -d ${D} ]] ; then
+    mn -r ${LIB}.so ${D} &
+  fi
+done
+
+wait
+
+

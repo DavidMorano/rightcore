@@ -1,0 +1,12 @@
+# this is the CMDHELP for the BBNEWS program
+#
+review		print bulletin again
+follow		followup to the current article (posts a follow-up article)
+reply		reply to bulletin (sends email to the article sender)
+previous	go to previous article
+next		go to next article (default action on carriage return)
+save		save in designated mailbox - new is default
+print		print the current article out in a pretty news-article format
+Skip		skip the rest of this bulletin board as read
+Save		Save (suspend) the rest of this bulletin board for reading later
+quit		exit program

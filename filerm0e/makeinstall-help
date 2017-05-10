@@ -1,0 +1,25 @@
+#!/usr/bin/ksh
+# MAKEHELP
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+
+if [[ $# -gt 0 ]] ; then
+  HELPDIR=${1}
+else
+: ${SRCROOT:=${LOCAL}}
+: ${HELPDIR:=${SRCROOT}/lib/help}
+fi
+
+for F in *.help ; do
+  R=$( print $F | cut -d . -f 1 )
+  rm -f ${R}
+  ln $F ${R}
+  makenewer ${R} ${HELPDIR}
+  rm -f ${R}
+done
+
+
+

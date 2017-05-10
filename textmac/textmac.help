@@ -1,0 +1,21 @@
+TEXTMAC
+
+This program cleans up crap left over from (mostly) Micro$noft type
+programs.  Apparently, many M$ program leave wierdo and other weirdo
+DOS-like character all over plain text files !  What is with that ?
+
+Synopsis :
+
+$ textclean [file(s) ...] [-af argfile] [-o options]
+
+where :
+
+file(s)		one or more files to clean up (they are concatenated
+		by default
+-af argfile	the list of files to clean up are in 'argfile'
+options		one or more of :
+		inplace		write cleaned up file back to its original
+		leading		remove leading white space
+		half		reduce by half the number of blank lines
+		double		double space the lines
+

@@ -1,0 +1,22 @@
+# PVARS (path vaiables)
+
+#
+# This file contains the names of the path-like variables.
+#
+
+
+PATH
+LD_LIBRARY_PATH
+FPATH
+MANPATH
+
+XUSERFILESEARCHPATH
+XFILESEARCHPATH
+
+CDPATH
+
+MAILDIR
+MAILDIRS
+
+
+

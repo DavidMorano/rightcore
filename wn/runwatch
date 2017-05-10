@@ -1,0 +1,10 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+
+export MALLOC_DEBUG=WATCH
+export WN_DEBUGFILE=d 
+
+LD_PRELOAD=watchmalloc.so.1 wn.x > o
+
+

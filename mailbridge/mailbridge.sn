@@ -1,0 +1,69 @@
+# SYSTEMS (mailbridge)
+#
+
+#
+# usage note:
+#
+# We can ONLY use a dialer that supports dialer-arguments !
+# Because we are cheap (not sophisticated), we need to pass
+# arguments in the dialer itself.  The exchange with the server
+# only contains the mail message and no recipients !  We pass
+# the recipients as dialer-arguments and these should be configured
+# to become regular arguments to the final server.
+#
+# Dialers that take dialer-arguments are :
+#
+#	TCPMUX
+#	PROGRAM
+#
+# You cannot use either the dialers TCP or TCPNLS since those do not
+# take dialer-arguments.  The communication channel initiator requests
+# that dialer-arguments be supported so the lack of dialer-arguments will
+# be caught.
+# 
+# Also, you must only use dialers that handle connection-oriented
+# or connection-oriented-with-orderly-release semantics.
+#
+# As a concession (!), we only need a dialer that supports a
+# half-duplex-outbound connection.
+#
+#
+
+
+mailhost	tcpmux frodo:5108
+localhost	tcpmux frodo:5108
+
+frodo		tcpmux 5108
+gilmore		tcpmux frodo:5108
+vinson		tcpmux frodo:5108
+
+ece		tcpmux frodo:5108
+*.ece.neu.edu	tcpmux frodo:5108
+
+
+# backup for flakey ECE systems !
+
+frodo		tcpmux gilmore:5108
+
+frodo		tcpmux uucp.rightcore.com:5108
+gilmore		tcpmux uucp.rightcore.com:5108
+vinson		tcpmux uucp.rightcore.com:5108
+
+ece		tcpmux uucp.rightcore.com:5108
+*.ece.neu.edu	tcpmux uucp.rightcore.com:5108
+
+
+
+leviathan	tcpmux 5108
+piranha		tcpmux 5108
+
+uri		tcpmux piranha:5108
+*.ele.uri.edu	tcpmux piranha:5108
+
+
+
+*.rightcore.com	tcpmux
+*.rightcore.org	tcpmux
+
+
+

@@ -1,0 +1,13 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+BT=${BASETERMDEV}
+MAILDIR=${PWD}/testmaildir
+export MAILDIR
+S_MAILUSERS=dam
+export S_MAILUSERS
+
+z d 
+S_DEBUGFILE=d s.x -D=5 2> e -of ${BT} -o clear=0,date=1 -T vt520 
+
+

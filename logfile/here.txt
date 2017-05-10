@@ -1,0 +1,12 @@
+rca96620	150407_2322:37_USEDT me 1a/SYSV
+rca96620	a=sparc os=SunOS(5.8) d=rightcore.com
+rca96620	rca!dam (David A. Morano)
+rca96621	150407_2324:11_USEDT me 1a/SYSV
+rca96621	a=sparc os=SunOS(5.8) d=rightcore.com
+rca96621	rca!dam (David A. Morano)
+rca96622	150407_2329:11_USEDT me 1a/SYSV
+rca96622	a=sparc os=SunOS(5.8) d=rightcore.com
+rca96622	rca!dam (David A. Morano)
+rca96623	150407_2331:07_USEDT me 1a/SYSV
+rca96623	a=sparc os=SunOS(5.8) d=rightcore.com
+rca96623	rca!dam (David A. Morano)

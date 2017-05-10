@@ -1,0 +1,11 @@
+INETPING
+
+Synopsis:
+
+$ inetping <hostname> [-t <to>]
+
+This program is supposed to be a replacement for the system version
+of 'ping'.  The only difference is that this program will not
+hang indefinitely like the system version will !!
+
+

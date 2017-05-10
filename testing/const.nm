@@ -1,0 +1,12 @@
+
+
+const.o:
+
+[Index]   Value      Size      Type  Bind  Other Shname         Name
+
+[1]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |const.c
+[3]	|0x00000000|0x00000000|SECT |LOCL |0    |.stab         |
+[4]	|0x00000000|0x00000000|SECT |LOCL |0    |.text         |
+[5]	|0x00000000|0x00000000|SECT |LOCL |0    |.rodata       |
+[6]	|0x00000000|0x00000000|SECT |LOCL |0    |.stabstr      |
+[2]	|0x00000010|0x0000000c|OBJT |LOCL |0    |.rodata       |a

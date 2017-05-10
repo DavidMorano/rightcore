@@ -1,0 +1,72 @@
+	rs = SR_INVALID ;
+	switch (cip->dialer) {
+
+	case dialer_udp:
+	case dialer_tcp:
+	    cp = pspec ;
+	    if ((cp == NULL) || (cp[0] == '\0')) cp = sspec ;
+	    switch (cip->dialer) {
+	    case dialer_udp:
+	        rs = dialudp(name,cp,af,to,0) ;
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(2)) {
+	            debugprintf( "client: hostname=%s pspec=%s\n",name,cp) ;
+	            debugprintf( "client: dialudp() rs=%d\n", rs) ;
+	        }
+#endif /* CF_DEBUG */
+	        break ;
+	    case dialer_tcp:
+	        rs = dialtcp(name,cp,af,to,0) ;
+	        break ;
+	    } /* end switch */
+	    break ;
+
+	case dialer_tcpnls:
+	    rs = dialtcpnls(name,pspec,af,sspec,to,0) ;
+	    break ;
+
+	case dialer_tcpmux:
+	    rs = dialtcpmux(name,pspec,af,sspec,NULL,to,0) ;
+	    break ;
+
+	case dialer_uss:
+	    cp = pspec ;
+	    if ((cp == NULL) || (cp[0] == '\0')) cp = sspec ;
+	    rs = dialuss(cp,to,0) ;
+	    break ;
+
+	case dialer_ussnls:
+	    rs = dialussnls(pspec,sspec,to,0) ;
+	    break ;
+
+	case dialer_ussmux:
+	    rs = dialussmux(pspec,sspec,NULL,to,0) ;
+	    break ;
+
+	case dialer_ticotsord:
+	    cp = pspec ;
+	    if ((cp == NULL) || (cp[0] == '\0')) cp = sspec ;
+	    rs = dialticotsord(cp,-1,to,0) ;
+	    break ;
+
+	case dialer_ticotsordnls:
+	    cp = name ;
+	    if ((cp == NULL) || (cp[0] == '\0')) cp = pspec ;
+	    rs = dialticotsordnls(cp,-1,sspec,to,0) ;
+	    break ;
+
+	case dialer_pass:
+	    cp = pspec ;
+	    if ((cp == NULL) || (cp[0] == '\0')) cp = sspec ;
+	    rs = dialpass(cp,to,0) ;
+	    break ;
+
+	case dialer_open:
+	    cp = pspec ;
+	    if ((cp == NULL) || (cp[0] == '\0')) cp = sspec ;
+	    rs = uc_opene(cp,O_RDONLY,0666,to) ;
+	    break ;
+
+	} /* end switch */
+	s = rs ;
+

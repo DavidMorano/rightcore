@@ -1,0 +1,4 @@
+#undef	LOCAL_DARWIN
+#define	LOCAL_DARWIN	\
+	(defined(OSNAME_Darwin) && (OSNAME_Darwin > 0))
+

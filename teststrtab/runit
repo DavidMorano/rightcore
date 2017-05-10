@@ -1,0 +1,16 @@
+#!/usr/bin/ksh
+# RUNIT
+
+
+z d 
+
+PROG=teststrtab.x
+OPTS="testinput -D=5"
+WM=watchmalloc.so.1
+
+export MALLOC_DEBUG=RW
+
+LD_PRELOAD=${WM} TESTSTRTAB_DEBUGFILE=d ${PROG} ${OPTS} > o 2> e
+
+
+

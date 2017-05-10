@@ -1,0 +1,10 @@
+
+DAMpcs {
+	global:
+		p_pcs ;
+		b_pcs ;
+	local:
+		* ;
+} ;
+
+

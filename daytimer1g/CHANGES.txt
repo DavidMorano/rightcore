@@ -1,0 +1,55 @@
+DAYTIMER
+
+
+Version History
+-----------------------------
+
+1a	= 93/11/07, Dave Morano 
+
+	This version stops displaying after there has been no input to
+	the terminal in some amount of time.  It starts displaying time
+	again (for a period of time) as soon as some input is typed
+	after being idle for a long time.  This feature allows a person
+	to see what time it is right now by typing something on the
+	terminal that was otherwise idle a long time.
+
+
+1b	= 98/06/11 Dave Morano 
+
+	This version changes the intput argument keys to :
+	-o offset		now for the time offset
+	-t timeout		for a screenblanking timeout
+
+	Note that the ability for the user to specify the timeout
+	is new.  It was hard coded (#define'ed) before.
+
+
+1c	= 98/06/15, Dave Morano
+
+	This version only allows one instance of the 'daytimer'
+	program to run per terminal.  It uses lock files
+	to guarantee this.
+
+
+1d	= 98/07/10, Dave Morano
+
+	This is the experimental version that cleans up the
+	problems with the last version.  There was some sort of
+	problem with maintaining the lock file.  I am not sure
+	that it is fixed but the lock code now uses the standard
+	lock-file object 'lfm' to manage the lock file.
+
+
+1e	= 98/12/30, Dave Morano
+
+	This version attempts to fix UNIX'es incredibly brain damaged
+	signal-interrupt I/O handling philosophy !
+
+
+1f	= 99/09/22, Dave Morano
+
+	We now look at the MAILPATH variable for a default set of files
+	to check for mail changes.
+
+
+

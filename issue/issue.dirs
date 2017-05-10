@@ -1,0 +1,19 @@
+# DIRS (for ISSUE server)
+
+#
+# format of table:
+#
+# administrator	directories
+#
+
+
+admin		~/var/issue
+local		~/var/issue
+pcs		~/var/issue
+ncmp		~/var/issue
+exptools	~/var/issue
+gnu		~/var/issue
+genserv		~/var/issue
+
+
+

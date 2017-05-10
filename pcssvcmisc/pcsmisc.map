@@ -1,0 +1,17 @@
+
+
+DAMopensvc_pcsmisc {
+	global:
+		opensvc_hello ;
+		opensvc_name ;
+		opensvc_projinfo ;
+		opensvc_pcsmotd ;
+		opensvc_pcsorg ;
+		opensvc_mailmsgs ;
+		opensvc_newsdirs ;
+		opensvc_unodes ;
+	local:
+		* ;
+} ;
+
+

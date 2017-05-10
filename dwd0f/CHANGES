@@ -1,0 +1,91 @@
+Directory Watcher Daemon (DWD)
+
+
+= version 0a
+	96/11/01, Dave Morano
+
+This is the first version to go into service.  This program was written
+for service as part of the Personal Communication Services (PCS)
+package but is general enough for any other uses.
+
+
+= version 0b
+	97/06/01, Dave Morano
+
+1) This version is slightly enhanced to only execute a maximum number
+   of jobs simultaneously.  This is necessary to minimize the impact on
+   the system when a large number of jobs are accumulated like for example
+   just after a prolonged down time of the machine.
+
+2) This version also adds support for expanding out the following
+   keys in the configuration file :
+	N	node
+	D	domain
+	H	host
+	R	program root
+	V	program version
+
+   This version also adds the key :
+	R	program root
+
+   to the expansion of the service table file "arguments" entries.
+
+3) This program can also now be 'what'ed to print out
+   its version string stored internally in the 'what' format.
+
+
+= version 0c
+	98/06/22, Dave Morano
+
+1) This version is slightly enhanced to be compatible with the
+   latest (1995) POSIX standard for use with threads.
+   This affected most all previous (in draft) versions of the
+   thread-safe POSIX subroutines !  (Yes, I am angry with POSIX
+   for changing so many of the thread safe interfaces !)
+
+2) This version adds support for expanding out the basic keys
+   described above for the "program" entry of the service table
+   also.
+
+3) The check for whether a program is possibly executable or
+   not has been put back in.  We supposedly now have a "good" solution
+   to when the daemon program (that is not really executable) gets
+   'exec'ed and then goes on to fail.  The code is supposed to queue up
+   the bad job waiting for a 'srvtab' change but this somehow gets lost
+   in the code (because this code now is a real bad hack !).
+
+   Extra Note:  This code was a real hack from the start.  It is not
+   modular enough to really want to try and enhance at all.  A rewrite
+   should be considered if more robustness or enhancements are wanted.
+
+
+= version 0d
+	98/12/22, Dave Morano
+
+1) Well here we go again exactly 6 months later than the previous version.
+   I think that there was a core dump but I could not find it !
+
+
+= version 0e
+	99/07/24, Dave Morano
+
+1) We want to ensure that files without servers STAY in the directory
+   properly and are re-executed later after JOBRETRYTIME.  As far as I
+   know, this is not being done and has not been fixed here.  The fact
+   that these last two looks (this one and the previous one) did not
+   actually change anything is an indication that this code is ready
+   for the bit bucket because it is too difficult to either fix or
+   enhance !
+
+
+= version 0f
+	00/04/21, Dave Morano
+
+1) I added an argument option ('-p') that indicates a new poll-only mode
+   of operation.  The idea is that the daemon will only run for a
+   certain amount of time after there are no more jobs to process.
+   (This is only the first successful attempt at an enhancement
+   since 98/06/22 !)
+
+
+

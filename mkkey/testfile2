@@ -1,0 +1,217 @@
+
+%A D.A.Morano
+%T Preliminary Development Estimate For Ti:LiNbO3 Optical Switching
+(GBCS COMPAS ID 40232)
+%I AT&T
+%C Holmdel, NJ
+%D 07/13/94
+%K optical switching
+%X This document provides an initial draft staff or work item estimate for
+developing an optical switch based on Ti:LiNbO3.
+
+%A D.A.Morano
+%T A New Differential Bus (GBCS COMPAS ID 40216)
+%I AT&T
+%C Holmdel, NJ
+%D 04/21/94
+%K BASE DDL bus scheme
+%X This document describes the new differential bus scheme which
+enables a time slotted bus to operate at speeds beyond approximately 300 Mtps.
+
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T Proposed DDL Bus Transceiever, Issue 1.2 (GBCS COMPAS ID 29727)
+%I AT&T
+%C Holmdel, NJ
+%D 93/07/21
+%K bus BASE switching enhancements transceiver DDL BLAST
+%X This document describes a proposal for an IC design to implement
+a DDL transceiver suitable for use in building and enhanced BASE bus
+as first proposed in
+"Proposed Enhancements to the Broadband ATM & STM Electrical (BASE) Bus".
+
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T Proposed Enhancements to the Broadband ATM & STM Electrical (BASE) Bus,
+Issue 1.0 (BCS COMPAS ID 29581)
+%I AT&T
+%C Holmdel, NJ
+%D 93/05/14
+%K bus BASE switching enhancements
+%X This document describes possible enhancements to the bus described in
+"Broadband ATM & STM Electrical (BASE) Bus ; Issue 1.6".  These enhancements
+may be able to produce the same time slotted oriented bus but operating
+at bandwidths up to 500 Mtps per bus octet as defined in the original
+specification sited above.
+
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T Broadband ATM & STM Electrical (BASE) Bus Specification,
+Issue 2.0 (BCS COMPAS ID 37518)
+%I AT&T
+%C Holmdel, NJ
+%D 03/30/94
+%K bus BASE switching enhanced DDL
+%X This document is a draft specification for the BASE bus
+which built upon the design intent originally described in
+"Broadband ATM & STM Electrical (BASE) Bus ; Issue 1.6"
+and improved with the ideas proposed in
+"Proposed Enhancements to the Broadband ATM & STM Electrical (BASE) Bus".
+
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T Balanced Logic And Synchronous Transceiver (BLAST) I Chip Design
+Specification, Issue 0 (GBCS COMPAS ID 37165)
+%I AT&T
+%C Holmdel, NJ
+%D 04/12/94
+%K bus BASE switching DDL BLAST transceiver
+%X This document provides some of the design information for the
+BLAST I transceiver IC device.
+
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T Balanced Logic And Synchronous Transceiver (BLAST) II Chip Design
+Specification,
+Issue 1 (BCS COMPAS ID 41984)
+%I AT&T
+%C Holmdel, NJ
+%D 95/01/31
+%K bus BASE switching DDL BLAST transceiver
+%X This document provides some of the design information for the
+BLAST II transceiver IC device.
+
+%A W.M.Pitio
+%A D.D.Shugard
+%T Prototype Broadband ATM & STM Electrical (BASE) Bus, Issue 1.6 (GBCS COMPAS ID 29728)
+%I AT&T
+%C Holmdel, NJ
+%D 93/08/11
+%K bus BASE switching
+%X This document describes the initial bus iontended to be used
+as an electronic switching endpoint to the DiSCO optical switch.
+
+%A S.A.Magnuson
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T BASE Bus Prototype Specification and Test Plan, Issue 2.1
+(GBCS COMPAS ID 29979)
+%I AT&T
+%C Holmdel, NJ
+%D 93/08/08
+%K bus BASE switching test plan
+%X This document presents the information necessary to build and test
+the prototype bus described in the document entitled
+"Broadband ATM & STM Electrical (BASE) Bus ; Issue 1.6".
+
+%A A.J.Rainal
+%T Balanced Interconnections For High Performance and Reduced Power Dissipation
+%M 11538-921013-29TM
+%I AT&T
+%C Murray Hill, NJ
+%D 10/13/92
+%K differential power low
+%X This memorandum describes and advocates the use of differentially paired
+signal leads for digital system interconnect due to lower power
+dissipation possible.
+
+%A S.A.Magnuson
+%T BASE Bus Prototype Test Results (GBCS COMPAS ID 38185)
+%I AT&T
+%C Holmdel, NJ
+%D 05/25/94
+%X This document describes the results of testing the prototype implementation
+of the Broadband ATM & STM Electrical (BASE) Bus as described in the
+document "Broadband ATM & STM Electrical (BASE) Bus ; Issue 1.6.
+
+%A A.J.Rainal
+%T Eliminating Inductice Noise of External Chip Interconnections
+%J IEEE Journal of Solid-State Circuits
+%V 29
+%P 126-128
+%I IEEE
+%C Parsippany, NJ
+%D 94/02/04
+%O AT&T Bell Laboratories
+%K balanced differential noise chip interconnections inductive
+%X On-chip balanced drivers can essentially eliminate
+inductive noise, without any power dissipation penalty, and indendently of
+the number of chip drivers switching simultaneously or the switching speed.
+In addition, balanced interconnections on PWB's and MCM's substantially reduce crosstalk, increase noise
+immunity, and eliminate ground noise.
+
+
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T High Speed Bus Challenges (BCS COMPAS ID 51597)
+%I Lucent Technologies
+%C Holmdel, NJ
+%D 96/04/19
+%K high speed bus
+%X The Adaptive Standard Interface (ASI) is designed to overcome 
+the numberous obstacles
+of constructing high speed busses for commercial products.
+A brief discussion of major issues that ASI addresses that other
+technologies do not is presented.
+
+%A A.J.Rainal
+%T Transmission Properties of Balanced Interconnections
+%J IEEE Transactions on Components, Hybrids, and Manufacturing Technology
+%V 16
+%P 137-145
+%I IEEE
+%C Parsippany, NJ
+%D February 1993
+%O AT&T Bell Laboratories
+%K balanced interconnections transmission
+
+%A S.A.Magnuson
+%T ASI Bus Prototype Test Results, Issue 1
+%I Lucent Technologies, Inc.
+%C Holmdel, NJ
+%D February 21, 1996
+%O AT&T Bell Laboratories, BCS COMPAS ID 50829
+%K ASI bus prototype test results
+%X This document provides the test results and analysis of a prototype
+ASI based bus.
+
+%A M.L.Katz
+%A D.A.Morano
+%A W.M.Pitio
+%A D.D.Shugard
+%T Adaptive Standard Interface (ASI) Broadband Specification, Issue 3.0
+%I Lucent Technologies, Inc.
+%C Holmdel, NJ
+%D December 21, 1994
+%O AT&T Bell Laboratories, BCS COMPAS ID 39604
+%K ASI adaptive standard interface broadband
+%X This document provides the design specification for the
+broadband part of the Adaptive Standard Interface.
+
+%A S.A.Magnuson
+%T ASI Octal Bus Prototype Test Results, Issue 1
+%I Lucent Technologies, Inc.
+%C Holmdel, NJ
+%D in progress
+%O AT&T Bell Laboratories
+%K ASI octal bus prototype test results
+%X This document provides the test results and analysis of a prototype
+ASI based bus.
+
+%A S.A.Magnuson
+%T Physical Structures for High-Speed Circuit Pack Design, Issue 1
+%I Lucent Technologies, Inc.
+%C Holmdel, NJ
+%D in progress
+%O AT&T Bell Laboratories
+%K ASI high speed circuit pack design physical structures
+%X This document provides the test results and analysis of a prototype
+ASI based bus.
+

@@ -1,0 +1,18 @@
+/* error file name */
+	                case argopt_ef:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            efname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+

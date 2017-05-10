@@ -1,0 +1,20 @@
+# CONF (configuration file)
+# test stuff
+
+
+define	A= a
+define	B= b
+define	B =	${A}other
+
+
+var1	v${A}
+
+var2	v${B}
+
+
+listen		tcp	rca:5221
+
+
+set	name=	value
+
+

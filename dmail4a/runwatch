@@ -1,0 +1,10 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+
+export TESTGRMEMS_DEBUGFILE=d 
+export MALLOC_DEBUG=WATCH
+
+LD_PRELOAD=watchmalloc.so.1 testgrmems.x tools > o
+
+

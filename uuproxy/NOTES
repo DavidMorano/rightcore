@@ -1,0 +1,23 @@
+UUPROXY
+
+
+This is a proxy service for UUCP type outbound requests.
+The following UUCP services are available :
+
+	uusend
+	uuto
+	uux
+
+
+On the server machines for each of the base UUCP domains,
+the daemon program 'uuproxyd' should be configured to
+run.
+
+Daemon synopsis :
+
+	$ export UUPROXYD_PROGRAMROOT=${PCS}
+	$ uuproxyd <base>
+
+
+
+

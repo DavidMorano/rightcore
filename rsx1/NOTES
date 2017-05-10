@@ -1,0 +1,72 @@
+REXECD
+
+This version is a hacked up sort of REXECD type daemon by Dave Morano.
+This is the new version which has options to operate "more" securely in
+a hostile network environment !
+
+
+protocol
+==================
+
+Stardard :
+
+	localport\0username\0password\0command\0
+
+Enhanced :
+
+->
+	v0
+
+<-
+	code rhostname rand0 rand1 rand2 rand3
+
+->
+	lhost	rca  hpop0 hpop1 hpop2
+	lhost	rca  hpop3 hpop4
+	luser	dam morano
+	luser	admin
+	ruser	dmorano upop0 upop1 upop2
+	service	srvname srvargs
+	srvargs	arg0 arg1 arg2
+	auth
+
+<-
+	code				(authenticated, yes or no)
+
+->
+	dir	/home/dam/rje
+	env	key=value
+	exec
+
+<-
+	code				(success or fail)
+
+->
+	bye
+
+
+APOP:
+
+->
+	username,apop APOP_user_hash command
+
+	[hostname:]username [APOP_host_hash:][APOP_user_hash] command
+
+	APOP_user_hash = md5(rhostname,random,time,username,user_secret)
+
+	APOP_host_hash = md5(rhostname,random,time,hostname,host_secret)
+
+<-
+	challege(time)
+
+
+Public Key:
+
+->
+	hostname:hostkey:username:userkey\0password\0command\0
+
+<-
+	challege() ;
+
+
+

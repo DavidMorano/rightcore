@@ -1,0 +1,11 @@
+CCOPTS= -O2 -fpic -mcpu=v8 -mno-app-regs
+
+# HyperSPARC
+#CCOPTS= -xO5 -xtarget=ss20/hs22 -xdepend
+
+# UltraSPARC
+#CCOPTS= -xO5 -xtarget=ultra -xsafe=mem -xdepend
+
+# UltraSPARC-v9 (64 bits)
+#CCOPTS= -xO5 -xtarget=ultra -xarch=v9 -xsafe=mem -xdepend
+

@@ -1,0 +1,55 @@
+#!/usr/bin/ksh
+# INSTALLPROG (libXX)
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${PCS:=/usr/add-on/pcs}
+: ${EXTRA:=/usr/extra}
+export LOCAL NCMP PCS EXTRA
+
+
+LIB=libdam.a
+
+
+if [ -d /usr/sbin ] ; then
+  MACH=$( uname -n )
+  : ${OFD:-S5}
+else
+  MACH=$( hostname )
+  PATH=/usr/5bin:${PATH}
+  : ${OFD:-S4}
+fi
+
+
+TF=/tmp/ip${$}
+
+cleanup() {
+  rm -f $TF
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+
+makeit
+
+
+find *.h -type f -print > ${TF}
+
+for D in ${LOCAL} ${NCMP} ${PCS} ${EXTRA} ; do
+  if [[ -d "${D}" ]] ; then
+    makenewer -af ${TF} -d ${D}/include
+    makeit SRCROOT=${D} install
+    if [[ -r "${LIB}" ]] && [[ -n "${OFD}" ]] ; then
+      LD=${D}/lib/${OFD}
+      if [[ -d ${LD} ]] ; then
+#        print -u2 -- CMD makenewer ${LIB} ${LD}
+        makenewer ${LIB} ${LD}
+      fi
+    fi
+  fi
+done
+
+cleanup
+
+

@@ -1,0 +1,145 @@
+#!/bin/ksh
+# MAILIT
+
+
+F_DEBUG=1
+
+
+TF=${TMPDIR:=/tmp}/mi${RANDOM}0
+HF=${TMPDIR:=/tmp}/mi${RANDOM}1
+TF_TO=${TMPDIR:=/tmp}/mi${RANDOM}4
+TF_CC=${TMPDIR:=/tmp}/mi${RANDOM}2
+TF_BCC=${TMPDIR:=/tmp}/mi${RANDOM}3
+
+cleanup() {
+  rm -f $TF $HF $TF_CC $TF_TO $TF_BCC
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+F_REMOVE=0
+if [ $# -lt 1 ] ; then
+  F_REMOVE=1
+  MSG=${TF}
+  cat > ${MSG}
+else
+  MSG=$1
+  shift
+fi
+
+
+P=${0}
+
+
+if [ ! -r "${MSG}" ] ; then
+  echo "${P}: could not open message file \"${MSG}\"" >&2
+  exit 1
+fi
+
+mailheader $MSG > $HF
+if [ ! -s "${MSG}" ] ; then
+  echo "${P}: no headers in mail message file" >&2
+  exit 1
+fi
+
+
+MKMSG_OPTS=
+
+
+TF=/tmp/mi${$}
+
+cleanup() {
+  rm -f $TF
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+mailhead < $MSG > $TF
+
+DATE=$( grep -i "^Date:" ${TF} | cut -d : -f 2-10 )
+SUBJ=$( grep -i "^Subject:" ${TF} | cut -d : -f 2-10 )
+
+FROM=$( ema -s orig -h from ${TF} | line )
+REPLY=$( ema -h reply-to ${TF} )
+
+cleanup
+
+
+if [ -n "${REPLY}" ] ; then
+  MKMSG_OPTS="${MKMSG_OPTS} -h reply-to=${REPLY}"
+fi
+
+ema -s orig -h to $MSG > $TF_TO
+ema -s orig -h cc $MSG > $TF_CC
+ema -s orig -h bcc $MSG > $TF_BCC
+
+# make the CC list
+
+CC_LIST=
+CC_OPTS=
+while read LINE ; do 
+  if [ -z "${CC_LIST}" ] ; then
+    CC_LIST="${LINE}"
+  else
+    CC_LIST="${CC_LIST}, ${LINE}"
+  fi
+  CC_OPTS="${CC_OPTS} -c \"${LINE}\""
+done < $TF_CC
+
+CC_OPTS="-c \"${CC_LIST}\""
+
+
+if [ $F_DEBUG -ne 0 ] ; then
+  echo "DATE=${DATE}"
+  echo "CC_LIST=>${CC_LIST}<" 
+  echo "CC_OPTS=>${CC_OPTS}<" 
+fi >&2
+
+
+ES=0
+mailbody ${MSG} | {
+
+  if [ -n "${FROM}" ] ; then
+    if [ -n "${DATE}" ] ; then
+      if [ $F_DEBUG -ne 0 ] ; then
+        echo "${0}: DATE=${DATE}" >&2
+      fi
+      mkmsg ${MKMSG_OPTS} -r $TF_TO -c "${CC_LIST}" \
+	-h Date="${DATE}" -s "${SUBJ}" -f "${FROM}" ${*}
+      ES=$?
+    else
+      mkmsg ${MKMSG_OPTS} -r $TF_TO -c "${CC_LIST}" \
+	-s "${SUBJ}" -f "${FROM}" ${*}
+      ES=$?
+    fi
+  else
+    if [ -n "${DATE}" ] ; then
+      mkmsg ${MKMSG_OPTS} -r $TF_TO -c "${CC_LIST}" \
+	-h Date="${DATE}" -s "${SUBJ}" ${*}
+      ES=$?
+    else
+      mkmsg ${MKMSG_OPTS} -r $TF_TO -c "${CC_LIST}" \
+	-s "${SUBJ}" ${*}
+      ES=$?
+    fi
+  fi
+
+} > $TF
+
+if [ $F_DEBUG -eq 0 ] ; then
+  if [ $ES -eq 0 -a -s "${TF}" ] ; then :
+#    rmailer -r <( ema -h to,cc,bcc ${MSG} ) < $TF
+    deliver -m copy < $TF
+  fi
+else
+  cp $TF mkmsg.out
+fi
+
+if [ $F_REMOVE -ne 0 ] ; then
+  rm -f ${TF}
+fi
+
+cleanup
+
+
+

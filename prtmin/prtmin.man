@@ -1,0 +1,123 @@
+'\" t
+.TH PRTMIN 1 1995-02-13 "GBCS Hardware Group"
+.SH NAME
+prtmin \- print out mail messages to a printer
+.SH SYNOPSIS
+.BR prtmin 
+.OP -d "  dst" ] [
+.OP -c "  copies" ] [
+.OP -s "  sides" ] [
+.OP -f "  form" ] [
+.OP -p "  mode" ] [
+.MW [
+.I file(s) ...
+.MW ]
+.SH DESCRIPTION
+.sp
+.SS Introduction
+.PP
+The \fIprtmin\fP program
+is used on a UNIX (and remotely from DOS/MS-Windows) system to print almost
+two normal sized pages of ordinary ASCII text onto a single side of the
+paper.  
+This command was written to emulate the old OPR "mini" type facility
+which went away with the advent of lower cost more modest printers
+and printing facilities.
+This program takes some arguments similar to the 
+UNISON command \fIprt\fP except that only the options specified in
+this manual page are accepted.  Any option specified other than those
+indicated above will cause the command to fail with an error message.
+.\"_
+.SS Options
+.PP
+Normally a \fB-d\fP option will be specified to select a
+printer destination.  If this option is not specified, a default printer
+may be chosen if the user has a default configured.
+Default printers are configured on the Amdahls and the Suns by use of
+the PRINTER environment variable and possibly the UNISON 
+\fC${HOME}/.prt\fP 
+file.  The UNISON 
+\fC${HOME}/.prt\fP 
+file is only used for option processing when the user has configured,
+via her command execution search path (environment variable PATH),
+to use the UNISON version of the \fCprt\fP command as the underlying
+print command.  Other versions of 
+the \fCprt\fP command can be used in the user's PATH as long as they
+support the standard UNISON command options.
+If a default printer is not explicitly defined
+by the user, a default printer may still be assigned by either the
+system from which the command is executed, the system on which the
+printer spooler is running, or by some other not easily understood mechanism.
+For these reasons, it is usually best for the user to have the PRINTER
+environment variable defined or to specify the printer destination
+on the command line with the \fB-d\fP option.
+.PP
+The \fB-c\fP option allows for the specification of the number of
+copies of the mail message to print out.
+.PP
+The \fB-s\fP option allows for the specification of the number of
+sides of paper to use for the printed out mail message.
+Valid values associated with this option key are '\fB1\fP' and '\fB2\fP'.
+If this option is not specified then the default number of sides
+configured for the printer will be used.  For one-sided printers,
+this value will be set to '\fB1\fP' regardless of the user
+supplied value.
+.PP
+The \fB-f\fP option allows for the specification of the form type
+used as the paper in the printer.  Forms vary from printer to printer
+but some of the possible form values for this argument are :
+.EX
+hole
+nohole
+11x17
+ledger
+legal
+.EE
+.PP
+The \fB-p\fP option specifies the print mode to be used.
+Supported print modes are :
+.EX
+portrait
+landscape
+.EE
+.\"_
+.SS Output
+The printed output of this program provides for about 90 lines per page
+in a point size of about 8.
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+print a file to the user's defauilt printer as specified in the
+\f(CWPRINTER\fP environment variable :
+.EX
+\f(CWprtmin file\fP
+.in -4
+.sp
+.IP \(rh 5
+print a file to the printer specified on the command line :
+.EX
+\f(CWprtmin file -d \fIprinter\fP\fP
+.EE
+.IP \(rh 5
+print the data from standard input :
+.EX
+\f(CWcat < file | prtmin -d gz3c4\fP
+.EE
+.\"_
+.SH SEE ALSO
+readmail(1p), vmail(1p), prt(1), prtq(1), prtc(1), .prt(4)
+.\"_
+.SH CAVEATS
+Not all platforms are supported equally with respect to
+continued user control over the disposition of the print job
+with respect to
+being either monitored (\fIprtq\fP) or canceled (\fIprtc\fP).
+.\"_
+.SH PATH TO
+This program is currently located in \fC/usr/add-on/pcs/bin\fP
+or possibly \fC/usr/add-on/local/bin\fP on some systems.
+.\"_
+.SH WARNINGS
+Be careful to put a space between all option key letters and the associated
+key letter parameter.
+.\"_

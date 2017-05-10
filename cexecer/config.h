@@ -1,0 +1,74 @@
+/* config */
+
+
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)cexecer "
+#define	BANNER		"Cluster Execer"
+#define	SEARCHNAME	"cexecer"
+#define	VARPRNAME	"LOCAL"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	VARPROGRAMROOT1	"CEXEC_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"CEXECER_BANNER"
+#define	VARSEARCHNAME	"CEXECER_NAME"
+#define	VAROPTS		"CEXECER_OPTS"
+#define	STDERRVAR	"CEXECER_STDERR"
+#define	VARAFNAME	"CEXECER_AF"
+#define	VAREFNAME	"CEXECER_EF"
+#define	VARERRORFNAME	"CEXECER_ERRORFILE"
+
+#define	VARDEBUGFNAME	"CEXECER_DEBUGFILE"
+#define	VARDEBUGFD1	"CEXECER_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARNODE		"NODE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARDOMAIN	"DOMAIN"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+#define	VARHZ		"HZ"
+#define	VARTZ		"TZ"
+#define	VARUSERNAME	"USERNAME"
+#define	VARLOGNAME	"LOGNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#define	TMPDNAME	"/tmp"
+
+#define	DEFINITFNAME	"/etc/default/init"
+#define	DEFLOGFNAME	"/etc/default/login"
+#define	NISDOMAINNAME	"/etc/defaultdomain"
+
+#define	HELPFNAME	"help"
+
+#define	VARLEN		(10 * 1024)	/* environment variable length */
+
+#define	DEFPATH		"/usr/xpg4/bin:/usr/bin:/bin"
+
+

@@ -1,0 +1,8 @@
+PCSCL
+
+This program cannot add new arbitrary headers (like 'errors-to' or
+'return-receipt-to').  If you want them, try to use the 'mkmsg' program
+instead.
+
+
+

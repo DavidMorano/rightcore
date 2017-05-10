@@ -1,0 +1,12 @@
+#!/usr/extra/bin/ksh
+# SETUP
+
+z /tmp/notice.err
+z /tmp/notifier.err
+
+z /tmp/notice.deb
+
+rm -f /tmp/users/www/notice/*
+rm -f /tmp/users/www/notifier/*
+
+

@@ -1,0 +1,11 @@
+#!/usr/bin/ksh
+# FINDTOINCLUDE
+
+
+ls *.c | sort -u > o1
+fgrep envstandards.h *.c | fgrep include | cut -d : -f 1 | sort -u > o2
+comm -23 o1 o2
+rm -f o1 o2
+
+
+

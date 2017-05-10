@@ -1,0 +1,14 @@
+/* options */
+	                    case 'o':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
+				} else
+	                            rs = SR_INVALID ;
+	                        break ;
+

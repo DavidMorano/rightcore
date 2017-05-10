@@ -1,0 +1,7 @@
+
+id 
+echo $PWD
+pwd
+ps -fu dam
+env
+

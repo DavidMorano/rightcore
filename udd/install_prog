@@ -1,0 +1,51 @@
+
+
+
+PCS=/usr/add-on/pcs
+P=bb
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+TH=mthost2
+case $MACH in
+
+dds )
+  TH=mthost2.mt.att.com
+  ;;
+
+esac
+
+
+
+STUFF="*.c *.h *.aout *.x *.sh Makefile"
+
+sendover() {
+  cpio -oc | rsh ${TH} /home/dam/discobin/cpio-dir $1 2> /dev/null
+}
+
+rcp ${P}.x ${TH}:src/n${P}
+
+rcp ${P}.sh ${TH}:/mt/mtgzfs8/hw/add-on/pcs/bin/n${P}
+rcp ${P}.x ${TH}:/mt/mtgzfs8/hw/add-on/pcs/bin/n${P}.x
+rcp ${P}.x ${TH}:/mt/mtgzfs8/hw/add-on/pcs/bin/n${P}.aout
+
+cp ${P}.sh ${PCS}/bin/${P}
+cp ${P}.x ${PCS}/bin/${P}.x
+cp ${P}.x ${PCS}/bin/${P}.aout
+
+cp ${P}.sh ${PCS}/bin/n${P}
+cp ${P}.x ${PCS}/bin/n${P}.x
+cp ${P}.x ${PCS}/bin/n${P}.aout
+
+eval find $STUFF -type f -print | sendover /home/dam/src/n${P}
+
+
+

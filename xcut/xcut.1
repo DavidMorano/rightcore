@@ -1,0 +1,46 @@
+.\"_
+.TH XCUT 1 "Release 5" "X Version 11"
+.SH NAME
+\fBxcut\fR - copies the contents of the X Window system Cut Buffer #0 to
+standard output
+.SH SYNOPSIS
+\fBxcut\fR
+.SH DESCRIPTION
+.ad b
+\fBxcut\fR copies the contents of the X Window system \fIcut buffer\fP
+number zero to standard output.
+.PP
+Using 'xterm' you can select text and put it into the cutbuffer by moving
+the pointer to the 
+beginning of the text you want to select. 
+Hold down the  left  mouse button while moving the pointer 
+to end of the desired text, then release the button.  
+The text is highlighted, copied into the  cutbuffer.
+.PP
+You can select a single word or line simply by clicking the left 
+mouse button.  To select a single word,  place the pointer 
+on the word and double-click the left mouse button. To 
+select a single line, place the pointer on the line and triple-click 
+the left mouse button. Once you have made a selection 
+with the left button, you can extend that selection with the 
+right button.
+.PP
+A quick method to select a region, for example a portion 
+of the optics scroll buffer, is to first click the left mouse 
+button on the beginning  text.  Then move the pointer to the 
+ending text and click the right mouse button.  The region of 
+the text you want  is highlighted and copied into the 
+cutbuffer.   You may have  to scroll the desired 
+text to  make it visible on the display.
+.PP
+Other X Windown system programs may use cut buffers in other ways than
+that of 'xterm' but you can reference the appropriate program manual
+page for it use of cut buffers.
+.PP
+The X Windown system program 'xcutsel' allows text from the \fIprimary\fP
+cut buffer to be first placed into cut buffer #0 where 'xcut' can get it
+from.
+.SH "SEE ALSO"
+xterm(1), xcutsel(1)
+.SH AUTHOR
+Dave Morano

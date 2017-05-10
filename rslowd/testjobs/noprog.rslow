@@ -1,0 +1,12 @@
+x-mailer: AT&T RSLOW (version 1-beta4)
+content-type: application/octet
+full-name: David A. Morano
+x-orighost: hocpw.ho.lucent.com
+x-username: dam
+from: d.a.morano <mtgbcs!dam>
+x-queuespec: hocpw
+x-service: noprog "there"
+x-jobid: hocpwAAM6EvYAA
+to: hocpb!rslow
+
+here

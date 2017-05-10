@@ -1,0 +1,52 @@
+#!/usr/bin/ksh
+# INSTALLPROG
+
+
+T=$( basename ${PWD} )
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+
+PRS=" ${LOCAL} ${EXTRA} "
+
+
+function sendout {
+  BD=${1}
+  if [[ -r "${T}" ]] && [[ -n "${BD}" ]] ; then
+    for PR in ${PRS} ; do
+      if [[ -d ${PR}/${BD} ]] ; then
+        print -u2 -- TD=${PR}/${BD}
+        makenewer $T ${PR}/${BD} -r
+      fi
+    done
+  fi
+}
+
+
+if [[ ! -x "${T}.x" ]] ; then
+  if [[ -x makeit ]] ; then
+    makeit
+  else
+    make
+  fi
+fi
+
+if [[ -r ${T}.x ]] ; then
+  rm -f ${T}
+  ln ${T}.x ${T}
+  sendout bin
+fi
+
+if [[ -r ${T}.help ]] ; then
+  rm -f ${T}
+  ln ${T}.help ${T}
+  sendout share/help
+fi
+
+rm -f ${T}
+
+
+

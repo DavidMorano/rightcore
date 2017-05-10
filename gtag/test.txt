@@ -1,0 +1,13 @@
+
+.BIB test.rbd
+Jouppi
+here there and every 
+where \cite { morano96differential , morano97challenges } 
+.DS
+.FG this
+.TAG EIGHT NINE, TEN
+there 
+.DE
+is a citation and more in Figure \_EIGHT; at the other 
+place.
+

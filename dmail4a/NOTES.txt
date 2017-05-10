@@ -1,0 +1,46 @@
+DMAIL
+
+This is the mail delivery program for the PCS mailer system.
+
+Call just like normal mail:
+
+$ dmail [-d] [-f fromaddr] username [username2 [...]] [-m]
+
+
+This program is written to try to be as tolerant as possible for poorly
+administered mail systems.  Some features coded into the program to
+help alleviate mail problems are:
+
++ when run set-user-id to 'root', the program will work correctly
+
++ when using a System V style mail scheme, the program will work
+correctly if it has set-group-id to group 'mail'
+
++ when running the system without the stupid POSIX_CHOWN_RESTRICTED
+mode, the program will be able to create a mailfile for another user if
+it has write permission to the mail spool area
+
++ observes all known mail locking schemes as well as some extra
+safe-guards for stupid other mail programs that may be around in the
+system
+
++ the program will try to find a mail spool area when the MAIL
+environment variable is either not set or is set to a directory that is
+not writable
+
+For best results, set the program to BOTH set-user-id to 'root' AND
+set-group-id to 'mail'.
+
+
+Descriptions
+
+file		description
+------------------------------------------------------------------------
+
+main.c		main subroutine
+process.c	processes the incoming message
+deliver.c	deliver the processed message to one username
+maillock.[ch]	this is an object that helps manipulate the mail lock
+
+
+

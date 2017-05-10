@@ -1,0 +1,20 @@
+	        int	ai ;
+	        int	f ;
+	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
+
+	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            if (f) {
+	                cp = aip->argv[ai] ;
+	                if (cp[0] != '\0') {
+	                    pan += 1 ;
+	                    rs = procspec(pip,ofp,cp,-1) ;
+	                    c += 1 ;
+	                }
+	            }
+
+	            if (rs >= 0) rs = lib_sigterm() ;
+	            if (rs >= 0) rs = lib_sigintr() ;
+	            if (rs < 0) break ;
+	        } /* end for */
+

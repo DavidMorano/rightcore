@@ -1,0 +1,1481 @@
+rca47   	101231_0325:18_EST adding listener=uss
+rca47   	addr=/home/dam/src/fingers/testbase/tmp/fingers/srv
+rca47   	101231_0325:28_EST server exiting (-4)
+rca47   	exceptional (-4)
+rca48   	101231_0326:55_EST fingers 0/SYSV
+rca48   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca48   	rca!dam (David A. Morano)
+rca48   	pr=/home/dam/src/fingers/testbase
+rca48   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca48   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca48   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca48   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca48   	PID mutex captured
+rca48   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca48   	101231_0326:55_EST ready
+rca48   	101231_0326:55_EST adding listener=uss
+rca48   	addr=/home/dam/src/fingers/testbase/tmp/fingers/srv
+rca48   	101231_0328:56_EST server exiting (0)
+rca49   	101231_0333:45_EST fingers 0/SYSV
+rca49   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca49   	rca!dam (David A. Morano)
+rca49   	pr=/home/dam/src/fingers/testbase
+rca49   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca49   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca49   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca49   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca49   	PID mutex captured
+rca49   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca49   	101231_0333:45_EST ready
+rca49   	101231_0333:45_EST adding listener=uss
+rca49   	addr=/home/dam/src/fingers/testbase/tmp/fingers/srv
+rca49.0 	101231_0334:19_EST request from=localhost
+rca49.0 	server pid=3715
+rca49.0 	101231_0334:19_EST svc=help
+rca49.0 	subsvc=
+rca49.0 	server=INTERNAL(0)
+rca49.0 	101231_0334:19_EST server exit ex=0
+rca49.0 	stderr>
+rca49.0 	| hello from underworld
+rca49.0 	elapsed time     0-00:00:00
+rca49.1 	101231_0334:22_EST request from=localhost
+rca49.1 	server pid=3717
+rca49.1 	101231_0334:22_EST svc=help
+rca49.1 	subsvc=
+rca49.1 	server=INTERNAL(0)
+rca49.1 	101231_0334:22_EST server exit ex=0
+rca49.1 	stderr>
+rca49.1 	| hello from underworld
+rca49.1 	elapsed time     0-00:00:00
+rca49.2 	101231_0334:32_EST request from=localhost
+rca49.2 	server pid=3724
+rca49.2 	101231_0334:32_EST svc=help
+rca49.2 	subsvc=
+rca49.2 	101231_0334:32_EST server exit ex=139
+rca49.2 	stderr>
+rca49.2 	| hello from underworld
+rca49.2 	elapsed time     0-00:00:00
+rca50   	101231_0407:15_EST fingers 0/SYSV
+rca50   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca50   	rca!dam (David A. Morano)
+rca50   	pr=/home/dam/src/fingers/testbase
+rca50   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca50   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca50   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca50   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca50   	PID mutex captured
+rca50   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca50   	101231_0407:15_EST ready
+rca50   	101231_0407:15_EST adding listener=uss
+rca50   	addr=/home/dam/src/fingers/testbase/tmp/fingers/srv
+rca50.0 	101231_0407:26_EST request from=localhost
+rca50.0 	server pid=4390
+rca50.0 	101231_0407:26_EST svc=help
+rca50.0 	subsvc=
+rca50.0 	server=INTERNAL(0)
+rca50.0 	101231_0407:26_EST server exit ex=0
+rca50.0 	stderr>
+rca50.0 	| hello from underworld
+rca50.0 	elapsed time     0-00:00:00
+rca50.1 	101231_0407:28_EST request from=localhost
+rca50.1 	server pid=4392
+rca50.1 	101231_0407:28_EST svc=help
+rca50.1 	subsvc=
+rca50.1 	server=INTERNAL(0)
+rca50.1 	101231_0407:28_EST server exit ex=0
+rca50.1 	stderr>
+rca50.1 	| hello from underworld
+rca50.1 	elapsed time     0-00:00:00
+rca50.2 	101231_0407:30_EST request from=localhost
+rca50.2 	server pid=4394
+rca50.2 	101231_0407:30_EST svc=help
+rca50.2 	subsvc=
+rca50.2 	server=INTERNAL(0)
+rca50.2 	101231_0407:30_EST server exit ex=0
+rca50.2 	stderr>
+rca50.2 	| hello from underworld
+rca50.2 	elapsed time     0-00:00:00
+rca50.3 	101231_0407:38_EST request from=localhost
+rca50.3 	server pid=4401
+rca50.3 	101231_0407:38_EST svc=help
+rca50.3 	subsvc=
+rca50.3 	server=INTERNAL(0)
+rca50.3 	101231_0407:38_EST server exit ex=0
+rca50.3 	stderr>
+rca50.3 	| hello from underworld
+rca50.3 	elapsed time     0-00:00:00
+rca50   	101231_0407:38_EST services changed (1)
+rca50.4 	101231_0407:40_EST request from=localhost
+rca50.4 	server pid=4403
+rca50.4 	101231_0407:40_EST svc=help
+rca50.4 	subsvc=
+rca50.4 	server=INTERNAL(0)
+rca50.4 	101231_0407:40_EST server exit ex=0
+rca50.4 	stderr>
+rca50.4 	| hello from underworld
+rca50.4 	elapsed time     0-00:00:00
+rca50.5 	101231_0407:42_EST request from=localhost
+rca50.5 	server pid=4405
+rca50.5 	101231_0407:42_EST svc=help
+rca50.5 	subsvc=
+rca50.5 	server=INTERNAL(0)
+rca50.5 	101231_0407:42_EST server exit ex=0
+rca50.5 	stderr>
+rca50.5 	| hello from underworld
+rca50.5 	elapsed time     0-00:00:00
+rca50   	101231_0409:16_EST server exiting (0)
+rca51   	101231_0410:20_EST fingers 0/SYSV
+rca51   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca51   	rca!dam (David A. Morano)
+rca51   	pr=/home/dam/src/fingers/testbase
+rca51   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca51   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca51   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca51   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca51   	PID mutex captured
+rca51   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca51   	101231_0410:20_EST ready
+rca51   	101231_0410:20_EST adding listener=uss
+rca51   	addr=/home/dam/src/fingers/testbase/tmp/fingers/srv
+rca51.0 	101231_0410:26_EST request from=localhost
+rca51.0 	server pid=4501
+rca51.0 	101231_0410:26_EST svc=help
+rca51.0 	subsvc=
+rca51.0 	server=INTERNAL(0)
+rca51.0 	101231_0410:26_EST server exit ex=0
+rca51.0 	elapsed time     0-00:00:00
+rca51.1 	101231_0410:27_EST request from=localhost
+rca51.1 	server pid=4503
+rca51.1 	101231_0410:27_EST svc=help
+rca51.1 	subsvc=
+rca51.1 	server=INTERNAL(0)
+rca51.1 	101231_0410:28_EST server exit ex=0
+rca51.1 	elapsed time     0-00:00:01
+rca51.2 	101231_0410:29_EST request from=localhost
+rca51.2 	server pid=4505
+rca51.2 	101231_0410:29_EST svc=help
+rca51.2 	subsvc=
+rca51.2 	server=INTERNAL(0)
+rca51.2 	101231_0410:29_EST server exit ex=0
+rca51.2 	elapsed time     0-00:00:00
+rca51   	101231_0410:45_EST services changed (1)
+rca51.3 	101231_0410:46_EST request from=localhost
+rca51.3 	server pid=4513
+rca51.3 	101231_0410:46_EST svc=help
+rca51.3 	subsvc=
+rca51.3 	server=INTERNAL(0)
+rca51.3 	101231_0410:46_EST server exit ex=0
+rca51.3 	elapsed time     0-00:00:00
+rca51.4 	101231_0410:47_EST request from=localhost
+rca51.4 	server pid=4515
+rca51.4 	101231_0410:47_EST svc=help
+rca51.4 	subsvc=
+rca51.4 	server=INTERNAL(0)
+rca51.4 	101231_0410:47_EST server exit ex=0
+rca51.4 	elapsed time     0-00:00:00
+rca51.5 	101231_0410:52_EST request from=localhost
+rca51.5 	server pid=4519
+rca51.5 	101231_0410:52_EST svc=help
+rca51.5 	subsvc=
+rca51.5 	server=INTERNAL(0)
+rca51.5 	101231_0410:52_EST server exit ex=0
+rca51.5 	elapsed time     0-00:00:00
+rca51   	101231_0412:21_EST server exiting (0)
+rca52   	131214_1413:36_USEST fingers 0/SYSV
+rca52   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca52   	rca!dam (David A. Morano)
+rca52   	pr=/home/dam/src/fingers/testbase
+rca52   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca52   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca52   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca52   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca52   	PID mutex captured
+rca52   	pid=9043
+rca52   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca52   	131214_1413:36_USEST ready
+rca52   	131214_1413:36_USEST adding listener=uss
+rca52   	addr=/tmp/testbase/fingers/srv1
+rca52   	131214_1413:36_USEST adding listener=pass
+rca52   	addr=/tmp/testbase/fingers/pass2
+rca52   	131214_1413:36_USEST adding listener=tcp
+rca52   	addr=testfinger
+rca52.0 	131214_1414:50_USEST request
+rca52.0 	from=localhost
+rca52.0 	server pid=9773
+rca52.0 	131214_1414:50_USEST svc=hello
+rca52.0 	subsvc=
+rca52.0 	failcont from PASS
+rca52.0 	server=echo
+rca52.0 	pf=/usr/bin/echo
+rca52.0 	argz=echo
+rca52.0 	131214_1414:50_USEST server(9773) exited normally ex=0
+rca52.0 	elapsed time     0-00:00:00
+rca52.1 	131214_1415:36_USEST request
+rca52.1 	from=localhost
+rca52.1 	server pid=9951
+rca52.1 	131214_1415:36_USEST svc=cotd
+rca52.1 	subsvc=
+rca52.1 	failcont from PASS
+rca52.1 	server=cotd
+rca52.1 	SHLIB server not found
+rca52.1 	failcont from SOLIB
+rca52.1 	server=cotd
+rca52.1 	pf=/usr/add-on/local/bin/cotd
+rca52.1 	argz=cotd
+rca52.1 	131214_1415:37_USEST server(9951) exited normally ex=0
+rca52.1 	elapsed time     0-00:00:01
+rca52   	131214_1418:56_USEST services changed (1)
+rca52.2 	131214_1418:59_USEST request
+rca52.2 	from=localhost
+rca52.2 	server pid=10488
+rca52.2 	131214_1418:59_USEST svc=cotd
+rca52.2 	subsvc=
+rca52.2 	failcont from PASS
+rca52.2 	server=cotd
+rca52.2 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca52.2 	argz=cotd
+rca52.2 	SHLIB could not execute server program (-83)
+rca52.2 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca52.2 	failcont from SOLIB
+rca52.2 	server=cotd
+rca52.2 	pf=/usr/add-on/local/bin/cotd
+rca52.2 	argz=cotd
+rca52.2 	131214_1418:59_USEST server(10488) exited normally ex=0
+rca52.2 	elapsed time     0-00:00:00
+rca52   	131214_1420:36_USEST server exiting (-4)
+rca52   	exceptional (-4)
+rca53   	131214_1421:29_USEST fingers 0/SYSV
+rca53   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca53   	rca!dam (David A. Morano)
+rca53   	pr=/home/dam/src/fingers/testbase
+rca53   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca53   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca53   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca53   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca53.0 	131214_1421:29_USEST request
+rca53.0 	from=localhost
+rca53.0 	server pid=10765
+rca53.0 	131214_1421:29_USEST svc=cotd
+rca53.0 	subsvc=
+rca53.0 	failcont from PASS
+rca53.0 	server=cotd
+rca53.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca53.0 	argz=cotd
+rca53.0 	SHLIB could not execute server program (-83)
+rca53.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca53.0 	failcont from SOLIB
+rca53.0 	server=cotd
+rca53.0 	pf=/usr/add-on/local/bin/cotd
+rca53.0 	argz=cotd
+rca53.0 	131214_1421:29_USEST server(10765) exited normally ex=0
+rca53.0 	elapsed time     0-00:00:00
+rca54   	131214_1423:20_USEST fingers 0/SYSV
+rca54   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca54   	rca!dam (David A. Morano)
+rca54   	pr=/home/dam/src/fingers/testbase
+rca54   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca54   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca54   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca54   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca54.0 	131214_1423:20_USEST request
+rca54.0 	from=localhost
+rca54.0 	server pid=10831
+rca54.0 	131214_1423:20_USEST svc=cotd
+rca54.0 	subsvc=
+rca54.0 	failcont from PASS
+rca54.0 	server=cotd
+rca54.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca54.0 	argz=cotd
+rca54.0 	SHLIB could not execute server program (-83)
+rca54.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca54.0 	failcont from SOLIB
+rca54.0 	server=cotd
+rca54.0 	pf=/usr/add-on/local/bin/cotd
+rca54.0 	argz=cotd
+rca54.0 	131214_1423:21_USEST server(10831) exited normally ex=0
+rca54.0 	elapsed time     0-00:00:01
+rca55   	131214_1512:38_USEST fingers 0/SYSV
+rca55   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca55   	rca!dam (David A. Morano)
+rca55   	pr=/home/dam/src/fingers/testbase
+rca55   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca55   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca55   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca55   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca55.0 	131214_1512:40_USEST request
+rca55.0 	from=localhost
+rca55.0 	server pid=16760
+rca55.0 	131214_1512:40_USEST svc=cotd
+rca55.0 	subsvc=
+rca55.0 	failcont from PASS
+rca55.0 	server=commandment
+rca55.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca55.0 	argz=cotd
+rca55.0 	131214_1512:41_USEST server(16760) exited normally ex=0
+rca55.0 	elapsed time     0-00:00:01
+rca56   	131214_1513:44_USEST fingers 0/SYSV
+rca56   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca56   	rca!dam (David A. Morano)
+rca56   	pr=/home/dam/src/fingers/testbase
+rca56   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca56   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca56   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca56   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca56.0 	131214_1513:44_USEST request
+rca56.0 	from=localhost
+rca56.0 	server pid=17839
+rca56.0 	131214_1513:44_USEST svc=cotd
+rca56.0 	subsvc=
+rca56.0 	failcont from PASS
+rca56.0 	server=commandment
+rca56.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca56.0 	argz=cotd
+rca56.0 	131214_1513:44_USEST server(17839) exited normally ex=0
+rca56.0 	elapsed time     0-00:00:00
+rca57   	131214_1515:20_USEST fingers 0/SYSV
+rca57   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca57   	rca!dam (David A. Morano)
+rca57   	pr=/home/dam/src/fingers/testbase
+rca57   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca57   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca57   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca57   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca57.0 	131214_1515:20_USEST request
+rca57.0 	from=localhost
+rca57.0 	server pid=18375
+rca57.0 	131214_1515:20_USEST svc=hello
+rca57.0 	subsvc=
+rca57.0 	failcont from PASS
+rca57.0 	server=echo
+rca57.0 	pf=/usr/bin/echo
+rca57.0 	argz=echo
+rca57.0 	131214_1515:20_USEST server(18375) exited normally ex=0
+rca57.0 	elapsed time     0-00:00:00
+rca58   	131214_1515:29_USEST fingers 0/SYSV
+rca58   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca58   	rca!dam (David A. Morano)
+rca58   	pr=/home/dam/src/fingers/testbase
+rca58   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca58   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca58   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca58   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca58.0 	131214_1515:29_USEST request
+rca58.0 	from=localhost
+rca58.0 	server pid=18410
+rca58.0 	131214_1515:29_USEST svc=votd
+rca58.0 	subsvc=
+rca58.0 	failcont from PASS
+rca58.0 	server=bibleverse
+rca58.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca58.0 	argz=bibleverse
+rca58.0 	131214_1515:30_USEST server(18410) exited normally ex=0
+rca58.0 	elapsed time     0-00:00:01
+rca59   	131214_1516:23_USEST fingers 0/SYSV
+rca59   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca59   	rca!dam (David A. Morano)
+rca59   	pr=/home/dam/src/fingers/testbase
+rca59   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca59   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca59   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca59   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca59.0 	131214_1516:23_USEST request
+rca59.0 	from=localhost
+rca59.0 	server pid=18716
+rca59.0 	131214_1516:23_USEST svc=cotd
+rca59.0 	subsvc=
+rca59.0 	failcont from PASS
+rca59.0 	server=commandment
+rca59.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca59.0 	argz=commandment
+rca59.0 	131214_1516:23_USEST server(18716) exited normally ex=0
+rca59.0 	elapsed time     0-00:00:00
+rca60   	131214_1517:55_USEST fingers 0/SYSV
+rca60   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca60   	rca!dam (David A. Morano)
+rca60   	pr=/home/dam/src/fingers/testbase
+rca60   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca60   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca60   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca60   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca60   	PID mutex captured
+rca60   	pid=18867
+rca60   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca60   	131214_1517:55_USEST ready
+rca60   	131214_1517:55_USEST adding listener=uss
+rca60   	addr=/tmp/testbase/fingers/srv1
+rca60   	131214_1517:55_USEST adding listener=pass
+rca60   	addr=/tmp/testbase/fingers/pass2
+rca60   	131214_1517:55_USEST adding listener=tcp
+rca60   	addr=testfinger
+rca60   	131214_1518:11_USEST mark> rca
+rca60   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca60   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca60   	i=2 A type=tcp addr=testfinger
+rca60.0 	131214_1520:27_USEST request
+rca60.0 	from=localhost
+rca60.0 	server pid=19182
+rca60.0 	131214_1520:27_USEST svc=hello
+rca60.0 	subsvc=
+rca60.0 	failcont from PASS
+rca60.0 	server=echo
+rca60.0 	pf=/usr/bin/echo
+rca60.0 	argz=echo
+rca60.0 	131214_1520:27_USEST server(19182) exited normally ex=0
+rca60.0 	elapsed time     0-00:00:00
+rca60.1 	131214_1526:13_USEST request
+rca60.1 	from=localhost
+rca60.1 	server pid=19347
+rca60.1 	131214_1526:13_USEST svc=cotd
+rca60.1 	subsvc=
+rca60.1 	failcont from PASS
+rca60.1 	server=commandment
+rca60.1 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca60.1 	argz=commandment
+rca60.1 	131214_1526:13_USEST server(19347) exited normally ex=0
+rca60.1 	elapsed time     0-00:00:00
+rca60.2 	131214_1535:10_USEST request
+rca60.2 	from=localhost
+rca60.2 	server pid=19583
+rca60.2 	131214_1535:10_USEST svc=cotd
+rca60.2 	subsvc=
+rca60.2 	failcont from PASS
+rca60.2 	server=commandment
+rca60.2 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca60.2 	argz=commandment
+rca60.2 	131214_1535:10_USEST server(19583) exited normally ex=0
+rca60.2 	elapsed time     0-00:00:00
+rca60.3 	131214_1535:24_USEST request
+rca60.3 	from=localhost
+rca60.3 	server pid=19585
+rca60.3 	131214_1535:24_USEST svc=hello
+rca60.3 	subsvc=
+rca60.3 	failcont from PASS
+rca60.3 	server=echo
+rca60.3 	pf=/usr/bin/echo
+rca60.3 	argz=echo
+rca60.3 	131214_1535:24_USEST server(19585) exited normally ex=0
+rca60.3 	elapsed time     0-00:00:00
+rca60   	131214_1537:57_USEST server exiting (0)
+rca61   	131214_1549:24_USEST fingers 0/SYSV
+rca61   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca61   	rca!dam (David A. Morano)
+rca61   	pr=/home/dam/src/fingers/testbase
+rca61   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca61   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca61   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca61   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca61   	PID mutex captured
+rca61   	pid=19984
+rca61   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca61   	131214_1549:24_USEST ready
+rca61   	131214_1549:24_USEST adding listener=uss
+rca61   	addr=/tmp/testbase/fingers/srv1
+rca61   	131214_1549:24_USEST adding listener=pass
+rca61   	addr=/tmp/testbase/fingers/pass2
+rca61   	131214_1549:24_USEST adding listener=tcp
+rca61   	addr=testfinger
+rca61.0 	131214_1549:27_USEST request
+rca61.0 	from=localhost
+rca61.0 	server pid=19985
+rca61.0 	131214_1549:27_USEST svc=hello
+rca61.0 	subsvc=
+rca61.0 	failcont from PASS
+rca61.0 	server=echo
+rca61.0 	pf=/usr/bin/echo
+rca61.0 	argz=echo
+rca61.0 	131214_1549:27_USEST server(19985) exited normally ex=0
+rca61.0 	elapsed time     0-00:00:00
+rca61.1 	131214_1549:30_USEST request
+rca61.1 	from=localhost
+rca61.1 	server pid=19986
+rca61.1 	131214_1549:30_USEST svc=cotd
+rca61.1 	subsvc=
+rca61.1 	failcont from PASS
+rca61.1 	server=commandment
+rca61.1 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca61.1 	argz=commandment
+rca61.1 	131214_1549:30_USEST server(19986) exited normally ex=0
+rca61.1 	elapsed time     0-00:00:00
+rca61   	131214_1603:02_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1608:53_USEST re-configuration
+rca61   	131214_1608:53_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1609:54_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1610:54_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1611:55_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1612:56_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1613:56_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1614:57_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1615:58_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1616:58_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1618:01_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1619:01_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1620:02_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1621:03_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1622:03_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1623:04_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1624:04_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1625:05_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1626:06_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1627:07_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1628:07_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1629:08_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1630:08_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1631:09_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1632:10_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1633:10_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1634:11_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1635:12_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1636:12_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1637:13_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1638:14_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1639:14_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1640:15_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1641:15_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1642:16_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1643:17_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1644:17_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1645:18_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1646:19_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1647:21_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1648:22_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1649:23_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1650:24_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1651:25_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1652:25_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1653:26_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1654:27_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1655:27_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1656:28_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1657:29_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1658:29_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1659:30_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1700:30_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1701:31_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1702:32_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1703:33_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1704:36_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1705:37_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1706:37_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1707:38_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1708:39_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1709:39_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1710:40_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1711:40_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1712:41_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1713:42_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1714:43_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1715:43_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1716:44_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1717:45_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1718:45_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1719:46_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1720:47_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1721:47_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1722:48_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1723:49_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1724:51_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1725:52_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1726:54_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1727:54_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1728:55_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1729:56_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1730:56_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1731:57_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1732:58_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1733:59_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1735:00_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1736:00_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1737:01_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1738:02_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1739:02_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1740:03_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1741:04_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1742:04_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1743:05_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1744:07_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1745:08_USEST mark> rca
+rca61   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca61   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca61   	i=2 A type=tcp addr=testfinger
+rca61   	131214_1745:30_USEST server exiting (-4)
+rca61   	exceptional (-4)
+rca62   	131214_1746:14_USEST fingers 0/SYSV
+rca62   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca62   	rca!dam (David A. Morano)
+rca62   	pr=/home/dam/src/fingers/testbase
+rca62   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca62   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca62   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca62   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca63   	131214_1750:36_USEST fingers 0/SYSV
+rca63   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca63   	rca!dam (David A. Morano)
+rca63   	pr=/home/dam/src/fingers/testbase
+rca63   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca63   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca63   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca63   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca64   	131214_1753:20_USEST fingers 0/SYSV
+rca64   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca64   	rca!dam (David A. Morano)
+rca64   	pr=/home/dam/src/fingers/testbase
+rca64   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca64   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca64   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca64   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca64.0 	131214_1753:20_USEST request
+rca64.0 	from=localhost
+rca64.0 	server pid=7360
+rca64.0 	131214_1753:20_USEST svc=cotd
+rca64.0 	subsvc=
+rca64.0 	failcont from PASS
+rca64.0 	server=commandment
+rca64.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca64.0 	argz=commandment
+rca64.0 	131214_1753:20_USEST server(7360) exited normally ex=0
+rca64.0 	elapsed time     0-00:00:00
+rca65   	131214_1753:33_USEST fingers 0/SYSV
+rca65   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca65   	rca!dam (David A. Morano)
+rca65   	pr=/home/dam/src/fingers/testbase
+rca65   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca65   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca65   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca65   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca65   	PID mutex captured
+rca65   	pid=7363
+rca65   	req=/home/dam/src/fingers/testbase/var/fingers/rca.req
+rca65   	131214_1753:33_USEST ready
+rca65   	131214_1753:33_USEST adding listener=uss
+rca65   	addr=/tmp/testbase/fingers/srv1
+rca65   	131214_1753:33_USEST adding listener=pass
+rca65   	addr=/tmp/testbase/fingers/pass2
+rca65   	131214_1753:33_USEST adding listener=tcp
+rca65   	addr=testfinger
+rca65   	131214_1753:52_USEST mark> rca
+rca65   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca65   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca65   	i=2 A type=tcp addr=testfinger
+rca65.0 	131214_1754:17_USEST request
+rca65.0 	from=localhost
+rca65.0 	server pid=7392
+rca65.0 	131214_1754:17_USEST svc=cotd
+rca65.0 	subsvc=
+rca65.0 	failcont from PASS
+rca65.0 	server=commandment
+rca65.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca65.0 	argz=commandment
+rca65.0 	131214_1754:17_USEST server(7392) exited normally ex=0
+rca65.0 	elapsed time     0-00:00:00
+rca65   	131214_1754:29_USEST mark> rca
+rca65   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca65   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca65   	i=2 A type=tcp addr=testfinger
+rca65   	131214_1814:29_USEST mark> rca
+rca65   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca65   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca65   	i=2 A type=tcp addr=testfinger
+rca65   	131214_1834:29_USEST mark> rca
+rca65   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca65   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca65   	i=2 A type=tcp addr=testfinger
+rca65   	131214_1836:06_USEST mark> rca
+rca65   	i=0 A type=uss addr=/tmp/testbase/fingers/srv1
+rca65   	i=1 A type=pass addr=/tmp/testbase/fingers/pass2
+rca65   	i=2 A type=tcp addr=testfinger
+rca65   	131214_1837:55_USEST server exiting (-4)
+rca65   	exceptional (-4)
+rca66   	131222_2004:31_EST fingers 0/SYSV
+rca66   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca66   	rca!local (LOCAL)
+rca66   	pr=/home/local/src/fingers/testbase
+rca66   	conf=/home/local/src/fingers/testbase/etc/fingers/fingers.conf
+rca66   	pid=/home/local/src/fingers/testbase/var/run/rca.fingers
+rca66   	svc=/home/local/src/fingers/testbase/etc/fingers/fingers.svc
+rca66   	acc=/home/local/src/fingers/testbase/etc/fingers/acc
+rca66   	PID mutex captured
+rca66   	pid=13592
+rca66   	req=/home/local/src/fingers/testbase/var/fingers/rca.req
+rca66   	131222_2004:33_EST ready
+rca66   	131222_2004:34_EST broken(-125) listener=uss
+rca66   	addr=/tmp/testbase/fingers/srv1
+rca66   	131222_2004:34_EST adding listener=pass
+rca66   	addr=/tmp/testbase/fingers/pass2
+rca66   	131222_2004:34_EST adding listener=tcp
+rca66   	addr=testfinger
+rca66   	131222_2005:35_EST server exiting (0)
+rca67   	140407_1553:27_USEDT fingers 0/SYSV
+rca67   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca67   	rca!dam (David A. Morano)
+rca67   	pr=/home/dam/src/fingers/testbase
+rca67   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca67   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca67   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca67   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca67.0 	140407_1553:27_USEDT request
+rca67.0 	from=localhost
+rca67.0 	server pid=28311
+rca67.0 	140407_1553:27_USEDT svc=hello
+rca67.0 	subsvc=
+rca67.0 	failcont from PASS
+rca67.0 	server=echo
+rca67.0 	pf=/usr/bin/echo
+rca67.0 	argz=echo
+rca67.0 	140407_1553:27_USEDT server(28311) exited normally ex=0
+rca67.0 	elapsed time     0-00:00:00
+rca68   	140407_1553:34_USEDT fingers 0/SYSV
+rca68   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca68   	rca!dam (David A. Morano)
+rca68   	pr=/home/dam/src/fingers/testbase
+rca68   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca68   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca68   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca68   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca68.0 	140407_1553:34_USEDT request
+rca68.0 	from=localhost
+rca68.0 	server pid=28316
+rca68.0 	140407_1553:34_USEDT svc=netstat
+rca68.0 	subsvc=
+rca68.0 	failcont from PASS
+rca68.0 	server=echo
+rca68.0 	pf=/usr/bin/echo
+rca68.0 	argz=echo
+rca68.0 	140407_1553:34_USEDT server(28316) exited normally ex=0
+rca68.0 	elapsed time     0-00:00:00
+rca69   	140407_1554:21_USEDT fingers 0/SYSV
+rca69   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca69   	rca!dam (David A. Morano)
+rca69   	pr=/home/dam/src/fingers/testbase
+rca69   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca69   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca69   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca69   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca69.0 	140407_1554:21_USEDT request
+rca69.0 	from=localhost
+rca69.0 	server pid=28358
+rca69.0 	140407_1554:21_USEDT svc=netstat
+rca69.0 	subsvc=
+rca69.0 	failcont from PASS
+rca69.0 	server=echo
+rca69.0 	pf=/usr/bin/echo
+rca69.0 	argz=echo
+rca69.0 	140407_1554:21_USEDT server(28358) exited normally ex=0
+rca69.0 	elapsed time     0-00:00:00
+rca70   	140407_1555:04_USEDT fingers 0/SYSV
+rca70   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca70   	rca!dam (David A. Morano)
+rca70   	pr=/home/dam/src/fingers/testbase
+rca70   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca70   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca70   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca70   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca70.0 	140407_1555:04_USEDT request
+rca70.0 	from=localhost
+rca70.0 	server pid=28372
+rca70.0 	140407_1555:04_USEDT svc=netstat
+rca70.0 	subsvc=
+rca70.0 	failcont from PASS
+rca70.0 	server=echo
+rca70.0 	pf=/usr/bin/echo
+rca70.0 	argz=echo
+rca70.0 	140407_1555:04_USEDT server(28372) exited normally ex=0
+rca70.0 	elapsed time     0-00:00:00
+rca71   	140407_1557:39_USEDT fingers 0/SYSV
+rca71   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca71   	rca!dam (David A. Morano)
+rca71   	pr=/home/dam/src/fingers/testbase
+rca71   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca71   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca71   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca71   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca71.0 	140407_1557:39_USEDT request
+rca71.0 	from=localhost
+rca71.0 	server pid=28595
+rca71.0 	140407_1557:39_USEDT svc=netstat
+rca71.0 	subsvc=
+rca71.0 	failcont from PASS
+rca71.0 	server=echo
+rca71.0 	pf=/usr/bin/echo
+rca71.0 	argz=echo
+rca71.0 	140407_1557:39_USEDT server(28595) exited normally ex=0
+rca71.0 	elapsed time     0-00:00:00
+rca72   	140407_2311:07_USEDT fingers 0/SYSV
+rca72   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca72   	rca!dam (David A. Morano)
+rca72   	pr=/home/dam/src/fingers/testbase
+rca72   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca72   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca72   	svc=/ho
+rca72   	srvfile=/ho
+rca72   	file unavailable (-2)
+rca73   	140407_2311:17_USEDT fingers 0/SYSV
+rca73   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca73   	rca!dam (David A. Morano)
+rca73   	pr=/home/dam/src/fingers/testbase
+rca73   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca73   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca73   	svc=/ho
+rca73   	srvfile=/ho
+rca73   	file unavailable (-2)
+rca74   	140407_2312:46_USEDT fingers 0/SYSV
+rca74   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca74   	rca!dam (David A. Morano)
+rca74   	pr=/home/dam/src/fingers/testbase
+rca74   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca74   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca74   	svc=/ho
+rca74   	srvfile=/ho
+rca74   	file unavailable (-2)
+rca75   	140407_2315:39_USEDT fingers 0/SYSV
+rca75   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca75   	rca!dam (David A. Morano)
+rca75   	pr=/home/dam/src/fingers/testbase
+rca75   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca75   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca75   	svc=/ho
+rca75   	srvfile=/ho
+rca75   	file unavailable (-2)
+rca76   	140407_2319:18_USEDT fingers 0/SYSV
+rca76   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca76   	rca!dam (David A. Morano)
+rca76   	pr=/home/dam/src/fingers/testbase
+rca76   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca76   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca76   	svc=/ho
+rca76   	srvfile=/ho
+rca76   	file unavailable (-2)
+rca77   	140407_2324:51_USEDT fingers 0/SYSV
+rca77   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca77   	rca!dam (David A. Morano)
+rca77   	pr=/home/dam/src/fingers/testbase
+rca77   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca77   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca77   	svc=/ho
+rca77   	srvfile=/ho
+rca77   	file unavailable (-2)
+rca78   	140407_2326:08_USEDT fingers 0/SYSV
+rca78   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca78   	rca!dam (David A. Morano)
+rca78   	pr=/home/dam/src/fingers/testbase
+rca78   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca78   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca78   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca78   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca78.0 	140407_2326:08_USEDT request
+rca78.0 	from=localhost
+rca78.0 	server pid=9304
+rca78.0 	140407_2326:08_USEDT svc=hello
+rca78.0 	subsvc=
+rca78.0 	failcont from PASS
+rca78.0 	server=echo
+rca78.0 	pf=/usr/bin/echo
+rca78.0 	argz=echo
+rca78.0 	140407_2326:08_USEDT server(9304) exited normally ex=0
+rca78.0 	elapsed time     0-00:00:00
+rca79   	140728_1131:36_USEDT fingers 0/SYSV
+rca79   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca79   	rca!dam (David A. Morano)
+rca79   	pr=/home/dam/src/fingers/testbase
+rca79   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca79   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca79   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca79   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca79   	PID mutex captured
+rca79   	pid=27604
+rca79   	req=/tmp/testbase/fingers/req
+rca79   	140728_1131:38_USEDT ready
+rca79   	140728_1131:38_USEDT adding listener=pass
+rca79   	addr=/tmp/testbase/fingers/pass
+rca79   	140728_1131:38_USEDT adding listener=uss
+rca79   	addr=/tmp/testbase/fingers/srv
+rca79   	140728_1131:38_USEDT adding listener=tcp
+rca79   	addr=finger
+rca79   	140728_1131:38_USEDT adding listener=tcp
+rca79   	addr=5112
+rca79   	140728_1132:39_USEDT server exiting (0)
+rca80   	140728_1132:56_USEDT fingers 0/SYSV
+rca80   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca80   	rca!dam (David A. Morano)
+rca80   	pr=/home/dam/src/fingers/testbase
+rca80   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca80   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca80   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca80   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca80   	PID mutex captured
+rca80   	pid=27643
+rca80   	req=/tmp/testbase/fingers/req
+rca80   	140728_1132:57_USEDT ready
+rca80   	140728_1132:57_USEDT adding listener=pass
+rca80   	addr=/tmp/testbase/fingers/pass
+rca80   	140728_1132:57_USEDT adding listener=uss
+rca80   	addr=/tmp/testbase/fingers/srv
+rca80   	140728_1132:57_USEDT adding listener=tcp
+rca80   	addr=finger
+rca80   	140728_1132:57_USEDT adding listener=tcp
+rca80   	addr=5112
+rca80   	140728_1134:56_USEDT mark> rca
+rca80   	i=0 A type=pass addr=/tmp/testbase/fingers/pass
+rca80   	i=1 A type=uss addr=/tmp/testbase/fingers/srv
+rca80   	i=2 A type=tcp addr=finger
+rca80   	i=3 A type=tcp addr=5112
+rca80   	140728_1135:58_USEDT server exiting (0)
+rca81   	140728_1203:02_USEDT fingers 0/SYSV
+rca81   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca81   	rca!dam (David A. Morano)
+rca81   	pr=/home/dam/src/fingers/testbase
+rca81   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca81   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca81   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca81   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca81   	PID mutex captured
+rca81   	pid=28502
+rca81   	req=/tmp/testbase/fingers/req
+rca81   	140728_1203:02_USEDT ready
+rca81   	140728_1203:02_USEDT adding listener=pass
+rca81   	addr=/tmp/testbase/fingers/pass
+rca81   	140728_1203:02_USEDT adding listener=uss
+rca81   	addr=/tmp/testbase/fingers/srv
+rca81   	140728_1203:02_USEDT adding listener=tcp
+rca81   	addr=finger
+rca81   	140728_1203:02_USEDT adding listener=tcp
+rca81   	addr=5112
+rca81   	140728_1203:33_USEDT server exiting (0)
+rca82   	140728_1204:13_USEDT fingers 0/SYSV
+rca82   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca82   	rca!dam (David A. Morano)
+rca82   	pr=/home/dam/src/fingers/testbase
+rca82   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca82   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca82   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca82   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca82   	PID mutex captured
+rca82   	pid=28526
+rca82   	req=/tmp/testbase/fingers/req
+rca82   	140728_1204:14_USEDT ready
+rca82   	140728_1204:14_USEDT adding listener=pass
+rca82   	addr=/tmp/testbase/fingers/pass
+rca82   	140728_1204:14_USEDT adding listener=uss
+rca82   	addr=/tmp/testbase/fingers/srv
+rca82   	140728_1204:14_USEDT adding listener=tcp
+rca82   	addr=finger
+rca82   	140728_1204:14_USEDT adding listener=tcp
+rca82   	addr=5112
+rca82   	140728_1204:45_USEDT server exiting (0)
+rca83   	140728_1222:27_USEDT fingers 0/SYSV
+rca83   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca83   	rca!dam (David A. Morano)
+rca83   	pr=/home/dam/src/fingers/testbase
+rca83   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca83   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca83   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca83   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca83.0 	140728_1222:28_USEDT request
+rca83.0 	from=localhost
+rca83.0 	server pid=4554
+rca83.0 	140728_1222:28_USEDT svc=cotd
+rca83.0 	subsvc=
+rca83.0 	failcont from PASS
+rca83.0 	server=commandment
+rca83.0 	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca83.0 	argz=commandment
+rca83   	unknown PID=4553
+rca83   	unknown PID=4552
+rca83   	unknown PID=4551
+rca83.0 	140728_1222:28_USEDT server(4554) exited normally ex=0
+rca83.0 	elapsed time     0-00:00:00
+rca84   	140728_1222:54_USEDT fingers 0/SYSV
+rca84   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca84   	rca!dam (David A. Morano)
+rca84   	pr=/home/dam/src/fingers/testbase
+rca84   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca84   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca84   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca84   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca84   	PID mutex captured
+rca84   	pid=4636
+rca84   	req=/tmp/testbase/fingers/req
+rca84   	140728_1222:55_USEDT ready
+rca84   	140728_1222:55_USEDT adding listener=pass
+rca84   	addr=/tmp/testbase/fingers/pass
+rca84   	140728_1222:55_USEDT adding listener=uss
+rca84   	addr=/tmp/testbase/fingers/srv
+rca84   	140728_1222:55_USEDT adding listener=tcp
+rca84   	addr=finger
+rca84   	140728_1222:55_USEDT adding listener=tcp
+rca84   	addr=5112
+rca84   	140728_1223:07_USEDT mark> rca
+rca84   	i=0 A type=pass addr=/tmp/testbase/fingers/pass
+rca84   	i=1 A type=uss addr=/tmp/testbase/fingers/srv
+rca84   	i=2 A type=tcp addr=finger
+rca84   	i=3 A type=tcp addr=5112
+rca84   	140728_1223:26_USEDT server exiting (0)
+rca85   	140728_1357:09_USEDT fingers 0/SYSV
+rca85   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca85   	rca!dam (David A. Morano)
+rca85   	pr=/home/dam/src/fingers/testbase
+rca85   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca85   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca85   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca85   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca85   	PID mutex captured
+rca85   	pid=15889
+rca85   	req=/tmp/testbase/fingers/req
+rca85   	140728_1357:10_USEDT ready
+rca85   	140728_1357:10_USEDT adding listener=pass
+rca85   	addr=/tmp/testbase/fingers/pass
+rca85   	140728_1357:10_USEDT adding listener=uss
+rca85   	addr=/tmp/testbase/fingers/srv
+rca85   	140728_1357:10_USEDT adding listener=tcp
+rca85   	addr=finger
+rca85   	140728_1357:10_USEDT adding listener=tcp
+rca85   	addr=5112
+rca85   	140728_1357:41_USEDT server exiting (0)
+rca86   	140728_1400:18_USEDT fingers 0/SYSV
+rca86   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca86   	rca!dam (David A. Morano)
+rca86   	pr=/home/dam/src/fingers/testbase
+rca86   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca86   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca86   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca86   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca86   	PID mutex captured
+rca86   	pid=16030
+rca86   	req=/tmp/testbase/fingers/req
+rca86   	140728_1400:20_USEDT ready
+rca86   	140728_1400:20_USEDT adding listener=pass
+rca86   	addr=/tmp/testbase/fingers/pass
+rca86   	140728_1400:20_USEDT adding listener=uss
+rca86   	addr=/tmp/testbase/fingers/srv
+rca86   	140728_1400:20_USEDT adding listener=tcp
+rca86   	addr=finger
+rca86   	140728_1400:20_USEDT adding listener=tcp
+rca86   	addr=5112
+rca86   	140728_1400:41_USEDT server exiting (0)
+rca87   	140728_1403:20_USEDT fingers 0/SYSV
+rca87   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca87   	rca!dam (David A. Morano)
+rca87   	pr=/home/dam/src/fingers/testbase
+rca87   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca87   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca87   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca87   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca87   	PID mutex captured
+rca87   	pid=16203
+rca87   	req=/tmp/testbase/fingers/req
+rca87   	140728_1403:22_USEDT ready
+rca87   	140728_1403:22_USEDT adding listener=pass
+rca87   	addr=/tmp/testbase/fingers/pass
+rca87   	140728_1403:22_USEDT adding listener=uss
+rca87   	addr=/tmp/testbase/fingers/srv
+rca87   	140728_1403:22_USEDT adding listener=tcp
+rca87   	addr=finger
+rca87   	140728_1403:22_USEDT adding listener=tcp
+rca87   	addr=5112
+rca87   	140728_1403:43_USEDT server exiting (0)
+rca88   	140728_1409:33_USEDT fingers 0/SYSV
+rca88   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca88   	rca!dam (David A. Morano)
+rca88   	pr=/home/dam/src/fingers/testbase
+rca88   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca88   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca88   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca88   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca88   	PID mutex captured
+rca88   	pid=16942
+rca88   	req=/tmp/testbase/fingers/req
+rca88   	140728_1409:33_USEDT ready
+rca88   	140728_1409:33_USEDT adding listener=pass
+rca88   	addr=/tmp/testbase/fingers/pass
+rca88   	140728_1409:33_USEDT adding listener=uss
+rca88   	addr=/tmp/testbase/fingers/srv
+rca88   	140728_1409:33_USEDT adding listener=tcp
+rca88   	addr=finger
+rca88   	140728_1409:33_USEDT adding listener=tcp
+rca88   	addr=5112
+rca88   	140728_1409:44_USEDT server exiting (0)
+rca89   	140728_1509:46_USEDT fingers 0/SYSV
+rca89   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca89   	rca!dam (David A. Morano)
+rca89   	pr=/home/dam/src/fingers/testbase
+rca89   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca89   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca89   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca89   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca89   	PID mutex captured
+rca89   	pid=26089
+rca89   	req=/tmp/testbase/fingers/req
+rca89   	140728_1509:47_USEDT ready
+rca89   	140728_1509:47_USEDT adding listener=pass
+rca89   	addr=/tmp/testbase/fingers/pass
+rca89   	140728_1509:47_USEDT adding listener=uss
+rca89   	addr=/tmp/testbase/fingers/srv
+rca89   	140728_1509:47_USEDT adding listener=tcp
+rca89   	addr=finger
+rca89   	140728_1509:47_USEDT adding listener=tcp
+rca89   	addr=5112
+rca89   	140728_1509:58_USEDT server exiting (0)
+rca90   	140728_1523:58_USEDT fingers 0/SYSV
+rca90   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca90   	rca!dam (David A. Morano)
+rca90   	pr=/home/dam/src/fingers/testbase
+rca90   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca90   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca90   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca90   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca90   	PID mutex captured
+rca90   	pid=2621
+rca90   	req=/tmp/testbase/fingers/req
+rca90   	140728_1523:58_USEDT ready
+rca90   	140728_1523:58_USEDT adding listener=pass
+rca90   	addr=/tmp/testbase/fingers/pass
+rca90   	140728_1523:58_USEDT adding listener=uss
+rca90   	addr=/tmp/testbase/fingers/srv
+rca90   	140728_1523:58_USEDT adding listener=tcp
+rca90   	addr=finger
+rca90   	140728_1523:58_USEDT adding listener=tcp
+rca90   	addr=5112
+rca90   	140728_1524:03_USEDT mark> rca
+rca90   	i=0 A type=pass addr=/tmp/testbase/fingers/pass
+rca90   	i=1 A type=uss addr=/tmp/testbase/fingers/srv
+rca90   	i=2 A type=tcp addr=finger
+rca90   	i=3 A type=tcp addr=5112
+rca90   	140728_1524:09_USEDT server exiting (0)
+rca91   	140728_1530:50_USEDT fingers 0/SYSV
+rca91   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca91   	rca!dam (David A. Morano)
+rca91   	pr=/home/dam/src/fingers/testbase
+rca91   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca91   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca91   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca91   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca91   	PID mutex captured
+rca91   	pid=3222
+rca91   	req=/tmp/testbase/fingers/req
+rca91   	140728_1530:51_USEDT ready
+rca91   	140728_1530:51_USEDT adding listener=pass
+rca91   	addr=/tmp/testbase/fingers/pass
+rca91   	140728_1530:51_USEDT adding listener=uss
+rca91   	addr=/tmp/testbase/fingers/srv
+rca91   	140728_1530:51_USEDT adding listener=tcp
+rca91   	addr=finger
+rca91   	140728_1530:51_USEDT adding listener=tcp
+rca91   	addr=5112
+rca91   	140728_1530:56_USEDT mark> rca
+rca91   	i=0 A type=pass addr=/tmp/testbase/fingers/pass
+rca91   	i=1 A type=uss addr=/tmp/testbase/fingers/srv
+rca91   	i=2 A type=tcp addr=finger
+rca91   	i=3 A type=tcp addr=5112
+rca91   	140728_1531:02_USEDT server exiting (0)
+rca92   	140728_1545:24_USEDT fingers 0/SYSV
+rca92   	a=sparc os=SunOS(5.8) d=rightcore.com
+rca92   	rca!dam (David A. Morano)
+rca92   	pr=/home/dam/src/fingers/testbase
+rca92   	conf=/home/dam/src/fingers/testbase/etc/fingers/fingers.conf
+rca92   	pid=/home/dam/src/fingers/testbase/var/run/rca.fingers
+rca92   	svc=/home/dam/src/fingers/testbase/etc/fingers/fingers.svc
+rca92   	acc=/home/dam/src/fingers/testbase/etc/fingers/acc
+rca92   	PID mutex captured
+rca92   	pid=3931
+rca92   	req=/tmp/testbase/fingers/req
+rca92   	140728_1545:24_USEDT ready
+rca92   	140728_1545:24_USEDT adding listener=pass
+rca92   	addr=/tmp/testbase/fingers/pass
+rca92   	140728_1545:24_USEDT adding listener=uss
+rca92   	addr=/tmp/testbase/fingers/srv
+rca92   	140728_1545:24_USEDT adding listener=tcp
+rca92   	addr=finger
+rca92   	140728_1545:24_USEDT adding listener=tcp
+rca92   	addr=5112
+rca92   	140728_1545:55_USEDT mark> rca
+rca92   	i=0 A type=pass addr=/tmp/testbase/fingers/pass
+rca92   	i=1 A type=uss addr=/tmp/testbase/fingers/srv
+rca92   	i=2 A type=tcp addr=finger
+rca92   	i=3 A type=tcp addr=5112

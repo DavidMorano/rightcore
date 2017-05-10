@@ -1,0 +1,18 @@
+
+
+DAMuunames {
+	global:
+		uunames ;
+		uunames_open ;
+		uunames_count ;
+		uunames_exists ;
+		uunames_curbegin ;
+		uunames_enum ;
+		uunames_curend ;
+		uunames_audit ;
+		uunames_close ;
+	local:
+		* ;
+} ;
+
+

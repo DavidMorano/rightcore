@@ -1,0 +1,31 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+NAMES=" hexing hex dehex "
+
+T=${1}
+if [[ -z "${1}" ]] ; then
+  T=$( pwd | basename )
+fi
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+PRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+for N in ${NAMES} ; do
+  ln -f ${T}.x ${N}
+done
+
+for PR in ${PRS} ; do
+  if [[ -d ${PR} ]] ; then
+    BINDIR=${PR}/bin
+    if [[ -d ${BINDIR} ]] ; then
+      filesyncer -d ${BINDIR} ${NAMES} &
+    fi
+  fi
+done
+wait
+
+

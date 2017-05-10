@@ -1,0 +1,20 @@
+#!/usr/preroot/bin/ksh
+# MKFMT
+
+
+integer i=0 c=0 n=76 j=0
+
+for (( c = 0 ; c < n ; c += 1)) ; do 
+  V=$( fibonacci.x  ${c} )
+  if [[ ${j} -ne 0 ]] ; then
+    printf -- ", "
+  fi
+  printf -- "0x%08x" ${V}
+  (( j += 1 ))
+  if [[ ${j} -ge 4 ]] ; then
+    (( j = 0 ))
+    print -- 
+  fi
+done > fibotab.txt
+
+

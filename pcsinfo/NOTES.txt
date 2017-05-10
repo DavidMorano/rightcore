@@ -1,0 +1,33 @@
+PCSINFO
+
+One component of traditional PCS name handling is that users on the
+system are handled both as being indexed by usernames as well as their
+real names.  Indexing by username is easy and goes directly to the
+system username-lookup subroutine interface.  However handling system
+users by their real names requires a reverse index is order to get back
+to a username.
+
+The database looks like:
+
+david.a.morano|morano
+john.d.morano|john
+
+or
+
+david|a|morano|morano
+john|d|morano|john
+
+
+A query like:
+
+d.mor
+
+would result in two lookups.  The first is to the last-name index with
+the key 'mor'.  Since there are only indexes by 2 characters and 4
+characters, we need to do a 2-character lookup on the last-name index.
+We also do a 1-character lookup on the first-name index.  We then take
+the intersection of those two lookup results (database join) and then
+do full comparisons on the remaining hits.
+
+
+

@@ -1,0 +1,12 @@
+DWD
+
+Synopsis :
+
+dwd [directory] [srvtab] [-C conf] [-polltime] [-?v] [-D[=n]]
+
+Description:
+
+This program will watch a single directory for incoming files and look
+up the file in a "service" table to find the appropriate server program
+to spawn off to handle the request.
+

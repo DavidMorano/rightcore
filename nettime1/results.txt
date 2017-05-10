@@ -1,0 +1,27 @@
+
+100829_0031:54_EDT      +000.214 17  2 time-a.nist.gov
+100829_0031:54_EDT      +000.183 17  2 time-b.nist.gov
+-                       +000.000 tock.usno.navy.mil (-145)
+-                       +000.000 timex.cs.columbia.edu (-145)
+-                       +000.000 time.apple.com (-145)
+-                       +000.000 ntp1.ece.neu.edu (-145)
+-                       +000.000 ntp2.ece.neu.edu (-145)
+100828_2245:38_EDT      +000.791 sundial.columbia.edu
+-                       +000.000 timex.cs.columbia.edu (-145)
+100828_2246:13_EDT      +000.814 ntp0.cornell.edu
+100828_2246:13_EDT      +000.738 ntp1.cornell.edu
+100828_2246:13_EDT      +000.660 ntp2.cornell.edu
+100828_2246:13_EDT      +000.591 ntp3.cornell.edu
+-                       +000.000 ntp.bldrdoc.gov (-148)
+-                       +000.000 ntp.cc.utexas.edu (-148)
+-                       +000.000 wwvb.erg.sri.com (-148)
+-                       +000.000 time.apple.com (-145)
+100828_2247:34_EDT      +000.935 sundial.columbia.edu
+-                       +000.000 timex.cs.columbia.edu (-145)
+-                       +000.000 ntp.ctr.columbia.edu (-146)
+-                       +000.000 tick.mit.edu (-145)
+-                       +000.000 timeserver.cs.umb.edu (-148)
+-                       +000.000 mead.harvard.edu (-148)
+-                       +000.000 ntp.ourconcord.net (-148)
+
+

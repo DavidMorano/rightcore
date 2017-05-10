@@ -1,0 +1,37 @@
+
+
+DAMb {
+	global:
+		bclose ;
+		bcontrol ;
+		bwrite ;
+		bwritefile ;
+		bwriteblanks ;
+		bwriteblock ;
+		bcopyblock ;
+		bflush ;
+		bgetc ;
+		bopen ;
+		bopencmd ;
+		bopenlock ;
+		bopenprog ;
+		bopenrcmd ;
+		bopensched ;
+		bopentmp ;
+		bprintf ;
+		bvprintf ;
+		bputc ;
+		bread ;
+		breadline ;
+		breadlines ;
+		breadlinetimed ;
+		bseek ;
+		btell ;
+		btruncate ;
+		format ;
+		bufprintf ;
+	local:
+		* ;
+} ;
+
+

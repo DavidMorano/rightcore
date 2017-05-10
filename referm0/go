@@ -1,0 +1,4 @@
+
+INDEX=/proj/starbase/designs/misc/lib/papers/INDEX
+referm -D -p ${INDEX} testdoc.mm > o.out 2> o2.out
+

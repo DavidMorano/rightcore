@@ -1,0 +1,38 @@
+TIMESERVERS
+
+
+These still seem to work (sometimes):
+
+time-a.nist.gov 
+time-b.nist.gov 
+time.nist.gov 
+
+
+All these no longer report back!
+
+
+ntp0.cornell.edu
+ntp1.cornell.edu
+ntp2.cornell.edu
+ntp3.cornell.edu
+tock.usno.navy.mil (s1)
+time.apple.com (s2)
+timex.cs.columbia.edu (s2)
+ntp1.ece.neu.edu (s4)
+ntp2.ece.neu.edu (s3)
+sundial.columbia.edu
+timex.cs.columbia.edu
+
+ntp.bldrdoc.gov	
+ntp.cc.utexas.edu	
+wwvb.erg.sri.com	
+time.apple.com	
+sundial.columbia.edu	
+timex.cs.columbia.edu	
+ntp.ctr.columbia.edu	
+tick.mit.edu		
+timeserver.cs.umb.edu	
+mead.harvard.edu	
+ntp.ourconcord.net 	
+
+

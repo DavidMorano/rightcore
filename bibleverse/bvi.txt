@@ -1,0 +1,28 @@
+Bible-Verse-Index (BVI)
+
+
+format:
+
+BIBLEVERSEINDEX
+               \n\0
+
+nentries
+nlines
+eoff
+loff
+wtime
+
+prwlock
+
+entries {
+	uint	lineoff	;
+	uchar	b, c, v, nlines ;
+}
+
+lines {
+	uint	fileoff ;
+	uint	filelen ;
+} ;
+
+
+

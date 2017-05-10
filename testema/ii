@@ -1,0 +1,2 @@
+	{ SR_INTR, EX_INTR },
+	{ SR_EXIT, EX_TERM },

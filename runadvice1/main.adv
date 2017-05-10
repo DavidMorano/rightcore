@@ -1,0 +1,24 @@
+* ***************   Audit Summary For    CC   ***************
+* Warning: Subcircuit level AUDITS WERE NOT PERFORMED on this single page.
+* 0 errors and 1 warning were encountered.  
+* **************    SCHEMA     Version:4.2.0    **************
+.MAIN CC.1
+    .use gencc.adv
+    .out i_r-ds r100 ds
+    .out i_c-ds m100 ds
+
+*
+*PAGE: CC.1    DATE: 96 Feb 28 14:00:48
+*
+   XX100 (::GATE,0) CC-GATEV
+   V100 (::V100_A,DS)  PULSE (0 3.3 0 25M 25M 0 50M)  AC 0 0
+   V101 (::V100_A,0)  DC (3.3)  AC 0 0
+   V102 (::0,SUB)  DC (0)  AC 0 0
+   M100 (::DS,GATE,0,SUB) MN1P0 SW=16
+   M101 (::M101_D,M101_D,0,SUB) MN1P0 SW=16
+   R100 (::DS,M101_D)  0.001
+   .OUT VGATE GATE 0
+   .OUT VDS DS 0
+    .out vdsm ds 0 march=1
+   .TITLE  characteristic curves MN1p0-16 [$(PROC)]
+.END

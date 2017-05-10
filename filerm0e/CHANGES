@@ -1,0 +1,10 @@
+FILERM
+
+
+
+= version 0c, Dave Morano, 98/06/24
+	This version added the checks for dangling symbolic links.
+
+
+
+

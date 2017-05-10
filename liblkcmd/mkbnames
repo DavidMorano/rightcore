@@ -1,0 +1,10 @@
+#!/usr/extra/bin/ksh
+# MKBFILES
+
+T=bnames
+
+ls b_*.c | cut -d '.' -f 1 | cut -d '_' -f 2 | while read N ; do
+  print -- $N
+done > ${T}.txt
+
+

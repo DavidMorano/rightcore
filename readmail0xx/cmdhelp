@@ -1,0 +1,26 @@
+  <number>		display message <number>
+  <return>		display current message
+  next			display next message
+  prev			display previous message
+  delete <msgs>		mark messages for deletion
+  undelete <msgs>	remove mark on messages
+  move <msgs> <mailboxes>  copies messages into <mailboxes> and "deletes"
+  scan <msgs> [all]	scan specified messages in current mailbox
+  header <msgs> [all]	print summary of specified messages in current mailbox
+  gsearch <expr>	searches all mailboxes for <expr>
+  change <mailbox>	change current mailbox to <mailbox>
+  list			lists all mailboxes
+  boxname		displays name of current mailbox
+  reply <msg>		reply to the specified message or current message
+  Reply <msg>		reply to message, send reply to all recipients
+  editforward <msg>	send a new message with current specified included
+  forward <msg>		forward the specified message after editing new message
+  output <msgs> <file>	appends message onto specified file
+  quit			leave READMAIL (asks if should make deletions)
+  ! <command>		escape to shell
+  > <file>		write message to file
+  | <command(s)>	pipe message to command
+
+   <msgs> may be a number (3), range (5-8), logical expression on words in
+    header fields (FROM:schatz), or omitted (current message assumed).
+    e.g.  delete 3,5-8     or    scan FROM:schatz&SUBJECT:readmail

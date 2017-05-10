@@ -1,0 +1,30 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+TS=${*}
+if [[ -z "${TS}" ]] ; then
+  TS=libuc
+fi
+
+PRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+EXTS=" so a "
+
+DN=/dev/null
+for T in ${TS} ; do
+#  print -u2 T=${T}
+  ${PWD}/makeit ${T}.so > ${DN}
+  for PR in ${PRS} ; do 
+    if [[ -d "${PR}" ]] ; then
+      for E in ${EXTS} ; do
+	L=${T}.${E}
+	if [[ -r "${L}" ]] ; then
+          mn -r ${L} ${PR}/lib
+        fi
+      done
+    fi
+  done
+done
+wait
+
+

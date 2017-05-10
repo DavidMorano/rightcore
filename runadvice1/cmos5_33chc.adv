@@ -1,0 +1,378 @@
+.title fast CSIM2 ADVICE file for .5UM (3.3V) CMOS, Iss. 3.2a, 6/6/94
+*
+*
+*  CONTACTS: PAUL LAYMAN       pal@woomera.cnet.att.com
+*            WILLIE YARBROUGH  williey@woomera.cnet.att.com
+*            KEVIN STILES      kstiles@woomera.att.com
+*
+*  MODIFICATION HISTORY
+*
+*  VERSION      DATE                        COMMENTS
+*  -------   ----------   ---------------------------------------
+*    1.0   - "10/31/91" - Original file (PAL, WJY)
+*    2.0   - "12/21/92" - Update to qualification
+*                         proces  (PAL, WJY)
+*    2.1   - "02/23/93" - Updated files from measurment (PAL)
+*    2.2   - "03/08/93" - Reduced process spread on DL
+*                         and adjusted diode capactiance (PAL)
+*    2.4   - "05/11/93" - Updated files using new extractor (PAL)
+*    3.0   - "10/15/93" - Revised to CSIM VERS=2 model with ADVICE
+*                         code corrections as of 10/15/93  (PAL)
+*    3.1   - "11/15/93" - Added mis-match cases (PAL)
+*    3.2   - "04/15/94" - Revised methodology for deriving mismatch,
+*                         high-gain and low-gain cases (Colin McAndrew);
+*                         Ring oscillator speed matched to v. 3.1 (KRS)
+*    3.2a  - "06/6/94"  - N-tub & P+ Sheet resistance changes per MJT (BLM). 
+*
+*                        AT&T - PROPRIETARY
+*              Use Pursuant to Company Instructions
+*
+*
+*  !!!!!!!!!!!!  Do Not Redistribute These Files  !!!!!!!!!!!!!
+*  !!!  All Requests For Model Files Should Be Made To The  !!!
+*  !!  Process Models Files Account: models@woomera.att.com  !!
+*
+*
+*            THE MINIMUM CODED CHANNEL LENGTHS ARE:
+*                N CHANNEL - 0.5 UM
+*                P CHANNEL - 0.6 UM
+*            THE NOMINAL ELECTRICAL CHANNEL LENGTHS FOR MINIMUM DEVICES:
+*                N CHANNEL - 0.48 UM
+*                P CHANNEL - 0.55 UM
+*            THE NOMINAL THRESHOLD VOLTAGES FOR MINIMUM DEVICES:
+*                N CHANNEL - 0.6 V  (VBS= 0.0 V)
+*                P CHANNEL - 0.9 V  (VBS= 0.0 V)
+*            THE NOMINAL OXIDE THICKNESS:
+*                90 A
+*            THE WORST CASE FILES HAVE THE FOLLOWING VARIATIONS:
+*                1. ELECTRICAL LENGTH +/-  0.06 UM
+*                2. CODED WIDTH       +/-  0.1  UM
+*                3. OXIDE THICKNESS   +/- 10.0  A
+*                4. THRESHOLD ADJUST  +/-  0.05 V
+*
+*
+*  FOR USERS WISHING TO CODE THE DRAIN/SOURCE TO SUBSTRATE
+*  JUNCTIONS SEPARATELY, CAPACITANCES (ZERO BIAS) ARE AS FOLLOWS:
+*
+*                AREA(F/CM2) PER.(F/CM)    PB        MB
+*                _________   _________  _________   _________
+*       NCN      9.205E-08   5.426E-12    1.2133     0.6354
+*       PCN      1.185E-07   5.052E-12    0.9299     0.5704
+*       NCH      9.205E-08   5.426E-12    1.2133     0.6354
+*       NCH      9.205E-08   5.426E-12    1.2133     0.6354
+*       PCLT     1.185E-07   5.052E-12    0.9299     0.5704
+*       PCLT     1.185E-07   5.052E-12    0.9299     0.5704
+*       NCL      9.205E-08   5.426E-12    1.2133     0.6354
+*       PCL      1.185E-07   5.052E-12    0.9299     0.5704
+*       NCHT     9.205E-08   5.426E-12    1.2133     0.6354
+*       PCHT     1.185E-07   5.052E-12    0.9299     0.5704
+*
+*  Ntub to Substrate Capacitance:
+*
+*                AREA(F/CM2) PER.(F/CM)    PB        MB
+*                _________   _________  _________   _________
+*       NTUB     1.007E-08   7.460E-12    0.8946     0.5299
+*
+*
+*       NOTES ON USE:
+*               VALID FILE COMBINATIONS ARE:
+*                      NCH / PCH
+*                      NCN / PCN
+*                      NCL / PCL
+*                      NCH / PCLT
+*                      PCH / NCLT
+*                      NCL / PCHT
+*                      PCL / NCHT
+.PRO NPRO NCS
++  DL  =  0.000000e+00 DW  =  5.000000e-06 DJ  =  1.000920e-05
++  DOV =  7.567460e-06 MOB =  4.329610e+02 VFB = -6.702200e-01
++  DOP =  1.530299e+17 KOX =  3.900000e+00 TOX =  8.000000e-07
++  WVT =  1.440270e-05 WK1 =  1.741076e-05 KVT =  8.711368e+03
++  R2VO=  8.315036e-02 KM  =  1.446130e-05 KOC1=  1.205046e-03
++  KOC2=  4.121593e+00 KVS1=  5.822725e-03 KVS2=  7.149085e-06
++  CJA =  7.441074e-09 CJP =  4.386232e-13 PB  =  1.213300e+00
++  MB  =  6.354000e-01 RDW =  0.000000e+00 RSW =  0.000000e+00
++  ISA =  1.000000e-10 TBO = -2.015330e+00 TUO =  2.995957e-03
++  TU1 = -3.427718e-03 SCAL=  1.000000e-04 ADG =  0.000000e+00
++  BGS =  0.000000e+00 GDC =  8.079498e+00 KBRK=  5.248014e+03
++  VTL =  4.563730e-07 KFN1=  0.000000e+00 AFN1=  2.000000e+00
++  BFN1=  1.000000e+00 KFN2=  0.000000e+00 AFN2=  2.000000e+00
++  BFN2=  1.000000e+00 IONA=  1.470000e+06 IONB=  1.875000e+06
++  A1  =  4.350000e-01 A2  =  3.750000e-02 A3  =  1.000000e+00
++  B1  =  1.600000e-01 B2  =  1.810000e-01 B3  =  1.000000e+00
++  C1  =  1.400000e+03 C2  =  8.460000e+05 C3  =  1.500000e+00
++  THET=  4.815502e-01 NIMP=  1.143148e+17 WIMP=  4.796688e-06
++  VBD =  0.000000e+00 AL1 =  2.000000e+00 AL2 =  0.000000e+00
++  ALTC=  7.500000e-01 NFS =  0.000000e+00 AD1 =  2.199244e+00
++  AD2 = -2.411720e-05 BG1 =  2.145835e+00 VERS=  2.000000e+00
+.PRO PPRO PCS
++  DL  =  0.000000e+00 DW  =  5.000000e-06 DJ  =  1.751060e-05
++  DOV =  1.027175e-05 MOB =  1.546930e+02 VFB = -5.122080e-01
++  DOP =  7.619342e+16 KOX =  3.900000e+00 TOX =  8.000000e-07
++  WVT =  5.000000e-07 WK1 =  5.000000e-07 KVT =  2.741934e+03
++  R2VO=  1.579919e-01 KM  =  1.054636e-05 KOC1=  3.099454e-03
++  KOC2=  1.484904e+00 KVS1= -1.520679e-02 KVS2=  1.492757e-07
++  CJA =  1.357562e-08 CJP =  5.787681e-13 PB  =  9.299000e-01
++  MB  =  5.704000e-01 RDW =  0.000000e+00 RSW =  0.000000e+00
++  ISA =  1.000000e-10 TBO = -1.338208e+00 TUO =  1.819863e-03
++  TU1 = -3.984916e-04 SCAL=  1.000000e-04 ADG =  0.000000e+00
++  BGS =  0.000000e+00 GDC =  2.804758e+00 KBRK=  4.058272e+03
++  VTL = -2.941500e-06 KFN1=  0.000000e+00 AFN1=  2.000000e+00
++  BFN1=  1.000000e+00 KFN2=  0.000000e+00 AFN2=  2.000000e+00
++  BFN2=  1.000000e+00 IONA=  1.470000e+06 IONB=  1.875000e+06
++  A1  =  4.350000e-01 A2  =  3.750000e-02 A3  =  1.000000e+00
++  B1  =  1.600000e-01 B2  =  1.810000e-01 B3  =  1.000000e+00
++  C1  =  1.400000e+03 C2  =  8.460000e+05 C3  =  1.500000e+00
++  THET=  1.077264e+00 NIMP=  3.317851e+17 WIMP=  4.851606e-06
++  VBD =  0.000000e+00 AL1 =  2.000000e+00 AL2 =  0.000000e+00
++  ALTC=  7.500000e-01 NFS =  0.000000e+00 AD1 =  4.316179e-01
++  AD2 = -2.641826e-06 BG1 =  3.363778e-01 VERS=  2.000000e+00
+*
+*      .DEV CARDS
+*
+ .DEVICE    mn0p5    npro      ncs       LM =    0.500  WM =  1.000
+ .DEVICE    mn0p55   npro      ncs       LM =    0.550  WM =  1.000
+ .DEVICE    mn0p6    npro      ncs       LM =    0.600  WM =  1.000
+ .DEVICE    mn0p7    npro      ncs       LM =    0.700  WM =  1.000
+ .DEVICE    mn0p75   npro      ncs       LM =    0.750  WM =  1.000
+ .DEVICE    mn0p8    npro      ncs       LM =    0.800  WM =  1.000
+ .DEVICE    mn0p9    npro      ncs       LM =    0.900  WM =  1.000
+ .DEVICE    mn0p95   npro      ncs       LM =    0.950  WM =  1.000
+ .DEVICE    mn1p0    npro      ncs       LM =    1.000  WM =  1.000
+ .DEVICE    mn1p05   npro      ncs       LM =    1.050  WM =  1.000
+ .DEVICE    mn1p2    npro      ncs       LM =    1.200  WM =  1.000
+ .DEVICE    mn1p4    npro      ncs       LM =    1.400  WM =  1.000
+ .DEVICE    mn1p5    npro      ncs       LM =    1.500  WM =  1.000
+ .DEVICE    mn1p8    npro      ncs       LM =    1.800  WM =  1.000
+ .DEVICE    mn1p9    npro      ncs       LM =    1.900  WM =  1.000
+ .DEVICE    mn2p0    npro      ncs       LM =    2.000  WM =  1.000
+ .DEVICE    mn2p9    npro      ncs       LM =    2.900  WM =  1.000
+ .DEVICE    mn3p0    npro      ncs       LM =    3.000  WM =  1.000
+ .DEVICE    mn3p5    npro      ncs       LM =    3.500  WM =  1.000
+ .DEVICE    mn3p9    npro      ncs       LM =    3.900  WM =  1.000
+ .DEVICE    mn4p0    npro      ncs       LM =    4.000  WM =  1.000
+ .DEVICE    mn4p9    npro      ncs       LM =    4.900  WM =  1.000
+ .DEVICE    mn5p0    npro      ncs       LM =    5.000  WM =  1.000
+ .DEVICE    mn5p9    npro      ncs       LM =    5.900  WM =  1.000
+ .DEVICE    mn6p0    npro      ncs       LM =    6.000  WM =  1.000
+ .DEVICE    mn8p0    npro      ncs       LM =    8.000  WM =  1.000
+ .DEVICE    mn10p0   npro      ncs       LM =   10.000  WM =  1.000
+ .DEVICE    mn12p0   npro      ncs       LM =   12.000  WM =  1.000
+ .DEVICE    mn14p0   npro      ncs       LM =   14.000  WM =  1.000
+ .DEVICE    mn15p0   npro      ncs       LM =   15.000  WM =  1.000
+ .DEVICE    mn15p7   npro      ncs       LM =   15.700  WM =  1.000
+ .DEVICE    mn16p45  npro      ncs       LM =   16.450  WM =  1.000
+ .DEVICE    mn20p0   npro      ncs       LM =   20.000  WM =  1.000
+ .DEVICE    mn25p0   npro      ncs       LM =   25.000  WM =  1.000
+ .DEVICE    mn26p65  npro      ncs       LM =   26.650  WM =  1.000
+ .DEVICE    mn30p0   npro      ncs       LM =   30.000  WM =  1.000
+ .DEVICE    mn40p0   npro      ncs       LM =   40.000  WM =  1.000
+ .DEVICE    mn50p0   npro      ncs       LM =   50.000  WM =  1.000
+ .DEVICE    mn75p0   npro      ncs       LM =   75.000  WM =  1.000
+ .DEVICE    mn80p0   npro      ncs       LM =   80.000  WM =  1.000
+ .DEVICE    mn100p0  npro      ncs       LM =  100.000  WM =  1.000
+ .DEVICE    mn125p0  npro      ncs       LM =  125.000  WM =  1.000
+ .DEVICE    mn200p0  npro      ncs       LM =  200.000  WM =  1.000
+ .DEVICE    mp0p6    ppro      pcs       LM =    0.600  WM =  1.000
+ .DEVICE    mp0p65   ppro      pcs       LM =    0.650  WM =  1.000
+ .DEVICE    mp0p7    ppro      pcs       LM =    0.700  WM =  1.000
+ .DEVICE    mp0p8    ppro      pcs       LM =    0.800  WM =  1.000
+ .DEVICE    mp0p85   ppro      pcs       LM =    0.850  WM =  1.000
+ .DEVICE    mp0p9    ppro      pcs       LM =    0.900  WM =  1.000
+ .DEVICE    mp1p0    ppro      pcs       LM =    1.000  WM =  1.000
+ .DEVICE    mp1p1    ppro      pcs       LM =    1.100  WM =  1.000
+ .DEVICE    mp1p2    ppro      pcs       LM =    1.200  WM =  1.000
+ .DEVICE    mp1p3    ppro      pcs       LM =    1.300  WM =  1.000
+ .DEVICE    mp1p5    ppro      pcs       LM =    1.500  WM =  1.000
+ .DEVICE    mp1p6    ppro      pcs       LM =    1.600  WM =  1.000
+ .DEVICE    mp2p0    ppro      pcs       LM =    2.000  WM =  1.000
+ .DEVICE    mp2p1    ppro      pcs       LM =    2.100  WM =  1.000
+ .DEVICE    mp2p5    ppro      pcs       LM =    2.500  WM =  1.000
+ .DEVICE    mp3p0    ppro      pcs       LM =    3.000  WM =  1.000
+ .DEVICE    mp3p5    ppro      pcs       LM =    3.500  WM =  1.000
+ .DEVICE    mp3p6    ppro      pcs       LM =    3.600  WM =  1.000
+ .DEVICE    mp4p0    ppro      pcs       LM =    4.000  WM =  1.000
+ .DEVICE    mp4p15   ppro      pcs       LM =    4.150  WM =  1.000
+ .DEVICE    mp4p25   ppro      pcs       LM =    4.250  WM =  1.000
+ .DEVICE    mp5p0    ppro      pcs       LM =    5.000  WM =  1.000
+ .DEVICE    mp6p0    ppro      pcs       LM =    6.000  WM =  1.000
+ .DEVICE    mp7p0    ppro      pcs       LM =    7.000  WM =  1.000
+ .DEVICE    mp8p0    ppro      pcs       LM =    8.000  WM =  1.000
+ .DEVICE    mp9p0    ppro      pcs       LM =    9.000  WM =  1.000
+ .DEVICE    mp9p65   ppro      pcs       LM =    9.650  WM =  1.000
+ .DEVICE    mp10p0   ppro      pcs       LM =   10.000  WM =  1.000
+ .DEVICE    mp12p0   ppro      pcs       LM =   12.000  WM =  1.000
+ .DEVICE    mp13p15  ppro      pcs       LM =   13.150  WM =  1.000
+ .DEVICE    mp14p0   ppro      pcs       LM =   14.000  WM =  1.000
+ .DEVICE    mp15p0   ppro      pcs       LM =   15.000  WM =  1.000
+ .DEVICE    mp16p25  ppro      pcs       LM =   16.250  WM =  1.000
+ .DEVICE    mp18p7   ppro      pcs       LM =   18.700  WM =  1.000
+ .DEVICE    mp19p65  ppro      pcs       LM =   19.650  WM =  1.000
+ .DEVICE    mp20p0   ppro      pcs       LM =   20.000  WM =  1.000
+ .DEVICE    mp22p0   ppro      pcs       LM =   22.000  WM =  1.000
+ .DEVICE    mp25p0   ppro      pcs       LM =   25.000  WM =  1.000
+ .DEVICE    mp30p0   ppro      pcs       LM =   30.000  WM =  1.000
+ .DEVICE    mp36p8   ppro      pcs       LM =   36.800  WM =  1.000
+ .DEVICE    mp37p5   ppro      pcs       LM =   37.500  WM =  1.000
+ .DEVICE    mp40p0   ppro      pcs       LM =   40.000  WM =  1.000
+ .DEVICE    mp50p0   ppro      pcs       LM =   50.000  WM =  1.000
+ .DEVICE    mp100p0  ppro      pcs       LM =  100.000  WM =  1.000
+ .DEVICE    mp167p0  ppro      pcs       LM =  167.000  WM =  1.000
+ .DEVICE    mp200p0  ppro      pcs       LM =  200.000  WM =  1.000
+*
+******************************************************************************
+*
+ .MOD DIODEN D (CJ01=9.205E-16 PB1=1.2133 MB1=0.6354) 
++              (CJ02=5.426E-16 PB2=1.2133 MB2=0.6354)
+*
+ .MOD DIODEP D (CJ01=1.185E-15 PB1=0.9299 MB1=0.5704)
++              (CJ02=5.052E-16 PB2=0.9299 MB2=0.5704) 
+*
+ .MOD DNT    D (CJ01=1.007E-16 PB1=0.8946 MB1=0.5299)
++              (CJ02=7.460E-16 PB2=0.8946 MB2=0.5299)
+*
+* RESISTOR TC'S ARE EXTRACTED FROM PRELIMINARY DATA AND ARE SUBJECT TO CHANGE
+*
+ .MOD  RNTUB   R  TC1=3400 TC2=19.7 SCAL=1000
+*
+ .MOD  RPOLY1 R  TC1=2500 TC2= 0.0 SCAL=22
+ .MOD  RPPLUS  R  TC1=710 TC2= 1.65 SCAL=70
+ .MOD  RNPLUS  R  TC1=900 TC2= 4.91 SCAL=40
+*
+ .MOD  RMETAL1 R  TC1=0.0  TC2= 0.0 SCAL=0.054
+ .MOD  RMETAL2 R  TC1=0.0  TC2= 0.0 SCAL=0.054
+ .MOD  RMETAL3 R  TC1=0.0  TC2= 0.0 SCAL=0.044
+
+.MOD CGATEN C (SC1=4.221E-15)
+.MOD CGATEP C (SC1=4.221E-15)
+
+.MOD CPLSB  C (SC1=9.249E-17 SC2=5.300E-17)
+.MOD CM1SB  C (SC1=3.308E-17 SC2=4.672E-17)
+.MOD CM1DF  C (SC1=3.308E-17 SC2=4.672E-17)
+.MOD CM2SB  C (SC1=1.785E-17 SC2=4.532E-17)
+.MOD CM2DF  C (SC1=1.785E-17 SC2=4.532E-17)
+.MOD CM3SB  C (SC1=1.323E-17 SC2=5.854E-17)
+.MOD CM3DF  C (SC1=1.323E-17 SC2=5.854E-17)
+.MOD CM1PL  C (SC1=8.436E-17 SC2=1.081E-17)
+.MOD CM2PL  C (SC1=2.465E-17 SC2=0.470E-17)
+.MOD CM3PL  C (SC1=1.445E-17 SC2=0.360E-17)
+.MOD CM2M1  C (SC1=6.872E-17 SC2=1.565E-17)
+.MOD CM3M1  C (SC1=2.308E-17 SC2=1.116E-17)
+.MOD CM3M2  C (SC1=6.833E-17 SC2=2.433E-17)
+*
+*title pnp.modh, 0.5um 3V High IS PNP model pnpsub, for TEN um^2 emitter area!!
+*
+* Please do not remove this header: Add comments as necessary!
+*
+************ PNP model parameters:
+*
+* Valid Temp. range : 0 to 125C
+*
+* Extracted by      : Colin McAndrew
+* DC data over T    : Gerry Zaneski
+* Geometry          : 10um by 10um emitter, parameters are scaled to Ae=10um^2
+*
+* Notes:
+* 01/13/94 Parasitic diode parameters were not extracted
+* version  TFO/TRO were not extracted, estimates from CJE*VBO/IK
+* 1.0      RBI is from the pinched base sheet resistance (1325
+*          ohm/square from simulations from J. Lentz) divided by 32.
+*          This is a 3-terminal resistor model.
+* 01/13/94 This model is for a 10um^2 device, consistent with the
+* version  standard reference used by GOALIE. To get a model for
+* 1.1      the 10umx10um device used for extraction use SCALE of 10
+*          on the ADVICE element line (Qxxx c b e PNPMOD 10)
+*          For other geometries the low bias currents should be
+*          modeled well, but resistances and base-collector capacitance
+*          do note scale simply with emitter area, so this model will
+*          be inaccurate for high bias for geometries other than 10umx10um
+*          emitter. The limit is around Vbe=0.8V at T=25C and Vbe=0.7V
+*          at 125C, for reasonable modeling of other geometries.
+* 01/14/94 Comparison of CJE and CJC with values estimated from the
+* version  device geometry and the P+/N-tub and N-tub/P-substrate diode
+* 1.2      models show that CJE is close to what is expected, but CJC
+*          is way off. CJE (measured) is 104fF, and calculated is
+*          139fF (100um^2*1.185fF/um^2+40um*0.505fF/um). CJC (measured)
+*          is 753fF versus 40fF (100um^2*0.101fF/um^2+40um*0.746fF/um)
+*          calculated. The base-collector area is larger than the emitter
+*          size, but not by a factor of 40. We are looking at the measurements
+*          again. Meanwhile, CJC has been decreased by a factor of 10 in
+*          release 1.3, as an estimate of the proper capacitance.
+*          Statistical data for proper worst-case model evaluation are not
+*          available. B. Morris noted the N-tub sheet rho specification is
+*          1065+/-150 ohms/square, and that this variation is close to that
+*          of the base Gummel number of the vertical PNP. Consequently the
+*          fast case file was generated from the nominal (measured) file
+*          by scaling IS and knee currents up by 1.15, scaling base current
+*          parameters so that current gain beta dropped to 0.6 of its measured
+*          value, scaling resistances (except RBI) down by 1.15 and RBI up by
+*          1.15 (RBI is, like IS, inversely proportional to the Gummel number),
+*          and by scaling the capacitances down by 1.075 (the sheet resistance
+*          variation is caused by doping and junction depth changes, only the
+*          doping changes affect the capacitances so the relative change was
+*          halved for them).
+*          NOTE: these variations are only crude estimates and proper worst
+*          case file generation/verification will need to be done by
+*          monitoring manufacturing variations. FIPT tests are at present being
+*          added to allow this.
+* 01/18/94 Bernie Morris noted that the 15% variation in Ic in the version 1.2
+* version  files is too optimistic. To ensure that designs are not unduly
+* 1.3      sensitive to manufacturing variations, the fast/slow cases were
+*          revised to be conservative, having Ic variations of 50% (which is
+*          probably too large) rather than 15% (which, based on experience,
+*          is probably too small). The files will get "tightened" when data
+*          from manufacturing allows the device variation to be quantified.
+* 01/18/94 The Cbc capacitance measurements were corrected, by proper use of the
+* version  guard ring and proper pad capacitance subtraction. The Cbc data and
+* 1.4      parameters now look much better, and agree with known technology
+*          data. The previous estimated CJC value 75.27pF for the 10 square
+*          device is very close to the new measured value, 73.24pF. The Cbc
+*          capacitance parameter changes caused the forward Early voltage VAO
+*          to decrease a bit. The intrinsic collector resistance parameters
+*          and TRO have also changed, by quite a bit. The net effect on the
+*          model fit to data is very small, this version is very slightly
+*          better than the version 1.3. However, Cbc is now characterized
+*          properly from measurement.
+*
+* CASE H : fast case model (high IS)
+*
+.MODEL PNPSUB peb
++  TO   =  2.5000e+01   RBX  =  8.6651e+02   RBI  =  4.7617e+02
++  RCI  =  1.2666e+03   RE   =  6.1671e+01   IS   =  9.5172e-18
++  I1   =  1.7438e-19   I2   =  3.1789e-17   NE   =  1.6242e+00
++  IK   =  3.2120e-04   VBO  =  6.6547e+00   BVBE =  0.0000e+00
++  ALE1 =  2.0000e+00   ALE2 =  0.0000e+00   ALTE =  7.5000e-01
++  CJE  =  9.6995e-15   PE   =  8.4817e-01   ME   =  4.4779e-01
++  BE   =  1.0000e-01   I3   =  3.5015e-18   I4   =  3.0121e-16
++  NC   =  1.4166e+00   IKR  =  6.0388e-04   VAO  =  4.2720e+01
++  BVBC =  0.0000e+00   ALC1 =  2.0000e+00   ALC2 =  0.0000e+00
++  ALTC =  7.5000e-01   CJC  =  6.8129e-15   PC   =  5.8303e-01
++  MC   =  3.6500e-01   BC   =  1.0000e-01   TFO  =  4.0193e-10
++  TRO  =  9.6391e-10   VJCO =  9.3732e-01   NID  =  8.0616e-11
++  QCO  =  0.0000e+00   EA   =  1.1902e+00   DEA  =  8.2783e-02
++  TRCI =  2.7665e+00   TVCO =  9.6403e-04
+*
+* mr0p6hc.dat, GDNTR fast process file, version 1.1 - 05/23/94
+*
+*    Modification history:                                              #
+*    1.0 - 03/30/94 - PAL 
+*    1.1 - 05/23/94 - JSJL removed R1,R2,D1,D2, adjusted TC1,TC2
+*
+********************************************************************************
+* valid voltages    range: |Vz-Vzd|<=0.5v across gdntr.
+* valid temperature range: 0 to 125 C
+* Optimized for VoL simulation.  Be cautious for any voltage |Vz-Vzd| > 0.5v .
+* Any problems or questions, please contact John Liu, 610-712-2146, aluxpo!jsjl
+********************************************************************************
+
+* 0.5 GDNTR
+
+.MODEL R1GDNTR R (CPO=-0.04
++ CNE=0.04
++ TC1=3400.0
++ TC2=7.0)
+*
+.SUBCKT mr0p6 (VZ VZD) {WIDTH=1}
+R1 VZ VZD R1GDNTR {55.0*15/WIDTH}
+.FINIS
+*

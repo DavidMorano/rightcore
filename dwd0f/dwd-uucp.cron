@@ -1,0 +1,62 @@
+#!/bin/ksh
+# DWD-UUCP.CRON
+
+
+: ${UUCPPUBLIC:=/var/spool/uucppublic}
+export UUCPPUBLIC
+
+ONFILE=run
+DIR=${UUCPPUBLIC}/dwd
+
+
+if [ -d /usr/sbin ] ; then
+  MACH=`uname -n`
+else
+  MACH=`hostname`
+fi
+
+
+case $MACH in
+
+hocp[a-d] | nucleus | logicgate | nitrogen )
+  : ${PCS:=/home/gwbb/add-on/pcs}
+  : ${TOOLS:=/opt/exptools}
+  : ${LOCAL:=/home/gwbb/add-on/local}
+  ;;
+
+mt* )
+  : ${LOCAL:=/mt/mtgzfs8/hw/add-on/local}
+  ;;
+
+esac
+
+
+: ${PCS:=/usr/add-on/pcs}
+: ${TOOLS:=/usr/add-on/exptools}
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL TOOLS PCS
+
+
+
+PATH=${LOCAL}/bin:${PATH}:${PCS}/bin:${TOOLS}/bin
+export PATH
+
+
+export NAME="DWD-UUCP"
+
+cd
+
+if [ ! -d etc/dwd-uucp ] ; then exit 1 ; fi
+
+cd etc/dwd-uucp
+
+# do not start up a daemon unless the "onfile" is present !!
+
+if [ ! -f $ONFILE ] ; then exit 0 ; fi
+
+
+export PROGRAMROOT=${PCS}
+ERROR_FD=3 ${PCS}/src/dwd/dwd.x -D=4 3> o3 2> o2
+
+
+

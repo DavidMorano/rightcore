@@ -1,0 +1,40 @@
+MAILBOXOUT
+
+The PCS Content Length (PCSCL) program is used to write a mail-
+message-formatted input to a mail box (or other suitable) output
+file but with a content length mail header calculated and
+added to the output message.  Either or both of the input file
+and the output file can be a pipe or socket and the corresponding
+situations are all handled correctly.
+
+Call the program as :
+
+	pcscl [options] [file(s) ...]
+
+where the options are among :
+
+	-e              force an evelope header to be written even when
+			only one input file is to be processed ;
+			normally, envelope headers are not forced
+			except when more than one input file is to be
+			processed
+
+	-o outfile	specify an output file other than the standard
+			output
+
+	-a article	write the article ID specifed to the output
+			file for each input message
+
+	-n newsgroups	add a "newsgroups" header to the output
+			messages
+
+	-m mailer	add a "x-mailer" header to the output
+
+	-k file		specify a file to contain the names
+			of files to be processed
+
+
+Example :
+
+	pcscl input.msg > output.mb
+

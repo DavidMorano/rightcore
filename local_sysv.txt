@@ -1,0 +1,6 @@
+#undef	LOCAL_SYSV
+#define	LOCAL_SYSV	(defined(SYSV) || \
+	(defined(OSTYPE_SYSV) && (OSTYPE_SYSV > 0)))
+
+
+

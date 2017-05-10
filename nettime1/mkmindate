@@ -1,0 +1,13 @@
+#!/bin/ksh
+
+
+MD=$( fstat -o dec Makefile )
+
+{
+  echo "#include	<sys/types.h>"
+  echo "#include	<time.h>"
+  echo "int mindate = ${MD} ;"
+} > mindate.c
+
+
+

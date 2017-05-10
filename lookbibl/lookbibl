@@ -1,0 +1,132 @@
+ # <-- force CSH to use Bourne shell
+# INDEXBIBL (local version of standard UNIX 'indxbib')
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+if [ -z "${BIBLIOGRAPHY}" ] ; then
+
+case $MACH in
+
+hocp* | hodi* | hosb* | disco | octet )
+  BIBLIOGRAPHY=/proj/starbase/tools/lib/papers/Ind
+  ;;
+
+mt* )
+  BIBLIOGRAPHY=/mt/mtgzfs8/hw/tools/lib/papers/Ind
+  ;;
+
+esac
+
+fi
+
+
+
+bibexists() {
+  B=${1}
+  if [ -z "${B}" ] ; then return 1 ; fi
+
+F_GOT=false
+if [ $F_GOT != true -a -r ${B} ] ; then
+  F_GOT=true
+fi
+if [ $F_GOT != true -a -r ${B}.ia ] ; then
+  F_GOT=true
+fi
+if [ $F_GOT != true -a -r ${B}.i ] ; then
+  F_GOT=true
+fi
+
+  if [ $F_GOT = true ] ; then return 0 ; fi
+
+  return 1
+}
+# end function (bibexists)
+
+
+# get the arguments 
+
+BIBS="${@}"
+F_GOT=false
+for B in $BIBS ; do
+
+  if bibexists $B ; then
+    F_GOT=true
+  fi
+
+done
+
+
+if [ $F_GOT != true ] ; then
+  BIBS=${BIBLIOGRAPHY}
+fi
+
+#echo "${0}: go bibs=${BIBS}" >&2
+
+localindex() {
+	mkkey $* | inv $1
+}
+
+
+
+# get which program to run
+
+PROG=`basename ${0} `
+
+case $PROG in
+
+addbib* )
+  PROG=/bin/addbib
+  ;;
+
+lookbib* )
+  PROG=/bin/lookbib
+  ;;
+
+indexbib* | indxbib* )
+  PROG=localindex
+  ;;
+
+esac
+
+
+
+# go through the loops
+
+for B in ${BIBS} ; do
+
+#echo "${0}: b=${B}" >&2
+
+bibexists $B
+RS=$?
+if [ $RS -eq 0 ] ; then
+
+F=`basename ${B}`
+D=`dirname ${B}`
+
+#echo "${0}: d=${D} f=${F}" >&2
+
+if [ -d "${D}" ] ; then
+  cd ${D}
+fi
+
+#  echo "${0}: f=${F}" >&2
+
+  ${PROG} ${F}
+
+else
+  echo "${0}: bibliography DB file \"${B}\"does not exist or not readable" >&2
+fi
+
+done
+
+
+

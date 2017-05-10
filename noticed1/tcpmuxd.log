@@ -1,0 +1,5 @@
+15             010820_1701:03 pcsuucpd.x     0b/SYSV
+15             ostype=SYSV os=SunOS(5.8) domain=rightcore.com
+15             rca!dam (David A. Morano)
+15             passwd=passwd
+15             srvtab=/home/dam/src/tcpmuxd/etc/srvtab

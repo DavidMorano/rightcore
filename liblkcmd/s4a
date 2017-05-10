@@ -1,0 +1,9 @@
+badprogstart:
+
+#if	(CF_DEBUGS || CF_DEBUG)
+	debugclose() ;
+#endif
+
+	sigman_finish(&sm) ;
+
+ret0:

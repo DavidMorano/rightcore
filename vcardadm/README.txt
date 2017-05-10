@@ -1,0 +1,20 @@
+VCARDADM
+
+This program is an administrative interface to the VCARD database.
+
+Synopsis:
+
+$ vcardadm [recipient(s) ...] [-s <sortkey>] [-db <database>] 
+		[-m] [-a] [-<n>] [-m] [-td <displaykey>] [-r]
+
+where:
+
+<recipient>		restrict listing to messages with recipient
+-s <sortkey>		sort of timestamp: 'update' (d), 'msg', or 'create'
+-db <database>		use alternate database
+-a			show all entries rather than default number
+-<n>			show this number of entries (default 20)
+-m			show MESSAGE-ID
+-td <displaykey>	display time: 'mtime' (d), 'ctime', or 'utime'
+-r			reverse sense of sorts
+

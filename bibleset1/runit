@@ -1,0 +1,35 @@
+#!/usr/bin/ksh
+# MAKEIT
+
+
+TT=bible_rvv
+RF_MKTROFF=true
+RF_MKPDF=true
+
+SETOPTS=
+SETOPTS="${SETOPTS} -ibz -tc "
+SETOPTS="${SETOPTS} -ndb spanish "
+SETOPTS="${SETOPTS} -wdb spanish "
+SETOPTS="${SETOPTS} -cover biblecover3.eps "
+SETOPTS="${SETOPTS} -front biblefront_rvv.mm "
+
+PO="0.75i"
+PW="7.0i"
+
+ENC=latin1
+
+bibleset.x ${SETOPTS} ${TT}.txt > ${TT}.mm
+
+troff -TLatin1 -rO"${PO}" -rW"${PW}" -mm ${TT}.mm > ${TT}.troff
+
+if ${RF_MKTROFF} ; then
+  troff -TLatin1 -rO"${PO}" -rW"${PW}" -mm -mpictures ${TT}.mm > ${TT}.troff
+  if ${RF_MKPDF} ; then
+    dpost -T${ENC} -y -0.1 > ${TT}.ps < ${TT}.troff
+    if [[ -s "${TT}.ps" ]] ; then
+      ps2pdf ${TT}.ps ${TT}.pdf 
+    fi
+  fi
+fi
+
+

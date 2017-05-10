@@ -1,0 +1,20 @@
+#!/usr/bin/ksh
+# MAKEIT-ROFF
+
+
+TT=bibletestdb
+
+PO="0.75i"
+PW="7.0i"
+
+#bibleset.x ${TT}.txt > ${TT}.mm
+troff -TLatin1 -rO"${PO}" -rW"${PW}" -mm ${TT}.mm > ${TT}.troff
+if [[ -s ${TT}.troff ]] ; then
+  dpost -y -0.1 ${TT}.troff > ${TT}.ps
+  if [[ -s ${TT}.ps ]] ; then
+    ps2pdf ${TT}.ps ${TT}.pdf 
+  fi
+fi
+
+
+

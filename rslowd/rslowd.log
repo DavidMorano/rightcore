@@ -1,0 +1,244 @@
+*              
+*              970627_1731:57 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+3843.*         pidfile=pid
+3843.*         PID mutex captured
+3843.*         pidfile device=8388855 inode=10419466
+3843.*         os=SYSV pid=3843
+3843.*         hocpw!dam (David A. Morano)
+3843.*         dir=/home/dam/src/rslowd/q
+3843.*         intfile=i
+3843.*         970627_1731:57 finished initializing
+3843.0         970627_1732:12 job entering
+3843.0         f=noprog.rslow
+3843.0         970627_1732:27 processing job
+3843.0         for us, jobid=hocpwAAM6EvYAA
+3843.0         srv=noprog
+3843.0         job executing, daemon=echoargs pid=3861
+3843.0         job started OK
+3843.0         970627_1732:42 job completed, es=0
+3843.0         job standard output
+3843.0          | 0=/home/dam/bin/echoargs
+3843.0          | 1=s=noprog
+3843.0          | 2=u=dam
+3843.0          | 3=g=gwbb
+3843.0          | 4=l=0
+3843.0          | 5=V=0
+3843.*         970627_1732:57 program exiting
+*              
+*              
+*              970628_0106:52 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+18574.*        pidfile=pid
+18574.*        PID mutex captured
+18574.*        pidfile device=8388855 inode=10419466
+18574.*        os=SYSV pid=18574
+18574.*        hocpw!dam (David A. Morano)
+18574.*        dir=/home/dam/src/rslowd/q
+18574.*        intfile=i
+18574.*        970628_0106:52 finished initializing
+18574.0        970628_0107:07 job entering
+18574.0        f=noprog.rslow
+18574.0        970628_0107:37 processing job
+18574.0        for us, jobid=hocpwAAM6EvYAA
+18574.0        srv=noprog
+18574.0        job executing, daemon=noprog pid=18592
+18574.0        job started OK
+18574.0        970628_0107:52 processing old job
+18574.0        job executing, daemon=noprog pid=18593
+18574.0        970628_0108:07 processing old job
+18574.0        job executing, daemon=noprog pid=18594
+18574.0        970628_0108:22 processing old job
+18574.0        job executing, daemon=noprog pid=18595
+18574.*        970628_0108:37 program exiting
+*              
+*              
+*              970628_1821:21 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+5204.*         pidfile=pid
+5204.*         PID mutex captured
+5204.*         pidfile device=8388855 inode=10419466
+5204.*         os=SYSV pid=5204
+5204.*         hocpw!dam (David A. Morano)
+5204.*         dir=/home/dam/src/rslowd/q
+5204.*         intfile=i
+5204.*         970628_1821:21 finished initializing
+5204.0         970628_1821:21 job entering
+5204.0         f=noprog.rslow
+5204.0         970628_1821:36 processing job
+5204.0         dst=hocpw jobid=hocpwAAM6EvYAA
+5204.0         srv=noprog
+5204.0         job executing, daemon=noprog pid=5237
+5204.0         job started OK
+5204.*         970628_1827:13 the service file changed
+5204.*         970628_1827:21 the new service file is OK
+5204.0         970628_1827:21 processing job
+5204.0         job executing, daemon=echoargs pid=5336
+5204.0         970628_1827:36 job completed, es=0
+5204.1         970628_1828:51 job entering
+5204.1         f=noprog.rslow
+5204.1         970628_1829:21 processing job
+5204.1         dst=hocpwh jobid=hocpwAAM6EvYAA
+5204.*         970628_1831:34 program exiting
+*              
+*              
+*              970628_1834:45 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+5377.*         pidfile=pid
+5377.*         PID mutex captured
+5377.*         pidfile device=8388855 inode=10419466
+5377.*         os=SYSV pid=5377
+5377.*         hocpw!dam (David A. Morano)
+5377.*         dir=/home/dam/src/rslowd/q
+5377.*         intfile=i
+5377.*         970628_1834:45 finished initializing
+5377.0         970628_1834:45 job entering
+5377.0         f=noprog.rslow
+5377.0         970628_1835:00 processing job
+5377.0         dst=hocpw jobid=hocpwAAM6EvYAA
+5377.0         srv=noprog
+5377.0         job executing, daemon=echoargs pid=5394
+5377.0         job started OK
+5377.0         970628_1835:15 job completed, es=0
+5377.0         job standard output
+5377.0          | 0=/home/dam/bin/echoargs
+5377.0          | 1=s=noprog
+5377.0          | 2=u=dam
+5377.0          | 3=g=gwbb
+5377.0          | 4=l=0
+5377.0          | 5=V=0
+5377.*         970628_1837:15 program exiting
+*              
+*              
+*              970628_1845:58 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+5417.*         pidfile=pid
+5417.*         PID mutex captured
+5417.*         pidfile device=8388855 inode=10419466
+5417.*         os=SYSV pid=5417
+5417.*         hocpw!dam (David A. Morano)
+5417.*         dir=/home/dam/src/rslowd/q
+5417.*         intfile=i
+5417.*         970628_1845:58 finished initializing
+5417.*         970628_1846:11 the service file changed
+5417.*         970628_1846:18 the new service file is OK
+5417.0         970628_1846:48 job entering
+5417.0         f=noprog.rslow
+5417.0         970628_1847:03 processing job
+5417.0         dst=hocpw jobid=hocpwAAM6EvYAA
+5417.0         srv=noprog
+5417.0         job executing, daemon=noprog pid=5501
+5417.0         job started OK
+5417.*         970628_1849:03 the service file changed
+5417.*         970628_1849:10 the new service file is OK
+5417.0         970628_1849:10 processing job
+5417.0         job executing, daemon=echoargs pid=5503
+5417.0         970628_1849:25 job completed, es=0
+5417.*         970628_1849:53 program exiting
+*              
+*              
+*              970628_1902:13 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+5545.*         pidfile=pid
+5545.*         PID mutex captured
+5545.*         pidfile device=8388855 inode=10419466
+5545.*         os=SYSV pid=5545
+5545.*         hocpw!dam (David A. Morano)
+5545.*         dir=/home/dam/src/rslowd/q
+5545.*         intfile=i
+5545.*         970628_1902:13 finished initializing
+5545.0         970628_1902:28 job entering
+5545.0         f=noprog.rslow
+5545.0         970628_1902:43 processing job
+5545.0         dst=hocpw jobid=hocpwAAM6EvYAA
+5545.0         srv=noprog
+5545.0         job executing, daemon=echoargs pid=5579
+5545.0         job started OK
+5545.0         970628_1902:58 job completed, es=0
+5545.0         job standard output
+5545.0          | 0=/home/dam/bin/echoargs
+5545.0          | 1=s=noprog
+5545.0          | 2=u=dam
+5545.0          | 3=g=gwbb
+5545.0          | 4=l=0
+5545.0          | 5=V=0
+5545.*         970628_1903:09 program exiting
+*              
+*              
+*              970628_2029:39 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+7046.*         pidfile=pid
+7046.*         PID mutex captured
+7046.*         pidfile device=8388855 inode=10419466
+7046.*         os=SYSV pid=7046
+7046.*         hocpw!dam (David A. Morano)
+7046.*         dir=/home/dam/src/rslowd/q
+7046.*         intfile=i
+7046.*         970628_2029:39 finished initializing
+7046.0         970628_2029:54 job entering
+7046.0         f=noprog.rslow
+7046.0         970628_2030:09 processing job
+7046.0         dst=hocpw jobid=hocpwAAM6EvYAA
+7046.0         srv=noprog
+7046.0         job executing, daemon=noprog pid=7064
+7046.0         job started OK
+7046.*         970628_2030:48 the service file changed
+7046.*         970628_2030:55 the new service file is OK
+7046.0         970628_2030:55 processing job
+7046.0         job executing, daemon=echoargs pid=7098
+7046.0         970628_2031:10 job completed, es=0
+7046.0         job standard output
+7046.0          | 0=/home/dam/bin/echoargs
+7046.0          | 1=s=noprog
+7046.0          | 2=u=dam
+7046.0          | 3=g=gwbb
+7046.0          | 4=l=0
+7046.0          | 5=V=0
+7046.*         970628_2031:37 program exiting
+*              
+*              
+*              970628_2033:09 Remote Slow Service Daemon (RSLOWD) started
+*              rslowd.x       0/SYSV
+*              srvtab=srvtab
+7140.*         pidfile=pid
+7140.*         PID mutex captured
+7140.*         pidfile device=8388855 inode=10419466
+7140.*         os=SYSV pid=7140
+7140.*         hocpw!dam (David A. Morano)
+7140.*         dir=/home/dam/src/rslowd/q
+7140.*         intfile=i
+7140.*         970628_2033:09 finished initializing
+7140.0         970628_2033:24 job entering
+7140.0         f=noprog.rslow
+7140.0         970628_2033:39 processing job
+7140.0         dst=hocpw jobid=hocpwAAM6EvYAA
+7140.0         srv=noprog
+7140.0         job executing, daemon=echoargs pid=7142
+7140.0         job started OK
+7140.0         970628_2033:54 job completed, es=0
+7140.0         job standard output
+7140.0          | 0=/home/dam/bin/echoargs
+7140.0          | 1=s=noprog
+7140.0          | 2=u=dam
+7140.0          | 3=g=gwbb
+7140.0          | 4=l=5
+7140.0          | 5=V=0
+7140.*         970628_2036:04 the service file changed
+7140.*         970628_2036:11 the new service file is OK
+7140.1         970628_2036:26 job entering
+7140.1         f=cat.rslow
+7140.1         970628_2036:41 processing job
+7140.1         dst=hocpw jobid=hocpwAAM6EvYAA
+7140.1         srv=cat
+7140.1         job executing, daemon=cat pid=7155
+7140.1         job started OK
+7140.1         970628_2036:56 job completed, es=0
+7140.1         job standard output
+7140.1          | here

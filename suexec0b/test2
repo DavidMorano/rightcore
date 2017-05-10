@@ -1,0 +1,8 @@
+#!/bin/ksh
+# TEST
+
+
+
+suexec test2.ksh test2 "${@}"
+
+

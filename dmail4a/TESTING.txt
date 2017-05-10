@@ -1,0 +1,9 @@
+DMAIL
+
+For testing in an actual production-like environment, you can use the
+shell program (front-end) named 'dmail_extra1.ksh' as the program
+called by the mail system.  For non-testing production use, use the
+front-end program 'dmail_extra2.ksh'.
+
+
+

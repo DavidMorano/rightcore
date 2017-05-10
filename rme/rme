@@ -1,0 +1,11 @@
+#!/bin/ksh
+# RME
+
+: ${PCS:=/usr/add-on/pcs}
+
+PATH=${PATH}:${PCS}/bin
+export PATH
+
+exec suexec rme.ksh rme "${@}"
+
+

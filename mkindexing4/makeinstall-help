@@ -1,0 +1,21 @@
+#!/usr/bin/ksh
+# MAKEHELP
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+: ${SRCROOT:=${LOCAL}}
+
+HELPDIR=${SRCROOT}/share/help
+
+
+for F in *.help ; do
+  R=$( print $F | cut -d . -f 1 )
+  rm -f ${R}
+  ln $F $R
+  makenewer $R ${HELPDIR}
+done
+
+
+

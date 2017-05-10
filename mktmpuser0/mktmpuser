@@ -1,0 +1,18 @@
+#!/usr/bin/ksh
+# MKTMPUSER
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+
+FPATH=${LOCAL}/fbin
+export FPATH
+
+
+autoload mktmpuser
+
+mktmpuser "${@}"
+
+
+

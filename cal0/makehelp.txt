@@ -1,0 +1,6 @@
+install.help:		$(T).help
+	rm -f $(T)
+	cp -p $(T).help $(T)
+	-mkdir -p $(HELPDIR) 2> /dev/null
+	makenewer $(T) $(HELPDIR)
+

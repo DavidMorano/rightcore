@@ -1,0 +1,16 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+integer n=100 c
+
+TESTSHMALLOC_DEBUGFILE=d 
+for (( c = 0 ; c < n ; c += 1 )) ; do
+  z d ;
+  if testshmalloc.x > o ; then :
+  else
+    break
+  fi
+done
+print -- "c=${c}"
+
+

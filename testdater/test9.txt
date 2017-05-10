@@ -1,0 +1,15 @@
+std	Wed Apr 09 17:38:33 USPDT 2003 -0700
+std	Wed Apr 09 17:38:33 2003 -0700
+std	Wed Apr 09 17:38:33 USEDT 2003 -0400
+std	    Apr 09 17:38:33 USEDT 2003
+std	Wed Apr 09 17:38:33 USEDT 2003
+std	Wed Apr 09 17:38:33 Z 2003
+std	Wed Apr 09 17:38:33 EDT 2003
+std	Wed Jul  9 13:52:29 EDT 2014
+std	Wed Apr 09 17:38:33 EDT 2003 -0400
+std	Wed Apr 09 17:38:33 -0400
+std	Wed Apr 09 17:38:33 -0700
+std	Wed Jul  9 13:52:29 2014
+std	Wed Jul  9 13:52:29
+std	Wed Jul  9 13:52:29 junker 2014
+std	Wed Jul  9 13:52:29 junker 2014 -0400

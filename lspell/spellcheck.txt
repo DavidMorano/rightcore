@@ -1,0 +1,18 @@
+SPELLCHECK
+
+
++ start(op,pr,db)
++ finish
+
++ look(op,wp,wl)
+
+struct spellcheck_lools {
+} ;
++ looks(op,a,n)
+
+
++ curbegin
++ enum
++ curend
+
+

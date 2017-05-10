@@ -1,0 +1,23 @@
+#!/usr/bin/ksh
+# ASTMAKE
+
+
+FLAT=
+#FLAT=flat
+
+export SHELL=/usr/bin/ksh
+
+ENVSET_OPTS="xeall=0,xextra=0"
+ENVSET_CF=astmake.conf
+ENVSET_XF=astmake.xe
+export ENVSET_OPTS ENVSET_CF ENVSET_XF
+
+XF=${HOME}/etc/astmake.xe
+P=bin/package
+CF="-pthreads"
+LIBS="-liconv -lpthread -lrt -lxnet -lsocket -lnsl" 
+
+envset -xf ${XF} ${SHELL} + ${P} ${FLAT} make \
+	CC=gcc CCFLAGS="${CF}" LDFLAGS="${LIBS}"
+
+

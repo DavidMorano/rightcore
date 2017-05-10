@@ -1,0 +1,15 @@
+#!/usr/extra/bin/ksh
+# RMCORES
+
+DN=/dev/null
+if [[ $# -gt 0 ]] ; then
+  for D in $* ; do
+    if [[ -d "${D}" ]] ; then
+      find ${D} -type f -name core -exec rm -f {} \;
+    fi
+  done 2> ${DN}
+else
+  find * -type f -name core -exec rm -f {} \; 2> ${DN}
+fi
+
+

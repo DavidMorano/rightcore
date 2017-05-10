@@ -1,0 +1,21 @@
+#!/usr/bin/ksh
+# INSTALLPROG
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+
+DIRS=" ${LOCAL} ${EXTRA} "
+
+
+for D in ${DIRS} ; do
+  B=${D}/bin
+  if [[ -d ${B} ]] ; then
+  makenewer -s ksh= *.ksh ${B}
+  fi
+done
+
+
+

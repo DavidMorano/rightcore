@@ -1,0 +1,38 @@
+Hey Dave,
+
+I reproduced the scheme random number generator that I was talking
+about in C++.  Attached:
+
+SWBrandom.h: the generator.
+
+SWBtest.cpp: a cross test against a list of numbers produced by MIT
+scheme itself.  The numbers are pasted into the file.
+
+random.scm: the original scheme source.  Has pseudocode and paper
+citation at top.  Hard to find if I remember correctly.
+
+Basically, you have 43*32+1 state bits, in the form of a 43 element
+circular buffer and one stray carry bit.  There is an update rule that
+more or less subtracts the oldest element from one in the middle.
+Actually negative and moduloed into the range [0,2^32-5).  Then there's
+a little carry bit thing to propagate more randomness.  See
+pseudocode.
+
+Note that there aren't fully 32 bits of random generated on each
+iteration.  Only lg(2^32-5).  I'm sure if your test suite expects
+otherwise it will complain.  If you want 32 bits of randomness call the
+thing 4 times and take the least significat bytes.
+
+This is also probably one of the fastest PSRNGs around.
+
+Sorry: the test file creates a lot of warnings in GCC because of the
+large constants pasted in.  But I was too lazy subtract 2^32 from every
+other one.  The implementation header file is clean of warnings
+though.  But that's why the program does not seed itself with constants
+by default.  Add your own linear congruential whatever, or paste in the
+numbers from the test file.
+
+Fire away.  ;-)
+
+Jeff
+

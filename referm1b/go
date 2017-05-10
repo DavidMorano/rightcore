@@ -1,0 +1,4 @@
+
+INDEX=${LOCAL}/share/bib/Ind
+REFERM_DEBUGFD=3 referm.x -D -p ${INDEX} testdoc.mm > o 2> e 3> d
+

@@ -1,0 +1,27 @@
+Reading specs from 
+        /sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/specs
+Configured with: ../configure --with-as=/usr/ccs/bin/as 
+        --with-ld=/usr/ccs/bin/ld --enable-shared 
+        --enable-languages=c,c++,f77
+Thread model: posix
+gcc version 3.4.6
+ /sb07/swd/gnu/bin/../libexec/gcc/sparc-sun-solaris2.8/3.4.6/collect2 -V -Y 
+        P,/usr/ccs/lib:/usr/lib -Qy -o mainvector 
+        /sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/crt1.o 
+        /sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/crti.o 
+        /usr/ccs/lib/values-Xa.o 
+        /sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/crtbegin.o 
+        -L/usr/add-on/local/lib 
+        -L/sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6 
+        -L/sb07/swd/gnu/bin/../lib/gcc 
+        -L/usr/local/lib/gcc/sparc-sun-solaris2.8/3.4.6 
+        -L/sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/../../../../sparc-sun-solaris2.8/lib
+        -L/usr/local/lib/gcc/sparc-sun-solaris2.8/3.4.6/../../../../sparc-sun-solaris2.8/lib
+        -L/usr/ccs/bin -L/usr/ccs/lib 
+        -L/sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/../../.. 
+        -L/usr/local/lib/gcc/sparc-sun-solaris2.8/3.4.6/../../.. 
+        mainvector.o termout.o -ldam -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s 
+        -lgcc -lc 
+        /sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/crtend.o 
+        /sb07/swd/gnu/bin/../lib/gcc/sparc-sun-solaris2.8/3.4.6/crtn.o
+ld: Software Generation Utilities - Solaris Link Editors: 5.8-1.299

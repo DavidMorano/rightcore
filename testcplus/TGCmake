@@ -1,0 +1,33 @@
+#!/usr/bin/ksh
+# MAKE (TGC)
+
+: {TGC:=/usr/tgcware}
+: {GNU:=/usr/add-on/gnu}
+: {CCS:=/usr/ccs}
+: {PREROOT:=/usr/preroot}
+: {EXTRA:=/usr/extra}
+export TGC GNU CCS PREROOT EXTRA
+
+unset LD_PRELOAD
+PATH=${TGC}/bin:${TGC}/gcc47/bin:${GNU}/bin:${PATH}
+LD_LIBRARY_PATH=${TGC}/lib:${TGC}/gcc47/lib:${GNU}/lib:${LD_LIBRARY_PATH}
+export PATH LD_LIBRARY_PATH
+
+GNU_CCFLAGS=" -std=gnu++11 "
+GNU_INCDIR="${TGC}/include"
+GNU_LIBDIR="${TGC}/lib"
+GNU_VALDIR="${EXTRA}/lib/crt"
+GNU_CRTDIR="${TGC}/lib/crt"
+GNU_VALUES="values-xa.o"
+GNU_RPATH="${TGC}/lib"
+GNU_LIBS=" ${TGC}/lib/libstdc++.so ${TGC}/lib/libgcc_s.so "
+GNU_LIBINFO=" -L${TGC}/lib -lstdc++ -lgcc_s "
+export GNU_CCFLAGS 
+export GNU_INCDIR GNU_LIBDIR GNU_VALDIR GNU_CRTDIR
+export GNU_VALUES
+export GNU_RPATH GNU_LIBS GNU_LIBINFO 
+export GNU_LIBINFO 
+
+${CCS}/bin/make "${@}"
+
+

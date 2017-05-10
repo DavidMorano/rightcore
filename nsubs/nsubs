@@ -1,0 +1,32 @@
+#!/bin/nawk -f -
+
+BEGIN {
+	c_jal = 0 ;
+	c_jr = 0 ;
+	c_jalr = 0 ;
+}
+
+$2 == "jal" {
+	names[$3] += 1 ;
+	c_jal += 1 ;
+}
+
+$2 == "jalr" {
+	c_jalr += 1 ;
+}
+
+$2 == "jr" {
+	c_jr += 1 ;
+}
+
+END {
+	print "instrs=", NR
+	print "jal=", c_jal
+	print "jr=", c_jr
+	print "jalr=", c_jalr
+	for (i in names) {
+		print i, names[i]
+	}
+}
+
+

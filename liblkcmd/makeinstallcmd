@@ -1,0 +1,53 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLCMD
+
+: ${PREROOT:=/usr/preroot}
+: ${EXTRA:=/usr/extra}
+export PREROOT EXTRA
+
+TS=${1}
+if [[ -z "${TS}" ]] ; then
+  TS=${PWD##*/}
+fi
+
+EXTS=" so "
+
+PRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+DN=/dev/null
+
+function isourfile {
+  typeset EX
+  execname ${TS}.x isfile "${@}"
+  EX=${?}
+  return ${EX}
+}
+
+CMDS=
+if [[ -x ${TS}.x ]] && [[ -x ${TS}.so ]] ; then
+  execname ${TS}.x kshbi -f ${TS}.so -a | while read A CMDNAME ; do
+  print -u2 A=${A} CMDNAME=${CMDNAME}
+    if [[ ${A} == "YES" ]] ; then
+      CMDS="${CMDS} ${CMDNAME}"
+      if [[ ! -x ${CMDNAME} ]] || [[ ! -s ${CMDNAME} ]] ; then 
+        rm -f ${CMDNAME}
+        ln -f ${TS}.x ${CMDNAME}
+      else
+	if isourfile -same ${TS}.x ${CMDNAME} ; then :
+        else
+          rm -f ${CMDNAME}
+	  ln -f ${TS}.x ${CMDNAME}
+        fi
+      fi
+    fi
+  done
+  if [[ ! -x ${TS} ]] ; then ln ${TS}.x ${TS} ; fi
+  CMDS="${CMDS} ${TS}"
+  if [[ -n "${CMDS}" ]] ; then
+    for PR in ${PRS} ; do
+      find ${CMDS} -print | cpio -pdmu ${PR}/bin
+    done
+  fi
+fi
+
+

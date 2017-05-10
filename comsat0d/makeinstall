@@ -1,0 +1,24 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL (COMSAT)
+
+T=${1}
+if [[ -z "${T}" ]] ; then
+  T=${PWD##*/}
+fi
+
+BDIR=sbin
+
+PRS=" /root[01]/${EXTRA} "
+
+if [[ -x ${T}.x ]] ; then
+  for PR in ${PRS} ; do
+    if [[ -d "${PR}" ]] ; then
+      D=${PR}/${BDIR}
+      makenewer -r -o rmsuf ${T}.x ${D}
+      chgrp tty ${D}/${T}
+      chmod g+s ${D}/${T}
+    fi
+  done
+fi
+
+

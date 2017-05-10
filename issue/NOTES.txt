@@ -1,0 +1,32 @@
+NOTES (ISSUE)
+
+Files in this directory are used for creating the "issue" statement
+when a (usually login) connect request arrives to the host.
+
+Files to be used in creating the "issue" are of the form:
+
+<key>.issue
+
+where '<key>' is a profile-key that is associated with a certain access
+point to the host.  These keys may be named anything and the machine
+administrator assigns what keys are played out to what interface access
+points to the host.
+
+Generally, at least one key-file should be present named 'default.issue'
+for most administrative setups.
+
+Multiple files with the same key is possible when the files are named with
+successively higher decimal digits following the key name.  For example:
+
+default0.issue
+default1.issue
+
+will both be played out when a connect request comes active associated
+with the key-name 'default'.  Multiple files with the same key-name are
+played out in ascending order (with the non-digit version played out
+first, if present).
+
+If a file for a given key-name is not found, files with the key 'default"
+are played out instead.  Further, regardless of any key-name given,
+any files with the pseudo key-name of 'all' are also played out.
+

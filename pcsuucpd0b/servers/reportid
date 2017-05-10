@@ -1,0 +1,10 @@
+#!/bin/sh
+
+: ${LOCAL:=/usr/add-on/local}
+
+PATH=${PATH}:${LOCAL}/bin
+export PATH
+
+id-a
+
+

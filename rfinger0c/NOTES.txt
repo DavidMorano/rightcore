@@ -1,0 +1,19 @@
+RFINGER
+
+Sometimes things are simple and sometimes they are not.  Using the
+dial-modules capability can be much simpler (or not) depending on the
+way you look at it.  If you want to use dial-modules, you need to
+proplerly setup the following objects:
+
+DIALER		an object that manages dialers (I think)
+SYSTEMS		an object that manages the 'systems' DB
+CM		connection manager
+
+The first two objects are arguments to the third.  But once all of
+these are setup, you can just use the CM (Connection Manager) object to
+make connections to hosts essentially automatically.  The Connection
+Manager will lookup the hostname in the 'systems' database (using the
+SYSTEMS object) and then will dial out using the DIALER object.
+
+
+

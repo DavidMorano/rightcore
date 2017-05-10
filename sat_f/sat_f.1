@@ -1,0 +1,324 @@
+.tr ~ 
+.TH SAT_FILTER 1 
+.SH NAME
+sat_fe, sat_fi \- filter SATtool scripts
+.SH SYNOPSIS
+\fBsat_fe\fP [ \fB-f\fP \fIfilter\fP ] [ \fIinfile\fP ] [ \fIoutfile\fP ]
+[ \fB-V\fP ] [ \fB-D\fP ] [ \fB-?\fP ]
+.br
+\fBsat_fi\fP [ \fB-f\fP \fIfilter\fP ] [ \fIinfile\fP ] [ \fIoutfile\fP ]
+[ \fB-V\fP ] [ \fB-D\fP ] [ \fB-?\fP ]
+.SH DESCRIPTION
+.sp 0.5
+These two programs form the filtering tools for allowing SATtool
+record/playback scripts to be independent of some
+switch dependent parameters such as the PBX ID or the uniform dialing
+plan leading digits.  The \fIsat_fi\fP tool takes a raw SATtool
+script file with switch dependent parameters in it and converts it
+into another script file which has symbolic names introduced in place
+of the dependent switch parameters.  The \fIsat_fe\fP program performs the
+reverse function.  It takes a SATtool script file with symbolic names
+(described later)
+in it and converts it into a new SATtool script file by expanding the
+symbolic names into their associated definitions.  The resultant
+script file is now suitable for playback to the switch.
+.sp 0.5
+These programs are usually embedded within other automation
+related programs which are used to perform the steps
+necessary for recording and playing back SATtools scripts
+to a switch.  For both programs, the order of any key letter options
+is not important.  The \fIinfile\fP and \fIoutfile\fP arguments
+must appear in the relative positions with respect to each other as
+shown above.  If the \fB-f\fP key letter is used, its \fIfilter\fP
+file argument must follow as the next independent argument.  All key letter
+options may be grouped together, including the \fB-f\fP option, if desired.
+.sp 0.5
+Symbolic name macros are introduced into 
+SATtool script files by prefixing and postfixing the symbolic macro 
+name itself with some special characters.
+Two characters are used as a prefix, namely the dollar sign character
+followed immediately by the left brace character \fI${\fP.  The 
+postfix consists
+of only one character which is the right brace character \fI}\fP.
+An entire macro name introduction would look like \fI${name}\fP.
+.SS \fBsat_fi\fP
+.sp 0.5
+The \fIsat_fi\fP
+tool is the "filter macro introduction" tool in that it takes a raw
+SATtool script file as its input and generates a script file from it
+with symbolic name macros introduced in place of any target macro
+string definitions encountered.
+The new script file generated will contain symbolic names substituted for
+the various parameters as previously defined in the \fIfilter\fP 
+configuration file used by the program.
+The filter configuration file is given as an argument to the program.
+The format of a filter configuration file is described further below.
+.SS \fBsat_fe\fP
+.sp 0.5
+This program is the "filter macro expansion" program.  It takes as input
+a "source" SATtool script and converts symbolic filter references
+found in it to their associated targets as defined in a \fIfilter\fP
+configuration file.  
+.sp 0.5
+Since this particular program (\fBsat_fe\fP)
+is usually executed extensively as part of an automation run of some sort,
+like a Prairie
+run, it has also been designed to execute as quickly as possible.
+When the program first starts up, it checks to see if a previously parsed
+version of the 
+filter configuration file exists.  A previously parsed filter
+configuration file is referred to as a filter freeze file.  This mechanism
+of using a previously parsed version of the filter configuration file
+serves to speed up the program execution since the normal parsing steps
+associated with reading the filter configuration are bypassed.
+.sp 0.5
+If a valid
+freeze file exists, it is used in place of the filter configuration file
+as specified on the command line.  The modification date of the
+freeze file must be later than that of the specified configuration
+file on the command line.  In addition, checks are made to ensure that
+the proper freeze file is accessed that is associated with the
+filter configuration file specified to the program.  There can 
+exist multiple filter
+freeze files for any number of filter configuration files
+which may have been specified to this program and previously 
+executed.
+If a filter freeze file is not found for a specified filter configuration
+file as given on the command line, a corresponding filter freeze file
+is automatically created.  This whole process is quite transparent to
+the user.
+.SS \fBKey Options\fP
+.sp 0.5
+The \fB-?\fP is a standard option which causes the program to
+terminate with a message printed to standard error explaining the
+usage of the program.  This is useful when the user forgets the
+exact syntax of the program's arguments and does not want to
+consult the manual page.
+.sp 0.5
+The \fB-V\fP option causes the program to write out to standard
+error the version of the program.  The program will continue to
+execute according to the other files or options specified.  If
+the user just wants the program's version without actually performing
+any filter operation, the user should use the \fB-?\fP option as above
+in conjunction with this option.
+.sp 0.5
+The \fB-D\fP option enables the printing of some debugging information
+to the standard error.  Information such as whether a new freeze
+file was created is supplied.  All severe errors of any kind are
+printed to standard error regardless of the setting of this option.
+.sp 0.5
+The \fB-f\fP key letter option introduces a filter configuration file
+to be used by the program.  The associated filter file name should be
+given as the next white-space separated argument on the
+command line.  This key letter argument may still be combined with the
+other key letter arguments if desired.  If this option is not specified,
+then the environment variable \fBA_FILTER\fP is accessed for the
+name of the filter configuration file.  If that environment variable
+is not present in the environment, then the program will exit with
+an appropriate error message to standard error.
+.SS \fBFilter Configuration File\fP
+.sp 0.5
+The filter configuration file contains the mapping of symbolic
+names to target string definitions.  Comments
+are introduced into the filter configuration file by the pound sign
+character.  Blank lines are ignored.  Two fields are entered per line
+with white space separating them.  The first field is the symbolic
+name field.  The second field is the target substitution string.
+The target substitution string is that which is substituted
+in place of a symbolic name when one is encountered in a source
+SATtool script.  
+Quote characters
+are not allowed within either field.
+An example of a filter configuration file is given below.
+.SS \fBInput File\fP
+.sp 0.5
+An \fIinfile\fP argument can optionally be specified to give the name
+of the input file to be used in the desired conversion, either a
+macro introduction function or a macro expansion function.
+If this optional file is not specified but an \fIoutfile\fP is
+specified, then a null positional argument indicated by a single
+stand-alone dash (\fB-\fP) should be introduced in place of the
+\fIinfile\fP argument.  When no \fIinfile\fP argument is present or
+if a dash is substituted instead, the standard input is used.
+.SS \fBOutput File\fP
+.sp 0.5
+An \fIoutfile\fP argument can optionally be specified to give the name
+of the output file to be used in the desired conversion, either a
+macro introduction function or a macro expansion function.
+If this optional file name argument is not specified,
+then the standard output is used for the generated output script from the
+conversion process.  If this argument is specified but no \fIinfile\fP
+argument is desired, then a single stand-alone dash character (\fB-\fP)
+should be used in place of the \fIinfile\fP argument.  This will indicate
+that standard input should be used instead of a specified file.
+.SH EXAMPLES
+.sp 0.5
+To convert a source SATtool script file into the object script
+format :
+.ft CW
+.sp 0.5
+sat_fe -f /usr/auto/etc/f.v5d6 source.ap > object.ap
+.sp 0.5
+.ft P
+To convert an object SATtool script file into a source SATtool
+script file :
+.ft CW
+.sp 0.5
+sat_fi raw.ap -f /usr/adm/etc/f.v5d9 > introduced.ap
+.ft P
+.sp 0.5
+Get the program version only without performing any filtering function :
+.ft CW
+.sp 0.5
+sat_fi -V?
+.ft P
+.sp 0.5
+Perform a macro expansion operation with debugging turned on :
+.ft CW
+.sp 0.5
+sat_fe infile.ap -fD /usr/adm/etc/f.v5d9 outfile.ap
+.ft P
+.sp 0.5
+Perform a macro expansion operation writing to a specified output file
+but using standard input for the program input file :
+.ft CW
+.sp 0.5
+sat_fe - -f /usr/adm/etc/f.v5d9 outfile.ap
+.ft P
+.sp 0.5
+Perform a macro introduction operation using the environment variable
+\fBA_FILTER\fP to specify the filter configuration file instead of
+specifying one on the command line :
+.ft CW
+.sp 0.5
+A_FILTER=/usr/adm/etc/f.v5d9 ; export A_FILTER
+.br
+sat_fe - outfile.ap
+.ft P
+.sp 0.5
+.SH CAVEATS
+.sp 0.5
+Symbolic names with embedded quote characters cannot be handled
+since quote characters are not allowed within the field definitions as given
+in the filter configuration file.
+White space must always separate command line option key letters from
+their associated parameter.
+.SH ENVIRONMENT VARIABLES
+The environment variable \fBA_FILTER\fP can optionally be used to specify
+the filter configuration file to be used by these programs.  This
+environment variable is ignored if the \fB-f\fP option is used
+on the command line.
+.SH FILES
+By convention, filter configuration files for each SAT
+model available are stored in directory \fI/usr/auto/etc\fP.  Note that this
+directory has no particular meaning to these programs.  Since
+filter configuration files must always be specified to the programs
+either by the command line or through an environment variable,
+filter files can be located anywhere within the file system.
+.sp 0.5
+Filter configuration freeze files are stored in directory \fI/tmp\fP
+with a name derived from the corresponding filter file 
+given on the command line.
+.sp 0.5
+An example of a filter configuration file is given below :
+.sp 1
+.nf
+.ft CW
+##############################################################################
+# This file contains the physical carrier slot locations for the System Under
+# Test (SUT).
+#
+# SUT:		STD0
+# switch:	A
+#
+#
+#                  PORT BOARD CONFIGURATION FILE (SUT): v5A
+##############################################################################
+#
+DIGITAL-ONE	1D15
+DIGITAL-TWO	1D10
+ANALOG-ONE	1D09
+ANALOG-TWO	1D17
+DS1-ONE		1D11
+DS1-TWO		1D12
+DS-1-ONE	1D11
+DS-1-TWO	1D12
+DS1-THREE	1C15
+DS1-FOUR	1C16
+DID-ONE		1D08
+TIE-ONE		1D13
+CO-ONE		1D07
+CO-TWO		1A07
+EMPTY-ONE	1D20
+MACH 		40
+MACHA		40
+MACHB		63
+ANNOUNCE-ONE	1C02
+CO40DDD		9578412
+CO41DDD		9578716
+##############################################################################
+.ft P
+.fi
+.sp 2
+An example SATtool script file is shown below.  Note the symbolic name
+macros \fIMACH\fP and \fIDIGITAL-TWO\fP.
+.sp 1
+.nf
+.ft CW
+/*---------------------------------------------------------------------------*/
+/* Script begin                                                              */
+/*---------------------------------------------------------------------------*/
+:begin
+
+	/*--------------------------------------*/
+	ts "add att 6"
+	tsend <RETURN>
+	twait 13	:mwtout
+	<
+		"1: add attendant 6"
+	>
+
+	/*--------------------------------------*/
+	moveto{44-Type_1:} :mwtout
+	ts "console"
+	tsend <RETURN>
+	twait 6	:mwtout
+	<
+	>
+
+	/*--------------------------------------*/
+	moveto{44-Extension:} :mwtout
+	ts "${MACH}699"
+	tsend <RETURN>
+	twait 3	:mwtout
+	<
+	>
+
+	/*--------------------------------------*/
+	moveto{44-Port:} :mwtout
+	ts "${DIGITAL-TWO}08"
+	tsend <RETURN>
+	twait 5	:mwtout
+	<
+	>
+
+/*---------------------------------------------------------------------------*/
+/* Script end                                                                */
+/*---------------------------------------------------------------------------*/
+:term	exit(0)
+
+/*---------------------------------------------------------------------------*/
+/* Timeout error messages                                                    */
+/*---------------------------------------------------------------------------*/
+:mwtout
+	ps "SAT script failure"
+	tsend <CANCEL>
+	exit(-1)
+endscript
+.ft P
+.fi
+.sp 2
+.SH AUTHOR
+D.A. Morano
+.SH MAINTAINER
+D.A. Morano

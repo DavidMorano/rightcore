@@ -1,0 +1,12 @@
+#!/usr/bin/ksh
+# FTP
+
+
+NETRC=${HOME}/.netrc
+if [[ -f ${NETRC} ]] ; then
+  chmod 0600 ${NETRC} 
+fi
+
+exec execname /usr/bin/ftp ${0} "${@}"
+
+

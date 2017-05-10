@@ -1,0 +1,16 @@
+
+
+{
+	global:
+		debugopen ;
+		debugclose ;
+		debugsetfd ;
+		debuggetfd ;
+		debugwrite ;
+		debugprint ;
+		debugprintf ;
+	local:
+		* ;
+} ;
+
+

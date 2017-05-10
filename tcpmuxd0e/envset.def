@@ -1,0 +1,70 @@
+# DEF
+#
+# These are definitions ('defines') that are used as default
+# definitions for server-like programs that have configuration
+# files that take definitions.
+#
+#
+
+
+PREROOT=	/usr/preroot
+EXTRA=		/usr/extra
+POSTFIX=	/usr/postfix
+SL=		/usr/sl
+
+XPG4=		/usr/xpg4
+DT=		/usr/dt
+OPENWIN=	/usr/openwin
+CCS=		/usr/ccs
+JAVA=		/usr/java
+GAMES=		/usr/games
+APACHE=		/usr/apache
+
+SUNWSPRO=	/opt/SUNWspro
+HPNP=		/opt/hpnp
+
+# this should not be needed on a normally configured system
+#MAILDIR=	/var/mail
+
+ADDON=		/usr/add-on
+
+
+LOCAL=		/usr/add-on/local
+AST=		/usr/add-on/ast
+NCMP=		/usr/add-on/ncmp
+DWB=		/usr/add-on/dwb
+GNU=		/usr/add-on/gnu
+PCS=		/usr/add-on/pcs
+TOOLS=		/usr/add-on/exptools
+WWB=		/usr/add-on/wwb
+XDIR=		/usr/add-on/X11
+POST=		/usr/add-on/post
+
+
+CATMAN		/usr/add-on/catman
+ARTICLES	/usr/add-on/articles
+DOCUMENTS	/usr/add-on/documents
+MUSIC		/usr/add-on/music
+MOVIES		/usr/add-on/movies
+SOUNDS		/usr/add-on/sounds
+INTERVIEWS	/usr/add-on/interviews
+REPORTS		/usr/add-on/reports
+IMAGES		/usr/add-on/images
+LECTURES	/usr/add-on/lectures
+PATCHES		/usr/add-on/patches
+
+
+WWW		/common/www
+BBNOTES		/common/bbnotes
+
+
+ADMIN_HOME	/home/admin
+MAGICK_HOME	/usr/add-on/ncmp
+TETEX		/usr/add-on/tetex
+TETEXDIR	/usr/add-on/tetex
+UUCPPUBLIC	/var/spool/uucppublic
+
+STARBASE=	/proj/starbase
+
+
+

@@ -1,0 +1,642 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%BoundingBox: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/rotation 1 def
+userdict /gotpagebbox true put
+/resolution 720 def
+setup
+2 setdecoding
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 drawing procedures for dpost. Automatically pulled in when
+% needed.
+%
+
+/inpath false def
+/savematrix matrix def
+
+/Dl {
+	inpath
+		{pop pop neg lineto}
+		{newpath neg moveto neg lineto stroke}
+	ifelse
+} bind def
+
+/De {
+	/y1 exch 2 div def
+	/x1 exch 2 div def
+	/savematrix savematrix currentmatrix def
+	neg exch x1 add exch translate
+	x1 y1 scale
+	0 0 1 0 360
+	inpath
+		{1 0 moveto arc savematrix setmatrix}
+		{newpath arc savematrix setmatrix stroke}
+	ifelse
+} bind def
+
+/Da {
+	/dy2 exch def
+	/dx2 exch def
+	/dy1 exch def
+	/dx1 exch def
+	dy1 add neg exch dx1 add exch
+	dx1 dx1 mul dy1 dy1 mul add sqrt
+	dy1 dx1 neg atan
+	dy2 neg dx2 atan
+	inpath
+		{arc}
+		{newpath arc stroke}
+	ifelse
+} bind def
+
+/DA {
+	/dy2 exch def
+	/dx2 exch def
+	/dy1 exch def
+	/dx1 exch def
+	dy1 add neg exch dx1 add exch
+	dx1 dx1 mul dy1 dy1 mul add sqrt
+	dy1 dx1 neg atan
+	dy2 neg dx2 atan
+	inpath
+		{arcn}
+		{newpath arcn stroke}
+	ifelse
+} bind def
+
+/Ds {
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	/y0 exch def
+	/x0 exch def
+	x0 5 x1 mul add 6 div
+	y0 5 y1 mul add -6 div
+	x2 5 x1 mul add 6 div
+	y2 5 y1 mul add -6 div
+	x1 x2 add 2 div
+	y1 y2 add -2 div
+	inpath
+		{curveto}
+		{newpath x0 x1 add 2 div y0 y1 add -2 div moveto curveto stroke}
+	ifelse
+} bind def
+end
+%%EndSetup
+%%Page: 1 1
+%%PageBoundingBox: (atend)
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+10 R f
+1463 228 1463 1668 Dl
+5063 228 1463 228 Dl
+5063 1668 5063 228 Dl
+1463 1668 5063 1668 Dl
+(time-to-pregnancy density)1 1051 1 2738 199 t
+(percent)838 908 w
+(pregnancies)746 1028 w
+(time to pregnancy interval \(months\))4 1437 1 2545 1952 t
+1391 1668 1463 1668 Dl
+(0)1316 1688 w
+1391 1380 1463 1380 Dl
+(2)1316 1400 w
+1391 1092 1463 1092 Dl
+(4)1316 1112 w
+1391 804 1463 804 Dl
+(6)1316 824 w
+1391 516 1463 516 Dl
+(8)1316 536 w
+1391 228 1463 228 Dl
+(10)1266 248 w
+1463 1740 1463 1668 Dl
+(0)1438 1850 w
+1823 1740 1823 1668 Dl
+(10)1773 1850 w
+2183 1740 2183 1668 Dl
+(20)2133 1850 w
+2543 1740 2543 1668 Dl
+(30)2493 1850 w
+2903 1740 2903 1668 Dl
+(40)2853 1850 w
+3263 1740 3263 1668 Dl
+(50)3213 1850 w
+3623 1740 3623 1668 Dl
+(60)3573 1850 w
+3983 1740 3983 1668 Dl
+(70)3933 1850 w
+4343 1740 4343 1668 Dl
+(80)4293 1850 w
+4703 1740 4703 1668 Dl
+(90)4653 1850 w
+5063 1740 5063 1668 Dl
+(100)4988 1850 w
+1499 1576 1463 1577 Dl
+1535 1576 1499 1575 Dl
+1571 1576 1535 1577 Dl
+1607 1574 1571 1575 Dl
+1643 1575 1607 1574 Dl
+1679 1575 1643 1575 Dl
+1715 1576 1679 1575 Dl
+1751 1576 1715 1577 Dl
+1787 1576 1751 1575 Dl
+1823 1575 1787 1577 Dl
+1859 1575 1823 1574 Dl
+1895 1575 1859 1575 Dl
+1931 1574 1895 1575 Dl
+1967 1575 1931 1574 Dl
+2003 1574 1967 1575 Dl
+2039 1576 2003 1574 Dl
+2075 1575 2039 1577 Dl
+2111 1574 2075 1574 Dl
+2147 1573 2111 1574 Dl
+2183 1573 2147 1572 Dl
+2219 1574 2183 1574 Dl
+2255 1573 2219 1574 Dl
+2291 1573 2255 1572 Dl
+2327 1574 2291 1574 Dl
+2363 1573 2327 1574 Dl
+2399 1573 2363 1572 Dl
+2435 1573 2399 1574 Dl
+2471 1570 2435 1572 Dl
+2507 1574 2471 1570 Dl
+2543 1572 2507 1574 Dl
+2579 1570 2543 1571 Dl
+2615 1571 2579 1570 Dl
+2651 1570 2615 1571 Dl
+2687 1570 2651 1570 Dl
+2723 1571 2687 1570 Dl
+2759 1569 2723 1571 Dl
+2795 1569 2759 1568 Dl
+2831 1569 2795 1570 Dl
+2867 1568 2831 1568 Dl
+2903 1566 2867 1568 Dl
+2939 1565 2903 1565 Dl
+2975 1565 2939 1565 Dl
+3011 1565 2975 1565 Dl
+3047 1566 3011 1565 Dl
+3083 1565 3047 1567 Dl
+3119 1563 3083 1564 Dl
+3155 1563 3119 1562 Dl
+3191 1564 3155 1564 Dl
+3227 1563 3191 1564 Dl
+3263 1562 3227 1562 Dl
+3299 1561 3263 1562 Dl
+3335 1560 3299 1561 Dl
+3371 1561 3335 1560 Dl
+3407 1561 3371 1561 Dl
+3443 1559 3407 1561 Dl
+3479 1558 3443 1558 Dl
+3515 1556 3479 1558 Dl
+3551 1557 3515 1555 Dl
+3587 1556 3551 1558 Dl
+3623 1553 3587 1555 Dl
+3659 1550 3623 1552 Dl
+3695 1550 3659 1549 Dl
+3731 1549 3695 1551 Dl
+3767 1547 3731 1548 Dl
+3803 1547 3767 1547 Dl
+3839 1546 3803 1547 Dl
+3875 1541 3839 1545 Dl
+3911 1542 3875 1541 Dl
+3947 1541 3911 1542 Dl
+3983 1536 3947 1541 Dl
+4019 1536 3983 1535 Dl
+4055 1534 4019 1536 Dl
+4091 1533 4055 1534 Dl
+4127 1531 4091 1532 Dl
+4163 1526 4127 1531 Dl
+4199 1525 4163 1525 Dl
+4235 1521 4199 1525 Dl
+4271 1521 4235 1521 Dl
+4307 1516 4271 1521 Dl
+4343 1511 4307 1515 Dl
+4379 1511 4343 1511 Dl
+4415 1504 4379 1511 Dl
+4451 1502 4415 1503 Dl
+4487 1497 4451 1502 Dl
+4523 1489 4487 1496 Dl
+4559 1484 4523 1489 Dl
+4595 1476 4559 1483 Dl
+4631 1474 4595 1476 Dl
+4667 1462 4631 1473 Dl
+4703 1452 4667 1462 Dl
+4739 1441 4703 1452 Dl
+4775 1428 4739 1440 Dl
+4811 1412 4775 1427 Dl
+4847 1386 4811 1411 Dl
+4883 1360 4847 1385 Dl
+4919 1318 4883 1359 Dl
+4955 1254 4919 1318 Dl
+4991 1134 4955 1253 Dl
+5027 367 4991 1133 Dl
+1463 2244 1463 3684 Dl
+5063 2244 1463 2244 Dl
+5063 3684 5063 2244 Dl
+1463 3684 5063 3684 Dl
+(time-to-pregnancy distribution)1 1224 1 2651 2215 t
+(percent)838 2924 w
+(pregnancies)746 3044 w
+(time-to-pregnancy interval \(months\))2 1453 1 2537 3968 t
+1391 3684 1463 3684 Dl
+(0)1316 3704 w
+1391 3396 1463 3396 Dl
+(20)1266 3416 w
+1391 3108 1463 3108 Dl
+(40)1266 3128 w
+1391 2820 1463 2820 Dl
+(60)1266 2840 w
+1391 2532 1463 2532 Dl
+(80)1266 2552 w
+1391 2244 1463 2244 Dl
+(100)1216 2264 w
+1463 3756 1463 3684 Dl
+(0)1438 3866 w
+1823 3756 1823 3684 Dl
+(10)1773 3866 w
+2183 3756 2183 3684 Dl
+(20)2133 3866 w
+2543 3756 2543 3684 Dl
+(30)2493 3866 w
+2903 3756 2903 3684 Dl
+(40)2853 3866 w
+3263 3756 3263 3684 Dl
+(50)3213 3866 w
+3623 3756 3623 3684 Dl
+(60)3573 3866 w
+3983 3756 3983 3684 Dl
+(70)3933 3866 w
+4343 3756 4343 3684 Dl
+(80)4293 3866 w
+4703 3756 4703 3684 Dl
+(90)4653 3866 w
+5063 3756 5063 3684 Dl
+(100)4988 3866 w
+1499 3665 1463 3674 Dl
+1535 3657 1499 3666 Dl
+1571 3647 1535 3656 Dl
+1607 3638 1571 3647 Dl
+1643 3628 1607 3637 Dl
+1679 3619 1643 3628 Dl
+1715 3610 1679 3619 Dl
+1751 3601 1715 3610 Dl
+1787 3592 1751 3601 Dl
+1823 3583 1787 3592 Dl
+1859 3574 1823 3583 Dl
+1895 3564 1859 3573 Dl
+1931 3555 1895 3564 Dl
+1967 3546 1931 3555 Dl
+2003 3536 1967 3545 Dl
+2039 3527 2003 3536 Dl
+2075 3518 2039 3527 Dl
+2111 3509 2075 3518 Dl
+2147 3500 2111 3509 Dl
+2183 3490 2147 3499 Dl
+2219 3481 2183 3490 Dl
+2255 3471 2219 3480 Dl
+2291 3462 2255 3471 Dl
+2327 3453 2291 3462 Dl
+2363 3443 2327 3452 Dl
+2399 3433 2363 3442 Dl
+2435 3424 2399 3433 Dl
+2471 3414 2435 3424 Dl
+2507 3405 2471 3414 Dl
+2543 3395 2507 3404 Dl
+2579 3385 2543 3395 Dl
+2615 3376 2579 3385 Dl
+2651 3365 2615 3375 Dl
+2687 3355 2651 3365 Dl
+2723 3347 2687 3356 Dl
+2759 3336 2723 3346 Dl
+2795 3326 2759 3336 Dl
+2831 3316 2795 3326 Dl
+2867 3306 2831 3316 Dl
+2903 3296 2867 3306 Dl
+2939 3286 2903 3296 Dl
+2975 3276 2939 3286 Dl
+3011 3266 2975 3276 Dl
+3047 3255 3011 3265 Dl
+3083 3245 3047 3255 Dl
+3119 3235 3083 3245 Dl
+3155 3224 3119 3234 Dl
+3191 3214 3155 3224 Dl
+3227 3204 3191 3214 Dl
+3263 3193 3227 3203 Dl
+3299 3182 3263 3192 Dl
+3335 3172 3299 3182 Dl
+3371 3162 3335 3172 Dl
+3407 3151 3371 3161 Dl
+3443 3140 3407 3150 Dl
+3479 3129 3443 3139 Dl
+3515 3117 3479 3128 Dl
+3551 3107 3515 3117 Dl
+3587 3095 3551 3106 Dl
+3623 3084 3587 3095 Dl
+3659 3072 3623 3083 Dl
+3695 3061 3659 3072 Dl
+3731 3048 3695 3060 Dl
+3767 3036 3731 3048 Dl
+3803 3024 3767 3036 Dl
+3839 3012 3803 3024 Dl
+3875 3000 3839 3012 Dl
+3911 2987 3875 2999 Dl
+3947 2975 3911 2987 Dl
+3983 2962 3947 2974 Dl
+4019 2949 3983 2961 Dl
+4055 2934 4019 2947 Dl
+4091 2921 4055 2934 Dl
+4127 2907 4091 2920 Dl
+4163 2893 4127 2907 Dl
+4199 2878 4163 2892 Dl
+4235 2865 4199 2879 Dl
+4271 2849 4235 2863 Dl
+4307 2834 4271 2849 Dl
+4343 2819 4307 2834 Dl
+4379 2803 4343 2818 Dl
+4415 2786 4379 2802 Dl
+4451 2770 4415 2786 Dl
+4487 2752 4451 2769 Dl
+4523 2734 4487 2752 Dl
+4559 2716 4523 2734 Dl
+4595 2697 4559 2716 Dl
+4631 2677 4595 2696 Dl
+4667 2657 4631 2677 Dl
+4703 2636 4667 2657 Dl
+4739 2612 4703 2635 Dl
+4775 2589 4739 2612 Dl
+4811 2563 4775 2588 Dl
+4847 2534 4811 2562 Dl
+4883 2504 4847 2534 Dl
+4919 2468 4883 2503 Dl
+4955 2427 4919 2468 Dl
+4991 2374 4955 2427 Dl
+5027 2244 4991 2374 Dl
+cleartomark
+showpage
+saveobj restore
+end
+%%PageBoundingBox: 64 379 524 792
+%%EndPage: 1 1
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 1
+%%DocumentFonts: Times-Roman
+%%BoundingBox: 64 379 524 792

@@ -1,0 +1,10 @@
+* ADVICE circuit "control" file
+
+* .use skew2.adv
+* .use ddlo_p.adv
+.use constants.adv
+.use params.adv
+.use opamp.adv
+.use ${MAINCKT}
+
+

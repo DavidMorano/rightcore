@@ -1,0 +1,13 @@
+#!/usr/bin/ksh
+# LOGHOST
+
+
+U=${1}
+if [[ -z "${U}" ]] ; then
+  U="-"
+fi
+
+execname userinfo $0 $U loghost
+
+
+

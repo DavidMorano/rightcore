@@ -1,0 +1,37 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL (DMAIL)
+
+T=dmail
+PRS=" ${PCS} /root[01]/${EXTRA} "
+
+NAMES=
+for N in ${@} ; do
+  if [[ -n "${N}" ]] ; then
+    ln -f ${T}.x ${N}
+    NAMES="${NAMES} ${N}"
+  fi
+done
+
+if [[ -n "${NAMES}" ]] ; then
+  for PR in ${PRS} ; do
+    if [[ -d "${PR}" ]] ; then
+      BINDIR=${PR}/bin
+      if [[ -d ${BINDIR} ]] ; then
+        filesyncer -d ${BINDIR} ${NAMES}
+        for N in ${NAMES} ; do
+          chgrp mail ${BINDIR}/${N}
+          chmod g+s ${BINDIR}/${N}
+        done
+      fi
+      HELPDIR=${PR}/share/help
+      for N in ${NAMES} ; do
+        HF=${N}.help
+	if [[ -f ${HF} ]] ; then
+          makenewer -o rmsuf ${HF} -d ${HELPDIR}
+        fi
+      done
+    fi
+  done
+fi
+
+

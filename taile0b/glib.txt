@@ -1,0 +1,3 @@
+LIB3= -lu
+LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB5= 

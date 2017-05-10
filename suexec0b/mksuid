@@ -1,0 +1,11 @@
+#!/bin/ksh
+# MKSUID
+
+
+TP=suexec.x
+
+
+chown root $TP
+chmod u+xs $TP
+
+

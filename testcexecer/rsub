@@ -1,0 +1,9 @@
+#!/bin/ksh
+# RSUB
+
+
+
+id -a
+
+
+

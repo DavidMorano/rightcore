@@ -1,0 +1,22 @@
+#!/usr/bin/ksh
+# INSTALLPROG
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${PCS:=/usr/add-on/pcs}
+: ${EXTRA:=/usr/extra}
+
+
+rm -f execname
+ln execname.x execname
+
+STUFF="execname "
+
+
+for D in ${LOCAL} ${NCMP} ${PCS} ${EXTRA} ; do
+  makenewer -r ${STUFF} ${D}/bin
+done
+
+
+

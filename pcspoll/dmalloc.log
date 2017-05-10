@@ -1,0 +1,6 @@
+1004758510: 57892: Dmalloc version '4.8.2' from 'http://dmalloc.com/'
+1004758510: 57892: flags = 0, logfile 'dmalloc.log'
+1004758510: 57892: interval = 100, addr = 0, seen # = 0
+1004758510: 57892: threads enabled, lock-on = 0, lock-init = 2
+1004758510: 57892: starting time = 1004757143
+1004758510: 57892: ending time = 1004758510, elapsed since start = 0:22:47

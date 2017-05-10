@@ -1,0 +1,13 @@
+#!/usr/bin/ksh
+# RUNIT
+
+
+export DOMAIN=other.place.org
+
+export LOCALDOMAIN=francis.labs.com
+#export NODE=vinson.ele.uri.edu
+
+z d ; TESTGETNODEDOMAIN_DEBUGFILE=d testgetnodedomain.x
+
+
+

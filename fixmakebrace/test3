@@ -1,0 +1,6 @@
+
+top_srcdir      =       .
+srcdir          =       .
+builddir        =       ${top_srcdir}/build
+
+prefix          =       /usr/extra/

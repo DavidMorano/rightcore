@@ -1,0 +1,12 @@
+
+
+DAMtestcrash {
+	global:
+		testcrash ;
+		testcrash_start ;
+		testcrash_finish ;
+	local:
+		* ;
+} ;
+
+

@@ -1,0 +1,11 @@
+nist1-ny.ustiming.org
+nist1-nj.ustiming.org
+nist1-nj2.ustiming.org
+nist1-atl.ustiming.org
+nist1-pa.ustiming.org
+nist1-la.ustiming.org
+time-a.nist.gov
+time-b.nist.gov
+nist1.aol-va.symmetricom.com
+time.nist.gov
+

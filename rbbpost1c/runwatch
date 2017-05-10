@@ -1,0 +1,11 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+
+export MALLOC_DEBUG=WATCH
+export RBBPOST_DEBUGFILE=d 
+
+z d ; LD_PRELOAD=watchmalloc.so.1 rbbpost.x -D=5 2> e test < test.msg
+
+return $?
+

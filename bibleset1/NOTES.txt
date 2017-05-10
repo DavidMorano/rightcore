@@ -1,0 +1,21 @@
+NOTES
+
+To run with different:
+
++ P - starting page number
++ S - point-size 
++ O - page offset 
++ W - line-width 
++ L - physical-page-length
+
+one needs to specify these things at TROFF invocation:
+
+$ troff -Tpost -rN2 -rS12 -rO"0.75i" -rW"7.0i" -mpictures -mm <file>
+
+
+=================
+
+Cambridge 1769 edition of the Authorized (King James) Version
+
+
+

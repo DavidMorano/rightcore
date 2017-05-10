@@ -1,0 +1,46 @@
+TCPMUXD
+
+
+This program is a TCPMUX daemon listen server program.
+
+
+Synopsis:
+
+$ tcpmuxd -d
+
+
+If there is contention for a PID mutex or a file mutex, use:
+
+$ tcpmuxd -d -Q
+
+
+To explicitly specify a configuration file:
+
+$ tcpmuxd -d -C ${PCS}/etc/tcpmuxd/engeering.conf
+
+or
+
+$ tcpmuxd -d ${PCS}/etc/tcpmuxd/engeering.conf
+
+
+= configuration file keywords:
+
+listen	<type> <arg(s)>
+
+where:
+
+<type(s)>	tcp, uss, pass
+
+examples:
+
+listen	tcp	inet4:rca:5108
+listen	uss	/tmp/75676576457
+listen	pass	/tmp/75676576457
+
+
+
+
+= Dave Morano, 1998-12-01
+
+
+

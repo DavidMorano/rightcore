@@ -1,0 +1,14 @@
+#!/usr/bin/ksh
+# FINGERS.TEST
+
+
+
+HERE=${HOME}/src/fingers
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+
+FINGERS_DEBUGFD=3 ${HERE}/fingers.x -D=5 3> ${HERE}/d 2> ${HERE}/e "${@}"
+
+

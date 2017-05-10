@@ -1,0 +1,22 @@
+
+introduction line
+this ${OTHER} is a place for ${THIS} here
+
+this is ${JUNK} here
+
+and the ${OTHER} also
+this is just some filler
+
+The output file is >${OUTFILE}<
+
+This is the new $(OUTFILE) thing!
+
+What about ${WHAT}?
+
+this is noname here=>${NONAME}<
+
+this is a blank here=>${BLANK}<
+
+this is an empty escape here >${}<
+
+

@@ -1,0 +1,83 @@
+13786          990720_0058:09 rexecd.x       0/SYSV
+13786          os=SYSV
+13786          rca!dam (David A. Morano)
+13786          990720_0058:09 bad (-2) srvtab=/usr/add-on/pcs/etc/rexecd/rexecd.srvtab
+13786.13786    990720_0058:09 request pid=13786
+13817          990720_0059:48 rexecd.x       0/SYSV
+13817          os=SYSV
+13817          rca!dam (David A. Morano)
+13817          990720_0059:48 bad (-2) srvtab=/usr/add-on/pcs/rexecd.srvtab
+13817.13817    990720_0059:48 request pid=13817
+13880          990720_0102:40 rexecd.x       0/SYSV
+13880          os=SYSV
+13880          rca!dam (David A. Morano)
+13880          990720_0102:40 bad (-2) srvtab=/usr/add-on/pcs/etc/rexecd/rexecd.srvtab
+13880.13880    990720_0102:40 request pid=13880
+13945          990720_0107:03 rexecd.x       0/SYSV
+13945          os=SYSV
+13945          rca!dam (David A. Morano)
+13945          990720_0107:03 srvtab=/usr/add-on/pcs/etc/rexecd/srvtab
+13945          bad (-2) server file
+13969          990720_0108:12 rexecd.x       0/SYSV
+13969          os=SYSV
+13969          rca!dam (David A. Morano)
+13969          990720_0108:12 srvtab=/usr/add-on/pcs/etc/rexecd/srvtab
+13969          bad (-2) server file
+13969.13969    990720_0108:12 request pid=13969
+14020          990720_0110:15 rexecd.x       0/SYSV
+14020          os=SYSV
+14020          rca!dam (David A. Morano)
+14020          990720_0110:15 srvtab=/usr/add-on/pcs/etc/rexecd/srvtab
+14020          bad (-2) server file
+14020.14020    990720_0110:15 request pid=14020
+21776          990720_1315:04 rexecd.x       0/SYSV
+21776          os=SYSV
+21776          rca!dam (David A. Morano)
+21776          990720_1315:04 srvtab=srvtab
+21936          990720_1321:05 rexecd.x       0/SYSV
+21936          os=SYSV
+21936          rca!dam (David A. Morano)
+21936          990720_1321:05 srvtab=srvtab
+21972          990720_1324:26 rexecd.x       0/SYSV
+21972          os=SYSV
+21972          rca!dam (David A. Morano)
+21972          990720_1324:26 srvtab=srvtab
+21994          990720_1325:23 rexecd.x       0/SYSV
+21994          os=SYSV
+21994          rca!dam (David A. Morano)
+21994          990720_1325:23 srvtab=srvtab
+26211          990720_1758:44 rexecd.x       0/SYSV
+26211          os=SYSV
+26211          rca!dam (David A. Morano)
+26211          990720_1758:44 srvtab=srvtab
+26211.26211    990720_1758:44 request pid=26211
+26341          990720_1806:08 rexecd.x       0/SYSV
+26341          os=SYSV
+26341          rca!dam (David A. Morano)
+26341          990720_1806:08 srvtab=srvtab
+26341.26341    990720_1806:08 request pid=26341
+16541          990720_2001:14 rexecd.x       0/SYSV
+16541          os=SYSV
+16541          rca!dam (David A. Morano)
+16541          990720_2001:14 srvtab=srvtab
+16541.16541    990720_2001:14 request pid=16541
+16590          990720_2003:06 rexecd.x       0/SYSV
+16590          os=SYSV
+16590          rca!dam (David A. Morano)
+16590          990720_2003:06 srvtab=srvtab
+16590.16590    990720_2003:06 request pid=16590
+16672          990720_2005:11 rexecd.x       0/SYSV
+16672          os=SYSV
+16672          rca!dam (David A. Morano)
+16672          990720_2005:11 srvtab=srvtab
+16672.16672    990720_2005:11 request pid=16672
+16890          990720_2010:15 rexecd.x       0/SYSV
+16890          os=SYSV
+16890          rca!dam (David A. Morano)
+16890          990720_2010:15 srvtab=srvtab
+16890.16890    990720_2010:15 request pid=16890
+17014          990720_2016:54 rexecd.x       0/SYSV
+17014          os=SYSV
+17014          rca!dam (David A. Morano)
+17014          990720_2016:54 srvtab=srvtab
+17014.17014    990720_2016:54 request pid=17014

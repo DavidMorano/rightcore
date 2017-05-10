@@ -1,0 +1,123 @@
+#!/usr/bin/ksh
+# MKDEN
+
+
+#
+# Invocation synosis:
+#
+#	$ mkden [-n max] {file(s)} > {output}
+#
+#
+
+P=$( basename $0 )
+
+
+MAX=
+FILES=
+
+RF_DEBUG=0
+
+S=files
+OS=
+for A in "${@}" ; do
+  case ${A} in
+  '-D' )
+    RF_DEBUG=1
+    ;;
+  '-n' )
+    OS=${S}
+    S=max
+    ;;
+  '-' )
+    FILES="${FILES} -"
+    ;;
+  '-'[a-zA-Z]* )
+    echo "${P}: unknown option \"${A}\"" >&2
+    exit 1
+    ;;
+  * )
+    case ${S} in
+    files )
+      FILES="${FILES} ${A}"
+      ;;
+    max )
+      MAX="${A}"
+      ;;
+    esac
+    S=${OS}
+    ;;
+  esac
+done
+
+TF=/tmp/mkpdf${RANDOM}
+
+cleanup() {
+  rm -f ${TF}
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+
+cat <<\EOF > ${TF}
+
+BEGIN {
+	n = 0 ;
+	sum = 0 ;
+	x[0] = 0 ;
+	sx[0] = 0 ;
+}
+
+{
+	x[n] = $2 ;
+	sum += $2 ;
+	sx[n] = sum ;
+	n += 1 ;
+}
+
+END {
+
+  if (max > 0) {
+    nn = max - 1 ;
+  } else
+    nn = n - 1 ;
+
+  for (i = 0 ; i < nn ; i += 1)
+    printf "%d %8.4f\n", i, (x[i] / sum)
+
+  if (max > 0) {
+
+    xf = 0 ;
+    for (j = i ; j < n ; j += 1)
+      xf += x[j] ;
+
+    x[i] = xf ;
+    printf "%d %8.4f\n", i, (x[i] / sum)
+
+  } else
+    printf "%d %8.4f\n", i, (x[i] / sum)
+
+}
+
+EOF
+
+
+
+for F in ${FILES} ; do
+  if [ ! -r "${F}" ] ; then
+    echo "${P}: not found file=${F}"
+    exit 1
+  fi
+done
+
+
+
+OPTS=
+if [ -n "${MAX}" ] ; then
+  OPTS="${OPTS} max=${MAX}"
+fi
+
+nawk -f ${TF} ${OPTS} ${FILES}
+
+cleanup
+
+

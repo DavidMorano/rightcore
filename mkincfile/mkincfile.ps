@@ -1,0 +1,548 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/yoffset -0.25 def
+/resolution 720 def
+setup
+2 setdecoding
+%!PS
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( MKINCFILE)1 1647( 85/11/02 \))2 364( \()1 68( Hardware)1 418( Gazelle)1 1401(MKINCFILE \( 1 \))3 656 7 540 480 t
+(NAME)540 960 w
+10 R f
+(mkinc\256le \261 create an include \256le with the contents of another \256le)11 2599 1 900 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(mkinc\256le)900 1368 w
+10 R f
+([)1320 1368 w
+10 CB f
+(-v)1353 1368 w
+10 R f
+(] [)1 91 1 1497 1368 t
+10 CB f
+(-V)1588 1368 w
+10 R f
+(])1732 1368 w
+10 I f
+(\256le)1790 1368 w
+9 B f
+(DESCRIPTION)540 1536 w
+(Introduction)690 1656 w
+10 R f
+(The)900 1776 w
+10 I f
+(mkinc\256le)1086 1776 w
+10 R f
+( to read the contents of the \256le speci\256ed as an argument)11 2298(program is used on a UNIX system)6 1445 2 1477 1776 t
+(and to write its binary contents into a C language array in a newly created C language include \256le.)18 3918 1 900 1896 t
+9 B f
+(Options)690 2064 w
+10 R f
+(There is only one useful option.)5 1271 1 900 2184 t
+10 B f
+(-v)1150 2352 w
+10 R f
+( The)1 215(This option turns on a summary of the output include \256le that was created.)13 3105 2 1900 2352 t
+(name of the output include \256le and the number of input \256le bytes writen is)14 3320 1 1900 2472 t
+(reported.)1900 2592 w
+10 B f
+(-V)1150 2760 w
+10 R f
+( standard error and)3 774(This option causes the program to print its program version to)10 2546 2 1900 2760 t
+(then the program exits.)3 921 1 1900 2880 t
+9 B f
+(Output)690 3048 w
+10 R f
+( include \256le)2 478( name of the output)4 785( The)1 207(The program creates and output \256le which is a C language include \256le.)12 2850 4 900 3168 t
+( component of the input \256lename)5 1364( the last)2 329( Only)1 259(is automatically determined by the name of the input \256le.)9 2368 4 900 3288 t
+( output include \256lename will be the characters 'inc\256le)8 2200( The)1 211(path is used.)2 509 3 900 3408 t
+10 S f
+(_)3820 3408 w
+10 R f
+( last component)2 647(' followed by the)3 703 2 3870 3408 t
+(of the input \256le, followed by the characters '.h'.)8 1910 1 900 3528 t
+9 B f
+(Using From C Language)3 949 1 690 3696 t
+10 R f
+( program, the contents of the original \256le can be accessed through)11 2694(From within a C language)4 1064 2 900 3816 t
+10 I f
+(including)4689 3816 w
+10 R f
+(the)5098 3816 w
+( C language include \256le will have a sin-)8 1611( This)1 231( that is created by the program.)6 1257(output C language include \256le)4 1221 4 900 3936 t
+( will have the characters 'INCFILELEN)5 1614( It)1 113(gle #de\256ne name as follows.)4 1148 3 900 4056 t
+10 S f
+(_)3775 4056 w
+10 R f
+( by the name of the ori-)6 955(', followed)1 440 2 3825 4056 t
+( data itself \(the contents of the original input \256le\) are located in a)13 2671( The)1 211( is signi\256cant\).)2 604(ginal input \256le \(case)3 834 4 900 4176 t
+(constant unsigned character array with the symbol name 'inc\256le)8 2660 1 900 4296 t
+10 S f
+(_)3560 4296 w
+10 R f
+( the original)2 511(' followed by the name of)5 1099 2 3610 4296 t
+(input\256le \(again case is signi\256cant\).)4 1396 1 900 4416 t
+9 B f
+(EXAMPLES)540 4584 w
+10 S1 f
+()900 4704 w
+10 S1 f
+900 4704 m
+100 build_rh
+1000 4704 m
+10 R f
+(put the contents of the \256le named 'test\256le' into a C language include \256le :)14 2942 1 1150 4704 t
+10 CW f
+(mkincfile testfile)1 1080 1 1400 4872 t
+(The name of the created output C language file will be 'incfile_testfile.h')11 4500 1 1650 5040 t
+9 B f
+(SEE ALSO)1 453 1 540 5208 t
+10 R f
+(cat\(1\), cp\(1\))1 492 1 900 5328 t
+9 B f
+(PATH TO)1 418 1 540 5496 t
+10 R f
+(This program is currently located in)5 1434 1 900 5616 t
+10 CW f
+(/usr/add-on/local/bin)960 5736 w
+10 R f
+(or possibly where ever)3 915 1 2248 5736 t
+10 I f
+(local)3191 5736 w
+10 R f
+( is)1 96( This)1 232(programs are stored on your system.)5 1473 3 3419 5736 t
+(often at)1 302 1 900 5856 t
+10 CW f
+("${LOCAL}/bin")960 5976 w
+10 R f
+(on some systems.)2 703 1 1825 5976 t
+9 B f
+(WARNINGS)540 6144 w
+10 R f
+(Be careful to put at one space between all option key letters and the associated key letter parameter.)17 3979 1 900 6264 t
+9 B f
+(AUTHOR)540 6432 w
+10 R f
+(Dave Morano)1 551 1 900 6552 t
+( 24, 200)2 325( May)1 4086(Page 1)1 269 3 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 1
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol Courier-Bold Courier

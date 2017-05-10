@@ -1,0 +1,17 @@
+
+
+DAMpreload {
+	global:
+		preload_init ;
+		preload_fini ;
+		preload_set ;
+		preload_get ;
+		confstr ;
+		sysinfo ;
+		gethostid ;
+		getpagesize ;
+	local:
+		* ;
+} ;
+
+

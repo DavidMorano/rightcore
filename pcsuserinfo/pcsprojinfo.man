@@ -1,0 +1,188 @@
+'\" t
+.TH PCSPROJINFO 1 0 PCS
+.SH NAME
+pcsprojinfo \- get or set PCS project-information
+.SH SYNOPSIS
+.\"_
+.\"_
+.\"_ some AT&T standard strings
+.\"_
+.if t \{\
+.fp5 CW
+.ds mW \&\f5
+.ds mB \&\f(CB
+.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
+.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
+.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
+.ds rq ''
+.ds lq ``
+.tr * \(**
+'br\}
+.if n \{\
+.ds mW \f3
+.ds mB \f3
+.ds Tm \uTM\d
+.ds Sm \uSM\d
+.ds Rg (Reg.)
+.ds lq \&"
+.ds rq \&"
+'br\}
+.\"_
+.\"_ some AT&T standard macros
+.\"_
+.de HY
+.hy14
+..
+.\"_
+.de MW
+.nh
+.it1 }N
+.ie\\n(.$ \{\
+.ie\\n(.$=1 \*(mW\&\\$1\fP
+.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
+.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
+.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
+.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
+.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
+.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
+.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
+.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
+.el\{\
+.ift .ft 5
+.ifn .ft 3 \}
+.HY
+..
+.\"_
+.de OP
+.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
+.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
+..
+.\"_
+.de EX
+.sp\\n(PDu
+.in+5n
+.ifn .ft 3
+.ift \{\
+.ft5
+.if\\$1-1 \{\
+.ps-1
+.vs-1
+.nreX 1 \}\}
+.nf
+..
+.de EE
+.fi
+.if\\n(eX \{\
+.ps+1
+.vs+1
+.nreX 0 \}
+.ft1
+.in-5n
+.sp\\n(PDu
+..
+.\"_
+.\"_
+.BR pcsprojinfo
+.OP -u " user" ] [
+.OP -s " project-information" ] [
+.OP -R " program-root" ] [
+.OP -D[=<n>] "" ] [
+.OP -V "" ] [
+.SH DESCRIPTION
+.sp
+.SS Introduction
+.PP
+The \fIpcsprojinfo\fP program
+is used by the Personal Communication Services (PCS) user to get or
+to set his personal project-information string.
+By default the project-information a user is set by the
+system administrtor, but that can be changed by
+the use of this program.
+By default (without any program options specified)
+the project-information string of the user is printed to standard-output.
+.\"_
+.SS Options
+The following options can be used to change the mode of operation.
+.PP
+.RS 5
+.TP 15
+\fB-s\fP  \fIproject-information\fP
+This option allows for setting of the project-information string for the user.
+The project-information string should be quoted if it contains 
+either whitespace
+or other characters that would be interpreted by a SHELL.
+.TP 15
+\fB-R\fP  \fIprogram-root\fP
+This option allows for setting the program-root of the program.
+This is largely used for special debugging purposes.
+.TP 15
+\fB-V\fP
+This option makes the program print the version of the program
+to standard-error and then causes the program to exit (no other
+functions are performed).
+.RE
+.\"_
+.SH ENVIRONMENT VARIABLES
+The following environment variables may change the default behavior of the
+program.
+.RS 5
+.TP 15
+.B PCSPROJINFO_PROGRAMROOT
+This environment variable is taken to contain
+the program root over any other such environment variable.
+The \fB-R\fP argument overides this environment variable.
+.\"_
+.TP 15
+.B PCS
+This environment variable is normally taken to contain
+the program root.
+The \fB-R\fP argument overides this environment variable.
+.\"_
+.TP 15
+.B PROGRAMROOT
+This environment variable is taken to contain
+the program root if not other suitable environment variable
+this this purpose are in the environment.
+The \fB-R\fP argument overides this environment variable.
+.RE
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+simply get the current PCS project-information string:
+.EX
+ \f(CWpcsprojinfo \fP
+.EE
+.IP \(rh 5
+get the PCS project-information string for another user:
+.EX
+ \f(CWpcsprojinfo -u johny\fP
+.EE
+.IP \(rh 5
+set an organization name:
+.EX
+ \f(CWpcsprojinfo -s "Acne Plumbing"\fP
+.EE
+.\"_
+.SH SEE ALSO
+pcsname(1), pcsorg(1), bb(1), vmail(1), msgs(1)
+.\"_
+.SH PATH TO
+This program is currently located 
+in \f(CW /usr/add-on/pcs/bin \fP
+or possibly where ever PCS programs are stored on your system.
+This is often 
+at \f(CW ${PCS}/bin \fP
+on some systems.
+.\"_
+.SH WARNINGS
+Be careful to put at one space between all option key 
+letters and the associated
+key letter parameter.
+.\"_
+.SH AUTHOR
+David Morano
+.\"_
+.SH ACKNOWLEDGEMENTS
+All previous PCS contributors and administrators.
+.\"_
+.\"_

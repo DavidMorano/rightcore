@@ -1,0 +1,21 @@
+MKQUERY
+
+This is a demonstration program (that also is fairly useful in itself) that
+makes queries to a previously created text-index database.
+
+Synopsis:
+$ mkquery [-db <dbname>] [-b <dir>] [<key(s)>] [-af <afile>] [-p] [-D]
+
+Arguments:
+-db <dbname>		the namepath to the DB
+-b <dir>		base directory for relative text files
+<key(s)>		keys to lookup
+-af <afile>		take the keys from <afile>
+-p			use prefix matching on the keys
+-v			operate verbosely
+-V			print program version then exit
+
+Examples:
+= Find all references to Jan Sejna:
+	$ mkquery -db ${ROOT}/var/txtindex/special jan sejna
+

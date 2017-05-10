@@ -1,0 +1,575 @@
+.\"_
+.TH RUNADVICE 1 "v0" "Starbase"
+.SH NAME
+runadvice \- run SysCAD ADVICE program with varying parameters
+.SH SYNOPSIS
+\fBrunadvice\fP [ \fIrunfile\fP ]
+.OP -o "  outfile" []
+.OP -p[aram] "  param=p1,p2,..." []
+[ \fB-V\fP ] [ \fB-D\fP | \fB-D=\fP\fIdebuglevel\fP ] [ \fB-?\fP ]
+.br
+.OP -CONFIG "  configuration_file" []
+.OP -TMPDIR "  temporary_directory" []
+.OP -ADVICE "  advice_program" []
+.br
+.OP -proc "  process,..." []
+.OP -timestep "  step,..." []
+.OP -timelen " length,..." []
+.OP -temp "  temperature,..." []
+.OP -pow "  voltage,..." []
+.\"_
+.SH DESCRIPTION
+.PP
+This program is used to perform ADVICE runs on a circuit with
+varying parameters of the run.  The most common aspects of an ADVICE
+run that are varied are usually the technology \fBprocess\fP, \fBtemperature\fP,
+\fBtimestep\fP, \fBtimelength\fP, and \fBpower supply voltage\fP.
+This program can actually allow for the varying of any user created
+parameter in an ADVICE run.  This program expects a number of pseudo
+standardized files to be in the current directory which describe the
+circuit to be simulated using ADVICE.  The files that are
+expected to be created by the user are :
+.RS
+.TP 10
+\f(CWrun.adv\fP
+.TP
+\f(CWparams.adv\fP (optional)
+.TP
+\f(CWcontrol.adv\fP
+.TP
+\f(CWmain.adv\fP
+.RE
+.sp 0.5
+These files contain information that describe the circuit to be
+simulated along with any necessary subcircuits that ADVICE will
+need to simulate the "main" circuit.  These files, along with others,
+are described further in a section below.
+.\"_
+.SS \fBArgument Key Options\fP
+.PP
+The following keyed options are available for specifying
+execution behavior of the program.
+.PP
+.RS 5
+.TP 15
+.B -?
+The \fB-?\fP is a standard option which causes the program to
+terminate with a message printed to standard error giving a brief
+explanation
+of the program.  This is useful when the user forgets the
+exact syntax of the program's arguments and does not want to
+consult the manual page.
+.TP
+.B -V
+The \fB-V\fP option causes the program to write out to standard
+error the version of the program.  The program will then terminate.
+.TP
+.B -D
+The \fB-D\fP option enables the printing of some debugging information
+to the standard error.  This optional option can (optionally) be
+followed by a debug level.  A specification of the debuglevel 
+is given on the command in the
+form \f(CB-D=\fP\fIdebuglevel\fP.  Specifying this option without the
+debug level is equivalent to specifying debugging with a debug level
+of one (1).  This option is essentially useless except for
+the program developer.
+.TP
+.B -o \fIoutput_file\fP
+The \fB-o\fP key letter option is used to specify an ADVICE output
+file to receive the results of all ADVICE execution outputs.
+The output file only is tracked correctly when the user uses
+the \f(CBOUTFILE\fP variable in the ADVICE run file.
+.TP
+.B -param \fIparameter\fP=\fIvalue_list\fP
+This option allows the user to specify (introduce) a variable, denoted
+by \fIparameter\fP above, along with a list of associated
+values.  These values will be used, along with all other parameter
+values to create enough ADVICE runs to cover all combinations of
+the values.  The \fIvalue_list\fP above takes the form of
+comma separated list of value items.
+.TP
+.B -CONFIG \fIconfiguration_file\fP
+This option allows the user to specify a configuration file.
+This file can contain defaults for substitutable parameters as
+well as some other information.  See a sample configuration file
+for more information about what can be specified in it.
+.TP
+.B -TMPDIR \fItemporary_directory\fP
+This option allows the user to specify an alternate temporary
+directory for use by \fIrunadvice\fP when creating temporary files.
+.TP
+.B -ADVICE \fIADVICE_program\fP
+This option allows the user to specify an alternate ADVICE program
+to run instead of the default ('\f(CBrunadvice_advice\fP') or
+that specified in the \fIRUNADVICE_ADVICE\fP environment variable.
+.RE
+.\"_
+.PP
+In addition to the options already described, a small set of
+options are recognized by the program for the added convenience of
+the user.  The following argument option keywords are
+recognized :
+.RS 5
+.TP 20
+.B -proc \fIprocess_value_list\fP
+This is the same as \f(CW-param proc=\fP\fIprocess_value_list\fP
+had been given on the command line.
+.TP
+.B -timestep \fItimestep_value_list\fP
+This is the same as \f(CW-param timestep=\fP\fItimestep_value_list\fP
+had been given on the command line.
+.TP
+.B -timelen \fItimelen_value_list\fP
+This is the same as \f(CW-param timelen=\fP\fItimelen_value_list\fP
+had been given on the command line.
+.TP
+.B -temp \fItemperature_value_list\fP
+This is the same as if \f(CW-param temp=\fP\fItemperature_value_list\fP
+had been given on the command line.
+.TP
+.B -pow \fIpower_supply_voltage_value_list\fP
+This is the same as 
+if \f(CW-param pow=\fP\fIpower_supply_voltage_value_list\fP
+had been given on the command line.
+.\"_
+.RE
+.\"_
+.SH "ADVICE Circuit Files"
+.PP
+There are a number of files expected by this program to
+describe the circuit to be simulated.  These files are listed
+below.  All of the files (ADVICE Circuit Files) discussed below are
+processed by \fIrunadvice\fP for substitutable parameter variables.
+.\"_
+.SS \fBADVICE Run File\fP
+.PP
+This file, usually named \f(CWrun.adv\fP, contains ADVICE commands
+to set libraries, read in a circuit file, specify ADVICE output
+files, and the like.  This file is not strictly a circuit file
+in that no ADVICE circuits (as far as I am aware) are allowed in this
+file.  This file is what is read by ADVICE on its invocation and must
+contain the proper ADVICE commands appropriate to the user's simulation
+objective.
+.PP
+This file is specified as \fIrunfile\fP on the command line.
+If this is omitted from the command line, then standard input is read
+as the run file instead.  If this file is given as a dash ('-') character,
+standard input is read also.  A good example of this file would have
+substitutable parameters for anything that the user wants to be
+varied by the \fIrunadvice\fP program.  A list of the standard and popular
+parameter variables are described in a later section.
+This file is processed for \fIrunadvice\fP variable parameters.
+.\"_
+.SS \fBADVICE Parameter (\fP\f(CWparams.adv\fP\fB) File\fP
+.PP
+This file contains ADVICE commands.
+An ADVICE parameter file (which is optional) usually contains ADVICE
+variables specified as an ADVICE line of the form :
+.EX
+{ termvolt = 2.1 }
+.EE
+In order to have the \fIrunadvice\fP program vary ADVICE variables,
+an ADVICE line of the form :
+.EX
+{ termvolt = $(TERMVOLT) }
+.EE
+would be used.  More on the use of the \fIrunadvice\fP variables is
+described later.
+As already alluded to, 
+this file is processed for \fIrunadvice\fP variable parameters.
+.\"_
+.SS \fBADVICE Control File\fP
+.PP
+This file, made up of ADVICE commands, usually contains 
+an include (realized with the ADVICE \f(CB.use\fP command)
+of the "main" ADVICE circuit file.
+Other includes are usually located in this file also like for
+example the inclusion of other necessary subcircuits which are
+not included into the ADVICE run in any other way.
+This file is processed for \fIrunadvice\fP variable parameters.
+.\"_
+.SS \fBADVICE Main Circuit File\fP
+.PP
+This file usually contains the circuit to be simulated proper.
+Usually, at least the "main" circuit of an ADVICE run is located in
+this file but other ADVICE subcircuits can be included with the main circuit.
+ADVICE subcircuits are normally included when this file is created
+with a connectivity generator such as the one in SysCAD SCHEMA.
+This file is processed for \fIrunadvice\fP variable parameters.
+.SH \fBADVICE Output File\fP
+.PP
+An \fIoutfile\fP argument following the \fB-o\fP option key
+letter specifies the file which is to receive the output of
+all of the ADVICE runs.  All run outputs are placed into
+this file so that when read into a reader program like ADVPLOT, the individual
+run outputs appear numbered.
+.\"_
+.\"_
+.SH "RUNADVICE Variable Parameters"
+.PP
+Several of the standard files above, those indicated as such,
+are processed for parameter substitution.  Variable parameters
+can be introduced into the files by including variable references
+in the form :
+.EX
+$(\fIvariable\fP)
+.EE
+Where \fIvariable\fP can be any user created variable.
+These variables are searched for and replaced by a combination
+of values such that all combinations of the variables given
+on the command line get a corresponding ADVICE simulation run.
+Some variable names have special meaning and cannot be used by
+the user for any other purpose.  The variables with special
+meanings are :
+.RS 5
+.TP 20
+CONTROLCKT
+This variable parameter gets replaced with the name of a modified
+\f(CWcontrol.adv\fP file.
+.TP
+MAINCKT
+This variable parameter gets replaced with the name of a modified
+\f(CWmain.adv\fP file.
+.TP
+PARAMS
+This variable parameter gets replaced with the name of a modified
+\f(CWparams.adv\fP file.
+.TP
+OUTFILE
+This variable parameter gets replaced with the name of a temporary output
+file whose contents are eventually added to the user specified output
+file or to the default output file.
+.RE
+.sp 0.5
+.PP
+In addition to the special \fIrunadvice\fP variables described so far,
+the following variables are defaulted internally to the \fIrunadvice\fP
+program if the user does not supply them :
+.RS 5
+.TP 20
+PROC
+This variable will hold a string specifying a certain technology processing
+to be used in the simulation.  This variable would be used as
+part of a library specification.
+.TP
+TEMP
+This variable will hold the simulation temperature.
+.TP
+TIMESTEP
+This variable will hold a time step value like as for a transient
+analysis.
+.TP
+TIMELEN
+This variable will hold a time duration like as for a transient analysis.
+.TP
+POW
+This variable will hold a power supply voltage value.
+.RE
+.sp 0.5
+Currently, all parameter names given by the user are converted to 
+uppercase before being used further.  In addition, the user should only
+put uppercase environment variables inside of the ADVICE files
+processed by \fIrunadvice\fP.
+.\"_
+.SH EXAMPLES
+.PP
+.IP \(rh 5
+To run a circuit with variations on technology process (identified as
+\fBan\fP, \fBal\fP, and \fBah\fP) the following would be executed :
+.EX
+runadvice run.adv -param proc=al,an,ah
+.EE
+This will produce three ADVICE runs, one for each technology process
+specified.
+.\"_
+.IP \(rh 5
+To run a circuit with variations on technology process (identified as
+\fBan\fP, \fBal\fP, and \fBah\fP) and power supply voltage, execute :
+.EX
+runadvice run.adv -param proc=al,an,ah -param pow=3.0,3.3,3.6
+.EE
+This will produce nine ADVICE runs.
+.\"_
+.IP \(rh 5
+To run a simulation on a circuit with variations on 
+technology process (identified as
+\fBan\fP, \fBal\fP, and \fBah\fP), power supply voltage, and
+termpature, execute :
+.EX
+runadvice run.adv -param proc=al,an,ah -param pow=3.0,3.3,3.6 -param temp=25,85
+.EE
+This will produce eighteen ADVICE runs.
+.\"_
+.SH "ENVIRONMENT VARIABLES"
+.PP
+The following environment variables
+tailor some aspect of the program to the
+user's preferences.
+.TP 12
+.B TMPDIR
+This environment variable will direct the program to
+create temporary files in the directory specified.  Any specification
+of a temporary directory that is given on the command line will
+override this variable.  If this variable is not set, and no directory
+is given on the command line, the directory \f(CW/tmp\fP will be
+used for temporary files.
+.TP
+.B RUNADVICE_CONFIG
+This environment variable contains the name of a configuration file
+to be used by the 
+program for default substitution parameters and some other things.  
+If any configuration file is specified on the invocation command, then
+that file is used instead of the one in this environment variable.
+.TP
+.B RUNADVICE_ADVICE
+This environment variable contains the name of the ADVICE (or ADVICE like)
+program to execute.  If the ADVICE program is specified on the command
+line, this variable is ignored.
+.\"_
+.SH FILES
+.PP
+.TP 20
+run.adv
+default ADVICE "run" file
+.TP
+params.adv
+default circuit parameter file ; this file usually contains
+ADVICE parameter assignments
+.TP
+control.adv
+circuit control file ; this file usually contains a series of
+ADVICE "\f(CW.use\fP \fIfile\fP" lines to include subcircuits not otherwise
+included in the run
+.TP
+main.adv
+default main circuit file ; this file should usually contain an
+ADVICE circuit beginning with "\f(CW.main\fP  \fIcircuit_name\fP"
+and ending with a "\f(CW.end\fP".
+.TP
+main.out
+default output file ; can be changed with the \fB-o\fP option on
+the command line
+.TP
+runadvice_advice
+default ADVICE program executed by this program ; the user's current
+execution PATH is searched for this program ; this program can be
+changed either through the environment variable RUNADVICE_ADVICE
+or on the command line
+.PD
+.\"_
+.SH CAVEATS
+.PP
+Currently, the names of the ADVICE circuit 
+files (\f(CWparams.adv\fP, \f(CWcontrol.adv\fP,
+\f(CWmain.adv\fP) cannot be specified on the command line.
+The names can be changed if the user puts the appropriate control
+lines in a configuration file.  In the future, alternate names for
+these files may be specified on the command line.
+.\"_
+.SH "SEE ALSO"
+eas(1)
+.\"_
+.\"_
+.SH AUTHOR
+D.A. Morano
+.\"_
+.SH SAMPLES FILES
+.PP
+A sample RUNADVICE configuration file is shown below :
+.EX
+\&# CONFIG.RA
+\&#
+\&# This is a configuration file for the RUNADVICE program.
+\&#
+\&#
+\&# Valid Entries :
+\&#
+\&#	keyword		parameters
+\&#--------------------------------------------------------------------------
+\&#
+\&#	advice		ADVICE program
+\&#
+\&#	export		an environment variable name followed by a value
+\&#
+\&#	default		a parameter name followed by one or more values
+\&#			in a list separated by commas
+\&#
+\&#	control		the name of the ADVICE 'control.adv' like file
+\&#
+\&#	params		the name of the ADVICE 'params.adv' like file
+\&#
+\&#	main		the name of the ADVICE 'main.adv' like file 
+\&#			containing the "main" circuit to be simulated
+\&#
+\&#	machine		this allows for the specification of available
+\&#			machines ; only those machines listed are used
+\&#
+\&#
+\&#
+\&# NOTE about how the ADVICE files relate to each other :
+\&#
+\&#	The "run" file possibly specified on the command line
+\&#	must read in a circuit file which will be in the "control"
+\&#	file.  The "control" file can optionally contain a "params"
+\&#	file included with an ADVICE '.use' command.  The "control"
+\&#	file must include the "main" file with an ADVICE '.use'
+\&#	command.  The four files, "run", "control", "params", and "main"
+\&#	are processed for parameters substitutions.
+\&#
+\&#
+\&#
+\&
+\&
+\&# ADVICE program
+\&#advice		runadvice_advice
+\&
+\&export 		TMPDIR=/proj/starbase/tmp
+\&export 		SEEMEHERE=/proj/starbase/tmp
+\&
+\&default		proc=an
+\&default		temp=85
+\&default		timestep=0.1n
+\&default		timelen=5n
+\&default		pow=3.3
+\&default		vterm=1.2
+\&default		subnch=0.0
+\&
+\&
+\&
+\&# ADVICE files processed (in addition to "run") for parameter substitutions
+\&control		control.adv
+\&params		params.adv
+\&main		main.adv
+\&
+\&
+\&# machine entries
+\&#
+\&#	These entries have the form :
+\&#
+\&#		keyword		name	load_capability
+\&#
+\&#	where :
+\&#
+\&#		<keyword>		is always 'machine'
+\&#
+\&#		<name>			is the name of the machine
+\&#
+\&#		<load_capability>	is a number that rates the ability
+\&#					of the machine to run jobs as
+\&#					compared with the other mahcines
+\&#
+\&
+\&# our System V machines
+\&
+\&machine		hodia=2.0
+\&machine		hodid=2.0
+\&machine		hodif=0.8
+\&
+\&# our BSD machines
+\&
+\&#machine		hodig=0.8
+\&#machine		octet=2.0
+\&
+\&
+.EE
+.\"_
+.\"_
+.PP
+A sample run file is shown here.
+.EX
+\&* ADVICE run file
+\&*
+\&* ADVICE run file which is executed from the the X Windows menu
+\&*
+\&*
+\&*	The following character strings get substituted for :
+\&*
+\&*		PROC		process
+\&*		TEMP		temperature
+\&*		TIMESTEP	time step intervale
+\&*		TIMELEN		time length
+\&*		POW		power supply voltage
+\&*
+\&*
+\&* here are some test substitutions :
+\&*	PROC=$(PROC)
+\&*	TEMP=$(TEMP)
+\&*	TIMESTEP=$(TIMESTEP)
+\&*	TIMELEN=$(TIMELEN)
+\&*	POW=$(POW)
+\&*
+\&* and the circuit files :
+\&*	MAINCKT=$(MAINCKT)
+\&*	CONTROLCKT=$(CONTROLCKT)
+\&*
+\&*
+\&*
+\&* general library
+\&*
+\&.lib lib4=genlib.adv
+\&*
+\&*
+\&* straight CMOS, 0.5um, 3.3 Volt
+\&*
+\&.lib lib1=cmos5_33$(PROC).adv
+\&*
+\&*
+\&.use options.adv
+\&*
+\&*
+\&.rd ${CONTROLCKT} ;n
+\&*
+\&.temp $(TEMP)
+\&*
+\&*
+\&.opti rfile=init.adv
+\&*
+\&.opti pivot=1
+\&.opti lvlprt=3
+\&*
+\&.opti itl1=500
+\&.opti ipta=0
+\&.dc op
+\&.file rfile=winit.adv
+\&*
+\&*
+\&.op * > op.results
+\&*
+\&.tran $(TIMESTEP) $(TIMELEN)
+\&*
+\&.file ofile=$(OUTFILE)
+\&*
+\&*
+\&.end
+.EE
+.\"_
+.PP
+A sample control file is shown here.
+.EX
+\&* ADVICE circuit "control" file
+\&
+\&* .use skew2.adv
+\&* .use ddlo_p.adv
+\&.use constants.adv
+\&.use $(PARAMS)
+\&.use ${MAINCKT}
+\&
+\&
+.EX
+.\"_
+.\"_
+.PP
+A sample ADVICE \fIparams\fP file is shown here.
+.EX
+\&* circuit parameters for ADVICE
+\&*
+\&*
+\&.set { vterm=$(VTERM) }
+\&.set { pow=$(POW) }
+\&.set { subnch=$(SUBNCH) }
+\&*
+\&*
+\&*
+.EE
+.\"_
+.\"_

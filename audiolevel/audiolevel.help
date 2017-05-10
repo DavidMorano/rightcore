@@ -1,0 +1,22 @@
+AUDIOLEVEL
+
+This program reads the audio input port and prints out the audio level
+to standard output.  The program prints out :
+
+1) time in seconds since start
+2) the modulation level in a percent including 0 - 99
+3) the number of samples at the highest modulation percentage
+
+Synopsis :
+
+$ audiolevel -c 1 -p micro
+
+where:
+
+-d device	audio device (default 'AUDIODEV')
+-c chans	number of audio channels ('1' or '2')
+-p source	recording source ('micro', 'line')
+-s sps		sample rate in samples per second
+-m level	monitor recording level ('1' to '100')
+
+

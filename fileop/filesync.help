@@ -1,0 +1,27 @@
+FILESYNCER
+
+This program is used to link file under specified target directories.
+
+Synopsis:
+
+$ filesyncer [<dir(s)> ...] [-af {<argfile>|-}] [-d <tardir>] [-f] [-c] [-ia] 
+	[-s <suf(s)>] [-sa <suf(s)>] [-sr <suf(s)>] [-t <type(s)>] 
+		[-o <opt(s)>] [-z] [-v[=<n>]] [-V]
+
+where:
+
+<dir(s)>	directories to search
+-af <argfile>	take arguments file file
+-d <tardir>	target directory for the syncs
+-f		follow symbolic links
+-c		continue on errors
+-ia		ignore access errors
+-s <suf(s)>	suffix(es) to select
+-sa <suf(s)>	suffix(es) to accept
+-sr <suf(s)>	suffix(es) to reject
+-t <type(s)>	type(s) to select
+-o <opt(s)>	options: noprog, sa=<suf(s)>, sr=<suf(s)>
+-z		allow no arguments (w/o error)
+-v[=<n>]	verbosity level
+-V		print program version to standard error and then exit
+

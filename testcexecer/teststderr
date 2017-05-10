@@ -1,0 +1,8 @@
+#!/bin/ksh
+
+{
+echo this is standard error
+sleep 2
+echo this is standard error
+} >&2
+

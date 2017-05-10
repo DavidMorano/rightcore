@@ -1,0 +1,28 @@
+IDEAS (for text processing)
+
+
+= specifying italics
+
+the tree is called a \i{dildo} branch
+
+or a synonym for italic (to match LaTex):
+
+\textit{dildo}
+
+= specifying bold
+
+what is \b{the} kid on the block
+
+or a synonym for bold:
+
+\bold{the}
+
+= what about another way
+
+the kid on \fB{block} is bad
+
+= and this
+
+a good company is \sm{XEROX}
+
+

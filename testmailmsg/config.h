@@ -1,0 +1,31 @@
+/* config */
+
+
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)TESTMAILMSG "
+#define	BANNER		"Test Mail MSG"
+#define	SEARCHNAME	"testmailmsg"
+#define	VARPRNAME	"LOCAL"
+
+#define	VARPROGRAMROOT1	"TESTMAILMSG_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARAFNAME	"TESTMAILMSG_AF"
+#define	VAREFNAME	"TESTMAILMSG_EF"
+#define	VARERRORFNAME	"TESTMAILMSG_ERRORFILE"
+
+#define	VARDEBUGFNAME	"TESTMAILMSG_DEBUGFILE"
+#define	VARDEBUGFD1	"TESTMAILMSG_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+
+#define	CONFIGFNAME	"etc/testmailmsg/conf"
+#define	LOGFNAME	"log/testmailmsg"
+
+

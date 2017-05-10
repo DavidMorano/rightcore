@@ -1,0 +1,12 @@
+LIBDIRS= -L$(LIBDIR)
+
+LIB0=
+LIB1= -ldam -lb
+LIB2=
+LIB3= -luc -lu
+LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB5= 
+LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+LIB7= -ldl -lc
+
+LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)

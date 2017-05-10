@@ -1,0 +1,10 @@
+
+DAMmsu {
+	global:
+		p_msu ;
+		b_msu ;
+	local:
+		* ;
+} ;
+
+

@@ -1,0 +1,144 @@
+		LINK EDITOR MEMORY MAP
+
+
+output		input		virtual
+section		section		address		size
+
+.interp 			   100d4	      11
+		.interp 	   100d4	      11 (null)
+.hash   			   100e8	     23c
+		.hash   	   100e8	     23c (null)
+.dynsym 			   10324	     460
+		.dynsym 	   10324	     460 (null)
+.dynstr 			   10784	     427
+		.dynstr 	   10784	     427 (null)
+.SUNW_ve			   10bac	      80
+		.SUNW_ve	   10bac	      80 (null)
+.rela.go			   10c2c	      30
+		.rela.go	   10c2c	      30 (null)
+.rela.bs			   10c5c	      0c
+		.rela.bs	   10c5c	      0c (null)
+.rela.pl			   10c68	     1d4
+		.rela.pl	   10c68	     1d4 (null)
+.text   			   10e40	    1294
+		.text   	   10e40	      74 /usr/add-on/local/lib/crt1.o
+		.text   	      00	      00 /usr/add-on/local/lib/values-xa.o
+		.text   	   10eb4	     150 /usr/add-on/local/lib/crtbegin.o
+		.text   	   11020	     240 main.o
+		.text   	   11260	     500 maininfo.o
+		.text   	   11760	     3b8 sighand.o
+		.text   	   11b18	      20 ucontext_rtn.o
+		.text   	      00	      00 makedate.o
+		.text   	   11b38	      60 /usr/add-on/local/lib/crtend.o
+		.text   	   11b98	      60 /usr/add-on/local/lib/libdam.a(bufprintf.o)
+		.text   	   11bf8	      68 /usr/add-on/local/lib/libdam.a(mapex.o)
+		.text   	   11c60	      74 /usr/add-on/local/lib/libdam.a(strsigabbr.o)
+		.text   	   11cd4	     400 /usr/add-on/local/lib/libgcc.a(_moddi3.o)
+.init   			   120d4	      1c
+		.init   	   120d4	      04 /usr/add-on/local/lib/crti.o
+		.init   	   120d8	      08 /usr/add-on/local/lib/crtbegin.o
+		.init   	   120e0	      08 /usr/add-on/local/lib/crtend.o
+		.init   	   120e8	      08 /usr/add-on/local/lib/crtn.o
+.fini   			   120f0	      14
+		.fini   	   120f0	      04 /usr/add-on/local/lib/crti.o
+		.fini   	   120f4	      08 /usr/add-on/local/lib/crtbegin.o
+		.fini   	   120fc	      08 /usr/add-on/local/lib/crtn.o
+.text.st			   12120	     1a0
+		.text.st	   12120	     1a0 main.o
+.rodata 			   122c0	     296
+		.rodata 	   122c0	      04 /usr/add-on/local/lib/values-xa.o
+		.rodata 	   122c4	      f8 main.o
+		.rodata 	   123c0	      50 makedate.o
+		.rodata 	   12410	     146 /usr/add-on/local/lib/libdam.a(strsigabbr.o)
+.rodata.			   12558	      f0
+		.rodata.	   12558	      d0 main.o
+		.rodata.	   12628	      20 maininfo.o
+.got    			   22648	      30
+		.got    	   22648	      30 (null)
+.plt    			   22678	     208
+		.plt    	   22678	     208 (null)
+.dynamic			   22880	     158
+		.dynamic	   22880	     158 (null)
+.data   			   229d8	      0c
+		.data   	   229d8	      08 /usr/add-on/local/lib/crtbegin.o
+		.data   	      00	      00 main.o
+		.data   	      00	      00 maininfo.o
+		.data   	      00	      00 makedate.o
+		.data   	   229e0	      04 /usr/add-on/local/lib/crtend.o
+.ctors  			   229e4	      08
+		.ctors  	   229e4	      04 /usr/add-on/local/lib/crtbegin.o
+		.ctors  	   229e8	      04 /usr/add-on/local/lib/crtend.o
+.dtors  			   229ec	      08
+		.dtors  	   229ec	      04 /usr/add-on/local/lib/crtbegin.o
+		.dtors  	   229f0	      04 /usr/add-on/local/lib/crtend.o
+.eh_fram			   229f4	     114
+		.eh_fram	   229f4	      00 /usr/add-on/local/lib/crtbegin.o
+		.eh_fram	   229f4	      40 main.o
+		.eh_fram	   22a34	      a0 maininfo.o
+		.eh_fram	   22ad4	      04 /usr/add-on/local/lib/crtend.o
+		.eh_fram	   22ad8	      30 /usr/add-on/local/lib/libgcc.a(_moddi3.o)
+.jcr    			   22b08	      04
+		.jcr    	   22b08	      00 /usr/add-on/local/lib/crtbegin.o
+		.jcr    	   22b08	      04 /usr/add-on/local/lib/crtend.o
+.data.re			   22b0c	      04
+		.data.re	   22b0c	      04 /usr/add-on/local/lib/crtbegin.o
+.data.re			   22b10	     150
+		.data.re	   22b10	     150 /usr/add-on/local/lib/libdam.a(strsigabbr.o)
+.bss    			   22c60	      20
+		.bss    	   22c60	      1c /usr/add-on/local/lib/crtbegin.o
+		.bss    	      00	      00 main.o
+		.bss    	      00	      00 maininfo.o
+		.bss    	      00	      00 makedate.o
+		.bss    	   22c7c	      04 (null)
+
+
+		MULTIPLY DEFINED SYMBOLS
+
+
+symbol				  definition used     also defined in
+
+mapex                               /usr/add-on/local/lib/libdam.a(mapex.o)
+							/usr/add-on/local/lib/libuc.so
+write                               /lib/libpthread.so
+							/usr/lib/lwp/libthread.so
+							/lib/libc.so
+vecstr_start                        /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+vecstr_store                        /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+__dso_handle                        /usr/add-on/local/lib/crtbegin.o
+							/usr/add-on/pcs/lib/libiconv.so
+							/usr/add-on/local/lib/libstdc++.so
+pthread_sigmask                     /lib/libpthread.so
+							/usr/lib/lwp/libthread.so
+							/lib/libc.so
+format                              /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+vecstr_findaddr                     /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+sfbasename                          /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libuc.so
+vecstr_finish                       /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+sncpylc                             /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+uptcreate                           /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libuc.so
+vecstr_del                          /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+strnlen                             /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libcsdb.so
+							/usr/add-on/local/lib/libuc.so
+ucontext_rtn                        ucontext_rtn.o
+							/usr/add-on/local/lib/libuc.so
+strnrchr                            /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libuc.so
+uptjoin                             /usr/add-on/pcs/lib/libpcs.so
+							/usr/add-on/local/lib/libuc.so

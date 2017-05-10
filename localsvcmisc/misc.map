@@ -1,0 +1,22 @@
+
+
+DAMopensvc_misc {
+	global:
+		opensvc_hello ;
+		opensvc_daytime ;
+		opensvc_loginblurb ;
+		opensvc_motdblurb ;
+		opensvc_statmsg ;
+		opensvc_fshome ;
+		opensvc_org ;
+		opensvc_issue ;
+		opensvc_imail ;
+		opensvc_termnote ;
+		opensvc_quota ;
+		opensvc_conslog ;
+		opensvc_notices ;
+	local:
+		* ;
+} ;
+
+

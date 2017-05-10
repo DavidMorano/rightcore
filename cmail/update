@@ -1,0 +1,6 @@
+
+: ${PCS:=/usr/add-on/pcs}
+
+bsdinstall rslow rslow.aout rslow.elf /usr/add-on/local/bin
+bsdinstall rslow rslow.aout rslow.elf ${PCS}/bin
+

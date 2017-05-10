@@ -1,0 +1,13 @@
+#!/usr/bin/ksh
+# RUNIT-TEST
+
+
+TT=bibletest_db
+
+PO="0.75i"
+PW="7.0i"
+
+  troff -TLatin1 -rO"${PO}" -rW"${PW}" -mm ${TT}.mm > ${TT}.troff
+
+
+

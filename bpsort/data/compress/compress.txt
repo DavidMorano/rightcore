@@ -1,0 +1,21 @@
+compress 59.674 yags 64 128
+compress 92.427 bpalpha 512 256 1024
+compress 91.501 gspag 256 512
+compress 59.243 yags 64 64
+compress 92.429 bpalpha 256 256 1024
+compress 91.501 gspag 512 512
+compress 60.489 yags 64 256
+compress 92.563 bpalpha 512 512 1024
+compress 91.754 gspag 1024 1024
+compress 62.390 yags 128 256
+compress 92.429 bpalpha 256 256 1024
+compress 91.822 gspag 1024 2048
+compress 63.209 yags 256 256
+compress 92.563 bpalpha 512 512 512
+compress 91.753 gspag 256 1024
+compress 63.296 yags 512 512
+compress 92.382 bpalpha 256 256 512
+compress 91.754 gspag 512 1024
+compress 63.296 yags 1024 512
+compress 92.878 bpalpha 256 1024 1024
+compress 91.822 gspag 256 2048

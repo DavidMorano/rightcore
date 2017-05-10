@@ -1,0 +1,755 @@
+*              
+*              
+*              Directory Watcher Daemon (DWD) 981222_2250:21 started
+*              dwd.x          0d/SYSV
+*              srvtab=srvtab
+6238.*         backgrounded
+6238.*         pidfile=pid
+6238.*         PID mutex captured
+6238.*         pidfile device=8388854 inode=1345293
+6238.*         os=SYSV pid=6238
+6238.*         hocpw!dam (David A. Morano)
+6238.*         dir=/home/dam/src/dwd/q
+6238.*         intfile=i
+6238.*         981222_2250:21 finished initializing
+6238.0         981222_2250:21 job entering
+6238.0         f=hello.echo
+6238.0         981222_2250:26 processing job
+6238.0         job starting, server=echo pid=6240
+6238.0         started OK
+6238.0         981222_2250:31 job completed, es=0
+6238.0         job standard output
+6238.0          | test echo R=/home/dam/src/dwd V=0d hello.echo dam
+6238.1         981222_2251:41 job entering
+6238.1         f=job.env
+6238.1         981222_2251:51 processing job
+6238.1         job starting, server=enver pid=6289
+6238.1         started OK
+6238.1         981222_2251:56 job completed, es=0
+6238.*         981222_2252:48 the service file changed
+6238.*         981222_2252:55 the new service file is OK
+6238.2         981222_2307:24 job entering
+6238.2         f=job.env
+6238.2         981222_2307:39 processing job
+6238.2         job starting, server=enver pid=7055
+6238.2         started OK
+6238.2         981222_2307:44 job completed, es=0
+6238.*         981222_2308:23 the service file changed
+6238.*         981222_2308:30 the new service file is OK
+6238.*         981222_2308:41 the service file changed
+6238.*         981222_2308:48 the new service file is OK
+6238.3         981222_2309:03 job entering
+6238.3         f=job.env
+6238.3         981222_2309:13 processing job
+6238.3         job starting, server=env pid=7104
+6238.3         started OK
+6238.3         981222_2309:18 job completed, es=0
+6238.3         job standard output
+6238.3          | _=dwd.x
+6238.3          | REFER=/usr/add-on/local/share/bib/Ind
+6238.3          | MANPATH=/usr/add-on/local/man:/usr/add-on/dwb/man:/usr/add-on/X11/man:/opt/SUNWadm/2.2/man:/opt/SUNWspro/man:/usr/dt/man:/usr/openwin/man:/usr/man:/opt/SUNWste/man:/usr/add-on/ncmp/man:/usr/add-on/gnu/man:/usr/add-on/wwb/man:/usr/add-on/pcs/man:/usr/add-on
+6238.3          | /post/man:/usr/add-on/cygnus/man:/usr/add-on/netnews/man:/home/dam/man:/usr/demo/SOUND/man:/usr/ssh/man:/opt/boxhill/man:/usr/atalk/man:/usr/cap/man:/usr/add-on/m68tools/man:/usr/add-on/m68020/man
+6238.3          | NEWSORG=Lucent Technologies
+6238.3          | M68020=/usr/add-on/m68020
+6238.3          | F_RLOGIN=true
+6238.3          | SSH=/usr/ssh
+6238.3          | HZ=100
+6238.3          | PROJ=/proj/starbase
+6238.3          | NCMP=/usr/add-on/ncmp
+6238.3          | CAP=/usr/cap
+6238.3          | RXPORT=NAME,FULLNAME,ORGANIZATION,NEWSORG,DISPLAY,TERM,LINES,SHELL,EDITOR,VISUAL,PRINTER
+6238.3          | IV=/usr/add-on/interviews
+6238.3          | VISUAL=emacs
+6238.3          | PRINTER_TGIF=hp0
+6238.3          | CYGNUS=/usr/add-on/cygnus
+6238.3          | SUNPRO=/opt/SUNWspro
+6238.3          | SMAILOPTS=+edit:+verify:+filecopy
+6238.3          | TOOLS=/usr/add-on/exptools
+6238.3          | PATH=:/home/dam/bin:/proj/starbase/tools/bin:/usr/add-on/local/bin:/usr/add-on/dwb/bin:/usr/dt/bin:/usr/add-on/X11/bin:/usr/openwin/bin:/usr/openwin/demo:/usr/bin:/opt/SUNWspro/bin:/opt/SUNWste/bin:/usr/ccs/bin:/opt/SUNWadm/2.2/bin:/usr/lib/nis:/usr/add-on
+6238.3          | /ncmp/bin:/usr/add-on/gnu/bin:/usr/add-on/exptools/bin:/usr/add-on/cygnus/bin:/usr/add-on/wwb/bin:/usr/add-on/frame/bin:/usr/add-on/post/bin:/usr/add-on/pcs/bin:/usr/add-on/netnews/bin:/usr/games:/usr/ssh/bin:/usr/sbin:/home/admin/bin:/opt/boxhill/bin:/usr
+6238.3          | /ucb:/usr/atalk/bin:/usr/cap/bin:/usr/cap/lib/cap:/home/syscad/cadbin:/home/tcad/bin:/usr/add-on/m68tools/bin:/usr/add-on/m68020/bin:/usr/add-on/matlab/bin:/usr/add-on/tex/bin
+6238.3          | TERMDEVICE=/dev/term/3
+6238.3          | ATALK=/usr/atalk
+6238.3          | MAILPATH=/var/mail/dam:/home/dam/mail/new?mail status change
+6238.3          | NAME=David A. Morano
+6238.3          | DOOMWADDIR=/usr/add-on/ncmp/lib/sundgadoom
+6238.3          | MATLAB=/usr/add-on/matlab
+6238.3          | CDPATH=:/home/dam:/usr/add-on:/proj/starbase:/proj/starbase/designs:/home/dam/w/hw
+6238.3          | TETEXDIR=/usr/add-on/tex
+6238.3          | NNTPSERVER=news
+6238.3          | FULLNAME=David A. Morano
+6238.3          | XDIR=/usr/add-on/X11
+6238.3          | OFF=elf
+6238.3          | LM_LICENSE_FILE=/usr/add-on/licenses/sun.lic
+6238.3          | M68TOOLS=/usr/add-on/m68tools
+6238.3          | CADCKTPATH=/proj/starbase/designs/blast3/icslib:/proj/starbase/designs/blast3/ics_ddl:/proj/starbase/designs/abkpl/ics:/proj/starbase/designs/blast2/ics:/home/syscad/cadlib/schema
+6238.3          | FONTSERVER=hocpw:7100
+6238.3          | PRINTER_CAD=hp0
+6238.3          | XUSERFILESEARCHPATH=/usr/add-on/local/lib/X11/%T/%N%S:/usr/add-on/ncmp/lib/X11/%T/%N%S:/usr/add-on/gnu/lib/X11/%T/%N%S
+6238.3          | OFD=ELF
+6238.3          | OPENWINHOME=/usr/openwin
+6238.3          | EDITOR=vi
+6238.3          | HISTFILE=/home/dam/.sh_history
+6238.3          | WWB=/usr/add-on/wwb
+6238.3          | LOGNAME=dam
+6238.3          | folder=mail
+6238.3          | MAIL=/var/mail/dam
+6238.3          | POST=/usr/add-on/post
+6238.3          | MTG=/usr/add-on/mtg
+6238.3          | PRINTER=hp0
+6238.3          | OS=SYSV
+6238.3          | MTI=/usr/add-on/modeltech
+6238.3          | DMD=/usr/add-on/mtg
+6238.3          | BOXHILL=/opt/boxhill
+6238.3          | LOCAL=/usr/add-on/local
+6238.3          | TEXMF=/usr/add-on/tex/texmf
+6238.3          | DISPLAY=hocpv:0.0
+6238.3          | MBOX=/home/dam/mail/new
+6238.3          | SHELL=/bin/ksh
+6238.3          | SRCROOT=/home/dam
+6238.3          | SMAILNAMES=/home/dam/lib/pcs/my.names:/usr/add-on/pcs/lib/pcsmail/user.names:/usr/add-on/pcs/lib/pcsmail/other.names
+6238.3          | SMAILLISTS=/home/dam/lib/pcs/lists:/usr/add-on/pcs/lib/pcsmail/user.lists:/usr/add-on/pcs/lib/pcsmail/other.lists
+6238.3          | HISTSIZE=524288
+6238.3          | SYNOPSYS=/usr/add-on/synopsys
+6238.3          | TMOUT=2937600
+6238.3          | ORGANIZATION=Lucent Technologies
+6238.3          | OSTYPE=SYSV
+6238.3          | LIBTYPE=elf
+6238.3          | HOME=/home/dam
+6238.3          | XFILESEARCHPATH=/usr/add-on/X11/lib/X11/%T/%N%S:/usr/openwin/lib/locale/%L/%T/%N%S:/usr/openwin/lib/%T/%N%S
+6238.3          | PCS=/usr/add-on/pcs
+6238.3          | UUCPPUBLIC=/var/spool/uucppublic
+6238.3          | MAILER=mailx
+6238.3          | BIBLIOGRAPHY=/proj/starbase/tools/share/bib/Ind
+6238.3          | DWBHOME=/usr/add-on/dwb
+6238.3          | XMAILER=mailx
+6238.3          | TEX=/usr/add-on/tex
+6238.3          | DT=/usr/dt
+6238.3          | FCEDIT=emacs
+6238.3          | TERM=vt520
+6238.3          | LD_LIBRARY_PATH=/usr/add-on/local/lib:/opt/SUNWspro/lib:/usr/dt/lib:/usr/openwin/lib:/usr/add-on/X11/lib:/usr/add-on/ncmp/lib:/usr/add-on/gnu/lib
+6238.3          | ESCALADE=/usr/add-on/escalade
+6238.3          | VISUALHDL=/usr/add-on/VisualHdl
+6238.3          | FMHOME=/usr/add-on/frame
+6238.3          | PWD=/home/dam/src/dwd
+6238.3          | CADCKTLIB=blast3lib:genlib:moslib
+6238.3          | TERMINFO=/usr/lib/terminfo
+6238.3          | TZ=US/Eastern
+6238.3          | SUNSTE=/opt/SUNWste
+6238.3          | ENV=/home/dam/.envprof
+6238.3          | GNU=/usr/add-on/gnu
+6238.3          | SUNADM=/opt/SUNWadm/2.2
+6238.3          | DESIGNS=/proj/starbase/designs
+6238.3          | ED=vi
+6238.3          | NETNEWS=/usr/add-on/netnews
+6238.3          | RDMAILOPTS=+all_scan:+long_scan:+fifo:+confirm:+page:+replyinc
+6238.3          | A__z="*TMOUT
+6238.*         981224_0002:26 program exiting
+*              
+*              
+*              Directory Watcher Daemon (DWD) 981224_1526:47 started
+*              dwd.x          0d/SYSV
+*              srvtab=srvtab
+12202.*        pidfile=pid
+12202.*        PID mutex captured
+12202.*        pidfile device=8388854 inode=1345293
+12202.*        os=SYSV pid=12202
+12202.*        hocpw!dam (David A. Morano)
+12202.*        dir=/home/dam/src/dwd/q
+12202.*        intfile=i
+12202.*        981224_1526:47 finished initializing
+12202.0        981224_1527:20 job entering
+12202.0        f=job.env
+12202.0        981224_1527:40 processing job
+12202.0        job starting, server=env pid=12242
+12202.0        started OK
+12202.0        981224_1527:45 job completed, es=0
+12202.0        job standard output
+12202.0         | _=dwd.x
+12202.0         | REFER=/usr/add-on/local/share/bib/Ind
+12202.0         | MANPATH=/usr/add-on/local/man:/usr/add-on/dwb/man:/usr/add-on/X11/man:/opt/SUNWadm/2.2/man:/opt/SUNWspro/man:/usr/dt/man:/usr/openwin/man:/usr/man:/opt/SUNWste/man:/usr/add-on/ncmp/man:/usr/add-on/gnu/man:/usr/add-on/wwb/man:/usr/add-on/pcs/man:/usr/add-on
+12202.0         | /post/man:/usr/add-on/cygnus/man:/usr/add-on/netnews/man:/home/dam/man:/usr/demo/SOUND/man:/usr/ssh/man:/opt/boxhill/man:/usr/atalk/man:/usr/cap/man:/usr/add-on/m68tools/man:/usr/add-on/m68020/man
+12202.0         | NEWSORG=Lucent Technologies
+12202.0         | M68020=/usr/add-on/m68020
+12202.0         | F_RLOGIN=true
+12202.0         | SSH=/usr/ssh
+12202.0         | HZ=100
+12202.0         | PROJ=/proj/starbase
+12202.0         | NCMP=/usr/add-on/ncmp
+12202.0         | CAP=/usr/cap
+12202.0         | RXPORT=NAME,FULLNAME,ORGANIZATION,NEWSORG,DISPLAY,TERM,LINES,SHELL,EDITOR,VISUAL,PRINTER
+12202.0         | IV=/usr/add-on/interviews
+12202.0         | VISUAL=emacs
+12202.0         | PRINTER_TGIF=hp0
+12202.0         | CYGNUS=/usr/add-on/cygnus
+12202.0         | SUNPRO=/opt/SUNWspro
+12202.0         | SMAILOPTS=+edit:+verify:+filecopy
+12202.0         | TOOLS=/usr/add-on/exptools
+12202.0         | PATH=:/home/dam/bin:/proj/starbase/tools/bin:/usr/add-on/local/bin:/usr/add-on/dwb/bin:/usr/dt/bin:/usr/add-on/X11/bin:/usr/openwin/bin:/usr/openwin/demo:/usr/bin:/opt/SUNWspro/bin:/opt/SUNWste/bin:/usr/ccs/bin:/opt/SUNWadm/2.2/bin:/usr/lib/nis:/usr/add-on
+12202.0         | /ncmp/bin:/usr/add-on/gnu/bin:/usr/add-on/exptools/bin:/usr/add-on/cygnus/bin:/usr/add-on/wwb/bin:/usr/add-on/frame/bin:/usr/add-on/post/bin:/usr/add-on/pcs/bin:/usr/add-on/netnews/bin:/usr/games:/usr/ssh/bin:/usr/sbin:/home/admin/bin:/opt/boxhill/bin:/usr
+12202.0         | /ucb:/usr/atalk/bin:/usr/cap/bin:/usr/cap/lib/cap:/home/syscad/cadbin:/home/tcad/bin:/usr/add-on/m68tools/bin:/usr/add-on/m68020/bin:/usr/add-on/matlab/bin:/usr/add-on/tex/bin
+12202.0         | TERMDEVICE=/dev/term/3
+12202.0         | ATALK=/usr/atalk
+12202.0         | MAILPATH=/var/mail/dam:/home/dam/mail/new?mail status change
+12202.0         | NAME=David A. Morano
+12202.0         | DOOMWADDIR=/usr/add-on/ncmp/lib/sundgadoom
+12202.0         | MATLAB=/usr/add-on/matlab
+12202.0         | CDPATH=:/home/dam:/usr/add-on:/proj/starbase:/proj/starbase/designs:/home/dam/w/hw
+12202.0         | TETEXDIR=/usr/add-on/tex
+12202.0         | NNTPSERVER=news
+12202.0         | FULLNAME=David A. Morano
+12202.0         | XDIR=/usr/add-on/X11
+12202.0         | OFF=elf
+12202.0         | LM_LICENSE_FILE=/usr/add-on/licenses/sun.lic
+12202.0         | M68TOOLS=/usr/add-on/m68tools
+12202.0         | CADCKTPATH=/proj/starbase/designs/blast3/icslib:/proj/starbase/designs/blast3/ics_ddl:/proj/starbase/designs/abkpl/ics:/proj/starbase/designs/blast2/ics:/home/syscad/cadlib/schema
+12202.0         | FONTSERVER=hocpw:7100
+12202.0         | PRINTER_CAD=hp0
+12202.0         | XUSERFILESEARCHPATH=/usr/add-on/local/lib/X11/%T/%N%S:/usr/add-on/ncmp/lib/X11/%T/%N%S:/usr/add-on/gnu/lib/X11/%T/%N%S
+12202.0         | OFD=ELF
+12202.0         | OPENWINHOME=/usr/openwin
+12202.0         | EDITOR=vi
+12202.0         | HISTFILE=/home/dam/.sh_history
+12202.0         | WWB=/usr/add-on/wwb
+12202.0         | LOGNAME=dam
+12202.0         | folder=mail
+12202.0         | MAIL=/var/mail/dam
+12202.0         | POST=/usr/add-on/post
+12202.0         | MTG=/usr/add-on/mtg
+12202.0         | PRINTER=hp0
+12202.0         | OS=SYSV
+12202.0         | ERROR_FD=3
+12202.0         | MTI=/usr/add-on/modeltech
+12202.0         | DMD=/usr/add-on/mtg
+12202.0         | BOXHILL=/opt/boxhill
+12202.0         | LOCAL=/usr/add-on/local
+12202.0         | TEXMF=/usr/add-on/tex/texmf
+12202.0         | DISPLAY=hocpv:0.0
+12202.0         | MBOX=/home/dam/mail/new
+12202.0         | SHELL=/bin/ksh
+12202.0         | SRCROOT=/home/dam
+12202.0         | SMAILNAMES=/home/dam/lib/pcs/my.names:/usr/add-on/pcs/lib/pcsmail/user.names:/usr/add-on/pcs/lib/pcsmail/other.names
+12202.0         | SMAILLISTS=/home/dam/lib/pcs/lists:/usr/add-on/pcs/lib/pcsmail/user.lists:/usr/add-on/pcs/lib/pcsmail/other.lists
+12202.0         | HISTSIZE=524288
+12202.0         | SYNOPSYS=/usr/add-on/synopsys
+12202.0         | TMOUT=2937600
+12202.0         | ORGANIZATION=Lucent Technologies
+12202.0         | OSTYPE=SYSV
+12202.0         | LIBTYPE=elf
+12202.0         | HOME=/home/dam
+12202.0         | XFILESEARCHPATH=/usr/add-on/X11/lib/X11/%T/%N%S:/usr/openwin/lib/locale/%L/%T/%N%S:/usr/openwin/lib/%T/%N%S
+12202.0         | PCS=/usr/add-on/pcs
+12202.0         | UUCPPUBLIC=/var/spool/uucppublic
+12202.0         | MAILER=mailx
+12202.0         | BIBLIOGRAPHY=/proj/starbase/tools/share/bib/Ind
+12202.0         | DWBHOME=/usr/add-on/dwb
+12202.0         | XMAILER=mailx
+12202.0         | TEX=/usr/add-on/tex
+12202.0         | DT=/usr/dt
+12202.0         | FCEDIT=emacs
+12202.0         | TERM=vt520
+12202.0         | LD_LIBRARY_PATH=/usr/add-on/local/lib:/opt/SUNWspro/lib:/usr/dt/lib:/usr/openwin/lib:/usr/add-on/X11/lib:/usr/add-on/ncmp/lib:/usr/add-on/gnu/lib
+12202.0         | ESCALADE=/usr/add-on/escalade
+12202.0         | FMHOME=/usr/add-on/frame
+12202.0         | PWD=/home/dam/src/dwd
+12202.0         | CADCKTLIB=blast3lib:genlib:moslib
+12202.0         | TERMINFO=/usr/lib/terminfo
+12202.0         | TZ=US/Eastern
+12202.0         | SUNSTE=/opt/SUNWste
+12202.0         | ENV=/home/dam/.envprof
+12202.0         | GNU=/usr/add-on/gnu
+12202.0         | SUNADM=/opt/SUNWadm/2.2
+12202.0         | DESIGNS=/proj/starbase/designs
+12202.0         | ED=vi
+12202.0         | NETNEWS=/usr/add-on/netnews
+12202.0         | RDMAILOPTS=+all_scan:+long_scan:+fifo:+confirm:+page:+replyinc
+12202.0         | A__z="*TMOUT
+12202.*        981224_1532:27 program exiting
+*              
+*              
+*              Directory Watcher Daemon (DWD) 981225_2316:50 started
+*              dwd.elf        0d/SYSV
+*              srvtab=srvtab
+23419.*        pidfile=pid
+23419.*        PID mutex captured
+23419.*        pidfile device=8388854 inode=1345293
+23419.*        os=SYSV pid=23419
+23419.*        hocpw!dam (David A. Morano)
+23419.*        dir=/home/dam/src/dwd/q
+23419.*        intfile=i
+23419.*        981225_2316:50 finished initializing
+23419.0        981225_2317:12 job entering
+23419.0        f=job.env
+23419.0        981225_2317:27 processing job
+23419.0        job starting, server=env pid=23453
+23419.0        started OK
+23419.0        981225_2317:32 job completed, es=0
+23419.0        job standard output
+23419.0         | _=dwd.elf
+23419.0         | REFER=/usr/add-on/local/share/bib/Ind
+23419.0         | MANPATH=/usr/add-on/local/man:/usr/add-on/dwb/man:/usr/add-on/X11/man:/opt/SUNWadm/2.2/man:/opt/SUNWspro/man:/usr/dt/man:/usr/openwin/man:/usr/man:/opt/SUNWste/man:/usr/add-on/ncmp/man:/usr/add-on/gnu/man:/usr/add-on/wwb/man:/usr/add-on/pcs/man:/usr/add-on
+23419.0         | /post/man:/usr/add-on/cygnus/man:/usr/add-on/netnews/man:/home/dam/man:/usr/demo/SOUND/man:/usr/ssh/man:/opt/boxhill/man:/usr/atalk/man:/usr/cap/man:/usr/add-on/m68tools/man:/usr/add-on/m68020/man
+23419.0         | NEWSORG=Lucent Technologies
+23419.0         | M68020=/usr/add-on/m68020
+23419.0         | F_RLOGIN=true
+23419.0         | SSH=/usr/ssh
+23419.0         | HZ=100
+23419.0         | PROJ=/proj/starbase
+23419.0         | NCMP=/usr/add-on/ncmp
+23419.0         | CAP=/usr/cap
+23419.0         | RXPORT=NAME,FULLNAME,ORGANIZATION,NEWSORG,DISPLAY,TERM,LINES,SHELL,EDITOR,VISUAL,PRINTER
+23419.0         | IV=/usr/add-on/interviews
+23419.0         | VISUAL=emacs
+23419.0         | PRINTER_TGIF=hp0
+23419.0         | CYGNUS=/usr/add-on/cygnus
+23419.0         | SUNPRO=/opt/SUNWspro
+23419.0         | SMAILOPTS=+edit:+verify:+filecopy
+23419.0         | TOOLS=/usr/add-on/exptools
+23419.0         | PATH=:/home/dam/bin:/proj/starbase/tools/bin:/usr/add-on/local/bin:/usr/add-on/dwb/bin:/usr/dt/bin:/usr/add-on/X11/bin:/usr/openwin/bin:/usr/openwin/demo:/usr/bin:/opt/SUNWspro/bin:/opt/SUNWste/bin:/usr/ccs/bin:/opt/SUNWadm/2.2/bin:/usr/lib/nis:/usr/add-on
+23419.0         | /ncmp/bin:/usr/add-on/gnu/bin:/usr/add-on/exptools/bin:/usr/add-on/cygnus/bin:/usr/add-on/wwb/bin:/usr/add-on/frame/bin:/usr/add-on/post/bin:/usr/add-on/pcs/bin:/usr/add-on/netnews/bin:/usr/games:/usr/ssh/bin:/usr/sbin:/home/admin/bin:/opt/boxhill/bin:/usr
+23419.0         | /ucb:/usr/atalk/bin:/usr/cap/bin:/usr/cap/lib/cap:/home/syscad/cadbin:/home/tcad/bin:/usr/add-on/m68tools/bin:/usr/add-on/m68020/bin:/usr/add-on/matlab/bin:/usr/add-on/tex/bin
+23419.0         | TERMDEVICE=/dev/term/3
+23419.0         | ATALK=/usr/atalk
+23419.0         | MAILPATH=/var/mail/dam:/home/dam/mail/new?mail status change
+23419.0         | NAME=David A. Morano
+23419.0         | DOOMWADDIR=/usr/add-on/ncmp/lib/sundgadoom
+23419.0         | MATLAB=/usr/add-on/matlab
+23419.0         | CDPATH=:/home/dam:/usr/add-on:/proj/starbase:/proj/starbase/designs:/home/dam/w/hw
+23419.0         | TETEXDIR=/usr/add-on/tex
+23419.0         | NNTPSERVER=news
+23419.0         | FULLNAME=David A. Morano
+23419.0         | XDIR=/usr/add-on/X11
+23419.0         | OFF=elf
+23419.0         | LM_LICENSE_FILE=/usr/add-on/licenses/sun.lic
+23419.0         | M68TOOLS=/usr/add-on/m68tools
+23419.0         | CADCKTPATH=/proj/starbase/designs/blast3/icslib:/proj/starbase/designs/blast3/ics_ddl:/proj/starbase/designs/abkpl/ics:/proj/starbase/designs/blast2/ics:/home/syscad/cadlib/schema
+23419.0         | FONTSERVER=hocpw:7100
+23419.0         | PRINTER_CAD=hp0
+23419.0         | XUSERFILESEARCHPATH=/usr/add-on/local/lib/X11/%T/%N%S:/usr/add-on/ncmp/lib/X11/%T/%N%S:/usr/add-on/gnu/lib/X11/%T/%N%S
+23419.0         | OFD=ELF
+23419.0         | OPENWINHOME=/usr/openwin
+23419.0         | EDITOR=vi
+23419.0         | HISTFILE=/home/dam/.sh_history
+23419.0         | WWB=/usr/add-on/wwb
+23419.0         | LOGNAME=dam
+23419.0         | folder=mail
+23419.0         | MAIL=/var/mail/dam
+23419.0         | POST=/usr/add-on/post
+23419.0         | MTG=/usr/add-on/mtg
+23419.0         | PRINTER=hp0
+23419.0         | OS=SYSV
+23419.0         | ERROR_FD=3
+23419.0         | MTI=/usr/add-on/modeltech
+23419.0         | DMD=/usr/add-on/mtg
+23419.0         | BOXHILL=/opt/boxhill
+23419.0         | LOCAL=/usr/add-on/local
+23419.0         | TEXMF=/usr/add-on/tex/texmf
+23419.0         | DISPLAY=hocpv:0.0
+23419.0         | MBOX=/home/dam/mail/new
+23419.0         | SHELL=/bin/ksh
+23419.0         | SRCROOT=/home/dam
+23419.0         | SMAILNAMES=/home/dam/lib/pcs/my.names:/usr/add-on/pcs/lib/pcsmail/user.names:/usr/add-on/pcs/lib/pcsmail/other.names
+23419.0         | SMAILLISTS=/home/dam/lib/pcs/lists:/usr/add-on/pcs/lib/pcsmail/user.lists:/usr/add-on/pcs/lib/pcsmail/other.lists
+23419.0         | HISTSIZE=524288
+23419.0         | SYNOPSYS=/usr/add-on/synopsys
+23419.0         | TMOUT=2937600
+23419.0         | ORGANIZATION=Lucent Technologies
+23419.0         | OSTYPE=SYSV
+23419.0         | LIBTYPE=elf
+23419.0         | HOME=/home/dam
+23419.0         | XFILESEARCHPATH=/usr/add-on/X11/lib/X11/%T/%N%S:/usr/openwin/lib/locale/%L/%T/%N%S:/usr/openwin/lib/%T/%N%S
+23419.0         | PCS=/usr/add-on/pcs
+23419.0         | UUCPPUBLIC=/var/spool/uucppublic
+23419.0         | MAILER=mailx
+23419.0         | BIBLIOGRAPHY=/proj/starbase/tools/share/bib/Ind
+23419.0         | DWBHOME=/usr/add-on/dwb
+23419.0         | XMAILER=mailx
+23419.0         | TEX=/usr/add-on/tex
+23419.0         | DT=/usr/dt
+23419.0         | FCEDIT=emacs
+23419.0         | TERM=vt520
+23419.0         | LD_LIBRARY_PATH=/usr/add-on/local/lib:/opt/SUNWspro/lib:/usr/dt/lib:/usr/openwin/lib:/usr/add-on/X11/lib:/usr/add-on/ncmp/lib:/usr/add-on/gnu/lib
+23419.0         | ESCALADE=/usr/add-on/escalade
+23419.0         | FMHOME=/usr/add-on/frame
+23419.0         | PWD=/home/dam/src/dwd
+23419.0         | CADCKTLIB=blast3lib:genlib:moslib
+23419.0         | TERMINFO=/usr/lib/terminfo
+23419.0         | TZ=US/Eastern
+23419.0         | SUNSTE=/opt/SUNWste
+23419.0         | ENV=/home/dam/.envprof
+23419.0         | GNU=/usr/add-on/gnu
+23419.0         | SUNADM=/opt/SUNWadm/2.2
+23419.0         | DESIGNS=/proj/starbase/designs
+23419.0         | ED=vi
+23419.0         | NETNEWS=/usr/add-on/netnews
+23419.0         | RDMAILOPTS=+all_scan:+long_scan:+fifo:+confirm:+page:+replyinc
+23419.0         | A__z="*TMOUT
+23419.*        981225_2319:23 program exiting
+*              
+*              
+*              Directory Watcher Daemon (DWD) 990705_2301:12 started
+*              dwd.x          0d/SYSV
+*              srvtab=srvtab
+2194.*         lockfile=dwd.lock
+2194.*         lock file captured
+2194.*         lockfile device=8388614 inode=1345303
+2194.*         pidfile=pid
+2194.*         PID mutex captured
+2194.*         pidfile device=8388614 inode=1345293
+2194.*         os=SYSV pid=2194
+2194.*         rca!dam (David A. Morano)
+2194.*         dir=/home/dam/src/dwd/q
+2194.*         intfile=i
+2194.*         990705_2301:12 finished initializing
+*              
+*              
+*              Directory Watcher Daemon (DWD) 990705_2358:59 started
+*              dwd.x          0d-b/SYSV
+*              srvtab=srvtab
+3565.*         lockfile=dwd.lock
+3565.*         lock file captured
+3565.*         lockfile device=8388614 inode=1345303
+3565.*         os=SYSV pid=3565
+3565.*         rca!pcs (PCS Administrator)
+3565.*         dir=/usr/add-on/pcs/src/dwd/q
+3565.*         intfile=i
+3565.*         990705_2358:59 finished initializing
+3565.*         990705_2359:52 program exiting
+*              
+*              
+*              Directory Watcher Daemon (DWD) 000105_1206:31 started
+*              dwd.x          0e/SYSV
+*              srvtab=srvtab
+*              poll=11
+1626.*         backgrounded
+1626.*         lockfile=dwd.lock
+1626.*         lock file captured
+1626.*         lockfile device=8388614 inode=1364196
+1626.*         pidfile=pid
+1626.*         PID mutex captured
+1626.*         pidfile device=8388614 inode=1364192
+1626.*         os=SYSV pid=1626
+1626.*         rca!dam (David A. Morano)
+1626.*         dir=/home/dam/src/dwd/q
+1626.*         intfile=i
+1626.*         000105_1206:31 finished initializing
+1626.0         000105_1207:15 job entering
+1626.0         f=hello.noop
+1626.0         000105_1207:30 processing job
+1626.0         starting server=echoargs pid=1705
+1626.0         started OK
+1626.0         000105_1207:35 job completed, es=0
+1626.0         job standard output, size=122
+1626.0         | 0> echoargs
+1626.0         | 1> noop
+1626.0         | 2> f=hello.noop
+1626.0         | 3> r=hello
+1626.0         | 4> u=dam
+1626.0         | 5> g=tools
+1626.0         | 6> l=6
+1626.0         | 7> m=947092028
+1626.0         | 8> d=/home/dam/src/dwd/q
+1626.0         | 9> V=0e
+1626.0         lines=10
+*              
+*              
+*              Directory Watcher Daemon (DWD) 000421_2346:10 started
+*              dwd.x          0f/SYSV
+*              srvtab=srvtab
+*              poll=11
+25272.*        backgrounded
+25272.*        lockfile=dwd.lock
+25272.*        lock file captured
+25272.*        lockfile device=8388614 inode=1364196
+25272.*        pidfile=pid
+25272.*        PID mutex captured
+25272.*        pidfile device=8388614 inode=1364192
+25272.*        os=SYSV pid=25272
+25272.*        rca!dam (David A. Morano)
+25272.*        dir=/home/dam/src/dwd/q
+25272.*        intfile=i
+25272.*        000421_2346:10 finished initializing
+25272.*        000421_2352:11 program exiting
+*              
+*              
+*              Directory Watcher Daemon (DWD) 000422_0013:52 started
+*              dwd.x          0f/SYSV
+*              srvtab=srvtab
+*              poll=11
+27937.*        backgrounded
+27937.*        lockfile=dwd.lock
+27937.*        lock file captured
+27937.*        lockfile device=8388614 inode=1364196
+27937.*        pidfile=pid
+27937.*        PID mutex captured
+27937.*        pidfile device=8388614 inode=1364192
+27937.*        os=SYSV pid=27937
+27937.*        rca!dam (David A. Morano)
+27937.*        dir=/home/dam/src/dwd/q
+27937.*        intfile=i
+27937.*        000422_0013:52 finished initializing
+27937.*        000422_0015:37 program exiting
+*              
+*              
+*              Directory Watcher Daemon (DWD) 000818_0110:06 started
+*              dwd.x          0f/SYSV
+*              srvtab=srvtab
+*              poll=11
+15392.*        lockfile=dwd.lock
+15392.*        lock file captured
+15392.*        lockfile device=8388614 inode=1364185
+15392.*        pidfile=pid
+15392.*        PID mutex captured
+15392.*        pidfile device=8388614 inode=1364192
+15392.*        ostype=SYSV os=SunOS(5.6) pid=15392
+15392.*        rca!dam (David A. Morano)
+15392.*        dir=/home/dam/src/dwd/q
+15392.*        intfile=i
+15392.*        000818_0110:06 finished initializing
+15392.*        000818_0110:20 program exiting
+*              
+*              
+*              Directory Watcher Daemon (DWD) 000818_0116:40 started
+*              dwd.x          0f/SYSV
+*              srvtab=srvtab
+*              poll=11
+16727.*        lockfile=dwd.lock
+16727.*        lock file captured
+16727.*        lockfile device=8388614 inode=1364185
+16727.*        pidfile=pid
+16727.*        PID mutex captured
+16727.*        pidfile device=8388614 inode=1364192
+16727.*        ostype=SYSV os=SunOS(5.6) pid=16727
+16727.*        rca!dam (David A. Morano)
+16727.*        dir=/home/dam/src/dwd/q
+16727.*        intfile=i
+16727.*        000818_0116:40 finished initializing
+16727.0        000818_0117:10 job entering
+16727.0        job=hello.noop
+16727.0        000818_0117:37 processing job
+16727.0        server=echoargs pid=16739
+16727.0        started OK
+16727.0        000818_0117:46 job completed, es=0
+16727.0        job standard output, size=122
+16727.0        | 0> echoargs
+16727.0        | 1> noop
+16727.0        | 2> f=hello.noop
+16727.0        | 3> r=hello
+16727.0        | 4> u=dam
+16727.0        | 5> g=tools
+16727.0        | 6> l=6
+16727.0        | 7> m=966575820
+16727.0        | 8> d=/home/dam/src/dwd/q
+16727.0        | 9> V=0f
+16727.0        lines=10
+16727.*        000818_2234:52 program exiting
+*       	
+*       	
+*       	011027_1601:22 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+18397.* 	lockfile=dwd.lock
+18397.* 	lock file captured
+18397.* 	lockfile device=\x00800006 inode=1364117
+18397.* 	pidfile=pid
+18397.* 	PID mutex captured
+18397.* 	pidfile device=\x00800006 inode=1364136
+18397.* 	ostype=SYSV os=SunOS(5.8) pid=18397
+18397.* 	rca!dam (David A. Morano)
+18397.* 	dir=/home/dam/src/dwd/q
+18397.* 	intfile=i
+18397.* 	011027_1601:22 finished initializing
+18397.* 	011027_1601:22 lost my lock file, other PID=18397
+*       	
+*       	
+*       	011027_1606:52 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+18603.* 	lockfile=dwd.lock
+18603.* 	lock file captured
+18603.* 	lockfile device=\x00800006 inode=1364117
+18603.* 	pidfile=pid
+18603.* 	PID mutex captured
+18603.* 	pidfile device=\x00800006 inode=1364136
+18603.* 	ostype=SYSV os=SunOS(5.8) pid=18603
+18603.* 	rca!dam (David A. Morano)
+18603.* 	dir=/home/dam/src/dwd/q
+18603.* 	intfile=i
+18603.* 	011027_1606:52 finished initializing
+18603.* 	011027_1606:52 lost my lock file, other PID=18603
+*       	
+*       	
+*       	011027_1611:41 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+21639.* 	lockfile=dwd.lock
+21639.* 	lock file captured
+21639.* 	lockfile device=\x00800006 inode=1364101
+21639.* 	pidfile=pid
+21639.* 	PID mutex captured
+21639.* 	pidfile device=\x00800006 inode=1364102
+21639.* 	ostype=SYSV os=SunOS(5.8) pid=21639
+21639.* 	rca!dam (David A. Morano)
+21639.* 	dir=/home/dam/src/dwd/q
+21639.* 	intfile=i
+21639.* 	011027_1611:41 finished initializing
+21639.* 	011027_1618:37 program exiting
+*       	
+*       	
+*       	011027_1628:26 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+22764.* 	lockfile=dwd.lock
+22764.* 	lock file captured
+22764.* 	lockfile device=\x00800006 inode=1364101
+22764.* 	pidfile=pid
+22764.* 	PID mutex captured
+22764.* 	pidfile device=\x00800006 inode=1364102
+22764.* 	ostype=SYSV os=SunOS(5.8) pid=22764
+22764.* 	rca!dam (David A. Morano)
+22764.* 	dir=/home/dam/src/dwd/q
+22764.* 	intfile=i
+22764.* 	011027_1628:26 finished initializing
+22764.* 	011027_1632:28 program exiting
+*       	
+*       	
+*       	011027_1633:08 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+22933.* 	lockfile=dwd.lock
+22933.* 	lock file captured
+22933.* 	lockfile device=\x00800006 inode=1364101
+22933.* 	pidfile=pid
+22933.* 	PID mutex captured
+22933.* 	pidfile device=\x00800006 inode=1364102
+22933.* 	ostype=SYSV os=SunOS(5.8) pid=22933
+22933.* 	rca!dam (David A. Morano)
+22933.* 	dir=/home/dam/src/dwd/q
+22933.* 	intfile=i
+22933.* 	011027_1633:08 finished initializing
+22933.* 	011027_1637:23 lost my PID file, other pid=0
+*       	
+*       	
+*       	011121_2036:39 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+19562.* 	lockfile=dwd.lock
+19562.* 	lock file captured
+19562.* 	lockfile device=\x00800006 inode=1364102
+19562.* 	pidfile=pid
+19562.* 	PID mutex captured
+19562.* 	pidfile device=\x00800006 inode=1364101
+19562.* 	ostype=SYSV os=SunOS(5.8) pid=19562
+19562.* 	rca!pcs (PCS Administrator)
+19562.* 	dir=/usr/add-on/pcs/src/dwd/q
+19562.* 	intfile=i
+19562.* 	011121_2036:39 finished initializing
+*       	
+*       	
+*       	011121_2041:01 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+19999.* 	pidfile=pid
+19999.* 	PID mutex captured
+19999.* 	pidfile device=\x00800006 inode=1364101
+19999.* 	ostype=SYSV os=SunOS(5.8) pid=19999
+19999.* 	rca!pcs (PCS Administrator)
+19999.* 	dir=/usr/add-on/pcs/src/dwd/q
+19999.* 	intfile=i
+19999.* 	011121_2041:01 finished initializing
+*       	
+*       	
+*       	011121_2045:26 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0e/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+20215.* 	pidfile=pid
+20215.* 	PID mutex captured
+20215.* 	pidfile device=\x00800006 inode=1364101
+20215.* 	ostype=SYSV os=SunOS(5.8) pid=20215
+20215.* 	rca!pcs (PCS Administrator)
+20215.* 	dir=/usr/add-on/pcs/src/dwd/q
+20215.* 	intfile=i
+20215.* 	011121_2045:26 finished initializing
+*       	
+*       	
+*       	030807_2337:34 Directory Watcher Daemon (DWD) started
+*       	dwd.x          0f/SYSV
+*       	srvtab=srvtab
+*       	poll=11
+7661.*  	backgrounded
+7661.*  	pidfile=pid
+7661.*  	PID mutex captured
+7661.*  	pidfile device=\x00800087 inode=8000359
+7661.*  	ostype=SYSV os=SunOS(5.8) pid=7661
+7661.*  	rca!dam (David A. Morano)
+7661.*  	dir=/home/dam/src/dwd/q
+7661.*  	intfile=i
+7661.*  	030807_2337:34 finished initializing
+7661.0  	030807_2341:14 job entering
+7661.0  	job=qup
+7661.0  	stale job
+7661.1  	030807_2341:36 job entering
+7661.1  	job=job
+7661.1  	stale job
+7661.2  	030807_2341:47 job entering
+7661.2  	job=job0
+7661.2  	stale job
+7661.3  	030807_2341:58 job entering
+7661.3  	job=job1
+7661.3  	stale job
+7661.4  	030807_2341:58 job entering
+7661.4  	job=job2
+7661.4  	stale job
+7661.5  	030807_2341:58 job entering
+7661.5  	job=job3
+7661.5  	stale job
+7661.6  	030807_2342:20 job entering
+7661.6  	job=job0.wc
+7661.7  	030807_2342:20 job entering
+7661.7  	job=job1.wc
+7661.8  	030807_2342:20 job entering
+7661.8  	job=job2.wc
+7661.9  	030807_2342:20 job entering
+7661.9  	job=job3.wc
+7661.6  	030807_2342:45 processing job, size=107
+7661.6  	server=wc pid=8076
+7661.6  	started OK
+7661.7  	030807_2342:45 processing job, size=107
+7661.7  	server=wc pid=8077
+7661.7  	started OK
+7661.8  	030807_2342:46 job has to wait
+7661.9  	030807_2342:46 job has to wait
+7661.7  	030807_2342:46 job completed, ex=0
+7661.7  	elapsed time   0-00:00:26
+7661.7  	job standard output, size=25
+7661.7  	|       16      23     107
+7661.7  	lines=1
+7661.6  	030807_2342:46 job completed, ex=0
+7661.6  	elapsed time   0-00:00:26
+7661.6  	job standard output, size=25
+7661.6  	|       16      23     107
+7661.6  	lines=1
+7661.8  	030807_2342:46 processing job (2), size=107
+7661.8  	server=wc pid=8078
+7661.8  	job started OK
+7661.8  	030807_2342:51 job completed, ex=0
+7661.8  	elapsed time   0-00:00:31
+7661.8  	job standard output, size=25
+7661.8  	|       16      23     107
+7661.8  	lines=1
+7661.9  	030807_2342:51 processing job (2), size=107
+7661.9  	server=wc pid=8079
+7661.9  	job started OK
+7661.9  	030807_2342:56 job completed, ex=0
+7661.9  	elapsed time   0-00:00:36
+7661.9  	job standard output, size=25
+7661.9  	|       16      23     107
+7661.9  	lines=1

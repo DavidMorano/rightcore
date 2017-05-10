@@ -1,0 +1,13 @@
+#!/bin/ksh
+
+
+echo 0=${0}
+C=1
+for A in "${@}" ; do
+
+  echo "${C}=${A}"
+  C=`expr $C + 1 `
+
+done
+
+

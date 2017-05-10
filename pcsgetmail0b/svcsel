@@ -1,0 +1,16 @@
+# SVCSEL
+# GETMAIL service selector
+#
+
+
+mailagent:
+	x-service=mailagent
+
+server1:
+	x-service=s1
+
+spec2:
+	x-service=s2,
+	from=morano
+
+

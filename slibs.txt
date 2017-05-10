@@ -1,0 +1,12 @@
+SLIBDIRS= -L$(LIBDIR)
+
+SLIB0=
+SLIB1= -ldam -lb
+SLIB2=
+SLIB3= -luc -lu
+SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB5= 
+SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+SLIB7= -ldl -lc
+
+SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)

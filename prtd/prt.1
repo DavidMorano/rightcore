@@ -1,0 +1,80 @@
+'\" t
+.TH PRT 1
+.SH NAME
+prt \- print out files to printer
+.SH SYNOPSIS
+\fCprt -d \fP\fIdst\fP \fB[\fP\fIfile(s) ...\fP\fB]\fP
+.br
+\fCprtlp -d \fP\fIdst\fP \fB[\fP\fIfile(s) ...\fP\fB]\fP
+.SH DESCRIPTION
+.sp
+.SS \fCprt\fP
+.sp
+.PP
+The \fCprt\fP program (referenced as \fCprtlp\fP on the Amdahls or Suns)
+is used on a UNIX system to arrange to have one or more files
+printed out to a line printer or a Postscript laser printer.  These programs
+are used in the same way as the standard UNISON command \fIprt\fP except
+that it will route print jobs to either local printers in the
+laboratories or to printers located on the UNISON network depending
+on the printer destination.
+.PP
+Normally a \fI-d\fP option will be specified to select a default
+printer destination.  If this option is not specified, a default printer
+may be chosen if the user has a default configured.
+Default printers are configured on the Amdahls and the Suns by use of
+the UNISON \fI${HOME}/.prt\fP file.  A default printer destination is
+specified on the 3B2 computers with the \fILPDEST\fP environment
+variable being defined.  If a default printer is not explicitly defined
+by the user, a default printer may still be assigned by either the
+system from which the command is executed, the system on which the
+printer spooler is running, or by some other not easily understood mechanism.
+.PP
+Although their are two names for the command, both perform the same
+function.  The alternate name for the Amdahls and Suns is meant to
+give the user the flexibility to not have jobs routed erroneously
+to a printer that the user is not aware of.  Both versions of the
+command can still route print jobs to all printers whether locally
+administered or remotely administered by UNISON.
+.SH EXAMPLES
+.sp
+- print a file named \fIhello\fP from the current directory on a UNIX
+system to the printer \fIlp1\fP :
+.sp
+.in +4
+\fCprtlp -d lp1 hello\fP
+.in -4
+.sp
+- print a file named \fIgoodbye\fP from the current directory on a 3B2
+UNIX system to the printer \fIlp2\fP :
+.sp
+.in +4
+\fCprt -d lp2 goodbye\fP
+.in -4
+.sp
+- have a file \fIseeya\fP processed by \fIpr\fP first and then sent to the
+line printer \fIgz3c4\fP :
+.sp
+.in +4
+\fBpr -f seeya | prtlp -d gz3c4\fP
+.in -4
+.sp
+.SH SEE ALSO
+prtq(1), prtc(1), .prt(4)
+.SH CAVEATS
+Not all platforms are supported equally with respect to
+continued user control over the disposition of the print job.
+The Amdahl and Sun platforms currently do not allow for non-UNISON
+print jobs to be either monitored (\fIprtq\fP) or canceled (\fIprtc\fP).
+.PP
+All platforms do not support any options other than those explicitly
+mentioned in this manual page.
+.SH PATH TO
+This program is currently located in \fI/mt/mtgzy/devtools/hw/bin\fP
+on the Amdahls, \fI/mt/mtgzy/devtools/hw/bin3\fP for Sun 3s, and
+\fI/mt/mtgzy/devtools/hw/bin4\fP for SUn 4s, and in \fI/usr/ncmp/bin\fP
+on the 3B2 computers (this path is already included on the 3B2s for
+automation users).
+.SH WARNINGS
+Be careful to put a space between all option key letters and the associated
+key letter parameter.

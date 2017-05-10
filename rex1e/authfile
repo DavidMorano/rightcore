@@ -1,0 +1,23 @@
+# NETRC (for REXEC)
+#
+# This is a 'netrc(4)' like file for use by the REXEC program.
+# This file has a format which is similar to that of 'netrc(4)'
+# but has an expanded syntax.
+#
+#
+
+machine hocp*=hocpb login pitio=dam password walter=xxx123
+
+machine hocp*=hocp* login dam=dam password xxx123
+
+machine hocpw login dam password xxx123
+machine hocpx login dam password xxx123
+machine hocpy login dam password xxx123
+machine hocpz login dam password xxx123
+
+machine nitrogen login dam password xxx123
+machine logicgate login dam password xxx123
+
+machine mthost2.mt.lucent.com login pcs password junkerxxx
+
+

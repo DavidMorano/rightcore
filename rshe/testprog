@@ -1,0 +1,7 @@
+#!/bin/ksh
+
+echo $0
+echo $PWD
+cd /home/dam/rje
+echo $PWD
+

@@ -1,0 +1,24 @@
+MKINV
+
+This is one of several programs that create an index and tag database
+from one or more "key" files.
+
+Synopsis:
+$ mkinv -db <dbname> [-b <dir>] [<keyfile(s)> ...] [-af <afile>] 
+	[-C <config>] [-v[=n]] [-V]
+
+Arguments:
+-db <dbname>		the namepath to the DB
+-b <dir>		base directory for index
+<keyfile(s)>		key-files to invert
+-af <afile>		read argument files from <afile>
+-v			operate verbosely
+-C <configfile>		use <configfile> for defaults
+-V			print program version then exit
+
+Examples:
+= take key input from STDIN:
+	$ mkinv -db ${ROOT}/var/txtindex/special - < special.key
+= take a list of key files from a file:
+	$ mkinv -db ${ROOT}/var/txtindex/special -af keyfiles
+

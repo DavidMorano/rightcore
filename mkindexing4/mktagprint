@@ -1,0 +1,19 @@
+MKTAGPRINT
+
+This program reads a section of a file specified by an index tag.
+One or more index tags are read from standard input.
+
+Synopsis:
+$ mktagprint [<tagfile(s)> ...] [-af <afile>] 
+	[-b <basedir>] [-f <outfmt>] [-u] [-V]
+
+Arguments:
+<tagfile(s)>	file containing tags
+-af <afile>	file containing filenames each containing tags
+-b <basedir>	base directory to use for the index tags
+-f <outfmt>	output format:
+			raw
+			fill
+-v		unique output; only print one result for duplicates
+-V		print program version to standard-error and then exit
+

@@ -1,0 +1,18 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLSO
+
+BC=days
+
+PRS=" /root[01]/${EXTRA} "
+
+for PR in $PRS} ; do
+  if [[ -d ${PR} ]] ; then
+    LIBDIR=${PR}/lib
+    if [[ -d ${LIBDIR} ]] ; then
+      find ${BC}.so -print | cpio -pdmu ${LIBDIR} &
+    fi
+  fi
+done
+wait
+
+

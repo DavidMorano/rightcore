@@ -1,0 +1,45 @@
+Berlin, Berlin Municipal Airport, NH, United States (KBML) 44-34-34N
+        071-10-43W 345M
+KBML 
+
+Concord, Concord Municipal Airport, NH, United States (KCON) 43-11-43N
+        071-30-04W 103M
+KCON
+
+Jaffrey, Jaffrey Municipal-Silver Ranch Airport, NH, United States (KAFN)
+        42-48-21N 072-00-02W 313M
+KAFN
+
+Keene / Dillant Automatic Weather Observing / Reporting System, NH, United
+        States (KEEN) 42-54N 072-16W
+KEEN
+
+Laconia Municipal Automatic Weather Observing / Reporting System, NH, United
+        States (KLCI) 43-34N 071-25W
+KLCI
+
+Lebanon, Lebanon Municipal Airport, NH, United States (KLEB) 43-37-38N
+        072-18-21W 171M
+KLEB
+
+Manchester, Manchester Airport, NH, United States (KMHT) 42-55-45N
+        071-26-09W 81M
+KMHT
+
+Mount Washington, NH, United States (KMWN) 44-16N 071-18W 1910M
+KMWN
+
+Nashua / Boire Field, NH, United States (KASH) 42-47N 071-31W
+KASH
+
+Pease Air Force Base / Portsmouth, NH, United States (KPSM) 43-05N 070-49W
+KPSM
+
+Rochester, Skyhaven Airport, NH, United States (KDAW) 43-16-41N 070-55-20W
+        100M
+KDAW
+
+Whitefield, Mount Washington Regional Airport, NH, United States (KHIE)
+        44-21-58N 071-33-09W 318M
+KHIE
+

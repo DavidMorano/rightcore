@@ -1,0 +1,35 @@
+#!/usr/bin/ksh
+# MAILQ (local version)
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${AST:=/usr/add-on/ast}
+: ${GNU:=/usr/add-on/gnu}
+: ${POSTFIX:=/usr/postfix}
+export LOCAL AST GNU POSTFIX
+
+
+PDIR=${0%/*}
+A=${0##*/}
+PNAME=${A%.*}
+
+
+PROGS=
+PROGS="${PROGS} ${POSTFIX}/bin/mailq"
+PROGS="${PROGS} ${GNU}/bin/mailq"
+
+
+for PROG in ${PROGS} ; do
+  if [[ -x ${PROG} ]] ; then
+    break
+  fi
+done
+
+if [[ ! -x ${PROG} ]] ; then
+  echo "${0}: could not find underlying program" >&2
+  exit 1
+fi
+
+exec execname ${PROG} ${PNAME} "${@}"
+
+

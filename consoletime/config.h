@@ -1,0 +1,71 @@
+/* config */
+
+
+#define	VERSION		"0a"
+#define	WHATINFO	"@(#)CONSOLETIME "
+#define	BANNER		"Console Time"
+#define	SEARCHNAME	"consoletime"
+#define	VARPRNAME	"LOCAL"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	VARPROGRAMROOT1	"CONSOLETIME_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"CONSOLETIME_BANNER"
+#define	VARSEARCHNAME	"CONSOLETIME_NAME"
+#define	VAROPTS		"CONSOLETIME_OPTS"
+#define	VARSTRING	"CONSOLETIME_STR"
+#define	VARMNTFNAME	"CONSOLETIME_MNTFILE"
+#define	VARAFNAME	"CONSOLETIME_AF"
+#define	VAREFNAME	"CONSOLETIME_EF"
+#define	VARERRORFNAME	"CONSOLETIME_ERRORFILE"
+
+#define	VARDEBUGFNAME	"CONSOLETIME_DEBUGFILE"
+#define	VARDEBUGFD1	"CONSOLETIME_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARPRINTER	"PRINTER"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARTERM		"TERM"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#define	TMPDNAME	"/tmp"
+
+#define	HELPFNAME	"help"
+#define	LOGFNAME	"log/consoletime"
+#define	USERFILE	"log/consoletime.users"
+#define	CMDHELPFNAME	"lib/consoletime/cmdhelp"
+
+#define	OUTPUTDEV	"/dev/fd/1"
+#define	MSGLOGDEV	"/dev/msglog"
+#define	CONSOLEDEV	"/dev/console"
+
+#define	TO_OPEN		5
+#define	TO_POLL		10
+#define	TO_TMPX		3
+#define	TO_SYSMISC	3
+#define	TO_CHECK	2
+#define	TO_WAIT		20
+
+ 

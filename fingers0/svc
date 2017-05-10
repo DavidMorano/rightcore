@@ -1,0 +1,323 @@
+# SVC
+# FINGERS service table
+#
+#	The format of entries are:
+#
+#	<service>:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options,
+#		access=	netgroup(s)
+#
+#
+
+#	The following substitutions are made on keyword value strings:
+
+# local
+#		%V	FINGERS version string
+#		%R	FINGERS program root
+#		%S	search-name
+#		%N	local nodename
+#		%D	local domainname
+#		%H	local hostname
+
+# connection
+#		%P	socket peername (if available)
+#		%{ipaddr}	IP address (if available)
+
+# service
+#		%s	service
+#		%{ss}	subservice
+#		%a	service arguments (if available)
+
+#	The following are made on some authenticating servers:
+
+# authentication
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%p	network password (if known)
+#
+#
+
+#
+#	There are some built-in servers on some of the listener daemon
+#	programs.  Some of these are listed below.  These internal
+#	servers can be overridden by making an entry with the same
+#	service name in this file.
+#
+# HELP:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is a 'tcpmux' (by appropriate RFC) service requirement.
+#
+# TIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'time' service.
+#
+# DAYTIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'daytime' service.
+#
+# SHELLCMD:
+#	**BUILT-IN** ('rexecd' only)
+#
+#	This is the same as Berkeley 'rsh' and 'rexec' services.
+#
+# CMD:
+#	**BUILT_IN** ('rexecd' only)
+#
+#	This is what is provided by the old PCS 'REX' service.
+#
+#
+
+
+# various queries (access-restrict most all of these)
+
+
+# general information
+
+iotd:
+	so= lkcmd,
+	a= issue -k finger
+
+motd:
+	so= lkcmd,
+	a= motd -u guest
+
+cotd:
+	so= lkcmd,
+	a = <commandment -db commandments +%{ss}>
+
+votd:
+	so= lkcmd,
+	a = <bibleverse -o bookname,indent +%{ss}>
+
+hotd:
+	so= lkcmd,
+	a = <calyear -o default +%{ss}>
+
+qotd:
+	so= lkcmd,
+	a= qotd %{ss}
+
+quote:
+	so= lkcmd,
+	a= qotd -o termout=1 -T text %{ss}
+
+calday:
+	so= lkcmd,
+	a = <calyear -o default %{ss}>
+
+calyear:
+	so= lkcmd,
+	a = <calyear -o default %{ss}>
+
+hols:
+	so= lkcmd,
+	a= <holiday +%{ss}>
+
+systat:
+	p= systatd
+
+netstat:
+	p= netstatd
+
+dict:
+	p= /usr/add-on/gnu/bin/dict,
+	a= dict %{ss}
+
+who:
+	access= rc ece,
+	p= ${LOCAL}/bin/who,
+	a= who
+
+wn:
+	access= default rc ece,
+	so=lkcmd:wn,
+	p= wn
+
+w:
+	access= rc ece,
+	p= w
+
+ps:
+	access= rc ece,
+	a= ps -af
+
+logusers:
+	access= rc ece,
+	p= logusers
+
+msinfo:
+	p= msinfo,
+	a= msinfo %{ss}
+
+uptime:
+	p= uptime
+
+bibleq:
+	so=bibleq,
+	a= bibleq -o clump %{ss}
+
+bq:
+	so=bibleq,
+	a= bibleq -o clump %{ss}
+
+biblev:
+	so=bibleverse,
+	a= bibleverse %{ss}
+
+bv:
+	so=bibleverse,
+	a= bibleverse %{ss}
+
+sync:
+	a= syncer -b
+
+webcounts:
+	a= webcounts %{ss}
+
+notewire:
+	a= notifier wire %{ss}
+
+whoami:
+	a= echo "host=%P user=%U" 
+
+ipaddr:
+	a= echo "IPaddress=%{ipaddr} peername=%P"
+
+default:
+	so= lkcmd,
+	a= issue
+
+
+# various "commandments"
+
+cmd:
+	so= lkcmd,
+	a= commandment -db %{ss} -a
+
+commandment:
+	so= lkcmd,
+	a= commandment -db %{ss} -a
+
+kingsisrael:
+	so= lkcmd,
+	a= commandment -db %s -a
+
+kingsjudah:
+	so= lkcmd,
+	a= commandment -db %s -a
+
+apostles:
+	so= lkcmd,
+	a= commandment -db %s -a
+
+nineworthies:
+	so= lkcmd,
+	a= commandment -db NineWorthies -a
+
+NineWorthies:
+	so= lkcmd,
+	a= commandment -db %s -a
+
+GrapeVarieties:
+	so= lkcmd,
+	a= commandment -db %s -a
+
+KingsOfEngland:
+	so= lkcmd,
+	a= commandment -db %s -a
+
+
+# special hack
+mscheckup:
+	a= mscheckup ece
+
+
+# Levo team information
+
+wng:
+	access= rc ece,
+	a= wng %a
+
+wlevo:
+	access= rc ece,
+	p= w-levo,
+
+wholevo:
+	access= rc ece,
+	p= who-levo,
+
+pslevo:
+	access= rc ece,
+	p= ps-levo,
+
+lastloglevo:
+	access= rc ece,
+	p= lastlog-levo,
+
+lastlevo:
+	access= rc ece,
+	p= last-levo,
+
+
+# junk-type stuff
+
+echoargs:
+	a= echoargs w=%w ss=%{ss} %a
+
+echostuff:
+	access= rc ece,
+	a= echo %V %S %R %N %D %s long=%w 
+
+svcargs:
+	a= echo '%a'
+
+modlist:
+	a= modlist
+
+logname:
+	access= rc ece,
+	a= ${LOCAL}/bin/logname
+
+env:
+	access= rc ece,
+	a= env,
+	username= admin
+
+reportid:
+	access= rc ece,
+	p= /home/dam/src/tcpmuxd/servers/reportid,
+	user= guest,
+	group= rc
+
+enum2:
+	p= ${TESTSERVERDIR}/enum,
+	a= enum '%a'
+
+peername:
+	p= /usr/add-on/pcs/bin/pcsconf,
+	a= pcsconf peername
+
+wla:
+	p= wla
+
+sar:
+	p= /usr/bin/sar,
+	a= sar 1 2
+
+sysvar:
+	a= ${LOCAL}/bin/sysvar %{ss}
+
+hello:
+	a= echo "hello world!"
+
+test2:
+	a= echo "O=%{O} OO=%{OO} OC=%{OC}"
+
+

@@ -1,0 +1,53 @@
+ # <-- force CSH to use Bourne shell
+# installprog (libac)
+
+
+: ${PCS:=/usr/add-on/pcs}
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+
+
+P=libuc
+
+ALL="${P}.a "
+
+INCS=
+
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+  OFD=S5
+
+else
+
+  MACH=`hostname`
+  PATH=/usr/5bin:${PATH}
+  OFD=S4
+
+fi
+
+
+
+STUFF="*.c *.a *.h Makefile"
+
+
+{
+  chgrp levo ${ALL}
+  chgrp levo *.h
+  chmod ugo+r ${ALL}
+  chmod ugo+r *.h
+} 2> /dev/null
+
+
+for D in ${HOME} ${LOCAL} ${NCMP} ${PCS} ; do
+
+  find ${ALL} -print 2> /dev/null | cpio -pdm ${D}/lib
+  find ${ALL} -print 2> /dev/null | cpio -pdm ${D}/lib/${OFD}
+
+done 2> /dev/null
+
+
+
+

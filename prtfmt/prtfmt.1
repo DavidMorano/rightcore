@@ -1,0 +1,171 @@
+.\"_
+.TH PRTFMT 1 "1990-07-14" LOCAL
+.SH NAME
+prtfmt \- format and print output
+.SH SYNOPSIS
+.\"_
+.\"	Module:   prtfmt.1, Level 3.13
+.\"	File:     /az07/kls/UNISON.SCCS.3/man/u_man/man1/s.prtfmt.1
+.\"_
+.\"	Modified: 7/14/90  16:25:49
+.\"	Fetched:  11/15/90  21:40:25
+.\"_
+.ds Un \fIprtfmt\fR
+.ds PN \fIPRTFMT\fR
+.ds Pn \fIPrtfmt\fR
+.if t .ds i \(fm\(fm
+.if n .ds i ""
+.\"_
+\fBprtfmt\fR [\fB-F\fR "[\fIformatter\fR] \fIoptions\fR"] [\fB-h\fR] [\fB-T \fIdevicetype\fR] [\fB-v\fR] [\fB-Z\fR] [\fIprt_options\fR] [\fB-\fR] [\fIfilename...\fR]
+.SH DESCRIPTION
+.ad b
+.I \*(Un\^
+provides a convenient way of building the necessary pipeline of
+commands to produce text and/or graphics output.   
+It can be used in place of commands such as \fImmx\fR(1) and \fImmt\fR(1).
+.PP
+.I \*(Un\^
+automatically generates a pipeline of commands, including
+pre-processors and formatters, as required by the file.
+If the input file contains pre-processing statements
+(\fIe.g.,\fR .TS/.TE, .EQ/.EN, .G1/G2, .GS/.GE .PS/.PE ), then the 
+appropriate pre-processor (\fItbl, neqn/eqn, grap, gc/gc2pic, pic\fR)  
+will be called automatically.
+\*(Un provides suitable options for each command in the pipeline.
+.PP
+.I \*(Un\^ 
+also selects the macros package (\fImm, man, mview, mv, mpictures, mcolor\fR)
+according to the statements specified in the file.
+.PP
+If no filenames appear or \fB-\fR is specified,
+.I \*(Un
+reads standard input. 
+.PP
+The destination or printer name can be specified with the 
+\fB-d\fR option (see \fIprt\fR(1)\fR).  If no \fB-d\fR option
+is specified, \fBprtfmt\fR will automatically map the 
+\fB-T\fR devicetype value to the \fB-d\fR option.  All locations
+may not have a default printer defined for x9700, post, i300, etc.,
+so it is recommended to specify a printer name if possible.
+See examples below. 
+.PP
+Default options can be specified in the \fI$HOME/.prt\fR file (see \fI.prt\fR(4)).
+.PP
+The following options may appear in any order preceding the file names:
+.TP 13
+\fB\-F "[\fIformatter\fR] \fIoptions\fR"
+Format the file using the specified program \fIformatter\fR.
+Examples of formatters include \fBnroff\fR and \fBtroff\fR. 
+The default formatter is \fBtroff\fR.
+\fIoptions\fR can include any valid options for the formatter.
+For more information on valid options, see the
+manual page for the specific formatter.
+.TP 13
+.BI \-h
+Print full help message.
+.TP 13
+.BI \-T "\ devicetype"
+Format the output for device type \fIdevicetype\fR.  If no \fIdevicetype\fR 
+is specified, output will be formatted to terminal.
+Examples of \fIdevicetype\fR are:
+
+.nf
+\fBaps  \fR	Autologic APS-5 Phototypesetter
+\fBi10  \fR 	IMAGEN Imprint 10
+\fBi300 \fR	IMAGEN 8/300, 12/300
+\fBpost \fR	PostScript printers
+\fBhp   \fR	Hewlett-Packard Laserjet
+\fBlp   \fR 	standard line printer
+\fBprism\fR	PRISM
+\fBx9700\fR	Xerox\s-2\u\(rg\d\s+2 9700 series
+\fBterm \fR	terminal
+.fi
+.TP 13
+.BI \-v
+Verbose; show the pipeline of commands built but do not execute it.
+.TP 13
+.BI \-Z
+Send output to \fIstdout\fR instead of piping it to \fIprt(1)\fR.
+.TP 13
+.I prt_options
+See \fIprt\fR(1) 
+for additional options.
+.SH EXAMPLES
+To generate a \fItroff\fR document containing tables 
+on an PostScript printer named \fIdisney\fR, 
+.nf
+		\fBprtfmt -T post -d disney \fIfilename\fR
+
+	Here is a sample pipeline of commands built by \*(Un which is written to standard error, 
+		tbl \fIfilename\fR | troff -Tpost -mm | /usr/add-on/unison/bin/prt -d/disney -l troff 
+
+	Also, the following message is written to standard output: 
+		request 1234homxb submitted
+.fi
+.sp
+To display a formatted document to your terminal,
+.nf
+		\fBprtfmt \fIfilename\fR
+or
+		\fBprtfmt -T term \fIfilename\fR
+.fi
+.sp
+To generate a \fItroff\fR document on an IMAGEN device called \fIi300-a\fR
+with special page numbering style,
+.nf
+		\fBprtfmt -T i300 -F "troff -rN3" -d i300-a \fIfilename\fR
+.fi
+.sp
+To generate a one-sided document on paper without holes on a
+Xerox high-speed printer at MH,  
+.nf
+		\fBprtfmt -T x9700 -s 1 -f nohole -d mh/x9700 \fIfilename\fR
+.fi
+.sp
+To format a \fItroff\fR document for the \fIaps\fR device but
+print it on an IMAGEN device called \fIzeus\fR,
+.nf
+		\fBprtfmt  -T aps  -d zeus \fIfilename\fR
+.fi
+.sp
+To specifically request the \fBnroff\fR formatter and print
+to a Xerox printer at IH:
+.nf
+		\fBprtfmt -T x9700 -Fnroff -d ih/x9700 \fIfilename\fR
+.fi
+.sp
+To avoid the possible lengthy formatting time and free up your terminal,
+process the request in the background:
+.nf
+		\fBprtfmt\fR [\fIoptions\fR] \fIfilename\fR &
+.fi
+.sp
+To generate a \fItroff\fR document on a PostScript printer 
+called \fIjargon\fR at WH and receive mail confirmation 
+when the request has completed printing:
+.nf
+		\fBprtfmt -T post -m -d wh/jargon \fIfilename\fR 
+.fi
+.sp
+To generate formatted output to an IMAGEN device called \fIruby\fR
+but using special formatting such as \fIsdlpic\fR or a pipeline: 
+.nf
+		\fBsdlpic \fIfilename\fR | \fBprtfmt -T i300 -d ruby\fR
+.fi
+.sp
+To redirect output to a file:
+.nf
+		\fBprtfmt  -T post  -Z  \fIfilename1\fB > \fIfilename2\fR 
+.fi
+.SH SEE ALSO
+prt(1), prtstat(1), prtc(1), nroff(1), troff(1), tbl(1), eqn(1), pic(1), grap(1), gc(1), .prt(4), .prtsys(4)
+.SH WARNINGS
+Files containing .sy or .pi macro statements will not be processed
+when formatting is done on a remote system.
+.SH BUGS
+Files containing .BP macro statements will not be resolved
+when formatting is done on a remote system.
+.SH FILES
+$HOME/.prt
+.in
+$UNISONLIB/.prtsys

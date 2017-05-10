@@ -1,0 +1,15 @@
+
+
+DAMvarmks {
+	global:
+		varmks ;
+		varmks_open ;
+		varmks_addvar ;
+		varmks_abort ;
+		varmks_chgrp ;
+		varmks_close ;
+	local:
+		* ;
+} ;
+
+

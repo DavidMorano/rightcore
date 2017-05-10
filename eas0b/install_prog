@@ -1,0 +1,48 @@
+
+
+PTOOLS=/proj/starbase/tools
+P=eas
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+TH=mthost2
+case $MACH in
+
+dds )
+  TH=mthost2.mt.att.com
+  ;;
+
+esac
+
+
+
+STUFF="*.c *.h *.sh Makefile"
+
+sendover() {
+  cpio -oc | rsh ${TH} discobin/cpio-dir $1 2> /dev/null
+}
+
+rcp ${P}.x ${TH}:src/n${P}
+
+rcp ${P}.sh ${TH}:/mt/mtgzfs8/hw/add-on/pcs/bin/${P}
+rcp ${P}.x ${TH}:/mt/mtgzfs8/hw/add-on/pcs/bin/${P}.x
+rcp ${P}.x ${TH}:/mt/mtgzfs8/hw/add-on/pcs/bin/${P}.aout
+rcp ${P}.elf ${TH}:/mt/mtgzfs8/hw/add-on/pcs/bin/${P}.elf
+
+cp ${P}.sh ${PTOOLS}/bin/${P}
+cp ${P}.x ${PTOOLS}/bin/${P}.x
+cp ${P}.x ${PTOOLS}/bin/${P}.aout
+cp ${P}.elf ${PTOOLS}/bin/${P}.elf
+
+eval find $STUFF -type f -print | sendover src/${P}
+
+
+

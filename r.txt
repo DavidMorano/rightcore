@@ -1,0 +1,1 @@
+	This subroutine was written for Rightcore Network Services (RNS).

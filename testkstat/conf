@@ -1,0 +1,23 @@
+# MSTATD.CONF
+
+
+
+# passed requests
+pass		%R/spool/mstatd/pass
+
+# enhanced passed requests
+#connection	%R/spool/mstatd/connection
+
+# requests we get directly
+
+listen		passfd		%R/spool/mstatd/pf
+listen		udp		- 5107
+listen		tcp		- 5113
+listen		tcp		rca 5113
+listen		uss		%R/spool/mstatd/co
+listen		usd		%R/spool/mstatd/cl
+listen		dw		%R/spool/mstatd/request
+
+
+
+

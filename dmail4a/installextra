@@ -1,0 +1,37 @@
+#!/usr/bin/ksh
+# INSTALLEXTRA
+
+
+NODES="rca rcb rcc"
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL 
+
+
+rm -f dmail.s5
+cp -p dmail.x dmail.s5
+
+install() {
+  P=${1}
+  D=${2}
+  makenewer ${P} ${D}
+  chmod +x ${D}/${P}
+  chgrp mail ${D}/${P}
+  chmod g+s ${D}/${P}
+}
+
+
+make dmail.s5
+
+for N in $NODES ; do
+
+  if pingstat -n $N ; then
+    install dmail.s5 /net/${N}/usr/extra/sbin
+  fi
+
+done
+
+
+
+

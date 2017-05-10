@@ -1,0 +1,2871 @@
+; BIND version named 4.9.4-P1
+; zone 'mdc.net'   last serial 0
+; from 206.66.240.254   at Tue Feb 16 22:40:58 1999
+$ORIGIN net.
+mdc		IN	SOA	mdc.net. hostmaster.mdc.net. (
+		216992 172800 3600 1728000 172800 )
+		IN	NS	namesrv.mdc.net.
+		IN	NS	auth00.ns.uu.net.
+		IN	NS	auth01.ns.uu.net.
+		IN	MX	10 namesrv.mdc.net.
+		IN	MX	5 smtp-2.mdc.net.
+		IN	A	209.251.64.29
+$ORIGIN mdc.net.
+tzogon-mdc-fr01	IN	A	209.251.69.6
+empty		IN	A	206.66.240.119
+		IN	MX	10 smtp-2.mdc.net.
+egieseke	IN	A	209.251.76.251
+		IN	MX	10 smtp-2.mdc.net.
+odi		IN	A	209.251.76.247
+		IN	MX	10 smtp-2.mdc.net.
+sales		IN	A	206.66.240.3
+		IN	MX	10 smtp-2.mdc.net.
+quarzak		IN	A	208.196.211.247
+		IN	MX	10 smtp-2.mdc.net.
+mark		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.66
+fcainc		IN	A	209.251.76.241
+xcom-79-100	IN	A	209.251.79.100
+xcom-79-101	IN	A	209.251.79.101
+xcom-79-102	IN	A	209.251.79.102
+xcom-79-103	IN	A	209.251.79.103
+xcom-79-104	IN	A	209.251.79.104
+xcom-79-105	IN	A	209.251.79.105
+xcom-79-106	IN	A	209.251.79.106
+xcom-79-107	IN	A	209.251.79.107
+xcom-79-110	IN	A	209.251.79.110
+xcom-79-108	IN	A	209.251.79.108
+xcom-79-111	IN	A	209.251.79.111
+xcom-79-109	IN	A	209.251.79.109
+xcom-79-112	IN	A	209.251.79.112
+xcom-79-113	IN	A	209.251.79.113
+xcom-79-114	IN	A	209.251.79.114
+xcom-79-115	IN	A	209.251.79.115
+xcom-79-116	IN	A	209.251.79.116
+xcom-79-117	IN	A	209.251.79.117
+sbwomack3	IN	A	209.251.76.21
+		IN	MX	10 mail.mdc.net.
+matt		IN	A	206.66.240.64
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-120	IN	A	209.251.79.120
+xcom-79-118	IN	A	209.251.79.118
+sbwomack4	IN	A	209.251.76.22
+		IN	MX	10 mail.mdc.net.
+xcom-79-121	IN	A	209.251.79.121
+xcom-79-119	IN	A	209.251.79.119
+xcom-79-122	IN	A	209.251.79.122
+xcom-79-123	IN	A	209.251.79.123
+xcom-79-124	IN	A	209.251.79.124
+xcom-79-125	IN	A	209.251.79.125
+xcom-79-126	IN	A	209.251.79.126
+xcom-79-127	IN	A	209.251.79.127
+xcom-79-130	IN	A	209.251.79.130
+xcom-79-128	IN	A	209.251.79.128
+xcom-79-131	IN	A	209.251.79.131
+xcom-79-129	IN	A	209.251.79.129
+xcom-79-132	IN	A	209.251.79.132
+xcom-79-133	IN	A	209.251.79.133
+xcom-79-134	IN	A	209.251.79.134
+xcom-001	IN	A	208.196.211.1
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-135	IN	A	209.251.79.135
+xcom-002	IN	A	208.196.211.2
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-136	IN	A	209.251.79.136
+xcom-003	IN	A	208.196.211.3
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-137	IN	A	209.251.79.137
+xcom-004	IN	A	208.196.211.4
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-140	IN	A	209.251.79.140
+xcom-79-138	IN	A	209.251.79.138
+xcom-005	IN	A	208.196.211.5
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-141	IN	A	209.251.79.141
+xcom-79-139	IN	A	209.251.79.139
+xcom-006	IN	A	208.196.211.6
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-142	IN	A	209.251.79.142
+xcom-007	IN	A	208.196.211.7
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-143	IN	A	209.251.79.143
+static1		IN	A	208.196.211.241
+		IN	MX	10 smtp-2.mdc.net.
+xcom-010	IN	A	208.196.211.10
+		IN	MX	10 smtp-2.mdc.net.
+xcom-008	IN	A	208.196.211.8
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-144	IN	A	209.251.79.144
+static2		IN	A	208.196.211.242
+		IN	MX	10 smtp-2.mdc.net.
+xcom-011	IN	A	208.196.211.11
+		IN	MX	10 smtp-2.mdc.net.
+xcom-009	IN	A	208.196.211.9
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-145	IN	A	209.251.79.145
+static3		IN	A	208.196.211.243
+		IN	MX	10 smtp-2.mdc.net.
+xcom-012	IN	A	208.196.211.12
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-146	IN	A	209.251.79.146
+static4		IN	A	208.196.211.250
+		IN	MX	10 smtp-2.mdc.net.
+xcom-013	IN	A	208.196.211.13
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-147	IN	A	209.251.79.147
+xcom-014	IN	A	208.196.211.14
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-150	IN	A	209.251.79.150
+xcom-79-148	IN	A	209.251.79.148
+localhost	IN	A	127.0.0.1
+xcom-015	IN	A	208.196.211.15
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-151	IN	A	209.251.79.151
+xcom-79-149	IN	A	209.251.79.149
+xcom-016	IN	A	208.196.211.16
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-152	IN	A	209.251.79.152
+xcom-017	IN	A	208.196.211.17
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-153	IN	A	209.251.79.153
+xcom-020	IN	A	208.196.211.20
+		IN	MX	10 smtp-2.mdc.net.
+xcom-018	IN	A	208.196.211.18
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-154	IN	A	209.251.79.154
+xcom-021	IN	A	208.196.211.21
+		IN	MX	10 smtp-2.mdc.net.
+xcom-019	IN	A	208.196.211.19
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-155	IN	A	209.251.79.155
+xcom-022	IN	A	208.196.211.22
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-156	IN	A	209.251.79.156
+xcom-023	IN	A	208.196.211.23
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-157	IN	A	209.251.79.157
+xcom-024	IN	A	208.196.211.24
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-160	IN	A	209.251.79.160
+xcom-79-158	IN	A	209.251.79.158
+cvh1		IN	MX	5 cvh1.mdc.net.
+		IN	MX	10 namesrv.mdc.net.
+		IN	A	209.251.76.236
+xcom-025	IN	A	208.196.211.25
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-161	IN	A	209.251.79.161
+xcom-79-159	IN	A	209.251.79.159
+xcom-026	IN	A	208.196.211.26
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-162	IN	A	209.251.79.162
+xcom-027	IN	A	208.196.211.27
+		IN	MX	10 smtp-2.mdc.net.
+globaldrum-router	IN	A	207.76.106.17
+		IN	MX	10 smtp-2.mdc.net.
+nt1		IN	A	206.66.240.71
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-163	IN	A	209.251.79.163
+xcom-030	IN	A	208.196.211.30
+		IN	MX	10 smtp-2.mdc.net.
+xcom-028	IN	A	208.196.211.28
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-164	IN	A	209.251.79.164
+xcom-031	IN	A	208.196.211.31
+		IN	MX	10 smtp-2.mdc.net.
+xcom-029	IN	A	208.196.211.29
+		IN	MX	10 smtp-2.mdc.net.
+townsman	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.214.76
+xcom-79-165	IN	A	209.251.79.165
+xcom-032	IN	A	208.196.211.32
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-166	IN	A	209.251.79.166
+xcom-033	IN	A	208.196.211.33
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-167	IN	A	209.251.79.167
+xcom-034	IN	A	208.196.211.34
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-170	IN	A	209.251.79.170
+xcom-79-168	IN	A	209.251.79.168
+xcom-035	IN	A	208.196.211.35
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-171	IN	A	209.251.79.171
+xcom-79-169	IN	A	209.251.79.169
+xcom-036	IN	A	208.196.211.36
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-172	IN	A	209.251.79.172
+phunter		IN	A	209.251.76.235
+		IN	MX	10 smtp-2.mdc.net.
+xcom-037	IN	A	208.196.211.37
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-173	IN	A	209.251.79.173
+xcom-040	IN	A	208.196.211.40
+		IN	MX	10 smtp-2.mdc.net.
+xcom-038	IN	A	208.196.211.38
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-174	IN	A	209.251.79.174
+xcom-041	IN	A	208.196.211.41
+		IN	MX	10 smtp-2.mdc.net.
+xcom-039	IN	A	208.196.211.39
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-175	IN	A	209.251.79.175
+xcom-042	IN	A	208.196.211.42
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-176	IN	A	209.251.79.176
+xcom-043	IN	A	208.196.211.43
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-177	IN	A	209.251.79.177
+xcom-044	IN	A	208.196.211.44
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-200	IN	A	209.251.79.200
+xcom-79-180	IN	A	209.251.79.180
+xcom-79-178	IN	A	209.251.79.178
+xcom-045	IN	A	208.196.211.45
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-201	IN	A	209.251.79.201
+xcom-79-181	IN	A	209.251.79.181
+xcom-79-179	IN	A	209.251.79.179
+xcom-046	IN	A	208.196.211.46
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-202	IN	A	209.251.79.202
+xcom-79-182	IN	A	209.251.79.182
+xcom-047	IN	A	208.196.211.47
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-203	IN	A	209.251.79.203
+xcom-79-183	IN	A	209.251.79.183
+xcom-050	IN	A	208.196.211.50
+		IN	MX	10 smtp-2.mdc.net.
+xcom-048	IN	A	208.196.211.48
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-204	IN	A	209.251.79.204
+xcom-79-184	IN	A	209.251.79.184
+xcom-051	IN	A	208.196.211.51
+		IN	MX	10 smtp-2.mdc.net.
+xcom-049	IN	A	208.196.211.49
+		IN	MX	10 smtp-2.mdc.net.
+netway-isdn-tel	IN	A	207.76.104.213
+		IN	MX	5 207.76.104.213.
+xcom-79-205	IN	A	209.251.79.205
+xcom-79-185	IN	A	209.251.79.185
+xcom-052	IN	A	208.196.211.52
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-206	IN	A	209.251.79.206
+xcom-79-186	IN	A	209.251.79.186
+xcom-053	IN	A	208.196.211.53
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-207	IN	A	209.251.79.207
+xcom-79-187	IN	A	209.251.79.187
+xcom-054	IN	A	208.196.211.54
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-210	IN	A	209.251.79.210
+xcom-79-208	IN	A	209.251.79.208
+xcom-79-190	IN	A	209.251.79.190
+xcom-79-188	IN	A	209.251.79.188
+computone1-ppp00	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.1
+xcom-055	IN	A	208.196.211.55
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-211	IN	A	209.251.79.211
+xcom-79-209	IN	A	209.251.79.209
+xcom-79-191	IN	A	209.251.79.191
+xcom-79-189	IN	A	209.251.79.189
+computone1-ppp01	IN	A	208.196.210.2
+		IN	MX	10 smtp-2.mdc.net.
+xcom-056	IN	A	208.196.211.56
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-212	IN	A	209.251.79.212
+xcom-79-192	IN	A	209.251.79.192
+computone1-ppp02	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.3
+xcom-057	IN	A	208.196.211.57
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-213	IN	A	209.251.79.213
+xcom-79-193	IN	A	209.251.79.193
+computone1-ppp03	IN	A	208.196.210.4
+		IN	MX	10 smtp-2.mdc.net.
+xcom-060	IN	A	208.196.211.60
+		IN	MX	10 smtp-2.mdc.net.
+xcom-058	IN	A	208.196.211.58
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-214	IN	A	209.251.79.214
+xcom-79-194	IN	A	209.251.79.194
+computone1-ppp04	IN	A	208.196.210.5
+		IN	MX	10 smtp-2.mdc.net.
+xcom-061	IN	A	208.196.211.61
+		IN	MX	10 smtp-2.mdc.net.
+xcom-059	IN	A	208.196.211.59
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-215	IN	A	209.251.79.215
+xcom-79-195	IN	A	209.251.79.195
+computone1-ppp05	IN	A	208.196.210.6
+		IN	MX	10 smtp-2.mdc.net.
+xcom-062	IN	A	208.196.211.62
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-216	IN	A	209.251.79.216
+xcom-79-196	IN	A	209.251.79.196
+computone1-ppp06	IN	A	208.196.210.7
+		IN	MX	10 smtp-2.mdc.net.
+xcom-063	IN	A	208.196.211.63
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-217	IN	A	209.251.79.217
+xcom-79-197	IN	A	209.251.79.197
+computone1-ppp07	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.8
+xcom-064	IN	A	208.196.211.64
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-220	IN	A	209.251.79.220
+xcom-79-218	IN	A	209.251.79.218
+xcom-79-198	IN	A	209.251.79.198
+computone1-ppp08	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.9
+computone1-ppp10	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.11
+xcom-065	IN	A	208.196.211.65
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-221	IN	A	209.251.79.221
+xcom-79-219	IN	A	209.251.79.219
+xcom-79-199	IN	A	209.251.79.199
+computone1-ppp09	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.10
+computone1-ppp11	IN	A	208.196.210.12
+		IN	MX	10 smtp-2.mdc.net.
+xcom-066	IN	A	208.196.211.66
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-222	IN	A	209.251.79.222
+computone1-ppp12	IN	A	208.196.210.13
+		IN	MX	10 smtp-2.mdc.net.
+xcom-067	IN	A	208.196.211.67
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-223	IN	A	209.251.79.223
+computone1-ppp13	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.14
+xcom-070	IN	A	208.196.211.70
+		IN	MX	10 smtp-2.mdc.net.
+xcom-068	IN	A	208.196.211.68
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-224	IN	A	209.251.79.224
+computone1-ppp14	IN	A	208.196.210.15
+		IN	MX	10 smtp-2.mdc.net.
+xcom-071	IN	A	208.196.211.71
+		IN	MX	10 smtp-2.mdc.net.
+xcom-069	IN	A	208.196.211.69
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-225	IN	A	209.251.79.225
+computone1-ppp15	IN	A	208.196.210.16
+		IN	MX	10 smtp-2.mdc.net.
+xcom-072	IN	A	208.196.211.72
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-226	IN	A	209.251.79.226
+computone1-ppp16	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.17
+xcom-073	IN	A	208.196.211.73
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-227	IN	A	209.251.79.227
+computone1-ppp17	IN	A	208.196.210.18
+		IN	MX	10 smtp-2.mdc.net.
+xcom-074	IN	A	208.196.211.74
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-230	IN	A	209.251.79.230
+xcom-79-228	IN	A	209.251.79.228
+computone1-ppp18	IN	A	208.196.210.19
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp20	IN	A	208.196.210.21
+		IN	MX	10 smtp-2.mdc.net.
+xcom-075	IN	A	208.196.211.75
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-231	IN	A	209.251.79.231
+xcom-79-229	IN	A	209.251.79.229
+computone1-ppp19	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.20
+computone1-ppp21	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.22
+xcom-076	IN	A	208.196.211.76
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-232	IN	A	209.251.79.232
+computone1-ppp22	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.23
+xcom-077	IN	A	208.196.211.77
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-233	IN	A	209.251.79.233
+computone1-ppp23	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.24
+xcom-100	IN	A	208.196.211.100
+		IN	MX	10 smtp-2.mdc.net.
+xcom-080	IN	A	208.196.211.80
+		IN	MX	10 smtp-2.mdc.net.
+xcom-078	IN	A	208.196.211.78
+		IN	MX	10 smtp-2.mdc.net.
+lwaxana		IN	MX	5 206.66.240.225.
+		IN	A	206.66.240.225
+xcom-79-234	IN	A	209.251.79.234
+computone1-ppp24	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.25
+xcom-101	IN	A	208.196.211.101
+		IN	MX	10 smtp-2.mdc.net.
+xcom-081	IN	A	208.196.211.81
+		IN	MX	10 smtp-2.mdc.net.
+xcom-079	IN	A	208.196.211.79
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-235	IN	A	209.251.79.235
+computone1-ppp25	IN	A	208.196.210.26
+		IN	MX	10 smtp-2.mdc.net.
+xcom-102	IN	A	208.196.211.102
+		IN	MX	10 smtp-2.mdc.net.
+xcom-082	IN	A	208.196.211.82
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-236	IN	A	209.251.79.236
+computone1-ppp26	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.27
+xcom-103	IN	A	208.196.211.103
+		IN	MX	10 smtp-2.mdc.net.
+xcom-083	IN	A	208.196.211.83
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-237	IN	A	209.251.79.237
+computone1-ppp27	IN	A	208.196.210.28
+		IN	MX	10 smtp-2.mdc.net.
+xcom-104	IN	A	208.196.211.104
+		IN	MX	10 smtp-2.mdc.net.
+xcom-084	IN	A	208.196.211.84
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-240	IN	A	209.251.79.240
+xcom-79-238	IN	A	209.251.79.238
+computone1-ppp28	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.29
+computone1-ppp30	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.31
+xcom-105	IN	A	208.196.211.105
+		IN	MX	10 smtp-2.mdc.net.
+xcom-085	IN	A	208.196.211.85
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-241	IN	A	209.251.79.241
+xcom-79-239	IN	A	209.251.79.239
+computone1-ppp29	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.30
+computone1-ppp31	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.32
+xcom-106	IN	A	208.196.211.106
+		IN	MX	10 smtp-2.mdc.net.
+xcom-086	IN	A	208.196.211.86
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-242	IN	A	209.251.79.242
+minco-dsl	IN	A	209.251.69.62
+computone1-ppp32	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.33
+xcom-107	IN	A	208.196.211.107
+		IN	MX	10 smtp-2.mdc.net.
+xcom-087	IN	A	208.196.211.87
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-243	IN	A	209.251.79.243
+computone1-ppp33	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.34
+xcom-110	IN	A	208.196.211.110
+		IN	MX	10 smtp-2.mdc.net.
+xcom-108	IN	A	208.196.211.108
+		IN	MX	10 smtp-2.mdc.net.
+xcom-090	IN	A	208.196.211.90
+		IN	MX	10 smtp-2.mdc.net.
+xcom-088	IN	A	208.196.211.88
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-244	IN	A	209.251.79.244
+computone1-ppp34	IN	A	208.196.210.35
+		IN	MX	10 smtp-2.mdc.net.
+xcom-111	IN	A	208.196.211.111
+		IN	MX	10 smtp-2.mdc.net.
+xcom-109	IN	A	208.196.211.109
+		IN	MX	10 smtp-2.mdc.net.
+xcom-091	IN	A	208.196.211.91
+		IN	MX	10 smtp-2.mdc.net.
+xcom-089	IN	A	208.196.211.89
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-245	IN	A	209.251.79.245
+computone1-ppp35	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.36
+xcom-112	IN	A	208.196.211.112
+		IN	MX	10 smtp-2.mdc.net.
+xcom-092	IN	A	208.196.211.92
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-246	IN	A	209.251.79.246
+computone1-ppp36	IN	A	208.196.210.37
+		IN	MX	10 smtp-2.mdc.net.
+lanrovere-ppp1	IN	A	206.66.241.20
+		IN	MX	5 206.66.241.20.
+xcom-113	IN	A	208.196.211.113
+		IN	MX	10 smtp-2.mdc.net.
+xcom-093	IN	A	208.196.211.93
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-247	IN	A	209.251.79.247
+computone1-ppp37	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.210.38
+lanrovere-ppp2	IN	A	206.66.241.21
+		IN	MX	5 206.66.241.21.
+xcom-114	IN	A	208.196.211.114
+		IN	MX	10 smtp-2.mdc.net.
+xcom-094	IN	A	208.196.211.94
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-250	IN	A	209.251.79.250
+xcom-79-248	IN	A	209.251.79.248
+computone1-ppp38	IN	A	208.196.210.39
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp40	IN	A	208.196.210.41
+		IN	MX	10 smtp-2.mdc.net.
+lanrovere-ppp3	IN	A	206.66.241.22
+		IN	MX	5 206.66.241.22.
+xcom-115	IN	A	208.196.211.115
+		IN	MX	10 smtp-2.mdc.net.
+xcom-095	IN	A	208.196.211.95
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-251	IN	A	209.251.79.251
+xcom-79-249	IN	A	209.251.79.249
+computone1-ppp39	IN	A	208.196.210.40
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp41	IN	A	208.196.210.42
+		IN	MX	10 smtp-2.mdc.net.
+lanrovere-ppp4	IN	A	206.66.241.23
+		IN	MX	5 206.66.241.23.
+xcom-116	IN	A	208.196.211.116
+		IN	MX	10 smtp-2.mdc.net.
+xcom-096	IN	A	208.196.211.96
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-252	IN	A	209.251.79.252
+computone1-ppp42	IN	A	208.196.210.43
+		IN	MX	10 smtp-2.mdc.net.
+lanrovere-ppp5	IN	A	206.66.241.24
+		IN	MX	5 206.66.241.24.
+xcom-117	IN	A	208.196.211.117
+		IN	MX	10 smtp-2.mdc.net.
+xcom-097	IN	A	208.196.211.97
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-253	IN	A	209.251.79.253
+computone1-ppp43	IN	A	208.196.210.44
+		IN	MX	10 smtp-2.mdc.net.
+xcom-120	IN	A	208.196.211.120
+		IN	MX	10 smtp-2.mdc.net.
+xcom-118	IN	A	208.196.211.118
+		IN	MX	10 smtp-2.mdc.net.
+xcom-098	IN	A	208.196.211.98
+		IN	MX	10 smtp-2.mdc.net.
+craig		IN	A	206.66.240.120
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-254	IN	A	209.251.79.254
+computone1-ppp44	IN	A	208.196.210.45
+		IN	MX	10 smtp-2.mdc.net.
+xcom-121	IN	A	208.196.211.121
+		IN	MX	10 smtp-2.mdc.net.
+xcom-119	IN	A	208.196.211.119
+		IN	MX	10 smtp-2.mdc.net.
+xcom-099	IN	A	208.196.211.99
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp45	IN	A	208.196.210.46
+		IN	MX	10 smtp-2.mdc.net.
+xcom-122	IN	A	208.196.211.122
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp46	IN	A	208.196.210.47
+		IN	MX	10 smtp-2.mdc.net.
+xcom-123	IN	A	208.196.211.123
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp47	IN	A	208.196.210.48
+		IN	MX	10 smtp-2.mdc.net.
+xcom-124	IN	A	208.196.211.124
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp48	IN	A	208.196.210.49
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp50	IN	A	208.196.210.51
+		IN	MX	10 smtp-2.mdc.net.
+xcom-125	IN	A	208.196.211.125
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp49	IN	A	208.196.210.50
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp51	IN	A	208.196.210.52
+		IN	MX	10 smtp-2.mdc.net.
+xcom-126	IN	A	208.196.211.126
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp52	IN	A	208.196.210.53
+		IN	MX	10 smtp-2.mdc.net.
+xcom-127	IN	A	208.196.211.127
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp53	IN	A	208.196.210.54
+		IN	MX	10 smtp-2.mdc.net.
+xcom-130	IN	A	208.196.211.130
+		IN	MX	10 smtp-2.mdc.net.
+xcom-128	IN	A	208.196.211.128
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp54	IN	A	208.196.210.55
+		IN	MX	10 smtp-2.mdc.net.
+xcom-131	IN	A	208.196.211.131
+		IN	MX	10 smtp-2.mdc.net.
+xcom-129	IN	A	208.196.211.129
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp55	IN	A	208.196.210.56
+		IN	MX	10 smtp-2.mdc.net.
+xcom-132	IN	A	208.196.211.132
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp56	IN	A	208.196.210.57
+		IN	MX	10 smtp-2.mdc.net.
+xcom-133	IN	A	208.196.211.133
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp57	IN	A	208.196.210.58
+		IN	MX	10 smtp-2.mdc.net.
+xcom-134	IN	A	208.196.211.134
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp58	IN	A	208.196.210.59
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp60	IN	A	208.196.210.61
+		IN	MX	10 smtp-2.mdc.net.
+xcom-135	IN	A	208.196.211.135
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp59	IN	A	208.196.210.60
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp61	IN	A	208.196.210.62
+		IN	MX	10 smtp-2.mdc.net.
+xcom-136	IN	A	208.196.211.136
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp62	IN	A	208.196.210.63
+		IN	MX	10 smtp-2.mdc.net.
+xcom-137	IN	A	208.196.211.137
+		IN	MX	10 smtp-2.mdc.net.
+computone1-ppp63	IN	A	208.196.210.64
+		IN	MX	10 smtp-2.mdc.net.
+xcom-140	IN	A	208.196.211.140
+		IN	MX	10 smtp-2.mdc.net.
+xcom-138	IN	A	208.196.211.138
+		IN	MX	10 smtp-2.mdc.net.
+xcom-141	IN	A	208.196.211.141
+		IN	MX	10 smtp-2.mdc.net.
+xcom-139	IN	A	208.196.211.139
+		IN	MX	10 smtp-2.mdc.net.
+xcom-142	IN	A	208.196.211.142
+		IN	MX	10 smtp-2.mdc.net.
+xcom-143	IN	A	208.196.211.143
+		IN	MX	10 smtp-2.mdc.net.
+xcom-144	IN	A	208.196.211.144
+		IN	MX	10 smtp-2.mdc.net.
+xcom-145	IN	A	208.196.211.145
+		IN	MX	10 smtp-2.mdc.net.
+xcom-146	IN	A	208.196.211.146
+		IN	MX	10 smtp-2.mdc.net.
+xcom-147	IN	A	208.196.211.147
+		IN	MX	10 smtp-2.mdc.net.
+xcom-150	IN	A	208.196.211.150
+		IN	MX	10 smtp-2.mdc.net.
+xcom-148	IN	A	208.196.211.148
+		IN	MX	10 smtp-2.mdc.net.
+xcom-151	IN	A	208.196.211.151
+		IN	MX	10 smtp-2.mdc.net.
+xcom-149	IN	A	208.196.211.149
+		IN	MX	10 smtp-2.mdc.net.
+xcom-152	IN	A	208.196.211.152
+		IN	MX	10 smtp-2.mdc.net.
+xcom-153	IN	A	208.196.211.153
+		IN	MX	10 smtp-2.mdc.net.
+xcom-154	IN	A	208.196.211.154
+		IN	MX	10 smtp-2.mdc.net.
+xcom-155	IN	A	208.196.211.155
+		IN	MX	10 smtp-2.mdc.net.
+branden		IN	A	208.196.211.251
+		IN	MX	10 smtp-2.mdc.net.
+xcom-156	IN	A	208.196.211.156
+		IN	MX	10 smtp-2.mdc.net.
+pop		IN	CNAME	smtp-2.mdc.net.
+xcom-157	IN	A	208.196.211.157
+		IN	MX	10 smtp-2.mdc.net.
+xcom-160	IN	A	208.196.211.160
+		IN	MX	10 smtp-2.mdc.net.
+xcom-158	IN	A	208.196.211.158
+		IN	MX	10 smtp-2.mdc.net.
+xcom-161	IN	A	208.196.211.161
+		IN	MX	10 smtp-2.mdc.net.
+xcom-159	IN	A	208.196.211.159
+		IN	MX	10 smtp-2.mdc.net.
+xcom-162	IN	A	208.196.211.162
+		IN	MX	10 smtp-2.mdc.net.
+access		IN	A	208.196.214.79
+		IN	MX	10 smtp-2.mdc.net.
+xcom-163	IN	A	208.196.211.163
+		IN	MX	10 smtp-2.mdc.net.
+xcom-164	IN	A	208.196.211.164
+		IN	MX	10 smtp-2.mdc.net.
+xcom-165	IN	A	208.196.211.165
+		IN	MX	10 smtp-2.mdc.net.
+xcom-166	IN	A	208.196.211.166
+		IN	MX	10 smtp-2.mdc.net.
+xcom-167	IN	A	208.196.211.167
+		IN	MX	10 smtp-2.mdc.net.
+rbb		IN	A	209.251.76.238
+		IN	MX	5 rbb.mdc.net.
+		IN	MX	10 namesrv.mdc.net.
+xcom-168	IN	A	208.196.211.168
+		IN	MX	10 smtp-2.mdc.net.
+xcom-170	IN	A	208.196.211.170
+		IN	MX	10 smtp-2.mdc.net.
+xcom-169	IN	A	208.196.211.169
+		IN	MX	10 smtp-2.mdc.net.
+xcom-171	IN	A	208.196.211.171
+		IN	MX	10 smtp-2.mdc.net.
+xcom-172	IN	A	208.196.211.172
+		IN	MX	10 smtp-2.mdc.net.
+xcom-173	IN	A	208.196.211.173
+		IN	MX	10 smtp-2.mdc.net.
+xcom-174	IN	A	208.196.211.174
+		IN	MX	10 smtp-2.mdc.net.
+xcom-175	IN	A	208.196.211.175
+		IN	MX	10 smtp-2.mdc.net.
+xcom-176	IN	A	208.196.211.176
+		IN	MX	10 smtp-2.mdc.net.
+xcom-177	IN	A	208.196.211.177
+		IN	MX	10 smtp-2.mdc.net.
+xcom-178	IN	A	208.196.211.178
+		IN	MX	10 smtp-2.mdc.net.
+xcom-180	IN	A	208.196.211.180
+		IN	MX	10 smtp-2.mdc.net.
+xcom-200	IN	A	208.196.211.200
+		IN	MX	10 smtp-2.mdc.net.
+xcom-179	IN	A	208.196.211.179
+		IN	MX	10 smtp-2.mdc.net.
+xcom-181	IN	A	208.196.211.181
+		IN	MX	10 smtp-2.mdc.net.
+xcom-201	IN	A	208.196.211.201
+		IN	MX	10 smtp-2.mdc.net.
+xcom-182	IN	A	208.196.211.182
+		IN	MX	10 smtp-2.mdc.net.
+xcom-202	IN	A	208.196.211.202
+		IN	MX	10 smtp-2.mdc.net.
+xcom-183	IN	A	208.196.211.183
+		IN	MX	10 smtp-2.mdc.net.
+xcom-203	IN	A	208.196.211.203
+		IN	MX	10 smtp-2.mdc.net.
+xcom-184	IN	A	208.196.211.184
+		IN	MX	10 smtp-2.mdc.net.
+xcom-204	IN	A	208.196.211.204
+		IN	MX	10 smtp-2.mdc.net.
+xcom-185	IN	A	208.196.211.185
+		IN	MX	10 smtp-2.mdc.net.
+xcom-205	IN	A	208.196.211.205
+		IN	MX	10 smtp-2.mdc.net.
+xcom-186	IN	A	208.196.211.186
+		IN	MX	10 smtp-2.mdc.net.
+xcom-206	IN	A	208.196.211.206
+		IN	MX	10 smtp-2.mdc.net.
+xcom-187	IN	A	208.196.211.187
+		IN	MX	10 smtp-2.mdc.net.
+xcom-207	IN	A	208.196.211.207
+		IN	MX	10 smtp-2.mdc.net.
+xcom-188	IN	A	208.196.211.188
+		IN	MX	10 smtp-2.mdc.net.
+xcom-190	IN	A	208.196.211.190
+		IN	MX	10 smtp-2.mdc.net.
+xcom-208	IN	A	208.196.211.208
+		IN	MX	10 smtp-2.mdc.net.
+xcom-210	IN	A	208.196.211.210
+		IN	MX	10 smtp-2.mdc.net.
+xcom-189	IN	A	208.196.211.189
+		IN	MX	10 smtp-2.mdc.net.
+xcom-191	IN	A	208.196.211.191
+		IN	MX	10 smtp-2.mdc.net.
+xcom-209	IN	A	208.196.211.209
+		IN	MX	10 smtp-2.mdc.net.
+xcom-211	IN	A	208.196.211.211
+		IN	MX	10 smtp-2.mdc.net.
+xcom-192	IN	A	208.196.211.192
+		IN	MX	10 smtp-2.mdc.net.
+xcom-212	IN	A	208.196.211.212
+		IN	MX	10 smtp-2.mdc.net.
+cbd		IN	A	209.251.76.223
+		IN	MX	5 smtp-2.mdc.net.
+xcom-193	IN	A	208.196.211.193
+		IN	MX	10 smtp-2.mdc.net.
+xcom-213	IN	A	208.196.211.213
+		IN	MX	10 smtp-2.mdc.net.
+xcom-194	IN	A	208.196.211.194
+		IN	MX	10 smtp-2.mdc.net.
+xcom-214	IN	A	208.196.211.214
+		IN	MX	10 smtp-2.mdc.net.
+xcom-195	IN	A	208.196.211.195
+		IN	MX	10 smtp-2.mdc.net.
+xcom-215	IN	A	208.196.211.215
+		IN	MX	10 smtp-2.mdc.net.
+xcom-196	IN	A	208.196.211.196
+		IN	MX	10 smtp-2.mdc.net.
+xcom-216	IN	A	208.196.211.216
+		IN	MX	10 smtp-2.mdc.net.
+xcom-197	IN	A	208.196.211.197
+		IN	MX	10 smtp-2.mdc.net.
+xcom-217	IN	A	208.196.211.217
+		IN	MX	10 smtp-2.mdc.net.
+minco-fr13	IN	A	209.251.69.61
+xcom-198	IN	A	208.196.211.198
+		IN	MX	10 smtp-2.mdc.net.
+xcom-218	IN	A	208.196.211.218
+		IN	MX	10 smtp-2.mdc.net.
+xcom-220	IN	A	208.196.211.220
+		IN	MX	10 smtp-2.mdc.net.
+xcom-199	IN	A	208.196.211.199
+		IN	MX	10 smtp-2.mdc.net.
+xcom-219	IN	A	208.196.211.219
+		IN	MX	10 smtp-2.mdc.net.
+xcom-221	IN	A	208.196.211.221
+		IN	MX	10 smtp-2.mdc.net.
+xcom-222	IN	A	208.196.211.222
+		IN	MX	10 smtp-2.mdc.net.
+xcom-223	IN	A	208.196.211.223
+		IN	MX	10 smtp-2.mdc.net.
+xcom-224	IN	A	208.196.211.224
+		IN	MX	10 smtp-2.mdc.net.
+xcom-225	IN	A	208.196.211.225
+		IN	MX	10 smtp-2.mdc.net.
+asg		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.76.250
+xcom-226	IN	A	208.196.211.226
+		IN	MX	10 smtp-2.mdc.net.
+xcom-227	IN	A	208.196.211.227
+		IN	MX	10 smtp-2.mdc.net.
+xcom-228	IN	A	208.196.211.228
+		IN	MX	10 smtp-2.mdc.net.
+xcom-230	IN	A	208.196.211.230
+		IN	MX	10 smtp-2.mdc.net.
+xcom-229	IN	A	208.196.211.229
+		IN	MX	10 smtp-2.mdc.net.
+xcom-231	IN	A	208.196.211.231
+		IN	MX	10 smtp-2.mdc.net.
+xcom-232	IN	A	208.196.211.232
+		IN	MX	10 smtp-2.mdc.net.
+xcom-233	IN	A	208.196.211.233
+		IN	MX	10 smtp-2.mdc.net.
+xcom-234	IN	A	208.196.211.234
+		IN	MX	10 smtp-2.mdc.net.
+xcom-235	IN	A	208.196.211.235
+		IN	MX	10 smtp-2.mdc.net.
+xcom-236	IN	A	208.196.211.236
+		IN	MX	10 smtp-2.mdc.net.
+xcom-237	IN	A	208.196.211.237
+		IN	MX	10 smtp-2.mdc.net.
+sklaw		IN	A	209.251.64.100
+		IN	MX	10 smtp-2.mdc.net.
+xcom-238	IN	A	208.196.211.238
+		IN	MX	10 smtp-2.mdc.net.
+xcom-240	IN	A	208.196.211.240
+		IN	MX	10 smtp-2.mdc.net.
+xcom-239	IN	A	208.196.211.239
+		IN	MX	10 smtp-2.mdc.net.
+xcom-241	IN	A	208.196.214.1
+		IN	MX	10 smtp-2.mdc.net.
+xcom-242	IN	A	208.196.214.2
+		IN	MX	10 smtp-2.mdc.net.
+xcom-243	IN	A	208.196.214.3
+		IN	MX	10 smtp-2.mdc.net.
+xcom-244	IN	A	208.196.214.4
+		IN	MX	10 smtp-2.mdc.net.
+xcom-245	IN	A	208.196.214.5
+		IN	MX	10 smtp-2.mdc.net.
+xcom-246	IN	A	208.196.214.6
+		IN	MX	10 smtp-2.mdc.net.
+xcom-247	IN	A	208.196.214.7
+		IN	MX	10 smtp-2.mdc.net.
+xcom-248	IN	A	208.196.214.8
+		IN	MX	10 smtp-2.mdc.net.
+xcom-250	IN	A	208.196.214.10
+		IN	MX	10 smtp-2.mdc.net.
+xcom-249	IN	A	208.196.214.9
+		IN	MX	10 smtp-2.mdc.net.
+xcom-251	IN	A	208.196.214.11
+		IN	MX	10 smtp-2.mdc.net.
+xcom-252	IN	A	208.196.214.12
+		IN	MX	10 smtp-2.mdc.net.
+radius1		IN	CNAME	userweb1.mdc.net.
+xcom-253	IN	A	208.196.214.13
+		IN	MX	10 smtp-2.mdc.net.
+xcom-254	IN	A	208.196.214.14
+		IN	MX	10 smtp-2.mdc.net.
+xcom-255	IN	A	208.196.214.15
+		IN	MX	10 smtp-2.mdc.net.
+netway-isdn-eth	IN	A	206.66.240.118
+		IN	MX	10 smtp-2.mdc.net.
+xcom-256	IN	A	208.196.214.16
+		IN	MX	10 smtp-2.mdc.net.
+xcom-257	IN	A	208.196.214.17
+		IN	MX	10 smtp-2.mdc.net.
+xcom-258	IN	A	208.196.214.18
+		IN	MX	10 smtp-2.mdc.net.
+xcom-260	IN	A	208.196.214.20
+		IN	MX	10 smtp-2.mdc.net.
+xcom-259	IN	A	208.196.214.19
+		IN	MX	10 smtp-2.mdc.net.
+xcom-261	IN	A	208.196.214.21
+		IN	MX	10 smtp-2.mdc.net.
+xcom-262	IN	A	208.196.214.22
+		IN	MX	10 smtp-2.mdc.net.
+xcom-263	IN	A	208.196.214.23
+		IN	MX	10 smtp-2.mdc.net.
+doug		IN	A	206.66.240.65
+		IN	MX	10 smtp-2.mdc.net.
+xcom-264	IN	A	208.196.214.24
+		IN	MX	10 smtp-2.mdc.net.
+xcom-265	IN	A	208.196.214.25
+		IN	MX	10 smtp-2.mdc.net.
+xcom-266	IN	A	208.196.214.26
+		IN	MX	10 smtp-2.mdc.net.
+xcom-267	IN	A	208.196.214.27
+		IN	MX	10 smtp-2.mdc.net.
+xcom-268	IN	A	208.196.214.28
+		IN	MX	10 smtp-2.mdc.net.
+xcom-270	IN	A	208.196.214.30
+		IN	MX	10 smtp-2.mdc.net.
+xcom-269	IN	A	208.196.214.29
+		IN	MX	10 smtp-2.mdc.net.
+xcom-271	IN	A	208.196.214.31
+		IN	MX	10 smtp-2.mdc.net.
+xcom-272	IN	A	208.196.214.32
+		IN	MX	10 smtp-2.mdc.net.
+xcom-273	IN	A	208.196.214.33
+		IN	MX	10 smtp-2.mdc.net.
+xcom-274	IN	A	208.196.214.34
+		IN	MX	10 smtp-2.mdc.net.
+xcom-275	IN	A	208.196.214.35
+		IN	MX	10 smtp-2.mdc.net.
+boo		IN	A	206.66.240.68
+		IN	MX	10 smtp-2.mdc.net.
+xcom-276	IN	A	208.196.214.36
+		IN	MX	10 smtp-2.mdc.net.
+xcom-277	IN	A	208.196.214.37
+		IN	MX	10 smtp-2.mdc.net.
+pop3-2		IN	A	209.251.64.27
+		IN	MX	10 smtp-2.mdc.net.
+xcom-278	IN	A	208.196.214.38
+		IN	MX	10 smtp-2.mdc.net.
+xcom-280	IN	A	208.196.214.40
+		IN	MX	10 smtp-2.mdc.net.
+xcom-300	IN	A	208.196.214.60
+		IN	MX	10 smtp-2.mdc.net.
+xcom-279	IN	A	208.196.214.39
+		IN	MX	10 smtp-2.mdc.net.
+xcom-281	IN	A	208.196.214.41
+		IN	MX	10 smtp-2.mdc.net.
+xcom-301	IN	A	208.196.214.61
+		IN	MX	10 smtp-2.mdc.net.
+xcom-282	IN	A	208.196.214.42
+		IN	MX	10 smtp-2.mdc.net.
+xcom-302	IN	A	208.196.214.62
+		IN	MX	10 smtp-2.mdc.net.
+xcom-283	IN	A	208.196.214.43
+		IN	MX	10 smtp-2.mdc.net.
+xcom-303	IN	A	208.196.214.63
+		IN	MX	10 smtp-2.mdc.net.
+xcom-284	IN	A	208.196.214.44
+		IN	MX	10 smtp-2.mdc.net.
+xcom-304	IN	A	208.196.214.64
+		IN	MX	10 smtp-2.mdc.net.
+xcom-285	IN	A	208.196.214.45
+		IN	MX	10 smtp-2.mdc.net.
+xcom-305	IN	A	208.196.214.65
+		IN	MX	10 smtp-2.mdc.net.
+xcom-286	IN	A	208.196.214.46
+		IN	MX	10 smtp-2.mdc.net.
+xcom-306	IN	A	208.196.214.66
+		IN	MX	10 smtp-2.mdc.net.
+xcom-287	IN	A	208.196.214.47
+		IN	MX	10 smtp-2.mdc.net.
+xcom-307	IN	A	208.196.214.67
+		IN	MX	10 smtp-2.mdc.net.
+xcom-288	IN	A	208.196.214.48
+		IN	MX	10 smtp-2.mdc.net.
+xcom-290	IN	A	208.196.214.50
+		IN	MX	10 smtp-2.mdc.net.
+xcom-308	IN	A	208.196.214.68
+		IN	MX	10 smtp-2.mdc.net.
+xcom-310	IN	A	208.196.214.70
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-10	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.10
+xcom-289	IN	A	208.196.214.49
+		IN	MX	10 smtp-2.mdc.net.
+xcom-291	IN	A	208.196.214.51
+		IN	MX	10 smtp-2.mdc.net.
+xcom-309	IN	A	208.196.214.69
+		IN	MX	10 smtp-2.mdc.net.
+xcom-311	IN	A	208.196.214.71
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-11	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.11
+xcom-292	IN	A	208.196.214.52
+		IN	MX	10 smtp-2.mdc.net.
+xcom-312	IN	A	208.196.214.72
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-12	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.12
+xcom-293	IN	A	208.196.214.53
+		IN	MX	10 smtp-2.mdc.net.
+xcom-313	IN	A	208.196.214.73
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-13	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.13
+xcom-294	IN	A	208.196.214.54
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-14	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.14
+xcom-295	IN	A	208.196.214.55
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-15	IN	A	209.251.78.15
+		IN	MX	10 smtp-2.mdc.net.
+xcom-296	IN	A	208.196.214.56
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-16	IN	A	209.251.78.16
+		IN	MX	10 smtp-2.mdc.net.
+shell		IN	CNAME	shell2.mdc.net.
+xcom-297	IN	A	208.196.214.57
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-17	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.17
+xcom-298	IN	A	208.196.214.58
+		IN	MX	10 smtp-2.mdc.net.
+xcom-320	IN	A	208.196.214.80
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-20	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.20
+xcom-78-18	IN	A	209.251.78.18
+		IN	MX	10 smtp-2.mdc.net.
+xcom-299	IN	A	208.196.214.59
+		IN	MX	10 smtp-2.mdc.net.
+xcom-321	IN	A	208.196.214.81
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-21	IN	A	209.251.78.21
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-19	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.19
+xcom-322	IN	A	208.196.214.82
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-22	IN	A	209.251.78.22
+		IN	MX	10 smtp-2.mdc.net.
+xcom-323	IN	A	208.196.214.83
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-23	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.23
+xcom-324	IN	A	208.196.214.84
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-24	IN	A	209.251.78.24
+		IN	MX	10 smtp-2.mdc.net.
+xcom-325	IN	A	208.196.214.85
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-25	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.25
+xcom-326	IN	A	208.196.214.86
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-26	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.26
+xcom-327	IN	A	208.196.214.87
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-27	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.27
+xcom-328	IN	A	208.196.214.88
+		IN	MX	10 smtp-2.mdc.net.
+xcom-330	IN	A	208.196.214.90
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-30	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.30
+xcom-78-28	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.28
+xcom-329	IN	A	208.196.214.89
+		IN	MX	10 smtp-2.mdc.net.
+xcom-331	IN	A	208.196.214.91
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-31	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.31
+xcom-78-29	IN	A	209.251.78.29
+		IN	MX	10 smtp-2.mdc.net.
+xcom-332	IN	A	208.196.214.92
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-32	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.32
+xcom-333	IN	A	208.196.214.93
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-33	IN	A	209.251.78.33
+		IN	MX	10 smtp-2.mdc.net.
+netway1		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.204
+xcom-334	IN	A	208.196.214.94
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-34	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.34
+xcom-335	IN	A	208.196.214.95
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-35	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.35
+xcom-336	IN	A	208.196.214.96
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-36	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.36
+xcom-337	IN	A	208.196.214.97
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-37	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.37
+xcom-338	IN	A	208.196.214.98
+		IN	MX	10 smtp-2.mdc.net.
+xcom-340	IN	A	208.196.214.100
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-40	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.40
+xcom-78-38	IN	A	209.251.78.38
+		IN	MX	10 smtp-2.mdc.net.
+xcom-339	IN	A	208.196.214.99
+		IN	MX	10 smtp-2.mdc.net.
+xcom-341	IN	A	208.196.214.101
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-41	IN	A	209.251.78.41
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-39	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.39
+xcom-342	IN	A	208.196.214.102
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-42	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.42
+sean		IN	A	206.66.240.9
+		IN	MX	10 smtp-2.mdc.net.
+xcom-343	IN	A	208.196.214.103
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-43	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.43
+xcom-344	IN	A	208.196.214.104
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-44	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.44
+xcom-345	IN	A	208.196.214.105
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-45	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.45
+xcom-346	IN	A	208.196.214.106
+		IN	MX	10 smtp-2.mdc.net.
+shell2		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.64.28
+xcom-78-46	IN	A	209.251.78.46
+		IN	MX	10 smtp-2.mdc.net.
+xcom-347	IN	A	208.196.214.107
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-47	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.47
+xcom-348	IN	A	208.196.214.108
+		IN	MX	10 smtp-2.mdc.net.
+xcom-350	IN	A	208.196.214.110
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-50	IN	A	209.251.78.50
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-48	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.48
+xcom-349	IN	A	208.196.214.109
+		IN	MX	10 smtp-2.mdc.net.
+xcom-351	IN	A	208.196.214.111
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-51	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.51
+xcom-78-49	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.49
+gigabyte	IN	A	209.251.76.232
+		IN	MX	5 smtp-2.mdc.net.
+xcom-352	IN	A	208.196.214.112
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-52	IN	A	209.251.78.52
+		IN	MX	10 smtp-2.mdc.net.
+xcom-353	IN	A	208.196.214.113
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-53	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.53
+xcom-354	IN	A	208.196.214.114
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-54	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.54
+xcom-355	IN	A	208.196.214.115
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-55	IN	A	209.251.78.55
+		IN	MX	10 smtp-2.mdc.net.
+xcom-356	IN	A	208.196.214.116
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-56	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.56
+water		IN	MX	5 water.mdc.net.
+		IN	MX	10 namesrv.mdc.net.
+		IN	A	209.251.76.237
+xcom-357	IN	A	208.196.214.117
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-57	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.57
+xcom-358	IN	A	208.196.214.118
+		IN	MX	10 smtp-2.mdc.net.
+xcom-360	IN	A	208.196.214.120
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-60	IN	A	209.251.78.60
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-58	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.58
+xcom-359	IN	A	208.196.214.119
+		IN	MX	10 smtp-2.mdc.net.
+xcom-361	IN	A	208.196.214.121
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-61	IN	A	209.251.78.61
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-59	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.59
+xcom-362	IN	A	208.196.214.122
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-62	IN	A	209.251.78.62
+		IN	MX	10 smtp-2.mdc.net.
+xcom-363	IN	A	208.196.214.123
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-63	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.63
+xcom-364	IN	A	208.196.214.124
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-64	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.64
+xcom-365	IN	A	208.196.214.125
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-65	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.65
+xcom-366	IN	A	208.196.214.126
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-66	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.66
+xcom-367	IN	A	208.196.214.127
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-67	IN	A	209.251.78.67
+		IN	MX	10 smtp-2.mdc.net.
+xcom-368	IN	A	208.196.214.128
+		IN	MX	10 smtp-2.mdc.net.
+xcom-370	IN	A	208.196.214.130
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-70	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.70
+xcom-78-68	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.68
+xcom-369	IN	A	208.196.214.129
+		IN	MX	10 smtp-2.mdc.net.
+xcom-371	IN	A	208.196.214.131
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-71	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.71
+xcom-78-69	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.69
+xcom-372	IN	A	208.196.214.132
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-72	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.72
+xcom-373	IN	A	208.196.214.133
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-73	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.73
+xcom-374	IN	A	208.196.214.134
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-74	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.74
+xcom-375	IN	A	208.196.214.135
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-75	IN	A	209.251.78.75
+		IN	MX	10 smtp-2.mdc.net.
+xcom-376	IN	A	208.196.214.136
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-76	IN	A	209.251.78.76
+		IN	MX	10 smtp-2.mdc.net.
+xcom-377	IN	A	208.196.214.137
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-77	IN	A	209.251.78.77
+		IN	MX	10 smtp-2.mdc.net.
+xcom-378	IN	A	208.196.214.138
+		IN	MX	10 smtp-2.mdc.net.
+xcom-380	IN	A	208.196.214.140
+		IN	MX	10 smtp-2.mdc.net.
+xcom-400	IN	A	208.196.214.160
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-80	IN	A	209.251.78.80
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-78	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.78
+xcom-379	IN	A	208.196.214.139
+		IN	MX	10 smtp-2.mdc.net.
+xcom-381	IN	A	208.196.214.141
+		IN	MX	10 smtp-2.mdc.net.
+xcom-401	IN	A	208.196.214.161
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-81	IN	A	209.251.78.81
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-79	IN	A	209.251.78.79
+		IN	MX	10 smtp-2.mdc.net.
+xcom-382	IN	A	208.196.214.142
+		IN	MX	10 smtp-2.mdc.net.
+xcom-402	IN	A	208.196.214.162
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-82	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.82
+xcom-383	IN	A	208.196.214.143
+		IN	MX	10 smtp-2.mdc.net.
+xcom-403	IN	A	208.196.214.163
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-83	IN	A	209.251.78.83
+		IN	MX	10 smtp-2.mdc.net.
+acarosio2	IN	A	209.251.76.230
+		IN	MX	10 smtp-2.mdc.net.
+xcom-384	IN	A	208.196.214.144
+		IN	MX	10 smtp-2.mdc.net.
+xcom-404	IN	A	208.196.214.164
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-84	IN	A	209.251.78.84
+		IN	MX	10 smtp-2.mdc.net.
+acarosio3	IN	A	209.251.76.231
+		IN	MX	10 smtp-2.mdc.net.
+ppp0010		IN	A	206.66.240.10
+		IN	MX	10 smtp-2.mdc.net.
+xcom-385	IN	A	208.196.214.145
+		IN	MX	10 smtp-2.mdc.net.
+xcom-405	IN	A	208.196.214.165
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-85	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.85
+ppp0011		IN	A	206.66.240.11
+		IN	MX	10 smtp-2.mdc.net.
+xcom-386	IN	A	208.196.214.146
+		IN	MX	10 smtp-2.mdc.net.
+xcom-406	IN	A	208.196.214.166
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-86	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.86
+ppp0012		IN	A	206.66.240.12
+		IN	MX	10 smtp-2.mdc.net.
+xcom-387	IN	A	208.196.214.147
+		IN	MX	10 smtp-2.mdc.net.
+xcom-407	IN	A	208.196.214.167
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-87	IN	A	209.251.78.87
+		IN	MX	10 smtp-2.mdc.net.
+ppp0013		IN	A	206.66.240.13
+		IN	MX	10 smtp-2.mdc.net.
+xcom-388	IN	A	208.196.214.148
+		IN	MX	10 smtp-2.mdc.net.
+xcom-390	IN	A	208.196.214.150
+		IN	MX	10 smtp-2.mdc.net.
+xcom-408	IN	A	208.196.214.168
+		IN	MX	10 smtp-2.mdc.net.
+xcom-410	IN	A	208.196.214.170
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-90	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.90
+xcom-78-88	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.88
+ppp0014		IN	A	206.66.240.14
+		IN	MX	10 smtp-2.mdc.net.
+xcom-389	IN	A	208.196.214.149
+		IN	MX	10 smtp-2.mdc.net.
+xcom-391	IN	A	208.196.214.151
+		IN	MX	10 smtp-2.mdc.net.
+xcom-409	IN	A	208.196.214.169
+		IN	MX	10 smtp-2.mdc.net.
+xcom-411	IN	A	208.196.214.171
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-91	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.91
+xcom-78-89	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.89
+ppp0015		IN	A	206.66.240.15
+		IN	MX	10 smtp-2.mdc.net.
+xcom-392	IN	A	208.196.214.152
+		IN	MX	10 smtp-2.mdc.net.
+xcom-412	IN	A	208.196.214.172
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-92	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.92
+ppp0016		IN	A	206.66.240.16
+		IN	MX	10 smtp-2.mdc.net.
+xcom-393	IN	A	208.196.214.153
+		IN	MX	10 smtp-2.mdc.net.
+xcom-413	IN	A	208.196.214.173
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-93	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.93
+ppp0017		IN	A	206.66.240.17
+		IN	MX	10 smtp-2.mdc.net.
+xcom-394	IN	A	208.196.214.154
+		IN	MX	10 smtp-2.mdc.net.
+xcom-414	IN	A	208.196.214.174
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-94	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.94
+ppp0020		IN	A	206.66.240.20
+		IN	MX	10 smtp-2.mdc.net.
+ppp0018		IN	A	206.66.240.18
+		IN	MX	10 smtp-2.mdc.net.
+xcom-395	IN	A	208.196.214.155
+		IN	MX	10 smtp-2.mdc.net.
+xcom-415	IN	A	208.196.214.175
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-95	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.95
+ppp0021		IN	A	206.66.240.21
+		IN	MX	10 smtp-2.mdc.net.
+ppp0019		IN	A	206.66.240.19
+		IN	MX	10 smtp-2.mdc.net.
+xcom-396	IN	A	208.196.214.156
+		IN	MX	10 smtp-2.mdc.net.
+xcom-416	IN	A	208.196.214.176
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-96	IN	A	209.251.78.96
+		IN	MX	10 smtp-2.mdc.net.
+ppp0022		IN	A	206.66.240.22
+		IN	MX	10 smtp-2.mdc.net.
+xcom-397	IN	A	208.196.214.157
+		IN	MX	10 smtp-2.mdc.net.
+xcom-417	IN	A	208.196.214.177
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-97	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.97
+ppp0023		IN	A	206.66.240.23
+		IN	MX	10 smtp-2.mdc.net.
+xcom-398	IN	A	208.196.214.158
+		IN	MX	10 smtp-2.mdc.net.
+xcom-418	IN	A	208.196.214.178
+		IN	MX	10 smtp-2.mdc.net.
+xcom-420	IN	A	208.196.214.180
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-98	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.98
+ppp0024		IN	A	206.66.240.24
+		IN	MX	10 smtp-2.mdc.net.
+chris2		IN	A	206.66.240.7
+		IN	MX	10 smtp-2.mdc.net.
+xcom-399	IN	A	208.196.214.159
+		IN	MX	10 smtp-2.mdc.net.
+xcom-419	IN	A	208.196.214.179
+		IN	MX	10 smtp-2.mdc.net.
+xcom-421	IN	A	208.196.214.181
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-99	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.99
+sneaz		IN	A	209.251.76.242
+		IN	MX	10 sneaz.mdc.net.
+		IN	MX	100 namesrv.mdc.net.
+ppp0025		IN	A	206.66.240.25
+		IN	MX	10 smtp-2.mdc.net.
+xcom-422	IN	A	208.196.214.182
+		IN	MX	10 smtp-2.mdc.net.
+ppp0026		IN	A	206.66.240.26
+		IN	MX	10 smtp-2.mdc.net.
+xcom-423	IN	A	208.196.214.183
+		IN	MX	10 smtp-2.mdc.net.
+ppp0027		IN	A	206.66.240.27
+		IN	MX	10 smtp-2.mdc.net.
+xcom-424	IN	A	208.196.214.184
+		IN	MX	10 smtp-2.mdc.net.
+ppp0030		IN	A	206.66.240.30
+		IN	MX	10 smtp-2.mdc.net.
+ppp0028		IN	A	206.66.240.28
+		IN	MX	10 smtp-2.mdc.net.
+xcom-425	IN	A	208.196.214.185
+		IN	MX	10 smtp-2.mdc.net.
+ppp0031		IN	A	206.66.240.31
+		IN	MX	10 smtp-2.mdc.net.
+ppp0029		IN	A	206.66.240.29
+		IN	MX	10 smtp-2.mdc.net.
+xcom-426	IN	A	208.196.214.186
+		IN	MX	10 smtp-2.mdc.net.
+tei		IN	A	209.251.76.225
+		IN	MX	5 smtp-2.mdc.net.
+ppp0032		IN	A	206.66.240.32
+		IN	MX	10 smtp-2.mdc.net.
+xcom-427	IN	A	208.196.214.187
+		IN	MX	10 smtp-2.mdc.net.
+ppp0033		IN	A	206.66.240.33
+		IN	MX	10 smtp-2.mdc.net.
+xcom-428	IN	A	208.196.214.188
+		IN	MX	10 smtp-2.mdc.net.
+xcom-430	IN	A	208.196.214.190
+		IN	MX	10 smtp-2.mdc.net.
+ppp0034		IN	A	206.66.240.34
+		IN	MX	10 smtp-2.mdc.net.
+xcom-429	IN	A	208.196.214.189
+		IN	MX	10 smtp-2.mdc.net.
+xcom-431	IN	A	208.196.214.191
+		IN	MX	10 smtp-2.mdc.net.
+ppp0035		IN	A	206.66.240.35
+		IN	MX	10 smtp-2.mdc.net.
+xcom-432	IN	A	208.196.214.192
+		IN	MX	10 smtp-2.mdc.net.
+webssns1	IN	A	209.251.64.105
+ppp0036		IN	A	206.66.240.36
+		IN	MX	10 smtp-2.mdc.net.
+xcom-433	IN	A	208.196.214.193
+		IN	MX	10 smtp-2.mdc.net.
+ppp0037		IN	A	206.66.240.37
+		IN	MX	10 smtp-2.mdc.net.
+xcom-434	IN	A	208.196.214.194
+		IN	MX	10 smtp-2.mdc.net.
+ppp0040		IN	A	206.66.240.40
+		IN	MX	10 smtp-2.mdc.net.
+ppp0038		IN	A	206.66.240.38
+		IN	MX	10 smtp-2.mdc.net.
+xcom-435	IN	A	208.196.214.195
+		IN	MX	10 smtp-2.mdc.net.
+ppp0041		IN	A	206.66.240.41
+		IN	MX	10 smtp-2.mdc.net.
+ppp0039		IN	A	206.66.240.39
+		IN	MX	10 smtp-2.mdc.net.
+xcom-436	IN	A	208.196.214.196
+		IN	MX	10 smtp-2.mdc.net.
+ppp0042		IN	A	206.66.240.42
+		IN	MX	10 smtp-2.mdc.net.
+xcom-437	IN	A	208.196.214.197
+		IN	MX	10 smtp-2.mdc.net.
+smr		IN	A	209.251.76.229
+		IN	MX	10 smtp-2.mdc.net.
+ppp0043		IN	A	206.66.240.43
+		IN	MX	10 smtp-2.mdc.net.
+xcom-438	IN	A	208.196.214.198
+		IN	MX	10 smtp-2.mdc.net.
+xcom-440	IN	A	208.196.214.200
+		IN	MX	10 smtp-2.mdc.net.
+ppp0044		IN	A	206.66.240.44
+		IN	MX	10 smtp-2.mdc.net.
+xcom-439	IN	A	208.196.214.199
+		IN	MX	10 smtp-2.mdc.net.
+xcom-441	IN	A	208.196.214.201
+		IN	MX	10 smtp-2.mdc.net.
+ppp0045		IN	A	206.66.240.45
+		IN	MX	10 smtp-2.mdc.net.
+xcom-442	IN	A	208.196.214.202
+		IN	MX	10 smtp-2.mdc.net.
+ppp0046		IN	A	206.66.240.46
+		IN	MX	10 smtp-2.mdc.net.
+xcom-443	IN	A	208.196.214.203
+		IN	MX	10 smtp-2.mdc.net.
+ppp0047		IN	A	206.66.240.47
+		IN	MX	10 smtp-2.mdc.net.
+xcom-444	IN	A	208.196.214.204
+		IN	MX	10 smtp-2.mdc.net.
+ppp0050		IN	A	206.66.240.50
+		IN	MX	10 smtp-2.mdc.net.
+ppp0048		IN	A	206.66.240.48
+		IN	MX	10 smtp-2.mdc.net.
+xcom-445	IN	A	208.196.214.205
+		IN	MX	10 smtp-2.mdc.net.
+ppp0051		IN	A	206.66.240.51
+		IN	MX	10 smtp-2.mdc.net.
+ppp0049		IN	A	206.66.240.49
+		IN	MX	10 smtp-2.mdc.net.
+xcom-446	IN	A	208.196.214.206
+		IN	MX	10 smtp-2.mdc.net.
+ppp0052		IN	A	206.66.240.52
+		IN	MX	10 smtp-2.mdc.net.
+xcom-447	IN	A	208.196.214.207
+		IN	MX	10 smtp-2.mdc.net.
+ppp0053		IN	A	206.66.240.53
+		IN	MX	10 smtp-2.mdc.net.
+xcom-448	IN	A	208.196.214.208
+		IN	MX	10 smtp-2.mdc.net.
+xcom-450	IN	A	208.196.214.210
+		IN	MX	10 smtp-2.mdc.net.
+ppp0054		IN	A	206.66.240.54
+		IN	MX	10 smtp-2.mdc.net.
+jamie		IN	A	206.66.240.8
+		IN	MX	10 smtp-2.mdc.net.
+xcom-449	IN	A	208.196.214.209
+		IN	MX	10 smtp-2.mdc.net.
+xcom-451	IN	A	208.196.214.211
+		IN	MX	10 smtp-2.mdc.net.
+ppp0055		IN	A	206.66.240.55
+		IN	MX	10 smtp-2.mdc.net.
+xcom-452	IN	A	208.196.214.212
+		IN	MX	10 smtp-2.mdc.net.
+ppp0056		IN	A	206.66.240.56
+		IN	MX	10 smtp-2.mdc.net.
+xcom-453	IN	A	208.196.214.213
+		IN	MX	10 smtp-2.mdc.net.
+ppp0057		IN	A	206.66.240.57
+		IN	MX	10 smtp-2.mdc.net.
+xcom-454	IN	A	208.196.214.214
+		IN	MX	10 smtp-2.mdc.net.
+covad-gw	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.64.10
+xcom-455	IN	A	208.196.214.215
+		IN	MX	10 smtp-2.mdc.net.
+xcom-456	IN	A	208.196.214.216
+		IN	MX	10 smtp-2.mdc.net.
+mdc-oasys-fr19	IN	A	209.251.69.1
+xcom-457	IN	A	208.196.214.217
+		IN	MX	10 smtp-2.mdc.net.
+xcom-458	IN	A	208.196.214.218
+		IN	MX	10 smtp-2.mdc.net.
+xcom-460	IN	A	208.196.214.220
+		IN	MX	10 smtp-2.mdc.net.
+xcom-459	IN	A	208.196.214.219
+		IN	MX	10 smtp-2.mdc.net.
+xcom-461	IN	A	208.196.214.221
+		IN	MX	10 smtp-2.mdc.net.
+rfitz		IN	A	209.251.76.244
+		IN	MX	10 smtp-2.mdc.net.
+xcom-462	IN	A	208.196.214.222
+		IN	MX	10 smtp-2.mdc.net.
+xcom-463	IN	A	208.196.214.223
+		IN	MX	10 smtp-2.mdc.net.
+xcom-464	IN	A	208.196.214.224
+		IN	MX	10 smtp-2.mdc.net.
+xcom-465	IN	A	208.196.214.225
+		IN	MX	10 smtp-2.mdc.net.
+xcom-466	IN	A	208.196.214.226
+		IN	MX	10 smtp-2.mdc.net.
+xcom-467	IN	A	208.196.214.227
+		IN	MX	10 smtp-2.mdc.net.
+xcom-468	IN	A	208.196.214.228
+		IN	MX	10 smtp-2.mdc.net.
+xcom-470	IN	A	208.196.214.230
+		IN	MX	10 smtp-2.mdc.net.
+xcom-469	IN	A	208.196.214.229
+		IN	MX	10 smtp-2.mdc.net.
+xcom-471	IN	A	208.196.214.231
+		IN	MX	10 smtp-2.mdc.net.
+xcom-472	IN	A	208.196.214.232
+		IN	MX	10 smtp-2.mdc.net.
+xcom-473	IN	A	208.196.214.233
+		IN	MX	10 smtp-2.mdc.net.
+vacovec		IN	MX	5 vacovec.mdc.net.
+		IN	MX	10 namesrv.mdc.net.
+		IN	A	209.251.76.228
+xcom-474	IN	A	208.196.214.234
+		IN	MX	10 smtp-2.mdc.net.
+xcom-475	IN	A	208.196.214.235
+		IN	MX	10 smtp-2.mdc.net.
+xcom-476	IN	A	208.196.214.236
+		IN	MX	10 smtp-2.mdc.net.
+xcom-477	IN	A	208.196.214.237
+		IN	MX	10 smtp-2.mdc.net.
+bensmith	IN	A	209.251.76.243
+		IN	MX	10 smtp-2.mdc.net.
+xcom-478	IN	A	208.196.214.238
+		IN	MX	10 smtp-2.mdc.net.
+xcom-480	IN	A	208.196.214.240
+		IN	MX	10 smtp-2.mdc.net.
+xcom-479	IN	A	208.196.214.239
+		IN	MX	10 smtp-2.mdc.net.
+xcom-481	IN	A	208.196.214.241
+		IN	MX	10 smtp-2.mdc.net.
+smtp-2		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.64.26
+xcom-482	IN	A	208.196.214.242
+		IN	MX	10 smtp-2.mdc.net.
+egs		IN	A	206.66.241.18
+		IN	MX	5 206.66.241.18.
+xcom-483	IN	A	208.196.214.243
+		IN	MX	10 smtp-2.mdc.net.
+xcom-484	IN	A	208.196.214.244
+		IN	MX	10 smtp-2.mdc.net.
+xcom-485	IN	A	208.196.214.245
+		IN	MX	10 smtp-2.mdc.net.
+xcom-486	IN	A	208.196.214.246
+		IN	MX	10 smtp-2.mdc.net.
+xcom-487	IN	A	208.196.214.247
+		IN	MX	10 smtp-2.mdc.net.
+xcom-488	IN	A	208.196.214.248
+		IN	MX	10 smtp-2.mdc.net.
+xcom-490	IN	A	208.196.214.250
+		IN	MX	10 smtp-2.mdc.net.
+xcom-489	IN	A	208.196.214.249
+		IN	MX	10 smtp-2.mdc.net.
+xcom-491	IN	A	208.196.214.251
+		IN	MX	10 smtp-2.mdc.net.
+xcom-492	IN	A	208.196.214.252
+		IN	MX	10 smtp-2.mdc.net.
+xcom-493	IN	A	208.196.214.253
+		IN	MX	10 smtp-2.mdc.net.
+xcom-494	IN	A	208.196.214.254
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp00	IN	A	208.196.215.65
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp01	IN	A	208.196.215.66
+		IN	MX	10 smtp-2.mdc.net.
+emd		IN	A	209.251.76.227
+		IN	MX	5 emd.mdc.net.
+		IN	MX	10 namesrv.mdc.net.
+computone2-ppp02	IN	A	208.196.215.67
+		IN	MX	10 smtp-2.mdc.net.
+dolan		IN	A	209.251.76.254
+		IN	MX	5 dolan.mdc.net.
+		IN	MX	10 namesrv.mdc.net.
+computone2-ppp03	IN	A	208.196.215.68
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp04	IN	A	208.196.215.69
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp05	IN	A	208.196.215.70
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp06	IN	A	208.196.215.71
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp07	IN	A	208.196.215.72
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp08	IN	A	208.196.215.73
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp10	IN	A	208.196.215.75
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp09	IN	A	208.196.215.74
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp11	IN	A	208.196.215.76
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp12	IN	A	208.196.215.77
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp13	IN	A	208.196.215.78
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp14	IN	A	208.196.215.79
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp15	IN	A	208.196.215.80
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp16	IN	A	208.196.215.81
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp17	IN	A	208.196.215.82
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp18	IN	A	208.196.215.83
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp20	IN	A	208.196.215.85
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp19	IN	A	208.196.215.84
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp21	IN	A	208.196.215.86
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp22	IN	A	208.196.215.87
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp23	IN	A	208.196.215.88
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp24	IN	A	208.196.215.89
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp25	IN	A	208.196.215.90
+		IN	MX	10 smtp-2.mdc.net.
+roc1		IN	A	206.66.240.70
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp26	IN	A	208.196.215.91
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp27	IN	A	208.196.215.92
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp28	IN	A	208.196.215.93
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp30	IN	A	208.196.215.95
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp29	IN	A	208.196.215.94
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp31	IN	A	208.196.215.96
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp32	IN	A	208.196.215.97
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp33	IN	A	208.196.215.98
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp34	IN	A	208.196.215.99
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp35	IN	A	208.196.215.100
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp36	IN	A	208.196.215.101
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp37	IN	A	208.196.215.102
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp38	IN	A	208.196.215.103
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp40	IN	A	208.196.215.105
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp39	IN	A	208.196.215.104
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp41	IN	A	208.196.215.106
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp42	IN	A	208.196.215.107
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp43	IN	A	208.196.215.108
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp44	IN	A	208.196.215.109
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp45	IN	A	208.196.215.110
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp46	IN	A	208.196.215.111
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp47	IN	A	208.196.215.112
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp50	IN	A	208.196.215.115
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp48	IN	A	208.196.215.113
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp51	IN	A	208.196.215.116
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp49	IN	A	208.196.215.114
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp52	IN	A	208.196.215.117
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp53	IN	A	208.196.215.118
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp54	IN	A	208.196.215.119
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp55	IN	A	208.196.215.120
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp56	IN	A	208.196.215.121
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp57	IN	A	208.196.215.122
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp60	IN	A	208.196.215.125
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp58	IN	A	208.196.215.123
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp61	IN	A	208.196.215.126
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp59	IN	A	208.196.215.124
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp62	IN	A	208.196.215.127
+		IN	MX	10 smtp-2.mdc.net.
+computone2-ppp63	IN	A	208.196.215.128
+		IN	MX	10 smtp-2.mdc.net.
+namesrv		IN	MX	5 namesrv.mdc.net.
+		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.254
+keith		IN	A	206.66.240.67
+		IN	MX	10 smtp-2.mdc.net.
+minco-dsl-gw	IN	A	209.251.70.113
+pop3		IN	CNAME	smtp-2.mdc.net.
+userweb1	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.64.29
+morano		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.76.245
+ftp		IN	CNAME	shell2.mdc.net.
+imac		IN	A	209.251.64.19
+bestord		IN	A	208.196.211.248
+		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.76.248
+paul		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.5
+vweb1		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.64.20
+vweb2		IN	A	209.251.64.21
+		IN	MX	10 smtp-2.mdc.net.
+vweb3		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.64.22
+lanrovere	IN	A	206.66.241.14
+		IN	MX	5 206.66.241.14.
+xcom-77-100	IN	A	209.251.77.100
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-101	IN	A	209.251.77.101
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-102	IN	A	209.251.77.102
+		IN	MX	10 smtp-2.mdc.net.
+acarosio	IN	A	209.251.76.49
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-103	IN	A	209.251.77.103
+		IN	MX	10 smtp-2.mdc.net.
+lanrover1	IN	A	206.66.240.251
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-104	IN	A	209.251.77.104
+		IN	MX	10 smtp-2.mdc.net.
+lanrover2	IN	A	206.66.240.236
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-105	IN	A	209.251.77.105
+		IN	MX	10 smtp-2.mdc.net.
+lanrover3	IN	A	206.66.240.237
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-106	IN	A	209.251.77.106
+		IN	MX	10 smtp-2.mdc.net.
+jamie-isdn-tel	IN	A	207.76.104.214
+		IN	MX	5 207.76.104.214.
+xcom-77-107	IN	A	209.251.77.107
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-110	IN	A	209.251.77.110
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-108	IN	A	209.251.77.108
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-111	IN	A	209.251.77.111
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-109	IN	A	209.251.77.109
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-112	IN	A	209.251.77.112
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-113	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.113
+xcom-77-114	IN	A	209.251.77.114
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-115	IN	A	209.251.77.115
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-116	IN	A	209.251.77.116
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-117	IN	A	209.251.77.117
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-120	IN	A	209.251.77.120
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-118	IN	A	209.251.77.118
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-121	IN	A	209.251.77.121
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-119	IN	A	209.251.77.119
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-122	IN	A	209.251.77.122
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-123	IN	A	209.251.77.123
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-124	IN	A	209.251.77.124
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-125	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.125
+xcom-77-126	IN	A	209.251.77.126
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-127	IN	A	209.251.77.127
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-130	IN	A	209.251.77.130
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-128	IN	A	209.251.77.128
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-131	IN	A	209.251.77.131
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-129	IN	A	209.251.77.129
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-132	IN	A	209.251.77.132
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-133	IN	A	209.251.77.133
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-134	IN	A	209.251.77.134
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-135	IN	A	209.251.77.135
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-136	IN	A	209.251.77.136
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-137	IN	A	209.251.77.137
+		IN	MX	10 smtp-2.mdc.net.
+inet		IN	A	209.251.64.106
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-140	IN	A	209.251.77.140
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-138	IN	A	209.251.77.138
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-141	IN	A	209.251.77.141
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-139	IN	A	209.251.77.139
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-142	IN	A	209.251.77.142
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-143	IN	A	209.251.77.143
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-144	IN	A	209.251.77.144
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-145	IN	A	209.251.77.145
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-146	IN	A	209.251.77.146
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-147	IN	A	209.251.77.147
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-150	IN	A	209.251.77.150
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-148	IN	A	209.251.77.148
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-151	IN	A	209.251.77.151
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-149	IN	A	209.251.77.149
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-152	IN	A	209.251.77.152
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-153	IN	A	209.251.77.153
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-154	IN	A	209.251.77.154
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-155	IN	A	209.251.77.155
+		IN	MX	10 smtp-2.mdc.net.
+computone1	IN	A	206.66.240.252
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-156	IN	A	209.251.77.156
+		IN	MX	10 smtp-2.mdc.net.
+vpn1		IN	A	206.66.240.100
+computone2	IN	A	206.66.240.218
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-157	IN	A	209.251.77.157
+		IN	MX	10 smtp-2.mdc.net.
+vpn2		IN	A	206.66.240.101
+jen		IN	A	206.66.240.6
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-160	IN	A	209.251.77.160
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-158	IN	A	209.251.77.158
+		IN	MX	10 smtp-2.mdc.net.
+vpn3		IN	A	206.66.240.102
+xcom-77-161	IN	A	209.251.77.161
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-159	IN	A	209.251.77.159
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-162	IN	A	209.251.77.162
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-163	IN	A	209.251.77.163
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-164	IN	A	209.251.77.164
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-165	IN	A	209.251.77.165
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-166	IN	A	209.251.77.166
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-1	IN	A	209.251.77.1
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-167	IN	A	209.251.77.167
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-2	IN	A	209.251.77.2
+		IN	MX	10 smtp-2.mdc.net.
+www		IN	CNAME	userweb1.mdc.net.
+doug-home	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.211.252
+xcom-77-170	IN	A	209.251.77.170
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-168	IN	A	209.251.77.168
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-3	IN	A	209.251.77.3
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-171	IN	A	209.251.77.171
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-169	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.169
+xcom-77-4	IN	A	209.251.77.4
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-172	IN	A	209.251.77.172
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-5	IN	A	209.251.77.5
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-173	IN	A	209.251.77.173
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-6	IN	A	209.251.77.6
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-174	IN	A	209.251.77.174
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-7	IN	A	209.251.77.7
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-175	IN	A	209.251.77.175
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-8	IN	A	209.251.77.8
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-176	IN	A	209.251.77.176
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-9	IN	A	209.251.77.9
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-177	IN	A	209.251.77.177
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-200	IN	A	209.251.77.200
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-180	IN	A	209.251.77.180
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-178	IN	A	209.251.77.178
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-201	IN	A	209.251.77.201
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-181	IN	A	209.251.77.181
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-179	IN	A	209.251.77.179
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-202	IN	A	209.251.77.202
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-182	IN	A	209.251.77.182
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-203	IN	A	209.251.77.203
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-183	IN	A	209.251.77.183
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-204	IN	A	209.251.77.204
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-184	IN	A	209.251.77.184
+		IN	MX	10 smtp-2.mdc.net.
+nesub		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.76.239
+xcom-77-205	IN	A	209.251.77.205
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-185	IN	A	209.251.77.185
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-206	IN	A	209.251.77.206
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-186	IN	A	209.251.77.186
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-207	IN	A	209.251.77.207
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-187	IN	A	209.251.77.187
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-210	IN	A	209.251.77.210
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-208	IN	A	209.251.77.208
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-190	IN	A	209.251.77.190
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-188	IN	A	209.251.77.188
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-211	IN	A	209.251.77.211
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-209	IN	A	209.251.77.209
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-191	IN	A	209.251.77.191
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-189	IN	A	209.251.77.189
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-212	IN	A	209.251.77.212
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-192	IN	A	209.251.77.192
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-213	IN	A	209.251.77.213
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-193	IN	A	209.251.77.193
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-214	IN	A	209.251.77.214
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-194	IN	A	209.251.77.194
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-215	IN	A	209.251.77.215
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-195	IN	A	209.251.77.195
+		IN	MX	10 smtp-2.mdc.net.
+globaldrum	IN	A	207.76.104.10
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-216	IN	A	209.251.77.216
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-196	IN	A	209.251.77.196
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-217	IN	A	209.251.77.217
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-197	IN	A	209.251.77.197
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-220	IN	A	209.251.77.220
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-218	IN	A	209.251.77.218
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-198	IN	A	209.251.77.198
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-221	IN	A	209.251.77.221
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-219	IN	A	209.251.77.219
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-199	IN	A	209.251.77.199
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-222	IN	A	209.251.77.222
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-223	IN	A	209.251.77.223
+		IN	MX	10 smtp-2.mdc.net.
+timos1-home	IN	A	208.196.211.249
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-224	IN	A	209.251.77.224
+		IN	MX	10 smtp-2.mdc.net.
+bill		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.4
+xcom-77-225	IN	A	209.251.77.225
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-226	IN	A	209.251.77.226
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-227	IN	A	209.251.77.227
+		IN	MX	10 smtp-2.mdc.net.
+jnsinc		IN	MX	5 jnsinc.mdc.net.
+		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.76.234
+xcom-77-230	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.230
+xcom-77-228	IN	A	209.251.77.228
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-231	IN	A	209.251.77.231
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-229	IN	A	209.251.77.229
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-232	IN	A	209.251.77.232
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-233	IN	A	209.251.77.233
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-234	IN	A	209.251.77.234
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-10	IN	A	209.251.77.10
+		IN	MX	10 smtp-2.mdc.net.
+moretti		IN	A	206.66.241.13
+		IN	MX	5 206.66.241.13.
+xcom-77-235	IN	A	209.251.77.235
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-11	IN	A	209.251.77.11
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-236	IN	A	209.251.77.236
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-12	IN	A	209.251.77.12
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-237	IN	A	209.251.77.237
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-13	IN	A	209.251.77.13
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-240	IN	A	209.251.77.240
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-238	IN	A	209.251.77.238
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-14	IN	A	209.251.77.14
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-241	IN	A	209.251.77.241
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-239	IN	A	209.251.77.239
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-15	IN	A	209.251.77.15
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-242	IN	A	209.251.77.242
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-16	IN	A	209.251.77.16
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-243	IN	A	209.251.77.243
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-17	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.17
+mmendis		IN	A	209.251.76.249
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-244	IN	A	209.251.77.244
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-20	IN	A	209.251.77.20
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-18	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.18
+xcom-77-245	IN	A	209.251.77.245
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-21	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.21
+xcom-77-19	IN	A	209.251.77.19
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-246	IN	A	209.251.77.246
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-22	IN	A	209.251.77.22
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-247	IN	A	209.251.77.247
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-23	IN	A	209.251.77.23
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-250	IN	A	209.251.77.250
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-248	IN	A	209.251.77.248
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-24	IN	A	209.251.77.24
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-251	IN	A	209.251.77.251
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-249	IN	A	209.251.77.249
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-25	IN	A	209.251.77.25
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-252	IN	A	209.251.77.252
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-26	IN	A	209.251.77.26
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-253	IN	A	209.251.77.253
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-27	IN	A	209.251.77.27
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-254	IN	A	209.251.77.254
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-30	IN	A	209.251.77.30
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-28	IN	A	209.251.77.28
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-31	IN	A	209.251.77.31
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-29	IN	A	209.251.77.29
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-32	IN	A	209.251.77.32
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-33	IN	A	209.251.77.33
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-34	IN	A	209.251.77.34
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-35	IN	A	209.251.77.35
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-36	IN	A	209.251.77.36
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-37	IN	A	209.251.77.37
+		IN	MX	10 smtp-2.mdc.net.
+router1		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.1
+xcom-77-40	IN	A	209.251.77.40
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-38	IN	A	209.251.77.38
+		IN	MX	10 smtp-2.mdc.net.
+router2		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.241.1
+xcom-77-41	IN	A	209.251.77.41
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-39	IN	A	209.251.77.39
+		IN	MX	10 smtp-2.mdc.net.
+router3		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.235
+xcom-78-1	IN	A	209.251.78.1
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-42	IN	A	209.251.77.42
+		IN	MX	10 smtp-2.mdc.net.
+router4		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.117
+xcom-78-2	IN	A	209.251.78.2
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-43	IN	A	209.251.77.43
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-3	IN	A	209.251.78.3
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-44	IN	A	209.251.77.44
+		IN	MX	10 smtp-2.mdc.net.
+mdc-tzogon-fr110	IN	A	209.251.69.5
+xcom-78-4	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.4
+xcom-77-45	IN	A	209.251.77.45
+		IN	MX	10 smtp-2.mdc.net.
+mdc-globaldrum	IN	A	207.76.104.9
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-5	IN	A	209.251.78.5
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-46	IN	A	209.251.77.46
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-6	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.6
+xcom-77-47	IN	A	209.251.77.47
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-7	IN	A	209.251.78.7
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-50	IN	A	209.251.77.50
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-48	IN	A	209.251.77.48
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-8	IN	A	209.251.78.8
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-51	IN	A	209.251.77.51
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-49	IN	A	209.251.77.49
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-9	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.9
+xcom-77-52	IN	A	209.251.77.52
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-53	IN	A	209.251.77.53
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-54	IN	A	209.251.77.54
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-55	IN	A	209.251.77.55
+		IN	MX	10 smtp-2.mdc.net.
+mattg-home	IN	MX	10 smtp-2.mdc.net.
+		IN	A	208.196.211.246
+xcom-77-56	IN	A	209.251.77.56
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-57	IN	A	209.251.77.57
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-60	IN	A	209.251.77.60
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-58	IN	A	209.251.77.58
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-61	IN	A	209.251.77.61
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-59	IN	A	209.251.77.59
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-62	IN	A	209.251.77.62
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-63	IN	A	209.251.77.63
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-64	IN	A	209.251.77.64
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-65	IN	A	209.251.77.65
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-66	IN	A	209.251.77.66
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-10	IN	A	209.251.79.10
+xcom-77-67	IN	A	209.251.77.67
+		IN	MX	10 smtp-2.mdc.net.
+jamie-isdn-eth	IN	A	207.76.104.217
+		IN	MX	5 207.76.104.217.
+xcom-79-11	IN	A	209.251.79.11
+xcom-77-70	IN	A	209.251.77.70
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-68	IN	A	209.251.77.68
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-12	IN	A	209.251.79.12
+xcom-77-71	IN	A	209.251.77.71
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-69	IN	A	209.251.77.69
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-13	IN	A	209.251.79.13
+xcom-77-72	IN	A	209.251.77.72
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-14	IN	A	209.251.79.14
+xcom-77-73	IN	A	209.251.77.73
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-15	IN	A	209.251.79.15
+xcom-77-74	IN	A	209.251.77.74
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-16	IN	A	209.251.79.16
+xcom-77-75	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.75
+xcom-79-17	IN	A	209.251.79.17
+xcom-77-76	IN	A	209.251.77.76
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-20	IN	A	209.251.79.20
+xcom-79-18	IN	A	209.251.79.18
+xcom-77-77	IN	A	209.251.77.77
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-21	IN	A	209.251.79.21
+xcom-79-19	IN	A	209.251.79.19
+xcom-77-80	IN	A	209.251.77.80
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-78	IN	A	209.251.77.78
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-22	IN	A	209.251.79.22
+xcom-77-81	IN	A	209.251.77.81
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-79	IN	A	209.251.77.79
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-23	IN	A	209.251.79.23
+xcom-77-82	IN	A	209.251.77.82
+		IN	MX	10 smtp-2.mdc.net.
+xcom-gw		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.121
+xcom-79-24	IN	A	209.251.79.24
+xcom-77-83	IN	A	209.251.77.83
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-25	IN	A	209.251.79.25
+xcom-77-84	IN	A	209.251.77.84
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-26	IN	A	209.251.79.26
+xcom-77-85	IN	A	209.251.77.85
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-27	IN	A	209.251.79.27
+plugs		IN	A	209.251.64.25
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-86	IN	A	209.251.77.86
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-30	IN	A	209.251.79.30
+xcom-79-28	IN	A	209.251.79.28
+xcom-77-87	IN	A	209.251.77.87
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-31	IN	A	209.251.79.31
+xcom-79-29	IN	A	209.251.79.29
+xcom-77-90	IN	A	209.251.77.90
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-88	IN	A	209.251.77.88
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-32	IN	A	209.251.79.32
+xcom-77-91	IN	A	209.251.77.91
+		IN	MX	10 smtp-2.mdc.net.
+xcom-77-89	IN	A	209.251.77.89
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-33	IN	A	209.251.79.33
+xcom-77-92	IN	A	209.251.77.92
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-34	IN	A	209.251.79.34
+xcom-77-93	IN	A	209.251.77.93
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-35	IN	A	209.251.79.35
+xcom-77-94	IN	A	209.251.77.94
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-36	IN	A	209.251.79.36
+xcom-77-95	IN	A	209.251.77.95
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-37	IN	A	209.251.79.37
+mwoolston	IN	A	209.251.76.233
+		IN	MX	5 smtp-2.mdc.net.
+xcom-77-96	IN	A	209.251.77.96
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-40	IN	A	209.251.79.40
+xcom-79-38	IN	A	209.251.79.38
+xcom-77-97	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.77.97
+xcom-79-41	IN	A	209.251.79.41
+xcom-79-39	IN	A	209.251.79.39
+xcom-77-98	IN	A	209.251.77.98
+		IN	MX	10 smtp-2.mdc.net.
+jamie-home1	IN	A	207.76.104.218
+		IN	MX	5 207.76.104.218.
+xcom-79-42	IN	A	209.251.79.42
+xcom-77-99	IN	A	209.251.77.99
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-43	IN	A	209.251.79.43
+xcom-79-44	IN	A	209.251.79.44
+xcom-79-45	IN	A	209.251.79.45
+xcom-79-46	IN	A	209.251.79.46
+xcom-79-47	IN	A	209.251.79.47
+xcom-79-50	IN	A	209.251.79.50
+xcom-79-48	IN	A	209.251.79.48
+xcom-79-51	IN	A	209.251.79.51
+xcom-79-49	IN	A	209.251.79.49
+xcom-79-52	IN	A	209.251.79.52
+xcom-79-53	IN	A	209.251.79.53
+xcom-79-54	IN	A	209.251.79.54
+xcom-79-55	IN	A	209.251.79.55
+xcom-79-56	IN	A	209.251.79.56
+admin1		IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.64.23
+baystack303	IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.212
+xcom-79-57	IN	A	209.251.79.57
+baystack304	IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.234
+xcom-79-60	IN	A	209.251.79.60
+xcom-79-58	IN	A	209.251.79.58
+xcom-79-61	IN	A	209.251.79.61
+xcom-79-59	IN	A	209.251.79.59
+xcom-79-62	IN	A	209.251.79.62
+xcom-79-63	IN	A	209.251.79.63
+xcom-79-1	IN	A	209.251.79.1
+xcom-79-64	IN	A	209.251.79.64
+xcom-79-2	IN	A	209.251.79.2
+xcom-79-65	IN	A	209.251.79.65
+xcom-79-3	IN	A	209.251.79.3
+xcom-79-66	IN	A	209.251.79.66
+xcom-79-4	IN	A	209.251.79.4
+xcom-79-67	IN	A	209.251.79.67
+xcom-79-5	IN	A	209.251.79.5
+xcom-79-70	IN	A	209.251.79.70
+xcom-79-68	IN	A	209.251.79.68
+xcom-79-6	IN	A	209.251.79.6
+xcom-79-71	IN	A	209.251.79.71
+xcom-79-69	IN	A	209.251.79.69
+xcom-79-7	IN	A	209.251.79.7
+xcom-78-100	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.100
+xcom-79-72	IN	A	209.251.79.72
+xcom-79-8	IN	A	209.251.79.8
+xcom-78-101	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.101
+xcom-79-73	IN	A	209.251.79.73
+xcom-79-9	IN	A	209.251.79.9
+xcom-78-102	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.102
+xcom-79-74	IN	A	209.251.79.74
+xcom-78-103	IN	A	209.251.78.103
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-75	IN	A	209.251.79.75
+xcom-78-104	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.104
+xcom-79-76	IN	A	209.251.79.76
+xcom-78-105	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.105
+timos1-home1	IN	A	209.251.76.10
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-77	IN	A	209.251.79.77
+xcom-78-106	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.106
+timos1-home2	IN	A	209.251.76.11
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-80	IN	A	209.251.79.80
+xcom-79-78	IN	A	209.251.79.78
+xcom-78-107	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.107
+timos1-home3	IN	A	209.251.76.12
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-81	IN	A	209.251.79.81
+xcom-79-79	IN	A	209.251.79.79
+xcom-78-110	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.110
+xcom-78-108	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.108
+timos1-home4	IN	A	209.251.76.13
+		IN	MX	10 smtp-2.mdc.net.
+lightspeed	IN	A	208.196.211.244
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-82	IN	A	209.251.79.82
+xcom-78-111	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.111
+xcom-78-109	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.109
+timos1-home5	IN	A	209.251.76.14
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-83	IN	A	209.251.79.83
+xcom-78-112	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.112
+xcom-79-84	IN	A	209.251.79.84
+xcom-78-113	IN	A	209.251.78.113
+		IN	MX	10 smtp-2.mdc.net.
+kenics		IN	A	209.251.76.253
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-85	IN	A	209.251.79.85
+xcom-78-114	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.114
+xcom-79-86	IN	A	209.251.79.86
+xcom-78-115	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.115
+xcom-79-87	IN	A	209.251.79.87
+xcom-78-116	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.116
+xcom-79-90	IN	A	209.251.79.90
+xcom-79-88	IN	A	209.251.79.88
+xcom-78-117	IN	A	209.251.78.117
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-91	IN	A	209.251.79.91
+xcom-79-89	IN	A	209.251.79.89
+xcom-78-120	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.120
+xcom-78-118	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.118
+xcom-79-92	IN	A	209.251.79.92
+xcom-78-121	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.121
+xcom-78-119	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.119
+news		IN	MX	10 news.mdc.net.
+		IN	A	206.66.240.253
+xcom-79-93	IN	A	209.251.79.93
+xcom-78-122	IN	A	209.251.78.122
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-94	IN	A	209.251.79.94
+xcom-78-123	IN	A	209.251.78.123
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-95	IN	A	209.251.79.95
+xcom-78-124	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.124
+xcom-79-96	IN	A	209.251.79.96
+xcom-78-125	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.125
+xcom-79-97	IN	A	209.251.79.97
+xcom-78-126	IN	A	209.251.78.126
+		IN	MX	10 smtp-2.mdc.net.
+xcom-79-98	IN	A	209.251.79.98
+xcom-78-127	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.127
+xcom-79-99	IN	A	209.251.79.99
+xcom-78-130	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.130
+xcom-78-128	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.128
+xcom-78-131	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.131
+xcom-78-129	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.129
+xcom-78-132	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.132
+baystack350	IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.238
+xcom-78-133	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.133
+xcom-78-134	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.134
+xcom-78-135	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.135
+xcom-78-136	IN	A	209.251.78.136
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-137	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.137
+xcom-78-140	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.140
+xcom-78-138	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.138
+xcom-78-141	IN	A	209.251.78.141
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-139	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.139
+xcom-78-142	IN	A	209.251.78.142
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-143	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.143
+xcom-78-144	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.144
+xcom-78-145	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.145
+xcom-78-146	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.146
+xcom-78-147	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.147
+xcom-78-150	IN	A	209.251.78.150
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-148	IN	A	209.251.78.148
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-151	IN	A	209.251.78.151
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-149	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.149
+xcom-78-152	IN	A	209.251.78.152
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-153	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.153
+xcom-78-154	IN	A	209.251.78.154
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-155	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.155
+xcom-78-156	IN	A	209.251.78.156
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-157	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.157
+xcom-78-160	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.160
+xcom-78-158	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.158
+xcom-78-161	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.161
+xcom-78-159	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.159
+xcom-78-162	IN	A	209.251.78.162
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-163	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.163
+addsinc		IN	A	208.196.211.245
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-164	IN	A	209.251.78.164
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-165	IN	A	209.251.78.165
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-166	IN	A	209.251.78.166
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-167	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.167
+xcom-78-170	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.170
+xcom-78-168	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.168
+xcom-78-171	IN	A	209.251.78.171
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-169	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.169
+athm		IN	A	208.196.214.74
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-172	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.172
+xcom-78-173	IN	A	209.251.78.173
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-174	IN	A	209.251.78.174
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-175	IN	A	209.251.78.175
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-176	IN	A	209.251.78.176
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-177	IN	A	209.251.78.177
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-200	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.200
+xcom-78-180	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.180
+xcom-78-178	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.178
+xcom-78-201	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.201
+xcom-78-181	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.181
+xcom-78-179	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.179
+xcom-78-202	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.202
+xcom-78-182	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.182
+xcom-78-203	IN	A	209.251.78.203
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-183	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.183
+xcom-78-204	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.204
+xcom-78-184	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.184
+xcom-78-205	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.205
+xcom-78-185	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.185
+xcom-78-206	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.206
+xcom-78-186	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.186
+xcom-78-207	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.207
+xcom-78-187	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.187
+xcom-78-210	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.210
+xcom-78-208	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.208
+xcom-78-190	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.190
+xcom-78-188	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.188
+xcom-78-211	IN	A	209.251.78.211
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-209	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.209
+xcom-78-191	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.191
+xcom-78-189	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.189
+xcom-78-212	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.212
+xcom-78-192	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.192
+xcom-78-213	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.213
+xcom-78-193	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.193
+barryfinn	IN	A	209.251.76.224
+		IN	MX	5 barryfinn.mdc.net.
+		IN	MX	10 namesrv.mdc.net.
+colo10		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.69
+xcom-78-214	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.214
+xcom-78-194	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.194
+namesrv2	IN	CNAME	news.mdc.net.
+xcom-78-215	IN	A	209.251.78.215
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-195	IN	A	209.251.78.195
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-216	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.216
+xcom-78-196	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.196
+xcom-78-217	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.217
+xcom-78-197	IN	A	209.251.78.197
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-220	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.220
+xcom-78-218	IN	A	209.251.78.218
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-198	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.198
+xcom-78-221	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.221
+xcom-78-219	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.219
+xcom-78-199	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.199
+xcom-78-222	IN	A	209.251.78.222
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-223	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.223
+xcom-78-224	IN	A	209.251.78.224
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-225	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.225
+xcom-78-226	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.226
+xcom-78-227	IN	A	209.251.78.227
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-230	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.230
+xcom-78-228	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.228
+xcom-78-231	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.231
+xcom-78-229	IN	A	209.251.78.229
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-232	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.232
+xcom-78-233	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.233
+xcom-78-234	IN	A	209.251.78.234
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-235	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.235
+xcom-78-236	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.236
+disksrv		IN	MX	10 smtp-2.mdc.net.
+		IN	A	206.66.240.239
+xcom-78-237	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.237
+xcom-78-240	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.240
+xcom-78-238	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.238
+xcom-78-241	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.241
+xcom-78-239	IN	A	209.251.78.239
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-242	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.242
+xcom-78-243	IN	A	209.251.78.243
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-244	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.244
+xcom-78-245	IN	A	209.251.78.245
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-246	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.246
+xcom-78-247	IN	A	209.251.78.247
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-250	IN	A	209.251.78.250
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-248	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.248
+xcom-78-251	IN	A	209.251.78.251
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-249	IN	A	209.251.78.249
+		IN	MX	10 smtp-2.mdc.net.
+xcom-78-252	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.252
+xcom-78-253	IN	MX	10 smtp-2.mdc.net.
+		IN	A	209.251.78.253
+mail		IN	CNAME	smtp-2.mdc.net.
+xcom-78-254	IN	A	209.251.78.254
+		IN	MX	10 smtp-2.mdc.net.
+oasys-mdc-fr01	IN	A	209.251.69.2
+test		IN	A	209.251.64.24
+		IN	MX	10 smtp-2.mdc.net.
+smtp		IN	CNAME	smtp-2.mdc.net.

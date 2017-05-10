@@ -1,0 +1,11 @@
+#!/usr/bin/ksh
+# RUNWATCH
+
+export MALLOC_DEBUG=WATCH
+
+z d 
+export TESTUCOPEN_DEBUGFILE=d 
+rm -f testbase*
+LD_PRELOAD=watchmalloc.so.1 mbproc.x "${@}" -year testbase -D=5 2> e
+
+

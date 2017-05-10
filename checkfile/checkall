@@ -1,0 +1,8 @@
+
+DATABASE=$2
+ADDRESS=$3
+export DATABASE ADDRESS
+
+find $1 -print | reads checksub
+
+

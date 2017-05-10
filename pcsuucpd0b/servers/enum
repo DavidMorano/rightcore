@@ -1,0 +1,12 @@
+#!/usr/bin/ksh
+# ENUM
+
+echoarg() {
+  for A in "${@}" ; do
+    echo $A
+  done
+}
+
+eval echoarg $1
+
+

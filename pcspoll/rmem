@@ -1,0 +1,8 @@
+#!/usr/bin/ksh
+
+
+if [[ -d timestamps ]] ; then
+  rm -f timestamps/*
+fi
+
+

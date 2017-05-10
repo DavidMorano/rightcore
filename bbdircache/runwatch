@@ -1,0 +1,11 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+
+export MALLOC_DEBUG=WATCH
+export BBDIRCACHE_DEBUGFILE=d 
+
+z d ; LD_PRELOAD=watchmalloc.so.1 bbdircache.x -D=5 2> e
+
+return $?
+

@@ -1,0 +1,27 @@
+#!/usr/bin/ksh
+# SENDMAIL (testing)
+
+#echo "sendmail: entered" >&3
+
+TF=/tmp/sm${$}
+
+cat > $TF
+
+#cat $TF > /home/dam/src/rmailerd/one.out
+
+DS_KEYFILE=${PCS}/etc/rmailerd/password
+export DES_KEYFILE
+
+{
+  echoargs "${@}"
+  descrypt -d $TF | gzcat
+} >> /home/dam/src/rmailerd/sendmail.out
+
+#echo "standard error" >&2
+
+#echo "standard output"
+
+rm $TF
+
+
+

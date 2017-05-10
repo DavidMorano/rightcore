@@ -1,0 +1,13 @@
+#!/bin/ksh
+
+
+if [[ -z "${@}" ]] ; then
+  echo "${0}: one argument must be specified" >&2
+  exit 1
+fi
+
+procnames.x ${1} | sort -f +1 -2 +0 -1 -t '|' -u 
+
+
+
+

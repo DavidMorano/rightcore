@@ -1,0 +1,22 @@
+#!/usr/extra/bin/ksh
+# RMSRC
+
+BASES=
+BASES="${BASES} ${HOME} /data07/HOME/dam /root[01]/usr/extra "
+BASES="${BASES} /backlink/sb07/home/dam "
+BASES="${BASES} ${HOME}/www_morano ${HOME}/doc "
+
+for BASE in ${BASES} ; do
+  if [[ -d ${BASE} ]] ; then
+    SRC=${BASE}/src
+    if [[ -d ${SRC} ]] ; then
+      for A in "${@}" ; do
+	if [[ -n "${A}" ]] ; then
+          rm -fr ${SRC}/${A}
+        fi
+      done
+    fi
+  fi
+done
+
+

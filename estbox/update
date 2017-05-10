@@ -1,0 +1,8 @@
+
+: ${PCS:=/home/gwbb/add-on/pcs}
+: ${LOCAL:=/home/gwbb/add-on/local}
+
+bsdinstall rex rex.elf ${PCS}/bin
+
+  chmod u+s ${PCS}/bin/rex.elf
+

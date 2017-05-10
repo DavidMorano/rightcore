@@ -1,0 +1,119 @@
+# SATconfig database configuration table file
+
+#	SAMPLE SAT_CONFIG CONFIGURATION FILE
+
+# NOTES:
+#
+#	Remember that 'GTDEV' is the line which goes to the switch
+#	SAT connection.  'GTDEV2' is the line which goes between the
+#	computer and the terminal (shadow SAT) itself.
+#
+#	All command line arguments have precedence over any corresponding
+#	arguments in this configuration file.  The entries in this file
+#	do not have any special order.  Defaults are applied in a
+#	defined sequence which is independent of the order of defaults
+#	in this file.
+#
+
+# lines are of the general form :
+#
+#	key	any_further_arguments
+#
+# possible keys and their meanings are :
+#
+#	control		- controlling lock area directory
+#	log		- file path name for the log file
+#	filter		- file path name for the SAT filter file
+#	mapping		- file path name for the SAT mapping file
+#	diction		- file path name for the SAT diction file
+#	export		- environment variable & value to be exported
+#	system		- a SAT system description entry
+#	library		- path to library directory
+#	function	- create a function to perform
+#	default		- default system name
+#	release		- default SUT release
+#	workdir		- working directory
+#	wait		- lock file wait time out
+#
+#
+#	There is no order to any entries in this file.  Entries may appear
+#	in any order and are still used the same (as for defaults et cetera).
+#	The following lines specify system defaults for certain files or
+#	directories.  Entries starting with an 'e' are to be exported into
+#	the environment.  An unused (or unspecified) field should contain a '-'
+#	character.
+
+
+# the following lines specify defaults for the program
+
+def	v5d9				# default system name
+c	/mt/mtgzy/agy6/dam/src/satconfig/con
+log	/mt/mtgzy/agy6/dam/src/satconfig/con/satlog
+lib	/mt/mtgzy/agy6/dam/src/satconfig/lib
+filter	default.f		# default filter file (cploc)
+map	default.m		# default mapping file
+dict	default.d		# default dictionary file
+wait	200			# lock file wait timeout
+
+# additional variables to be exported into the environment
+
+exp	SAT_POLL_DIR = /usr/sat/lib/parsers
+
+
+# environment variable 'A_RELEASE' takes precedence over next entry
+
+rel	g1v5b10_0			# default SW release for automation
+
+
+# The following lines are 'system' description lines and are of the form :
+#
+#  sys sys_name	GTDEV		GTDEV2 	filter mapping diction
+#
+# Filter, Mapping, and Diction file entries are optional and if not
+# specified, any defaults listed in this file will be used instead.
+#
+
+sys	v5sx1	/dev/tty35	/dev/tty36 v5sx1.f g1v5b10_0.m g1v5b10_0.d
+sys	A	/dev/tty21	/dev/tty22
+sys	v5s7	/dev/tty21	/dev/tty22
+sys	B	/dev/tty41	/dev/tty42
+sys	v5d10	/dev/tty41	/dev/tty42
+sys	v5some	-		-	default.f
+sys	v5d9	/dev/tty41	/dev/tty42	a b c
+
+
+# complex functions
+
+#	These lines take the form :
+#
+#		f type function	commands_string
+#
+#	Where type is one or more of :
+#		-	(or null) means don't do anything special
+#		l	program requires system lock (typical)
+#		r	check argument for readability
+#		w	check argument for writability
+#
+#	The following substitutions are made on command strings :
+#		%a	file name argument
+#		%s	system name
+#		%f	SAT filter file
+#		%m	SAT mapping file
+#		%d	SAT dictionary file
+#		%l	library directory
+#		%c	control lock directory
+#		%w	working directory
+#		%r	SUT release
+#
+
+#f - soft	"soft_gonk -c %c %s ; rm -f %c/LKsoft_%s"
+#f rl play	"conv_to_gen %a -f %f | sat_funconv -m %m -d %d | sat_pback"
+#f wl record	"sat_rec | conv_to_gen -f %f | sat_conv -m %m -d %d > %a"
+
+f -	soft	"softsetup %s %c"
+f rl	play	"sat_setup ; sat_fc %a -f %f | sat_dc -m %m -d %d | sat_pback"
+f wl	record	"sat_record | sat_du -m %m -d %d | sat_fu -f %f > %a"
+f rl	poll	"satpollsetup %a"
+f l	_echo	"echo %a %s %f %m %d %l %c %w %r"
+
+

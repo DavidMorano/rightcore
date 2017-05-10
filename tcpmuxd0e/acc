@@ -1,0 +1,73 @@
+# ACCTAB
+
+
+# Each entry usually starts with a 'netgroup' name and then a listing
+# of the machine/user/password tripples that make up that netgroup.
+#
+# If no netgroup name is given, then the following tripples belong to the
+# default netgroup.  The default netgroup may be used (depending on which
+# listening server you are interested in : rexecd, rxsd, et cetera) for
+# services that did not specify any netgroup names in their service
+# table entry and if the listening server was configured to use access
+# restrictions for incoming connections.
+# 
+# Finally, note that many servers use the SunOS NIS (Yellow Pages) or
+# Solaris NIS+ 'netgroup' database in addition to this database for
+# authorizing remote access.  Note that neither NIS or NIS+ allows
+# for passwords so only this database can be used if password protection
+# is needed.
+# 
+# Format of entries:
+#
+# netgroup:
+#	machine			[user			[password]]
+#
+#
+
+# EXAMPLES:
+#
+#
+# mygroup:
+#	mymachine.com		myself			notlikely
+#
+#
+
+
+# RightCore (general)
+	*.rightcore.com
+	*.rightcore.org
+
+
+rightcore:
+	*.rightcore.com
+	*.rightcore.org
+
+
+# RightCore (specific)
+rc:
+	localhost
+	rca
+	rcb
+	rcc
+	rcd
+	rce
+	rcf
+	rcg
+	jig
+
+
+# Northeastern University 
+ece:
+	*.neu.edu
+
+
+friends:
+	silverscreen
+	ladyhealer
+	*.rightcore.com
+	*.rightcore.org
+	*.cintalatina.org
+	*.evesilver.com
+
+
+

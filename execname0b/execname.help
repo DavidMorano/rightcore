@@ -1,0 +1,18 @@
+EXECNAME
+
+This program executes a specified program with an optionally specified
+zeroth argument.
+
+Synopsis:
+
+$ execname [-V] <progfname> {<arg0>|-|+} [<arg1> ...]
+
+where:
+
+<progfname>	filename of program to execute
+<arg0>		optionally specified zeroth argument
+-		prepend the basename of the program-file with a '-' character
++		use the basename of the program-file as the zeroth argument
+<arg1>		optional additional arguments to the program to execute
+-V		print the program version to standard error and then exit
+

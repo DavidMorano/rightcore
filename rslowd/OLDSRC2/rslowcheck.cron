@@ -1,0 +1,112 @@
+#!/bin/ksh
+# RSLOWCHECK
+
+# Arguments :
+#	-	logfilename
+
+
+if [ -z "${LOGNAME}" ] ; then
+
+  if [ -n "${USER}" ] ; then 
+
+    LOGNAME=${USER}
+
+  else
+
+    LOGNAME=`logname`
+
+  fi
+
+fi
+
+if [ -d /usr/sbin ] ; then
+
+  PS="ps -fu ${LOGNAME}"
+  MACH=`uname -n`
+
+else
+
+  PS="ps -x"
+  MACH=`hostname`
+  PATH=/usr/5bin:${PATH}
+
+fi
+
+if [ -n "${1}" ] ; then
+
+  RSLOW=${1}
+
+else
+
+  RSLOW=${HOME}/spool/rslow
+
+fi
+
+HW=/mt/mtgzfs8/hw
+UNISON=/usr/add-on/unison
+DAEMON=rslowd
+
+case $MACH in
+
+mt* )
+  LOCAL=${HW}/add-on/local
+  PATH=${LOCAL}:${PATH}:${UNISON}/bin
+  ;;
+
+hocp[a-d] | nucleus | nitrogen | logicgate )
+  : ${LOCAL:=/home/gwbb/add-on/local}
+  : ${PCS:=/home/gwbb/add-on/pcs}
+  : ${NCMP:=/home/gwbb/add-on/ncmp}
+  PATH=${LOCAL}/bin:${PATH}
+  ;;
+
+* )
+  : ${LOCAL:=/usr/add-on/local}
+  PATH=${LOCAL}/bin:${PATH}
+  ;;
+
+esac
+
+
+  : ${LOCAL:=/usr/add-on/local}
+  : ${PCS:=/usr/add-on/pcs}
+  : ${NCMP:=/usr/add-on/ncmp}
+export LOCAL PCS NCMP
+
+# do it
+
+if [ ! -r ${RSLOW}/RUN ] ; then exit 1 ; fi
+
+
+# check if the proper directories exist in the UUCP spool area
+
+: ${UUCPPUBLIC:=/var/spool/uucppublic}
+
+ls ${UUCPPULIC} > /dev/null 2>&1
+
+if [ ! -d ${UUCPPUBLIC}/rslow ] ; then
+
+  mkdir ${UUCPPUBLIC}/rslow
+  chmod 777 ${UUCPPUBLIC}/rslow
+
+fi
+
+  if [ ! -d ${UUCPPUBLIC}/rslow/q ] ; then
+
+    mkdir ${UUCPPUBLIC}/rslow/q
+    chmod 777 ${UUCPPUBLIC}/rslow/q
+
+  fi
+
+
+  ${PS} | fgrep -v grep | fgrep ${DAEMON}_aux | fgrep $DAEMON > /dev/null
+  if [ $? -ne 0 ] ; then
+
+    N=/dev/null
+    date "+%y/%m/%d %T ${MACH}" > ${RSLOW}/LK
+    echo "pname ksh $DAEMON ${RSLOW}/bin/${DAEMON} ${RSLOW} &" | batch 2> $N
+
+  fi
+
+
+

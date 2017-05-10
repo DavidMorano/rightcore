@@ -1,0 +1,162 @@
+'\" t
+.TH LINEINDEX 1 "2003-12-13" LOCAL
+.SH NAME
+lineindex \- create a line index for a text file
+.SH SYNOPSIS
+.\"_
+.B lineindex
+.OP "-af argfile" "" ] [
+.OP -V "" ] [
+.OP -? "" ] [
+.OP -HELP "" ] [
+.OP -D "" ] [
+.OP "-v\fI[=level]\fP" "" ] [
+.MW [
+.I file=indexfile ...
+.MW ]
+.\"_
+.\"_ macro to put some text into a Constant Width font
+.de CW		\" puts first arg in CW font.
+\%\&\\$3\f(CW\\$1\fP\&\\$2
+..
+.\"_ end macro
+.\"_
+.SH DESCRIPTION
+.\"_
+This program reads one or more line-coded input files and
+creates a line-index file for each input file.
+The index file created for each source file contains a list
+of all coded lines in the original file and the file offset
+assciciated with each code line.
+Source line-coded files and the index file that should be created
+for each one are specified as argument operand pairs to the program at
+invocation.  Operand pairs can also be specified with the 
+.MW "-af argfile"
+option specified below.
+.\"_
+.SH OPTIONS
+.\"_
+The takes only a few options.
+.PP
+.RS 5
+.TP 15
+.BI -af "  argfile"
+This specifies the name of a file that serves as a list of
+input files to process.
+The 
+.I argfile
+value can also be the minus ('-') character to specify
+standard input as the input file to be processed.
+.TP 15
+.BI "-v\fI[=level]\fP" ""
+This option sets the verbosity level.
+Without a specific level specified, it defaults to one.
+.TP 15
+.BI -V ""
+This option species writes the version of the program
+on standard error and then has the program exit without any
+further processing.
+.TP 15
+.BI -HELP ""
+This option searches for a help file for the present program
+and prints it only standard output.  The program then exits
+without any additional processing.
+.RE
+.\"_
+.SH OPERANDS
+.\"_
+All of the invocation operands must be in the form of a source line-coded
+filename following be an equal sign character ('='),
+without any intervening white space, followed by the filename
+that will become the index file.
+.RS 5
+.TP 15
+.BI file1=indexfile1 ""
+A file specification pair where the first file is
+the line-coded file to be indexed and the second file is
+the name of the index file to be created.
+.RE
+.\"_
+.SH USAGE
+.\"_
+.sp
+.\"_
+.SH EXAMPLES
+.\"_
+.IP \(rh 5
+create a line index for the file
+.MW test.txt
+and put that index in the file
+.MW test.li
+:
+.EX
+.MW "lineindex test.txt=test.li"
+.EE
+.sp
+.\"_
+.SH ENVIRONMENT
+.\"_
+.RS 5
+.TP 15
+LINEINDEX_PROGRAMROOT
+this is used to find the program root
+.TP 15
+LOCAL
+this is used to find the program root if all of above are not available
+.TP 15
+PROGRAMROOT
+this is used to find the program root if all of above are not available
+.RE
+.\"_
+.SH FILES
+.\"_
+.sp
+.\"_
+.SH EXIT STATUS
+.\"_
+.RS 5
+.TP 15
+0
+program completed successfully
+.TP 15
+\&!=0
+program encountered an error in processing
+.RE
+.\"_
+.SH ATTRIBUTES
+.\"_
+.sp
+.\"_
+.SH SEE ALSO
+mkkey(1), mkinv(1), mkquery(1), mkey(1), inv(1), hunt(1)
+.\"_
+.SH DIAGNOSTICS
+.\"_
+.sp
+.\"_
+.SH PATH TO
+This program is currently located in \fC/usr/add-on/local/bin\fP
+or possibly where ever "local" programs are stored on your system.
+This is often at
+.MW "${LOCAL}/bin"
+on some systems.
+.\"_
+.SH NOTES
+.\"_
+.sp
+.\"_
+.SH CAVEATS
+.\"_
+Be careful to put at one space between all option key 
+letters and the associated
+key letter parameter.
+.\"_
+.SH IMPLEMENTAION
+.\"_
+Dave Morano
+.\"_
+.SH ACKNOWLEDGEMENTS
+.\"_
+.sp
+.\"_
+.\"_

@@ -1,0 +1,88 @@
+#!/usr/extra/bin/ksh
+# MAKEIT
+
+
+function getflags {
+  typeset A DN=/dev/null FL=${1}
+  if [[ -n "${FL}" ]] ; then
+    A="$( getconf ${1} 2> ${DN} )"
+    if [[ "${A}" != 'undefined' ]] && [[ "${A}" != 'error' ]] ; then
+      print -- "${A}"
+    fi
+  fi
+}
+
+
+: ${SYSNAME:=$( uname -s )}
+: ${RELEASE:=$( uname -r )}
+: ${ARCHITECTURE:=$( uname -p )}
+export SYSNAME RELEASE ARCHITECTURE
+
+: ${OSNAME:=${SYSNAME}}
+: ${OSNUM:=${RELEASE%%.*}}
+export OSNAME OSNUM
+
+
+# compile for a library 
+
+case ${OSNAME}:${OSNUM} in
+Darwin:9)
+  : ${CCOPTS_GCCALL:="-pthreads"}
+  : ${CCOPTS_GCCOPT:="-O3"}
+  : ${CCOPTS_GCCLIB:="-fPIC"}
+  ;;
+Darwin:13)
+  : ${CCOPTS_GCCALL:=""}
+  : ${CCOPTS_GCCOPT:="-O3"}
+  : ${CCOPTS_GCCLIB:="-fPIC"}
+  ;;
+SunOS:*)
+  : ${CCOPTS_GCCALL:="-pthreads"}
+  case "${ARCHITECTURE}" in
+  sparc)
+    CCOPTS_GCCOPTSPARC="-mcpu=v9"
+    CCOPTS_GCCLIBSPARC="-mno-app-regs "
+    : ${CCOPTS_GCCOPT:="-O3 ${CCOPTS_GCCOPTSPARC}"}
+    : ${CCOPTS_GCCLIB:="-fpic ${CCOPTS_GCCLIBSPARC}"}
+    ;;
+  *)
+    : ${CCOPTS_GCCOPT:="-O3"}
+  ;;
+  esac
+  : ${CCOPTS_GCCOPT:="-O3"}
+  : ${CCOPTS_GCCLIB:="-fpic"}
+  : ${CCOPTS_CCALL:="-MT"}
+  : ${CCOPTS_CCOPT:="-O"}
+  : ${CCOPTS_CCLIB:="-Kpic"}
+    ;;
+esac
+
+export CCOPTS_GCCALL CCOPTS_GCCOPT CCOPTS_GCCLIB
+export CCOPTS_CCALL CCOPTS_CCOPT CCOPTS_CCLIB
+
+
+# compile for the "largefile" environment
+
+LF_LINTFLAGS="$( getflags LFS_LINTFLAGS )"
+LF_CFLAGS="$( getflags LFS_CFLAGS )"
+LF_LDFLAGS="$( getflags LFS_LDFLAGS )"
+LF_LIBS="$( getflags LFS_LIBS )"
+
+if [[ -z "${LF_CFLAGS}" ]] ; then
+  LF_DEFS="-D_LARGEFILE_SOURCE=1"
+else
+  LF_DEFS=
+fi
+
+export LF_DEFS LF_LINTFLAGS LF_CFLAGS LF_LDFLAGS LF_LIBS 
+
+
+TARGET=
+if [[ -n "${1}" ]] ; then
+  TARGET=${1}
+  shift
+fi
+
+make ${TARGET} "${@}"
+
+

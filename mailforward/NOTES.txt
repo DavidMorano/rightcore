@@ -1,0 +1,7 @@
+MAILFORWARD
+
+Although this was written so that it could be a KSH SHELL program builtin
+command, it cannot be. The reason is because it needs to be SETUID to 'mail' in
+order to create mail spool file locks.
+
+

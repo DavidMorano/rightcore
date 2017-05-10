@@ -1,0 +1,10 @@
+#!/usr/bin/ksh
+# MAKEINSTALL
+
+
+rm -f cexecer.s5
+ln cexecer.x cexecer.s5
+find cexecer.s5 -print | cpio -pdm ${LOCAL}/lib/cluster
+
+
+

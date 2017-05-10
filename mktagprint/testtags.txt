@@ -1,0 +1,5 @@
+history/france/burke1793.txt:0,2221
+people/king/mlk_helms831003.txt:0,71816
+standards/rfc/rfc10xx/rfc1062.txt:0,195092
+standards/rfc/rfc11xx/rfc1117.txt:0,318560
+standards/rfc/rfc11xx/rfc1166.txt:0,556584

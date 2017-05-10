@@ -1,0 +1,80 @@
+.\"_
+.TH BATCHQUEUE 1 "1997-02-27" NCMP
+.SH NAME
+batchqueue \- show jobs waiting in specified batch queues
+.SH SYNOPSIS
+.B batchqueue
+[
+.B -q queue_name
+]
+[
+.B -l
+]
+[
+.B -all | userid ...
+]
+.SH WHERE
+.B queue_name
+is the queue you want to check.
+.br
+.B -l
+means give a long listing with status lines.
+.br
+.B -all
+means "not all" (ie. only me).
+.br
+.B userid
+is the owner who's jobs you want displayed.
+.br
+.SH EXAMPLES
+batchqueue
+.br
+batchqueue -l
+.br
+batchqueue -all
+.br
+batchqueue bspringsteen
+.br
+batchqueue -all jturner ebroadbent
+.br
+batchqueue -q 'vlsi*'
+.br
+batchqueue -q 'vlsi*' -all
+.SH DESCRIPTION
+.I Batchqueue
+lists the jobs waiting in each of the specified batch
+queues.  The queue_name can be any regular expression needed to
+specify the desired batch queue(s), and the userid can be any regular
+expression needed to specify the desired user.
+If you have permission, the command that created the spool file
+is displayed after each entry.
+.PP
+If no arguments are given, all waiting jobs are displayed.
+The
+.B \-all
+option restricts the listing to your own jobs, plus
+jobs belonging to any other userid names on the command line.
+.PP
+See
+.IR batch (1)
+for a description of queue priorities.
+.PP
+If the '.queueorder' file is present in the batch queue directory,
+the queues are displayed in the order they are listed in that file
+(one queue name per line). The
+.B \-q
+option overrides this feature.
+.SH FILES
+.nf
+.DT
+SPOOLDIR/*/CFDIR/cf[a-z]*	\- spool files
+SPOOLDIR/.queueorder		\- display queues in this order
+.fi
+.SH "SEE ALSO"
+batchcancel(1), batch(1), batchsignal(1), batchexamine(1), batchd(1m)
+.SH "NOTE"
+User names and queuenames that are not valid REGEX(3) regular expressions
+will cause errors. (ie. '.' matches any one character. '*' matches any number
+of the previous character. '^' denotes the start of text and '$' denotes 
+the end.)
+.\"_

@@ -1,0 +1,67 @@
+#!/usr/bin/ksh
+# INSTALLPROG (libdebug)
+
+
+: ${PCS:=/usr/add-on/pcs}
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${EXTRA:=/usr/extra}
+export PCS LOCAL NCMP EXTRA
+
+
+TDIRS="${LOCAL} ${NCMP} ${PCS} /root[01]/${EXTRA}"
+
+P=libdebug
+
+LIBS="${P}.a ${P}.so"
+INCS=
+
+
+RF_RMSO=false
+
+
+if [ -d /usr/sbin ] ; then
+  : ${NODE:=$( uname -n )}
+  : ${OFD:=S5}
+else
+  : ${NODE:=$( hostname )}
+  PATH=/usr/5bin:${PATH}
+  : ${OFD:=S4}
+fi
+export NODE
+
+LDIRS=" lib "
+if [[ -n "${OFD}" ]] ; then
+  LDIRS="${LDIRS} lib/${OFD}"
+fi
+for IS in $( isainfo ) ; do
+  LDIRS="${LDIRS} lib/${IS}"
+done
+
+
+makeit
+
+
+for D in ${TDIRS} ; do
+  if  [[ -d ${D} ]] ; then
+    if [[ -n "${LIBS}" ]] ; then
+      for LD in ${LDIRS} ; do
+        if [[ -d ${D}/${LD} ]] ; then
+          makenewer ${LIBS} ${D}/${LD}
+        fi
+      done
+    fi 
+    if [[ -n "${INCS}" ]] ; then
+      makenewer ${INCS} ${D}/include
+    fi 
+    if ${RF_RMSO} ; then
+      rm -f ${D}/lib/${T}.so
+      if [[ -d ${D}/lib/${OFD} ]] ; then
+        rm -f ${D}/lib/${OFD}/${T}.so
+      fi
+    fi
+  fi
+done
+
+
+

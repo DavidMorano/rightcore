@@ -1,0 +1,23 @@
+#!/usr/bin/ksh
+# BIBLEQ-DEBUG
+
+
+PF=/home/dam/src/bibleq/bibleq.x
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+
+E=/tmp/bibleq
+D=/tmp/bibleq.d
+
+BIBLEQ_DEBUGFILE=${D}
+export BIBLEQ_DEBUGFILE
+
+cp /dev/null ${E}
+cp /dev/null ${D}
+
+exec ${PF} -D=5 2> ${E} "${@}"
+
+

@@ -1,0 +1,6 @@
+
+.BIB test4.rbd
+here there and every 
+where \cite{morano96differential, morano97challenges}    there 
+is a citation and more
+

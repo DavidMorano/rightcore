@@ -1,0 +1,8 @@
+%{SS}
+This command prints out the PCS facility name.  This is usually
+the same as the "fullname" for the username 'pcs'.
+Synopsis:
+$ %{S} [-V]
+where:
+-V		print command version to standard-error and then exit
+

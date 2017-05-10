@@ -1,0 +1,11 @@
+USS
+
+uss <path> [-f <af>] [-s <svc>] [-t <to>]
+
+where:
+
+<path>		path to service-file
+-f <af>		target address family
+-s <svc>	target service
+-t <to>		connect timeout
+

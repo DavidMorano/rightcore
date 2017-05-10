@@ -1,0 +1,17 @@
+
+
+DAMpcsconfs {
+	global:
+		pcsconfs ;
+		pcsconfs_start ;
+		pcsconfs_curbegin ;
+		pcsconfs_fetch ;
+		pcsconfs_enum ;
+		pcsconfs_curend ;
+		pcsconfs_audit ;
+		pcsconfs_finish ;
+	local:
+		* ;
+} ;
+
+

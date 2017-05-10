@@ -1,0 +1,14 @@
+BBNEWS
+
+This is the PCS bulletin board reader program.
+
+Synopsis:
+
+$ bbnews [ { -subject | -newsgroups} ] [<newsgroup(s)> ...]
+
+where:
+
+-subject	print subjects of unread articles in subscribed newsgroups
+-newgroups	list subscribed newsgroups
+<newsgroup(s)>	operate only on the named newsgroups
+

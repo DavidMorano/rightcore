@@ -1,0 +1,23 @@
+# DIALINFO
+
+
+#
+# dialer:
+# params
+#
+
+
+tcpmux:
+	p= ${PCS}/lib/dialers/tcpmux,
+	a= tcpmux,
+
+
+secure:
+	o= ${PCS}/lib/dialers/secure.so
+
+
+uucp:
+	root= ${PCS}
+
+
+

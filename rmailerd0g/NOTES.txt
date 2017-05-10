@@ -1,0 +1,56 @@
+RMAILERD
+
+This is the daemon program for the server side of the RMAILER protocol.
+
+This program can either be run from another server with the input
+coming in on this program's standard input, or it can run as a standing
+server itself.
+
+Run from server-listener:
+
+$ rmailerd
+
+
+To run it as a stand-alone server, first setup everything in the
+configuration file as you want it, then:
+
+$ rmailerd -d
+
+
+Commentary:
+
+This old email trunking mechanism is old but it is still serving
+faithfully.
+
+
+This is the daemon program for the server side of the RMAILER protocol.
+
+
+protocol
+===============================================================================
+
+	Incoming messages are collected from the input in four (4) phases.
+	The phases are ordered and formatted as :
+
+	Phase 0
+	- version
+
+	Phase 1 (provides multiplexing of multiple hosts to share a trunk)
+	- originating host
+
+	Phase 2 (provides multiplexing of jobs to share a host)
+	- job ID
+	- envelope "from"
+	- message options
+	- length of message and optional checksum
+	- recipients (as many as there are, one per line)
+	- blank line marking the end-of-header
+
+	Phase 3
+	- message part (the length of which was given by value above)
+
+
+	Phases 1 through 3 can be repeated (as a unit) as necessary until
+	the input is empty.
+
+

@@ -1,0 +1,11 @@
+#!/usr/add-on/ast/bin/ksh
+# RUNIT
+
+
+OPTS=
+#OPTS="${OPTS} -o showsysbanner"
+
+z d ; TELSERV_DEBUGFILE=d telserv.x -D=5 2> e ${OPTS}
+
+
+

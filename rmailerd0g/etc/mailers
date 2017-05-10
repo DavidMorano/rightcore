@@ -1,0 +1,43 @@
+# MAILERS
+# RMAILERD mailer table
+#
+#	The format of entries are :
+#
+#	mailer:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options
+#
+#
+
+#
+#	The following substitutions are made on keyword value strings :
+#
+#		%V	RMAILERD version string
+#		%R	RMAILERD program root
+#		%N	nodename
+#		%D	domainname
+#		%H	hostname
+
+#		%s	mailer_name
+
+#
+
+
+
+# the stupid SENDMAIL daemon (MTA)
+sendmail:
+	p= /usr/lib/sendmail,
+	a= -o i 
+
+local:
+	flags= "localerror aggregate",
+	p= ${PCS}/bin/dmail,
+	a= dmail
+
+
+
+
+

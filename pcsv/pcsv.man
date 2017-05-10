@@ -1,0 +1,37 @@
+.\"_
+.TH PCSV 1 "1994-02-28" PCS
+.SH NAME
+pcsv \- print out the current version of the PCS mailer subsystem
+.SH SYNOPSIS
+pcsv
+.SH DESCRIPTION
+The
+\f(CWPCSV\fP
+program prints to standard output the current version of the
+mailer subsystem of PCS.
+The results is a string value.
+.sp
+.\"_
+.SH FILES
+.PD 0
+.TP 30
+\f(CW${PCS}/bin/pcsv\fP
+executable program
+.PD
+.\"_
+.SH "SEE ALSO"
+pcsmail(PCS), vmail(PCS), bbnews(PCS), prt-pcsmail(PCS),
+pcsname(PCS), pcsorg(PCS), pcsprojinfo(PCS), pcsinfo(PCS) 
+.\"_
+.SH NOTES
+Note to Administator: Contrary to intuition, the PCS vesion string is
+*not* compiled into the system.
+It is a string that is set (or can be set) by the PCS Administrator
+(usually at installtion time).
+It is possible that the version string might not be set at all,
+in which case an empty value is returned by this program.
+This program is actually the invocation of:
+.EX
+pcsconv version
+.EE
+.\"_

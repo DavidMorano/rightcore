@@ -1,0 +1,92 @@
+#!/usr/extra/bin/ksh
+# PLANNER.CRON
+
+
+P_WHICH=/bin/which
+P_DOMAINNAME=/bin/domainname
+P_FGREP=/bin/fgrep
+P_CUT=/bin/cut
+P_UNAME=/bin/uname
+P_BASENAME=/bin/basename
+
+
+: ${HOME:=$( userhome )}
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export HOME LOCAL EXTRA
+
+PRS=" ${HOME} ${LOCAL} ${EXTRA} "
+
+if [[ "${FPATH:0:1}" == ":" ]] ; then
+  FPATH=${FPATH:1:200}
+fi
+
+for PR in ${PRS} ; do
+  if [[ -d ${PR} ]] ; then
+    FBIN=${PR}/fbin
+    if [[ -d ${FBIN} ]] ; then
+      if [[ -n "${FPATH}" ]] ; then
+        FPATH="${FPATH}:${FBIN}"
+      else
+        FPATH="${FBIN}"
+      fi
+    fi
+  fi
+done
+export FPATH
+
+for PR in ${PRS} ; do
+  pathadd PATH ${PR}/bin
+  pathadd LD_LIBRARY_PATH ${PR}/lib
+done
+
+
+A=${0##*/}
+PN=${A%.*}
+
+
+PLAN=${HOME}/.plan
+WORK=${HOME}/.work
+
+alias p=print
+
+
+A=
+CALNAMES=${HOME}/.calnames
+if [[ -r ${CALNAMES} ]] ; then
+  fgrep -v personal ${CALNAMES} | while read CN J ; do 
+    case "${CN}" in
+    '#'*)
+      ;;
+    *)
+      A="${A} ${CN}"
+      ;;
+    esac
+  done
+else
+  A="${A} births christian computer culture deaths history holiday"
+  A="${A} judaic usholiday politics wwii seasons science space music"
+fi
+
+export CALYEAR_CALNAMES="${A}"
+
+
+: ${CLUSTER:=$( clustername )}
+: ${LINE:=$( userinfo - lastseen )}
+
+DS=$( TZ=GMT date '+%e %b %R' )
+
+{
+  p -- "= current work (as of ${DS} GMT)"
+  if shcat -Q ${WORK} ; then : ; else
+    p -- "*unspecified*"
+  fi
+  p -- "= last seen at"
+  p -- "cluster=${CLUSTER} line=${LINE}"
+  p -- "= availability"
+  p -- "current best availability> email"
+  p -- "= anniversaries (GMT)"
+  TZ=GMT hotd
+} > ${PLAN}
+
+

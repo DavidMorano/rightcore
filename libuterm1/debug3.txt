@@ -1,0 +1,13 @@
+#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+	{
+	    uint	mo ;
+	    uc_mallout(&mo) ;
+	    debugprintf("main: final mallout=%u\n",(mo-mo_start)) ;
+	    uc_mallset(0) ;
+	}
+#endif /* CF_DEBUGMALL */
+
+#if	(CF_DEBUGS || CF_DEBUG)
+	debugclose() ;
+#endif
+

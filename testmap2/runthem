@@ -1,0 +1,8 @@
+
+P=testmap2.x
+
+ERROR_FD=3 $P testfile 3> o3 &
+sleep 1
+ERROR_FD=3 $P testfile 3> o3 writer &
+
+

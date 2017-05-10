@@ -1,0 +1,40 @@
+# STATMSG
+
+
+: ${HOME:=$( userhome )}
+
+function statmsg {
+  STATMSG_DNAME=${HOME}/var/statmsg
+  STATMSG_FNAME=
+  if [[ -d ${STATMSG_DNAME} ]] ; then
+    find ${STATMSG_DNAME} -type f -name '*.sm' -mtime +1 -exec rm -f {} \;
+  fi
+}
+
+function statmsg_open {
+  typeset PID=${$} FID=${1} SUF=sm FNAME=
+  if [[ ! -d "${STATMSG_DNAME}" ]] ; then
+    mkdir "${STATMSG_DNAME}"
+  fi
+  if [[ -n "${FID}" ]] ; then
+    FNAME=${FID}.${SUF}
+  else
+    FNAME=p${PID}.${SUF}
+  fi
+  STATMSG_FNAME=${STATMSG_DNAME}/${FNAME}
+}
+
+function statmsg_close {
+  if [[ -f ${STATMSG_FNAME} ]] ; then
+    rm -f ${STATMSG_FNAME}
+  fi
+}
+
+function statmsg_print {
+  typeset MSG="${1}"
+  if [[ -n "${MSG}" ]] then
+    print -- "${MSG}" | cut -c 1-80 > ${STATMSG_FNAME}
+  fi
+}
+
+

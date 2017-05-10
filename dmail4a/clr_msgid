@@ -1,0 +1,5 @@
+#!/bin/ksh
+
+cp /dev/null ${PCS}/var/dmail.msgidb
+
+

@@ -1,0 +1,1198 @@
+rca20229.143	160710_2017:23_EDT server(4535) exited normally ex=0
+rca20229.143	elapsed time     0-00:00:00
+rca20229.144	160710_2017:26_EDT server(4536) exited normally ex=122
+rca20229.144	elapsed time     0-00:00:03
+rca20229.145	160710_2017:30_EDT request
+rca20229.145	from=190.144.1.94
+rca20229.145	server pid=4546
+rca20229.145	160710_2017:30_EDT svc=default
+rca20229.145	subsvc=
+rca20229.145	service not found
+rca20229.145	160710_2017:30_EDT server(4546) exited normally ex=0
+rca20229.145	elapsed time     0-00:00:00
+rca20229.146	160710_2017:31_EDT request
+rca20229.146	from=190.144.1.94
+rca20229.146	server pid=4547
+rca20229.146	160710_2017:31_EDT svc=¿¿
+rca20229.146	subsvc=
+rca20229.146	service not found
+rca20229.146	160710_2017:31_EDT server(4547) exited normally ex=0
+rca20229.146	elapsed time     0-00:00:00
+rca20229.147	160710_2017:32_EDT request
+rca20229.147	from=190.144.1.94
+rca20229.147	server pid=4548
+rca20229.147	160710_2017:35_EDT server(4548) exited normally ex=122
+rca20229.147	elapsed time     0-00:00:03
+rca20229.148	160710_2017:36_EDT request
+rca20229.148	from=190.144.1.94
+rca20229.148	server pid=4554
+rca20229.148	160710_2017:36_EDT svc=default
+rca20229.148	subsvc=
+rca20229.148	service not found
+rca20229.148	160710_2017:36_EDT server(4554) exited normally ex=0
+rca20229.148	elapsed time     0-00:00:00
+rca20229.149	160710_2018:26_EDT request
+rca20229.149	from=190.144.1.94
+rca20229.149	server pid=4703
+rca20229.149	160710_2018:26_EDT svc=¿
+rca20229.149	subsvc=
+rca20229.149	service not found
+rca20229.149	160710_2018:26_EDT server(4703) exited normally ex=0
+rca20229.149	elapsed time     0-00:00:00
+rca20229.150	160714_1047:46_EDT request
+rca20229.150	from=localhost
+rca20229.150	server pid=7646
+rca20229.150	160714_1047:46_EDT svc=/tmp/local/tcpmuxd/srv
+rca20229.150	subsvc=
+rca20229.150	service not found
+rca20229.150	160714_1047:46_EDT server(7646) exited normally ex=0
+rca20229.150	elapsed time     0-00:00:00
+rca20229.151	160714_1048:08_EDT request
+rca20229.151	from=localhost
+rca20229.151	server pid=7674
+rca20229.151	160714_1048:08_EDT svc=daytime
+rca20229.151	subsvc=
+rca20229.151	server=INTERNAL(1)
+rca20229.151	160714_1048:08_EDT server(7674) exited normally ex=0
+rca20229.151	elapsed time     0-00:00:00
+rca20229.152	160714_1048:22_EDT request
+rca20229.152	from=localhost
+rca20229.152	server pid=7675
+rca20229.152	160714_1048:22_EDT svc=daytime
+rca20229.152	subsvc=
+rca20229.152	server=INTERNAL(1)
+rca20229.152	160714_1048:22_EDT server(7675) exited normally ex=0
+rca20229.152	elapsed time     0-00:00:00
+rca20229.153	160714_1049:24_EDT request
+rca20229.153	from=localhost
+rca20229.153	server pid=7713
+rca20229.153	160714_1049:24_EDT svc=daytime
+rca20229.153	subsvc=
+rca20229.153	server=INTERNAL(1)
+rca20229.153	160714_1049:24_EDT server(7713) exited normally ex=0
+rca20229.153	elapsed time     0-00:00:00
+rca20229.154	160715_0427:58_EDT request
+rca20229.154	from=localhost
+rca20229.154	server pid=25809
+rca20229.154	160715_0427:58_EDT svc=daytime
+rca20229.154	subsvc=
+rca20229.154	server=INTERNAL(1)
+rca20229.154	160715_0427:58_EDT server(25809) exited normally ex=0
+rca20229.154	elapsed time     0-00:00:00
+rca20229.155	160715_0428:24_EDT request
+rca20229.155	from=localhost
+rca20229.155	server pid=25830
+rca20229.155	160715_0428:24_EDT svc=qotd
+rca20229.155	subsvc=
+rca20229.155	failcont from PASS
+rca20229.155	server=qotd
+rca20229.155	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca20229.155	argz=qotd
+rca20229.155	160715_0428:24_EDT server(25830) exited normally ex=0
+rca20229.155	elapsed time     0-00:00:00
+rca20229.156	160718_0340:36_EDT request
+rca20229.156	from=59
+rca20229.156	server pid=23455
+rca20229.156	160718_0340:36_EDT svc=GET
+rca20229.156	subsvc=
+rca20229.156	service not found
+rca20229.156	160718_0340:46_EDT server(23455) exited normally ex=0
+rca20229.156	elapsed time     0-00:00:00
+rca23554	160727_0151:21_EDT tcpmuxd 0/SYSV
+rca23554	a=sparc os=SunOS(5.8) d=rightcore.com
+rca23554	rca!local (LOCAL)
+rca23554	pr=/usr/add-on/local
+rca23554	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca23554	pid=/usr/add-on/local/var/run/tcpmuxd/rca
+rca23554	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca23554	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca23554.0	160727_0151:21_EDT request
+rca23554.0	from=localhost
+rca23554.0	server pid=7361
+rca23554.0	160727_0151:21_EDT svc=help
+rca23554.0	subsvc=
+rca23554.0	server=INTERNAL(0)
+rca23554.0	160727_0151:21_EDT server(7361) exited normally ex=0
+rca23554.0	elapsed time     0-00:00:00
+rca23555	160727_0151:29_EDT tcpmuxd 0/SYSV
+rca23555	a=sparc os=SunOS(5.8) d=rightcore.com
+rca23555	rca!local (LOCAL)
+rca23555	pr=/usr/add-on/local
+rca23555	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca23555	pid=/usr/add-on/local/var/run/tcpmuxd/rca
+rca23555	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca23555	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca23555.0	160727_0151:29_EDT request
+rca23555.0	from=localhost
+rca23555.0	server pid=7364
+rca23555.0	160727_0151:29_EDT svc=daytime
+rca23555.0	subsvc=
+rca23555.0	server=INTERNAL(1)
+rca23555.0	160727_0151:29_EDT server(7364) exited normally ex=0
+rca23555.0	elapsed time     0-00:00:00
+rca23556	160727_0205:02_EDT tcpmuxd 0/SYSV
+rca23556	a=sparc os=SunOS(5.8) d=rightcore.com
+rca23556	rca!local (LOCAL)
+rca23556	pr=/usr/add-on/local
+rca23556	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca23556	pid=/usr/add-on/local/var/run/tcpmuxd/rca
+rca23556	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca23556	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca23556.0	160727_0205:02_EDT request
+rca23556.0	from=localhost
+rca23556.0	server pid=7668
+rca23556.0	160727_0205:02_EDT svc=help
+rca23556.0	subsvc=
+rca23556.0	server=INTERNAL(0)
+rca23556.0	160727_0205:02_EDT server(7668) exited normally ex=0
+rca23556.0	elapsed time     0-00:00:00
+rca23557	160727_0205:05_EDT tcpmuxd 0/SYSV
+rca23557	a=sparc os=SunOS(5.8) d=rightcore.com
+rca23557	rca!local (LOCAL)
+rca23557	pr=/usr/add-on/local
+rca23557	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca23557	pid=/usr/add-on/local/var/run/tcpmuxd/rca
+rca23557	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca23557	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca23557.0	160727_0205:05_EDT request
+rca23557.0	from=localhost
+rca23557.0	server pid=7671
+rca23557.0	160727_0205:05_EDT svc=help
+rca23557.0	subsvc=
+rca23557.0	server=INTERNAL(0)
+rca23557.0	160727_0205:05_EDT server(7671) exited normally ex=0
+rca23557.0	elapsed time     0-00:00:00
+rca23558	160727_0217:00_EDT tcpmuxd 0/SYSV
+rca23558	a=sparc os=SunOS(5.8) d=rightcore.com
+rca23558	rca!local (LOCAL)
+rca23558	pr=/usr/add-on/local
+rca23558	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca23558	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca23558	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca23558	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca23558	backgrounded pid=8040
+rca23558	PID mutex captured
+rca23558	pid=8040
+rca23558	req=/tmp/local/tcpmuxd/req
+rca23558	160727_0217:00_EDT ready
+rca23558	160727_0217:00_EDT adding listener=tcp
+rca23558	addr=inet6::tcpmux
+rca23558	160727_0217:00_EDT adding listener=tcp
+rca23558	addr=inet6::5108
+rca23558	160727_0217:00_EDT adding listener=uss
+rca23558	addr=/tmp/local/tcpmuxd/srv
+rca23558	160727_0217:00_EDT adding listener=pass
+rca23558	addr=/tmp/local/tcpmuxd/pass
+rca24661	160816_0325:44_EDT tcpmuxd 0/SYSV
+rca24661	a=sparc os=SunOS(5.8) d=rightcore.com
+rca24661	rca!local (LOCAL)
+rca24661	pr=/usr/add-on/local
+rca24661	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca24661	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca24661	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca24661	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca24661	backgrounded pid=1595
+rca24661	PID mutex captured
+rca24661	pid=1595
+rca24661	req=/tmp/local/tcpmuxd/req
+rca24661	160816_0325:44_EDT ready
+rca24661	160816_0325:44_EDT adding listener=tcp
+rca24661	addr=inet6::tcpmux
+rca24661	160816_0325:44_EDT adding listener=tcp
+rca24661	addr=inet6::5108
+rca24661	160816_0325:44_EDT adding listener=uss
+rca24661	addr=/tmp/local/tcpmuxd/srv
+rca24661	160816_0325:44_EDT adding listener=pass
+rca24661	addr=/tmp/local/tcpmuxd/pass
+rca24661.0	160825_1659:04_EDT request
+rca24661.0	from=localhost
+rca24661.0	server pid=6427
+rca24661.0	160825_1659:04_EDT svc=daytime
+rca24661.0	subsvc=
+rca24661.0	server=INTERNAL(1)
+rca24661.0	160825_1659:04_EDT server(6427) exited normally ex=0
+rca24661.0	elapsed time     0-00:00:00
+rca24661.1	160914_1911:53_EDT request
+rca24661.1	from=localhost
+rca24661.1	server pid=12851
+rca24661.1	160914_1911:53_EDT svc=daytime
+rca24661.1	subsvc=
+rca24661.1	server=INTERNAL(1)
+rca24661.1	160914_1911:54_EDT server(12851) exited normally ex=0
+rca24661.1	elapsed time     0-00:00:01
+rca26692	160923_0020:56_EDT tcpmuxd 0/SYSV
+rca26692	a=sparc os=SunOS(5.8) d=rightcore.com
+rca26692	rca!local (LOCAL)
+rca26692	pr=/usr/add-on/local
+rca26692	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca26692	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca26692	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca26692	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca26692	backgrounded pid=1394
+rca26692	PID mutex captured
+rca26692	pid=1394
+rca26692	req=/tmp/local/tcpmuxd/req
+rca26692	160923_0020:57_EDT ready
+rca26692	160923_0020:57_EDT adding listener=tcp
+rca26692	addr=inet6::tcpmux
+rca26692	160923_0020:57_EDT adding listener=tcp
+rca26692	addr=inet6::5108
+rca26692	160923_0020:57_EDT adding listener=uss
+rca26692	addr=/tmp/local/tcpmuxd/srv
+rca26692	160923_0020:57_EDT adding listener=pass
+rca26692	addr=/tmp/local/tcpmuxd/pass
+rca26792	160924_2128:43_EDT tcpmuxd 0/SYSV
+rca26792	a=sparc os=SunOS(5.8) d=rightcore.com
+rca26792	rca!local (LOCAL)
+rca26792	pr=/usr/add-on/local
+rca26792	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca26792	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca26792	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca26792	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca26792	backgrounded pid=1645
+rca26792	PID mutex captured
+rca26792	pid=1645
+rca26792	req=/tmp/local/tcpmuxd/req
+rca26792	160924_2128:44_EDT ready
+rca26792	160924_2128:44_EDT adding listener=tcp
+rca26792	addr=inet6::tcpmux
+rca26792	160924_2128:44_EDT adding listener=tcp
+rca26792	addr=inet6::5108
+rca26792	160924_2128:44_EDT adding listener=uss
+rca26792	addr=/tmp/local/tcpmuxd/srv
+rca26792	160924_2128:44_EDT adding listener=pass
+rca26792	addr=/tmp/local/tcpmuxd/pass
+rca26792.0	161005_1329:34_EDT request
+rca26792.0	from=localhost
+rca26792.0	server pid=25342
+rca26792.0	161005_1329:34_EDT svc=daytime
+rca26792.0	subsvc=
+rca26792.0	server=INTERNAL(1)
+rca26792.0	161005_1329:34_EDT server(25342) exited normally ex=0
+rca26792.0	elapsed time     0-00:00:00
+rca26792.1	161010_0040:19_EDT request
+rca26792.1	from=localhost
+rca26792.1	server pid=6772
+rca26792.1	161010_0040:19_EDT svc=daytime
+rca26792.1	subsvc=
+rca26792.1	server=INTERNAL(1)
+rca26792.1	161010_0040:19_EDT server(6772) exited normally ex=0
+rca26792.1	elapsed time     0-00:00:00
+rca26792.2	161010_0040:19_EDT request
+rca26792.2	from=localhost
+rca26792.2	server pid=6773
+rca26792.2	161010_0040:19_EDT svc=daytime
+rca26792.2	subsvc=
+rca26792.2	server=INTERNAL(1)
+rca26792.2	161010_0040:19_EDT server(6773) exited normally ex=0
+rca26792.2	elapsed time     0-00:00:00
+rca26792.3	161013_0416:27_EDT request
+rca26792.3	from=localhost
+rca26792.3	server pid=3252
+rca26792.3	161013_0416:27_EDT svc=daytime
+rca26792.3	subsvc=
+rca26792.3	server=INTERNAL(1)
+rca26792.3	161013_0416:27_EDT server(3252) exited normally ex=0
+rca26792.3	elapsed time     0-00:00:00
+rca26792.4	161016_2241:17_EDT request
+rca26792.4	from=localhost
+rca26792.4	server pid=9186
+rca26792.4	161016_2241:17_EDT svc=daytime
+rca26792.4	subsvc=
+rca26792.4	server=INTERNAL(1)
+rca26792.4	161016_2241:17_EDT server(9186) exited normally ex=0
+rca26792.4	elapsed time     0-00:00:00
+rca26792.5	161016_2241:21_EDT request
+rca26792.5	from=localhost
+rca26792.5	server pid=9220
+rca26792.5	161016_2241:21_EDT svc=qotd
+rca26792.5	subsvc=
+rca26792.5	failcont from PASS
+rca26792.5	server=qotd
+rca26792.5	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca26792.5	argz=qotd
+rca26792.5	161016_2241:24_EDT server(9220) exited normally ex=0
+rca26792.5	elapsed time     0-00:00:03
+rca26792.6	161019_1634:04_EDT request
+rca26792.6	from=localhost
+rca26792.6	server pid=29071
+rca26792.6	161019_1634:04_EDT svc=daytime
+rca26792.6	subsvc=
+rca26792.6	server=INTERNAL(1)
+rca26792.6	161019_1634:04_EDT server(29071) exited normally ex=0
+rca26792.6	elapsed time     0-00:00:00
+rca26792.7	161024_1100:26_EDT request
+rca26792.7	from=localhost
+rca26792.7	server pid=8904
+rca26792.7	161024_1100:26_EDT svc=daytime
+rca26792.7	subsvc=
+rca26792.7	server=INTERNAL(1)
+rca26792.7	161024_1100:26_EDT server(8904) exited normally ex=0
+rca26792.7	elapsed time     0-00:00:00
+rca26792.8	161024_1100:35_EDT request
+rca26792.8	from=localhost
+rca26792.8	server pid=8939
+rca26792.8	161024_1100:35_EDT svc=daytime
+rca26792.8	subsvc=
+rca26792.8	server=INTERNAL(1)
+rca26792.8	161024_1100:35_EDT server(8939) exited normally ex=0
+rca26792.8	elapsed time     0-00:00:00
+rca26792.9	161024_1100:35_EDT request
+rca26792.9	from=localhost
+rca26792.9	server pid=8940
+rca26792.9	161024_1100:35_EDT svc=daytime
+rca26792.9	subsvc=
+rca26792.9	server=INTERNAL(1)
+rca26792.9	161024_1100:35_EDT server(8940) exited normally ex=0
+rca26792.9	elapsed time     0-00:00:00
+rca28914	161102_1836:31_USEDT tcpmuxd 0/SYSV
+rca28914	a=sparc os=SunOS(5.8) d=rightcore.com
+rca28914	rca!dam (David A. Morano)
+rca28914	pr=/usr/add-on/local
+rca28914	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca28914	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca28914	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca28914	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca28914.0	161102_1836:31_USEDT request
+rca28914.0	from=localhost
+rca28914.0	server pid=22664
+rca28914.0	161102_1836:31_USEDT svc=help
+rca28914.0	subsvc=
+rca28914.0	server=INTERNAL(0)
+rca28914.0	161102_1836:31_USEDT server(22664) exited normally ex=0
+rca28914.0	elapsed time     0-00:00:00
+rca26792.10	161113_2344:58_EST request
+rca26792.10	from=91.197.234.23
+rca26792.10	server pid=586
+rca26792.10	161113_2344:58_EST svc=¿
+rca26792.10	subsvc=
+rca26792.10	service not found
+rca26792.10	161113_2345:42_EST server(586) exited normally ex=0
+rca26792.10	elapsed time     0-00:00:00
+rca29770	161114_1624:51_EST tcpmuxd 0/SYSV
+rca29770	a=sparc os=SunOS(5.8) d=rightcore.com
+rca29770	rca!local (LOCAL)
+rca29770	pr=/usr/add-on/local
+rca29770	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca29770	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca29770	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca29770	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca29770	backgrounded pid=1433
+rca29770	PID mutex captured
+rca29770	pid=1433
+rca29770	req=/tmp/local/tcpmuxd/req
+rca29770	161114_1624:51_EST ready
+rca29770	161114_1624:51_EST broken(-125) listener=tcp
+rca29770	addr=inet6::tcpmux
+rca29770	161114_1624:51_EST adding listener=tcp
+rca29770	addr=inet6::5108
+rca29770	161114_1624:51_EST adding listener=uss
+rca29770	addr=/tmp/local/tcpmuxd/srv
+rca29770	161114_1624:51_EST adding listener=pass
+rca29770	addr=/tmp/local/tcpmuxd/pass
+rca29773	161114_1636:24_EST tcpmuxd 0/SYSV
+rca29773	a=sparc os=SunOS(5.8) d=rightcore.com
+rca29773	rca!local (LOCAL)
+rca29773	pr=/usr/add-on/local
+rca29773	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca29773	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca29773	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca29773	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca29773	backgrounded pid=1755
+rca29773	PID mutex captured
+rca29773	pid=1755
+rca29773	req=/tmp/local/tcpmuxd/req
+rca29773	161114_1636:24_EST ready
+rca29773	161114_1636:24_EST adding listener=tcp
+rca29773	addr=inet6::tcpmux
+rca29773	161114_1636:24_EST adding listener=tcp
+rca29773	addr=inet6::5108
+rca29773	161114_1636:24_EST adding listener=uss
+rca29773	addr=/tmp/local/tcpmuxd/srv
+rca29773	161114_1636:24_EST adding listener=pass
+rca29773	addr=/tmp/local/tcpmuxd/pass
+rca29779	161114_1652:28_EST tcpmuxd 0/SYSV
+rca29779	a=sparc os=SunOS(5.8) d=rightcore.com
+rca29779	rca!local (LOCAL)
+rca29779	pr=/usr/add-on/local
+rca29779	conf=/usr/add-on/local/etc/tcpmuxd/conf
+rca29779	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca29779	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca29779	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca29779	backgrounded pid=1545
+rca29779	PID mutex captured
+rca29779	pid=1545
+rca29779	req=/tmp/local/tcpmuxd/req
+rca29779	161114_1652:28_EST ready
+rca29779	161114_1652:28_EST adding listener=tcp
+rca29779	addr=inet6::tcpmux
+rca29779	161114_1652:28_EST adding listener=tcp
+rca29779	addr=inet6::5108
+rca29779	161114_1652:28_EST adding listener=uss
+rca29779	addr=/tmp/local/tcpmuxd/srv
+rca29779	161114_1652:28_EST adding listener=pass
+rca29779	addr=/tmp/local/tcpmuxd/pass
+rca29779.0	161119_1826:49_EST request
+rca29779.0	from=localhost
+rca29779.0	server pid=28618
+rca29779.0	161119_1826:49_EST svc=daytime
+rca29779.0	subsvc=
+rca29779.0	server=INTERNAL(1)
+rca29779.0	161119_1826:49_EST server(28618) exited normally ex=0
+rca29779.0	elapsed time     0-00:00:00
+rca29779.1	161119_1827:22_EST request
+rca29779.1	from=localhost
+rca29779.1	server pid=28778
+rca29779.1	161119_1827:22_EST svc=daytime
+rca29779.1	subsvc=
+rca29779.1	server=INTERNAL(1)
+rca29779.1	161119_1827:22_EST server(28778) exited normally ex=0
+rca29779.1	elapsed time     0-00:00:00
+rca29779.2	161119_1827:22_EST request
+rca29779.2	from=localhost
+rca29779.2	server pid=28781
+rca29779.2	161119_1827:22_EST svc=daytime
+rca29779.2	subsvc=
+rca29779.2	server=INTERNAL(1)
+rca29779.2	161119_1827:22_EST server(28781) exited normally ex=0
+rca29779.2	elapsed time     0-00:00:00
+rca29779.3	161119_1827:27_EST request
+rca29779.3	from=localhost
+rca29779.3	server pid=28844
+rca29779.3	161119_1827:27_EST svc=daytime
+rca29779.3	subsvc=
+rca29779.3	server=INTERNAL(1)
+rca29779.3	161119_1827:27_EST server(28844) exited normally ex=0
+rca29779.3	elapsed time     0-00:00:00
+rca29779.4	161119_1827:27_EST request
+rca29779.4	from=localhost
+rca29779.4	server pid=28845
+rca29779.4	161119_1827:27_EST svc=daytime
+rca29779.4	subsvc=
+rca29779.4	server=INTERNAL(1)
+rca29779.4	161119_1827:27_EST server(28845) exited normally ex=0
+rca29779.4	elapsed time     0-00:00:00
+rca29779.5	161128_2100:00_EST request
+rca29779.5	from=89.248.162.149
+rca29779.5	server pid=384
+rca29779.5	161128_2100:00_EST svc=default
+rca29779.5	subsvc=
+rca29779.5	service not found
+rca29779.5	161128_2100:05_EST server(384) exited normally ex=0
+rca29779.5	elapsed time     0-00:00:00
+rca29779.6	161129_0147:42_EST request
+rca29779.6	from=89.248.162.149
+rca29779.6	server pid=11931
+rca29779.6	161129_0147:45_EST server(11931) exited normally ex=122
+rca29779.6	elapsed time     0-00:00:03
+rca29779.7	161129_0635:13_EST request
+rca29779.7	from=89.248.162.149
+rca29779.7	server pid=19253
+rca29779.7	161129_0635:16_EST server(19253) exited normally ex=122
+rca29779.7	elapsed time     0-00:00:03
+rca29779.8	161129_1131:19_EST request
+rca29779.8	from=89.248.162.149
+rca29779.8	server pid=1559
+rca29779.8	161129_1131:19_EST svc=default
+rca29779.8	subsvc=
+rca29779.8	service not found
+rca29779.8	161129_1131:25_EST server(1559) exited normally ex=0
+rca29779.8	elapsed time     0-00:00:00
+rca29779.9	161129_1626:55_EST request
+rca29779.9	from=89.248.162.149
+rca29779.9	server pid=18321
+rca29779.9	161129_1626:59_EST server(18321) exited normally ex=122
+rca29779.9	elapsed time     0-00:00:04
+rca29779.10	161208_0056:36_EST request
+rca29779.10	from=localhost
+rca29779.10	server pid=4270
+rca29779.10	161208_0056:36_EST svc=daytime
+rca29779.10	subsvc=
+rca29779.10	server=INTERNAL(1)
+rca29779.10	161208_0056:36_EST server(4270) exited normally ex=0
+rca29779.10	elapsed time     0-00:00:00
+rca29779.11	161208_0056:40_EST request
+rca29779.11	from=localhost
+rca29779.11	server pid=4271
+rca29779.11	161208_0056:40_EST svc=daytime
+rca29779.11	subsvc=
+rca29779.11	server=INTERNAL(1)
+rca29779.11	161208_0056:40_EST server(4271) exited normally ex=0
+rca29779.11	elapsed time     0-00:00:00
+rca29779.12	161226_2040:29_EST request
+rca29779.12	from=localhost
+rca29779.12	server pid=12768
+rca29779.12	161226_2040:29_EST svc=daytime
+rca29779.12	subsvc=
+rca29779.12	server=INTERNAL(1)
+rca29779.12	161226_2040:29_EST server(12768) exited normally ex=0
+rca29779.12	elapsed time     0-00:00:00
+rca29779.13	161227_0911:45_EST request
+rca29779.13	from=ju125
+rca29779.13	server pid=5089
+rca29779.13	161227_0911:45_EST svc=default
+rca29779.13	subsvc=
+rca29779.13	service not found
+rca29779.14	161227_0911:55_EST request
+rca29779.14	from=ju125
+rca29779.14	server pid=5090
+rca29779.14	161227_0911:55_EST svc=¿
+rca29779.14	subsvc=
+rca29779.14	service not found
+rca29779.13	161227_0911:55_EST server(5089) exited normally ex=0
+rca29779.13	elapsed time     0-00:00:00
+rca29779.14	161227_0911:55_EST server(5090) exited normally ex=0
+rca29779.14	elapsed time     0-00:00:00
+rca29779.15	161227_1843:04_EST request
+rca29779.15	from=localhost
+rca29779.15	server pid=23705
+rca29779.15	161227_1843:04_EST svc=daytime
+rca29779.15	subsvc=
+rca29779.15	server=INTERNAL(1)
+rca29779.15	161227_1843:04_EST server(23705) exited normally ex=0
+rca29779.15	elapsed time     0-00:00:00
+rca29779.16	161227_1843:07_EST request
+rca29779.16	from=localhost
+rca29779.16	server pid=23707
+rca29779.16	161227_1843:07_EST svc=daytime
+rca29779.16	subsvc=
+rca29779.16	server=INTERNAL(1)
+rca29779.16	161227_1843:07_EST server(23707) exited normally ex=0
+rca29779.16	elapsed time     0-00:00:00
+rca29779.17	161227_1843:07_EST request
+rca29779.17	from=localhost
+rca29779.17	server pid=23708
+rca29779.17	161227_1843:07_EST svc=daytime
+rca29779.17	subsvc=
+rca29779.17	server=INTERNAL(1)
+rca29779.17	161227_1843:07_EST server(23708) exited normally ex=0
+rca29779.17	elapsed time     0-00:00:00
+rca29779.18	161231_2359:07_EST request
+rca29779.18	from=localhost
+rca29779.18	server pid=26328
+rca29779.18	161231_2359:07_EST svc=daytime
+rca29779.18	subsvc=
+rca29779.18	server=INTERNAL(1)
+rca29779.18	161231_2359:08_EST server(26328) exited normally ex=0
+rca29779.18	elapsed time     0-00:00:01
+rca29779.19	170101_0332:24_EST request
+rca29779.19	from=rca
+rca29779.19	server pid=515
+rca29779.19	170101_0332:24_EST svc=daytime
+rca29779.19	subsvc=
+rca29779.19	server=INTERNAL(1)
+rca29779.20	170101_0332:24_EST request
+rca29779.20	from=dnscache
+rca29779.20	server pid=516
+rca29779.20	170101_0332:24_EST svc=daytime
+rca29779.20	subsvc=
+rca29779.20	server=INTERNAL(1)
+rca29779.19	170101_0332:24_EST server(515) exited normally ex=0
+rca29779.19	elapsed time     0-00:00:00
+rca29779.20	170101_0332:24_EST server(516) exited normally ex=0
+rca29779.20	elapsed time     0-00:00:00
+rca29779.21	170101_0332:28_EST request
+rca29779.21	from=rca
+rca29779.21	server pid=518
+rca29779.21	170101_0332:28_EST svc=daytime
+rca29779.21	subsvc=
+rca29779.21	server=INTERNAL(1)
+rca29779.22	170101_0332:28_EST request
+rca29779.22	from=dnscache
+rca29779.21	170101_0332:28_EST server(518) exited normally ex=0
+rca29779.21	elapsed time     0-00:00:00
+rca29779.22	server pid=519
+rca29779.22	170101_0332:28_EST svc=daytime
+rca29779.22	subsvc=
+rca29779.22	server=INTERNAL(1)
+rca29779.22	170101_0332:28_EST server(519) exited normally ex=0
+rca29779.22	elapsed time     0-00:00:00
+rca29779.23	170101_0332:32_EST request
+rca29779.23	from=rca
+rca29779.23	server pid=521
+rca29779.23	170101_0332:32_EST svc=daytime
+rca29779.23	subsvc=
+rca29779.23	server=INTERNAL(1)
+rca29779.24	170101_0332:32_EST request
+rca29779.24	from=dnscache
+rca29779.23	170101_0332:32_EST server(521) exited normally ex=0
+rca29779.23	elapsed time     0-00:00:00
+rca29779.24	server pid=522
+rca29779.24	170101_0332:32_EST svc=daytime
+rca29779.24	subsvc=
+rca29779.24	server=INTERNAL(1)
+rca29779.24	170101_0332:32_EST server(522) exited normally ex=0
+rca29779.24	elapsed time     0-00:00:00
+rca29779.25	170101_0335:36_EST request
+rca29779.25	from=localhost
+rca29779.25	server pid=578
+rca29779.25	170101_0335:36_EST svc=daytime
+rca29779.25	subsvc=
+rca29779.25	server=INTERNAL(1)
+rca29779.26	170101_0335:36_EST request
+rca29779.26	from=localhost
+rca29779.25	170101_0335:36_EST server(578) exited normally ex=0
+rca29779.25	elapsed time     0-00:00:00
+rca29779.26	server pid=579
+rca29779.26	170101_0335:36_EST svc=daytime
+rca29779.26	subsvc=
+rca29779.26	server=INTERNAL(1)
+rca29779.26	170101_0335:36_EST server(579) exited normally ex=0
+rca29779.26	elapsed time     0-00:00:00
+rca29779.27	170101_1235:14_EST request
+rca29779.27	from=localhost
+rca29779.27	server pid=25200
+rca29779.27	170101_1235:14_EST svc=finger
+rca29779.27	subsvc=
+rca29779.27	access denied
+rca29779.27	service not found
+rca29779.27	170101_1235:14_EST server(25200) exited normally ex=0
+rca29779.27	elapsed time     0-00:00:00
+rca29779.28	170101_1235:20_EST request
+rca29779.28	from=localhost
+rca29779.28	server pid=25202
+rca29779.28	170101_1235:20_EST svc=finger
+rca29779.28	subsvc=
+rca29779.28	access denied
+rca29779.28	service not found
+rca29779.28	170101_1235:20_EST server(25202) exited normally ex=0
+rca29779.28	elapsed time     0-00:00:00
+rca29779.29	170102_2118:12_EST request
+rca29779.29	from=localhost
+rca29779.29	server pid=18601
+rca29779.29	170102_2118:12_EST svc=daytime
+rca29779.29	subsvc=
+rca29779.29	server=INTERNAL(1)
+rca29779.29	170102_2118:12_EST server(18601) exited normally ex=0
+rca29779.29	elapsed time     0-00:00:00
+rca29779.30	170102_2118:34_EST request
+rca29779.30	from=localhost
+rca29779.30	server pid=18920
+rca29779.30	170102_2118:34_EST svc=daytime
+rca29779.30	subsvc=
+rca29779.30	server=INTERNAL(1)
+rca29779.30	170102_2118:34_EST server(18920) exited normally ex=0
+rca29779.30	elapsed time     0-00:00:00
+rca29779.31	170102_2118:44_EST request
+rca29779.31	from=localhost
+rca29779.31	server pid=19081
+rca29779.31	170102_2118:44_EST svc=daytime
+rca29779.31	subsvc=
+rca29779.31	server=INTERNAL(1)
+rca29779.31	170102_2118:44_EST server(19081) exited normally ex=0
+rca29779.31	elapsed time     0-00:00:00
+rca29779.32	170102_2118:49_EST request
+rca29779.32	from=localhost
+rca29779.32	server pid=19154
+rca29779.32	170102_2118:49_EST svc=daytime
+rca29779.32	subsvc=
+rca29779.32	server=INTERNAL(1)
+rca29779.33	170102_2118:49_EST request
+rca29779.33	from=localhost
+rca29779.32	170102_2118:49_EST server(19154) exited normally ex=0
+rca29779.32	elapsed time     0-00:00:00
+rca29779.33	server pid=19155
+rca29779.33	170102_2118:49_EST svc=daytime
+rca29779.33	subsvc=
+rca29779.33	server=INTERNAL(1)
+rca29779.33	170102_2118:49_EST server(19155) exited normally ex=0
+rca29779.33	elapsed time     0-00:00:00
+rca29779.34	170102_2122:07_EST request
+rca29779.34	from=localhost
+rca29779.34	server pid=20489
+rca29779.34	170102_2122:07_EST svc=daytime
+rca29779.34	subsvc=
+rca29779.34	server=INTERNAL(1)
+rca29779.34	170102_2122:07_EST server(20489) exited normally ex=0
+rca29779.34	elapsed time     0-00:00:00
+rca29779.35	170102_2122:07_EST request
+rca29779.35	from=localhost
+rca29779.35	server pid=20490
+rca29779.35	170102_2122:07_EST svc=daytime
+rca29779.35	subsvc=
+rca29779.35	server=INTERNAL(1)
+rca29779.35	170102_2122:07_EST server(20490) exited normally ex=0
+rca29779.35	elapsed time     0-00:00:00
+rca29779.36	170102_2122:30_EST request
+rca29779.36	from=localhost
+rca29779.36	server pid=20512
+rca29779.36	170102_2122:30_EST svc=daytime
+rca29779.36	subsvc=
+rca29779.36	server=INTERNAL(1)
+rca29779.36	170102_2122:31_EST server(20512) exited normally ex=0
+rca29779.36	elapsed time     0-00:00:01
+rca29779.37	170102_2122:32_EST request
+rca29779.37	from=localhost
+rca29779.37	server pid=20524
+rca29779.37	170102_2122:32_EST svc=daytime
+rca29779.37	subsvc=
+rca29779.37	server=INTERNAL(1)
+rca29779.37	170102_2122:32_EST server(20524) exited normally ex=0
+rca29779.37	elapsed time     0-00:00:00
+rca29779.38	170102_2122:33_EST request
+rca29779.38	from=localhost
+rca29779.38	server pid=20539
+rca29779.38	170102_2122:33_EST svc=daytime
+rca29779.38	subsvc=
+rca29779.38	server=INTERNAL(1)
+rca29779.38	170102_2122:33_EST server(20539) exited normally ex=0
+rca29779.38	elapsed time     0-00:00:00
+rca29779.39	170102_2122:35_EST request
+rca29779.39	from=localhost
+rca29779.39	server pid=20540
+rca29779.39	170102_2122:35_EST svc=daytime
+rca29779.39	subsvc=
+rca29779.39	server=INTERNAL(1)
+rca29779.39	170102_2122:35_EST server(20540) exited normally ex=0
+rca29779.39	elapsed time     0-00:00:00
+rca29779.40	170102_2122:36_EST request
+rca29779.40	from=localhost
+rca29779.40	server pid=20544
+rca29779.40	170102_2122:36_EST svc=daytime
+rca29779.40	subsvc=
+rca29779.40	server=INTERNAL(1)
+rca29779.40	170102_2122:36_EST server(20544) exited normally ex=0
+rca29779.40	elapsed time     0-00:00:00
+rca29779.41	170102_2122:39_EST request
+rca29779.41	from=localhost
+rca29779.41	server pid=20567
+rca29779.41	170102_2122:39_EST svc=daytime
+rca29779.41	subsvc=
+rca29779.41	server=INTERNAL(1)
+rca29779.41	170102_2122:39_EST server(20567) exited normally ex=0
+rca29779.41	elapsed time     0-00:00:00
+rca29779.42	170102_2122:42_EST request
+rca29779.42	from=localhost
+rca29779.42	server pid=20595
+rca29779.42	170102_2122:42_EST svc=daytime
+rca29779.42	subsvc=
+rca29779.42	server=INTERNAL(1)
+rca29779.42	170102_2122:42_EST server(20595) exited normally ex=0
+rca29779.42	elapsed time     0-00:00:00
+rca29779.43	170102_2122:44_EST request
+rca29779.43	from=localhost
+rca29779.43	server pid=20596
+rca29779.43	170102_2122:44_EST svc=daytime
+rca29779.43	subsvc=
+rca29779.43	server=INTERNAL(1)
+rca29779.43	170102_2122:44_EST server(20596) exited normally ex=0
+rca29779.43	elapsed time     0-00:00:00
+rca29779.44	170102_2122:45_EST request
+rca29779.44	from=localhost
+rca29779.44	server pid=20597
+rca29779.44	170102_2122:45_EST svc=daytime
+rca29779.44	subsvc=
+rca29779.44	server=INTERNAL(1)
+rca29779.44	170102_2122:45_EST server(20597) exited normally ex=0
+rca29779.44	elapsed time     0-00:00:00
+rca29779.45	170102_2122:46_EST request
+rca29779.45	from=localhost
+rca29779.45	server pid=20598
+rca29779.45	170102_2122:46_EST svc=daytime
+rca29779.45	subsvc=
+rca29779.45	server=INTERNAL(1)
+rca29779.45	170102_2122:46_EST server(20598) exited normally ex=0
+rca29779.45	elapsed time     0-00:00:00
+rca29779.46	170114_0619:13_EST request
+rca29779.46	from=localhost
+rca29779.46	server pid=24252
+rca29779.46	170114_0619:13_EST svc=qotd
+rca29779.46	subsvc=
+rca29779.46	failcont from PASS
+rca29779.46	server=qotd
+rca29779.46	shlib=/usr/add-on/local/lib/liblkcmd.so
+rca29779.46	argz=qotd
+rca29779.46	170114_0619:14_EST server(24252) exited normally ex=0
+rca29779.46	elapsed time     0-00:00:01
+rca132502	170114_2337:29_USEST tcpmuxd 0/SYSV
+rca132502	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132502	rca!local (LOCAL)
+rca132502	pr=/usr/add-on/local
+rca132502	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132502	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132502	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132502	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132502.0	170114_2337:32_USEST request
+rca132502.0	from=localhost
+rca132502.0	server pid=29281
+rca132502.0	170114_2337:32_USEST svc=daytie
+rca132502.0	subsvc=
+rca132502.0	service not found
+rca132502.0	170114_2337:32_USEST server(29281) exited normally ex=0
+rca132502.0	elapsed time     0-00:00:00
+rca132503	170114_2337:36_USEST tcpmuxd 0/SYSV
+rca132503	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132503	rca!local (LOCAL)
+rca132503	pr=/usr/add-on/local
+rca132503	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132503	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132503	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132503	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132503.0	170114_2337:36_USEST request
+rca132503.0	from=localhost
+rca132503.0	server pid=29296
+rca132503.0	170114_2337:36_USEST svc=daytime
+rca132503.0	subsvc=
+rca132503.0	server=INTERNAL(1)
+rca132503.0	170114_2337:36_USEST server(29296) exited normally ex=0
+rca132503.0	elapsed time     0-00:00:00
+rca132504	170114_2338:56_USEST tcpmuxd 0/SYSV
+rca132504	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132504	rca!local (LOCAL)
+rca132504	pr=/usr/add-on/local
+rca132504	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132504	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132504	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132504	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132504.0	170114_2338:57_USEST request
+rca132504.0	from=localhost
+rca132504.0	server pid=29547
+rca132504.0	170114_2338:57_USEST svc=daytime
+rca132504.0	subsvc=
+rca132504.0	server=INTERNAL(1)
+rca132504.0	170114_2338:57_USEST server(29547) exited normally ex=0
+rca132504.0	elapsed time     0-00:00:00
+rca132510	170115_1834:34_USEST tcpmuxd 0/SYSV
+rca132510	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132510	rca!dam (David A. Morano)
+rca132510	pr=/usr/add-on/local
+rca132510	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132510	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132510	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132510	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132510.0	170115_1834:34_USEST request
+rca132510.0	from=localhost
+rca132510.0	server pid=8627
+rca132510.0	170115_1834:34_USEST svc=daytime
+rca132510.0	subsvc=
+rca132510.0	server=INTERNAL(1)
+rca132510.0	170115_1834:35_USEST server(8627) exited normally ex=0
+rca132510.0	elapsed time     0-00:00:01
+rca29779.47	170120_0845:14_EST request
+rca29779.47	from=host84-137-14-31
+rca29779.47	server pid=811
+rca29779.47	170120_0845:14_EST svc=GET
+rca29779.47	subsvc=
+rca29779.47	service not found
+rca29779.47	170120_0845:20_EST server(811) exited normally ex=0
+rca29779.47	elapsed time     0-00:00:01
+rca29779.48	170120_0845:20_EST request
+rca29779.48	from=host84-137-14-31
+rca29779.48	server pid=814
+rca29779.48	170120_0845:20_EST svc=HELP
+rca29779.48	subsvc=
+rca29779.48	server=INTERNAL(0)
+rca29779.48	170120_0845:20_EST server(814) exited normally ex=0
+rca29779.48	elapsed time     0-00:00:00
+rca29779.49	170120_0845:20_EST request
+rca29779.49	from=host84-137-14-31
+rca29779.49	server pid=817
+rca29779.49	170120_0845:20_EST svc=default
+rca29779.49	subsvc=
+rca29779.49	service not found
+rca29779.49	170120_0845:20_EST server(817) exited normally ex=0
+rca29779.49	elapsed time     0-00:00:00
+rca29779.50	170120_0845:21_EST request
+rca29779.50	from=host84-137-14-31
+rca29779.50	server pid=819
+rca29779.50	170120_0845:21_EST svc=OPTIONS
+rca29779.50	subsvc=
+rca29779.50	service not found
+rca29779.50	170120_0845:21_EST server(819) exited normally ex=0
+rca29779.50	elapsed time     0-00:00:00
+rca29779.51	170120_0845:21_EST request
+rca29779.51	from=host84-137-14-31
+rca29779.51	server pid=822
+rca29779.51	170120_0845:21_EST svc=OPTIONS
+rca29779.51	subsvc=
+rca29779.51	service not found
+rca29779.51	170120_0845:21_EST server(822) exited normally ex=0
+rca29779.51	elapsed time     0-00:00:00
+rca29779.52	170120_0845:22_EST request
+rca29779.52	from=host84-137-14-31
+rca29779.52	server pid=828
+rca29779.52	170120_0845:22_EST svc=¿
+rca29779.52	subsvc=
+rca29779.52	service not found
+rca29779.52	170120_0845:22_EST server(828) exited normally ex=0
+rca29779.52	elapsed time     0-00:00:00
+rca29779.53	170120_0845:22_EST request
+rca29779.53	from=host84-137-14-31
+rca29779.53	server pid=832
+rca29779.53	170120_0845:25_EST server(832) exited normally ex=122
+rca29779.53	elapsed time     0-00:00:03
+rca29779.54	170120_0845:25_EST request
+rca29779.54	from=host84-137-14-31
+rca29779.54	server pid=863
+rca29779.54	170120_0845:25_EST svc=default
+rca29779.54	subsvc=
+rca29779.54	service not found
+rca29779.54	170120_0845:25_EST server(863) exited normally ex=0
+rca29779.54	elapsed time     0-00:00:00
+rca29779.55	170120_0845:26_EST request
+rca29779.55	from=host84-137-14-31
+rca29779.55	server pid=866
+rca29779.55	170120_0845:26_EST svc=¿¿
+rca29779.55	subsvc=
+rca29779.55	service not found
+rca29779.55	170120_0845:26_EST server(866) exited normally ex=0
+rca29779.55	elapsed time     0-00:00:00
+rca29779.56	170120_0845:26_EST request
+rca29779.56	from=host84-137-14-31
+rca29779.56	server pid=869
+rca29779.56	170120_0845:29_EST server(869) exited normally ex=122
+rca29779.56	elapsed time     0-00:00:03
+rca29779.57	170120_0845:29_EST request
+rca29779.57	from=host84-137-14-31
+rca29779.57	server pid=897
+rca29779.57	170120_0845:32_EST server(897) exited normally ex=122
+rca29779.57	elapsed time     0-00:00:03
+rca29779.58	170120_0845:33_EST request
+rca29779.58	from=host84-137-14-31
+rca29779.58	server pid=918
+rca29779.58	170120_0845:33_EST svc=default
+rca29779.58	subsvc=
+rca29779.58	service not found
+rca29779.58	170120_0845:33_EST server(918) exited normally ex=0
+rca29779.58	elapsed time     0-00:00:00
+rca29779.59	170120_0845:33_EST request
+rca29779.59	from=host84-137-14-31
+rca29779.59	server pid=919
+rca29779.59	170120_0845:33_EST svc=l
+rca29779.59	subsvc=
+rca29779.59	service not found
+rca29779.59	170120_0845:33_EST server(919) exited normally ex=0
+rca29779.59	elapsed time     0-00:00:00
+rca29779.60	170120_0845:33_EST request
+rca29779.60	from=host84-137-14-31
+rca29779.60	server pid=922
+rca29779.60	170120_0845:33_EST svc=GET
+rca29779.60	subsvc=
+rca29779.60	service not found
+rca29779.60	170120_0845:33_EST server(922) exited normally ex=0
+rca29779.60	elapsed time     0-00:00:00
+rca29779.61	170120_0845:33_EST request
+rca29779.61	from=host84-137-14-31
+rca29779.61	server pid=926
+rca29779.61	170120_0845:33_EST svc=¿default
+rca29779.61	subsvc=
+rca29779.61	service not found
+rca29779.61	170120_0845:34_EST server(926) exited normally ex=0
+rca29779.61	elapsed time     0-00:00:01
+rca29779.62	170120_0845:34_EST request
+rca29779.62	from=host84-137-14-31
+rca29779.62	server pid=928
+rca29779.62	170120_0845:34_EST svc=0
+rca29779.62	subsvc=
+rca29779.62	service not found
+rca29779.62	170120_0845:34_EST server(928) exited normally ex=0
+rca29779.62	elapsed time     0-00:00:00
+rca29779.63	170120_0845:34_EST request
+rca29779.63	from=host84-137-14-31
+rca29779.63	server pid=931
+rca29779.63	170120_0845:34_EST svc=OPTIONS
+rca29779.63	subsvc=
+rca29779.63	service not found
+rca29779.63	170120_0845:34_EST server(931) exited normally ex=0
+rca29779.63	elapsed time     0-00:00:00
+rca29779.64	170120_0845:34_EST request
+rca29779.64	from=host84-137-14-31
+rca29779.64	server pid=935
+rca29779.64	170120_0845:34_EST svc=TNMP¿
+rca29779.64	subsvc=
+rca29779.64	service not found
+rca29779.64	170120_0845:34_EST server(935) exited normally ex=0
+rca29779.64	elapsed time     0-00:00:00
+rca29779.65	170120_0845:35_EST request
+rca29779.65	from=host84-137-14-31
+rca29779.65	server pid=940
+rca29779.65	170120_0845:35_EST svc=¿
+rca29779.65	subsvc=
+rca29779.65	service not found
+rca29779.65	170120_0845:35_EST server(940) exited normally ex=0
+rca29779.65	elapsed time     0-00:00:00
+rca29779.66	170120_0845:35_EST request
+rca29779.66	from=host84-137-14-31
+rca29779.66	server pid=944
+rca29779.66	170120_0845:38_EST server(944) exited normally ex=122
+rca29779.66	elapsed time     0-00:00:03
+rca29779.67	170120_0845:38_EST request
+rca29779.67	from=host84-137-14-31
+rca29779.67	server pid=967
+rca29779.67	170120_0845:38_EST svc=:
+rca29779.67	subsvc=
+rca29779.67	service not found
+rca29779.67	170120_0845:38_EST server(967) exited normally ex=0
+rca29779.67	elapsed time     0-00:00:00
+rca29779.68	170120_0845:39_EST request
+rca29779.68	from=host84-137-14-31
+rca29779.68	server pid=968
+rca29779.68	170120_0845:42_EST server(968) exited normally ex=122
+rca29779.68	elapsed time     0-00:00:03
+rca29779.69	170120_0845:42_EST request
+rca29779.69	from=host84-137-14-31
+rca29779.69	server pid=978
+rca29779.69	170120_0845:45_EST server(978) exited normally ex=122
+rca29779.69	elapsed time     0-00:00:03
+rca29779.70	170120_0845:45_EST request
+rca29779.70	from=host84-137-14-31
+rca29779.70	server pid=985
+rca29779.70	170120_0845:45_EST svc=default
+rca29779.70	subsvc=
+rca29779.70	service not found
+rca29779.70	170120_0845:45_EST server(985) exited normally ex=0
+rca29779.70	elapsed time     0-00:00:00
+rca29779.71	170120_0845:46_EST request
+rca29779.71	from=host84-137-14-31
+rca29779.71	server pid=988
+rca29779.71	170120_0845:49_EST server(988) exited normally ex=122
+rca29779.71	elapsed time     0-00:00:03
+rca29779.72	170120_0845:49_EST request
+rca29779.72	from=host84-137-14-31
+rca29779.72	server pid=993
+rca29779.72	170120_0845:49_EST svc=GIOP¿
+rca29779.72	subsvc=
+rca29779.72	service not found
+rca29779.72	170120_0845:49_EST server(993) exited normally ex=0
+rca29779.72	elapsed time     0-00:00:00
+rca29779.73	170120_0848:05_EST request
+rca29779.73	from=host84-137-14-31
+rca29779.73	server pid=1387
+rca29779.73	170120_0848:05_EST svc=¿
+rca29779.73	subsvc=
+rca29779.73	service not found
+rca29779.73	170120_0848:05_EST server(1387) exited normally ex=0
+rca29779.73	elapsed time     0-00:00:00
+rca132524	170126_1829:32_USEST tcpmuxd 0/SYSV
+rca132524	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132524	rca!local (LOCAL)
+rca132524	pr=/usr/add-on/local
+rca132524	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132524	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132524	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132524	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132524	backgrounded pid=15078
+rca132524	PID mutex captured
+rca132524	pid=15078
+rca132524	req=/tmp/local/tcpmuxd/req
+rca132524	170126_1829:32_USEST ready
+rca132524	170126_1829:32_USEST broken(-83) listener=tcp
+rca132524	addr=inet6::tcpmux
+rca132524	170126_1829:32_USEST adding listener=tcp
+rca132524	addr=inet6::5108
+rca132524	170126_1829:32_USEST adding listener=uss
+rca132524	addr=/tmp/local/tcpmuxd/srv
+rca132524	170126_1829:32_USEST adding listener=pass
+rca132524	addr=/tmp/local/tcpmuxd/pass
+rca132531	170126_2009:36_USEST tcpmuxd 0/SYSV
+rca132531	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132531	rca!local (LOCAL)
+rca132531	pr=/usr/add-on/local
+rca132531	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132531	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132531	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132531	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132531	backgrounded pid=2045
+rca132531	PID mutex captured
+rca132531	pid=2045
+rca132531	req=/tmp/local/tcpmuxd/req
+rca132531	170126_2009:36_USEST ready
+rca132531	170126_2009:36_USEST adding listener=tcp
+rca132531	addr=inet6::tcpmux
+rca132531	170126_2009:36_USEST adding listener=tcp
+rca132531	addr=inet6::5108
+rca132531	170126_2009:36_USEST adding listener=uss
+rca132531	addr=/tmp/local/tcpmuxd/srv
+rca132531	170126_2009:36_USEST adding listener=pass
+rca132531	addr=/tmp/local/tcpmuxd/pass
+rca132531.0	170131_1751:55_USEST request
+rca132531.0	from=122.224.153.110
+rca132531.0	server pid=1400
+rca132531.0	170131_1751:55_USEST svc=GET
+rca132531.0	subsvc=
+rca132531.0	service not found
+rca132531.0	170131_1751:57_USEST server(1400) exited normally ex=0
+rca132531.0	elapsed time     0-00:00:02
+rca132531.1	170203_2037:59_USEST request
+rca132531.1	from=93.174.93.78
+rca132531.1	server pid=7140
+rca132531.1	170203_2038:13_USEST server(7140) exited normally ex=122
+rca132531.1	elapsed time     0-00:00:03
+rca132531.2	170204_0232:49_USEST request
+rca132531.2	from=93.174.93.78
+rca132531.2	server pid=8608
+rca132531.2	170204_0232:52_USEST server(8608) exited normally ex=122
+rca132531.2	elapsed time     0-00:00:03
+rca132531.3	170204_0844:02_USEST request
+rca132531.3	from=93.174.93.78
+rca132531.3	server pid=16910
+rca132531.3	170204_0844:06_USEST server(16910) exited normally ex=122
+rca132531.3	elapsed time     0-00:00:03
+rca132531.4	170204_1456:45_USEST request
+rca132531.4	from=93.174.93.78
+rca132531.4	server pid=17824
+rca132531.4	170204_1456:49_USEST server(17824) exited normally ex=122
+rca132531.4	elapsed time     0-00:00:03
+rca132534	170206_1841:45_EST tcpmuxd 0/SYSV
+rca132534	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132534	rca!local (LOCAL)
+rca132534	pr=/usr/add-on/local
+rca132534	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132534	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132534	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132534	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132534	backgrounded pid=1925
+rca132534	PID mutex captured
+rca132534	pid=1925
+rca132534	req=/tmp/local/tcpmuxd/req
+rca132534	170206_1841:46_EST ready
+rca132534	170206_1841:46_EST adding listener=tcp
+rca132534	addr=inet6::tcpmux
+rca132534	170206_1841:46_EST adding listener=tcp
+rca132534	addr=inet6::5108
+rca132534	170206_1841:46_EST adding listener=uss
+rca132534	addr=/tmp/local/tcpmuxd/srv
+rca132534	170206_1841:46_EST adding listener=pass
+rca132534	addr=/tmp/local/tcpmuxd/pass
+rca132537	170208_0015:21_EST tcpmuxd 0/SYSV
+rca132537	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132537	rca!local (LOCAL)
+rca132537	pr=/usr/add-on/local
+rca132537	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132537	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132537	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132537	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132537	backgrounded pid=1478
+rca132537	PID mutex captured
+rca132537	pid=1478
+rca132537	req=/tmp/local/tcpmuxd/req
+rca132537	170208_0015:21_EST ready
+rca132537	170208_0015:21_EST adding listener=tcp
+rca132537	addr=inet6::tcpmux
+rca132537	170208_0015:21_EST adding listener=tcp
+rca132537	addr=inet6::5108
+rca132537	170208_0015:21_EST adding listener=uss
+rca132537	addr=/tmp/local/tcpmuxd/srv
+rca132537	170208_0015:21_EST adding listener=pass
+rca132537	addr=/tmp/local/tcpmuxd/pass
+rca132540	170213_0719:04_USEST tcpmuxd 0/SYSV
+rca132540	a=sparc os=SunOS(5.8) d=rightcore.com
+rca132540	rca!local (LOCAL)
+rca132540	pr=/usr/add-on/local
+rca132540	cf=/usr/add-on/local/etc/tcpmuxd/conf
+rca132540	pid=/usr/add-on/local/var/run/rca.tcpmuxd
+rca132540	svc=/usr/add-on/local/etc/tcpmuxd/svc
+rca132540	acc=/usr/add-on/local/etc/tcpmuxd/acc
+rca132540	backgrounded pid=444
+rca132540	PID mutex captured
+rca132540	pid=444
+rca132540	req=/tmp/local/tcpmuxd/req
+rca132540	170213_0719:04_USEST ready
+rca132540	170213_0719:04_USEST adding listener=tcp
+rca132540	addr=inet6::tcpmux
+rca132540	170213_0719:04_USEST adding listener=tcp
+rca132540	addr=inet6::5108
+rca132540	170213_0719:04_USEST adding listener=uss
+rca132540	addr=/tmp/local/tcpmuxd/srv
+rca132540	170213_0719:04_USEST adding listener=pass
+rca132540	addr=/tmp/local/tcpmuxd/pass

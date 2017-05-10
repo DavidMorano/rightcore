@@ -1,0 +1,15 @@
+MAILALIAS
+
+We query alias-names in the system MAILALIAS database.
+
+Synopsis:
+$ mailalias [<aliasname(s)> ...] [-af <afile>] [-p <profile>] 
+	[-dump <dfile>] [-V]
+
+Arguments:
+<aliasname(s)>	names to translate
+-af <afile>	argument list file
+-p <profile>	mail-alias profile (default is 'default')
+-dump <dfile>	dump the database in ASCII to file
+-V		print command version to standard-error and then exit
+

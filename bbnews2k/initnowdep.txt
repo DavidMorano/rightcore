@@ -1,0 +1,1 @@
+initnow.o:		initnow.c $(INCS)

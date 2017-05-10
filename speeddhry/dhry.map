@@ -1,0 +1,9 @@
+
+DAMspeeddhry1 {
+	global:
+		cpuspeed ;
+	local:
+		* ;
+} ;
+
+

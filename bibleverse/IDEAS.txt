@@ -1,0 +1,18 @@
+IDEAS
+
+The bible-verse-structure (BVS) database looks like (in binary):
+
+= header
+	+ total vzerses
+	+ -> book_table_off
+	+ -> chapter_table_off
+
+= book table (array of book entries)
+	+ <nzverses>:<cindex>:<nchapters>
+	+ ...
+
+= chapter table (indexed by <cindex>)
+	+ <nverses>
+	+ ...
+
+

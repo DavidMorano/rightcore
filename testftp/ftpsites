@@ -1,0 +1,16 @@
+
+NOAA METARs
+
+ftp://weather.noaa.gov/data/observations/metar/stations/KBOS.TXT
+ftp://weather.noaa.gov/data/observations/metar/cycles/15Z.TXT
+
+
+To get the METAR, use something like :
+
+$ ncftp -a weather.noaa.gov:/data/observations/metar/stations/KBOS.TXT
+
+
+
+wuarchive.wustl.edu
+
+

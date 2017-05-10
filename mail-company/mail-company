@@ -1,0 +1,92 @@
+ # <-- force CSH to use Bourne shell
+# MAIL-COMPANY
+
+
+LRELAY=hocpb
+CRELAY=emsr
+
+
+: ${PCS:=/home/gwbb/add-on/pcs}
+PROGRAMROOT=${PCS}
+export PCS PROGRAMROOT
+
+
+LOGFILE=${PCS}/log/mail-company
+
+
+# done with configuration
+
+
+if [ ! -w "${LOGFILE}" ] ; then
+
+  rm -f $LOGFILE
+  cp /dev/null $LOGFILE
+  chmod 666 $LOGFILE
+
+fi 2> /dev/null
+
+if [ ! -w "${LOGFILE}" ] ; then
+
+  LOGFILE=/tmp/mail-company
+  rm -f $LOGFILE
+  cp /dev/null $LOGFILE
+  chmod 666 $LOGFILE
+
+fi 2> /dev/null
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+
+mailit() {
+  H=`echo $A | cut -d'!' -f1 `
+  U=`echo $A | cut -d'!' -f2-9 `
+  uuname | fgrep $H > /dev/null 2>&1
+  if [ $? -eq 0 ] ; then
+
+    uux -p ${H}!rmail "(${U})" # >> ${LOGFILE}
+
+  else
+
+    if [ ${LRELAY} == ${MACH} ] ; then
+
+      uux -p ${CRELAY}!rmail "(${H}!${U})" # >> ${LOGFILE}
+#      echoargs rmail ${H}!${U} 
+
+    else
+
+      rexec $LRELAY /home/gwbb/add-on/pcs/bin/mail-company ${H}!${U} 
+#      echoargs rslow ${LRELAY} mail-company ${H}!${U} 
+#      echoargs rexec $LRELAY rmail ${H}!${U} 
+
+    fi
+
+  fi
+}
+
+
+
+for A in "${@}" ; do
+
+  case $A in
+
+  -* )
+    ;;
+
+  * )
+    mailit $A
+    ;;
+
+  esac
+
+done
+
+

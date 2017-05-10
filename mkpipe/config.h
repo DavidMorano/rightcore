@@ -1,0 +1,69 @@
+/* config */
+
+
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)mkpipe "
+#define	BANNER		"Make Pipe"
+#define	SEARCHNAME	"mkpipe"
+#define	VARPRNAME	"LOCAL"
+
+#define	VARPROGRAMROOT1	"MKPIPE_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"MKPIPE_BANNER"
+#define	VARSEARCHNAME	"MKPIPE_NAME"
+#define	VAROPTS		"MKPIPE_OPTS"
+#define	VARFILEROOT	"MKPIPE_FILEROOT"
+#define	VARLOGTAB	"MKPIPE_LOGTAB"
+#define	VARMSFNAME	"MKPIPE_MSFILE"
+#define	VARUTFNAME	"MKPIPE_UTFILE"
+#define	VARERRORFNAME	"MKPIPE_ERRORFILE"
+
+#define	VARDEBUGFNAME	"MKPIPE_DEBUGFILE"
+#define	VARDEBUGFD1	"MKPIPE_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARPRINTER	"PRINTER"
+
+#define	VARTMPDNAME	"TMPDIR"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+#define	WORKDNAME	"/tmp"
+#define	LOGCNAME	"log"
+
+#define	DEFINITFNAME	"/etc/default/init"
+#define	DEFLOGFNAME	"/etc/default/login"
+#define	NISDOMAINNAME	"/etc/defaultdomain"
+
+#define	CONFIGFNAME	"conf"
+#define	ENVFNAME	"environ"
+#define	PATHSFNAME	"paths"
+#define	HELPFNAME	"help"
+
+#define	LOGSIZE		(80*1024)
+
+#define	DEFRUNINT	60
+#define	DEFPOLLINT	8
+#define	DEFNODES	50
+
+#define	TO_CACHE	2
+#define	TO_LOADAVG	1
+
+
+

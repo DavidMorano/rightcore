@@ -1,0 +1,94 @@
+'\" t
+.TH MKINCFILE 1 1985-11-02 "Gazelle Hardware"
+.SH NAME
+mkincfile \- create an include file with the contents of another file
+.SH SYNOPSIS
+.BR mkincfile
+.\"_
+.de OP
+.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
+.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
+..
+.\"_
+.OP -v "" ] [
+.OP -V "" ] [
+.IR file
+.SH DESCRIPTION
+.sp
+.SS Introduction
+.PP
+The \fImkincfile\fP program
+is used on a UNIX system to read the contents of the file
+specified as an argument and to write its binary contents
+into a C language array in a newly created C language include file.
+.\"_
+.SS Options
+There is only one useful option.
+.PP
+.RS 5
+.TP 15
+\fB-v\fP  
+This option turns on a summary of the output include file 
+that was created.  The name of the output include file and
+the number of input file bytes writen is reported.
+.TP 15
+\fB-V\fP  
+This option causes the program to print its program version
+to standard error and then the program exits.
+.RE
+.\"_
+.SS Output
+The program creates and output file which is a C language include
+file.  The name of the output include file is automatically
+determined by the name of the input file.
+Only the last component of the input filename path is used.
+The output include filename will be the characters 'incfile_'
+followed by the last component of the input file, followed by
+the characters '.h'.
+.\"_
+.SS "Using From C Language"
+.\"_
+From within a C language program, the contents of the
+original file can be accessed through
+.IB including
+the output C language include file that is created by the program.
+This C language include file will have a single #define name
+as follows.  It will have the characters 'INCFILELEN_', followed
+by the name of the original input file (case is significant).
+The data itself (the contents of the original input file)
+are located in a constant unsigned character array with the symbol
+name 'incfile_' followed by the name of the original inputfile
+(again case is significant).
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+put the contents of the file named 'testfile' into a C language
+include file :
+.EX
+\f(CWmkincfile testfile\fP
+.EX
+The name of the created output C language file will be 'incfile_testfile.h'
+.\"_
+.SH SEE ALSO
+cat(1), cp(1)
+.\"_
+.SH PATH TO
+This program is currently located in 
+\f(CW /usr/add-on/local/bin \fP
+or possibly where ever
+.IB local
+programs are stored on your system.
+This is often at
+\f(CW "${LOCAL}/bin" \fP
+on some systems.
+.\"_
+.SH WARNINGS
+Be careful to put at one space between all option key 
+letters and the associated
+key letter parameter.
+.\"_
+.SH AUTHOR
+Dave Morano
+.\"_
+.\"_
+.\"_

@@ -1,0 +1,13 @@
+# ZOMEINFO for Ark-III
+
+
+# Zone	NAME		GMTOFF	RULES	FORMAT	[UNTIL]
+
+# Ark-II phase A
+Zone	ArkIII/A	2:00	-	AAT
+
+# Ark-II phase B
+Zone	ArkIII/B	-10:00	-	BAT
+
+
+

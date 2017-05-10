@@ -1,0 +1,17 @@
+# MAP (for MOTD)
+
+# format of table:
+#
+# admin		directory_of_MOTDs
+#
+
+admin		~/var/motd
+local		~/var/motd
+pcs		~/var/motd
+uucp		~/var/motd
+
+#admin		~/var/more
+#admin		~/var/mm
+
+
+

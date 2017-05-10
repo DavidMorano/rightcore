@@ -1,0 +1,19 @@
+ISMAILADDR
+
+This little program makes a determination (based on invocation arguments)
+about specified mail addresses.
+
+Synopsis:
+$ ismailaddr [<mailaddr(s)> ...] [-o logging] [-lfn <lnfile>]
+	[-Q] [-D] [-?] [-v[=n]] [-V]
+
+Arguments:
+<mailaddr(s)>	mail addresse(s) to check
+-o logging	turn ON logging
+-lfn <lnfile>	local-name file
+-Q		quite with error print-outs
+-D		turn ON debugging
+-v[=n]		verbosity level
+-?		quick help
+-V		print command version to standard-error and then exit
+

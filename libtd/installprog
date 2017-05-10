@@ -1,0 +1,47 @@
+#!/bin/ksh
+# installprog (libtd)
+
+
+: ${PCS:=/usr/add-on/pcs}
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+
+
+P=libtd
+
+OBJS="${P}.a "
+
+I0="td.h "
+INCS="${I0} "
+
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+  : ${OFD:-S5}
+
+else
+
+  MACH=`hostname`
+  PATH=/usr/5bin:${PATH}
+  : ${OFD:-S4}
+
+fi
+
+
+
+
+for D in ${LOCAL} ${NCMP} ${PCS} ${HOME} ; do
+
+  find ${ALL} -print 2> /dev/null | cpio -pdm ${D}/lib
+  find ${ALL} -print 2> /dev/null | cpio -pdm ${D}/lib/${OFD}
+
+  if [[ -n "${INCS}" ]] ; then
+    find $INCS -type f -print | cpio -pdm ${D}/include
+  fi
+
+done 2> /dev/null
+
+
+

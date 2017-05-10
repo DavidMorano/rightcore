@@ -1,0 +1,19 @@
+{one}
+
+three stuff
+enabled=1
+
+{two}
+
+three stuff
+enabled=1
+
+{reposname}
+stuff
+enabled=1
+
+{three}
+three stuff
+enabled=1
+enabled=0
+

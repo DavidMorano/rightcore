@@ -1,0 +1,66 @@
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=$(PROC)
+*	TEMP=$(TEMP)
+*	TIMESTEP=$(TIMESTEP)
+*	TIMELEN=$(TIMELEN)
+*	POW=$(POW)
+*
+* and the circuit files :
+*	MAINCKT=$(MAINCKT)
+*	CONTROLCKT=$(CONTROLCKT)
+*
+* and the temporary output file :
+*	OUTFILE=$(OUTFILE)
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33$(PROC).adv
+*
+*
+.use options.adv
+*
+*
+.rd ${CONTROLCKT} ;n
+*
+.temp $(TEMP)
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran $(TIMESTEP) $(TIMELEN)
+*
+.file ofile=$(OUTFILE)
+*
+*
+.end

@@ -1,0 +1,8 @@
+LASTLOG
+
+The file 'process_out.c' represents the ongoing work to separate the
+output type functions from the setting type functions.  Currently there
+are no setting type functions implemented but they will probably end up
+in a file 'process_set.c' if I ever get to it!
+
+

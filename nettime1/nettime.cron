@@ -1,0 +1,45 @@
+#!/usr/bin/ksh
+# NETTIME.CRON
+
+
+#
+# time servers		stratum	time	daytime	NTP
+#
+# tick.mit.edu		1	N	N	N
+# www.bldrdoc.gov	N	N	N	N
+# timeserver.cs.umb.edu	2	N	N	N
+# mead.harvard.edu	2	Y	N	N
+# tock.usno.navy.mil	1	Y	Y	Y
+# time.apple.com	2	N	N	Y
+# sundial.columbia.edu	2	N	N	Y
+# ntp0.cornell.edu	2
+#
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+FPATH=${LOCAL}/fbin
+if [[ ! -d ${FPATH} ]] ; then
+  FPATH=${EXTRA}/fbin
+fi
+export FPATH
+
+
+pathadd PATH ${LOCAL}/bin
+pathadd LD_LIBRARY_PATH ${LOCAL}/lib
+
+pathadd PATH ${EXTRA}/bin
+pathadd LD_LIBRARY_PATH ${EXTRA}/lib
+
+
+SERVERS=${EXTRA}/share/misc/nistservers_close.txt
+LOG=${EXTRA}/log/nettime
+
+if [[ -r ${SERVERS} ]] ; then
+  nettime -s -l ${LOG} -af ${SERVERS}
+fi
+
+
+

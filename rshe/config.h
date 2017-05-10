@@ -1,0 +1,30 @@
+/* INCLUDE FILE config */
+
+
+#define	VERSION		"0c"
+#define	WHATINFO	"@(#)RSHE "
+#define	SEARCHNAME	"rshe"
+
+#define	VARPROGRAMROOT1	"RSHE_PROGRAMROOT"
+#define	VARPROGRAMROOT2	"PROGRAMROOT"
+
+#define	VARERRORFNAME	"RSHE_ERRORFILE"
+#define	VARDEBUGFNAME	"RSHE_DEBUGFILE"
+#define	VARDEBUGFD1	"RSHE_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDIR		"/tmp"
+#define	RXPORT		"DISPLAY,NAME,FULLNAME,PRINTER,ORGANIZATION"
+
+#define	LOGFNAME	"log/rshe"
+
+#define	BRAINDAMAGEWAIT	0
+
+#define	F_USESSH	0
+
+
+

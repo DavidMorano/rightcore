@@ -1,0 +1,4 @@
+56414 13-05-02 00:24:54 50 0 0 421.3 UTC(NIST) *       time.nist.gov
+56414 13-05-02 00:25:02 50 0 0 718.5 UTC(NIST) *       nist-time-server.eoni.com
+56414 13-05-02 00:25:05 50 0 0  39.4 UTC(NIST) *       nist.expertsmi.com
+56414 13-05-02 00:25:09 50 0 0 470.1 UTC(NIST) *       nist.netservicesgroup.com

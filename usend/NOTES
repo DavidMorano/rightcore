@@ -1,0 +1,9 @@
+USEND
+
+
+This currently does NOT use the UUPROXY multiplexor facility.  It is a
+straight add-on for whatever UU domain is specified by the configured
+root of the domain in our own configuration file.
+
+
+

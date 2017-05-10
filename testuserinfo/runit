@@ -1,0 +1,12 @@
+#!/usr/bin/ksh
+
+
+export MALLOC_DEBUG=WATCH
+
+z d
+export TESTUSERINFO_DEBUGFILE=d
+
+LD_PRELOAD=watchmalloc.so.1 testuserinfo.x -D=5 2> e > o
+
+
+

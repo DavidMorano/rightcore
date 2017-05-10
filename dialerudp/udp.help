@@ -1,0 +1,13 @@
+UDP
+
+udp [[<host>:]<port>] [-f <af>] [-s <service>] [-t <timeout>] [-bp <buport>]
+
+where:
+
+<host>		target host
+<port>		target port
+-f <af>		target address family
+-s <service>	target service
+-t <timeout>	connect timeout
+-bp <buport>	backup target port
+

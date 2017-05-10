@@ -1,0 +1,3 @@
+	rs = keyopt_start(&akopts) ;
+	pip->open.akopts = (rs >= 0) ;
+

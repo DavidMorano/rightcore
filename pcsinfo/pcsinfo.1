@@ -1,0 +1,53 @@
+.\"_
+.TH PCSINFO 1 "1994-02-28" PCS
+.SH NAME
+pcsinfo \- retrive user name and mail-address information
+.SH SYNOPSIS
+.B pcsinfo
+[+verbose]
+[name]
+[-]
+.sp
+.SH DESCRIPTION
+The \f(CWpcsinfo\fP program
+provides a means for obtaining address information for a given person 
+or a given non-UUCP address.  
+This program is part of the
+Personal Communication Services (PCS) system.
+It recognizes mail names or addresses 
+in many forms
+in addition to the names of users that are known to the PCS system. 
+It also provides a 
+path lookup functionality for hosts that do not have a direct connection to
+the machine on which the \fIpcsinfo\fP program is running.
+.sp
+If invoked with the 
+.B +verbose
+option, \fIpcsinfo\fP
+may tell additional information about how the mail may be sent.
+Quite honestly, in these days of cyberspace magic, your email
+could take very obscure routes to its destination which are
+not really useful for regular users to even care about.
+.\"_
+.SS "Recognized Names Or Address"
+.PP
+The \fIpcsinfo\fP program understands the same names or addresses as
+described in \fIpcsmail(PCS)\fP.  That program's manual 
+page should be referenced
+for the order of name/address interpretation.
+.SH ENVIRONMENT VARIABLES
+This program uses the same environment variables as the \fIpcsmail\fP
+program and that program's manual page should be referenced for
+information about environment variables.
+.SH FILES
+.PD 0
+.TP 30
+\f(CB${PCS}/lib/pcsmail\fP
+directory for translation and path tables
+.TP
+\f(CB${PCS}/bin/pcsinfo\fP
+executable program
+.PD
+.SH "SEE ALSO"
+profiler(PCS),  readnews(NCMP), rn(NCMP), pcsmail(PCS), vmail(PCS)
+.\"_

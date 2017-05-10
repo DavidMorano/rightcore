@@ -1,0 +1,81 @@
+# dictionary-collating-ordinal
+
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+A Á À Â Å Ä Ã
+a á à â å ä ã
+Æ
+æ
+B
+b
+C Ç
+c ç
+D
+d
+E É È Ê Ë
+e é è ê ë
+F
+f
+G
+g
+H
+h
+I Í Ì Î Ï
+i í ì î ï
+J
+j
+K
+k
+L
+l
+M
+m
+
+Ð
+ð
+
+N Ñ
+n ñ
+O Ó Ò Ô Ö Õ
+o ó ò ô ö õ 
+Ø
+ø
+P
+p
+Q
+q
+R
+r
+S
+s
+T
+t
+U Ú Ù Û Ü
+u ú ù û ü
+V
+v
+W
+w
+X
+x
+Y Ý
+y ý ÿ
+Z
+z
+
+Þ
+þ
+
+ß
+
+
+

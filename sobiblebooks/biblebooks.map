@@ -1,0 +1,17 @@
+
+
+DAMbiblebooks {
+	global:
+		biblebooks ;
+		biblebooks_open ;
+		biblebooks_count ;
+		biblebooks_max ;
+		biblebooks_close ;
+		biblebooks_lookup ;
+		biblebooks_get ;
+		biblebooks_audit ;
+	local:
+		* ;
+} ;
+
+

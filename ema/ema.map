@@ -1,0 +1,10 @@
+
+
+DAMema {
+	global:
+		b_ema ;
+	local:
+		* ;
+} ;
+
+

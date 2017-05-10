@@ -1,0 +1,16 @@
+# PARAMS
+# test parameter file
+
+
+a	100
+b	2
+c	30
+d	4
+e	5
+
+a	10
+
+env	here_${HOME}_there
+
+
+

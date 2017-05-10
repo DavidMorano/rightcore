@@ -1,0 +1,13 @@
+#!/usr/extra/bin/ksh
+# RMQOTD
+
+if [[ $# -gt 0 ]] ; then
+  MJD=${1}
+  rm -f /var/tmp/local/qotd/q${MJD}
+  integer -Z3 dn
+  (( dn = ${MJD} / 100 ))
+  QD=d${dn}
+  rm -f ${LOCAL}/var/spool/maintqotd/${QD}/q${MJD}
+fi
+
+

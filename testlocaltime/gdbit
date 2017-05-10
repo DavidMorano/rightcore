@@ -1,0 +1,29 @@
+#!/bin/ksh
+
+
+TF=/tmp/ri${RANDOM}
+
+DOPTS="-p log-nonfree-space "
+
+{
+
+  dmalloc -l dmalloc.log -i 100 -p log-non-free -p log-trans $DOPTS
+
+} | fgrep -v export > $TF
+
+DMALLOC_OPTIONS="$( < $TF )"
+
+export DMALLOC_OPTIONS
+
+
+echo "dmalloc options>"
+echo ${DMALLOC_OPTIONS}
+
+OPTS=
+
+
+ERROR_FD=3 
+export ERROR_FD
+gdb testlocaltime.x  3> o3 4> o4
+
+

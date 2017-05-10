@@ -1,0 +1,19 @@
+DMAILBOX
+
+This program adds the mail message on standard-input to the mailbox of
+the each specified recipient.
+
+Synopsis:
+
+$ dmailbox < <input>.msg <recipient(s)> [...] [-d] [-f <fromaddr>]
+	[-p <host>:<proto>] [-nm] [-V]
+
+where:
+
+-d			ignored for compatibility
+-f <fromaddr>		the envelope address (only for trusted users)
+<recipient(s)>		one or more recipients to receive the message
+-p <host>[:<proto>]	optional host-protocol pair
+-nm			no mail-notify message should be sent
+-V			print program version to standard-error and then exit
+

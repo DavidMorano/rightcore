@@ -1,0 +1,177 @@
+'\" t
+.TH CAL 1 "1995-02-13" LOCAL
+.SH NAME
+cal \- display a specified month of some year
+.SH SYNOPSIS
+.\"_
+.\"_ some AT&T standard strings
+.\"_
+.if t \{\
+.fp5 CW
+.ds mW \&\f5
+.ds mB \&\f(CB
+.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
+.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
+.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
+.ds rq ''
+.ds lq ``
+.tr * \(**
+'br\}
+.if n \{\
+.ds mW \f3
+.ds mB \f3
+.ds Tm \uTM\d
+.ds Sm \uSM\d
+.ds Rg (Reg.)
+.ds lq \&"
+.ds rq \&"
+'br\}
+.\"_
+.\"_ some AT&T standard macros
+.\"_
+.de HY
+.hy14
+..
+.\"_
+.de MW
+.nh
+.it1 }N
+.ie\\n(.$ \{\
+.ie\\n(.$=1 \*(mW\&\\$1\fP
+.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
+.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
+.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
+.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
+.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
+.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
+.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
+.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
+.el\{\
+.ift .ft 5
+.ifn .ft 3 \}
+.HY
+..
+.\"_
+.de OP
+.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
+.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
+..
+.\"_
+.de EX
+.sp\\n(PDu
+.in+5n
+.ifn .ft 3
+.ift \{\
+.ft5
+.if\\$1-1 \{\
+.ps-1
+.vs-1
+.nreX 1 \}\}
+.nf
+..
+.de EE
+.fi
+.if\\n(eX \{\
+.ps+1
+.vs+1
+.nreX 0 \}
+.ft1
+.in-5n
+.sp\\n(PDu
+..
+.\"_
+.\"_
+.B cal
+.I alphamonth
+.MW |
+.MW [
+.I month
+.MW ]
+.I year
+.MW |
+.I year/month
+.\"_
+.SH DESCRIPTION
+.\"_
+.SS Introduction
+.PP
+The \fIcal\fP program
+is used to print out (to standard output) a calendar of a month
+that is specified as an argument.
+If a month is specified alone (as in the case with
+.I alphamonth
+), it must consist of non-numeric
+characters.
+This is necessary in order to distinguish it from a year being
+specified.
+Anywhere a month is specified, it may also be specified
+as a character string representing the month.
+All month names can be abbreviated to the first three characters
+without any ambiguity.
+.\"_
+.SS Options
+There are some argument options that can be used to
+provide values in addition to the standard way of supplying them.
+.PP
+.RS 5
+.TP 15
+.BI "-m  " month
+This will override any month that is specified using the mornal
+arguments.
+.TP 15
+.BI "-y  " year
+This will specify a year to override any that is supplied in
+the normal way.
+.RE
+.\"_
+.SS Output
+The printed output of this program is identical to that of 
+the standard calendar program 
+(
+.MW cal
+)
+that is supplied with the UNIX System
+.\"_
+.SH ENVIRONMENT VARIABLES
+See the standard
+.MW cal
+program.
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+print the the month of May for the current year:
+.EX
+\f(CWcal May \fP
+.EE
+.IP \(rh 5
+print out the month of May for the year 2007:
+.EX
+\f(CWcal May 2007 \fP
+.EE
+.IP \(rh 5
+print out the month of May for the year 2007:
+.EX
+\f(CWcal 2007/May \fP
+.EE
+.\"_
+.SH SEE ALSO
+cal(1), calendar(1)
+.\"_
+.SH PATH TO
+This program is currently located in \fC/usr/add-on/local/bin\fP
+or possibly where ever "local" programs are stored on your system.
+This is often at
+.MW "${LOCAL}/bin"
+on some systems.
+.\"_
+.\"_
+.SH WARNINGS
+Note that at least one white-space character must be put
+between all option key-letters 
+and the associated key-letter parameter.
+.\"_
+.SH AUTHOR
+David A. Morano
+.\"_
+.\"_
+.\"_

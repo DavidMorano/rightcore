@@ -1,0 +1,20 @@
+#!/usr/bin/ksh
+# TESTREADE-DEBUG
+
+PN=testreade
+
+N=/dev/null
+E=/tmp/${PN}
+D=/tmp/${PN}.d
+
+
+TESTREADE_DEBUGFILE=${D}
+export TESTREADE_DEBUGFILE
+
+cp ${N} ${D}
+cp ${N} ${E}
+
+/home/dam/src/testreade/testreade.x 2> ${E}
+
+
+

@@ -1,0 +1,27 @@
+GROPE-DICT
+
+
+= David Morano, years ago
+  This program was originally made because I noticed that there was
+  no convenient way to rebuild the 'grope' dictionary database.
+
+
+= David Morano, 1999-02-23
+  It's funny how a program can go for so many years and never show
+  the signs of a subtle bug.  This program was rebuilding the dictionary
+  incorrectly !  We were putting words that start with a capital letter
+  into their own dictionary files when what we should have done was to
+  merge words that start with the same letter (upper or lowercase)
+  into the SAME dictionary file.  I guess that we (mankind) may never
+  know the extent of the bugs that we put into our programs.
+
+
+= David Morano, 2007-01-30
+I modified the program in order to not have to delete or truncate the
+existing dictionary files before creating the entire dictionary database.
+Previously, the program required that all of the dictionary files be
+deleted or truncated to zero before being rebuilt.  The old behavior
+was error prone.  It took until now to botg notice this and to correct it.
+
+
+

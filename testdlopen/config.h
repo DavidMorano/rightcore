@@ -1,0 +1,72 @@
+/* config */
+
+
+#define	VERSION		"0a"
+#define	WHATINFO	"@(#)TESTDLOPEN "
+#define	BANNER		"Test DLOpen"
+#define	SEARCHNAME	"testdlopen"
+#define	VARPRNAME	"LOCAL"
+
+#define	VARPROGRAMROOT1	"TESTDLOPEN_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"TESTDLOPEN_BANNER"
+#define	VARSEARCHNAME	"TESTDLOPEN_NAME"
+#define	VAROPTS		"TESTDLOPEN_OPTS"
+#define	VARFTYPES	"TESTDLOPEN_FTYPES"
+#define	VARSUFREQ	"TESTDLOPEN_SUFREQ"
+#define	VARSA		"TESTDLOPEN_SUFACC"
+#define	VARSR		"TESTDLOPEN_SUFREJ"
+#define	VARTARDNAME	"TESTDLOPEN_TARDIR"
+#define	VARERRORFNAME	"TESTDLOPEN_ERRORFILE"
+
+#define	VARDEBUGFNAME	"TESTDLOPEN_DEBUGFILE"
+#define	VARDEBUGFD1	"TESTDLOPEN_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+
+#define	CONFIGFNAME	"etc/testdlopen/conf"
+#define	LOGFNAME	"log/testdlopen"
+#define	HELPFNAME	"help"
+
+#define	PO_OPTION	"option"
+#define	PO_FTS		"fts"			/* file-types */
+#define	PO_SUFREQ	"sufreq"		/* suffix-required */
+#define	PO_SUFREJ	"sufacc"		/* suffix-reject */
+#define	PO_SUFACC	"sufrej"		/* suffix-accept */
+
+
+

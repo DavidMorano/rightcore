@@ -1,0 +1,17 @@
+
+
+DAMpcsnso {
+	global:
+		pcsnso ;
+		pcsnso_open ;
+		pcsnso_setopts ;
+		pcsnso_get ;
+		pcsnso_curbegin ;
+		pcsnso_curend ;
+		pcsnso_enum ;
+		pcsnso_close ;
+	local:
+		* ;
+} ;
+
+

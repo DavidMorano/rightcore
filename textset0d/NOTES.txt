@@ -1,0 +1,11 @@
+TEXTSET
+
+This is the famous (infamous) TEXTSET program. This program typesets basic raw
+input ASCII text files to the output (using TROFF source language). The
+difference between this program and a miriad of other programs which perform
+similar functions is that this program is device independent (unlike 'postprint'
+and its variants) and can render varying fonts and fonts sizes as well as
+vertical line spacing.
+
+This program can also put out custom page headers, unlike if you use PR!
+

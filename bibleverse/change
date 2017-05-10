@@ -1,0 +1,27 @@
+#!/usr/bin/ksh
+# CHANGE
+
+
+NAMES=
+NAMES="${NAMES} u_fork"
+
+
+DN=/dev/null
+for F in "${@}" ; do
+  if [[ -r "${F}" ]] ; then
+    for N in ${NAMES} ; do
+      if fgrep "${N}" ${F} > ${DN} ; then
+
+      print -u2 "${0}: file=${F} str=${N}"
+      ed - ${F} <<\EOF
+	g/u_fork/s//uc_fork/g
+	w
+	q
+EOF
+
+      fi
+    done
+  fi
+done
+
+

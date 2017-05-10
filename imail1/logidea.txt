@@ -1,0 +1,20 @@
+rca6973 	100412_1950:33_EDT imail 0/SYSV
+rca6973 	a=sparc os=SunOS(5.8) d=rightcore.com
+rca6973 	rca!dam (David A. Morano)
+rca6973 	conf=/usr/add-on/local/log/imail
+rca6973 	msg=0
+rca6973 	  addresses-
+rca6973 	    from-
+rca6973 	      0 david.a.morano@gmail (David Morano)
+rca6973 	    to-
+rca6973 	      0 eve.s.silver@gmail.com (Eve S. Silver)
+rca6973 	      1 dam (David Morano)
+rca6973 	      2 other
+rca6973 	    bcc-
+rca6973 	      0 local
+rca6973 	      1 pcs
+rca6973 	      2 name­£g
+rca6973 	      3   one
+rca6973 	      4   two (two person)
+rca6973 	      5 guest (Guest Person)
+rca6973 	  clen=1220

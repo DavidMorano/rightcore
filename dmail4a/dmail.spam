@@ -1,0 +1,43 @@
+# SPAM
+#
+#
+# This file contains patterns that will be considered SPAM for
+# purposes of notifying users of incoming email.  Those email
+# messages that have SPAM will not be delivered to the user
+# unless at least one sender address of the message is found in a
+# whitelist (either system-wide or per-user).  Also, no COMSAT
+# messages are sent for spam.
+#
+#
+# Format of entries :
+#
+# key: item [item(s) ...]
+#
+#
+# How this file works :
+#
+# Each line in the file (that is not a comment line) specifies one or
+# more character sequences that are searched for in the key header
+# fields.  If all character sequences of any line match up (in order)
+# with those that are in the specified header field of a message, that
+# message will be considered spam and no COMSAT notification is given for
+# that message.
+#
+#
+# Examples :
+#
+# subject : [ SPAM ]
+# from: morano@computer.org
+# from: lucent.com
+# from: John Bad Person
+#
+#
+
+
+
+subject:	
+	[ SPAM ]
+
+
+
+

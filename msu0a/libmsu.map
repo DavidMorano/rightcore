@@ -1,0 +1,13 @@
+
+
+DAMlibmsu {
+	global:
+		msuclient ;
+		msuclient_open ;
+		msuclient_get ;
+		msuclient_close ;
+	local:
+		* ;
+} ;
+
+

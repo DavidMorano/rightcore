@@ -1,0 +1,12 @@
+MKRAND
+
+Synopsis:
+
+$ mkrand <file> <size>
+
+where
+
+<file>		file to save random data in
+<size>		size in bytes of random data, 
+		can be qualified with 'b', 'k', 'm'
+

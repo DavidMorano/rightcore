@@ -1,0 +1,39 @@
+testdate.x -> libc.so.1:atexit(func = 0xef78d61c) = 0x0
+testdate.x -> libc.so.1:atexit(func = 0x23a94) = 0x0
+testdate.x -> libc.so.1:time(tloc = 0x0) = 0x400c874f
+testdate.x -> libc.so.1:localtime_r(clock = 0xefffeafc, res = 0xefffea94) = 0xefffea94
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__urem64(0x0, 0x4, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x4, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "4", src = "4") = "4"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__urem64(0x0, 0x1, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x1, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "1", src = "1") = "1"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__urem64(0x0, 0x13, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x13, 0x0)
+testdate.x -> libc.so.1:__urem64(0x0, 0x1, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x1, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "19", src = "19") = "19"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__urem64(0x0, 0x14, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x14, 0x0)
+testdate.x -> libc.so.1:__urem64(0x0, 0x2, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x2, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "20", src = "20") = "20"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__urem64(0x0, 0x29, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x29, 0x0)
+testdate.x -> libc.so.1:__urem64(0x0, 0x4, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x4, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "41", src = "41") = "41"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__urem64(0x0, 0x23, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x23, 0x0)
+testdate.x -> libc.so.1:__urem64(0x0, 0x3, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x3, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "35", src = "35") = "35"
+testdate.x -> libc.so.1:fprintf(fp = 0x347c8, format = 0x23d98, ...) = 15
+testdate.x -> libc.so.1:_exithandle(0xf, 0xf, 0xef7f46ec)
+testdate.x -> libc.so.1:_exit(

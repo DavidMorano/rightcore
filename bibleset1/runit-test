@@ -1,0 +1,42 @@
+#!/usr/bin/ksh
+# RUNIT-TEST
+
+
+RF_MKTROFF=true
+RF_MKPDF=true
+VER=test
+LAN=english
+
+TT=bible_${VER}
+
+PO="0.75i"
+PW="7.0i"
+PS="14:16"
+YADJ="-0.3"
+
+SETOPTS=
+SETOPTS="${SETOPTS} -ibz -tc "
+SETOPTS="${SETOPTS} -ndb ${LAN}"
+SETOPTS="${SETOPTS} -wdb ${LAN} "
+SETOPTS="${SETOPTS} -cover biblecover_${VER}.eps "
+SETOPTS="${SETOPTS} -front biblefront_${VER}.mm "
+SETOPTS="${SETOPTS} -ps ${PS} "
+
+ENC=latin1
+
+export BIBLESET_DEBUGFILE=d
+bibleset.x -D=5 2> e ${SETOPTS} ${TT}.txt > ${TT}.mm
+
+troff -TLatin1 -rO"${PO}" -rW"${PW}" -mm ${TT}.mm > ${TT}.troff
+
+if ${RF_MKTROFF} ; then
+  troff -TLatin1 -rO"${PO}" -rW"${PW}" -mm -mpictures ${TT}.mm > ${TT}.troff
+  if ${RF_MKPDF} ; then
+    dpost -T${ENC} -y ${YADJ} > ${TT}.ps < ${TT}.troff
+    if [[ -s "${TT}.ps" ]] ; then
+      ps2pdf ${TT}.ps ${TT}.pdf 
+    fi
+  fi
+fi
+
+

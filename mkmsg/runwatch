@@ -1,0 +1,15 @@
+#!/usr/extra/bin/ksh
+# RUNTEST
+
+
+export MALLOC_DEBUG=WATCH
+export MKMSG_DEBUGFILE=d 
+
+STXT=sample.txt
+SUBJ="sample_text"
+
+z d
+LD_PRELOAD=watchmalloc.so.1 mkmsg.x -D=5 2> e < ${STXT} -s "${SUBJ}" > o
+
+return $?
+

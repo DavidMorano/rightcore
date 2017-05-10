@@ -1,0 +1,8 @@
+/* testfile */
+
+#define	INCFILELEN_testfile	6
+
+const unsigned char incfile_testfile[6] = {
+0x68,0x65,0x6C,0x6C,0x6F,0x0A,
+0x00 } ;
+

@@ -1,0 +1,129 @@
+
+static const char	*months[] = {
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+} ;
+
+static const char	*days[] = {
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
+} ;
+
+/* format: name, minutes_west_of_gmt, f_daylight */
+static const struct zdbe	zones[] = {
+	{ "acsst", -630, 1 },	/* Cent. Australia */
+	{ "acst", -570, 0 },	/* Cent. Australia */
+	{ "adt", 3*60, 1 },	/* Atlantic */
+	{ "aesst", -660, 1 },	/* E. Australia */
+	{ "aest", -600, 1 },	/* Australia Eastern ST */
+	{ "akdt", 8*60, 1 },	/* Alaska */
+	{ "akst", 9*60, 0 },	/* Alaska */
+	{ "ast", 240, 0 },	/* Atlantic ST (Canada) */
+	{ "awst", -480, 0 },	/* W. Australia */
+	
+	{ "brt", -3*60, -1 },	/* XXX unknown XXX */
+	{ "bst", -1*60, 1 },	/* British Summer */
+	
+	{ "cadt", -630, 1 },	/* Central Australian DT */
+	{ "cast", -570, 0 },	/* Central Australian ST */
+	{ "cct", -480, 0 },	/* China Coast */
+	{ "cdt", 5*60, 1 },	/* central daylight time (US) */
+	{ "cest", -120, 1 },	/* Central Europe Summer Time */
+	{ "cet", -1*60, 0 },	/* Central Europe */
+	{ "cetdst", -120, 1 },	/* Central European DT */
+	{ "cst", 6*60, 0 },	/* central standard time (US) */
+	{ "cut", 0*60, 0 },	/* coordinated universal time */
+	
+	{ "dnt", -60, 0 },	/* Dansk Normal Tid */
+	
+	{ "eadt", -660, 1 },	/* East Australian DT */
+	{ "east", -600, 0 },	/* East Australian ST */
+	{ "edt", 4*60, 1 },	/* eastern daylight time (US) */
+	{ "eest", -180, 1 },	/* Eastern Europe Summer */
+	{ "eet", -2*60, 0 },	/* Eastern Europe */
+	{ "eetdst", -180, 1 },	/* Eastern Europe */
+	{ "est", 5*60, 0 },	/* eastern standard time (US) */
+	
+	{ "fst", -120, 1 },	/* French Summer Time */
+	{ "fwt", -60, 0 },	/* French Winter Time  */
+	
+	{ "gmt", 0*60, 0 },	/* Greenwich Mean Time */
+	{ "gst", -600, 0 },	/* Guam ST */
+	
+	{ "hadt", 9*60, 1 },	/* Hawaii-Aleutian */
+	{ "hast", 10*60, 0 },	/* Hawaii-Aleutian */
+	{ "hkt", -480, 0 },	/* Hong Kong Time */
+	{ "hst", 10*60, 0 },	/* Hawaii */
+	
+	{ "idle", -720, 0 },	/* Intl. Date Line, East */
+	{ "idlw", 720, 0 },	/* Intl. Date Line, West */
+	{ "idt", -180, 1 },	/* Israel DT */
+	{ "ist", -120, 0 },	/* Israel */
+	
+	{ "jdt", -10*60, 1 },	/* Japan */
+	{ "jst", -9*60, 0 },	/* Japan */
+	
+	{ "kdt", -10*60, 1 },	/* Korea */
+	{ "kst", -9*60, 0 },	/* Korea */
+	
+	{ "ligt", -600, 0 },	/* From Melbourne, Australia */
+	{ "lt", -1*60, 0 },
+	
+	{ "mdt", 6*60, 1 },	/* mountain daylight time (US) */
+	{ "mest", -120, 1 },	/* Middle Europe Summer Time */
+	{ "mesz", -120, 1 },	/* Mittel-Europaeische Sommerzeit */
+	{ "met", -1*60, 0 },	/* Middle Europe */
+	{ "metdst", -120, 1 },	/* Middle Europe DT */
+	{ "mewt", -60, 0 },	/* Middle Europe Winter Time */
+	{ "mez", -60, 0 },	/* Mittel-Europaeische Zeit */
+	{ "mst", 7*60, 0 },	/* mountain standard time (US) */
+	
+	{ "ndt", 150, 1 },	/* Newfoundland */
+	{ "nft", 210, 0 },	/* Newfoundland ST */
+	{ "nor", -60, 0 },	/* Norway ST */
+	{ "nst", 210, 0 },	/* Newfoundland */
+	{ "nzdt", -13*60, 1 },	/* New Zealand */
+	{ "nzst", -12*60, 0 },	/* New Zealand */
+	{ "nzt", -720, 0 },	/* New Zealand Time */
+	
+	{ "pdt", 7*60, 1 },	/* pacific daylight time (US) */
+	{ "pst", 8*60, 0 },	/* pacific standard time (US) */
+	
+	{ "sadt", -630, 1 },	/* S. Australian DT */
+	{ "sast", -570, 0 },	/* S. Australian ST */
+	{ "sst", -120, 1 },	/* Swedish Summer Time */
+	{ "swt", -60, 0 },	/* Swedish Winter Time  */
+	
+	{  "ut", 0*60, 0 },	/* universal time? */
+	{ "utc", 0*60, 0 },	/* UTC */
+	
+	{ "wadt", -540, 0 },	/* West Australian DT (DAM) */
+	{ "wast", -480, 0 },	/* West Australian ST */
+	{ "wat", 60, 0 },	/* West Africa Time */
+	{ "west", -60, 1 },	/* Western Europe Summer */
+	{ "wet", 0, 0 },	/* Western Europe */
+	{ "wetdst", -60, 1 },	/* Western Europe */
+	{ "wst", -480, 0 },	/* West Australian ST */
+
+	{ "ydt", 480, 1 },	/* Yukon DT */
+	{ "yst", 540, 0 },	/* Yukon ST */
+
+	{ "z", 0, 0 },		/* Zulu */
+
+	{ "", 0, 0 }
+} ;
+
+#define	DATER_NZONES	((sizeof(zones) / sizeof(ZDBE)) - 1)
+
+#if	CF_DEBUGS
+
+static const char	*datestrtypes[] = {
+	"STD",
+	"MSG",
+	"STRDIG",
+	"TOUCHT",
+	"LOGZ",
+	NULL
+} ;
+
+#endif /* CF_DEBUGS */
+

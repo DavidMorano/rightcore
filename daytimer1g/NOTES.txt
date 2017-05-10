@@ -1,0 +1,15 @@
+DAYTIMER
+
+Oh, this program is the little thing that displays the time down there
+in the status portion of the terminal screen (or up in the upper right
+corner if you do not have a status-line screen).
+
+I do not know how old this program dates to.  I enhanced it in 1993 to
+try to detect when there was a hangup of the outer terminal emulation
+window that it ran in (in those days).  The GUI stuff had come into its
+own for me and I quickly discovered that when 'xterm(1)' windows are
+deleted, that they do not always properly send kill signals to the
+processes that ran under them.  I do not know whose mistake that was but
+it was a hassle with these programs being orphaned because of it.
+
+

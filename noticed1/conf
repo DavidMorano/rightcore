@@ -1,0 +1,157 @@
+# PCSUUCPD.CONF
+# PCS UUCP Daemon (PCSUUCPD)
+
+#
+#	All command line arguments have precedence over any corresponding
+#	arguments in this configuration file.  The entries in this file
+#	do not have any special order except that entries that may accumulate
+#	are processed in the order given.  Defaults are applied in a
+#	defined sequence that is independent of the order of defaults
+#	in this file.
+#
+#	Environment variables are expanded out when called for like in
+#	SHELL programs.  Also one can "define" environment-like
+#	variables but they do not add to the exported environment.
+#	Note that for a conflicting variable name, whether a "define"
+#	type or an "export" (environment) type, the "define" type
+#	always has precedence.  Newly created environment variables
+#	are NOT available for substitution in this file.  Rather,
+#	a reassigned variable ('define' or 'environment') has its new
+#	value appended to the existing value with a colon character (':')
+#	separting the values.  This mechanism always builds a path of 
+#	values for a variable.  Use the 'unset' keyword to remove all
+#	existing values from a variable.
+#
+#	There are also a few program escapes that can be expanded out.
+#	They are introduced as a single letter with a percent sign
+#	in front of it.  These are listed below.
+#
+#
+
+
+#
+# lines are of the general form :
+#
+#	key	any_further_arguments
+#
+# possible keys and their meanings are :
+#
+#	root		- program root
+#	pidfile		- lock file to hold (traditionally) the daemon PID
+#	lockfile	- regular lock file to handle messed up NFS !!
+#	log		- file path name for the ACTIVITY log file
+#	envfile		- environment file
+#	pathsfile	- execution paths file
+#	srvtab		- server table file
+#	acctab		- access table file
+#	workdir		- working directory
+#	user		- default user name for spawned programs
+#	group		- default groupname for spawned programs
+#	port		- port for server to listen on
+#	username	- default username for servers
+#	groupname	- default group for servers
+#	userpass	- user password file
+#	machpass	- machine password file
+#	define		- define a local variable for use later
+#	export		- environment variable & value to be exported
+#	unset		- unset all values from a variable
+#
+#
+# the following program escapes are also expanded out :
+#
+#	escape_key	description
+#
+#	V		- daemon program version string
+#	R		- program root directory path
+#	N		- computer machine node name (like a UUCP name)
+#	D		- the local machine domain name (like INET domains)
+#	H		- hostname (combination of the two above)
+#	U		- invoking username
+#
+#	P		- machine peername
+#
+#
+
+
+
+# make some definitions here for use later in this file
+
+define	VAR	/var
+define	THING	"this is the other thing"
+
+define	ROOT	%R/otherstuff
+define	NODE	%N
+define	ALL	"%N %D %H %V %R"
+
+
+# the following lines specify defaults for the program
+
+#root		${PROGRAMROOT}
+#work		/tmp
+#log		%R/log/pcsuucpd.log
+#pid		%R/spool/run/pcsuucpd.pid
+#userpass	%R/etc/pcsuucpd/userpass
+#machpass	%R/etc/pcsuucpd/machpass
+#
+
+root		/home/dam/src/pcsuucpd
+
+work		/tmp
+log		pcsuucpd.log		# turn on activity logging
+pid		pcsuucpd.pid		# turn on using a PID mutex file
+
+port		test114			# test port 5114
+
+srvtab		etc/srvtab
+acctab		acctab
+
+username	daemon
+groupname	other
+
+option		marktime=1m
+option		spooldir=spool/pcsuucpd
+#option		defacc
+
+
+# additional variables to be exported into the environment
+
+export	RUNMODE	REXECD-%V			# daemon program
+
+export	OTHER	variable
+export	OTHER	again
+export HERE there${PCS}again
+export HERE here${VAR}more
+
+export HOME
+export	OTHER	point${THING}point
+
+#export OS	%U
+
+export	PATH	/bin
+export	PATH	/home/uucp/bin
+export	PATH	/usr/local/bin
+#export	PATH	${HOME}/bin
+#export	PATH	/home/student/%u/bin
+#merge	PATH	/bin
+#unset	PATH
+
+define	A	HOME
+define	A	HOME
+define	A	""
+define	A	OTHER
+define	A	HOME
+
+define	B	PRINTER
+define	C	ORGANIZATION
+define	D	DISPLAY
+
+export	RXPORT	${B},${C},${D}
+
+
+#envfile	etc/environ
+
+export VERYLONG	${PATH}
+
+
+
+

@@ -1,0 +1,8 @@
+MOTD
+
+To install:
+
+$ make install ; installprog
+
+
+

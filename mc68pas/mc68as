@@ -1,0 +1,260 @@
+ # <- force CSH to use Boune shell
+# MC68AS
+# program to assemble M68000 source assembly language
+
+
+: ${MC68SGS:=/home/gwbb/add-on/mtg}
+: ${M68TOOLS:=/home/gwbb/add-on/m68tools}
+
+
+: ${LOCAL:=/home/gwbb/add-on/local}
+: ${CPP:=${MC68SGS}/lib/cpp}
+
+if [ ! -x "${CPP}" ] ; then CPP=/usr/ccs/lib/cpp ; fi
+
+if [ ! -x "${CPP}" ] ; then CPP=/usr/lib/cpp ; fi
+
+if [ ! -x "${CPP}" ] ; then CPP=${LOCAL}/bin/cpp ; fi
+
+
+
+VERSION=0
+
+
+# program starts here
+
+if [ ! -d "${M68TOOLS}/bin" ] ; then
+
+  echo "${0}: directory tree \"${M68TOOLS}\" is not accessible" >&2
+  exit 1
+
+fi
+
+if [ ! -d "${MC68SGS}/bin" ] ; then
+
+  echo "${0}: directory tree \"${MC68SGS}\" is not accessible" >&2
+  exit 1
+
+fi
+
+echo $PATH | fgrep "${M68TOOLS}" > /dev/null
+if [ $? -ne 0 ] ; then
+
+  PATH=${PATH}:${M68TOOLS}/bin
+
+fi
+
+REAL_AS=${MC68SGS}/bin/mc68as
+DMD=${MC68SGS}
+export DMD
+
+FILES=""
+INCDIRS=""
+DEFINES=""
+ASOPTS=""
+
+F_DEBUG=false
+F_VERSION=false
+F_OBJ=false
+F_INC=false
+
+S=files
+OS=""
+for A in $@ ; do
+
+  case $A in
+
+  '-D' )
+    F_DEBUG=true
+    ;;
+
+  '-d' )
+    OS=${S}
+    S=defines
+    ;;
+
+  '-m' )
+    ASOPTS="${ASOPTS} -m"
+    ;;
+ 
+  '-n' )
+    ASOPTS="${ASOPTS} -n"
+    ;;
+ 
+  '-R' )
+    ASOPTS="${ASOPTS} -R"
+    ;;
+
+  '-V' )
+    F_VERSION=true
+    ASOPTS="${ASOPTS} -V"
+    ;;
+
+  '-I' )
+    OS=${S}
+    S=inc
+    ;;
+
+  '-o' )
+    OS=${S}
+    S=obj
+    ;;
+
+  '-' )
+    F_INPUT=true
+    ;;
+
+  '-'* )
+    echo "${0}: unknown option - \"${A}\"" >&2
+    exit 1
+    ;;
+
+  * )
+    case $S in
+
+    defines )
+      A1=` echo $A | sed 's/,/ /' `
+      for A2 in ${A1} ; do DEFINES="${DEFINES} -D${A2}" ; done
+
+      S=${OS}
+      ;;
+
+    files )
+      FILES="${FILES} ${A}"
+      ;;
+
+    inc )
+      if [ -d ${A} ] ; then
+
+        INCDIRS="${INCDIRS} -I${A}"
+
+      fi
+      F_INC=true
+      S=${OS}
+      ;;
+
+    obj )
+      OBJ=$A 
+      F_OBJ=true
+      S=${OS}
+      ;;
+
+    esac
+    ;;
+
+  esac
+
+done
+
+
+if [ $F_VERSION = true ] ; then
+
+  echo "${0}: version ${VERSION}" >&2
+
+fi
+
+SRC=`echo $FILES | { read F J ; echo $F ; } `
+
+if [ ! -r "${SRC}" ] ; then
+
+  echo "${0}: cannot open source file \"${SRC}\"" >&2
+  exit 1
+
+fi
+
+if [ $F_OBJ = false ] ; then
+
+  echo $SRC | fgrep '.' > /dev/null
+  if [ $? -ne 0 ] ; then
+
+    OBJ=a.out
+
+  else
+
+    T=`echo $SRC | cut -d'.' -f1 `
+    OBJ=${T}.o
+
+  fi
+
+else
+
+  basename $OBJ | fgrep '.' > /dev/null
+  if [ $? -eq 0 ] ; then
+
+    T=`basename $OBJ | cut -d'.' -f2 `
+    case "${T}" in
+
+    s | c | h | if | srec | nm )
+      echo "${0}: object file has extension \"${T}\"" >&2
+      exit 1
+      ;;
+
+    esac
+
+  fi
+
+fi
+
+
+if [ $F_DEBUG = true ] ; then :
+
+#  echo "SRC \"${SRC}\", OBJ \"${OBJ}\""
+
+fi
+
+
+# NOTE below that the definition for TF3 is needed for some sort of
+# brain damage in the C preprocessor
+
+TF1=/tmp/mc68as${$}.t
+TF2=/tmp/mc68as${$}.s
+TF3=.mc68as${$}.c
+TF4=/tmp/mc68as${$}.i
+TF5=/tmp/mc68as${$}.m4
+
+cleanup() {
+  rm -f $TF1 $TF2 $TF3 $TF4 $TF5
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+# we must use 'TF3' as defined above for the next two commands
+
+{
+cat ${M68TOOLS}/lib/as_prefix
+echo "# 1 \"${SRC}\""
+cat $SRC
+} > $TF3
+
+${CPP} ${INCDIRS} -DASM20=0 ${DEFINES} $TF3 > $TF4
+RS=$?
+if [ $RS -eq 0 ] ; then
+
+  if [ $F_DEBUG = true ] ; then
+
+    cp $TF4 mc68pas_in.s
+    DOPT="-D=1"
+
+  fi
+  ${M68TOOLS}/bin/mc68pas ${DOPT} -f $SRC -p $TF4 > $TF2
+  if [ $F_DEBUG = true ] ; then
+
+    cp $TF2 mc68pas_out.s
+
+  fi
+  ${REAL_AS} ${ASOPTS} -o $OBJ $TF2
+  RS=$?
+  if [ $RS -ne 0 ] ; then
+
+    cp $TF2 mc68badfile.s
+
+  fi
+
+  rm -f core
+
+fi
+
+cleanup
+exit $RS
+
+

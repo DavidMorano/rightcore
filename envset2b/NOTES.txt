@@ -1,0 +1,33 @@
+ENVSET
+
+This little program runs another program with a precise environment.
+
+Symopsis:
+
+$ envset [-df <deffile>] [-xf <envfile>] [-V]
+	<progfname> {<arg0>|-} [<argn> ...]]
+
+where:
+
+-df <deffile>	defines
+-xf <envfile>	exports
+-p <pathfile>	use PATH file for executable search
+-V		print program version to standard-error and then exit
+<progfname>	program executable to execute
+<arg0>		first argument to the program
+
+All options are ON by default for the ENVSET program.
+
+Some standard environment variables are created or retained under normal
+circumstances.  Standard environment variables include:
+
+SYSNAME
+RELEASE
+VERSION
+MACHINE
+ARCHITECTURE
+NODE
+DOMAIN
+USERNAME
+HOME
+

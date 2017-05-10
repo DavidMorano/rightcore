@@ -1,0 +1,17 @@
+TESTKEYBOARD
+
+
+A keyboard configuration file looks something like:
+
+
+
+lk201:
+	pfo= XK_KP_PF1,
+	pfp= XK_KP_PF2,
+	pfq= XK_KP_PF3,
+	pfr= XK_KP_PF4,
+	
+
+
+
+

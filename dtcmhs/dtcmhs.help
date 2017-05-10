@@ -1,0 +1,8 @@
+DTCMHS
+
+This is the DTCM_HAVE server.
+
+Synopsis :
+
+$ dtcmhs [-d] [-i <maxidletime>] [-h <hostname>] [-p <port>]
+

@@ -1,0 +1,9 @@
+TEXTCLEAN
+
+
+This program cleans up text from the damaging effects of contamination with WinTel platform exposure.  This will also handle converting Macintosh line coding to UNIX style line coding.  Options are also available for performing a number of other functions on the input text.
+
+If the 'inplace' option is given and the file that is to be cleaned up is NOT writable, no error indication is given to indicate that the file was not writable.
+
+
+

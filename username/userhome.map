@@ -1,0 +1,13 @@
+
+
+DAMusername {
+	global:
+		b_username ;
+		b_userhome ;
+		b_userdir ;
+		b_logdir ;
+	local:
+		* ;
+} ;
+
+

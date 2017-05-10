@@ -1,0 +1,387 @@
+.\"_
+.TH VMAIL 1 2002-28-94 PCS
+.SH NAME
+vmail \- read and manage mail
+.SH SYNOPSIS
+vmail [<mailbox>] [-V]
+.SH DESCRIPTION
+.I vmail
+is a screen-oriented version of \fIreadmail\fP (PCS).  
+This program is part of the
+Personal Communication Services (PCS) system.
+It is used for
+reading and managing collections of mail messages.
+It can be used to read, classify, delete, reply to, and forward mail.
+The user may create as many named mail files, called \fImailboxes\fP,
+as desired.  When
+.I vmail
+is invoked, the user is normally in the \fBnew\fP or incoming mailbox.
+Messages can be moved into other mailboxes and can be retrieved later
+by changing into the appropriate mailbox.
+Invoking 
+.I vmail
+with an argument will start it up in the
+specified mailbox.
+.P
+.I vmail
+divides the screen into two windows : a message \fBsummary\fP area,
+and a message \fBviewing\fP area.  The first area displays one-line
+summaries of mail messages in the current mailbox,
+and the second screen area displays mail messages, help, and mailbox names.
+Mailboxes can contain on or more mail messages.  There is no limit to 
+the number of messages that can be stored in any given mailbox.
+The current message is indicated by an arrow at the left most end 
+of the summary window area.  The arrow will point to the summary line
+of the currently selected message.
+.P
+The user types single character commands to change the current
+message or mailbox, or to perform operations on the current message.
+The commands are acted upon immediately, and do not have to be
+followed by a carriage return.  Some commands require an
+argument, such as a new mailbox name.  These command arguments are
+terminated by a carriage return.  
+.\"_
+.SS Command Line Options
+An optional mailbox name can be given as a positional argument to
+\f(CWvmail\fP.  If no mailbox name is given, a default mailbox name 
+(\f(CW${HOME}/mail/new\fP) is used if it exists.  If it does not exist,
+the \fIvmail\fP will attempt to create it.
+If the default incoming mailbox file cannot be created,
+then the mailbox derived from processing the MBOX environment
+variable is used instead.  If a mailbox name is given on the
+command line and it starts with a slash character ('/'), then
+it is taken as the name of a mailbox file instead.  If a mailbox
+is given but does not start with a slash character, then it is
+taken as the name of a mailbox within the default mail folder directory.
+.sp
+The \fBV\fP command line option cause \fIvmail\fP to print its current
+version number and then finally exit.  Other command line options may
+be processed for errors before existing.
+.\"_ .sp
+.\"_ The \fBf\fP option takes the next argument which follows as the name of
+.\"_ a mailbox files to start up in.  If the mailbox file name is preceded
+.\"_ with a plus sign ('+') then is is taken as the name of a mailbox
+.\"_ file within the default mail folder (usually \f(CW${HOME}/mail\fP).  
+.\"_ Note that this option will override any mailbox name which may also be
+.\"_ given on the command line.
+.\"_
+.SS Commands
+Commands are initiated by the user by typing single characters.
+Case is significant.  Some commands operate immediately without
+any further input and some commands will prompt for an argument
+when needed.  Many of the commands can be preceded by an optional count.
+Counts are entered by entering decimal digits followed in the desired
+command.  Commands which accept preceding optional counts are
+identified below.  A brief description of some of the available commands
+follows.
+.TP 5
+.B <CR>
+This command (a single carriage return character)
+has two possible actions depending on whether it is used
+alone or if it is preceded by a count.
+Normally this command simply displays the next page of the current message
+or the next page of help text.  If this command is preceded by a count,
+then a different action is taken.  The mailer will move to the
+message indicated by the count from the beginning of the mailbox.
+A count of 1 refers to the first message.  Messages in mailboxes
+are numbered according to the position of the message within the mailbox.
+A count which is bigger than the number of messages in the current mailbox
+is interpreted to refer to the last message in the mailbox.
+.TP 5
+.B +
+When entered without a preceding count, this command (a plus sign
+character) defaults to the
+same action as the \fIcarriage return\fP command above.  If this
+command is preceded by a count, then the mailer will jump ahead
+to the \fIcount\fP numbered page forward in the current message.
+If the user is on the last page of a message, then this command will
+cause the first page of a message to be displayed again.
+.TP 5
+.B -
+This command (a minus sign character) is used 
+to go back to a previous page in the current
+message.  If the command is preceded by a count, then the mailer
+program will go back \fIcount\fP number of pages in the message.
+If the user is at the first page of a message, then the mailer
+will go in the latest page in the message that has already been 
+\fBpreviously\fP
+read.  If the user has not read all of the pages in the current
+message and is currently reading the first page, then this command will 
+cause the mailer to go to the highest numbered page in the message
+that has already been read.
+.TP 5
+.B b
+The
+.I back
+command displays the previous (or first) page of the current message.
+If this command is preceded by a count, then the mailer will go
+back \fIcount\fP messages in the current mailbox.  A large count value
+will cause the mailer to go back to the first message in the mailbix.
+.TP 5
+.B n
+The 
+.I next
+command makes the next message in the current mailbox to be the current 
+message.  An optional count can precede this command and will
+cause the mailer to go ahead \fIcount\fP number of messages forward
+in the mailbox.
+.TP 5
+.B N
+The
+.I Next
+command makes the tenth next message be the current message.
+An optional count value will cause the mailer to go ahead
+\fIcount\fP multiples of 10 messages at a time.
+.TP 5
+.B p
+The 
+.I previous
+command makes the previous message be the current message.
+An optional count can precede this command.
+.TP 5
+.B P
+The 
+.I Previous
+command makes the tenth previous message in the current message.
+An optional count can precede this command and will cause the
+mailer to go back \fIcount\fP number of messages in the mailbox.
+.TP 5
+.B F
+The
+.I First
+command makes the first message be the current message.
+.TP 5
+.B L
+The
+.I Last
+command makes the last message be the current message.
+.TP 5
+.B c
+The
+.I change
+command is used to change to a new mail file.
+.TP 5
+.B l
+The
+.I list
+command is used to list the names of all existing mail files.
+.TP 5
+.B d
+The
+.I delete
+command marks the current message for deletion.  It will
+actually be deleted when the user changes to another mailbox or
+when the user exit the mail reader program.  An option controls whether the
+user is prompted for confirmation before messages are deleted.
+.TP 5
+.B u
+The
+.I undelete
+command removes the deletion mark from a message.
+.TP 5
+.B m
+The
+.I move
+command moves a message to another mail file.  It prompts the
+user for the name of the file to move to.  If the file is a new
+one, the user must confirm the command.  
+If no mail file is given, the message is moved to the mailbox \fBold\fP.
+If the message is
+successfully moved, the message in the current mail file is
+marked for deletion.  It can still be undeleted by the user if desired
+before leaving the current mailbox and before leaving the mailer program.
+.TP 5
+.B r
+The
+.I reply
+command is used to generate a reply to the current message.  A message
+to the sender of the current message is generated, and \fIsmail\fP (PCS) is
+invoked to send the mail.
+.TP 5
+.B R
+The
+.I Reply
+command is used to generate a reply to the current message.  A message
+to the sender of the current message, and to every one of its recipients
+is generated, and \fIsmail\fP (PCS) is
+invoked.  The command is refered to as a \fIconference\fP reply.
+.TP 5
+.B f
+The
+.I forward
+command is used to forward the current message to someone else. 
+The \fIsmail\fP program is invoked, and then the current message is appended
+before the mail is actually sent.
+.TP 5
+.B e
+The
+.I editforward
+is the same as the forward command except that the forwarded message can be
+edited to add the forwarder's own comments.
+.TP 5
+.B s
+The
+.I send
+command is used to invoke \fBsmail\fP to send a message.
+.TP 5
+.B a
+The
+.I append
+command is used to append the current message to a file.
+.TP 5
+.B w
+The
+.I write
+command is used to write the current message to a file.  The
+message replaces the previous contents of the file, whereas in
+the 
+.I append
+command the message is added after the previous contents.
+.TP 5
+.B >
+This is the same as the \fIwrite\fP commands described above.
+.TP 5
+.B |
+The
+.I "| (pipe)"
+command is used to pipe the current message to a command.  The
+given command will be given to a shell, with the current message
+piped in as the standard input.  A nice program to print
+mail messages is either
+.MW mailPR
+or
+prt-pcsmail
+\&.
+Each of these programs produces a different "nice" printout of the
+current message.  See the 
+.MW man
+pages for these commands
+for further information (or just try them out).
+Other popular
+programs for printing are \f(CBprt\fP, \f(CBlp\fP, or \f(CBlpr\fP, but these
+will not produce a fancy formatted printout like the above programs.
+.TP 5
+.B ?
+The
+.I "? (help)"
+command is used to request a summary of the commands.
+The user may page through the help summary by typing successive
+carriage returns.
+.TP 5
+.B h
+The
+.I help
+command is used to request help on a specific command.  
+It prompts for the command character, and displays a short help message.
+.\"_
+.\"_
+.SS "Managing Mailboxes"
+Messages in mailboxes are usually ordered in FIFO (first-in first-out) order.
+However, the \fBnew\fP mailbox may be ordered by giving a sequence of logical
+expressions (one per line) in the file \f(CW.priority\fP in 
+directory \f(CW${HOME}/mail\fP.
+Messages matching are then sorted in priority order followed by non-matching
+messages in FIFO order.  
+Alternatively, new messages may be sorted in
+LIFO (last in first out; reverse chronological) order by specifying
+the option "nofifo" (see below); this may not be combined with priority 
+sorting.
+The option "sort_all" causes mailboxes other than the new one to also 
+be priority sorted.
+.P
+Logical expressions are composed of header:value pairs such as
+\f(CWFROM:schatz\fP or \f(CWSUBJECT:mail\fP.   
+The valid headers are those from a normal
+sendmail message, namely:  \f(CWFROM\fP, \f(CWTO\fP, \f(CWSUBJECT\fP, 
+\f(CWDATE\fP, \f(CWKEYWORDS\fP.
+The pairs may be composed with the operators and (&) and or (|).
+.\"_
+.SS "Program Options"
+Profile options may be set or updated by the PCS profiler,
+because 
+.I vmail
+uses the same options as \fIreadmail\fP.
+The options that are effective are:
+.sp
+.PD 0
+.TP 15
+scan_long
+use long (80 columns) scanline rather than short (50 columns)
+.TP
+fifo
+order messages in first-in first-out sequence
+.TP
+sort_all
+priority sort messages in every mailbox
+.TP
+confirm
+require confirmation before deleting messages at exit
+.PD
+.P
+The defaults 
+set by the PCS
+.I profiler
+are:  \f(CWscan_long\fP, \f(CWfifo\fP, \f(CWconfirm\fP.
+.sp
+.\"_
+.SH ENVIRONMENT VARIABLES
+.sp
+.TP
+\fBPCS\fP
+This should be set to the root of the system PCS directory tree.
+If it is left unset (not untypical) an internal default, which is
+usually correct, is used instead.
+.TP
+\fBMAIL\fP
+This environment variable is set to the user's spool area mailbox
+where new mail arriving into the computer system is initially placed.
+If this variable is not set, then a default is used which is normally
+either \f(CW/usr/mail/userid\fP or \f(CW/var/spool/mail/userid\fP.
+These are the default locations for new mail on AT&T System V based UNIX
+and BSD based UNIX systems respectively.
+.\"_ .TP
+.\"_ \fBMBOX\fP
+.\"_ This is used by other mailers as well and should be set to the
+.\"_ name of a file to be used as the user's primary storage mailbox file.
+.\"_ The user's new mail, using PCS as well as other mailers, is typically
+.\"_ taken from the system mail spool area and stored in this file (mailbox).
+.\"_ This variable is used by \fIvmail\fP when the default mailbox located in
+.\"_ the file
+.\"_ \f(CW${HOME}/mail/new\fP does not exist and cannot be created.
+.TP
+\fBfolder\fP
+This environment variable, when set, contains a directory path name
+of where the user's mailbox files are stored.  If the path begins with
+a slash character then the path is used directly.  If the path
+does not begin with a slash character then he user's HOME directory
+is prepended to the given path.  If this variable is not set (typical),
+then it defaults to \f(CWmail\fP, which would be the folder directory
+in the user's HOME directory tree.
+.\"_
+.SH FILES
+.PD 0
+.TP 30
+\f(CW${PCS}/bin/vmail\fP
+executable program
+.TP
+\f(CW${PCS}/lib/vmail/rhelp\fP
+the help messages
+.TP
+\f(CW${HOME}/mail\fP
+default directory containing mailbox files
+.TP
+\f(CW${HOME}/mail/.priority\fP
+optional new box presorting
+.TP
+\f(CW/usr/mail/${USERNAME}\fP
+a typical system mail spool 
+area (on UNIX System V) where incoming mail is delivered
+.TP
+\f(CW/var/spool/mail/${USERNAME}\fP
+a typical system mail spool 
+area (on a BSD UNIX variant like SunOS 4.x) where incoming mail is delivered
+.PD
+.\"_
+.SH "SEE ALSO"
+profiler(PCS), readmail(PCS), smail(PCS), prt-pcsmail(PCS), pcsv(PCS)
+.\"_

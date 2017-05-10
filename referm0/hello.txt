@@ -1,0 +1,20 @@
+
+here
+there
+.E
+every where
+.RS
+.IBR differential bus
+.RF
+and more
+.B again
+.RS
+.IBR Prototype Broadband
+.RF
+and we are done.
+And again
+.RS
+.IBR Differential Bus Morano
+.RF
+and over.
+

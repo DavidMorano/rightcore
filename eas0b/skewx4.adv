@@ -1,0 +1,24 @@
+* start circuit "SKEWX4" (level=1, lines=24)
+
+.SUBCKT SKEWX4 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp0p8     SW =   2.800
+  Mn2     tn0     a       vss     vss  mn0p7     SW =   1.400
+
+  Mp3     op      tn0     vdd     vdd  mp0p6     SW =  11.200
+  Mn4     op      tn0     vss     vss  mn0p5     SW =   5.600
+
+  Mp5     tn1     a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     tn1     a       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     tn2     tn1     vdd     vdd  mp0p6     SW =   5.600
+  Mn8     tn2     tn1     vss     vss  mn0p5     SW =   2.800
+
+  Mp9     on      tn2     vdd     vdd  mp0p6     SW =  11.200
+  Mn10    on      tn2     vss     vss  mn0p5     SW =   5.600
+
+.FINIS
+
+* end circuit "SKEWX4" (level=1)
+
+

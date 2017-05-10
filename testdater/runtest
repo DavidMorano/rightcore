@@ -1,0 +1,11 @@
+#!/usr/extra/bin/ksh
+# RUNTEST (for TESTDATER)
+
+DN=/dev/null
+export LD_PRELOAD=/usr/lib/secure/libpretime.so
+export LIBPRETIME_BASETIME=201612010901
+
+date > d
+TESTDATER_DEBUGFILE=d testdater.x < ${DN} > ${DN}
+
+

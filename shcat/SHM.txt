@@ -1,0 +1,53 @@
+SHM (POSIX® Shared Memory)
+
+Shared memory keys (names) have the following structures:
+
+
+= UID type
+
+	/<uid>¥<id>
+
+where:
+
+<uid>		is the program UID in hexadecimal (8 digits)
+¥		is a literal separator character
+<id>		is a string identification of at most four (4) characters
+
+
+= USERNAME type
+
+	/<username>µ<id>
+
+where:
+
+<username>	is the username associated with the program UID (at most 8)
+µ		is a literal separator character
+<id>		is a string identification of at most four (4) characters
+
+
+= program-root type
+
+	/<prn>$<id>
+
+where:
+
+<prn>		is the program-root name (up to 8 characters)
+$		is a literal separator character
+<id>		is a string identification of at most four (4) characters
+
+
+= Shared-memory segment names tried in turn:
+
+/sys$sm
+/<pn>$sm
+/<username>¥sm
+
+Steps:
+
+1) try name
+2) if not there (SR_NOENT), try to create it
+3) if stale (SR_STALE), try to update
+4) if cannot update (SR_ACCESS, SR_ISDIR, SR_ROFS), 
+	go onto next name and repeat steps 1 through 4
+
+

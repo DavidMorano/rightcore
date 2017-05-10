@@ -1,0 +1,10 @@
+UNIQDIRS
+
+Examples:
+
+$ find * -type d -print | uniqdirs
+
+$ uniqdirs [dir(s) ...] [-af {argfile|-}] [-V]
+
+
+

@@ -1,0 +1,23 @@
+# DIALERS
+
+
+#
+# dialername:
+#	dialer arguments
+#	dialer arguments
+#
+#
+
+
+d1:
+	tcpmux -p %{muxport}
+	tcpmux -p %{mux2port}
+
+d2:
+	tcp %{port}
+
+d3:
+	uucp -d %{dir}
+
+
+

@@ -1,0 +1,8 @@
+WEBCOUNTER (notes)
+
+Database schema:
+
+<value> <timestamp> <name1>	
+<value> <timestamp> <name2>	
+
+

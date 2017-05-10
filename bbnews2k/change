@@ -1,0 +1,45 @@
+#!/usr/bin/ksh
+# CHANGE
+
+
+NAMES=
+NAMES="${NAMES} MKDIRLIST_ENTRY"
+
+
+DN=/dev/null
+PF=/tmp/pf${$}
+
+function cleanup {
+  rm -f ${PF}
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+for N in ${NAMES} ; do
+  print -- ${N}
+done > ${PF}
+
+
+for F in "${@}" ; do
+
+  if [[ -r "${F}" ]] ; then
+
+      if fgrep -f ${PF} ${F} > ${DN} ; then
+
+      print -u2 -- "${0}: file=${F} str=${N}"
+
+      ed - $F <<\EOF
+	g/MKDIRLIST_ENTRY/s//MKDIRLIST_ENT/g
+	w
+	q
+EOF
+
+      fi
+
+  fi
+
+done
+
+cleanup
+
+

@@ -1,0 +1,12 @@
+REFERENCE-entry
+
+- authors
+- title
+- journal
+- publisher
+- publisher_address
+- volume(number)
+- date (month day, year)
+- pages
+
+

@@ -1,0 +1,38 @@
+RBBPOST
+
+
+= version 1a
+
+Dave Morano, 97/05/02
+
+1) This was a complete rewrite of the older 'rbbpost' program.
+   Compiled OK.
+
+
+= version 1b
+
+Dave Morano, 97/xx/xx/
+
+1) Some sort of minor update.
+
+
+= version 1c
+
+Dave Morano, 99/02/02
+
+1) Articles that have bad (non-existent) newsgroups now get "posted"
+   (if you want to call it that) to a special directory to collect
+   all of the "dead" articles.
+
+2) I fixed a bad catastrophic bug in the 'broadcast' code.
+   The bug should have been caught by compile-time subroutine
+   argument checking but that was not operating because
+   the include file containing the subroutine templates
+   was not being included !
+
+3) The program invocation argumment key was changed for specifying
+   article-IDs.  It is now done with : '-ID article-id'.
+
+
+
+

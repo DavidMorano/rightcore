@@ -1,0 +1,27 @@
+Available queues:
+
+    short
+	A queue that runs jobs now, usually without any reduction in
+	priority, one at a time.  This queue is used primarily for
+	serializing relatively quick high-priority requests.
+
+    medium
+	A queue that runs jobs requiring up to 1 hour cpu time at a
+	reduced priority, and only when the system is moderate to
+	lightly loaded.
+
+    long
+	A queue that runs jobs at the lowest priority, and only when
+	the system is lightly loaded.  Use this for jobs that you know
+	will take a lot of cpu.
+
+    longnight
+	Same as "long", but jobs won't be started outside the
+	hours of 11pm to 8am.
+
+    stack
+	A queue that runs jobs one at a time at the lowest priority,
+	and only when the system is lightly loaded.  Use this for jobs
+	that you know will take a lot of cpu and will interfere with
+	each other if run at the same time (e.g. Gaussian 88,
+	Monstergauss).

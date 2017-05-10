@@ -1,0 +1,3 @@
+	if (rs >= 0) rs = bits_start(&pargs,1) ;
+	if (rs < 0) goto badpargs ;
+

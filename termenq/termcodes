@@ -1,0 +1,17 @@
+# TERMCODES
+# These codes are (supposedly) registered with and maintained by ANSI.
+#
+
+
+1	vt100				# VT101 is a variant of VT100
+6	vt102
+
+62	vt220
+63	vt320
+64	vt420
+65	vt520				# VT525 has some extra unique parameters
+
+83	screen
+
+
+

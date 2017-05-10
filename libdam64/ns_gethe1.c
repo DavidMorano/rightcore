@@ -1,0 +1,270 @@
+/* ns_gethe1 */
+
+/* subroutine to get a single host entry */
+/* last modified %G% version %I% */
+
+
+#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_LOG		1
+
+
+/* revision history:
+
+	= 1995-11-01, David A­D­ Morano
+
+	This program was originally written.
+
+
+*/
+
+
+/**************************************************************************
+
+	This subroutine is a platform independent subroutine to
+	get an INET host address entry, but does it dumbly on purpose.
+
+	Calling synopsis :
+
+	int ns_gethe1(name,hep,buf,buflen)
+	char		name[] ;
+	struct hostent	*hep ;
+	char		buf[] ;
+	int		buflen ;
+
+	Arguments:
+
+	name		name to lookup
+	hep		pointer to 'hostent' structure
+	buf		user supplied buffer to hold result
+	buflen		length of user supplied buffer
+
+	Returns:
+
+	-2		request timed out (bad network someplace)
+	-1		host could not be found
+	0		host was found OK
+
+
+**************************************************************************/
+
+
+#include	<sys/types.h>
+#include	<sys/stat.h>
+#include	<sys/param.h>
+#include	<sys/wait.h>
+#include	<sys/utsname.h>
+#include	<sys/socket.h>
+#include	<netinet/in.h>
+#include	<arpa/inet.h>
+#include	<unistd.h>
+#include	<fcntl.h>
+#include	<signal.h>
+#include	<time.h>
+#include	<stdlib.h>
+#include	<string.h>
+#include	<ctype.h>
+#include	<pwd.h>
+#include	<grp.h>
+#include	<netdb.h>
+
+#include	"vsystem.h"
+#include	<baops.h>
+#include	<bfile.h>
+
+#if	CF_LOG
+#include	<logfile.h>
+#endif
+
+#include	"localmisc.h"
+
+
+
+/* local defines */
+
+#define	TIMEOUT		3
+
+#ifndef	LOGIDLEN
+#define	LOGIDLEN	80
+#endif
+
+#define	LOGFNAME	"/tmp/gethostbyname.log"
+#define	SERIALFILE1	"/tmp/serial"
+#define	SERIALFILE2	"/tmp/ns_gethe1.serial"
+#define	DEFLOGSIZE	80000
+
+
+
+/* external subroutines */
+
+
+/* forward references */
+
+
+/* external variables */
+
+#ifndef	POSIX
+extern int	h_errno ;
+#endif
+
+
+/* global data */
+
+
+/* local data structures */
+
+
+
+
+
+int ns_gethe1(name,hep,buf,buflen)
+char		name[] ;
+struct hostent	*hep ;
+char		buf[] ;
+int		buflen ;
+{
+#if	CF_LOG
+	logfile	lh ;
+#endif
+
+	struct hostent	*lp ;
+
+#if	CF_LOG
+	pid_t	pid ;
+#endif
+
+	int	rs, i, serial ;
+#ifdef	POSIX
+	int	h_errno ;
+#endif
+
+#if	CF_LOG
+	char	logid[LOGIDLEN + 1] ;
+#endif
+
+
+#if	CF_DEBUGS
+	debugprintf("ns_gethe1: entered '%s'\n",
+	    name) ;
+#endif
+
+
+/* do we want logging performed ? */
+
+#if	CF_LOG
+	pid = getpid() ;
+
+	if ((serial = ns_getserial(SERIALFILE1)) < 0)
+		serial = ns_getserial(SERIALFILE2) ;
+
+	bufprintf(logid,LOGIDLEN,"%d.%d",pid,serial) ;
+
+	logfile_open(&lh,LOGFNAME,0,0666,logid) ;
+
+	logfile_printf(&lh,"name=%s\n",(name == NULL) ? STDNULLFNAME : name) ;
+#endif /* CF_LOG */
+
+
+	if (name == NULL)
+		return BAD ;
+
+
+/* do the real work */
+
+	memset(hep,0,sizeof(struct hostent)) ;
+
+#if	defined(POSIX) && (! defined(IRIX))
+
+	h_errno = 0 ;
+	for (i = 0 ; i < TIMEOUT ; i += 1) {
+
+#if	CF_DEBUGS
+	    debugprintf("ns_gethe1: top of loop\n") ;
+#endif
+
+	    lp = gethostbyname_r(name,
+	        hep,buf,buflen,&h_errno) ;
+
+#if	CF_DEBUGS
+	    debugprint("ns_gethe1: bottom of loop\n") ;
+
+#endif 
+
+	    if ((lp != NULL) || (h_errno != TRY_AGAIN)) break ;
+
+	    sleep(1) ;
+
+	} /* end for */
+
+#else /* ! defined(POSIX) */
+
+	for (i = 0 ; i < TIMEOUT ; i += 1) {
+
+#if	CF_DEBUGS
+	    debugprint("ns_gethe1: not on POSIX\n") ;
+#endif
+
+#if	CF_DEBUGS
+	    debugprint("ns_gethe1: about to call 'gethostbyname'\n") ;
+#endif
+
+	    lp = gethostbyname(name) ;
+
+#if	CF_DEBUGS
+	    debugprint("ns_gethe1: returned from 'gethostbyname'\n") ;
+#endif
+
+	    if ((lp != NULL) || (h_errno != TRY_AGAIN)) break ;
+
+#if	CF_DEBUGS
+	    debugprint("ns_gethe1: maybe some sleep\n") ;
+#endif
+
+	    sleep(1) ;
+
+	} /* end for */
+
+#if	CF_DEBUGS
+	debugprint("ns_gethe1: some memcpy\n") ;
+#endif
+
+	if (lp != NULL)
+	    memcpy(hep,lp,sizeof(struct hostent)) ;
+
+#endif /* POSIX or not */
+
+	rs = 0 ;
+	if (i >= TIMEOUT)
+		rs = -2 ;
+
+	else if (lp == NULL)
+		rs = -1 ;
+
+#if	CF_LOG
+	if (rs == -2)
+	    logfile_printf(&lh,"network timeout (rs=%d)\n",rs) ;
+
+	else if (rs == -1)
+	    logfile_printf(&lh,"entry not found (rs=%d)\n",rs) ;
+
+	else
+	    logfile_printf(&lh,"result=%s (rs=%d)\n",
+	        ((lp == NULL) ? STDNULLFNAME : lp->h_name),rs) ;
+#endif /* CF_LOG */
+
+#if	CF_DEBUGS
+	debugprintf("ns_gethe1: return is %s\n",
+	    (lp == NULL) ? "bad" : "good") ;
+#endif
+
+#if	CF_LOG
+	logfile_checksize(&lh,DEFLOGSIZE) ;
+
+	logfile_close(&lh) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (ns_gethe1) */
+
+
+

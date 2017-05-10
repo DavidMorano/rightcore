@@ -1,0 +1,28 @@
+#!/usr/bin/ksh
+# MAKEINSTALL
+
+T=logdir.x
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+if [[ $# -gt 0 ]] ; then
+  BINDIR=${1}
+else
+  BINDIR=${LOCAL}/bin
+fi
+
+
+ALL="logdir userdir username userhome"
+
+
+for F in ${ALL} ; do
+  rm -f ${BINDIR}/${F}
+  rm -f ${F}
+  ln -f ${T} ${F}
+done
+
+find ${ALL} -print | cpio -pdmu ${BINDIR}
+
+
+

@@ -1,0 +1,6 @@
+
+cat output output output output > oo
+cat oo oo oo oo > output
+rm -f oo
+
+

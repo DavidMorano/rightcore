@@ -1,0 +1,17 @@
+# DBS (LSPELL databases)
+#
+
+
+#
+# format of entries:
+# db-name	file			cache-dir
+#-------------------------------------------------------------------------------
+#
+
+*		-			%h/var/lspell
+
+user		%h/share/dict/words	%h/var/lspell
+
+system		share/dict/words	/var/tmp/local/lspell
+
+

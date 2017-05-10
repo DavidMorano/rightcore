@@ -1,0 +1,18 @@
+CC= gcc
+GPP= g++
+
+CCOPTS_GCCALL= -pthreads
+CCOPTS_CCALL= -MT
+
+CCOPTS_GCCOPTSPARC= -mcpu=v9
+CCOPTS_GCCLIBSPARC= -mno-app-regs -fno-builtin-bcopy
+
+CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
+#CCOPTS= $(CCOPTS_GCCALL) -g -O
+#CCOPTS= $(CCOPTS_GCCALL) -g -pg
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing -Wall
+
+CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
+
+#CCOPTS= $(CCOPTS_CCALL) -g -xs
+

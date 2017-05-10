@@ -1,0 +1,96 @@
+
+
+mailhead.x:
+
+[Index]   Value      Size      Type  Bind  Other Shname         Name
+
+[1]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |mailhead.x
+[46]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |makedate.c
+[60]	|0x00000000|0x00000000|NOTY |WEAK |0    |UNDEF         |_ex_register
+[40]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |values-Xa.c
+[41]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |main.c
+[36]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |crt1.s
+[43]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |whatinfo.c
+[26]	|0x00000000|0x00000000|SECT |LOCL |0    |.strtab       |
+[31]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |crti.s
+[48]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |exit.c
+[69]	|0x00000000|0x00000000|NOTY |WEAK |0    |UNDEF         |__1cH__CimplKcplus_init6F_v_
+[28]	|0x00000000|0x00000000|SECT |LOCL |0    |.shstrtab     |
+[27]	|0x00000000|0x00000000|SECT |LOCL |0    |.comment      |
+[81]	|0x00000000|0x00000000|NOTY |WEAK |0    |UNDEF         |__1cG__CrunVdo_exit_code_in_range6Fpv1_v_
+[68]	|0x00000000|0x00000000|NOTY |WEAK |0    |UNDEF         |__1cH__CimplKcplus_fini6F_v_
+[66]	|0x00000000|0x00000000|NOTY |WEAK |0    |UNDEF         |_ex_deregister
+[64]	|0x00000000|0x00000000|NOTY |WEAK |0    |UNDEF         |__1cG__CrunMdo_exit_code6F_v_
+[25]	|0x00000000|0x00000000|SECT |LOCL |0    |.symtab       |
+[50]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |fgetline.c
+[56]	|0x00000000|0x00000000|NOTY |WEAK |0    |UNDEF         |__fsr_init_value
+[52]	|0x00000000|0x00000000|FILE |LOCL |0    |ABS           |crtn.s
+[29]	|0x00010000|0x00000000|OBJT |LOCL |0    |.interp       |_START_
+[2]	|0x000100d4|0x00000000|SECT |LOCL |0    |.interp       |
+[3]	|0x000100e8|0x00000000|SECT |LOCL |0    |.hash         |
+[4]	|0x00010214|0x00000000|SECT |LOCL |0    |.dynsym       |
+[5]	|0x00010454|0x00000000|SECT |LOCL |0    |.dynstr       |
+[6]	|0x000106a8|0x00000000|SECT |LOCL |0    |.SUNW_version |
+[7]	|0x000106d8|0x00000000|SECT |LOCL |0    |.rela.text    |
+[8]	|0x000106f0|0x00000000|SECT |LOCL |0    |.rela.ex_shared|
+[9]	|0x00010720|0x00000000|SECT |LOCL |0    |.rela.cpp_finidata|
+[10]	|0x0001072c|0x00000000|SECT |LOCL |0    |.rela.data    |
+[11]	|0x00010738|0x00000000|SECT |LOCL |0    |.rela.bss     |
+[12]	|0x00010744|0x00000000|SECT |LOCL |0    |.rela.plt     |
+[35]	|0x00010798|0x00000000|NOTY |LOCL |0    |.text         |_ex_text0
+[13]	|0x00010798|0x00000000|SECT |LOCL |0    |.text         |
+[84]	|0x00010798|0x00000110|FUNC |GLOB |0    |.text         |_start
+[42]	|0x000108a8|0x00000000|NOTY |LOCL |0    |.text         |gcc2_compiled.
+[63]	|0x000108a8|0x00000070|FUNC |GLOB |0    |.text         |main
+[47]	|0x00010918|0x00000000|NOTY |LOCL |0    |.text         |gcc2_compiled.
+[83]	|0x00010918|0x00000024|FUNC |GLOB |0    |.text         |exit
+[49]	|0x00010918|0x00000000|NOTY |LOCL |0    |.text         |gcc2_compiled.
+[45]	|0x00010918|0x00000000|NOTY |LOCL |0    |.text         |gcc2_compiled.
+[61]	|0x0001093c|0x0000006c|FUNC |GLOB |0    |.text         |fgetline
+[51]	|0x0001093c|0x00000000|NOTY |LOCL |0    |.text         |gcc2_compiled.
+[14]	|0x000109a8|0x00000000|SECT |LOCL |0    |.init         |
+[55]	|0x000109a8|0x00000000|NOTY |LOCL |0    |.text         |_ex_text1
+[76]	|0x000109a8|0x00000050|FUNC |GLOB |0    |.init         |_init
+[15]	|0x000109f8|0x00000000|SECT |LOCL |0    |.fini         |
+[80]	|0x000109f8|0x00000080|FUNC |GLOB |0    |.fini         |_fini
+[34]	|0x00010a78|0x00000000|NOTY |LOCL |0    |.exception_ranges|_ex_range0
+[16]	|0x00010a78|0x00000000|SECT |LOCL |0    |.exception_ranges|
+[54]	|0x00010a78|0x00000000|NOTY |LOCL |0    |.exception_ranges|_ex_range1
+[77]	|0x00010a80|0x00000004|OBJT |GLOB |0    |.rodata       |_lib_version
+[17]	|0x00010a80|0x00000000|SECT |LOCL |0    |.rodata       |
+[44]	|0x00010a88|0x0000000f|OBJT |LOCL |0    |.rodata       |whatinfo
+[70]	|0x00010a98|0x00000039|OBJT |GLOB |0    |.rodata       |mailhead_makedate
+[79]	|0x00010ad1|0x00000000|OBJT |GLOB |0    |.rodata       |_etext
+[89]	|0x00020ad4|0x00000000|OBJT |GLOB |0    |.got          |_GLOBAL_OFFSET_TABLE_
+[18]	|0x00020ad4|0x00000000|SECT |LOCL |0    |.got          |
+[90]	|0x00020ad8|0x00000000|OBJT |GLOB |0    |.plt          |_PROCEDURE_LINKAGE_TABLE_
+[19]	|0x00020ad8|0x00000000|SECT |LOCL |0    |.plt          |
+[75]	|0x00020b08|0x00000000|FUNC |GLOB |0    |UNDEF         |atexit
+[88]	|0x00020b14|0x00000000|FUNC |GLOB |0    |UNDEF         |_exit
+[72]	|0x00020b20|0x00000000|FUNC |GLOB |0    |UNDEF         |fwrite
+[71]	|0x00020b2c|0x00000000|FUNC |GLOB |0    |UNDEF         |fclose
+[82]	|0x00020b38|0x00000000|FUNC |GLOB |0    |UNDEF         |_exithandle
+[59]	|0x00020b44|0x00000000|FUNC |GLOB |0    |UNDEF         |getc
+[73]	|0x00020b50|0x00000000|FUNC |WEAK |0    |UNDEF         |_get_exit_frame_monitor
+[20]	|0x00020b60|0x00000000|SECT |LOCL |0    |.dynamic      |
+[67]	|0x00020b60|0x00000000|OBJT |GLOB |0    |.dynamic      |_DYNAMIC
+[21]	|0x00020c50|0x00000000|SECT |LOCL |0    |.ex_shared    |
+[32]	|0x00020c60|0x00000000|NOTY |LOCL |0    |.ex_shared    |_ex_shared0
+[53]	|0x00020c70|0x00000000|NOTY |LOCL |0    |.ex_shared    |_ex_shared1
+[22]	|0x00020c78|0x00000000|SECT |LOCL |0    |.cpp_finidata |
+[33]	|0x00020c7c|0x00000000|NOTY |LOCL |0    |.cpp_finidata |_cpp_finidata0
+[62]	|0x00020c88|0x00000018|OBJT |GLOB |0    |.data         |__environ_lock
+[23]	|0x00020c88|0x00000000|SECT |LOCL |0    |.data         |
+[85]	|0x00020ca0|0x00000004|OBJT |WEAK |0    |.data         |environ
+[58]	|0x00020ca0|0x00000004|OBJT |GLOB |0    |.data         |_environ
+[39]	|0x00020ca4|0x00000004|OBJT |LOCL |0    |.data         |__crt_scratch
+[78]	|0x00020ca8|0x00000004|OBJT |GLOB |0    |.data         |__cg92_used
+[65]	|0x00020cac|0x00000004|OBJT |GLOB |0    |.data         |___Argv
+[37]	|0x00020cb0|0x00000004|OBJT |LOCL |0    |.data         |__get_exit_frame_monitor_ptr
+[38]	|0x00020cb4|0x00000004|OBJT |LOCL |0    |.data         |__do_exit_code_ptr
+[74]	|0x00020cb8|0x00000000|OBJT |GLOB |0    |.data         |_edata
+[57]	|0x00020cb8|0x00000140|OBJT |GLOB |0    |.bss          |__iob
+[24]	|0x00020cb8|0x00000000|SECT |LOCL |0    |.bss          |
+[87]	|0x00020cb8|0x00000140|OBJT |WEAK |0    |.bss          |_iob
+[30]	|0x00020df8|0x00000000|OBJT |LOCL |0    |.bss          |_END_
+[86]	|0x00020df8|0x00000000|OBJT |GLOB |0    |.bss          |_end

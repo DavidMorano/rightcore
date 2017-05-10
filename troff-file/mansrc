@@ -1,0 +1,15 @@
+#!/bin/ksh
+# MANSRC
+
+
+if [ -z "${1}" ] ; then
+  echo "${0}: argument must be specified" >&2
+  exit 1
+fi
+
+TROFF=troff-file man -r $1
+
+mv file0.troff ${1}.man
+
+
+

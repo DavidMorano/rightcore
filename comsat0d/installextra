@@ -1,0 +1,38 @@
+#!/usr/bin/ksh
+# INSTALLEXTRA
+
+
+T=comsat
+GROUP=tty
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+
+install() {
+  P=${1}
+  D=${2}
+  makenewer -r ${P} ${D}
+  chmod +x ${D}/${P}
+  chgrp $GROUP ${D}/${P}
+  chmod g+s ${D}/${P}
+}
+
+
+rm -f ${T}.s5
+cp -p ${T}.x ${T}.s5
+
+
+NODES=" rca rcb rcc"
+
+for N in ${NODES} ; do
+
+  if pingstat -n $N ; then
+    install ${T}.s5 /net/${N}/usr/extra/sbin
+  fi
+
+done
+
+

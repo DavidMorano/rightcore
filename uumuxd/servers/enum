@@ -1,0 +1,9 @@
+#!/bin/ksh
+# ENUM
+
+A=$1
+for I in ${A} ; do
+  eval echo $I
+done
+
+

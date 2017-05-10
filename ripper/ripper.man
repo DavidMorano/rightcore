@@ -1,0 +1,129 @@
+.\"_
+.TH RIPPER 1 "1998-02-02" NCMP
+.SH NAME
+ripper \- audio CDROM ripper program
+.SH SYNOPSIS
+.B ripper
+.RB [ \-d
+.IR " device" ]
+.RB [ \-e ]
+.RB [ \-f
+.IR " format" ]
+.RB [ \-h ]
+.RB [ \-i ]
+.RB [ \-p ]
+.RB [ \-b ]
+.RB [ \-a ]
+.RB [ \-t
+.IR " track" ]
+.RB [ \-V ]
+.RB [ \-v ]
+.RB [ \-x ]
+.RI [ filename ]
+.SH DESCRIPTION
+The
+.I galette
+program is a simple tool that extracts and encodes digital audio tracks
+from a CD on a SPARCstation running Solaris,
+with jitter correction.
+The output is sent to the file specified as the final argument
+on the command line
+(or to stdout in the absence of a file name).
+.SH OPTIONS
+.TP
+.BI \-d " device"
+Use the specified CD-ROM device name.
+.TP
+.B \-e
+Exit if jitter control fails (exit status 2).
+.TP
+.BI \-f " format"
+Use the specified output format, from among the list:
+WAV, AIFF, PCM, SUN (default: SUN).
+.TP
+.B \-h
+Print usage information.
+.TP
+.B \-i
+Print CD-ROM information and exit.
+.TP
+.BI \-t " track"
+Capture the specified track number (default: 1).
+.TP
+.BI \-a
+Dump all tracks, one by one (filename is usead as a name pattern).
+.TP
+.B \-V
+Print the program version.
+.TP
+.B \-p
+Show progress bar while reading the track.
+.TP
+.B \-v
+Verbose mode.
+.TP
+.B \-b
+Do not try to set the block size to 2352 bytes.
+.TP
+.B \-x
+Swap bytes in 16 bit samples.
+.SH FILES
+.TP 2.2i
+.I /usr/local/bin/galette
+executable
+.SH EXAMPLE
+galette -p -f wav -a -e track%02d.wav
+.br
+this will grab all tracks on the CD, naming them track01.wav, track02.wav, etc\.\.\.
+.br
+galette -p -f sun -t 3 track03.au
+.br
+this will grab track 3 and save it in SUN .au format.
+.br
+ 
+.br
+Here is typical output from use of the
+.B \-i
+option (CD information):
+.nf
+\fCCDROM: +-----------------------------------------------------+
+CDROM: | TRACK |    LBA   | TIMECODE | DURATION |    SIZE    |
+CDROM: +-------+----------+----------+----------+------------+
+CDROM: |     1 |        0 | 00:02:00 | 04:28:72 |   47.44 MB |
+CDROM: |     2 |    20172 | 04:30:72 | 05:42:00 |   60.33 MB |
+CDROM: |     3 |    45822 | 10:12:72 | 06:13:28 |   65.86 MB |
+CDROM: |     4 |    73825 | 16:26:25 | 05:17:47 |   56.03 MB |
+CDROM: |     5 |    97647 | 21:43:72 | 06:40:18 |   70.60 MB |
+CDROM: |     6 |   127665 | 28:24:15 | 04:05:35 |   43.30 MB |
+CDROM: |     7 |   146075 | 32:29:50 | 03:48:00 |   40.22 MB |
+CDROM: |     8 |   163175 | 36:17:50 | 04:18:00 |   45.51 MB |
+CDROM: |     9 |   182525 | 40:35:50 | 06:58:57 |   73.87 MB |
+CDROM: |    10 |   213932 | 47:34:32 | 05:32:33 |   58.64 MB |
+CDROM: |    11 |   238865 | 53:06:65 | 03:36:45 |   38.21 MB |
+CDROM: |    12 |   255110 | 56:43:35 | 04:27:05 |   47.11 MB |
+CDROM: |    13 |   275140 | 61:10:40 | 08:20:60 |   88.34 MB |
+CDROM: +-------+----------+----------+----------+------------+
+CDROM: | TOTAL |   312700 |          | 69:29:25 |  735.47 MB |
+CDROM: +-------+----------+----------+----------+------------+
+CDROM: disk id = ab10490d\fP
+.fi
+.SH "SEE ALSO"
+.IR xaudio (1)
+.LP
+Source code is available via:
+.br
+http://www.cybersoft.org/galette/
+.SH AUTHORS
+Version 1.2b of Feb 2nd 1998.
+Copyright (c) 1996 Gilles 'Bok' Boccon-Gibod (bok@bok.net; http://www.bok.net)
+and Alain Jobart (aj@cybersoft.org).
+Please send Gilles bug reports, requests for new features,
+and any changes you make to the source code.
+.LP
+UNIX manual page by R. P. C. Rodgers,
+U.S. National Library of Medicine (rodgers@nlm.nih.gov).
+.\" end of man page
+
+
+
+

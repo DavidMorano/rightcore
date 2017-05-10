@@ -1,0 +1,10 @@
+
+: ${LOCAL:=/usr/add-on/local}
+: ${PCS:=/usr/add-on/pcs}
+
+cp rshe.x ${LOCAL}/bin/rshe.x
+rcp rshe.x hocpb:~gwbb/add-on/local/bin/rshe.x
+rcp rshe.x pcs@mthost2:/mt/mtgzfs8/hw/add-on/local/bin/rshe.elf
+
+
+

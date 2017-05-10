@@ -1,0 +1,998 @@
+
+* MAKELIB 4.20
+
+
+.SUBCKT NFET (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT PFET (:: s, g, d )
+.global vss, vdd
+  Mp1     s       g       d       vdd  mp0p6     SW =   1.400
+.FINIS
+
+.SUBCKT NF (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT PF (:: s, g, d )
+.global vss, vdd
+  Mp1     s       g       d       vdd  mp0p6     SW =   1.400
+.FINIS
+
+.SUBCKT INV ( a : an )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT INVY ( a : an )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   1.400
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT PASS ( s, sb :: a, b )
+.global vss, vdd
+  Mp1     a       sb      b       vdd  mp0p6     SW =   2.800
+  Mn2     a       s       b       vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT PASSY ( s, sb :: a, b )
+.global vss, vdd
+  Mp1     a       sb      b       vdd  mp0p6     SW =   1.400
+  Mn2     a       s       b       vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT BUF ( a : o )
+.global vss, vdd
+  Mp1     on      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     on      a       vss     vss  mn0p5     SW =   1.400
+  Mp3     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn4     o       on      vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT BUFY ( a : o )
+.global vss, vdd
+  Mp1     on      a       vdd     vdd  mp0p6     SW =   1.400
+  Mn2     on      a       vss     vss  mn0p5     SW =   1.400
+  Mp3     o       on      vdd     vdd  mp0p6     SW =   1.400
+  Mn4     o       on      vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT DUMMY ( a )
+.global vss
+R1  (vss,  a) 10MEG
+.FINIS
+
+.SUBCKT PATH ( a : b )
+   R1 (a b) 0.00001
+.FINIS
+
+.SUBCKT SKEW1 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp0p6     SW =  20.800
+  Mn2     tn0     a       vss     vss  mn0p5     SW =  10.400
+
+  Mp3     tn1     tn0     vdd     vdd  mp0p6     SW =  18.800
+  Mn4     tn1     tn0     vss     vss  mn0p5     SW =   9.400
+
+  Mp5     on      tn1     vdd     vdd  mp0p6     SW =  56.400
+  Mn6     on      tn1     vss     vss  mn0p5     SW =  28.200
+
+  Mp7     tn2     a       vdd     vdd  mp0p6     SW =   6.800
+  Mn8     tn2     a       vss     vss  mn0p5     SW =   3.400
+
+  Mp9     op      tn2     vdd     vdd  mp0p6     SW =  20.400
+  Mn10    op      tn2     vss     vss  mn0p5     SW =  10.200
+
+.FINIS
+
+.SUBCKT SKEW2 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp0p6     SW =   3.400
+  Mn2     tn0     a       vss     vss  mn0p5     SW =   1.700
+
+  Mp3     tn1     tn0     vdd     vdd  mp0p6     SW =   8.000
+  Mn4     tn1     tn0     vss     vss  mn0p5     SW =   4.000
+
+  Mp5     on      tn1     vdd     vdd  mp0p6     SW =  18.200
+  Mn6     on      tn1     vss     vss  mn0p5     SW =   9.100
+
+  Mp7     tn2     a       vdd     vdd  mp0p6     SW =   2.800
+  Mn8     tn2     a       vss     vss  mn0p5     SW =   1.400
+
+  Mp9     op      tn2     vdd     vdd  mp0p6     SW =  18.200
+  Mn10    op      tn2     vss     vss  mn0p5     SW =   9.100
+
+.FINIS
+
+.SUBCKT SKEWX1 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp1p1     SW =   2.800
+  Mn2     tn0     a       vss     vss  mn1p0     SW =   1.400
+
+  Mp3     op      tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn4     op      tn0     vss     vss  mn0p5     SW =   1.400
+
+  Mp5     tn1     a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     tn1     a       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     tn2     tn1     vdd     vdd  mp0p6     SW =   2.800
+  Mn8     tn2     tn1     vss     vss  mn0p5     SW =   1.400
+
+  Mp9     on      tn2     vdd     vdd  mp0p6     SW =   2.800
+  Mn10    on      tn2     vss     vss  mn0p5     SW =   1.400
+
+.FINIS
+
+.SUBCKT SKEWX2 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp0p9     SW =   2.800
+  Mn2     tn0     a       vss     vss  mn0p8     SW =   1.400
+
+  Mp3     op      tn0     vdd     vdd  mp0p6     SW =   5.600
+  Mn4     op      tn0     vss     vss  mn0p5     SW =   2.800
+
+  Mp5     tn1     a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     tn1     a       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     tn2     tn1     vdd     vdd  mp0p6     SW =   4.000
+  Mn8     tn2     tn1     vss     vss  mn0p5     SW =   2.000
+
+  Mp9     on      tn2     vdd     vdd  mp0p6     SW =   5.600
+  Mn10    on      tn2     vss     vss  mn0p5     SW =   2.800
+
+.FINIS
+
+.SUBCKT SKEWX3 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp0p9     SW =   2.800
+  Mn2     tn0     a       vss     vss  mn0p8     SW =   1.400
+
+  Mp3     op      tn0     vdd     vdd  mp0p6     SW =   8.400
+  Mn4     op      tn0     vss     vss  mn0p5     SW =   4.200
+
+  Mp5     tn1     a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     tn1     a       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     tn2     tn1     vdd     vdd  mp0p6     SW =   4.800
+  Mn8     tn2     tn1     vss     vss  mn0p5     SW =   2.400
+
+  Mp9     on      tn2     vdd     vdd  mp0p6     SW =   8.400
+  Mn10    on      tn2     vss     vss  mn0p5     SW =   4.200
+
+.FINIS
+
+.SUBCKT SKEWX4 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp0p8     SW =   2.800
+  Mn2     tn0     a       vss     vss  mn0p7     SW =   1.400
+
+  Mp3     op      tn0     vdd     vdd  mp0p6     SW =  11.200
+  Mn4     op      tn0     vss     vss  mn0p5     SW =   5.600
+
+  Mp5     tn1     a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     tn1     a       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     tn2     tn1     vdd     vdd  mp0p6     SW =   5.600
+  Mn8     tn2     tn1     vss     vss  mn0p5     SW =   2.800
+
+  Mp9     on      tn2     vdd     vdd  mp0p6     SW =  11.200
+  Mn10    on      tn2     vss     vss  mn0p5     SW =   5.600
+
+.FINIS
+
+.SUBCKT SKEWX5 ( a : op, on )
+.global vss, vdd
+  Mp1     tn0     a       vdd     vdd  mp0p8     SW =   2.800
+  Mn2     tn0     a       vss     vss  mn0p7     SW =   1.400
+
+  Mp3     op      tn0     vdd     vdd  mp0p6     SW =  14.000
+  Mn4     op      tn0     vss     vss  mn0p5     SW =   7.000
+
+  Mp5     tn1     a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     tn1     a       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     tn2     tn1     vdd     vdd  mp0p6     SW =   6.300
+  Mn8     tn2     tn1     vss     vss  mn0p5     SW =   3.100
+
+  Mp9     on      tn2     vdd     vdd  mp0p6     SW =  14.000
+  Mn10    on      tn2     vss     vss  mn0p5     SW =   7.000
+
+.FINIS
+
+.SUBCKT NAND2 ( a, b : o )
+.global vss, vdd
+  Mp1     o       b       vdd     vdd  mp0p6     SW =   2.800
+  Mp2     o       a       vdd     vdd  mp0p6     SW =   2.800
+  Mn3     o       a       n1      vss  mn0p5     SW =   2.800
+  Mn4     n1      b       vss     vss  mn0p5     SW =   2.800
+.FINIS
+
+.SUBCKT AND2 ( a, b : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     on      b       vdd     vdd  mp0p6     SW =   2.800
+  Mp4     on      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn5     on      a       n1      vss  mn0p5     SW =   2.800
+  Mn6     n1      b       vss     vss  mn0p5     SW =   2.800
+.FINIS
+
+.SUBCKT NOR2 ( a, b : o )
+.global vss, vdd
+  Mp1     vdd     b       n1      vdd  mp0p6     SW =   5.600
+  Mp2     n1      a       o       vdd  mp0p6     SW =   5.600
+  Mn3     o       a       vss     vss  mn0p5     SW =   1.400
+  Mn4     o       b       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT OR2 ( a, b : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     vdd     b       n1      vdd  mp0p6     SW =   5.600
+  Mp4     n1      a       on      vdd  mp0p6     SW =   5.600
+  Mn5     on      a       vss     vss  mn0p5     SW =   1.400
+  Mn6     on      b       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT XOR2 ( a, b : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     a       bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn6     a       b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp7     an      b       tn0     vdd  mp0p6     SW =   2.800
+  Mn8     an      bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp9     o       tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn10    o       tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT XNOR2 ( a, b : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     a       b       tn0     vdd  mp0p6     SW =   2.800
+  Mn6     a       bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp7     an      bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn8     an      b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp9     o       tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn10    o       tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT NAND3 ( a, b, c : o )
+.global vss, vdd
+  Mp1     o       c       vdd     vdd  mp0p6     SW =   2.800
+  Mp2     o       b       vdd     vdd  mp0p6     SW =   2.800
+  Mp3     o       a       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     o       a       n1      vss  mn0p5     SW =   4.200
+  Mn5     n1      b       n2      vss  mn0p5     SW =   4.200
+  Mn6     n2      c       vss     vss  mn0p5     SW =   4.200
+.FINIS
+
+.SUBCKT AND3 ( a, b, c : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     on      c       vdd     vdd  mp0p6     SW =   2.800
+  Mp4     on      b       vdd     vdd  mp0p6     SW =   2.800
+  Mp5     on      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     on      a       n1      vss  mn0p5     SW =   4.200
+  Mn7     n1      b       n2      vss  mn0p5     SW =   4.200
+  Mn8     n2      c       vss     vss  mn0p5     SW =   4.200
+.FINIS
+
+.SUBCKT NOR3 ( a, b, c : o )
+.global vss, vdd
+  Mp1     vdd     c       n1      vdd  mp0p6     SW =   8.400
+  Mp2     n1      b       n2      vdd  mp0p6     SW =   8.400
+  Mp3     n2      a       o       vdd  mp0p6     SW =   8.400
+  Mn4     o       a       vss     vss  mn0p5     SW =   1.400
+  Mn5     o       b       vss     vss  mn0p5     SW =   1.400
+  Mn6     o       c       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT OR3 ( a, b, c : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     vdd     c       n1      vdd  mp0p6     SW =   8.400
+  Mp4     n1      b       n2      vdd  mp0p6     SW =   8.400
+  Mp5     n2      a       on      vdd  mp0p6     SW =   8.400
+  Mn6     on      a       vss     vss  mn0p5     SW =   1.400
+  Mn7     on      b       vss     vss  mn0p5     SW =   1.400
+  Mn8     on      c       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT XOR3 ( a, b, c : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     cn      c       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     cn      c       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     a       bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn8     a       b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp9     an      b       tn0     vdd  mp0p6     SW =   2.800
+  Mn10    an      bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp11    nx1     tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn12    nx1     tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+  Mp13    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn14    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp15    nx1     cn      tn1     vdd  mp0p6     SW =   2.800
+  Mn16    nx1     c       tn1     vss  mn0p5     SW =   1.400
+
+  Mp17    nx1n    c       tn1     vdd  mp0p6     SW =   2.800
+  Mn18    nx1n    cn      tn1     vss  mn0p5     SW =   1.400
+
+  Mp19    o       tn1     vdd     vdd  mp0p6     SW =   2.800
+  Mn20    o       tn1     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn1)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT XNOR3 ( a, b, c : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     cn      c       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     cn      c       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     a       bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn8     a       b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp9     an      b       tn0     vdd  mp0p6     SW =   2.800
+  Mn10    an      bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp11    nx1     tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn12    nx1     tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+  Mp13    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn14    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp15    nx1     c       tn1     vdd  mp0p6     SW =   2.800
+  Mn16    nx1     cn      tn1     vss  mn0p5     SW =   1.400
+
+  Mp17    nx1n    cn      tn1     vdd  mp0p6     SW =   2.800
+  Mn18    nx1n    c       tn1     vss  mn0p5     SW =   1.400
+
+  Mp19    o       tn1     vdd     vdd  mp0p6     SW =   2.800
+  Mn20    o       tn1     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn1)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT NAND4 ( a, b, c, d : o )
+.global vss, vdd
+  Mp1     o       d       vdd     vdd  mp0p6     SW =   2.800
+  Mp2     o       c       vdd     vdd  mp0p6     SW =   2.800
+  Mp3     o       b       vdd     vdd  mp0p6     SW =   2.800
+  Mp4     o       a       vdd     vdd  mp0p6     SW =   2.800
+  Mn5     o       a       n1      vss  mn0p5     SW =   5.600
+  Mn6     n1      b       n2      vss  mn0p5     SW =   5.600
+  Mn7     n2      c       n3      vss  mn0p5     SW =   5.600
+  Mn8     n3      d       vss     vss  mn0p5     SW =   5.600
+.FINIS
+
+.SUBCKT AND4 ( a, b, c, d : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     on      d       vdd     vdd  mp0p6     SW =   2.800
+  Mp4     on      c       vdd     vdd  mp0p6     SW =   2.800
+  Mp5     on      b       vdd     vdd  mp0p6     SW =   2.800
+  Mp6     on      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn7     on      a       n1      vss  mn0p5     SW =   5.600
+  Mn8     n1      b       n2      vss  mn0p5     SW =   5.600
+  Mn9     n2      c       n3      vss  mn0p5     SW =   5.600
+  Mn10    n3      d       vss     vss  mn0p5     SW =   5.600
+.FINIS
+
+.SUBCKT NOR4 ( a, b, c, d : o )
+.global vss, vdd
+  Mp1     vdd     d       n1      vdd  mp0p6     SW =  11.200
+  Mp2     n1      c       n2      vdd  mp0p6     SW =  11.200
+  Mp3     n2      b       n3      vdd  mp0p6     SW =  11.200
+  Mp4     n3      a       o       vdd  mp0p6     SW =  11.200
+  Mn5     o       a       vss     vss  mn0p5     SW =   1.400
+  Mn6     o       b       vss     vss  mn0p5     SW =   1.400
+  Mn7     o       c       vss     vss  mn0p5     SW =   1.400
+  Mn8     o       d       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT OR4 ( a, b, c, d : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     vdd     d       n1      vdd  mp0p6     SW =  11.200
+  Mp4     n1      c       n2      vdd  mp0p6     SW =  11.200
+  Mp5     n2      b       n3      vdd  mp0p6     SW =  11.200
+  Mp6     n3      a       on      vdd  mp0p6     SW =  11.200
+  Mn7     on      a       vss     vss  mn0p5     SW =   1.400
+  Mn8     on      b       vss     vss  mn0p5     SW =   1.400
+  Mn9     on      c       vss     vss  mn0p5     SW =   1.400
+  Mn10    on      d       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT XOR4 ( a, b, c, d : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     cn      c       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     cn      c       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     dn      d       vdd     vdd  mp0p6     SW =   2.800
+  Mn8     dn      d       vss     vss  mn0p5     SW =   1.400
+
+  Mp9     a       bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn10    a       b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp11    an      b       tn0     vdd  mp0p6     SW =   2.800
+  Mn12    an      bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp13    nx1     tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn14    nx1     tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+  Mp15    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn16    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp17    c       dn      tn1     vdd  mp0p6     SW =   2.800
+  Mn18    c       d       tn1     vss  mn0p5     SW =   1.400
+
+  Mp19    cn      d       tn1     vdd  mp0p6     SW =   2.800
+  Mn20    cn      dn      tn1     vss  mn0p5     SW =   1.400
+
+  Mp21    nx2     tn1     vdd     vdd  mp0p6     SW =   2.800
+  Mn22    nx2     tn1     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn1)= 0.0000E+00
+
+  Mp23    nx2n    nx2     vdd     vdd  mp0p6     SW =   2.800
+  Mn24    nx2n    nx2     vss     vss  mn0p5     SW =   1.400
+
+  Mp25    nx1     nx2n    tn2     vdd  mp0p6     SW =   2.800
+  Mn26    nx1     nx2     tn2     vss  mn0p5     SW =   1.400
+
+  Mp27    nx1n    nx2     tn2     vdd  mp0p6     SW =   2.800
+  Mn28    nx1n    nx2n    tn2     vss  mn0p5     SW =   1.400
+
+  Mp29    o       tn2     vdd     vdd  mp0p6     SW =   2.800
+  Mn30    o       tn2     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn2)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT XNOR4 ( a, b, c, d : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     cn      c       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     cn      c       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     dn      d       vdd     vdd  mp0p6     SW =   2.800
+  Mn8     dn      d       vss     vss  mn0p5     SW =   1.400
+
+  Mp9     a       bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn10    a       b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp11    an      b       tn0     vdd  mp0p6     SW =   2.800
+  Mn12    an      bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp13    nx1     tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn14    nx1     tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+  Mp15    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn16    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp17    c       dn      tn1     vdd  mp0p6     SW =   2.800
+  Mn18    c       d       tn1     vss  mn0p5     SW =   1.400
+
+  Mp19    cn      d       tn1     vdd  mp0p6     SW =   2.800
+  Mn20    cn      dn      tn1     vss  mn0p5     SW =   1.400
+
+  Mp21    nx2     tn1     vdd     vdd  mp0p6     SW =   2.800
+  Mn22    nx2     tn1     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn1)= 0.0000E+00
+
+  Mp23    nx2n    nx2     vdd     vdd  mp0p6     SW =   2.800
+  Mn24    nx2n    nx2     vss     vss  mn0p5     SW =   1.400
+
+  Mp25    nx1     nx2     tn2     vdd  mp0p6     SW =   2.800
+  Mn26    nx1     nx2n    tn2     vss  mn0p5     SW =   1.400
+
+  Mp27    nx1n    nx2n    tn2     vdd  mp0p6     SW =   2.800
+  Mn28    nx1n    nx2     tn2     vss  mn0p5     SW =   1.400
+
+  Mp29    o       tn2     vdd     vdd  mp0p6     SW =   2.800
+  Mn30    o       tn2     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn2)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT NAND5 ( a, b, c, d, e : o )
+.global vss, vdd
+  Mp1     o       e       vdd     vdd  mp0p6     SW =   2.800
+  Mp2     o       d       vdd     vdd  mp0p6     SW =   2.800
+  Mp3     o       c       vdd     vdd  mp0p6     SW =   2.800
+  Mp4     o       b       vdd     vdd  mp0p6     SW =   2.800
+  Mp5     o       a       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     o       a       n1      vss  mn0p5     SW =   7.000
+  Mn7     n1      b       n2      vss  mn0p5     SW =   7.000
+  Mn8     n2      c       n3      vss  mn0p5     SW =   7.000
+  Mn9     n3      d       n4      vss  mn0p5     SW =   7.000
+  Mn10    n4      e       vss     vss  mn0p5     SW =   7.000
+.FINIS
+
+.SUBCKT AND5 ( a, b, c, d, e : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     on      e       vdd     vdd  mp0p6     SW =   2.800
+  Mp4     on      d       vdd     vdd  mp0p6     SW =   2.800
+  Mp5     on      c       vdd     vdd  mp0p6     SW =   2.800
+  Mp6     on      b       vdd     vdd  mp0p6     SW =   2.800
+  Mp7     on      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn8     on      a       n1      vss  mn0p5     SW =   7.000
+  Mn9     n1      b       n2      vss  mn0p5     SW =   7.000
+  Mn10    n2      c       n3      vss  mn0p5     SW =   7.000
+  Mn11    n3      d       n4      vss  mn0p5     SW =   7.000
+  Mn12    n4      e       vss     vss  mn0p5     SW =   7.000
+.FINIS
+
+.SUBCKT NOR5 ( a, b, c, d, e : o )
+.global vss, vdd
+  Mp1     vdd     e       n1      vdd  mp0p6     SW =  14.000
+  Mp2     n1      d       n2      vdd  mp0p6     SW =  14.000
+  Mp3     n2      c       n3      vdd  mp0p6     SW =  14.000
+  Mp4     n3      b       n4      vdd  mp0p6     SW =  14.000
+  Mp5     n4      a       o       vdd  mp0p6     SW =  14.000
+  Mn6     o       a       vss     vss  mn0p5     SW =   1.400
+  Mn7     o       b       vss     vss  mn0p5     SW =   1.400
+  Mn8     o       c       vss     vss  mn0p5     SW =   1.400
+  Mn9     o       d       vss     vss  mn0p5     SW =   1.400
+  Mn10    o       e       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT OR5 ( a, b, c, d, e : o )
+.global vss, vdd
+  Mp1     o       on      vdd     vdd  mp0p6     SW =   2.800
+  Mn2     o       on      vss     vss  mn0p5     SW =   1.400
+
+  Mp3     vdd     e       n1      vdd  mp0p6     SW =  14.000
+  Mp4     n1      d       n2      vdd  mp0p6     SW =  14.000
+  Mp5     n2      c       n3      vdd  mp0p6     SW =  14.000
+  Mp6     n3      b       n4      vdd  mp0p6     SW =  14.000
+  Mp7     n4      a       on      vdd  mp0p6     SW =  14.000
+  Mn8     on      a       vss     vss  mn0p5     SW =   1.400
+  Mn9     on      b       vss     vss  mn0p5     SW =   1.400
+  Mn10    on      c       vss     vss  mn0p5     SW =   1.400
+  Mn11    on      d       vss     vss  mn0p5     SW =   1.400
+  Mn12    on      e       vss     vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT XOR5 ( a, b, c, d, e : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     cn      c       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     cn      c       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     dn      d       vdd     vdd  mp0p6     SW =   2.800
+  Mn8     dn      d       vss     vss  mn0p5     SW =   1.400
+
+  Mp9     en      e       vdd     vdd  mp0p6     SW =   2.800
+  Mn10    en      e       vss     vss  mn0p5     SW =   1.400
+
+  Mp11    a       bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn12    a       b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp13    an      b       tn0     vdd  mp0p6     SW =   2.800
+  Mn14    an      bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp15    nx1     tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn16    nx1     tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+  Mp17    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn18    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp19    d       en      tn1     vdd  mp0p6     SW =   2.800
+  Mn20    d       e       tn1     vss  mn0p5     SW =   1.400
+
+  Mp21    dn      e       tn1     vdd  mp0p6     SW =   2.800
+  Mn22    dn      en      tn1     vss  mn0p5     SW =   1.400
+
+  Mp23    nx3     tn1     vdd     vdd  mp0p6     SW =   2.800
+  Mn24    nx3     tn1     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn1)= 0.0000E+00
+
+  Mp25    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn26    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp27    c       nx3n    tn2     vdd  mp0p6     SW =   2.800
+  Mn28    c       nx3     tn2     vss  mn0p5     SW =   1.400
+
+  Mp29    cn      nx3     tn2     vdd  mp0p6     SW =   2.800
+  Mn30    cn      nx3n    tn2     vss  mn0p5     SW =   1.400
+
+  Mp31    nx2     tn2     vdd     vdd  mp0p6     SW =   2.800
+  Mn32    nx2     tn2     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn2)= 0.0000E+00
+
+  Mp33    nx2n    nx2     vdd     vdd  mp0p6     SW =   2.800
+  Mn34    nx2n    nx2     vss     vss  mn0p5     SW =   1.400
+
+  Mp35    nx1     nx2n    tn3     vdd  mp0p6     SW =   2.800
+  Mn36    nx1     nx2     tn3     vss  mn0p5     SW =   1.400
+
+  Mp37    nx1n    nx2     tn3     vdd  mp0p6     SW =   2.800
+  Mn38    nx1n    nx2n    tn3     vss  mn0p5     SW =   1.400
+
+  Mp39    o       tn3     vdd     vdd  mp0p6     SW =   2.800
+  Mn40    o       tn3     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn3)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT XNOR5 ( a, b, c, d, e : o )
+.global vss, vdd
+  Mp1     an      a       vdd     vdd  mp0p6     SW =   2.800
+  Mn2     an      a       vss     vss  mn0p5     SW =   1.400
+
+  Mp3     bn      b       vdd     vdd  mp0p6     SW =   2.800
+  Mn4     bn      b       vss     vss  mn0p5     SW =   1.400
+
+  Mp5     cn      c       vdd     vdd  mp0p6     SW =   2.800
+  Mn6     cn      c       vss     vss  mn0p5     SW =   1.400
+
+  Mp7     dn      d       vdd     vdd  mp0p6     SW =   2.800
+  Mn8     dn      d       vss     vss  mn0p5     SW =   1.400
+
+  Mp9     en      e       vdd     vdd  mp0p6     SW =   2.800
+  Mn10    en      e       vss     vss  mn0p5     SW =   1.400
+
+  Mp11    a       bn      tn0     vdd  mp0p6     SW =   2.800
+  Mn12    a       b       tn0     vss  mn0p5     SW =   1.400
+
+  Mp13    an      b       tn0     vdd  mp0p6     SW =   2.800
+  Mn14    an      bn      tn0     vss  mn0p5     SW =   1.400
+
+  Mp15    nx1     tn0     vdd     vdd  mp0p6     SW =   2.800
+  Mn16    nx1     tn0     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn0)= 0.0000E+00
+
+  Mp17    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn18    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp19    d       en      tn1     vdd  mp0p6     SW =   2.800
+  Mn20    d       e       tn1     vss  mn0p5     SW =   1.400
+
+  Mp21    dn      e       tn1     vdd  mp0p6     SW =   2.800
+  Mn22    dn      en      tn1     vss  mn0p5     SW =   1.400
+
+  Mp23    nx3     tn1     vdd     vdd  mp0p6     SW =   2.800
+  Mn24    nx3     tn1     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn1)= 0.0000E+00
+
+  Mp25    nx1n    nx1     vdd     vdd  mp0p6     SW =   2.800
+  Mn26    nx1n    nx1     vss     vss  mn0p5     SW =   1.400
+
+  Mp27    c       nx3n    tn2     vdd  mp0p6     SW =   2.800
+  Mn28    c       nx3     tn2     vss  mn0p5     SW =   1.400
+
+  Mp29    cn      nx3     tn2     vdd  mp0p6     SW =   2.800
+  Mn30    cn      nx3n    tn2     vss  mn0p5     SW =   1.400
+
+  Mp31    nx2     tn2     vdd     vdd  mp0p6     SW =   2.800
+  Mn32    nx2     tn2     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn2)= 0.0000E+00
+
+  Mp33    nx2n    nx2     vdd     vdd  mp0p6     SW =   2.800
+  Mn34    nx2n    nx2     vss     vss  mn0p5     SW =   1.400
+
+  Mp35    nx1     nx2     tn3     vdd  mp0p6     SW =   2.800
+  Mn36    nx1     nx2n    tn3     vss  mn0p5     SW =   1.400
+
+  Mp37    nx1n    nx2n    tn3     vdd  mp0p6     SW =   2.800
+  Mn38    nx1n    nx2     tn3     vss  mn0p5     SW =   1.400
+
+  Mp39    o       tn3     vdd     vdd  mp0p6     SW =   2.800
+  Mn40    o       tn3     vss     vss  mn0p5     SW =   1.400
+
+.init v(tn3)= 0.0000E+00
+
+.FINIS
+
+.SUBCKT NFETX1 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   1.400
+.FINIS
+
+.SUBCKT NFETX2 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   2.800
+.FINIS
+
+.SUBCKT NFETX3 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   4.200
+.FINIS
+
+.SUBCKT NFETX4 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   5.600
+.FINIS
+
+.SUBCKT NFETX5 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   7.000
+.FINIS
+
+.SUBCKT NFETX6 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   8.400
+.FINIS
+
+.SUBCKT NFETX7 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =   9.800
+.FINIS
+
+.SUBCKT NFETX8 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  11.200
+.FINIS
+
+.SUBCKT NFETX9 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  12.600
+.FINIS
+
+.SUBCKT NFETX10 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  14.000
+.FINIS
+
+.SUBCKT NFETX11 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  15.400
+.FINIS
+
+.SUBCKT NFETX12 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  16.800
+.FINIS
+
+.SUBCKT NFETX13 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  18.200
+.FINIS
+
+.SUBCKT NFETX14 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  19.600
+.FINIS
+
+.SUBCKT NFETX15 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  21.000
+.FINIS
+
+.SUBCKT NFETX16 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  22.400
+.FINIS
+
+.SUBCKT NFETX17 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  23.800
+.FINIS
+
+.SUBCKT NFETX18 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  25.200
+.FINIS
+
+.SUBCKT NFETX19 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  26.600
+.FINIS
+
+.SUBCKT NFETX20 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  28.000
+.FINIS
+
+.SUBCKT NFETX21 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  29.400
+.FINIS
+
+.SUBCKT NFETX22 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  30.800
+.FINIS
+
+.SUBCKT NFETX23 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  32.200
+.FINIS
+
+.SUBCKT NFETX24 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  33.600
+.FINIS
+
+.SUBCKT NFETX25 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  35.000
+.FINIS
+
+.SUBCKT NFETX26 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  36.400
+.FINIS
+
+.SUBCKT NFETX27 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  37.800
+.FINIS
+
+.SUBCKT NFETX28 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  39.200
+.FINIS
+
+.SUBCKT NFETX29 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  40.600
+.FINIS
+
+.SUBCKT NFETX30 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  42.000
+.FINIS
+
+.SUBCKT NFETX31 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  43.400
+.FINIS
+
+.SUBCKT NFETX32 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  44.800
+.FINIS
+
+.SUBCKT NFETX33 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  46.200
+.FINIS
+
+.SUBCKT NFETX34 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  47.600
+.FINIS
+
+.SUBCKT NFETX35 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  49.000
+.FINIS
+
+.SUBCKT NFETX36 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  50.400
+.FINIS
+
+.SUBCKT NFETX37 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  51.800
+.FINIS
+
+.SUBCKT NFETX38 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  53.200
+.FINIS
+
+.SUBCKT NFETX39 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  54.600
+.FINIS
+
+.SUBCKT NFETX40 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  56.000
+.FINIS
+
+.SUBCKT NFETX41 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  57.400
+.FINIS
+
+.SUBCKT NFETX42 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  58.800
+.FINIS
+
+.SUBCKT NFETX43 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  60.200
+.FINIS
+
+.SUBCKT NFETX44 (:: s, g, d )
+.global vss, vdd
+  Mn1     s       g       d       vss  mn0p5     SW =  61.600
+.FINIS
+

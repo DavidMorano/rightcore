@@ -1,0 +1,14 @@
+IDEA
+
+Synopsis:
+
+$ varadm <varname(s)> {-info] [{-a|-d}] [-V]
+
+where:
+
+<varname(s)>	variable(s) to operate on
+-info		print information on variable
+-a		activate variable (default action)
+-d		deactivate variable
+-V		print command version to standard-error and then exit
+

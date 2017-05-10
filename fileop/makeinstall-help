@@ -1,0 +1,20 @@
+#!/usr/extra/bin/ksh
+# MAKEHELP
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL
+
+
+SRCROOT=${LOCAL}
+
+
+if [[ $# -gt 0 ]] ; then
+  HELPDIR=${1}
+else
+: ${HELPDIR:=${SRCROOT}/share/help}
+fi
+
+makenewer -o rmsuf *.help ${HELPDIR}
+
+

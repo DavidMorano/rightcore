@@ -1,0 +1,73 @@
+#
+# * Copyright (c) 2005 QUALCOMM Incorporated.  All rights reserved.
+# * The file License.txt specifies the terms for use, modification,
+# * and redistribution.
+# *
+# * File        : Makefile.in
+# * Project     : Qpopper Server
+# * Comments    : 
+# *
+# *
+# * Revisions   :
+# *  11/26/00   [rg]
+# *         - Added 'install' rule, based on patch by Nick Burrett.
+# *  05/20/99   [rg]
+# *         - Add more items to 'realclean'
+# *  09/30/98   [rg]
+# *         - Cleanup for v3.0
+# *  05/05/98   [py]
+# *         - File added.
+# *
+#
+SHELL           =       /bin/sh
+CC              =       gcc
+GPERF           =       gperf
+MAKEFILE        =       Makefile
+YACC            =       bison -y
+LEX             =       flex
+INSTALL         =       /usr/add-on/gnu/bin/ginstall -c
+
+
+
+top_srcdir      =       .
+srcdir          =       .
+builddir        =       $(top_srcdir)/build
+
+prefix          =       /usr/extra/
+exec_prefix     =       $(prefix)
+installdir      =       $(exec_prefix)/sbin
+mandir          =       $(prefix)/man
+
+
+popper_srcdir   =       $(top_srcdir)/popper
+mmangle_srcdir  =       $(top_srcdir)/mmangle
+common_srcdir   =       $(top_srcdir)/common
+password_srcdir =       $(top_srcdir)/password
+
+base_dir        =       .
+popper_dir      =       $(base_dir)/popper
+mmangle_dir     =       $(base_dir)/mmangle
+common_dir      =       $(base_dir)/common
+password_dir    =       $(base_dir)/password
+
+
+
+all: popper_server 
+
+popper_server: 
+	cd $(popper_dir)  && $(MAKE) all
+
+install:
+	$(INSTALL) -m 0664 -o root ${top_srcdir}/man/popper.8  ${mandir}/man8/
+	echo "Installed man/popper.8 as $(mandir)/man8/popper.8"$(andir)	$(INSTALL) -m 0664 -o root ${top_srcdir}/man/popauth.8 ${mandir}/man8/
+	echo "Installed man/popauth.8 as $(mandir)/man8/popauth.8"$(dir)	cd ${popper_dir}  && ${MAKE} install
+
+clean:
+	cd $(popper_dir)  && $(MAKE) $@
+
+realclean: $(dir)  && $(MAKE)	rm -f ${base_dir}/config.status ${base_dir}/config.h
+	rm -f $(base_dir)/config.cache $(base_dir)/config.log 
+	rm -f *~ doc/*~
+	rm -f Makefile
+	rm -f core
+	cd $(popper_dir)  && $(MAKE) $@

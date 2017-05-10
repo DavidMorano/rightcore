@@ -1,0 +1,25 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+T=${1}
+if [[ -z "${T}" ]] ; then
+  T=${PWD##*/}
+fi
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+
+PRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+for PR in ${PRS} ; do
+  if [[ -d ${PR} ]] ; then
+    BINDIR=${PR}/bin
+    if [[ -d ${BINDIR} ]] ; then
+      makenewer -r -o rmsuf ${T}.x ${BINDIR}
+      chmod u+s ${BINDIR}/${T}
+    fi &
+  fi
+done
+wait
+
+

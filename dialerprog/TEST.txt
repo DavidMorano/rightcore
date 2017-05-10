@@ -1,0 +1,6 @@
+DIALERPROG
+
+$ testdialerprog <progfile>
+
+
+

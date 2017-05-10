@@ -1,0 +1,35 @@
+DW
+
+
+The DW module works but can be significantly improved if someone wants
+to do it.  Currently, it 'stat(2)'s all files that it finds in the
+directory tree that it is watching regarless of the state of the file.
+A better approach would be to only 'stat(2)' those files that it finds
+that are not already recorded as either subdirectories or as file
+entries !  This would save tons of wasted 'stat(2)'s and would keep the
+OS i-node cache free of extra files that really did not have to be
+'stat(2)'ed so often !
+
+The maintenance code consists of periodically checking ('stat(2)'ing)
+all file entries that are recorded to see if they still exist or not.
+Entries that fail to 'stat(2)' are assumed to be removed from the
+directory.  This may not be true since the file directory entry could
+be a dangling symbolic link !  To reduce this excess 'stat(2)'ing,
+files are only 'stat(2)'ed if their last check time (last time they
+were 'stat(2)'ed) is older than some amount.
+
+Suggestions: 
+
+For starters, you could change out the use of a VECSTR object
+for storing subdirectories to a HDBSTR object !
+
+Next, change out the use of the VECELEM object for storing file
+entries with a HDB object.
+
+
+
+Enjoy.
+
+Dave Morano, 99/10/06
+
+

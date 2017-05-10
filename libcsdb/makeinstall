@@ -1,0 +1,18 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+T=${1}
+if [[ -z "${T}" ]] ; then
+  T=libcsdb
+fi
+
+EXTS="so a"
+for D in ${LOCAL} /root[01]/${EXTRA} ; do 
+  for E in ${EXTS} ; do
+     if [[ -r ${T}.${E} ]] ; then
+      mn -r ${T}.${E} ${D}/lib &
+    fi
+  done
+done
+wait
+

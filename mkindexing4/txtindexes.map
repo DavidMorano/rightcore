@@ -1,0 +1,21 @@
+
+
+DAMtxtindexes {
+	global:
+		txtindexes ;
+		txtindexes_open ;
+		txtindexes_count ;
+		txtindexes_neigen ;
+		txtindexes_info ;
+		txtindexes_iseigen ;
+		txtindexes_curbegin ;
+		txtindexes_lookup ;
+		txtindexes_read ;
+		txtindexes_curend ;
+		txtindexes_audit ;
+		txtindexes_close ;
+	local:
+		* ;
+} ;
+
+

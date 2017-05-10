@@ -1,0 +1,15 @@
+# this is the filter substitution control file
+
+
+#stuff is
+
+JUNK	"other junk"
+
+OUTFILE	/tmp/dsfdsfds345345
+
+THIS	that
+
+OTHER	thing
+
+#real good
+

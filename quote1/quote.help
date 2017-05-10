@@ -1,0 +1,22 @@
+QUOTE
+
+This program takes a query (invocation argument or on standard input)
+consisting of one or more words and prints out the corresponding quotes that
+match.
+
+Synopsis:
+$ quote [<query> ...] [-af <afile>] [-qd <dir(s)>] [-c <cat(s)>] 
+	  [-w <cols>] [-o <opt(s)>] [[-V]
+
+Arguments:
+<query>		a verse specification indicating a verse to print out
+-af <afile>	file containing queries
+-qd <(dir(s)>	one or more quote directories
+-c <cat(s)>	quote catalogues
+-w <cols>	output column width
+-o <option(s)>	options:
+			interactive[=<b>]
+			indent=<n>
+			separate=<n>
+-V		print command version to standard-error and then exit
+

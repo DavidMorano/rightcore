@@ -1,0 +1,29 @@
+
+int	(*tries[])(TRY *) = {
+	try_env,
+	try_localdomain,
+	try_varnode,
+	try_uname,
+	try_gethost,
+	try_resolv,
+	try_guess,
+	NULL
+} ;
+
+static const struct guess	ga[] = {
+	{ "rc", "rightcore.com" },
+	{ "rcjig", "rightcore.com" },
+	{ "jig", "rightcore.com" },
+	{ "vinson", "ece.neu.com" },
+	{ "gateway", "ece.neu.com" },
+	{ "frodo", "ece.neu.com" },
+	{ "olive", "ece.neu.com" },
+	{ "gilmore", "ece.neu.com" },
+	{ "dr", "dr.lucent.com" },
+	{ "ho", "ho.lucent.com" },
+	{ "mh", "mh.lucent.com" },
+	{ "mt", "mt.lucent.com" },
+	{ "cb", "cb.lucent.com" },
+	{ NULL, NULL }
+} ;
+

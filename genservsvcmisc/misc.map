@@ -1,0 +1,11 @@
+
+
+GERNSERVopensvc_misc {
+	global:
+		opensvc_hello ;
+		opensvc_logload ;
+	local:
+		* ;
+} ;
+
+

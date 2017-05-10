@@ -1,0 +1,118 @@
+# FINGERS.CONF
+# Finger Server (FINGERS)
+
+#
+#	All command line arguments have precedence over any corresponding
+#	arguments in this configuration file.  The entries in this file
+#	do not have any special order except that entries that may accumulate
+#	are processed in the order given.  Defaults are applied in a
+#	defined sequence that is independent of the order of defaults
+#	in this file.
+#
+#	Environment variables are expanded out when called for like in
+#	SHELL programs.  Also one can "define" environment-like
+#	variables but they do not add to the exported environment.
+#	Note that for a conflicting variable name, whether a "define"
+#	type or an "export" (environment) type, the "define" type
+#	always has precedence.  Newly created environment variables
+#	are NOT available for substitution in this file.  Rather,
+#	a reassigned variable ('define' or 'environment') has its new
+#	value appended to the existing value with a colon character (':')
+#	separting the values.  This mechanism always builds a path of 
+#	values for a variable.  Use the 'unset' keyword to remove all
+#	existing values from a variable.
+#
+#	There are also a few program escapes that can be expanded out.
+#	They are introduced as a single letter with a percent sign
+#	in front of it.  These are listed below.
+#
+#
+
+
+#
+# lines are of the general form :
+#
+#	key	any_further_arguments
+#
+# possible keys and their meanings are :
+#
+#	root		- program root
+#	pidfile		- lock file to hold (traditionally) the daemon PID
+#	lockfile	- regular lock file to handle messed up NFS !!
+#	log		- file path name for the ACTIVITY log file
+#	envfile		- environment file
+#	pathsfile	- execution paths file
+#	srvtab		- server table file
+#	workdir		- working directory
+#	user		- default user name for spawned programs
+#	group		- default groupname for spawned programs
+#	port		- port for server to listen on
+#	userpass	- user password file
+#	machpass	- machine password file
+#	define		- define a local variable for use later
+#	export		- environment variable & value to be exported
+#	unset		- unset all values from a variable
+#
+#
+# the following program escapes are also expanded out :
+#
+#	escape_key	description
+#
+#	V		- REXECD daemon program version string
+#	S		- search name
+#	R		- program root directory path
+#	N		- computer machine node name (like a UUCP name)
+#	D		- the local machine domain name (like INET domains)
+#	H		- hostname (combination of the two above)
+#
+#
+
+
+
+# make some definitions here for use later in this file
+
+
+#
+# the following lines specify defaults for the program
+#
+#work		/tmp
+#srvtab		%R/etc/%S/srvtab
+#userpass	%R/etc/%S/userpass
+#machpass	%R/etc/%S/machpass
+#log		%R/log/%S
+#pid		%R/var/run/%S
+#pass		%R/var/%S/pass
+#reqfile	/tmp/${RN}/%S/req
+#port		5112
+#
+
+
+#port=		-
+#pass=		%R/var/%S/%N.pass
+#pass=		-
+
+# service-table file
+#svc		etc/%S/svc
+
+# turn on using a PID mutex file
+pid		%R/var/run/%N.%S
+
+# organization code
+orgcode		NEU
+
+# mark-time
+marktime	1m
+
+# request socket
+req		/tmp/%{RN}/%S/req
+
+# this is sort of the normal default case
+#listen		tcp finger
+
+listen		pass /tmp/%{RN}/%S/pass
+listen		uss /tmp/%{RN}/%S/srv
+listen		tcp finger
+listen		tcp 5112
+
+
+

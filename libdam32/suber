@@ -1,0 +1,21 @@
+#!/usr/extra/bin/ksh
+# SUBER
+
+DN=/dev/null
+builtin fgrep 2> ${DN}
+
+for F in *.c ; do
+
+  ON=${F%.*}
+  if [[ -r ${ON}.c ]] ; then
+    if fgrep ${ON}_init ${ON}.c > ${DN} ; then
+	print -- "g/${ON}_init/s//${ON}_start/g"
+	print -- "g/${ON}_free/s//${ON}_finish/g"
+	print -- "g/${ON}_cursorinit/s//${ON}_curbegin/g"
+	print -- "g/${ON}_cursorfree/s//${ON}_curend/g"
+    fi
+  fi
+
+done > changes
+
+

@@ -1,0 +1,18 @@
+#!/usr/bin/ksh
+
+
+cp test2 t
+fixmakebrace.x t
+mv t test2fa
+
+cp test2fa t
+fixmakebrace.x t -o backward
+mv t test2ba
+
+cp test2ba t
+fixmakebrace.x t -o backward=0
+mv t test2fb
+
+diff test2fa test2fb
+
+

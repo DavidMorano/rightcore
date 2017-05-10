@@ -1,0 +1,26 @@
+HOSTSFILE
+
+--------------------------------------------------------------------------------
+Synopsis:
+
+int hostsfile_start(op,cachedir,filename,epp)
+HOSTSFILE	*op ;
+char		cachedir[] ;
+char		filename[] ;
+vecelem		*epp ;
+
+Arguments:
+
+cachedir	directory to hold the cache files
+
+--------------------------------------------------------------------------------
+Synopsis:
+
+int hostsfile_addfile(op,filename,elp)
+HOSTSFILE	*op ;
+char		filename[] ;
+vecelem		*elp ;
+
+Arguments:
+
+

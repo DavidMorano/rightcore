@@ -1,0 +1,10 @@
+#!/usr/bin/ksh
+# BIBLECLEAN
+
+
+SRC=biblespanish_dam2
+
+bibleclean.x -t rena ${SRC}.txt > bibledb.txt
+
+
+

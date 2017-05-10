@@ -1,0 +1,1 @@
+%{prvarname}-%s-%v (%{prname} - %b/%v)

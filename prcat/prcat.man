@@ -1,0 +1,128 @@
+.\"_
+.TH PRCAT 1 1995-09-11 LOCAL
+.SH NAME
+prcat \- filter files formatted for a page into text with form-feeds
+.SH SYNOPSIS
+.B prcat
+.OP -D "" ] [
+.OP -V "" ] [
+.OP -l "  page_length_lines" ] [
+.OP -h "  blank_header_line" ] [
+.OP -t "  blank_trailer_lines" ] [
+.\"_
+.SH DESCRIPTION
+.\"_
+.SS Introduction
+.PP
+This program (\fBprcat\fP) reads standard input and filters it to have
+form-feed characters in the appropriate places.  The input file
+is expected to be in a very specifiic format.
+The input file format is expected to be in the form as output from 
+the \fBnroff\fP program or a \fBcatman\fP like program.
+This is normally a file meant to be output directly to either
+a CRT terminal screen or to an old fashioned impact type printer.
+.PP
+Although this command is matched by default to process the output
+of the \fBtoolman\fP program, which is part of the \fBEXPTOOLS\fP
+distribution, it can also be used to process other kinds of
+input text.  The processing of input text other than the output
+of the \fBtoolman\fP command usually requires the careful specification
+of optional command line invocation argument options.
+.\"_
+.SS Options
+.PP
+.IP "-D" 10
+This option turns the program debugging more on.
+This is normally only used during the development of the
+prgram and is not generally useful otherwise.
+.IP "-V" 10
+This option directs the program to output its version and then
+exit.
+.IP "-l" 10
+This option is used to specify the length of pages in lines of the input text.
+.IP "-h" 10
+This option is used to specify the number of blank header lines on each page
+that should be ignored.
+.IP "-t" 10
+This option is used to specify the number of blank trailer lines on each page
+that should be ignored.
+.IP "-a" 10
+Occassionaly, maybe, the user might want to add lines to the top
+of the output page.  This option can be used to specify how many
+additional lines are to be added to the top of the page.
+.\"_
+.SS Execution
+.P
+A common example of how to use this program is :
+.EX
+toolman cmd | prcat | textset | troff -Tpost > cmd.troff
+dpost -n2 < cmd.troff | prt -l post -d pr1
+.EE
+.PP
+of error diagnostic may be given.
+.PP
+To sucessfully process files other than those that are output from the
+EXPTOOLS \fBtoolman\fP program, the user should perform the following
+steps :
+.RS 5
+.IP \(rh 5
+Examine the source file to be processed (using 'vi' editor -- whatever)
+and determine the page length stride (in lines) that the file has.
+Note that some files have a different number of lines for the
+first page as compared with the regular page-to-page stride.
+Of course, many files will also have a different number of lines
+for the last page but this is not problematic.
+Note the determined stride as being the
+.MW pagelength
+parameter as input the
+\fBprcat\fP
+program.
+.IP \(rh 5
+Determine the number of lines from the trailing part of each
+page that should be removed (dropped from the output).
+This will be the
+.MW taillines
+parameter to the \fBprcat\fP program.
+.IP \(rh 5
+Determine how many leading (or header) lines should be removed
+from the top of each page.  This will be the
+.MW headlines
+parameter to the program.
+.IP \(rh 5
+Finally, in certain rare circumstances, lines may have to be added
+to the top of the output file.  This can be done using the
+.MW "-a addlines"
+option to the program.
+.IP \(rh 5
+The user can now invoke the program using the previously
+determined values.  It is advisable to arrange for
+the output of the formatter used to be viewed electronically
+since this process is very error prone and usually plagued
+by bad assumptions about the input file leading to misformatted
+output.
+.RE
+.\"_
+.SH EXAMPLES
+.PP
+.IP \(rh 5
+To print out an \fBEXPTOOLS\fP manual page to a Postscript printer
+with one logical pages printed to single side of paper, execute :
+.EX
+toolman cmd | prcat | prt
+.EE
+.\_
+.PP
+.IP \(rh 5
+To print out an \fBEXPTOOLS\fP manual page to a Postscript printer
+with two logical pages printed onto a single page, execute :
+.EX
+toolman cmd | prcat | textset | troff -Tpost > cmd.troff
+dpost -n2 < cmd.troff | prt -l post -d pr1
+.EE
+.\"_
+.\"_
+.\"_
+.SH SEE ALSO
+.PP
+toolman(1), prt(1)
+.\"_

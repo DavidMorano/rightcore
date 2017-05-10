@@ -1,0 +1,269 @@
+My question 
+is, What should I expect if I try to run
+that example program 'ex_tpcb.c' ?  Does it do anything
+useful other than fail to fetch any records from the
+first database it tries to access ?
+Sorry, we should have included some documentation with it!  As it is,
+you sort of have to look at the command options to figure out what's
+going on -- not a very user friendly state of affairs, I'm afraid.
+I ran it first with the initialization options
+and then ran it with the '-n' option specifying some
+loops of "transactions" and it fails to ever featch
+anything from the fist database it tries to access in
+the transaction subroutine.  Is this what is expected ?
+This seems odd.  One possibility is that if you specify
+the number of records during initialization (to avoid building
+the large database), you also have to specify them during
+the run (again, not a nice user-interface, but I use that
+information to figure out what valid record IDs are).
+So, in order to do a small test run, you want to try something like:
+> Also, for some reason I could not build a test suite
+> since it seemed to expect (on version 2.0.4 anyway)
+> a "main" symbol from the TCL library and our version
+> of the TCL library (version 7.6) does not seem
+> to supply this.  I am new to this TCL stuff also !!
+
+The tcl library changed between version 7.4 and 7.3 -- prior
+to 7.4, the tcl library included main, now it does not.  However,
+we check for this in the file tclAppInit.c.  Is it possible that
+you ran ../dist/configure on a different machine than on the machine
+on which you built?  You might try removing config.cache (in your
+build directory), doing a make clean, and running:
+	../dist/configure --enable-test
+Then try building.
+
+If this doesn't work, send us the output of the configure and the make.
+
+> Is there some way I can verify that I have a good build
+> of the DB library ?
+
+Once you get dbtest to build, the regression test (see the README in the
+test directory) will tell you that your install is successful (it takes
+a few hours to run).
+
+I hope these suggestions help, but if not, let us know and we'll see
+if we can figure out what's going wrong.
+
+- Margo
+
+
+
+/* main (sltest) */
+
+
+#define	F_DEBUG		1
+
+
+
+#include	<sys/types.h>
+#include	<sys/param.h>
+#include	<sys/stat.h>
+#include	<unistd.h>
+#include	<fcntl.h>
+#include	<signal.h>
+#include	<time.h>
+#include	<ftw.h>
+#include	<errno.h>
+#include	<dirent.h>
+#include	<string.h>
+
+#include	<bio.h>
+#include	<field.h>
+#include	<logfile.h>
+#include	<vecelem.h>
+#include	<veclist.h>
+#include	<vecstr.h>
+#include	<userinfo.h>
+#include	<bitops.h>
+#include	<char.h>
+
+#include	"misc.h"
+#include	"sortlist.h"
+
+
+
+/* local defines */
+
+#define	LINELEN	100
+
+
+
+/* external subroutines */
+
+extern int	sortlistinit(), sortlistfree() ;
+extern int	sortlistadd() ;
+
+extern char	*malloc_str() ;
+
+
+/* forward references */
+
+static int	vlcmp() ;
+
+
+
+
+
+int main()
+{
+	bfile	infile, *ifp = &infile ;
+	bfile	outfile, *ofp = &outfile ;
+	bfile	tmpfile, *tfp = &tmpfile ;
+
+	struct sortlist	list1 ;
+
+	struct veclist	list2 ;
+
+	int	rs, i, j, len ;
+
+	char	linebuf[LINELEN + 1] ;
+	char	tmpfname_buf[MAXPATHLEN + 1] ;
+	char	*cp, *cp1, *cp2 ;
+	char	*lp ;
+	char	*ep ;
+
+
+	bopen(ifp,BIO_STDIN,"r",0666) ;
+
+	bopen(ofp,BIO_STDOUT,"wct",0666) ;
+
+#if	F_DEBUG
+	eprintf("main: entered\n\n") ;
+#endif
+
+	rs = veclistinit(&list2,0,VLP_SORTED) ;
+
+	rs = sortlistinit(&list1,0,strcmp) ;
+
+#if	F_DEBUG
+	eprintf("main: sortlistinit rs=%d\n",rs) ;
+#endif
+
+	while ((len = bgetline(ifp,linebuf,LINELEN)) > 0) {
+
+	    if (linebuf[len - 1] == '\n') len -= 1 ;
+
+	    linebuf[len] = '\0' ;
+	    cp = linebuf ;
+	    while (CHAR_ISWHITE(*cp)) cp += 1 ;
+
+	    cp1 = cp ;
+	    while (*cp && (! CHAR_ISWHITE(*cp))) cp += 1 ;
+
+	    if (*cp != '\0') *cp++ = '\0' ;
+
+	    while (CHAR_ISWHITE(*cp)) cp += 1 ;
+
+	    cp2 = cp ;
+
+	    ep = malloc_str(cp1) ;
+
+	    rs = sortlistadd(&list1,ep,strcmp) ;
+
+#if	F_DEBUG
+	    eprintf("main: sortlistadd rs=%d\n",rs) ;
+#endif
+
+	veclistadd(&list2,ep) ;
+
+	} /* end while (reading lines) */
+
+	veclistsort(&list2,vlcmp) ;
+
+
+#if	F_DEBUG
+	eprintf("main: compare phase\n") ;
+#endif
+
+	bprintf(ofp,"comparing phase\n\n") ;
+
+
+	for (i = 0 ; sortlistget(&list1,i,&lp) >= 0 ; i += 1) {
+
+	if (lp == NULL) continue ;
+
+	write(3,lp,strlen(lp)) ;
+
+	write(3,"\n",1) ;
+
+	}
+
+
+	for (i = 0 ; veclistget(&list2,i,&lp) >= 0 ; i += 1) {
+
+	if (lp == NULL) continue ;
+
+	write(4,lp,strlen(lp)) ;
+
+	write(4,"\n",1) ;
+
+	}
+
+
+
+
+	for (i = 0 ; veclistget(&list2,i,&lp) >= 0 ; i += 1) {
+
+	    if (lp == NULL) continue ;
+
+#if	F_DEBUG
+	eprintf("main: i=%d ep2=%s\n",i,lp) ;
+#endif
+
+	if (sortlistget(&list1,i,&ep) < 0) goto badcheck ;
+
+	if (ep == NULL) goto badcheck2 ;
+
+#if	F_DEBUG
+	eprintf("main: ep1=%s\n",ep) ;
+#endif
+
+	if (strcmp(lp,ep) != 0) goto badcheck3 ;
+
+	} /* end for */
+
+	bprintf(ofp,"\n") ;
+
+
+done:
+	sortlistfree(&list1) ;
+
+	veclistfree(&list1) ;
+
+	bclose(ifp) ;
+
+	bclose(ofp) ;
+
+	return OK ;
+
+badcheck:
+	bprintf(ofp,"badcheck i=%d\n",i) ;
+
+	goto done ;
+
+badcheck2:
+	bprintf(ofp,"badcheck2 i=%d\n",i) ;
+
+	goto done ;
+
+badcheck3:
+	bprintf(ofp,"badcheck3 i=%d\n",i) ;
+
+	goto done ;
+
+
+
+}
+/* end subroutine (main) */
+
+
+
+static int vlcmp(app,bpp)
+char	**app, **bpp ;
+{
+
+	return strcmp(*app,*bpp) ;
+}
+
+
+

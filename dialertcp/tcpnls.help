@@ -1,0 +1,13 @@
+TCPNLS
+
+tcpnls [[[<host>:]<port>] <svc>] [-f <af>] [-s <svc>] [-t <to>]
+
+where:
+
+<host>		target host
+<port>		target port
+-f <af>		target address family
+-s <svc>	target service
+-t <to>		connect timeout
+-bp <buport>	backup target port
+

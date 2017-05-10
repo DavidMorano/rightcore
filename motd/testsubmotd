@@ -1,0 +1,17 @@
+#!/usr/extra/bin/ksh
+# SUBTESTMOTD
+
+FNAME=/etc/motd
+
+builtin -f lkcmd shcat
+
+integer i j k
+
+for (( i = 0 ; i < 100 ; i += 1)) ; do
+  for (( j = 0 ; j < 100 ; j += 1)) ; do
+    shcat ${FNAME}
+  done &
+done
+wait
+
+

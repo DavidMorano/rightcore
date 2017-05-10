@@ -1,0 +1,24 @@
+# PINGTAB
+
+# This is the 'ping' table.  Put the hosts that you want to maintain
+# 'ping' connectovity for in this file.
+#
+# Example entries :
+#
+#	hostname	timeout
+#----------------------------------------------
+#
+#	leviathan	20
+#	colocos		30
+#
+
+# The timeout value is in seconds.  If no timeout value is given,
+# a default of 10 seconds is used.
+#
+#
+
+
+# local RC hosts
+
+rca
+rcb

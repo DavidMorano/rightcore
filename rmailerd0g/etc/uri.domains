@@ -1,0 +1,21 @@
+# DOMAINS
+
+
+#
+# domain		mailer
+#
+
+
+*rightcore.com		rmailer
+*.rightcore.org		rmailer
+
+levosim.org		rmailer
+
+# no domain (local but could be an alias)
+-			sendmail
+
+# all remaining domains
+*			sendmail
+
+
+

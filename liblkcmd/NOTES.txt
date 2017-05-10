@@ -1,0 +1,41 @@
+LIBLKCMD
+
+This is (primarily) a library of builtin commands for the KSH shell
+program.  These same KSH builtin commands can be made into actual programs
+in their own right by making the target 'liblkcmd.x' and installing that
+and hardlinks to it as the names of the programs corresponding to the
+builtin commands.
+
+Both the library (shared library) and the stand-alone program versions
+of the commands can be installed with:
+
+$ make strip install ; installprog
+
+Design notes:
+
+Every effort (more than wanted) has been made to make these commands
+appear to be and act like real programs.  Real program run in their own
+address spaces.  This gives them a number of capabilities (often related
+to poor programming practices) that these commands do not enjoy.  Every
+effort has been made to make these commands work in a recursive fashion;
+that is, that these commands may accidentally call other one of these same
+commands either directly or indirectly through some other intermediary.
+Efforts have been made to allow this to happen in a way that allows
+these commands to act as much like real programs as possible.  But this
+is not perfect.  One are where this illusion starts to break down is the
+handling of signals.  Another area where this illusion starts to break
+down (ok, it breaks down somewhat) is in the passing of environment down
+to called programs.  Due to both the inherent limitations of recursive
+environment handling and an additional limitation (accidentally) created
+by the way that SHELL builtins (for the KSH) are called from the SHELL, 
+other environment related limits might appear.
+
+Now, you say, how do these commands get nested since none of them appear
+to ever call any of the others?  :-)  That is left as an exercise for
+the reader!  Hint: exceedingly subtly.
+
+But if I must say so myself (and I will), I went to quite a length
+to make these commands function similarly when called in a recursive
+(nested) manner.
+
+

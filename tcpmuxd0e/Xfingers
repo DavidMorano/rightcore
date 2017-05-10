@@ -1,0 +1,3 @@
+#!/usr/bin/ksh
+# FINGERS
+print -- hello world!

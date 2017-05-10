@@ -1,0 +1,157 @@
+*              
+*              
+*              971224_1314:57 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+1062.*         backgrounded
+1062.*         pidfile=spool/run/rexd.pid
+1062.*         PID mutex captured
+1062.*         pidfile device=8388855 inode=6630745
+1062.*         os=SYSV pid=1062
+1062.*         hocpw!dam (David A. Morano)
+1062.*         971224_1314:57 finished initializing
+*              
+*              
+*              980714_0024:33 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+3311.*         backgrounded
+3311.*         pidfile=spool/run/rexd.pid
+3311.*         PID mutex captured
+3311.*         pidfile device=8388854 inode=265438
+3311.*         os=SYSV pid=3311
+3311.*         hocpw!dam (David A. Morano)
+3311.*         980714_0024:33 finished initializing
+*              
+*              
+*              980714_0031:57 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 1027
+3342.*         backgrounded
+3342.*         pidfile=spool/run/rexd.pid
+3342.*         PID mutex captured
+3342.*         pidfile device=8388854 inode=265438
+3342.*         os=SYSV pid=3342
+3342.*         hocpw!dam (David A. Morano)
+3342.*         980714_0031:57 finished initializing
+*              
+*              
+*              980714_1231:53 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+2365.*         os=SYSV pid=2365
+2365.*         hocpw!dam (David A. Morano)
+*              
+*              
+*              980714_1231:56 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+2370.*         os=SYSV pid=2370
+2370.*         hocpw!dam (David A. Morano)
+*              
+*              
+*              980714_1332:39 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 3001
+2684.*         backgrounded
+2684.*         pidfile=spool/run/rexd.pid
+2684.*         PID mutex captured
+2684.*         pidfile device=8388854 inode=265438
+2684.*         os=SYSV pid=2684
+2684.*         hocpw!dam (David A. Morano)
+2684.*         980714_1332:39 finished initializing
+*              
+*              
+*              980714_1928:14 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 1027
+1835.*         backgrounded
+1835.*         pidfile=spool/run/rexd.pid
+1835.*         PID mutex captured
+1835.*         pidfile device=8388854 inode=265438
+1835.*         os=SYSV pid=1835
+1835.*         hocpw!dam (David A. Morano)
+1835.*         980714_1928:15 finished initializing
+*              
+*              
+*              980714_1936:19 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 3000
+1894.*         backgrounded
+1894.*         pidfile=spool/run/rexd.pid
+1894.*         PID mutex captured
+1894.*         pidfile device=8388854 inode=265438
+1894.*         os=SYSV pid=1894
+1894.*         hocpw!dam (David A. Morano)
+1894.*         980714_1936:19 finished initializing
+*              
+*              
+*              980714_1941:20 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 3001
+1985.*         backgrounded
+1985.*         pidfile=spool/run/rexd.pid
+1985.*         PID mutex captured
+1985.*         pidfile device=8388854 inode=265438
+1985.*         os=SYSV pid=1985
+1985.*         hocpw!dam (David A. Morano)
+1985.*         980714_1941:20 finished initializing
+*              
+*              
+*              980714_1949:28 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 3001
+2123.*         backgrounded
+2123.*         pidfile=spool/run/rexd.pid
+2123.*         PID mutex captured
+2123.*         pidfile device=8388854 inode=265438
+2123.*         os=SYSV pid=2123
+2123.*         hocpw!dam (David A. Morano)
+2123.*         980714_1949:28 finished initializing
+*              
+*              
+*              980715_0020:19 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+7217.*         os=SYSV pid=7217
+7217.*         hocpw!dam (David A. Morano)
+*              
+*              
+*              980715_0020:29 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 3000
+7220.*         backgrounded
+7220.*         pidfile=spool/run/rexd.pid
+7220.*         PID mutex captured
+7220.*         pidfile device=8388854 inode=265438
+7220.*         os=SYSV pid=7220
+7220.*         hocpw!dam (David A. Morano)
+7220.*         980715_0020:29 finished initializing
+*              
+*              
+*              980715_0023:34 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 3000
+7273.*         backgrounded
+7273.*         pidfile=spool/run/rexd.pid
+7273.*         PID mutex captured
+7273.*         pidfile device=8388854 inode=265438
+7273.*         os=SYSV pid=7273
+7273.*         hocpw!dam (David A. Morano)
+7273.*         980715_0023:34 finished initializing
+*              
+*              
+*              980715_0025:18 Remote Execution Daemon (REXD) started
+*              rexd.x         0/SYSV
+*              daemon mode
+*              listening on TCP port 3000
+7320.*         backgrounded
+7320.*         pidfile=spool/run/rexd.pid
+7320.*         PID mutex captured
+7320.*         pidfile device=8388854 inode=265438
+7320.*         os=SYSV pid=7320
+7320.*         hocpw!dam (David A. Morano)
+7320.*         980715_0025:19 finished initializing

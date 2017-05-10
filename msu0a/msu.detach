@@ -1,0 +1,9 @@
+#!/usr/bin/ksh
+# MSU.DETACH
+
+
+builtin -f ${LOCAL}/lib/ksh/libkshb.so
+msu -d -caf
+
+
+

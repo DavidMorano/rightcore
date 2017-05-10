@@ -1,0 +1,8 @@
+extern int	mkpath2(char *,const char *,const char *) ;
+extern int	strkeycmp(const char *,const char *) ;
+extern int	findfilepath(const char *,const char *,int,char *) ;
+extern int	getpwd(char *,int) ;
+
+extern char	*strbasename(char *) ;
+
+

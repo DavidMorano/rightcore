@@ -1,0 +1,519 @@
+.\" @(#)rex.1 = Dave Morano, 96/05/01
+'\"macro stdmacro
+.\" Copyright 1989 AT&T
+.nr X
+.TH rex 1 "1996-05-28" PCS
+.SH NAME
+rex \- execute a command on a remote machine with local environment
+.SH SYNOPSIS
+.B rex
+.OP -l "  rsuer" []
+.OP -n "" []
+.OP -d "" []
+.OP -e " environ_file" []
+.OP -x[=[var_list]] "" []
+.br
+.OP -a "  auth_file" []
+.OP -A "  auth_restriction" []
+.OP -N "  netrc_file" []
+.OP -V "" []
+.OP -? "" []
+.I hostname
+.I command
+.I args
+.\"_
+.SH AVAILABILITY
+.LP
+Personal Communication Services (PCS)
+on Sun SPARC hardware only, SunOS 4.1.3 or higher,
+SunOS 5.4 or higher.
+.\"_
+.SH DESCRIPTION
+.IX  "rsh command"  ""  "\fLrsh\fP \(em remote shell"
+.IX  "remote shell"  ""  "remote shell \(em \fLrsh\fP"
+.IX  "remote system" "shell" "" "shell \(em \fLrsh\fP"
+.IX  "shells" "remote" "" "remote \(em \fLrsh\fP"
+The 
+.B rex
+program connects to the specified
+.I hostname
+and executes the specified
+.IR command .
+This program is very similar to the
+.B rsh
+program and is inspired by it and the 
+.B RX
+program which is part of the 
+.B REXEC
+remote execution package (not related to the common Berkley
+.B REXEC
+daemon)
+developed at AT&T Bell Laboratories.
+The
+.B rex
+program uses the same daemon program on the remote machine as the
+.B RSH
+program does.  This is both a blessing and a curse.
+It is a curse since
+the program's behavior is restricted somewhat by the fact
+that the same daemon is used as
+.B RSH
+uses.
+It is a blessing because many remote machines now-a-days
+will not be running any other remote execution
+daemons and we still want to get the best out of an already
+bad machine execution environment.
+Normally, the entire local environment is sent over to
+the remote machine (because this is what is usually
+desired in a tightly coupled local machine group) but this
+behavior is changed if the
+.B "-x"
+option is used.
+.PP
+The
+.B rex
+program copies its standard input to the remote command, the standard
+output of the remote command to its standard output, and the
+standard error of the remote command to its standard error.
+Interrupt, quit and terminate signals are propagated to the remote
+command;
+.B rex
+normally terminates when the remote command does.
+.LP
+If you omit
+.IR command ,
+the
+.B rex
+program will try to execute whatever your SHELL environment
+variable is set to.  If there is not SHELL environment variable,
+it will try to execute '/bin/sh'
+on the remote machine.
+Shell metacharacters which are not quoted are interpreted
+on the local machine, while quoted metacharacters are interpreted on
+the remote machine. 
+See
+.SM EXAMPLES\s0.
+.LP
+Hostnames are given in the 
+.I hosts
+database, which may be contained in the 
+\f3/etc/hosts\f1
+file,
+the Internet domain name database, a local database like Sun Microsystems
+NIS or NISPLUS, or a combination of these.
+Each host has one official name (usually the first
+name in the database entry)
+and optionally one or more nicknames.
+Official hostnames or nicknames may be given as
+.IR hostname .
+.LP
+Each remote machine may have a file named
+\f3/etc/hosts.equiv\f1
+containing a list of trusted hostnames
+with which it shares usernames.
+Users with the same username on both the local and
+remote machine may 
+.B rex
+from the machines listed in the remote machine's
+\f3/etc/hosts\f1
+file.
+Individual users may set up a similar private
+equivalence list with the file \f3.rhosts\f1
+in their home directories.
+Each line in this file contains two names: a
+.I hostname
+and a
+.I username
+separated by a space.
+The entry permits the user named
+.I username
+who is logged into
+.I hostname
+to use
+.B rex   
+to access the remote machine as the remote user.
+If the name of the local host is not found in the
+\f3/etc/hosts.equiv\f1 file on the remote machine,
+and the local username and hostname are not
+found in the remote user's \f3.rhosts\f1
+file, then the access is denied.
+The hostnames listed in the
+\f3/etc/hosts.equiv\f1 and \f3.rhosts\f1
+files must be the official hostnames listed in the 
+\f3hosts\f1 database;
+nicknames may not be used in either of these files.
+.LP
+.B rex   
+will not prompt for a password if access is denied on the remote machine.
+.PP
+The purpose of this program is to allow remote execution of commands
+on a remote machine when the user would otherwise have a hard time
+(authentication wise) to do this by other means.
+This program is very similar to the RSHE program but differs in that
+it allows FTP like authentication mechanisms (the 'netrc(4)' files)
+in addition to the authentication mechanisms available with RSHE,
+RSH, and RLOGIN.
+.\"_
+.SH OPTIONS
+Options can appear anywhere on the command line, either before
+or after the specification of the remote host,
+but must appear before the specification of
+the remote command.  Option key letters can also be freely
+concatenated together.  If a concatenated option key requires
+an associated value string, it is picked up as the next tokenized
+string on the command line.
+.TP 15
+\f3\-l \f2username\f1
+Use
+.I username
+as the remote username instead of your local username.  In the absence
+of this option, the remote username is the same as your local username.
+.TP
+\f3\-n\f1
+Redirect the input of
+.B rex   
+to
+\f3/dev/null\f1.
+You sometimes need this option to avoid
+unfortunate interactions between
+.B rex   
+and the shell which invokes it.  
+For example, if you are running
+.B rex   
+and invoke a
+.B rex   
+in the background without redirecting its input
+away from the terminal, it will block even if no reads
+are posted by the remote command.  
+The
+\f3\-n\f1
+option will prevent this.
+.TP
+\f3\-x[=[var_list]]\f1
+The
+.B "-x"
+option is used to send some local environment variables over
+to the remote system instead of all of the local environment
+variables.  This is useful where local environment variables,
+like
+.B PATH
+and
+.B LD_LIBRARY_PATH
+may not have the proper meaning on the remote system.
+If the 
+.B "-x"
+option is NOT specified, then the local environment variable 
+.B RXPORT
+(another inspiration of the AT&T 
+.B REXEC
+package) is consulted for a list of local environment variables
+to send over to the remote machine.
+This variable is ONLY used if no
+.B "-x"
+option is specified on the program invocation.
+When used, this variable should contain a comma separated 
+list of environment variable names (no intervening white space
+between list names).  Only these named environment variables are sent over
+to the remote execution environment but only if the environment 
+variable exists on the client machine.
+.TP
+\f3\-e environment_file\f1
+The
+.B "-e"
+option is used to have an environment file executed on
+the remote machine before the user specified command
+is executed.  For heterogeneous machine environments,
+ideally, each different machine could have a file in the
+user's home directory that could be executed
+to provide the proper environment for the user requested
+command.  Normally, a user's 
+.B ".profile"
+type file serves this function but is not always the
+best choice when executing many remote commands.
+Usually, a file is created with a list of environment variables
+which are the essential set needed for proper remote
+execution of commands.  This file should be able to be
+executed by
+.B "/bin/sh"
+and should export any environment variables that are desired
+to be in the environment of the user requested command to
+be executed.  This file can be the user's 
+.B ".profile" 
+type file but that may have undesirable side effects.
+The specified file (what ever it may be) is executed with
+its standard input, output and error redirected to the
+.B "/dev/null"
+file.
+The specified environment file specified will not have a controlling terminal
+either.
+If this option is used, the specified file is executed before
+any further environment is sent over either by default
+(the entire existing local environment) or those local
+environment variables specified with the
+.B "-x"
+option.
+.TP
+\f3\-d\f1
+This option is used to have the remote command executed in
+the same directory as the current working directory on
+the local machine.  If the remote machine cannot find or
+change to this directory, it exits with an error return code.
+The default directory where the user's specified command is
+executed is the user's home directory on the remote machine.
+.TP
+\f3\-a\f1
+This option takes a value which is a filename which is similar 
+to a 'netrc(4)' type file but only takes one entry with the keywords
+.I user
+and 
+.I password.
+The use of this file avoids the explicit specification of a username
+and especially a password as other arguments at program invocation.
+.TP
+\f3\-A\f1
+This option takes a value which is an authentication restriction.
+Possible restriction consist of one of the following :
+.EX
+supplied
+password
+user
+.EX
+The
+.I supplied
+value indicates that only the supplied username and password should
+be used to attempt a connection with the remote machine.
+The
+.I password
+value indicates that only a connection method which requires
+an explicit password should be tried.  Connection methods (like those
+used for RLOGIN, RSHE, and RSH) are not attempted.
+The
+.I user
+value indicates that only the specified username should be used for
+an attempted connection.  If this or any of the previous values
+are not specified, then alternate usernames are tried to get a connection
+to the remote machine.  The default is no authorization restrictions
+and any possible username may be searched for and used to make the
+remote connection.  Remote connections are always tried in the order
+as if each of these above authorization methods are tried in sequence.
+.TP
+\f3\-N\f1
+This option takes a value which the file name of a 'netrc(4)' type
+file which will be used instead of the user's default 'netrc(4)' file
+located in her home directory.  This 'netrc(4)' file will be searched
+first.  Files specified in the 'NETRC' environment variable are
+searched next and finally, the system 'netrc(4)' files are searched.
+.TP
+\f3\-V\f1
+This option will cause the program to print its version to 
+the standard error output and then it will exit.
+.TP
+\f3\-?\f1
+.\"_
+This option will cause a brief help message to be printed
+to standard error output and then the program will exit.
+.\"_
+.\"_
+.SH ENVIRONMENT VARIABLES
+.TP 12
+.B RXPORT
+This variable is used if no "-x" option was specified at
+program invocation.  This variable should contain a comma separated
+list of environment variable names.  These names and the associated
+values of these variables from the client machine will be sent over to
+the remote machine environment if the corresponding local
+variable exists.
+.TP
+.B LOGNAME
+This variable contains the local user login name.  It can be changed
+by the user under certain circumstances to specify alternate
+login names for certain operations.  Note that this variable
+can never be used to circumvent security (assuming no bugs anywhere)
+since a check is always performed to verify that the variable
+contents can be authentically associated with the current read UID.
+It is really only useful to play with this variable when a single
+UID has two or more valid username names associated with it.
+.TP
+.B NETRC
+This environment variable contains a (possibly) colon separated list
+of 'netrc(4)' type files.
+These files will be searched after the user's default 'netrc(4)'
+file in her home directory but will be searched before the system-wide
+'netrc(4)' files.
+.PD
+.\"_
+.SH EXIT CODES
+Returns \f40\f1 upon successful completion, \f41\f1 otherwise.
+.\"_
+.SH EXAMPLES
+The following command:
+.LP
+.RS
+\f3example% rex lizard cat lizard.file >> example.file\f1
+.RE
+.LP
+appends the remote file 
+\f3lizard.file\f1
+from the machine called
+``lizard''
+to the file called
+\f3example.file\f1
+on the machine called
+``example.''
+.RE
+.\"_
+.SH FILES
+.PD 0
+.TP 20
+${HOME}/.netrc
+.TP
+.B /etc/hosts
+.TP
+.B /etc/hosts.equiv
+.TP
+.B ${HOME}/.rhosts
+.TP
+.B /etc/passwd
+.PD
+.\"_
+.SH SEE ALSO
+.BR rsh (1),
+.BR rex (1),
+.BR rl (1),
+.BR rx (1),
+.BR rexec (1),
+.BR rlogin (1),
+.BR vi (1),
+.BR in.named (1M),
+.BR in.rshd (1M),
+.BR hosts (4),
+.BR hosts.equiv (4),
+.BR passwd(4)
+.\"_
+.SH NOTES
+.LP
+When a system is listed in \f3hosts.equiv\f1, its
+security must be as good as local security.  One insecure 
+system listed in \f3hosts.equiv\f1 can compromise the 
+security of the entire system.
+.LP
+You cannot run an interactive command (such as
+.BR vi (1)
+);
+use
+.BR rlogin
+if you wish to do so.
+This is a major short coming of I/O development on the UNIX
+operating system platform.  
+Even with STREAMS, I/O has not progressed significantly
+to even match some of the capabilities of other (now almost
+obsolete) operating systems.  How will the UNIX operating system
+stack up to MS-Windows, MS-Windows NT, or Apple's MacOS ?  we will
+see in time.
+.LP
+Stop signals stop the local
+.B rex   
+process only; this is arguably
+wrong, but currently hard to fix for reasons too complicated to
+explain here.
+.LP
+Sometimes the
+\f3\-n\f1
+option is needed for reasons that are less than obvious.
+For example, the command:
+.LP
+.RS
+\f3example% rex somehost dd if=/dev/nrmt0 bs=20b | tar xvpBf \-\f1
+.RE
+.LP
+will put your shell into a strange state.  Evidently, what happens is
+that the
+\f3tar\f1
+terminates before the
+\f3rex\f1.
+The
+.B rex   
+then tries to write into the ``broken pipe'' and,
+instead of terminating neatly,
+proceeds to compete with your shell for its standard input.  Invoking
+.B rex   
+with the
+\f3\-n\f1
+option avoids such incidents.
+This bug occurs only when
+.B rex   
+is at the beginning of a pipeline and
+is not reading standard input.  Do not use the
+\f3\-n\f1
+if
+.B rex   
+actually needs to read standard input.  For example,
+.LP
+.RS
+\f3example% tar cf \- . | rex sundial dd of=/dev/rmt0 obs=20b\f1
+.RE
+.LP
+does not produce the bug.  If you were to use the
+\f3\-n\f1
+in a case like this,
+.B rex   
+would incorrectly read from
+\f3/dev/null\f1
+instead of from the pipe.
+.\"_
+.SH CAVEATS
+A significant difference from this program and the
+more popular
+.B RSH
+program is that this program will not execute multiple
+commands enclosed in quotes like the 
+.B RSH
+program will.
+This program will only execute a single supplied program
+along with its arguments (no funny business).
+.PP
+The 
+.B "-n"
+option should not have to exist.  It does exist because
+of some fundamental flaws in the way in which I/O is
+handled in both old (non-STREAMS) and new (STREAMS) versions
+of UNIX.  These I/O limitations do not exist in operating
+systems such as DEC's RSM-11M or DEC's VMS but, of course,
+these operating systems suffer from other problems (possibly
+quite numerous) also.  The
+.B "-n"
+option simple directs the
+.B rex
+program to not read its standard input and to instead
+return an end-of-file indication to the remote command's
+standard input.  Normally, the
+.B rex 
+program continuously, and naively, reads its standard
+input because it is too stupid to know when the remote
+command issues a read to its standard input.  This behavior
+can be ultimately traced to a fundamental flaw in the I/O subsystem of
+the UNIX operating system.  The UNIX operating system's
+I/O STREAM head (STREAMS is assumed for this discussion) does
+not provide any indication of how much data is requested
+by the program above the STREAM head.  For this reason,
+any and all STREAMS modules and ultimately programs residing
+on the client side of a network connection have to assume
+that the server side program continuously wants input data.
+This could have been long ago fixed in UNIX (circa 1982 at least)
+but no...ooo !  The powers that were thought that they knew how to make 
+operating systems and did not understand the need for
+a formalized "attention" type indication from programs issuing
+reads on the other end of a communications pipe (network or
+otherwise).
+.PP
+There are too many "remote execution" programs and most all
+of then, like this one (REX), are poor excuses for the original
+real thing ; namely, REXEC nad its children RL, RX, et cetera
+from AT&T.  Sun Microsystem's ON program and its daemon RPC.REXD
+have the potential to come close to the AT&T original but
+it is not even as good as it could be.  Finally, be warned,
+at the time of this writing, that Sun's ON remote execution facility
+is extremely buggy, often leading to machine crashes of the client
+side, server side or both !  It's no wonder that it is usually,
+and shipped from Sun as so, turned OFF !!!
+.\"_

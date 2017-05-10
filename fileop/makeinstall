@@ -1,0 +1,28 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL (fileop)
+
+T=$( basename ${PWD} )
+
+ALIASES=" ${T} filelinker filesyncer filerm filesize filefind filelines"
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+PRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+for A in ${ALIASES} ; do
+  rm -f ${A}
+  ln -f ${T}.x ${A}
+done
+
+for PR in ${PRS} ; do
+  if [[ -d ${PR} ]] ; then
+    PRBIN=${PR}/bin
+    if [[ -d ${PRBIN} ]] ; then
+      find ${ALIASES} -print | cpio -pdmu ${PRBIN}
+    fi
+  fi
+done
+
+

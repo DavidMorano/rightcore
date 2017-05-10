@@ -1,0 +1,4 @@
+MIME-version: 1.0
+content-type: text/plain ; charset=iso-8859-1
+x-content-transfer-encoding: base64
+CONTENT-TRANSFER-ENCODING: 8bit

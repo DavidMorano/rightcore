@@ -1,0 +1,18 @@
+#!/usr/bin/ksh
+# MKALIASES
+
+
+if [[ $# -lt 2 ]] ; then
+  print -u2 "${0}: not enough arguments"
+  exit 1
+fi
+
+T=${1}
+shift
+
+for F in "${@}" ; do
+  rm -f ${F}
+  ln -f ${T} ${F}
+done
+
+

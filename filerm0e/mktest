@@ -1,0 +1,24 @@
+#!/usr/bin/ksh
+# MKTEST
+
+
+TOP=testdir
+
+if [[ ! -d "${TOP}" ]] ; then
+  mkdir $TOP
+fi
+
+cat main.c burn.c removename.c > testdir/testfile1
+
+if [[ ! -d testdir/.AppleDouble ]] ; then
+  mkdir testdir/.AppleDouble
+fi
+
+cd testdir/.AppleDouble
+
+cp /dev/null file1
+cp /dev/null file2
+cp /dev/null file3
+
+
+

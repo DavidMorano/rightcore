@@ -1,0 +1,10 @@
+
+
+DAMtestksh {
+	global:
+		b_testread ;
+	local:
+		* ;
+} ;
+
+

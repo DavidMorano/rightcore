@@ -1,0 +1,2 @@
+LIB6= -lkstat -lsecdb -lproject -lrt -lpthread -lxnet -lsocket -lnsl
+LIB7= -ldl -lc

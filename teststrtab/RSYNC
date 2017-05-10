@@ -1,0 +1,10 @@
+#!/usr/bin/ksh
+# RSYNC
+
+
+
+rsync -rltH Makefile *.c *.h vinson:research_vinson/bsrc/teststrtab
+
+
+
+

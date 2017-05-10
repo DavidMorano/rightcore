@@ -1,0 +1,171 @@
+# SVC
+# FINGERS service table
+#
+#	The format of entries are:
+#
+#	service:
+#		program= /usr/bin/prog,
+#		args=	arg0 arg1,
+#		user=	uucp,
+#		group=	other,
+#		opts=	options,
+#		access=	netgroup(s)
+#
+#
+
+#	The following substitutions are made on keyword value strings:
+
+#		%V	version string
+#		%S	program searchname
+#		%R	program root
+#		%N	local nodename
+#		%D	local domainname
+#		%H	local hostname
+#		%U	original invoking username
+
+#		%P	socket peername (if available)
+
+#		%s	service
+#		%{ss}	subservice
+#		%a	service arguments (if available)
+#		%w	whether "long-form" was specified at client
+#				0	long was not specified
+#				1	long was specified
+#
+
+#	The following are made on some authenticating servers:
+
+#		%h	originating host (if known)
+#		%u	network username (if known)
+#		%p	network password (if known)
+#
+#		${define}	substituted defines
+#		${environment}	substituted environment variable
+#
+
+#
+#	There are some built-in servers on some of the listener daemon
+#	programs.  Some of these are listed below.  These internal
+#	servers can be overridden by making an entry with the same
+#	service name in this file.
+#
+# HELP:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is a 'tcpmux' (by appropriate RFC) service requirement.
+#
+# TIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'time' service.
+#
+# DAYTIME:
+#	**BUILT-IN** ('tcpmuxd' only)
+#
+#	This is the same as INET 'daytime' service.
+#
+# SHELLCMD:
+#	**BUILT-IN** ('rexecd' only)
+#
+#	This is the same as Berkeley 'rsh' and 'rexec' services.
+#
+# CMD:
+#	**BUILT_IN** ('rexecd' only)
+#
+#	This is what is provided by the old PCS 'REX' service.
+#
+#
+
+
+# our weather service (processed from NWS data)
+weather:
+	a= weather %{ss}
+
+# find a partial match (if there are any) of an English word
+look:
+	a= look %{ss}
+
+# find an exact match (if there is one) of an English word
+lookw:
+	a= lookw %{ss}
+
+# GROPE lookup
+grope:
+	p= ${TOOLS}/bin/grope
+	a= grope %{ss}
+
+# dictionary lookup
+dict:
+	a= dict %{ss}
+
+# machine status
+msinfo:
+	access= rc ece,
+	a= msinfo %{ss}
+
+# system status
+systat:
+	p= /usr/extra/sbin/systatd
+
+netstat:
+	a= echo "The RightCore network is UP."
+
+sync:
+	p= /usr/bin/sync,
+	a= sync
+
+
+
+# testing junk
+echoargs:
+	a= /usr/bin/echo "ss=%{ss} args=>%a<"
+
+echostuff:
+	a= echo %V %S %R %N %D %s long=%w ,
+	access= rc ece
+
+enum:
+	p= ${TESTSERVERDIR}/enum,
+	a= enum '%a'
+
+modlist:
+	a= modlist
+
+logname:
+	p= ${LOCAL}/bin/logname,
+	a= logname %a,
+	access= rc ece
+
+env:
+	p= /usr/bin/env,
+	username= admin,
+	access= rc ece
+
+whoami:
+	a= echo "host=%P user=%U" ,
+	access= rc ece
+
+reportid:
+	p= /home/dam/src/tcpmuxd/servers/reportid,
+	access= rc ece,
+	user= guest,
+	group= rc
+
+enum2:
+	p= ${TESTSERVERDIR}/enum,
+	a= enum '%a'
+
+tools:
+	a= echo TOOLS=${TOOLS}
+
+peername:
+	p= /usr/add-on/pcs/bin/pcsconf,
+	a= pcsconf peername
+
+
+# for fun
+wla:
+	p= wla
+
+
+

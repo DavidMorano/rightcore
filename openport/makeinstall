@@ -1,0 +1,23 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL (OPENPORT)
+
+T=${1}
+if [[ -z "${T}" ]] ; then
+  T=${PWD##*/}
+fi
+
+BDIR=sbin
+
+PRS=" ${PCS} /root[01]/${EXTRA} "
+
+if [[ -x ${T}.x ]] ; then
+  for PR in ${PRS} ; do
+    if [[ -d "${PR}" ]] ; then
+      D=${PR}/${BDIR}
+      makenewer -r -o rmsuf ${T}.x ${D}
+      chmod u+s ${D}/${T}
+    fi
+  done
+fi
+
+

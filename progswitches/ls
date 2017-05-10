@@ -1,0 +1,64 @@
+#/usr/bin/ksh
+# LS
+
+
+P_UNAME=uname
+
+
+: ${AST:=/usr/add-on/ast}
+: ${GNU:=/usr/add-on/gnu}
+export AST GNU
+
+
+PDIR=${0%/*}
+A=${0##*/}
+PNAME=${A%.*}
+
+SYSNAME=
+NODENAME=
+RELEASE=
+MACHINE=
+ARCHITECTURE=
+
+  ${P_UNAME} -s -n -r -m -p | {
+    read SYSNAME NODENAME RELEASE MACHINE ARCHITECTURE
+  }
+  : ${NODE:=${NODENAME%%.*}}
+  unset NODENAME
+
+
+PROGS=
+
+case ${SYSNAME}:${RELEASE}:${ARCHITECTURE} in
+
+SunOS:5.*:sparc* )
+  PROGS="${PROGS} ${AST}/bin/ls"
+  PROGS="${PROGS} ${GNU}/bin/ls"
+  ;;
+
+esac
+
+PROGS="${PROGS} /usr/5bin/ls"
+PROGS="${PROGS} /bin/ls"
+
+
+for PF in $PROGS ; do
+
+  if [[ -x "${PF}" ]] ; then
+    break
+  fi
+
+done
+
+if [[ ! -x "${PF}" ]] ; then
+
+  echo "${0}: could not find underlying program" >&2
+  exit 1
+
+fi
+
+execname $PF $PNAME -1 "${@}"
+
+
+
+

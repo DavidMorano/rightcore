@@ -1,0 +1,48 @@
+#!/usr/bin/ksh
+# RUNIT
+
+
+
+DOPTS=
+DOPTS="${DOPTS} -p log-bad-space"
+DOPTS="${DOPTS} -p log-nonfree-space"
+#DOPTS="${DOPTS} -p check-fence"
+#DOPTS="${DOPTS} -p check-heap"
+#DOPTS="${DOPTS} -p check-lists"
+#DOPTS="${DOPTS} -p check-blank"
+#DOPTS="${DOPTS} -p check-funcs"
+DOPTS="${DOPTS} -p log-trans"
+
+DMALLOCLOG=dmalloc.log
+
+TF=/tmp/ri${RANDOM}
+
+{
+
+  dmalloc -l $DMALLOCLOG -i 100 -p log-non-free -p log-trans $DOPTS
+
+} | fgrep -v export > $TF
+
+DMALLOC_OPTIONS="$( < $TF )"
+rm -f $TF
+
+#export DMALLOC_OPTIONS
+
+
+echo "dmalloc options>"
+echo ${DMALLOC_OPTIONS}
+
+OPTS=
+
+rm -f ${PCS}/spool/timestamps/pcspoll
+
+E=e
+D=d
+
+cp /dev/null $E
+cp /dev/null $D
+
+PCSPOLL_DEBUGFD=3 pcspoll.x 2> e -D=5 3> d $OPTS
+
+
+

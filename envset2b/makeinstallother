@@ -1,0 +1,27 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLOTHER
+
+T=envset
+if [[ -n "${1}" ]] ; then
+  T=${1}
+fi
+
+: ${PREROOT:=/usr/extra}
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+
+DIRS=" ${LOCAL} /root[01]/${EXTRA} "
+
+if [[ -r "${T}.x" ]] ; then
+  for D in ${DIRS} ; do
+    if [[ -d ${D} ]] ; then
+      DBIN=${D}/bin
+      if [[ -d "${DBIN}" ]] ; then
+        mn -r ${T}.x -o rmsuf ${DBIN} &
+      fi
+    fi
+  done
+  wait
+fi
+
+

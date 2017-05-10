@@ -1,0 +1,8 @@
+PCSPOLL
+
+Try:
+
+$ z d ; DEBUGFD=3 pcspoll.x -C conf -D=5 3> d 2> e -d
+
+
+

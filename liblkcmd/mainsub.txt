@@ -1,0 +1,8 @@
+static int	mainsub(int,cchar **,cchar **,void *) ;
+
+int p_rest(int argc,cchar *argv[],cchar *envv[],void *contextp)
+{
+	return mainsub(argc,argv,envv,contextp) ;
+}
+/* end subroutine (p_rest) */
+

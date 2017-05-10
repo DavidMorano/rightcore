@@ -1,0 +1,7 @@
+
+: ${LOCAL:=/usr/add-on/local}
+
+chown root ${LOCAL}/bin/movemail.s5
+chgrp mail ${LOCAL}/bin/movemail.s5
+chmod ug+s ${LOCAL}/bin/movemail.s5
+

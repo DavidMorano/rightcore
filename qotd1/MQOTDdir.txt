@@ -1,0 +1,11 @@
+MAINTQOTD
+
+This directory contains the backstore for Quotes-of-the-Day (in file
+form).  Each quote is stored in a file named by the Modified-Julian-Day
+(MJD) of the day of the quote with a 'q' character prefixed.  Theses
+files are in turn stored in subdirectories named by the MJD divided
+by 100 with a prefix of 'd'.  This arrangement is established so that
+no single directory will contain more than 100 files.  This keeps
+searching directories by the system to remain fast.
+
+Enjoy!

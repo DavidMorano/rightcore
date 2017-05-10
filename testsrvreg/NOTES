@@ -1,0 +1,34 @@
+SRVREG
+
+
+
+File header :
+
+	SRVREG\n\0		16 bytes (zero padded)
+	ident (VETU)		4
+	length			4
+	cksum			4
+
+	wtime			8
+	nentries		4
+	first			4
+
+	entries			4-byte boundary
+
+
+
+version:
+	0			first version
+
+encoding:
+	0			little
+	1			big
+
+type:
+	-			unused
+
+unused:
+	-			unused
+
+
+

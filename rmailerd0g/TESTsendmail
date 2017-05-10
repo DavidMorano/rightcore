@@ -1,0 +1,22 @@
+#!/usr/bin/ksh
+# SENDMAIL (testing)
+
+echo "sendmail: entered" >&3
+
+TF=/tmp/sm${$}
+
+cat > $TF
+
+{
+  echoargs "${@}"
+  ls -l $TF
+  cat $TF
+} >> /home/dam/src/rmailerd/sendmail.out
+
+echo "test of standard error" >&2
+
+echo "test of standard output"
+
+rm -f $TF
+
+

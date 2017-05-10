@@ -1,0 +1,49 @@
+# ACCTAB (Access Table)
+#
+
+
+# Format of entries :
+#
+# netgroup:
+#	machine			[user			[password]]
+#
+#
+
+
+# defaults for all entries that do not specify any netgroup
+
+	rc*			dam			password
+	rc*			morano			pass32
+	*			morano			pass62
+
+our:
+	leviathan
+	fred
+	thomas
+	rca			dam
+	192.168.0.*		dam
+
+theirgroup:
+	other
+	sales
+	market
+
+finalgroup:
+	hammett
+	hendrix
+	gilmore
+	satriani
+
+modlist:
+	rc*
+
+
+rightcore:
+	rc*			dam			password
+	rc*			morano			pass32
+	*			morano			pass62
+	leviathan
+
+
+
+

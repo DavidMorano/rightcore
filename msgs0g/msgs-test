@@ -1,0 +1,54 @@
+ # <-- force CSH to use Bourne shell
+# MSGS-TEST
+
+
+LOC=test
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+case $MACH in
+
+hocp[a-d] | logicgate | nitrogen | mucleus )
+  : ${PCS:=/home/gwbb/add-on/pcs}
+  : ${LOCAL:=/home/gwbb/add-on/local}
+  : ${TOOLS:=/opt/exptools}
+  export PCS LOCAL TOOLS
+  ;;
+
+mt* | dr* )
+  : ${PCS:=/usr/add-on/pcs}
+  : ${LOCAL:=/mt/mtgzfs8/hw/add-on/local}
+  : ${TOOLS:=/usr/add-on/exptools}
+  export PCS LOCAL TOOLS
+  ;;
+
+hocp[v-z] )
+  : ${PCS:=/usr/add-on/pcs}
+  : ${LOCAL:=/usr/add-on/pcs}
+  : ${TOOLS:=/usr/add-on/exptools}
+  export PCS LOCAL TOOLS
+  ;;
+
+esac
+
+
+
+  : ${MSGS_SPOOLDIR:=${PCS}/spool/boards/msgs/${LOC}}
+  : ${MSGSRC:=.msgsrc-${LOC}}
+  export MSGS_SPOOLDIR MSGSRC
+
+
+exec msgs "${@}"
+
+
+
+

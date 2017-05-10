@@ -1,0 +1,118 @@
+Adding METAMAIL support to the stabdard Berkley MSGS program.
+========================================================================
+
+1.19	Msgs (Berkeley Bulletin Board system)
+
+All of the changes are localized to the file msgs.c  In particular,
+there are four changes to be made:
+
+1.  In msgs.c, there are lots of global declarations near the top.  In
+my version, the last of them (around line 114) looks like this:
+
+jmp_buf	tstpbuf;
+
+Immediately after that line,  add the following code:
+
+#ifndef NOMETAMAIL
+int NonTextMessage;
+#endif
+
+2.  Further down in msgs.c, there is a routine named "prmesg" (around
+line 580) which starts with the following declarations:
+
+FILE *outf, *inf;
+int c;
+
+Immediately after these declaration, add the following code:
+
+#ifndef NOMETAMAIL
+	if (!getenv("NOMETAMAIL") && NonTextMessage) {
+	    char Fname[100], Cmd[120];
+	    FILE *fp;
+	    int code;
+	    struct sgttyb ttystatein, ttystateout;
+
+	    sprintf(Cmd, "metamail %s -m Mail %s", pause ? "-p" : "", fname);
+	    gtty(fileno(stdin), &ttystatein);
+	    gtty(fileno(stdout), &ttystateout);
+	    code = system(Cmd);
+	    stty(fileno(stdin), &ttystatein);
+	    stty(fileno(stdout), &ttystateout);
+	    return;
+	  }
+#endif
+
+3.  Still further down in msgs.c, there is a routine named "gfrsub"
+(around line 775).  A page or so down in that routine, there is code
+that looks like this:
+
+	while (fgets(inbuf, sizeof inbuf, infile)
+	    && !(blankline = (inbuf[0] == '\n'))) {
+		/*
+		 * extract Subject line
+		 */
+		if (!seensubj && strncmp(inbuf, "Subj", 4)==0) {
+			seensubj = YES;
+			frompos = ftell(infile);
+			strncpy(subj, nxtfld(inbuf), sizeof subj);
+		}
+
+Immediately before this code fragment, add the following three lines:
+
+#ifndef NOMETAMAIL
+        NonTextMessage = 0;
+#endif
+
+Immediately after this code fragment (around line 840 in my version) add
+the following code:
+
+#ifndef NOMETAMAIL
+	  {		
+	    char *s, *t;
+	    for (s=inbuf; *s; ++s) if (isupper(*s)) *s = tolower(*s);
+	    if (!strncmp(inbuf, "content-type:", 13)) {
+	      s = inbuf + 13;
+	      while (s && isspace(*s)) ++s;
+	      t = (char *) index(s, ';');
+	      if (t) *t = NULL; else t = s+strlen(s);
+	      while (--t > s && isspace(*t)) *t = NULL;
+	      NonTextMessage = nontext(s);
+	    }
+	  }
+#endif
+
+Finally, add this routine to the end of the file:
+
+nontext(s)
+char *s;
+{
+    char *t;
+    if (!s) return(1);
+    while (*s && isspace(*s)) ++s;
+    for(t=s; *t; ++t) if (isupper(*t)) *t = tolower(*t);
+    while (t > s && isspace(*--t)) {;}
+    if (((t-s) == 3) && !strncmp(s, "text", 4)) return(0);
+    if (strncmp(s, "text/plain", 10)) return(1);
+    t = (char *) index(s, ';');
+    while (t) {
+        ++t;
+        while (*t && isspace(*t)) ++t;
+        if (!strncmp(t, "charset", 7)) {
+            s = (char *) index(t, '=');
+            if (s) {
+                ++s;
+                while (*s && isspace(*s)) ++s;
+                if (!strncmp(s, "us-ascii", 8)) return(0);
+            }
+            return(1);
+        }
+        t = (char *) index(t, ';');
+    }
+    return(0); /* no charset, was text/plain */
+}        
+
+These four changes should be all you need to do in order to make msgs
+work with metamail, assuming that you already have the "metamail"
+executable installed somewhere on your search path.
+
+

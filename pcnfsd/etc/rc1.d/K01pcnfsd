@@ -1,0 +1,97 @@
+ # <-- force CSH to use Bourne shell
+# PCNFSD daemon
+
+RUN=true
+I=pcnfs
+DEMONPROG=/etc/bin/pcnfsd
+DEBUGFILE=/var/tmp/pcnfsd.debug
+
+
+
+if [ "${RUN}" != true ] ; then exit 0 ; fi
+
+PS="/usr/bin/ps -ef"
+GREP=/usr/bin/grep
+
+DPD=`dirname ${DEMONPROG} `
+DPF=`basename ${DEMONPROG} `
+TFA=/tmp/isa${$}
+TFB=/tmp/isb${$}
+
+
+cd /
+
+
+V=0
+substr() {
+  while read LINE ; do
+
+    F_GOT=true
+    for S in "${@}" ; do
+
+      echo $LINE | fgrep $S > /dev/null
+      if [ $? -ne $V ] ; then
+
+        F_GOT=false
+        break
+
+      fi
+
+    done
+
+    if [ $F_GOT = true ] ; then
+
+      echo $LINE
+
+    fi
+
+  done
+}
+
+
+# are we already running
+
+V=0
+${PS} | substr root '?' $DPF > $TFB
+
+V=1
+substr < $TFB grep rc > $TFA
+
+
+
+case "${1}" in
+
+'start' )
+  if [ ! -s $TFA -a -x "${DEMONPROG}" ] ; then
+
+        PATH=${DPD}:${PATH} $DPF -D=3 2> $DEBUGFILE &
+
+  fi
+  ;;
+
+'stop' )
+  if [ -s $TFA ] ; then
+
+    while read USER PID J ; do 
+
+      if [ "${USER}" = root ] ; then
+
+        /usr/bin/kill ${PID}
+        break
+
+      fi
+
+    done < $TFA
+
+  fi
+  ;;
+
+* )
+  echo "${P}: USAGE> /etc/init.d/${P} {start|stop}"
+  ;;
+
+esac
+
+rm -f $TFA $TFB
+
+

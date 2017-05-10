@@ -1,0 +1,177 @@
+# XE (make)
+
+#
+# COOKIES
+
+# These are the cookies avilable:
+# 
+# SYSNAME  	OS system-name
+# RELEASE  	OS system-release
+# VERSION  	OS system-version
+# MACHINE  	machine-name
+# ARCHITECTURE  UAUX machine-architecture
+# PLATFORM  	UAUX machine platform
+# PROVIDER  	UAUX machine provider
+# HWSERIAL  	UAUX HW-serial
+# NISDOMAIN  
+# NCPU  	number of machine CPUs (online)
+# HZ  		OS clock tics
+# CLUSTER  	cluster-name
+# SYSTEM  	system-name
+# U  		current user username
+# G  		current user groupname
+# HOME  	current user home directory
+# SHELL  	current user shell
+# ORGANIZATION  current user organization name
+# GECOSNAME  	current user gecos-name
+# REALNAME  	current user real-name
+# NAME  	current user name
+# TZ  		current user time-zone
+# N  		nodename
+# D  		INET domainname (for current user)
+# H  		INET hostname
+# R  		program-root
+# RN  		program root-name
+# OSTYPE	Operating-System Type ('SYSV' or 'BSD")
+# OSNUM		Operating-System Number (a common number summarizing release)
+# S		search-name
+#
+
+# Cookies are introducted with the '%' character.  If a cookie has
+# only a single-character name, the form:
+#	%c
+# can be used, where 'c' is the single-character name of the cookie.
+# If the cookie has a multi-character name, it is interpolated as:
+#	%{cccc}
+# where 'cccc' is the multi-character name of the cookie.
+#
+
+
+#
+# ENVIRONMENT_VARIABLES
+# these environment variables are automatically exported:
+#
+# SYSNAME
+# RELEASE
+# VERSION
+# MACHINE
+# NCPU
+# HZ
+# ARCHITECTURE
+# PLATFORM
+# CLUSTER
+# SYSTEM
+# NODE
+# USERNAME
+# TZ
+# DOMAIN
+# HOME
+## ORGANIZATION
+# LOGNAME (only if it is a login session)
+#
+
+# Environment variables are interpolated with the familiar form:
+#	${ccc}
+# where 'ccc' is the name of the environment variable.
+# Note that there is no mechanism for determing if an environment
+# variables is set or not.  Unset or empty environment variables
+# are interpolated as an empty string.
+#
+
+
+#
+# DEFINE_VARIABLES
+# Defines are similar to environment variables but they are sourced from a
+# "define" database.  Defines are the primary administrative input to the
+# system since they generally contain information that is entirely new
+# to the system and can only generally be input by direct administrative
+# action.  Defines are interpolated in a simliar way as environment
+# variables except that parentheses are used for the interpolation rather
+# than braces.  To wit:
+#	$(ccc)
+# where 'ccc' is the name of the define variable.
+#
+
+
+
+# set variables that define the machine-architecture compilation environment
+
+		OSNAME			%{SYSNAME}
+		OSREL			%{RELEASE}
+# this next one is never really used (delete it)
+#		OSVERS			%{VERSION}
+		OSTYPE			%{OSTYPE}
+		OSNUM			%{OSNUM}
+		OSNAME_%{SYSNAME}	%{OSNUM}
+
+
+# general system configuration
+
+# path setup
+
+		PATH=
+		LD_LIBRARY_PATH=
+		MANPATH=
+		INCPATH=
+		FPATH=
+		INFOPATH=
+
+
+PREROOT?	PREROOT=		$(PREROOT)
+
+PREROOT?	PATH:=			$(PREROOT)/bin
+PREROOT?	LD_LIBRARY_PATH:=	$(PREROOT)/lib
+PREROOT?	MANPATH:=		$(PREROOT)/man
+PREROOT?	INCPATH:=		$(PREROOT)/include
+PREROOT?	FPATH:=			$(PREROOT)/fbin
+PREROOT?	INFOPATH:=		$(PREROOT)/info
+
+
+XPG4?		XPG4=			$(XPG4)
+
+XPG4?		PATH:=			$(XPG4)/bin
+#XPG4?		LD_LIBRARY_PATH:=	$(XPG4)/lib # danger:bad!
+XPG4?		MANPATH:=		$(XPG4)/man
+XPG4?		INCPATH:=		$(XPG4)/include
+XPG4?		FPATH:=			$(XPG4)/fbin
+XPG4?		INFOPATH:=		$(XPG4)/info
+
+
+		PATH:=			/usr/bin
+#		LD_LIBRARY_PATH:=	/usr/lib	# not needed (default)
+		MANPATH:=		/usr/man
+		INCPATH:=		/usr/include
+		FPATH:=			/usr/fbin
+		INFOPATH:=		/usr/info
+
+
+CCS?		CCS=			$(CCS)
+
+CCS?		PATH:=			$(CCS)/bin
+CCS?		LD_LIBRARY_PATH:=	$(CCS)/lib
+CCS?		MANPATH:=		$(CCS)/man
+CCS?		INCPATH:=		$(CCS)/include
+CCS?		FPATH:=			$(CCS)/fbin
+CCS?		INFOPATH:=		$(CCS)/info
+
+
+GNU?		GNU=			$(GNU)
+
+GNU?		PATH:=			$(GNU)/bin
+GNU?		LD_LIBRARY_PATH:=	$(GNU)/lib
+GNU?		MANPATH:=		$(GNU)/man
+GNU?		INCPATH:=		$(GNU)/include
+GNU?		FPATH:=			$(GNU)/fbin
+GNU?		INFOPATH:=		$(GNU)/info
+
+
+# other environment variables (other than paths!)
+
+		ENV=			%{HOME}/.kshrc
+
+# set this stuff for the pesky new GNU 'ls(1)' program!
+
+		LS_TIMESTYLE		locale
+		LS_IDWIDTH		fixed
+
+

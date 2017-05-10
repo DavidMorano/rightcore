@@ -1,0 +1,6 @@
+TESTINFO
+
+
+$ z d ; TESTMAILBOX_DEBUGFILE=d testmailbox.x -D=5 2> e ~/mail/eve > o
+
+

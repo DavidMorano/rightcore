@@ -1,0 +1,23 @@
+#!/usr/bin/ksh
+# UUPOLL
+
+
+: ${PREROOT:=/usr/preroot}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${EXTRA:=/usr/extra}
+export PREROOT NCMP EXTRA
+
+: ${UUCPHOME:=$( userdir uucp )}
+
+
+PATH=${PATH}:${PREROOT}/bin:${NCMP}/bin:${EXTRA}/bin
+LD_LIBRARY_PATH=${PATH}:${PREROOT}/lib:${NCMP}/lib:${EXTRA}/lib
+export PATH LD_LIBRARY_PATH
+
+PROG=${UUCPHOME}/lib/uupoll/uupoll.ksh
+if [[ -x ${PROG} ]] ; then
+  exec suexec ${PROG} uupoll "${@}"
+fi
+
+
+

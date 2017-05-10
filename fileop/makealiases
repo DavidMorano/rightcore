@@ -1,0 +1,15 @@
+#!/usr/extra/bin/ksh
+# MAKEALIASES (fileop)
+
+T=$( basename ${PWD} )
+ALIASES=" ${T} filelinker filesyncer filerm filesize filefind"
+
+: ${LOCAL:=/usr/add-on/local}
+: ${EXTRA:=/usr/extra}
+export LOCAL EXTRA
+
+for A in ${ALIASES} ; do
+  ln -f ${T}.x ${A}
+done
+
+

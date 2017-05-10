@@ -1,0 +1,6 @@
+HAVEPROGRAM
+
+This program was specifically written to run on the heavily brain-damaged
+MacOS-X (Darwin) systems.
+
+

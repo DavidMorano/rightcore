@@ -1,0 +1,26 @@
+# CSH login profile
+
+#env > .login.env
+
+
+umask 02
+
+
+setenv LOCALDOMAIN ele.uri.edu
+
+setenv TERMINFO ${HOME}/lib/terminfo
+setenv VISUAL emacs
+setenv PATH ${HOME}/bin:${PATH}
+
+
+setenv OSTYPE SYSV
+setenv OFD IRIX
+setenv OFF irix
+
+
+setenv SHELL /bin/ksh
+setenv SHELL_NAME "-ksh"
+
+exec ${HOME}/bin/execname ksh -ksh
+
+

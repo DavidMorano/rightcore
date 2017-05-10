@@ -1,0 +1,9 @@
+#!/usr/bin/ksh
+# RUNWATCH
+
+export MALLOC_DEBUG=WATCH
+
+z d 
+LD_PRELOAD=watchmalloc.so.1 HOMEPAGE_DEBUGFILE=d homepage.x -D=5 2> e > o
+
+

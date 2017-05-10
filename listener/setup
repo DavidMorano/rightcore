@@ -1,0 +1,17 @@
+#!/usr/bin/ksh
+
+
+: ${LOCAL:=/usr/add-on/local}
+
+
+LISTENER_ADDR=rca:5122
+LISTENER_PROGRAM=/usr/net/servers/echod
+LISTENER_USERNAME=daemon
+LISTENER_LOG=${LOCAL}/log/listener
+export LISTENER_ADDR LISTENER_PROGRAM LISTENER_USERNAME LISTENER_LOG
+
+
+DEBUGFD=3 listener.x -v -D=5 3> d 2> e
+
+
+

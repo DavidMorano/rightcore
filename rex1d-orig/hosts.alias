@@ -1,0 +1,41 @@
+# HOSTS.ALIAS
+#
+#	Put your aliases for hosts in this file.
+#	Regular expressions can be used for the lookup entry
+#	The regular expression syntaz is the same as for the
+#	program 'ed'.  I know, you really do not like this
+#	but it was the best that I could do at the time !
+#
+#	Remember that these aliases are only applied to (mostly)
+#	PCS (yes Personal Communications Services) type programs.
+#	These aliases are available for the regular INET stuff
+#	line RCP, RSH, RLOGIN (although RSH and RLOGIN do have
+#	some other mechanism for aliases).  These alias do apply
+#	for programs like : REXEC, RSLOW, RBBPOST, et cetera.
+#
+#
+
+# format:
+#
+# lookup_entry		translated_entry_(somewhat canonical name)
+#-------------------------------------------------------------------------
+
+
+a	hocpa
+b	hocpb
+c	hocpc
+d	hocpd
+
+v	hocpv
+w	hocpw
+x	hocpx
+y	hocpy
+z	hocpz
+
+
+# {[a-z]}$0		hocp${0}
+# mthost2		mthost2.mt.lucent.com
+# mt{*}$0		mt$(0).mt.lucent.com
+
+
+

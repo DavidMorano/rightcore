@@ -1,0 +1,11 @@
+BUILD (username)
+
+To make, type:
+
+$ makeit
+
+To install:
+
+$ makeit install
+
+

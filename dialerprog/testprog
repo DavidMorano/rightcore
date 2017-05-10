@@ -1,0 +1,7 @@
+#!/usr/bin/ksh
+# TESTPROG
+
+print hello world
+env
+
+

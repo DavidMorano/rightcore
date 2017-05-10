@@ -1,0 +1,88 @@
+#!/usr/extra/bin/ksh
+set -x
+# RFILEWRITE
+
+# writing
+
+: ${F_C:=true}
+: ${F_T:=true}
+: ${F_A:=false}
+
+#JOBFNAME=jjjjjj
+#FILE=XXXXXX
+: ${MODE=0644}
+
+exec 4>&2 2> /dev/null
+
+umask 000
+F=`basename ${FILE}`
+D=`dirname ${FILE}`
+if [[ ! -d $D ]] ; then
+  mkdir -p $D
+  chmod 777 $D
+fi
+
+echo $D | fgrep uucppublic > /dev/null
+if [ $? -eq 0 ] ; then
+  chgrp uucp /usr/spool/uucppublic/rslow
+  chown uucp /usr/spool/uucppublic/rslow
+fi
+
+
+if [[ $F_C = true ]] ; then
+
+if [[ ! -f $FILE ]] ; then
+
+  umask 0177
+  if ${F_T} ; then
+    cp /dev/null $FILE
+  else
+    cat < /dev/null >> $FILE
+  fi
+
+  if [[ ${F_A} != true ]] ; then
+    exec 5> $FILE
+  else
+    exec 5>> $FILE
+  fi
+  chmod $MODE $FILE
+
+else
+
+  if ${F_T} ; then
+    /bin/cp /dev/null $FILE
+  fi
+  if ${F_A} ; then
+    exec 5>> $FILE
+  else
+    exec 5> $FILE
+  fi
+
+fi
+
+fi
+
+if [ -w $FILE ] ; then
+
+  echo "OK" >&4
+
+  if [[ ${F_C} != true ]] ; then
+    if [[ ${F_T} = true ]] ; then
+      cp /dev/null $FILE
+    fi
+    if ${F_A} ; then
+      exec 5>> $FILE
+    else
+      exec 5> $FILE
+    fi
+  fi
+
+else
+  echo "BAD" >&4
+  exit 1
+fi
+
+rm -f $JOBFNAME
+exec cat -u >&5
+
+

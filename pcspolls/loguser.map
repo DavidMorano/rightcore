@@ -1,0 +1,13 @@
+
+
+DAMloguser {
+	global:
+		loguser ;
+		loguser_start ;
+		loguser_check ;
+		loguser_finish ;
+	local:
+		* ;
+} ;
+
+

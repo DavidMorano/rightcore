@@ -1,0 +1,1 @@
+OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)

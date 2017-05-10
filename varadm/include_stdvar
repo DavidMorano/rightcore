@@ -1,0 +1,21 @@
+# include_stdvar
+
+
+function include_stdvar {
+  print -- package is loaded
+}
+
+function TESTVAR.get {
+  .sh.value="variable is gotten"
+}
+
+function TESTVAR.set {
+  .sh.value="variable is set"
+}
+
+function TESTVAR.unset {
+  print -- variable is unset
+}
+
+
+

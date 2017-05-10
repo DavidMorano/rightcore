@@ -1,0 +1,35 @@
+983999340: 20008: Dmalloc version '4.8.2' from 'http://dmalloc.com/'
+983999340: 20008: flags = 0, logfile 'dmalloc.log'
+983999340: 20008: interval = 100, addr = 0, seen # = 0
+983999340: 20008: starting time = 983999337
+983999340: 20008: dumping not-freed pointers changed since 2:
+983999340: 20008:  not freed: '0x6c080|s1819|i20007' (11 bytes) from 'unknown'
+983999340: 20008:  not freed: '0x6c0c0|s1|i4' (36 bytes) from 'unknown'
+983999340: 20008:  not freed: '0x6c100|s1|i7' (36 bytes) from 'unknown'
+983999340: 20008:  not freed: '0x6c140|s1|i8' (13 bytes) from 'unknown'
+983999340: 20008:  not freed: '0x6c180|s1|i9' (35 bytes) from 'unknown'
+983999340: 20008:  not freed: '0x6e000|s1|i5' (936 bytes) from 'unknown'
+983999340: 20008:  not freed: '0x70000|s1|i6' (234 bytes) from 'unknown'
+983999340: 20008:  total-size  count  source
+983999340: 20008:           0      0  Total of 0
+983999340: 20008:  unknown memory: 7 pointers, 1301 bytes
+983999343: 40009: dumping not-freed pointers changed since 20008:
+983999343: 40009:  not freed: '0x6c200|s3637|i40008' (11 bytes) from 'unknown'
+983999344: 40009:  total-size  count  source
+983999344: 40009:           0      0  Total of 0
+983999344: 40009:  unknown memory: 1 pointer, 11 bytes
+983999347: 60010: dumping not-freed pointers changed since 40009:
+983999347: 60010:  not freed: '0x6c280|s5455|i60009' (11 bytes) from 'unknown'
+983999347: 60010:  total-size  count  source
+983999347: 60010:           0      0  Total of 0
+983999347: 60010:  unknown memory: 1 pointer, 11 bytes
+983999351: 80011: dumping not-freed pointers changed since 60010:
+983999351: 80011:  not freed: '0x6c300|s7273|i80010' (11 bytes) from 'unknown'
+983999351: 80011:  total-size  count  source
+983999351: 80011:           0      0  Total of 0
+983999351: 80011:  unknown memory: 1 pointer, 11 bytes
+983999354: 100012: dumping not-freed pointers changed since 80011:
+983999354: 100012:  not freed: '0x6c380|s9091|i100011' (11 bytes) from 'unknown'
+983999354: 100012:  total-size  count  source
+983999354: 100012:           0      0  Total of 0
+983999354: 100012:  unknown memory: 1 pointer, 11 bytes

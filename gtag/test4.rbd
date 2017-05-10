@@ -1,0 +1,142 @@
+
+%Q morano96differential
+%T Improving Direct-Mapped Cache Performance by the Addition of a Small
+Fully-Associative Cache and Prefetch Buffer
+%A Norman P. Jouppi
+%J Proceedings of the 17th 
+International Symposium on Computer Architecture (ISCA)
+%I ACM
+%V 23
+%N 6
+%D May 1990
+%P 364-373
+%K computer caches victim stream buffer
+%X 
+This is the classic paper on victim caches and prefetch stream buffers
+for use just after an L1 cache.
+
+%Q morano97challenges
+%T Challenges for Processor Designers
+%A Maurice A. Wilkes
+%J IEEE Computer
+%I IEEE
+%V 30
+%N 2
+%D February 1997
+%P 10
+
+%Q morano96differential
+%T A Case for Direct-Mapped Caches
+%A M. D. Hill
+%J IEEE Computer
+%D December 1988
+
+%T Two Fast and High-Associativity Cache Schemes
+%A Chenxi Zhang
+%A Xiaodong Zhang 
+%A Yong Yan 
+%J IEEE Micro
+%V 17
+%N 5
+%D Sep/Oct 1997
+
+%T Selective Victim Caching : A Method to Improve
+the Performance of Direct-Mapped Caches
+%A Dimitrios Stiliadis 
+%A Anujan Varma
+%J IEEE Transactions on Computers 
+%V 46
+%N 5
+%D May 1997
+
+%T Cache Memories 
+%A Alan J. Smith 
+%J Computing Surveys 
+%D Sep 1982
+%P 473-530
+
+%T Sequential Program Prefetching in Memory Hierarchies
+%A Alan J. Smith
+%J IEEE Computer
+%D December 1978 
+%P 7-21
+
+%T Prefetching in the HP PA-RISC Family
+%A Steven VanderWiel
+%A David J. Lilja
+%A Wei Hsu
+%J IEEE Transactions on Computers 
+%D May 1995
+%P 609-623
+
+%T When Caches Aren't Enough: Data Prefetching Techniques
+%A Steven VanderWiel 
+%A David J. Lilja
+%J IEEE Computer
+%V 30
+%N 7
+%D July 1997
+%P 23-30
+
+%T Multilevel Optimization of Pipelined Caches
+%A Kunle Olukotun
+%A Trevor N. Mudge
+%A Richard B. Brown
+%J IEEE Transactions on Computers
+%V 46
+%N 10
+%D October 1997
+%P 1093-1101
+
+%T Decoupled Sectored Caches
+%A Andre Seznec
+%J IEEE Transactions on Computers
+%V 46
+%N 2
+%D February 1997
+%P 210-215
+
+%T Exploiting Basic Block Value Locality with Block Reuse
+%A Jian Huang
+%A David J. Lilja
+%J HPCA Proceedings, 5th Symposium
+%I IEEE Computer Society Press
+%D January 9, 1999
+%B 0-7695-004_8/99
+
+%T Computer Architecture, A Quantitative Approach, 2nd Edition
+%A John Hennessy
+%A David Patterson
+%I Morgan Kaufmann Publishers, Inc.
+%C San Francisco, CA
+%D 1996
+%YY 1996
+%B 1-55860-329-8
+%R QA 76.9.A73P377
+
+%T Processor Architecture
+%A Jurij Silc
+%A Borut Robic
+%A Theo Ungerer
+%I Springer
+%K computer processor micro-architecture
+%X new with Uht's DEE work included
+
+%T Superscalar Microprocessor Design
+%A Mike Johnson
+
+%T Instruction-Level Parallel Processors
+%A H.C. Torng
+%A Stamatis Vassiliadis
+%I IEEE Computer Society press
+%C Los Alamitos, CA
+%D 1995
+%YY 1995
+%K ILP instruction level parallelism
+%X this is THE book on ILP
+%B 0-8186-6527-0
+%R QA 76.58 T67
+%X IEEE Catalog Number EH0398-8
+
+
+

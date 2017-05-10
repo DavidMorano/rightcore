@@ -1,0 +1,38 @@
+RANDOMD
+
+
+*not finished* (by a long shot)
+
+
+We want something in the configuration file like:
+
+
+devicefile	/dev/random
+
+listen		inet:tcp	:5143
+listen		unix:stream	%R/spool/randomd/unix_cl
+listen		unix:dgram	%R/spool/randomd/unix_cl
+listen		local:f		%R/spool/randomd/local_f
+listen		local:p		%R/spool/randomd/local_p
+
+listen		wormhole	%R/spool/randomd/w
+
+
+listen	tcp	rca:listen
+listen	tcp	rca-tel:listen
+listen	tcp	:listen
+listen	tcp	:5108
+
+listen	tcp		\x00020ACEC0A800010000000000000000
+listen	ticotsord	\x00012F746D702F756E69780000000000
+
+listen	uss	%R/spool/randomd/stream
+listen	usd	%R/spool/randomd/dgram
+listen	pipe	%R/spool/randomd/pipe
+listen	fifo	%R/spool/randomd/fifo
+listen	msg	%R/spool/randomd/msg
+
+
+
+
+

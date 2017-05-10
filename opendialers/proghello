@@ -1,0 +1,6 @@
+#!/usr/extra/bin/ksh
+# PROGHELLO
+
+
+print -- "hello world!"
+

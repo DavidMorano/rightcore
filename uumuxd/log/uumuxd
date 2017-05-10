@@ -1,0 +1,1380 @@
+23378          990727_2241:21 tcpmuxd.x      0/SYSV
+23378          os=SYSV
+23378          rca!dam (David A. Morano)
+23378          990727_2241:21 srvtab=srvtab
+23465          990727_2246:19 tcpmuxd.x      0/SYSV
+23465          os=SYSV
+23465          rca!dam (David A. Morano)
+23465          srvtab=srvtab
+23466          990727_2246:24 tcpmuxd.x      0/SYSV
+23466          os=SYSV
+23466          rca!dam (David A. Morano)
+23466          srvtab=srvtab
+23509          990727_2247:33 tcpmuxd.x      0/SYSV
+23509          os=SYSV
+23509          rca!dam (David A. Morano)
+23509          srvtab=srvtab
+23591          990727_2254:18 tcpmuxd.x      0/SYSV
+23591          os=SYSV
+23591          rca!dam (David A. Morano)
+23591          srvtab=srvtab
+23631          990727_2257:16 tcpmuxd.x      0/SYSV
+23631          os=SYSV
+23631          rca!dam (David A. Morano)
+23631          srvtab=srvtab
+23631          cannot execute service daemon
+23631          program=echoargs
+23820          990727_2311:07 tcpmuxd.x      0/SYSV
+23820          os=SYSV
+23820          rca!dam (David A. Morano)
+23820          srvtab=srvtab
+23820          cannot execute service daemon
+23820          program=echoargs
+23865          990727_2316:28 tcpmuxd.x      0/SYSV
+23865          os=SYSV
+23865          rca!dam (David A. Morano)
+23865          srvtab=srvtab
+23865          cannot execute service daemon
+23865          program=echoargs
+23912          990727_2317:52 tcpmuxd.x      0/SYSV
+23912          os=SYSV
+23912          rca!dam (David A. Morano)
+23912          srvtab=srvtab
+23913          990727_2318:09 tcpmuxd.x      0/SYSV
+23913          os=SYSV
+23913          rca!dam (David A. Morano)
+23913          srvtab=srvtab
+24000          990727_2321:52 tcpmuxd.x      0/SYSV
+24000          os=SYSV
+24000          rca!dam (David A. Morano)
+24000          srvtab=srvtab
+24382          990727_2345:39 tcpmuxd.x      0/SYSV
+24382          os=SYSV
+24382          rca!dam (David A. Morano)
+24382          srvtab=srvtab
+24402          990727_2346:17 tcpmuxd.x      0/SYSV
+24402          os=SYSV
+24402          rca!dam (David A. Morano)
+24402          srvtab=srvtab
+24479          990727_2350:07 tcpmuxd.x      0/SYSV
+24479          os=SYSV
+24479          rca!dam (David A. Morano)
+24479          srvtab=srvtab
+24511          990727_2356:34 tcpmuxd.x      0/SYSV
+24511          os=SYSV
+24511          rca!dam (David A. Morano)
+24511          srvtab=srvtab
+24537          990727_2357:02 tcpmuxd.x      0/SYSV
+24537          os=SYSV
+24537          rca!dam (David A. Morano)
+24537          srvtab=srvtab
+24612          990728_0001:50 tcpmuxd.x      0/SYSV
+24612          os=SYSV
+24612          rca!dam (David A. Morano)
+24612          srvtab=srvtab
+24646          990728_0005:15 tcpmuxd.x      0/SYSV
+24646          os=SYSV
+24646          rca!dam (David A. Morano)
+24646          srvtab=srvtab
+24646.0        server did not 'exec'
+24659          990728_0006:57 tcpmuxd.x      0/SYSV
+24659          os=SYSV
+24659          rca!dam (David A. Morano)
+24659          srvtab=srvtab
+24659.0        990728_0007:03 server exit, es=0
+24669          990728_0007:34 tcpmuxd.x      0/SYSV
+24669          os=SYSV
+24669          rca!dam (David A. Morano)
+24669          srvtab=srvtab
+24669.0        990728_0007:36 server exit, es=0
+24677          990728_0007:38 tcpmuxd.x      0/SYSV
+24677          os=SYSV
+24677          rca!dam (David A. Morano)
+24677          srvtab=srvtab
+24677.0        990728_0007:40 server exit, es=0
+24727          990728_0010:52 TCPMUX Daemon (TCPMUXD) started
+24727          tcpmuxd.x      0/SYSV
+24727          os=SYSV
+24727          rca!dam (David A. Morano)
+24727          configfile=/usr/add-on/pcs/rexecd.pid
+24727          daemon listening on TCP port 3000
+24727          backgrounded pid=24727
+24727          pidfile=/usr/add-on/pcs/rexecd.pid
+24727          PID mutex captured
+24727          pidfile device=8388614 inode=2140877
+24727          srvtab=srvtab
+24727          990728_0010:52 finished initializing
+24727.0        990728_0016:39 request pid=24727
+24727          unknown PID=24798
+24727.0        990728_0018:25 request pid=24727
+24727          unknown PID=24838
+24727          990728_0047:30 daemon exiting
+25140          990728_0047:45 TCPMUX Daemon (TCPMUXD) started
+25140          tcpmuxd.x      0/SYSV
+25140          os=SYSV
+25140          rca!dam (David A. Morano)
+25140          configfile=etc/tcpmuxd.conf
+25140          daemon listening on TCP port 5108
+25140          backgrounded pid=25140
+25140          pidfile=tcpmuxd.pid
+25140          PID mutex captured
+25140          pidfile device=8388614 inode=2444104
+25140          srvtab=srvtab
+25140          990728_0047:45 finished initializing
+25140.0        990728_0054:41 request pid=25140
+25140          unknown PID=25214
+25140          990728_0059:31 daemon exiting
+25326          990728_0059:46 TCPMUX Daemon (TCPMUXD) started
+25326          tcpmuxd.x      0/SYSV
+25326          os=SYSV
+25326          rca!dam (David A. Morano)
+25326          configfile=etc/tcpmuxd.conf
+25326          daemon listening on TCP port 5108
+25326          backgrounded pid=25326
+25326          pidfile=tcpmuxd.pid
+25326          PID mutex captured
+25326          pidfile device=8388614 inode=2444104
+25326          srvtab=srvtab
+25326          990728_0059:46 finished initializing
+25326          990728_0059:50 request pid=25328
+25326          unknown PID=25328
+25326          990728_0100:28 daemon exiting
+25391          990728_0102:28 TCPMUX Daemon (TCPMUXD) started
+25391          tcpmuxd.x      0/SYSV
+25391          os=SYSV
+25391          rca!dam (David A. Morano)
+25425          990728_0104:29 TCPMUX Daemon (TCPMUXD) started
+25425          tcpmuxd.x      0/SYSV
+25425          os=SYSV
+25425          rca!dam (David A. Morano)
+25425          configfile=etc/tcpmuxd.conf
+25425          daemon listening on TCP port 5108
+25425          backgrounded pid=25425
+25425          pidfile=tcpmuxd.pid
+25425          PID mutex captured
+25425          pidfile device=8388614 inode=2444104
+25425          srvtab=srvtab
+25425          990728_0104:29 finished initializing
+25425          990728_0104:42 request pid=25430
+25425.0        990728_0104:44 server exit, es=0
+25425          990728_0107:54 daemon exiting
+25536          990728_0112:06 TCPMUX Daemon (TCPMUXD) started
+25536          tcpmuxd.x      0/SYSV
+25536          os=SYSV
+25536          rca!dam (David A. Morano)
+25536          configfile=etc/tcpmuxd.conf
+25536          daemon listening on TCP port 5108
+25536          backgrounded pid=25536
+25536          pidfile=tcpmuxd.pid
+25536          PID mutex captured
+25536          pidfile device=8388614 inode=2444104
+25536          srvtab=srvtab
+25536          990728_0112:06 finished initializing
+25536          990728_0112:15 request pid=25541
+25536          service=help
+25536.0        990728_0112:17 server exit, es=0
+25536          990728_0112:18 request pid=25543
+25536          service=echoargs
+25536.0        990728_0112:24 server exit, es=0
+25536          990728_0112:47 daemon exiting
+25600          990728_0114:28 TCPMUX Daemon (TCPMUXD) started
+25600          tcpmuxd.x      0/SYSV
+25600          os=SYSV
+25600          rca!dam (David A. Morano)
+25609          990728_0115:26 TCPMUX Daemon (TCPMUXD) started
+25609          tcpmuxd.x      0/SYSV
+25609          os=SYSV
+25609          rca!dam (David A. Morano)
+25626          990728_0116:39 TCPMUX Daemon (TCPMUXD) started
+25626          tcpmuxd.x      0/SYSV
+25626          os=SYSV
+25626          rca!dam (David A. Morano)
+25626          configfile=etc/tcpmuxd.conf
+25626          daemon listening on TCP port 5108
+25626          backgrounded pid=25626
+25626          pidfile=tcpmuxd.pid
+25626          PID mutex captured
+25626          pidfile device=8388614 inode=2444104
+25626          srvtab=srvtab
+25626          990728_0116:39 finished initializing
+25626.0        990728_0117:03 request pid=25652
+25626.0        service=help
+25626.0        990728_0117:05 server exit, es=0
+25626.0        990728_0117:06 request pid=25654
+25626.0        service=echoargs
+25626.0        990728_0117:10 server exit, es=0
+25626          990728_0121:32 daemon exiting
+25738          990728_0122:22 TCPMUX Daemon (TCPMUXD) started
+25738          tcpmuxd.x      0/SYSV
+25738          os=SYSV
+25738          rca!dam (David A. Morano)
+25738          configfile=etc/tcpmuxd.conf
+25738          daemon listening on TCP port 5108
+25738          backgrounded pid=25738
+25738          pidfile=tcpmuxd.pid
+25738          PID mutex captured
+25738          pidfile device=8388614 inode=2444104
+25738          srvtab=srvtab
+25738          990728_0122:23 finished initializing
+25738.0        990728_0122:30 request pid=25741
+25738.0        service=help
+25738.0        990728_0122:32 server exit, es=0
+25738.1        990728_0122:33 request pid=25743
+25738.1        service=echoargs
+25738.1        990728_0122:37 server exit, es=0
+25738          990728_0130:46 daemon exiting
+25867          990728_0132:30 TCPMUX Daemon (TCPMUXD) started
+25867          tcpmuxd.x      0/SYSV
+25867          os=SYSV
+25867          rca!dam (David A. Morano)
+25867          configfile=etc/tcpmuxd.conf
+25867          daemon listening on TCP port 5108
+25867          backgrounded pid=25867
+25867          pidfile=tcpmuxd.pid
+25867          PID mutex captured
+25867          pidfile device=8388614 inode=2444104
+25867          srvtab=srvtab
+25867          990728_0132:30 finished initializing
+25867.0        990728_0132:37 request pid=25870
+25867.0        service=HELP
+25867.0        990728_0132:39 starting server=HELP
+25867.0        990728_0132:40 server exit, es=0
+25867.1        990728_0132:45 request pid=25872
+25867.1        service=echoargs
+25867.1        990728_0132:48 starting server=echoargs
+25867.1        990728_0132:49 server exit, es=0
+25867          990728_0140:21 daemon exiting
+25970          990728_0140:31 TCPMUX Daemon (TCPMUXD) started
+25970          tcpmuxd.x      0/SYSV
+25970          os=SYSV
+25970          rca!dam (David A. Morano)
+25970          configfile=etc/tcpmuxd.conf
+25970          daemon listening on TCP port 5108
+25970          backgrounded pid=25970
+25970          pidfile=tcpmuxd.pid
+25970          PID mutex captured
+25970          pidfile device=8388614 inode=2444104
+25970          srvtab=srvtab
+25970          990728_0140:31 finished initializing
+25970.0        990728_0140:34 request pid=25972
+25970.0        service=help
+25970.0        990728_0140:36 starting server=help
+25970.0        990728_0140:37 server exit, es=0
+25970.1        990728_0140:38 request pid=25974
+25970.1        service=echoargs
+25970.1        990728_0140:40 starting server=echoargs
+25970.1        990728_0140:41 server exit, es=0
+25970.2        990728_0140:51 request pid=25983
+25970.2        service=HeLp
+25970.2        990728_0140:56 starting server=help
+25970.2        990728_0140:56 server exit, es=0
+25970          990728_0207:49 daemon exiting
+26217          990728_0208:05 TCPMUX Daemon (TCPMUXD) started
+26217          tcpmuxd.x      0/SYSV
+26217          os=SYSV
+26217          rca!dam (David A. Morano)
+26217          configfile=etc/tcpmuxd.conf
+26217          daemon listening on TCP port 5108
+26217          backgrounded pid=26217
+26217          pidfile=tcpmuxd.pid
+26217          PID mutex captured
+26217          pidfile device=8388614 inode=2444104
+26217          srvtab=srvtab
+26217          990728_0208:05 finished initializing
+26217.0        990728_0208:14 request pid=26220
+26217.0        service=help
+26217.0        990728_0208:16 starting server=help
+26217.0        990728_0208:16 server exit, es=0
+26217.1        990728_0208:17 request pid=26224
+26217.1        service=HeLP
+26217.1        990728_0208:20 starting server=help
+26217.1        990728_0208:20 server exit, es=0
+26217.2        990728_0208:22 request pid=26226
+26217.2        service=env
+26217.2        990728_0208:24 starting server=env
+26217.2        990728_0208:24 server exit, es=0
+26217.3        990728_0209:29 request pid=26236
+26217.3        service=env
+26217.3        990728_0209:31 starting server=env
+26217.3        990728_0209:31 server exit, es=0
+26217          990728_0223:58 daemon exiting
+26422          990728_0224:26 TCPMUX Daemon (TCPMUXD) started
+26422          tcpmuxd.x      0/SYSV
+26422          os=SYSV
+26422          rca!dam (David A. Morano)
+26422          configfile=etc/tcpmuxd.conf
+26422          daemon listening on TCP port 5108
+26422          backgrounded pid=26422
+26422          pidfile=tcpmuxd.pid
+26422          PID mutex captured
+26422          pidfile device=8388614 inode=2444104
+26422          srvtab=srvtab
+26422          990728_0224:26 finished initializing
+26422.0        990728_0224:34 request pid=26425
+26422.0        service=env
+26422.0        990728_0224:36 starting server=env
+26422.0        990728_0224:36 server exit, es=0
+26422.1        990728_0225:46 request pid=26434
+26422.1        service=env
+26422.1        990728_0225:47 starting server=env
+26422.1        990728_0225:48 server exit, es=0
+26422.2        990728_0226:08 request pid=26441
+26422.2        service=help
+26422.2        990728_0226:11 starting server=help
+26422.2        990728_0226:11 server exit, es=0
+26422.3        990728_0226:16 request pid=26444
+26422.3        service=hElP
+26422.3        990728_0226:20 starting server=help
+26422.3        990728_0226:20 server exit, es=0
+26422          990728_0245:48 daemon exiting
+26749          990728_0247:59 TCPMUX Daemon (TCPMUXD) started
+26749          tcpmuxd.x      0/SYSV
+26749          os=SYSV
+26749          rca!dam (David A. Morano)
+26749          configfile=etc/tcpmuxd.conf
+26749          daemon listening on TCP port 5108
+26749          backgrounded pid=26749
+26749          pidfile=tcpmuxd.pid
+26749          PID mutex captured
+26749          pidfile device=8388614 inode=2444104
+26749          srvtab=srvtab
+26749          990728_0247:59 finished initializing
+26749.0        990728_0248:19 request pid=26755
+26749.0        service=HeLp
+26749.0        990728_0248:23 starting server=help
+26749.0        990728_0248:23 server exit, es=0
+26749.1        990728_0248:24 request pid=26757
+26749.1        service=echoargs
+26749.1        990728_0248:27 starting server=echoargs
+26749.1        990728_0248:27 server exit, es=0
+26749.2        990728_0248:29 request pid=26765
+26749.2        service=env
+26749.2        990728_0248:30 starting server=env
+26749.2        990728_0248:31 server exit, es=0
+26749.3        990728_0248:32 request pid=26767
+26749.3        service=daytime
+26749.3        990728_0248:34 starting server=daytime
+26749.3        990728_0248:34 server exit, es=139
+26749          990728_0249:53 daemon exiting
+26817          990728_0250:02 TCPMUX Daemon (TCPMUXD) started
+26817          tcpmuxd.x      0/SYSV
+26817          os=SYSV
+26817          rca!dam (David A. Morano)
+26982          990728_0301:47 TCPMUX Daemon (TCPMUXD) started
+26982          tcpmuxd.x      0/SYSV
+26982          os=SYSV
+26982          rca!dam (David A. Morano)
+26982          configfile=etc/tcpmuxd.conf
+26982          daemon listening on TCP port 5108
+26982          backgrounded pid=26982
+26982          pidfile=tcpmuxd.pid
+26982          PID mutex captured
+26982          pidfile device=8388614 inode=2444104
+26982          srvtab=srvtab
+26982          990728_0301:47 finished initializing
+26982.0        990728_0301:59 request pid=26985
+26982.0        service=HelP
+26982.0        990728_0302:02 starting server=help
+26982.0        990728_0302:02 server exit, es=0
+26982.1        990728_0302:03 request pid=26987
+26982.1        service=rnv
+26982.1        server did not 'exec'
+26982.2        990728_0302:08 request pid=26991
+26982.2        service=env
+26982.2        990728_0302:10 starting server=env
+26982.2        990728_0302:11 server exit, es=0
+26982.3        990728_0302:12 request pid=26993
+26982.3        service=daytime
+26982.3        990728_0302:16 starting server=daytime
+26982.3        990728_0302:17 server exit, es=139
+26982          990728_0305:21 daemon exiting
+27125          990728_0311:45 TCPMUX Daemon (TCPMUXD) started
+27125          tcpmuxd.x      0/SYSV
+27125          os=SYSV
+27125          rca!dam (David A. Morano)
+27125          configfile=etc/tcpmuxd.conf
+27125          daemon listening on TCP port 5108
+27125          backgrounded pid=27125
+27125          pidfile=tcpmuxd.pid
+27125          PID mutex captured
+27125          pidfile device=8388614 inode=2444104
+27125          srvtab=srvtab
+27125          990728_0311:45 finished initializing
+27125.0        990728_0311:51 request pid=27130
+27125.0        service=help
+27125.0        990728_0311:53 starting server=help
+27125.0        990728_0311:53 server exit, es=0
+27125.1        990728_0312:02 request pid=27133
+27125.1        service=env
+27125.1        990728_0312:04 starting server=env
+27125.1        990728_0312:04 server exit, es=0
+27125.2        990728_0312:06 request pid=27135
+27125.2        service=daytime
+27125.2        990728_0312:09 starting server=daytime
+27125.2        990728_0312:10 server exit, es=139
+27125          990728_0312:44 daemon exiting
+27188          990728_0316:25 TCPMUX Daemon (TCPMUXD) started
+27188          tcpmuxd.x      0/SYSV
+27188          os=SYSV
+27188          rca!dam (David A. Morano)
+27188          configfile=etc/tcpmuxd.conf
+27188          daemon listening on TCP port 5108
+27188          backgrounded pid=27188
+27188          pidfile=tcpmuxd.pid
+27188          PID mutex captured
+27188          pidfile device=8388614 inode=2444104
+27188          srvtab=srvtab
+27188          990728_0316:26 finished initializing
+27188.0        990728_0316:31 request pid=27191
+27188.0        service=help
+27188.0        990728_0316:33 starting server=help
+27188.0        990728_0316:33 server exit, es=0
+27188.1        990728_0316:35 request pid=27193
+27188.1        service=daytime
+27188.1        990728_0316:37 starting server=daytime
+27188.1        990728_0316:38 server exit, es=139
+27188          990728_0316:52 daemon exiting
+27348          990728_0320:51 TCPMUX Daemon (TCPMUXD) started
+27348          tcpmuxd.x      0/SYSV
+27348          os=SYSV
+27348          rca!dam (David A. Morano)
+27348          configfile=etc/tcpmuxd.conf
+27348          daemon listening on TCP port 5108
+27348          backgrounded pid=27348
+27348          pidfile=tcpmuxd.pid
+27348          PID mutex captured
+27348          pidfile device=8388614 inode=2444104
+27348          srvtab=srvtab
+27348          990728_0320:51 finished initializing
+27348.0        990728_0321:01 request pid=27352
+27348.0        service=env
+27348.0        990728_0321:02 starting server=env
+27348.0        990728_0321:03 server exit, es=0
+27348.1        990728_0321:04 request pid=27356
+27348.1        service=help
+27348.1        990728_0321:06 starting server=help
+27348.1        990728_0321:06 server exit, es=0
+27348.2        990728_0321:07 request pid=27358
+27348.2        service=daytime
+27348.2        990728_0321:10 starting server=daytime
+27348.2        990728_0321:10 server exit, es=139
+27348          990728_0321:22 daemon exiting
+27484          990728_0328:25 TCPMUX Daemon (TCPMUXD) started
+27484          tcpmuxd.x      0/SYSV
+27484          os=SYSV
+27484          rca!dam (David A. Morano)
+27484          configfile=etc/tcpmuxd.conf
+27484          daemon listening on TCP port 5108
+27484          backgrounded pid=27484
+27484          pidfile=tcpmuxd.pid
+27484          PID mutex captured
+27484          pidfile device=8388614 inode=2444104
+27484          srvtab=srvtab
+27484          990728_0328:25 finished initializing
+27484.0        990728_0328:30 request pid=27487
+27484.0        service=env
+27484.0        990728_0328:31 starting server=env
+27484.0        990728_0328:31 server exit, es=0
+27484.1        990728_0328:33 request pid=27489
+27484.1        service=daytime
+27484.1        990728_0328:35 starting server=daytime
+27484.1        990728_0328:36 server exit, es=0
+27484          990728_0329:21 daemon exiting
+27533          990728_0331:55 TCPMUX Daemon (TCPMUXD) started
+27533          tcpmuxd.x      0/SYSV
+27533          os=SYSV
+27533          rca!dam (David A. Morano)
+27569          990728_0334:04 TCPMUX Daemon (TCPMUXD) started
+27569          tcpmuxd.x      0/SYSV
+27569          os=SYSV
+27569          rca!dam (David A. Morano)
+27569          configfile=etc/tcpmuxd.conf
+27569          daemon listening on TCP port 5108
+27569          backgrounded pid=27569
+27569          pidfile=tcpmuxd.pid
+27569          PID mutex captured
+27569          pidfile device=8388614 inode=2444104
+27569          srvtab=srvtab
+27569          990728_0334:04 finished initializing
+27569.0        990728_0334:13 request pid=27575
+27569.0        service=env
+27569.0        990728_0334:15 starting server=env
+27569.0        990728_0334:15 server exit, es=0
+27569.1        990728_0334:16 request pid=27577
+27569.1        service=help
+27569.1        990728_0334:19 starting server=help
+27569.1        990728_0334:19 server exit, es=0
+27569.2        990728_0334:23 request pid=27580
+27569.2        service=daytime
+27569.2        990728_0334:25 starting server=daytime
+27569.2        990728_0334:25 server exit, es=0
+27569          990728_0334:52 daemon exiting
+27691          990728_0338:32 TCPMUX Daemon (TCPMUXD) started
+27691          tcpmuxd.x      0/SYSV
+27691          os=SYSV
+27691          rca!dam (David A. Morano)
+27691          configfile=etc/tcpmuxd.conf
+27691          daemon listening on TCP port 5108
+27691          backgrounded pid=27691
+27691          pidfile=tcpmuxd.pid
+27691          PID mutex captured
+27691          pidfile device=8388614 inode=2444104
+27691          srvtab=srvtab
+27691          990728_0338:32 finished initializing
+27691.0        990728_0338:47 request pid=27698
+27691.0        service=daytime
+27691.0        990728_0338:49 starting server=daytime
+27691.0        990728_0338:49 server exit, es=0
+27691          990728_0339:22 daemon exiting
+27755          990728_0343:20 TCPMUX Daemon (TCPMUXD) started
+27755          tcpmuxd.x      0/SYSV
+27755          os=SYSV
+27755          rca!dam (David A. Morano)
+27755          configfile=etc/tcpmuxd.conf
+27755          daemon listening on TCP port 5108
+27755          backgrounded pid=27755
+27755          pidfile=tcpmuxd.pid
+27755          PID mutex captured
+27755          pidfile device=8388614 inode=2444104
+27755          srvtab=srvtab
+27755          990728_0343:20 finished initializing
+27755.0        990728_0343:30 request pid=27760
+27755.0        service=env
+27755.0        990728_0343:32 starting server=env
+27755.0        990728_0343:33 server exit, es=0
+27755.1        990728_0343:33 request pid=27762
+27755.1        service=daytime
+27755.1        990728_0343:35 starting server=daytime
+27755.1        990728_0343:35 server exit, es=0
+27755.2        990728_0344:08 request pid=27766
+27755.2        service=hElP
+27755.2        990728_0344:14 starting server=help
+27755.2        990728_0344:15 server exit, es=0
+27755.3        990728_0351:50 request pid=27867
+27755.3        service=daytime
+27755.3        990728_0351:52 starting server=daytime
+27755.3        990728_0351:53 server exit, es=0
+27755.4        990728_0351:55 request pid=27869
+27755.4        service=help
+27755.4        990728_0351:56 starting server=help
+27755.4        990728_0351:57 server exit, es=0
+27755.5        990728_1007:10 request pid=1278
+27755.5        service=DayTiMe
+27755.5        990728_1007:19 starting server=daytime
+27755.5        990728_1007:20 server exit, es=0
+27755.6        990728_1007:22 request pid=1280
+27755.6        service=HeLp
+27755.6        990728_1007:27 starting server=help
+27755.6        990728_1007:27 server exit, es=0
+27755.7        990728_1007:28 request pid=1282
+27755.7        service=echoargs
+27755.7        990728_1007:30 starting server=echoargs
+27755.7        990728_1007:31 server exit, es=0
+27755.8        990728_1007:32 request pid=1295
+27755.8        service=env
+27755.8        990728_1007:33 starting server=env
+27755.8        990728_1007:34 server exit, es=0
+27755.9        990728_1007:55 request pid=1302
+27755.9        service=DayTime
+27755.9        990728_1008:18 starting server=daytime
+27755.9        990728_1008:18 server exit, es=0
+27755.10       990728_1916:00 request pid=8859
+27755.10       service=DaYtIme
+27755.10       990728_1916:07 starting server=daytime
+27755.10       990728_1916:07 server exit, es=0
+27755.11       990728_1916:10 request pid=8861
+27755.11       service=help
+27755.11       990728_1916:12 starting server=help
+27755.11       990728_1916:13 server exit, es=0
+27755.12       990728_1916:15 request pid=8865
+27755.12       service=env
+27755.12       990728_1916:16 starting server=env
+27755.12       990728_1916:17 server exit, es=0
+27755.13       990728_1916:18 request pid=8867
+27755.13       service=echoargs
+27755.13       990728_1916:20 starting server=echoargs
+27755.13       990728_1916:21 server exit, es=0
+27755          990728_1946:53 daemon exiting
+22479          990728_1949:43 TCPMUX Daemon (TCPMUXD) started
+22479          tcpmuxd.x      0/SYSV
+22479          os=SYSV
+22479          rca!dam (David A. Morano)
+22479          configfile=etc/tcpmuxd.conf
+22479          daemon listening on TCP port 5108
+22479          backgrounded pid=22479
+22479          pidfile=tcpmuxd.pid
+22479          PID mutex captured
+22479          pidfile device=8388614 inode=2444104
+22479          srvtab=srvtab
+22479          990728_1949:43 finished initializing
+22479.0        990728_1949:50 request pid=22482
+22479.0        service=help
+22479.0        990728_1949:52 starting server=help
+22479.0        990728_1949:52 server exit, es=0
+22479.1        990728_1949:58 request pid=22487
+22479.1        service=dAytime
+22479.1        990728_1950:02 starting server=daytime
+22479.1        990728_1950:02 server exit, es=0
+22479.2        990728_1951:33 request pid=22519
+22479.2        service=echoargs
+22479.2        990728_1951:40 starting server=echoargs
+22479.2        990728_1951:40 server exit, es=0
+22479          990728_1956:52 daemon exiting
+22569          990728_1957:01 TCPMUX Daemon (TCPMUXD) started
+22569          tcpmuxd.x      0/SYSV
+22569          os=SYSV
+22569          rca!dam (David A. Morano)
+22569          configfile=etc/tcpmuxd.conf
+22569          daemon listening on TCP port 5108
+22569          backgrounded pid=22569
+22569          pidfile=tcpmuxd.pid
+22569          PID mutex captured
+22569          pidfile device=8388614 inode=2444104
+22569          srvtab=srvtab
+22569          990728_1957:01 finished initializing
+22569.0        990728_1957:10 request pid=22574
+22569.0        service=daytime
+22569.0        990728_1957:12 starting server=daytime
+22569.0        990728_1957:12 server exit, es=0
+22569.1        990728_1957:14 request pid=22576
+22569.1        service=echoargs
+22569.1        990728_1957:22 starting server=echoargs
+22569.1        990728_1957:22 server exit, es=0
+22569          990728_2000:16 daemon exiting
+27422          990728_2000:30 TCPMUX Daemon (TCPMUXD) started
+27422          tcpmuxd.x      0/SYSV
+27422          os=SYSV
+27422          rca!dam (David A. Morano)
+27422          configfile=etc/tcpmuxd.conf
+27422          daemon listening on TCP port 5108
+27422          backgrounded pid=27422
+27422          pidfile=tcpmuxd.pid
+27422          PID mutex captured
+27422          pidfile device=8388614 inode=2444104
+27422          srvtab=srvtab
+27422          990728_2000:31 finished initializing
+27422.0        990728_2000:38 request pid=27425
+27422.0        service=echo
+27422.0        990728_2000:41 server exit, es=0
+27422.1        990728_2000:43 request pid=27427
+27422.1        service=echostuff
+27422.1        990728_2000:45 starting server=echo
+27422.1        990728_2000:45 server exit, es=0
+27422.2        990728_2000:47 request pid=27429
+27422.2        service=echoargs
+27422.2        990728_2000:56 starting server=echoargs
+27422.2        990728_2000:56 server exit, es=0
+27422          990728_2002:00 daemon exiting
+27457          990728_2002:06 TCPMUX Daemon (TCPMUXD) started
+27457          tcpmuxd.x      0/SYSV
+27457          os=SYSV
+27457          rca!dam (David A. Morano)
+27457          configfile=etc/tcpmuxd.conf
+27457          daemon listening on TCP port 5108
+27457          backgrounded pid=27457
+27457          pidfile=tcpmuxd.pid
+27457          PID mutex captured
+27457          pidfile device=8388614 inode=2444104
+27457          srvtab=srvtab
+27457          990728_2002:06 finished initializing
+27457.0        990728_2002:11 request pid=27460
+27457.0        service=echostuff
+27457.0        990728_2002:14 starting server=echo
+27457.0        990728_2002:15 server exit, es=0
+27457.1        990728_2002:16 request pid=27462
+27457.1        service=echoargs
+27457.1        990728_2002:24 starting server=echoargs
+27457.1        990728_2002:24 server exit, es=0
+27457.2        990728_2002:28 request pid=27470
+27457.2        service=echoargs
+27457.2        990728_2007:04 server exit, es=9
+27457          990728_2015:36 daemon exiting
+9009           990728_2015:46 TCPMUX Daemon (TCPMUXD) started
+9009           tcpmuxd.x      0/SYSV
+9009           os=SYSV
+9009           rca!dam (David A. Morano)
+9009           configfile=etc/tcpmuxd.conf
+9009           daemon listening on TCP port 5108
+9009           backgrounded pid=9009
+9009           pidfile=tcpmuxd.pid
+9009           PID mutex captured
+9009           pidfile device=8388614 inode=2444104
+9009           srvtab=srvtab
+9009           990728_2015:46 finished initializing
+9009.0         990728_2015:53 request pid=9012
+9009.0         service=daytime
+9009.0         990728_2015:56 starting server=daytime
+9009.0         990728_2015:56 server exit, es=0
+9009.1         990728_2015:57 request pid=9014
+9009.1         service=echoargs
+9009.1         990728_2016:45 server exit, es=9
+9085           990728_2020:37 TCPMUX Daemon (TCPMUXD) started
+9085           tcpmuxd.x      0/SYSV
+9085           os=SYSV
+9085           rca!dam (David A. Morano)
+9085           configfile=etc/tcpmuxd.conf
+9085           daemon listening on TCP port 5108
+9085           backgrounded pid=9085
+9085           pidfile=tcpmuxd.pid
+9085           PID mutex captured
+9085           pidfile device=8388614 inode=2444104
+9085           srvtab=srvtab
+9085           990728_2020:37 finished initializing
+9085.0         990728_2020:51 request pid=9089
+9085.0         service=daytime
+9085.0         990728_2020:52 starting server=daytime
+9085.0         990728_2020:53 server exit, es=0
+9085.1         990728_2020:53 request pid=9091
+9085.1         service=echoargs
+9336           990728_2053:32 TCPMUX Daemon (TCPMUXD) started
+9336           tcpmuxd.x      0/SYSV
+9336           os=SYSV
+9336           rca!dam (David A. Morano)
+9336           configfile=etc/tcpmuxd.conf
+9336           daemon listening on TCP port 5108
+9336           backgrounded pid=9336
+9336           pidfile=tcpmuxd.pid
+9336           PID mutex captured
+9336           pidfile device=8388614 inode=2444104
+9336           srvtab=srvtab
+9336           990728_2053:32 finished initializing
+9336.0         990728_2053:39 request pid=9339
+9336.0         no service
+9336.0         990728_2054:10 server exit, es=0
+9336           990728_2055:00 daemon exiting
+9371           990728_2056:28 TCPMUX Daemon (TCPMUXD) started
+9371           tcpmuxd.x      0/SYSV
+9371           os=SYSV
+9371           rca!dam (David A. Morano)
+9371           configfile=etc/tcpmuxd.conf
+9371           daemon listening on TCP port 5108
+9371           backgrounded pid=9371
+9371           pidfile=tcpmuxd.pid
+9371           PID mutex captured
+9371           pidfile device=8388614 inode=2444104
+9371           srvtab=srvtab
+9371           990728_2056:28 finished initializing
+9371.0         990728_2056:36 request pid=9374
+9371.0         service=echoargs
+9371.0         990728_2056:57 starting server=echoargs
+9371.0         990728_2056:57 server exit, es=0
+9371           990728_2059:03 daemon exiting
+9478           990728_2107:29 TCPMUX Daemon (TCPMUXD) started
+9478           tcpmuxd.x      0/SYSV
+9478           os=SYSV
+9478           rca!dam (David A. Morano)
+9478           configfile=etc/tcpmuxd.conf
+9478           daemon listening on TCP port 5108
+9478           backgrounded pid=9478
+9478           pidfile=tcpmuxd.pid
+9478           PID mutex captured
+9478           pidfile device=8388614 inode=2444104
+9478           srvtab=srvtab
+9478           990728_2107:29 finished initializing
+9478.0         990728_2107:35 request pid=9482
+9478.0         service=daytime
+9478.0         990728_2107:37 starting server=daytime
+9478.0         990728_2107:37 server exit, es=0
+9478.1         990728_2107:38 request pid=9484
+9478.1         service=heLP
+9478.1         990728_2107:43 starting server=help
+9478.1         990728_2107:43 server exit, es=0
+9478.2         990728_2107:44 request pid=9486
+9478.2         service=echoargs
+9478.2         990728_2108:17 starting server=echoargs
+9478.2         990728_2108:17 server exit, es=0
+9478           990728_2108:37 daemon exiting
+9747           990728_2113:54 TCPMUX Daemon (TCPMUXD) started
+9747           tcpmuxd.x      0/SYSV
+9747           os=SYSV
+9747           rca!dam (David A. Morano)
+9747           configfile=etc/tcpmuxd.conf
+9747           daemon listening on TCP port 5108
+9747           backgrounded pid=9747
+9747           pidfile=tcpmuxd.pid
+9747           PID mutex captured
+9747           pidfile device=8388614 inode=2444104
+9747           srvtab=srvtab
+9747           990728_2113:54 finished initializing
+9747.0         990728_2113:58 request pid=9749
+9747.0         service=daytime
+9747.0         990728_2113:59 starting server=daytime
+9747.0         990728_2114:00 server exit, es=0
+9747.1         990728_2114:00 request pid=9751
+9747.1         service=echoargs
+9747.1         990728_2114:38 server exit, es=9
+9747           990728_2114:51 daemon exiting
+9802           990728_2115:42 TCPMUX Daemon (TCPMUXD) started
+9802           tcpmuxd.x      0/SYSV
+9802           os=SYSV
+9802           rca!dam (David A. Morano)
+9802           configfile=etc/tcpmuxd.conf
+9802           daemon listening on TCP port 5108
+9802           backgrounded pid=9802
+9802           pidfile=tcpmuxd.pid
+9802           PID mutex captured
+9802           pidfile device=8388614 inode=2444104
+9802           srvtab=srvtab
+9802           990728_2115:42 finished initializing
+9802.0         990728_2115:50 request pid=9805
+9802.0         service=daytime
+9802.0         990728_2115:51 starting server=daytime
+9802.0         990728_2115:52 server exit, es=0
+9802.1         990728_2115:55 request pid=9807
+9802.1         service=echoargs
+9802.1         990728_2116:31 server exit, es=9
+9802           990728_2116:36 daemon exiting
+9821           990728_2116:52 TCPMUX Daemon (TCPMUXD) started
+9821           tcpmuxd.x      0/SYSV
+9821           os=SYSV
+9821           rca!dam (David A. Morano)
+9821           configfile=etc/tcpmuxd.conf
+9821           daemon listening on TCP port 5108
+9821           backgrounded pid=9821
+9821           pidfile=tcpmuxd.pid
+9821           PID mutex captured
+9821           pidfile device=8388614 inode=2444104
+9821           srvtab=srvtab
+9821           990728_2116:52 finished initializing
+9821.0         990728_2116:55 request pid=9823
+9821.0         service=daytime
+9821.0         990728_2116:56 starting server=daytime
+9821.0         990728_2116:57 server exit, es=0
+9821.1         990728_2117:00 request pid=9825
+9821.1         service=echoargs
+9821.1         990728_2117:19 starting server=echoargs
+9821.1         990728_2117:20 server exit, es=0
+9821           990728_2120:46 daemon exiting
+9893           990728_2120:52 TCPMUX Daemon (TCPMUXD) started
+9893           tcpmuxd.x      0/SYSV
+9893           os=SYSV
+9893           rca!dam (David A. Morano)
+9893           configfile=etc/tcpmuxd.conf
+9893           daemon listening on TCP port 5108
+9893           backgrounded pid=9893
+9893           pidfile=tcpmuxd.pid
+9893           PID mutex captured
+9893           pidfile device=8388614 inode=2444104
+9893           srvtab=srvtab
+9893           990728_2120:52 finished initializing
+9893.0         990728_2120:56 request pid=9896
+9893.0         service=daytime
+9893.0         990728_2120:58 starting server=daytime
+9893.0         990728_2120:58 server exit, es=0
+9893.1         990728_2120:59 request pid=9898
+9893.1         service=enum
+9893.1         cannot execute service daemon
+9893.1         program=enum
+9893.1         server did not 'exec'
+9893           990728_2123:56 daemon exiting
+9928           990728_2124:10 TCPMUX Daemon (TCPMUXD) started
+9928           tcpmuxd.x      0/SYSV
+9928           os=SYSV
+9928           rca!dam (David A. Morano)
+9928           configfile=etc/tcpmuxd.conf
+9928           daemon listening on TCP port 5108
+9928           backgrounded pid=9928
+9928           pidfile=tcpmuxd.pid
+9928           PID mutex captured
+9928           pidfile device=8388614 inode=2444104
+9928           srvtab=srvtab
+9928           990728_2124:10 finished initializing
+9928.0         990728_2124:16 request pid=9931
+9928.0         service=daytime
+9928.0         990728_2124:18 starting server=daytime
+9928.0         990728_2124:18 server exit, es=0
+9928.1         990728_2124:19 request pid=9933
+9928.1         service=enum
+9928.1         990728_2124:28 starting server=enum
+9928.1         990728_2124:28 server exit, es=0
+9928.2         990728_2128:04 request pid=10213
+9928.2         service=enum
+9928.2         990728_2128:10 starting server=enum
+9928.2         990728_2128:11 server exit, es=0
+11488          990728_2232:11 TCPMUX Daemon (TCPMUXD) started
+11488          tcpmuxd.x      0/SYSV
+11488          os=SYSV
+11488          rca!dam (David A. Morano)
+11488          configfile=etc/tcpmuxd.conf
+11488          daemon listening on TCP port 5108
+11488          backgrounded pid=11488
+11488          pidfile=tcpmuxd.pid
+11488          PID mutex captured
+11488          pidfile device=8388614 inode=2444104
+11488          srvtab=srvtab
+11488          990728_2232:12 finished initializing
+11488.0        990728_2232:18 request pid=11491
+11488.0        service=daytime
+11488.0        990728_2232:19 starting server=daytime
+11488.0        990728_2232:20 server exit, es=0
+11488.1        990728_2232:21 request pid=11493
+11488.1        service=enum
+11488.1        990728_2232:30 starting server=enum
+11488.1        990728_2232:30 server exit, es=0
+11488          990728_2232:40 daemon exiting
+11497          990728_2233:11 TCPMUX Daemon (TCPMUXD) started
+11497          tcpmuxd.x      0/SYSV
+11497          os=SYSV
+11497          rca!dam (David A. Morano)
+11497          configfile=etc/tcpmuxd.conf
+11497          daemon listening on TCP port 5108
+11497          backgrounded pid=11497
+11497          pidfile=tcpmuxd.pid
+11497          PID mutex captured
+11497          pidfile device=8388614 inode=2444104
+11497          srvtab=srvtab
+11497          990728_2233:11 finished initializing
+11497.0        990728_2233:24 request pid=11502
+11497.0        service=daytime
+11497.0        990728_2233:26 starting server=daytime
+11497.0        990728_2233:27 server exit, es=0
+11497.1        990728_2233:28 request pid=11504
+11497.1        service=enum
+11497.1        cannot execute service daemon
+11497.1        program=enum
+11497.1        server did not 'exec'
+11497          990728_2233:41 daemon exiting
+11626          990728_2253:13 TCPMUX Daemon (TCPMUXD) started
+11626          tcpmuxd.x      0/SYSV
+11626          os=SYSV
+11626          rca!dam (David A. Morano)
+11626          configfile=etc/tcpmuxd.conf
+11626          daemon listening on TCP port 5108
+11626          backgrounded pid=11626
+11626          pidfile=tcpmuxd.pid
+11626          PID mutex captured
+11626          pidfile device=8388614 inode=2444104
+11626          srvtab=srvtab
+11626          990728_2253:13 finished initializing
+11626.0        990728_2253:29 request pid=11630
+11626.0        service=daytime
+11626.0        990728_2253:30 starting server=daytime
+11626.0        990728_2253:31 server exit, es=0
+11626.1        990728_2253:31 request pid=11632
+11626.1        service=enum
+11626.1        990728_2253:36 starting server=enum
+11626.1        990728_2253:36 server exit, es=0
+11626.2        990728_2259:34 request pid=11710
+11626.2        service=echostuff
+11626.2        990728_2259:38 starting server=echo
+11626.2        990728_2259:39 server exit, es=0
+11626          990728_2308:44 daemon exiting
+11778          990728_2308:46 TCPMUX Daemon (TCPMUXD) started
+11778          tcpmuxd.x      0/SYSV
+11778          os=SYSV
+11778          rca!dam (David A. Morano)
+11778          configfile=etc/tcpmuxd.conf
+11778          daemon listening on TCP port 5108
+11778          backgrounded pid=11778
+11778          pidfile=tcpmuxd.pid
+11778          PID mutex captured
+11778          pidfile device=8388614 inode=2444104
+11778          srvtab=srvtab
+11778          990728_2308:46 finished initializing
+11778.0        990728_2308:53 request pid=11781
+11778.0        service=echostuff
+11778.0        990728_2308:56 starting server=echo
+11778.0        990728_2308:56 server exit, es=0
+11778.1        990728_2308:59 request pid=11783
+11778.1        service=echoargs
+11778.1        990728_2309:06 starting server=echoargs
+11778.1        990728_2309:06 server exit, es=0
+11778.2        990728_2309:08 request pid=11789
+11778.2        service=daytime
+11778.2        990728_2309:11 starting server=daytime
+11778.2        990728_2309:12 server exit, es=0
+11778          990729_0122:15 daemon exiting
+12437          990729_0122:30 TCPMUX Daemon (TCPMUXD) started
+12437          tcpmuxd.x      0/SYSV
+12437          os=SYSV
+12437          rca!dam (David A. Morano)
+12437          configfile=etc/tcpmuxd.conf
+12437          daemon listening on TCP port 5108
+12437          backgrounded pid=12437
+12437          pidfile=tcpmuxd.pid
+12437          PID mutex captured
+12437          pidfile device=8388614 inode=2444104
+12437          srvtab=srvtab
+12437          990729_0122:30 finished initializing
+12437.0        990729_0122:51 request pid=12441
+12437.0        service=daytime
+12437.0        990729_0122:53 starting server=daytime
+12437.0        990729_0122:53 server exit, es=0
+12437.1        990729_0123:02 request pid=12443
+12437.1        service=echoargs
+12437.1        990729_0123:09 starting server=echoargs
+12437.1        990729_0123:09 server exit, es=0
+12437          990729_0123:19 daemon exiting
+12467          990729_0125:24 TCPMUX Daemon (TCPMUXD) started
+12467          tcpmuxd.x      0/SYSV
+12467          os=SYSV
+12467          rca!dam (David A. Morano)
+12467          configfile=etc/tcpmuxd.conf
+12467          daemon listening on TCP port 5108
+12467          backgrounded pid=12467
+12467          pidfile=tcpmuxd.pid
+12467          PID mutex captured
+12467          pidfile device=8388614 inode=2444104
+12467          srvtab=srvtab
+12467          990729_0125:25 finished initializing
+12467.0        990729_0125:52 request pid=12471
+12467.0        service=daytime
+12467.0        990729_0125:54 starting server=daytime
+12467.0        990729_0125:54 server exit, es=0
+12467.1        990729_0125:55 request pid=12473
+12467.1        service=help
+12467.1        990729_0125:57 starting server=help
+12467.1        990729_0125:58 server exit, es=0
+12467.2        990729_0126:01 request pid=12475
+12467.2        service=echoargs
+12467.2        990729_0126:08 starting server=echoargs
+12467.2        990729_0126:08 server exit, es=0
+12467.3        990729_0127:03 request pid=12487
+12467.3        service=daytime
+12467.3        990729_0127:04 starting server=daytime
+12467.3        990729_0127:05 server exit, es=0
+12467.4        990729_0140:04 request pid=12553
+12467.4        service=daytime
+12467.4        990729_0140:06 starting server=daytime
+12467.4        990729_0140:06 server exit, es=0
+12467.5        990729_0140:07 request pid=12555
+12467.5        service=help
+12467.5        990729_0140:12 starting server=help
+12467.5        990729_0140:12 server exit, es=0
+12467.6        990729_0140:25 request pid=12559
+12467.6        service=daytime
+12467.6        990729_0140:27 starting server=daytime
+12467.6        990729_0140:27 server exit, es=0
+12467.7        990729_0146:56 request pid=12604
+12467.7        service=daytime
+12467.7        990729_0146:58 starting server=daytime
+12467.7        990729_0146:58 server exit, es=0
+12467.8        990729_0155:53 request pid=12710
+12467.8        service=daytime
+12467.8        990729_0155:54 starting server=daytime
+12467.8        990729_0155:55 server exit, es=0
+12467.9        990729_1101:25 request pid=16686
+12467.9        service=daytime
+12467.9        990729_1101:27 starting server=daytime
+12467.9        990729_1101:27 server exit, es=0
+12467.10       990729_1101:34 request pid=16689
+12467.10       service=echoargs
+12467.10       990729_1101:38 starting server=echoargs
+12467.10       990729_1101:38 server exit, es=0
+12467.11       990729_1101:41 request pid=16692
+12467.11       service=echoargs
+12467.11       990729_1101:49 starting server=echoargs
+12467.11       990729_1101:50 server exit, es=0
+12467          990729_1109:10 daemon exiting
+16938          990729_1109:19 TCPMUX Daemon (TCPMUXD) started
+16938          tcpmuxd.x      0/SYSV
+16938          os=SYSV
+16938          rca!dam (David A. Morano)
+16938          configfile=etc/tcpmuxd.conf
+16938          daemon listening on TCP port 5108
+16938          backgrounded pid=16938
+16938          pidfile=tcpmuxd.pid
+16938          PID mutex captured
+16938          pidfile device=8388614 inode=2444104
+16938          srvtab=srvtab
+16938          990729_1109:19 finished initializing
+16938.0        990729_1109:32 request pid=16941
+16938.0        service=daytime
+16938.0        990729_1109:34 starting server=daytime
+16938.0        990729_1109:34 server exit, es=0
+16938.1        990729_1109:35 request pid=16943
+16938.1        service=echoargs
+16938.1        990729_1109:39 starting server=echoargs
+16938.1        990729_1109:40 server exit, es=0
+16938.2        990729_1127:20 request pid=17531
+16938.2        service=echoargs
+16938.2        990729_1127:24 starting server=echoargs
+16938.2        990729_1127:25 server exit, es=0
+16938          990729_1226:27 daemon exiting
+18879          990729_1226:37 TCPMUX Daemon (TCPMUXD) started
+18879          tcpmuxd.x      0/SYSV
+18879          os=SYSV
+18879          rca!dam (David A. Morano)
+18879          configfile=etc/tcpmuxd.conf
+18879          daemon listening on TCP port 5108
+18879          backgrounded pid=18879
+18879          pidfile=tcpmuxd.pid
+18879          PID mutex captured
+18879          pidfile device=8388614 inode=2444104
+18879          srvtab=srvtab
+18879          990729_1226:37 finished initializing
+18879.0        990729_1226:50 request pid=18885
+18879.0        service=daytime
+18879.0        990729_1226:51 starting server=daytime
+18879.0        990729_1226:52 server exit, es=0
+18879.1        990729_1226:53 request pid=18887
+18879.1        service=modlist
+18879.1        990729_1226:55 starting server=modlist
+18879.1        990729_1226:56 server exit, es=0
+18879          990729_2251:28 daemon exiting
+12679          990729_2251:36 TCPMUX Daemon (TCPMUXD) started
+12679          tcpmuxd.x      0/SYSV
+12679          os=SYSV
+12679          rca!dam (David A. Morano)
+12679          configfile=etc/tcpmuxd.conf
+12679          daemon listening on TCP port 5108
+12679          backgrounded pid=12679
+12679          pidfile=tcpmuxd.pid
+12679          PID mutex captured
+12679          pidfile device=8388614 inode=2444104
+12679          srvtab=srvtab
+12679          990729_2251:36 finished initializing
+12679.0        990729_2251:51 request pid=12684
+12679.0        service=daytime
+12679.0        990729_2251:53 starting server=daytime
+12679.0        990729_2251:53 server exit, es=0
+12750          990729_2255:19 TCPMUX Daemon (TCPMUXD) started
+12750          tcpmuxd.x      0/SYSV
+12750          os=SYSV
+12750          rca!dam (David A. Morano)
+12750          configfile=etc/tcpmuxd.conf
+12750          daemon listening on TCP port 5108
+12750          backgrounded pid=12750
+12750          pidfile=tcpmuxd.pid
+12750          PID mutex captured
+12750          pidfile device=8388614 inode=2444104
+12750          srvtab=srvtab
+12750          990729_2255:19 finished initializing
+12750.0        990729_2255:25 request pid=12753
+12750.0        service=daytime
+12750.0        990729_2255:31 starting server=daytime
+12750.0        990729_2255:32 server exit, es=0
+12833          990729_2300:18 TCPMUX Daemon (TCPMUXD) started
+12833          tcpmuxd.x      0/SYSV
+12833          os=SYSV
+12833          rca!dam (David A. Morano)
+12833          configfile=etc/tcpmuxd.conf
+12833          daemon listening on TCP port 5108
+12833          backgrounded pid=12833
+12833          pidfile=tcpmuxd.pid
+12833          PID mutex captured
+12833          pidfile device=8388614 inode=2444104
+12833          srvtab=srvtab
+12833          990729_2300:18 finished initializing
+12833.0        990729_2300:20 request pid=12835
+12833.0        service=daytime
+12833.0        990729_2300:28 starting server=daytime
+12833.0        990729_2300:28 server exit, es=0
+12854          990729_2302:47 TCPMUX Daemon (TCPMUXD) started
+12854          tcpmuxd.x      0/SYSV
+12854          os=SYSV
+12854          rca!dam (David A. Morano)
+12854          configfile=etc/tcpmuxd.conf
+12854          daemon listening on TCP port 5108
+12854          backgrounded pid=12854
+12854          pidfile=tcpmuxd.pid
+12854          PID mutex captured
+12854          pidfile device=8388614 inode=2444104
+12854          srvtab=srvtab
+12854          990729_2302:47 finished initializing
+12854.0        990729_2302:49 request pid=12856
+12854.0        service=daytime
+12854.0        990729_2302:50 starting server=daytime
+12854.0        990729_2302:51 server exit, es=0
+12875          990729_2303:43 TCPMUX Daemon (TCPMUXD) started
+12875          tcpmuxd.x      0/SYSV
+12875          os=SYSV
+12875          rca!dam (David A. Morano)
+12875          configfile=etc/tcpmuxd.conf
+12875          daemon listening on TCP port 5108
+12875          backgrounded pid=12875
+12875          pidfile=tcpmuxd.pid
+12875          PID mutex captured
+12875          pidfile device=8388614 inode=2444104
+12875          srvtab=srvtab
+12875          990729_2303:43 finished initializing
+12875          990729_2304:03 daemon exiting
+12881          990729_2304:27 TCPMUX Daemon (TCPMUXD) started
+12881          tcpmuxd.x      0/SYSV
+12881          os=SYSV
+12881          rca!dam (David A. Morano)
+12881          configfile=etc/tcpmuxd.conf
+12881          daemon listening on TCP port 5108
+12881          backgrounded pid=12881
+12881          pidfile=tcpmuxd.pid
+12881          PID mutex captured
+12881          pidfile device=8388614 inode=2444104
+12881          srvtab=srvtab
+12881          990729_2304:27 finished initializing
+12881.0        990729_2304:44 request pid=12886
+12881.0        service=daytime
+12881.0        990729_2304:45 starting server=daytime
+12881.0        990729_2304:46 server exit, es=0
+12943          990729_2308:21 TCPMUX Daemon (TCPMUXD) started
+12943          tcpmuxd.x      0/SYSV
+12943          os=SYSV
+12943          rca!dam (David A. Morano)
+12943          configfile=etc/tcpmuxd.conf
+12943          daemon listening on TCP port 5108
+12943          backgrounded pid=12943
+12943          pidfile=tcpmuxd.pid
+12943          PID mutex captured
+12943          pidfile device=8388614 inode=2444104
+12943          srvtab=srvtab
+12943          990729_2308:21 finished initializing
+12943.0        990729_2308:27 request pid=12946
+12943.0        service=daytime
+12943.0        990729_2308:29 starting server=daytime
+12943.0        990729_2308:29 server exit, es=0
+12965          990729_2309:39 TCPMUX Daemon (TCPMUXD) started
+12965          tcpmuxd.x      0/SYSV
+12965          os=SYSV
+12965          rca!dam (David A. Morano)
+12965          configfile=etc/tcpmuxd.conf
+12965          daemon listening on TCP port 5108
+12965          backgrounded pid=12965
+12965          pidfile=tcpmuxd.pid
+12965          PID mutex captured
+12965          pidfile device=8388614 inode=2444104
+12965          srvtab=srvtab
+12965          990729_2309:39 finished initializing
+12965.0        990729_2309:47 request pid=12968
+12965.0        service=daytime
+12965.0        990729_2309:49 starting server=daytime
+12965.0        990729_2309:50 server exit, es=0
+13031          990729_2314:30 TCPMUX Daemon (TCPMUXD) started
+13031          tcpmuxd.x      0/SYSV
+13031          os=SYSV
+13031          rca!dam (David A. Morano)
+13031          configfile=etc/tcpmuxd.conf
+13031          daemon listening on TCP port 5108
+13031          backgrounded pid=13031
+13031          pidfile=tcpmuxd.pid
+13031          PID mutex captured
+13031          pidfile device=8388614 inode=2444104
+13031          srvtab=srvtab
+13031          990729_2314:30 finished initializing
+13031.0        990729_2314:34 request pid=13033
+13031.0        service=daytime
+13031.0        990729_2314:36 starting server=daytime
+13031.0        990729_2314:36 server exit, es=0
+13031.0        elapsed time 0 days 00:00:02
+13031.1        990729_2329:33 request pid=13110
+13031.1        service=daytime
+13031.1        990729_2329:33 starting server=daytime
+13031.1        990729_2329:34 server exit, es=0
+13031.1        elapsed time 0 days 00:00:01
+13031.2        990729_2330:36 request pid=13133
+13031.2        service=modlist
+13031.2        990729_2330:38 starting server=modlist
+13031.2        990729_2330:38 server exit, es=0
+13031.2        elapsed time 0 days 00:00:02
+13031.3        990729_2330:39 request pid=13135
+13031.3        service=help
+13031.3        990729_2330:41 starting server=help
+13031.3        990729_2330:41 server exit, es=0
+13031.3        elapsed time 0 days 00:00:02
+13031.4        990729_2330:43 request pid=13137
+13031.4        service=echoargs
+13031.4        990729_2330:50 starting server=echoargs
+13031.4        990729_2330:51 server exit, es=0
+13031.4        elapsed time 0 days 00:00:08
+13031.5        990729_2331:14 request pid=13139
+13031.5        service=env
+13031.5        990729_2331:15 starting server=env
+13031.5        990729_2331:15 server exit, es=0
+13031.5        elapsed time 0 days 00:00:01
+13031.6        990729_2331:35 request pid=13142
+13031.6        service=enum
+13031.6        990729_2331:37 starting server=enum
+13031.6        990729_2331:37 server exit, es=0
+13031.6        elapsed time 0 days 00:00:02
+13031.7        990729_2331:38 request pid=13145
+13031.7        service=enum
+13031.7        990729_2331:42 starting server=enum
+13031.7        990729_2331:43 server exit, es=0
+13031.7        elapsed time 0 days 00:00:05
+13031.8        990729_2334:28 request pid=13156
+13031.8        service=modlist
+13031.8        990729_2334:31 starting server=modlist
+13031.8        990729_2334:31 server exit, es=0
+13031.8        elapsed time 0 days 00:00:03
+13031.9        990730_0019:23 request pid=14006
+13031.9        service=help
+13031.9        990730_0019:25 starting server=help
+13031.9        990730_0019:25 server exit, es=0
+13031.9        elapsed time 0 days 00:00:02
+13031.10       990730_0019:35 request pid=14008
+13031.10       service=env
+13031.10       990730_0019:36 starting server=env
+13031.10       990730_0019:37 server exit, es=0
+13031.10       elapsed time 0 days 00:00:02
+13031.11       990730_0020:47 request pid=14038
+13031.11       service=env
+13031.11       990730_0020:48 starting server=env
+13031.11       990730_0020:49 server exit, es=0
+13031.11       elapsed time 0 days 00:00:02
+13031.12       990730_0025:39 request pid=14056
+13031.12       service=env
+13031.12       990730_0025:43 starting server=env
+13031.12       990730_0025:43 server exit, es=0
+13031.12       elapsed time 0 days 00:00:04
+13031.13       990730_0025:46 request pid=14058
+13031.13       service=help
+13031.13       990730_0025:48 starting server=help
+13031.13       990730_0025:48 server exit, es=0
+13031.13       elapsed time 0 days 00:00:02
+19126          990730_1418:17 TCPMUX Daemon (TCPMUXD) started
+19126          tcpmuxd.x      0/SYSV
+19126          os=SYSV
+19126          rca!dam (David A. Morano)
+19126          configfile=etc/tcpmuxd.conf
+19126          daemon listening on TCP port 5108
+19126          backgrounded pid=19126
+19126          pidfile=tcpmuxd.pid
+19126          PID mutex captured
+19126          pidfile device=8388614 inode=2444104
+19126          srvtab=srvtab
+19126          990730_1418:17 finished initializing
+19126.0        990730_1418:30 request pid=19129
+19126.0        service=help
+19126.0        990730_1418:31 starting server=help
+19126.0        990730_1418:32 server exit, es=0
+19126.0        elapsed time 0 days 00:00:02
+19126.1        990730_1418:34 request pid=19131
+19126.1        service=daytime
+19126.1        990730_1418:35 starting server=daytime
+19126.1        990730_1418:36 server exit, es=0
+19126.1        elapsed time 0 days 00:00:02
+19126          990730_1419:29 servfile changed
+19126.2        990730_1420:28 request pid=19171
+19126.2        service=help
+19126.2        990730_1420:33 starting server=help
+19126.2        990730_1420:33 server exit, es=0
+19126.2        elapsed time 0 days 00:00:05
+19126          990730_1420:59 daemon exiting
+19198          990730_1422:16 TCPMUX Daemon (TCPMUXD) started
+19198          tcpmuxd.x      0/SYSV
+19198          os=SYSV
+19198          rca!dam (David A. Morano)
+19198          configfile=etc/tcpmuxd.conf
+19198          daemon listening on TCP port 5108
+19198          backgrounded pid=19198
+19198          pidfile=tcpmuxd.pid
+19198          PID mutex captured
+19198          pidfile device=8388614 inode=2444104
+19198          srvtab=srvtab
+19198          990730_1422:16 finished initializing
+19198.0        990730_1422:26 request pid=19200
+19198.0        service=daytime
+19198.0        990730_1422:28 starting server=daytime
+19198.0        990730_1422:29 server exit, es=0
+19198.0        elapsed time 0 days 00:00:03
+19198.1        990730_1422:31 request pid=19202
+19198.1        service=help
+19198.1        990730_1422:35 starting server=help
+19198.1        990730_1422:35 server exit, es=0
+19198.1        elapsed time 0 days 00:00:04
+19198          990730_1422:43 server table file changed
+19198.2        990730_1422:53 request pid=19205
+19198.2        service=help
+19198.2        990730_1422:56 starting server=help
+19198.2        990730_1422:56 server exit, es=0
+19198.2        elapsed time 0 days 00:00:03
+19198          990730_1428:25 server table file changed
+19198          990730_1438:28 daemon exiting

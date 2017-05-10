@@ -1,0 +1,18 @@
+
+
+DAMbibleqs {
+	global:
+		bibleqs ;
+		bibleqs_open ;
+		bibleqs_count ;
+		bibleqs_curbegin ;
+		bibleqs_lookup ;
+		bibleqs_read ;
+		bibleqs_curend ;
+		bibleqs_audit ;
+		bibleqs_close ;
+	local:
+		* ;
+} ;
+
+

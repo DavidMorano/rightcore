@@ -1,0 +1,23 @@
+PCSPOLL
+
+This program is normally executed by various users.  That is the whole
+idea of this program.  This philosophy is designed for environments
+where the PCS administrator does not want to have standing servers or a
+standing CRON daemon running PCS programs.
+
+Since this program is executed by various users, we have a few options
+about how to manage security for the program.  These are summarized as:
+
++ do not make this program SETUID
++ set the program SETUID and then set the various PCS files or directories
+  SETUID also (to enable priviledged operation)
+
+If the program is not SETUID, then you are done and there is no
+possible security problem.  If the program is SETUID, then the program
+will *attempt* to change its real UID to the PCS username if all of the
+PCS area is found to be secure.  Even if the PCS area is not found to
+be completely secure, this program will attempt to still stay SETUID
+for spawning the service daemons if enough of the PCS area is secure to
+support that.  
+
+

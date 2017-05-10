@@ -1,0 +1,43 @@
+EXECNAME
+
+How about some interpreter semantics?  We have always been totally
+frustrated with:
+
+	#!/usr/bin/ksh
+	print hello world
+
+when we really wanted:
+
+	#!/usr/add-on/ast/bin/ksh
+	print hello world
+
+but we really wanted to get that by also using:
+
+	#!ksh
+	print hello world
+
+Now you can get dynamic path searches for interpreters!
+
+
+Implementation:
+
+How about a configuration mapping file that looks something like:
+
+/usr/bin/ksh		${AST}/bin/ksh
+ksh			${AST}/bin/ksh
+/usr/bin/perl		${NCMP}/bin/perl
+
+When a specified interpreter (in the file) is found by a search on the
+left, the program on the right (if it exists and is executable) is used
+instead.  If a no program path is specified as the interpreter, and it
+is not found in the mapping file, a search is done using the current
+PATH.  This is inherently insecure but then again, the sematic of
+having no program path for an interpreter is not defined anyway!
+
+
+Security issues:
+
+The mapping file must be determined to be secure.
+
+
+

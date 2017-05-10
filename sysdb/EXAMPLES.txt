@@ -1,0 +1,14 @@
+EXAMPLES (SYSDB)
+
+$ sysdb hosts rca
+129.55.149.21	rca rca.rightcore.com
+$
+$ sysdb passwd dam
+dam     501  (David A. Morano)        /home/dam    /usr/bin/lsh
+$
+$ sysdb group rc
+rc	201	dam, fred, mary, sally
+$
+$
+$
+

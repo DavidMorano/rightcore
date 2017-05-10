@@ -1,0 +1,15 @@
+
+
+DAMbabycalcs {
+	global:
+		babycalcs ;
+		babycalcs_open ;
+		babycalcs_check ;
+		babycalcs_info ;
+		babycalcs_lookup ;
+		babycalcs_close ;
+	local:
+		* ;
+} ;
+
+

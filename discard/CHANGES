@@ -1,0 +1,12 @@
+PINGSTAT
+
+
+
+= version 0, 99/03/25, Dave Morano
+
+This program was originally written to serve as verification that all
+specified hosts in some configuration are staying "up" and available
+for access over the network.
+
+
+

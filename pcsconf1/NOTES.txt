@@ -1,0 +1,51 @@
+PCSCONF
+
+This is part of the Personal Communications System (PCS) package.  This
+is a program which calls the PCS configuration interface to get the
+dynamic PCS configuration for the calling user program.
+
+Optional items that can be displayed with this program are:
+
+	mailhost        mailnode        maildomain      orgdomain       
+	logname         username        version         relay           
+	gateway         postmaster      organization    fromhost        
+	fromnode        gecosname       mailname        name            
+	fullname        uucphost        uucpnode        userhost        
+	nodename        hostname        domainname      nisdomain       
+        peername
+
+
+Notes on domains:
+
+There are too many of them!! :-)
+
+No seriously, there are!! :-) :-)
+
+The various "domain"s are not always clearly used or understood.
+Here are some suggestions:
+
+which		example
+----------------------------------------
+
+domain		ho.att.com
+nisdomain	nis.ho.att.com
+orgdomain	att.com
+maildomain	mt.att.com (or 'att.com' depending on local EMA part)
+
+
+The "from" address is usually created as:
+
+	username@mailhost
+	dam@mtgbcs.att.com
+
+or
+
+	username@maildomain
+	dam@mt.att.com
+
+an alternative might be:
+
+	mailname@orgdomain
+	d.a.morano@att.com
+
+

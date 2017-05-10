@@ -1,0 +1,61 @@
+MKKEY
+
+This program is similar to the 'mkey' program as distributed with some
+UNIXes but this program can optionally (normally) pass all useful words
+through as keys instead of filtering out useful words like the original
+'mkey' program did!
+
+Synopsis:
+
+$ mkkey [-d <string>] [-C <configfile>] [<file(s)> ...] [-af <argfile>]
+	[-c <eigenfile>] [-i <ignorechars>] [-l <minwordlen>] [-m <maxwordlen>]
+	[-n <eigenwords>] [-swa] [-HELP] [-o <option(s)>]
+
+option			description
+-------------------------------------
+
+-C <configfile>		use <configfile> for defaults
+-af <argfile>		read argument files from <argfile>
+-of <outfile>		place output in this file
+-c <eigenfile>		do not index words that appear in <eigenfile>
+-d <string>		characters to delimit DB entries
+-i <ignorechars>	ignore lines which contain these after a '%'
+-l <minwordlen>		do not index words less than this length
+-m <maxwordlen>		do not index words longer than this length
+-n <eigenwords>		how many of the eigenwords to consider
+-k <maxkeys>		only index up to this many keys per record
+-o <option(s)>		extra options
+-s			remove labels from output key file (leaves only keys)
+-a			append new keys to existing key file
+-w			index each file as a whole
+-v			operate verbosely
+-V			print program version then exit
+-HELP			print the help file then exit
+
+Invocation Examples
+------------------------------------
+
+separate entries by BLANK lines (default):
+
+$ mkkey -d " " file(s) [...] > keyfile
+
+take whole files as entries:
+
+$ mkkey -w file(s) [...] > keyfile
+
+separate entries by lines themselves (each line is a separate entry):
+
+$ mkkey -d "" file(s) [...] > keyfile
+
+separate entries by lines that start with '%' character:
+
+$ mkkey -d "%" file(s) [...] > keyfile
+
+separate entries by lines that start with '/' character:
+
+$ mkkey -d "/" file(s) [...] > keyfile
+
+separate entries by lines that start with '###' characters:
+
+$ mkkey -d "###" file(s) [...] > keyfile
+

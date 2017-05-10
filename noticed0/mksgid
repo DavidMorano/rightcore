@@ -1,0 +1,9 @@
+
+T= noticed.x
+
+mine $(T)
+chgrp tty $(T)
+chmod g+x $(T)
+chmod g+s $(T)
+
+

@@ -1,0 +1,66 @@
+# Remote Service Listener (RSL) configuration table
+#
+#	+ sample RSL service table
+#
+# NOTES:
+#
+#	All command line arguments have precedence over any corresponding
+#	arguments in this configuration file.  The entries in this file
+#	do not have any special order.  Defaults are applied in a
+#	defined sequence which is independent of the order of defaults
+#	in this file.
+#
+
+# lines are of the general form :
+#
+#	key	any_further_arguments
+#
+# possible keys and their meanings are :
+#
+#	service		- introduce a service entry
+#	control		- controlling lock area directory
+#	log		- file path name for the log file
+#	export		- environment variable & value to be exported
+#	workdir		- working directory
+#	wait		- lock file wait time out
+#
+#
+#	There is no order to any entries in this file.  Entries may appear
+#	in any order and are still used the same (as for defaults et cetera).
+#	The following lines specify system defaults for certain files or
+#	directories.  Entries starting with an 'e' are to be exported into
+#	the environment.  An unused (or unspecified) field should contain a '-'
+#	character.
+
+
+# the following lines specify defaults for the program
+
+log	rsllog
+wait	200			# lock file wait timeout
+
+# additional variables to be exported into the environment
+
+exp	PATH=/bin:/usr/bin:/etc:/usr/etc:/usr/add-on/local/bin
+
+
+# services
+#
+#	These lines take the form :
+#
+#		service name command_string
+#
+#	The following substitutions are made on command strings :
+#		%a	original service arguments
+#		%s	system name
+#		%m	mail address
+#		%u	user
+#		%w	working directory
+#
+
+
+s	echo	"echo %a %s %f %m %d %l %c %w %r"
+s	submit	"submitd %a"
+s	prt	"prt %a"
+#s	xl	"xld %a"
+
+

@@ -1,0 +1,69 @@
+#!/usr/bin/ksh
+# INSTALLPROG (libcsdb)
+
+
+: ${LOCAL:=/usr/add-on/local}
+: ${NCMP:=/usr/add-on/ncmp}
+: ${PCS:=/usr/add-on/pcs}
+: ${EXTRA:=/usr/extra}
+export LOCAL NCMP PCS EXTRA
+
+TDIRS=" ${HOME} ${LOCAL} ${NCMP} ${PCS} ${EXTRA}"
+
+T=${PWD##*/}
+
+LIBS="${T}.a ${T}.so"
+INCS=" *.h "
+
+RF_RMSO=0
+
+
+EXTRA=
+fgrep 64 <( basename ${PWD} ) > /dev/null
+if [[ $? -eq 0 ]] ; then
+  EXTRA=sparcv9
+fi
+
+
+if [ -d /usr/sbin ] ; then
+  : ${NODE:=$( uname -n )}
+  : ${OFD:-S5}
+else
+  : ${NODE:=$( hostname )}
+  PATH=/usr/5bin:${PATH}
+  : ${OFD:-S4}
+fi
+
+
+STUFF="*.c *.a *.h Makefile"
+
+
+makeit
+
+
+for D in ${TDIRS} ; do
+
+  if [[ -n "${LIBS}" ]] ; then
+    for L in ${LIBS} ; do
+      if [[ -r "${L}" ]] ; then
+        makenewer -r ${L} ${D}/lib
+        ODIR=${D}/lib/${OFD}
+        if [[ -d "${ODIR}" ]] ; then
+          makenewer -r ${L} ${ODIR}
+        fi
+      fi
+    done
+  fi
+
+  if [[ -n "${INCS}" ]] ; then
+    makenewer ${INCS} ${D}/include
+  fi
+
+  if [[ ${RF_RMSO} -ne 0 ]] ; then
+    rm -f ${D}/lib/${T}.so
+    rm -f ${D}/lib/${OFD}/${T}.so
+  fi
+
+done
+
+

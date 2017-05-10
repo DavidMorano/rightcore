@@ -1,0 +1,21 @@
+
+
+DAMbibleverses {
+	global:
+		bibleverses ;
+		bibleverses_open ;
+		bibleverses_count ;
+		bibleverses_read ;
+		bibleverses_get ;
+		bibleverses_curbegin ;
+		bibleverses_enum ;
+		bibleverses_curend ;
+		bibleverses_audit ;
+		bibleverses_info ;
+		bibleverses_chapters ;
+		bibleverses_close ;
+	local:
+		* ;
+} ;
+
+

@@ -1,0 +1,18 @@
+# this if the filter substitution control file
+
+#stuff is
+
+JUNK	"other junk"
+WHAT=other
+
+OUTFILE	/tmp/dsfdsfds345345
+
+THIS	that
+
+OTHER	thing
+
+#real good
+
+BLANK=
+
+

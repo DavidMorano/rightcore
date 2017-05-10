@@ -1,0 +1,107 @@
+# CONFIG.RA
+#
+# This is a configuration file for the RUNADVICE program.
+#
+#
+# Valid Entries :
+#
+#	keyword		parameters
+#--------------------------------------------------------------------------
+#
+#	advice		ADVICE program
+#
+#	export		an environment variable name followed by a value
+#
+#	default		a parameter name followed by one or more values
+#			in a list separated by commas
+#
+#	control		the name of the ADVICE 'control.adv' like file
+#
+#	params		the name of the ADVICE 'params.adv' like file
+#
+#	main		the name of the ADVICE 'main.adv' like file 
+#			containing the "main" circuit to be simulated
+#
+#	machine		this allows for the specification of available
+#			machines ; only those machines listed are used
+#
+#
+#
+# NOTE about how the ADVICE files relate to each other :
+#
+#	The "run" file possibly specified on the command line
+#	must read in a circuit file, which will be in the "control"
+#	file.  The "control" file can optionally contain a "params"
+#	file included with an ADVICE '.use' command.  The "control"
+#	file must include the "main" file with an ADVICE '.use'
+#	command.  The four files, "run", "control", "params", and "main"
+#	are processed for parameter substitutions.
+#
+#
+#
+
+
+# ADVICE program
+#advice		runadvice_advice
+
+
+# environment variables
+export 		TMPDIR=/proj/starbase/tmp
+export 		SEEMEHERE=/proj/starbase/tmp
+
+
+# default substitution parameters
+default		proc=an
+default		temp=85
+default		timestep=0.1n
+default		timelen=5n
+default		pow=3.3
+default		vterm=1.2
+default		subnch=0.0
+default		tech=cmos5_33
+
+
+# ADVICE files processed (in addition to "run") for parameter substitutions
+control		control.adv
+params		params.adv
+main		main.adv
+
+
+# machine entries
+#
+#	These entries have the form :
+#
+#		keyword		name	load_capability
+#
+#	where :
+#
+#		<keyword>		is always 'machine'
+#
+#		<name>			is the name of the machine
+#
+#		<load_capability>	is a number that rates the ability
+#					of the machine to run jobs as
+#					compared with the other mahcines
+#
+
+# our System V machines
+
+machine		hodia=2.5
+machine		hodic=0.2
+machine		hodid=2.5
+machine		hodif=0.35
+machine		hodih=0.2
+
+# machines NOT licensed
+
+#machine		hodik=0.4
+
+
+# our BSD machines
+
+#machine		octet=1.4
+#machine		hodig=0.35
+
+
+
+

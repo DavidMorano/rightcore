@@ -1,0 +1,28 @@
+#!/usr/bin/ksh
+# TESTDAY
+
+
+DEBUG=daytime.deb
+ERR=daytime.err
+
+DAMHOME=`logdir dam`
+
+if [ -z "${DAMHOME}" ] ; then
+  DAMHOME=`logdir morano`
+fi
+if [ -z "${DAMHOME}" ] ; then
+  DAMHOME=`logdir dmorano`
+fi
+
+PATH=${PATH}:${DAMHOME}/bin
+export PATH
+
+TO=`expr 8 '*' 60 `
+
+{
+  DEBUGFD=3 daytime.x -D=4 -s -o 300 -t $TO "${@}" 3> $DEBUG 2> $ERR
+  chmod ugo+rw $ERR $DEBUG 2> /dev/null
+} &
+
+
+

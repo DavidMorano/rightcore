@@ -1,0 +1,38 @@
+LOGDIR/LOGNAME
+
+**NOTE** -> This program is completely obsoleted.  See 'userinfo'.
+
+This is the famous 'logdir' ('logname') program.  It is usually
+supplied with System V UNIXes but not always supplied with BSD types of
+UNIXes, hence we create it !
+
+This version of LOGDIR is an enhanced version of the standard System V
+version in that it returns the correct information for the correct user
+logged in rather the just the information for the UID of the logged in
+user.
+
+
+= version 0b
+
+Both the 'logdir' and the 'logname' programs were merged into
+one with this release.
+
+
+= version 0c
+
+This release allows for additional user information to be returned from
+the 'passwd' database as well ther user's group name from the 'group'
+database.
+
+The following items are now available:
+
+	logname         username        uid             gid             
+	groupname       gecos           gecosname       mailname        
+	homedir         shell           name            fullname        
+	organization    nodename        hostname        domainname      
+	nisdomain       password        passwd          euid            
+	egid            realname        account         bin             
+	office          wphone          hphone          printer         
+	lstchg          lastlog         
+
+

@@ -1,0 +1,9042 @@
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=$(PROC)
+*	TEMP=$(TEMP)
+*	TIMESTEP=$(TIMESTEP)
+*	TIMELEN=$(TIMELEN)
+*	POW=$(POW)
+*
+* and the circuit files :
+*	MAINCKT=$(MAINCKT)
+*	CONTROLCKT=$(CONTROLCKT)
+*
+* and the temporary output file :
+*	OUTFILE=$(OUTFILE)
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33$(PROC).adv
+*
+*
+.use options.adv
+*
+*
+.rd ${CONTROLCKT} ;n
+*
+.temp $(TEMP)
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran $(TIMESTEP) $(TIMELEN)
+*
+.file ofile=$(OUTFILE)
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=$(PROC)
+*	TEMP=$(TEMP)
+*	TIMESTEP=$(TIMESTEP)
+*	TIMELEN=$(TIMELEN)
+*	POW=$(POW)
+*
+* and the circuit files :
+*	MAINCKT=$(MAINCKT)
+*	CONTROLCKT=$(CONTROLCKT)
+*
+* and the temporary output file :
+*	OUTFILE=$(OUTFILE)
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33$(PROC).adv
+*
+*
+.use options.adv
+*
+*
+.rd ${CONTROLCKT} ;n
+*
+.temp $(TEMP)
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran $(TIMESTEP) $(TIMELEN)
+*
+.file ofile=$(OUTFILE)
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=$(PROC)
+*	TEMP=$(TEMP)
+*	TIMESTEP=$(TIMESTEP)
+*	TIMELEN=$(TIMELEN)
+*	POW=$(POW)
+*
+* and the circuit files :
+*	MAINCKT=$(MAINCKT)
+*	CONTROLCKT=$(CONTROLCKT)
+*
+* and the temporary output file :
+*	OUTFILE=$(OUTFILE)
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33$(PROC).adv
+*
+*
+.use options.adv
+*
+*
+.rd ${CONTROLCKT} ;n
+*
+.temp $(TEMP)
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran $(TIMESTEP) $(TIMELEN)
+*
+.file ofile=$(OUTFILE)
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra7D3E0000.adv
+*	CONTROLCKT=/tmp/ra1D3E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra2D3E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra1D3E0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra2D3E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE62E0000.adv
+*	CONTROLCKT=/tmp/ra052E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra352E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra052E0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra352E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra532E0000.adv
+*	CONTROLCKT=/tmp/ra332E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra232E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra332E0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra232E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra7CCE0000.adv
+*	CONTROLCKT=/tmp/ra1CCE0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra0CCE0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra1CCE0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra0CCE0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB63E0000.adv
+*	CONTROLCKT=/tmp/ra963E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra863E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra963E0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra863E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra293E0000.adv
+*	CONTROLCKT=/tmp/ra493E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra593E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra493E0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra593E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raA24E0000.adv
+*	CONTROLCKT=/tmp/ra824E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF24E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra824E0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF24E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra1F5E0000.adv
+*	CONTROLCKT=/tmp/ra3F5E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra2F5E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra3F5E0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra2F5E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra504E0000.adv
+*	CONTROLCKT=/tmp/ra304E0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra204E0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra304E0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra204E0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra5CAF0000.adv
+*	CONTROLCKT=/tmp/ra7CAF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra0CAF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra7CAF0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra0CAF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra2AAF0000.adv
+*	CONTROLCKT=/tmp/ra4AAF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra4AAF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra4AAF0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra4AAF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra28DF0000.adv
+*	CONTROLCKT=/tmp/ra08DF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra18DF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra08DF0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra18DF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE5EF0000.adv
+*	CONTROLCKT=/tmp/ra04EF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra14EF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra04EF0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra14EF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB7EF0000.adv
+*	CONTROLCKT=/tmp/ra97EF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra87EF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra97EF0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra87EF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra75EF0000.adv
+*	CONTROLCKT=/tmp/ra15EF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra05EF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra15EF0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra05EF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra25EF0000.adv
+*	CONTROLCKT=/tmp/ra45EF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra55EF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra45EF0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra55EF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.0
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB1EF0000.adv
+*	CONTROLCKT=/tmp/raD1EF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raE1EF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raD1EF0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raE1EF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=2.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra122A0000.adv
+*	CONTROLCKT=/tmp/ra722A0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra722A0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra722A0000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra722A0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra372A0000.adv
+*	CONTROLCKT=/tmp/ra172A0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra072A0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra172A0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra072A0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.0
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra1D9F0000.adv
+*	CONTROLCKT=/tmp/ra3D9F0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra4D9F0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra3D9F0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra4D9F0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=2.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra332A0000.adv
+*	CONTROLCKT=/tmp/ra132A0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra632A0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra132A0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra632A0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra7DAF0000.adv
+*	CONTROLCKT=/tmp/ra5DAF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raADAF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra5DAF0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raADAF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.0
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE2BF0000.adv
+*	CONTROLCKT=/tmp/ra03BF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra33BF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra03BF0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra33BF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=2.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra76BF0000.adv
+*	CONTROLCKT=/tmp/ra96BF0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA6BF0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra96BF0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA6BF0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB6560000.adv
+*	CONTROLCKT=/tmp/ra96560000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra65560000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra96560000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra65560000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra16560000.adv
+*	CONTROLCKT=/tmp/ra76560000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra66560000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra76560000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra66560000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra09A60000.adv
+*	CONTROLCKT=/tmp/raE9A60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raD9A60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raE9A60000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raD9A60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra68A60000.adv
+*	CONTROLCKT=/tmp/ra08A60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra18A60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra08A60000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra18A60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra0DB60000.adv
+*	CONTROLCKT=/tmp/raEAB60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raFAB60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raEAB60000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raFAB60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra0CB60000.adv
+*	CONTROLCKT=/tmp/ra6CB60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra5CB60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra6CB60000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra5CB60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra03F60000.adv
+*	CONTROLCKT=/tmp/ra23F60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra43F60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra23F60000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra43F60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE0F60000.adv
+*	CONTROLCKT=/tmp/raC0F60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raD0F60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raC0F60000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raD0F60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raBFB60000.adv
+*	CONTROLCKT=/tmp/ra5FB60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra4FB60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra5FB60000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra4FB60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra52960000.adv
+*	CONTROLCKT=/tmp/ra72960000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra82960000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra72960000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra82960000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra00960000.adv
+*	CONTROLCKT=/tmp/ra60960000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra70960000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra60960000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra70960000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra4B670000.adv
+*	CONTROLCKT=/tmp/ra6B670000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra7B670000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra6B670000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra7B670000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra17670000.adv
+*	CONTROLCKT=/tmp/ra37670000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra27670000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra37670000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra27670000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra68770000.adv
+*	CONTROLCKT=/tmp/ra48770000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB9770000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra48770000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB9770000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra24470000.adv
+*	CONTROLCKT=/tmp/ra04470000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra74470000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra04470000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra74470000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raF9270000.adv
+*	CONTROLCKT=/tmp/raD9270000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raD9270000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raD9270000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raD9270000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raC7270000.adv
+*	CONTROLCKT=/tmp/raE7270000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF7270000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raE7270000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF7270000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra73250000.adv
+*	CONTROLCKT=/tmp/ra92250000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA2250000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra92250000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA2250000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra19250000.adv
+*	CONTROLCKT=/tmp/ra39250000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra39250000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra39250000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra39250000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra73E50000.adv
+*	CONTROLCKT=/tmp/ra13E50000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra03E50000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra13E50000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra03E50000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra4DE50000.adv
+*	CONTROLCKT=/tmp/raBEE50000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raBEE50000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raBEE50000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raBEE50000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra40340000.adv
+*	CONTROLCKT=/tmp/raA1340000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra91340000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raA1340000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra91340000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra93340000.adv
+*	CONTROLCKT=/tmp/raF3340000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raE3340000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raF3340000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raE3340000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra29040000.adv
+*	CONTROLCKT=/tmp/raC8040000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF8040000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raC8040000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF8040000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra33040000.adv
+*	CONTROLCKT=/tmp/ra13040000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra03040000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra13040000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra03040000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raEE140000.adv
+*	CONTROLCKT=/tmp/raCE140000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raEE140000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raCE140000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raEE140000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raF8140000.adv
+*	CONTROLCKT=/tmp/raD8140000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA8140000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raD8140000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA8140000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra31A50000.adv
+*	CONTROLCKT=/tmp/ra11A50000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra01A50000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra11A50000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra01A50000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra86A50000.adv
+*	CONTROLCKT=/tmp/raE6A50000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF6A50000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raE6A50000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF6A50000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raD0750000.adv
+*	CONTROLCKT=/tmp/ra31750000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra21750000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra31750000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra21750000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE2750000.adv
+*	CONTROLCKT=/tmp/ra82750000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB2750000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra82750000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB2750000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra62820000.adv
+*	CONTROLCKT=/tmp/ra42820000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB3820000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra42820000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB3820000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE5820000.adv
+*	CONTROLCKT=/tmp/raC5820000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raD5820000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raC5820000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raD5820000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra0CB20000.adv
+*	CONTROLCKT=/tmp/ra2CB20000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raDDB20000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra2CB20000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raDDB20000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raD3A20000.adv
+*	CONTROLCKT=/tmp/raFBB20000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raC3A20000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raFBB20000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raC3A20000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra0AA20000.adv
+*	CONTROLCKT=/tmp/ra2AA20000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra3AA20000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra2AA20000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra3AA20000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra82A40000.adv
+*	CONTROLCKT=/tmp/raA2A40000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB2A40000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raA2A40000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB2A40000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra16440000.adv
+*	CONTROLCKT=/tmp/ra76440000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra66440000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra76440000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra66440000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra1D3C0000.adv
+*	CONTROLCKT=/tmp/raFD3C0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raED3C0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raFD3C0000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raED3C0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raDAF90000.adv
+*	CONTROLCKT=/tmp/raFAF90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra8AF90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raFAF90000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra8AF90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raCCE90000.adv
+*	CONTROLCKT=/tmp/ra2CE90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra3CE90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra2CE90000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra3CE90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra97D90000.adv
+*	CONTROLCKT=/tmp/ra57D90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra97D90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra57D90000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra97D90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra30D90000.adv
+*	CONTROLCKT=/tmp/ra10D90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra60D90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra10D90000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra60D90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB3D90000.adv
+*	CONTROLCKT=/tmp/ra40D90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra00D90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra40D90000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra00D90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra71D90000.adv
+*	CONTROLCKT=/tmp/ra90D90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA0D90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra90D90000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA0D90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra62D90000.adv
+*	CONTROLCKT=/tmp/ra83D90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB3D90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra83D90000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB3D90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raDDC90000.adv
+*	CONTROLCKT=/tmp/raFDC90000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raFDC90000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raFDC90000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raFDC90000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra96390000.adv
+*	CONTROLCKT=/tmp/raF6390000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raC6390000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raF6390000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raC6390000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra36390000.adv
+*	CONTROLCKT=/tmp/ra86390000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA6390000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra86390000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA6390000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra8C490000.adv
+*	CONTROLCKT=/tmp/raEC490000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raFC490000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raEC490000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raFC490000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raAC490000.adv
+*	CONTROLCKT=/tmp/raCC490000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raFC490000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raCC490000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raFC490000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra28690000.adv
+*	CONTROLCKT=/tmp/ra08690000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra18690000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra08690000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra18690000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra48690000.adv
+*	CONTROLCKT=/tmp/ra28690000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra38690000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra28690000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra38690000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra67980000.adv
+*	CONTROLCKT=/tmp/ra87980000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB7980000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra87980000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB7980000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raC5980000.adv
+*	CONTROLCKT=/tmp/raE5980000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF5980000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raE5980000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF5980000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra82E80000.adv
+*	CONTROLCKT=/tmp/raA2E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra51E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raA2E80000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra51E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra52E80000.adv
+*	CONTROLCKT=/tmp/raB3E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra83E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raB3E80000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra83E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra80E80000.adv
+*	CONTROLCKT=/tmp/ra60E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra50E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra60E80000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra50E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raD1E80000.adv
+*	CONTROLCKT=/tmp/raF1E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra81E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raF1E80000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra81E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra23E80000.adv
+*	CONTROLCKT=/tmp/ra43E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra73E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra43E80000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra73E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra31E80000.adv
+*	CONTROLCKT=/tmp/ra11E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raE0E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra11E80000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raE0E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=67
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raFEF80000.adv
+*	CONTROLCKT=/tmp/raDEF80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raCEF80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raDEF80000.adv ;n
+*
+.temp 67
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raCEF80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra00E80000.adv
+*	CONTROLCKT=/tmp/ra20E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra30E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra20E80000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra30E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra61E80000.adv
+*	CONTROLCKT=/tmp/ra80E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB0E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra80E80000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB0E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra77E80000.adv
+*	CONTROLCKT=/tmp/ra17E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra27E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra17E80000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra27E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra76E80000.adv
+*	CONTROLCKT=/tmp/ra96E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA6E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra96E80000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA6E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=67
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra23E80000.adv
+*	CONTROLCKT=/tmp/raC3E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF3E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raC3E80000.adv ;n
+*
+.temp 67
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF3E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra82E80000.adv
+*	CONTROLCKT=/tmp/raA2E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB2E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raA2E80000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB2E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raC2E80000.adv
+*	CONTROLCKT=/tmp/raE2E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA2E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raE2E80000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA2E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=h
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra16E80000.adv
+*	CONTROLCKT=/tmp/raF6E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raC6E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33h.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raF6E80000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raC6E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra56E80000.adv
+*	CONTROLCKT=/tmp/ra76E80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra16E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra76E80000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra16E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra2E980000.adv
+*	CONTROLCKT=/tmp/ra0E980000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF1E80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra0E980000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF1E80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=h
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra52A80000.adv
+*	CONTROLCKT=/tmp/ra32A80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra32A80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33h.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra32A80000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra32A80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra83A80000.adv
+*	CONTROLCKT=/tmp/raA3A80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra72A80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raA3A80000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra72A80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra1BB80000.adv
+*	CONTROLCKT=/tmp/raFBB80000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raCBB80000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raFBB80000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raCBB80000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=h
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra305F0000.adv
+*	CONTROLCKT=/tmp/ra505F0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra405F0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33h.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra505F0000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra405F0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra0B4B0000.adv
+*	CONTROLCKT=/tmp/ra2B4B0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra3B4B0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra2B4B0000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra3B4B0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra043F0000.adv
+*	CONTROLCKT=/tmp/ra643F0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra443F0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra643F0000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra443F0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=h
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra421F0000.adv
+*	CONTROLCKT=/tmp/ra621F0000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra721F0000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33h.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra621F0000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra721F0000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB1300000.adv
+*	CONTROLCKT=/tmp/ra91300000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra81300000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra91300000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra81300000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raEB400000.adv
+*	CONTROLCKT=/tmp/raCB400000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raBB400000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raCB400000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raBB400000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raCB500000.adv
+*	CONTROLCKT=/tmp/raEB500000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raFB500000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raEB500000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raFB500000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB0B70000.adv
+*	CONTROLCKT=/tmp/ra90B70000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra80B70000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra90B70000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra80B70000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra86700000.adv
+*	CONTROLCKT=/tmp/raA6700000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raD6700000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raA6700000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raD6700000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra4AA70000.adv
+*	CONTROLCKT=/tmp/ra6AA70000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra9AA70000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra6AA70000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra9AA70000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB0D70000.adv
+*	CONTROLCKT=/tmp/ra53D70000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra43D70000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra53D70000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra43D70000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE4030000.adv
+*	CONTROLCKT=/tmp/raC4030000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra35030000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raC4030000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra35030000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raDF650000.adv
+*	CONTROLCKT=/tmp/raFF650000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra0C650000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raFF650000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra0C650000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra83450000.adv
+*	CONTROLCKT=/tmp/raA3450000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raB3450000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raA3450000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raB3450000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra01240000.adv
+*	CONTROLCKT=/tmp/ra21240000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raD1240000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra21240000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raD1240000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=37
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB8450000.adv
+*	CONTROLCKT=/tmp/ra98450000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raE8450000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra98450000.adv ;n
+*
+.temp 37
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raE8450000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra74A20000.adv
+*	CONTROLCKT=/tmp/ra54A20000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA5A20000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra54A20000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA5A20000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raA6600000.adv
+*	CONTROLCKT=/tmp/ra86600000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra96600000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra86600000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra96600000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra69920000.adv
+*	CONTROLCKT=/tmp/ra09920000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra39920000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra09920000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra39920000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=56
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra3F820000.adv
+*	CONTROLCKT=/tmp/ra1F820000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raEF820000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra1F820000.adv ;n
+*
+.temp 56
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raEF820000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=n
+*	TEMP=67
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra1A050000.adv
+*	CONTROLCKT=/tmp/ra7A050000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra4A050000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33n.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra7A050000.adv ;n
+*
+.temp 67
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra4A050000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=l
+*	TEMP=67
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raB3F60000.adv
+*	CONTROLCKT=/tmp/raD3F60000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raE3F60000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33l.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raD3F60000.adv ;n
+*
+.temp 67
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raE3F60000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=al
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra10540000.adv
+*	CONTROLCKT=/tmp/ra30540000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra40540000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33al.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra30540000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra40540000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raCD440000.adv
+*	CONTROLCKT=/tmp/raED440000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raFD440000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raED440000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raFD440000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=ah
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra55370000.adv
+*	CONTROLCKT=/tmp/raB4370000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raA4370000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33ah.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raB4370000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raA4370000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=al
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra5B310000.adv
+*	CONTROLCKT=/tmp/ra7B310000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra6B310000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33al.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra7B310000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra6B310000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raD6740000.adv
+*	CONTROLCKT=/tmp/ra37740000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra27740000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra37740000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra27740000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=ah
+*	TEMP=85
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra28640000.adv
+*	CONTROLCKT=/tmp/ra08640000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raF8640000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33ah.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra08640000.adv ;n
+*
+.temp 85
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raF8640000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=al
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra38270000.adv
+*	CONTROLCKT=/tmp/ra18270000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra18270000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33al.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra18270000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra18270000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=an
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raACA10000.adv
+*	CONTROLCKT=/tmp/raCCA10000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raFCA10000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33an.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raCCA10000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raFCA10000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=ah
+*	TEMP=125
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra6CA70000.adv
+*	CONTROLCKT=/tmp/ra4CA70000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/raBDA70000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33ah.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra4CA70000.adv ;n
+*
+.temp 125
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/raBDA70000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=al
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra41E10000.adv
+*	CONTROLCKT=/tmp/ra61E10000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra71E10000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33al.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra61E10000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra71E10000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=ah
+*	TEMP=25
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/ra65610000.adv
+*	CONTROLCKT=/tmp/ra05610000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra15610000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33ah.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra05610000.adv ;n
+*
+.temp 25
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra15610000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=al
+*	TEMP=28
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raE9B30000.adv
+*	CONTROLCKT=/tmp/ra89B30000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra89B30000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33al.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/ra89B30000.adv ;n
+*
+.temp 28
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra89B30000.out
+*
+*
+.end
+* ADVICE run file
+*
+* ADVICE run file which is executed from the the X Windows menu
+*
+*
+*	The following character strings get substituted for :
+*
+*		PROC		process
+*		TEMP		temperature
+*		TIMESTEP	time step intervale
+*		TIMELEN		time length
+*		POW		power supply voltage
+*
+*
+* here are some test substitutions :
+*	PROC=ah
+*	TEMP=28
+*	TIMESTEP=0.1n
+*	TIMELEN=5n
+*	POW=3.3
+*
+* and the circuit files :
+*	MAINCKT=/tmp/raD7F10000.adv
+*	CONTROLCKT=/tmp/raB7F10000.adv
+*
+* and the temporary output file :
+*	OUTFILE=/tmp/ra87F10000.out
+*
+*
+* general library
+*
+.lib lib4=genlib.adv
+*
+*
+* straight CMOS, 0.5um, 3.3 Volt
+*
+.lib lib1=cmos5_33ah.adv
+*
+*
+.use options.adv
+*
+*
+.rd /tmp/raB7F10000.adv ;n
+*
+.temp 28
+*
+*
+.opti rfile=init.adv
+*
+.opti pivot=1
+.opti lvlprt=3
+*
+.opti itl1=500
+.opti ipta=0
+.dc op
+.file rfile=winit.adv
+*
+*
+.op * > op.results
+*
+.tran 0.1n 5n
+*
+.file ofile=/tmp/ra87F10000.out
+*
+*
+.end

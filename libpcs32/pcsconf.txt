@@ -1,0 +1,39 @@
+PCSCONF (object)
+
+
+int pcsconf_start(op,pr,cfname)
+PCSCONF		*op ;
+const char	*pr ;
+const char	*cfname ;
+
+
+int pcsconf_curbegin(op,curp)
+PCSCONF		*op ;
+PCSCONF_CUR	*curp ;
+
+
+int pcsconf_issecure(op) ;
+PCSCONF		*op ;
+
+
+int pcsconf_finish(op) ;
+PCSCONF		*op ;
+
+
+Example use:
+
+	PCSCONF	pc ;
+
+	if ((rs = pcsconf_start(&pc)) >= 0) {
+	    PCSPOLL	pp ;
+	    if ((rs = pcspoll_start(&pp,&pc)) >= 0) {
+
+/* do stuff in main program */
+
+	        pcspoll_finish(&pp) ;
+	    }
+	    pcsconf_finish(&pc) ;
+	}
+
+
+

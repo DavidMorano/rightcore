@@ -1,0 +1,4 @@
+install-help:		$(T).help
+	-mkdir -p $(HELPDIR) 2> /dev/null
+	makenewer -o rmsuf $(T).help $(HELPDIR)
+

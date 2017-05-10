@@ -1,0 +1,311 @@
+'\" t
+.TH PCSPOLL 1m 0 PCS
+.SH NAME
+pcspoll \- PCS polling helper program
+.SH SYNOPSIS
+.\"_
+.\"_
+.\"_ some AT&T standard strings
+.\"_
+.if t \{\
+.fp5 CW
+.ds mW \&\f5
+.ds mB \&\f(CB
+.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
+.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
+.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
+.ds rq ''
+.ds lq ``
+.tr * \(**
+'br\}
+.if n \{\
+.ds mW \f3
+.ds mB \f3
+.ds Tm \uTM\d
+.ds Sm \uSM\d
+.ds Rg (Reg.)
+.ds lq \&"
+.ds rq \&"
+'br\}
+.\"_
+.\"_ some AT&T standard macros
+.\"_
+.de HY
+.hy14
+..
+.\"_
+.de MW
+.nh
+.it1 }N
+.ie\\n(.$ \{\
+.ie\\n(.$=1 \*(mW\&\\$1\fP
+.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
+.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
+.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
+.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
+.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
+.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
+.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
+.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
+.el\{\
+.ift .ft 5
+.ifn .ft 3 \}
+.HY
+..
+.\"_
+.de OP
+.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
+.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
+..
+.\"_
+.de EX
+.sp\\n(PDu
+.in+5n
+.ifn .ft 3
+.ift \{\
+.ft5
+.if\\$1-1 \{\
+.ps-1
+.vs-1
+.nreX 1 \}\}
+.nf
+..
+.de EE
+.fi
+.if\\n(eX \{\
+.ps+1
+.vs+1
+.nreX 0 \}
+.ft1
+.in-5n
+.sp\\n(PDu
+..
+.\"_
+.\"_
+.BR pcspoll
+\&[
+.IR "service(s) ..."
+\&]
+.OP -C "  filepath" ] [
+.OP -R "  programroot" ] [
+.OP -d[=\fItime\fP] "" ] [
+.OP -f "" ] [
+.OP -m "  time" ] [
+.OP -V "" ] [
+.SH DESCRIPTION
+.sp
+.SS Introduction
+.PP
+The \fIpcspoll\fP program
+is used by the Personal Communication Services (PCS) to poll for
+PCS related activities that have been setup by the PCS system administrator.
+These activities usually include maintenance activities that are
+needed periodically by the PCS system but that are not handled
+automatically in many typical configurations.
+The \fIpcspoll\fP program
+is actually part of a larger facility with the PCS system.
+It is the program that does eventually actually do any polling though.
+The rest of the facility is embedded within other aspects or other
+service facilities of the PCS system and are not directly visible.
+
+There are many ways that
+the \fIpcspoll\fP program
+may be invoked.  
+Typically, the PCS system administrator
+need only configure required services and 
+the \fIpcspoll\fP program
+will be periodically invoked by various PCS users over time
+when they execute those PCS user facilities that also
+have part of the \fIpcspoll\fP facility
+embedded within them.  Those other PCS programs
+may end up invoking this program
+as a side maintenance activity if it is determined to be warranted.
+The \fIpcspoll\fP program
+can also be invoked by the PCS administrator, a PCS cron job,
+or by a user directly.
+Finally, the program can run as a standing daemon program.
+Some of the various ways that the program might be executed
+are discussed later.
+.\"_
+.SS Options
+There are a number of options that can be used to tailor the
+print job in certain ways.  Most of the options take an additional
+value after the key word or letter.  The option value is always
+separated from the key letter with one or more spaces.
+.PP
+.RS 5
+.TP 15
+\fB-C\fP  \fIfilepath\fP
+This option allows for the specification of the configuration
+file for the program.  This usually does not have
+to be specified by may be if an alternate configuration file
+than the default is desired.
+Normally, the configuration file is searched for within
+the program root that is in effect at the time of the invocation
+of the program.
+If a rooted filepath is given as an argument, it is used directly.
+If a non-rooted filepath is given, then a schedule is used
+to search for the file or non-rooted file path.  The resulting
+file can be found in either the program root area or someplace
+under the current directory.
+This option is usually used only for testing purposes.
+.TP 15
+\fB-R\fP  \fIprogramroot\fP
+This option allows for the specification of the program root
+that will be used.
+The program root is basically used as a search are for various
+PCS related facilities.
+Usually this option does not need to specified as a program
+root is often or usually setup or determined by the PCS
+administrator at installation time.
+This option is usually used only for testing purposes.
+.TP 15
+\fB-d[\fI=time\fP]\fP
+This option tells the program to go into daemon mode as a standing
+server.
+This is sort of a degenerate case of the main function of this
+facility.
+This may be desirable to limit the number of machines that
+will end up invoking the program.  Usually, only one instance
+of an active PCS poller is allowed in any given PCS cluster.
+When one of these programs is running in daemon mode, it normally
+prevents any others from executing with the exception of
+those invocations that explicitly specify a service at
+invocation time.
+Daemon mode operation also, obviously, forces all PCS polling
+activity to be confined to the program that
+the \fIpcspoll\fP program
+is executing on (an access table restriction can be used for these
+types of purposes also).
+Finally, daemon mode \fImay\fP reduce over-all system resources
+used since all resources are cached locally on the executing
+system rather than being spread out (as they normally would be)
+on all participating PCS machines in the current PCS cluster.
+If the optional time is given along with the key to do into
+daemon mode, the program will only execute in daemon for the
+amount of time specified.  When no time is given, the program
+will continue executing in daemon mode indefinely.
+It is not clear what the benefit might be for executing in daemon
+mode (standing daemon program) for a limited time but certain
+systems might benefit if it is known that a flurry of PCS related
+activity (such as needs the services providing by the polling
+programs) is to taken place at a certain time (for example).
+The program can be executed just before that time with a timeout
+give for when to leave daemon mode and return to normal operation.
+.TP 15
+\fB-f\fP
+This option is used for force 
+the \fIpcspoll\fP program
+to execute even if other heuristis used by the program
+indicate that an execution at the present time is
+not particularly needed.
+Normally 
+the \fIpcspoll\fP facility
+employs a number of hierarchically tiered heuristics
+that serve to determine when the various configured polling 
+activities should be carried out.
+The goal is to minimize system resources needed to maintain
+a reasonably smooth PCS system operation.
+This option is used to eliminate the first tier heuristics
+that might otherwise prevent a polling evaluation to occur.
+Explicit services may or may not be specified with this option.
+.TP 15
+\fB-m\fP  \fItime\fP
+This option sets the minimum time interval that should
+expire before any polling evaluations are carried out.
+The \fB-f\fP is very similar to (if not identical) as if \fB-m 0\fP was given.
+.TP 15
+\fB-V\fP  
+This option will print the program version to standard error output
+and then exit.
+.RE
+.\"_
+.SH CONFIGURATION
+.\"_
+There are three main files that serve to provide configuration
+information to the PCSPOLL facility.
+In addition, there are also some options that can be set in the main
+PCS site configuration file.
+.\"_
+.SS "General Configuration"
+.\"_
+General configuration is provide through the program's main
+configuration file (also specified through the 
+optional \f(CW -C configfile \fP
+option at invocation).
+This file contains information about various general program
+files.  Two of these files are of most importance.
+The first is the service table file.  The second is the access table
+file.  The service table file is required (if a system needs polling at
+all).  The access table file is optional.
+These files are discussed more in their own sections.
+Administrators are urged to just look at either some actual or
+sample files and model their needs after what are in the existing
+templates.
+.\"_
+.SH ENVIRONMENT VARIABLES
+The following environment variables may change the default behavior of the
+program.
+.RS 5
+.TP 15
+.B PCSPOLL_PROGRAMROOT
+This environment variable is taken to contain
+the program root over any other such environment variable.
+The \fB-R\fP argument overides this environment variable.
+.\"_
+.TP 15
+.B PCS
+This environment variable is normally taken to contain
+the program root.
+The \fB-R\fP argument overides this environment variable.
+.\"_
+.TP 15
+.B PROGRAMROOT
+This environment variable is taken to contain
+the program root if not other suitable environment variable
+this this purpose are in the environment.
+The \fB-R\fP argument overides this environment variable.
+.RE
+.\"_
+.SH EXAMPLES
+.IP \(rh 5
+poll certain services that are not configured to run automatically :
+.EX
+ \f(CWpcspoll serivce_name ...\fP
+.EE
+.IP \(rh 5
+run in daemon mode for two hours :
+.EX
+ \f(CWpcspoll -d=2h\fP
+.EE
+.IP \(rh 5
+poll everything configured to run automatically once for work :
+.EX
+  \f(CWpcspoll \fP
+.EE
+; this is almost the same as what is done with the PCSPOLL facility
+that is built into many of the PCS programs
+.\"_
+.SH SEE ALSO
+bb(1), vmail(1), msgs(1)
+.\"_
+.SH PATH TO
+This program is currently located 
+in \f(CW /usr/add-on/pcs/bin \fP
+or possibly where ever PCS programs are stored on your system.
+This is often 
+at \f(CW ${PCS}/bin \fP
+on some systems.
+.\"_
+.SH WARNINGS
+Be careful to put at one space between all option key 
+letters and the associated
+key letter parameter.
+.\"_
+.SH AUTHOR
+David Morano
+.\"_
+.SH ACKNOWLEDGEMENTS
+All previous PCS contributors and administrators.
+.\"_
+.\"_

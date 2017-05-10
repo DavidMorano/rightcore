@@ -1,0 +1,10 @@
+#!/usr/bin/ksh
+# BIBLECLEAN
+
+
+SRC=bibletest
+
+bibleclean.x -t rena ${SRC}.txt > bibletest_db.txt
+
+
+

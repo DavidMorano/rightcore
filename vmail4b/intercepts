@@ -1,0 +1,12 @@
+# INTERCEPTS (VMAIL)
+
+
+new:	
+	p= pcsgetmail
+
+bbtemp:
+	so= bbmb,
+	a= bbmb bbtemp
+
+
+

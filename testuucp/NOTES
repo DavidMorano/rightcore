@@ -1,0 +1,25 @@
+TESTUUCP
+
+
+Cache File Format
+
+magic\n\0		always 16 bytes !
+ident(VETU)		always 4 bytes
+length			4
+cksum			4
+timestamp		4
+wserial			4
+filename\n\p		variable length but padded to 4 byte boundary
+
+rectab
+rectablen
+
+strtab
+strtablen
+
+RECTAB
+
+STRTAB
+
+
+

@@ -1,0 +1,8 @@
+testdate.x -> libc.so.1:atexit(func = 0xef78d61c) = 0x0
+testdate.x -> libc.so.1:atexit(func = 0x237d0) = 0x0
+testdate.x -> libc.so.1:time(tloc = 0x0) = 0x40057879
+testdate.x -> libc.so.1:localtime_r(clock = 0xefffeb04, res = 0xefffea9c) = 0xefffea9c
+testdate.x -> libc.so.1:sprintf(buf = 0xefffeb24, format = 0x34334, ...) = 14
+testdate.x -> libc.so.1:fprintf(fp = 0x344e0, format = 0x23ad4, ...) = 15
+testdate.x -> libc.so.1:_exithandle(0xf, 0xf, 0xef7f46ec)
+testdate.x -> libc.so.1:_exit(

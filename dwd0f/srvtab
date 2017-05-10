@@ -1,0 +1,88 @@
+# SRVTAB
+# DWD service table
+
+#	The following substitutions are made on command strings :
+
+#		%V	Directory Watcher version string
+#		%R	Directory Watcher program root (or PWD)
+#		%N	machine nodename
+#		%D	machine DNS domain name
+#		%H	machine hostname (n.d)
+
+#		%d	watched directory path
+#		%f	file name argument
+#		%r	file name root (part before the last dot)
+#		%u	file username
+#		%g	file groupname
+#		%l	file length in bytes
+#		%m	UNIX modification time (integer string)
+#
+
+
+*.noop:
+	a=<echoargs noop f=%f r=%r u=%u g=%g l=%l m=%m d=%d V=%V>,
+
+*.job:
+	a=<echoargs f=%f r=%r u=%u g=%g l=%l m=%m d=%d V=%V>,
+
+*.echoargs:
+	a=<echoargs f=%f r=%r u=%u g=%g l=%l m=%m d=%d V=%V>,
+
+*.echo:
+	a=<echo test echo R=%R V=%V %f %u>,
+
+*.new:
+	a=<echo new service %f %u>,
+
+*.whoami:
+	a=<echo whoami: %u>,
+
+*.wc:
+	a= wc
+
+*.cat:
+	p=<%R/servers/catter>,
+
+*.txt:
+	p=prt,
+	u=guest,
+	a=<prt -u %u -d gwbb0>,
+
+*.ps:
+	p=prt
+	u=guest
+	a=<prt -u %u -l post -d gwbb0>
+
+*.mm:
+	p=prtfmt
+	u=guest
+	a=<prtfmt -u %u -d gwbb0>
+
+*.rslow:
+	p=rslowd
+	u=listen
+	a=<rslowd -j %r>
+
+#
+# everything else we will assume is for the RSLOW daemon !!
+#*:
+#	p=/home/gwbb/add-on/pcs/etc/rslowd
+#	a=<rslowd /home/gwbb/add-on/spool/rslow>
+#
+
+*.pcs:
+	a=<echo ${PCS} %f>
+
+*.env:
+	p=env
+#	p=%R/servers/enver
+
+*.bb:
+	p=/usr/add-on/pcs/bin/rbbpost,
+	a=<rbbpost -q>,
+
+*.junk:
+	p=junker
+
+
+

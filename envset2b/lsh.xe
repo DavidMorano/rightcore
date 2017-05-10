@@ -1,0 +1,572 @@
+# XE
+
+#
+# COOKIES
+
+# These are the cookies avilable:
+# 
+# SYSNAME  	OS system-name
+# RELEASE  	OS system-release
+# VERSION  	OS system-version
+# MACHINE  	machine-name
+# ARCHITECTURE  UAUX machine-architecture
+# PLATFORM  	UAUX machine platform
+# PROVIDER  	UAUX machine provider
+# HWSERIAL  	UAUX HW-serial
+# NISDOMAIN  
+# NCPU  	number of machine CPUs (online)
+# HZ  		OS clock tics
+# CLUSTER  	cluster-name
+# SYSTEM  	system-name
+# U  		current user username
+# G  		current user groupname
+# HOME  	current user home directory
+# SHELL  	current user shell
+# ORGANIZATION  current user organization name
+# GECOSNAME  	current user gecos-name
+# REALNAME  	current user real-name
+# NAME  	current user name
+# TZ  		current user time-zone
+# N  		nodename
+# D  		INET domainname (for current user)
+# H  		INET hostname
+# R  		program-root
+# RN  		program root-name
+# OSTYPE	Operating-System Type ('SYSV' or 'BSD")
+# OSNUM		Operating-System Number (a common number summarizing release)
+# S		search-name
+#
+
+# Cookies are introducted with the '%' character.  If a cookie has
+# only a single-character name, the form:
+#	%c
+# can be used, where 'c' is the single-character name of the cookie.
+# If the cookie has a multi-character name, it is interpolated as:
+#	%{cccc}
+# where 'cccc' is the multi-character name of the cookie.
+#
+
+
+#
+# ENVIRONMENT_VARIABLES
+# these environment variables are automatically exported:
+#
+# SYSNAME
+# RELEASE
+# VERSION
+# MACHINE
+# NCPU
+# HZ
+# ARCHITECTURE
+# PLATFORM
+# CLUSTER
+# SYSTEM
+# NODE
+# USERNAME
+# TZ
+# DOMAIN
+# HOME
+# ORGANIZATION
+# PRINTER
+# LOGNAME (only if it is a login session)
+#
+
+# Environment variables are interpolated with the familiar form:
+#	${ccc}
+# where 'ccc' is the name of the environment variable.
+# Note that there is no mechanism for determing if an environment
+# variables is set or not.  Unset or empty environment variables
+# are interpolated as an empty string.
+#
+
+
+#
+# DEFINE_VARIABLES
+# Defines are similar to environment variables but they are sourced from a
+# "define" database.  Defines are the primary administrative input to the
+# system since they generally contain information that is entirely new
+# to the system and can only generally be input by direct administrative
+# action.  Defines are interpolated in a simliar way as environment
+# variables except that parentheses are used for the interpolation rather
+# than braces.  To wit:
+#	$(ccc)
+# where 'ccc' is the name of the define variable.
+#
+
+
+
+# set variables that define the machine-architecture compilation environment
+
+		OSNAME			%{SYSNAME}
+		OSREL			%{RELEASE}
+# this next one is never really used (delete it)
+#		OSVERS			%{VERSION}
+		OSTYPE			%{OSTYPE}
+		OSNUM			%{OSNUM}
+		OSNAME_%{SYSNAME}	%{OSNUM}
+
+
+# general system configuration
+
+# this should not be needed (on normal systems)
+#MAILDIR?	MAILDIR=		$(MAILDIR)
+
+		MAILDIRS ¶=		/var/mail
+		MAILDIRS ¶=		/var/vmail
+
+
+# path setup (zero out all path variables!)
+
+		PATH =
+		LD_LIBRARY_PATH =
+		FPATH=
+		MANPATH =
+		INCPATH =
+		INFOPATH =
+
+
+# 'HOME' should be set by both |login(1)| and |envset(1)|
+#HOME?		HOME=			%{HOME}
+#
+#		PATH ¶= 		%{HOME}/bin
+#		LD_LIBRARY_PATH ¶=	%{HOME}/lib
+#		FPATH ¶=		%{HOME}/fbin
+#		MANPATH ¶=		%{HOME}/man
+#		INCPATH ¶=		%{HOME}/include
+#		INFOPATH ¶=		%{HOME}/info
+
+
+LOCAL?		LOCAL=			$(LOCAL)
+
+LOCAL?		PATH ¶= 		$(LOCAL)/bin
+LOCAL?		LD_LIBRARY_PATH ¶=	$(LOCAL)/lib
+LOCAL?		FPATH ¶=		$(LOCAL)/fbin
+LOCAL?		MANPATH ¶=		$(LOCAL)/man
+LOCAL?		INCPATH ¶=		$(LOCAL)/include
+LOCAL?		INFOPATH ¶=		$(LOCAL)/info
+LOCAL?		XFILESEARCHPATH :=	$(LOCAL)/lib/X11/%%T/%%N%%S
+LOCAL?		XUSERFILESEARCHPATH :=	$(LOCAL)/lib/X11/%%T/%%N%%S
+
+
+AST?		AST=			$(AST)
+
+AST?		PATH ¶= 		$(AST)/bin
+AST?		LD_LIBRARY_PATH ¶=	$(AST)/lib
+AST?		FPATH ¶=		$(AST)/fbin
+AST?		MANPATH ¶=		$(AST)/man
+AST?		INCPATH ¶=		$(AST)/include
+AST?		INFOPATH ¶=		$(AST)/info
+
+
+DWB?		DWB=			$(DWB)
+DWB?		DWBHOME=		$(DWB)
+
+DWB?		PATH ¶=			$(DWB)/bin
+DWB?		LD_LIBRARY_PATH ¶=	$(DWB)/lib
+DWB?		FPATH ¶=		$(DWB)/fbin
+DWB?		MANPATH ¶=		$(DWB)/man
+DWB?		INCPATH ¶=		$(DWB)/include
+DWB?		INFOPATH ¶=		$(DWB)/info
+
+
+NCMP?		NCMP=			$(NCMP)
+
+NCMP?		PATH ¶=			$(NCMP)/bin
+NCMP?		LD_LIBRARY_PATH ¶=	$(NCMP)/lib
+NCMP?		FPATH ¶=		$(NCMP)/fbin
+NCMP?		MANPATH ¶=		$(NCMP)/man
+NCMP?		INCPATH ¶=		$(NCMP)/include
+NCMP?		INFOPATH ¶=		$(NCMP)/info
+NCMP?		XFILESEARCHPATH :=	$(NCMP)/lib/X11/%%T/%%N%%S
+NCMP?		XUSERFILESEARCHPATH :=	$(NCMP)/lib/X11/%%T/%%N%%S
+
+
+XWIN?		XWIN=			$(XWIN)
+
+XWIN?		PATH ¶=			$(XWIN)/bin
+XWIN?		LD_LIBRARY_PATH ¶=	$(XWIN)/lib
+XWIN?		MANPATH ¶=		$(XWIN)/man
+XWIN?		INCPATH ¶=		$(XWIN)/include
+XWIN?		INFOPATH ¶=		$(XWIN)/info
+XWIN?		XFILESEARCHPATH :=	$(XWIN)/lib/X11/%%T/%%N%%S
+
+
+XDIR?		XDIR=			$(XDIR)
+
+XDIR?		PATH ¶=			$(XDIR)/bin
+XDIR?		LD_LIBRARY_PATH ¶=	$(XDIR)/lib
+XDIR?		MANPATH ¶=		$(XDIR)/man
+XDIR?		INCPATH ¶=		$(XDIR)/include
+XDIR?		INFOPATH ¶=		$(XDIR)/info
+XDIR?		XFILESEARCHPATH :=	$(XDIR)/lib/X11/%%T/%%N%%S
+
+
+DT?		DT=			$(DT)
+
+DT?		PATH ¶=			$(DT)/bin
+DT?		LD_LIBRARY_PATH ¶=	$(DT)/lib
+DT?		FPATH ¶=		$(DT)/fbin
+DT?		MANPATH ¶=		$(DT)/man
+DT?		INCPATH ¶=		$(DT)/include
+DT?		INFOPATH ¶=		$(DT)/info
+
+
+OPENWIN?	OPENWIN=		$(OPENWIN)
+OPENWIN?	OPENWINHOME=		$(OPENWIN)
+
+OPENWIN?	PATH ¶=			$(OPENWIN)/bin
+OPENWIN?	PATH ¶=			$(OPENWIN)/demo
+OPENWIN?	LD_LIBRARY_PATH ¶=	$(OPENWIN)/lib
+OPENWIN?	FPATH ¶=		$(OPENWIN)/fbin
+OPENWIN?	MANPATH ¶=		$(OPENWIN)/man
+OPENWIN?	INCPATH ¶=		$(OPENWIN)/include
+OPENWIN?	INFOPATH ¶=		$(OPENWIN)/info
+OPENWIN?	XFILESEARCHPATH :=	\
+			$(OPENWINHOME)/lib/locale/%%L/%%T/%%N%%S
+
+
+PREROOT?	PREROOT=		$(PREROOT)
+
+PREROOT?	PATH ¶=			$(PREROOT)/bin
+PREROOT?	LD_LIBRARY_PATH ¶=	$(PREROOT)/lib
+PREROOT?	FPATH ¶=		$(PREROOT)/fbin
+PREROOT?	MANPATH ¶=		$(PREROOT)/man
+PREROOT?	INCPATH ¶=		$(PREROOT)/include
+PREROOT?	INFOPATH ¶=		$(PREROOT)/info
+PREROOT?	XUSERFILESEARCHPATH :=	$(PREROOT)/lib/X11/%%T/%%N%%S
+
+
+XPG4?		XPG4=			$(XPG4)
+
+XPG4?		PATH ¶=			$(XPG4)/bin
+#XPG4?		LD_LIBRARY_PATH ¶=	$(XPG4)/lib # danger:bad!
+XPG4?		FPATH ¶=		$(XPG4)/fbin
+XPG4?		MANPATH ¶=		$(XPG4)/man
+XPG4?		INCPATH ¶=		$(XPG4)/include
+XPG4?		INFOPATH ¶=		$(XPG4)/info
+
+
+# this is the UNIX® System distribution (it should always be present)
+
+		PATH ¶=			/usr/bin
+#		LD_LIBRARY_PATH ¶=	/usr/lib	# not needed (default)
+		FPATH ¶=		/usr/fbin
+		MANPATH ¶=		/usr/man
+		INCPATH ¶=		/usr/include
+		INFOPATH ¶=		/usr/info
+
+
+# this is the Sun Microsystems UNIX® language compilation distribution
+#
+# SUNWspro
+SUNWSPRO?	SUNWSPRO=		$(SUNWSPRO)
+#
+#SUNWSPRO?	PATH ¶=			$(SUNWSPRO)/bin
+#SUNWSPRO?	LD_LIBRARY_PATH ¶=	$(SUNWSPRO)/lib
+#SUNWSPRO?	FPATH ¶=		$(SUNWSPRO)/fbin
+#SUNWSPRO?	MANPATH ¶=		$(SUNWSPRO)/man
+#SUNWSPRO?	INCPATH ¶=		$(SUNWSPRO)/include
+#SUNWSPRO?	INFOPATH ¶=		$(SUNWSPRO)/info
+#
+
+
+# this is the Sun Microsystems UNIX® language compilation-support distribution
+
+CCS?		CCS=			$(CCS)
+
+CCS?		PATH ¶=			$(CCS)/bin
+CCS?		LD_LIBRARY_PATH ¶=	$(CCS)/lib
+CCS?		FPATH ¶=		$(CCS)/fbin
+CCS?		MANPATH ¶=		$(CCS)/man
+CCS?		INCPATH ¶=		$(CCS)/include
+CCS?		INFOPATH ¶=		$(CCS)/info
+
+
+GNU?		GNU=			$(GNU)
+
+GNU?		PATH ¶=			$(GNU)/bin
+GNU?		LD_LIBRARY_PATH ¶=	$(GNU)/lib
+GNU?		FPATH ¶=		$(GNU)/fbin
+GNU?		MANPATH ¶=		$(GNU)/man
+GNU?		INCPATH ¶=		$(GNU)/include
+GNU?		INFOPATH ¶=		$(GNU)/info
+GNU?		XUSERFILESEARCHPATH :=	$(GNU)/lib/X11/%%T/%%N%%S
+
+
+PCS?		PCS=			$(PCS)
+
+PCS?		PATH ¶=			$(PCS)/bin
+PCS?		LD_LIBRARY_PATH ¶=	$(PCS)/lib
+PCS?		FPATH ¶=		$(PCS)/fbin
+PCS?		MANPATH ¶=		$(PCS)/man
+PCS?		INCPATH ¶=		$(PCS)/include
+PCS?		INFOPATH ¶=		$(PCS)/info
+
+
+# Writers Work Bench (WWB)
+WWB?		WWB=			$(WWB)
+
+WWB?		PATH ¶=			$(WWB)/bin
+WWB?		LD_LIBRARY_PATH ¶=	$(WWB)/lib
+WWB?		FPATH ¶=		$(WWB)/fbin
+WWB?		MANPATH ¶=		$(WWB)/man
+WWB?		INCPATH ¶=		$(WWB)/include
+WWB?		INFOPATH ¶=		$(WWB)/info
+
+
+# TeX
+TETEX?		TETEX=			$(TETEX)
+TETEX?		TETEXDIR ¶=		$(TETEX)
+
+TETEX?		PATH ¶=			$(TETEX)/bin
+TETEX?		LD_LIBRARY_PATH ¶=	$(TETEX)/lib
+TETEX?		FPATH ¶=		$(TETEX)/fbin
+TETEX?		MANPATH ¶=		$(TETEX)/man
+TETEX?		INCPATH ¶=		$(TETEX)/include
+TETEX?		INFOPATH ¶=		$(TETEX)/info
+
+TETEX?		TEXMF ¶=		$(TETEX)/share/texmf
+
+
+ADMIN?		ADMIN=			$(ADMIN)
+
+ADMIN?		PATH ¶=			$(ADMIN)/bin
+ADMIN?		LD_LIBRARY_PATH ¶=	$(ADMIN)/lib
+ADMIN?		FPATH ¶=		$(ADMIN)/fbin
+ADMIN?		MANPATH ¶=		$(ADMIN)/man
+ADMIN?		INCPATH ¶=		$(ADMIN)/include
+ADMIN?		INFOPATH ¶=		$(ADMIN)/info
+
+
+#
+POSTFIX?	POSTFIX=		$(POSTFIX)
+#
+#POSTFIX?	PATH ¶=			$(POSTFIX)/bin
+#POSTFIX?	LD_LIBRARY_PATH ¶=	$(POSTFIX)/lib
+#POSTFIX?	FPATH ¶=		$(POSTFIX)/fbin
+#POSTFIX?	MANPATH ¶=		$(POSTFIX)/man
+#POSTFIX?	INCPATH ¶=		$(POSTFIX)/include
+#POSTFIX?	INFOPATH ¶=		$(POSTFIX)/info
+#
+
+
+# AppleTalk (this is bugger and should be ignored)
+#ATALK?		ATALK=			$(ATALK)
+#
+#ATALK?		PATH ¶=			$(ATALK)/bin
+#ATALK?		LD_LIBRARY_PATH ¶=	$(ATALK)/lib
+#ATALK?		FPATH ¶=		$(ATALK)/fbin
+#ATALK?		MANPATH ¶=		$(ATALK)/man
+#ATALK?		INCPATH ¶=		$(ATALK)/include
+#ATALK?		INFOPATH ¶=		$(ATALK)/info
+#
+
+
+# Secure-Login (SL)
+SL?		SL=			$(SL)
+
+SL?		PATH ¶=			$(SL)/bin
+SL?		LD_LIBRARY_PATH ¶=	$(SL)/lib
+SL?		FPATH ¶=		$(SL)/fbin
+SL?		MANPATH ¶=		$(SL)/man
+SL?		INCPATH ¶=		$(SL)/include
+SL?		INFOPATH ¶=		$(SL)/info
+
+
+IPF?		IPF=			$(IPF)
+
+IPF?		PATH ¶=			$(IPF)/bin
+IPF?		LD_LIBRARY_PATH ¶=	$(IPF)/lib
+IPF?		FPATH ¶=		$(IPF)/fbin
+IPF?		MANPATH ¶=		$(IPF)/man
+IPF?		INCPATH ¶=		$(IPF)/include
+IPF?		INFOPATH ¶=		$(IPF)/info
+
+
+HPNP?		HPNP=			$(HPNP)
+
+HPNP?		PATH ¶=			$(HPNP)/bin
+HPNP?		LD_LIBRARY_PATH ¶=	$(HPNP)/lib
+HPNP?		FPATH ¶=		$(HPNP)/fbin
+HPNP?		MANPATH ¶=		$(HPNP)/man
+HPNP?		INCPATH ¶=		$(HPNP)/include
+HPNP?		INFOPATH ¶=		$(HPNP)/info
+
+
+JAVA?		JAVA=			$(JAVA)
+JAVA?		JAVA_HOME=		$(JAVA)
+
+JAVA?		PATH ¶=			$(JAVA)/bin
+JAVA?		LD_LIBRARY_PATH ¶=	$(JAVA)/lib
+JAVA?		FPATH ¶=		$(JAVA)/fbin
+JAVA?		MANPATH ¶=		$(JAVA)/man
+JAVA?		INCPATH ¶=		$(JAVA)/include
+JAVA?		INFOPATH ¶=		$(JAVA)/info
+
+
+SOUND?		SOUND=			$(SOUND)
+
+SOUND?		PATH ¶=			$(SOUND)/bin
+SOUND?		LD_LIBRARY_PATH ¶=	$(SOUND)/lib
+SOUND?		FPATH ¶=		$(SOUND)/fbin
+SOUND?		MANPATH ¶=		$(SOUND)/man
+SOUND?		INCPATH ¶=		$(SOUND)/include
+SOUND?		INFOPATH ¶=		$(SOUND)/info
+
+
+TOOLS?		TOOLS=			$(TOOLS)
+
+TOOLS?		PATH ¶=			$(TOOLS)/bin
+TOOLS?		LD_LIBRARY_PATH ¶=	$(TOOLS)/lib
+# there are no real man pages in EXPTOOLS!
+TOOLS?		FPATH ¶=		$(TOOLS)/fbin
+#TOOLS?		MANPATH ¶=		$(TOOLS)/man
+TOOLS?		INCPATH ¶=		$(TOOLS)/include
+TOOLS?		INFOPATH ¶=		$(TOOLS)/info
+
+
+# projects
+
+STARBASE?	STARBASE=		$(STARBASE)
+
+STARBASE?	PATH ¶=			$(STARBASE)/tools/bin
+STARBASE?	LD_LIBRARY_PATH ¶=	$(STARBASE)/tools/lib
+STARBASE?	FPATH ¶=		$(STARBASE)/tools/fbin
+STARBASE?	MANPATH ¶=		$(STARBASE)/tools/man
+STARBASE?	INCPATH ¶=		$(STARBASE)/tools/include
+STARBASE?	INFOPATH ¶=		$(STARBASE)/tools/info
+
+
+EXTRA?		EXTRA=			$(EXTRA)
+
+EXTRA?		PATH ¶=			$(EXTRA)/bin
+EXTRA?		LD_LIBRARY_PATH ¶=	$(EXTRA)/lib
+EXTRA?		FPATH ¶=		$(EXTRA)/fbin
+EXTRA?		MANPATH ¶=		$(EXTRA)/man
+EXTRA?		INCPATH ¶=		$(EXTRA)/include
+EXTRA?		INFOPATH ¶=		$(EXTRA)/info
+
+
+# special library to thwart a bug in Solaris® thread-library
+EXTRA?		LD_RUN_PATH µ=		$(EXTRA)/lib
+		LD_RUN_PATH µ=		/usr/lib/lwp
+
+EXTRA?		LD_LIBRARY_PATH ¶= 	$(EXTRA)/lib
+		LD_LIBRARY_PATH ¶= 	/usr/lib/lwp
+
+
+APACHE?		APACHE=			$(APACHE)
+
+APACHE?		PATH ¶=			$(APACHE)/bin
+APACHE?		LD_LIBRARY_PATH ¶=	$(APACHE)/lib
+APACHE?		FPATH ¶=		$(APACHE)/fbin
+APACHE?		MANPATH ¶=		$(APACHE)/man
+APACHE?		INCPATH ¶=		$(APACHE)/include
+APACHE?		INFOPATH ¶=		$(APACHE)/info
+
+
+# system-admins get their own system path
+
+#
+#		PATH ¶=			%{HOME}/sbin
+#
+
+# other system paths
+
+#		PATH ¶=			/home/admin/bin
+#		PATH ¶=			/home/admin/sbin
+
+		PATH ¶=			/usr/sbin
+LOCAL?		PATH ¶=			$(LOCAL)/sbin
+NCMP?		PATH ¶=			$(NCMP)/sbin
+PCS?		PATH ¶=			$(PCS)/sbin
+POSTFIX?	PATH ¶=			$(POSTFIX)/sbin
+#ATALK?		PATH ¶=			$(ATALK)/sbin
+SL?		PATH ¶=			$(SL)/sbin
+
+		PATH ¶=			/usr/lib/nis
+
+EXTRA?		PATH ¶=			$(EXTRA)/sbin
+
+
+GAMES?		GAMES=			$(GAMES)
+
+GAMES?		PATH ¶=			$(GAMES)
+
+
+# current directory if not already present
+
+		PATH :=
+
+# special run-time linker preloaded library
+		LD_PRELOAD	­=	/usr/lib/secure/libpreload.so
+
+
+
+# media
+
+CATMAN?		CATMAN=			$(CATMAN)
+ARTICLES?	ARTICLES=		$(ARTICLES)
+DOCUMENTS?	DOCUMENTS=		$(DOCUMENTS)
+MUSIC?		MUSIC=			$(MUSIC)
+MOVIES?		MOVIES=			$(MOVIES)
+SOUNDS?		SOUNDS=			$(SOUNDS)
+INTERVIEWS?	INTERVIEWS=		$(INTERVIEWS)
+REPORTS?	REPORTS=		$(REPORTS)
+IMAGES?		IMAGES=			$(IMAGES)
+LECTURES?	LECTURES=		$(LECTURES)
+PATCHES?	PATCHES=		$(PATCHES)
+
+
+# common
+		WWW=			/common/www
+
+
+# program-roots
+
+# Magick
+NCMP?		MAGICK_HOME=		$(NCMP)
+
+
+# miscellaneous
+
+GNU?		CC=			gcc
+GNU?		GPP=			g++
+
+		CDPATH :=		
+		CDPATH ¶=		%{HOME}
+		CDPATH ¶=		/usr/add-on
+
+
+# other environment variables (other than paths!)
+
+HOME?		ENV=			%{HOME}/.kshrc
+PREROOT?	SHELL=			$(PREROOT)/bin/ksh
+
+
+# the following should not be needed since it should be the default
+#		TMPDIR=			/tmp
+
+
+# support your local UUCP facility (what does this really do?)
+UUCPPUBLIC?	UUCPPUBLIC=		$(UUCPPUBLIC)
+
+
+# set any final environment variables
+
+# these following two variables are put into the environment by default
+#		CLUSTER			%{CLUSTER}
+#		SYSTEM			%{SYSTEM}
+
+# set this stuff for the pesky new GNU 'ls(1)' program!
+
+		LS_TIMESTYLE		locale
+		LS_IDWIDTH		fixed
+
+# testing
+
+#		XCLUSTER		%{CLUSTER}
+#		XSYSTEM			%{SYSTEM}
+
+
+

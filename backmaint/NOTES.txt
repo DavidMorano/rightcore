@@ -1,0 +1,9 @@
+BACKMAINT
+
+This command should perform at least the following functions:
+
+1. search for and remove 'core' files
+2. ensure the group of each directory is ours ('maint')
+3. ensure the group-permissions for each directory are 'rwx'
+
+

@@ -1,0 +1,9 @@
+nice 0
+maxexec 1
+mail c
+supervisor sys_now/This_week
+mailsupervisor sec
+loadsched 10
+loadstop 15
+restart
+rlimitrss 0

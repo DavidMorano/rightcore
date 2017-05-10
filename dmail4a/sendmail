@@ -1,0 +1,19 @@
+#!/usr/bin/ksh
+# SENDMAIL
+
+
+HOME_DAM=/home/dam
+THISDIR=${HOME_DAM}/src/dmail
+SENDMAIL=/usr/local/lib/POSTFIXsendmail
+
+echoargs $0 "${@}" > ${THISDIR}/sm.args
+export > ${THISDIR}/sm.env
+cat > ${THISDIR}/sm.stdin
+
+#
+#E=${THISDIR}/e
+#
+#${SENDMAIL} < ${THISDIR}/sm.stdin "${@}" 2> $E
+#
+
+

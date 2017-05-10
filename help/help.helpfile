@@ -1,0 +1,18 @@
+------------------------------- HELP -------------------------------------------
+
+login		function
+--------------------------------------------------------------------------------
+systat		system status
+sync		synchronize filesystems
+<user>		customer account
+
+email		administration
+--------------------------------------------------------------------------------
+pcs		Personal Communication Services
+local		LOCAL tools (software distribution)
+exptools	EXPTOOLS software distribution
+ncmp		NCMP software distribution
+gnu		GNU is Not UNIX® software distribution
+ast		Advances Software Technologies (AT&T Research)
+admin		general system
+

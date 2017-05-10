@@ -1,0 +1,14 @@
+#!/usr/bin/ksh
+# MAKEINSTALLSECURE
+
+LIB=libpretime.so
+
+makeit
+if [[ -x ${LIB} ]] ; then
+  for D in /root[01]/usr/lib/secure ; do
+    mn -r ${LIB} ${D} &
+  done
+fi
+wait
+
+

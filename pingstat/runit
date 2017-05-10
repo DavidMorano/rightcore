@@ -1,0 +1,6 @@
+#!/usr/bin/ksh
+# RUNIT
+ 
+z d ; PINGSTAT_DEBUGFILE=d pingstat.x -D=5 2> e -i -d=5m
+
+

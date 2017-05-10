@@ -1,0 +1,21 @@
+#!/usr/extra/bin/ksh
+# MKSGID
+# (Make SetGroupID)
+#
+
+T=notice.x
+
+PN=${0}
+
+if [[ ! -f ${T} ]] ; then
+  print -u2 -- "${PN}: file \"${T}\" was not found"
+  exit 1
+fi
+
+
+mine ${T}
+chgrp tty ${T}
+chmod ugo+x ${T}
+chmod g+s ${T}
+
+

@@ -1,0 +1,18 @@
+L
+
+This command is pretty much the same as 'l(1)'.  Except that this is much
+faster on some systems that are incredibly I/O bound (for some strange
+reason).  This program is executed as part of the KSH program.  This command
+cannot be used to list the contents of directories; use 'ls(1)' instead for
+that.
+
+Synopsis:
+$ l [<file(s)>] [-af <afile>] [-of <ofile>] [-r] [-V]
+
+Arguments:
+<file(s)>	files to list
+-af <afile>	argument file
+-of <ofile>	output file
+-r		reverse order of sorting
+-V		print command version to standard-error and then exit
+

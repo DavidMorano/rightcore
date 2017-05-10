@@ -1,0 +1,1908 @@
+From dam Mon Feb 07 10:12:00 EST 2005
+return-path: dam
+content-length: 1940            
+message-id: <rca2592711077891201953@rightcore.com>
+From: Sally Lee <sally@csail.mit.edu>
+To: arenaz@udc.es, osbee81@yahoo.com, kimns@eecs.umich.edu, wuj@iis.sinica.edu.tw, sswami@hotmail.com, k.liu@reading.ac.uk, herb.g.mayer@intel.com, jeff.collard@hpl.hp.com, hzhou@unity.ncsu.edu, srinivsn@cs.uiuc.edu, f.wang@londonmet.ac.uk, wychen@cs.berkeley.edu, jiao@uiuc.edu, alan.karp@hp.com, ravi.rajwar@intel.com, mtake@jp.ibm.com, dortega@ac.upc.es, mateo@ac.upc.es, mock@cs.pitt.edu, gb63@cornell.edu, hasama@rd.scei.sony.co.jp, yab@umiacs.umd.edu, cascaval@us.ibm.com, vinicio@cs.rutgers.edu, wzhang@cse.psu.edu, wchuang@cs.ucsd.edu, germain@lal.in2p3.fr, tnm@eecs.umich.edu, alain.kagi@intel.com, smidkiff@purdue.edu, lshang@ee.princeton.edu, azimi@eecg.toronto.edu, bonachea@cs.berkeley.edu, xgli@cis.ohio-state.edu, declarke@mit.edu, davew@cs.haverford.edu, ahmad@ee.queensu.ca, agrawal@cis.ohio-state.edu, todi@acm.org, trpuzak@us.ibm.com, christine.morin@irisa.fr, allan.knies@intel.com, roy.ju@intel.com, xavim@us.ibm.com, mtcampbe@uiuc.edu, secretary@ais.cmc.osaka-u.ac.jp, santoro@dis.uniroma1.it, clauss@icps.u-strasbg.fr, jaljaroo@cse.unl.edu, kostas@cs.utsa.edu, pw@osc.edu, kaeli@ECE.NEU.EDU, yiwang@ECE.NEU.EDU, goodman@cs.auckland.ac.nz, nuriax.garcia@intel.com, alberto@inf.ufes.br, tatiana@inf.ufrgs.br, naveen@cs.pitt.edu, hazelwood@eecs.harvard.edu, scarroll@uiuc.edu, fagg@cs.utk.edu, theasianmenace@hotmail.com, sg_abraham@yahoo.com, taisuke@is.tsukuba.ac.jp, o.tatebe@aist.go.jp, hychan@cs.usm.my, nasyo1@yahoo.com, racunas@eecs.umich.edu, childers@cs.pitt.edu, p.rounce@cs.ucl.ac.uk, noboru.tanabe@toshiba.co.jp, suh@mit.edu, ttweed@univ-lyon2.fr, christopher.w.fuselier@intel.com, radek.grzeszczuk@intel.com, richard.grove@intel.com, ggao@capsl.udel.edu, yuqiangh@cs.pitt.edu, chuang10@uiuc.edu, aveidenb@uci.edu, panda@cis.ohio-state.edu, c.dinapoli@cib.na.cnr.it, liuj@cis.ohio-state.edu, nacho@crhc.uiuc.edu, roni.rosner@intel.com, psarris@cs.utsa.edu, srikanth.t.srinivasan@intel.com, wshang@scu.edu, mikeg@watson.ibm.com, jay.jayasimha@intel.com, nishida@is.s.u-tokyo.ac.jp, jysoo@kisti.re.kr, manoj@eng.umd.edu, date@ais.cmc.osaka-u.ac.jp, awissink@llnl.gov, aagrigor@mail.YerPhI.AM, g.lamble@attbi.com, maureen.raley@osd.mil, kanggatl@microsoft.com, zhengming.fu@yale.edu, cong.d.nguyen@intel.com, marques@cs.cornell.edu, Larry.C.Eversole@jpl.nasa.gov, a.radulescu@its.tudelft.nl, degroot@acm.org, a.ripoll@cc.uab.es, a.shafarenko@surrey.ac.uk, a.vgemund@et.tudelft.nl, a3@inria.fr, abandah@fet.ju.edu.jo, abani@eng.buffalo.edu, aboelaze@cs.yorku.ca, abw@uncc.edu, Arvind <arvind@csail.mit.edu>, Steve Heller <Steve.Heller@sun.com>, Larry Rudolph <rudolph@csail.mit.edu>, Derek Chiou <derek@chiou.org>, Alex Veidenbaum <alexv@matrix.ics.uci.edu>
+cc: Sally Lee <sally@csail.mit.edu>
+Date: Mon, 07 Feb 2005 09:26:11 -0500
+Subject: ICS05 Call For Papers --- ***ONE WEEK EXTENSION
+
+*** ONE WEEK EXTENSION ***
+*** ABSTRACTS NOW DUE:    February 15, 2005 ***
+*** PAPERS NOW DUE: February 22, 2005 ***
+
+The 19th ACM International Conference on Supercomputing (ICS05)
+===============================================================
+June 20 - 22, 2005 (Workshop Tutorials - June 19th)
+Cambridge, Massachusetts, USA
+
+Call for Papers
+
+ICS is the premier international forum for the presentation of
+research results in high-performance computing systems.  Topics of
+interest include, but are not limited to, the following:
+
+-- Architecture including power-aware, parallel I/O, grid-based,
+   web-based, continuous monitoring, self-healing, fault-tolerant,
+   embedded.
+-- Productivity including benchmarks, performance evaluation
+   studies, specialized languages, program development tools.
+-- Systems including compilers, operating systems, schedulers,
+   runtime optimization
+-- Applications including numeric and non-numeric, scientific,
+   biological, industrial, massive sensory processing.
+-- Theoretical underpinnings of any of the above topics as well
+   as analysis and experimental evaluation of systems.
+
+The conference also includes invited talks, tutorials, workshops,
+panels, and exhibits.
+
+Important Dates
+-------------------
+Abstract Submission: February 15, 2005
+Paper Submission:    February 22, 2005
+Author notification: April 13, 2005
+Final papers:        May 16, 2005
+
+More information, including the complete ICS05 Call for Papers, can
+be found on the conference website http://ics05.csail.mit.edu/
+
+Please forward this call on to other mailing lists.  Please use the
+following website to add (or remove) your name to the announcement
+list, or to suggest mailing lists to be added (or removed).
+
+  http://lists.csail.mit.edu/mailman/listinfo/ics05-announce
+
+Failing that, send email to ics05-postmaster@csail.mit.edu.
+
+Steve Heller
+Director, SunLabs East, Sun, Sun Microsystems, Inc.
+Publicity Chair, ICS05
+From morano Tue Feb 08 10:54:31 EST 2005
+return-path: <nucar-request@mail1.ECE.NEU.EDU>
+received: from orca.ele.uri.edu
+	by localhost with POP3 (fetchmail-6.2.5)
+	for morano@localhost (single-drop); Tue, 08 Feb 2005 10:54:31 -0500 (EST)
+received:  from leviathan.ele.uri.edu (leviathan [131.128.51.64])
+	by ele.uri.edu (Cyrus v2.2.3) with LMTP; Tue, 08 Feb 2005 10:53:58 -0500
+received:  from SMTP1.ECE.NEU.EDU (markov.ece.neu.edu [129.10.60.83])
+	by leviathan.ele.uri.edu (8.12.9/8.12.9) with ESMTP id j18FrorQ007805
+	for <morano@ele.uri.edu>; Tue, 8 Feb 2005 10:53:51 -0500 (EST)
+received:  from calvin.ece.neu.edu (calvin.ece.neu.edu [129.10.62.61])
+	by SMTP1.ECE.NEU.EDU (8.12.5/8.12.5) with SMTP id j18Freus000101
+	for <NUCAR@ECE.NEU.EDU>; Tue, 8 Feb 2005 10:53:40 -0500 (EST)
+received:  (from gold [129.10.60.188])
+	by calvin.ece.neu.edu (SAVSMTP 3.1.0.29) with SMTP id M2005020810534024459
+	for <NUCAR@ECE.NEU.EDU>; Tue, 08 Feb 2005 10:53:40 -0500
+content-length: 75220           
+message-id: <Pine.GSO.4.58.0502081053350.12971@gold>
+X-Sieve: CMU Sieve 2.2
+X-X-Sender: kaeli@gold
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Status: NO ; VERY LOW ; 0.00
+X-Spam-Report: 0.00 hits
+From: "Prof. David Kaeli" <kaeli@ECE.NEU.EDU>
+To: NUCAR@ECE.NEU.EDU
+Date: Tue, 8 Feb 2005 10:53:40 -0500 (EST)
+Subject: SIGARCH-MSG: February 2005 Digest of SIGARCH Messages (fwd)
+
+
+FYI
+
+=====================================================================
+= Prof. David Kaeli   email: kaeli@ece.neu.edu phone: 617-373-5413  =
+=    ECE Dept.   318 Dana Research Center, NEU, Boston, MA 02115    =
+=               URL:  www.ece.neu.edu/faculty/kaeli.html            =
+=                                                                   =
+=       "I think there is a world market for maybe 5 computers."    =
+=                       Thomas Watson, 1943                         =
+=====================================================================
+
+---------- Forwarded message ----------
+Date: Tue, 8 Feb 2005 07:28:21 -0600
+From: Doug Burger <dburger@cs.utexas.edu>
+To: SIGARCH-MEMBERS@listserv.acm.org
+Subject: SIGARCH-MSG: February 2005 Digest of SIGARCH Messages
+
+This is the February 2005 Digest of SIGARCH Messages (sigarch-feb05):
+
+* HOT Chips 17 Call for Papers
+  http://www.hotchips.org
+  Submitted by Allen Baum <hotchips@mindspring.com>
+
+* ICS 2005 Call for Papers
+  http://ics05.csail.mit.edu
+  Submitted by Derek Chiou <derek@ece.utexas.edu>
+
+* ISCA 2005 Workshop/Tutorial Schedule and Call for Participation
+  http://www.cs.wisc.edu/~isca2005
+  Submitted by Craig Zilles <zilles@cs.uiuc.edu>
+
+* TRIPS EDGE Architecture Tutorial (at ISCA'05) Call for Participation
+  http://www.cs.utexas.edu/~cart/trips_tutorial.html
+  Submitted by Doug Burger <dburger@cs.utexas.edu>
+
+* Tutorial on Using the M5 Simulator at ISCA'05
+  http://m5.eecs.umich.edu/isca_05.html
+  Submitted by Steve Reinhardt <stever@eecs.umich.edu>
+
+* TACS (Second Workshop on Temperature Aware Computer Systems) Call for Papers
+  http://www.cs.virginia.edu/~skadron/tacs05
+  Submitted by Kevin Skadron <skadron@cs.virginia.edu>
+
+* MoBS: Workshop on Modeling, Benchmarking, and Simulation Call for Papers
+  http://www.arctic.umn.edu/MoBS
+  Submitted by Josh Yi <jjyi@cs.umn.edu>
+
+* WDDD 2005 Call for Papers
+  http://www.ece.wisc.edu/~wddd
+  Submitted by Trey Cain <tcain@us.ibm.com>
+
+* WCAE 2005 Call for Papers
+  www4.ncsu.edu/~efg/wcae2005.html
+  Submitted by Ed Gehringer <efg@eos.ncsu.edu>
+
+* ANCHOR 2005 Call for Papers
+  http://www.ece.northwestern.edu/anchor
+  Submitted by Gokhan Memik <memik@ece.northwestern.edu>
+
+* Call for Nominations for 2005 Maurice Wilkes Award
+  http://www.acm.org/sigarch
+  Submitted by Guri Sohi <sohi@cs.wisc.edu>
+
+* ACM Transactions on Architecture and Code Optimization (TACO) Bi-Annual Call For Papers
+  http://www.acm.org/taco/
+  Submitted by Brad Calder <calder@cs.uscd.edu>
+
+* CGO 2005 Call for Participation
+  http://www.cgo.org
+  Submitted by Rajiv Gupta <gupta@cs.arizona.edu>
+
+* HiPC 2005 Call for Papers
+  http://www.hipc.org
+  Submitted by Rajeev Raje <rraje@cs.iupui.edu>
+
+* Submission deadline EXTENDED for Euro-Par 2005
+  http://europar05.di.fct.unl.pt/
+  Submitted by Kevin Skadron <skadron@cs.virginia.edu>
+
+* New papers published online by Computer Architecture Letters
+  http://www.comp-arch-letters.org/2005paps.html
+  Submitted by Kevin Skadron <skadron@cs.virginia.edu>
+
+* DaMoN 2005 (First International Workshop on Data Management on New Hardware) Call for Papers
+  http://www.cs.cmu.edu/~damon2005
+  Submitted by Anastassia Ailamaki <natassa@cmu.edu>
+
+* SAMOS-V (Embedded Computer Systems: Architectures, Modeling, and Simulation) Call for Papers
+  http://ce.et.tudelft.nl/samos/samos_v/
+  Submitted by Stephan Wong <J.S.S.M.Wong@ewi.tudelft.nl>
+
+* QEST 2005 (Quantitative Evaluation of Systems) Call for Papers
+  http://www.qest.org
+  Submitted by Jeremy Sproston <sproston@di.unito.it>
+
+* 6th IEEE Information Assurance Workshop Call for Papers
+  http://www.itoc.usma.edu/workshop
+  Submitted by Ronald Dodge <Ronald.Dodge@usma.edu>
+
+* ACM SenSys 2005 Call for Papers
+  http://sensys.csail.mit.edu
+  Submitted by Wendi Heinzelman <wheinzel@ece.rochester.edu>
+
+--Doug Burger
+SIGARCH Information Director
+infodir_SIGARCH@acm.org
+
+* Archive: http://lists.cs.wisc.edu/archive/sigarch-members/
+* Web pages: http://www.cs.wisc.edu/~arch/www/, http://www.acm.org/sigarch/
+* To remove yourself from the SIGARCH mailing list:
+  mail listserv@acm.org with message body: unsubscribe SIGARCH-MEMBERS
+
+-----------------------------------------------------------------
+Doug Burger                       Office:              3.432 ACES
+Associate Professor               Phone:             512-471-9795
+Department of Computer Sciences   Assistant:         512-232-7460
+The University of Texas at Austin Fax:               512-232-1413
+1 University Station, #C0500      E-mail:   dburger@cs.utexas.edu
+Austin, TX 78712-1188 USA         www.cs.utexas.edu/users/dburger
+-----------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* HOT Chips 17 Call for Papers
+
+On behalf of the HOT Chips 17 Program and Organizing Committees,
+we would like to invite you to participate in this year's conference.
+Please see the Call For Papers below for instructions on submissions.
+A PDF version of the call for papers is available for download at
+     http://www.hotchips.org/hc17/cfp05.pdf.
+
+Since it started in 1989, HOT Chips has been known as one of the
+semiconductor industry's leading conference on high-performance
+microprocessors and related integrated circuits. The conference is
+held once a year in August on the Stanford University campus in the
+center  of the world's capital of electronics activity, Silicon
+Valley.
+The conference emphasis this year, as in previous years, is on real
+products and realizable technology.
+
+More details on the conference can be found on the HOT Chips website
+at
+http://www.hotchips.org.
+
+-----------
+
+                         CALL FOR PAPERS
+
+     HOT Chips 17 - A Symposium on High Performance Chips
+
+                       AUGUST 14-16, 2005
+                 STANFORD UNIVERSITY, PALO ALTO, CA
+
+
+AUTHOR'S SCHEDULE
+
+     Deadline for submissions:          March 25, 2005
+     Notification of acceptance:        April 30, 2005
+     Deadline for final version:        July 20, 2005
+
+
+AREAS OF INTEREST:
+
+        Microprocessors
+        Systems-on-chip
+        Embedded processors
+        Digital signal processors
+        Chipset Chips
+        Application-specific processors
+        Network/security processors
+        Graphics/Multimedia/Game processors
+        Communication/networking chips
+        Wireless LAN/Wireless WAN chips
+        Novel chips: quantum computing, micro-array
+        Low-power chips/Dynamic Power Management
+        Reconfigurable chips/processors
+        Chips built from FPGAs
+        Reliability and design for test
+        Compiler technology
+        Operating system/chip interaction
+        Advanced semiconductor process technology
+        Advanced packaging technology
+        Performance evaluation
+
+
+AUTHOR INFORMATION AND FORMAT
+
+Presentations at HOT Chips are in the form of 30-minute talks.
+Presentation slides will be published in the HOT Chips Proceedings.
+Participants are not required to submit written papers, but a select
+group will be invited to submit a paper for inclusion in a special
+issue
+of IEEE Micro.
+
+Submissions must consist of a title, extended abstract (two pages
+max.),
+and the presenter's contact information (name, affiliation, job title,
+address, phone(s), fax, and email). Please indicate whether you have
+submitted, intend to submit, or have already presented or published a
+similar or overlapping  submission to another conference or journal.
+Also indicate if you would like the submission tobe held confidential;
+we do our best to maintain confidentiality if requested.
+
+Submissions should be in plain ASCII text, pasted into the message;
+do not submit .doc files, .txt files, MIME'd email, any attachments or
+other formats.  Submissions containing figures may be submitted in
+pdf,
+but plain ASCII text is  strongly preferred.
+
+Submissions are evaluated by the Program Committee on the basis of
+performance of the device(s), degree of innovation, use of advanced
+technology, potential market significance, and anticipated interest
+to the audience. Research and software contributions will be evaluated
+with similar criteria.
+
+Please mail your submissions in plain ASCII text (in the message,
+not as an attachment!) by March 25, 2005 to:
+    hotchipssubmit@atlas.cs.berkeley.edu
+Authors will be notified as to acceptance by April 30, 2005.
+Send questions relating to the program to the program chairs at:
+    hotpcchairs@atlas.cs.berkeley.edu         and questions relating
+to conference operation or organization to the general chair,
+Pradeep Dubey, at:    hotchair@atlas.cs.berkeley.edu .
+
+Program Committee Co-Chairs
+Prof. Alan Jay Smith,  Univ. of California, Berkeley
+John Sell, Microsoft
+
+Sponsored by the Technical Committee on Microprocessors
+and Microcomputers of the IEEE Computer Society
+
+
+Program Committee:
+
+Alan Smith  - UC Berkeley
+John Sell - Microsoft
+Forest Baskett - New Enterprise Associates
+Keith Diefendorf - Apple
+Pradeep Dubey - Intel
+Christos Kozyrakis - Stanford
+Teresa Meng - Stanford
+Chuck Moore - AMD
+John Nickolls - NVidia
+Rakesh Patel - Altera
+Tom Peterson - MIPS
+Howard Sachs - Telairity
+Mitsuo Saito - Toshiba
+Kimming So - Broadcom
+Marc Tremblay - SUN
+John Wawryznek - UC Berkeley
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* ICS 2005 Call for Papers
+
+http://ics05.csail.mit.edu
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* ISCA 2005 Workshop/Tutorial Schedule and Call for Participation
+
+    ISCA 2005 Workshops and Tutorials, June 4-5, 2005
+
+This year there is an extensive schedule of workshops and tutorials
+preceeding the ISCA conference.  Specific call for papers for the
+workshops can be found below.
+
+Saturday, June 4, 2005
+
+Workshop on Advanced Networking and Communications Hardware Workshop (AM)
+Workshop on Modeling, Benchmarking, and Simulation (PM)
+Workshop on Duplicating, Deconstructing, and Debunking (PM)
+Tutorial on Design and Implementation of the TRIPS EDGE Architecture (full day)
+Tutorial on Computing in the presence of Soft Errors (full day)
+
+Sunday, June 5, 2005
+
+Workshop on Computer Architecture Education (full day)
+Workshop on Complexity-Effective Design (AM)
+Workshop on Temperature-Aware Computer Systems (PM)
+Tutorial on Using the M5 simulator (AM)
+Tutorial on GEMS: Multifacet's Accurate and Flexible Full System Simulator (PM)
+
+For more information, see the ISCA 2005 homepage:
+
+                  http://www.cs.wisc.edu/~isca2005/
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* TRIPS EDGE Architecture Tutorial (at ISCA'05) Call for Participation
+
+  "Design and Implementation of the TRIPS EDGE Architecture"
+             Saturday, June 3, 8:30 am - 5:00 pm
+      http://www.cs.utexas.edu/users/cart/trips_tutorial
+
+The computer architecture community is currently in the midst of a
+rare transition. The effort of moving to wider-issue RISC and CISC
+processors has been all but abandoned due to power and complexity
+limitations. Power limitations coupled with diminishing returns have
+also greatly slowed improvements in clock rate, which will now come
+solely from faster devices (15% per year) instead of faster devices
+coupled with deeper pipelining (40% per year from 1990 to 2004). The
+slowing performance gains from traditional processing cores has
+produced an industrial shift of focus to chip multiprocessors. While
+CMPs will doubtless improve the performance of many workloads, this
+trend puts the burden of improved performance squarely on
+programmers. Furthermore, applications that are too difficult to
+parallelize will not benefit from the CMP trend.
+
+An alternative is Explicit Data Graph Execution (EDGE) architectures,
+which, unlike RISC and CISC instruction sets, explicitly encode
+dependences into individual instructions. This encoding permits
+dataflow-like execution without the hardware overheads of conventional
+out-of-order processors, in which the hardware must reconstruct
+dependences on the fly. While CMPs of EDGE processors are certainly
+possible, they also provide the option of scaling to wider-issue
+cores, improving single-thread performance further with no programmer
+intervention needed.
+
+The TRIPS architecture is an example of an EDGE architecture that
+supports a static placement, dynamic issue (SPDI) execution
+model. TRIPS programs are compiled into graphs of predicated
+hyperblocks, each of which is represented internally as a dataflow
+graph, with instructions communicating directly though
+instruction-encoded dependences. Each hyperblock has a set of input
+and output registers, which is how communication occurs between
+them. The TRIPS architecture supports up to a maximum of 8
+128-instruction hyperblocks to be executing on a processor core
+simultaneously, thus enabling a 1,024 instruction window. We have
+designed a full proof-of-concept implementation of the TRIPS
+architecture, each chip of which contains 2 16-wide out-of-order issue
+cores, and a 1 MB static NUCA cache.
+
+This tutorial will cover the architecture and the microarchitecture of
+the TRIPS prototype in detail. We will briefly show how EDGE
+architectures have the capability of addressing power, wire delay, and
+complexity issues. We will cover the salient features of the
+instruction set in details, emphasizing the trade-offs that we found
+during its definition. We will then explore the microarchitecture in
+detail, focusing on the components that differ from conventional
+architectures. The emphasis will be on both high-level issues and
+implementation challenges. Finally, we will present the new compiler
+algorithms and implementation neccessary to compile high-quality TRIPS
+code, as well as the results of a prototype performance analysis.
+
+Our goal for the tutorial participants is to provide a detailed
+understanding of EDGE architectures, implementation challenges,
+performance trade-offs, and unanswered research questions. We have
+reserved time for informal discussions and questions.
+
+For more information on the project, please visit the TRIPS project
+website at http://www.cs.utexas.edu/users/trips.
+
+Intended audience:
+Any industrial practitioners and academic or industrial researchers
+interested in learning about EDGE ISAs and the TRIPS implementation in
+depth, as well as how they provide potential power, scalability, and
+performance advantages for future CMOS technologies. The presentations
+will assume that participants have a solid understanding of
+traditional architecture and microarchitecture techniques, such as
+branch prediction and out-of-order execution, as well as datapath
+design and pipelining
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* Tutorial on Using the M5 Simulator at ISCA'05
+  http://m5.eecs.umich.edu/isca_05.html
+
+Introduction:
+This half-day tutorial will introduce participants to the M5 simulator
+system. M5 is a modular platform for computer system architecture
+research, encompassing system-level architecture as well as processor
+microarchitecture. Because the primary focus of the M5 development
+team has been simulation of network-oriented server workloads, M5
+incorporates several features not commonly found in other simulators
+including:
+
+    * Full-system simulation (using unmodified Linux 2.4/2.6, HP Tru64 5.1, or L4Ka::Pistachio)
+    * Detailed timing of I/O device accesses and DMA operations
+    * Accurate, deterministic simulation of multiple networked systems
+    * Flexible, script-driven configuration to simplify specification of complex multi-system configurations
+    * Included network workloads such as Apache, NAT, and NFS
+    * Support for storing results from multiple simulations in a
+    unified database (e.g. MySQL) for automated reporting and graph
+    generation
+
+M5 also integrates a number of other desirable features, including
+pervasive object orientation, multiple interchangeable CPU models, an
+event-driven memory system model, and multiprocessor
+capability. Additionally, M5 is also capable of application-only
+simulation using syscall emulation.
+
+M5 is freely distributable under a BSD-style license, and does not
+depend on any commercial or restricted-license software.
+
+Intended Audience:
+Researchers in academia or industry looking for a free, open-source,
+full-system simulation environment for processor, system, or platform
+architecture studies.
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* Second Workshop on Temperature Aware Computer Systems (TACS) Call for Papers
+
+Second Workshop on Temperature Aware Computer Systems (TACS)
+June 5, 2005, Madison, WI
+http://www.cs.virginia.edu/~skadron/tacs05
+
+Held in conjunction with the 32nd International Symposium on Computer Architecture
+
+Many analysts suggest that increasing power density and resulting difficulties in managing on-chip temperatures are some of the most urgent obstacles to continued scaling of VLSI systems within the next five to ten years. Just as has been done before for power-aware computing, "temperature-aware" computing must be approached not just from the packaging and circuit-design communities, but also from the processor- and systems- architecture communities. There is growing interest in cooling solutions from the processor- and systems-architecture domains, as evidenced by recent work on fetch throttling, dynamic voltage scaling, and process scheduling in response to thermal stress; and some progress has been made on modeling infrastructure for this kind of research. But research so far has only scratched the surface of what is possible. This topic area presents a wide-open field for new research, with lots of "low-hanging fruit", and interesting opportunities for wide-ranging inter!
+ -disciplinary work.
+
+This workshop will serve as a forum to explore a broad spectrum of topics pertaining to temperature-aware computer systems, for researchers from multiple fields to exchange ideas and initiate collaborations, and to continue establishing temperature-aware computing as an important research topic in its own right. Conributions from all aspects of temperature-aware design are encouraged, related topics like reliability, leakage, thermal sensors, etc.
+
+We especially encourage submissions involving collaboration between architects and thermal engineers! In fact, the goal of this workshop is to stimulate the widest possible collaboration among architects and other engineers on topics related to temperature-aware design.
+
+This is the second year of the TACS workshop. Last year's TACS, held in conjunction with ISCA-31, was extremely successful, with good attendance, four strong papers covering diverse topics, an exciting keynote speech by Luiz Barroso of Google, and a vigorous panel discussion.
+
+Submissions are welcomed on any topic pertaining to temperature-aware architecture, including but not limited to:
+
+    * Modeling and validation
+    * Thermal implications of novel architectures, design styles, or technologies
+    * Dynamic thermal management for the CPU, CMPs, SoCs, other system components, clusters, data centers, etc.
+    * Circuit/architecture/OS cooperation
+    * Scheduling techniques
+    * Sensitivity of other metrics to operating temperature
+    * Application-specific thermal optimizations
+    * New benchmark applications and sampling techniques for thermal studies
+    * Workload characterization
+    * Interaction of thermal management, energy efficiency (especially leakage), and voltage stability
+    * Interaction of thermal management and other runtime optimizations
+    * All architecture-related aspects of temperature-dependent reliability effects
+    * Interaction of thermal management with real-time requirements
+    * Interaction of manufacturing, packaging, and cooling with architecture
+    * Architecture impacts of novel cooling techniques (from chip-level to data-center level)
+    * New thermal-sensor architectures
+
+The paper should be in IEEE conference format and at most ten pages in length including all figures, references, etc. Excessively long papers will be rejected without review.
+
+Submission deadline: Late March, 2005
+Author notification: TBD
+Final manuscripts: TBD
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+******************************************************************
+*                                                                *
+*    MoBS: Workshop on Modeling, Benchmarking, and Simulation    *
+*            http://www.arctic.umn.edu/MoBS         *
+*                                                                                                *
+******************************************************************
+
+                   Held in conjunction with the
+   32nd Annual International Symposium on Computer Architecture
+
+               Madison, Wisconsin
+                                  June 4-5, 2005
+
+Overview:
+=========
+With few exceptions, simulation is the quantitative foundation for
+virtually all computer architecture research and design projects -- from
+microarchitectural exploration to hardware and software trade-offs to
+processor and system design.  However, its continued efficacy is limited
+by problems such as increasing complexity, additional critical constraints
+(e.g. power consumption, reliability, etc.), an ever expanding design
+space, benchmark suite quality and coverage, and radical changes in
+processor architectures to compensate for technological changes (i.e.
+reduced transistor widths, etc.).
+
+The primary goals of this workshop are to accelerate the development of
+simulation technologies that are necessary to support the research of
+future generation architectures and to encourage the advancement of
+under-researched. areas related to computer architecture measurement, such
+as modeling, benchmark implementation and benchmark suite construction,
+and formal methods of design space exploration and performance analysis.
+
+Topics of interest include, but are not limited to:
+
+* New or efficient techniques to model performance, power, reliability,
+  etc.
+* Accurate but efficient alternatives to cycle-accurate, execution-driven
+  simulation
+* Simulator verification, flexibility and reusability
+* Reduced simulation time techniques
+* Efficient design space exploration
+* Development of parameterizable, flexible benchmarks
+* Formal methods for benchmark suite construction or benchmark suite
+  sub-setting
+* Techniques to measure the characteristics (weak spots, coverage, etc.)
+  of a benchmark suite
+* Analytical and statistical processor modeling
+* Choosing processor and memory simulation parameters
+
+Submission Guidelines:
+======================
+The authors should submit a 200 word or less abstract by 9 PM (CST) March
+7, 2005 to the workshop website.  The full paper should be 5000 words or
+less and should be submitted in pdf format by 9 PM (CST) March 14, 2005.
+Papers that are excessively long may be rejected without review.
+
+Co-Organizers and Program Co-Chairs:
+====================================
+Lieven Eeckhout     Ghent University            leeckhou@elis.ugent.be
+Joshua J. Yi        Freescale Semiconductor     jjyi@ece.umn.edu
+
+Program Committee:
+==================
+David I. August     Princeton University
+Pradip Bose         IBM Research T.J. Watson
+Brad Calder         University of California, San Diego
+Lizy Kurian John    University of Texas at Austin
+David J. Lilja      University of Minnesota at Twin Cities
+Peter Magnusson     Virtutech
+Jim Smith           University of Wisconsin . Madison
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* WDDD 2005 Call for Papers
+
+*************************************************************
+                CALL FOR PAPERS: WDDD 2005
+*************************************************************
+
+    Workshop on Duplicating, Deconstructing, and Debunking
+                 http://www.ece.wisc.edu/~wddd
+
+               Held in conjunction with ISCA-32
+                       Madison, Wisconsin USA
+                        June 4, 2005
+
+-------------------------------------------------------------
+
+IMPORTANT DATES
+---------------
+
+  Abstracts due:   April 15, 2005
+  Submissions due: April 22, 2005
+  Acceptance:      May 2, 2005
+  Final version:   May 23, 2005
+
+WORKSHOP OVERVIEW
+-----------------
+
+WDDD provides the computer systems research community a forum
+for work that validates or duplicates earlier results; deconstructs
+prior findings by providing greater, in-depth insight into causal
+relationships or correlations; or debunks earlier findings by
+describing precisely how and why proposed techniques fail where earlier
+successes were claimed, or succeed where failure was reported.
+
+Traditionally, computer systems conferences and workshops focus
+almost exclusively on novelty and performance, neglecting an abundance
+of interesting work that lacks one or both of these attributes.  A
+significant part of research--in fact, the backbone of the scientific
+method--involves independent validation of existing work and the
+exploration of strange ideas that never pan out.  This workshop
+provides a venue for disseminating such work in our community.
+Published validation experiments strengthen existing work, while
+thorough comparisons provide new dimensions and perspectives.
+Studies that refute or correct existing work also strengthen the
+research community, by ensuring that published material is technically
+correct and has sound assumptions.  Publishing negative or strange or
+unexpected results will allow future researchers to learn the
+hard lessons of others, without repeating their effort.
+
+This workshop will set a high scientific standard for such
+experiments, and will require insightful analysis to justify
+all conclusions.  The workshop will favor submissions that
+provide meaningful insights and point to underlying root causes
+for the failure or success of the technique under investigation.
+Acceptable work must thoroughly investigate and clearly communicate
+why the proposed technique performs as the results indicate.
+Rebuttals may be invited for debunking submissions.
+
+SUBMISSION TOPICS
+-----------------
+
+  * Independent validation of earlier results with meaningful analysis
+  * In-depth analysis and sensitivity studies that provide further
+    insight into earlier findings, or identify key parameters or
+    assumptions that affect the results
+  * Studies that refute earlier findings, with clear justification
+    and explanation
+  * Negative results for ideas that intuitively make sense and
+    should work, along with explanations for why they do not
+
+  * EXPANDED SCOPE: In addition to the topics of computer architecture
+    and microarchitecture that have previously been the focus of WDDD,
+    this year's workshop is being expanded to include papers in the
+    related areas of code generation and optimization, including efficient
+    profiling mechanisms, static and dynamic optimization, feedback
+    driven and adaptive optimization, and modulo/trace scheduling.
+
+
+SUBMISSION GUIDELINES
+---------------------
+
+  * Submit a 200-word abstract plus title and list of authors in
+    plain text email by April 15 to tcain@us.ibm.com.
+  * Submit a 5000-word or less (brief and to-the-point submissions
+    are strongly encouraged) double-spaced manuscript by April 22
+    as a PS or PDF file on the workshop website www.ece.wisc.edu/~wddd
+
+Inappropriate submissions, as described in the submitted abstract,
+will be rejected outright.  Similarly, inflammatory, abusive, or
+overtly combative and negative submissions will not be considered.
+Accepted papers will be published in the ISCA-32 workshop proceedings.
+
+WORKSHOP ORGANIZERS
+-------------------
+
+  Bryan Black, Intel Labs, bryan.black@intel.com
+  Harold Cain, IBM Research, tcain@us.ibm.com
+
+PROGRAM COMMITTEE
+-----------------
+
+  Mauricio Breternitz, Intel
+  Brad Calder, University of California-San Diego
+  Babak Falsafi, Carnegie-Mellon University
+  Ken Leuh, Intel
+  Mikko Lipasti, University of Wisconsin-Madison
+  Ravi Nair, IBM Research
+  Yale Patt. University of Texas-Austin
+  Ryan Rakvic, Intel
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* WCAE 2005 Call for Papers
+
+                  Workshop on Computer Architecture Education
+ Held in conjunction with the 32nd International Symposium on Computer Architecture
+                              Madison, Wisconsin
+                            Sunday, June 5, 2005
+
+Theme
+
+This is the twelfth in a series of workshops that have been held at
+both ISCA and at HPCA, most recently at ISCA 2004 in Munich. The goal
+of the workshop is to provide a forum for educators to discuss and
+share their experiences and teaching philosophy. The goal is for
+participants to come away from the workshop with new ideas on
+delivering courses in computer architecture. Topics of interest
+include, but are not limited to, the following.
+
+Topics of interest
+
+    * New approaches to introductory courses
+    * Advanced courses
+    * Active learning
+    * New curricula
+    * National differences in curricula
+    * Interdepartmental issues (CS/ECE)
+    * Distance education
+
+    * Industrial support for teaching
+    * Encouraging students to do research
+    * Encouraging students to pursue the Ph.D.
+
+    * Hardware tools
+    * Simulators and other software tools
+    * Teaching embedded systems
+    * Prototyping
+    * Visualization aids
+    * VLSI design packages
+
+    * Web-based materials
+    * Textbook development
+    * Textbook selection
+    * Integration of research into teaching
+
+Special Session on Embedded Systems Education
+
+A special session on Embedded Systems Education will comprise an
+integral part of the WCAE workshop. The goal of the special session is
+to bring researchers, educators, and industrial representatives
+together to share design, research, and education experiences in
+embedded systems. Topics and of interest include but are not limited
+to:
+
+    * Embedded systems curricular design and implementation
+    * Architectural issues specific to embedded systems
+    * Software issues specific to embedded systems
+    * Industrial needs regarding embedded systems education
+    * Hardware/software co-design
+    * Teaching embedded systems
+
+Format
+
+The special session will involve:
+
+    * Presentations of accepted papers
+    * Poster session for accepted papers
+    * A roundtable discussion involving a panel of embedded-systems
+    * experts
+
+Submission of contributions
+
+Interested authors should submit a full paper (not to exceed 8 pages,
+with a minimum font size of 10 points) to
+
+Edward F. Gehringer
+e-mail: efg@ncsu.edu
+Center for Embedded Systems Research
+Dept. of Electrical and Computer Engineering
+North Carolina State University
+Box 7256
+Raleigh, NC 27695-7256
++1 919 515-2066
+
+Submissions to the special session should be directed to
+
+Kenneth G. Ricks
+e-mail: kricks@coe.eng.ua.edu
+Dept. of Electrical and Computer Engineering
+The University of Alabama
+317 Houser Hall
+Box 870186
+Tuscaloosa, Alabama 35487-0286
++1-205-348-9777
+
+Electronic submission is required, preferably as a PDF attachment to
+an e-mail message.
+
+Industry Participation
+
+We encourage participation by book publishers, computer manufacturers,
+software vendors, or companies which develop or market products used
+in the delivery of computer architecture education. Any company
+interested in participating in the workshop should contact the
+organizer at the address above.
+
+Important Dates
+
+    Submission Due Date: May 6, 2005
+    Author Notification: May 13, 2005
+    Final Paper Due Date: May 20, 2005
+
+Copies of papers presented at the workshop will be made available at
+the workshop, and in archival form on the Web.
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* ANCHOR 2005 Call for Papers
+
+  Advanced Networking and Communications  Hardware Workshop
+  http://www.ece.northwestern.edu/anchor
+
+  Held in conjunction with the 32nd Annual International Symposium on Computer Architecture (ISCA 2005)
+  Madison, Wisconsin, June 4-8 2005
+
+  Organizers:
+    Taskin Kocak, University of Central Florida, tkocak@cs.ucf.edu
+    Gokhan Memik,  Northwestern University, memik@ece.northwestern.edu
+
+Workshop Overview:   The rapid expansion of networking applications
+and data traffic are leading to new specialized network  component
+designs that would keep up with the growing field of networking and
+communications. Network  component design becomes more challenging as
+the performance and usage of communication networks  increase. This
+workshop focuses on the architectural design approaches for
+packet-switched networks. From  sensor to storage area networks,
+packet-switched networks are utilized in a wide range of system
+domains.  Furthermore, the workshop aims at providing a forum for
+scientists and engineers from academia and industry  to discuss their
+latest research on emerging network services.   There is a growing
+interest in extensible networks, overlay networks, and grid
+computing. Higher layer  processing built in hardware can powerfully
+support these networks and computational styles. This s  workshop will
+be looking for contributions that will benefit these communities.
+
+Submission Guidelines:
+
+  - Submit a 200-word abstract including title and complete author
+  list in email (plain text preferred) to anchor@ece.northwestern.edu
+  by March 25th, 2005.
+
+  - Submit a 6000-word manuscript in email (pdf or ps format) to
+  anchor@ece.northwestern.edu by April 1st, 2005.
+
+  - Notification of acceptance/rejection will be sent out on May 2nd,
+    2005.
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* Call for Nominations for 2005 Maurice Wilkes Award
+
+        The 2005 Maurice Wilkes Award
+                   Call for Nomination
+
+The Maurice Wilkes Award Nominating Committee is now open to receiving
+nominations for the 2005 Maurice Wilkes Award. The Maurice Wilkes
+Award is given for an outstanding contribution to computer
+architecture made by an individual whose computer-related professional
+career (graduate school or full- time employment, whichever began
+first) started no earlier than 1 January, 1985.
+
+The recipient of the Maurice Wilkes Award will receive a prize of
+$2,500 and will be invited to accept the award at ISCA 2005 in
+Madison, Wisconsin.
+
+Nominations should consist of:
+
+1.          Name, address, and phone number of person making the
+  nomination.
+2.      Name and address of candidate for whom the award is
+  recommended.
+3.      A statement (between 200 and 500 words long) as to why the
+  candidate deserves the award.
+4.          The name(s) and email address(es) or telephone number(s)
+  of others who agree with the
+        recommendation. Supporting letters from such persons are
+  useful but not required.
+
+Please send nominations no later than 4 March, 2005 to the Chair of
+the Nominating Committee.
+
+Nominating Committee:
+
+Allan Gottlieb             Guri Sohi, Chair                Bill Dally
+New York University        Dept. of Computer Science       Computer Systems Laboratory
+715 Broadway, Room 712  University of Wisconsin          Stanford University
+New York NY 10003       1210 West Dayton Street           Gates Room 301
+                           Madison, WI 53706               Stanford, CA  94305
+gottlieb@nyu.edu          sohi@cs.wisc.edu                 billd@csl.stanford.edu
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* ACM Transactions on Architecture and Code Optimization (TACO) Bi-Annual Call For Papers
+
+http://www.acm.org/taco/
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* CGO 2005 Call for Participation
+
+***********************************************************************************************
+
+                                  Advance Program - CGO 2005
+                  International Symposium on Code Generation and Optimization
+
+                                       March 20-23, 2005
+                          Hotel Valencia, Santana Row, San Jose, CA
+                                      http://www.cgo.org/
+                     Advance Conf. Registration DEADLINE: February 25, 2005
+                         Hotel Registration DEADLINE: February 26, 2005
+
+***********************************************************************************************
+                     Sponsored By: IEEE TC-uARCH, ACM SIGMICRO & ACM SIGPLAN
+                    Corporate Supporters: IBM, Intel, Microsoft, Nvidia & SUN
+***********************************************************************************************
+
+=====================
+Sunday March 20, 2005
+=====================
+
+8:00 - 5:00     All Day Events
+Third Workshop on Optimizations for DSP and Embedded Systems (ODES-3)
+Organizers: Deepu Talla (Texas Instruments) and
+Lizy John (University of Texas at Austin)
+
+Third Workshop on Managed Runtime Environments (MRE-3)
+Organizers: David Grove (IBM Research) and Michael Hind (IBM Research)
+
+8:00 - 12:00     Morning Event
+
+Tutorial: Software Dynamic Translation: Challenges, Approaches and Applications
+Bruce Childers (Univ. of Pittsburgh) and Jack Davidson (Univ. of Virginia)
+
+1:00 - 5:00         Afternoon Event
+
+Fourth Workshop on EPIC Architectures and Compiler Technology (EPIC-4)
+Organizers: Gerolf. F. Hoflehner (Intel) and Carole Dulong (Intel)
+
+=====================
+Monday March 21, 2005
+=====================
+
+8:45 - 9:00     WELCOME
+
+9:00 - 10:00    KEYNOTE 1
+Chair: Evelyn Duesterwald, IBM T. J. Watson Research Center
+
+Virtual Machine Learning: Thinking like a Computer Architect
+Michael Hind, IBM T. J. Watson Research Center
+
+10:00 - 10:30         BREAK
+10:30 - 12:00         SESSION 1: Virtual Machine Techniques
+Chair:  Vikram Adve, University of Illinois, Urbana-Champaign
+
+Context Threading: A Flexible and Efficient Dispatch Technique
+for Virtual Machine Interpreters
+M. Berndl, B. Vitale, M. Zaleski, and A. Demke-Brown
+(University of Toronto)
+
+Automatically Reducing Repetitive Synchronization with a
+Just-In-Time Compiler for Java
+M. Stoodley and V. Sundaresan (IBM)
+
+Compile-Time Concurrent Marking Write Barrier Removal
+D. Detlefs (Sun Microsystems) and V. K. Nandivada
+(University of California, Los Angeles)
+
+12:00 - 1:30            LUNCH
+
+1:30 - 3:30             SESSION 2: Dynamic Optimization
+
+Chair:  Chandra Krintz, University of California, Santa Barbara
+
+Collecting and Exploiting High-Accuracy Call Graph Profiles in Virtual Machines
+M. Arnold and D. Grove (IBM T. J. Watson Research Center)
+
+Effective Adaptive Computing Environment Management via Dynamic Optimization
+S. Hu, and M. Valluri, and L. John (University of Texas, Austin)
+
+Maintaining Consistency and Bounding Capacity of Software Code Caches
+D. Bruening (Massachusetts Institute of Technology) and
+S. Amarasinghe (Massachusetts Institute of Technology and Determina Corp.)
+
+Performance of Runtime Optimization on BLAST
+A. Das, J. Lu, H. Chen, J. Kim, P. Yew, W. Hsu (University of Minnesota)
+and D. Chen (Intel Corporation)
+
+3:30 - 4:00        BREAK
+
+4:00 - 5:30        SESSION 3: Searching the Optimization Space
+
+Chair: Jack Davidson, University of Virginia
+
+Optimizing Sorting with Genetic Algorithms
+X. Li, M. Garzaran, and
+D. Padua (University of Illinois, Urbana-Champaign)
+
+Combining Models and Guided Empirical Search to Optimize for Multiple
+Levels of the Memory Hierarchy
+C. Chen, J. Chame, and M. Hall (University of Southern California /
+Information Sciences Institute)
+
+Predicting Unroll Factors Using Supervised Machine Learning
+M. Stephenson (Massachusetts Institute of Technology) and
+S. Amarasinghe (Massachusetts Institute of Technology and Determina Corp.)
+
+======================
+Tuesday March 22, 2005
+======================
+
+9:00 - 10:00    KEYNOTE 2
+Chair:  Mike Smith, Harvard University
+
+Multicores from the Compiler's Perspective: a Blessing or a Curse?
+Saman Amarasinghe, Massachusetts Institute of Technology and Determina Corp.
+
+10:00 - 10:30             BREAK
+10:30 - 12:00             SESSION 4: Optimizing Embedded Systems
+
+Chair: Martin Burtscher, Cornell University
+
+Optimizing Address Code Generation for Array-Intensive DSP Applications
+G. Chen and M. Kandemir (Pennsylvania State University)
+
+Efficient SIMD Code Generation for Runtime Alignment and Length Conversion
+P. Wu, A. Eichenberger (IBM T. J. Watson Research Center) and A. Wang  (IBM Toronto)
+
+Superword-Level Parallelism in the Presence of Control Flow
+J. Shin, M. Hall, and J. Chame (University of Southern California / Information Sciences Institute)
+
+12:00 - 1:30                                                 LUNCH
+
+1:30 - 2:30                                                  SESSION 5: Code Profiling and Optimization for Embedded Systems
+
+Chair:  Donald Yeung, University of Maryland
+
+Compiler Managed Dynamic Instruction Placement in a Low-Power Code Cache
+R. Ravindran, P. Nagarkar, G. Dasika, R. Senger, E. Marsman,
+S. Mahlke, and R. Brown (University of Michigan)
+
+Phase-Aware Remote Profiling
+P. Nagpurkar, C. Krintz, and T. Sherwood (University of California, Santa Barbara)
+
+2:30 - 3:00                               BREAK
+
+3:00 - 4:30                               SESSION 6: Profiling and Trace Compression
+Chair:  Craig Zilles, University of Illinois, Urbana-Champaign
+
+Practical Path Profiling for Dynamic Optimizers
+M. Bond and K. McKinley (University of Texas, Austin)
+
+A Programmable Hardware Path Profiler
+K. Vaswani, T.  Jacob, Y. Srikant (Indian Institute of Science)
+
+Automatic Generation of High-Performance Trace Compressors
+M. Burtscher and N. Sam (Cornell University)
+
+4:30 - 5:00                                BREAK
+
+5:00 - 6:00                                SESSION 7: Security and Reliability
+
+Chair:  Chris J. Newburn, Intel Corporation
+SWIFT: Software Implemented Fault Tolerance
+G. Reis, J. Chang, N. Vachharajani, R. Rangan, D. August (Princeton University)
+
+Building Intrusion-tolerant Secure Software
+T. Zhang, X. Zhuang, S. Pande (Georgia Institute of Technology)
+
+========================
+Wednesday March 23, 2005
+========================
+
+9:00 - 10:30    SESSION 8: Pointer Analysis and Register Allocation
+Chair: Scott Mahlke, University of Michigan
+
+A Progressive Register Allocator for Irregular Architectures
+D. Koes and S. Goldstein (Carnegie Mellon University)
+
+A General Compiler Framework for Speculative Optimizations
+Using Data Speculative Code Motion
+X. Dai, W. Hsu, A. Zhai, and P. Yew (University of Minnesota)
+
+Low-Level Pointer Analysis
+B. Guo, M. Bridges, E. Raman, S. Triantafyllis, and
+D. August (Princeton University)
+
+10:30 - 11:00                              BREAK
+
+11:00 - 12:30                              SESSION 9: Software Speculation
+Chair:  Roy Ju, Intel Corporation
+
+Reactive Techniques for Controlling Software Speculation
+C. Zilles and N. Neelakantam (University of Illinois, Urbana-Champaign)
+
+A Model-based Framework: an Approach for Profit-driven Optimization
+M. Zhao, B. Childers (University of Pittsburgh) and
+M. L. Soffa (University of Virginia)
+
+Sentinel PRE: Hoisting beyond Exception Dependency with Dynamic Deoptimization
+R. Odaira and K. Hiraki (University of Tokyo)
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* Submission deadline EXTENDED for Euro-Par 2005
+
+                           CALL FOR PAPERS
+                     SUBMISSION DEADLINE EXTENDED
+
+                    February 8, 2005, 12.00pm GMT+0
+                     This is a *strict*  deadline
+
+                            EURO-PAR 2005
+             TOPIC 7 - Parallel Computer Architecture and ILP
+
+                      August 30 - September 2, 2005
+                  Universidade Nova de Lisboa, Portugal
+
+                  Web site: http://europar05.di.fct.unl.pt/
+                      Email: europar05@di.fct.unl.pt
+
+                       TOPIC 7 - DESCRIPTION
+
+Instruction-Level Parallelism and parallel processing techniques are
+present in most contemporary computing systems. The scope of this
+topic includes (but is not limited to) parallel computer
+architectures, processor architecture (architecture and
+microarchitecture as well as compilation), the impact of emerging
+microprocessor architectures on parallel computer architectures,
+innovative memory designs to hide and reduce the access latency,
+multi-threading, and the impact of emerging applications on parallel
+computer architecture design. Our aim is to bring together researchers
+in the fields of parallel computer architecture and processor
+architecture. We invite researchers with interest in both conventional
+and non-conventional approaches to participate. Papers are being
+sought on all aspects of parallel computer architecture, processor
+architecture and microarchitecture, including (but not limited to) the
+following list of areas.
+
+Focus
+
+     * parallel computer architecture
+     * ILP architectures and designs
+     * microarchitecture and implementation techniques
+     * performance evaluation and benchmarking of processor
+     * architectures
+     * multithreaded and multicore processors
+     * memory system designs
+     * multiprocessor and vector architectures
+     * application-specific and embedded parallel systems
+     * stream processing microarchitectures
+     * network processors
+     * reconfigurable and asynchronous processors
+     * power-performance efficient designs
+
+-----------------------------------------------------------------------
+                              KEY DATES
+
+                   January 31, 2005: Full papers due
+                   --> EXTENDED to February 8, 2005, 12.00pm GMT+0
+                       (This is a *strict*  deadline)
+
+                   May      3, 2005: Notification of acceptance
+                   May     30, 2005: Camera-ready papers
+                                     and author registration due
+
+-----------------------------------------------------------------------
+                          SUBMISSION DETAILS
+
+Authors are invited to submit full papers (10 pages, Springer LNCS
+style) to this topic, by using the online submission site:
+
+          http://europar05.di.fct.unl.pt/papersubmission.html
+
+Online submission will be open before the end of December 2004.
+(When submitting, please indicate this topic.)
+
+All accepted full papers will be published in the conference
+proceedings in the Springer Verlag LNCS series.
+
+                      TOPIC 7 - PROGRAM COMMITTEE
+
+Global Chair:
+  Prof. Dr. Theo Ungerer
+  Institute of Informatics
+  University of Augsburg
+  Augsburg, Germany
+
+Vice Chair:
+  Prof. Kevin Skadron
+  Department of Computer Science
+  School of Engineering and Applied Science
+  University of Virginia
+  Charlottesville, USA
+
+Vice Chair:
+  Prof. Josep-Lluis Larriba-Pey
+  Department of Computer Architecture
+  UPC, Polytechnic University of Catalonia
+  Barcelona, Spain
+
+Local Chair:
+  Prof. Pedro Trancoso
+  Department of Computer Science
+  University of Cyprus
+  Nicosia, Cyprus
+
+                     MISSION STATEMENT - EURO-PAR
+
+Euro-Par is an annual series of international conferences dedicated to
+promotion and advancement of all aspects of parallel and distributed
+computing. Each year, the conference normally attracts more than 300
+participants coming from universities, research centres and industry.
+Euro-Par 2005 will represent 16 topics
+(http://europar05.di.fct.unl.pt/topics/topics.html) in the categories
+of hardware, software, algorithms and applications, and will also include
+tutorials, invited talks, and co-located workshops.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* New papers published on-line by Computer Architecture Letters
+
+Computer Architecture Letters announces our two most recent papers,
+  which are publicly available at
+  http://www.comp-arch-letters.org/2005paps.html.  We continue to seek
+  new submissions and remain committed to fast and accurate review.
+  Our mean time to decision remains one month, with an acceptance rate
+  of approximately 21%.  For more information on submission and for an
+  archive of past papers, please see http://www.comp-arch-letters.org
+
+- Y. Sazeides, R. Kumar, D. M. Tullsen, T. Constantinou. "The Danger
+  of Interval-Based Power Efficiency Metrics: When Worst Is Best."
+  Volume 4, Jan. 2005.
+
+- O. Mutlu, H. Kim, J. Stark, and Y. N. Patt.  "On Reusing the Results
+  of Pre-Executed Instructions in a Runahead Execution Processor."
+  Volume 4, Jan. 2005.
+
+
+Abstracts
+---------
+
+Y. Sazeides, R. Kumar, D. M. Tullsen, T. Constantinou. "The Danger of
+  Interval-Based Power Efficiency Metrics: When Worst Is Best." Volume
+  4, Jan. 2005.
+
+Abstract:
+This paper shows that if the execution of a program is divided into
+distinct intervals, it is possible for one processor or configuration
+to provide the best power efficiency over every interval, and yet have
+worse overall power efficiency over the entire execution than other
+configurations.  This unintuitive behavior is a result of a seemingly
+intuitive use of power efficiency metrics, and can result in
+suboptimal design and execution decisions. This behavior may occur
+when using the  energy-delay product and energy-delay^2
+product metrics but not with the energy metric.
+
+
+O. Mutlu, H. Kim, J. Stark, and Y. N. Patt.  "On Reusing the Results
+  of Pre-Executed Instructions in a Runahead Execution Processor."
+  Volume 4, Jan. 2005.
+
+Abstract:
+Previous research on runahead execution took it for granted as a
+prefetch-only technique. Even though the results of instructions
+independent of an L2 miss are correctly computed during runahead mode,
+previous approaches discarded those results instead of trying to
+utilize them in normal mode execution. This paper evaluates the effect
+of reusing the results of pre-executed instructions on performance. We
+find that, even with an ideal scheme, it is not worthwhile to reuse
+the results of pre-executed instructions. Our analysis provides
+insights into why result reuse does not provide significant
+performance improvement in runahead processors and concludes that
+runahead execution should be employed as a prefetching mechanism
+rather than a full-blown prefetching/result-reuse mechanism.
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* HiPC 2005 Call for Papers
+
+Event name: 12th International Conference on High Performance Computing
+(HiPC 2005)
+Dates: 12/18/05 - 12/21/05
+Location: Goa, India
+
+COSPONSORED BY
+--------------
+IEEE Computer Society Technical Committee on Parallel Processing
+ACM SIGARCH
+European Association for Theoretical Computer Science
+IFIP Working Group on Concurrent Systems
+National Association of Software and Services Companies (NASSCOM)
+Manufacturers Association for Information Technology (MAIT)
+
+HELD IN COOPERATION WITH
+------------------------
+Indian Institutes of Technology
+Institute of Technology, Banaras Hindu University, Varanasi
+Software Technology Parks of India
+Tata Institute of Fundamental Research, India
+
+Name of person to contact for complete information, that
+person's voice mail and email
+-----------------------------
+Rajeev R. Raje
+Department of Computer and Information Science
+Indiana University Purdue University Indianapolis
+723 W. Michigan Street, SL 280
+Indianapolis, IN 46202-5132
+(317) 274 5174
+Email: rraje@cs.iupui.edu
+
+Event's Web page: www.hipc.org
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* DaMoN 2005 (First International Workshop on Data Management on New Hardware) Call for Papers
+
+First International Workshop on Data Management on New Hardware (DaMoN
+2005)
+(http://www.cs.cmu.edu/~damon2005)
+
+Baltimore, Maryland, June 12, 2005
+(Sponsored by and colocated with ACM SIGMOD/PODS 2005)
+
+------------------------------------------------------------------------
+------------------
+Objective
+------------------------------------------------------------------------
+------------------
+The aim of this one-day workshop is to bring together researchers who
+are interested in optimizing database performance on modern computing
+infrastructure by designing new data management techniques and tools.
+
+------------------------------------------------------------------------
+------------------
+Motivation
+------------------------------------------------------------------------
+------------------
+The continued evolution of computing hardware and infrastructure imposes
+new challenges and bottlenecks to program performance. As a result,
+traditional database architectures that focus solely on I/O optimization
+increasingly fail to utilize hardware resources efficiently. CPUs with
+superscalar out-of-order execution, simultaneous multi-threading,
+multi-level memory hierarchies, and future storage hardware (such as
+MEMS) impose a great challenge to optimizing database performance.
+Consequently, exploiting the characteristics of modern hardware has
+become an important topic of database systems research.
+
+The goal is to make database systems adapt automatically to the
+sophisticated hardware characteristics, thus maximizing performance
+transparently to applications. To achieve this goal, the data management
+community needs interdisciplinary collaboration with computer
+architecture, compiler and operating systems researchers.
+This involves rethinking traditional data structures, query processing
+algorithms, and database software architectures to adapt to the advances
+in the underlying hardware infrastructure.
+
+------------------------------------------------------------------------
+------------------
+Topics of Interest
+------------------------------------------------------------------------
+------------------
+We seek submissions bridging the area of database systems to computer
+architecture, compilers, and operating systems. In particular,
+submissions covering topics from the following non-exhaustive list are
+encouraged:
+
+ - database algorithms and data structures on modern hardware
+ - cost models and query optimization for novel hierarchical memory
+systems
+ - hardware systems for query processing
+ - data management using co-processors
+ - query processing using computing power in storage systems
+ - database architectures for low-power computing and embedded devices
+ - database architectures on multi-threaded and chip multiprocessors
+ - performance analysis of database workloads on modern hardware
+ - compiler and operating systems advances to improve database
+performance
+ - new benchmarks for microarchitectural evaluation of database
+workloads
+
+------------------------------------------------------------------------
+------------------
+Dates
+------------------------------------------------------------------------
+------------------
+Paper submission:                       23 March 2005
+Notification of acceptance:                2 May 2005
+Camera-ready copies due:                     16 May 2005
+
+------------------------------------------------------------------------
+------------------
+Workshop Co-Chairs
+------------------------------------------------------------------------
+------------------
+ - Anastassia Ailamaki, Carnegie Mellon University (natassa@cmu.edu)
+ - Peter Boncz, CWI Amsterdam (boncz@cwi.nl)
+ - Stefan Manegold, CWI Amsterdam (manegold@cwi.nl)
+
+------------------------------------------------------------------------
+------------------
+Program Committee
+------------------------------------------------------------------------
+------------------
+ - Philippe Bonnet (University of Copenhagen)
+ - Phil Gibbons (Intel Research)
+ - Martin Kersten (CWI Amsterdam)
+ - Josep.-L. Larriba-Pey (Univ. of Catalonia)
+ - Paul Larson (Microsoft Research)
+ - Jeff Naughton (University of Wisconsin - Madison)
+ - Jignesh Patel (University of Michigan)
+ - Keshav Pingali (Cornell University)
+ - Ken Ross (Columbia University)
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* MoBS: Workshop on Modeling, Benchmarking, and Simulation Call for Papers
+
+******************************************************************
+*                                                                *
+*    MoBS: Workshop on Modeling, Benchmarking, and Simulation    *
+*                  http://www.arctic.umn.edu/MoBS                *
+*                                                                *
+******************************************************************
+
+                   Held in conjunction with the
+   32nd Annual International Symposium on Computer Architecture
+
+                       Madison, Wisconsin
+                         June 4-5, 2005
+
+Overview:
+=========
+With few exceptions, simulation is the quantitative foundation for
+virtually all computer architecture research and design projects -- from
+microarchitectural exploration to hardware and software trade-offs to
+processor and system design.  However, its continued efficacy is limited
+by problems such as increasing complexity, additional critical constraints
+(e.g. power consumption, reliability, etc.), an ever expanding design
+space, benchmark suite quality and coverage, and radical changes in
+processor architectures to compensate for technological changes (i.e.
+reduced transistor widths, etc.).
+
+The primary goals of this workshop are to accelerate the development of
+simulation technologies that are necessary to support the research of
+future generation architectures and to encourage the advancement of
+under-researched. areas related to computer architecture measurement, such
+as modeling, benchmark implementation and benchmark suite construction,
+and formal methods of design space exploration and performance analysis.
+
+Topics of interest include, but are not limited to:
+
+* New or efficient techniques to model performance, power, reliability,
+  etc.
+* Accurate but efficient alternatives to cycle-accurate, execution-driven
+  simulation
+* Simulator verification, flexibility and reusability
+* Reduced simulation time techniques
+* Efficient design space exploration
+* Development of parameterizable, flexible benchmarks
+* Formal methods for benchmark suite construction or benchmark suite
+  sub-setting
+* Techniques to measure the characteristics (weak spots, coverage, etc.)
+  of a benchmark suite
+* Analytical and statistical processor modeling
+* Choosing processor and memory simulation parameters
+
+Submission Guidelines:
+======================
+The authors should submit a 200 word or less abstract by 9 PM (CST) March
+7, 2005 to the workshop website.  The full paper should be 5000 words or
+less and should be submitted in pdf format by 9 PM (CST) March 14, 2005.
+Papers that are excessively long may be rejected without review.
+
+Co-Organizers and Program Co-Chairs:
+====================================
+Lieven Eeckhout     Ghent University            leeckhou@elis.ugent.be
+Joshua J. Yi        Freescale Semiconductor     jjyi@ece.umn.edu
+
+Program Committee:
+==================
+David I. August     Princeton University
+Pradip Bose         IBM Research T.J. Watson
+Brad Calder         University of California, San Diego
+Lizy Kurian John    University of Texas at Austin
+David J. Lilja      University of Minnesota at Twin Cities
+Peter Magnusson     Virtutech
+Jim Smith           University of Wisconsin - Madison
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* SAMOS-V (Embedded Computer Systems: Architectures, Modeling, and Simulation) Call for Papers
+
+Embedded Computer Systems: Architectures, Modeling, and Simulation Samos,
+Greece, July 18 - 19 - 20, 2005
+
+http://ce.et.tudelft.nl/samos/samos_v/
+
+----------------------------------------------------------------------------
+
+SAMOS V is the fifth meeting of the Embedded Computer Systems:
+Architectures, MOdeling, and Simulation series. The main focus is on the
+state-of-the art techniques in the design of embedded systems, including
+mapping techniques and synthesis, processors design and implementation,
+architectures, systems on a chip, modeling issues such as specification
+languages, formal models, and finally simulation, and hardware/software
+co-design.
+
+Topics of interest include but are not limited to the following:
+
+    * Embedded System Level Design and Simulation
+    * Multimedia, Graphics, and Signal Processors
+    * Hardware/Software Co-design
+    * Design Space Exploration
+    * Reconfigurable Processors
+    * Energy-Aware Processors
+    * Embedded System Simulation
+    * Application Specifications and Modeling for Embedded Systems
+    * Compiler and Mapping Technologies
+    * Embedded Processors and Architectures
+    * Applications of Embedded Computing Systems
+    * System and Network-on-Chip Platforms
+
+The SAMOS workshops have established a tradition of not only presenting new
+results but also bringing to the audience open challenging problems and
+on-the-stage requests for suggestions for solutions. In addition to
+considering only new innovative research, submissions of works in progress,
+positional, and review of the state of the art papers are also encouraged.
+
+----------------------------------------------------------------------------
+Authors information
+----------------------------------------------------------------------------
+
+Paper submission instructions:
+
+The authors are invited to submit a paper in PDF format of maximum 10 pages
+in LNCS format. Guidelines can be found at:
+   http://www.springer.de/comp/lncs/authors.html
+
+Proceedings:
+
+The proceeding will be published by Springer's Lecture Notes in Computer
+Science (LNCS). Author's instructions can be found at :
+http://www.springer.de/comp/lncs/authors.html
+
+There is a page limit of 10 pages. The proceedings will be distributed at
+the conference site.
+
+----------------------------------------------------------------------------
+
+Deadlines
+
+February 26, 2005 -- Submission Deadline for Full Pappers
+
+March 19, 2005 -- Notification of Acceptance
+
+April 1, 2005 -- Full Paper Submission Deadline for Proceedings
+
+July 18, 19, 20 2005 -- Workshop Samos,Greece
+
+----------------------------------------------------------------------------
+Organization
+
+    * General Chair
+
+      A. Pimentel, University of Amsterdam, NL
+
+    * Program Chair
+
+      J. Takala, Tampere University of Technology, FI
+
+    * Proceedings Chair
+
+      T. Hamalainen, Tampere University of Technology, FI
+
+    * Publicity Chair
+
+      S. Wong, TU Delft, NL
+
+    * Steering Committee
+
+      S. Bhattacharyya, University of Maryland, USA
+      E Deprettere, Leiden University, NL
+      P. Quinton, Irisa, FR
+      S. Vassiliadis, TU Delft, NL
+      J. Teich, University of Erlangen-Nuremberg, D
+
+    * Program Committee
+
+      K. Bertels, TU Delft, NL
+      N. Dimopoulos, University of Victoria, CAN
+      P. Diniz, University of Southern California, USA
+      G. Fettweis, TU Dresden, D
+      G. Gaydadijev, TU Delft, NL
+      J. Glossner, Sandbridge Technologies, USA
+      D. Guevorkian, Nokia Research Center, FI
+      L. Carro, Federal U. Rio Grande do Sul, BR
+      W. Luk, Imperial College, GB
+      B. Pottier, Universite' de Bretagne Occidentale, FR
+      T. Risset, IRISA/INRIA, FR
+      M. Schulte, University of Wisconsin-Madison, USA
+      D. Stroobandt, Ghent University, BE
+      J. Takala, Tampere University of Technology, FI
+      S. Vernalde, IMEC, BE
+      J. Wittenburg, Thomson Corporate Research, D
+
+    * Organizers
+
+      Yiasmin Kioulafa (Research and Training Institute of East Aegean)
+      Lidwina Tromp (TU Delft, NL)
+      Stamatis Vassiliadis (TU Delft, NL)
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* QEST 2005 (Quantitative Evaluation of Systems) Call for Papers
+
+QEST'05 - www.qest.org
+2nd International Conference on Quantitative Evaluation of SysTems
+Torino, Italy, September 19-22, 2005
+
+OVERVIEW
+The International Conference on Quantitative Evaluation of SysTems is
+a major forum for contributions on evaluation and verification of
+computer and communication systems, through measurements and
+stochastic models, possibly incorporating non-deterministic behaviour.
+It combines three events: the International Conference on Modeling
+Techniques and Tools for Computer Performance Evaluation (TOOLS), the
+International Workshop on Petri Nets and Performance Models (PNPM),
+and the Joint International Workshop on Process Algebras and
+Performance Modeling and Probabilistic Methods In Verification
+(PAPM-ProbMIV), that have discovered an increasing convergence in
+their interests and in their communities of researchers. The 1st QEST
+conference was held at the University of Twente in 2004. The 2nd QEST
+conference will be held in Torino, the city that hosted the first
+PNPM workshop twenty years ago. Torino has also hosted TOOLS in 1991
+and PAPM in 1996.
+
+SCOPE & TOPICS
+Quantitative properties of interest include, but are not limited to,
+performance, dependability (e.g., reliability, availability), safety,
+security, survivability, correctness, timeliness, and efficiency.
+Topics of interest cover the areas of modelling formalisms and
+methodologies, measurements, analytical and numerical evaluation,
+simulation and verification, and theory of probabilistic systems, as
+well as case studies showing the role of quantitative evaluation in
+the design of systems and applications including computer
+architecture, distributed and fault tolerant systems, communication
+systems, embedded systems, web-based systems, and safety-critical
+systems. Moreover tools for supporting the practical application of
+research results in all the above areas are of special interest for
+QEST and therefore tool papers are sought. Example topics of interest
+include:
+stochastic and timed Petri nets;
+stochastic and timed process algebras;
+stochastic and timed automata;
+queueing networks;
+Markov chains;
+non-Markovian models and algorithms;
+numerical and analytical solution techniques;
+efficient simulation techniques;
+formal specification techniques;
+quantitative extensions of UML;
+measurements and benchmarking;
+schedulability analysis;
+verification of stochastic and probabilistic systems;
+concurrency theory for probabilistic systems;
+analysis of randomized algorithms;
+model-checking algorithms;
+optimization techniques;
+probabilistic decision-making and planning;
+hybrid and hierarchical modelling and evaluation techniques;
+
+SUBMISSIONS
+We invite authors to submit papers with original material related to
+the topics of the conference, written in English, and formatted in the
+IEEE double column format. The length of the paper should not exceed
+10 pages. Additional material for the aid of the reviewers
+(e.g. proofs, definitions) can be presented in a clearly marked
+appendix. Instructions for electronic submission will be given on the
+conference home-page. Papers must be unpublished and must not be
+submitted for publication elsewhere. Accepted papers must be presented
+at the conference by one of the authors. The proceedings will be
+published by IEEE. All papers will be thoroughly reviewed by at least
+3 referees on the basis of their originality and their scientific and
+practical contribution to the state of the art. An award for best
+paper will be presented at the conference.
+
+TOOLS SESSION
+A special session will be arranged to present and demonstrate tools
+relevant to any topic covered by the conference. Accepted tool
+descriptions will appear in the conference proceedings (2 pages,
+IEEE format).
+
+WORK-IN-PROGRESS SESSION
+A special session will be arranged to present preliminary work.
+Authors are invited to submit short papers (2 pages, IEEE format).
+
+
+IMPORTANT DATES
+ Paper submission: March 28, 2005
+ Tool presentation submission: April 25, 2005
+ Work-in-progress submission: April 25, 2005
+ Notification of acceptance: May 30, 2005
+
+
+GENERAL CHAIR
+ Gianfranco Balbo
+ Universita di Torino, Italy
+
+PROGRAM CO-CHAIRS
+ Christel Baier
+ Universitaet Bonn, Germany
+
+ Giovanni Chiola
+ Universita  di Genova, Italy
+
+ Evgenia Smirni
+ College of William & Mary
+ Williamsburg, VA, USA
+
+PUBLICITY CHAIR
+ Jeremy Sproston
+ Universita di Torino, Italy
+ qest05-publicity@di.unito.it
+
+PROGRAM COMMITTEE
+ Marco Ajmone Marsan (Politecnico di Torino, Italy)
+ Christel Baier      (co-chair, Universitaet Bonn, Germany)
+ Daniele Beauqieur   (Universite Paris 12, France)
+ Mario Bravetti      (Universita di Bologna, Italy)
+ Peter Buchholz      (Universitaet Dortmund, Germany)
+ Gianfranco Ciardo   (University of California at Riverside
+ Javier Campos       (University of Zaragoza, Spain)
+ Giovanni Chiola     (co-chair, Universita di Genova)
+ Gianfranco Ciardo   (University of California at Riverside, USA)
+ Lucy Cherkasova     (Hewlett-Packard Labs, USA)
+ Pedro D'Argenio     (Universidad Nacional de Cordoba, Argentina)
+ Josee Desharnais    (Universite Laval, Quebec, Canada)
+ Edmundo de Souza e Silva (Federal University of Rio de Janeiro, Brazil)
+ Susanna Donatelli   (Universita degli Studi di Torino, Italy)
+ Claude Dutheillet   (Universite Paris 6, France)
+ Giuliana Franceschinis (Universita Piemonte Orientale, Italy)
+ Reinhard German     (Universitaet Erlangen-Nuernberg, Germany)
+ Stephen Gilmore     (University of Edinburgh, UK)
+ Serge Haddad        (Universite Paris-Dauphine, France)
+ Boudewijn Haverkort (Universiteit Twente, The Netherlands)
+ Holger Hermanns     (Universitaet Saarbruecken, Germany)
+ Ravi K. Iyer        (University of Illinois at Urbana-Champaign, USA)
+ Bengt Jonsson       (University of Uppsala, Sweden)
+ Joost Pieter Katoen (RWTH Aachen, Germany)
+ Peter Kemper        (Universitaet Dortmund, Germany)
+ John C.S. Lui       (The Chinese University of Hong-Kong)
+ Daniel Menasce      (George Mason University, USA)
+ Andrew Miner        (Iowa State University, USA)
+ Carroll Morgan      (University of New South Wales, Australia)
+ Gethin Norman       (University of Birmingham, UK)
+ Alma Riska          (Seagate Research, USA)
+ Emilia Rosti        (Universita degli Studi di Milano, Italy)
+ Gerardo Rubino      (INRIA, Rennes, France)
+ Bill Sanders        (University of Illinois at Urbana-Champaign, USA)
+ Matteo Sereno       (Universita di Torino, Italy)
+ Roberto Segala      (Universita di Verona, Italy)
+ Evgenia Smirni (co-chair, College of William & Mary, Williamsburg, VA, USA)
+ Mark Squillante     (IBM T. J. Watson Research Center, USA)
+ Eugene Stark        (SUNY at Stony Brook, New York, USA)
+ Miklos Telek        (Technical University of Budapest, Hungary)
+ Kishor Trivedi      (Duke University, USA)
+ Murray Woodside     (Carleton University, Ottawa, Canada)
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* 6th IEEE Information Assurance Workshop Call for Papers
+
+  Call for Papers:  http://www.itoc.usma.edu/workshop
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+* ACM SenSys 2005 Call for Papers
+
+CALL FOR PAPERS
+ACM SenSys 2005
+The 3rd ACM Conference on Embedded Networked Sensor Systems
+November http://sensys.csail.mit.edu
+Sponsored by ACM SIGCOMM, SIGMOBILE,
+SIGARCH, SIGOPS, SIGMETRICS and SIGBED
+
+The 3rd ACM Conference on Embedded Networked Sensor Systems (SenSys) is a highly selective single-track forum for the presentation of research results on systems issues in the emerging area of embedded, networked sensors. These distributed systems of smart sensors and actuators connecting computational capabilities to the physical world have the potential to revolutionize the way in which the real world is instrumented, monitored, and controlled. Such systems present a wide range of challenges because of resource constraints, uncertainty, irregularity, and scale.
+
+SenSys provides a cross-disciplinary venue for researchers addressing the rich space of networked sensor system design issues to interact, present and exchange research results, and demonstrate their work in a hands-on research exhibition. We seek technical papers describing original, previously unpublished research results.
+
+Topics of interest include, but are not limited to, novel results in the following areas of research in sensor  Sensor network architectures and  Distributed coordination algorithms (e.g., for localization, time synchronization, clustering, topology control,  Failure resilience and fault  Energy  Operating  Data, information, and signal  Data  Distributed actuation and  Programming  Security and  Network planning, provisioning, and  Operational experience and  Experimental methodology (e.g., repeatable experimentation, measurement infrastructure, simulation, emulation,  Analysis of real-world systems and fundamental   Integration with other systems (e.g., Web-based information systems, process control, enterprise software, etc.)
+
+The conference time-line is as follows. All deadlines are firm; please do not ask for extensions. To submit papers, go to http://sensys.csail.mit.edu.
+
+Paper Registration & Abstract  April 1, 2005, Midnight Eastern Time
+Paper Submission Deadline      April 8, 2005, Midnight Eastern Time
+Notification of Paper Acceptance     July 1, 2005
+Camera Ready Paper Copy              August 25, 2005
+
+Selected papers from the conference will be forwarded to the new ACM Transactions on Sensor Networks for possible publication.
+
+Organizing Committees:
+
+General Chair
+Jason Redi
+BBN Technologies
+
+Program Co-Chairs
+Hari Balakrishnan
+MIT
+
+Feng Zhao
+Microsoft Research
+
+Local Arrangements Chair
+Curt Schurgers
+UCSD
+
+Publicity Co-Chairs
+Wendi Heinzelman
+University of Rochester
+
+Bhaskar Krishnamachari
+USC
+
+Publications Chair
+Xenofon Koutsoukos
+Vanderbilt University
+
+Poster Co-Chairs
+John Byers
+Boston University
+
+Matt Welsh
+Harvard University
+
+Demos Co-Chairs
+Phil Gibbons
+Intel Research
+
+Chenyang Lu
+Washington University
+
+Web Chair
+Michel Goraczko
+MIT
+
+Steering Committee
+Victor Bahl
+Microsoft
+
+Deborah Estrin
+UCLA
+
+Craig Partridge
+BBN Technologies
+
+Taieb Znati
+University of Pittsburgh

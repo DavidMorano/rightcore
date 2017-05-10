@@ -1,0 +1,41 @@
+#!/usr/bin/ksh
+# INSTALLEXTRA
+
+
+NODES="rca rcb rcc"
+
+
+T=mailpolld
+
+
+: ${LOCAL:=/usr/add-on/local}
+export LOCAL 
+
+
+
+install() {
+  P=${1}
+  D=${2}
+  makenewer ${P} ${D}
+  chmod +x ${D}/${P}
+  chgrp mail ${D}/${P}
+  chmod g+s ${D}/${P}
+}
+
+
+make ${T}.${OFF}
+rm -f ${T}
+mv ${T}.${OFF} ${T}
+
+
+for N in $NODES ; do
+
+  if pingstat -n $N ; then
+    install ${T} /net/${N}/usr/extra/sbin/
+  fi
+
+done
+
+
+
+

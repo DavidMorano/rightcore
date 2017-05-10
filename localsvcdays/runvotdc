@@ -1,0 +1,16 @@
+#!/usr/extra/bin/ksh
+# RUNVOTDC
+
+A=${1}
+if make install-votdc ; then
+  if [[ "${A}" == "0" ]] ; then
+    print -- starting
+    rmshm -f 'local$votdc'
+  fi
+    print -- continuing
+  z d
+  export LD_PRELOAD=/usr/lib/secure/libpretime.so
+  TESTOPENSVC_DEBUGFILE=d testopensvc.x local§votd
+fi
+
+

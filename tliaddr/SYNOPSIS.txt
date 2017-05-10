@@ -1,0 +1,13 @@
+TPIADDR
+
+Synopsis:
+
+$ tliaddr -f inet rca listen
+\x00020ace000000000000000000000000
+$
+
+
+$ tliaddr -f unix /tmp/entropy
+\x0001.....
+
+

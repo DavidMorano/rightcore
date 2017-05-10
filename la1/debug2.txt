@@ -1,0 +1,15 @@
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) == NULL) {
+	    if ((cp = getourenv(envv,VARDEBUGFD1)) == NULL)
+	        cp = getourenv(envv,VARDEBUGFD2) ;
+	}
+	if (cp != NULL)
+	    debugopen(cp) ;
+	debugprintf("b_la: starting\n") ;
+#endif /* CF_DEBUGS */
+
+#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+	uc_mallset(1) ;
+	uc_mallout(&mo_start) ;
+#endif
+

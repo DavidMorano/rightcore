@@ -1,0 +1,2 @@
+	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
+	proginfo_setbanner(pip,cp) ;

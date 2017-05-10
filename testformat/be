@@ -1,0 +1,4 @@
+testformat: debuglevel=5
+testformat: pr=/usr/add-on/local
+testformat: sn=testformat
+testformat: exiting ex=0 (8)

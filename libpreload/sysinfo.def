@@ -1,0 +1,28 @@
+# SYSINFO
+
+#
+# This file provides an over-ride for (some) values returned using
+# the library (lib-c) call |sysinfo(2)|.  Currently, this file is
+# only in effect if the Solaris® system default library function is
+# interposed upon by our interposer.
+#
+# Values for these variables are found in this order:
+#	1. process environment (e­g­ 'HOSTID')
+# 	2. this file
+#	3. system default
+#
+# Once a value is found, it is cached internally (per-process)
+# for up to two (2) hours.
+#
+#
+
+#
+# Currently supported values that can be over-ridden are:
+#	HOSTID (Solaris® defined name 'SI_HW_SERIAL')
+#
+#
+
+# currently disabled
+#HOSTID=0x00000001
+
+

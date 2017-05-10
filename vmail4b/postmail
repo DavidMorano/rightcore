@@ -1,0 +1,16 @@
+#!/usr/bin/ksh
+# POSTMAIL
+
+OUT=postmail
+EX=0
+
+print -- MAILMSG | append ${OUT}.out
+append ${OUT}.out
+
+echoargs "${@}"
+
+#print -u2 stderr whisper PWD=${PWD}
+
+return ${EX}
+
+

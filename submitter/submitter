@@ -1,0 +1,44 @@
+#!/bin/ksh
+# SUBMITTER
+
+
+SUBDIR=${HOME}/var/spool/submitd
+SVC=sub
+
+
+: ${PWD:=$( pwd )}
+
+
+SF=$( pcsjobfile -r )
+JOBID=$( basename $SF )
+
+cleanup() {
+  rm -f $SF
+}
+
+trap 'cleanup ; exit 1' 1 2 3 15 16 17
+
+
+{
+  echo
+  echo "cd ${PWD}"
+  echo HOME=${HOME}
+  echo LOGNAME=${HOME}
+  echo PATH=${PATH}
+  if [[ -n "${NAME}" ]] ; then
+    echo "NAME=${NAME}"
+  fi
+  if [[ -n "${FULLNAME}" ]] ; then
+    echo "FULLNAME=${FULLNAME}"
+  fi
+  echo
+} >> $SF
+
+
+cat >> ${SF}
+
+mv $SF ${SUBDIR}/${JOBID}.${SVC}
+
+
+
+

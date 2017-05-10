@@ -1,0 +1,66 @@
+# KEYS (screen)
+#
+
+#
+# The Rules!
+#
+# Each "key" command described by the information in columns two and
+# continuing must map to a single "keysym" name in the first column.
+# However, more than one key-command can map to the *same* keysym
+# in the first column.  That is how the table is used.
+#
+
+#
+# key-types are one of: FKEY (pseudo), ESC, CSI, DCS, PF
+#
+#
+
+#
+# keysym	type	final	inter	param(s)
+#
+
+F6              FKEY	-	-	17
+F7              FKEY	-	-	18
+F8              FKEY	-	-	19
+F9              FKEY	-	-	20
+F10             FKEY	-	-	21
+
+F11             FKEY	-	-	23
+F12             FKEY	-	-	24
+F13             FKEY	-	-	25
+F14             FKEY	-	-	26
+
+Help            FKEY	-	-	28
+Do              FKEY	-	-	29
+
+F17             FKEY	-	-	31
+F18             FKEY	-	-	32
+F19             FKEY	-	-	33
+F20             FKEY	-	-	34
+
+PF1             PF	P
+PF2             PF	Q
+PF3             PF	R
+PF4             PF	S
+
+Find            FKEY	-	-	1
+Insert          FKEY	-	-	2
+Remove          FKEY	-	-	3
+Select          FKEY	-	-	4
+Previous        FKEY	-	-	5
+Next            FKEY	-	-	6
+
+CurUp           CSI	A
+CurDown         CSI     B
+CurRight	CSI     C
+CurLeft         CSI     D
+
+# for Macintosh
+
+CurUp           CSI	A	-	1
+CurDown         CSI     B	-	1
+CurRight	CSI     C	-	1
+CurLeft         CSI     D	-	1
+
+
+

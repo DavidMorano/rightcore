@@ -1,0 +1,7 @@
+	    if ((rs = chartrans_transbegin(op,dt,ics,-1)) >= 0) {
+	        const int	txid = rs ;
+
+
+	        chartrans_transend(op,txid) ;
+	    } /* end if (chartrans-transaction) */
+

@@ -1,0 +1,24 @@
+# NODE
+
+#
+# Format of entries :
+#
+# node:cluster:system:key=value,...
+#
+#
+
+
+rca:rc:ark3:	maxjobs=1
+rcb:rc:ark3:
+::
+
+rcc:rc:ark3:	mem=256m
+
+rcd:rc::
+rce::ark3:
+rcf:rc::
+
+test1:here:	var=2
+test2:here:other
+
+

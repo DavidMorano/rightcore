@@ -1,0 +1,1 @@
+ rs = openpcsmail(pr,tos,ccs,bccs,subj,opts) ; 

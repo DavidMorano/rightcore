@@ -1,0 +1,12 @@
+FSPIPE (notes)
+
+
+The 'fspipe' file in the file system looks something like :
+
+FSPIPE 0 1
+inet:tcp	levo.rightcore.com:23057
+local:p		rca:/tmp/wh634585737474
+unix:co		rca:/tmp/wh037594758484
+
+
+

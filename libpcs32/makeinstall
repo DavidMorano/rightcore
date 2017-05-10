@@ -1,0 +1,30 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+TS=${*}
+if [[ -z "${TS}" ]] ; then
+  TS=libpcs
+fi
+
+EXTS=" a so "
+
+PRS=" ${PCS} /root[01]/${EXTRA} "
+
+DN=/dev/null
+for T in ${TS} ; do
+#  print -u2 T=${T}
+  makeit ${T}.so > ${DN}
+  for PR in ${PRS} ; do 
+    if [[ -d "${PR}" ]] ; then
+      for E in ${EXTS} ; do
+        L=${T}.${E}
+        if [[ -r "${L}" ]] ; then
+          makenewer -r ${L} ${PR}/lib
+        fi
+      done
+    fi
+  done
+done
+wait
+
+

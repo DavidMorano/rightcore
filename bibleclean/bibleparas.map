@@ -1,0 +1,19 @@
+
+
+DAMbibleparams {
+	global:
+		bibleparas ;
+		bibleparas_open ;
+		bibleparas_count ;
+		bibleparas_ispara ;
+		bibleparas_curbegin ;
+		bibleparas_enum ;
+		bibleparas_curend ;
+		bibleparas_audit ;
+		bibleparas_info ;
+		bibleparas_close ;
+	local:
+		* ;
+} ;
+
+

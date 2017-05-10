@@ -1,0 +1,12 @@
+# CONF
+
+
+
+listen		tcp:5113
+
+listen		usd:/tmp/local/telserv/req
+
+
+
+
+

@@ -1,0 +1,11 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLSO
+
+BC=misc
+
+#print -- BC=${BC}
+makenewer -r ${BC}.so /root0/${EXTRA}/lib &
+makenewer -r ${BC}.so /root1/${EXTRA}/lib &
+wait
+
+

@@ -1,0 +1,15 @@
+
+15 chracters max
+
+<node><pid>.<serial>
+
+
+<node>		4
+<pid>		5
+.		1
+<serial>	5
+
+----------------------------
+
+
+

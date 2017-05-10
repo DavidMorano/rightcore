@@ -1,0 +1,32 @@
+LASTLOG
+
+Synopsis:
+
+$ lastlog [-s] [{<uid>|<user>} [...]] [-h <host>] [-l <line>] 
+	[-o {time|host|line}] [-llf <lastlog>] [-all] [-<num>] [-af <file>]
+
+Arguments:
+
+	-s		specify to set an entry
+	<uid>|<user>	user to read or set
+	-h <host>	specify hostname for setting or querying
+	-l <line>	specify a line for setting or querying
+	-o <opt(s)>	set output display options
+	-llf <lastlog>	set the LASTLOG file to use
+	-all		show all valid entries
+	-<num>		show last <num> entries sorted by latest time
+	-af <argfile>	file to read user names from
+
+Examples:
+
+	Show the last login time for the 'pcs' login account
+	$ lastlog pcs
+
+	Show all valid entries.  This will even show entries that
+	are for UIDs not configured in the current system PASSWD DB.
+	$ lastlog -all
+
+	Show the last 20 entries (as sorted by the latest time).
+	$ lastlog -20
+
+

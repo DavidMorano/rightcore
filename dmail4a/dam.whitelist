@@ -1,0 +1,380 @@
+# WHITELIST
+#
+#
+# This file contains a list of mail addresses that are "whitelisted"
+# meaning that they should NOT be considered spam under any
+# circumstances.
+#
+# Warning:
+# Only ONE 'whitelist' configuration file will be used for each
+# user.  A search is made in the following order to find the correct
+# whitelist file to use:
+#
+#	${HOME}/etc/%s/%s.whitelist
+#	${HOME}/etc/%s/whitelist
+#	${HOME}/etc/%s.whitelist
+#	${HOME}/etc/mail/mail.whitelist
+#	${HOME}/etc/mail/whitelist
+#	${HOME}/etc/mail.whitelist
+#	${HOME}/etc/whitelist
+#
+# Format of entries:
+# Entries can be either mail addresses or mail domains.  For mail addresses
+# the exact domain name is required in order to get a match.  However, for 
+# domain names, only a prefix match on the higher order components of
+# the domain name is required (all subdomains are essentially automatically 
+# included within each given domain name).
+#
+# Finally, remember that local parts of mail address are CASE SENSITIVE!
+#
+#
+
+# jobs
+
+# for Acme-Packet
+openhire.com
+
+# local
+dell7@myway.com 
+dell7me@yahoo.com  
+dell7me@gmail.com  
+dell.morano@gmail.com
+dell_morano@verizon.net
+pmorano@gmail.com   
+phil.morano@verizon.net
+joe.meszaros@nii.net
+dmorano@verizon.net
+
+# area
+esilver@comcast.net 
+eve.s.silver@gmail.com
+coldheartedlady@gmail.com
+zerotheigenvector@yahoo.com
+eve@evesilver.com
+eve.silver@cityofasburypark.com
+silver@cintalatina.org
+silver@clearresearch.org
+silver@clresearch.org
+evesilver@earthlink.net
+
+# Larry Cecchi
+busterjoe@afo.net
+ljc@afo.net
+figtree@afo.net
+figtree1@juno.com
+
+ricardocuomo@afo.net
+
+# John McKenna (he uses providers often appearing as spammers)
+johnmckenna@gonowmail.com
+weehawker59@yahoo.com
+weehawker1@yahoo.com
+
+# Mark Hord
+presuppositionalist@yahoo.com
+
+# jobs
+monster@e0.monster.com 
+alerts@yahoo-inc.com
+Brenda.Rivera.B1@CyberCoders.com
+
+
+# good domains
+rightcore.com
+rightcore.org
+christian-update.org
+neu.edu
+ele.uri.edu
+cintalatina.org
+pinkmoney.org
+clresearch.org
+clearresearch.org
+nationalillusion.com
+nativelife.us
+stopabc.org
+blackabc.org
+blackabc.com
+prolifejoes.com
+afo.net
+info.citibank.com 
+
+
+# newsletter sites
+#newsmax.sparklist.com
+#worldnetdaily.com
+#wnd.com
+acm.org
+ieee.org
+computer.org
+vote.com
+research.att.com
+sun.com
+aias.com
+apple.com
+keyesmedia.org
+
+
+# mailing list addresses
+
+# Computer Society news
+BNWard@computer.org
+
+# Alan Stang newsletter
+stangfeedback@earthlink.net
+
+# ACM TechNews
+technews@HQ.ACM.ORG
+owner-technews@LISTSERV.ACM.ORG
+
+# "Irregulars" group at Yahoo (Mark Hord)
+Irregulars@yahoogroups.com
+
+# Phi Kappa Phi
+webmaster@phikappaphi.org 
+phikappaphi.org 
+
+# AST list management
+mailman-bounces@research.att.com
+mailman-owner@research.att.com
+
+# AST lists
+ast-users-bounces@research.att.com
+ast-developers-bounces@research.att.com
+
+# Solaris-KSH
+ksh93-integration-discuss-bounces@opensolaris.org
+
+# Solaris-Shell
+shell-discuss-bounces@opensolaris.org
+
+# Solaris-Security
+security-discuss-bounces@opensolaris.org
+
+# NAS mailing list
+radscan.com
+
+
+# computer research sites
+uiuc.edu
+utexas.edu
+csc.ncsu.edu
+ics.uci.edu
+cs.columbia.edu
+cs.wustl.edu
+researchgate.net
+
+# computer research people
+ssair@moss.csc.ncsu.edu
+c-i-conf@ics.uci.edu
+nieh@cs.columbia.edu
+micro2k3@cs.wustl.edu
+SDWareham@COMPUTER.ORG
+owner-tpds_subscribers@COMPUTER.ORG
+
+
+# AIAS
+EMyrone@aol.com 
+garethje@ceredigion.gov.uk 
+Volker204@cs.com 
+David.Hamilton@EE.DOE.GOV 
+g.w.bruhn@t-online.de 
+HorstEck@aol.com
+
+
+
+# friends we don't hear from very often! :-)
+Hanserd@aol.com
+hanserd@aol.com
+knollys@aol.com
+# Barbara Weid
+nany2all@bulloch.net
+# Mike McKenna
+gregoryXII@msn.com
+# Dave Bergland
+Jonahdave@aol.com
+# Mary Anne
+ormcguire@mindspring.com
+# Bill Cotter
+bill.orboston@earthlink.net
+# Sheryl Fitzpatrick
+pipsqueak@sprynet.com
+# Don Shugard
+donald.shugard@lmco.com
+# Walter Pitio
+wpitio@yahoo.com
+# Maggie Porter
+mags2cool@hotmail.com
+# Ron Johnson
+rondayle@juno.com
+# Tim Bevin
+timothybevin@juno.com
+# Arthur Carpenito
+acarpenito@juno.com
+# Rob Brown
+thingol1969@yahoo.com 
+# Reid Hoover
+Ignatius.reid@gmail.com
+# Gay Guptill
+resquer@onebox.com
+159159@runbox.com
+prayforbpd@yahoo.com
+# Ruth Schiavone
+ruth.schiavone@perkinelmer.com
+
+
+# companies
+
+# Fidelity
+Fidelity.com
+BenefitsCenter@Fidelity.com
+
+# Verizon service-provider
+do-not-reply@verzion.com 
+
+# Dice
+diceadvisor@e.dice.com
+
+# FireWire Depot
+fwdepot.com
+
+# DNS registrars
+droa.com
+godaddy.com
+notice@godaddy.com
+sales@godaddy.com
+
+# Allume Systems
+digitalriver.com
+
+# DataViz
+info@list.dataviz.com 
+
+# AT&T Universal Card
+universalcard@info.citibank.com 
+universalcard@info2.citibank.com 
+citicards@info9.citibank.com
+
+# APC
+apc@apc.chtah.com
+apc@email.apcc.com 
+
+# AddLogix
+addlogix.com
+
+# Starmen Electronics
+starmen.com.tw
+
+# good URI
+TECHNEWS@PETE.URI.EDU
+jjordan@mail.uri.edu
+
+# PKP
+in.constantcontact.com
+webmaster@phikappaphi.org
+webmaster@phikappaphi.org
+
+# BlockBuster
+BlockbusterRewards@blockbuster.qrs1.net
+CustomerCare@blockbuster.qrs1.net
+
+# Kagi Software
+kagi.com
+
+# AlSoft
+alsoft.com
+
+# PC nation
+pcnation.com
+
+# Oracle
+oracle-mail.com
+
+
+# organizations
+
+# God Hates Fags
+slpr@cox.net
+fredjr@GodHatesFags.com
+GodHatesFags.com
+
+# American Family Association (AFA)
+contact@afamail.net
+
+# American Express
+#AmericanExpress@member.americanexpress.com
+#AmericanExpress@email.americanexpress.com
+member.americanexpress.com
+email.americanexpress.com
+
+# Keyes Media Central
+kmc@keyesmedia.org
+
+# Sermon Audio
+sermonaudio.com
+
+
+# relatives
+morano.kjf@verizon.net
+Michael@YeomanService.com
+Cuddlesk12@cs.com
+
+
+# CH
+christian.adjemian@verizon.net
+tafisher@post.harvard.edu
+debrschae77@juno.com
+
+
+# NUCAR
+kaeli@ece.neu.edu
+akhalafi@ece.neu.edu
+black@coe.neu.edu
+bnorum@ece.neu.edu
+dbalkan@ece.neu.edu
+jblack@ece.neu.edu
+kaeli@ece.neu.edu
+mbicer@ece.neu.edu
+mdealba@ece.neu.edu
+mfayyazi@ece.neu.edu
+morano@ele.uri.edu
+ochakib@ece.neu.edu
+pzeno@ece.neu.edu
+svanders@ece.neu.edu
+uht@ele.uri.edu
+yedong2001@yahoo.com
+yiwang@ece.neu.edu
+anita@coe.neu.edu 
+dye@ece.neu.edu
+dng@ece.neu.edu
+wbassale@ece.neu.edu
+
+
+# Bates
+hamid@rocko.lns.mit.edu
+kdow@mit.edu
+
+
+# MIT
+mit.edu
+
+
+# NEU
+neu.edu
+
+
+# URI
+uri.edu
+
+
+# Ira Toyota
+SBush@group1auto.com
+group1auto.com
+
+
+# JC Penney
+statements@mail.synchronybank.com
+customer.service@mail.synchronybank.com
+cardholder@mail.synchronyfinancial.com
+
+
+

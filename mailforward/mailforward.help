@@ -1,0 +1,17 @@
+MAILFORWARD
+
+This program installs or removes mail forwarding addresses.
+
+Synopsis:
+
+$ mailforward { addr(s) | -l } [-r] [-a] [-u username] [-n n1,n2,...]
+
+where:
+
+addr(s)		mail addresses to be installed or removed
+-r		the specified address will be removed
+-a		if given with option 'r', all addresses will be removed
+-l		list all existing forwarding addresses
+-u username	perform operation for alternate user (if have permission)
+-n		remove forwarding address associated with ordinal numbers
+

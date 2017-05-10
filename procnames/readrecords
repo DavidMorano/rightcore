@@ -1,0 +1,33 @@
+#!/bin/ksh
+# READRECORDS
+
+
+{
+
+  echo
+
+  while read LINE ; do
+
+    F=$( echo $LINE | cut -d '|' -f 1 )
+    L=$( echo $LINE | cut -d '|' -f 2 )
+    S=$( echo $LINE | cut -d '|' -f 3 )
+    C=$( echo $LINE | cut -d '|' -f 4 )
+    T=$( echo $LINE | cut -d '|' -f 5 )
+
+    echo 
+    echo $F
+    echo $L
+    echo $T
+    echo $S
+    echo $C
+
+  done
+
+  echo
+
+}
+
+
+
+
+

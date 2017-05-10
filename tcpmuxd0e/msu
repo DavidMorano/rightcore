@@ -1,0 +1,52 @@
+#!/bin/ksh
+# MSU (Machine Status Update)
+#
+
+#
+# This is the 'Machine Status Update" program !  Remarkably, or
+# fortunately, essentially this function is already performed by a number
+# of programs but it just needs a little direction now and then to get
+# the updates that we want across the whole cluster.  In the present
+# example, we are hi-jacking the TCPMUX daemon program to do our bidding
+# for our intended purpose.  Really any one of a number of that old era
+# server-class program (old now) can equally be used, TCPMUXD is just one
+# of those.  That whole class of server was all really pretty much the
+# same exact program to start with (isn't that the way good software was
+# supposed to be !).  Anyway, all of them are configured almost
+# identically and can be configured to do the machine-status-update
+# function that we want if properly configured to do so.  Basically,
+# configuration consists of changing the name of the program and, more
+# importantly, changing its "seach name" for finding its relevant files,
+# locks, mutexes, portals, or whatever.  The rest of the needed
+# configuration is to just ... turn off (!) the regular function that the
+# server would have done if left alone.  Those old programs generally
+# configured themselves to do the intened thing when just left alone so
+# we need a little bit of coaxing to tell them to not do whatever they
+# would have done on their own !
+# 
+
+
+# new "program name" and "search name"
+P=msu
+
+
+# the banner is pure cosmetics
+TCPMUXD_BANNER="Machine Status Update"
+TCPMUXD_NAME=${P}
+
+export TCPMUXD_BANNER TCPMUXD_NAME
+
+
+N=/dev/null
+
+PROG=tcpmuxd.x
+if whence ${PROG} > /dev/null ; then :
+else
+  PROG=tcpmuxd
+fi
+
+export DEBUGFD=3 
+exec execname $PROG $P < $N > $N 2>&1 -caf -q -d=4 "${@}" 3> d
+
+
+

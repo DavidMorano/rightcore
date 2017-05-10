@@ -1,0 +1,16 @@
+
+
+DAMbvses {
+	global:
+		bvses ;
+		bvses_open ;
+		bvses_count ;
+		bvses_info ;
+		bvses_mkmodquery ;
+		bvses_audit ;
+		bvses_close ;
+	local:
+		* ;
+} ;
+
+

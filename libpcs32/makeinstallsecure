@@ -1,0 +1,16 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLSECURE
+
+LIBSECURE=/usr/lib/secure
+LIB=libpcs.so
+
+if [[ -x ${LIB} ]] ; then
+  for L in /root[01]/${LIBSECURE} ; do
+    if [[ -d "${L}" ]] ; then
+      mn -r ${LIB} ${L} &
+    fi
+  done
+fi
+wait
+
+

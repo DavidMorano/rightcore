@@ -1,0 +1,12 @@
+RMAILER
+
+Email Names (EMN) are possible and are looked up in some sort of
+database.
+**NOT**
+
+Domains of email addresses are looked up in a domain table.
+Email addresses without domains are sent to ... ?
+**NOT**
+
+
+

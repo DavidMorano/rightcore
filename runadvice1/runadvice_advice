@@ -1,0 +1,30 @@
+#!/bin/ksh
+# ADVIVE program simulator
+
+
+if [ -d /usr/sbin ] ; then
+
+  MACH=`uname -n`
+
+else
+
+  MACH=`hostname`
+
+fi
+
+cat >> runfiles
+echo "hello there , I am ${MACH}"
+
+C=1
+while [ $C -gt 0 ] ; do
+  find /home/dam/src/runadvice_1 -print | while read F J ; do 
+    A=`echo $F | cut -c1`
+    if [ $A == "a" ] ; then echo hello from underneath ; fi
+  done 
+C=`expr $C - 1 `
+done
+
+#echo error out >&2
+echo more standard output on ${MACH}
+
+

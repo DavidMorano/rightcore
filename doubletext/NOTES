@@ -1,0 +1,12 @@
+SHCAT
+
+Notes for 'uc_open(3uc)':
+
+Example filenamess:
+
+	/proto/tcp/inet/...
+	/proto:to=26/tcp/inet/...
+	/proto:to=17,linger=y/tcp/inet/...
+
+
+

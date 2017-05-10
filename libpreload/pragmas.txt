@@ -1,0 +1,9 @@
+PRAGMAs
+
+#pragma	init(<func>[,<func>])
+#pragma	fini(<func>[,<func>])
+#pragma	refine_extname	<old> <new>
+
+
+
+

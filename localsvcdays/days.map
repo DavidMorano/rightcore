@@ -1,0 +1,15 @@
+
+
+DAMopensvc_days {
+	global:
+		opensvc_motd ;
+		opensvc_cotd ;
+		opensvc_votd ;
+		opensvc_hotd ;
+		opensvc_qotd ;
+		opensvc_hols ;
+	local:
+		* ;
+} ;
+
+

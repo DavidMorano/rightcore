@@ -1,0 +1,13 @@
+#!/usr/preroot/bin/ksh
+# TESTSUB
+
+z d 
+
+unset LOCAL
+
+export PATH=:/usr/bin:/usr/extra/bin
+export ENVSET_PROGRAMROOT=/usr/extra
+
+ENVSET_DEBUGFILE=d execname envset.x lsh 2> e
+
+

@@ -1,0 +1,10 @@
+= Mail Priorities
+
+0	none
+1	high
+2	moderate
+3	normal
+4	bulk
+5	low
+
+

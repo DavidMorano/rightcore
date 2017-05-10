@@ -1,0 +1,46 @@
+NOTICED
+
+** This is BADLY not finished.
+** This isn't even close to even compiling!
+
+
+
+The server listens on (for now) a local UNIX domain socket (DGRAM).
+
+A client sends the notice by queuing it up into a FSMQ (File System
+Message Queue).  The server polls the FSMQ for incoming messages.
+The client can also give a notice to the server through the server's
+UNIX domain socket (DGRAM).  The client can send one of at least two
+types of messages:
+
+1) look at FSMQ for incoming notice
+
+2) send the notice that is with this message here
+
+
+The client sends a message like:
+
+	<service2>
+	<tag4>
+	<len1>username'\0'
+	<len2><text>'\0'
+
+where:
+
+	<text>	this is the notice to write to the terminal
+
+The server sends back:
+
+	<service2>
+	<tag4>
+	<rc4>
+	<len1>termdev'\0'
+
+Service codes are:
+
+0		reserved
+1		notice
+2		random
+
+
+

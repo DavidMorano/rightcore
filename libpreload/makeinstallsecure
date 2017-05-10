@@ -1,0 +1,15 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLSECURE
+
+LIB=libpreload.so
+
+if [[ -x ${LIB} ]] ; then
+  for D in /root[01]/usr/lib/secure ; do
+    if [[ -d ${D} ]] ; then
+      mn -r ${LIB} ${D} &
+    fi
+  done
+fi
+wait
+
+

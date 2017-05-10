@@ -1,0 +1,73 @@
+	"acsst",	DTZ,	PACK(630),	/* Cent. Australia */
+	"acst",		TZ,	PACK(570),	/* Cent. Australia */
+	"adt",		DTZ,	PACK(-180),	/* Atlantic DT */
+	"aesst",	DTZ,	PACK(660),	/* E. Australia */
+	"aest",		TZ,	PACK(600),	/* Australia Eastern ST */
+	"akdt",		DTZ,	PACK(-480),	/* Alaska DT */
+	"akst",		TZ,	PACK(-540),	/* Alaska ST */
+	"ast",		TZ,	PACK(-240),	/* Atlantic ST (Canada) */
+	"awst",		TZ,	PACK(480),	/* W. Australia */
+	"bst",		DTZ,	PACK(60),	/* British Summer Time */
+	"cadt",		DTZ,	PACK(630),	/* Central Australian DT */
+	"cast",		TZ,	PACK(570),	/* Central Australian ST */
+	"cct",		TZ,	PACK(480),	/* China Coast */
+	"cdt",		DTZ,	PACK(-300),	/* Central DT */
+	"cest",		DTZ,	PACK(120),	/* Central Europe Summer Time */
+	"cet",		TZ,	PACK(60),	/* Central European Time */
+	"cetdst",	DTZ,	PACK(120),	/* Central European DT */
+	"cst",		TZ,	PACK(-360),	/* Central ST */
+	"dnt",		TZ,	PACK(60),	/* Dansk Normal Tid */
+	"eadt",		DTZ,	PACK(660),	/* East Australian DT */
+	"east",		TZ,	PACK(600),	/* East Australian ST */
+	"edt",		DTZ,	PACK(-240),	/* Eastern DT */
+	"eest",		DTZ,	PACK(180),	/* Eastern Europe Summer */
+	"eet",		TZ,	PACK(120),	/* Eastern Europe */
+	"eetdst",	DTZ,	PACK(180),	/* Eastern Europe */
+	"est",		TZ,	PACK(-300),	/* Eastern ST */
+	"fst",		DTZ,	PACK(120),	/* French Summer Time */
+	"fwt",		TZ,	PACK(60),	/* French Winter Time  */
+	"gmt",		TZ,	PACK(0),	/* Greenwich Mean Time */
+	"gst",		TZ,	PACK(600),	/* Guam ST */
+	"hadt",		DTZ,	PACK(-540),	/* Hawaii-Aleutian DT */
+	"hast",		TZ,	PACK(-600),	/* Hawaii-Aleutian ST */
+	"hkt",		TZ,	PACK(480),	/* Hong Kong Time */
+	"hst",		TZ,	PACK(-600),	/* Hawaii ST */
+	"idle",		TZ,	PACK(720),	/* Intl. Date Line, East */
+	"idlw",		TZ,	PACK(-720),	/* Intl. Date Line, West */
+	"idt",		DTZ,	PACK(180),	/* Israel DT */
+	"ist",		TZ,	PACK(120),	/* Israel */
+	"jst",		TZ,	PACK(540),	/* Japan ST */
+	"kdt",		DTZ,	PACK(600),	/* Korea DT */
+	"kst",		TZ,	PACK(540),	/* Korea ST */
+/*XX*/	"ligt",		TZ,	PACK(600),	/* From Melbourne, Australia */
+	"mdt",		DTZ,	PACK(-360),	/* Mountain DT */
+	"mest",		DTZ,	PACK(120),	/* Middle Europe Summer Time */
+	"mesz",		DTZ,	PACK(120),	/* Mittel-Europaeische Sommerzeit */
+	"met",		TZ,	PACK(60),	/* Middle Europe Time */
+	"metdst",	DTZ,	PACK(120),	/* Middle Europe DT */
+	"mewt",		TZ,	PACK(60),	/* Middle Europe Winter Time */
+	"mez",		TZ,	PACK(60),	/* Mittel-Europaeische Zeit */
+	"mst",		TZ,	PACK(-420),	/* Mountain ST */
+	"ndt",		DTZ,	PACK(-150),	/* Newfoundland DT */
+/*XXN*/	"nft",		TZ,	PACK(-210),	/* Newfoundland ST */
+/*XX*/	"nor",		TZ,	PACK(60),	/* Norway ST */
+	"nst",		TZ,	PACK(-210),	/* Newfoundland ST */
+	"nzdt",		DTZ,	PACK(780),	/* New Zealand DT */
+	"nzst",		TZ,	PACK(720),	/* New Zealand ST */
+	"nzt",		TZ,	PACK(720),	/* New Zealand Time */
+	"pdt",		DTZ,	PACK(-420),	/* Pacific DT */
+	"pst",		TZ,	PACK(-480),	/* Pacific ST */
+	"sadt",		DTZ,	PACK(630),	/* S. Australian DT */
+	"sast",		TZ,	PACK(570),	/* S. Australian ST */
+	"sst",		DTZ,	PACK(120),	/* Swedish Summer Time */
+	"swt",		TZ,	PACK(60),	/* Swedish Winter Time  */
+	"ut",		TZ,	PACK(0),
+	"utc",		TZ,	PACK(0),
+	"wast",		TZ,	PACK(480),	/* West Australian ST */
+	"wat",		TZ,	PACK(-60),	/* West Africa Time */
+	"west",		DTZ,	PACK(60),	/* Western Europe Summer */
+	"wet",		TZ,	PACK(0),	/* Western Europe */
+	"wetdst",	DTZ,	PACK(60),	/* Western Europe */
+	"wst",		TZ,	PACK(480),	/* West Australian ST */
+	"ydt",		DTZ,	PACK(-480),	/* Yukon DT */
+	"yst",		TZ,	PACK(-540),	/* Yukon ST */

@@ -1,0 +1,14 @@
+
+
+
+CCOPTS= -O2 -fpic -mcpu=v8 -mno-app-regs
+
+
+
+CCOPTS_GCCOPT= -O2 -mcpu=v8
+CCOPTS_CCOPT= -O
+
+CCOPTS_GCCLIB= -fPIC -mno-app-regs
+CCOPTS_CCLIB= -fpic
+
+

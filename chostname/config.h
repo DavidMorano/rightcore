@@ -1,0 +1,58 @@
+/* config */
+
+
+#define	VERSION		"0c"
+#define	WHATINFO	"@(#)CHOSTNAME "
+#define	BANNER		"Canonical Host Name"
+#define	SEARCHNAME	"chostname"
+
+#define	VARPROGRAMROOT1	"CHOSTNAME_PROGRAMROOT"
+#define	VARPROGRAMROOT2	"LOCAL"
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARSEARCHNAME	"CHOSTNAME_NAME"
+#define	VARERRORFNAME	"CHOSTNAME_ERRORFILE"
+
+#define	VARDEBUGFNAME	"CHOSTNAME_DEBUGFILE"
+#define	VARDEBUGFD1	"CHOSTNAME_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+
+#define	CONFIGFNAME	"etc/chostname/conf"	/* not currently used */
+#define	LOGFNAME	"log/chostname"
+#define	HELPFNAME	"help"
+
+
+

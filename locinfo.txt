@@ -1,0 +1,2 @@
+#define	LOCINFO		struct locinfo
+#define	LOCINFO_FL	struct locinfo_flags

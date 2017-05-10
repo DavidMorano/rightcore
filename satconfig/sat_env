@@ -1,0 +1,33 @@
+# SHELL program to set SAT related environment variables
+#
+#	This program must be called from the SHELL as :
+#		. sat_env <system_name>
+#
+#
+#
+
+TMPFILE0=/tmp/sc0_${$}
+TMPFILE1=/tmp/sc1_${$}
+
+if [ ! "${1}" ] ; then
+
+  echo "${0}: no SAT model system was specified"
+  exit 1 
+
+fi
+
+satconfig x -f dbq -m $1 > $TMPFILE0
+
+while L=`line` ; do
+
+  V=`echo $L | cut -d= -f1 `
+  echo "export ${V} ; ${L}" >> $TMPFILE1
+
+done < $TMPFILE0
+
+. ${TMPFILE1}
+
+unset V L
+rm -f $TMPFILE0 $TMPFILE1
+
+

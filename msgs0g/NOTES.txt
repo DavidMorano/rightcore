@@ -1,0 +1,70 @@
+MSGS
+
+This is the original BSD MSGS program but modified to work with the
+AT&T Personal Communications System (PCS) set of program tools.
+
+= 1995, Dave Morano
+
+
+
+= version 0e
+
+1997-02-22, Dave Morano
+
+1) Fixed a small (?) bug with the locking of the system BOUNDS file.
+
+2) We now try to detect if the system "bounds" file is out-of-date
+   with respect to the actual message files present in the
+   spool directory.  Specifically, if :
+
+   a) the directory modification time is later than the
+      "bounds" file modification time, it is out-of-date
+
+   b) if the first message file in the bounds file is not present
+      in the directory, then the bounds file is out-of-date
+
+   If a "bounds" file is found to be out-of-date, it is rebuilt.
+
+   Note that currently in the code, the upper system bound is
+   NEVER lowered.  This is presumably done so that a user will
+   never accidentally skip any messages by reading previous
+   ones that are then deleted and new ones added to the system
+   with the same message numbers of the previous messages (that 
+   the user already read).  This behavior seems reasonable.
+
+
+= version 0f
+
+1998-05-08, Dave Morano
+
+1) Added a program invocation argument option where the name of the
+   messages spool directory can be given.
+
+2) Added some reverse line feeds so that the body of messages
+   appears just after its corresponding headers rather than after
+   the input prompt text.
+
+
+= version 0g
+
+1998-05-25, Dave Morano
+
+1) I was too aggressive with the version '0e' above.
+   I made the check against whether the first message file is in the
+   spool directory or not a compile time switch, which is turned OFF by
+   default.  This check caused the system "bounds" file to be rebuilt
+   every time when there are NO messages in the spool directory at
+   all.
+
+
+= version 0h
+
+1999-07-10, Dave Morano
+
+1) The program now optionally creates a PCS style 'users' file.
+
+2) I got rid of the annoying relocation log messages when nothing
+   actually got relocated!
+
+
+

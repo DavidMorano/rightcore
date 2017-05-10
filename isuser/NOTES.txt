@@ -1,0 +1,6 @@
+ISUSER
+
+This program was specifically written to run on the brain-damaged
+MacOS-X systems.
+
+

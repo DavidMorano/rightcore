@@ -1,0 +1,39 @@
+testdate.x -> libc.so.1:atexit(func = 0xef78d61c) = 0x0
+testdate.x -> libc.so.1:atexit(func = 0x23a7c) = 0x0
+testdate.x -> libc.so.1:time(tloc = 0x0) = 0x400c8c89
+testdate.x -> libc.so.1:localtime_r(clock = 0xefffeafc, res = 0xefffea94) = 0xefffea94
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__udiv64(0x0, 0x4, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x0, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "4", src = "4") = "4"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__udiv64(0x0, 0x1, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x0, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "1", src = "1") = "1"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__udiv64(0x0, 0x13, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x1, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x1, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x0, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "19", src = "19") = "19"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__udiv64(0x0, 0x15, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x2, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x2, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x0, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "21", src = "21") = "21"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__udiv64(0x0, 0x3, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x0, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "3", src = "3") = "3"
+testdate.x -> libc.so.1:memset(s = 0xefffe9a8, c = 0x0, n = 0x4) = 0xefffe9a8
+testdate.x -> libc.so.1:__udiv64(0x0, 0x35, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x5, 0x0)
+testdate.x -> libc.so.1:__udiv64(0x0, 0x5, 0x0)
+testdate.x -> libc.so.1:__umul64(0x0, 0x0, 0x0)
+testdate.x -> libc.so.1:strcpy(dst = "53", src = "53") = "53"
+testdate.x -> libc.so.1:fprintf(fp = 0x347a0, format = 0x23d80, ...) = 15
+testdate.x -> libc.so.1:_exithandle(0xf, 0xf, 0xef7f46ec)
+testdate.x -> libc.so.1:_exit(88, ...) = 15
+testdate.x -> libc.so.1:_exithandle(0xf, 0xf, 0xef7f46ec)
+testdate.x -> libc.so.1:_exit(t(

@@ -1,0 +1,28 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALL
+
+T=${PWD##*/}
+if [[ -n "${1}" ]] ; then
+  T=${1}
+fi
+
+print -u2 -- T=${T}
+
+: ${EXTRA:=/usr/extra}
+export EXTRA
+
+PRS=" /root[01]/${EXTRA} "
+
+if [[ -r "${T}" ]] ; then
+  for PR in ${PRS} ; do
+    if [[ -d ${PR} ]] ; then
+      BINDIR=${PR}/bin
+      if [[ -d ${BINDIR} ]] ; then
+        mn -r ${T} ${BINDIR}
+      fi &
+    fi
+  done
+  wait
+fi
+
+

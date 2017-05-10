@@ -1,0 +1,63 @@
+/* config */
+
+
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)NONER "
+#define	BANNER		"None Regular"
+#define	SEARCHNAME	"noner"
+
+#define	VARPROGRAMROOT1	"NONER_PROGRAMROOT"
+#define	VARPROGRAMROOT2	"LOCAL"
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARSEARCHNAME	"NONER_NAME"
+#define	VAROPTS		"NONER_OPTS"
+#define	VARERRORFNAME	"NONER_ERRORFILE"
+
+#define	VARDEBUGFNAME	"NONER_DEBUGFILE"
+#define	VARDEBUGFD1	"NONER_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+
+#define	CONFIGFNAME	"etc/noner/conf"
+#define	LOGFNAME	"log/noner"
+#define	HELPFNAME	"help"
+
+#define	AGEINT		(6 * 60)
+
+#define	PO_SUFFIX	"suffix"
+#define	PO_OPTION	"option"
+
+

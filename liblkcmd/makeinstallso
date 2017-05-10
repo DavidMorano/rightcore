@@ -1,0 +1,23 @@
+#!/usr/extra/bin/ksh
+# MAKEINSTALLSO
+
+: ${LOCAL=/usr/add-on/local}
+: ${EXTRA=/usr/extra}
+
+PRS=" ${LOCAL} /root0/${EXTRA} /root1/${EXTRA}  "
+
+CD=$( pwd )
+BC=${CD##*/}
+
+#print -- BC=${BC}
+for PR in ${PRS} ; do
+  if [[ -d ${PR} ]] ; then
+    PRLIB=${PR}/lib
+    if [[ -d ${PRLIB} ]] ; then
+      find ${BC}.so -print | cpio -pdmu ${PRLIB} &
+    fi
+  fi
+done
+wait
+
+

@@ -1,0 +1,4 @@
+
+checkfile $1 $DATABASE $ADDRESS
+
+

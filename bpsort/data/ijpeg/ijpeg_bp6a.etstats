@@ -1,0 +1,59 @@
+SimpleSim statistics 020616_0745:43
+statistics for job=ijpeg_bp6a logid=frodo24039
+started 020616_0654:40 (elapsed time   0-00:51:03)
+
+total instructions       600000000
+included instructions    500000000 (100000000:500000000)
+CF instructions           35275411 (  5.879%)
+CF-IND instructions        1144493 (  0.191%)
+relative branches         33613421 (  5.602%)
+CF-UNC                     8217513 (  1.370%)
+branch paths              27057898 (  4.510%)
+forward c-branches        16781205 (  2.797%)
+instructions per BP           18.4789
+= branch path statistics
+IPBP mean                     15.9416
+IPBP variance                496.3424
+IPBP stddev                   22.2787
+= branch target-distance statistics
+IPBT mean                     35.7778
+IPBT variance               1915.4735
+IPBT stddev                   43.7661
+= hammock branch target-distance statistics
+*NA*
+forward c-branches        16781205 ( 62.02 % of conditional)
+SS hammocks                      0 (  0.00 % of conditional)
+YAGS rows                        1
+YAGS delay                       1
+YAGS CPHT                     1024
+YAGS DPHT                      512
+YAGS bits                    13321
+YAGS accuracy             11094571 ( 41.003%)
+BPALPHA rows                     1
+BPALPHA delay                    1
+BPALPHA LBHT                   256
+BPALPHA LPHT                  1024
+BPALPHA GPHT                  1024
+BPALPHA bits                  7690
+BPALPHA accuracy          24328711 ( 89.914%)
+GSPAG rows                       1
+GSPAG delay                      1
+GSPAG LBHT                     256
+GSPAG GPHT                    2048
+GSPAG bits                    6912
+GSPAG accuracy            24158079 ( 89.283%)
+bad IAs                    9966311 (  1.661%)
+= value prediction statistics (external)
+VP instruction rows              1
+VP instruction delay             1
+VP entries                      64
+VP nops                          2
+VP stride bits                   8
+instruction lookups              0
+instruction LU hits              0 (  0.00 % of instructions)
+both (2) ops correct             0 (  0.00 % of instructions)
+operand lookups                  0
+operand hits                     0 (  0.00 % of operand lookups)
+correct operand hits             0 (  0.00 % of operand lookups)
+both (2) ops correct             0 (  0.00 % of operand lookups)
+correct operand hits             0 (  0.00 % of all operand hits)

@@ -1,0 +1,19 @@
+#!/bin/sh
+# Weekly script run by cron to clean up batch queues.
+
+PATH=/bin:/usr/bin ; export PATH
+umask 002
+
+cd /usr/spool/batch
+
+for dir in ???* ; do
+	if [ ! -d "$dir" ]; then
+		continue
+	fi
+	cd "$dir"
+	if [ -r This_week ]; then
+		mv -f This_week Last_week
+	fi
+	>This_week
+	cd ..
+done

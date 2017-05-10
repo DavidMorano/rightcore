@@ -1,0 +1,17 @@
+RENAME
+
+Implementation strategy:
+
+1) get the list of files to be renamed
+
+2) find a filename prefix that is free in the current directory
+
+3) create the list of new file names that would be created
+
+4) rename any existing files that have the same name as one listed from (3)
+   to a name with the prefix determined from (2); change the source
+   name from (1) to the new name created here
+
+5) rename the source list to the final names
+
+

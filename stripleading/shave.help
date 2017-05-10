@@ -1,0 +1,22 @@
+SHAVE
+
+This shaves off leading whitespace characters from a file by a specified
+amount.  If the whitespace characters are tabs, they are expanded out
+with spaces to the proper tabs stops and then the specified amount
+of whitespace is removed from the leading parts of all lines.  In no
+circumstance are non-whitespace characters removed from any lines.
+If there are not enough whitespace characters to be removed, all that
+are there are removed and the line will be left starting with the first
+non-whitespace character.
+
+Synopsis:
+
+$ shave -n [file(s) ...] [-of outfile] [-if infile] [-af argfile]
+
+where:
+
+file(s)		file(s) to be processed
+-of outfile	optional output file
+-af		optional file specifying file-arguments
+-n		number of leading colums to shave off of the lines
+

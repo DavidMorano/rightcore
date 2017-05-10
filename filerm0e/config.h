@@ -1,0 +1,68 @@
+/* config */
+
+
+#define	VERSION		"0c"
+#define	WHATINFO	"@(#)FILERM "
+#define	BANNER		"File Remove"
+#define	SEARCHNAME	"filerm"
+#define	VARPRNAME	"LOCAL"
+
+#define	VARPROGRAMROOT1	"FILERM_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"FILERM_BANNER"
+#define	VARSEARCHNAME	"FILERM_NAME"
+#define	VAROPTS		"FILERM_OPTS"
+#define	VARAFNAME	"FILERM_AF"
+#define	VAREFNAME	"FILERM_EF"
+#define	VARERRORFNAME	"FILERM_ERRORFILE"
+
+#define	VARDEBUGFNAME	"FILERM_DEBUGFILE"
+#define	VARDEBUGFD1	"FILERM_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+#define	VARRANDOM	"RANDOM"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
+#define	TMPDNAME	"/tmp"
+
+#define	CONFIGFNAME	"etc/filerm/conf"
+#define	LOGFNAME	"log/filerm"
+#define	ENTFNAME	"/tmp/entropy"
+#define	HELPFNAME	"help"
+
+#define	APPLEDOUBLE	".AppleDouble"
+#define	APPLEPARENT	".Parent"
+
+
+

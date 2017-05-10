@@ -1,0 +1,16 @@
+%{SS}
+
+This program reads one or more files and "unhexifies" them.  It is expected
+that the input file contains a series of lines, each of which has some number
+of hexadecimal digits (in pairs) representing encoded bytes of the clear text
+data.
+
+Synopsis:
+
+$ %{S} <file(s)> [-V]
+
+Where:
+
+<file(s)>	file(s) to de-hexify
+-V		print program version to standard-error and then exit
+

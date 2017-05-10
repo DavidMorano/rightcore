@@ -1,0 +1,52 @@
+PCSULM
+
+
+1) Receives location updates from various listening sources and
+   logs the updates in the location-DB.
+
+2) Optionally polls the local and remote systems (using 'dialcprog(3d)')
+   for location updates.
+
+3) Receives requests for location-change notifications and registers
+   these in a DB.
+
+4) Sends out location-change notifications for previous registered requests.
+
+
+
+= Update Message
+
+The sub-type of the UPDATE message is one of:
+
++ login
++ logout
++ update terminal times
+
+Additional fields should include:
+
++ nodename
++ domainname
++ username
++ log-line or terminal-line (if not logged in)
++ log-id
++ log-host
++ session process ID
++ realname
++ terminal-type
+
+The UPDATE message status should also include:
+
+a) whether there is a UTMPX entry or not for current session
+b) "message" status of current terminal
+c) "biff" status of current terminal
+
+If there is no controlling terminal for the session, don't send the
+update message.
+
+If there is no UTMPX entry, check if there is a controlling terminal
+by attempting to open '/dev/tty'.  If that fails, there isn't any
+controlling terminal.  If that succeeds, it is not clear how to find
+the associated terminal device name.
+
+
+

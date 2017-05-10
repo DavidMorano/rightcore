@@ -1,0 +1,9 @@
+
+
+
+
+rs = serialbuf_insfmt(sbp,
+	"%c%4r%4r%4llr%2hr%{i}%{l}%{L}%s%W%c",
+	rcode, mtype, s, buf, 0) ;
+
+

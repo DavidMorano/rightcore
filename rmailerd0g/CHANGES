@@ -1,0 +1,91 @@
+RMAILERD
+
+
+This is the daemon program for the server side of the RMAILER protocol.
+
+
+VERSION HISTORY
+===============================================================================
+
+
+= version 0b, Dave Morano
+
+I forget what the '0a' change was.  It was some sort of insignificant
+thing back in 1994 when this new version of the program was finished.
+This version update '0b' adds the support for regular mutex lock
+files that I thought was in the program from the beginning !!
+I guess that this feature was never tested ! or even used all of
+these years since 1994 !  Amazing but I guess it CAN happen !!
+I still didn't test the program so I do not know if the lock files
+even really work.
+
+Lock file support was already properly coded in all source files
+except for 'main.c' !  See the revision history in 'main.c'
+for any other information.
+
+
+= version 0c, Dave Morano
+
+This version added a job ID to the transfer protocol.  This is very
+valuable for trying to figure out after the fact what messages may have
+arrived at a place and which have not.
+
+
+= version 0d, Dave Morano
+
+This version performs a small optimization on whether an envelope
+"from" address should be forced on the mailer program (usually
+SENDMAIL).  If the envelope "from" address as sent in the protocol
+matches the user email address that the daemon is running with, then no
+envelope "from" address is forced on the mailer program.  This
+eliminates the ugly "authentication warning" message being postmarked
+in the email message by the mailer program when this is not strictly
+necessary.
+
+
+= version 0e, 00/02/28, Dave Morano
+
+I finally updated the code to check for the optional check-sum that can
+be provided by the client.  If the check-sum fails, no message is
+attempted to be sent.  If no check-sum is provided by the client, then
+a length check will still be done if a length was provided by the
+client ?
+
+
+= version 0f, 00/04/28, Dave Morano
+
+Wow, I just noticed that today is exactly 2 months from the previous
+fix !  Anyway, I finally got around to making whether the envelope
+sender address is always set when the client wanted it to be.  Ideally,
+I would check to see if I am a "trusted" SENDMAIL user and decide to
+not set the envelope sender based on that.  If I knew that SENDMAIL
+will generate an authentication failure indication then maybe I
+wouldn't even try to set the envelope address.
+
+Anyway, the daemon (RMAILERD -- this program) now has an option
+in its configuration file names 'sender'.  If set, or set to a '1',
+an envelope sender address will be given to SENDMAIL *if* one is
+supplied to us from the client.  As always, if the client does not
+supply one, we will not pretend to make one up, SENDMAIL does a
+good enough job of that already !
+
+One last funny note.  I have observed that SENDMAIL does not apparently
+give a hoot's butt about the fact that an *unauthorized* (oo..oou...ooh
+!) user can still set the incoming "protocol" and the incoming "host".
+My question is, why get so bent out of shape over someone setting the
+envelope sender address when you don't care about these other things ?
+I suppose that some smart guy will say that the envelope sender address
+is a much more sensitive piece of information than either the incoming
+protocol or incoming host.  Well, whatever !  We still set those, AND
+SET THEM TO RELATIVELY BOGUS VALUES ALSO (depending on whose
+perspective you respect) !!
+
+
+= version 0g, 00/06/24, Dave Morano
+
+I made all hostnames lower case.  This improves the coalescing
+of hostnames when finding all of the local parts associated
+with each hostname.
+
+
+

@@ -1,0 +1,46 @@
+.\"_
+.TH BATCHCANCEL 1 "1997-02-27" NCMP
+.SH NAME
+batchcancel \- cancel jobs waiting in specified batch queues
+.SH SYNOPSIS
+.B batchcancel
+[
+.B \-i
+]
+[
+.B \-q queue_name
+]
+[
+.B jobname ...
+]
+.SH DESCRIPTION
+.B Batchcancel
+removes jobs started by
+.IR batch (1).
+All batch queues are searched for jobs, unless a
+queue name is supplied with
+.B \-q.
+If no job names (as supplied by
+.IR batchqueue(1))
+are given, the most recently submitted job is cancelled from the first
+queue found that contains job(s).
+To cancel all jobs, give the single
+job name "-".
+If the
+.B \-i
+option is given, 
+.I batchcancel
+asks whether to cancel each job found.
+.PP
+Only the owner of a job, or the super-user, may cancel it.
+.PP
+Queue and job names are interpreted as \fIed\fP(1)-style
+regular expressions, so one can avoid typing long job names.
+.SH FILES
+.nf
+.DT
+SPOOLDIR/*/CFDIR/cf[a-z]*     	\- batch spool jobs
+.fi
+.SH "SEE ALSO"
+batchqueue(1), batch(1), batchsignal(1), batchexamine(1), batchd(1m)
+.\"_

@@ -1,0 +1,78 @@
+.nf
+.PS
+scale=100
+define t104 |
+[ box invis ht 84 wid 80 with .sw at 0,0
+"\fR\s10\&frequency\fP\s0" at 40,74
+"\fR\s10\&sample\fP\s0" at 40,57
+"\fR\s10\&quantization,\fP\s0" at 40,40
+"\fR\s10\&bit allocation,\fP\s0" at 40,23
+"\fR\s10\&& encoding\fP\s0" at 40,6
+] |
+
+define t105 |
+[ box invis ht 50 wid 58 with .sw at 0,0
+"\fR\s10\&bitstream\fP\s0" at 29,40
+"\fR\s10\&frame\fP\s0" at 29,23
+"\fR\s10\&assembly\fP\s0" at 29,6
+] |
+
+define t100 |
+[ box invis ht 34 wid 52 with .sw at 0,0
+"\fR\s10\&encoder\fP\s0" at 26,24
+"\fR\s10\&output\fP\s0" at 26,7
+] |
+
+define t106 |
+[ box invis ht 34 wid 38 with .sw at 0,0
+"\fR\s10\&input\fP\s0" at 19,24
+"\fR\s10\&signal\fP\s0" at 19,7
+] |
+
+define t107 |
+[ box invis ht 50 wid 62 with .sw at 0,0
+"\fR\s10\&polyphase\fP\s0" at 31,40
+"\fR\s10\&filter\fP\s0" at 31,23
+"\fR\s10\&bank\fP\s0" at 31,6
+] |
+
+define t108 |
+[ box invis ht 34 wid 94 with .sw at 0,0
+"\fR\s10\&psychoacoustic\fP\s0" at 47,24
+"\fR\s10\&model\fP\s0" at 47,7
+] |
+
+define m0 |
+[ box invis ht 96 wid 192 with .sw at 0,0
+t105 with .nw at 19,73
+box ht 96 wid 104 with .nw at 0,96 
+t100 with .nw at 138,70
+line  from 104,48 to 168,48 
+] |
+
+define m1 |
+[ box invis ht 160 wid 104 with .sw at 0,0
+line  from 56,0 to 56,64 
+box ht 96 wid 104 with .nw at 0,160 
+line  from 56,64 to 64,56 
+line  from 56,64 to 48,56 
+t104 with .nw at 12,154
+] |
+
+box invis ht 184 wid 568 with .sw at 0,0
+m1 with .nw at 240,184
+line  from 296,24 to 208,24 
+m0 with .nw at 376,184
+line  from 344,136 to 376,136 
+line  from 72,24 to 72,136 
+box ht 96 wid 104 with .nw at 104,184 
+line  from 72,24 to 104,24 
+box ht 0 wid 24 with .nw at 144,64 
+line  from 104,136 to 24,136 
+t106 with .nw at 1,158
+t107 with .nw at 125,161
+t108 with .nw at 113,42
+box ht 48 wid 104 with .nw at 104,48 
+line  from 208,136 to 240,136 
+.PE
+.fi
