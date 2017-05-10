@@ -1,2 +1,0 @@
-	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
-

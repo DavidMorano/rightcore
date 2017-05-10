@@ -1,2 +1,0 @@
-	rs = sigman_start(&sm,sigblocks,sigignores,sigints,sighand_int) ;
-	if (rs < 0) goto ret0 ;
