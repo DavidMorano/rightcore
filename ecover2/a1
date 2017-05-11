@@ -1,7 +1,0 @@
-	argr = argc ;
-	for (ai = 0 ; (ai < argc) && (argv[ai] != NULL) ; ai += 1) {
-	    if (rs < 0) break ;
-	    argr -= 1 ;
-	    if (ai == 0) continue ;
-
-	    argp = argv[ai] ;
