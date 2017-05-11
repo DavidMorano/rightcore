@@ -1,1 +1,0 @@
-	    f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;

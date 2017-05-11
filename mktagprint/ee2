@@ -1,8 +1,0 @@
-	if (efname == NULL) efname = getenv(VAREFNAME) ;
-	if (efname == NULL) efname = BFILE_STDERR ;
-	if ((rs1 = bopen(&errfile,efname,"wca",0666)) >= 0) {
-	    pip->efp = &errfile ;
-	    pip->open.errfile = TRUE ;
-	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
-	}
-
