@@ -223,7 +223,6 @@ static int getserial_open(cchar *sfname)
 static int getserial_read(int fd,char *dbuf,int dlen)
 {
 	int		rs ;
-	int		rs1 ;
 	int		serial = 0 ;
 	if ((rs = u_read(fd,dbuf,dlen)) > 0) {
 	    int		len = rs ;
@@ -245,8 +244,8 @@ static int getserial_read(int fd,char *dbuf,int dlen)
 
 static int getserial_write(int fd,char *dbuf,int dlen,int serial)
 {
+	const int	nserial = ((serial+1) & INT_MAX) ;
 	int		rs ;
-	int		nserial = ((serial+1) & INT_MAX) ;
 	if ((rs = u_rewind(fd)) >= 0) {
 	    if ((rs = ctdeci(dbuf,dlen,nserial)) >= 0) {
 	        dbuf[rs++] = '\n' ;
