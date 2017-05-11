@@ -1,4 +1,0 @@
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
-#endif
-
