@@ -1,2 +1,0 @@
-	    rs1 = logfile_userinfo(&pip->lh,&u,pip->daytime,
-		pip->progname,pip->version) ;
