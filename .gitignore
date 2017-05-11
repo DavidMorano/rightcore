@@ -17,5 +17,6 @@
 
 .DS_Store
 .gitignore
+.gitattributes
 
 

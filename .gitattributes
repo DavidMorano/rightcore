@@ -1,0 +1,8 @@
+
+*.txt	linguist-language=text
+*.cc	linguist-language=C++
+*.awk	linguist-language=AWK
+*.ksh	linguist-language=Korn
+*.sh	linguist-language=Bourne
+
+
