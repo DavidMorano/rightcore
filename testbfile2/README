@@ -1,4 +1,0 @@
-TESTBFILE2
-
-
-
