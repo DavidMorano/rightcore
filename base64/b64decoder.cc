@@ -278,7 +278,7 @@ static int b64decoder_cvt(B64DECODER *op,cchar *cp,int cl)
 	} else
 	    rs = SR_BUGCHECK ;
 #if	CF_DEBUGS
-	    debugprintf("b64decoder_cvt: ret rs=%d c=%u\n",rs,c) ;
+	debugprintf("b64decoder_cvt: ret rs=%d c=%u\n",rs,c) ;
 #endif
 	return (rs >= 0) ? c : rs ;
 }

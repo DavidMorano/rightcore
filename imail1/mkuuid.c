@@ -47,6 +47,8 @@
 
 /* local defines */
 
+#define	NWORDS	4
+
 
 /* external subroutines */
 
@@ -66,12 +68,13 @@ static int mkuunode(MKUUID *,uint *) ;
 /* ARGSUSED */
 int mkuuid(MKUUID *up,int ver)
 {
-	uint		rwords[4+1] ;
+	const int	rsize = (NWORDS*sizeof(uint)) ;
+	uint		rwords[NWORDS+1] ;
 	int		rs ;
 
 	memset(up,0,sizeof(MKUUID)) ;
 
-	if ((rs = getrand(rwords,16)) >= 0) {
+	if ((rs = getrand(rwords,rsize)) >= 0) {
 	    up->version = 4 ;
 	    mkuutime(up,rwords) ;
 	    mkuuclk(up,rwords) ;
