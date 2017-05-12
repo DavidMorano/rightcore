@@ -8,7 +8,8 @@
 
 
 /* revision history :
-	= 1996-03-01, David A­D­ Morano
+
+	= 1998-03-01, David A­D­ Morano
 	The program was written from scratch.
 
 */
@@ -17,8 +18,8 @@
 
 /*******************************************************************************
 
-	This is the front-end (main) subroutine for the MESG program.
-	This program is so small that this subroutine is pretty much it !
+        This is the front-end (main) subroutine for the MESG program. This
+        program is so small that this subroutine is pretty much it!
 
 
 *******************************************************************************/
