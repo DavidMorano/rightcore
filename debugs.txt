@@ -1,8 +1,0 @@
-#if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
-extern int	debugclose() ;
-extern int	debugprinthexblock(const char *,int,const void *,int) ;
-extern int	strlinelen(const char *,int,int) ;
-#endif
-
