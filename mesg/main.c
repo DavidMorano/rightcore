@@ -8,25 +8,23 @@
 
 
 /* revision history :
-
-	= 96/03/01, David A­D­ Morano
-
+	= 1996-03-01, David A­D­ Morano
 	The program was written from scratch.
-
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
 	This is the front-end (main) subroutine for the MESG program.
 	This program is so small that this subroutine is pretty much it !
 
 
+*******************************************************************************/
 
-******************************************************************************/
 
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -44,18 +42,16 @@
 #include	<baops.h>
 #include	<field.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"misc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
 
 #define	MAXARGINDEX	600
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
-
 
 
 /* external subroutines */
@@ -93,17 +89,10 @@ enum argopts {
 } ;
 
 
+/* exported subroutines */
 
 
-
-
-
-
-
-
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile	errfile, *efp = &errfile ;
 	bfile	outfile, *ofp = &outfile ;
@@ -749,11 +738,5 @@ badchmod:
 
 }
 /* end subroutine (main) */
-
-
-
-/* LOCAL SUBROUTINES */
-
-
 
 
