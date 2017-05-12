@@ -118,8 +118,8 @@ int mimetypes_finish(MIMETYPES *dbp)
 	    while (hdb_enum(dbp,&cur,&key,&data) >= 0) {
 	        if (key.buf != NULL) {
 	            rs1 = uc_free((void *) key.buf) ;
-		    if (rs >= 0) rs = rs1 ;
-		}
+	            if (rs >= 0) rs = rs1 ;
+	        }
 	    } /* end while */
 	    hdb_curend(dbp,&cur) ;
 	} /* end if */
@@ -166,90 +166,90 @@ int mimetypes_file(MIMETYPES *dbp,cchar *fname)
 	    int		len ;
 	    char	lbuf[LINEBUFLEN + 1] ;
 
-	while ((rs = breadline(mfp,lbuf,llen)) > 0) {
-	    len = rs ;
+	    while ((rs = breadline(mfp,lbuf,llen)) > 0) {
+	        len = rs ;
 
-	    if (lbuf[len - 1] == '\n') len -= 1 ;
-	    lbuf[len] = '\0' ;
+	        if (lbuf[len - 1] == '\n') len -= 1 ;
+	        lbuf[len] = '\0' ;
 
 #if	CF_DEBUGS
-	    debugprintf("mimetypes_file: line> %s\n",lbuf) ;
+	        debugprintf("mimetypes_file: line> %s\n",lbuf) ;
 #endif
 
-	    if (len == 0)
-	        continue ;
+	        if (len == 0)
+	            continue ;
 
 /* extract the typespec (MIME content type) */
 
-	    ctl = exttypespec(lbuf,len,&ctp) ;
+	        ctl = exttypespec(lbuf,len,&ctp) ;
 
 #if	CF_DEBUGS
-	    debugprintf("mimetypes_file: exttypespec() ctp=%t ctl=%d\n",
-	        ctp,ctl,ctl) ;
+	        debugprintf("mimetypes_file: exttypespec() ctp=%t ctl=%d\n",
+	            ctp,ctl,ctl) ;
 #endif
 
-	    if (ctl <= 0)
-	        continue ;
+	        if (ctl <= 0)
+	            continue ;
 
 /* get the file suffixes for this MIME content type */
 
-	    cp = ctp + ctl ;
-	    cl = len - (cp - lbuf) ;
-	    if ((rs = field_start(&fb,cp,cl)) >= 0) {
+	        cp = ctp + ctl ;
+	        cl = len - (cp - lbuf) ;
+	        if ((rs = field_start(&fb,cp,cl)) >= 0) {
 
-	        while ((fl = field_get(&fb,terms,&fp)) >= 0) {
-
-#if	CF_DEBUGS
-	            debugprintf("mimetypes_file: field> %t\n",fp,fl) ;
-#endif
-
-	            if (fl > 0) {
-
-	                key.buf = fp ;
-	                key.len = fl ;
-	                if (hdb_fetch(dbp,key,NULL,&data) < 0) {
-			    char	*bkp, *bvp ;
+	            while ((fl = field_get(&fb,terms,&fp)) >= 0) {
 
 #if	CF_DEBUGS
-	                    debugprintf("mimetypes_file: key=%t val=%t\n",
-	                        key.buf,key.len,ctp,ctl) ;
+	                debugprintf("mimetypes_file: field> %t\n",fp,fl) ;
 #endif
 
-	                    size = key.len + 1 + ctl + 1 ;
-	                    rs = uc_malloc(size,&bkp) ;
-	                    if (rs < 0) break ;
+	                if (fl > 0) {
 
-	                    bvp = strwcpy(bkp,key.buf,key.len) + 1 ;
+	                    key.buf = fp ;
+	                    key.len = fl ;
+	                    if (hdb_fetch(dbp,key,NULL,&data) < 0) {
+	                        char	*bkp, *bvp ;
 
-	                    key.buf = bkp ;
-	                    strwcpy(bvp,ctp,ctl) ;
+#if	CF_DEBUGS
+	                        debugprintf("mimetypes_file: key=%t val=%t\n",
+	                            key.buf,key.len,ctp,ctl) ;
+#endif
 
-	                    data.len = ctl ;
-	                    data.buf = bvp ;
+	                        size = key.len + 1 + ctl + 1 ;
+	                        rs = uc_malloc(size,&bkp) ;
+	                        if (rs < 0) break ;
 
-	                    rs = hdb_store(dbp,key,data) ;
-	                    if (rs < 0) {
-	                        uc_free(bkp) ;
-	                        break ;
-	                    }
+	                        bvp = strwcpy(bkp,key.buf,key.len) + 1 ;
 
-	                    c += 1 ;
+	                        key.buf = bkp ;
+	                        strwcpy(bvp,ctp,ctl) ;
+
+	                        data.len = ctl ;
+	                        data.buf = bvp ;
+
+	                        rs = hdb_store(dbp,key,data) ;
+	                        if (rs < 0) {
+	                            uc_free(bkp) ;
+	                            break ;
+	                        }
+
+	                        c += 1 ;
+
+	                    } /* end if */
 
 	                } /* end if */
 
-	            } /* end if */
+	                if (fb.term == '#') break ;
+	                if (rs < 0) break ;
+	            } /* end while (reading fields) */
 
-	            if (fb.term == '#') break ;
-		    if (rs < 0) break ;
-	        } /* end while (reading fields) */
+	            field_finish(&fb) ;
+	        } /* end if (field) */
 
-	        field_finish(&fb) ;
-	    } /* end if (field) */
+	        if (rs < 0) break ;
+	    } /* end while (reading lines) */
 
-	    if (rs < 0) break ;
-	} /* end while (reading lines) */
-
-	bclose(mfp) ;
+	    bclose(mfp) ;
 	} /* end if (bfile) */
 
 #if	CF_DEBUGS
@@ -296,9 +296,9 @@ int mimetypes_find(MIMETYPES *dbp,char *typespec,cchar *ext)
 	    key.buf = tp ;
 	    if ((rs = hdb_fetch(dbp,key,NULL,&data)) >= 0) {
 	        if (typespec != NULL) {
-		    const int	typelen = MIMETYPES_TYPELEN ;
+	            const int	typelen = MIMETYPES_TYPELEN ;
 	            rs = snwcpy(typespec,typelen,data.buf,data.len) ;
-		    len = rs ;
+	            len = rs ;
 	        }
 	    }
 	} else
@@ -356,7 +356,7 @@ int mimetypes_enum(MIMETYPES *dbp,MIMETYPES_CUR *curp,char *ext,char *ts)
 
 
 /* fetch the next val by extension and a possible cursor */
-int mimetypes_fetch(MIMETYPES *dbp,MIMETYPES_CUR *curp,char *ext,char *ts) 
+int mimetypes_fetch(MIMETYPES *dbp,MIMETYPES_CUR *curp,char *ext,char *ts)
 
 {
 	HDB_DATUM	key, val ;
