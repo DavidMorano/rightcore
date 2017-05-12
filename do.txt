@@ -1,0 +1,4 @@
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}

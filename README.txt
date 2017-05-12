@@ -1,2 +1,5 @@
-# RightcoreMainBase
-main software base for business purposes
+SRC
+
+This directory contains my main respository for source code.
+
+

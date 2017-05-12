@@ -91,11 +91,9 @@ static int	cmpentry(const char *,const char *,int) ;
 /* exported subroutines */
 
 
-int mimetypes_start(dbp)
-MIMETYPES	*dbp ;
+int mimetypes_start(MIMETYPES *dbp)
 {
-	int	rs ;
-
+	int		rs ;
 
 #if	CF_DEBUGS
 	debugprintf("mimetypes_start: ent\n") ;
@@ -109,15 +107,12 @@ MIMETYPES	*dbp ;
 
 
 /* free up this whole object */
-int mimetypes_finish(dbp)
-MIMETYPES	*dbp ;
+int mimetypes_finish(MIMETYPES *dbp)
 {
 	HDB_CUR		cur ;
 	HDB_DATUM	key, data ;
-
-	int	rs ;
-	int	rs1 ;
-
+	int		rs ;
+	int		rs1 ;
 
 	if ((rs = hdb_curbegin(dbp,&cur)) >= 0) {
 	    while (hdb_enum(dbp,&cur,&key,&data) >= 0) {
@@ -138,20 +133,15 @@ MIMETYPES	*dbp ;
 
 
 /* read a whole file into the database */
-int mimetypes_file(dbp,fname)
-MIMETYPES	*dbp ;
-const char	fname[] ;
+int mimetypes_file(MIMETYPES *dbp,cchar *fname)
 {
 	bfile		mfile, *mfp = &mfile ;
-
-	int	rs ;
-	int	ctl ;
-	int	size ;
-	int	cl, fl ;
-	int	c = 0 ;
-
-	uchar	terms[32] ;
-
+	int		rs ;
+	int		ctl ;
+	int		size ;
+	int		cl, fl ;
+	int		c = 0 ;
+	uchar		terms[32] ;
 	const char	*fp ;
 	const char	*cp ;
 	const char	*ctp ;
@@ -281,26 +271,19 @@ const char	fname[] ;
 
 
 /* find a MIME type for the given extension */
-int mimetypes_find(dbp,typespec,ext)
-MIMETYPES	*dbp ;
-char		typespec[] ;
-const char	ext[] ;
+int mimetypes_find(MIMETYPES *dbp,char *typespec,cchar *ext)
 {
-	int	rs = SR_OK ;
-	int	len = 0 ;
-
+	int		rs = SR_OK ;
+	int		len = 0 ;
 	const char	*tp ;
-
 
 #if	CF_DEBUGS
 	debugprintf("mimetypes_get: ent\n") ;
 #endif
 
-	if (ext == NULL)
-	    return SR_FAULT ;
+	if (ext == NULL) return SR_FAULT ;
 
-	if (typespec != NULL)
-	    typespec[0] = '\0' ;
+	if (typespec != NULL) typespec[0] = '\0' ;
 
 	if ((tp = strrchr(ext,'.')) == NULL) {
 	    tp = ext ;
@@ -331,11 +314,8 @@ const char	ext[] ;
 
 
 /* initialize a cursor */
-int mimetypes_curbegin(dbp,cp)
-MIMETYPES	*dbp ;
-HDB_CUR		*cp ;
+int mimetypes_curbegin(MIMETYPES *dbp,HDB_CUR *cp)
 {
-
 
 	return hdb_curbegin(dbp,cp) ;
 }
@@ -343,11 +323,8 @@ HDB_CUR		*cp ;
 
 
 /* free up a cursor */
-int mimetypes_curend(dbp,cp)
-MIMETYPES	*dbp ;
-HDB_CUR		*cp ;
+int mimetypes_curend(MIMETYPES *dbp,HDB_CUR *cp)
 {
-
 
 	return hdb_curend(dbp,cp) ;
 }
@@ -355,32 +332,22 @@ HDB_CUR		*cp ;
 
 
 /* enumerate all of the key-val pairs */
-int mimetypes_enum(dbp,curp,ext,typespec)
-MIMETYPES	*dbp ;
-MIMETYPES_CUR	*curp ;
-char		ext[] ;
-char		typespec[] ;
+int mimetypes_enum(MIMETYPES *dbp,MIMETYPES_CUR *curp,char *ext,char *ts)
 {
 	HDB_DATUM	key, val ;
-
 	int		rs ;
 
-
-	if (dbp == NULL)
-	    return SR_FAULT ;
-
-	if (ext == NULL)
-	    return SR_FAULT ;
+	if (dbp == NULL) return SR_FAULT ;
+	if (ext == NULL) return SR_FAULT ;
 
 	ext[0] = '\0' ;
-	if (typespec != NULL)
-	    typespec[0] = '\0' ;
+	if (ts != NULL) ts[0] = '\0' ;
 
 	if ((rs = hdb_enum(dbp,curp,&key,&val)) >= 0) {
 	    const int	ml = MIN(key.len,MIMETYPES_TYPELEN) ;
 	    strwcpy(ext,key.buf,ml) ;
 	    rs = MIN(val.len,MIMETYPES_TYPELEN) ;
-	    if (typespec != NULL) strwcpy(typespec,val.buf,rs) ;
+	    if (ts != NULL) strwcpy(ts,val.buf,rs) ;
 	}
 
 	return rs ;
@@ -389,30 +356,22 @@ char		typespec[] ;
 
 
 /* fetch the next val by extension and a possible cursor */
-int mimetypes_fetch(dbp,ext,curp,typespec)
-MIMETYPES	*dbp ;
-MIMETYPES_CUR	*curp ;
-char		ext[] ;
-char		typespec[] ;
+int mimetypes_fetch(MIMETYPES *dbp,MIMETYPES_CUR *curp,char *ext,char *ts) 
+
 {
 	HDB_DATUM	key, val ;
-
 	int		rs ;
 
-
-	if (dbp == NULL)
-	    return SR_FAULT ;
-
-	if ((ext == NULL) || (typespec == NULL))
-	    return SR_FAULT ;
+	if (dbp == NULL) return SR_FAULT ;
+	if ((ext == NULL) || (ts == NULL)) return SR_FAULT ;
 
 	key.buf = ext ;
 	key.len = -1 ;
-	typespec[0] = '\0' ;
+	ts[0] = '\0' ;
 	if ((rs = hdb_fetch(dbp,key,curp,&val)) >= 0) {
 	    const int	ml = MIN(val.len,MIMETYPES_TYPELEN) ;
 	    const char	*mp = (const char *) val.buf ;
-	    rs = (strwcpy(typespec,mp,ml) - typespec) ;
+	    rs = (strwcpy(ts,mp,ml) - ts) ;
 	}
 
 	return rs ;
@@ -421,12 +380,8 @@ char		typespec[] ;
 
 
 /* OLDER API: find a MIME type given an extension */
-int mimetypes_get(dbp,typespec,ext)
-MIMETYPES	*dbp ;
-char		typespec[] ;
-const char	ext[] ;
+int mimetypes_get(MIMETYPES *dbp,char *typespec,cchar *ext)
 {
-
 
 	return mimetypes_find(dbp,typespec,ext) ;
 }
@@ -437,15 +392,10 @@ const char	ext[] ;
 
 
 /* extract the typespec from this buffer */
-static int exttypespec(tbuf,tlen,rpp)
-const char	tbuf[] ;
-int		tlen ;
-const char	**rpp ;
+static int exttypespec(cchar *tbuf,int tlen,cchar **rpp)
 {
-	int	cl ;
-
+	int		cl ;
 	const char	*sp, *cp ;
-
 
 	cp = tbuf ;
 	cl = tlen ;
@@ -471,12 +421,9 @@ const char	**rpp ;
 
 #ifdef	COMMENT
 
-static int cmpentry(s1,s2,len)
-const char	s1[] ;
-const char	s2[] ;
-int		len ;
+static int cmpentry(cchar *s1,cchar *s2,int len)
 {
-	int	rc = 0 ;
+	int		rc = 0 ;
 
 	if (len > 0) {
 	    rc = (s2[len] - s1[len]) ;
