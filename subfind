@@ -1,5 +1,1 @@
-
-ls */sbuf.c | while read N ; do B=$( dirname $N ) ; print $B ; done | sort > o1 
-
-ls */sbuf.h | while read N ; do B=$( dirname $N ) ; print $B ; done | sort > o2
-
+remainder of initial load
