@@ -227,13 +227,13 @@ int buffer_char(BUFFER *op,int ch)
 	debugprintf("buffer_char: ch=>%c<\n",ch) ;
 #endif
 
-	if (op->len < 0)
-	    return op->len ;
-
-	if ((rs = buffer_ext(op,1)) >= 0) {
-	    op->buf[(op->len)++] = ch ;
-	    op->buf[op->len] = '\0' ;
-	}
+	if (op->len >= 0) {
+	    if ((rs = buffer_ext(op,1)) >= 0) {
+	        op->buf[(op->len)++] = ch ;
+	        op->buf[op->len] = '\0' ;
+	    }
+	} else
+	   rs = op->len ;
 
 	return (rs >= 0) ? 1 : rs ;
 }
@@ -253,17 +253,15 @@ int buffer_buf(BUFFER *op,cchar *sbuf,int slen)
 	debugprintf("buffer_buf: ent\n") ;
 #endif
 
-	if (op->len < 0)
-	    return op->len ;
-
-	if (slen < 0)
-	    slen = strlen(sbuf) ;
-
-	if ((rs = buffer_ext(op,slen)) >= 0) {
-	    char	*bp = (op->buf + op->len) ;
-	    memcpy(bp,sbuf,slen) ;
-	    op->len += slen ;
-	}
+	if (op->len >= 0) {
+	    if (slen < 0) slen = strlen(sbuf) ;
+	    if ((rs = buffer_ext(op,slen)) >= 0) {
+	        char	*bp = (op->buf + op->len) ;
+	        memcpy(bp,sbuf,slen) ;
+	        op->len += slen ;
+	    }
+	} else
+	    rs = op->len ;
 
 	return (rs >= 0) ? slen : rs ;
 }
@@ -285,17 +283,15 @@ int buffer_strw(BUFFER *op,cchar *sbuf,int slen)
 	    sbuf,strnlen(sbuf,slen)) ;
 #endif
 
-	if (op->len < 0)
-	    return op->len ;
-
-	if (slen < 0)
-	    slen = strlen(sbuf) ;
-
-	if ((rs = buffer_ext(op,slen)) >= 0) {
-	    char	*bp = (op->buf + op->len) ;
-	    len = strwcpy(bp,sbuf,slen) - bp ;
-	    op->len += len ;
-	}
+	if (op->len >= 0) {
+	    if (slen < 0) slen = strlen(sbuf) ;
+	    if ((rs = buffer_ext(op,slen)) >= 0) {
+	        char	*bp = (op->buf + op->len) ;
+	        len = strwcpy(bp,sbuf,slen) - bp ;
+	        op->len += len ;
+	    }
+	} else
+	    rs = op->len ;
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -317,18 +313,16 @@ int buffer_strn(BUFFER *op,cchar *mbuf,int mlen)
 	debugprintf("buffer_strn: ent\n") ;
 #endif
 
-	if (op->len < 0)
-	    return op->len ;
-
-	if (mlen < 0)
-	    mlen = strlen(mbuf) ;
-
-	if ((rs = buffer_ext(op,mlen)) >= 0) {
-	    char	*bp = (op->buf + op->len) ;
-	    strncpy(bp,mbuf,mlen) ;
-	    op->buf[op->len] = '\0' ;
-	    op->len += mlen ;
-	}
+	if (op->len >= 0) {
+	    if (mlen < 0) mlen = strlen(mbuf) ;
+	    if ((rs = buffer_ext(op,mlen)) >= 0) {
+	        char	*bp = (op->buf + op->len) ;
+	        strncpy(bp,mbuf,mlen) ;
+	        op->buf[op->len] = '\0' ;
+	        op->len += mlen ;
+	    }
+	} else
+	    rs = op->len ;
 
 	return (rs >= 0) ? op->len : rs ;
 }

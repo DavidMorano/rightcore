@@ -74,6 +74,7 @@ extern char	*strnchr(const char *,int,int) ;
 /* forward references */
 
 static int	envlist_store(ENVLIST *,cchar *,int) ;
+static int	envlist_storer(ENVLIST *) ;
 
 
 /* local variables */
@@ -259,6 +260,23 @@ int envlist_present(ENVLIST *op,cchar *sp,int sl,cchar **rpp)
 
 static int envlist_store(ENVLIST *op,cchar *sp,int sl)
 {
+	int		rs ;
+
+	if ((rs = envlist_storer(op)) >= 0) {
+	    STRPACK	*spp = op->store ;
+	    cchar	*ep ;
+	    if ((rs = strpack_store(spp,sp,sl,&ep)) >= 0) {
+		rs = envlist_add(op,ep,rs) ;
+	    }
+	}
+
+	return rs ;
+}
+/* end subroutine (envlist_store) */
+
+
+static int envlist_storer(ENVLIST *op)
+{
 	int		rs = SR_OK ;
 	if (op->store == NULL) {
 	    const int	osize = sizeof(STRPACK) ;
@@ -274,16 +292,8 @@ static int envlist_store(ENVLIST *op,cchar *sp,int sl)
 		}
 	    } /* end if (m-a) */
 	}
-	if (rs >= 0) {
-	    STRPACK	*spp = op->store ;
-	    cchar	*ep ;
-	    if ((rs = strpack_store(spp,sp,sl,&ep)) >= 0) {
-		rs = envlist_add(op,ep,rs) ;
-	    }
-	}
-
 	return rs ;
 }
-/* end subroutine (envlist_store) */
+/* end subroutine (envlist_storer) */
 
 

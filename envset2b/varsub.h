@@ -81,6 +81,8 @@ extern "C" {
 extern int	varsub_start(VARSUB *,int) ;
 extern int	varsub_add(VARSUB *,cchar *,int,cchar *,int) ;
 extern int	varsub_addva(VARSUB *,cchar **) ;
+extern int	varsub_addquick(VARSUB *,cchar *,int,cchar *,int) ;
+extern int	varsub_addvaquick(VARSUB *,cchar **) ;
 extern int	varsub_curbegin(VARSUB *,VARSUB_CUR *) ;
 extern int	varsub_enum(VARSUB *,VARSUB_CUR *,cchar **,cchar **) ;
 extern int	varsub_curend(VARSUB *,VARSUB_CUR *) ;

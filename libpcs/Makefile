@@ -340,6 +340,8 @@ nulstr.o:		nulstr.c nulstr.h
 
 paramfile.o:		paramfile.c paramfile.h
 
+varsub.o:		varsub.c varsub.h
+
 modload.o:		modload.c modload.h
 
 vars.o:			vars.c vars.h

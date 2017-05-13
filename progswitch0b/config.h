@@ -33,6 +33,7 @@
 #define	VARFILEROOT	"PROGSWITCH_FILEROOT"
 #define	VARLOGTAB	"PROGSWITCH_LOGTAB"
 #define	VARAFNAME	"PROGSWITCH_AF"
+#define	VARLFNAME	"PROGSWITCH_LF"
 #define	VAREFNAME	"PROGSWITCH_EF"
 #define	VARERRORFNAME	"PROGSWITCH_ERRORFILE"
 
@@ -75,6 +76,7 @@
 
 #define	TMPDNAME	"/tmp"
 #define	WORKDNAME	"/tmp"
+#define	LOGCNAME	"log"
 
 #define	DEFINITFNAME	"/etc/default/init"
 #define	DEFLOGFNAME	"/etc/default/login"
@@ -92,5 +94,7 @@
 #define	LOCKFNAME	"spool/locks/progswitch"	/* lock mutex file */
 
 #define	LOGSIZE		(80*1024)
+
+#define	OPT_LOGPROG	TRUE
 
 

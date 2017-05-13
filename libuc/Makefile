@@ -62,9 +62,9 @@ CFLAGS= $(CCOPTS) $(LF_CFLAGS)
 #LD= $(CC)
 
 
-LDRPATH=
+LDRPATH= $(EXTRA)/lib
 
-LDFLAGS= $(LF_LDFLAGS) $(LDSOARRAY) -R$(LIBDIR):$(CGS_RPATH)
+LDFLAGS= $(LF_LDFLAGS) $(LDSOARRAY) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
@@ -75,8 +75,8 @@ LIB2= -ldebug
 LIB3= -lu
 LIB4= $(CGS_LIBS)
 LIB5= $(LF_LIBS) 
-LIB6=
-LIB7=
+LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+LIB7= -ldl
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
@@ -409,6 +409,10 @@ TOBJ= $(TOBJG0) $(TOBJG1)
 default:		all
 
 all:			$(ALL)
+
+so:			$(T).so
+
+a:			$(T).a
 
 .cc.o:
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<

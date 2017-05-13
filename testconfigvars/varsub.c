@@ -5,7 +5,6 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_ENTCMP	1		/* compare new entries */
 
 
 /* revision history:
@@ -78,18 +77,20 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	strwcmp(const char *,const char *,int) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	strwcmp(cchar *,cchar *,int) ;
+extern int	strnkeycmp(cchar *,cchar *,int) ;
+extern int	strnncmp(cchar *,int,cchar *,int) ;
 extern int	isprintlatin(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
-extern char	*strnpbrk(const char *,int,const char *) ;
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
+extern char	*strnpbrk(cchar *,int,cchar *) ;
 
 
 /* external variables */
@@ -108,27 +109,27 @@ struct varsub_s {
 int		varsub_expandbuf(VARSUB *,BUFFER *,const char *,int) ;
 
 static int	varsub_setopts(VARSUB *,int) ;
-static int	varsub_iadd(VARSUB *,const char *,int,const char *,int) ;
+static int	varsub_iadd(VARSUB *,cchar *,int,cchar *,int) ;
+static int	varsub_iaddquick(VARSUB *,cchar *,int,cchar *,int) ;
 static int	varsub_sort(VARSUB *) ;
-static int	varsub_procvalue(VARSUB *,BUFFER *,const char *,int) ;
-static int	varsub_procsub(VARSUB *,BUFFER *,const char *,int) ;
-static int	varsub_getval(VARSUB *,const char *,int,const char **) ;
+static int	varsub_procvalue(VARSUB *,BUFFER *,cchar *,int) ;
+static int	varsub_procsub(VARSUB *,BUFFER *,cchar *,int) ;
+static int	varsub_getval(VARSUB *,cchar *,int,cchar **) ;
 static int	varsub_writebuf(VARSUB *,bfile *,BUFFER *) ;
 static int	varsub_entfins(VARSUB *) ;
 
 static int	entry_start(VARSUB_SUB *,cchar *,int,cchar *,int) ;
+static int	entry_keycmp(VARSUB_SUB *,VARSUB_SUB *) ;
 static int	entry_finish(VARSUB_SUB *) ;
-#if	CF_ENTCMP
 static int	entry_tmp(VARSUB_SUB *,cchar *,int,cchar *,int) ;
 static int	entry_cmpval(VARSUB_SUB *,VARSUB_SUB *) ;
-#endif /* CF_ENTCMP */
 
 #ifdef	COMMENT
 static int	entry_cmp(VARSUB_SUB *,VARSUB_SUB *) ;
 #endif
 
 static int	getkey(const char *,int,int [][2]) ;
-static int	vcmpkey(const void **,const void **) ;
+static int	ventcmp(const void **,const void **) ;
 
 
 /* local variables */
@@ -153,7 +154,7 @@ int varsub_start(VARSUB *op,int aopts)
 	if ((rs = varsub_setopts(op,aopts)) >= 0) {
 	    const int	vopts = VECHAND_OORDERED ;
 	    if ((rs = vechand_start(&op->subs,op->n,vopts)) >= 0)
-		op->magic = VARSUB_MAGIC ;
+	        op->magic = VARSUB_MAGIC ;
 	}
 
 #if	CF_DEBUGS
@@ -222,14 +223,14 @@ int varsub_addva(VARSUB *op,cchar **envv)
 	    const char	*esp = envv[i] ;
 	    const char	*tp ;
 	    if ((tp = strchr(esp,'=')) != NULL) {
-		const char	*vp = (tp + 1) ;
-		const int	kch = MKCHAR(esp[0]) ;
+	        const char	*vp = (tp + 1) ;
+	        const int	kch = MKCHAR(esp[0]) ;
 	        if (isprintlatin(kch)) {
-		    const int	vch = MKCHAR(vp[0]) ;
-		    if ((vch == '\0') || isprintlatin(vch)) {
+	            const int	vch = MKCHAR(vp[0]) ;
+	            if ((vch == '\0') || isprintlatin(vch)) {
 	                rs = varsub_iadd(op,esp,(tp-esp),vp,-1) ;
-			if (rs < INT_MAX)  c += 1 ;
-		    }
+	                if (rs < INT_MAX)  c += 1 ;
+	            }
 	        } /* end if (adding) */
 	    } /* end if (valid construction) */
 	    if (rs < 0) break ;
@@ -238,6 +239,59 @@ int varsub_addva(VARSUB *op,cchar **envv)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (varsub_addva) */
+
+
+/* add a variable to the substitution object array */
+int varsub_addquick(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
+{
+	int		rs ;
+
+	if (op == NULL) return SR_FAULT ;
+	if (k == NULL) return SR_FAULT ;
+
+	if (op->magic != VARSUB_MAGIC) return SR_NOTOPEN ;
+
+	if (k[0] == '\0') return SR_INVALID ;
+
+	rs = varsub_iaddquick(op,k,klen,v,vlen) ;
+
+	return rs ;
+}
+/* end subroutine (varsub_addquick) */
+
+
+/* load from key-value string pairs */
+int varsub_addvaquick(VARSUB *op,cchar **envv)
+{
+	int		rs = SR_OK ;
+	int		i ;
+	int		c = 0 ;
+
+	if (op == NULL) return SR_FAULT ;
+	if (envv == NULL) return SR_FAULT ;
+
+	if (op->magic != VARSUB_MAGIC) return SR_NOTOPEN ;
+
+	for (i = 0 ; envv[i] != NULL ; i += 1) {
+	    const char	*esp = envv[i] ;
+	    const char	*tp ;
+	    if ((tp = strchr(esp,'=')) != NULL) {
+	        const char	*vp = (tp + 1) ;
+	        const int	kch = MKCHAR(esp[0]) ;
+	        if (isprintlatin(kch)) {
+	            const int	vch = MKCHAR(vp[0]) ;
+	            if ((vch == '\0') || isprintlatin(vch)) {
+	                rs = varsub_iaddquick(op,esp,(tp-esp),vp,-1) ;
+	                if (rs < INT_MAX)  c += 1 ;
+	            }
+	        } /* end if (adding) */
+	    } /* end if (valid construction) */
+	    if (rs < 0) break ;
+	} /* end for */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (varsub_addvaquick) */
 
 
 /* delete a substitution string from the DB */
@@ -259,13 +313,13 @@ int varsub_del(VARSUB *op,cchar *k,int klen)
 	    VARSUB_SUB	te, *ep ;
 	    te.kp = k ;
 	    te.kl = klen ;
-	    if ((rs = vechand_search(elp,&te,vcmpkey,&ep)) >= 0) {
+	    if ((rs = vechand_search(elp,&te,ventcmp,&ep)) >= 0) {
 	        rs1 = vechand_del(elp,rs) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	        rs1 = entry_finish(ep) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	        rs1 = uc_free(ep) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (search) */
 	} else
 	    rs = SR_DOM ;
@@ -282,7 +336,7 @@ int		klen ;
 const char	**vpp ;
 int		*vlenp ;
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		vl = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -292,9 +346,7 @@ int		*vlenp ;
 
 	if (klen < 0) klen = strlen(k) ;
 
-	if (! op->f.sorted) rs = varsub_sort(op) ;
-
-	if (rs >= 0) {
+	if ((rs = varsub_sort(op)) >= 0) {
 	    rs = varsub_getval(op,k,klen,vpp) ;
 	    vl = rs ;
 	}
@@ -308,7 +360,7 @@ int		*vlenp ;
 
 int varsub_fetch(VARSUB *op,cchar *k,int klen,cchar **vpp)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (k == NULL) return SR_FAULT ;
@@ -317,11 +369,7 @@ int varsub_fetch(VARSUB *op,cchar *k,int klen,cchar **vpp)
 
 	if (klen < 0) klen = strlen(k) ;
 
-	if (! op->f.sorted) {
-	    rs = varsub_sort(op) ;
-	}
-
-	if (rs >= 0) {
+	if ((rs = varsub_sort(op)) >= 0) {
 	    rs = varsub_getval(op,k,klen,vpp) ;
 	}
 
@@ -411,7 +459,7 @@ int varsub_enum(VARSUB *op,VARSUB_CUR *curp,cchar **kpp,cchar **vpp)
 /* substitute a whole file */
 int varsub_expandfile(VARSUB *op,bfile *ifp,bfile *ofp)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		nlines = 0 ;
 	int		wlen = 0 ;
@@ -421,9 +469,7 @@ int varsub_expandfile(VARSUB *op,bfile *ifp,bfile *ofp)
 
 	if (op->magic != VARSUB_MAGIC) return SR_NOTOPEN ;
 
-	if (! op->f.sorted) rs = varsub_sort(op) ;
-
-	if (rs >= 0) {
+	if ((rs = varsub_sort(op)) >= 0) {
 	    BUFFER	b ;
 	    const int	startlen = (VARSUB_NLINES * LINEBUFLEN) ;
 	    op->badline = -1 ;
@@ -435,7 +481,7 @@ int varsub_expandfile(VARSUB *op,bfile *ifp,bfile *ofp)
 	        while ((rs = breadline(ifp,lbuf,llen)) > 0) {
 	            len = rs ;
 
-		    if (lbuf[len-1] == '\n') nlines += 1 ;
+	            if (lbuf[len-1] == '\n') nlines += 1 ;
 
 #if	CF_DEBUGS
 	            debugprintf("varsub_subfile: line=>%t<\n",
@@ -460,10 +506,10 @@ int varsub_expandfile(VARSUB *op,bfile *ifp,bfile *ofp)
 
 	        if ((rs >= 0) && (nlines > 0)) {
 	            rs = varsub_writebuf(op,ofp,&b) ;
-		}
+	        }
 
 	        rs1 = buffer_finish(&b) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (buffer) */
 	} /* end if (ok) */
 
@@ -479,7 +525,7 @@ int varsub_expandfile(VARSUB *op,bfile *ifp,bfile *ofp)
 /* perform substitutions on a buffer */
 int varsub_expand(VARSUB *op,char *dbuf,int dlen,cchar *linein,int linelen)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		bl = 0 ;
 	const char	*bp ;
@@ -501,11 +547,7 @@ int varsub_expand(VARSUB *op,char *dbuf,int dlen,cchar *linein,int linelen)
 
 /* do it */
 
-	if (! op->f.sorted) {
-	    rs = varsub_sort(op) ;
-	}
-
-	if (rs >= 0) {
+	if ((rs = varsub_sort(op)) >= 0) {
 	    BUFFER	b ;
 	    if ((rs = buffer_start(&b,LINEBUFLEN)) >= 0) {
 
@@ -513,11 +555,11 @@ int varsub_expand(VARSUB *op,char *dbuf,int dlen,cchar *linein,int linelen)
 	            if ((rs = buffer_get(&b,&bp)) >= 0) {
 	                bl = rs ;
 	                rs = snwcpy(dbuf,dlen,bp,bl) ;
-		    }
+	            }
 	        }
 
 	        rs1 = buffer_finish(&b) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (buffer) */
 	} /* end if (ok) */
 
@@ -528,7 +570,7 @@ int varsub_expand(VARSUB *op,char *dbuf,int dlen,cchar *linein,int linelen)
 
 int varsub_expandbuf(VARSUB *op,BUFFER *bufp,cchar *linein,int linelen)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (bufp == NULL) return SR_FAULT ;
@@ -540,11 +582,7 @@ int varsub_expandbuf(VARSUB *op,BUFFER *bufp,cchar *linein,int linelen)
 
 /* do it */
 
-	if (! op->f.sorted) {
-	    rs = varsub_sort(op) ;
-	}
-
-	if (rs >= 0) {
+	if ((rs = varsub_sort(op)) >= 0) {
 	    rs = varsub_procvalue(op,bufp,linein,linelen) ;
 	}
 
@@ -564,6 +602,10 @@ static int varsub_setopts(VARSUB *op,int aopts)
 	op->f.brace = FALSE ;
 	op->f.paren = FALSE ;
 	if (aopts & VARSUB_MNOBLANK) op->f.noblank = TRUE ;
+
+#if	CF_DEBUGS
+	debugprintf("varsub_setopts: f_noblank=%u\n",op->f.noblank) ;
+#endif
 
 	if (aopts & VARSUB_MBADNOKEY) op->f.badnokey = TRUE ;
 
@@ -586,8 +628,10 @@ static int varsub_procvalue(VARSUB *op,BUFFER *bufp,cchar *sp,int sl)
 	int		kl, cl ;
 	int		i = 0 ;
 	int		len = 0 ;
-	const char	ssb[] = { CH_LBRACE, CH_RBRACE, 0 } ;
-	const char	ssp[] = { CH_LPAREN, CH_RPAREN, 0 } ;
+	const char	ssb[] = { 
+	    CH_LBRACE, CH_RBRACE, 0 	} ;
+	const char	ssp[] = { 
+	    CH_LPAREN, CH_RPAREN, 0 	} ;
 	const char	*tp ;
 	const char	*cp ;
 	const char	*kp ;
@@ -685,52 +729,71 @@ static int varsub_procvalue(VARSUB *op,BUFFER *bufp,cchar *sp,int sl)
 static int varsub_procsub(VARSUB *op,BUFFER *bufp,cchar *kp,int kl)
 {
 	int		rs = SR_OK ;
-	int		cl, al ;
 	int		len = 0 ;
-	const char	*tp ;
-	const char	*ap ; /* alternate value (if supplied) */
-	const char	*cp ;
 
 #if	CF_DEBUGS
-	debugprintf("varsub_procsub: k=%t\n",kp,kl) ;
+	debugprintf("varsub_procsub: ent k=%t\n",kp,kl) ;
 #endif
 
 	if (kl > 0) {
+	    int		al = 0 ;
+	    cchar	*tp ;
+	    cchar	*cp ;
+	    cchar	*ap = NULL ;
 
-	ap = NULL ;
-	al = 0 ;
-	if ((tp = strnchr(kp,kl,'=')) != NULL) {
-	    ap = (tp + 1) ;
-	    al = (kp + kl) - (tp + 1) ;
-	    kl = (tp - kp) ;
-	}
+	    if ((tp = strnchr(kp,kl,'=')) != NULL) {
+	        ap = (tp + 1) ;
+	        al = (kp + kl) - (tp + 1) ;
+	        kl = (tp - kp) ;
+	    }
 
 /* lookup the environment key-name that we have */
 
 #if	CF_DEBUGS
-	debugprintf("varsub_procsub: modified k=%t\n",kp,kl) ;
-	if ((ap != NULL) && (al > 0))
-	    debugprintf("varsub_procsub: as=%t\n",ap,al) ;
+	    debugprintf("varsub_procsub: ext al=%d k=%t\n",al,kp,kl) ;
+	    if ((ap != NULL) && (al > 0))
+	        debugprintf("varsub_procsub: as=%t\n",ap,al) ;
 #endif
 
-	if ((cl = varsub_getval(op,kp,kl,&cp)) >= 0) {
-	    rs = buffer_strw(bufp,cp,cl) ;
-	    len += rs ;
-	} else if (al > 0) {
-	    rs = buffer_strw(bufp,ap,al) ;
-	    len += rs ;
-	} else if (op->f.badnokey) {
-	    rs = SR_NOTFOUND ;
-	}
+	    if ((rs = varsub_getval(op,kp,kl,&cp)) >= 0) {
+	        rs = buffer_strw(bufp,cp,rs) ;
+	        len += rs ;
+	    } else if (rs == SR_NOTFOUND) {
+	        if (al > 0) {
+	            rs = buffer_strw(bufp,ap,al) ;
+	            len += rs ;
+		} else if (op->f.noblank) {
+#if	CF_DEBUGS
+		    debugprintf("varsub_procsub: noblank\n") ;
+#endif
+		    if ((rs = buffer_char(bufp,'*')) >= 0) {
+	            	len += rs ;
+	                if ((rs = buffer_strw(bufp,kp,kl)) >= 0) {
+	            	    len += rs ;
+		    	    rs = buffer_char(bufp,'*') ;
+	            	    len += rs ;
+			}
+		    }
+	        } else if (op->f.badnokey) {
+#if	CF_DEBUGS
+		    debugprintf("varsub_procsub: nobadkey\n") ;
+#endif
+	            rs = SR_NOTFOUND ;
+	        } else {
+		    rs = SR_OK ;
+		}
+	    } /* end if (not-found) */
 
 	} /* end if (positive) */
+
+#if	CF_DEBUGS
+	debugprintf("varsub_procsub: ret rs=%d len=%u\n",rs,len) ;
+#endif
 
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (varsub_procsub) */
 
-
-#if	CF_ENTCMP
 
 static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 {
@@ -740,19 +803,23 @@ static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 	if (klen < 0) klen = strlen(k) ;
 	if (vlen < 0) vlen = (v != NULL) ? strlen(v) : 0 ;
 
+#if	CF_DEBUGS
+	debugprintf("varsub_iadd: ent k=%t\n",k,klen) ;
+#endif
+
 	if ((rs = entry_tmp(&tmp,k,klen,v,vlen)) >= 0) {
 	    VECHAND	*elp = &op->subs ;
 	    VARSUB_SUB	*dep ;
 	    int		rs1 ;
 
-	    if ((rs1 = vechand_search(elp,&tmp,vcmpkey,&dep)) >= 0) {
+	    if ((rs1 = vechand_search(elp,&tmp,ventcmp,&dep)) >= 0) {
 	        if (entry_cmpval(dep,&tmp) != 0) {
-		    vechand_del(elp,rs1) ;
-		    entry_finish(dep) ;
-		    uc_free(dep) ;
-		    rs1 = SR_NOTFOUND ;
+	            vechand_del(elp,rs1) ;
+	            entry_finish(dep) ;
+	            uc_free(dep) ;
+	            rs1 = SR_NOTFOUND ;
 	        } else
-		    rs = INT_MAX ;
+	            rs = INT_MAX ;
 	    } /* end if (entry search-by-key) */
 
 #if	CF_DEBUGS
@@ -762,16 +829,20 @@ static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 	    if (rs1 == SR_NOTFOUND) {
 	        VARSUB_SUB	*ep ;
 	        const int	msize = sizeof(VARSUB_SUB) ;
-    
+
+#if	CF_DEBUGS
+	        debugprintf("varsub_iadd: adding\n") ;
+#endif
+
 	        if ((rs = uc_malloc(msize,&ep)) >= 0) {
 	            if ((rs = entry_start(ep,k,klen,v,vlen)) >= 0) {
-	    	        op->f.sorted = FALSE ;
-		        rs = vechand_add(elp,ep) ;
-		        if (rs < 0)
-	    	            entry_finish(ep) ;
+	                op->f.sorted = FALSE ;
+	                rs = vechand_add(elp,ep) ;
+	                if (rs < 0)
+	                    entry_finish(ep) ;
 	            } /* end if (entry-start) */
 	            if (rs < 0)
-		        uc_free(ep) ;
+	                uc_free(ep) ;
 	        } /* end if (memory-allocation) */
 
 	    } else
@@ -779,48 +850,55 @@ static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 
 	} /* end if (entry-validated) */
 
+#if	CF_DEBUGS
+	debugprintf("varsub_iadd: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (varsub_iadd) */
 
-#else /* CF_ENTCMP */
 
-static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
+static int varsub_iaddquick(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 {
-	VARSUB_SUB	*ep ;
-	const int	msize = sizeof(VARSUB_SUB) ;
-	int		rs ;
-	int		rs1 ;
+	int		rs = SR_INVALID ;
 
 	if (klen < 0) klen = strlen(k) ;
+	if (vlen < 0) vlen = (v != NULL) ? strlen(v) : 0 ;
 
-	if ((rs = uc_malloc(msize,&ep)) >= 0) {
-	    if ((rs = entry_start(ep,k,klen,v,vlen)) >= 0) {
-		VECHAND		*elp = &op->subs ;
-		VARSUB_SUB	*dep ;
-	        if ((rs1 = vechand_search(elp,ep,vcmpkey,&dep)) >= 0) {
-		    vechand_del(elp,rs1) ;
-		    entry_finish(dep) ;
-		    uc_free(dep) ;
-		} else if (rs1 != SR_NOTFOUND) {
-		    rs = rs1 ;
-		}
-		if (rs >= 0) {
-	    	    op->f.sorted = FALSE ;
-		    rs = vechand_add(elp,ep) ;
-		}
-		if (rs < 0)
-	    	    entry_finish(ep) ;
-	    } /* end if (entry-start) */
-	    if (rs < 0)
-		uc_free(ep) ;
-	} /* end if (memory-allocation) */
+#if	CF_DEBUGS
+	debugprintf("varsub_iaddquick: ent k=%t\n",k,klen) ;
+#endif
+
+	if (klen > 0) {
+	    VECHAND	*elp = &op->subs ;
+	    VARSUB_SUB	*ep ;
+	    const int	msize = sizeof(VARSUB_SUB) ;
+
+#if	CF_DEBUGS
+	    debugprintf("varsub_iadd: adding\n") ;
+#endif
+
+	    if ((rs = uc_malloc(msize,&ep)) >= 0) {
+	        if ((rs = entry_start(ep,k,klen,v,vlen)) >= 0) {
+	            op->f.sorted = FALSE ;
+	            rs = vechand_add(elp,ep) ;
+	            if (rs < 0)
+	                entry_finish(ep) ;
+	        } /* end if (entry-start) */
+	        if (rs < 0)
+	            uc_free(ep) ;
+	    } /* end if (memory-allocation) */
+
+	} /* end if (positive) */
+
+#if	CF_DEBUGS
+	debugprintf("varsub_iaddquick: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
-/* end subroutine (varsub_iadd) */
-
-#endif /* CF_ENTCMP */
+/* end subroutine (varsub_iaddquick) */
 
 
 static int varsub_sort(VARSUB *op)
@@ -831,7 +909,7 @@ static int varsub_sort(VARSUB *op)
 	if (! op->f.sorted) {
 	    f = TRUE ;
 	    op->f.sorted = TRUE ;
-	    rs = vechand_sort(&op->subs,vcmpkey) ;
+	    rs = vechand_sort(&op->subs,ventcmp) ;
 	}
 
 	return (rs >= 0) ? f : rs ;
@@ -847,17 +925,26 @@ static int varsub_getval(VARSUB *op,cchar *kp,int kl,cchar **vpp)
 
 	if (kl < 0) kl = strlen(kp) ;
 
+#if	CF_DEBUGS
+	debugprintf("varsub_getval: ent k=%t\n",kp,kl) ;
+#endif
+
 	if (kl > 0) {
 	    te.kp = kp ;
 	    te.kl = kl ;
-	    if ((rs = vechand_search(&op->subs,&te,vcmpkey,&ep)) >= 0) {
+	    if ((rs = vechand_search(&op->subs,&te,ventcmp,&ep)) >= 0) {
 	        vl = ep->vl ;
 	    }
+#if	CF_DEBUGS
+	    debugprintf("varsub_getval: vechand-search() rs=%d\n",rs) ;
+#endif
 	} else {
 	    rs = SR_DOM ;
 	}
 
-	if (vpp != NULL) *vpp = (rs >= 0) ? ep->vp : NULL ;
+	if (vpp != NULL) {
+	    *vpp = (rs >= 0) ? ep->vp : NULL ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("varsub_getval: ret rs=%d vl=%u\n",rs,vl) ;
@@ -928,10 +1015,10 @@ static int entry_start(VARSUB_SUB *ep,cchar *kp,int kl,cchar *vp,int vl)
 	    if ((rs = uc_malloc(size,&bp)) >= 0) {
 	        ep->kp = bp ;
 	        ep->kl = kl ;
-	        bp = strwcpy(bp,kp,kl) + 1 ;
+	        bp = (strwcpy(bp,kp,kl) + 1) ;
 	        ep->vp = bp ;
 	        ep->vl = vl ;
-	        bp = strwcpy(bp,vp,vl) + 1 ;
+	        bp = (strwcpy(bp,vp,vl) + 1) ;
 	    } /* end if (memory-allocation) */
 	} else
 	    rs = SR_DOM ;
@@ -958,7 +1045,12 @@ static int entry_finish(VARSUB_SUB *ep)
 /* end subroutine (entry_finish) */
 
 
-#if	CF_ENTCMP
+static int entry_keycmp(VARSUB_SUB *ep,VARSUB_SUB *eap)
+{
+	return strnncmp(ep->kp,ep->kl,eap->kp,eap->kl) ;
+}
+/* end subroutine (entry_keycmp) */
+
 
 static int entry_tmp(VARSUB_SUB *ep,cchar *kp,int kl,cchar *vp,int vl)
 {
@@ -994,44 +1086,15 @@ static int entry_cmpval(VARSUB_SUB *ep,VARSUB_SUB *e2p)
 	    if (rc == 0)
 	        rc = strwcmp(ep->vp,e2p->vp,e2p->vl) ;
 	    if (rc == 0)
-		rc = (ep->vl - e2p->vl) ;
+	        rc = (ep->vl - e2p->vl) ;
 	} /* end if (try harder) */
 
 	return rc ;
 }
 /* end subroutine (entry_cmpval) */
 
-#endif /* CF_ENTCMP */
 
-
-#ifdef	COMMENT
-static int entry_cmp(VARSUB_SUB *ep,VARSUB_SUB *e2p)
-{
-	int		rc = 0 ;
-
-	if (ep == NULL) return SR_FAULT ;
-	if (e2p == NULL) return SR_FAULT ;
-
-	if (rc == 0)
-	    rc = (ep->kp[0] - e2p->kp[0]) ;
-	if (rc == 0)
-	    rc = strcmp(ep->kp,e2p->kp) ;
-	if (rc == 0) {
-	    if (ep->vl == 0) rc = -1 ;
-	    if ((rc == 0) && (e2p->vl == 0)) rc = 1 ;
-	    if (rc == 0)
-	        rc = (ep->vp[0] - e2p->vp[0]) ;
-	    if (rc == 0)
-	        rc = strcmp(ep->vp,e2p->vp) ;
-	}
-
-	return rc ;
-}
-/* end subroutine (entry_cmp) */
-#endif /* COMMENT */
-
-
-static int vcmpkey(const void **ve1pp,const void **ve2pp)
+static int ventcmp(const void **ve1pp,const void **ve2pp)
 {
 	VARSUB_SUB	**e1pp = (VARSUB_SUB **) ve1pp ;
 	VARSUB_SUB	**e2pp = (VARSUB_SUB **) ve2pp ;
@@ -1041,19 +1104,22 @@ static int vcmpkey(const void **ve1pp,const void **ve2pp)
 	        if (*e2pp != NULL) {
 	            VARSUB_SUB	*e1p = *e1pp ;
 	            VARSUB_SUB	*e2p = *e2pp ;
-	            if ((rc = (e1p->kp[0] - e2p->kp[0])) == 0) {
-	                if ((rc = strncmp(e1p->kp,e2p->kp,e2p->kl)) == 0) {
-		            rc = (e1p->kl - e2p->kl) ;
-	                }
-	            }
+#if	CF_DEBUGS
+		    debugprintf("ventcmp: k1=%t k2=%s\n",
+			e1p->kp,e1p->kl,e2p->kp) ;
+#endif
+		    rc = entry_keycmp(e1p,e2p) ;
 	        } else
 	            rc = -1 ;
 	    } else
 	        rc = 1 ;
 	}
+#if	CF_DEBUGS
+	debugprintf("ventcmp: ret rc=%d\n",rc) ;
+#endif
 	return rc ;
 }
-/* end subroutine (vcmpkey) */
+/* end subroutine (ventcmp) */
 
 
 static int getkey(const char *sp,int sl,int sses[][2])

@@ -14,6 +14,7 @@
 #include	<time.h>
 
 #include	<vecstr.h>
+#include	<logfile.h>
 #include	<ids.h>
 #include	<localmisc.h>
 
@@ -89,6 +90,8 @@ struct proginfo_flags {
 	uint		quiet:1 ;
 	uint		outfile:1 ;
 	uint		errfile:1 ;
+	uint		lfname:1 ;
+	uint		logprog:1 ;
 	uint		id:1 ;
 } ;
 
@@ -107,13 +110,16 @@ struct proginfo {
 	cchar		*nodename ;
 	cchar		*domainname ;
 	cchar		*tmpdname ;
+	cchar		*lfname ;
 	cchar		*hfname ;
 	cchar		*mfname ;
 	cchar		*dfname ;
 	cchar		*tarname ;
+	cchar		*logid ;
 	void		*efp ;
 	PROGINFO_FL	f, have, changed, final ;
 	PROGINFO_FL	open ;
+	LOGFILE		lh ;
 	IDS		id ;
 	uino_t		ino ;
 	time_t		daytime ;
@@ -121,6 +127,7 @@ struct proginfo {
 	int		pwdlen ;
 	int		debuglevel ;
 	int		verboselevel ;
+	int		logsize ;
 } ;
 
 struct pivars {
