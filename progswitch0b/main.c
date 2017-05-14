@@ -110,7 +110,6 @@ extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
-extern int	varsub_addvec(VARSUB *,VECSTR *) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
 

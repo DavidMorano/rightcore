@@ -122,7 +122,7 @@ static int	entry_start(VARSUB_SUB *,cchar *,int,cchar *,int) ;
 static int	entry_keycmp(VARSUB_SUB *,VARSUB_SUB *) ;
 static int	entry_finish(VARSUB_SUB *) ;
 static int	entry_tmp(VARSUB_SUB *,cchar *,int,cchar *,int) ;
-static int	entry_cmpval(VARSUB_SUB *,VARSUB_SUB *) ;
+static int	entry_valcmp(VARSUB_SUB *,VARSUB_SUB *) ;
 
 #ifdef	COMMENT
 static int	entry_cmp(VARSUB_SUB *,VARSUB_SUB *) ;
@@ -813,7 +813,7 @@ static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 	    int		rs1 ;
 
 	    if ((rs1 = vechand_search(elp,&tmp,ventcmp,&dep)) >= 0) {
-	        if (entry_cmpval(dep,&tmp) != 0) {
+	        if (entry_valcmp(dep,&tmp) != 0) {
 	            vechand_del(elp,rs1) ;
 	            entry_finish(dep) ;
 	            uc_free(dep) ;
@@ -1071,7 +1071,7 @@ static int entry_tmp(VARSUB_SUB *ep,cchar *kp,int kl,cchar *vp,int vl)
 /* end subroutine (entry_tmp) */
 
 
-static int entry_cmpval(VARSUB_SUB *ep,VARSUB_SUB *e2p)
+static int entry_valcmp(VARSUB_SUB *ep,VARSUB_SUB *e2p)
 {
 	int		rc = 0 ;
 
@@ -1091,7 +1091,7 @@ static int entry_cmpval(VARSUB_SUB *ep,VARSUB_SUB *e2p)
 
 	return rc ;
 }
-/* end subroutine (entry_cmpval) */
+/* end subroutine (entry_valcmp) */
 
 
 static int ventcmp(const void **ve1pp,const void **ve2pp)

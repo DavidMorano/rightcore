@@ -111,9 +111,6 @@ int envlist_finish(ENVLIST *op)
 
 	if (op == NULL) return SR_FAULT ;
 
-	rs1 = ENVLIST_DBFREE(&op->list) ;
-	if (rs >= 0) rs = rs1 ;
-
 	if (op->store != NULL) {
 	    STRPACK	*spp = op->store ;
 	    rs1 = strpack_finish(spp) ;
@@ -122,6 +119,9 @@ int envlist_finish(ENVLIST *op)
 	    if (rs >= 0) rs = rs1 ;
 	    op->store = NULL ;
 	}
+
+	rs1 = ENVLIST_DBFREE(&op->list) ;
+	if (rs >= 0) rs = rs1 ;
 
 	return rs ;
 }

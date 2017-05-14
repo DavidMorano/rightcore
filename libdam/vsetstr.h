@@ -1,12 +1,12 @@
-/* osetstr */
+/* vsetstr */
 
-/* Ordered-Set-String object */
+/* Vector-Implemented Ordered-Set-String object */
 
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-#ifndef	OSETSTR_INCLUDE
-#define	OSETSTR_INCLUDE	1
+#ifndef	VSETSTR_INCLUDE
+#define	VSETSTR_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -16,50 +16,50 @@
 #include	<vecpstr.h>
 
 
-#define	OSETSTR_MAGIC	0x09097641
-#define	OSETSTR_CSIZE	10
-#define	OSETSTR		struct osetstr_head
-#define	OSETSTR_CUR	struct osetstr_cur
+#define	VSETSTR_MAGIC	0x09097641
+#define	VSETSTR_CSIZE	10
+#define	VSETSTR		struct vsetstr_head
+#define	VSETSTR_CUR	struct vsetstr_cur
 
 
-struct osetstr_head {
+struct vsetstr_head {
 	uint		magic ;
 	vecpstr		ents ;
 } ;
 
-struct osetstr_cur {
+struct vsetstr_cur {
 	int		i ;
 } ;
 
 
-typedef	OSETSTR		osetstr ;
-typedef	OSETSTR_CUR	osetstr_cur ;
+typedef	VSETSTR		vsetstr ;
+typedef	VSETSTR_CUR	vsetstr_cur ;
 
 
-#if	(! defined(OSETSTR_MASTER)) || (OSETSTR_MASTER == 0)
+#if	(! defined(VSETSTR_MASTER)) || (VSETSTR_MASTER == 0)
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-extern int osetstr_start(OSETSTR *,int) ;
-extern int osetstr_already(OSETSTR *,cchar *,int) ;
-extern int osetstr_del(OSETSTR *,cchar *,int) ;
-extern int osetstr_count(OSETSTR *) ;
-extern int osetstr_extent(OSETSTR *,cchar *,int) ;
-extern int osetstr_curbegin(OSETSTR *,OSETSTR_CUR *) ;
-extern int osetstr_curend(OSETSTR *,OSETSTR_CUR *) ;
-extern int osetstr_curdel(OSETSTR *,OSETSTR_CUR *) ;
-extern int osetstr_enum(OSETSTR *,OSETSTR_CUR *,cchar **) ;
-extern int osetstr_next(OSETSTR *,OSETSTR_CUR *) ;
-extern int osetstr_finish(OSETSTR *) ;
+extern int vsetstr_start(VSETSTR *,int) ;
+extern int vsetstr_already(VSETSTR *,cchar *,int) ;
+extern int vsetstr_del(VSETSTR *,cchar *,int) ;
+extern int vsetstr_count(VSETSTR *) ;
+extern int vsetstr_extent(VSETSTR *) ;
+extern int vsetstr_curbegin(VSETSTR *,VSETSTR_CUR *) ;
+extern int vsetstr_curend(VSETSTR *,VSETSTR_CUR *) ;
+extern int vsetstr_curdel(VSETSTR *,VSETSTR_CUR *) ;
+extern int vsetstr_enum(VSETSTR *,VSETSTR_CUR *,cchar **) ;
+extern int vsetstr_next(VSETSTR *,VSETSTR_CUR *) ;
+extern int vsetstr_finish(VSETSTR *) ;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* OSETSTR_MASTER */
+#endif /* VSETSTR_MASTER */
 
-#endif /* OSETSTR_INCLUDE */
+#endif /* VSETSTR_INCLUDE */
 
 

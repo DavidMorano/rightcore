@@ -1,6 +1,6 @@
-/* osetstr */
+/* vsetstr */
 
-/* Ordered-Set-String object */
+/* Vector-Implemented Ordered-Set-String object */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -27,7 +27,7 @@
 *******************************************************************************/
 
 
-#define	OSETSTR_MASTER	0
+#define	VSETSTR_MASTER	0
 
 
 #include	<envstandards.h>
@@ -40,7 +40,7 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"osetstr.h"
+#include	"vsetstr.h"
 
 
 /* local defines */
@@ -72,7 +72,7 @@ extern char	*strdcpy1(char *,int,const char *) ;
 /* exported subroutines */
 
 
-int osetstr_start(OSETSTR *op,int n)
+int vsetstr_start(VSETSTR *op,int n)
 {
 	int		csize = 0 ;
 	int		rs ;
@@ -83,15 +83,15 @@ int osetstr_start(OSETSTR *op,int n)
 
 	if (n > 0) csize = (n*6) ;
 	if ((rs = vecpstr_start(&op->ents,n,csize,0)) >= 0) {
-	    op->magic = OSETSTR_MAGIC ;
+	    op->magic = VSETSTR_MAGIC ;
 	}
 
 	return rs ;
 }
-/* end subroutine (osetstr_start) */
+/* end subroutine (vsetstr_start) */
 
 
-int osetstr_finish(OSETSTR *op)
+int vsetstr_finish(VSETSTR *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -100,7 +100,7 @@ int osetstr_finish(OSETSTR *op)
 	if (op == NULL) return SR_FAULT ;
 #endif
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	rs1 = vecpstr_finish(&op->ents) ;
 	if (rs >= 0) rs = rs1 ;
@@ -108,10 +108,10 @@ int osetstr_finish(OSETSTR *op)
 	op->magic = 0 ;
 	return rs ;
 }
-/* end subroutine (osetstr_finish) */
+/* end subroutine (vsetstr_finish) */
 
 
-int osetstr_look(OSETSTR *op,cchar *sbuf,int slen)
+int vsetstr_look(VSETSTR *op,cchar *sbuf,int slen)
 {
 	int		rs ;
 
@@ -119,17 +119,17 @@ int osetstr_look(OSETSTR *op,cchar *sbuf,int slen)
 	if (op == NULL) return SR_FAULT ;
 #endif
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	rs = vecpstr_already(&op->ents,sbuf,slen) ;
 
 	return rs ;
 }
-/* end subroutine (osetstr_look) */
+/* end subroutine (vsetstr_look) */
 
 
 /* add a string to the database */
-int osetstr_add(OSETSTR *op,cchar *sbuf,int slen)
+int vsetstr_add(VSETSTR *op,cchar *sbuf,int slen)
 {
 	const int	rsn = SR_NOTFOUND ;
 	int		rs ;
@@ -140,7 +140,7 @@ int osetstr_add(OSETSTR *op,cchar *sbuf,int slen)
 
 	if (sbuf == NULL) return SR_FAULT ;
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	if (slen < 0) slen = strlen(sbuf) ;
 
@@ -150,45 +150,45 @@ int osetstr_add(OSETSTR *op,cchar *sbuf,int slen)
 	    rs = INT_MAX ;
 
 #if	CF_DEBUGS
-	debugprintf("osetstr_add: ret rs=%d\n",rs) ;
+	debugprintf("vsetstr_add: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
 }
-/* end subroutine (osetstr_add) */
+/* end subroutine (vsetstr_add) */
 
 
-int osetstr_curbegin(OSETSTR *op,OSETSTR_CUR *curp)
+int vsetstr_curbegin(VSETSTR *op,VSETSTR_CUR *curp)
 {
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
 #endif
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	curp->i = -1 ;
 	return SR_OK ;
 }
-/* end subroutine (osetstr_curbegin) */
+/* end subroutine (vsetstr_curbegin) */
 
 
-int osetstr_curend(OSETSTR *op,OSETSTR_CUR *curp)
+int vsetstr_curend(VSETSTR *op,VSETSTR_CUR *curp)
 {
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
 #endif
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	curp->i = -1 ;
 	return SR_OK ;
 }
-/* end subroutine (osetstr_curend) */
+/* end subroutine (vsetstr_curend) */
 
 
-int osetstr_curdel(OSETSTR *op,OSETSTR_CUR *curp)
+int vsetstr_curdel(VSETSTR *op,VSETSTR_CUR *curp)
 {
 	int		rs ;
 	int		i ;
@@ -197,17 +197,17 @@ int osetstr_curdel(OSETSTR *op,OSETSTR_CUR *curp)
 	if (op == NULL) return SR_FAULT ;
 #endif
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	i = curp->i ;
 	rs = vecpstr_del(&op->ents,i) ;
 
 	return rs ;
 }
-/* end subroutine (osetstr_curdel) */
+/* end subroutine (vsetstr_curdel) */
 
 
-int osetstr_already(OSETSTR *op,cchar *sp,int sl)
+int vsetstr_already(VSETSTR *op,cchar *sp,int sl)
 {
 	int		rs ;
 
@@ -215,7 +215,7 @@ int osetstr_already(OSETSTR *op,cchar *sp,int sl)
 	if (op == NULL) return SR_FAULT ;
 #endif
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	if ((rs = vecpstr_findn(&op->ents,sp,sl)) >= 0) {
 	    rs = TRUE ;
@@ -225,11 +225,11 @@ int osetstr_already(OSETSTR *op,cchar *sp,int sl)
 
 	return rs ;
 }
-/* end subroutine (osetstr_already) */
+/* end subroutine (vsetstr_already) */
 
 
 /* enumerate all of the entries */
-int osetstr_enum(OSETSTR *op,OSETSTR_CUR *curp,cchar **vpp)
+int vsetstr_enum(VSETSTR *op,VSETSTR_CUR *curp,cchar **vpp)
 {
 	int		rs ;
 	int		i ;
@@ -242,7 +242,7 @@ int osetstr_enum(OSETSTR *op,OSETSTR_CUR *curp,cchar **vpp)
 
 	if (curp == NULL) return SR_FAULT ;
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	i = (curp->i >= 0) ? (curp->i + 1) : 0 ;
 
@@ -262,11 +262,11 @@ int osetstr_enum(OSETSTR *op,OSETSTR_CUR *curp,cchar **vpp)
 
 	return (rs >= 0) ? rl : rs ;
 }
-/* end subroutine (osetstr_enum) */
+/* end subroutine (vsetstr_enum) */
 
 
 /* advance the cursor to the next entry regardless of key */
-int osetstr_next(OSETSTR *op,OSETSTR_CUR *curp)
+int vsetstr_next(VSETSTR *op,VSETSTR_CUR *curp)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -277,17 +277,17 @@ int osetstr_next(OSETSTR *op,OSETSTR_CUR *curp)
 
 	if (curp == NULL) return SR_FAULT ;
 
-	if (op->magic != OSETSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VSETSTR_MAGIC) return SR_NOTOPEN ;
 
 	i = (curp->i >= 0) ? (curp->i + 1) : 0 ;
 	curp->i = i ;
 
 	return rs ;
 }
-/* end subroutine (osetstr_next) */
+/* end subroutine (vsetstr_next) */
 
 
-int osetstr_count(OSETSTR *op)
+int vsetstr_count(VSETSTR *op)
 {
 	int		rs ;
 
@@ -299,13 +299,13 @@ int osetstr_count(OSETSTR *op)
 
 	return rs ;
 }
-/* end subroutine (osetstr_count) */
+/* end subroutine (vsetstr_count) */
 
 
-int osetstr_extent(OSETSTR *op)
+int vsetstr_extent(VSETSTR *op)
 {
-	return osetstr_count(op) ;
+	return vsetstr_count(op) ;
 }
-/* end subroutine (osetstr_extent) */
+/* end subroutine (vsetstr_extent) */
 
 

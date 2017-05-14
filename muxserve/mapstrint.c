@@ -73,8 +73,7 @@ int mapstrint_start(dbp,nitems)
 MAPSTRINT	*dbp ;
 int		nitems ;
 {
-	int	rs ;
-
+	int		rs ;
 
 	rs = hdb_start(dbp,nitems,0,NULL,NULL) ;
 
@@ -86,7 +85,7 @@ int		nitems ;
 int mapstrint_count(dbp)
 MAPSTRINT	*dbp ;
 {
-	int	rs ;
+	int		rs ;
 
 
 	rs = hdb_count(dbp) ;
@@ -101,10 +100,9 @@ int mapstrint_finish(dbp)
 MAPSTRINT	*dbp ;
 {
 	MAPSTRINT_CUR	keycursor ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	n = 0 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		n = 0 ;
 
 /* delete all items individually (since they are non-opaque) */
 
@@ -140,12 +138,12 @@ const char	kstr[] ;
 int		klen ;
 int		ival ;
 {
-	int	rs ;
-	int	size ;
-	int	*ip ;
+	int		rs ;
+	int		size ;
+	int		*ip ;
 
 #if	CF_DEBUGS
-	debugprintf("mapstrint_add: klen=%d\n",klen) ;
+	debugprintf("mapstrint_add: ent klen=%d\n",klen) ;
 #endif
 
 	if ((klen > 0) && (kstr == NULL))
@@ -189,8 +187,8 @@ MAPSTRINT	*op ;
 const char	kstr[] ;
 int		klen ;
 {
-	int	rs ;
-	int	v ;
+	int		rs ;
+	int		v ;
 	if ((rs = mapstrint_fetch(op,kstr,klen,NULL,&v)) >= 0) {
 	    rs = (v & INT_MAX) ;
 	}
@@ -207,9 +205,8 @@ const char	**kpp ;
 int		*vp ;
 {
 	HDB_DATUM	key, val ;
-
-	int	rs ;
-	int	klen = 0 ;
+	int		rs ;
+	int		klen = 0 ;
 
 	if (kpp != NULL)
 	    *kpp = NULL ;
@@ -238,8 +235,7 @@ MAPSTRINT_CUR	*curp ;
 int		*vp ;
 {
 	HDB_DATUM	key, val ;
-
-	int	rs ;
+	int		rs ;
 
 #if	CF_DEBUGS
 	debugprintf("mapstrint_fetch: ent key=%t\n",kstr,klen) ;
@@ -286,8 +282,7 @@ int		*vp ;
 {
 	HDB_DATUM	key, val ;
 	HDB_DATUM	rkey ;
-
-	int	rs ;
+	int		rs ;
 
 #if	CF_STRNLEN
 	klen = strnlen(kstr,klen) ;
@@ -324,9 +319,8 @@ const char	**kpp ;
 int		*vp ;
 {
 	HDB_DATUM	key, val ;
-
-	int	rs ;
-	int	klen = 0 ;
+	int		rs ;
+	int		klen = 0 ;
 
 	if (kpp != NULL)
 	    *kpp = NULL ;
@@ -351,8 +345,7 @@ int mapstrint_next(dbp,curp)
 MAPSTRINT	*dbp ;
 MAPSTRINT_CUR	*curp ;
 {
-	int	rs ;
-
+	int		rs ;
 
 	rs = hdb_next(dbp,curp) ;
 
@@ -369,18 +362,14 @@ int		klen ;
 MAPSTRINT_CUR	*curp ;
 {
 	HDB_DATUM	key ;
+	int		rs ;
 
-	int	rs ;
-
-
-	if (kstr == NULL)
-	    return SR_FAULT ;
+	if (kstr == NULL) return SR_FAULT ;
 
 #if	CF_STRNLEN
 	klen = strnlen(kstr,klen) ;
 #else
-	if (klen < 0)
-	    klen = strlen(kstr) ;
+	if (klen < 0) klen = strlen(kstr) ;
 #endif
 
 	key.buf = kstr ;
@@ -400,20 +389,15 @@ const char	kstr[] ;
 int		klen ;
 {
 	HDB_DATUM	skey, key, val ;
-
 	MAPSTRINT_CUR	keycursor ;
-
-	int	rs ;
-	int	rs1 ;
-
-	char	*ep ;
-
+	int		rs ;
+	int		rs1 ;
+	char		*ep ;
 
 #if	CF_STRNLEN
 	klen = strnlen(kstr,klen) ;
 #else
-	if (klen < 0)
-	    klen = strlen(kstr) ;
+	if (klen < 0) klen = strlen(kstr) ;
 #endif
 
 	skey.buf = kstr ;
@@ -469,8 +453,7 @@ MAPSTRINT_CUR	*curp ;
 int		f_adv ;
 {
 	HDB_DATUM	key, val ;
-
-	int	rs ;
+	int		rs ;
 
 	if ((rs = hdb_getrec(dbp,curp,&key,&val)) >= 0) {
 	    char	*ep = (char *) val.buf ;
@@ -490,7 +473,6 @@ MAPSTRINT	*dbp ;
 MAPSTRINT_CUR	*curp ;
 {
 
-
 	return hdb_curbegin(dbp,curp) ;
 }
 /* end subroutine (mapstrint_curbegin) */
@@ -500,7 +482,6 @@ int mapstrint_curend(dbp,curp)
 MAPSTRINT	*dbp ;
 MAPSTRINT_CUR	*curp ;
 {
-
 
 	return hdb_curend(dbp,curp) ;
 }
@@ -514,12 +495,10 @@ MAPSTRINT_CUR	*curp ;
 int		ival ;
 {
 	HDB_DATUM	key, val ;
+	int		rs ;
+	int		kl = 0 ;
 
-	int	rs ;
-	int	kl = 0 ;
-
-	if (curp == NULL)
-	    return SR_INVALID ;
+	if (curp == NULL) return SR_INVALID ;
 
 	if ((rs = hdb_getrec(dbp,curp,&key,&val)) >= 0) {
 	    int	*ip = (int *) val.buf ;
@@ -542,15 +521,12 @@ const char	s1[] ;
 const char	s2[] ;
 int		len ;
 {
-	int	rc = 0 ;
-
+	int		rc = 0 ;
 
 	if (len > 0) {
-
 	    rc = (s2[len] - s1[len]) ;
 	    if (rc == 0)
 	        rc = strncmp(s1,s2,len) ;
-
 	}
 
 	return rc ;
@@ -558,6 +534,5 @@ int		len ;
 /* end subroutine (cmpentry) */
 
 #endif /* COMMENT */
-
 
 
