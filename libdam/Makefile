@@ -273,7 +273,7 @@ OBJ112= vecstr_adds.o vecstr_foilcmp.o
 OBJ113= vecpstr_loadgrusers.o vecpstr_loadpjusers.o
 OBJ114= vechand.o vecitem.o vecint.o veclong.o vecelem.o vecobj.o 
 OBJ115=
-OBJ116= setint.o osetint.o setstr.o osetstr.o
+OBJ116= setint.o osetint.o setstr.o osetstr.o mapstrs.o
 OBJ117= msfile.o msfilee.o ebuf.o nodedb.o clusterdb.o kinfo.o nulstr.o
 OBJ118= cksum.o sha1.o gecos.o pwfile.o ipasswd.o ema.o fsi.o
 OBJ119= q.o plainq.o pq.o cpq.o cq.o piq.o ciq.o fifostr.o fifoitem.o charq.o 
@@ -1002,7 +1002,9 @@ osetstr.o:		osetstr.cc osetstr.h
 
 setstr.o:		setstr.c setstr.h
 
-vsetstr.o:		vsetstr.cc vsetstr.h
+mapstrs.o:		mapstrs.c mapstrs.h
+
+vsetstr.o:		vsetstr.c vsetstr.h
 
 setstr.o:		setstr.c setstr.h
 
