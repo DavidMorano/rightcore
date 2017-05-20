@@ -698,9 +698,6 @@ b_calyear.o:		b_calyear.c b_calyear.h $(INCS)
 b_logfile.o:		b_logfile.c b_logfile.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
-b_imail.o:		b_imail.c b_imail.h $(INCS) outema.h
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
-
 b_numcvt.o:		b_numcvt.c b_numcvt.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
@@ -822,7 +819,10 @@ b_isproc.o:		b_isproc.c b_isproc.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
 
-# special PCS
+# special PCS (or pseudo PCS)
+
+b_imail.o:		b_imail.c b_imail.h $(INCS) outema.h
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
 b_username.o:		b_username.c b_username.h $(INCS)
 	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
@@ -1434,6 +1434,8 @@ lookword.o:		lookword.c lookword.h
 outstore.o:		outstore.c outstore.h
 
 uiconv.o:		uiconv.c uiconv.h
+
+varsub.o:		varsub.c varsub.h
 
 
 # testing

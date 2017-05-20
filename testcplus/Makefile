@@ -62,8 +62,8 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
-
-CFLAGS_GPP= $(CCOPTS_GCCOPTSGPP) $(CCOPTS) 
+CCFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS) 
+GPPFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS) 
 
 #LD= $(CC)
 #LD= cc
@@ -86,6 +86,22 @@ LIB7= -ldl -lc
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
 LIBINFO= $(LIBDIRS) $(LIBS)
+
+
+TLIBDIRS= -L$(CGS_LIBDIR) -L$(LIBDIR)
+
+TLIB0=
+TLIB1= -ldam -lb
+TLIB2= -ldebug
+TLIB3= -luc -lu
+TLIB4= $(CGS_LIBS)
+TLIB5=
+TLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
+TLIB7= -ldl
+
+TLIBS= $(TLIB0) $(TLIB1) $(TLIB2) $(TLIB3) $(TLIB4) $(TLIB5) $(TLIB6) $(TLIB7)
+
+TLIBINFO= $(TLIBDIRS) $(TLIBS)
 
 
 VALUES= $(VALDIR)/$(CGS_VALUES)
@@ -201,8 +217,26 @@ control:
 
 
 main.o:			main.cc $(INCS)
-	$(GPP) -c $(CFLAGS_GPP) $(CPPFLAGS) main.cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main.cc
 
 whatinfo.o:		whatinfo.c config.h
+
+
+# testing
+
+T01= testsethand
+
+T01OBJa= $(T01).o
+T01OBJb=
+T01OBJc=
+T01OBJd=
+
+T01OBJ= $(T01OBJa) $(T01OBJb) $(T01OBJc) $(T01OBJd)
+
+$(T01).x:		Makefile $(T01OBJ)
+	$(CC) -o $@ $(T01OBJ) $(TLIBINFO)
+
+$(T01).o:		testsethand.cc sethand.h
+	$(CC) -c $(CCFLAGS) $(CPPFLAGS) testsethand.cc
 
 

@@ -23,7 +23,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -35,7 +34,8 @@ CCOPTS_GCCLIBSPARC= -mno-app-regs
 CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing -Wall
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -70,7 +70,7 @@ DEF7= $(LF_DEFS)
 DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
 
 
-INCDIRS= -I$(INCDIR)
+INCDIRS= -I$(INCDIR) -I$(PCS)/include
 
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
@@ -84,16 +84,16 @@ LD= ld
 LDRPATH=
 
 # regular
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(PCS)/lib:$(CGS_RPATH)
 # for profiling
 LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(PCS)/lib -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -lpcs -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 

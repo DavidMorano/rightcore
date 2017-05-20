@@ -173,9 +173,9 @@ OBJ25= rex.o rfile.o dupup.o lockfile.o lockend.o
 OBJ26= timestr_date.o timestr_nist.o timestr_elapsed.o timevalstr_ulog.o 
 OBJ27= timestr_scandate.o 
 OBJ28=
-OBJ29=
-OBJ30= chmods.o chowns.o readignore.o inetping.o 
-OBJ31= termdevice.o makedirs.o mkdirs.o tmpmailboxes.o pathclean.o
+OBJ29= 
+OBJ30= chmods.o chowns.o readignore.o inetping.o termdevice.o 
+OBJ31= pathclean.o makedirs.o mkdirs.o chownsame.o tmpmailboxes.o 
 
 OBJ32=
 OBJ33=
