@@ -35,8 +35,8 @@
 
 	Returns:
 
-	>=0	length of found string
-	<0	not found
+	>0	length of found string
+	==0	not found (no base-name)
 
 
 *******************************************************************************/
@@ -55,10 +55,9 @@
 
 int sfbasename(cchar *sp,int sl,cchar **rpp)
 {
-	int	si ;
+	int		si ;
 
-	if (sl < 0)
-	    sl = strlen(sp) ;
+	if (sl < 0) sl = strlen(sp) ;
 
 /* remove trailing slash characters */
 

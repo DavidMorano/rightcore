@@ -725,7 +725,7 @@ static int commandments_idxbegin(COMMANDMENTS *op,cchar *dbname)
 #endif
 	if ((rs = commandments_idxmkname(op,tbuf,dbname)) >= 0) {
 #if	CF_DEBUGS
-	debugprintf("commandments_idxbegin: tbuf=%s\n",tbuf) ;
+	    debugprintf("commandments_idxbegin: tbuf=%s\n",tbuf) ;
 #endif
 	    rs = commandments_idxmapbegin(op,tbuf) ;
 	} /* end if (commandments_idxmkname) */
@@ -812,7 +812,7 @@ static int commandments_idxopencheck(COMMANDMENTS *op,cchar *dbname)
 	            debugprintf("commandments_idxopencheck: size_info=%u\n",
 			cinfo.dbsize) ;
 		}
-#endif
+#endif /* CF_DEBUGS */
 	        f = f && (cinfo.idxctime >= op->ti_db) ;
 	        f = f && (cinfo.dbsize == op->size_db) ;
 		if (f) {
@@ -901,7 +901,7 @@ static int commandments_usridname(COMMANDMENTS *op,char *tbuf)
 		if ((rs = uc_stat(tbuf,&sb)) == rsn) {
 	            const mode_t	dm = 0775 ;
 	            if ((rs = mkdirs(tbuf,dm)) >= 0) {
-			if ((rs = uc_chmod(tbuf,dm)) >= 0) {
+			if ((rs = uc_minmod(tbuf,dm)) >= 0) {
 	    	                const int	n = _PC_CHOWN_RESTRICTED ;
 	    	                if ((rs = u_pathconf(tbuf,n,NULL)) == 0) {
 		                    rs = commandments_chownpr(op,tbuf) ;

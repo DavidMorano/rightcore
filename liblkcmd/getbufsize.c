@@ -135,10 +135,10 @@ extern int	isNotValid(int) ;
 /* local structures */
 
 struct getbufsize {
-	volatile	f_init ;
-	volatile	f_initdone ;
-	volatile	f_begin ;
-	volatile	f_loaded ;
+	volatile int	f_init ;
+	volatile int	f_initdone ;
+	volatile int	f_begin ;
+	volatile int	f_loaded ;
 	int		bs[getbufsize_overlast] ;
 } ;
 

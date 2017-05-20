@@ -47,6 +47,7 @@
 #include	<nulstr.h>
 #include	<getax.h>
 #include	<ugetpw.h>
+#include	<cfdec.h>
 #include	<localmisc.h>
 
 
@@ -61,8 +62,7 @@
 
 /* external subroutines */
 
-extern int	hasallgid(cchar *,int) ;
-extern int	cfdeci(cchar *,int,int *) ;
+extern int	hasalldig(cchar *,int) ;
 
 
 /* external variables */
@@ -109,7 +109,7 @@ int getuid_name(cchar *np,int nl)
 
 int getuser_uid(cchar *np,int nl)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	if (np == NULL) return SR_FAULT ;
 	if (np[0] == '\0') return SR_INVALID ;
 	if (hasalldig(np,nl)) {

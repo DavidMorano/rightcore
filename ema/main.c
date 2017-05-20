@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	The program was written from scratch to do what the previous program by
 	the same name did.
-
 
 */
 
@@ -54,8 +52,6 @@
 
 /* local defines */
 
-#define	OURLINELEN	(MAILMSGLINELEN-4)
-
 
 /* external subroutines */
 
@@ -66,6 +62,8 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -219,7 +217,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	int		rs, rs1 ;
 	int		i ;
 	int		cl ;
-	int		count = 0 ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_usage = FALSE ;
@@ -502,7 +499,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            rs = SR_INVALID ;
 	                    }
 	                    if ((rs >= 0) && (cp != NULL) && (cl > 0)) {
-	                        rs = paramopt_loadu(&aparams,cp,cl) ;
+				PARAMOPT	*pop = &aparams ;
+	                        rs = paramopt_loadu(pop,cp,cl) ;
 	                    }
 	                    break ;
 
@@ -583,8 +581,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                                rs = SR_INVALID ;
 	                        }
 	                        if ((rs >= 0) && (cp != NULL) && (cl > 0)) {
-	                            const char	*po = PO_HEADER ;
-	                            rs = paramopt_loads(&aparams,po,cp,cl) ;
+				    PARAMOPT	*pop = &aparams ;
+	                            cchar	*po = PO_HEADER ;
+	                            rs = paramopt_loads(pop,po,cp,cl) ;
 	                        }
 	                        break ;
 
@@ -694,6 +693,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if ((rs1 = bopen(&errfile,efname,"dwca",0666)) >= 0) {
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -711,10 +712,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* check a few more things */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -742,24 +744,37 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* other initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-/* process the keyed arguments */
-
-	if (f_recipients)
-	    rs = paramopt_loads(&aparams,PO_HEADER,"to,cc,bcc",-1) ;
+	if ((rs >= 0) && f_recipients) {
+	    int		i ;
+	    cchar	*po = PO_HEADER ;
+	    cchar	*types[4] = { "to", "cc", "bcc", NULL } ;
+	    for (i = 0 ; i < 3 ; i += 1) {
+	        rs = paramopt_loaduniq(&aparams,po,types[i],-1) ;
+		if (rs < 0) break ;
+	    } /* end for */
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: procopts() \n") ;
 #endif
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = procopts(pip,&akopts) ;
+	}
 
 	if ((rs >= 0) && (pip->linelen == 0)) {
-	    cp = getourenv(envv,VARLINELEN) ;
+	    if ((cp = getourenv(envv,VARLINELEN)) == NULL) {
+	        cp = getourenv(envv,VARCOLUMNS) ;
+	    }
 	    if (cp != NULL) {
 	        if ((rs = optvalue(cp,-1)) >= 0) {
 	            pip->linelen = rs ;
@@ -767,7 +782,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    }
 	}
 
-	if (pip->linelen == 0) pip->linelen = OURLINELEN ;
+	if (pip->linelen == 0) pip->linelen = COLUMNS ;
+
+	if (pip->debuglevel > 0) {
+	    bprintf(pip->efp,"%s: linelen=%u\n",pip->progname,pip->linelen) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2) && (rs >= 0))
@@ -1009,8 +1028,9 @@ static int procopts(PROGINFO *pip,KEYOPT *akp)
 	int		c = 0 ;
 	const char	*cp ;
 
-	if ((cp = getenv(VAROPTS)) != NULL)
+	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(akp,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	cur ;
@@ -1026,7 +1046,6 @@ static int procopts(PROGINFO *pip,KEYOPT *akp)
 	                vl = keyopt_fetch(akp,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_noexpand:
 	                case akoname_list:
 	                    lsp->f.expand = FALSE ;
@@ -1035,7 +1054,6 @@ static int procopts(PROGINFO *pip,KEYOPT *akp)
 	                        lsp->f.expand = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                case akoname_expand:
 	                case akoname_flat:
 	                    lsp->f.expand = TRUE ;
@@ -1044,7 +1062,6 @@ static int procopts(PROGINFO *pip,KEYOPT *akp)
 	                        lsp->f.expand = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                case akoname_info:
 	                    lsp->f.info = TRUE ;
 	                    if (vl > 0) {
@@ -1052,7 +1069,6 @@ static int procopts(PROGINFO *pip,KEYOPT *akp)
 	                        lsp->f.info = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1070,25 +1086,21 @@ static int procopts(PROGINFO *pip,KEYOPT *akp)
 /* end subroutine (procopts) */
 
 
-static int procargs(pip,aip,bop,app,ofname,ifname,afname)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-PARAMOPT	*app ;
-const char	*ofname ;
-const char	*ifname ;
-const char	*afname ;
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *app,
+		cchar *ofn,cchar *ifn,cchar *afn)
 {
 	CMD_LOCAL	*lsp = pip->lsp ;
 	bfile		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
 	int		count = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = BFILE_STDOUT ;
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = BFILE_STDOUT ;
 
-	if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
+	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
 	    int		pan = 0 ;
 	    int		f_input = TRUE ;
 	    int		cl ;
@@ -1116,13 +1128,13 @@ const char	*afname ;
 	        } /* end for (looping through mail message files) */
 	    } /* end if (ok) */
 
-	    if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
+	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
 	        bfile	afile, *afp = &afile ;
 
 	        f_input = FALSE ;
-	        if (strcmp(afname,"-") == 0) afname = BFILE_STDIN ;
+	        if (strcmp(afn,"-") == 0) afn = BFILE_STDIN ;
 
-	        if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
+	        if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
 	            int		len ;
 	            char	lbuf[LINEBUFLEN + 1] ;
@@ -1147,10 +1159,9 @@ const char	*afname ;
 	            bclose(afp) ;
 	        } else {
 	            if (! pip->f.quiet) {
-	                bprintf(pip->efp,
-	                    "%s: inaccessible arglist (%d)\n",
-	                    pip->progname,rs) ;
-	                bprintf(pip->efp,"\targfile=%s\n",afname) ;
+			fmt = "%s: inaccessible arglist (%d)\n" ;
+	                bprintf(pip->efp,fmt,pn,rs) ;
+	                bprintf(pip->efp,"%s: afile=%s\n",afn) ;
 	            }
 	        } /* end if */
 
@@ -1158,9 +1169,9 @@ const char	*afname ;
 
 	    if ((rs >= 0) && f_input) {
 
-	        if ((ifname == NULL) || (ifname[0] == '\0')) ifname = "-" ;
+	        if ((ifn == NULL) || (ifn[0] == '\0')) ifn = "-" ;
 
-	        cp = ifname ;
+	        cp = ifn ;
 	        pan += 1 ;
 	        rs = progfile(pip,app,ofp,cp) ;
 	        count += rs ;
@@ -1197,21 +1208,18 @@ const char	*afname ;
 /* end subroutine (procargs) */
 
 
-static int procmsgfile(pip,app,ofp,fp,fl)
-PROGINFO	*pip ;
-PARAMOPT	*app ;
-void		*ofp ;
-const char	*fp ;
-int		fl ;
+static int procmsgfile(PROGINFO *pip,PARAMOPT *app,void *ofp,cchar *fp,int fl)
 {
 	NULSTR		f ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
-	const char	*fname ;
+	cchar		*fname ;
 	if ((rs = nulstr_start(&f,fp,fl,&fname)) >= 0) {
 	    rs = progfile(pip,app,ofp,fname) ;
 	    c = rs ;
-	    nulstr_finish(&f) ;
+	    rs1 = nulstr_finish(&f) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (nulstr) */
 	return (rs >= 0) ? c : rs ;
 }

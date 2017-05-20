@@ -773,6 +773,7 @@ static int txtindexes_dbproc(TXTINDEXES *op,time_t dt)
 	TXTINDEXES_MI	*mip = &op->mi ;
 	TXTINDEXFU	*hip ;
 	int		rs ;
+	int		c = 0 ;
 
 	hip = &op->ifi ;
 	if ((rs = txtindexfu(hip,1,fip->mapdata,fip->mapsize)) >= 0) {
@@ -784,6 +785,7 @@ static int txtindexes_dbproc(TXTINDEXES *op,time_t dt)
 	        mip->ertab = (int *) (fip->mapdata + hip->eroff) ;
 	        mip->eitab = (int (*)[3]) (fip->mapdata + hip->eioff) ;
 	        mip->table = (uint *) (fip->mapdata + hip->taboff) ;
+		c = hip->taglen ;
 	    }
 	}
 
@@ -791,7 +793,7 @@ static int txtindexes_dbproc(TXTINDEXES *op,time_t dt)
 	debugprintf("txtindexes_dbproc: ret rs=%d\n",rs) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (txtindexes_dbproc) */
 

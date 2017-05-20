@@ -95,7 +95,6 @@ int chowns(cchar *dname,uid_t uid,gid_t gid)
 	CHECKINFO	ci ;
 	int		rs ;
 	char		dirbuf[MAXPATHLEN + 1] ;
-	char		*bp ;
 
 #if	CF_DEBUGS
 	debugprintf("chowns: ent dir=%s\n",dir) ;
@@ -107,6 +106,7 @@ int chowns(cchar *dname,uid_t uid,gid_t gid)
 
 	if ((rs = mkpath1(dirbuf,dname)) >= 0) {
 	    cchar	*cp = dirbuf ;
+	    char	*bp ;
 	    while ((bp = strchr(cp,'/')) != NULL) {
 	        *bp = '\0' ;
 	        if (((bp - cp) > 0) && (strcmp(cp,".") != 0)) {
@@ -129,9 +129,7 @@ int chowns(cchar *dname,uid_t uid,gid_t gid)
 /* local subroutines */
 
 
-static int checkdir(cip,dirbuf)
-struct checkinfo	*cip ;
-const char		dirbuf[] ;
+static int checkdir(CHECKINFO *cip,cchar *dirbuf)
 {
 	struct ustat	sb ;
 	int		rs ;

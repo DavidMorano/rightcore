@@ -76,9 +76,10 @@ static GETNGROUPS	getngroups_data ; /* zero-initialized */
 int getngroups()
 {
 	GETNGROUPS	*gnp = &getngroups_data ;
-	int		rs = SR_OK ;
+	int		rs ;
 	if (gnp->n == 0) {
-	    if ((rs = uc_sysconf(_SC_NGROUPS_MAX,NULL)) >= 0) {
+	    const int	cmd = _SC_NGROUPS_MAX ;
+	    if ((rs = uc_sysconf(cmd,NULL)) >= 0) {
 	        gnp->n = rs ;
 	    }
 	} else {

@@ -117,6 +117,8 @@ extern int	pcsgetprog(cchar *,char *,cchar *) ;
 extern int	pcsngdname(cchar *,char *,cchar *,cchar *) ;
 extern int	pcsname(cchar *,char *,int,cchar *) ;
 extern int	pcsfullname(cchar *,char *,int,cchar *) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -364,7 +366,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
-	USERINFO	u ;
 	TMZ		stz ;
 	bfile		errfile ;
 
@@ -920,6 +921,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -937,10 +940,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -968,6 +972,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* initialization after argument capture */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 	if (ifname == NULL) ifname = getenv(VARIFNAME) ;
 	if (cfname == NULL) cfname = getenv(VARCFNAME) ;
@@ -975,39 +984,33 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-	rs = initnow(&pip->now,pip->zname,DATER_ZNAMESIZE) ;
-	if (rs < 0) goto retearly ;
+	if (rs >= 0) {
+	    rs = initnow(&pip->now,pip->zname,DATER_ZNAMESIZE) ;
+	    pip->daytime = pip->now.time ;
+	}
 
-	pip->daytime = pip->now.time ;
 
 /* program options */
 
-	rs = procopts(pip,&akopts) ;
-
-	if (pip->lfname == NULL) pip->lfname = getenv(VARLFNAME) ;
-
-/* other initialization */
-
 	if (rs >= 0) {
-	    if ((rs = tmz_isset(&stz)) > 0) {
-	        TMTIME	tmt ;
-	        if (! stz.f.year) {
-	            rs = tmtime_localtime(&tmt,pip->daytime) ;
-	            stz.st.tm_year = tmt.year ;
-	        } /* end if (getting the current year) */
-	        if (rs >= 0) {
-	            time_t	t ;
-	            tmtime_insert(&tmt,&stz.st) ;
-	            if ((rs = tmtime_mktime(&tmt,&t)) >= 0)
-	                pip->ti_expires = t ;
-	        }
-	    } /* end if (expiration specified) */
+	    if ((rs = procopts(pip,&akopts)) >= 0) {
+	        if (pip->lfname == NULL) pip->lfname = getenv(VARLFNAME) ;
+	        if ((rs = tmz_isset(&stz)) > 0) {
+	            TMTIME	tmt ;
+	            if (! stz.f.year) {
+	                rs = tmtime_localtime(&tmt,pip->daytime) ;
+	                stz.st.tm_year = tmt.year ;
+	            } /* end if (getting the current year) */
+	            if (rs >= 0) {
+	                time_t	t ;
+	                tmtime_insert(&tmt,&stz.st) ;
+	                if ((rs = tmtime_mktime(&tmt,&t)) >= 0) {
+	                    pip->ti_expires = t ;
+			}
+	            }
+	        } /* end if (expiration specified) */
+	    } /* end if (procopts) */
 	} /* end if (ok) */
-
-	if (rs < 0) {
-	    ex = EX_USAGE ;
-	    goto retearly ;
-	}
 
 	pip->newsdname = ndname ;
 
@@ -1021,77 +1024,81 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ainfo.ai_max = ai_max ;
 	ainfo.ai_pos = ai_pos ;
 
-	if ((rs = userinfo_start(&u,NULL)) >= 0) {
-	    if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-	        PCSCONF	pc, *pcp = &pc ;
-	        cchar	*pr = pip->pr ;
-	        if (cfname != NULL) {
-	            if (pip->euid != pip->uid) u_seteuid(pip->uid) ;
-	            if (pip->egid != pip->gid) u_setegid(pip->gid) ;
-	        }
-	        if ((rs = pcsconf_start(pcp,pr,envv,cfname)) >= 0) {
-	            pip->pcsconf = pcp ;
-	            pip->open.pcsconf = TRUE ;
-	            if ((rs = procpcsconf_begin(pip,pcp)) >= 0) {
-	                PCSPOLL		poll ;
-	                cchar		*sn = pip->searchname ;
-	                if ((rs = pcspoll_start(&poll,pcp,sn)) >= 0) {
-	                    if ((rs = proglog_begin(pip,&u)) >= 0) {
-	                        if ((rs = proguserlist_begin(pip)) >= 0) {
-	                            ARGINFO	*aip = &ainfo ;
-	                            cchar	*afn = afname ;
-	                            cchar	*ofn = ofname ;
-	                            cchar	*ifn = ifname ;
-
-	                            rs = procbase(pip,aip,&pargs,afn,ofn,ifn) ;
-
-#if	CF_DEBUG
-	                            if (DEBUGLEVEL(2))
-	                                debugprintf("main: procbase() rs=%d\n",
-	                                    rs) ;
-#endif
-
-	                            rs1 = proguserlist_end(pip) ;
+	if (rs >= 0) {
+	    USERINFO	u ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
+	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
+	            PCSCONF	pc, *pcp = &pc ;
+	            cchar	*pr = pip->pr ;
+	            if (cfname != NULL) {
+	                if (pip->euid != pip->uid) u_seteuid(pip->uid) ;
+	                if (pip->egid != pip->gid) u_setegid(pip->gid) ;
+	            }
+	            if ((rs = pcsconf_start(pcp,pr,envv,cfname)) >= 0) {
+	                pip->pcsconf = pcp ;
+	                pip->open.pcsconf = TRUE ;
+	                if ((rs = procpcsconf_begin(pip,pcp)) >= 0) {
+	                    PCSPOLL		poll ;
+	                    cchar		*sn = pip->searchname ;
+	                    if ((rs = pcspoll_start(&poll,pcp,sn)) >= 0) {
+	                        if ((rs = proglog_begin(pip,&u)) >= 0) {
+	                            if ((rs = proguserlist_begin(pip)) >= 0) {
+	                                ARGINFO	*aip = &ainfo ;
+				        BITS	*bop = &pargs ;
+	                                cchar	*afn = afname ;
+	                                cchar	*ofn = ofname ;
+	                                cchar	*ifn = ifname ;
+    
+	                                rs = procbase(pip,aip,bop,afn,ofn,ifn) ;
+    
+	                                rs1 = proguserlist_end(pip) ;
+	                                if (rs >= 0) rs = rs1 ;
+	                            } /* end if (proguserlist) */
+	                            rs1 = proglog_end(pip) ;
 	                            if (rs >= 0) rs = rs1 ;
-	                        } /* end if (proguserlist) */
-	                        rs1 = proglog_end(pip) ;
+	                        } /* end if (proglog) */
+	                        rs1 = pcspoll_finish(&poll) ;
 	                        if (rs >= 0) rs = rs1 ;
-	                    } /* end if (proglog) */
-	                    rs1 = pcspoll_finish(&poll) ;
-	                    if (rs >= 0) rs = rs1 ;
-	                } /* end if (pcspoll) */
+	                    } /* end if (pcspoll) */
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(2))
-	                    debugprintf("main: pcspoll_start() rs=%d\n",rs) ;
+	                    if (DEBUGLEVEL(2))
+	                        debugprintf("main: pcspoll_start() rs=%d\n",
+				rs) ;
 #endif
-	                rs1 = procpcsconf_end(pip) ;
+	                    rs1 = procpcsconf_end(pip) ;
+	                    if (rs >= 0) rs = rs1 ;
+	                } /* end if (procpcsconf) */
+	                pip->open.pcsconf = FALSE ;
+	                pip->pcsconf = NULL ;
+	                rs1 = pcsconf_finish(pcp) ;
 	                if (rs >= 0) rs = rs1 ;
-	            } /* end if (procpcsconf) */
-	            pip->open.pcsconf = FALSE ;
-	            pip->pcsconf = NULL ;
-	            rs1 = pcsconf_finish(pcp) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (pcsconf) */
-
+	            } /* end if (pcsconf) */
+    
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(2))
 	            debugprintf("main: pcsconf_start() rs=%d\n",rs) ;
 #endif
 
-	        rs1 = procuserinfo_end(pip) ;
+	            rs1 = procuserinfo_end(pip) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (procuserinfo) */
+	        rs1 = userinfo_finish(&u) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (procuserinfo) */
-	    rs1 = userinfo_finish(&u) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else if (rs < 0) {
-	    ex = EX_NOUSER ;
-	    bprintf(pip->efp,
-	        "%s: userinfo failure (%d)\n",
-	        pip->progname,rs) ;
+	    } else if (rs < 0) {
+	        fmt = "%s: userinfo failure (%d)\n" ;
+	        bprintf(pip->efp,fmt,pn,rs) ;
+	        ex = EX_NOUSER ;
+	    }
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
 	}
 
 /* done */
-done:
 	if ((rs < 0) && (ex == EX_OK)) {
 	    if (! pip->f.quiet) {
 	        bprintf(pip->efp,"%s: could not process (%d)\n",

@@ -14,8 +14,11 @@ vecint		integers, stores data
 
 hdb		you have to store the data yourself
 hdbstr		key-value strings, stores data for you
-
 mapstrint	map of strings to integers, stores data
+mapstrs		map of a string key with a string value
+setstr		set (unique) of strings
+osetstr		ordered set (unique) of string
+vsetstr		another ordered set (unique) of strings
 
 bits		dynamic (dynamically growable) bit array 
 

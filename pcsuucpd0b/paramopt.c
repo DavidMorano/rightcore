@@ -370,6 +370,17 @@ int paramopt_load(PARAMOPT *php,cchar *name,cchar *vbuf,int vlen)
 /* end subroutine (paramopt_load) */
 
 
+int paramopt_loaduniq(PARAMOPT *php,cchar *name,cchar *vp,int vl)
+{
+	int		rs ;
+	if ((rs = paramopt_haveval(php,name,vp,vl)) == 0) {
+	    rs = paramopt_load(php,name,vp,vl) ;
+	}
+	return rs ;
+}
+/* end subroutine (paramopt_loaduniq) */
+
+
 int paramopt_havekey(PARAMOPT *php,cchar *name)
 {
 	PARAMOPT_NAME	*pp ;
@@ -493,6 +504,7 @@ int paramopt_haveval(PARAMOPT *php,cchar *key,cchar *vp,int vl)
 {
 	PARAMOPT_CUR	cur ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 	if (php == NULL) return SR_FAULT ;
@@ -506,13 +518,15 @@ int paramopt_haveval(PARAMOPT *php,cchar *key,cchar *vp,int vl)
 	if ((rs = paramopt_curbegin(php,&cur)) >= 0) {
 	    int		f ;
 	    const char	*ccp ;
-	    while (paramopt_enumvalues(php,key,&cur,&ccp) >= 0) {
-	        if (ccp == NULL) continue ;
-	        f = (strwcmp(ccp,vp,vl) == 0) ;
-	        c += f ;
+	    while ((rs1 = paramopt_enumvalues(php,key,&cur,&ccp)) >= 0) {
+	        if (ccp != NULL) {
+	            f = (strwcmp(ccp,vp,vl) == 0) ;
+	            c += f ;
+		}
 	    } /* end while */
+	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
 	    paramopt_curend(php,&cur) ;
-	} /* end if */
+	} /* end if (paramopt-cur) */
 
 	return (rs >= 0) ? c : rs ;
 }

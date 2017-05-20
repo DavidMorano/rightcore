@@ -1,2 +1,2 @@
 const char ismailaddr_makedate[] =
-"@(#)ismailaddr              170111_2128:31_USEST Rightcore Network Services¹" ;
+"@(#)ismailaddr              170517_2235:08_USEDT Rightcore Network Services" ;

@@ -40,10 +40,16 @@
 #include	<getbufsize.h>
 #include	<nulstr.h>
 #include	<getax.h>
+#include	<cfdec.h>
 #include	<localmisc.h>
 
 
 /* local defines */
+
+
+/* external subroutines */
+
+extern int	hasalldig(cchar *,int) ;
 
 
 /* exported subroutines */
@@ -74,5 +80,23 @@ int getpjid_name(cchar *np,int nl)
 	return (rs >= 0) ? pjid : rs ;
 }
 /* end subroutine (getpjid_name) */
+
+
+int getproj_pjid(cchar *np,int nl)
+{
+	int		rs ;
+	if (np == NULL) return SR_FAULT ;
+	if (np[0] == '\0') return SR_INVALID ;
+	if (hasalldig(np,nl)) {
+	    int	v ;
+	    if ((rs = cfdeci(np,nl,&v)) >= 0) {
+		rs = v ;
+	    }
+	} else {
+	    rs = getpjid_name(np,nl) ;
+	}
+	return rs ;
+}
+/* end subroutine (getproj_pjid) */
 
 

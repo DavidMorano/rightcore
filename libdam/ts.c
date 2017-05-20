@@ -119,7 +119,7 @@
 ******************************************************************************/
 
 
-#define	TS_MASTER		0
+#define	TS_MASTER	0
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -138,7 +138,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<vecstr.h>
@@ -273,15 +272,12 @@ mode_t		operm ;
 #endif
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 #endif /* CF_SAFE */
 
-	if (fname == NULL)
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
-	if (fname[0] == '\0')
-	    return SR_INVALID ;
+	if (fname[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
 	{

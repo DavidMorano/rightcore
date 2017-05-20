@@ -2077,8 +2077,9 @@ static int locinfo_prpcs(LOCINFO *lip)
 	        cchar	**vpp = &lip->pr_pcs ;
 	        rs = locinfo_setentry(lip,vpp,pbuf,rs) ;
 	    }
-	} else
+	} else {
 	    rs = strlen(lip->pr_pcs) ;
+	}
 
 	return rs ;
 }

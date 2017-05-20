@@ -221,13 +221,15 @@ extern int	field_word(FIELD *,const uchar *,const char **) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	pathclean(char *,const char *,int) ;
-extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
-extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	mkdirs(const char *,mode_t) ;
+extern int	chownsame(cchar *,cchar *) ;
+extern int	sperm(IDS *,struct ustat *,int) ;
+extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	hasuc(const char *,int) ;
 extern int	isalnumlatin(int) ;
 extern int	isdigitlatin(int) ;
 extern int	strpcmp(const char *,const char *) ;
+extern int	isOneOf(const int *,int) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
@@ -287,10 +289,8 @@ static int	bibleqs_infoloadbegin(BIBLEQS *,const char *,const char *) ;
 static int	bibleqs_infoloadend(BIBLEQS *) ;
 static int	bibleqs_indopen(BIBLEQS *,SUBINFO *) ;
 
-static int	bibleqs_indopencheck(BIBLEQS *,const char *) ;
-
 static int	bibleqs_indclose(BIBLEQS *) ;
-static int	bibleqs_indmk(BIBLEQS *,const char *,time_t) ;
+static int	bibleqs_indmk(BIBLEQS *,cchar *,time_t) ;
 static int	bibleqs_indmkeigen(BIBLEQS *,TXTINDEXMK *) ;
 static int	bibleqs_indmkdata(BIBLEQS *,TXTINDEXMK *) ;
 static int	bibleqs_dbmapcreate(BIBLEQS *,time_t) ;
@@ -303,10 +303,13 @@ static int	bibleqs_matchkeys(BIBLEQS *,SEARCHKEYS *,SEARCHKEYS_POP *,
 static int	bibleqs_loadbuf(BIBLEQS *,uint,char *,int) ;
 static int	bibleqs_mkhkeys(BIBLEQS *,vecstr *,SEARCHKEYS *) ;
 static int	bibleqs_indopenseq(BIBLEQS *,SUBINFO *) ;
-static int	bibleqs_indopenseqer(BIBLEQS *,SUBINFO *,DIRSEEN *,
-			vecstr *,EXPCOOK *) ;
+static int	bibleqs_indopenseqer(BIBLEQS *,SUBINFO *,DIRSEEN *,EXPCOOK *) ;
+static int	bibleqs_indopencheck(BIBLEQS *,cchar *) ;
+static int	bibleqs_indopenmk(BIBLEQS *,SUBINFO *,cchar *) ;
+
 static int	bibleqs_loadcooks(BIBLEQS *,EXPCOOK *) ;
-static int	bibleqs_indopenalt(BIBLEQS *,SUBINFO *,DIRSEEN *) ;
+static int	bibleqs_dirok(BIBLEQS *,DIRSEEN *,IDS *,cchar *,int) ;
+static int	bibleqs_mkdir(BIBLEQS *,cchar *) ;
 
 #if	CF_MKBIBLEQSI
 static int	bibleqs_mkbibleqsi(BIBLEQS *,const char *) ;
@@ -352,6 +355,8 @@ static int	mkfieldterms(uchar *) ;
 static int	vesrch(const void *,const void *) ;
 static int	vcmpint(const int *,const int *) ;
 
+static int	isNeedIndex(int) ;
+
 
 /* local variables */
 
@@ -383,11 +388,11 @@ static const char	*prbins[] = {
 } ;
 #endif /* CF_MKBIBLEQSI */
 
-static const char	*idxdirs[] = {
+static cchar	*idxdirs[] = {
+	"/var/tmp/%{PRN}/%S",
+	"/tmp/%{PRN}/%S",
 	"%R/var/%S",
-	"/var/tmp/%{PRN}",
 	"/var/tmp",
-	"/tmp/%{PRN}",
 	"/tmp",
 	"%T",
 	NULL
@@ -420,6 +425,11 @@ static const char	*strongseigens[] = {
 } ;
 
 #endif /* CF_EXTRASTRONG */
+
+static const int	rsneeds[] = {
+	SR_STALE,
+	0
+} ;
 
 
 /* exported subroutines */
@@ -854,20 +864,14 @@ static int bibleqs_indopenseq(BIBLEQS *op,SUBINFO *sip)
 	int		rs1 ;
 
 	if ((rs = dirseen_start(&ds)) >= 0) {
-	    vecstr	sdirs ;
-	    const int	vopts = VECSTR_OCOMPACT ;
-	    if ((rs = vecstr_start(&sdirs,6,vopts)) >= 0) {
 	        EXPCOOK	cooks ;
 	        if ((rs = expcook_start(&cooks)) >= 0) {
 	            if ((rs = bibleqs_loadcooks(op,&cooks)) >= 0) {
-	                rs = bibleqs_indopenseqer(op,sip,&ds,&sdirs,&cooks) ;
+	                rs = bibleqs_indopenseqer(op,sip,&ds,&cooks) ;
 	            }
 		    rs1 = expcook_finish(&cooks) ;
 		    if (rs < 0) rs = rs1 ;
 		} /* end if (cooks) */
-	        rs1 = vecstr_finish(&sdirs) ;
-	        if (rs < 0) rs = rs1 ;
-	    } /* end if (sdirs) */
 	    rs1 = dirseen_finish(&ds) ;
 	    if (rs < 0) rs = rs1 ;
 	} /* end if (ds) */
@@ -877,64 +881,101 @@ static int bibleqs_indopenseq(BIBLEQS *op,SUBINFO *sip)
 /* end subroutines (bibleqs_indopenseq) */
 
 
-static int bibleqs_indopenseqer(BIBLEQS *op,SUBINFO *sip,DIRSEEN *dsp,
-		vecstr *sdp,EXPCOOK *ecp)
+static int bibleqs_indopenseqer(BIBLEQS *op,SUBINFO *sip,
+		DIRSEEN *dsp,EXPCOOK *ckp)
 {
-	const int	rsn = SR_NOTFOUND ;
+	IDS		id ;
 	const int	elen = MAXPATHLEN ;
-	int		rs = SR_OK ;
-	int		i ;
-	char		ebuf[MAXPATHLEN + 1] ;
-	char		pbuf[MAXPATHLEN + 1] ;
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+
+#if	CF_DEBUGS
+	debugprintf("bibleqs_indopenseqer: ent\n") ;
+#endif
 
 /* first phase: expand possible directory paths */
 
-	for (i = 0 ; (rs >= 0) && (idxdirs[i] != NULL) ; i += 1) {
-	    if ((rs = expcook_exp(ecp,0,ebuf,elen,idxdirs[i],-1)) > 0) {
-		if ((rs = pathclean(pbuf,ebuf,rs)) > 0) {
-		    int		plen = rs ;
-		    if ((rs = dirseen_havename(dsp,pbuf,plen)) == rsn) {
-			rs = dirseen_add(dsp,pbuf,plen,NULL) ;
-		    }
-		}
-	    }
-	} /* end for */
+	if ((rs = ids_load(&id)) >= 0) {
+	    int		i ;
+	    char	ebuf[MAXPATHLEN + 1] ;
+	    char	pbuf[MAXPATHLEN + 1] ;
+	    for (i = 0 ; (rs >= 0) && (idxdirs[i] != NULL) ; i += 1) {
+	        cchar	*dir = idxdirs[i] ;
+	        if ((rs = expcook_exp(ckp,'\0',ebuf,elen,dir,-1)) >= 0) {
+	            if ((rs = pathclean(pbuf,ebuf,rs)) > 0) {
+		        if ((rs = bibleqs_dirok(op,dsp,&id,pbuf,rs)) > 0) {
+	            	    rs = bibleqs_indopencheck(op,pbuf) ;
+			    c = rs ;
+			    if ((rs < 0) && isNeedIndex(rs)) {
+			        rs = bibleqs_indopenmk(op,sip,pbuf) ;
+			        c = rs ;
+			    }
+		        } /* end if (bibleqs_dirok) */
+		    } /* end if (pathclean) */
+	        } /* end if (expcook_exp) */
+		if (c > 0) break ;
+	        if (rs < 0) break ;
+	    } /* end for */
+	    rs1 = ids_release(&id) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ids) */
 
-/* next phase: create DB file-paths from directories */
+#if	CF_DEBUGS
+	debugprintf("bibleqs_indopenseqer: ret rs=%d c=%u\n",rs,c) ;
+#endif
 
-	if (rs >= 0) {
-	    DIRSEEN_CUR	cur ;
-	    if ((rs = dirseen_curbegin(dsp,&cur)) >= 0) {
-		int	el ;
-	        while ((el = dirseen_enum(dsp,&cur,ebuf,elen)) >= 0) {
-	            if ((rs = mkpath2(pbuf,ebuf,op->dbname)) >= 0) {
-	                rs = vecstr_add(sdp,pbuf,rs) ;
-		    }
-	            if (rs < 0) break ;
-	        } /* end while */
-		if ((rs >= 0) && (el != SR_NOTFOUND)) rs = el ;
-	        dirseen_curend(dsp,&cur) ;
-	    } /* end if (dirseen-cur) */
-	} /* end if (ok) */
-
-/* final phase: try to open all of them in-sequence */
-
-	if (rs >= 0) {
-	    cchar	**dv ;
-	    if ((rs = vecstr_getvec(sdp,&dv)) >= 0) {
-	        for (i = 0 ; dv[i] != NULL ; i += 1) {
-	            rs = bibleqs_indopencheck(op,dv[i]) ;
-	            if ((rs >= 0) || (! isNotPresent(rs))) break ;
-	        } /* end for */
-	    } /* end if */
-	    if ((rs < 0) && isNotPresent(rs)) {
-	        rs = bibleqs_indopenalt(op,sip,dsp) ;
-	    }
-	} /* end if (ok) */
-
-	return rs ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutines (bibleqs_indopenseqer) */
+
+
+static int bibleqs_dirok(BIBLEQS *op,DIRSEEN *dsp,IDS *idp,
+		cchar *dp,int dl)
+{
+	const int	rsn = SR_NOTFOUND ;
+	int		rs ;
+	int		f_ok = FALSE ;
+	if ((rs = dirseen_havename(dsp,dp,dl)) == rsn) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(dp,&sb)) >= 0) {
+		if ((rs = dirseen_havedevino(dsp,&sb)) == rsn) {
+		    const int	am = (W_OK|R_OK|X_OK) ;
+		    if ((rs = sperm(idp,&sb,am)) >= 0) {
+			f_ok = TRUE ;
+		    } else if (isNotPresent(rs)) {
+			rs = dirseen_add(dsp,dp,dl,&sb) ;
+		    }
+		}
+	    } else if (isNotPresent(rs)) {
+		if ((rs = bibleqs_mkdir(op,dp)) > 0) {
+		    f_ok = TRUE ;
+		}
+	    }
+	} /* end if (dirseen_havename) */
+
+	return (rs >= 0) ? f_ok : rs ;
+}
+/* end subroutine (bibleqs_dirok) */
+
+
+static int bibleqs_mkdir(BIBLEQS *op,cchar *dp)
+{
+	const mode_t	dm = 0777 ;
+	int		rs ;
+	int		f_ok = FALSE ;
+	if ((rs = mkdirs(dp,dm)) >= 0) {
+	     if ((rs = uc_minmod(dp,dm)) >= 0) {
+		if ((rs = chownsame(dp,op->pr)) >= 0) {
+	            f_ok = TRUE ;
+	        }
+	    }
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	}
+	return (rs >= 0) ? f_ok : rs ;
+}
+/* end subroutine (bibleqs_mkdir) */
 
 
 static int bibleqs_loadcooks(BIBLEQS *op,EXPCOOK *ecp)
@@ -987,75 +1028,63 @@ static int bibleqs_loadcooks(BIBLEQS *op,EXPCOOK *ecp)
 /* end subroutines (bibleqs_loadcooks) */
 
 
-static int bibleqs_indopenalt(BIBLEQS *op,SUBINFO *sip,DIRSEEN *dsp)
-{
-	DIRSEEN_CUR	cur ;
-	int		rs ;
-	int		rs1 = SR_OK ;
-
-	if ((rs = dirseen_curbegin(dsp,&cur)) >= 0) {
-	    const int	elen = MAXPATHLEN ;
-	    char	ebuf[MAXPATHLEN + 1] ;
-	    char	indname[MAXPATHLEN + 1] ;
-
-	    while ((rs1 = dirseen_enum(dsp,&cur,ebuf,elen)) >= 0) {
-
-	        rs = bibleqs_indmk(op,ebuf,sip->dt) ;
-
-	        if (rs >= 0)
-	            rs = mkpath2(indname,ebuf,op->dbname) ;
-
-	        if (rs >= 0) {
-	            rs = txtindex_open(&op->ind,op->pr,indname) ;
-	            op->f.ind = (rs >= 0) ;
-#if	CF_DEBUGS
-	            debugprintf("bibleqs_indopenalt: txtindex_open() rs=%d\n",
-	                rs) ;
-#endif
-	        }
-
-	        if ((rs >= 0) || (! isNotPresent(rs))) break ;
-	    } /* end while */
-	    if ((rs >= 0) && (rs1 != SR_NOTFOUND) && (rs1 != SR_ACCESS))
-	        rs = rs1 ;
-
-	    rs1 = dirseen_curend(dsp,&cur) ;
-	    if (rs < 0) rs = rs1 ;
-	} /* end if (dirseen) */
-
-	return rs ;
-}
-/* end subroutines (bibleqs_indopenalt) */
-
-
-static int bibleqs_indopencheck(BIBLEQS *op,cchar *dbname)
+static int bibleqs_indopencheck(BIBLEQS *op,cchar *idir)
 {
 	int		rs ;
+	int		c = 0 ;
+	char		tbuf[MAXPATHLEN+1] ;
 
 #if	CF_DEBUGS
-	debugprintf("bibleqs_indopencheck: ent dbname=%s\n",dbname) ;
+	debugprintf("bibleqs_indopencheck: ent idxdir=%s\n",idir) ;
 #endif
 
-	if ((rs = txtindex_open(&op->ind,op->pr,dbname)) >= 0) {
-	    TXTINDEX_INFO	tinfo ;
+	if ((rs = mkpath2(tbuf,idir,op->dbname)) >= 0) {
+	    if ((rs = txtindex_open(&op->ind,op->pr,tbuf)) >= 0) {
+	        TXTINDEX_INFO	tinfo ;
+		c = rs ;
 #if	CF_DEBUGS
-	    debugprintf("bibleqs_indopencheck: txtindex_open() rs=%d\n",rs) ;
+	        debugprintf("bibleqs_indopencheck: txtindex_open() rs=%d\n",
+			rs) ;
 #endif
-	    if ((rs = txtindex_info(&op->ind,&tinfo)) >= 0) {
-	        if (tinfo.ctime < op->ti_db) rs = SR_STALE ;
-	    } /* end if (txtindex_info) */
-	    if (rs < 0)
-	        txtindex_close(&op->ind) ;
-	} /* end if (txtindex_open) */
-	op->f.ind = (rs >= 0) ;
+	        if ((rs = txtindex_info(&op->ind,&tinfo)) >= 0) {
+	            if (tinfo.ctime < op->ti_db) rs = SR_STALE ;
+	        } /* end if (txtindex_info) */
+	        if (rs < 0)
+	            txtindex_close(&op->ind) ;
+	    } /* end if (txtindex_open) */
+	    op->f.ind = (rs >= 0) ;
+	} /* end if (mkpath) */
 
 #if	CF_DEBUGS
 	debugprintf("bibleqs_indopencheck: ret rs=%d\n",rs) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (bibleqs_indopencheck) */
+
+
+static int bibleqs_indopenmk(BIBLEQS *op,SUBINFO *sip,cchar *idir)
+{
+	int		rs ;
+	int		c = 0 ;
+
+	if ((rs = bibleqs_indmk(op,idir,sip->dt)) >= 0) {
+	    char	tbuf[MAXPATHLEN+1] ;
+	    if ((rs = mkpath2(tbuf,idir,op->dbname)) >= 0) {
+	        rs = txtindex_open(&op->ind,op->pr,tbuf) ;
+		c = rs ;
+	        op->f.ind = (rs >= 0) ;
+#if	CF_DEBUGS
+	        debugprintf("bibleqs_indopenalt: txtindex_open() rs=%d\n",
+	            rs) ;
+#endif
+	    } /* end if (mkpath) */
+	} /* end if (bibleqs_indmk) */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutines (bibleqs_indopenmk) */
 
 
 static int bibleqs_indmk(BIBLEQS *op,cchar *dname,time_t dt)
@@ -2576,5 +2605,15 @@ static int vcmpint(const int *i1p,const int *i2p)
 	return rc ;
 }
 /* end subroutine (vcmpint) */
+
+
+static int isNeedIndex(int rs)
+{
+	int		f = FALSE ;
+	f = f || isOneOf(rsneeds,rs) ;
+	f = f || isNotPresent(rs) ;
+	return f ;
+}
+/* end subroutine (isNeedIndex) */
 
 

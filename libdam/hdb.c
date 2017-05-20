@@ -138,7 +138,7 @@
 #define HDB_VE			struct hdb_ve
 
 #define	ENTRYINFO		struct entryinfo
-#define	FETCHCURSOR		struct fetchcursor
+#define	FETCHCUR		struct fetchcursor
 
 
 /* external subroutines */
@@ -192,13 +192,13 @@ static uint	defhashfunc(const void *,int) ;
 
 int		hdb_delall(HDB *) ;
 int		hdb_fetchrec(HDB *,HDB_DATUM,HDB_CUR *,
-HDB_DATUM *,HDB_DATUM *) ;
+			HDB_DATUM *,HDB_DATUM *) ;
 int		hdb_enum(HDB *,HDB_CUR *,HDB_DATUM *,HDB_DATUM *) ;
 
 static int	hdb_entnew(HDB *,HDB_ENT **) ;
 static int	hdb_entdel(HDB *,HDB_ENT *) ;
 
-static int	hdb_findkeyentry(HDB *,FETCHCURSOR *,HDB_DATUM *,HDB_ENT **) ;
+static int	hdb_findkeyentry(HDB *,FETCHCUR *,HDB_DATUM *,HDB_ENT **) ;
 static int	hdb_get(HDB *,int,HDB_DATUM,HDB_CUR *,HDB_DATUM *,HDB_DATUM *) ;
 
 static int	hdb_ext(HDB *) ;
@@ -208,7 +208,7 @@ static int	hdb_getentry(HDB *,ENTRYINFO *,HDB_CUR *) ;
 
 static int	entry_load(HDB_ENT *,uint,HDB_DATUM *,HDB_DATUM *) ;
 static int	entry_match(HDB_ENT *,int (*)(const void *,const void *,int),
-uint,HDB_DATUM *) ;
+			uint,HDB_DATUM *) ;
 
 #if	CF_AUDITENTRY && CF_DEBUGS
 static int	entry_audit(HDB_ENT *) ;
@@ -217,9 +217,9 @@ static int	entry_audit(HDB_ENT *) ;
 static int	cursor_stabilize(HDB_CUR *) ;
 static int	cursor_inc(HDB_CUR *) ;
 
-static int	fetchcursor_start(FETCHCURSOR *,uint (*)(const void *,int),
-int,HDB_CUR *,HDB_DATUM *) ;
-static int	fetchcursor_adv(FETCHCURSOR *) ;
+static int	fetchcur_start(FETCHCUR *,uint (*)(const void *,int),
+			int,HDB_CUR *,HDB_DATUM *) ;
+static int	fetchcur_adv(FETCHCUR *) ;
 
 static HDB_ENT	**getpoint(HDB *,uint,HDB_DATUM *) ;
 
@@ -265,6 +265,7 @@ int hdb_start(HDB *op,int n,int at,uint (* hashfunc)(),int (* cmpfunc)())
 	    size = sizeof(HDB_ENT) ;
 	    rs = lookaside_start(&op->es,size,lan) ;
 	}
+
 	if (rs >= 0) {
 	    HDB_ENT	**hepp ;
 	    size = n * sizeof(HDB_ENT *) ;
@@ -297,8 +298,7 @@ int hdb_start(HDB *op,int n,int at,uint (* hashfunc)(),int (* cmpfunc)())
 
 ****/
 
-int hdb_finish(op)
-HDB		*op ;
+int hdb_finish(HDB *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -327,8 +327,7 @@ HDB		*op ;
 /* end subroutine (hdb_finish) */
 
 
-int hdb_delall(op)
-HDB		*op ;
+int hdb_delall(HDB *op)
 {
 	HDB_ENT		*hp, *next, *nhp, *nnhp ;
 	HDB_ENT		**hepp ;
@@ -532,8 +531,7 @@ int hdb_delcur(HDB *op,HDB_CUR *curp,int f_adv)
 	HDB_ENT		*pkep = NULL ;
 	HDB_CUR		ncur ;
 	ENTRYINFO	ei ;
-	int		rs = SR_OK ;
-	int		i, j ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
@@ -548,6 +546,7 @@ int hdb_delcur(HDB *op,HDB_CUR *curp,int f_adv)
 	cursor_stabilize(curp) ;
 
 	if ((rs = hdb_getentry(op,&ei,curp)) >= 0) {
+	    int		i, j ;
 
 /* do it (delete the entry) */
 
@@ -569,8 +568,9 @@ int hdb_delcur(HDB *op,HDB_CUR *curp,int f_adv)
 	                        break ;
 	                }
 	                ncur.i = i ;
-	            } else
+	            } else {
 	                ncur.j += 1 ;
+		    }
 	        } /* end if */
 	    } else {
 	        if (curp->k == 0) {
@@ -626,13 +626,15 @@ int hdb_delcur(HDB *op,HDB_CUR *curp,int f_adv)
 	            if (ep->same != NULL) {
 	                (ep->same)->next = ep->next ;
 	                pjep->next = ep->same ;
-	            } else
+	            } else {
 	                pjep->next = ep->next ;
+		    }
 
 	        } /* end if */
 
-	    } else
+	    } else {
 	        pkep->same = ep->same ;
+	    }
 
 /* update cursor */
 
@@ -667,24 +669,24 @@ int hdb_nextrec(HDB *op,HDB_DATUM key,HDB_CUR *curp)
 
 
 /* subroutine to fetch the next data corresponding to a key */
-int hdb_fetch(HDB *op,HDB_DATUM key,HDB_CUR *curp,HDB_DATUM *valuep)
+int hdb_fetch(HDB *op,HDB_DATUM key,HDB_CUR *curp,HDB_DATUM *valp)
 {
-	return hdb_fetchrec(op,key,curp,NULL,valuep) ;
+	return hdb_fetchrec(op,key,curp,NULL,valp) ;
 }
 /* end subroutine (hdb_fetch) */
 
 
 /* fetch the next whole record by key-cursor combination */
-int hdb_fetchrec(op,key,curp,keyp,valuep)
+int hdb_fetchrec(op,key,curp,keyp,valp)
 HDB		*op ;
 HDB_DATUM	key ;
 HDB_CUR		*curp ;
 HDB_DATUM	*keyp ;
-HDB_DATUM	*valuep ;
+HDB_DATUM	*valp ;
 {
 	HDB_ENT		*ep ;
 	HDB_CUR		ncur ;
-	FETCHCURSOR	fc ;
+	FETCHCUR	fc ;
 	int		rs ;
 	int		htlen ;
 
@@ -713,20 +715,21 @@ HDB_DATUM	*valuep ;
 
 	if (curp != NULL) {
 	    ncur = *curp ;
-	} else
+	} else {
 	    ncur = icur ;
+	}
 
 /* find it if we have it */
 
 #if	CF_DEBUGS
-	debugprintf("hdb_fetchrec: fetchcursor_start()\n") ;
+	debugprintf("hdb_fetchrec: fetchcur_start()\n") ;
 #endif
 
 	htlen = op->htlen ;
-	if ((rs = fetchcursor_start(&fc,op->hashfunc,htlen,&ncur,&key)) >= 0) {
+	if ((rs = fetchcur_start(&fc,op->hashfunc,htlen,&ncur,&key)) >= 0) {
 
 #if	CF_DEBUGS
-	    debugprintf("hdb_fetchrec: fetchcursor_start() rs=%d\n",rs) ;
+	    debugprintf("hdb_fetchrec: fetchcur_start() rs=%d\n",rs) ;
 	    debugprintf("hdb_fetchrec: NCUR ci=%d cj=%d ck=%d\n",
 	        ncur.i,ncur.j,ncur.k) ;
 #endif
@@ -737,7 +740,7 @@ HDB_DATUM	*valuep ;
 	    debugprintf("hdb_fetchrec: hdb_findkeyentry() rs=%d\n",rs) ;
 #endif
 
-	    if ((rs == SR_NOTFOUND) && (fetchcursor_adv(&fc) >= 0)) {
+	    if ((rs == SR_NOTFOUND) && (fetchcur_adv(&fc) >= 0)) {
 
 #if	CF_DEBUGS
 	        debugprintf("hdb_fetchrec: ADV ci=%d cj=%d ck=%d\n",
@@ -756,18 +759,18 @@ HDB_DATUM	*valuep ;
 	        if (curp != NULL) *curp = ncur ;
 	        if (ep != NULL) {
 	            if (keyp != NULL) *keyp = ep->key ;
-	            if (valuep != NULL) *valuep = ep->val ;
+	            if (valp != NULL) *valp = ep->val ;
 	        }
 	    }
 
 #if	CF_DEBUGS
-	    if ((rs >= 0) && (valuep != NULL) && (valuep->buf != NULL)) {
-	        mkprstr(prbuf,HDB_PRBUFLEN,valuep->buf,valuep->len) ;
+	    if ((rs >= 0) && (valp != NULL) && (valp->buf != NULL)) {
+	        mkprstr(prbuf,HDB_PRBUFLEN,valp->buf,valp->len) ;
 	        debugprintf("hdb_fetchrec: val=>%s<\n",prbuf) ;
 	    }
 #endif
 
-	} /* end if (fetchcursor_start) */
+	} /* end if (fetchcur_start) */
 
 #if	CF_DEBUGS
 	debugprintf("hdb_fetchrec: ret rs=%d ci=%d cj=%d ck=%d\n",
@@ -776,7 +779,7 @@ HDB_DATUM	*valuep ;
 
 	if (rs < 0) {
 	    if (keyp != NULL) *keyp = nulldatum ;
-	    if (valuep != NULL) *valuep = nulldatum ;
+	    if (valp != NULL) *valp = nulldatum ;
 	} /* end if */
 
 #if	CF_DEBUGS
@@ -789,11 +792,11 @@ HDB_DATUM	*valuep ;
 
 
 /* get the current record under the CURRENT cursor regardless of key */
-int hdb_getrec(op,curp,keyp,valuep)
+int hdb_getrec(op,curp,keyp,valp)
 HDB		*op ;
 HDB_CUR		*curp ;
 HDB_DATUM	*keyp ;
-HDB_DATUM	*valuep ;
+HDB_DATUM	*valp ;
 {
 	int		rs ;
 
@@ -801,7 +804,7 @@ HDB_DATUM	*valuep ;
 	debugprintf("hdb_getrec: ent\n") ;
 #endif
 
-	rs = hdb_get(op,FALSE,nulldatum,curp,keyp,valuep) ;
+	rs = hdb_get(op,FALSE,nulldatum,curp,keyp,valp) ;
 
 	return rs ;
 }
@@ -809,16 +812,16 @@ HDB_DATUM	*valuep ;
 
 
 /* get the current record under the cursor but only if it matches the key */
-int hdb_getkeyrec(op,key,curp,keyp,valuep)
+int hdb_getkeyrec(op,key,curp,keyp,valp)
 HDB		*op ;
 HDB_DATUM	key ;
 HDB_CUR		*curp ;
 HDB_DATUM	*keyp ;
-HDB_DATUM	*valuep ;
+HDB_DATUM	*valp ;
 {
 	int		rs ;
 
-	rs = hdb_get(op,TRUE,key,curp,keyp,valuep) ;
+	rs = hdb_get(op,TRUE,key,curp,keyp,valp) ;
 
 	return rs ;
 }
@@ -849,7 +852,7 @@ int hdb_next(HDB *op,HDB_CUR *curp)
 
 ****/
 
-int hdb_enum(HDB *op,HDB_CUR *curp,HDB_DATUM *keyp,HDB_DATUM *valuep)
+int hdb_enum(HDB *op,HDB_CUR *curp,HDB_DATUM *keyp,HDB_DATUM *valp)
 {
 	HDB_ENT		*ep = NULL ;
 	HDB_ENT		*jep ;
@@ -864,8 +867,9 @@ int hdb_enum(HDB *op,HDB_CUR *curp,HDB_DATUM *keyp,HDB_DATUM *valuep)
 
 	if (curp != NULL) {
 	    ncur = *curp ;
-	} else
+	} else {
 	    ncur = icur ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("hdb_enum: ent ci=%d cj=%d ck=%d\n",
@@ -919,7 +923,7 @@ int hdb_enum(HDB *op,HDB_CUR *curp,HDB_DATUM *keyp,HDB_DATUM *valuep)
 	if ((rs >= 0) && (ep != NULL)) {
 	    if (curp != NULL) *curp = ncur ;
 	    if (keyp != NULL) *keyp = ep->key ;
-	    if (valuep != NULL) *valuep = ep->val ;
+	    if (valp != NULL) *valp = ep->val ;
 	} /* end if (found an entry) */
 
 #if	CF_DEBUGS
@@ -1174,11 +1178,7 @@ static int hdb_entdel(HDB *op,HDB_ENT *ep)
 
 
 /* find an entry that matches our key */
-static int hdb_findkeyentry(op,fcp,kp,epp)
-HDB		*op ;
-FETCHCURSOR	*fcp ;
-HDB_DATUM	*kp ;
-HDB_ENT		**epp ;
+static int hdb_findkeyentry(HDB *op,FETCHCUR *fcp,HDB_DATUM *kp,HDB_ENT **epp)
 {
 	HDB_CUR		*curp = fcp->curp ;
 	HDB_ENT		*jep, *ep ;
@@ -1267,13 +1267,13 @@ HDB_ENT		**epp ;
 /* end subroutine (hdb_findkeyentry) */
 
 
-static int hdb_get(op,f,key,curp,keyp,valuep)
+static int hdb_get(op,f,key,curp,keyp,valp)
 HDB		*op ;
 int		f ;
 HDB_DATUM	key ;
 HDB_CUR		*curp ;
 HDB_DATUM	*keyp ;
-HDB_DATUM	*valuep ;
+HDB_DATUM	*valp ;
 {
 	ENTRYINFO	ei ;
 	int		rs ;
@@ -1308,14 +1308,14 @@ HDB_DATUM	*valuep ;
 
 	    if (rs >= 0) {
 	        if (keyp != NULL) *keyp = ep->key ;
-	        if (valuep != NULL) *valuep = ep->val ;
+	        if (valp != NULL) *valp = ep->val ;
 	    }
 
 	} /* end if (entry found) */
 
 	if (rs < 0) {
 	    if (keyp != NULL) *keyp = nulldatum ;
-	    if (valuep != NULL) *valuep = nulldatum ;
+	    if (valp != NULL) *valp = nulldatum ;
 	}
 
 #if	CF_DEBUGS
@@ -1685,8 +1685,8 @@ static int cursor_inc(HDB_CUR *curp)
 /* end subroutine (cursor_inc) */
 
 
-static int fetchcursor_start(fcp,hfp,htl,curp,kp)
-FETCHCURSOR	*fcp ;
+static int fetchcur_start(fcp,hfp,htl,curp,kp)
+FETCHCUR	*fcp ;
 uint		(*hfp)(const void *,int) ;
 int		htl ;
 HDB_CUR		*curp ;
@@ -1697,8 +1697,8 @@ HDB_DATUM	*kp ;
 	if (curp->i < htl) {
 
 #if	CF_DEBUGS
-	    debugprintf("hdb/fetchcursor_start: htl=%u\n",htl) ;
-	    debugprintf("hdb/fetchcursor_start: c=(%d,%d,%d)\n",
+	    debugprintf("hdb/fetchcur_start: htl=%u\n",htl) ;
+	    debugprintf("hdb/fetchcur_start: c=(%d,%d,%d)\n",
 	        curp->i,curp->j,curp->k) ;
 #endif
 
@@ -1712,14 +1712,14 @@ HDB_DATUM	*kp ;
 /* the hash on the key is always needed for key-matching */
 
 #if	CF_DEBUGS
-	    debugprintf("hdb/fetchcursor_start: key=>%t<\n",
+	    debugprintf("hdb/fetchcur_start: key=>%t<\n",
 	        kp->buf,strnnlen(kp->buf,kp->len,40)) ;
 #endif
 
 	    fcp->hv = (*fcp->hfp)(kp->buf,kp->len) ;
 
 #if	CF_DEBUGS
-	    debugprintf("hdb/fetchcursor_start: hv=%08x\n",fcp->hv) ;
+	    debugprintf("hdb/fetchcur_start: hv=%08x\n",fcp->hv) ;
 #endif
 
 /* continue */
@@ -1743,15 +1743,15 @@ HDB_DATUM	*kp ;
 	}
 
 #if	CF_DEBUGS
-	debugprintf("hdb/fetchcursor_start: ret rs=%d\n",rs) ;
+	debugprintf("hdb/fetchcur_start: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
 }
-/* end subroutine (fetchcursor_start) */
+/* end subroutine (fetchcur_start) */
 
 
-static int fetchcursor_adv(FETCHCURSOR *fcp)
+static int fetchcur_adv(FETCHCUR *fcp)
 {
 	HDB_CUR		*curp = fcp->curp ;
 	int		rs = SR_ALREADY ;
@@ -1774,13 +1774,11 @@ static int fetchcursor_adv(FETCHCURSOR *fcp)
 
 	return (rs >= 0) ? curp->i : rs ;
 }
-/* end subroutine (fetchcursor_adv) */
+/* end subroutine (fetchcur_adv) */
 
 
 /* default hash function */
-static uint defhashfunc(buf,buflen)
-const void	*buf ;
-int		buflen ;
+static uint defhashfunc(const void *buf,int buflen)
 {
 	register unsigned	h = 0, g ;
 	const char		*s = (const char *) buf ;

@@ -32,8 +32,8 @@
 
 
 struct paramopt_value {
-	struct paramopt_value	*next ;
-	const char		*value ;
+	PARAMOPT_VALUE	*next ;
+	const char	*value ;
 } ;
 
 struct paramopt_name {
@@ -68,6 +68,7 @@ extern int paramopt_start(PARAMOPT *) ;
 extern int paramopt_loadu(PARAMOPT *,cchar *,int) ;
 extern int paramopt_loads(PARAMOPT *,cchar *,cchar *,int) ;
 extern int paramopt_load(PARAMOPT *,cchar *,cchar *,int) ;
+extern int paramopt_loaduniq(PARAMOPT *,cchar *,cchar *,int) ;
 extern int paramopt_havekey(PARAMOPT *,cchar *) ;
 extern int paramopt_haveval(PARAMOPT *,cchar *,cchar *,int) ;
 extern int paramopt_countvals(PARAMOPT *,cchar *) ;

@@ -1,24 +1,25 @@
 /* format a file into pages for a printer */
 
 /*
-	David A.D. Morano
-	September 1987
+
+	= 1998-09-01, David A.D. Morano
+
 */
 
-/*******************************************************************
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-	This program will read the input file and
-	copy it line by line to the output, except that
-	it will prepend some leading spaces on each line.
-	Also, only 60 lines will be printed on each page
-	and a page header and trailer will also be written.
+/*******************************************************************************
 
-
-*********************************************************************/
+        This program will read the input file and copy it line by line to the
+        output, except that it will prepend some leading spaces on each line.
+        Also, only 60 lines will be printed on each page and a page header and
+        trailer will also be written.
 
 
+*******************************************************************************/
 
-#include	"rel.h"
+
+#include	<envstandards.h>
 
 #include	<fcntl.h>
 
@@ -27,6 +28,8 @@
 #include	"bfile.h"
 
 #include	<stdio.h>
+
+#include	"rel.h"
 
 
 

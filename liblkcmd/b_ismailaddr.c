@@ -344,10 +344,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
-	    rs = debugopen(cp) ;
-	    debugprintf("mainsub: starting DFD=%d\n",rs) ;
-	}
+	    if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	        rs = debugopen(cp) ;
+	        debugprintf("mainsub: starting DFD=%d\n",rs) ;
+	    }
 #endif /* CF_DEBUGS */
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -362,7 +362,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -762,9 +762,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* process program options */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 /* find and load the "localnames" file DB */
 
@@ -809,21 +816,21 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    USERINFO	u ;
 	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
 	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-	                        if ((rs = proglog_begin(pip,&u)) >= 0) {
-	                            if ((rs = proguserlist_begin(pip)) >= 0) {
-				        ARGINFO	*aip = &ainfo ;
-				        BITS	*bop = &pargs ;
-	                                cchar	*afn = afname ;
-	                                cchar	*ofn = ofname ;
-
-	                                rs = procargs(pip,aip,bop,ofn,afn) ;
-
-	                                rs1 = proguserlist_end(pip) ;
-				        if (rs >= 0) rs = rs1 ;
-	                            } /* end if (proguserlist) */
-	                            rs1 = proglog_end(pip) ;
-	                            if (rs >= 0) rs = rs1 ;
-	                        } /* end if (proglog) */
+		    if ((rs = proglog_begin(pip,&u)) >= 0) {
+			if ((rs = proguserlist_begin(pip)) >= 0) {
+			    {
+				ARGINFO	*aip = &ainfo ;
+				BITS	*bop = &pargs ;
+	        		cchar	*afn = afname ;
+	          		cchar	*ofn = ofname ;
+	          		rs = procargs(pip,aip,bop,ofn,afn) ;
+			    }
+			    rs1 = proguserlist_end(pip) ;
+			    if (rs >= 0) rs = rs1 ;
+			} /* end if (proguserlist) */
+			rs1 = proglog_end(pip) ;
+			if (rs >= 0) rs = rs1 ;
+		    } /* end if (proglog) */
 		    rs1 = procuserinfo_end(pip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (procuserinfo) */
@@ -996,7 +1003,7 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-static int locinfo_pwi(LOCINFO *lip,cchar rndbfname[])
+static int locinfo_pwi(LOCINFO *lip,cchar *rndbfname)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
@@ -1015,7 +1022,7 @@ static int locinfo_pwi(LOCINFO *lip,cchar rndbfname[])
 /* end subroutine (locinfo_pwi) */
 
 
-static int locinfo_pwilookup(LOCINFO *lip,cchar name[])
+static int locinfo_pwilookup(LOCINFO *lip,cchar *name)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
@@ -1187,7 +1194,7 @@ static int locinfo_loadnames(LOCINFO *lip,cchar *lnfname)
 /* end subroutine (locinfo_loadnames) */
 
 
-static int locinfo_loadone(LOCINFO *lip,cchar namep[],int namel)
+static int locinfo_loadone(LOCINFO *lip,cchar *namep,int namel)
 {
 	PROGINFO	*pip = lip->pip ;
 	NULSTR		s ;
@@ -1491,16 +1498,16 @@ static int procnames(PROGINFO *pip,void *ofp,cchar *sp,int sl)
 
 
 /* process a mail-address */
-static int procname(PROGINFO *pip,void *ofp,cchar namep[],int namel)
+static int procname(PROGINFO *pip,void *ofp,cchar *namep,int namel)
 {
 	LOCINFO		*lip = pip->lip ;
-	int		rs = SR_OK ;
-	int		mal ;
+	int		rs ;
 	int		type = 0 ;
 	int		ans ;
 	int		wlen = 0 ;
 	int		f = FALSE ;
-	cchar		*map ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 	char		mailaddr[MAILADDRLEN + 1] ;
 	char		partlocal[MAILADDRLEN + 1] ;
 	char		parthost[MAILADDRLEN + 1] ;
@@ -1515,23 +1522,21 @@ static int procname(PROGINFO *pip,void *ofp,cchar namep[],int namel)
 
 /* compact the mail-address if needed */
 
-	map = namep ;
-	mal = namel ;
 	if ((rs = addrcompact(mailaddr,MAILADDRLEN,namep,namel)) >= 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2)) {
-	    debugprintf("ismailaddr/procname: addrcompact() rs=%d\n",rs) ;
-	    debugprintf("ismailaddr/procname: m=>%t<\n",mailaddr,rs) ;
-	}
+	    if (DEBUGLEVEL(2)) {
+	        debugprintf("ismailaddr/procname: addrcompact() rs=%d\n",rs) ;
+	        debugprintf("ismailaddr/procname: m=>%t<\n",mailaddr,rs) ;
+	    }
 #endif
-	    mal = rs ;
-	    map = mailaddr ;
+	    namel = rs ;
+	    namep = mailaddr ;
 	}
 
 /* parse the mail-address into local and host parts */
 
 	if (rs >= 0) {
-	    rs = addressparse(map,mal,parthost,partlocal) ;
+	    rs = addressparse(namep,namel,parthost,partlocal) ;
 	    type = rs ;
 	}
 
@@ -1545,7 +1550,7 @@ static int procname(PROGINFO *pip,void *ofp,cchar namep[],int namel)
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
 	    shio_printf(pip->efp,"%s: a=%t type=%u\n",
-	        pip->progname,map,mal,type) ;
+	        pip->progname,namep,namel,type) ;
 	}
 
 /* first check that the host-domain is ours (cheap action) */
@@ -1605,20 +1610,22 @@ static int procname(PROGINFO *pip,void *ofp,cchar namep[],int namel)
 /* debugging */
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp, "%s: %c %t\n", pip->progname,
-	        ans, map,strnlen(map,mal)) ;
+	    fmt = "%s: %c %t\n" ;
+	    shio_printf(pip->efp,fmt,pn,ans,namep,strnlen(namep,namel)) ;
 	} /* end if (debugging) */
 
 /* logging */
 
 	if (pip->open.logprog) {
-	    logfile_printf(&pip->lh, "%c %t\n", ans, map,strnlen(map,mal)) ;
+	    fmt = "%c %t\n" ;
+	    logfile_printf(&pip->lh,fmt,ans,namep,strnlen(namep,namel)) ;
 	} /* end if (logging) */
 
 /* optionally print result */
 
 	if (pip->verboselevel >= 2) {
-	    rs = shio_printf(ofp,"%c %t\n", ans, map,strnlen(map,mal)) ;
+	    fmt = "%c %t\n" ;
+	    rs = shio_printf(ofp,fmt,ans,namep,strnlen(namep,namel)) ;
 	    wlen += rs ;
 	} /* end if (verbose) */
 
@@ -1641,14 +1648,15 @@ static int initdomain(PROGINFO *pip)
 	    char	domainname[MAXHOSTNAMELEN + 1] ;
 
 	    if ((rs = getnodedomain(nodename,domainname)) >= 0) {
-
-	        if (nodename[0] != '\0')
-	            proginfo_setentry(pip,&pip->nodename,nodename,-1) ;
-
-	        if (domainname[0] != '\0')
-	            proginfo_setentry(pip,&pip->domainname,domainname,-1) ;
-
-	    }
+	        if ((rs >= 0) && (nodename[0] != '\0')) {
+		    cchar	**vpp = &pip->nodename ;
+	            proginfo_setentry(pip,vpp,nodename,-1) ;
+		}
+	        if ((rs >= 0) && (domainname[0] != '\0')) {
+		    cchar	**vpp = &pip->domainname ;
+	            proginfo_setentry(pip,vpp,domainname,-1) ;
+		}
+	    } /* end if (getnodedoamin) */
 
 	} /* end if (needed) */
 
@@ -1658,7 +1666,7 @@ static int initdomain(PROGINFO *pip)
 
 
 /* optionally compact (remove white-space) a mail-address as needed */
-static int addrcompact(char rbuf[],int rlen,cchar *np,int nl)
+static int addrcompact(char *rbuf,int rlen,cchar *np,int nl)
 {
 	int		rs = SR_OK ;
 	int		i = 0 ;

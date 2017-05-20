@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -124,16 +122,13 @@ static const char	*emas[] = {
 /* exported subroutines */
 
 
-int progfile(pip,pp,ofp,fname)
-PROGINFO	*pip ;
-PARAMOPT	*pp ;
-bfile		*ofp ;
-const char	fname[] ;
+int progfile(PROGINFO *pip,PARAMOPT *pp,bfile *ofp,cchar *fname)
 {
 	CMD_LOCAL	*lsp = pip->lsp ;
 	EMA		adds ;
 	EMA_ENT		*ep ;
 	int		rs ;
+	int		rs1 ;
 	int		n = 0 ;
 
 	if (fname == NULL) return SR_FAULT ;
@@ -149,25 +144,23 @@ const char	fname[] ;
 	        int	i ;
 
 	        for (i = 0 ; ema_get(&adds,i,&ep) >= 0 ; i += 1) {
-	            if (ep == NULL) continue ;
-
-	            if (! lsp->f.count) {
-
-	                if (lsp->f.info) {
-	                    rs = progfile_info(pip,ofp,ep,0) ;
-	                } else
-	                    rs = progfile_addr(pip,ofp,ep,0) ;
-
-	            } /* end if (counting only) */
-
-	            n += 1 ;
-
+	            if (ep != NULL) {
+	                if (! lsp->f.count) {
+	                    if (lsp->f.info) {
+	                        rs = progfile_info(pip,ofp,ep,0) ;
+	                    } else {
+	                        rs = progfile_addr(pip,ofp,ep,0) ;
+			    }
+	                } /* end if (counting only) */
+	                n += 1 ;
+		    }
 	            if (rs < 0) break ;
 	        } /* end for */
 
 	    } /* end if (procinfile) */
 
-	    ema_finish(&adds) ;
+	    rs1 = ema_finish(&adds) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ema) */
 
 #if	CF_DEBUG
@@ -345,11 +338,10 @@ int		level ;
 #endif
 
 	    for (j = 0 ; ema_get(ep->listp,j,&ep2) >= 0 ; j += 1) {
-	        if (ep2 == NULL) continue ;
-
-	        rs = progfile_addr(pip,ofp,ep2,(level + 1)) ;
-	        c += rs ;
-
+	        if (ep2 != NULL) {
+	            rs = progfile_addr(pip,ofp,ep2,(level + 1)) ;
+	            c += rs ;
+		}
 	        if (rs < 0) break ;
 	    } /* end for */
 

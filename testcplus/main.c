@@ -4,6 +4,7 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_COPY		1
+#define	CF_OP		1		/* operator */
 #define	CF_INIT		0
 #define	CF_TESTLAMBDA	1		/* test Lambda Functions */
 
@@ -74,6 +75,11 @@ public:
 	    return *this ;
 	} ;
 #endif /* CF_COPY */
+#if	CF_OP
+	int operator * () {
+	    return id ;
+	} ;
+#endif /* CF_OP */
 	~thing() {
 	    printf("main: thing:destruct(%u) a1=%d a2=%d\n",id,a1,a2) ;
 	    id = 0 ;
@@ -157,6 +163,10 @@ int main(int argc,const char **argv,const char **envv)
 
 	c = a + b ;
 	printf("main: thing:c id=%u\n",c.id) ;
+
+#if	CF_OP
+	printf("main: a=%d b=%d c=%d\n",*a,*b,*c) ;
+#endif /* CF_OP */
 
 #if	CF_INIT
 	{

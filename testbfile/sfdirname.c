@@ -34,7 +34,8 @@
 
 	Returns:
 
-	-	length of found string
+	>0	length of found string
+	==0	not found (no dir-name)
 
 
 	Examples:
@@ -73,8 +74,7 @@ int sfdirname(cchar *sp,int sl,cchar **rpp)
 	int		rs ;
 	int		i ;
 
-	if (sl < 0) 
-	    sl = strlen(sp) ;
+	if (sl < 0) sl = strlen(sp) ;
 
 /* skip trailing slashes */
 

@@ -30,8 +30,8 @@ struct cmd_aflags {
 } ;
 
 struct cmd_local {
-	struct cmd_flags	f ;
-	struct cmd_aflags	af ;
+	CMD_FL		f ;
+	CMD_AFL		af ;
 } ;
 
 

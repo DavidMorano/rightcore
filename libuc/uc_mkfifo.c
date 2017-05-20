@@ -63,7 +63,7 @@ int uc_mkfifo(cchar *path,mode_t m)
 		    }
 		    break ;
 	        case SR_DQUOT:
-	            if (to_dquot -- > 0) {
+	            if (to_dquot-- > 0) {
 		        msleep(1000) ;
 		    } else {
 			f_exit = TRUE ;

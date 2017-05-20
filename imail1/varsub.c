@@ -223,8 +223,8 @@ int varsub_addva(VARSUB *op,cchar **envv)
 	    const char	*esp = envv[i] ;
 	    const char	*tp ;
 	    if ((tp = strchr(esp,'=')) != NULL) {
-	        const char	*vp = (tp + 1) ;
 	        const int	kch = MKCHAR(esp[0]) ;
+	        const char	*vp = (tp + 1) ;
 	        if (isprintlatin(kch)) {
 	            const int	vch = MKCHAR(vp[0]) ;
 	            if ((vch == '\0') || isprintlatin(vch)) {
@@ -276,8 +276,8 @@ int varsub_addvaquick(VARSUB *op,cchar **envv)
 	    const char	*esp = envv[i] ;
 	    const char	*tp ;
 	    if ((tp = strchr(esp,'=')) != NULL) {
-	        const char	*vp = (tp + 1) ;
 	        const int	kch = MKCHAR(esp[0]) ;
+	        const char	*vp = (tp + 1) ;
 	        if (isprintlatin(kch)) {
 	            const int	vch = MKCHAR(vp[0]) ;
 	            if ((vch == '\0') || isprintlatin(vch)) {
@@ -329,12 +329,7 @@ int varsub_del(VARSUB *op,cchar *k,int klen)
 /* end subroutine (varsub_del) */
 
 
-int varsub_find(op,k,klen,vpp,vlenp)
-VARSUB		*op ;
-const char	k[] ;
-int		klen ;
-const char	**vpp ;
-int		*vlenp ;
+int varsub_find(VARSUB *op,cchar *k,int klen,cchar **vpp,int *vlenp)
 {
 	int		rs ;
 	int		vl = 0 ;
@@ -511,7 +506,7 @@ int varsub_expandfile(VARSUB *op,bfile *ifp,bfile *ofp)
 	        rs1 = buffer_finish(&b) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (buffer) */
-	} /* end if (ok) */
+	} /* end if (varsub_sort) */
 
 #if	CF_DEBUGS
 	debugprintf("varsub_subfile: ret rs=%d wlen=%u\n",rs,wlen) ;
@@ -561,7 +556,7 @@ int varsub_expand(VARSUB *op,char *dbuf,int dlen,cchar *linein,int linelen)
 	        rs1 = buffer_finish(&b) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (buffer) */
-	} /* end if (ok) */
+	} /* end if (varsub_sort) */
 
 	return (rs >= 0) ? bl : rs ;
 }
@@ -628,10 +623,8 @@ static int varsub_procvalue(VARSUB *op,BUFFER *bufp,cchar *sp,int sl)
 	int		kl, cl ;
 	int		i = 0 ;
 	int		len = 0 ;
-	const char	ssb[] = { 
-	    CH_LBRACE, CH_RBRACE, 0 	} ;
-	const char	ssp[] = { 
-	    CH_LPAREN, CH_RPAREN, 0 	} ;
+	const char	ssb[] = { CH_LBRACE, CH_RBRACE, 0 } ;
+	const char	ssp[] = { CH_LPAREN, CH_RPAREN, 0 } ;
 	const char	*tp ;
 	const char	*cp ;
 	const char	*kp ;
@@ -702,20 +695,16 @@ static int varsub_procvalue(VARSUB *op,BUFFER *bufp,cchar *sp,int sl)
 	} /* end while */
 
 	if ((rs >= 0) && (sl > 0)) {
-
 #if	CF_DEBUGS
 	    debugprintf("varsub_procvalue: il=%u trailer=>%t<\n",sl,sp,sl) ;
 #endif
-
 	    rs = buffer_strw(bufp,sp,sl) ;
 	    len += rs ;
-
 #if	CF_DEBUGS
 	    debugprintf("varsub_procvalue: buffer_strw() rs=%d\n",rs) ;
 	    debugprintf("varsub_procvalue: len=%u\n",len) ;
 #endif
-
-	}
+	} /* end if */
 
 #if	CF_DEBUGS
 	debugprintf("varsub_procvalue: ret rs=%d vl=%u\n",rs,len) ;
@@ -848,7 +837,7 @@ static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 	    } else
 	        rs = rs1 ;
 
-	} /* end if (entry-validated) */
+	} /* end if (entry_tmp) */
 
 #if	CF_DEBUGS
 	debugprintf("varsub_iadd: ret rs=%d\n",rs) ;
@@ -964,10 +953,11 @@ static int varsub_writebuf(VARSUB *op,bfile *ofp,BUFFER *bufp)
 	if (op == NULL) return SR_FAULT ;
 
 	if ((rs = buffer_get(bufp,&bp)) > 0) {
-	    rs = bwrite(ofp,bp,rs) ;
-	    wlen += rs ;
-	    if (rs >= 0) buffer_reset(bufp) ;
-	}
+	    if ((rs = bwrite(ofp,bp,rs)) >= 0) {
+	        wlen += rs ;
+	        buffer_reset(bufp) ;
+	    }
+	} /* end if (buffer_get) */
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -1094,34 +1084,6 @@ static int entry_valcmp(VARSUB_SUB *ep,VARSUB_SUB *e2p)
 /* end subroutine (entry_valcmp) */
 
 
-static int ventcmp(const void **ve1pp,const void **ve2pp)
-{
-	VARSUB_SUB	**e1pp = (VARSUB_SUB **) ve1pp ;
-	VARSUB_SUB	**e2pp = (VARSUB_SUB **) ve2pp ;
-	int		rc = 0 ;
-	if ((*e1pp != NULL) || (*e2pp != NULL)) {
-	    if (*e1pp != NULL) {
-	        if (*e2pp != NULL) {
-	            VARSUB_SUB	*e1p = *e1pp ;
-	            VARSUB_SUB	*e2p = *e2pp ;
-#if	CF_DEBUGS
-		    debugprintf("ventcmp: k1=%t k2=%s\n",
-			e1p->kp,e1p->kl,e2p->kp) ;
-#endif
-		    rc = entry_keycmp(e1p,e2p) ;
-	        } else
-	            rc = -1 ;
-	    } else
-	        rc = 1 ;
-	}
-#if	CF_DEBUGS
-	debugprintf("ventcmp: ret rc=%d\n",rc) ;
-#endif
-	return rc ;
-}
-/* end subroutine (ventcmp) */
-
-
 static int getkey(const char *sp,int sl,int sses[][2])
 {
 	int		kl = -1 ;
@@ -1152,5 +1114,33 @@ static int getkey(const char *sp,int sl,int sses[][2])
 	return kl ;
 }
 /* end subroutine (getkey) */
+
+
+static int ventcmp(const void **ve1pp,const void **ve2pp)
+{
+	VARSUB_SUB	**e1pp = (VARSUB_SUB **) ve1pp ;
+	VARSUB_SUB	**e2pp = (VARSUB_SUB **) ve2pp ;
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            VARSUB_SUB	*e1p = *e1pp ;
+	            VARSUB_SUB	*e2p = *e2pp ;
+#if	CF_DEBUGS
+		    debugprintf("ventcmp: k1=%t k2=%s\n",
+			e1p->kp,e1p->kl,e2p->kp) ;
+#endif
+		    rc = entry_keycmp(e1p,e2p) ;
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = 1 ;
+	}
+#if	CF_DEBUGS
+	debugprintf("ventcmp: ret rc=%d\n",rc) ;
+#endif
+	return rc ;
+}
+/* end subroutine (ventcmp) */
 
 

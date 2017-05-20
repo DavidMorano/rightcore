@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1994-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -26,8 +24,8 @@
 	Synopsis:
 
 	int progentryinfo(pip,ep,ind,ofp)
-	struct proginfo	*pip ;
-	EMA_ENT	*ep ;
+	PROGINFO	*pip ;
+	EMA_ENT		*ep ;
 	int		ind ;
 	bfile		*ofp ;
 
@@ -35,7 +33,7 @@
 
 	- pip		program information pointer
 	- ep		pointer to entry
-	- ind	indation level
+	- ind		indentation level
 	- ofp		output file object pointer
 
 	Returns:
@@ -58,6 +56,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<ascii.h>
 #include	<bfile.h>
 #include	<msg.h>
 #include	<ema.h>
@@ -88,12 +87,12 @@ extern int	debugprintf(const char *,...) ;
 
 /* forward references */
 
-static const char	*atype(int) ;
+static cchar	*atype(int) ;
 
 
 /* local variables */
 
-static const char	*atypes[] = {
+static cchar	*atypes[] = {
 	    "R",			/* regular */
 	    "P",			/* PCS list */
 	    "L",			/* local alias */
@@ -102,32 +101,25 @@ static const char	*atypes[] = {
 	    NULL
 } ;
 
-static const char	*blanks = "              " ;
+static cchar	*blanks = "              " ;
 
 
 /* exported subroutines */
 
 
-int progentryinfo(pip,ofp,ep,ind)
-struct proginfo	*pip ;
-bfile		*ofp ;
-EMA_ENT		*ep ;
-int		ind ;
+int progentryinfo(PROGINFO *pip,bfile *ofp,EMA_ENT *ep,int ind)
 {
-	int	rs ;
-	int	alen ;
-	int	wlen = 0 ;
-
-	const char	*fmt ;
-	const char	*any = NULL ;
-
+	int		rs ;
+	int		al = 0 ;
+	int		wlen = 0 ;
+	cchar		*ap = NULL ;
 
 #if	CF_DEBUGS
-	debugprintf("progentryinfo: entered ep(%p)\n",ep) ;
+	debugprintf("progentryinfo: ent ep(%p)\n",ep) ;
 #endif
 
-	if (ep == NULL)
-	    return SR_FAULT ;
+	if (pip == NULL) return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -136,23 +128,31 @@ int		ind ;
 
 	if (ind > MAXINDENT) ind = MAXINDENT ;
 
-	alen = 0 ;
 	if (ep->ap != NULL) {
-	    any = ep->ap ;
-	    alen = ep->al ;
+	    ap = ep->ap ;
+	    al = ep->al ;
 	} else if (ep->rp != NULL) {
-	    any = ep->rp ;
-	    alen = ep->rl ;
+	    ap = ep->rp ;
+	    al = ep->rl ;
 	}
 
-	fmt = (ep->cp != NULL) ? "%s%t %t (%t)\n" : "%s%t %t\n" ;
-
-	rs = bprintf(ofp,fmt,
-	    atype(ep->type),blanks,ind,
-	    ((any != NULL) ? any : ""),alen,
-	    ((ep->cp != NULL) ? ep->cp : ""),ep->cl) ;
-
-	wlen += rs ;
+	if ((rs = bprintf(ofp,"%s %t",atype(ep->type),blanks,ind)) >= 0) {
+	    wlen += rs ;
+	    if (ep->cp != NULL) {
+		if ((rs = bwrite(ofp,ap,al)) >= 0) {
+		    wlen += rs ;
+		    {
+		        const int ml = MIN(ep->cl,(pip->linelen-wlen-3)) ;
+		        rs = bprintf(ofp," (%t)\n",ep->cp,ml) ;
+		        wlen += rs ;
+		    }
+		}
+	    } else {
+		const int	ml = MIN(ep->cl,(pip->linelen-wlen)) ;
+		rs = bprintf(ofp,"%t\n",ep->cp,ml) ;
+		wlen += rs ;
+	    }
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -164,26 +164,19 @@ int		ind ;
 /* end subroutine (progentryinfo) */
 
 
-int progentryaddr(pip,ofp,ep,ind)
-struct proginfo	*pip ;
-bfile		*ofp ;
-EMA_ENT		*ep ;
-int		ind ;
+int progentryaddr(PROGINFO *pip,bfile *ofp,EMA_ENT *ep,int ind)
 {
-	struct cmd_local	*lsp = pip->lsp ;
-
-	int	rs = SR_OK ;
-	int	spc = 0 ;
-	int	wlen = 0 ;
-
+	CMD_LOCAL	*lsp = pip->lsp ;
+	int		rs = SR_OK ;
+	int		spc = 0 ;
+	int		wlen = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
 	    debugprintf("progentryaddr: ent ind=%u\n",ind) ;
 #endif
 
-	if (ep == NULL)
-	    return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
 
 	if (ind > MAXINDENT) ind = MAXINDENT ;
 
@@ -208,7 +201,7 @@ int		ind ;
 	}
 
 	if ((rs >= 0) && lsp->af.best) {
-	    const char	*vp ;
+	    cchar	*vp ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
@@ -224,8 +217,9 @@ int		ind ;
 	        vp = ep->rp ;
 	    } else if (ep->ap != NULL) {
 	        vp = ep->ap ;
-	    } else if (ep->cp != NULL)
+	    } else if (ep->cp != NULL) {
 	        vp = ep->cp ;
+	    }
 
 	    if (rs >= 0) {
 	        rs = bwrite(ofp,vp,-1) ;
@@ -236,7 +230,7 @@ int		ind ;
 	}
 
 	if ((rs >= 0) && lsp->af.any) {
-	    const char	*vp ;
+	    cchar	*vp ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
@@ -247,8 +241,9 @@ int		ind ;
 	        vp = ep->ap ;
 	    } else if (ep->rp != NULL) { /* route */
 	        vp = ep->rp ;
-	    } else if (ep->cp != NULL) /* comment */
+	    } else if (ep->cp != NULL) { /* comment */
 	        vp = ep->cp ;
+	    }
 
 	    rs = bprintf(ofp,"ª%sª",vp) ;
 	    wlen += rs ;
@@ -266,7 +261,7 @@ int		ind ;
 #endif
 
 	    if (spc > 0) {
-	        rs = bwrite(ofp," ",1) ;
+	        rs = bputc(ofp,' ') ;
 	        wlen += rs ;
 	    }
 
@@ -311,7 +306,8 @@ int		ind ;
 	    }
 
 	    if ((rs >= 0) && (ep->cp != NULL)) {
-	        rs = bprintf(ofp,"(%s)",ep->cp) ;
+		const int	ml = MIN(ep->cl,(pip->linelen-wlen-2)) ;
+	        rs = bprintf(ofp,"(%t)",ep->cp,ml) ;
 	        wlen += rs ;
 	    }
 
@@ -336,11 +332,8 @@ int		ind ;
 /* local subroutines */
 
 
-static const char *atype(type)
-int		type ;
+static const char *atype(int type)
 {
-
-
 	return (type < nelements(atypes)) ? atypes[type] : "U" ;
 }
 /* end subroutine (atype) */
