@@ -22,7 +22,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -98,7 +97,7 @@ XLIB0=
 XLIB1= -ldam -lb
 XLIB2= -ldebug
 XLIB3= -luc -lu
-XLIB4=
+XLIB4= $(CGS_LIBS)
 XLIB5= 
 XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 XLIB7= -ldl

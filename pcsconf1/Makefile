@@ -76,9 +76,9 @@ LD= ld
 
 LDRPATH= $(EXTRA)/lib:/usr/lib/lwp
 
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(LDRPATH)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(LOCAL)/lib:$(CGS_RPATH):$(LDRPATH)
 
-LDFLAGS_SO= -m $(LF_LDFLAGS) -R$(LIBDIR)
+LDFLAGS_SO= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 
 
 LIBDIRS= -L$(LIBDIR) -L$(LOCAL)/lib -L$(CGS_LIBDIR)
@@ -256,15 +256,15 @@ $(T):			$(T).ee
 	makecp $(T).ee $(T)
 
 $(TPC).so:		$(PCOBJ) Makefile
-	$(LD) -G -o $@ $(LDFLAGS_SO) $(PCOBJ) $(SLIBDIRS) $(SLIBS) > $(TPC).lm
+	$(LD) -G -o $@ $(LDFLAGS_SO) $(PCOBJ) $(SLIBINFO) > $(TPC).lm
 
 $(TPG).so:		$(TPGOBJ) Makefile
-	$(LD) -G -o $@ $(LDFLAGS_SO) $(TPGOBJ) $(SLIBDIRS) $(SLIBS) > $(TPG).lm
+	$(LD) -G -o $@ $(LDFLAGS_SO) $(TPGOBJ) $(SLIBINFO) > $(TPG).lm
 
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	makecp $(T).x $(T).$(OFF)
