@@ -20,7 +20,8 @@
 
 /*******************************************************************************
 
-	These subroutines handle some IPC related functions.
+        These subroutines handle some IPC related functions. This is client-side
+        code which interacts with the server code (within the server (MFSERVE).
 
 
 *******************************************************************************/

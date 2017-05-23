@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 2003-06-25, David A­D­ Morano
-
-	This is being writen to support shared (and permanent) 
-	timestamps for key-names.
-
+        This is being writen to support shared (and permanent) timestamps for
+        key-names.
 
 */
 
@@ -20,9 +18,9 @@
 
 /******************************************************************************
 
-	These little module implements the messages (reads and writes)
-	to the TS (Time-Stamp) database file.  These subroutines actually
-	do the argument marshalling for the file reads and writes.
+        These little module implements the messages (reads and writes) to the TS
+        (Time-Stamp) database file. These subroutines actually do the argument
+        marshalling for the file reads and writes.
 
 
 ******************************************************************************/

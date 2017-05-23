@@ -2618,26 +2618,25 @@ static int inter_mailscan(INTER *iap)
 {
 	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
-	int		si ;
-	int		n ;
 
-	if (! iap->open.mbcache)
-	    goto ret0 ;
-
-	si = iap->miscantop ;
-	n = iap->scanlines ;
-	if ((rs >= 0) && (si >= 0)) {
-	    rs = inter_scancheck(iap,si,n) ;
-	}
+	if (pip == NULL) return SR_FAULT ;
+	if (iap->open.mbcache) {
+	    int		si = iap->miscantop ;
+	    int		n = iap->scanlines ;
+	    if (si >= 0) {
+	        rs = inter_scancheck(iap,si,n) ;
+	    }
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
 	    debugprintf("inter_mailscan: inter_scancheck() rs=%d\n",rs) ;
 #endif
 
-	if (rs >= 0) {
-	    if ((rs = display_scanpoint(&iap->di,iap->miscanpoint)) >= 0) {
-	        rs = display_scandisplay(&iap->di,iap->miscantop) ;
+	    if (rs >= 0) {
+	        DISPLAY	*dip = &iap->di ;
+	        if ((rs = display_scanpoint(dip,iap->miscanpoint)) >= 0) {
+	            rs = display_scandisplay(dip,iap->miscantop) ;
+	        }
 	    }
 	}
 
@@ -2646,7 +2645,6 @@ static int inter_mailscan(INTER *iap)
 	    debugprintf("inter_mailscan: display_scandisplay() rs=%d\n",rs) ;
 #endif
 
-ret0:
 	return rs ;
 }
 /* end subroutine (inter_mailscan) */

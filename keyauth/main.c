@@ -642,30 +642,33 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    bprintf(pip->efp,"%s: user=%s\n",pn,un) ;
 	}
 
-	if (rs < 0) {
-	    ex = EX_USAGE ;
-	    goto retearly ;
-	}
-
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: username=%s\n",un) ;
 #endif
 
-	if ((rs = procuserhome(pip,un)) >= 0) {
-	    if ((rs = procinfonames(pip)) >= 0) {
-	        if ((rs = progout_begin(pip,ofname)) >= 0) {
-	            rs = process(pip,un) ;
-	            if (pip->debuglevel > 0) {
-	                cchar	*pn = pip->progname ;
-	                cchar	*fmt = "%s: result (%d)\n" ;
-	                bprintf(pip->efp,fmt,pn,rs) ;
-	            }
-	            rs1 = progout_end(pip) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (progout) */
-	    } /* end if (procinfonames) */
-	} /* end if (procuserhome) */
+	if (rs >= 0) {
+	    if ((rs = procuserhome(pip,un)) >= 0) {
+	        if ((rs = procinfonames(pip)) >= 0) {
+	            if ((rs = progout_begin(pip,ofname)) >= 0) {
+	                rs = process(pip,un) ;
+	                if (pip->debuglevel > 0) {
+	                    cchar	*pn = pip->progname ;
+	                    cchar	*fmt = "%s: result (%d)\n" ;
+	                    bprintf(pip->efp,fmt,pn,rs) ;
+	                }
+	                rs1 = progout_end(pip) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (progout) */
+	        } /* end if (procinfonames) */
+	    } /* end if (procuserhome) */
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	} /* end if */
 
 /* done */
 	if ((rs < 0) && (ex == EX_OK)) {

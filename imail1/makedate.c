@@ -1,2 +1,2 @@
 const char imail_makedate[] =
-"@(#)imail                   170517_1538:37_USEDT Rightcore Network Services" ;
+"@(#)imail                   170523_0457:25_USEDT Rightcore Network Services" ;

@@ -2178,15 +2178,15 @@ static int procdaemondefs(PROGINFO *pip)
 #endif
 
 	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
 	    cchar	*fmt ;
 	    if (pip->intpoll >= 0) {
 	        fmt = "%s: mspoll=%u\n" ;
-	    } else
+	    } else {
 	        fmt = "%s: mspoll=Inf\n" ;
-	    shio_printf(pip->efp,fmt,
-	        pip->progname,pip->intpoll) ;
-	    shio_printf(pip->efp,"%s: intspeed=%u\n",
-	        pip->progname,lip->intspeed) ;
+	    }
+	    shio_printf(pip->efp,fmt,pn,pip->intpoll) ;
+	    shio_printf(pip->efp,"%s: intspeed=%u\n",pn,lip->intspeed) ;
 	}
 
 	return rs ;
@@ -2256,13 +2256,11 @@ static int procbackinfo(PROGINFO *pip)
 	    cchar	*mntfname = lip->mntfname ;
 
 	    if (pip->pidfname != NULL) {
-	        shio_printf(pip->efp,"%s: pidfile=%s\n",
-	            pn,pip->pidfname) ;
+	        shio_printf(pip->efp,"%s: pidfile=%s\n",pn,pip->pidfname) ;
 	    }
 
 	    if (mntfname != NULL) {
-	        shio_printf(pip->efp,"%s: mntfile=%s\n",
-	            pip->progname,mntfname) ;
+	        shio_printf(pip->efp,"%s: mntfile=%s\n",pn,mntfname) ;
 	    }
 
 	    shio_flush(pip->efp) ;
@@ -2280,7 +2278,6 @@ static int procdaemoninfo(PROGINFO *pip)
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
 	    cchar	*pn = pip->progname ;
-
 	    if (pip->f.daemon) {
 	        shio_printf(pip->efp,"%s: pidfile=%u\n",pn,pip->pidfname) ;
 	        shio_printf(pip->efp,"%s: intrun=%u\n",pn,pip->intrun) ;
@@ -2290,7 +2287,6 @@ static int procdaemoninfo(PROGINFO *pip)
 	        shio_printf(pip->efp,"%s: intwait=%u\n",pn,lip->intwait) ;
 	    }
 	    shio_printf(pip->efp,"%s: intcache=%u\n",pn,lip->intcache) ;
-
 	    shio_flush(pip->efp) ;
 	} /* end if (debugging information) */
 
@@ -2323,6 +2319,8 @@ cchar		*afn ;
 	const int	to_open = pip->to_open ;
 	int		rs ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
 	    ofn = STDOUTFNAME ;
@@ -2344,8 +2342,9 @@ cchar		*afn ;
 	        if (lip->start >= 0) {
 	            offset_t	o = lip->start ;
 	            rs = shio_seek(ofp,o,SEEK_SET) ;
-	        } else
+	        } else {
 	            rs = shio_seek(ofp,0L,SEEK_END) ;
+		}
 	    } /* end if (stat) */
 
 #ifdef	COMMENT
@@ -2401,9 +2400,9 @@ cchar		*afn ;
 	                cl = len ;
 
 			if (cl > 0) {
-	                pan += 1 ;
-	                rs = procfile(pip,ofp,cp) ;
-	                wlen += rs ;
+	                    pan += 1 ;
+	                    rs = procfile(pip,ofp,cp) ;
+	                    wlen += rs ;
 			}
 
 	                if (rs >= 0) rs = lib_sigterm() ;
@@ -2413,11 +2412,9 @@ cchar		*afn ;
 
 	            shio_close(afp) ;
 	        } else {
-	            shio_printf(pip->efp,
-	                "%s: inaccessible argument-list (%d)\n",
-	                pip->progname,rs) ;
-	            shio_printf(pip->efp,"%s: afile=%s\n",
-	                pip->progname,afn) ;
+		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            shio_printf(pip->efp,fmt,pn,rs) ;
+	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
 
 	    } /* end if (procesing file argument file list) */
@@ -2434,8 +2431,8 @@ cchar		*afn ;
 	    lip->nproc = pan ;
 	    shio_close(ofp) ;
 	} else {
-	    shio_printf(pip->efp,"%s: inaccessible output (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
 	}
 
 #if	CF_DEBUG
@@ -2471,7 +2468,7 @@ static int procback(PROGINFO *pip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("b_homepage/procback: ret rs=%d\n",rs) ;
+	    debugprintf("b_homepage/procback: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -2666,10 +2663,12 @@ static int procbacker(PROGINFO *pip,cchar *pf,cchar **av)
 	            spawner_sigignore(&s,sigignores[i]) ;
 	        }
 	        spawner_setsid(&s) ;
-	        if (pip->uid != pip->euid)
+	        if (pip->uid != pip->euid) {
 	            spawner_seteuid(&s,pip->uid) ;
-	        if (pip->gid != pip->egid)
+		}
+	        if (pip->gid != pip->egid) {
 	            spawner_setegid(&s,pip->gid) ;
+		}
 	        for (i = 0 ; i < 2 ; i += 1) {
 	            spawner_fdclose(&s,i) ;
 	        }
@@ -3410,8 +3409,9 @@ static int procdocbodyhdrfile(PROGINFO *pip,char *hbuf,int hlen,cchar *fn)
 	                hbuf[cl] = '\0' ;
 	            }
 	            len = cl ;
-	        } else
+	        } else {
 	            len = 0 ;
+		}
 	        if (len > 0) break ;
 	    } /* end while */
 	    rs1 = bclose(hfp) ;

@@ -125,6 +125,7 @@
 #include	"mfsconfig.h"
 #include	"mfslocinfo.h"
 #include	"mfslisten.h"
+#include	"mfswatch.h"
 #include	"mfsadj.h"
 #include	"mfscmd.h"
 #include	"mfslog.h"
@@ -2626,8 +2627,6 @@ static int procregular(PROGINFO *pip)
 static int procservice(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
-	CONFIG		*cop = (CONFIG *) pip->config ;
-	const int	to_poll = TO_POLL ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
@@ -2640,74 +2639,8 @@ static int procservice(PROGINFO *pip)
 #endif
 
 	if ((rs = mfsadj_begin(pip)) >= 0) {
-	    struct pollfd	fds[2] ;
-	    const int		mto = (to_poll*POLLMULT) ;
-	    int			nfds = 0 ;
-	    cchar		*pn = pip->progname ;
-	    cchar		*fmt ;
-
-	    fds[nfds].fd = lip->rfd ;
-	    fds[nfds].events = (POLLIN | POLLPRI | POLLERR) ;
-	    nfds += 1 ;
-
-	    while (rs >= 0) {
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) 
-	    debugprintf("mfsmain/procservice: poll\n") ;
-#endif
-
-	        if ((rs = u_poll(fds,nfds,mto)) > 0) {
-	            int	i ;
-	            pip->daytime = time(NULL) ;
-	            for (i = 0 ; (rs >= 0) && (i < nfds) ; i += 1) {
-	                const int	pfd = fds[i].fd ;
-	                const int	re = fds[i].revents ;
-			    rs = mfsadj_req(pip,pfd,re) ;
-			    c += rs ;
-	            } /* end for */
-	        } else {
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) 
-	    debugprintf("mfsmain/procservice: poll() rs=%d\n",rs) ;
-#endif
-	            pip->daytime = time(NULL) ;
-	            if (rs == SR_INTR) rs = SR_OK ;
-	        }
-
-	        if ((rs >= 0) && (pip->intrun > 0)) {
-		    const int	intrun = pip->intrun ;
-	            int	f = ((pip->daytime - lip->ti_start) >= intrun) ;
-	            if (f) break ;
-	        }
-
-	        if ((rs >= 0) && pip->open.config && ((c & 3) == 0)) {
-	            if ((rs = config_check(cop)) > 0) {
-	                if (pip->open.logprog) {
-	                    char	tbuf[TIMEBUFLEN + 1] ;
-	                    timestr_logz(pip->daytime,tbuf) ;
-	                    fmt = "%s re-configuration" ;
-	                    logprintf(pip,fmt,tbuf) ;
-	                }
-	            } /* end if (config_check) */
-	        }
-
-		if ((rs >= 0) && ((c & 7) == 1)) {
-		    rs = locinfo_lockcheck(lip) ;
-		}
-
-	        if ((rs >= 0) && pip->open.logprog && ((c & 7) == 1)) {
-	            if ((pip->daytime - lip->ti_marklog) >= pip->intmark) {
-	                int	rem = 0 ;
-	                lip->ti_marklog = pip->daytime ;
-	                if (pip->intrun > 0) {
-	                    rem = (pip->intrun - (pip->daytime-lip->ti_start)) ;
-	                }
-	                logmark(pip,rem) ;
-	            } /* end if */
-	        } /* end if */
-
-/* handle the special "exit" condition */
+	    if ((rs = mfswatch_begin(pip)) >= 0) {
+		while ((rs = mfswatch_service(pip)) >= 0) {
 
 	        if ((rs >= 0) && (lip->cmd[0] != '\0')) {
 	            rs = procfcmd(pip) ;
@@ -2742,13 +2675,19 @@ static int procservice(PROGINFO *pip)
 		}
 #if	CF_DEBUG
 		if (DEBUGLEVEL(4)) 
-	    	debugprintf("mfsmain/procservice: while-bot rs=%d\n",rs) ;
+	    	debugprintf("pcsmain/procservice: while-bot rs=%d\n",rs) ;
 #endif
 
 		if (rs >= 0) rs = lib_sigquit() ;
 		if (rs >= 0) rs = lib_sigterm() ;
 		if (rs >= 0) rs = lib_sigintr() ;
-	    } /* end while (daemon-loop) */
+
+		    if (rs < 0) break ;
+		} /* end while */
+
+		rs1 = mfswatch_end(pip) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (mfswatch) */
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))

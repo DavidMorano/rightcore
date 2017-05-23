@@ -169,6 +169,7 @@ struct mfswatch {
 static int	mfswatch_beginer(PROGINFO *) ;
 static int	mfswatch_ender(PROGINFO *) ;
 
+statis int	mfswatch_uptimer(PROGINFO *) ;
 static int	mfswatch_handle(PROGINFO *,POLLER_SPEC *) ;
 
 static int	procwatcher(PROGINFO *,SUBINFO *,vecstr *) ;
@@ -235,8 +236,6 @@ int mfswatch_end(PROGINFO *pip)
 int mfswatch_service(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
-	POLLER		*pmp ;
-	POLLER_SPEC	ps ;
 	int		rs ;
 	int		rs1 ;
 
@@ -245,22 +244,10 @@ int mfswatch_service(PROGINFO *pip)
 	    debugprintf("progwatchpoll: ent\n") ;
 #endif
 
-	if (wip->njobs <= 0) {
-	    if (wip->minpoll < 100) {
-		wip->minpoll = 100 ;
-	    }
-	    wip->minpoll += 100 ;
-	} else {
-	    wip->minpoll += 10 ;
-	}
+	if ((rs = mfswatch_uptimer(pip)) >= 0) {
+	POLLER		*pmp = &wip->pm ;
+	POLLER_SPEC	ps ;
 
-	if (wip->minpoll < 10) {
-	    wip->minpoll = 10 ;
-	} else if (wip->minpoll > POLLINTMULT) {
-	    wip->minpoll = POLLINTMULT ;
-	}
-
-	pmp = &wip->pm ;
 	if ((rs = poller_wait(pmp,&ps,wip->minpoll)) > 0) {
 	    pip->daytime = time(NULL) ;
 	    if ((rs = mfswatch_handle(pip,&ps)) >= 0) {
@@ -278,20 +265,22 @@ int mfswatch_service(PROGINFO *pip)
 
 	if (rs >= 0) {
 	   const int	to = TO_MAINT ;
-	   if ((pip->daytime-op->ti_lastmaint) >= to) {
-		op->ti_lastmaint = op->daytime ;
+	   if ((pip->daytime-wip->ti_lastmaint) >= to) {
+		wip->ti_lastmaint = pip->daytime ;
 		rs = mfslisten_maint(pip,pmp) ;
 	   }
 	}
 
 	if ((rs >= 0) && (pip->config != NULL)) {
 	   const int	to = TO_CONFIG ;
-	   if ((pip->daytime-op->ti_lastconfig) >= to) {
+	   if ((pip->daytime-wip->ti_lastconfig) >= to) {
 		CONFIG	*cfp = pip->config ;
-		op->ti_lastconfig = op->daytime ;
+		wip->ti_lastconfig = pip->daytime ;
 		rs = config_check(cfp) ;
 	   }
 	}
+
+	} /* end if (mfswatch_uptimer) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -301,6 +290,33 @@ int mfswatch_service(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (mfswatch_service) */
+
+
+/* local subroutines */
+
+
+statis int mfswatch_uptimer(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+
+	if (wip->njobs <= 0) {
+	    if (wip->minpoll < 100) {
+		wip->minpoll = 100 ;
+	    }
+	    wip->minpoll += 100 ;
+	} else {
+	    wip->minpoll += 10 ;
+	}
+
+	if (wip->minpoll < 10) {
+	    wip->minpoll = 10 ;
+	} else if (wip->minpoll > POLLINTMULT) {
+	    wip->minpoll = POLLINTMULT ;
+	}
+
+	return SR_OK ;
+}
+/* end subroutine (mfswatch_uptimer) */
 
 
 static int mfswatch_handle(PROGINFO *pip,POLLER_SPEC *psp)

@@ -5,14 +5,13 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	1		/* run-time debug print-outs */
+#define	CF_DEBUG	0		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_DEBUGOFF	0		/* debug file offsets */
 #define	CF_DEBUGDEF	0		/* debug default (level==5) */
 #define	CC_DEBUGSRCH	0		/* debug searching */
 #define	CF_DEBUGN	0		/* special */
 #define	CF_MSGENV	0		/* message environment */
-#define	CF_HEXTIME	1		/* use HEX time in MSGID */
 #define	CF_TESTIN	0		/* test std-input */
 #define	CF_OUTENTRY	1		/* use 'outema_ent(3imail)' */
 #define	CF_XMAILER	0		/* compliled-in x-mailer */
@@ -701,7 +700,7 @@ static int	locinfo_msgdatabegin(LOCINFO *) ;
 static int	locinfo_msgdataget(LOCINFO *,int,MSGDATA **) ;
 static int	locinfo_msgdataend(LOCINFO *) ;
 static int	locinfo_cmbfname(LOCINFO *,char *) ;
-static int	locinfo_mkmid(LOCINFO *,char *) ;
+static int	locinfo_mkmid(LOCINFO *,char *,int) ;
 static int	locinfo_mkenvfrom(LOCINFO *) ;
 static int	locinfo_mkenvdate(LOCINFO *) ;
 static int	locinfo_mkhdrsender(LOCINFO *) ;
@@ -4689,7 +4688,7 @@ static int procmsghdr_mid(PROGINFO *pip,FILEBUF *fbp,int mi,MSGOPTS *optp)
 	        sl = -1 ;
 	        if (sp == NULL) { /* make it and store it */
 	            sp = ibuf ;
-	            if ((rs = locinfo_mkmid(lip,ibuf)) >= 0) {
+	            if ((rs = locinfo_mkmid(lip,ibuf,ilen)) >= 0) {
 	                sl = rs ;
 	                if (ibuf[0] != '\0') {
 	                    rs = msgdata_setmid(mdp,sp,sl) ;
@@ -7653,15 +7652,15 @@ static int locinfo_mkenvdate(LOCINFO *lip)
 
 
 /* we make a new one each time since they are unique for each message */
-static int locinfo_mkmid(LOCINFO *lip,char *mid)
+static int locinfo_mkmid(LOCINFO *lip,char *mbuf,int mlen)
 {
 	PROGINFO	*pip = lip->pip ;
 	SBUF		mb ;
 	int		rs ;
 	int		rs1 ;
 
-	mid[0] = '\0' ;
-	if ((rs = sbuf_start(&mb,mid,MAILADDRLEN)) >= 0) {
+	mbuf[0] = '\0' ;
+	if ((rs = sbuf_start(&mb,mbuf,mlen)) >= 0) {
 	    uint	uv = (uint) pip->pid ;
 	    const int	serial = lip->serial++ ;
 	    const int	nl = strlen(pip->nodename) ;
@@ -7680,15 +7679,10 @@ static int locinfo_mkmid(LOCINFO *lip,char *mid)
 
 	    sbuf_char(&mb,'.') ;
 
-#if	CF_HEXTIME
 	    {
 	        uv = (uint) pip->daytime ;
 	        sbuf_hexui(&mb,uv) ;
 	    }
-#else
-	    uv = (uint) pip->daytime ;
-	    sbuf_decui(&mb,uv) ;
-#endif /* CF_HEXTIME */
 
 	    sbuf_char(&mb,'.') ;
 	    sbuf_deci(&mb,lip->kserial) ;

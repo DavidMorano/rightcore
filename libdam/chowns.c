@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 1998-08-10, David A­D­ Morano
-
-	This subroutine was originally written.  This subroutines is
-	standard on some UNIXes but not on others so it is now provided.
-
+        This subroutine was originally written. This subroutines is standard on
+        some UNIXes but not on others so it is now provided.
 
 */
 
@@ -20,8 +18,8 @@
 
 /*******************************************************************************
 
-	This subroutine will try to change the wonership  (UID and GID)
-	on all of the directories in the specified directory path.
+        This subroutine will try to change the wonership (UID and GID) on all of
+        the directories in the specified directory path.
 
 	Synopsis:
 

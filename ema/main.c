@@ -692,6 +692,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (efname == NULL) efname = BFILE_STDERR ;
 	if ((rs1 = bopen(&errfile,efname,"dwca",0666)) >= 0) {
 	    pip->efp = &errfile ;
+	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
 	} else if (! isFailOpen(rs1)) {
 	    if (rs >= 0) rs = rs1 ;
@@ -945,6 +946,7 @@ retearly:
 #endif
 
 	if (pip->efp != NULL) {
+	    pip->open.errfile = FALSE ;
 	    bclose(pip->efp) ;
 	    pip->efp = NULL ;
 	}
@@ -1156,7 +1158,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *app,
 	                if (rs < 0) break ;
 	            } /* end while (reading lines) */
 
-	            bclose(afp) ;
+	            rs1 = bclose(afp) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
 			fmt = "%s: inaccessible arglist (%d)\n" ;

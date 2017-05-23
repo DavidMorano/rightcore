@@ -243,6 +243,8 @@ struct proginfo {
 	int		to_msgread ;
 	int		nrecips ;
 	int		nmsgs ;
+	int		pserial ;
+	int		serial ;
 	int		c_processed, c_delivered ;
 	int		port_comsat ;
 	char		zname[DATER_ZNAMESIZE+1] ;

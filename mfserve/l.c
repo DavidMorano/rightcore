@@ -288,6 +288,7 @@ int mfslisten_maint(PROGINFO *pip,POLLER *pmp)
 /* ATHSUSED */
 int mfslisten_handle(PROGINFO *pip,POLLER *pmp,int fd,int re)
 {
+	LOCINFO		*lip = pip->lip ;
 	LISTENSPEC	*lsp ;
 	int		rs ;
 	if ((rs = mfslisten_hit(pip,&lsp,fd,re)) > 0) {
@@ -295,7 +296,7 @@ int mfslisten_handle(PROGINFO *pip,POLLER *pmp,int fd,int re)
 	    int			salen = sizeof(SOCKADDRESS) ;
 	    if ((rs = locinfo_getaccto(lip)) >= 0) {
 	        const int	to = rs ;
-	        if ((rs = listenspec_accept(lsp,&sa,&salen,to)) {
+	        if ((rs = listenspec_accept(lsp,&sa,&salen,to)) >= 0) {
 	            const int	cfd = rs ;
 		    rs = 1 ;
 		}

@@ -459,11 +459,13 @@ int outema_needlength(OUTEMA *ldp,int cl)
 {
 	int		nlen = (cl + 1) ;
 
-	if (ldp->llen == 0)
+	if (ldp->llen == 0) {
 	    nlen += 1 ;
+	}
 
-	if (ldp->f.comma && (ldp->c_items > 0))
+	if (ldp->f.comma && (ldp->c_items > 0)) {
 	    nlen += 1 ;
+	}
 
 	return nlen ;
 }

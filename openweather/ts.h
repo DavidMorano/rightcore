@@ -25,7 +25,7 @@
 
 #define	TS			struct ts_head
 #define	TS_CUR			struct ts_c
-#define	TS_ENT		TSE_ALL
+#define	TS_ENT			TSE_ALL
 
 #define	TS_FILEMAGIC		"MS"
 #define	TS_FILEMAGICLEN		2

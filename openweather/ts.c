@@ -50,70 +50,65 @@
 
 	Design note: 
 
-	In summary, Solaris sucks cock meat!  Solaris does not allow a
-	file to be memory-mapped from an NFS remote server *and* also
-	be file-locked at the same time.  A lot of stupid Solaris
-	documentation notes say something to the effect that the Solaris
-	VM system cannot handle a remote file that is both mapped and
-	subject to file-locking at the same time.  They use some sort of
-	stupid circular reasoning that if any file is being file-locked,
-	then obviously it cannot be memory-mapped since the file locking
-	indicates that file-locking is taking place, and that obviously
-	any file that is being file-locked cannot therefore also be memory
-	mapped.  That is pretty much their reasoning -- I kid you not!
+        In summary, Solaris sucks cock meat! Solaris does not allow a file to be
+        memory-mapped from an NFS remote server *and* also be file-locked at the
+        same time. A lot of stupid Solaris documentation notes say something to
+        the effect that the Solaris VM system cannot handle a remote file that
+        is both mapped and subject to file-locking at the same time. They use
+        some sort of stupid circular reasoning that if any file is being
+        file-locked, then obviously it cannot be memory-mapped since the file
+        locking indicates that file-locking is taking place, and that obviously
+        any file that is being file-locked cannot therefore also be memory
+        mapped. That is pretty much their reasoning -- I kid you not!
 
-	Unfortunately, code, like this code here, that was first designed
-	under System V UNIX® that used file-locking *and* memory mapping
-	together really needs to be changed to eliminate either the file
-	locking or the memory mapping.	Remote files were cross mounted
-	in the late 80s and very early 90s using RFS (not stupid NFS).
-	The use of RFS provided many advantages not the least of them
-	being full UFS file-system semantics, but it is not clear why
-	Solaris took a step backward from simply allowing remote files
-	to be both memory-mapped and file-locked at the same time.
-	Some bright light-bulb of a software developer must have gotten
-	his underwear in a bunch at some point and decided to disallow
-	both of these from ever occurring at the same time in Solaris.
-	We all have suffered from these dumb-butt Solaris developers
-	since we have to take time out to re-debug-write old code (like
-	this code here) to handle the case of stupid Solaris not allowing
-	memory mapping for a file that is also file-locked.
+        Unfortunately, code, like this code here, that was first designed under
+        System V UNIX® that used file-locking *and* memory mapping together
+        really needs to be changed to eliminate either the file locking or the
+        memory mapping. Remote files were cross mounted in the late 80s and very
+        early 90s using RFS (not stupid NFS). The use of RFS provided many
+        advantages not the least of them being full UFS file-system semantics,
+        but it is not clear why Solaris took a step backward from simply
+        allowing remote files to be both memory-mapped and file-locked at the
+        same time. Some bright light-bulb of a software developer must have
+        gotten his underwear in a bunch at some point and decided to disallow
+        both of these from ever occurring at the same time in Solaris. We all
+        have suffered from these dumb-butt Solaris developers since we have to
+        take time out to re-debug-write old code (like this code here) to handle
+        the case of stupid Solaris not allowing memory mapping for a file that
+        is also file-locked.
 
 	Implementation note:
 
-	The code was actually running when files were being locked in
-	their entirety and beyond their ends.  There was some sort of
-	loop-hole in the stupid Solaris code that allowed a file to be
-	both file-locked and memory mapped at the same time under certain
-	circumstances.	However, there seemed to be problems with this
-	code when other parties on other (remote) systems tried to do the
-	same thing.  They sometimes failed with dead-lock types of errors
-	(I forget the details).  As a result, I decided to change the
-	code to fully comply with the stupid Solaris requirements that
-	no remote file be both memory mapped and file locked at the same
-	time.  Any code that is here now that has to be with mapping of
-	files is really just code that now allocates local private memory.
-	This is done instead of using the process heap but was really
-	done because it seemed to offer the minimal changes to the code
-	to get a private memory access to the file while still retaining
-	the ability to file-lock the file.  Finally, let me finish with
-	the comment that Solaris sucks cock meat.
+        The code was actually running when files were being locked in their
+        entirety and beyond their ends. There was some sort of loop-hole in the
+        stupid Solaris code that allowed a file to be both file-locked and
+        memory mapped at the same time under certain circumstances. However,
+        there seemed to be problems with this code when other parties on other
+        (remote) systems tried to do the same thing. They sometimes failed with
+        dead-lock types of errors (I forget the details). As a result, I decided
+        to change the code to fully comply with the stupid Solaris requirements
+        that no remote file be both memory mapped and file locked at the same
+        time. Any code that is here now that has to be with mapping of files is
+        really just code that now allocates local private memory. This is done
+        instead of using the process heap but was really done because it seemed
+        to offer the minimal changes to the code to get a private memory access
+        to the file while still retaining the ability to file-lock the file.
+        Finally, let me finish with the comment that Solaris sucks cock meat.
 
 	Final note:
 
-	Solaris sucks cock meat!  Give me back simultaneous memory mapping
-	and file locking.  And while you're at it, give me back RFS also!
-	And to you stupid Solaris VM developers, get out of Solaris
-	development.  Either get a new job somewhere else or think about
-	committing suicide.  Either way, we can all be happier with one
-	(or more) of those alternatives.
+        Solaris sucks cock meat! Give me back simultaneous memory mapping and
+        file locking. And while you're at it, give me back RFS also! And to you
+        stupid Solaris VM developers, get out of Solaris development. Either get
+        a new job somewhere else or think about committing suicide. Either way,
+        we can all be happier with one (or more) of those alternatives.
 
 	Anecdotal note:
 
-	Hey, you stupid Solaris developers: give me back the ability to
-	push SOCKMOD on a TPI endpoint also!  Since you're so stupid,
-	I know that you forgot that this was possible at one time.  You
-	hosed that ability away when you botched up making Solaris 2.6.
+        Hey, you stupid Solaris developers: give me back the ability to push
+        SOCKMOD on a TPI endpoint also! Since you're so stupid, I know that you
+        forgot that this was possible at one time. You hosed that ability away
+        when you botched up making Solaris 2.6.
 
 
 ******************************************************************************/
@@ -754,15 +749,19 @@ TS_ENT	*ep ;
 
   	    if (ep != NULL) {
 		ew = *ep ;
-	    } else
+	    } else {
 		memset(&ew,0,sizeof(TS_ENT)) ;
+	    }
 
 	    if (ew.count == 0) ew.count = 1 ;
 	    if (ew.utime == 0) ew.utime = daytime ;
 	    if (ew.ctime == 0) ew.ctime = daytime ;
-	    if (ew.keyname[0] == '\0') 
+	    if (ew.keyname[0] == '\0') {
 		strdcpy1w(ew.keyname,TSE_LKEYNAME,nnp,nnl) ;
-	    if (ew.hash == 0) ew.hash = hashelf(ew.keyname,-1) ;
+	    }
+	    if (ew.hash == 0) {
+		ew.hash = hashelf(ew.keyname,-1) ;
+	    }
 
 	    tse_all(&ew,0,bp,ebs) ;
 

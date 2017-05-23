@@ -244,6 +244,7 @@ struct locinfo_flags {
 	uint		uaux:1 ;
 	uint		allocfname:1 ;
 	uint		ttl:1 ;
+	uint		hextime:1 ;
 } ;
 
 struct locinfo {
@@ -318,6 +319,8 @@ static int	getncpus(PROGINFO *) ;
 static int	getbtime(PROGINFO *) ;
 static int	getrnum(PROGINFO *) ;
 static int	getmem(PROGINFO *) ;
+
+static int	cftime(PROGINFO *,char *,int,ulong) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
@@ -410,6 +413,7 @@ static cchar *akonames[] = {
 	"utf",
 	"db",
 	"ttl",
+	"hextime",
 	NULL
 } ;
 
@@ -417,6 +421,7 @@ enum akonames {
 	akoname_utf,
 	akoname_db,
 	akoname_ttl,
+	akoname_hextime,
 	akoname_overlast
 } ;
 
@@ -1360,7 +1365,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_utf:
 	                case akoname_db:
 	                    if (! lip->final.utfname) {
@@ -1372,7 +1376,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_ttl:
 	                    if (! lip->final.ttl) {
 	                        lip->have.ttl = TRUE ;
@@ -1384,7 +1387,17 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
+	                case akoname_hextime:
+	                    if (! lip->final.hextime) {
+	                        lip->have.hextime = TRUE ;
+	                        lip->final.hextime = TRUE ;
+	                        lip->f.hextime = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.hextime = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1730,17 +1743,17 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	        cbl = rs ;
 	    }
 	    break ;
-	case qopt_btime:
-	    if ((rs = getbtime(pip)) >= 0) {
-	        const ulong	lv = lip->btime ;
-	        rs = ctdecul(cvtbuf,cvtlen,lv) ;
+	case qopt_hz:
+	    if ((rs = locinfo_hz(lip)) >= 0) {
+	        rs = cftime(pip,cvtbuf,cvtlen,rs) ;
 	        cbp = cvtbuf ;
 	        cbl = rs ;
 	    }
 	    break ;
-	case qopt_hz:
-	    if ((rs = locinfo_hz(lip)) >= 0) {
-	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
+	case qopt_btime:
+	    if ((rs = getbtime(pip)) >= 0) {
+	        const ulong	lv = lip->btime ;
+	        rs = cftime(pip,cvtbuf,cvtlen,lv) ;
 	        cbp = cvtbuf ;
 	        cbl = rs ;
 	    }
@@ -1749,7 +1762,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	case qopt_utime:
 	    {
 	        const ulong	lv = pip->daytime ;
-	        rs = ctdecul(cvtbuf,cvtlen,lv) ;
+	        rs = cftime(pip,cvtbuf,cvtlen,lv) ;
 	        cbp = cvtbuf ;
 	        cbl = rs ;
 	    }
@@ -1757,7 +1770,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	case qopt_wtime:
 	    if ((rs = locinfo_wtime(lip)) >= 0) {
 	        const ulong	lv = lip->wtime ;
-	        rs = ctdecul(cvtbuf,cvtlen,lv) ;
+	        rs = cftime(pip,cvtbuf,cvtlen,lv) ;
 	        cbp = cvtbuf ;
 	        cbl = rs ;
 	    }
@@ -1766,7 +1779,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    {
 		ulong	rtime ;
 	        if ((rs = locinfo_rtime(lip,&rtime)) >= 0) {
-	            rs = ctdecul(cvtbuf,cvtlen,rtime) ;
+	            rs = cftime(pip,cvtbuf,cvtlen,rtime) ;
 	            cbp = cvtbuf ;
 	            cbl = rs ;
 		}
@@ -3166,6 +3179,20 @@ static int getmem(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (getmem) */
+
+
+static int cftime(PROGINFO *pip,char *cvtbuf,int cvtlen,ulong lv)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs ;
+	if (lip->f.hextime) {
+	    rs = cthexul(cvtbuf,cvtlen,lv) ;
+	} else {
+	    rs = ctdecul(cvtbuf,cvtlen,lv) ;
+	}
+	return rs ;
+}
+/* end subroutine (cftime) */
 
 
 static int getam(cchar *vp,int vl)

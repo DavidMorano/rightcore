@@ -375,6 +375,7 @@ struct kshlib {
 	pid_t		sid ;		/* session ID */
 	pid_t		pid ;		/* process ID */
 	pthread_t	tid ;		/* worker thread */
+	time_t		ti_sescheck ;
 	volatile int	f_initonce ;	/* aligned |int|s are already atomic */
 	volatile int	f_init ;	/* aligned |int|s are already atomic */
 	volatile int	f_initdone ;	/* aligned |int|s are already atomic */
@@ -389,7 +390,6 @@ struct kshlib {
 	sig_atomic_t	f_sigwich ;
 	sig_atomic_t	f_sigchild ;
 	sig_atomic_t	f_sigsusp ;
-	time_t		ti_sescheck ;
 	int		intpoll ;
 	int		intsescheck ;
 	int		seshour ;

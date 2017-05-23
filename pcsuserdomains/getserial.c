@@ -139,7 +139,7 @@ int getserial(cchar *sfname)
 	int		serial = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("getserial: ent sb=%s\n",sfname) ;
+	debugprintf("getserial: ent sfn=%s\n",sfname) ;
 #endif
 
 	if ((sfname == NULL) || (sfname[0] == '\0'))

@@ -1,2 +1,2 @@
 const char rbbpost_makedate[] =
-"@(#)rbbpost                 170514_2053:19_USEDT Rightcore Network Services" ;
+"@(#)rbbpost                 170523_0051:11_USEDT Rightcore Network Services" ;

@@ -990,10 +990,17 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* cotinue intialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (argval == NULL) argval = getourenv(pip->envv,VARNSHOW) ;
 
-	if ((rs = locinfo_nshow(lip,argval)) >= 0) {
-	    rs = procopts(pip,&akopts,&aparams) ;
+	if (rs >= 0) {
+	    if ((rs = locinfo_nshow(lip,argval)) >= 0) {
+	        rs = procopts(pip,&akopts,&aparams) ;
+	    }
 	}
 
 	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;

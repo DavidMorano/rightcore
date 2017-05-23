@@ -1,6 +1,6 @@
 /* mfsc */
 
-/* MFS Name-Server-Client */
+/* MFS Client code */
 /* object to interact with the MFS server */
 
 
@@ -22,7 +22,8 @@
 
 /*******************************************************************************
 
-	This module mediates the interactions with the MF-Server (MFSERVE).
+	This module obkect is a client manager for client requests.  This is
+	client-side code that interacts with the server (MFSERVE).
 
 
 *******************************************************************************/

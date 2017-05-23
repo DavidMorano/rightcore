@@ -514,7 +514,7 @@ int varsub_expandfile(VARSUB *op,bfile *ifp,bfile *ofp)
 
 	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (varsub_subfile) */
+/* end subroutine (varsub_expandfile) */
 
 
 /* perform substitutions on a buffer */
