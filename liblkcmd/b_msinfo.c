@@ -405,7 +405,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	SHIO		errfile ;
-	vecstr		nodes ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	uint		mo_start = 0 ;
@@ -459,7 +458,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1084,21 +1083,22 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* collect the nodes (if we have any) */
 
 	if (rs >= 0) {
-	if ((rs = vecstr_start(&nodes,10,0)) >= 0) {
+	    vecstr	nodes ;
+	    if ((rs = vecstr_start(&nodes,10,0)) >= 0) {
 
-	    if (! lip->f.all) {
-	        rs = procargs(pip,&ainfo,&pargs,&nodes,afname) ;
-	    } /* end if (not doing all nodes in DB) */
+	        if (! lip->f.all) {
+	            rs = procargs(pip,&ainfo,&pargs,&nodes,afname) ;
+	        } /* end if (not doing all nodes in DB) */
 
-	    if (rs >= 0) {
-	        rs = procout(pip,&nodes,ski,cmpfunc,msfname,ofname) ;
+	        if (rs >= 0) {
+	            rs = procout(pip,&nodes,ski,cmpfunc,msfname,ofname) ;
+	        }
+
+	        rs1 = vecstr_finish(&nodes) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        ex = EX_OSERR ;
 	    }
-
-	    rs1 = vecstr_finish(&nodes) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    ex = EX_OSERR ;
-	}
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;

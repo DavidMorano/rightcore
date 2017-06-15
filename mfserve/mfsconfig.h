@@ -39,7 +39,6 @@ struct config {
 	PROGINFO	*pip ;
 	CONFIG_FL	f ;
 	PARAMFILE	p ;
-	EXPCOOK		cooks ;
 	time_t		ti_lastcheck ;
 	int		intcheck ;
 } ;

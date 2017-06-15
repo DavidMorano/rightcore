@@ -13,9 +13,7 @@
 /* revision history:
 
 	= 2005-11-21, David A­D­ Morano
-
 	This program was started by copying from the RSLOW program.
-
 
 */
 
@@ -1342,10 +1340,10 @@ static int procdial(PROGINFO *pip,cchar *rhostname,cchar *rcmdname)
 	    }
 #endif
 
-	    opts |= DIALOPTS_MPWD ;
-	    if (lip->f.wait) opts |= DIALOPTS_MWAIT ;
-	    if (lip->f.waittimed) opts |= DIALOPTS_MWTIMED ;
-	    if (lip->f.empty) opts |= DIALOPTS_MEMPTY ;
+	    opts |= DIALOPT_PWD ;
+	    if (lip->f.wait) opts |= DIALOPT_WAIT ;
+	    if (lip->f.waittimed) opts |= DIALOPT_WTIMED ;
+	    if (lip->f.empty) opts |= DIALOPT_EMPTY ;
 
 	    an = 1 ;
 	    if (ai_pass > 0)

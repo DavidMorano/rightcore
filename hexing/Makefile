@@ -13,15 +13,12 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT

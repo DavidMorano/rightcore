@@ -13,18 +13,13 @@
 /* revision history:
 
 	= 2004-01-10, David A­D­ Morano
-
-	:-)  It cracks me up how I take one program and make another
-	from it! :-)  This program is now a built-in command (MSU) to 
-	the KSH program to update the machine status for the current
-	node in the cluster.  
-	[added for program checking -- ((]
-
+        :-) It cracks me up how I take one program and make another from it! :-)
+        This program is now a built-in command (MSU) to the KSH program to
+        update the machine status for the current node in the cluster. [added
+        for program checking -- ((]
 
 	= 2004-01-12, David A­D­ Morano
-
 	This program is now the MSINFO KSH built-in command.
-
 
 */
 
@@ -32,9 +27,8 @@
 
 /*******************************************************************************
 
-	This subroutine provides an additional method to the MSFILE
-	object.  It finds the best of the entries given a couple
-	of optional restrictions.
+        This subroutine provides an additional method to the MSFILE object. It
+        finds the best of the entries given a couple of optional restrictions.
 
 
 *******************************************************************************/
@@ -45,7 +39,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/wait.h>
 #include	<limits.h>
 #include	<unistd.h>
 #include	<fcntl.h>

@@ -88,7 +88,9 @@
 
 #define	LOGSIZE		(80*1024)
 
+#ifndef	MAILMSGLINELEN
 #define	MAILMSGLINELEN	72
+#endif
 
 #define	DEFINDENT	2
 

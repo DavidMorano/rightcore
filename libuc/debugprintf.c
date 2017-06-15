@@ -25,7 +25,7 @@
         besides that it tries to be as simple as possible, so that it depends on
         as little other stuff as possible.
 
-	Notes about recent UNIX® deficiencies:
+	+ Notes about recent UNIX® deficiencies:
 
         On most more recent UNIXi® systems, writes (even |write(2)| writes) are
         not atomic when the file descriptor is in APPEND mode. This stupid
@@ -36,7 +36,7 @@
         behavior has somehow spread to even mess up when writing to files on
         local file-systems.
 
-	Notes:
+	+ Notes on multithread:
 
 	Q. Does this subroutine need to be multi-thread-safe?
 
@@ -75,6 +75,14 @@
         some reason you need to be independent of that subsystem, a non-dynamic
         buffer version is available by setting the CF_USEMALLOC compile-time
         flag to zero (0).
+
+	+ Note on locking:
+
+	There is no problem using (for example) |uc_lockf(3uc)| for establishing	the lock on the file.  The problem comes in with the associated un-lock
+        component. Since the file advances the file-pointer (file-offset) value,
+        the assocated un-lock does not unlock the proper file section, but
+        rather a section beyond what was written. So we use |uc_lockfile(3uc)|
+        instead to just lock and unlock the entire file.
 
 
 *******************************************************************************/
@@ -699,7 +707,7 @@ static int debugprinters(cchar *sbuf,int slen)
 
 		        cmd = F_UNLOCK ;
 		        uc_lockfile(fd,cmd,0L,0L,-1) ;
-		    } /* end if (uc_lockf) */
+		    } /* end if (uc_lockfile) */
 		} /* end if (debugtestlock) */
 	        ptm_unlock(&uip->m) ;
 	    } /* end if (ptm) */

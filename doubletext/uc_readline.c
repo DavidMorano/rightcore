@@ -328,11 +328,8 @@ static int readline_stream(int fd,char *lbuf,int llen,int to)
 
 	} /* end while */
 
-	if ((rs >= 0) && (tlen == 0) && f_to &&
-	    (! f_eof) && (llen > 0)) {
-
+	if ((rs >= 0) && (tlen == 0) && f_to && (! f_eof) && (llen > 0)) {
 	    rs = SR_TIMEDOUT ;
-
 	} /* end if */
 
 	return (rs >= 0) ? tlen : rs ;

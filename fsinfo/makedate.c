@@ -1,2 +1,2 @@
 const char fsinfo_makedate[] =
-"@(#)fsinfo                  170421_0142:40_USEDT Rightcore Network Services¹" ;
+"@(#)fsinfo                  170606_1745:10_USEDT Rightcore Network Services" ;

@@ -45,7 +45,7 @@ struct procse_head {
 extern "C" {
 #endif
 
-extern int procse_start(PROCSE *,const char **,varsub *,PROCSE_ARGS *) ;
+extern int procse_start(PROCSE *,cchar **,varsub *,PROCSE_ARGS *) ;
 extern int procse_process(PROCSE *,EXPCOOK *) ;
 extern int procse_finish(PROCSE *) ;
 

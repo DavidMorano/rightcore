@@ -49,6 +49,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<char.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<baops.h>
@@ -304,7 +305,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -751,7 +752,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (searchstr == NULL)
 	    searchstr = "" ;
 
-	if ((fn < 0) && (argval != NULL)) {
+	if ((rs >= 0) && (fn < 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;
 	    fn = rs ;
 	}
@@ -890,12 +891,13 @@ const char	*afn ;
 	    if (rs >= 0) {
 	        int	ai ;
 	        int	f ;
+		cchar	**argv = aip->argv ;
 	        for (ai = aip->ai_continue ; ai < aip->argc ; ai += 1) {
 
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
-	                cp = aip->argv[ai] ;
+	                cp = argv[ai] ;
 	                pan += 1 ;
 	                rs = procfile(pip,sip,ofp,cp) ;
 	            }
@@ -915,7 +917,7 @@ const char	*afn ;
 	        if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
 	            int		len ;
-	            char		lbuf[LINEBUFLEN + 1] ;
+	            char	lbuf[LINEBUFLEN + 1] ;
 
 	            while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
 	                len = rs ;
@@ -981,7 +983,6 @@ static int procfile(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar fname[])
 	if ((rs = shio_open(ifp,fname,"r",0666)) >= 0) {
 	    const int	llen = LINEBUFLEN ;
 	    int		len ;
-	    int		i ;
 	    int		sl, cl ;
 	    const char	*sp, *cp ;
 	    char	lbuf[LINEBUFLEN + 1] ;
@@ -1023,7 +1024,10 @@ static int procfile(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar fname[])
 
 	            while (sl > 0) {
 	                const int	sch = MKCHAR(*sp) ;
-	                if ((! isspace(sch)) && (! BATST(fterms,sch))) break ;
+			int		f_b = TRUE ;
+			f_b = f_b && (! CHAR_ISWHITE(sch)) ;
+	                f_b = f_b && (! BATST(fterms,sch)) ;
+			if (f_b) break ;
 	                sp += 1 ;
 	                sl -= 1 ;
 	            } /* end while */
@@ -1031,12 +1035,12 @@ static int procfile(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar fname[])
 /* OK, print what was specified */
 
 	            if (sip->fn > 0) {
-	                FIELD	fsb ;
+	                FIELD		fsb ;
 	                int		fl ;
 	                const char	*fp ;
 	                if ((rs = field_start(&fsb,sp,sl)) >= 0) {
+	                    int	i = 0 ;
 
-	                    i = 0 ;
 	                    while ((i < sip->fn) &&
 	                        ((fl = field_word(&fsb,fterms,&fp)) >= 0)) {
 
@@ -1047,8 +1051,7 @@ static int procfile(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar fname[])
 #endif
 
 	                        if (! lip->f.empty) {
-	                            if (fl > 0)
-	                                i += 1 ;
+	                            if (fl > 0) i += 1 ;
 	                        } else
 	                            i += 1 ;
 

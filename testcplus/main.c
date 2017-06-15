@@ -288,10 +288,10 @@ static int testlambda(void)
 	    cout << '\n' ;
 
 	cout << "for-each " ;
-	auto ibegin = mv.cbegin() ;
-	auto iend = mv.cend() ;
+	auto itb = mv.cbegin() ;
+	auto ite = mv.cend() ;
 	auto func = [&sum] (int v) { sum += v ; } ;
-	for_each(ibegin,iend,func) ;
+	for_each(itb,ite,func) ;
 	cout << "sum=" << sum << '\n' ;
 
 	return 0 ;

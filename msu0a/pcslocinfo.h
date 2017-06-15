@@ -57,6 +57,7 @@ struct locinfo_flags {
 	uint		cmds:1 ;
 	uint		adj:1 ;
 	uint		reqexit:1 ;
+	uint		runasprn:1 ;
 } ;
 
 struct locinfo {
@@ -83,12 +84,14 @@ struct locinfo {
 	time_t		ti_dirmaint ;
 	uid_t		uid_rootname ;
 	gid_t		gid_rootname ;
+	int		kserial ;
+	int		serial ;
+	int		nu ;		/* n-updates */
+	int		rfd ;		/* request file-descriptor */
 	int		intconfig ;	/* interval configuration changed */
 	int		intspeed ;	/* interval speed update */
 	int		intdirmaint ;	/* interval dir-maintenance */
 	int		intclients ;	/* interval client sockets */
-	int		nu ;		/* n-updates */
-	int		rfd ;		/* request file-descriptor */
 	int		to_cache ;
 	int		to_lock ;
 	int		reqs ;		/* count of requests */
@@ -110,7 +113,7 @@ extern int	locinfo_lockcheck(LOCINFO *) ;
 extern int	locinfo_lockend(LOCINFO *) ;
 extern int	locinfo_defreg(LOCINFO *) ;
 extern int	locinfo_defdaemon(LOCINFO *) ;
-extern int	locinfo_tmpourdname(LOCINFO *) ;
+extern int	locinfo_tmpourdir(LOCINFO *) ;
 extern int	locinfo_msfile(LOCINFO *) ;
 extern int	locinfo_reqfname(LOCINFO *) ;
 extern int	locinfo_ipcpid(LOCINFO *,int) ;

@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 2001-07-10, David A­D­ Morano
-
 	This code was started.
-
 
 */
 
@@ -31,7 +29,8 @@
 
 /* object defines */
 
-#define	SHIFTREGL	struct shiftregl_head
+#define	SHIFTREGL_MAGIC		0x74896233
+#define	SHIFTREGL		struct shiftregl_head
 
 
 struct shiftregl_head {

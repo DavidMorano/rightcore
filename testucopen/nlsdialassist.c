@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-02-17, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -57,10 +55,7 @@
 #define	SVCLEN		MAXNAMELEN
 #endif
 
-#define	NLSBUFLEN	(SVCLEN + 30)
-
 #define	RBUFLEN		MAXNAMELEN
-#define	TBUFLEN		MAXNAMELEN
 
 
 /* external subroutines */
@@ -154,7 +149,7 @@ int readnlsresp(int fd,char *tbuf,int tlen,int to)
 	} /* end if (reading response) */
 
 #if	CF_DEBUGS
-	    debugprintf("readnlsresp: ret rs=%d\n",rs) ;
+	debugprintf("readnlsresp: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -182,8 +177,9 @@ static int nlsresponse(char *tbuf,int tlen,cchar *rbuf,int rlen)
 	                sp = (tp+1) ;
 	                rs = snwcpy(tbuf,tlen,sp,sl) ;
 	            }
-	        } else
+	        } else {
 	            rs = SR_PROTO ;
+		}
 	    }
 	}
 	if ((rs >= 0) && (pv != NLPS_REQVERSION)) rs = SR_NOPROTOOPT ;

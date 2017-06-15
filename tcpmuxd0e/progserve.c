@@ -63,6 +63,7 @@
 
 #include	"config.h"
 #include	"defs.h"
+#include	"proglog.h"
 #include	"builtin.h"
 #include	"standing.h"
 #include	"svckey.h"
@@ -148,11 +149,6 @@ extern int	mkquoted(char *,int,const char *,int) ;
 extern int	optbool(const char *,int) ;
 extern int	isasocket(int) ;
 extern int	uc_waitwritable(int,int) ;
-
-extern int	proglog_begin(PROGINFO *,USERINFO *) ;
-extern int	proglog_printf(PROGINFO *,cchar *,...) ;
-extern int	proglog_flush(PROGINFO *) ;
-extern int	proglog_end(PROGINFO *) ;
 
 extern int	progsrvargs(PROGINFO *,vecstr *,const char *) ;
 extern int	progshlib(PROGINFO *,cchar *,cchar *,vecstr *,cchar *,int) ;
@@ -691,15 +687,18 @@ const char		*sav[] ;
 	}
 
 badnoprog:
-	vecstr_finish(&alist) ;
+	rs1 = vecstr_finish(&alist) ;
+	if (rs >= 0) rs = rs1 ;
 
 badseproc:
 badarginit:
-	procse_finish(&se) ;
+	rs1 = procse_finish(&se) ;
+	if (rs >= 0) rs = rs1 ;
 
 badseinit:
-	if (pip->open.logprog)
+	if (pip->open.logprog) {
 	    proglog_flush(pip) ;
+	}
 
 badnoperm:
 badprocacc:

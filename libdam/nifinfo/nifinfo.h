@@ -1,6 +1,8 @@
 /* nifinfo */
 
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
 #ifndef	NIFINFO_INCLUDE
 #define	NIFINFO_INCLUDE		1
 

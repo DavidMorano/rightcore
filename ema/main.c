@@ -910,6 +910,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    const char	*ifn = ifname ;
 	    const char	*afn = afname ;
 	    rs = procargs(pip,&ainfo,&pargs,&aparams,ofn,ifn,afn) ;
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,"%s: usage (%d)\n",pn,rs) ;
+	    usage(pip) ;
 	} /* end if (ok) */
 
 /* done */

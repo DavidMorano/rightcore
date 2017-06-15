@@ -69,11 +69,11 @@ extern int stdorder_wll(void *,LONG) ;
 #define	stdorder_wlong64(a,b)	stdorder_wll((a),(b))
 #endif
 
-#define	stdorder_wuchar(A,B)	stdorder_wchar((A),(B)) ;
-#define	stdorder_wushort(A,B)	stdorder_wshort((A),(B)) ;
-#define	stdorder_wuint(A,B)	stdorder_wint((A),(B)) ;
-#define	stdorder_wulong(A,B)	stdorder_wlong((A),(B)) ;
-#define	stdorder_wull(A,B)	stdorder_wll((A),(B)) ;
+#define	stdorder_wuchar(A,B)	stdorder_wchar((A),(B))
+#define	stdorder_wushort(A,B)	stdorder_wshort((A),(B))
+#define	stdorder_wuint(A,B)	stdorder_wint((A),(B))
+#define	stdorder_wulong(A,B)	stdorder_wlong((A),(B))
+#define	stdorder_wull(A,B)	stdorder_wll((A),(B))
 
 #if	(LONG_BIT == 64)
 #define	stdorder_wulong64(a,b)	stdorder_wulong((a),(b))

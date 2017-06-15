@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-04-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -19,13 +17,12 @@
 
 /*******************************************************************************
 
-	This little object provides multiplexing of two ways to search
-	the cluster 'nodes' file.  If the file is 'regular', the
-	NODESFILE object is used to process it (for speed).  If the
-	file is anything other than a 'regular' file, then a HDBSTR
-	object is used to process it and the file is read line-by-line
-	not assuming that the file may be seekable (suitable for pipes,
-	FIFOs, sockets, and the like).
+        This little object provides multiplexing of two ways to search the
+        cluster 'nodes' file. If the file is 'regular', the NODESFILE object is
+        used to process it (for speed). If the file is anything other than a
+        'regular' file, then a HDBSTR object is used to process it and the file
+        is read line-by-line not assuming that the file may be seekable
+        (suitable for pipes, FIFOs, sockets, and the like).
 
 
 *******************************************************************************/

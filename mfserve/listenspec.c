@@ -3,7 +3,7 @@
 /* hold (or manage) a "listen" specification */
 
 
-#define	CF_DEBUGS	0		/* compile-time debug print-outs */
+#define	CF_DEBUGS	1		/* compile-time debug print-outs */
 #define	CF_SAFE		1		/* extra safe? */
 #define	CF_OPENPORT	1		/* use 'openport(3dam)' */
 #define	CF_NONBLOCK	0		/* set non-blocking on sockets */
@@ -510,6 +510,10 @@ int listenspec_accept(LISTENSPEC *op,void *fromp,int *fromlenp,int to)
 	} else
 	    rs = SR_BADFD ;
 
+#if	CF_DEBUGS
+	debugprintf("listenspec_accept: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (listenspec_accept) */
@@ -559,6 +563,10 @@ int listenspec_info(LISTENSPEC *op,LISTENSPEC_INFO *lip)
 	        lip->state |= LISTENSPEC_MBROKEN ;
 	    strwcpy(lip->type,ltypes[op->ltype],LISTENSPEC_TYPELEN) ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("listenspec_info: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

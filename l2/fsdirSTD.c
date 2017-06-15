@@ -11,17 +11,15 @@
 /* revision history:
 
 	= 1998-06-16, David A­D­ Morano
-
-	This subroutine was written so that we could use a single
-	file-system directory interface due to all of the changes in
-	the POSIX standard and previous UNIX® standards.
-
+        This subroutine was written so that we could use a single file-system
+        directory interface due to all of the changes in the POSIX® standard and
+        previous UNIX® standards.
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	This code module provides a platform independent implementation
 	of UNIX® file system directory access subroutines.
@@ -55,7 +53,7 @@
 	that it is.
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #define	FSDIR_MASTER	1
@@ -80,8 +78,6 @@
 
 
 /* local defines */
-
-#define	FSDIR_MAGIC	0x31415926
 
 #define	TO_AGAIN	10
 #define	TO_NOLCK	20
@@ -143,11 +139,8 @@ const char	dirpath[] ;
 	int	rs = SR_OK ;
 
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (dirpath == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (dirpath == NULL) return SR_FAULT ;
 
 	memset(op,0,sizeof(FSDIR)) ;
 
@@ -173,15 +166,10 @@ fsdir_ent	*dirslotp ;
 	int	to_again = 0 ;
 	int	to_nolck = 0 ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (dirslotp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != FSDIR_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (dirslotp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != FSDIR_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
 	debugprintf("fsdir_read: dirslotp=%p\n",dirslotp) ;
@@ -308,19 +296,13 @@ int fsdir_tell(op,rp)
 fsdir		*op ;
 long		*rp ;
 {
-	long	lrs ;
+	long		lrs ;
+	int		rs ;
 
-	int	rs ;
+	if (op == NULL) return SR_FAULT ;
+	if (rp == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != FSDIR_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (rp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != FSDIR_MAGIC) return SR_NOTOPEN ;
 
 	errno = 0 ;
 	lrs = telldir(op->dirp) ;
@@ -344,14 +326,11 @@ int fsdir_seek(op,o)
 fsdir		*op ;
 long		o ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != FSDIR_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FSDIR_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_VOIDSEEKDIR
 	(void) seekdir(op->dirp,o) ;
@@ -368,14 +347,11 @@ long		o ;
 int fsdir_rewind(op)
 fsdir		*op ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != FSDIR_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FSDIR_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_VOIDSEEKDIR
 	(void) seekdir(op->dirp,0L) ;
@@ -391,14 +367,11 @@ fsdir		*op ;
 int fsdir_audit(op)
 fsdir		*op ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != FSDIR_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FSDIR_MAGIC) return SR_NOTOPEN ;
 
 	if (op->dirp == NULL) rs = SR_BADFMT ;
 
@@ -410,14 +383,11 @@ fsdir		*op ;
 int fsdir_close(op)
 fsdir		*op ;
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != FSDIR_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FSDIR_MAGIC) return SR_NOTOPEN ;
 
 	if ((rs = closedir(op->dirp)) < 0) rs = (- errno) ;
 
@@ -425,6 +395,5 @@ fsdir		*op ;
 	return rs ;
 }
 /* end subroutine (fsdir_close) */
-
 
 

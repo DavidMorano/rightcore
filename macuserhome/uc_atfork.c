@@ -24,18 +24,18 @@
 
 /*******************************************************************************
 
-	We are attempting to add an "unregister" feature to the
-	'pthread_atfork(3pthread)' facility.  We need to create a whole new
-	interface for this.  This new interface will consist of:
+        We are attempting to add an "unregister" feature to the
+        'pthread_atfork(3pthread)' facility. We need to create a whole new
+        interface for this. This new interface will consist of:
 
 	+ uc_atfork(3uc)
 	+ uc_atforkrelease(3uc)
 
-	We suffered a lot when first learning that
-	'pthread_atfork(3pthread)' did not get its registered subroutines
-	removed at load-module removal time (as though using something
-	like 'dlclose(3dl)').  So we attempt here to provide
-	something that does the un-registering at module un-load time.
+        We suffered a lot when first learning that 'pthread_atfork(3pthread)'
+        did not get its registered subroutines removed at load-module removal
+        time (as though using something like 'dlclose(3dl)'). So we attempt here
+        to provide something that does the un-registering at module un-load
+        time.
 
 	Enjoy.
 
@@ -167,6 +167,7 @@ void		(*sc)() ;
 	struct ucatfork	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = sigblock_start(&b,NULL)) >= 0) {
 	    if ((rs = ucatfork_init()) >= 0) {
@@ -186,21 +187,26 @@ void		(*sc)() ;
 	                        if (lep != NULL) {
 	                            lep->next = ep ;
 	                            ep->prev = lep ;
-	                        } else
+	                        } else {
 	                            ep->prev = NULL ;
+				}
 	                        udp->list.tail = ep ;
-	                        if (udp->list.head == NULL)
+	                        if (udp->list.head == NULL) {
 	                            udp->list.head = ep ;
+				}
 	                    } /* end if (memory-allocation) */
 	                } /* end if (track-begin) */
 
-	                ptm_unlock(&udp->m) ;
+	                rs1 = ptm_unlock(&udp->m) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (mutex) */
-	            uc_forklockend() ;
+	            rs1 = uc_forklockend() ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (forklock) */
 
 	    } /* end if (init) */
-	    sigblock_finish(&b) ;
+	    rs1 = sigblock_finish(&b) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (sigblock) */
 
 	return rs ;
@@ -216,6 +222,7 @@ void		(*sc)() ;
 	struct ucatfork	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 #if	CF_DEBUGN
@@ -257,13 +264,16 @@ void		(*sc)() ;
 	                    } /* end while (deleting matches) */
 	                } /* end if (track-begin) */
 
-	                ptm_unlock(&udp->m) ;
+	                rs1 = ptm_unlock(&udp->m) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (mutex) */
-	            uc_forklockend() ;
+	            rs1 = uc_forklockend() ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (forklock) */
 
 	    } /* end if (init) */
-	    sigblock_finish(&b) ;
+	    rs1 = sigblock_finish(&b) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (sigblock) */
 
 	return (rs >= 0) ? c : rs ;

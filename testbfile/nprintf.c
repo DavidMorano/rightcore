@@ -39,7 +39,7 @@
 	<0		failure
 
 
-	Notes:
+	+ Notes:
 
 	Q. Does this subroutine have to be multi-thread-safe?
 	A. In short, of course!
@@ -49,6 +49,15 @@
         A. Because we think that because we open the file a-fresh, getting a
         unique file-pointer, we *think* that the |write(2)| shoule be atomic,
         thus making this subroutine multi-thread-safe.
+
+
+	+ Note on locking:
+
+	There is no problem using (for example) |uc_lockf(3uc)| for establishing	the lock on the file.  The problem comes in with the associated un-lock
+        component. Since the file advances the file-pointer (file-offset) value,
+        the assocated un-lock does not unlock the proper file section, but
+        rather a section beyong what was written. So we use |uc_lockfile(3uc)|
+        instead to just lock and unlock the entire file.
 
 
 *******************************************************************************/
@@ -263,9 +272,9 @@ static int subinfo_wrline(SUBINFO *sip,cchar *sp,int sl)
 		rs = subinfo_write(sip,sip->id,sip->ilen) ;
 	    }
 	    if (rs >= 0) {
-		const int	alen = (sip->blen-sip->bl) ;
-		const int	n = (mlen/3) ;
-	        char		*bp = (sip->bp+sip->bl) ;
+		const int	alen = (sip->blen - sip->bl) ;
+		const int	n = (mlen / 3) ;
+	        char		*bp = (sip->bp + sip->bl) ;
 	        if ((rs = mkhexstr(bp,alen,sp,n)) >= 0) {
 		    sip->bl += rs ;
 		    sip->bp[sip->bl++] = '\n' ;
@@ -283,7 +292,7 @@ static int subinfo_flushover(SUBINFO *sip,int mlen)
 {
 	int		rs = SR_OK ;
 	if (mlen > (sip->blen-sip->bl)) {
-	    char	*bp = (sip->bp+sip->bl) ;
+	    char	*bp = (sip->bp + sip->bl) ;
 	    if ((rs = nprint(sip->fn,bp,sip->bl)) >= 0) {
 	        sip->wl += rs ;
 		sip->bl = 0 ;
@@ -297,8 +306,8 @@ static int subinfo_flushover(SUBINFO *sip,int mlen)
 static int subinfo_write(SUBINFO *sip,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
-	if (sl<(sip->blen-sip->bl)) {
-	    char	*bp = (sip->bp+sip->bl) ;
+	if (sl < (sip->blen-sip->bl)) {
+	    char	*bp = (sip->bp + sip->bl) ;
 	    rs = (strwcpy(bp,sp,sl) - sip->bp) ;
 	    sip->bl += rs ;
 	} else {

@@ -76,6 +76,8 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
+static int	sreq_fdfins(SREQ *) ;
+
 static int	mkfile(cchar *,cchar **) ;
 
 
@@ -88,8 +90,12 @@ static int	mkfile(cchar *,cchar **) ;
 int sreq_start(SREQ *jep,cchar *template,cchar *jobid,int ifd,int ofd)
 {
 	const time_t	dt = time(NULL) ;
-	int		rs = SR_OK ;
+	int		rs ;
 	cchar		*cp ;
+
+	if (jep == NULL) return SR_FAULT ;
+	if (template == NULL) return SR_FAULT ;
+	if (jobid == NULL) return SR_FAULT ;
 
 	memset(jep,0,sizeof(SREQ)) ;
 	jep->ifd = ifd ;
@@ -115,6 +121,15 @@ int sreq_finish(SREQ *jep)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+	if (jep->svcbuf != NULL) {
+	    rs1 = uc_free(jep->svcbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->svcbuf = NULL ;
+	}
+
+	rs1 = sreq_fdfins(jep) ;
+	if (rs >= 0) rs = rs1 ;
+
 	if (jep->efname != NULL) {
 	    if (jep->efname[0] != '\0') {
 		u_unlink(jep->efname) ;
@@ -132,7 +147,77 @@ int sreq_finish(SREQ *jep)
 /* end subroutine (sreq_finish) */
 
 
+int sreq_typeset(SREQ *op,int jt,int st)
+{
+	op->jtype = jt ;
+	op->stype = st ;
+	return SR_OK ;
+}
+/* end subroutine (sreq_typeset) */
+
+
+int sreq_getfd(SREQ *op)
+{
+	return op->ifd ;
+}
+/* end subroutine (sreq_getfd) */
+
+
+int sreq_havefd(SREQ *op,int fd)
+{
+	int		f = FALSE ;
+	f = f || ((op->ifd >= 0) && (op->ifd == fd)) ;
+	f = f || ((op->ofd >= 0) && (op->ofd == fd)) ;
+	return f ;
+}
+/* end subroutine (sreq_havefd) */
+
+
+int sreq_svcadd(SREQ *op,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	char		*bp ;
+	if (sl < 0) sl = strlen(sp) ;
+	if (op->svclen == 0) {
+	    if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
+		strwcpy(bp,sp,sl) ;
+		op->svcbuf = bp ;
+		op->svclen = sl ;
+	    }
+	} else {
+	    const int	nlen = (op->svclen+sl) ;
+	    if ((rs = uc_realloc(op->svcbuf,(nlen+1),&bp)) >= 0) {
+		strwcpy((bp+op->svclen),sp,sl) ;
+		op->svcbuf = bp ;
+		op->svclen = nlen ;
+	    }
+	}
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (sreq_svcadd) */
+
+
 /* private subroutines */
+
+
+static int sreq_fdfins(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (jep->ifd >= 0) {
+	    rs1 = u_close(jep->ifd) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	if ((jep->ofd >= 0) && (jep->ifd != jep->ofd)) {
+	    rs1 = u_close(jep->ofd) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->ofd = -1 ;
+	}
+	jep->ifd = -1 ;
+	return rs ;
+}
+/* end subroutine (sreq_fdfins) */
 
 
 static int mkfile(cchar *template,cchar **rpp)

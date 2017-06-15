@@ -1,2 +1,2 @@
 const char loginblurb_makedate[] =
-"@(#)loginblurb              170310_0024:39_USEST Rightcore Network Services¹" ;
+"@(#)loginblurb              170606_1733:15_USEDT Rightcore Network Services" ;

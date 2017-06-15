@@ -5,6 +5,7 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUGSTART	0		/* debug |isstart()| */
+#define	CF_DEBUGN	0		/* special debugging */
 #define	CF_DEBUGPW	0		/* debug |ktag_procword()| */
 #define	CF_DEBUGPL	0		/* debug |ktac_procline()| */
 #define	CF_EMPTYTERM	1		/* empty line terminates entry */
@@ -197,6 +198,8 @@
 #define	TO_MKWAIT	(5 * 50)
 
 #define	PROG_MKBIBLEQSI	"mkbibleqsi"
+
+#define	NDF		"/tmp/bibleqs.deb"
 
 
 /* external subroutines */
@@ -473,6 +476,10 @@ int bibleqs_open(BIBLEQS *op,cchar *pr,cchar *dbname)
 	    }
 	} /* end if (subinfo) */
 
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_open: ret rs=%d\n",rs) ;
+#endif
+
 #if	CF_DEBUGS
 	debugprintf("bibleqs_open: ret rs=%d\n",rs) ;
 #endif
@@ -505,6 +512,10 @@ int bibleqs_close(BIBLEQS *op)
 	rs1 = bibleqs_infoloadend(op) ;
 	if (rs >= 0) rs = rs1 ;
 
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_close: ret rs=%d\n",rs) ;
+#endif
+
 #if	CF_DEBUGS
 	debugprintf("bibleqs_close: ret rs=%d\n",rs) ;
 #endif
@@ -513,6 +524,31 @@ int bibleqs_close(BIBLEQS *op)
 	return rs ;
 }
 /* end subroutine (bibleqs_close) */
+
+
+int bibleqs_count(BIBLEQS *op)
+{
+	int		rs = SR_NOTOPEN ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_count: ent\n") ;
+#endif
+
+	if (op == NULL) return SR_FAULT ;
+
+	if (op->magic != BIBLEQS_MAGIC) return SR_NOTOPEN ;
+
+	if (op->f.ind) {
+	   rs = txtindex_count(&op->ind) ;
+	}
+
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_count: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (bibleqs_count) */
 
 
 int bibleqs_audit(BIBLEQS *op)
@@ -524,6 +560,10 @@ int bibleqs_audit(BIBLEQS *op)
 	if (op->magic != BIBLEQS_MAGIC) return SR_NOTOPEN ;
 
 	rs = txtindex_audit(&op->ind) ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_audit: ret rs=%d\n",rs) ;
+#endif
 
 #if	CF_DEBUGS
 	debugprintf("bibleqs_audit: txtindex_audit() rs=%d\n",rs) ;
@@ -545,6 +585,10 @@ int bibleqs_curbegin(BIBLEQS *op,BIBLEQS_CUR *curp)
 
 	memset(curp,0,sizeof(BIBLEQS_CUR)) ;
 	op->ncursors += 1 ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_curbegin: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -571,6 +615,10 @@ int bibleqs_curend(BIBLEQS *op,BIBLEQS_CUR *curp)
 	if (op->ncursors > 0)
 	    op->ncursors -= 1 ;
 
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_curend: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (bibleqs_curend) */
@@ -581,6 +629,7 @@ int bibleqs_lookup(BIBLEQS *op,BIBLEQS_CUR *curp,int qo,cchar **qsp)
 	SEARCHKEYS	sk ;
 	vecstr		hkeys ;			/* hash-keys */
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -610,10 +659,16 @@ int bibleqs_lookup(BIBLEQS *op,BIBLEQS_CUR *curp,int qo,cchar **qsp)
 		    rs = bibleqs_lookuper(op,curp,qo,&sk,&hkeys) ;
 		    c = rs ;
 	        } /* end if (bibleqs_mkhkeys) */
-	        vecstr_finish(&hkeys) ;
+	        rs1 = vecstr_finish(&hkeys) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (vecstr_start) */
-	    searchkeys_finish(&sk) ;
+	    rs1 = searchkeys_finish(&sk) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (searchkeys) */
+
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_lookup: ret rs=%d\n",rs) ;
+#endif
 
 #if	CF_DEBUGS
 	debugprintf("bibleqs_lookup: ret rs=%d c=%u\n",rs,c) ;
@@ -695,6 +750,10 @@ int bibleqs_read(BIBLEQS *op,BIBLEQS_CUR *curp,BIBLEQS_Q *citep,
 	    rs = SR_NOTFOUND ;
 	}
 
+#if	CF_DEBUGN
+	nprintf(NDF,"bibleqs_read: ret rs=%d\n",rs) ;
+#endif
+
 #if	CF_DEBUGS
 	debugprintf("bibleqs_read: ret rs=%d len=%u\n",rs,len) ;
 #endif
@@ -702,21 +761,6 @@ int bibleqs_read(BIBLEQS *op,BIBLEQS_CUR *curp,BIBLEQS_Q *citep,
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (bibleqs_read) */
-
-
-int bibleqs_count(BIBLEQS *op)
-{
-	int		rs ;
-
-	if (op == NULL) return SR_FAULT ;
-
-	if (op->magic != BIBLEQS_MAGIC) return SR_NOTOPEN ;
-
-	rs = txtindex_count(&op->ind) ;
-
-	return rs ;
-}
-/* end subroutine (bibleqs_count) */
 
 
 /* private subroutines */
@@ -746,8 +790,9 @@ static int bibleqs_infoloadbegin(BIBLEQS *op,cchar *pr,cchar *dbname)
 	            if ((rs = u_stat(op->dbfname,&sb)) >= 0) {
 	                if (S_ISREG(sb.st_mode)) {
 	                    rs = perm(op->dbfname,-1,-1,NULL,R_OK) ;
-	                } else
+	                } else {
 	                    rs = SR_NOTSUP ;
+			}
 	            } /* end if (stat) */
 		    if (rs < 0) {
 		        uc_free(op->dbfname) ;
@@ -790,7 +835,7 @@ static int bibleqs_dbmapcreate(BIBLEQS *op,time_t dt)
 
 	if ((rs = u_open(op->dbfname,O_RDONLY,0666)) >= 0) {
 	    struct ustat	sb ;
-	    int			fd = rs ;
+	    const int		fd = rs ;
 	    if ((rs = u_fstat(fd,&sb)) >= 0) {
 		size_t	fsize = (size_t) (sb.st_size & INT_MAX) ;
 		if (S_ISREG(sb.st_mode) && (sb.st_size >= 0)) {
@@ -1042,6 +1087,7 @@ static int bibleqs_indopencheck(BIBLEQS *op,cchar *idir)
 	    if ((rs = txtindex_open(&op->ind,op->pr,tbuf)) >= 0) {
 	        TXTINDEX_INFO	tinfo ;
 		c = rs ;
+	        op->f.ind = TRUE ;
 #if	CF_DEBUGS
 	        debugprintf("bibleqs_indopencheck: txtindex_open() rs=%d\n",
 			rs) ;
@@ -1049,10 +1095,11 @@ static int bibleqs_indopencheck(BIBLEQS *op,cchar *idir)
 	        if ((rs = txtindex_info(&op->ind,&tinfo)) >= 0) {
 	            if (tinfo.ctime < op->ti_db) rs = SR_STALE ;
 	        } /* end if (txtindex_info) */
-	        if (rs < 0)
+	        if (rs < 0) {
+		    op->f.ind = FALSE ;
 	            txtindex_close(&op->ind) ;
+		}
 	    } /* end if (txtindex_open) */
-	    op->f.ind = (rs >= 0) ;
 	} /* end if (mkpath) */
 
 #if	CF_DEBUGS

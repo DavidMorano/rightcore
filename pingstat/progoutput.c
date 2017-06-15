@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 2001-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -21,15 +19,15 @@
 
 /*******************************************************************************
 
-	This subroutine forms the front-end part of a generic PCS type
-	of program.  This front-end is used in a variety of PCS programs.
+        This subroutine forms the front-end part of a generic PCS type of
+        program. This front-end is used in a variety of PCS programs.
 
-	This subroutine was originally part of the Personal Communications
-	Services (PCS) package but can also be used independently from it.
-	Historically, this was developed as part of an effort to maintain
-	high function (and reliable) email communications in the face
-	of increasingly draconian security restrictions imposed on the
-	computers in the DEFINITY development organization.
+        This subroutine was originally part of the Personal Communications
+        Services (PCS) package but can also be used independently from it.
+        Historically, this was developed as part of an effort to maintain high
+        function (and reliable) email communications in the face of increasingly
+        draconian security restrictions imposed on the computers in the DEFINITY
+        development organization.
 
 
 *******************************************************************************/
@@ -136,25 +134,21 @@ struct proginfo	*pip ;
 struct arginfo	*aip ;
 BITS		*bop ;
 {
-	bfile	ofile ;
-
+	bfile		ofile ;
 	const int	defintmin = pip->defintminping ;
 	const int	to = pip->toping ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	len ;
-	int	sl, cl ;
-	int	pan = 0 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		len ;
+	int		sl, cl ;
+	int		pan = 0 ;
 	const char	*afname = pip->afname ;
 	const char	*ofname = pip->ofname ;
 	const char	*cp ;
 
-
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
-	    debugprintf("progoutput: entered defintmin=%d\n",
+	    debugprintf("progoutput: ent defintmin=%d\n",
 		pip->defintminping) ;
 	    debugprintf("progoutput: intmin=%d\n",pip->intminping) ;
 	}
@@ -308,12 +302,14 @@ BITS		*bop ;
 
 /* free up the ping-hosts */
 
-	prochostsfins(pip,&phosts) ;
+		prochostsfins(pip,&phosts) ;
 
-	vechand_finish(&phosts) ;
-	} /* end if (phosts) */
+		rs1 = vechand_finish(&phosts) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (phosts) */
 
-	    procout_end(pip) ;
+	    rs1 = procout_end(pip) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (procout) */
 
 #if	CF_DEBUG
@@ -445,22 +441,20 @@ struct proginfo	*pip ;
 VECHAND		*phlp ;
 {
 	PINGHOST	*php ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	int		c = 0 ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-	int	c = 0 ;
-
-
+	if (pip == NULL) return SR_FAULT ;
 	for (i = 0 ; vechand_get(phlp,i,&php) >= 0 ; i += 1) {
-	    if (php == NULL) continue ;
-
-	    c += 1 ;
-	    rs1 = pinghost_finish(php) ;
-	    if (rs >= 0) rs = rs1 ;
-	    rs1 = uc_free(php) ;
-	    if (rs >= 0) rs = rs1 ;
-
+	    if (php != NULL) {
+	        c += 1 ;
+	        rs1 = pinghost_finish(php) ;
+	        if (rs >= 0) rs = rs1 ;
+	        rs1 = uc_free(php) ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
 	} /* end for */
 
 	return (rs >= 0) ? c : rs ;
@@ -473,20 +467,16 @@ static int loadpingtabs(pip,phlp)
 struct proginfo	*pip ;
 VECHAND		*phlp ;
 {
-	VECSTR	*ptp = &pip->pingtabs ;
-
-	PINGTAB	pt ;
-
-	int	rs = SR_OK ;
-	int	i ;
-	int	min, to ;
-	int	c = 0 ;
-
+	VECSTR		*ptp = &pip->pingtabs ;
+	PINGTAB		pt ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	int		min, to ;
+	int		c = 0 ;
 	const char	*ptname ;
 	const char	*ptfname ;
-
-	char	tmpfname[MAXPATHLEN + 1] ;
-
+	char		tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -547,7 +537,8 @@ VECHAND		*phlp ;
 	            if (rs < 0) break ;
 	        } /* end while */
 
-	        pingtab_close(&pt) ;
+	        rs1 = pingtab_close(&pt) ;
+		if (rs >= 0) rs = rs1 ;
 	    } else {
 
 	        if (pip->debuglevel > 0)
@@ -582,11 +573,8 @@ int		min ;
 int		to ;
 {
 	PINGHOST	*php ;
-
 	const int	size = sizeof(PINGHOST) ;
-
-	int	rs ;
-
+	int		rs ;
 
 	if (hp == NULL) return SR_FAULT ;
 
@@ -619,12 +607,9 @@ const char	ptfname[] ;
 char		tmpfname[] ;
 {
 	struct ustat	sb ;
-
-	int	rs = SR_OK ;
-	int	cl ;
-
+	int		rs = SR_OK ;
+	int		cl ;
 	const char	*cp ;
-
 
 	cp = ptfname ;
 	cl = getfname(pip->pr,cp,0,tmpfname) ;
@@ -656,6 +641,5 @@ char		tmpfname[] ;
 	return rs ;
 }
 /* end subroutine (mungepingtab) */
-
 
 

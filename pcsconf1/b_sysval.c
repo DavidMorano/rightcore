@@ -207,6 +207,7 @@ extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(cchar *,int,int) ;
 extern char	*strdcpy1w(char *,int,cchar *,int) ;
 extern char	*timestr_log(time_t,char *) ;
+extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
 
@@ -245,6 +246,7 @@ struct locinfo_flags {
 	uint		allocfname:1 ;
 	uint		ttl:1 ;
 	uint		hextime:1 ;
+	uint		timeform:1 ;
 } ;
 
 struct locinfo {
@@ -286,6 +288,7 @@ struct locinfo {
 	int		pagesize ;
 	int		runlevel ;
 	int		ttl ;
+	int		timeform ;
 	char		username[USERNAMELEN+1] ;
 	char		tz[TZLEN+1] ;
 	char		stype[USERNAMELEN+1] ;
@@ -347,6 +350,7 @@ static int	locinfo_nodename(LOCINFO *) ;
 static int	locinfo_fsdir(LOCINFO *) ;
 static int	locinfo_netload(LOCINFO *,char *,int,cchar *,int) ;
 static int	locinfo_pagesize(LOCINFO *) ;
+static int	locinfo_timeform(LOCINFO *,cchar *,int) ;
 
 #if	CF_PERCACHE
 static void	ourfini() ;
@@ -414,6 +418,8 @@ static cchar *akonames[] = {
 	"db",
 	"ttl",
 	"hextime",
+	"time",
+	"date",
 	NULL
 } ;
 
@@ -422,7 +428,23 @@ enum akonames {
 	akoname_db,
 	akoname_ttl,
 	akoname_hextime,
+	akoname_time,
+	akoname_date,
 	akoname_overlast
+} ;
+
+static cchar	*timeforms[] = {
+	"decimal",
+	"hexadecimal",
+	"wall",
+	NULL
+} ;
+
+enum timeforms {
+	timeform_decimal,
+	timeform_hexadecimal,
+	timeform_wall,
+	timeform_overlast
 } ;
 
 /* define the configuration keywords */
@@ -714,7 +736,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1147,6 +1169,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (rs >= 0) {
@@ -1397,6 +1424,15 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                            lip->f.hextime = (rs > 0) ;
 	                        }
 	                    }
+	                    break ;
+	                case akoname_time:
+	                case akoname_date:
+	                    if (! lip->final.timeform) {
+	                        if (vl > 0) {
+	                            lip->final.timeform = TRUE ;
+	                            rs = locinfo_timeform(lip,vp,vl) ;
+	                        }
+			    }
 	                    break ;
 	                } /* end switch */
 
@@ -1745,45 +1781,42 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    break ;
 	case qopt_hz:
 	    if ((rs = locinfo_hz(lip)) >= 0) {
-	        rs = cftime(pip,cvtbuf,cvtlen,rs) ;
+	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
 	        cbp = cvtbuf ;
 	        cbl = rs ;
 	    }
 	    break ;
 	case qopt_btime:
-	    if ((rs = getbtime(pip)) >= 0) {
-	        const ulong	lv = lip->btime ;
-	        rs = cftime(pip,cvtbuf,cvtlen,lv) ;
-	        cbp = cvtbuf ;
-	        cbl = rs ;
-	    }
-	    break ;
 	case qopt_ctime:
 	case qopt_utime:
-	    {
-	        const ulong	lv = pip->daytime ;
-	        rs = cftime(pip,cvtbuf,cvtlen,lv) ;
-	        cbp = cvtbuf ;
-	        cbl = rs ;
-	    }
-	    break ;
 	case qopt_wtime:
-	    if ((rs = locinfo_wtime(lip)) >= 0) {
-	        const ulong	lv = lip->wtime ;
-	        rs = cftime(pip,cvtbuf,cvtlen,lv) ;
-	        cbp = cvtbuf ;
-	        cbl = rs ;
-	    }
-	    break ;
 	case qopt_rtime:
 	    {
-		ulong	rtime ;
-	        if ((rs = locinfo_rtime(lip,&rtime)) >= 0) {
-	            rs = cftime(pip,cvtbuf,cvtlen,rtime) ;
+	        ulong	lv = pip->daytime ;
+	        switch (ri) {
+	        case qopt_btime:
+	            if ((rs = getbtime(pip)) >= 0) {
+	                lv = lip->btime ;
+		    }
+		    break ;
+	        case qopt_ctime:
+	        case qopt_utime:
+		    break ;
+	        case qopt_wtime:
+	            if ((rs = locinfo_wtime(lip)) >= 0) {
+	        	lv = lip->wtime ;
+		    }
+		    break ;
+		case qopt_rtime:
+	            rs = locinfo_rtime(lip,&lv) ;
+		    break ;
+		} /* end switch */
+		if (rs >= 0) {
+	            rs = cftime(pip,cvtbuf,cvtlen,lv) ;
 	            cbp = cvtbuf ;
 	            cbl = rs ;
-		}
-	    }
+		} /* end if (ok) */
+	    } /* end block */
 	    break ;
 	case qopt_uts:
 	    {
@@ -2537,8 +2570,9 @@ static int locinfo_username(LOCINFO *lip)
 
 	if ((un[0] == '\0') || (un[0] == '-')) {
 	    rs = getusername(lip->username,USERNAMELEN,-1) ;
-	} else
+	} else {
 	    rs = strlen(lip->username) ;
+	}
 
 	return rs ;
 }
@@ -2549,7 +2583,7 @@ static int locinfo_hz(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
-	int		hz = 0 ;
+	int		hz = lip->hz ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -2557,15 +2591,14 @@ static int locinfo_hz(LOCINFO *lip)
 #endif
 
 	if (lip->hz == 0) {
-	    long	lv = -1 ;
 	    int		cl ;
 	    cchar	*cp ;
 
 	    if ((cp = getourenv(pip->envv,VARHZ)) != NULL) {
 	        cl = strlen(cp) ;
 	        if (hasalldig(cp,cl)) {
-	            int	rs1 = cfdecl(cp,cl,&lv) ;
-	            if (rs1 >= 0) hz = (int) lv ;
+	            int	rs1 = optvalue(cp,cl) ;
+	            if (rs1 >= 0) hz = rs1 ;
 	        } else
 	            cp = NULL ;
 	    }
@@ -2576,8 +2609,7 @@ static int locinfo_hz(LOCINFO *lip)
 	    } /* end if */
 
 	    lip->hz = hz ;
-	} else
-	    hz = lip->hz ;
+	} /* end if (needed) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -2892,6 +2924,17 @@ static int locinfo_pagesize(LOCINFO *lip)
 /* end subroutine (locinfo_pagesize) */
 
 
+static int locinfo_timeform(LOCINFO *lip,cchar *vp,int vl)
+{
+	int		rs = SR_OK ;
+	if ((lip->timeform = matostr(timeforms,2,vp,vl)) < 0) {
+	    rs = SR_INVALID ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_timeform) */
+
+
 static int getla(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
@@ -3184,12 +3227,28 @@ static int getmem(PROGINFO *pip)
 static int cftime(PROGINFO *pip,char *cvtbuf,int cvtlen,ulong lv)
 {
 	LOCINFO		*lip = pip->lip ;
-	int		rs ;
-	if (lip->f.hextime) {
+	int		rs = SR_INVALID ;
+	switch (lip->timeform) {
+	case timeform_decimal:
+	default:
+	    if (lip->f.hextime) {
+	        rs = cthexul(cvtbuf,cvtlen,lv) ;
+	    } else {
+	        rs = ctdecul(cvtbuf,cvtlen,lv) ;
+	    }
+	    break ;
+	case timeform_hexadecimal:
 	    rs = cthexul(cvtbuf,cvtlen,lv) ;
-	} else {
-	    rs = ctdecul(cvtbuf,cvtlen,lv) ;
-	}
+	    break ;
+	case timeform_wall:
+	    {
+		const time_t	t = lv ;
+		char		tbuf[TIMEBUFLEN+1] ;
+		timestr_logz(t,tbuf) ;
+	        rs = sncpy1(cvtbuf,cvtlen,tbuf) ;
+	    }
+	    break ;
+	} /* end switch */
 	return rs ;
 }
 /* end subroutine (cftime) */

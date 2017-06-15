@@ -171,7 +171,7 @@ static int try_filetype(TRY *tip)
 	}
 	return rs ;
 }
-/* end subroutine (try_filetype ) */
+/* end subroutine (try_filetype) */
 
 
 static int try_root(TRY *tip)

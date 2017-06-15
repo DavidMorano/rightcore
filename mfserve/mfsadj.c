@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUG	1		/* switchable at invocation */
 
 
 /* revision history:
@@ -59,6 +59,7 @@
 #include	"mfslocinfo.h"
 #include	"mfslog.h"
 #include	"mfscmd.h"
+#include	"mfsadj.h"
 #include	"mfsmsg.h"
 #include	"mfsns.h"
 #include	"defs.h"
@@ -257,24 +258,28 @@ int mfsadj_end(PROGINFO *pip)
 /* end subroutine (mfsadj_end) */
 
 
-int mfsadj_req(PROGINFO *pip,int fd,int re)
+int mfsadj_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
-	int		f = 0 ;
+	int		f = FALSE ;
 
-	if ((lip->rfd == fd) && (re != 0)) {
+	if (lip->rfd == fd) {
 	    f = TRUE ;
-	    if ((re & POLLIN) || (re & POLLPRI)) {
-	        rs = mfsadj_reqmsg(pip,re) ;
-	    } else  {
-	        rs = mfsadj_reqother(pip,re) ;
-	    }
+	    if (re != 0) {
+	        if ((re & POLLIN) || (re & POLLPRI)) {
+	            if ((rs = mfsadj_reqmsg(pip,re)) >= 0) {
+	                rs = mfsadj_register(pip,pmp) ;
+		    }
+	        } else {
+	            rs = mfsadj_reqother(pip,re) ;
+		}
+	    } /* end if (had something) */
 	} /* end if (events) */
 
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (mfsadj_req) */
+/* end subroutine (mfsadj_poll) */
 
 
 int mfsadj_register(PROGINFO *pip,POLLER *pmp)

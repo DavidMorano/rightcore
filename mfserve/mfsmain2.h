@@ -96,6 +96,8 @@
 
 #define	REQCNAME	"req"
 #define	PIDCNAME	"pid"
+#define	SVCCNAME	"svc"
+#define	ACCCNAME	"acc"
 
 #define	CONFIGFNAME	"conf"
 #define	ENVFNAME	"environ"

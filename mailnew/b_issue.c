@@ -579,7 +579,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1121,6 +1121,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    } /* end if */
 	}
 
+	if ((rs >= 0) && (pip->intrun == 0) && (argval != NULL)) {
+	    rs = cfdecti(argval,-1,&v) ;
+	    pip->intrun = v ;
+	}
+
 /* load up the environment options */
 
 	if (rs >= 0) {
@@ -1128,11 +1133,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 /* argument defaults */
-
-	if ((rs >= 0) && (argval != NULL)) {
-	    rs = cfdecti(argval,-1,&v) ;
-	    pip->intrun = v ;
-	}
 
 	if (pip->intpoll == 0) pip->intpoll = TO_POLL ;
 
@@ -1200,9 +1200,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* done */
 	if ((rs < 0) && (ex != EX_OK) && (! pip->f.quiet)) {
-		    cchar	*pn = pip->progname ;
-		    cchar	*fmt = "%s: could not perform function (%d)\n" ;
-	            shio_printf(pip->efp,fmt,pn,rs) ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: could not perform function (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
 	}
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {

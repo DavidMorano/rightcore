@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-08-10, David A­D­ Morano
-	This subroutine was originally written.  This subroutines (or something
-	similar to it) is standard on some UNIXes but not on others, so it is
-	now provided.
+	This subroutine was originally written.  
 
 */
 
@@ -19,25 +17,22 @@
 
 /*******************************************************************************
 
-	This subroutine will create all of the directories in the specified
-	directory path if they do not exist already.
+	This subroutine changes the owner of a file (or directory) to be the
+	same as another file (or directory) given as a reference.
 
 	Synopsis:
 
-	int chownsame(dname,dm)
-	const char	dname[] ;
-	mode_t		dm ;
+	int chownsame(cchar *dname,cchar *ref)
 
 	Arguments:
 
-	- dname		direcrtory path to a new directory to create
-	- dm		newly created directories are created with this
-			this permissions mode (subject to UMASK restrictions)
+	dname		direcrtory path to a new directory to create
+	ref		reference file or directory
 
 	Returns:
 
-	>0		number of directories that were created
-	==0		all directories existed
+	>0		ownership changed
+	==0		ownership not changed
 	<0		represents a system error
 
 
@@ -79,6 +74,7 @@ int chownsame(cchar *dname,cchar *ref)
 {
 	const int	n = _PC_CHOWN_RESTRICTED ;
 	int		rs ;
+	int		f = FALSE ;
 
 	if (dname == NULL) return SR_FAULT ;
 	if (ref == NULL) return SR_FAULT ;
@@ -93,11 +89,12 @@ int chownsame(cchar *dname,cchar *ref)
 	if ((rs = uc_pathconf(dname,n,NULL)) == 0) {
 	    USTAT	sb ;
 	    if ((rs = uc_stat(ref,&sb)) >= 0) {
+	        f = TRUE ;
 	        rs = uc_chown(dname,sb.st_uid,sb.st_gid) ;
 	    } /* end if (uc_stat) */
 	} /* end if (uc_pathconf) */
 
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (chownsame) */
 

@@ -341,7 +341,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->efp = stderr ;
 	if ((cp = getourenv(envv,VAREFNAME)) != NULL) {
@@ -816,8 +816,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (pip->f.outfile) {
 	    fclose(ofp) ;
-	} else
+	} else {
 	    fflush(ofp) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))

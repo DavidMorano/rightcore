@@ -191,6 +191,8 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procsetcase(PROGINFO *,const char *,int) ;
+static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+static int	procline(PROGINFO *,void *,cchar *,int) ;
 static int	procword(PROGINFO *,void *,const char *) ;
 static int	procdata(PROGINFO *,char *,int) ;
 
@@ -347,10 +349,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
+	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	SHIO		errfile ;
-	SHIO		ofile, *ofp = &ofile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	uint		mo_start = 0 ;
@@ -360,7 +362,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		ai, ai_max, ai_pos ;
 	int		pan = 0 ;
 	int		rs, rs1 ;
-	int		cl ;
 	int		v ;
 	int		wlen = 0 ;
 	int		ex = EX_INFO ;
@@ -368,7 +369,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -402,11 +402,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
 	pip->verboselevel = 1 ;
+	pip->to_open = -1 ;
+	pip->to_read = -1 ;
 
 	pip->lip = &li ;
 	if (rs >= 0) rs = locinfo_start(lip,pip) ;
@@ -437,7 +439,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int ach = MKCHAR(argp[1]) ;
+	        const int ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -499,12 +501,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            pr = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -517,12 +519,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            tos_open = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            tos_open = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                tos_open = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -535,12 +537,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            tos_read = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            tos_read = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                tos_read = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -557,12 +559,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            sn = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -575,12 +577,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            afname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -593,12 +595,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -611,12 +613,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            ofname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -629,12 +631,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            ifname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ifname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ifname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -673,24 +675,24 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* program-root */
 	                    case 'R':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 /* terminal-type */
 	                    case 'T':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            lip->termtype = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                lip->termtype = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -707,14 +709,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
 	                            }
-				} else
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -727,7 +729,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                                tos_open = argp ;
 	                                tos_read = argp ;
 	                            }
-				} else
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -753,16 +755,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* width (columns) */
 	                    case 'w':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            lip->have.linelen = TRUE ;
-	                            lip->final.linelen = TRUE ;
-	                            rs = cfdeci(argp,argl,&v) ;
-	                            lip->linelen = v ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                lip->have.linelen = TRUE ;
+	                                lip->final.linelen = TRUE ;
+	                                rs = cfdeci(argp,argl,&v) ;
+	                                lip->linelen = v ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -866,22 +868,24 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 #endif
 
-	pip->to_open = -1 ;
-	pip->to_read = -1 ;
 	if ((rs >= 0) && (tos_open != NULL)) {
-	    rs = cfdecti(tos_open,-1,&pip->to_open) ;
+	    rs = cfdecti(tos_open,-1,&v) ;
+	    pip->to_open = v ;
 	}
 
 	if ((rs >= 0) && (tos_read != NULL)) {
-	    rs = cfdecti(tos_read,-1,&pip->to_read) ;
+	    rs = cfdecti(tos_read,-1,&v) ;
+	    pip->to_read = v ;
 	}
 
 	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    if ((pip->to_open >= 0) || (pip->to_read >= 0)) {
-	    shio_printf(pip->efp,"%s: to_open=%d\n",
-	        pip->progname,pip->to_open) ;
-	    shio_printf(pip->efp,"%s: to_read=%d\n",
-	        pip->progname,pip->to_read) ;
+	        fmt = "%s: to_open=%d\n" ;
+	        shio_printf(pip->efp,fmt,pn,pip->to_open) ;
+	        fmt = "%s: to_read=%d\n" ;
+	        shio_printf(pip->efp,fmt,pn,pip->to_read) ;
 	    }
 	}
 
@@ -904,141 +908,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    rs = locinfo_setlinelen(lip) ;
 	}
 
-	if (rs < 0) goto badarg ;
-
-/* open the output file */
-
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = STDOUTFNAME ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	if ((rs = shio_opene(ofp,ofname,"wct",0666,pip->to_open)) >= 0) {
-
-	if (pip->have.bufnone)
-	    shio_control(ofp,SHIO_CSETBUFNONE,TRUE) ;
-
-	if (pip->have.bufline)
-	    shio_control(ofp,SHIO_CSETBUFLINE,pip->f.bufline) ;
-
-	if (pip->have.bufwhole)
-	    shio_control(ofp,SHIO_CSETBUFWHOLE,pip->f.bufwhole) ;
-
-/* go through the loops */
-
-	if ((rs = locinfo_termoutbegin(lip,ofp)) >= 0) {
-	    LINER	l ;
-
-	    if ((rs = liner_start(&l,lip,ofp)) >= 0) {
-
-	        for (ai = 1 ; ai < argc ; ai += 1) {
-
-	    	    f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	            f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	            if (! f) continue ;
-
-	            cp = argv[ai] ;
-	            pan += 1 ;
-	            rs = liner_addword(&l,cp,-1) ;
-	            wlen += rs ;
-
-		    if (rs >= 0) rs = lib_sigterm() ;
-		    if (rs >= 0) rs = lib_sigintr() ;
-	            if (rs < 0) break ;
-	        } /* end for */
-
-	        rs1 = liner_finish(&l) ;
-	        wlen += rs ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (liner) */
-
-	    if ((rs >= 0) && (afname != NULL)) {
-	        SHIO	afile, *afp = &afile ;
-
-	        if ((afname[0] == '\0') || (strcmp(afname,"-") == 0))
-	            afname = STDINFNAME ;
-
-	        if ((rs = shio_open(&afile,afname,"r",0666)) >= 0) {
-	            const int	llen = LINEBUFLEN ;
-	            int		ll ;
-	            const char	*lp ;
-	            char	lbuf[LINEBUFLEN + 1] ;
-
-	            while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
-	                int	len = rs ;
-
-	                if (lbuf[len - 1] == '\n') len -= 1 ;
-	                lbuf[len] = '\0' ;
-
-	                lp = lbuf ;
-	                ll = len ;
-	                if (ll == 0) continue ;
-
-	                pan += 1 ;
-	                if ((rs = liner_start(&l,lip,ofp)) >= 0) {
-
-	                    while ((cl = nextfield(lp,ll,&cp)) > 0) {
-
-	                        rs = liner_addword(&l,cp,cl) ;
-	                        if (rs < 0) break ;
-	                        wlen += rs ;
-
-	                        ll -= ((cp+1)-lp) ;
-	                        lp = (cp+1) ;
-	                    } /* end while */
-
-	                    rs1 = liner_finish(&l) ;
-	                    if (rs >= 0) rs = rs1 ;
-	                    wlen += rs1 ;
-	                } /* end if (liner) */
-
-		        if (rs >= 0) rs = lib_sigterm() ;
-		        if (rs >= 0) rs = lib_sigintr() ;
-			if (rs < 0) break ;
-	            } /* end while (reading lines) */
-
-	            rs1 = shio_close(afp) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } else {
-	                shio_printf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                shio_printf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afname) ;
-	        } /* end if */
-
-	    } /* end if (procesing file argument file list) */
-
-	    if ((rs >= 0) && (pan == 0)) {
-
-	        cp = (ifname != NULL) ? ifname : "-" ;
-	        pan += 1 ;
-	        rs = procword(pip,ofp,cp) ;
-	        wlen += rs ;
-
-	    } /* end if (standard-input) */
-
-	        rs1 = locinfo_termoutend(lip) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (termout) */
-
-	    rs1 = shio_close(ofp) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    ex = EX_CANTCREAT ;
-	    shio_printf(pip->efp,"%s: inaccessible output (%d)\n",
-	        pip->progname,rs) ;
-	}
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
+	    cchar	*ofn = ofname ;
+	    cchar	*afn = afname ;
+	    rs = process(pip,aip,bop,ofn,afn) ;
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
 	    ex = EX_USAGE ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
 	    usage(pip) ;
-	}
-
-	if ((pip->debuglevel > 0) && (rs >= 0)) {
-	    shio_printf(pip->efp,"%s: written=%u\n",
-	        pip->progname,wlen) ;
 	}
 
 /* done */
@@ -1164,97 +1052,97 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-	            case akoname_cvtcase:
-	            case akoname_casecvt:
-	            case akoname_cc:
-	                if (! lip->final.cvtcase) {
-	                    lip->have.cvtcase = TRUE ;
-	                    lip->final.cvtcase = TRUE ;
-	                    lip->f.cvtcase = TRUE ;
-	                    if (vl > 0)
-	                        rs = procsetcase(pip,vp,vl) ;
-	                }
-	                break ;
-	            case akoname_bufwhole:
-	            case akoname_whole:
-	                if (! pip->final.bufwhole) {
-	                    pip->have.bufwhole = TRUE ;
-	                    pip->final.bufwhole = TRUE ;
-	                    pip->f.bufwhole = TRUE ;
-	                    if (vl > 0) {
-	                        rs = optbool(vp,vl) ;
-	                        pip->f.bufwhole = (rs > 0) ;
+	                case akoname_cvtcase:
+	                case akoname_casecvt:
+	                case akoname_cc:
+	                    if (! lip->final.cvtcase) {
+	                        lip->have.cvtcase = TRUE ;
+	                        lip->final.cvtcase = TRUE ;
+	                        lip->f.cvtcase = TRUE ;
+	                        if (vl > 0)
+	                            rs = procsetcase(pip,vp,vl) ;
 	                    }
-	                }
-	                break ;
-	            case akoname_bufline:
-	            case akoname_line:
-	                if (! pip->final.bufline) {
-	                    pip->have.bufline = TRUE ;
-	                    pip->final.bufline = TRUE ;
-	                    pip->f.bufline = TRUE ;
-	                    if (vl > 0) {
-	                        rs = optbool(vp,vl) ;
-	                        pip->f.bufline = (rs > 0) ;
+	                    break ;
+	                case akoname_bufwhole:
+	                case akoname_whole:
+	                    if (! pip->final.bufwhole) {
+	                        pip->have.bufwhole = TRUE ;
+	                        pip->final.bufwhole = TRUE ;
+	                        pip->f.bufwhole = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.bufwhole = (rs > 0) ;
+	                        }
 	                    }
-	                }
-	                break ;
-	            case akoname_bufnone:
-	            case akoname_none:
-	            case akoname_un:
-	                if (! pip->final.bufnone) {
-	                    pip->have.bufnone = TRUE ;
-	                    pip->final.bufnone = TRUE ;
-	                    pip->f.bufnone = TRUE ;
-	                    if (vl > 0) {
-	                        rs = optbool(vp,vl) ;
-	                        pip->f.bufnone = (rs > 0) ;
+	                    break ;
+	                case akoname_bufline:
+	                case akoname_line:
+	                    if (! pip->final.bufline) {
+	                        pip->have.bufline = TRUE ;
+	                        pip->final.bufline = TRUE ;
+	                        pip->f.bufline = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.bufline = (rs > 0) ;
+	                        }
 	                    }
-	                }
-	                break ;
-	            case akoname_termout:
-	                if (! lip->final.termout) {
-	                    lip->have.termout = TRUE ;
-	                    lip->final.termout = TRUE ;
-	                    lip->f.termout = TRUE ;
-	                    if (vl > 0) {
-	                        rs = optbool(vp,vl) ;
-	                        lip->f.termout = (rs > 0) ;
+	                    break ;
+	                case akoname_bufnone:
+	                case akoname_none:
+	                case akoname_un:
+	                    if (! pip->final.bufnone) {
+	                        pip->have.bufnone = TRUE ;
+	                        pip->final.bufnone = TRUE ;
+	                        pip->f.bufnone = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.bufnone = (rs > 0) ;
+	                        }
 	                    }
-	                }
-	                break ;
-	            case akoname_double:
-	                if (! lip->final.dbl) {
-	                    lip->have.dbl = TRUE ;
-	                    lip->final.dbl = TRUE ;
-	                    lip->f.dbl = TRUE ;
-	                    if (vl > 0) {
-	                        rs = optbool(vp,vl) ;
-	                        lip->f.dbl = (rs > 0) ;
+	                    break ;
+	                case akoname_termout:
+	                    if (! lip->final.termout) {
+	                        lip->have.termout = TRUE ;
+	                        lip->final.termout = TRUE ;
+	                        lip->f.termout = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.termout = (rs > 0) ;
+	                        }
 	                    }
-	                }
-	                break ;
-	            case akoname_linelen:
-	                if (! lip->final.linelen) {
-	                    lip->have.linelen = TRUE ;
-	                    lip->final.linelen = TRUE ;
-	                    lip->f.linelen = TRUE ;
-	                    if (vl > 0) {
-	                        rs = optvalue(vp,vl) ;
-	                        lip->linelen = rs ;
+	                    break ;
+	                case akoname_double:
+	                    if (! lip->final.dbl) {
+	                        lip->have.dbl = TRUE ;
+	                        lip->final.dbl = TRUE ;
+	                        lip->f.dbl = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.dbl = (rs > 0) ;
+	                        }
 	                    }
-	                }
-	                break ;
-	            case akoname_empty:
-	                break ;
-	            default:
-	                rs = SR_INVALID ;
-	                break ;
-	            } /* end switch */
+	                    break ;
+	                case akoname_linelen:
+	                    if (! lip->final.linelen) {
+	                        lip->have.linelen = TRUE ;
+	                        lip->final.linelen = TRUE ;
+	                        lip->f.linelen = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optvalue(vp,vl) ;
+	                            lip->linelen = rs ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_empty:
+	                    break ;
+	                default:
+	                    rs = SR_INVALID ;
+	                    break ;
+	                } /* end switch */
 
 	                c += 1 ;
 	            } else
-		        rs = SR_INVALID ;
+	                rs = SR_INVALID ;
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1268,12 +1156,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int procsetcase(pip,vp,vl)
-PROGINFO	*pip ;
-const char	*vp ;
-int		vl ;
+static int procsetcase(PROGINFO *pip,cchar *vp,int vl)
 {
-	LOCINFO	*lip = pip->lip ;
+	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		ci ;
 
@@ -1286,6 +1171,9 @@ int		vl ;
 	    case 'u':
 	        lip->f.cvtuc = TRUE ;
 	        break ;
+	    default:
+	        rs = ci ; /* lint */
+	        break ;
 	    } /* end switch */
 	} else
 	    rs = SR_INVALID ;
@@ -1295,13 +1183,170 @@ int		vl ;
 /* end subroutine (procsetcase) */
 
 
-/* process a file */
-static int procword(pip,ofp,fname)
-PROGINFO	*pip ;
-void		*ofp ;
-const char	fname[] ;
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
-	LOCINFO	*lip = pip->lip ;
+	SHIO		ofile, *ofp = &ofile ;
+	const int	to = pip->to_open ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	int		pan = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
+
+	if ((rs = shio_opene(ofp,ofn,"wct",0666,to)) >= 0) {
+	    LOCINFO	*lip = pip->lip ;
+
+	    if (pip->have.bufnone)
+	        shio_control(ofp,SHIO_CSETBUFNONE,TRUE) ;
+
+	    if (pip->have.bufline)
+	        shio_control(ofp,SHIO_CSETBUFLINE,pip->f.bufline) ;
+
+	    if (pip->have.bufwhole)
+	        shio_control(ofp,SHIO_CSETBUFWHOLE,pip->f.bufwhole) ;
+
+/* go through the loops */
+
+	    if ((rs = locinfo_termoutbegin(lip,ofp)) >= 0) {
+	        LINER	l ;
+	        cchar	*cp ;
+
+	        if ((rs = liner_start(&l,lip,ofp)) >= 0) {
+	            int		ai ;
+	            int		f ;
+		    cchar	**argv = aip->argv ;
+
+	            for (ai = 1 ; ai < aip->argc ; ai += 1) {
+
+	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	                if (f) {
+	                    cp = aip->argv[ai] ;
+	                    if (cp[0] != '\0') {
+	                        pan += 1 ;
+	                        rs = liner_addword(&l,cp,-1) ;
+	                        wlen += rs ;
+	                    }
+	                }
+
+	                if (rs >= 0) rs = lib_sigterm() ;
+	                if (rs >= 0) rs = lib_sigintr() ;
+	                if (rs < 0) break ;
+	            } /* end for */
+
+	            rs1 = liner_finish(&l) ;
+	            if (rs >= 0) rs = rs1 ;
+	            wlen += rs1 ;
+	        } /* end if (liner) */
+
+	        if ((rs >= 0) && (afn != NULL)) {
+	            SHIO	afile, *afp = &afile ;
+
+	            if ((afn[0] == '\0') || (strcmp(afn,"-") == 0))
+	                afn = STDINFNAME ;
+
+	            if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
+	                const int	llen = LINEBUFLEN ;
+	                char		lbuf[LINEBUFLEN + 1] ;
+
+	                while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
+	                    int	len = rs ;
+
+	                    if (lbuf[len - 1] == '\n') len -= 1 ;
+	                    lbuf[len] = '\0' ;
+
+	                    if (len > 0) {
+	                        pan += 1 ;
+	                        rs = procline(pip,ofp,lbuf,len) ;
+	                        wlen += rs ;
+	                    }
+
+	                    if (rs >= 0) rs = lib_sigterm() ;
+	                    if (rs >= 0) rs = lib_sigintr() ;
+	                    if (rs < 0) break ;
+	                } /* end while (reading lines) */
+
+	                rs1 = shio_close(afp) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } else {
+	                fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
+	                fmt = "%s: afile=%s\n" ;
+	                shio_printf(pip->efp,fmt,pn,afn) ;
+	            } /* end if */
+
+	        } /* end if (procesing file argument file list) */
+
+#if	COMMENT
+	        if ((rs >= 0) && (pan == 0)) {
+	            cp = (ifname != NULL) ? ifname : "-" ;
+	            pan += 1 ;
+	            rs = procword(pip,ofp,cp) ;
+	            wlen += rs ;
+	        } /* end if (standard-input) */
+#endif /* COMMENT */
+
+	        rs1 = locinfo_termoutend(lip) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (termout) */
+
+	    rs1 = shio_close(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else {
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	}
+
+	if ((pip->debuglevel > 0) && (rs >= 0)) {
+	    fmt = "%s: written=%u\n" ;
+	    shio_printf(pip->efp,fmt,pn,wlen) ;
+	}
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (process) */
+
+
+static int procline(PROGINFO *pip,void *ofp,cchar *lp,int ll)
+{
+	LOCINFO		*lip = pip->lip ;
+	LINER		l ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	if ((rs = liner_start(&l,lip,ofp)) >= 0) {
+	    int		cl ;
+	    cchar	*cp ;
+
+	    while ((cl = nextfield(lp,ll,&cp)) > 0) {
+
+	        rs = liner_addword(&l,cp,cl) ;
+	        wlen += rs ;
+
+	        ll -= ((cp+1)-lp) ;
+	        lp = (cp+1) ;
+
+	        if (rs < 0) break ;
+	    } /* end while */
+
+	    rs1 = liner_finish(&l) ;
+	    if (rs >= 0) rs = rs1 ;
+	    wlen += rs1 ;
+	} /* end if (liner) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procline) */
+
+
+/* process a file */
+static int procword(PROGINFO *pip,void *ofp,cchar *fname)
+{
+	LOCINFO		*lip = pip->lip ;
 	SHIO		infile, *ifp = &infile ;
 	const int	to_open = pip->to_open ;
 	const int	to_read = pip->to_read ;
@@ -1318,8 +1363,7 @@ const char	fname[] ;
 	    debugprintf("b_doubletext/procword: fname=%s\n",fname) ;
 #endif
 
-	if (fname == NULL)
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
 	{
 	    int	i = 0 ;
@@ -1363,8 +1407,8 @@ const char	fname[] ;
 	        rs = locinfo_termoutprint(lip,ofp,lbuf,len) ;
 	        wlen += rs ;
 
-		    if (rs >= 0) rs = lib_sigterm() ;
-		    if (rs >= 0) rs = lib_sigintr() ;
+	        if (rs >= 0) rs = lib_sigterm() ;
+	        if (rs >= 0) rs = lib_sigintr() ;
 	    } /* end while */
 
 	} else {
@@ -1382,7 +1426,7 @@ const char	fname[] ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4)) {
 	            debugprintf("b_doubletext/procword: "
-			"shio_readintr() rs=%d\n",
+	                "shio_readintr() rs=%d\n",
 	                rs) ;
 	            if (rs >= 0)
 	                debugprintf("b_doubletext/procword: d=>%t<\n",
@@ -1416,14 +1460,14 @@ const char	fname[] ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
 	                debugprintf("b_doubletext/procword: "
-				"shio_write() rs=%d\n",
+	                    "shio_write() rs=%d\n",
 	                    rs) ;
 #endif
 
 	        } /* end if (write) */
 
-		    if (rs >= 0) rs = lib_sigterm() ;
-		    if (rs >= 0) rs = lib_sigintr() ;
+	        if (rs >= 0) rs = lib_sigterm() ;
+	        if (rs >= 0) rs = lib_sigintr() ;
 	    } /* end while (reading lines) */
 
 	} /* end if (outer) */
@@ -1451,36 +1495,33 @@ ret0:
 /* end subroutine (procword) */
 
 
-static int procdata(pip,bufline,len)
-PROGINFO	*pip ;
-char		bufline[] ;
-int		len ;
+static int procdata(PROGINFO *pip,char *bufline,int len)
 {
-	LOCINFO	*lip = pip->lip ;
+	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		ch, nch ;
 
-	if ((len <= 0) || (! lip->f.cvtcase))
-	    goto ret0 ;
+	if ((len > 0) && lip->f.cvtcase) {
+	    int		i ;
+	    int		ch, nch ;
 
-	if (lip->f.cvtlc) {
-	    for (i = 0 ; i < len ; i += 1) {
-	        ch = (bufline[i] & 0xff) ;
-	        nch = CHAR_TOLC(ch) ;
-	        if (ch != nch)
-	            bufline[i] = nch ;
-	    }
-	} else if (lip->f.cvtuc) {
-	    for (i = 0 ; i < len ; i += 1) {
-	        ch = (bufline[i] & 0xff) ;
-	        nch = CHAR_TOUC(ch) ;
-	        if (ch != nch)
-	            bufline[i] = nch ;
-	    } /* end for */
+	    if (lip->f.cvtlc) {
+	        for (i = 0 ; i < len ; i += 1) {
+	            ch = (bufline[i] & 0xff) ;
+	            nch = CHAR_TOLC(ch) ;
+	            if (ch != nch)
+	                bufline[i] = nch ;
+	        }
+	    } else if (lip->f.cvtuc) {
+	        for (i = 0 ; i < len ; i += 1) {
+	            ch = (bufline[i] & 0xff) ;
+	            nch = CHAR_TOUC(ch) ;
+	            if (ch != nch)
+	                bufline[i] = nch ;
+	        } /* end for */
+	    } /* end if */
+
 	} /* end if */
 
-ret0:
 	return rs ;
 }
 /* end subroutine (procdata) */
@@ -1541,13 +1582,13 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(&lip->stores,*epp) ;
+	        oi = vecstr_findaddr(&lip->stores,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
 	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
 	    } else {
-		*epp = NULL ;
+	        *epp = NULL ;
 	    }
 	    if ((rs >= 0) && (oi >= 0)) {
 	        vecstr_del(&lip->stores,oi) ;
@@ -1568,7 +1609,7 @@ static int locinfo_setlinelen(LOCINFO *lip)
 	if ((rs >= 0) && (lip->linelen == 0)) {
 	    cchar	*vp = getourenv(pip->envv,VARCOLUMNS) ;
 	    if (vp != NULL) {
-		uint	uv ;
+	        uint	uv ;
 	        rs = cfdecui(vp,-1,&uv) ;
 	        lip->linelen = uv ;
 	    }
@@ -1588,11 +1629,11 @@ static int locinfo_termoutbegin(LOCINFO *lip,void *ofp)
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	const char	*tstr = lip->termtype ;
-	const char	*vp ;
 
 	if (lip->f.termout || ((rs = shio_isterm(ofp)) > 0)) {
-	    int	ncols = COLUMNS ;
+	    int		ncols = COLUMNS ;
+	    cchar	*tstr = lip->termtype ;
+	    cchar	*vp ;
 	    if ((vp = getourenv(pip->envv,VARCOLUMNS)) != NULL) {
 	        int	v ;
 	        rs1 = cfdeci(vp,-1,&v) ;
@@ -1628,13 +1669,13 @@ static int locinfo_termoutend(LOCINFO *lip)
 static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
 {
 	PROGINFO	*pip = lip->pip ;
-	TERMOUT		*top = &lip->outer ;
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
 
 	if (pip == NULL) return SR_FAULT ;
 
 	if (llen > 0) {
+	    TERMOUT	*top = &lip->outer ;
 	    if ((rs = termout_load(top,lbuf,llen)) >= 0) {
 	        int	ln = rs ;
 	        int	i ;
@@ -1648,10 +1689,10 @@ static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
 	            if (DEBUGLEVEL(4)) {
 	                const int	maxcols = COLUMNS ;
 	                debugprintf("b_doubletext/locinfo_termoutprint: "
-				"maxcols=%u ll=%u\n",
+	                    "maxcols=%u ll=%u\n",
 	                    maxcols,ll) ;
 	                debugprintf("b_doubletext/locinfo_termoutprint: "
-			    "l=>%t<\n",
+	                    "l=>%t<\n",
 	                    lp,strlinelen(lp,ll,40)) ;
 	            }
 #endif /* CF_DEBUG */
@@ -1667,7 +1708,7 @@ static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
 
 	        } /* end for */
 	        if ((rs >= 0) && (ll != SR_NOTFOUND)) rs = ll ;
-	    } /* end if */
+	    } /* end if (termout_load) */
 	} else {
 	    rs = shio_print(ofp,lbuf,llen) ;
 	    wlen += rs ;

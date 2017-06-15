@@ -306,8 +306,9 @@ int recip_getmbo(RECIP *op)
 
 	if (op->ds >= 0) {
 	    mbo = (op->mbo & INT_MAX) ;
-	} else
+	} else {
 	    rs = op->ds ;
+	}
 
 	return (rs >= 0) ? mbo : rs ;
 }
@@ -329,11 +330,13 @@ int recip_getmo(RECIP *op,int i,int *offp)
 	        mo = ep->moff ;
 	        ml = ep->mlen ;
 	    }
-	} else
+	} else {
 	    rs = op->ds ;
+	}
 
-	if (offp != NULL)
+	if (offp != NULL) {
 	    *offp = (rs >= 0) ? mo : 0 ;
+	}
 
 	return (rs >= 0) ? ml : rs ;
 }

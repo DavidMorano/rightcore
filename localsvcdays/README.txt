@@ -29,7 +29,7 @@ This service provides the VOTD function for the returned FD.
 
 Synopsis:
 
-local§votd[­<day>]
+local§votd[­<day>][­-o­allcache]
 
 
 = HOTD

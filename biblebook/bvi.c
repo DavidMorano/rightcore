@@ -181,7 +181,6 @@ int bvi_open(BVI *op,cchar *dbname)
 	        if ((rs = uc_mallocstrw(tmpfname,tl,&cp)) >= 0) {
 	            op->fname = cp ;
 #if	CF_DEBUGS
-	            debugprintf("bvi_open: fname{%p}\n",op->fname) ;
 	            debugpresent("bvi_open: present{fname}=%d\n",op->fname) ;
 #endif
 	            if ((rs = bvi_loadbegin(op,dt)) >= 0) {
@@ -206,7 +205,7 @@ int bvi_open(BVI *op,cchar *dbname)
 	} /* end if (memory-allocation) */
 
 #if	CF_DEBUGS
-	debugprintf("bvi_open: ret rs=%d\n",rs) ;
+	debugprintf("bvi_open: ret rs=%d bv=%u\n",rs,nverses) ;
 #endif
 
 	return (rs >= 0) ? nverses : rs ;
@@ -317,6 +316,7 @@ int bvi_info(BVI *op,BVI_INFO *ip)
 {
 	BVIHDR		*hip ;
 	int		rs = SR_OK ;
+	int		nv = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("bvi_info: ent\n") ;
@@ -326,11 +326,8 @@ int bvi_info(BVI *op,BVI_INFO *ip)
 
 	if (op->magic != BVI_MAGIC) return SR_NOTOPEN ;
 
-#if	CF_DEBUGS
-	debugprintf("bvi_info: con\n") ;
-#endif
-
 	hip = &op->fhi ;
+	nv = hip->nverses ;
 
 	if (ip != NULL) {
 	    memset(ip,0,sizeof(BVI_INFO)) ;
@@ -343,10 +340,10 @@ int bvi_info(BVI *op,BVI_INFO *ip)
 	}
 
 #if	CF_DEBUGS
-	debugprintf("bvi_info: ret rs=%d nv=%u\n",rs,hip->nverses) ;
+	debugprintf("bvi_info: ret rs=%d nv=%u\n",rs,nv) ;
 #endif
 
-	return (rs >= 0) ? hip->nverses : rs ;
+	return (rs >= 0) ? nv : rs ;
 }
 /* end subroutine (bvi_info) */
 
@@ -513,6 +510,10 @@ static int bvi_loadbegin(BVI *op,time_t dt)
 	        bvi_mapdestroy(op) ;
 	} /* end if */
 
+#if	CF_DEBUGS
+	debugprintf("bvi_loadbegin: ret rs=%d nv=%u\n",rs,nverses) ;
+#endif
+
 	return (rs >= 0) ? nverses : rs ;
 }
 /* end subroutine (bvi_loadbegin) */
@@ -626,6 +627,7 @@ static int bvi_proc(BVI *op,time_t dt)
 	int		nverses = 0 ;
 
 	if ((rs = bvihdr(hip,1,mip->mapdata,mip->mapsize)) >= 0) {
+	    nverses = hip->nverses ;
 	    if ((rs = bvi_verify(op,dt)) >= 0) {
 	        mip->vt = (uint (*)[4]) (mip->mapdata + hip->vioff) ;
 	        mip->lt = (uint (*)[2]) (mip->mapdata + hip->vloff) ;
@@ -633,7 +635,7 @@ static int bvi_proc(BVI *op,time_t dt)
 	}
 
 #if	CF_DEBUGS
-	debugprintf("bvi_proc: ret rs=%d\n",rs) ;
+	debugprintf("bvi_proc: ret rs=%d nv=%u\n",rs,nverses) ;
 #endif
 
 	return (rs >= 0) ? nverses : rs ;

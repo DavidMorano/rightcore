@@ -331,7 +331,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -681,9 +681,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_querystring: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
-	if (f_version)
+	if (f_version) {
 	    shio_printf(pip->efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
 /* get the program root */
 
@@ -724,12 +725,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (qs == NULL) qs = getourenv(envv,VARQS) ;
 	if (qs == NULL) qs = getourenv(envv,VARQUERYSTRING) ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 /* OK, we finally do our thing */
 
@@ -745,12 +753,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
 	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
 	            if ((rs = proglog_begin(pip,&u)) >= 0) {
-			const char	*afn = afname ;
-			const char	*ofn = ofname ;
-			const char	*ifn = ifname ;
-
-			rs = procargs(pip,&ainfo,&pargs,ofn,afn,ifn,qs) ;
-
+			{
+			    ARGINFO	*aip = &ainfo ;
+			    BITS	*bop = &pargs ;
+			    cchar	*afn = afname ;
+			    cchar	*ofn = ofname ;
+			    cchar	*ifn = ifname ;
+			    rs = procargs(pip,aip,bop,ofn,afn,ifn,qs) ;
+			}
 		        rs1 = proglog_end(pip) ;
 		        if (rs >= 0) rs = rs1 ;
 		    } /* end if (proglogfile) */
@@ -760,9 +770,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        rs1 = userinfo_finish(&u) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } else {
+		cchar	*pn = pip->progname ;
+		cchar	*fmt = "%s: userinfo failure (%d)\n" ;
 	        ex = EX_NOUSER ;
-	        shio_printf(pip->efp,
-	            "%s: userinfo failure (%d)\n",pip->progname,rs) ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    } /* end if (userinfo) */
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
@@ -863,8 +874,7 @@ badarg:
 /* local subroutines */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -910,7 +920,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_dummy:
 	                    if (! lip->final.dummy) {
 	                        lip->have.dummy = TRUE ;
@@ -922,11 +931,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 				}
 	                    }
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -985,8 +992,7 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 /* end subroutine (procuserinfo_begin) */
 
 
-static int procuserinfo_end(pip)
-PROGINFO	*pip ;
+static int procuserinfo_end(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 
@@ -1024,12 +1030,12 @@ static int procuserinfo_logid(PROGINFO *pip)
 /* end subroutine (procuserinfo_logid) */
 
 
-static int procargs(pip,aip,bop,ofname,afname,ifn,qs)
+static int procargs(pip,aip,bop,ofn,afn,ifn,qs)
 PROGINFO	*pip ;
-ARGINFO	*aip ;
+ARGINFO		*aip ;
 BITS		*bop ;
-const char	*ofname ;
-const char	*afname ;
+const char	*ofn ;
+const char	*afn ;
 const char	*ifn ;
 const char	*qs ;
 {
@@ -1038,11 +1044,13 @@ const char	*qs ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = STDOUTFNAME ;
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
 
-	if ((rs = shio_opene(ofp,ofname,"wct",0666,to_open)) >= 0) {
+	if ((rs = shio_opene(ofp,ofn,"wct",0666,to_open)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
 	    const char	*cp ;
@@ -1050,12 +1058,13 @@ const char	*qs ;
 	    if (rs >= 0) {
 		int	ai ;
 		int	f ;
+		cchar	**argv = aip->argv ;
 		for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	    	    f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	    	    f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	    	    f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	    	    if (f) {
-	                cp = aip->argv[ai] ;
+	                cp = argv[ai] ;
 			if (cp[0] != '\0') {
 	                    pan += 1 ;
 	                    rs = procname(pip,ofp,cp) ;
@@ -1068,12 +1077,12 @@ const char	*qs ;
 		} /* end for */
 	    } /* end if (ok) */
 
-	        if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
+	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
 	            SHIO	afile, *afp = &afile ;
 
-	            if (strcmp(afname,"-") == 0) afname = STDINFNAME ;
+	            if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
 
-	            if ((rs = shio_open(afp,afname,"r",0666)) >= 0) {
+	            if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
 	                const int	llen = LINEBUFLEN ;
 	                char		lbuf[LINEBUFLEN + 1] ;
 
@@ -1100,11 +1109,10 @@ const char	*qs ;
 	                rs1 = shio_close(afp) ;
 		        if (rs >= 0) rs = rs1 ;
 	            } else {
-	                    shio_printf(pip->efp,
-	                        "%s: inaccessible argument-list (%d)\n",
-	                        pip->progname,rs) ;
-	                    shio_printf(pip->efp,"%s: afile=%s\n",
-	                        pip->progname,afname) ;
+			fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
+			fmt = "%s: afile=%s\n" ;
+	                shio_printf(pip->efp,fmt,pn,afn) ;
 	            } /* end if */
 
 	        } /* end if (procesing file argument file list) */
@@ -1126,8 +1134,10 @@ const char	*qs ;
 	    rs1 = shio_close(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
-	    shio_printf(pip->efp,"%s: inaccessible output (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    fmt = "%s: ofile=%s\n" ;
+	    shio_printf(pip->efp,fmt,pn,ofn) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1185,10 +1195,7 @@ static int procinput(PROGINFO *pip,void *ofp,cchar *ifn)
 
 
 /* process a specification name */
-static int procname(pip,ofp,qs)
-PROGINFO	*pip ;
-void		*ofp ;
-const char	qs[] ;
+static int procname(PROGINFO *pip,void *ofp,cchar *qs)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -1374,8 +1381,7 @@ int		vl ;
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -1388,8 +1394,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 static int locinfo_finish(LOCINFO *lip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	return SR_OK ;
 }

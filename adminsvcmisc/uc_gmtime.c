@@ -28,17 +28,12 @@
 /* exported subroutines */
 
 
-int uc_gmtime(tp,tsp)
-const time_t	*tp ;
-struct tm	*tsp ;
+int uc_gmtime(const time_t *tp,struct tm *tsp)
 {
 	struct tm	*rp ;
+	int		rs = SR_OK ;
 
-	int	rs = SR_OK ;
-
-
-	if ((tp == NULL) || (tsp == NULL))
-	    return SR_FAULT ;
+	if ((tp == NULL) || (tsp == NULL)) return SR_FAULT ;
 
 	errno = 0 ;
 #if	defined(SYSHAS_GMTIMER) && (SYSHAS_GMTIMER > 0)

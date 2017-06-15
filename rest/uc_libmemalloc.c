@@ -102,6 +102,7 @@ int uc_libmallocstrw(cchar *sp,int sl,cchar **rpp)
 
 int uc_libmalloc(int size,void *vp)
 {
+	const size_t	msize = size ;
 	int		rs ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
@@ -115,7 +116,7 @@ int uc_libmalloc(int size,void *vp)
 
 	repeat {
 	    rs = SR_OK ;
-	    if ((rp = malloc((size_t) size)) == NULL) rs = (- errno) ;
+	    if ((rp = malloc(msize)) == NULL) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_AGAIN:
@@ -148,6 +149,7 @@ int uc_libmalloc(int size,void *vp)
 
 int uc_libvalloc(int size,void *vp)
 {
+	const size_t	msize = size ;
 	int		rs ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
@@ -161,7 +163,7 @@ int uc_libvalloc(int size,void *vp)
 
 	repeat {
 	    rs = SR_OK ;
-	    if ((rp = valloc((size_t) size)) == NULL) rs = (- errno) ;
+	    if ((rp = valloc(msize)) == NULL) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_AGAIN:
@@ -194,6 +196,7 @@ int uc_libvalloc(int size,void *vp)
 
 int uc_librealloc(const void *cp,int size,void *vp)
 {
+	const size_t	msize = size ;
 	int		rs ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
@@ -211,7 +214,7 @@ int uc_librealloc(const void *cp,int size,void *vp)
 
 	repeat {
 	    rs = SR_OK ;
-	    if ((rp = realloc(argp,(size_t) size)) == NULL) rs = (- errno) ;
+	    if ((rp = realloc(argp,msize)) == NULL) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_AGAIN:

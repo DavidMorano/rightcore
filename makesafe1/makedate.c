@@ -1,2 +1,2 @@
 const char makesafe_makedate[] =
-"@(#)makesafe                170402_2155:16_USEDT Rightcore Network Services¹" ;
+"@(#)makesafe                170523_2220:32_USEDT Rightcore Network Services" ;

@@ -177,8 +177,8 @@ struct subinfo {
 
 /* forward references */
 
-static int	subinfo_start(SUBINFO *,const char *,const char *,
-			int,mode_t,const char **,const char **,int) ;
+static int	subinfo_start(SUBINFO *,cchar *,cchar *,
+			int,mode_t,cchar **,cchar **,int) ;
 static int	subinfo_finish(SUBINFO *) ;
 static int	subinfo_search(SUBINFO *) ;
 static int	subinfo_exts(SUBINFO *,cchar *,cchar *,char *) ;
@@ -240,18 +240,11 @@ int		to ;
 #endif /* CF_DEBUGS */
 
 	if ((rs = subinfo_start(&si,prn,svc,of,om,argv,envv,to)) >= 0) {
-
-	        rs = subinfo_search(&si) ;
-
-#if	CF_DEBUGS
-	debugprintf("uc_opendialer: _search() rs=%d\n",rs) ;
-#endif
-
-	    if (rs > 0) {
+	    if ((rs = subinfo_search(&si)) > 0) { /* >0 means found */
 		fd = sip->fd ;
-	    } else if (rs == 0)
+	    } else if (rs == 0) {
 		rs = SR_NOENT ;
-
+	    }
 	    rs1 = subinfo_finish(&si) ;
 	    if (rs >= 0) rs = rs1 ;
 	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
@@ -351,8 +344,9 @@ static int subinfo_search(SUBINFO *sip)
 	                                rs = subinfo_exts(sip,pdn,sdn,sfn) ;
 	                                f = rs ;
 				    } /* end if */
-				} else if (isNotPresent(rs))
+				} else if (isNotPresent(rs)) {
 		    		    rs = SR_OK ;
+				}
 			    } /* end if (mkpath) */
 	                } /* end if (mkpr) */
 			if (f) break ;
@@ -399,11 +393,13 @@ static int subinfo_exts(SUBINFO *sip,cchar *pr,cchar *sdn,char *sfn)
 	                if ((rs = sperm(&sip->id,&sb,am)) >= 0) {
 			    rs = subinfo_searchlib(sip,pr,sfn) ;
 			    f = rs ;
-			} else if (rs == SR_ACCESS)
+			} else if (rs == SR_ACCESS) {
 			    rs = SR_OK ;
+			}
 		    } /* end if (regular file) */
-		} else if (isNotPresent(rs))
+		} else if (isNotPresent(rs)) {
 		    rs = SR_OK ;
+		}
 	    } /* end if (mksofname) */
 	    if (f) break ;
 	    if (rs < 0) break ;

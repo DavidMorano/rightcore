@@ -79,19 +79,11 @@ static int	process(PROCSE *,EXPCOOK *,const char *,const char **) ;
 /* exported subroutines */
 
 
-int procse_start(pep,envv,vsp,esap)
-PROCSE		*pep ;
-const char	**envv ;
-varsub		*vsp ;
-PROCSE_ARGS	*esap ;
+int procse_start(PROCSE *pep,cchar **envv,varsub *vsp,PROCSE_ARGS *esap)
 {
 
-
-	if (pep == NULL)
-	    return SR_FAULT ;
-
-	if (esap == NULL)
-	    return SR_FAULT ;
+	if (pep == NULL) return SR_FAULT ;
+	if (esap == NULL) return SR_FAULT ;
 
 	memset(pep,0,sizeof(PROCSE)) ;
 	pep->envv = envv ;
@@ -103,60 +95,72 @@ PROCSE_ARGS	*esap ;
 /* end subroutine (procse_start) */
 
 
-int procse_finish(pep)
-PROCSE	*pep ;
+int procse_finish(PROCSE *pep)
 {
+	int		rs = SR_OK ;
+	int		rs1 ;
 
+	if (pep == NULL) return SR_FAULT ;
 
-	if (pep == NULL)
-	    return SR_FAULT ;
+	if (pep->a.passfile != NULL) {
+	    rs1 = uc_free(pep->a.passfile) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.passfile != NULL)
-	    uc_free(pep->a.passfile) ;
+	if (pep->a.sharedobj != NULL) {
+	    rs1 = uc_free(pep->a.sharedobj) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.sharedobj != NULL)
-	    uc_free(pep->a.sharedobj) ;
+	if (pep->a.program != NULL) {
+	    rs1 = uc_free(pep->a.program) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.program != NULL)
-	    uc_free(pep->a.program) ;
+	if (pep->a.srvargs != NULL) {
+	    rs1 = uc_free(pep->a.srvargs) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.srvargs != NULL)
-	    uc_free(pep->a.srvargs) ;
+	if (pep->a.username != NULL) {
+	    rs1 = uc_free(pep->a.username) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.username != NULL)
-	    uc_free(pep->a.username) ;
+	if (pep->a.groupname != NULL) {
+	    rs1 = uc_free(pep->a.groupname) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.groupname != NULL)
-	    uc_free(pep->a.groupname) ;
+	if (pep->a.options != NULL) {
+	    rs1 = uc_free(pep->a.options) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.options != NULL)
-	    uc_free(pep->a.options) ;
+	if (pep->a.access != NULL) {
+	    rs1 = uc_free(pep->a.access) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pep->a.access != NULL)
-	    uc_free(pep->a.access) ;
-
-	if (pep->a.failcont != NULL)
-	    uc_free(pep->a.failcont) ;
+	if (pep->a.failcont != NULL) {
+	    rs1 = uc_free(pep->a.failcont) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
 	memset(pep,0,sizeof(PROCSE)) ;
 
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (procse_finish) */
 
 
 /* process server entry */
-int procse_process(pep,ecp)
-PROCSE		*pep ;
-EXPCOOK	*ecp ;
+int procse_process(PROCSE *pep,EXPCOOK *ecp)
 {
 	PROCSE_ARGS	*ap ;
+	int		rs = SR_OK ;
 
-	int	rs = SR_OK ;
-
-
-	if (pep == NULL)
-	    return SR_FAULT ;
+	if (pep == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("procse_process: ent\n") ;
@@ -221,69 +225,50 @@ EXPCOOK	*ecp ;
 /* local subroutines */
 
 
-static int process(pep,ecp,inbuf,opp)
-PROCSE		*pep ;
-EXPCOOK	*ecp ;
-const char	inbuf[] ;
-const char	**opp ;
+static int process(PROCSE *pep,EXPCOOK *ecp,cchar *inbuf,cchar **opp)
 {
-	int	rs = SR_OK ;
-
-	int	vlen, elen ;
-	char	fl = 0 ;
-
+	int		rs = SR_OK ;
+	char		fl = 0 ;
 	const char	*ccp ;
 	const char	*fp ;
-
-	char	vbuf[BUFLEN + 1] ;
-	char	ebuf[BUFLEN + 1] ;
-
 
 #if	CF_DEBUGS
 	debugprintf("procse/process: ent inbuf=>%s<\n",inbuf) ;
 #endif
 
-	if (opp == NULL)
-	    return SR_FAULT ;
+	if (opp == NULL) return SR_FAULT ;
 
 	*opp = NULL ;
 	if (rs >= 0) {
+	    const int	vlen = BUFLEN ;
+	    int		vl = 0 ;
+	    char	vbuf[BUFLEN + 1] ;
 	    if (pep->vsp != NULL) {
-	        rs = varsub_expand(pep->vsp, vbuf,BUFLEN, inbuf,-1) ;
+	        rs = varsub_expand(pep->vsp,vbuf,vlen,inbuf,-1) ;
+	        vl = rs ;
 	    } else {
-	        rs = sncpy1(vbuf,BUFLEN,inbuf) ;
+	        rs = sncpy1(vbuf,vlen,inbuf) ;
+	        vl = rs ;
 	    }
-	    vlen = rs ;
-	}
-	if (rs < 0)
-	    goto ret0 ;
-
-#if	CF_DEBUGS
-	debugprintf("procse/process: vlen=%d\n",vlen) ;
-#endif
-
-	if (rs >= 0) {
-	    if (ecp != NULL) {
-	        rs = expcook_exp(ecp,0,ebuf,BUFLEN,vbuf,vlen) ;
-	    } else {
-	        rs = snwcpy(ebuf,BUFLEN,vbuf,vlen) ;
-	    }
-	    elen = rs ;
-	}
-	if (rs < 0)
-	    goto ret0 ;
-
-#if	CF_DEBUGS
-	debugprintf("procse/process: elen=%d\n",elen) ;
-#endif
-
-	fl = sfshrink(ebuf,elen,&fp) ;
-
-	rs = uc_mallocstrw(fp,fl,&ccp) ;
-	if (rs >= 0)
-	    *opp = ccp ;
-
-ret0:
+	    if (rs >= 0) {
+		const int	elen = BUFLEN ;
+		int		el = 0 ;
+	        char		ebuf[BUFLEN + 1] ;
+	        if (ecp != NULL) {
+	            rs = expcook_exp(ecp,0,ebuf,elen,vbuf,vl) ;
+	            el = rs ;
+	        } else {
+	            rs = snwcpy(ebuf,elen,vbuf,vl) ;
+	            el = rs ;
+	        }
+	        if (rs >= 0) {
+	            fl = sfshrink(ebuf,el,&fp) ;
+	            if ((rs = uc_mallocstrw(fp,fl,&ccp)) >= 0) {
+	                *opp = ccp ;
+	            }
+	        }
+	    } /* end if (ok) */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("procse/process: ret rs=%d fl=%u\n",rs,fl) ;

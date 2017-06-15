@@ -163,8 +163,9 @@ int raqhand_acc(raqhand *op,int ai,void *vp)
 
 	if (ai < op->c) {
 	    i = ((ai+op->hi)%op->n) ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	if (epp != NULL) {
 	    *epp = (rs >= 0) ? ((void *)(op->va)[i]) : NULL ;
@@ -187,8 +188,9 @@ int raqhand_acclast(raqhand *op,void *vp)
 
 	if (op->c > 0) {
 	    i = (op->ti-1) ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	if (epp != NULL) {
 	    *epp = (rs >= 0) ? ((void *)(op->va)[i]) : NULL ;
@@ -231,8 +233,9 @@ int raqhand_rem(raqhand *op,void *vp)
 	    i = op->hi ;
 	    op->hi = ((op->hi+1)%op->n) ;
 	    op->c -= 1 ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	if (epp != NULL) {
 	    if (rs >= 0) {
@@ -343,8 +346,9 @@ static int raqhand_valid(raqhand *op,int i)
 	    if (op->hi != op->ti) {
 		if ((i < op->hi) || (i >= op->ti)) rs = SR_NOTFOUND ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 	return rs ;
 }
 /* end subroutine (raqhand_valid) */

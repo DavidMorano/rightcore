@@ -212,8 +212,8 @@ struct proginfo_flags {
 	uint		pcsconf:1 ;
 	uint		cfname:1 ;
 	uint		lfname:1 ;
-	uint		logprog:1 ;
 	uint		pidfname:1 ;
+	uint		logprog:1 ;
 	uint		config:1 ;
 	uint		watch:1 ;
 	uint		background:1 ;

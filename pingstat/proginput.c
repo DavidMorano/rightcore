@@ -11,10 +11,7 @@
 /* revision history:
 
 	= 2001-03-01, David A­D­ Morano
-
-	The subroutine was adapted from other programs that do similar
-	things.
-
+	The subroutine was adapted from other programs that do similar things.
 
 */
 
@@ -22,8 +19,7 @@
 
 /*******************************************************************************
 
-	This subroutine processes messages that are present on the
-	input stream.
+        This subroutine processes messages that are present on the input stream.
 
 
 *******************************************************************************/
@@ -527,7 +523,6 @@ static int procentry(PROGINFO *pip,cchar *hostname,PINGSTATDB_UP *up)
 {
 	PINGSTATDB	*psp = &pip->ps ;
 	PINGSTATDB_ENT	pe ;
-	time_t		lastcheck ;
 	time_t		timestamp ;
 	int		rs = SR_OK ;
 	int		rs_match ;
@@ -671,6 +666,11 @@ static int procentry(PROGINFO *pip,cchar *hostname,PINGSTATDB_UP *up)
 	        } /* end if (summary file entry) */
 
 	    } /* end if (any changes) */
+
+	    if (pip->debuglevel > 0) {
+		cchar	*pn = pip->progname ;
+		bprintf(pip->efp,"%s: mode=%s\n",pn,s) ;
+	    }
 
 	} /* end if (update) */
 

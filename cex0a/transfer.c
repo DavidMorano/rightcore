@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 1999-03-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 

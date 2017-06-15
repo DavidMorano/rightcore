@@ -99,7 +99,7 @@ extern int	isdigitlatin(int) ;
 
 
 /* 'zo' in minutes west of GMT */
-int zos_set(char rbuf[],int rlen,int zo)
+int zos_set(char *rbuf,int rlen,int zo)
 {
 	int		rs = SR_OK ;
 	int		hours, mins ;
@@ -123,7 +123,7 @@ int zos_set(char rbuf[],int rlen,int zo)
 /* end subroutine (zos_set) */
 
 
-int zos_get(cchar sp[],int sl,int *zop)
+int zos_get(cchar *sp,int sl,int *zop)
 {
 	int		rs = SR_INVALID ;
 	int		cl ;

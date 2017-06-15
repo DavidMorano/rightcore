@@ -18,13 +18,19 @@
 #include	"mfsmain.h"
 #include	"defs.h"
 
+enum jobtypes {
+	jobtype_req,
+	jobtype_listen,
+	jobtype_overlast
+} ;
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 extern int	mfswatch_begin(PROGINFO *) ;
 extern int	mfswatch_service(PROGINFO *) ;
-extern int	mfswatch_newjob(PROGINFO *,int,int) ;
+extern int	mfswatch_newjob(PROGINFO *,int,int,int,int) ;
 extern int	mfswatch_end(PROGINFO *) ;
 
 #ifdef	__cplusplus

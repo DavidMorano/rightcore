@@ -295,7 +295,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -676,8 +676,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	if (dbname == NULL)
-	    dbname = getourenv(envv,VARDBNAME) ;
+	if (dbname == NULL) dbname = getourenv(envv,VARDBNAME) ;
 
 	if (pip->debuglevel > 0) {
 	    shio_printf(pip->efp,"%s: dbname=%s\n",
@@ -854,11 +853,12 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    if (rs >= 0) {
 	        int	ai ;
 	        int	f ;
+		cchar	**argv = aip->argv ;
 	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
-	                cp = aip->argv[ai] ;
+	                cp = argv[ai] ;
 	                if (cp[0] != '\0') {
 	                    pan += 1 ;
 	                    rs = procspec(pip,ofp,cp,-1) ;
@@ -963,30 +963,31 @@ static int procinfo(PROGINFO *pip,void *ofp)
 
 	if (ofp != NULL) {
 	    BABYCALC_INFO	bi ;
-	    rs = locinfo_lookinfo(lip,&bi) ;
-	    if ((rs >= 0) && (pip->verboselevel > 0)) {
-	        time_t	ti ;
-	        time_t	t = pip->daytime ;
-	        char	tbuf[TIMEBUFLEN + 1] ;
-	        if (rs >= 0) {
-	            ti = bi.wtime ;
-	            t = (t & (~ UINT_MAX)) | (((time_t) ti) & UINT_MAX) ;
-	            timestr_log(t,tbuf) ;
-	            rs = shio_printf(ofp,"wtime=%s\n",tbuf) ;
-	            wlen += rs ;
-	        }
-	        if (rs >= 0) {
-	            ti = bi.atime ;
-	            t = (t & (~ UINT_MAX)) | (((time_t) ti) & UINT_MAX) ;
-	            timestr_log(t,tbuf) ;
-	            rs = shio_printf(ofp,"atime=%s\n",tbuf) ;
-	            wlen += rs ;
-	        }
-	        if (rs >= 0) {
-	            rs = shio_printf(ofp,"acount=%u\n",bi.acount) ;
-	            wlen += rs ;
-	        }
-	    } /* end if */
+	    if ((rs = locinfo_lookinfo(lip,&bi)) >= 0) {
+	        if (pip->verboselevel > 0) {
+	            time_t	ti ;
+	            time_t	t = pip->daytime ;
+	            char	tbuf[TIMEBUFLEN + 1] ;
+	            if (rs >= 0) {
+	                ti = bi.wtime ;
+	                t = (t & (~ UINT_MAX)) | (((time_t) ti) & UINT_MAX) ;
+	                timestr_log(t,tbuf) ;
+	                rs = shio_printf(ofp,"wtime=%s\n",tbuf) ;
+	                wlen += rs ;
+	            }
+	            if (rs >= 0) {
+	                ti = bi.atime ;
+	                t = (t & (~ UINT_MAX)) | (((time_t) ti) & UINT_MAX) ;
+	                timestr_log(t,tbuf) ;
+	                rs = shio_printf(ofp,"atime=%s\n",tbuf) ;
+	                wlen += rs ;
+	            }
+	            if (rs >= 0) {
+	                rs = shio_printf(ofp,"acount=%u\n",bi.acount) ;
+	                wlen += rs ;
+	            }
+	        } /* end if (verbose) */
+	    } /* end if (locinfo_lookinfo) */
 	} /* end if (output-open) */
 
 	return (rs >= 0) ? wlen : rs ;
@@ -999,7 +1000,7 @@ static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
 {
 	LOCINFO		*lip = pip->lip ;
 	uint		count = 0 ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		wlen = 0 ;
 
 	if (np == NULL) return SR_FAULT ;
@@ -1106,6 +1107,11 @@ static int locinfo_dbopen(LOCINFO *lip)
 	    }
 	} /* end if (needed) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("locinfo_dbopen: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (locinfo_dbopen) */
@@ -1131,21 +1137,20 @@ static int locinfo_lookinfo(LOCINFO *lip,BABYCALC_INFO *bip)
 /* end subroutine (locinfo_lookinfo) */
 
 
-static int locinfo_lookup(LOCINFO *lip,cchar dbuf[],int dlen,uint *rp)
+static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 {
 	PROGINFO	*pip ;
 	time_t		rd = 0 ;
 	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
-	debugprintf("b_babies/locinfo_lookup: ent\n") ;
+	debugprintf("b_babies/locinfo_lookup: ent n=%t\n",np,nl) ;
 #endif
 
 	if (lip == NULL) return SR_FAULT ;
-	if (dbuf == NULL) return SR_FAULT ;
+	if (np == NULL) return SR_FAULT ;
 
-	if (dlen < 0)
-	    dlen = strlen(dbuf) ;
+	if (nl < 0) nl = strlen(np) ;
 
 	pip = lip->pip ;
 	if (! lip->f.babycalc) {
@@ -1155,7 +1160,7 @@ static int locinfo_lookup(LOCINFO *lip,cchar dbuf[],int dlen,uint *rp)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("b_babies/locinfo_lookup: rs=%d name=%t\n",
-	        rs,dbuf,strlinelen(dbuf,dlen,50)) ;
+	        rs,np,strlinelen(np,nl,50)) ;
 #endif
 
 	if ((rs >= 0) && (! lip->f.cvtdater)) {
@@ -1170,24 +1175,26 @@ static int locinfo_lookup(LOCINFO *lip,cchar dbuf[],int dlen,uint *rp)
 #endif
 
 	rd = pip->daytime ;
-	if ((rs >= 0) && (dlen > 0) && (dbuf[0] != '-')) {
-
-	    rs = cvtdater_load(&lip->cvt,&rd,dbuf,dlen) ;
-
+	if ((rs >= 0) && (nl > 0) && (np[0] != '-')) {
+	    rs = cvtdater_load(&lip->cvt,&rd,np,nl) ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))
 	        debugprintf("b_babies/locinfo_lookup: cvtdater_load() rs=%d\n",
 	            rs) ;
 #endif
-
 	}
 
 	if (rs >= 0) {
 	    rs = babycalc_lookup(&lip->bc,rd,rp) ;
 	} /* end if */
 
-	if ((rs < 0) && (rp != NULL))
+	if ((rs < 0) && (rp != NULL)) {
 	    *rp = 0 ;
+	}
+
+#if	CF_DEBUGS
+	debugprintf("b_babies/locinfo_lookup: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

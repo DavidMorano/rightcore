@@ -1,2 +1,2 @@
 const char kshbi_makedate[] =
-"@(#)kshbi                   170422_2222:11_USEDT Rightcore Network Services¹" ;
+"@(#)kshbi                   170611_2306:25_USEDT Rightcore Network Services" ;

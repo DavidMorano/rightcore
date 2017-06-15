@@ -13,9 +13,7 @@
 /* revision history:
 
 	= 2001-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -113,13 +111,16 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	bopenroot(bfile *,char *,char *,char *,char *,int) ;
 extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
-			const char *,const char *) ;
+const char *,const char *) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	gethename(const char *,struct hostent *,char *,int) ;
 extern int	listenudp(int,const char *,const char *,int) ;
 extern int	openport(int,int,int,SOCKADDRESS *) ;
 extern int	initnow(struct timeb *,char *,int) ;
 extern int	isasocket(int) ;
+extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
+extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,const char *,const PIVARS *) ;
@@ -146,9 +147,6 @@ extern char	*timestr_log(time_t,char *) ;
 extern const char	pingstat_makedate[] ;
 
 
-/* local variabes */
-
-
 /* local structures */
 
 
@@ -166,7 +164,7 @@ static int	loadlocalnames(PROGINFO *) ;
 
 /* local variables */
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"TMPDIR",
 	"VERSION",
@@ -232,7 +230,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 },
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"defintminping",
 	"intminping",
 	"intminupdate",
@@ -363,7 +361,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	rs = keyopt_start(&akopts) ;
 	pip->open.akopts = (rs >= 0) ;
 
-	ai = 0 ;
 	aip->ai_max = 0 ;
 	aip->ai_pos = 0 ;
 	argr = argc ;
@@ -378,12 +375,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+	        const int	ach = MKCHAR(argp[0]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = (argp + 1) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            aip->ai_pos = ai ;
 	            break ;
@@ -406,8 +404,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                akl = aol ;
 	            }
 
-/* do we have a keyword match or should we assume only key letters? */
-
 	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
 
 	                switch (kwi) {
@@ -418,15 +414,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            pip->tmpdname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->tmpdname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->tmpdname = argp ;
 	                    }
 	                    break ;
 
@@ -457,15 +452,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            pr = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
 	                    }
 	                    break ;
 
@@ -476,15 +470,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            cfname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            cfname = argp ;
 	                    }
 	                    break ;
 
@@ -494,15 +487,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            sn = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
 	                    }
 	                    break ;
 
@@ -513,15 +505,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            afname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
 	                    }
 	                    break ;
 
@@ -532,15 +523,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            ifname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ifname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ifname = argp ;
 	                    }
 	                    break ;
 
@@ -551,15 +541,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            ofname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
 	                    }
 	                    break ;
 
@@ -570,28 +559,26 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            efname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
 	                    }
 	                    break ;
 
 	                case argopt_db:
-	                    if (argr <= 0) {
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            psfname = argp ;
+	                    } else
 	                        rs = SR_INVALID ;
-	                        break ;
-	                    }
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl)
-	                        psfname = argp ;
 	                    break ;
 
 /* log file */
@@ -603,17 +590,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            logfname = avp ;
 	                        }
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                logfile_type = 0 ;
+	                                logfname = argp ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            logfile_type = 0 ;
-	                            logfname = argp ;
-	                        }
 	                    }
 	                    break ;
 
@@ -634,27 +620,25 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    break ;
 
 	                case argopt_host:
-	                    if (argr <= 0) {
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            hostspec = argp ;
+	                    } else
 	                        rs = SR_INVALID ;
-	                        break ;
-	                    }
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl)
-	                        hostspec = argp ;
 	                    break ;
 
 	                case argopt_port:
-	                    if (argr <= 0) {
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            portspec = argp ;
+	                    } else
 	                        rs = SR_INVALID ;
-	                        break ;
-	                    }
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl)
-	                        portspec = argp ;
 	                    break ;
 
 	                case argopt_logextra:
@@ -669,17 +653,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    break ;
 
 	                case argopt_mu:
-	                    if (argr <= 0) {
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            rs = cfdecti(argp,argl,&v) ;
+	                            pip->intminupdate = v ;
+	                        }
+	                    } else
 	                        rs = SR_INVALID ;
-	                        break ;
-	                    }
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl) {
-	                        rs = cfdecti(argp,argl,&v) ;
-	                        pip->intminupdate = v ;
-	                    }
 	                    break ;
 
 /* handle all keyword defaults */
@@ -692,7 +675,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	            } else {
 
 	                while (akl--) {
-			    const int	kc = MKCHAR(*akp) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -710,40 +693,37 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* configuration file */
 	                    case 'C':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            cfname = argp ;
 	                        break ;
 
 	                    case 'R':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
 	                        break ;
 
 /* mutex lock PID file */
 	                    case 'P':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pidfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pidfname = argp ;
 	                        break ;
 
 	                    case 'Q':
@@ -774,15 +754,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* hostspec */
 	                    case 'h':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                hostspec = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            hostspec = argp ;
 	                        break ;
 
 /* input mode */
@@ -799,17 +778,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* default ping-interval */
 	                    case 'm':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = cfdecti(argp,argl,&v) ;
+	                                pip->intminping = v ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = cfdecti(argp,argl,&v) ;
-	                            pip->intminping = v ;
-	                        }
 	                        break ;
 
 /* no output */
@@ -819,28 +797,28 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* options */
 	                    case 'o':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            rs = keyopt_loads(&akopts,argp,argl) ;
 	                        break ;
 
 /* accummulate the 'pingtab' files */
 	                    case 'p':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = progpingtabadd(pip,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            rs = progpingtabadd(pip,argp,argl) ;
 	                        break ;
 
 /* quiet mode */
@@ -855,34 +833,32 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* 'pingstat' file name */
 	                    case 's':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                psfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            psfname = argp ;
 	                        break ;
 
 /* over-ride ping-timeout */
 	                    case 't':
-	                        if (argr <= 0) {
-	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = cfdecti(argp,argl,&v) ;
-	                            if (v > 0) {
-	                                pip->have.toping = TRUE ;
-	                                pip->final.toping = TRUE ;
-	                                pip->toping = v ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = cfdecti(argp,argl,&v) ;
+	                                if (v > 0) {
+	                                    pip->have.toping = TRUE ;
+	                                    pip->final.toping = TRUE ;
+	                                    pip->toping = v ;
+	                                }
 	                            }
-	                        }
+	                        } else
+	                            rs = SR_INVALID ;
 	                        break ;
 
 /* update mode */
@@ -938,6 +914,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -962,10 +940,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get our program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -983,8 +962,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* help */
 
 	if (f_help) {
-	    if ((helpfname == NULL) || (helpfname[0] == '\0'))
+	    if ((helpfname == NULL) || (helpfname[0] == '\0')) {
 	        helpfname = HELPFNAME ;
+	    }
 	    printhelp(NULL,pip->pr,pip->searchname,helpfname) ;
 	} /* end if (help) */
 
@@ -996,9 +976,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* more option initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (rs < 0) {
 	    ex = EX_USAGE ;
@@ -1163,20 +1150,20 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    const char	*lfname = pip->logfname ;
 	    const char	*logid = pip->logid ;
 	    if ((rs1 = logfile_open(&pip->lh,lfname,0,0666,logid)) >= 0) {
-	    	pip->open.logprog = TRUE ;
+	        pip->open.logprog = TRUE ;
 
-	    if (pip->daytime == 0)
-	        pip->daytime = time(NULL) ;
+	        if (pip->daytime == 0)
+	            pip->daytime = time(NULL) ;
 
-	    if (pip->logsize > 0)
-	        logfile_checksize(&pip->lh,pip->logsize) ;
+	        if (pip->logsize > 0)
+	            logfile_checksize(&pip->lh,pip->logsize) ;
 
-	    logfile_userinfo(&pip->lh,&u,pip->daytime,
-	        pip->progname,pip->version) ;
+	        logfile_userinfo(&pip->lh,&u,pip->daytime,
+	            pip->progname,pip->version) ;
 
-	    if (pip->debuglevel > 0)
-	        bprintf(pip->efp,"%s: log=%s\n",
-	            pip->progname,pip->logfname) ;
+	        if (pip->debuglevel > 0)
+	            bprintf(pip->efp,"%s: log=%s\n",
+	                pip->progname,pip->logfname) ;
 
 	    } /* end if (logfile-open) */
 	} /* end if (we have a log file or not) */
@@ -1193,12 +1180,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    debugprintf("main: 2 psfname=%s\n",psfname) ;
 #endif
 
-	if ((rs >= 0) && pip->f.update || f_input)
+	if ((rs >= 0) && (pip->f.update || f_input)) {
 	    rs = procpsdname(pip,psfname) ;
+	}
 
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: ps=%s\n",
 	        pip->progname,psfname) ;
+	}
 
 	if (pip->open.logprog)
 	    logfile_printf(&pip->lh,"ps=%s\n",psfname) ;
@@ -1457,7 +1446,7 @@ badlocalload:
 
 badlocstart:
 baduserinfo:
-done:
+
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    case SR_INVALID:
@@ -1465,7 +1454,7 @@ done:
 	        if (! pip->f.quiet) {
 	            bprintf(pip->efp,"%s: invalid query (%d)\n",
 	                pip->progname,rs) ;
-		}
+	        }
 	        break ;
 	    case SR_NOENT:
 	        ex = EX_CANTCREAT ;
@@ -1569,6 +1558,7 @@ static int usage(PROGINFO *pip)
 /* get the date out of the ID string */
 static int makedate_get(cchar *md,cchar **rpp)
 {
+	int		ch ;
 	const char	*sp ;
 	const char	*cp ;
 
@@ -1580,7 +1570,8 @@ static int makedate_get(cchar *md,cchar **rpp)
 	while (CHAR_ISWHITE(*cp))
 	    cp += 1 ;
 
-	if (! isdigit(*cp)) {
+	ch = MKCHAR(*cp) ;
+	if (! isdigitlatin(ch)) {
 	    while (*cp && (! CHAR_ISWHITE(*cp))) cp += 1 ;
 	    while (CHAR_ISWHITE(*cp)) cp += 1 ;
 	} /* end if (skip over the name) */
@@ -1612,7 +1603,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
 	    if ((rs = keyopt_curbegin(kop,&kcur)) >= 0) {
-		int	v ;
+	        int	v ;
 	        int	oi ;
 	        int	kl, vl ;
 	        cchar	*kp, *vp ;
@@ -1621,7 +1612,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 	            if ((oi = matostr(progopts,2,kp,kl)) >= 0) {
 
-	                 vl = keyopt_fetch(kop,kp,NULL,&vp) ;
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
 
@@ -1708,12 +1699,14 @@ static int procpsdname(PROGINFO *pip,cchar *psfname)
 
 	if ((cl = sfdirname(psfname,-1,&cp)) > 0) {
 	    if ((rs = mkpath1w(tmpfname,cp,cl)) >= 0) {
-	        if (u_stat(tmpfname,&sb) == SR_NOENT)
-	            mkdirs(tmpfname,0777) ;
+	        if (u_stat(tmpfname,&sb) == SR_NOENT) {
+	            f_created = TRUE ;
+	            rs = mkdirs(tmpfname,0777) ;
+	        }
 	    }
 	}
 
-	return rs ;
+	return (rs >= 0) ? f_created : rs ;
 }
 /* end subroutine (procpsdname) */
 
@@ -1742,7 +1735,7 @@ static int loadlocalnames(PROGINFO *pip)
 	HOSTENT		he ;
 	const int	helen = getbufsize(getbufsize_he) ;
 	const int	hlen = MAXPATHLEN ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		i ;
 	int		n = 0 ;
@@ -1754,27 +1747,28 @@ static int loadlocalnames(PROGINFO *pip)
 	snsds(hbuf,hlen,pip->nodename,pip->domainname) ;
 
 	if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
-	for (i = 0 ; i < 2 ; i += 1) {
+	    for (i = 0 ; i < 2 ; i += 1) {
 
-	    hnp = (i == 0) ? pip->nodename : hbuf ;
-	    if ((rs1 = gethename(hnp,&he,hebuf,helen)) >= 0) {
-	        HOSTENT_CUR	cur ;
+	        hnp = (i == 0) ? pip->nodename : hbuf ;
+	        if ((rs1 = gethename(hnp,&he,hebuf,helen)) >= 0) {
+	            HOSTENT_CUR	cur ;
 
-	        if ((rs = hostent_curbegin(&he,&cur)) >= 0) {
-	            while (hostent_enumname(&he,&cur,&np) >= 0) {
-	                if (vecstr_find(&pip->localnames,np) < 0) {
-	                    rs = vecstr_add(&pip->localnames,np,-1) ;
-			}
-			if (rs < 0) break ;
-	            } /* end while */
-	            hostent_curend(&he,&cur) ;
-	        } /* end if */
+	            if ((rs = hostent_curbegin(&he,&cur)) >= 0) {
+	                while (hostent_enumname(&he,&cur,&np) >= 0) {
+	                    if (vecstr_find(&pip->localnames,np) < 0) {
+	                        rs = vecstr_add(&pip->localnames,np,-1) ;
+	                    }
+	                    if (rs < 0) break ;
+	                } /* end while */
+	                hostent_curend(&he,&cur) ;
+	            } /* end if */
 
 	        } /* end if (gethename) */
 
 	        if (rs < 0) break ;
 	    } /* end for */
-	    uc_free(hebuf) ;
+	    rs1 = uc_free(hebuf) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (memory-allocation) */
 
 	if (rs >= 0) {

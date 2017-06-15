@@ -83,11 +83,12 @@
 
 /* external subroutines */
 
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	sfdirname(const char *,int,const char **) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	sfskipwhite(cchar *,int,cchar **) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	sfdirname(cchar *,int,cchar **) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
-extern int	getnprocessors(const char **,int) ;
+extern int	getnprocessors(cchar **,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -178,12 +179,9 @@ const char	ignchrs[] ;
 const char	ofname[] ;
 {
 	SUBINFO		si, *sip = &si ;
-	WARGS		wa ;
-	DISP		disp ;
 	int		rs ;
 	int		rs1 ;
 	int		pan = 0 ;
-	int		f ;
 
 	if ((rs = subinfo_start(sip,pip,aip,terms,delimiter,ignchrs)) >= 0) {
 	    bfile	ofile, *ofp = &ofile ;
@@ -197,8 +195,9 @@ const char	ofname[] ;
 	    strcpy(openstr,"wc") ;
 	    if (pip->f.append) {
 	        strcat(openstr,"a") ;
-	    } else
+	    } else {
 	        strcat(openstr,"t") ;
+	    }
 
 	    if ((rs = bopen(ofp,ofname,openstr,0666)) >= 0) {
 
@@ -212,6 +211,8 @@ const char	ofname[] ;
 /* output parameters */
 
 	        if ((rs = subinfo_sendparams(sip,ofp)) >= 0) {
+		    WARGS	wa ;
+		    DISP	disp ;
 
 /* process the arguments */
 
@@ -223,23 +224,19 @@ const char	ofname[] ;
 	            wa.ofp = ofp ;
 
 	            if ((rs = disp_start(&disp,&wa)) >= 0) {
-
-	                rs = subinfo_args(sip,&disp) ;
-
-	                if (rs >= 0)
-	                    rs = subinfo_argfile(sip,&disp) ;
-
-	                if (rs >= 0)
-	                    rs = subinfo_stdin(sip,&disp) ;
-
-	                f = (rs < 0) ;
-	                rs1 = disp_finish(&disp,f) ;
+	                if ((rs = subinfo_args(sip,&disp)) >= 0) {
+	                    if ((rs = subinfo_argfile(sip,&disp)) >= 0) {
+	                        rs = subinfo_stdin(sip,&disp) ;
+			    }
+			}
+	                rs1 = disp_finish(&disp,(rs < 0)) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (disp) */
 
 	        } /* end if (subinfo-sendparams) */
 
-	        bclose(ofp) ;
+	        rs1 = bclose(ofp) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (output-opened) */
 
 	    pan = subinfo_finish(sip) ;
@@ -496,58 +493,58 @@ DISP		*dop ;
 /* end subroutine (subinfo_args) */
 
 
-static int subinfo_argfile(sip,dop)
-SUBINFO		*sip ;
-DISP		*dop ;
+static int subinfo_argfile(SUBINFO *sip,DISP *dop)
 {
 	PROGINFO	*pip = sip->pip ;
 	ARGINFO		*aip = sip->aip ;
-	bfile		argfile ;
 	int		rs = SR_OK ;
-	const char	*afname ;
+	int		rs1 ;
 
-	afname = aip->afname ;
-	if ((aip->afname == NULL) || (aip->afname[0] == '\0'))
-	    goto ret0 ;
+	if ((aip->afname != NULL) && (aip->afname[0] != '\0')) {
+	    bfile	afile ;
+	    cchar	*afname = aip->afname ;
 
 	if (afname[0] == '-') afname = BFILE_STDIN ;
 
-	if ((rs = bopen(&argfile,afname,"r",0666)) >= 0) {
-	    int	len ;
-	    char	linebuf[LINEBUFLEN + 1] ;
-	    char	*cp ;
+	if ((rs = bopen(&afile,afname,"r",0666)) >= 0) {
+	    const int	llen = LINEBUFLEN ;
+	    int		cl ;
+	    cchar	*cp ;
+	    char	lbuf[LINEBUFLEN + 1] ;
 
-	    while ((rs = breadline(&argfile,linebuf,LINEBUFLEN)) > 0) {
-	        len = rs ;
+	    while ((rs = breadline(&afile,lbuf,llen)) > 0) {
+	        int	len = rs ;
 
-	        if (linebuf[len - 1] == '\n') len -= 1 ;
-	        linebuf[len] = '\0' ;
+	        if (lbuf[len - 1] == '\n') len -= 1 ;
+	        lbuf[len] = '\0' ;
 
-	        cp = linebuf ;
-	        if ((cp[0] == '\0') || (cp[0] == '#'))
-	            continue ;
-
-	        sip->pan += 1 ;
-	        rs = subinfo_procfile(sip,dop,cp) ;
+		if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+	            if (cp[0] != '#') {
+			lbuf[(cp+cl)-lbuf] = '\0' ;
+	                sip->pan += 1 ;
+	                rs = subinfo_procfile(sip,dop,cp) ;
+		    }
+		}
 
 	        if (rs < 0) break ;
 	    } /* end while (reading lines) */
 
-	    bclose(&argfile) ;
+	    rs1 = bclose(&afile) ;
+	    if (rs >= 0) rs = rs1 ;
 	} else if (! pip->f.quiet) {
-	    bprintf(pip->efp,"%s: unaccessible (%d) argfile=%s\n",
-	        pip->progname,rs,aip->afname) ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: inaccessible (%d) afile=%s\n" ;
+	    bprintf(pip->efp,fmt,pn,rs,aip->afname) ;
 	} /* end if */
 
-ret0:
+	} /* end if (have) */
+
 	return rs ;
 }
 /* end subroutine (subinfo_argfile) */
 
 
-static int subinfo_stdin(sip,dop)
-SUBINFO		*sip ;
-DISP		*dop ;
+static int subinfo_stdin(SUBINFO *sip,DISP *dop)
 {
 	int		rs = SR_OK ;
 
@@ -562,10 +559,7 @@ DISP		*dop ;
 /* end subroutine (subinfo_stdin) */
 
 
-static int subinfo_procfile(sip,dop,fname)
-SUBINFO		*sip ;
-DISP		*dop ;
-const char	fname[] ;
+static int subinfo_procfile(SUBINFO *sip,DISP *dop,cchar *fname)
 {
 	PROGINFO	*pip = sip->pip ;
 	struct ustat	sb ;
@@ -604,9 +598,7 @@ ret0:
 /* end subroutine (subinfo_procfile) */
 
 
-static int disp_start(dop,wap)
-DISP		*dop ;
-WARGS		*wap ;
+static int disp_start(DISP *dop,WARGS *wap)
 {
 	PROGINFO	*pip ;
 	pthread_t	tid, *tidp ;
@@ -704,17 +696,14 @@ bad0:
 /* end subroutine (disp_start) */
 
 
-static int disp_finish(dop,f_abort)
-DISP		*dop ;
-int		f_abort ;
+static int disp_finish(DISP *dop,int f_abort)
 {
 	pthread_t	*tidp ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
 
-	if (dop == NULL)
-	    return SR_FAULT ;
+	if (dop == NULL) return SR_FAULT ;
 
 	dop->f_done = TRUE ;
 	if (f_abort)
@@ -725,9 +714,11 @@ int		f_abort ;
 	}
 
 	for (i = 0 ; vecobj_get(&dop->tids,i,&tidp) >= 0 ; i += 1) {
-	    if (tidp == NULL) continue ;
-	    uptjoin(*tidp,NULL) ;
-	}
+	    if (tidp != NULL) {
+	        rs1 = uptjoin(*tidp,NULL) ;
+		if (rs >= 0) rs = rs1 ;
+	    }
+	} /* end if */
 
 	rs1 = ptm_destroy(&dop->om) ;
 	if (rs >= 0) rs = rs1 ;
@@ -746,10 +737,7 @@ int		f_abort ;
 /* end subroutine (disp_finish) */
 
 
-static int disp_addwork(dop,tagbuf,taglen)
-DISP		*dop ;
-const char	tagbuf[] ;
-int		taglen ;
+static int disp_addwork(DISP *dop,cchar *tagbuf,int taglen)
 {
 	PROGINFO	*pip = dop->pip ;
 	int		rs ;
@@ -770,8 +758,7 @@ int		taglen ;
 /* end subroutine (disp_addwork) */
 
 
-static int worker(ptvp)
-void		*ptvp ;
+static int worker(void *ptvp)
 {
 	PROGINFO	*pip ;
 	WARGS		*wap = (WARGS *) ptvp ;
@@ -835,14 +822,10 @@ void		*ptvp ;
 	                tid,rs) ;
 #endif
 
-	        if (rs > 0)
-	            c += 1 ;
-
+	        if (rs > 0) c += 1 ;
 	    } /* end if (work to do) */
 
-	    if (rs >= 0)
-	        rs = rs1 ;
-
+	    if (rs >= 0) rs = rs1 ;
 	} /* end while */
 
 #if	CF_DEBUG
@@ -855,18 +838,14 @@ void		*ptvp ;
 /* end subroutine (worker) */
 
 
-static int ereport(pip,fname,frs)
-PROGINFO	*pip ;
-const char	fname[] ;
-int		frs ;
+static int ereport(PROGINFO *pip,cchar *fname,int frs)
 {
 	int		rs = SR_OK ;
 
 	if (! pip->f.quiet) {
-	    bprintf(pip->efp,"%s: file-processing error (%d)\n",
-	        pip->progname,frs) ;
-	    bprintf(pip->efp,"%s: file=%s\n",
-	        pip->progname,fname) ;
+	    cchar	*pn = pip->progname ;
+	    bprintf(pip->efp,"%s: file-processing error (%d)\n",pn,frs) ;
+	    bprintf(pip->efp,"%s: file=%s\n",pn,fname) ;
 	}
 
 	return rs ;

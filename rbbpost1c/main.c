@@ -1096,6 +1096,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    cchar	*fmt ;
 	    fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    bprintf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
 /* done */

@@ -1,6 +1,6 @@
 /* ucsem */
 
-/* Posix Semaphore (UCSEM) */
+/* UNIX Counting Semaphore (UCSEM) */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -87,12 +87,12 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
-int		ucsemunlink(const char *) ;
-int		unlinkucsem(const char *) ;
+int		ucsemunlink(cchar *) ;
+int		unlinkucsem(cchar *) ;
 
-static int	ucsemdircheck(const char *) ;
-static int	ucsemdiradd(const char *,int) ;
-static int	ucsemdirrm(const char *) ;
+static int	ucsemdircheck(cchar *) ;
+static int	ucsemdiradd(cchar *,mode_t) ;
+static int	ucsemdirrm(cchar *) ;
 
 static int	getucsemgid(void) ;
 
@@ -100,14 +100,9 @@ static int	getucsemgid(void) ;
 /* exported subroutines */
 
 
-int ucsem_open(psp,name,oflag,perm,count)
-UCSEM		*psp ;
-const char	name[] ;
-int		oflag ;
-mode_t		perm ;
-uint		count ;
+int ucsem_open(UCSEM *psp,cchar *name,int oflag,mode_t om,uint count)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 	int		to_mfile = TO_MFILE ;
 	int		to_nfile = TO_NFILE ;
 	int		to_nospc = TO_NOSPC ;
@@ -124,7 +119,7 @@ uint		count ;
 #endif
 
 	if (name[0] != '/') {
-	    sncpy2(altname,UCSEM_NAMELEN,"/",name) ;
+	    rs = sncpy2(altname,UCSEM_NAMELEN,"/",name) ;
 	    name = altname ;
 	}
 
@@ -134,9 +129,10 @@ uint		count ;
 
 	memset(psp,0,sizeof(UCSEM)) ;
 
+	if (rs >= 0) {
 	repeat {
 	    rs = SR_OK ;
-	    psp->sp = sem_open(name,oflag,(mode_t) perm, count) ;
+	    psp->sp = sem_open(name,oflag,om,count) ;
 	    if (psp->sp == SEM_FAILED) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
@@ -169,10 +165,11 @@ uint		count ;
 	        } /* end switch */
 	    } /* end if (error) */
 	} until ((rs >= 0) || f_exit) ;
+	} /* end if (ok) */
     
 	if (rs >= 0) {
 	    strwcpy(psp->name,name,UCSEM_NAMELEN) ;
-	    if (oflag & O_CREAT) ucsemdiradd(name,perm) ;
+	    if (oflag & O_CREAT) ucsemdiradd(name,om) ;
 	    psp->magic = UCSEM_MAGIC ;
 	} /* end if (opened) */
 
@@ -202,10 +199,7 @@ UCSEM		*psp ;
 /* end subroutine (ucsem_close) */
 
 
-int ucsem_start(psp,pshared,count)
-UCSEM		*psp ;
-int		pshared ;
-uint		count ;
+int ucsem_start(UCSEM *psp,int pshared,uint count)
 {
 	int		rs ;
 
@@ -226,8 +220,7 @@ uint		count ;
 /* end subroutine (ucsem_start) */
 
 
-int ucsem_destroy(psp)
-UCSEM		*psp ;
+int ucsem_destroy(UCSEM *psp)
 {
 	int		rs ;
 
@@ -247,8 +240,7 @@ UCSEM		*psp ;
 /* end subroutine (ucsem_destroy) */
 
 
-int ucsem_trywait(psp)
-UCSEM		*psp ;
+int ucsem_trywait(UCSEM *psp)
 {
 	sem_t		*sp ;
 	int		rs ;
@@ -268,9 +260,7 @@ UCSEM		*psp ;
 /* end subroutine (ucsem_trywait) */
 
 
-int ucsem_getvalue(psp,rp)
-UCSEM		*psp ;
-int		*rp ;
+int ucsem_getvalue(UCSEM *psp,int *rp)
 {
 	sem_t		*sp ;
 	int		rs ;
@@ -290,8 +280,7 @@ int		*rp ;
 /* end subroutine (ucsem_getvalue) */
 
 
-int ucsem_wait(psp)
-UCSEM		*psp ;
+int ucsem_wait(UCSEM *psp)
 {
 	sem_t		*sp ;
 	int		rs ;
@@ -311,8 +300,7 @@ UCSEM		*psp ;
 /* end subroutine (ucsem_wait) */
 
 
-int ucsem_waiti(psp)
-UCSEM		*psp ;
+int ucsem_waiti(UCSEM *psp)
 {
 	sem_t		*sp ;
 	int		rs ;
@@ -331,8 +319,7 @@ UCSEM		*psp ;
 /* end subroutine (ucsem_waiti) */
 
 
-int ucsem_post(psp)
-UCSEM		*psp ;
+int ucsem_post(UCSEM *psp)
 {
 	sem_t		*sp ;
 	int		rs ;
@@ -352,8 +339,7 @@ UCSEM		*psp ;
 /* end subroutine (ucsem_post) */
 
 
-int ucsem_unlink(psp)
-UCSEM		*psp ;
+int ucsem_unlink(UCSEM *psp)
 {
 	int		rs = SR_NOENT ;
 
@@ -384,8 +370,7 @@ UCSEM		*psp ;
 /* OTHER API (but related) */
 
 
-int ucsemunlink(name)
-const char	name[] ;
+int ucsemunlink(cchar *name)
 {
 	int		rs ;
 	char		altname[MAXNAMELEN + 1] ;
@@ -416,8 +401,7 @@ const char	name[] ;
 /* end subroutine (ucsemunlink) */
 
 
-int unlinkucsem(name)
-const char	name[] ;
+int unlinkucsem(cchar *name)
 {
 	int		rs ;
 	char		altname[MAXNAMELEN + 1] ;
@@ -451,22 +435,19 @@ const char	name[] ;
 /* local subroutines */
 
 
-static int ucsemdiradd(name,perm)
-const char	name[] ;
-int		perm ;
+static int ucsemdiradd(cchar *name,mode_t perm)
 {
+	const int	rsn = SR_NOENT ;
 	int		rs ;
 	char		tmpfname[MAXPATHLEN + 1] ;
 	char		*pp = UCSEM_PATHPREFIX ;
 
 	mkpath2(tmpfname,pp,name) ;
 
-	rs = u_creat(tmpfname,perm) ;
-
-	if (rs == SR_NOENT) {
-	    rs = ucsemdircheck(pp) ;
-	    if (rs >= 0)
+	if ((rs = u_creat(tmpfname,perm)) == rsn) {
+	    if ((rs = ucsemdircheck(pp)) >= 0) {
 	        rs = u_creat(tmpfname,perm) ;
+	    }
 	}
 	if (rs >= 0) u_close(rs) ;
 

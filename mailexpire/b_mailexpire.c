@@ -454,7 +454,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(pip->envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1013,24 +1013,24 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	if ((rs == procuser_begin(pip)) >= 0) {
-	    if (cfname != NULL) {
-	        if (pip->euid != pip->uid) u_seteuid(pip->uid) ;
-	        if (pip->egid != pip->gid) u_setegid(pip->gid) ;
-	    }
-	    if ((rs = procourconf_begin(pip,&aparams,cfname)) >= 0) {
-	        if ((rs = procmailusers(pip,&aparams)) >= 0) {
-	            ARGINFO	*aip = &ainfo ;
-	            cchar	*ofn = ofname ;
-	            cchar	*afn = afname ;
-	            rs = procargs(pip,aip,&pargs,ofn,afn) ;
-	        } /* end if (procmailusers) */
-	        rs1 = procourconf_end(pip) ;
+	    if ((rs == procuser_begin(pip)) >= 0) {
+	        if (cfname != NULL) {
+	            if (pip->euid != pip->uid) u_seteuid(pip->uid) ;
+	            if (pip->egid != pip->gid) u_setegid(pip->gid) ;
+	        }
+	        if ((rs = procourconf_begin(pip,&aparams,cfname)) >= 0) {
+	            if ((rs = procmailusers(pip,&aparams)) >= 0) {
+	                ARGINFO	*aip = &ainfo ;
+	                cchar	*ofn = ofname ;
+	                cchar	*afn = afname ;
+	                rs = procargs(pip,aip,&pargs,ofn,afn) ;
+	            } /* end if (procmailusers) */
+	            rs1 = procourconf_end(pip) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (procourconf) */
+	        rs1 = procuser_end(pip) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (procourconf) */
-	    rs1 = procuser_end(pip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (procuser) */
+	    } /* end if (procuser) */
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;

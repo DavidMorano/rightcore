@@ -404,7 +404,7 @@ int		*fd2p ;
 	di.pr = pr ;
 	di.rhost = node ;
 
-	if (opts & DIALOPTS_MEMPTY)
+	if (opts & DIALOPT_EMPTY)
 	    di.f.empty = TRUE ;
 
 	rs = ids_load(&id) ;
@@ -489,7 +489,7 @@ int		*fd2p ;
 /* do we need to verify against cluster DBs? */
 
 	    if ((rs >= 0) && 
-	        (((! f_local) && ((opts & DIALOPTS_MNOCHECK) == 0)) ||
+	        (((! f_local) && ((opts & DIALOPT_NOCHECK) == 0)) ||
 	        ((node[0] == '+') && (node[1] == '\0')))) {
 	        struct dbinfo	dbi ;
 	        vecstr	c_us, c_them ;
@@ -971,7 +971,7 @@ int		*fd2p ;
 
 /* get the present working directory if we need it */
 
-	if ((dip->opts & DIALOPTS_MPWD) && (dip->pwd[0] == '\0')) {
+	if ((dip->opts & DIALOPT_PWD) && (dip->pwd[0] == '\0')) {
 	    rs = getpwd(dip->pwd,MAXPATHLEN) ;
 	    cl = rs ;
 	    if (rs > 0) dip->pwd[cl] = '\0' ;
@@ -995,7 +995,7 @@ int		*fd2p ;
 /* dial the designated node */
 
 	ip = fd2p ;
-	if (! (dip->opts & DIALOPTS_MNOLIGHT))
+	if (! (dip->opts & DIALOPT_NOLIGHT))
 	    ip = NULL ;
 
 #if	CF_DEBUGS
@@ -1068,7 +1068,7 @@ int		*fd2p ;
 
 /* do we want to go into "light-weight" mode */
 
-	if (! (dip->opts & DIALOPTS_MNOLIGHT)) {
+	if (! (dip->opts & DIALOPT_NOLIGHT)) {
 
 #if	CF_DEBUGS
 	    debugprintf("dialremote: LIGHT mode 1\n") ;
@@ -1189,7 +1189,7 @@ int		*fd2p ;
 
 /* are we in light-weight mode? */
 
-	if (! (dip->opts & DIALOPTS_MNOLIGHT)) {
+	if (! (dip->opts & DIALOPT_NOLIGHT)) {
 	    SOCKADDRESS	dummy ;
 	    int		s, dummylen ;
 
@@ -1267,7 +1267,7 @@ badaccept:
 badack:
 badsync2:
 badsend:
-	if (! (dip->opts & DIALOPTS_MNOLIGHT)) {
+	if (! (dip->opts & DIALOPT_NOLIGHT)) {
 
 	    u_close(afd) ;
 
@@ -1708,7 +1708,7 @@ const char	**ev ;
 
 /* present working directory and maybe more environment */
 
-	if ((rs >= 0) && (dip->opts & DIALOPTS_MPWD) &&
+	if ((rs >= 0) && (dip->opts & DIALOPT_PWD) &&
 	    (dip->pwd[0] != '\0')) {
 
 	    rtype = dialcprogmsgtype_pwd ;
@@ -1738,7 +1738,7 @@ const char	**ev ;
 
 /* what about light-weight sockets? */
 
-	if ((rs >= 0) && (! (dip->opts & DIALOPTS_MNOLIGHT))) {
+	if ((rs >= 0) && (! (dip->opts & DIALOPT_NOLIGHT))) {
 	    struct dialcprogmsg_light	m5 ;
 
 	    memset(&m5,0,sizeof(struct dialcprogmsg_light)) ;
@@ -1812,11 +1812,7 @@ ret0:
 /* end subroutine (sendvars) */
 
 
-static int filebuf_sendrecord(bp,type,sp,sl)
-FILEBUF		*bp ;
-int		type ;
-const char	*sp ;
-int		sl ;
+static int filebuf_sendrecord(FILEBUF *bp,int type,cchar *sp,int sl)
 {
 	int		rs ;
 	int		tlen = 0 ;

@@ -114,17 +114,13 @@ int progentryinfo(PROGINFO *pip,bfile *ofp,EMA_ENT *ep,int ind)
 	int		wlen = 0 ;
 	cchar		*ap = NULL ;
 
-#if	CF_DEBUGS
-	debugprintf("progentryinfo: ent ep(%p)\n",ep) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("progentryinfo: ent ind=%d\n",ind) ;
 #endif
 
 	if (pip == NULL) return SR_FAULT ;
 	if (ep == NULL) return SR_FAULT ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("progentryinfo: ofp(%p)\n",ofp) ;
-#endif
 
 	if (ind > MAXINDENT) ind = MAXINDENT ;
 
@@ -136,21 +132,31 @@ int progentryinfo(PROGINFO *pip,bfile *ofp,EMA_ENT *ep,int ind)
 	    al = ep->rl ;
 	}
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("progentryinfo: a=>%t<\n",ap,al) ;
+#endif
+
 	if ((rs = bprintf(ofp,"%s %t",atype(ep->type),blanks,ind)) >= 0) {
 	    wlen += rs ;
-	    if (ep->cp != NULL) {
-		if ((rs = bwrite(ofp,ap,al)) >= 0) {
-		    wlen += rs ;
-		    {
-		        const int ml = MIN(ep->cl,(pip->linelen-wlen-3)) ;
-		        rs = bprintf(ofp," (%t)\n",ep->cp,ml) ;
-		        wlen += rs ;
-		    }
+	    if ((rs >= 0) && (ep->rp != NULL) && (ep->rl > 0)) {
+		if ((rs = bputc(ofp,' ')) >= 0) {
+		    rs = bwrite(ofp,ep->rp,ep->rl) ;
+		    wlen += (rs+1) ;
 		}
-	    } else {
-		const int	ml = MIN(ep->cl,(pip->linelen-wlen)) ;
-		rs = bprintf(ofp,"%t\n",ep->cp,ml) ;
-		wlen += rs ;
+	    }
+	    if ((rs >= 0) && (ep->ap != NULL) && (ep->al > 0)) {
+		    rs = bprintf(ofp," ­ %t",ep->ap,ep->al) ;
+		    wlen += rs ;
+	    }
+	    if ((rs >= 0) && (ep->cp != NULL) && (ep->cl > 0)) {
+		        const int ml = MIN(ep->cl,(pip->linelen-wlen-3)) ;
+		        rs = bprintf(ofp," (%t)",ep->cp,ml) ;
+		        wlen += rs ;
+	    }
+	    if (rs >= 0) { 
+		rs = bputc(ofp,'\n') ;
+		wlen += 1 ;
 	    }
 	} /* end if */
 

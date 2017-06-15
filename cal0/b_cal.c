@@ -248,6 +248,7 @@ int p_cal(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_cal) */
 
 
+/* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
@@ -307,7 +308,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->verboselevel = 1 ;
 
@@ -1250,6 +1251,7 @@ static int getstuff(PROGINFO *pip,struct monyear *myp,cchar s[])
 	    debugprintf("b_cal/getstuff: s=>%s<\n",s) ;
 #endif
 
+	if (pip == NULL) return SR_FAULT ; /* lint */
 	myp->m = -1 ;
 	myp->y = -1 ;
 	if ((tp = strpbrk(s,"/-")) != NULL) {

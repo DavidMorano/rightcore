@@ -4,7 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	1		/* run-time debug print-outs */
+#define	CF_DEBUG	0		/* run-time debug print-outs */
 
 
 /* revision history:

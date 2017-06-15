@@ -119,7 +119,7 @@ enum subs {
 /* exported subroutines */
 
 
-int bibleq_open(BIBLEQ *op,cchar pr[],cchar dbname[])
+int bibleq_open(BIBLEQ *op,cchar *pr,cchar *dbname)
 {
 	int		rs ;
 	const char	*objname = BIBLEQ_OBJNAME ;
@@ -289,7 +289,7 @@ int bibleq_lookup(BIBLEQ *op,BIBLEQ_CUR *curp,int qo,cchar **klp)
 
 /* enumerate entries */
 int bibleq_read(BIBLEQ *op,BIBLEQ_CUR *curp,BIBLEQ_CITE *bcp,
-		char vbuf[],int vlen)
+		char *vbuf,int vlen)
 {
 	int		rs = SR_NOSYS ;
 
@@ -411,7 +411,7 @@ static int bibleq_objloadend(BIBLEQ *op)
 /* end subroutine (bibleq_objloadend) */
 
 
-static int bibleq_loadcalls(BIBLEQ *op,cchar objname[])
+static int bibleq_loadcalls(BIBLEQ *op,cchar *objname)
 {
 	MODLOAD		*lp = &op->loader ;
 	const int	nlen = SYMNAMELEN ;
@@ -439,49 +439,38 @@ static int bibleq_loadcalls(BIBLEQ *op,cchar objname[])
 #endif
 
 	    if (snp != NULL) {
-
 	        c += 1 ;
 		switch (i) {
-
 		case sub_open:
 		    op->call.open = 
 			(int (*)(void *,const char *,const char *)) snp ;
 		    break ;
-
 		case sub_count:
 		    op->call.count = (int (*)(void *)) snp ;
 		    break ;
-
 		case sub_curbegin:
 		    op->call.curbegin = 
 			(int (*)(void *,void *)) snp ;
 		    break ;
-
 		case sub_lookup:
 		    op->call.lookup = 
 			(int (*)(void *,void *,int,const char **)) snp ;
 		    break ;
-
 		case sub_read:
 		    op->call.enumerate = 
 			(int (*)(void *,void *,TIS_CITE *,char *,int)) snp ;
 		    break ;
-
 		case sub_curend:
 		    op->call.curend = 
 			(int (*)(void *,void *)) snp ;
 		    break ;
-
 		case sub_audit:
 		    op->call.audit = (int (*)(void *)) snp ;
 		    break ;
-
 		case sub_close:
 		    op->call.close = (int (*)(void *)) snp ;
 		    break ;
-
 		} /* end switch */
-
 	    } /* end if (it had the call) */
 
 	} /* end for (subs) */

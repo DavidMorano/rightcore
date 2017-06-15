@@ -50,9 +50,7 @@
 /* exported subroutines */
 
 
-int stdorder_rchar(buf,cwp)
-char	*buf ;
-char	*cwp ;
+int stdorder_rchar(char *buf,char *cwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -62,9 +60,7 @@ char	*cwp ;
 /* end subroutine (stdorder_rchar) */
 
 
-int stdorder_rshort(buf,swp)
-char	*buf ;
-short	*swp ;
+int stdorder_rshort(char *buf,ushort *swp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -77,9 +73,7 @@ short	*swp ;
 /* end subroutine (stdorder_rshort) */
 
 
-int stdorder_rint(buf,iwp)
-char	*buf ;
-int	*iwp ;
+int stdorder_rint(char *buf,int *iwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -96,9 +90,7 @@ int	*iwp ;
 
 #if	(LONG_BIT == 64)
 
-int stdorder_rlong(buf,lwp)
-char	*buf ;
-long	*lwp ;
+int stdorder_rlong(char *buf,long *lwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -118,9 +110,7 @@ long	*lwp ;
 
 #else /* (LONG_BIT == 64) */
 
-int stdorder_rlong(buf,lwp)
-char	*buf ;
-long	*lwp ;
+int stdorder_rlong(char *buf,long *lwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -137,9 +127,7 @@ long	*lwp ;
 #endif /* (LONG_BIT == 64) */
 
 
-int stdorder_rll(buf,lwp)
-char	*buf ;
-LONG	*lwp ;
+int stdorder_rll(char *buf,LONG *lwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -158,9 +146,7 @@ LONG	*lwp ;
 /* end subroutine (stdorder_rll) */
 
 
-int stdorder_ruchar(buf,cwp)
-char	*buf ;
-uchar	*cwp ;
+int stdorder_ruchar(char *buf,uchar *cwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -170,9 +156,7 @@ uchar	*cwp ;
 /* end subroutine (stdorder_ruchar) */
 
 
-int stdorder_rushort(buf,swp)
-char	*buf ;
-ushort	*swp ;
+int stdorder_rushort(char *buf,ushort *swp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -185,9 +169,7 @@ ushort	*swp ;
 /* end subroutine (stdorder_rushort) */
 
 
-int stdorder_ruint(buf,iwp)
-char	*buf ;
-uint	*iwp ;
+int stdorder_ruint(char *buf,uint *iwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -241,9 +223,7 @@ int stdorder_rulong(char *buf,ulong *lwp)
 #endif /* (LONG_BIT == 64) */
 
 
-int stdorder_rull(buf,lwp)
-char	*buf ;
-ULONG	*lwp ;
+int stdorder_rull(char *buf,ULONG *lwp)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -262,9 +242,7 @@ ULONG	*lwp ;
 /* end subroutine (stdorder_rull) */
 
 
-int stdorder_wchar(buf,cw)
-char	*buf ;
-int	cw ;
+int stdorder_wchar(char *buf,int cw)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -274,9 +252,7 @@ int	cw ;
 /* end subroutine (stdorder_wchar) */
 
 
-int stdorder_wshort(buf,sw)
-char	*buf ;
-int	sw ;
+int stdorder_wshort(char *buf,int sw)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -288,9 +264,7 @@ int	sw ;
 /* end subroutine (stdorder_wshort) */
 
 
-int stdorder_wint(buf,iw)
-char	*buf ;
-int	iw ;
+int stdorder_wint(char *buf,int iw)
 {
 	uchar	*ubuf = (uchar *) buf ;
 
@@ -342,9 +316,7 @@ int stdorder_wlong(char *buf,long lw)
 #endif /* (LONG_BIT == 64) */
 
 
-int stdorder_wll(buf,lw)
-char	*buf ;
-LONG	lw ;
+int stdorder_wll(char *buf,LONG lw)
 {
 	uchar	*ubuf = (uchar *) buf ;
 

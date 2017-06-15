@@ -80,25 +80,14 @@ extern int	dialuss(const char *,int,int) ;
 /* exported subroutines */
 
 
-int dialussnls(portspec,svcbuf,to,aopts)
-const char	portspec[] ;
-const char	svcbuf[] ;
-int		to ;
-int		aopts ;
+int dialussnls(cchar *portspec,cchar *svcbuf,int to,int aopts)
 {
-	struct sigaction	osig, nsig ;
-
-	sigset_t	signalmask ;
-
 	const int	nlslen = NLSBUFLEN ;
-
-	int	rs = SR_OK ;
-	int	blen ;
-	int	svclen, slen ;
-	int	fd = 0 ;
-
-	char	*nlsbuf ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		svclen ;
+	int		fd = 0 ;
+	char		*nlsbuf ;
 
 #if	CF_DEBUGS
 	debugprintf("dialussnls: ent to=%d\n",to) ;
@@ -135,7 +124,9 @@ int		aopts ;
 
 	if ((rs = uc_malloc((nlslen+1),&nlsbuf)) >= 0) {
 	    if ((rs = mknlsreq(nlsbuf,nlslen,svcbuf,svclen)) >= 0) {
-	        int	blen = rs ;
+	        struct sigaction	osig, nsig ;
+	        sigset_t		signalmask ;
+	        int			blen = rs ;
 
 #if	CF_DEBUGS
 	        debugprintf("dialtcpnls: nlsbuf len=%d\n",blen) ;
@@ -172,9 +163,12 @@ int		aopts ;
 	            u_sigaction(SIGPIPE,&osig,NULL) ;
 	        } /* end if (sigaction) */
 
-	    } else
+	    } else {
 	        rs = SR_TOOBIG ;
-	    uc_free(nlsbuf) ;
+	    }
+	    rs1 = uc_free(nlsbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 	} /* end if (memory-allocation) */
 
 #if	CF_DEBUGS

@@ -31,6 +31,14 @@
 	Q. Do these subroutines need to be multi-thread safe?
 	A. What do you think?
 
+	Q. Where is the data we are protecting with our mutex lock?
+	A. It is the private static data that is located inside the
+	   |getusershell(3c)| subroutine.
+
+	Q. All of this (locking) just to protect the private static data inside
+	   of the |getusershell(3c)| subroutine?
+	A. Yes. Pretty much.
+
 
 *******************************************************************************/
 
@@ -149,15 +157,18 @@ int uc_setus()
 {
 	GETUS		*uip = &getus_data ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = getus_init()) >= 0) {
 	    if ((rs = uc_forklockbegin(-1)) >= 0) { /* multi */
 	 	if ((rs = ptm_lock(&uip->m)) >= 0) { /* single */
 		    uip->f_active = TRUE ;
 		    setusershell() ;
-		    ptm_unlock(&uip->m) ;
+		    rs1 = ptm_unlock(&uip->m) ;
+		    if (rs >= 0) rs = rs1 ;
 		} /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (init) */
 
@@ -169,15 +180,18 @@ int uc_endus()
 {
 	GETUS		*uip = &getus_data ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = getus_init()) >= 0) {
 	    if ((rs = uc_forklockbegin(-1)) >= 0) { /* multi */
 	 	if ((rs = ptm_lock(&uip->m)) >= 0) { /* single */
 		    uip->f_active = FALSE ;
 		    endusershell() ;
-		    ptm_unlock(&uip->m) ;
+		    rs1 = ptm_unlock(&uip->m) ;
+		    if (rs >= 0) rs = rs1 ;
 		} /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (init) */
 
@@ -206,7 +220,8 @@ int uc_getus(char *rbuf,int rlen)
 		    } else { /* this is really extra safety */
 			if (errno != 0) rs = (- errno) ;
 		    }
-		    ptm_unlock(&uip->m) ;
+		    rs1 = ptm_unlock(&uip->m) ;
+		    if (rs >= 0) rs = rs1 ;
 		} /* end if (mutex) */
 	        rs1 = uc_forklockend() ;
 		if (rs >= 0) rs = rs1 ;

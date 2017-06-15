@@ -1,10 +1,10 @@
 SYNCER
 
-This command performs a synchronization of all of the file-systems.  By
-default, this occurs partly synchronously (see |sync(2)|).  It can optionally
-also be done in parallel with other tasks in the current session, or completely
-in the background (detached from any session whatsoever).  If done in parallel
-and the current session is ended, the session will not actually exit until the
+This command performs a synchronization of all of the file-systems. By default,
+this occurs partly synchronously (see |sync(2)|). It can optionally also be done
+in parallel with other tasks in the current session, or completely in the
+background (detached from any session whatsoever). If done in parallel and the
+current session is ended, the session will not actually exit until the
 synchronization is completely taken up by the operation system.
 
 Synopsis:

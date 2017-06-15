@@ -40,16 +40,16 @@ struct pmq {
 extern "C" {
 #endif
 
-extern int	pmq_open(PMQ *,const char *,int,mode_t,struct mq_attr *) ;
+extern int	pmq_open(PMQ *,cchar *,int,mode_t,struct mq_attr *) ;
 extern int	pmq_close(PMQ *) ;
-extern int	pmq_send(PMQ *,const char *,int,uint) ;
+extern int	pmq_send(PMQ *,cchar *,int,uint) ;
 extern int	pmq_receive(PMQ *,char *,int,uint *) ;
 extern int	pmq_setattr(PMQ *,struct mq_attr *,struct mq_attr *) ;
 extern int	pmq_getattr(PMQ *,struct mq_attr *) ;
 extern int	pmq_notify(PMQ *,struct sigevent *) ;
 extern int	pmq_unlink(PMQ *) ;
 
-extern int	uc_unlinkpmq(const char *) ;
+extern int	uc_unlinkpmq(cchar *) ;
 
 #ifdef	__cplusplus
 }

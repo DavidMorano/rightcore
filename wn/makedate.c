@@ -1,2 +1,2 @@
 const char wn_makedate[] =
-"@(#)wn                      170522_2015:36_USEDT Rightcore Network Services" ;
+"@(#)wn                      170608_2017:52_USEDT Rightcore Network Services" ;

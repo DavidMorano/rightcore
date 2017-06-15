@@ -18,13 +18,13 @@
 /*******************************************************************************
 
         This module provides an interlocked (atomic) counting semaphore. It
-        using the underlying POSIX mutex and condition-variables synchronization
+        uses the underlying POSIX mutex and condition-variables synchronization
         facility implementations.
 
         One would think that some OS (or even POSIX) would have given us a
         counting semaphore by now, but NO, that is not the case. Admittedly,
         there are no longer as many uses for a counting semaphore per se, now
-        that the p-threads semaphore and p-threads condition variables are now
+        that the p-threads semaphore and p-threads condition variables are
         available. But we get by because the unusual decrement amount on the
         semaphore count is usually only one (1), and that happens to be the
         only, but generally sufficient, decrement amount that p-threads

@@ -16,7 +16,7 @@
 *.Z
 
 .DS_Store
-.gitignore
 .gitattributes
+.gitnotes
 
 

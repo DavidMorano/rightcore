@@ -1198,6 +1198,7 @@ extern int	uc_recve(int,void *,int,int,int,int) ;
 extern int	uc_recvfrome(int,void *,int,int,void *,int *,int,int) ;
 extern int	uc_recvmsge(int,struct msghdr *,int,int,int) ;
 extern int	uc_sockatmark(int) ;
+extern int	uc_peek(int,void *,int) ;
 
 extern int	uc_lockf(int,int,offset_t) ;
 extern int	uc_lockfile(int,int,offset_t,offset_t,int) ;

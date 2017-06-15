@@ -837,6 +837,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 #ifdef	COMMENT
@@ -850,7 +855,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    shio_printf(pip->efp,"%s: ifile=%s\n",pn,ifname) ;
 	}
 
-	if (libfname != NULL) {
+	if ((rs >= 0) && (libfname != NULL)) {
 	    rs = locinfo_libset(lip,libfname,-1) ;
 	}
 
@@ -1711,6 +1716,7 @@ static int locinfo_libdirsearching(LOCINFO *lip,char *rbuf,cchar *name)
 	vecstr		*ldp = &lip->libdirs ;
 	vecstr		ns ;
 	int		rs ;
+	int		rs1 ;
 	int		len = 0 ;
 	if ((rs = vecstr_start(&ns,6,0)) >= 0) {
 	    if ((rs = vecstr_loadnames(&ns,name)) >= 0) {
@@ -1725,7 +1731,8 @@ static int locinfo_libdirsearching(LOCINFO *lip,char *rbuf,cchar *name)
 	            if (rs < 0) break ;
 	        } /* end for */
 	    } /* end if (vecstr_loadnames) */
-	    vecstr_finish(&ns) ;
+	    rs1 = vecstr_finish(&ns) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (vecstr) */
 	if ((rs >= 0) && (len == 0)) rbuf[0] = '\0' ;
 	return (rs >= 0) ? len : rs ;

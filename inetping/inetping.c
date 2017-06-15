@@ -71,6 +71,10 @@
 
 /* local defines */
 
+#ifndef	ADDR_NOT
+#define	ADDR_NOT	((uint) (~ 0))
+#endif
+
 #ifndef	NOFILE
 #define	NOFILE		64		/* modern value (old was 20) */
 #endif
@@ -104,6 +108,7 @@
 
 /* external subroutines */
 
+extern int	ctdeci(char *,int,int) ;
 extern int	getourhe(const char *,char *,struct hostent *,char *,int) ;
 
 #if	CF_DEBUGS
@@ -174,7 +179,7 @@ int inetping(cchar *rhost,int timeout)
 /* get an addressable ("E"ntry) hostname */
 
 	f_numeric = TRUE ;
-	if ((addr = inet_addr(rhost)) == (~ 0)) {
+	if ((addr = inet_addr(rhost)) == ADDR_NOT) {
 
 	    f_numeric = FALSE ;
 	    hep = &he ;
@@ -213,7 +218,7 @@ int inetping(cchar *rhost,int timeout)
 
 	if (! f_numeric) {
 	    hostent_cur	hc ;
-	    if ((hostent_curbegin(&he,&hc)) >= 0) {
+	    if ((rs = hostent_curbegin(&he,&hc)) >= 0) {
 	        while (hostent_enumaddr(&he,&hc,&ap) >= 0) {
 		    iap = (in_addr_t *) ap ;
 	            rs = pingone(pingprog,iap,timeout) ;
@@ -298,15 +303,11 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 	i = 2 ;
 	pa_timeout[0] = '\0' ;
 	if (timeout >= 0) {
-
 	    ctdeci(pa_timeout,DIGBUFLEN,timeout) ;
-
 #if	CF_DEBUGS
 	    debugprintf("inetping/pingone: timeout=%s\n",pa_timeout) ;
 #endif
-
 	    args[i++] = pa_timeout ;
-
 	}
 
 	args[i] = NULL ;
@@ -321,9 +322,9 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 
 	    if (i == 0) {
 	        rs = u_open(nullfname,O_RDONLY,0600) ;
-
-	    } else
+	    } else {
 	        rs = u_open(nullfname,O_WRONLY,0600) ;
+	    }
 
 	    if (rs >= 0)
 	        bfd[i] = i ;
@@ -423,17 +424,12 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 	        break ;
 
 	    if (len > 0) {
-
 #if	CF_DEBUGS
 	        debugprintf("inetping/pingone: buf=>%t<\n",bp,len) ;
 #endif
-
 	        f_found = (strnchr(bp,len,'\n') != NULL) ;
-
 	        i += len ;
-	        if (f_found)
-	            break ;
-
+	        if (f_found) break ;
 	    } else
 	        to += TO_READ ;
 
@@ -484,16 +480,12 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 #endif
 
 	if (to >= timeout) {
-
 #if	CF_DEBUGS
 	    debugprintf("inetping/pingone: killing pid=%d sig=%u\n",
 	        pid,SIGTERM) ;
 #endif
-
 	    u_kill(pid,SIGTERM) ;
-
 	    sleep(1) ;
-
 	}
 
 #if	CF_DEBUGS
@@ -520,15 +512,12 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 
 	    to += 1 ;
 	    if (to >= TO_CHILDEXIT) {
-
 #if	CF_DEBUGS
 	        debugprintf("inetping/pingone: wait killing pid=%d sig=%u\n",
 	            pid,SIGTERM) ;
 #endif
-
 	        to = MAX((to - 3),0) ;
 	        u_kill(pid,SIGTERM) ;
-
 	    }
 
 	    sleep(1) ;
@@ -543,10 +532,7 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 /* we're out of here */
 done:
 	for (i = 0 ; i < 3 ; i += 1) {
-
-	    if (bfd[i] >= 0)
-	        u_close(i) ;
-
+	    if (bfd[i] >= 0) u_close(i) ;
 	} /* end for */
 
 	inetaddr_finish(&ia) ;
@@ -574,12 +560,10 @@ static int makeint(void *addr)
 {
 	int		hi = 0 ;
 	uchar		*us = (uchar *) addr ;
-
 	hi |= ((us[3] & 0xFF) << 24) ;
 	hi |= ((us[2] & 0xFF) << 16) ;
 	hi |= ((us[1] & 0xFF) << 8) ;
 	hi |= (us[0] & 0xFF)  ;
-
 	return hi ;
 }
 #endif /* CF_DEBUGS */

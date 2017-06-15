@@ -3,8 +3,9 @@
 /* BIBLEVERSES implementation */
 
 
-#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUGSTART	0		/* debug |isstart()| */
+#define	CF_DEUGMKDATA	0		/* debug make-data */
 #define	CF_EMPTYTERM	1		/* terminate entry on empty line */
 #define	CF_SAFE		0		/* normal safety */
 
@@ -84,8 +85,8 @@
 #define	TMPDNAME	"/tmp"
 #endif
 
-#ifndef	TMPVARDNAME
-#define	TMPVARDNAME	"/var/tmp"
+#ifndef	VTMPDNAME
+#define	VTMPDNAME	"/var/tmp"
 #endif
 
 #ifndef	VCNAME
@@ -267,7 +268,7 @@ int bibleverses_open(BIBLEVERSES *op,cchar *pr,cchar *dbname)
 	    cchar	*dn = BIBLEVERSES_DBDNAME ;
 	    char	dbfname[MAXPATHLEN + 1] ;
 	    if ((rs = mkpath3(dbfname,pr,dn,cbuf)) >= 0) {
-	        const char	*cp = NULL ;
+	        cchar	*cp = NULL ;
 	        if ((rs = uc_mallocstrw(dbfname,-1,&cp)) >= 0) {
 	            op->dbfname = cp ;
 	            if ((rs = subinfo_start(&si)) >= 0) {
@@ -682,8 +683,8 @@ static int bibleverses_dbmapcreate(BIBLEVERSES *op,time_t dt)
 	                debugprintf("bibleverses_dbmapcreate: ms=%ld\n",ms) ;
 #endif
 	                if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
-	                    const int		madv = MADV_RANDOM ;
 	                    const caddr_t	ma = md ;
+	                    const int		madv = MADV_RANDOM ;
 	                    if ((rs = uc_madvise(ma,ms,madv)) >= 0) {
 	                        op->mapdata = md ;
 	                        op->mapsize = ms ;
@@ -700,7 +701,8 @@ static int bibleverses_dbmapcreate(BIBLEVERSES *op,time_t dt)
 	                    }
 	                } /* end if (u_mmap) */
 #if	CF_DEBUGS
-	                debugprintf("bibleverses_dbmapcreate: u_mmap-out rs=%d\n",rs) ;
+	                debugprintf("bibleverses_dbmapcreate: "
+				"u_mmap-out rs=%d\n",rs) ;
 #endif
 	            } else
 	                rs = SR_TOOBIG ;
@@ -890,6 +892,9 @@ static int bibleverses_indopenseqer(BIBLEVERSES *op,SUBINFO *sip,
 	    char	pbuf[MAXPATHLEN + 1] ;
 	    for (i = 0 ; (rs >= 0) && (idxdirs[i] != NULL) ; i += 1) {
 	        cchar	*dir = idxdirs[i] ;
+#if	CF_DEBUGS
+	debugprintf("bibleverses_indopenseqer: dir=%s\n",dir) ;
+#endif
 	        if ((rs = expcook_exp(ckp,'\0',ebuf,elen,dir,-1)) >= 0) {
 	            if ((rs = pathclean(pbuf,ebuf,rs)) > 0) {
 		        if ((rs = bibleverses_dirok(op,dsp,&id,pbuf,rs)) > 0) {
@@ -902,6 +907,10 @@ static int bibleverses_indopenseqer(BIBLEVERSES *op,SUBINFO *sip,
 		        } /* end if (bibleverses_dirok) */
 		    } /* end if (pathclean) */
 	        } /* end if (expcook_exp) */
+#if	CF_DEBUGS
+		debugprintf("bibleverses_indopenseqer: bot rs=%d nv=%u\n",
+		rs,nverses) ;
+#endif
 		if (nverses > 0) break ;
 	        if (rs < 0) break ;
 	    } /* end for */
@@ -1141,7 +1150,7 @@ static int bibleverses_indmkdata(BIBLEVERSES *op,cchar *indname,mode_t om)
 
 	            if ((ll > 0) && (! isempty(lp,ll))) {
 
-#if	CF_DEBUGS
+#if	CF_DEBUGS && CF_DEBUGMKDATA
 	                debugprintf("bibleverses_indmkdata: line>%t<\n",
 	                    lp,strnlen(lp,MIN(ll,40))) ;
 #endif
@@ -1217,7 +1226,7 @@ static int bibleverses_indmkdata(BIBLEVERSES *op,cchar *indname,mode_t om)
 	            entry_finish(&e) ;
 	        }
 
-#if	CF_DEBUGS
+#if	CF_DEBUGS && CF_DEBUGMKDATA
 	        {
 	            BVIMK_INFO	bi ;
 	            rs1 = bvimk_info(&bvind,&bi) ;
@@ -1292,7 +1301,7 @@ static int entry_start(BIBLEVERSES_ENT *ep,BIBLEVERSES_Q *qp,
 		uint loff,uint llen)
 {
 	const int	ne = BIBLEVERSES_NLE ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		size ;
 	void		*p ;
 
@@ -1566,8 +1575,9 @@ int		*sip ;
 
 	} /* end if (have a start) */
 
-	if (sip != NULL)
+	if (sip != NULL) {
 	    *sip = (f) ? si : 0 ;
+	}
 
 #if	CF_DEBUGS && CF_DEBUGSTART
 	debugprintf("bibleqs/isstart: f=%u si=%u\n",f,si) ;

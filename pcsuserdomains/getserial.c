@@ -151,7 +151,7 @@ int getserial(cchar *sfname)
 		const int	dlen = DIGBUFLEN ;
 		char		dbuf[DIGBUFLEN+1] ;
 	        if ((rs = getserial_read(fd,dbuf,dlen)) >= 0) {
-	            serial = rs ;
+	            serial = rs ; /* result for return */
 	            rs = getserial_write(fd,dbuf,dlen,serial) ;
 	        }
 	    } /* end if (lockfile) */
@@ -177,7 +177,7 @@ static int getserial_open(cchar *sfname)
 	int		rs ;
 	int		fd = -1 ;
 
-	rs = u_open(sfname,O_RDWR,m) ;
+	rs = uc_open(sfname,O_RDWR,m) ;
 	fd = rs ;
 
 #if	CF_DEBUGS
@@ -191,7 +191,7 @@ static int getserial_open(cchar *sfname)
 	}
 	if (rs == SR_NOENT) {
 	    const int	of = (O_RDWR|O_CREAT) ;
-	    if ((rs = u_open(sfname,of,m)) >= 0) {
+	    if ((rs = uc_open(sfname,of,m)) >= 0) {
 	        fd = rs ;
 	        if ((rs = uc_fminmod(fd,m)) >= 0) {
 	            const int	n = _PC_CHOWN_RESTRICTED ;
@@ -246,7 +246,6 @@ static int getserial_write(int fd,char *dbuf,int dlen,int serial)
 {
 	const int	nserial = ((serial+1) & INT_MAX) ;
 	int		rs ;
-	if ((rs = u_rewind(fd)) >= 0) {
 	    if ((rs = ctdeci(dbuf,dlen,nserial)) >= 0) {
 	        dbuf[rs++] = '\n' ;
 	        if ((rs = u_write(fd,dbuf,rs)) >= 0) {
@@ -254,7 +253,6 @@ static int getserial_write(int fd,char *dbuf,int dlen,int serial)
 	            rs = uc_ftruncate(fd,uoff) ;
 	        }
 	    } /* end if (ctdeci) */
-	} /* end if (u_rewind) */
 	return rs ;
 }
 /* end subroutine (getserial_write) */

@@ -210,7 +210,7 @@ int poller_wait(POLLER *op,POLLER_SPEC *rp,int mto)
 	if (op->magic != POLLER_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("poller_wait: ready=%d\n",op->nready) ;
+	debugprintf("poller_wait: ent ready=%d\n",op->nready) ;
 #endif
 
 	if (op->nready > 0) {
@@ -360,13 +360,12 @@ static int poller_extend(POLLER *op,int n)
 	int		rs = SR_OK ;
 
 	if ((ne > op->e) || (op->pa == NULL)) {
+	    int		size = ne * sizeof(POLLER_SPEC) ;
 	    void	*p ;
-	    int		size ;
 	    if (op->pa != NULL) {
 	        uc_free(op->pa) ;
 	        op->pa = NULL ;
 	    }
-	    size = ne * sizeof(POLLER_SPEC) ;
 	    if ((rs = uc_malloc(size,&p)) >= 0) {
 	        op->pa = p ;
 	        op->e = ne ;

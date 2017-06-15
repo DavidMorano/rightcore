@@ -369,28 +369,27 @@ int config_read(CONFIG *cfp)
 int config_reader(CONFIG *cfp,char *pbuf,char *ebuf,char *tbuf)
 {
 	PROGINFO	*pip = cfp->pip ;
-	LOCINFO		*lip ;
 	PARAMFILE	*pfp = &cfp->p ;
 	PARAMFILE_CUR	cur ;
 	PARAMFILE_ENT	pe ;
-	const int	elen = EBUFLEN ;
-	int		rs = SR_NOTOPEN ;
+	int		rs ;
 	int		rs1 ;
 	int		pi ;
 	int		kl ;
 	int		ml, vl, el ;
-	int		v ;
-	const char	*ccp ;
-	const char	*kp, *vp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("config_read: f_p=%u\n",cfp->f.p) ;
 #endif
 
-	lip = pip->lip ;
 	if ((rs = paramfile_curbegin(pfp,&cur)) >= 0) {
+	    LOCINFO	*lip = pip->lip ;
+	    const int	elen = EBUFLEN ;
+	    int		v ;
 	    cchar	*pr = pip->pr ;
+	    const char	*ccp ;
+	    const char	*kp, *vp ;
 
 	    while (rs >= 0) {
 	        kl = paramfile_enum(pfp,&cur,&pe,pbuf,PBUFLEN) ;
@@ -547,7 +546,7 @@ int config_reader(CONFIG *cfp,char *pbuf,char *ebuf,char *tbuf)
 
 	    rs1 = paramfile_curend(&cfp->p,&cur) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (parameters) */
+	} /* end if (paramfile-cur) */
 
 	return rs ;
 }

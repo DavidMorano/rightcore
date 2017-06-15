@@ -1,2 +1,2 @@
 const char mkboottime_makedate[] =
-	"@(#)mkboottime              160318_0248:13_USEDT Rightcore Network Services" ;
+"@(#)mkboottime              170608_1039:39_USEDT Rightcore Network Services" ;

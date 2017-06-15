@@ -274,7 +274,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -622,6 +622,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (dbname == NULL) dbname = getourenv(envv,VARDBNAME) ;
@@ -632,7 +637,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		pip->progname,dbname) ;
 #endif /* COMMENT */
 
-	locinfo_dbname(lip,dbname) ;
+	if (rs >= 0) {
+	    rs = locinfo_dbname(lip,dbname) ;
+	}
 
 /* OK, we finally do our thing */
 
@@ -798,8 +805,7 @@ static int process(PROGINFO *pip,const char *ofn)
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -813,8 +819,7 @@ static int locinfo_finish(LOCINFO *lip)
 {
 	int		rs = SR_OK ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	return rs ;
 }
@@ -824,8 +829,7 @@ static int locinfo_finish(LOCINFO *lip)
 static int locinfo_dbname(LOCINFO *lip,cchar *dbname)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	lip->dbname = dbname ;
 	return SR_OK ;

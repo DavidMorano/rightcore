@@ -1,5 +1,5 @@
 /* setint */
-/* lang=C++98 */
+/* lang=C++11 */
 
 /* ordered set of integers */
 
@@ -19,8 +19,8 @@
 
 /*******************************************************************************
 
-	This object provides am ordered set of integers.  No two elements can
-	be the same (desired for these purposes).
+        This object provides a set of integers. No two elements can be the same
+        (desired for these purposes).
 
 
 *******************************************************************************/
@@ -75,7 +75,7 @@ int setint_finish(setint *op)
 	int		rs = SR_OK ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->setp != NULL) {
-	    unordered_set<int>	*setp  = (unordered_set<int> *) op->setp ;
+	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    delete setp ;
 	    op->setp = NULL ;
 	} else
@@ -91,7 +91,7 @@ int setint_addval(setint *op,int v)
 	int		f = INT_MAX ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->setp != NULL) {
-	    unordered_set<int>	*setp  = (unordered_set<int> *) op->setp ;
+	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    pair<unordered_set<int>::iterator,bool>	ret ;
 	    ret = setp->insert(v) ;
 	    if (ret.second == true) f = 0 ;
@@ -107,7 +107,7 @@ int setint_delval(setint *op,int v)
 	int		rs = SR_OK ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->setp != NULL) {
-	    unordered_set<int>	*setp  = (unordered_set<int> *) op->setp ;
+	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    setp->erase(v) ;
 	} else
 	    rs = SR_NOTOPEN ;
@@ -123,7 +123,7 @@ int setint_count(setint *op)
 	int		c = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->setp != NULL) {
-	    unordered_set<int>	*setp  = (unordered_set<int> *) op->setp ;
+	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    c = setp->size() ;
 	} else
 	    rs = SR_NOTOPEN ;
@@ -139,7 +139,7 @@ int setint_extent(setint *op)
 	int		c = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->setp != NULL) {
-	    unordered_set<int>	*setp  = (unordered_set<int> *) op->setp ;
+	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    c = setp->max_size() ;
 	} else
 	    rs = SR_NOTOPEN ;
@@ -178,7 +178,7 @@ int setint_curbegin(setint *op,setint_cur *curp)
 	if (op == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
 	if ((interp = new(nothrow) unordered_set<int>::iterator) != NULL) {
-	    unordered_set<int>	*setp  = (unordered_set<int> *) op->setp ;
+	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    *interp = setp->begin() ;
 	    curp->interp = (void *) interp ;
 	} else
@@ -194,7 +194,8 @@ int setint_curend(setint *op,setint_cur *curp)
 	if (op == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
 	if (curp->interp != NULL) {
-	    unordered_set<int>::iterator *interp = (unordered_set<int>::iterator *) curp->interp ;
+	    unordered_set<int>::iterator *interp = 
+		(unordered_set<int>::iterator *) curp->interp ;
 	    delete interp ;
 	    curp->interp = NULL ;
 	} else
@@ -211,9 +212,10 @@ int setint_enum(setint *op,setint_cur *curp,int *rp)
 	if (curp == NULL) return SR_FAULT ;
 	if (rp == NULL) return SR_FAULT ;
 	if (curp->interp != NULL) {
-	    unordered_set<int>		*setp  = (unordered_set<int> *) op->setp ;
+	    unordered_set<int> *setp = (unordered_set<int> *) op->setp ;
 	    unordered_set<int>::iterator it_end ;
-	    unordered_set<int>::iterator *interp = (unordered_set<int>::iterator *) curp->interp ;
+	    unordered_set<int>::iterator *interp = 
+		(unordered_set<int>::iterator *) curp->interp ;
 	    it_end = setp->end() ;
 	    if (*interp != it_end) {
 	        *rp = *(*interp) ;

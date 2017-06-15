@@ -105,38 +105,32 @@ int		ifd, ofd, efd ;
 int		mxu ;
 {
 	struct sigaction	sigs, oldsigs ;
-
 	struct pollfd	fds[NFDS] ;
-
 	struct fpstat	fp[NFDS] ;
-
 	struct ustat	sb ;
-
 	sigset_t	signalmask ;
-
-	time_t	t_pollsanity ;
-	time_t	t_sanity ;
-
-	int	rs, rs1 ;
-	int	i, nfds, len ;
-	int	sanityfailures = 0 ;
-	int	fdi = 0 ;
-	int	loopcount = 0 ;
-	int	stype, optlen ;
-	int	pollint = (10 * POLLINTMULT) ;
-	int	pollinput = (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI) ;
-	int	polloutput = (POLLWRNORM | POLLWRBAND) ;
-	int	c_already = 0 ;
-	int	f_exit ;
-	int	f_daytime = FALSE ;
-	int	f_issock = FALSE ;
-	int	f_dgram = FALSE ;
-	int	f ;
-
-	char	buf[BUFLEN + 1] ;
+	time_t		t_pollsanity ;
+	time_t		t_sanity ;
+	int		rs ;
+	int		rs1 ;
+	int		i, nfds, len ;
+	int		sanityfailures = 0 ;
+	int		fdi = 0 ;
+	int		loopcount = 0 ;
+	int		stype, optlen ;
+	int		pollint = (10 * POLLINTMULT) ;
+	int		pollinput = (POLLIN|POLLRDNORM|POLLRDBAND|POLLPRI) ;
+	int		polloutput = (POLLWRNORM | POLLWRBAND) ;
+	int		c_already = 0 ;
+	int		f_exit = FALSE ;
+	int		f_daytime = FALSE ;
+	int		f_issock = FALSE ;
+	int		f_dgram = FALSE ;
+	int		f ;
+	char		buf[BUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
-	char	timebuf[TIMEBUFLEN + 1] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
 #endif
 
 
@@ -185,7 +179,7 @@ int		mxu ;
 	    debugprintf("transfer: rs=%d socket type=%d\n",rs1, stype) ;
 #endif
 
-		f_dgram = (stype == SOCK_DGRAM) ? 1 : 0 ;
+		f_dgram = ((rs1 >= 0) && (stype == SOCK_DGRAM)) ? 1 : 0 ;
 
 	}
 
@@ -194,21 +188,18 @@ int		mxu ;
 
 	fds[0].fd = -1 ;
 	if (! pip->f.ni) {
-
 	    fds[0].fd = ifd ;
 	    fds[0].events = (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI) ;
-
-	} else
+	} else {
 	    fp[0].eof = TRUE ;
+	}
 
 /* standard output */
 
 	fds[1].fd = -1 ;
 	if ((rs = u_fstat(ofd,&sb)) >= 0) {
-
 	    fds[1].fd = ofd ;
 	    fds[1].events = (POLLWRNORM | POLLWRBAND) ;
-
 	}
 
 /* standard error */
@@ -224,7 +215,6 @@ int		mxu ;
 #endif /* COMMENT */
 
 	}
-
 
 /* remote socket */
 
@@ -279,13 +269,10 @@ int		mxu ;
 /* what about sanity checking */
 
 	if (pip->f.sanity) {
-
 	    t_pollsanity = 0 ;
 	    t_sanity = 1 ;
 	    sanityfailures = 0 ;
-
 	}
-
 
 /* do the copy data function */
 
@@ -351,12 +338,9 @@ int		mxu ;
 
 #if	CF_DEBUG
 	    if (pip->debuglevel > 2) {
-
 	        for (i = 0 ; i < NFDS ; i += 1) {
-
 	            debugprintf("transfer: fds%d %s\n",i,
 	                d_reventstr(fds[i].revents,buf,BUFLEN)) ;
-
 	        }
 	    }
 #endif /* CF_DEBUG */
@@ -394,7 +378,6 @@ int		mxu ;
 	    } /* end if */
 
 	    if ((! fp[0].in) && fp[0].hup) {
-
 			fp[0].in = TRUE ;
 			fp[0].hup = FALSE ;
 			fp[0].final = TRUE ;
@@ -415,22 +398,18 @@ int		mxu ;
 	        }
 
 	        if (fds[1].revents & POLLHUP) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: HUP1\n") ;
 #endif
-
 	            fp[1].hup = TRUE ;
 	            fp[1].out = FALSE ;
 	            fds[1].events &= (~ polloutput) ;
-
 	        }
 
 	    } /* end if */
 
 	    if ((! fp[1].in) && fp[1].hup) {
-
 			fp[1].in = TRUE ;
 			fp[1].hup = FALSE ;
 			fp[1].final = TRUE ;
@@ -439,46 +418,36 @@ int		mxu ;
 	    if (fds[2].revents != 0) {
 
 	        if (fds[2].revents & pollinput) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: IN2\n") ;
 #endif
-
 	            fp[2].in = TRUE ;
 	            fds[2].events &= (~ pollinput) ;
-
 	        }
 
 	        if (fds[2].revents & polloutput) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: OUT2\n") ;
 #endif
-
 	            fp[2].out = TRUE ;
 	            fds[2].events &= (~ polloutput) ;
-
 	        }
 
 	        if (fds[2].revents & POLLHUP) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: HUP2\n") ;
 #endif
-
 	            fp[2].hup = TRUE ;
 	            fp[2].out = FALSE ;
 	            fds[2].events &= (~ polloutput) ;
-
 	        }
 
 	    } /* end if */
 
 	    if ((! fp[2].in) && fp[2].hup) {
-
 			fp[2].in = TRUE ;
 			fp[2].hup = FALSE ;
 			fp[2].final = TRUE ;
@@ -489,40 +458,31 @@ int		mxu ;
 	    if (fds[3].revents != 0) {
 
 	        if (fds[3].revents & pollinput) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: IN3\n") ;
 #endif
-
 	            fp[3].in = TRUE ;
 	            fds[3].events &= (~ pollinput) ;
-
 	        }
 
 	        if (fds[3].revents & polloutput) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: OUT3\n") ;
 #endif
-
 	            fp[3].out = TRUE ;
 	            fds[3].events &= (~ polloutput) ;
-
 	        }
 
 	        if (fds[3].revents & POLLHUP) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: HUP3\n") ;
 #endif
-
 	            fp[3].hup = TRUE ;
 	            fp[3].out = FALSE ;
 	            fds[3].events &= (~ polloutput) ;
-
 	        }
 
 	        if ((fds[3].revents & POLLERR) ||
@@ -530,13 +490,10 @@ int		mxu ;
 
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2) {
-
 	                if (fds[3].revents & POLLERR)
 	                    debugprintf("transfer: ERR3\n") ;
-
 	                if (fds[3].revents & POLLNVAL)
 	                    debugprintf("transfer: NVAL3\n") ;
-
 	            }
 #endif /* CF_DEBUG */
 
@@ -551,7 +508,6 @@ int		mxu ;
 	    } /* end if */
 
 	    if ((! fp[3].in) && fp[3].hup) {
-
 			fp[3].in = TRUE ;
 			fp[3].hup = FALSE ;
 			fp[3].final = TRUE ;
@@ -564,40 +520,31 @@ int		mxu ;
 	        if (fds[4].revents != 0) {
 
 	        if (fds[4].revents & pollinput) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: IN4\n") ;
 #endif
-
 	            fp[4].in = TRUE ;
 	            fds[4].events &= (~ pollinput) ;
-
 	        }
 
 	        if (fds[4].revents & polloutput) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: OUT4\n") ;
 #endif
-
 	            fp[4].out = TRUE ;
 	            fds[4].events &= (~ polloutput) ;
-
 	        }
 
 	        if (fds[4].revents & POLLHUP) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: HUP4\n") ;
 #endif
-
 	            fp[4].hup = TRUE ;
 	            fp[4].out = FALSE ;
 	            fds[4].events &= (~ polloutput) ;
-
 	        }
 
 	        if ((fds[4].revents & POLLERR) ||
@@ -605,13 +552,10 @@ int		mxu ;
 
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2) {
-
 	                if (fds[4].revents & POLLERR)
 	                    debugprintf("transfer: ERR4\n") ;
-
 	                if (fds[4].revents & POLLNVAL)
 	                    debugprintf("transfer: NVAL4\n") ;
-
 	            }
 #endif /* CF_DEBUG */
 
@@ -626,7 +570,6 @@ int		mxu ;
 		}
 
 	    if ((! fp[4].in) && fp[4].hup) {
-
 			fp[4].in = TRUE ;
 			fp[4].hup = FALSE ;
 			fp[4].final = TRUE ;
@@ -650,26 +593,23 @@ int		mxu ;
 #endif
 
 	        if (len <= 0) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: IN3 EOF\n") ;
 #endif
-
 	            fp[3].eof = TRUE ;
 	            fp[3].in = FALSE ;
 	            fds[3].events &= (~ pollinput) ;
-
-	        } else
+	        } else {
 	            uc_writen(fds[1].fd,buf,len) ;
+		}
 
 	        if ((! fp[3].eof) && (! (fp[3].hup || fp[3].final))) {
-
 	            fp[3].in = FALSE ;
 	            fds[3].events |= pollinput ;
-
-	        } else if (fds[3].events == 0)
+	        } else if (fds[3].events == 0) {
 	            fds[3].fd = -1 ;
+		}
 
 	        fp[1].out = FALSE ;
 	        fds[1].events |= polloutput ;
@@ -701,7 +641,6 @@ int		mxu ;
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2) {
 	                rs = u_fstat(rfd,&sb) ;
-
 	                debugprintf("transfer: RFD stat rs=%d mode=%08X\n",
 	                    rs,sb.st_mode) ;
 	            }
@@ -726,14 +665,13 @@ int		mxu ;
 	            } else
 	                u_write(rfd,buf,0) ;
 
-	        } else
+	        } else {
 	            uc_writen(fds[3].fd,buf,len) ;
+		}
 
 	        if ((! fp[0].eof) && (! (fp[0].hup || fp[0].final))) {
-
 	            fp[0].in = FALSE ;
 	            fds[0].events |= pollinput ;
-
 	        }
 
 	        fp[3].out = FALSE ;
@@ -763,22 +701,22 @@ int		mxu ;
 	            fp[2].in = FALSE ;
 	            fds[2].events &= (~ pollinput) ;
 
-	            if (f_issock)
+	            if (f_issock) {
 	                u_shutdown(r2fd,SHUT_WR) ;
-
-	            else
+	            } else {
 	                u_write(r2fd,buf,0) ;
+		    }
 
-	        } else
+	        } else {
 	            uc_writen(fds[4].fd,buf,len) ;
+		}
 
 	        if ((! fp[2].eof) && (! (fp[2].hup || fp[2].final))) {
-
 	            fp[2].in = FALSE ;
 	            fds[2].events |= pollinput ;
-
-	        } else if (fds[2].events == 0)
+	        } else if (fds[2].events == 0) {
 	            fds[2].fd = -1 ;
+		}
 
 	        fp[4].out = FALSE ;
 	        fds[4].events |= polloutput ;
@@ -798,26 +736,23 @@ int		mxu ;
 #endif
 
 	        if (len <= 0) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: IN4 EOF\n") ;
 #endif
-
 	            fp[4].eof = TRUE ;
 	            fp[4].in = FALSE ;
 	            fds[4].events &= (~ pollinput) ;
-
-	        } else
+	        } else {
 	            uc_writen(fds[2].fd,buf,len) ;
+		}
 
 	        if ((! fp[4].eof) && (! (fp[4].hup || fp[4].final))) {
-
 	            fp[4].in = FALSE ;
 	            fds[4].events |= pollinput ;
-
-	        } else if (fds[4].events == 0)
+	        } else if (fds[4].events == 0) {
 	            fds[4].fd = -1 ;
+		}
 
 	        fp[2].out = FALSE ;
 	        fds[2].events |= polloutput ;
@@ -827,10 +762,7 @@ int		mxu ;
 /* should we break out ? */
 
 	    if ((c_already > 0) && (nfds == 0)) {
-
-	        if (c_already > 1)
-	            break ;
-
+	        if (c_already > 1) break ;
 	        c_already += 1 ;
 	    }
 
@@ -841,7 +773,6 @@ int		mxu ;
 #endif
 
 	    if (f && (c_already == 0)) {
-
 	        pollint = POLLINTMULT / 4 ;
 	        c_already = 1 ;
 	    }
@@ -860,12 +791,11 @@ int		mxu ;
 
 	            t_pollsanity = pip->daytime ;
 	            if (inetping(hostname,TO_PING) >= 0) {
-
 	                sanityfailures = 0 ;
 	                t_sanity = pip->daytime ;
-
-	            } else
+	            } else {
 	                sanityfailures += 1 ;
+		    }
 
 	            if (((pip->daytime - t_sanity) > pip->keeptime) &&
 	                (sanityfailures >= SANITYFAILURES) &&
@@ -896,10 +826,8 @@ int		mxu ;
 	    debugprintf("transfer: ret rs=%d\n",rs) ;
 #endif
 
-ret0:
 	return rs ;
 }
 /* end subroutine (transfer) */
-
 
 

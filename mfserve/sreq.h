@@ -16,7 +16,6 @@
 
 
 #define	SREQ		struct sreq
-
 #define	SREQ_JOBIDLEN	15			/* same as LOGIDLEN? */
 
 
@@ -26,7 +25,7 @@ struct sreq {
 	const char	*netuser ;
 	const char	*netpass ;
 	const char	*netident ;
-	const char	*service ;		/* service */
+	const char	*svcbuf ;		/* service-buffer */
 	const char	*subservice ;		/* subservice */
 	char		*efname ;		/* Error-File-Name */
 	time_t		stime ;			/* start time */
@@ -37,6 +36,9 @@ struct sreq {
 	int		ifd ;			/* input */
 	int		ofd ;			/* output */
 	int		efd ;			/* error */
+	int		jtype ;			/* job-type */
+	int		stype ;			/* sub-type */
+	int		svclen ;		/* service-length */
 	int		f_long ;		/* the "long" switch */
 	int		f_local ;		/* client is local */
 	char		jobid[SREQ_JOBIDLEN+1] ;
@@ -50,6 +52,10 @@ extern "C" {
 #endif
 
 extern int sreq_start(SREQ *,cchar *,cchar *,int,int) ;
+extern int sreq_typeset(SREQ *,int,int) ;
+extern int sreq_getfd(SREQ *) ;
+extern int sreq_havefd(SREQ *,int) ;
+extern int sreq_svcadd(SREQ *,cchar *,int) ;
 extern int sreq_finish(SREQ *) ;
 
 #ifdef	__cplusplus

@@ -430,7 +430,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -810,9 +810,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_quote: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
-	if (f_version)
+	if (f_version) {
 	    shio_printf(pip->efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
 /* get the program root */
 

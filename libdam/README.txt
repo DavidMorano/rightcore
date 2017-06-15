@@ -46,6 +46,7 @@ strop		some (relatively) simple operations on counted strings
 netorder	non-object specialized for individual network-order items
 stdorder	non-object specialized for individual standard-order items
 
+raqhand		Random-Access-Queue handler (see the code)
 fifostr		FIFO object for strings, stores data
 fsi		FIFO object for strings, stores data, interlocked
 fifoitem	FIFO object for variable sized items
@@ -62,6 +63,10 @@ chariq		character Q, relocatable-head, count, interlocked
 
 fmq		file-message queue
 pmq		POSIX message queue
+
+psem		POSIX semaphore
+csem		Counting-Semaphore (general counting semaphore)
+ucsem		UNIX Counting-Semaphore
 
 getenv2
 getenv3

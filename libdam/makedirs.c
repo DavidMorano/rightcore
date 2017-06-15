@@ -66,12 +66,10 @@ extern int	mkpath1w(char *,const char *,int) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 
-#if	CF_DEBUGS || CF_DEBUG
+#if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
-
-extern const char	*getourenv(const char **,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strdcpy1w(char *,int,const char *,int) ;
@@ -88,10 +86,7 @@ static int	procdir(IDS *,const char *,mode_t) ;
 /* exported subroutines */
 
 
-int makedirs(dirp,dirl,mode)
-const char	dirp[] ;
-int		dirl ;
-mode_t		mode ;
+int makedirs(cchar *dirp,int dirl,mode_t mode)
 {
 	IDS		id ;
 	int		rs ;
@@ -153,7 +148,7 @@ mode_t		mode ;
 
 	    rs1 = ids_release(&id) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (id) */
+	} /* end if (ids) */
 
 #if	CF_DEBUGS
 	debugprintf("makedirs: ret rs=%d c=%u\n",rs,c) ;
@@ -167,27 +162,21 @@ mode_t		mode ;
 /* local subroutines */
 
 
-static int procdir(idp,dirbuf,mode)
-IDS		*idp ;
-const char	dirbuf[] ;
-mode_t		mode ;
+static int procdir(IDS *idp,cchar *dirbuf,mode_t mode)
 {
 	struct ustat	sb ;
 	int		rs ;
 
 	if ((rs = u_stat(dirbuf,&sb)) >= 0) {
-
 	    if (S_ISDIR(sb.st_mode)) {
 	        rs = sperm(idp,&sb,X_OK) ;
 	        if (rs > 0) rs = 0 ;
-	    } else
+	    } else {
 	        rs = SR_NOTDIR ;
-
+	    }
 	} else if (rs == SR_NOENT) {
-
 	    rs = u_mkdir(dirbuf,mode) ;
 	    if (rs >= 0) rs = 1 ;
-
 	} /* end if */
 
 #if	CF_DEBUGS

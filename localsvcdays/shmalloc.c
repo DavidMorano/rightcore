@@ -125,8 +125,9 @@ int shmalloc_init(SHMALLOC *op,char *strp,int size)
 	        fsp->size = size ;
 	        fsp->next = -1 ;
 	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 #if	CF_DEBUGS
 	debugprintf("shmalloc_init: ret op->b.size=%d\n",op->b.size) ;
 	debugprintf("shmalloc_init: ret rs=%d\n",rs) ;
@@ -289,8 +290,9 @@ int shmalloc_free(SHMALLOC *op,int uoff)
 	        psp->next = foff ;
 	        op->used -= fsize ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOMSG ;
+	}
 #if	CF_DEBUGS
 	debugprintf("shmalloc_free: ret rs=%d u=%u\n",rs,op->used) ;
 #endif

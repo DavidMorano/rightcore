@@ -159,8 +159,9 @@ int uc_forklockend()
 	if ((rs = sigblock_start(&b,NULL)) >= 0) {
 	    if (uip->f_init) {
 	        rs = lockrw_unlock(&uip->lock) ;
-	    } else
+	    } else {
 	        rs = SR_NOANODE ;
+	    }
 	    sigblock_finish(&b) ;
 	} /* end if (sigblock) */
 	return rs ;

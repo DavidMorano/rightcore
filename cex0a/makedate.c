@@ -1,2 +1,2 @@
 const char cex_makedate[] =
-"@(#)cex                     170505_1324:32_USEDT Rightcore Network Services" ;
+"@(#)cex                     170612_0018:48_USEDT Rightcore Network Services" ;

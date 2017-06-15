@@ -40,15 +40,7 @@
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
-
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<limits.h>
-#include	<stdlib.h>
-#include	<string.h>
-
-#include	<vsystem.h>
-#include	<localmisc.h>
 
 
 /* local defines */

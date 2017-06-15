@@ -35,7 +35,7 @@
 	fname		result buffer
 	sp		source pointer
 	sl		source length
-	f_def		?
+	f_def		use default file-name if none (empty) is given
 	dname		directory-name
 	name		base-name
 	suf		suffix

@@ -8,19 +8,15 @@
 
 
 #include	<envstandards.h>
-
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<semaphore.h>
+#include	<localmisc.h>
 
 
 #define	UCSEM_MAGIC	0x31419877
 #define	UCSEM		struct ucsem
 #define	UCSEM_NAMELEN	(MAXNAMELEN + 1)
-
-#ifndef	UINT
-#define	UINT	unsigned int
-#endif
 
 
 struct ucsem {
@@ -36,7 +32,7 @@ struct ucsem {
 extern "C" {
 #endif
 
-extern int	ucsem_open(UCSEM *,const char *,int,mode_t,uint) ;
+extern int	ucsem_open(UCSEM *,cchar *,int,mode_t,uint) ;
 extern int	ucsem_close(UCSEM *) ;
 extern int	ucsem_start(UCSEM *,int,uint) ;
 extern int	ucsem_destroy(UCSEM *) ;

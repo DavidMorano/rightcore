@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
         The program was written from scratch to do what the previous program by
         the same name did.
-
 
 */
 
@@ -93,15 +91,13 @@ static uint	statcmp(struct ustat **,struct ustat **) ;
 
 int dirdb_start(DIRDB *dbp,int n)
 {
+	const int	size = sizeof(DIRDB) ;
 	int		rs ;
-	int		size ;
 
 	if (dbp == NULL) return SR_FAULT ;
 
-	if (n < DIRDB_NDEF)
-	    n = DIRDB_NDEF ;
+	if (n < DIRDB_NDEF) n = DIRDB_NDEF ;
 
-	size = sizeof(DIRDB) ;
 	memset(dbp,0,size) ;
 	dbp->count = 0 ;
 
@@ -183,7 +179,7 @@ int dirdb_add(DIRDB *dbp,cchar *name,int dlen)
 	}
 
 #if	CF_DEBUGS
-	    debugprintf("dirdb_add: u_stat() rs=%d\n",rs) ;
+	debugprintf("dirdb_add: u_stat() rs=%d\n",rs) ;
 #endif
 
 
@@ -231,7 +227,7 @@ int dirdb_add(DIRDB *dbp,cchar *name,int dlen)
 	while ((cl = sfdirname(dnamep,dlen,&cp)) > 0) {
 
 #if	CF_DEBUGS
-	        debugprintf("dirdb_add: dname=%t\n",cp,cl) ;
+	    debugprintf("dirdb_add: dname=%t\n",cp,cl) ;
 #endif
 
 	    if (dirdb_alreadyname(dbp,cp,cl) >= 0)

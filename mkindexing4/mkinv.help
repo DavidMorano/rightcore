@@ -1,7 +1,7 @@
 MKINV
 
-This is one of several programs that create an index and tag database
-from one or more "key" files.
+This is one of several programs that create an index and tag database from one
+or more "key" files.
 
 Synopsis:
 $ mkinv -db <dbname> [-b <dir>] [<keyfile(s)> ...] [-af <afile>] 

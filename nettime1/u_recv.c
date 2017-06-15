@@ -10,8 +10,8 @@
 /* revision history:
 
 	= 1086-03-26, David A­D­ Morano
-        This was first written to give a little bit to UNIX® what we have in our
-        own circuit pack OSes!
+        This was first written to give a little bit to UNIX® what we already
+        have in our own circuit pack OSes!
 
 */
 
@@ -51,11 +51,7 @@ extern int	msleep(int) ;
 /* exported subroutines */
 
 
-int u_recv(fd,buf,buflen,flags)
-int	fd ;
-char	buf[] ;
-int	buflen ;
-int	flags ;
+int u_recv(int fd,void *vbuf,int vlen,int flags)
 {
 	int		rs ;
 	int		to_nomem = TO_NOMEM ;
@@ -64,11 +60,11 @@ int	flags ;
 	int		f_exit = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("u_recv: ent fd=%d len=%d\n",fd,buflen) ;
+	debugprintf("u_recv: ent fd=%d len=%d\n",fd,vlen) ;
 #endif
 
 	repeat {
-	    if ((rs = recv(fd,buf,buflen,flags)) < 0) rs = (- errno) ;
+	    if ((rs = recv(fd,vbuf,vlen,flags)) < 0) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs)  {
 	        case SR_NOMEM:

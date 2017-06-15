@@ -23,12 +23,16 @@
 #include	<localmisc.h>
 
 
-#define	FMQ		struct fmq_head
-
 #ifndef	UINT
 #define	UINT		unsigned int
 #endif
 
+#define	FMQ_MAGIC	0x21419876
+#define	FMQ		struct fmq_head
+#define	FMQ_FL		struct fmq_flags
+#define	FMQ_FM		struct fmq_filemagic
+#define	FMQ_FH		struct fmq_filehead
+#define	FMQ_BD		struct fmq_bufdesc
 
 #define	FMQ_FILEMAGIC		"FMQ"
 #define	FMQ_FILEMAGICLEN	3
@@ -77,10 +81,10 @@ struct fmq_flags {
 struct fmq_head {
 	uint		magic ;
 	const char	*fname ;
-	struct fmq_flags	f ;
-	struct fmq_filemagic	m ;
-	struct fmq_filehead	h ;
-	struct fmq_bufdesc	b ;
+	FMQ_FL		f ;
+	FMQ_FM		m ;
+	FMQ_FH		h ;
+	FMQ_BD		b ;
 	sigset_t	sigmask ;
 	time_t		opentime ;	/* file open time */
 	time_t		accesstime ;	/* file access time */
@@ -100,7 +104,7 @@ struct fmq_head {
 extern "C" {
 #endif
 
-extern int	fmq_open(FMQ *,const char *,int,int,int) ;
+extern int	fmq_open(FMQ *,const char *,int,mode_t,int) ;
 extern int	fmq_close(FMQ *) ;
 extern int	fmq_send(FMQ *,const void *,int) ;
 extern int	fmq_sende(FMQ *,const void *,int,int,int) ;

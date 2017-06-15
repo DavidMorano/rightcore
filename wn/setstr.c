@@ -18,8 +18,8 @@
 
 /*******************************************************************************
 
-	This object provides am ordered set of integers.  No two strings can
-	be the same (desired for these purposes).
+        This object provides am ordered set of integers. No two strings can be
+        the same (desired for these purposes).
 
 
 *******************************************************************************/

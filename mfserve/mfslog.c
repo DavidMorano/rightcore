@@ -85,10 +85,6 @@
 
 #define	DEBUGFNAME	"/tmp/mfs.deb"
 
-#ifndef	TTYFNAME
-#define	TTYFNAME	"/dev/tty"
-#endif
-
 
 /* external subroutines */
 
@@ -291,7 +287,7 @@ int logmark(PROGINFO *pip,int rem)
 
 int logreport(PROGINFO *pip)
 {
-	LOCINFO	*lip = pip->lip ;
+	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 
 	if (pip->open.logprog) {
@@ -352,19 +348,19 @@ int loginfo(PROGINFO *pip)
 	    }
 
 	    proglog_printf(pip,
-	        "intpoll=%s", strval(digbuf,pip->intpoll)) ;
+	        "intpoll=%s",strval(digbuf,pip->intpoll)) ;
 
 	    proglog_printf(pip,
-	        "intmark=%s", strval(digbuf,pip->intmark)) ;
+	        "intmark=%s",strval(digbuf,pip->intmark)) ;
 
 	    lw = pip->intrun ;
 	    if ((lw >= 0) && (lw < INT_MAX)) {
 	        timestr_elapsed(lw,timebuf) ;
-	    } else
+	    } else {
 	        sncpy1(timebuf,TIMEBUFLEN,"max") ;
+	    }
 
-	    proglog_printf(pip,
-	        "intrun=%s",timebuf) ;
+	    proglog_printf(pip,"intrun=%s",timebuf) ;
 
 	    proglog_flush(pip) ;
 
@@ -384,24 +380,25 @@ int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar np[])
 
 	proglog_printf(pip,"lf=%s",lfname) ;
 
-	proglog_printf(pip,
-	    "other_pid=%d\n",
-	    lcp->pid) ;
+	proglog_printf(pip, "other_pid=%d\n", lcp->pid) ;
 
-	if (lcp->nodename != NULL)
+	if (lcp->nodename != NULL) {
 	    proglog_printf(pip,
 	        "other_node=%s\n",
 	        lcp->nodename) ;
+	}
 
-	if (lcp->username != NULL)
+	if (lcp->username != NULL) {
 	    proglog_printf(pip,
 	        "other_user=%s\n",
 	        lcp->username) ;
+	}
 
-	if (lcp->banner != NULL)
+	if (lcp->banner != NULL) {
 	    proglog_printf(pip,
 	        "other_banner=>%s<\n",
 	        lcp->banner) ;
+	}
 
 	return SR_OK ;
 }

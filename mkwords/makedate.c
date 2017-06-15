@@ -1,2 +1,2 @@
 const char mkwords_makedate[] =
-"@(#)mkwords                 170421_0119:49_USEDT Rightcore Network Services¹" ;
+"@(#)mkwords                 170607_2332:18_USEDT Rightcore Network Services" ;

@@ -132,6 +132,8 @@ extern char	*timestr_logz(time_t,char *) ;
 static int	specs(PROGINFO *,vecobj *,vecstr *,int,int) ;
 static int	recips(PROGINFO *,int,SOCKADDRESS *,int,vecobj *) ;
 static int	rmtabnodes(PROGINFO *,vecstr *) ;
+static int	report_node(PROGINFO *,cchar *) ;
+static int	report_recip(PROGINFO *,cchar *,int,int,int) ;
 static int	mkcsmsg(char *,int,cchar *,int,uint) ;
 
 
@@ -316,6 +318,8 @@ int		defport ;
 	                    i,port,np) ;
 #endif
 
+		    report_node(pip,np) ;
+
 	            if ((rs = getourhe(np,NULL,hep,hebuf,helen)) >= 0) {
 	                if (hep->h_addrtype == af) {
 	                    SOCKADDRESS	sa ;
@@ -386,7 +390,7 @@ vecobj		*rsp ;
 	if (pip == NULL) return SR_FAULT ;
 
 	for (j = 0 ; vecobj_get(rsp,j,&rp) >= 0 ; j += 1) {
-	    int	mbo ;
+	    int		mbo ;
 	    if (rp == NULL) continue ;
 
 #if	CF_DEBUG
@@ -401,16 +405,17 @@ vecobj		*rsp ;
 	            debugprintf("progcomsat/recips: mbo=%u\n",mbo) ;
 #endif
 	        if ((ul = recip_get(rp,&up)) > 0) {
-	            int	k ;
-	            int	mo, ml ;
+	            int		k ;
+	            int		mo, ml ;
 	            for (k = 0 ; (ml = recip_getmo(rp,k,&mo)) >= 0 ; k += 1) {
 
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
 	                    debugprintf("progcomsat/recips: "
-	                        "msg=%u mo=%u ml=%u\n", 
-	                        k,mo,ml) ;
+	                        "msg=%u mo=%u ml=%u\n", k,mo,ml) ;
 #endif
+
+			report_recip(pip,up,ul,mbo,mo) ;
 
 	                if ((rs = mkcsmsg(cbuf,clen,up,ul,mbo)) > 1) {
 	                    cl = rs ;
@@ -427,8 +432,7 @@ vecobj		*rsp ;
 #if	CF_DEBUG
 	                    if (DEBUGLEVEL(4))
 	                        debugprintf("progcomsat/recips: "
-	                            "u_sendto() rs=%d\n",
-	                            rs) ;
+	                            "u_sendto() rs=%d\n", rs) ;
 #endif
 
 	                } /* end if */
@@ -440,6 +444,7 @@ vecobj		*rsp ;
 	        } /* end if (recipient-name) */
 	    } /* end if (get MBO) */
 
+	    if (rs < 0) break ;
 	} /* end for (looping through recipients) */
 
 #if	CF_DEBUG
@@ -496,6 +501,40 @@ static int rmtabnodes(PROGINFO *pip,vecstr *nlp)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (rmtabnodes) */
+
+
+static int report_node(PROGINFO *pip,cchar *node)
+{
+	int		rs = SR_OK ;
+
+	proglog_printf(pip,"comsat n=%s",node) ;
+
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: comsat n=%s\n" ;
+	    bprintf(pip->efp,fmt,node) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (report_node) */
+
+
+static int report_recip(PROGINFO *pip,cchar *up,int ul,int mbo,int mo)
+{
+	int		rs = SR_OK ;
+
+	proglog_printf(pip,"comsat   r=%t mbo=%u mo=%u",up,ul,mbo,mo) ;
+
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: comsat r=%t mbo=%u mo=%u\n" ;
+	    bprintf(pip->efp,fmt,up,ul,mbo,mo) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (report_recip) */
 
 
 /* make (marshall) the COMSAT message itself */

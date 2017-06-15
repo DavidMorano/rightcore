@@ -7,8 +7,6 @@
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_CPUSPEED	1		/* calculate CPU speed */
-#define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 
 
 /* revision history:
@@ -136,12 +134,6 @@
 
 /* local defines */
 
-#if	CF_UGETPW
-#define	GETPW_NAME	ugetpw_name
-#else
-#define	GETPW_NAME	getpw_name
-#endif /* CF_UGETPW */
-
 #ifndef	POLLMULT
 #define	POLLMULT	1000
 #endif
@@ -216,10 +208,6 @@ extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
-
-#if	CF_CPUSPEED
-extern int	cpuspeed(cchar *,cchar *,int) ;
-#endif
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
@@ -1298,9 +1286,11 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (userinfo) */
 	    } /* end if (procdefargs) */
-	} else {
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
 	    ex = EX_USAGE ;
-	    shio_printf(pip->efp,"%s: usage (%d)\n",pip->progname,rs) ;
+	    shio_printf(pip->efp,"%s: usage (%d)\n",pn,rs) ;
+	    usage(pip) ;
 	}
 
 #if	CF_DEBUG
@@ -1943,10 +1933,10 @@ static int procdefconf(PROGINFO *pip)
 static int procbackdefs(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
-	cchar		**envv = pip->envv ;
-	cchar		*cp ;
 
 	if (pip->pidfname == NULL) {
+	    cchar	**envv = pip->envv ;
+	    cchar	*cp ;
 	    if ((cp = getourenv(envv,VARPIDFNAME)) != NULL) {
 	        pip->final.pidfname = TRUE ;
 	        pip->have.pidfname = TRUE ;

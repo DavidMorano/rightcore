@@ -87,9 +87,7 @@ static int	storebuf_twodig(char *,int,int,int) ;
 /* exported subroutines */
 
 
-int zoffparts_set(zop,v)
-ZOFFPARTS	*zop ;
-int		v ;
+int zoffparts_set(ZOFFPARTS *zop,int v)
 {
 
 #if	CF_SAFE
@@ -105,9 +103,7 @@ int		v ;
 /* end subroutine (zoffparts_set) */
 
 
-int zoffparts_get(zop,vp)
-ZOFFPARTS	*zop ;
-int		*vp ;
+int zoffparts_get(ZOFFPARTS *zop,int *vp)
 {
 	int		v ;
 
@@ -126,10 +122,7 @@ int		*vp ;
 /* end subroutine (zoffparts_get) */
 
 
-int zoffparts_mkstr(zop,rbuf,rlen)
-ZOFFPARTS	*zop ;
-char		rbuf[] ;
-int		rlen ;
+int zoffparts_mkstr(ZOFFPARTS *zop,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
 	int		i = 0 ;
@@ -160,11 +153,7 @@ int		rlen ;
 /* private subroutines */
 
 
-static int storebuf_twodig(rbuf,rlen,i,v)
-char		rbuf[] ;
-int		rlen ;
-int		i ;
-int		v ;
+static int storebuf_twodig(char *rbuf,int rlen,int i,int v)
 {
 	int		rs = SR_OK ;
 

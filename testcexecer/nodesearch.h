@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 1998-04-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -16,8 +14,8 @@
 
 /*******************************************************************************
 
-	This little object supports searching for a node name in
-	the cluster node list file.
+        This little object supports searching for a node name in the cluster
+        node list file.
 
 
 *******************************************************************************/

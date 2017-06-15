@@ -148,8 +148,6 @@ int pmq_open(PMQ *mqp,cchar *name,int of,mode_t om,struct mq_attr *attr)
 	    }
 	    if (rs < 0) {
 	        switch (rs) {
-	        case SR_INTR:
-	            break ;
 	        case SR_MFILE:
 	        case SR_NFILE:
 	            if (to_mfile-- > 0) {
@@ -165,6 +163,8 @@ int pmq_open(PMQ *mqp,cchar *name,int of,mode_t om,struct mq_attr *attr)
 			f_exit = TRUE ;
 		    }
 		    break ;
+	        case SR_INTR:
+	            break ;
 		default:
 		    f_exit = TRUE ;
 		    break ;
@@ -267,7 +267,7 @@ int pmq_receive(PMQ *mqp,char *rbuf,int rlen,uint *priop)
 	} until ((rs >= 0) || f_exit) ;
 
 #if	CF_DEBUGS
-	debugprintf("pmq_receive: exiting, len=%d buf(max 10)=>%W<\n",
+	debugprintf("pmq_receive: ret len=%d buf(max 10)=>%t<\n",
 	    rs,buf,MIN(rs,10)) ;
 #endif
 
@@ -440,7 +440,7 @@ static int pmqdiradd(cchar *name,mode_t om)
 	        if ((rs = pmqdircheck(pp)) >= 0) {
 	            rs = u_creat(tmpfname,om) ;
 		}
-	    }
+	    } /* end if (u_creat) */
 	    if (rs >= 0) u_close(rs) ;
 	} /* end if (mkpath) */
 

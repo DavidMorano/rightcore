@@ -414,7 +414,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -959,43 +959,43 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (rs >= 0) {
-	if ((rs = holidayer_open(&lip->holdb,pip->pr)) >= 0) {
-	    const int	nverses = rs ;
-	    const char	*pn = pip->progname ;
-	    lip->open.holiday = TRUE ;
+	    if ((rs = holidayer_open(&lip->holdb,pip->pr)) >= 0) {
+	        const int	nverses = rs ;
+	        const char	*pn = pip->progname ;
+	        lip->open.holiday = TRUE ;
 
-	    if (lip->f.audit) {
-	        rs = holidayer_audit(&lip->holdb) ;
-	        if (pip->debuglevel > 0) {
-	            shio_printf(pip->efp,"%s: DB audit (%d)\n",pn,rs) ;
+	        if (lip->f.audit) {
+	            rs = holidayer_audit(&lip->holdb) ;
+	            if (pip->debuglevel > 0) {
+	                shio_printf(pip->efp,"%s: DB audit (%d)\n",pn,rs) ;
+	            }
 	        }
+
+	        if (pip->debuglevel > 0) {
+	            shio_printf(pip->efp,"%s: entries=%u\n",pn,nverses) ;
+	        }
+
+	        if (rs >= 0) {
+	            if ((rs = locinfo_tmtime(lip)) >= 0) {
+	                PARAMOPT	*pop = &aparams ;
+		        ARGINFO	*aip = &ainfo ;
+		        BITS	*bop = &pargs ;
+	                const int	aval = argvalue ;
+	                const char	*ofn = ofname ;
+	                const char	*afn = afname ;
+	                rs = process(pip,aip,bop,pop,ofn,afn,aval,f_apm) ;
+	            } /* end if (locinfo_tmtime) */
+	        } /* end if (ok) */
+
+	        lip->open.holiday = FALSE ;
+	        rs1 = holidayer_close(&lip->holdb) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt ;
+	        fmt = "%s: could not load DB (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    }
-
-	    if (pip->debuglevel > 0) {
-	        shio_printf(pip->efp,"%s: entries=%u\n",pn,nverses) ;
-	    }
-
-	    if (rs >= 0) {
-	        if ((rs = locinfo_tmtime(lip)) >= 0) {
-	            PARAMOPT	*pop = &aparams ;
-		    ARGINFO	*aip = &ainfo ;
-		    BITS	*bop = &pargs ;
-	            const int	aval = argvalue ;
-	            const char	*ofn = ofname ;
-	            const char	*afn = afname ;
-	            rs = process(pip,aip,bop,pop,ofn,afn,aval,f_apm) ;
-	        } /* end if (locinfo_tmtime) */
-	    } /* end if (ok) */
-
-	    lip->open.holiday = FALSE ;
-	    rs1 = holidayer_close(&lip->holdb) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt ;
-	    fmt = "%s: could not load DB (%d)\n" ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
-	}
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -1165,7 +1165,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_audit:
 	                    if (! lip->final.audit) {
 	                        lip->have.audit = TRUE ;
@@ -1177,7 +1176,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_linelen:
 	                    if (! lip->final.linelen) {
 	                        lip->have.linelen = TRUE ;
@@ -1189,7 +1187,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_indent:
 	                    if (! lip->final.indent) {
 	                        lip->have.indent = TRUE ;
@@ -1202,7 +1199,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_monthname:
 	                    if (! lip->final.monthname) {
 	                        lip->have.monthname = TRUE ;
@@ -1214,7 +1210,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_separate:
 	                    if (! lip->final.separate) {
 	                        lip->have.separate = TRUE ;
@@ -1226,7 +1221,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_interactive:
 	                    if (! lip->final.interactive) {
 	                        lip->have.interactive = TRUE ;
@@ -1238,7 +1232,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_citebreak:
 	                    if (! lip->final.citebreak) {
 	                        lip->have.citebreak = TRUE ;
@@ -1250,7 +1243,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_default:
 	                case akoname_defnull:
 	                    if (! lip->final.defnull) {
@@ -1263,7 +1255,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_defall:
 	                    if (! lip->final.defall) {
 	                        lip->final.defall = TRUE ;
@@ -1275,7 +1266,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_gmt:
 	                    if (! lip->final.gmt) {
 	                        lip->final.gmt = TRUE ;
@@ -1287,7 +1277,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1343,7 +1332,7 @@ int		f_apm ;
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt ;
 	    fmt = "%s: inaccessible output (%d)\n",
-	        shio_printf(pip->efp,fmt,pn,rs) ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
 	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
@@ -1448,6 +1437,7 @@ int		f_apm ;
 	    if (aval > 1) ndays = aval ;
 	    rs = procnow(pip,TRUE,ndays) ;
 	    wlen += rs ;
+
 	} /* end if */
 
 	if ((rs >= 0) && (pan == 0) && lip->f.defall) {
@@ -1544,8 +1534,8 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 	            wlen += rs ;
 	        } else {
 	            if (lip->f.interactive) {
-	                rs = shio_printf(lip->ofp,"citation=>%t< invalid\n",
-	                    sp,sl) ;
+	                cchar	*fmt = "citation=>%t< invalid\n" ;
+	                rs = shio_printf(lip->ofp,fmt,sp,sl) ;
 	            }
 	        } /* end if */
 	    } /* end if (locinfo_tmtime) */
@@ -1987,7 +1977,7 @@ static int procoutenters(PROGINFO *pip,HOLIDAYER_CITE *qp,cchar *sp,int sl)
 #endif
 
 	                    line += 1 ;
-	                } /* end if */
+	                } /* end if (wordfill_mklinepart) */
 	            } /* end if (partial lines) */
 
 	        } /* end if (add-lines) */

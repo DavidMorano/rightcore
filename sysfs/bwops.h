@@ -7,10 +7,8 @@
 /* revision history:
 
 	= 1998-08-27, David A­D­ Morano
-
-	These macros were written from scratch but inspired by single
-	instructions that did the same sort of thing on the VAX!
-
+        These macros were written from scratch but inspired by single
+        instructions that did the same sort of thing on the VAX!
 
 */
 

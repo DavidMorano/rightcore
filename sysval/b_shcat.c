@@ -351,7 +351,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1172,7 +1172,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
 	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	                if (f) {
-	                    cp = aip->argv[ai] ;
+	                    cp = argv[ai] ;
 	                    if (cp[0] != '\0') {
 	                        pan += 1 ;
 	                        rs = procfile(pip,ofp,cp) ;
@@ -1279,8 +1279,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	}
 #endif
 
-	if (fname == NULL)
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
 	{
 	    int	i = 0 ;
@@ -1492,6 +1491,7 @@ static int proclinebuf(PROGINFO *pip,SHIO *ofp,cchar sbuf[],int slen)
 	int		wlen = 0 ;
 	cchar		*sp = sbuf ;
 
+	if (pip == NULL) return SR_FAULT ;
 	while ((rs >= 0) && (sl > 0)) {
 
 	    mlen = findnl(sp,sl) ;
@@ -1554,30 +1554,32 @@ static int locinfo_finish(LOCINFO *lip)
 #if	CF_LOCSETENT
 int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 {
+	vecstr		*slp ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
 	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
+	slp = &lip->stoes ;
 	if (! lip->open.stores) {
-	    rs = vecstr_start(&lip->stores,4,0) ;
+	    rs = vecstr_start(slp,4,0) ;
 	    lip->open.stores = (rs >= 0) ;
 	}
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(&lip->stores,*epp) ;
+		oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
 	    } else {
 	        *epp = NULL ;
 	    }
 	    if ((rs >= 0) && (oi >= 0)) {
-	        vecstr_del(&lip->stores,oi) ;
+	        vecstr_del(slp,oi) ;
 	    }
 	} /* end if */
 

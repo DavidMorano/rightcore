@@ -12,15 +12,11 @@
 /* revision history:
 
 	- 1996-11-21, David A.D. Morano
-
 	This program was started by copying from the RSLOW program.
 
-
 	- 1996-12-12, David A.D. Morano
-
-	I modified the program to take the username and password
-	from a specified file (for better security).
-
+        I modified the program to take the username and password from a
+        specified file (for better security).
 
 */
 
@@ -28,7 +24,7 @@
 
 /*******************************************************************************
 
-	Execute as:
+	Synopsis:
 
 	$ rexec [-a auth_file] [-l username] [-p password] [-n] 
 		[-i input] [-N alt_netrc] command arguments < input
@@ -40,9 +36,9 @@
 #include	<envstandards.h>
 
 #include	<sys/types.h>
+#include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<sys/wait.h>
-#include	<sys/param.h>
 #include	<netinet/in.h>
 #include	<arpa/inet.h>
 #include	<netdb.h>
@@ -132,33 +128,19 @@ struct userinfo	u ;
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile		errfile, *efp = &errfile ;
-
 	struct ustat	sb, isb, osb, esb ;
-
 	struct tm	*timep ;
-
 	struct passwd	*pp ;
-
 	struct group	*gp ;
-
 	struct servent	*sp, se ;
-
 	struct pollfd	fds[NFDS] ;
-
 	struct vecelem	ne, tmp ;
-
 	struct netrc	*mp ;
-
 	struct worm	ws, *wip = NULL ;
-
 	time_t		t_pollsanity, t_sanity ;
-
 	unsigned long	addr ;
 
 	int	argr, argl, aol, akl, avl ;
@@ -211,19 +193,12 @@ const char	*envv[] ;
 
 	g.progname = strbasename(argv[0]) ;
 
-#if	CF_DEBUG || CF_DEBUGS
-	if (fstat(3,&esb) >= 0) {
-
-	    debugsetfd(3) ;
-
-	    debugprintf("main: we are erroring to 3\n") ;
-
-#if	CF_DEBUGS
-	    nprintf("/tmp/open.log","rexec: EFD errno=%d\n",rs) ;
-#endif
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-#endif
+#endif /* CF_DEBUGS */
 
 	if (bopen(efp,BFILE_STDERR,"dwca",0666) >= 0)
 		bcontrol(efp,BC_LINEBUF,0) ;
@@ -711,24 +686,20 @@ const char	*envv[] ;
 	    } else {
 
 	        switch (npa) {
-
 	        case 0:
 	            if (argl > 0)
 	                hostname = argp ;
-
 	            break ;
-
 	        case 1:
 	            cmdname = argp ;
 	            ai = i + 1 ;
 	            f_exitargs = TRUE ;
 	            break ;
-
 	        default:
 	            bprintf(efp,
 	                "%s: extra positional arguments ignored\n",
 	                g.progname) ;
-
+		    break ;
 	        } /* end switch */
 
 	        npa += 1 ;
@@ -755,16 +726,12 @@ const char	*envv[] ;
 /* pop out the password if it was given (if was on invocation line) */
 
 	if (password != NULL) {
-
 	    cp = putheap(password) ;
-
 /* try to write over the password a passed down in the arguments */
-
-	    for (i = 0 ; password[i] != '\0' ; i += 1)
+	    for (i = 0 ; password[i] != '\0' ; i += 1) {
 	        password[i] = 'X' ;
-
+	    }
 	    password = cp ;
-
 	} /* end if (overwriting the password) */
 
 #endif /* COMMENT */
@@ -775,25 +742,20 @@ const char	*envv[] ;
 #endif
 
 
-	if (g.debuglevel > 0)
+	if (g.debuglevel > 0) {
 	    bprintf(efp,"%s: debug level %d\n",
 	        g.progname,g.debuglevel) ;
+	}
 
 	rs = OK ;
 	if (f_version) {
-
-	    bprintf(efp,"%s: version %s\n",
-	        g.progname,VERSION) ;
-
+	    bprintf(efp,"%s: version %s\n", g.progname,VERSION) ;
 #if	CF_DEBUG || CF_DEBUGS
 	    if ((g.debuglevel > 0) || g.f.verbose) {
-
 	        bprintf(efp,"%s: compiled %s\n",
 	            g.progname, makedate) ;
-
 	    }
 #endif
-
 	}
 
 	if (f_usage) goto usage ;
@@ -806,18 +768,16 @@ const char	*envv[] ;
 	    debugprintf("main: f_exitargs=%d ai=%d\n",f_exitargs,ai) ;
 #endif
 
-	if (g.f.verbose || (g.debuglevel > 0))
+	if (g.f.verbose || (g.debuglevel > 0)) {
 	    bprintf(g.efp,"%s: sanity timeout %d\n",
 	        g.progname,g.keeptime) ;
-
+	}
 
 /* get a TMPDIR */
 
 	if (g.tmpdir == NULL) {
-
 	    if ((g.tmpdir = getenv("TMPDIR")) == NULL)
 	        g.tmpdir = TMPDIR ;
-
 	}
 
 /* initialize some other common user stuff */
@@ -833,10 +793,8 @@ const char	*envv[] ;
 /* get our program root directory */
 
 	if (g.programroot == NULL) {
-
 	    if ((g.programroot = getenv("PROGRAMROOT")) == NULL)
 	        g.programroot = PROGRAMROOT ;
-
 	}
 
 	if (g.debuglevel > 0)
@@ -857,11 +815,8 @@ const char	*envv[] ;
 /* find the log file */
 
 	if (g.logfname == NULL) {
-
 	    sprintf(buf,"%s/%s",g.programroot,LOGFNAME) ;
-
 	    g.logfname = putheap(buf) ;
-
 	}
 
 /* open the log file (if we can) */
@@ -918,26 +873,18 @@ const char	*envv[] ;
 	    goto badhost ;
 
 #ifdef	COMMENT
-
 	if ((cmdname == NULL) || (cmdname[0] == '\0')) {
-
 	    if ((cmdname = getenv("SHELL")) == NULL)
 	        cmdname = "/bin/sh" ;
-
 	}
-
 #else
-
 	if ((cmdname == NULL) || (cmdname[0] == '\0'))
 	    goto badprog ;
-
 #endif /* COMMENT */
 
 	if (! f_x) {
-
 	    if ((rxport = getenv("RXPORT")) == NULL)
 	        rxport = RXPORT ;
-
 	}
 
 
@@ -986,17 +933,12 @@ const char	*envv[] ;
 
 	cp = hostname ;
 	while (*cp) {
-
 	    if ((! isdigit(*cp)) && (*cp != '.')) break ;
-
 	    cp += 1 ;
-
 	}
 
 	if (*cp != '\0') {
-
 	    hostname = NULL ;
-
 	} /* end if (we had a dotted decimal INET address) */
 
 #endif /* COMMENT (dotted decimal INET address) */
@@ -1018,10 +960,8 @@ const char	*envv[] ;
 
 	    f_euid = FALSE ;
 	    if (access(afname,R_OK) < 0) {
-
 	        f_euid = TRUE ;
 	        seteuid(g.euid) ;
-
 	    }
 
 	    un_buf[0] = '\0' ;
@@ -1075,11 +1015,8 @@ const char	*envv[] ;
 /* find the user's NETRC file */
 
 	if (g.netfname == NULL) {
-
 	    sprintf(buf,"%s/.netrc",u.homedname) ;
-
 	    g.netfname = putheap(buf) ;
-
 	}
 
 
@@ -1146,15 +1083,10 @@ const char	*envv[] ;
 	    cnodename = chostname ;
 	    cdomainname = NULL ;
 	    if ((cp = strchr(chostname,'.')) != NULL) {
-
 	        strwcpy(buf,chostname,cp - chostname) ;
-
 	        cnodename = putheap(buf) ;
-
 	        strcpy(buf,cp + 1) ;
-
 	        cdomainname = putheap(buf) ;
-
 	    } /* end if (canonical name had a domain) */
 
 	} /* end if (not dotted decimal INET address) */
@@ -1178,9 +1110,7 @@ const char	*envv[] ;
 	if (addr == 0xFFFFFFFF) {
 
 	    if (rs < 0) {
-
 	        logfile_printf(&g.lh,"host is unreachable\n") ;
-
 	        goto badunreach ;
 	    }
 
@@ -1190,17 +1120,13 @@ const char	*envv[] ;
 	    rs = getehostname(cp,buf) ;
 
 	    if ((rs < 0) && (cp != chostname)) {
-
 	        cp2 = chostname ;
 	        rs = getehostname(chostname,buf) ;
-
 	    }
 
 	    if ((rs < 0) && (chostname != hostname)) {
-
 	        cp2 = hostname ;
 	        rs = getehostname(hostname,buf) ;
-
 	    }
 
 	    if (rs < 0) goto badunreach ;
@@ -1227,15 +1153,11 @@ const char	*envv[] ;
 	if (! f_noinput) {
 
 	    if (infname != NULL) {
-
 	        close(0) ;
-
 	        if ((ifd = open(infname,O_RDONLY,0666)) < 0) {
-
 	            rs = (- errno) ;
 	            goto badinfile ;
 	        }
-
 	    } else 
 	        ifd = 0 ;
 
@@ -1352,14 +1274,11 @@ const char	*envv[] ;
 /* process the local user's NETRC file */
 
 	if (g.netfname != NULL) {
-
 	    rs = copymachines(&ne,g.netfname,hostname,u.domainname) ;
-
 #if	CF_DEBUG
 	    if (g.debuglevel > 1)
 	        debugprintf("main: netrc=%s good_entries=%d\n",g.netfname,rs) ;
 #endif
-
 	}
 
 /* process any NETRC files that we have in the environment variable 'NETRC' */
@@ -1372,18 +1291,13 @@ const char	*envv[] ;
 #endif
 
 	    while ((cp = strchr(cp1,':')) != NULL) {
-
 	        strwcpy(tmpfname,cp1,cp - cp1) ;
-
 	        copymachines(&ne,tmpfname,hostname,u.domainname) ;
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 1)
 	            debugprintf("main: NETRC 1 file=%s\n",tmpfname) ;
 #endif
-
 	        cp1 = cp ;
-
 	    } /* end while */
 
 	    copymachines(&ne,cp1,hostname,u.domainname) ;
@@ -1434,27 +1348,20 @@ const char	*envv[] ;
 
 	rs = -1 ;
 	for (i = 0 ; vecelemget(&ne,i,&mp) >= 0 ; i += 1) {
-
 	    if (mp == NULL) continue ;
 
 #if	CF_DEBUG
 	    if (g.debuglevel > 1) {
-
-	        debugprintf("main: entry i=%d\n",
-	            i) ;
-
+	        debugprintf("main: entry i=%d\n", i) ;
 	        if (mp->machine != NULL)
 	            debugprintf("main: m=\"%s\"\n",
 	                mp->machine) ;
-
 	        if (mp->login != NULL)
 	            debugprintf("main: u=\"%s\"\n",
 	                mp->login) ;
-
 	        if (mp->password != NULL)
 	            debugprintf("main: p=\"%s\"\n",
 	                mp->password) ;
-
 	    }
 #endif
 
@@ -1464,10 +1371,8 @@ const char	*envv[] ;
 
 #if	CF_DEBUG
 	    if (g.debuglevel > 1) {
-
 	        debugprintf("main: looking at entry m=\"%s\"\n",
 	            mp->machine) ;
-
 	    }
 #endif
 
@@ -1525,9 +1430,7 @@ const char	*envv[] ;
 
 	    rfd = rs ;
 	    if (rs >= 0) {
-
 	        logfile_printf(&g.lh,"connected w/ RCMDU\n") ;
-
 	        goto goodrexec ;
 	    }
 
@@ -1570,27 +1473,20 @@ const char	*envv[] ;
 
 	rs = -1 ;
 	for (i = 0 ; vecelemget(&ne,i,&mp) >= 0 ; i += 1) {
-
 	    if (mp == NULL) continue ;
 
 #if	CF_DEBUG
 	    if (g.debuglevel > 1) {
-
-	        debugprintf("main: entry i=%d\n",
-	            i) ;
-
+	        debugprintf("main: entry i=%d\n", i) ;
 	        if (mp->machine != NULL)
 	            debugprintf("main: m=\"%s\"\n",
 	                mp->machine) ;
-
 	        if (mp->login != NULL)
 	            debugprintf("main: u=\"%s\"\n",
 	                mp->login) ;
-
 	        if (mp->password != NULL)
 	            debugprintf("main: p=\"%s\"\n",
 	                mp->password) ;
-
 	    }
 #endif
 
@@ -1614,15 +1510,12 @@ const char	*envv[] ;
 #endif
 
 	        if (wip != NULL) {
-
 	            rs = worm_update(wip,mp->login,-1) ;
-
 #if	CF_DEBUG
 	            if (g.debuglevel > 1)
 	                debugprintf("main: worm_update, rs=%d\n",
 	                    rs) ;
 #endif
-
 	        }
 
 	        rs = rex_rexec(hostname,port,
@@ -1641,7 +1534,6 @@ const char	*envv[] ;
 	} /* end for */
 
 	if (rs >= 0) {
-
 	    username = mp->login ;
 	    goto goodrexec ;
 	}
@@ -1664,15 +1556,11 @@ const char	*envv[] ;
 #endif
 
 	    if (wip != NULL) {
-
 	        rs = worm_update(wip,u.username,-1) ;
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 1)
-	            debugprintf("main: worm_update, rs=%d\n",
-	                rs) ;
+	            debugprintf("main: worm_update, rs=%d\n", rs) ;
 #endif
-
 	    }
 
 	    rs = rex_rcmd(hostname,
@@ -1685,9 +1573,7 @@ const char	*envv[] ;
 
 	    rfd = rs ;
 	    if (rs >= 0) {
-
 	        logfile_printf(&g.lh,"connected w/ RCMDU\n") ;
-
 	        username = u.username ;
 	        goto goodrexec ;
 	    }
@@ -1697,7 +1583,7 @@ const char	*envv[] ;
 
 	} /* end if */
 
-#endif
+#endif /* CF_RCMDU */
 
 
 /* we failed all attempts */
@@ -1738,41 +1624,32 @@ goodrexec:
 
 	fds[0].fd = -1 ;
 	if (! f_noinput) {
-
 	    fds[0].fd = ifd ;
 	    fds[0].events = POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI ;
-
 	} else {
-
 	    f_eof0 = TRUE ;
 	    if ((fstat(rfd,&sb) >= 0) && 
 	        (S_ISSOCK(sb.st_mode) || S_ISCHR(sb.st_mode))) {
 	        shutdown(rfd,1) ;
 	    } else
 	        write(rfd,buf,0) ;
-
 	}
 
 /* standard output */
 
 	fds[1].fd = -1 ;
 	if ((rs = fstat(ofd,&osb)) >= 0) {
-
 	    fds[1].fd = ofd ;
 	    fds[1].events = POLLWRNORM | POLLWRBAND ;
-
 	}
 
 /* standard error */
 
 	fds[2].fd = -1 ;
 	if (fstat(2,&esb) >= 0) {
-
 	    bflush(efp) ;
-
 	    fds[2].fd = 2 ;
 	    fds[2].events = POLLWRNORM | POLLWRBAND ;
-
 	}
 
 /* remote socket */
@@ -1799,11 +1676,9 @@ goodrexec:
 /* what about sanity checking */
 
 	if (g.f.sanity) {
-
 	    t_pollsanity = 0 ;
 	    t_sanity = 1 ;
 	    sanityfailures = 0 ;
-
 	}
 
 
@@ -1823,32 +1698,23 @@ goodrexec:
 	    if (rs < 0) {
 
 	        if (errno == EAGAIN) {
-
 #if	CF_DEBUG
 	            if (g.debuglevel > 2)
 	                debugprintf("main: back from POLL w/ EAGAIN\n") ;
 #endif
-
 	            sleep(2) ;
-
 	            continue ;
-
 	        } else if (errno == EINTR) {
-
 #if	CF_DEBUG
 	            if (g.debuglevel > 2)
 	                debugprintf("main: back from POLL w/ EINTR\n") ;
 #endif
-
 	            continue ;
-
 	        } else {
-
 #if	CF_DEBUG
 	            if (g.debuglevel > 2)
 	                debugprintf("main: back from POLL w/ BADPOLL\n") ;
 #endif
-
 	            goto badpoll ;
 	        }
 
@@ -1856,12 +1722,9 @@ goodrexec:
 
 #if	CF_DEBUG
 	    if (g.debuglevel > 2) {
-
 	        for (i = 0 ; i < NFDS ; i += 1) {
-
 	            debugprintf("main: fds%d %s\n",i,
 	                d_reventstr(fds[i].revents,buf,BUFLEN)) ;
-
 	        }
 	    }
 #endif
@@ -1869,60 +1732,47 @@ goodrexec:
 /* check the actual low level events */
 
 	    if (fds[0].revents & pollinput) {
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 2)
 	            debugprintf("main: IN0\n") ;
 #endif
-
 	        f_in0 = TRUE ;
 	        fds[0].events &= (~ pollinput) ;
 
 	    }
 
 	    if (fds[0].revents & POLLHUP) {
-
 	        f_in0 = TRUE ;
 	        f_final0 = TRUE ;
 	        fds[0].events &= (~ pollinput) ;
 	        fds[0].fd = -1 ;
-
 	    }
 
 	    if (fds[1].revents & polloutput) {
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 2)
 	            debugprintf("main: OUT1\n") ;
 #endif
-
 	        f_out1 = TRUE ;
 	        fds[1].events &= (~ polloutput) ;
-
 	    }
 
 	    if (fds[2].revents & polloutput) {
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 2)
 	            debugprintf("main: OUT2\n") ;
 #endif
-
 	        f_out2 = TRUE ;
 	        fds[2].events &= (~ polloutput) ;
-
 	    }
 
 	    if (fds[3].revents & pollinput) {
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 2)
 	            debugprintf("main: IN3\n") ;
 #endif
-
 	        f_in3 = TRUE ;
 	        fds[3].events &= (~ pollinput) ;
-
 	    }
 
 	    if ((fds[3].revents & POLLHUP) ||
@@ -1931,16 +1781,12 @@ goodrexec:
 
 #if	CF_DEBUG
 	        if (g.debuglevel > 2) {
-
 	            if (fds[3].revents & POLLHUP)
 	                debugprintf("main: 3 POLLHUP\n") ;
-
 	            if (fds[3].revents & POLLERR)
 	                debugprintf("main: 3 POLLERR\n") ;
-
 	            if (fds[3].revents & POLLNVAL)
 	                debugprintf("main: 3 POLLNVAL\n") ;
-
 	        }
 #endif
 
@@ -1951,40 +1797,31 @@ goodrexec:
 	    }
 
 	    if (fds[3].revents & polloutput) {
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 2)
 	            debugprintf("main: OUT3\n") ;
 #endif
-
 	        f_out3 = TRUE ;
 	        fds[3].events &= (~ polloutput) ;
-
 	    }
 
 	    if (fds[4].revents & pollinput) {
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 2)
 	            debugprintf("main: IN4\n") ;
 #endif
-
 	        f_in4 = TRUE ;
 	        fds[4].events &= (~ pollinput) ;
-
 	    }
 
 	    if (fds[4].revents & POLLHUP) {
-
 #if	CF_DEBUG
 	        if (g.debuglevel > 2)
 	            debugprintf("main: HUP4\n") ;
 #endif
-
 	        f_final4 = TRUE ;
 	        f_in4 = TRUE ;
 	        fds[4].fd = -1 ;
-
 	    }
 
 /* what did we not look at */
@@ -2041,22 +1878,16 @@ goodrexec:
 #endif
 	            f_eof3 = TRUE ;
 	            if (f_eof0) {
-
 	                fds[3].fd = -1 ;
-
 	            } else {
-
 	                fds[3].events &= (~ pollinput) ;
-
 	            }
 
 	        }
 
 	        if (! f_final3) {
-
 	            f_in3 = FALSE ;
 	            fds[3].events |= pollinput ;
-
 	        }
 
 	        f_out1 = FALSE ;
@@ -2088,7 +1919,6 @@ goodrexec:
 #if	CF_DEBUG
 	            if (g.debuglevel > 2) {
 	                rs = fstat(rfd,&sb) ;
-
 	                debugprintf("main: RFD stat rs=%d mode=%08X\n",
 	                    rs,sb.st_mode) ;
 	            }
@@ -2108,7 +1938,6 @@ goodrexec:
 	        }
 
 	        if (! f_final0) {
-
 	            f_in0 = FALSE ;
 	            fds[0].events |= pollinput ;
 	        }
@@ -2126,9 +1955,7 @@ goodrexec:
 	        if (len > 0) {
 	            writen(fds[2].fd,buf,len) ;
 	        } else {
-
 	            f_eof4 = TRUE ;
-
 #if	CF_DEBUG
 	            if (g.debuglevel > 2)
 	                debugprintf("main: IN4 EOF\n") ;
@@ -2136,10 +1963,8 @@ goodrexec:
 	        }
 
 	        if (! f_final4) {
-
 	            f_in4 = FALSE ;
 	            fds[4].events |= pollinput ;
-
 	        }
 
 	        f_out2 = FALSE ;
@@ -2159,10 +1984,8 @@ goodrexec:
 
 	            t_pollsanity = g.daytime ;
 	            if (ping(hostname) >= 0) {
-
 	                sanityfailures = 0 ;
 	                t_sanity = g.daytime ;
-
 	            } else
 	                sanityfailures += 1 ;
 
@@ -2366,12 +2189,10 @@ char		localdomain[] ;
 	struct vecelem	tmp ;
 
 	struct netrc	*mp ;
-
-	int		rs, i ;
+	int		rs ;
+	int		i ;
 	int		f_euid = FALSE ;
-
 	char		*hnp, hostname[MAXHOSTNAMELEN + 1] ;
-
 
 #if	CF_DEBUG
 	if (g.debuglevel > 2)
@@ -2379,10 +2200,8 @@ char		localdomain[] ;
 #endif
 
 	if (access(filename,R_OK) < 0) {
-
 	    f_euid = TRUE ;
 	    seteuid(g.euid) ;
-
 	}
 
 #if	CF_DEBUG
@@ -2398,24 +2217,18 @@ char		localdomain[] ;
 #endif
 
 	    if (f_euid) {
-
 	        f_euid = FALSE ;
 	        seteuid(g.uid) ;
-
 	    }
 
 	    if ((rs > 0) && ((g.debuglevel > 0) || (! g.f.quiet))) {
-
 	        bprintf(g.efp,"%s: netfile errors, file=%s numerrors=%d\n",
 	            g.progname,filename,rs) ;
-
 	    }
 
 	    rs = 0 ;
 	    for (i = 0 ; vecelemget(&tmp,i,&mp) >= 0 ; i += 1) {
-
 	        if (mp == NULL) continue ;
-
 	        if (mp->machine == NULL) continue ;
 
 /* convert all machine names to canonical form */
@@ -2429,11 +2242,8 @@ char		localdomain[] ;
 	        if (! hostequiv(hnp,machine,localdomain)) continue ;
 
 	        if (hnp == hostname) {
-
 	            free(mp->machine) ;
-
 	            mp->machine = mallocstr(hostname) ;
-
 	        }
 
 	        vecelemadd(netrcp,mp,sizeof(struct netrc)) ;
@@ -2448,7 +2258,6 @@ char		localdomain[] ;
 	    } /* end for */
 
 	    netfileclose(&tmp) ;
-
 	} /* end if */
 
 #if	CF_DEBUG
@@ -2466,6 +2275,5 @@ char		localdomain[] ;
 	return rs ;
 }
 /* end subroutine (copymachines) */
-
 
 

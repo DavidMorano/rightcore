@@ -1269,6 +1269,7 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    cchar	*pn = pip->progname ;
 	    ex = EX_USAGE ;
 	    shio_printf(pip->efp,"%s: usage (%d)\n",pn,rs) ;
+	    usage(pip) ;
 	}
 
 /* done */

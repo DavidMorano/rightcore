@@ -1046,16 +1046,19 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* initialize */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: procopts() rs=%d\n",rs) ;
 #endif
-	if (rs < 0) {
-	    ex = EX_USAGE ;
-	    goto retearly ;
-	}
 
 	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
 
@@ -1171,10 +1174,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (reportfname != NULL) {
 	    bfile	rfile ;
 	    if (bopen(&rfile,reportfname,"wct",0666) >= 0) {
-
-	        bprintf(&rfile,"%u\n",bytes) ;
-
-	        bclose(&rfile) ;
+		{
+	            rs = bprintf(&rfile,"%u\n",bytes) ;
+		}
+	        rs1 = bclose(&rfile) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (file) */
 	} /* end if (report file) */
 
@@ -1437,8 +1441,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	int		c = 0 ;
 	const char	*cp ;
 
-	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL)
+	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
@@ -1454,7 +1459,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	            if ((oi = matostr(akonames,2,kp,kl)) >= 0) {
 
 	                switch (oi) {
-
 	                case akoname_nodel:
 	                    if (! pip->final.nodel) {
 	                        pip->have.nodel = TRUE ;
@@ -1466,7 +1470,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

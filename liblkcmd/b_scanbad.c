@@ -334,9 +334,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
+
+	if (rs >= 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        rs = optvalue(cp,-1) ;
+		pip->debuglevel = rs ;
+	    }
+	}
 
 	pip->verboselevel = 1 ;
 
@@ -636,8 +643,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
+	                            if (argl) {
 	                                rs = keyopt_loads(&akopts,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -762,13 +770,20 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* check arhuments */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (pd.blocklen < UBLOCKLEN) pd.blocklen = UBLOCKLEN ;
 
-	if ((rs >= 0) && (lip->scanoff == 0)) {
+	if ((rs >= 0) && (lip->scanlen == 0)) {
 	    if ((cp = getourenv(envv,VARSCANSPEC)) != NULL) {
 	        rs = locinfo_scanspec(lip,cp,-1) ;
 	    }
@@ -808,10 +823,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (rs >= 0) {
 	    if ((rs = locinfo_allocbegin(lip,pd.blocklen)) >= 0) {
-	        cchar	*ofn = ofname ;
-	        cchar	*afn = afname ;
 	        {
-	            rs = procargs(pip,&ainfo,&pargs,&pd,ofn,afn) ;
+		    ARGINFO	*aip = &ainfo ;
+		    BITS	*bop = &pargs ;
+	            cchar	*ofn = ofname ;
+	            cchar	*afn = afname ;
+	            rs = procargs(pip,aip,bop,&pd,ofn,afn) ;
 	        }
 	        rs1 = locinfo_allocend(lip) ;
 	        if (rs >= 0) rs = rs1 ;
@@ -1120,12 +1137,14 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 {
 	LOCINFO		*lip = pip->lip ;
 	offset_t	scanoff, scanlen ;
-	offset_t	scanoffer = LONG64_MAX ;
+	offset_t	scanmax = LONG64_MAX ;
 	offset_t	roff = 0 ;
 	offset_t	tlen = 0 ;
 	int		rs ;
 	int		blocklen = pdp->blocklen ;
 	int		nblocks = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 	char		*blockbuf = lip->rdata ;
 
 #if	CF_DEBUG
@@ -1137,7 +1156,7 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 
 	scanoff = lip->scanoff ;
 	scanlen = lip->scanlen ;
-	if (scanlen > 0) scanoffer = (scanoff + scanlen) ;
+	if (scanlen > 0) scanmax = (scanoff + scanlen) ;
 
 /* go w/ file open */
 
@@ -1145,7 +1164,7 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 	    return SR_INVALID ;
 
 	if ((rs = u_open(ifname,O_RDONLY,0666)) >= 0) {
-	    int	fd = rs ;
+	    const int	fd = rs ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
@@ -1164,10 +1183,10 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3)) {
-	        debugprintf("main/procfile: start rlen=%lld roff=%lld\n",
-	            scanlen,roff) ;
-	        debugprintf("main/procfile: start scanoffer=%lld\n",
-	            scanoffer) ;
+	        debugprintf("main/procfile: start roff=%lld rlen=%lld\n",
+	            roff,scanlen) ;
+	        debugprintf("main/procfile: start scanmax=%lld\n",
+	            scanmax) ;
 	    }
 #endif
 
@@ -1176,7 +1195,7 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 	    if (rs >= 0) {
 	        int	rlen = 0 ;
 
-	        while ((rs >= 0) && (roff < scanoffer)) {
+	        while ((rs >= 0) && (roff < scanmax)) {
 	            rs = u_read(fd,blockbuf,blocklen) ;
 	            rlen = rs ;
 	            if (rs <= 0) break ;
@@ -1189,8 +1208,11 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 	        } /* end while */
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(3))
+	        if (DEBUGLEVEL(3)) {
 	            debugprintf("main/procfile: read-out rlen=%d\n",rlen) ;
+	            debugprintf("main/procfile: nblocks=%u\n",nblocks) ;
+	            debugprintf("main/procfile: tlen=%llu\n",tlen) ;
+		}
 #endif
 
 	    } /* end if (ok) */
@@ -1213,14 +1235,11 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 	    shio_printf(pip->efp,"%s: error (%d) file=%s\n",
 	        pip->progname,rs,ifname) ;
 	} else if (pip->debuglevel > 0) {
-	    LONG	som = (scanoff / (1024*1024)) ;
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: file=%s so=%lldm sl=%lldm\n" ;
 	    if (rs >= 0) {
-	        if (scanlen == 0) {
-	            fmt = "%s: file=%s so=%lldm sl=Inf\n" ;
-	        }
-	        shio_printf(pip->efp,fmt,pn,ifname,som,tlen) ;
+	        LONG	som = (scanoff / (1024*1024)) ;
+		LONG	slm = (tlen / (1024*1024)) ;
+	        fmt = "%s: file=%s so=%lldm sl=%lldm\n" ;
+	        shio_printf(pip->efp,fmt,pn,ifname,som,slm) ;
 	    } else {
 	        fmt = "%s: file=%s (%d)\n" ;
 	        shio_printf(pip->efp,fmt,pn,ifname,rs) ;
@@ -1231,14 +1250,14 @@ static int procfile(PROGINFO *pip,PROCDATA *pdp,void *ofp,cchar *ifname)
 	if (DEBUGLEVEL(3)) {
 	    LONG	som = (scanoff / (1024*1024)) ;
 	    LONG	slm = ((roff-scanoff) / (1024*1024)) ;
-	    cchar	*pn = "main/procile" ;
+	    cchar	*pn = "main/procfile" ;
 	    cchar	*fmt = "%s: file=%s so=%lldm sl=%lldm\n" ;
 	    if (scanlen == 0) {
 	        fmt = "%s: file=%s so=%lldm sl=Inf\n" ;
 	    }
 	    debugprintf(fmt,pn,ifname,som,slm) ;
 	}
-#endif
+#endif /* CF_DEBUG */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1254,8 +1273,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -1271,8 +1289,7 @@ static int locinfo_finish(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	if (lip->open.stores) {
 	    lip->open.stores = FALSE ;
@@ -1377,16 +1394,19 @@ static int locinfo_allocend(LOCINFO *lip)
 
 static int locinfo_scanspec(LOCINFO *lip,cchar *sp,int sl)
 {
+	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
-	int		cl ;
-	cchar		*tp, *cp ;
 
+	if (pip == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
 
 	if (sl < 0) sl = strlen(sp) ;
 
 	if (sl > 0) {
 	    offset_t	scanoff, scanlen ;
+	    int		cl ;
+	    cchar	*cp ;
+	    cchar	*tp ;
 	    if ((tp = strnchr(sp,sl,':')) != NULL) {
 	        cp = (tp+1) ;
 	        cl = ((sp+sl)-cp) ;
@@ -1399,6 +1419,11 @@ static int locinfo_scanspec(LOCINFO *lip,cchar *sp,int sl)
 	        lip->scanoff = scanoff ;
 	    }
 	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("b_scanbad/locinfo_scanspec: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

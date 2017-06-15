@@ -764,7 +764,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
@@ -1628,11 +1628,11 @@ static int usage(PROGINFO *pip)
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
-	fmt = "%s: USAGE> %s [-of <outfile>]\n" ;
+	fmt = "%s: USAGE> %s [-of <outfile>] [-d[=<runint>]]\n" ;
 	rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
-	fmt = "%s:  [-af <afile>] [-t]\n" ;
+	fmt = "%s:  [-af <afile>]\n" ;
 	rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
@@ -1675,7 +1675,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_base:
 	                    if (! lip->final.basedname) {
 	                        if (vl > 0) {
@@ -1685,7 +1684,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_cf:
 			    if ((pip->cfname == NULL) && (vl > 0)) {
 				cchar	*lc = LOGCNAME ;
@@ -1697,7 +1695,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 				}
 			    }
 			    break ;
-
 	                case akoname_lf:
 			    if ((pip->lfname == NULL) && (vl > 0)) {
 				cchar	*lc = LOGCNAME ;
@@ -1709,7 +1706,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 				}
 			    }
 			    break ;
-
 	                case akoname_wf:
 			    if ((lip->wfname == NULL) && (vl > 0)) {
 				cchar	*lc = LOGCNAME ;
@@ -1721,7 +1717,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 				}
 			    }
 			    break ;
-
 	                case akoname_log:
 	                    if (! pip->final.logprog) {
 	                        pip->f.logprog = TRUE ;
@@ -1733,7 +1728,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_quiet:
 	                    if (! pip->final.quiet) {
 	                        pip->f.quiet = TRUE ;
@@ -1745,7 +1739,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_quietlock:
 	                    if (! lip->final.quietlock) {
 	                        lip->f.quietlock = TRUE ;
@@ -1757,7 +1750,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_force:
 	                    if (! lip->final.force) {
 	                        lip->f.force = TRUE ;
@@ -1769,7 +1761,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_maint:
 	                    if (! lip->final.maint) {
 	                        lip->have.maint = TRUE ;
@@ -1782,7 +1773,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_head:
 	                    if (! lip->final.hfname) {
 	                        if (vl > 0) {
@@ -1792,7 +1782,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_svcs:
 	                    if (! lip->final.svcs) {
 	                        if (vl > 0) {
@@ -1802,7 +1791,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_daemon:
 	                    if (! pip->final.daemon) {
 	                        c += 1 ;
@@ -1818,7 +1806,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    } /* end if */
 	                    break ;
-
 	                case akoname_pidfile:
 	                    if (! pip->final.pidfname) {
 				if (vl > 0) {
@@ -1829,7 +1816,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 				}
 			    }
 			    break ;
-
 	                case akoname_to:
 	                case akoname_intrun:
 	                case akoname_intidle:
@@ -1921,7 +1907,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        } /* end if (have) */
 	                    } /* end block */
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -2111,8 +2096,7 @@ static int process(PROGINFO *pip,cchar *ofn,cchar *afn)
 
 #ifdef	COMMENT
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    shio_printf(pip->efp, "%s: updates=%u\n",
-	        pip->progname,c) ;
+	    shio_printf(pip->efp, "%s: updates=%u\n",pip->progname,c) ;
 	} /* end if */
 #endif /* COMMENT */
 

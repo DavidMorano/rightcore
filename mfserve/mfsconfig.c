@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUG	1		/* switchable at invocation */
 
 
 /* revision history:
@@ -133,7 +133,6 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* forward references */
 
-static int	config_addcooks(CONFIG *) ;
 static int	config_reader(CONFIG *,MFSLISTEN_ACQ *,char *,char *,char *) ;
 
 
@@ -144,6 +143,10 @@ static const char	*params[] = {
 	"logsize",
 	"msfile",
 	"pidfile",
+	"logfile",
+	"reqfile",
+	"svctab",
+	"acctab",
 	"runtime",
 	"runint",
 	"mspoll",
@@ -151,8 +154,6 @@ static const char	*params[] = {
 	"markint",
 	"lockint",
 	"speedint",
-	"logfile",
-	"reqfile",
 	"speedname",
 	"listen",
 	NULL
@@ -163,6 +164,10 @@ enum params {
 	param_logsize,
 	param_msfile,
 	param_pidfile,
+	param_logfile,
+	param_reqfile,
+	param_svctab,
+	param_acctab,
 	param_runtime,
 	param_intrun,
 	param_mspoll,
@@ -170,8 +175,6 @@ enum params {
 	param_intmark,
 	param_intlock,
 	param_intspeed,
-	param_logfile,
-	param_reqfile,
 	param_speedname,
 	param_listen,
 	param_overlast
@@ -183,8 +186,13 @@ enum params {
 
 int config_start(CONFIG *cfp,PROGINFO *pip,cchar *cfname,int intcheck)
 {
-	EXPCOOK		*ckp ;
+	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("config_start: ent cfname=%s\n",cfname) ;
+#endif
 
 	if (cfp == NULL) return SR_FAULT ;
 	if (pip == NULL) return SR_FAULT ;
@@ -206,40 +214,31 @@ int config_start(CONFIG *cfp,PROGINFO *pip,cchar *cfname,int intcheck)
 	}
 #endif
 
-	ckp = &cfp->cooks ;
-	if ((rs = paramfile_open(&cfp->p,pip->envv,cfname)) >= 0) {
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("config_start: paramfile_open rs=%d\n",rs) ;
-#endif
-	    if ((rs = expcook_start(ckp)) >= 0) {
+	if (lip->open.cooks) {
+	    PARAMFILE	*pfp = &cfp->p ;
+	    if ((rs = paramfile_open(pfp,pip->envv,cfname)) >= 0) {
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("config_start: expcook_start rs=%d\n",rs) ;
+	            debugprintf("config_start: paramfile_open rs=%d\n",rs) ;
 #endif
-	        if ((rs = config_addcooks(cfp)) >= 0) {
+	        cfp->f.p = TRUE ;
+	        rs = config_read(cfp) ;
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("config_start: config_addcooks rs=%d\n",
-				rs) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("config_start: config_read rs=%d\n",rs) ;
 #endif
-	            cfp->f.p = TRUE ;
-	            rs = config_read(cfp) ;
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("config_start: config_read rs=%d\n",rs) ;
-#endif
-	        }
+		if (rs < 0) {
+		    cfp->f.p = FALSE ;
+		    paramfile_close(pfp) ;
+		}
 	    }
-	    if (rs < 0)
-	        expcook_finish(ckp) ;
+	} else {
+	    rs = SR_BUGCHECK ;
 	}
-	if (rs < 0)
-	    expcook_finish(ckp) ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("config_start: ret rs=%d \n",rs) ;
+	    debugprintf("config_start: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -269,18 +268,13 @@ int config_finish(CONFIG *cfp)
 #endif
 
 	if (cfp->f.p) {
-
+	    PARAMFILE	*pfp = &cfp->p ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("config_finish: fins\n") ;
 #endif
-
-	    rs1 = expcook_finish(&cfp->cooks) ;
+	    rs1 = paramfile_close(pfp) ;
 	    if (rs >= 0) rs = rs1 ;
-
-	    rs1 = paramfile_close(&cfp->p) ;
-	    if (rs >= 0) rs = rs1 ;
-
 	} else
 	    rs = SR_NOTOPEN ;
 
@@ -300,8 +294,7 @@ int config_check(CONFIG *cfp)
 	int		rs = SR_OK ;
 	int		f_changed = FALSE ;
 
-	if (cfp == NULL)
-	    return SR_FAULT ;
+	if (cfp == NULL) return SR_FAULT ;
 
 	pip = cfp->pip ;
 	if (cfp->f.p) {
@@ -349,24 +342,32 @@ int config_read(CONFIG *cfp)
 	    MFSLISTEN_ACQ	acq ;
 	    if ((rs = mfslisten_acqbegin(pip,&acq)) >= 0) {
 	        int	size = 0 ;
-	        char	*abuf ;
+	        char	*a ;
 	        size += (PBUFLEN+1) ;
 	        size += (EBUFLEN+1) ;
 	        size += (MAXPATHLEN+1) ;
-	        if ((rs = uc_malloc(size,&abuf)) >= 0) {
+	        if ((rs = uc_malloc(size,&a)) >= 0) {
 		    {
-		        char	*pbuf = abuf ;
-		        char	*ebuf = (abuf+(PBUFLEN+1)) ;
-		        char	*tbuf = (ebuf+(EBUFLEN+1)) ;
+			char	*bp = a ;
+		        char	*pbuf ;
+		        char	*ebuf ;
+		        char	*tbuf ;
+			pbuf = bp ; bp += (PBUFLEN+1) ;
+			ebuf = bp ; bp += (EBUFLEN+1) ;
+			tbuf = bp ; bp += (MAXPATHLEN+1) ;
 		        rs = config_reader(cfp,&acq,pbuf,ebuf,tbuf) ;
 	            }
-		    rs1 = uc_free(abuf) ;
+		    rs1 = uc_free(a) ;
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (m-a-f) */
 	        rs1 = mfslisten_acqend(pip,&acq) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (mfslisten-acq) */
 	} /* end if (active) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("config_read: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (config_read) */
@@ -383,27 +384,29 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	PARAMFILE	*pfp = &cfp->p ;
 	PARAMFILE_CUR	cur ;
 	PARAMFILE_ENT	pe ;
-	const int	elen = EBUFLEN ;
-	int		rs = SR_NOTOPEN ;
+	int		rs ;
 	int		rs1 ;
-	int		pi ;
-	int		kl ;
-	int		ml, vl, el ;
-	int		v ;
-	const char	*ccp ;
-	const char	*kp, *vp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("config_read: f_p=%u\n",cfp->f.p) ;
+	    debugprintf("config_reader: ent f_p=%u\n",cfp->f.p) ;
 #endif
 
 	lip = pip->lip ;
 	if ((rs = paramfile_curbegin(pfp,&cur)) >= 0) {
+	    EXPCOOK	*ecp = &lip->cooks ;
+	    const int	elen = EBUFLEN ;
+	    const int	plen = PBUFLEN ;
+	    int		pi ;
+	    int		kl ;
+	    int		ml, vl, el ;
+	    int		v ;
 	    cchar	*pr = pip->pr ;
+	    const char	*ccp ;
+	    const char	*kp, *vp ;
 
 	    while (rs >= 0) {
-	        kl = paramfile_enum(pfp,&cur,&pe,pbuf,PBUFLEN) ;
+	        kl = paramfile_enum(pfp,&cur,&pe,pbuf,plen) ;
 	        if (kl == SR_NOTFOUND) break ;
 	        rs = kl ;
 	        if (rs < 0) break ;
@@ -418,7 +421,7 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	        ebuf[0] = '\0' ;
 	        el = 0 ;
 	        if (vl > 0) {
-	            el = expcook_exp(&cfp->cooks,0,ebuf,elen,vp,vl) ;
+	            el = expcook_exp(ecp,0,ebuf,elen,vp,vl) ;
 	            if (el >= 0)
 	                ebuf[el] = '\0' ;
 	        } /* end if */
@@ -474,20 +477,6 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	                } /* end switch */
 	            } /* end if (valid number) */
 	            break ;
-	        case param_pidfile:
-	            if (! pip->final.pidfname) {
-	                pip->have.pidfname = TRUE ;
-	                rs1 = prsetfname(pr,tbuf,ebuf,el,TRUE,
-	                    RUNDNAME,pip->nodename,PIDFNAME) ;
-	                ccp = pip->pidfname ;
-	                if ((ccp == NULL) ||
-	                    (strcmp(ccp,tbuf) != 0)) {
-			    const char	**vpp = &pip->pidfname ;
-	                    pip->changed.pidfname = TRUE ;
-	                    rs = proginfo_setentry(pip,vpp,tbuf,rs1) ;
-	                }
-	            }
-	            break ;
 	        case param_msfile:
 	            if (! lip->final.msfname) {
 	                lip->have.msfname = TRUE ;
@@ -499,6 +488,20 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 			    const char	**vpp = &lip->msfname ;
 	                    lip->changed.msfname = TRUE ;
 	                    rs = locinfo_setentry(lip,vpp,tbuf,rs1) ;
+	                }
+	            }
+	            break ;
+	        case param_pidfile:
+	            if (! pip->final.pidfname) {
+	                pip->have.pidfname = TRUE ;
+	                rs1 = prsetfname(pr,tbuf,ebuf,el,TRUE,
+	                    RUNDNAME,pip->nodename,PIDFNAME) ;
+	                ccp = pip->pidfname ;
+	                if ((ccp == NULL) ||
+	                    (strcmp(ccp,tbuf) != 0)) {
+			    const char	**vpp = &pip->pidfname ;
+	                    pip->changed.pidfname = TRUE ;
+	                    rs = proginfo_setentry(pip,vpp,tbuf,rs1) ;
 	                }
 	            }
 	            break ;
@@ -534,6 +537,20 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	                }
 	            } /* end if */
 	            break ;
+	        case param_svctab:
+	            if (! lip->final.svcfname) {
+			cchar	**vpp = &lip->svcfname ;
+	                lip->final.svcfname = TRUE ;
+	                rs = locinfo_setentry(lip,vpp,ebuf,el) ;
+	            }
+	            break ;
+	        case param_acctab:
+	            if (! lip->final.accfname) {
+			cchar	**vpp = &lip->accfname ;
+	                lip->final.accfname = TRUE ;
+	                rs = locinfo_setentry(lip,vpp,ebuf,el) ;
+	            }
+	            break ;
 	        case param_cmd:
 	            ml = MIN(LOGIDLEN,el) ;
 	            if (ml && (lip->cmd[0] == '\0')) {
@@ -550,7 +567,6 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	                    lip->changed.speedname = TRUE ;
 	                    rs = locinfo_setentry(lip,vpp,ebuf,el) ;
 	                }
-
 	            } /* end if */
 	            break ;
 	       case param_listen:
@@ -564,68 +580,15 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 
 	    rs1 = paramfile_curend(&cfp->p,&cur) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (parameters) */
+	} /* end if (paramfile-cur) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("config_reader: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
 /* end subroutine (config_reader) */
-
-
-static int config_addcooks(CONFIG *cfp)
-{
-	PROGINFO	*pip = cfp->pip ;
-	EXPCOOK		*ckp = &cfp->cooks ;
-	int		rs = SR_OK ;
-	int		i ;
-	cchar		*keys = "PSNDHRU" ;
-
-	if (pip == NULL) return SR_FAULT ;
-	for (i = 0 ; keys[i] ; i += 1) {
-	    const int	kch = MKCHAR(keys[i]) ;
-	    int		vl = -1 ;
-  	    cchar	*vp = NULL ;
-	    switch (kch) {
-	    case 'P':
-		vp = pip->progname ;
-		break ;
-	    case 'S':
-		vp = pip->searchname ;
-		break ;
-	    case 'N':
-		vp = pip->nodename ;
-		break ;
-	    case 'D':
-		vp = pip->domainname ;
-		break ;
-	    case 'H':
-		{
-		    const int	hlen = MAXHOSTNAMELEN ;
-		    cchar	*nn = pip->domainname ;
-		    cchar	*dn = pip->nodename ;
-		    char	hbuf[MAXHOSTNAMELEN+1] ;
-	            if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-			vl = rs ;
-	    		rs = expcook_add(ckp,"H",hbuf,rs) ;
-		    }
-		}
-		break ;
-	    case 'R':
-		vp = pip->pr ;
-		break ;
-	    case 'U':
-		vp = pip->username ;
-		break ;
-	    } /* end switch */
-	    if ((rs >= 0) && (vp != NULL)) {
-		char	kbuf[2] = { 0, 0 } ;
-		kbuf[0] = kch ;
-		rs = expcook_add(ckp,kbuf,vp,vl) ;
-	    }
-	    if (rs < 0) break ;
-	} /* end for */
-
-	return rs ;
-}
-/* end subroutine (config_addcooks) */
 
 

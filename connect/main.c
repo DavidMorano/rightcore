@@ -4,16 +4,14 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	1		/* run-time debug print-outs */
+#define	CF_DEBUG	0		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 
 
 /* revision history:
 
 	= 1999-03-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -90,6 +88,8 @@ extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	opentmpusd(const char *,int,mode_t,char *) ;
 extern int	isasocket(int) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
+extern int	isNotPresent(int) ;
 
 extern int	dialudp(const char *,const char *,int,int,int) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
@@ -554,6 +554,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -575,10 +577,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -613,6 +616,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* check arguments */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (f_log && ((logfname == NULL) || (logfname[0] == '\0'))) {
 	    f_log = FALSE ;
 	}
@@ -625,17 +633,23 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
 	    if (f) {
 	        cp = argv[ai] ;
-	        switch (pan) {
-	        case 0:
-	            hostname = cp ;
-	            break ;
-	        case 1:
-	            svcspec = cp ;
-	            break ;
-	        } /* end switch */
-	    }
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: pan=%u arg[%u]=%s\n",pan,ai,cp) ;
+#endif
+		if (cp[0] != '\0') {
+	            switch (pan) {
+	            case 0:
+	                hostname = cp ;
+	                break ;
+	            case 1:
+	                svcspec = cp ;
+	                break ;
+	            } /* end switch */
+	            pan += 1 ;
+		} /* end if (non-nul) */
+	    } /* end if */
 
-	    pan += 1 ;
 	} /* end for (looping through requested circuits) */
 
 #if	CF_DEBUG
@@ -711,8 +725,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        debugprintf("main: dialer=%d\n",dialer) ;
 #endif
 
-	} else
+	} else {
 	    dialer = dialer_tcp ;
+	}
 
 	if (dialer < 0) {
 	    rs = SR_INVALID ;
@@ -791,8 +806,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	if (rs < 0) {
 	    ex = EX_USAGE ;
-	    bprintf(pip->efp,"%s: no host was specified\n",
-	        pip->progname) ;
+	    bprintf(pip->efp,"%s: no host was specified (%d)\n",
+	        pip->progname,rs) ;
 	    goto badhost ;
 	}
 
@@ -980,6 +995,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 badconnect:
 baddial:
 badhost:
+	if (srcpath[0] != '\0') {
+	    u_unlink(srcpath) ;
+	    srcpath[0] = '\0' ;
+	}
+
 done:
 	ex = (rs >= 0) ? EX_OK : EX_DATAERR ;
 
@@ -987,11 +1007,6 @@ retearly:
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
 	        pip->progname,ex,rs) ;
-	}
-
-	if (srcpath[0] != '\0') {
-	    u_unlink(srcpath) ;
-	    srcpath[0] = '\0' ;
 	}
 
 	if (pip->efp != NULL) {

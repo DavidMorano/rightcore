@@ -202,7 +202,7 @@ static int	verse_match(VOTDC_VERSE *,int,int) ;
 static int	verse_read(VOTDC_VERSE *,char *,
 			VOTDC_CITE *,char *,int) ;
 static int	verse_load(VOTDC_VERSE *,time_t,int,SHMALLOC *,char *,
-			VOTDC_CITE *,int,const char *,int) ;
+			VOTDC_CITE *,int,cchar *,int) ;
 static int	verse_isempty(VOTDC_VERSE *) ;
 static int	verse_isused(VOTDC_VERSE *) ;
 static int	verse_isleast(VOTDC_VERSE *,time_t *) ;
@@ -215,10 +215,10 @@ static int	book_getwmark(VOTDC_BOOK *) ;
 static int	book_getwmarklang(VOTDC_BOOK *,const char **) ;
 static int	book_read(VOTDC_BOOK *,char *,int,char *,int,int) ;
 
-static int	titlecache_load(VOTDC_TC *,int,const char *,char *,int *) ;
+static int	titlecache_load(VOTDC_TC *,int,cchar *,char *,int *) ;
 static int	titlecache_release(VOTDC_TC *) ;
 
-static int	mkshmname(char *,int,const char *,int,const char *) ;
+static int	mkshmname(char *,int,cchar *,int,cchar *) ;
 
 
 /* local variables */
@@ -1008,11 +1008,11 @@ static int votdc_mapend(VOTDC *op)
 
 
 static int votdc_shmprep(op,dt,fd,om,hdrp)
-VOTDCHDR	*hdrp ;
 VOTDC		*op ;
 time_t		dt ;
 int		fd ;
 mode_t		om ;
+VOTDCHDR	*hdrp ;
 {
 	int		rs ;
 	int		foff = 0 ;

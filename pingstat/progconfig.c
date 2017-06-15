@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 2008-10-10, David A­D­ Morano
-
 	This was adapted from the FINGERS program.
-
 
 */
 
@@ -21,8 +19,7 @@
 
 /*******************************************************************************
 
-	This module contains the subroutines that manage program
-	configuration.
+	This module contains the subroutines that manage program configuration.
 
 
 *******************************************************************************/

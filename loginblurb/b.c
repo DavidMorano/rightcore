@@ -429,7 +429,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -850,17 +850,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    ainfo.ai_continue = ai_continue ;
 
 	if (rs >= 0) {
-	if ((rs = locinfo_utmpbegin(lip)) >= 0) {
-
-	    if (rs >= 0) {
-	        cchar	*ofn = ofname ;
-	        cchar	*afn = afname ;
-	        rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
-	    }
-
-	    rs1 = locinfo_utmpend(lip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (locinfo-utmp) */
+	    if ((rs = locinfo_utmpbegin(lip)) >= 0) {
+	        {
+	            cchar	*ofn = ofname ;
+	            cchar	*afn = afname ;
+	            rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+	        }
+	        rs1 = locinfo_utmpend(lip) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (locinfo-utmp) */
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -970,7 +968,7 @@ static int usage(PROGINFO *pip)
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-	fmt = "%s: USAGE> %s [-s <string>] \n" ;
+	fmt = "%s: USAGE> %s [-s <string>] [-of <ofile>]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
@@ -1009,7 +1007,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (ki) {
-
 	            case progopt_str:
 	                if (! lip->final.o_string) {
 	                    lip->f.o_string = TRUE ;
@@ -1019,7 +1016,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    }
 	                }
 	                break ;
-
 	            case progopt_date:
 	            case progopt_time:
 	                lip->f.o_time = TRUE ;
@@ -1028,7 +1024,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    lip->f.o_time = (rs > 0) ;
 	                }
 	                break ;
-
 	            case progopt_nodetitle:
 	                lip->f.o_nodetitle = TRUE ;
 	                if (vl > 0) {
@@ -1036,7 +1031,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    lip->f.o_nodetitle = (rs > 0) ;
 	                }
 	                break ;
-
 	            case progopt_name:
 	            case progopt_node:
 	                lip->f.o_node = TRUE ;
@@ -1045,7 +1039,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    lip->f.o_node = (rs > 0) ;
 	                }
 	                break ;
-
 	            case progopt_users:
 	                lip->f.o_users = TRUE ;
 	                if (vl > 0) {
@@ -1053,7 +1046,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    lip->f.o_users = (rs > 0) ;
 	                }
 	                break ;
-
 	            case progopt_procs:
 	                lip->f.o_procs = TRUE ;
 	                if (vl > 0) {
@@ -1061,7 +1053,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    lip->f.o_procs = (rs > 0) ;
 	                }
 	                break ;
-
 	            case progopt_mem:
 	                lip->f.o_mem = TRUE ;
 	                if (vl > 0) {
@@ -1069,7 +1060,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    lip->f.o_mem = (rs > 0) ;
 	                }
 	                break ;
-
 	            case progopt_load:
 	            case progopt_la:
 	                lip->f.o_load = TRUE ;
@@ -1078,7 +1068,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    lip->f.o_load = (rs > 0) ;
 	                }
 	                break ;
-
 	            case progopt_term:
 	                if (! lip->final.term) {
 	                    lip->final.term = TRUE ;
@@ -1090,18 +1079,15 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    }
 	                }
 	                break ;
-
 	            case progopt_to:
 	                if (vl > 0) {
 	                    rs = cfdecti(vp,vl,&v) ;
 	                    pip->to_open = v ;
 	                }
 	                break ;
-
 		    default:
 			rs = SR_INVALID ;
 			break ;
-
 	            } /* end switch */
 
 			c += 1 ;
@@ -1138,8 +1124,9 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    int		cl ;
 	    cchar	*cp ;
 
-	    if (pip->f.bufnone)
+	    if (pip->f.bufnone) {
 	        shio_control(ofp,SHIO_CSETBUFNONE,TRUE) ;
+	    }
 
 	    if (rs >= 0) {
 	        int	ai ;
@@ -1292,15 +1279,14 @@ static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 
 	cbp = cvtbuf ;
 	switch (ri) {
-
 	default:
 	    rs = SR_INVALID ;
 	    break ;
-
 	} /* end switch */
 
-	if ((rs >= 0) && (v >= 0))
+	if ((rs >= 0) && (v >= 0)) {
 	    rs = bufprintf(cvtbuf,CVTBUFLEN,"%llu",v) ;
+	}
 
 	if ((rs >= 0) && (pip->verboselevel > 0)) {
 	    rs1 = procout(pip,ofp,cbp) ;
@@ -1485,8 +1471,7 @@ static int procprint(PROGINFO *pip,SHIO *ofp)
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -1507,8 +1492,7 @@ static int locinfo_finish(LOCINFO *lip)
 {
 	int		rs = SR_OK ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	return rs ;
 }
@@ -1600,8 +1584,7 @@ static int locinfo_utmpend(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	if (lip->f.tmpx) {
 	    lip->f.tmpx = FALSE ;

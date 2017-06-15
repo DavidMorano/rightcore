@@ -43,11 +43,10 @@
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
-
 #include	<sys/types.h>
 #include	<string.h>
-
 #include	<vsystem.h>
+#include	<localmisc.h>		/* extra types */
 
 
 /* local defines */

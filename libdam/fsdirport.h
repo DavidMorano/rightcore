@@ -21,6 +21,7 @@
 
 /* object defines */
 
+#define	FSDIR_MAGIC		0x31415926
 #define	FSDIR			struct fsdir_head
 #define	FSDIR_SLOT		struct fsdir_e
 #define	FSDIR_ENT		struct fsdir_e

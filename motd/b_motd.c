@@ -624,7 +624,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1170,6 +1170,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    } /* end if */
 	}
 
+	if ((rs >= 0) && (pip->intrun == 0) && (argval != NULL)) {
+	    rs = cfdeci(argval,-1,&v) ;
+	    pip->intrun = v ;
+	}
+
 /* load up the environment options */
 
 	if (rs >= 0) {
@@ -1184,11 +1189,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* argument defaults */
 
 	if (lip->un == NULL) lip->un = getourenv(envv,VARTARUSER) ;
-
-	if ((rs >= 0) && (argval != NULL)) {
-	    rs = cfdeci(argval,-1,&v) ;
-	    pip->intrun = v ;
-	}
 
 	if (pip->intpoll == 0) pip->intpoll = TO_POLL ;
 

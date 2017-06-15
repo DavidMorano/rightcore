@@ -1301,7 +1301,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
-	    if (ex == EX_OK) ex = EX_USAGE ;
+	    ex = EX_USAGE ;
 	    bprintf(pip->efp,fmt,pn,rs) ;
 	    usage(pip) ;
 	} /* end if (ok) */

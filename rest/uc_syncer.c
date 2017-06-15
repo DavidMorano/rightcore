@@ -249,6 +249,7 @@ static int ucsyncer_sendsync(UCSYNCER *uip)
 static int ucsyncer_run(UCSYNCER *uip)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		f = FALSE ;
 
 	if (! uip->f_running) {
@@ -261,9 +262,11 @@ static int ucsyncer_run(UCSYNCER *uip)
 		        rs = ucsyncer_runcheck(uip) ;
 		        f = rs ;
 		    } /* end if (not running) */
-	            ptm_unlock(&uip->m) ;
+	            rs1 = ptm_unlock(&uip->m) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} else {
 	    rs = ucsyncer_runcheck(uip) ;
@@ -284,13 +287,13 @@ static int ucsyncer_runcheck(UCSYNCER *uip)
 	const pid_t	pid = getpid() ;
 	int		rs = SR_OK ;
 	int		f = FALSE ;
-	    if (pid != uip->pid) {
+	if (pid != uip->pid) {
 		uip->f_running = FALSE ;
 		uip->f_exiting = FALSE ;
 		uip->pid = pid ;
 		rs = ucsyncer_run(uip) ;
 		f = rs ;
-	    }
+	}
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (ucsyncer_runcheck) */

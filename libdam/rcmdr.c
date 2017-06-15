@@ -13,9 +13,7 @@
 /* revision history:
 
 	= 1998-07-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -23,8 +21,8 @@
 
 /*******************************************************************************
 
-	This is a dialer to use the underlying RSH program to make
-	a "SHELL" remote login connection to another machine.
+        This is a dialer to use the underlying RSH program to make a "SHELL"
+        remote login connection to another machine.
 
 
 *******************************************************************************/

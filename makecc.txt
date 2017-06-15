@@ -1,0 +1,2 @@
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)

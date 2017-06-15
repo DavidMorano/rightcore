@@ -402,7 +402,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1176,8 +1176,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	} /* end if (m-a) */
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    shio_printf(pip->efp,"%s: written=%u\n",
-	        pip->progname,wlen) ;
+	    shio_printf(pip->efp,"%s: written=%u\n",pn,wlen) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;

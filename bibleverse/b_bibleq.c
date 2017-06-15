@@ -370,7 +370,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -919,16 +919,17 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	        if (lip->f.audit) {
-	        rs = bibleq_audit(&vdb) ;
-	        if ((rs < 0) || (pip->debuglevel > 0)) {
-	            shio_printf(pip->efp,
-	                "%s: bibleq DB audit (%d)\n", pip->progname,rs) ;
+	            rs = bibleq_audit(&vdb) ;
+	            if (pip->debuglevel > 0) {
+			cchar	*pn = pip->progname ;
+			cchar	*fmt = "%s: bibleq DB audit (%d)\n" ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
+		    }
 	        }
-	    }
 
-	    if (rs >= 0) {
-	        rs = procargs(pip,&ainfo,&pargs,ofname,afname) ;
-	    }
+	        if (rs >= 0) {
+	            rs = procargs(pip,&ainfo,&pargs,ofname,afname) ;
+	        }
 
 	        rs1 = bibleq_close(&vdb) ;
 	        if (rs >= 0) rs = rs1 ;

@@ -4,6 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_SPERM	1		/* compile in |sperm()| */
 
 
 /* revision history:
@@ -17,9 +18,12 @@
 
 /*******************************************************************************
 
-	This subroutine is sort of the "effective_user" version of 'access(2)'.
-	It has more features that enable it to perform the function of
-	'access(2)' as well as other variations.
+	This module is sort of the "effective_user" version of 'access(2)'.
+	Implemented within this module are the following interfaces:
+ 	+ perm(3uc)
+	+ fperm(3uc)
+	+ sperm(3uc)
+	
 
 	Synopsis:
 
@@ -162,6 +166,20 @@ int fperm(int fd,uid_t euid,gid_t egid,gid_t *gids,int am)
 /* end subroutine (fperm) */
 
 
+#if	CF_SPERM
+int sperm(IDS *idp,struct ustat *sbp,int am)
+{
+	const uid_t	euid = idp->euid ;
+	const gid_t	egid = idp->egid ;
+	gid_t		*gids = idp->gids ;
+	if (idp == NULL) return SR_FAULT ;
+	if (sbp == NULL) return SR_FAULT ;
+	return permer(sbp,euid,egid,gids,am) ;
+}
+/* end subroutine (sperm) */
+#endif /* CF_SPERM */
+
+
 /* local subroutines */
 
 
@@ -253,7 +271,7 @@ static int try_filetype(TRY *tip)
 	}
 	return rs ;
 }
-/* end subroutine (try_filetype ) */
+/* end subroutine (try_filetype) */
 
 
 static int try_root(TRY *tip)

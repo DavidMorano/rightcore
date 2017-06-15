@@ -457,7 +457,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -972,15 +972,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_wn: f_quick=%u\n",lip->f.fmtshort) ;
 #endif
 
-	if ((rs >= 0) && (argval != NULL)) {
+	if ((rs >= 0) && (lip->max == 0) && (argval != NULL)) {
 	    rs = cfdeci(argval,-1,&v) ;
 	    lip->max = MAX(0,v) ;
 	}
 
 /* other initilization */
 
-	if (utfname == NULL)
-	    utfname = getourenv(envv,VARUTFNAME) ;
+	if (utfname == NULL) utfname = getourenv(envv,VARUTFNAME) ;
 
 	if (rs >= 0) {
 	    rs = locinfo_utfname(lip,utfname) ;

@@ -56,7 +56,7 @@ struct bibleqs_c {
 } ;
 
 struct bibleqs_flags {
-	uint		ind:1 ;			/* text-index */
+	uint		ind:1 ;			/* text-index (opened) */
 	uint		edb:1 ;
 	uint		edbinit:1 ;
 	uint		prefix:1 ;		/* prefix key-matches */
@@ -90,11 +90,11 @@ extern "C" {
 
 extern int bibleqs_open(BIBLEQS *,const char *,const char *) ;
 extern int bibleqs_count(BIBLEQS *) ;
+extern int bibleqs_audit(BIBLEQS *) ;
 extern int bibleqs_curbegin(BIBLEQS *,BIBLEQS_CUR *) ;
 extern int bibleqs_lookup(BIBLEQS *,BIBLEQS_CUR *,int,const char **) ;
 extern int bibleqs_read(BIBLEQS *,BIBLEQS_CUR *,BIBLEQS_Q *,char *,int) ;
 extern int bibleqs_curend(BIBLEQS *,BIBLEQS_CUR *) ;
-extern int bibleqs_audit(BIBLEQS *) ;
 extern int bibleqs_close(BIBLEQS *) ;
 
 #ifdef	__cplusplus

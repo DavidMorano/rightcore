@@ -6,36 +6,31 @@
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	This subroutine was written for Rightcore Network Services.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/***************************************************************************
+/*******************************************************************************
 
 	This routine returns the directory portion of a file name path.
-
 
 	Synopsis:
 
 	char *dirname(s)
 	char	*s ;
 
-
 	Arguments:
 
 	+	string buffer address
-
 
 	Returns:
 
 		pointer to directory part of modified string buffer
 
 
-***************************************************************************/
+*******************************************************************************/
 
 
 /* exported subroutines */
@@ -48,8 +43,9 @@ char *dirname(char *s)
 
 /* remove trailing slash characters */
 
-	while ((sl > 0) && (s[sl - 1] == '/')) 
-		sl -= 1 ;
+	while ((sl > 0) && (s[sl - 1] == '/')) {
+	    sl -= 1 ;
+	}
 
 /* find the next previous slash character */
 

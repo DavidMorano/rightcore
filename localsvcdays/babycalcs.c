@@ -222,10 +222,7 @@ static const int	loadrs[] = {
 /* exported subroutines */
 
 
-int babycalcs_open(op,pr,dbname)
-BABYCALCS	*op ;
-const char	pr[] ;
-const char	dbname[] ;
+int babycalcs_open(BABYCALCS *op,cchar *pr,cchar *dbname)
 {
 	const mode_t	operms = BABYCALCS_PERMS ;
 	int		rs ;
@@ -295,17 +292,14 @@ const char	dbname[] ;
 /* end subroutine (babycalcs_open) */
 
 
-int babycalcs_close(op)
-BABYCALCS	*op ;
+int babycalcs_close(BABYCALCS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != BABYCALCS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BABYCALCS_MAGIC) return SR_NOTOPEN ;
 
 	rs1 = babycalcs_mapend(op) ;
 	if (rs >= 0) rs = rs1 ;
@@ -341,17 +335,13 @@ BABYCALCS	*op ;
 /* end subroutine (babycalcs_close) */
 
 
-int babycalcs_check(op,dt)
-BABYCALCS	*op ;
-time_t		dt ;
+int babycalcs_check(BABYCALCS *op,time_t dt)
 {
 	int		rs = SR_OK ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != BABYCALCS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BABYCALCS_MAGIC) return SR_NOTOPEN ;
 
 	rs = babycalcs_dbcheck(op,dt) ;
 
@@ -360,10 +350,7 @@ time_t		dt ;
 /* end subroutine (babycalcs_check) */
 
 
-int babycalcs_lookup(op,datereq,rp)
-BABYCALCS	*op ;
-time_t		datereq ;
-uint		*rp ;
+int babycalcs_lookup(BABYCALCS *op,time_t datereq,uint *rp)
 {
 	time_t		dt = 0 ;
 	int		rs = SR_OK ;
@@ -381,8 +368,9 @@ uint		*rp ;
 	if ((rs = babycalcs_dbcheck(op,dt)) >= 0) {
 	    if (op->f.shm) {
 	        rs = babycalcs_lookshm(op,dt,datereq,rp) ;
-	    } else
+	    } else {
 	        rs = babycalcs_lookproc(op,datereq,rp) ;
+	    }
 	} /* end if (db-check) */
 
 	return rs ;
@@ -390,9 +378,7 @@ uint		*rp ;
 /* end subroutine (babycalcs_lookup) */
 
 
-int babycalcs_info(op,bip)
-BABYCALCS	*op ;
-BABYCALCS_INFO	*bip ;
+int babycalcs_info(BABYCALCS *op,BABYCALCS_INFO *bip)
 {
 	int		rs = SR_OK ;
 
@@ -404,8 +390,9 @@ BABYCALCS_INFO	*bip ;
 	if ((rs = babycalcs_dbcheck(op,0)) >= 0) {
 	    if (op->f.shm) {
 	        rs = babycalcs_shminfo(op,bip) ;
-	    } else
+	    } else {
 	        memset(bip,0,sizeof(BABYCALCS_INFO)) ;
+	    }
 	}
 
 	return rs ;
@@ -416,11 +403,9 @@ BABYCALCS_INFO	*bip ;
 /* private subroutines */
 
 
-static int babycalcs_loadshm(op,operms)
-BABYCALCS	*op ;
-mode_t		operms ;
+static int babycalcs_loadshm(BABYCALCS *op,mode_t operms)
 {
-	USTAT	sb ;
+	USTAT		sb ;
 	time_t		dt = 0 ;
 	int		rs = SR_OK ;
 	int		fd = -1 ;
@@ -550,10 +535,7 @@ ret0:
 /* end subroutine (babycalcs_loadshm) */
 
 
-static int babycalcs_mapbegin(op,dt,fd)
-BABYCALCS	*op ;
-time_t		dt ;
-int		fd ;
+static int babycalcs_mapbegin(BABYCALCS *op,time_t dt,int fd)
 {
 	size_t		msize ;
 	int		rs ;
@@ -597,8 +579,7 @@ int		fd ;
 /* end subroutine (babycalcs_mapbegin) */
 
 
-static int babycalcs_mapend(op)
-BABYCALCS	*op ;
+static int babycalcs_mapend(BABYCALCS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -623,9 +604,7 @@ BABYCALCS	*op ;
 /* end subroutine (babycalcs_mapend) */
 
 
-static int babycalcs_procmap(op,dt)
-BABYCALCS	*op ;
-time_t		dt ;
+static int babycalcs_procmap(BABYCALCS *op,time_t dt)
 {
 	BABIESFU	*hfp = &op->hf ;
 	int		rs ;
@@ -657,8 +636,7 @@ time_t		dt ;
 /* end subroutine (babycalcs_procmap) */
 
 
-static int babycalcs_loadtxt(op)
-BABYCALCS	*op ;
+static int babycalcs_loadtxt(BABYCALCS *op)
 {
 	vecobj		ents ;
 	int		rs ;
@@ -710,26 +688,15 @@ BABYCALCS	*op ;
 /* end subroutine (babycalcs_loadtxt) */
 
 
-static int babycalcs_proctxt(op,tlp)
-BABYCALCS	*op ;
-vecobj		*tlp ;
+static int babycalcs_proctxt(BABYCALCS *op,vecobj *tlp)
 {
-	USTAT	sb ;
 	CVTDATER	cdater ;
-	bfile		txtfile, *tfp = &txtfile ;
-	const int	llen = LINEBUFLEN ;
-	int		rs = SR_OK ;
-	int		len ;
-	int		ll ;
+	int		rs ;
 	int		c = 0 ;
-	const char	*tp, *lp ;
-	char		lbuf[LINEBUFLEN + 1] ;
 
-	if (tlp == NULL)
-	    return SR_FAULT ;
+	if (tlp == NULL) return SR_FAULT ;
 
-	if (op->dbfname == NULL)
-	    return SR_BUGCHECK ;
+	if (op->dbfname == NULL) return SR_BUGCHECK ;
 
 #if	CF_DEBUGS
 	debugprintf("babycalcs_proctxt: dbfname=%s\n",op->dbfname) ;
@@ -737,6 +704,13 @@ vecobj		*tlp ;
 
 	op->f.sorted = TRUE ;
 	if ((rs = cvtdater_start(&cdater,0)) >= 0) {
+	    USTAT	sb ;
+	    bfile	txtfile, *tfp = &txtfile ;
+	    const int	llen = LINEBUFLEN ;
+	    int		len ;
+	    int		ll ;
+	    const char	*tp, *lp ;
+	    char	lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUGS
 	    debugprintf("babycalcs_proctxt: cvtdater_start() rs=%d\n",rs) ;

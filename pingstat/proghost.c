@@ -10,10 +10,7 @@
 /* revision history:
 
 	= 2001-03-01, David A­D­ Morano
-
-	The subroutine was adapted from other programs that do similar
-	things.
-
+	The subroutine was adapted from other programs that do similar things.
 
 */
 
@@ -21,8 +18,8 @@
 
 /*******************************************************************************
 
-	This subroutine processes one hostname at a time.  It should be
-	called repeatedly, once for each host.
+        This subroutine processes one hostname at a time. It should be called
+        repeatedly, once for each host.
 
 
 *******************************************************************************/

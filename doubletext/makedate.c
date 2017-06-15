@@ -1,2 +1,2 @@
 const char doubletext_makedate[] =
-"@(#)doubletext              170302_0247:42_USEST Rightcore Network Services¹" ;
+"@(#)doubletext              170607_2155:26_USEDT Rightcore Network Services" ;

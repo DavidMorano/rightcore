@@ -151,11 +151,13 @@ int expcook_add(EXPCOOK *ecp,cchar kbuf[],cchar vbuf[],int vlen)
 		vbuf,strlinelen(vbuf,vlen,40)) ;
 #endif
 
-	if (hdbstr_fetch(slp,kbuf,kl,NULL,NULL) >= 0)
+	if (hdbstr_fetch(slp,kbuf,kl,NULL,NULL) >= 0) {
 	    hdbstr_delkey(slp,kbuf,kl) ;
+	}
 
-	if (vbuf != NULL)
+	if (vbuf != NULL) {
 	    rs = hdbstr_add(slp,kbuf,kl,vbuf,vlen) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("expcook_add: ret rs=%d\n",rs) ;
@@ -243,11 +245,9 @@ int expcook_delkey(EXPCOOK *ecp,cchar key[])
 {
 	int		rs ;
 
-	if (ecp == NULL)
-	    return SR_FAULT ;
+	if (ecp == NULL) return SR_FAULT ;
 
-	if (ecp->magic != EXPCOOK_MAGIC)
-	    return SR_NOTOPEN ;
+	if (ecp->magic != EXPCOOK_MAGIC) return SR_NOTOPEN ;
 
 	rs = hdbstr_delkey(&ecp->subs,key,-1) ;
 
@@ -434,24 +434,25 @@ static int expcook_prockey(EXPCOOK *op,int wch,BUFFER *bufp,cchar *kp,int kl)
 	debugdump(slp) ;
 #endif
 
-	if (kl > 0)
+	if (kl > 0) {
 	    vl = hdbstr_fetch(slp,kp,kl,NULL,&vp) ;
+	}
 
 #if	CF_DEBUGS && CF_DEBUGBUF
 	debugprintf("expcook_prockey: lookup rs=%d\n",vl) ;
 #endif
 
 	if (vl >= 0) {
-	    if (vl > 0)
+	    if (vl > 0) {
 	        rs = buffer_strw(bufp,vp,vl) ;
+	    }
 	} else if (vl == SR_NOTFOUND) {
 	    if (wch < 0) {
 	        rs = SR_NOTFOUND ;
 	    } else if (wch > 0) {
 		int	len ;
-	        rs = buffer_char(bufp,wch) ;
-		len = rs ;
-		if (rs >= 0) {
+	        if ((rs = buffer_char(bufp,wch)) >= 0) {
+		    len = rs ;
 	            rs = buffer_strw(bufp,kp,kl) ;
 		    len += rs ;
 		}
@@ -462,8 +463,9 @@ static int expcook_prockey(EXPCOOK *op,int wch,BUFFER *bufp,cchar *kp,int kl)
 		if (rs >= 0)
 		    rs = len ;
 	    } /* end if (specified delimiter) */
-	} else
+	} else {
 	    rs = vl ;
+	}
 
 	return rs ;
 }

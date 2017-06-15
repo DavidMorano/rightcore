@@ -125,10 +125,7 @@ enum subs {
 /* exported subroutines */
 
 
-int babycalc_open(op,pr,dbname)
-BABYCALC	*op ;
-const char	pr[] ;
-const char	dbname[] ;
+int babycalc_open(BABYCALC *op,cchar *pr,cchar *dbname)
 {
 	int		rs ;
 	const char	*objname = BABYCALC_OBJNAME ;
@@ -158,8 +155,7 @@ const char	dbname[] ;
 
 
 /* free up the entire vector string data structure object */
-int babycalc_close(op)
-BABYCALC	*op ;
+int babycalc_close(BABYCALC *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -180,9 +176,7 @@ BABYCALC	*op ;
 /* end subroutine (babycalc_close) */
 
 
-int babycalc_check(op,daytime)
-BABYCALC	*op ;
-time_t		daytime ;
+int babycalc_check(BABYCALC *op,time_t daytime)
 {
 	int		rs = SR_NOSYS ;
 
@@ -190,18 +184,16 @@ time_t		daytime ;
 
 	if (op->magic != BABYCALC_MAGIC) return SR_NOTOPEN ;
 
-	if (op->call.check != NULL)
+	if (op->call.check != NULL) {
 	    rs = (*op->call.check)(op->obj,daytime) ;
+	}
 
 	return rs ;
 }
 /* end subroutine (babycalc_check) */
 
 
-int babycalc_lookup(op,datereq,rp)
-BABYCALC	*op ;
-time_t		datereq ;
-uint		*rp ;
+int babycalc_lookup(BABYCALC *op,time_t datereq,uint *rp)
 {
 	int		rs = SR_NOSYS ;
 
@@ -209,17 +201,16 @@ uint		*rp ;
 
 	if (op->magic != BABYCALC_MAGIC) return SR_NOTOPEN ;
 
-	if (op->call.lookup != NULL)
+	if (op->call.lookup != NULL) {
 	    rs = (*op->call.lookup)(op->obj,datereq,rp) ;
+	}
 
 	return rs ;
 }
 /* end subroutine (babycalc_lookup) */
 
 
-int babycalc_info(op,ip)
-BABYCALC	*op ;
-BABYCALC_INFO	*ip ;
+int babycalc_info(BABYCALC *op,BABYCALC_INFO *ip)
 {
 	BABYCALCS_INFO	bi ;
 	int		rs = SR_NOSYS ;
@@ -252,10 +243,7 @@ BABYCALC_INFO	*ip ;
 
 
 /* find and load the DB-access object */
-static int babycalc_objloadbegin(op,pr,objname)
-BABYCALC	*op ;
-const char	*pr ;
-const char	*objname ;
+static int babycalc_objloadbegin(BABYCALC *op,cchar *pr,cchar *objname)
 {
 	MODLOAD		*lp = &op->loader ;
 	VECSTR		syms ;
@@ -327,8 +315,7 @@ const char	*objname ;
 /* end subroutine (babycalc_objloadbegin) */
 
 
-static int babycalc_objloadend(op)
-BABYCALC	*op ;
+static int babycalc_objloadend(BABYCALC *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -347,14 +334,11 @@ BABYCALC	*op ;
 /* end subroutine (babycalc_objloadend) */
 
 
-static int babycalc_loadcalls(op,objname)
-BABYCALC	*op ;
-const char	objname[] ;
+static int babycalc_loadcalls(BABYCALC *op,cchar *objname)
 {
 	MODLOAD		*lp = &op->loader ;
 	const int	nlen = SYMNAMELEN ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		i ;
 	int		c = 0 ;
 	char		nbuf[SYMNAMELEN + 1] ;
@@ -418,11 +402,9 @@ const char	objname[] ;
 /* end subroutine (babycalc_loadcalls) */
 
 
-static int isrequired(i)
-int	i ;
+static int isrequired(int i)
 {
 	int	f = FALSE ;
-
 	switch (i) {
 	case sub_open:
 	case sub_check:
@@ -432,7 +414,6 @@ int	i ;
 	    f = TRUE ;
 	    break ;
 	} /* end switch */
-
 	return f ;
 }
 /* end subroutine (isrequired) */

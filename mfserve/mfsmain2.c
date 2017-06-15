@@ -4,11 +4,9 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	1		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_CPUSPEED	1		/* calculate CPU speed */
-#define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 
 
 /* revision history:
@@ -138,12 +136,6 @@
 
 /* local defines */
 
-#if	CF_UGETPW
-#define	GETPW_NAME	ugetpw_name
-#else
-#define	GETPW_NAME	getpw_name
-#endif /* CF_UGETPW */
-
 #ifndef	POLLMULT
 #define	POLLMULT	1000
 #endif
@@ -219,10 +211,6 @@ extern int	isNotPresent(int) ;
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
-#if	CF_CPUSPEED
-extern int	cpuspeed(cchar *,cchar *,int) ;
-#endif
-
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
 extern int	debugprintf(cchar *,...) ;
@@ -256,7 +244,6 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procdefargs(PROGINFO *) ;
-static int	procfindconf(PROGINFO *) ;
 
 static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
 static int	procuserinfo_end(PROGINFO *) ;
@@ -266,6 +253,7 @@ static int	proclisten_begin(PROGINFO *) ;
 static int	proclisten_end(PROGINFO *) ;
 
 static int	procourconf_begin(PROGINFO *) ;
+static int	procourconf_find(PROGINFO *) ;
 static int	procourconf_end(PROGINFO *) ;
 
 static int	procourdef(PROGINFO *) ;
@@ -300,8 +288,8 @@ static cchar *argopts[] = {
 	"HELP",
 	"LOGFILE",
 	"PID",
-	"pid",
 	"REQ",
+	"pid",
 	"req",
 	"sn",
 	"ef",
@@ -331,8 +319,8 @@ enum argopts {
 	argopt_help,
 	argopt_logfile,
 	argopt_pid0,
-	argopt_pid1,
 	argopt_req0,
+	argopt_pid1,
 	argopt_req1,
 	argopt_sn,
 	argopt_ef,
@@ -393,7 +381,9 @@ static cchar	*progopts[] = {
 	"pidfile",
 	"reqfile",
 	"mntfile",
+	"logfile",
 	"msfile",
+	"conf",
 	NULL
 } ;
 
@@ -412,7 +402,9 @@ enum progopts {
 	progopt_pidfile,
 	progopt_reqfile,
 	progopt_mntfile,
+	progopt_logfile,
 	progopt_msfile,
+	progopt_conf,
 	progopt_overlast
 } ;
 
@@ -770,15 +762,21 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                case argopt_cf:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
-	                        if (avl)
+	                        if (avl) {
+	                            pip->final.cfname = TRUE ;
+	                            pip->have.cfname = TRUE ;
 	                            pip->cfname = avp ;
+				}
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
+	                            if (argl) {
+	                                pip->final.cfname = TRUE ;
+	                                pip->have.cfname = TRUE ;
 	                                pip->cfname = argp ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -1250,8 +1248,14 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	debugprintf("mfsmain: pid=%d\n",pip->pid) ;
 #endif
 
-	rs1 = securefile(pip->pr,pip->euid,pip->egid) ;
-	lip->f.sec_root = (rs1 > 0) ;
+	if ((ai_pos < 0) || (ai_max < 0)) { /* lint */
+	    rs = SR_BUGCHECK ;
+	}
+
+	if (rs >= 0) {
+	    rs1 = securefile(pip->pr,pip->euid,pip->egid) ;
+	    lip->f.sec_root = (rs1 > 0) ;
+	}
 
 	if ((rs >= 0) && (pip->intpoll == 0) && (argval != NULL)) {
 	    rs = cfdecti(argval,-1,&v) ;
@@ -1273,6 +1277,15 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (lip->msnode == NULL) lip->msnode = getourenv(envv,VARMSNODE) ;
 
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    fmt = "%s: cf=%s\n" ;
+	    bprintf(pip->efp,fmt,pn,pip->cfname) ;
+	    fmt = "%s: lf=%s\n" ;
+	    bprintf(pip->efp,fmt,pn,pip->lfname) ;
+	}
+
 /* go */
 
 	if (rs >= 0) {
@@ -1280,8 +1293,8 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		USERINFO	u ;
 		if ((rs = userinfo_start(&u,NULL)) >= 0) {
 	            if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-			if ((rs = proclisten_begin(pip)) >= 0) {
-	                    if ((rs = procfindconf(pip)) >= 0) {
+		        if ((rs = locinfo_varbegin(lip)) >= 0) {
+			    if ((rs = proclisten_begin(pip)) >= 0) {
 	                        if ((rs = procourconf_begin(pip)) >= 0) {
 	                            if ((rs = procourdef(pip)) >= 0) {
 	                                if ((rs = logbegin(pip,&u)) >= 0) {
@@ -1296,10 +1309,12 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs1 = procourconf_end(pip) ;
 	                            if (rs >= 0) rs = rs1 ;
 	                        } /* end if (procourconf) */
-	                    } /* end if (procfindconf) */
-			    rs1 = proclisten_end(pip) ;
+			        rs1 = proclisten_end(pip) ;
+	                        if (rs >= 0) rs = rs1 ;
+			    } /* end if (proclistten) */
+		            rs1 = locinfo_varend(lip) ;
 	                    if (rs >= 0) rs = rs1 ;
-			} /* end if (proclist) */
+			} /* end if (locinfo-var) */
 	                rs1 = procuserinfo_end(pip) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (procuserinfo) */
@@ -1307,9 +1322,11 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (userinfo) */
 	    } /* end if (procdefargs) */
-	} else {
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
 	    ex = EX_USAGE ;
-	    shio_printf(pip->efp,"%s: usage (%d)\n",pip->progname,rs) ;
+	    shio_printf(pip->efp,"%s: usage (%d)\n",pn,rs) ;
+	    usage(pip) ;
 	}
 
 #if	CF_DEBUG
@@ -1644,6 +1661,16 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
+	                case progopt_logfile:
+	                    if (! pip->final.lfname) {
+	                        if (vl > 0) {
+	                            cchar **vpp = &pip->lfname ;
+	                            pip->have.lfname = TRUE ;
+	                            pip->final.lfname = TRUE ;
+	                            rs = proginfo_setentry(pip,vpp,vp,vl) ;
+	                        }
+	                    }
+	                    break ;
 	                case progopt_msfile:
 	                    if (! lip->final.msfname) {
 	                        if (vl > 0) {
@@ -1651,6 +1678,16 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                            lip->have.msfname = TRUE ;
 	                            lip->final.msfname = TRUE ;
 	                            rs = locinfo_setentry(lip,vpp,vp,vl) ;
+	                        }
+	                    }
+	                    break ;
+	                case progopt_conf:
+	                    if (! pip->final.cfname) {
+	                        if (vl > 0) {
+	                            cchar **vpp = &pip->cfname ;
+	                            pip->have.cfname = TRUE ;
+	                            pip->final.cfname = TRUE ;
+	                            rs = proginfo_setentry(pip,vpp,vp,vl) ;
 	                        }
 	                    }
 	                    break ;
@@ -1668,8 +1705,8 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
-	debugprintf("mfsmain/procopt: intrun=%u\n",pip->intrun) ;
-	debugprintf("mfsmain/procopt: rs=%d c=%u\n",rs,c) ;
+	debugprintf("mfsmain/procopt: ret intrun=%u\n",pip->intrun) ;
+	debugprintf("mfsmain/procopt: ret rs=%d c=%u\n",rs,c) ;
 	}
 #endif
 
@@ -1699,73 +1736,6 @@ static int procdefargs(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (procdefargs) */
-
-
-static int procfindconf(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	int		rl = 0 ;
-
-	if (pip->cfname == NULL) {
-	    vecstr	sv ;
-	    int		rs1 ;
-	    cchar	*cfn = CONFIGFNAME ;
-	    if ((rs = vecstr_start(&sv,4,0)) >= 0) {
-	        const int	tlen = MAXPATHLEN ;
-	        int		i ;
-	        int		vl ;
-	        cchar		keys[] = "pen" ;
-	        cchar		*vp ;
-	        char		ks[2] = { 0, 0 } ;
-	        char		tbuf[MAXPATHLEN+1] ;
-	        for (i = 0 ; keys[i] != '\0' ; i += 1) {
-	            const int	kch = MKCHAR(keys[i]) ;
-	            vp = NULL ;
-	            vl = -1 ;
-	            switch (kch) {
-	            case 'p':
-	                vp = pip->pr ;
-	                break ;
-	            case 'e':
-	                vp = "etc" ;
-	                break ;
-	            case 'n':
-	                vp = pip->searchname ;
-	                break ;
-	            } /* end switch */
-	            if ((rs >= 0) && (vp != NULL)) {
-	                ks[0] = kch ;
-	                rs = vecstr_envadd(&sv,ks,vp,vl) ;
-	            }
-	            if (rs < 0) break ;
-	        } /* end for */
-	        if (rs >= 0) {
-	            if ((rs = permsched(sched1,&sv,tbuf,tlen,cfn,R_OK)) >= 0) {
-	                cchar	**vpp = &pip->cfname ;
-	                rl = rs ;
-	                rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
-	            } else if (isNotPresent(rs)) {
-	                rs = SR_OK ;
-		    }
-	        }
-	        rs1 = vecstr_finish(&sv) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (vecstr) */
-	} /* end if (specified) */
-
-	if ((pip->debuglevel > 0) && (pip->cfname != NULL)) {
-	    shio_printf(pip->efp,"%s: conf=%s\n",
-	        pip->progname,pip->cfname) ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("mfsmain/procfindconf: ret rs=%d\n",rs) ;
-#endif
-
-	return (rs >= 0) ? rl : rs ;
-}
-/* end subroutine (procfindconf) */
 
 
 static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
@@ -1832,16 +1802,18 @@ static int procuserinfo_logid(PROGINFO *pip)
 	if ((rs = lib_runmode()) >= 0) {
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
+	        debugprintf("procuserinfo_logid: rm=\\b%08ß\n",rs) ;
 #endif
 	    if (rs & KSHLIB_RMKSH) {
 	        if ((rs = lib_serial()) >= 0) {
-	            const int	s = rs ;
+		    LOCINFO	*lip = pip->lip ;
 	            const int	plen = LOGIDLEN ;
 	            const int	pv = pip->pid ;
 	            cchar	*nn = pip->nodename ;
 	            char	pbuf[LOGIDLEN+1] ;
+		    lip->kserial = rs ;
 	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
+	                const int	s = lip->kserial ;
 	                const int	slen = LOGIDLEN ;
 	                char		sbuf[LOGIDLEN+1] ;
 	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
@@ -1884,31 +1856,32 @@ static int proclisten_end(PROGINFO *pip)
 static int procourconf_begin(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
-	int		rs = SR_OK ;
+	int		rs ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
 	    debugprintf("mfsmain/procourconf_begin: ent\n") ;
 #endif
 
-	if (pip->cfname != NULL) {
-	    const int	size = sizeof(CONFIG) ;
-	    void	*p ;
-	    if ((rs = uc_malloc(size,&p)) >= 0) {
-	        const int	ic = lip->intconfig ;
-	        cchar		*cfname = pip->cfname ;
-	        pip->config = p ;
-	        if ((rs = config_start(pip->config,pip,cfname,ic)) >= 0) {
-	            pip->open.config = TRUE ;
-	        } /* end if (config_start) */
-	        if (rs < 0) {
-	            uc_free(pip->config) ;
-	            pip->config = NULL ;
-	        }
-	    } /* end if (m-a) */
-	} /* end if (non-null) */
-
-	if (pip->logsize == 0) pip->logsize = LOGSIZE ;
+	if ((rs = procourconf_find(pip)) >= 0) {
+	    if (pip->cfname != NULL) {
+	        const int	size = sizeof(CONFIG) ;
+	        void		*p ;
+	        if ((rs = uc_malloc(size,&p)) >= 0) {
+	            const int	ic = lip->intconfig ;
+	            cchar	*cfname = pip->cfname ;
+	            pip->config = p ;
+	            if ((rs = config_start(pip->config,pip,cfname,ic)) >= 0) {
+	                pip->open.config = TRUE ;
+	            } /* end if (config_start) */
+	            if (rs < 0) {
+	                uc_free(pip->config) ;
+	                pip->config = NULL ;
+	            }
+	        } /* end if (m-a) */
+	    } /* end if (non-null) */
+	    if (pip->logsize == 0) pip->logsize = LOGSIZE ;
+	} /* end if (procourconf_find) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1918,6 +1891,65 @@ static int procourconf_begin(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (procourconf_begin) */
+
+
+static int procourconf_find(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+	int		rl = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3)) {
+	    LOCINFO	*lip = pip->lip ;
+	    debugprintf("mfsmain/procourconf_find: ent\n") ;
+	    debugprintf("mfsmain/procourconf_find: cf=%s\n",
+		pip->cfname) ;
+	    debugprintf("mfsmain/procourconf_find: open-svars=%u\n",
+		lip->open.svars) ;
+	}
+#endif
+
+	if (pip->cfname == NULL) {
+	    LOCINFO	*lip = pip->lip ;
+	    if (lip->open.svars) {
+	        vecstr		*svp = &lip->svars ;
+	        const int	tlen = MAXPATHLEN ;
+	        cchar		*cfn = CONFIGFNAME ;
+	        char		tbuf[MAXPATHLEN+1] ;
+	        if ((rs = permsched(sched1,svp,tbuf,tlen,cfn,R_OK)) >= 0) {
+		    cchar	**vpp = &pip->cfname ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("mfsmain/procourconf_find: permsched() rs=%d\n",rs) ;
+#endif
+		    rl = rs ;
+		    rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
+	        } else if (isNotPresent(rs)) {
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("mfsmain/procourconf_find: permsched() rs=%d\n",rs) ;
+#endif
+		    rs = SR_OK ;
+	        }
+	    } else {
+		rs = SR_BUGCHECK ;
+	    }
+	} /* end if (specified) */
+
+	if ((pip->debuglevel > 0) && (pip->cfname != NULL)) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: cf=%s\n" ;
+	    shio_printf(pip->efp,fmt,pn,pip->cfname) ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("mfsmain/procourconf_find: ret rs=%d\n",rs) ;
+#endif
+
+	return (rs >= 0) ? rl : rs ;
+}
+/* end subroutine (procourconf_find) */
 
 
 static int procourconf_end(PROGINFO *pip)
@@ -1949,7 +1981,7 @@ static int procourconf_end(PROGINFO *pip)
 static int procourdef(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
-	int		rs ;
+	int		rs = SR_OK ;
 	cchar		**envv = pip->envv ;
 
 	if (pip->logsize == 0) pip->logsize = LOGSIZE ;
@@ -1963,7 +1995,9 @@ static int procourdef(PROGINFO *pip)
 	    }
 	}
 
+	if (rs >= 0) {
 	    rs = locinfo_defs(lip) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1978,10 +2012,10 @@ static int procourdef(PROGINFO *pip)
 static int procbackdefs(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
-	cchar		**envv = pip->envv ;
-	cchar		*cp ;
 
 	if (pip->pidfname == NULL) {
+	    cchar	**envv = pip->envv ;
+	    cchar	*cp ;
 	    if ((cp = getourenv(envv,VARPIDFNAME)) != NULL) {
 	        pip->final.pidfname = TRUE ;
 	        pip->have.pidfname = TRUE ;
@@ -2030,10 +2064,6 @@ static int procdaemondefs(PROGINFO *pip)
 	    debugprintf("mfsmain: daemon=%u logging=%u\n",
 	        pip->f.daemon,pip->have.logprog) ;
 #endif
-#if	CF_DEBUGS
-	debugprintf("mfsmain: daemon=%u logging=%u\n",
-	    pip->f.daemon,pip->have.logprog) ;
-#endif
 
 	if (pip->debuglevel > 0) {
 	    cchar	*pn = pip->progname ;
@@ -2057,7 +2087,7 @@ static int procpidfname(PROGINFO *pip)
 	int		rs = SR_OK ;
 	int		pfl = -1 ;
 	int		f_changed = FALSE ;
-	cchar		*pfp ;
+	cchar		*pfp = pip->pidfname ;
 	char		rundname[MAXPATHLEN+1] ;
 	char		cname[MAXNAMELEN + 1] ;
 	char		tmpfname[MAXPATHLEN + 1] ;
@@ -2067,7 +2097,6 @@ static int procpidfname(PROGINFO *pip)
 	    debugprintf("mfsmain/procpidfname: ent\n") ;
 #endif
 
-	pfp = pip->pidfname ;
 	if ((pfp != NULL) && (pfp[0] == '+')) {
 	    cchar	*sn = pip->searchname ;
 
@@ -2228,6 +2257,11 @@ static int procback(PROGINFO *pip)
 	    rs = procbacks(pip) ;
 	}
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("mfsmain/procback: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (procback) */
@@ -2258,6 +2292,11 @@ static int procbackcheck(PROGINFO *pip)
 	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    }
 	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfsmain/procbackcheck: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -2465,7 +2504,7 @@ static int procbackenv(PROGINFO *pip,SPAWNER *srp)
 
 	    if (rs >= 0) {
 	        cchar	*vp ;
-	        for (i = 0 ; i < 4 ; i += 1) {
+	        for (i = 0 ; i < 6 ; i += 1) {
 	            np = NULL ;
 	            switch (i) {
 	            case 0:
@@ -2486,10 +2525,22 @@ static int procbackenv(PROGINFO *pip,SPAWNER *srp)
 	                    vp = lip->mntfname ;
 	                }
 	                break ;
-	            case 3:
+		    case 3:
+	                if ((pip->lfname != NULL) && pip->final.lfname) {
+	                    np = "logfile" ;
+	                    vp = pip->lfname ;
+	                }
+	                break ;
+	            case 4:
 	                if (lip->msfname != NULL) {
 	                    np = "msfile" ;
 	                    vp = lip->msfname ;
+	                }
+	                break ;
+	            case 5:
+	                if ((pip->cfname != NULL) && pip->final.cfname) {
+	                    np = "conf" ;
+	                    vp = pip->cfname ;
 	                }
 	                break ;
 	            } /* end switch */
@@ -2639,7 +2690,11 @@ static int procservice(PROGINFO *pip)
 #endif
 
 	if ((rs = mfsadj_begin(pip)) >= 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    if ((rs = mfswatch_begin(pip)) >= 0) {
+	 	time_t	ti_start = pip->daytime ;
+
 		while ((rs = mfswatch_service(pip)) >= 0) {
 
 	        if ((rs >= 0) && (lip->cmd[0] != '\0')) {
@@ -2649,6 +2704,10 @@ static int procservice(PROGINFO *pip)
 
 		if (rs >= 0) {
 		    if ((rs = locinfo_isreqexit(lip)) > 0) break ;
+		}
+
+		if (pip->intrun > 0) {
+		    if ((pip->daytime - ti_start) >= pip->intrun) break ;
 		}
 
 		if (rs >= 0) {
@@ -2691,7 +2750,7 @@ static int procservice(PROGINFO *pip)
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("mfsmain/procservice: for-after rs=%d c=%d\n",
+	        debugprintf("mfsmain/procservice: for-out rs=%d c=%d\n",
 			rs,c) ;
 #endif /* CF_DEBUG */
 

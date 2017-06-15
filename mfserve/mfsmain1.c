@@ -7,7 +7,6 @@
 #define	CF_DEBUGS	1		/* non-switchable debug print-outs */
 #define	CF_DEBUG	1		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_CPUSPEED	1		/* calculate CPU speed */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 
 
@@ -217,10 +216,6 @@ extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
-
-#if	CF_CPUSPEED
-extern int	cpuspeed(cchar *,cchar *,int) ;
-#endif
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
@@ -1306,7 +1301,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (userinfo) */
 	    } /* end if (procdefargs) */
-	} else {
+	} else if (ex == EX_OK) {
 	    ex = EX_USAGE ;
 	    shio_printf(pip->efp,"%s: usage (%d)\n",pip->progname,rs) ;
 	}
@@ -1835,12 +1830,14 @@ static int procuserinfo_logid(PROGINFO *pip)
 #endif
 	    if (rs & KSHLIB_RMKSH) {
 	        if ((rs = lib_serial()) >= 0) {
-	            const int	s = rs ;
+		    LOCINFO	*lip = pip->lip ;
 	            const int	plen = LOGIDLEN ;
 	            const int	pv = pip->pid ;
 	            cchar	*nn = pip->nodename ;
 	            char	pbuf[LOGIDLEN+1] ;
+		    lip->kserial = rs ;
 	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
+	                const int	s = lip->kserial ;
 	                const int	slen = LOGIDLEN ;
 	                char		sbuf[LOGIDLEN+1] ;
 	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
@@ -2056,7 +2053,7 @@ static int procpidfname(PROGINFO *pip)
 	int		rs = SR_OK ;
 	int		pfl = -1 ;
 	int		f_changed = FALSE ;
-	cchar		*pfp ;
+	cchar		*pfp = pip->pidfname ;
 	char		rundname[MAXPATHLEN+1] ;
 	char		cname[MAXNAMELEN + 1] ;
 	char		tmpfname[MAXPATHLEN + 1] ;
@@ -2066,7 +2063,6 @@ static int procpidfname(PROGINFO *pip)
 	    debugprintf("mfsmain/procpidfname: ent\n") ;
 #endif
 
-	pfp = pip->pidfname ;
 	if ((pfp != NULL) && (pfp[0] == '+')) {
 	    cchar	*sn = pip->searchname ;
 
@@ -2663,8 +2659,10 @@ static int procservice(PROGINFO *pip)
 	            for (i = 0 ; (rs >= 0) && (i < nfds) ; i += 1) {
 	                const int	pfd = fds[i].fd ;
 	                const int	re = fds[i].revents ;
+	                if ((pfd == lip->rfd) && (re != 0)) {
 			    rs = mfsadj_req(pip,pfd,re) ;
 			    c += rs ;
+			}
 	            } /* end for */
 	        } else {
 #if	CF_DEBUG

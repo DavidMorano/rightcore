@@ -1,2 +1,2 @@
 const char mbexpire_makedate[] =
-"@(#)mbexpire                170522_1442:00_USEDT Rightcore Network Services" ;
+"@(#)mbexpire                170612_0018:00_USEDT Rightcore Network Services" ;

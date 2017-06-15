@@ -209,6 +209,7 @@ struct proginfo {
 	int		intminupdate ;	/* minimum update interval */
 	int		intmininput ;	/* minimum input interval */
 	int		toping ;	/* ping timeout */
+	int		n ;
 	int		c_pingtabs ;	/* number of pingtab files */
 	int		c_hosts ;	/* number of hosts specified */
 	int		c_up ;		/* number of hosts found UP */
@@ -217,16 +218,16 @@ struct proginfo {
 } ;
 
 struct pivars {
-	cchar	*vpr1 ;
-	cchar	*vpr2 ;
-	cchar	*vpr3 ;
-	cchar	*pr ;
-	cchar	*vprname ;
+	cchar		*vpr1 ;
+	cchar		*vpr2 ;
+	cchar		*vpr3 ;
+	cchar		*pr ;
+	cchar		*vprname ;
 } ;
 
 struct arginfo {
-	cchar	**argv ;
-	cchar	*afname ;
+	cchar		**argv ;
+	cchar		*afname ;
 	int		argc ;
 	int		ai, ai_max, ai_pos ;
 } ;
@@ -236,8 +237,7 @@ struct arginfo {
 extern "C" {
 #endif
 
-extern int proginfo_start(PROGINFO *,cchar **,cchar *,
-		cchar *) ;
+extern int proginfo_start(PROGINFO *,cchar **,cchar *,cchar *) ;
 extern int proginfo_setentry(PROGINFO *,cchar **,cchar *,int) ;
 extern int proginfo_setversion(PROGINFO *,cchar *) ;
 extern int proginfo_setbanner(PROGINFO *,cchar *) ;

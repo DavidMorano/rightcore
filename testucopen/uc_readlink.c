@@ -55,14 +55,10 @@ extern int	hasnonpath(const char *,int) ;
 /* exported subroutines */
 
 
-int uc_readlink(fname,rbuf,rlen)
-const char	fname[] ;
-char		rbuf[] ;
-int		rlen ;
+int uc_readlink(cchar *fname,char *rbuf,int rlen)
 {
-	int	rs = SR_OK ;
-	int	fl ;
-
+	int		rs = SR_OK ;
+	int		fl ;
 
 	if (fname == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
@@ -87,8 +83,9 @@ int		rlen ;
 		}
 	    }
 
-	    if (rs >= 0)
+	    if (rs >= 0) {
 	        rs = u_readlink(fname,rbuf,rlen) ;
+	    }
 
 	} /* end if (nonpath or other) */
 

@@ -81,6 +81,7 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
+extern int	uc_syncer(int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -281,7 +282,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -626,20 +627,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* OK, we finally do our thing */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	rs = procopts(pip,&akopts) ;
-
 	if (rs >= 0) {
-	    if (pip->debuglevel > 0) {
-		const char	*pn = pip->progname ;
-		const char	*mode = "synchronous" ;
-		if (lip->f.background) {
+	    if ((rs = procopts(pip,&akopts)) >= 0) {
+	        if (pip->debuglevel > 0) {
+		    cchar	*pn = pip->progname ;
+		    cchar	*mode = "synchronous" ;
+		    if (lip->f.background) {
 			mode = "background" ;
-		} else if (lip->f.parallel) {
+		    } else if (lip->f.parallel) {
 			mode = "parallel" ;
+		    }
+		    shio_printf(pip->efp,"%s: mode=%s\n",pn,mode) ;
 		}
-		shio_printf(pip->efp,"%s: mode=%s\n",pn,mode) ;
 	    }
 	}
 
@@ -755,8 +761,7 @@ badarg:
 /* local subroutines */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -885,18 +890,18 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
-
-	    if (*epp != NULL) oi = vecstr_findaddr(&lip->stores,*epp) ;
-
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(&lip->stores,*epp) ;
+	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
 	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
-	    } else
+	    } else {
 		*epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
 	        vecstr_del(&lip->stores,oi) ;
-
+	    }
 	} /* end if */
 
 	return (rs >= 0) ? len : rs ;

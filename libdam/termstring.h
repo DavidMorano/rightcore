@@ -6,15 +6,11 @@
 
 /* revision history:
 
-	- April 1984, David A­D­ Morano
-
+	- 1984-04-10, David A­D­ Morano
 	File was originally written.
 
-
-	- August 1989, Dave morano
-
+	- 1989-08-01, Dave morano
 	File was updated with the codes for "advanced" terminals.
-
 
 */
 

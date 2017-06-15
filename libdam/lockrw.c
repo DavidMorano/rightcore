@@ -59,10 +59,6 @@
 
 /* local defines */
 
-#define	TO_NOSPC	5
-#define	TO_MFILE	5
-#define	TO_INTR		5
-
 
 /* external subroutines */
 

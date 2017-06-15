@@ -242,19 +242,16 @@ static int mkepath(char *ebuf,cchar *pfn)
 		}
 	    }
 	    if ((rs >= 0) && (strchr(pfn,'/') == NULL)) {
-		const int	nrs = SR_NOENT ;
-		if ((rs = perm(pfn,-1,-1,NULL,X_OK)) == nrs) {
+		const int	rsn = SR_NOENT ;
+		if ((rs = perm(pfn,-1,-1,NULL,X_OK)) == rsn) {
 		    cchar	*tp ;
-		    rs = SR_OK ;
 		    if ((tp = strchr(pfn,':')) != NULL) {
 			if (((tp-pfn) == 3) && (strncmp(pfn,"sys",3) == 0)) {
 			    pfn = (tp+1) ;
 			}
 		    }
-		    if (rs >= 0) {
 		        rs = mkfindpath(ebuf,pfn) ;
 		        el = rs ;
-		    }
 		} /* end if (perm) */
 	    } /* end if (ok) */
 	} /* end if (mkvarpath) */
@@ -276,11 +273,8 @@ static int mkfindpath(char *ebuf,cchar *pfn)
 	    vecstr	ps ;
 	    if ((rs = vecstr_start(&ps,5,0)) >= 0) {
 		if ((rs = vecstr_addcspath(&ps)) >= 0) {
-		    char	tbuf[MAXPATHLEN+1] ;
-		    if ((rs = getprogpath(&id,&ps,tbuf,pfn,-1)) >= 0) {
-			el = rs ;
-			rs = mkpath1w(ebuf,tbuf,el) ;
-		    }
+		    rs = getprogpath(&id,&ps,ebuf,pfn,-1) ;
+		    el = rs ;
 		} /* end if (vecstr_addcspath) */
 		rs1 = vecstr_finish(&ps) ;
 		if (rs >= 0) rs = rs1 ;
@@ -303,11 +297,11 @@ static int openproger(cchar *pfn,int of,cchar **argv,cchar **envv,int *efdp)
 	debugprintf("uc_openprog/openproger: ent pfn=%s\n",pfn) ;
 #endif
 	if ((rs = mkprogenv_start(&pe,envv)) >= 0) {
-	    	cchar	**ev ;
-		if ((rs = mkprogenv_getvec(&pe,&ev)) >= 0) {
-	            rs = spawnit(pfn,of,argv,ev,efdp) ;
-		    fd = rs ;
-		}
+	    cchar	**ev ;
+	    if ((rs = mkprogenv_getvec(&pe,&ev)) >= 0) {
+		rs = spawnit(pfn,of,argv,ev,efdp) ;
+		fd = rs ;
+	    }
 	    rs1 = mkprogenv_finish(&pe) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (mkprogenv) */

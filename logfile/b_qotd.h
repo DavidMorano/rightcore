@@ -30,6 +30,7 @@
 #define	VAROPTS		"QOTD_OPTS"
 #define	VARFILEROOT	"QOTD_FILEROOT"
 #define	VARLOGTAB	"QOTD_LOGTAB"
+#define	VARINTRUN	"QOTD_INTRUN"
 #define	VARAFNAME	"QOTD_AF"
 #define	VAREFNAME	"QOTD_EF"
 
@@ -74,6 +75,14 @@
 
 #define	LOGSIZE		(80*1024)
 
-#define	TO_RECVMSG	30
+#define	PORTSPEC_QUOTE	"quote"
+
+#define	INT_RUN		(4*60)
+
+#define	TO_OPEN		5
+#define	TO_READ		5
+#define	TO_RECVMSG	(5*60)
+
+#define	OPT_LOGPROG	TRUE
 
 

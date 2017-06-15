@@ -162,6 +162,9 @@ static int	locinfo_genlockbegin(LOCINFO *,LFM *,cchar *) ;
 static int	locinfo_genlockend(LOCINFO *,LFM *) ;
 static int	locinfo_genlockdir(LOCINFO *,cchar *) ;
 static int	locinfo_genlockprint(LOCINFO *,cchar *,LFM_CHECK *) ;
+static int	locinfo_tmpourdname(LOCINFO *) ;
+static int	locinfo_runas(LOCINFO *) ;
+static int	locinfo_chids(LOCINFO *,cchar *) ;
 
 #if	CF_DEBUGS && CF_DEBUGDUMP
 static int vecstr_dump(vecstr *,cchar *) ;
@@ -180,6 +183,7 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
+	lip->uid_rootname = -1 ;
 	lip->gid_rootname = -1 ;
 	lip->intconfig = TO_CONFIG ;
 	lip->intdirmaint = TO_DIRMAINT ;
@@ -396,139 +400,35 @@ int locinfo_lockend(LOCINFO *lip)
 /* end subroutine (locinfo_lockend) */
 
 
-int locinfo_tmpourdname(LOCINFO *lip)
+int locinfo_tmpourdir(LOCINFO *lip)
 {
-	PROGINFO	*pip = lip->pip ;
-	struct ustat	usb ;
-	mode_t		dm = 0775 ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
 	int		pl = 0 ;
-	int		f_needmode = FALSE ;
-	int		f_created = FALSE ;
-	int		f_runasprn = FALSE ;
-	cchar		*tn = pip->tmpdname ;
-	cchar		*rn = pip->rootname ;
-	cchar		*sn = pip->searchname ;
-	char		tmpourdname[MAXPATHLEN + 1] ;
-
-	tmpourdname[0] = '\0' ;		/* just a gesture of safety! */
-	if (lip->tmpourdname == NULL) {
-
-/* operation in the following block must remain in this order */
-
-	if (rs >= 0) {
-	    if (pip->rootname == NULL) {
-	        rs = proginfo_rootname(pip) ;
-	        rn = pip->rootname ;
-	    }
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("pcslocinfo_tmpourdname: rn=%s\n",rn) ;
-#endif
-
-/* set the tmp-dir permission mode depending on how we are running */
-
-	f_runasprn = (strcmp(pip->username,pip->rootname) == 0) ;
-	if (! f_runasprn) dm = 0777 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("pcslocinfo_tmpourdname: f_runasprn=%u\n",
-		f_runasprn) ;
-#endif
-
-/* create the tmp-dir as needed */
-
-	rs1 = SR_OK ;
-	if (rs >= 0) {
-	    rs = mkpath3(tmpourdname,tn,rn,sn) ;
+	if ((rs = locinfo_tmpourdname(lip)) >= 0) {
 	    pl = rs ;
-	    if (rs >= 0) {
-	        rs1 = u_stat(tmpourdname,&usb) ;
-	        if (rs1 >= 0) {
-	            if (S_ISDIR(usb.st_mode)) {
-			const int	am = (R_OK|W_OK|X_OK) ;
-	                f_needmode = ((usb.st_mode & dm) != dm) ;
-			rs = u_access(tmpourdname,am) ;
-	            } else
-	                rs = SR_NOTDIR ;
-	        }
-	    }
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("pcslocinfo_tmpourdname: tmpdname=%s rs=%d\n",
-		tmpourdname,rs) ;
-#endif
-
-	if (rs < 0) {
-	    shio_printf(pip->efp,"%s: TMPDIR access problem (%d)\n",
-		pip->progname,rs) ;
-	    shio_printf(pip->efp,"%s: tmpdir=%s\n",
-		pip->progname,tmpourdname) ;
-	    if (pip->open.logprog) {
-	        logprintf(pip,"TMPDIR access problem (%d)\n",rs) ;
-	        logprintf(pip,"tmpdir=%s",tmpourdname) ;
-	    }
-	}
-
-	if ((rs >= 0) && (rs1 == SR_NOENT)) {
-	    f_needmode = TRUE ;
-
-#ifdef	COMMENT
-	    {
-	        char	rootdname[MAXPATHLEN + 1] ;
-	        rs = mkpath2(rootdname,pip->tmpdname,pip->rootname) ;
-	        if (rs >= 0) {
-		    f_created = TRUE ;
-	            rs = mkdirs(rootdname,dm) ;
-		}
-	        if (rs >= 0)
-	            rs = mkpath2(tmpourdname,rootdname,pip->searchname) ;
-	    }
-#endif /* COMMENT */
-
-	    if (rs >= 0) {
-		f_created = TRUE ;
-	        rs = mkdirs(tmpourdname,dm) ;
-	    }
-
-	} /* end if (there was no-entry) */
-
-	if ((rs >= 0) && f_needmode) {
-	    rs = uc_minmod(tmpourdname,dm) ;
-	}
-
-#if	CF_TMPGROUP
-	if ((rs >= 0) && f_created) {
-	    if ((rs = locinfo_rootids(lip)) >= 0) {
-		const uid_t	uid = lip->uid_rootname ;
-		const gid_t	gid = lip->gid_rootname ;
-		if (f_runasprn) {
-	            rs = u_chown(tmpourdname,-1,gid) ;
-		} else {
-	            rs = u_chown(tmpourdname,uid,gid) ;
-		}
-	    } /* end if (ok) */
-	}
-#endif /* CF_TMPGROUP */
-
-	if (rs >= 0) {
-	    cchar	**vpp = &lip->tmpourdname ;
-	    rs = locinfo_setentry(lip,vpp,tmpourdname,pl) ;
-	}
-
-	} else {
-	    pl = strlen(lip->tmpourdname) ;
-	}
-
+	    if ((rs = locinfo_runas(lip)) >= 0) {
+	        USTAT		usb ;
+	        const mode_t	dm = (lip->f.runasprn) ? 0775 : 0777 ;
+		cchar		*ourtmp = lip->tmpourdname ;
+	            if ((rs = u_stat(ourtmp,&usb)) >= 0) {
+	                if (S_ISDIR(usb.st_mode)) {
+	                    const int	am = (R_OK|W_OK|X_OK) ;
+	                    rs = u_access(ourtmp,am) ;
+	                } else {
+	                    rs = SR_NOTDIR ;
+			}
+	            } else if (isNotPresent(rs)) {
+	                if ((rs = mkdirs(ourtmp,dm)) >= 0) {
+			    if ((rs = uc_minmod(ourtmp,dm)) >= 0) {
+				rs = locinfo_chids(lip,ourtmp) ;
+			    }
+			}
+		    }
+	    } /* end if (locinfo_runas) */
+	} /* end if (locinfo_tmpourdname) */
 	return (rs >= 0) ? pl : rs ;
 }
-/* end subroutine (locinfo_tmpourdname) */
+/* end subroutine (locinfo_tmpourdir) */
 
 
 int locinfo_msfile(LOCINFO *lip)
@@ -653,12 +553,11 @@ int locinfo_rootids(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip->gid_rootname == 0) {
+	if (lip->gid_rootname < 0) {
 	    if ((rs = proginfo_rootname(pip)) >= 0) {
 	        struct passwd	pw ;
 	        const int	pwlen = getbufsize(getbufsize_pw) ;
 	        char		*pwbuf ;
-	        lip->gid_rootname = 0 ; /* super (unwanted) default */
 		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
 		    cchar	*rn = pip->rootname ;
 	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
@@ -1075,6 +974,67 @@ static int locinfo_genlockprint(LOCINFO *lip,cchar *lfn,LFM_CHECK *lcp)
 	return rs ;
 }
 /* end subroutine (locinfo_genlockprint) */
+
+
+static int locinfo_tmpourdname(LOCINFO *lip)
+{
+	PROGINFO	*pip = lip->pip ;
+	int		rs = SR_OK ;
+	int		pl = 0 ;
+	if (lip->tmpourdname == NULL) {
+	    if ((rs = proginfo_rootname(pip)) >= 0) {
+	        cchar	*tn = pip->tmpdname ;
+	        cchar	*rn = pip->rootname ;
+	        cchar	*sn = pip->searchname ;
+		char	tbuf[MAXPATHLEN+1] ;
+	        if ((rs = mkpath3(tbuf,tn,rn,sn)) >= 0) {
+	            cchar	**vpp = &lip->tmpourdname ;
+		    pl = rs ;
+	            rs = locinfo_setentry(lip,vpp,tbuf,rs) ;
+	        } /* end if (mkpath) */
+	    } /* end if (proginfo_rootname) */
+	} else {
+	    pl = strlen(lip->tmpourdname) ;
+	} /* end if (needed) */
+	return (rs >= 0) ? pl : rs ;
+}
+/* end subroutine (locinfo_tmpourdname) */
+
+
+static int locinfo_runas(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		f = lip->f.runasprn ;
+	if (! lip->have.runasprn) {
+	    PROGINFO	*pip = lip->pip ;
+	    lip->have.runasprn = TRUE ;
+	    if ((rs = proginfo_rootname(pip)) >= 0) {
+		cchar	*rn = pip->rootname ;
+		cchar	*un = pip->username ;
+		f = (strcmp(un,rn) == 0) ;
+		lip->f.runasprn = f ;
+	    } /* end if (procinfo_rootname) */
+	} /* end if (needed) */
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (locinfo_runas) */
+
+
+static int locinfo_chids(LOCINFO *lip,cchar *dname)
+{
+	int		rs ;
+	if ((rs = locinfo_rootids(lip)) >= 0) {
+	    const uid_t	uid = lip->uid_rootname ;
+	    const gid_t	gid = lip->gid_rootname ;
+	    if ((rs = locinfo_runas(lip)) > 0) {
+		rs = u_chown(dname,-1,gid) ;
+	    } else if (rs == 0) {
+		rs = u_chown(dname,uid,gid) ;
+	    }
+	} /* end if (locinfo_rootids) */
+	return rs ;
+}
+/* end subrutine (locinfo_chids) */
 
 
 #if	CF_DEBUGS && CF_DEBUGDUMP

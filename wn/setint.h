@@ -1,4 +1,5 @@
 /* setint */
+/* lang=C++11 */
 
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */

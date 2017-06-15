@@ -191,7 +191,7 @@ static int	mkprogenv_cspath(MKPROGENV *,ENVLIST *) ;
 
 /* local variables */
 
-static const char	*envbad[] = {
+static cchar	*envbad[] = {
 	"_",
 	"_A0",
 	"_EF",
@@ -204,7 +204,7 @@ static const char	*envbad[] = {
 	NULL
 } ;
 
-static const char	*envsys[] = {
+static cchar	*envsys[] = {
 	"SYSNAME",
 	"RELEASE",
 	"VERSION",
@@ -217,7 +217,7 @@ static const char	*envsys[] = {
 	NULL
 } ;
 
-static const char	*envdef[] = {
+static cchar	*envdef[] = {
 	"LD_LIBRARY_PATH",
 	"LD_RUN_PATH",
 	"NISDOMAIN",
@@ -240,7 +240,7 @@ static const char	*envdef[] = {
 	NULL
 } ;
 
-static const char	*envextra[] = {
+static cchar	*envextra[] = {
 	"USERNAME",
 	"HOME",
 	NULL
@@ -360,12 +360,13 @@ int mkprogenv_envset(MKPROGENV *op,cchar *kp,cchar *vp,int vl)
 
 int mkprogenv_getvec(MKPROGENV *op,cchar ***eppp)
 {
+	vechand		*elp = &op->env ;
 	int		rs ;
 
 	if (eppp != NULL) {
-	    rs = vechand_getvec(&op->env,eppp) ;
+	    rs = vechand_getvec(elp,eppp) ;
 	} else {
-	    rs = vechand_count(&op->env) ;
+	    rs = vechand_count(elp) ;
 	}
 
 	return rs ;
@@ -397,24 +398,24 @@ static int mkprogenv_mkenv(MKPROGENV *op,cchar **envv)
 	            if (matkeystr(envbad,kp,-1) < 0) {
 	                if ((! f_path) && (kp[0] == 'P')) {
 	                    f_path = (strkeycmp(kp,varpath) == 0) ;
-			}
+	                }
 	                n += 1 ;
 	                if ((rs = vechand_add(elp,kp)) >= 0) {
 	                    rs = envlist_add(etp,kp,-1) ;
-			}
+	                }
 	            } /* end if (good ENV variable) */
 	        } /* end for */
 	    } /* end if (ENV was specified) */
 
 	    if ((rs >= 0) && (! f_path)) {
 #if	CF_DEFPATH
-		{
-		    rs = mkprogenv_mkenvpath(op,etp,varpath,DEFPATH) ;
-		    n += rs ;
-		}
+	        {
+	            rs = mkprogenv_mkenvpath(op,etp,varpath,DEFPATH) ;
+	            n += rs ;
+	        }
 #else /* CF_DEFPATH */
-		rs = mkprogenv_cspath(op,etp) ;
-		n += rs ;
+	        rs = mkprogenv_cspath(op,etp) ;
+	        n += rs ;
 #endif /* CF_DEFPATH */
 	    } /* end if (PATH) */
 
@@ -433,7 +434,7 @@ static int mkprogenv_mkenv(MKPROGENV *op,cchar **envv)
 	            if (rs < (nelem(envsys)-1)) {
 	                rs = mkprogenv_mkenvsys(op,etp,envsys) ;
 	                n += rs ;
-		    }
+	            }
 	        }
 	    } /* end if (system environment variables) */
 
@@ -447,16 +448,16 @@ static int mkprogenv_mkenv(MKPROGENV *op,cchar **envv)
 /* PWD */
 
 	    if (rs >= 0) {
-		const int	rsn = SR_NOTFOUND ;
+	        const int	rsn = SR_NOTFOUND ;
 	        if ((rs = envlist_present(etp,varpwd,-1,NULL)) == rsn) {
 	            char	pwd[MAXPATHLEN + 1] ;
 	            if ((rs = getpwd(pwd,MAXPATHLEN)) > 0) {
 	                n += 1 ;
 	                rs = mkprogenv_envadd(op,etp,varpwd,pwd,rs) ;
-		    } else if (isNotPresent(rs)) {
-			rs = SR_OK ;
+	            } else if (isNotPresent(rs)) {
+	                rs = SR_OK ;
 	            } /* end if */
-		}
+	        }
 	    } /* end if (PWD) */
 
 /* done */
@@ -482,7 +483,7 @@ static int mkprogenv_mkenvdef(MKPROGENV *op,ENVLIST *etp,cchar **envs)
 	for (i = 0 ; (rs >= 0) && (envs[i] != NULL) ; i += 1) {
 	    kp = envs[i] ;
 	    if ((rs = envlist_present(etp,kp,-1,NULL)) == rsn) {
-		rs = SR_OK ;
+	        rs = SR_OK ;
 	        if ((cp = getourenv(op->envv,kp)) != NULL) {
 	            n += 1 ;
 	            rs = mkprogenv_envadd(op,etp,kp,cp,-1) ;
@@ -532,7 +533,7 @@ static int mkprogenv_mkenvsys(MKPROGENV *op,ENVLIST *etp,cchar **envs)
 	    if ((rs = envlist_present(etp,kp,-1,NULL)) == SR_NOTFOUND) {
 	        const int	sc = MKCHAR(kp[0]) ;
 
-		rs = SR_OK ;
+	        rs = SR_OK ;
 	        vp = NULL ;
 	        vl = -1 ;
 	        switch (sc) {
@@ -542,34 +543,34 @@ static int mkprogenv_mkenvsys(MKPROGENV *op,ENVLIST *etp,cchar **envs)
 	        case 'V':
 	        case 'M':
 	        case 'N':
-	                switch (sc) {
-	                case 'S':
-	                    vp = uname.sysname ;
-	                    break ;
-	                case 'R':
-	                    vp = uname.release ;
-	                    break ;
-	                case 'V':
-	                    vp = uname.version ;
-	                    break ;
-	                case 'M':
-	                    vp = uname.machine ;
-	                    break ;
-	                case 'N':
-			    if (kp[1] == 'I') {
-				rs = nisdomainname(vbuf,vlen) ;
-				vl = rs ;
-				vp = vbuf ;
-			    } else {
-	                        vp = uname.nodename ;
-	                        if ((tp = strchr(vp,'.')) != NULL) {
-	                            rs = snwcpy(vbuf,vlen,vp,(tp-vp)) ;
-				    vl = rs ;
-	                            vp = vbuf ;
-	                        }
-			    } /* end if */
-	                    break ;
-	                } /* end switch */
+	            switch (sc) {
+	            case 'S':
+	                vp = uname.sysname ;
+	                break ;
+	            case 'R':
+	                vp = uname.release ;
+	                break ;
+	            case 'V':
+	                vp = uname.version ;
+	                break ;
+	            case 'M':
+	                vp = uname.machine ;
+	                break ;
+	            case 'N':
+	                if (kp[1] == 'I') {
+	                    rs = nisdomainname(vbuf,vlen) ;
+	                    vl = rs ;
+	                    vp = vbuf ;
+	                } else {
+	                    vp = uname.nodename ;
+	                    if ((tp = strchr(vp,'.')) != NULL) {
+	                        rs = snwcpy(vbuf,vlen,vp,(tp-vp)) ;
+	                        vl = rs ;
+	                        vp = vbuf ;
+	                    }
+	                } /* end if */
+	                break ;
+	            } /* end switch */
 	            break ;
 #else /* CF_UINFO */
 	        case 'S':
@@ -588,7 +589,7 @@ static int mkprogenv_mkenvsys(MKPROGENV *op,ENVLIST *etp,cchar **envs)
 	            vp = un.nodename ;
 	            if ((tp = strchr(vp,'.')) != NULL) {
 	                rs = snwcpy(vbuf,vlen,vp,(tp-vp)) ;
-			vl = rs ;
+	                vl = rs ;
 	                vp = vbuf ;
 	            }
 	            break ;
@@ -604,26 +605,26 @@ static int mkprogenv_mkenvsys(MKPROGENV *op,ENVLIST *etp,cchar **envs)
 	            if ((rs = gethz(0)) >= 0) {
 	                vp = vbuf ;
 	                rs = ctdecl(vbuf,vlen,rs) ;
-			vl = rs ;
+	                vl = rs ;
 	            }
 	            break ;
 	        case 'T':
 	            if (op->un[0] == '\0') {
 	                rs = mkprogenv_userinfo(op) ;
-		    }
+	            }
 	            if (rs >= 0) {
 	                USERATTR	a ;
 	                if ((rs = userattr_open(&a,op->un)) >= 0) {
-			    {
+	                    {
 	                        rs1 = userattr_lookup(&a,vbuf,vlen,"tz") ;
 	                        if (rs1 >= 0) vp = vbuf ;
-			    }
+	                    }
 	                    rs1 = userattr_close(&a) ;
 	                    if (rs1 >= 0) rs = rs1 ;
 	                } /* end if (userattr) */
 	                if (isNotPresent(rs) || (rs == SR_NOSYS)) {
 	                    rs = SR_OK ;
-			}
+	                }
 	            }
 	            break ;
 	        } /* end switch */
@@ -664,7 +665,7 @@ static int mkprogenv_mkenvextras(MKPROGENV *op,ENVLIST *etp,cchar **envs)
 	for (i = 0 ; (rs >= 0) && (envs[i] != NULL) ; i += 1) {
 	    kp = envs[i] ;
 	    if ((rs = envlist_present(etp,kp,-1,NULL)) == nrs) {
-		rs = SR_OK ;
+	        rs = SR_OK ;
 #if	CF_DEBUGCN
 	        nprintf(DEBFNAME,"uc_openprog: need i=%u var=%s\n",i,kp) ;
 #endif
@@ -685,7 +686,7 @@ static int mkprogenv_mkenvextras(MKPROGENV *op,ENVLIST *etp,cchar **envs)
 	    f_username,f_home) ;
 #endif
 
-	if (f_username || f_home) {
+	if ((rs >= 0) && (f_username || f_home)) {
 	    if ((rs = mkprogenv_userinfo(op)) >= 0) {
 	        if ((rs >= 0) && f_username) {
 	            var = envs[extraenv_username] ;
@@ -734,7 +735,7 @@ static int mkprogenv_envadd(MKPROGENV *op,ENVLIST *etp,cchar *kp,
 	    if ((rs = strpack_store(&op->stores,bp,bl,&ep)) >= 0) {
 	        if ((rs = vechand_add(elp,ep)) >= 0) {
 	            rs = envlist_add(etp,ep,kl) ;
-		}
+	        }
 	    } /* end if (store) */
 
 	    uc_free(bp) ;
@@ -751,7 +752,7 @@ static int mkprogenv_envadd(MKPROGENV *op,ENVLIST *etp,cchar *kp,
 
 #if	CF_DEFPATH
 static int mkprogenv_mkenvpath(MKPROGENV *op,ENVLIST *etp,
-		cchar *varpath,cchar *defpath)
+cchar *varpath,cchar *defpath)
 {
 	vecstr		deflogin ;
 	int		rs ;
@@ -769,7 +770,7 @@ static int mkprogenv_mkenvpath(MKPROGENV *op,ENVLIST *etp,
 
 	        if ((rs1 >= 0) && ((tp = strchr(cp,'=')) != NULL)) {
 	            cp = (tp + 1) ;
-		}
+	        }
 
 	    } else if (isNotPresent(rs)) {
 	        rs = SR_OK ;
@@ -804,7 +805,7 @@ static int mkprogenv_cspath(MKPROGENV *op,ENVLIST *etp)
 	if ((rs = uc_malloc((plen+1),&pbuf)) >= 0) {
 	    if ((rs = uc_confstr(_CS_PATH,pbuf,plen)) >= 0) {
 	        rs = mkprogenv_envadd(op,etp,varpath,pbuf,rs) ;
-		n += rs ;
+	        n += rs ;
 	    } /* end if */
 	    uc_free(pbuf) ;
 	} /* end if (m-a-f) */
@@ -822,14 +823,14 @@ static int mkprogenv_userinfo(MKPROGENV *op)
 	    const int		pwlen = getbufsize(getbufsize_pw) ;
 	    char		*pwbuf ;
 	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    	if ((rs = getpwusername(&pw,pwbuf,pwlen,-1)) >= 0) {
+	        if ((rs = getpwusername(&pw,pwbuf,pwlen,-1)) >= 0) {
 	            cchar	*cp ;
 	            strwcpy(op->un,pw.pw_name,USERNAMELEN) ;
 	            if ((rs = uc_mallocstrw(pw.pw_dir,-1,&cp)) >= 0) {
 	                op->uh = cp ;
 	            }
 	        } /* end if (getpwusername) */
-		uc_free(pwbuf) ;
+	        uc_free(pwbuf) ;
 	    } /* end if (m-a) */
 	} /* end if (needed) */
 	return rs ;

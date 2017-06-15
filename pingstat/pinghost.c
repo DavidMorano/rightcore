@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 2001-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -21,8 +19,7 @@
 
 	Description:
 
-	This object serves as an entry (for a collection) of
-	a 'pinghost'.
+	This object serves as an entry (for a collection) of a 'pinghost'.
 
 
 *******************************************************************************/
@@ -31,6 +28,7 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
+#include	<string.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>

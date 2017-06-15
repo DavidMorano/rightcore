@@ -14,8 +14,7 @@
 
 /*******************************************************************************
 
-	This object provides the initialization add-on for a PYM object.
-	Enjoy!
+	This object provides the initialization add-on for a PYM object.  Enjoy!
 
 
 *******************************************************************************/
@@ -295,7 +294,7 @@ int pta_getschedparam(PTA *op,struct sched_param *vp)
 /* end subroutine (pta_getschedparam) */
 
 
-extern int pta_setstack(PTA *op,void *saddr,size_t ssize)
+int pta_setstack(PTA *op,void *saddr,size_t ssize)
 {
 	int		rs ;
 	if (op == NULL) return SR_FAULT ;

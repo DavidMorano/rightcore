@@ -25,7 +25,7 @@ extern "C" {
 
 extern int	mfsadj_begin(PROGINFO *) ;
 extern int	mfsadj_end(PROGINFO *) ;
-extern int	mfsadj_req(PROGINFO *,int,int) ;
+extern int	mfsadj_poll(PROGINFO *,POLLER *,int,int) ;
 extern int	mfsadj_register(PROGINFO *,POLLER *) ;
 
 #ifdef	__cplusplus

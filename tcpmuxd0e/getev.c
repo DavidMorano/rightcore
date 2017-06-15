@@ -47,11 +47,10 @@
 
 
 #include	<envstandards.h>
-
 #include	<sys/types.h>
 #include	<string.h>
-
 #include	<vsystem.h>
+#include	<localmisc.h>		/* extra types */
 
 
 /* external subroutines */
@@ -78,9 +77,8 @@ int getev(cchar **envv,cchar *np,int nl,cchar **rpp)
 	if (np[0] == '\0') return SR_INVALID ;
 
 	if ((ei = matkeystr(envv,np,nl)) >= 0) {
-	    cchar	*tp ;
-	    if ((tp = strchr(envv[ei],'=')) != NULL) {
-	        vp = (tp + 1) ;
+	    if ((vp = strchr(envv[ei],'=')) != NULL) {
+	        vp += 1 ;
 	        vl = strlen(vp) ;
 	    }
 	} else

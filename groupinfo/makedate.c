@@ -1,2 +1,2 @@
 const char groupinfo_makedate[] =
-"@(#)groupinfo               170427_1715:09_USEDT Rightcore Network Services¹" ;
+"@(#)groupinfo               170606_1736:44_USEDT Rightcore Network Services" ;

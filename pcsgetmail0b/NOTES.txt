@@ -2,8 +2,8 @@ GETMAIL
 
 Synopsis:
 
-$ getmail [-r reportfile] [mailbox] [-u user] [-m mailbox] [-s mailspooldir]
-	[-d=[time]] [-P pidfile]
+$ getmail [-r <reportfile>] [<mailbox>] [-u <user>] [-m <mailbox>] 
+	[-s <mailspooldir>] [-d=[time]] [-P pidfile] [-V]
 
 
 

@@ -6,22 +6,19 @@
 /* revision history:
 
 	= 1998-03-24, David A­D­ Morano
-
-	This code was written from scratch to get some portable
-	network ordering for Ethernet (ETHCON) development work.
-
+        This code was written from scratch to get some portable network ordering
+        for Ethernet (ETHCON) development work.
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
-	These routines are used to manipulate data that may be in 
-	the portable "network ordering."  This ordering is used
-	on network-type transfers.  We will be implementing the IP
-	protocol stack (UDP but maybe not TCP) on the ETHCON (TN2060)
-	circuit pack computer.
+        These routines are used to manipulate data that may be in the portable
+        "network ordering." This ordering is used on network-type transfers. We
+        will be implementing the IP protocol stack (UDP but maybe not TCP) on
+        the ETHCON (TN2060) circuit pack computer.
 
 	Subroutines are provided to read and write host native:
 
@@ -29,11 +26,11 @@
 	+ ints
 	+ LONGs (64-bit)
 
-	out of or into a character buffer.  The buffer bytes are what
-	are usually read or written to the network.
+        out of or into a character buffer. The buffer bytes are what are usually
+        read or written to the network.
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #define	NETORDER_MASTER		1

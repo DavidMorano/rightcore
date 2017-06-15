@@ -197,7 +197,7 @@ static const char	*holdnames[] = {
 /* exported subroutines */
 
 
-int holidays_open(HOLIDAYS *op,cchar pr[],int year,cchar fname[])
+int holidays_open(HOLIDAYS *op,cchar *pr,int year,cchar *fname)
 {
 	time_t		dt = time(NULL) ;
 	int		rs = SR_OK ;
@@ -263,8 +263,7 @@ int holidays_open(HOLIDAYS *op,cchar pr[],int year,cchar fname[])
 /* end subroutine (holidays_open) */
 
 
-int holidays_close(op)
-HOLIDAYS	*op ;
+int holidays_close(HOLIDAYS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -309,8 +308,7 @@ HOLIDAYS	*op ;
 /* end subroutine (holidays_close) */
 
 
-int holidays_count(op)
-HOLIDAYS	*op ;
+int holidays_count(HOLIDAYS *op)
 {
 	int		rs = SR_OK ;
 	int		c ;
@@ -325,8 +323,7 @@ HOLIDAYS	*op ;
 /* end subroutine (holidays_count) */
 
 
-int holidays_audit(op)
-HOLIDAYS	*op ;
+int holidays_audit(HOLIDAYS *op)
 {
 	int		rs = SR_OK ;
 
@@ -339,9 +336,7 @@ HOLIDAYS	*op ;
 /* end subroutine (holidays_audit) */
 
 
-int holidays_curbegin(op,curp)
-HOLIDAYS	*op ;
-HOLIDAYS_CUR	*curp ;
+int holidays_curbegin(HOLIDAYS *op,HOLIDAYS_CUR *curp)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -358,9 +353,7 @@ HOLIDAYS_CUR	*curp ;
 /* end subroutine (holidays_curbegin) */
 
 
-int holidays_curend(op,curp)
-HOLIDAYS	*op ;
-HOLIDAYS_CUR	*curp ;
+int holidays_curend(HOLIDAYS *op,HOLIDAYS_CUR *curp)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -691,9 +684,7 @@ int		vlen ;
 /* end subroutine (holidays_enum) */
 
 
-int holidays_check(op,dt)
-HOLIDAYS	*op ;
-time_t		dt ;
+int holidays_check(HOLIDAYS *op,time_t dt)
 {
 	int		rs = SR_OK ;
 	int		f_changed = FALSE ;
@@ -717,12 +708,9 @@ time_t		dt ;
 /* private subroutines */
 
 
-static int holidays_dbfind(op,idp,tmpfname)
-HOLIDAYS	*op ;
-IDS		*idp ;
-char		tmpfname[] ;
+static int holidays_dbfind(HOLIDAYS *op,IDS *idp,char *tmpfname)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		fl = 0 ;
 	const char	*fsuf = HOLIDAYS_HOLSUF ;
 	char		digbuf[DIGBUFLEN + 1] ;
@@ -745,11 +733,7 @@ char		tmpfname[] ;
 /* end subroutine (holidays_dbfind) */
 
 
-static int holidays_dbfinder(op,idp,tmpfname,cname)
-HOLIDAYS	*op ;
-IDS		*idp ;
-char		tmpfname[] ;
-const char	cname[] ;
+static int holidays_dbfinder(HOLIDAYS *op,IDS *idp,char *tmpfname,cchar *cname)
 {
 	struct ustat	sb ;
 	int		rs = SR_OK ;
@@ -1314,31 +1298,23 @@ static int mkcite(uint *citep,int m,int d)
 	uint		c ;
 	int		rs = SR_DOM ;
 
-	if ((m < 0) || (m > 12))
-	    goto ret0 ;
+	if ((m >= 0) && (m <= 12)) {
+	    if ((d >= 0) && (d <= 31)) {
+	        m -= 1 ; /* compliance w/ UNIX® facilities */
+	        c = 0 ;
+	        c |= (m << 8) ;
+	        c |= d ;
+	        *citep = c ;
+	        rs = SR_OK ;
+	    } /* end if (months) */
+	} /* end if (days) */
 
-	if ((d < 0) || (d > 31))
-	    goto ret0 ;
-
-	m -= 1 ;			/* compliance w/ UNIX® facilities */
-
-	c = 0 ;
-	c |= (m << 8) ;
-	c |= d ;
-	*citep = c ;
-	rs = SR_OK ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (mkcite) */
 
 
-static int indinsert(rt,it,il,vep)
-uint		(*rt)[3] ;
-int		(*it)[3] ;
-int		il ;
-struct varentry	*vep ;
+static int indinsert(uint (*rt)[3],int (*it)[3],int il,struct varentry *vep)
 {
 	uint		nhash, chash ;
 	uint		ri, ki ;

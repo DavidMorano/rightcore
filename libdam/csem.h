@@ -23,17 +23,13 @@
 #define	CSEM		struct csem_head
 #define	CSEM_MAGIC	0x26293175
 
-#ifndef	UINT
-#define	UINT	unsigned int
-#endif
-
 
 struct csem_head {
-	UINT		magic ;
+	uint		magic ;
 	PTM		m ;
 	PTC		c ;
-	int		count ;		/* this is the real data! */
-	int		waiters ;	/* this is some extra */
+	volatile int	count ;		/* this is the real data! */
+	volatile int	waiters ;	/* this is some extra */
 } ;
 
 

@@ -7,7 +7,7 @@
 #define	CF_DEBUGEIGEN	0		/* debug the EIGEN stuff */
 #define	CF_DEBUGCECK	0		/* debug "checkXXX" */
 #define	CF_LATE		0		/* make new index file late */
-#define	CF_SETINT	1		/* use |setint(3dam)| */
+#define	CF_SETINT	1		/* use |osetint(3dam)| */
 
 
 /* revision history:
@@ -97,7 +97,7 @@
 #include	<endianstr.h>
 #include	<estrings.h>
 #include	<vecint.h>
-#include	<setint.h>
+#include	<osetint.h>
 #include	<strtab.h>
 #include	<bfile.h>
 #include	<filebuf.h>
@@ -137,17 +137,17 @@
 #define	MODP2(v,n)	((v) & ((n) - 1))
 
 #if	CF_SETINT
-#define	LISTOBJ				setint
+#define	LISTOBJ				osetint
 #define	LISTOBJ_OORDERED 		0
-#define	LISTOBJ_CUR			setint_cur
-#define	LISTOBJ_START(op,n,opts)	setint_start((op))
-#define	LISTOBJ_FINISH(op)		setint_finish((op))
-#define	LISTOBJ_ADD(op,v)		setint_addval((op),(v))
-#define	LISTOBJ_COUNT(op)		setint_count((op))
-#define	LISTOBJ_MKVEC(op,va)		setint_mkvec((op),(va))
-#define	LISTOBJ_CURBEGIN(op,cp)		setint_curbegin((op),(cp))
-#define	LISTOBJ_ENUM(op,cp,rp)		setint_enum((op),(cp),(rp))
-#define	LISTOBJ_CUREND(op,cp)		setint_curend((op),(cp))
+#define	LISTOBJ_CUR			osetint_cur
+#define	LISTOBJ_START(op,n,opts)	osetint_start((op))
+#define	LISTOBJ_FINISH(op)		osetint_finish((op))
+#define	LISTOBJ_ADD(op,v)		osetint_addval((op),(v))
+#define	LISTOBJ_COUNT(op)		osetint_count((op))
+#define	LISTOBJ_MKVEC(op,va)		osetint_mkvec((op),(va))
+#define	LISTOBJ_CURBEGIN(op,cp)		osetint_curbegin((op),(cp))
+#define	LISTOBJ_ENUM(op,cp,rp)		osetint_enum((op),(cp),(rp))
+#define	LISTOBJ_CUREND(op,cp)		osetint_curend((op),(cp))
 #else /* CF_SETINT */
 #define	LISTOBJ				vecint
 #define	LISTOBJ_OORDERED		VECINT_OORDERED

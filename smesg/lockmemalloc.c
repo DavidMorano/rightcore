@@ -344,6 +344,7 @@ int uc_libfree(const void *vp)
 
 static int lockmemalloc_basemalloc(int size,void *vp)
 {
+	const size_t	msize = size ;
 	int		rs ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
@@ -358,7 +359,7 @@ static int lockmemalloc_basemalloc(int size,void *vp)
 
 	repeat {
 	    rs = SR_OK ;
-	    if ((rp = malloc((size_t) size)) == NULL) rs = (- errno) ;
+	    if ((rp = malloc(msize)) == NULL) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_AGAIN:
@@ -391,6 +392,7 @@ static int lockmemalloc_basemalloc(int size,void *vp)
 
 static int lockmemalloc_basevalloc(int size,void *vp)
 {
+	const size_t	msize = size ;
 	int		rs ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
@@ -405,7 +407,7 @@ static int lockmemalloc_basevalloc(int size,void *vp)
 
 	repeat {
 	    rs = SR_OK ;
-	    if ((rp = valloc((size_t) size)) == NULL) rs = (- errno) ;
+	    if ((rp = valloc(msize)) == NULL) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_AGAIN:
@@ -438,6 +440,7 @@ static int lockmemalloc_basevalloc(int size,void *vp)
 
 static int lockmemalloc_baserealloc(const void *cp,int size,void *vp)
 {
+	const size_t	msize = size ;
 	int		rs ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
@@ -454,7 +457,7 @@ static int lockmemalloc_baserealloc(const void *cp,int size,void *vp)
 
 	repeat {
 	    rs = SR_OK ;
-	    if ((rp = realloc(argp,(size_t) size)) == NULL) rs = (- errno) ;
+	    if ((rp = realloc(argp,msize)) == NULL) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_AGAIN:
@@ -507,13 +510,15 @@ static int lockmemalloc_lockmalloc(int size,void *vp)
 {
 	LOCKMEMALLOC	*uip = &lockmemalloc_data ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = lockmemalloc_init()) >= 0) {
 	    if ((rs = ptm_lock(&uip->m)) >= 0) {
-
-	        rs = lockmemalloc_basemalloc(size,vp) ;
-
-	        ptm_unlock(&uip->m) ;
+		{
+	            rs = lockmemalloc_basemalloc(size,vp) ;
+		}
+	        rs1 = ptm_unlock(&uip->m) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (mutex) */
 	} /* end if (init) */
 
@@ -526,13 +531,15 @@ static int lockmemalloc_lockvalloc(int size,void *vp)
 {
 	LOCKMEMALLOC	*uip = &lockmemalloc_data ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = lockmemalloc_init()) >= 0) {
 	    if ((rs = ptm_lock(&uip->m)) >= 0) {
-
-	        rs = lockmemalloc_basevalloc(size,vp) ;
-
-	        ptm_unlock(&uip->m) ;
+		{
+	            rs = lockmemalloc_basevalloc(size,vp) ;
+		}
+	        rs1 = ptm_unlock(&uip->m) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (mutex) */
 	} /* end if (init) */
 
@@ -545,13 +552,15 @@ static int lockmemalloc_lockrealloc(const void *cp,int size,void *vp)
 {
 	LOCKMEMALLOC	*uip = &lockmemalloc_data ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = lockmemalloc_init()) >= 0) {
 	    if ((rs = ptm_lock(&uip->m)) >= 0) {
-
-	        rs = lockmemalloc_baserealloc(cp,size,vp) ;
-
-	        ptm_unlock(&uip->m) ;
+		{
+	            rs = lockmemalloc_baserealloc(cp,size,vp) ;
+		}
+	        rs1 = ptm_unlock(&uip->m) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (mutex) */
 	} /* end if (init) */
 
@@ -564,13 +573,15 @@ static int lockmemalloc_lockfree(const void *vp)
 {
 	LOCKMEMALLOC	*uip = &lockmemalloc_data ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = lockmemalloc_init()) >= 0) {
 	    if ((rs = ptm_lock(&uip->m)) >= 0) {
-
-	        rs = lockmemalloc_basefree(vp) ;
-
-	        ptm_unlock(&uip->m) ;
+		{
+	            rs = lockmemalloc_basefree(vp) ;
+		}
+	        rs1 = ptm_unlock(&uip->m) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (mutex) */
 	} /* end if (init) */
 

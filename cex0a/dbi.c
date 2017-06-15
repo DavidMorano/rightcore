@@ -8,26 +8,17 @@
 
 /* revision history:
 
-	- 1988-06-01, David A­D­ Morano
-
+	= 1988-06-01, David A­D­ Morano
 	This subroutine was originally written (and largely forgotten).
 
-
-	- 1993-02-01, David A­D­ Morano
-
+	= 1993-02-01, David A­D­ Morano
 	This subroutine was adopted for use in the RUNADVICE program.
 
-
-	- 1996-07-01, David A­D­ Morano
-
+	= 1996-07-01, David A­D­ Morano
 	This subroutine was adopted for use in the 'rexecd' daemon program.
 
-
-	- 2004-05-25, David A­D­ Morano
-
-	This subroutine was adopted for use as a general key-value
-	file reader.
-
+	= 2004-05-25, David A­D­ Morano
+	This subroutine was adopted for use as a general key-value file reader.
 
 */
 
@@ -35,10 +26,9 @@
 
 /*******************************************************************************
 
-	This hack just keeps some interactions with a NODEDB object
-	and a CLUSTERDB object together.  These two objects are often
-	accessed together when attempting to determine a current default
-	cluster name.
+        This hack just keeps some interactions with a NODEDB object and a
+        CLUSTERDB object together. These two objects are often accessed together
+        when attempting to determine a current default cluster name.
 
 
 *******************************************************************************/
@@ -104,10 +94,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int dbi_open(dbip,idp,pr)
-DBI		*dbip ;
-IDS		*idp ;
-const char	pr[] ;
+int dbi_open(DBI *dbip,IDS *idp,cchar *pr)
 {
 	struct ustat	sb ;
 	int		rs = SR_OK ;
@@ -183,14 +170,12 @@ ret0:
 /* end subroutine (dbi_open) */
 
 
-int dbi_close(dbip)
-DBI	*dbip ;
+int dbi_close(DBI *dbip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (dbip == NULL)
-	    return SR_FAULT ;
+	if (dbip == NULL) return SR_FAULT ;
 
 	if (dbip->f_cluster) {
 	    dbip->f_cluster = FALSE ;
@@ -209,10 +194,7 @@ DBI	*dbip ;
 /* end subroutine (dbi_close) */
 
 
-int dbi_getclusters(dbip,slp,nodename)
-DBI		*dbip ;
-vecstr		*slp ;
-const char	nodename[] ;
+int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 {
 	const int	nrs = SR_NOTFOUND ;
 	int		rs = SR_OK ;
@@ -339,10 +321,7 @@ const char	nodename[] ;
 /* end subroutine (dbi_getclusters) */
 
 
-int dbi_getnodes(dbip,clp,nlp)
-DBI		*dbip ;
-vecstr		*clp ;
-vecstr		*nlp ;
+int dbi_getnodes(DBI *dbip,vecstr *clp,vecstr *nlp)
 {
 	CLUSTERDB	*cop ;
 	CLUSTERDB_CUR	cc ;

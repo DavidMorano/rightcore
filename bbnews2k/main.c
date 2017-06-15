@@ -89,6 +89,8 @@ extern int	optvalue(cchar *,int) ;
 extern int	mkuiname(char *,int,USERINFO *) ;
 extern int	initnow(struct timeb *,char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(bfile *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -1222,6 +1224,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -1240,10 +1244,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -1410,7 +1415,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        fmt = "%s: userinfo failure (%d)\n" ;
 	        bprintf(pip->efp,fmt,pn,rs) ;
 	    } /* end if (userinfo) */
-	} else {
+	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    ex = EX_USAGE ;

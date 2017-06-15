@@ -64,6 +64,7 @@
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<vecstr.h>
+#include	<userinfo.h>
 #include	<tmtime.h>
 #include	<dayspec.h>
 #include	<openqotd.h>
@@ -75,6 +76,7 @@
 #include	"shio.h"
 #include	"kshlib.h"
 #include	"msgdata.h"
+#include	"proglog.h"
 #include	"b_qotd.h"
 #include	"defs.h"
 
@@ -89,26 +91,35 @@
 #endif
 #endif /* LINEBUFLEN */
 
+#ifndef	QBUFLEN
+#define	QBUFLEN		LINEBUFLEN
+#endif
+
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 
 
 /* external subroutines */
 
+extern int	snsds(char *,int,cchar *,cchar *) ;
 extern int	sncpy3(char *,int,cchar *,cchar *,cchar *) ;
 extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
 extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
 extern int	sfskipwhite(cchar *,int,cchar **) ;
+extern int	mkplogid(char *,int,cchar *,int) ;
+extern int	mksublogid(char *,int,cchar *,int) ;
 extern int	vstrcmp(const void *,const void *) ;
 extern int	vstrkeycmp(const void *,const void *) ;
 extern int	cfdeci(cchar *,int,int *) ;
 extern int	cfdecui(cchar *,int,uint *) ;
 extern int	cfdecti(cchar *,int,int *) ;
+extern int	ctdeci(char *,int,int) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	getmjd(int,int,int) ;
+extern int	dialudp(cchar *,cchar *,int,int,int) ;
 extern int	hasourmjd(cchar *,int) ;
 extern int	hasalldig(cchar *,int) ;
 extern int	isdigitlatin(int) ;
@@ -131,6 +142,7 @@ extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(cchar *,int,int) ;
+extern char	*strdcpy1w(char *,int,cchar *,int) ;
 
 
 /* external variables */
@@ -168,9 +180,11 @@ struct locinfo {
 	PROGINFO	*pip ;
 	cchar		*termtype ;
 	cchar		*qfname ;
+	cchar		*hostspec ;
 	int		year ;
 	int		ttl ;
 	int		intrun ;
+	int		af ;
 } ;
 
 
@@ -187,8 +201,16 @@ static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procquery(PROGINFO *,void *,cchar *,int) ;
 static int	procqueryload(PROGINFO *,int) ;
 static int	procqueryout(PROGINFO *,void *,int) ;
+static int	procqueryout_remote(PROGINFO *,void *,int) ;
+static int	procqueryout_local(PROGINFO *,void *,int) ;
+static int	procopenquery(PROGINFO *,int) ;
+static int	procopenqueryhost(PROGINFO *,int) ;
 static int	procqueryouter(PROGINFO *,void *,int) ;
 static int	procquerytermout(PROGINFO *,void *,int) ;
+
+static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
+static int	procuserinfo_end(PROGINFO *) ;
+static int	procuserinfo_logid(PROGINFO *) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
@@ -379,14 +401,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
 	pip->verboselevel = 1 ;
 	pip->daytime = time(NULL) ;
-	pip->to_open = -1 ;
-	pip->to_read = -1 ;
+	pip->f.logprog = OPT_LOGPROG ;
 
 	pip->lip = lip ;
 	if (rs >= 0) rs = locinfo_start(lip,pip) ;
@@ -684,6 +705,33 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        }
 	                        break ;
 
+/* query a specified host */
+	                    case 'h':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                lip->hostspec = argp ;
+				    }
+	                        } else
+	                            rs = SR_INVALID ;
+	                        break ;
+
+	                    case 'i':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = cfdecti(argp,argl,&v) ;
+					lip->intrun = v ;
+				    }
+	                        } else
+	                            rs = SR_INVALID ;
+	                        break ;
+
+/* specify that queries are MJDs */
 	                    case 'l':
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
@@ -838,9 +886,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_qotd: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
-	if (f_version)
+	if (f_version) {
 	    shio_printf(pip->efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
 /* get the program root */
 
@@ -881,7 +930,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some initialization */
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
@@ -890,33 +941,49 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 #endif
 
-	if ((rs >= 0) && (argval != NULL)) {
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;
 	    pip->n = rs ;
 	}
 
+	if ((rs >= 0) && (lip->intrun == 0)) {
+	    if ((cp = getourenv(envv,VARINTRUN)) != NULL) {
+		rs = cfdecti(cp,-1,&v) ;
+		lip->intrun = v ;
+	    }
+	}
+
+	if (lip->intrun == 0) lip->intrun = INT_RUN ;
+
 	if (pip->to <= 0) pip->to = TO_RECVMSG ;
 
-	if ((rs >= 0) && (tos_open != NULL)) {
+	if ((rs >= 0) && (pip->to_open == 0) && (tos_open != NULL)) {
 	    rs = cfdecti(tos_open,-1,&v) ;
 	    pip->to_open = v ;
 	}
 
-	if ((rs >= 0) && (tos_read != NULL)) {
+	if ((rs >= 0) && (pip->to_read == 0) && (tos_read != NULL)) {
 	    rs = cfdecti(tos_read,-1,&v) ;
 	    pip->to_read = v ;
 	}
 
-	if ((rs >= 0) && (qfname != NULL)) {
-	    rs = locinfo_qfname(lip,qfname) ;
+	if (pip->to_open == 0) pip->to_open = TO_OPEN ;
+
+	if (pip->to_read == 0) pip->to_read = TO_READ ;
+
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    if ((pip->to_open >= 0) || (pip->to_read >= 0)) {
+		fmt = "%s: to_open=%d\n" ;
+	        shio_printf(pip->efp,fmt,pn,pip->to_open) ;
+		fmt = "%s: to_read=%d\n" ;
+	        shio_printf(pip->efp,fmt,pn,pip->to_read) ;
+	    }
 	}
 
-	if ((pip->debuglevel > 0) && 
-	    ((pip->to_open >= 0) || (pip->to_read >= 0))) {
-	    shio_printf(pip->efp,"%s: to_open=%d\n",
-	        pip->progname,pip->to_open) ;
-	    shio_printf(pip->efp,"%s: to_read=%d\n",
-	        pip->progname,pip->to_read) ;
+	if ((rs >= 0) && (qfname != NULL)) {
+	    rs = locinfo_qfname(lip,qfname) ;
 	}
 
 #if	CF_DEBUG
@@ -928,12 +995,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 #endif /* CF_DEBUG */
 
-	if (pip->to_open == 0)
-	    pip->to_open = 1 ;
-
-	if (pip->to_read == 0)
-	    pip->to_read = 1 ;
-
 /* go */
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -944,16 +1005,34 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	    const int	nfd = FD_STDIN ;
-	    cchar	*of = ofname ;
-	    cchar	*af = afname ;
-	    if (lip->f.dgram) {
-	        rs = procdgram(pip,nfd) ;
-	        wlen = rs ;
+	    USERINFO	u ;
+	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
+	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
+	 	    if ((rs = proglog_begin(pip,&u)) >= 0) {
+	    	        if (lip->f.dgram) {
+	    	            const int	nfd = FD_STDIN ;
+			    rs = procdgram(pip,nfd) ;
+			    wlen = rs ;
+	    	        } else {
+	    	            cchar	*ofn = ofname ;
+	    	            cchar	*afn = afname ;
+			    rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+			    wlen = rs ;
+	    	        }
+	 		rs1 = proglog_end(pip) ;
+	  		if (rs >= 0) rs = rs1 ;
+	  	    } /* end if (proglog) */
+		    rs1 = procuserinfo_end(pip) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (procuserinfo) */
+	        rs1 = userinfo_finish(&u) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } else {
-	        rs = procargs(pip,&ainfo,&pargs,of,af) ;
-	        wlen = rs ;
-	    }
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: userinfo failure (%d)\n" ;
+	        ex = EX_NOUSER ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	    } /* end if (userinfo) */
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -1061,7 +1140,7 @@ static int usage(PROGINFO *pip)
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
-	fmt = "%s:  [-to <to_open>] [-tr <to_read>]\n" ;
+	fmt = "%s:  [-to <to_open>] [-tr <to_read>] [-h <host>]:<port>]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
@@ -1100,7 +1179,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_bufwhole:
 	                case akoname_whole:
 	                    if (! pip->final.bufwhole) {
@@ -1113,7 +1191,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufline:
 	                case akoname_line:
 	                    if (! pip->final.bufline) {
@@ -1126,7 +1203,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufnone:
 	                case akoname_none:
 	                case akoname_un:
@@ -1140,7 +1216,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_termout:
 	                    if (! lip->final.termout) {
 	                        lip->have.termout = TRUE ;
@@ -1152,7 +1227,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_gmt:
 	                    if (! lip->final.gmt) {
 	                        lip->have.gmt = TRUE ;
@@ -1164,7 +1238,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_ttl:
 	                    if (lip->ttl < 0) {
 	                        if (vl > 0) {
@@ -1173,7 +1246,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_intrun:
 	                    if (lip->intrun < 0) {
 	                        if (vl > 0) {
@@ -1183,7 +1255,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_separate:
 	                    if (! lip->final.separate) {
 	                        lip->have.separate = TRUE ;
@@ -1195,14 +1266,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_empty:
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1224,14 +1292,17 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* this is a UDP server (it eventually times out) */
 static int procdgram(PROGINFO *pip,int nfd)
 {
+	LOCINFO		*lip = pip->lip ;
 	MSGDATA		m ;
-	const int	to = pip->to ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+	int		c = 0 ;
 	if ((rs = msgdata_init(&m,0)) >= 0) {
+	    const int	to = lip->intrun ;
 	    while ((rs = msgdata_recvto(&m,nfd,to)) >= 0) {
 	        if ((rs = procdgramer(pip,&m)) >= 0) {
+		    c += 1 ;
 	            rs = msgdata_send(&m,nfd,rs,0) ;
 	            wlen += rs ;
 	        }
@@ -1240,6 +1311,7 @@ static int procdgram(PROGINFO *pip,int nfd)
 	    rs1 = msgdata_fini(&m) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (msgdata) */
+	proglog_printf(pip,"reverse c=%u wl=%u",c,wlen) ;
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procdgram) */
@@ -1278,11 +1350,12 @@ static int procdgramer(PROGINFO *pip,MSGDATA *mip)
 	        cchar	*fmt = "%s: mjd=%u\n" ;
 	        shio_printf(pip->efp,fmt,pn,mjd) ;
 	    }
+	    proglog_printf(pip,"mjd=%u",mjd) ;
 	    if ((rs = openqotd(pip->pr,mjd,of,to_open)) >= 0) {
 	        const int	qfd = rs ;
 		if ((rs = msgdata_getbuf(mip,&mbuf)) >= 0) {
 		    int		ml = rs ;
-		    char	*mp ;
+		    char	*mp = mbuf ;
 	            while ((ml > 0) && ((rs = u_read(qfd,mp,ml)) > 0)) {
 	                int	rlen = rs ;
 			tlen += rlen ;
@@ -1413,6 +1486,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 	    shio_printf(pip->efp,fmt,pn,rs) ;
 	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
+	proglog_printf(pip,"forward wl=%u",wlen) ;
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -1500,7 +1574,7 @@ static int procqueryload(PROGINFO *pip,int mjd)
 
 	if ((rs = openqotd(pip->pr,mjd,of,to_open)) >= 0) {
 	    SHIO	ifile, *ifp = &ifile ;
-	    int		qfd = rs ;
+	    const int	qfd = rs ;
 	    cchar	*qfname = lip->qfname ;
 
 	    if (qfname[0] == '-') qfname = STDINFNAME ;
@@ -1534,21 +1608,85 @@ static int procqueryout(PROGINFO *pip,void *ofp,int mjd)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
-	int		of = O_RDONLY ;
-	int		to_open = pip->to_open ;
 	int		wlen = 0 ;
 
-	if (lip->f.expire) {
-	    of |= O_EXCL ;
-	    to_open = lip->ttl ;
+	if (lip->hostspec != NULL) {
+	    rs = procqueryout_remote(pip,ofp,mjd) ;
+	    wlen += rs ;
+	} else {
+	    rs = procqueryout_local(pip,ofp,mjd) ;
+	    wlen += rs ;
 	}
 
-	if (lip->f.del) {
-	    of |= O_NOCTTY ;
-	}
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procqueryout) */
 
-	if ((rs = openqotd(pip->pr,mjd,of,to_open)) >= 0) {
-	    int	qfd = rs ;
+
+static int procqueryout_remote(PROGINFO *pip,void *ofp,int mjd)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs ;
+	int		wlen = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_qotd/procqueryout_remote: ent mjd=%d\n",mjd) ;
+#endif
+
+	if ((rs = procopenquery(pip,mjd)) >= 0) {
+	    const int	to = pip->to_read ;
+	    const int	qlen = QBUFLEN ;
+	    const int	qfd = rs ;
+	    char	qbuf[QBUFLEN+1] ;
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("b_qotd/procqueryout_remote: uc_recve()\n") ;
+#endif
+	    if ((rs = uc_recve(qfd,qbuf,qlen,0,to,0)) >= 0) {
+		const int	ql = rs ;
+	        if (pip->verboselevel > 0) {
+	            if (lip->open.outer) {
+	                if (ql > 0) {
+	                    rs = locinfo_termoutprint(lip,ofp,qbuf,ql) ;
+	                    wlen += rs ;
+	                } else {
+	                    rs = shio_print(ofp,qbuf,ql) ;
+	                    wlen += rs ;
+	                }
+		    } else {
+	    		rs = shio_write(ofp,qbuf,ql) ;
+	    		wlen += rs ;
+		    }
+		}
+	    } /* end if (uc_recve) */
+	    u_close(qfd) ;
+	} /* end if (procopenquery) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_qotd/procqueryout_remote: ret rs=%d wlen=%u\n",
+		rs,wlen) ;
+#endif
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procqueryout_remote) */
+
+
+static int procqueryout_local(PROGINFO *pip,void *ofp,int mjd)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs ;
+	int		wlen = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_qotd/procqueryout_local: ent mjd=%d\n",mjd) ;
+#endif
+
+	if ((rs = procopenquery(pip,mjd)) >= 0) {
+	    const int	qfd = rs ;
 
 	    if (pip->verboselevel > 0) {
 	        if (lip->open.outer) {
@@ -1565,13 +1703,76 @@ static int procqueryout(PROGINFO *pip,void *ofp,int mjd)
 
 	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (procqueryout) */
+/* end subroutine (procqueryout_local) */
+
+
+static int procopenquery(PROGINFO *pip,int mjd)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs ;
+	int		fd = -1 ;
+
+	if (lip->hostspec != NULL) {
+	    rs = procopenqueryhost(pip,mjd) ;
+	    fd = rs ;
+	} else {
+	    int		to_open = pip->to_open ;
+	    int		of = O_RDONLY ;
+	    if (lip->f.expire) {
+	        of |= O_EXCL ;
+	        to_open = lip->ttl ;
+	    }
+	    if (lip->f.del) {
+	        of |= O_NOCTTY ;
+	    }
+	    rs = openqotd(pip->pr,mjd,of,to_open) ;
+	    fd = rs ;
+	} /* end if (local or remote) */
+
+	return (rs >= 0) ? fd : rs ;
+}
+/* end subroutine (procopenquery) */
+
+
+static int procopenqueryhost(PROGINFO *pip,int mjd)
+{
+	LOCINFO		*lip = pip->lip ;
+	const int	hlen = MAXHOSTNAMELEN ;
+	int		rs = SR_OK ;
+	int		fd = -1 ;
+	cchar		*tp ;
+	cchar		*hs, *ps ;
+	char		hbuf[MAXHOSTNAMELEN+1] ;
+	if ((tp = strchr(lip->hostspec,':')) != NULL) {
+	    hs = hbuf ;
+	    strdcpy1w(hbuf,hlen,lip->hostspec,(tp-lip->hostspec)) ;
+	    ps = (tp+1) ;
+	} else {
+	    hs = lip->hostspec ;
+	    ps = PORTSPEC_QUOTE ;
+	}
+	if (hs[0] != '\0') {
+	    const int	to_open = pip->to_open ;
+	    const int	af = lip->af ;
+	    if ((rs = dialudp(hs,ps,af,to_open,0)) >= 0) {
+	        fd = rs ;
+	        if ((rs = ctdeci(hbuf,hlen,mjd)) >= 0) {
+		    rs = u_send(fd,hbuf,rs,0) ;
+		    if (rs < 0) u_close(fd) ;
+	        }
+	    } /* end if (dialudp) */
+	} else {
+	    rs = SR_INVALID ;
+	}
+	return (rs >= 0) ? fd : rs ;
+}
+/* end subroutine (procopenqueryhost) */
 
 
 static int procqueryouter(PROGINFO *pip,void *ofp,int qfd)
 {
 	const int	llen = LINEBUFLEN ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		len ;
 	int		wlen = 0 ;
 	char		lbuf[LINEBUFLEN + 1] ;
@@ -1611,10 +1812,6 @@ static int procquerytermout(PROGINFO *pip,void *ofp,int qfd)
 	    while ((rs = filebuf_readlines(&b,lbuf,llen,to,NULL)) > 0) {
 	        len = rs ;
 
-	        if (rs >= 0) rs = lib_sigterm() ;
-	        if (rs >= 0) rs = lib_sigintr() ;
-
-	        if (rs >= 0) {
 	            if (len > 0) {
 	                rs = locinfo_termoutprint(lip,ofp,lbuf,len) ;
 	                wlen += rs ;
@@ -1622,8 +1819,9 @@ static int procquerytermout(PROGINFO *pip,void *ofp,int qfd)
 	                rs = shio_print(ofp,lbuf,len) ;
 	                wlen += rs ;
 	            }
-	        }
 
+	        if (rs >= 0) rs = lib_sigterm() ;
+	        if (rs >= 0) rs = lib_sigintr() ;
 	        if (rs < 0) break ;
 	    } /* end while */
 
@@ -1642,6 +1840,88 @@ static int procquerytermout(PROGINFO *pip,void *ofp,int qfd)
 /* end subroutine (procquerytermout) */
 
 
+static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
+{
+	int		rs = SR_OK ;
+
+	pip->nodename = uip->nodename ;
+	pip->domainname = uip->domainname ;
+	pip->username = uip->username ;
+	pip->gecosname = uip->gecosname ;
+	pip->realname = uip->realname ;
+	pip->name = uip->name ;
+	pip->fullname = uip->fullname ;
+	pip->mailname = uip->mailname ;
+	pip->org = uip->organization ;
+	pip->logid = uip->logid ;
+	pip->pid = uip->pid ;
+	pip->uid = uip->uid ;
+	pip->euid = uip->euid ;
+	pip->gid = uip->gid ;
+	pip->egid = uip->egid ;
+
+	if (rs >= 0) {
+	    const int	hlen = MAXHOSTNAMELEN ;
+	    char	hbuf[MAXHOSTNAMELEN+1] ;
+	    cchar	*nn = pip->nodename ;
+	    cchar	*dn = pip->domainname ;
+	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	        cchar	**vpp = &pip->hostname ;
+	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
+	    }
+	}
+
+	if (rs >= 0) {
+	    rs = procuserinfo_logid(pip) ;
+	} /* end if (ok) */
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_begin) */
+
+
+static int procuserinfo_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_end) */
+
+
+static int procuserinfo_logid(PROGINFO *pip)
+{
+	int		rs ;
+	if ((rs = lib_runmode()) >= 0) {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
+#endif
+	    if (rs & KSHLIB_RMKSH) {
+	        if ((rs = lib_serial()) >= 0) {
+	            const int	s = rs ;
+	            const int	plen = LOGIDLEN ;
+	            const int	pv = pip->pid ;
+	            cchar	*nn = pip->nodename ;
+	            char	pbuf[LOGIDLEN+1] ;
+	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
+	                const int	slen = LOGIDLEN ;
+	                char		sbuf[LOGIDLEN+1] ;
+	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
+	                    cchar	**vpp = &pip->logid ;
+	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
+	                }
+	            }
+	        } /* end if (lib_serial) */
+	    } /* end if (runmode-KSH) */
+	} /* end if (lib_runmode) */
+	return rs ;
+}
+/* end subroutine (procuserinfo_logid) */
+
+
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1651,8 +1931,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
-	lip->ttl = -1 ;
-	lip->intrun = -1 ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 
 	lip->f.termout = FALSE ; /* default is no-force */
@@ -1698,19 +1976,19 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
-
-	    if (*epp != NULL) oi = vecstr_findaddr(slp,*epp) ;
-
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
 	        rs = vecstr_store(slp,vp,len,epp) ;
-	    } else
+	    } else {
 	        *epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
 	        vecstr_del(slp,oi) ;
-
-	} /* end if */
+	    }
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -1758,8 +2036,9 @@ static int locinfo_termoutbegin(LOCINFO *lip,void *ofp)
 	    cchar	*pn = pip->progname ;
 	    f_termout = lip->open.outer ;
 	    shio_printf(pip->efp,"%s: termout=%u\n",pn,f_termout) ;
-	    if (f_termout)
+	    if (f_termout) {
 	        shio_printf(pip->efp,"%s: termtype=%s\n",pn,tstr) ;
+	    }
 	}
 
 	return (rs >= 0) ? f_termout : rs ;

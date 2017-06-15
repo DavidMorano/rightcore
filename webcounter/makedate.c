@@ -1,2 +1,2 @@
 const char webcounter_makedate[] =
-"@(#)webcounter              170221_1130:42_USEST Rightcore Network Services¹" ;
+"@(#)webcounter              170608_1347:39_USEDT Rightcore Network Services" ;

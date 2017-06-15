@@ -4,9 +4,7 @@
 /* revision history:
 
 	= 1998-02-15, David A­D­ Morano
-
 	This code was started.
-
 
 */
 

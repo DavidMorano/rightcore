@@ -1164,8 +1164,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	int		c = 0 ;
 	const char	*cp ;
 
-	if ((cp = getenv(VAROPTS)) != NULL)
+	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	cur ;
@@ -1303,7 +1304,7 @@ static int procsubprog(PROGINFO *pip,cchar *progcpp)
 	    } /* end if */
 
 	    if (rs >= 0) {
-	        proginfo_setentry(pip,vpp,sp,sl) ;
+	        rs = proginfo_setentry(pip,vpp,sp,sl) ;
 	    }
 
 	} /* end if */
@@ -1387,16 +1388,15 @@ static int procalready_stat(PROGINFO *pip)
 	        CACHETIME_STATS	stat ;
 
 	        if ((rs1 = cachetime_stats(&pip->mtdb,&stat)) >= 0) {
-	            const char	*fmt ;
+	 	    cchar	*pn = pip->progname ;
+	            cchar	*fmt ;
 	            if (pip->verboselevel >= 3) {
 	                fmt = "cache requests=%u hits=%u misses=%u\n" ;
 	                bprintf(pip->ofp,fmt,stat.req,stat.hit,stat.miss) ;
 	            }
 	            if (pip->debuglevel > 0) {
-	                bprintf(pip->efp,
-	                    "%s: cache requests=%u hits=%u misses=%u\n",
-	                    pip->progname,
-	                    stat.req,stat.hit,stat.miss) ;
+			fmt = "%s: cache requests=%u hits=%u misses=%u\n" ;
+	                bprintf(pip->efp,fmt,pn,stat.req,stat.hit,stat.miss) ;
 	            }
 	        } /* end if (successful) */
 
@@ -1525,7 +1525,6 @@ static int subinfo_args(SUBINFO *sip,BITS *bop,DISP *dop)
 	if (pip == NULL) return SR_FAULT ;
 
 	for (ai = 1 ; ai < aip->argc ; ai += 1) {
-
 	    f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
 	    f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
 	    if (f) {
@@ -1704,10 +1703,9 @@ static int disp_start(DISP *dop,WARGS *wap)
 /* create threads to handle it */
 
 	for (i = 0 ; i < dop->n ; i += 1) {
-
-	    if ((rs = uptcreate(&tid,NULL,worker,wap)) >= 0)
+	    if ((rs = uptcreate(&tid,NULL,worker,wap)) >= 0) {
 	        rs = vecobj_add(&dop->tids,&tid) ;
-
+	    }
 	    if (rs < 0) break ;
 	} /* end for */
 
@@ -1715,11 +1713,13 @@ static int disp_start(DISP *dop,WARGS *wap)
 
 	if (rs < 0) {
 	    dop->f_exit = TRUE ;
-	    for (i = 0 ; i < dop->n ; i += 1)
+	    for (i = 0 ; i < dop->n ; i += 1) {
 	        psem_post(&dop->wq_sem) ;
+	    }
 	    for (i = 0 ; vecobj_get(&dop->tids,i,&tidp) >= 0 ; i += 1) {
-	        if (tidp == NULL) continue ;
-	        uptjoin(*tidp,NULL) ;
+	        if (tidp != NULL) {
+	            uptjoin(*tidp,NULL) ;
+		}
 	    }
 	} /* end if (failure) */
 
@@ -1871,9 +1871,7 @@ static int worker(void *ptvp)
 
 	    } /* end if (work to do) */
 
-	    if (rs >= 0)
-	        rs = rs1 ;
-
+	    if (rs >= 0) rs = rs1 ;
 	} /* end while (server loop) */
 
 #if	CF_DEBUG
@@ -1910,11 +1908,10 @@ static int ereport(PROGINFO *pip,cchar *fname,int frs)
 
 static int procdelete(PROGINFO *pip)
 {
-	struct delargs	da ;
 	int		rs = SR_OK ;
 
-	if (pip->udname == NULL)
-	    goto ret0 ;
+	if (pip->udname != NULL) {
+	struct delargs	da ;
 
 	memset(&da,0,sizeof(struct delargs)) ;
 	da.udname = pip->udname ;
@@ -1939,7 +1936,8 @@ static int procdelete(PROGINFO *pip)
 
 	} /* end if (child) */
 
-ret0:
+	} /* end if (non-null) */
+
 	return rs ;
 }
 /* end subroutine (procdelete) */

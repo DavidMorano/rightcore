@@ -40,7 +40,7 @@ extern int	mfslisten_acqbegin(PROGINFO *,MFSLISTEN_ACQ *) ;
 extern int	mfslisten_acqadd(PROGINFO *,MFSLISTEN_ACQ *,cchar *,int) ;
 extern int	mfslisten_acqend(PROGINFO *,MFSLISTEN_ACQ *) ;
 extern int	mfslisten_maint(PROGINFO *,POLLER *) ;
-extern int	mfslisten_handle(PROGINFO *,POLLER *,int,int) ;
+extern int	mfslisten_poll(PROGINFO *,POLLER *,int,int) ;
 extern int	mfslisten_end(PROGINFO *) ;
 
 #ifdef	__cplusplus

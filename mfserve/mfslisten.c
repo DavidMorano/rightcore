@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUG	1		/* switchable at invocation */
 
 
 /* revision history:
@@ -90,7 +90,8 @@ static int	mfslisten_acqtmpdel(PROGINFO *,MFSLISTEN_ACQ *,int) ;
 static int	mfslisten_acqfins(PROGINFO *,MFSLISTEN_ACQ *) ;
 static int	mfslisten_delmarked(PROGINFO *,POLLER *) ;
 static int	mfslisten_hit(PROGINFO *,LISTENSPEC **,int,int) ;
-static int	mfslisten_new(PROGINFO *,int) ;
+static int	mfslisten_new(PROGINFO *,int,int) ;
+static int	mfslisten_fins(PROGINFO *) ;
 
 
 /* local variables */
@@ -124,6 +125,8 @@ int mfslisten_end(PROGINFO *pip)
 	int		rs1 ;
 	if (lip->open.listens) {
 	    VECOBJ	*llp = &lip->listens ;
+	    rs1 = mfslisten_fins(pip) ;
+	    if (rs >= 0) rs = rs1 ;
 	    lip->open.listens = FALSE ;
 	    rs1 = vecobj_finish(llp) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -161,6 +164,10 @@ int mfslisten_acqend(PROGINFO *pip,MFSLISTEN_ACQ *acp)
 	    rs1 = vecobj_finish(tlp) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqend: rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfslisten_acqend) */
@@ -174,13 +181,10 @@ int mfslisten_acqadd(PROGINFO *pip,MFSLISTEN_ACQ *acp,cchar *ebuf,int elen)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progconfig/mfslisten_acqadd: ebuf=>%t<\n",
-	        ebuf,elen) ;
+	    debugprintf("mfslisten_acqadd: ent ebuf=>%t<\n",ebuf,elen) ;
 #endif
 
 	if (pip->f.daemon) {
-	    LISTENSPEC	ls ;
-	    VECOBJ	*tlp = &acp->tmps ;
 	    VECSTR	al, *alp = &al ;
 	    if ((rs = vecstr_start(alp,5,0)) >= 0) {
 	        cchar	*sp = ebuf ;
@@ -195,33 +199,61 @@ int mfslisten_acqadd(PROGINFO *pip,MFSLISTEN_ACQ *acp,cchar *ebuf,int elen)
 	            sl -= (tp+1)-sp ;
 	            sp = (tp+1) ;
 	        } /* end while */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqadd: mid1 rs=%d\n",rs) ;
+#endif
+
 	        if ((rs >= 0) && (sl > 0)) {
 	            c += 1 ;
 	            rs = vecstr_add(alp,sp,sl) ;
 	        }
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqadd: mid2 rs=%d\n",rs) ;
+#endif
+
 	        if (rs >= 0) {
 	            cchar	**av ;
 	            if ((rs = vecstr_getvec(alp,&av)) >= 0) {
+	    		LISTENSPEC	ls ;
 	                if ((rs = listenspec_start(&ls,c,av)) >= 0) {
 	                    n = rs ;
 
 	                    if (n > 0) {
+	    			VECOBJ	*tlp = &acp->tmps ;
 	                        rs = vecobj_add(tlp,&ls) ;
-	                    }
-
-	                    if ((n == 0) || (rs < 0)) {
+				if (rs < 0)
+				    listenspec_finish(&ls) ;
+	                    } else {
 	                        listenspec_finish(&ls) ;
-	                    }
+			    }
 
-	                } /* end if */
-	            } /* end if */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqadd: mid2c rs=%d\n",rs) ;
+#endif
+
+	                } /* end if (listenspec_start) */
+	            } /* end if (vecstr_getvec) */
 	        } /* end if (ok) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqadd: mid3 rs=%d\n",rs) ;
+#endif
 
 	        rs1 = vecstr_finish(alp) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (vecstr) */
 	} /* end if (daemon mode) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqadd: ret rs=%d n=%u\n",rs,n) ;
+#endif
 
 	return (rs >= 0) ? n : rs ;
 }
@@ -286,27 +318,39 @@ int mfslisten_maint(PROGINFO *pip,POLLER *pmp)
 
 
 /* ATHSUSED */
-int mfslisten_handle(PROGINFO *pip,POLLER *pmp,int fd,int re)
+int mfslisten_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 {
 	LOCINFO		*lip = pip->lip ;
 	LISTENSPEC	*lsp ;
 	int		rs ;
+	int		f = FALSE ;
 	if ((rs = mfslisten_hit(pip,&lsp,fd,re)) > 0) {
 	    SOCKADDRESS		sa ;
 	    int			salen = sizeof(SOCKADDRESS) ;
+	    f = TRUE ;
 	    if ((rs = locinfo_getaccto(lip)) >= 0) {
 	        const int	to = rs ;
 	        if ((rs = listenspec_accept(lsp,&sa,&salen,to)) >= 0) {
 	            const int	cfd = rs ;
-		    rs = 1 ;
+		    if ((rs = listenspec_gettype(lsp)) >= 0) {
+			const int	jtype = rs ;
+		        if ((rs = mfslisten_new(pip,jtype,cfd)) >= 0) {
+			    POLLER_SPEC	ps ;
+			    ps.fd = fd ;
+			    ps.events = (POLLIN | POLLPRI) ;
+		            rs = poller_reg(pmp,&ps) ;
+			} /* end if (mfslisten_new) */
+		    } /* end if (listenspec_gettype) */
 		}
 	    }
-	} else if (rs == 0) {
-	    rs = mfslisten_new(pip,fd) ;
 	} /* end if (mfslisten_hit) */
-	return rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_poll: ret rs=%d f=%u\n",rs,f) ;
+#endif
+	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (mfslisten_handle) */
+/* end subroutine (mfslisten_poll) */
 
 
 /* local subroutines */
@@ -325,7 +369,7 @@ static int mfslisten_acqmerge(PROGINFO *pip,MFSLISTEN_ACQ *acp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progconfig/mfslisten_acqmerge: ent\n") ;
+	    debugprintf("mfslisten_acqmerge: ent\n") ;
 #endif
 
 /* phase-1 */
@@ -365,6 +409,11 @@ static int mfslisten_acqmerge(PROGINFO *pip,MFSLISTEN_ACQ *acp)
 	    } /* end for */
 	} /* end if (ok) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqmerge: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (mfslisten_acqmerge) */
@@ -379,6 +428,11 @@ static int mfslisten_acqpresent(PROGINFO *pip,MFSLISTEN_ACQ *acp,
 	int		rs1 ;
 	int		i = 0 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqpresent: ent\n") ;
+#endif
+
 	if (pip == NULL) return SR_FAULT ; /* lint */
 	if (lsp == NULL) return SR_FAULT ;
 
@@ -388,6 +442,11 @@ static int mfslisten_acqpresent(PROGINFO *pip,MFSLISTEN_ACQ *acp,
 	        if (rs1 > 0) break ;
 	    }
 	} /* end for */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqpresent: ret rs=%d i=%u\n",rs,i) ;
+#endif
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -449,7 +508,7 @@ static int mfslisten_delmarked(PROGINFO *pip,POLLER *pmp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("progwatch/procwatchpoll: checking deletes\n") ;
+	    debugprintf("mfswatch_delmarked: ent\n") ;
 #endif
 
 	llp = &lip->listens ;
@@ -466,50 +525,88 @@ static int mfslisten_delmarked(PROGINFO *pip,POLLER *pmp)
 	    } /* end if */
 	} /* end for */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_delmarked: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (mfslisten_delmarked) */
 
 
+/* ARGSUSED */
 static int mfslisten_hit(PROGINFO *pip,LISTENSPEC **rpp,int fd,int re)
 {
 	LOCINFO		*lip = pip->lip ;
-	LISTENSPEC	*lsp ;
-	vecobj		*llp ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		lfd ;
 	int		f = FALSE ;
-	llp = &lip->listens ;
 	*rpp = NULL ;
-	for (i = 0 ; vecobj_get(llp,i,&lsp) >= 0 ; i += 1) {
-	    if (lsp != NULL) {
-	        if ((lfd = listenspec_getfd(lsp)) >= 0) {
-	            if (lfd == fd) {
-		        f = TRUE ;
-		        *rpp = lsp ;
+	if (re != 0) {
+	    vecobj	*llp = &lip->listens ;
+	    LISTENSPEC	*lsp ;
+	    int		lfd ;
+	    int		i ;
+	    for (i = 0 ; vecobj_get(llp,i,&lsp) >= 0 ; i += 1) {
+	        if (lsp != NULL) {
+	            if ((lfd = listenspec_getfd(lsp)) >= 0) {
+	                if (lfd == fd) {
+		            f = TRUE ;
+		            *rpp = lsp ;
+		        }
 		    }
-		}
-	    }
-	    if (f) break ;
-	} /* end for */
+	        }
+	        if (f) break ;
+	    } /* end for */
+	} /* end if (had events) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_hit: ret rs=%d f=%u\n",rs,f) ;
+#endif
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (mfslisten_hit) */
 
 
-static int mfslisten_new(PROGINFO *pip,int fd)
+static int mfslisten_new(PROGINFO *pip,int stype,int fd)
 {
 	int		rs = SR_OK ;
 
 	if (pip->watch != NULL) {
-	    rs = mfswatch_newjob(pip,fd,-1) ;
+	    const int	jtype = jobtype_listen ;
+	    rs = mfswatch_newjob(pip,jtype,stype,fd,-1) ;
 	} else {
 	    u_close(fd) ;
 	}
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_new: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfslisten_new) */
+
+
+static int mfslisten_fins(PROGINFO *pip)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	{
+	    VECOBJ	*llp = &lip->listens ;
+	    LISTENSPEC	*lsp ;
+	    int		i ;
+	    for (i = 0 ; (rs1 = vecobj_get(llp,i,&lsp)) >= 0 ; i += 1) {
+	        if (lsp != NULL) {
+		    rs1 = listenspec_finish(lsp) ;
+		    if (rs >= 0) rs = rs1 ;
+	        }
+	    } /* end for */
+	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (mfslisten_fins) */
 
 

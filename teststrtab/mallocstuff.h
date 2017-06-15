@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 1998-06-11, David A­D­ Morano
-
 	These subroutines were was originally written (inspired by others).
-
 
 */
 

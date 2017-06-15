@@ -19,14 +19,14 @@
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
 	This module implements a file message queue facility.
 
 	Enjoy!
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #define	FMQ_MASTER	0
@@ -51,8 +51,6 @@
 
 
 /* local defines */
-
-#define	FMQ_MAGIC	0x21419876
 
 #define	FMQ_OPENTIME	30	/* seconds */
 
@@ -158,21 +156,13 @@ static int	debugprintstat(const char *,int) ;
 /* exported subroutines */
 
 
-int fmq_open(op,fname,oflags,operm,bufsize)
-FMQ		*op ;
-const char	fname[] ;
-int		oflags ;
-int		operm ;
-int		bufsize ;
+int fmq_open(FMQ *op,cchar *fname,int oflags,mode_t operm,int bufsize)
 {
 	struct ustat	sb ;
-
-	time_t	daytime = time(NULL) ;
-
-	int	rs ;
-	int	amode ;
-	int	f_create = FALSE ;
-
+	time_t		daytime = time(NULL) ;
+	int		rs ;
+	int		amode ;
+	int		f_create = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_open: ent fname=%s, bufsize=%d\n",
@@ -180,12 +170,12 @@ int		bufsize ;
 #endif
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 #endif /* CF_SAFE */
 
-	if ((fname == NULL) || (fname[0] == '\0'))
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
+
+	if (fname[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
 	if (bufsize < 8)
@@ -203,7 +193,6 @@ int		bufsize ;
 #endif
 
 	memset(op,0,sizeof(FMQ)) ;
-
 	op->magic = 0 ;
 	op->fname = NULL ;
 
@@ -352,46 +341,44 @@ bad0:
 /* end subroutine (fmq_open) */
 
 
-int fmq_close(op)
-FMQ		*op ;
+int fmq_close(FMQ *op)
 {
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	fmq_buffree(op) ;
+	rs1 = fmq_buffree(op) ;
+	if (rs >= 0) rs = rs1 ;
 
-	if (op->fd >= 0)
-	    u_close(op->fd) ;
+	if (op->fd >= 0) {
+	    rs1 = u_close(op->fd) ;
+	    if (rs >= 0) rs = rs1 ;
+	    op->fd = -1 ;
+	}
 
-	uc_free(op->fname) ;
+	rs1 = uc_free(op->fname) ;
+	if (rs >= 0) rs = rs1 ;
 
 	op->magic = 0 ;
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (fmq_close) */
 
 
 #ifdef	COMMENT
 
-int fmq_notify(op,sep)
-FMQ		*op ;
-struct sigevent	*sep ;
+int fmq_notify(FMQ *op,struct sigevent *sep)
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op ->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op ->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 
 again:
 	rs = SR_OK ;
@@ -413,21 +400,16 @@ again:
 
 
 /* get a count of the number of entries */
-int fmq_count(op)
-FMQ		*op ;
+int fmq_count(FMQ *op)
 {
-	int	rs = SR_OK ;
-	int	c = 0 ;
-
+	int		rs = SR_OK ;
+	int		c = 0 ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
-
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -435,30 +417,22 @@ FMQ		*op ;
 
 
 /* send a message */
-int fmq_send(op,buf,buflen)
-FMQ		*op ;
-const void	*buf ;
-int		buflen ;
+int fmq_send(FMQ *op,const void *buf,int buflen)
 {
-	int	rs ;
-	int	to ;
-	int	tlen = 0 ;
-
+	int		rs ;
+	int		to ;
+	int		tlen = 0 ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	if (buf == NULL)
-	    return SR_FAULT ;
+	if (buf == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("fmq_send: ent buflen=%u\n",
-	    buflen) ;
+	debugprintf("fmq_send: ent buflen=%u\n", buflen) ;
 #endif
 
 	if (! op->f.writable)
@@ -470,8 +444,6 @@ int		buflen ;
 	rs = fmq_sende(op,buf,buflen,to,0) ;
 	tlen = rs ;
 
-ret0:
-
 #if	CF_DEBUGS
 	debugprintf("fmq_send: ret rs=%d tlen=%u\n",rs,tlen) ;
 #endif
@@ -482,29 +454,20 @@ ret0:
 
 
 /* send a message */
-int fmq_sende(op,buf,buflen,to,opts)
-FMQ		*op ;
-const void	*buf ;
-int		buflen ;
-int		to, opts ;
+int fmq_sende(FMQ *op,const void *buf,int buflen,int to,int opts)
 {
-	ulong	starttime, endtime, daytime ;
-
-	int	rs ;
-	int	f_infinite = FALSE ;
-	int	tlen = 0 ;
-
+	ulong		starttime, endtime, daytime ;
+	int		rs ;
+	int		f_infinite = FALSE ;
+	int		tlen = 0 ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	if (buf == NULL)
-	    return SR_FAULT ;
+	if (buf == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_sende: ent buflen=%u\n",
@@ -580,26 +543,19 @@ ret0:
 
 
 /* receive a message */
-int fmq_recv(op,buf,buflen)
-FMQ		*op ;
-void		*buf ;
-int		buflen ;
+int fmq_recv(FMQ *op,void *buf,int buflen)
 {
-	int	rs = SR_OK ;
-	int	to ;
-	int	tlen = 0 ;
-
+	int		rs = SR_OK ;
+	int		to ;
+	int		tlen = 0 ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	if (buf == NULL)
-	    return SR_FAULT ;
+	if (buf == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_recv: ent buflen=%u\n", buflen) ;
@@ -614,8 +570,6 @@ int		buflen ;
 	rs = fmq_recve(op,buf,buflen,to,0) ;
 	tlen = rs ;
 
-ret0:
-
 #if	CF_DEBUGS
 	debugprintf("fmq_recv: ret rs=%d tlen=%u\n",rs,tlen) ;
 #endif
@@ -626,27 +580,19 @@ ret0:
 
 
 /* receive a message */
-int fmq_recve(op,buf,buflen,to,opts)
-FMQ		*op ;
-void		*buf ;
-int		buflen ;
-int		to, opts ;
+int fmq_recve(FMQ *op,void *buf,int buflen,int to,int opts)
 {
-	int	rs = SR_OK ;
-	int	tlen = 0 ;
-	int	f_infinite = FALSE ;
-
+	int		rs = SR_OK ;
+	int		tlen = 0 ;
+	int		f_infinite = FALSE ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	if (buf == NULL)
-	    return SR_FAULT ;
+	if (buf == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_recve: ent buflen=%u to=%d opts=%04x\n",
@@ -712,49 +658,27 @@ ret0:
 
 
 /* do some checking */
-int fmq_check(op,daytime)
-FMQ		*op ;
-time_t		daytime ;
+int fmq_check(FMQ *op,time_t daytime)
 {
-	int	rs = SR_OK ;
-
-#if	CF_DEBUGS
-	char	timebuf[TIMEBUFLEN + 1] ;
-#endif
-
+	int		rs = SR_OK ;
+	int		f = FALSE ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	if (op->fd < 0)
-	    return SR_OK ;
+	if (op->fd >= 0) {
+	    if ((!op->f.readlocked) && (!op->f.writelocked)) {
+	        if ((daytime - op->accesstime) >= TO_ACCESS) {
+	            f = TRUE ;
+		    rs = fmq_fileclose(op) ;
+		}
+	    }
+	}
 
-#if	CF_DEBUGS
-	debugprintf("fmq_check: %s\n",
-	    timestr_log(daytime,timebuf)) ;
-#endif
-
-	if (op->f.readlocked || op->f.writelocked)
-	    return SR_OK ;
-
-	if ((daytime - op->accesstime) > TO_ACCESS)
-	    goto closeit ;
-
-	if ((daytime - op->opentime) > TO_OPEN)
-	    goto closeit ;
-
-	return rs ;
-
-/* handle a close out */
-closeit:
-	rs = fmq_fileclose(op) ;
-
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (fmq_check) */
 
@@ -763,40 +687,26 @@ closeit:
 
 
 /* send a message */
-static int fmq_isend(op,buf,buflen,opts)
-FMQ		*op ;
-const void	*buf ;
-int		buflen ;
-int		opts ;
+/* ARGSUSED */
+static int fmq_isend(FMQ *op,const void *buf,int buflen,int opts)
 {
 	struct iovec	v[3] ;
-
 	sigset_t	oldsigmask ;
-
 	offset_t	uoff ;
-
-	time_t	daytime = 0 ;
-
-	uint	eoff ;
-	uint	llen, dlen, len ;
-
-	int	rs ;
-
-	char	lenbuf[4 + 1] ;
-	char	*cbuf = (char *) buf ;
-
+	time_t		daytime = time(NULL) ;
+	uint		eoff ;
+	uint		llen, dlen, len ;
+	int		rs ;
+	char		lenbuf[4 + 1] ;
+	char		*cbuf = (char *) buf ;
 
 #if	CF_DEBUGS
-	debugprintf("fmq_isend: ent buflen=%u\n",
-	    buflen) ;
+	debugprintf("fmq_isend: ent buflen=%u\n", buflen) ;
 #endif
 
 	fmq_di(op,&oldsigmask) ;
 
 /* do we have proper file access? */
-
-	if (daytime == 0)
-	    daytime = time(NULL) ;
 
 	rs = fmq_filecheck(op,daytime,0,0) ;
 	if (rs < 0)
@@ -832,7 +742,6 @@ int		opts ;
 /* can we even write this message? */
 
 	if ((buflen + llen) > (op->h.size - op->h.blen)) {
-
 	    rs = ((buflen + llen) > op->h.size) ? SR_TOOBIG : SR_AGAIN ;
 	    goto ret1 ;
 	}
@@ -840,11 +749,10 @@ int		opts ;
 /* prepare to write */
 
 	if (op->h.wi < op->h.ri) {
-
 	    dlen = op->h.ri - op->h.wi ;
-
-	} else
+	} else {
 	    dlen = op->h.size - op->h.wi ;
+	}
 
 	dlen -= llen ;
 	if (buflen < dlen)
@@ -887,10 +795,9 @@ int		opts ;
 
 	    eoff = FMQ_BUFOFF ;
 	    uoff = eoff ;
-	    rs = u_seek(op->fd,uoff,SEEK_SET) ;
-
-	    if (rs >= 0)
+	    if ((rs = u_seek(op->fd,uoff,SEEK_SET)) >= 0) {
 	        rs = u_writev(op->fd,v,1) ;
+	    }
 
 #if	CF_DEBUGS
 	    debugprintf("fmq_isend: 2 u_writev() rs=%d off=%lu\n",
@@ -941,42 +848,27 @@ ret0:
 
 
 /* receive a message */
-static int fmq_irecv(op,buf,buflen,opts)
-FMQ		*op ;
-void		*buf ;
-int		buflen ;
-int		opts ;
+static int fmq_irecv(FMQ *op,void *buf,int buflen,int opts)
 {
 	struct iovec	v[3] ;
-
 	struct ustat	sb ;
-
 	sigset_t	oldsigmask ;
-
 	offset_t	uoff ;
-
-	time_t	daytime = 0 ;
-
-	uint	eoff ;
-	uint	llen, dlen, mlen, len ;
-
-	int	rs = SR_OK ;
-	int	tlen = 0 ;
-	int	f_changed ;
-
-	char	lenbuf[4 + 1] ;
-	char	*cbuf = (char *) buf ;
-
+	time_t		daytime = 0 ;
+	uint		eoff ;
+	uint		llen, dlen, mlen, len ;
+	int		rs = SR_OK ;
+	int		tlen = 0 ;
+	int		f_changed ;
+	char		lenbuf[4 + 1] ;
+	char		*cbuf = (char *) buf ;
 
 #ifdef	COMMENT
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != FMQ_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
 
-	if (buf == NULL)
-	    return SR_FAULT ;
+	if (buf == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_irecv: ent buflen=%u\n",
@@ -1185,15 +1077,11 @@ ret0:
 
 
 /* check the file for coherency */
-static int fmq_filecheck(op,daytime,f_read,opts)
-FMQ		*op ;
-time_t		daytime ;
-int		f_read ;
-int		opts ;
+/* ARGSUSED */
+static int fmq_filecheck(FMQ *op,time_t daytime,int f_read,int opts)
 {
-	int	rs = SR_OK ;
-	int	f_changed = FALSE ;
-
+	int		rs = SR_OK ;
+	int		f_changed = FALSE ;
 
 /* is the file open */
 
@@ -1267,15 +1155,12 @@ bad0:
 
 
 /* has the file changed at all? */
-static int fmq_filechanged(op)
-FMQ		*op ;
+static int fmq_filechanged(FMQ *op)
 {
 	struct ustat	sb ;
-
-	int	rs ;
-	int	f_statchanged = FALSE ;
-	int	f_headchanged = FALSE ;
-
+	int		rs ;
+	int		f_statchanged = FALSE ;
+	int		f_headchanged = FALSE ;
 
 /* has the file changed at all? */
 
@@ -1313,11 +1198,8 @@ FMQ		*op ;
 /* read the file header for write indications */
 
 	if (op->f.fileinit) {
-
 	    struct fmq_filehead	h ;
-
-	    char	hbuf[FMQ_TOPLEN + 1] ;
-
+	    char		hbuf[FMQ_TOPLEN + 1] ;
 
 #if	CF_DEBUGS
 	    debugprintf("fmq_filechanged: file is inited\n") ;
@@ -1369,11 +1251,9 @@ FMQ		*op ;
 /* OK, we're done */
 
 	if (f_statchanged) {
-
 	    op->f.bufvalid = FALSE ;
 	    op->filesize = sb.st_size ;
 	    op->mtime = sb.st_mtime ;
-
 	}
 
 ret0:
@@ -1394,11 +1274,9 @@ bad0:
 /* end subroutine (fmq_filechanged) */
 
 
-static int fmq_bufinit(op)
-FMQ		*op ;
+static int fmq_bufinit(FMQ *op)
 {
-	int	rs ;
-
+	int		rs ;
 
 	op->f.bufvalid = FALSE ;
 
@@ -1412,19 +1290,21 @@ FMQ		*op ;
 /* end subroutine (fmq_bufinit) */
 
 
-static int fmq_buffree(op)
-FMQ		*op ;
+static int fmq_buffree(FMQ *op)
 {
+	int		rs = SR_OK ;
+	int		rs1 ;
 
+	if (op->b.buf != NULL) {
+	    rs1 = uc_free(op->b.buf) ;
+	    if (rs >= 0) rs = rs1 ;
+	    op->b.buf = NULL ;
+	}
 
-	if (op->b.buf != NULL)
-	    uc_free(op->b.buf) ;
-
-	op->b.buf = NULL ;
 	op->b.size = 0 ;
 	op->b.len = 0 ;
 	op->b.i = 0 ;
-	return 0 ;
+	return rs ;
 }
 /* end subroutine (fmq_buffree) */
 
@@ -1435,15 +1315,11 @@ FMQ		*op ;
 time_t		daytime ;
 {
 	struct fmq_filemagic	fm ;
-
 	sigset_t	oldsigmask ;
-
-	int	rs = SR_OK ;
-	int	bl ;
-	int	f_locked = FALSE ;
-
-	char	fbuf[FBUFLEN + 1] ;
-
+	int		rs = SR_OK ;
+	int		bl ;
+	int		f_locked = FALSE ;
+	char		fbuf[FBUFLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_fileinit: ent filesize=%u\n",op->filesize) ;
@@ -1505,12 +1381,11 @@ time_t		daytime ;
 #endif
 
 	        if (rs > 0) {
-
 	            op->filesize = rs ;
 	            op->mtime = daytime ;
-	            if (op->f.remote)
+	            if (op->f.remote) {
 	                u_fsync(op->fd) ;
-
+		    }
 	        }
 
 	        op->f.fileinit = (rs >= 0) ;
@@ -1518,9 +1393,7 @@ time_t		daytime ;
 	    } /* end if (writing) */
 
 	} else if (op->filesize >= FMQ_BUFOFF) {
-
 	    int	f ;
-
 
 #if	CF_DEBUGS
 	    debugprintf("fmq_fileinit: non-zero file size=%lu\n",
@@ -1617,15 +1490,11 @@ ret0:
 
 
 /* acquire access to the file */
-static int fmq_lockget(op,daytime,f_read)
-FMQ		*op ;
-int		f_read ;
-time_t		daytime ;
+static int fmq_lockget(FMQ *op,time_t daytime,int f_read)
 {
-	int	rs = SR_OK ;
-	int	lockcmd ;
-	int	f_already = FALSE ;
-
+	int		rs = SR_OK ;
+	int		lockcmd ;
+	int		f_already = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_lockget: ent fd=%d f_read=%d\n",
@@ -1717,11 +1586,9 @@ bad0:
 /* end subroutine (fmq_lockget) */
 
 
-static int fmq_lockrelease(op)
-FMQ		*op ;
+static int fmq_lockrelease(FMQ *op)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_lockrelease: ent\n") ;
@@ -1745,60 +1612,35 @@ FMQ		*op ;
 /* end subroutine (fmq_lockrelease) */
 
 
-static int fmq_fileopen(op,daytime)
-FMQ		*op ;
-time_t		daytime ;
+static int fmq_fileopen(FMQ *op,time_t daytime)
 {
-	int	rs ;
-
-
-#if	CF_DEBUGS
-	debugprintf("fmq_fileopen: fname=%s\n",op->fname) ;
-#endif
-
-	if (op->fd >= 0)
-	    goto ret0 ;
+	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
-	debugprintf("fmq_fileopen: need open\n") ;
+	debugprintf("fmq_fileopen: ent fname=%s\n",op->fname) ;
 #endif
 
-	rs = u_open(op->fname,op->oflags,op->operm) ;
-	op->fd = rs ;
-	if (rs < 0)
-	    goto bad0 ;
+	if (op->fd < 0) {
+	    if ((rs = u_open(op->fname,op->oflags,op->operm)) >= 0) {
+		op->fd = rs ;
+		uc_closeonexec(op->fd,TRUE) ;
+		op->opentime = daytime ;
+	    }
+	}
 
-#if	CF_DEBUGS
-	debugprintstat("fmq_fileopen: before closeonexec",op->fd) ;
-#endif
-
-	uc_closeonexec(op->fd,TRUE) ;
-
-#if	CF_DEBUGS
-	debugprintstat("fmq_fileopen: after closeonexec",op->fd) ;
-	debugprintf("fmq_fileopen: ret rs=%d fd=%d\n",rs,op->fd) ;
-#endif
-
-	op->opentime = daytime ;
-
-ret0:
 	return (rs >= 0) ? op->fd : rs ;
-
-/* bad things */
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (fmq_fileopen) */
 
 
-int fmq_fileclose(op)
-FMQ		*op ;
+int fmq_fileclose(FMQ *op)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (op->fd >= 0) {
-	    u_close(op->fd) ;
+	    rs1 = u_close(op->fd) ;
+	    if (rs >= 0) rs = rs1 ;
 	    op->fd = -1 ;
 	}
 
@@ -1808,16 +1650,12 @@ FMQ		*op ;
 
 
 /* write out the file header */
-static int fmq_headwrite(op)
-FMQ		*op ;
+static int fmq_headwrite(FMQ *op)
 {
 	offset_t	uoff ;
-
-	int	rs ;
-	int	bl ;
-
-	char	fbuf[FBUFLEN + 1] ;
-
+	int		rs ;
+	int		bl ;
+	char		fbuf[FBUFLEN + 1] ;
 
 	bl = filehead(fbuf,0,&op->h) ;
 
@@ -1829,11 +1667,8 @@ FMQ		*op ;
 /* end subroutine (fmq_headwrite) */
 
 
-static int fmq_di(op,smp)
-FMQ		*op ;
-sigset_t	*smp ;
+static int fmq_di(FMQ *op,sigset_t *smp)
 {
-
 
 #if	defined(PTHREAD) && PTHREAD
 	pthread_sigmask(SIG_BLOCK,&op->sigmask,smp) ;
@@ -1846,9 +1681,8 @@ sigset_t	*smp ;
 /* end subroutine (fmq_di) */
 
 
-static int fmq_ei(op,smp)
-FMQ		*op ;
-sigset_t	*smp ;
+/* ARGSUSED */
+static int fmq_ei(FMQ *op,sigset_t *smp)
 {
 
 
@@ -1868,14 +1702,11 @@ char			*buf ;
 int			f_read ;
 struct fmq_filemagic	*mp ;
 {
-	int	rs = 20 ;
+	int		rs = 20 ;
+	char		*bp = buf ;
+	char		*cp ;
 
-	char	*bp = buf ;
-	char	*cp ;
-
-
-	if (buf == NULL)
-	    return SR_BADFMT ;
+	if (buf == NULL) return SR_BADFMT ;
 
 	if (f_read) {
 
@@ -1911,11 +1742,9 @@ char			*buf ;
 int			f_read ;
 struct fmq_filehead	*hp ;
 {
-	uint	*table = (uint *) buf ;
+	uint		*table = (uint *) buf ;
 
-
-	if (buf == NULL)
-	    return SR_BADFMT ;
+	if (buf == NULL) return SR_BADFMT ;
 
 	if (f_read) {
 
@@ -1966,20 +1795,14 @@ const char	s[] ;
 int		fd ;
 {
 	struct ustat	sb ;
-
-	int	rs ;
-	int	sl ;
-
-
+	int		rs ;
+	int		sl ;
 	rs = u_fstat(fd,&sb) ;
-
 	sl = debugprintf("%s fd=%d rs=%d size=%ld perm=%04o\n",
 	    s,fd,rs,sb.st_size,sb.st_mode) ;
-
 	return sl ;
 }
 /* end subroutine (debugprintstat) */
 #endif /* CF_DEBUGS */
-
 
 

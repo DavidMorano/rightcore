@@ -1,0 +1,8 @@
+
+volname:	disk0 
+1k-blocks:	292955080
+
+volname:	disk1 
+1k-blocks:	292955080
+
+

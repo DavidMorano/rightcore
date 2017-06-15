@@ -48,7 +48,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
 #include	<unistd.h>
 #include	<termios.h>
 #include	<stdlib.h>
@@ -74,25 +73,30 @@
 
 int tcpeek(int fd,char *dbuf,int dlen)
 {
-	struct strpeek	pd ;
 	int		rs ;
 	int		len = 0 ;
-	char		cbuf[CBUFLEN + 1] ; /* we throw away the control part */
 
 	if (dbuf == NULL) return SR_FAULT ;
 
 	if (fd < 0) return SR_NOTOPEN ;
 
-
 #if	CF_STREAM
-	memset(&pd,0,sizeof(struct strpeek)) ;
-	pd.flags = 0 ;
-	pd.ctlbuf.buf = cbuf ;
-	pd.ctlbuf.maxlen = CBUFLEN ;
-	pd.databuf.buf = dbuf ;
-	pd.databuf.maxlen = dlen ;
-	rs = u_ioctl(fd,I_PEEK,&pd) ;
-	len = pd.databuf.len ;
+	{
+	    const int	clen = CBUFLEN ;
+	    char	*cbuf ;
+	    if ((rs = uc_libmalloc((clen+1),&cbuf)) >= 0) {
+	        struct strpeek	pd ;
+	        memset(&pd,0,sizeof(struct strpeek)) ;
+	        pd.flags = 0 ;
+	        pd.ctlbuf.buf = cbuf ;
+	        pd.ctlbuf.maxlen = clen ;
+	        pd.databuf.buf = dbuf ;
+	        pd.databuf.maxlen = dlen ;
+	        rs = u_ioctl(fd,I_PEEK,&pd) ;
+	        len = pd.databuf.len ;
+		uc_libfree(cbuf) ;
+	    } /* end if (m-a-f) */
+	} /* end block */
 #else
 	dbuf[0] = '\0' ;
 	rs = SR_NOSYS ;
