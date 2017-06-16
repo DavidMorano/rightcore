@@ -63,9 +63,8 @@
 
 /* local defines */
 
-#define	STRSTORE_CHUNK	struct strstore_chunk
-
 #define	MODP2(v,n)	((v) & ((n) - 1))
+#define	STRENTRY	struct strentry
 
 
 /* external subroutines */
@@ -101,9 +100,9 @@ static int	strstore_chunknew(STRSTORE *,int) ;
 static int	strstore_chunkfins(STRSTORE *) ;
 static int	strstore_manage(STRSTORE *,const char *,int,int) ;
 
-static int	chunk_start(struct strstore_chunk *,int) ;
-static int	chunk_adv(struct strstore_chunk *) ;
-static int	chunk_finish(struct strstore_chunk *) ;
+static int	chunk_start(STRSTORE_CHUNK *,int) ;
+static int	chunk_adv(STRSTORE_CHUNK *) ;
+static int	chunk_finish(STRSTORE_CHUNK *) ;
 
 static int	indexlen(int) ;
 static int	indexsize(int) ;
@@ -534,11 +533,9 @@ int strstore_indsize(STRSTORE *op)
 int strstore_indmk(STRSTORE *op,int (*it)[3],int itsize,int nskip)
 {
 	VECOBJ		ses ;
-	uint		khash, chash, nhash ;
-	const int	esize = sizeof(struct strentry) ;
+	const int	esize = sizeof(STRENTRY) ;
 	int		rs ;
-	int		lhi, nhi, hi, si ;
-	int		c ;
+	int		rs1 ;
 	int		il ;
 	int		isize ;
 	int		opts ;
@@ -571,6 +568,9 @@ int strstore_indmk(STRSTORE *op,int (*it)[3],int itsize,int nskip)
 	    struct strentry	se, *sep ;
 	    HDB_CUR	cur ;
 	    HDB_DATUM	key, val ;
+	    uint	khash, chash, nhash ;
+	    int		lhi, nhi, hi, si ;
+	    int		c ;
 
 	    if ((rs = hdb_curbegin(&op->smgr,&cur)) >= 0) {
 		int		sl ;
@@ -665,7 +665,8 @@ int strstore_indmk(STRSTORE *op,int (*it)[3],int itsize,int nskip)
 
 	    } /* end if */
 
-	    vecobj_finish(&ses) ;
+	    rs1 = vecobj_finish(&ses) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (vechand) */
 
 	return (rs >= 0) ? sc : rs ;
@@ -679,7 +680,7 @@ int strstore_indmk(STRSTORE *op,int (*it)[3],int itsize,int nskip)
 static int strstore_chunknew(STRSTORE *op,int amount)
 {
 	STRSTORE_CHUNK	*cep ;
-	const int	csize = sizeof(struct strstore_chunk) ;
+	const int	csize = sizeof(STRSTORE_CHUNK) ;
 	int		rs ;
 
 	if (op->chunksize > amount)
@@ -751,11 +752,11 @@ static int strstore_manage(STRSTORE *op,cchar *kp,int kl,int si)
 /* end subroutine (strstore_manage) */
 
 
-static int chunk_start(struct strstore_chunk *cnp,int csize)
+static int chunk_start(STRSTORE_CHUNK *cnp,int csize)
 {
 	int		rs = SR_OK ;
 
-	memset(cnp,0,sizeof(struct strstore_chunk)) ;
+	memset(cnp,0,sizeof(STRSTORE_CHUNK)) ;
 
 	if (csize > 0) {
 	    cnp->csize = csize ;
@@ -768,7 +769,7 @@ static int chunk_start(struct strstore_chunk *cnp,int csize)
 /* end subroutine (chunk_start) */
 
 
-static int chunk_adv(struct strstore_chunk *cnp)
+static int chunk_adv(STRSTORE_CHUNK *cnp)
 {
 
 	cnp->cdata[0] = '\0' ;
@@ -778,7 +779,7 @@ static int chunk_adv(struct strstore_chunk *cnp)
 /* end subroutine (chunk_adv) */
 
 
-static int chunk_finish(struct strstore_chunk *cnp)
+static int chunk_finish(STRSTORE_CHUNK *cnp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -799,16 +800,14 @@ static int chunk_finish(struct strstore_chunk *cnp)
 
 static int indexlen(int n)
 {
-	int		il = nextpowtwo(n) ;
-	return il ;
+	return nextpowtwo(n) ;
 }
 /* end subroutine (indexlen) */
 
 
 static int indexsize(int il)
 {
-	int		isize = (il + 1) * 3 * sizeof(int) ;
-	return isize ;
+	return ((il + 1) * 3 * sizeof(int)) ;
 }
 /* end subroutine (indexsize) */
 

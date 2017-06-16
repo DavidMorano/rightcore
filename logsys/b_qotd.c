@@ -930,6 +930,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (rs >= 0) {
 	    rs = procopts(pip,&akopts) ;
 	}
@@ -940,11 +945,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 #endif
-
-	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
-	    rs = optvalue(argval,-1) ;
-	    pip->n = rs ;
-	}
 
 	if ((rs >= 0) && (lip->intrun == 0)) {
 	    if ((cp = getourenv(envv,VARINTRUN)) != NULL) {

@@ -74,6 +74,8 @@
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 
+#define	SEARCHINFO	struct searchinfo
+
 
 /* external subroutines */
 
@@ -142,9 +144,8 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 static int	usage(PROGINFO *) ;
 
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,
-			struct searchinfo *,
-			const char *,const char *,const char *) ;
-static int	procwords(PROGINFO *,struct searchinfo *,void *,cchar *) ;
+			SEARCHINFO *,cchar *,cchar *,cchar *) ;
+static int	procwords(PROGINFO *,SEARCHINFO *,void *,cchar *) ;
 
 
 /* local variables */
@@ -253,7 +254,7 @@ int p_fieldwords(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
-	struct searchinfo	si ;
+	SEARCHINFO	si ;
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
 	ARGINFO		ainfo ;
@@ -731,14 +732,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 #endif
 
-	memset(&si,0,sizeof(struct searchinfo)) ;
-
+	memset(&si,0,sizeof(SEARCHINFO)) ;
 	si.fn = fn ;
 	si.searchstr = (const char *) searchstr ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_fieldwords: searchstr=>%s< fn=%d \n",
+	    debugprintf("b_fieldwords: searchstr=>%s< fn=%d\n",
 	        searchstr,fn) ;
 #endif
 
@@ -820,8 +820,7 @@ badprogstart:
 /* local subroutines */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -841,35 +840,38 @@ PROGINFO	*pip ;
 /* end subroutine (usage) */
 
 
-static int procargs(pip,aip,bop,sip,ofname,ifname,afname)
+static int procargs(pip,aip,bop,sip,ofn,ifn,afn)
 PROGINFO	*pip ;
 ARGINFO		*aip ;
 BITS		*bop ;
-struct searchinfo	*sip ;
-const char	*ofname ;
-const char	*ifname ;
-const char	*afname ;
+SEARCHINFO	*sip ;
+const char	*ofn ;
+const char	*ifn ;
+const char	*afn ;
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		pan = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = STDOUTFNAME ;
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
 
-	if ((rs = shio_open(ofp,ofname,"wct",0666)) >= 0) {
+	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
 	    const char	*cp ;
 
 	    if (rs >= 0) {
 		int	ai ;
 		int	f ;
+		cchar	**argv = aip->argv ;
 		for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	    	    f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	    	    f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	    	    f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	    	    if (f) {
-	    	        cp = aip->argv[ai] ;
+	    	        cp = argv[ai] ;
 	    	        pan += 1 ;
 	    	        rs = procwords(pip,sip,ofp,cp) ;
 	    	        lip->nwords += rs ;
@@ -879,13 +881,13 @@ const char	*afname ;
 		} /* end for */
 	    } /* end if (ok) */
 
-	    if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
+	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
 	        SHIO	afile, *afp = &afile ;
 
-	        if (strcmp(afname,"-") == 0)
-	            afname = STDINFNAME ;
+	        if (strcmp(afn,"-") == 0)
+	            afn = STDINFNAME ;
 
-	        if ((rs = shio_open(afp,afname,"r",0666)) >= 0) {
+	        if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
 		    const int	llen = LINEBUFLEN ;
 	            int		len ;
 	            char	lbuf[LINEBUFLEN + 1] ;
@@ -909,11 +911,10 @@ const char	*afname ;
 	            rs1 = shio_close(afp) ;
 		    if (rs >= 0) rs = rs1 ;
 	        } else {
-	                shio_printf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                shio_printf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afname) ;
+		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            shio_printf(pip->efp,fmt,pn,rs) ;
+		    fmt = "%s: afile=%s\n" ;
+	            shio_printf(pip->efp,fmt,pn,afn) ;
 	        } /* end if */
 
 	    } /* end if (processing file argument file list) */
@@ -921,13 +922,15 @@ const char	*afname ;
 	    rs1 = shio_close(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
-	    shio_printf(pip->efp,"%s: inaccessible output (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    fmt = "%s: ofile=%s\n" ;
+	    shio_printf(pip->efp,fmt,pn,ofn) ;
 	}
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: nwords=%u\n",pip->progname,
-		lip->nwords) ;
+	    fmt = "%s: nwords=%u\n" ;
+	    shio_printf(pip->efp,fmt,pn,lip->nwords) ;
 	}
 
 	return rs ;
@@ -936,11 +939,7 @@ const char	*afname ;
 
 
 /* process a file */
-static int procwords(pip,sip,ofp,words)
-PROGINFO		*pip ;
-struct searchinfo	*sip ;
-void			*ofp ;
-const char		words[] ;
+static int procwords(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar *words)
 {
 	int		rs = SR_OK ;
 	int		cl ;
@@ -948,8 +947,7 @@ const char		words[] ;
 	const char	*tp, *sp ;
 	const char	*cp ;
 
-	if (words == NULL)
-	    return SR_FAULT ;
+	if (words == NULL) return SR_FAULT ;
 
 	sp = words ;
 	while ((tp = strpbrk(sp," \t,:")) != NULL) {

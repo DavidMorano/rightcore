@@ -855,8 +855,7 @@ badprogstart:
 
 
 /* print out (standard error) some short usage */
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -865,7 +864,6 @@ PROGINFO	*pip ;
 
 	if (pip->efp != NULL) {
 
-	    rs = SR_OK ;
 	    fmt = "%s: USAGE> %s [<name(s)> ...] [-af <afile>]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	    wlen += rs ;

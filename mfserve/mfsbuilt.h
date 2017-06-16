@@ -16,8 +16,8 @@
 
 
 #define	MFSBUILT	struct mfsbuilt
-#define	MSGBUILT_NENTS	5
-#define	MSGBUILT_MAGIC	0x75428311
+#define	MFSBUILT_NENTS	5
+#define	MFSBUILT_MAGIC	0x75428311
 
 
 struct mfsbuilt {
@@ -36,7 +36,7 @@ extern "C" {
 
 extern int mfsbuilt_start(MFSBUILT *,cchar *) ;
 extern int mfsbuilt_have(MFSBUILT *,cchar *,int) ;
-extern int mfsbuilt_load(MFSBUILT *,cchar *,int,void *) ;
+extern int mfsbuilt_add(MFSBUILT *,cchar *,int,void *) ;
 extern int mfsbuilt_release(MFSBUILT *,void *) ;
 extern int mfsbuilt_finish(MFSBUILT *) ;
 

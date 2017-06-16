@@ -1,4 +1,4 @@
-/* testvotds */
+/* testvotdc */
 /* lang=C++98 */
 
 
@@ -28,8 +28,9 @@
 #include	<ucmallreg.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
-#include	"testvotds.h"
-#include	"votds.h"
+#include	"testvotdc.h"
+#include	"requests.h"
+#include	"votdc.h"
 
 /* local defines */
 
@@ -63,7 +64,7 @@ extern "C" const char	*getourenv(const char **,const char *) ;
 
 struct subinfo {
 	FILE		*ofp ;
-	VOTDS		*vip ;
+	VOTDC		*vip ;
 	char		*strp ;
 	REQUESTS	as ;
 	RANDOMVAR	rng ;
@@ -75,7 +76,7 @@ struct subinfo {
 
 /* forward references */
 
-static int subinfo_start(SUBINFO *,time_t,FILE *,VOTDS *,char *,int,int) ;
+static int subinfo_start(SUBINFO *,time_t,FILE *,VOTDC *,char *,int,int) ;
 static int subinfo_finish(SUBINFO *) ;
 static int subinfo_getrand(SUBINFO *) ;
 #if	CF_PHASE1
@@ -97,13 +98,14 @@ static int subinfo_already(SUBINFO *) ;
 int main(int argc,const char **argv,const char **envv)
 {
 	struct subinfo	si, *sip = &si ;
-	VOTDS		v ;
+	VOTDC		v ;
 	time_t		dt = time(NULL) ;
 	FILE		*ofp = stdout ;
 #if	CF_DEBUGS && CF_DEBUGMALL
 	uint		mo_start = 0 ;
 #endif
 	const int	ps = getpagesize() ;
+	const int	shsize = 2048 ;
 	const int	of = O_CREAT ;
 	int		rs ;
 	int		rs1 ;
@@ -111,7 +113,7 @@ int main(int argc,const char **argv,const char **envv)
 	cchar		*pr = "/usr/add-on/local" ;
 	cchar		*lang = "English" ;
 	cchar		*pn = argv[0] ;
-	char		*strp ;
+	char		*strp = NULL ;
 
 #if	CF_DEBUGS
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -125,7 +127,7 @@ int main(int argc,const char **argv,const char **envv)
 	uc_mallout(&mo_start) ;
 #endif
 
-	if ((rs = votds_open(&v,pr,lang,of)) >= 0) {
+	if ((rs = votdc_open(&v,pr,lang,of)) >= 0) {
 	        if ((rs = subinfo_start(sip,dt,ofp,&v,strp,shsize,ps)) >= 0) {
 
 #if	CF_PHASE1
@@ -145,9 +147,9 @@ int main(int argc,const char **argv,const char **envv)
 	            rs1 = subinfo_finish(sip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (subinfo) */
-	        rs1 = votds_close(&v) ;
+	        rs1 = votdc_close(&v) ;
 	        if (rs >= 0) rs = rs1 ;
-	} /* end if (votds) */
+	} /* end if (votdc) */
 
 	if (rs < 0) {
 	    fprintf(stderr,"%s: extiing (%d)\n",pn,rs) ;
@@ -181,7 +183,7 @@ int main(int argc,const char **argv,const char **envv)
 
 
 static int subinfo_start(SUBINFO *sip,time_t dt,FILE *ofp,
-	VOTDS *cip,char *strp,int shsize,int ps)
+	VOTDC *vip,char *strp,int shsize,int ps)
 {
 	int		rs ;
 	int		seed ;
@@ -238,22 +240,22 @@ static int subinfo_phase1(SUBINFO *sip)
 #endif
 	if ((rs = subinfo_populate(sip)) >= 0) {
 	    c = rs ;
-	    if ((rs = votds_used(sip->shp)) >= 0) {
+	    if ((rs = votdc_used(sip->vip)) >= 0) {
 	        fprintf(ofp,"used=%d\n",rs) ;
 #if	CF_DEBUGS
-	        debugprintf("subinfo_phase1: votds_used() rs=%d\n",rs) ;
+	        debugprintf("subinfo_phase1: votdc_used() rs=%d\n",rs) ;
 #endif
-	        if ((rs = votds_audit(sip->shp)) >= 0) {
+	        if ((rs = votdc_audit(sip->vip)) >= 0) {
 	            if ((rs = subinfo_allfree(sip)) >= 0) {
 	                if ((rs = subinfo_check(sip)) >= 0) {
 #if	CF_DEBUGS
 	                    debugprintf("subinfo_phase1: "
-	                        "votds_check() rs=%d\n",rs) ;
+	                        "votdc_check() rs=%d\n",rs) ;
 #endif
 	                }
 	            } /* end if (subinfo_allfree) */
-	        } /* end if (votds_audit) */
-	    } /* end if votds_used) */
+	        } /* end if (votdc_audit) */
+	    } /* end if votdc_used) */
 	} /* end if (subinfo_populate) */
 
 	if (rs >= 0)
@@ -271,7 +273,7 @@ static int subinfo_phase1(SUBINFO *sip)
 static int subinfo_populate(SUBINFO *sip)
 {
 	FILE		*ofp = sip->ofp ;
-	SHMALLOC	*shp = sip->shp ;
+	VOTDC		*vip = sip->vip ;
 	REQUESTS	*asp = &sip->as ;
 	int		rs = SR_OK ;
 	int		asize ;
@@ -284,15 +286,15 @@ static int subinfo_populate(SUBINFO *sip)
 	        asize = (asize % SHSIZEMOD) ;
 	        if (asize == 0) asize = 1 ;
 #if	CF_DEBUGS
-	        debugprintf("subinfo_populate: votds_alloc() asz=%u\n",
+	        debugprintf("subinfo_populate: votdc_alloc() asz=%u\n",
 	            asize) ;
 #endif
-	        if ((rs = votds_alloc(shp,asize)) >= 0) {
+	        if ((rs = votdc_alloc(shp,asize)) >= 0) {
 	            REQUESTS_ITEM	ai ;
 	            tsize += asize ;
 		    c += 1 ;
 #if	CF_DEBUGS
-	            debugprintf("subinfo_populate: votds_alloc() rs=%d\n",
+	            debugprintf("subinfo_populate: votdc_alloc() rs=%d\n",
 	                rs) ;
 #endif
 	            fprintf(ofp,"asz=%u a=%d\n",asize,rs) ;
@@ -320,7 +322,7 @@ static int subinfo_populate(SUBINFO *sip)
 static int subinfo_allfree(SUBINFO *sip)
 {
 	FILE		*ofp = sip->ofp ;
-	SHMALLOC	*shp = sip->shp ;
+	VOTDC		*vip = sip->vip ;
 	REQUESTS	*asp = &sip->as ;
 	int		rs ;
 #if	CF_DEBUGS
@@ -339,12 +341,12 @@ static int subinfo_allfree(SUBINFO *sip)
 		i,ai.ro,ai.rs) ;
 #endif
 	        fprintf(ofp,"free ro=%d\n",ai.ro) ;
-	        if ((rs = votds_free(shp,ai.ro)) >= 0) {
+	        if ((rs = votdc_free(shp,ai.ro)) >= 0) {
 	            if ((rs = subinfo_check(sip)) >= 0) {
 #if	CF_DEBUGS
 	                if (rs < 0)
 	                    debugprintf("subinfo_allfree: "
-	                        "votds_check() rs=%d\n",rs) ;
+	                        "votdc_check() rs=%d\n",rs) ;
 #endif
 	                rs = requests_del(asp,i--) ;
 	            }
@@ -455,7 +457,7 @@ static int subinfo_phase3(SUBINFO *sip)
 
 static int subinfo_del(SUBINFO *sip,int bi)
 {
-	SHMALLOC	*shp = sip->shp ;
+	VOTDC		*vip = sip->vip ;
 	REQUESTS	*asp = &sip->as ;
 	REQUESTS_ITEM	ai ;
 	int		rs ;
@@ -468,9 +470,9 @@ static int subinfo_del(SUBINFO *sip,int bi)
 #if	CF_DEBUGS
 	        debugprintf("subinfo_del: del r=%u:%u\n",ai.ro,ai.rs) ;
 #endif
-	        if ((rs = votds_already(shp,ai.ro)) == 0) {
-	            if ((rs = votds_free(shp,ai.ro)) >= 0) {
-	                if ((rs = votds_avail(shp)) >= 0) {
+	        if ((rs = votdc_already(shp,ai.ro)) == 0) {
+	            if ((rs = votdc_free(shp,ai.ro)) >= 0) {
+	                if ((rs = votdc_avail(shp)) >= 0) {
 	                    f = TRUE ;
 	                    rs = requests_del(asp,bi) ;
 #if	CF_DEBUGS
@@ -484,7 +486,7 @@ static int subinfo_del(SUBINFO *sip,int bi)
 #if	CF_DEBUGS
 	            if (rs < 0)
 	                debugprintf("subinfo_del: "
-	                    "votds_free() rs=%d\n",
+	                    "votdc_free() rs=%d\n",
 	                    rs) ;
 #endif
 	        } else if (rs > 0) {
@@ -506,7 +508,7 @@ static int subinfo_del(SUBINFO *sip,int bi)
 
 static int subinfo_already(SUBINFO *sip)
 {
-	SHMALLOC	*shp = sip->shp ;
+	VOTDC		*vip = sip->vip ;
 	REQUESTS	*asp = &sip->as ;
 	int		rs ;
 	int		c = 0 ;
@@ -522,7 +524,7 @@ static int subinfo_already(SUBINFO *sip)
 	    for (i = 0 ; requests_get(asp,i,&ai) >= 0 ; i += 1) {
 	        if (ai.ro >= 0) {
 	            c += 1 ;
-	            if ((rs = votds_already(shp,ai.ro)) > 0) {
+	            if ((rs = votdc_already(shp,ai.ro)) > 0) {
 	                rs = SR_BADFMT ;
 	            }
 	        }
@@ -561,9 +563,9 @@ static int subinfo_delone(SUBINFO *sip,int c)
 #if	CF_DEBUGS
 	            debugprintf("subinfo_delone: del r=%u:%u\n",ai.ro,ai.rs) ;
 #endif
-	            if ((rs = votds_already(sip->shp,ai.ro)) == 0) {
-	                if ((rs = votds_free(sip->shp,ai.ro)) >= 0) {
-	                    if ((rs = votds_avail(sip->shp)) >= 0) {
+	            if ((rs = votdc_already(sip->vip,ai.ro)) == 0) {
+	                if ((rs = votdc_free(sip->vip,ai.ro)) >= 0) {
+	                    if ((rs = votdc_avail(sip->vip)) >= 0) {
 	                        rs = requests_del(&sip->as,bi) ;
 #if	CF_DEBUGS
 	                        if (rs < 0)
@@ -576,7 +578,7 @@ static int subinfo_delone(SUBINFO *sip,int c)
 #if	CF_DEBUGS
 	                if (rs < 0)
 	                    debugprintf("subinfo_delone: "
-	                        "votds_free() rs=%d\n",
+	                        "votdc_free() rs=%d\n",
 	                        rs) ;
 #endif
 	            } else if (rs > 0) {
@@ -607,9 +609,9 @@ static int subinfo_check(SUBINFO *sip)
 	int		rs ;
 	int		usz = 0 ;
 	int		fsz = 0 ;
-	if ((rs = votds_used(sip->shp)) >= 0) {
+	if ((rs = votdc_used(sip->vip)) >= 0) {
 	    usz = rs ;
-	    if ((rs = votds_audit(sip->shp)) >= 0) {
+	    if ((rs = votdc_audit(sip->vip)) >= 0) {
 	        fsz = rs ;
 	        if ((fsz+usz) != sip->shsize) rs = SR_NOMSG ;
 	    }

@@ -37,14 +37,14 @@
 
 	Implementation note:
 
-	The "CHAR(3dam)' translations (conversions) return an unsigned
-	character ('uchar') type.  This means that when cajoled into becoming
-	an 'int' type on return, it will not be sign-extended.
+        The "CHAR(3dam)' translations (conversions) return an unsigned character
+        ('uchar') type. This means that when cajoled into becoming an 'int' type
+        on return, it will not be sign-extended.
 
 	= 2014-01-13
-	We now use the 'CHAR(3dam)' translation tables only (no computed
-	conversion compile-time option).  Deal with it.  See my note above
-	under the revision history.  Look how trivial the code is now!
+        We now use the 'CHAR(3dam)' translation tables only (no computed
+        conversion compile-time option). Deal with it. See my note above under
+        the revision history. Look how trivial the code is now!
 
 
 *******************************************************************************/

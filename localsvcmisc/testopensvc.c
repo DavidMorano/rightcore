@@ -73,9 +73,10 @@ int main(int argc,const char **argv,const char **envv)
 #if	CF_DEBUGS
 	{
 	    const char	*cp ;
-	    if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL)
-	        debugopen(cp) ;
-	    debugprintf("main: starting\n") ;
+	    if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	        rs = debugopen(cp) ;
+	        debugprintf("main: starting rs=%d\n",rs) ;
+	    }
 	}
 #endif /* CF_DEBUGS */
 

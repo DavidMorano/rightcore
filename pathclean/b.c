@@ -779,8 +779,7 @@ badarg:
 
 
 /* print out (standard error) some short usage */
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;

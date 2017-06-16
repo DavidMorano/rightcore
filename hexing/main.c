@@ -11,7 +11,6 @@
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
 	The program was written from scratch to do what the previous program by
 	the same name did.
 
@@ -216,7 +215,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	bfile		outfile, *ofp = &outfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
 	int		argr, argl, aol, akl, avl, kwi ;
@@ -720,48 +719,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    bprintf(pip->efp,fmt,pn,pip->linelen) ;
 	}
 
-/* get ready */
-
-#ifdef	COMMENT
-	if (rs >= 0) {
-
-	if (paramopt_havekey(&aparams,PO_SUFFIX) >= 0) {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: suffixes so far\n") ;
-#endif /* CF_DEBUG */
-
-	    pip->f.suffix = TRUE ;
-
-	} /* end if */
-
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
-	    PARAMOPT_CUR	cur ;
-
-	    if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
-		cchar	*po = PO_OPTION ;
-	        while (paramopt_enumvalues(&aparams,po,&cur,&cp) >= 0) {
-	            if (cp != NULL) {
-	                if ((kwi = matostr(progopts,1,cp,-1)) >= 0) {
-	                    switch (kwi) {
-	                    case progopt_follow:
-	                        pip->f.follow = TRUE ;
-	                        break ;
-	                    case progopt_nofollow:
-	                        pip->f.follow = FALSE ;
-	                        break ;
-	                    } /* end switch */
-	                } /* end if (progopts) */
-		    }
-	        } /* end while */
-	        paramopt_curend(&aparams,&cur) ;
-	    } /* end if (paramopt-cur) */
-	} /* end if (progopts) */
-
-	} /* end if (ok) */
-#endif /* COMMENT */
-
 /* continue */
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -775,6 +732,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    cchar	*ofn = ofname ;
 	    cchar	*afn = afname ;
 	    rs = process(pip,&ainfo,&pargs,ofn,afn) ;
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
 /* done */

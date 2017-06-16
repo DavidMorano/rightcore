@@ -653,12 +653,13 @@ bad0:
 /* free up the resources occupied by loading of the file */
 static int pwfile_fileback(PWFILE *dbp)
 {
+	VECITEM		*alp = &dbp->alist ;
 	PWENTRY		*ep ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
 
-	for (i = 0 ; vecitem_get(&dbp->alist,i,&ep) >= 0 ; i += 1) {
+	for (i = 0 ; vecitem_get(alp,i,&ep) >= 0 ; i += 1) {
 	    if (ep != NULL) {
 	        rs1 = pwentry_finish(ep) ;
 	        if (rs >= 0) rs = rs1 ;
@@ -667,7 +668,7 @@ static int pwfile_fileback(PWFILE *dbp)
 
 /* free up the container object itself */
 
-	rs1 = vecitem_finish(&dbp->alist) ;
+	rs1 = vecitem_finish(alp) ;
 	if (rs >= 0) rs = rs1 ;
 
 	return rs ;
@@ -741,8 +742,7 @@ d.a.morano:
 
 
 /* initialize a 'passwd' entry */
-static int pwentry_start(ep)
-PWENTRY		*ep ;
+static int pwentry_start(PWENTRY *ep)
 {
 
 	memset(ep,0,sizeof(PWENTRY)) ;
@@ -753,11 +753,7 @@ PWENTRY		*ep ;
 /* end subroutine (pwentry_start) */
 
 
-static int pwentry_fieldpw(ep,fn,s,slen)
-PWENTRY		*ep ;
-int		fn ;
-const char	s[] ;
-int		slen ;
+static int pwentry_fieldpw(PWENTRY *ep,int fn,cchar *s,int slen)
 {
 	int		v ;
 	const char	*mp = NULL ;
@@ -840,8 +836,7 @@ int		slen ;
 
 
 /* make the extra entries that we have all grown accustomed to */
-static int pwentry_mkextras(ep)
-PWENTRY		*ep ;
+static int pwentry_mkextras(PWENTRY *ep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -913,18 +908,14 @@ PWENTRY		*ep ;
 
 
 /* load a user entry from an internal one */
-static int pwentry_mkcopy(ep,uep,rbuf,rlen)
-PWENTRY		*ep, *uep ;
-char		rbuf[] ;
-int		rlen ;
+static int pwentry_mkcopy(PWENTRY *ep,PWENTRY *uep,char *rbuf,int rlen)
 {
 	STOREITEM	ubuf ;
 	int		rs ;
 	int		len = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("pwfile_getcopy: ent, &pe %08lX buflen=%d\n",
-	    uep,rlen) ;
+	debugprintf("pwfile_getcopy: ent, &pe %08lX buflen=%d\n",uep,rlen) ;
 #endif
 
 	memcpy(uep,ep,sizeof(PWENTRY)) ;
@@ -1087,7 +1078,7 @@ static int pwentry_finish(PWENTRY *ep)
 
 static int loaditem(cchar **rpp,cchar *vp,int vl)
 {
-	int		rs = SR_FAULT ;;
+	int		rs = SR_FAULT ;
 
 	if (vp != NULL) {
 	    rs = uc_mallocstrw(vp,vl,rpp) ;

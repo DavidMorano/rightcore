@@ -1,2 +1,2 @@
 const char uuidgen_makedate[] =
-"@(#)uuidgen                 170219_2147:40_USEST Rightcore Network Services¹" ;
+"@(#)uuidgen                 170615_1233:20_USEDT Rightcore Network Services" ;

@@ -70,6 +70,7 @@
 #define	PATHSFNAME	"paths"
 #define	HELPFNAME	"help"
 #define	IPASSWDFNAME	"ipasswd"
+#define	DEFLIBFNAME	"lkcmd"
 
 #define	PIDFNAME	"run/kshbi"		/* mutex PID file */
 #define	LOGFNAME	"var/log/kshbi"		/* activity log */

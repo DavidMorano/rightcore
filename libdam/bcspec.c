@@ -118,6 +118,7 @@ int bcspec_load(BCSPEC *op,const char *sbuf,int slen)
 	if (sbuf == NULL) return SR_FAULT ;
 
 	memset(op,0,sizeof(BCSPEC)) ;
+	op->c = 1 ;
 	op->v = 1 ;
 
 	if ((sl = sfshrink(sbuf,slen,&sp)) > 0) {
@@ -125,8 +126,15 @@ int bcspec_load(BCSPEC *op,const char *sbuf,int slen)
 	    int	v ;
 	    int	ch = MKCHAR(sp[0]) ;
 	    if (isalphalatin(ch)) {
-	        if ((si = siourbrk(sp,sl,TRUE)) > 0) {
 		    op->np = sp ;
+	  	    op->nl = sl ;
+#if	CF_DEBUGS
+	debugprintf("bcspec_load: s=%t\n",sp,sl) ;
+#endif
+	        if ((si = siourbrk(sp,sl,TRUE)) > 0) {
+#if	CF_DEBUGS
+	debugprintf("bcspec_load: dig si=%u\n",si) ;
+#endif
 	  	    op->nl = si ;
 		    sp += si ;
 		    sl -= si ;
@@ -137,7 +145,12 @@ int bcspec_load(BCSPEC *op,const char *sbuf,int slen)
 			    sl -= 1 ;
 			}
 		    }
-	        }
+	        } else {
+#if	CF_DEBUGS
+	debugprintf("bcspec_load: no_dig\n") ;
+#endif
+		    sl = 0 ;
+		}
 	    } else if (isdigitlatin(ch)) {
 	        if ((si = siourbrk(sp,sl,TRUE)) > 0) {
 		    rs = cfdeci(sp,si,&v) ;
@@ -162,8 +175,7 @@ int bcspec_load(BCSPEC *op,const char *sbuf,int slen)
 		    rs = cfdeci(sp,sl,&v) ;
 		    op->c = v ;
 		}
-	    } else
-	        rs = SR_DOM ;
+	    }
 	} else
 	    rs = SR_DOM ;
 

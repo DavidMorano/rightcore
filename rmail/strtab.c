@@ -85,6 +85,8 @@
 
 #define	VALBOGUS	(250000 * 10)
 
+#define	STRENTRY	struct strentry
+
 
 /* external subroutines */
 
@@ -133,9 +135,7 @@ static int	hashindex(uint,int) ;
 /* exported subroutines */
 
 
-int strtab_start(op,startsize)
-STRTAB		*op ;
-int		startsize ;
+int strtab_start(STRTAB *op,int startsize)
 {
 	const int	pagesize = getpagesize() ;
 	int		rs ;
@@ -179,8 +179,7 @@ int		startsize ;
 
 
 /* free up this strtab object */
-int strtab_finish(op)
-STRTAB		*op ;
+int strtab_finish(STRTAB *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -246,10 +245,7 @@ STRTAB		*op ;
 
 
 /* add a character-string */
-int strtab_add(op,sp,sl)
-STRTAB		*op ;
-const char	*sp ;
-int		sl ;
+int strtab_add(STRTAB *op,cchar *sp,int sl)
 {
 	HDB_DATUM	key, val ;
 	int		rs ;
@@ -310,10 +306,7 @@ int		sl ;
 
 
 /* fast-add a character string */
-int strtab_addfast(op,sp,sl)
-STRTAB		*op ;
-const char	*sp ;
-int		sl ;
+int strtab_addfast(STRTAB *op,cchar *sp,int sl)
 {
 	int		rs ;
 	int		vi = 0 ;
@@ -345,10 +338,7 @@ int		sl ;
 
 
 /* is a given string already represented? */
-int strtab_already(op,sp,sl)
-STRTAB		*op ;
-const char	sp[] ;
-int		sl ;
+int strtab_already(STRTAB *op,cchar *sp,int sl)
 {
 	HDB_DATUM	key, val ;
 	int		rs ;
@@ -394,8 +384,7 @@ int		sl ;
 
 
 /* get the string count in the table */
-int strtab_count(op)
-STRTAB		*op ;
+int strtab_count(STRTAB *op)
 {
 
 #if	CF_SAFE1
@@ -411,8 +400,7 @@ STRTAB		*op ;
 /* end subroutine (strtab_count) */
 
 
-int strtab_strsize(op)
-STRTAB		*op ;
+int strtab_strsize(STRTAB *op)
 {
 	int		size ;
 
@@ -432,10 +420,7 @@ STRTAB		*op ;
 
 
 /* make the string table */
-int strtab_strmk(op,tabdata,tabsize)
-STRTAB		*op ;
-char		tabdata[] ;
-int		tabsize ;
+int strtab_strmk(STRTAB *op,char *tabdata,int tabsize)
 {
 	STRTAB_CHUNK	*ccp ;
 	int		size ;
@@ -478,8 +463,7 @@ int		tabsize ;
 
 
 /* calculate the index table length (entries) */
-int strtab_recsize(op)
-STRTAB		*op ;
+int strtab_recsize(STRTAB *op)
 {
 	int		n ;
 	int		size ;
@@ -500,10 +484,7 @@ STRTAB		*op ;
 
 
 /* make the record table */
-int strtab_recmk(op,rec,recsize)
-STRTAB		*op ;
-int		rec[] ;
-int		recsize ;
+int strtab_recmk(STRTAB *op,int *rec,int recsize)
 {
 	int		rs ;
 	int		n, size ;
@@ -541,8 +522,7 @@ int		recsize ;
 
 
 /* calculate the index table length (entries) */
-int strtab_indlen(op)
-STRTAB		*op ;
+int strtab_indlen(STRTAB *op)
 {
 	int		il ;
 
@@ -570,8 +550,7 @@ STRTAB		*op ;
 
 
 /* calculate the index table size */
-int strtab_indsize(op)
-STRTAB		*op ;
+int strtab_indsize(STRTAB *op)
 {
 	int		isize ;
 
@@ -594,17 +573,12 @@ STRTAB		*op ;
 
 
 /* make an index table of the string table */
-int strtab_indmk(op,it,itsize,nskip)
-STRTAB		*op ;
-int		(*it)[3] ;
-int		itsize ;
-int		nskip ;
+int strtab_indmk(STRTAB *op,int (*it)[3],int itsize,int nskip)
 {
 	VECOBJ		ses ;
-	uint		khash, chash, nhash ;
-	const int	esize = sizeof(struct strentry) ;
+	const int	esize = sizeof(STRENTRY) ;
 	int		rs ;
-	int		lhi, nhi, hi, si ;
+	int		rs1 ;
 	int		il ;
 	int		isize ;
 	int		opts ;
@@ -634,9 +608,11 @@ int		nskip ;
 
 	opts = VECOBJ_OCOMPACT ;
 	if ((rs = vecobj_start(&ses,esize,op->count,opts)) >= 0) {
-	    struct strentry	se, *sep ;
+	    STRENTRY	se, *sep ;
 	    HDB_CUR	cur ;
 	    HDB_DATUM	key, val ;
+	    uint	khash, chash, nhash ;
+	    int		lhi, nhi, hi, si ;
 
 	    if ((rs = hdb_curbegin(&op->strdb,&cur)) >= 0) {
 		int		*ip ;
@@ -735,7 +711,8 @@ int		nskip ;
 
 	    } /* end if */
 
-	    vecobj_finish(&ses) ;
+	    rs1 = vecobj_finish(&ses) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (vecobj) */
 
 	return (rs >= 0) ? sc : rs ;
@@ -747,18 +724,14 @@ int		nskip ;
 
 
 /* store a string into the table */
-static int strtab_stuff(op,sp,sl)
-STRTAB		*op ;
-const char	*sp ;
-int		sl ;
+static int strtab_stuff(STRTAB *op,cchar *sp,int sl)
 {
 	int		rs ;
-	int		amount ;
+	int		amount = (sl + 1) ;
 	int		vi = 0 ;
 
 /* do we need to extend the table? */
 
-	amount = (sl + 1) ;
 	if ((rs = strtab_extend(op,amount)) >= 0) {
 	    const char	*vp = NULL ;
 	    vi = op->stlen ;
@@ -789,25 +762,23 @@ int		sl ;
 
 
 /* free up all of the chunks */
-static int strtab_finishchunks(op)
-STRTAB		*op ;
+static int strtab_finishchunks(STRTAB *op)
 {
+	VECHAND		*clp = &op->chunks ;
 	STRTAB_CHUNK	*ccp ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
 	int		c = 0 ;
 
-	for (i = 0 ; vechand_get(&op->chunks,i,&ccp) >= 0 ; i += 1) {
-	    if (ccp == NULL) continue ;
-
-	    c += 1 ;
-	    rs1 = chunk_finish(ccp) ;
-	    if (rs >= 0) rs = rs1 ;
-
-	    rs1 = uc_free(ccp) ;
-	    if (rs >= 0) rs = rs1 ;
-
+	for (i = 0 ; vechand_get(clp,i,&ccp) >= 0 ; i += 1) {
+	    if (ccp != NULL) {
+	        c += 1 ;
+	        rs1 = chunk_finish(ccp) ;
+	        if (rs >= 0) rs = rs1 ;
+	        rs1 = uc_free(ccp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
 	} /* end for */
 
 #if	CF_DEBUGS
@@ -822,31 +793,19 @@ STRTAB		*op ;
 
 
 /* extend the string table */
-static int strtab_extend(op,amount)
-STRTAB		*op ;
-int		amount ;
+static int strtab_extend(STRTAB *op,int amount)
 {
 	int		rs = SR_OK ;
-	int		rs1 ;
 
 	if (op->ccp != NULL) {
-
-#if	CF_DEBUGS
-	    debugprintf("strtab_extend: chunk_check() \n") ;
-#endif
-
-	    rs1 = chunk_check(op->ccp,amount) ;
-	    if (rs1 < 0)
+	    const int	rso = SR_OVERFLOW ;
+	    if ((rs = chunk_check(op->ccp,amount)) == rso) {
+		rs = SR_OK ;
 	        op->ccp = NULL ;
-
+	    }
 	} /* end if (tried to extend a chunk) */
 
-	if (op->ccp == NULL) {
-
-#if	CF_DEBUGS
-	    debugprintf("strtab_extend: strtab_newchunk() \n") ;
-#endif
-
+	if ((rs >= 0) && (op->ccp == NULL)) {
 	    rs = strtab_newchunk(op,amount) ;
 	}
 
@@ -855,12 +814,10 @@ int		amount ;
 /* end subroutine (strtab_extend) */
 
 
-static int strtab_newchunk(op,amount)
-STRTAB		*op ;
-int		amount ;
+static int strtab_newchunk(STRTAB *op,int amount)
 {
+	const int	size = sizeof(STRTAB_CHUNK) ;
 	int		rs ;
-	int		size ;
 	int		start = 0 ;
 
 #if	CF_DEBUGS
@@ -868,7 +825,6 @@ int		amount ;
 #endif
 
 	op->ccp = NULL ;
-	size = sizeof(STRTAB_CHUNK) ;
 	if ((rs = uc_malloc(size,&op->ccp)) >= 0) {
 	    if (op->stlen == 0) {
 	        op->stlen = 1 ;
@@ -891,10 +847,7 @@ int		amount ;
 /* end subroutine (strtab_newchunk) */
 
 
-static int chunk_start(ccp,chunksize,start)
-STRTAB_CHUNK	*ccp ;
-int		chunksize ;
-int		start ;
+static int chunk_start(STRTAB_CHUNK *ccp,int chunksize,int start)
 {
 	int		rs = SR_OK ;
 
@@ -918,8 +871,7 @@ int		start ;
 /* end subroutine (chunk_start) */
 
 
-static int chunk_finish(ccp)
-STRTAB_CHUNK	*ccp ;
+static int chunk_finish(STRTAB_CHUNK *ccp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -937,34 +889,26 @@ STRTAB_CHUNK	*ccp ;
 /* end subroutine (chunk_finish) */
 
 
-static int chunk_check(ccp,amount)
-STRTAB_CHUNK	*ccp ;
-int		amount ;
+static int chunk_check(STRTAB_CHUNK *ccp,int amount)
 {
 	int		rs = SR_OK ;
 
-	if (amount > (ccp->csize - ccp->cl))
+	if (amount > (ccp->csize - ccp->cl)) {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return rs ;
 }
 /* end subroutine (chunk_check) */
 
 
-static int chunk_add(ccp,sp,sl,spp)
-STRTAB_CHUNK	*ccp ;
-const char	sp[] ;
-int		sl ;
-const char	**spp ;
+static int chunk_add(STRTAB_CHUNK *ccp,cchar *sp,int sl,cchar **spp)
 {
 	int		rs = SR_OK ;
 	int		amount = (sl + 1) ;
 
-	*spp = NULL ;
-
 #if	CF_DEBUGS
-	debugprintf("strtab/chunk_add: tl=%u s=%t\n",
-	    ccp->cl,sp,sl) ;
+	debugprintf("strtab/chunk_add: tl=%u s=%t\n",ccp->cl,sp,sl) ;
 #endif
 
 	if (amount <= (ccp->csize - ccp->cl)) {
@@ -973,36 +917,32 @@ const char	**spp ;
 	    strwcpy(bp,sp,sl) ;
 	    ccp->cl += amount ;
 	    ccp->count += 1 ;
-	} else
+	} else {
+	    *spp = NULL ;
 	    rs = SR_NOANODE ;
+	}
 
 	return rs ;
 }
 /* end subroutine (chunk_add) */
 
 
-static int indexlen(n)
-int		n ;
+static int indexlen(int n)
 {
-	int		il = nextpowtwo(n) ;
-	return il ;
+	return nextpowtwo(n) ;
 }
 /* end subroutine (indexlen) */
 
 
-static int indexsize(il)
-int		il ;
+static int indexsize(int il)
 {
-	int		isize = (il + 1) * 3 * sizeof(int) ;
-	return isize ;
+	return ((il + 1) * 3 * sizeof(int)) ;
 }
 /* end subroutine (indexsize) */
 
 
 /* calculate the next hash from a given one */
-static int hashindex(hv,n)
-uint		hv ;
-int		n ;
+static int hashindex(uint hv,int n)
 {
 	int		hi = MODP2(hv,n) ;
 	if (hi == 0) hi = 1 ;

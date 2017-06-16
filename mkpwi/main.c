@@ -52,16 +52,11 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
 
 #include	<vsystem.h>
 #include	<bits.h>
 #include	<bfile.h>
 #include	<userinfo.h>
-#include	<logfile.h>
-#include	<getax.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -103,7 +98,6 @@ extern int	mkdirs(cchar *,mode_t) ;
 extern int	mkuibang(char *,int,USERINFO *) ;
 extern int	mkuiname(char *,int,USERINFO *) ;
 extern int	pcsuserfile(cchar *,cchar *,cchar *,cchar *,cchar *) ;
-extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,cchar *,cchar *) ;
 extern int	getfname(cchar *,cchar *,int,char *) ;
 extern int	getclustername(cchar *,char *,int,cchar *) ;
 extern int	getgroupname(char *,int,gid_t) ;
@@ -174,6 +168,7 @@ static cchar *argopts[] = {
 	"ef",
 	"of",
 	"if",
+	"lf",
 	"db",
 	"pwfile",
 	"indexfile",
@@ -194,6 +189,7 @@ enum argopts {
 	argopt_ef,
 	argopt_of,
 	argopt_if,
+	argopt_lf,
 	argopt_db,
 	argopt_pwfile,
 	argopt_indexfile,
@@ -395,6 +391,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    break ;
 
 /* log file */
+	                case argopt_lf:
 	                case argopt_logfile:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
@@ -950,6 +947,10 @@ static int usage(PROGINFO *pip)
 	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
+	fmt = "%s:  [-lf <lfile>]\n" ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
+	wlen += rs ;
+
 	fmt = "%s:  [-Q] [-D] [-v[=n]] [-HELP] [-V]\n" ;
 	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
@@ -963,6 +964,7 @@ static int procdbname(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	cchar		*pn = pip->progname ;
+
 	if (pip->dbname == NULL) {
 	    const int	clen = NODENAMELEN ;
 	    cchar	*nn = pip->nodename ;

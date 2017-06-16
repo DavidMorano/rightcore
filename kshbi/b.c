@@ -216,9 +216,10 @@ static int	procname(PROGINFO *,SHIO *,cchar *,int) ;
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 static int	locinfo_libenv(LOCINFO *,cchar *) ;
+static int	locinfo_libdef(LOCINFO *) ;
 static int	locinfo_libset(LOCINFO *,cchar *,int) ;
 static int	locinfo_libopen(LOCINFO *) ;
-static int	locinfo_libfind(LOCINFO *) ;
+static int	locinfo_libopenfind(LOCINFO *,int) ;
 static int	locinfo_libclose(LOCINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_prdir(LOCINFO *) ;
@@ -391,7 +392,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*ifname = NULL ;
 	cchar		*ofname = NULL ;
 	cchar		*efname = NULL ;
-	cchar		*libfname = NULL ;
 	cchar		*cp ;
 
 
@@ -672,8 +672,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                libfname = argp ;
+	                            if (argl) {
+	    			        lip->have.lib = TRUE ;
+	    			        lip->final.lib = TRUE ;
+	                                lip->libfname = argp ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -684,8 +687,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -705,8 +710,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            if ((rs = optbool(cp,cl)) > 0) {
 	                                pip->verboselevel = 0 ;
 	                            }
-	                        } else
+	                        } else {
 	                            pip->verboselevel = 0 ;
+				}
 	                        break ;
 
 			    case 'p':
@@ -855,13 +861,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    shio_printf(pip->efp,"%s: ifile=%s\n",pn,ifname) ;
 	}
 
-	if ((rs >= 0) && (libfname != NULL)) {
-	    rs = locinfo_libset(lip,libfname,-1) ;
-	}
-
 	if (rs >= 0) {
 	    if ((rs = procopts(pip,&akopts)) >= 0) {
-	        rs = locinfo_libenv(lip,VARBILIB) ;
+	        if ((rs = locinfo_libenv(lip,VARBILIB)) >= 0) {
+		    rs = locinfo_libdef(lip) ;
+		}
 	    }
 	}
 
@@ -869,11 +873,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    cchar	*pn = pip->progname ;
 	    cchar	*lfn = lip->libfname ;
 	    shio_printf(pip->efp,"%s: lib=%s\n",pn,lfn) ;
-	}
-
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    goto retearly ;
 	}
 
 /* do it */
@@ -1113,6 +1112,11 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	int		rs1 ;
 	int		wlen = 0 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("b_kshbi/process: ent\n") ;
+#endif
+
 	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
 	    ofn = STDOUTFNAME ;
 
@@ -1143,6 +1147,12 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	    shio_printf(pip->efp,fmt,pn,rs) ;
 	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("b_kshbi/process: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
+
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (process) */
@@ -1154,6 +1164,10 @@ static int procprint(PROGINFO *pip,void *ofp)
 	int		rs ;
 	int		wlen = 0 ;
 	char		rbuf[MAXPATHLEN+1] ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("b_kshbi/procprint: ent\n") ;
+#endif
 	if ((rs = locinfo_libdirfind(lip,rbuf)) >= 0) {
 	    const int	rl = rs ;
 	    if (pip->debuglevel > 0) {
@@ -1164,6 +1178,11 @@ static int procprint(PROGINFO *pip,void *ofp)
 	    rs = shio_print(ofp,rbuf,rl) ;
 	    wlen += rs ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_kshbi/procprint: ret rs=%d wlen=%u\n",
+	    rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procprint) */
@@ -1543,7 +1562,7 @@ static int procname(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
 	        debugprintf("b_kshbi/procname: dlsym() f=%u lib.init=%u\n",
-	            f, lip->f.lib) ;
+	            f,lip->f.lib) ;
 #endif
 
 	    if (sp == NULL) {
@@ -1621,13 +1640,12 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	vecstr		*vsp = &lip->stores ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
-	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
 	if (! lip->open.stores) {
@@ -1638,7 +1656,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(&lip->stores,*epp) ;
+		oi = vecstr_findaddr(vsp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
@@ -1658,29 +1676,48 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 
 static int locinfo_libdirfind(LOCINFO *lip,char *rbuf)
 {
+	PROGINFO	*pip = lip->pip ;
 	int		rs ;
 	int		len = 0 ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("b_kshbi/locinfo_libdirfind: ent\n") ;
+#endif
+	if (pip == NULL) return SR_FAULT ;
 	if ((rs = locinfo_libdirinit(lip)) >= 0) {
 	    cchar	*name = lip->libfname ;
-	    if (strchr(name,'/') == NULL) {
-	        if ((rs = locinfo_libdirs(lip)) >= 0) {
-	            if (strchr(name,'.') != NULL) {
-	                rs = locinfo_libdirsearch(lip,rbuf,name) ;
-			len = rs ;
-	            } else {
-	                rs = locinfo_libdirsearching(lip,rbuf,name) ;
-			len = rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("b_kshbi/locinfo_libdirfind: name=%s\n",name) ;
+#endif
+	    if (name != NULL) {
+	        if (strchr(name,'/') == NULL) {
+	            if ((rs = locinfo_libdirs(lip)) >= 0) {
+	                if (strchr(name,'.') != NULL) {
+	                    rs = locinfo_libdirsearch(lip,rbuf,name) ;
+			    len = rs ;
+	                } else {
+	                    rs = locinfo_libdirsearching(lip,rbuf,name) ;
+			    len = rs ;
+	                }
+	            }
+	        } else {
+	            if ((rs = mkpath1(rbuf,name)) >= 0) {
+		        len = rs ;
+	                if ((rs = locinfo_libdirtest(lip,rbuf)) == 0) {
+	                    len = 0 ;
+	                }
 	            }
 	        }
 	    } else {
-	        if ((rs = mkpath1(rbuf,name)) >= 0) {
-		    len = rs ;
-	            if ((rs = locinfo_libdirtest(lip,rbuf)) == 0) {
-	                len = 0 ;
-	            }
-	        }
+		rs = SR_NOENT ;
 	    }
 	} /* end if (locinfo_libdirinit) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_kshbi/locinfo_libdirfind: ret rs=%d len=%u\n",
+		rs,len) ;
+#endif
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (locinfo_libdirfind) */
@@ -1860,13 +1897,23 @@ static int locinfo_libdiradd(LOCINFO *lip,cchar *libdir)
 
 static int locinfo_libdirinit(LOCINFO *lip)
 {
+	PROGINFO	*pip = lip->pip ;
 	vecstr		*ldp = &lip->libdirs ;
 	int		rs = SR_OK ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("b_kshbi/locinfo_libdirinit: ent\n") ;
+#endif
+	if (pip == NULL) return SR_FAULT ;
 	if (! lip->open.libdirs) {
 	    if ((rs = vecstr_start(ldp,10,0)) >= 0) {
 	        lip->open.libdirs = TRUE ;
 	    }
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("b_kshbi/locinfo_libdirinit: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (locinfo_libdirinit) */
@@ -1891,6 +1938,17 @@ static int locinfo_libenv(LOCINFO *lip,cchar *varname)
 /* end subroutine (locinfo_libenv) */
 
 
+static int locinfo_libdef(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	if (lip->libfname == NULL) {
+	    lip->libfname = DEFLIBFNAME ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_libdef) */
+
+
 static int locinfo_libset(LOCINFO *lip,cchar *vp,int vl)
 {
 	PROGINFO	*pip = lip->pip ;
@@ -1900,8 +1958,7 @@ static int locinfo_libset(LOCINFO *lip,cchar *vp,int vl)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("b_kshbi/locinfo_libset: lib.init=%u\n",
-	        lip->f.lib) ;
+	    debugprintf("b_kshbi/locinfo_libset: f_lib=%u\n",lip->f.lib) ;
 #endif
 
 	if (vp != NULL) {
@@ -1924,16 +1981,16 @@ static int locinfo_libopen(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("b_kshbi/locinfo_libopen: ent lib.init=%u\n",
+	    debugprintf("b_kshbi/locinfo_libopen: ent f_lib=%u\n",
 	        lip->f.lib) ;
 #endif
 
-	if (! lip->f.lib) {
+	if (! lip->open.lib) {
 	    cchar	*libfname = lip->libfname ;
-	    lip->f.lib = TRUE ;
+	    lip->open.lib = TRUE ;
 	    if (libfname != NULL) {
 	        if (strchr(libfname,'/') == NULL) {
-	            rs = locinfo_libfind(lip) ;
+	            rs = locinfo_libopenfind(lip,dlflags) ;
 	        } else {
 	            lip->dhp = dlopen(libfname,dlflags) ;
 #if	CF_DEBUG
@@ -1977,7 +2034,7 @@ static int locinfo_libclose(LOCINFO *lip)
 /* end subroutine (locinfo_libclose) */
 
 
-static int locinfo_libfind(LOCINFO *lip)
+static int locinfo_libopenfind(LOCINFO *lip,int dlflags)
 {
 	PROGINFO	*pip = lip->pip ;
 	VECSTR		ns ;
@@ -1988,13 +2045,13 @@ static int locinfo_libfind(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("b_kshbi/locinfo_libfind: ent n=%s\n",lip->libfname) ;
+	    debugprintf("b_kshbi/locinfo_libopenfind: ent n=%s\n",
+		lip->libfname) ;
 #endif
 
 	if ((rs = vecstr_start(&ns,6,0)) >= 0) {
 	    cchar	*name = lip->libfname ;
 	    if ((rs = vecstr_loadnames(&ns,name)) >= 0) {
-	        const int	dlflags = (RTLD_LAZY|RTLD_LOCAL) ;
 	        int		i ;
 	        cchar		*np ;
 
@@ -2003,17 +2060,17 @@ static int locinfo_libfind(LOCINFO *lip)
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
-	                debugprintf("b_kshbi/locinfo_libfind: n=%s\n",np) ;
+	                debugprintf("b_kshbi/locinfo_libopenfind: n=%s\n",np) ;
 #endif
 
 	            lip->dhp = dlopen(np,dlflags) ;
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4)) {
-	                debugprintf("b_kshbi/locinfo_libfind: dhp=%p\n",
+	                debugprintf("b_kshbi/locinfo_libopenfind: dhp=%p\n",
 	                    lip->dhp) ;
 	                if (lip->dhp == NULL)
-	                    debugprintf("b_kshbi/locinfo_libfind: "
+	                    debugprintf("b_kshbi/locinfo_libopenfind: "
 	                        "dlerr=%s\n", dlerror()) ;
 	            }
 #endif /* CF_DEBUG */
@@ -2022,7 +2079,7 @@ static int locinfo_libfind(LOCINFO *lip)
 	            if (lip->dhp != NULL) break ;
 	        } /* end for */
 
-	    } /* end if (libmknames) */
+	    } /* end if (vecstr_loadnames) */
 
 	    rs1 = vecstr_finish(&ns) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -2030,13 +2087,13 @@ static int locinfo_libfind(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("b_kshbi/locinfo_libfind: ret rs=%d c=%u\n",
+	    debugprintf("b_kshbi/locinfo_libopenfind: ret rs=%d c=%u\n",
 	        rs,(lip->dhp != NULL)) ;
 #endif
 
 	return rs ;
 }
-/* end subroutine (locinfo_libfind) */
+/* end subroutine (locinfo_libopenfind) */
 
 
 static int locinfo_prdir(LOCINFO *lip)
@@ -2306,23 +2363,25 @@ static int vecstr_loadnamers(vecstr *nlp,cchar *name)
 {
 	const int	nlen = MAXNAMELEN ;
 	int		rs = SR_OK ;
-	int		i ;
 	int		c = 0 ;
-	char		nbuf[MAXNAMELEN+1] ;
-	for (i = 0 ; (rs >= 0) && (exts[i] != NULL) ; i += 1) {
-	    int		nl = -1 ;
-	    cchar	*np = name ;
-	    if (exts[i][0] != '\0') {
-	        if ((rs = snsds(nbuf,nlen,name,exts[i])) >= 0) {
-	            np = nbuf ;
-	            nl = rs ;
+	if (strchr(name,'.') == NULL) {
+	    int		i ;
+	    char	nbuf[MAXNAMELEN+1] ;
+	    for (i = 0 ; (rs >= 0) && (exts[i] != NULL) ; i += 1) {
+	        int	nl = -1 ;
+	        cchar	*np = name ;
+	        if (exts[i][0] != '\0') {
+	            if ((rs = snsds(nbuf,nlen,name,exts[i])) >= 0) {
+	                np = nbuf ;
+	                nl = rs ;
+	            }
 	        }
-	    }
-	    if (rs >= 0) {
-	        rs = vecstr_add(nlp,np,nl) ;
-	        c += 1 ;
-	    }
-	} /* end for */
+	        if (rs >= 0) {
+	            rs = vecstr_add(nlp,np,nl) ;
+	            c += 1 ;
+	        }
+	    } /* end for */
+	} /* end if (no-suffix) */
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (locinfo_loadnamers) */

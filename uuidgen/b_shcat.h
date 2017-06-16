@@ -11,31 +11,30 @@
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 
-#define	VERSION		"0a"
-#define	WHATINFO	"@(#)kshbi "
-#define	BANNER		"KSH Builtin"
-#define	SEARCHNAME	"kshbi"
+#define	VERSION		"0"
+#define	WHATINFO	"@(#)shcat "
+#define	BANNER		"Shell Concatenate"
+#define	SEARCHNAME	"shcat"
 #define	VARPRNAME	"LOCAL"
 
 #ifndef	PROGRAMROOT
 #define	PROGRAMROOT	"/usr/add-on/local"
 #endif
 
-#define	VARPROGRAMROOT1	"KSHBI_PROGRAMROOT"
+#define	VARPROGRAMROOT1	"SHCAT_PROGRAMROOT"
 #define	VARPROGRAMROOT2	VARPRNAME
 #define	VARPROGRAMROOT3	"PROGRAMROOT"
 
-#define	VARBANNER	"KSHBI_BANNER"
-#define	VARSEARCHNAME	"KSHBI_NAME"
-#define	VAROPTS		"KSHBI_OPTS"
-#define	VARBILIB	"KSHBI_LIBRARY"
-#define	VARFILEROOT	"KSHBI_FILEROOT"
-#define	VARLOGTAB	"KSHBI_LOGTAB"
-#define	VARAFNAME	"KSGBI_AF"
-#define	VAREFNAME	"KSHBI_EF"
+#define	VARBANNER	"SHCAT_BANNER"
+#define	VARSEARCHNAME	"SHCAT_NAME"
+#define	VAROPTS		"SHCAT_OPTS"
+#define	VARFILEROOT	"SHCAT_FILEROOT"
+#define	VARLOGTAB	"SHCAT_LOGTAB"
+#define	VARAFNAME	"SHCAT_AF"
+#define	VAREFNAME	"SHCAT_EF"
 
-#define	VARDEBUGFNAME	"KSHBI_DEBUGFILE"
-#define	VARDEBUGFD1	"KSHBI_DEBUGFD"
+#define	VARDEBUGFNAME	"SHCAT_DEBUGFILE"
+#define	VARDEBUGFD1	"SHCAT_DEBUGFD"
 #define	VARDEBUGFD2	"DEBUGFD"
 
 #define	VARNODE		"NODE"
@@ -47,9 +46,8 @@
 #define	VARSYSTEM	"SYSTEM"
 #define	VARNISDOMAIN	"NISDOMAIN"
 #define	VARPRINTER	"PRINTER"
-
-#define	VAREXECPATH	"PATH"
-#define	VARLIBPATH	"LD_LIBRARY_PATH"
+#define	VARTERM		"TERM"
+#define	VARCOLUMNS	"COLUMNS"
 
 #define	VARTMPDNAME	"TMPDIR"
 
@@ -58,7 +56,6 @@
 
 #define	TMPDNAME	"/tmp"
 #define	WORKDNAME	"/tmp"
-#define	VDNAME		"var"
 #define	LOGCNAME	"log"
 
 #define	DEFINITFNAME	"/etc/default/init"
@@ -70,11 +67,10 @@
 #define	PATHSFNAME	"paths"
 #define	HELPFNAME	"help"
 #define	IPASSWDFNAME	"ipasswd"
-#define	DEFLIBFNAME	"lkcmd"
 
-#define	PIDFNAME	"run/kshbi"		/* mutex PID file */
-#define	LOGFNAME	"var/log/kshbi"		/* activity log */
-#define	LOCKFNAME	"spool/locks/kshbi"	/* lock mutex file */
+#define	PIDFNAME	"run/shcat"		/* mutex PID file */
+#define	LOGFNAME	"var/log/shcat"		/* activity log */
+#define	LOCKFNAME	"spool/locks/shcat"	/* lock mutex file */
 
 #define	LOGSIZE		(80*1024)
 

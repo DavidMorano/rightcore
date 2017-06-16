@@ -38,6 +38,7 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<time.h>
+#include	<dlfcn.h>
 
 #include	<vsystem.h>
 #include	<fsdir.h>
@@ -53,18 +54,24 @@
 
 /* external subroutines */
 
-extern int	mkpath2(char *,const char *,const char *) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	pathadd(char *,int,cchar *) ;
-extern int	mktmpfile(char *,mode_t,const char *) ;
+extern int	mktmpfile(char *,mode_t,cchar *) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	chmods(const char *,mode_t) ;
+extern int	matstr(cchar **,cchar *,int) ;
 extern int	hasNotDots(cchar *,int) ;
 extern int	isNotPresent(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* external variables */
+
+
+/* global variables */
 
 
 /* local structures */
@@ -82,14 +89,23 @@ struct mfsbuilt_ent {
 
 static int	mfsbuilt_dump(MFSBUILT *) ;
 static int	mfsbuilt_load(MFSBUILT *) ;
+static int	mfsbuilt_fins(MFSBUILT *) ;
 
 static int	ent_start(ENT *,cchar *,int,cchar *,int) ;
 static int	ent_finish(ENT *) ;
 
 static int	mkfile(cchar *,cchar **) ;
 
+static int	hasService(cchar *,int) ;
 
-/* global variables */
+
+/* local variables */
+
+static const char	*exts[] = {
+	"so",
+	"o",
+	NULL
+} ;
 
 
 /* exported subroutines */
@@ -97,7 +113,6 @@ static int	mkfile(cchar *,cchar **) ;
 
 int mfsbuilt_start(MFSBUILT *op,cchar *dname)
 {
-	const time_t	dt = time(NULL) ;
 	int		rs ;
 	cchar		*cp ;
 
@@ -109,8 +124,9 @@ int mfsbuilt_start(MFSBUILT *op,cchar *dname)
 	if ((rs = uc_mallocstrw(dname,-1,&cp)) >= 0) {
 	    HDB		*dbp = &op->db ;
 	    const int	n = MFSBUILT_NENTS ;
+	    const int	at = FALSE ;
 	    op->dname = cp ;
-	    if ((rs = hdb_start(dbp,n)) >= 0) {
+	    if ((rs = hdb_start(dbp,n,at,NULL,NULL)) >= 0) {
 		if ((rs = mfsbuilt_dump(op)) >= 0) {
 		    if ((rs = mfsbuilt_load(op)) >= 0) {
 		        op->magic = MFSBUILT_MAGIC ;
@@ -161,14 +177,18 @@ int mfsbuilt_finish(MFSBUILT *op)
 
 int mfsbuilt_have(MFSBUILT *op,cchar *sp,int sl)
 {
-	MAPSTRS		*dbp ;
+	HDB		*dbp ;
+	HDB_DATUM	k, v ;
 	int		rs ;
 	int		rl = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
 	dbp = &op->db ;
-	if ((rs = mapstrs_present(dbp,sp,sl,NULL)) >= 0) {
-	    rl = rs ;
+	if (sl < 0) sl = strlen(sp) ;
+	k.buf = sp ;
+	k.len = sl ;
+	if ((rs = hdb_fetch(dbp,k,NULL,&v)) >= 0) {
+	    rl = v.len ;
 	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
 	}
@@ -196,16 +216,25 @@ static int mfsbuilt_load(MFSBUILT *op)
 	FSDIR		d ;
 	FSDIR_ENT	de ;
 	int		rs ;
+	int		rs1 ;
 	if ((rs = fsdir_open(&d,op->dname)) >= 0) {
-	    char	tbuf[MAXPATHLEN+1] ;
-	    while ((rs = fsdir_read(&d,&de)) > 0) {
-		if (hasNotDots(de.name,rs)) >= 0) {
-		    int	svclen ;
-		    if ((svclen = hasService(de.name,rs)) > 0) {
+	    char	pbuf[MAXPATHLEN+1] ;
+	    if ((rs = mkpath1(pbuf,op->dname)) >= 0) {
+	        const int	plen = rs ;
+	        while ((rs = fsdir_read(&d,&de)) > 0) {
+		    cchar	*ep = de.name ;
+		    int		el = rs ;
+		    if (hasNotDots(ep,el)) {
+		        int	sl ;
+		        if ((sl = hasService(ep,el)) > 0) {
+			    if ((rs = pathadd(pbuf,plen,ep)) >= 0) {
+				rs = mfsbuilt_ent(op,ep,sl,pbuf,rs) ;
+			    }
+		        }
 		    }
-		}
-		if (rs < 0) break ;
-	    } /* end while */
+		    if (rs < 0) break ;
+	        } /* end while */
+	    } /* end if (mkpath) */
 	    rs1 = fsdir_close(&d) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (fsdir) */
@@ -225,8 +254,8 @@ static int mfsbuilt_fins(MFSBUILT *op)
 	if ((rs = hdb_curbegin(dbp,&c)) >= 0) {
 	    ENT		*ep ;
 	    int		i ;
-	    for (i = 0 ; hdb_enum(dbp,&c,&k,&v)) >= 0 ; i += 1) {
-		ep = v.buf ;
+	    for (i = 0 ; hdb_enum(dbp,&c,&k,&v) >= 0 ; i += 1) {
+		ep = (ENT *) v.buf ;
 		if (ep != NULL) {
 		    rs1 = ent_finish(ep) ;
 		    if (rs >= 0) rs = rs1 ;
@@ -234,7 +263,7 @@ static int mfsbuilt_fins(MFSBUILT *op)
 		    if (rs >= 0) rs = rs1 ;
 		}
 	    } /* end for */
-	    rs1 = hdb_urend(dbp,&c) ;
+	    rs1 = hdb_curend(dbp,&c) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (hdb-cur) */
 
@@ -248,8 +277,8 @@ static int ent_start(ENT *ep,cchar *sp,int sl,cchar *fp,int fl)
 	int		rs ;
 	int		size = 0 ;
 	char		*bp ;
-	if (sl < 0) strlen(sp) ;
-	if (fl < 0) strlen(fp) ;
+	if (sl < 0) sl = strlen(sp) ;
+	if (fl < 0) fl = strlen(fp) ;
 	size += (sl+1) ;
 	size += (fl+1) ;
 	memset(ep,0,sizeof(ENT)) ;
@@ -272,7 +301,7 @@ static int ent_finish(ENT *ep)
 
 	if (ep->sop != NULL) {
 	    dlclose(ep->sop) ;
-	    ep->sop = NULl ;
+	    ep->sop = NULL ;
 	    ep->rcount = 0 ;
 	}
 
@@ -306,5 +335,21 @@ static int mkfile(cchar *template,cchar **rpp)
 	return (rs >= 0) ? tl : rs ;
 }
 /* end subroutines (mkfile) */
+
+
+static int hasService(cchar *sp,int sl)
+{
+	cchar		*tp ;
+	if (sl < 0) sl = strlen(sp) ;
+	if ((tp = strnchr(sp,sl,'.')) != NULL) {
+	    cchar	*ep = (tp+1) ;
+	    const int	el = ((sp+sl)-(tp+1)) ;
+	    if (matstr(exts,ep,el) < 0) {
+		sl = 0 ;
+	    }
+	}
+	return sl ;
+}
+/* end subroutine (hasService) */
 
 

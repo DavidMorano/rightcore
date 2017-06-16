@@ -134,6 +134,8 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 
 static int	usage(PROGINFO *) ;
 
+static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_dbname(LOCINFO *,const char *) ;
@@ -187,6 +189,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
+#ifdef	COMMENT
 static const uchar	aterms[] = {
 	0x00, 0x2E, 0x00, 0x00,
 	0x09, 0x00, 0x00, 0x00,
@@ -197,6 +200,7 @@ static const uchar	aterms[] = {
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00
 } ;
+#endif /* COMMENT */
 
 
 /* persistent local variables (special class of local variables) */
@@ -237,10 +241,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
+	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	SHIO		errfile ;
-	SHIO		outfile, *ofp = &outfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	uint		mo_start = 0 ;
@@ -260,8 +264,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
-	const char	*ofname = NULL ;
 	const char	*efname = NULL ;
+	const char	*ofname = NULL ;
 	const char	*dbname = NULL ;
 	const char	*cp ;
 
@@ -635,6 +639,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (dbname == NULL) dbname = getourenv(envv,VARDBNAME) ;
@@ -645,34 +654,21 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		pip->progname,dbname) ;
 #endif /* COMMENT */
 
-	rs = locinfo_dbname(lip,dbname) ;
-
-/* OK, we finally do our thing */
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = STDOUTFNAME ;
-
-	if ((rs = shio_open(ofp,ofname,"wct",0666)) >= 0) {
-	    MKUUID	uuid ;
-
-	    if ((rs = mkuuid(&uuid,0)) >= 0) {
-		const int	rlen = MAXNAMELEN ;
-		char		rbuf[MAXNAMELEN+1] ;
-		if ((rs = snmkuuid(rbuf,rlen,&uuid)) >= 0) {
-		    rs = shio_print(ofp,rbuf,rs) ;
-		} /* end if (snmkuuid) */
-	    } /* end if (mkuuid) */
-
-	    rs1 = shio_close(ofp) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    ex = EX_CANTCREAT ;
-	    shio_printf(pip->efp,"%s: inaccessible output (%d)\n",
-		pip->progname,rs) ;
-	}
-
+	    if ((rs = locinfo_dbname(lip,dbname)) >= 0) {
+		ARGINFO	*aip = &ainfo ;
+		BITS	*bop = &pargs ;
+		cchar	*ofn = ofname ;
+		cchar	*afn = afname ;
+		rs = process(pip,aip,bop,ofn,afn) ;
+	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -790,6 +786,42 @@ static int usage(PROGINFO *pip)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (usage) */
+
+
+/* ARGSUSED */
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
+{
+	SHIO		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
+
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
+
+	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
+	    MKUUID	uuid ;
+
+	    if ((rs = mkuuid(&uuid,0)) >= 0) {
+		const int	rlen = MAXNAMELEN ;
+		char		rbuf[MAXNAMELEN+1] ;
+		if ((rs = snmkuuid(rbuf,rlen,&uuid)) >= 0) {
+		    rs = shio_print(ofp,rbuf,rs) ;
+		} /* end if (snmkuuid) */
+	    } /* end if (mkuuid) */
+
+	    rs1 = shio_close(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    fmt = "%s: ofile=%s\n" ;
+	    shio_printf(pip->efp,fmt,pn,ofn) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (process) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)

@@ -1,2 +1,2 @@
 const char conslog_makedate[] =
-"@(#)conslog                 170129_0634:11_USEST Rightcore Network Services¹" ;
+"@(#)conslog                 170615_1247:16_USEDT Rightcore Network Services" ;

@@ -440,7 +440,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
-	int		n ;
 	int		v ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
@@ -1000,8 +999,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* load up the environment options */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = procopts(pip,&akopts) ;
+	}
 
 /* argument defaults */
 
@@ -1038,13 +1038,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* type of argument-input */
 
 	if ((rs >= 0) && (qtypestr != NULL)) {
-	    v = matostr(qtypes,1,qtypestr,-1) ;
-	    if (v < 0) rs = SR_INVALID ;
-	    lip->qtype = v ;
-	    if (pip->debuglevel > 0) {
-	        shio_printf(pip->efp,"%s: qtype=%s(%u)\n",
-	            pip->progname,qtypes[v],v) ;
-	    }
+	    if ((v = matostr(qtypes,1,qtypestr,-1)) >= 0) {
+	        lip->qtype = v ;
+	        if (pip->debuglevel > 0) {
+	            shio_printf(pip->efp,"%s: qtype=%s(%u)\n",
+	                pip->progname,qtypes[v],v) ;
+	        }
+	    } else
+		rs = SR_INVALID ;
 	}
 
 #if	CF_DEBUG
@@ -1071,10 +1072,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    cp = getourenv(envv,VARLINELEN) ;
 	    if (cp == NULL) cp = getourenv(envv,VARCOLUMNS) ;
 	    if (cp != NULL) {
-	        if (((rs = cfdeci(cp,-1,&n)) >= 0) && (n >= rs1)) {
-	            lip->have.linelen = TRUE ;
-	            lip->final.linelen = TRUE ;
-	            lip->linelen = n ;
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (v >= rs1) {
+	                lip->have.linelen = TRUE ;
+	                lip->final.linelen = TRUE ;
+	                lip->linelen = v ;
+		    }
 	        }
 	    }
 	}
@@ -1309,7 +1312,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_audit:
 	                    if (! lip->final.audit) {
 	                        lip->have.audit = TRUE ;
@@ -1321,7 +1323,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_linelen:
 	                    if (! lip->final.linelen) {
 	                        lip->have.linelen = TRUE ;
@@ -1333,7 +1334,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_indent:
 	                    if (! lip->final.indent) {
 	                        lip->have.indent = TRUE ;
@@ -1346,7 +1346,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bookname:
 	                    if (! lip->final.bookname) {
 	                        lip->have.bookname = TRUE ;
@@ -1358,7 +1357,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_separate:
 	                    if (! lip->final.separate) {
 	                        lip->have.separate = TRUE ;
@@ -1370,7 +1368,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_interactive:
 	                    if (! lip->final.interactive) {
 	                        lip->have.interactive = TRUE ;
@@ -1382,7 +1379,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_default:
 	                case akoname_defnull:
 	                    if (! lip->final.defnull) {
@@ -1395,7 +1391,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_para:
 	                    if (! lip->final.para) {
 	                        lip->have.para = TRUE ;
@@ -1407,7 +1402,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_gmt:
 	                    if (! lip->final.gmt) {
 	                        lip->have.gmt = TRUE ;
@@ -1419,7 +1413,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_atype:
 	                case akoname_qtype:
 	                    if (vl) {
@@ -1427,7 +1420,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->qtype = rs ;
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1513,7 +1505,7 @@ int		f_apm ;
 	if (rs >= 0) {
 	    int		ai ;
 	    int		f ;
-	    const char	**argv = aip->argv ;
+	    cchar	**argv = aip->argv ;
 
 	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
@@ -1664,8 +1656,7 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 #endif
 
 	    if (pip->debuglevel > 0) {
-	        shio_printf(pip->efp,"%s: spec=\"%t\"\n",
-	            pip->progname,sp,sl) ;
+	        shio_printf(pip->efp,"%s: spec=\"%t\"\n",pn,sp,sl) ;
 	    }
 
 	    if ((sp[0] == '+') || (sp[0] == '-')) {
@@ -1739,8 +1730,7 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("b_bibleverse/procspec: ret rs=%d wlen=%u\n",
-	        rs,wlen) ;
+	    debugprintf("b_bibleverse/procspec: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1816,6 +1806,11 @@ static int procparse(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar sp[],int sl)
 	        qp->b = (uchar) rs ;
 	    }
 	} /* end if (bcspec_load) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("b_bibleverse/procparse: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -1928,16 +1923,17 @@ static int procmulti(PROGINFO *pip,BIBLEVERSE_Q *qp,int ndays)
             } else if (rs == SR_NOTFOUND) {
 		const int	speclen = SPECBUFLEN ;
 		int		sl ;
+		cchar		*pn = pip->progname ;
 		cchar		*fmt = "%u:%u:%u" ;
 		char		specbuf[SPECBUFLEN + 1], *sp = specbuf ;
 		sl = bufprintf(specbuf,speclen,fmt,qp->b,qp->c,qp->v) ;
 		if (lip->f.interactive) {
-	    	rs = shio_printf(lip->ofp,"citation=%t not_found\n",
-			sp,sl) ;
+	    	    fmt = "citation=%t not_found\n" ;
+	    	    rs = shio_printf(lip->ofp,fmt,sp,sl) ;
 		}
 		if (pip->debuglevel > 0) {
-	    	    shio_printf(pip->efp,"%s: citation=%t not_found\n",
-			pip->progname,sp,sl) ;
+	    	    fmt = "%s: citation=%t not_found\n" ;
+	    	    shio_printf(pip->efp,fmt,pn,sp,sl) ;
 		}
     	    } /* end if (procload) */
 	    rs1 = uc_free(vrp) ;
@@ -2247,6 +2243,11 @@ static int locinfo_bookmatch(LOCINFO *lip,cchar *mbuf,int mlen)
 	    rs = biblebook_match(bbp,mbuf,mlen) ;
 	    bi = rs ;
 	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("b_bibleverse/locinfo_bookmatch: ret rs=%d\n",rs) ;
+#endif
 
 	return (rs >= 0) ? bi : rs ;
 }

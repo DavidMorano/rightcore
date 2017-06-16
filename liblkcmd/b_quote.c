@@ -1322,8 +1322,7 @@ int		buflen ;
 /* end subroutine (locinfo_nlookup) */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;

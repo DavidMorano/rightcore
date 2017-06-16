@@ -546,12 +546,7 @@ int		rlen ;
 
 
 /* fetch an entry by key lookup */
-int ipasswd_fetch(op,np,curp,opts,up)
-IPASSWD		*op ;
-REALNAME	*np ;
-IPASSWD_CUR	*curp ;
-int		opts ;
-char		*up ;
+int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 {
 	IPASSWD_CUR	cur ;
 	time_t		daytime = 0 ;
@@ -886,13 +881,8 @@ ret0:
 /* end subroutine (ipasswd_fetch) */
 
 
-int ipasswd_fetcher(op,curp,opts,ubuf,sa,sn)
-IPASSWD		*op ;
-int		opts ;
-IPASSWD_CUR	*curp ;
-char		*ubuf ;
-const char	*sa[] ;
-int		sn ;
+int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
+		cchar **sa,int sn)
 {
 	IPASSWD_CUR	cur ;
 	REALNAME	rn, *np = &rn ;
@@ -1263,7 +1253,7 @@ int ipasswd_info(IPASSWD *op,IPASSWD_INFO *rp)
 int ipasswd_check(IPASSWD *op,time_t daytime)
 {
 	int		rs = SR_OK ;
-	int		f_changed = FALSE ;
+	int		f = FALSE ;
 
 #if	CF_DEBUGS
 	char		timebuf[TIMEBUFLEN + 1] ;
@@ -1273,30 +1263,15 @@ int ipasswd_check(IPASSWD *op,time_t daytime)
 
 	if (op->magic != IPASSWD_MAGIC) return SR_NOTOPEN ;
 
-	if (op->f.held) return SR_OK ;
+	if ((! op->f.held) && (op->fd >= 0)) {
+	    f = f || ((daytime - op->ti_access) >= TO_ACCESS) ;
+	    f = f || ((daytime - op->ti_open) >= TO_OPEN) ;
+	    if (f) {
+		rs = ipasswd_fileclose(op) ;
+	    }
+	}
 
-/* OK, now we can check some stuff */
-
-	if (op->fd < 0) return SR_OK ;
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_check: %s\n",
-	    timestr_log(daytime,timebuf)) ;
-#endif
-
-	if ((daytime - op->ti_access) > TO_ACCESS)
-	    goto closeit ;
-
-	if ((daytime - op->ti_open) > TO_OPEN)
-	    goto closeit ;
-
-ret0:
-	return (rs >= 0) ? f_changed : rs ;
-
-/* handle a close out */
-closeit:
-	rs = ipasswd_fileclose(op) ;
-	goto ret0 ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (ipasswd_check) */
 
@@ -1364,10 +1339,7 @@ static int ipasswd_fileheader(IPASSWD *op)
 /* try to validate the header table */
 
 	for (i = header_rectab ; i < IPASSWD_IDLEN ; i += 1) {
-
-	    if (table[i] >= op->filesize)
-	        break ;
-
+	    if (table[i] >= op->filesize) break ;
 	} /* end for */
 
 	if (i < IPASSWD_IDLEN) {
@@ -2043,7 +2015,7 @@ static int mkourfname(char *dbfname,const char *dbname)
 /* calculate the next hash table index from a given one */
 static int hashindex(uint i,int n)
 {
-	uint	hi = MODP2(i,n) ;
+	uint		hi = MODP2(i,n) ;
 	if (hi == 0) hi = 1 ;
 	return hi ;
 }

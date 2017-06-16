@@ -129,12 +129,12 @@ struct votdc_head {
 extern "C" {
 #endif
 
-extern int	votdc_open(VOTDC *,const char *,const char *,int) ;
-extern int	votdc_titlelang(VOTDC *,const char *) ;
-extern int	votdc_titleloads(VOTDC *,const char *,const char **) ;
+extern int	votdc_open(VOTDC *,cchar *,cchar *,int) ;
+extern int	votdc_titlelang(VOTDC *,cchar *) ;
+extern int	votdc_titleloads(VOTDC *,cchar *,cchar **) ;
 extern int	votdc_titleget(VOTDC *,char *,int,int,int) ;
-extern int	votdc_titlefetch(VOTDC *,char *,int,const char *,int) ;
-extern int	votdc_titlematch(VOTDC *,const char *,const char *,int) ;
+extern int	votdc_titlefetch(VOTDC *,char *,int,cchar *,int) ;
+extern int	votdc_titlematch(VOTDC *,cchar *,cchar *,int) ;
 extern int	votdc_vcurbegin(VOTDC *,VOTDC_VCUR *) ;
 extern int	votdc_vcurenum(VOTDC *,VOTDC_VCUR *,VOTDC_CITE *,char *,int) ;
 extern int	votdc_vcurend(VOTDC *,VOTDC_VCUR *) ;
