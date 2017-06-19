@@ -338,8 +338,9 @@ int modload_getmva(MODLOAD *op,int *mva,int mvn)
 static int modload_objloadclose(MODLOAD *op)
 {
 	if (op->sop != NULL) {
-	    if ((op->sop != RTLD_DEFAULT) && (op->sop != RTLD_SELF))
+	    if ((op->sop != RTLD_DEFAULT) && (op->sop != RTLD_SELF)) {
 	        dlclose(op->sop) ;
+	    }
 	    op->sop = NULL ;
 	}
 	return SR_OK ;

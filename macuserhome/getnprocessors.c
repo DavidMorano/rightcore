@@ -17,8 +17,8 @@
 
 /*******************************************************************************
 
-	This subroutine gets and returns the current number of processors
-	that are online.
+        This subroutine gets and returns the current number of processors that
+        are online.
 
 	Synopsis:
 

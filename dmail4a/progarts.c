@@ -926,17 +926,13 @@ int		el ;
 /* end subroutine (procmsgenvdate) */
 
 
-static int procmsgenvmk(pip,pdp,sabuf,salen)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
-char		sabuf[] ;
-int		salen ;
+static int procmsgenvmk(PROGINFO *pip,PROCDATA *pdp,char *sabuf,int salen)
 {
 	int		rs = SR_OK ;
 	int		sal = 0 ;
 
 	if (sabuf[0] == '\0') {
-	    const char	*cp = pip->username ;
+	    cchar	*cp = pip->username ;
 	    if (pip->f.trusted) {
 	        cp = pip->envfromaddr ;
 	    }
@@ -955,9 +951,7 @@ int		salen ;
 /* end subroutine (procmsgenvmk) */
 
 
-static int procmsghdrs(pip,pdp)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
+static int procmsghdrs(PROGINFO *pip,PROCDATA *pdp)
 {
 	ARTICLE		*aip = pdp->aip ;
 	MAILMSG		*msgp = pdp->msgp ;
@@ -975,9 +969,7 @@ PROCDATA	*pdp ;
 
 
 /* mailmsg message-ID */
-static int procmsghdr_messageid(pip,pdp)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
+static int procmsghdr_messageid(PROGINFO *pip,PROCDATA *pdp)
 {
 	ARTICLE		*aip = pdp->aip ;
 	MAILMSG		*msgp = pdp->msgp ;
@@ -1073,9 +1065,7 @@ PROCDATA	*pdp ;
 
 
 /* article-ID */
-static int procmsghdr_articleid(pip,pdp)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
+static int procmsghdr_articleid(PROGINFO *pip,PROCDATA *pdp)
 {
 	ARTICLE		*aip = pdp->aip ;
 	MAILMSG		*msgp = pdp->msgp ;

@@ -267,7 +267,7 @@ extern int	mkpr(char *,int,cchar *,cchar *) ;
 extern int	mktmpuserdir(char *,cchar *,cchar *,mode_t) ;
 extern int	prmktmpdir(cchar *,char *,cchar *,cchar *,mode_t) ;
 extern int	prsetfname(cchar *,char *,cchar *,int,int,
-			cchar *,cchar *,cchar *) ;
+cchar *,cchar *,cchar *) ;
 extern int	localgetorg(cchar *,char *,int,cchar *) ;
 extern int	initnow(struct timeb *,char *,int) ;
 extern int	hdrextid(char *,int,cchar *,int) ;
@@ -1242,7 +1242,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,BANNER) ;
 
 /* initialize */
 

@@ -75,6 +75,7 @@
 #include	"mfsadj.h"
 #include	"mfslog.h"
 #include	"mfsmsg.h"
+#include	"mfsbuilt.h"
 
 
 /* local defines */
@@ -160,6 +161,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 struct mfswatch {
 	SREQDB		reqs ;		/* service requests */
 	POLLER		pm ;		/* Poll-Manager */
+	MFSBUILT	built ;		/* service lookup database */
 	SVCFILE		sdb ;		/* service lookup database */
 	time_t		ti_lastmark ;
 	time_t		ti_lastmaint ;

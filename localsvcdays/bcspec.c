@@ -126,14 +126,14 @@ int bcspec_load(BCSPEC *op,const char *sbuf,int slen)
 	    int	v ;
 	    int	ch = MKCHAR(sp[0]) ;
 	    if (isalphalatin(ch)) {
-		    op->np = sp ;
-	  	    op->nl = sl ;
+		op->np = sp ;
+	  	op->nl = sl ;
 #if	CF_DEBUGS
-	debugprintf("bcspec_load: s=%t\n",sp,sl) ;
+		debugprintf("bcspec_load: s=%t\n",sp,sl) ;
 #endif
 	        if ((si = siourbrk(sp,sl,TRUE)) > 0) {
 #if	CF_DEBUGS
-	debugprintf("bcspec_load: dig si=%u\n",si) ;
+		    debugprintf("bcspec_load: dig si=%u\n",si) ;
 #endif
 	  	    op->nl = si ;
 		    sp += si ;
@@ -147,7 +147,7 @@ int bcspec_load(BCSPEC *op,const char *sbuf,int slen)
 		    }
 	        } else {
 #if	CF_DEBUGS
-	debugprintf("bcspec_load: no_dig\n") ;
+		    debugprintf("bcspec_load: no_dig\n") ;
 #endif
 		    sl = 0 ;
 		}

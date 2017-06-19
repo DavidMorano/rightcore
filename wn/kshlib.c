@@ -205,6 +205,12 @@
         knowing who we are (our PID) and if the state of our address space and
         threads are still valid.  This whole business is a real fork turner!
 
+	= Aligned integer types?
+
+	"aligned |int|s are already atomic"
+        Well, yes, on almost every platform except for the old (original) DEC
+        Alpha architecture.
+
 
 *******************************************************************************/
 

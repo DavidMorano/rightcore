@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
         This object module was originally written to create a logging mechanism
         for PCS application programs.
-
 
 */
 
@@ -53,7 +51,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<stdarg.h>
 
 #include	<vsystem.h>
@@ -182,7 +179,7 @@ static const int	logfacs[] = {
 /* exported subroutines */
 
 
-int logsys_open(LOGSYS *op,int logfac,cchar logtag[],cchar logid[],int opts)
+int logsys_open(LOGSYS *op,int logfac,cchar *logtag,cchar *logid,int opts)
 {
 	int		rs = SR_OK ;
 	int		cl ;
@@ -255,7 +252,7 @@ int logsys_close(LOGSYS *op)
 
 
 /* make a log entry */
-int logsys_printf(LOGSYS *op,int logpri,cchar fmt[],...)
+int logsys_printf(LOGSYS *op,int logpri,cchar *fmt,...)
 {
 	int		rs ;
 
@@ -272,7 +269,7 @@ int logsys_printf(LOGSYS *op,int logpri,cchar fmt[],...)
 
 
 /* make a log entry */
-int logsys_vprintf(LOGSYS *op,int logpri,cchar fmt[],va_list ap)
+int logsys_vprintf(LOGSYS *op,int logpri,cchar *fmt,va_list ap)
 {
 	int		rs = SR_OK ;
 	int		sl ;
@@ -328,7 +325,7 @@ int logsys_vprintf(LOGSYS *op,int logpri,cchar fmt[],va_list ap)
 
 
 /* set (or reset) the log ID */
-int logsys_setid(LOGSYS *op,cchar logid[])
+int logsys_setid(LOGSYS *op,cchar *logid)
 {
 	int		rs = SR_OK ;
 	int		cl ;
@@ -356,6 +353,7 @@ int logsys_setid(LOGSYS *op,cchar logid[])
 int logsys_check(LOGSYS *op,time_t dt)
 {
 	int		rs = SR_OK ;
+	int		f = FALSE ;
 
 #if	CF_DEBUGS
 	char	timebuf[TIMEBUFLEN + 1] ;
@@ -375,24 +373,19 @@ int logsys_check(LOGSYS *op,time_t dt)
 	}
 #endif
 
-	if ((dt - op->ti_write) > TO_WRITE)
-	    goto closeit ;
-
-	if ((dt - op->ti_open) > TO_OPEN)
-	    goto closeit ;
-
-	if ((dt - op->ti_write) > TO_FLUSH) {
-	    if (op->c > 0) rs = logsys_iflush(op) ;
+	f = f || ((dt - op->ti_write) >= TO_WRITE) ;
+	f = f || ((dt - op->ti_open) >= TO_OPEN) ;
+	if (f) {
+	    rs = logsys_fileclose(op) ;
+	} else {
+	    if ((dt - op->ti_write) >= TO_FLUSH) {
+	        if (op->c > 0) {
+		    rs = logsys_iflush(op) ;
+		}
+	    }
 	}
 
-ret0:
-	return rs ;
-
-/* handle a close out */
-closeit:
-	logsys_fileclose(op) ;
-
-	goto ret0 ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (logsys_check) */
 
@@ -412,7 +405,7 @@ int logsys_flush(LOGSYS *op)
 /* end subroutine (logsys_flush) */
 
 
-int logsys_write(LOGSYS *op,int logpri,cchar wbuf[],int wlen)
+int logsys_write(LOGSYS *op,int logpri,cchar *wbuf,int wlen)
 {
 	struct colstate	cs ;
 	int		rs = SR_OK ;
@@ -587,15 +580,13 @@ static int logsys_fileclose(LOGSYS *op)
 /* this is a nuller now w/ the system log device */
 static int logsys_iflush(LOGSYS *op)
 {
-
 	if (op->c >= op->n) op->c = 0 ;
-
 	return SR_OK ;
 }
 /* end subroutine (logsys_iflush) */
 
 
-static int logsys_logdevice(LOGSYS *op,int logpri,cchar wp[],int wl)
+static int logsys_logdevice(LOGSYS *op,int logpri,cchar *wp,int wl)
 {
 	struct strbuf	cmsg, dmsg ;
 	struct log_ctl	lc ;
@@ -664,7 +655,7 @@ static int colstate_load(struct colstate *csp,int ncols,int ncol)
 
 
 /* return the number of characters that will fill the current column limit */
-static int colstate_linecols(struct colstate *csp,cchar lbuf[],int llen)
+static int colstate_linecols(struct colstate *csp,cchar *lbuf,int llen)
 {
 	int		i ;
 	int		cols ;
@@ -688,7 +679,7 @@ static int colstate_linecols(struct colstate *csp,cchar lbuf[],int llen)
 /* end subroutine (colstate_linecols) */
 
 
-static int loadlogid(char outbuf[],int outlen,cchar logstr[])
+static int loadlogid(char *outbuf,int outlen,cchar *logstr)
 {
 	int		i ;
 	int		len = 0 ;
@@ -704,7 +695,7 @@ static int loadlogid(char outbuf[],int outlen,cchar logstr[])
 /* end subroutine (loadlogid) */
 
 
-static int mkclean(char outbuf[],int outlen,cchar sbuf[],int slen)
+static int mkclean(char outbuf[],int outlen,cchar *sbuf,int slen)
 {
 	int		i ;
 
@@ -718,7 +709,7 @@ static int mkclean(char outbuf[],int outlen,cchar sbuf[],int slen)
 /* end subroutine (mkclean) */
 
 
-static int hasourbad(cchar sp[],int sl)
+static int hasourbad(cchar *sp,int sl)
 {
 	register int	ch ;
 	register int	f = FALSE ;

@@ -213,8 +213,9 @@ int pwfile_enum(PWFILE *dbp,PWFILE_CUR *curp,PWENTRY *uep,char *rbuf,int rlen)
 	uep->username = (char *) 0x5a5a5a5a ;
 #endif
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = pwentry_mkcopy(ep,uep,rbuf,rlen) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("pwfile_enum: &username %08lX\n",uep->username) ;

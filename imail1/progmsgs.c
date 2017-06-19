@@ -165,8 +165,6 @@ extern int	hasEOH(cchar *,int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotValid(int) ;
 
-extern int	mkenvfrom(PROGINFO *,char *,int,cchar *) ;
-
 extern int	proglog_printf(PROGINFO *,cchar *,...) ;
 
 extern int	progmsgid(PROGINFO *,char *,int,int) ;
@@ -659,64 +657,24 @@ static int procmsgenv(PROGINFO *pip,PROCDATA *pdp)
 	    debugprintf("progmsgs/procmsgenv: ent\n") ;
 #endif
 
-	rs = procmsgenver(pip,pdp,sabuf,salen) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(5)) {
-	    debugprintf("progmsgs/procmsgenv: procmsgenver() rs=%d\n",rs) ;
-	    debugprintf("progmsgs/procmsgenv: efrom=%s\n",mip->e_from) ;
-	    debugprintf("progmsgs/procmsgenv: f_trusted=%u\n",pip->f.trusted) ;
-	}
-#endif
-
-/* form the envelope address that we will be using for this message */
-
-	if (rs >= 0) {
+	if ((rs = procmsgenver(pip,pdp,sabuf,salen)) >= 0) {
 	    struct timeb	*nowp = &pip->now ;
-	    cchar		*cp ;
+	    const int		malen = MAILADDRLEN ;
 
 	    if ((mip->e_from[0] == '\0') || (! pip->f.trusted)) {
-	        time_t		t = nowp->time ;
-	        int		isdst = nowp->dstflag ;
-	        int		zoff = nowp->timezone ;
-	        cchar		*zbuf = pip->zname ;
+	        const time_t	t = nowp->time ;
+		cchar		*envfrom = pip->envfrom ;
 
-	        cp = pip->envfromaddr ;
-
-#ifdef	COMMENT
-	        sncpy1(pdp->efrom,MAILADDRLEN,cp) ;
-#else
-	        mkenvfrom(pip,pdp->efrom,MAILADDRLEN,cp) ;
-#endif
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(5)) {
-	            char	timebuf[TIMEBUFLEN+1] ;
-	            debugprintf("progmsgs/procmsgenv: t=%u t=%s\n",
-	                t,timestr_logz(t,timebuf)) ;
-	            debugprintf("progmsgs/procmsgenv: zoff=%d\n",zoff) ;
-	            debugprintf("progmsgs/procmsgenv: zbuf=%s\n",zbuf) ;
-	            debugprintf("progmsgs/procmsgenv: isdst=%d\n",isdst) ;
-	        }
-#endif /* CF_DEBUG */
-
-	        rs = dater_settimezon(&pdp->edate,t,zoff,zbuf,isdst) ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(5)) {
-	            char	timebuf[TIMEBUFLEN+1] ;
-	            int		rs1 ;
-	            debugprintf("progmsgs/procmsgenv: "
-			"dater_settimezon() rs=%d\n", rs) ;
-	            rs1 = dater_mkstd(&pdp->edate,timebuf,TIMEBUFLEN) ;
-	            debugprintf("progmsgs/procmsgenv: rs=%d edate=%s\n",
-	                rs1,timebuf) ;
-	        }
-#endif /* CF_DEBUG */
+	        if ((rs = sncpy1(pdp->efrom,malen,envfrom)) >= 0) {
+	            const int	isdst = nowp->dstflag ;
+	            const int	zoff = nowp->timezone ;
+	            cchar	*zname = pip->zname ;
+	            rs = dater_settimezon(&pdp->edate,t,zoff,zname,isdst) ;
+		}
 
 	    } else {
 
-	        strwcpy(pdp->efrom,mip->e_from,MAILADDRLEN) ;
+	        strwcpy(pdp->efrom,mip->e_from,malen) ;
 
 	        rs = dater_setcopy(&pdp->edate,&mip->edate) ;
 
@@ -728,9 +686,10 @@ static int procmsgenv(PROGINFO *pip,PROCDATA *pdp)
 	    } /* end if */
 
 	    if (pip->open.logprog && pip->f.logmsg) {
-	        cp = pdp->efrom ;
-	        proglog_printf(pip,"  F %t",
-	            cp,strnlen(cp,(LOGLINELEN - 4))) ;
+		int	cl ;
+	        cchar	*cp = pdp->efrom ;
+		cl = strnlen(cp,(LOGLINELEN - 4)) ;
+	        proglog_printf(pip,"  F %t",cp,cl) ;
 	    }
 
 	} /* end if */
@@ -1175,6 +1134,7 @@ static int procmsghdr_received(PROGINFO *pip,PROCDATA *pdp)
 	const int	salen = STACKADDRLEN ;
 	const int	dlen = DATEBUFLEN ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		vl ;
 	cchar		*hdr = HN_RECEIVED ;
 	cchar		*vp ;
@@ -1232,21 +1192,18 @@ static int procmsghdr_received(PROGINFO *pip,PROCDATA *pdp)
 
 	                sp = rp ;
 	                if (j == received_keydate) {
-			    int	rs1 = dater_setmsg(&pip->tmpdate,rp,rl) ;
+			    rs1 = dater_setmsg(&pip->tmpdate,rp,rl) ;
 
 #if	CF_DEBUG
 	                    if (DEBUGLEVEL(2))
 	                        debugprintf("progmsgs/procmsg: "
-					"dater_setmsg() rs=%d\n",
-	                            rs1) ;
+					"dater_setmsg() rs=%d\n", rs1) ;
 #endif
 
 			    if (rs1 >= 0) {
 			        DATER	*dp = &pip->tmpdate ;
-
 				sp = dbuf ;
 	                        rs = dater_mkstrdig(dp,dbuf,dlen) ;
-
 			    } else {
 				cchar *fmt = "** bad date-spec (%d) **" ;
 				sp = dbuf ;
@@ -1261,20 +1218,18 @@ static int procmsghdr_received(PROGINFO *pip,PROCDATA *pdp)
 	                } /* end if (special handling cases) */
 
 			if (sp != NULL) {
-
 	                    fmt = "    %s=%s" ;
-	                    if (strchr(sp,' ') != NULL)
+	                    if (strchr(sp,' ') != NULL) {
 	                        fmt = "    %s=>%s<" ;
-
-	                    proglog_printf(pip,fmt,
-	                        received_keys[j],sp) ;
-
+			    }
+	                    proglog_printf(pip,fmt,received_keys[j],sp) ;
 			} /* end if (something to log) */
 
 	                if (rs < 0) break ;
 	            } /* end for */
 
-	            received_finish(&rh) ;
+	            rs1 = received_finish(&rh) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (initialized) */
 
 	        if (rs < 0) break ;
@@ -1330,8 +1285,9 @@ static int procmsghdr_replyto(PROGINFO *pip,PROCDATA *pdp)
 	        debugprintf("progmsgs/procmsg: procmsglogaddr() rs=%d\n",rs) ;
 #endif
 
-	} else if (rs == SR_NOTFOUND)
+	} else if (rs == SR_NOTFOUND) {
 	    rs = SR_OK ;
+	}
 
 	return rs ;
 }
@@ -1354,16 +1310,14 @@ static int procmsghdr_errorsto(PROGINFO *pip,PROCDATA *pdp)
 
 	if ((rs = mailmsg_hdrval(msgp,hdr,&vp)) >= 0) {
 	    vl = rs ;
-
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("progmsgs/procmsghdr_errorsto: v=%t\n",vp,vl) ;
 #endif
-
 	    rs = procmsglogaddr(pip,mip->h_errorsto,hdr,vp,vl) ;
-
-	} else if (rs == SR_NOTFOUND)
+	} else if (rs == SR_NOTFOUND) {
 	    rs = SR_OK ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1391,9 +1345,7 @@ static int procmsghdr_sender(PROGINFO *pip,PROCDATA *pdp)
 
 	if ((rs = mailmsg_hdrval(msgp,hdr,&vp)) >= 0) {
 	    vl = rs ;
-
 	    rs = procmsglogaddr(pip,mip->h_sender,hdr,vp,vl) ;
-
 	} else if (rs == SR_NOTFOUND) {
 	    rs = SR_OK ;
 	}
@@ -1447,17 +1399,17 @@ static int procmsghdr_xoriginalto(PROGINFO *pip,PROCDATA *pdp)
 
 static int procmsghdr_xpriority(PROGINFO *pip,PROCDATA *pdp)
 {
-	MAILMSG		*msgp = pdp->msgp ;
 	int		rs = SR_OK ;
-	int		hl ;
-	cchar		*hdr = HN_XPRIORITY ;
-	cchar		*hp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
 	debugprintf("progmsgs/procmsghdr_xpriority: hdr=%s\n",hdr) ;
 #endif
 	if (pip->f.logmsg) {
+	    MAILMSG	*msgp = pdp->msgp ;
+	    int		hl ;
+	    cchar	*hdr = HN_XPRIORITY ;
+	    cchar	*hp ;
 	    if ((rs = mailmsg_hdrval(msgp,hdr,&hp)) >= 0) {
 	        COMPARSE	com ;
 	        hl = rs ;
@@ -1500,8 +1452,9 @@ static int procmsghdr_xpriority(PROGINFO *pip,PROCDATA *pdp)
 		    } /* end if (comparse-get) */
 		    comparse_finish(&com) ;
 	        } /* end if (comparse) */
-	    } else if (rs == SR_NOTFOUND)
+	    } else if (rs == SR_NOTFOUND) {
 	        rs = SR_OK ;
+	    }
 	} /* end if (msg-logging) */
 
 #if	CF_DEBUG
@@ -1527,39 +1480,39 @@ static int procmsgout(PROGINFO *pip,PROCDATA *pdp)
 #endif
 
 	if ((rs = btell(pdp->tfp,&moff)) >= 0) {
-	MSGINFO		*mip = pdp->mip ;
-	mip->moff = (moff & INT_MAX) ;
+	    MSGINFO	*mip = pdp->mip ;
+	    mip->moff = (moff & INT_MAX) ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
 	    debugprintf("progmsgs/procmsgout: moff=%llu\n",moff) ;
 #endif
 
-	if (rs >= 0) {
-	    rs = procmsgoutenv(pip,pdp) ;
-	    tlen += rs ;
-	}
+	    if (rs >= 0) {
+	        rs = procmsgoutenv(pip,pdp) ;
+	        tlen += rs ;
+	    }
 
-	if (rs >= 0) {
-	    rs = procmsgouthdrs(pip,pdp) ;
-	    tlen += rs ;
-	}
+	    if (rs >= 0) {
+	        rs = procmsgouthdrs(pip,pdp) ;
+	        tlen += rs ;
+	    }
 
-	if (rs >= 0) {
-	    rs = procmsgouteol(pip,pdp) ;
-	    tlen += rs ;
-	}
+	    if (rs >= 0) {
+	        rs = procmsgouteol(pip,pdp) ;
+	        tlen += rs ;
+	    }
 
-	if (rs >= 0) {
-	    rs = procmsgoutbody(pip,pdp) ;
-	    tlen += rs ;
-	}
+	    if (rs >= 0) {
+	        rs = procmsgoutbody(pip,pdp) ;
+	        tlen += rs ;
+	    }
 
-	if (rs >= 0) {
-	    rs = procmsgoutback(pip,pdp) ;
-	}
+	    if (rs >= 0) {
+	        rs = procmsgoutback(pip,pdp) ;
+	    }
 
-	mip->mlen = tlen ;
+	    mip->mlen = tlen ;
 	} /* end if (btell) */
 
 #if	CF_DEBUG
@@ -1583,7 +1536,8 @@ static int procmsgoutenv(PROGINFO *pip,PROCDATA *pdp)
 	char		dbuf[DATEBUFLEN+1] ;
 
 	if ((rs = dater_mkstd(&pdp->edate,dbuf,dlen)) >= 0) {
-	    rs = bprintf(pdp->tfp,"From %s %s\n",pdp->efrom,dbuf) ;
+	    cchar	*fmt = "From %s %s\n" ;
+	    rs = bprintf(pdp->tfp,fmt,pdp->efrom,dbuf) ;
 	    pdp->tlen += rs ;
 	    tlen += rs ;
 	}
@@ -1954,13 +1908,14 @@ static int procmsgouthdr_from(PROGINFO *pip,PROCDATA *pdp)
 
 	    rs = progprinthdraddrs(pip,pdp->tfp,msgp,hdr) ;
 	    pdp->tlen += rs ;
-	    if (rs >= 0)
+	    if (rs >= 0) {
 	        rs = procmsglogaddr(pip,mip->h_from,hdr,vp,vl) ;
+	    }
 
 	} else if ((rs == 0) || (rs == SR_NOTFOUND)) {
 
 	    rs = SR_OK ;
-	    vp = pip->envfromaddr ;
+	    vp = pip->envfrom ;
 	    strwcpy(mip->h_from,vp,MAILADDRLEN) ;
 
 	} /* end if (from) */

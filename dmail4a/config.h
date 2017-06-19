@@ -82,7 +82,7 @@
 #define	TMPDNAME	"/tmp"
 #define MAILDNAME	"/var/mail"
 #define DEADMAILDNAME	"/var/adm/deadmail"
-#define COPYMAILDNAME	"/var/tmp/extra/mail"
+#define COPYMAILDNAME	"/var/pcs/mail"
 #define	VARDNAME	"var"
 #define	LOGCNAME	"log"
 

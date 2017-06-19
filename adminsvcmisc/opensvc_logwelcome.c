@@ -70,7 +70,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>		/* for 'strftime(3c)' */
 
 #include	<vsystem.h>

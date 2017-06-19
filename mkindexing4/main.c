@@ -93,6 +93,7 @@ extern int	makedate_get(cchar *,cchar **) ;
 extern int	isprintlatin(int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
@@ -967,6 +968,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->f.errfile = TRUE ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)

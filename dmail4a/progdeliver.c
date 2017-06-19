@@ -66,6 +66,7 @@
 #include	"recip.h"
 #include	"config.h"
 #include	"defs.h"
+#include	"proglog.h"
 
 
 /* local defines */
@@ -151,6 +152,10 @@ int progdeliver(PROGINFO *pip,int tfd,RECIP *rp)
 	    } /* end if (opt-copy) */
 	} /* end if (progdeliverer-primary) */
 
+	if (rs < 0) {
+	    proglog_printf(pip,"progdeliver (%d)",rs) ;
+	}
+
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
 	    debugprintf("progdeliver: ret rs=%d tlen=%u\n",rs,tlen) ;
@@ -204,6 +209,12 @@ static int progdeliverer(PROGINFO *pip,int tfd,RECIP *rp,cchar *md,int f)
 #endif
 			        rs = recipcopyparts(rp,tfd,mfd) ;
 			        tlen = rs ;
+
+				if (rs < 0) {
+	    			    cchar	*fmt ;
+				    fmt = "recipcopypars (%d)" ;
+	    			    proglog_printf(pip,fmt,rs) ;
+				}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("progdeliverer: recipcopyparts() rs=%d\n",rs) ;
@@ -218,6 +229,10 @@ static int progdeliverer(PROGINFO *pip,int tfd,RECIP *rp,cchar *md,int f)
 	    rs1 = sigblock_finish(&blocks) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (sigblock) */
+
+	if (rs < 0) {
+	    proglog_printf(pip,"progdeliverer (%d)",rs) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))

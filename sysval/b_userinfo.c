@@ -111,28 +111,8 @@
 #define	GETPW_UID	getpw_uid
 #endif /* CF_UGETPW */
 
-#ifndef	VARHZ
-#define	VARHZ		"HZ"
-#endif
-
-#ifndef	VARHOME
-#define	VARHOME		"HOME"
-#endif
-
-#ifndef	VARUSERNAME
-#define	VARUSERNAME	"USERNAME"
-#endif
-
-#ifndef	VARLOGNAME
-#define	VARLOGNAME	"LOGNAME"
-#endif
-
 #ifndef	VARTZ
 #define	VARTZ		"TZ"
-#endif
-
-#ifndef	VARPWD
-#define	VARPWD		"PWD"
 #endif
 
 #ifndef	VARNAME

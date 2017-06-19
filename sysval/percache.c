@@ -55,8 +55,8 @@
         a persistent data structure. This program can operate as both a regular
         program (is flushed from system memory when it exits) or it can be
         operated as sort of a terminate-stay-resident (TSR) program (its data is
-        not flushed when it exists). We detect which it is (which mode we are
-        executing in) dynamically. We do this by simply looking at the
+        not flushed when the command exists). We detect which it is (which mode
+        we are executing in) dynamically. We do this by simply looking at the
         persistent data and seeing if elements of it are non-zero. Any non-zero
         data indicates that we have already been executed in the past. This data
         is allocated in the BSS section of our process memory map so it is
@@ -92,6 +92,12 @@
         (commands) do register a |fini()| (needlessly) it is dealt with without
         problems (extras are ignored as expected). Welcome to TSR management
         when in a very dynamic execution environment!
+
+	= choice of what data to cache
+
+        We cache data that tends to be difficult (time consuming) to get in the
+        first place.  Data which are relatively easy to get are not generally
+	handled with this module.
 
 
 *******************************************************************************/

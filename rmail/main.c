@@ -143,6 +143,7 @@ extern int	mkgecosname(char *,int,cchar *) ;
 extern int	mkrealame(char *,int,cchar *,int) ;
 extern int	mkuibang(char *,int,USERINFO *) ;
 extern int	mkuiname(char *,int,USERINFO *) ;
+extern int	mkbestaddr(char *,int,cchar *,int) ;
 extern int	pcstrustuser(cchar *,cchar *) ;
 extern int	getnodename(char *,int) ;
 extern int	getusername(char *,int,uid_t) ;
@@ -352,6 +353,7 @@ static cchar *argopts[] = {
 	"ef",
 	"of",
 	"if",
+	"cf",
 	"lf",
 	"ms",
 	"md",
@@ -375,6 +377,7 @@ enum argopts {
 	argopt_ef,
 	argopt_of,
 	argopt_if,
+	argopt_cf,
 	argopt_lf,
 	argopt_ms,
 	argopt_md,
@@ -831,6 +834,24 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    }
 	                    break ;
 
+/* configuration file-name */
+	                case argopt_cf:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            pip->cfname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->cfname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* log file name */
 	                case argopt_lf:
 	                    if (f_optequal) {
@@ -973,14 +994,15 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    case 'd':
 	                        break ;
 
-/* from email address */
+/* envelope from address */
 	                    case 'f':
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                pip->envfromaddr = argp ;
+	                            if (argl) {
+	                                pip->addenvfrom = argp ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1235,10 +1257,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	if (rs >= 0) {
 	    if ((rs = procopts(pip,&akopts,&akparams)) >= 0) {
-	        USERINFO	u ;
 		if (pip->lfname == NULL) pip->lfname = getenv(VARLFNAME) ;
 		if (pip->lfname == NULL) pip->lfname = getenv(VARLOGFNAME) ;
 		if ((rs = procstuff_begin(pip,argval)) >= 0) {
+	            USERINFO	u ;
 	            if ((rs = userinfo_start(&u,NULL)) >= 0) {
 	                pip->uip = &u ;
 	                if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
@@ -1785,23 +1807,23 @@ cchar		*ifn ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 	if ((rs = proguserlist_begin(pip)) >= 0) {
-	if ((rs = procourconf_begin(pip,aop)) >= 0) {
-	    if ((rs = procloginfo(pip)) >= 0) {
-	        if ((proclogs_begin(pip)) >= 0) {
-	            if ((rs = procmaildname_begin(pip,aop)) >= 0) {
-	                {
-	                    rs = processing(pip,aip,bop,ofn,afn,ifn) ;
-	                }
-	                rs1 = procmaildname_end(pip) ;
+	    if ((rs = procourconf_begin(pip,aop)) >= 0) {
+	        if ((rs = procloginfo(pip)) >= 0) {
+	            if ((rs = proclogs_begin(pip)) >= 0) {
+	                if ((rs = procmaildname_begin(pip,aop)) >= 0) {
+	                    {
+	                        rs = processing(pip,aip,bop,ofn,afn,ifn) ;
+	                    }
+	                    rs1 = procmaildname_end(pip) ;
+	                    if (rs >= 0) rs = rs1 ;
+	                } /* end if (procmaildname) */
+	                rs1 = proclogs_end(pip) ;
 	                if (rs >= 0) rs = rs1 ;
-	            } /* end if (procmaildname) */
-	            rs1 = proclogs_end(pip) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (proclogs) */
-	    } /* end if (procloginfo) */
-	    rs1 = procourconf_end(pip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (procourconf) */
+	            } /* end if (proclogs) */
+	        } /* end if (procloginfo) */
+	        rs1 = procourconf_end(pip) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (procourconf) */
 	    rs1 = proguserlist_end(pip) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (proguserlist) */
@@ -2223,18 +2245,23 @@ static int procuucpinfo(PROGINFO *pip)
 static int procenvfromaddr(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
-	if (pip->envfromaddr == NULL) {
-	    const int	f_dynstore = FALSE ;
-	    cchar	*addr = NULL ;
+	if (pip->addenvfrom != NULL) {
+	    const int	elen = strlen(pip->addenvfrom) ;
+	    char	*ebuf ;
+	    if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
+	        cchar	*envfrom = pip->addenvfrom ;
+	        if ((rs = mkbestaddr(ebuf,elen,envfrom,-1)) >= 0) {
+	            cchar	**vpp = &pip->envfrom ;
+	            rs = proginfo_setentry(pip,vpp,ebuf,rs) ;
+		}
+		uc_free(ebuf) ;
+	    } /* end if (m-a-f) */
+	} else if (pip->envfrom == NULL) {
 	    if (pip->f.trusted && (pip->uu_user != NULL)) {
-	        pip->envfromaddr = pip->uu_user ;
+	        pip->envfrom = pip->uu_user ;
 	    } else {
-	        pip->envfromaddr = pip->username ;
+	        pip->envfrom = pip->username ;
 	    } /* end if */
-	    if ((rs >= 0) && f_dynstore && (addr != NULL)) {
-	        cchar	**vpp = &pip->envfromaddr ;
-	        rs = proginfo_setentry(pip,vpp,addr,-1) ;
-	    }
 	} /* end if */
 	return rs ;
 }
@@ -3074,7 +3101,7 @@ static int procdefs(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	if (pip->spambox == NULL) pip->spambox = SPAMUSER ;
-	if ((rs >= 0) && (pip->defbox != NULL)) {
+	if (pip->defbox != NULL) {
 	    if (pip->defbox[0] != '\0') {
 		LOCINFO	*lip = pip->lip ;
 		if ((rs = locinfo_mboxcount(lip)) == 0) {

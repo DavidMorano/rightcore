@@ -1,2 +1,2 @@
 const char linefold_makedate[] =
-"@(#)linefold                170612_1148:28_USEDT Rightcore Network Services" ;
+"@(#)linefold                170616_1128:05_USEDT Rightcore Network Services" ;

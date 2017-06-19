@@ -254,9 +254,9 @@ char *timestr_date(time_t t,int type,char *tbuf)
 	            ZOFFPARTS	zo ;
 	            zoffparts_set(&zo,tmt.gmtoff) ;
 	            rs = bufprintf(tbuf,tlen,
-	                "%3s %3s %2u %02u:%02u:%02u %s %04u %c%02u%02u",
-	                days[tmt.wday],
-	                months[tmt.mon],
+	                "%t %t %2u %02u:%02u:%02u %s %04u %c%02u%02u",
+	                days[tmt.wday],3,
+	                months[tmt.mon],3,
 	                tmt.mday,
 	                tmt.hour,
 	                tmt.min,
@@ -279,9 +279,9 @@ char *timestr_date(time_t t,int type,char *tbuf)
 	            ZOFFPARTS	zo ;
 	            zoffparts_set(&zo,tmt.gmtoff) ;
 	            rs = bufprintf(tbuf,tlen,
-	                "%2u %3s %4u %02u:%02u:%02u %c%02u%02u (%s)",
+	                "%2u %t %4u %02u:%02u:%02u %c%02u%02u (%s)",
 	                tmt.mday,
-	                months[tmt.mon],
+	                months[tmt.mon],3,
 	                (tmt.year + TM_YEAR_BASE),
 	                tmt.hour,
 	                tmt.min,

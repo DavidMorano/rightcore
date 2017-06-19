@@ -35,7 +35,7 @@
 
 	dbuf		destination string buffer
 	dlen		destination string buffer length
-	la		load-average
+	la		load-average (32-bit unsigned fixed-point)
 	w		width
 	p		precision
 	fill		fill indicator
@@ -108,8 +108,7 @@ int snloadavg(char *dbuf,int dlen,uint la,int w,int p,int fill)
 	const char	*dp ;
 	char		digbuf[DIGBUFLEN+1] ;
 
-	if (dbuf == NULL)
-	    return SR_FAULT ;
+	if (dbuf == NULL) return SR_FAULT ;
 
 	if (p > 3) p = 3 ;
 
@@ -187,6 +186,8 @@ static int parts_round(struct parts *pp,int prec)
 {
 	int		r ;
 	switch (prec) {
+	case 3: /* no change needed */
+	    break ;
 	case 2:
 	    r = (pp->partf%10) ;
 	    if (r >= 5) pp->partf += (10-r) ;

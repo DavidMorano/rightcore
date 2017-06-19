@@ -199,6 +199,7 @@ struct proginfo {
 	cchar		*deadmaildname ;
 	cchar		*copymaildname ;
 	cchar		*boxdname ;
+	cchar		*cfname ;	/* config file-name */
 	cchar		*lfname ;	/* prog-log file-name */
 	cchar		*zfname ;	/* zone-log file-name */
 	cchar		*csfname ;	/* CONF COMSAT file-name */
@@ -207,7 +208,8 @@ struct proginfo {
 	cchar		*spambox ;	/* CONF spam box-name */
 	cchar		*defbox ;	/* CONF default box-name */
 	cchar		*lockaddr ;
-	cchar		*envfromaddr ;
+	cchar		*addenvfrom ;	/* argument envelope from address */
+	cchar		*envfrom ;	/* envelope from address */
 	cchar		*msgsubject ;
 	cchar		*protospec ;
 	cchar		*portspec ;

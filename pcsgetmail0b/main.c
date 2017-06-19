@@ -1191,21 +1191,21 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* done: */
 	if ((rs < 0) && (ex == EX_OK)) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    switch (rs) {
 	    case SR_TXTBSY:
 	        ex = EX_TEMPFAIL ;
 	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,
-	                "%s: could not capture the mail lock\n",
-	                pip->progname) ;
+		    fmt = "%s: could not capture the mail lock\n" ;
+	            bprintf(pip->efp,fmt,pn) ;
 	        }
 	        break ;
 	    case SR_ACCES:
 	        ex = EX_ACCESS ;
 	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,
-	                "%s: could not access the mail spool-file\n",
-	                pip->progname) ;
+		    fmt = "%s: could not access the mail spool-file\n" ;
+	            bprintf(pip->efp,fmt,pn) ;
 	        }
 	        break ;
 	    case SR_REMOTE:
@@ -1213,12 +1213,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        if (! pip->f.quiet) {
 #ifdef	COMMENT
 	            if (forwarded(pip,buf,BUFLEN)) {
-	                bprintf(pip->efp,
-	                    "%s: mail is being forwarded to \"%s\"\n",
-	                    pip->progname,buf) ;
+			fmt = "%s: mail is being forwarded to \"%s\"\n" ;
+	                bprintf(pip->efp,fmt,pn,buf) ;
 	            } else
-	                bprintf(pip->efp,"%s: mail is being forwarded\n",
-	                    pip->progname) ;
+			fmt = "%s: mail is being forwarded\n" ;
+	                bprintf(pip->efp,fmt,pn) ;
 #else /* COMMENT */
 	            bprintf(pip->efp,"%s: mail is being forwarded\n",
 	                pip->progname) ;
@@ -1227,19 +1226,18 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        break ;
 	    case SR_NOSPC:
 	        ex = EX_NOSPACE ;
-	        proglog_printf(pip,
-	            "file-system is out of space\n") ;
+		fmt = "file-system is out of space\n" ;
+	        proglog_printf(pip,fmt) ;
 	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,
-	                "%s: local file-system is out of space\n",
-	                pip->progname) ;
+		    fmt = "%s: local file-system is out of space\n" ;
+	            bprintf(pip->efp,fmt,pn) ;
 	        }
 	        break ;
 	    default:
 	        ex = EX_UNKNOWN ;
 	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,"%s: unknown bad thing (%d)\n",
-	                pip->progname,rs) ;
+		    fmt = "%s: unknown bad thing (%d)\n" ;
+	            bprintf(pip->efp,fmt,pn,rs) ;
 	        }
 	        break ;
 	    } /* end switch */

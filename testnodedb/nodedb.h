@@ -69,7 +69,7 @@ extern int nodedb_open(NODEDB *,const char *) ;
 extern int nodedb_fileadd(NODEDB *,const char *) ;
 extern int nodedb_curbegin(NODEDB *,NODEDB_CUR *) ;
 extern int nodedb_curend(NODEDB *,NODEDB_CUR *) ;
-extern int nodedb_fetch(NODEDB *,const char *,NODEDB_CUR *,
+extern int nodedb_fetch(NODEDB *,cchar *,NODEDB_CUR *,
 		NODEDB_ENT *,char *,int) ;
 extern int nodedb_enum(NODEDB *,NODEDB_CUR *,NODEDB_ENT *,char *,int) ;
 extern int nodedb_check(NODEDB *,time_t) ;

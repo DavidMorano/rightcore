@@ -29,10 +29,11 @@
 		"remote from"
 		"forwarded by"
 
-        Currently, we allow any whitespace after the initial "From" but many
-        other implementations only consider "From " to be a valid introducer.
-        Producers of envelopes should consider always putting a SPACE character
-        there rather than some other whitespace character.
+        Currently, we do not allow any whitespace after the initial "From" other
+        than a SPACE character; and many other implementations only consider
+        "From " to be a valid introducer. Producers of envelopes should consider
+        always putting a SPACE character there rather than some other whitespace
+        character.
 
 	What is a proper representative (example) envelope format?
 
@@ -167,8 +168,8 @@ int mailmsgmatenv(MAILMSGMATENV *mep,cchar *sp,int sl)
 	}
 
 	if ((sl > 5) && (sp[0] == 'F')) {
-	    if (strncmp("From",sp,4) == 0) {
-		int	si = 4 ;
+	    int	si = 5 ;
+	    if (strncmp("From ",sp,si) == 0) {
 		memset(mep,0,sizeof(MAILMSGMATENV)) ;
 	        mep->rt = -1 ;
 	        sp += si ;

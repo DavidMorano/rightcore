@@ -53,7 +53,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<ema.h>
 #include	<localmisc.h>
 
 #include	"config.h"
@@ -97,7 +96,9 @@ int mkenvfrom(PROGINFO *pip,char *dbuf,int dlen,cchar *fap)
 	if (fap == NULL) return SR_FAULT ;
 
 	dbuf[0] = '\0' ;
-	if ((rs = mkbestaddr(dbuf,dlen,fap,-1)) >= 0) {
+	if (fap != NULL) {
+	    rs = mkbestaddr(dbuf,dlen,fap,-1) ;
+	} else {
 	    rs = sncpy1(dbuf,dlen,pip->username) ;
 	}
 

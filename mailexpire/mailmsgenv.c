@@ -108,10 +108,7 @@ static const char	*days[] = {
 /* exported subroutines */
 
 
-int mailmsgenv_start(mep,sbuf,slen)
-MAILMSGENV	*mep ;
-const char	sbuf[] ;
-int		slen ;
+int mailmsgenv_start(MAILMSGENV *mep,cchar *sbuf,int slen)
 {
 	int		rs = SR_OK ;
 	int		i, ll ;
@@ -362,8 +359,7 @@ bad0:
 
 
 /* test for the start of a mesage by the existence of a UNIX® envelope */
-int mailmsgenv_isstart(mep)
-MAILMSGENV	*mep ;
+int mailmsgenv_isstart(MAILMSGENV *mep)
 {
 
 	if (mep == NULL) return SR_FAULT ;
@@ -375,52 +371,54 @@ MAILMSGENV	*mep ;
 /* end subroutine (mailmsgenv_isstart) */
 
 
-int mailmsgenv_getaddress(mep,app)
-MAILMSGENV	*mep ;
-const char	**app ;
+int mailmsgenv_getaddress(MAILMSGENV *mep,cchar **app)
 {
 
 	if (mep == NULL) return SR_FAULT ;
 
 	if (mep->address == NULL) return SR_NOTOPEN ;
 
-	if (app != NULL)
+	if (app != NULL) {
 	    *app = mep->address ;
+	}
 
 	return mep->alen ;
 }
 /* end subroutine (mailmsgenv_getaddress) */
 
 
-int mailmsgenv_getremote(mep,app)
-MAILMSGENV	*mep ;
-const char	**app ;
+int mailmsgenv_getremote(MAILMSGENV *mep,cchar **app)
 {
+	int		rs = SR_OK ;
 
 	if (mep == NULL) return SR_FAULT ;
 
 	if (mep->address == NULL) return SR_NOTOPEN ;
 
-	if (app != NULL)
+	if (app != NULL) {
 	    *app = mep->remote ;
+	}
 
-	return ((mep->remote != NULL) ? strlen(mep->remote) : 0) ;
+	if (mep->remote != NULL) {
+	    rs = strlen(mep->remote) ;
+	}
+
+	return rs ;
 }
 /* end subroutine (mailmsgenv_getremote) */
 
 
 /* get the timezone string if there was one */
-int mailmsgenv_gettzname(mep,app)
-MAILMSGENV	*mep ;
-const char	**app ;
+int mailmsgenv_gettzname(MAILMSGENV *mep,cchar **app)
 {
 
 	if (mep == NULL) return SR_FAULT ;
 
 	if (mep->address == NULL) return SR_NOTOPEN ;
 
-	if (app != NULL)
+	if (app != NULL) {
 	    *app = mep->tzname ;
+	}
 
 	return mep->alen ;
 }
@@ -429,9 +427,7 @@ const char	**app ;
 
 #if	CF_GETTIME
 
-int mailmsgenv_gettime(mep,timep)
-MAILMSGENV	*mep ;
-time_t		*timep ;
+int mailmsgenv_gettime(MAILMSGENV *mep,time_t *timep)
 {
 	time_t		d ;
 
@@ -439,11 +435,13 @@ time_t		*timep ;
 
 	if (mep->address == NULL) return SR_NOTOPEN ;
 
-	if (! mep->f.init_time)
+	if (! mep->f.init_time) {
 	    mailmsgenv_proctime(mep) ;
+	}
 
-	if (timep != NULL)
+	if (timep != NULL) {
 	    *timep = mep->daytime ;
+	}
 
 	return (mep->f.hastime) ;
 }
@@ -469,12 +467,12 @@ int		buflen ;
 
 	if ((buflen >= 0) && (buflen < 29)) return SR_TOOBIG ;
 
-	if (! mep->f.init_time)
+	if (! mep->f.init_time) {
 	    mailmsgenv_proctime(mep) ;
+	}
 
 	if (mep->f.hastime) {
 	    timestr_edate(mep->daytime,buf) ;
-
 	} else
 	    buf[0] = '\0' ;
 
@@ -486,10 +484,7 @@ int		buflen ;
 
 
 /* make an entire evelope out of this object */
-int mailmsgenv_mkenv(mep,rbuf,rlen)
-MAILMSGENV	*mep ;
-char		rbuf[] ;
-int		rlen ;
+int mailmsgenv_mkenv(MAILMSGENV *mep,char *rbuf,int rlen)
 {
 	SBUF		ub ;
 	int		rs ;
@@ -505,7 +500,6 @@ int		rlen ;
 /* the address */
 
 	    sbuf_strw(&ub,"From ",5) ;
-
 	    sbuf_strw(&ub,mep->address,-1) ;
 
 /* the date string */
@@ -522,11 +516,8 @@ int		rlen ;
 /* the optional remote machine */
 
 	    if ((mep->remote != NULL) && (mep->remote[0] != '\0')) {
-
 	        sbuf_strw(&ub," remote from ",-1) ;
-
 	        sbuf_strw(&ub,mep->remote,-1) ;
-
 	    } /* end if */
 
 	    sbuf_char(&ub,'\n') ;
@@ -540,8 +531,7 @@ int		rlen ;
 /* end subroutine (mailmsgenv_mkenv) */
 
 
-int mailmsgenv_finish(mep)
-MAILMSGENV	*mep ;
+int mailmsgenv_finish(MAILMSGENV *mep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -573,8 +563,7 @@ MAILMSGENV	*mep ;
 
 #if	CF_GETTIME
 
-static int mailmsgenv_proctime(mep)
-MAILMSGENV	*mep ;
+static int mailmsgenv_proctime(MAILMSGENV *mep)
 {
 
 	if (! mep->f.init_time) {
@@ -582,14 +571,10 @@ MAILMSGENV	*mep ;
 
 	    mep->f.init_time = TRUE ;
 	    if (mep->origdate != NULL) {
-
 	        if ((d = getabsdate(mep->origdate,NULL)) >= 0) {
-
 	            mep->f.hastime = TRUE ;
 	            mep->daytime = d ;
-
 	        }
-
 	    } /* end if */
 
 	} /* end if (filled in the time) */
@@ -601,8 +586,7 @@ MAILMSGENV	*mep ;
 #endif /* CF_GETTIME */
 
 
-static int freeit(pp)
-const char	**pp ;
+static int freeit(cchar **pp)
 {
 	int		rs = SR_OK ;
 	if (*pp != NULL) {

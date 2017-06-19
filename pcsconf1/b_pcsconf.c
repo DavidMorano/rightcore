@@ -1048,24 +1048,24 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
 	            PCSCONF	pc, *pcp = &pc ;
 		    cchar	*pr = pip->pr ;
-	        if (cfname != NULL) {
-	            if (pip->euid != pip->uid) u_seteuid(pip->uid) ;
-	            if (pip->egid != pip->gid) u_setegid(pip->gid) ;
-	            if (pip->open.logprog)
-	                logfile_printf(&pip->lh,"conf=%s",cfname) ;
-	            if (pip->debuglevel > 0) {
-	                shio_printf(pip->efp,"%s: conf=%s\n",
-	                    pip->progname,cfname) ;
-		    }
-	        }
-	        if ((rs = pcsconf_start(pcp,pr,envv,cfname)) >= 0) {
-	            pip->pcsconf = pcp ;
-	            pip->open.pcsconf = TRUE ;
-	            if ((rs = procpcsconf_begin(pip,pcp)) >= 0) {
-	                PCSPOLL		poll ;
-			cchar		*sn = pip->searchname ;
-	                if ((rs = pcspoll_start(&poll,pcp,sn)) >= 0) {
-	                    if ((rs = proglog_begin(pip,&u)) >= 0) {
+	            if (cfname != NULL) {
+	                if (pip->euid != pip->uid) u_seteuid(pip->uid) ;
+	                if (pip->egid != pip->gid) u_setegid(pip->gid) ;
+	                if (pip->open.logprog)
+	                    logfile_printf(&pip->lh,"conf=%s",cfname) ;
+	                if (pip->debuglevel > 0) {
+	                    shio_printf(pip->efp,"%s: conf=%s\n",
+	                        pip->progname,cfname) ;
+		        }
+	            }
+	            if ((rs = pcsconf_start(pcp,pr,envv,cfname)) >= 0) {
+	                pip->pcsconf = pcp ;
+	                pip->open.pcsconf = TRUE ;
+	                if ((rs = procpcsconf_begin(pip,pcp)) >= 0) {
+	                    PCSPOLL		poll ;
+			    cchar		*sn = pip->searchname ;
+	                    if ((rs = pcspoll_start(&poll,pcp,sn)) >= 0) {
+	                        if ((rs = proglog_begin(pip,&u)) >= 0) {
 	                            if ((rs = proguserlist_begin(pip)) >= 0) {
 	                                cchar	*afn = afname ;
 	                                cchar	*ofn = ofname ;

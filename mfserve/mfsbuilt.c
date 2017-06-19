@@ -54,6 +54,7 @@
 
 /* external subroutines */
 
+extern int	snwcpy(char *,int,cchar *,int) ;
 extern int	mkpath1(char *,cchar *) ;
 extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	pathadd(char *,int,cchar *) ;
@@ -87,14 +88,19 @@ struct mfsbuilt_ent {
 
 /* forward references */
 
-static int	mfsbuilt_dump(MFSBUILT *) ;
-static int	mfsbuilt_load(MFSBUILT *) ;
+static int	mfsbuilt_entdump(MFSBUILT *) ;
+static int	mfsbuilt_entload(MFSBUILT *) ;
+static int	mfsbuilt_ent(MFSBUILT *,cchar *,int,cchar *,int) ;
 static int	mfsbuilt_fins(MFSBUILT *) ;
 
 static int	ent_start(ENT *,cchar *,int,cchar *,int) ;
+static int	ent_load(ENT *,void *) ;
+static int	ent_release(ENT *) ;
 static int	ent_finish(ENT *) ;
 
+#ifdef	COMMENT
 static int	mkfile(cchar *,cchar **) ;
+#endif /* COMMENT */
 
 static int	hasService(cchar *,int) ;
 
@@ -127,8 +133,8 @@ int mfsbuilt_start(MFSBUILT *op,cchar *dname)
 	    const int	at = FALSE ;
 	    op->dname = cp ;
 	    if ((rs = hdb_start(dbp,n,at,NULL,NULL)) >= 0) {
-		if ((rs = mfsbuilt_dump(op)) >= 0) {
-		    if ((rs = mfsbuilt_load(op)) >= 0) {
+		if ((rs = mfsbuilt_entdump(op)) >= 0) {
+		    if ((rs = mfsbuilt_entload(op)) >= 0) {
 		        op->magic = MFSBUILT_MAGIC ;
 		    }
 		}
@@ -155,6 +161,7 @@ int mfsbuilt_finish(MFSBUILT *op)
 	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
 
 	rs1 = mfsbuilt_fins(op) ;
 	if (rs >= 0) rs = rs1 ;
@@ -175,7 +182,7 @@ int mfsbuilt_finish(MFSBUILT *op)
 /* end subroutine (mfsbuilt_finish) */
 
 
-int mfsbuilt_have(MFSBUILT *op,cchar *sp,int sl)
+int mfsbuilt_load(MFSBUILT *op,cchar *sp,int sl,void *vrp)
 {
 	HDB		*dbp ;
 	HDB_DATUM	k, v ;
@@ -183,24 +190,181 @@ int mfsbuilt_have(MFSBUILT *op,cchar *sp,int sl)
 	int		rl = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
+	if (vrp == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
 	dbp = &op->db ;
 	if (sl < 0) sl = strlen(sp) ;
 	k.buf = sp ;
 	k.len = sl ;
 	if ((rs = hdb_fetch(dbp,k,NULL,&v)) >= 0) {
 	    rl = v.len ;
+	    if (vrp != NULL) {
+		ENT	*ep = (ENT *) v.buf ;
+		rs = ent_load(ep,vrp) ;
+	    }
 	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
 	}
 	return (rs >= 0) ? rl : rs ;
 }
+/* end subroutine (mfsbuilt_load) */
+
+
+int mfsbuilt_release(MFSBUILT *op,cchar *sp,int sl)
+{
+	HDB		*dbp ;
+	HDB_DATUM	k, v ;
+	int		rs ;
+	int		rl = 0 ;
+	if (op == NULL) return SR_FAULT ;
+	if (sp == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	dbp = &op->db ;
+	if (sl < 0) sl = strlen(sp) ;
+	k.buf = sp ;
+	k.len = sl ;
+	if ((rs = hdb_fetch(dbp,k,NULL,&v)) >= 0) {
+	    ENT	*ep = (ENT *) v.buf ;
+	    rs = ent_release(ep) ;
+	    rl = rs ;
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	}
+	return (rs >= 0) ? rl : rs ;
+}
+/* end subroutine (mfsbuilt_release) */
+
+
+int mfsbuilt_have(MFSBUILT *op,cchar *sp,int sl)
+{
+	return mfsbuilt_load(op,sp,sl,NULL) ;
+}
 /* end subroutine (mfsbuilt_have) */
+
+
+int mfsbuilt_count(MFSBUILT *op)
+{
+	HDB		*dbp ;
+	if (op == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	dbp = &op->db ;
+	return hdb_count(dbp) ;
+}
+/* end subroutine (mfsbuilt_count) */
+
+
+int mfsbuilt_curbegin(MFSBUILT *op,MFSBUILT_CUR *curp)
+{
+	HDB		*dbp ;
+	HDB_CUR		*hcp ;
+	int		rs ;
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	if (curp->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	dbp = &op->db ;
+	hcp = &curp->hcur ;
+	if ((rs = hdb_curbegin(dbp,hcp)) >= 0) {
+	    curp->magic = MFSBUILT_MAGIC ;
+	}
+	return rs ;
+}
+/* end subroutine (mfsbuilt_curbegin) */
+
+
+int mfsbuilt_curend(MFSBUILT *op,MFSBUILT_CUR *curp)
+{
+	HDB		*dbp ;
+	HDB_CUR		*hcp ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	if (curp->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	dbp = &op->db ;
+	hcp = &curp->hcur ;
+	rs1 = hdb_curend(dbp,hcp) ;
+	if (rs >= 0) rs = rs1 ;
+	curp->magic = 0 ;
+	return rs ;
+}
+/* end subroutine (mfsbuilt_curend) */
+
+
+int mfsbuilt_enum(MFSBUILT *op,MFSBUILT_CUR *curp,char *rbuf,int rlen)
+{
+	HDB		*dbp ;
+	HDB_CUR		*hcp ;
+	HDB_DATUM	k, v ;
+	int		rs ;
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	if (curp->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	dbp = &op->db ;
+	hcp = &curp->hcur ;
+	if ((rs = hdb_enum(dbp,hcp,&k,&v)) >= 0) {
+	    cchar	*sp = (cchar *) k.buf ;
+	    rs = snwcpy(rbuf,rlen,sp,k.len) ;
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	}
+	return rs ;
+}
+/* end subroutine (mfsbuilt_enum) */
+
+
+int mfsbuilt_strsize(MFSBUILT *op)
+{
+	HDB		*dbp ;
+	HDB_CUR		hcur ;
+	HDB_DATUM	k, v ;
+	int		rs ;
+	int		rs1 ;
+	int		size = 0 ;
+	if (op == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	dbp = &op->db ;
+	if ((rs = hdb_curbegin(dbp,&hcur)) >= 0) {
+	    while ((rs1 = hdb_enum(dbp,&hcur,&k,&v)) >= 0) {
+	        cchar	*sp = (cchar *) k.buf ;
+		size += (strlen(sp)+1) ;
+	    } /* end while */
+	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	    rs1 = hdb_curend(dbp,&hcur) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (hdb-cur) */
+	return (rs >= 0) ? size : rs ;
+}
+/* end subroutine (mfsbuilt_strsize) */
+
+
+int mfsbuilt_check(MFSBUILT *op,time_t dt)
+{
+	const int	to = MFSBUILT_INTCHECK ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	if (op == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	if (dt == 0) dt = time(NULL) ;
+	if (op == NULL) return SR_FAULT ;
+	if ((dt - op->ti_check) >= to) {
+	    op->ti_check = dt ;
+	    f = TRUE ;
+	    if ((rs = mfsbuilt_entdump(op)) >= 0) {
+		rs = mfsbuilt_entload(op) ;
+	    }
+	}
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (mfsbuilt_check) */
 
 
 /* private subroutines */
 
 
-static int mfsbuilt_dump(MFSBUILT *op)
+static int mfsbuilt_entdump(MFSBUILT *op)
 {
 	int		rs ;
 
@@ -208,10 +372,10 @@ static int mfsbuilt_dump(MFSBUILT *op)
 
 	return rs ;
 }
-/* end subroutine (mfsbuilt_dump) */
+/* end subroutine (mfsbuilt_entdump) */
 
 
-static int mfsbuilt_load(MFSBUILT *op)
+static int mfsbuilt_entload(MFSBUILT *op)
 {
 	FSDIR		d ;
 	FSDIR_ENT	de ;
@@ -240,7 +404,32 @@ static int mfsbuilt_load(MFSBUILT *op)
 	} /* end if (fsdir) */
 	return rs ;
 }
-/* end subroutine (mfsbuilt_load) */
+/* end subroutine (mfsbuilt_entload) */
+
+
+static int mfsbuilt_ent(MFSBUILT *op,cchar *sp,int sl,cchar *pp,int pl)
+{
+	ENT		*ep ;
+	const int	esize = sizeof(ENT) ;
+	int		rs ;
+	if ((rs = uc_malloc(esize,&ep)) >= 0) {
+	    if ((rs = ent_start(ep,sp,sl,pp,pl)) >= 0) {
+		HDB		*dbp = &op->db ;
+		HDB_DATUM	k, v ;
+		k.buf = sp ;
+		k.len = sl ;
+		v.buf = ep ;
+		v.len = esize ;
+		rs = hdb_store(dbp,k,v) ;
+		if (rs < 0)
+		    ent_finish(ep) ;
+	    }
+	    if (rs < 0)
+		uc_free(ep) ;
+	} /* end if (m-a) */
+	return rs ;
+}
+/* end subroutine (mfsbuilt_ent) */
 
 
 static int mfsbuilt_fins(MFSBUILT *op)
@@ -287,7 +476,7 @@ static int ent_start(ENT *ep,cchar *sp,int sl,cchar *fp,int fl)
 	    ep->svc = bp ;
 	    bp = (strwcpy(bp,sp,sl)+1) ;
 	    ep->fname = bp ;
-	    bp = (strwcpy(bp,sp,sl)+1) ;
+	    bp = (strwcpy(bp,fp,fl)+1) ;
 	}
 	return rs ;
 }
@@ -316,6 +505,46 @@ static int ent_finish(ENT *ep)
 /* end subroutine (ent_finish) */
 
 
+/* ARGSUSED */
+static int ent_load(ENT *ep,void *vrp)
+{
+	int		rs = SR_OK ;
+	void		**rpp = (void **) vrp ;
+	if (ep->sop == NULL) {
+	    void	*sop ;
+	    if ((sop = dlopen(ep->fname,0)) != NULL) {
+		ep->sop = sop ;
+		ep->rcount = 1 ;
+	        *rpp = ep->sop ;
+	    } else {
+		rs = SR_LIBACC ;
+		*rpp = NULL ;
+	    }
+	} else {
+	    ep->rcount += 1 ; /* reference count */
+	    *rpp = ep->sop ;
+	}
+	return rs ;
+}
+/* end subroutine (ent_load) */
+
+
+static int ent_release(ENT *ep)
+{
+	int		rs = SR_OK ;
+	if ((ep->sop != NULL) && (ep->rcount > 0)) {
+		ep->rcount -= 1 ;
+		if (ep->rcount == 0) {
+		    dlclose(ep->sop) ;
+		    ep->sop = NULL ;
+		}
+	}
+	return rs ;
+}
+/* end subroutine (ent_release) */
+
+
+#ifdef	COMMENT
 static int mkfile(cchar *template,cchar **rpp)
 {
 	int		rs ;
@@ -335,6 +564,7 @@ static int mkfile(cchar *template,cchar **rpp)
 	return (rs >= 0) ? tl : rs ;
 }
 /* end subroutines (mkfile) */
+#endif /* COMMENT */
 
 
 static int hasService(cchar *sp,int sl)

@@ -94,8 +94,8 @@
 #define	DEFLOGFNAME	"/etc/default/login"
 #define	NISDOMAINNAME	"/etc/defaultdomain"
 
-#define	PIDCNAME	"pid"
 #define	REQCNAME	"req"
+#define	PIDCNAME	"pid"
 #define	SVCCNAME	"svc"
 #define	ACCCNAME	"acc"
 
@@ -106,8 +106,6 @@
 #define	MSFNAME		"ms"
 #define	PIDFNAME	"mfs"		/* mutex PID file */
 #define	LOGFNAME	"mfs"		/* activity log */
-#define	SVCFNAME	"svc"		/* svctab file */
-#define	ACCFNAME	"acc"		/* acctab file */
 #define	LOCKFNAME	"%N.%S"		/* lock mutex file */
 #define	SERIALFNAME	"serial"
 

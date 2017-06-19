@@ -233,10 +233,10 @@ struct locinfo_flags {
 	uint		rnum:1 ;
 	uint		ncpus:1 ;
 	uint		hostid:1 ;
+	uint		nusers:1 ;
 	uint		nprocs:1 ;
 	uint		runlevel:1 ;
 	uint		btime:1 ;
-	uint		nusers:1 ;
 	uint		hz:1 ;
 	uint		mem:1 ;
 	uint		to:1 ;
@@ -270,23 +270,23 @@ struct locinfo {
 	time_t		ti_la ;
 	time_t		ti_tz ;
 	time_t		ti_ncpus ;
-	time_t		ti_hostid ;
 	time_t		ti_nprocs[4] ;
+	time_t		ti_nusers ;
+	time_t		ti_hostid ;
 	time_t		ti_btime ;
 	time_t		ti_runlevel ;
-	time_t		ti_nusers ;
 	uint		rnum ;
-	uint		hz ;
-	uint		ncpus ;
 	uint		hostid ;
-	uint		nprocs[4] ;
-	uint		nusers ;
 	uint		pmt ;		/* physical-memory-total */
 	uint		pma ;		/* physical-memory-avail */
 	uint		pmu ;		/* physical-memory-usage */
-	int		to ;		/* time-out */
 	int		pagesize ;
 	int		runlevel ;
+	int		hz ;
+	int		ncpus ;
+	int		nprocs[4] ;
+	int		nusers ;
+	int		to ;		/* time-out */
 	int		ttl ;
 	int		timeform ;
 	char		username[USERNAMELEN+1] ;
@@ -2738,8 +2738,9 @@ static int locinfo_runlevel(LOCINFO *lip)
 	    }
 	    lip->runlevel = rl ;
 
-	} else
+	} else {
 	    rl = lip->runlevel ;
+	}
 
 	return (rs >= 0) ? rl : rs ;
 }
@@ -2755,8 +2756,9 @@ static int locinfo_tz(LOCINFO *lip)
 	if ((lip->tz[0] == '\0') || ((pip->daytime - lip->ti_tz) >= to)) {
 	    lip->ti_tz = pip->daytime ;
 	    rs = inittimezone(lip->tz,TZLEN,NULL) ;
-	} else
+	} else {
 	    rs = strlen(lip->tz) ;
+	}
 
 	return rs ;
 }
@@ -2776,8 +2778,9 @@ static int locinfo_nodename(LOCINFO *lip)
 	        len = rs ;
 	        rs = locinfo_setentry(lip,vpp,dbuf,rs) ;
 	    } /* end if (getnodename) */
-	} else
+	} else {
 	    len = strlen(lip->nodename) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -2802,8 +2805,9 @@ static int locinfo_clustername(LOCINFO *lip)
 	            rs = locinfo_setentry(lip,vpp,dbuf,rs) ;
 	        } /* end if (getclustername) */
 	    } /* end if (locinfo_nodename) */
-	} else
+	} else {
 	    len = strlen(lip->clustername) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -2972,20 +2976,33 @@ static int getncpus(PROGINFO *pip)
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		to ;
+	int		n = 0 ;
 	int		f_to ;
 
 	to = lip->to ;
 	f_to = ((pip->daytime - lip->ti_ncpus) >= to) ;
 	if ((! lip->init.ncpus) || f_to) {
 	    lip->init.ncpus = TRUE ;
+
+#if	CF_PERCACHE && 0 /* note: this PERCACHE call does not exist! */
+	    if ((rs >= 0) && (n == 0) && lip->f.percache) {
+	        rs = percache_getncpus(&pc,pip->daytime) ;
+	        n = rs ;
+	    }
+#endif /* CF_PERCACHE */
+
+	    if ((rs >= 0) && (n == 0)) {
+	        rs = getnprocessors(pip->envv,0) ;
+	        n = rs ;
+	    }
+
+	    lip->ncpus = n ;
 	    lip->ti_ncpus = pip->daytime ;
-
-	    rs = getnprocessors(pip->envv,0) ;
-	    lip->ncpus = rs ;
-
+	} else {
+	    n = lip->ncpus ;
 	} /* end if (needed to get some stuff) */
 
-	return (rs >= 0) ? lip->ncpus : rs ;
+	return (rs >= 0) ? n : rs ;
 }
 /* end subroutine (getncpus) */
 

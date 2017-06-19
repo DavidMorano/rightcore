@@ -4,6 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_LOCSTRS	0		/* use local calendar strings */
 
 
 /* revision history:
@@ -104,6 +105,7 @@
 #include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
+#include	<calstrs.h>
 #include	<sbuf.h>
 #include	<tmtime.h>
 #include	<zoffparts.h>
@@ -148,14 +150,18 @@ static int	sbuf_datex(SBUF *,TMTIME *) ;
 
 /* local variables */
 
+#if	CF_LOCSTRS
 static const char	*months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 } ;
+#endif /* CF_LOCSTRS */
 
+#if	CF_LOCSTRS
 static const char	*days[] = {
 	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 } ;
+#endif /* CF_LOCSTRS */
 
 static const char	blinker[] = "\033[5m:\033[0m" ;
 

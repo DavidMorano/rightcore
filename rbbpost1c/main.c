@@ -1231,8 +1231,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	int		c = 0 ;
 	cchar		*cp ;
 
-	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL)
+	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
@@ -1243,11 +1244,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
-	            vl = keyopt_fetch(kop,kp,NULL,&vp) ;
-
 	            if ((oi = matostr(akonames,2,kp,kl)) >= 0) {
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 	                switch (oi) {
-
 	                case akoname_squery:
 	                    if (! lip->final.squery) {
 	                        lip->have.squery = TRUE ;
@@ -1259,11 +1258,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 	                c += 1 ;
 	            } /* end if (valid option) */
@@ -1280,9 +1277,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int procuserinfo_begin(pip,uip)
-PROGINFO	*pip ;
-USERINFO	*uip ;
+static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 {
 	int		rs = SR_OK ;
 
@@ -1318,16 +1313,16 @@ USERINFO	*uip ;
 
 	pip->envfromaddr = pip->username ;
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = prognamecache_begin(pip,uip) ;
+	}
 
 	return rs ;
 }
 /* end subroutine (procuserinfo_begin) */
 
 
-static int procuserinfo_end(pip)
-PROGINFO	*pip ;
+static int procuserinfo_end(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;

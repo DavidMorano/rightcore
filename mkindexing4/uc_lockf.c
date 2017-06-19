@@ -54,7 +54,7 @@
 
         Also, watch out for stupid Solaris bugs. They do not want a remote file
         to be memory mapped and locked at the same time. They think that they
-        are protecting us against outselved but in reality they are just inept
+        are protecting us against ourselves but in reality they are just inept
         developers who are making our lives more miserable with Solaris than it
         alreay is!
 

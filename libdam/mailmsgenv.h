@@ -8,22 +8,19 @@
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
-
 #include	<sys/types.h>
-#include	<time.h>
-
 #include	<localmisc.h>
 
-
-/* object defines */
-
-#define	MAILMSGENV		struct mailmsgenv_head
-
-#define	MAILMSGENV_MAXLINELEN	1092
 
 #ifndef	UINT
 #define	UINT	unsigned int
 #endif
+
+/* object defines */
+
+#define	MAILMSGENV		struct mailmsgenv_head
+#define	MAILMSGENV_FL		struct mailmsgenv_flags
+#define	MAILMSGENV_MAXLINELEN	1092
 
 
 struct mailmsgenv_flags {
@@ -34,7 +31,7 @@ struct mailmsgenv_flags {
 } ;
 
 struct mailmsgenv_head {
-	struct mailmsgenv_flags	f ;
+	MAILMSGENV_FL	f ;
 	const char	*address ;
 	const char	*origdate ;
 	const char	*remote ;
@@ -53,11 +50,11 @@ typedef struct mailmsgenv_head	mailmsgenv ;
 extern "C" {
 #endif
 
-extern int mailmsgenv_start(MAILMSGENV *,const char *,int) ;
+extern int mailmsgenv_start(MAILMSGENV *,cchar *,int) ;
 extern int mailmsgenv_isstart(MAILMSGENV *) ;
-extern int mailmsgenv_getaddress(MAILMSGENV *,const char **) ;
-extern int mailmsgenv_getremote(MAILMSGENV *,const char **) ;
-extern int mailmsgenv_gettzname(MAILMSGENV *,const char **) ;
+extern int mailmsgenv_getaddress(MAILMSGENV *,cchar **) ;
+extern int mailmsgenv_getremote(MAILMSGENV *,cchar **) ;
+extern int mailmsgenv_gettzname(MAILMSGENV *,cchar **) ;
 extern int mailmsgenv_gettime(MAILMSGENV *,time_t *) ;
 extern int mailmsgenv_mkdatestr(MAILMSGENV *,char *,char *,int) ;
 extern int mailmsgenv_mkenv(MAILMSGENV *,char *,int) ;
