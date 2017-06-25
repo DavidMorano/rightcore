@@ -62,7 +62,6 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<unistd.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -106,20 +105,15 @@ char		output[] ;
 const char	name[] ;
 {
 	struct ustat	sb ;
+	int		rs = SR_NOTFOUND ;
+	int		namelen ;
+	int		outlen = 0 ;
+	int		f_output = FALSE ;
+	char		outbuf[MAXPATHLEN + 2] ;
 
-	int	rs = SR_NOTFOUND ;
-	int	namelen ;
-	int	outlen = 0 ;
-	int	f_output = FALSE ;
+	if (name == NULL) return SR_FAULT ;
 
-	char	outbuf[MAXPATHLEN + 2] ;
-
-
-	if (name == NULL)
-	    return SR_FAULT ;
-
-	if (name[0] == '\0')
-	    return SR_NOTFOUND ;
+	if (name[0] == '\0') return SR_NOTFOUND ;
 
 #if	CF_DEBUGS
 	debugprintf("pcsgetprog: pcsroot=%s name=%s\n",pcsroot,name) ;
@@ -130,8 +124,9 @@ const char	name[] ;
 	if (output != NULL) {
 	    f_output = TRUE ;
 	    output[0] = '\0' ;
-	} else
+	} else {
 	    output = outbuf ;
+	}
 
 /* check input */
 
@@ -187,11 +182,10 @@ const char	name[] ;
 	        rs = mkpath3w(output,pcsroot,"sbin",name,namelen) ;
 	        outlen = rs ;
 	        if ((rs = u_stat(output,&sb)) >= 0) {
-
 	            rs = SR_NOTFOUND ;
-	            if (S_ISREG(sb.st_mode))
+	            if (S_ISREG(sb.st_mode)) {
 	                rs = perm(output,-1,-1,NULL,X_OK) ;
-
+		    }
 	        }
 
 	    } /* end if */
@@ -227,6 +221,5 @@ ret0:
 	return rs ;
 }
 /* end subroutine (pcsgetprog) */
-
 
 

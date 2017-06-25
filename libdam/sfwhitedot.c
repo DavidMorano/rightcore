@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 1998-07-01, David A­D­ Morano
-
-	This subroutine gets the leading string before the first dot
-	character (white-space cleaned up).
-
+        This subroutine gets the leading string before the first dot character
+        (white-space cleaned up).
 
 */
 
@@ -20,8 +18,7 @@
 
 /*******************************************************************************
 
-	This subroutine retrieves the substring before the first dot
-	character.
+        This subroutine retrieves the substring before the first dot character.
 
 	Synopsis:
 

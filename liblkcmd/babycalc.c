@@ -71,8 +71,6 @@ extern int	mkpath1(char *,const char *) ;
 extern int	mkpath1w(char *,const char *,int) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	mkpath4(char *,const char *,const char *,const char *,
-			const char *) ;
 extern int	mkfnamesuf1(char *,const char *,const char *) ;
 extern int	nleadstr(const char *,const char *,int) ;
 extern int	getnodedomain(char *,char *) ;
@@ -285,8 +283,9 @@ static int babycalc_objloadbegin(BABYCALC *op,cchar *pr,cchar *objname)
 
 	    rs1 = vecstr_finish(&syms) ;
 	    if (rs >= 0) rs = rs1 ;
-	    if ((rs < 0) && f_modload)
+	    if ((rs < 0) && f_modload) {
 		modload_close(lp) ;
+	    }
 	} /* end if (allocation) */
 
 #if	CF_DEBUGS

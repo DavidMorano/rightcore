@@ -738,7 +738,6 @@ static int ema_load(EMA *hp,cchar *orig,int olen,ASS *as,EMA *nlp)
 {
 	EMA_ENT		*ep = NULL ;
 	int		rs = SR_OK ;
-	int		size ;
 
 #if	CF_DEBUGS
 	debugprintf("ema_load: ent olen=%d orig=>%t<\n",olen,orig,olen) ;
@@ -751,10 +750,8 @@ static int ema_load(EMA *hp,cchar *orig,int olen,ASS *as,EMA *nlp)
 	debugprintf("ema_load: mod olen=%d\n",olen) ;
 #endif
 
-	if (olen <= 0)
-	    goto ret0 ;
-
-	size = sizeof(EMA_ENT) ;
+	if (olen > 0) {
+	    const int	size = sizeof(EMA_ENT) ;
 	if ((rs = uc_malloc(size,&ep)) >= 0) {
 	    if ((rs = entry_start(ep)) >= 0) {
 	        int	i ;
@@ -823,7 +820,7 @@ static int ema_load(EMA *hp,cchar *orig,int olen,ASS *as,EMA *nlp)
 
 #if	CF_DEBUGS
 	                {
-	                    debugprintf("ema_load: stored i=%u rs=%d len=%d\n",
+	                    debugprintf("ema_load: i=%u rs=%d len=%d\n",
 	                        i,rs,sl) ;
 	                    if (sl >= 0)
 	                        debugprintf("ema_load: c=>%t<\n",cp,sl) ;
@@ -860,7 +857,7 @@ static int ema_load(EMA *hp,cchar *orig,int olen,ASS *as,EMA *nlp)
 	            ep->type = ematype_group ;
 	        }
 #if	CF_DEBUGS
-	        debugprintf("ema_load: loading entry itself into list\n") ;
+	        debugprintf("ema_load: loading entry into list\n") ;
 	        entry_debugprint(ep,"before_load") ;
 #endif
 
@@ -876,8 +873,7 @@ static int ema_load(EMA *hp,cchar *orig,int olen,ASS *as,EMA *nlp)
 	    if (rs < 0)
 	        uc_free(ep) ;
 	} /* end if (memory-allocation) */
-
-ret0:
+	} /* end if (positive) */
 
 #if	CF_DEBUGS
 	if ((rs >= 0) && (ep != NULL))

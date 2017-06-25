@@ -235,6 +235,7 @@ struct proginfo {
 	int		accessed ;
 	int		nice ;
 	int		cch ;		/* comment character */
+	int		n ;
 	int		c_files ;
 	int		c_processed ;
 	int		c_linkerr ;

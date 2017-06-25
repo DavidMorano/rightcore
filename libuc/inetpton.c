@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 2003-11-06, David A­D­ Morano
-
-	This subroutine exists to make some sensible version out of the
-	combination of 'inet_addr(3n)' and 'inet_pton(3socket)'.
-
+        This subroutine exists to make some sensible version out of the
+        combination of 'inet_addr(3n)' and 'inet_pton(3socket)'.
 
 */
 

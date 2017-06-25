@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 2006-07-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -21,9 +19,9 @@
 
 /******************************************************************************
 
-	This subroutine creates and maps a POSIX® shared-memory temporary
-	object.  The POSIX® SHM-type name of the object created is returned
-	to the caller.
+        This subroutine creates and maps a POSIX® shared-memory temporary
+        object. The POSIX® SHM-type name of the object created is returned to
+        the caller.
 
 	Synopsis:
 
@@ -116,8 +114,9 @@ int mapshmtmp(char *rbuf,int rlen,mode_t operm,int shmlen,char **rpp)
 	if ((rs >= 0) && ((rs = openshmtmp(rbuf,rlen,operm)) >= 0)) {
 	    const int	fd = rs ;
 
-	    if (f_bufalloc)
+	    if (f_bufalloc) {
 	         uc_unlinkshm(rbuf) ;
+	    }
 
 	    if ((rs = shmalloc(fd,shmlen)) >= 0) {
 		size_t	msize = shmlen ;
@@ -145,7 +144,7 @@ static int shmalloc(int fd,int shmlen)
 {
 	offset_t	off = 0 ;
 	const int	wlen = sizeof(int) ;
-	const int	pagesize = getpagesize() ;
+	const int	ps = getpagesize() ;
 	int		rs = SR_OK ;
 	char		wbuf[sizeof(int) + 1] ;
 
@@ -153,7 +152,7 @@ static int shmalloc(int fd,int shmlen)
 
 	while ((rs >= 0) && (off < shmlen)) {
 	    rs = u_pwrite(fd,wbuf,wlen,off) ;
-	    off += pagesize ;
+	    off += ps ;
 	} /* end while */
 
 	return rs ;

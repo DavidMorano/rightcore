@@ -936,8 +936,9 @@ int locinfo_svbegin(LOCINFO *lip)
 	VECSTR		*svp = &lip->svars ;
 	int		rs ;
 	if ((rs = vecstr_start(svp,4,0)) >= 0) {
-	    lip->open.svars = TRUE ;
-	    rs = locinfo_svload(lip) ;
+	    if ((rs = locinfo_svload(lip)) >= 0) {
+	        lip->open.svars = TRUE ;
+	    }
 	    if (rs < 0) {
 	        lip->open.svars = FALSE ;
 	        vecstr_finish(svp) ;

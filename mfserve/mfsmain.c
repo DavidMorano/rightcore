@@ -1907,7 +1907,7 @@ static int procourconf_find(PROGINFO *pip)
 	    debugprintf("mfsmain/procourconf_find: open-svars=%u\n",
 		lip->open.svars) ;
 	}
-#endif
+#endif /* CF_DEBUG */
 
 	if (pip->cfname == NULL) {
 	    LOCINFO	*lip = pip->lip ;
@@ -1919,15 +1919,17 @@ static int procourconf_find(PROGINFO *pip)
 	        if ((rs = permsched(sched1,svp,tbuf,tlen,cfn,R_OK)) >= 0) {
 		    cchar	**vpp = &pip->cfname ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("mfsmain/procourconf_find: permsched() rs=%d\n",rs) ;
+		    if (DEBUGLEVEL(3))
+		    debugprintf("mfsmain/procourconf_find: "
+			    "permsched() rs=%d\n",rs) ;
 #endif
 		    rl = rs ;
 		    rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
 	        } else if (isNotPresent(rs)) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("mfsmain/procourconf_find: permsched() rs=%d\n",rs) ;
+		    if (DEBUGLEVEL(3))
+		    debugprintf("mfsmain/procourconf_find: "
+			    "permsched() rs=%d\n",rs) ;
 #endif
 		    rs = SR_OK ;
 	        }
@@ -1972,8 +1974,8 @@ static int procourconf_end(PROGINFO *pip)
 	if (DEBUGLEVEL(3))
 	    debugprintf("mfsmain/procourconf_end: ret rs=%d\n",rs) ;
 #endif
-	return rs ;
 
+	return rs ;
 }
 /* end subroutine (procourconf_end) */
 

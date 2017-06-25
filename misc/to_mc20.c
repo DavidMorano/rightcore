@@ -1,12 +1,13 @@
 /* program to convert magic number to that of the MC20 */
 
-#include	"rel.h"
 
 #include	<fcntl.h>
 
+#include	"rel.h"
+
 
 /* 
-	This program conver the input COFF to an output
+	This program converts the input COFF to an output
 	COFF with the MC20 magic number.
 
 */
@@ -45,7 +46,7 @@
 
 
 
-main(argc,argv)
+int main(argc,argv)
 int	argc ;
 char	*argv[] ;
 {
@@ -115,19 +116,14 @@ loop:
 
 eof:
 	return (0) ;
-
 }
+/* end subroutine (main) */
 
 
-int debugprint(s)
-char	*s ;
+int debugprint(const char *s)
 {
-	int	len ;
-
-
-	len = 0 ;
+	int	len = 0 ;
 	while (s[len]) len++ ;
-
 	return (write(2,s,len)) ;
 }
 

@@ -22,9 +22,9 @@
 
 	Synopsis:
 
-	int dialhttp(hostname,portspec,af,svcname,svcargv,timeout,opts)
-	const char	hostname[] ;
-	const char	portspec[] ;
+	int dialhttp(hname,pspec,af,svcname,svcargv,timeout,opts)
+	const char	hname[] ;
+	const char	pspec[] ;
 	int		af ;
 	const char	svcname[] ;
 	const char	*svcargv[] ;
@@ -33,8 +33,8 @@
 
 	Arguments:
 
-	hostname	host to dial to
-	portspec	port specification to use
+	hname		host to dial to
+	pspec		port specification to use
 	af		address family
 	svcname		service specification
 	svcargs		pointer to array of pointers to arguments
@@ -85,6 +85,10 @@
 
 /* local defines */
 
+#ifndef	SIGACTION
+#define	SIGACTION	struct sigaction
+#endif
+
 #ifndef	VARPATH
 #define	VARPATH		"PATH"
 #endif
@@ -108,12 +112,15 @@ extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	pathclean(char *,const char *,int) ;
 extern int	getnodedomain(char *,char *) ;
+extern int	getdomainname(char *,int) ;
+extern int	getprogpath(IDS *,vecstr *,char *,cchar *,int) ;
 extern int	mkpr(char *,int,const char *,const char *) ;
-extern int	getprogpath(IDS *,vecstr *,char *,const char *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
-extern int	dialprog(const char *,int,const char **,const char **,int *) ;
+extern int	dialprog(cchar *,int,cchar **,cchar **,int *) ;
 extern int	ctdeci(char *,int,int) ;
-extern int	vecstr_adduniq(vecstr *,const char *,int) ;
+extern int	vecstr_adduniq(vecstr *,cchar *,int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
 
 /* external variables */
@@ -127,6 +134,7 @@ extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 static int	findprog(char *,const char *) ;
 static int	loadpath(vecstr *,const char *) ;
 static int	findprprog(IDS *,vecstr *,char *,const char **,const char *) ;
+static int	runprog(cchar *,cchar *,cchar *,cchar *) ;
 static int	mkurl(char *,int,cchar *,cchar *,cchar *,cchar **) ;
 
 
@@ -144,93 +152,59 @@ static const char	*prnames[] = {
 /* exported subroutines */
 
 
-int dialhttp(hostname,portspec,af,svcname,svcargv,timeout,opts)
-const char	hostname[] ;
-const char	portspec[] ;
+/* ARGSUSED */
+int dialhttp(hname,pspec,af,svcname,svcargv,timeout,opts)
+const char	hname[] ;
+const char	pspec[] ;
 int		af ;
 const char	svcname[] ;
 const char	*svcargv[] ;
 int		timeout ;
 int		opts ;
 {
-	struct sigaction	sighand, oldsighand ;
-	sigset_t	signalmask ;
-	const int	of = O_NOCTTY ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		f ;
-	const char	*pn = PROG_WGET ;
-	const char	*av[10] ;
-	char		urlbuf[URLBUFLEN + 1] ;
-	char		execfname[MAXPATHLEN + 1] ;
-	char		tobuf[TOBUFLEN + 1] ;
 
-	if (hostname == NULL) return SR_FAULT ;
+	if (hname == NULL) return SR_FAULT ;
 
-	if (hostname[0] == '\0') return SR_INVALID ;
+	if (hname[0] == '\0') return SR_INVALID ;
 
 	f = FALSE ;
 	f = f || (af == AF_UNSPEC) ;
 	f = f || (af == AF_INET4) ;
 	f = f || (af == AF_INET6) ;
-	if (! f) {
-	    rs = SR_AFNOSUPPORT	;
-	    goto ret0 ;
-	}
-
-#ifdef	COMMENT
-	if (af == AF_UNSPEC) af = AF_INET4 ;
-#endif
+	if (f) {
+	    char	tobuf[TOBUFLEN + 1] = { 0 } ;
 
 #if	CF_DEBUGS
-	debugprintf("dialhttp: hostname=%s portname=%s svcname=%s\n",
-	    hostname,portspec,svcname) ;
-	debugprintf("dialhttp: ent timeout=%d\n",timeout) ;
+	    debugprintf("dialhttp: hname=%s portname=%s svcname=%s\n",
+	        hname,pspec,svcname) ;
+	    debugprintf("dialhttp: ent timeout=%d\n",timeout) ;
 #endif
 
-	tobuf[0] = '\0' ;
 	    if (timeout >= 0) {
-		if (timeout == 0) timeout = 1 ;
-		rs = ctdeci(tobuf,TOBUFLEN,timeout) ;
+	        if (timeout == 0) timeout = 1 ;
+	        rs = ctdeci(tobuf,TOBUFLEN,timeout) ;
 	    }
-	if (rs < 0) goto ret0 ;
 
 /* format the URL string to be transmitted */
 
-	rs = mkurl(urlbuf,URLBUFLEN,hostname,portspec,svcname,svcargv) ;
-	if (rs < 0) goto ret0 ;
-
-/* find the program */
-
-	rs = findprog(execfname,pn) ;
-	if (rs < 0) goto ret0 ;
-
-	i = 0 ;
-	av[i++] = pn ;
-	av[i++] = "-q" ;
-	av[i++] = "-O" ;
-	av[i++] = "-" ;
-	if (tobuf[0] != '\0') {
-		av[i++] = "-T" ;
-		av[i++] = tobuf ;
+	    if (rs >= 0) {
+	        const int	ulen = URLBUFLEN ;
+	        char	ubuf[URLBUFLEN + 1] ;
+	        if ((rs = mkurl(ubuf,ulen,hname,pspec,svcname,svcargv)) >= 0) {
+	            cchar	*pn = PROG_WGET ;
+	            char	execfname[MAXPATHLEN + 1] ;
+	            if ((rs = findprog(execfname,pn)) >= 0) {
+	                rs = runprog(execfname,ubuf,tobuf,pn) ;
+	                fd = rs ;
+	            } /* end if (findprog) */
+	        } /* end if (mkurl) */
+	    } /* end if (ok) */
+	} else {
+	    rs = SR_AFNOSUPPORT	 ;
 	}
-	av[i++] = urlbuf ;
-	av[i] = NULL ;
-
-	uc_sigsetempty(&signalmask) ;
-	sighand.sa_handler = SIG_IGN ;
-	sighand.sa_mask = signalmask ;
-	sighand.sa_flags = 0 ;
-	if ((rs = u_sigaction(SIGPIPE,&sighand,&oldsighand)) >= 0) {
-
-	    rs = dialprog(execfname,of,av,NULL,NULL) ;
-	    fd = rs ;
-
-	    u_sigaction(SIGPIPE,&oldsighand,NULL) ;
-	} /* end if (signals) */
-
-ret0:
 
 #if	CF_DEBUGS
 	debugprintf("dialhttp: ret rs=%d fd=%d\n",rs,fd) ;
@@ -247,15 +221,14 @@ ret0:
 static int findprog(char *execfname,cchar *pn)
 {
 	IDS		id ;
-	vecstr		path ;
 	int		rs  ;
+	int		rs1 ;
 	int		pl = 0 ;
 
 	execfname[0] = '\0' ;
 	if ((rs = ids_load(&id)) >= 0) {
-
+	    vecstr	path ;
 	    if ((rs = vecstr_start(&path,20,0)) >= 0) {
-
 	        if ((rs = loadpath(&path,VARPATH)) >= 0) {
 
 	            rs = getprogpath(&id,&path,execfname,pn,-1) ;
@@ -266,11 +239,11 @@ static int findprog(char *execfname,cchar *pn)
 	            }
 
 	        } /* end if (loadpath) */
-
-	        vecstr_finish(&path) ;
+	        rs1 = vecstr_finish(&path) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (vecstr) */
-
-	    ids_release(&id) ;
+	    rs1 = ids_release(&id) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ids) */
 
 	return (rs >= 0) ? pl : rs ;
@@ -278,101 +251,138 @@ static int findprog(char *execfname,cchar *pn)
 /* end subroutine (findprog) */
 
 
-static int findprprog(idp,plp,execfname,prnames,pn)
+static int findprprog(idp,plp,rbuf,prnames,pn)
 IDS		*idp ;
 vecstr		*plp ;
-char		execfname[] ;
+char		rbuf[] ;
 const char	*prnames[] ;
 const char	*pn ;
 {
-	struct ustat	sb ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		i ;
-	int		pl = 0 ;
+	int		rs ;
+	int		rl = 0 ;
 	const int	perms = (R_OK | X_OK) ;
-	char		domainname[MAXHOSTNAMELEN + 1] ;
-	char		prbuf[PRBUFLEN + 1] ;
+	char		dn[MAXHOSTNAMELEN + 1] ;
 
-	execfname[0] = '\0' ;
-	rs = getnodedomain(NULL,domainname) ;
-	if (rs < 0)
-	    goto ret0 ;
+	rbuf[0] = '\0' ;
+	if ((rs = getnodedomain(NULL,dn)) >= 0) {
+	    USTAT	sb ;
+	    const int	rsn = SR_NOTFOUND ;
+	    const int	prlen = PRBUFLEN ;
+	    int		i ;
+	    cchar	*bdname = BINDNAME ;
+	    char	prbuf[PRBUFLEN + 1] ;
+	    char	dbuf[MAXPATHLEN+1] ;
+	    for (i = 0 ; prnames[i] != NULL ; i += 1) {
+	        rbuf[0] = '\0' ;
+	        if ((rs = mkpr(prbuf,prlen,prnames[i],dn)) >= 0) {
+	            if ((rs = mkpath2(dbuf,prbuf,bdname)) >= 0) {
+	                if ((rs = vecstr_find(plp,dbuf)) == rsn) {
+	                    if ((rs = mkpath2(rbuf,dbuf,pn)) >= 0) {
+	                        rl = rs ;
+	                        if ((rs = u_stat(rbuf,&sb)) >= 0) {
+	                            if (S_ISREG(sb.st_mode)) {
+	                                rs = sperm(idp,&sb,perms) ;
+	                                if (isNotAccess(rs)) {
+	                                    rl = 0 ;
+	                                }
+	                            } else {
+	                                rs = SR_ISDIR ;
+	                            }
+	                        } else if (isNotPresent(rs)) {
+	                            rl = 0 ;
+	                            rs = SR_OK ;
+	                        }
+	                    } /* end if (mkpath) */
+	                } /* end if (not-found) */
+	            } /* end if (mkpath) */
+	        } /* end if (mkpr) */
+	        if (rl > 0) break ;
+	        if (rs < 0) break ;
+	    } /* end for */
+	} /* end if (getnodedomain) */
 
-	for (i = 0 ; prnames[i] != NULL ; i += 1) {
-
-	    rs = mkpr(prbuf,PRBUFLEN,prnames[i],domainname) ;
-	    if (rs >= 0) {
-
-	        rs = mkpath2(execfname,prbuf,BINDNAME) ;
-	        if (rs >= 0) {
-
-	            rs = SR_NOENT ;
-	            rs1 = vecstr_find(plp,execfname) ;
-	            if (rs1 == SR_NOTFOUND) {
-
-	                rs = mkpath2(execfname,"/",pn) ;
-			pl = rs ;
-	                if (rs >= 0)
-	                    rs = u_stat(execfname,&sb) ;
-	                if (rs >= 0) {
-	                    rs = SR_ISDIR ;
-	                    if (S_ISREG(sb.st_mode))
-	                        rs = sperm(idp,&sb,perms) ;
-	                }
-
-	            } /* end if */
-
-	        } /* end if */
-
-	    } /* end if */
-
-	    execfname[0] = '\0' ;
-	    if (rs >= 0) break ;
-	} /* end for */
-
-ret0:
-	return (rs >= 0) ? pl : rs ;
+	return (rs >= 0) ? rl : rs ;
 }
 /* end subroutine (findprprog) */
+
+
+static int runprog(cchar *execfname,cchar *ubuf,cchar *tobuf,cchar *pn)
+{
+	SIGACTION	nsh, osh ;
+	sigset_t	smask ;
+	const int	of = O_NOCTTY ;
+	const int	sig = SIGPIPE ;
+	int		rs ;
+	int		fd = -1 ;
+
+	uc_sigsetempty(&smask) ;
+
+	memset(&nsh,0,sizeof(SIGACTION)) ;
+	nsh.sa_handler = SIG_IGN ;
+	nsh.sa_mask = smask ;
+	nsh.sa_flags = 0 ;
+
+	if ((rs = u_sigaction(sig,&nsh,&osh)) >= 0) {
+	    int	i = 0 ;
+	    cchar	*av[10] ;
+
+	    av[i++] = pn ;
+	    av[i++] = "-q" ;
+	    av[i++] = "-O" ;
+	    av[i++] = "-" ;
+	    if (tobuf[0] != '\0') {
+	        av[i++] = "-T" ;
+	        av[i++] = tobuf ;
+	    }
+	    av[i++] = ubuf ;
+	    av[i] = NULL ;
+	    rs = dialprog(execfname,of,av,NULL,NULL) ;
+	    fd = rs ;
+
+	    u_sigaction(sig,&osh,NULL) ;
+	} /* end if (signals) */
+
+	return (rs >= 0) ? fd : rs ;
+}
+/* end subroutine (runprog) */
 
 
 static int loadpath(vecstr *plp,cchar *varpath)
 {
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		pl ;
 	int		c = 0 ;
-	const char	*tp ;
 	const char	*pp ;
-	char		tmpfname[MAXPATHLEN + 1] ;
 
 	if ((pp = getenv(varpath)) != NULL) {
+	    const int	rsn = SR_NOTFOUND ;
+	    const char	*tp ;
+	    char	tbuf[MAXPATHLEN + 1] ;
 
 	    while ((tp = strpbrk(pp,":;")) != NULL) {
+	        if ((rs = pathclean(tbuf,pp,(tp - pp))) >= 0) {
+	            pl = rs ;
 
-	        pl = pathclean(tmpfname,pp,(tp - pp)) ;
+	            if ((rs = vecstr_findn(plp,tbuf,pl)) == rsn) {
+	                c += 1 ;
+	                rs = vecstr_add(plp,tbuf,pl) ;
+	            }
 
-	        rs1 = vecstr_findn(plp,tmpfname,pl) ;
-	        if (rs1 == SR_NOTFOUND) {
-	            c += 1 ;
-	            rs = vecstr_add(plp,tmpfname,pl) ;
+	            pp = (tp + 1) ;
 	        }
-
-	        pp = (tp + 1) ;
 	        if (rs < 0) break ;
 	    } /* end while */
 
 	    if ((rs >= 0) && (pp[0] != '\0')) {
+	        if ((rs = pathclean(tbuf,pp,-1)) >= 0) {
+	            pl = rs ;
 
-	        pl = pathclean(tmpfname,pp,-1) ;
+	            if ((rs = vecstr_findn(plp,tbuf,pl)) == rsn) {
+	                c += 1 ;
+	                rs = vecstr_add(plp,tbuf,pl) ;
+	            }
 
-	        rs1 = vecstr_findn(plp,tmpfname,pl) ;
-	        if (rs1 == SR_NOTFOUND) {
-	            c += 1 ;
-	            rs = vecstr_add(plp,tmpfname,pl) ;
 	        }
-
 	    } /* end if (trailing one) */
 
 	} /* end if (getenv) */
@@ -382,11 +392,11 @@ static int loadpath(vecstr *plp,cchar *varpath)
 /* end subroutine (loadpath) */
 
 
-static int mkurl(urlbuf,urllen,hostname,portspec,svcname,svcargv)
-char		urlbuf[] ;
-int		urllen ;
-const char	*hostname ;
-const char	*portspec ;
+static int mkurl(ubuf,ulen,hname,pspec,svcname,svcargv)
+char		ubuf[] ;
+int		ulen ;
+const char	*hname ;
+const char	*pspec ;
 const char	*svcname ;
 const char	*svcargv[] ;
 {
@@ -394,15 +404,15 @@ const char	*svcargv[] ;
 	int		rs ;
 	int		rs1 ;
 
-	if ((rs = sbuf_start(&url,urlbuf,urllen)) >= 0) {
+	if ((rs = sbuf_start(&url,ubuf,ulen)) >= 0) {
 
 	    sbuf_strw(&url,"http://",-1) ;
 
-	    sbuf_strw(&url,hostname,MAXHOSTNAMELEN) ;
+	    sbuf_strw(&url,hname,MAXHOSTNAMELEN) ;
 
-	    if ((portspec != NULL) && (portspec[0] != '\0')) {
+	    if ((pspec != NULL) && (pspec[0] != '\0')) {
 	        sbuf_char(&url,':') ;
-	        sbuf_strw(&url,portspec,-1) ;
+	        sbuf_strw(&url,pspec,-1) ;
 	    }
 
 	    sbuf_char(&url,'/') ;
@@ -413,7 +423,7 @@ const char	*svcargv[] ;
 	    } /* end if */
 
 	    if (svcargv != NULL) {
-		int	i ;
+	        int	i ;
 	        for (i = 0 ; svcargv[i] != NULL ; i += 1) {
 	            sbuf_char(&url,'?') ;
 	            sbuf_buf(&url,svcargv[i],-1) ;

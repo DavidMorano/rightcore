@@ -102,7 +102,7 @@
 #define	PATHSFNAME	"paths"
 #define	HELPFNAME	"help"
 #define	MSFNAME		"ms"
-#define	PIDFNAME	"pcs"		/* mutex PID file */
+#define	PIDFNAME	"pid"		/* mutex PID file */
 #define	LOGFNAME	"pcs"		/* activity log */
 #define	LOCKFNAME	"%N.%S"		/* lock mutex file */
 #define	SERIALFNAME	"serial"

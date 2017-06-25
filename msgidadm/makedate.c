@@ -1,2 +1,2 @@
 const char msgidadm_makedate[] =
-"@(#)msgidadm                170125_1844:54_USEST Rightcore Network Services¹" ;
+"@(#)msgidadm                170624_2012:32_USEDT Rightcore Network Services" ;

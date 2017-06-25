@@ -9,18 +9,16 @@
 /* revision history:
 
 	= 1998-08-22, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/****************************************************************************
+/*******************************************************************************
 
-	This subroutine will try to find a "run-level" record
-	in the UTMPX database.
+        This subroutine will try to find a "run-level" record in the UTMPX
+        database.
 
 	Synopsis:
 
@@ -37,7 +35,7 @@
 	>=0	run-level (including '0' meaning no record found)
 
 
-****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -63,7 +61,7 @@
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 
-#if	CF_DEBUGS || CF_DEBUG
+#if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
@@ -83,8 +81,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int tmpx_getrunlevel(op)
-TMPX		*op ;
+int tmpx_getrunlevel(TMPX *op)
 {
 	TMPX_ENT	ue ;
 	TMPX_CUR	cur ;

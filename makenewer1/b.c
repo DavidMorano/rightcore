@@ -885,25 +885,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if ((rs >= 0) && (tardname == NULL)) {
 	    if ((rs = bits_count(&pargs)) > 1) {
-	    for (ai = (argc - 1) ; ai > 1 ; ai -= 1) {
+	        for (ai = (argc - 1) ; ai > 1 ; ai -= 1) {
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: argv[%u]=%s\n",ai,argv[ai]) ;
 #endif
 
-	        f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	        f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	        if (f) {
-	            cp = argv[ai] ;
-	            if (cp[0] != '\0') {
-	                tardname = cp ;
-	                bits_clear(&pargs,ai) ;
-	                break ;
+	            f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
+	            f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
+	            if (f) {
+	                cp = argv[ai] ;
+	                if (cp[0] != '\0') {
+	                    tardname = cp ;
+	                    bits_clear(&pargs,ai) ;
+	                    break ;
+		        }
 		    }
-		}
 
-	    } /* end for */
+	        } /* end for */
 	    } /* end if (more than one positional argument) */
 	} /* end if (getting a directory) */
 
@@ -921,8 +921,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    shio_printf(pip->efp,"%s: rmfile=%u\n",pn,lip->f.rmfile) ;
 	    shio_printf(pip->efp,"%s: rmsuf=%u\n",pn,lip->f.rmsuf) ;
 	}
-
-	if (rs < 0) goto badarg ;
 
 /* does the target directory exist? */
 
@@ -946,8 +944,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    }
 	} /* end if */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = locinfo_tardname(lip,tardname) ;
+	}
 
 /* debug information */
 
@@ -990,16 +989,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (rs >= 0) {
 	    if ((rs = procargs(pip,&ainfo,&pargs,ofname,afname)) >= 0) {
+		cchar	*pn = pip->progname ;
+		cchar	*fmt ;
 
 	        if (lip->f.print || (pip->verboselevel > 1)) {
-	            shio_printf(ofp,"files processed=%u updated=%u\n",
-	                lip->c_processed,lip->c_updated) ;
+		    fmt = "files processed=%u updated=%u\n" ;
+	            shio_printf(ofp,fmt,lip->c_processed,lip->c_updated) ;
 		}
 
 	        if (pip->debuglevel > 0) {
-	            shio_printf(pip->efp,"%s: files processed=%u updated=%u\n",
-	                pip->progname,
-	                lip->c_processed,lip->c_updated) ;
+		    const int	c_processed = lip->c_processed ;
+		    const int	c_updated = lip->c_updated ;
+		    fmt = "%s: files processed=%u updated=%u\n" ;
+	            shio_printf(pip->efp,fmt,pn,c_processed,c_updated) ;
 		}
 
 #if	CF_DEBUG
@@ -1720,12 +1722,20 @@ static int procname(PROGINFO *pip,void *ofp,cchar *name)
 	        }
 
 	    } else {
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(3))
+	            debugprintf("main/procname: fdirtreestat() rs=%d\n",rs) ;
+#endif
+
 	        if ((rs == SR_NOENT) || (rs == SR_ACCESS)) {
 	            if (lip->f.im) rs = SR_OK ;
 	        }
 	    } /* end if (fsdirtreestat) */
 
-	    if (rs < 0) rs = procdisposition(pip,name,rs) ;
+	    if (rs < 0) {
+		rs = procdisposition(pip,name,rs) ;
+	    }
 
 	} /* end if (procfilesuf) */
 
@@ -1859,8 +1869,9 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fname,FSDIRTREESTAT *sbp)
 	}
 
 	if ((rs >= 0) && f) {
-	    if (lip->younger > 0)
+	    if (lip->younger > 0) {
 	        f = ((pip->daytime - sbp->st_mtime) < lip->younger) ;
+	    }
 	}
 
 	if ((rs >= 0) && f) {
@@ -2248,6 +2259,10 @@ static int openaccess(cchar *dstfname,int of,mode_t nm,int f_create)
 {
 	int		rs ;
 	int		fd = -1 ;
+#if	CF_DEBUGS
+	debugprintf("main/openaccess: ent fn=%s\n",dstfname) ;
+	debugprintf("main/openaccess: ent f_create=%u\n",f_create) ;
+#endif
 	rs = uc_open(dstfname,of,nm) ;
 	fd = rs ;
 #if	CF_DEBUGS
@@ -2278,17 +2293,15 @@ static int openaccess(cchar *dstfname,int of,mode_t nm,int f_create)
 	        rs = uc_fminmod(fd,nm) ;
 	} /* end if (needed to be created) */
 	if ((rs < 0) && (fd >= 0)) u_close(fd) ;
+#if	CF_DEBUGS
+	debugprintf("main/openaccess: ret rs=%d\n",rs) ;
+#endif
 	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (openaccess) */
 
 
-static int mknewfname(rbuf,dname,fname,sp,cp)
-char		rbuf[] ;
-const char	dname[] ;
-const char	fname[] ;
-const char	*sp ;
-const char	*cp ;
+static int mknewfname(char *rbuf,cchar *dname,cchar *fname,cchar *sp,cchar *cp)
 {
 	const int	rlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
@@ -2328,11 +2341,7 @@ const char	*cp ;
 /* end subroutine (mknewfname) */
 
 
-static int sufclean(rbuf,rlen,sp,sl)
-char		rbuf[] ;
-int		rlen ;
-const char	*sp ;
-int		sl ;
+static int sufclean(char *rbuf,int rlen,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		cl ;

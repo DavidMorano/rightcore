@@ -78,10 +78,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int tmpx_getuserlines(op,lp,username)
-TMPX		*op ;
-VECSTR		*lp ;
-const char	username[] ;
+int tmpx_getuserlines(TMPX *op,VECSTR *lp,cchar *username)
 {
 	TMPX_ENT	ue ;
 	TMPX_CUR	cur ;

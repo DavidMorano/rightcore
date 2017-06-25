@@ -1,2 +1,2 @@
 const char fileop_makedate[] =
-"@(#)fileop                  170510_1219:23_USEDT Rightcore Network Services" ;
+"@(#)fileop                  170620_1447:47_USEDT Rightcore Network Services" ;

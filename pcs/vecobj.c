@@ -200,8 +200,9 @@ int vecobj_addnew(vecobj *op,void **epp)
 	            (op->va)[i] = sp ;
 	            op->fi = i + 1 ;
 	            f_done = TRUE ;
-	        } else
+	        } else {
 	            op->fi = i ;
+		}
 
 	    } /* end if (possible reuse strategy) */
 
@@ -211,8 +212,9 @@ int vecobj_addnew(vecobj *op,void **epp)
 
 /* do we have to grow the array? */
 
-	        if ((op->i + 1) > op->n)
+	        if ((op->i + 1) > op->n) {
 	            rs = vecobj_extend(op) ;
+		}
 
 /* link into the list structure */
 
@@ -227,8 +229,9 @@ int vecobj_addnew(vecobj *op,void **epp)
 	    if (rs >= 0) {
 	        op->c += 1 ;			/* increment list count */
 	        op->f.issorted = FALSE ;
-	    } else
+	    } else {
 	        lookaside_release(&op->la,sp) ;
+	    }
 
 	} /* end if (entry allocated) */
 
@@ -283,8 +286,9 @@ int vecobj_inorder(vecobj *op,void *ep,int (*fvcmp)(),int cn)
 	            if (i >= 0) {
 	                cr = (*fvcmp)(&ep,&op->va[i]) ;
 	                if (cr >= 0) i = n ;
-	            } else
+	            } else {
 	                i = 0 ;
+		    }
 
 	        } /* end if (conditional insertion) */
 
@@ -455,12 +459,8 @@ int vecobj_del(vecobj *op,int i)
 	    if (op->f.oconserve) {
 
 	        while (op->i > i) {
-
-	            if (op->va[op->i - 1] != NULL)
-	                break ;
-
+	            if (op->va[op->i - 1] != NULL) break ;
 	            op->i -= 1 ;
-
 	        } /* end while */
 
 	    } /* end if */
@@ -657,8 +657,9 @@ int vecobj_fetch(vecobj *op,void *ep,vecobj_cur *curp,int (*fvcmp)(),void *rp)
 	            rs = curp->i ;
 	            *rpp = last ;
 
-	        } else
+	        } else {
 	            curp->i = rs ;
+		}
 
 #if	CF_DEBUGS
 	        debugprintf("vecobj_fetch: search final i=%d\n",curp->i) ;
@@ -728,8 +729,9 @@ int vecobj_fetch(vecobj *op,void *ep,vecobj_cur *curp,int (*fvcmp)(),void *rp)
 	                i += (curp->c - 1) ;
 	                curp->i = i ;
 
-	            } else
+	            } else {
 	                curp->i = op->i ;
+		    }
 
 	        } /* end if (it was out-of-order) */
 
@@ -749,11 +751,9 @@ int vecobj_fetch(vecobj *op,void *ep,vecobj_cur *curp,int (*fvcmp)(),void *rp)
 
 	        for (i = curp->i + 1 ; 
 	            (rs = vecobj_iget(op,i,&ep2)) >= 0 ; i += 1) {
-	            if (ep2 == NULL) continue ;
-
-	            if ((*fvcmp)(&ep,&ep2) == 0)
-	                break ;
-
+	            if (ep2 != NULL) {
+	                if ((*fvcmp)(&ep,&ep2) == 0) break ;
+		    }
 	        } /* end for */
 
 	    } /* end if (sorted policy or not) */

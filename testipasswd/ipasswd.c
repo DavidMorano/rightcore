@@ -628,6 +628,8 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 /* which index do we want to use? */
 
 	wi = -1 ;
+	if (rs >= 0) {
+
 	if ((np->len.first >= 1) && (np->len.last >= 3)) {
 #if	CF_USEFL3
 	    wi = index_fl3 ;
@@ -652,13 +654,15 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 	    wi = index_f ;
 	    hp = np->first ;
 	    hl = 1 ;
-	} else
+	} else {
 	    wi = -1 ;
+	}
 
 	if (wi < 0) {
 	    rs = SR_INVALID ;
-	    goto ret0 ;
 	}
+
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("ipasswd_fetch: wi=%d key=%t\n",wi,hp,hl) ;
@@ -667,6 +671,8 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 #endif
 
 /* OK, we go from here */
+
+	if (rs >= 0) {
 
 	if (curp->i[wi] < 0) {
 
@@ -790,6 +796,8 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 	        rs = SR_NOTFOUND ;
 
 	} /* end if (preparation) */
+
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("ipasswd_fetch: match search rs=%d hi=%u ri=%u\n",
@@ -938,7 +946,6 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 #endif
 	        rs = ipasswd_fileheader(op) ;
 	    }
-	    if (rs < 0) goto ret0 ;
 	}
 #endif /* CF_HOLDING */
 
@@ -946,6 +953,7 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 
 	op->f.cursoracc = TRUE ;	/* doesn't hurt if no cursor! */
 
+	if (rs >= 0) {
 	if ((rs = realname_startpieces(np,sa,sn)) >= 0) {
 
 /* which index do we want to use? */
@@ -980,7 +988,6 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 
 	    if (wi < 0) {
 	        rs = SR_INVALID ;
-	        goto ret0 ;
 	    }
 
 #if	CF_DEBUGS
@@ -991,7 +998,9 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 
 /* OK, we go from here */
 
-	    if (curp->i[wi] < 0) {
+	    if (rs >= 0) {
+
+		if (curp->i[wi] < 0) {
 
 #if	CF_DEBUGS
 	        debugprintf("ipasswd_fetcher: new cursor\n") ;
@@ -1102,6 +1111,8 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 
 	    } /* end if (preparation) */
 
+	    } /* end if (ok) */
+
 #if	CF_DEBUGS
 	    debugprintf("ipasswd_fetcher: match search rs=%d hi=%u\n",rs,hi) ;
 #endif
@@ -1158,6 +1169,7 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 
 	    realname_finish(np) ;
 	} /* end if (realname) */
+	} /* end if (ok) */
 
 #if	CF_HOLDING
 	if (! op->f.cursor) {
@@ -1720,7 +1732,7 @@ static int ipasswd_fileopen(IPASSWD *op,time_t daytime)
 	if (i >= TO_FILECOME) {
 
 #if	CF_DEBUGS
-	    debugprintf("ipasswd_fileopen: file-open timed out i=%d\n",i) ;
+	    debugprintf("ipasswd_fileopen: file-open to i=%d\n",i) ;
 #endif
 
 	    rs = SR_TIMEDOUT ;

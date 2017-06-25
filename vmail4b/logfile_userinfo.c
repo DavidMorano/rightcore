@@ -26,10 +26,10 @@
 
 	Synopsis:
 
-	int logfile_userinfo(op,uip,daytime,pn,vn)
+	int logfile_userinfo(op,uip,dt,pn,vn)
 	LOGFILE		*op ;
 	USERINFO	*uip ;
-	time_t		daytime ;
+	time_t		dt ;
 	const char	pn[] ;
 	const char	vn[] ;
 
@@ -37,7 +37,7 @@
 
 	op		pointer to LOGFILE object
 	uip		pointer to USERINFO object
-	daytime		current UNIX® time of day
+	dt		current UNIX® time of day
 	pn		program name
 	vn		program-version name
 
@@ -102,20 +102,14 @@ extern char	*timestr_logz(time_t,char *) ;
 /* exported subroutines */
 
 
-int logfile_userinfo(op,uip,daytime,pn,vn)
-LOGFILE		*op ;
-USERINFO	*uip ;
-time_t		daytime ;
-const char	pn[], vn[] ;
+int logfile_userinfo(LOGFILE *op,USERINFO *uip,time_t dt,cchar *pn,cchar *vn)
 {
-	int	rs, rs1 ;
-	int	wlen = 0 ;
-
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
 	const char	*a = getenv(VARARCHITECTURE) ;
 	const char	*fmt ;
-
-	char	timebuf[TIMEBUFLEN + 1] ;
-
+	char		timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("logfile_userinfo: op=%p\n",op) ;
@@ -134,8 +128,8 @@ const char	pn[], vn[] ;
 	if (vn == NULL)
 	    vn = "" ;
 
-	if (daytime <= 0)
-	    daytime = time(NULL) ;
+	if (dt <= 0)
+	    dt = time(NULL) ;
 
 /* first line (w/ possible additional information) */
 
@@ -144,7 +138,7 @@ const char	pn[], vn[] ;
 	    fmt = "%s %s %s/%s" ;
 
 	{
-	    const char	*ts = timestr_logz(daytime,timebuf) ;
+	    const char	*ts = timestr_logz(dt,timebuf) ;
 	    const char	*st = (uip->f.sysv_ct) ? "SYSV" : "BSD" ;
 	    rs = logfile_printf(op,fmt,ts,pn,vn,st) ;
 	    wlen += rs ;

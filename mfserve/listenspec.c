@@ -3,8 +3,8 @@
 /* hold (or manage) a "listen" specification */
 
 
-#define	CF_DEBUGS	1		/* compile-time debug print-outs */
-#define	CF_SAFE		1		/* extra safe? */
+#define	CF_DEBUGS	0		/* compile-time debug print-outs */
+#define	CF_SAFE		0		/* extra safe? */
 #define	CF_OPENPORT	1		/* use 'openport(3dam)' */
 #define	CF_NONBLOCK	0		/* set non-blocking on sockets */
 

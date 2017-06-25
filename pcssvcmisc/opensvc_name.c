@@ -678,7 +678,7 @@ static int getuser(cchar **envv,char *ubuf,int ulen)
 	if ((un == NULL) || (un[0] == '\0')) {
 	    cchar	*uidp = getourenv(envv,VARMOTDUID) ;
 	    if ((uidp != NULL) && (uidp[0] != '\0')) {
-		int		v ;
+		int	v ;
 		if ((rs = cfdeci(uidp,-1,&v)) >= 0) {
 		    const uid_t	uid = v ;
 		    rs = getusername(ubuf,ulen,uid) ;

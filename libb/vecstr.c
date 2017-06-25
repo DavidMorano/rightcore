@@ -783,8 +783,9 @@ int vecstr_recmkstr(vecstr *op,int *rec,int recsize,char *tab,int tabsize)
 
 /* check supplied tabsize */
 
-	if (! op->stsize)
+	if (! op->stsize) {
 	    vecstr_strsize(op) ;
+	}
 
 	size = iceil(op->stsize,sizeof(int)) ;
 

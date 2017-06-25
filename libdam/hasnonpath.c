@@ -9,15 +9,17 @@
 /* revision history:
 
 	= 1998-04-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
+
+	Description:
+
+	We test a string to see if it is a floating or non-path filename.
 
 	Synopsis:
 
@@ -95,7 +97,7 @@ int hasnonpath(cchar *fp,int fl)
 	if (fl < 0) fl = strlen(fp) ;
 
 	if (f) {
-	    const char	*tp = strnpbrk(fp,fl,nonpaths) ;
+	    cchar	*tp = strnpbrk(fp,fl,nonpaths) ;
 	    f = FALSE ;
 	    if ((tp != NULL) && ((tp-fp) > 0) && (tp[1] != '\0')) {
 	        f = sichr(nonpaths,-1,*tp) ;

@@ -13,6 +13,7 @@
 #define	CF_LOADNAMES	0		/* load-names here */
 #define	CF_MKSUBLOGID	1		/* use 'mksublogid(3dam)' */
 #define	CF_LOGCHECK	1		/* call 'proglog_check()' */
+#define	CF_SVC		0		/* code the service DB stuff */
 
 
 /* revision history:
@@ -174,7 +175,7 @@ struct mfswatch {
 
 /* forward references */
 
-static int	mfswatch_beginer(PROGINFO *) ;
+static int	mfswatch_beginner(PROGINFO *) ;
 static int	mfswatch_ender(PROGINFO *) ;
 static int	mfswatch_polljobs(PROGINFO *,int,int) ;
 static int	mfswatch_getsvc(PROGINFO *,SREQ *,int,int) ;
@@ -182,8 +183,24 @@ static int	mfswatch_uptimer(PROGINFO *) ;
 static int	mfswatch_poll(PROGINFO *,POLLER_SPEC *) ;
 static int	mfswatch_pollreg(PROGINFO *,int,int) ;
 
+#if	CF_SVC
+static int	mfswatch_svcbegin(PROGINFO *) ;
+static int	mfswatch_svcfind(PROGINFO *) ;
+static int	mfswatch_svcend(PROGINFO *) ;
+#endif /* CF_SVC */
+
 
 /* local variables */
+
+#if	CF_SVC
+static cchar	*sched2[] = {
+	"%p/%e/%n/%n.%f",
+	"%p/%e/%n/%f",
+	"%p/%e/%n.%f",
+	"%p/%n.%f",
+	NULL
+} ;
+#endif /* CF_SVC */
 
 
 /* exported subroutines */
@@ -197,7 +214,7 @@ int mfswatch_begin(PROGINFO *pip)
 	    void	*p ;
 	    if ((rs = uc_malloc(osize,&p)) >= 0) {
 	        pip->watch = p ;
-	        if ((rs = mfswatch_beginer(pip)) >= 0) {
+	        if ((rs = mfswatch_beginner(pip)) >= 0) {
 		    pip->open.watch = TRUE ;
 	        }
 	    }
@@ -390,7 +407,7 @@ int mfswatch_newjob(PROGINFO *pip,int jtype,int stype,int ifd,int ofd)
 /* private subroutines */
 
 
-static int mfswatch_beginer(PROGINFO *pip)
+static int mfswatch_beginner(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
 	int		rs ;
@@ -407,13 +424,13 @@ static int mfswatch_beginer(PROGINFO *pip)
 		}
 	        if (rs < 0)
 		    poller_finish(pmp) ;
-	    }
+	    } /* end if (poller_start) */
 	    if (rs < 0)
 		sreqdb_finish(&wip->reqs) ;
-	} /* end if (poller_begin) */
+	} /* end if (sreqdb_start) */
 	return rs ;
 }
-/* end subroutine (mfswatch_beginer) */
+/* end subroutine (mfswatch_beginner) */
 
 
 static int mfswatch_ender(PROGINFO *pip)

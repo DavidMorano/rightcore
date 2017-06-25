@@ -39,6 +39,10 @@
 
 /* local defines */
 
+#ifndef	ITIMERSPEC
+#define	ITIMERSPEC	struct itimerspec
+#endif
+
 #define	TO_AGAIN	60
 
 
@@ -73,21 +77,29 @@ extern char	*strwcpyuc(char *,const char *,int) ;
 
 int uc_timercreate(clockid_t cid,struct sigevent *sep,timer_t *tmp)
 {
-	int	rs ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-again:
-	if ((rs = timer_create(cid,sep,tmp)) < 0) rs = (- errno) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_AGAIN:
-	        if (to_again-- > 0) goto again ;
-		break ;
-	    case SR_INTR:
-		goto again ;
-	    } /* end if */
-	}
+	repeat {
+	    if ((rs = timer_create(cid,sep,tmp)) < 0) rs = (- errno) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+			msleep(1000) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+		    break ;
+	        case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    }
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
@@ -96,104 +108,124 @@ again:
 
 int uc_timerdelete(timer_t tid)
 {
-	int	rs ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-again:
-	if ((rs = timer_delete(tid)) < 0) rs = (- errno) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_AGAIN:
-	        if (to_again-- > 0) goto again ;
-		break ;
-	    case SR_INTR:
-		goto again ;
-	    } /* end switch */
-	} /* end if */
+	repeat {
+	    if ((rs = timer_delete(tid)) < 0) rs = (- errno) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+			msleep(1000) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+		    break ;
+	        case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
 /* end subroutine (uc_timerdelete) */
 
 
-int uc_timerset(tid,tf,ntvp,otvp)
-timer_t		tid ;
-int		tf ;
-struct itimerspec	*ntvp ;
-struct itimerspec	*otvp ;
+int uc_timerset(timer_t tid,int tf,ITIMERSPEC *ntvp,ITIMERSPEC *otvp)
 {
-	int	rs ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-again:
-	if ((rs = timer_settime(tid,tf,ntvp,otvp)) < 0) rs = (- errno) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_AGAIN:
-	        if (to_again-- > 0) goto again ;
-		break ;
-	    case SR_INTR:
-		goto again ;
-	    } /* end switch */
-	} /* end if */
+	repeat {
+	    if ((rs = timer_settime(tid,tf,ntvp,otvp)) < 0) rs = (- errno) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+			msleep(1000) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+		    break ;
+	        case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
 /* end subroutine (uc_timerset) */
 
 
-int uc_timerget(tid,otvp)
-timer_t		tid ;
-struct itimerspec	*otvp ;
+int uc_timerget(timer_t tid,ITIMERSPEC *otvp)
 {
-	int	rs ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-again:
-	if ((rs = timer_gettime(tid,otvp)) < 0) rs = (- errno) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_AGAIN:
-	        if (to_again-- > 0) goto again ;
-		break ;
-	    case SR_INTR:
-		goto again ;
-	    } /* end switch */
-	} /* end if */
+	repeat {
+	    if ((rs = timer_gettime(tid,otvp)) < 0) rs = (- errno) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+			msleep(1000) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+		    break ;
+	        case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
 /* end subroutine (uc_timerget) */
 
 
-int uc_timerover(tid)
-timer_t		tid ;
+int uc_timerover(timer_t tid)
 {
-	int	rs ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-again:
-	if ((rs = timer_getoverrun(tid)) < 0) rs = (- errno) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_AGAIN:
-	        if (to_again--) goto nap ;
-		break ;
-	    case SR_INTR:
-		goto again ;
-	    } /* end switch */
-	} /* end if */
+	repeat {
+	    if ((rs = timer_getoverrun(tid)) < 0) rs = (- errno) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+			msleep(1000) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+		    break ;
+	        case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
-
-/* take a little nap */
-nap:
-	msleep(1000) ;
-	goto again ;
 }
 /* end subroutine (uc_timerover) */
 

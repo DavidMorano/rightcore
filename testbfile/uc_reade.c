@@ -516,19 +516,8 @@ static int subinfo_readpoll(SUBINFO *sip)
 #endif
 
 	rlen = sip->ulen - sip->tlen ;
-	rs = u_read(sip->fd,sip->bp,rlen) ;
+	if ((rs = u_read(sip->fd,sip->bp,rlen)) >= 0) {
 	len = rs ;
-
-#if	CF_DEBUGS
-	debugprintf("uc_reade/subinfo_readpoll: u_read() rs=%d\n",rs) ;
-#endif
-
-	if (sip->f.isnonblock && (rs == SR_AGAIN)) goto ret0 ;
-
-	if (rs < 0) {
-	    if (rs == SR_AGAIN) rs = SR_OK ;
-	    goto ret0 ;
-	}
 
 	if (len == 0) {
 	    sip->neof += 1 ;
@@ -549,7 +538,9 @@ static int subinfo_readpoll(SUBINFO *sip)
 	    sip->to = sip->uto ;	/* reset */
 	}
 
-ret0:
+	} else if (rs == SR_AGAIN) {
+	    if (! sip->f.isnonblock) rs = SR_OK ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("uc_reade/subinfo_readpoll: ret rs=%d f_break=%u\n",

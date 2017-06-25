@@ -72,9 +72,7 @@
 /* exported subroutines */
 
 
-int tmpx_getboottime(op,rp)
-TMPX		*op ;
-time_t		*rp ;
+int tmpx_getboottime(TMPX *op,time_t *rp)
 {
 	TMPX_CUR	uc ;
 	TMPX_ENT	ue ;

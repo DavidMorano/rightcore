@@ -241,12 +241,13 @@ static int	loadprovider(PROGINFO *) ;
 static int	loadcooks(PROGINFO *) ;
 
 static int	loaddefs(PROGINFO *,cchar *,cchar **,cchar **) ;
-static int	loaddefsfile(PROGINFO *,const char *) ;
-static int	loaddefsfind(PROGINFO *,const char **) ;
-static int	loadxfile(PROGINFO *,const char *) ;
-static int	loadxsched(PROGINFO *,const char **) ;
+static int	loaddefsfile(PROGINFO *,cchar *) ;
+static int	loaddefsfind(PROGINFO *,cchar **) ;
+static int	loadxfile(PROGINFO *,cchar *) ;
+static int	loadxsched(PROGINFO *,cchar **) ;
 static int	loadpvars(PROGINFO *,cchar **,cchar *) ;
-static int	loadpvarsdef(PROGINFO *,const char **) ;
+static int	loadpvarsdef(PROGINFO *,cchar **) ;
+static int	loadsysinfo(PROGINFO *) ;
 
 static int	procenvextra(PROGINFO *) ;
 static int	procenvdef(PROGINFO *) ;
@@ -1338,56 +1339,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	pip->gid = u.gid ;
 	pip->egid = u.egid ;
 
-	if (rs >= 0)
-	    rs = loadgroupname(pip) ;
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: loadgroupname() rs=%d\n",rs) ;
-#endif
-
-	if (rs >= 0)
-	    rs = loadplatform(pip) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: mid2\n") ;
-#endif
-
-	if (rs >= 0)
-	    rs = loadarchitecture(pip) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: mid3\n") ;
-#endif
-
-	if (rs >= 0)
-	    rs = loadhz(pip) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: mid4\n") ;
-#endif
-
-	if (rs >= 0)
-	    rs = loadncpu(pip) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: mid5\n") ;
-#endif
-
-	if (rs >= 0)
-	    rs = loadorg(pip) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: mid6\n") ;
-#endif
-
-	if (rs >= 0)
-	    rs = loadprovider(pip) ;
+	if (rs >= 0) {
+	    rs = loadsysinfo(pip) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -3291,6 +3246,27 @@ static int loadpvarsdef(PROGINFO *pip,cchar *pnames[])
 	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (loadpvarsdef) */
+
+
+static int loadsysinfo(PROGINFO *pip)
+{
+	int		rs ;
+	if ((rs = loadgroupname(pip)) >= 0) {
+	    if ((rs = loadplatform(pip)) >= 0) {
+	        if ((rs = loadarchitecture(pip)) >= 0) {
+	    	    if ((rs = loadhz(pip)) >= 0) {
+	    		if ((rs = loadncpu(pip)) >= 0) {
+	    		    if ((rs = loadorg(pip)) >= 0) {
+	    			rs = loadprovider(pip) ;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (loadsysinfo) */
 
 
 static int isenvok(cchar *envbads[],cchar *kp,int kl)

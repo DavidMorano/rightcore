@@ -55,6 +55,7 @@
 /* external subroutines */
 
 extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	sncpy1(char *,int,cchar *) ;
 extern int	mkpath1(char *,cchar *) ;
 extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	pathadd(char *,int,cchar *) ;
@@ -338,6 +339,40 @@ int mfsbuilt_strsize(MFSBUILT *op)
 	return (rs >= 0) ? size : rs ;
 }
 /* end subroutine (mfsbuilt_strsize) */
+
+
+int mfsbuilt_strvec(MFSBUILT *op,cchar **va,char *rbuf,int rlen)
+{
+	HDB		*dbp ;
+	HDB_CUR		hcur ;
+	HDB_DATUM	k, v ;
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+	int		rl = 0 ;
+	if (op == NULL) return SR_FAULT ;
+	if (va == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
+	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
+	dbp = &op->db ;
+	if ((rs = hdb_curbegin(dbp,&hcur)) >= 0) {
+	    char	*bp = rbuf ;
+	    while ((rs1 = hdb_enum(dbp,&hcur,&k,&v)) >= 0) {
+	        cchar	*sp = (cchar *) k.buf ;
+		va[c++] = bp ;
+		rs = sncpy1(bp,(rlen-rl),sp) ;
+		rl += (rs+1) ;
+		bp += (rs+1) ;
+		if (rs < 0) break ;
+	    } /* end while */
+	    va[c] = NULL ;
+	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	    rs1 = hdb_curend(dbp,&hcur) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (hdb-cur) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (mfsbuilt_strvec) */
 
 
 int mfsbuilt_check(MFSBUILT *op,time_t dt)

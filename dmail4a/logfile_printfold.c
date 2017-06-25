@@ -88,17 +88,17 @@ static int logfile_printfi(LOGFILE *,int,cchar *,int,cchar *,int) ;
 int logfile_printfold(LOGFILE *lhp,cchar *pre,cchar *sp,int sl)
 {
 	LINEFOLD	fo ;
+	const int	pl = strlen(pre) ;
 	int		rs ;
 	int		rs1 ;
 	int		n ;
-	int		pl = strlen(pre) ;
 	n = (LOGFILE_FMTLEN - pl - 2) ;
 	if ((rs = linefold_start(&fo,n,0,sp,sl)) >= 0) {
 	    int		i ;
 	    int		c = 0 ;
 	    cchar	*sp ;
 	    for (i = 0 ; (rs = linefold_getline(&fo,i,&sp)) > 0 ; i += 1) {
-		int		sl = rs ;
+		int	sl = rs ;
 		while (sl > n) {
 	            rs = logfile_printfi(lhp,c++,pre,pl,sp,n) ;
 		    sl -= n ;
@@ -121,13 +121,8 @@ int logfile_printfold(LOGFILE *lhp,cchar *pre,cchar *sp,int sl)
 /* local subroutines */
 
 
-static int logfile_printfi(lhp,li,pp,pl,sp,sl)
-LOGFILE		*lhp ;
-int		li ;
-cchar		*pp ;
-int		pl ;
-cchar		*sp ;
-int 		sl ;
+static int logfile_printfi(LOGFILE *lhp,int li,cchar *pp,int pl,
+		cchar *sp,int sl)
 {
 	int		rs ;
 	if (li == 0) {

@@ -1,2 +1,2 @@
-const char uuidgen_makedate[] =
-"@(#)uuidgen                 170615_1233:20_USEDT Rightcore Network Services" ;
+const char strerror_makedate[] =
+"@(#)strerror                170620_1733:50_USEDT Rightcore Network Services" ;

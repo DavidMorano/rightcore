@@ -150,10 +150,7 @@ extern char	*strwcpyuc(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int uc_open(fname,oflags,operms)
-const char	fname[] ;
-int		oflags ;
-mode_t		operms ;
+int uc_open(cchar *fname,int oflags,mode_t operms)
 {
 	int		opts = 0 ;
 
@@ -166,11 +163,7 @@ mode_t		operms ;
 /* end subroutine (uc_open) */
 
 
-int uc_opene(fname,oflags,operms,timeout)
-const char	fname[] ;
-int		oflags ;
-mode_t		operms ;
-int		timeout ;
+int uc_opene(cchar *fname,int oflags,mode_t operms,int timeout)
 {
 	int		opts = 0 ;
 
@@ -183,12 +176,7 @@ int		timeout ;
 /* end subroutine (uc_opene) */
 
 
-int uc_openenv(fname,oflags,operms,ev,timeout)
-const char	fname[] ;
-int		oflags ;
-mode_t		operms ;
-const char	*ev[] ;
-int		timeout ;
+int uc_openenv(cchar *fname,int oflags,mode_t operms,cchar **ev,int timeout)
 {
 	UCOPENINFO	oi ;
 	int		rs ;

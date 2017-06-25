@@ -5,30 +5,26 @@
 	July 1988
 */
 
-/************************************************************************
+/* Copyright © 1988 David A­D­ Morano.  All rights reserved. */
 
-	This program will change the owner of a file to the current UID.
-	The current user needs write permission to the directory in order
-	for the effect to take place.
+/*******************************************************************************
+
+        This program will change the owner of a file to the current UID. The
+        current user needs write permission to the directory in order for the
+        effect to take place.
 
 
-*************************************************************************/
+*******************************************************************************/
 
 
-#include	"bfile.h"
-
-#include	"localmisc.h"
-
+#include	<sys/stat.h>
 #include	<fcntl.h>
-
 #include	<time.h>
-
 #include	<stdio.h>
 
 #include	"sys_types.h"
-
-#include	<sys/stat.h>
-
+#include	"bfile.h"
+#include	"localmisc.h"
 
 
 #define		LINESIZE	4000

@@ -17,12 +17,11 @@
 
 /*******************************************************************************
 
-	This subroutine extends the VECSTR object to add a key-value pair to
-	the vector list.  Key-value pairs are two strings (the key and the
-	value) joined with an intervening equal sign character ('=').
-	Duplicate entries are checked for (after all, this was originally
-	intended for environment variables) and are not added if already
-	present.
+        This subroutine extends the VECSTR object to add a key-value pair to the
+        vector list. Key-value pairs are two strings (the key and the value)
+        joined with an intervening equal sign character ('='). Duplicate entries
+        are checked for (after all, this was originally intended for environment
+        variables) and are not added if already present.
 
 	Synopsis:
 
@@ -87,7 +86,7 @@ extern char	*strwcpy(char *,cchar *,int) ;
 
 /* forward references */
 
-static int vecstr_addwithin(vecstr *,cchar *,int) ;
+static int	vecstr_addwithin(vecstr *,cchar *,int) ;
 
 
 /* local variables */
@@ -282,8 +281,9 @@ static int vecstr_addwithin(vecstr *op,cchar *sp,int sl)
 	                if (kl <= KEYBUFLEN) {
 	                    strwcpy(keybuf,kp,kl) ;
 	                    kp = keybuf ;
-	                } else
+	                } else {
 	                    rs = SR_TOOBIG ;
+			}
 	            } /* end if */
 
 	            if (rs >= 0) {

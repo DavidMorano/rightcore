@@ -25,7 +25,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<stdarg.h>
 #include	<string.h>
 
 #include	<vsystem.h>

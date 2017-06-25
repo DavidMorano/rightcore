@@ -1,2 +1,2 @@
 const char isproc_makedate[] =
-"@(#)isproc                  170127_2312:31_USEST Rightcore Network Services¹" ;
+"@(#)isproc                  170620_1345:59_USEDT Rightcore Network Services" ;

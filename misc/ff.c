@@ -5,24 +5,14 @@
 	September 1987
 */
 
+/* Copyright © 1987 David A­D­ Morano.  All rights reserved. */
 
-#define		DPRINT		0
-
-#define		REFPAGE		1
-
-#define		NTOPLINES	3
-#define		MAXLINES	130
-#define		LINELEN		100
-#define		MAXBS		20
-
-
-
-/*******************************************************************
+/*******************************************************************************
 
 	Search for a line feed and report when we have found at least one.
 
 
-*********************************************************************/
+*******************************************************************************/
 
 
 
@@ -37,6 +27,15 @@
 
 
 /* defines */
+
+#define		DPRINT		0
+
+#define		REFPAGE		1
+
+#define		NTOPLINES	3
+#define		MAXLINES	130
+#define		LINELEN		100
+#define		MAXBS		20
 
 #define		NAME		"ff"
 #define		VERSION		"0"

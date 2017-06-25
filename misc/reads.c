@@ -6,7 +6,7 @@
 */
 
 /* 
-	This program is used in the following way :
+	This program is used in the following way:
 
 	ls *.s | reads command [infile]
 
@@ -17,13 +17,11 @@
 */
 
 
-#include	"localmisc.h"
 
 #include	<fcntl.h>
-
-#include	"bfile.h"
-
 #include	<stdio.h>
+#include	"bfile.h"
+#include	"localmisc.h"
 
 
 

@@ -297,6 +297,8 @@ static int	dialfinger(INETARGS *,const char *,int,int,int) ;
 static int	fingerclean(int) ;
 #if	CF_FINERBACK
 static int	fingerworker(FINGERARGS *) ;
+static int	fingerworker_loop(FINGERARGS *,FILEBUF *,FILEBUF *,
+			int,int,int) ;
 static int	fingerworker_liner(FINGERARGS *,FILEBUF *,
 			int,int,int,cchar *,int) ;
 #endif /* CF_FINERBACK */
@@ -1165,64 +1167,56 @@ static int fingerclean(int nfd)
 
 static int fingerworker(FINGERARGS *fap)
 {
-	FILEBUF		fb ;
 	FILEBUF		out, *ofp = &out ;
-	const int	to = TO_READ ;
-	const int	llen = LINEBUFLEN ;
+	const int	nfd = fap->nfd ;
+	const int	cfd = fap->cfd ;
 	const int	cols = COLUMNS ;
 	const int	ind = INDENT ;
-	int		rs = SR_OK ;
-	int		nfd = fap->nfd ;
-	int		cfd = fap->cfd ;
-	int		opts ;
-	int		len ; /* length read from network */
-	int		clen ; /* cleaned up length */
-	int		ll, sl ;
+	const int	to = TO_READ ;
+	int		rs ;
+	int		rs1 ;
 	int		wlen = 0 ;
-	const char	*lp ;
-	const char	*sp ;
-	char		lbuf[LINEBUFLEN + 1] ;
-#ifdef	COMMENT
-	char		colbuf[COLBUFLEN + 1] ;
-#endif
 
-	rs = filebuf_start(ofp,cfd,0L,0,0) ; /* write */
-	if (rs < 0)
-	    goto ret1 ;
+	if ((rs = filebuf_start(ofp,cfd,0L,0,0)) >= 0) {
+	    FILEBUF	fb ;
+	    const int	fbo = FILEBUF_ONET ;
+	    if ((rs = filebuf_start(&fb,nfd,0L,0,fbo)) >= 0) {
+		{
+		    rs = fingerworker_loop(fap,ofp,&fb,cols,ind,to) ;
+		    wlen = rs ;
+		}
+	        rs1 = filebuf_finish(&fb) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (filebuf) */
+	    rs1 = filebuf_finish(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (filebuf) */
 
-	opts = FILEBUF_ONET ;
-	rs = filebuf_start(&fb,nfd,0L,0,opts) ; /* read - network */
-	if (rs < 0)
-	    goto ret2 ;
+	u_close(nfd) ;
+	u_close(cfd) ;
 
-#if	CF_UNDERWORLD
-	{
-	    const char *s = "hello from the underworld!\n" ;
-	    rs = filebuf_print(ofp,s,-1) ;
-	}
-#endif /* CF_UNDERWORLD */
+	wlen &= INT_MAX ;
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (fingerworker) */
 
-	if (rs >= 0) {
-	    while ((rs = filebuf_readline(&fb,lbuf,llen,to)) > 0) {
-	        len = rs ;
-#if	CF_DEBUGS
-	        {
-	            debugprintf("uc_openproto: "
-	                "filebuf_readline() len=%u eof=%u\n",
-	                len,(lbuf[len-1]=='\n')) ;
-	            debugprintf("uc_openproto: line=>%t<\n",
-	                lbuf,strlinelen(lbuf,len,40)) ;
-#ifdef	COMMENT
-	            {
-	                int	i ;
-	                for (i = (len-1) ; i >= 0 ; i -= 1) {
-	                    debugprintf("uc_openproto: len=%u line=>%t<\n",
-	                        i,lbuf,strlinelen(lbuf,i,40)) ;
-			}
-	            }
-#endif /* COMMENT */
-	        }
-#endif /* CF_DEBUGS */
+
+static int fingerworker_loop(FINGERARGS *fap,FILEBUF *ofp,FILEBUF *ifp,
+	int cols,int ind,int to)
+{
+	const int	llen = LINEBUFLEN ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	char		*lbuf ;
+	if ((rs = uc_malloc((llen+1),&lbuf)) >= 0) {
+	    int		clen = 0 ;
+	    int		ll, sl ;
+	    cchar	*lp, *sp ;
+	    cchar	*cp ;
+
+	    while ((rs = filebuf_readline(ifp,lbuf,llen,to)) > 0) {
+	        int	len = rs ;
 	        clen = mkcleanline(lbuf,len,0) ;
 #if	CF_DEBUGS
 	        debugprintf("uc_openproto: clen=%u cline=>%t<\n",
@@ -1272,22 +1266,15 @@ static int fingerworker(FINGERARGS *fap)
 
 	        if (rs < 0) break ;
 	    } /* end while (reading lines) */
-	} /* end if (ok) */
 
-	filebuf_finish(&fb) ;
+	    rs1 = uc_free(lbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (m-a-f) */
 
-ret2:
-	filebuf_finish(&out) ;
-
-ret1:
-	u_close(nfd) ;
-	u_close(cfd) ;
-
-ret0:
-	wlen &= INT_MAX ;
 	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (fingerworker) */
+/* end subroutine (fingerworker_loop) */
+
 
 static int fingerworker_liner(fap,ofp,cols,ind,ln,sp,sl)
 FINGERARGS	*fap ;

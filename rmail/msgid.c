@@ -62,8 +62,8 @@
 
 /* local defines */
 
-#define	MSGID_FILEMAGICA	"MSGIDA"
-#define	MSGID_FILEMAGICB	"MSGIDB"
+#define	MSGID_FMA	"MSGIDA"
+#define	MSGID_FMB	"MSGIDB"
 
 #define	MSGID_FS		"msgid"
 #define	MSGID_FSA		"msgida"
@@ -149,15 +149,15 @@ static int	msgid_searchid(MSGID *,const char *,int,char **) ;
 static int	msgid_search(MSGID *,MSGID_KEY *,uint,char **) ;
 static int	msgid_searchempty(MSGID *,struct oldentry *,char **) ;
 static int	msgid_searchemptyrange(MSGID *,int,int,
-struct oldentry *,char **) ;
+			struct oldentry *,char **) ;
 static int	msgid_buf(MSGID *,int,int,char **) ;
 static int	msgid_bufupdate(MSGID *,int,int,const char *) ;
 static int	msgid_bufstart(MSGID *) ;
 static int	msgid_buffinish(MSGID *) ;
 static int	msgid_writehead(MSGID *) ;
 
-static int	filemagic(char *,int,struct msgid_filemagic *) ;
-static int	filehead(char *,int,struct msgid_filehead *) ;
+static int	filemagic(char *,int,MSGID_FM *) ;
+static int	filehead(char *,int,MSGID_FH *) ;
 
 static int	emat_recipid(const char *,MSGID_KEY *) ;
 
@@ -458,81 +458,73 @@ int msgid_enum(MSGID *op,MSGID_CUR *curp,MSGID_ENT *ep)
 
 /* is the file even initialized? */
 
-	if (! op->f.fileinit)
-	    return SR_NOTFOUND ;
+	if (! op->f.fileinit) return SR_NOTFOUND ;
 
 /* has our lock been broken */
 
-	if (op->f.cursorlockbroken)
-	    return SR_LOCKLOST ;
+	if (op->f.cursorlockbroken) return SR_LOCKLOST ;
 
 /* do we have proper file access? */
 
-	rs = msgid_filecheck(op,dt,LOCK_READ) ;
+	if ((rs = msgid_filecheck(op,dt,LOCK_READ)) >= 0) {
+	    if (op->f.fileinit) {
 
 #if	CF_DEBUGS
-	debugprintf("msgid_enum: msgid_filecheck() rs=%d\n",rs) ;
+	        debugprintf("msgid_enum: msgid_filecheck() rs=%d\n",rs) ;
 #endif
-
-	if ((rs < 0) || (! op->f.fileinit))
-	    goto bad1 ;
 
 /* OK, give an entry back to caller */
 
-	ei = (curp->i < 0) ? 0 : curp->i + 1 ;
-	eoff = MSGID_FOTAB + (ei * op->ebs) ;
+	        ei = (curp->i < 0) ? 0 : curp->i + 1 ;
+	        eoff = MSGID_FOTAB + (ei * op->ebs) ;
 
 #if	CF_DEBUGS
-	debugprintf("msgid_enum: ei=%d eoff=%u\n",ei,eoff) ;
+	        debugprintf("msgid_enum: ei=%d eoff=%u\n",ei,eoff) ;
 #endif
 
 /* form result to caller */
 
-	rs = ((eoff + op->ebs) <= op->filesize) ? SR_OK : SR_NOTFOUND ;
-	if (rs < 0)
-	    goto ret0 ;
+	        if ((eoff + op->ebs) <= op->filesize) {
 
 /* verify sufficient file buffering */
 
-	rs = msgid_buf(op,eoff,op->ebs,&bp) ;
+	            if ((rs = msgid_buf(op,eoff,op->ebs,&bp)) >= 0) {
+	                if (rs >= op->ebs) {
 
 #if	CF_DEBUGS
-	debugprintf("msgid_enum: msgid_buf() rs=%d\n",rs) ;
+	                    debugprintf("msgid_enum: msgid_buf() rs=%d\n",rs) ;
 #endif
-
-	if ((rs >= 0) && (rs < op->ebs))
-	    rs = SR_EOF ;
-
-	if (rs < 0)
-	    goto ret0 ;
 
 /* copy entry to caller buffer */
 
-	if (ep != NULL) {
-	    msgide_all(ep,1,bp,MSGIDE_SIZE) ;
-	} /* end if */
+	                    if (ep != NULL) {
+	                        msgide_all(ep,1,bp,MSGIDE_SIZE) ;
+	                    } /* end if */
 
 /* commit the cursor movement? */
 
-	if (rs >= 0)
-	    curp->i = ei ;
+	                    if (rs >= 0)
+	                        curp->i = ei ;
 
-	op->f.cursoracc = TRUE ;
+	                    op->f.cursoracc = TRUE ;
 
-ret0:
+	                } else
+	                    rs = SR_EOF ;
+	            } /* end if (msgid_buf) */
+
+	        } else
+	            rs = SR_NOTFOUND ;
+
+	    } else {
+	        rs = SR_EOF ;
+	    }
+	} /* end if (msgid_filecheck) */
 
 #if	CF_DEBUGS
 	debugprintf("msgid_enum: ret rs=%d ei=%u\n",rs,ei) ;
 #endif
 
 	return (rs >= 0) ? ei : rs ;
-
-/* bad stuff */
-bad1:
-	if ((rs >= 0) && (! op->f.fileinit))
-	    rs = SR_EOF ;
-
-	goto ret0 ;
 }
 /* end subroutine (msgid_enum) */
 
@@ -707,9 +699,8 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	debugprintf("msgid_update: msgid_filecheck()\n") ;
 #endif
 
-	rs = msgid_filecheck(op,dt,LOCK_WRITE) ;
-	if ((rs < 0) || (! op->f.fileinit))
-	    goto ret0 ;
+	if ((rs = msgid_filecheck(op,dt,LOCK_WRITE)) >= 0) {
+	    if (op->f.fileinit) {
 
 #if	CF_DEBUGS && (CF_DEBUGSLEEP > 0)
 	debugprintf("msgid_update: sleeping\n") ;
@@ -736,8 +727,9 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	    debugprintf("msgid_update: entry found, ei=%d\n",ei) ;
 #endif
 
-	    if (ep != NULL)
+	    if (ep != NULL) {
 	        msgide_all(ep,1,bep,MSGIDE_SIZE) ;
+	    }
 
 /* update the file buffer */
 
@@ -770,8 +762,9 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	    m0.ctime = dt ;
 	    m0.hash = khash ;
 
-	    if (kp->from != NULL)
+	    if (kp->from != NULL) {
 	        strwcpy(m0.from,kp->from, MSGIDE_LFROM) ;
+	    }
 
 	    strwcpy(m0.messageid,kp->mid, MSGIDE_LMESSAGEID) ;
 
@@ -812,8 +805,9 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	        if (op->h.nentries < op->maxentry) {
 	            f_addition = TRUE ;
 	            ei = op->h.nentries ;
-	        } else
+	        } else {
 	            ei = old.ei ;
+		}
 
 	    } /* end if (entry not found) */
 
@@ -821,8 +815,9 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 
 	    wlen = msgide_all(&m0,0,bep,MSGIDE_SIZE) ;
 
-	    if (ep != NULL)
+	    if (ep != NULL) {
 	        msgide_all(ep,1,bep,MSGIDE_SIZE) ;
+	    }
 
 	    m0.count += 1 ;
 
@@ -893,14 +888,8 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	        op->h.wcount += 1 ;
 	        op->h.wtime = dt ;
 	        if (f_addition) {
-
 	            op->h.nentries += 1 ;
 	            op->filesize += wlen ;
-
-#if	CF_DEBUGS
-	            debugprintf("msgid_update: filesize=%u\n",op->filesize) ;
-#endif
-
 	        }
 
 	        rs = msgid_writehead(op) ;
@@ -922,8 +911,9 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	if (dt == 0) dt = time(NULL) ;
 	op->accesstime = dt ;
 
-/* done */
-ret0:
+	} else
+	    rs = SR_NOTOPEN ;
+	} /* end if */
 
 #if	CF_DEBUGS
 	debugprintf("msgid_update: ret rs=%d ei=%u\n",rs,ei) ;
@@ -1005,7 +995,7 @@ static int msgid_opener(MSGID *op,char *tbuf,cchar *fn,int of,mode_t om)
 
 
 static int msgid_openone(MSGID *op,char *tbuf,cchar *fn,cchar *ext,
-		int of,mode_t om)
+int of,mode_t om)
 {
 	int		rs ;
 	int		pl = 0 ;
@@ -1079,9 +1069,9 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 #endif
 
 	        if (! op->f.writelocked) {
-	            rs = msgid_lockget(op,dt,0) ;
-	            if (rs < 0) goto ret0 ;
-	            f_locked = TRUE ;
+	            if ((rs = msgid_lockget(op,dt,0)) >= 0) {
+	                f_locked = TRUE ;
+		    }
 	        }
 
 /* write the file magic and header stuff */
@@ -1092,7 +1082,9 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 
 /* file magic */
 
-	        strwcpy(fm.magic,MSGID_FILEMAGICB,14) ;
+		if (rs >= 0) {
+
+	        strwcpy(fm.magic,MSGID_FMB,14) ;
 	        fm.vetu[0] = MSGID_FILEVERSION ;
 	        fm.vetu[1] = MSGID_ENDIAN ;
 	        fm.vetu[2] = 0 ;
@@ -1103,7 +1095,7 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 
 /* file header */
 
-	        memset(&op->h,0,sizeof(struct msgid_filehead)) ;
+	        memset(&op->h,0,sizeof(MSGID_FH)) ;
 
 #if	CF_DEBUGS
 	        debugprintf("msgid_fileinit: filehead() bl=%d\n",bl) ;
@@ -1125,6 +1117,8 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 	        }
 	        op->f.fileinit = (rs >= 0) ;
 
+		} /* end if (ok) */
+
 	    } /* end if (writing) */
 
 	} else if (op->filesize >= MSGID_FOTAB) {
@@ -1133,12 +1127,14 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 /* read the file header */
 
 	    if (! op->f.readlocked) {
-	        rs = msgid_lockget(op,dt,1) ;
-	        if (rs < 0) goto ret0 ;
-	        f_locked = TRUE ;
+	        if ((rs = msgid_lockget(op,dt,1)) >= 0) {
+	            f_locked = TRUE ;
+		}
 	    }
 
-	    if ((rs = u_pread(op->fd,fbuf,MSGID_FBUFLEN,0L)) >= MSGID_FLTOP) {
+	    if (rs >= 0) {
+		const int	fltop = MSGID_FLTOP ;
+	        if ((rs = u_pread(op->fd,fbuf,MSGID_FBUFLEN,0L)) >= fltop) {
 
 	        bl = 0 ;
 	        bl += filemagic((fbuf + bl),1,&fm) ;
@@ -1154,7 +1150,7 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 	            op->h.nentries) ;
 #endif
 
-	        f = (strcmp(fm.magic,MSGID_FILEMAGICB) == 0) ;
+	        f = (strcmp(fm.magic,MSGID_FMB) == 0) ;
 
 #if	CF_DEBUGS
 	        debugprintf("msgid_fileinit: fm.magic=%s\n",fm.magic) ;
@@ -1181,7 +1177,8 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 
 	        op->f.fileinit = f ;
 
-	    } /* end if */
+	    } /* end if (u_pread) */
+	    } /* end if (ok) */
 
 	} /* end if */
 
@@ -1189,9 +1186,6 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 
 	if (f_locked)
 	    msgid_lockrelease(op) ;
-
-/* we're out of here */
-ret0:
 
 #if	CF_DEBUGS
 	debugprintf("msgid_fileinit: ret rs=%d fileinit=%u\n",
@@ -1212,20 +1206,12 @@ static int msgid_filechanged(MSGID *op)
 
 /* has the file changed at all? */
 
-	rs = u_fstat(op->fd,&sb) ;
+	if ((rs = u_fstat(op->fd,&sb)) >= 0) {
 
 #if	CF_DEBUGS
 	debugprintf("msgid_filechanged: u_fstat() rs=%d filesize=%u\n",
 	    rs,sb.st_size) ;
 #endif
-
-#ifdef	COMMENT
-	if (rs == SR_NOENT)
-	    rs = SR_OK ;
-#endif /* COMMENT */
-
-	if (rs < 0)
-	    goto bad2 ;
 
 	if (sb.st_size < MSGID_FOTAB)
 	    op->f.fileinit = FALSE ;
@@ -1246,17 +1232,14 @@ static int msgid_filechanged(MSGID *op)
 /* if it has NOT changed, read the file header for write indications */
 
 	if ((! f_changed) && op->f.fileinit) {
-	    struct msgid_filehead	h ;
+	    MSGID_FH	h ;
 	    char	hbuf[MSGID_FLTOP + 1] ;
 
-	    rs = u_pread(op->fd,hbuf,MSGID_FLTOP,0L) ;
+	    if ((rs = u_pread(op->fd,hbuf,MSGID_FLTOP,0L)) >= 0) {
 
 #if	CF_DEBUGS
 	    debugprintf("msgid_filechanged: u_pread() rs=%d\n",rs) ;
 #endif
-
-	    if (rs < 0)
-	        goto bad2 ;
 
 	    if (rs < MSGID_FLTOP)
 	        op->f.fileinit = FALSE ;
@@ -1290,17 +1273,19 @@ static int msgid_filechanged(MSGID *op)
 
 	    } /* end if */
 
+	    } /* end if (u_pread) */
+
 	} /* end if (reading file header) */
 
 /* OK, we're done */
 
-	if (f_changed) {
+	if ((rs >= 0) && f_changed) {
 	    op->b.len = 0 ;
 	    op->filesize = sb.st_size ;
 	    op->mtime = sb.st_mtime ;
 	}
 
-ret0:
+	} /* end if (stat) */
 
 #if	CF_DEBUGS
 	debugprintf("msgid_filechanged: ret rs=%d f_changed=%u\n",
@@ -1308,10 +1293,6 @@ ret0:
 #endif
 
 	return (rs >= 0) ? f_changed : rs ;
-
-/* bad stuff */
-bad2:
-	goto ret0 ;
 }
 /* end subroutine (msgid_filechanged) */
 
@@ -1663,7 +1644,7 @@ static int msgid_searchempty(MSGID *op,struct oldentry *oep,char **bepp)
 
 /* search for an empty slot in a specified range of entries */
 static int msgid_searchemptyrange(MSGID *op,int ei,int nmax,
-		struct oldentry *oep,char **bepp)
+struct oldentry *oep,char **bepp)
 {
 	time_t		t ;
 	int		rs = SR_OK ;
@@ -1850,8 +1831,9 @@ static int msgid_buf(MSGID *op,int roff,int rlen,char **rpp)
 
 	} /* end if (needed to read more data) */
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = op->b.buf + (roff - op->b.off) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("msgid_buf: ret rs=%d len=%u\n",rs,len) ;
@@ -1923,38 +1905,30 @@ static int msgid_writehead(MSGID *op)
 
 
 static int filemagic(buf,f_read,mp)
-char			*buf ;
-int			f_read ;
-struct msgid_filemagic	*mp ;
+char		*buf ;
+int		f_read ;
+MSGID_FM	*mp ;
 {
 	int		rs = 20 ;
 	char		*bp = buf ;
-	char		*cp ;
 
-	if (buf == NULL)
-	    return SR_BADFMT ;
+	if (buf == NULL) return SR_BADFMT ;
 
 	if (f_read) {
-
+	    char	*ep ;
 	    bp[15] = '\0' ;
 	    strncpy(mp->magic,bp,15) ;
-
-	    if ((cp = strchr(mp->magic,'\n')) != NULL)
-	        *cp = '\0' ;
-
+	    if ((ep = strchr(mp->magic,'\n')) != NULL) {
+	        *ep = '\0' ;
+	    }
 	    bp += 16 ;
 	    memcpy(mp->vetu,bp,4) ;
-
 	} else {
-
 	    bp = strwcpy(bp,mp->magic,14) ;
-
 	    *bp++ = '\n' ;
 	    memset(bp,0,(16 - (bp - buf))) ;
-
-	    bp = buf + 16 ;
+	    bp = (buf + 16) ;
 	    memcpy(bp,mp->vetu,4) ;
-
 	} /* end if */
 
 	return rs ;
@@ -1964,12 +1938,12 @@ struct msgid_filemagic	*mp ;
 
 /* encode or decode the file header */
 static int filehead(mbuf,f_read,hp)
-char			*mbuf ;
-int			f_read ;
-struct msgid_filehead	*hp ;
+char		*mbuf ;
+int		f_read ;
+MSGID_FH	*hp ;
 {
 	SERIALBUF	msgbuf ;
-	const int	mlen = sizeof(struct msgid_filehead) ;
+	const int	mlen = sizeof(MSGID_FH) ;
 	int		rs ;
 	int		rs1 ;
 
@@ -2023,14 +1997,13 @@ int		el ;
 	int		f ;
 
 	if (ml >= 0) {
-
 	    f = (strncmp(mp,ep,MIN(ml,el)) == 0) ;
-
-	    if (f && (ml < el))
+	    if (f && (ml < el)) {
 	        f = (ep[ml] == '\0') ;
-
-	} else
+	    }
+	} else {
 	    f = (strncmp(mp,ep,el) == 0) ;
+	}
 
 	return f ;
 }

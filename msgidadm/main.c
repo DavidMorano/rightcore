@@ -13,10 +13,8 @@
 /* revision history:
 
 	= 2003-03-01, David A­D­ Morano
-
 	This subroutine was originally written to be the front-end for the new
 	MSGIDADM program.
-
 
 */
 
@@ -94,6 +92,8 @@ extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	vecstr_adduniq(vecstr *,cchar *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(bfile *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -258,16 +258,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
-	int		pan = 0 ;
 	int		rs, rs1 ;
-	int		cl, v, i ;
+	int		v, i  ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
 	int		f_reverse = FALSE ;
-	int		f ;
 
 	cchar		*argp, *aop, *akp, *avp ;
 	cchar		*argval = NULL ;
@@ -655,6 +653,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -672,10 +672,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -725,17 +726,20 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* check arguments */
 
 	lip->nentries = DEFENTS ;
-	if (! lip->f.all) {
-	    if (argval != NULL) {
-	        rs = cfdeci(argval,-1,&v) ;
-	        if (v > 0) lip->nentries = v ;
-	    }
-	} else
-	    lip->nentries = INT_MAX ;
+	if (rs >= 0) {
+	    if (! lip->f.all) {
+	        if (argval != NULL) {
+	            rs = cfdeci(argval,-1,&v) ;
+	            if (v > 0) lip->nentries = v ;
+	        }
+	    } else
+	        lip->nentries = INT_MAX ;
+	}
 
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: nentries=%u\n",
 	        pip->progname,lip->nentries) ;
+	}
 
 /* sort key */
 

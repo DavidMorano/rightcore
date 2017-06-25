@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 1998-10-10, David A­D­ Morano
-
 	This subroutine was written for Rightcore Network Services.
-
 
 */
 

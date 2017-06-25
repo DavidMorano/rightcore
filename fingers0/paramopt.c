@@ -299,8 +299,7 @@ int paramopt_load(PARAMOPT *php,cchar *name,cchar *vbuf,int vlen)
 	    }
 
 #if	CF_DEBUGS
-	    debugprintf("paramopt_load: len=%d v=\"%t\"\n",
-	        vl,vp,vl) ;
+	    debugprintf("paramopt_load: len=%d v=\"%t\"\n",vl,vp,vl) ;
 #endif
 
 /* do we have one of these named keys already? */
@@ -345,13 +344,15 @@ int paramopt_load(PARAMOPT *php,cchar *name,cchar *vbuf,int vlen)
 	                if ((rs = uc_mallocstrw(vp,vl,&cp)) >= 0) {
 	                    nvp->value = cp ;
 	                    ovp = pp->tail ;
-	                    if (pp->head == NULL)
+	                    if (pp->head == NULL) {
 	                        pp->head = nvp ;
+			    }
 	                    pp->c += 1 ;
 	                    pp->tail = nvp ;
 	                    pp->current = nvp ;
-	                    if (ovp != NULL)
+	                    if (ovp != NULL) {
 	                        ovp->next = nvp ;
+			    }
 	                }
 	                if (rs < 0)
 	                    uc_free(nvp) ;
@@ -430,8 +431,9 @@ int paramopt_enumkeys(PARAMOPT *php,PARAMOPT_CUR *curp,cchar **rpp)
 	    curp->keyp = kp ;		/* update to the current key-pointer */
 	    if (rpp != NULL) *rpp = kp->name ;
 	    kl = strlen(kp->name) ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? kl : rs ;
 }
@@ -483,8 +485,9 @@ int paramopt_fetch(PARAMOPT *php,cchar *key,PARAMOPT_CUR *curp,cchar **rpp)
 	    if (rpp != NULL) *rpp = vp->value ;
 	    if (vp->value != NULL) vl = strlen(vp->value) ;
 	    curp->valuep = vp ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? vl : rs ;
 }

@@ -477,8 +477,8 @@ int logfile_check(LOGFILE *op,time_t daytime)
 #endif /* CF_DEBUGS */
 
 	if ((op->len > 0) && ((daytime - op->ti_data) >= TO_DATA)) {
-	        rs = logfile_iflush(op) ;
-	        len = rs ;
+	    rs = logfile_iflush(op) ;
+	    len = rs ;
 	} else if ((op->lfd >= 0) && (op->len == 0)) {
 	    int	f = TRUE ;
 	    f = f && ((daytime - op->ti_open) >= TO_OPEN) ;

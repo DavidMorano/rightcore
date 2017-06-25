@@ -46,7 +46,7 @@
         Facility services are represented in the filesystem as files with names
         of the form:
 
-	<facility>§<int>[­<arg(s)>
+	<facility>º<int>[­<arg(s)>
 
         These sorts of file names are often actually stored in the filesystem as
         symbolic links.

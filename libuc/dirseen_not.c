@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -128,8 +126,9 @@ int dirseen_notseen(DIRSEEN *dsp,struct ustat *sbp,cchar *dbuf,int dlen)
 			f = TRUE ;
 		    }
 		}
-	    } else if (isNotPresent(rs))
+	    } else if (isNotPresent(rs)) {
 		rs = SR_OK ;
+	    }
 	}
 
 	return (rs >= 0) ? f : rs ;

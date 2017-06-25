@@ -12,10 +12,8 @@
 /* revision history:
 
 	= 2011-03-17, David A­D­ Morano
-
         I created this -- after about needing it for 20 years -- because I am
         tired of the little flaws in the X11 startup sequence.
-
 
 */
 
@@ -93,6 +91,7 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	getmailgid(const char *,gid_t) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -107,7 +106,7 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strdcpy3(char *,int,const char *,const char *,const char *) ;
 extern char	*strwcpy(char *,const char *,int) ;
@@ -560,6 +559,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -577,10 +578,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get some program information */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -608,9 +610,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* load up the environment options */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (pip->tmpdname != NULL) pip->final.tmpdir = TRUE ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 /* other initialization */
 
@@ -780,12 +789,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
-	            vl = keyopt_fetch(kop,kp,NULL,&vp) ;
-
 	            if ((oi = matostr(progopts,3,kp,kl)) >= 0) {
 
-	                switch (oi) {
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
+	                switch (oi) {
 	                case progopt_log:
 	                    if (! pip->final.logprog) {
 	                        pip->have.logprog = TRUE ;
@@ -797,7 +805,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case progopt_logsize:
 	                    if (! pip->final.logsize) {
 	                        pip->have.logsize = TRUE ;
@@ -808,7 +815,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case progopt_tmpdir:
 	                    if (! pip->final.tmpdir) {
 	                        pip->have.tmpdir = TRUE ;
@@ -819,7 +825,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	            } /* end if */
@@ -876,8 +881,9 @@ static int procdir(PROGINFO *pip,cchar *dname)
 		}
 	    }
 	    if ((rs < 0) && (! pip->f.quiet)) {
-	        bprintf(pip->efp,"%s: could not establish dir=%s (%d)\n",
-	            pip->progname,dname,rs) ;
+		cchar	*pn = pip->progname ;
+		cchar	*fmt = "%s: could not establish dir=%s (%d)\n" ;
+	        bprintf(pip->efp,fmt,pn,dname,rs) ;
 	    }
 	} /* end if (mkpath2) */
 	return rs ;

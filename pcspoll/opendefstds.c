@@ -49,21 +49,9 @@
 
 /* external subroutines */
 
-extern int	snabbr(char *,int,const char *,int) ;
-extern int	snsd(char *,int,const char *,uint) ;
-extern int	snsds(char *,int,const char *,const char *) ;
-extern int	sncpy1(char *,int,const char *) ;
-extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	mkpath1w(char *,const char *,int) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	matostr(const char **,int,const char *,int) ;
-extern int	matpstr(const char **,int,const char *,int) ;
-extern int	sfshrink(const char *,int,char **) ;
-extern int	nleadstr(const char *,const char *,int) ;
-extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
