@@ -82,50 +82,51 @@ extern char	*timestr_logz(time_t,char *) ;
 int progpidbegin(PROGINFO *pip,int to)
 {
 	int		rs = SR_OK ;
-	int		cl ;
 	int		f ;
-	const char	*cp ;
-	char		tmpfname[MAXPATHLEN + 1] ;
 
 	f = (pip->f.named || pip->f.passfd) ;
-	if (f)
-	    goto ret0 ;
+	if (! f) {
+	    int		cl = -1 ;
+	    cchar	*cp = pip->pidfname ;
+	    char	tmpfname[MAXPATHLEN + 1] ;
 
-	cp = pip->pidfname ;
-	cl = -1 ;
-	if ((cp == NULL) || (cp[0] == '+')) {
-	    cp = pip->searchname ;
-	    cl = -1 ;
-	}
-
-	if (cp[0] == '-')
-	    goto ret0 ;
-
-	if (cp[0] != '/') {
-	    if (strchr(cp,'/') != NULL) {
-	        cl = mkpath2(tmpfname,pip->pr,cp) ;
-	    } else {
-	        cl = mkpath3(tmpfname,pip->pr,RUNDNAME,cp) ;
+	    if ((cp == NULL) || (cp[0] == '+')) {
+	        cp = pip->searchname ;
+	        cl = -1 ;
 	    }
-	    cp = tmpfname ;
-	}
 
-	if (cp != NULL)
-	    rs = proginfo_setentry(pip,&pip->pidfname,cp,cl) ;
+	    if (cp[0] != '-') {
 
-	if (rs >= 0) {
-	    LFM		*lmp = &pip->pidlock ;
-	    const int	lt = LFM_TRECORD ;
-	    const char	*pf = pip->pidfname ;
-	    const char	*nn = pip->nodename ;
-	    const char	*un = pip->username ;
-	    const char	*bn = pip->banner ;
-	    if ((rs = lfm_start(lmp,pf,lt,to,NULL,nn,un,bn)) >= 0) {
-	        pip->open.pidlock = TRUE ;
-	    }
-	}
+	        if (cp[0] != '/') {
+	            if (strchr(cp,'/') != NULL) {
+	                cl = mkpath2(tmpfname,pip->pr,cp) ;
+	            } else {
+	                cl = mkpath3(tmpfname,pip->pr,RUNDNAME,cp) ;
+	            }
+	            cp = tmpfname ;
+	        }
 
-ret0:
+	        if (cp != NULL) {
+	            cchar	**vpp = &pip->pidfname ;
+	            rs = proginfo_setentry(pip,vpp,cp,cl) ;
+	        }
+
+	        if (rs >= 0) {
+	            LFM		*lmp = &pip->pidlock ;
+	            const int	lt = LFM_TRECORD ;
+	            const char	*pf = pip->pidfname ;
+	            const char	*nn = pip->nodename ;
+	            const char	*un = pip->username ;
+	            const char	*bn = pip->banner ;
+	            if ((rs = lfm_start(lmp,pf,lt,to,NULL,nn,un,bn)) >= 0) {
+	                pip->open.pidlock = TRUE ;
+	            }
+	        }
+
+	    } /* end if */
+
+	} /* end if */
+
 	return rs ;
 }
 /* end subroutine (progpidbegin) */
@@ -141,15 +142,15 @@ int progpidcheck(PROGINFO *pip)
 	    const time_t	dt = pip->daytime ;
 	    rs = lfm_check(lmp,&lc,dt) ;
 	    if (rs < 0) {
-		cchar	*fmt ;
-		char	tbuf[TIMEBUFLEN + 1] ;
+	        cchar	*fmt ;
+	        char	tbuf[TIMEBUFLEN + 1] ;
 	        timestr_logz(dt,tbuf) ;
 	        if (pip->open.logprog) {
-		    fmt = "%s lost PIDLOCK other PID=%d\n" ;
+	            fmt = "%s lost PIDLOCK other PID=%d\n" ;
 	            proglog_printf(pip,fmt,tbuf,lc.pid) ;
 	        }
 	        if (pip->debuglevel > 0) {
-		    fmt = "%s: %s lost PIDLOCK other PID=%d\n" ;
+	            fmt = "%s: %s lost PIDLOCK other PID=%d\n" ;
 	            printf(pip->efp,tbuf,pip->progname,tbuf,lc.pid) ;
 	        }
 	    } /* end if */

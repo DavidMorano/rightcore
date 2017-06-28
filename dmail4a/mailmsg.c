@@ -173,12 +173,11 @@ static int	mailmsg_envend(MAILMSG *) ;
 
 static int	mailmsg_hdrbegin(MAILMSG *) ;
 static int	mailmsg_hdrend(MAILMSG *) ;
-static int	mailmsg_hdraddnew(MAILMSG *,const char *,int,const char *,int) ;
-static int	mailmsg_hdraddcont(MAILMSG *,const char *,int) ;
-static int	mailmsg_hdrmatch(MAILMSG *,MAILMSGHDRNAME **,const char *,int) ;
+static int	mailmsg_hdraddnew(MAILMSG *,cchar *,int,cchar *,int) ;
+static int	mailmsg_hdraddcont(MAILMSG *,cchar *,int) ;
+static int	mailmsg_hdrmatch(MAILMSG *,MAILMSGHDRNAME **,cchar *,int) ;
 
-static int	msghdrname_start(MAILMSGHDRNAME *,const char *,int,
-			cchar *,int) ;
+static int	msghdrname_start(MAILMSGHDRNAME *,cchar *,int,cchar *,int) ;
 static int	msghdrname_match(MAILMSGHDRNAME *,const char *,int) ;
 static int	msghdrname_addnew(MAILMSGHDRNAME *,const char *,int) ;
 static int	msghdrname_addcont(MAILMSGHDRNAME *,const char *,int) ;
@@ -320,8 +319,9 @@ int mailmsg_envaddress(MAILMSG *op,int i,cchar **rpp)
 	    if (ep != NULL) el = ep->a.el ;
 	}
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? ep->a.ep : NULL ;
+	}
 
 	return (rs >= 0) ? el : rs ;
 }
@@ -347,8 +347,9 @@ int mailmsg_envdate(MAILMSG *op,int i,cchar **rpp)
 	    if (ep != NULL) el = ep->d.el ;
 	}
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? ep->d.ep : NULL ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("mailmsg_envdate: ret rs=%d len=%u\n",rs,el) ;
@@ -374,8 +375,9 @@ int mailmsg_envremote(MAILMSG *op,int i,cchar **rpp)
 	    if (ep != NULL) el = ep->r.el ;
 	}
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? ep->r.ep : NULL ;
+	}
 
 	return (rs >= 0) ? el : rs ;
 }
@@ -467,9 +469,9 @@ int mailmsg_hdriline(MAILMSG *op,cchar *name,int hi,int li,cchar **rpp)
 	    }
 	}
 
-	    if (rs < 0) {
-	        if (rpp != NULL) *rpp = NULL ;
-	    }
+	if (rs < 0) {
+	    if (rpp != NULL) *rpp = NULL ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("mailmsg_hdriline: ret rs=%d vl=%u\n",rs,vl) ;
@@ -507,9 +509,9 @@ int mailmsg_hdrival(MAILMSG *op,cchar *name,int hi,cchar **rpp)
 	    }
 	}
 
-	    if (rs < 0) {
-	        if (rpp != NULL) *rpp = NULL ;
-	    }
+	if (rs < 0) {
+	    if (rpp != NULL) *rpp = NULL ;
+	}
 
 	return (rs >= 0) ? vl : rs ;
 }
@@ -548,9 +550,10 @@ int mailmsg_hdrval(MAILMSG *op,cchar *name,cchar **rpp)
 	    }
 	}
 
-	    if (rs < 0) {
-	        if (rpp != NULL) *rpp = NULL ;
-	    }
+	
+	if (rs < 0) {
+	    if (rpp != NULL) *rpp = NULL ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("mailmsg_hdrval: ret rs=%d vl=%d\n",rs,vl) ;

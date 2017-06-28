@@ -141,6 +141,7 @@ struct proginfo_flags {
 	uint		intminupdate:1 ;
 	uint		toping:1 ;
 	uint		pidfile:1 ;
+	uint		cfname:1 ;
 	uint		lfname:1 ;
 	uint		logfile:1 ;
 	uint		sumfile:1 ;
@@ -170,13 +171,11 @@ struct proginfo {
 	cchar		*afname ;
 	cchar		*ofname ;
 	cchar		*hfname ;
+	cchar		*cfname ;
 	cchar		*lfname ;
-	cchar		*outfname ;
-	cchar		*configfname ;
-	cchar		*pidfname ;
+	cchar		*pfname ;
 	cchar		*lockfname ;
 	cchar		*ptfname ;
-	cchar		*logfname ;
 	cchar		*sumfname ;	/* summary file name */
 	void		*efp ;
 	void		*ofp ;

@@ -429,13 +429,14 @@ int progmsgs(PROGINFO *pip,bfile *ifp,bfile *tfp,vecobj *fip,vecobj *rlp)
 	                f_eol = (lp[ll-1] == '\n') ;
 
 	                pd.offset += ll ;
-	                if (f_bol && FMAT(lp) && (ll > 5) &&
+	                if ((rs >= 0) && f_bol && FMAT(lp) && (ll > 5) &&
 			    ((rs = mailmsgmatenv(&pd.me,lp,ll)) > 0)) {
 	                    f_env = TRUE ;
-	                } else if (f_bol && (ll > 2) &&
+	                } else if ((rs >= 0) && f_bol && (ll > 2) &&
 			    ((rs = mailmsgmathdr(lp,ll,&vi)) > 0)) {
 	                    f_hdr = TRUE ;
-	                } else if (f_bol && (ll <= 2) && (mi == 0)) {
+	                } else if ((rs >= 0) && f_bol && (ll <= 2) && 
+			    (mi == 0)) {
 			    if ((lp[0] == '\n') || hasEOH(lp,ll)) {
 	                        f_eoh = TRUE ;
 			    }

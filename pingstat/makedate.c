@@ -1,2 +1,2 @@
 const char pingstat_makedate[] =
-"@(#)pingstat                170525_1749:17_USEDT Rightcore Network Services" ;
+"@(#)pingstat                170627_2003:44_USEDT Rightcore Network Services" ;

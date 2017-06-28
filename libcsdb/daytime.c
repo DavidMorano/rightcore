@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 2000-05-01, David A­D­ Morano
-
 	Originally created due to frustration with various other "fuzzy" time
 	convertion subroutines.
-
 
 */
 

@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 2001-07-21, David A­D­ Morano
-
 	This module was originally written.
-
 
 */
 
@@ -19,8 +17,8 @@
 
 /******************************************************************************
 
-	This module contains the subroutines to make and parse the 
-	PINGSTAT family of messages.
+        This module contains the subroutines to make and parse the PINGSTAT
+        family of messages.
 
 
 ******************************************************************************/

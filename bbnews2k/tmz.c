@@ -11,25 +11,25 @@
 /* revision history:
 
 	= 1999-05-01, David A­D­ Morano
-	This was created along with the DATE object.  This code was based on
-	older code I wrote to handle the "STRDIG" form for the BBNEWS
-	facility.  That goes back in time to possibly as far back as 1992!
+        This was created along with the DATE object. This code was based on
+        older code I wrote to handle the "STRDIG" form for the BBNEWS facility.
+        That goes back in time to possibly as far back as 1992!
 
 	= 2014-07-15, David A­D­ Morano
-	I laugh sometimes as how long some of these objects (or subroutines)
-	last without change.  Yes, most of this code looks pretty bad by
-	today's standards.  But to the point, I am enhancing this object
-	(specially the 'tmz_std()' subroutine) so that it recognizes a
-	date-string without either a time-zone abbreviation or a year but which
-	does have a time-zone offset.  In the past, the case of an offset
-	without a year was supposed to be an error in conversion.  But
-	now-a-days, in an effort to make almost all date-strings work similarly,
-	we enhance this subroutine to make this above case allowable.  This
-	case never has occurred (because having zone-offsets is so relatively
-	new in itself) and really never can happen (because we always now have
-	fully qualified date-strings with the only exception possibly having
-	the zone-offset excluded).  But we will make this enhancement and just
-	to round out the symmetry of the various date-strings.
+        I laugh sometimes as how long some of these objects (or subroutines)
+        last without change. Yes, most of this code looks pretty bad by today's
+        standards. But to the point, I am enhancing this object (specially the
+        'tmz_std()' subroutine) so that it recognizes a date-string without
+        either a time-zone abbreviation or a year but which does have a
+        time-zone offset. In the past, the case of an offset without a year was
+        supposed to be an error in conversion. But now-a-days, in an effort to
+        make almost all date-strings work similarly, we enhance this subroutine
+        to make this above case allowable. This case never has occurred (because
+        having zone-offsets is so relatively new in itself) and really never can
+        happen (because we always now have fully qualified date-strings with the
+        only exception possibly having the zone-offset excluded). But we will
+        make this enhancement and just to round out the symmetry of the various
+        date-strings.
 
 */
 
@@ -37,10 +37,10 @@
 
 /*******************************************************************************
 
-	This object is used to parse date strings that are in ASCII and are
-	human-readable.  There are tons of places where ASCII strings that
-	represent a date are used.  I will leave it as an exercise for the
-	reader to think up some of those!
+        This object is used to parse date strings that are in ASCII and are
+        human-readable. There are tons of places where ASCII strings that
+        represent a date are used. I will leave it as an exercise for the reader
+        to think up some of those!
 
 
 	Note for STD type dates:
@@ -131,16 +131,18 @@ extern char	*strdcpy1w(char *,int,cchar *,int) ;
 
 /* forward references */
 
-static int	tmz_getmonth(TMZ *,cchar *,int) ;
-static int	tmz_getday(TMZ *,cchar *,int) ;
 static int	tmz_timeparts(TMZ *,cchar *,int) ;
 static int	tmz_stdtrailing(TMZ *,cchar *,int) ;
-static int	tmz_getzname(TMZ *op,cchar *sp,int sl) ;
-static int	tmz_getyear(TMZ *op,cchar *sp,int sl) ;
-static int	tmz_getzoff(TMZ *op,cchar *sp,int sl) ;
+static int	tmz_getday(TMZ *,cchar *,int) ;
+static int	tmz_getmonth(TMZ *,cchar *,int) ;
+static int	tmz_getyear(TMZ *,cchar *,int) ;
+static int	tmz_getzoff(TMZ *,cchar *,int) ;
+static int	tmz_getzname(TMZ *,cchar *,int) ;
+static int	tmz_yearadj(TMZ *,int) ;
 
 static int	getzoff(int *,cchar *,int) ;
 static int	val(cchar *) ;
+static int	silogend(cchar *,int) ;
 
 static int	isplusminus(int) ;
 
@@ -215,7 +217,9 @@ int tmz_std(TMZ *op,cchar *sp,int sl)
 	    sl -= rs ;
 	} /* end for */
 
-	if (rs >= 0) rs = strnlen(op->zname,TMZ_ZNAMESIZE) ;
+	if (rs >= 0) {
+	    rs = strnlen(op->zname,TMZ_ZNAMESIZE) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("tmz_std: ret rs=%d zname=%t\n",
@@ -232,6 +236,7 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		cl ;
+	int		zl = 0 ;
 	cchar		*tp ;
 	cchar		*cp ;
 
@@ -294,6 +299,7 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 	}
 
 	if ((rs >= 0) && ((rs = tmz_getzname(op,sp,sl)) > 0)) {
+	    sl = rs ;
 	    sp += rs ;
 	    sl -= rs ;
 	}
@@ -307,7 +313,7 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 	    op->zname,strnlen(op->zname,TMZ_ZNAMESIZE)) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? zl : rs ;
 }
 /* end subroutine (tmz_msg) */
 
@@ -370,17 +376,19 @@ int tmz_touch(TMZ *op,cchar *sp,int sl)
 	        sp += 2 ;
 	        sl -= 2 ;
 	    } /* end while */
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	if (rs >= 0) {
 	    if (i >= n) {
 	        op->f.year = TRUE ;
-	        if ((stp->tm_year >= 0) && (stp->tm_year <= 38))
+	        if ((stp->tm_year >= 0) && (stp->tm_year <= 38)) {
 	            stp->tm_year += NYEARS_CENTURY ;
-	        if (stp->tm_year < 69) rs = SR_INVALID ;
-	    } else if (i < (n-1))
+	        }
+	    } else if (i < (n-1)) {
 	        rs = SR_INVALID ;
+	    }
 	} /* end if */
 
 	return rs ;
@@ -430,10 +438,12 @@ int tmz_toucht(TMZ *op,cchar *sp,int sl)
 	    cchar	*cp = (tp+1) ;
 	    const int	cl = (sl-((tp+1)-sp)) ;
 	    if (cl >= 2) {
-	        if (isdigitlatin(MKCHAR(*cp))) {
+	        const int	tch = MKCHAR(*cp) ;
+	        if (isdigitlatin(tch)) {
 	            stp->tm_sec = val(cp) ;
-	        } else
+	        } else {
 	            rs = SR_INVALID ;
+	        }
 	    }
 	    sl = (tp-sp) ;
 	} /* end if (tried for seconds) */
@@ -488,24 +498,17 @@ int tmz_toucht(TMZ *op,cchar *sp,int sl)
 	            sl -= 2 ;
 	        } /* end while */
 
-	    } else
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	} /* end if (ok) */
 
 	if (rs >= 0) {
 	    if (i >= n) {
-	        if (stp->tm_year >= 0) {
-	            if (cc >= 0) {
-	                cc = ((cc * NYEARS_CENTURY) - TM_YEAR_BASE) ;
-	                stp->tm_year += cc ;
-	            } else {
-	                if ((stp->tm_year >= 0) && (stp->tm_year <= 38))
-	                    stp->tm_year += NYEARS_CENTURY ;
-	            }
-	            if (stp->tm_year < 69) rs = SR_INVALID ;
-	        } /* end if (had a year) */
-	    } else
+	        tmz_yearadj(op,cc) ;
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	} /* end if */
 
 #if	CF_DEBUGS
@@ -525,7 +528,7 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	int		rs = SR_OK ;
 	int		i = 0 ;
 	int		cc = -1 ;
-	int		zlen = 0 ;
+	int		zl = 0 ;
 	cchar		*tp ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -544,7 +547,7 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	stp->tm_wday = -1 ;
 	stp->tm_isdst = -1 ;
 
-/* skip leading white space */
+/* skip leading and trailing white space */
 
 	while (sl && CHAR_ISWHITE(*sp)) {
 	    sp += 1 ;
@@ -560,26 +563,28 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	    cchar	*cp = tp ;
 	    int		cl = (sl-(tp-sp)) ;
 	    if ((cl >= 1) && isplusminus(*cp)) {
-		int	zol = cl ;
-		int	zo ;
-		int	si ;
-		cchar	*zop = cp ;
-		if ((si = sialpha(cp,cl)) > 0) {
-		    zol = si ;
-		}
-		if ((rs = getzoff(&zo,zop,zol)) >= 0) {
-			op->zoff = zo ;
-			op->f.zoff = TRUE ;
-			cp += rs ;
-			cl -= rs ;
-		}
+	        int	zol = cl ;
+	        int	zo ;
+	        int	si ;
+	        cchar	*zop = cp ;
+	        if ((si = sialpha(cp,cl)) > 0) {
+	            zol = si ;
+	        }
+	        if ((rs = getzoff(&zo,zop,zol)) >= 0) {
+	            op->zoff = zo ;
+	            op->f.zoff = TRUE ;
+	            cp += rs ;
+	            cl -= rs ;
+	        }
 	    }
 	    if ((rs >= 0) && (cl > 0)) {
-	        if (isalphalatin(MKCHAR(*cp))) {
-		    rs = strnwcpy(op->zname,TMZ_ZNAMESIZE,cp,cl) - op->zname ;
-		    zlen = rs ;
-	        } else
+	        int	ch = MKCHAR(*cp) ;
+	        if (isalphalatin(ch)) {
+	            rs = strnwcpy(op->zname,TMZ_ZNAMESIZE,cp,cl) - op->zname ;
+	            zl = rs ;
+	        } else {
 	            rs = SR_INVALID ;
+	        }
 	    }
 	    sl = (tp-sp) ;
 	} /* end if (tried for ZOFF and ZNAME) */
@@ -603,15 +608,6 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	        debugprintf("tmz_strdig: mid2 rs=%d\n",rs) ;
 	        debugprintf("tmz_strdig: s=%t\n",sp,sl) ;
 #endif
-
-#ifdef	COMMENT
-	        if (sl >= 12) {
-	            op->f.year = TRUE ;
-	            stp->tm_year = val(sp) ;
-	            sp += 2 ;
-	            sl -= 2 ;
-	        } /* end if (YY) */
-#endif /* COMMENT */
 
 #if	CF_DEBUGS
 	        debugprintf("tmz_strdig: mid3 rs=%d\n",rs) ;
@@ -643,45 +639,39 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	            sl -= 2 ;
 	        } /* end while */
 
-	    } else
-	        rs = SR_INVALID ;
-	} /* end if (ok) */
+	        if (i >= (n-1)) {
+	            tmz_yearadj(op,cc) ;
+	        } else {
+	            rs = SR_INVALID ;
+	        }
 
-	if (rs >= 0) {
-	    if (i >= (n-1)) {
-	        if (stp->tm_year >= 0) {
-	            op->f.year = TRUE ;
-	            if (cc >= 0) {
-	                cc = ((cc * NYEARS_CENTURY) - TM_YEAR_BASE) ;
-	                stp->tm_year += cc ;
-	            } else {
-	                if ((stp->tm_year >= 0) && (stp->tm_year <= 38))
-	                    stp->tm_year += NYEARS_CENTURY ;
-	            }
-	            if (stp->tm_year < 69) rs = SR_INVALID ;
-	        } /* end if (had a year) */
-	    } else
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	} /* end if (ok) */
 
 #if	CF_DEBUGS
-	debugprintf("tmz_strdig: ret rs=%d zlen=%u\n",rs,zlen) ;
+	debugprintf("tmz_strdig: ret rs=%d zl=%u\n",rs,zl) ;
 	debugprintf("tmz_strdig: f_zoff=%u zoff=%d\n",op->f.zoff,op->zoff) ;
 	debugprintf("tmz_strdig: zname=%t\n",op->zname,8) ;
 #endif
 
-	return (rs >= 0) ? zlen : rs ;
+	return (rs >= 0) ? zl : rs ;
 }
 /* end subroutine (tmz_strdig) */
 
 
-/* format> [CC]YYMMDD[_]hhmm[ss][_][zname] */
+/* format> [CC]YYMMDD_hhmm[:ss][_][zname] */
 int tmz_logz(TMZ *op,cchar *sp,int sl)
 {
 	struct tm	*stp ;
-	const int	zsize = TMZ_ZNAMESIZE ;
 	int		rs = SR_OK ;
-	int		i ;
+	int		zl = 0 ;
+	cchar		*tp ;
+
+#if	CF_DEBUGS
+	debugprintf("tmz_logz: ent\n") ;
+#endif
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -699,7 +689,7 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 	stp->tm_wday = -1 ;
 	stp->tm_isdst = -1 ;
 
-/* skip leading white space */
+/* skip leading and trailing white space */
 
 	while (sl && CHAR_ISWHITE(*sp)) {
 	    sp += 1 ;
@@ -708,113 +698,101 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 	while (sl && CHAR_ISWHITE(sp[sl-1])) sl -= 1 ;
 
 #if	CF_DEBUGS
-	debugprintf("tmz_logz: stripped string=%t\n",sp,sl) ;
+	debugprintf("tmz_logz: 1 s=%t\n",sp,sl) ;
 #endif
 
-/* get year */
-
-	if (sl < (5 * 2))
-	    rs = SR_INVALID ;
-
-	for (i = 0 ; (rs >= 0) && (i < 6) ; i += 1) {
-	    if (! isdigitlatin(MKCHAR(sp[i]))) {
+	if ((tp = strnchr(sp,sl,'_')) != NULL) {
+	    int		si = (tp-sp) ;
+#if	CF_DEBUGS
+	    debugprintf("tmz_logz: 2 si=%u\n",si) ;
+	    debugprintf("tmz_logz: 2 s=%t\n",sp,si) ;
+#endif
+	    if (hasalldig(sp,si)) {
+	        int	cc = -1 ;
+	        int	i = 0 ;
+	        if (si >= 8) {
+	            cc = val(sp) ;
+	            sp += 2 ;
+	            sl -= 2 ;
+	        } /* end if (CC) */
+#if	CF_DEBUGS
+	        debugprintf("tmz_logz: 2 cc=%d\n",cc) ;
+#endif
+	        while ((sl >= 2) && (i < 3)) {
+#if	CF_DEBUGS
+	            debugprintf("tmz_logz: 2a s=>%t<\n",sp,sl) ;
+#endif
+	            switch (i++) {
+	            case 0:
+	                stp->tm_year = val(sp) ;
+	                break ;
+	            case 1:
+	                stp->tm_mon = (val(sp) - 1) ;
+	                break ;
+	            case 2:
+	                stp->tm_mday = val(sp) ;
+	                break ;
+	            } /* end switch */
+	            sp += 2 ;
+	            sl -= 2 ;
+	        } /* end while */
+	        sp += 1 ;
+	        sl -= 1 ;
+#if	CF_DEBUGS
+	        debugprintf("tmz_logz: 3 s=>%t<\n",sp,sl) ;
+#endif
+	        if ((si = silogend(sp,sl)) >= 0) {
+#if	CF_DEBUGS
+	            debugprintf("tmz_logz: 3 si=%d\n",si) ;
+	            debugprintf("tmz_logz: 3 s=>%t<\n",sp,si) ;
+#endif
+	            while ((sl >= 2) && (i < 6)) {
+#if	CF_DEBUGS
+	                debugprintf("tmz_logz: i=%u\n",i) ;
+#endif
+	                switch (i++) {
+	                case 3:
+	                    stp->tm_hour = val(sp) ;
+	                    break ;
+	                case 4:
+	                    stp->tm_min = val(sp) ;
+	                    break ;
+	                case 5:
+	                    if ((sl >= 3) && (sp[0] == ':')) {
+	                        sp += 1 ;
+	                        sl -= 1 ;
+	                    }
+	                    stp->tm_sec = val(sp) ;
+	                    break ;
+	                } /* end switch */
+	                sp += 2 ;
+	                sl -= 2 ;
+	            } /* end while */
+	            tmz_yearadj(op,cc) ;
+	            if (sl && (*sp == '_')) {
+	                sp += 1 ;
+	                sl -= 1 ;
+	            }
+#if	CF_DEBUGS
+	            debugprintf("tmz_logz: zname s=>%t<\n",sp,sl) ;
+#endif
+	            if (sl && isalphalatin(*sp)) {
+	                rs = tmz_getzname(op,sp,sl) ;
+	                zl = rs ;
+	            }
+	        } /* end if (silogend) */
+	    } else {
 	        rs = SR_INVALID ;
-		break ;
 	    }
-	} /* end for */
-	if (rs < 0) goto done ;
-
-	stp->tm_year = 10 * (*sp++ - '0') ;
-	stp->tm_year += (*sp++ - '0') ;
-	if (stp->tm_year < 70)
-	    stp->tm_year += NYEARS_CENTURY ;
-
-	stp->tm_mon = 10 * (*sp++ - '0') ;
-	stp->tm_mon += (*sp++ - '0') ;
-	stp->tm_mon -= 1 ;		/* for 'mktime' */
-
-	stp->tm_mday = 10 * (*sp++ - '0') ;
-	stp->tm_mday += (*sp++ - '0') ;
-
-	sl -= 6 ;
-	op->f.year = TRUE ;
-
-/* skip a possible underscore character */
-
-	if (sl && (! isdigitlatin(MKCHAR(*sp)))) {
-	    sp += 1 ;
-	    sl -= 1 ;
-	}
-
-/* continue */
-
-	for (i = 0 ; i < 4 ; i += 1) {
-	    if (! isdigitlatin(MKCHAR(sp[i]))) {
-	        rs = SR_INVALID ;
-		break ;
-	    }
-	} /* end for */
-	if (rs < 0) goto done ;
-
-	stp->tm_hour = 10 * (*sp++ - '0') ;
-	stp->tm_hour += (*sp++ - '0') ;
-
-	stp->tm_min = 10 * (*sp++ - '0') ;
-	stp->tm_min += (*sp++ - '0') ;
-
-	sl -= 4 ;
-
-/* skip a possible colon also */
-
-	if (sl && (! isdigitlatin(MKCHAR(sp[0])))) {
-	    sp += 1 ;
-	    sl -= 1 ;
-	}
-
-/* the next two characters must be numeric digits */
-
-	if (sl > 0) {
-	    int	f = FALSE ;
-
-	    f = f || (! isdigitlatin(MKCHAR(sp[0]))) ;
-	    f = f || (! isdigitlatin(MKCHAR(sp[1]))) ;
-	    if (f) {
-	        rs = SR_INVALID ;
-	    }
-
-	    stp->tm_sec = 10 * (*sp++ - '0') ;
-	    stp->tm_sec += (*sp++ - '0') ;
-
-	    sl -= 2 ;
-
-	} /* end if (optional seconds field) */
-	if (rs < 0) goto done ;
-
-/* skip a possible underscore character */
-
-	if (sl && (! isalphalatin(MKCHAR(*sp)))) {
-	    sp += 1 ;
-	    sl -= 1 ;
-	}
-
-/* get possible timezone name */
-
-	for (i = 0 ; sl && isalphalatin(MKCHAR(*sp)) && (i < zsize) ; i += 1) {
-	    op->zname[i] = *sp++ ;
-	    sl -= 1 ;
-	} /* end for */
-
-	if (i < TMZ_ZNAMESIZE)
-	    op->zname[i] = '\0' ;
-
-done:
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
-	debugprintf("tmz_logz: ret zname=%t\n",
-	    op->zname,strnlen(op->zname,TMZ_ZNAMESIZE)) ;
+	debugprintf("tmz_logz: ret rs=%d zl=%u\n",rs,zl) ;
+	debugprintf("tmz_logz: f_zoff=%u zoff=%d\n",op->f.zoff,op->zoff) ;
+	debugprintf("tmz_logz: zname=%t\n",op->zname,8) ;
 #endif
 
-	return (rs >= 0) ? i : rs ;
+	return (rs >= 0) ? zl : rs ;
 }
 /* end subroutine (tmz_logz) */
 
@@ -882,23 +860,15 @@ int tmz_day(TMZ *op,cchar *sp,int sl)
 	        sl -= 2 ;
 	    } /* end while */
 
-	} else
-	    rs = SR_INVALID ;
-
-	if (rs >= 0) {
 	    if (i >= n) {
-	        op->f.year = TRUE ;
-	        if (cc >= 0) {
-	            cc = ((cc * NYEARS_CENTURY) - TM_YEAR_BASE) ;
-	            stp->tm_year += cc ;
-	        } else {
-	            if ((stp->tm_year >= 0) && (stp->tm_year <= 38))
-	                stp->tm_year += NYEARS_CENTURY ;
-	        }
-	        if (stp->tm_year < 69) rs = SR_INVALID ;
-	    } else
+	        tmz_yearadj(op,cc) ;
+	    } else {
 	        rs = SR_INVALID ;
-	} /* end if (ok) */
+	    }
+
+	} else {
+	    rs = SR_INVALID ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("tmz_day: ret rs=%d\n",rs) ;
@@ -949,65 +919,6 @@ int tmz_gettm(TMZ *op,struct tm *tmp)
 
 
 /* private subroutines */
-
-
-/* parse out> [DDD] MMM */
-static int tmz_getmonth(TMZ *op,cchar *sp,int sl)
-{
-	int		rs = SR_OK ;
-	int		si = 0 ;
-	int		cl ;
-	cchar		*cp ;
-
-	if (((cl = nextfield(sp,sl,&cp)) > 0) && isalphalatin(MKCHAR(*cp))) {
-	    int		ml = cl ;
-	    cchar	*mp = cp ;
-	    si += ((cp+cl)-sp) ;
-	    sp += si ;
-	    sl -= si ;
-	    if (((cl = nextfield(sp,sl,&cp)) > 0) && 
-			isalphalatin(MKCHAR(*cp))) {
-	        rs = tmstrsday(mp,ml) ;
-	        op->st.tm_wday = rs ;
-	        mp = cp ;
-	        ml = cl ;
-	        si += ((cp+cl)-sp) ;
-	        sp += si ;
-	        sl -= si ;
-	    }
-	    if (rs >= 0) {
-	        rs = tmstrsmonth(mp,ml) ;
-	        op->st.tm_mon = rs ;
-	    }
-	} else
-	    rs = SR_INVALID ;
-
-	return (rs >= 0) ? si : rs ;
-}
-/* end subroutine (tmz_getmonth) */
-
-
-/* parse out> dd */
-static int tmz_getday(TMZ *op,cchar *sp,int sl)
-{
-	int		rs = SR_OK ;
-	int		si = 0 ;
-	int		cl ;
-	cchar		*cp ;
-
-	if (((cl = nextfield(sp,sl,&cp)) > 0) && isdigitlatin(MKCHAR(*cp))) {
-	    int		v ;
-	    rs = cfdeci(cp,cl,&v) ;
-	    op->st.tm_mday = v ;
-	    si += ((cp+cl)-sp) ;
-	    sp += si ;
-	    sl -= si ;
-	} else
-	    rs = SR_INVALID ;
-
-	return (rs >= 0) ? si : rs ;
-}
-/* end subroutine (tmz_getday) */
 
 
 /* format> hh:mm[:ss] */
@@ -1067,7 +978,7 @@ static int tmz_stdtrailing(TMZ *op,cchar *sp,int sl)
 	int		si = 0 ;
 	int		wi ;
 
-	if ((rs >= 0) && ((wi = siskipwhite(sp,sl)) >= 0)) {
+	if ((wi = siskipwhite(sp,sl)) >= 0) {
 	    si += wi ;
 	    sp += wi ;
 	    sl -= wi ;
@@ -1082,13 +993,14 @@ static int tmz_stdtrailing(TMZ *op,cchar *sp,int sl)
 	            rs = tmz_getyear(op,sp,sl) ;
 	        } else if (isplusminus(ch) || isdigitlatin(ch)) {
 	            rs = tmz_getzoff(op,sp,sl) ;
-	        } else
+	        } else {
 	            rs = SR_INVALID ;
+	        }
 	        si += rs ;
 	        sp += si ;
 	        sl -= si ;
 	    } /* end if (non-zero string) */
-	} /* end if */
+	} /* end if (siskipwhite) */
 
 #if	CF_DEBUGS
 	debugprintf("tmz_stdtrailing: ret rs=%d si=%u\n",rs,si) ;
@@ -1099,32 +1011,77 @@ static int tmz_stdtrailing(TMZ *op,cchar *sp,int sl)
 /* end subroutine (tmz_stdtrailing) */
 
 
-static int tmz_getzname(TMZ *op,cchar *sp,int sl)
+/* parse out> dd */
+static int tmz_getday(TMZ *op,cchar *sp,int sl)
 {
-	const int	znl = TMZ_ZNAMESIZE ;
 	int		rs = SR_OK ;
 	int		si = 0 ;
 	int		cl ;
 	cchar		*cp ;
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    int	f = FALSE ;
-	    f = f || isalphalatin(MKCHAR(*cp)) ;
-	    if (f) {
-	        rs = strnwcpy(op->zname,znl,cp,cl)  - op->zname ;
+	    const int	tch = MKCHAR(*cp) ;
+	    if (isdigitlatin(tch)) {
+	        int		v ;
+	        rs = cfdeci(cp,cl,&v) ;
+	        op->st.tm_mday = v ;
 	        si += ((cp+cl)-sp) ;
 	        sp += si ;
 	        sl -= si ;
+	    } else {
+	        rs = SR_INVALID ;
 	    }
-	} /* end if (nextfield) */
-
-#if	CF_DEBUGS
-	debugprintf("tmz_getzname: ret rs=%d si=%u\n",rs,si) ;
-#endif
+	} else {
+	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? si : rs ;
 }
-/* end subroutine (tmz_getzname) */
+/* end subroutine (tmz_getday) */
+
+
+/* parse out> [DDD] MMM */
+static int tmz_getmonth(TMZ *op,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		si = 0 ;
+	int		cl ;
+	cchar		*cp ;
+
+	if ((cl = nextfield(sp,sl,&cp)) > 0) {
+	    const int	tch = MKCHAR(*cp) ;
+	    if (isalphalatin(tch)) {
+	        int	ml = cl ;
+	        cchar	*mp = cp ;
+	        si += ((cp+cl)-sp) ;
+	        sp += si ;
+	        sl -= si ;
+	        if ((cl = nextfield(sp,sl,&cp)) > 0) {
+	            const int	tch = MKCHAR(*cp) ;
+	            if (isalphalatin(tch)) {
+	                rs = tmstrsday(mp,ml) ;
+	                op->st.tm_wday = rs ;
+	                mp = cp ;
+	                ml = cl ;
+	                si += ((cp+cl)-sp) ;
+	                sp += si ;
+	                sl -= si ;
+	            }
+	        }
+	        if (rs >= 0) {
+	            rs = tmstrsmonth(mp,ml) ;
+	            op->st.tm_mon = rs ;
+	        }
+	    } else {
+	        rs = SR_INVALID ;
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
+
+	return (rs >= 0) ? si : rs ;
+}
+/* end subroutine (tmz_getmonth) */
 
 
 static int tmz_getyear(TMZ *op,cchar *sp,int sl)
@@ -1188,6 +1145,65 @@ static int tmz_getzoff(TMZ *op,cchar *sp,int sl)
 	return (rs >= 0) ? si : rs ;
 }
 /* end subroutine (tmz_getzoff) */
+
+
+static int tmz_getzname(TMZ *op,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		si = 0 ;
+	int		cl ;
+	cchar		*cp ;
+
+#if	CF_DEBUGS
+	debugprintf("tmz_getzname: ent s=>%t<\n",sp,sl) ;
+#endif
+
+	if ((cl = nextfield(sp,sl,&cp)) > 0) {
+	    int	f = FALSE ;
+	    f = f || isalphalatin(MKCHAR(*cp)) ;
+	    if (f) {
+	        const int	znl = TMZ_ZNAMESIZE ;
+	        rs = strnwcpy(op->zname,znl,cp,cl)  - op->zname ;
+	        si += ((cp+cl)-sp) ;
+	        sp += si ;
+	        sl -= si ;
+	    }
+	} /* end if (nextfield) */
+
+#if	CF_DEBUGS
+	debugprintf("tmz_getzname: ret zn=%t\n",op->zname,TMZ_ZNAMESIZE) ;
+	debugprintf("tmz_getzname: ret rs=%d si=%u\n",rs,si) ;
+#endif
+
+	return (rs >= 0) ? si : rs ;
+}
+/* end subroutine (tmz_getzname) */
+
+
+static int tmz_yearadj(TMZ *op,int cc)
+{
+	struct tm	*stp = &op->st ;
+#if	CF_DEBUGS
+	debugprintf("tmz_yearadj: ent year=%d\n",stp->tm_year) ;
+	debugprintf("tmz_yearadj: cc=%d\n",cc) ;
+#endif
+	if (stp->tm_year >= 0) {
+	    op->f.year = TRUE ;
+	    if (cc >= 0) {
+	        const int yy = ((cc*NYEARS_CENTURY)-TM_YEAR_BASE) ;
+	        stp->tm_year += yy ;
+	    } else {
+	        if ((stp->tm_year >= 0) && (stp->tm_year <= 38)) {
+	            stp->tm_year += NYEARS_CENTURY ;
+	        }
+	    }
+	} /* end if (had a year) */
+#if	CF_DEBUGS
+	debugprintf("tmz_yearadj: ret year=%d\n",stp->tm_year) ;
+#endif
+	return SR_OK ;
+}
+/* end subroutine (tmz_yearadj) */
 
 
 #if	defined(CF_MULTIZONE) && (CF_MULTIZONE == 0)
@@ -1281,8 +1297,9 @@ static int getzoff(int *zop,cchar *sp,int sl)
 	    if (zop != NULL)
 	        *zop = zoff ;
 
-	    if (rs >= 0)
+	    if (rs >= 0) {
 	        rs = (cp - sp) ;
+	    }
 
 	} /* end if (getting timezone offset) */
 
@@ -1297,12 +1314,33 @@ static int getzoff(int *zop,cchar *sp,int sl)
 
 static int val(cchar *sp)
 {
-	int		v ;
-	v = (10 * (*sp++ - '0')) ;
-	v += (*sp - '0') ;
+	int		v = 0 ;
+	v += (10 * (sp[0] - '0')) ;
+	v += ( 1 * (sp[1] - '0')) ;
 	return v ;
 }
 /* end subroutine (val) */
+
+
+static int silogend(cchar *sp,int sl)
+{
+	int		i = 0 ;
+	int		f = FALSE ;
+#if	CF_DEBUGS
+	debugprintf("tmz/silogend: ent s=>%t<\n",sp,sl) ;
+#endif
+	for (i = 0 ; sl-- && *sp ; i += 1) {
+	    int	ch = MKCHAR(sp[i]) ;
+	    f = f || (ch == '_') ;
+	    f = f || isalphalatin(ch) ;
+	    if (f) break ;
+	} /* end while */
+#if	CF_DEBUGS
+	debugprintf("tmz/silogend: ret i=%d\n",i) ;
+#endif
+	return i ;
+}
+/* end subroutine (silogend) */
 
 
 static int isplusminus(int ch)

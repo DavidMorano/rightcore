@@ -79,19 +79,26 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecmfi(const char *,int,int *) ;
 extern int	cfdecmfu(const char *,int,uint *) ;
 extern int	cfdecti(const char *,int,int *) ;
-extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
+extern int	permsched(cchar **,vecstr *,char *,int,cchar *,int) ;
+extern int	prsetfname(cchar *,char *,cchar *,int,int,
+			cchar *,cchar *,cchar *) ;
+extern int	isNotPresent(int) ;
 
 extern int	securefile(const char *,uid_t,gid_t) ;
+
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugopen(const char *) ;
+extern int	debugprintf(const char *,...) ;
+extern int	debugclose() ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
 
 extern char	*strwcpy(char *,const char *,int) ;
 
 
 /* forward references */
 
-int		progconfigread(struct proginfo *) ;
-
-static int	setfname(struct proginfo *,char *,const char *,int,int,
-			const char *,const char *,const char *) ;
+int		progconfigread(PROGINFO *) ;
 
 
 /* local variables */
@@ -132,27 +139,18 @@ enum configopts {
 /* exported subroutines */
 
 
-int progconfigbegin(pip,sched,configfname)
-struct proginfo	*pip ;
-const char	*sched[] ;
-const char	configfname[] ;
+int progconfigbegin(PROGINFO *pip)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	f_secreq ;
+	const int	tlen = MAXPATHLEN ;
+	int		rs = SR_OK ;
+	cchar		*cfn = pip->cfname ;
+	cchar		**schedp = schedpconf ;
+	char		tbuf[MAXPATHLEN + 1] ;
 
-	const char	**schedp ;
-
-	char	tmpfname[MAXPATHLEN + 1] ;
-
-
-	if (configfname == NULL)
-	    return SR_FAULT ;
-
-/* look for configuration file */
-
-	f_secreq = (! pip->f.proglocal) ;
-	schedp = (sched != NULL) ? sched : schedpconf ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("proconfigbegin: ent cfn=%s\n",pip->cfname) ;
+#endif
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
@@ -163,92 +161,44 @@ const char	configfname[] ;
 	}
 #endif /* CF_DEBUG */
 
-	rs1 = SR_NOENT ;
-	tmpfname[0] = '\0' ;
-	if (strchr(configfname,'/') == NULL) {
+	tbuf[0] = '\0' ;
+	if (cfn == NULL) {
+	    const int	am = R_OK ;
+	    cchar	**vpp = &pip->cfname ;
+	    cchar	*def = CONFIGFNAME ;
 
-	    f_secreq = FALSE ;
-	    rs1 = permsched(schedp,&pip->svars,
-	        tmpfname,MAXPATHLEN, configfname,R_OK) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4)) {
-	        debugprintf("progconfigbegin: permsched() rs=%d \n",rs1) ;
-	        debugprintf("progconfigbegin: tmpfname=%s\n", tmpfname) ;
+	    if ((rs = permsched(schedp,&pip->svars,tbuf,tlen,def,am)) >= 0) {
+	        rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
+		cfn = pip->cfname ;
+	    } else if (isNotPresent(rs)) {
+		rs = SR_OK ;
 	    }
-#endif
 
-	    if (rs1 == 0)
-	        rs = mkpath1(tmpfname,configfname) ;
-
-	} else {
-	    rs1 = SR_OK ;
-	    if (configfname[0] == '/') {
-	        rs = mkpath1(tmpfname,configfname) ;
-	    } else
-	        rs = mkpath2(tmpfname,pip->pr,configfname) ;
-	}
+	} /* end if (null) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progconfigbegin: mid rs=%d\n",rs) ;
+	    debugprintf("progconfigbegin: mid1 rs=%d\n",rs) ;
 #endif
 
-	if (rs < 0)
-	    goto bad1 ;
+	if ((rs >= 0) && (cfn != NULL)) {
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progconfigbegin: configfname=%s\n",tmpfname) ;
+	    debugprintf("progconfigbegin: cfn=%s\n",cfn) ;
 #endif
 
-	if ((rs1 >= 0) && (tmpfname[0] != '\0')) {
-
-	    rs = proginfo_setentry(pip,&pip->configfname,tmpfname,-1) ;
-
-	    if (rs >= 0) {
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(4)) {
-	            debugprintf("progconfigbegin: paramfile_open() rs=%d\n",
-			rs) ;
-	            debugprintf("progconfigbegin: f=%s\n",tmpfname) ;
-	        }
-#endif
-
-	        rs1 = paramfile_open(&pip->params,pip->envv, tmpfname) ;
-	        pip->open.params = (rs1 >= 0) ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("progconfigbegin: paramfile_open() rs=%d\n",
-			rs1) ;
-#endif
-
-	    } /* end if */
-
-	} /* end if */
-
-	if (rs >= 0) {
-	    pip->f.secure_conf = pip->f.secure_root ;
-	    if (f_secreq || (! pip->f.secure_conf)) {
-
-	        rs1 = securefile(pip->configfname,pip->euid,pip->egid) ;
-	        pip->f.secure_conf = (rs1 > 0) ;
-
+	    if ((rs = paramfile_open(&pip->params,pip->envv,cfn)) >= 0) {
+	        pip->open.params = TRUE ;
+	        if ((rs = progconfigread(pip)) >= 0) {
+	            pip->f.pc = TRUE ;
+		}
+		if (rs < 0) {
+	    	    pip->open.params = FALSE ;
+	    	    paramfile_close(&pip->params) ;
+		}
 	    }
 	}
-
-	if (rs >= 0)
-	    pip->f.pc = TRUE ;
-
-	if ((rs >= 0) && pip->open.params)
-	    rs = progconfigread(pip) ;
-
-	if (rs < 0)
-	    goto bad4 ;
-
-ret0:
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -256,41 +206,21 @@ ret0:
 #endif
 
 	return rs ;
-
-/* bad stuff */
-bad4:
-bad3:
-bad2:
-	if (pip->open.params) {
-	    pip->open.params = FALSE ;
-	    paramfile_close(&pip->params) ;
-	}
-
-bad1:
-	pip->f.pc = FALSE ;
-	pip->open.params = FALSE ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (progconfigbegin) */
 
 
-int progconfigcheck(pip)
-struct proginfo	*pip ;
+int progconfigcheck(PROGINFO *pip)
 {
-	int	rs = SR_OK ;
-	int	f = FALSE ;
-
+	int		rs = SR_OK ;
+	int		f = FALSE ;
 
 	if (pip->f.pc && pip->open.params) {
-
-	    rs = paramfile_check(&pip->params,pip->daytime) ;
-	    if (rs > 0) {
+	    PARAMFILE	*pfp = &pip->params ;
+	    if ((rs = paramfile_check(pfp,pip->daytime)) > 0) {
 	        f = TRUE ;
 	        rs = progconfigread(pip) ;
 	    }
-
 	} /* end if */
 
 	return (rs >= 0) ? f : rs ;
@@ -298,10 +228,9 @@ struct proginfo	*pip ;
 /* end subroutine (progconfigcheck) */
 
 
-int progconfigend(pip)
-struct proginfo	*pip ;
+int progconfigend(PROGINFO *pip)
 {
-	int	rs = SR_NOTOPEN ;
+	int		rs = SR_NOTOPEN ;
 
 	if (pip->f.pc) {
 	    rs = SR_OK ;
@@ -316,29 +245,24 @@ struct proginfo	*pip ;
 /* end subroutine (progconfigend) */
 
 
-int progconfigread(pip)
-struct proginfo	*pip ;
+int progconfigread(PROGINFO *pip)
 {
 	PARAMFILE_CUR	cur ;
-
-	PARAMFILE_ENT		pe ;
-
-	int	rs = SR_OK ;
-	int	rs1 = 0 ;
-	int	oi ;
-	int	kl ;
-	int	vl ;
-	int	elen ;
-	int	tl ;
-	int	v ;
-	int	f ;
-
+	PARAMFILE_ENT	pe ;
+	int		rs = SR_OK ;
+	int		rs1 = 0 ;
+	int		oi ;
+	int		kl ;
+	int		vl ;
+	int		elen ;
+	int		tl ;
+	int		v ;
+	int		f ;
 	const char	*kp, *vp ;
-
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	pbuf[PBUFLEN + 1] ;
-	char	ebuf[EBUFLEN + 1] ;
-
+	cchar		*pr = pip->pr ;
+	char		tbuf[MAXPATHLEN + 1] ;
+	char		pbuf[PBUFLEN + 1] ;
+	char		ebuf[EBUFLEN + 1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -367,8 +291,7 @@ struct proginfo	*pip ;
 	            kl) ;
 #endif
 
-	    if (kl <= 0)
-	        break ;
+	    if (kl <= 0) break ;
 
 	    kp = pe.key ;
 	    vp = pe.value ;
@@ -380,30 +303,21 @@ struct proginfo	*pip ;
 #endif
 
 	    oi = matpstr(configopts,2,kp,kl) ;
-
 	    if (oi < 0) continue ;
 
 	    ebuf[0] = '\0' ;
 	    elen = 0 ;
 	    if (vl > 0) {
-
 	        elen = expcook_exp(&pip->cooks,0,ebuf,EBUFLEN,vp,vl) ;
-
-	        if (elen >= 0)
-	            ebuf[elen] = '\0' ;
-
+	        if (elen >= 0) ebuf[elen] = '\0' ;
 	    } /* end if */
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4)) {
+	    if (DEBUGLEVEL(4))
 	        debugprintf("progconfigread: ebuf=>%t<\n",ebuf,elen) ;
-	        debugprintf("progconfigread: switch=%s(%u)\n",
-	            configopts[i],i) ;
-	    }
 #endif
 
-	    if (elen < 0)
-	        continue ;
+	    if (elen < 0) continue ;
 
 	    switch (oi) {
 
@@ -481,15 +395,15 @@ struct proginfo	*pip ;
 
 	            pip->have.sumfile = TRUE ;
 	            mkpath2(dname,VARDNAME,pip->searchname) ;
-	            tl = setfname(pip,tmpfname,ebuf,elen,TRUE,
+	            tl = prsetfname(pr,tbuf,ebuf,elen,TRUE,
 	                dname,pip->nodename,SUMFEXT) ;
 
 	            f = (pip->sumfname == NULL) ;
-	            f = f || (strcmp(pip->sumfname,tmpfname) != 0) ;
+	            f = f || (strcmp(pip->sumfname,tbuf) != 0) ;
 	            if (f) {
 	                pip->changed.sumfile = TRUE ;
 	                rs = proginfo_setentry(pip,&pip->sumfname,
-	                    tmpfname,tl) ;
+	                    tbuf,tl) ;
 	            }
 
 	        }
@@ -500,15 +414,15 @@ struct proginfo	*pip ;
 	        if (! pip->final.pidfile) {
 
 	            pip->have.pidfile = TRUE ;
-	            tl = setfname(pip,tmpfname,ebuf,elen,TRUE,
+	            tl = prsetfname(pr,tbuf,ebuf,elen,TRUE,
 	                RUNDNAME,pip->nodename,pip->searchname) ;
 
-	            f = (pip->pidfname == NULL) ;
-	            f = f || (strcmp(pip->pidfname,tmpfname) != 0) ;
+	            f = (pip->pfname == NULL) ;
+	            f = f || (strcmp(pip->pfname,tbuf) != 0) ;
 	            if (f) {
+			cchar	**vpp = &pip->pfname ;
 	                pip->changed.pidfile = TRUE ;
-	                rs = proginfo_setentry(pip,&pip->pidfname,
-	                    tmpfname,tl) ;
+	                rs = proginfo_setentry(pip,vpp,tbuf,tl) ;
 	            }
 
 	        }
@@ -519,15 +433,15 @@ struct proginfo	*pip ;
 	        if (! pip->final.logfile) {
 
 	            pip->have.logfile = TRUE ;
-	            tl = setfname(pip,tmpfname,ebuf,elen,TRUE,
+	            tl = prsetfname(pr,tbuf,ebuf,elen,TRUE,
 	                LOGDNAME,pip->searchname,"") ;
 
-	            f = (pip->logfname == NULL) ;
-	            f = f || (strcmp(pip->logfname,tmpfname) != 0) ;
+	            f = (pip->lfname == NULL) ;
+	            f = f || (strcmp(pip->lfname,tbuf) != 0) ;
 	            if (f) {
+			cchar	**vpp = &pip->lfname ;
 	                pip->changed.logfile = TRUE ;
-	                rs = proginfo_setentry(pip,&pip->logfname,
-	                    tmpfname,tl) ;
+	                rs = proginfo_setentry(pip,vpp,tbuf,tl) ;
 	            }
 
 	        }
@@ -551,74 +465,5 @@ ret0:
 
 
 /* local subroutines */
-
-
-/* calculate a file name */
-static int setfname(pip,fname,ebuf,el,f_def,dname,name,suf)
-struct proginfo	*pip ;
-char		fname[] ;
-const char	ebuf[] ;
-const char	dname[], name[], suf[] ;
-int		el ;
-int		f_def ;
-{
-	int	rs = 0 ;
-	int	ml ;
-
-	char	tmpname[MAXNAMELEN + 1], *np ;
-
-
-	if ((f_def && (ebuf[0] == '\0')) ||
-	    (strcmp(ebuf,"+") == 0)) {
-
-	    np = (char *) name ;
-	    if ((suf != NULL) && (suf[0] != '\0')) {
-
-	        np = (char *) tmpname ;
-	        mkfnamesuf1(tmpname,name,suf) ;
-
-	    }
-
-	    if (np[0] != '/') {
-	        if ((dname != NULL) && (dname[0] != '\0')) {
-	            rs = mkpath3(fname,pip->pr,dname,np) ;
-	        } else
-	            rs = mkpath2(fname, pip->pr,np) ;
-	    } else
-	        rs = mkpath1(fname, np) ;
-
-	} else if (strcmp(ebuf,"-") == 0) {
-
-	    fname[0] = '\0' ;
-
-	} else if (ebuf[0] != '\0') {
-
-	    np = (char *) ebuf ;
-	    if (el >= 0) {
-	        np = tmpname ;
-	        ml = MIN(MAXPATHLEN,el) ;
-	        strwcpy(tmpname,ebuf,ml) ;
-	    }
-
-	    if (ebuf[0] != '/') {
-
-	        if (strchr(np,'/') != NULL) {
-	            rs = mkpath2(fname,pip->pr,np) ;
-	        } else {
-	            if ((dname != NULL) && (dname[0] != '\0')) {
-	                rs = mkpath3(fname,pip->pr,dname,np) ;
-	            } else
-	                rs = mkpath2(fname,pip->pr,np) ;
-	        }
-
-	    } else
-	        rs = mkpath1(fname,np) ;
-
-	} /* end if */
-
-	return rs ;
-}
-/* end subroutine (setfname) */
-
 
 

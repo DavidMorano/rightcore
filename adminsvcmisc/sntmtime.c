@@ -101,6 +101,7 @@
 
 #include	<sys/types.h>
 #include	<limits.h>
+#include	<stdlib.h>		/* for |abs(3c)| */
 #include	<string.h>
 #include	<tzfile.h>		/* for TM_YEAR_BASE */
 

@@ -225,8 +225,6 @@ int mailbox_open(MAILBOX *mbp,cchar *mbfname,int mflags)
 {
 	struct ustat	sb ;
 	int		rs ;
-	int		size ;
-	int		opts ;
 	int		oflags ;
 	int		nmsgs = 0 ;
 	const char	*cp ;
@@ -247,7 +245,7 @@ int mailbox_open(MAILBOX *mbp,cchar *mbfname,int mflags)
 
 	mbp->f.readonly = (! (mflags & MAILBOX_ORDWR)) ;
 	mbp->f.useclen = (! (mflags & MAILBOX_ONOCLEN)) ;
-	mbp->f.useclines = (mflags & MAILBOX_OUSECLINES) ? 1 : 0 ;
+	mbp->f.useclines = MKBOOL(mflags & MAILBOX_OUSECLINES) ;
 
 #if	CF_DEBUGS
 	debugprintf("mailbox_open: ent mbfname=%s\n",mbfname) ;
@@ -267,11 +265,11 @@ int mailbox_open(MAILBOX *mbp,cchar *mbfname,int mflags)
 	            mbp->ti_mod = sb.st_mtime ;
 	            mbp->ti_check = time(NULL) ;
 	            if ((rs = uc_mallocstrw(mbfname,-1,&cp)) >= 0) {
+	                const int	es = sizeof(struct mailbox_msg) ;
+	                const int	vo = VECOBJ_OCOMPACT ;
 	                mbp->mailfname = cp ;
-	                size = sizeof(struct mailbox_msg) ;
 	                nmsgs = MAILBOX_DEFMSGS ;
-	                opts = VECOBJ_OCOMPACT ;
-	                if ((rs = vecobj_start(&mbp->msgs,size,10,opts)) >= 0) {
+	                if ((rs = vecobj_start(&mbp->msgs,es,10,vo)) >= 0) {
 	                    const int	to = mbp->to_lock ;
 	                    if ((rs = lockend(mbp->mfd,TRUE,1,to)) >= 0) {
 	                        offset_t	loff ;
@@ -834,19 +832,19 @@ static int mailbox_parsemsg(MAILBOX *mbp,LINER *lsp,int mi)
 	        ll,lp,debuglinelen(lp,ll,40)) ;
 #endif
 
-	    if ((ll > 5) && FMAT(lp) &&
+	    if ((rs >= 0) && (ll > 5) && FMAT(lp) &&
 	        ((rs = mailmsgmatenv(&me,lp,ll)) > 0)) {
 #if	CF_DEBUGS
 	        debugprintf("mailbox_parsemsg: MAT-ENV\n") ;
 #endif
 	        f_env = TRUE ;
-	    } else if ((ll > 2) &&
+	    } else if ((rs >= 0) && (ll > 2) &&
 	        ((rs = mailmsgmathdr(lp,ll,&vi)) > 0)) {
 #if	CF_DEBUGS
 	        debugprintf("mailbox_parsemsg: MAT-HDR\n") ;
 #endif
 	        f_hdr = TRUE ;
-	    } else if ((ll <= 2) && (mi == 0)) {
+	    } else if ((rs >= 0) && (ll <= 2) && (mi == 0)) {
 	        if ((lp[0] == '\n') || hasEOH(lp,ll)) {
 #if	CF_DEBUGS
 	            debugprintf("mailbox_parsemsg: MAT-EOH\n") ;
@@ -1132,7 +1130,7 @@ static int mailbox_parsemsg(MAILBOX *mbp,LINER *lsp,int mi)
 	            msgp->mlen = (lsp->poff - msgp->moff) ;
 	        } /* end if (mlen) */
 
-	    } /* end if */
+	    } /* end if (ok) */
 
 	} /* end if */
 
@@ -1170,8 +1168,9 @@ static int mailbox_parsemsg(MAILBOX *mbp,LINER *lsp,int mi)
 	    if (rs >= 0) f_msg = FALSE ;
 	} /* end if (insertion) */
 
-	if (f_msg)
+	if (f_msg) {
 	    msginfo_finish(msgp) ;
+	}
 
 ret0:
 
@@ -1674,10 +1673,7 @@ int		len ;
 /* end subroutine (filebuf_writefd) */
 
 
-static int filebuf_writehdr(fbp,sp,sl)
-FILEBUF		*fbp ;
-const char	*sp ;
-int		sl ;
+static int filebuf_writehdr(FILEBUF *fbp,cchar *sp,int sl)
 {
 	const int	ln = 0 ;
 	int		rs = SR_OK ;

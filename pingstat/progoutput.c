@@ -87,8 +87,8 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	bopenroot(bfile *,char *,char *,char *,char *,int) ;
 
-extern int	progpingtabadd(struct proginfo *,const char *,int) ;
-extern int	proghost(struct proginfo *,const char *,int,int) ;
+extern int	progpingtabadd(PROGINFO *,const char *,int) ;
+extern int	proghost(PROGINFO *,const char *,int,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -111,16 +111,16 @@ extern char	*timestr_log(time_t,char *) ;
 
 /* forward references */
 
-static int	procout_begin(struct proginfo *,bfile *,const char *) ;
-static int	procout_end(struct proginfo *) ;
+static int	procout_begin(PROGINFO *,bfile *,const char *) ;
+static int	procout_end(PROGINFO *) ;
 
-static int	procdefpingtab(struct proginfo *) ;
-static int	loadpingtabs(struct proginfo *,VECHAND *) ;
-static int	loadhost(struct proginfo *,VECHAND *,
+static int	procdefpingtab(PROGINFO *) ;
+static int	loadpingtabs(PROGINFO *,VECHAND *) ;
+static int	loadhost(PROGINFO *,VECHAND *,
 			const char *,int,int,int) ;
-static int	prochostsfins(struct proginfo *,VECHAND *) ;
-static int	mungepingtab(struct proginfo *,const char *,char *) ;
-static int	prochosts(struct proginfo *,VECHAND *) ;
+static int	prochostsfins(PROGINFO *,VECHAND *) ;
+static int	mungepingtab(PROGINFO *,const char *,char *) ;
+static int	prochosts(PROGINFO *,VECHAND *) ;
 
 
 /* local variables */
@@ -129,10 +129,7 @@ static int	prochosts(struct proginfo *,VECHAND *) ;
 /* exported subroutines */
 
 
-int progoutput(pip,aip,bop)
-struct proginfo	*pip ;
-struct arginfo	*aip ;
-BITS		*bop ;
+int progoutput(PROGINFO *pip,ARGINFO *aip,BITS *bop)
 {
 	bfile		ofile ;
 	const int	defintmin = pip->defintminping ;
@@ -325,10 +322,7 @@ BITS		*bop ;
 /* local subroutines */
 
 
-static int procout_begin(pip,ofp,ofname)
-struct proginfo	*pip ;
-bfile		*ofp ;
-const char	*ofname ;
+static int procout_begin(PROGINFO *pip,bfile *ofp,cchar *ofname)
 {
 	int	rs = SR_OK ;
 	pip->ofp = NULL ;
@@ -342,8 +336,7 @@ const char	*ofname ;
 /* end subroutine (procout_begin) */
 
 
-static int procout_end(pip)
-struct proginfo	*pip ;
+static int procout_end(PROGINFO *pip)
 {
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -357,13 +350,10 @@ struct proginfo	*pip ;
 /* end subroutine (procout_end) */
 
 
-static int procdefpingtab(pip)
-struct proginfo	*pip ;
+static int procdefpingtab(PROGINFO *pip)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*dn = DEFPTFNAME ;
-
 
 	rs = progpingtabadd(pip,dn,-1) ;
 
@@ -373,17 +363,13 @@ struct proginfo	*pip ;
 
 
 /* process all of the ping-hosts */
-static int prochosts(pip,phlp)
-struct proginfo	*pip ;
-VECHAND		*phlp ;
+static int prochosts(PROGINFO *pip,VECHAND *phlp)
 {
 	PINGHOST	*php ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-	int	f = TRUE ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	int		f = TRUE ;
 
 	for (i = 0 ; vechand_get(phlp,i,&php) >= 0 ; i += 1) {
 	    if (php == NULL) continue ;
@@ -436,9 +422,7 @@ VECHAND		*phlp ;
 
 
 /* free up all of the ping-hosts */
-static int prochostsfins(pip,phlp)
-struct proginfo	*pip ;
-VECHAND		*phlp ;
+static int prochostsfins(PROGINFO *pip,VECHAND *phlp)
 {
 	PINGHOST	*php ;
 	int		rs = SR_OK ;
@@ -463,9 +447,7 @@ VECHAND		*phlp ;
 
 
 /* load the ping-hosts from a pingtab file */
-static int loadpingtabs(pip,phlp)
-struct proginfo	*pip ;
-VECHAND		*phlp ;
+static int loadpingtabs(PROGINFO *pip,VECHAND *phlp)
 {
 	VECSTR		*ptp = &pip->pingtabs ;
 	PINGTAB		pt ;
@@ -565,7 +547,7 @@ VECHAND		*phlp ;
 
 /* load a single ping-host */
 static int loadhost(pip,phlp,hp,hl,min,to)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 VECHAND		*phlp ;
 const char	hp[] ;
 int		hl ;
@@ -601,10 +583,7 @@ int		to ;
 
 
 /* munge up the pingtab file names */
-static int mungepingtab(pip,ptfname,tmpfname)
-struct proginfo	*pip ;
-const char	ptfname[] ;
-char		tmpfname[] ;
+static int mungepingtab(PROGINFO *pip,cchar *ptfname,char *tmpfname)
 {
 	struct ustat	sb ;
 	int		rs = SR_OK ;

@@ -53,7 +53,7 @@ struct pcsclient_head {
 	char		*mapdata ;
 	uint		*shmtable ;
 	PCSCLIENT_FL	f ;
-	time_t		daytime ;
+	time_t		dt ;
 	time_t		ti_shm ;		/* DB file modification */
 	time_t		ti_map ;		/* DB map */
 	time_t		ti_lastcheck ;		/* last check of file */

@@ -15,9 +15,7 @@
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	This subroutine was written for Rightcore Network Services.
-
 
 */
 
@@ -69,10 +67,13 @@
 
 /* external subroutines */
 
+extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matpstr(const char **,int,const char *,int) ;
 extern int	matpcasestr(const char **,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
+
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -103,6 +104,10 @@ extern long	altzone ;
 
 
 /* forward references */
+
+static int	process(PROGINFO *,DATER *,cchar *) ;
+static int	procin(PROGINFO *,DATER *,bfile *) ;
+static int	procline(PROGINFO *,DATER *,bfile *,cchar *,int) ;
 
 #if	CF_DUMPZINFO
 static int	dumpzinfo(DATER *,const char *) ;
@@ -146,23 +151,16 @@ enum types {
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int main(int argc,cchar **argv,cchar **envv)
 {
-	bfile		infile, *ifp = &infile ;
-	bfile		outfile, *ofp = &outfile ;
+	PROGINFO	pi, *pip = &pi ;
 	DATER		d ;
-	FIELD		fsb ;
-	time_t		daytime = time(NULL) ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		i ;
-	int		len, sl ;
-	int		itype ;
 	int		ex = EX_INFO ;
+	cchar		*ofn = NULL ;
 	const char	*cp ;
-	char		linebuf[LINEBUFLEN + 1] ;
-	char		lineout[LINEBUFLEN + 1] ;
-	char		timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -171,18 +169,32 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 #endif /* CF_DEBUGS */
 
-	daytime = time(NULL) ;
+	rs = proginfo_start(pip,envv,argv[0],VERSION) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto badprogstart ;
+	}
+
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
+
+/* initialize */
+
+	pip->verboselevel = 1 ;
+	pip->intpoll = -1 ;
+	pip->daytime = time(NULL) ;
 
 /* test 'sntmtime(3dam)' */
 
 #if	CF_TESTSNTMTIME
 	if (isatty(fd_stdout)) {
 	    TMTIME	tmt ;
-	    if ((rs = tmtime_localtime(&tmt,daytime)) >= 0) {
+	    if ((rs = tmtime_localtime(&tmt,pip->daytime)) >= 0) {
+		char	tbuf[TIMEBUFLEN+1] ;
 	        fmt = "%a %b %d %H%:%M%:%S %Z %Y %O %n" ;
-	        if ((rs = sntmtime(timebuf,TIMEBUFLEN,&tmt,fmt)) >= 0) {
+	        if ((rs = sntmtime(tbuf,TIMEBUFLEN,&tmt,fmt)) >= 0) {
 	            len = rs ;
-	            rs = uc_writen(fd_stdout,timebuf,len) ;
+	            rs = uc_writen(fd_stdout,tbuf,len) ;
 		}
 	    }
 	}
@@ -203,8 +215,8 @@ int main(int argc,cchar **argv,cchar **envv)
 
 #if	CF_FTIME
 	{
-		struct timeb	b ;
-		uc_ftime(&b) ;
+	    struct timeb	b ;
+	    uc_ftime(&b) ;
 #if	CF_DEBUGS
 	    debugprintf("main: uc_ftime() dstflag=%d timezone=%d\n",
 		b.dstflag,b.timezone) ;
@@ -212,41 +224,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 #endif /* CF_FTIME */
 
-	if (rs < 0) {	
-	    ex = EX_DATAERR ;
-	    goto ret0 ;
-	}
-
 /* other */
 
-	rs = bopen(ofp,BFILE_STDOUT,"dwct",0666) ;
-	if (rs < 0) {
-	    ex = EX_CANTCREAT ;
-	    goto ret0 ;
-	}
-
-	rs = bopen(ifp,BFILE_STDIN,"dr",0666) ;
-	if (rs < 0) {
-	    ex = EX_NOINPUT ;
-	    goto ret1 ;
-	}
-
-	bprintf(ofp,"DATER object test program\n") ;
-
 #ifdef	COMMENT
-	bprintf(ofp,"daytime=%ld\n",daytime) ;
-#endif
-
-	bprintf(ofp,"current time=%s\n",
-	    timestr_logz(daytime,timebuf)) ;
-
-/* initial stuff */
-
-#if	CF_INITNULL
-
-	rs1 = dater_start(&d,NULL,NULL,0) ;
-
-#else /* CF_INITNULL */
 
 /* get the current time-of-day */
 
@@ -269,8 +249,10 @@ int main(int argc,cchar **argv,cchar **envv)
 
 #endif /* CF_INITNULL */
 
+	if ((rs = dater_start(&d,NULL,NULL,0)) >= 0) {
+
 #if	CF_DEBUGS
-	debugprintf("main: dater_start() rs=%d\n",rs1) ;
+	debugprintf("main: dater_start() rs=%d\n",rs) ;
 #endif
 
 #if	CF_NZONES
@@ -282,7 +264,6 @@ int main(int argc,cchar **argv,cchar **envv)
 
 #if	CF_DUMPZINFO
 	dumpzinfo(&d,ZINFOFNAME) ;
-	bprintf(ofp,"dater_nzones=%d\n",n) ;
 #endif
 
 /* loop stuff */
@@ -291,50 +272,135 @@ int main(int argc,cchar **argv,cchar **envv)
 	debugprintf("main: loop-about\n") ;
 #endif
 
-	len = 1 ;
-	while (rs >= 0) {
-	    int		dlen ;
-	    int		fl ;
-	    const char	*dp ;
-	    const char	*fp ;
+	    rs = process(pip,&d,ofn) ;
 
-	    if (len > 0) {
+	    rs1 = dater_finish(&d) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (dater) */
 
-	        bprintf(ofp,"date types:\n") ;
-
-	        for (i = 0 ; i < type_overlast ; i += 1)
-	            bprintf(ofp,"\t%d\t%s\n",i,types[i]) ;
-
-	        bprintf(ofp,
-	            "enter type and dater_string> ") ;
-
-	    }
-
-#ifdef	OPTIONAL
-	    bflush(ofp) ;
+#if	CF_DEBUGS
+	debugprintf("main: dater-out rs=%d\n",rs) ;
 #endif
 
-	    rs = breadline(ifp,linebuf,LINEBUFLEN) ;
+/* done */
+
+	proginfo_finish(pip) ;
+
+badprogstart:
+
+#if	(CF_DEBUGS || CF_DEBUG)
+	debugclose() ;
+#endif
+
+	return ex ;
+}
+/* end subroutine (main) */
+
+
+/* local subroutines */
+
+
+static int process(PROGINFO *pip,DATER *dp,cchar *ofn)
+{
+	bfile		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+
+	if ((ofn == NULL) || (ofn[0] == '\0')) ofn = BFILE_STDOUT ;
+
+	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
+	    char	tbuf[TIMEBUFLEN+1] ;
+
+	bprintf(ofp,"DATER object test program\n") ;
+
+#ifdef	COMMENT
+	bprintf(ofp,"daytime=%ld\n",pip->daytime) ;
+#endif
+
+	bprintf(ofp,"current time=%s\n",
+	    timestr_logz(pip->daytime,tbuf)) ;
+
+/* initial stuff */
+
+	    rs = procin(pip,dp,ofp) ;
+	    wlen = rs ;
+
+	    rs1 = bclose(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile-output) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (process) */
+
+
+static int procin(PROGINFO *pip,DATER *dp,bfile *ofp)
+{
+	bfile		ifile, *ifp = &ifile ;
+	int		rs ;
+	int		rs1 ;
+	cchar		*ifn = BFILE_STDIN ;
+	cchar		*fmt ;
+
+	if ((rs = bopen(ifp,ifn,"r",0666)) >= 0) {
+	    const int	llen = LINEBUFLEN ;
+	    int		len ;
+	    int		i ;
+	    int		cl ;
+	    cchar	*cp ;
+	    char	lbuf[LINEBUFLEN+1] ;
+
+	while (rs >= 0) {
+
+	        bprintf(ofp,"date types:\n") ;
+	        for (i = 0 ; i < type_overlast ; i += 1) {
+	            bprintf(ofp,"\t%d\t%s\n",i,types[i]) ;
+		}
+		fmt = "enter type and dater_string> " ;
+	        bprintf(ofp,fmt) ;
+
+	    rs = breadline(ifp,lbuf,llen) ;
 	    len = rs ;
-	    if (rs <= 0)
-	        break ;
+	    if (rs <= 0) break ;
 
-	    if (linebuf[len - 1] == '\n')
-	        len -= 1 ;
+	    if (lbuf[len - 1] == '\n') len -= 1 ;
 
-	    linebuf[len] = '\0' ;
-	    cp = linebuf ;
-	    while (CHAR_ISWHITE(*cp)) {
-	        cp += 1 ;
-	        len -= 1 ;
+	    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+		if (cp[0] != '#') {
+		    rs = procline(pip,dp,ofp,lbuf,cl) ;
+		}
 	    }
-
-	    if (*cp == '\0')
-	        continue ;
 
 	    bprintf(ofp,"\n") ;
 
-	    if ((rs = field_start(&fsb,linebuf,len)) >= 0) {
+	} /* end while */
+
+	bprintf(ofp,"\n") ;
+
+	    rs1 = bclose(ifp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile-input) */
+
+	return rs ;
+}
+/* end subroutine (procin) */
+
+
+static int procline(PROGINFO *pip,DATER *dp,bfile *ofp,cchar *lbuf,int llen)
+{
+	FIELD		fsb ;
+	int		rs ;
+	int		rs1 ;
+
+	if (pip == NULL) return SR_FAULT ;
+	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
+	    int		itype = -1 ;
+	    int		rlen ;
+	    int		fl ;
+	    cchar	*fmt ;
+	    cchar	*fp ;
+	    cchar	*rbuf ;
 
 /* get the type */
 
@@ -361,93 +427,87 @@ int main(int argc,cchar **argv,cchar **envv)
 	                types[itype] : "X") ;
 #endif
 
-	        } else
+	        } else {
 	            itype = (fp[0] - '0') ;
+		}
 
 /* get the dater_string */
 
-	   	dlen = field_remaining(&fsb,&dp) ;
+	   	rlen = field_remaining(&fsb,&rbuf) ;
 
-	            while ((dlen > 0) && CHAR_ISWHITE(dp[dlen - 1]))
-	                dlen -= 1 ;
+	        while ((rlen > 0) && CHAR_ISWHITE(rbuf[rlen - 1])) {
+	                rlen -= 1 ;
+		}
 
-	        if (dlen > 0) {
+	        if (rlen > 0) {
 
 #ifdef	COMMENT
 	            bprintf(ofp,"input=>%t<\n",
-	                dp, ((dp[dlen - 1] == '\n') ? (dlen - 1) : dlen)) ;
+	                rbuf,((rbuf[rlen-1] == '\n') ? (rlen-1) : rlen)) ;
 #endif
 
 	            if ((itype >= 0) && (itype < type_overlast)) {
-
-	                bprintf(ofp,
-	                    "converting type=%d(%s)\n",
-	                    itype,types[itype]) ;
-
-	                bprintf(ofp,
-	                    "in=>%t<\n",
-	                    dp,dlen) ;
-
-	            } else
+			fmt = "converting type=%d(%s)\n" ;
+		        bprintf(ofp,fmt,itype,types[itype]) ;
+	                bprintf(ofp, "in=>%t<\n",rbuf,rlen) ;
+	            } else {
 	                bprintf(ofp,"unknown type=%d\n",itype) ;
+		    }
 
 	            switch (itype) {
-
 	            case type_std:
-	                rs1 = dater_setstd(&d,dp,dlen) ;
+	                rs1 = dater_setstd(dp,rbuf,rlen) ;
 	                break ;
-
 	            case type_msg:
-	                rs1 = dater_setmsg(&d,dp,dlen) ;
+	                rs1 = dater_setmsg(dp,rbuf,rlen) ;
 	                break ;
-
 	            case type_strdig:
-	                rs1 = dater_setstrdig(&d,dp,dlen) ;
+	                rs1 = dater_setstrdig(dp,rbuf,rlen) ;
 	                break ;
-
 	            case type_logz:
-	                rs1 = dater_setlogz(&d,dp,dlen) ;
+	                rs1 = dater_setlogz(dp,rbuf,rlen) ;
 	                break ;
-
 	            case type_toucht:
-	                rs1 = dater_settoucht(&d,dp,dlen) ;
+	                rs1 = dater_settoucht(dp,rbuf,rlen) ;
 	                break ;
-
 	            case type_day:
 	            default:
 	                rs = SR_NOTSUP ;
 	                bprintf(ofp,"unknown input type\n") ;
 			break ;
-
 	            } /* end switch */
 
 	            bprintf(ofp,"conversion result=%d\n",rs1) ;
 
 	            if (rs1 >= 0) {
+			const int	olen = LINEBUFLEN ;
+			int		i ;
+			int		sl ;
+			char		obuf[LINEBUFLEN+1] ;
+			char		tbuf[TIMEBUFLEN+1] ;
 
 	                bprintf(ofp,"f_zoff=%u zoff=%dm (west of GMT)\n",
-	                    d.f.zoff,
-	                    d.b.timezone) ;
+	                    dp->f.zoff,
+	                    dp->b.timezone) ;
 
 	                bprintf(ofp,"f_zname=%u zname=%t\n",
-	                    d.f.zname,
-	                    d.zname,strnlen(d.zname,DATER_ZNAMESIZE)) ;
+	                    dp->f.zname,
+	                    dp->zname,strnlen(dp->zname,DATER_ZNAMESIZE)) ;
 
 	                bprintf(ofp,"dstflag=%d\n",
-	                    d.b.dstflag) ;
+	                    dp->b.dstflag) ;
 
 	                bprintf(ofp,"loctime=%s\n",
-	                    timestr_log(d.b.time,timebuf)) ;
+	                    timestr_log(dp->b.time,tbuf)) ;
 	                bprintf(ofp,"gmttime=%s\n",
-	                    timestr_gmlog(d.b.time,timebuf)) ;
+	                    timestr_gmlog(dp->b.time,tbuf)) ;
 
 	                for (i = 0 ; i < DATER_DTSEND ; i += 1) {
 
-	                    sl = dater_mkdatestr(&d,i,lineout,LINEBUFLEN) ;
+	                    sl = dater_mkdatestr(dp,i,obuf,olen) ;
 
 	                    bprintf(ofp,"date type=%u(%s) > %t <\n",
-	                        i,types[i],
-	                        lineout,sl) ;
+	                        i,types[i],obuf,sl) ;
 
 	                } /* end for */
 
@@ -462,29 +522,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	        field_finish(&fsb) ;
 	    } /* end if (field) */
 
-	} /* end while */
-
-	bprintf(ofp,"\n") ;
-
-	dater_finish(&d) ;
-
-	bclose(ifp) ;
-
-ret1:
-	bclose(ofp) ;
-
-ret0:
-
-#if	(CF_DEBUGS || CF_DEBUG)
-	debugclose() ;
-#endif
-
-	return ex ;
+	return rs ;
 }
-/* end subroutine (main) */
-
-
-/* local subroutines */
+/* end subroutine (procline) */
 
 
 #if	CF_DUMPZINFO

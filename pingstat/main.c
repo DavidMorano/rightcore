@@ -7,7 +7,6 @@
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_DEBUGN	0		/* special debugging */
 
 
 /* revision history:
@@ -49,7 +48,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -81,7 +79,7 @@
 
 /* local defines */
 
-#define	DEBFNAME	"/tmp/pingstat.deb"
+#define	NDF	"/tmp/pingstat.deb"
 
 
 /* external subroutines */
@@ -111,7 +109,7 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	bopenroot(bfile *,char *,char *,char *,char *,int) ;
 extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
-const char *,const char *) ;
+			cchar *,cchar *) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	gethename(const char *,struct hostent *,char *,int) ;
 extern int	listenudp(int,const char *,const char *,int) ;
@@ -122,10 +120,10 @@ extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(PROGINFO *,const char *,const PIVARS *) ;
-extern int	progpingtabadd(PROGINFO *,const char *,int) ;
-extern int	progconfigbegin(PROGINFO *,const char *) ;
+extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
+extern int	progpingtabadd(PROGINFO *,cchar *,int) ;
+extern int	progconfigbegin(PROGINFO *) ;
 extern int	progconfigend(PROGINFO *) ;
 extern int	proginput(PROGINFO *,int) ;
 extern int	progoutput(PROGINFO *,ARGINFO *,BITS *) ;
@@ -136,6 +134,8 @@ extern int	debugprintf(const char *,...) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -177,6 +177,7 @@ static cchar	*argopts[] = {
 	"ef",
 	"of",
 	"if",
+	"lf",
 	"db",
 	"dgram",
 	"host",
@@ -199,6 +200,7 @@ enum argopts {
 	argopt_ef,
 	argopt_of,
 	argopt_if,
+	argopt_lf,
 	argopt_db,
 	argopt_dgram,
 	argopt_host,
@@ -257,7 +259,7 @@ enum procopts {
 int main(int argc,cchar *argv[],cchar *envv[])
 {
 	PROGINFO	pi, *pip = &pi ;
-	ARGINFO		arginfo, *aip = &arginfo ;
+	ARGINFO		ainfo, *aip = &ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	USERINFO	u ;
@@ -288,14 +290,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	const char	*argval = NULL ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
-	const char	*cfname = NULL ;
-	const char	*pidfname = NULL ;
 	const char	*afname = NULL ;
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*ifname = NULL ;
-	const char	*logfname = NULL ;
-	const char	*helpfname = NULL ;
+	const char	*hfname = NULL ;
 	const char	*psfname = NULL ;
 	const char	*hostspec = NULL ;
 	const char	*portspec = NULL ;
@@ -338,6 +337,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	pip->intmininput = -1 ;
 	pip->toping = -1 ;
 
+	pip->f.logprog = OPT_LOGPROG ;
+
 	rs = initnow(&pip->now,pip->zname,DATER_ZNAMESIZE) ;
 	if (rs < 0) goto badinitnow ;
 
@@ -372,10 +373,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    argp = argv[ai] ;
 	    argl = strlen(argp) ;
 
+#if	CF_DEBUGS
+	    debugprintf("main: a=>%t<\n",argp,argl) ;
+#endif
+
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-	        const int	ach = MKCHAR(argp[0]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -403,6 +408,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                avl = 0 ;
 	                akl = aol ;
 	            }
+
+#if	CF_DEBUGS
+		    debugprintf("main: ak=>%t<\n",akp,akl) ;
+#endif
 
 	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
 
@@ -468,14 +477,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            cfname = avp ;
+	                            pip->cfname = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                cfname = argp ;
+	                                pip->cfname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -516,19 +525,19 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    }
 	                    break ;
 
-/* input file name */
-	                case argopt_if:
+/* error file name */
+	                case argopt_ef:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            ifname = avp ;
+	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                ifname = argp ;
+	                                efname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -552,23 +561,23 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    }
 	                    break ;
 
-/* error file name */
-	                case argopt_ef:
+/* input file name */
+	                case argopt_if:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            efname = avp ;
+	                            ifname = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                efname = argp ;
+	                                ifname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
-	                    break ;
+			    break ;
 
 	                case argopt_db:
 	                    if (argr > 0) {
@@ -587,7 +596,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        f_optequal = FALSE ;
 	                        if (avl) {
 	                            logfile_type = 0 ;
-	                            logfname = avp ;
+	                            pip->lfname = avp ;
 	                        }
 	                    } else {
 	                        if (argr > 0) {
@@ -596,7 +605,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                logfile_type = 0 ;
-	                                logfname = argp ;
+	                                pip->lfname = argp ;
 	                            }
 	                        } else
 	                            rs = SR_INVALID ;
@@ -677,6 +686,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                while (akl--) {
 	                    const int	kc = MKCHAR(*akp) ;
 
+#if	CF_DEBUGS
+			    debugprintf("main: kc=>%c< (%u)\n",kc,kc) ;
+#endif
+
 	                    switch (kc) {
 
 /* debug */
@@ -698,7 +711,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                cfname = argp ;
+	                                pip->cfname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -721,7 +734,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                pidfname = argp ;
+	                                pip->pfname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -907,6 +920,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	} /* end while (all command line argument processing) */
 
+#if	CF_DEBUGS
+	debugprintf("main: ai=%u\n",ai) ;
+	debugprintf("main: ai_max=%u\n",aip->ai_max) ;
+	debugprintf("main: ai_pos=%u\n",aip->ai_pos) ;
+#endif
+
 	if (efname == NULL) efname = getenv(VAREFNAME) ;
 	if (efname == NULL) efname = getenv(VARERRORFNAME) ;
 	if (efname == NULL) efname = BFILE_STDERR ;
@@ -922,23 +941,29 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    goto badarg ;
 
 #if	CF_DEBUGS
-	debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
+	debugprintf("main: debuglevel=%u¹\n",pip->debuglevel) ;
 #endif
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
+	    debugprintf("main: debuglevel=%u²\n",pip->debuglevel) ;
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n", pip->progname,VERSION) ;
+	    cchar	*pn = pip->progname ;
+	    bprintf(pip->efp,"%s: version %s\n",pn,VERSION) ;
 	    if (f_makedate) {
 	        cl = makedate_get(pingstat_makedate,&cp) ;
-	        bprintf(pip->efp,"%s: makedate %t\n", pip->progname,cp,cl) ;
+	        bprintf(pip->efp,"%s: makedate %t\n",pn,cp,cl) ;
 	    }
 	}
 
 /* get our program root */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: con0\n") ;
+#endif
 
 	if (rs >= 0) {
 	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
@@ -962,10 +987,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* help */
 
 	if (f_help) {
-	    if ((helpfname == NULL) || (helpfname[0] == '\0')) {
-	        helpfname = HELPFNAME ;
+	    if ((hfname == NULL) || (hfname[0] == '\0')) {
+	        hfname = HELPFNAME ;
 	    }
-	    printhelp(NULL,pip->pr,pip->searchname,helpfname) ;
+	    printhelp(NULL,pip->pr,pip->searchname,hfname) ;
 	} /* end if (help) */
 
 	if (f_version || f_help || f_usage)
@@ -975,6 +1000,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ex = EX_OK ;
 
 /* more option initialization */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: con1\n") ;
+#endif
 
 	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;
@@ -993,6 +1023,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 /* argument defaults */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: con2\n") ;
+#endif
 
 /* get some host/user information */
 
@@ -1022,11 +1057,17 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get groupname */
 
-	{
-	    char	groupname[GROUPNAMELEN + 1] ;
-	    rs1 = getgroupname(groupname,GROUPNAMELEN,pip->gid) ;
-	    if (rs1 >= 0)
-	        proginfo_setentry(pip,&pip->groupname,groupname,rs1) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: con3\n") ;
+#endif
+
+	if (rs >= 0) {
+	    char	gbuf[GROUPNAMELEN + 1] ;
+	    if ((rs = getgroupname(gbuf,GROUPNAMELEN,pip->gid)) >= 0) {
+		cchar	**vpp = &pip->groupname ;
+	        proginfo_setentry(pip,vpp,gbuf,rs) ;
+	    }
 	}
 
 /* some other initialization */
@@ -1060,7 +1101,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* program configuration */
 
-	rs = progconfigbegin(pip,cfname) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2)) {
+	    debugprintf("main: con4\n") ;
+	    debugprintf("main: cfn=%s\n",pip->cfname) ;
+	}
+#endif
+
+	rs = progconfigbegin(pip) ;
 	pip->f.config = (rs >= 0) ;
 	if (rs < 0)
 	    goto badprogconfigbegin ;
@@ -1123,31 +1171,30 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("main: 0 logfname=%s\n",logfname) ;
+	    debugprintf("main: 0 logfname=%s\n",pip->lfname) ;
 #endif
 
-	if ((pip->logfname == NULL) && (logfname != NULL))
-	    proginfo_setentry(pip,&pip->logfname,logfname,-1) ;
-
-	if ((pip->logfname == NULL) || (pip->logfname[0] == '\0')) {
+	if ((pip->lfname == NULL) || (pip->lfname[0] == '\0')) {
 	    logfile_type = 1 ;
-	    proginfo_setentry(pip,&pip->logfname,LOGFNAME,-1) ;
+	    proginfo_setentry(pip,&pip->lfname,LOGFNAME,-1) ;
 	}
 
-	if (pip->logfname != NULL) {
-	    cl = getfname(pip->pr,pip->logfname,logfile_type,tmpfname) ;
-	    if (cl > 0)
-	        proginfo_setentry(pip,&pip->logfname,tmpfname,cl) ;
+	if (pip->lfname != NULL) {
+	    cl = getfname(pip->pr,pip->lfname,logfile_type,tmpfname) ;
+	    if (cl > 0) {
+		cchar	**vpp = &pip->lfname ;
+	        proginfo_setentry(pip,vpp,tmpfname,cl) ;
+	    }
 	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("main: 1 logfname=%s\n",pip->logfname) ;
+	    debugprintf("main: 1 logfname=%s\n",pip->lfname) ;
 #endif
 
 	rs1 = SR_NOENT ;
-	if (pip->logfname != NULL) {
-	    const char	*lfname = pip->logfname ;
+	if (pip->lfname != NULL) {
+	    const char	*lfname = pip->lfname ;
 	    const char	*logid = pip->logid ;
 	    if ((rs1 = logfile_open(&pip->lh,lfname,0,0666,logid)) >= 0) {
 	        pip->open.logprog = TRUE ;
@@ -1163,7 +1210,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	        if (pip->debuglevel > 0)
 	            bprintf(pip->efp,"%s: log=%s\n",
-	                pip->progname,pip->logfname) ;
+	                pip->progname,pip->lfname) ;
 
 	    } /* end if (logfile-open) */
 	} /* end if (we have a log file or not) */
@@ -1207,16 +1254,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* before we go too far, are we the only one on this PID mutex? */
 
-	if ((pip->pidfname != NULL) && (pip->pidfname[0] != '\0')) {
+	if ((pip->pfname != NULL) && (pip->pfname[0] != '\0')) {
 
 #if	CF_DEBUG
 	    if (pip->debuglevel > 1)
-	        debugprintf("main: we have a PIDFNAME=%s\n",pip->pidfname) ;
+	        debugprintf("main: we have a PIDFNAME=%s\n",pip->pfname) ;
 #endif
 
 /* we leave the file open as our mutex lock ! */
 
-	    logfile_printf(&pip->lh,"pidfile=%s\n",pip->pidfname) ;
+	    logfile_printf(&pip->lh,"pidfile=%s\n",pip->pfname) ;
 
 	    logfile_printf(&pip->lh,"PID mutex captured\n") ;
 

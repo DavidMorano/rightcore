@@ -1321,6 +1321,7 @@ static int procdgramer(PROGINFO *pip,MSGDATA *mip)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
+	int		rs1 ;
 	int		tlen = 0 ;
 	int		mjd = 0 ;
 	char		*mbuf ;
@@ -1364,7 +1365,8 @@ static int procdgramer(PROGINFO *pip,MSGDATA *mip)
 	            } /* end while (reading) */
 		    msgdata_setdatalen(mip,tlen) ;
 		} /* end if (msgdata) */
-	        u_close(qfd) ;
+	        rs1 = u_close(qfd) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (openqotd) */
 	} /* end if (ok) */
 	return (rs >= 0) ? tlen : rs ;
@@ -1517,7 +1519,7 @@ static int procquery(PROGINFO *pip,void *ofp,cchar qp[],int ql)
 	} else if ((rs = hasourmjd(qp,ql)) > 0) {
 	    mjd = rs ;
 	} else {
-	    DAYSPEC		ds ;
+	    DAYSPEC	ds ;
 	    if ((qp[0] == '+') || (qp[0] == '-')) {
 	        rs = dayspec_default(&ds) ;
 	    } else {
@@ -1596,7 +1598,8 @@ static int procqueryload(PROGINFO *pip,int mjd)
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (input-file) */
 
-	    u_close(qfd) ;
+	    rs1 = u_close(qfd) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (quote-file) */
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1627,6 +1630,7 @@ static int procqueryout_remote(PROGINFO *pip,void *ofp,int mjd)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
+	int		rs1 ;
 	int		wlen = 0 ;
 
 #if	CF_DEBUG
@@ -1660,7 +1664,8 @@ static int procqueryout_remote(PROGINFO *pip,void *ofp,int mjd)
 		    }
 		}
 	    } /* end if (uc_recve) */
-	    u_close(qfd) ;
+	    rs1 = u_close(qfd) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (procopenquery) */
 
 #if	CF_DEBUG
@@ -1678,6 +1683,7 @@ static int procqueryout_local(PROGINFO *pip,void *ofp,int mjd)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
+	int		rs1 ;
 	int		wlen = 0 ;
 
 #if	CF_DEBUG
@@ -1698,7 +1704,8 @@ static int procqueryout_local(PROGINFO *pip,void *ofp,int mjd)
 	        }
 	    } /* end if (verbose enough) */
 
-	    u_close(qfd) ;
+	    rs1 = u_close(qfd) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (open) */
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1959,7 +1966,7 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	VECSTR		*slp ;
 	int		rs = SR_OK ;
@@ -2062,7 +2069,7 @@ static int locinfo_termoutend(LOCINFO *lip)
 /* end subroutine (locinfo_termoutend) */
 
 
-static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
+static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar *lbuf,int llen)
 {
 	PROGINFO	*pip = lip->pip ;
 	TERMOUT		*top = &lip->outer ;
@@ -2156,7 +2163,7 @@ static int locinfo_netparse(LOCINFO *lip,cchar *qp,int ql)
 	} else if ((rs = hasourmjd(qp,ql)) > 0) {
 	    mjd = rs ;
 	} else {
-	    DAYSPEC		ds ;
+	    DAYSPEC	ds ;
 	    if ((qp[0] == '+') || (qp[0] == '-')) {
 	        rs = dayspec_default(&ds) ;
 	    } else {

@@ -259,17 +259,15 @@ int mbcache_start(MBCACHE *op,cchar *mbfname,int mflags,MAILBOX *mbp)
 	    MAILBOX_INFO	*mip = &op->mbi ;
 	    op->mbfname = cp ;
 	    if ((rs = mailbox_info(mbp,mip)) >= 0) {
+	        const int	mssize = sizeof(MBCACHE_SCAN **) ;
 	        if (mip->nmsgs >= 0) {
-	            const int	mssize = sizeof(MBCACHE_SCAN **) ;
-	            int		size ;
+	            const int	size = ((mip->nmsgs + 1) * mssize) ;
 	            void	*p ;
 	            nmsgs = mip->nmsgs ;
-	            size = ((mip->nmsgs + 1) * mssize) ;
 	            if ((rs = uc_malloc(size,&p)) >= 0) {
-	                int	csize ;
+	                const int	csize = (mip->nmsgs * 6 * 20) ;
 	                op->msgs = p ;
 	                memset(op->msgs,0,size) ;
-	                csize = (mip->nmsgs * 6 * 20) ;
 	                if ((rs = strpack_start(psp,csize)) >= 0) {
 			    if ((rs = dater_start(&op->dm,NULL,NULL,0)) >= 0) {
 	    			op->magic = MBCACHE_MAGIC ;

@@ -72,9 +72,7 @@ static int	cvtdater_daytime(CVTDATER *,time_t *) ;
 /* exported subroutines */
 
 
-int cvtdater_start(cdp,daytime)
-CVTDATER	*cdp ;
-time_t		daytime ;
+int cvtdater_start(CVTDATER *cdp,time_t daytime)
 {
 
 	if (cdp == NULL) return SR_FAULT ;
@@ -87,11 +85,7 @@ time_t		daytime ;
 /* end subroutine (cvtdater_start) */
 
 
-int cvtdater_load(cdp,dp,cp,cl)
-CVTDATER	*cdp ;
-time_t		*dp ;
-const char	*cp ;
-int		cl ;
+int cvtdater_load(CVTDATER *cdp,time_t *dp,cchar *cp,int cl)
 {
 	TMZ		stz ;
 	int		rs ;
@@ -131,8 +125,7 @@ int		cl ;
 /* end subroutine (cvtdater_load) */
 
 
-int cvtdater_finish(cdp)
-CVTDATER	*cdp ;
+int cvtdater_finish(CVTDATER *cdp)
 {
 
 	if (cdp == NULL) return SR_FAULT ;
@@ -145,9 +138,7 @@ CVTDATER	*cdp ;
 /* private subroutines */
 
 
-static int cvtdater_daytime(cdp,rp)
-CVTDATER	*cdp ;
-time_t		*rp ;
+static int cvtdater_daytime(CVTDATER *cdp,time_t *rp)
 {
 
 	if (cdp == NULL) return SR_FAULT ;

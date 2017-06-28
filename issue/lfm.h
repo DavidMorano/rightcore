@@ -41,7 +41,10 @@
 #define	LFM_TEXCLUSIVE		2		/* modern exclusive open */
 #define	LFM_TOVERLAST		3
 
-#define	LFM_TO			(5*60)
+#define	LFM_TOLOCK		(5*60)
+#define	LFM_TOMINCHECK		3
+#define	LFM_TOMINSTAT		(60 + 3)
+
 #define	LFM_CHECKBUFLEN		400
 
 
@@ -62,7 +65,7 @@ struct lfm_c {
 
 struct lfm_head {
 	uint		magic ;
-	const char	*lockfname ;	/* file name (processed) */
+	const char	*lfname ;	/* file name (processed) */
 	offset_t	odate ;		/* offset to date */
 	offset_t	orewind ;	/* offset to start of write area */
 	offset_t	owrite ;	/* offset past last write */
@@ -85,8 +88,8 @@ struct lfm_head {
 extern "C" {
 #endif
 
-extern int	lfm_start(LFM *,const char *,int,int,LFM_CHECK *,
-			const char *,const char *,const char *) ;
+extern int	lfm_start(LFM *,cchar *,int,int,LFM_CHECK *,
+			cchar *,cchar *,cchar *) ;
 extern int	lfm_setpoll(LFM *,int) ;
 extern int	lfm_check(LFM *,LFM_CHECK *,time_t) ;
 extern int	lfm_printf(LFM *,const char *,...) ;

@@ -3,6 +3,8 @@
 /* * datetok - date tokenisation */
 
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include <sys/types.h>		/* for dateconv.h */
@@ -13,8 +15,7 @@
 #include "datetok.h"
 
 
-
-/* global data */
+/* global variables */
 
 int dtok_numparsed ;
 

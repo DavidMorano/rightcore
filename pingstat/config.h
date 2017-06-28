@@ -103,4 +103,6 @@
 
 #define	PORT_PINGSTAT		5112
 
+#define	OPT_LOGPROG		TRUE
+
 

@@ -170,7 +170,7 @@ int tmtime_insert(TMTIME *op,struct tm *tmp)
 
 	tc = *tmp ;
 	if (tmp->tm_isdst < 0) {
-	    time_t	t ;
+	    time_t	t ; /* dummy */
 	    rs = uc_mktime(&tc,&t) ;
 	} /* end if (need DST indicator) */
 
@@ -277,8 +277,9 @@ int tmtime_mktimer(TMTIME *op,int f_adj,time_t *tp)
 	    }
 	} /* end if (uc_mktime) */
 
-	if (tp != NULL)
+	if (tp != NULL) {
 	    *tp = (rs >= 0) ? t : 0 ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("tmtime_mktime: ret rs=%d\n",rs) ;

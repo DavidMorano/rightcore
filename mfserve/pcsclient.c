@@ -193,8 +193,8 @@ static int	pcsclient_shmcreater(PCSCLIENT *,LOADINFO *,int,cchar *) ;
 static int	pcsclient_shmdestroy(PCSCLIENT *) ;
 static int	pcsclient_shmwr(PCSCLIENT *,int,mode_t) ;
 
-static int	pcsclient_shmmapinit(PCSCLIENT *,int) ;
-static int	pcsclient_shmmapfree(PCSCLIENT *) ;
+static int	pcsclient_shmloadbegin(PCSCLIENT *,int) ;
+static int	pcsclient_shmloadend(PCSCLIENT *) ;
 
 static int	pcsclient_shmproc(PCSCLIENT *) ;
 static int	pcsclient_shmverify(PCSCLIENT *,SYSMISCFH *) ;
@@ -508,16 +508,12 @@ static int pcsclient_shmcreater(PCSCLIENT *op,LOADINFO *lip,int shmi,
 	} /* end if */
 
 	if ((rs >= 0) && f_needwr) {
-
 	    if (rs >= 0) {
-	        if (op->dt == 0)
-	            op->dt = time(NULL) ;
-
+	        if (op->dt == 0) op->dt = time(NULL) ;
 	        f_needupdate = TRUE ;
 	        f_needchmod = TRUE ;
 	        rs = pcsclient_shmwr(op,fd,om) ;
 	    }
-
 	} /* end if */
 
 	if ((rs == SR_ACCESS) || (rs == SR_EXIST)) {
@@ -538,7 +534,7 @@ static int pcsclient_shmcreater(PCSCLIENT *op,LOADINFO *lip,int shmi,
 	}
 
 	if (rs >= 0) {
-	    rs = pcsclient_shmmapinit(op,fd) ;
+	    rs = pcsclient_shmloadbegin(op,fd) ;
 	    if (rs >= 0) {
 	        rs = pcsclient_shmproc(op) ;
 	        f_needupdate = f_needupdate || (rs > 0) ;
@@ -564,17 +560,18 @@ static int pcsclient_shmcreater(PCSCLIENT *op,LOADINFO *lip,int shmi,
 
 	} /* end if */
 
-	if ((rs >= 0) && f_needchmod)
+	if ((rs >= 0) && f_needchmod) {
 	    u_fchmod(fd,om) ;
+	}
 
-	if ((rs >= 0) && f_created)
+	if ((rs >= 0) && f_created) {
 	    rs = loadinfo_chown(lip,fd,shmi) ;
+	}
 
-ret2:
 	if (rs >= 0) {
 	    op->f.shm = TRUE ;
 	} else {
-	    pcsclient_shmmapfree(op) ;
+	    pcsclient_shmloadend(op) ;
 	    op->shmtable = NULL ;
 	}
 
@@ -600,7 +597,7 @@ static int pcsclient_shmdestroy(PCSCLIENT *op)
 	int		rs1 ;
 
 	if (op->mapdata != NULL) {
-	    rs1 = pcsclient_shmmapfree(op) ;
+	    rs1 = pcsclient_shmloadend(op) ;
 	    if (rs >= 0) rs = rs1 ;
 	    op->shmtable = NULL ;
 	}
@@ -706,7 +703,7 @@ static int pcsclient_shmopenwait(PCSCLIENT *op,cchar *shmname,mode_t om)
 /* end subroutine (pcsclient_shmopenwait) */
 
 
-static int pcsclient_shmmapinit(PCSCLIENT *op,int fd)
+static int pcsclient_shmloadbegin(PCSCLIENT *op,int fd)
 {
 	size_t		msize ;
 	int		rs = SR_OK ;
@@ -730,10 +727,10 @@ static int pcsclient_shmmapinit(PCSCLIENT *op,int fd)
 
 	return rs ;
 }
-/* end subroutine (pcsclient_shmmapinit) */
+/* end subroutine (pcsclient_shmloadbegin) */
 
 
-static int pcsclient_shmmapfree(PCSCLIENT *op)
+static int pcsclient_shmloadend(PCSCLIENT *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -752,7 +749,7 @@ static int pcsclient_shmmapfree(PCSCLIENT *op)
 
 	return rs ;
 }
-/* end subroutine (pcsclient_shmmapfree) */
+/* end subroutine (pcsclient_shmloadend) */
 
 
 static int pcsclient_shmproc(PCSCLIENT *op)
@@ -887,27 +884,19 @@ static int loadinfo_start(LOADINFO *lip,cchar *pr,cchar *dbname,mode_t om)
 	const char	*cn ;
 
 	memset(lip,0,sizeof(LOADINFO)) ;
-
 	lip->pr = pr ;
 	lip->dbname = dbname ;
 	lip->om = om ;
-	rs = expcook_start(&lip->cooks) ;
-	if (rs < 0)
-	    goto bad0 ;
 
-	cn = cookies[cookie_n] ;
-	rs = expcook_add(&lip->cooks,cn,dbname,-1) ;
-	if (rs < 0)
-	    goto bad1 ;
+	if ((rs = expcook_start(&lip->cooks)) >= 0) {
+	    cn = cookies[cookie_n] ;
+	    rs = expcook_add(&lip->cooks,cn,dbname,-1) ;
+	    if (rs < 0) {
+		expcook_finish(&lip->cooks) ;
+	    }
+	}
 
-ret0:
 	return rs ;
-
-bad1:
-	expcook_finish(&lip->cooks) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (loadinfo_start) */
 
@@ -1028,37 +1017,32 @@ static int loadinfo_cookcheck(LOADINFO *lip,cchar *template)
 /* end subroutine (loadinfo_cookcheck) */
 
 
-static int loadinfo_rn(lip)
-LOADINFO	*lip ;
+static int loadinfo_rn(LOADINFO *lip)
 {
 	int		rs = SR_OK ;
-	int		bl ;
-	const char	*cp ;
-	const char	*bp ;
+	int		bl = 0 ;
 
-	if (lip->rn != NULL) {
+	if (lip->rn == NULL) {
+	    cchar	*bp ;
+	    if ((bl = sfbasename(lip->pr,-1,&bp)) > 0) {
+	        cchar	*cp ;
+	        if (bl > SHMPREFIXLEN) bl = SHMPREFIXLEN ;
+	    	if ((rs = uc_mallocstrw(bp,bl,&cp)) >= 0) {
+	            lip->rn = cp ;
+	        }
+	    } else {
+	        rs = SR_ISDIR ;
+	    }
+	} else {
 	    bl = strlen(lip->rn) ;
-	    goto ret0 ;
 	}
 
-	bl = sfbasename(lip->pr,-1,&bp) ;
-
-	if (bl >= 0) {
-	    if (bl > SHMPREFIXLEN) bl = SHMPREFIXLEN ;
-	    rs = uc_mallocstrw(bp,bl,&cp) ;
-	    if (rs >= 0)
-	        lip->rn = cp ;
-	} else
-	    rs = SR_ISDIR ;
-
-ret0:
 	return (rs >= 0) ? bl : rs ;
 }
 /* end subroutine (loadinfo_rn) */
 
 
-static int loadinfo_username(lip)
-LOADINFO	*lip ;
+static int loadinfo_username(LOADINFO *lip)
 {
 	int		rs = SR_OK ;
 	int		unl = 0 ;

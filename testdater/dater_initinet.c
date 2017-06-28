@@ -10,10 +10,7 @@
 /* revision history:
 
 	= 1997-06-03, David A­D­ Morano
-
-	I modified the 'prsindate' subroutine to make it "Year 2000"
-	safe.
-
+	I modified the 'prsindate' subroutine to make it "Year 2000" safe.
 
 */
 

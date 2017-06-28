@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 1999-11-13, David A­D­ Morano
-
-	This is a new object modules that collects the code
-	that accesses the user currency file in one place.
-
+        This is a new object modules that collects the code that accesses the
+        user currency file in one place.
 
 */
 
@@ -20,9 +18,9 @@
 
 /*******************************************************************************
 
-	This object module accesses a PINGTAB file.  The PINGTAB file
-	is used to hold the names and PING timeout of hosts that are to
-	be pinged by our caller.
+        This object module accesses a PINGTAB file. The PINGTAB file is used to
+        hold the names and PING timeout of hosts that are to be pinged by our
+        caller.
 
 
 *******************************************************************************/

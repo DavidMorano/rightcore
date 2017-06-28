@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -21,8 +19,8 @@
 
 /******************************************************************************
 
-	This subroutine maintains a PINGSTATDB file.  These files are
-	used to maintain the names and status of a PING event.
+        This subroutine maintains a PINGSTATDB file. These files are used to
+        maintain the names and status of a PING event.
 
 	Arguments:
 
@@ -174,29 +172,19 @@ static const char	*hostname = "EMPTY" ;
 /* exported subroutines */
 
 
-int pingstatdb_open(psp,fname,omode,fperm)
-PINGSTATDB	*psp ;
-const char	fname[] ;
-mode_t		omode ;
-int		fperm ;
+int pingstatdb_open(PINGSTATDB *psp,cchar *fname,mode_t omode,int fperm)
 {
-	int	rs = SR_OK ;
-
-	char	bstr[10] ;
-
+	int		rs = SR_OK ;
+	char		bstr[10] ;
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_open: ent\n") ;
 #endif
 
-	if (psp == NULL)
-	    return SR_FAULT ;
+	if (psp == NULL) return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
-	if (fname == NULL)
-	    return SR_FAULT ;
-
-	if (fname[0] == '\0')
-	    return SR_INVALID ;
+	if (fname[0] == '\0') return SR_INVALID ;
 
 	memset(psp,0,sizeof(PINGSTATDB)) ;
 
@@ -268,18 +256,14 @@ bad0:
 /* end subroutine (pingstatdb_open) */
 
 
-int pingstatdb_close(psp)
-PINGSTATDB	*psp ;
+int pingstatdb_close(PINGSTATDB *psp)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
+	if (psp == NULL) return SR_FAULT ;
 
-	if (psp == NULL)
-	    return SR_FAULT ;
-
-	if (psp->magic != PINGSTATDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != PINGSTATDB_MAGIC) return SR_NOTOPEN ;
 
 	rs1 = bclose(&psp->pfile) ;
 	if (rs >= 0) rs = rs1 ;
@@ -300,9 +284,7 @@ PINGSTATDB	*psp ;
 
 
 /* initialize a cursor */
-int pingstatdb_curbegin(psp,curp)
-PINGSTATDB	*psp ;
-PINGSTATDB_CUR	*curp ;
+int pingstatdb_curbegin(PINGSTATDB *psp,PINGSTATDB_CUR *curp)
 {
 
 	if (psp == NULL) return SR_FAULT ;
@@ -318,13 +300,10 @@ PINGSTATDB_CUR	*curp ;
 
 
 /* free up a cursor */
-int pingstatdb_curend(psp,curp)
-PINGSTATDB	*psp ;
-PINGSTATDB_CUR	*curp ;
+int pingstatdb_curend(PINGSTATDB *psp,PINGSTATDB_CUR *curp)
 {
-
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (psp == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
@@ -346,21 +325,15 @@ PINGSTATDB_CUR	*curp ;
 
 
 /* enumerate the entries */
-int pingstatdb_enum(psp,curp,ep)
-PINGSTATDB	*psp ;
-PINGSTATDB_CUR	*curp ;
-PINGSTATDB_ENT	*ep ;
+int pingstatdb_enum(PINGSTATDB *psp,PINGSTATDB_CUR *curp,PINGSTATDB_ENT *ep)
 {
 	PINGSTATDB_REC	*rp ;
+	int		rs = SR_OK ;
+	int		hl = 0 ;
 
-	int	rs = SR_OK ;
-	int	hl = 0 ;
+	if (psp == NULL) return SR_FAULT ;
 
-	if (psp == NULL)
-	    return SR_FAULT ;
-
-	if (psp->magic != PINGSTATDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != PINGSTATDB_MAGIC) return SR_NOTOPEN ;
 
 	if ((! psp->f.readlocked) && (! psp->f.writelocked)) {
 	    rs = bcontrol(&psp->pfile,BC_LOCKREAD,TO_LOCK) ;
@@ -394,15 +367,11 @@ PINGSTATDB_ENT	*ep ;
 
 
 /* match on a hostname */
-int pingstatdb_match(psp,hostname,ep)
-PINGSTATDB	*psp ;
-const char	hostname[] ;
-PINGSTATDB_ENT	*ep ;
+int pingstatdb_match(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_ENT *ep)
 {
 	PINGSTATDB_REC	*rp ;
-
-	int	rs = SR_OK ;
-	int	hl = 0 ;
+	int		rs = SR_OK ;
+	int		hl = 0 ;
 
 	if (psp == NULL) return SR_FAULT ;
 	if (hostname == NULL) return SR_FAULT ;
@@ -443,8 +412,6 @@ PINGSTATDB_ENT	*ep ;
 	    } /* end if (non-null) */
 	} /* end if (pingstatdb_getrec) */
 
-ret1:
-
 #if	CF_UNLOCK
 	psp->f.readlocked = FALSE ;
 	psp->f.writelocked = FALSE ;
@@ -472,18 +439,12 @@ bad0:
 
 
 /* update an entry */
-int pingstatdb_update(psp,hostname,f_up,timestamp)
-PINGSTATDB	*psp ;
-const char	hostname[] ;
-int		f_up ;
-time_t		timestamp ;
+int pingstatdb_update(PINGSTATDB *psp,cchar *hostname,int f_up,time_t timestamp)
 {
-	DATER	d ;
-
-	time_t	daytime = time(NULL) ;
-
-	int	rs = SR_OK ;
-	int	f_changed = FALSE ;
+	DATER		d ;
+	time_t		daytime = time(NULL) ;
+	int		rs = SR_OK ;
+	int		f_changed = FALSE ;
 
 	if (psp == NULL) return SR_FAULT ;
 	if (hostname == NULL) return SR_FAULT ;
@@ -548,7 +509,6 @@ time_t		timestamp ;
 	psp->mtime = daytime ;
 	bcontrol(&psp->pfile,BC_SYNC,0) ;
 
-ret2:
 	dater_finish(&d) ;
 
 /* unlock it */
@@ -569,29 +529,20 @@ ret0:
 
 
 /* write an entry */
-int pingstatdb_uptime(psp,hostname,up)
-PINGSTATDB	*psp ;
-const char	hostname[] ;
-PINGSTATDB_UP	*up ;
+int pingstatdb_uptime(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_UP *up)
 {
 	PINGSTATDB_REC	e, *rp ;
-
 	DATER		cd, ud, *cdp ;
-
 	offset_t	boff ;
-
-	time_t	daytime = time(NULL) ;
-	time_t	ptime = 0 ;
-
-	uint	timestamp ;
-	uint	timechange ;
-
-	uint	roff ;
-
-	int	rs = SR_OK ;
-	int	size ;
-	int	f_up = TRUE ;
-	int	f_changed = FALSE ;
+	time_t		daytime = time(NULL) ;
+	time_t		ptime = 0 ;
+	uint		timestamp ;
+	uint		timechange ;
+	uint		roff ;
+	int		rs = SR_OK ;
+	int		size ;
+	int		f_up = TRUE ;
+	int		f_changed = FALSE ;
 
 	if (psp == NULL) return SR_FAULT ;
 	if (hostname == NULL) return SR_FAULT ;
@@ -780,7 +731,6 @@ PINGSTATDB_UP	*up ;
 	psp->mtime = daytime ;
 	bcontrol(&psp->pfile,BC_SYNC,0) ;
 
-ret3:
 	dater_finish(&cd) ;
 
 ret2:
@@ -803,18 +753,13 @@ ret0:
 /* end subroutine (pingstatdb_uptime) */
 
 
-int pingstatdb_check(psp,daytime)
-PINGSTATDB	*psp ;
-time_t		daytime ;
+int pingstatdb_check(PINGSTATDB *psp,time_t daytime)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (psp == NULL) return SR_FAULT ;
 
-	if (psp == NULL)
-	    return SR_FAULT ;
-
-	if (psp->magic != PINGSTATDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != PINGSTATDB_MAGIC) return SR_NOTOPEN ;
 
 	if (daytime == 0)
 	    daytime = time(NULL) ;
@@ -845,13 +790,11 @@ time_t		daytime ;
 
 
 /* check on the status of the file entry cache */
-static int pingstatdb_checkcache(psp)
-PINGSTATDB	*psp ;
+static int pingstatdb_checkcache(PINGSTATDB *psp)
 {
 	struct ustat	sb ;
-
-	int	rs ;
-	int	f_cached = psp->f.cached ;
+	int		rs ;
+	int		f_cached = psp->f.cached ;
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_checkcache: ent f_cached=%d\n",
@@ -870,8 +813,9 @@ PINGSTATDB	*psp ;
 	            psp->mtime = sb.st_mtime ;
 	            psp->f.cached = TRUE ;
 	        }
-	    } else
+	    } else {
 	        rs = vecitem_count(&psp->entries) ;
+	    }
 	} /* end if (bcontrol) */
 
 #if	CF_DEBUGS
@@ -884,11 +828,10 @@ PINGSTATDB	*psp ;
 
 
 /* read file entries */
-static int pingstatdb_readrecords(psp)
-PINGSTATDB	*psp ;
+static int pingstatdb_readrecords(PINGSTATDB *psp)
 {
-	int	rs ;
-	int	c = 0 ;
+	int		rs ;
+	int		c = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_readrecords: ent\n") ;
@@ -946,13 +889,11 @@ PINGSTATDB	*psp ;
 
 
 /* free up the entries in the cache */
-static int pingstatdb_fes(psp)
-PINGSTATDB	*psp ;
+static int pingstatdb_fes(PINGSTATDB *psp)
 {
 	PINGSTATDB_REC	*ep ;
-
-	int	rs = SR_OK ;
-	int	i ;
+	int		rs = SR_OK ;
+	int		i ;
 
 /* delete for an uncompacted vector */
 
@@ -988,11 +929,9 @@ int		f_up ;
 time_t		timestamp ;
 {
 	PINGSTATDB_REC	*rp ;
-
 	offset_t	boff ;
-
-	int	rs ;
-	int	f_changed = FALSE ;
+	int		rs ;
+	int		f_changed = FALSE ;
 
 #if	CF_DEBUGS
 	{
@@ -1082,12 +1021,13 @@ time_t		timestamp ;
 
 	    } /* end if */
 
-	    if (rs >= 0)
+	    if (rs >= 0) {
 	        rs = vecitem_add(&psp->entries,&r,size) ;
+	    }
 
-	    if ((rs < 0) && f_rec)
+	    if ((rs < 0) && f_rec) {
 	        record_finish(&r) ;
-
+	    }
 	} /* end if (target entry) */
 
 #if	CF_DEBUGS
@@ -1100,13 +1040,11 @@ time_t		timestamp ;
 /* end subroutine (pingstatdb_updrec) */
 
 
-static int pingstatdb_getrec(psp,hostname,rpp)
-PINGSTATDB	*psp ;
-const char	hostname[] ;
-PINGSTATDB_REC	**rpp ;
+static int pingstatdb_getrec(PINGSTATDB *psp,cchar *hostname,
+		PINGSTATDB_REC **rpp)
 {
-	int	rs ;
-	int	i ;
+	int		rs ;
+	int		i ;
 
 	for (i = 0 ; (rs = vecitem_get(&psp->entries,i,rpp)) >= 0 ; i += 1) {
 	    if (*rpp == NULL) continue ;
@@ -1179,9 +1117,8 @@ uint		roff ;
 const char	buf[] ;
 int		buflen ;
 {
-	int	rs ;
-	int	bl = buflen ;
-
+	int		rs ;
+	int		bl = buflen ;
 	const char	*bp = buf ;
 
 	if (ep == NULL) return SR_FAULT ;
@@ -1499,10 +1436,10 @@ PINGSTATDB_REC	*rp ;
 /* make the open mode string for BIO, remember O_RDONLY is the fake */
 int mkbstr(mode_t omode,char *ostr)
 {
-	char	*bp = ostr ;
+	char		*bp = ostr ;
 
 #if	CF_DEBUGS
-	int	f_read = TRUE ;
+	int		f_read = TRUE ;
 #endif
 
 #if	CF_DEBUGS
