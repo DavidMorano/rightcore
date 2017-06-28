@@ -92,12 +92,9 @@ static int	procentry(PROGINFO *,const char *,PINGSTATDB_UP *) ;
 /* exported subroutines */
 
 
-int proginput(pip,fd)
-PROGINFO	*pip ;
-int		fd ;
+int proginput(PROGINFO *pip,int fd)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -126,9 +123,7 @@ int		fd ;
 /* local subroutines */
 
 
-int procstream(pip,fd)
-PROGINFO	*pip ;
-int		fd ;
+int procstream(PROGINFO *pip,int fd)
 {
 	struct pingstatmsg_update	m0 ;
 	struct pingstatmsg_uptime	m1 ;
@@ -289,26 +284,21 @@ int procdatagram(PROGINFO *pip,int fd)
 	struct pingstatmsg_update	m0 ;
 	struct pingstatmsg_uptime	m1 ;
 	struct pingstatmsg_unknown	mu ;
-
-	int	ti_start = pip->daytime ;
-	int	ti_read = pip->daytime ;
-
+	int		ti_start = pip->daytime ;
+	int		ti_read = pip->daytime ;
 	const int	to = TO_READ ;
-
-	int	rs = SR_OK ;
-	int	size = 0 ;
-	int	msgtype ;
-	int	bl = 0 ;
-	int	mflags = 0 ;
-	int	mopts = 0 ;
-	int	loopcount = 0 ;
-	int	s ;
-	int	mlen ;
-	int	n = 0 ;
-
-	char	msgbuf[MSGBUFLEN + 1] ;
-	char	*bp ;
-
+	int		rs = SR_OK ;
+	int		size = 0 ;
+	int		msgtype ;
+	int		bl = 0 ;
+	int		mflags = 0 ;
+	int		mopts = 0 ;
+	int		loopcount = 0 ;
+	int		s ;
+	int		mlen ;
+	int		n = 0 ;
+	char		msgbuf[MSGBUFLEN + 1] ;
+	char		*bp ;
 
 #ifdef	COMMENT
 	if (pip->intmininput > 0)
@@ -476,9 +466,7 @@ int procdatagram(PROGINFO *pip,int fd)
 /* end subroutine (procdatagram) */
 
 
-static int procupdate(pip,mp)
-PROGINFO			*pip ;
-struct pingstatmsg_update	*mp ;
+static int procupdate(PROGINFO *pip,struct pingstatmsg_update *mp)
 {
 	int		rs = SR_OK ;
 
@@ -497,11 +485,8 @@ struct pingstatmsg_update	*mp ;
 /* end subroutine (procupdate) */
 
 
-static int procuptime(pip,mp)
-PROGINFO			*pip ;
-struct pingstatmsg_uptime	*mp ;
+static int procuptime(PROGINFO *pip,struct pingstatmsg_uptime *mp)
 {
-
 	int		rs = SR_OK ;
 
 	if (mp->hostname[0] != '\0') {
@@ -532,14 +517,12 @@ static int procentry(PROGINFO *pip,cchar *hostname,PINGSTATDB_UP *up)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("proginput/procentry: hostname=%s\n",
-	        hostname) ;
+	    debugprintf("proginput/procentry: hostname=%s\n",hostname) ;
 #endif
 
-	if (hostname[0] == '\0') {
-	    rs = SR_BADFMT ;
-	    goto ret0 ;
-	}
+	if (hostname == NULL) return SR_FAULT ;
+
+	if (hostname[0] == '\0') return SR_INVALID ;
 
 /* get the time stamp that we want to use */
 
@@ -674,7 +657,6 @@ static int procentry(PROGINFO *pip,cchar *hostname,PINGSTATDB_UP *up)
 
 	} /* end if (update) */
 
-ret0:
 	return rs ;
 }
 /* end subroutine (procentry) */

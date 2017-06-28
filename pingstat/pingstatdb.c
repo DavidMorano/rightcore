@@ -87,7 +87,6 @@
 
 /* local defines */
 
-#define	PINGSTATDB_MAGIC	0x31415926
 #define	PINGSTATDB_REC		struct pingstatdb_r
 
 /* record-format (RF) paramters */
@@ -117,7 +116,14 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	initnow(struct timeb *,char *,int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
 extern char	*strwcpy(char *,const char *,int) ;
+extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
 
 
@@ -145,13 +151,13 @@ static int	pingstatdb_readrecords(PINGSTATDB *) ;
 static int	pingstatdb_fes(PINGSTATDB *) ;
 static int	pingstatdb_getrec(PINGSTATDB *,const char *,
 			PINGSTATDB_REC **) ;
-static int	pingstatdb_updrec(PINGSTATDB *,time_t,DATER *,const char *,
+static int	pingstatdb_updrec(PINGSTATDB *,time_t,DATER *,cchar *,
 			int,time_t) ;
 
 static int	record_start(PINGSTATDB_REC *,struct timeb *,const char *,
-			uint,const char *,DATER *) ;
+			uint,cchar *,DATER *) ;
 static int	record_startbuf(PINGSTATDB_REC *,struct timeb *,const char *,
-			uint,const char *,int) ;
+			uint,cchar *,int) ;
 static int	record_update(PINGSTATDB_REC *,bfile *,DATER *,int) ;
 static int	record_write(PINGSTATDB_REC *,bfile *,
 			DATER *,DATER *,int,int) ;
@@ -175,6 +181,7 @@ static const char	*hostname = "EMPTY" ;
 int pingstatdb_open(PINGSTATDB *psp,cchar *fname,mode_t omode,int fperm)
 {
 	int		rs = SR_OK ;
+	cchar		*cp ;
 	char		bstr[10] ;
 
 #if	CF_DEBUGS
@@ -199,59 +206,44 @@ int pingstatdb_open(PINGSTATDB *psp,cchar *fname,mode_t omode,int fperm)
 	omode |= O_CREAT ;
 #endif
 
-	rs = uc_mallocstrw(fname,-1,&psp->fname) ;
-	if (rs < 0)
-	    goto bad0 ;
-
-	psp->mtime = 0 ;
-	memset(&psp->f,0,sizeof(struct pingstatdb_flags)) ;
-
-	psp->f.writable = ((omode & O_WRONLY) || (omode & O_RDWR)) ;
-	mkbstr(omode,bstr) ;
-
+	if ((rs = uc_mallocstrw(fname,-1,&cp)) >= 0) {
+	    psp->fname = cp ;
+	    psp->mtime = 0 ;
+	    memset(&psp->f,0,sizeof(struct pingstatdb_flags)) ;
+	    psp->f.writable = ((omode & O_WRONLY) || (omode & O_RDWR)) ;
+	    mkbstr(omode,bstr) ;
 #if	CF_DEBUGS
-	debugprintf("pingstatdb_open: bopen mode=%s\n",bstr) ;
+	    debugprintf("pingstatdb_open: bopen mode=%s\n",bstr) ;
 #endif
-
-	rs = bopen(&psp->pfile,psp->fname,bstr,fperm) ;
-
+	    if ((rs = bopen(&psp->pfile,psp->fname,bstr,fperm)) >= 0) {
+	        const int	cmd = BC_CLOSEONEXEC ;
 #if	CF_DEBUGS
-	debugprintf("pingstatdb_open: bopen() rs=%d\n",rs) ;
+	        debugprintf("pingstatdb_open: bopen() rs=%d\n",rs) ;
 #endif
-
-	if (rs < 0)
-	    goto bad1 ;
-
-	bcontrol(&psp->pfile,BC_CLOSEONEXEC,TRUE) ;
-
-	rs = vecitem_start(&psp->entries,0,0) ;
-	if (rs < 0) goto bad2 ;
-
-	rs = initnow(&psp->now,psp->zname,DATER_ZNAMESIZE) ;
-	if (rs < 0) goto bad2 ;
-
-	psp->magic = PINGSTATDB_MAGIC ;
-
-ret0:
+	        if ((rs = bcontrol(&psp->pfile,cmd,TRUE)) >= 0) {
+	            if ((rs = vecitem_start(&psp->entries,0,0)) >= 0) {
+	                const int	zsize = DATER_ZNAMESIZE ;
+	                if ((rs = initnow(&psp->now,psp->zname,zsize)) >= 0) {
+	                    psp->magic = PINGSTATDB_MAGIC ;
+	                }
+	                if (rs < 0)
+	                    vecitem_finish(&psp->entries) ;
+	            }
+	        } /* end if (bcontrol) */
+	        if (rs < 0)
+	            bclose(&psp->pfile) ;
+	    } /* end if (bopen) */
+	    if (rs < 0) {
+	        uc_free(psp->fname) ;
+	        psp->fname = NULL ;
+	    }
+	} /* end if (m-a) */
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_open: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
-
-/* bad stuff */
-bad2:
-	bclose(&psp->pfile) ;
-
-bad1:
-	if (psp->fname != NULL) {
-	    uc_free(psp->fname) ;
-	    psp->fname = NULL ;
-	}
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (pingstatdb_open) */
 
@@ -265,6 +257,9 @@ int pingstatdb_close(PINGSTATDB *psp)
 
 	if (psp->magic != PINGSTATDB_MAGIC) return SR_NOTOPEN ;
 
+	rs1 = pingstatdb_fes(psp) ;
+	if (rs >= 0) rs = rs1 ;
+
 	rs1 = bclose(&psp->pfile) ;
 	if (rs >= 0) rs = rs1 ;
 
@@ -276,6 +271,10 @@ int pingstatdb_close(PINGSTATDB *psp)
 
 	rs1 = vecitem_finish(&psp->entries) ;
 	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("pingstatdb_close: ret rs=%d\n",rs) ;
+#endif
 
 	psp->magic = 0 ;
 	return rs ;
@@ -342,7 +341,7 @@ int pingstatdb_enum(PINGSTATDB *psp,PINGSTATDB_CUR *curp,PINGSTATDB_ENT *ep)
 
 	if (rs >= 0) {
 	    if ((rs = pingstatdb_checkcache(psp)) >= 0) {
-		const int	i = (curp->i < 0) ? 0 : (curp->i + 1) ;
+	        const int	i = (curp->i < 0) ? 0 : (curp->i + 1) ;
 	        if ((rs = vecitem_get(&psp->entries,i,&rp)) >= 0) {
 	            curp->i = i ;
 	            if (rp != NULL) {
@@ -407,8 +406,9 @@ int pingstatdb_match(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_ENT *ep)
 	        if (ep != NULL) {
 	            rs = entry_load(ep,rp) ;
 	            hl = rs ;
-	        } else 
+	        } else {
 	            hl = strlen(ep->hostname) ;
+	        }
 	    } /* end if (non-null) */
 	} /* end if (pingstatdb_getrec) */
 
@@ -596,9 +596,9 @@ int pingstatdb_uptime(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_UP *up)
 	{
 	    char	timebuf[TIMEBUFLEN+1] ;
 	    debugprintf("pingstatedb_uptime: now=%s\n",
-	        timestr_log(psp->now.time,timebuf)) ;
+	        timestr_logz(psp->now.time,timebuf)) ;
 	    debugprintf("pingstatedb_uptime: dater_start() rs=%d cur_date=%s\n",
-	        rs,timestr_log(ud.b.time,timebuf)) ;
+	        rs,timestr_logz(ud.b.time,timebuf)) ;
 	}
 #endif
 
@@ -658,7 +658,7 @@ int pingstatdb_uptime(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_UP *up)
 	    {
 	        char	timebuf[TIMEBUFLEN + 1] ;
 	        debugprintf("pingstatedb_uptime: dater_gettime() ptime=%s\n",
-	            timestr_log(ptime,timebuf)) ;
+	            timestr_logz(ptime,timebuf)) ;
 	    }
 #endif
 
@@ -723,8 +723,9 @@ int pingstatdb_uptime(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_UP *up)
 
 /* update the LASTUPDATE entry */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = pingstatdb_updrec(psp,daytime,&cd,LASTUPDATE,f_up,timestamp) ;
+	}
 
 /* udpate our last modification time to keep our cache current */
 
@@ -856,17 +857,17 @@ static int pingstatdb_readrecords(PINGSTATDB *psp)
 
 	        rbuf[bl] = '\0' ;
 	        if (f_bol && (bl > RF_LEAD)) {
-		    struct timeb	*nowp = &psp->now ;
-		    const char		*zn = psp->zname ;
+	            struct timeb	*nowp = &psp->now ;
+	            const char		*zn = psp->zname ;
 
 #if	CF_DEBUGS
-	        debugprintf("pingstatdb_readrecords: line=%u\n",line) ;
+	            debugprintf("pingstatdb_readrecords: line=%u\n",line) ;
 #endif
 
 	            if ((rs = record_startbuf(&e,nowp,zn,roff,rbuf,bl)) >= 0) {
 	                c += 1 ;
 	                rs = vecitem_add(&psp->entries,&e,size) ;
-		        if (rs < 0)
+	                if (rs < 0)
 	                    record_finish(&e) ;
 	            } /* end if (record_startbuf) */
 
@@ -893,6 +894,7 @@ static int pingstatdb_fes(PINGSTATDB *psp)
 {
 	PINGSTATDB_REC	*ep ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		i ;
 
 /* delete for an uncompacted vector */
@@ -907,13 +909,19 @@ static int pingstatdb_fes(PINGSTATDB *psp)
 /* delete for a compacted vector */
 
 	i = 0 ;
-	while ((rs = vecitem_get(&psp->entries,i,&ep)) >= 0) {
+	while ((rs1 = vecitem_get(&psp->entries,i,&ep)) >= 0) {
 	    if (ep != NULL) {
 	        record_finish(ep) ;
 	        vecitem_del(&psp->entries,i) ;
-	    } else
+	    } else {
 	        i += 1 ;
+	    }
 	} /* end while */
+	if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("pingstatdb_fes: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -939,7 +947,7 @@ time_t		timestamp ;
 	    debugprintf("pingstatdb_updrec: hostname=%s\n",hostname) ;
 	    debugprintf("pingstatdb_updrec: f_up=%u\n",f_up) ;
 	    debugprintf("pingstatdb_updrec: timestamp=%s\n",
-		timestr_log(timestamp,timebuf)) ;
+	        timestr_logz(timestamp,timebuf)) ;
 	}
 #endif /* CF_DEBUGS */
 
@@ -965,7 +973,7 @@ time_t		timestamp ;
 	    {
 	        char	timebuf[TIMEBUFLEN + 1] ;
 	        debugprintf("pingstatdb_updrec: dater_gettime() ptime=%s\n",
-	            timestr_log(ptime,timebuf)) ;
+	            timestr_logz(ptime,timebuf)) ;
 	    }
 #endif
 
@@ -1015,8 +1023,8 @@ time_t		timestamp ;
 	        rs = record_update(&r,&psp->pfile,dp,f_up) ;
 
 #if	CF_DEBUGS
-	    debugprintf("pingstatdb_updrec: record_update() rs=%d\n",
-	        rs) ;
+	        debugprintf("pingstatdb_updrec: record_update() rs=%d\n",
+	            rs) ;
 #endif
 
 	    } /* end if */
@@ -1032,7 +1040,7 @@ time_t		timestamp ;
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_updrec: ret rs=%d f_changed=%u\n",
-	        rs,f_changed) ;
+	    rs,f_changed) ;
 #endif
 
 	return (rs >= 0) ? f_changed : rs ;
@@ -1041,7 +1049,7 @@ time_t		timestamp ;
 
 
 static int pingstatdb_getrec(PINGSTATDB *psp,cchar *hostname,
-		PINGSTATDB_REC **rpp)
+PINGSTATDB_REC **rpp)
 {
 	int		rs ;
 	int		i ;
@@ -1097,7 +1105,7 @@ DATER		*dp ;
 	        ep->hostlen = hl ;
 	        rs = uc_mallocstrw(hostname,hl,&ep->hostname) ;
 	        if (rs < 0)
-		    dater_finish(&ep->pdate) ;
+	            dater_finish(&ep->pdate) ;
 	    } /* end if (dater_startcopy) */
 	    if (rs < 0)
 	        dater_finish(&ep->cdate) ;
@@ -1292,7 +1300,6 @@ int		f_up ;
 
 #if	CF_DEBUGS
 	{
-	    char	timebuf[TIMEBUFLEN + 1] ;
 	    debugprintf("record_update: pdate mklogz=%s\n",
 	        pdate) ;
 	}

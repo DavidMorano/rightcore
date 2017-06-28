@@ -68,11 +68,11 @@
 
 #define	TMPDNAME	"/tmp"
 #define	WORKDNAME	"/tmp"
-#define	VARDNAME	"var"
+#define	ETCDNAME	"etc"
+#define	VDNAME		"var"
+#define	PTDNAME		"pingtab"
 #define	RUNDNAME	"var/run"
 #define	LOGDNAME	"var/log"
-#define	PTDNAME		"etc/pingstat/pingtab"
-#define	PSSPOOLDNAME	"var/pingstat"
 
 #define	LOGCNAME	"log"
 
@@ -84,15 +84,13 @@
 #define	PATHSFNAME	"paths"
 #define	HELPFNAME	"help"
 #define	DEFPTFNAME	"default"
-#define	PSFNAME		"pingstat"
-
-#define	PIDFNAME	"var/run/pingstat"		/* mutex PID file */
-#define	LOGFNAME	"log/pingstat"			/* activity log */
-#define	LOCKFNAME	"var/spool/locks/pingstat"	/* lock mutex file */
+#define	PSFNAME		"db"
+#define	PIDFNAME	"pid"
+#define	PTFNAME		"pingtab"
 
 #define	LOGSIZE		(160*1024)
 
-#define	TOPING		5		/* time-out for a ping */
+#define	TO_PING		5		/* time-out for a ping */
 
 /* defaults */
 #define	INTMINPING	(1*60)		/* def minimum interval between pings */

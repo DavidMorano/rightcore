@@ -109,48 +109,40 @@ static const unsigned char 	pterms[32] = {
 /* exported subroutines */
 
 
-int progpingtabadd(pip,abuf,alen)
-struct proginfo	*pip ;
-const char	abuf[] ;
-int		alen ;
+int progpingtabadd(PROGINFO *pip,cchar *abuf,int alen)
 {
-	FIELD	fsb ;
-
-	vecstr	*ptp = &pip->pingtabs ;
-
-	int	rs ;
-	int	fl ;
-	int	c = 0 ;
-
+	FIELD		fsb ;
+	vecstr		*ptp = &pip->pingtabs ;
+	int		rs ;
+	int		fl ;
+	int		c = 0 ;
 	const char	*fp ;
 
-
-#if	CF_DEBUGS
-	debugprintf("progpingtab: entered >%t<\n",abuf,alen) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("progpingtab: ent >%t<\n",abuf,alen) ;
 #endif
 
 	if ((rs = field_start(&fsb,abuf,alen)) >= 0) {
 
 	    while ((fl = field_get(&fsb,pterms,&fp)) >= 0) {
-	        if (fl == 0) continue ;
-
-	        c += 1 ;
-	        rs = vecstr_adduniq(ptp,fp,fl) ;
-	        if (rs < 0)
-	            break ;
-
+	        if (fl > 0) {
+	            c += 1 ;
+	            rs = vecstr_adduniq(ptp,fp,fl) ;
+		}
+	        if (rs < 0) break ;
 	    } /* end while */
 
 	    field_finish(&fsb) ;
 	} /* end if (field) */
 
-#if	CF_DEBUGS
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
 	debugprintf("progpingtab: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (progpingtabadd) */
-
 
 

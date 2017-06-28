@@ -140,11 +140,14 @@ struct proginfo_flags {
 	uint		intminping:1 ;
 	uint		intminupdate:1 ;
 	uint		toping:1 ;
-	uint		pidfile:1 ;
-	uint		cfname:1 ;
-	uint		lfname:1 ;
-	uint		logfile:1 ;
-	uint		sumfile:1 ;
+	uint		pfname:1 ;	/* file-name PID */
+	uint		cfname:1 ;	/* file-name CONF */
+	uint		lfname:1 ;	/* file-name LOG */
+	uint		dfname:1 ;	/* file-name DB */
+	uint		logfile:1 ;	/* object */
+	uint		sumfile:1 ;	/* object */
+	uint		input:1 ;	/* input-mode flag */
+	uint		hostdown:1 ;	/* one or more hsots are down */
 } ;
 
 struct proginfo {
@@ -163,24 +166,32 @@ struct proginfo {
 	cchar		*username ;	/* ours */
 	cchar		*groupname ;	/* ours */
 	cchar		*homedname ;
+	cchar		*gecosname ;
+	cchar		*realname ;
 	cchar		*name ;
 	cchar		*fullname ;
+	cchar		*mailname ;
+	cchar		*org ;
 	cchar		*logid ;	/* default program LOGID */
+	cchar		*hostname ;
 	cchar		*tmpdname ;	/* temporary directory */
 	cchar		*workdname ;
-	cchar		*afname ;
-	cchar		*ofname ;
-	cchar		*hfname ;
-	cchar		*cfname ;
-	cchar		*lfname ;
-	cchar		*pfname ;
+	cchar		*afname ;	/* file-name ARGS */
+	cchar		*ofname ;	/* file-name OUTPUT */
+	cchar		*hfname ;	/* file-name HELP */
+	cchar		*cfname ;	/* file-name CONF */
+	cchar		*lfname ;	/* file-name LOG */
+	cchar		*pfname ;	/* file-name PID */
+	cchar		*dfname ;	/* file-name DB */
 	cchar		*lockfname ;
-	cchar		*ptfname ;
-	cchar		*sumfname ;	/* summary file name */
+	cchar		*ptfname ;	/* file-name PING-TAB */
+	cchar		*sumfname ;	/* file-name summary */
+	cchar		*hostspec ;
+	cchar		*portspec ;
 	void		*efp ;
 	void		*ofp ;
-	void		*pidfp ;
-	void		*sumfp ;	/* summary file */
+	void		*pidfp ;	/* file PID */
+	void		*sumfp ;	/* file summary */
 	void		*userlist ;
 	struct timeb	now ;
 	PROGINFO_FL	have, f, changed, final ;

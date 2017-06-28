@@ -36,25 +36,32 @@
 #include	"pinghost.h"
 
 
+/* external subroutines */
+
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
+
 /* local structures */
 
 
 /* exported subroutines */
 
 
-int pinghost_start(op,hp,hl,min,to)
-PINGHOST	*op ;
-const char	hp[] ;
-int		hl ;
-int		min ;
-int		to ;
+int pinghost_start(PINGHOST *op,cchar *hp,int hl,int min,int to)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (hp == NULL) return SR_FAULT ;
+
+#if	CF_DEBUGS
+	debugprintf("pinghost_start: ent h=%s\n",hp) ;
+#endif
 
 	memset(op,0,sizeof(PINGHOST)) ;
 	op->intminping = min ;
@@ -69,15 +76,16 @@ int		to ;
 /* end subroutine (pinghost_start) */
 
 
-int pinghost_finish(op)
-PINGHOST	*op ;
+int pinghost_finish(PINGHOST *op)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+#if	CF_DEBUGS
+	debugprintf("pinghost_finish: ent h=%s\n",op->name) ;
+#endif
 
 	if (op->name != NULL) {
 	    rs1 = uc_free(op->name) ;
@@ -88,6 +96,5 @@ PINGHOST	*op ;
 	return rs ;
 }
 /* end subroutine (pinghost_finish) */
-
 
 

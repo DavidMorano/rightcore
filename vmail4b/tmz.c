@@ -435,8 +435,8 @@ int tmz_toucht(TMZ *op,cchar *sp,int sl)
 #endif
 
 	if ((tp = strnchr(sp,sl,'.')) != NULL) {
-	    cchar	*cp = (tp+1) ;
 	    const int	cl = (sl-((tp+1)-sp)) ;
+	    cchar	*cp = (tp+1) ;
 	    if (cl >= 2) {
 	        const int	tch = MKCHAR(*cp) ;
 	        if (isdigitlatin(tch)) {
@@ -741,45 +741,50 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 #if	CF_DEBUGS
 	        debugprintf("tmz_logz: 3 s=>%t<\n",sp,sl) ;
 #endif
-	        if ((si = silogend(sp,sl)) >= 0) {
+	        if ((si = silogend(sp,sl)) >= 4) {
 #if	CF_DEBUGS
 	            debugprintf("tmz_logz: 3 si=%d\n",si) ;
 	            debugprintf("tmz_logz: 3 s=>%t<\n",sp,si) ;
 #endif
-	            while ((sl >= 2) && (i < 6)) {
+		    if (hasalldig(sp,4)) {
+			int	ch ;
+	                while ((sl >= 2) && (i < 6)) {
 #if	CF_DEBUGS
-	                debugprintf("tmz_logz: i=%u\n",i) ;
+	                    debugprintf("tmz_logz: i=%u\n",i) ;
 #endif
-	                switch (i++) {
-	                case 3:
-	                    stp->tm_hour = val(sp) ;
-	                    break ;
-	                case 4:
-	                    stp->tm_min = val(sp) ;
-	                    break ;
-	                case 5:
-	                    if ((sl >= 3) && (sp[0] == ':')) {
-	                        sp += 1 ;
-	                        sl -= 1 ;
-	                    }
-	                    stp->tm_sec = val(sp) ;
-	                    break ;
-	                } /* end switch */
-	                sp += 2 ;
-	                sl -= 2 ;
-	            } /* end while */
-	            tmz_yearadj(op,cc) ;
-	            if (sl && (*sp == '_')) {
-	                sp += 1 ;
-	                sl -= 1 ;
-	            }
+	                    switch (i++) {
+	                    case 3:
+	                        stp->tm_hour = val(sp) ;
+	                        break ;
+	                    case 4:
+	                        stp->tm_min = val(sp) ;
+	                        break ;
+	                    case 5:
+	                        if ((sl >= 3) && (sp[0] == ':')) {
+	                            sp += 1 ;
+	                            sl -= 1 ;
+	                        }
+	                        stp->tm_sec = val(sp) ;
+	                        break ;
+	                    } /* end switch */
+	                    sp += 2 ;
+	                    sl -= 2 ;
+	                } /* end while */
+	                tmz_yearadj(op,cc) ;
+	                if (sl && (*sp == '_')) {
+	                    sp += 1 ;
+	                    sl -= 1 ;
+	                }
 #if	CF_DEBUGS
-	            debugprintf("tmz_logz: zname s=>%t<\n",sp,sl) ;
+	                debugprintf("tmz_logz: zname s=>%t<\n",sp,sl) ;
 #endif
-	            if (sl && isalphalatin(*sp)) {
-	                rs = tmz_getzname(op,sp,sl) ;
-	                zl = rs ;
-	            }
+	                if (sl && ((ch = MKCHAR(*sp)),isalphalatin(ch))) {
+	                    rs = tmz_getzname(op,sp,sl) ;
+	                    zl = rs ;
+	                }
+		    } else {
+			rs = SR_INVALID ;
+		    } /* end if (hasalldig) */
 	        } /* end if (silogend) */
 	    } else {
 	        rs = SR_INVALID ;
@@ -1049,16 +1054,16 @@ static int tmz_getmonth(TMZ *op,cchar *sp,int sl)
 	cchar		*cp ;
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    const int	tch = MKCHAR(*cp) ;
-	    if (isalphalatin(tch)) {
+	    int	ch = MKCHAR(*cp) ;
+	    if (isalphalatin(ch)) {
 	        int	ml = cl ;
 	        cchar	*mp = cp ;
 	        si += ((cp+cl)-sp) ;
 	        sp += si ;
 	        sl -= si ;
 	        if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	            const int	tch = MKCHAR(*cp) ;
-	            if (isalphalatin(tch)) {
+	            ch = MKCHAR(*cp) ;
+	            if (isalphalatin(ch)) {
 	                rs = tmstrsday(mp,ml) ;
 	                op->st.tm_wday = rs ;
 	                mp = cp ;
@@ -1159,8 +1164,9 @@ static int tmz_getzname(TMZ *op,cchar *sp,int sl)
 #endif
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    int	f = FALSE ;
-	    f = f || isalphalatin(MKCHAR(*cp)) ;
+	    int		ch = MKCHAR(*cp) ;
+	    int		f = FALSE ;
+	    f = f || isalphalatin(ch) ;
 	    if (f) {
 	        const int	znl = TMZ_ZNAMESIZE ;
 	        rs = strnwcpy(op->zname,znl,cp,cl)  - op->zname ;

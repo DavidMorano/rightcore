@@ -190,12 +190,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	if (isatty(fd_stdout)) {
 	    TMTIME	tmt ;
 	    if ((rs = tmtime_localtime(&tmt,pip->daytime)) >= 0) {
-		char	tbuf[TIMEBUFLEN+1] ;
+	        char	tbuf[TIMEBUFLEN+1] ;
 	        fmt = "%a %b %d %H%:%M%:%S %Z %Y %O %n" ;
 	        if ((rs = sntmtime(tbuf,TIMEBUFLEN,&tmt,fmt)) >= 0) {
 	            len = rs ;
 	            rs = uc_writen(fd_stdout,tbuf,len) ;
-		}
+	        }
 	    }
 	}
 #endif /* CF_TESTSNTMTIME */
@@ -207,7 +207,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #if	CF_DEBUGS
 	debugprintf("main: tzset() daylight=%d\n",daylight) ;
 	debugprintf("main: tzset() timezone=%d(%um) altzone=%d(%um)\n",
-		timezone,(timezone/60),altzone,(altzone/60)) ;
+	    timezone,(timezone/60),altzone,(altzone/60)) ;
 #endif
 #endif /* CF_TZSET */
 
@@ -219,7 +219,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    uc_ftime(&b) ;
 #if	CF_DEBUGS
 	    debugprintf("main: uc_ftime() dstflag=%d timezone=%d\n",
-		b.dstflag,b.timezone) ;
+	        b.dstflag,b.timezone) ;
 #endif
 	}
 #endif /* CF_FTIME */
@@ -252,24 +252,24 @@ int main(int argc,cchar **argv,cchar **envv)
 	if ((rs = dater_start(&d,NULL,NULL,0)) >= 0) {
 
 #if	CF_DEBUGS
-	debugprintf("main: dater_start() rs=%d\n",rs) ;
+	    debugprintf("main: dater_start() rs=%d\n",rs) ;
 #endif
 
 #if	CF_NZONES
-	n = dater_nzones(&d) ;
+	    n = dater_nzones(&d) ;
 #if	CF_DEBUGS
-	debugprintf("main: dater_nzones() rs=%d\n",n) ;
+	    debugprintf("main: dater_nzones() rs=%d\n",n) ;
 #endif
 #endif /* CF_NZONES */
 
 #if	CF_DUMPZINFO
-	dumpzinfo(&d,ZINFOFNAME) ;
+	    dumpzinfo(&d,ZINFOFNAME) ;
 #endif
 
 /* loop stuff */
 
 #if	CF_DEBUGS
-	debugprintf("main: loop-about\n") ;
+	    debugprintf("main: loop-about\n") ;
 #endif
 
 	    rs = process(pip,&d,ofn) ;
@@ -312,14 +312,14 @@ static int process(PROGINFO *pip,DATER *dp,cchar *ofn)
 	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
 	    char	tbuf[TIMEBUFLEN+1] ;
 
-	bprintf(ofp,"DATER object test program\n") ;
+	    bprintf(ofp,"DATER object test program\n") ;
 
 #ifdef	COMMENT
-	bprintf(ofp,"daytime=%ld\n",pip->daytime) ;
+	    bprintf(ofp,"daytime=%ld\n",pip->daytime) ;
 #endif
 
-	bprintf(ofp,"current time=%s\n",
-	    timestr_logz(pip->daytime,tbuf)) ;
+	    bprintf(ofp,"current time=%s\n",
+	        timestr_logz(pip->daytime,tbuf)) ;
 
 /* initial stuff */
 
@@ -351,32 +351,32 @@ static int procin(PROGINFO *pip,DATER *dp,bfile *ofp)
 	    cchar	*cp ;
 	    char	lbuf[LINEBUFLEN+1] ;
 
-	while (rs >= 0) {
+	    while (rs >= 0) {
 
 	        bprintf(ofp,"date types:\n") ;
 	        for (i = 0 ; i < type_overlast ; i += 1) {
 	            bprintf(ofp,"\t%d\t%s\n",i,types[i]) ;
-		}
-		fmt = "enter type and dater_string> " ;
+	        }
+	        fmt = "enter type and dater_string> " ;
 	        bprintf(ofp,fmt) ;
 
-	    rs = breadline(ifp,lbuf,llen) ;
-	    len = rs ;
-	    if (rs <= 0) break ;
+	        rs = breadline(ifp,lbuf,llen) ;
+	        len = rs ;
+	        if (rs <= 0) break ;
 
-	    if (lbuf[len - 1] == '\n') len -= 1 ;
+	        if (lbuf[len - 1] == '\n') len -= 1 ;
 
-	    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
-		if (cp[0] != '#') {
-		    rs = procline(pip,dp,ofp,lbuf,cl) ;
-		}
-	    }
+	        if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+	            if (cp[0] != '#') {
+	                rs = procline(pip,dp,ofp,lbuf,cl) ;
+	            }
+	        }
+
+	        bprintf(ofp,"\n") ;
+
+	    } /* end while */
 
 	    bprintf(ofp,"\n") ;
-
-	} /* end while */
-
-	bprintf(ofp,"\n") ;
 
 	    rs1 = bclose(ifp) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -404,8 +404,8 @@ static int procline(PROGINFO *pip,DATER *dp,bfile *ofp,cchar *lbuf,int llen)
 
 /* get the type */
 
-	        if ((fl = field_get(&fsb,titerms,&fp)) > 0) {
-		    const int	fch = MKCHAR(fp[0]) ;
+	    if ((fl = field_get(&fsb,titerms,&fp)) > 0) {
+	        const int	fch = MKCHAR(fp[0]) ;
 
 #if	CF_DEBUGS
 	        debugprintf("main: field=>%t<\n",
@@ -429,15 +429,15 @@ static int procline(PROGINFO *pip,DATER *dp,bfile *ofp,cchar *lbuf,int llen)
 
 	        } else {
 	            itype = (fp[0] - '0') ;
-		}
+	        }
 
 /* get the dater_string */
 
-	   	rlen = field_remaining(&fsb,&rbuf) ;
+	        rlen = field_remaining(&fsb,&rbuf) ;
 
 	        while ((rlen > 0) && CHAR_ISWHITE(rbuf[rlen - 1])) {
-	                rlen -= 1 ;
-		}
+	            rlen -= 1 ;
+	        }
 
 	        if (rlen > 0) {
 
@@ -447,12 +447,12 @@ static int procline(PROGINFO *pip,DATER *dp,bfile *ofp,cchar *lbuf,int llen)
 #endif
 
 	            if ((itype >= 0) && (itype < type_overlast)) {
-			fmt = "converting type=%d(%s)\n" ;
-		        bprintf(ofp,fmt,itype,types[itype]) ;
+	                fmt = "converting type=%d(%s)\n" ;
+	                bprintf(ofp,fmt,itype,types[itype]) ;
 	                bprintf(ofp, "in=>%t<\n",rbuf,rlen) ;
 	            } else {
 	                bprintf(ofp,"unknown type=%d\n",itype) ;
-		    }
+	            }
 
 	            switch (itype) {
 	            case type_std:
@@ -474,17 +474,17 @@ static int procline(PROGINFO *pip,DATER *dp,bfile *ofp,cchar *lbuf,int llen)
 	            default:
 	                rs = SR_NOTSUP ;
 	                bprintf(ofp,"unknown input type\n") ;
-			break ;
+	                break ;
 	            } /* end switch */
 
 	            bprintf(ofp,"conversion result=%d\n",rs1) ;
 
 	            if (rs1 >= 0) {
-			const int	olen = LINEBUFLEN ;
-			int		i ;
-			int		sl ;
-			char		obuf[LINEBUFLEN+1] ;
-			char		tbuf[TIMEBUFLEN+1] ;
+	                const int	olen = LINEBUFLEN ;
+	                int		i ;
+	                int		sl ;
+	                char		obuf[LINEBUFLEN+1] ;
+	                char		tbuf[TIMEBUFLEN+1] ;
 
 	                bprintf(ofp,"f_zoff=%u zoff=%dm (west of GMT)\n",
 	                    dp->f.zoff,
@@ -517,10 +517,10 @@ static int procline(PROGINFO *pip,DATER *dp,bfile *ofp,cchar *lbuf,int llen)
 	        } else
 	            bprintf(ofp,"no string given to convert\n") ;
 
-		} /* end if (field-get) */
+	    } /* end if (field-get) */
 
-	        field_finish(&fsb) ;
-	    } /* end if (field) */
+	    field_finish(&fsb) ;
+	} /* end if (field) */
 
 	return rs ;
 }

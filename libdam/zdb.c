@@ -286,9 +286,7 @@ int zdb_name(ZDB *zrp,cchar np[],int nl)
 	debugprintf("zdb_name: 1 name=%t\n",np,nl) ;
 #endif
 
-	i = findname(np,nl) ;
-
-	if (i >= 0) {
+	if ((i = findname(np,nl)) >= 0) {
 	    zrp->name = zones[i].name ;
 	    zrp->off = zones[i].off ;
 	    zrp->isdst = zones[i].isdst ;

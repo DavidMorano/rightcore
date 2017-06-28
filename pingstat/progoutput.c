@@ -58,6 +58,7 @@
 #include	"pingtab.h"
 #include	"config.h"
 #include	"defs.h"
+#include	"proglog.h"
 
 
 /* local defines */
@@ -70,11 +71,12 @@ extern int	snwcpy(char *,int,const char *,int) ;
 extern int	mkpath1w(char *,const char *,int) ;
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	sfdirname(const char *,int,const char **) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfkey(const char *,int,const char **) ;
-extern int	nextfield(char *,int,const char **) ;
+extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
+extern int	mkpath4(char *,cchar *,cchar *,cchar *,cchar *) ;
+extern int	sfdirname(const char *,int,cchar **) ;
+extern int	sfshrink(const char *,int,cchar **) ;
+extern int	sfkey(const char *,int,cchar **) ;
+extern int	nextfield(char *,int,cchar **) ;
 extern int	vstrkeycmp(char **,char **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
@@ -111,16 +113,16 @@ extern char	*timestr_log(time_t,char *) ;
 
 /* forward references */
 
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,vechand *) ;
+static int	procdefpingtab(PROGINFO *) ;
+static int	prochostsfins(PROGINFO *,VECHAND *) ;
+static int	prochosts(PROGINFO *,VECHAND *) ;
+static int	loadpingtabs(PROGINFO *,VECHAND *) ;
+static int	loadhost(PROGINFO *,VECHAND *,cchar *,int,int,int) ;
+static int	mungepingtab(PROGINFO *,const char *,char *) ;
+
 static int	procout_begin(PROGINFO *,bfile *,const char *) ;
 static int	procout_end(PROGINFO *) ;
-
-static int	procdefpingtab(PROGINFO *) ;
-static int	loadpingtabs(PROGINFO *,VECHAND *) ;
-static int	loadhost(PROGINFO *,VECHAND *,
-			const char *,int,int,int) ;
-static int	prochostsfins(PROGINFO *,VECHAND *) ;
-static int	mungepingtab(PROGINFO *,const char *,char *) ;
-static int	prochosts(PROGINFO *,VECHAND *) ;
 
 
 /* local variables */
@@ -132,179 +134,48 @@ static int	prochosts(PROGINFO *,VECHAND *) ;
 int progoutput(PROGINFO *pip,ARGINFO *aip,BITS *bop)
 {
 	bfile		ofile ;
-	const int	defintmin = pip->defintminping ;
-	const int	to = pip->toping ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
-	int		len ;
-	int		sl, cl ;
 	int		pan = 0 ;
-	const char	*afname = pip->afname ;
-	const char	*ofname = pip->ofname ;
-	const char	*cp ;
+	const char	*ofn = pip->ofname ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
 	    debugprintf("progoutput: ent defintmin=%d\n",
-		pip->defintminping) ;
+	        pip->defintminping) ;
 	    debugprintf("progoutput: intmin=%d\n",pip->intminping) ;
 	}
 #endif
 
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = BFILE_STDOUT ;
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = BFILE_STDOUT ;
 
-	if ((rs = procout_begin(pip,&ofile,ofname)) >= 0) {
+	if ((rs = procout_begin(pip,&ofile,ofn)) >= 0) {
 	    VECHAND	phosts ;
-
-/* initialize the list of ping hosts */
-
 	    if ((rs = vechand_start(&phosts,20,0)) >= 0) {
-	    int	ai ;
-	    int	f ;
 
-/* process the positional arguments */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progoutput: positional arguments\n") ;
-#endif
-
-	for (ai = 1 ; ai < aip->argc ; ai += 1) {
-
-	    f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	    f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
-	    if (! f) continue ;
-
-	    cp = aip->argv[ai] ;
-	    pan += 1 ;
-	    rs = loadhost(pip,&phosts,cp,-1,defintmin,to) ;
-
-	    if (rs < 0) break ;
-	} /* end for (looping through requested circuits) */
-
-/* process any host names that are in the argument filename list file */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progoutput: argfile arguments rs=%d pan=%u\n",
-		rs,pan) ;
-#endif
-
-	if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
-	    bfile	afile, *afp = &afile ;
-
-	    if (strcmp(afname,"-") == 0) afname = BFILE_STDIN ;
-
-	    if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
-		const int	llen = LINEBUFLEN ;
-	        char		lbuf[LINEBUFLEN + 1] ;
-
-	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
-	            len = rs ;
-
-	            if (lbuf[len - 1] == '\n') len -= 1 ;
-	            lbuf[len] = '\0' ;
-
-	            cl = nextfield(lbuf,len,&cp) ;
-
-	            if ((cl <= 0) || (cp[0] == '#'))
-	                continue ;
-
-	            pan += 1 ;
-	            rs = loadhost(pip,&phosts,cp,cl,defintmin,to) ;
-
-	            if (rs < 0) break ;
-	        } /* end while (reading lines) */
-
-	        bclose(afp) ;
-	    } else {
-	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,
-	                "%s: inaccessible arg-list file (%d)\n",
-	                pip->progname,rs) ;
-	            bprintf(pip->efp,"%s: argfile=%s\n",afname) ;
-	        } /* end if */
-	    } /* end if */
-
-	} /* end if (processing file argument file list) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progoutput: def rs=%d pan=%u\n",
-		rs,pan) ;
-#endif
-
-/* if no hosts and no explicit PINGTABS, process the default PINGTAB */
-
-	sl = vecstr_count(&pip->pingtabs) ;
-
-	if ((rs >= 0) && (pan <= 0) && (sl <= 0) && pip->f.update) {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("progoutput: default arguments\n") ;
-#endif
-
-	    rs = procdefpingtab(pip) ;
-	    pan += rs ;
-
-	} /* end if (default PINGTAB file) */
-
-	if (rs >= 0) {
-
-/* now load all of the PINGTAB files */
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("progoutput: loadpingtabs()\n") ;
-#endif
-
-	    rs = loadpingtabs(pip,&phosts) ;
-	    pan += rs ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("progoutput: loadpingtabs() rs=%d\n",rs) ;
-#endif
-
-	} /* end for (processing PINGTABS) */
-
-/* process all hosts that we were given */
-
-	if (rs >= 0) {
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progoutput: process hosts\n") ;
-#endif
-
-	    rs1 = prochosts(pip,&phosts) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("progoutput: prochosts() rs=%d\n",rs1) ;
-#endif
-
-#ifdef	COMMENT
-	   if (pip->open.logprog && (rs1 >= 0))
-		logfile_printf(&pip->lh,"hosts processed=%u\n", rs1) ;
-
-	   if (pip->debuglevel > 0)
-		bprintf(pip->efp,"%s: hosts processed=%u\n", 
-		    pip->progname,pip->c_processed) ;
-#endif /* COMMENT */
-
-	} /* end if (processing) */
+		if ((rs = procargs(pip,aip,bop,&phosts)) >= 0) {
+		    if ((rs = vecstr_count(&pip->pingtabs)) == 0) {
+	        	if (pip->f.update) {
+	            	    rs = procdefpingtab(pip) ;
+	            	    pan += rs ;
+			}
+		    }
+	            if (rs >= 0) {
+	                if ((rs = loadpingtabs(pip,&phosts)) >= 0) {
+	            	     rs = prochosts(pip,&phosts) ;
+			}
+		    }
+	        } /* end if (procargs) */
 
 /* free up the ping-hosts */
 
-		prochostsfins(pip,&phosts) ;
+	        rs1 = prochostsfins(pip,&phosts) ;
+	        if (rs >= 0) rs = rs1 ;
 
-		rs1 = vechand_finish(&phosts) ;
+	        rs1 = vechand_finish(&phosts) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (phosts) */
-
 	    rs1 = procout_end(pip) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (procout) */
@@ -322,13 +193,97 @@ int progoutput(PROGINFO *pip,ARGINFO *aip,BITS *bop)
 /* local subroutines */
 
 
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,vechand *php)
+{
+	const int	defintmin = pip->defintminping ;
+	const int	to = pip->toping ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		cl ;
+	int		pan = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	cchar		*afn = pip->afname ;
+	cchar		*cp ;
+
+	if (rs >= 0) {
+	        int	ai ;
+	        int	f ;
+	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
+
+	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            if (f) {
+	                cp = aip->argv[ai] ;
+			if (cp[0] != '\0') {
+	            	    pan += 1 ;
+	            	    rs = loadhost(pip,php,cp,-1,defintmin,to) ;
+			}
+		    }
+
+	            if (rs < 0) break ;
+	        } /* end for (looping through requested circuits) */
+	} /* end if (ok) */
+
+/* process any host names that are in the argument filename list file */
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(3))
+	            debugprintf("progoutput: afile arguments rs=%d pan=%u\n",
+	                rs,pan) ;
+#endif
+
+	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	            bfile	afile, *afp = &afile ;
+
+	            if (strcmp(afn,"-") == 0) afn = BFILE_STDIN ;
+
+	            if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
+			const int	dto = defintmin ;
+	                const int	llen = LINEBUFLEN ;
+			int		len ;
+	                char		lbuf[LINEBUFLEN + 1] ;
+
+	                while ((rs = breadline(afp,lbuf,llen)) > 0) {
+	                    len = rs ;
+
+	                    if (lbuf[len - 1] == '\n') len -= 1 ;
+	                    lbuf[len] = '\0' ;
+
+			    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+	                        if (cp[0] == '#') {
+	                    	    pan += 1 ;
+	                    	    rs = loadhost(pip,php,cp,cl,dto,to) ;
+				}
+			    }
+
+	                    if (rs < 0) break ;
+	                } /* end while (reading lines) */
+
+	                rs1 = bclose(afp) ;
+			if (rs >= 0) rs = rs1 ;
+	            } else {
+			    fmt = "%s: inaccessible arg-list (%d)\n" ;
+	                    bprintf(pip->efp,fmt,pn,rs) ;
+			    fmt = "%s: afile=%s\n" ;
+	                    bprintf(pip->efp,fmt,pn,afn) ;
+	            } /* end if */
+
+	        } /* end if (processing file argument file list) */
+
+	return (rs >= 0) ? pan : rs ;
+}
+/* end subroutine (procargs) */
+
+
 static int procout_begin(PROGINFO *pip,bfile *ofp,cchar *ofname)
 {
-	int	rs = SR_OK ;
-	pip->ofp = NULL ;
+	int		rs = SR_OK ;
 	if (! pip->f.nooutput) {
-	    if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
-	        pip->ofp = ofp ;
+	    if (pip->ofp == NULL) {
+	        if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
+	            pip->ofp = ofp ;
+	        }
 	    }
 	}
 	return rs ;
@@ -338,8 +293,8 @@ static int procout_begin(PROGINFO *pip,bfile *ofp,cchar *ofname)
 
 static int procout_end(PROGINFO *pip)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 	if (pip->ofp != NULL) {
 	    rs1 = bclose(pip->ofp) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -354,6 +309,11 @@ static int procdefpingtab(PROGINFO *pip)
 {
 	int		rs ;
 	const char	*dn = DEFPTFNAME ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("progoutput/procdefpingtab: ent\n") ;
+#endif
 
 	rs = progpingtabadd(pip,dn,-1) ;
 
@@ -372,48 +332,53 @@ static int prochosts(PROGINFO *pip,VECHAND *phlp)
 	int		f = TRUE ;
 
 	for (i = 0 ; vechand_get(phlp,i,&php) >= 0 ; i += 1) {
-	    if (php == NULL) continue ;
+	    if (php != NULL) {
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3)) {
-	debugprintf("progoutput/prochosts: host=%s\n",php->name) ;
-	debugprintf("progoutput/prochosts: ->intminping=%d\n",php->intminping) ;
-	debugprintf("progoutput/prochosts: to=%d\n",php->to) ;
-	}
+	        if (DEBUGLEVEL(4)) {
+	            debugprintf("progoutput/prochosts: host=%s\n",php->name) ;
+	            debugprintf("progoutput/prochosts: ->intminping=%d\n",
+			php->intminping) ;
+	            debugprintf("progoutput/prochosts: to=%d\n",php->to) ;
+	        }
 #endif
 
-	    pip->c_hosts += 1 ;
-	    rs1 = proghost(pip,php->name,php->intminping,php->to) ;
+	        pip->c_hosts += 1 ;
+	        rs1 = proghost(pip,php->name,php->intminping,php->to) ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-		debugprintf("progoutput/prochosts: proghost() rs=%d\n",rs1) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("progoutput/prochosts: proghost() rs=%d\n",
+			rs1) ;
 #endif
 
-	    if ((rs1 >= 0) || (rs1 == SR_HOSTDOWN))
-	        pip->c_processed += 1 ;
+	        if ((rs1 >= 0) || (rs1 == SR_HOSTDOWN))
+	            pip->c_processed += 1 ;
 
-	    if (rs1 >= 0)
-	        pip->c_up += 1 ;
+	        if (rs1 >= 0)
+	            pip->c_up += 1 ;
 
-	    if (rs1 == SR_HOSTDOWN)
-	        f = FALSE ;
+	        if (rs1 == SR_HOSTDOWN) {
+	            f = FALSE ;
+		    pip->f.hostdown = TRUE ;
+		}
 
-	    if ((rs1 < 0) && (rs1 != SR_HOSTDOWN))
-	        rs = rs1 ;
+	        if ((rs1 < 0) && (rs1 != SR_HOSTDOWN))
+	            rs = rs1 ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("progoutput/prochosts: processed=%d up=%d\n",
-	        pip->c_processed , pip->c_up) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("progoutput/prochosts: processed=%d up=%d\n",
+	                pip->c_processed , pip->c_up) ;
 #endif
 
+	    }
 	    if (rs < 0) break ;
 	} /* end for */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("progoutput/prochosts: ret rs=%d f=%u\n",rs,f) ;
+	if (DEBUGLEVEL(4))
+	    debugprintf("progoutput/prochosts: ret rs=%d f=%u\n",rs,f) ;
 #endif
 
 	return (rs >= 0) ? f : rs ;
@@ -441,6 +406,11 @@ static int prochostsfins(PROGINFO *pip,VECHAND *phlp)
 	    }
 	} /* end for */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progoutput/prochostsfins: ret rs=%d c=%u\n",rs,c) ;
+#endif
+
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (prochostsfins) */
@@ -456,6 +426,8 @@ static int loadpingtabs(PROGINFO *pip,VECHAND *phlp)
 	int		i ;
 	int		min, to ;
 	int		c = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 	const char	*ptname ;
 	const char	*ptfname ;
 	char		tmpfname[MAXPATHLEN + 1] ;
@@ -463,7 +435,7 @@ static int loadpingtabs(PROGINFO *pip,VECHAND *phlp)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
 	    debugprintf("progoutput/loadpingtabs: defintmin=%d\n",
-		pip->defintminping) ;
+	        pip->defintminping) ;
 	    debugprintf("progoutput/loadpingtabs: toping=%d\n", pip->toping) ;
 	}
 #endif
@@ -476,8 +448,8 @@ static int loadpingtabs(PROGINFO *pip,VECHAND *phlp)
 	        ptfname = tmpfname ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("progoutput/loadpingtabs: ptfname=%s\n",ptfname) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("progoutput/loadpingtabs: ptfname=%s\n",ptfname) ;
 #endif
 
 	    if ((rs = pingtab_open(&pt,ptfname)) >= 0) {
@@ -497,20 +469,21 @@ static int loadpingtabs(PROGINFO *pip,VECHAND *phlp)
 	            to = pte.timeout ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    	debugprintf("progoutput/loadpingtabs: host=%s min=%d to=%d\n",
-			pte.hostname,min,to) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("progoutput/loadpingtabs: "
+			    "host=%s min=%d to=%d\n",pte.hostname,min,to) ;
 #endif
 
-		    if (pip->intminping >= 0) {
-		        if ((min < 0) || (pip->intminping < min))
-			    min = pip->intminping ;
-		    }
-		    if (min < 0) min = pip->defintminping ;
+	            if (pip->intminping >= 0) {
+	                if ((min < 0) || (pip->intminping < min))
+	                    min = pip->intminping ;
+	            }
+	            if (min < 0) min = pip->defintminping ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    	    debugprintf("progoutput/loadpingtabs: final min=%d\n",min) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("progoutput/loadpingtabs: "
+				"final min=%d\n",min) ;
 #endif
 
 	            c += 1 ;
@@ -520,15 +493,16 @@ static int loadpingtabs(PROGINFO *pip,VECHAND *phlp)
 	        } /* end while */
 
 	        rs1 = pingtab_close(&pt) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } else {
 
-	        if (pip->debuglevel > 0)
-	            bprintf(pip->efp,"%s: unaccessible pt=%s\n",
-	                pip->progname,ptname) ;
+	        if (pip->debuglevel > 0) {
+		    fmt = "%s: unaccessible pt=%s\n" ;
+	            bprintf(pip->efp,fmt,pn,ptname) ;
+		}
 
-	        if (pip->open.logprog)
-	            logfile_printf(&pip->lh,"inaccessible pt=%s",ptname) ;
+		    fmt = "inaccessible pt=%s" ;
+	            proglog_printf(pip,fmt,ptname) ;
 
 	    } /* end if (pingtab) */
 
@@ -566,7 +540,7 @@ int		to ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("progoutput/loadhost: host=%t min=%d to=%d\n",
-			hp,hl,min,to) ;
+	        hp,hl,min,to) ;
 #endif
 
 	if ((rs = uc_malloc(size,&php)) >= 0) {
@@ -603,14 +577,15 @@ static int mungepingtab(PROGINFO *pip,cchar *ptfname,char *tmpfname)
 	        debugprintf("progoutput/mungepingtab: trying PTDNAME\n") ;
 #endif
 
-	    cp = PTDNAME ;
-	    cl = mkpath3(tmpfname, pip->pr,cp,ptfname) ;
+	    cp = ETCDNAME ;
+	    cl = mkpath4(tmpfname,pip->pr,cp,PTDNAME,ptfname) ;
 
 	    if (u_stat(tmpfname,&sb) >= 0)
 	        rs = cl ;
 
-	} else if (cl > 0)
+	} else if (cl > 0) {
 	    rs = cl ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))

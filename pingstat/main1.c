@@ -57,6 +57,8 @@
 #include	<bfile.h>
 #include	<field.h>
 #include	<userinfo.h>
+#include	<logfile.h>
+#include	<vecitem.h>
 #include	<vecstr.h>
 #include	<char.h>
 #include	<ascii.h>
@@ -64,7 +66,6 @@
 #include	<dater.h>
 #include	<sockaddress.h>
 #include	<lfm.h>
-#include	<ucmallreg.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -73,8 +74,6 @@
 #include	"pingtab.h"
 #include	"config.h"
 #include	"defs.h"
-#include	"proglog.h"
-#include	"proguserlist.h"
 #include	"configfile.h"
 
 
@@ -92,7 +91,6 @@ extern int	mkpath1w(char *,const char *,int) ;
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	mkpath4(char *,cchar *,cchar *,cchar *,cchar *) ;
 extern int	sfdirname(const char *,int,const char **) ;
 extern int	vstrkeycmp(char **,char **) ;
 extern int	matstr(const char **,const char *,int) ;
@@ -105,12 +103,14 @@ extern int	optvalue(const char *,int) ;
 extern int	getpwd(char *,int) ;
 extern int	getgroupname(char *,int,gid_t) ;
 extern int	getportnum(const char *,const char *) ;
+extern int	getfname(const char *,const char *,int,char *) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	bopenroot(bfile *,char *,char *,char *,char *,int) ;
+extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
+			cchar *,cchar *) ;
 extern int	mkdirs(const char *,mode_t) ;
-extern int	chownsame(cchar *,cchar *) ;
 extern int	gethename(const char *,struct hostent *,char *,int) ;
 extern int	listenudp(int,const char *,const char *,int) ;
 extern int	openport(int,int,int,SOCKADDRESS *) ;
@@ -122,21 +122,15 @@ extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
-
 extern int	progpingtabadd(PROGINFO *,cchar *,int) ;
-
-extern int	progconf_begin(PROGINFO *) ;
-extern int	progconf_end(PROGINFO *) ;
-extern int	progconf_check(PROGINFO *) ;
-extern int	progconf_read(PROGINFO *) ;
-
+extern int	progconfigbegin(PROGINFO *) ;
+extern int	progconfigend(PROGINFO *) ;
 extern int	proginput(PROGINFO *,int) ;
 extern int	progoutput(PROGINFO *,ARGINFO *,BITS *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
-extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
@@ -160,44 +154,12 @@ extern const char	pingstat_makedate[] ;
 
 static int	usage(PROGINFO *) ;
 
-static int	makedate_get(cchar *,cchar **) ;
+static int	makedate_get(const char *,const char **) ;
 static int	procopts(PROGINFO *,KEYOPT *) ;
-static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
-static int	processor(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
-static int	processing(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 
-static int	procpfname(PROGINFO *) ;
-static int	procdfname(PROGINFO *) ;
-static int	procpsdname(PROGINFO *) ;
+static int	procpsdname(PROGINFO *,const char *) ;
 static int	procdefportspec(PROGINFO *,char *,int,cchar *,cchar *,int) ;
 static int	loadlocalnames(PROGINFO *) ;
-
-static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
-static int	procuserinfo_end(PROGINFO *) ;
-
-static int	proclocnames_begin(PROGINFO *) ;
-static int	proclocnames_end(PROGINFO *) ;
-
-static int	procsvars_begin(PROGINFO *) ;
-static int	procsvars_end(PROGINFO *) ;
-static int	procsvars_load(PROGINFO *) ;
-
-static int	procourconf_begin(PROGINFO *) ;
-static int	procourconf_end(PROGINFO *) ;
-
-static int	procpid_begin(PROGINFO *) ;
-static int	procpid_end(PROGINFO *) ;
-
-#ifdef	COMMENT
-static int	procuserinfo_logid(PROGINFO *) ;
-#endif /* COMMENT */
-
-static int	procdefs_begin(PROGINFO *) ;
-static int	procdefs_end(PROGINFO *) ;
-static int	procdefs_vardname(PROGINFO *) ;
-
-static int	procsum_begin(PROGINFO *) ;
-static int	procsum_end(PROGINFO *) ;
 
 
 /* local variables */
@@ -300,22 +262,28 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ARGINFO		ainfo, *aip = &ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
+	USERINFO	u ;
 	bfile		errfile ;
+	bfile		sumfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	uint		mo_start = 0 ;
 #endif
 
 	int		argr, argl, aol, akl, avl, kwi ;
-	int		ai, ai_max, ai_pos ;
+	int		ai ;
+	int		pan = 0 ;
 	int		rs, rs1 ;
 	int		v ;
+	int		logfile_type = -1 ;
 	int		cl ;
+	int		fd = FD_STDIN ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
 	int		f_makedate = FALSE ;
 	int		f_usage = FALSE ;
+	int		f_input = FALSE ;
 	int		f_help = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
@@ -327,7 +295,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	const char	*ofname = NULL ;
 	const char	*ifname = NULL ;
 	const char	*hfname = NULL ;
+	const char	*psfname = NULL ;
+	const char	*hostspec = NULL ;
+	const char	*portspec = NULL ;
 	const char	*cp ;
+	char		userbuf[USERINFO_LEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
+
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -378,14 +352,18 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* start parsing the arguments */
 
+	memset(aip,0,sizeof(ARGINFO)) ;
+	aip->argc = argc ;
+	aip->argv = (const char **) argv ;
+
 	if (rs >= 0) rs = bits_start(&pargs,1) ;
 	if (rs < 0) goto badpargs ;
 
 	rs = keyopt_start(&akopts) ;
 	pip->open.akopts = (rs >= 0) ;
 
-	ai_max = 0 ;
-	ai_pos = 0 ;
+	aip->ai_max = 0 ;
+	aip->ai_pos = 0 ;
 	argr = argc ;
 	for (ai = 0 ; (ai < argc) && (argv[ai] != NULL) ; ai += 1) {
 	    if (rs < 0) break ;
@@ -432,7 +410,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	            }
 
 #if	CF_DEBUGS
-	            debugprintf("main: ak=>%t<\n",akp,akl) ;
+		    debugprintf("main: ak=>%t<\n",akp,akl) ;
 #endif
 
 	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
@@ -599,7 +577,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
-	                    break ;
+			    break ;
 
 	                case argopt_db:
 	                    if (argr > 0) {
@@ -607,7 +585,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl)
-	                            pip->dfname = argp ;
+	                            psfname = argp ;
 	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
@@ -617,6 +595,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
+	                            logfile_type = 0 ;
 	                            pip->lfname = avp ;
 	                        }
 	                    } else {
@@ -625,6 +604,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
+	                                logfile_type = 0 ;
 	                                pip->lfname = argp ;
 	                            }
 	                        } else
@@ -654,7 +634,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl)
-	                            pip->hostspec = argp ;
+	                            hostspec = argp ;
 	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
@@ -665,7 +645,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl)
-	                            pip->portspec = argp ;
+	                            portspec = argp ;
 	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
@@ -707,7 +687,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    const int	kc = MKCHAR(*akp) ;
 
 #if	CF_DEBUGS
-	                    debugprintf("main: kc=>%c< (%u)\n",kc,kc) ;
+			    debugprintf("main: kc=>%c< (%u)\n",kc,kc) ;
 #endif
 
 	                    switch (kc) {
@@ -749,8 +729,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* mutex lock PID file */
 	                    case 'P':
-	                        pip->have.pfname = TRUE ;
-	                        pip->final.pfname = TRUE ;
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
@@ -794,14 +772,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                pip->hostspec = argp ;
+	                                hostspec = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 /* input mode */
 	                    case 'i':
-	                        pip->f.input = TRUE ;
+	                        f_input = TRUE ;
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
 	                            if (avl) {
@@ -873,7 +851,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                pip->dfname = argp ;
+	                                psfname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -934,18 +912,18 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    } else {
 
 	        rs = bits_set(&pargs,ai) ;
-	        ai_max = ai ;
+	        aip->ai_max = ai ;
 
 	    } /* end if (key letter/word or positional) */
 
-	    ai_pos = ai ;
+	    aip->ai_pos = ai ;
 
 	} /* end while (all command line argument processing) */
 
 #if	CF_DEBUGS
 	debugprintf("main: ai=%u\n",ai) ;
-	debugprintf("main: ai_max=%u\n",ai_max) ;
-	debugprintf("main: ai_pos=%u\n",ai_pos) ;
+	debugprintf("main: ai_max=%u\n",aip->ai_max) ;
+	debugprintf("main: ai_pos=%u\n",aip->ai_pos) ;
 #endif
 
 	if (efname == NULL) efname = getenv(VAREFNAME) ;
@@ -1055,52 +1033,467 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	uc_sigignore(SIGPIPE) ;
 
-	memset(&ainfo,0,sizeof(ARGINFO)) ;
-	ainfo.argc = argc ;
-	ainfo.ai = ai ;
-	ainfo.argv = argv ;
-	ainfo.ai_max = ai_max ;
-	ainfo.ai_pos = ai_pos ;
-
-	if (rs >= 0) {
-	    USERINFO	u ;
-	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
-	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-	            if ((rs = proglog_begin(pip,&u)) >= 0) {
-	                if ((rs = proguserlist_begin(pip)) >= 0) {
-	                    {
-	                        ARGINFO	*aip = &ainfo ;
-	                        BITS	*bop = &pargs ;
-	                        cchar	*afn = afname ;
-	                        cchar	*ofn = ofname ;
-	                        rs = process(pip,aip,bop,ofn,afn) ;
-	                    }
-	                    rs1 = proguserlist_end(pip) ;
-	                    if (rs >= 0) rs = rs1 ;
-	                } /* end if (proguserlist) */
-	                rs1 = proglog_end(pip) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } /* end if (proglog) */
-	            rs1 = procuserinfo_end(pip) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (procuserinfo) */
-	        rs1 = userinfo_finish(&u) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } else {
-	        cchar	*pn = pip->progname ;
-	        cchar	*fmt = "%s: userinfo failure (%d)\n" ;
-	        ex = EX_NOUSER ;
-	        bprintf(pip->efp,fmt,pn,rs) ;
-	    } /* end if (userinfo) */
-	} else if (ex == EX_OK) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
-	    ex = EX_USAGE ;
-	    bprintf(pip->efp,fmt,pn,rs) ;
-	    usage(pip) ;
+	rs = userinfo(&u,userbuf,USERINFO_LEN,NULL) ;
+	if (rs < 0) {
+	    ex = EX_NOUSER ;
+	    bprintf(pip->efp,
+	        "%s: userinfo failure (%d)\n",
+	        pip->progname,rs) ;
+	    goto baduserinfo ;
 	}
 
-/* done */
+	pip->nodename = u.nodename ;
+	pip->domainname = u.domainname ;
+	pip->username = u.username ;
+	pip->homedname = u.homedname ;
+	pip->logid = u.logid ;
+	pip->uid = u.uid ;
+	pip->gid = u.gid ;
+	pip->pid = u.pid ;
+	pip->euid = u.euid ;
+	pip->egid = u.egid ;
+
+	pip->ppid = pip->pid ;
+
+/* get groupname */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: con3\n") ;
+#endif
+
+	if (rs >= 0) {
+	    char	gbuf[GROUPNAMELEN + 1] ;
+	    if ((rs = getgroupname(gbuf,GROUPNAMELEN,pip->gid)) >= 0) {
+		cchar	**vpp = &pip->groupname ;
+	        proginfo_setentry(pip,vpp,gbuf,rs) ;
+	    }
+	}
+
+/* some other initialization */
+
+	pip->daytime = time(NULL) ;
+
+/* get the local names for this host */
+
+	rs = vecstr_start(&pip->localnames,5,0) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto badlocstart ;
+	}
+
+	rs = loadlocalnames(pip) ;
+	if (rs < 0)
+	    goto badlocalload ;
+
+/* create the values for the file schedule searching */
+
+	rs = vecstr_start(&pip->svars,6,0) ;
+	pip->open.svars = (rs >= 0) ;
+	if (rs < 0)
+	    goto badvarsinit ;
+
+	vecstr_envset(&pip->svars,"p",pip->pr,-1) ;
+
+	vecstr_envset(&pip->svars,"e","etc",-1) ;
+
+	vecstr_envset(&pip->svars,"n",pip->searchname,-1) ;
+
+/* program configuration */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2)) {
+	    debugprintf("main: con4\n") ;
+	    debugprintf("main: cfn=%s\n",pip->cfname) ;
+	}
+#endif
+
+	rs = progconfigbegin(pip) ;
+	pip->f.config = (rs >= 0) ;
+	if (rs < 0)
+	    goto badprogconfigbegin ;
+
+/* do we have a good default timeout value */
+
+	if (pip->toping < 0)
+	    pip->toping = TO_PING ;
+
+	if (pip->defintminping < 0)
+	    pip->defintminping = INTMINPING ;
+
+	if (pip->intmininput < 0)
+	    pip->intmininput = INTMININPUT ;
+
+	if (pip->intminupdate < 0)
+	    pip->intminupdate = INTMINUPDATE ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2)) {
+	    debugprintf("main: toping=%d\n",pip->toping) ;
+	    debugprintf("main: intminping=%d\n",pip->intminping) ;
+	    debugprintf("main: intmininput=%d\n",pip->intmininput) ;
+	    debugprintf("main: intminupdate=%d\n",pip->intminupdate) ;
+	}
+#endif
+
+	if (pip->debuglevel > 0) {
+	    bprintf(pip->efp,"%s: toping=%d\n",
+	        pip->progname,pip->toping) ;
+	    bprintf(pip->efp,"%s: intminping=%d\n",
+	        pip->progname,pip->intminping) ;
+	    bprintf(pip->efp,"%s: intminupdate=%d\n",
+	        pip->progname,pip->intminupdate) ;
+	}
+
+	if (pip->workdname == NULL) {
+	    pip->workdname = WORKDNAME ;
+
+	} else if (pip->workdname[0] == '\0')
+	    pip->workdname = "." ;
+
+/* TMP directory */
+
+	if ((pip->tmpdname == NULL) || (pip->tmpdname[0] == '\0'))
+	    pip->tmpdname = getenv(VARTMPDNAME) ;
+
+	if ((pip->tmpdname == NULL) || (pip->tmpdname[0] == '\0'))
+	    pip->tmpdname = TMPDNAME ;
+
+/* can we access the working directory? */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: access working directory \"%s\"\n",
+	        pip->workdname) ;
+#endif
+
+/* do we have an activity log file? */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: 0 logfname=%s\n",pip->lfname) ;
+#endif
+
+	if ((pip->lfname == NULL) || (pip->lfname[0] == '\0')) {
+	    logfile_type = 1 ;
+	    proginfo_setentry(pip,&pip->lfname,LOGFNAME,-1) ;
+	}
+
+	if (pip->lfname != NULL) {
+	    cl = getfname(pip->pr,pip->lfname,logfile_type,tmpfname) ;
+	    if (cl > 0) {
+		cchar	**vpp = &pip->lfname ;
+	        proginfo_setentry(pip,vpp,tmpfname,cl) ;
+	    }
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: 1 logfname=%s\n",pip->lfname) ;
+#endif
+
+	rs1 = SR_NOENT ;
+	if (pip->lfname != NULL) {
+	    const char	*lfname = pip->lfname ;
+	    const char	*logid = pip->logid ;
+	    if ((rs1 = logfile_open(&pip->lh,lfname,0,0666,logid)) >= 0) {
+	        pip->open.logprog = TRUE ;
+
+	        if (pip->daytime == 0)
+	            pip->daytime = time(NULL) ;
+
+	        if (pip->logsize > 0)
+	            logfile_checksize(&pip->lh,pip->logsize) ;
+
+	        logfile_userinfo(&pip->lh,&u,pip->daytime,
+	            pip->progname,pip->version) ;
+
+	        if (pip->debuglevel > 0)
+	            bprintf(pip->efp,"%s: log=%s\n",
+	                pip->progname,pip->lfname) ;
+
+	    } /* end if (logfile-open) */
+	} /* end if (we have a log file or not) */
+
+/* find and open the PINGSTATDB file if we have one */
+
+	if ((psfname == NULL) || (psfname[0] == '\0')) {
+	    rs = mkpath3(tmpfname,pip->pr,VARDNAME,PSFNAME) ;
+	    psfname = tmpfname ;
+	}
+
+#if	CF_DEBUG
+	if (pip->debuglevel > 1)
+	    debugprintf("main: 2 psfname=%s\n",psfname) ;
+#endif
+
+	if ((rs >= 0) && (pip->f.update || f_input)) {
+	    rs = procpsdname(pip,psfname) ;
+	}
+
+	if (pip->debuglevel > 0) {
+	    bprintf(pip->efp,"%s: ps=%s\n",
+	        pip->progname,psfname) ;
+	}
+
+	if (pip->open.logprog)
+	    logfile_printf(&pip->lh,"ps=%s\n",psfname) ;
+
+	if (rs >= 0) {
+	    int	oflags = (O_RDWR | O_CREAT) ;
+	    rs = pingstatdb_open(&pip->ps,psfname,oflags,0666) ;
+	}
+
+#if	CF_DEBUG
+	if (pip->debuglevel > 1)
+	    debugprintf("main: pingstatdb_open() rs=%d\n",rs) ;
+#endif
+
+	if (rs < 0)
+	    goto badpingstat ;
+
+/* before we go too far, are we the only one on this PID mutex? */
+
+	if ((pip->pfname != NULL) && (pip->pfname[0] != '\0')) {
+
+#if	CF_DEBUG
+	    if (pip->debuglevel > 1)
+	        debugprintf("main: we have a PIDFNAME=%s\n",pip->pfname) ;
+#endif
+
+/* we leave the file open as our mutex lock ! */
+
+	    logfile_printf(&pip->lh,"pidfile=%s\n",pip->pfname) ;
+
+	    logfile_printf(&pip->lh,"PID mutex captured\n") ;
+
+	} /* end if (we have a mutex PID file) */
+
+/* clean up some stuff we will no longer need */
+
+	if (pip->open.svars) {
+	    pip->open.svars = FALSE ;
+	    vecstr_finish(&pip->svars) ;
+	}
+
+/* grab any PINGTABs passed in the environment variable */
+
+	if ((! f_input) && ((cp = getenv(VARPINGTAB)) != NULL)) {
+
+	    rs = progpingtabadd(pip,cp,-1) ;
+	    if (rs <= 0)
+	        goto badpingtab ;
+
+	} /* end if (environment variable) */
+
+/* open a summary file (if we have one) */
+
+	if ((pip->sumfname != NULL) && (pip->sumfname[0] != '\0')) {
+
+	    rs1 = bopen(&sumfile,pip->sumfname,"wca",0666) ;
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(2))
+	        debugprintf("main: sumfname=%s rs=%d\n",
+	            pip->sumfname,rs) ;
+#endif
+
+	    if (rs1 >= 0)
+	        pip->sumfp = &sumfile ;
+
+	    if ((rs1 < 0) && (! pip->f.quiet)) {
+
+	        bprintf(pip->efp,
+	            "%s: summary-file unavailable (%d)\n",
+	            pip->progname,rs1) ;
+
+	        logfile_printf(&pip->lh,
+	            "summary-file unavailable (%d)\n",
+	            rs1) ;
+
+	    } /* end if (announcing failure) */
+
+	} /* end if (opening the summary file) */
+
+/* OK, now do whatever needed for the particular program mode we're in */
+
+	if (f_input) {
+
+	    if ((! pip->f.daemon) && (! pip->f.dgram) && isasocket(fd)) {
+	        int	ans ;
+	        int	anslen = sizeof(int) ;
+
+	        rs1 = u_getsockopt(fd,SOL_SOCKET,SO_TYPE,&ans,&anslen) ;
+	        if ((rs1 >= 0) && (anslen == sizeof(int))) {
+	            if (ans == SOCK_DGRAM)
+	                pip->f.dgram = TRUE ;
+	        }
+
+	    } /* end if (data-gram determination) */
+
+	    if (pip->debuglevel > 0)
+	        bprintf(pip->efp,"%s: mode=input\n", pip->progname) ;
+
+	    if (pip->open.logprog) {
+	        cp = (pip->f.dgram) ? "mode=input (dgram)" : "mode=input" ;
+	        logfile_printf(&pip->lh,cp) ;
+	    }
+
+	    if (pip->f.daemon) {
+	        const char	*dps = PORTSPEC_PINGSTAT ;
+	        const char	*protoname = "udp" ;
+	        const int	af = AF_INET ;
+	        const int	dpn = PORT_PINGSTAT ;
+
+	        if (pip->debuglevel > 0)
+	            bprintf(pip->efp,"%s: server\n", pip->progname) ;
+
+	        if (pip->open.logprog)
+	            logfile_printf(&pip->lh,"server") ;
+
+	        pip->f.dgram = TRUE ;
+	        if (pip->debuglevel == 0) {
+
+	            bflush(pip->efp) ;
+
+	            logfile_flush(&pip->lh) ;
+
+	            rs = uc_fork() ;
+	            if (rs == 0) {
+	                int	i ;
+	                for (i = 0 ; i < 3 ; i += 1) u_close(i) ;
+	                u_setsid() ;
+	            } else if (rs > 0)
+	                uc_exit(EX_OK) ;
+
+	        } /* end if */
+
+	        if (rs >= 0) {
+	            char	psbuf[SVCNAMELEN + 1] ;
+
+	            if ((portspec == NULL) || (portspec[0] == '\0'))
+	                portspec = dps ;
+
+	            rs = procdefportspec(pip,psbuf,SVCNAMELEN,protoname,
+	                portspec,dpn) ;
+
+	            if (rs >= 0) {
+	                rs = listenudp(af,hostspec,psbuf,0) ;
+	                fd = rs ;
+	            }
+	        } /* end if */
+
+	    } /* end if (daemon) */
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("main: proginput() \n") ;
+#endif
+
+	    if (rs >= 0) {
+	        rs = proginput(pip,fd) ;
+	    }
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("main: proginput() rs=%d\n",rs) ;
+#endif
+
+	    if (pip->open.logprog && (rs < 0))
+	        logfile_printf(&pip->lh,"exiting (%d)",rs) ;
+
+	} else {
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("main: progoutput() \n") ;
+#endif
+
+	    pip->afname = afname ;
+	    pip->ofname = ofname ;
+	    rs = progoutput(pip,aip,&pargs) ;
+	    pan = rs ;
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("main: progoutput() rs=%d\n",rs) ;
+#endif
+
+	} /* end if (program mode) */
+
+/* close the summary file (if opened) */
+
+	if (pip->sumfp != NULL) {
+	    bclose(pip->sumfp) ;
+	    pip->sumfp = NULL ;
+	}
+
+	if ((rs >= 0) && (! f_input) && (pan <= 0)) {
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(2))
+	        debugprintf("main: no hosts or PINGTAB files specified\n") ;
+#endif
+
+	    rs = SR_INVALID ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,"%s: no hosts or PINGTAB files specified\n",
+	        pip->progname) ;
+
+	} /* end if (not log table file was specified or found) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: total hosts=%u processed=%u up=%u\n",
+	        pip->c_hosts,pip->c_processed,pip->c_up) ;
+#endif
+
+	if ((rs >= 0) && (! f_input)) {
+
+	    if (pip->debuglevel > 0) {
+	        bprintf(pip->efp,"%s: total hosts=%u processed=%u up=%u\n",
+	            pip->progname,
+	            pip->c_hosts,pip->c_processed,pip->c_up) ;
+	        bprintf(pip->efp,"%s: pingtabs=%u\n",
+	            pip->progname,
+	            pip->c_pingtabs) ;
+	    } /* end if */
+
+	    logfile_printf(&pip->lh,"hosts=%u processed=%u up=%u\n",
+	        pip->c_hosts,pip->c_processed,pip->c_up) ;
+
+	    ex = ((pip->c_hosts - pip->c_up) == 0) ? EX_OK : EX_NOHOST ;
+
+	} /* end if (not in input-mode) */
+
+badpingtab:
+	pingstatdb_close(&pip->ps) ;
+
+/* close some more earlier stuff */
+badpingstat:
+	if (pip->open.logprog) {
+	    pip->open.logprog = FALSE ;
+	    logfile_close(&pip->lh) ;
+	}
+
+	if (pip->f.config) {
+	    pip->f.config = FALSE ;
+	    progconfigend(pip) ;
+	}
+
+badprogconfigbegin:
+	if (pip->open.svars) {
+	    pip->open.svars = FALSE ;
+	    vecstr_finish(&pip->svars) ;
+	}
+
+badvarsinit:
+badlocalload:
+	vecstr_finish(&pip->localnames) ;
+
+badlocstart:
+baduserinfo:
+
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    case SR_INVALID:
@@ -1120,8 +1513,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        ex = mapex(mapexs,rs) ;
 	        break ;
 	    } /* end switch */
-	} else if ((rs >= 0) && (ex == EX_OK)) {
-	    if (pip->f.hostdown) ex = EX_TEMPFAIL ;
 	} /* end if */
 
 retearly:
@@ -1149,20 +1540,6 @@ retearly:
 	bits_finish(&pargs) ;
 
 badpargs:
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2)) {
-	    int		i ;
-	    cchar	*cp ;
-		    debugprintf("main: pingtabs¬\n") ;
-	    for (i = 0 ; vecstr_get(&pip->pingtabs,i,&cp) >= 0 ; i += 1) {
-		if (cp != NULL) {
-		    debugprintf("main: pt=%s\n",cp) ;
-		}
-	    }
-	}
-#endif /* CF_DEBUG */
-
 	vecstr_finish(&pip->pingtabs) ;
 
 badtabstart:
@@ -1173,38 +1550,9 @@ badprogstart:
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	{
-	    uint	mi[12] ;
 	    uint	mo ;
-	    uint	mdiff ;
 	    uc_mallout(&mo) ;
-	    mdiff = (mo-mo_start) ;
-	    debugprintf("main: final mallout=%u\n",mdiff) ;
-	    if (mdiff > 0) {
-	        UCMALLREG_CUR	cur ;
-	        UCMALLREG_REG	reg ;
-	        const int	size = (10*sizeof(uint)) ;
-	        cchar		*ids = "main" ;
-	        uc_mallinfo(mi,size) ;
-	        debugprintf("main: MIoutnum=%u\n",mi[ucmallreg_outnum]) ;
-	        debugprintf("main: MIoutnummax=%u\n",
-	            mi[ucmallreg_outnummax]) ;
-	        debugprintf("main: MIoutsize=%u\n",mi[ucmallreg_outsize]) ;
-	        debugprintf("main: MIoutsizemax=%u\n",
-	            mi[ucmallreg_outsizemax]) ;
-	        debugprintf("main: MIused=%u\n",mi[ucmallreg_used]) ;
-	        debugprintf("main: MIusedmax=%u\n",mi[ucmallreg_usedmax]) ;
-	        debugprintf("main: MIunder=%u\n",mi[ucmallreg_under]) ;
-	        debugprintf("main: MIover=%u\n",mi[ucmallreg_over]) ;
-	        debugprintf("main: MInotalloc=%u\n",mi[ucmallreg_notalloc]) ;
-	        debugprintf("main: MInotfree=%u\n",mi[ucmallreg_notfree]) ;
-	        ucmallreg_curbegin(&cur) ;
-	        while (ucmallreg_enum(&cur,&reg) >= 0) {
-	            debugprintf("main: MIreg.addr=%p\n",reg.addr) ;
-	            debugprintf("main: MIreg.size=%u\n",reg.size) ;
-	            debugprinthexblock(ids,80,reg.addr,reg.size) ;
-	        }
-	        ucmallreg_curend(&cur) ;
-	    }
+	    debugprintf("main: final mallout=%u\n",(mo-mo_start)) ;
 	    uc_mallset(0) ;
 	}
 #endif /* CF_DEBUGMALL */
@@ -1291,6 +1639,7 @@ static int makedate_get(cchar *md,cchar **rpp)
 static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		c = 0 ;
 	const char	*cp ;
 
@@ -1313,6 +1662,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
+
 	                case progopt_marktime:
 	                    if (! pip->final.marktime) {
 	                        pip->have.marktime = TRUE ;
@@ -1324,49 +1674,47 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
+
 	                case progopt_defintminping:
 	                case progopt_intminping:
 	                case progopt_intminupdate:
-	                    if (vl > 0) {
-	                        if ((rs = cfdecti(vp,vl,&v)) >= 0) {
-	                            switch (oi) {
-	                            case progopt_defintminping:
-	                                if (! pip->final.defintminping) {
-	                                    pip->have.defintminping = TRUE
-	                                        ;
-	                                    pip->final.defintminping = TRUE
-	                                        ;
-	                                    pip->f.defintminping = TRUE ;
-	                                    pip->defintminping = v ;
-	                                }
-	                                break ;
-	                            case progopt_intminping:
-	                                if (! pip->final.intminping) {
-	                                    pip->have.intminping = TRUE ;
-	                                    pip->final.intminping = TRUE
-	                                        ;
-	                                    pip->f.intminping = TRUE ;
-	                                    pip->intminping = v ;
-	                                }
-	                                break ;
-	                            case progopt_intminupdate:
-	                                if (! pip->final.intminupdate) {
-	                                    pip->have.intminupdate = TRUE
-	                                        ;
-	                                    pip->final.intminupdate = TRUE
-	                                        ;
-	                                    pip->f.intminupdate = TRUE ;
-	                                    pip->intminupdate = v ;
-	                                }
-	                                break ;
-	                            } /* end switch */
-	                        } /* end if (cfdecti) */
-	                    } /* end if (positive) */
+	                    rs1 = (vl > 0) ? cfdecti(vp,vl,&v) : SR_NOENT ;
+	                    if (rs1 >= 0) {
+	                        switch (oi) {
+	                        case progopt_defintminping:
+	                            if (! pip->final.defintminping) {
+	                                pip->have.defintminping = TRUE ;
+	                                pip->final.defintminping = TRUE ;
+	                                pip->f.defintminping = TRUE ;
+	                                pip->defintminping = v ;
+	                            }
+	                            break ;
+	                        case progopt_intminping:
+	                            if (! pip->final.intminping) {
+	                                pip->have.intminping = TRUE ;
+	                                pip->final.intminping = TRUE ;
+	                                pip->f.intminping = TRUE ;
+	                                pip->intminping = v ;
+	                            }
+	                            break ;
+	                        case progopt_intminupdate:
+	                            if (! pip->final.intminupdate) {
+	                                pip->have.intminupdate = TRUE ;
+	                                pip->final.intminupdate = TRUE ;
+	                                pip->f.intminupdate = TRUE ;
+	                                pip->intminupdate = v ;
+	                            }
+	                            break ;
+	                        } /* end switch */
+	                    } /* end if */
 	                    break ;
+
 	                case progopt_sumfile:
 	                    break ;
+
 	                case progopt_logfile:
 	                    break ;
+
 	                } /* end switch */
 	                c += 1 ;
 	            } /* end if (valid option) */
@@ -1383,304 +1731,27 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
+static int procpsdname(PROGINFO *pip,cchar *psfname)
 {
-	int		rs ;
-	int		rs1 ;
-	if ((rs = proclocnames_begin(pip)) >= 0) {
-	    if ((rs = procsvars_begin(pip)) >= 0) {
-	        if ((rs = progconf_begin(pip)) >= 0) {
-	            if ((rs = procourconf_begin(pip)) >= 0) {
-	                {
-	                    rs = processor(pip,aip,bop,ofn,afn) ;
-	                }
-	                rs1 = procourconf_end(pip) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } /* end if (procoutconf) */
-	            rs1 = progconf_end(pip) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (progconf_end) */
-	        rs1 = procsvars_end(pip) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (procsvars) */
-	    rs1 = proclocnames_end(pip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (proclocnames) */
-	return rs ;
-}
-/* end subroutine (process) */
-
-
-static int processor(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
-{
-	int		rs ;
-	int		rs1 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/processor: ent\n") ;
-#endif
-
-	if ((rs = procdefs_begin(pip)) >= 0) {
-	    if ((rs = procpid_begin(pip)) >= 0) {
-	        if ((rs = procsum_begin(pip)) >= 0) {
-	            const mode_t	om = 0666 ;
-	            const int		of = (O_RDWR | O_CREAT) ;
-	            cchar		*dfname = pip->dfname ;
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("main/processor: dfn=%s\n",dfname) ;
-#endif
-	            if ((rs = pingstatdb_open(&pip->ps,dfname,of,om)) >= 0) {
-	                {
-	                    rs = processing(pip,aip,bop,ofn,afn) ;
-	                }
-	                rs1 = pingstatdb_close(&pip->ps) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } /* end if (pingstatdb) */
-	            rs1 = procsum_end(pip) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (procsum) */
-	        rs1 = procpid_end(pip) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (procpid) */
-	    rs1 = procdefs_end(pip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (procdefs) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/processor: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (processor) */
-
-
-static int processing(PROGINFO *pip,ARGINFO *aip,BITS *bop,
-		cchar *ofn,cchar *afn)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-	cchar		*fmt ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/processing: ent\n") ;
-#endif
-
-/* OK, now do whatever needed for the particular program mode we're in */
-
-	if (pip->f.input) {
-	    int		fd = FD_STDIN ;
-	    if ((! pip->f.daemon) && (! pip->f.dgram) && isasocket(fd)) {
-	        int	ans ;
-	        int	anslen = sizeof(int) ;
-
-	        rs1 = u_getsockopt(fd,SOL_SOCKET,SO_TYPE,&ans,&anslen) ;
-	        if ((rs1 >= 0) && (anslen == sizeof(int))) {
-	            if (ans == SOCK_DGRAM)
-	                pip->f.dgram = TRUE ;
-	        }
-
-	    } /* end if (data-gram determination) */
-
-	    if (pip->debuglevel > 0)
-	        bprintf(pip->efp,"%s: mode=input\n", pip->progname) ;
-
-	    if (pip->open.logprog) {
-	        fmt = (pip->f.dgram) ? "mode=input (dgram)" : "mode=input" ;
-	        proglog_printf(pip,fmt) ;
-	    }
-
-	    if (pip->f.daemon) {
-	        const char	*dps = PORTSPEC_PINGSTAT ;
-	        const char	*protoname = "udp" ;
-	        const int	af = AF_INET ;
-	        const int	dpn = PORT_PINGSTAT ;
-
-	        if (pip->debuglevel > 0)
-	            bprintf(pip->efp,"%s: server\n", pip->progname) ;
-
-	        if (pip->open.logprog)
-	            logfile_printf(&pip->lh,"server") ;
-
-	        pip->f.dgram = TRUE ;
-	        if (pip->debuglevel == 0) {
-
-	            bflush(pip->efp) ;
-
-	            logfile_flush(&pip->lh) ;
-
-	            if ((rs = uc_fork()) == 0) {
-	                int	i ;
-	                for (i = 0 ; i < 3 ; i += 1) u_close(i) ;
-	                u_setsid() ;
-	            } else if (rs > 0) {
-	                uc_exit(EX_OK) ;
-		    }
-
-	        } /* end if */
-
-	        if (rs >= 0) {
-	            char	psbuf[SVCNAMELEN + 1] ;
-
-	            if ((pip->portspec == NULL) || (pip->portspec[0] == '\0'))
-	                pip->portspec = dps ;
-
-	            rs = procdefportspec(pip,psbuf,SVCNAMELEN,protoname,
-	                pip->portspec,dpn) ;
-
-	            if (rs >= 0) {
-	                rs = listenudp(af,pip->hostspec,psbuf,0) ;
-	                fd = rs ;
-	            }
-	        } /* end if */
-
-	    } /* end if (daemon) */
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main: proginput() \n") ;
-#endif
-
-	    if (rs >= 0) {
-	        rs = proginput(pip,fd) ;
-	    }
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main: proginput() rs=%d\n",rs) ;
-#endif
-
-	    if (pip->open.logprog)
-	        logfile_printf(&pip->lh,"exiting (%d)",rs) ;
-
-	} else {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main: progoutput() \n") ;
-#endif
-
-	    pip->afname = afn ;
-	    pip->ofname = ofn ;
-	    rs = progoutput(pip,aip,bop) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main: progoutput() rs=%d\n",rs) ;
-#endif
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: total hosts=%u processed=%u up=%u\n",
-	        pip->c_hosts,pip->c_processed,pip->c_up) ;
-#endif
-
-	if (rs >= 0) {
-		cchar	*pn = pip->progname ;
-		cchar	*fmt ;
-
-	    if (pip->debuglevel > 0) {
-		fmt = "%s: total hosts=%u processed=%u up=%u\n" ;
-	        bprintf(pip->efp,fmt,pn,
-	            pip->c_hosts,pip->c_processed,pip->c_up) ;
-		fmt = "%s: pingtabs=%u\n" ;
-	        bprintf(pip->efp,fmt,pn,pip->c_pingtabs) ;
-	    } /* end if */
-
-	    logfile_printf(&pip->lh,"hosts=%u processed=%u up=%u\n",
-	        pip->c_hosts,pip->c_processed,pip->c_up) ;
-
-	} /* end if (not in input-mode) */
-
-	} /* end if (program mode) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/processing: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (processing) */
-
-
-static int procpfname(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	if ((pip->pfname == NULL) || (pip->pfname[0] == '\0')) {
-	    cchar	*sn = pip->searchname ;
-	    char	tbuf[MAXPATHLEN+1] ;
-	    if ((rs = mkpath4(tbuf,pip->pr,VDNAME,sn,PIDFNAME)) >= 0) {
-	        cchar	**vpp = &pip->pfname ;
-	        rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
-	    }
-	}
-	return rs ;
-}
-/* end subroutine (procpfname) */
-
-
-static int procdfname(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	if ((pip->dfname == NULL) || (pip->dfname[0] == '\0')) {
-	    cchar	*sn = pip->searchname ;
-	    char	tbuf[MAXPATHLEN+1] ;
-	    if ((rs = mkpath4(tbuf,pip->pr,VDNAME,sn,PSFNAME)) >= 0) {
-	        cchar	**vpp = &pip->dfname ;
-	        rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
-	    }
-	}
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procdfname: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (procdfname) */
-
-
-static int procpsdname(PROGINFO *pip)
-{
+	struct ustat	sb ;
 	int		rs = SR_OK ;
 	int		cl  ;
 	int		f_created = FALSE ;
-	cchar		*dfname = pip->dfname ;
 	const char	*cp ;
+	char		tmpfname[MAXPATHLEN + 1] ;
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procpsdname: ent dfn=%s\n",dfname) ;
-#endif
+	if (psfname == NULL) return SR_FAULT ;
 
-	if (dfname != NULL) {
-	    if ((cl = sfdirname(dfname,-1,&cp)) > 0) {
-	        char	tbuf[MAXPATHLEN + 1] ;
-	        if ((rs = mkpath1w(tbuf,cp,cl)) >= 0) {
-	            USTAT	sb ;
-	            if ((rs = u_stat(tbuf,&sb)) == SR_NOENT) {
-	                const mode_t	dm = 0777 ;
-	                f_created = TRUE ;
-	                if ((rs = mkdirs(tbuf,dm)) >= 0) {
-	                    if ((rs = uc_minmod(tbuf,dm)) >= 0) {
-	                        rs = chownsame(tbuf,pip->pr) ;
-	                    }
-	                }
-	            }
+	if (psfname[0] == '\0') return SR_INVALID ;
+
+	if ((cl = sfdirname(psfname,-1,&cp)) > 0) {
+	    if ((rs = mkpath1w(tmpfname,cp,cl)) >= 0) {
+	        if (u_stat(tmpfname,&sb) == SR_NOENT) {
+	            f_created = TRUE ;
+	            rs = mkdirs(tmpfname,0777) ;
 	        }
 	    }
-	} else {
-	    rs = SR_NOENT ;
 	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procpsdname: ret rs=%d f=%u\n",rs,f_created) ;
-#endif
 
 	return (rs >= 0) ? f_created : rs ;
 }
@@ -1696,7 +1767,6 @@ const char	*dps ;
 int		dpn ;
 {
 	int		rs ;
-	if (pip == NULL) return SR_FAULT ;
 	if ((rs = getportnum(protoname,dps)) >= 0) {
 	    rs = sncpy1(psbuf,pslen,dps) ;
 	} else if (rs == SR_NOENT) {
@@ -1707,414 +1777,6 @@ int		dpn ;
 /* end subroutine (procdefportspec) */
 
 
-static int proclocnames_begin(PROGINFO *pip)
-{
-	vecstr		*lnp = &pip->localnames ;
-	int		rs ;
-	if ((rs = vecstr_start(lnp,5,0)) >= 0) {
-	    rs = loadlocalnames(pip) ;
-	    if (rs < 0)
-	        vecstr_finish(lnp) ;
-	}
-	return rs ;
-}
-/* end subroutine (proclocnames_begin) */
-
-
-static int proclocnames_end(PROGINFO *pip)
-{
-	vecstr		*lnp = &pip->localnames ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	rs1 = vecstr_finish(lnp) ;
-	if (rs >= 0) rs = rs1 ;
-	return rs ;
-}
-/* end subroutine (proclocnames_end) */
-
-
-static int procsvars_begin(PROGINFO *pip)
-{
-	vecstr		*slp = &pip->svars ;
-	int		rs ;
-	if ((rs = vecstr_start(slp,3,0)) >= 0) {
-	    pip->open.svars = TRUE ;
-	    rs = procsvars_load(pip) ;
-	    if (rs < 0) {
-		pip->open.svars = FALSE ;
-	        vecstr_finish(slp) ;
-	    }
-	}
-	return rs ;
-}
-/* end subroutine (procsvars_begin) */
-
-
-static int procsvars_end(PROGINFO *pip)
-{
-	vecstr		*slp = &pip->svars ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	if (pip->open.svars) {
-	    pip->open.svars = FALSE ;
-	    rs1 = vecstr_finish(slp) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
-	return rs ;
-}
-/* end subroutine (procsvars_end) */
-
-
-static int procsvars_load(PROGINFO *pip)
-{
-	vecstr		*slp = &pip->svars ;
-	int		rs = SR_OK ;
-	int		i ;
-	int		vl ;
-	cchar		keys[] = "pen" ;
-	cchar		*vp ;
-	char		kbuf[2] = { 0, 0 } ;
-	for (i = 0 ; keys[i] != '\0' ; i += 1) {
-	    const int	kch = MKCHAR(keys[i]) ;
-	    vp = NULL ;
-	    vl = -1 ;
-	    switch (kch) {
-	    case 'p':
-	        vp = pip->pr ;
-	        break ;
-	    case 'e':
-	        vp = "etc" ;
-	        break ;
-	    case 'n':
-	        vp = pip->searchname ;
-	        break ;
-	    } /* end switch */
-	    if ((rs >= 0) && (vp != NULL)) {
-	        kbuf[0] = kch ;
-	        rs = vecstr_envadd(slp,kbuf,vp,vl) ;
-	    }
-	    if (rs < 0) break ;
-	} /* end for */
-	return rs ;
-}
-/* end subroutine (procsvars_load) */
-
-
-static int procourconf_begin(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-	if (pip->toping < 0)
-	    pip->toping = TO_PING ;
-
-	if (pip->defintminping < 0)
-	    pip->defintminping = INTMINPING ;
-
-	if (pip->intmininput < 0)
-	    pip->intmininput = INTMININPUT ;
-
-	if (pip->intminupdate < 0)
-	    pip->intminupdate = INTMINUPDATE ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2)) {
-	    debugprintf("main: toping=%d\n",pip->toping) ;
-	    debugprintf("main: intminping=%d\n",pip->intminping) ;
-	    debugprintf("main: intmininput=%d\n",pip->intmininput) ;
-	    debugprintf("main: intminupdate=%d\n",pip->intminupdate) ;
-	}
-#endif
-
-	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: toping=%d\n",
-	        pip->progname,pip->toping) ;
-	    bprintf(pip->efp,"%s: intminping=%d\n",
-	        pip->progname,pip->intminping) ;
-	    bprintf(pip->efp,"%s: intminupdate=%d\n",
-	        pip->progname,pip->intminupdate) ;
-	}
-
-	if (pip->workdname == NULL) {
-	    pip->workdname = WORKDNAME ;
-	} else if (pip->workdname[0] == '\0') {
-	    pip->workdname = "." ;
-	}
-
-/* TMP directory */
-
-	if ((pip->tmpdname == NULL) || (pip->tmpdname[0] == '\0'))
-	    pip->tmpdname = getenv(VARTMPDNAME) ;
-
-	if ((pip->tmpdname == NULL) || (pip->tmpdname[0] == '\0'))
-	    pip->tmpdname = TMPDNAME ;
-
-/* can we access the working directory? */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: access working directory \"%s\"\n",
-	        pip->workdname) ;
-#endif
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main: 2 dfname=%s\n",pip->dfname) ;
-#endif
-
-	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: db=%s\n",pip->progname,pip->dfname) ;
-	}
-
-	return rs ;
-}
-/* end subroutine (procourconf_begin) */
-
-
-static int procourconf_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	if (pip == NULL) return SR_FAULT ;
-	return rs ;
-}
-/* end subroutine (procourconf_end) */
-
-
-static int procpid_begin(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	if ((pip->pfname != NULL) && (pip->pfname[0] != '\0')) {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main/procpid_begin: PIDFNAME=%s\n",pip->pfname) ;
-#endif
-
-	    logfile_printf(&pip->lh,"pidfile=%s\n",pip->pfname) ;
-
-	    logfile_printf(&pip->lh,"PID mutex captured\n") ;
-
-	} /* end if (we have a mutex PID file) */
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procpid_begin: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (procpid_begin) */
-
-
-static int procpid_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	if (pip == NULL) return SR_FAULT ;
-	return rs ;
-}
-/* end subroutine (procpid_end) */
-
-
-static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
-{
-	int		rs = SR_OK ;
-
-	pip->nodename = uip->nodename ;
-	pip->domainname = uip->domainname ;
-	pip->username = uip->username ;
-	pip->gecosname = uip->gecosname ;
-	pip->realname = uip->realname ;
-	pip->name = uip->name ;
-	pip->fullname = uip->fullname ;
-	pip->mailname = uip->mailname ;
-	pip->org = uip->organization ;
-	pip->logid = uip->logid ;
-	pip->ppid = pip->pid ;
-	pip->pid = uip->pid ;
-	pip->uid = uip->uid ;
-	pip->euid = uip->euid ;
-	pip->gid = uip->gid ;
-	pip->egid = uip->egid ;
-
-	if (rs >= 0) {
-	    const int	hlen = MAXHOSTNAMELEN ;
-	    char	hbuf[MAXHOSTNAMELEN+1] ;
-	    cchar	*nn = pip->nodename ;
-	    cchar	*dn = pip->domainname ;
-	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-	        cchar	**vpp = &pip->hostname ;
-	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
-	    }
-	}
-
-	if (rs >= 0) {
-	    const int	glen = GROUPNAMELEN ;
-	    char	gbuf[GROUPNAMELEN + 1] ;
-	    if ((rs = getgroupname(gbuf,glen,pip->gid)) >= 0) {
-	        cchar	**vpp = &pip->groupname ;
-	        rs = proginfo_setentry(pip,vpp,gbuf,rs) ;
-	    }
-	}
-
-#ifdef	COMMENT
-	if (rs >= 0) {
-	    rs = procuserinfo_logid(pip) ;
-	} /* end if (ok) */
-#endif /* COMMENT */
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_begin) */
-
-
-static int procuserinfo_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	if (pip == NULL) return SR_FAULT ;
-	return rs ;
-}
-/* end subroutine (procuserinfo_end) */
-
-
-#ifdef	COMMENT
-static int procuserinfo_logid(PROGINFO *pip)
-{
-	int		rs ;
-	if ((rs = lib_runmode()) >= 0) {
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
-#endif
-	    if (rs & KSHLIB_RMKSH) {
-	        if ((rs = lib_serial()) >= 0) {
-	            const int	s = rs ;
-	            const int	plen = LOGIDLEN ;
-	            const int	pv = pip->pid ;
-	            cchar	*nn = pip->nodename ;
-	            char	pbuf[LOGIDLEN+1] ;
-	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
-	                const int	slen = LOGIDLEN ;
-	                char		sbuf[LOGIDLEN+1] ;
-	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
-	                    cchar	**vpp = &pip->logid ;
-	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
-	                }
-	            }
-	        } /* end if (lib_serial) */
-	    } /* end if (runmode-KSH) */
-	} /* end if (lib_runmode) */
-	return rs ;
-}
-/* end subroutine (procuserinfo_logid) */
-#endif /* COMMENT */
-
-
-static int procdefs_begin(PROGINFO *pip)
-{
-	int		rs ;
-
-	if ((rs = procdefs_vardname(pip)) >= 0) {
-	    if ((rs = procpfname(pip)) >= 0) {
-	        if ((rs = procdfname(pip)) >= 0) {
-	            rs = procpsdname(pip) ;
-	        }
-	    }
-	    proglog_printf(pip,"db=%s\n",pip->dfname) ;
-	} /* end if (procdefs_vardname) */
-
-	return rs ;
-}
-/* end subroutine (procdefs_begin) */
-
-
-static int procdefs_end(PROGINFO *pip)
-{
-	if (pip == NULL) return SR_FAULT ;
-	return SR_OK ;
-}
-/* end subroutine (procdefs_end) */
-
-
-static int procdefs_vardname(PROGINFO *pip)
-{
-	int		rs ;
-	cchar		*pr = pip->pr ;
-	char		tbuf[MAXPATHLEN+1] ;
-	if ((rs = mkpath2(tbuf,pr,VDNAME)) >= 0) {
-	    USTAT	sb ;
-	    const int	rsn = SR_NOTFOUND ;
-	    if ((rs = uc_stat(tbuf,&sb)) == rsn) {
-	        const mode_t	dm = 0777 ;
-	        if ((rs = mkdirs(tbuf,dm)) >= 0) {
-	            if ((rs = uc_minmod(tbuf,dm)) >= 0) {
-	                rs = chownsame(tbuf,pip->pr) ;
-	            }
-	        }
-	    } /* end if (uc_stat) */
-	}
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procdefs_vardname: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (procdefs_vardname) */
-
-
-/* open a summary file (if we have one) */
-static int procsum_begin(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procsum_begin: ent\n") ;
-#endif
-	if ((pip->sumfname != NULL) && (pip->sumfname[0] != '\0')) {
-	    const int	esize = sizeof(bfile) ;
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt ;
-	    char	*p ;
-	    fmt = "%s: summary-file=%s\n" ;
-	    bprintf(pip->efp,fmt,pn,pip->sumfname) ;
-	    if ((rs = uc_malloc(esize,&p)) >= 0) {
-	        cchar	*sfname = pip->sumfname ;
-	        pip->sumfp = p ;
-	        if ((rs = bopen(pip->sumfp,sfname,"wca",0666)) >= 0) {
-	            pip->open.sumfile = TRUE ;
-	        }
-	        if (rs < 0) {
-	            uc_free(pip->sumfp) ;
-	            pip->sumfp = NULL ;
-	        }
-	    } /* end if (m-a) */
-	}
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procsum_begin: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (procsum_begin) */
-
-
-static int procsum_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-	if (pip->sumfp != NULL) {
-	    rs1 = bclose(pip->sumfp) ;
-	    if (rs >= 0) rs = rs1 ;
-	    rs1 = uc_free(pip->sumfp) ;
-	    if (rs >= 0) rs = rs1 ;
-	    pip->sumfp = NULL ;
-	    pip->open.sumfile = FALSE ;
-	}
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procsum_end: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (procsum_end) */
-
-
 static int loadlocalnames(PROGINFO *pip)
 {
 	HOSTENT		he ;
@@ -2122,18 +1784,16 @@ static int loadlocalnames(PROGINFO *pip)
 	const int	hlen = MAXPATHLEN ;
 	int		rs ;
 	int		rs1 ;
+	int		i ;
 	int		n = 0 ;
+	const char	*np ;
+	const char	*hnp ;
 	char		hbuf[MAXHOSTNAMELEN + 1] ;
 	char		*hebuf ;
 
 	snsds(hbuf,hlen,pip->nodename,pip->domainname) ;
 
 	if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
-	    vecstr	*lnp = &pip->localnames ;
-	    int		i ;
-	    cchar	*np ;
-	    cchar	*hnp ;
-
 	    for (i = 0 ; i < 2 ; i += 1) {
 
 	        hnp = (i == 0) ? pip->nodename : hbuf ;
@@ -2141,30 +1801,26 @@ static int loadlocalnames(PROGINFO *pip)
 	            HOSTENT_CUR	cur ;
 
 	            if ((rs = hostent_curbegin(&he,&cur)) >= 0) {
-	                const int	rsn = SR_NOTFOUND ;
-	                while ((rs1 = hostent_enumname(&he,&cur,&np)) >= 0) {
-	                    if ((rs = vecstr_find(lnp,np)) == rsn) {
-	                        rs = vecstr_add(lnp,np,-1) ;
+	                while (hostent_enumname(&he,&cur,&np) >= 0) {
+	                    if (vecstr_find(&pip->localnames,np) < 0) {
+	                        rs = vecstr_add(&pip->localnames,np,-1) ;
 	                    }
 	                    if (rs < 0) break ;
 	                } /* end while */
-	                if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
-	                rs1 = hostent_curend(&he,&cur) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } /* end if (hostend-cur) */
+	                hostent_curend(&he,&cur) ;
+	            } /* end if */
 
 	        } /* end if (gethename) */
 
 	        if (rs < 0) break ;
 	    } /* end for */
-
-	    if (rs >= 0) {
-	        n = vecstr_count(&pip->localnames) ;
-	    }
-
 	    rs1 = uc_free(hebuf) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (memory-allocation) */
+
+	if (rs >= 0) {
+	    n = vecstr_count(&pip->localnames) ;
+	}
 
 	return (rs >= 0) ? n : rs ;
 }

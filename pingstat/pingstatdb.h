@@ -21,6 +21,7 @@
 
 /* object defines */
 
+#define	PINGSTATDB_MAGIC	0x31415926
 #define	PINGSTATDB		struct pingstatdb_head
 #define	PINGSTATDB_CUR		struct pingstatdb_c
 #define	PINGSTATDB_ENT		struct pingstatdb_e

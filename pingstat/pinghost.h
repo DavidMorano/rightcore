@@ -35,4 +35,3 @@ extern "C" {
 #endif /* PINGHOST_INCLUDE */
 
 
-
