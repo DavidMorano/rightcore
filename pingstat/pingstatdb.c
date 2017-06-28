@@ -208,8 +208,6 @@ int pingstatdb_open(PINGSTATDB *psp,cchar *fname,mode_t omode,int fperm)
 
 	if ((rs = uc_mallocstrw(fname,-1,&cp)) >= 0) {
 	    psp->fname = cp ;
-	    psp->mtime = 0 ;
-	    memset(&psp->f,0,sizeof(struct pingstatdb_flags)) ;
 	    psp->f.writable = ((omode & O_WRONLY) || (omode & O_RDWR)) ;
 	    mkbstr(omode,bstr) ;
 #if	CF_DEBUGS
@@ -263,14 +261,14 @@ int pingstatdb_close(PINGSTATDB *psp)
 	rs1 = bclose(&psp->pfile) ;
 	if (rs >= 0) rs = rs1 ;
 
+	rs1 = vecitem_finish(&psp->entries) ;
+	if (rs >= 0) rs = rs1 ;
+
 	if (psp->fname != NULL) {
 	    rs1 = uc_free(psp->fname) ;
 	    if (rs >= 0) rs = rs1 ;
 	    psp->fname = NULL ;
 	}
-
-	rs1 = vecitem_finish(&psp->entries) ;
-	if (rs >= 0) rs = rs1 ;
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_close: ret rs=%d\n",rs) ;
@@ -348,8 +346,9 @@ int pingstatdb_enum(PINGSTATDB *psp,PINGSTATDB_CUR *curp,PINGSTATDB_ENT *ep)
 	                if (ep != NULL) {
 	                    rs = entry_load(ep,rp) ;
 	                    hl = rs ;
-	                } else 
+	                } else {
 	                    hl = strlen(ep->hostname) ;
+			}
 	            } /* end if (non-null) */
 	        } /* end if (vecitem_get) */
 	        if (rs < 0) {
@@ -388,12 +387,8 @@ int pingstatdb_match(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_ENT *ep)
 	    psp->f.readlocked = (rs >= 0) ;
 	}
 
-	if (rs < 0)
-	    goto bad0 ;
-
-	rs = pingstatdb_checkcache(psp) ;
-	if (rs < 0)
-	    goto bad1 ;
+	if (rs >= 0) {
+	    if ((rs = pingstatdb_checkcache(psp)) >= 0) {
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_match: name=%s\n", hostname) ;
@@ -401,39 +396,35 @@ int pingstatdb_match(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_ENT *ep)
 
 /* return SR_NOTFOUND if we fall off of the end */
 
-	if ((rs = pingstatdb_getrec(psp,hostname,&rp)) >= 0) {
-	    if (rp != NULL) {
-	        if (ep != NULL) {
-	            rs = entry_load(ep,rp) ;
-	            hl = rs ;
-	        } else {
-	            hl = strlen(ep->hostname) ;
-	        }
-	    } /* end if (non-null) */
-	} /* end if (pingstatdb_getrec) */
+	    if ((rs = pingstatdb_getrec(psp,hostname,&rp)) >= 0) {
+	        if (rp != NULL) {
+	            if (ep != NULL) {
+	                rs = entry_load(ep,rp) ;
+	                hl = rs ;
+	            } else {
+	                hl = strlen(ep->hostname) ;
+	            }
+	        } /* end if (non-null) */
+	    } /* end if (pingstatdb_getrec) */
 
 #if	CF_UNLOCK
-	psp->f.readlocked = FALSE ;
-	psp->f.writelocked = FALSE ;
-	bcontrol(&psp->pfile,BC_UNLOCK,0) ;
+	    psp->f.readlocked = FALSE ;
+	    psp->f.writelocked = FALSE ;
+	    bcontrol(&psp->pfile,BC_UNLOCK,0) ;
 #endif /* CF_UNLOCK */
 
-ret0:
+	    } else {
+	        psp->f.readlocked = FALSE ;
+	        psp->f.writelocked = FALSE ;
+	        bcontrol(&psp->pfile,BC_UNLOCK,0) ;
+	    } /* end if (pingstatdb_checkcache) */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("pingstatdb_match: ret rs=%d hl=%u\n",rs,hl) ;
 #endif
 
 	return (rs >= 0) ? hl : rs ;
-
-/* bad things */
-bad1:
-	psp->f.readlocked = FALSE ;
-	psp->f.writelocked = FALSE ;
-	bcontrol(&psp->pfile,BC_UNLOCK,0) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (pingstatdb_match) */
 
@@ -641,8 +632,9 @@ int pingstatdb_uptime(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_UP *up)
 	        cdp = &cd ;
 	        dater_settimezn(&cd,(time_t) timechange,psp->zname,-1) ;
 
-	    } else
+	    } else {
 	        cdp = &rp->cdate ;
+	    }
 
 /* force a change */
 
@@ -704,21 +696,23 @@ int pingstatdb_uptime(PINGSTATDB *psp,cchar *hostname,PINGSTATDB_UP *up)
 	    debugprintf("pingstatedb_uptime: hostname=%s\n", hostname) ;
 #endif
 
-	    if (rs >= 0)
+	    if (rs >= 0) {
 	        rs = record_write(&e,&psp->pfile,&ud,&cd,up->count,f_up) ;
+	    }
 
 #if	CF_DEBUGS
 	    debugprintf("pingstatedb_uptime: record_write() rs=%d\n",
 	        rs) ;
 #endif
 
-	    size = sizeof(PINGSTATDB_REC) ;
-	    if (rs >= 0)
+	    if (rs >= 0) {
+	        size = sizeof(PINGSTATDB_REC) ;
 	        rs = vecitem_add(&psp->entries,&e,size) ;
+	    }
 
-	    if ((rs < 0) && f_rec)
+	    if ((rs < 0) && f_rec) {
 	        record_finish(&e) ;
-
+	    }
 	} /* end if (target entry) */
 
 /* update the LASTUPDATE entry */
