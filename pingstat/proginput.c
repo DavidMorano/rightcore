@@ -130,6 +130,7 @@ int procstream(PROGINFO *pip,int fd)
 	struct pingstatmsg_unknown	mu ;
 	MSGBUF		mb ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		to = TO_READ ;
 	int		ti_start = pip->daytime ;
 	int		msgtype ;
@@ -252,7 +253,8 @@ int procstream(PROGINFO *pip,int fd)
 	        debugprintf("proginput/procstream: while-after\n") ;
 #endif
 
-	    msgbuf_finish(&mb) ;
+	    rs1 = msgbuf_finish(&mb) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (msgbuf) */
 
 	if (pip->open.logprog && pip->f.logextra) {
@@ -346,8 +348,7 @@ int procdatagram(PROGINFO *pip,int fd)
 	        }
 #endif /* CF_DEBUGN */
 
-	        if (rs <= 0)
-	            break ;
+	        if (rs <= 0) break ;
 
 	        ti_read = pip->daytime ;
 	        msgtype = (bp[0] & 0xff) ;
@@ -563,9 +564,10 @@ static int procentry(PROGINFO *pip,cchar *hostname,PINGSTATDB_UP *up)
 	    int		f_present ;
 	    const char	*s ;
 
-	    if (pip->debuglevel > 0)
+	    if (pip->debuglevel > 0) {
 	        bprintf(pip->efp,"%s: updating host=%s\n",
 	            pip->progname,hostname) ;
+	    }
 
 	    f_state0 = FALSE ;
 	    f_up = TRUE ;		/* always UP (for now) */

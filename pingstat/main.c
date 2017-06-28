@@ -325,7 +325,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	const char	*afname = NULL ;
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
-	const char	*ifname = NULL ;
 	const char	*hfname = NULL ;
 	const char	*cp ;
 
@@ -578,24 +577,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                ofname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* input file name */
-	                case argopt_if:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            ifname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                ifname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -1332,10 +1313,8 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                            switch (oi) {
 	                            case progopt_defintminping:
 	                                if (! pip->final.defintminping) {
-	                                    pip->have.defintminping = TRUE
-	                                        ;
-	                                    pip->final.defintminping = TRUE
-	                                        ;
+	                                    pip->have.defintminping = TRUE ;
+	                                    pip->final.defintminping = TRUE ;
 	                                    pip->f.defintminping = TRUE ;
 	                                    pip->defintminping = v ;
 	                                }
@@ -1343,18 +1322,15 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                            case progopt_intminping:
 	                                if (! pip->final.intminping) {
 	                                    pip->have.intminping = TRUE ;
-	                                    pip->final.intminping = TRUE
-	                                        ;
+	                                    pip->final.intminping = TRUE ;
 	                                    pip->f.intminping = TRUE ;
 	                                    pip->intminping = v ;
 	                                }
 	                                break ;
 	                            case progopt_intminupdate:
 	                                if (! pip->final.intminupdate) {
-	                                    pip->have.intminupdate = TRUE
-	                                        ;
-	                                    pip->final.intminupdate = TRUE
-	                                        ;
+	                                    pip->have.intminupdate = TRUE ;
+	                                    pip->final.intminupdate = TRUE ;
 	                                    pip->f.intminupdate = TRUE ;
 	                                    pip->intminupdate = v ;
 	                                }
@@ -1579,22 +1555,23 @@ static int processing(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	        pip->c_hosts,pip->c_processed,pip->c_up) ;
 #endif
 
-	if (rs >= 0) {
+	    if (rs >= 0) {
 		cchar	*pn = pip->progname ;
 		cchar	*fmt ;
 
-	    if (pip->debuglevel > 0) {
-		fmt = "%s: total hosts=%u processed=%u up=%u\n" ;
-	        bprintf(pip->efp,fmt,pn,
+	        if (pip->debuglevel > 0) {
+		    fmt = "%s: total hosts=%u processed=%u up=%u\n" ;
+	            bprintf(pip->efp,fmt,pn,
+	                pip->c_hosts,pip->c_processed,pip->c_up) ;
+		    fmt = "%s: pingtabs=%u\n" ;
+	            bprintf(pip->efp,fmt,pn,pip->c_pingtabs) ;
+	        } /* end if */
+
+		fmt = "hosts=%u processed=%u up=%u\n" ;
+	        logfile_printf(&pip->lh,fmt,
 	            pip->c_hosts,pip->c_processed,pip->c_up) ;
-		fmt = "%s: pingtabs=%u\n" ;
-	        bprintf(pip->efp,fmt,pn,pip->c_pingtabs) ;
-	    } /* end if */
 
-	    logfile_printf(&pip->lh,"hosts=%u processed=%u up=%u\n",
-	        pip->c_hosts,pip->c_processed,pip->c_up) ;
-
-	} /* end if (not in input-mode) */
+	    } /* end if (not in input-mode) */
 
 	} /* end if (program mode) */
 
@@ -2036,8 +2013,9 @@ static int procdefs_vardname(PROGINFO *pip)
 {
 	int		rs ;
 	cchar		*pr = pip->pr ;
+	cchar		*sn = pip->searchname ;
 	char		tbuf[MAXPATHLEN+1] ;
-	if ((rs = mkpath2(tbuf,pr,VDNAME)) >= 0) {
+	if ((rs = mkpath3(tbuf,pr,VDNAME,sn)) >= 0) {
 	    USTAT	sb ;
 	    const int	rsn = SR_NOTFOUND ;
 	    if ((rs = uc_stat(tbuf,&sb)) == rsn) {

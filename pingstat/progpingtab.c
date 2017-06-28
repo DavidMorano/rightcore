@@ -58,17 +58,11 @@ extern int	mkpath1w(char *,const char *,int) ;
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	vstrkeycmp(char **,char **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfdecti(const char *,int,int *) ;
-extern int	getpwd(char *,int) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
-extern int	getgroupname(char *,int,gid_t) ;
-extern int	bopenroot(bfile *,char *,char *,char *,char *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -77,7 +71,6 @@ extern int	strlinelen(const char *,int,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
-extern char	*timestr_log(time_t,char *) ;
 
 
 /* externals variables */

@@ -59,118 +59,120 @@
 /* exported subroutines */
 
 
-int pingstatmsg_update(sp,f,buf,buflen)
+int pingstatmsg_update(sp,f,mbuf,mlen)
 struct pingstatmsg_update	*sp ;
 int			f ;
-char			buf[] ;
-int			buflen ;
+char			mbuf[] ;
+int			mlen ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;
 	int		len = 0 ;
 
-	if ((rs = serialbuf_start(&msgbuf,buf,buflen)) >= 0) {
-	uint	hdr ;
+	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
+	    uint	hdr ;
 
-	if (f) { /* read */
+	    if (f) { /* read */
 
-	    serialbuf_ruint(&msgbuf,&hdr) ;
-	    sp->msgtype = (hdr & 0xff) ;
-	    sp->msglen = (hdr >> 8) ;
+	        serialbuf_ruint(&msgbuf,&hdr) ;
+	        sp->msgtype = (hdr & 0xff) ;
+	        sp->msglen = (hdr >> 8) ;
 
-	    serialbuf_ruint(&msgbuf,&sp->timestamp) ;
+	        serialbuf_ruint(&msgbuf,&sp->timestamp) ;
 
-	    serialbuf_rshort(&msgbuf,&sp->hostnamelen) ;
+	        serialbuf_rshort(&msgbuf,&sp->hostnamelen) ;
 
-	    serialbuf_rstrw(&msgbuf,sp->hostname,MAXHOSTNAMELEN) ;
+	        serialbuf_rstrw(&msgbuf,sp->hostname,MAXHOSTNAMELEN) ;
 
-	} else { /* write */
+	    } else { /* write */
 
-	    len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
-	    if (sp->hostnamelen < 0)
-	        len = strnlen(sp->hostname,MAXHOSTNAMELEN) ;
+	        len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
+	        if (sp->hostnamelen < 0) {
+	            len = strnlen(sp->hostname,MAXHOSTNAMELEN) ;
+		}
 
-	    sp->msgtype = pingstatmsgtype_update ;
-	    hdr = sp->msgtype ;
-	    serialbuf_wuint(&msgbuf,hdr) ;
+	        sp->msgtype = pingstatmsgtype_update ;
+	        hdr = sp->msgtype ;
+	        serialbuf_wuint(&msgbuf,hdr) ;
 
-	    serialbuf_wuint(&msgbuf,sp->timestamp) ;
+	        serialbuf_wuint(&msgbuf,sp->timestamp) ;
 
-	    serialbuf_wshort(&msgbuf,len) ;
+	        serialbuf_wshort(&msgbuf,len) ;
 
-	    serialbuf_wstrw(&msgbuf,sp->hostname,len) ;
+	        serialbuf_wstrw(&msgbuf,sp->hostname,len) ;
 
-	    if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
-	        hdr |= (sp->msglen << 8) ;
-		stdorder_wuint(buf,hdr) ;
-	    }
+	        if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
+	            hdr |= (sp->msglen << 8) ;
+	            stdorder_wuint(mbuf,hdr) ;
+	        }
 
-	} /* end if */
+	    } /* end if */
 
 	    len = serialbuf_finish(&msgbuf) ;
 	    if (rs >= 0) rs = len ;
 	} /* end if (serialbuf) */
 
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (pingstatmsg_update) */
 
 
-int pingstatmsg_uptime(sp,f,buf,buflen)
+int pingstatmsg_uptime(sp,f,mbuf,mlen)
 struct pingstatmsg_uptime	*sp ;
 int			f ;
-char			buf[] ;
-int			buflen ;
+char			mbuf[] ;
+int			mlen ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;
 	int		len = 0 ;
 
-	if ((rs = serialbuf_start(&msgbuf,buf,buflen)) >= 0) {
-	uint	hdr ;
+	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
+	    uint	hdr ;
 
-	if (f) { /* read */
+	    if (f) { /* read */
 
-	    serialbuf_ruint(&msgbuf,&hdr) ;
-	    sp->msgtype = (hdr & 0xff) ;
-	    sp->msglen = (hdr >> 8) ;
+	        serialbuf_ruint(&msgbuf,&hdr) ;
+	        sp->msgtype = (hdr & 0xff) ;
+	        sp->msglen = (hdr >> 8) ;
 
-	    serialbuf_ruint(&msgbuf,&sp->timestamp) ;
+	        serialbuf_ruint(&msgbuf,&sp->timestamp) ;
 
-	    serialbuf_ruint(&msgbuf,&sp->timechange) ;
+	        serialbuf_ruint(&msgbuf,&sp->timechange) ;
 
-	    serialbuf_ruint(&msgbuf,&sp->count) ;
+	        serialbuf_ruint(&msgbuf,&sp->count) ;
 
-	    serialbuf_rshort(&msgbuf,&sp->hostnamelen) ;
+	        serialbuf_rshort(&msgbuf,&sp->hostnamelen) ;
 
-	    serialbuf_rstrw(&msgbuf,sp->hostname,MAXHOSTNAMELEN) ;
+	        serialbuf_rstrw(&msgbuf,sp->hostname,MAXHOSTNAMELEN) ;
 
-	} else { /* write */
+	    } else { /* write */
 
-	    len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
-	    if (sp->hostnamelen < 0)
-	        len = strnlen(sp->hostname,MAXHOSTNAMELEN) ;
+	        len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
+	        if (sp->hostnamelen < 0) {
+	            len = strnlen(sp->hostname,MAXHOSTNAMELEN) ;
+		}
 
-	    sp->msgtype = pingstatmsgtype_uptime ;
-	    hdr = sp->msgtype ;
-	    serialbuf_wuint(&msgbuf,hdr) ;
+	        sp->msgtype = pingstatmsgtype_uptime ;
+	        hdr = sp->msgtype ;
+	        serialbuf_wuint(&msgbuf,hdr) ;
 
-	    serialbuf_wuint(&msgbuf,sp->timestamp) ;
+	        serialbuf_wuint(&msgbuf,sp->timestamp) ;
 
-	    serialbuf_wuint(&msgbuf,sp->timechange) ;
+	        serialbuf_wuint(&msgbuf,sp->timechange) ;
 
-	    serialbuf_wuint(&msgbuf,sp->count) ;
+	        serialbuf_wuint(&msgbuf,sp->count) ;
 
-	    serialbuf_wshort(&msgbuf,len) ;
+	        serialbuf_wshort(&msgbuf,len) ;
 
-	    serialbuf_wstrw(&msgbuf,sp->hostname,len) ;
+	        serialbuf_wstrw(&msgbuf,sp->hostname,len) ;
 
-	    if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
-	        hdr |= (sp->msglen << 8) ;
-		stdorder_wuint(buf,hdr) ;
-	    }
+	        if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
+	            hdr |= (sp->msglen << 8) ;
+	            stdorder_wuint(mbuf,hdr) ;
+	        }
 
-	} /* end if */
+	    } /* end if */
 
 	    len = serialbuf_finish(&msgbuf) ;
 	    if (rs >= 0) rs = len ;
@@ -180,79 +182,73 @@ int			buflen ;
 	debugprintf("pingstatmsg_update: ret rs=%d\n",rs) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (pingstatmsg_uptime) */
 
 
 /* unknown message */
-int pingstatmsg_unknown(sp,f,buf,buflen)
-char			buf[] ;
-int			buflen ;
-int			f ;
+int pingstatmsg_unknown(sp,f,mbuf,mlen)
 struct pingstatmsg_unknown	*sp ;
+int			f ;
+char			mbuf[] ;
+int			mlen ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;
 	int		len = 0 ;
 
-	if ((rs = serialbuf_start(&msgbuf,buf,buflen)) >= 0) {
-	uint	hdr ;
+	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
+	    uint	hdr ;
 
-	if (f) { /* read */
+	    if (f) { /* read */
 
-	    serialbuf_ruint(&msgbuf,&hdr) ;
-	    sp->msgtype = (hdr & 0xff) ;
-	    sp->msglen = (hdr >> 8) ;
+	        serialbuf_ruint(&msgbuf,&hdr) ;
+	        sp->msgtype = (hdr & 0xff) ;
+	        sp->msglen = (hdr >> 8) ;
 
-	} else { /* write */
+	    } else { /* write */
 
-	    sp->msgtype = pingstatmsgtype_unknown ;
-	    hdr = sp->msgtype ;
-	    serialbuf_wuint(&msgbuf,hdr) ;
+	        sp->msgtype = pingstatmsgtype_unknown ;
+	        hdr = sp->msgtype ;
+	        serialbuf_wuint(&msgbuf,hdr) ;
 
-	    if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
-	        hdr |= (sp->msglen << 8) ;
-		stdorder_wuint(buf,hdr) ;
-	    }
+	        if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
+	            hdr |= (sp->msglen << 8) ;
+	            stdorder_wuint(mbuf,hdr) ;
+	        }
 
-	} /* end if */
+	    } /* end if */
 
 	    len = serialbuf_finish(&msgbuf) ;
 	    if (rs >= 0) rs = len ;
 	} /* end if (serialbuf) */
 
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (pingstatmsg_unknown) */
 
 
 #ifdef	COMMENT
-
-int pingstatmsg_msglen(type)
-int	type ;
+int pingstatmsg_msglen(int type)
 {
-	int	rs ;
+	int		rs ;
 
 	switch (type) {
-
 	case pingstatmsgtype_update:
 	    rs = PINGSTATMSG_SUPDATE ;
 	    break ;
-
 	case pingstatmsgtype_uptime:
 	    rs = PINGSTATMSG_SUPTIME ;
 	    break ;
-
 	default:
 	    rs = SR_INVALID ;
-
+	    break ;
 	} /* end switch */
 
 	return rs ;
 }
 /* end subroutine (pingstatmsg_msglen) */
-
 #endif /* COMMENT */
 
 

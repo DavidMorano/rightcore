@@ -12,7 +12,7 @@ where:
 -u		update mode
 <host(s)>	network hosts to update
 -pd <dir>	specify directory for ping-tab files
--p <pingtab>	tables contains host specifications
+-p <pingtab>	file tables contain host specifications
 -t <to>		ping timeout
 -q		do not print any output (only provide exit code)
 -dgram		specify data-gram mode (for daemon input mode)
