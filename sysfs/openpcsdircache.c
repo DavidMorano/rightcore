@@ -118,6 +118,7 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	strwcmp(const char *,const char *,int) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	prmktmpdir(cchar *,char *,cchar *,cchar *,mode_t) ;
+extern int	vecpstr_loaddirs(VECPSTR *,const char *) ;
 extern int	isprintlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
@@ -146,7 +147,7 @@ extern char	*timestr_log(time_t,char *) ;
 static int procdname(const char	*,int) ;
 static int procdiffer(VECPSTR *,const char *) ;
 static int procdircache(VECPSTR *,const char *) ;
-static int vecpstr_loaddirs(VECPSTR *,const char *) ;
+static int procdircacher(vecpstr *,cchar *) ;
 
 
 /* local variables */
@@ -228,7 +229,7 @@ static int procdname(cchar *newsdname,int ttl)
 #endif
 
 	if ((rs = mkpath2(dcfname,newsdname,dc)) >= 0) {
-	    struct ustat	sb ;
+	    USTAT	sb ;
 	    if ((rs = u_stat(dcfname,&sb)) >= 0) {
 		if (ttl >= 0) {
 		    time_t	dt = time(NULL) ;
@@ -260,14 +261,15 @@ static int procdiffer(VECPSTR *dlp,cchar *newsdname)
 {
 	const int	ml = strlen(DIRCACHE_MAGIC) ;
 	int		rs ;
+	int		rs1 ;
 	int		f = TRUE ;
-	const char	*dc = DIRCACHE_CFNAME ;
-	char		dcfname[MAXPATHLEN+1] ;
 
 	if ((rs = vecpstr_getsize(dlp)) >= 0) {
 	    const int	dsize = rs ;
+	    const char	*dc = DIRCACHE_CFNAME ;
+	    char	dcfname[MAXPATHLEN+1] ;
 	    if ((rs = mkpath2(dcfname,newsdname,dc)) >= 0) {
-	        struct ustat	sb ;
+	        USTAT	sb ;
 	        if ((rs = uc_stat(dcfname,&sb)) >= 0) {
 	            bfile	cfile, *cfp = &cfile ;
 	            int	fsize = (sb.st_size & INT_MAX) ;
@@ -284,14 +286,16 @@ static int procdiffer(VECPSTR *dlp,cchar *newsdname)
 	                            if (dbuf[dl-1] == '\n') dl -= 1 ;
 	                            if (vecpstr_get(dlp,(line-1),&dp) >= 0) {
 	                                f_mis = (strwcmp(dp,dbuf,dl) != 0) ;
-	                            } else
+	                            } else {
 	                                f_mis = TRUE ;
+				    }
 	                        }
 	                        line += 1 ;
 	                        if (f_mis) break ;
 	                    } /* end while */
 	                    if (! f_mis) f = FALSE ;
-	                    bclose(cfp) ;
+	                    rs1 = bclose(cfp) ;
+			    if (rs >= 0) rs = rs1 ;
 	                } /* end if (file-open) */
 	            } /* end if (sizes were the same) */
 	        } else if (isNotAccess(rs)) {
@@ -307,54 +311,27 @@ static int procdiffer(VECPSTR *dlp,cchar *newsdname)
 
 static int procdircache(VECPSTR *dlp,cchar *newsdname)
 {
-	bfile		dcfile, *dcfp = &dcfile ;
 	int		rs ;
 	int		c = 0 ;
 	char		dcfname[MAXPATHLEN + 1] ;
-	char		tmpfname[MAXPATHLEN + 1] ;
-	char		template[MAXPATHLEN + 1] ;
-
-/* create the replacement file for the directory cache */
 
 	if ((rs = mkpath2(dcfname,newsdname,DIRCACHE_CFNAME)) >= 0) {
+	    char	template[MAXPATHLEN + 1] ;
 	    if ((rs = mkpath2(template,newsdname,".dircacheXXXXXX")) >= 0) {
-	        if ((rs = mktmpfile(tmpfname,0664,template)) >= 0) {
-
-	            if ((rs = bopen(dcfp,tmpfname,"wct",0664)) >= 0) {
-	                int		i ;
-	                int		dl ;
-	                const char	*dp ;
-
-	                bprintline(dcfp,DIRCACHE_MAGIC,-1) ;
-
-	                for (i = 0 ; vecpstr_get(dlp,i,&dp) >= 0 ; i += 1) {
-	                    if (dp != NULL) {
-	                        dl = strlen(dp) ;
-		                c += 1 ;
-	                        rs = bprintline(dcfp,dp,dl) ;
-			    }
-	                    if (rs < 0) break ;
-	                } /* end for */
-
-/* only gets directories, but follow links to find them */
-
-	                bclose(dcfp) ;
-	            } /* end if (opened replacement file) */
-
-	            if (rs >= 0) {
-	                rs = u_rename(tmpfname,dcfname) ;
+		char	tbuf[MAXPATHLEN + 1] ;
+	        if ((rs = mktmpfile(tbuf,0664,template)) >= 0) {
+		     if ((rs = procdircacher(dlp,tbuf)) >= 0) {
+	                rs = u_rename(tbuf,dcfname) ;
+			if (rs < 0) {
+	                    u_unlink(tbuf) ;
+			}
 	            } /* end if (renaming attempt) */
-
-	            if ((rs < 0) && (tmpfname[0] != '\0')) {
-	                u_unlink(tmpfname) ;
-	            } /* end if (unlink attempt) */
-
 	        } /* end if (mktmpfile) */
 	    } /* end if (mkpath) */
 	} /* end if (mkpath) */
 
 #if	CF_DEBUGS
-	    debugprintf("procdname: ret rs=%d c=%u\n",rs,c) ;
+	debugprintf("procdname: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
@@ -362,45 +339,32 @@ static int procdircache(VECPSTR *dlp,cchar *newsdname)
 /* end subroutine (procdircache) */
 
 
-static int vecpstr_loaddirs(VECPSTR *op,const char *newsdname)
+static int procdircacher(vecpstr *dlp,cchar *fn)
 {
-	FSDIRTREE	dir ;
+	bfile		dcfile, *dcfp = &dcfile ;
 	int		rs ;
 	int		rs1 ;
-	int		opts ;
 	int		c = 0 ;
-
-	if (op == NULL) return SR_FAULT ;
-	if (newsdname == NULL) return SR_FAULT ;
-
-	opts = (FSDIRTREE_MFOLLOW | FSDIRTREE_MDIR) ;
-	if ((rs = fsdirtree_open(&dir,newsdname,opts)) >= 0) {
-	    struct ustat	sb ;
-	    const int	flen = MAXPATHLEN ;
-	    int		fl ;
-	    char	fbuf[MAXPATHLEN+1] ;
-
-	    while ((rs = fsdirtree_read(&dir,&sb,fbuf,flen)) > 0) {
-	        fl = rs ;
-
-	        if (fbuf[0] != '.') {
-	            c += 1 ;
-	            rs = vecpstr_add(op,fbuf,fl) ;
-	        }
-
-	        if (rs < 0) break ;
-	    } /* end while */
-
-	    rs1 = fsdirtree_close(&dir) ;
+	if ((rs = bopen(dcfp,fn,"wct",0664)) >= 0) {
+	    if ((rs = bprintline(dcfp,DIRCACHE_MAGIC,-1)) >= 0) {
+	        int	i ;
+	        int	dl ;
+	        cchar	*dp ;
+	        for (i = 0 ; vecpstr_get(dlp,i,&dp) >= 0 ; i += 1) {
+	            if (dp != NULL) {
+	                dl = strlen(dp) ;
+	                c += 1 ;
+	                rs = bprintline(dcfp,dp,dl) ;
+	            }
+	            if (rs < 0) break ;
+	        } /* end for */
+	    } /* end if */
+	    rs1 = bclose(dcfp) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (fsdirtree) */
-
-	if (rs >= 0) {
-	    vecpstr_sort(op,NULL) ;
-	}
+	} /* end if (opened replacement file) */
 
 	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (vecpstr_loaddirs) */
+/* end subroutine (procdircacher) */
 
 

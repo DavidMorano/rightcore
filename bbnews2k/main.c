@@ -1281,6 +1281,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* some initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (ufname == NULL) ufname = getenv(VARNEWSRC) ;
@@ -1302,19 +1307,17 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    debugprintf("main: progmode=%d\n",pip->progmode) ;
 #endif
 
-	rs = procopts(pip,&akopts) ;
-	if (rs < 0) {
-	    ex = EX_USAGE ;
-	    goto retearly ;
-	}
-
-#if	CF_CHECKONC
-	rs = checkonc(pip->pr,NULL,NULL,NULL) ;
-	pip->f.onckey = (rs >= 0) ;
-#endif
-
 	if (rs >= 0) {
-	    rs = initnow(&pip->now,pip->zname,DATER_ZNAMESIZE) ;
+	    if ((rs = initnow(&pip->now,pip->zname,DATER_ZNAMESIZE)) >= 0) {
+	        if (( rs = procopts(pip,&akopts)) >= 0) {
+#if	CF_CHECKONC
+		    rs = checkonc(pip->pr,NULL,NULL,NULL) ;
+		    pip->f.onckey = (rs >= 0) ;
+#else
+		    rs = 1 ;
+#endif /* CF_CHECKONC */
+		}
+	    }
 	}
 
 	if ((pip->progmode < 0) && pip->f.test)
