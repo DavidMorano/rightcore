@@ -67,7 +67,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -160,12 +159,7 @@ static int	strestlen(const char *,int) ;
 
 
 /* output a general header */
-int progouthead(pip,ofp,name,vp,vl)
-PROGINFO	*pip ;
-bfile		*ofp ;
-const char	name[] ;
-const char	vp[] ;
-int		vl ;
+int progouthead(PROGINFO *pip,bfile *ofp,cchar *name,cchar *vp,int vl)
 {
 	OUTLINE		ld ;
 	const int	llen = MAILMSGLINELEN ;
@@ -210,11 +204,7 @@ int		vl ;
 
 
 /* output a header that comtains one or more EMAs */
-int progoutheadema(pip,ofp,name,ap)
-PROGINFO	*pip ;
-bfile		*ofp ;
-const char	name[] ;
-EMA		*ap ;
+int progoutheadema(PROGINFO *pip,bfile *ofp,cchar *name,EMA *ap)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -234,90 +224,84 @@ EMA		*ap ;
 	    BUFFER	b ;
 	    if ((rs = buffer_start(&b,80)) >= 0) {
 	        if ((rs = ema_count(ap)) > 0) {
-		    OUTLINE	ld ;
+	            OUTLINE	ld ;
 	            const int	llen = MAILMSGLINELEN ;
 	            const int	n = rs ;
 	            if ((rs = outline_start(&ld,llen,llen)) >= 0) {
 	                int	c = 0 ;
 
-	            if (rs >= 0) {
-	                rs = bprintf(ofp,"%s: ",name) ;
-	                wlen += rs ;
-	                ld.rlen -= rs ;
-	            }
+	                if (rs >= 0) {
+	                    rs = bprintf(ofp,"%s: ",name) ;
+	                    wlen += rs ;
+	                    ld.rlen -= rs ;
+	                }
 
-	            if (rs >= 0) {
-	                EMA_ENT		*ep ;
-	                const char	*fmt ;
-	                int		nlen ;
-	                int		elen ;
-	                int		i ;
-			int		f_linestart = FALSE ;
-	                for (i = 0 ; ema_get(ap,i,&ep) >= 0 ; i += 1) {
-	                    if (ep == NULL) continue ;
+	                if (rs >= 0) {
+	                    EMA_ENT	*ep ;
+	                    const char	*fmt ;
+	                    int		nlen ;
+	                    int		elen ;
+	                    int		i ;
+	                    int		f_linestart = FALSE ;
+	                    for (i = 0 ; ema_get(ap,i,&ep) >= 0 ; i += 1) {
+	                        if (ep != NULL) {
 
-#if	CF_DEBUG
-	                    if (DEBUGLEVEL(5)) {
-	                        debugprintf("progout/_headema: i=%u o=>%t<\n",
-	                            i,ep->op,strlinelen(ep->op,ep->ol,40)) ;
-	                    }
-#endif
-
-	                    elen = strestlen(ep->op,ep->ol) ;
+	                        elen = strestlen(ep->op,ep->ol) ;
 
 /* calculate how much space (columns) need for this EMA */
 
-	                    nlen = (f_linestart) ? (elen+2) : elen ;
-	                    if ((c + 1) < n) nlen += 1 ;
+	                        nlen = (f_linestart) ? (elen+2) : elen ;
+	                        if ((c + 1) < n) nlen += 1 ;
 
 /* see if it will fit in remaining available space */
 
-	                    if (nlen > ld.rlen) {
-	                        fmt = (f_linestart) ? ",\n " : "\n " ;
-	                        rs = bwrite(ofp,fmt,strlen(fmt)) ;
-	                        wlen += rs ;
-	                        f_linestart = FALSE ;
-	                        ld.rlen = (ld.maxlen - 1) ;
-	                    }
+	                        if (nlen > ld.rlen) {
+	                            fmt = (f_linestart) ? ",\n " : "\n " ;
+	                            rs = bwrite(ofp,fmt,strlen(fmt)) ;
+	                            wlen += rs ;
+	                            f_linestart = FALSE ;
+	                            ld.rlen = (ld.maxlen - 1) ;
+	                        }
 
-	                    if ((rs >= 0) && f_linestart) {
-	                        rs = bwrite(ofp,", ",2) ;
-	                        wlen += rs ;
-	                        ld.rlen -= rs ;
-	                    } /* end if */
+	                        if ((rs >= 0) && f_linestart) {
+	                            rs = bwrite(ofp,", ",2) ;
+	                            wlen += rs ;
+	                            ld.rlen -= rs ;
+	                        } /* end if */
 
-	                    if (rs >= 0) {
+	                        if (rs >= 0) {
 
 #if	CF_OUTVALUE
-	                        rs = outentry(pip,ofp,&ld,&b,ep) ;
-	                        wlen += rs ;
+	                            rs = outentry(pip,ofp,&ld,&b,ep) ;
+	                            wlen += rs ;
 #else
-	                        rs = bwrite(ofp,ep->op,ep->ol) ;
-	                        wlen += rs ;
-	                        ld.rlen -= rs ;
+	                            rs = bwrite(ofp,ep->op,ep->ol) ;
+	                            wlen += rs ;
+	                            ld.rlen -= rs ;
 #endif /* CF_OUTVALUE */
 
-	                    } /* end if */
+	                        } /* end if */
 
-	                    f_linestart = TRUE ;
-	                    c += 1 ;
+	                        f_linestart = TRUE ;
+	                        c += 1 ;
 
-	                    if (rs < 0) break ;
-	                } /* end for */
-	            } /* end if (ok) */
+				}
+	                        if (rs < 0) break ;
+	                    } /* end for */
+	                } /* end if (ok) */
 
-	            if (rs >= 0) {
-	                rs = bprintf(ofp,"\n") ;
-	                wlen += rs ;
-	            }
+	                if (rs >= 0) {
+	                    rs = bprintf(ofp,"\n") ;
+	                    wlen += rs ;
+	                }
 
-	            rs1 = outline_finish(&ld) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } /* end if (outline) */
-	    } /* end if (ema-count) */
-	    rs1 = buffer_finish(&b) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (buffer) */
+	                rs1 = outline_finish(&ld) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (outline) */
+	        } /* end if (ema-count) */
+	        rs1 = buffer_finish(&b) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (buffer) */
 	} /* end if (non-null) */
 
 	return (rs >= 0) ? wlen : rs ;
@@ -359,16 +343,16 @@ MAILMSGATT_ENT	*ep ;
 
 	if ((rs = bopen(ifp,fn,"r",0666)) >= 0) {
 	    const int	cte = ep->cte ;
+	    const int	f_pt = ep->f_plaintext ;
 	    int		f_fname ;
 	    int		f_enc = FALSE ;
-	    int		f_pt = ep->f_plaintext ;
 	    cchar	*dn = "/dev/fd/" ;
 	    cchar	*enc = ep->encoding ;
 	    cchar	*kn ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	    debugprintf("progoutpart: f_pt=%u\n",f_pt) ;
+	    if (DEBUGLEVEL(5))
+	        debugprintf("progoutpart: f_pt=%u\n",f_pt) ;
 #endif
 
 /* start printing */
@@ -396,13 +380,13 @@ MAILMSGATT_ENT	*ep ;
 	    f_fname = f_fname && (strncmp(ep->attfname,dn,8) != 0) ;
 
 	    if (rs >= 0) {
-		const int	f0 = (ep->cte >= CE_7BIT) ;
-		const int	f1 = (ep->subtype != NULL) ;
-		if (f_multipart || f_fname || (! f_pt) || f0 || f1) {
+	        const int	f0 = (ep->cte >= CE_7BIT) ;
+	        const int	f1 = (ep->subtype != NULL) ;
+	        if (f_multipart || f_fname || (! f_pt) || f0 || f1) {
 	            f_enc = TRUE ;
 	            rs = outct(pip,ofp,ep) ;
 	            wlen += rs ;
-		}
+	        }
 	    } /* end if (content type) */
 
 /* content disposition */
@@ -418,11 +402,11 @@ MAILMSGATT_ENT	*ep ;
 
 	    if ((rs >= 0) && (((enc != NULL) && f_enc) || (cte >= CE_7BIT))) {
 
-		if (enc != NULL) {
+	        if (enc != NULL) {
 	            kn = "content-transfer-encoding" ;
 	            rs = bprintf(ofp,"%s: %s\n",kn,enc) ;
 	            wlen += rs ;
-		}
+	        }
 
 	        if ((rs >= 0) && (ep->cte == CE_BINARY)) {
 
@@ -471,7 +455,7 @@ MAILMSGATT_ENT	*ep ;
 
 	    rs1 = bclose(ifp) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (opened file) */
+	} /* end if (file) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -551,7 +535,7 @@ EMA_ENT		*ep ;
 	        wlen += rs ;
 	    }
 
-	} /* end if (buffer-ret) */
+	} /* end if (buffer-reset) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -616,8 +600,9 @@ int		vl ;
 	        } else if ((tp = strnchr(vp,vl,'\n')) != NULL) {
 	            vl -= ((tp + 1) - vp) ;
 	            vp = (tp + 1) ;
-	        } else
+	        } else {
 	            vl = 0 ;
+		}
 
 	    } /* end while */
 
@@ -634,14 +619,14 @@ static int outct(PROGINFO *pip,bfile *ofp,MAILMSGATT_ENT *ep)
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	int		cte = ep->cte ;
+	const int	f_pt = ep->f_plaintext ;
 	int		f_mime = pip->f.mime ;
-	int		f_pt = ep->f_plaintext ;
 
 	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("progout/outct: ent f_mime=%u\n",f_mime) ;
+	    debugprintf("progout/outct: ent f_mime=%u\n",f_mime) ;
 #endif
 
 	if ((ep->type != NULL) && (f_mime || (! f_pt) || (cte >= CE_7BIT))) {
@@ -670,22 +655,22 @@ static int outct(PROGINFO *pip,bfile *ofp,MAILMSGATT_ENT *ep)
 
 	        if (ep->f_plaintext && (ep->cte >= CE_7BIT)) {
 	            cchar *cs = "ISO-8859-1" ;
-		    if (ep->cte == CE_7BIT) cs = "US-ASCII" ;
+	            if (ep->cte == CE_7BIT) cs = "US-ASCII" ;
 	            rs = bprintf(ofp," ; charset=%s",cs) ;
 	            wlen += rs ;
 	        }
 
 	        if (rs >= 0) {
-		    cchar	*dn = "/dev/fd/" ;
+	            cchar	*dn = "/dev/fd/" ;
 	            cchar	*fn = ep->attfname ;
 	            if ((fn != NULL) && (fn[0] != '-') && (fn[0] != '\0')) {
-			if (strncmp(fn,dn,8) != 0) {
+	                if (strncmp(fn,dn,8) != 0) {
 	                    if ((rs = bprintf(ofp,";\n")) >= 0) {
 	                        wlen += rs ;
 	                        rs = bprintf(ofp," name=\"%s\"",fn) ;
 	                        wlen += rs ;
-			    }
-			}
+	                    }
+	                }
 	            }
 	        }
 
@@ -700,7 +685,7 @@ static int outct(PROGINFO *pip,bfile *ofp,MAILMSGATT_ENT *ep)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("progout/outct: ret rs=%d wlen=%u\n",rs,wlen) ;
+	    debugprintf("progout/outct: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
 	return (rs >= 0) ? wlen : rs ;
@@ -776,24 +761,21 @@ static int outpartbody(PROGINFO *pip,bfile *ofp,bfile *ifp,MAILMSGATTENT *ep)
 /* end subroutine (outpartbody) */
 
 
-static int outpartbodybits(pip,ofp,ifp,ep)
-PROGINFO	*pip ;
-bfile		*ofp ;
-bfile		*ifp ;
-MAILMSGATTENT	*ep ;
+static int outpartbodybits(PROGINFO *pip,bfile *ofp,bfile *ifp,
+	MAILMSGATTENT *ep)
 {
-	const int	cols = MAILTEXTCOLS ;
 	const int	ind = 2 ;
 	const int	bllen = BIGLINEBUFLEN ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
-	int		f_pt = ep->f_plaintext ;
+	const int	f_pt = ep->f_plaintext ;
 	char		*blbuf = NULL ;
 	char		*p ;
 
 	if ((rs = uc_malloc((bllen+1),&p)) >= 0) {
 	    LINEFOLD	lf ;
+	    const int	cols = MAILTEXTCOLS ;
 	    const int	f_textcrnl = (pip->f.crnl && f_pt) ;
 	    int		len ;
 	    int		ll ;
@@ -858,7 +840,7 @@ MAILMSGATTENT	*ep ;
 	                        } /* end while */
 
 	                        rs1 = linefold_finish(&lf) ;
-				if (rs >= 0) rs = rs1 ;
+	                        if (rs >= 0) rs = rs1 ;
 	                    } /* end if (linefold) */
 	                } else {
 	                    lp = "\r\n" ;
@@ -897,7 +879,7 @@ static int outbase64(PROGINFO *pip,bfile *ofp,cchar *sbuf,int slen)
 {
 	int		rs = SR_OK ;
 	int		i = 0 ;
-	int		rlen ;
+	int		rlen = slen ;
 	int		len ;
 	int		wlen = 0 ;
 	char		outbuf[BASE64LINELEN + 4] ;
@@ -909,7 +891,6 @@ static int outbase64(PROGINFO *pip,bfile *ofp,cchar *sbuf,int slen)
 	    debugprintf("progout/outbase64: ent slen=%u\n",slen) ;
 #endif
 
-	rlen = slen ;
 	while ((rs >= 0) && (rlen > 0)) {
 	    const int	mlen = MIN(BASE64BUFLEN,rlen) ;
 	    len = base64_e((sbuf + i),mlen,outbuf) ;
@@ -953,6 +934,7 @@ static int outline_finish(OUTLINE *op)
 /* end subroutine (outline_finish) */
 
 
+/* calculate an estimated length */
 static int strestlen(cchar *sp,int sl)
 {
 	int		len = 0 ;

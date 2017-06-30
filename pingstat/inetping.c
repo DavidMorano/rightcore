@@ -317,8 +317,7 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 	for (i = 0 ; i < 3 ; i += 1) {
 
 	    bfd[i] = -1 ;
-	    if (u_fstat(i,&sb) >= 0) 
-		continue ;
+	    if (u_fstat(i,&sb) >= 0) continue ;
 
 	    if (i == 0) {
 	        rs = u_open(nullfname,O_RDONLY,0600) ;
@@ -326,8 +325,9 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 	        rs = u_open(nullfname,O_WRONLY,0600) ;
 	    }
 
-	    if (rs >= 0)
+	    if (rs >= 0) {
 	        bfd[i] = i ;
+	    }
 
 	} /* end for */
 
@@ -420,8 +420,7 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 #endif
 
 	    len = rs ;
-	    if (rs < 0)
-	        break ;
+	    if (rs < 0) break ;
 
 	    if (len > 0) {
 #if	CF_DEBUGS
@@ -430,8 +429,9 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 	        f_found = (strnchr(bp,len,'\n') != NULL) ;
 	        i += len ;
 	        if (f_found) break ;
-	    } else
+	    } else {
 	        to += TO_READ ;
+	    }
 
 #if	CF_DEBUGS
 	    debugprintf("inetping/pingone: bottom loop, to=%d\n",to) ;

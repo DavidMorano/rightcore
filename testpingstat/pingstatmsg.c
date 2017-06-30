@@ -33,10 +33,8 @@
 #include	<sys/param.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<time.h>
 
 #include	<vsystem.h>
-#include	<vecstr.h>
 #include	<serialbuf.h>
 #include	<stdorder.h>
 #include	<localmisc.h>
@@ -67,7 +65,7 @@ int			mlen ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;
-	int		len = 0 ;
+	int		rs1 ;
 
 	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
 	    uint	hdr ;
@@ -85,9 +83,11 @@ int			mlen ;
 	        serialbuf_rstrw(&msgbuf,sp->hostname,MAXHOSTNAMELEN) ;
 
 	    } else { /* write */
+		int	len ;
 
-	        len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
-	        if (sp->hostnamelen < 0) {
+	        if (sp->hostnamelen >= 0) {
+	            len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
+		} else {
 	            len = strnlen(sp->hostname,MAXHOSTNAMELEN) ;
 		}
 
@@ -108,11 +108,11 @@ int			mlen ;
 
 	    } /* end if */
 
-	    len = serialbuf_finish(&msgbuf) ;
-	    if (rs >= 0) rs = len ;
+	    rs1 = serialbuf_finish(&msgbuf) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (serialbuf) */
 
-	return (rs >= 0) ? len : rs ;
+	return rs ;
 }
 /* end subroutine (pingstatmsg_update) */
 
@@ -125,7 +125,7 @@ int			mlen ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;
-	int		len = 0 ;
+	int		rs1 ;
 
 	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
 	    uint	hdr ;
@@ -147,9 +147,11 @@ int			mlen ;
 	        serialbuf_rstrw(&msgbuf,sp->hostname,MAXHOSTNAMELEN) ;
 
 	    } else { /* write */
+		int	len ;
 
-	        len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
-	        if (sp->hostnamelen < 0) {
+	        if (sp->hostnamelen >= 0) {
+	            len = MIN(sp->hostnamelen,MAXHOSTNAMELEN) ;
+		} else {
 	            len = strnlen(sp->hostname,MAXHOSTNAMELEN) ;
 		}
 
@@ -174,15 +176,11 @@ int			mlen ;
 
 	    } /* end if */
 
-	    len = serialbuf_finish(&msgbuf) ;
-	    if (rs >= 0) rs = len ;
+	    rs1 = serialbuf_finish(&msgbuf) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (serialbuf) */
 
-#if	CF_DEBUGS
-	debugprintf("pingstatmsg_update: ret rs=%d\n",rs) ;
-#endif
-
-	return (rs >= 0) ? len : rs ;
+	return rs ;
 }
 /* end subroutine (pingstatmsg_uptime) */
 
@@ -196,7 +194,7 @@ int			mlen ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;
-	int		len = 0 ;
+	int		rs1 ;
 
 	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
 	    uint	hdr ;
@@ -220,11 +218,11 @@ int			mlen ;
 
 	    } /* end if */
 
-	    len = serialbuf_finish(&msgbuf) ;
-	    if (rs >= 0) rs = len ;
+	    rs1 = serialbuf_finish(&msgbuf) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (serialbuf) */
 
-	return (rs >= 0) ? len : rs ;
+	return rs ;
 }
 /* end subroutine (pingstatmsg_unknown) */
 

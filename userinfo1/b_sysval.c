@@ -2837,8 +2837,9 @@ static int locinfo_systemname(LOCINFO *lip)
 	            }
 	        } /* end if (getnodeinfo) */
 	    } /* end if (locinfo_nodename) */
-	} else
+	} else {
 	    len = strlen(lip->systemname) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -2867,8 +2868,9 @@ static int locinfo_sysdomain(LOCINFO *lip)
 	        len = rs ;
 	        rs = locinfo_setentry(lip,vpp,dbuf,rs) ;
 	    } /* end if (getsysdomain) */
-	} else
+	} else {
 	    len = strlen(lip->sysdomain) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
@@ -2894,8 +2896,9 @@ static int locinfo_fsdir(LOCINFO *lip)
 	        cchar	**vpp = &lip->fname ;
 	        rs = locinfo_setentry(lip,vpp,hbuf,rs) ;
 	    }
-	} else
+	} else {
 	    rs = strlen(lip->fname) ;
+	}
 
 	return rs ;
 }

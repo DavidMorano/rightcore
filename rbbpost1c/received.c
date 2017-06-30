@@ -64,8 +64,6 @@
 
 /* local defines */
 
-#define	RECEIVED_MAGIC	0x97634587
-
 
 /* external subroutines */
 
@@ -221,12 +219,11 @@ int received_finish(RECEIVED *op)
 	    op->a = NULL ;
 	}
 
-	op->magic = 0 ;
-
 #if	CF_DEBUGS
 	debugprintf("received_finish: ret rs=%d\n",rs) ;
 #endif
 
+	op->magic = 0 ;
 	return rs ;
 }
 /* end subroutine (received_finish) */
@@ -248,8 +245,9 @@ int received_getkey(RECEIVED *op,int ki,cchar **rpp)
 
 	cl = (op->key[ki] != NULL) ? strlen(op->key[ki]) : 0 ;
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = op->key[ki] ;
+	}
 
 	return cl ;
 }
@@ -279,8 +277,6 @@ static int received_bake(RECEIVED *op,int size,const char *sp,int sl)
 
 	if ((rs = sbuf_start(&sb,op->a,size)) >= 0) {
 	    FIELD	fsb ;
-
-/* do the parsing */
 
 	    if ((rs = field_start(&fsb,sp,sl)) >= 0) {
 	        const char	*fp ;

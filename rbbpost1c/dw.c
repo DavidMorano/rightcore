@@ -40,7 +40,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<regexpr.h>
 
 #include	<vsystem.h>
@@ -105,18 +104,13 @@ static int	fnamecmp(struct dw_ientry **,struct dw_ientry **) ;
 /* exported subroutines */
 
 
-int dw_start(dwp,dirname)
-DW		*dwp ;
-const char	dirname[] ;
+int dw_start(DW *dwp,cchar *dirname)
 {
-	time_t	daytime = time(NULL) ;
-
-	int	rs = SR_OK ;
-	int	size ;
-	int	opts ;
-
+	time_t		daytime = time(NULL) ;
+	int		rs = SR_OK ;
+	int		size ;
+	int		opts ;
 	const char	*cp ;
-
 
 	if (dwp == NULL) return SR_FAULT ;
 	if (dirname == NULL) return SR_FAULT ;
@@ -189,21 +183,16 @@ bad0:
 
 
 /* free up the resources occupied by a DW object */
-int dw_finish(dwp)
-DW		*dwp ;
+int dw_finish(DW *dwp)
 {
-	IENTRY	*iep ;
+	IENTRY		*iep ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
+	if (dwp == NULL) return SR_FAULT ;
 
-
-	if (dwp == NULL)
-	    return SR_FAULT ;
-
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
 /* directory entries */
 
@@ -243,17 +232,12 @@ DW		*dwp ;
 /* end subroutine (dw_finish) */
 
 
-int dw_curbegin(dwp,cp)
-DW		*dwp ;
-DW_CUR		*cp ;
+int dw_curbegin(DW *dwp,DW_CUR *cp)
 {
 
+	if (dwp == NULL) return SR_FAULT ;
 
-	if (dwp == NULL)
-	    return SR_FAULT ;
-
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
 	cp->i = -1 ;
 	return SR_OK ;
@@ -261,17 +245,12 @@ DW_CUR		*cp ;
 /* end subroutine (dw_curbegin) */
 
 
-int dw_curend(dwp,cp)
-DW		*dwp ;
-DW_CUR		*cp ;
+int dw_curend(DW *dwp,DW_CUR *cp)
 {
 
+	if (dwp == NULL) return SR_FAULT ;
 
-	if (dwp == NULL)
-	    return SR_FAULT ;
-
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
 	cp->i = -1 ;
 	return SR_OK ;
@@ -280,23 +259,16 @@ DW_CUR		*cp ;
 
 
 /* enumerate the directory entries */
-int dw_enum(dwp,cp,dep)
-DW		*dwp ;
-DW_CUR		*cp ;
-DW_ENT	*dep ;
+int dw_enum(DW *dwp,DW_CUR *cp,DW_ENT *dep)
 {
-	IENTRY	*iep ;
+	IENTRY		*iep ;
+	int		rs ;
+	int		i ;
+	int		nlen ;
 
-	int	rs ;
-	int	i ;
-	int	nlen ;
+	if (dwp == NULL) return SR_FAULT ;
 
-
-	if (dwp == NULL)
-	    return SR_FAULT ;
-
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
 	debugprintf("dw_enum: ent\n") ;
@@ -306,9 +278,9 @@ DW_ENT	*dep ;
 
 	if ((cp == NULL) || (cp->i < 0)) {
 	    i = 0 ;
-
-	} else
+	} else {
 	    i = cp->i + 1 ;
+	}
 
 	while ((rs = vecobj_get(&dwp->e,i,&iep)) >= 0) {
 	    if (iep != NULL) break ;
@@ -317,8 +289,9 @@ DW_ENT	*dep ;
 
 	if (rs >= 0) {
 
-	    if (dep != NULL)
+	    if (dep != NULL) {
 		rs = entry_load(dep,iep) ;
+	    }
 
 	    nlen = rs ;
 	    if ((rs >= 0) && (cp != NULL))
@@ -326,8 +299,9 @@ DW_ENT	*dep ;
 
 	}
 
-	if ((cp != NULL) && (rs >= 0))
+	if ((cp != NULL) && (rs >= 0)) {
 	    cp->i = i ;
+	}
 
 	return (rs >= 0) ? nlen : rs ;
 }
@@ -335,32 +309,21 @@ DW_ENT	*dep ;
 
 
 /* delete the entry under the curosr */
-int dw_del(dwp,cp)
-DW		*dwp ;
-DW_CUR		*cp ;
+int dw_del(DW *dwp,DW_CUR *cp)
 {
-	IENTRY	*iep = NULL ;
+	IENTRY		*iep = NULL ;
+	int		rs ;
 
-	int	rs ;
+	if (dwp == NULL) return SR_FAULT ;
+	if (cp == NULL) return SR_FAULT ;
 
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
-	if (dwp == NULL)
-	    return SR_FAULT ;
-
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (cp == NULL)
-		return SR_FAULT ;
-
-	rs = vecobj_get(&dwp->e,cp->i,&iep) ;
-
-	if ((rs >= 0) && (iep != NULL)) {
-
-	    ientry_finish(iep,dwp) ;
-
-	    rs = vecobj_del(&dwp->e,cp->i) ;
-
+	if ((rs = vecobj_get(&dwp->e,cp->i,&iep)) >= 0) {
+	    if (iep != NULL) {
+	        ientry_finish(iep,dwp) ;
+	        rs = vecobj_del(&dwp->e,cp->i) ;
+	    }
 	} /* end if */
 
 	return rs ;
@@ -369,28 +332,18 @@ DW_CUR		*cp ;
 
 
 /* search the directory file list for an entry */
-int dw_find(dwp,name,dep)
-DW		*dwp ;
-const char	name[] ;
-DW_ENT	*dep ;
+int dw_find(DW *dwp,cchar *name,DW_ENT *dep)
 {
-	IENTRY	ie, *iep ;
+	IENTRY		ie, *iep ;
+	int		rs ;
+	int		i = 0 ;
 
-	int	rs ;
-	int	i = 0 ;
+	if (dwp == NULL) return SR_FAULT ;
+	if (name == NULL) return SR_FAULT ;
 
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
-	if (dwp == NULL)
-	    return SR_FAULT ;
-
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (name == NULL)
-		return SR_FAULT ;
-
-	if (name[0] == '\0')
-		return SR_NOTFOUND ;
+	if (name[0] == '\0') return SR_NOTFOUND ;
 
 #if	CF_DEBUGS
 	debugprintf("dw_find: ent name=%s\n",name) ;
@@ -413,8 +366,9 @@ DW_ENT	*dep ;
 	} /* end for (looping through entries) */
 #endif /* CF_FNAMECMP */
 
-	if ((rs >= 0) && (dep != NULL))
+	if ((rs >= 0) && (dep != NULL)) {
 	    rs = entry_load(dep,iep) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("dw_find: ret rs=%d i=%u\n",rs,i) ;
@@ -426,22 +380,15 @@ DW_ENT	*dep ;
 
 
 /* enumerate those entries that are "checkable" */
-int dw_enumcheckable(dwp,cp,dep)
-DW		*dwp ;
-DW_CUR		*cp ;
-DW_ENT	*dep ;
+int dw_enumcheckable(DW *dwp,DW_CUR *cp,DW_ENT *dep)
 {
-	IENTRY	*iep ;
+	IENTRY		*iep ;
+	int		rs ;
+	int		i ;
 
-	int	rs ;
-	int	i ;
+	if (dwp == NULL) return SR_FAULT ;
 
-
-	if (dwp == NULL)
-	    return SR_FAULT ;
-
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
 	debugprintf("dw_enumcheckable: ent\n") ;
@@ -451,8 +398,9 @@ DW_ENT	*dep ;
 
 	if ((cp == NULL) || (cp->i < 0)) {
 	    i = 0 ;
-	} else
+	} else {
 	    i = cp->i + 1 ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("dw_enumcheckable: i=%u\n",i) ;
@@ -472,8 +420,9 @@ DW_ENT	*dep ;
 
 	if (rs >= 0) {
 
-	    if (dep != NULL)
+	    if (dep != NULL) {
 		rs = entry_load(dep,iep) ;
+	    }
 
 	    if ((rs >= 0) && (cp != NULL))
 	        cp->i = i ;
@@ -490,28 +439,21 @@ DW_ENT	*dep ;
 
 
 /* check if the directory (and any subdirectories) has changed */
-int dw_check(dwp,daytime)
-DW		*dwp ;
-time_t		daytime ;
+int dw_check(DW *dwp,time_t daytime)
 {
 	struct ustat	sb ;
-
-	IENTRY	*iep ;
-
-	int	rs = SR_OK ;
-	int	i ;
-	int	n = 0 ;
-
+	IENTRY		*iep ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		n = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("dw_check: ent\n") ;
 #endif
 
-	if (dwp == NULL)
-	    return SR_FAULT ;
+	if (dwp == NULL) return SR_FAULT ;
 
-	if (dwp->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (dwp->magic != DW_MAGIC) return SR_NOTOPEN ;
 
 	if (daytime <= 0) daytime = time(NULL) ;
 
@@ -661,7 +603,6 @@ time_t		daytime ;
 
 	    char	dnamebuf[MAXPATHLEN + 1], *dbp ;
 
-
 #if	CF_DEBUGS
 	    debugprintf("dw_check: checking for removed files\n") ;
 #endif
@@ -720,12 +661,9 @@ void		(*func)(DW_ENT *,int,void *) ;
 void		*argp ;
 {
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != DW_MAGIC) return SR_NOTOPEN ;
 
 	op->callback = func ;
 	op->argp = argp ;
@@ -734,25 +672,17 @@ void		*argp ;
 /* end subroutine (dw_callback) */
 
 
-extern int dw_state(op,i,state)
-DW		*op ;
-int		i ;
-int		state ;
+extern int dw_state(DW *op,int i,int state)
 {
-	IENTRY	*iep ;
+	IENTRY		*iep ;
+	int		rs ;
+	int		state_prev ;
 
-	int	rs ;
-	int	state_prev ;
+	if (op == NULL) return SR_FAULT ;
 
+	if (op->magic != DW_MAGIC) return SR_NOTOPEN ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != DW_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (state < 0)
-		return SR_INVALID ;
+	if (state < 0) return SR_INVALID ;
 
 	rs = vecobj_get(&op->e,i,&iep) ;
 
@@ -767,27 +697,21 @@ int		state ;
 
 
 /* perform a full (approximately) initial scan of the directory tree */
-static int dw_scanfull(dwp)
-DW		*dwp ;
+static int dw_scanfull(DW *dwp)
 {
 	struct ustat	sb ;
-
 	IENTRY		ie, *iep ;
-
 	fsdir		d ;
 	fsdir_ent	ds ;
-
 	time_t		daytime = time(NULL) ;
+	int		rs ;
+	int		nlen, i ;
+	int		n = 0 ;
+	char		dnamebuf[MAXPATHLEN + 1], *dbp ;
 
-	int	rs ;
-	int	nlen, i ;
-	int	n = 0 ;
+	if (dwp->dirname == NULL) return SR_FAULT ;
 
-	char	dnamebuf[MAXPATHLEN + 1], *dbp ;
-
-
-	if ((dwp->dirname == NULL) || (dwp->dirname[0] == '\0'))
-	    return SR_FAULT ;
+	if (dwp->dirname[0] == '\0') return SR_INVALID ;
 
 /* "do" the outer directory */
 
@@ -848,11 +772,10 @@ DW		*dwp ;
 	    const char	*dnp ;
 
 	    for (i = 0 ; vecstr_get(&dwp->subdirs,i,&dnp) >= 0 ; i += 1) {
-	        if (dnp == NULL) continue ;
-
-	        rs = dw_scansub(dwp,dnp,daytime) ;
+	        if (dnp != NULL) {
+	            rs = dw_scansub(dwp,dnp,daytime) ;
 	            n += rs ;
-
+		}
 		if (rs < 0) break ;
 	    } /* end for */
 
@@ -863,36 +786,25 @@ DW		*dwp ;
 /* end subroutine (dw_scanfull) */
 
 
-static int dw_scansub(dwp,subdname,daytime)
-DW		*dwp ;
-const char	subdname[] ;
-time_t		daytime ;
+static int dw_scansub(DW *dwp,cchar *subdname,time_t daytime)
 {
 	struct ustat	sb ;
-
 	IENTRY		ie, *iep ;
-
 	fsdir		d ;
 	fsdir_ent	ds ;
-
-	int	rs ;
-	int	nlen, dlen ;
-	int	n = 0 ;
-
-	char	dnamebuf[MAXPATHLEN + 1], *dbp ;
-	char	*sdbp ;
-
+	int		rs ;
+	int		nlen, dlen ;
+	int		n = 0 ;
+	char		dnamebuf[MAXPATHLEN + 1], *dbp ;
+	char		*sdbp ;
 
 #if	CF_DEBUGS
-	debugprintf("dw_scansub: ent, subdir=%s\n",subdir) ;
+	debugprintf("dw_scansub: ent subdir=%s\n",subdir) ;
 #endif
 
-	if (dwp->dirname == NULL)
-	    return SR_FAULT ;
+	if (dwp->dirname == NULL) return SR_FAULT ;
 
-	if (dwp->dirname[0] == '\0')
-	    return SR_INVALID ;
-
+	if (dwp->dirname[0] == '\0') return SR_INVALID ;
 
 /* put it together */
 
@@ -993,8 +905,9 @@ time_t		daytime ;
 
 	            } /* end if */
 
-	        } else
+	        } else {
 	            iep->itime = daytime ;
+		}
 
 	    } /* end while (reading directory entries) */
 
@@ -1020,11 +933,9 @@ static int dw_finddelete(dwp,name)
 DW		*dwp ;
 const char	name[] ;
 {
-	IENTRY	ie, *iep ;
-
-	int	rs ;
-	int	i ;
-
+	IENTRY		ie, *iep ;
+	int		rs ;
+	int		i ;
 
 	ie.name = name ;
 	rs = vecobj_search(&dwp->e,&ie,fnamecmp,&iep) ;
@@ -1039,15 +950,10 @@ const char	name[] ;
 #endif /* COMMENT */
 
 
-static int dw_findi(dwp,name,iepp)
-DW		*dwp ;
-const char	name[] ;
-IENTRY		**iepp ;
+static int dw_findi(DW *dwp,cchar *name,IENTRY **iepp)
 {
-	IENTRY	ie ;
-
-	int	rs ;
-
+	IENTRY		ie ;
+	int		rs ;
 
 #if	CF_DEBUGS
 	debugprintf("dw_findi: ent name=%s\n",name) ;
@@ -1066,18 +972,11 @@ IENTRY		**iepp ;
 
 
 /* initialize an entry */
-static int ientry_start(iep,dwp,name,sbp)
-IENTRY		*iep ;
-DW		*dwp ;
-const char	name[] ;
-struct ustat	*sbp ;
+static int ientry_start(IENTRY *iep,DW *dwp,cchar *name,struct ustat *sbp)
 {
 	struct ustat	sb ;
-
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
-
 
 #if	CF_DEBUGS
 	debugprintf("ientry_start: ent name=%s\n",name) ;
@@ -1085,7 +984,6 @@ struct ustat	*sbp ;
 
 	iep->state = DW_SNEW ;
 	if ((rs = uc_mallocstrw(name,-1,&cp)) >= 0) {
-
 	iep->name = cp ;
 
 /* do we need to get some status on the file? */
@@ -1110,13 +1008,10 @@ struct ustat	*sbp ;
 
 
 /* free up an entry */
-static int ientry_finish(iep,dwp)
-IENTRY		*iep ;
-DW		*dwp ;
+static int ientry_finish(IENTRY *iep,DW *dwp)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 #if	CF_DEBUGS
 	debugprintf("ientry_finish: ent\n") ;
@@ -1124,9 +1019,9 @@ DW		*dwp ;
 
 	if (iep->state == DW_SNEW) {
 	    dwp->count_new -= 1 ;
-
-	} else if (iep->state == DW_SCHECK)
+	} else if (iep->state == DW_SCHECK) {
 	    dwp->count_checkable -= 1 ;
+	}
 
 	if (iep->name != NULL) {
 	    rs1 = uc_free(iep->name) ;
@@ -1143,15 +1038,11 @@ DW		*dwp ;
 /* end subroutine (ientry_finish) */
 
 
-static int entry_load(dep,iep)
-DW_ENT	*dep ;
-IENTRY		*iep ;
+static int entry_load(DW_ENT *dep,IENTRY *iep)
 {
-	int	rs ;
+	int		rs ;
 
-
-	if (dep == NULL)
-		return SR_FAULT ;
+	if (dep == NULL) return SR_FAULT ;
 
 	dep->itime = iep->itime ;
 	dep->mtime = iep->mtime ;
@@ -1164,10 +1055,8 @@ IENTRY		*iep ;
 /* end subroutine (entry_load) */
 
 
-static int fnamecmp(e1pp,e2pp)
-IENTRY		**e1pp, **e2pp ;
+static int fnamecmp(IENTRY **e1pp,IENTRY **e2pp)
 {
-
 
 	if ((*e1pp == NULL) && (*e2pp == NULL))
 	    return 0 ;
@@ -1181,6 +1070,5 @@ IENTRY		**e1pp, **e2pp ;
 	return strcmp((*e1pp)->name,(*e2pp)->name) ;
 }
 /* end subroutine (fnamecmp) */
-
 
 

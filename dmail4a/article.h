@@ -29,6 +29,7 @@
 
 
 #define	ARTICLE		struct article_head
+#define	ARTICLE_FL	struct article_flags
 
 
 enum articleaddrs {
@@ -69,7 +70,7 @@ struct article_head {
 	DATER		msgdate ;
 	EMA		addr[articleaddr_overlast] ;
 	const char	*strs[articlestr_overlast] ;
-	struct article_flags	f ;
+	ARTICLE_FL	f ;
 	uint		aoff ;
 	uint		alen ;
 	int		clen ;
@@ -104,8 +105,6 @@ extern int article_finish(ARTICLE *) ;
 
 #endif /* ARTICLE_MASTER */
 
-
 #endif /* ARTICLE_INCLUDE */
-
 
 

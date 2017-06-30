@@ -128,7 +128,7 @@ enum subs {
 /* exported subroutines */
 
 
-int pcspoll_start(PCSPOLL *op,PCSCONF *pcp,cchar sn[])
+int pcspoll_start(PCSPOLL *op,PCSCONF *pcp,cchar *sn)
 {
 	int		rs ;
 	const char	*pr ;
@@ -310,13 +310,13 @@ static int pcspoll_modloadopen(PCSPOLL *op,cchar *pr,cchar *objname)
 	VECSTR		syms ;
 	const int	n = nelem(subs) ;
 	int		rs ;
+	int		rs1 ;
 	int		opts = VECSTR_OCOMPACT ;
 
 	if ((rs = vecstr_start(&syms,n,opts)) >= 0) {
 	    MODLOAD	*lp = &op->loader ;
  	    int		i ;
 	    const char	*modbname ;
-	    const char	**sv ;
 	    char	symname[SYMNAMELEN + 1] ;
 
 	    for (i = 0 ; (i < n) && (subs[i] != NULL) ; i += 1) {
@@ -328,17 +328,18 @@ static int pcspoll_modloadopen(PCSPOLL *op,cchar *pr,cchar *objname)
 		if (rs < 0) break ;
 	    } /* end for */
 
-	    if (rs >= 0)
-	        rs = vecstr_getvec(&syms,&sv) ;
-
 	    if (rs >= 0) {
-	        modbname = PCSPOLL_MODBNAME ;
-	        objname = PCSPOLL_OBJNAME ;
-	        opts = (MODLOAD_OPRS | MODLOAD_OAVAIL) ;
-	        rs = modload_open(lp,pr,modbname,objname,opts,sv) ;
-	    }
+	        cchar	**sv ;
+	        if ((rs = vecstr_getvec(&syms,&sv)) >= 0) {
+	            modbname = PCSPOLL_MODBNAME ;
+	            objname = PCSPOLL_OBJNAME ;
+	            opts = (MODLOAD_OPRS | MODLOAD_OAVAIL) ;
+	            rs = modload_open(lp,pr,modbname,objname,opts,sv) ;
+		}
+	    } /* end if (ok) */
 
-	    vecstr_finish(&syms) ;
+	    rs1 = vecstr_finish(&syms) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (allocation) */
 
 	return rs ;
@@ -365,8 +366,7 @@ static int pcspoll_loadcalls(PCSPOLL *op,cchar objname[])
 
 	    if (rs1 == SR_NOTFOUND) {
 		snp = NULL ;
-		if (isrequired(i))
-		    break ;
+		if (isrequired(i)) break ;
 	    } else
 		rs = rs1 ;
 

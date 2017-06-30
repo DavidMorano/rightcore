@@ -131,11 +131,7 @@ static int	nexttoken(const char *,int,const char **) ;
 /* exported subroutines */
 
 
-int progprinthdraddrs(pip,ofp,mp,hdr)
-PROGINFO	*pip ;
-bfile		*ofp ;
-MAILMSG		*mp ;
-const char	hdr[] ;
+int progprinthdraddrs(PROGINFO *pip,bfile *ofp,MAILMSG *mp,cchar *hdr)
 {
 	EMA		a ;
 	int		rs = SR_OK ;
@@ -179,11 +175,7 @@ const char	hdr[] ;
 
 
 /* output a header that comtains one or more EMAs */
-int progprinthdremas(pip,ofp,hdr,ap)
-PROGINFO	*pip ;
-bfile		*ofp ;
-const char	hdr[] ;
-EMA		*ap ;
+int progprinthdremas(PROGINFO *pip,bfile *ofp,cchar *hdr,EMA *ap)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -235,11 +227,7 @@ EMA		*ap ;
 
 
 /* output all header instances of a given keyname */
-int progprinthdrs(pip,ofp,mp,hdr)
-PROGINFO	*pip ;
-bfile		*ofp ;
-MAILMSG		*mp ;
-const char	hdr[] ;
+int progprinthdrs(PROGINFO *pip,bfile *ofp,MAILMSG *mp,cchar *hdr)
 {
 	int		rs = SR_OK ;
 	int		n ;
@@ -323,12 +311,7 @@ const char	hdr[] ;
 
 
 /* output a general header */
-int progprinthdr(pip,ofp,hdr,vp,vl)
-PROGINFO	*pip ;
-bfile		*ofp ;
-const char	hdr[] ;
-const char	vp[] ;
-int		vl ;
+int progprinthdr(PROGINFO *pip,bfile *ofp,cchar *hdr,cchar *vp,int vl)
 {
 	OUTLINE		ld ;
 	int		rs = SR_OK ;
@@ -375,12 +358,7 @@ int		vl ;
 
 
 /* output a header line (and do some safety checking along the way) */
-static int procprintline(pip,ofp,olenr,lp,ll)
-PROGINFO	*pip ;
-bfile		*ofp ;
-int		olenr ;
-const char	*lp ;
-int		ll ;
+static int procprintline(PROGINFO *pip,bfile *ofp,int olenr,cchar *lp,int ll)
 {
 	const int	linewidth = MAILMSGLINELEN ;
 	int		rs = SR_OK ;
@@ -516,12 +494,7 @@ int		ll ;
 #ifdef	COMMENT
 
 /* output a single value for a header (folding lines as needed) */
-static int procoutvalue(pip,ofp,ldp,v,vlen)
-PROGINFO	*pip ;
-bfile		*ofp ;
-OUTLINE		*ldp ;
-const char	v[] ;
-int		vlen ;
+static int procoutvalue(PROGINFO *pip,bfile *ofp,OUTLINE *ldp,cchar *v,int vlen)
 {
 	int		rs = SR_OK ;
 	int		nlen ;

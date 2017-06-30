@@ -7,7 +7,6 @@
 #define	CF_DEBUGN	0		/* extra-special debugging */
 #define	CF_PRNUSER	1		/* use 'prn' as user */
 #define	CF_DISUID	0		/* print admin UID */
-#define	CF_SNTMTIME	1		/* use 'sntmtime(3dam)' */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 #define	CF_ORGLOC	0		/* include Organization-Location */
 
@@ -515,7 +514,6 @@ int		to ;
 
 /* get and format the current date */
 
-#if	CF_SNTMTIME
 	dbuf[0] = '\0' ;
 	if (rs >= 0) {
 	    const time_t	dt = time(NULL) ;
@@ -528,37 +526,13 @@ int		to ;
 		    fmt = " %e %b %R %Z" ;
 		    dp = strdcpy2(dbuf,9,days[vals.wday],"   ") ;
 		    dl -= (dp-dbuf) ;
-		    rs1 = sntmtime(dp,dl,&vals,fmt) ;
 		} else {
 		    fmt = "%a %e %b %R %Z" ;
 		    dp = dbuf ;
-		    rs1 = sntmtime(dp,dl,&vals,fmt) ;
 		}
-		if (rs1 <= 0) dp[0] = '\0' ; /* avoid any possible undef */
+		rs = sntmtime(dp,dl,&vals,fmt) ;
 	    } /* end if (tmtime_ztime) */
 	} /* end if (ok) */
-#else /* CF_SNTMTIME */
-	dbuf[0] = '\0' ;
-	if (rs >= 0) {
-	    time_t	dt = time(NULL) ;
-	    struct tm	vals ;
-	    if ((rs = uc_ztime(&dt,dtype,&vals)) >= 0) {
-		cchar	*fmt ;
-	        char	*dp ;
-	        int	dl = TIMEBUFLEN ;
-		int	rc ;
-		if (dtype) {
-		    fmt = " %e %b %R %Z" ;
-		} else {
-		    fmt = " %e %b %R GMT" ;
-		}
-		dp = strdcpy2(dbuf,9,days[vals.tm_wday],"   ") ;
-		dl -= (dp-dbuf) ;
-		rc = strftime(dp,(dl+1),fmt,&vals) ;
-		if (rc == 0) dp[0] = '\0' ; /* avoid any possible undef */
-	    } /* end if (uc_ztime) */
-	} /* end if (ok) */
-#endif /* CF_SNTMTIME */
 
 /* get our (machine) organization */
 

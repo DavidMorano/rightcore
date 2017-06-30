@@ -107,8 +107,9 @@ int progmsgid(PROGINFO *pip,char *mbuf,int mlen,int serial)
 		    uv = (uint) gethostid() ;
 	            sbuf_hexui(&ubuf,uv) ;
 	            sbuf_char(&ubuf,'-') ;
-	        } else
+	        } else {
 	            sbuf_strw(&ubuf,nn,nl) ;
+		}
 	    }
 #else /* CF_HOSTID */
 	    sbuf_strw(&ubuf,nn,-1) ;
@@ -133,7 +134,7 @@ int progmsgid(PROGINFO *pip,char *mbuf,int mlen,int serial)
 
 	    len = sbuf_finish(&ubuf) ;
 	    if (rs >= 0) rs = len ;
-	} /* end if (initialized) */
+	} /* end if (sbuf) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {

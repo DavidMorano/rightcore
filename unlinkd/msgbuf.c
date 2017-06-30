@@ -48,7 +48,7 @@
 
 #define	NEOF		3
 
-#define	DEBFNAME	"/tmp/msgbuf.deb"
+#define	NDF	"/tmp/msgbuf.deb"
 
 
 /* external subroutines */
@@ -82,7 +82,7 @@ int msgbuf_start(MSGBUF *mbp,int fd,int bufsize,int to)
 	    bufsize = getpagesize() ;
 
 	if (to < 1)
-	    to = 5 ;
+	    to = TO_READ ;
 
 	memset(mbp,0,sizeof(MSGBUF)) ;
 	mbp->fd = fd ;
@@ -132,11 +132,11 @@ int msgbuf_read(MSGBUF *mbp,cchar **rpp)
 	    rs = uc_reade(mbp->fd,mbp->buf,mbp->bufsize,mbp->to,opts) ;
 
 #if	CF_DEBUGS
-	debugprintf("msgbuf_read: uc_reade() rs=%d\n",rs) ;
+	    debugprintf("msgbuf_read: uc_reade() rs=%d\n",rs) ;
 #endif
 
-#if	CF_DEBUGN && defined(DEBFNAME)
-	nprintf(DEBFNAME,"msgbuf_read: uc_reade() rs=%d\n",rs) ;
+#if	CF_DEBUGN && defined(NDF)
+	    nprintf(NDF,"msgbuf_read: uc_reade() rs=%d\n",rs) ;
 #endif
 
 	    mbp->bp = mbp->buf ;
@@ -147,8 +147,9 @@ int msgbuf_read(MSGBUF *mbp,cchar **rpp)
 	if (rs >= 0) {
 	    *rpp = mbp->bp ;
 	    len = mbp->bl ;
-	} else
+	} else {
 	    *rpp = NULL ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("msgbuf_read: ret rs=%d len=%u\n",rs,len) ;
@@ -169,8 +170,7 @@ int msgbuf_adv(MSGBUF *mbp,int mlen)
 	int		len = 0 ;
 	char		*rbuf ;
 
-	if (mbp == NULL)
-	    return SR_FAULT ;
+	if (mbp == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("msgbuf_adv: mlen=%d\n",mlen) ;

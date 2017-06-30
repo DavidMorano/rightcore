@@ -22,7 +22,7 @@
 
 #define	DW_MAGIC	0x31415926
 #define	DW		struct dw_head
-#define	DW_ENT	struct dw_ent
+#define	DW_ENT		struct dw_ent
 #define	DW_CUR		struct dw_cur
 
 #define	DW_DEFCHECKTIME	20		/* default check time (seconds) */

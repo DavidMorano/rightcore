@@ -22,9 +22,8 @@
 #include	<localmisc.h>
 
 
-/* object defines */
-
-#define	RECEIVED		struct received_head
+#define	RECEIVED_MAGIC	0x97634587
+#define	RECEIVED	struct received_head
 
 
 enum received_keys {

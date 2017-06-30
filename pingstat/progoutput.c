@@ -421,12 +421,16 @@ static int mungepingtab(PROGINFO *pip,char *rbuf,cchar *ptfname)
 	USTAT		sb ;
 	int		rs ;
 
-	if ((rs = uc_stat(ptfname,&sb)) >= 0) {
+	if (strchr(ptfname,'/') == NULL) {
+	    if ((rs = uc_stat(ptfname,&sb)) >= 0) {
+	        rs = mkpath1(rbuf,ptfname) ;
+	    } else if (isNotPresent(rs)) {
+	        cchar	*sn = pip->progname ;
+	        cchar	*etc = ETCDNAME ;
+	        rs = mkpath5(rbuf,pip->pr,etc,sn,PTDNAME,ptfname) ;
+	    }
+	} else {
 	    rs = mkpath1(rbuf,ptfname) ;
-	} else if (isNotPresent(rs)) {
-	    cchar	*sn = pip->progname ;
-	    cchar	*etc = ETCDNAME ;
-	    rs = mkpath5(rbuf,pip->pr,etc,sn,PTDNAME,ptfname) ;
 	}
 
 #if	CF_DEBUG

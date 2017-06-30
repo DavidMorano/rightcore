@@ -113,6 +113,7 @@ extern int	mkdirs(const char *,mode_t) ;
 extern int	chownsame(cchar *,cchar *) ;
 extern int	gethename(const char *,struct hostent *,char *,int) ;
 extern int	listenudp(int,const char *,const char *,int) ;
+extern int	opendefstds(int) ;
 extern int	openport(int,int,int,SOCKADDRESS *) ;
 extern int	initnow(struct timeb *,char *,int) ;
 extern int	isasocket(int) ;
@@ -170,13 +171,13 @@ static int	procpfname(PROGINFO *) ;
 static int	procdfname(PROGINFO *) ;
 static int	procpsdname(PROGINFO *) ;
 static int	procdefportspec(PROGINFO *,char *,int,cchar *,cchar *,int) ;
-static int	loadlocalnames(PROGINFO *) ;
 
 static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
 static int	procuserinfo_end(PROGINFO *) ;
 
 static int	proclocnames_begin(PROGINFO *) ;
 static int	proclocnames_end(PROGINFO *) ;
+static int	proclocnames_load(PROGINFO *) ;
 
 static int	procsvars_begin(PROGINFO *) ;
 static int	procsvars_end(PROGINFO *) ;
@@ -327,6 +328,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	const char	*ofname = NULL ;
 	const char	*hfname = NULL ;
 	const char	*cp ;
+
+	opendefstds(3) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -1451,15 +1454,9 @@ static int processing(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	if (pip->f.input) {
 	    int		fd = FD_STDIN ;
 	    if ((! pip->f.daemon) && (! pip->f.dgram) && isasocket(fd)) {
-	        int	ans ;
-	        int	anslen = sizeof(int) ;
-
-	        rs1 = u_getsockopt(fd,SOL_SOCKET,SO_TYPE,&ans,&anslen) ;
-	        if ((rs1 >= 0) && (anslen == sizeof(int))) {
-	            if (ans == SOCK_DGRAM)
-	                pip->f.dgram = TRUE ;
-	        }
-
+		if ((rs = uc_getsocktype(fd)) >= 0) {
+	            pip->f.dgram = (rs == SOCK_DGRAM) ;
+		}
 	    } /* end if (data-gram determination) */
 
 	    if (pip->debuglevel > 0)
@@ -1470,7 +1467,7 @@ static int processing(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	        proglog_printf(pip,fmt) ;
 	    }
 
-	    if (pip->f.daemon) {
+	    if ((rs >= 0) && pip->f.daemon) {
 	        const char	*dps = PORTSPEC_PINGSTAT ;
 	        const char	*protoname = "udp" ;
 	        const int	af = AF_INET ;
@@ -1689,7 +1686,7 @@ static int proclocnames_begin(PROGINFO *pip)
 	vecstr		*lnp = &pip->localnames ;
 	int		rs ;
 	if ((rs = vecstr_start(lnp,5,0)) >= 0) {
-	    rs = loadlocalnames(pip) ;
+	    rs = proclocnames_load(pip) ;
 	    if (rs < 0)
 	        vecstr_finish(lnp) ;
 	}
@@ -1708,6 +1705,62 @@ static int proclocnames_end(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (proclocnames_end) */
+
+
+static int proclocnames_load(PROGINFO *pip)
+{
+	HOSTENT		he ;
+	const int	helen = getbufsize(getbufsize_he) ;
+	const int	hlen = MAXPATHLEN ;
+	int		rs ;
+	int		rs1 ;
+	int		n = 0 ;
+	char		hbuf[MAXHOSTNAMELEN + 1] ;
+	char		*hebuf ;
+
+	snsds(hbuf,hlen,pip->nodename,pip->domainname) ;
+
+	if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
+	    vecstr	*lnp = &pip->localnames ;
+	    int		i ;
+	    cchar	*np ;
+	    cchar	*hnp ;
+
+	    for (i = 0 ; i < 2 ; i += 1) {
+
+	        hnp = (i == 0) ? pip->nodename : hbuf ;
+	        if ((rs1 = gethename(hnp,&he,hebuf,helen)) >= 0) {
+	            HOSTENT_CUR	cur ;
+
+	            if ((rs = hostent_curbegin(&he,&cur)) >= 0) {
+	                const int	rsn = SR_NOTFOUND ;
+	                while ((rs1 = hostent_enumname(&he,&cur,&np)) >= 0) {
+	                    if ((rs = vecstr_find(lnp,np)) == rsn) {
+	                        rs = vecstr_add(lnp,np,-1) ;
+	                    }
+	                    if (rs < 0) break ;
+	                } /* end while */
+	                if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	                rs1 = hostent_curend(&he,&cur) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (hostend-cur) */
+
+	        } /* end if (gethename) */
+
+	        if (rs < 0) break ;
+	    } /* end for */
+
+	    if (rs >= 0) {
+	        n = vecstr_count(lnp) ;
+	    }
+
+	    rs1 = uc_free(hebuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (memory-allocation) */
+
+	return (rs >= 0) ? n : rs ;
+}
+/* end subroutine (proclocnames_load) */
 
 
 static int procsvars_begin(PROGINFO *pip)
@@ -2091,61 +2144,5 @@ static int procsum_end(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (procsum_end) */
-
-
-static int loadlocalnames(PROGINFO *pip)
-{
-	HOSTENT		he ;
-	const int	helen = getbufsize(getbufsize_he) ;
-	const int	hlen = MAXPATHLEN ;
-	int		rs ;
-	int		rs1 ;
-	int		n = 0 ;
-	char		hbuf[MAXHOSTNAMELEN + 1] ;
-	char		*hebuf ;
-
-	snsds(hbuf,hlen,pip->nodename,pip->domainname) ;
-
-	if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
-	    vecstr	*lnp = &pip->localnames ;
-	    int		i ;
-	    cchar	*np ;
-	    cchar	*hnp ;
-
-	    for (i = 0 ; i < 2 ; i += 1) {
-
-	        hnp = (i == 0) ? pip->nodename : hbuf ;
-	        if ((rs1 = gethename(hnp,&he,hebuf,helen)) >= 0) {
-	            HOSTENT_CUR	cur ;
-
-	            if ((rs = hostent_curbegin(&he,&cur)) >= 0) {
-	                const int	rsn = SR_NOTFOUND ;
-	                while ((rs1 = hostent_enumname(&he,&cur,&np)) >= 0) {
-	                    if ((rs = vecstr_find(lnp,np)) == rsn) {
-	                        rs = vecstr_add(lnp,np,-1) ;
-	                    }
-	                    if (rs < 0) break ;
-	                } /* end while */
-	                if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
-	                rs1 = hostent_curend(&he,&cur) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } /* end if (hostend-cur) */
-
-	        } /* end if (gethename) */
-
-	        if (rs < 0) break ;
-	    } /* end for */
-
-	    if (rs >= 0) {
-	        n = vecstr_count(&pip->localnames) ;
-	    }
-
-	    rs1 = uc_free(hebuf) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (memory-allocation) */
-
-	return (rs >= 0) ? n : rs ;
-}
-/* end subroutine (loadlocalnames) */
 
 

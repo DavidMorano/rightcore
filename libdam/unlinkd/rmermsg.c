@@ -57,10 +57,10 @@
 
 /* general response message */
 int rmermsg_fname(sp,f,mbuf,mlen)
+struct rmermsg_fname	*sp ;
+int			f ;
 char			mbuf[] ;
 int			mlen ;
-int			f ;
-struct rmermsg_fname	*sp ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;
@@ -118,10 +118,10 @@ struct rmermsg_fname	*sp ;
 
 /* unknown message */
 int rmermsg_unknown(sp,f,mbuf,mlen)
+struct rmermsg_unknown	*sp ;
+int			f ;
 char			mbuf[] ;
 int			mlen ;
-int			f ;
-struct rmermsg_unknown	*sp ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;

@@ -203,8 +203,7 @@ static int	artinfo_start(ARTINFO *,char *,const char *,int) ;
 static int	artinfo_ngs(ARTINFO *,MAILMSG *,EMA **) ;
 static int	artinfo_finish(ARTINFO *) ;
 
-static int	procmsg(PROGINFO *, PROCDATA *,
-			const char *,int) ;
+static int	procmsg(PROGINFO *,PROCDATA *,cchar *,int) ;
 
 static int	procmsger(PROGINFO *,PROCDATA *,const char *,int) ;
 static int	procmsgexpires(PROGINFO *,PROCDATA *,ARTINFO *) ;
@@ -224,6 +223,7 @@ int progartmaint(PROGINFO *pip,struct tdinfo *tip)
 	FSDIR		artdir ;
 	FSDIR_ENT	de ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 #if	CF_DEBUG
@@ -240,20 +240,20 @@ int progartmaint(PROGINFO *pip,struct tdinfo *tip)
 
 	    if ((rs = fsdir_open(&artdir,tip->tdname)) >= 0) {
 	        while ((rs = fsdir_read(&artdir,&de)) > 0) {
-		    int		el = rs ;
-		    const char	*ep = de.name ;
-		    if (hasNotDots(ep,el)) {
-
-		        c += 1 ;
+	            int		el = rs ;
+	            const char	*ep = de.name ;
+	            if (hasNotDots(ep,el)) {
+	                c += 1 ;
 	                rs = procmsg(pip,&pd,ep,el) ;
-
-		    } /* end if (hasNotDots) */
-		    if (rs < 0) break ;
+	            } /* end if (hasNotDots) */
+	            if (rs < 0) break ;
 	        } /* end while (reading dir entries) */
-		fsdir_close(&artdir) ;
+	        rs1 = fsdir_close(&artdir) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end subroutine (fsdir_open) */
 
-	    procdata_finish(&pd) ;
+	    rs1 = procdata_finish(&pd) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end subroutine (procdata) */
 
 #if	CF_DEBUG
@@ -269,10 +269,7 @@ int progartmaint(PROGINFO *pip,struct tdinfo *tip)
 /* local subroutines */
 
 
-static int procdata_start(pdp,tdname,tdlen)
-PROCDATA	*pdp ;
-char		tdname[] ;
-int		tdlen ;
+static int procdata_start(PROCDATA *pdp,char *tdname,int tdlen)
 {
 	memset(pdp,0,sizeof(PROCDATA)) ;
 	pdp->tdname = tdname ;
@@ -282,8 +279,7 @@ int		tdlen ;
 /* end subroutine (procdata_start) */
 
 
-static int procdata_finish(pdp)
-PROCDATA	*pdp ;
+static int procdata_finish(PROCDATA *pdp)
 {
 	if (pdp == NULL) return SR_FAULT ;
 	return SR_OK ;
@@ -292,11 +288,7 @@ PROCDATA	*pdp ;
 
 
 /* process the current message */
-static int procmsg(pip,pdp,ep,el)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
-const char	*ep ;
-int		el ;
+static int procmsg(PROGINFO *pip,PROCDATA *pdp,cchar *ep,int el)
 {
 	MAILMSG		amsg, *msgp = &amsg ;
 	bfile		afile, *afp = &afile ;
@@ -321,7 +313,7 @@ int		el ;
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
-	    		debugprintf("progartmaint/procmsg: mid2 rs=%d\n",rs) ;
+	                debugprintf("progartmaint/procmsg: mid2 rs=%d\n",rs) ;
 #endif
 
 	            rs1 = mailmsg_finish(msgp) ;
@@ -343,11 +335,7 @@ int		el ;
 /* end subroutine (procmsg) */
 
 
-static int procmsger(pip,pdp,ep,el)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
-const char	*ep ;
-int		el ;
+static int procmsger(PROGINFO *pip,PROCDATA *pdp,cchar *ep,int el)
 {
 	ARTINFO		ai, *aip = &ai ;
 	int		rs ;
@@ -363,12 +351,12 @@ int		el ;
 
 	    if ((rs >= 0) && pip->f.artexpires && f) {
 	        rs = procmsgexpires(pip,pdp,aip) ;
-		f = rs ;
+	        f = rs ;
 	    }
 
 	    if ((rs >= 0) && pip->f.artmaint && f) {
 	        rs = procmsgmaint(pip,pdp,aip) ;
-		f = rs ;
+	        f = rs ;
 	    }
 
 	    rs1 = artinfo_finish(aip) ;
@@ -385,10 +373,7 @@ int		el ;
 /* end subroutine (procmsger) */
 
 
-static int procmsgexpires(pip,pdp,aip)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
-ARTINFO		*aip ;
+static int procmsgexpires(PROGINFO *pip,PROCDATA *pdp,ARTINFO *aip)
 {
 	MAILMSG		*msgp = pdp->msgp ;
 	time_t		daytime = pip->daytime ;
@@ -401,15 +386,15 @@ ARTINFO		*aip ;
 	    DATER	*tdp = &pip->td ;
 	    int		vl = rs ;
 	    if ((rs = dater_setmsg(tdp,vp,vl)) >= 0) {
-		time_t	mtime ;
-		if ((rs = dater_gettime(tdp,&mtime)) >= 0) {
-		    if (daytime >= mtime) {
-			c = 0 ;
-			rs = procmsgdel(pip,pdp,aip) ;
-		    }
-		} /* end if (dater-gettime) */
+	        time_t	mtime ;
+	        if ((rs = dater_gettime(tdp,&mtime)) >= 0) {
+	            if (daytime >= mtime) {
+	                c = 0 ;
+	                rs = procmsgdel(pip,pdp,aip) ;
+	            }
+	        } /* end if (dater-gettime) */
 	    } else if (rs == SR_INVALID)
-		rs = SR_OK ;
+	        rs = SR_OK ;
 	} else if (rs == SR_NOTFOUND)
 	    rs = SR_OK ;
 
@@ -423,10 +408,7 @@ ARTINFO		*aip ;
 /* end subroutine (procmsgexpires) */
 
 
-static int procmsgmaint(pip,pdp,aip)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
-ARTINFO		*aip ;
+static int procmsgmaint(PROGINFO *pip,PROCDATA *pdp,ARTINFO *aip)
 {
 	EMA		*emap ;
 	EMA_ENT		*ep ;
@@ -441,37 +423,37 @@ ARTINFO		*aip ;
 	if ((rs = artinfo_ngs(aip,pdp->msgp,&emap)) > 0) {
 	    int	i ;
 	    for (i = 0 ; ema_get(emap,i,&ep) >= 0 ; i += 1) {
-		const char	*np ;
-		int		nl ;
-		if ((rs = emaentry_getbestaddr(ep,&np)) > 0) {
-		    char	abuf[MAXPATHLEN+1] ;
-		    nl = rs ;
-		    if ((rs = progngdname(pip,abuf,np,nl)) > 0) {
-			NULSTR		a ;
-			const int	alen = rs ;
-			const int	al = aip->anl ;
-			const char	*ap = aip->anp ;
-			const char	*aname ;
-			if ((rs = nulstr_start(&a,ap,al,&aname)) >= 0) {
-			    if ((rs = pathadd(abuf,alen,aname)) >= 0) {
+	        const char	*np ;
+	        int		nl ;
+	        if ((rs = emaentry_getbestaddr(ep,&np)) > 0) {
+	            char	abuf[MAXPATHLEN+1] ;
+	            nl = rs ;
+	            if ((rs = progngdname(pip,abuf,np,nl)) > 0) {
+	                NULSTR		a ;
+	                const int	alen = rs ;
+	                const int	al = aip->anl ;
+	                const char	*ap = aip->anp ;
+	                const char	*aname ;
+	                if ((rs = nulstr_start(&a,ap,al,&aname)) >= 0) {
+	                    if ((rs = pathadd(abuf,alen,aname)) >= 0) {
 
-				if ((rs = uc_access(abuf,R_OK)) >= 0) {
-				    c += 1 ;
-				} else if (isNotAccess(rs)) {
-				    uc_unlink(abuf) ;
-				    rs = SR_OK ;
-				} else if (isNotPresent(rs)) {
-				    rs = SR_OK ;
-				}
+	                        if ((rs = uc_access(abuf,R_OK)) >= 0) {
+	                            c += 1 ;
+	                        } else if (isNotAccess(rs)) {
+	                            uc_unlink(abuf) ;
+	                            rs = SR_OK ;
+	                        } else if (isNotPresent(rs)) {
+	                            rs = SR_OK ;
+	                        }
 
-			    } /* end if (path-add) */
-			    nulstr_finish(&a) ;
-			} /* end if (aname) */
+	                    } /* end if (path-add) */
+	                    nulstr_finish(&a) ;
+	                } /* end if (aname) */
 	            } else if ((rs == 0) || (rs == SR_NOTFOUND)) {
-			rs = SR_OK ;
-		    }
-		} /* end if (emainfo-getbestaddr) */
-		if (rs < 0) break ;
+	                rs = SR_OK ;
+	            }
+	        } /* end if (emainfo-getbestaddr) */
+	        if (rs < 0) break ;
 	    } /* end for */
 	} /* end if (artinfo-ngs) */
 
@@ -488,12 +470,12 @@ ARTINFO		*aip ;
 	    char	*abuf = pdp->tdname ;
 	    const char	*aname ;
 	    if ((rs = nulstr_start(&a,ap,al,&aname)) >= 0) {
-		if ((rs = pathadd(abuf,alen,aname)) >= 0) {
+	        if ((rs = pathadd(abuf,alen,aname)) >= 0) {
 
-		    rs = uc_unlink(abuf) ;
+	            rs = uc_unlink(abuf) ;
 
-		} /* end if (path-add) */
-		nulstr_finish(&a) ;
+	        } /* end if (path-add) */
+	        nulstr_finish(&a) ;
 	    } /* end if (nulstr) */
 	} /* end if (article-stage) */
 
@@ -507,10 +489,7 @@ ARTINFO		*aip ;
 /* end subroutine (procmsgmaint) */
 
 
-static int procmsgdel(pip,pdp,aip)
-PROGINFO	*pip ;
-PROCDATA	*pdp ;
-ARTINFO		*aip ;
+static int procmsgdel(PROGINFO *pip,PROCDATA *pdp,ARTINFO *aip)
 {
 	EMA		*emap ;
 	EMA_ENT		*ep ;
@@ -524,31 +503,31 @@ ARTINFO		*aip ;
 	if ((rs = artinfo_ngs(aip,pdp->msgp,&emap)) > 0) {
 	    int		i ;
 	    for (i = 0 ; ema_get(emap,i,&ep) >= 0 ; i += 1) {
-		const char	*np ;
-		int		nl ;
-		if ((rs = emaentry_getbestaddr(ep,&np)) > 0) {
-		    char	abuf[MAXPATHLEN+1] ;
-		    nl = rs ;
-		    if ((rs = progngdname(pip,abuf,np,nl)) >= 0) {
-			NULSTR		a ;
-			const int	alen = rs ;
-			const int	al = aip->anl ;
-			const char	*ap = aip->anp ;
-			const char	*aname ;
-			if ((rs = nulstr_start(&a,ap,al,&aname)) >= 0) {
-			    if ((rs = pathadd(abuf,alen,aname)) >= 0) {
+	        const char	*np ;
+	        int		nl ;
+	        if ((rs = emaentry_getbestaddr(ep,&np)) > 0) {
+	            char	abuf[MAXPATHLEN+1] ;
+	            nl = rs ;
+	            if ((rs = progngdname(pip,abuf,np,nl)) >= 0) {
+	                NULSTR		a ;
+	                const int	alen = rs ;
+	                const int	al = aip->anl ;
+	                const char	*ap = aip->anp ;
+	                const char	*aname ;
+	                if ((rs = nulstr_start(&a,ap,al,&aname)) >= 0) {
+	                    if ((rs = pathadd(abuf,alen,aname)) >= 0) {
 
-				rs = uc_unlink(abuf) ;
-				if (rs == SR_NOENT) rs = SR_OK ;
+	                        rs = uc_unlink(abuf) ;
+	                        if (rs == SR_NOENT) rs = SR_OK ;
 
-			    } /* end if (path-add) */
-			    nulstr_finish(&a) ;
-			} /* end if (aname) */
+	                    } /* end if (path-add) */
+	                    nulstr_finish(&a) ;
+	                } /* end if (aname) */
 	            } else if ((rs == 0) || (rs == SR_NOTFOUND)) {
-			rs = SR_OK ;
-		    } /* end if (progngdname) */
-		} /* end if (emainfo-getbestaddr) */
-		if (rs < 0) break ;
+	                rs = SR_OK ;
+	            } /* end if (progngdname) */
+	        } /* end if (emainfo-getbestaddr) */
+	        if (rs < 0) break ;
 	    } /* end end */
 	} /* end if (artinfo-ngs) */
 
@@ -565,12 +544,12 @@ ARTINFO		*aip ;
 	    char	*abuf = pdp->tdname ;
 	    const char	*aname ;
 	    if ((rs = nulstr_start(&a,ap,al,&aname)) >= 0) {
-		if ((rs = pathadd(abuf,alen,aname)) >= 0) {
+	        if ((rs = pathadd(abuf,alen,aname)) >= 0) {
 
-		    rs = uc_unlink(abuf) ;
+	            rs = uc_unlink(abuf) ;
 
-		} /* end if (path-add) */
-		nulstr_finish(&a) ;
+	        } /* end if (path-add) */
+	        nulstr_finish(&a) ;
 	    } /* end if (nulstr) */
 	} /* end if (article-stage) */
 
@@ -584,11 +563,7 @@ ARTINFO		*aip ;
 /* end subroutine (procmsgdel) */
 
 
-static int artinfo_start(aip,tdname,anp,anl)
-ARTINFO		*aip ;
-char		*tdname ;
-const char	*anp ;
-int		anl ;
+static int artinfo_start(ARTINFO *aip,char *tdname,cchar *anp,int anl)
 {
 	memset(aip,0,sizeof(ARTINFO)) ;
 	aip->tdname = tdname ;
@@ -599,8 +574,7 @@ int		anl ;
 /* end subroutine (artinfo_start) */
 
 
-static int artinfo_finish(aip)
-ARTINFO		*aip ;
+static int artinfo_finish(ARTINFO *aip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -614,10 +588,7 @@ ARTINFO		*aip ;
 /* end subroutine (artinfo_finish) */
 
 
-static int artinfo_ngs(aip,msgp,rpp)
-ARTINFO		*aip ;
-MAILMSG		*msgp ;
-EMA		**rpp ;
+static int artinfo_ngs(ARTINFO *aip,MAILMSG *msgp,EMA **rpp)
 {
 	int		rs = SR_OK ;
 
@@ -631,7 +602,7 @@ EMA		**rpp ;
 	        vl = rs ;
 	        if ((rs = ema_starter(ngp,vp,vl)) >= 0) {
 	            aip->open.ngema = TRUE ;
-		    aip->ngroups = rs ;
+	            aip->ngroups = rs ;
 	        } /* end if (newsgroups EMA) */
 	    } else if (rs == SR_NOTFOUND) {
 	        rs = SR_OK ;

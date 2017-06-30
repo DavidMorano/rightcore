@@ -107,8 +107,9 @@ int proginput(PROGINFO *pip,int fd)
 
 	if (pip->f.dgram) {
 	    rs = procdatagram(pip,fd) ;
-	} else
+	} else {
 	    rs = procstream(pip,fd) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -478,8 +479,9 @@ static int procupdate(PROGINFO *pip,struct pingstatmsg_update *mp)
 	    u.timestamp = mp->timestamp ;
 	    u.timechange = pip->daytime ;
 	    rs = procentry(pip,mp->hostname,&u) ;
-	} else
+	} else {
 	    rs = SR_BADFMT ;
+	}
 
 	return rs ;
 }
@@ -497,8 +499,9 @@ static int procuptime(PROGINFO *pip,struct pingstatmsg_uptime *mp)
 	    u.timestamp = mp->timestamp ;
 	    u.timechange = mp->timechange ;
 	    rs = procentry(pip,mp->hostname,&u) ;
-	} else
+	} else {
 	    rs = SR_BADFMT ;
+	}
 
 	return rs ;
 }
@@ -548,10 +551,9 @@ static int procentry(PROGINFO *pip,cchar *hostname,PINGSTATDB_UP *up)
 #endif
 
 	if ((rs_match >= 0) && pe.f_up) {
-
-	    if ((pip->daytime - pe.ti_ping) < pip->intminupdate)
+	    if ((pip->daytime - pe.ti_ping) < pip->intminupdate) {
 	        f_update = FALSE ;
-
+	    }
 	} /* end if (deciding if an update was needed) */
 
 #if	CF_DEBUG

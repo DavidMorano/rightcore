@@ -9,12 +9,9 @@
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
-
 #include	<sys/types.h>
 #include	<netdb.h>
-
-#include	"localmisc.h"
-
+#include	<localmisc.h>
 
 
 struct pingstatmsg_update {
@@ -62,12 +59,10 @@ enum pingstatmsgrcs {
 } ;
 
 
-
 /* message sizes */
 
 #define	PINGSTATMSG_SUPDATE		sizeof(struct pingstatmsg_update) ;
 #define	PINGSTATMSG_SUPTIME		sizeof(struct pingstatmsg_uptime) ;
-
 
 
 #if	(! defined(PINGSTATMSG_MASTER)) || (PINGSTATMSG_MASTER == 0)
@@ -82,8 +77,6 @@ extern int pingstatmsg_msglen(int) ;
 
 #endif /* PINGSTATMSG_MASTER */
 
-
 #endif /* PINGSTATMSG_INCLUDE */
-
 
 

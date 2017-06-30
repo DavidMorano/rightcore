@@ -25,7 +25,7 @@
         that we store the retpath components in the order that they appear (left
         to right) in the retpath header value. This represents the order that
         would be needed to get back to the originator and NOT the order from the
-        originator to us !
+        originator to us!
 
 	This makes this similar to a return-retpath in email circles.
 
@@ -82,8 +82,7 @@ static int retpath_iadd(RETPATH *,const char *,int) ;
 /* exported subroutines */
 
 
-int retpath_start(plp)
-RETPATH		*plp ;
+int retpath_start(RETPATH *plp)
 {
 	const int	vo = VECSTR_OORDERED ;
 
@@ -92,8 +91,7 @@ RETPATH		*plp ;
 /* end subroutine (retpath_start) */
 
 
-int retpath_finish(plp)
-RETPATH		*plp ;
+int retpath_finish(RETPATH *plp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -106,10 +104,7 @@ RETPATH		*plp ;
 /* end subroutine (retpath_finish) */
 
 
-int retpath_add(plp,np,nl)
-RETPATH		*plp ;
-const char	np[] ;
-int		nl ;
+int retpath_add(RETPATH *plp,cchar *np,int nl)
 {
 	int		rs = SR_OK ;
 	int		cl ;
@@ -118,8 +113,9 @@ int		nl ;
 	if (plp == NULL) return SR_FAULT ;
 	if (np == NULL) return SR_FAULT ;
 
-	if ((cl = sfshrink(np,nl,&cp)) > 0)
+	if ((cl = sfshrink(np,nl,&cp)) > 0) {
 	    rs = retpath_iadd(plp,cp,cl) ;
+	}
 
 	return rs ;
 }
@@ -127,20 +123,14 @@ int		nl ;
 
 
 /* add ret-path entries by parsing a string of them */
-int retpath_parse(plp,sp,sl)
-RETPATH		*plp ;
-const char	sp[] ;
-int		sl ;
+int retpath_parse(RETPATH *plp,cchar *sp,int sl)
 {
-	int	rs = SR_OK ;
-	int	cl ;
-	int	n = 0 ;
-
+	int		rs = SR_OK ;
+	int		cl ;
+	int		n = 0 ;
 	const char	*tp, *cp ;
 
-
-	if (plp == NULL)
-	    return SR_FAULT ;
+	if (plp == NULL) return SR_FAULT ;
 
 	if (sl < 0) sl = strlen(sp) ;
 
@@ -168,49 +158,32 @@ int		sl ;
 /* end subroutine (retpath_parse) */
 
 
-int retpath_count(plp)
-RETPATH		*plp ;
+int retpath_count(RETPATH *plp)
 {
-
 
 	return vecstr_count(plp) ;
 }
 /* end subroutine (retpath_count) */
 
 
-int retpath_get(plp,i,rpp)
-RETPATH		*plp ;
-int		i ;
-const char	**rpp ;
+int retpath_get(RETPATH *plp,int i,cchar **rpp)
 {
-	int	rs ;
-
-
-	rs = vecstr_get(plp,i,rpp) ;
-
-	return rs ;
+	return vecstr_get(plp,i,rpp) ;
 }
 /* end subroutine (retpath_get) */
 
 
-int retpath_search(plp,name,rpp)
-RETPATH		*plp ;
-const char	name[] ;
-const char	**rpp ;
+int retpath_search(RETPATH *plp,cchar *name,cchar **rpp)
 {
-	int	rs ;
-	int	i ;
+	int		rs ;
+	int		i ;
 
-
-	if (plp == NULL)
-	    return SR_FAULT ;
+	if (plp == NULL) return SR_FAULT ;
 
 	for (i = 0 ; (rs = vecstr_get(plp,i,rpp)) >= 0 ; i += 1) {
-	    if ((*rpp) == NULL) continue ;
-
-	    if (strcmp(name,(*rpp)) == 0)
-	        break ;
-
+	    if ((*rpp) != NULL) {
+	        if (strcmp(name,(*rpp)) == 0) break ;
+	    }
 	} /* end for */
 
 	return (rs >= 0) ? i : rs ;
@@ -218,15 +191,11 @@ const char	**rpp ;
 /* end subroutine (retpath_search) */
 
 
-int retpath_mk(plp,rbuf,rlen)
-RETPATH		*plp ;
-char		rbuf[] ;
-int		rlen ;
+int retpath_mk(RETPATH *plp,char *rbuf,int rlen)
 {
-	SBUF	b ;
-
-	int	rs ;
-	int	rl = 0 ;
+	SBUF		b ;
+	int		rs ;
+	int		rl = 0 ;
 
 	if (plp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
@@ -258,8 +227,7 @@ int		rlen ;
 /* do not add if already added (as the previous entry) */
 static int retpath_iadd(RETPATH *plp,const char *np,int nl)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*lp ;
 
 	if ((rs = vecstr_getlast(plp,&lp)) >= 0) {
@@ -267,8 +235,9 @@ static int retpath_iadd(RETPATH *plp,const char *np,int nl)
 	}
 	if (rs == SR_NOTFOUND) {
 	    rs = vecstr_add(plp,np,nl) ;
-	} else
+	} else {
 	    rs = INT_MAX ;
+	}
 
 	return rs ;
 }

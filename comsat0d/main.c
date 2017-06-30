@@ -143,7 +143,6 @@ extern int	getportnum(cchar *,cchar *) ;
 extern int	getprotofamily(int) ;
 extern int	listenudp(int,cchar *,cchar *,int) ;
 extern int	opentermnote(cchar *,cchar **,int,int) ;
-extern int	getsockopttype(int) ;
 extern int	pcsgetprogpath(cchar *,char *,cchar *) ;
 extern int	initnow(struct timeb *,char *,int) ;
 extern int	isasocket(int) ;
@@ -1873,7 +1872,7 @@ static int procreg(PROGINFO *pip)
 
 	if (isasocket(pip->fd_msg)) {
 	    pip->f.issocket = TRUE ;
-	    if ((rs = getsockopttype(pip->fd_msg)) >= 0) {
+	    if ((rs = uc_getsocktype(pip->fd_msg)) >= 0) {
 		pip->f.isstream = (rs == SOCK_STREAM) ;
 	    }
 	}

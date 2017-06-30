@@ -72,12 +72,10 @@ int		ng_add(NG *,const char *,int,const char *) ;
 
 int ng_start(NG *ngp)
 {
-	int	rs ;
-
+	int		rs ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 	rs = vecitem_start(ngp,10,0) ;
@@ -89,16 +87,13 @@ int ng_start(NG *ngp)
 
 int ng_finish(NG *ngp)
 {
-	NG_ENT	*ep ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-
+	NG_ENT		*ep ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 #if	CF_DEBUGS
@@ -136,20 +131,14 @@ int ng_finish(NG *ngp)
 /* end subroutine (mg_finish) */
 
 
-int ng_search(ngp,name,rpp)
-NG		*ngp ;
-const char	name[] ;
-NG_ENT	**rpp ;
+int ng_search(NG *ngp,cchar *name,NG_ENT **rpp)
 {
-	NG_ENT	*ep ;
-
-	int	rs ;
-	int	i ;
-
+	NG_ENT		*ep ;
+	int		rs ;
+	int		i ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 #if	CF_DEBUGS
@@ -176,19 +165,13 @@ NG_ENT	**rpp ;
 /* end subroutine (ng_search) */
 
 
-int ng_add(ngp,ngbuf,nglen,ngdname)
-NG		*ngp ;
-const char	ngbuf[] ;
-int		nglen ;
-const char	ngdname[] ;
+int ng_add(NG *ngp,cchar *ngbuf,int nglen,cchar *ngdname)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 	if ((rs = uc_mallocstrw(ngbuf,nglen,&cp)) >= 0) {
@@ -217,27 +200,22 @@ const char	ngdname[] ;
 /* end subroutine (ng_add) */
 
 
-int ng_copy(ngp1,ngp2)
-NG		*ngp1, *ngp2 ;
+int ng_copy(NG *ngp1,NG *ngp2)
 {
-	NG_ENT	*ep ;
-
-	int	rs = SR_OK ;
-	int	i ;
-	int	count = 0 ;
-
+	NG_ENT		*ep ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		count = 0 ;
 
 #if	CF_SAFE
-	if ((ngp1 == NULL) || (ngp2 == NULL))
-	    return SR_FAULT ;
+	if ((ngp1 == NULL) || (ngp2 == NULL)) return SR_FAULT ;
 #endif
 
 	for (i = 0 ; vecitem_get(ngp2,i,&ep) >= 0 ; i += 1) {
-	    if (ep == NULL) continue ;
-
-	    count += 1 ;
-	    rs = ng_add(ngp1,ep->name,ep->len,ep->dir) ;
-
+	    if (ep != NULL) {
+	        count += 1 ;
+	        rs = ng_add(ngp1,ep->name,ep->len,ep->dir) ;
+	    }
 	    if (rs < 0) break ;
 	} /* end if */
 
@@ -246,15 +224,12 @@ NG		*ngp1, *ngp2 ;
 /* end subroutine (ng_copy) */
 
 
-int ng_count(ngp)
-NG		*ngp ;
+int ng_count(NG *ngp)
 {
-	int	rs ;
-
+	int		rs ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 	rs = vecitem_count(ngp) ;
@@ -264,17 +239,12 @@ NG		*ngp ;
 /* end subroutine (ng_count) */
 
 
-int ng_get(ngp,i,rpp)
-NG		*ngp ;
-int		i ;
-NG_ENT	**rpp ;
+int ng_get(NG *ngp,int i,NG_ENT **rpp)
 {
-	int	rs ;
-
+	int		rs ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 	rs = vecitem_get(ngp,i,rpp) ;
@@ -285,20 +255,15 @@ NG_ENT	**rpp ;
 
 
 /* extract newsgroup names from the "newsgroups" header string */
-int ng_addparse(ngp,sp,sl)
-NG		*ngp ;
-const char	sp[] ;
-int		sl ;
+int ng_addparse(NG *ngp,cchar *sp,int sl)
 {
-	EMA	aid ;
-	EMA_ENT	*ep ;
-
-	int	rs ;
-	int	n = 0 ;
+	EMA		aid ;
+	EMA_ENT		*ep ;
+	int		rs ;
+	int		n = 0 ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 	if (sl < 0) sl = strlen(sp) ;
@@ -355,17 +320,12 @@ int		sl ;
 /* end subroutine (ng_addparse) */
 
 
-int ng_parse(ngp,sp,sl)
-NG		*ngp ;
-const char	sp[] ;
-int		sl ;
+int ng_parse(NG *ngp,cchar *sp,int sl)
 {
-	int	rs ;
-
+	int		rs ;
 
 #if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
+	if (ngp == NULL) return SR_FAULT ;
 #endif
 
 	rs = ng_addparse(ngp,sp,sl) ;

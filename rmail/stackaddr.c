@@ -81,10 +81,7 @@ extern int	strwcmp(const char *,const char *,int) ;
 /* exported subroutines */
 
 
-int stackaddr_start(op,dbuf,dlen)
-STACKADDR	*op ;
-char		dbuf[] ;
-int		dlen ;
+int stackaddr_start(STACKADDR *op,char *dbuf,int dlen)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -100,25 +97,18 @@ int		dlen ;
 /* end subroutine (stackaddr_start) */
 
 
-int stackaddr_finish(op)
-STACKADDR	*op ;
+int stackaddr_finish(STACKADDR *op)
 {
-
 	if (op == NULL) return SR_FAULT ;
-
 	return (op->i) ;
 }
 /* end subroutine (stackaddr_finish) */
 
 
-int stackaddr_add(op,hp,hl,up,ul)
-STACKADDR	*op ;
-const char	*hp ;
-int		hl ;
-const char	*up ;
-int		ul ;
+int stackaddr_add(STACKADDR *op,cchar *hp,int hl,cchar *up,int ul)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		len = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -167,7 +157,8 @@ int		ul ;
 
 		} /* end if (a new different host) */
 
-		nulstr_finish(&h) ;
+		rs1 = nulstr_finish(&h) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (nulstr) */
 	} /* end if (had a host) */
 

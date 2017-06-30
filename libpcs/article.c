@@ -230,8 +230,9 @@ int article_addpath(ARTICLE *op,const char *sp,int sl)
 	    rs = retpath_start(&op->path) ;
 	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = retpath_parse(&op->path,sp,sl) ;
+	}
 
 	return rs ;
 }
@@ -249,8 +250,9 @@ int article_addng(ARTICLE *op,const char *sp,int sl)
 	    rs = ng_start(&op->ngs) ;
 	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = ng_addparse(&op->ngs,sp,sl) ;
+	}
 
 	return rs ;
 }
@@ -293,8 +295,9 @@ int article_addmsgdate(ARTICLE *op,DATER *dp)
 	    rs = dater_start(&op->msgdate,NULL,NULL,0) ;
 	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = dater_setcopy(&op->msgdate,dp) ;
+	}
 
 	return rs ;
 }
@@ -315,8 +318,9 @@ int article_addaddr(ARTICLE *op,int type,const char *sp,int sl)
 	    rs = ema_start(&op->addr[type]) ;
 	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = ema_parse(&op->addr[type],sp,sl) ;
+	}
 
 	return rs ;
 }
@@ -357,7 +361,7 @@ const char	ngbuf[] ;
 int		nglen ;
 const char	ngdname[] ;
 {
-	NG_ENT	ne ;
+	NG_ENT		ne ;
 	int		rs = SR_OK ;
 
 #if	CF_SAFE
@@ -367,14 +371,16 @@ const char	ngdname[] ;
 
 	if (nglen >= 0) {
 	    ne.len = nglen ;
-	} else
+	} else {
 	    ne.len = strlen(ngbuf) ;
+	}
 
 	ne.name = (const char *) mallocstrw(ngbuf,ne.len) ;
 
 	ne.dir = NULL ;
-	if (ngdname != NULL)
+	if (ngdname != NULL) {
 	    ne.dir = (const char *) mallocstr(ngdname) ;
+	}
 
 	rs = vecitem_add(ngp,&ne,sizeof(NG_ENT)) ;
 
@@ -385,19 +391,16 @@ const char	ngdname[] ;
 
 
 /* extract newsgroup names from the "newsgroups" header string */
-int article_addparse(op,sp,sl)
-ARTICLE		*op ;
-const char	sp[] ;
-int		sl ;
+int article_addparse(ARTICLE *op,cchar *sp,int sl)
 {
 	EMA		aid ;
 	EMA_ENT		*ep ;
 	int		rs ;
+	int		rs1 ;
 	int		n = 0 ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 #endif
 
 	if (sl < 0) sl = strlen(sp) ;
@@ -409,16 +412,16 @@ int		sl ;
 
 	if ((rs = ema_start(&aid)) >= 0) {
 	    if ((rs = ema_parse(&aid,sp,sl)) > 0) {
-		int		i ;
-		int		cl ;
-		const char	*cp ;
+		int	i ;
+		int	cl ;
+		cchar	*cp ;
 
 #if	CF_DEBUGS
 	        debugprintf("article_addparse: got some ema\n") ;
 #endif
 
 	        for (i = 0 ; ema_get(&aid,i,&ep) >= 0 ; i += 1) {
-	            if (ep == NULL) continue ;
+	            if (ep != NULL) {
 
 #if	CF_DEBUGS
 	            debugprintf("article_addparse: ema entry\n") ;
@@ -431,11 +434,13 @@ int		sl ;
 	                rs = ng_add(&op->ngs,cp,cl,NULL) ;
 		    }
 
+		    }
 	            if (rs < 0) break ;
 	        } /* end for */
 
 	    } /* end if (parse) */
-	    ema_finish(&aid) ;
+	    rs1 = ema_finish(&aid) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ema) */
 
 #if	CF_DEBUGS
@@ -447,10 +452,7 @@ int		sl ;
 /* end subroutine (article_addparse) */
 
 
-int article_ao(op,aoff,alen)
-ARTICLE		*op ;
-uint		aoff ;
-uint		alen ;
+int article_ao(ARTICLE *op,uint aoff,uint alen)
 {
 
 #if	CF_SAFE
@@ -464,8 +466,7 @@ uint		alen ;
 /* end subroutine (article_ao) */
 
 
-int article_countenvdate(op)
-ARTICLE		*op ;
+int article_countenvdate(ARTICLE *op)
 {
 	int		rs ;
 
@@ -477,10 +478,7 @@ ARTICLE		*op ;
 /* end subroutine (article_countenvdate) */
 
 
-int article_getenvdate(op,i,epp)
-ARTICLE		*op ;
-int		i ;
-DATER		**epp ;
+int article_getenvdate(ARTICLE *op,int i,DATER **epp)
 {
 	int		rs ;
 
@@ -492,10 +490,7 @@ DATER		**epp ;
 /* end subroutine (article_getenvdate) */
 
 
-int article_getstr(op,type,rpp)
-ARTICLE		*op ;
-int		type ;
-const char	**rpp ;
+int article_getstr(ARTICLE *op,int type,cchar **rpp)
 {
 	const int	n = articlestr_overlast ;
 	int		rs = SR_OK ;
@@ -510,8 +505,9 @@ const char	**rpp ;
 
 	if (rs >= 0) rs = strlen(sp) ;
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? sp : NULL ;
+	}
 
 	return rs ;
 }
@@ -532,8 +528,9 @@ int article_getaddrema(ARTICLE *op,int type,EMA **rpp)
 	    rs = ema_start(&op->addr[type]) ;
 	}
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? (op->addr + type) : NULL ;
+	}
 
 	return rs ;
 }

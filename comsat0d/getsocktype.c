@@ -18,6 +18,11 @@
 
 /*******************************************************************************
 
+	Description:
+
+	We retrieve a socket type (second argument to |socket(3xnet)|)
+	given a protocol.
+
 	Synopsis:
 
 	int getsocktype(proto)
@@ -40,14 +45,11 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
 #include	<sys/socket.h>
 #include	<netinet/in.h>
 #include	<arpa/inet.h>
-#include	<limits.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<string.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>

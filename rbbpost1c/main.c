@@ -46,7 +46,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -989,7 +988,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->daytime = pip->now.time ;
 	}
 
-
 /* program options */
 
 	if (rs >= 0) {
@@ -1411,8 +1409,9 @@ static int procbase(PROGINFO *pip,ARGINFO *aip,BITS *app,cchar *afn,cchar *ofn,
 
 	            if (pip->f.artexpires || pip->f.artmaint) {
 	                rs = progartmaint(pip,&ti) ;
-	            } else
+	            } else {
 	                rs = procargs(pip,&ti,aip,app,afn,ofn,ifn) ;
+		    }
 
 	            dater_finish(tdp) ;
 	        } /* end if (dater) */
@@ -1454,23 +1453,23 @@ cchar		*ifn ;
 	    cchar	*cp ;
 
 	    if (rs >= 0) {
-	    int		ai ;
-	    int		f ;
-	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
+	        int	ai ;
+	        int	f ;
+	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
-	        f = (ai <= aip->ai_max) && (bits_test(app,ai) > 0) ;
-	        f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
-	        if (f) {
-	            cp = aip->argv[ai] ;
-		    if (cp[0] != '\0') {
-	        	pan += 1 ;
-	        	rs = vecstr_adduniq(nlp,cp,-1) ;
-			if (rs < INT_MAX) c += 1 ;
+	            f = (ai <= aip->ai_max) && (bits_test(app,ai) > 0) ;
+	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            if (f) {
+	                cp = aip->argv[ai] ;
+		        if (cp[0] != '\0') {
+	        	    pan += 1 ;
+	        	    rs = vecstr_adduniq(nlp,cp,-1) ;
+			    if (rs < INT_MAX) c += 1 ;
+		        }
 		    }
-		}
 
-	        if (rs < 0) break ;
-	    } /* end for */
+	            if (rs < 0) break ;
+	        } /* end for */
 	    } /* end if (ok) */
 
 	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
@@ -1504,11 +1503,12 @@ cchar		*ifn ;
 		    if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
-	                bprintf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                bprintf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afn) ;
+			cchar	*pn = pip->progname ;
+			cchar	*fmt ;
+			fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                bprintf(pip->efp,fmt,pn,rs) ;
+			fmt = "%s: afile=%s\n" ;
+	                bprintf(pip->efp,fmt,pn,afn) ;
 	            }
 	        } /* end if */
 
@@ -1667,7 +1667,7 @@ vecstr		*nlp ;
 	int		c = 0 ;
 
 	for (ai = 0 ; vechand_get(alp,ai,&aip) >= 0 ; ai += 1) {
-	    if (aip == NULL) continue ;
+	    if (aip != NULL) {
 
 	    if ((rs = article_getaddrema(aip,at,&emap)) >= 0) {
 	        EMAENTRY	*ep ;
@@ -1705,6 +1705,7 @@ vecstr		*nlp ;
 	        c += ac ;
 	    } /* end if (article-get-addr) */
 
+	    }
 	    if (rs < 0) break ;
 	} /* end for (articles) */
 
@@ -1717,15 +1718,15 @@ static int procartload(pip,tip,aip,np,nl)
 PROGINFO	*pip ;
 struct tdinfo	*tip ;
 ARTICLE		*aip ;
-cchar	*np ;
+cchar		*np ;
 int		nl ;
 {
-	LOCINFO	*lip = pip->lip ;
+	LOCINFO		*lip = pip->lip ;
 	const int	st = articlestr_articleid ;
 	int		rs ;
 	int		c = 0 ;
-	cchar	*pn = pip->progname ;
-	cchar	*sp ;
+	cchar		*pn = pip->progname ;
+	cchar		*sp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1753,11 +1754,11 @@ int		nl ;
 	            if (pip->debuglevel > 0) {
 	                cchar	*fmt ;
 	                if (rs >= 0) {
-	                    fmt = "%s: posted ng=%t\n",
-	                        bprintf(pip->efp,fmt,pn,np,nl) ;
+	                    fmt = "%s: posted ng=%t\n" ;
+	                    bprintf(pip->efp,fmt,pn,np,nl) ;
 	                } else {
-	                    fmt = "%s: error ng=%t (%d)\n",
-	                        bprintf(pip->efp,fmt,pn,np,nl,rs) ;
+	                    fmt = "%s: error ng=%t (%d)\n" ;
+	                    bprintf(pip->efp,fmt,pn,np,nl,rs) ;
 	                }
 	            } /* end if (debugging) */
 	            if (rs == SR_EXISTS) rs = SR_OK ;
@@ -1769,9 +1770,10 @@ int		nl ;
 #endif
 
 	        } else if ((rs == 0) || (rs == SR_NOTFOUND)) {
-	            if (pip->debuglevel > 0)
-	                bprintf(pip->efp,"%s: not-found ng=%t\n",
-	                    pn,np,nl) ;
+	            if (pip->debuglevel > 0) {
+			cchar	*fmt = "%s: not-found ng=%t\n" ;
+	                bprintf(pip->efp,fmt,pn,np,nl) ;
+		    }
 	            rs = SR_OK ;
 	        } /* end if (NG-directory) */
 
@@ -1794,10 +1796,11 @@ PROGINFO	*pip ;
 struct tdinfo	*tip ;
 char		ngdname[] ;
 int		ngdlen ;
-cchar	*sp ;
+cchar		*sp ;
 {
 	struct ustat	sb ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = uc_stat(ngdname,&sb)) >= 0) {
 	    if ((rs = pathadd(ngdname,ngdlen,sp)) >= 0) {
@@ -1809,9 +1812,11 @@ cchar	*sp ;
 	                bfile	ifile, *ifp = &ifile ;
 	                if ((rs = bopen(ifp,tip->tdname,"r",0666)) >= 0) {
 	                    rs = bwriteblock(ofp,ifp,-1) ;
-	                    bclose(ifp) ;
+	                    rs1 = bclose(ifp) ;
+			    if (rs >= 0) rs = rs1 ;
 	                } /* end if (open-input-file) */
-	                bclose(ofp) ;
+	                rs1 = bclose(ofp) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (create-file) */
 	        } /* end if (same or different file-system) */
 	    } /* end if (pathadd) */
@@ -1829,7 +1834,7 @@ ARTICLE		*aip ;
 {
 	const int	st = articlestr_articleid ;
 	int		rs ;
-	cchar	*sp ;
+	cchar		*sp ;
 
 	if (pip == NULL) return SR_FAULT ;
 	if (aip == NULL) return SR_FAULT ;
@@ -1863,7 +1868,7 @@ static int procartfins(PROGINFO *pip,vechand *alp)
 	if (pip == NULL) return SR_FAULT ;
 
 	for (i = 0 ; vechand_get(alp,i,&aip) >= 0 ; i += 1) {
-	    if (aip == NULL) continue ;
+	    if (aip != NULL) {
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
 	        debugprintf("main/procartfins: article_finish()\n") ;
@@ -1872,7 +1877,8 @@ static int procartfins(PROGINFO *pip,vechand *alp)
 	    if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("main/procartfins: article_finish() rs=%d\n",rs) ;
+	        debugprintf("main/procartfins: "
+			"article_finish() rs=%d\n",rs) ;
 #endif
 	    rs1 = uc_free(aip) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -1880,6 +1886,7 @@ static int procartfins(PROGINFO *pip,vechand *alp)
 	    if (DEBUGLEVEL(4))
 	        debugprintf("main/procartfins: for-bot\n") ;
 #endif
+	    }
 	} /* end for */
 
 #if	CF_DEBUG
@@ -1929,11 +1936,6 @@ static int procnewsdname(PROGINFO *pip)
 	                rs1) ;
 #endif
 	        rs1 = pcsconf_curend(pcp,&cur) ;
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(3))
-	            debugprintf("main/procnewsdname: pcsconf_curend() rs=%d\n",
-	                rs1) ;
-#endif
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (PCS-cursor) */
 #if	CF_DEBUG
@@ -1974,14 +1976,15 @@ static int procnewsdname(PROGINFO *pip)
 static int procartdname(PROGINFO *pip,struct tdinfo *tip)
 {
 	int		rs ;
-	cchar	*artcname = ARTCNAME ;
+	cchar		*artcname = ARTCNAME ;
 
 	if ((rs = mkpath2(tip->tdname,pip->newsdname,artcname)) >= 0) {
 	    struct ustat	sb ;
 	    if ((rs = u_stat(tip->tdname,&sb)) == SR_NOENT) {
 	        const mode_t	m = (0775 | S_ISGID) ;
-	        if ((rs = mkdirs(tip->tdname,m)) >= 0)
+	        if ((rs = mkdirs(tip->tdname,m)) >= 0) {
 	            rs = u_stat(tip->tdname,&sb) ;
+		}
 	    } /* end if (stat) */
 	    if (rs >= 0) {
 	        tip->dev = sb.st_dev ;
@@ -1999,14 +2002,11 @@ static int procartdname(PROGINFO *pip,struct tdinfo *tip)
 /* end subroutine (procartdname) */
 
 
-static int locinfo_start(lip,pip)
-LOCINFO	*lip ;
-PROGINFO	*pip ;
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -2023,14 +2023,12 @@ PROGINFO	*pip ;
 /* end subroutine (locinfo_start) */
 
 
-static int locinfo_finish(lip)
-LOCINFO	*lip ;
+static int locinfo_finish(LOCINFO *lip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	if (lip->open.ngmap) {
 	    lip->open.ngmap = FALSE ;
@@ -2049,11 +2047,7 @@ LOCINFO	*lip ;
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(lip,epp,vp,vl)
-LOCINFO	*lip ;
-cchar	**epp ;
-cchar	vp[] ;
-int		vl ;
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	int		rs = SR_OK ;
 	int		len = 0 ;
@@ -2068,18 +2062,18 @@ int		vl ;
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
-
-	    if (*epp != NULL) oi = vecstr_findaddr(&lip->stores,*epp) ;
-
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(&lip->stores,*epp) ;
+	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
 	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
-	    } else
+	    } else {
 	        *epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
 	        vecstr_del(&lip->stores,oi) ;
-
+	    }
 	} /* end if */
 
 	return (rs >= 0) ? len : rs ;
@@ -2087,10 +2081,7 @@ int		vl ;
 /* end subroutine (locinfo_setentry) */
 
 
-static int locinfo_hdrfrom(lip,sp,sl)
-LOCINFO	*lip ;
-cchar	*sp ;
-int		sl ;
+static int locinfo_hdrfrom(LOCINFO *lip,cchar *sp,int sl)
 {
 	EMA		*emap = &lip->hdrfroms ;
 	int		rs ;
@@ -2101,18 +2092,14 @@ int		sl ;
 /* end subroutine (locinfo_hdrfrom) */
 
 
-static int locinfo_mkhdrfrom(lip)
-LOCINFO	*lip ;
+static int locinfo_mkhdrfrom(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
-	if (lip->have.hdrfroms && (! lip->f.def_from))
-	    goto ret0 ;
-
-	if (lip->f.hdrfroms)
-	    goto ret0 ;
+	if ((! lip->have.hdrfroms) || lip->f.def_from) {
+	if (! lip->f.hdrfroms) {
 
 	if (lip->hdrfromaddr == NULL)
 	    lip->hdrfromaddr = getourenv(pip->envv,VARPROGMAILFROM) ;
@@ -2131,8 +2118,9 @@ LOCINFO	*lip ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
-	        debugprintf("b_imail/locinfo_mkhdrfrom: def_from=>%t<\n",
-	            lip->hdrfromaddr,strlinelen(lip->hdrfromaddr,len,40)) ;
+	        debugprintf("b_imail/locinfo_mkhdrfrom: "
+			"def_from=>%t<\n", lip->hdrfromaddr,
+			strlinelen(lip->hdrfromaddr,len,40)) ;
 #endif
 
 	    lip->f.hdrfroms = TRUE ;
@@ -2140,13 +2128,14 @@ LOCINFO	*lip ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
-	        debugprintf("b_imail/locinfo_mkhdrfrom: ema_parse() rs=%d\n",
-	            rs) ;
+	        debugprintf("b_imail/locinfo_mkhdrfrom: "
+			"ema_parse() rs=%d\n", rs) ;
 #endif
 
 	} /* end if */
 
-ret0:
+	} /* end if (need) */
+	} /* end if (need) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -2159,22 +2148,17 @@ ret0:
 /* end subroutine (locinfo_mkhdrfrom) */
 
 
-static int locinfo_mkhdrfromname(lip)
-LOCINFO	*lip ;
+static int locinfo_mkhdrfromname(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
-	int		nbl = 0 ;
 	int		len = 0 ;
-	cchar	*prpcs ;
-	cchar	*nbp = NULL ;
-	char		namebuf[REALNAMELEN + 1] ;
 
-	prpcs = pip->pr ;
-	if (lip->hdrfromname != NULL) {
-	    len = strlen(lip->hdrfromname) ;
-	    goto ret0 ;
-	}
+	if (lip->hdrfromname == NULL) {
+	int		nbl = 0 ;
+	cchar		*prpcs = pip->pr ;
+	cchar		*nbp = NULL ;
+	char		namebuf[REALNAMELEN + 1] ;
 
 /* try PCS first */
 
@@ -2212,7 +2196,9 @@ LOCINFO	*lip ;
 
 	} /* end if */
 
-ret0:
+	} else {
+	    len = strlen(lip->hdrfromname) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -2225,19 +2211,15 @@ ret0:
 /* end subroutine (locinfo_mkhdrfromname) */
 
 
-static int locinfo_mkhdrfromaddr(lip)
-LOCINFO	*lip ;
+static int locinfo_mkhdrfromaddr(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	BUFFER		b ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		bl = 0 ;
 
-	if (lip->hdrfromaddr != NULL) {
-	    bl = strlen(lip->hdrfromaddr) ;
-	    goto ret0 ;
-	}
+	if (lip->hdrfromaddr == NULL) {
+	BUFFER		b ;
 
 /* cache the clustername if necessary */
 
@@ -2259,8 +2241,9 @@ LOCINFO	*lip ;
 
 /* add a name if we can find one */
 
-	    if (lip->hdrfromname == NULL)
+	    if (lip->hdrfromname == NULL) {
 	        rs = locinfo_mkhdrfromname(lip) ;
+	    }
 
 	    if ((rs >= 0) && (lip->hdrfromname != NULL)) {
 	        buffer_char(&b,' ') ;
@@ -2282,7 +2265,10 @@ LOCINFO	*lip ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (buffer) */
 
-ret0:
+	} else {
+	    bl = strlen(lip->hdrfromaddr) ;
+	}
+
 	return (rs >= 0) ? bl : rs ;
 }
 /* end subroutine (locinfo_mkhdrfromaddr) */
@@ -2302,17 +2288,14 @@ static int locinfo_hdrfromget(LOCINFO *lip,EMA **epp)
 
 
 /* our little NG-directory cache (caching only positive hits) */
-static int locinfo_ngdname(lip,ngdname,np,nl)
-LOCINFO	*lip ;
-char		ngdname[] ;
-cchar	*np ;
-int		nl ;
+static int locinfo_ngdname(LOCINFO *lip,char *ngdname,cchar *np,int nl)
 {
 	PROGINFO	*pip = lip->pip ;
 	HDBSTR		*mlp = &lip->ngmap ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		vl = 0 ;
-	cchar	*vp ;
+	cchar		*vp ;
 
 	if (ngdname == NULL) return SR_FAULT ;
 	if (np == NULL) return SR_FAULT ;
@@ -2339,24 +2322,22 @@ int		nl ;
 	            char	rbuf[MAXPATHLEN+1] ;
 	            if ((rs = pcsngdname(pr,rbuf,nd,ngname)) >= 0) {
 	                vl = rs ;
-	                if ((rs = hdbstr_add(mlp,np,nl,rbuf,rs)) >= 0)
+	                if ((rs = hdbstr_add(mlp,np,nl,rbuf,rs)) >= 0) {
 	                    rs = mkpath1w(ngdname,rbuf,vl) ;
+			}
 	            } /* end if (pcsngdname) */
-	            nulstr_finish(&n) ;
+	            rs1 = nulstr_finish(&n) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (nulstr) */
 	    } /* end if (lookup) */
-	} /* end if */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? vl : rs ;
 }
 /* end subroutines (locinfo_ngdname) */
 
 
-int progngdname(pip,ngdname,np,nl)
-PROGINFO	*pip ;
-char		ngdname[] ;
-cchar	*np ;
-int		nl ;
+int progngdname(PROGINFO *pip,char *ngdname,cchar *np,int nl)
 {
 	LOCINFO	*lip = pip->lip ;
 	return locinfo_ngdname(lip,ngdname,np,nl) ;
@@ -2385,13 +2366,15 @@ int progexpiration(PROGINFO *pip,cchar **rpp)
 
 	if (pip == NULL) return SR_FAULT ;
 	if (pip->ti_expires > 0) {
-	    if (pip->expdate[0] == '\0')
+	    if (pip->expdate[0] == '\0') {
 	        timestr_msg(pip->ti_expires,pip->expdate) ;
+	    }
 	    rs = strlen(pip->expdate) ;
 	} /* end if (have expiration date) */
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs > 0) ? pip->expdate : NULL ;
+	}
 
 	return rs ;
 }
@@ -2400,10 +2383,7 @@ int progexpiration(PROGINFO *pip,cchar **rpp)
 
 #ifdef	COMMENT
 
-static int pcsconf_mkdir(pp,name,mode)
-PCSCONF		*pp ;
-char		name[] ;
-int		mode ;
+static int pcsconf_mkdir(PCSCONF *pp,char *name,more_t mode)
 {
 	struct ustat	sb ;
 	uid_t		uid_pcs ;
@@ -2438,10 +2418,8 @@ int		mode ;
 	    goto done ;
 
 	if ((rs > 0) && (uid_pcs >= 0)) {
-
 	    f_popparent = TRUE ;
 	    strwcpy(dirbuf,cp,cl) ;
-
 	}
 
 /* now do the given directory */

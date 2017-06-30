@@ -73,35 +73,30 @@ extern int	getmjd(int,int,int) ;
 /* exported subroutines */
 
 
-char *timestr_nist(t,nip,buf)
-time_t		t ;
-struct nistinfo	*nip ;
-char		buf[] ;
+char *timestr_nist(time_t t,struct nistinfo *nip,char *tbuf)
 {
 	struct tm	tsz, *tszp = &tsz ;
 	struct tm	tsl, *tslp = &tsl ;
-
-	int	rs = SR_OK ;
-	int	cl ;
-	int	mjd ;
-	int	tt ;
-	int	adv_int, adv_fra ;
-	int	ocl = -1 ;
-
+	const int	tlen = TIMEBUFLEN ;
+	int		rs = SR_OK ;
+	int		cl ;
+	int		mjd ;
+	int		tt ;
+	int		adv_int, adv_fra ;
+	int		ocl = -1 ;
 	const char	*ocp = "DAM" ;
 	const char	*fmt ;
 
+	if (nip == NULL) rs = SR_FAULT ;
+	if (tbuf == NULL) rs = SR_FAULT ;
 
 	if (t == 0) t = time(NULL) ;
-
-	if (nip == NULL) rs = SR_FAULT ;
-	if (buf == NULL) rs = SR_FAULT ;
 
 	if (rs >= 0) rs = uc_gmtime(&t,tszp) ;
 
 	if (rs >= 0) rs = uc_localtime(&t,tslp) ;
 
-	if (rs < 0) goto ret0 ;
+	if (rs >= 0) {
 
 #if	CF_DEBUGS
 	debugprintf("timestr_nist: y=%u m=%u d=%u\n",
@@ -114,8 +109,8 @@ char		buf[] ;
 	debugprintf("timestr_nist: getmjd() rs=%d\n",mjd) ;
 #endif
 
-	adv_int = nip->adv / 10 ;
-	adv_fra = nip->adv % 10 ;
+	adv_int = (nip->adv / 10) ;
+	adv_fra = (nip->adv % 10) ;
 
 #if	CF_DEBUGTT
 	tt = 1 ;
@@ -137,7 +132,7 @@ char		buf[] ;
 
 	fmt = "%05u %02u-%02u-%02u %02u:%02u:%02u" 
 		" %02u %u %1u %03u.%01u UTC(%t) *",
-	rs = bufprintf(buf,TIMEBUFLEN,fmt,
+	rs = bufprintf(tbuf,tlen,fmt,
 	    mjd,
 	    (tszp->tm_year % NYEARS_CENTURY),
 	    (tszp->tm_mon + 1),
@@ -151,8 +146,9 @@ char		buf[] ;
 	    adv_int,adv_fra,
 	    ocp,ocl) ;
 
-ret0:
-	return (rs >= 0) ? buf : NULL ;
+	} /* end if (ok) */
+
+	return (rs >= 0) ? tbuf : NULL ;
 }
 /* end subroutine (timest_nist) */
 

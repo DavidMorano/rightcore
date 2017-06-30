@@ -43,7 +43,7 @@ extern "C" {
 
 extern int	stackaddr_start(STACKADDR *,char *,int) ;
 extern int	stackaddr_finish(STACKADDR *) ;
-extern int	stackaddr_add(STACKADDR *,const char *,int,const char *,int) ;
+extern int	stackaddr_add(STACKADDR *,cchar *,int,cchar *,int) ;
 
 #ifdef	__cplusplus
 }
