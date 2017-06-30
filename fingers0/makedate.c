@@ -1,2 +1,2 @@
 const char fingers_makedate[] =
-"@(#)fingers                 170625_2123:21_USEDT Rightcore Network Services" ;
+"@(#)fingers                 170630_0025:12_USEDT Rightcore Network Services" ;

@@ -1,6 +1,6 @@
 /* ttihdr */
 
-/* file-header for TERMTRANS lookup-table index-file */
+/* Termianl-Translate-Index file management (file header) */
 
 
 #define	CF_DEBUG 	0		/* run-time debugging */

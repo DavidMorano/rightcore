@@ -561,11 +561,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #if	CF_FIXENV
 	{
 	    uint	a ;
-	    int	pagesize = getpagesize() ;
+	    int		ps = getpagesize() ;
 	    for (i = 0 ; envv[i] != NULL ; i += 1) {
 	        a = (uint) envv[i] ;
-	        if (a < (2 * pagesize))
-	            envv[i] = "*DELETED*=" ;
+	        if (a < (2 * ps)) {
+		    envv[i] = "*DELETED*=" ;
+		}
 	    } /* end for */
 	}
 #endif /* CF_FIXENV */

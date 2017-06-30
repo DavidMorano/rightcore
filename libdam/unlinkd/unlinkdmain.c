@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-05-14, Dave Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -20,8 +18,7 @@
 
 /******************************************************************************
 
-	This subroutine calls the UNLINKD program to delete (unlink)
-	files.
+	This subroutine calls the UNLINKD program to delete (unlink) files.
 
 	Synopsis:
 
@@ -93,6 +90,10 @@
 
 #define	DEFEXECPATH	"/usr/xpg4/bin:/usr/bin:/usr/extra/bin"
 
+#define	SUBINFO		struct subinfo
+#define	SUBINFO_ARGS	struct subinfo_args
+#define	SUBINFO_FL	struct subinfo_flags
+
 
 /* external subroutines */
 
@@ -120,28 +121,28 @@ struct subinfo_args {
 } ;
 
 struct subinfo_flags {
-	uint	here : 1 ;
+	uint		here:1 ;
 } ;
 
 struct subinfo {
-	struct subinfo_args	arg ;
-	struct subinfo_flags	f ;
-	time_t			daytime ;
+	SUBINFO_ARGS	arg ;
+	SUBINFO_FL	f ;
+	time_t		daytime ;
 } ;
 
 
 /* forward references */
 
-static int	subinfo_start(struct subinfo *,const char *,int) ;
-static int	subinfo_finish(struct subinfo *) ;
-static int	subinfo_fork(struct subinfo *) ;
-static int	subinfo_daemon(struct subinfo *) ;
-static int	subinfo_rmer(struct subinfo *) ;
+static int	subinfo_start(SUBINFO *,const char *,int) ;
+static int	subinfo_finish(SUBINFO *) ;
+static int	subinfo_fork(SUBINFO *) ;
+static int	subinfo_daemon(SUBINFO *) ;
+static int	subinfo_rmer(SUBINFO *) ;
 
 
 /* local variables */
 
-static int	(*scheds[])(struct subinfo *) = {
+static int	(*scheds[])(SUBINFO *) = {
 	subinfo_rmer,
 	subinfo_fork,
 	subinfo_daemon,
@@ -152,24 +153,17 @@ static int	(*scheds[])(struct subinfo *) = {
 /* exported subroutines */
 
 
-int unlinkd(fname,delay)
-const char	fname[] ;
-int		delay ;
+int unlinkd(cchar *fname,int delay)
 {
-	struct subinfo	si, *sip = &si ;
-
+	SUBINFO		si, *sip = &si ;
 	struct stat	sb ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i = 0 ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i = 0 ;
+	if (fname == NULL) return SR_FAULT ;
 
-
-	if (fname == NULL)
-	    return SR_FAULT ;
-
-	if (fname[0] == '\0')
-	    return SR_INVALID ;
+	if (fname[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
 	debugprintf("unlinkd: f=%s d=%d\n",fname,delay) ;
@@ -209,18 +203,14 @@ ret0:
 /* local subroutines */
 
 
-static int subinfo_start(sip,fname,delay)
-struct subinfo	*sip ;
-const char	fname[] ;
-int		delay ;
+static int subinfo_start(SUBINFO *sip,cchar *fname,int delay)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 	if (delay <= 0)
 	    delay = DEFDELAY ;
 
-	memset(sip,0,sizeof(struct subinfo)) ;
+	memset(sip,0,sizeof(SUBINFO)) ;
 
 	sip->daytime = time(NULL) ;
 
@@ -231,10 +221,8 @@ int		delay ;
 /* end subroutine (subinfo_start) */
 
 
-static int subinfo_finish(sip)
-struct subinfo	*sip ;
+static int subinfo_finish(SUBINFO *sip)
 {
-
 
 	sip->daytime = 0 ;
 	return SR_OK ;
@@ -242,19 +230,14 @@ struct subinfo	*sip ;
 /* end subroutine (subinfo_finish) */
 
 
-static int subinfo_fork(sip)
-struct subinfo	*sip ;
+static int subinfo_fork(SUBINFO *sip)
 {
 	struct stat	sb ;
-
-	pid_t	pid ;
-
-	time_t	ti_expire ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-
+	pid_t		pid ;
+	time_t		ti_expire ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
 
 	rs = u_fork() ;
 	pid = rs ;
@@ -310,25 +293,20 @@ ret0:
 /* end subroutine (subinfo_fork) */
 
 
-static int subinfo_daemon(sip)
-struct subinfo	*sip ;
+static int subinfo_daemon(SUBINFO *sip)
 {
-	int	rs = SR_NOSYS ;
-
-
+	int		rs = SR_NOSYS ;
+	if (sip == NULL) return SR_FAULT ;
 	return rs ;
 }
 /* end subroutine (subinfo_daemon) */
 
 
-static int subinfo_rmer(sip)
-struct subinfo	*sip ;
+static int subinfo_rmer(SUBINFO *sip)
 {
 	struct spawnproc	pg ;
-
 	struct rmermsg_fname	m0 ;
-
-	pid_t	pid ;
+	pid_t		pid ;
 
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -346,9 +324,7 @@ struct subinfo	*sip ;
 #endif
 
 	const char	*pn = PROG_RMER ;
-
 	const char	*av[10 + 1] ;
-	const char	**ev ;
 
 	char	dname[MAXHOSTNAMELEN + 1] ;
 	char	pr[MAXPATHLEN + 1] ;
@@ -382,13 +358,10 @@ struct subinfo	*sip ;
 	}
 
 	if ((rs >= 0) && (rs1 < 0)) {
-
 	    rs = findfilepath(VARPATH,pn,X_OK,progfname) ;
-
 #if	CF_DEBUGS
 	debugprintf("unlinkd/subinfo_rmer: findfilepath() rs=%d\n",rs) ;
 #endif
-
 	}
 
 #if	CF_DEBUGS
@@ -473,14 +446,11 @@ struct subinfo	*sip ;
 
 	fd = pg.fd[0] ;
 	if (fd >= 0) {
-
-	    rs = rmermsg_fname(&m0,0,ipcbuf,ipclen) ;
-	    len = rs ;
-	    if (rs >= 0)
+	    if ((rs = rmermsg_fname(&m0,0,ipcbuf,ipclen)) >= 0) {
+	        len = rs ;
 	        rs = uc_writen(fd,ipcbuf,len) ;
-
+	    }
 	    u_close(fd) ;
-
 	} else
 	    rs = SR_NOSYS ;
 
@@ -515,6 +485,5 @@ ret0:
 	return rs ;
 }
 /* end subroutine (subinfo_rmer) */
-
 
 

@@ -42,8 +42,6 @@ extern int	bbhosts_find(BBHOSTS *,const char *) ;
 
 #endif /* BBHOSTS_MASTER */
 
-
 #endif /* BBHOSTS_INCLUDE */
-
 
 

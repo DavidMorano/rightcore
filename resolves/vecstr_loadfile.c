@@ -93,6 +93,8 @@
 #define	FD_STDIN	0
 #endif
 
+#define	DEFBUFLEN	1024
+
 #define	TO_READ		-1		/* read timeout */
 
 
@@ -184,7 +186,7 @@ static int vecstr_loadfd(vecstr *vsp,int fu,int fd)
 	if ((rs = u_fstat(fd,&sb)) >= 0) {
 	    if (! S_ISDIR(sb.st_mode)) {
 		FILEBUF	loadfile, *lfp = &loadfile ;
-	        int	fbsize = 1024 ;
+	        int	fbsize = DEFBUFLEN ;
 	        int	fbo = 0 ;
 
 	        if (S_ISREG(sb.st_mode)) {
@@ -224,8 +226,9 @@ static int vecstr_loadfd(vecstr *vsp,int fu,int fd)
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (filebuf) */
 
-	    } else
+	    } else {
 	        rs = SR_ISDIR ;
+	    }
 	} /* end if (stat) */
 
 	return (rs >= 0) ? c : rs ;

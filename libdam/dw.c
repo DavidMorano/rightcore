@@ -46,7 +46,6 @@
 #include	<vecobj.h>
 #include	<vecstr.h>
 #include	<fsdir.h>
-#include	<mallocstuff.h>
 #include	<localmisc.h>
 
 #include	"dw.h"
@@ -87,10 +86,10 @@ extern char	*strdcpy1(char *,int,const char *) ;
 /* forward references */
 
 static int	dw_scanfull(DW *) ;
-static int	dw_scansub(DW *,const char *,time_t) ;
-static int	dw_findi(DW *,const char *,IENTRY **) ;
+static int	dw_scansub(DW *,cchar *,time_t) ;
+static int	dw_findi(DW *,cchar *,IENTRY **) ;
 
-static int	ientry_start(IENTRY *,DW *, const char *,struct ustat *) ;
+static int	ientry_start(IENTRY *,DW *,cchar *,struct ustat *) ;
 static int	ientry_finish(IENTRY *,DW *) ;
 
 static int	entry_load(DW_ENT *,struct dw_ientry *) ;
@@ -106,11 +105,9 @@ static int	fnamecmp(struct dw_ientry **,struct dw_ientry **) ;
 
 int dw_start(DW *dwp,cchar *dirname)
 {
-	time_t		daytime = time(NULL) ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		size ;
 	int		opts ;
-	const char	*cp ;
 
 	if (dwp == NULL) return SR_FAULT ;
 	if (dirname == NULL) return SR_FAULT ;
@@ -132,52 +129,34 @@ int dw_start(DW *dwp,cchar *dirname)
 
 	size = sizeof(DW_ENT) ;
 	opts = (VECOBJ_OSTATIONARY | VECOBJ_OCONSERVE) ;
-	rs = vecobj_start(&dwp->e,size,10,opts) ;
-
-#if	CF_DEBUGS
-	debugprintf("dw_start: vecobj_start() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0)
-	    goto bad0 ;
-
-	dwp->mtime = 0 ;
-	dwp->opentime = 0 ;
-	dwp->checktime = daytime ;
-	dwp->removetime = daytime ;
-
-	rs = uc_mallocstrw(dirname,-1,&cp) ;
-	if (rs < 0) goto bad1 ;
-	if ((rs-1) > MAXPATHLEN) {
-	    rs = SR_TOOBIG ;
-	    goto bad2 ;
-	}
-
-	dwp->dirname = cp ;
-	rs = dw_scanfull(dwp) ;
-
-	if (rs == SR_NOENT)
-		rs = SR_OK ;
-
-	dwp->magic = DW_MAGIC ;
-
-ret0:
+	if ((rs = vecobj_start(&dwp->e,size,10,opts)) >= 0) {
+	    const time_t	dt = time(NULL) ;
+	    cchar	*cp ;
+	    dwp->mtime = 0 ;
+	    dwp->opentime = 0 ;
+	    dwp->checktime = dt ;
+	    dwp->removetime = dt ;
+	    if ((rs = uc_mallocstrw(dirname,-1,&cp)) >= 0) {
+	        if ((rs-1) <= MAXPATHLEN) {
+	            dwp->dirname = cp ;
+	            rs = dw_scanfull(dwp) ;
+	            if (rs == SR_NOENT) rs = SR_OK ;
+	            dwp->magic = DW_MAGIC ;
+	        } else {
+	            rs = SR_TOOBIG ;
+	        }
+	        if (rs < 0)
+	            uc_free(cp) ;
+	    } /* end if (m-a) */
+	    if (rs < 0)
+	        vecobj_finish(&dwp->e) ;
+	} /* end if (vecobj-start) */
 
 #if	CF_DEBUGS
 	debugprintf("dw_start: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
-
-/* handle bad things */
-bad2:
-	uc_free(cp) ;
-
-bad1:
-	vecobj_finish(&dwp->e) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (dw_start) */
 
@@ -197,11 +176,10 @@ int dw_finish(DW *dwp)
 /* directory entries */
 
 	for (i = 0 ; vecobj_get(&dwp->e,i,&iep) >= 0 ; i += 1) {
-	    if (iep == NULL) continue ;
-
-	    rs1 = ientry_finish(iep,dwp) ;
-	    if (rs >= 0) rs = rs1 ;
-
+	    if (iep != NULL) {
+	        rs1 = ientry_finish(iep,dwp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
 	} /* end for */
 
 	rs1 = vecobj_finish(&dwp->e) ;
@@ -290,14 +268,14 @@ int dw_enum(DW *dwp,DW_CUR *cp,DW_ENT *dep)
 	if (rs >= 0) {
 
 	    if (dep != NULL) {
-		rs = entry_load(dep,iep) ;
+	        rs = entry_load(dep,iep) ;
 	    }
 
 	    nlen = rs ;
 	    if ((rs >= 0) && (cp != NULL))
 	        cp->i = i ;
 
-	}
+	} /* end if (ok) */
 
 	if ((cp != NULL) && (rs >= 0)) {
 	    cp->i = i ;
@@ -354,15 +332,15 @@ int dw_find(DW *dwp,cchar *name,DW_ENT *dep)
 	rs = vecobj_search(&dwp->e,&ie,fnamecmp,&iep) ;
 #else /* CF_FNAMECMP */
 	for (i = 0 ; (rs = vecobj_get(&dwp->e,i,&iep)) >= 0 ; i += 1) {
-	    if (iep == NULL) continue ;
+	    if (iep != NULL) {
 
 #if	CF_DEBUGS
 	    debugprintf("dw_find: got entry=%s\n",iep->name) ;
 #endif
 
-	    if (strcmp(name,iep->name) == 0)
-	        break ;
+	        if (strcmp(name,iep->name) == 0) break ;
 
+	    }
 	} /* end for (looping through entries) */
 #endif /* CF_FNAMECMP */
 
@@ -409,7 +387,7 @@ int dw_enumcheckable(DW *dwp,DW_CUR *cp,DW_ENT *dep)
 	while ((rs = vecobj_get(&dwp->e,i,&iep)) >= 0) {
 
 #if	CF_DEBUGS
-	debugprintf("dw_enumcheckable: vecobj_get() rs=%d i=%u\n",rs,i) ;
+	    debugprintf("dw_enumcheckable: vecobj_get() rs=%d i=%u\n",rs,i) ;
 #endif
 
 	    if ((iep != NULL) && (iep->state == DW_SCHECK)) break ;
@@ -421,7 +399,7 @@ int dw_enumcheckable(DW *dwp,DW_CUR *cp,DW_ENT *dep)
 	if (rs >= 0) {
 
 	    if (dep != NULL) {
-		rs = entry_load(dep,iep) ;
+	        rs = entry_load(dep,iep) ;
 	    }
 
 	    if ((rs >= 0) && (cp != NULL))
@@ -495,9 +473,7 @@ int dw_check(DW *dwp,time_t daytime)
 
 	    dwp->mtime = sb.st_mtime ;
 	    rs = dw_scansub(dwp,"",daytime) ;
-
-	    if (rs >= 0)
-	        n = rs ;
+	    if (rs >= 0) n = rs ;
 
 	} else if ((daytime - dwp->opentime) > MAXOPENTIME) {
 
@@ -522,12 +498,12 @@ int dw_check(DW *dwp,time_t daytime)
 
 	    *dbp++ = '/' ;
 	    for (i = 0 ; vecstr_get(&dwp->subdirs,i,&dnp) >= 0 ; i += 1) {
-	        if (dnp == NULL) continue ;
+	        if (dnp != NULL) {
 
-		{
-		    int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
-		    strdcpy1(dbp,rl,dnp) ;
-		}
+	        {
+	            int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
+	            strdcpy1(dbp,rl,dnp) ;
+	        }
 
 	        if ((u_stat(dnamebuf,&sb) >= 0) &&
 	            ((sb.st_mtime > dwp->checktime) ||
@@ -539,13 +515,12 @@ int dw_check(DW *dwp,time_t daytime)
 #endif
 
 	            rs = dw_scansub(dwp,dnp,daytime) ;
-
-	            if (rs >= 0)
-	                n += 1 ;
+	            if (rs >= 0) n += 1 ;
 
 	        } /* end if (scanning subdirectory) */
 
-		if (rs < 0) break ;
+		}
+	        if (rs < 0) break ;
 	    } /* end for */
 
 	} /* end if (subdirectories) */
@@ -570,17 +545,17 @@ int dw_check(DW *dwp,time_t daytime)
 
 	        if ((daytime - iep->itime) > (dwp->checkinterval / 4)) {
 
-		    {
-		        int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
-		        strdcpy1(dbp,rl,iep->name) ;
-		    }
+	            {
+	                int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
+	                strdcpy1(dbp,rl,iep->name) ;
+	            }
 
 	            if ((u_stat(dnamebuf,&sb) >= 0) &&
 	                ((daytime - sb.st_mtime) > dwp->checkinterval)) {
 
 #if	CF_DEBUGS
 	                debugprintf("dw_check: checkable entry=%s\n",
-				iep->name) ;
+	                    iep->name) ;
 #endif
 
 	                iep->state = DW_SCHECK ;
@@ -615,20 +590,20 @@ int dw_check(DW *dwp,time_t daytime)
 	    for (i = 0 ; vecobj_get(&dwp->e,i,&iep) >= 0 ; i += 1) {
 	        if (iep == NULL) continue ;
 
-		if ((daytime - iep->itime) <= MAXIDLETIME) 
-			continue ;
+	        if ((daytime - iep->itime) <= MAXIDLETIME)
+	            continue ;
 
-		iep->itime = daytime ;
-		{
-		        int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
-		        strdcpy1(dbp,rl,iep->name) ;
-		}
+	        iep->itime = daytime ;
+	        {
+	            int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
+	            strdcpy1(dbp,rl,iep->name) ;
+	        }
 
 	        if (u_stat(dnamebuf,&sb) < 0) {
 
 #if	CF_DEBUGS
 	            debugprintf("dw_check: file removed? entry=%s\n",
-			iep->name) ;
+	                iep->name) ;
 #endif
 
 	            ientry_finish(iep,dwp) ;
@@ -676,7 +651,7 @@ extern int dw_state(DW *op,int i,int state)
 {
 	IENTRY		*iep ;
 	int		rs ;
-	int		state_prev ;
+	int		state_prev = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -684,10 +659,11 @@ extern int dw_state(DW *op,int i,int state)
 
 	if (state < 0) return SR_INVALID ;
 
-	rs = vecobj_get(&op->e,i,&iep) ;
+	if ((rs = vecobj_get(&op->e,i,&iep)) >= 0) {
+	    state_prev = iep->state ;
+	    iep->state = state ;
+	}
 
-	state_prev = iep->state ;
-	iep->state = state ;
 	return (rs >= 0) ? state_prev : rs ;
 }
 /* end subroutine (dw_state) */
@@ -722,13 +698,12 @@ static int dw_scanfull(DW *dwp)
 
 	    *dbp++ = '/' ;
 	    while ((nlen = fsdir_read(&d,&ds)) > 0) {
-
 	        if (ds.name[0] == '.') continue ;
 
-		{
-		        int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
-		        strdcpy1(dbp,rl,ds.name) ;
-		}
+	        {
+	            int	rl = (MAXPATHLEN - (dbp-dnamebuf)) ;
+	            strdcpy1(dbp,rl,ds.name) ;
+	        }
 
 	        if (u_stat(dnamebuf,&sb) < 0) continue ;
 
@@ -737,9 +712,9 @@ static int dw_scanfull(DW *dwp)
 	            if (! dwp->f.subdirs) {
 	                rs = vecstr_start(&dwp->subdirs,10,VECSTR_PNOHOLES) ;
 	                dwp->f.subdirs = (rs >= 0) ;
-		    }
+	            }
 
-		    if (rs >= 0) {
+	            if (rs >= 0) {
 	                if (vecstr_find(&dwp->subdirs,dbp) == SR_NOTFOUND)
 	                    rs = vecstr_add(&dwp->subdirs,dbp,nlen) ;
 	            }
@@ -775,8 +750,8 @@ static int dw_scanfull(DW *dwp)
 	        if (dnp != NULL) {
 	            rs = dw_scansub(dwp,dnp,daytime) ;
 	            n += rs ;
-		}
-		if (rs < 0) break ;
+	        }
+	        if (rs < 0) break ;
 	    } /* end for */
 
 	} /* end if (subdirectories) */
@@ -793,6 +768,7 @@ static int dw_scansub(DW *dwp,cchar *subdname,time_t daytime)
 	fsdir		d ;
 	fsdir_ent	ds ;
 	int		rs ;
+	int		rs1 ;
 	int		nlen, dlen ;
 	int		n = 0 ;
 	char		dnamebuf[MAXPATHLEN + 1], *dbp ;
@@ -828,22 +804,18 @@ static int dw_scansub(DW *dwp,cchar *subdname,time_t daytime)
 #endif
 
 	if ((rs = fsdir_open(&d,dnamebuf)) >= 0) {
+	    const int	rsn = SR_NOENT ;
 
 #if	CF_DEBUGS
 	    debugprintf("dw_scansub: doing directory\n") ;
 #endif
 
 	    while ((nlen = fsdir_read(&d,&ds)) > 0) {
+	        if (ds.name[0] == '.') continue ;
 
 #if	CF_DEBUGS
 	        debugprintf("dw_scansub: nlen=%d name=%s\n",
 	            nlen,ds.name) ;
-#endif
-
-	        if (ds.name[0] == '.') continue ;
-
-#if	CF_DEBUGS
-	        debugprintf("dw_scansub: not a dot job\n") ;
 #endif
 
 	        dlen = strwcpy(sdbp,ds.name,nlen) - dbp ;
@@ -867,11 +839,12 @@ static int dw_scansub(DW *dwp,cchar *subdname,time_t daytime)
 	            if (! dwp->f.subdirs) {
 	                rs = vecstr_start(&dwp->subdirs,10,VECSTR_PNOHOLES) ;
 	                dwp->f.subdirs = (rs >= 0) ;
-		    }
+	            }
 
-		    if (rs >= 0) {
-	                if (vecstr_find(&dwp->subdirs,dbp) < 0)
+	            if (rs >= 0) {
+	                if ((rs = vecstr_find(&dwp->subdirs,dbp)) == rsn) {
 	                    rs = vecstr_add(&dwp->subdirs,dbp,dlen) ;
+			}
 	            }
 
 	        } else if (dw_findi(dwp,dbp,&iep) == SR_NOTFOUND) {
@@ -907,7 +880,7 @@ static int dw_scansub(DW *dwp,cchar *subdname,time_t daytime)
 
 	        } else {
 	            iep->itime = daytime ;
-		}
+	        }
 
 	    } /* end while (reading directory entries) */
 
@@ -915,7 +888,8 @@ static int dw_scansub(DW *dwp,cchar *subdname,time_t daytime)
 	    debugprintf("dw_scansub: closing directory\n") ;
 #endif
 
-	    fsdir_close(&d) ;
+	    rs1 = fsdir_close(&d) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (subdirectory) */
 
 #if	CF_DEBUGS
@@ -984,21 +958,21 @@ static int ientry_start(IENTRY *iep,DW *dwp,cchar *name,struct ustat *sbp)
 
 	iep->state = DW_SNEW ;
 	if ((rs = uc_mallocstrw(name,-1,&cp)) >= 0) {
-	iep->name = cp ;
+	    iep->name = cp ;
 
 /* do we need to get some status on the file? */
 
-	if (sbp == NULL) {
-	    char	dnamebuf[MAXPATHLEN + 1] ;
+	    if (sbp == NULL) {
+	        char	dnamebuf[MAXPATHLEN + 1] ;
 
-	    if ((rs = mkpath2(dnamebuf,dwp->dirname,name)) >= 0) {
-	        rs = u_stat(dnamebuf,&sb) ;
-	        if (rs >= 0) sbp = &sb ;
-	    }
+	        if ((rs = mkpath2(dnamebuf,dwp->dirname,name)) >= 0) {
+	            rs = u_stat(dnamebuf,&sb) ;
+	            if (rs >= 0) sbp = &sb ;
+	        }
 
-	} /* end if */
+	    } /* end if */
 
-	iep->itime = ((sbp != NULL) ? sbp->st_mtime : 0) ;
+	    iep->itime = ((sbp != NULL) ? sbp->st_mtime : 0) ;
 
 	} /* end if */
 
@@ -1057,17 +1031,17 @@ static int entry_load(DW_ENT *dep,IENTRY *iep)
 
 static int fnamecmp(IENTRY **e1pp,IENTRY **e2pp)
 {
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	return strcmp((*e1pp)->name,(*e2pp)->name) ;
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            rc = strcmp((*e1pp)->name,(*e2pp)->name) ;
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = 1 ;
+	}
+	return rc ;
 }
 /* end subroutine (fnamecmp) */
 

@@ -46,7 +46,7 @@
 	bfile		*ofp ;
 	int		f_multipart ;
 	char		msgboundary[] ;
-	MAILMSGATT_ENT	*ep ;
+	MAILMSGATTENT	*ep ;
 
 	Note: Just a little diatribe rant on how stupid the MIME standard is
 	for hanlding plain text.  In short, it was the most stupid and idiotic
@@ -139,7 +139,7 @@ struct outline {
 
 /* forward references */
 
-static int	outct(PROGINFO *,bfile *,MAILMSGATT_ENT *) ;
+static int	outct(PROGINFO *,bfile *,MAILMSGATTENT *) ;
 static int	outentry(PROGINFO *,bfile *,OUTLINE *,BUFFER *,EMA_ENT *) ;
 static int	outvalue(PROGINFO *,bfile *,OUTLINE *,cchar *,int) ;
 static int	outpartbody(PROGINFO *,bfile *,bfile *,MAILMSGATTENT *) ;
@@ -315,7 +315,7 @@ PROGINFO	*pip ;
 bfile		*ofp ;
 int		f_multipart ;
 cchar		*msgboundary ;
-MAILMSGATT_ENT	*ep ;
+MAILMSGATTENT	*ep ;
 {
 	bfile		infile, *ifp = &infile ;
 	int		rs ;
@@ -614,7 +614,7 @@ int		vl ;
 
 
 /* output the content type */
-static int outct(PROGINFO *pip,bfile *ofp,MAILMSGATT_ENT *ep)
+static int outct(PROGINFO *pip,bfile *ofp,MAILMSGATTENT *ep)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;

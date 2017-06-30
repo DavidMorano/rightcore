@@ -323,11 +323,13 @@ int vecstr_getlast(vecstr *op,cchar **spp)
 		i -= 1 ;
 	    }
 	    if (i < 0) rs = SR_BUGCHECK ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
-	if (spp != NULL)
+	if (spp != NULL) {
 	     *spp = (rs >= 0) ? (op->va)[i] : NULL ;
+	}
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -550,8 +552,9 @@ int vecstr_search(vecstr *op,cchar *sp,vecstr_vcmpfunc vcmpfunc,cchar **rpp)
 
 	} /* end if (sorted or not) */
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? op->va[i] : NULL ;
+	}
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -582,8 +585,7 @@ int vecstr_finder(vecstr *op,cchar *sp,vecstr_vcmpfunc vcmpfunc,cchar **rpp)
 
 	if (i < op->i) {
 	    rs = i ;
-	    if (rpp != NULL)
-	        *rpp = op->va[i] ;
+	    if (rpp != NULL) *rpp = op->va[i] ;
 	}
 
 	return rs ;
@@ -760,8 +762,9 @@ int vecstr_strmk(vecstr *op,char *tab,int tabsize)
 	    while (bp < (tab + tabsize)) {
 	        *bp++ = '\0' ;
 	    }
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -805,8 +808,9 @@ int vecstr_recmkstr(vecstr *op,int *rec,int recsize,char *tab,int tabsize)
 	        rec[c] = -1 ;
 	    } else
 	        rs = SR_OVERFLOW ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -854,8 +858,9 @@ int vecstr_recmk(vecstr *op,int *rec,int recsize)
 		}
 	    } /* end for */
 	    rec[c] = -1 ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -868,22 +873,20 @@ int vecstr_insert(vecstr *op,int ii,cchar *sp,int sl)
 	int		i = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
+	if (sp == NULL) return SR_FAULT ;
 
 	if (op->va == NULL) return SR_NOTOPEN ;
 
-	if ((ii < 0) || (ii > op->i))
-	    return SR_INVALID ;
-
-	if (sp == NULL)
-	    return SR_FAULT ;
+	if ((ii < 0) || (ii > op->i)) return SR_INVALID ;
 
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
 /* do we have to grow the vector array? */
 
-	if ((op->i + 1) > op->n)
+	if ((op->i + 1) > op->n) {
 	    rs = vecstr_extvec(op) ;
+	}
 
 	if (rs >= 0) {
 	    char	*bp ;

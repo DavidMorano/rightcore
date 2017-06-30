@@ -1,6 +1,6 @@
 /* ttimk */
 
-/* make a TTI database */
+/* make a Termianl-Translate-Index file management database */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */

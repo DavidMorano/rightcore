@@ -178,6 +178,7 @@ static const struct termtype	terms[] = {
 #endif /* COMMENT */
 
 
+
 /* exported subroutines */
 
 
@@ -223,10 +224,10 @@ int td_start(TD *tdp,int tfd,const char *termtype,int r,int c)
 	                char	*bp ;
 	                tdp->termtype = cp ;
 	                if ((rs = uc_malloc(tdp->buflen,&bp)) >= 0) {
-			    const char	*tt = termtype ;
+	                    const char	*tt = termtype ;
 	                    tdp->buf = bp ;
 	                    if ((rs = termstr_start(&tdp->enter,tt)) >= 0) {
-				VECITEM		*wlp = &tdp->wins ;
+	                        VECITEM		*wlp = &tdp->wins ;
 	                        const int	opts = VECITEM_PHOLES ;
 	                        if ((rs = vecitem_start(wlp,5,opts)) >= 0) {
 	                            if ((rs = td_startwin(tdp,0,0,r,c)) >= 0) {
@@ -502,93 +503,76 @@ int td_move(TD *tdp,int wn,int r,int c)
 /* scroll a window ( (n>0)==UP, (n<0)==DOWN ) */
 int td_scroll(TD *tdp,int wn,int n)
 {
-	TD_WIN		*wp ;
 	int		rs = SR_OK ;
-	int		index_line ;
-	int		i ;
-	int		na ;
-	char		index_chars[8] ;
 
 	if (tdp == NULL) return SR_FAULT ;
 
 	if (tdp->magic != TD_MAGIC) return SR_NOTOPEN ;
 
-	if (n == 0) goto ret0 ;
-
-/* is it a valid window number? */
-
-	rs = vecitem_get(&tdp->wins,wn,&wp) ;
-	if (rs < 0)
-	    goto ret0 ;
+	if (n != 0) {
+	    TD_WIN	*wp ;
+	    if ((rs = vecitem_get(&tdp->wins,wn,&wp)) >= 0) {
+	        int		index_line ;
+	        int		i ;
+	        int		na ;
+	        int		f = FALSE ;
+	        char		index_chars[8] ;
 
 /* prepare a move for after the entire scroll operation */
 
-#ifdef	COMMENT
-	if (wp->move.row < 0) {
-	    f = TRUE ;
-	    wp->move.row = wp->cur.row ;
-	}
-	if (wp->move.col < 0) {
-	    f = TRUE ;
-	    wp->move.col = wp->cur.col ;
-	}
-	if (f)
-	    wp->move.timecount = tdp->timecounter++ ;
-#endif /* COMMENT */
-
 #if	CF_DEBUGS
-	debugprintf("td_scroll: w=%u saved move r=%d c=%d\n",
-	    wn,wp->move.row, wp->move.col) ;
+	        debugprintf("td_scroll: w=%u saved move r=%d c=%d\n",
+	            wn,wp->move.row, wp->move.col) ;
 #endif
 
 /* do it */
 
-	tdp->cur.row = -1 ;		/* indicates unknown cursor location */
-	tdp->cur.col = -1 ;		/* indicates unknown cursor location */
+	        tdp->cur.row = -1 ; /* indicates unknown cursor location */
+	        tdp->cur.col = -1 ; /* indicates unknown cursor location */
 
-	na = abs(n) ;
-	if (na > wp->rows)
-	    na = wp->rows ;
+	        na = abs(n) ;
+	        if (na > wp->rows)
+	            na = wp->rows ;
 
-	if ((rs = td_termstrbegin(tdp)) >= 0) {
-	    TERMSTR	*tsp = &tdp->enter ;
+	        if ((rs = td_termstrbegin(tdp)) >= 0) {
+	            TERMSTR	*tsp = &tdp->enter ;
 
-	    rs = termstr_ssr(tsp,wp->srow,wp->rows) ;
-
+	            if ((rs = termstr_ssr(tsp,wp->srow,wp->rows)) >= 0) {
 /* move to the boundary of the scroll region for the proper direction */
+	                if (n >= 0) {
+	                    index_line = (wp->srow + wp->rows - 1) ;
+	                    strcpy(index_chars,"\033D") ;	/* UP */
+	                } else {
+	                    index_line = wp->srow ;
+	                    strcpy(index_chars,"\033M") ;	/* DOWN */
+	                }
+	            } /* end if */
 
-	    if (rs >= 0) {
-	        if (n >= 0) {
-	            index_line = (wp->srow + wp->rows - 1) ;
-	            strcpy(index_chars,"\033D") ;	/* UP */
-	        } else {
-	            index_line = wp->srow ;
-	            strcpy(index_chars,"\033M") ;	/* DOWN */
-	        }
-	    } /* end if */
+	            if (rs >= 0) {
+	                if ((rs = termstr_curh(tsp,index_line,-1)) >= 0) {
+	                    for (i = 0 ; (rs >= 0) && (i < na) ; i += 1) {
+	                        rs = termstr_write(tsp,index_chars,-1) ;
+	                    }
+	                    if (rs >= 0) {
+	                        if ((rs = termstr_ssr(tsp,0,tdp->rows)) >= 0) {
+	                            rs = td_termstrend(tdp) ;
+	                        }
+	                    }
+	                }
+	            }
 
-	    if (rs >= 0)
-	        rs = termstr_curh(tsp,index_line,-1) ;
+	        } /* end if (transaction) */
 
-	    for (i = 0 ; (rs >= 0) && (i < na) ; i += 1)
-	        rs = termstr_write(tsp,index_chars,-1) ;
+	    } /* end if (vecitem_get) */
+	} /* end if (not-zero) */
 
-	    if (rs >= 0)
-	        rs = termstr_ssr(tsp,0,tdp->rows) ;
-
-	    if (rs >= 0)
-	        rs = td_termstrend(tdp) ;
-
-	} /* end if (transaction) */
-
-ret0:
 	return rs ;
 }
 /* end subroutine (td_scroll) */
 
 
 /* position print-formatted */
-int td_pprintf(TD *tdp,int wn,int r,int c,const char fmt[],...)
+int td_pprintf(TD *tdp,int wn,int r,int c,cchar *fmt,...)
 {
 	int		rs ;
 	{
@@ -603,7 +587,7 @@ int td_pprintf(TD *tdp,int wn,int r,int c,const char fmt[],...)
 
 
 /* regular print-formatted */
-int td_printf(TD *tdp,int wn,const char fmt[],...)
+int td_printf(TD *tdp,int wn,cchar *fmt,...)
 {
 	int		rs ;
 	{
@@ -1062,9 +1046,6 @@ static int td_flushmove(TD *tdp,TD_WIN *wp,int r,int c)
 {
 	int		rs = SR_OK ;
 	int		nrow, ncol ;
-	int		wrow, wcol ;
-	int		arow, acol ;
-	int		f_chosen = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("td_flushmove: enter r=%d c=%d\n",r,c) ;
@@ -1077,115 +1058,119 @@ static int td_flushmove(TD *tdp,TD_WIN *wp,int r,int c)
 	debugprintf("td_flushmove: nr=%d nc=%d\n",nrow,ncol) ;
 #endif
 
-	if ((nrow >= wp->rows) || (ncol >= wp->cols))
-	    goto ret0 ;
+	if ((nrow < wp->rows) && (ncol < wp->cols)) {
+	    int		wrow, wcol ;
 
-	wrow = (nrow >= 0) ? nrow : wp->cur.row ;
-	wcol = (ncol >= 0) ? ncol : wp->cur.col ;
+	    wrow = (nrow >= 0) ? nrow : wp->cur.row ;
+	    wcol = (ncol >= 0) ? ncol : wp->cur.col ;
 
 #if	CF_DEBUGS
-	debugprintf("td_flushmove: wr=%d wc=%d\n",wrow,wcol) ;
+	    debugprintf("td_flushmove: wr=%d wc=%d\n",wrow,wcol) ;
 #endif
 
-	if ((wrow >= wp->rows) || (wcol >= wp->cols))
-	    goto ret0 ;
+	    if ((wrow < wp->rows) && (wcol < wp->cols)) {
+	        int		arow, acol ;
+	        int		f_chosen = FALSE ;
 
 /* relocate to absolute coordinates */
 
-	arow = wrow + wp->srow ;
-	acol = wcol + wp->scol ;
+	        arow = wrow + wp->srow ;
+	        acol = wcol + wp->scol ;
 
 #if	CF_DEBUGS
-	debugprintf("td_flushmove: ar=%d ac=%d\n",arow,acol) ;
+	        debugprintf("td_flushmove: ar=%d ac=%d\n",arow,acol) ;
 #endif
 
 /* search for optimizations */
 
 #if	CF_DEBUGS
-	debugprintf("td_flushmove: car=%d cac=%d\n",
-	    tdp->cur.row,tdp->cur.col) ;
+	        debugprintf("td_flushmove: car=%d cac=%d\n",
+	            tdp->cur.row,tdp->cur.col) ;
 #endif
 
-	if ((tdp->cur.row >= 0) && (tdp->cur.col >= 0)) {
+	        if ((tdp->cur.row >= 0) && (tdp->cur.col >= 0)) {
 
-	    if ((arow == tdp->cur.row) && (acol == tdp->cur.col)) {
-	        f_chosen = TRUE ;
+	            if ((arow == tdp->cur.row) && (acol == tdp->cur.col)) {
+	                f_chosen = TRUE ;
 
 #if	CF_DEBUGS
-	        debugprintf("td_flushmove: choice-> no action needed\n") ;
+	                debugprintf("td_flushmove: choice-> no action needed\n") ;
 #endif
 
-	    }
+	            }
 
-	    if ((! f_chosen) && 
-	        (arow == tdp->cur.row) && (acol == 0)) {
-	        f_chosen = TRUE ;
-	        rs = termstr_char(&tdp->enter,'\r') ;
+	            if ((! f_chosen) && 
+	                (arow == tdp->cur.row) && (acol == 0)) {
+	                f_chosen = TRUE ;
+	                rs = termstr_char(&tdp->enter,'\r') ;
 
 #if	CF_DEBUGS
-	        debugprintf("td_flushmove: termstr_char() rs=%d\n",rs) ;
-	        debugprintf("td_flushmove: choice-> stored CR\n") ;
+	                debugprintf("td_flushmove: termstr_char() rs=%d\n",rs) ;
+	                debugprintf("td_flushmove: choice-> stored CR\n") ;
 #endif
 
-	    }
+	            }
 
-	    if ((! f_chosen) && 
-	        (arow == tdp->cur.row) && 
-	        (tdp->cur.col > 0) && (acol == (tdp->cur.col-1))) {
-	        f_chosen = TRUE ;
-	        rs = termstr_char(&tdp->enter,'\b') ;
+	            if ((! f_chosen) && 
+	                (arow == tdp->cur.row) && 
+	                (tdp->cur.col > 0) && (acol == (tdp->cur.col-1))) {
+	                f_chosen = TRUE ;
+	                rs = termstr_char(&tdp->enter,'\b') ;
 
 #if	CF_DEBUGS
-	        debugprintf("td_flushmove: termstr_char() rs=%d\n",rs) ;
-	        debugprintf("td_flushmove: choice-> stored BS \n") ;
+	                debugprintf("td_flushmove: termstr_char() rs=%d\n",rs) ;
+	                debugprintf("td_flushmove: choice-> stored BS \n") ;
 #endif
 
-	    }
+	            }
 
-	    if ((! f_chosen) && 
-	        (acol == tdp->cur.col) && (arow == (tdp->cur.row+1))) {
-	        f_chosen = TRUE ;
+	            if ((! f_chosen) && 
+	                (acol == tdp->cur.col) && (arow == (tdp->cur.row+1))) {
+	                f_chosen = TRUE ;
 #ifdef	COMMENT
-	        rs = termstr_char(&tdp->enter,CH_IND) ;
+	                rs = termstr_char(&tdp->enter,CH_IND) ;
 #else
-	        rs = termstr_write(&tdp->enter,"\033D",2) ;
+	                rs = termstr_write(&tdp->enter,"\033D",2) ;
 #endif
 
 #if	CF_DEBUGS
-	        debugprintf("td_flushmove: termstr_write() rs=%d\n",rs) ;
-	        debugprintf("td_flushmove: choice-> stored IND \n") ;
+	                debugprintf("td_flushmove: termstr_write() rs=%d\n",rs) ;
+	                debugprintf("td_flushmove: choice-> stored IND \n") ;
 #endif
 
-	    }
+	            }
 
-	} /* end if (optimization) */
+	        } /* end if (optimization) */
 
-	if (! f_chosen) {
-	    f_chosen = TRUE ;
+	        if (! f_chosen) {
+	            f_chosen = TRUE ;
 
 #if	CF_DEBUGS
-	    debugprintf("td_flushmove: termstr_curh() r=%d c=%d\n",arow,acol) ;
+	            debugprintf("td_flushmove: termstr_curh() r=%d c=%d\n",
+	                arow,acol) ;
 #endif
 
-	    rs = termstr_curh(&tdp->enter,arow,acol) ;
+	            rs = termstr_curh(&tdp->enter,arow,acol) ;
 
 #if	CF_DEBUGS
-	    debugprintf("td_flushmove: termstr_curh() rs=%d\n",rs) ;
-	    debugprintf("td_flushmove: choice-> cursor-position\n") ;
+	            debugprintf("td_flushmove: termstr_curh() rs=%d\n",rs) ;
+	            debugprintf("td_flushmove: choice-> cursor-position\n") ;
 #endif
 
-	} /* end if */
+	        } /* end if */
 
-	if (rs >= 0) {
-	    wp->cur.row = wrow ;
-	    wp->cur.col = wcol ;
-	    tdp->cur.row = arow ;
-	    tdp->cur.col = acol ;
-	    wp->move.row = -1 ;
-	    wp->move.col = -1 ;
-	}
+	        if (rs >= 0) {
+	            wp->cur.row = wrow ;
+	            wp->cur.col = wcol ;
+	            tdp->cur.row = arow ;
+	            tdp->cur.col = acol ;
+	            wp->move.row = -1 ;
+	            wp->move.col = -1 ;
+	        }
 
-ret0:
+	    } /* end if (needed) */
+
+	} /* end if (needed) */
 
 #if	CF_DEBUGS
 	debugprintf("td_flushmove: ret car=%d cac=%d\n",

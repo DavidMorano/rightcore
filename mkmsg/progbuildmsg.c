@@ -98,17 +98,17 @@ extern int	pcsmsgid(const char *,char *,int) ;
 
 extern int	progouthead(PROGINFO *,bfile *,cchar *,cchar *,int) ;
 extern int	progoutheadema(PROGINFO *,bfile *,const char *,EMA *) ;
-extern int	progoutpart(PROGINFO *,bfile *,int,cchar *,MAILMSGATT_ENT *) ;
+extern int	progoutpart(PROGINFO *,bfile *,int,cchar *,MAILMSGATTENT *) ;
 
 extern int	mkmsgbound(PROGINFO *,char *,int) ;
 extern int	mkface(PROGINFO *,char *,int) ;
 extern int	outhead(PROGINFO *,bfile *,const char *,cchar *,int) ;
 extern int	outheadema(PROGINFO *,bfile *,char *,EMA *) ;
-extern int	outpart(PROGINFO *,bfile *,int,char *,MAILMSGATT_ENT *ep) ;
+extern int	outpart(PROGINFO *,bfile *,int,char *,MAILMSGATTENT *ep) ;
 extern int	tolc(int) ;
 
 #ifdef	COMMENT
-extern int	outct(PROGINFO *,bfile *,MAILMSGATT_ENT *) ;
+extern int	outct(PROGINFO *,bfile *,MAILMSGATTENT *) ;
 extern int	outbase64(PROGINFO *,bfile *,char *,int) ;
 #endif /* COMMENT */
 
@@ -145,10 +145,10 @@ PROGINFO	*pip ;
 EMA		adds[] ;
 PARAMOPT	*hlp ;
 MIMETYPES	*mtp ;
-MAILMSGATT_ENT	*iep ;
+MAILMSGATTENT	*iep ;
 MAILMSGATT	*alp ;
 {
-	MAILMSGATT_ENT	*ep ;
+	MAILMSGATTENT	*ep ;
 	int		rs, rs1 ;
 	int		n = 0 ;
 	int		i ;

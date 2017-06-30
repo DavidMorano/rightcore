@@ -159,12 +159,7 @@ static const char	*breaks = ";:@.%!=" ;
 /* exported subroutines */
 
 
-int mailmsghdrfold_start(op,mcols,ln,sp,sl)
-MAILMSGHDRFOLD	*op ;
-int		mcols ;
-int		ln ;
-const char	sp[] ;
-int		sl ;
+int mailmsghdrfold_start(MAILMSGHDRFOLD *op,int mcols,int ln,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 
@@ -203,8 +198,7 @@ int		sl ;
 /* end subroutine (mailmsghdrfold_start) */
 
 
-int mailmsghdrfold_finish(op)
-MAILMSGHDRFOLD	*op ;
+int mailmsghdrfold_finish(MAILMSGHDRFOLD *op)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -217,10 +211,7 @@ MAILMSGHDRFOLD	*op ;
 /* end subroutine (mailmsghdrfold_finish) */
 
 
-int mailmsghdrfold_get(op,ncol,rpp)
-MAILMSGHDRFOLD	*op ;
-int		ncol ;
-const char	**rpp ;
+int mailmsghdrfold_get(MAILMSGHDRFOLD *op,int ncol,cchar **rpp)
 {
 	const int	ntab = NTABCOLS ;
 	int		ll = 0 ;
@@ -540,11 +531,7 @@ static int findall(MAILMSGHDRFOLD *op,cchar **rpp)
 /* end subroutine (findall) */
 
 
-static int nextpiece(ncol,sp,sl,ncp)
-int		ncol ;
-const char	*sp ;
-int		sl ;
-int		*ncp ;
+static int nextpiece(int ncol,cchar *sp,int sl,int *ncp)
 {
 	const int	ntab = NTABCOLS ;
 	int		ncs = 0 ;
@@ -600,12 +587,7 @@ int		*ncp ;
 /* end subroutine (nextpiece) */
 
 
-static int nextbreak(ncol,bch,sp,sl,ncp)
-int		ncol ;
-int		bch ;
-const char	*sp ;
-int		sl ;
-int		*ncp ;
+static int nextbreak(int ncol,int bch,cchar *sp,int sl,int *ncp)
 {
 	const int	ntab = NTABCOLS ;
 	int		ncs = 0 ;

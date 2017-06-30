@@ -1,4 +1,5 @@
-/* utermer (UNFINISHED) */
+/* utermer */
+/* UNFINISHED! */
 
 /* "UNIX Terminal" helper routines */
 /* last modified %G% version %I% */

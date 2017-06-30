@@ -1615,7 +1615,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_query:
 	                    if (! pip->final.query) {
 	                        pip->have.query = TRUE ;
@@ -1627,7 +1626,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_test:
 	                    if (! pip->final.test) {
 	                        pip->have.test = TRUE ;
@@ -1639,7 +1637,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_term:
 	                    if (! pip->final.term) {
 	                        pip->have.term = TRUE ;
@@ -1651,7 +1648,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_useclen:
 	                    if (! pip->final.useclen) {
 	                        pip->have.useclen = TRUE ;
@@ -1663,7 +1659,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_useclines:
 	                    if (! pip->final.useclines) {
 	                        pip->have.useclines = TRUE ;
@@ -1675,11 +1670,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -2122,13 +2115,14 @@ static int procuserboards(PROGINFO *pip,vecpstr *asp,cchar *ofn)
 	                int	i ;
 	                cchar	*ng ;
 	                for (i = 0 ; vecpstr_get(asp,i,&ng) >= 0 ; i += 1) {
-	                    if (ng == NULL) continue ;
+	                    if (ng != NULL) {
 #if	CF_DEBUG
 	                    if (DEBUGLEVEL(3))
 	                        debugprintf("main/procuserboards: ng=%s\n",ng) ;
 #endif
-	                    rs = mkdirlist_show(&dl,ng,i) ;
-	                    c += rs ;
+	                        rs = mkdirlist_show(&dl,ng,i) ;
+	                        c += rs ;
+			    }
 	                    if (rs < 0) break ;
 	                } /* end for */
 	            } else {

@@ -309,7 +309,7 @@ static int	procquery(PROGINFO *,void *, cchar *,int) ;
 static int	procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *,int) ;
 static int	procfs(PROGINFO *,char *,int,int,cchar *,int) ;
 static int	procacc(PROGINFO *,char *,int,cchar *,int) ;
-static int	procsystat(PROGINFO *,char *,int,int,cchar *,int) ;
+static int	procsystat(PROGINFO *,char *,int,cchar *,int) ;
 static int	procla(PROGINFO *,SHIO *,char *,int,int) ;
 static int	procout(PROGINFO *,SHIO *,cchar *,int) ;
 
@@ -1910,7 +1910,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    }
 	    break ;
 	case qopt_systat:
-	    if ((rs = procsystat(pip,cvtbuf,cvtlen,ri,vp,vl)) >= 0) {
+	    if ((rs = procsystat(pip,cvtbuf,cvtlen,vp,vl)) >= 0) {
 	        cbl = rs ;
 	        cbp = cvtbuf ;
 	    }
@@ -2267,7 +2267,7 @@ static int procacc(PROGINFO *pip,char cbuf[],int clen,cchar *vp,int vl)
 
 
 /* ARGSUSED */
-static int procsystat(PROGINFO *pip,char *cbuf,int clen,int ri,cchar *vp,int vl)
+static int procsystat(PROGINFO *pip,char *cbuf,int clen,cchar *vp,int vl)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
@@ -2905,7 +2905,7 @@ static int locinfo_fsdir(LOCINFO *lip)
 /* end subroutine (locinfo_fsdir) */
 
 
-static int locinfo_netload(LOCINFO *lip,char cbuf[],int clen,cchar vp[],int vl)
+static int locinfo_netload(LOCINFO *lip,char *cbuf,int clen,cchar *vp,int vl)
 {
 	int		rs ;
 	if (lip->f.set) {
@@ -3152,14 +3152,13 @@ static int getrnum(PROGINFO *pip)
 {
 	struct timeval	tod ;
 	LOCINFO		*lip = pip->lip ;
-	uid_t		uid ;
-	pid_t		pid ;
 	uint		rv ;
-	uint		v ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 
 	if (! lip->init.rnum) {
+	    uid_t	uid ;
+	    pid_t	pid ;
+	    uint	v ;
 	    lip->init.rnum = TRUE ;
 	    rv = 0 ;
 
@@ -3187,17 +3186,14 @@ static int getrnum(PROGINFO *pip)
 /* these do shake things up a bit */
 
 	rv = lip->rnum ;
-	if ((rs1 = getsysmisc(pip)) >= 0) {
-	    rv += rs1 ;
+	if ((rs = getsysmisc(pip)) >= 0) {
+	    rv += rs ;
 	    rv += lip->ncpus ;
 	    rv += lip->btime ;
-	}
-
-/* these are somewhat cyclical at the low end */
-
-	if ((rs1 = uc_gettimeofday(&tod,NULL)) >= 0) {
-	    rv ^= tod.tv_sec ;
-	    rv += tod.tv_usec ;
+	    if ((rs = uc_gettimeofday(&tod,NULL)) >= 0) {
+	        rv ^= tod.tv_sec ;
+	        rv += tod.tv_usec ;
+	    }
 	}
 
 #if	defined(SYSHAS_HRTIME) && (SYSHAS_HRTIME > 0)

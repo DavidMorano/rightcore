@@ -61,11 +61,6 @@
 
 /* local defines */
 
-#define	MAILBOX_DEFMSGS		100
-#define	MAILBOX_READSIZE	(4*1024)
-#define	MAILBOX_TMPVARDNAME	"/var/tmp"
-#define	MAILBOX_SUBDNAME	"mailboxes"
-
 #ifndef	LINEBUFLEN
 #ifdef	LINE_MAX
 #define	LINEBUFLEN		MAX(LINE_MAX,2048)
@@ -75,8 +70,13 @@
 #endif
 
 #ifndef	MSGCOLS
-#define	MSGCOLS		76
+#define	MSGCOLS			76
 #endif
+
+#define	MAILBOX_DEFMSGS		100
+#define	MAILBOX_READSIZE	(4*1024)
+#define	MAILBOX_TMPVARDNAME	"/var/tmp"
+#define	MAILBOX_SUBDNAME	"mailboxes"
 
 #define	FMAT(cp)	((cp)[0] == 'F')
 
@@ -96,6 +96,9 @@
 #define	SIGSTATE	struct sigstate
 
 #define	LINER		struct liner
+
+#define	MAILBOXPI	struct mailboxpi
+#define	MAILBOXPI_FL	struct mailboxpi_flags
 
 
 /* external subroutines */
@@ -156,11 +159,27 @@ struct msgcopy {
 	int		bl ;
 } ;
 
+struct mailboxpi_flags {
+	uint		msg ;
+	uint		env ;
+	uint		hdr ;
+	uint		mhv ;
+	uint		eoh ;
+	uint		bol ;
+	uint		eol ;
+} ;
+
+struct mailboxpi {
+	LINER		*lsp ;
+	MAILBOXPI_FL	f ;
+	int		mi ;
+} ;
 
 /* local (forward) subroutines */
 
 static int mailbox_parse(MAILBOX *) ;
 static int mailbox_parsemsg(MAILBOX *,LINER *,int) ;
+static int mailbox_parsemsger(MAILBOX *,MAILMSGMATENV *,MAILBOXPI *) ;
 static int mailbox_loadmsghead(MAILBOX *,MAILBOX_MSGINFO *,MAILMSGHDRVAL *) ;
 static int mailbox_msgfins(MAILBOX *) ;
 static int mailbox_rewrite(MAILBOX *) ;
@@ -174,12 +193,17 @@ static int msginfo_setenv(MAILBOX_MSGINFO *,MAILMSGMATENV *) ;
 
 static int liner_start(LINER *,FILEBUF *,offset_t,int) ;
 static int liner_finish(LINER *) ;
-static int liner_read(LINER *) ;
+static int liner_read(LINER *,cchar **) ;
 static int liner_done(LINER *) ;
 static int liner_seek(LINER *,int) ;
 
 static int filebuf_writefd(FILEBUF *,char *,int,int,int) ;
 static int filebuf_writehdr(FILEBUF *,const char *,int) ;
+static int filebuf_writehdrval(FILEBUF *,cchar *,int) ;
+
+static int mailboxpi_start(MAILBOXPI *,LINER *,int) ;
+static int mailboxpi_finish(MAILBOXPI *) ;
+static int mailboxpi_havemsg(MAILBOXPI *) ;
 
 static int writeblanklines(int,int) ;
 
@@ -279,7 +303,7 @@ int mailbox_open(MAILBOX *mbp,cchar *mbfname,int mflags)
 	                        }
 	                        if (rs < 0) {
 	                            mailbox_msgfins(mbp) ;
-				}
+	                        }
 	                        loff = mbp->mblen ;
 	                        lockfile(mbp->mfd,F_UNLOCK,loff,0L,0) ;
 	                    } /* end if (lock) */
@@ -293,7 +317,7 @@ int mailbox_open(MAILBOX *mbp,cchar *mbfname,int mflags)
 	            } /* end if (m-a) */
 	        } else {
 	            rs = SR_ISDIR ;
-		}
+	        }
 	    } /* end if (stat) */
 	    if (rs < 0) {
 	        u_close(mbp->mfd) ;
@@ -794,394 +818,403 @@ static int mailbox_parse(MAILBOX *mbp)
 /* parse out the headers of this message */
 static int mailbox_parsemsg(MAILBOX *mbp,LINER *lsp,int mi)
 {
-	MAILBOX_MSGINFO	msg, *msgp = &msg ;
-	MAILMSGMATENV	me ;
-	MAILMSGHDRVAL	mhv ;
+	MAILBOXPI	pi ;
 	int		rs = SR_OK ;
-	int		hi = 0 ; /* ¥ GCC false complaint */
-	int		kl, vl ;
-	int		vi ;
-	int		clen ;
-	int		clines ;
+	int		rs1 ;
 	int		ll = 0 ;
-	int		f_msg = FALSE ;
-	int		f_env = FALSE ;
-	int		f_hdr = FALSE ;
-	int		f_mhv = FALSE ;
-	int		f_eoh = FALSE ;
-	int		f_bol = FALSE ;
-	int		f_eol = FALSE ;
-	int		f ;
-	const char	*lp = lsp->lbuf ;
-	const char	*vp ;
 
 #if	CF_DEBUGS
 	debugprintf("mailbox_parsemsg: ent mi=%u\n",mi) ;
 #endif
 
+	if ((rs = mailboxpi_start(&pi,lsp,mi)) >= 0) {
+	    MAILMSGMATENV	me ;
+	    int			vi = 0 ;
+	    const char		*lp ;
+
 /* find message start */
 
-	kl = -1 ;
-	vi = -1 ;
-	while ((rs = liner_read(lsp)) >= 0) {
-	    ll = rs ;
-	    if (ll == 0) break ;
+	    while ((rs = liner_read(lsp,&lp)) >= 0) {
+	        ll = rs ;
+	        if (ll == 0) break ;
 
 #if	CF_DEBUGS
-	    debugprintf("mailbox_parsemsg: ll=%u line=>%t<\n",
-	        ll,lp,debuglinelen(lp,ll,40)) ;
+	        debugprintf("mailbox_parsemsg: ll=%u line=>%t<\n",
+	            ll,lp,debuglinelen(lp,ll,40)) ;
 #endif
 
-	    if ((rs >= 0) && (ll > 5) && FMAT(lp) &&
-	        ((rs = mailmsgmatenv(&me,lp,ll)) > 0)) {
+	        if ((rs >= 0) && (ll > 5) && FMAT(lp) &&
+	            ((rs = mailmsgmatenv(&me,lp,ll)) > 0)) {
 #if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: MAT-ENV\n") ;
+	            debugprintf("mailbox_parsemsg: MAT-ENV\n") ;
 #endif
-	        f_env = TRUE ;
-	    } else if ((rs >= 0) && (ll > 2) &&
-	        ((rs = mailmsgmathdr(lp,ll,&vi)) > 0)) {
+	            pi.f.env = TRUE ;
+	        } else if ((rs >= 0) && (ll > 2) &&
+	            ((rs = mailmsgmathdr(lp,ll,&vi)) > 0)) {
 #if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: MAT-HDR\n") ;
+	            debugprintf("mailbox_parsemsg: MAT-HDR\n") ;
 #endif
-	        f_hdr = TRUE ;
-	    } else if ((rs >= 0) && (ll <= 2) && (mi == 0)) {
-	        if ((lp[0] == '\n') || hasEOH(lp,ll)) {
+	            pi.f.hdr = TRUE ;
+	        } else if ((rs >= 0) && (ll <= 2) && (mi == 0)) {
+	            if ((lp[0] == '\n') || hasEOH(lp,ll)) {
 #if	CF_DEBUGS
-	            debugprintf("mailbox_parsemsg: MAT-EOH\n") ;
+	                debugprintf("mailbox_parsemsg: MAT-EOH\n") ;
 #endif
-	            f_eoh = TRUE ;
-	        }
-	    } /* end if */
-
-	    if (rs < 0) break ;
-	    if (f_env || f_hdr) break ;
-
-	    ll = 0 ;
-	    liner_done(lsp) ;
-	    if (f_eoh) break ;
-	} /* end while */
-
-	f = (f_env || f_hdr || f_eoh) ;
-	if ((rs >= 0) && (! f))
-	    goto ret0 ;
-
-	if ((rs >= 0) && f) {
-	    rs = msginfo_start(msgp,lsp->poff,mi) ;
-	    f_msg = (rs >= 0) ;
-	}
-
-	if ((rs >= 0) && f_env) {
-	    if ((rs = msginfo_setenv(msgp,&me)) >= 0) {
-	        liner_done(lsp) ;
-	    }
-	}
-
-/* read headers (ignoring envelope) */
-
-	while ((rs >= 0) && ((rs = liner_read(lsp)) >= 0)) {
-	    ll = rs ;
-	    if (ll == 0) break ;
-
-#if	CF_DEBUGS
-	    debugprintf("mailbox_parsemsg: ll=%d line=>%t<\n",
-	        ll,lp,debuglinelen(lp,ll,40)) ;
-	    debugprintf("mailbox_parsemsg: h_env=%u f_hdr=%u f_eoh=%u\n",
-		f_env,f_hdr,f_eoh) ;
-#endif
-
-	    if ((ll > 2) && ((! f_env) && (! f_hdr) && (! f_eoh))) {
-	        kl = mailmsgmathdr(lp,ll,&vi) ;
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: mailmsgmathdr kl=%d\n",kl) ;
-#endif
-	        f_hdr = (kl > 0) ;
-	    }
-
-	    if ((rs >= 0) && f_hdr) {
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: HDR kl=%d vi=%d\n",
-	            kl,vi) ;
-#endif
-
-	        f_hdr = FALSE ;
-	        if (f_mhv) { /* previous value outstanding */
-
-#if	CF_DEBUGS
-	            debugprintf("mailbox_parsemsg: previous value\n") ;
-#endif
-
-	            rs = mailbox_loadmsghead(mbp,msgp,&mhv) ;
-
-	            f_mhv = FALSE ;
-	            mailmsghdrval_finish(&mhv) ;
-
-	        } /* end if (had a previous value outstanding) */
-
-	        if (msgp->hoff < 0)
-	            msgp->hoff = lsp->poff ;
-
-	        if (rs >= 0) {
-	            hi = matcasestr(msghdrkeys,lp,kl) ;
-
-#if	CF_DEBUGS
-	            debugprintf("mailbox_parsemsg: matcasestr() hi=%d\n",hi) ;
-	            if (hi >= 0)
-	                debugprintf("mailbox_parsemsg: matcasestr() h=%s\n",
-	                    msghdrkeys[hi]) ;
-#endif
-
-	        }
-
-	        if ((rs >= 0) && (hi >= 0)) {
-
-	            vp = (lp + vi) ;
-	            vl = (ll - vi) ;
-
-	            f_mhv = TRUE ;
-	            rs = mailmsghdrval_start(&mhv,hi,vp,vl) ;
-
-	        } /* end if (have one we want) */
-
-	    } else if ((rs >= 0) && (ll > 1) && MSGHEADCONT(lp[0])) {
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: matmsgcont poff=%lld\n",
-	            lsp->poff) ;
-#endif
-
-	        if (f_mhv) {
-	            rs = mailmsghdrval_add(&mhv,lp,ll) ;
-		}
-
-	    } else if ((rs >= 0) && ((lp[0] == '\n') || hasEOH(lp,ll))) {
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: EOH poff=%lld\n",
-	            lsp->poff) ;
-#endif
-
-	        if (f_mhv) { /* previous value outstanding */
-
-#if	CF_DEBUGS
-	            debugprintf("mailbox_parsemsg: previous value\n") ;
-#endif
-
-	            rs = mailbox_loadmsghead(mbp,msgp,&mhv) ;
-
-	            f_mhv = FALSE ;
-	            mailmsghdrval_finish(&mhv) ;
-
-	        } /* end if (had a previous value outstanding) */
-
-	        f_eoh = TRUE ;
-	        if (msgp->hoff < 0)
-	            msgp->hoff = lsp->poff ;
-
-	        msgp->hlen = (lsp->poff - msgp->hoff) ;
-
-	    } /* end if */
-
-	    ll = 0 ;
-	    f_env = FALSE ;
-	    f_hdr = FALSE ;
-	    liner_done(lsp) ;
-
-	    if (f_eoh) break ;
-	    if (rs < 0) break ;
-	} /* end while (reading lines) */
-
-#if	CF_DEBUGS
-	debugprintf("mailbox_parsemsg: while-end foff=%lld f_eoh=%u\n",
-	    lsp->foff,f_eoh) ;
-#endif
-
-/* load last header */
-
-	if (rs >= 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("mailbox_parsemsg: load last header\n") ;
-#endif
-
-	    if (f_mhv) {
-
-	        if (rs >= 0)
-	            rs = mailbox_loadmsghead(mbp,msgp,&mhv) ;
-
-	        f_mhv = FALSE ;
-	        mailmsghdrval_finish(&mhv) ;
-
-	    } /* end if */
-
-	    if (msgp->hoff < 0)
-	        msgp->hoff = lsp->poff ;
-
-	    if (msgp->hlen < 0)
-	        msgp->hlen = (lsp->poff - msgp->hoff) ;
-
-	    if (f_eoh) {
-	        msgp->boff = lsp->foff ;
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: EOF boff=%lld\n",msgp->boff) ;
-#endif
-
-	    }
-
-	} /* end if (loading last header) */
-
-/* handle reading the body */
-
-#if	CF_DEBUGS
-	debugprintf("mailbox_parsemsg: reading message body\n") ;
-	debugprintf("mailbox_parsemsg: CLEN hdrval=%u v=%d\n",
-	    msgp->hdrval.clen,msgp->clen) ;
-	debugprintf("mailbox_parsemsg: CLINES hdrval=%u v=%d\n",
-	    msgp->hdrval.clines,msgp->clines) ;
-#endif
-
-	clen = -1 ;
-	clines = -1 ;
-	if (rs >= 0) {
-
-	    if (mbp->f.useclen && msgp->hdrval.clen) {
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: have clen=%u\n",
-	            msgp->clen) ;
-	        debugprintf("mailbox_parsemsg: boff=%lld poff=%lld foff=%lld\n",
-	            msgp->boff,lsp->poff,lsp->foff) ;
-#endif
-
-	        clen = msgp->clen ;
-	        rs = liner_seek(lsp,msgp->clen) ;
-
-	    } else {
-	        int	max = INT_MAX ;
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: search for EOM\n") ;
-#endif
-
-	        if (mbp->f.useclines && 
-	            msgp->hdrval.clines && (msgp->clines >= 0))
-	            max = msgp->clines ;
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: max=%u\n",max) ;
-#endif
-
-	        f_bol = TRUE ;
-	        clines = 0 ;
-	        while ((rs >= 0) && (clines < max) && 
-	            ((rs = liner_read(lsp)) >= 0)) {
-
-	            ll = rs ;
-	            if (ll == 0) break ;
-
-#if	CF_DEBUGS
-	            debugprintf("mailbox_parsemsg: line=>%t<\n",
-	                lsp->lbuf,
-	                debuglinelen(lp,ll,40)) ;
-#endif
-
-	            f_eol = (lp[ll-1] == '\n') ;
-	            if (f_bol && FMAT(lp) && (ll > 5)) {
-	                    if ((rs = mailmsgmatenv(&me,lp,ll)) > 0) {
-	                        f_env = TRUE ;
-	                    }
-	                if (f_env) break ;
+	                pi.f.eoh = TRUE ;
 	            }
+	        } /* end if */
 
-	            ll = 0 ;
-	            if (f_eol)
-	                clines += 1 ;
+	        if (rs < 0) break ;
+	        if (pi.f.env || pi.f.hdr) break ;
 
-	            f_bol = f_eol ;
-	            liner_done(lsp) ;
+	        ll = 0 ;
+	        liner_done(lsp) ;
+	        if (pi.f.eoh) break ;
+	    } /* end while */
 
-	        } /* end while (searching for new start-msg) */
+	    if ((rs >= 0) && mailboxpi_havemsg(&pi)) {
+	        rs = mailbox_parsemsger(mbp,&me,&pi) ;
+	        ll = rs ;
+	    }
 
-	        if ((rs >= 0) && msgp->hdrval.clines) {
-	            if (clines < msgp->clines) {
-	                msgp->clines = clines ;
-		    }
-	        }
-
-	        clen = (lsp->poff - msgp->boff) ;
-
-	    } /* end if (advancing to end-of-message) */
-
-	    if (rs >= 0) {
+	    rs1 = mailboxpi_finish(&pi) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (mailboxpi) */
 
 #if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: EOM store-stuff\n") ;
-	        debugprintf("mailbox_parsemsg: clen=%d\n",clen) ;
-#endif
-
-	        if (! msgp->f.blen) {
-	            msgp->f.blen = TRUE ;
-	            msgp->blen = (lsp->poff - msgp->boff) ;
-	        } /* end if (blen) */
-
-	        if (! msgp->f.mlen) {
-	            msgp->f.mlen = TRUE ;
-	            msgp->mlen = (lsp->poff - msgp->moff) ;
-	        } /* end if (mlen) */
-
-	    } /* end if (ok) */
-
-	} /* end if */
-
-/* finish off the last message */
-
-	if (rs >= 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("mailbox_parsemsg: after EOM rs=%d\n",rs) ;
-	    debugprintf("mailbox_parsemsg: poff=%lld\n",lsp->poff) ;
-	    debugprintf("mailbox_parsemsg: boff=%lld blen=%u\n",
-	        msgp->boff,msgp->blen) ;
-	    debugprintf("mailbox_parsemsg: f_mlen=%u\n", msgp->f.mlen) ;
-#endif
-
-	    if ((! msgp->hdrval.clines) && (clines >= 0)) {
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_parsemsg: need clines=%d\n",clines) ;
-#endif
-
-	        msgp->hdrval.clines = TRUE ;
-	        msgp->clines = clines ;
-
-	    } /* end if (clines) */
-
-	} /* end if */
-
-/* finish up */
-
-	if ((rs >= 0) && f_msg) {
-	    ll = msgp->mlen ;
-	    msgp->msgi = mi ;
-	    rs = vecobj_add(&mbp->msgs,msgp) ;
-	    if (rs >= 0) f_msg = FALSE ;
-	} /* end if (insertion) */
-
-	if (f_msg) {
-	    msginfo_finish(msgp) ;
-	}
-
-ret0:
-
-#if	CF_DEBUGS
-	debugprintf("mailbox_parsemsg: ret rs=%d ll=%u\n",
-	    rs,ll) ;
+	debugprintf("mailbox_parsemsg: ret rs=%d ll=%u\n",rs,ll) ;
 #endif
 
 	return (rs >= 0) ? ll : rs ;
 }
 /* end subroutine (mailbox_parsemsg) */
+
+
+static int mailbox_parsemsger(MAILBOX *mbp,MAILMSGMATENV *mep,MAILBOXPI *pip)
+{
+	LINER		*lsp = pip->lsp ;
+	MAILBOX_MSGINFO	msg, *msgp = &msg ;
+	MAILMSGHDRVAL	mhv ;
+	const int	mi = pip->mi ;
+	int		rs ;
+	int		rs1 ;
+	int		ll = 0 ;
+	cchar		*lp ;
+	if ((rs = msginfo_start(msgp,lsp->poff,mi)) >= 0) {
+	    int		hi = 0 ;
+	    int		kl = 0 ;
+	    int		vl = 0 ;
+	    int		clen = -1 ;
+	    int		clines = -1 ;
+	    int		vi ;
+	    cchar	*vp ;
+
+	    pip->f.msg = TRUE ;
+	    if (pip->f.env) {
+	        if ((rs = msginfo_setenv(msgp,mep)) >= 0) {
+	            liner_done(lsp) ;
+	        }
+	    }
+
+/* read headers (ignoring envelope) */
+
+	    while ((rs >= 0) && ((rs = liner_read(lsp,&lp)) >= 0)) {
+	        ll = rs ;
+	        if (ll == 0) break ;
+
+#if	CF_DEBUGS
+	        debugprintf("mailbox_parsemsg: h_env=%u f_hdr=%u f_eoh=%u\n",
+	            pip->f.env,pip->f.hdr,pip->f.eoh) ;
+#endif
+
+	        if ((ll > 2) && (! pip->f.env) && 
+	            (! pip->f.hdr) && (! pip->f.eoh)) {
+	            kl = mailmsgmathdr(lp,ll,&vi) ;
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: mailmsgmathdr kl=%d\n",kl) ;
+#endif
+	            pip->f.hdr = (kl > 0) ;
+	        }
+
+	        if ((rs >= 0) && pip->f.hdr) {
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: HDR kl=%d vi=%d\n",
+	                kl,vi) ;
+#endif
+
+	            pip->f.hdr = FALSE ;
+	            if (pip->f.mhv) { /* previous value outstanding */
+
+#if	CF_DEBUGS
+	                debugprintf("mailbox_parsemsg: previous value\n") ;
+#endif
+
+	                rs = mailbox_loadmsghead(mbp,msgp,&mhv) ;
+
+	                pip->f.mhv = FALSE ;
+	                mailmsghdrval_finish(&mhv) ;
+
+	            } /* end if (had a previous value outstanding) */
+
+	            if (msgp->hoff < 0)
+	                msgp->hoff = lsp->poff ;
+
+	            if (rs >= 0) {
+	                hi = matcasestr(msghdrkeys,lp,kl) ;
+
+#if	CF_DEBUGS
+	                debugprintf("mailbox_parsemsg: matcasestr() hi=%d\n",
+				hi) ;
+	                if (hi >= 0)
+	                    debugprintf("mailbox_parsemsg: matcasestr() h=%s\n",
+	                        msghdrkeys[hi]) ;
+#endif
+
+	            }
+
+	            if ((rs >= 0) && (hi >= 0)) {
+
+	                vp = (lp + vi) ;
+	                vl = (ll - vi) ;
+
+	                pip->f.mhv = TRUE ;
+	                rs = mailmsghdrval_start(&mhv,hi,vp,vl) ;
+
+	            } /* end if (have one we want) */
+
+	        } else if ((rs >= 0) && (ll > 1) && MSGHEADCONT(lp[0])) {
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: matmsgcont poff=%lld\n",
+	                lsp->poff) ;
+#endif
+
+	            if (pip->f.mhv) {
+	                rs = mailmsghdrval_add(&mhv,lp,ll) ;
+	            }
+
+	        } else if ((rs >= 0) && ((lp[0] == '\n') || hasEOH(lp,ll))) {
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: EOH poff=%lld\n",
+	                lsp->poff) ;
+#endif
+
+	            if (pip->f.mhv) { /* previous value outstanding */
+
+#if	CF_DEBUGS
+	                debugprintf("mailbox_parsemsg: previous value\n") ;
+#endif
+
+	                rs = mailbox_loadmsghead(mbp,msgp,&mhv) ;
+
+	                pip->f.mhv = FALSE ;
+	                mailmsghdrval_finish(&mhv) ;
+
+	            } /* end if (had a previous value outstanding) */
+
+	            pip->f.eoh = TRUE ;
+	            if (msgp->hoff < 0)
+	                msgp->hoff = lsp->poff ;
+
+	            msgp->hlen = (lsp->poff - msgp->hoff) ;
+
+	        } /* end if */
+
+	        ll = 0 ;
+	        pip->f.env = FALSE ;
+	        pip->f.hdr = FALSE ;
+	        liner_done(lsp) ;
+
+	        if (pip->f.eoh) break ;
+	        if (rs < 0) break ;
+	    } /* end while (reading lines) */
+
+#if	CF_DEBUGS
+	    debugprintf("mailbox_parsemsg: while-end foff=%lld f_eoh=%u\n",
+	        lsp->foff,pip->f.eoh) ;
+#endif
+
+/* load last header */
+
+	    if (rs >= 0) {
+
+#if	CF_DEBUGS
+	        debugprintf("mailbox_parsemsg: load last header\n") ;
+#endif
+
+	        if (pip->f.mhv) {
+	            if (rs >= 0) {
+	                rs = mailbox_loadmsghead(mbp,msgp,&mhv) ;
+	            }
+	            pip->f.mhv = FALSE ;
+	            mailmsghdrval_finish(&mhv) ;
+	        } /* end if */
+
+	        if (msgp->hoff < 0)
+	            msgp->hoff = lsp->poff ;
+
+	        if (msgp->hlen < 0)
+	            msgp->hlen = (lsp->poff - msgp->hoff) ;
+
+	        if (pip->f.eoh) {
+	            msgp->boff = lsp->foff ;
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: EOF boff=%lld\n",
+			msgp->boff) ;
+#endif
+
+	        }
+
+	    } /* end if (loading last header) */
+
+/* handle reading the body */
+
+#if	CF_DEBUGS
+	    debugprintf("mailbox_parsemsg: reading message body\n") ;
+	    debugprintf("mailbox_parsemsg: CLEN hdrval=%u v=%d\n",
+	        msgp->hdrval.clen,msgp->clen) ;
+	    debugprintf("mailbox_parsemsg: CLINES hdrval=%u v=%d\n",
+	        msgp->hdrval.clines,msgp->clines) ;
+#endif
+
+	    if (rs >= 0) {
+
+	        if (mbp->f.useclen && msgp->hdrval.clen) {
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: have clen=%u\n",
+	                msgp->clen) ;
+	            debugprintf("mailbox_parsemsg: "
+			"boff=%lld poff=%lld foff=%lld\n",
+	                msgp->boff,lsp->poff,lsp->foff) ;
+#endif
+
+	            clen = msgp->clen ;
+	            rs = liner_seek(lsp,msgp->clen) ;
+
+	        } else {
+	            int	max = INT_MAX ;
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: search for EOM\n") ;
+#endif
+
+	            if (mbp->f.useclines && 
+	                msgp->hdrval.clines && (msgp->clines >= 0))
+	                max = msgp->clines ;
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: max=%u\n",max) ;
+#endif
+
+	            pip->f.bol = TRUE ;
+	            clines = 0 ;
+	            while ((rs >= 0) && (clines < max) && 
+	                ((rs = liner_read(lsp,&lp)) >= 0)) {
+
+	                ll = rs ;
+	                if (ll == 0) break ;
+
+#if	CF_DEBUGS
+	                debugprintf("mailbox_parsemsg: line=>%t<\n",
+	                    lsp->lbuf,
+	                    debuglinelen(lp,ll,40)) ;
+#endif
+
+	                pip->f.eol = (lp[ll-1] == '\n') ;
+	                if (pip->f.bol && FMAT(lp) && (ll > 5)) {
+	                    if ((rs = mailmsgmatenv(mep,lp,ll)) > 0) {
+	                        pip->f.env = TRUE ;
+	                    }
+	                    if (pip->f.env) break ;
+	                }
+
+	                ll = 0 ;
+	                if (pip->f.eol)
+	                    clines += 1 ;
+
+	                pip->f.bol = pip->f.eol ;
+	                liner_done(lsp) ;
+
+	            } /* end while (searching for new start-msg) */
+
+	            if ((rs >= 0) && msgp->hdrval.clines) {
+	                if (clines < msgp->clines) {
+	                    msgp->clines = clines ;
+	                }
+	            }
+
+	            clen = (lsp->poff - msgp->boff) ;
+
+	        } /* end if (advancing to end-of-message) */
+
+	        if (rs >= 0) {
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: EOM store-stuff\n") ;
+	            debugprintf("mailbox_parsemsg: clen=%d\n",clen) ;
+#endif
+
+		    if (msgp->clen < 0) msgp->clen = clen ; /* ???? */
+
+	            if (! msgp->f.blen) {
+	                msgp->f.blen = TRUE ;
+	                msgp->blen = (lsp->poff - msgp->boff) ;
+	            } /* end if (blen) */
+
+	            if (! msgp->f.mlen) {
+	                msgp->f.mlen = TRUE ;
+	                msgp->mlen = (lsp->poff - msgp->moff) ;
+	            } /* end if (mlen) */
+
+	        } /* end if (ok) */
+
+	    } /* end if (ok) */
+
+/* finish off the last message */
+
+	    if (rs >= 0) {
+
+#if	CF_DEBUGS
+	        debugprintf("mailbox_parsemsg: after EOM rs=%d\n",rs) ;
+	        debugprintf("mailbox_parsemsg: poff=%lld\n",lsp->poff) ;
+	        debugprintf("mailbox_parsemsg: boff=%lld blen=%u\n",
+	            msgp->boff,msgp->blen) ;
+	        debugprintf("mailbox_parsemsg: f_mlen=%u\n", msgp->f.mlen) ;
+#endif
+
+	        if ((! msgp->hdrval.clines) && (clines >= 0)) {
+
+#if	CF_DEBUGS
+	            debugprintf("mailbox_parsemsg: need clines=%d\n",clines) ;
+#endif
+
+	            msgp->hdrval.clines = TRUE ;
+	            msgp->clines = clines ;
+
+	        } /* end if (clines) */
+
+	    } /* end if */
+
+/* finish up */
+
+	    if ((rs >= 0) && pip->f.msg) {
+	        ll = msgp->mlen ;
+	        msgp->msgi = mi ;
+	        rs = vecobj_add(&mbp->msgs,msgp) ;
+	        if (rs >= 0) pip->f.msg = FALSE ;
+	    } /* end if (insertion) */
+
+	    rs1 = msginfo_finish(msgp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (msginfo) */
+
+	return (rs >= 0) ? ll : rs ;
+}
+/* end subroutine (mailbox_parsemsger) */
 
 
 static int mailbox_loadmsghead(MAILBOX *mbp,MAILBOX_MSGINFO *msgp,
@@ -1240,7 +1273,7 @@ static int mailbox_loadmsghead(MAILBOX *mbp,MAILBOX_MSGINFO *msgp,
 	        }
 	        break ;
 	    } /* end switch */
-	} /* end if */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("mailbox_loadmsghead: ret rs=%d hi=%d\n",rs,hi) ;
@@ -1280,32 +1313,32 @@ static int mailbox_rewrite(MAILBOX *mbp)
 #endif
 
 	if ((rs = tmpmailboxes(dbuf,dlen)) >= 0) {
-	        cchar	*mb = "mbXXXXXXXXXXXX" ;
-	        char	template[MAXPATHLEN + 1] ;
-	        if ((rs = mkpath2(template,dbuf,mb)) >= 0) {
-	            SIGBLOCK	ss ;
-	            if ((rs = sigblock_start(&ss,sigblocks)) >= 0) {
-	                const mode_t	om = 0600 ;
-	                const int	of = (O_RDWR | O_CREAT) ;
-	        	char		tbuf[MAXPATHLEN + 1] ;
+	    cchar	*mb = "mbXXXXXXXXXXXX" ;
+	    char	template[MAXPATHLEN + 1] ;
+	    if ((rs = mkpath2(template,dbuf,mb)) >= 0) {
+	        SIGBLOCK	ss ;
+	        if ((rs = sigblock_start(&ss,sigblocks)) >= 0) {
+	            const mode_t	om = 0600 ;
+	            const int	of = (O_RDWR | O_CREAT) ;
+	            char		tbuf[MAXPATHLEN + 1] ;
 
-	                if ((rs = opentmpfile(template,of,om,tbuf)) >= 0) {
-	                    const int	tfd = rs ;
+	            if ((rs = opentmpfile(template,of,om,tbuf)) >= 0) {
+	                const int	tfd = rs ;
 
-	                    rs = mailbox_rewriter(mbp,tfd) ;
+	                rs = mailbox_rewriter(mbp,tfd) ;
 
 #if	CF_DEBUGS
-	                    debugprintf("mailbox_rewrite: "
-				"_rewriter() rs=%d\n",rs) ;
+	                debugprintf("mailbox_rewrite: "
+	                    "_rewriter() rs=%d\n",rs) ;
 #endif
 
-	                    u_close(tfd) ;
-	                    u_unlink(tbuf) ;
-	                } /* end if (open tmp-file) */
+	                u_close(tfd) ;
+	                u_unlink(tbuf) ;
+	            } /* end if (open tmp-file) */
 
-	                sigblock_finish(&ss) ;
-	            } /* end if (sigblock) */
-	        } /* end if (mkpath) */
+	            sigblock_finish(&ss) ;
+	        } /* end if (sigblock) */
+	    } /* end if (mkpath) */
 	} /* end if (tmpmailboxes) */
 
 #if	CF_DEBUGS
@@ -1319,7 +1352,7 @@ static int mailbox_rewrite(MAILBOX *mbp)
 
 static int mailbox_rewriter(MAILBOX *mbp,int tfd)
 {
-	MSGCOPY	mc ;
+	MSGCOPY		mc ;
 	MAILBOX_MSGINFO	*mip ;
 	FILEBUF		fb, *fbp = &fb ;
 	offset_t	mbchange = -1 ;
@@ -1485,15 +1518,10 @@ static int mailbox_msgcopyadd(MAILBOX *mbp,MSGCOPY *mcp,MAILBOX_MSGINFO *mip)
 
 	if ((rs >= 0) && mip->f.addany && mip->f.hdradds) {
 	    for (i = 0 ; vecstr_get(&mip->hdradds,i,&sp) >= 0 ; i += 1) {
-	        if (sp == NULL) continue ;
-
-#if	CF_DEBUGS
-	        debugprintf("mailbox_msgcopyadd: hdr-add=>%s<\n",sp) ;
-#endif
-
-	        rs = filebuf_writehdr(mcp->fbp,sp,-1) ;
-	        wlen += rs ;
-
+	        if (sp != NULL) {
+	            rs = filebuf_writehdr(mcp->fbp,sp,-1) ;
+	            wlen += rs ;
+		}
 	        if (rs < 0) break ;
 	    } /* end for */
 	} /* end if */
@@ -1591,7 +1619,7 @@ static int liner_finish(LINER *lsp)
 /* end subroutine (liner_finish) */
 
 
-static int liner_read(LINER *lsp)
+static int liner_read(LINER *lsp,cchar **lpp)
 {
 	FILEBUF		*fbp = lsp->fbp ;
 	int		rs = SR_OK ;
@@ -1604,6 +1632,10 @@ static int liner_read(LINER *lsp)
 	        lsp->foff += lsp->llen ;
 	    }
 	} /* end if (needed a new line) */
+
+	if (lpp != NULL) {
+	    *lpp = (rs >= 0) ? lsp->lbuf : NULL ;
+	}
 
 	return (rs >= 0) ? lsp->llen : rs ;
 }
@@ -1642,13 +1674,22 @@ static int liner_seek(LINER *lsp,int inc)
 /* end subroutine (liner_seek) */
 
 
+static int mailboxpi_finish(MAILBOXPI *pip)
+{
+	return SR_OK ;
+}
+/* end subroutine (mailboxpi_finish) */
+
+
+static int mailboxpi_havemsg(MAILBOXPI *pip)
+{
+	return (pip->f.env || pip->f.hdr || pip->f.eoh) ;
+}
+/* end subroutine (mailboxpi_havemsg) */
+
+
 /* write to the 'filebuf' file *from* the given FD */
-static int filebuf_writefd(fbp,bp,bl,mfd,len)
-FILEBUF		*fbp ;
-char		*bp ;
-int		bl ;
-int		mfd ;
-int		len ;
+static int filebuf_writefd(FILEBUF *fbp,char *bp,int bl,int mfd,int len)
 {
 	int		rs = SR_OK ;
 	int		buflen ;
@@ -1675,9 +1716,7 @@ int		len ;
 
 static int filebuf_writehdr(FILEBUF *fbp,cchar *sp,int sl)
 {
-	const int	ln = 0 ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
 	int		kl ;
 	int		vl = -1 ;
 	int		wlen = 0 ;
@@ -1692,9 +1731,6 @@ static int filebuf_writehdr(FILEBUF *fbp,cchar *sp,int sl)
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
-	if (sl == 0)
-	    goto ret0 ;
-
 	kl = sl ;
 	if ((tp = strnchr(sp,sl,'=')) != NULL) {
 	    kl = (tp - sp) ;
@@ -1702,70 +1738,90 @@ static int filebuf_writehdr(FILEBUF *fbp,cchar *sp,int sl)
 	    vl = ((sp+sl)-vp) ;
 	}
 
-	if (rs >= 0) {
-	    rs = filebuf_write(fbp,sp,kl) ;
-	    wlen += rs ;
-	}
-
-	if (rs >= 0) {
-	    rs = filebuf_write(fbp,": ",2) ;
-	    wlen += rs ;
-	}
-
-	if (rs >= 0) {
-	    int	i = 0 ;
-
-	    if (vp != NULL) {
-	        MAILMSGHDRFOLD	folder, *fp = &folder ;
-	        const int	mcols = MSGCOLS ;
-	        int		ll ;
-	        const char	*lp ;
-
-	        if (vl < 0) vl = strlen(vp) ;
-
-	        while (vl && CHAR_ISWHITE(*vp)) {
-	            vp += 1 ;
-	            vl -= 1 ;
-	        }
-
-	        if ((rs = mailmsghdrfold_start(fp,mcols,ln,vp,vl)) >= 0) {
-	            int	indent = wlen ;
-
-	            while (rs >= 0) {
-	                ll = mailmsghdrfold_get(fp,indent,&lp) ;
-	                if (ll <= 0) break ;
-
-	                if ((rs >= 0) && (i > 0)) {
-	                    rs = filebuf_write(fbp," ",1) ;
-	                    wlen += rs ;
-	                }
-
-	                if (rs >= 0) {
-	                    rs = filebuf_print(fbp,lp,ll) ;
-	                    wlen += rs ;
-	                }
-
-	                indent = 1 ;
-	                i += 1 ;
-	            } /* end for */
-
-	            rs1 = mailmsghdrfold_finish(fp) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (mailmsghdrfold) */
-
-	    } /* end if (non-null) */
-
-	    if ((rs >= 0) && (i == 0)) {
-	        rs = filebuf_print(fbp,sp,0) ;
+	if (kl > 0) {
+	    if ((rs = filebuf_write(fbp,sp,kl)) >= 0) {
 	        wlen += rs ;
+	        if ((rs = filebuf_write(fbp,": ",2)) >= 0) {
+	            wlen += rs ;
+	            if (vl > 0) {
+	                rs = filebuf_writehdrval(fbp,vp,vl) ;
+	                wlen += rs ;
+	            } else {
+	                rs = filebuf_print(fbp,sp,0) ;
+	                wlen += rs ;
+	            }
+	        }
 	    }
+	}
 
-	} /* end if */
-
-ret0:
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (filebuf_writehdr) */
+
+
+static int filebuf_writehdrval(FILEBUF *fbp,cchar *vp,int vl)
+{
+	const int	ln = 0 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		wlen = 0 ;
+
+	if (vp != NULL) {
+	    MAILMSGHDRFOLD	folder, *fp = &folder ;
+	    const int		mcols = MSGCOLS ;
+	    int			i = 0 ;
+	    int			ll ;
+	    const char		*lp ;
+
+	    if (vl < 0) vl = strlen(vp) ;
+
+	    while (vl && CHAR_ISWHITE(*vp)) {
+	        vp += 1 ;
+	        vl -= 1 ;
+	    }
+
+	    if ((rs = mailmsghdrfold_start(fp,mcols,ln,vp,vl)) >= 0) {
+	        int	indent = wlen ;
+
+	        while (rs >= 0) {
+	            rs = mailmsghdrfold_get(fp,indent,&lp) ;
+	            if (rs <= 0) break ;
+	            ll = rs ;
+
+	            if ((rs >= 0) && (i > 0)) {
+	                rs = filebuf_write(fbp," ",1) ;
+	                wlen += rs ;
+	            }
+
+	            if (rs >= 0) {
+	                rs = filebuf_print(fbp,lp,ll) ;
+	                wlen += rs ;
+	            }
+
+	            indent = 1 ;
+	            i += 1 ;
+
+	        } /* end while */
+
+	        rs1 = mailmsghdrfold_finish(fp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (mailmsghdrfold) */
+
+	} /* end if (non-null) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (mailbox_writehdrval) */
+
+
+static int mailboxpi_start(MAILBOXPI *pip,LINER *lsp,int mi)
+{
+	memset(pip,0,sizeof(MAILBOXPI)) ;
+	pip->lsp = lsp ;
+	pip->mi = mi ;
+	return SR_OK ;
+}
+/* end subroutine (mailboxpi_start) */
 
 
 static int writeblanklines(int mfd,int len)

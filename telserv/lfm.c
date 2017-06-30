@@ -347,8 +347,8 @@ static int lfm_startopen(LFM *op,LFM_LOCKINFO *lip)
 	                op->ino = sb.st_ino ;
 	            }
 	        }
-	    } else {
-		if (rs == SR_ACCESS) rs = SR_LOCKED ;
+	    } else if (rs == SR_ACCESS) {
+		rs = SR_LOCKED ;
 	    } /* end if (uc_lockf) */
 
 	    if (rs < 0) {
@@ -738,16 +738,15 @@ static int lfm_locklost(LFM *op,LFM_CHECK *lcp,FILEBUF *fp)
 	            if (lbuf[len - 1] == '\n') len -= 1 ;
 	            lbuf[len] = '\0' ;
 
-	            tp = strnpbrk(lbuf,len," \t") ;
-
-	            sp = (tp + 1) ;
-	            sl = len - ((tp + 1) - lbuf) ;
-	            cl = sfshrink(sp,sl,&cp) ;
-
-	            rs1 = storeitem_strw(&cb,cp,cl,&ip) ;
-
-	            if (rs1 >= 0)
-	                lcp->banner = ip ;
+	            if ((tp = strnpbrk(lbuf,len," \t")) != NULL) {
+	                sp = (tp + 1) ;
+	                sl = len - ((tp + 1) - lbuf) ;
+	                if ((cl = sfshrink(sp,sl,&cp)) >= 0) {
+	                    if ((rs = storeitem_strw(&cb,cp,cl,&ip)) >= 0) {
+	                        lcp->banner = ip ;
+			    }
+		        }
+		    }
 
 	        } /* end if (reading time-banner) */
 
@@ -830,8 +829,9 @@ static int lfm_lockreadpid(LFM *op)
 	        const char	*tp ;
 	        int		len = rs ;
 
-	        if ((tp = strnchr(lbuf,len,'\n')) != NULL)
+	        if ((tp = strnchr(lbuf,len,'\n')) != NULL) {
 	            lbuf[tp-lbuf] = '\0' ;
+		}
 
 	        rs = cfdeci(lbuf,len,&v) ;
 	        v &= INT_MAX ;

@@ -1844,11 +1844,13 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
 
 /* we must use 'dupup()' and NOT 'uc_moveup()'! */
 
-	    if ((nsi < 3) && (! f_nsiok))
+	    if ((nsi < 3) && (! f_nsiok)) {
 	        nsi = dupup(nsi,3) ;
+	    }
 
-	    if ((nso < 3) && (! f_nsook))
+	    if ((nso < 3) && (! f_nsook)) {
 	        nso = dupup(nso,3) ;
+	    }
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
@@ -1903,9 +1905,10 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
 /* do it */
 
 	    cip->stime = pip->daytime ;
-	    if (pip->open.logprog)
+	    if (pip->open.logprog) {
 	        proglog_printf(pip,"server pid=%u\n",
 	            (int) cip->pid) ;
+	    }
 
 /* set keep-alive (if it is not a socket we ignore the failure) */
 
@@ -1966,9 +1969,9 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
 	} else if (rs > 0) {
 	    pid = rs ;
 
-	jep->pid = pid ;
-	wip->njobs += 1 ;
-	pip->subserial += 1 ;
+	    jep->pid = pid ;
+	    wip->njobs += 1 ;
+	    pip->subserial += 1 ;
 
 	} else if (rs < 0) {
 	    jobdb_del(&wip->ourjobs,ji) ;

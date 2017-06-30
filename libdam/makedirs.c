@@ -127,10 +127,8 @@ int makedirs(cchar *dirp,int dirl,mode_t mode)
 
 	            *bp = '\0' ;
 	            if (((bp - dp) > 0) && (strcmp(dp,".") != 0)) {
-
 	                rs = procdir(&id,dirbuf,mode) ;
 	                c += rs ;
-
 	            } /* end if */
 
 	            *bp = '/' ;

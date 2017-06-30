@@ -123,7 +123,7 @@ extern int	mksenderaddr(PROGINFO *) ;
 extern int	mkreplyaddr(PROGINFO *) ;
 extern int	mkfromaddr(PROGINFO *) ;
 extern int	progbuildmsg(PROGINFO *,EMA *,PARAMOPT *,
-			MIMETYPES *,MAILMSGATT_ENT *,MAILMSGATT *) ;
+			MIMETYPES *,MAILMSGATTENT *,MAILMSGATT *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -174,7 +174,7 @@ struct procmore {
 	EMA		*adds ;
 	MAILMSGATT	*attp ;
 	PARAMOPT	*hdrp ;
-	MAILMSGATT_ENT	*iep ;
+	MAILMSGATTENT	*iep ;
 	const char	*ofn ;
 	const char	*afn ;
 	const char	*atfname ;
@@ -210,7 +210,7 @@ static int	procextras_end(PROGINFO *) ;
 
 static int	procmore(PROGINFO *,PROCMORE *) ;
 static int	procmsg(PROGINFO *,const char *,EMA *,PARAMOPT *,
-			MIMETYPES *,MAILMSGATT_ENT *,MAILMSGATT *) ;
+			MIMETYPES *,MAILMSGATTENT *,MAILMSGATT *) ;
 
 static int	logmsginfo(PROGINFO *,EMA *,PARAMOPT *) ;
 static int	logmsghead(PROGINFO *,int,const char *) ;
@@ -370,7 +370,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	LOCINFO		li, *lip = &li ;
 	ARGINFO		ainfo ;
 	MAILMSGATT	atts ;
-	MAILMSGATT_ENT	ie ;
+	MAILMSGATTENT	ie ;
 	SIGMAN		sm ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
@@ -1837,7 +1837,7 @@ static int procmore(PROGINFO *pip,PROCMORE *mp)
 	            if ((rs = procdatestr_begin(pip,datestr)) >= 0) {
 	                EMA		*adds = mp->adds ;
 	                PARAMOPT	*hdrp = mp->hdrp ;
-	                MAILMSGATT_ENT	*iep = mp->iep ;
+	                MAILMSGATTENT	*iep = mp->iep ;
 	                MAILMSGATT	*attp = mp->attp ;
 	                const char	*ofn = mp->ofn ;
 
@@ -2134,7 +2134,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,EMA *adds,cchar *afn)
 static int procatts(PROGINFO *pip,MAILMSGATT *attp,cchar *atfname)
 {
 	LOCINFO		*lip = pip->lip ;
-	MAILMSGATT_ENT	*aep ;
+	MAILMSGATTENT	*aep ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
@@ -2391,7 +2391,7 @@ const char	*ofn ;
 EMA		*addp ;
 PARAMOPT	*hdrp ;
 MIMETYPES	*mtp ;
-MAILMSGATT_ENT	*iep ;
+MAILMSGATTENT	*iep ;
 MAILMSGATT	*attp ;
 {
 	bfile		ofile, *ofp = &ofile ;

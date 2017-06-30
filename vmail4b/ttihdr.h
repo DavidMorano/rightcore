@@ -1,5 +1,7 @@
 /* ttihdr */
 
+/* Termianl-Translate-Index file management */
+
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 

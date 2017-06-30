@@ -27,10 +27,8 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -78,11 +76,7 @@ static int mailmsghdrval_loadadd(MAILMSGHDRVAL *,const char *,int) ;
 /* exported subroutines */
 
 
-int mailmsghdrval_start(mbp,i,hp,hl)
-MAILMSGHDRVAL	*mbp ;
-int		i ;
-const char	hp[] ;
-int		hl ;
+int mailmsghdrval_start(MAILMSGHDRVAL *mbp,int i,cchar *hp,int hl)
 {
 	int		rs ;
 
@@ -99,8 +93,7 @@ int		hl ;
 /* end subroutine (mailmsghdrval_start) */
 
 
-int mailmsghdrval_finish(mbp)
-MAILMSGHDRVAL	*mbp ;
+int mailmsghdrval_finish(MAILMSGHDRVAL *mbp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -119,10 +112,7 @@ MAILMSGHDRVAL	*mbp ;
 /* end subroutine (mailmsghdrval_finish) */
 
 
-int mailmsghdrval_add(mbp,hp,hl)
-MAILMSGHDRVAL	*mbp ;
-const char	hp[] ;
-int		hl ;
+int mailmsghdrval_add(MAILMSGHDRVAL *mbp,cchar *hp,int hl)
 {
 	int		rs ;
 
@@ -135,10 +125,7 @@ int		hl ;
 /* end subroutine (mailmsghdrval_add) */
 
 
-int mailmsghdrval_get(mbp,vpp,vlp)
-MAILMSGHDRVAL	*mbp ;
-const char	**vpp ;
-int		*vlp ;
+int mailmsghdrval_get(MAILMSGHDRVAL *mbp,cchar **vpp,int *vlp)
 {
 	const char	*vp = NULL ;
 
@@ -146,14 +133,13 @@ int		*vlp ;
 
 	if (mbp->v != NULL) {
 	    vp = mbp->v ;
-	} else if (mbp->vbuf[0] != '\0')
+	} else if (mbp->vbuf[0] != '\0') {
 	    vp = mbp->vbuf ;
+	}
 
-	if (vpp != NULL)
-	    *vpp = vp ;
+	if (vpp != NULL) *vpp = vp ;
 
-	if (vlp != NULL)
-	    *vlp = mbp->vlen ;
+	if (vlp != NULL) *vlp = mbp->vlen ;
 
 	return mbp->i ;
 }
@@ -163,10 +149,7 @@ int		*vlp ;
 /* private subroutines */
 
 
-static int mailmsghdrval_loadadd(mbp,hp,hl)
-MAILMSGHDRVAL	*mbp ;
-const char	hp[] ;
-int		hl ;
+static int mailmsghdrval_loadadd(MAILMSGHDRVAL *mbp,cchar *hp,int hl)
 {
 	int		rs = SR_OK ;
 	int		sl ;
@@ -178,56 +161,55 @@ int		hl ;
 	    char	*nvp ;
 	    char	*vp ;
 
-	al = (mbp->vlen > 0) ? (mbp->vlen + (sl + 1)) : sl ;
-	if (mbp->v == NULL) {
-	    int	lenr = (MAILMSGHDRVAL_BUFLEN - mbp->vlen) ;
+	    al = (mbp->vlen > 0) ? (mbp->vlen + (sl + 1)) : sl ;
+	    if (mbp->v == NULL) {
+	        int	lenr = (MAILMSGHDRVAL_BUFLEN - mbp->vlen) ;
 
-	    if (al <= lenr) {
+	        if (al <= lenr) {
 
-		vp = (mbp->vbuf + mbp->vlen) ;
-		if (mbp->vlen > 0)
-		    *vp++ = ' ' ;
+	            vp = (mbp->vbuf + mbp->vlen) ;
+	            if (mbp->vlen > 0)
+	                *vp++ = ' ' ;
 
-	        strwcpy(vp,sp,sl) ;
+	            strwcpy(vp,sp,sl) ;
+	            mbp->vlen += al ;
 
-	        mbp->vlen += al ;
+	        } else {
+
+	            size = mbp->vlen + al + 1 ;
+	            if ((rs = uc_malloc(size,&nvp)) >= 0) {
+
+	                vp = nvp ;
+	                if (mbp->vlen > 0) {
+	                    vp = strwcpy(vp,mbp->vbuf,mbp->vlen) ;
+	                    *vp++ = ' ' ;
+	                }
+
+	                strwcpy(vp,sp,sl) ;
+
+	                mbp->vbuf[0] = '\0' ;
+	                mbp->v = nvp ;
+	                mbp->vlen += al ;
+
+	            } /* end if */
+
+	        } /* end if */
 
 	    } else {
 
-		size = mbp->vlen + al + 1 ;
-	        if ((rs = uc_malloc(size,&nvp)) >= 0) {
+	        size = mbp->vlen + al + 1 ;
+	        if ((rs = uc_realloc(mbp->v,size,&nvp)) >= 0) {
 
-		    vp = nvp ;
-		    if (mbp->vlen > 0) {
-			vp = strwcpy(vp,mbp->vbuf,mbp->vlen) ;
-		        *vp++ = ' ' ;
-		    }
+	            vp = (nvp + mbp->vlen) ;
+	            *vp++ = ' ' ;
+	            strwcpy(vp,sp,sl) ;
 
-		    strwcpy(vp,sp,sl) ;
-
-	            mbp->vbuf[0] = '\0' ;
 	            mbp->v = nvp ;
-		    mbp->vlen += al ;
+	            mbp->vlen += al ;
 
-		} /* end if */
+	        } /* end if */
 
-	    } /* end if */
-
-	} else {
-
-	    size = mbp->vlen + al + 1 ;
-	    if ((rs = uc_realloc(mbp->v,size,&nvp)) >= 0) {
-
-		vp = (nvp + mbp->vlen) ;
-		*vp++ = ' ' ;
-		strwcpy(vp,sp,sl) ;
-
-	        mbp->v = nvp ;
-		mbp->vlen += al ;
-
-	    } /* end if */
-
-	} /* end if (dynamic allocation) */
+	    } /* end if (dynamic allocation) */
 
 	} /* end if (sfshrink) */
 
