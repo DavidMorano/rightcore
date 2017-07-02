@@ -65,10 +65,10 @@
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
+#include	"kshlib.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"proglog.h"
-#include	"kshlib.h"
 
 
 /* local defines */
@@ -360,7 +360,26 @@ static const char	*varmailusers[] = {
 /* exported subroutines */
 
 
-int main(int argc,cchar **argv,cchar **envv)
+int main(int argc,cchar *argv[],cchar *envv[])
+{
+	int		rs ;
+	int		rs1 ;
+	int		ex = EX_OK ;
+	if ((rs = lib_mainbegin(envv,NULL)) >= 0) {
+	    ex = mainsub(argc,argv,envv) ;
+	    rs1 = lib_mainend() ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (lib-main) */
+	if ((rs < 0) && (ex == EX_OK)) ex = EX_DATAERR ;
+	return ex ;
+}
+/* end subroutine (main) */
+
+
+/* local subroutines */
+
+
+int mainsub(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
 	BITS		pargs ;
@@ -393,9 +412,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*efname = NULL ;
 	const char	*pcfname = NULL ;
 	const char	*cp ;
-
-	rs = lib_mainbegin(envv,NULL) ;
-	if (rs < 0) goto badmainbegin ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -1426,9 +1442,6 @@ badprogstart:
 	debugclose() ;
 #endif
 
-	lib_mainend() ;
-
-badmainbegin:
 	return ex ;
 
 /* bad arguments */
@@ -1440,10 +1453,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (main) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

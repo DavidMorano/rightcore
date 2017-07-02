@@ -74,7 +74,7 @@ extern int	pcsgetserial(const char *) ;
 
 /* forward references */
 
-static int mkstr(char *,int,cchar *,cchar *,int) ;
+static int pcsmsgid_join(cchar *,char *,int,cchar *,cchar *,int) ;
 
 
 /* local variables */
@@ -97,7 +97,7 @@ int pcsmsgid(cchar *pr,char *rbuf,int rlen)
 	    char	nn[NODENAMELEN+1] ;
 	    char	dn[MAXHOSTNAMELEN+1] ;
 	    if ((rs = getnodedomain(nn,dn)) >= 0) {
-	        rs = mkstr(rbuf,rlen,dn,nn,sn) ;
+		rs = pcsmsgid_join(pr,rbuf,rlen,dn,nn,sn) ;
 	    }
 	}
 
@@ -113,43 +113,43 @@ int pcsmsgid(cchar *pr,char *rbuf,int rlen)
 /* local subroutines */
 
 
-static int mkstr(char *rp,int rl,cchar *dn,cchar *nn,int sn)
+static int pcsmsgid_join(cchar *pr,char *rp,int rl,cchar *dn,cchar *nn,int sn)
 {
 	SBUF		ubuf ;
 	int		rs ;
-	if ((rs = sbuf_start(&ubuf,rp,rl)) >= 0) {
-	    const uint	tv = (uint) time(NULL) ;
-	    const int	pid = getpid() ;
-	    const int	nl = strlen(nn) ;
+	    if ((rs = sbuf_start(&ubuf,rp,rl)) >= 0) {
+	        const uint	tv = (uint) time(NULL) ;
+		const int	pid = getpid() ;
+	        const int	nl = strlen(nn) ;
 	    int		len ;
 
-	    if (nl > USERNAMELEN) {
-	        const int	hid = gethostid() ;
-	        sbuf_hexi(&ubuf,hid) ;
-	        sbuf_char(&ubuf,'-') ;
-	    } else {
-	        sbuf_strw(&ubuf,nn,nl) ;
-	    }
+	        if (nl > USERNAMELEN) {
+	            const int	hid = gethostid() ;
+	            sbuf_hexi(&ubuf,hid) ;
+	            sbuf_char(&ubuf,'-') ;
+	        } else {
+	            sbuf_strw(&ubuf,nn,nl) ;
+		}
 
-	    sbuf_deci(&ubuf,pid) ;
+	        sbuf_deci(&ubuf,pid) ;
 
-	    sbuf_char(&ubuf,'.') ;
+	        sbuf_char(&ubuf,'.') ;
 
-	    sbuf_hexui(&ubuf,tv) ;
+	        sbuf_hexui(&ubuf,tv) ;
 
-	    sbuf_char(&ubuf,'.') ;
+	        sbuf_char(&ubuf,'.') ;
 
-	    sbuf_deci(&ubuf,sn) ;
+	        sbuf_deci(&ubuf,sn) ;
 
-	    sbuf_char(&ubuf,'@') ;
+	        sbuf_char(&ubuf,'@') ;
 
-	    sbuf_strw(&ubuf,dn,-1) ;
+	        sbuf_strw(&ubuf,dn,-1) ;
 
-	    len = sbuf_finish(&ubuf) ;
-	    if (rs >= 0) rs = len ;
-	} /* end if (sbuf) */
+	        len = sbuf_finish(&ubuf) ;
+	        if (rs >= 0) rs = len ;
+	    } /* end if (sbuf) */
 	return rs ;
-}
+} 
 /* end subroutine (pcsmsgid_join) */
 
 

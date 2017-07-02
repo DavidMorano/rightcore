@@ -4,8 +4,6 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_PCSGETSERIAL	1		/* usage 'pcsgetserial(3pcs)' */
-#define	CF_LENIENT	0		/* be lenient about program-root */
 
 
 /* revision history:
@@ -60,24 +58,12 @@
 
 /* local defines */
 
-#ifndef	VARPRPCS
-#define	VARPRPCS	"PCS"
-#endif
-
-#define	SERIALFNAME1	"var/serial"
-#define	SERIALFNAME2	"/tmp/serial"
-
-#ifndef	HEXBUFLEN
-#define	HEXBUFLEN	16
-#endif
-
 
 /* external subroutines */
 
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	pcsgetserial(const char *) ;
-extern int	getserial(const char *) ;
 
 
 /* external variables */
@@ -88,6 +74,8 @@ extern int	getserial(const char *) ;
 
 /* forward references */
 
+static int mkstr(char *,int,cchar *,cchar *,int) ;
+
 
 /* local variables */
 
@@ -97,110 +85,21 @@ extern int	getserial(const char *) ;
 
 int pcsmsgid(cchar *pr,char *rbuf,int rlen)
 {
-	const time_t	daytime = time(NULL) ;
-	const pid_t	pid = getpid() ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		nl ;
-	int		serial = 0 ;
-	int		len = 0 ;
-	char		nodename[NODENAMELEN + 1] ;
-	char		domainname[MAXHOSTNAMELEN + 1] ;
+	int		rs ;
 
+	if (pr == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
 
-	nodename[0] = '\0' ;
-	domainname[0] = '\0' ;
+	if (pr[0] == '\0') return SR_INVALID ;
 
-/* get the current program root if we can */
-
-#if	CF_LENIENT
-
-	if ((pr == NULL) || (pr[0] == '\0')) {
-	    char	prbuf[MAXPATHLEN + 1] ;
-
-	    pr = prbuf ;
-	    if (domainname[0] == '\0')
-	        rs = getnodedomain(nodename,domainname) ;
-
-	    if (rs >= 0)
-	        rs = mkpr(prbuf,MAXPATHLEN,VARPRPCS,domainname) ;
-
-	    if (rs < 0)
-	        goto ret0 ;
-
-	} /* end if */
-
-#else /* CF_LENIENT */
-
-	if (pr == NULL)
-	    return SR_FAULT ;
-
-	if (pr[0] == '\0')
-	    return SR_INVALID ;
-
-#endif /* CF_LENIENT */
-
-/* get a serial number if we can */
-
-#if	CF_PCSGETSERIAL
-	serial = pcsgetserial(pr) ;
-#else
-	{
-	    char	tmpfname[MAXPATHLEN + 1] ;
-	    if ((rs = mkpath2(tmpfname,pr,SERIALFNAME1)) >= 0) {
-	        serial = getserial(tmpfname) ;
+	if ((rs = pcsgetserial(pr)) >= 0) {
+	    const int	sn = rs ;
+	    char	nn[NODENAMELEN+1] ;
+	    char	dn[MAXHOSTNAMELEN+1] ;
+	    if ((rs = getnodedomain(nn,dn)) >= 0) {
+	        rs = mkstr(rbuf,rlen,dn,nn,sn) ;
 	    }
 	}
-#endif /* CF_PCSGETSERIAL */
-
-	if ((rs >= 0) && (serial < 0)) {
-	    serial = getserial(SERIALFNAME2) ;
-	    if (serial < 0) serial = 0 ;
-	}
-
-/* more initialization */
-
-	if ((rs >= 0) && (nodename[0] == '\0')) {
-	    rs = getnodedomain(nodename,domainname) ;
-	}
-
-/* create the message ID number */
-
-	if (rs >= 0) {
-	    SBUF	ubuf ;
-	    if ((rs = sbuf_start(&ubuf,rbuf,rlen)) >= 0) {
-	        uint	tv = (uint) daytime ;
-
-	        nl = strlen(nodename) ;
-	        if (nl > USERNAMELEN) {
-	            rs1 = (int) gethostid() ;
-	            sbuf_hexi(&ubuf,rs1) ;
-	            sbuf_char(&ubuf,'-') ;
-	        } else {
-	            sbuf_strw(&ubuf,nodename,nl) ;
-		}
-
-	        sbuf_deci(&ubuf,(int) pid) ;
-
-	        sbuf_char(&ubuf,'.') ;
-
-	        sbuf_hexui(&ubuf,tv) ;
-
-	        sbuf_char(&ubuf,'.') ;
-
-	        sbuf_deci(&ubuf,serial) ;
-
-	        sbuf_char(&ubuf,'@') ;
-
-	        sbuf_strw(&ubuf,domainname,-1) ;
-
-	        len = sbuf_finish(&ubuf) ;
-	        if (rs >= 0) rs = len ;
-	    } /* end if (sbuf) */
-	} /* end if (ok) */
-
-ret0:
 
 #if	CF_DEBUGS
 	debugprintf("pcsmsgid: ret rs=%d msgid=>%s<\n",rs,rbuf) ;
@@ -209,5 +108,48 @@ ret0:
 	return rs ;
 }
 /* end subroutine (pcsmsgid) */
+
+
+/* local subroutines */
+
+
+static int mkstr(char *rp,int rl,cchar *dn,cchar *nn,int sn)
+{
+	SBUF		ubuf ;
+	int		rs ;
+	if ((rs = sbuf_start(&ubuf,rp,rl)) >= 0) {
+	    const uint	tv = (uint) time(NULL) ;
+	    const int	pid = getpid() ;
+	    const int	nl = strlen(nn) ;
+	    int		len ;
+
+	    if (nl > USERNAMELEN) {
+	        const int	hid = gethostid() ;
+	        sbuf_hexi(&ubuf,hid) ;
+	        sbuf_char(&ubuf,'-') ;
+	    } else {
+	        sbuf_strw(&ubuf,nn,nl) ;
+	    }
+
+	    sbuf_deci(&ubuf,pid) ;
+
+	    sbuf_char(&ubuf,'.') ;
+
+	    sbuf_hexui(&ubuf,tv) ;
+
+	    sbuf_char(&ubuf,'.') ;
+
+	    sbuf_deci(&ubuf,sn) ;
+
+	    sbuf_char(&ubuf,'@') ;
+
+	    sbuf_strw(&ubuf,dn,-1) ;
+
+	    len = sbuf_finish(&ubuf) ;
+	    if (rs >= 0) rs = len ;
+	} /* end if (sbuf) */
+	return rs ;
+}
+/* end subroutine (pcsmsgid_join) */
 
 

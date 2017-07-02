@@ -94,7 +94,6 @@
 
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sfshrink(const char *,int,const char **) ;
-extern int	pcsmsgid(const char *,char *,int) ;
 
 extern int	progouthead(PROGINFO *,bfile *,cchar *,cchar *,int) ;
 extern int	progoutheadema(PROGINFO *,bfile *,const char *,EMA *) ;

@@ -1439,68 +1439,78 @@ static int hdb_extkeyfree(HDB *op,HDB_ENT *shep)
 /* yes, it is recursive! */
 static int hdb_getentry(HDB *op,ENTRYINFO *eip,HDB_CUR *curp)
 {
-	HDB_ENT		**hepp = op->htaddr ;
-	HDB_ENT		*pjep = NULL ;
-	HDB_ENT		*pkep = NULL ;
-	HDB_ENT		*ep ;
-	int		rs = SR_NOTFOUND ;
-	int		i, j, k ;
+	int		rs = SR_OK ;
+	int		i = curp->i ;
 
-	i = curp->i ;
-	if ((i < 0) || (i >= op->htlen))
-	    goto ret0 ;
+	if ((i >= 0) && (i < op->htlen)) {
+	    HDB_ENT	**hepp = op->htaddr ;
+	    HDB_ENT	*pjep = NULL ;
+	    HDB_ENT	*pkep = NULL ;
+	    HDB_ENT	*ep = hepp[i] ;
+	    int		f_notdone = TRUE ;
 
-	ep = hepp[i] ;
-	while ((i < op->htlen) && ((ep = hepp[i]) == NULL)) {
-	    i += 1 ;
-	}
+	    while ((i < op->htlen) && ((ep = hepp[i]) == NULL)) {
+	        i += 1 ;
+	    }
 
-	if (curp->i != i) {
-	    curp->i = i ;
-	    curp->j = 0 ;
-	    curp->k = 0 ;
-	    if (ep != NULL) goto ret1 ;	/* this statement is optional! */
-	}
+	    if (curp->i != i) {
+	        curp->i = i ;
+	        curp->j = 0 ;
+	        curp->k = 0 ;
+	        if (ep != NULL) f_notdone = FALSE ;
+	    }
 
-	if (ep == NULL)
-	    goto ret0 ;
+	    if (f_notdone) {
+	        if (ep != NULL) {
+		    int	j ;
 
 /* find pointers to this cursor entry */
 
-	for (j = 0 ; j < curp->j ; j += 1) { /* code-reviewed */
-	    if (ep->next == NULL) break ;
-	    pjep = ep ;
-	    ep = ep->next ;
-	} /* end while */
+	            for (j = 0 ; j < curp->j ; j += 1) { /* code-reviewed */
+	                if (ep->next == NULL) break ;
+	                pjep = ep ;
+	                ep = ep->next ;
+	            } /* end for */
 
-	if (j < curp->j) {
-	    curp->k = 0 ;
-	    curp->j = 0 ;
-	    curp->i += 1 ;
-	    rs = hdb_getentry(op,eip,curp) ;
-	    goto ret0 ;
-	}
+	            if (j < curp->j) {
+	                curp->k = 0 ;
+	                curp->j = 0 ;
+	                curp->i += 1 ;
+	                rs = hdb_getentry(op,eip,curp) ;
+	            }
 
-	for (k = 0 ; k < curp->k ; k += 1) { /* code-reviewed */
-	    if (ep->same == NULL) break ;
-	    pkep = ep ;
-	    ep = ep->same ;
-	} /* end while */
+	            if (rs >= 0) {
+			int	k ;
 
-	if (k < curp->k) {
-	    curp->k = 0 ;
-	    curp->j += 1 ;
-	    rs = hdb_getentry(op,eip,curp) ;
-	    goto ret0 ;
-	}
+	                for (k = 0 ; k < curp->k ; k += 1) { /* code-reviewed */
+	                    if (ep->same == NULL) break ;
+	                    pkep = ep ;
+	                    ep = ep->same ;
+	                } /* end for */
 
-ret1:
-	rs = SR_OK ;
-	eip->pjep = pjep ;
-	eip->pkep = pkep ;
-	eip->ep = ep ;
+	                if (k < curp->k) {
+	                    curp->k = 0 ;
+	                    curp->j += 1 ;
+	                    rs = hdb_getentry(op,eip,curp) ;
+	                }
 
-ret0:
+	                if (rs >= 0) {
+	                    eip->pjep = pjep ;
+	                    eip->pkep = pkep ;
+	                    eip->ep = ep ;
+	                }
+
+	            } /* end if (ok) */
+
+	        } else {
+	            rs = SR_NOTFOUND ;
+	        } /* end if (no-null) */
+	    } /* end if (f_notdone) */
+
+	} else {
+	    rs = SR_NOTFOUND ;
+	} /* end if (in bounds) */
+
 	return rs ;
 }
 /* end subroutine (hdb_getentry) */

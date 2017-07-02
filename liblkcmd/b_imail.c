@@ -467,6 +467,7 @@ struct locinfo_flags {
 	uint		deliver:1 ;
 	uint		org:1 ;		/* add our organization */
 	uint		sender:1 ;	/* SENDER address */
+	uint		addenv:1 ;	/* add mail-envelope */
 	uint		addsender:1 ;	/* add us as sender */
 	uint		addfrom:1 ;	/* add any given FROMs */
 	uint		addsubj:1 ;	/* add subject (if we have one) */
@@ -703,6 +704,7 @@ static int	locinfo_cmbfname(LOCINFO *,char *) ;
 static int	locinfo_mkmid(LOCINFO *,char *,int) ;
 static int	locinfo_mkenvfrom(LOCINFO *) ;
 static int	locinfo_mkenvdate(LOCINFO *) ;
+static int	locinfo_mkenv(LOCINFO *) ;
 static int	locinfo_mkhdrsender(LOCINFO *) ;
 static int	locinfo_mkhdrfrom(LOCINFO *) ;
 static int	locinfo_mkhdrname_from(LOCINFO *) ;
@@ -916,6 +918,7 @@ static cchar *akonames[] = {
 	"mailer",
 	"org",
 	"sender",
+	"addenv",
 	"addsender",
 	"addfrom",
 	"addsubj",
@@ -945,6 +948,7 @@ enum akonames {
 	akoname_mailer,
 	akoname_org,
 	akoname_sender,
+	akoname_addenv,
 	akoname_addsender,
 	akoname_addfrom,
 	akoname_addsubj,
@@ -1242,7 +1246,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	rs = proginfo_setbanner(pip,BANNER) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -2390,6 +2394,17 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
+	                case akoname_addenv:
+	                    if (! lip->final.addenv) {
+	                        lip->have.addenv = TRUE ;
+	                        lip->final.addenv = TRUE ;
+	                        lip->f.addenv = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.addenv = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
 	                case akoname_addsender:
 	                    if (! lip->final.addsender) {
 	                        lip->have.addsender = TRUE ;
@@ -3236,6 +3251,7 @@ static int procdeliver(PROGINFO *pip)
 	memset(&opts,0,sizeof(MSGOPTS)) ;
 	opts.mkclines = TRUE ;
 	opts.mkcrnl = TRUE ;			/* possible CRNL enforcement */
+	opts.mkenv = lip->f.addenv ;
 	opts.mkfrom = lip->f.addfrom ;
 	opts.mksubj = lip->f.addsubj ;
 	opts.mkxuuid = lip->f.addxuuid ;	/* UUID */
@@ -4183,6 +4199,7 @@ int		mi ;
 	LOCINFO		*lip = pip->lip ;
 	struct msgenv	me, *mep = &me ;
 	MAILMSGSTAGE	*msp ;
+	DATER		*edp = &mip->edate ;
 	int		rs = SR_OK ;
 	int		i, sl ;
 	int		cl ;
@@ -4241,10 +4258,11 @@ int		mi ;
 	            debugprintf("b_imail/procmsgenv: env r=>%t<\n",cp,cl) ;
 #endif
 
-	        if ((cp != NULL) && (cp[0] != '\0'))
+	        if ((cp != NULL) && (cp[0] != '\0')) {
 	            logfile_printf(&pip->envsum,"%4d:%2d R %t",
 	                pip->msgn,i,
 	                cp,cl) ;
+		}
 
 	    } /* end if (special environment logging) */
 
@@ -4255,11 +4273,9 @@ int		mi ;
 	        froml = -1 ;
 	    }
 
-	    rs = dater_setstd(&mip->edate,mep->d.ep,mep->d.el) ;
-
-	    datebuf[0] = '\0' ;
-	    if (rs >= 0) {
-	        rs = dater_mkstrdig(&mip->edate,datebuf,DATEBUFLEN) ;
+	    if ((rs = dater_setstd(edp,mep->d.ep,mep->d.el)) >= 0) {
+	        datebuf[0] = '\0' ;
+	        rs = dater_mkstrdig(edp,datebuf,DATEBUFLEN) ;
 	    }
 
 	    if ((i > 0) && (abl < addrlen)) {
@@ -4296,7 +4312,7 @@ int		mi ;
 
 	    atype = emainfo(&ai,fromp,froml) ;
 
-	    sl = emainfo_mktype(&ai, EMAINFO_TUUCP, ap,abl) ;
+	    sl = emainfo_mktype(&ai,EMAINFO_TUUCP,ap,abl) ;
 
 	    if (sl > 0) {
 	        ap += sl ;
@@ -4323,9 +4339,10 @@ int		mi ;
 	    addrbuf[sal] = '\0' ;
 	    strwcpy(mip->e_from,addrbuf,MAILADDRLEN) ;
 
-	    if (pip->open.logprog && pip->f.logprogmsg)
+	    if (pip->open.logprog && pip->f.logprogmsg) {
 	        proglog_printf(pip,"  > %t",
 	            addrbuf,MIN(sal,(LOGLINELEN - 4))) ;
+	    }
 
 	    dater_gettime(&mip->edate,&mip->etime) ;
 
@@ -4337,57 +4354,23 @@ int		mi ;
 
 #else /* CF_MSGENV */
 
-static int procmsgenv(pip,fbp,mi,optp)
-PROGINFO	*pip ;
-MSGOPTS		*optp ;
-FILEBUF		*fbp ;
-int		mi ;
+static int procmsgenv(PROGINFO *pip,FILEBUF *fbp,int mi,MSGOPTS *optp)
 {
 	LOCINFO		*lip = pip->lip ;
-	BUFFER		b ; /* overdraft protection is not really needed */
 	int		rs = SR_OK ;
-	int		flen, dlen ;
 	int		len = -1 ;
 	int		wlen = 0 ;
-	cchar		*buf = NULL ;
 
-	if (! optp->mkenv)
-	    goto ret0 ;
-
-	rs = locinfo_mkenvfrom(lip) ;
-	flen = rs ;
-	if (rs >= 0) {
-	    rs = locinfo_mkenvdate(lip) ;
-	    dlen = rs ;
-	}
-
-	if ((rs < 0) || (lip->envdate == NULL) || (lip->envfrom == NULL))
-	    goto ret0 ;
-
-	if (lip->env == NULL) {
-	    len = (5 + flen + 1 + dlen + 10) ;
-	    if ((rs = buffer_start(&b,len)) >= 0) {
-	        buffer_strw(&b,"From ",5) ; /* UNIX® standard envelope */
-	        buffer_strw(&b,lip->envfrom,flen) ;
-	        buffer_char(&b,' ') ;
-	        buffer_strw(&b,lip->envdate,dlen) ;
-	        buffer_char(&b,'\n') ;
-	        rs = buffer_get(&b,&buf) ;
+	if (optp->mkenv) {
+	    if ((rs = locinfo_mkenv(lip)) >= 0) {
 	        len = rs ;
-	        if (rs >= 0) {
-	            cchar	**vpp = &lip->env ;
-	            rs = locinfo_setentry(lip,vpp,buf,len) ;
-	        }
-	        buffer_finish(&b) ;
-	    } /* end if (buffer) */
-	} /* end if (non-NULL) */
+		if (lip->env != NULL) {
+	    	    rs = filebuf_write(fbp,lip->env,len) ;
+	    	    wlen += rs ;
+		}
+	    }
+	} /* end if (option) */
 
-	if ((rs >= 0) && (lip->env != NULL)) {
-	    rs = filebuf_write(fbp,lip->env,len) ;
-	    wlen += rs ;
-	}
-
-ret0:
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procmsgenv) */
@@ -4733,6 +4716,7 @@ static int procmsghdr_xpri(PROGINFO *pip,FILEBUF *fbp,int mi,MSGOPTS *optp)
 
 
 /* only a final delivery agent adds the return-path */
+/* ARGSUSED */
 static int procmsghdr_path(PROGINFO *pip,FILEBUF *fbp,int mi,MSGOPTS *optp)
 {
 	LOCINFO		*lip = pip->lip ;
@@ -5700,7 +5684,7 @@ static int procmsghdr(PROGINFO *pip,FILEBUF *fbp,int mi,cchar kn[],int f_nz)
 	msp = &lip->ms ;
 	if ((n = mailmsgstage_hdrcount(msp,mi,kn)) > 0) {
 	    const int	mcols = lip->msgcols ;
-	    int		indent = 0 ;
+	    int		ind = 0 ;
 	    int		c ;
 	    int		ln ;
 	    int		sl, cl ;
@@ -5720,7 +5704,7 @@ static int procmsghdr(PROGINFO *pip,FILEBUF *fbp,int mi,cchar kn[],int f_nz)
 	        if (! f_nz) {
 	            rs = filebuf_writehdrkey(fbp,kn) ;
 	            wlen += rs ;
-	            indent = rs ;
+	            ind = rs ;
 	        }
 
 	        for (j = 0 ; rs >= 0 ; j += 1) {
@@ -5758,17 +5742,17 @@ static int procmsghdr(PROGINFO *pip,FILEBUF *fbp,int mi,cchar kn[],int f_nz)
 	                    if (f_nz && (c == 0)) {
 	                        rs = filebuf_writehdrkey(fbp,kn) ;
 	                        wlen += rs ;
-	                        indent = rs ;
+	                        ind = rs ;
 	                    }
 
 	                    if (rs >= 0) {
-	                        const int	in = indent ;
+	                        const int	in = ind ;
 	                        const int	mc = mcols ;
 	                        c += 1 ;
 	                        rs = procprinthdr_line(pip,fbp,mc,ln,in,cp,cl) ;
 	                        wlen += rs ;
 	                        ln += 1 ;
-	                        indent = 0 ;
+	                        ind = 0 ;
 	                    }
 
 	                } /* end if (non-empty hdr) */
@@ -5807,7 +5791,7 @@ int		f_nz ;
 	MAILMSGSTAGE	*msp ;
 	int		mcols ;
 	int		rs = SR_OK ;
-	int		indent = 0 ;
+	int		ind = 0 ;
 	int		c = 0 ;
 	int		ln = 0 ;
 	int		sl, cl ;
@@ -5830,7 +5814,7 @@ int		f_nz ;
 	if (! f_nz) {
 	    rs = filebuf_writehdrkey(fbp,kn) ;
 	    wlen += rs ;
-	    indent = rs ;
+	    ind = rs ;
 	}
 
 	for (j = 0 ; rs >= 0 ; j += 1) {
@@ -5857,17 +5841,17 @@ int		f_nz ;
 	            if (f_nz && (c == 0)) {
 	                rs = filebuf_writehdrkey(fbp,kn) ;
 	                wlen += rs ;
-	                indent = rs ;
+	                ind = rs ;
 	            }
 
 	            if (rs >= 0) {
-	                const int	in = indent ;
+	                const int	in = ind ;
 	                const int	mc = mcols ;
 	                c += 1 ;
 	                rs = procprinthdr_line(pip,fbp,mc,ln,in,cp,cl) ;
 	                wlen += rs ;
 	                ln += 1 ;
-	                indent = 0 ;
+	                ind = 0 ;
 	            }
 
 	        } /* end if (non-empty hdr) */
@@ -5892,12 +5876,12 @@ int		f_nz ;
 
 
 /* "indent" is initial indent only! */
-static int procprinthdr_line(pip,fbp,mcols,ln,indent,lp,ll)
+static int procprinthdr_line(pip,fbp,mcols,ln,ind,lp,ll)
 PROGINFO	*pip ;
 FILEBUF		*fbp ;
 int		mcols ;
 int		ln ;
-int		indent ;
+int		ind ;
 cchar		*lp ;
 int		ll ;
 {
@@ -5922,24 +5906,24 @@ int		ll ;
 	    int		sl ;
 	    cchar	*sp ;
 
-	    if (indent == 0) {
+	    if (ind == 0) {
 	        leader = ' ' ;
-	        indent = 1 ;
+	        ind = 1 ;
 	    }
 
-	    while ((sl = mailmsghdrfold_get(&mf,indent,&sp)) > 0) {
-	        if ((indent > 1) && (leader == '\t')) {
-	            const int	acols = (mcols-indent) ;
-	            if ((n = ncolstr(ntab,indent,sp,sl)) > acols) {
+	    while ((sl = mailmsghdrfold_get(&mf,ind,&sp)) > 0) {
+	        if ((ind > 1) && (leader == '\t')) {
+	            const int	acols = (mcols-ind) ;
+	            if ((n = ncolstr(ntab,ind,sp,sl)) > acols) {
 	                rs = n ; /* use (for LINT) */
-	                indent = 1 ;
+	                ind = 1 ;
 	                leader = ' ' ;
 	            }
 	        }
 	        rs = filebuf_printcont(fbp,leader,sp,sl) ;
 	        wlen += rs ;
 	        i += 1 ;
-	        indent = ntab ;
+	        ind = ntab ;
 	        leader = '\t' ;
 	        if (rs < 0) break ;
 	    } /* end while */
@@ -6016,9 +6000,9 @@ static int procprinthdr(PROGINFO *pip,FILEBUF *fbp,cchar *kn,cchar *hp,int hl)
 
 	if ((rs = filebuf_writehdrkey(fbp,kn)) >= 0) {
 	    const int	mcols = lip->msgcols ;
-	    int		indent = rs ;
+	    int		ind = rs ;
 	    wlen += rs ;
-	    rs = procprinthdr_line(pip,fbp,mcols,ln,indent,hp,hl) ;
+	    rs = procprinthdr_line(pip,fbp,mcols,ln,ind,hp,hl) ;
 	    wlen += rs ;
 	} /* end if */
 
@@ -6042,7 +6026,7 @@ static int procprinthdr_mid(PROGINFO *pip,FILEBUF *fbp,cchar *mid,int ml)
 	        ml = strlen(mid) ;
 
 	    if ((rs = filebuf_writehdrkey(fbp,kn)) >= 0) {
-	        int	indent = rs ;
+	        int	ind = rs ;
 	        int	hdrlen = (2 + ml + 2) ;
 	        int	size ;
 	        char	*hdrbuf ;
@@ -6056,7 +6040,7 @@ static int procprinthdr_mid(PROGINFO *pip,FILEBUF *fbp,cchar *mid,int ml)
 	            rs = sncpy3(hdrbuf,hdrlen," <",mid,">") ;
 	            hl = rs ;
 	            if (rs >= 0) {
-	                rs = procprinthdr_line(pip,fbp,mcols,ln,indent,hp,hl) ;
+	                rs = procprinthdr_line(pip,fbp,mcols,ln,ind,hp,hl) ;
 	                wlen += rs ;
 	            }
 
@@ -7609,21 +7593,28 @@ static int locinfo_mkenvfrom(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
-	int		len = 0 ;
+	int		ml = 0 ;
 
 	if (lip->envfrom == NULL) {
+	    int		malen = 1 ;	/* for the '!' character */
 	    cchar	*nn = pip->nodename ;
 	    cchar	*un = pip->username ;
-	    char	envfrom[MAILADDRLEN + 1] ;
-	    if ((rs = sncpy3(envfrom,MAILADDRLEN,nn,"!",un)) >= 0) {
-	        cchar	**vpp = &lip->envfrom ;
-	        len = rs ;
-	        rs = locinfo_setentry(lip,vpp,envfrom,len) ;
-	    }
-	} else
-	    len = strlen(lip->envfrom) ;
+	    char	*mabuf ;
+	    malen += (strlen(nn)+1) ;
+	    malen += (strlen(un)+1) ;
+	    if ((rs = uc_malloc((malen+1),&mabuf)) >= 0) {
+		if ((rs = sncpy3(mabuf,malen,nn,"!",un)) >= 0) {
+		    cchar	**vpp = &lip->envfrom ;
+		    ml = rs ;
+		    rs = locinfo_setentry(lip,vpp,mabuf,ml) ;
+		}
+		uc_free(mabuf) ;
+	    } /* end if (m-a-f) */
+	} else {
+	    ml = strlen(lip->envfrom) ;
+	}
 
-	return (rs >= 0) ? len : rs ;
+	return (rs >= 0) ? ml : rs ;
 }
 /* end subroutine (locinfo_mkenvfrom) */
 
@@ -7643,12 +7634,49 @@ static int locinfo_mkenvdate(LOCINFO *lip)
 	    timestr_edate(lip->msgtime,tbuf) ;
 	    len = strlen(tbuf) ;
 	    rs = locinfo_setentry(lip,vpp,tbuf,len) ;
-	} else
+	} else {
 	    len = strlen(lip->envdate) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (locinfo_mkenvdate) */
+
+
+static int locinfo_mkenv(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		rl = 0 ;
+	if (lip->env == NULL) {
+	    if ((rs = locinfo_mkenvfrom(lip)) >= 0) {
+	        if ((rs = locinfo_mkenvdate(lip)) >= 0) {
+	            BUFFER	b ;
+		    const int	flen = strlen(lip->envfrom) ;
+		    const int	dlen = strlen(lip->envdate) ;
+	            if ((rs = buffer_start(&b,(flen+dlen+10))) >= 0) {
+		        cchar	*rbuf ;
+	                buffer_strw(&b,"From ",5) ;
+	                buffer_strw(&b,lip->envfrom,flen) ;
+	                buffer_char(&b,' ') ;
+	                buffer_strw(&b,lip->envdate,dlen) ;
+	                buffer_char(&b,'\n') ;
+	                if ((rs = buffer_get(&b,&rbuf)) >= 0) {
+	                    cchar	**vpp = &lip->env ;
+	                    rl = rs ;
+	                    rs = locinfo_setentry(lip,vpp,rbuf,rl) ;
+	                }
+	                rs1 = buffer_finish(&b) ;
+		        if (rs >= 0) rs = rs1 ;
+	            } /* end if (buffer) */
+	        }
+	    }
+	} else {
+	    rl = strlen(lip->env) ;
+	} /* end if (non-NULL) */
+	return (rs >= 0) ? rl : rs ;
+}
+/* end subroutine (locinfo_mkenv) */
 
 
 /* we make a new one each time since they are unique for each message */
