@@ -8,7 +8,6 @@
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_DEBUGENUM	0		/* enumerate MIME types */
 #define	CF_DEBUGTMTIME	1		/* debug TMTIME ops */
-#define	CF_FORCEINPUT	0		/* special option */
 #define	CF_PROGMSGID	1		/* use 'progmsgid(3dam)' ? */
 #define	CF_LOCSETENT	0		/* |locinfo_setentry()| */
 
@@ -45,7 +44,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<sigman.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>
@@ -60,6 +58,7 @@
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
+#include	"kshlib.h"
 #include	"mailmsgatt.h"
 #include	"mailmsgattent.h"
 #include	"ha.h"
@@ -185,8 +184,11 @@ struct procmore {
 
 /* forward references */
 
+static int	mainsub(int,cchar **,cchar **) ;
+
 static int	usage(PROGINFO *) ;
 
+static int	procatt(PROGINFO *,MAILMSGATTENT *,cchar *,int) ;
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	proclogsize(PROGINFO *,cchar *) ;
 static int	process(PROGINFO *,PROCMORE *) ;
@@ -228,37 +230,8 @@ static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 static int	locinfo_prstat(LOCINFO *) ;
 #endif /* CF_LOCPRSTAT */
 
-static void	sighand_int(int) ;
-
 
 /* local variables */
-
-static volatile int	if_exit ;
-static volatile int	if_int ;
-
-static const int	sigblocks[] = {
-	SIGUSR1,
-	SIGUSR2,
-	SIGHUP,
-	SIGCHLD,
-	0
-} ;
-
-static const int	sigignores[] = {
-	SIGPIPE,
-	SIGPOLL,
-#if	defined(SIGXFSZ)
-	SIGXFSZ,
-#endif
-	0
-} ;
-
-static const int	sigints[] = {
-	SIGINT,
-	SIGTERM,
-	SIGQUIT,
-	0
-} ;
 
 static const char *argopts[] = {
 	"ROOT",
@@ -364,14 +337,32 @@ enum akonames {
 /* exported subroutines */
 
 
-int main(int argc,cchar **argv,cchar **envv)
+int main(int argc,cchar *argv[],cchar *envv[])
+{
+	int		rs ;
+	int		rs1 ;
+	int		ex = EX_OK ;
+	if ((rs = lib_mainbegin(envv,NULL)) >= 0) {
+	    ex = mainsub(argc,argv,envv) ;
+	    rs1 = lib_mainend() ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (lib-main) */
+	if ((rs < 0) && (ex == EX_OK)) ex = EX_DATAERR ;
+	return ex ;
+}
+/* end subroutine (main) */
+
+
+/* local subroutines */
+
+
+static int mainsub(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
 	ARGINFO		ainfo ;
 	MAILMSGATT	atts ;
 	MAILMSGATTENT	ie ;
-	SIGMAN		sm ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	PARAMOPT	headers ;
@@ -385,6 +376,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
+	int		cl ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_usage = FALSE ;
@@ -401,17 +393,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*ofname = NULL ;
 	const char	*cfname = NULL ;
 	const char	*atfname = NULL ;
-	const char	*ifname = NULL ;
 	const char	*datestr = NULL ;
 	const char	*str_mailer = NULL ;
 	const char	*cp ;
-
-
-	if_exit = 0 ;
-	if_int = 0 ;
-
-	rs = sigman_start(&sm,sigblocks,sigignores,sigints,sighand_int) ;
-	if (rs < 0) goto badsigman ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -729,37 +713,29 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* input file for the main text portion of the message */
 	                case argopt_if:
+			    cp = NULL ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            ifname = avp ;
+	                        if (avl) {
+	                            cp = avp ;
+				    cl = avl ;
+				}
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                ifname = argp ;
+	                            if (argl) {
+	                                cp = argp ;
+				        cl = argl ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
-	                    if (rs >= 0) {
-	                        if ((ifname != NULL) && (ifname[0] != '\0')) {
-	                            const char	*ct ;
+	                    if ((rs >= 0) && (cp != NULL)) {
 	                            f_input = TRUE ;
-#if	CF_FORCEINPUT
-	                            ct = (lip->content_type == NULL) ?
-	                                "text" : lip->content_type ;
-#else
-	                            ct = lip->content_type ;
-#endif /* CF_FORCEINPUT */
-	                            rs = mailmsgattent_start(&ie,
-	                                ct,lip->content_encoding,
-	                                ifname,-1) ;
-	                        } else
-	                            pip->f.noinput = TRUE ;
-	                    } else
-	                        rs = SR_INVALID ;
+				    rs = procatt(pip,&ie,cp,cl) ;
+	                    }
 	                    break ;
 
 /* specifiy an extra message header */
@@ -1002,17 +978,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                const char	*ct ;
+					cp = argp ;
+					cl = argl ;
 	                                f_input = TRUE ;
-#if	CF_FORCEINPUT
-	                                ct = (lip->content_type == NULL) ?
-	                                    "text" : lip->content_type ;
-#else
-	                                ct = lip->content_type ;
-#endif /* CF_FORCEINPUT */
-	                                rs = mailmsgattent_start(&ie,
-	                                    ct,lip->content_encoding,
-	                                    argp,-1) ;
+				        rs = procatt(pip,&ie,cp,cl) ;
 	                            } else
 	                                pip->f.noinput = TRUE ;
 	                        } else
@@ -1037,8 +1006,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
+	                            if (argl) {
 	                                rs = keyopt_loads(&akopts,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1322,10 +1292,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	        ex = mapex(mapexs,rs) ;
 	        break ;
 	    } /* end switch */
-	} else if (if_exit) {
-	    ex = EX_TERM ;
-	} else if (if_int)
-	    ex = EX_INTR ;
+	} else if (rs >= 0) {
+	    if ((rs = lib_sigterm()) < 0) {
+	        ex = EX_TERM ;
+	    } else if ((rs = lib_sigintr()) < 0) {
+	        ex = EX_INTR ;
+	    }
+	} /* end if */
 
 retearly:
 	if (pip->debuglevel > 0) {
@@ -1407,9 +1380,6 @@ badprogstart:
 	debugclose() ;
 #endif
 
-	sigman_finish(&sm) ;
-
-badsigman:
 	return ex ;
 
 /* bad stuff */
@@ -1421,27 +1391,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (main) */
-
-
-/* local subroutines */
-
-
-static void sighand_int(int sn)
-{
-	switch (sn) {
-	case SIGINT:
-	    if_int = TRUE ;
-	    break ;
-	case SIGKILL:
-	    if_exit = TRUE ;
-	    break ;
-	default:
-	    if_exit = TRUE ;
-	    break ;
-	} /* end switch */
-}
-/* end subroutine (sighand_int) */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)
@@ -1476,6 +1426,18 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
+static int procatt(PROGINFO *pip,MAILMSGATTENT *iep,cchar *cp,int cl)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs ;
+	cchar		*ce = lip->content_encoding ;
+	cchar		*ct = lip->content_type ;
+	rs = mailmsgattent_start(iep,ct,ce,cp,cl) ;
+	return rs ;
+}
+/* end subroutine (procatt) */
+
+
 /* process the program ako-options */
 static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
@@ -1501,7 +1463,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_organization:
 	                    if (! pip->final.h_org) {
 	                        if (vl >= 0) {
@@ -1513,7 +1474,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_crnl:
 	                    if (! pip->final.crnl) {
 	                        pip->have.crnl = TRUE ;
@@ -1525,7 +1485,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_addfrom:
 	                    if (! pip->final.add_from) {
 	                        pip->have.add_from = TRUE ;
@@ -1537,7 +1496,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_addorg:
 	                    if (! pip->final.add_org) {
 	                        pip->have.add_org = TRUE ;
@@ -1549,7 +1507,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_addface:
 	                    if (! pip->final.add_face) {
 	                        pip->have.add_face = TRUE ;
@@ -1561,7 +1518,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_addreplyto:
 	                    if (! pip->final.add_replyto) {
 	                        pip->have.add_replyto = TRUE ;
@@ -1573,7 +1529,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_addsender:
 	                    if (! pip->final.add_sender) {
 	                        pip->have.add_sender = TRUE ;
@@ -1585,7 +1540,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_inline:
 	                    if (! pip->final.dis_inline) {
 	                        pip->have.dis_inline = TRUE ;
@@ -1597,7 +1551,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_mime:
 	                    if (! pip->final.mime) {
 	                        pip->have.mime = TRUE ;
@@ -1609,11 +1562,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1820,7 +1771,7 @@ static int procmore(PROGINFO *pip,PROCMORE *mp)
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
 	        EMA_ENT	*ep ;
-	        int		i ;
+	        int	i ;
 	        debugprintf("main: addresses\n") ;
 	        for (i = 0 ; ema_get(&adds[ha_to],i,&ep) >= 0 ; i += 1) {
 	            debugprintf("main: a=%s\n",ep->ap) ;
@@ -1835,19 +1786,18 @@ static int procmore(PROGINFO *pip,PROCMORE *mp)
 	        MIMETYPES	mt ;
 	        if ((rs = procmime_begin(pip,&mt)) >= 0) {
 	            if ((rs = procdatestr_begin(pip,datestr)) >= 0) {
-	                EMA		*adds = mp->adds ;
-	                PARAMOPT	*hdrp = mp->hdrp ;
-	                MAILMSGATTENT	*iep = mp->iep ;
-	                MAILMSGATT	*attp = mp->attp ;
-	                const char	*ofn = mp->ofn ;
-
-	                if (pip->open.logprog) {
-			    logmsginfo(pip,adds,hdrp) ;
+			{
+	                    EMA			*adds = mp->adds ;
+	                    PARAMOPT		*hdrp = mp->hdrp ;
+	                    MAILMSGATTENT	*iep = mp->iep ;
+	                    MAILMSGATT		*attp = mp->attp ;
+	                    const char		*ofn = mp->ofn ;
+	                    if (pip->open.logprog) {
+			        logmsginfo(pip,adds,hdrp) ;
+			    }
+	                    rs = procmsg(pip,ofn,adds,hdrp,&mt,iep,attp) ;
+	                    recips = rs ;
 			}
-
-	                rs = procmsg(pip,ofn,adds,hdrp,&mt,iep,attp) ;
-	                recips = rs ;
-
 	                rs1 = procdatestr_end(pip) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (procdatestr) */
@@ -2349,16 +2299,17 @@ static int procmime_begin(PROGINFO *pip,MIMETYPES *mtp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    const char	*cp = "gif" ;
+	    int		rs2 ;
+	    cchar	*cp = "gif" ;
 	    char	tbuf[MAXPATHLEN+1] ;
 	    debugprintf("main: mimetypes get\n") ;
-	    rs = mimetypes_fetch(mtp,cp,NULL,tbuf) ;
+	    rs2 = mimetypes_fetch(mtp,cp,NULL,tbuf) ;
 	    debugprintf("main: mimetypes ext=%s rs=%d typespec=%s\n",
-	        cp,rs,tbuf) ;
+	        cp,rs2,tbuf) ;
 	    cp = "jpg" ;
-	    mimetypes_fetch(mtp,cp,NULL,tbuf) ;
+	    rs2 = mimetypes_fetch(mtp,cp,NULL,tbuf) ;
 	    debugprintf("main: mimetypes ext=%s rs=%d typespec=%s\n",
-	        cp,rs,tbuf) ;
+	        cp,rs2,tbuf) ;
 	}
 #endif /* CF_DEBUG */
 

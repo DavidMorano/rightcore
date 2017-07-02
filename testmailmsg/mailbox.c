@@ -118,6 +118,9 @@ extern int	tmpmailboxes(char *,int) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	lockend(int,int,int,int) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
+extern int	filebuf_writefd(FILEBUF *,char *,int,int,int) ;
+extern int	filebuf_writehdr(FILEBUF *,cchar *,int) ;
+extern int	filebuf_writehdrval(FILEBUF *,cchar *,int) ;
 extern int	hdrextnum(const char *,int) ;
 extern int	iceil(int,int) ;
 extern int	isprintlatin(int) ;
@@ -196,10 +199,6 @@ static int liner_finish(LINER *) ;
 static int liner_read(LINER *,cchar **) ;
 static int liner_done(LINER *) ;
 static int liner_seek(LINER *,int) ;
-
-static int filebuf_writefd(FILEBUF *,char *,int,int,int) ;
-static int filebuf_writehdr(FILEBUF *,const char *,int) ;
-static int filebuf_writehdrval(FILEBUF *,cchar *,int) ;
 
 static int mailboxpi_start(MAILBOXPI *,LINER *,int) ;
 static int mailboxpi_finish(MAILBOXPI *) ;
@@ -1676,6 +1675,7 @@ static int liner_seek(LINER *lsp,int inc)
 
 static int mailboxpi_finish(MAILBOXPI *pip)
 {
+	if (pip == NULL) return SR_FAULT ;
 	return SR_OK ;
 }
 /* end subroutine (mailboxpi_finish) */
@@ -1686,132 +1686,6 @@ static int mailboxpi_havemsg(MAILBOXPI *pip)
 	return (pip->f.env || pip->f.hdr || pip->f.eoh) ;
 }
 /* end subroutine (mailboxpi_havemsg) */
-
-
-/* write to the 'filebuf' file *from* the given FD */
-static int filebuf_writefd(FILEBUF *fbp,char *bp,int bl,int mfd,int len)
-{
-	int		rs = SR_OK ;
-	int		buflen ;
-	int		rlen = len ;
-	int		ml ;
-	int		wlen = 0 ;
-
-	while ((rs >= 0) && (rlen > 0)) {
-	    ml = MIN(rlen,bl) ;
-	    rs = u_read(mfd,bp,ml) ;
-	    buflen = rs ;
-	    if (rs <= 0) break ;
-
-	    rs = filebuf_write(fbp,bp,buflen) ;
-	    wlen += rs ;
-
-	    rlen -= buflen ;
-	} /* end while */
-
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (filebuf_writefd) */
-
-
-static int filebuf_writehdr(FILEBUF *fbp,cchar *sp,int sl)
-{
-	int		rs ;
-	int		kl ;
-	int		vl = -1 ;
-	int		wlen = 0 ;
-	const char	*tp ;
-	const char	*vp = NULL ;
-
-#if	CF_SAFE
-	if (sp == NULL)
-	    return SR_FAULT ;
-#endif
-
-	if (sl < 0)
-	    sl = strlen(sp) ;
-
-	kl = sl ;
-	if ((tp = strnchr(sp,sl,'=')) != NULL) {
-	    kl = (tp - sp) ;
-	    vp = (tp+1) ;
-	    vl = ((sp+sl)-vp) ;
-	}
-
-	if (kl > 0) {
-	    if ((rs = filebuf_write(fbp,sp,kl)) >= 0) {
-	        wlen += rs ;
-	        if ((rs = filebuf_write(fbp,": ",2)) >= 0) {
-	            wlen += rs ;
-	            if (vl > 0) {
-	                rs = filebuf_writehdrval(fbp,vp,vl) ;
-	                wlen += rs ;
-	            } else {
-	                rs = filebuf_print(fbp,sp,0) ;
-	                wlen += rs ;
-	            }
-	        }
-	    }
-	}
-
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (filebuf_writehdr) */
-
-
-static int filebuf_writehdrval(FILEBUF *fbp,cchar *vp,int vl)
-{
-	const int	ln = 0 ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		wlen = 0 ;
-
-	if (vp != NULL) {
-	    MAILMSGHDRFOLD	folder, *fp = &folder ;
-	    const int		mcols = MSGCOLS ;
-	    int			i = 0 ;
-	    int			ll ;
-	    const char		*lp ;
-
-	    if (vl < 0) vl = strlen(vp) ;
-
-	    while (vl && CHAR_ISWHITE(*vp)) {
-	        vp += 1 ;
-	        vl -= 1 ;
-	    }
-
-	    if ((rs = mailmsghdrfold_start(fp,mcols,ln,vp,vl)) >= 0) {
-	        int	indent = wlen ;
-
-	        while (rs >= 0) {
-	            rs = mailmsghdrfold_get(fp,indent,&lp) ;
-	            if (rs <= 0) break ;
-	            ll = rs ;
-
-	            if ((rs >= 0) && (i > 0)) {
-	                rs = filebuf_write(fbp," ",1) ;
-	                wlen += rs ;
-	            }
-
-	            if (rs >= 0) {
-	                rs = filebuf_print(fbp,lp,ll) ;
-	                wlen += rs ;
-	            }
-
-	            indent = 1 ;
-	            i += 1 ;
-
-	        } /* end while */
-
-	        rs1 = mailmsghdrfold_finish(fp) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (mailmsghdrfold) */
-
-	} /* end if (non-null) */
-
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (mailbox_writehdrval) */
 
 
 static int mailboxpi_start(MAILBOXPI *pip,LINER *lsp,int mi)

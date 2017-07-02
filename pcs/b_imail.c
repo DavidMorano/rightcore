@@ -267,7 +267,7 @@ extern int	mkpr(char *,int,cchar *,cchar *) ;
 extern int	mktmpuserdir(char *,cchar *,cchar *,mode_t) ;
 extern int	prmktmpdir(cchar *,char *,cchar *,cchar *,mode_t) ;
 extern int	prsetfname(cchar *,char *,cchar *,int,int,
-cchar *,cchar *,cchar *) ;
+			cchar *,cchar *,cchar *) ;
 extern int	localgetorg(cchar *,char *,int,cchar *) ;
 extern int	initnow(struct timeb *,char *,int) ;
 extern int	hdrextid(char *,int,cchar *,int) ;
@@ -276,7 +276,7 @@ extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
 extern int	vecstr_adduniq(vecstr *,cchar *,int) ;
 extern int	vecstr_addcspath(vecstr *) ;
 extern int	ema_first(EMA *,cchar **) ;
-extern int	filebuf_hdrkey(FILEBUF *,cchar *) ;
+extern int	filebuf_writehdrkey(FILEBUF *,cchar *) ;
 extern int	filebuf_printcont(FILEBUF *,int,cchar *,int) ;
 extern int	stremacmp(cchar *,cchar *) ;
 extern int	ncolstr(int,int,cchar *,int) ;
@@ -5718,7 +5718,7 @@ static int procmsghdr(PROGINFO *pip,FILEBUF *fbp,int mi,cchar kn[],int f_nz)
 	        c = 0 ;
 
 	        if (! f_nz) {
-	            rs = filebuf_hdrkey(fbp,kn) ;
+	            rs = filebuf_writehdrkey(fbp,kn) ;
 	            wlen += rs ;
 	            indent = rs ;
 	        }
@@ -5756,7 +5756,7 @@ static int procmsghdr(PROGINFO *pip,FILEBUF *fbp,int mi,cchar kn[],int f_nz)
 #endif
 
 	                    if (f_nz && (c == 0)) {
-	                        rs = filebuf_hdrkey(fbp,kn) ;
+	                        rs = filebuf_writehdrkey(fbp,kn) ;
 	                        wlen += rs ;
 	                        indent = rs ;
 	                    }
@@ -5828,7 +5828,7 @@ int		f_nz ;
 	mcols = lip->msgcols ;
 
 	if (! f_nz) {
-	    rs = filebuf_hdrkey(fbp,kn) ;
+	    rs = filebuf_writehdrkey(fbp,kn) ;
 	    wlen += rs ;
 	    indent = rs ;
 	}
@@ -5855,7 +5855,7 @@ int		f_nz ;
 #endif
 
 	            if (f_nz && (c == 0)) {
-	                rs = filebuf_hdrkey(fbp,kn) ;
+	                rs = filebuf_writehdrkey(fbp,kn) ;
 	                wlen += rs ;
 	                indent = rs ;
 	            }
@@ -6014,7 +6014,7 @@ static int procprinthdr(PROGINFO *pip,FILEBUF *fbp,cchar *kn,cchar *hp,int hl)
 	        hp,strlinelen(hp,hl,50)) ;
 #endif
 
-	if ((rs = filebuf_hdrkey(fbp,kn)) >= 0) {
+	if ((rs = filebuf_writehdrkey(fbp,kn)) >= 0) {
 	    const int	mcols = lip->msgcols ;
 	    int		indent = rs ;
 	    wlen += rs ;
@@ -6041,7 +6041,7 @@ static int procprinthdr_mid(PROGINFO *pip,FILEBUF *fbp,cchar *mid,int ml)
 	    if (ml < 0)
 	        ml = strlen(mid) ;
 
-	    if ((rs = filebuf_hdrkey(fbp,kn)) >= 0) {
+	    if ((rs = filebuf_writehdrkey(fbp,kn)) >= 0) {
 	        int	indent = rs ;
 	        int	hdrlen = (2 + ml + 2) ;
 	        int	size ;
@@ -6282,7 +6282,7 @@ static int procprinthdr_xpri(PROGINFO *pip,FILEBUF *fbp)
 
 	if (lip->msgpriority > 0) {
 	    cchar	*kn = HN_XPRIORITY ;
-	    if ((rs = filebuf_hdrkey(fbp,kn)) >= 0) {
+	    if ((rs = filebuf_writehdrkey(fbp,kn)) >= 0) {
 	        int	pi = lip->msgpriority ;
 	        wlen += rs ;
 	        rs = filebuf_printf(fbp," %u (%s)\n",pi,msgpris[pi]) ;

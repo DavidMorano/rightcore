@@ -15,6 +15,20 @@
 	We make a character (an 8-bit entity) out of an integer.  We do this
 	quite simply.
 
+	Synopsis:
+
+	int mkcaselower(char *rp,int rl)
+
+	Arguments:
+
+	rp		source and destination buffer
+	rl		length of source string
+
+	Returns:
+
+	<0		error
+	>=0		length of result
+
 
 *******************************************************************************/
 

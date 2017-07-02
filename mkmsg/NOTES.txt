@@ -1,45 +1,43 @@
 MKMSG
 
-All attachments, that is message parts other than the first text part,
-are given 'text/plain' content types rather than just 'text' or none at
-all (the preferred treatment) because some mailers (I won't name names
-but it is spelled 'Netscape') mess up without the full content type and
-subtype!
+All attachments, that is message parts other than the first text part, are given
+'text/plain' content types rather than just 'text' or none at all (the preferred
+treatment) because some mailers (I won't name names but it is spelled
+'Netscape') mess up without the full content type and subtype!
 
 = ReadMe
 
-This program is used to create MIME encoded messages.  This program is
-similar to the popular 'mpack' from CMU but is quite a bit more
-flexible in general.  This program currently does NOT produce MD5
-digests on message parts nor does it generate content dispositions.
-It does generate any number of message parts with content encodings of :
+This program is used to create MIME encoded messages. This program is similar to
+the popular MPACK from CMU but is quite a bit more flexible in general. This
+program currently does NOT produce MD5 digests on message parts nor does it
+generate content dispositions. It does generate any number of message parts with
+content encodings of:
 
 - plain 7 bit test
 - plain 8 bit text (ISO Latin 1 assumed)
 - base64
 - binary
 
-The choice of content encoding is made dynamically by the program by
-analyzing the content part bodies.  This program also produces 
-'content-lines' headers for all text parts.
+The choice of content encoding is made dynamically by the program by analyzing
+the content part bodies. This program also produces 'content-lines' headers for
+all text parts.
 
 Synopsis:
 
-$ mkmsg [-t content_type] [-e encoding] 
-	[-s subject] 
-	[-f from] [address [...]] [-c carbon_copy] 
- 	[-a attachment_spec] 
-	[-d datespec]
-	[-of output] [-n]
+$ mkmsg [-t <content_type>] [-e <encoding>] 
+	[-s <subject>] 
+	[-f <from>] [<address> [...]] [-c <carbon_copy>] 
+ 	[-a <attachment_spec>] 
+	[-d <datespec>]
+	[-of <output>] [-n]
 
-where:
+Arguments:
 
 content_spec := type [ "/" subtype ]
 
 encoding := base64 | quoted_printable
 
-attachment_spec := { extension "=" filename } | 
-			filename |
+attachment_spec := filename | { extension "=" filename } | 
 			{ type/subtype "=" filename }
 
 datespec 
@@ -68,11 +66,11 @@ $ mkmsg -i image/png= > out.msg -s "this is a PNG image" mary@place.com
 
 The following input form:
 
-$ mkmsg [-t content_type] [-e encoding] < input.txt
+$ mkmsg [-t <content_type>] [-e <encoding>] < input.txt
 
-only works for standarf input of plain-text !  You cannot use if for
-other artbitary input types or encodings.  Sorry about this !  In those
-cases, use the input form above ; namely :
+only works for standarf input of plain-text! You cannot use if for other
+artbitary input types or encodings. Sorry about this! In those cases, use the
+input form above ; namely:
 
 $ mkmsg -i gif=
 
@@ -81,8 +79,8 @@ or something like:
 $ mkmsg -t gif -e base64 -i -
 
 
-If you want additional headers (like 'return-receipt-to' or 'errors-to'),
-you can add them with the '-header <text>' invocation option.  For example :
+If you want additional headers (like 'return-receipt-to' or 'errors-to'), you
+can add them with the '-header <text>' invocation option. For example:
 
 $ mkmsg < input.txt -header "errors-to= me@here.com" mary@there.com
 
@@ -92,7 +90,7 @@ Here is another general example:
 $ mkmsg -r ~/maillists/my.list < input.txt -header "errors-to= me@here.com"
 
 
-or if you wanted delivery confirmation :
+or if you wanted delivery confirmation:
 
 $ mkmsg him@there.com < input.txt -header "return-receipt-to= me@here.com"
 

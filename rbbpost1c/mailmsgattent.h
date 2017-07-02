@@ -42,12 +42,12 @@ extern "C" {
 
 extern int mailmsgattent_start(MAILMSGATTENT *,cchar *,cchar *,cchar *,int) ;
 extern int mailmsgattent_type(MAILMSGATTENT *,MIMETYPES *) ;
-extern int mailmsgattent_typeset(MAILMSGATTENT *,const char *,const char *) ;
+extern int mailmsgattent_typeset(MAILMSGATTENT *,cchar *,cchar *) ;
 extern int mailmsgattent_isplaintext(MAILMSGATTENT *) ;
 extern int mailmsgattent_finish(MAILMSGATTENT *) ;
-extern int mailmsgattent_code(MAILMSGATTENT *,const char *) ;
+extern int mailmsgattent_code(MAILMSGATTENT *,cchar *) ;
 extern int mailmsgattent_setcode(MAILMSGATTENT *,int) ;
-extern int mailmsgattent_analyze(MAILMSGATTENT *,const char *) ;
+extern int mailmsgattent_analyze(MAILMSGATTENT *,cchar *) ;
 
 #ifdef	__cplusplus
 }

@@ -1,1 +1,1 @@
-this is a test of clear text ê
+this is a test of clear têxt

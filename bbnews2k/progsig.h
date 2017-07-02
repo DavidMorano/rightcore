@@ -19,7 +19,6 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
-#include	<sesmsg.h>
 
 
 #ifndef	TYPEDEF_CCHAR

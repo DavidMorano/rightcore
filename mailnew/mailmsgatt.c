@@ -40,7 +40,6 @@
 
 #include	<vsystem.h>
 #include	<vecitem.h>
-#include	<mallocstuff.h>
 #include	<localmisc.h>
 
 #include	"mailmsgatt.h"
@@ -52,13 +51,6 @@
 
 
 /* external subroutines */
-
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sisub(const char *,int,const char *) ;
-extern int	matcasestr(const char **,const char *,int) ;
-extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
-
-extern char	*strwcpy(char *,const char *,int) ;
 
 
 /* forward references */
@@ -130,7 +122,8 @@ int mailmsgatt_add(MAILMSGATT *rhp,cchar *ct,cchar *ce,cchar *nbuf,int nlen)
 #endif
 
 	if ((rs = mailmsgattent_start(&ve,ct,ce,nbuf,nlen)) >= 0) {
-	    rs = vecitem_add(rhp,&ve,sizeof(MAILMSGATTENT)) ;
+	    const int	esize = sizeof(MAILMSGATTENT) ;
+	    rs = vecitem_add(rhp,&ve,esize) ;
 	    if (rs < 0)
 	        mailmsgattent_finish(&ve) ;
 	} /* end if */
@@ -148,7 +141,7 @@ int mailmsgatt_add(MAILMSGATT *rhp,cchar *ct,cchar *ce,cchar *nbuf,int nlen)
 int mailmsgatt_del(MAILMSGATT *alp,int i)
 {
 	MAILMSGATTENT	*ep ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 
 	if (alp == NULL) return SR_FAULT ;

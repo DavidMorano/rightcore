@@ -21,6 +21,10 @@
         These subroutines are extra methods to the MAILMSGATTENT object. See the
         code for details!
 
+	Grammar:
+		content_spec := type | { type "/" subtype } | file_extension
+		attspec := filename | { content_spec "=" filename }
+
 
 *******************************************************************************/
 
@@ -38,11 +42,12 @@
 
 #include	<vsystem.h>
 #include	<bfile.h>
-#include	<mailmsgattent.h>
-#include	<contentencodings.h>
 #include	<contypevals.h>
+#include	<contentencodings.h>
 #include	<ismmclass.h>
 #include	<localmisc.h>
+
+#include	"mailmsgattent.h"
 
 
 /* local defines */
@@ -92,6 +97,11 @@ int		mailmsgattent_analyze(MAILMSGATTENT *,const char *) ;
 int		mailmsgattent_finish(MAILMSGATTENT *) ;
 int		mailmsgattent_isplaintext(MAILMSGATTENT *) ;
 
+static int	mailmsgattent_startfn(MAILMSGATTENT *,cchar *,int) ;
+static int	mailmsgattent_startct(MAILMSGATTENT *,cchar *,int) ;
+static int	mailmsgattent_startctpri(MAILMSGATTENT *,cchar *,int) ;
+static int	mailmsgattent_startctsub(MAILMSGATTENT *,cchar *,int) ;
+static int	mailmsgattent_checkatt(MAILMSGATTENT *) ;
 static int	mailmsgattent_analyzer(MAILMSGATTENT *,bfile *,bfile *) ;
 
 static int	freeit(void *) ;
@@ -104,217 +114,72 @@ static int	freeit(void *) ;
 
 
 /* start a new attachment (w/ default content-type and content-encoding) */
-int mailmsgattent_start(MAILMSGATTENT *ep,cchar *ct,cchar *ce,
+int mailmsgattent_start(MAILMSGATTENT *op,cchar *ct,cchar *ce,
 		cchar *nbuf,int nlen)
 {
 	int		rs = SR_OK ;
-	int		i, i2, j ;
-	int		fnlen ;
-	int		sl, cl ;
-	const char	*fn ;
-	const char	*sp, *cp ;
-	char		fname[MAXPATHLEN + 1] ;
+	int		si ;
 
 #if	CF_DEBUGS
 	debugprintf("mailmsgattent_start: ent\n") ;
 #endif
 
-	if (ep == NULL) return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 	if (nbuf == NULL) return SR_FAULT ;
 
 	if (nlen < 0) nlen = strlen(nbuf) ;
 
-/* yes, amazingly, the C language disallows this to be defined statically */
-
 /* continue */
 
-	memset(ep,0,sizeof(MAILMSGATTENT)) ;
-	ep->cte = -1 ;
-	ep->clen = -1 ;
-	ep->clines = -1 ;
+	memset(op,0,sizeof(MAILMSGATTENT)) ;
+	op->cte = -1 ;
+	op->clen = -1 ;
+	op->clines = -1 ;
 
 #if	CF_DEBUGS
-	debugprintf("mailmsgattent_start: continuing\n") ;
+	debugprintf("mailmsgattent_start: cont\n") ;
 #endif
 
-	if ((i = sisub(nbuf,nlen,"=")) >= 0) {
-	    sp = (nbuf+i) ;
-
-#if	CF_DEBUGS
-	    debugprintf("mailmsgattent_start: split type=filename\n") ;
-#endif
-
-	    sp += 1 ;
-	    if (nlen < 0) {
-	        sl = strlen(sp) ;
-	    } else {
-	        sl = (nlen - i - 1) ;
+	if ((si = sisub(nbuf,nlen,"=")) >= 0) {
+	    const int	fl = (nlen-si-1) ;
+	    cchar	*fp = (nbuf+si+1) ;
+	    if ((rs = mailmsgattent_startfn(op,fp,fl)) >= 0) {
+	    	rs = mailmsgattent_startct(op,nbuf,si) ;
 	    }
-
-	    fnlen = sfshrink(sp,sl,&fn) ;
-
-	    if (fn[fnlen] != '\0') {
-	        if (fnlen > (MAXPATHLEN + 1)) fnlen = (MAXPATHLEN - 1) ;
-	        strwcpy(fname,fn,fnlen) ;
-	        fn = fname ;
-	    }
-
-	    if (strcmp(fn,"-") != 0) {
-
-#if	CF_DEBUGS
-	        debugprintf("mailmsgattent_start: not STDIN fn=%s\n",fn) ;
-#endif
-
-	        rs = perm(fn,-1,-1,NULL,R_OK) ;
-
-#if	CF_DEBUGS
-	        debugprintf("mailmsgattent_start: perm() rs=%d\n",rs) ;
-#endif
-
-	        if (rs < 0)
-	            goto ret0 ;
-
-	    }
-
-	    if ((ep->attfname = mallocstrw(fn,fnlen)) == NULL)
-	        goto badmem ;
-
-	    if ((i2 = sisub(nbuf,i,"/")) >= 0) {
-	        sp = (nbuf+i) ;
-
-/* type */
-
-	        cl = sfshrink(nbuf,i2,&cp) ;
-
-	        ep->type = mallocstrw(cp,cl) ;
-
-/* subtype */
-
-	        cl = sfshrink((nbuf + i2 + 1),(i - i2 - 1),&cp) ;
-
-	        ep->subtype = mallocstrw(cp,cl) ;
-	        if ((ep->type == NULL) || (ep->subtype == NULL))
-	            goto badmem ;
-
-	    } else if (i > 0) {
-
-	        cl = sfshrink(nbuf,i,&cp) ;
-
-	        if ((j = matcasestr(contypevals,cp,cl)) >= 0) {
-
-	            ep->type = mallocstr(contypevals[j]) ;
-	            if (ep->type == NULL)
-	                goto badmem ;
-
-	        } else {
-
-	            ep->ext = mallocstrw(cp,cl) ;
-	            if (ep->ext == NULL)
-	                goto badmem ;
-
-	        } /* end if */
-
-	    } /* end if */
-
 	} else {
-
-#if	CF_DEBUGS
-	    debugprintf("mailmsgattent_start: filename only\n") ;
-#endif
-
-	    fnlen = sfshrink(nbuf,nlen,&fn) ;
-
-	    if (fn[fnlen] != '\0') {
-	        if (fnlen > (MAXPATHLEN + 1)) fnlen = (MAXPATHLEN - 1) ;
-	        strwcpy(fname,fn,fnlen) ;
-	        fn = fname ;
-	    }
-
-	    if (strcmp(fn,"-") != 0) {
-
-#if	CF_DEBUGS
-	        debugprintf("mailmsgattent_start: not STDIN fn=%s\n",fn) ;
-#endif
-
-	        rs = perm(fn,-1,-1,NULL,R_OK) ;
-
-#if	CF_DEBUGS
-	        debugprintf("mailmsgattent_start: perm() rs=%d\n",rs) ;
-#endif
-
-	        if (rs < 0) goto ret0 ;
-
-	    }
-
-	    if ((ep->attfname = mallocstrw(fn,fnlen)) == NULL)
-	        goto badmem ;
-
-	} /* end if */
-
-/* content_type */
+	    rs = mailmsgattent_startfn(op,nbuf,nlen) ;
+	}
 
 	if (rs >= 0) {
-	if ((ct != NULL) && (ep->ext == NULL) && (ep->type == NULL)) {
-
-	    cl = strlen(ct) ;
-
-	    if ((i2 = sisub(ct,cl,"/")) >= 0) {
-	        cp = (ct+i2) ;
-
-	        ep->type = mallocstrw(ct,i2) ;
-
-	        ep->subtype = mallocstrw(ct + i2 + 1,cl - i2 - 1) ;
-
-	        if ((ep->type == NULL) || (ep->subtype == NULL))
-	            goto badmem ;
-
-	    } else {
-
-	        if ((j = matcasestr(contypevals,ct,cl)) >= 0) {
-
-	            ep->type = mallocstr(contypevals[j]) ;
-	            if (ep->type == NULL)
-	                goto badmem ;
-
-	        } else {
-
-	            ep->ext = mallocstrw(ct,cl) ;
-	            if (ep->ext == NULL)
-	                goto badmem ;
-
-	        } /* end if */
-
+	   if ((ct != NULL) && (op->ext == NULL) && (op->type == NULL)) {
+	        const int	cl = strlen(ct) ;
+		rs = mailmsgattent_startct(op,ct,cl) ;
 	    } /* end if */
-
-	} /* end if (tried to use running default content-type) */
 	} /* end if (ok) */
 
 /* content_encoding */
 
 	if ((rs >= 0) && (ce != NULL)) {
-	    ep->encoding = mallocstr(ce) ;
-	    if (ep->encoding == NULL) rs = SR_NOMEM ;
+	    cchar	*enc ;
+	    if ((rs = uc_mallocstrw(ce,-1,&enc)) >= 0) {
+		op->encoding = enc ;
+	    }
 	}
 
 	if (rs >= 0) {
-	    ep->magic = MAILMSGATTENT_MAGIC ;
+	    op->magic = MAILMSGATTENT_MAGIC ;
 	} else {
-	    mailmsgattent_finish(ep) ;
+	    mailmsgattent_finish(op) ;
 	}
-
-ret0:
 
 #if	CF_DEBUGS
 	debugprintf("mailmsgattent_start: ret rs=%d\n",rs) ;
+	debugprintf("mailmsgattent_start: ret type=%s\n",op->type) ;
+	debugprintf("mailmsgattent_start: ret sub=%s\n",op->subtype) ;
+	debugprintf("mailmsgattent_start: ret ext=%s\n",op->ext) ;
 #endif
 
 	return rs ;
-
-/* bad stuff */
-badmem:
-	rs = SR_NOMEM ;
-	mailmsgattent_finish(ep) ;
-	goto ret0 ;
 }
 /* end subroutine (mailmsgattent_start) */
 
@@ -370,7 +235,7 @@ int mailmsgattent_type(MAILMSGATTENT *ep,MIMETYPES *mtp)
 	if (ep == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("mailmsgattent_type: filename=%s\n", ep->attfname) ;
+	debugprintf("mailmsgattent_type: attfname=%s\n", ep->attfname) ;
 	debugprintf("mailmsgattent_type: type=%s\n",ep->type) ;
 	debugprintf("mailmsgattent_type: ext=%s\n",ep->ext) ;
 #endif
@@ -469,7 +334,7 @@ int mailmsgattent_typeset(MAILMSGATTENT *ep,cchar *tstr,cchar *ststr)
 	if (rs >= 0) {
 
 	    if ((tstr != NULL) && (tstr[0] != '\0')) {
-	        const char	*cp ;
+	        cchar	*cp ;
 	        if ((rs = uc_mallocstrw(tstr,-1,&cp)) >= 0) {
 	            ep->type = cp ;
 	            if ((ststr != NULL) && (ststr[0] != '\0')) {
@@ -612,7 +477,7 @@ int mailmsgattent_code(MAILMSGATTENT *ep,cchar *tmpdname)
 	    rs,code,ep->encoding) ;
 #endif
 
-	if (rs >= 0)  {
+	if (rs >= 0) {
 	    ep->cte = code ;
 	}
 
@@ -664,9 +529,8 @@ int mailmsgattent_analyze(MAILMSGATTENT *ep,cchar *tmpdname)
 		auxfname[0] = '\0' ;
 	        if (S_ISREG(sb.st_mode)) {
 #if	CF_DEBUGS
-		{
-	        debugprintf("mailmsgattent_analyze: needaux=%d\n",f_needaux) ;
-		}
+	            debugprintf("mailmsgattent_analyze: needaux=%d\n",
+			f_needaux) ;
 #endif
 	            ep->clen = (int) sb.st_size ;
 	            f_needaux = FALSE ;
@@ -729,8 +593,9 @@ int mailmsgattent_analyze(MAILMSGATTENT *ep,cchar *tmpdname)
 	                    uc_free(ep->auxfname) ;
 	                    ep->auxfname = NULL ;
 	                }
-	                if (auxfname[0] != '\0')
+	                if (auxfname[0] != '\0') {
 	                    u_unlink(auxfname) ;
+			}
 	            }
 	        }
 
@@ -754,14 +619,113 @@ int mailmsgattent_analyze(MAILMSGATTENT *ep,cchar *tmpdname)
 /* end subroutine (mailmsgattent_analyze) */
 
 
+/* private subroutines */
+
+
+static int mailmsgattent_startfn(MAILMSGATTENT *op,cchar *sp,int sl)
+{
+	int		rs ;
+	int		cl ;
+	cchar		*cp ;
+	if ((cl = sfshrink(sp,sl,&cp)) > 0) {
+	    cchar	*fn ;
+	    if ((rs = uc_mallocstrw(cp,cl,&fn)) >= 0) {
+	        op->attfname = fn ;
+		rs = mailmsgattent_checkatt(op) ;
+		if (rs < 0) {
+		    uc_free(op->attfname) ;
+		    op->attfname = NULL ;
+		}
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (mailmsgattent_startfn) */
+
+
+static int mailmsgattent_startct(MAILMSGATTENT *op,cchar *sp,int sl)
+{
+	int		rs ;
+	int		si ;
+	if ((si = sisub(sp,sl,"/")) >= 0) {
+	    if ((rs = mailmsgattent_startctpri(op,sp,si)) >= 0) {
+	        const int	cl = (sl-(si+1)) ;
+		cchar		*cp = (sp+si+1) ;
+	        rs = mailmsgattent_startctsub(op,cp,cl) ;
+	    }
+	} else {
+	    int		el ;
+	    cchar	*ep ;
+	    if ((el = sfshrink(sp,sl,&ep)) > 0) {
+	        int	oi ;
+	        if ((oi = matcasestr(contypevals,ep,el)) >= 0) {
+	            rs = mailmsgattent_startctpri(op,ep,el) ;
+	        } else {
+		    cchar	*ext ;
+	            if ((rs = uc_mallocstrw(ep,el,&ext)) >= 0) {
+	                op->ext = ext ;
+	            }
+	        }
+	    }
+	}
+
+	return rs ;
+}
+/* end subroutine (mailmsgattent_startct) */
+
+
+static int mailmsgattent_startctpri(MAILMSGATTENT *op,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		cl ;
+	cchar		*cp ;
+	if ((cl = sfshrink(sp,sl,&cp)) > 0) {
+	    cchar	*fn ;
+	    if ((rs = uc_mallocstrw(cp,cl,&fn)) >= 0) {
+	        op->type = fn ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (mailmsgattent_startctpri) */
+
+
+static int mailmsgattent_startctsub(MAILMSGATTENT *op,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		cl ;
+	cchar		*cp ;
+	if ((cl = sfshrink(sp,sl,&cp)) > 0) {
+	    cchar	*fn ;
+	    if ((rs = uc_mallocstrw(cp,cl,&fn)) >= 0) {
+	        op->subtype = fn ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (mailmsgattent_startctsub) */
+
+
+static int mailmsgattent_checkatt(MAILMSGATTENT *op)
+{
+	int		rs = SR_OK ;
+	cchar		*fn = op->attfname ;
+	if (fn != NULL) {
+	    if (strcmp(fn,"-") != 0) {
+	        rs = perm(fn,-1,-1,NULL,R_OK) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (mailmsgattent_checkatt) */
+
+
 static int mailmsgattent_analyzer(MAILMSGATTENT *ep,bfile *afp,bfile *ifp)
 {
 	const int	llen = LINEBUFLEN ;
 	int		rs ;
 	int		lines = 0 ;
 	int		len ;
-	int		ch ;
-	int		i ;
 	int		clen = 0 ;
 	int		code = 0 ;
 	char		lbuf[LINEBUFLEN + 1] ;
@@ -774,6 +738,8 @@ static int mailmsgattent_analyzer(MAILMSGATTENT *ep,bfile *afp,bfile *ifp)
 	    len = rs ;
 
 	    if (code < CE_BINARY) {
+		int	i ;
+		int	ch ;
 	        for (i = 0 ; i < len ; i += 1) {
 	            ch = MKCHAR(lbuf[i]) ;
 

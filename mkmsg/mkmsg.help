@@ -10,10 +10,8 @@ $ mkmsg [<address(s)> [...]] [-af <afile>] [-t <content_type>] [-e <encoding>]
 
 Grammar:
 content_spec := type | { type "/" subtype } | file_extension
+attspec := filename | { content_spec "=" filename }
 encoding := 7bit | 8bit | binary | base64
-attachment_spec :=
-	filename |
-	{ content_spec "=" filename }
 
 Arguments:
 <address(es)>		a recipient email address for the message
@@ -36,9 +34,8 @@ Arguments:
 -d <type>=<value>	date specification
 -V			print version and exit
 
-Note that the '-t' and '-e' options do NOT affect standard input when read
-in without the '-i' option.  The use of the '-i' option assumes the use
-of '-n'!
+Note that the '-t' and '-e' options do NOT affect standard input when read in
+without the '-i' option. The use of the '-i' option assumes the use of '-n'!
 
 The date specfication has the following types:
 	current, now, touch, tt, ttouch, toucht, log, logz, strdig

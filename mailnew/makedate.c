@@ -1,2 +1,2 @@
 const char mailnew_makedate[] =
-"@(#)mailnew                 170618_1826:05_EDT Rightcore Network Services" ;
+"@(#)mailnew                 170701_1310:59_USEDT Rightcore Network Services" ;

@@ -943,8 +943,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                                rs = SR_INVALID ;
 	                        }
 	                        if ((rs >= 0) && (cp != NULL)) {
-	                            const char	*po = PO_MAILUSERS ;
-	                            rs = paramopt_loads(&aparams,po,cp,cl) ;
+				    PARAMOPT	*pop = &aparams ;
+	                            cchar	*po = PO_MAILUSERS ;
+	                            rs = paramopt_loads(pop,po,cp,cl) ;
 	                        }
 	                        break ;
 

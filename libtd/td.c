@@ -19,18 +19,18 @@
 
 /*******************************************************************************
 
-	This is a terminal display library.
+	This object module facilitates managing a terminal display.
 
-        This library contains routines (not unlike in the UNIX 'curses' library)
+        This object contains routines (not unlike in the UNIX 'curses' library)
         to display information in "windows" on a terminal display. The major
         difference between this terminal display library and the standard UNIX
         'curses' library is that THIS LIBRARY WORKS!
 
 	Other notes:
 
-        A 'xterm' terminal is almost en entire complete 'vt102' terminal. It
-        pretty much only lacks blinking character attribute and the double
-        high-wide characters.
+        An 'xterm' terminal is almost en entire complete 'vt102' terminal. It
+        pretty much only lacks the blinking character attribute and the double
+        height-width characters.
 
 
 *******************************************************************************/

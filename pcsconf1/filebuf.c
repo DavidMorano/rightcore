@@ -532,8 +532,9 @@ int filebuf_print(FILEBUF *op,cchar *sp,int sl)
 	f_needeol = ((sl == 0) || (sp[sl-1] != '\n')) ;
 	reslen = (f_needeol) ? (sl+1) : sl ;
 
-	if (reslen > 1) 
+	if (reslen > 1) {
 	    rs = filebuf_reserve(op,reslen) ;
+	}
 
 	if ((rs >= 0) && (sl > 0)) {
 	    rs = filebuf_write(op,sp,sl) ;

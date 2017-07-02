@@ -50,7 +50,7 @@
 #include	<localmisc.h>
 
 #include	"sesmsg.h"
-#include	"msginfo.h"
+#include	"msgdata.h"
 #include	"progsig.h"
 
 
@@ -227,17 +227,17 @@ static int	progsig_entfins(PROGSIG *) ;
 static int	progsig_mq(PROGSIG *) ;
 static int	progsig_mkreqfname(PROGSIG *,char *,cchar *) ;
 static int	progsig_worker(PROGSIG *) ;
-static int	progsig_workecho(PROGSIG *,MSGINFO *) ;
-static int	progsig_workbiff(PROGSIG *,MSGINFO *) ;
+static int	progsig_workecho(PROGSIG *,MSGDATA *) ;
+static int	progsig_workbiff(PROGSIG *,MSGDATA *) ;
 static int	progsig_workbiffer(PROGSIG *,SESMSG_BIFF *) ;
-static int	progsig_workgen(PROGSIG *,MSGINFO *) ;
+static int	progsig_workgen(PROGSIG *,MSGDATA *) ;
 static int	progsig_workgener(PROGSIG *,SESMSG_GEN *) ;
-static int	progsig_workdef(PROGSIG *,MSGINFO *) ;
+static int	progsig_workdef(PROGSIG *,MSGDATA *) ;
 static int	progsig_msgenter(PROGSIG *,STORENOTE *) ;
 static int	progsig_reqopen(PROGSIG *) ;
 static int	progsig_reqopener(PROGSIG *,cchar *) ;
-static int	progsig_reqsend(PROGSIG *,MSGINFO *,int) ;
-static int	progsig_reqrecv(PROGSIG *,MSGINFO *) ;
+static int	progsig_reqsend(PROGSIG *,MSGDATA *,int) ;
+static int	progsig_reqrecv(PROGSIG *,MSGDATA *) ;
 static int	progsig_reqclose(PROGSIG *) ;
 static int	progsig_poll(PROGSIG *) ;
 static int	progsig_cmdsend(PROGSIG *,int) ;
@@ -755,7 +755,7 @@ static int progsig_runend(PROGSIG *uip)
 /* it always takes a good bit of code to make this part look easy! */
 static int progsig_worker(PROGSIG *uip)
 {
-	MSGINFO		m ;
+	MSGDATA		m ;
 	int		rs = SR_OK ;
 
 #if	CF_DEBUGN
@@ -793,18 +793,18 @@ static int progsig_worker(PROGSIG *uip)
 /* end subroutine (progsig_worker) */
 
 
-static int progsig_workecho(PROGSIG *uip,MSGINFO *mip)
+static int progsig_workecho(PROGSIG *uip,MSGDATA *mip)
 {
 	int		rs ;
-	if ((rs = msginfo_conpass(mip,FALSE)) >= 0) {
+	if ((rs = msgdata_conpass(mip,FALSE)) >= 0) {
 	    rs = progsig_reqsend(uip,mip,0) ;
-	} /* end if (msginfo_conpass) */
+	} /* end if (msgdata_conpass) */
 	return rs ;
 }
 /* end subroutine (progsig_workecho) */
 
 
-static int progsig_workgen(PROGSIG *uip,MSGINFO *mip)
+static int progsig_workgen(PROGSIG *uip,MSGDATA *mip)
 {
 	int		rs ;
 	int		rs1 ;
@@ -871,7 +871,7 @@ static int progsig_workgener(PROGSIG *uip,SESMSG_GEN *mp)
 /* end subroutine (progsig_workgener) */
 
 
-static int progsig_workbiff(PROGSIG *uip,MSGINFO *mip)
+static int progsig_workbiff(PROGSIG *uip,MSGDATA *mip)
 {
 	int		rs ;
 	int		rs1 ;
@@ -918,7 +918,7 @@ static int progsig_workbiffer(PROGSIG *uip,SESMSG_BIFF *mp)
 /* end subroutine (progsig_workbiffer) */
 
 
-static int progsig_workdef(PROGSIG *uip,MSGINFO *mip)
+static int progsig_workdef(PROGSIG *uip,MSGDATA *mip)
 {
 	int		rs ;
 	if (mip == NULL) return SR_FAULT ;
@@ -1035,15 +1035,15 @@ static int progsig_reqclose(PROGSIG *uip)
 /* end subroutine (progsig_reqclose) */
 
 
-static int progsig_reqsend(PROGSIG *uip,MSGINFO *mip,int clen)
+static int progsig_reqsend(PROGSIG *uip,MSGDATA *mip,int clen)
 {
 	const int	fd = uip->sfd ;
-	return msginfo_sendmsg(mip,fd,clen) ;
+	return msgdata_send(mip,fd,clen) ;
 }
 /* end subroutine (progsig_reqsend) */
 
 
-static int progsig_reqrecv(PROGSIG *uip,MSGINFO *mip)
+static int progsig_reqrecv(PROGSIG *uip,MSGDATA *mip)
 {
 	struct pollfd	fds[1] ;
 	const int	fd = uip->sfd ;
@@ -1064,13 +1064,13 @@ static int progsig_reqrecv(PROGSIG *uip,MSGINFO *mip)
 	    if (rs > 0) {
 		const int	re = fds[0].revents ;
 		if (re & (POLLIN|POLLPRI)) {
-		    if ((rs = msginfo_recvmsg(mip,fd)) >= 0) {
+		    if ((rs = msgdata_recv(mip,fd)) >= 0) {
 			f = TRUE ;
 	    	        if (rs > 0) {
 	        	    rc = MKCHAR(mip->mbuf[0]) ;
 	    	        } else
 	        	    rc = sesmsgtype_invalid ;
-	            } /* end if (msginfo_recvmsg) */
+	            } /* end if (msgdata_recv) */
 		} else if (re & POLLERR) {
 		    rs = SR_IO ;
 		}
@@ -1117,20 +1117,21 @@ static int progsig_cmdsend(PROGSIG *uip,int cmd)
 	    switch (cmd) {
 	    case sesmsgtype_exit:
 		{
-	    	    MSGINFO	m ;
-		    if ((rs = msginfo_init(&m)) >= 0) {
+	    	    MSGDATA	m ;
+		    if ((rs = msgdata_init(&m,0)) >= 0) {
 		        SESMSG_EXIT	m0 ;
 			const int	mlen = MSGBUFLEN ;
 			const int	sal = uip->servlen ;
 			const void	*sap = &uip->servaddr ;
-			msginfo_setaddr(&m,sap,sal) ;
+			msgdata_setaddr(&m,sap,sal) ;
 			memset(&m0,0,sizeof(SESMSG_EXIT)) ;
 		        if ((rs = sesmsg_exit(&m0,0,m.mbuf,mlen)) >= 0) {
 			    m.mlen = rs ;
 	    	            rs = progsig_reqsend(uip,&m,0) ;
 #if	CF_DEBUGN
 			    nprintf(NDF,
-				"progsig_cmdsend: progsig_reqsend() rs=%d\n",rs) ;
+				"progsig_cmdsend: progsig_reqsend() rs=%d\n",
+				rs) ;
 #endif
 			} /* end if (sesmsg_exit) */
 #if	CF_DEBUGN

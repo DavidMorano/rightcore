@@ -109,7 +109,7 @@ int sbuf_start(SBUF *sbp,char *dbuf,int dlen)
 {
 
 #if	CF_DEBUGS
-	debugprintf("sbuf_start: dlen=%d\n",dlen) ;
+	debugprintf("sbuf_start: ent dlen=%d\n",dlen) ;
 #endif
 
 	if (sbp == NULL) return SR_FAULT ;
@@ -602,8 +602,9 @@ int sbuf_vprintf(SBUF *sbp,cchar *fmt,va_list ap)
 	    } else {
 		SBUF_INDEX = rs ;
 	    }
-	} else
+	} else {
 	    rs = SBUF_INDEX ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -636,10 +637,12 @@ int sbuf_adv(SBUF *sbp,int adv,char **dpp)
 	    if ((SBUF_RLEN - SBUF_INDEX) >= adv) {
 		if (dpp != NULL) *dpp = (SBUF_RBUF + SBUF_INDEX) ;
 		SBUF_INDEX += adv ;
-	    } else
+	    } else {
 		rs = SR_TOOBIG ;
-	} else
+	    }
+	} else {
 	    rs = SBUF_INDEX ;
+	}
 
 	return (rs >= 0) ? adv : rs ;
 }
@@ -654,8 +657,9 @@ int sbuf_rem(SBUF *sbp)
 
 	if (SBUF_INDEX >= 0) {
 	    rs = (SBUF_RLEN-SBUF_INDEX) ;
-	} else
+	} else {
 	    rs = SBUF_INDEX ;
+	}
 
 	return rs ;
 }

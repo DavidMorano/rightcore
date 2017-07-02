@@ -1,8 +1,6 @@
 LITTLEBOX
 
-
-This it he little box that can be rotated in 3-space by
-clicking and holding with the mouse.
-
+This is the little box that can be rotated in 3-space by clicking and holding
+with the mouse.
 
 
