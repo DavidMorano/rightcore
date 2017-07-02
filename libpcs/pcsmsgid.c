@@ -61,7 +61,6 @@
 
 /* external subroutines */
 
-extern int	mkpath2(char *,const char *,const char *) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	pcsgetserial(const char *) ;
 

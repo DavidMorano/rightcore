@@ -643,7 +643,7 @@ int mailmsgattent_analyze(MAILMSGATTENT *op,cchar *tmpdname)
 
 static int mailmsgattent_startfn(MAILMSGATTENT *op,cchar *sp,int sl)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 	int		cl ;
 	cchar		*cp ;
 	if ((cl = sfshrink(sp,sl,&cp)) > 0) {
@@ -664,12 +664,12 @@ static int mailmsgattent_startfn(MAILMSGATTENT *op,cchar *sp,int sl)
 
 static int mailmsgattent_startct(MAILMSGATTENT *op,cchar *sp,int sl)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 	int		si ;
 	if ((si = sisub(sp,sl,"/")) >= 0) {
 	    if ((rs = mailmsgattent_startctpri(op,sp,si)) >= 0) {
 	        const int	cl = (sl-(si+1)) ;
-		cchar		*cp = (sp+si+1) ;
+		cchar		*cp = (sp+(si+1)) ;
 	        rs = mailmsgattent_startctsub(op,cp,cl) ;
 	    }
 	} else {
