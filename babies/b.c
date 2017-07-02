@@ -138,11 +138,13 @@ static int	procinfo(PROGINFO *,void *) ;
 static int	procspec(PROGINFO *,void *, cchar *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_dbname(LOCINFO *,cchar *) ;
 static int	locinfo_dbopen(LOCINFO *) ;
 static int	locinfo_lookinfo(LOCINFO *,BABYCALC_INFO *) ;
 static int	locinfo_lookup(LOCINFO *,cchar *,int,uint *) ;
-static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_cvtdater(LOCINFO *) ;
+static int	locinfo_cvtdaterfin(LOCINFO *) ;
 
 
 /* local variables */
@@ -644,8 +646,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
-	    shio_printf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
+	    shio_printf(pip->efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
+	    shio_printf(pip->efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
 	} /* end if */
 
 	if (f_usage)
@@ -1062,11 +1064,8 @@ static int locinfo_finish(LOCINFO *lip)
 
 	if (lip == NULL) return SR_FAULT ;
 
-	if (lip->open.cvtdater) {
-	    lip->open.cvtdater = FALSE ;
-	    rs1 = cvtdater_finish(&lip->cvt) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
+	rs1 = locinfo_cvtdaterfin(lip) ;
+	if (rs >= 0) rs = rs1 ;
 
 	if (lip->open.babycalc) {
 	    lip->open.babycalc = FALSE ;
@@ -1140,15 +1139,17 @@ static int locinfo_lookinfo(LOCINFO *lip,BABYCALC_INFO *bip)
 static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 {
 	PROGINFO	*pip ;
-	time_t		rd = 0 ;
 	int		rs = SR_OK ;
-
-#if	CF_DEBUGS
-	debugprintf("b_babies/locinfo_lookup: ent n=%t\n",np,nl) ;
-#endif
 
 	if (lip == NULL) return SR_FAULT ;
 	if (np == NULL) return SR_FAULT ;
+
+	pip = lip->pip ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("b_babies/locinfo_lookup: ent q=%t\n",np,nl) ;
+#endif
 
 	if (nl < 0) nl = strlen(np) ;
 
@@ -1158,27 +1159,24 @@ static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 	}
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("b_babies/locinfo_lookup: rs=%d name=%t\n",
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_babies/locinfo_lookup: mid1 rs=%d q=%t\n",
 	        rs,np,strlinelen(np,nl,50)) ;
 #endif
 
-	if ((rs >= 0) && (! lip->f.cvtdater)) {
-	    lip->f.cvtdater = TRUE ;
-	    rs = cvtdater_start(&lip->cvt,pip->daytime) ;
-	    lip->open.cvtdater = (rs >= 0) ;
-	}
+	if (rs >= 0) {
+	    if ((rs = locinfo_cvtdater(lip)) >= 0) {
+		time_t	rd = pip->daytime ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
+	if (DEBUGLEVEL(4))
 	    debugprintf("b_babies/locinfo_lookup: mid2 rs=%d\n",rs) ;
 #endif
 
-	rd = pip->daytime ;
 	if ((rs >= 0) && (nl > 0) && (np[0] != '-')) {
 	    rs = cvtdater_load(&lip->cvt,&rd,np,nl) ;
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
+	    if (DEBUGLEVEL(4))
 	        debugprintf("b_babies/locinfo_lookup: cvtdater_load() rs=%d\n",
 	            rs) ;
 #endif
@@ -1192,12 +1190,46 @@ static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 	    *rp = 0 ;
 	}
 
-#if	CF_DEBUGS
+	    } /* end if (locinfo_cvtdater) */
+	} /* end if (ok) */
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
 	debugprintf("b_babies/locinfo_lookup: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
 }
 /* end subroutine (locinfo_lookup) */
+
+
+static int locinfo_cvtdater(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	if (! lip->f.cvtdater) {
+	    PROGINFO	*pip = lip->pip ;
+	    CVTDATER	*cdp = &lip->cvt ;
+	    lip->f.cvtdater = TRUE ;
+	    rs = cvtdater_start(cdp,pip->daytime) ;
+	    lip->open.cvtdater = (rs >= 0) ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_cvtdater) */
+
+
+static int locinfo_cvtdaterfin(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (lip->open.cvtdater) {
+	    CVTDATER	*cdp = &lip->cvt ;
+	    lip->open.cvtdater = FALSE ;
+	    rs1 = cvtdater_finish(cdp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_cvtdaterfin) */
 
 

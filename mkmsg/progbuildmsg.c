@@ -514,7 +514,7 @@ static int progbuildmsghdrs(PROGINFO *pip,EMA *adds,PARAMOPT *hlp,int f_mime)
 	    wlen += rs ;
 	}
 
-/* the SUBJECT header (if we have one) */
+/* header-SUBJECT (if we have one) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -531,7 +531,7 @@ static int progbuildmsghdrs(PROGINFO *pip,EMA *adds,PARAMOPT *hlp,int f_mime)
 	    }
 	} /* end if (header-SUBJECT) */
 
-/* put out the TO headers */
+/* put out the address headers */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))

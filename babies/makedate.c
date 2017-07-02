@@ -1,2 +1,2 @@
 const char babies_makedate[] =
-"@(#)babies                  170701_2352:39_USEDT Rightcore Network Services" ;
+"@(#)babies                  170702_1700:30_USEDT Rightcore Network Services" ;

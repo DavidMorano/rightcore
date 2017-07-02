@@ -46,6 +46,7 @@ struct babycalcs_flags {
 	uint		shm:1 ;
 	uint		txt:1 ;
 	uint		sorted:1 ;
+	uint		needinit:1 ;
 } ;
 
 struct babycalcs_head {

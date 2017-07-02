@@ -368,9 +368,7 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 	if (fmt[0] == '\0') return SR_INVALID ;
 
-	rs = subinfo_start(sip,ubuf,ulen,mode) ;
-	if (rs < 0)
-	    goto ret0 ;
+	if ((rs = subinfo_start(sip,ubuf,ulen,mode)) >= 0) {
 
 /* go through the loops */
 
@@ -1062,13 +1060,10 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 		{
 	        if (width <= 0) {
 	            lsprintf(buf,"\033[%c",fcode) ;
-
-	        } else
+	        } else {
 	            lsprintf(buf,"\033[%d%c",width,fcode) ;
-
-	        if ((rs = storestring(&ld,buf)) < 0)
-	            goto done ;
-
+		}
+	        rs = storestring(&ld,buf) ;
 	        fcode = 0 ;	/* no other output */
 		}
 	        break ;
@@ -1110,13 +1105,13 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 	fmtlen = subinfo_finish(sip) ;
 	if (rs >= 0) rs = fmtlen ;
+	} /* end if (subinfo) */
 
 #if	CF_DEBUGS
 	fprintf(stderr,"format: subinfo_finish() rs=%d\n",rs) ;
 #endif
 
 /* we are out of here! */
-ret0:
 
 #if	CF_DEBUGS
 	{
@@ -1126,7 +1121,7 @@ ret0:
 	    dbuf[dl] = '\0' ;
 	    fprintf(stderr,"format: ubuf=>%s<\n",dbuf) ;
 	}
-#endif
+#endif /* CF_DEBUGS */
 
 	return (rs >= 0) ? fmtlen : rs ;
 }
@@ -1361,7 +1356,7 @@ static int subinfo_fmtstr(SUBINFO *sip,FMTSPEC *fsp,STRDATA *sdp)
 	    } /* end if (not-null) */
 	} /* end if ('wint' or 'wchar') */
 
-	if (rs < 0) goto ret0 ;
+	if (rs >= 0) {
 
 /* continue with normal character processing */
 
@@ -1387,6 +1382,8 @@ static int subinfo_fmtstr(SUBINFO *sip,FMTSPEC *fsp,STRDATA *sdp)
 
 	if ((width > 0) && (sl > width)) width = sl ; /* the standard! */
 
+	} /* end if (ok) */
+
 /* continue normally */
 
 	if ((rs >= 0) && (! fsp->f.left)) {
@@ -1407,7 +1404,6 @@ static int subinfo_fmtstr(SUBINFO *sip,FMTSPEC *fsp,STRDATA *sdp)
 
 	if (f_memalloc && (sp != NULL)) uc_free(sp) ;
 
-ret0:
 	return (rs >= 0) ? fcode : rs ;
 }
 /* end subroutine (subinfo_fmtstr) */
@@ -1428,10 +1424,7 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 	int		f_isdigital = FALSE ;
 	int		f_specialhex = FALSE ;
 
-	if (sp == NULL)
-	    return SR_FAULT ;
-
-	if (fcode == 0) goto ret0 ;
+	if (sp == NULL) return SR_FAULT ;
 
 #ifdef	COMMENT
 	sl = strnlen(sp,sl) ;
@@ -1497,6 +1490,8 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 		f_zerofill = TRUE ;
 	    }
 	} /* end switch */
+
+	if (fcode > 0) {
 
 	if ((sl > 0) && f_isdigital) {
 	    int f_p = (*sp == '+') ;
@@ -1616,7 +1611,8 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 	    rs = subinfo_blanks(sip,npad) ;
 	} /* end if */
 
-ret0:
+	} /* end if (fcode) */
+
 	return rs ;
 }
 /* end subroutine (subinfo_emit) */
@@ -1675,8 +1671,7 @@ char		buf[] ;
 	    width -= 1 ;
 	} /* end while */
 
-	if (rs < 0)
-	    goto ret0 ;
+	if (rs >= 0) {
 
 /* do the floating decimal conversion */
 
@@ -1794,8 +1789,8 @@ char		buf[] ;
 	    rs = subinfo_char(sip,stage[i++]) ;
 	}
 
-/* done */
-ret0:
+	} /* end if (ok) */
+
 	return rs ;
 }
 /* end subroutine (subinfo_float) */

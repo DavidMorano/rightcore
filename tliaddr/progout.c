@@ -11,12 +11,9 @@
 /* revision history:
 
 	= 1999-08-17, David A­D­ Morano
-
-	This subroutine was taken from the LOGDIR/LOGNAME program (fist
-	written for the SunOS 4.xx environment in 1989).  This whole
-	program is replacing serveral that did similar things in the
-	past.
-
+        This subroutine was taken from the LOGDIR/LOGNAME program (fist written
+        for the SunOS 4.xx environment in 1989). This whole program is replacing
+        serveral that did similar things in the past.
 
 */
 
@@ -41,7 +38,6 @@
 #include	<stdarg.h>
 
 #include	<vsystem.h>
-#include	<baops.h>
 #include	<bfile.h>
 #include	<localmisc.h>
 

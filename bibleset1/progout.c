@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 2009-04-01, David A­D­ Morano
-
 	This subroutine was written as an enhancement for adding back-matter
 	(end pages) to the output document.
-
 
 */
 
@@ -32,7 +30,6 @@
 #include	<sys/types.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<stdarg.h>
 
 #include	<vsystem.h>
@@ -47,10 +44,6 @@
 
 
 /* local defines */
-
-#ifndef	PROGINFO_POUT
-#define	PROGINFO_POUT	PROGINFO_pout
-#endif
 
 
 /* external subroutines */

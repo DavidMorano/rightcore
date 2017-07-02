@@ -144,6 +144,7 @@ static int	logzones_fileclose(LOGZONES *) ;
 static int	logzones_lockget(LOGZONES *,time_t,int) ;
 static int	logzones_lockrelease(LOGZONES *) ;
 static int	logzones_search(LOGZONES *,char *,int,int,char **) ;
+static int	logzones_enteropen(LOGZONES *,time_t) ;
 
 static int entry_start(LOGZONES_ENT *,const char *,int,int,const char *) ;
 static int entry_startbuf(LOGZONES_ENT *,const char *,int) ;
@@ -172,7 +173,6 @@ int logzones_open(LOGZONES *op,cchar *fname,int oflags,mode_t operms)
 #endif
 
 	if (op == NULL) return SR_FAULT ;
-
 	if (fname == NULL) return SR_FAULT ;
 
 	if (fname[0] == '\0') return SR_INVALID ;
@@ -209,23 +209,23 @@ int logzones_open(LOGZONES *op,cchar *fname,int oflags,mode_t operms)
 	            op->opentime = dt ;
 	            op->accesstime = dt ;
 	            if ((rs = u_fstat(op->fd,&sb)) >= 0) {
-		        const int	n = LOGZONES_NENTS ;
-		        const int	entlen = LOGZONES_ENTLEN ;
+	                const int	n = LOGZONES_NENTS ;
+	                const int	entlen = LOGZONES_ENTLEN ;
 	                op->mtime = sb.st_mtime ;
 	                op->filesize = sb.st_size ;
 	                op->pagesize = getpagesize() ;
 	                if ((rs = isfsremote(op->fd)) >= 0) {
 	                    const int	size = (n * entlen) ;
-			    char	*bp ;
+	                    char	*bp ;
 	                    op->f.remote = (rs > 0) ;
 	                    if ((rs = uc_malloc(size,&bp)) >= 0) {
 	                        op->bufsize = size ;
-				op->buf = bp ;
+	                        op->buf = bp ;
 	                        op->magic = LOGZONES_MAGIC ;
 	                    }
 	                } /* end if (isfsremote) */
 	            } /* end if (stat) */
-		} /* end if (uc_closeonexec) */
+	        } /* end if (uc_closeonexec) */
 	        if (rs < 0) {
 	            uc_free(op->fname) ;
 	            op->fname = NULL ;
@@ -309,8 +309,8 @@ int logzones_curend(LOGZONES *op,LOGZONES_CUR *curp)
 	if (op->magic != LOGZONES_MAGIC) return SR_NOTOPEN ;
 
 	if (op->f.cursoracc) {
-	    time_t	daytime = time(NULL) ;
-	    op->accesstime = daytime ;
+	    time_t	dt = time(NULL) ;
+	    op->accesstime = dt ;
 	}
 
 	op->f.cursor = FALSE ;
@@ -349,31 +349,33 @@ int logzones_enum(LOGZONES *op,LOGZONES_CUR *curp,LOGZONES_ENT *ep)
 	    }
 	    if (rs >= 0) {
 	        if ((! op->f.lockedread) && (! op->f.lockedwrite)) {
-	    	    if (dt == 0) dt = time(NULL) ;
-	    	    rs = logzones_lockget(op,dt,1) ;
-		}
+	            if (dt == 0) dt = time(NULL) ;
+	            rs = logzones_lockget(op,dt,1) ;
+	        }
 	        if (rs >= 0) {
-		    uint	eoff ;
-		    const int	ebl = LOGZONES_ENTLEN ;
-		    char	ebp[LOGZONES_ENTLEN + 1] ;
-		    ei = (curp->i < 0) ? 0 : (curp->i + 1) ;
+	            uint	eoff ;
+	            const int	ebl = LOGZONES_ENTLEN ;
+	            char	ebp[LOGZONES_ENTLEN + 1] ;
+	            ei = (curp->i < 0) ? 0 : (curp->i + 1) ;
 	            eoff = (ei * ebl) ;
 	            if ((eoff + ebl) <= op->filesize) {
-		        if (ep != NULL) {
-	    		    if ((rs = u_pread(op->fd,ebp,ebl,eoff)) >= 0) {
-	        	        rs = entry_startbuf(ep,(op->buf + eoff),ebl) ;
-			    }
-			}
-			if (rs >= 0) {
-			    curp->i = ei ;
-			    op->f.cursoracc = TRUE ;
-			}
-		    } else
-			rs = SR_NOTFOUND ;
-		} /* end if (ok) */
+	                if (ep != NULL) {
+	                    if ((rs = u_pread(op->fd,ebp,ebl,eoff)) >= 0) {
+	                        rs = entry_startbuf(ep,(op->buf + eoff),ebl) ;
+	                    }
+	                }
+	                if (rs >= 0) {
+	                    curp->i = ei ;
+	                    op->f.cursoracc = TRUE ;
+	                }
+	            } else {
+	                rs = SR_NOTFOUND ;
+	            }
+	        } /* end if (ok) */
 	    } /* end if (ok) */
-	} else
-	    return SR_LOCKLOST ;
+	} else {
+	    rs = SR_LOCKLOST ;
+	}
 
 	return (rs >= 0) ? ei : rs ;
 }
@@ -384,7 +386,7 @@ int logzones_enum(LOGZONES *op,LOGZONES_CUR *curp,LOGZONES_ENT *ep)
 int logzones_match(LOGZONES *op,cchar *znb,int znl,int off,LOGZONES_ENT *ep)
 {
 	LOGZONES_ENT	e ;
-	time_t		daytime = 0 ;
+	const time_t	dt = time(NULL) ;
 	const int	ebl = LOGZONES_ENTLEN ;
 	int		rs = SR_OK ;
 	int		ei ;
@@ -402,57 +404,52 @@ int logzones_match(LOGZONES *op,cchar *znb,int znl,int off,LOGZONES_ENT *ep)
 
 /* is the file open */
 
-	if (op->fd < 0) {
-
-	    daytime = time(NULL) ;
-
-	    rs = logzones_fileopen(op,daytime) ;
-	    if (rs < 0)
-	        goto bad0 ;
-
-	}
+	if ((rs = logzones_enteropen(op,dt)) >= 0) {
 
 /* capture the lock if we do not already have it */
 
-	if ((! op->f.lockedread) && (! op->f.lockedwrite)) {
-
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
-
-	    rs = logzones_lockget(op,daytime,1) ;
-	    if (rs < 0)
-	        goto bad0 ;
-
-	}
+	    if ((! op->f.lockedread) && (! op->f.lockedwrite)) {
+	        rs = logzones_lockget(op,dt,1) ;
+	    }
 
 /* we do comparisons in "string" representation form (much faster !) */
 
-	entry_start(&e,znb,znl,off,NULL) ;
+	    if (rs >= 0) {
+
+	        if ((rs = entry_start(&e,znb,znl,off,NULL)) >= 0) {
 
 /* formulate the search string in the buffer */
 
-	entry_write(&e,ebp,ebl) ;
+	            entry_write(&e,ebp,ebl) ;
 
-	rs = logzones_search(op,ebp,ebl,off,&bp) ;
-	ei = rs ;
-	if (rs >= 0)
-	    entry_startbuf(ep,bp,ebl) ;
+	            if ((rs = logzones_search(op,ebp,ebl,off,&bp)) >= 0) {
+	                ei = rs ;
+	                entry_startbuf(ep,bp,ebl) ;
+	            }
 
-	entry_finish(&e) ;
+	            entry_finish(&e) ;
+	        } /* end if (entry) */
 
 /* optionally release our lock if we didn't have a cursor outstanding */
 
-	if (! op->f.cursor)
-	    logzones_lockrelease(op) ;
+	        if (rs >= 0) {
+
+	            if (! op->f.cursor) rs = logzones_lockrelease(op) ;
 
 /* update access time as appropriate */
 
-	if (! op->f.cursor) {
-	    op->accesstime = daytime ;
-	} else
-	    op->f.cursoracc = TRUE ;
+	            if (! op->f.cursor) {
+	                op->accesstime = dt ;
+	            } else {
+	                op->f.cursoracc = TRUE ;
+	            }
 
-bad0:
+	        } /* end if (ok) */
+
+	    } /* end if (ok) */
+
+	} /* end if (enter-open) */
+
 	return (rs >= 0) ? ei : rs ;
 }
 /* end subroutine (logzones_match) */
@@ -462,7 +459,7 @@ bad0:
 int logzones_update(LOGZONES *op,cchar *znb,int znl,int off,cchar *st)
 {
 	LOGZONES_ENT	e ;
-	time_t		dt = 0 ;
+	const time_t	dt = time(NULL) ;
 	const int	ebl = LOGZONES_ENTLEN ;
 	int		rs = SR_OK ;
 	int		ei ;
@@ -493,135 +490,145 @@ int logzones_update(LOGZONES *op,cchar *znb,int znl,int off,cchar *st)
 
 /* is the file open */
 
-	if (op->fd < 0) {
-	    dt = time(NULL) ;
-	    rs = logzones_fileopen(op,dt) ;
-	    if (rs < 0) goto bad0 ;
-	}
+	if ((rs = logzones_enteropen(op,dt)) >= 0) {
 
 /* capture the lock if we do not already have it */
 
 #if	CF_DEBUGS
-	debugprintf("logzones_update: check lock, filesize=%u\n",
-	    op->filesize) ;
+	    debugprintf("logzones_update: check lock, filesize=%u\n",
+	        op->filesize) ;
 #endif
 
 /* lose any READ lock (we need a WRITE lock) */
 
-	if (op->f.lockedread) {
-	    if (op->f.cursor) op->f.cursorlockbroken = TRUE ;
+	    if (op->f.lockedread) {
+	        if (op->f.cursor) op->f.cursorlockbroken = TRUE ;
 
 #ifdef	OPTIONAL
-	    logzones_lockrelease(op) ;
+	        logzones_lockrelease(op) ;
 #else
-	    op->f.lockedread = FALSE ;
+	        op->f.lockedread = FALSE ;
 #endif /* OPTIONAL */
 
-	}
+	    }
 
 /* so that we can get a WRITE lock */
 
-	if (! op->f.lockedwrite) {
-	    if (dt == 0) dt = time(NULL) ;
-	    rs = logzones_lockget(op,dt,0) ;
-	    if (rs < 0) goto bad0 ;
-	}
+	    if (rs >= 0) {
+
+	        if (! op->f.lockedwrite) {
+	            rs = logzones_lockget(op,dt,0) ;
+	        }
 
 #if	CF_DEBUGS
-	debugprintf("logzones_update: filesize=%u\n",op->filesize) ;
+	        debugprintf("logzones_update: filesize=%u\n",op->filesize) ;
 #endif
 
 /* we do comparisons in "string" representation form (much faster !) */
 
-	entry_start(&e,znb,znl,off,NULL) ;
+	        if (rs >= 0) {
+	            if ((rs = entry_start(&e,znb,znl,off,NULL)) >= 0) {
 
 /* formulate the search string in the buffer */
 
-	entry_write(&e,ebp,ebl) ;
+	                entry_write(&e,ebp,ebl) ;
 
-	rs = logzones_search(op,ebp,ebl,off,&bp) ;
-	ei = rs ;
-	entry_finish(&e) ;
+	                rs = logzones_search(op,ebp,ebl,off,&bp) ;
+	                ei = rs ;
+	                entry_finish(&e) ;
+	            } /* end if (entry) */
 
 /* update the entry that we found and write it back */
 
-	if (rs >= 0) {
-	    uint	eoff = (ei * ebl) ;
+	            if (rs >= 0) {
+	                uint	eoff = (ei * ebl) ;
 
 /* found existing entry (update in memory) */
 
 #if	CF_DEBUGS
-	    debugprintf("logzones_update: existing entry eoff=%u\n",eoff) ;
+	                debugprintf("logzones_update: entry eoff=%u\n",
+			eoff) ;
 #endif
 
-	    entry_startbuf(&e,bp,ebl) ;
+	                if ((rs = entry_startbuf(&e,bp,ebl)) >= 0) {
 
-	    entry_update(&e,st) ;
+	                    entry_update(&e,st) ;
 
-	    entry_write(&e,ebp,ebl) ;
+	                    entry_write(&e,ebp,ebl) ;
 
 /* write into the actual memory window */
 
-	    rs = u_pwrite(op->fd,ebp,ebl,eoff) ;
+	                    rs = u_pwrite(op->fd,ebp,ebl,eoff) ;
 
 #if	CF_DEBUGS
-	    debugprintf("logzones_update: u_pwrite() rs=%d\n",rs) ;
+	                    debugprintf("logzones_update: u_pwrite() rs=%d\n",
+				rs) ;
 #endif
 
 /* ok, we're done */
 
-	    entry_finish(&e) ;
-
-	} else if (rs == SR_NOTFOUND) {
+	                    entry_finish(&e) ;
+	                } /* end if (entry) */
+	            } else if (rs == SR_NOTFOUND) {
 
 /* need a new entry (write it to the file) */
 
-	    ei = op->filesize / ebl ;
+	                ei = op->filesize / ebl ;
 
 #if	CF_DEBUGS
-	    debugprintf("logzones_update: need new entry \n") ;
+	                debugprintf("logzones_update: need new entry \n") ;
 #endif
 
-	    entry_start(&e,znb,znl,off,NULL) ;
+	                if ((rs = entry_start(&e,znb,znl,off,NULL)) >= 0) {
 
-	    entry_update(&e,st) ;
+	                    entry_update(&e,st) ;
 
-	    entry_write(&e,ebp,ebl) ;
+	                    entry_write(&e,ebp,ebl) ;
 
 #if	CF_DEBUGS
-	    debugprintf("logzones_update: u_pwrite() off=%u\n",
-	        op->filesize) ;
+	                    debugprintf("logzones_update: u_pwrite() off=%u\n",
+	                        op->filesize) ;
 #endif
 
-	    rs = u_pwrite(op->fd,ebp,ebl,op->filesize) ;
+	                    rs = u_pwrite(op->fd,ebp,ebl,op->filesize) ;
 
 #if	CF_DEBUGS
-	    debugprintf("logzones_update: u_pwrite() rs=%d\n",rs) ;
+	                    debugprintf("logzones_update: u_pwrite() rs=%d\n",
+				rs) ;
 #endif
 
-	    if ((rs >= 0) && (rs == ebl))
-	        op->filesize += ebl ;
+	                    if ((rs >= 0) && (rs == ebl)) {
+	                        op->filesize += ebl ;
+	                    }
 
-	    entry_finish(&e) ;
+	                    entry_finish(&e) ;
+	                } /* end if (entry) */
+	            } /* end if (entry update) */
 
-	} /* end if (entry update) */
-
-	if ((rs >= 0) && op->f.remote)
-	    uc_fsync(op->fd) ;
+	            if ((rs >= 0) && op->f.remote) {
+	                uc_fsync(op->fd) ;
+	            }
 
 /* optionally release our lock if we didn't have a cursor outstanding */
 
-	if (! op->f.cursor)
-	    logzones_lockrelease(op) ;
+	            if (! op->f.cursor) {
+	                logzones_lockrelease(op) ;
+	            }
 
 /* update access time as appropriate */
 
-	if (! op->f.cursor) {
-	    op->accesstime = dt ;
-	} else
-	    op->f.cursoracc = TRUE ;
+	            if (! op->f.cursor) {
+	                op->accesstime = dt ;
+	            } else {
+	                op->f.cursoracc = TRUE ;
+	            }
 
-bad0:
+	        } /* end if (ok) */
+
+	    } /* end if (ok) */
+
+	} /* end if (enter-open) */
+
 	return (rs >= 0) ? ei : rs ;
 }
 /* end subroutine (logzones_update) */
@@ -642,7 +649,7 @@ int logzones_check(LOGZONES *op,time_t dt)
 	    f = f || ((dt - op->accesstime) > TO_ACCESS) ;
 	    f = f || ((dt - op->opentime) > TO_OPEN) ;
 	    if (f) {
-		rs = logzones_fileclose(op) ;
+	        rs = logzones_fileclose(op) ;
 	    }
 	} /* end if (already open) */
 
@@ -655,7 +662,7 @@ int logzones_check(LOGZONES *op,time_t dt)
 
 
 /* lock the file */
-static int logzones_lockget(LOGZONES *op,time_t daytime,int f_read)
+static int logzones_lockget(LOGZONES *op,time_t dt,int f_read)
 {
 	int		rs = SR_OK ;
 	int		f = FALSE ;
@@ -665,7 +672,7 @@ static int logzones_lockget(LOGZONES *op,time_t daytime,int f_read)
 #endif
 
 	if (op->fd < 0) {
-	    rs = logzones_fileopen(op,daytime) ;
+	    rs = logzones_fileopen(op,dt) ;
 	}
 
 #if	CF_DEBUGS
@@ -686,17 +693,17 @@ static int logzones_lockget(LOGZONES *op,time_t daytime,int f_read)
 	        cmd = F_WLOCK ;
 	    }
 	    if ((rs = lockfile(op->fd,cmd,0L,fs,to)) >= 0) {
-		struct ustat	sb ;
-		if ((rs = u_fstat(op->fd,&sb)) >= 0) {
-		    f = f || (sb.st_size != op->filesize) ;
-		    f = f || (sb.st_mtime != op->mtime) ;
-		    if (f) {
-	    	        op->filesize = sb.st_size ;
-	    	        op->mtime = sb.st_mtime ;
-		    }
-		} else {
-		    op->f.lockedread = FALSE ;
-		    op->f.lockedwrite = FALSE ;
+	        struct ustat	sb ;
+	        if ((rs = u_fstat(op->fd,&sb)) >= 0) {
+	            f = f || (sb.st_size != op->filesize) ;
+	            f = f || (sb.st_mtime != op->mtime) ;
+	            if (f) {
+	                op->filesize = sb.st_size ;
+	                op->mtime = sb.st_mtime ;
+	            }
+	        } else {
+	            op->f.lockedread = FALSE ;
+	            op->f.lockedwrite = FALSE ;
 	        }
 	    } /* end if (lockfile) */
 	} /* end if (ok) */
@@ -785,27 +792,25 @@ static int logzones_search(LOGZONES *op,char *ebp,int ebl,int soff,char **rpp)
 /* end subroutine (logzones_search) */
 
 
-static int logzones_fileopen(LOGZONES *op,time_t daytime)
+static int logzones_fileopen(LOGZONES *op,time_t dt)
 {
 	int		rs ;
-
 #if	CF_DEBUGS
-	debugprintf("logzones_fileopen: fname=%s\n",op->fname) ;
+	debugprintf("logzones_fileopen: ent fname=%s\n",op->fname) ;
 #endif
-
 	if (op->fd < 0) {
 	    if ((rs = u_open(op->fname,op->oflags,op->operms)) >= 0) {
 	        op->fd = rs ;
 	        rs = uc_closeonexec(op->fd,TRUE) ;
-	        op->opentime = daytime ;
-		if (rs < 0) {
-		    u_close(op->fd) ;
-		    op->fd = -1 ;
-		}
+	        op->opentime = dt ;
+	        if (rs < 0) {
+	            u_close(op->fd) ;
+	            op->fd = -1 ;
+	        }
 	    }
-	} else
+	} else {
 	    rs = op->fd ;
-
+	}
 	return rs ;
 }
 /* end subroutine (logzones_fileopen) */
@@ -815,16 +820,27 @@ static int logzones_fileclose(LOGZONES *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-
 	if (op->fd >= 0) {
 	    rs1 = u_close(op->fd) ;
 	    if (rs >= 0) rs = rs1 ;
 	    op->fd = -1 ;
 	}
-
 	return rs ;
 }
 /* end subroutine (logzones_fileclose) */
+
+
+static int logzones_enteropen(LOGZONES *op,time_t dt)
+{
+	int		rs = SR_OK ;
+	if (op->fd < 0) {
+	    if (dt == 0) dt = time(NULL) ;
+	    dt = time(NULL) ;
+	    rs = logzones_fileopen(op,dt) ;
+	}
+	return rs ;
+}
+/* end subroutine (logzones_enteropen) */
 
 
 /* initialize a fresh entry */
@@ -851,57 +867,58 @@ static int entry_start(LOGZONES_ENT *ep,cchar *znb,int znl,int soff,cchar *st)
 
 static int entry_startbuf(LOGZONES_ENT *ep,cchar *ebuf,int elen)
 {
-	int		rs = SR_OK ;
-	int		i ;
-	int		hours, mins, sign ;
+	uint		uv ;
+	int		rs ;
 	int		cl ;
 	const char	*bp ;
-	const char	*cp ;
 
 	if (ep == NULL) return SR_FAULT ;
 
 	if (elen < 0) elen = INT_MAX ;
 
-	if (elen < (EFO_OVERLAST - 1))
-	    return SR_INVALID ;
+	if (elen < (EFO_OVERLAST - 1)) return SR_INVALID ;
 
 	bp = ebuf ;
-	rs = cfdecui(bp,EFL_COUNT,&ep->count) ;
-	if (rs < 0)
-	    goto ret0 ;
+	if ((rs = cfdecui(bp,EFL_COUNT,&uv)) >= 0) {
+	    int		i ;
+	    int		hours, mins, sign ;
+	    const char	*cp ;
 
-	bp += (EFL_COUNT + 1) ;
-	cl = sfshrink(bp,LOGZONES_ZNAMESIZE,&cp) ;
+	    ep->count = uv ;
 
-	ep->znl = cl ;
-	strnwcpy(ep->znb,LOGZONES_ZNAMESIZE,cp,cl) ;
+	    bp += (EFL_COUNT + 1) ;
+	    cl = sfshrink(bp,LOGZONES_ZNAMESIZE,&cp) ;
 
-	bp += (EFL_NAME + 1) ;
-	sign = (*bp++ == '-') ? 1 : -1 ; /* reverse of what might think! */
+	    ep->znl = cl ;
+	    strnwcpy(ep->znb,LOGZONES_ZNAMESIZE,cp,cl) ;
+
+	    bp += (EFL_NAME + 1) ;
+	    sign = (*bp++ == '-') ? 1 : -1 ; /* reverse of what might think! */
 
 /* do we have an offset? */
 
-	for (i = 0 ; i < 4 ; i += 1) {
-	    const int	ch = MKCHAR(bp[i]) ;
-	    if (! isdigitlatin(ch)) break ;
-	} /* end for */
+	    for (i = 0 ; i < 4 ; i += 1) {
+	        const int	ch = MKCHAR(bp[i]) ;
+	        if (! isdigitlatin(ch)) break ;
+	    } /* end for */
 
-	if (i >= 4) {
-	    hours = (((int) *bp++) - '0') * 10 ;
-	    hours += (((int) *bp++) - '0') ;
-	    mins = (((int) *bp++) - '0') * 10 ;
-	    mins += (((int) *bp++) - '0') ;
-	    ep->off = sign * ((hours * 60) + mins) ;
-	} else
-	    ep->off = LOGZONES_NOZONEOFFSET ;
+	    if (i >= 4) {
+	        hours = (((int) *bp++) - '0') * 10 ;
+	        hours += (((int) *bp++) - '0') ;
+	        mins = (((int) *bp++) - '0') * 10 ;
+	        mins += (((int) *bp++) - '0') ;
+	        ep->off = sign * ((hours * 60) + mins) ;
+	    } else {
+	        ep->off = LOGZONES_NOZONEOFFSET ;
+	    }
 
 /* grab the stamp field */
 
-	strncpy(ep->st,bp,LOGZONES_STAMPSIZE) ;
+	    strncpy(ep->st,bp,LOGZONES_STAMPSIZE) ;
+	    rs = LOGZONES_ENTLEN ;
 
-	rs = LOGZONES_ENTLEN ;
+	} /* end if (cfdecui) */
 
-ret0:
 	return rs ;
 }
 /* end subroutine (entry_startbuf) */
@@ -985,8 +1002,9 @@ static int entry_write(LOGZONES_ENT *ep,char *ebuf,int elen)
 	    *bp++ = ((mins / 10) + '0') ;
 	    *bp++ = ((mins % 10) + '0') ;
 
-	} else
+	} else {
 	    bp = strwcpy(bp,blanks,5) ;
+	}
 
 	*bp++ = ' ' ;
 

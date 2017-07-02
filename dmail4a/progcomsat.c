@@ -56,6 +56,7 @@
 #include	"recip.h"
 #include	"config.h"
 #include	"defs.h"
+#include	"proglog.h"
 
 
 /* local defines */
@@ -512,7 +513,7 @@ static int report_node(PROGINFO *pip,cchar *node)
 	if (pip->debuglevel > 0) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: comsat n=%s\n" ;
-	    bprintf(pip->efp,fmt,node) ;
+	    bprintf(pip->efp,fmt,pn,node) ;
 	}
 
 	return rs ;
@@ -529,7 +530,7 @@ static int report_recip(PROGINFO *pip,cchar *up,int ul,int mbo,int mo)
 	if (pip->debuglevel > 0) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: comsat r=%t mbo=%u mo=%u\n" ;
-	    bprintf(pip->efp,fmt,up,ul,mbo,mo) ;
+	    bprintf(pip->efp,fmt,pn,up,ul,mbo,mo) ;
 	}
 
 	return rs ;

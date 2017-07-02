@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -36,7 +34,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -70,7 +67,7 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	bprintlines(bfile *,int,const char *,int) ;
 
-extern int	progoutbib(struct proginfo *,bfile *,BDB_ENT *) ;
+extern int	progoutbib(PROGINFO *,bfile *,BDB_ENT *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -94,7 +91,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 
 int progout(pip,bdbp,cdbp,ofname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 BDB		*bdbp ;
 CITEDB		*cdbp ;
 const char	ofname[] ;
