@@ -248,7 +248,7 @@ int envlist_present(ENVLIST *op,cchar *sp,int sl,cchar **rpp)
 		sp,strlinelen(sp,sl,50)) ;
 	}
 	debugprintf("envlist_present: ret rs=%d\n",rs) ;
-#endif
+#endif /* CF_DEBUGS */
 
 	return (rs >= 0) ? vl : rs ;
 }

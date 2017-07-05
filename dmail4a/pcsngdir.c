@@ -115,11 +115,8 @@ const char	newsgroup[] ;
 
 	ndp = bbnewsdir2 ;
 	if (bbnewsdir[0] != '/') {
-
 	    ndp = strwcpy(ndp,pcs,-1) ;
-
 	    ndp = strwcpy(ndp,"/",1) ;
-
 	} /* end if */
 
 	ndp = strwcpy(ndp,bbnewsdir,-1) ;
@@ -154,10 +151,8 @@ const char	newsgroup[] ;
 
 	cp2 = ngdir ;
 	while ((bp = strchr(cp2,'.')) != NULL) {
-
 	    *bp = '/' ;
 	    cp2 = (bp + 1) ;
-
 	} /* end while */
 
 /* OK, start looking for the closest directory that matches */

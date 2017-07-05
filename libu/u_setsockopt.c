@@ -20,11 +20,8 @@
 
 #include	<sys/types.h>
 #include	<sys/socket.h>
-#include	<sys/stat.h>
-#include	<sys/wait.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<poll.h>
 #include	<errno.h>
 
 #include	<vsystem.h>
@@ -45,12 +42,7 @@ extern int	msleep(int) ;
 /* exported subroutines */
 
 
-int u_setsockopt(s,level,optname,optvalp,optlen)
-int		s ;
-int		level ;
-int		optname ;
-const void	*optvalp ;
-int		optlen ;
+int u_setsockopt(int s,int level,int optname,const void *optvalp,int optlen)
 {
 	int		rs ;
 	int		to_nomem = TO_NOMEM ;

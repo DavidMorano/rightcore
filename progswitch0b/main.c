@@ -394,9 +394,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	        rs1 = userinfo_finish(&u) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } else {
-	                fmt = "%s: cannot identify user (%d)\n" ;
-	                bprintf(pip->efp,fmt,pn,rs) ;
-	                ex = EX_NOUSER ;
+		fmt = "%s: cannot identify user (%d)\n" ;
+		bprintf(pip->efp,fmt,pn,rs) ;
+		ex = EX_NOUSER ;
 	    }
 	} else {
 	    cchar	*pn = pip->progname ;

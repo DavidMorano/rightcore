@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
-	The subroutine was adapated from other programs that do similar
-	types of functions.
-
+        The subroutine was adapated from other programs that do similar types of
+        functions.
 
 */
 
@@ -56,7 +54,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<wdt.h>

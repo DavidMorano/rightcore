@@ -936,13 +936,13 @@ static int procwatchpoll(PROGINFO *pip,SUBINFO *wip)
 
 	            } else if (fd == pip->fd_listenpass) {
 	                struct strrecvfd	passer ;
-			int	size = sizeof(struct strrecvfd) ;
-			int	to = pip->to_recvfd ;
+			const int	lfd = pip->fd_listenpass ;
+			int		size = sizeof(struct strrecvfd) ;
+			int		to = pip->to_recvfd ;
 
 	                cip->salen = -1 ;
-	                rs1 = acceptpass(pip->fd_listenpass,&passer,to) ;
-	                ns = rs1 ;
-	                if (rs1 >= 0) {
+	                if ((rs1 = acceptpass(lfd,&passer,to)) >= 0) {
+	                    ns = rs1 ;
 
 	                    cip->fd_input = u_dup(ns) ;
 	                    cip->fd_output = u_dup(ns) ;

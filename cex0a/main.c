@@ -3,8 +3,8 @@
 /* program to execute a program on a node in the local cluster */
 
 
-#define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	0		/* run-time debug print-outs */
+#define	CF_DEBUGS	1		/* compile-time debug print-outs */
+#define	CF_DEBUG	1		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_DEFAULTSHELL	1		/* look for a default shell */
 #define	CF_LOCINFOSET	0		/* |locinfo_setentry()| */
@@ -40,12 +40,8 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stropts.h>
-#include	<poll.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
 #include	<netdb.h>
 #include	<time.h>
 
@@ -95,16 +91,17 @@ extern int	optvalue(cchar *,int) ;
 extern int	authfile(const char *,char *,char *) ;
 extern int	inetping(char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	proguserlist_begin(PROGINFO *) ;
 extern int	proguserlist_end(PROGINFO *) ;
 
-extern int	printhelp(bfile *,const char *,const char *,const char *) ;
+extern int	printhelp(bfile *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
-extern int	dialcprog(const char *,const char *,const char *,
-			const char **,const char **,int,int,int *) ;
-extern int	transfer(PROGINFO *,const char *,
-			int,int,int,int,int,int) ;
+extern int	dialcprog(cchar *,cchar *,cchar *,
+			cchar **,cchar **,int,int,int *) ;
+extern int	transfer(PROGINFO *,cchar *,int,int,int,int,int,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -112,6 +109,8 @@ extern int	debugprintf(const char *,...) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -166,10 +165,12 @@ struct locinfo {
 
 static int	usage(PROGINFO *) ;
 
-static int	makedate_get(const char *,const char **) ;
+static int	getprogmode(PROGINFO *,cchar *) ;
+static int	makedate_get(cchar *,cchar **) ;
 
-static int	procprintnodes(PROGINFO *,const char *) ;
-static int	procdial(PROGINFO *,const char *,const char *) ;
+static int	procprintnodes(PROGINFO *,cchar *) ;
+static int	procprintnoding(PROGINFO *,bfile *) ;
+static int	procdial(PROGINFO *,cchar *,cchar *) ;
 
 static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
 static int	procuserinfo_end(PROGINFO *) ;
@@ -276,34 +277,33 @@ int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
-	USERINFO	u ;
 	bfile		errfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos, ai_pass ;
-	int	npa = 0 ;
-	int	rs, rs1 ;
-	int	i, cl ;
-	int	v ;
-	int	progmode = 0 ;
-	int	timeout = -1 ;
-	int	ex = EX_INFO ;
-	int	f_optplus, f_optminus, f_optequal ;
-	int	f_exitargs = FALSE ;
-	int	f_version = FALSE ;
-	int	f_makedate = FALSE ;
-	int	f_usage = FALSE ;
-	int	f_help = FALSE ;
-	int	f_noinput = FALSE ;
-	int	f_x = FALSE ;
-	int	f_d = FALSE ;
-	int	f_wait = FALSE ;
-	int	f_waittimed = FALSE ;
-	int	f_empty = FALSE ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos, ai_pass ;
+	int		npa = 0 ;
+	int		rs, rs1 ;
+	int		i, cl ;
+	int		v ;
+	int		progmode = 0 ;
+	int		timeout = -1 ;
+	int		ex = EX_INFO ;
+	int		f_optplus, f_optminus, f_optequal ;
+	int		f_exitargs = FALSE ;
+	int		f_version = FALSE ;
+	int		f_makedate = FALSE ;
+	int		f_usage = FALSE ;
+	int		f_help = FALSE ;
+	int		f_noinput = FALSE ;
+	int		f_x = FALSE ;
+	int		f_d = FALSE ;
+	int		f_wait = FALSE ;
+	int		f_waittimed = FALSE ;
+	int		f_empty = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -368,10 +368,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	    argp = argv[ai] ;
 	    argl = strlen(argp) ;
 
+#if	CF_DEBUGS
+	    debugprintf("main: a=>%t<\n",argp,argl) ;
+#endif
+
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -412,12 +416,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            pip->tmpdname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->tmpdname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->tmpdname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -450,12 +454,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            pr = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -468,12 +472,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            pip->lfname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->lfname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->lfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -490,12 +494,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            sn = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -508,12 +512,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            ifname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ifname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ifname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -526,12 +530,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            ofname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -544,12 +548,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -562,12 +566,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            argname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                argname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -585,12 +589,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            progmodename = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            progmodename = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                progmodename = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -605,7 +609,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	            } else {
 
 	                while (akl--) {
-			    const int	kc = MKCHAR(*akp) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -633,14 +637,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            if (avl)
 	                                pip->netfname = avp ;
 	                        } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                pip->netfname = argp ;
-				} else
-	                            rs = SR_INVALID ;
+	                            if (argr > 0) {
+	                                argp = argv[++ai] ;
+	                                argr -= 1 ;
+	                                argl = strlen(argp) ;
+	                                if (argl)
+	                                    pip->netfname = argp ;
+	                            } else
+	                                rs = SR_INVALID ;
 	                        }
 	                        break ;
 
@@ -651,14 +655,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            if (avl)
 	                                pip->clustername = avp ;
 	                        } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                pip->clustername = argp ;
-				} else
-	                            rs = SR_INVALID ;
+	                            if (argr > 0) {
+	                                argp = argv[++ai] ;
+	                                argr -= 1 ;
+	                                argl = strlen(argp) ;
+	                                if (argl)
+	                                    pip->clustername = argp ;
+	                            } else
+	                                rs = SR_INVALID ;
 	                        }
 	                        break ;
 
@@ -674,14 +678,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            if (avl)
 	                                ifname = avp ;
 	                        } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                ifname = argp ;
-				} else
-	                            rs = SR_INVALID ;
+	                            if (argr > 0) {
+	                                argp = argv[++ai] ;
+	                                argr -= 1 ;
+	                                argl = strlen(argp) ;
+	                                if (argl)
+	                                    ifname = argp ;
+	                            } else
+	                                rs = SR_INVALID ;
 	                        }
 	                        break ;
 
@@ -692,14 +696,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            if (avl)
 	                                rhostname = avp ;
 	                        } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rhostname = argp ;
-				} else
-	                            rs = SR_INVALID ;
+	                            if (argr > 0) {
+	                                argp = argv[++ai] ;
+	                                argr -= 1 ;
+	                                argl = strlen(argp) ;
+	                                if (argl)
+	                                    rhostname = argp ;
+	                            } else
+	                                rs = SR_INVALID ;
 	                        }
 	                        break ;
 
@@ -732,14 +736,14 @@ int main(int argc,cchar **argv,cchar **envv)
 /* timeout? */
 	                    case 't':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = cfdecti(argp,argl,&v) ;
-	                            timeout = v ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = cfdecti(argp,argl,&v) ;
+	                                timeout = v ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -816,12 +820,18 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	} /* end while (all command line argument processing) */
 
+#if	CF_DEBUGS
+	debugprintf("main/while-out rs=%d\n",rs) ;
+#endif
+
 	if (efname == NULL) efname = getenv(VAREFNAME) ;
 	if (efname == NULL) efname = BFILE_STDERR ;
 	if ((rs1 = bopen(&errfile,efname,"wca",0666)) >= 0) {
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -862,10 +872,11 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* initialze some stuff */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -879,23 +890,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* get our program mode if any */
 
-	if (progmodename == NULL) {
-	    if ((cp = strchr(pip->progname,'-')) != NULL)
-	        progmodename = (cp + 1) ;
-	} /* end if (program mode) */
-
-	progmode = 0 ;
-	if (progmodename != NULL) {
-
-	    for (i = 0 ; progmodenames[i] != NULL ; i += 1) {
-	        if (strcmp(progmodenames[i],progmodename) == 0)
-	            break ;
-	    } /* end for */
-
-	    if (progmodenames[i] != NULL)
-	        progmode = i ;
-
-	} /* end if (mode name was specified) */
+	progmode = getprogmode(pip,progmodename) ;
 
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: progmode=%s(%d)\n",
@@ -943,7 +938,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    if (rxport == NULL) rxport = RXPORT ;
 	}
 
-	lip->argv = (const char **) argv ;
+	lip->argv = (cchar **) argv ;
 	lip->argc = argc ;
 	lip->ai_pass = ai_pass ;
 
@@ -961,48 +956,60 @@ int main(int argc,cchar **argv,cchar **envv)
 	lip->rxport = rxport ;
 	lip->timeout = timeout ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	debugprintf("main: mid1 rs=%d\n",rs) ;
+#endif
+
 /* perform program-mode specific functions */
 
 	if (rs >= 0) {
-	if ((rs = userinfo_start(&u,NULL)) >= 0) {
-	    if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-		if ((rs = proglog_begin(pip,&u)) >= 0) {
-		    if ((rs = proguserlist_begin(pip)) >= 0) {
+	    USERINFO	u ;
+	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
+	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
+	            if ((rs = proglog_begin(pip,&u)) >= 0) {
+	                if ((rs = proguserlist_begin(pip)) >= 0) {
 
-		        if (progmode == progmodename_dial) {
-	    	            cchar	*pn = pip->progname ;
-			    cchar	*rh = rhostname ;
-	    		    if ((rh == NULL) || (rh[0] == '\0')) {
-				cchar	*fmt ;
-	        		fmt = "%s: no host specification given\n" ;
-	        		rs = SR_INVALID ;
-	        		ex = EX_DATAERR ;
-	        		bprintf(pip->efp,fmt,pn) ;
-	    		    }
-	    		    if (rs >= 0) {
-	       			rs = procdial(pip,rhostname,rcmdname) ;
-	    		    }
-			} else if (progmode == progmodename_nodes) {
-	    		    rs = procprintnodes(pip,NULL) ;
-			} /* end if (performing according to program mode) */
+	                    if (progmode == progmodename_dial) {
+	                        cchar	*pn = pip->progname ;
+	                        cchar	*rh = rhostname ;
+	                        if ((rh == NULL) || (rh[0] == '\0')) {
+	                            cchar	*fmt ;
+	                            fmt = "%s: no host specification given\n" ;
+	                            rs = SR_INVALID ;
+	                            ex = EX_DATAERR ;
+	                            bprintf(pip->efp,fmt,pn) ;
+	                        }
+	                        if (rs >= 0) {
+	                            rs = procdial(pip,rhostname,rcmdname) ;
+	                        }
+	                    } else if (progmode == progmodename_nodes) {
+	                        rs = procprintnodes(pip,NULL) ;
+	                    } /* end if (according to program mode) */
 
-			rs1 = proguserlist_end(pip) ;
-			if (rs >= 0) rs = rs1 ;
-		    } /* end if (proguserlist) */
-		    rs1 = proglog_end(pip) ;
-		    if (rs >= 0) rs = rs1 ;
-		} /* end if (proglogfile) */
-	        rs1 = procuserinfo_end(pip) ;
+	                    rs1 = proguserlist_end(pip) ;
+	                    if (rs >= 0) rs = rs1 ;
+	                } /* end if (proguserlist) */
+	                rs1 = proglog_end(pip) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (proglogfile) */
+	            rs1 = procuserinfo_end(pip) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (procuserinfo) */
+	        rs1 = userinfo_finish(&u) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (procuserinfo) */
-	    rs1 = userinfo_finish(&u) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
+	    } else {
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: userinfo failure (%d)\n" ;
+	        ex = EX_NOUSER ;
+	        bprintf(pip->efp,fmt,pn,rs) ;
+	    } /* end if (userinfo) */
+	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: userinfo failure (%d)\n" ;
-	    ex = EX_NOUSER ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
 	    bprintf(pip->efp,fmt,pn,rs) ;
-	} /* end if (userinfo) */
+	    usage(pip) ;
 	} /* end if (ok) */
 
 /* done */
@@ -1097,6 +1104,30 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
+static int getprogmode(PROGINFO *pip,cchar *progmodename)
+{
+	int		progmode = 0 ;
+	if (progmodename == NULL) {
+	    char	*cp ;
+	    if ((cp = strchr(pip->progname,'-')) != NULL) {
+	        progmodename = (cp + 1) ;
+	    }
+	} /* end if (program mode) */
+	if (progmodename != NULL) {
+	    int	i ;
+	    for (i = 0 ; progmodenames[i] != NULL ; i += 1) {
+	        if (strcmp(progmodenames[i],progmodename) == 0)
+	            break ;
+	    } /* end for */
+	    if (progmodenames[i] != NULL) {
+	        progmode = i ;
+	    }
+	} /* end if (mode name was specified) */
+	return progmode ;
+}
+/* end subroutine (getprogmode) */
+
+
 static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 {
 	int		rs = SR_OK ;
@@ -1161,101 +1192,106 @@ static int makedate_get(cchar *md,cchar **rpp)
 	if (rpp != NULL) *rpp = NULL ;
 
 	if ((cp = strchr(md,CH_RPAREN)) != NULL) {
-	const char	*sp ;
+	    const char	*sp ;
 
-	while (CHAR_ISWHITE(*cp)) cp += 1 ;
-
-	ch = MKCHAR(*cp) ;
-	if (! isdigitlatin(ch)) {
-	    while (*cp && (! CHAR_ISWHITE(*cp))) cp += 1 ;
 	    while (CHAR_ISWHITE(*cp)) cp += 1 ;
-	} /* end if (skip over the name) */
 
-	sp = cp ;
-	if (rpp != NULL) *rpp = cp ;
+	    ch = MKCHAR(*cp) ;
+	    if (! isdigitlatin(ch)) {
+	        while (*cp && (! CHAR_ISWHITE(*cp))) cp += 1 ;
+	        while (CHAR_ISWHITE(*cp)) cp += 1 ;
+	    } /* end if (skip over the name) */
 
-	while (*cp && (! CHAR_ISWHITE(*cp))) cp += 1 ;
+	    sp = cp ;
+	    if (rpp != NULL) *rpp = cp ;
 
-	rs = (cp - sp) ;
-	} else
+	    while (*cp && (! CHAR_ISWHITE(*cp))) cp += 1 ;
+
+	    rs = (cp - sp) ;
+	} else {
 	    rs = SR_NOENT ;
+	}
 
 	return rs ;
 }
 /* end subroutine (makedate_get) */
 
 
-static int procprintnodes(PROGINFO *pip,cchar *ofname)
+static int procprintnodes(PROGINFO *pip,cchar *ofn)
 {
-	DBI		info ;
-	IDS		id ;
 	bfile		outfile, *ofp = &outfile ;
 	int		rs ;
-	const char	*cp ;
-	const char	*clustername = pip->clustername ;
+	int		rs1 ;
+	int		wlen = 0 ;
 
-	rs = ids_load(&id) ;
-	if (rs < 0) goto ret0 ;
+	if ((ofn == NULL) || (ofn[0] == '\0'))
+	    ofn = BFILE_STDOUT ;
 
-	if ((ofname == NULL) || (ofname[0] == '\0')) 
-	    ofname = BFILE_STDOUT ;
+	if ((rs = bopen(ofp,ofn,"dwct",0666)) >= 0) {
+	    rs = procprintnoding(pip,ofp) ;
+	    wlen += rs ;
+	    rs1 = bclose(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile) */
 
-	rs = bopen(ofp,ofname,"dwct",0666) ;
-	if (rs < 0) goto ret1 ;
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procprintnodes) */
 
-	if ((rs = dbi_open(&info,&id,pip->pr)) >= 0) {
+
+static int procprintnoding(PROGINFO *pip,bfile *ofp)
+{
+	DBI		info ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	if ((rs = dbi_open(&info,pip->pr)) >= 0) {
 	    VECSTR	clusters, nodes ;
-
 	    if ((rs = vecstr_start(&clusters,10,0)) >= 0) {
-
 	        if ((rs = vecstr_start(&nodes,30,0)) >= 0) {
+	            cchar	*cn = pip->clustername ;
+	            cchar	*nn = pip->nodename ;
 
-	            if ((clustername != NULL) && 
-	                (clustername[0] != '\0')) {
-
-	                rs = vecstr_add(&clusters,clustername,-1) ;
-
+	            if ((cn != NULL) && (cn[0] != '\0')) {
+	                rs = vecstr_add(&clusters,cn,-1) ;
 	            } else {
-	                rs = dbi_getclusters(&info,&clusters,pip->nodename) ;
-		    }
-
-	            if (rs >= 0)
-	                rs = dbi_getnodes(&info,&clusters,&nodes) ;
+	                rs = dbi_getclusters(&info,&clusters,nn) ;
+	            }
 
 	            if (rs >= 0) {
-			int	i ;
+	                rs = dbi_getnodes(&info,&clusters,&nodes) ;
+	            }
+
+	            if (rs >= 0) {
+	                int	i ;
+	                cchar	*cp ;
 	                for (i = 0 ; vecstr_get(&nodes,i,&cp) >= 0 ; i += 1) {
 	                    if (cp != NULL) {
-	                        rs = bprintf(&outfile,"%s\n",cp) ;
-			    }
+	                        rs = bprintline(ofp,cp,-1) ;
+	                        wlen += rs ;
+	                    }
 	                    if (rs < 0) break ;
 	                } /* end for */
 	            } /* end if */
 
-	            vecstr_finish(&nodes) ;
+	            rs1 = vecstr_finish(&nodes) ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (nodes) */
-
-	        vecstr_finish(&clusters) ;
+	        rs1 = vecstr_finish(&clusters) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (clusters) */
-
-	    dbi_close(&info) ;
+	    rs1 = dbi_close(&info) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (dbi) */
-
-	bclose(ofp) ;
-
-ret1:
-	ids_release(&id) ;
-
-ret0:
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("main/procprintnodes: ret rs=%d\n",rs) ;
+	    debugprintf("main/procprintnoding: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
 }
-/* end subroutine (procprintnodes) */
+/* end subroutine (procprintnoding) */
 
 
 static int procdial(PROGINFO *pip,cchar *rhostname,cchar *rcmdname)
@@ -1271,6 +1307,11 @@ static int procdial(PROGINFO *pip,cchar *rhostname,cchar *rcmdname)
 	int		rfd2 ;
 	const char	*cp ;
 	char		timebuf[TIMEBUFLEN+1] ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	debugprintf("main/procdial: ent\n") ;
+#endif
 
 	if (strcmp(rhostname,"-") == 0)
 	    rhostname = pip->nodename ;
@@ -1346,8 +1387,9 @@ static int procdial(PROGINFO *pip,cchar *rhostname,cchar *rcmdname)
 	    if (lip->f.empty) opts |= DIALOPT_EMPTY ;
 
 	    an = 1 ;
-	    if (ai_pass > 0)
+	    if (ai_pass > 0) {
 	        an += (argc - ai_pass) ;
+	    }
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
@@ -1363,13 +1405,12 @@ static int procdial(PROGINFO *pip,cchar *rhostname,cchar *rcmdname)
 	        ev = pip->envv ;
 
 	        if (lip->argname == NULL) {
-
 	            av[0] = VARSHELL ;
 	            rs1 = sfbasename(rcmdname,-1,&cp) ;
 	            if (rs1 > 0) av[0] = cp ;
-
-	        } else
+	        } else {
 	            av[0] = lip->argname ;
+		}
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -1406,7 +1447,7 @@ static int procdial(PROGINFO *pip,cchar *rhostname,cchar *rcmdname)
 #endif
 
 	        uc_free(av) ;
-	    } /* end if */
+	    } /* end if (m-a-f) */
 
 	} /* end block */
 	if (rs < 0) goto baddial ;
@@ -1525,8 +1566,7 @@ static int locinfo_finish(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	if (lip->open.stores) {
 	    lip->open.stores = FALSE ;
@@ -1542,29 +1582,35 @@ static int locinfo_finish(LOCINFO *lip)
 #if	CF_LOCINFOSET
 int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
+	VECSTR		*slp ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
 	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_INVALID ;
 
+	slp = &lip->stores ;
 	if (! lip->open.stores) {
-	    if ((rs = vecstr_start(&lip->stores,0,0)) >= 0) {
+	    if ((rs = vecstr_start(slp,0,0)) >= 0) {
 	        lip->open.stores = TRUE ;
 	    }
 	}
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
-	    if (*epp != NULL) oi = vecstr_findaddr(&lip->stores,*epp) ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
-	    } else 
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else  {
 	        *epp = NULL ;
-	    if ((rs >= 0) && (oi >= 0))
-	        vecstr_del(&lip->stores,oi) ;
-	} /* end if */
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }

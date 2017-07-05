@@ -42,7 +42,6 @@
 #include	<sys/types.h>
 #include	<limits.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>

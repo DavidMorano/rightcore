@@ -5,6 +5,7 @@
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUGSFILE	0		/* for debugging file reading */
+#define	CF_SAFECHECK	0		/* extra safety */
 
 
 /* revision history:
@@ -54,15 +55,21 @@
 #include	<field.h>
 #include	<vecobj.h>
 #include	<hdb.h>
-#include	<storeitem.h>
 #include	<char.h>
-#include	<mallocstuff.h>
 #include	<localmisc.h>
 
 #include	"nodedb.h"
 
 
 /* local defines */
+
+#ifndef	LINEBUFLEN
+#ifdef	LINE_MAX
+#define	LINEBUFLEN		MAX(LINE_MAX,2048)
+#else
+#define	LINEBUFLEN		2048
+#endif
+#endif /* LINEBUFLEN */
 
 #define	NODEDB_MINCHECKTIME	5	/* file check interval (seconds) */
 #define	NODEDB_CHECKTIME	60	/* file check interval (seconds) */
@@ -73,17 +80,15 @@
 #define	NODEDB_KEYNAME		struct nodedb_keyname
 #define	NODEDB_IE		struct nodedb_ie
 
+#define	SVCENTRY		struct svcentry
+#define	SVCENTRY_KEY		struct svcentry_key
+
+#define	LINEINFO		struct lineinfo
+#define	LINEINFO_FIELD		struct lineinfo_field
+
 #define	NODEDB_KA		sizeof(char *(*)[2])
 #define	NODEDB_BO(v)		\
 	((NODEDB_KA - ((v) % NODEDB_KA)) % NODEDB_KA)
-
-#ifndef	LINEBUFLEN
-#ifdef	LINE_MAX
-#define	LINEBUFLEN		MAX(LINE_MAX,2048)
-#else
-#define	LINEBUFLEN		2048
-#endif
-#endif
 
 #undef	ARGSBUFLEN
 #define	ARGSBUFLEN		(3 * MAXHOSTNAMELEN)
@@ -97,6 +102,7 @@
 /* external subroutines */
 
 extern int	mkpath2(char *,const char *,const char *) ;
+extern int	sfskipwhite(cchar *,int,cchar **) ;
 extern int	getpwds(struct ustat *,char *,int) ;
 extern int	getpwd(char *,int) ;
 extern int	field_srvarg(FIELD *,const uchar *,char *,int) ;
@@ -142,7 +148,7 @@ struct lineinfo_field {
 } ;
 
 struct lineinfo {
-	struct lineinfo_field	f[3] ;
+	LINEINFO_FIELD	f[3] ;
 } ;
 
 struct svcentry {
@@ -173,30 +179,26 @@ static int	nodedb_pwd(NODEDB *) ;
 static int	nodedb_filefins(NODEDB *) ;
 static int	nodedb_entfins(NODEDB *) ;
 static int	nodedb_fileparse(NODEDB *,int) ;
-static int	nodedb_fileparseline(NODEDB *,int,const char *,int) ;
+static int	nodedb_fileparser(NODEDB *,NODEDB_FILE *,int) ;
+static int	nodedb_fileparseline(NODEDB *,int,cchar *,int) ;
 static int	nodedb_filedump(NODEDB *,int) ;
 static int	nodedb_filedel(NODEDB *,int) ;
-static int	nodedb_addentry(NODEDB *,int,struct svcentry *) ;
+static int	nodedb_addentry(NODEDB *,int,SVCENTRY *) ;
 static int	nodedb_checkfiles(NODEDB *,time_t) ;
 
-static int	file_start(struct nodedb_file *,const char *) ;
-static int	file_finish(struct nodedb_file *) ;
+static int	file_start(NODEDB_FILE *,const char *) ;
+static int	file_finish(NODEDB_FILE *) ;
 
-static int	ientry_start(NODEDB_IE *,int,struct svcentry *) ;
+static int	ientry_start(NODEDB_IE *,int,SVCENTRY *) ;
 static int	ientry_finish(NODEDB_IE *) ;
 
-static int	svcentry_start(struct svcentry *,struct lineinfo *) ;
-static int	svcentry_addkey(struct svcentry *,const char *,int,
-			const char *,int) ;
-static int	svcentry_finish(struct svcentry *) ;
+static int	svcentry_start(SVCENTRY *,LINEINFO *) ;
+static int	svcentry_addkey(SVCENTRY *,cchar *,int,cchar *,int) ;
+static int	svcentry_finish(SVCENTRY *) ;
 
 static int	entry_load(NODEDB_ENT *,char *,int,NODEDB_IE *) ;
 
 static int	cmpfname() ;
-
-#ifdef	COMMENT
-static int	cmpkey() ;
-#endif
 
 static int	freeit(const char **) ;
 
@@ -233,7 +235,7 @@ static const unsigned char 	saterms[32] = {
 
 int nodedb_open(NODEDB *op,cchar *fname)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		defentries = 0 ;
 	int		size ;
 
@@ -251,7 +253,7 @@ int nodedb_open(NODEDB *op,cchar *fname)
 
 	memset(op,0,sizeof(NODEDB)) ;
 
-	size = sizeof(struct nodedb_file) ;
+	size = sizeof(NODEDB_FILE) ;
 	if ((rs = vecobj_start(&op->files,size,10,VECOBJ_PREUSE)) >= 0) {
 	    if ((rs = hdb_start(&op->entries,defentries,0,NULL,NULL)) >= 0) {
 	        op->checktime = time(NULL) ;
@@ -259,11 +261,11 @@ int nodedb_open(NODEDB *op,cchar *fname)
 	        if ((fname != NULL) && (fname[0] != '\0')) {
 	            rs = nodedb_fileadd(op,fname) ;
 	            if (rs < 0) {
-		        op->magic = 0 ;
+	                op->magic = 0 ;
 	            }
 	        } /* end if (had an optional file) */
 	        if (rs < 0)
-		    hdb_finish(&op->entries) ;
+	            hdb_finish(&op->entries) ;
 	    } /* end if (entries) */
 	    if (rs < 0)
 	        vecobj_finish(&op->files) ;
@@ -312,40 +314,25 @@ int nodedb_close(NODEDB *op)
 int nodedb_fileadd(NODEDB *op,cchar *fname)
 {
 	NODEDB_FILE	fe ;
+	const int	rsn = SR_NOTFOUND ;
 	int		rs = SR_OK ;
-	int		fi ;
-	int		f_file = FALSE ;
-	const char	*np ;
+	const char	*np = fname ;
 	char		tmpfname[MAXPATHLEN + 1] ;
 
 	if (op == NULL) return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
 	if (op->magic != NODEDB_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("nodedb_fileadd: fname=%s\n",fname) ;
+	debugprintf("nodedb_fileadd: ent fname=%s\n",fname) ;
 #endif
 
-	if (fname == NULL)
-	    return SR_FAULT ;
-
-	np = fname ;
 	if (fname[0] != '/') {
-
-#if	CF_DEBUGS
-	    debugprintf("nodedb_fileadd: relative pathname\n") ;
-#endif
-
-	    rs = nodedb_pwd(op) ;
-	    if (rs >= 0) {
+	    if ((rs = nodedb_pwd(op)) >= 0) {
 	        np = tmpfname ;
 	        rs = mkpath2(tmpfname,op->pwd,fname) ;
 	    }
-
-#if	CF_DEBUGS
-	    debugprintf("nodedb_fileadd: tmpfname=%s\n",tmpfname) ;
-#endif
-
 	} /* end if (added PWD) */
 
 #if	CF_DEBUGS
@@ -353,50 +340,28 @@ int nodedb_fileadd(NODEDB *op,cchar *fname)
 #endif
 
 	if (rs >= 0) {
-	    rs = file_start(&fe,np) ;
-	    f_file = (rs >= 0) ;
-	}
-
-	if (rs < 0)
-	    goto bad1 ;
-
-	rs = vecobj_search(&op->files,&fe,cmpfname,NULL) ;
-
-	if ((rs >= 0) || (rs != SR_NOTFOUND))
-	    goto bad2 ;
-
-/* initialize the storage for this file */
-
-	rs = vecobj_add(&op->files,&fe) ;
-	fi = rs ;
-	if (rs < 0) goto bad3 ;
-	f_file = FALSE ;
-
-	rs = nodedb_fileparse(op,fi) ;
-	if (rs < 0)
-	    goto bad4 ;
-
-ret0:
+	    if ((rs = file_start(&fe,np)) >= 0) {
+	        vecobj	*flp = &op->files ;
+	        if ((rs = vecobj_search(flp,&fe,cmpfname,NULL)) == rsn) {
+	            if ((rs = vecobj_add(flp,&fe)) >= 0) {
+	                int	fi = rs ;
+	                rs = nodedb_fileparse(op,fi) ;
+	                if (rs < 0) {
+	                    nodedb_filedel(op,fi) ;
+	                }
+	            } /* end if (vecobj_add) */
+	        } /* end if (vecobj_search) */
+	        if (rs < 0) {
+	            file_finish(&fe) ;
+	        }
+	    } /* end if (file-start) */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("nodedb_fileadd: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
-
-/* handle bad things */
-bad4:
-	nodedb_filedel(op,fi) ;
-
-bad3:
-bad2:
-	if (f_file) {
-	    f_file = FALSE ;
-	    file_finish(&fe) ;
-	}
-
-bad1:
-	goto ret0 ;
 }
 /* end subroutine (nodedb_fileadd) */
 
@@ -443,7 +408,6 @@ int nodedb_curend(NODEDB *op,NODEDB_CUR *curp)
 /* enumerate the entries */
 int nodedb_enum(NODEDB *op,NODEDB_CUR *curp,NODEDB_ENT *ep,char *ebuf,int elen)
 {
-	NODEDB_IE	*iep ;
 	HDB_DATUM	key, val ;
 	HDB_CUR		cur ;
 	int		rs ;
@@ -458,14 +422,10 @@ int nodedb_enum(NODEDB *op,NODEDB_CUR *curp,NODEDB_ENT *ep,char *ebuf,int elen)
 
 	cur = curp->ec ;
 	if ((rs = hdb_enum(&op->entries,&cur,&key,&val)) >= 0) {
+	    NODEDB_IE	*iep = (NODEDB_IE *) val.buf ;
 
 #if	CF_DEBUGS
 	    debugprintf("nodedb_enum: elen=%u\n",elen) ;
-#endif
-
-	    iep = (NODEDB_IE *) val.buf ;
-
-#if	CF_DEBUGS
 	    debugprintf("nodedb_enum: ie size=%u nkeys=%u svc=%s\n",
 	        iep->size,iep->nkeys,iep->svc) ;
 #endif
@@ -484,7 +444,7 @@ int nodedb_enum(NODEDB *op,NODEDB_CUR *curp,NODEDB_ENT *ep,char *ebuf,int elen)
 	} /* end if (had an entry) */
 
 #if	CF_DEBUGS
-	debugprintf("nodedb_enum: svc=%s \n",ep->svc) ;
+	debugprintf("nodedb_enum: svc=%s\n",ep->svc) ;
 	debugprintf("nodedb_enum: ret rs=%d svclen=%u\n",rs,svclen) ;
 #endif
 
@@ -508,6 +468,10 @@ int nodedb_fetch(NODEDB *op,cchar *svcbuf,NODEDB_CUR *curp,NODEDB_ENT *ep,
 
 	if (op->magic != NODEDB_MAGIC) return SR_NOTOPEN ;
 
+#if	CF_DEBUGS
+	debugprintf("nodedb_fetch: ent elen=%u\n",elen) ;
+#endif
+
 	if (curp == NULL) {
 	    curp = &dbcur ;
 	    nodedb_curbegin(op,&dbcur) ;
@@ -518,10 +482,6 @@ int nodedb_fetch(NODEDB *op,cchar *svcbuf,NODEDB_CUR *curp,NODEDB_ENT *ep,
 
 	hcur = curp->ec ;
 	if ((rs = hdb_fetch(&op->entries,key,&hcur,&val)) >= 0) {
-#if	CF_DEBUGS
-	    debugprintf("nodedb_fetch: elen=%u\n",elen) ;
-#endif
-
 	    iep = (NODEDB_IE *) val.buf ;
 
 #if	CF_DEBUGS
@@ -540,7 +500,7 @@ int nodedb_fetch(NODEDB *op,cchar *svcbuf,NODEDB_CUR *curp,NODEDB_ENT *ep,
 	        curp->ec = hcur ;
 	    }
 
-	} /* end if (had an entry) */
+	} /* end if (hdb_fetch) */
 
 	if (curp == &dbcur) {
 	    nodedb_curend(op,&dbcur) ;
@@ -558,7 +518,6 @@ int nodedb_fetch(NODEDB *op,cchar *svcbuf,NODEDB_CUR *curp,NODEDB_ENT *ep,
 /* check if the underlying file has changed */
 int nodedb_check(NODEDB *op)
 {
-	time_t		daytime ;
 	int		rs = SR_OK ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -568,9 +527,9 @@ int nodedb_check(NODEDB *op)
 /* should we even check? */
 
 	if (op->cursors == 0) {
-	    daytime = time(NULL) ;
-	    if ((daytime - op->checktime) > NODEDB_CHECKTIME) {
-	        rs = nodedb_checkfiles(op,daytime) ;
+	    time_t	dt = time(NULL) ;
+	    if ((dt - op->checktime) > NODEDB_CHECKTIME) {
+	        rs = nodedb_checkfiles(op,dt) ;
 	    }
 	}
 
@@ -648,7 +607,7 @@ static int nodedb_filefins(NODEDB *op)
 /* check if the access table files have changed */
 static int nodedb_checkfiles(NODEDB *op,time_t daytime)
 {
-	struct nodedb_file	*fep ;
+	NODEDB_FILE	*fep ;
 	struct ustat	sb ;
 	int		rs = SR_OK ;
 	int		i ;
@@ -661,29 +620,30 @@ static int nodedb_checkfiles(NODEDB *op,time_t daytime)
 	for (i = 0 ; vecobj_get(&op->files,i,&fep) >= 0 ; i += 1) {
 	    if (fep != NULL) {
 
-	    if ((u_stat(fep->fname,&sb) >= 0) &&
-	        (sb.st_mtime > fep->mtime)) {
+	        if ((u_stat(fep->fname,&sb) >= 0) &&
+	            (sb.st_mtime > fep->mtime)) {
 
-	        c_changed += 1 ;
-
-#if	CF_DEBUGS
-	        debugprintf("nodedb_checkfiles: file=%d changed\n",i) ;
-	        debugprintf("nodedb_checkfiles: freeing file entries\n") ;
-#endif
-
-	        nodedb_filedump(op,i) ;
+	            c_changed += 1 ;
 
 #if	CF_DEBUGS
-	        debugprintf("nodedb_checkfiles: parsing the file again\n") ;
+	            debugprintf("nodedb_checkfiles: file=%d changed\n",i) ;
+	            debugprintf("nodedb_checkfiles: freeing entries\n") ;
 #endif
 
-	        rs = nodedb_fileparse(op,i) ;
+	            nodedb_filedump(op,i) ;
 
 #if	CF_DEBUGS
-	        debugprintf("nodedb_checkfiles: nodedb_fileparse rs=%d\n",rs) ;
+	            debugprintf("nodedb_checkfiles: parsing again\n") ;
 #endif
 
-	    } /* end if */
+	            rs = nodedb_fileparse(op,i) ;
+
+#if	CF_DEBUGS
+	            debugprintf("nodedb_checkfiles: "
+			"nodedb_fileparse rs=%d\n", rs) ;
+#endif
+
+	        } /* end if */
 
 	    }
 	    if (rs < 0) break ;
@@ -703,192 +663,156 @@ static int nodedb_checkfiles(NODEDB *op,time_t daytime)
 
 static int nodedb_fileparse(NODEDB *op,int fi)
 {
-	struct nodedb_file	*fep ;
-	struct ustat	sb ;
-	bfile		loadfile, *lfp = &loadfile ;
-	const int	llen = LINEBUFLEN ;
+	NODEDB_FILE	*fep ;
 	int		rs ;
-	int		len ;
-	int		cl ;
-	int		c_added = 0 ;
-	int		f_bol, f_eol ;
-	const char	*cp ;
-	char		lbuf[LINEBUFLEN + 1] ;
+	int		c = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("nodedb_fileparse: ent fi=%u\n",fi) ;
 #endif
 
-	rs = vecobj_get(&op->files,fi,&fep) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	if (fep == NULL) {
-	    rs = SR_NOTFOUND ;
-	    goto ret0 ;
-	}
-
+	if ((rs = vecobj_get(&op->files,fi,&fep)) >= 0) {
+	    if (fep != NULL) {
+	        rs = nodedb_fileparser(op,fep,fi) ;
+		c = rs ;
+	        if (rs < 0) {
+	            nodedb_filedump(op,fi) ;
+	        }
+	    } else {
 #if	CF_DEBUGS
-	debugprintf("nodedb_fileparse: 2\n") ;
+		debugprintf("nodedb_fileparse: NULL\n") ;
 #endif
-
-	rs = bopen(lfp,fep->fname,"r",0664) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	rs = bcontrol(lfp,BC_STAT,&sb) ;
-	if (rs < 0)
-	    goto done ;
-
-	if (S_ISDIR(sb.st_mode)) {
-	    rs = SR_ISDIR ;
-	    goto done ;
-	}
-
-/* have we already parsed this one? */
-
-#if	CF_DEBUGS
-	debugprintf("nodedb_fileparse: 4\n") ;
-#endif
-
-	if (fep->mtime >= sb.st_mtime)
-	    goto done ;
-
-#if	CF_DEBUGS
-	debugprintf("nodedb_fileparse: 5\n") ;
-#endif
-
-	fep->dev = sb.st_dev ;
-	fep->ino = sb.st_ino ;
-	fep->mtime = sb.st_mtime ;
-	fep->size = sb.st_size ;
-
-/* loop, reading all records and figuring things out */
-
-	f_bol = TRUE ;
-	while ((rs = breadlines(lfp,lbuf,llen,NULL)) > 0) {
-	    len = rs ;
-
-	    f_eol = (lbuf[len - 1] == '\n') ;
-	    if (f_eol)
-	        len -= 1 ;
-
-	    lbuf[len] = '\0' ;
-
-#if	CF_DEBUGS && CF_DEBUGSFILE
-	    debugprintf("nodedb_fileparse: line>%t<\n",lbuf,len) ;
-#endif
-
-	    cp = lbuf ;
-	    cl = len ;
-	    while (CHAR_ISWHITE(*cp)) {
-	        cp += 1 ;
-	        cl -= 1 ;
+	        rs = SR_NOTFOUND ;
 	    }
-
-	    if ((*cp == '\0') || (*cp == '#'))
-	        continue ;
-
-	    if (f_bol) {
-	        rs = nodedb_fileparseline(op,fi,cp,cl) ;
-	        if (rs > 0) c_added += 1 ;
-	    }
-
-	    if (rs < 0)
-	        break ;
-
-	    f_bol = f_eol ;
-
-	} /* end while (reading extended lines) */
-
-done:
-	bclose(lfp) ;
-	if (rs < 0) goto bad1 ;
-
-ret0:
+	} /* end if (vector_get) */
 
 #if	CF_DEBUGS
-	debugprintf("nodedb_fileparse: ret rs=%d added=%d\n",
-	    rs,c_added) ;
+	debugprintf("nodedb_fileparse: ret rs=%d added=%d\n",rs,c) ;
 #endif
 
-	return (rs >= 0) ? c_added : rs ;
-
-/* bad stuff */
-bad1:
-	nodedb_filedump(op,fi) ;
-	goto ret0 ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (nodedb_fileparse) */
 
 
+static int nodedb_fileparser(NODEDB *op,NODEDB_FILE *fep,int fi)
+{
+	bfile		loadfile, *lfp = &loadfile ;
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+	if ((rs = bopen(lfp,fep->fname,"r",0664)) >= 0) {
+	    USTAT	sb ;
+	    int		f_bol = TRUE ;
+	    int		f_eol ;
+	    if ((rs = bcontrol(lfp,BC_STAT,&sb)) >= 0) {
+	        if (S_ISREG(sb.st_mode)) {
+	            if (fep->mtime < sb.st_mtime) {
+	                const int	llen = LINEBUFLEN ;
+	                int		cl ;
+	                cchar		*cp ;
+	                char		lbuf[LINEBUFLEN + 1] ;
+	                fep->dev = sb.st_dev ;
+	                fep->ino = sb.st_ino ;
+	                fep->mtime = sb.st_mtime ;
+	                fep->size = sb.st_size ;
+	                while ((rs = breadlines(lfp,lbuf,llen,NULL)) > 0) {
+	                    int	len = rs ;
+
+	                    f_eol = (lbuf[len - 1] == '\n') ;
+	                    if (f_eol) len -= 1 ;
+	                    lbuf[len] = '\0' ;
+
+	                    if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                        if (f_bol && (*cp != '#')) {
+	                            rs = nodedb_fileparseline(op,fi,cp,cl) ;
+	                            if (rs > 0) c += 1 ;
+	                        }
+	                    }
+
+	                    f_bol = f_eol ;
+	                    if (rs < 0) break ;
+	                } /* end while (reading extended lines) */
+	            } /* end if (needed) */
+	        } else {
+	            rs = SR_ISDIR ;
+	        }
+	    } /* end if (bcontrol) */
+	    rs1 = bclose(lfp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (nodedb_fileparser) */
+
+
 static int nodedb_fileparseline(NODEDB *op,int fi,cchar *lp,int ll)
 {
-	struct svcentry		se ;
-	struct lineinfo		li ;
+	SVCENTRY		se ;
+	LINEINFO		li ;
 	FIELD		fsb ;
 	int		rs ;
 	int		c_field = 0 ;
 	int		f_ent = FALSE ;
 
-	memset(&li,0,sizeof(struct lineinfo)) ;
+	memset(&li,0,sizeof(LINEINFO)) ;
 
 	if ((rs = field_start(&fsb,lp,ll)) >= 0) {
 	    const int	argslen = ARGSBUFLEN ;
 	    int		fl ;
 	    const char	*fp ;
-	    char		argsbuf[ARGSBUFLEN + 1] ;
+	    char	argsbuf[ARGSBUFLEN + 1] ;
 
-	while ((fl = field_get(&fsb,fterms,&fp)) >= 0) {
+	    while ((fl = field_get(&fsb,fterms,&fp)) >= 0) {
 
 #if	CF_DEBUGS && CF_DEBUGSFILE
-	    debugprintf("nodedb_fileparse: c_field=%u\n",c_field) ;
-	    debugprintf("nodedb_fileparse: ft=>%c< fl=%d f=%t\n",
-	        fsb.term,fp,fp,fl) ;
+	        debugprintf("nodedb_fileparse: c_field=%u\n",c_field) ;
+	        debugprintf("nodedb_fileparse: ft=>%c< fl=%d f=%t\n",
+	            fsb.term,fp,fp,fl) ;
 #endif
 
-	    if ((c_field == 0) && (fl == 0))
-	        break ;
+	        if ((c_field == 0) && (fl == 0))
+	            break ;
 
-	    if ((c_field < 3) && (fsb.term == ':')) {
-	        li.f[c_field].fp = fp ;
-	        li.f[c_field].fl = fl ;
-	    }
-
-	    if ((c_field >= 3) && (fl > 0)) {
-	        const char	*kp = fp ;
-	        int		kl = fl ;
-	        int		al ;
-
-	        if (! f_ent) {
-	            rs = svcentry_start(&se,&li) ;
-	            f_ent = (rs >= 0) ;
-	            if (rs < 0) break ;
+	        if ((c_field < 3) && (fsb.term == ':')) {
+	            li.f[c_field].fp = fp ;
+	            li.f[c_field].fl = fl ;
 	        }
 
-	        argsbuf[0] = '\0' ;
-	        al = 0 ;
-	        if (fsb.term == '=') {
-	            al = field_srvarg(&fsb,saterms,argsbuf,argslen) ;
-		}
+	        if ((c_field >= 3) && (fl > 0)) {
+	            const char	*kp = fp ;
+	            int		kl = fl ;
+	            int		al ;
 
-	        if ((rs >= 0) && f_ent) {
-	            rs = svcentry_addkey(&se,kp,kl,argsbuf,al) ;
-		}
+	            if (! f_ent) {
+	                rs = svcentry_start(&se,&li) ;
+	                f_ent = (rs >= 0) ;
+	                if (rs < 0) break ;
+	            }
+
+	            argsbuf[0] = '\0' ;
+	            al = 0 ;
+	            if (fsb.term == '=') {
+	                al = field_srvarg(&fsb,saterms,argsbuf,argslen) ;
+	            }
+
+	            if ((rs >= 0) && f_ent) {
+	                rs = svcentry_addkey(&se,kp,kl,argsbuf,al) ;
+	            }
 
 #if	CF_DEBUGS && CF_DEBUGSFILE
-	        debugprintf("nodedb_fileparse: "
-	            "svcentry_addkey() rs=%d\n", rs) ;
+	            debugprintf("nodedb_fileparse: "
+	                "svcentry_addkey() rs=%d\n", rs) ;
 #endif
 
-	    } /* end if (handling key-value pair) */
+	        } /* end if (handling key-value pair) */
 
-	    c_field += 1 ;
-	    if (fsb.term == '#') break ;
-	    if (rs < 0) break ;
-	} /* end while (fields) */
+	        c_field += 1 ;
+	        if (fsb.term == '#') break ;
+	        if (rs < 0) break ;
+	    } /* end while (fields) */
 
-	field_finish(&fsb) ;
+	    field_finish(&fsb) ;
 	} /* end if (field) */
 
 	if (rs >= 0) {
@@ -908,68 +832,17 @@ static int nodedb_fileparseline(NODEDB *op,int fi,cchar *lp,int ll)
 /* end subroutine (nodedb_fileparseline) */
 
 
-#ifdef	COMMENT
-
-/* do we have this entry already */
-static int nodedb_already(NODEDB *op,NODEDB_ENT *nep)
-{
-	struct nodedb_key	*kep ;
-	NODEDB_ENT	*ep ;
-	HDB_CUR		cur ;
-	HDB_DATUM	key, val ;
-	int		rs ;
-	int		f = FALSE ;
-
-#if	CF_DEBUGS
-	debugprintf("nodedb_already: new val=%s\n",nep->vname) ;
-#endif
-
-	kep = nep->kep ;
-
-	key.buf = kep->kname ;
-	key.len = strlen(kep->kname) ;
-
-#if	CF_DEBUGS
-	debugprintf("nodedb_already: new key=%s\n",kep->kname) ;
-#endif
-
-	if ((rs = hdb_curbegin(&op->entries,&cur)) >= 0) {
-
-	    while (hdb_fetch(&op->entries,key,&cur,&val) >= 0) {
-
-	        ep = (struct nodedb_ent *) val.buf ;
-
-#if	CF_DEBUGS
-	        debugprintf("nodedb_already: val=%s\n",ep->vname) ;
-#endif
-
-	        f = (strcmp(nep->vname,ep->vname) == 0) ;
-
-	        if (f) break ;
-	    } /* end while */
-
-	    hdb_curend(&op->entries,&cur) ;
-	} /* end if (cursor) */
-
-	if ((rs >= 0) && (! f)) rs = SR_NOTFOUND ;
-
-	return rs ;
-}
-/* end subroutine (nodedb_already) */
-
-#endif /* COMMENT */
-
-
 /* add an entry to the access entry list */
-static int nodedb_addentry(NODEDB *op,int fi,struct svcentry *sep)
+static int nodedb_addentry(NODEDB *op,int fi,SVCENTRY *sep)
 {
 	NODEDB_IE	*iep ;
+	const int	size = sizeof(NODEDB_IE) ;
 	int		rs ;
-	int		size ;
 
+#if	CF_SAFECHECK
 	if (sep == NULL) return SR_FAULT ;
+#endif /* CF_SAFECHECK */
 
-	size = sizeof(NODEDB_IE) ;
 	if ((rs = uc_malloc(size,&iep)) >= 0) {
 	    if ((rs = ientry_start(iep,fi,sep)) >= 0) {
 	        HDB_DATUM	key, val ;
@@ -1020,21 +893,21 @@ static int nodedb_filedump(NODEDB *op,int fi)
 #endif
 
 	            rs1 = hdb_delcur(elp,&cur,0) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 
 #if	CF_DEBUGS
 	            debugprintf("nodedb_filedump: 1 \n") ;
 #endif
 
 	            rs1 = ientry_finish(iep) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 
 #if	CF_DEBUGS
 	            debugprintf("nodedb_filedump: 2 freeing entry\n") ;
 #endif
 
 	            rs1 = uc_free(iep) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (found matching entry) */
 
 	    } /* end while (looping through entries) */
@@ -1089,7 +962,9 @@ static int file_start(NODEDB_FILE *fep,cchar *fname)
 	int		rs = SR_OK ;
 	const char	*cp ;
 
+#if	CF_SAFECHECK
 	if (fname == NULL) return SR_FAULT ;
+#endif /* CF_SAFECHECK */
 
 	memset(fep,0,sizeof(NODEDB_FILE)) ;
 
@@ -1106,7 +981,9 @@ static int file_finish(NODEDB_FILE *fep)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+#if	CF_SAFECHECK
 	if (fep == NULL) return SR_FAULT ;
+#endif /* CF_SAFECHECK */
 
 	if (fep->fname != NULL) {
 	    rs1 = uc_free(fep->fname) ;
@@ -1119,21 +996,15 @@ static int file_finish(NODEDB_FILE *fep)
 /* end subroutine (file_finish) */
 
 
-static int ientry_start(iep,fi,sep)
-NODEDB_IE	*iep ;
-int			fi ;
-struct svcentry		*sep ;
+static int ientry_start(NODEDB_IE *iep,int fi,SVCENTRY *sep)
 {
-	struct svcentry_key	*kep ;
 	int		rs ;
-	int		i, j ;
-	int		size ;
+	int		size = 0 ;
 	int		c = 0 ;
-	void		*p ;
-	const char	*(*keys)[2] ;
-	char		*bp ;
 
+#if	CF_SAFECHECK
 	if (iep == NULL) return SR_FAULT ;
+#endif /* CF_SAFECHECK */
 
 	memset(iep,0,sizeof(NODEDB_IE)) ;
 	iep->fi = fi ;
@@ -1146,107 +1017,102 @@ struct svcentry		*sep ;
 
 /* ok to continue */
 
-	size = 0 ;
-	c = vecobj_count(&sep->keys) ;
-	if (c < 0) goto ret0 ;
+	if ((rs = vecobj_count(&sep->keys)) >= 0) {
+	    SVCENTRY_KEY	*kep ;
+	    int		i ;
+	    void	*p ;
 
-	iep->nkeys = c ;
+	    iep->nkeys = rs ;
+	    c = rs ;
 
 /* find the size to allocate (everything) */
 
-	size += ((c + 1) * 2 * sizeof(char *)) ;
+	    size += ((c + 1) * 2 * sizeof(char *)) ;
 
-	for (i = 0 ; vecobj_get(&sep->keys,i,&kep) >= 0 ; i += 1) {
-	    if (kep == NULL) continue ;
-	    if (kep->kname != NULL) size += kep->kl ; 
-	    size += 1 ;
-	    if (kep->args != NULL) size += kep->al ; 
-	    size += 1 ;
-	}
+	    for (i = 0 ; vecobj_get(&sep->keys,i,&kep) >= 0 ; i += 1) {
+	        if (kep != NULL) {
+	            if (kep->kname != NULL) size += kep->kl ;
+	            size += 1 ;
+	            if (kep->args != NULL) size += kep->al ;
+	            size += 1 ;
+	        }
+	    } /* end for */
 
-	for (i = 0 ; i < 3 ; i += 1) {
-	    const char	*cp ;
-	    switch (i) {
-	    case 0: 
-	        cp = sep->svc ; 
-	        break ;
-	    case 1: 
-	        cp = sep->clu ; 
-	        break ;
-	    case 2: 
-	        cp = sep->sys ; 
-	        break ;
-	    }
-	    size += (strlen(cp) + 1) ;
-	} /* end for */
+	    for (i = 0 ; i < 3 ; i += 1) {
+	        cchar	*cp ;
+	        switch (i) {
+	        case 0:
+	            cp = sep->svc ;
+	            break ;
+	        case 1:
+	            cp = sep->clu ;
+	            break ;
+	        case 2:
+	            cp = sep->sys ;
+	            break ;
+	        } /* end switch */
+	        size += (strlen(cp) + 1) ;
+	    } /* end for */
 
 /* allocate */
 
-	iep->size = size ;
-	rs = uc_malloc(size,&p) ;
-	if (rs < 0) goto bad0 ;
+	    iep->size = size ;
+	    if ((rs = uc_malloc(size,&p)) >= 0) {
+	        int	j = 0 ;
+	        cchar	*(*keys)[2] = p ;
+	        char	*bp = p ;
 
-/* copy over everything */
+	        iep->a = (const char *) p ;
+	        iep->keys = keys ;
 
-	iep->a = (const char *) p ;
-	keys = (const char *(*)[2]) p ;
-
-	iep->keys = keys ;
-
-	bp = (char *) p ;
-	bp += ((c + 1) * 2 * sizeof(char *)) ;
+	        bp += ((c + 1) * 2 * sizeof(char *)) ;
 
 /* copy over the key-table and the key and value strings */
 
-	j = 0 ;
-	for (i = 0 ; vecobj_get(&sep->keys,i,&kep) >= 0 ; i += 1) {
-	    if (kep == NULL) continue ;
+	        for (i = 0 ; vecobj_get(&sep->keys,i,&kep) >= 0 ; i += 1) {
+	            if (kep != NULL) {
+	                if (kep->kname != NULL) {
+	                    keys[j][0] = bp ;
+	                    bp = strwcpy(bp,kep->kname,kep->kl) ;
+	                    keys[j][1] = bp++ ;
+	                    if (kep->args != NULL) {
+	                        keys[j][1] = bp ;
+	                        bp = (strwcpy(bp,kep->args,kep->al) + 1) ;
+	                    }
+	                    j += 1 ;
+	                }
+	            }
+	        } /* end for */
 
-#if	CF_DEBUGS
-	    debugprintf("nodedb/ientry_start: kl=%d k=%s\n",
-	        kep->kl,kep->kname) ;
-	    debugprintf("nodedb/ientry_start: al=%d a=%s\n",
-	        kep->al,kep->args) ;
-#endif
-
-	    if (kep->kname != NULL) {
-	        keys[j][0] = bp ;
-	        bp = strwcpy(bp,kep->kname,kep->kl) ;
-	        keys[j][1] = bp++ ;
-	        if (kep->args != NULL) {
-	            keys[j][1] = bp ;
-	            bp = (strwcpy(bp,kep->args,kep->al) + 1) ;
-	        }
-	        j += 1 ;
-	    }
-
-	} /* end for */
-
-	keys[j][0] = NULL ;
-	keys[j][1] = NULL ;
+	        keys[j][0] = NULL ;
+	        keys[j][1] = NULL ;
 
 /* copy over the other stuff */
 
-	for (i = 0 ; i < 3 ; i += 1) {
-	    const char	*cp ;
-	    switch (i) {
-	    case 0: 
-	        iep->svc = bp ; 
-	        cp = sep->svc ; 
-	        break ;
-	    case 1: 
-	        iep->clu = bp ; 
-	        cp = sep->clu ; 
-	        break ;
-	    case 2: 
-	        iep->sys = bp ; 
-	        cp = sep->sys ; 
-	        break ;
-	    }
-	    bp = (strwcpy(bp,cp,-1) + 1) ;
-	} /* end for */
+	        for (i = 0 ; i < 3 ; i += 1) {
+	            cchar	*cp ;
+	            switch (i) {
+	            case 0:
+	                iep->svc = bp ;
+	                cp = sep->svc ;
+	                break ;
+	            case 1:
+	                iep->clu = bp ;
+	                cp = sep->clu ;
+	                break ;
+	            case 2:
+	                iep->sys = bp ;
+	                cp = sep->sys ;
+	                break ;
+	            } /* end switch */
+	            bp = (strwcpy(bp,cp,-1) + 1) ;
+	        } /* end for */
 
-ret0:
+	    } else {
+	        iep->svc = NULL ;
+	    } /* end if (m-a) */
+
+	} /* end if (vecobj_count) */
 
 #if	CF_DEBUGS
 	debugprintf("nodedb/ientry_start: svc=%s\n",iep->svc) ;
@@ -1254,11 +1120,6 @@ ret0:
 #endif
 
 	return (rs >= 0) ? c : rs ;
-
-/* bad things */
-bad0:
-	iep->svc = NULL ;
-	goto ret0 ;
 }
 /* end subroutine (ientry_start) */
 
@@ -1268,7 +1129,9 @@ static int ientry_finish(NODEDB_IE *iep)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+#if	CF_SAFECHECK
 	if (iep == NULL) return SR_FAULT ;
+#endif /* CF_SAFECHECK */
 
 	if (iep->a != NULL) {
 	    rs1 = uc_free(iep->a) ;
@@ -1282,83 +1145,52 @@ static int ientry_finish(NODEDB_IE *iep)
 /* end subroutine (ientry_finish) */
 
 
-#ifdef	COMMENT
-
-static int key_init(kep,kname)
-struct nodedb_key	*kep ;
-const char		kname[] ;
-{
-	int		kl ;
-
-	memset(kep,0,sizeof(struct nodedb_key)) ;
-
-	kl = NODEDB_SVCLEN ;
-	if (kname != NULL)
-	    kep->kname = mallocstrw(kname,kl) ;
-
-	return (kep->kname != NULL) ? SR_OK : SR_NOMEM ;
-}
-
-
-static int key_free(kep)
-struct nodedb_key	*kep ;
-{
-
-	if (kep->kname != NULL) {
-	    uc_free(kep->kname) ;
-	    kep->kname = NULL ;
-	}
-
-	return 0 ;
-}
-
-#endif /* COMMENT */
-
-
-static int svcentry_start(struct svcentry *sep,struct lineinfo *lip)
+static int svcentry_start(SVCENTRY *sep,LINEINFO *lip)
 {
 	int		rs ;
 	int		i ;
-	int		size ;
+	int		size = 0 ;
 	char		*bp ;
 
+#if	CF_SAFECHECK
 	if (lip == NULL) return SR_FAULT ;
+#endif /* CF_SAFECHECK */
 
-	memset(sep,0,sizeof(struct svcentry)) ;
+	memset(sep,0,sizeof(SVCENTRY)) ;
 
-	size = 0 ;
 	for (i = 0 ; i < 3 ; i += 1) {
-	    const char	*cp = lip->f[i].fp ;
 	    int		cl = lip->f[i].fl ;
+	    const char	*cp = lip->f[i].fp ;
 	    if (cl < 0) cl = strlen(cp) ;
 	    size += (cl + 1) ;
 	} /* end for */
 
 	if ((rs = uc_malloc(size,&bp)) >= 0) {
-	sep->a = bp ;
-	for (i = 0 ; i < 3 ; i += 1) {
-	    switch (i) {
-	    case 0: 
-	        sep->svc = bp ; 
-	        break ;
-	    case 1: 
-	        sep->clu = bp ; 
-	        break ;
-	    case 2: 
-	        sep->sys = bp ; 
-	        break ;
-	    }
-	    bp = strwcpy(bp,lip->f[i].fp,lip->f[i].fl) + 1 ;
-	} /* end for */
+	    sep->a = bp ;
+
+	    for (i = 0 ; i < 3 ; i += 1) {
+	        switch (i) {
+	        case 0:
+	            sep->svc = bp ;
+	            break ;
+	        case 1:
+	            sep->clu = bp ;
+	            break ;
+	        case 2:
+	            sep->sys = bp ;
+	            break ;
+	        } /* end switch */
+	        bp = (strwcpy(bp,lip->f[i].fp,lip->f[i].fl) + 1) ;
+	    } /* end for */
 
 /* prepare for arguments */
 
-	size = sizeof(struct svcentry_key) ;
-	rs = vecobj_start(&sep->keys,size,5,VECOBJ_PORDERED) ;
-	if (rs < 0) {
-	    uc_free(sep->a) ;
-	    sep->a = NULL ;
-	}
+	    size = sizeof(SVCENTRY_KEY) ;
+	    rs = vecobj_start(&sep->keys,size,5,VECOBJ_PORDERED) ;
+	    if (rs < 0) {
+	        uc_free(sep->a) ;
+	        sep->a = NULL ;
+	    }
 	} else {
 	    sep->svc = NULL ;
 	}
@@ -1373,19 +1205,18 @@ static int svcentry_start(struct svcentry *sep,struct lineinfo *lip)
 
 
 /* add a key to this entry */
-static int svcentry_addkey(sep,kp,kl,ap,al)
-struct svcentry	*sep ;
-const char	*kp ;
-int		kl ;
-const char	*ap ;
-int		al ;
+static int svcentry_addkey(SVCENTRY *sep,cchar *kp,int kl,cchar *ap,int al)
 {
-	struct svcentry_key	key ;
+	SVCENTRY_KEY	key ;
 	int		rs ;
-	int		size ;
+	int		size = 0 ;
 	char		*bp ;
 
+#if	CF_SAFECHECK
 	if (sep == NULL) return SR_FAULT ;
+	if (kp == NULL) return SR_FAULT ;
+	if (kp[0] == '\0') return SR_INVALID ;
+#endif /* CF_SAFECHECK */
 
 #if	CF_DEBUGS
 	debugprintf("nodedb/svcentry_addkey: kl=%d kp=%t\n",kl,kp,kl) ;
@@ -1393,17 +1224,10 @@ int		al ;
 	    debugprintf("nodedb/svcentry_addkey: al=%d ap=%t\n",al,ap,al) ;
 #endif
 
-/* sanity checks on input arguments */
-
-	if (kp == NULL) return SR_FAULT ;
-
-	if (kp[0] == '\0') return SR_INVALID ;
-
 /* ok */
 
-	memset(&key,0,sizeof(struct svcentry_key)) ;
+	memset(&key,0,sizeof(SVCENTRY_KEY)) ;
 
-	size = 0 ;
 	if (kl < 0) kl = strlen(kp) ;
 	size += (kl + 1) ;
 	if (ap != NULL) {
@@ -1417,33 +1241,33 @@ int		al ;
 
 /* copy over (load) the key-name */
 
-	key.kname = bp ; 
-	bp = (strwcpy(bp,kp,kl) + 1) ;
-	key.kl = kl ;
+	    key.kname = bp ;
+	    bp = (strwcpy(bp,kp,kl) + 1) ;
+	    key.kl = kl ;
 
 /* copy over (load) the arguments (if any) */
 
-	key.args = bp ; 
-	key.al = 0 ;
-	if (ap != NULL) {
-	    bp = (strwcpy(bp,ap,al) + 1) ;
-	    key.al = al ;
-	} else {
-	    *bp++ = '\0' ;
-	}
+	    key.args = bp ;
+	    key.al = 0 ;
+	    if (ap != NULL) {
+	        bp = (strwcpy(bp,ap,al) + 1) ;
+	        key.al = al ;
+	    } else {
+	        *bp++ = '\0' ;
+	    }
 
 /* add the key object to the key-list */
 
-	rs = vecobj_add(&sep->keys,&key) ;
-	if (rs < 0) {
-	    if (key.kname != NULL) {
-	        uc_free(key.kname) ;
-	        key.kname = NULL ;
-	        key.args = NULL ;
+	    rs = vecobj_add(&sep->keys,&key) ;
+	    if (rs < 0) {
+	        if (key.kname != NULL) {
+	            uc_free(key.kname) ;
+	            key.kname = NULL ;
+	            key.args = NULL ;
+	        }
 	    }
-	}
 
-	}
+	} /* end if (m-a) */
 
 	return rs ;
 }
@@ -1451,20 +1275,19 @@ int		al ;
 
 
 /* free up an entry */
-static int svcentry_finish(sep)
-struct svcentry	*sep ;
+static int svcentry_finish(SVCENTRY *sep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 
 	if (sep->svc != NULL) {
-	    struct svcentry_key	*kep ;
-	    int	i ;
+	    SVCENTRY_KEY	*kep ;
+	    int			i ;
 	    for (i = 0 ; vecobj_get(&sep->keys,i,&kep) >= 0 ; i += 1) {
 	        if (kep != NULL) {
 	            if (kep->kname != NULL) {
 	                rs1 = uc_free(kep->kname) ;
-		        if (rs >= 0) rs = rs1 ;
+	                if (rs >= 0) rs = rs1 ;
 	            }
 	        }
 	    } /* end for */
@@ -1480,38 +1303,31 @@ struct svcentry	*sep ;
 /* end subroutine (svcentry_finish) */
 
 
-static int entry_load(ep,ebuf,elen,iep)
-NODEDB_ENT	*ep ;
-char		ebuf[] ;
-int		elen ;
-NODEDB_IE	*iep ;
+static int entry_load(NODEDB_ENT *ep,char *ebuf,int elen,NODEDB_IE *iep)
 {
 	int		rs = SR_OK ;
-	int		svclen ;
-	int		bo, i, kal ;
-	const char	*(*keys)[2] ;
+	int		bo ;
+	int		svclen = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("entry_load: ent elen=%u\n",elen) ;
-#endif
-
-#if	CF_DEBUGS
 	debugprintf("entry_load: ie size=%u nkeys=%u svc=%s\n",
 	    iep->size,iep->nkeys,iep->svc) ;
 #endif
 
 	bo = NODEDB_BO((ulong) ebuf) ;
 	if (iep->size <= (elen - bo)) {
+	    int		i ;
+	    int		kal = (iep->nkeys + 1) * 2 * sizeof(char *) ;
+	    cchar	*(*keys)[2] = (cchar *(*)[2]) (ebuf + bo) ;
 	    char	*bp ;
 
-	    keys = (const char *(*)[2]) (ebuf + bo) ;
-	    kal = (iep->nkeys + 1) * 2 * sizeof(char *) ;
 	    bp = (char *) (ebuf + bo + kal) ;
 
 /* copy in the nodename */
 
 	    ep->svc = bp ;
-	    bp = strwcpy(bp,iep->svc,-1) + 1 ;
+	    bp = (strwcpy(bp,iep->svc,-1) + 1) ;
 
 	    svclen = (bp - ep->svc - 1) ;
 
@@ -1523,7 +1339,7 @@ NODEDB_IE	*iep ;
 
 	    ep->clu = bp ;
 	    if (iep->clu != NULL) {
-	        bp = strwcpy(bp,iep->clu,-1) + 1 ;
+	        bp = (strwcpy(bp,iep->clu,-1) + 1) ;
 	    } else {
 	        *bp++ = '\0' ;
 	    }
@@ -1532,7 +1348,7 @@ NODEDB_IE	*iep ;
 
 	    ep->sys = bp ;
 	    if (iep->sys != NULL) {
-	        bp = strwcpy(bp,iep->sys,-1) + 1 ;
+	        bp = (strwcpy(bp,iep->sys,-1) + 1) ;
 	    } else {
 	        *bp++ = '\0' ;
 	    }
@@ -1542,7 +1358,7 @@ NODEDB_IE	*iep ;
 	    for (i = 0 ; i < iep->nkeys ; i += 1) {
 
 	        keys[i][0] = bp ;
-	        bp = strwcpy(bp,iep->keys[i][0],-1) + 1 ;
+	        bp = (strwcpy(bp,iep->keys[i][0],-1) + 1) ;
 
 #if	CF_DEBUGS
 	        debugprintf("nodedb_fetch: k=%s\n",keys[i][0]) ;
@@ -1550,10 +1366,10 @@ NODEDB_IE	*iep ;
 
 	        if (iep->keys[i][1] != NULL) {
 	            keys[i][1] = bp ;
-	            bp = strwcpy(bp,iep->keys[i][1],-1) + 1 ;
+	            bp = (strwcpy(bp,iep->keys[i][1],-1) + 1) ;
 	        } else {
 	            keys[i][1] = NULL ;
-		}
+	        }
 
 	    } /* end for */
 
@@ -1565,8 +1381,9 @@ NODEDB_IE	*iep ;
 	    ep->nkeys = iep->nkeys ;
 	    ep->size = iep->size ;
 
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? svclen : rs ;
 }
@@ -1585,51 +1402,20 @@ static int freeit(cchar **pp)
 /* end subroutine (freeit) */
 
 
-static int cmpfname(struct nodedb_file **e1pp,struct nodedb_file **e2pp)
+static int cmpfname(NODEDB_FILE **e1pp,NODEDB_FILE **e2pp)
 {
 	int		rc = 0 ;
 	if ((*e1pp != NULL) || (*e2pp != NULL)) {
 	    if (*e1pp != NULL) {
 	        if (*e2pp != NULL) {
-		    rc = strcmp((*e1pp)->fname,(*e2pp)->fname) ;
-		} else
-	    	    rc = -1 ;
+	            rc = strcmp((*e1pp)->fname,(*e2pp)->fname) ;
+	        } else
+	            rc = -1 ;
 	    } else
 	        rc = 1 ;
 	}
 	return rc ;
 }
 /* end subroutine (cmpfname) */
-
-
-#ifdef	COMMENT
-static int cmpkey(e1pp,e2pp)
-struct nodedb_key	**e1pp, **e2pp ;
-{
-	int		rc ;
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-#if	CF_DEBUGS
-	debugprintf("nodedb/cmpkey: k1(%p)=%s k2(%p)=%s\n",
-	    (*e1pp)->kname,
-	    (*e1pp)->kname,
-	    (*e2pp)->kname,
-	    (*e2pp)->kname) ;
-#endif
-
-	rc = strcmp((*e1pp)->kname,(*e2pp)->kname) ;
-
-	return rc ;
-}
-/* end subroutine (cmpkey) */
-#endif /* COMMENT */
 
 

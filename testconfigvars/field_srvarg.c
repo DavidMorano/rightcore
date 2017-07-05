@@ -128,7 +128,7 @@ static const unsigned char	dterms[] = {
 /* exported subroutines */
 
 
-int field_srvarg(FIELD *fsbp,const uchar terms[],char abuf[],int alen)
+int field_srvarg(FIELD *fsbp,const uchar *terms,char *abuf,int alen)
 {
 	uint		ch, nch ;
 	uint		qe ;
@@ -159,8 +159,6 @@ int field_srvarg(FIELD *fsbp,const uchar terms[],char abuf[],int alen)
 	}
 
 	abuf[0] = '\0' ;
-	if (ll <= 0) 
-	    goto done ;
 
 /* process the standard SHELL string */
 
@@ -357,13 +355,15 @@ int field_srvarg(FIELD *fsbp,const uchar terms[],char abuf[],int alen)
 
 /* do the terminator processing */
 
-	term = ' ' ;
-	ch = CLEANCHAR(*lp) ;
-	if (BATST(terms,ch)) {
-	    term = ch ;
-	    lp += 1 ;
-	    ll -= 1 ;
-	} /* end if (it was a terminator) */
+	if (ll > 0) {
+	    term = ' ' ;
+	    ch = CLEANCHAR(*lp) ;
+	    if (BATST(terms,ch)) {
+	        term = ch ;
+	        lp += 1 ;
+	        ll -= 1 ;
+	    } /* end if (it was a terminator) */
+	}
 
 	while ((ll > 0) && CHAR_ISWHITE(*lp)) {
 	    lp += 1 ;
@@ -389,7 +389,7 @@ int field_srvarg(FIELD *fsbp,const uchar terms[],char abuf[],int alen)
 #endif
 
 /* update the return status block */
-done:
+
 	fsbp->lp = (const uchar *) lp ;
 	fsbp->ll = ll ;
 	fsbp->fp = (fl >= 0) ? ((const uchar *) abuf) : NULL ;

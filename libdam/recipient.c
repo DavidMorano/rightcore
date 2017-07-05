@@ -63,15 +63,16 @@
 extern char	*strwcpylc(char *,const char *,int) ;
 
 
+/* local structures */
+
+
 /* forward references */
 
 
 /* exported subroutines */
 
 
-int recipient_start(op,n)
-RECIPIENT	*op ;
-int		n ;
+int recipient_start(RECIPIENT *op,int n)
 {
 	int		rs ;
 	int		opts ;
@@ -87,9 +88,7 @@ int		n ;
 	debugprintf("recipient_start: ent n=%d\n",n) ;
 #endif
 
-	rs = hdb_start(&op->hash,n,0,NULL,NULL) ;
-
-	if (rs >= 0) {
+	if ((rs = hdb_start(&op->hash,n,0,NULL,NULL)) >= 0) {
 
 #if	CF_DEBUGS
 	    debugprintf("recipient_start: hash inited rs=%d\n",rs) ;
@@ -114,15 +113,17 @@ int		n ;
 /* add a recipient to the database */
 int recipient_add(op,host,local,type)
 RECIPIENT	*op ;
-const char	host[], local[] ;
+const char	host[] ;
+const char	local[] ;
 int		type ;
 {
-	HDB_DATUM	key, value ;
-	RECIPIENT_VAL	*vp, ve ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	HDB_DATUM	key, val ;
+	RECIPIENT_VAL	*vp = NULL ;
+	RECIPIENT_VAL	ve ;
+	int		rs ;
 	int		hlen ;
 	int		size ;
+	int		vidx = -1 ;
 	const char	*cp ;
 	char		hostbuf[MAXHOSTNAMELEN + 1] ;
 	char		*p ;
@@ -131,7 +132,7 @@ int		type ;
 	if (local == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("recipient_add: continuing\n") ;
+	debugprintf("recipient_add: cont\n") ;
 #endif
 
 	if ((host == NULL) || (type < 0))
@@ -144,70 +145,48 @@ int		type ;
 
 	key.buf = host ;
 	key.len = hlen ;
-	rs1 = hdb_fetch(&op->hash,key,NULL,&value) ;
-
-	if (rs1 == SR_NOENT) {
-
-#if	CF_DEBUGS
-	    debugprintf("recipient_add: host not already added\n") ;
-	    debugprintf("recipient_add: host=%s\n",host) ;
-#endif
-
-	    rs = vecstr_add(&op->names,host,hlen) ;
-
-#if	CF_DEBUGS
-	    debugprintf("recipient_add: host NAA rs=%d\n",rs) ;
-#endif
-
-	    if (rs < 0)
-	        goto bad1 ;
-
-	    vecstr_get(&op->names,rs,&cp) ;
-
-	    key.buf = cp ;
-	    key.len = -1 ;
-
-	} else if (rs1 >= 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("recipient_add: host already added\n") ;
-#endif
-
-	    vp = (RECIPIENT_VAL *) value.buf ;
-
+	if ((rs = hdb_fetch(&op->hash,key,NULL,&val)) >= 0) {
+	    vp = (RECIPIENT_VAL *) val.buf ;
 	    key.buf = vp->hostpart ;
 	    key.len = -1 ;
-
+	} else if (rs == SR_NOENT) {
+	    if ((rs = vecstr_add(&op->names,host,hlen)) >= 0) {
+	        vidx = rs ;
+	        vecstr_get(&op->names,rs,&cp) ;
+	        key.buf = cp ;
+	        key.len = -1 ;
+	    }
 	} /* end if */
 
 #if	CF_DEBUGS
 	debugprintf("recipient_add: allocating\n") ;
 #endif
 
-	rs = uc_mallocstrw(local,-1,&cp) ;
-	if (rs < 0) goto bad1 ;
-
-	size = sizeof(RECIPIENT_VAL) ;
-
-	memset(&ve,0,size) ;
-	ve.type = type ;
-	ve.a = NULL ;
-	ve.hostpart = (const char *) key.buf ;
-	ve.localpart = cp ;
-
-	rs = uc_malloc(size,&p) ;
-	if (rs < 0) goto bad2 ;
-
-	vp = (RECIPIENT_VAL *) p ;
-
-	value.buf = (char *) vp ;
-	value.len = size ;
-
-	rs = hdb_store(&op->hash,key,value) ;
-	if (rs < 0)
-	    goto bad3 ;
-
-ret0:
+	if (rs >= 0) {
+	    if ((rs = uc_mallocstrw(local,-1,&cp)) >= 0) {
+	        size = sizeof(RECIPIENT_VAL) ;
+	        memset(&ve,0,size) ;
+	        ve.type = type ;
+	        ve.a = NULL ;
+	        ve.hostpart = (cchar *) key.buf ;
+	        ve.localpart = cp ;
+	        if ((rs = uc_malloc(size,&p)) >= 0) {
+	            vp = (RECIPIENT_VAL *) p ;
+	            val.buf = (char *) vp ;
+	            val.len = size ;
+	            rs = hdb_store(&op->hash,key,val) ;
+	            if (rs < 0) {
+	                uc_free(vp) ;
+	            }
+	        } /* end if (m-a) */
+	        if (rs < 0) {
+	            uc_free(ve.localpart) ;
+	        }
+	    } /* end if (m-a) */
+	    if ((rs < 0) && (vidx >= 0)) {
+	        vecstr_del(&op->names,vidx) ;
+	    }
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("recipient_add: ret key=%t rs=%d\n",
@@ -215,16 +194,6 @@ ret0:
 #endif
 
 	return rs ;
-
-/* bad things come here */
-bad3:
-	uc_free(vp) ;
-
-bad2:
-	uc_free(ve.localpart) ;
-
-bad1:
-	goto ret0 ;
 }
 /* end subroutine (recipient_add) */
 
@@ -232,10 +201,11 @@ bad1:
 /* fetch on a address tripple */
 int recipient_already(op,host,local,type)
 RECIPIENT	*op ;
-const char	host[], local[] ;
+const char	host[] ;
+const char	local[] ;
 int		type ;
 {
-	HDB_DATUM	key, value ;
+	HDB_DATUM	key, val ;
 	HDB_CUR		cur ;
 	RECIPIENT_VAL	*vp ;
 	int		rs ;
@@ -247,7 +217,7 @@ int		type ;
 	if (local == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("recipient_already: continuing\n") ;
+	debugprintf("recipient_already: cont\n") ;
 #endif
 
 	if ((host == NULL) || (type < 0))
@@ -263,17 +233,17 @@ int		type ;
 
 	if ((rs = hdb_curbegin(&op->hash,&cur)) >= 0) {
 
-	while ((rs = hdb_fetch(&op->hash,key,&cur,&value)) >= 0) {
+	    while ((rs = hdb_fetch(&op->hash,key,&cur,&val)) >= 0) {
 
-	    vp = (RECIPIENT_VAL *) value.buf ;
-	    f = TRUE ;
-	    f = f && (type == vp->type) ;
-	    f = f && (strcmp(local,vp->localpart) == 0) ;
-	    if (f) break ;
+	        vp = (RECIPIENT_VAL *) val.buf ;
+	        f = TRUE ;
+	        f = f && (type == vp->type) ;
+	        f = f && (strcmp(local,vp->localpart) == 0) ;
+	        if (f) break ;
 
-	} /* end while */
+	    } /* end while */
 
-	hdb_curend(&op->hash,&cur) ;
+	    hdb_curend(&op->hash,&cur) ;
 	} /* end if (curosr) */
 
 	return rs ;
@@ -286,9 +256,8 @@ int recipient_finish(op)
 RECIPIENT	*op ;
 {
 	HDB_CUR		keycursor ;
-	HDB_DATUM	key, value ;
-	RECIPIENT_VAL	*vp ;
-	int		rs = SR_OK ;
+	HDB_DATUM	key, val ;
+	int		rs ;
 	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -296,30 +265,30 @@ RECIPIENT	*op ;
 /* pop the hash table first */
 
 	if ((rs = hdb_curbegin(&op->hash,&keycursor)) >= 0) {
+	    RECIPIENT_VAL	*vp ;
 
-	while (hdb_enum(&op->hash,&keycursor,&key,&value) >= 0) {
+	    while (hdb_enum(&op->hash,&keycursor,&key,&val) >= 0) {
 
-	    if (value.buf != NULL) {
+	        if (val.buf != NULL) {
 
-	        vp = (RECIPIENT_VAL *) value.buf ;
+	            vp = (RECIPIENT_VAL *) val.buf ;
 
-	        if (vp->a != NULL) {
-	            uc_free(vp->a) ;
-		    vp->a = NULL ;
-		}
+	            if (vp->a != NULL) {
+	                uc_free(vp->a) ;
+	                vp->a = NULL ;
+	            }
 
-	        if (vp->localpart != NULL) {
-	            uc_free(vp->localpart) ;
-		    vp->localpart = NULL ;
-		}
+	            if (vp->localpart != NULL) {
+	                uc_free(vp->localpart) ;
+	                vp->localpart = NULL ;
+	            }
 
-	        uc_free(vp) ;
+	            uc_free(vp) ;
+	        } /* end if */
 
-	    } /* end if */
+	    } /* end while */
 
-	} /* end while */
-
-	hdb_curend(&op->hash,&keycursor) ;
+	    hdb_curend(&op->hash,&keycursor) ;
 	} /* end if (cursor) */
 
 	rs1 = hdb_finish(&op->hash) ;
@@ -341,8 +310,7 @@ RECIPIENT	*op ;
 {
 	int		rs ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
 	rs = vecstr_count(&op->names) ;
 
@@ -357,8 +325,7 @@ RECIPIENT	*op ;
 {
 	int		rs ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
 	rs = hdb_count(&op->hash) ;
 
@@ -376,8 +343,7 @@ RECIPIENT	*vhp ;
 
 	if (vhp == NULL) return SR_FAULT ;
 
-	if (vhp->va == NULL)
-	    return SR_OK ;
+	if (vhp->va == NULL) return SR_OK ;
 
 	if (vhp->c > 1)
 	    qsort(vhp->va,(size_t) vhp->i,sizeof(char *),ourcmp) ;
@@ -408,9 +374,7 @@ const char	**hnpp ;
 
 	while ((rs = vecstr_get(&op->names,i,hnpp)) >= 0) {
 	    if (*hnpp != NULL) break ;
-
 	    i += 1 ;
-
 	} /* end while */
 
 	*hcp = (rs >= 0) ? i : -1 ;
@@ -426,21 +390,18 @@ const char	host[] ;
 RECIPIENT_VCUR	*vcp ;
 RECIPIENT_VAL	**vepp ;
 {
-	HDB_DATUM	key, value ;
+	HDB_DATUM	key, val ;
 	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	key.buf = host ;
 	key.len = -1 ;
-	rs = hdb_fetch(&op->hash,key,vcp,&value) ;
-
-	if (rs >= 0) {
-
-	    if (vepp != NULL)
-	        *vepp = (RECIPIENT_VAL *) value.buf ;
-
-	    rs = value.len ;
+	if ((rs = hdb_fetch(&op->hash,key,vcp,&val)) >= 0) {
+	    if (vepp != NULL) {
+	        *vepp = (RECIPIENT_VAL *) val.buf ;
+	    }
+	    rs = val.len ;
 	}
 
 	return rs ;

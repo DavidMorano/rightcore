@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 2008-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -38,7 +36,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<estrings.h>

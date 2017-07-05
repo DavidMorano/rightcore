@@ -15,7 +15,7 @@
 	This subroutine was adopted for use in the RUNADVICE program.
 
 	= 1996-07-01, David A­D­ Morano
-	This subroutine was adopted for use in the 'rexecd' daemon program.
+	This subroutine was adopted for use in the REXECD daemon program.
 
 	= 2004-05-25, David A­D­ Morano
 	This subroutine was adopted for use as a general key-value file reader.
@@ -46,14 +46,10 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<vecstr.h>
 #include	<ids.h>
-#include	<nodedb.h>
-#include	<clusterdb.h>
 #include	<localmisc.h>
 
 #include	"dbi.h"
@@ -72,11 +68,14 @@
 
 /* external subroutines */
 
-extern int	mkpath2(char *,const char *,const char *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
-extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
+extern int	perm(cchar *,uid_t,gid_t,gid_t *,int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */
@@ -87,6 +86,11 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
+static int dbi_nodebegin(DBI *,IDS *,cchar *) ;
+static int dbi_nodeend(DBI *) ;
+static int dbi_clusterbegin(DBI *,IDS *,cchar *) ;
+static int dbi_clusterend(DBI *) ;
+
 
 /* local variables */
 
@@ -94,100 +98,45 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int dbi_open(DBI *dbip,IDS *idp,cchar *pr)
+int dbi_open(DBI *op,cchar *pr)
 {
-	struct ustat	sb ;
-	int		rs = SR_OK ;
+	IDS		id ;
+	int		rs ;
 	int		rs1 ;
-	char		tmpfname[MAXPATHLEN + 1] ;
 
-	if (dbip == NULL) return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 	if (pr == NULL) return SR_FAULT ;
 
 	if (pr[0] == '\0') return SR_INVALID ;
 
-	memset(dbip,0,sizeof(DBI)) ;
-
-/* store IDs (IS IT OPAQUE ?????????????????????) */
-/* this is a POOR excuse for a "copy constructor" !!!!!!!!!!!!!!! */
-
-	memcpy(&dbip->id,idp,sizeof(IDS)) ;
-
-/* node DB */
-
-	rs = mkpath2(tmpfname,pr,NODEFNAME) ;
-	if (rs < 0) goto ret0 ;
-
-#if	CF_DEBUGS
-	debugprintf("dbi_open: nodefname=%s\n",tmpfname) ;
-#endif
-
-	rs1 = perm(tmpfname,-1,-1,NULL,R_OK) ;
-
-#if	CF_DEBUGS
-	debugprintf("dbi_open: node perm() rs=%d\n",rs1) ;
-#endif
-
-	if (rs1 >= 0) {
-	    rs1 = nodedb_open(&dbip->node,tmpfname) ;
-	    dbip->f_node = (rs1 >= 0) ;
-	}
-
-/* cluster DB */
-
-	rs = mkpath2(tmpfname,pr,CLUSTERFNAME) ;
-	if (rs < 0) goto ret0 ;
-
-#if	CF_DEBUGS
-	debugprintf("dbi_open: cluster1fname=%s\n",tmpfname) ;
-#endif
-
-	rs1 = u_stat(tmpfname,&sb) ;
-
-	if ((rs1 >= 0) && S_ISDIR(sb.st_mode))
-	    rs1 = SR_ISDIR ;
-
-	if (rs1 >= 0)
-	    rs1 = sperm(&dbip->id,&sb,R_OK) ;
-
-	if (rs1 >= 0) {
-	    rs1 = clusterdb_open(&dbip->cluster,tmpfname) ;
-	    dbip->f_cluster = (rs1 >= 0) ;
-	}
-
-/* done */
-
-	rs = dbip->f_node + dbip->f_cluster ;
-
-ret0:
-
-#if	CF_DEBUGS
-	debugprintf("dbi_open: ret rs=%d\n",rs) ;
-#endif
+	memset(op,0,sizeof(DBI)) ;
+	if ((rs = ids_load(&id)) >= 0) {
+	    if ((rs = dbi_nodebegin(op,&id,pr)) >= 0) {
+	        rs = dbi_clusterbegin(op,&id,pr) ;
+	        if (rs < 0)
+	            dbi_nodeend(op) ;
+	    } /* end if (node-db) */
+	    rs1 = ids_release(&id) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ids) */
 
 	return rs ;
 }
 /* end subroutine (dbi_open) */
 
 
-int dbi_close(DBI *dbip)
+int dbi_close(DBI *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (dbip == NULL) return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (dbip->f_cluster) {
-	    dbip->f_cluster = FALSE ;
-	    rs1 = clusterdb_close(&dbip->cluster) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
+	rs1 = dbi_nodeend(op) ;
+	if (rs >= 0) rs = rs1 ;
 
-	if (dbip->f_node) {
-	    dbip->f_node = FALSE ;
-	    rs1 = nodedb_close(&dbip->node) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
+	rs1 = dbi_clusterend(op) ;
+	if (rs >= 0) rs = rs1 ;
 
 	return rs ;
 }
@@ -212,9 +161,9 @@ int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 	debugprintf("dbi_getclusters: nodename=%s\n",nodename) ;
 #endif
 
-	if (dbip->f_node) {
-	    NODEDB		*nop = &dbip->node ;
-	    NODEDB_CUR		cur ;
+	if (dbip->open.node) {
+	    NODEDB	*nop = &dbip->node ;
+	    NODEDB_CUR	cur ;
 	    NODEDB_ENT	ste ;
 
 	    if ((rs = nodedb_curbegin(nop,&cur)) >= 0) {
@@ -229,23 +178,23 @@ int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 
 	            rs1 = nodedb_fetch(nop,nodename,&cur,&ste,ebuf,elen) ;
 	            if (rs1 == nrs) break ;
-		    rs = rs1 ;
+	            rs = rs1 ;
 
-		    if (rs >= 0) {
-	            if ((ste.clu != NULL) && (ste.clu[0] != '\0')) {
+	            if (rs >= 0) {
+	                if ((ste.clu != NULL) && (ste.clu[0] != '\0')) {
 
 #if	CF_DEBUGS && 0
-	                debugprintf("dbi_getclusters: cluster=%s\n",
-				ste.clu) ;
+	                    debugprintf("dbi_getclusters: cluster=%s\n",
+	                        ste.clu) ;
 #endif
 
-	                if ((rs = vecstr_find(slp,ste.clu)) == nrs) {
-	                    c += 1 ;
-	                    rs = vecstr_add(slp,ste.clu,-1) ;
-	                }
+	                    if ((rs = vecstr_find(slp,ste.clu)) == nrs) {
+	                        c += 1 ;
+	                        rs = vecstr_add(slp,ste.clu,-1) ;
+	                    }
 
-	            } /* end if (got one) */
-		    } /* end if (ok) */
+	                } /* end if (got one) */
+	            } /* end if (ok) */
 
 #if	CF_DEBUGS && 0
 	            debugprintf("dbi_getclusters: node whilebot\n") ;
@@ -257,7 +206,8 @@ int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 	        debugprintf("dbi_getclusters: node whileout\n") ;
 #endif
 
-	        nodedb_curend(nop,&cur) ;
+	        rs1 = nodedb_curend(nop,&cur) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (cursor) */
 
 	} /* end if (DB lookup) */
@@ -268,7 +218,7 @@ int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 
 /* try the CLUSTER table if we have one */
 
-	if ((rs >= 0) && dbip->f_cluster) {
+	if ((rs >= 0) && dbip->open.cluster) {
 	    CLUSTERDB		*cop = &dbip->cluster ;
 	    CLUSTERDB_CUR	cur ;
 
@@ -277,7 +227,7 @@ int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 #endif
 
 	    if ((rs = clusterdb_curbegin(cop,&cur)) >= 0) {
-		const int	clen = NODENAMELEN ;
+	        const int	clen = NODENAMELEN ;
 	        char		cbuf[NODENAMELEN + 1] ;
 
 	        while (rs >= 0) {
@@ -288,14 +238,14 @@ int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 
 	            rs1 = clusterdb_fetchrev(cop,nodename,&cur,cbuf,clen) ;
 	            if (rs1 == nrs) break ;
-		    rs = rs1 ;
+	            rs = rs1 ;
 
-		    if (rs >= 0) {
+	            if (rs >= 0) {
 	                if ((rs = vecstr_find(slp,cbuf)) == nrs) {
 	                    c += 1 ;
 	                    rs = vecstr_add(slp,cbuf,-1) ;
 	                }
-		    } /* end if (ok) */
+	            } /* end if (ok) */
 
 #if	CF_DEBUGS && 0
 	            debugprintf("dbi_getclusters: cluster whilebot\n") ;
@@ -307,7 +257,8 @@ int dbi_getclusters(DBI *dbip,vecstr *slp,cchar *nodename)
 	        debugprintf("dbi_getclusters: cluster whileout\n") ;
 #endif
 
-	        clusterdb_curend(cop,&cur) ;
+	        rs1 = clusterdb_curend(cop,&cur) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (cluster-cursor) */
 
 	} /* end if */
@@ -327,6 +278,7 @@ int dbi_getnodes(DBI *dbip,vecstr *clp,vecstr *nlp)
 	CLUSTERDB_CUR	cc ;
 	const int	clen = NODENAMELEN ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		i ;
 	int		cl ;
 	int		c = 0 ;
@@ -339,45 +291,127 @@ int dbi_getnodes(DBI *dbip,vecstr *clp,vecstr *nlp)
 
 	cop = &dbip->cluster ;
 	for (i = 0 ; vecstr_get(clp,i,&cp) >= 0 ; i += 1) {
-	    if (cp == NULL) continue ;
+	    if (cp != NULL) {
 
 #if	CF_DEBUGS
-	    debugprintf("dbi_getnodes: attached "
-	        "cluster=%s\n",
-	        cp) ;
+	        debugprintf("dbi_getnodes: attached "
+	            "cluster=%s\n", cp) ;
 #endif
 
-	    if ((rs = clusterdb_curbegin(cop,&cc)) >= 0) {
-		const int	nrs = SR_NOTFOUND ;
+	        if ((rs = clusterdb_curbegin(cop,&cc)) >= 0) {
+	            const int	nrs = SR_NOTFOUND ;
 
-	        while (rs >= 0) {
+	            while (rs >= 0) {
 
-	            cl = clusterdb_fetch(cop,cp,&cc,cbuf,clen) ;
-	            if (cl == SR_NOTFOUND) break ;
-	            rs = cl ;
+	                cl = clusterdb_fetch(cop,cp,&cc,cbuf,clen) ;
+	                if (cl == SR_NOTFOUND) break ;
+	                rs = cl ;
 
 #if	CF_DEBUGS
-	            debugprintf("dbi_getnodes: cluster "
-	                "cl=%d node=%s\n",
-	                cl,cbuf) ;
+	                debugprintf("dbi_getnodes: cluster "
+	                    "cl=%d node=%s\n", cl,cbuf) ;
 #endif
 
-		    if (rs >= 0) {
-	                if ((rs = vecstr_findn(nlp,cbuf,cl)) == nrs) {
-	                    c += 1 ;
-	                    rs = vecstr_add(nlp,cbuf,cl) ;
-	                }
-		    } /* end if (ok) */
+	                if (rs >= 0) {
+	                    if ((rs = vecstr_findn(nlp,cbuf,cl)) == nrs) {
+	                        c += 1 ;
+	                        rs = vecstr_add(nlp,cbuf,cl) ;
+	                    }
+	                } /* end if (ok) */
 
-	        } /* end while (looping through cluster entries) */
+	            } /* end while (looping through cluster entries) */
 
-	        clusterdb_curend(cop,&cc) ;
-	    } /* end if (cursor) */
+	            rs1 = clusterdb_curend(cop,&cc) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (clusterdb-cursor) */
 
+	    }
+	    if (rs < 0) break ;
 	} /* end for */
 
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (dbi_getnodes) */
+
+
+/* private subroutines */
+
+
+static int dbi_nodebegin(DBI *op,IDS *idp,cchar *pr)
+{
+	int		rs ;
+	char		tbuf[MAXPATHLEN+1] ;
+	if ((rs = mkpath2(tbuf,pr,NODEFNAME)) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(tbuf,&sb)) >= 0) {
+	        if ((rs = sperm(idp,&sb,R_OK)) >= 0) {
+	            NODEDB	*ndp = &op->node ;
+	            if ((rs = nodedb_open(ndp,tbuf)) >= 0) {
+	                op->open.node = TRUE ;
+	            }
+	        } else if (isNotAccess(rs)) {
+	            rs = SR_OK ;
+	        }
+	    } else if (isNotPresent(rs)) {
+	        rs = SR_OK ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (dbi_nodebegin) */
+
+
+static int dbi_nodeend(DBI *op)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (op->open.node) {
+	    NODEDB	*ndp = &op->node ;
+	    op->open.node = FALSE ;
+	    rs1 = nodedb_close(ndp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (dbi_nodeend) */
+
+
+static int dbi_clusterbegin(DBI *op,IDS *idp,cchar *pr)
+{
+	int		rs ;
+	char		tbuf[MAXPATHLEN+1] ;
+	if ((rs = mkpath2(tbuf,pr,CLUSTERFNAME)) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(tbuf,&sb)) >= 0) {
+	        if ((rs = sperm(idp,&sb,R_OK)) >= 0) {
+	            CLUSTERDB	*ndp = &op->cluster ;
+	            if ((rs = clusterdb_open(ndp,tbuf)) >= 0) {
+	                op->open.cluster = TRUE ;
+	            }
+	        } else if (isNotAccess(rs)) {
+	            rs = SR_OK ;
+	        }
+	    } else if (isNotPresent(rs)) {
+	        rs = SR_OK ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (dbi_clusterbegin) */
+
+
+static int dbi_clusterend(DBI *op)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (op->open.cluster) {
+	    CLUSTERDB	*ndp = &op->cluster ;
+	    op->open.cluster = FALSE ;
+	    rs1 = clusterdb_close(ndp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (dbi_clusterend) */
 
 

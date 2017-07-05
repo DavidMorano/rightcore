@@ -27,7 +27,7 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<ctype.h>
+#include	<ctype.h>		/* *required* */
 
 #include	<ascii.h>
 #include	<localmisc.h>

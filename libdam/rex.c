@@ -11,15 +11,11 @@
 /* revision history:
 
 	= 1996-11-21, David A­D­ Morano
-
 	This program was started by copying from the RSLOW program.
 
-
 	= 1996-12-12, David A­D­ Morano
-
-	I modified the program to take the username and password
-	from a specified file (for better security).
-
+        I modified the program to take the username and password from a
+        specified file (for better security).
 
 */
 
@@ -74,7 +70,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<strings.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -138,28 +133,24 @@ NETFILE_ENT	**mpp ;
 	struct servent	*sp, se ;
 	USERINFO	u ;
 	NETFILE_ENT	*mp ;
-
-	int	rs = SR_OK ;
-	int	srs ;
-	int	i, j ;
-	int	len, l ;
-	int	childstat ;
-	int	rfd = 0 ;
-	int	port = -1 ;
-
+	int		rs = SR_OK ;
+	int		srs ;
+	int		i, j ;
+	int		len, l ;
+	int		childstat ;
+	int		rfd = 0 ;
+	int		port = -1 ;
 	const char	*args[2] ;
 	const char	*username = NULL ;
-
-	char	userbuf[USERBUFLEN + 1] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	cmdbuf[CMDBUFLEN + 1] ;
-	char	hostname[MAXHOSTNAMELEN + 1] ;
-	char	ahostname[MAXHOSTNAMELEN + 1] ;
+	char		userbuf[USERBUFLEN + 1] ;
+	char		buf[BUFLEN + 1], *bp ;
+	char		cmdbuf[CMDBUFLEN + 1] ;
+	char		hostname[MAXHOSTNAMELEN + 1] ;
+	char		ahostname[MAXHOSTNAMELEN + 1] ;
 	const char	*password = NULL ;
 	const char	*authorization = "any" ;
 	const char	*cp, *cp1, *cp2 ;
-	char	*ahost = ahostname ;
-
+	char		*ahost = ahostname ;
 
 #if	CF_DEBUGS
 	debugprintf("rex: ent\n") ;
@@ -168,10 +159,7 @@ NETFILE_ENT	**mpp ;
 /* initialize some other common user stuff */
 
 	if ((rs = userinfo(&u,userbuf,USERBUFLEN,NULL)) < 0) {
-
-	    if (u.domainname == NULL) 
-		u.domainname = "" ;
-
+	    if (u.domainname == NULL) u.domainname = "" ;
 	}
 
 #if	CF_DEBUGS
@@ -276,9 +264,9 @@ NETFILE_ENT	**mpp ;
 
 	    if (sp != NULL) {
 	        port = (int) ntohs(sp->s_port) ;
-
-	    } else
+	    } else {
 	        port = REX_DEFEXECSERVICE ;
+	    }
 
 	} /* end if (default port) */
 
@@ -400,17 +388,13 @@ NETFILE_ENT	**mpp ;
 	    for (i = 0 ; (mp = auth->machinev[i]) != NULL ; i += 1) {
 
 #if	CF_DEBUGS
-	        debugprintf("rex: entry i=%d\n",
-	            i) ;
-
+	        debugprintf("rex: entry i=%d\n", i) ;
 	        if (mp->machine != NULL)
 	            debugprintf("rex: m=\"%s\"\n",
 	                mp->machine) ;
-
 	        if (mp->login != NULL)
 	            debugprintf("rex: u=\"%s\"\n",
 	                mp->login) ;
-
 	        if (mp->password != NULL)
 	            debugprintf("rex: p=\"%s\"\n",
 	                mp->password) ;
@@ -748,6 +732,5 @@ char	localdomain[] ;
 	return (strncasecmp(h1,h2,len2) == 0) ;
 }
 /* end subroutine (hostequiv) */
-
 
 

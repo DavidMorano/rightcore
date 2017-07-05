@@ -38,6 +38,7 @@ extern int	ids_load(IDS *) ;
 extern int	ids_ngroups(IDS *) ;
 extern int	ids_release(IDS *) ;
 extern int	ids_refresh(IDS *) ;
+extern int	ids_copy(IDS *,IDS *) ;
 
 #ifdef	__cplusplus
 }

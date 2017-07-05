@@ -50,10 +50,8 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<time.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -94,28 +92,29 @@ typedef unsigned int	in_addr_t ;
 /* exported subroutines */
 
 
-int mkcexsync(rbuf,rlen)
-char		rbuf[] ;
-int		rlen ;
+int mkcexsync(char *rbuf,int rlen)
 {
-	int		leaderlen ;
-	int		j ;
+	const int	leaderlen = (rlen - MKCEXSYNC_FINLEN) ;
+	int		rs = SR_OK ;
 	int		i = 0 ;
 
-	leaderlen = (rlen - MKCEXSYNC_FINLEN) ;
-	if (rlen < MKCEXSYNC_REQLEN)
-	    return SR_OVERFLOW ;
+	if (rlen >= MKCEXSYNC_REQLEN) {
+	    int	j ;
 
-	i = 0 ;
-	for (j = (leaderlen-1) ; j >= 0 ; j -= 1) {
-	    rbuf[i] = (i & 1) ;
-	    i += 1 ;
+	    for (j = (leaderlen-1) ; j >= 0 ; j -= 1) {
+	        rbuf[i] = (i & 1) ;
+	        i += 1 ;
+	    }
+
+	    for (j = 0 ; j < MKCEXSYNC_FINLEN ; j += 1) {
+	        rbuf[i++] = CH_SYNC ;
+	    }
+
+	} else {
+	    rs = SR_OVERFLOW ;
 	}
 
-	for (j = 0 ; j < MKCEXSYNC_FINLEN ; j += 1)
-	    rbuf[i++] = CH_SYNC ;
-
-	return i ;
+	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (mkcexsync) */
 

@@ -9,27 +9,26 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<limits.h>
-#include	<netdb.h>
 
-#include	<vecstr.h>
-#include	<ids.h>
 #include	<nodedb.h>
 #include	<clusterdb.h>
+#include	<vecstr.h>
 #include	<localmisc.h>
 
 
-/* object defines */
+#define	DBI		struct dbi
+#define	DBI_FL		struct dbi_flags
 
-#define	DBI			struct dbi
 
+struct dbi_flags {
+	uint		node:1 ;
+	uint		cluster:1 ;
+} ;
 
 struct dbi {
-	IDS		id ;
 	NODEDB		node ;
 	CLUSTERDB	cluster ;
-	uint		f_node:1 ;
-	uint		f_cluster:1 ;
+	DBI_FL		open ;
 } ;
 
 
@@ -39,8 +38,8 @@ struct dbi {
 extern "C" {
 #endif
 
-extern int dbi_open(DBI *,IDS *,const char *) ;
-extern int dbi_getclusters(DBI *,vecstr *,const char *) ;
+extern int dbi_open(DBI *,cchar *) ;
+extern int dbi_getclusters(DBI *,vecstr *,cchar *) ;
 extern int dbi_getnodes(DBI *,vecstr *,vecstr *) ;
 extern int dbi_close(DBI *) ;
 

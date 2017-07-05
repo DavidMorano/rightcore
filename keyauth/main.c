@@ -767,7 +767,7 @@ static int procafname(PROGINFO *pip,char *unbuf,cchar *afn)
 
 	    if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
 	        const int	llen = LINEBUFLEN ;
-	        char	lbuf[LINEBUFLEN + 1] ;
+	        char		lbuf[LINEBUFLEN + 1] ;
 
 	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
 	            int	len = rs ;

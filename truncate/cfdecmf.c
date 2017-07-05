@@ -40,7 +40,6 @@
 
 #include	<sys/types.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<char.h>
@@ -54,6 +53,7 @@
 #define	UBLOCKSIZE	512
 
 #define	OUR_ISWHITE(c)	(CHAR_ISWHITE(c) || ((c) == CH_NBSP))
+#define	TOLC(ch)	CHAR_TOLC(ch)
 
 
 /* external subroutines */
@@ -202,27 +202,26 @@ static int getmf(cchar *sbuf,int slen,ulong *rp)
 	mf = 1 ;
 	if (sl > 0) {
 
-	    if (tolower(ubuf[sl-1]) == 'b') {
+	    if (TOLC(ubuf[sl-1]) == 'b') {
 	        mf = UBLOCKSIZE ;
 
-	    } else if (tolower(ubuf[sl-1]) == 'k') {
+	    } else if (TOLC(ubuf[sl-1]) == 'k') {
 	        mf = 1024 ;
 
-	    } else if (tolower(ubuf[sl-1]) == 'm') {
+	    } else if (TOLC(ubuf[sl-1]) == 'm') {
 	        mf = 1024 * 1024 ;
 
-	    } else if (tolower(ubuf[sl-1]) == 'g') {
+	    } else if (TOLC(ubuf[sl-1]) == 'g') {
 	        mf = 1024 * 1024 * 1024 ;
 
 	    } else if (sl > 1) {
 
-	        if ((tolower(ubuf[sl-2]) == 'k') && (ubuf[sl-1] == 'b')) {
+	        if ((TOLC(ubuf[sl-2]) == 'k') && (ubuf[sl-1] == 'b')) {
 
 	            mf = 1024 * UBLOCKSIZE ;
 	            sl -= 1 ;
 
-	        } else if ((tolower(ubuf[sl-2]) == 'm') &&
-			(ubuf[sl-1] == 'b')) {
+	        } else if ((TOLC(ubuf[sl-2]) == 'm') && (ubuf[sl-1] == 'b')) {
 
 	            mf = 1024 * 1024 * UBLOCKSIZE ;
 	            sl -= 1 ;

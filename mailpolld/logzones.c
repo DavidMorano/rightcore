@@ -137,6 +137,9 @@ extern char	*timestr_logz(time_t,char *) ;
 /* external variables */
 
 
+/* local structures */
+
+
 /* forward references */
 
 static int	logzones_fileopen(LOGZONES *,time_t) ;

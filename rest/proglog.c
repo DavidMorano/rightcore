@@ -259,13 +259,13 @@ int proglog_vprintf(PROGINFO *pip,cchar *fmt,va_list ap)
 
 
 /* PRINTFLIKE2 */
-int proglog_printf(PROGINFO *pip,cchar fmt[],...)
+int proglog_printf(PROGINFO *pip,cchar *fmt,...)
 {
 	int		rs = SR_OK ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
-	debugprintf("proglog_printf: fmt=>%s<\n",fmt) ;
-	debugprintf("proglog_printf: open=%u\n",pip->open.logprog) ;
+	    debugprintf("proglog_printf: fmt=>%s<\n",fmt) ;
+	    debugprintf("proglog_printf: open=%u\n",pip->open.logprog) ;
 	}
 #endif
 	if (pip->open.logprog) {
@@ -323,10 +323,10 @@ int proglog_setid(PROGINFO *pip,cchar *id)
 static int proglog_file(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
-	const char	*cp = pip->lfname ;
 
 	if (pip->f.logprog) {
 	    int		cl = -1 ;
+	    cchar	*cp = pip->lfname ;
 	    if ((cp == NULL) || (cp[0] == '+')) {
 	        cp = pip->searchname ;
 	        cl = -1 ;
@@ -355,8 +355,9 @@ static int proglog_file(PROGINFO *pip)
 	            rs = proginfo_setentry(pip,vpp,cp,cl) ;
 	        }
 
-	    } else
+	    } else {
 	        pip->f.logprog = FALSE ;
+	    }
 	} /* end if (opened) */
 
 	return rs ;

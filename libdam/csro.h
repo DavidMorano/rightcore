@@ -58,9 +58,8 @@ extern int csro_ncurend(CSRO *,CSRO_NCURSOR *) ;
 extern int csro_getname(CSRO *,CSRO_NCURSOR *,const char **) ;
 extern int csro_vcurbegin(CSRO *,CSRO_VCURSOR *) ;
 extern int csro_vcurend(CSRO *,CSRO_VCURSOR *) ;
-extern int csro_getvalue(CSRO *,const char *,
-		CSRO_VCURSOR *, CSRO_VALUE **) ;
-extern int csro_already(CSRO *,const char *,const char *,ULONG) ;
+extern int csro_getvalue(CSRO *,cchar *,CSRO_VCURSOR *, CSRO_VALUE **) ;
+extern int csro_already(CSRO *,cchar *,const char *,ULONG) ;
 
 #ifdef	__cplusplus
 }

@@ -31,9 +31,7 @@
 int uc_sigignore(int sn)
 {
 	int		rs ;
-
 	if ((rs = sigignore(sn)) < 0) rs = (- errno) ;
-
 	return rs ;
 }
 /* end subroutine (uc_sigignore) */

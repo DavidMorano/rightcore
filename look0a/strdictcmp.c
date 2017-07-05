@@ -51,7 +51,6 @@
 
 #include	<sys/types.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<char.h>
 #include	<localmisc.h>

@@ -21,6 +21,7 @@
 
 /* object defines */
 
+#define	SRVREG_MAGIC		1092837456
 #define	SRVREG			struct srvreg_head
 #define	SRVREG_CUR		struct srvreg_c
 #define	SRVREG_ENT		SRVREGE_ALL

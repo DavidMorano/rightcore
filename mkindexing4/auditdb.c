@@ -349,9 +349,7 @@ bfile		*tfp ;
 
 	    lineoff += len ;
 	    f_bol = f_eol ;
-	    if (rs < 0)
-	        break ;
-
+	    if (rs < 0) break ;
 	} /* end while */
 
 	return (rs >= 0) ? n : rs ;

@@ -282,16 +282,12 @@ int		*fd2p ;
 	    u_close(pipes[1][0]) ;
 
 	    if (fd2p != NULL) {
-
 	        u_dup(pipes[2][1]) ;
-
-	        for (j = 0 ; j < 2 ; j += 1)
+	        for (j = 0 ; j < 2 ; j += 1) {
 	            u_close(pipes[2][j]) ;
-
+		}
 	    } else {
-
 	        u_dup(pipes[1][1]) ;
-
 	    }
 
 	    u_close(pipes[1][1]) ;
@@ -317,18 +313,16 @@ int		*fd2p ;
 #endif
 
 	    if (ruser != NULL) {
-
 	        execlp(cmd_rsh,"rsh","-l",ruser,rhost,cmd,NULL) ;
-
-	    } else
+	    } else {
 	        execlp(cmd_rsh,"rsh",rhost,cmd,NULL) ;
+	    }
 
 #if	CF_DEBUGS
 	    debugprintf("rcmdr: exec() failed\n") ;
 #endif
 
 	    uc_exit(EX_NOEXEC) ;
-
 	} /* end if (child) */
 
 #if	CF_DEBUGS
@@ -340,10 +334,8 @@ int		*fd2p ;
 	u_close(pipes[1][1]) ;
 
 	if (fd2p != NULL) {
-
 	    *fd2p = pipes[2][0] ;
 	    u_close(pipes[2][1]) ;
-
 	}
 
 	rs = pipes[1][0] ;
@@ -363,8 +355,9 @@ badfork:
 	u_close(pipes[1][1]) ;
 
 	if (fd2p != NULL) {
-	    for (j = 0 ; j < 2 ; j += 1)
+	    for (j = 0 ; j < 2 ; j += 1) {
 	        u_close(pipes[2][j]) ;
+	    }
 	}
 
 badpipe:
@@ -455,13 +448,12 @@ const char	ruser[] ;
 	    if (ruser != NULL) {
 	        execlp(cmd_rsh,"rsh","-n","-l",ruser,rhost,
 	            "/bin/echo","YES",NULL) ;
-
-	    } else
+	    } else {
 	        execlp(cmd_rsh,"rsh","-n",rhost,
 	            "/bin/echo","YES",NULL) ;
+	    }
 
 	    uc_exit(EX_NOEXEC) ;
-
 	} /* end if */
 
 /* parent continues here */
@@ -496,12 +488,13 @@ const char	ruser[] ;
 
 	        if (rs <= 0) {
 	            f_done1 = TRUE ;
-
-	        } else
+	        } else {
 	            len1 += rs ;
+		}
 
-	        if (len1 >= TESTRCMDU_LOOKLEN)
+	        if (len1 >= TESTRCMDU_LOOKLEN) {
 	            f_done1 = TRUE ;
+		}
 
 	    }
 
@@ -512,12 +505,13 @@ const char	ruser[] ;
 
 	        if (rs <= 0) {
 	            f_done2 = TRUE ;
-
-		} else
+		} else {
 	            len2 += rs ;
+		}
 
-	        if (len2 >= TESTRCMDU_LOOKLEN)
+	        if (len2 >= TESTRCMDU_LOOKLEN) {
 	            f_done2 = TRUE ;
+		}
 
 	    }
 
@@ -588,29 +582,22 @@ badpipe:
 /* end subroutine (testrmcdu) */
 
 
-static void dump(fd1,fd2)
-int	fd1, fd2 ;
+static void dump(int fd1,int fd2)
 {
-	int	f_done1 = FALSE ;
-	int	f_done2 = FALSE ;
-
-	char	buf[DUMPLEN + 1] ;
-
+	int		f_done1 = FALSE ;
+	int		f_done2 = FALSE ;
+	char		buf[DUMPLEN + 1] ;
 
 	while ((! f_done1) || (! f_done2)) {
 
 	    if (! f_done1) {
-
 	        if (u_read(fd1,buf,DUMPLEN) <= 0)
 	            f_done1 = TRUE ;
-
 	    }
 
 	    if (! f_done2) {
-
 	        if (u_read(fd2,buf,DUMPLEN) <= 0)
 	            f_done2 = TRUE ;
-
 	    }
 
 	} /* end while */
@@ -626,7 +613,7 @@ static int showdev(fd)
 int	fd ;
 {
 	struct ustat	sb ;
-	int	rs ;
+	int		rs ;
 	rs = u_fstat(fd,&sb) ;
 	debugprintf("rcmdr: fd=%d rs=%d ino=%u dev=%08x\n",
 	    fd,rs,sb.st_ino,sb.st_dev) ;

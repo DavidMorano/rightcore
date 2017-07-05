@@ -52,10 +52,10 @@ int	fd ;
 
 
 int u_creat64(fname,m)
-const char	fname[] ;
+const char	*fname ;
 int		m ;
 {
-	return u_creat64(fname,m) ;
+	return u_creat(fname,m) ;
 }
 /* end subroutine (u_creat64) */
 
@@ -91,7 +91,7 @@ struct statvfs64	*sbp ;
 
 
 int u_lstat64(fname,sbp)
-const char	fname[] ;
+const char	*fname ;
 struct stat64	*sbp ;
 {
 	struct ustat	*sp = (struct ustat *) sbp ;
@@ -101,7 +101,7 @@ struct stat64	*sbp ;
 
 
 int u_open64(fname,f,m)
-const char	fname[] ;
+const char	*fname ;
 int		f ;
 mode_t		m ;
 {
@@ -143,7 +143,7 @@ int	w ;
 
 
 int u_stat64(fname,sbp)
-const char	fname[] ;
+const char	*fname ;
 struct stat64	*sbp ;
 {
 	struct ustat	*sp = (struct ustat *) sbp ;
@@ -153,7 +153,7 @@ struct stat64	*sbp ;
 
 
 int u_statvfs64(fname,sbp)
-const char	fname[] ;
+const char	*fname ;
 struct statvfs64	*sbp ;
 {
 	struct ustatvfs	*sp = (struct ustatvfs *) sbp ;

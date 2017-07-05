@@ -187,8 +187,9 @@ int paramopt_loadu(PARAMOPT *php,cchar *sp,int sl)
 		    uc_free(name) ;
 		} /* end if (memory-allocation) */
 	    } /* end if */
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("paramopt_loadu: ret rs=%d c=%u\n",rs,c) ;

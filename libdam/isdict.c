@@ -43,7 +43,7 @@
 
 #include	<sys/types.h>
 #include	<string.h>
-#include	<ctype.h>
+#include	<ctype.h>		/* *required* */
 
 #include	<ascii.h>
 #include	<localmisc.h>

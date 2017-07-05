@@ -733,6 +733,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (rs >= 0) {
@@ -755,9 +760,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
 	    cchar	*ofn = ofname ;
 	    cchar	*afn = afname ;
-	    rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+	    rs = procargs(pip,aip,bop,ofn,afn) ;
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -930,7 +937,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_utf:
 	                case akoname_db:
 	                    if (! lip->final.dbfname) {
@@ -942,7 +948,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1126,7 +1131,6 @@ static int procquery(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 	}
 
 	switch (ri) {
-
 	case qopt_netload:
 	    if (lip->f.set) {
 	        rs = procset(pip,vp,vl) ;
@@ -1136,11 +1140,9 @@ static int procquery(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 	        cbl = rs ;
 	    }
 	    break ;
-
 	default:
 	    rs = SR_INVALID ;
 	    break ;
-
 	} /* end switch */
 
 	if ((rs >= 0) && (pip->verboselevel > 0)) {
@@ -1240,34 +1242,36 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
+	VECSTR		*slp ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
 	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
+	slp = &lip->stores ;
 	if (! lip->open.stores) {
-	    rs = vecstr_start(&lip->stores,4,0) ;
+	    rs = vecstr_start(slp,4,0) ;
 	    lip->open.stores = (rs >= 0) ;
 	}
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(&lip->stores,*epp) ;
+		oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
 	    } else {
 	        *epp = NULL ;
 	    }
 	    if ((rs >= 0) && (oi >= 0)) {
-	        vecstr_del(&lip->stores,oi) ;
+	        vecstr_del(slp,oi) ;
 	    }
-	} /* end if */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }

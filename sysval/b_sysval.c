@@ -170,6 +170,7 @@ extern int	getusername(char *,int,uid_t) ;
 extern int	getuserhome(char *,int,cchar *) ;
 extern int	gethomeorg(char *,int,cchar *) ;
 extern int	getsystypenum(char *,char *,cchar *,cchar *) ;
+extern int	getstacksize(int) ;
 extern int	gethz(int) ;
 extern int	getngroups(void) ;
 extern int	getmaxpid(int) ;
@@ -1998,7 +1999,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    }
 	    break ;
 	case qopt_stacksizemin:
-	    if ((rs = uc_sysconf(_SC_THREAD_STACK_MIN,NULL)) >= 0) {
+	    if ((rs = getstacksize(0)) >= 0) {
 	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
 	        cbp = cvtbuf ;
 	        cbl = rs ;
@@ -2133,7 +2134,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 /* end subroutine (procqueryer) */
 
 
-static int procfs(PROGINFO *pip,char cbuf[],int clen,int ri,cchar *vp,int vl)
+static int procfs(PROGINFO *pip,char *cbuf,int clen,int ri,cchar *vp,int vl)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -2236,7 +2237,7 @@ static int procfs(PROGINFO *pip,char cbuf[],int clen,int ri,cchar *vp,int vl)
 /* end subroutine (procfs) */
 
 
-static int procacc(PROGINFO *pip,char cbuf[],int clen,cchar *vp,int vl)
+static int procacc(PROGINFO *pip,char *cbuf,int clen,cchar *vp,int vl)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
@@ -2271,19 +2272,17 @@ static int procsystat(PROGINFO *pip,char *cbuf,int clen,cchar *vp,int vl)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
-	int		cbl = 0 ;
 	if (lip->f.set) {
 	    rs = localsetsystat(pip->pr,vp,vl) ;
 	} else {
 	    rs = localgetsystat(pip->pr,cbuf,clen) ;
-	    cbl = rs ;
 	}
-	return (rs >= 0) ? cbl : rs ;
+	return rs ;
 }
 /* end subroutine (procsystat) */
 
 
-static int procla(PROGINFO *pip,SHIO *ofp,char cvtbuf[],int cvtlen,int ri)
+static int procla(PROGINFO *pip,SHIO *ofp,char *cvtbuf,int cvtlen,int ri)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
@@ -2390,34 +2389,36 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
+	VECSTR		*slp ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
 	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
+	slp = &lip->stores ;
 	if (! lip->open.stores) {
-	    rs = vecstr_start(&lip->stores,4,0) ;
+	    rs = vecstr_start(slp,4,0) ;
 	    lip->open.stores = (rs >= 0) ;
 	}
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
-
-	    if (*epp != NULL) oi = vecstr_findaddr(&lip->stores,*epp) ;
-
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
-	    } else
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
 	        *epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
-	        vecstr_del(&lip->stores,oi) ;
-
-	} /* end if */
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -2480,10 +2481,11 @@ static int locinfo_defaults(LOCINFO *lip)
 
 	if (lip == NULL) return SR_FAULT ;
 
-	if ((rs >= 0) && (lip->utfname == NULL) && (! lip->final.utfname)) {
+	if ((lip->utfname == NULL) && (! lip->final.utfname)) {
 	    cchar	*cp = getourenv(pip->envv,VARUTFNAME) ;
-	    if (cp != NULL)
+	    if (cp != NULL) {
 	        rs = locinfo_setentry(lip,&lip->utfname,cp,-1) ;
+	    }
 	}
 
 	return rs ;
@@ -2534,9 +2536,11 @@ static int locinfo_wtime(LOCINFO *lip)
 	                    break ;
 	                }
 	            } /* end while */
-	            tmpx_curend(&ut,&uc) ;
+	            rs1 = tmpx_curend(&ut,&uc) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (cursor) */
-	        tmpx_close(&ut) ;
+	        rs1 = tmpx_close(&ut) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (TMPX) */
 	} /* end if (needed) */
 
@@ -2599,8 +2603,9 @@ static int locinfo_hz(LOCINFO *lip)
 	        if (hasalldig(cp,cl)) {
 	            int	rs1 = optvalue(cp,cl) ;
 	            if (rs1 >= 0) hz = rs1 ;
-	        } else
+	        } else {
 	            cp = NULL ;
+		}
 	    }
 
 	    if ((cp == NULL) || (hz == 0)) {
@@ -2907,13 +2912,11 @@ static int locinfo_fsdir(LOCINFO *lip)
 
 static int locinfo_netload(LOCINFO *lip,char *cbuf,int clen,cchar *vp,int vl)
 {
+	PROGINFO	*pip = lip->pip ;
 	int		rs ;
 	if (lip->f.set) {
-	    const int	dt = UPROGDATA_DNETLOAD ;
-	    const int	ttl = (5*60) ;
-	    rs = uprogdata_set(dt,vp,vl,ttl) ;
+	    rs = localsetnetload(pip->pr,vp,vl) ;
 	} else {
-	    PROGINFO	*pip = lip->pip ;
 	    rs = localgetnetload(pip->pr,cbuf,clen) ;
 	}
 	return rs ;
@@ -2923,10 +2926,12 @@ static int locinfo_netload(LOCINFO *lip,char *cbuf,int clen,cchar *vp,int vl)
 
 static int locinfo_pagesize(LOCINFO *lip)
 {
+	int		rs = lip->pagesize ;
 	if (lip->pagesize == 0) {
-	    lip->pagesize = getpagesize() ;
+	    rs = getpagesize() ;
+	    lip->pagesize = rs ;
 	}
-	return lip->pagesize ;
+	return rs ;
 }
 /* end subroutine (locinfo_pagesize) */
 
@@ -3223,7 +3228,7 @@ static int getmem(PROGINFO *pip)
 		lip->init.mem = TRUE ;
 		lip->ti_mem = pip->daytime ;
 		if ((rs = sysmemutil(&sm)) >= 0) {
-		    long	ppm = ((1024 * 1024) / ps) ;
+		    const long	ppm = ((1024 * 1024) / ps) ;
 		    lip->pmu = rs ;
 	    	    lip->pmt = (sm.mt / ppm) ;
 	    	    lip->pma = (sm.ma / ppm) ;

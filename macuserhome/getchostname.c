@@ -64,7 +64,6 @@
 #include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>

@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -54,7 +52,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>

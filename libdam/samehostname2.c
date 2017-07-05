@@ -10,15 +10,11 @@
 /* revision history:
 
 	= 1998-11-21, David A­D­ Morano
-
 	This program was started by copying from the RSLOW program.
 
-
 	= 1999-03-24, David A­D­ Morano
-
 	I started to think about enhancing this subroutine to better handle
 	non-domain qualified host names that end in dot!
-
 
 */
 
@@ -56,7 +52,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<strings.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<bfile.h>

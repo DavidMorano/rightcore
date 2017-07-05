@@ -2223,39 +2223,6 @@ static int locinfo_finish(LOCINFO *lip)
 
 
 #if	CF_LOCSETENT
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
-{
-	int		rs = SR_OK ;
-	int		len = 0 ;
-
-	if (lip == NULL) return SR_FAULT ;
-	if (epp == NULL) return SR_FAULT ;
-
-	if (! lip->open.stores) {
-	    rs = vecstr_start(&lip->stores,4,0) ;
-	    lip->open.stores = (rs >= 0) ;
-	}
-
-	if (rs >= 0) {
-	    int	oi = -1 ;
-
-	    if (*epp != NULL)
-	        oi = vecstr_findaddr(&lip->stores,*epp) ;
-
-	    if (vp != NULL) {
-	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
-	    } else
-	        *epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
-	        vecstr_del(&lip->stores,oi) ;
-
-	} /* end if */
-
-	return (rs >= 0) ? len : rs ;
-}
-/* end subroutine (locinfo_setentry) */
 #endif /* CF_LOCSETENT */
 
 

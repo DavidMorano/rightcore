@@ -55,11 +55,7 @@
 
 /* local defines */
 
-#undef	BLOCKSIZE
-#define	BLOCKSIZE	512
-
-#undef	tolower
-#define	tolower(ch)	CHAR_TOLC(ch)
+#define	TOLC(ch)	CHAR_TOLC(ch)
 
 
 /* external subroutines */
@@ -116,7 +112,7 @@ int cfnumi(cchar *bp,int bl,int *rp)
 	        bp += 1 ;
 	        bl -= 1 ;
 	        if (bl > 1) {
-	            ch = tolower(bp[0]) ;
+	            ch = TOLC(bp[0]) ;
 #if	CF_DEBUGS
 	            debugprintf("cfnumi: escape '%c' numstr=>%t<\n",
 	                bp[0],bp,bl) ;
@@ -145,7 +141,7 @@ int cfnumi(cchar *bp,int bl,int *rp)
 		}
 	    } else if (isdigitlatin(MKCHAR(*bp))) {
 	        if (bl > 1) {
-	            ch = tolower(bp[1]) ;
+	            ch = TOLC(bp[1]) ;
 	            if (isalphalatin(ch)) {
 	                bp += 2 ;
 	                bl -= 2 ;
@@ -228,7 +224,7 @@ int cfnumui(cchar *bp,int bl,uint *rp)
 	        bp += 1 ;
 	        bl -= 1 ;
 	        if (bl > 0) {
-	            ch = tolower(bp[0]) ;
+	            ch = TOLC(bp[0]) ;
 #if	CF_DEBUGS
 	            debugprintf("cfnumi: escape '%c' numstr=>%t<\n",
 	                bp[0],bp,bl) ;
@@ -257,7 +253,7 @@ int cfnumui(cchar *bp,int bl,uint *rp)
 		}
 	    } else if (isdigitlatin(MKCHAR(*bp))) {
 	        if (bl > 1) {
-	            ch = tolower(bp[1]) ;
+	            ch = TOLC(bp[1]) ;
 
 	            if (isalphalatin(ch)) {
 
@@ -332,7 +328,7 @@ int cfnuml(cchar *bp,int bl,long *rp)
 	        bp += 1 ;
 	        bl -= 1 ;
 	        if (bl > 1) {
-	            ch = tolower(bp[0]) ;
+	            ch = TOLC(bp[0]) ;
 	            bp += 1 ;
 	            bl -= 1 ;
 	            switch (ch) {
@@ -359,7 +355,7 @@ int cfnuml(cchar *bp,int bl,long *rp)
 		}
 	    } else if (isdigitlatin(MKCHAR(*bp))) {
 	        if (bl > 1) {
-	            ch = tolower(bp[1]) ;
+	            ch = TOLC(bp[1]) ;
 	            if (isalphalatin(ch)) {
 	                bp += 2 ;
 	                bl -= 2 ;
@@ -427,7 +423,7 @@ int cfnumul(cchar *bp,int bl,ulong *rp)
 	        bp += 1 ;
 	        bl -= 1 ;
 	        if (bl > 0) {
-	            ch = tolower(bp[0]) ;
+	            ch = TOLC(bp[0]) ;
 	            bp += 1 ;
 	            bl -= 1 ;
 	            switch (ch) {
@@ -452,7 +448,7 @@ int cfnumul(cchar *bp,int bl,ulong *rp)
 		}
 	    } else if (isdigitlatin(MKCHAR(*bp))) {
 	        if (bl > 1) {
-	            ch = tolower(bp[1]) ;
+	            ch = TOLC(bp[1]) ;
 	            if (isalphalatin(ch)) {
 	                bp += 2 ;
 	                bl -= 2 ;
@@ -524,7 +520,7 @@ int cfnumll(cchar *bp,int bl,longlong *rp)
 	        bp += 1 ;
 	        bl -= 1 ;
 	        if (bl > 1) {
-	            ch = tolower(bp[0]) ;
+	            ch = TOLC(bp[0]) ;
 	            bp += 1 ;
 	            bl -= 1 ;
 	            switch (ch) {
@@ -549,7 +545,7 @@ int cfnumll(cchar *bp,int bl,longlong *rp)
 		}
 	    } else if (isdigitlatin(MKCHAR(*bp))) {
 	        if (bl > 1) {
-	            ch = tolower(bp[1]) ;
+	            ch = TOLC(bp[1]) ;
 	            if (isalphalatin(ch)) {
 	                bp += 2 ;
 	                bl -= 2 ;
@@ -625,7 +621,7 @@ int cfnumull(cchar *bp,int bl,ulonglong *rp)
 	        bp += 1 ;
 	        bl -= 1 ;
 	        if (bl > 0) {
-	            ch = tolower(bp[0]) ;
+	            ch = TOLC(bp[0]) ;
 	            bp += 1 ;
 	            bl -= 1 ;
 	            switch (ch) {
@@ -650,7 +646,7 @@ int cfnumull(cchar *bp,int bl,ulonglong *rp)
 		}
 	    } else if (isdigitlatin(MKCHAR(*bp))) {
 	        if (bl > 1) {
-	            ch = tolower(bp[1]) ;
+	            ch = TOLC(bp[1]) ;
 	            if (isalphalatin(ch)) {
 	                bp += 2 ;
 	                bl -= 2 ;

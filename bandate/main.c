@@ -31,6 +31,7 @@
 #include	<limits.h>
 #include	<unistd.h>
 #include	<stdlib.h>
+#include	<string.h>
 
 #include	<vsystem.h>
 #include	<tmtime.h>
@@ -54,6 +55,7 @@
 /* external subroutines */
 
 extern int	sfnext(const char *,int,const char **) ;
+extern int	bwriteblanks(bfile *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -79,38 +81,46 @@ extern char	*strnprbrk(const char *,int,const char *) ;
 
 /* forward references */
 
+static int process(cchar *,cchar *,cchar *,int) ;
 static int trailprint(bfile *,const char *,const char *,int) ;
 static int subprint(bfile *,const char *,const char *,int) ;
 
 
 /* local variables */
 
+static const struct mapex	mapexs[] = {
+	{ SR_NOENT, EX_NOUSER },
+	{ SR_AGAIN, EX_TEMPFAIL },
+	{ SR_DEADLK, EX_TEMPFAIL },
+	{ SR_NOLCK, EX_TEMPFAIL },
+	{ SR_TXTBSY, EX_TEMPFAIL },
+	{ SR_ACCESS, EX_NOPERM },
+	{ SR_REMOTE, EX_PROTOCOL },
+	{ SR_NOSPC, EX_TEMPFAIL },
+	{ SR_INTR, EX_INTR },
+	{ SR_EXIT, EX_TERM },
+	{ 0, 0 }
+} ;
+
 
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	BFILE	ofile, *ofp = &ofile ;
-
-	TMTIME	tm ;
-
-	time_t	daytime = time(NULL) ;
+	TMTIME		tm ;
+	time_t		daytime = time(NULL) ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	pan = 0 ;
-	int	ex = EX_OK ;
-	int	line = 0 ;
-	int	wlen = 0 ;
-	int	f_top = TRUE ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		ex = EX_OK ;
+	int		wlen = 0 ;
+	int		f_top = FALSE ;
 
 	const char	*tspec = "%e %b %T" ;
 	const char	*argval = NULL ;
@@ -122,17 +132,14 @@ const char	*envv[] ;
 	const char	*ifname = BFILE_STDIN ;
 	const char	*cp ;
 
-	char	dstr[TIMEBUFLEN+1] ;
+	char		dstr[TIMEBUFLEN+1] ;
 
 
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getourenv(envv,VARDEBUGFNAME)) == NULL) {
-	    if ((cp = getourenv(envv,VARDEBUGFD1)) == NULL)
-	        cp = getourenv(envv,VARDEBUGFD2) ;
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-	if (cp != NULL)
-	    debugopen(cp) ;
-	debugprintf("main: starting\n") ;
 #endif /* CF_DEBUGS */
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -145,54 +152,27 @@ const char	*envv[] ;
 	    f_top = (cp[0] == 't') ;
 	}
 
-	rs = tmtime_gmtime(&tm,daytime) ;
-
-	if (rs >= 0)
+	if ((rs = tmtime_gmtime(&tm,daytime)) >= 0) {
 	    rs = sntmtime(dstr,TIMEBUFLEN,&tm,tspec) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("main: dstr=%s\n",dstr) ;
 #endif
 
-	if (rs < 0) goto badtime ;
+	if (rs >= 0) {
+	    rs = process(NULL,NULL,dstr,f_top) ;
+	    wlen = rs ;
+	}
 
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = BFILE_STDOUT ;
-
-	if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
-	    BFILE	ifile, *ifp = &ifile ;
-
-	    if ((rs = bopen(ifp,ifname,"r",0666)) >= 0) {
-	        const int	llen = LINEBUFLEN ;
-	        int		len ;
-	        char		lbuf[LINEBUFLEN+1] ;
-
-	        while ((rs = breadline(ifp,lbuf,llen)) > 0) {
-	            len = rs ;
-
-	            if (lbuf[len-1] == '\n') lbuf[--len] = '\0' ;
-
-	            if (f_top && (line == 0)) {
-	                rs = trailprint(ofp,dstr,lbuf,len) ;
-	            } else if ((! f_top) && (line == 5)) {
-	                rs = subprint(ofp,dstr,lbuf,len) ;
-	                wlen += rs ;
-	            } else {
-	                rs = bprintline(ofp,lbuf,len) ;
-	                wlen += rs ;
-	            }
-
-	            line += 1 ;
-	            if (rs < 0) break ;
-	        } /* end while (reading lines) */
-
-	        bclose(ifp) ;
-	    } /* end if (input-file-open) */
-
-	    bclose(ofp) ;
-	} /* end if (output-file-open) */
-
-badtime:
+/* done */
+	if ((rs < 0) && (ex == EX_OK)) {
+	    switch (rs) {
+	    default:
+	        ex = mapex(mapexs,rs) ;
+	        break ;
+	    } /* end switch */
+	}
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	{
@@ -215,16 +195,66 @@ badtime:
 /* local subroutines */
 
 
-static int trailprint(bfile *ofp,const char *dstr,const char *lbuf,int len)
+static int process(cchar *ofn,cchar *ifn,cchar *dstr,int f_top)
+{
+	BFILE		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = BFILE_STDOUT ;
+
+	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
+	    BFILE	ifile, *ifp = &ifile ;
+
+	    if ((rs = bopen(ifp,ifn,"r",0666)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        int		len ;
+		int		line = 0 ;
+	        char		lbuf[LINEBUFLEN+1] ;
+
+	        while ((rs = breadline(ifp,lbuf,llen)) > 0) {
+	            len = rs ;
+
+	            if (lbuf[len-1] == '\n') lbuf[--len] = '\0' ;
+
+	            if (f_top && (line == 0)) {
+	                rs = trailprint(ofp,dstr,lbuf,len) ;
+	            } else if ((! f_top) && (line == 5)) {
+	                rs = subprint(ofp,dstr,lbuf,len) ;
+	                wlen += rs ;
+	            } else {
+	                rs = bprintline(ofp,lbuf,len) ;
+	                wlen += rs ;
+	            }
+
+	            line += 1 ;
+	            if (rs < 0) break ;
+	        } /* end while (reading lines) */
+
+	        rs1 = bclose(ifp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (input-file-open) */
+
+	    rs1 = bclose(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (output-file-open) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (process) */
+
+
+static int trailprint(bfile *ofp,cchar *dstr,cchar *lbuf,int len)
 {
 	const int	cols = COLUMNS ;
 	const int	dl = strlen(dstr) ;
-
-	int	rs = SR_OK ;
-	int	breaklen ;
-	int	ml ;
-	int	i = 0 ;
-	int	wlen = 0 ;
+	int		rs = SR_OK ;
+	int		breaklen ;
+	int		ml ;
+	int		i = 0 ;
+	int		wlen = 0 ;
 
 	breaklen = (cols - dl) ;
 
@@ -257,16 +287,16 @@ static int trailprint(bfile *ofp,const char *dstr,const char *lbuf,int len)
 /* end subroutine (trailprint) */
 
 
-static int subprint(bfile *ofp,const char *dstr,const char *lbuf,int len)
+static int subprint(bfile *ofp,cchar *dstr,cchar *lbuf,int len)
 {
-	int	rs = SR_OK ;
-	int	di = 0 ;
-	int	ch ;
-	int	i ;
-	int	wlen = 0 ;
+	int		rs = SR_OK ;
+	int		di = 0 ;
+	int		ch ;
+	int		i ;
+	int		wlen = 0 ;
 
 	for (i = 0 ; (i < len) && lbuf[i] ; i += 1) {
-	    ch = lbuf[i] & 0xff ;
+	    ch = MKCHAR(lbuf[i]) ;
 	    if ((! CHAR_ISWHITE(ch)) && (dstr[di] != '\0')) {
 	        if (dstr[di] != ' ') ch = dstr[di] ;
 	        di += 1 ;

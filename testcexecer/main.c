@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1992-03-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -21,8 +19,8 @@
 
 /*******************************************************************************
 
-	This subroutine forms a program that sends data to a remote
-	INET host to its 'echo' service.
+        This subroutine forms a program that sends data to a remote INET host to
+        its 'echo' service.
 
 
 *******************************************************************************/
@@ -40,7 +38,6 @@
 #include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 #include	<time.h>
 
@@ -131,7 +128,7 @@ struct fpstat {
 
 /* forward references */
 
-static int	transfer(struct proginfo *,const char *,
+static int	transfer(PROGINFO *,const char *,
 			int,int,int,int,int,int) ;
 
 
@@ -185,12 +182,9 @@ enum dialers {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 
 	bfile	errfile, *efp = &errfile ;
 
@@ -245,7 +239,7 @@ const char	*envv[] ;
 	debugprintf("main: started\n") ;
 #endif
 
-	memset(pip,0,sizeof(struct proginfo)) ;
+	memset(pip,0,sizeof(PROGINFO)) ;
 
 	pip->progname = strbasename(argv[0]) ;
 
@@ -1048,11 +1042,8 @@ const char	*envv[] ;
 
 	ex = EX_OK ;
 	if (rs < 0) {
-
 	    ex = EX_DATAERR ;
-	    bprintf(efp,"%s: exiting bad rs=%d\n",
-	        pip->progname,rs) ;
-
+	    bprintf(efp,"%s: exiting bad rs=%d\n", pip->progname,rs) ;
 	}
 
 /* and exit */
@@ -1139,21 +1130,17 @@ badconnect:
 
 
 static int transfer(pip,hostname,rfd,r2fd,ifd,ofd,efd,mxu)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 const char	hostname[] ;
 int	rfd, r2fd ;
 int	ifd, ofd, efd ;
 int	mxu ;
 {
 	struct pollfd	fds[NFDS] ;
-
 	struct fpstat	fp[NFDS] ;
-
 	struct ustat	sb ;
-
 	time_t	t_pollsanity ;
 	time_t	t_sanity ;
-
 	int	rs ;
 	int	i, nfds, len, sanityfailures = 0 ;
 	int	fdi = 0 ;

@@ -1,6 +1,6 @@
-/* csro */
+/* csro (ComSat Receive Offset) */
 
-/* email CSRO processing */
+/* email ComSat Receive Offset (CSRO) processing */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -26,10 +26,10 @@
         the host part of all email addresses in a separate structure than the
         local part. All email addresses will be hashed with the index being the
         host part of the address. This allows super quick retrival of those
-        email addresses belonging to a particular host (maybe this wasn't an
+        email addresses belonging to a particular host (maybe this wasn not an
         imperative but that is what we did). The host parts are stored in a
         simple VECSTR container object and all email addresess are registered in
-        a HDB container object.
+        a VECOBJ container object.
 
 
 *******************************************************************************/
@@ -58,13 +58,20 @@
 
 /* local defines */
 
+#define	VALUE		CSRO_VALUE
+
 
 /* external subroutines */
+
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* forward references */
 
-int		csro_already(CSRO *,const char *,const char *,ULONG) ;
+int		csro_already(CSRO *,cchar *,cchar *,ULONG) ;
+
+static int	value_start(VALUE *,cchar *,cchar *,ULONG) ;
+static int	value_finish(VALUE *) ;
 
 static int	vcmpname() ;
 static int	vcmpentry() ;
@@ -124,22 +131,15 @@ int csro_finish(CSRO *op)
 
 	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
 
-/* pop entries first */
-
 	for (i = 0 ; vecobj_get(&op->entries,i,&vp) >= 0 ; i += 1) {
 	    if (vp != NULL) {
-	        if (vp->fname != NULL) {
-	            rs1 = uc_free(vp->fname) ;
-	            if (rs >= 0) rs = rs1 ;
-	            vp->fname = NULL ;
-	        }
+		rs1 = entry_finish(vp) ;
+	        if (rs >= 0) rs = rs1 ;
 	    }
 	} /* end while */
 
 	rs1 = vecobj_finish(&op->entries) ;
 	if (rs >= 0) rs = rs1 ;
-
-/* pop the vector of strings */
 
 	rs1 = vecstr_finish(&op->names) ;
 	if (rs >= 0) rs = rs1 ;
@@ -153,95 +153,49 @@ int csro_finish(CSRO *op)
 int csro_add(CSRO *op,cchar *mailname,cchar *fname,ULONG mailoff)
 {
 	CSRO_VALUE	ve ;
-	int		rs, rs1 ;
-	int		ni, nlen ;
-	const char	*np ;
+	int		rs ;
+	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (mailname == NULL) return SR_FAULT ;
 
-	if (op->magic != CSRO_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("csro_add: continuing\n") ;
+	debugprintf("csro_add: ent\n") ;
 #endif
-
-	nlen = strlen(mailname) ;
 
 /* do we already have this name */
 
-	if ((rs = vecstr_findn(&op->names,mailname,nlen)) >= 0) {
-	    ni = rs ;
-
-	    memset(&ve,0,sizeof(CSRO_VALUE)) ;
-	    ve.mailname = mailname ;
-	    ve.fname = fname ;
-	    ve.mailoff = mailoff ;
-
-	    rs1 = vecobj_search(&op->entries,&ve,vcmpentry,NULL) ;
-
-	    if (rs1 >= 0)
-	        goto ret0 ;
-
-	} else if (rs == SR_NOENT) {
-
-#if	CF_DEBUGS
-	    debugprintf("csro_add: host not already added\n") ;
-	    debugprintf("csro_add: host=%s\n",host) ;
-#endif
-
-	    rs = vecstr_add(&op->names,mailname,nlen) ;
-	    ni = rs ;
-
-#if	CF_DEBUGS
-	    debugprintf("csro_add: host NAA rs=%d\n",rs) ;
-#endif
-
-	} /* end if (getting existing name) */
-
-	if (rs < 0)
-	    goto bad0 ;
-
-	rs = vecstr_get(&op->names,ni,&np) ;
-	if (rs < 0)
-	    goto bad0 ;
+	if ((rs = value_start(&ve,mailname,fname,mailoff)) >= 0) {
+	    VECSTR	*nlp = &op->names ;
+	    VECOBJ	*vlp = &op->entries ;
+	    const int	nlen = strlen(mailname) ;
+	    int		f_release = FALSE ;
+	    if ((rs = vecstr_findn(nlp,mailname,nlen)) >= 0) {
+	        if ((rs = vecobj_search(vlp,&ve,vcmpentry,NULL)) >= 0) {
+		     f_release = TRUE ;
+		}
+	    } else if (rs == SR_NOENT) {
+		cchar	*np ;
+	        if ((rs = vecstr_add(nlp,mailname,nlen)) >= 0) {
+	            int		ni = rs ;
+	            if ((rs = vecstr_get(nlp,ni,&np)) >= 0) {
+			rs = vecobj_add(vlp,&ve) ;
+		    }
+		}
+	    } /* end if (getting existing name) */
+	    if (f_release) {
+		rs1 = value_finish(&ve) ;
+		if (rs >= 0) rs = rs1 ;
+	    }
+	} /* end if (value) */
 
 #if	CF_DEBUGS
-	debugprintf("csro_add: allocating\n") ;
+	debugprintf("csro_add: ret rs=%d\n",rs) ;
 #endif
 
-	memset(&ve,0,sizeof(CSRO_VALUE)) ;
-
-	ve.mailname = np ;
-	ve.mailoff = mailoff ;
-	if (fname != NULL) {
-	    ve.fname = mallocstr(fname) ;
-	    if (ve.fname == NULL) goto bad2 ;
-	} else
-	    ve.fname = NULL ;
-
-	rs = vecobj_add(&op->entries,&ve) ;
-	if (rs < 0)
-	    goto bad3 ;
-
-#if	CF_DEBUGS
-	debugprintf("csro_add: ret rs=%d\n", rs) ;
-#endif
-
-ret0:
 	return rs ;
-
-/* bad things come here */
-bad3:
-	if (ve.fname != NULL) {
-	    uc_free(ve.fname) ;
-	    ve.fname = NULL ;
-	}
-
-bad2:
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (csro_add) */
 
@@ -251,6 +205,8 @@ int csro_already(CSRO *op,cchar *mailname,cchar *fname,ULONG mailoff)
 {
 	CSRO_VALUE	ve ;
 	int		rs ;
+	int		rs1 ;
+	int		f = FALSE ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (mailname == NULL) return SR_FAULT ;
@@ -261,16 +217,18 @@ int csro_already(CSRO *op,cchar *mailname,cchar *fname,ULONG mailoff)
 	debugprintf("csro_already: ent\n") ;
 #endif
 
-/* is this entry already in the entry table? */
+	if ((rs = value_start(&ve,mailname,fname,mailoff)) >= 0) {
+	    const int	rsn = SR_NOTFOUND ;
+	    if ((rs = vecobj_search(&op->entries,&ve,vcmpentry,NULL)) >= 0) {
+	        f = TRUE ;
+	    } else if (rs == rsn) {
+	        rs = SR_OK ;
+	    }
+	    rs1 = value_finish(&ve) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (value) */
 
-	memset(&ve,0,sizeof(CSRO_VALUE)) ;
-	ve.mailname = mailname ;
-	ve.fname = fname ;
-	ve.mailoff = mailoff ;
-
-	rs = vecobj_search(&op->entries,&ve,vcmpentry,NULL) ;
-
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (csro_already) */
 
@@ -319,6 +277,67 @@ int csro_sort(CSRO *op)
 	return rs ;
 }
 /* end subroutine (csro_sort) */
+
+
+/* initialize a host cursor */
+int csro_ncurbegin(CSRO *op,CSRO_NCURSOR *hcp)
+{
+
+	if (op == NULL) return SR_FAULT ;
+	if (hcp == NULL) return SR_FAULT ;
+
+	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
+
+	*hcp = -1 ;
+	return SR_OK ;
+}
+/* end subroutine (csro_ncurbegin) */
+
+
+/* free up a host cursor */
+int csro_ncurend(CSRO *op,CSRO_NCURSOR *hcp)
+{
+
+	if (op == NULL) return SR_FAULT ;
+	if (hcp == NULL) return SR_FAULT ;
+
+	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
+
+	*hcp = -1 ;
+	return SR_OK ;
+}
+/* end subroutine (csro_ncurend) */
+
+
+/* initialize a value cursor */
+int csro_vcurbegin(CSRO *op,CSRO_VCURSOR *vcp)
+{
+	int		rs = SR_OK ;
+
+	if (op == NULL) return SR_FAULT ;
+	if (vcp == NULL) return SR_FAULT ;
+
+	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
+
+	*vcp = -1 ;
+	return rs ;
+}
+/* end subroutine (csro_vcurbegin) */
+
+
+/* free up a value cursor */
+int csro_vcurend(CSRO *op,CSRO_VCURSOR *vcp)
+{
+
+	if (op == NULL) return SR_FAULT ;
+	if (vcp == NULL) return SR_FAULT ;
+
+	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
+
+	*vcp = -1 ;
+	return SR_OK ;
+}
+/* ens subroutine (csro_vcurend) */
 
 
 int csro_getname(CSRO *op,CSRO_NCURSOR *hcp,cchar **hnpp)
@@ -374,69 +393,45 @@ int csro_getvalue(CSRO *op,cchar *mailname,CSRO_VCURSOR *vcp,CSRO_VALUE **vepp)
 /* end subroutine (csro_getvalue) */
 
 
-/* initialize a host cursor */
-int csro_ncurbegin(CSRO *op,CSRO_NCURSOR *hcp)
-{
-
-	if (op == NULL) return SR_FAULT ;
-	if (hcp == NULL) return SR_FAULT ;
-
-	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
-
-	*hcp = -1 ;
-	return SR_OK ;
-}
-/* end subroutine (csro_ncurbegin) */
-
-
-/* free up a host cursor */
-int csro_ncurend(CSRO *op,CSRO_NCURSOR *hcp)
-{
-
-	if (op == NULL) return SR_FAULT ;
-	if (hcp == NULL) return SR_FAULT ;
-
-	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
-
-	*hcp = -1 ;
-	return SR_OK ;
-}
-/* end subroutine (csro_ncurend) */
-
-
-/* initialize a value cursor */
-int csro_vcurbegin(CSRO *op,CSRO_VCURSOR *vcp)
-{
-	int		rs = SR_OK ;
-
-	if (op == NULL) return SR_FAULT ;
-	if (vcp == NULL) return SR_FAULT ;
-
-	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
-
-	*vcp = -1 ;
-	return rs ;
-}
-/* end subroutine (csro_vcurbegin) */
-
-
-/* free up a value cursor */
-int csro_vcurend(CSRO *op,CSRO_VCURSOR *vcp)
-{
-	int		rs = SR_OK ;
-
-	if (op == NULL) return SR_FAULT ;
-	if (vcp == NULL) return SR_FAULT ;
-
-	if (op->magic != CSRO_MAGIC) return SR_NOTOPEN ;
-
-	*vcp = -1 ;
-	return rs ;
-}
-/* ens subroutine (csro_vcurend) */
-
-
 /* private subroutines */
+
+
+static int value_start(VALUE *ep,cchar *mailname,cchar *fname,ULONG mailoff)
+{
+	int		rs ;
+	int		size = 1 ;
+	char		*bp ;
+	memset(ep,0,sizeof(VALUE)) ;
+	ep->mailoff = mailoff ;
+	size += (strlen(mailname)+1) ;
+	if (fname != NULL) {
+	   size += (strlen(fname)+1) ;
+	}
+	if ((rs = uc_malloc(size,&bp)) >= 0) {
+	    ep->mailname = bp ;
+	    bp = (strwcpy(bp,fname,-1)+1) ;
+	    ep->fname = bp ;
+	    if (fname != NULL) {
+	        bp = (strwcpy(bp,fname,-1)+1) ;
+	    } else {
+		*bp = '\0' ;
+	    }
+	} /* end if (m-a) */
+	return rs ;
+}
+/* end subroutine (value_start) */
+
+
+static int value_finish(VALUE *ep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	rs1 = uc_free(ep->mailname) ;
+	if (rs >= 0) rs = rs1 ;
+	ep->mailname = NULL ;
+	return rs ;
+}
+/* end subroutine (value_finish) */
 
 
 static int vcmpname(CSRO_VALUE **e1p,CSRO_VALUE **e2p)

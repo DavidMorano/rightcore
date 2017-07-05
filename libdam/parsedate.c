@@ -9,19 +9,14 @@
 /* revision history:
 
 	= 1997-06-03, David A­D­ Morano
-
-	I modified the 'prsindate' subroutine to make it "Year 2000"
-	safe.
-
+	I modified the 'prsindate' subroutine to make it "Year 2000" safe.
 
 	= 1998-08-14, David A­D­ Morano
-
-	I fixed a long-time bug where the default timezone is not set
-	on Sun Solaris.  I also am now handling correctly, like the
-	program never did at all, for a missing timezone specified
-	in the input string.  Whew -- what a hassle this was to correct!
-	This code is garbage!  Beware if you try and modify further.
-
+        I fixed a long-time bug where the default timezone is not set on Sun
+        Solaris. I also am now handling correctly, like the program never did at
+        all, for a missing timezone specified in the input string. Whew -- what
+        a hassle this was to correct! This code is garbage! Beware if you try
+        and modify further.
 
 */
 
@@ -29,11 +24,11 @@
 
 /******************************************************************************
 
-	This code was borrowed (salvaged) from the original version that
-	came with (I think) the old NetNews-C software.  The original
-	code has been made a bit more portable but is otherwise almost
-	the same as before.  for the most part, subroutine names have
-	remained the same with the original code.
+        This code was borrowed (salvaged) from the original version that came
+        with (I think) the old NetNews-C software. The original code has been
+        made a bit more portable but is otherwise almost the same as before. for
+        the most part, subroutine names have remained the same with the original
+        code.
 
 
 ******************************************************************************/
@@ -44,7 +39,6 @@
 #include <sys/types.h>
 #include <sys/timeb.h>
 #include <string.h>
-#include <ctype.h>
 #include <time.h>
 #include <tzfile.h>
 
@@ -173,9 +167,7 @@ struct timeb	*nowp ;
 /* do we need extra processing because of a missing timezone in input? */
 
 	if (rs > 0) {
-
 	    struct tm	breakout, *bop = &breakout ;
-
 
 #if	CF_DEBUGS
 	    debugprintf("parsedate: possible extra processing\n") ;
@@ -246,11 +238,8 @@ register struct tm *tm ;
 int		*tzp ;
 {
 	register int	nf ;
-
 	int		rs ;
-
 	char		*fields[MAXDATEFIELDS + 1] ;
-
 
 #if	CF_DEBUGS
 	debugprintf("prsabsdate: ent\n") ;
@@ -283,11 +272,8 @@ int		*tzp ;
 /* put the spaces back into the input ! */
 
 	    while (--nf > 0) {
-
 	        while (*p++ != '\0') ;
-
 	        p[-1] = ' ' ;
-
 	    } /* end while */
 
 #if	CF_DEBUGS
@@ -325,16 +311,11 @@ register struct tm	*tm ;
 int			*tzp ;
 {
 	struct timeb		ftz ;
-
 	register datetkn	*tp ;
-
 	register long	flg = 0, ty ;
-
 	register int	i ;
-
 	int		mer = HR24, bigval = -1 ;
 	int		f_tz = FALSE ;
-
 
 #if	CF_DEBUGS
 	debugprintf("tryabsdate: ent\n") ;
@@ -472,6 +453,5 @@ int			*tzp ;
 	return ((f_tz) ? 0 : 1) ;
 }
 /* end subroutine (tryabsdate) */
-
 
 

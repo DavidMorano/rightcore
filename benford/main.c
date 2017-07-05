@@ -1,4 +1,4 @@
-/* main */
+/* main (benford) */
 
 
 
@@ -38,16 +38,15 @@ int main()
 	} /* end while */
 
 	sum = 0 ;
-	for (i = 0 ; i < 10 ; i += 1)
+	for (i = 0 ; i < 10 ; i += 1) {
 		sum += p[i] ;
+	}
 
 
 	printf("sum=%d\n",sum) ;
 
 	for (i = 0 ; i < 10 ; i += 1) {
-
 		r = ((double) p[i]) / ((double) sum) ;
-
 		printf("c[%d]=%d p[%d]=%6.3f\n",i,p[i],i,r) ;
 	}
 
@@ -55,4 +54,6 @@ int main()
 
 	return 0 ;
 }
+/* end subroutine (main) */
+
 

@@ -5,7 +5,7 @@
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_SAFE		1
-#define	CF_CREAT	0		/* always create the file ? */
+#define	CF_CREAT	0		/* always create the file? */
 #define	CF_HASH		1		/* use hash for faster lookup */
 #define	CF_CHEATEXT	0		/* cheat on message field extraction */
 
@@ -13,8 +13,8 @@
 /* revision history:
 
 	= 2004-02-17, David A­D­ Morano
-        This code module is being started to eliminate repeated mail messages
-        (essentially just from ACM).
+        This code module was inspired from the mail-message-id database (which
+	is used to eliminate repeated mail messages).
 
 */
 
@@ -49,7 +49,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<serialbuf.h>
@@ -203,12 +202,12 @@ int			maxentry ;
 #endif
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 #endif /* CF_SAFE */
 
-	if ((fname == NULL) || (fname[0] == '\0'))
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
+
+	if (fname[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
 	debugprintf("densitydb_open: oflags=%4o fname=%s\n",
@@ -384,11 +383,9 @@ DENSITYDB		*op ;
 	int		rs1 ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != DENSITYDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != DENSITYDB_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
 	rs1 = densitydb_bufend(op) ;
@@ -420,11 +417,9 @@ DENSITYDB		*op ;
 	int		c ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != DENSITYDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != DENSITYDB_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
 	c = (op->filesize - DENSITYDB_FOTAB) / DENSITYDB_ENTSIZE ;
@@ -447,11 +442,9 @@ DENSITYDB_ENT	*ep ;
 	char		*bp ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != DENSITYDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != DENSITYDB_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
 #if	CF_DEBUGS
@@ -585,11 +578,9 @@ DENSITYDB_ENT		*ep ;
 	char		*bep ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != DENSITYDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != DENSITYDB_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
 #ifdef	OPTIONAL
@@ -756,204 +747,6 @@ ret0:
 	return (rs >= 0) ? ei : rs ;
 }
 /* end subroutine (densitydb_update) */
-
-
-#ifdef	COMMENT
-
-/* write an entry */
-int densitydb_write(op,ei,ep)
-DENSITYDB		*op ;
-int			ei ;
-DENSITYDB_ENT		*ep ;
-{
-	time_t		daytime = 0 ;
-
-	uint		eoff, ebs = DENSITYDB_EBS ;
-	uint		len ;
-
-	int		rs ;
-	int		i, n ;
-	int		ne, nr ;
-	int		f ;
-
-	char	ebuf[DENSITYDB_EBS + 1] ;
-	char	zbuf[5] ;
-	char	*bp, *bep, *fp, *cp ;
-
-
-	if (op == NULL) return SR_FAULT ;
-
-	if (op->magic != DENSITYDB_MAGIC) return SR_NOTOPEN ;
-
-	if (ep == NULL) return SR_INVALID ;
-
-#if	CF_DEBUGS
-	debugprintf("densitydb_write: entered ei=%d fileinit=%u\n",
-	    ei,op->f.fileinit) ;
-#endif
-
-	if (! op->f.writable)
-	    return SR_RDONLY ;
-
-/* do we have proper file access ? */
-
-	if (daytime == 0)
-	    daytime = time(NULL) ;
-
-	rs = densitydb_filecheck(op,daytime,0) ;
-
-	if (rs < 0)
-	    goto ret0 ;
-
-/* is the file initialized ? */
-
-#if	CF_DEBUGS
-	debugprintf("densitydb_write: fileinit=%u\n",op->f.fileinit) ;
-#endif
-
-	if (! op->f.fileinit) {
-
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
-
-	    rs = densitydb_fileinit(op,daytime) ;
-
-	    if (rs < 0)
-	        goto ret0 ;
-
-	}
-
-/* figure where we need to write this */
-
-	ne = (op->filesize - DENSITYDB_FOTAB) / ebs ;
-	if (ei > ne) {
-
-	    rs = SR_INVALID ;
-	    goto ret0 ;
-	}
-
-/* encode into a buffer */
-
-	densitydbe_all(ebuf,DENSITYDBE_SIZE,0,ep) ;
-
-/* do we need to find an empty slot ? */
-
-#if	CF_DEBUGS
-	debugprintf("densitydb_write: find empty ne=%d \n",ne) ;
-#endif
-
-	f = FALSE ;
-	if (ei < 0) {
-
-	    memset(zbuf,0,4) ;
-
-	    nr = 20 ;
-	    ei = 0 ;
-	    eoff = DENSITYDB_FOTAB ;
-	    while (! f) {
-
-#ifdef	OPTIONAL
-	        if (nr > ((op->filesize - eoff) / ebs))
-	            nr = (op->filesize - eoff) / ebs ;
-#endif
-
-	        len = nr * ebs ;
-
-#if	CF_DEBUGS
-	        debugprintf("densitydb_write: densitydb_buf() eoff=%u len=%d\n",
-	            eoff,len) ;
-#endif
-
-	        rs = densitydb_buf(op,eoff,len,&bp) ;
-
-#if	CF_DEBUGS
-	        debugprintf("densitydb_write: densitydb_buf() rs=%d\n",rs) ;
-#endif
-
-	        if (rs < ebs)
-	            break ;
-
-	        n = rs / ebs ;
-	        for (i = 0 ; i < n ; i += 1) {
-
-	            bep = bp + (i * ebs) ;
-	            fp = bep + DENSITYDBE_OITYPE ;
-	            f = (memcmp(zbuf,fp,sizeof(uint)) == 0) ;
-
-	            if (f)
-	                break ;
-
-	            ei += 1 ;
-
-	        } /* end for */
-
-	        eoff += (i * ebs) ;
-
-	    } /* end while */
-
-	    if ((rs >= 0) && (! f))
-	        ei = ne ;
-
-	} /* end if (needed an empty slot) */
-
-#if	CF_DEBUGS
-	debugprintf("densitydb_write: writing at slot ei=%u\n",ei) ;
-#endif
-
-	eoff = DENSITYDB_FOTAB + (ei * ebs) ;
-	uoff = eoff ;
-	rs = u_pwrite(op->fd,ebuf,ebs,uoff) ;
-
-#if	CF_DEBUGS
-	debugprintf("densitydb_write: u_pwrite() rs=%d\n",rs) ;
-#endif
-
-	if (rs >= 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("densitydb_write: f_found=%u\n",f) ;
-#endif
-
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
-
-	    op->h.wcount += 1 ;
-	    op->h.wtime = daytime ;
-	    densitydb_bufupdate(op,eoff,ebs,ebuf) ;
-
-	    if (! f) {
-
-	        op->h.nentries += 1 ;
-	        op->filesize += ebs ;
-
-#if	CF_DEBUGS
-	        debugprintf("densitydb_write: filesize=%u\n",op->filesize) ;
-#endif
-
-	    }
-
-	    rs = densitydb_writehead(op) ;
-
-#if	CF_DEBUGS
-	    debugprintf("densitydb_write: densitydb_writehead() rs=%d\n",rs) ;
-#endif
-
-	    if ((rs >= 0) && op->f.remote)
-	        u_fsync(op->fd) ;
-
-	} /* end if (data write was successful) */
-
-ret0:
-
-#if	CF_DEBUGS
-	debugprintf("densitydb_write: ret rs=%u filesize=%u\n",rs,op->filesize) ;
-#endif
-
-	return (rs >= 0) ? ei : rs ;
-}
-/* end subroutine (densitydb_write) */
-
-#endif /* COMMENT */
 
 
 /* do some checking */
@@ -1143,9 +936,7 @@ time_t			daytime ;
 	    } /* end if (writing) */
 
 	} else if (op->filesize >= DENSITYDB_FOTAB) {
-
 	    int	f ;
-
 
 /* read the file header */
 
@@ -1551,13 +1342,13 @@ DENSITYDB		*op ;
 	debugprintf("densitydb_bufbegin: size=%u\n",size) ;
 #endif
 
-	rs = uc_malloc(size,&op->b.buf) ;
-
-	if (rs >= 0)
+	if ((rs = uc_malloc(size,&op->b.buf)) >= 0) {
 	    op->b.size = size ;
+	}
 
 	return rs ;
 }
+/* end subroutine (densitydb_bufbegin) */
 
 
 static int densitydb_bufend(op)
@@ -1611,8 +1402,7 @@ char			**rpp ;
 /* can we do an "add-on" type read operation ? */
 
 	    bend = op->b.off + op->b.size ;
-	    if ((roff >= op->b.off) &&
-	        (rext <= bend)) {
+	    if ((roff >= op->b.off) && (rext <= bend)) {
 
 #if	CF_DEBUGS
 	        debugprintf("densitydb_buf: add-on read\n") ;
@@ -1627,20 +1417,14 @@ char			**rpp ;
 	        if (fext > bend)
 	            fext = bend ;
 
-	        len = fext - foff ;
+	        len = (fext - foff) ;
 
 #if	CF_DEBUGS
 	        debugprintf("densitydb_buf: u_pread() foff=%llu len=%u\n",
 	            foff,len) ;
 #endif
 
-	        rs = u_pread(op->fd,rbuf,len,foff) ;
-
-#if	CF_DEBUGS
-	        debugprintf("densitydb_buf: u_pread() rs=%d\n",rs) ;
-#endif
-
-	        if (rs >= 0) {
+	        if ((rs = u_pread(op->fd,rbuf,len,foff)) >= 0) {
 
 	            op->b.len += rs ;
 	            len = MIN(((op->b.off + op->b.len) - roff),rlen) ;
@@ -1672,21 +1456,18 @@ char			**rpp ;
 	            fext = bend ;
 
 	        len = fext - foff ;
-	        rs = u_pread(op->fd,op->b.buf,len,foff) ;
-
-	        if (rs >= 0) {
-
+	        if ((rs = u_pread(op->fd,op->b.buf,len,foff)) >= 0) {
 	            op->b.len = rs ;
 	            len = MIN(rs,rlen) ;
-
 	        }
 
 	    }
 
 	} /* end if (needed to read more data) */
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = op->b.buf + (roff - op->b.off) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("densitydb_buf: ret rs=%d len=%u\n",rs,len) ;
@@ -1771,8 +1552,7 @@ struct densitydb_filemagic	*mp ;
 	char		*bp = buf ;
 	char		*cp ;
 
-	if (buf == NULL)
-	    return SR_BADFMT ;
+	if (buf == NULL) return SR_BADFMT ;
 
 	if (f_read) {
 
@@ -1834,8 +1614,7 @@ struct densitydb_filehead	*hp ;
 /* end subroutine (filehead) */
 
 
-static int extutime(ep)
-char	*ep ;
+static int extutime(char *ep)
 {
 	DENSITYDBE_UPDATE	m1 ;
 	uint		*ip ;

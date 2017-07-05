@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -92,7 +90,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>

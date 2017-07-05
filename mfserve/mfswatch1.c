@@ -251,7 +251,7 @@ int mfswatch_service(PROGINFO *pip)
 	if ((rs = poller_wait(pmp,&ps,wip->minpoll)) > 0) {
 	    pip->daytime = time(NULL) ;
 	    if ((rs = mfswatch_handle(pip,&ps)) >= 0) {
-		while ((rs = poller_have(pmp,&ps)) > 0) {
+		while ((rs = poller_get(pmp,&ps)) > 0) {
 	    	    rs = mfswatch_handle(pip,&ps) ;
 		    if (rs < 0) break ;
 		} /* end while */

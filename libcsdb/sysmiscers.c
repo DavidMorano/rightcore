@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -19,8 +17,8 @@
 
 /*******************************************************************************
 
-	This subroutine will find and return the number of CPUs in
-	the present system.
+        This subroutine will find and return the number of CPUs in the present
+        system.
 
 	Synopsis:
 
@@ -52,7 +50,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<vecobj.h>

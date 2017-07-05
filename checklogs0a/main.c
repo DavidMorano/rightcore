@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -96,6 +94,9 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	perm(char *,uid_t,gid_t,gid_t *,int) ;
 extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -220,7 +221,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
-	USERINFO	u ;
 	bfile		errfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -604,6 +604,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -621,10 +623,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get our program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -672,8 +675,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (pip->deflogsize == 0)
 	    pip->deflogsize = DEFLOGSIZE ;
 
-	if (rs < 0) goto badarg ;
-
 /* check program parameters */
 
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
@@ -689,9 +690,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (pip->logrootdname == NULL) pip->logrootdname = getenv(VARLOGROOT) ;
 	if (pip->logrootdname == NULL) pip->logrootdname = getenv(VARFILEROOT) ;
 
-	if (pip->logrootdname == NULL) {
+	if ((rs >= 0) && (pip->logrootdname == NULL)) {
 	    pip->logrootdname = pip->pwd ;
-	    proginfo_pwd(pip) ;
+	    rs = proginfo_pwd(pip) ;
 	}
 
 /* process the positional arguments */
@@ -708,28 +709,39 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ainfo.ai_max = ai_max ;
 	ainfo.ai_pos = ai_pos ;
 
-	if ((rs = userinfo_start(&u,NULL)) >= 0) {
-	    if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-	        if ((rs = proglog_begin(pip,&u)) >= 0) {
-	            {
-	                cchar	*ofn = ofname ;
-	                cchar	*afn = afname ;
-	                rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
-	            }
-	            rs1 = proglog_end(pip) ;
+	if (rs >= 0) {
+	    USERINFO	u ;
+	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
+	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
+	            if ((rs = proglog_begin(pip,&u)) >= 0) {
+	                {
+		    	    ARGINFO	*aip = &ainfo ;
+			     BITS	*bop = &pargs ;
+	                    cchar	*ofn = ofname ;
+	                    cchar	*afn = afname ;
+	                    rs = procargs(pip,aip,bop,ofn,afn) ;
+	                }
+	                rs1 = proglog_end(pip) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (proglog) */
+	            rs1 = procuserinfo_end(pip) ;
 	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (proglog) */
-	        rs1 = procuserinfo_end(pip) ;
+	        } /* end if (procuserinfo) */
+	        rs1 = userinfo_finish(&u) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (procuserinfo) */
-	    rs1 = userinfo_finish(&u) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
+	    } else {
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: userinfo failure (%d)\n" ;
+	        ex = EX_NOUSER ;
+	        bprintf(pip->efp,fmt,pn,rs) ;
+	    } /* end if (userinfo) */
+	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: userinfo failure (%d)\n" ;
-	    ex = EX_NOUSER ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
 	    bprintf(pip->efp,fmt,pn,rs) ;
-	} /* end if (userinfo) */
+	    usage(pip) ;
+	}
 
 /* done */
 	if ((rs < 0) && (ex == EX_OK)) {

@@ -4,8 +4,8 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable debug print-outs */
-#define	CF_LOCALEOF	0		/* allow local EOF to exit */
+#define	CF_DEBUG	1		/* switchable debug print-outs */
+#define	CF_LOCALEOF	1		/* allow local EOF to exit */
 #define	CF_SIGPIPE	1		/* ignore SIGPIPE */
 
 
@@ -51,6 +51,10 @@
 #include	"proglog.h"
 #include	"transfer.h"
 
+#if	CF_DEBUGS || CF_DEBUG
+#include	"debug.h"
+#endif
+
 
 /* local defines */
 
@@ -59,9 +63,6 @@
 
 #undef	BUFLEN
 #define	BUFLEN		((10 * 1024) + MAXHOSTNAMELEN)
-
-#undef	MSGBUFLEN
-#define	MSGBUFLEN	2048
 
 #define	DENOM		(1000 * 1000)
 #define	NFDS		6
@@ -81,6 +82,15 @@
 
 extern int	isasocket(int) ;
 extern int	inetping(const char *,int) ;
+
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
+extern char	*strwcpy(char *,const char *,int) ;
+extern char	*timestr_log(time_t,char *) ;
+extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */
@@ -110,7 +120,7 @@ int		mxu ;
 	time_t		t_pollsanity ;
 	time_t		t_sanity ;
 
-	int		rs ;
+	int		rs = SR_OK ;
 	int		i ;
 	int		nfds, len ;
 	int		sanityfailures = 0 ;
@@ -135,7 +145,7 @@ int		mxu ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("transfer: rfd=%d r2fd=%d\n",rfd,r2fd) ;
+	    debugprintf("transfer: ent rfd=%d r2fd=%d\n",rfd,r2fd) ;
 #endif
 
 	for (i = 0 ; i < 6 ; i += 1) {
@@ -148,14 +158,11 @@ int		mxu ;
 /* ignore the SIGPIPE signal */
 
 #if	CF_SIGPIPE
-
 	(void) sigemptyset(&signalmask) ;
-
 	sigs.sa_handler = SIG_IGN ;
 	sigs.sa_mask = signalmask ;
 	sigs.sa_flags = 0 ;
 	u_sigaction(SIGPIPE,&sigs,&oldsigs) ;
-
 #endif /* CF_SIGPIPE */
 
 
@@ -166,30 +173,27 @@ int		mxu ;
 	if (f_issock) {
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("transfer: isasocket() rs=%d\n",f_issock) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("transfer: isasocket() rs=%d\n",f_issock) ;
 #endif
 
-		optlen = sizeof(int) ;
-		rs = u_getsockopt(rfd,SOL_SOCKET,SO_TYPE,&stype,&optlen) ;
-		f_dgram = (stype == SOCK_DGRAM) ? 1 : 0 ;
+	    optlen = sizeof(int) ;
+	    rs = u_getsockopt(rfd,SOL_SOCKET,SO_TYPE,&stype,&optlen) ;
+	    f_dgram = (stype == SOCK_DGRAM) ? 1 : 0 ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("transfer: rs=%d socket type=%d\n",rs,stype) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("transfer: rs=%d socket type=%d\n",rs,stype) ;
 #endif
 
 	}
-
 
 /* standard input */
 
 	fds[0].fd = -1 ;
 	if (! pip->f.ni) {
-
 	    fds[0].fd = ifd ;
 	    fds[0].events = (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI) ;
-
 	} else
 	    fp[0].eof = TRUE ;
 
@@ -197,10 +201,8 @@ int		mxu ;
 
 	fds[1].fd = -1 ;
 	if ((rs = u_fstat(ofd,&sb)) >= 0) {
-
 	    fds[1].fd = ofd ;
 	    fds[1].events = (POLLWRNORM | POLLWRBAND) ;
-
 	}
 
 /* standard error */
@@ -217,7 +219,6 @@ int		mxu ;
 
 	}
 
-
 /* remote socket */
 
 #if	CF_DEBUG
@@ -231,53 +232,36 @@ int		mxu ;
 	if (pip->f.ni) {
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("transfer: no-input mode\n") ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("transfer: no-input mode\n") ;
 #endif
 
 	    if (f_issock) {
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("transfer: have socket so doing shutdown\n") ;
-#endif
-
 	        rs = u_shutdown(rfd,SHUT_WR) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("transfer: u_shutdown() rs=%d\n",rs) ;
-#endif
-
 	    } else
 	        u_write(rfd,buf,0) ;
 
-	} else
+	} else {
 	    fds[3].events |= (POLLWRNORM | POLLWRBAND) ;
+	}
 
 /* secondary connection */
 
 	fdi = 4 ;
 	if (r2fd >= 0) {
-
 	    fds[fdi].fd = r2fd ;
 	    fds[fdi].events = (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI) ;
 	    fds[fdi].events |= (POLLWRNORM | POLLWRBAND) ;
-
 	    fdi += 1 ;
 	}
-
 
 /* what about sanity checking */
 
 	if (pip->f.sanity) {
-
 	    t_pollsanity = 0 ;
 	    t_sanity = 1 ;
 	    sanityfailures = 0 ;
-
 	}
-
 
 /* do the copy data function */
 
@@ -287,23 +271,20 @@ int		mxu ;
 #endif
 
 	f_exit = FALSE ;
-	while (! f_exit) {
-
+	while ((rs >= 0) && (! f_exit)) {
 	    f_daytime = FALSE ;
-
 	    rs = u_poll(fds,fdi,pollint) ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
-		struct timeval	tv ;
-	        debugprintf("transfer: back from POLL w/ rs=%d\n",
-	            rs) ;
-		uc_gettimeofday(&tv,NULL) ;
+	        struct timeval	tv ;
+	        debugprintf("transfer: back from POLL w/ rs=%d\n",rs) ;
+	        uc_gettimeofday(&tv,NULL) ;
 	        debugprintf("transfer: %s.%ld\n",
-			timestr_log(((time_t) tv.tv_sec),timebuf),
-			(tv.tv_usec/1000)) ;
-	}
-#endif
+	            timestr_log(((time_t) tv.tv_sec),timebuf),
+	            (tv.tv_usec/1000)) ;
+	    }
+#endif /* CF_DEBUG */
 
 	    if (rs < 0) {
 
@@ -343,12 +324,9 @@ int		mxu ;
 
 #if	CF_DEBUG
 	    if (pip->debuglevel > 2) {
-
 	        for (i = 0 ; i < NFDS ; i += 1) {
-
 	            debugprintf("transfer: fds%d %s\n",i,
 	                d_reventstr(fds[i].revents,buf,BUFLEN)) ;
-
 	        }
 	    }
 #endif /* CF_DEBUG */
@@ -379,17 +357,15 @@ int		mxu ;
 	            fp[0].hup = TRUE ;
 	            fp[0].out = FALSE ;
 	            fds[0].events = 0 ;
-		    fds[0].fd = -1 ;
-
+	            fds[0].fd = -1 ;
 	        }
 
 	    } /* end if */
 
 	    if ((! fp[0].in) && fp[0].hup) {
-
-			fp[0].in = TRUE ;
-			fp[0].hup = FALSE ;
-			fp[0].final = TRUE ;
+	        fp[0].in = TRUE ;
+	        fp[0].hup = FALSE ;
+	        fp[0].final = TRUE ;
 	    }
 
 	    if (fds[1].revents != 0) {
@@ -422,10 +398,9 @@ int		mxu ;
 	    } /* end if */
 
 	    if ((! fp[1].in) && fp[1].hup) {
-
-			fp[1].in = TRUE ;
-			fp[1].hup = FALSE ;
-			fp[1].final = TRUE ;
+	        fp[1].in = TRUE ;
+	        fp[1].hup = FALSE ;
+	        fp[1].final = TRUE ;
 	    }
 
 	    if (fds[2].revents != 0) {
@@ -470,10 +445,9 @@ int		mxu ;
 	    } /* end if */
 
 	    if ((! fp[2].in) && fp[2].hup) {
-
-			fp[2].in = TRUE ;
-			fp[2].hup = FALSE ;
-			fp[2].final = TRUE ;
+	        fp[2].in = TRUE ;
+	        fp[2].hup = FALSE ;
+	        fp[2].final = TRUE ;
 	    }
 
 /* the remote promary connection */
@@ -522,13 +496,10 @@ int		mxu ;
 
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2) {
-
 	                if (fds[3].revents & POLLERR)
 	                    debugprintf("transfer: ERR3\n") ;
-
 	                if (fds[3].revents & POLLNVAL)
 	                    debugprintf("transfer: NVAL3\n") ;
-
 	            }
 #endif /* CF_DEBUG */
 
@@ -543,10 +514,9 @@ int		mxu ;
 	    } /* end if */
 
 	    if ((! fp[3].in) && fp[3].hup) {
-
-			fp[3].in = TRUE ;
-			fp[3].hup = FALSE ;
-			fp[3].final = TRUE ;
+	        fp[3].in = TRUE ;
+	        fp[3].hup = FALSE ;
+	        fp[3].final = TRUE ;
 	    }
 
 /* the secondard connection */
@@ -555,77 +525,75 @@ int		mxu ;
 
 	        if (fds[4].revents != 0) {
 
-	        if (fds[4].revents & pollinput) {
+	            if (fds[4].revents & pollinput) {
 
 #if	CF_DEBUG
-	            if (pip->debuglevel > 2)
-	                debugprintf("transfer: IN4\n") ;
+	                if (pip->debuglevel > 2)
+	                    debugprintf("transfer: IN4\n") ;
 #endif
 
-	            fp[4].in = TRUE ;
-	            fds[4].events &= (~ pollinput) ;
-
-	        }
-
-	        if (fds[4].revents & polloutput) {
-
-#if	CF_DEBUG
-	            if (pip->debuglevel > 2)
-	                debugprintf("transfer: OUT4\n") ;
-#endif
-
-	            fp[4].out = TRUE ;
-	            fds[4].events &= (~ polloutput) ;
-
-	        }
-
-	        if (fds[4].revents & POLLHUP) {
-
-#if	CF_DEBUG
-	            if (pip->debuglevel > 2)
-	                debugprintf("transfer: HUP4\n") ;
-#endif
-
-	            fp[4].hup = TRUE ;
-	            fp[4].out = FALSE ;
-	            fds[4].events &= (~ polloutput) ;
-
-	        }
-
-	        if ((fds[4].revents & POLLERR) ||
-	            (fds[4].revents & POLLNVAL)) {
-
-#if	CF_DEBUG
-	            if (pip->debuglevel > 2) {
-
-	                if (fds[4].revents & POLLERR)
-	                    debugprintf("transfer: ERR4\n") ;
-
-	                if (fds[4].revents & POLLNVAL)
-	                    debugprintf("transfer: NVAL4\n") ;
+	                fp[4].in = TRUE ;
+	                fds[4].events &= (~ pollinput) ;
 
 	            }
+
+	            if (fds[4].revents & polloutput) {
+
+#if	CF_DEBUG
+	                if (pip->debuglevel > 2)
+	                    debugprintf("transfer: OUT4\n") ;
+#endif
+
+	                fp[4].out = TRUE ;
+	                fds[4].events &= (~ polloutput) ;
+
+	            }
+
+	            if (fds[4].revents & POLLHUP) {
+
+#if	CF_DEBUG
+	                if (pip->debuglevel > 2)
+	                    debugprintf("transfer: HUP4\n") ;
+#endif
+
+	                fp[4].hup = TRUE ;
+	                fp[4].out = FALSE ;
+	                fds[4].events &= (~ polloutput) ;
+
+	            }
+
+	            if ((fds[4].revents & POLLERR) ||
+	                (fds[4].revents & POLLNVAL)) {
+
+#if	CF_DEBUG
+	                if (pip->debuglevel > 2) {
+
+	                    if (fds[4].revents & POLLERR)
+	                        debugprintf("transfer: ERR4\n") ;
+
+	                    if (fds[4].revents & POLLNVAL)
+	                        debugprintf("transfer: NVAL4\n") ;
+
+	                }
 #endif /* CF_DEBUG */
 
-	            fp[4].in = FALSE ;
-	            fp[4].out = FALSE ;
-	            fp[4].final = TRUE ;
-	            fds[4].fd = -1 ;
-	            fds[4].events = 0 ;
+	                fp[4].in = FALSE ;
+	                fp[4].out = FALSE ;
+	                fp[4].final = TRUE ;
+	                fds[4].fd = -1 ;
+	                fds[4].events = 0 ;
+
+	            }
 
 	        }
 
-		}
-
-	    if ((! fp[4].in) && fp[4].hup) {
-
-			fp[4].in = TRUE ;
-			fp[4].hup = FALSE ;
-			fp[4].final = TRUE ;
-	    }
+	        if ((! fp[4].in) && fp[4].hup) {
+	            fp[4].in = TRUE ;
+	            fp[4].hup = FALSE ;
+	            fp[4].final = TRUE ;
+	        }
 
 	    } /* end if (secondary connection) */
-
 
 /* now we are ready to check for the events that we really want */
 
@@ -642,26 +610,22 @@ int		mxu ;
 #endif
 
 	        if (len <= 0) {
-
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2)
 	                debugprintf("transfer: IN3 EOF\n") ;
 #endif
-
 	            fp[3].eof = TRUE ;
 	            fp[3].in = FALSE ;
 	            fds[3].events &= (~ pollinput) ;
-
 	        } else
 	            uc_writen(fds[1].fd,buf,len) ;
 
 	        if ((! fp[3].eof) && (! (fp[3].hup || fp[3].final))) {
-
 	            fp[3].in = FALSE ;
 	            fds[3].events |= pollinput ;
-
-	        } else if (fds[3].events == 0)
+	        } else if (fds[3].events == 0) {
 	            fds[3].fd = -1 ;
+	        }
 
 	        fp[1].out = FALSE ;
 	        fds[1].events |= polloutput ;
@@ -682,7 +646,7 @@ int		mxu ;
 	        if (len <= 0) {
 
 #if	CF_DEBUG
-	            if (pip->debuglevel > 2)
+	            if (DEBUGLEVEL(2))
 	                debugprintf("transfer: IN0 EOF\n") ;
 #endif
 
@@ -693,28 +657,21 @@ int		mxu ;
 #if	CF_DEBUG
 	            if (pip->debuglevel > 2) {
 	                rs = u_fstat(rfd,&sb) ;
-
 	                debugprintf("transfer: RFD stat rs=%d mode=%08X\n",
 	                    rs,sb.st_mode) ;
 	            }
 #endif /* CF_DEBUG */
 
 	            if (f_issock) {
-
-			if (f_dgram) {
-
-	                rs = u_send(rfd,buf,0,0) ;
-
+	                if (f_dgram) {
+	                    rs = u_send(rfd,buf,0,0) ;
 #if	CF_DEBUG
-	            if (pip->debuglevel > 2) {
-			debugprintf("transfer: u_send() rs=%d\n",rs) ;
-		}
+	                    if (DEBUGLEVEL(2)) {
+	                        debugprintf("transfer: u_send() rs=%d\n",rs) ;
+	                    }
 #endif
-
-			}
-
+	                }
 	                u_shutdown(rfd,SHUT_WR) ;
-
 	            } else
 	                u_write(rfd,buf,0) ;
 
@@ -722,10 +679,8 @@ int		mxu ;
 	            uc_writen(fds[3].fd,buf,len) ;
 
 	        if ((! fp[0].eof) && (! (fp[0].hup || fp[0].final))) {
-
 	            fp[0].in = FALSE ;
 	            fds[0].events |= pollinput ;
-
 	        }
 
 	        fp[3].out = FALSE ;
@@ -755,11 +710,11 @@ int		mxu ;
 	            fp[2].in = FALSE ;
 	            fds[2].events &= (~ pollinput) ;
 
-	            if (f_issock)
+	            if (f_issock) {
 	                u_shutdown(r2fd,SHUT_WR) ;
-
-	            else
+	            } else {
 	                u_write(r2fd,buf,0) ;
+	            }
 
 	        } else
 	            uc_writen(fds[4].fd,buf,len) ;
@@ -769,8 +724,9 @@ int		mxu ;
 	            fp[2].in = FALSE ;
 	            fds[2].events |= pollinput ;
 
-	        } else if (fds[2].events == 0)
+	        } else if (fds[2].events == 0) {
 	            fds[2].fd = -1 ;
+	        }
 
 	        fp[4].out = FALSE ;
 	        fds[4].events |= polloutput ;
@@ -800,16 +756,18 @@ int		mxu ;
 	            fp[4].in = FALSE ;
 	            fds[4].events &= (~ pollinput) ;
 
-	        } else
+	        } else {
 	            uc_writen(fds[2].fd,buf,len) ;
+	        }
 
 	        if ((! fp[4].eof) && (! (fp[4].hup || fp[4].final))) {
 
 	            fp[4].in = FALSE ;
 	            fds[4].events |= pollinput ;
 
-	        } else if (fds[4].events == 0)
+	        } else if (fds[4].events == 0) {
 	            fds[4].fd = -1 ;
+	        }
 
 	        fp[2].out = FALSE ;
 	        fds[2].events |= polloutput ;
@@ -819,10 +777,7 @@ int		mxu ;
 /* should we break out ? */
 
 	    if ((c_already > 0) && (nfds == 0)) {
-
-	        if (c_already > 1)
-	            break ;
-
+	        if (c_already > 1) break ;
 	        c_already += 1 ;
 	    }
 
@@ -833,7 +788,6 @@ int		mxu ;
 #endif
 
 	    if (f && (c_already == 0)) {
-
 	        pollint = POLLINTMULT / 4 ;
 	        c_already = 1 ;
 	    }
@@ -842,20 +796,18 @@ int		mxu ;
 
 	    if (pip->f.sanity) {
 
-		if (! f_daytime) {
-		f_daytime = TRUE ;
-	        pip->daytime = time(NULL) ;
-		}
+	        if (! f_daytime) {
+	            f_daytime = TRUE ;
+	            pip->daytime = time(NULL) ;
+	        }
 
 	        if ((pip->daytime - t_pollsanity) > 
 	            (pip->intkeep / SANITYFAILURES)) {
 
 	            t_pollsanity = pip->daytime ;
 	            if (inetping(hostname,TO_PING) >= 0) {
-
 	                sanityfailures = 0 ;
 	                t_sanity = pip->daytime ;
-
 	            } else
 	                sanityfailures += 1 ;
 
@@ -869,15 +821,14 @@ int		mxu ;
 	    } /* end if (sanity check) */
 
 	    if (pip->open.logprog && ((loopcount % 3) == 0)) {
-		if (! f_daytime) {
-		    f_daytime = TRUE ;
+	        if (! f_daytime) {
+	            f_daytime = TRUE ;
 	            pip->daytime = time(NULL) ;
-		}
-		proglog_check(pip) ;
+	        }
+	        proglog_check(pip) ;
 	    } /* end if */
 
 	    loopcount += 1 ;
-
 	} /* end while (transferring data) */
 
 #if	CF_DEBUG
@@ -888,6 +839,5 @@ int		mxu ;
 	return rs ;
 }
 /* end subroutine (transfer) */
-
 
 

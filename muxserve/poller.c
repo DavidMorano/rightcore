@@ -64,7 +64,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 /* forward references */
 
-int		poller_have(POLLER *,POLLER_SPEC *) ;
+int		poller_get(POLLER *,POLLER_SPEC *) ;
 
 static int	poller_extend(POLLER *,int) ;
 static int	poller_del(POLLER *,POLLER_SPEC *) ;
@@ -214,7 +214,7 @@ int poller_wait(POLLER *op,POLLER_SPEC *rp,int mto)
 #endif
 
 	if (op->nready > 0) {
-	    rs = poller_have(op,rp) ;
+	    rs = poller_get(op,rp) ;
 	    c = rs ;
 	} else {
 	    VECOBJ	*rlp = &op->regs ;
@@ -238,7 +238,7 @@ int poller_wait(POLLER *op,POLLER_SPEC *rp,int mto)
 	        } /* end for */
 	        if ((rs = u_poll(op->pa,n,mto)) > 0) {
 	            op->nready = rs ;
-	    	    rs = poller_have(op,rp) ;
+	    	    rs = poller_get(op,rp) ;
 		    c = rs ;
 		} else if (rs == 0) {
 	            op->nready = 0 ;
@@ -258,7 +258,7 @@ int poller_wait(POLLER *op,POLLER_SPEC *rp,int mto)
 /* end subroutine (poller_wait) */
 
 
-int poller_have(POLLER *op,POLLER_SPEC *rp)
+int poller_get(POLLER *op,POLLER_SPEC *rp)
 {
 	int		i ;
 	int		c = 0 ;
@@ -276,7 +276,7 @@ int poller_have(POLLER *op,POLLER_SPEC *rp)
 	} /* end if (result) */
 	return c ;
 }
-/* end subroutine (poller_have) */
+/* end subroutine (poller_get) */
 
 
 int poller_count(POLLER *op)
@@ -369,9 +369,10 @@ static int poller_extend(POLLER *op,int n)
 	    if ((rs = uc_malloc(size,&p)) >= 0) {
 	        op->pa = p ;
 	        op->e = ne ;
-	    } else
+	    } else {
 	        op->pa = NULL ;
-	    } /* end if (needed) */
+	    }
+	} /* end if (needed) */
 
 	return (rs >= 0) ? ne : rs ;
 }

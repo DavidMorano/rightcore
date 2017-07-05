@@ -9,25 +9,16 @@
 /* revision history:
 
 	- 1988-06-01, David A­D­ Morano
-
 	This subroutine was originally written (and largely forgotten).
 
-
 	- 1993-02-01, David A­D­ Morano
-
 	This subroutine was adopted for use in the RUNADVICE program.
 
-
 	- 1996-07-01, David A­D­ Morano
-
 	This subroutine was adopted for use in the 'rexecd' daemon program.
 
-
 	- 2004-05-25, David A­D­ Morano
-
-	This subroutine was adopted for use as a general key-value
-	file reader.
-
+	This subroutine was adopted for use as a general key-value file reader.
 
 */
 
@@ -35,10 +26,10 @@
 
 /******************************************************************************
 
-	This hack just keeps some interactions with a NODEDB object
-	and a CLUSTERDB object together.  These two objects are often
-	accessed together when attempting to determine a current default
-	cluster name.
+        This hack just keeps some interactions with a NODEDB object and
+        a CLUSTERDB object together. These two objects are often
+        accessed together when attempting to determine a current default
+        cluster name.
 
 
 ******************************************************************************/
@@ -56,17 +47,15 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 #include	<time.h>
 
 #include	<vsystem.h>
 #include	<vecstr.h>
 #include	<ids.h>
-
-#include	"nodedb.h"
-#include	"clusterdb.h"
-#include	"localmisc.h"
+#include	<nodedb.h>
+#include	<clusterdb.h>
+#include	<localmisc.h>
 
 #include	"config.h"
 #include	"defs.h"
@@ -115,15 +104,10 @@ const char	pr[] ;
 
 	char	tmpfname[MAXPATHLEN + 1] ;
 
+	if (dbip == NULL) return SR_FAULT ;
+	if (pr == NULL) return SR_FAULT ;
 
-	if (dbip == NULL)
-	    return SR_FAULT ;
-
-	if (pr == NULL)
-	    return SR_FAULT ;
-
-	if (pr[0] == '\0')
-	    return SR_INVALID ;
+	if (pr[0] == '\0') return SR_INVALID ;
 
 	memset(dbip,0,sizeof(DBI)) ;
 
@@ -194,18 +178,11 @@ const char	nodename[] ;
 	int	rs1 ;
 	int	c = 0 ;
 
+	if (dbip == NULL) return SR_FAULT ;
+	if (nodename == NULL) return SR_FAULT ;
+	if (sp == NULL) return SR_FAULT ;
 
-	if (dbip == NULL)
-	    return SR_FAULT ;
-
-	if (nodename == NULL)
-		return SR_FAULT ;
-
-	if (sp == NULL)
-	    return SR_FAULT ;
-
-	if (nodename[0] == '\0')
-		return SR_INVALID ;
+	if (nodename[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS && 0
 	debugprintf("dbi_getclusters: entered \n") ;
@@ -213,13 +190,9 @@ const char	nodename[] ;
 #endif
 
 	if (dbip->f_node) {
-
 	    NODEDB_CUR	cur ;
-
 	    NODEDB_ENT	ste ;
-
-	    char		ebuf[NODEDB_ENTLEN + 1] ;
-
+	    char	ebuf[NODEDB_ENTLEN + 1] ;
 
 	    nodedb_curbegin(&dbip->node,&cur) ;
 
@@ -278,11 +251,8 @@ const char	nodename[] ;
 /* try the CLUSTER table if we have one */
 
 	if (dbip->f_cluster) {
-
 	    CLUSTERDB_CUR	cur ;
-
 	    char	cname[NODENAMELEN + 1] ;
-
 
 #if	CF_DEBUGS && 0
 	    debugprintf("dbi_getclusters: cluster lookup\n") ;
@@ -300,20 +270,17 @@ const char	nodename[] ;
 	            cname,NODENAMELEN) ;
 
 #if	CF_DEBUGS && 0
-	        debugprintf("dbi_getclusters: clusterdb_fetchrev() rs=%d\n",rs1) ;
+	        debugprintf("dbi_getclusters: clusterdb_fetchrev() rs=%d\n",
+			rs1) ;
 #endif
 
 	        if (rs1 < 0)
 	            break ;
 
 	        if (vecstr_find(sp,cname) == SR_NOTFOUND) {
-
 	            c += 1 ;
 	            rs = vecstr_add(sp,cname,-1) ;
-
-	            if (rs < 0)
-	                break ;
-
+	            if (rs < 0) break ;
 	        }
 
 #if	CF_DEBUGS && 0
@@ -327,7 +294,6 @@ const char	nodename[] ;
 #endif
 
 	    clusterdb_curend(&dbip->cluster,&cur) ;
-
 	} /* end if */
 
 #if	CF_DEBUGS && 0
@@ -343,9 +309,7 @@ int dbi_close(dbip)
 DBI	*dbip ;
 {
 
-
-	if (dbip == NULL)
-	    return SR_FAULT ;
+	if (dbip == NULL) return SR_FAULT ;
 
 	if (dbip->f_cluster)
 	    clusterdb_close(&dbip->cluster) ;
@@ -371,15 +335,9 @@ vecstr		*clp, *nlp ;
 	char	cnode[NODENAMELEN + 1] ;
 	char	*cp ;
 
-
-	if (dbip == NULL)
-	    return SR_FAULT ;
-
-	if (clp == NULL)
-		return SR_FAULT ;
-
-	if (nlp == NULL)
-		return SR_FAULT ;
+	if (dbip == NULL) return SR_FAULT ;
+	if (clp == NULL) return SR_FAULT ;
+	if (nlp == NULL) return SR_FAULT ;
 
 	for (i = 0 ; vecstr_get(clp,i,&cp) >= 0 ; i += 1) {
 	    if (cp == NULL) continue ;
@@ -433,6 +391,5 @@ vecstr		*clp, *nlp ;
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (dbi_getnodes) */
-
 
 

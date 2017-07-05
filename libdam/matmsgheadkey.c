@@ -53,7 +53,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<char.h>
 #include	<vechand.h>

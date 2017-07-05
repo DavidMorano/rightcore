@@ -11,24 +11,21 @@
 /* revision history:
 
 	= 1998-08-22, David A­D­ Morano
-
-	This subroutine module was adopted for use from some previous
-	code that performed the similar sorts of functions.
-
+        This subroutine module was adopted for use from some previous code that
+        performed the similar sorts of functions.
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/************************************************************************
+/*******************************************************************************
 
-	This module manages the reading and writing of entries to
-	or from a server registry file.  A server registry file is
-	where (system?) servers register themselves so that clients
-	know how to communicate with them.
+        This module manages the reading and writing of entries to or from a
+        server registry file. A server registry file is where (system?) servers
+        register themselves so that clients know how to communicate with them.
 
 
-************************************************************************/
+*******************************************************************************/
 
 
 #define	SRVREG_MASTER	0
@@ -50,7 +47,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<serialbuf.h>
@@ -61,8 +57,6 @@
 
 
 /* local defines */
-
-#define	SRVREG_MAGIC		1092837456
 
 #define	SRVREG_FLID		(16 + 4)
 #define	SRVREG_FLHEAD		(3 * 4)

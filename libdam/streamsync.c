@@ -51,10 +51,7 @@
 /* exported subroutines */
 
 
-int streamsync_start(ssp,st,stlen)
-STREAMSYNC	*ssp ;
-const char	st[] ;
-int		stlen ;
+int streamsync_start(STREAMSYNC *ssp,cchar *st,int stlen)
 {
 	int		rs ;
 	int		size ;
@@ -69,14 +66,11 @@ int		stlen ;
 	    return SR_INVALID ;
 
 	memset(ssp,0,sizeof(STREAMSYNC)) ;
-
 	ssp->i = 0 ;
 	ssp->stlen = stlen ;
 
-	size = 2 * stlen * sizeof(char) ;
-	rs = uc_malloc(size,&p) ;
-	if (rs < 0)
-	    goto ret0 ;
+	size = (2 * stlen * sizeof(char)) ;
+	if ((rs = uc_malloc(size,&p)) >= 0) {
 
 	ssp->st = p + 0 ;
 	ssp->data = p + stlen ;
@@ -95,34 +89,34 @@ int		stlen ;
 
 	ssp->magic = STREAMSYNC_MAGIC ;
 
-ret0:
+	} /* end if (m-a) */
+
 	return rs ;
 }
 /* end subroutine (streamsync_start) */
 
 
 /* free up the entire vector string data structure object */
-int streamsync_finish(ssp)
-STREAMSYNC	*ssp ;
+int streamsync_finish(STREAMSYNC *ssp)
 {
+	int		rs = SR_OK ;
+	int		rs1 ;
 
-	if (ssp == NULL)
-	    return SR_FAULT ;
+	if (ssp == NULL) return SR_FAULT ;
 
 	if (ssp->st != NULL) {
-	    uc_free(ssp->st) ;
+	    rs1 = uc_free(ssp->st) ;
+	    if (rs >= 0) rs = rs1 ;
 	    ssp->st = NULL ;
 	}
 
 	ssp->magic = 0 ;
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (streamsync_finish) */
 
 
-int streamsync_test(ssp,ch)
-STREAMSYNC	*ssp ;
-int		ch ;
+int streamsync_test(STREAMSYNC *ssp,int ch)
 {
 	int		i, j ;
 	int		f = FALSE ;
@@ -131,8 +125,7 @@ int		ch ;
 	debugprintf("streamsync_test: ent ch=%02x\n",ch) ;
 #endif
 
-	if (ssp == NULL)
-	    return SR_FAULT ;
+	if (ssp == NULL) return SR_FAULT ;
 
 /* shift the new byte in */
 

@@ -107,7 +107,7 @@ static int	proguserlist_worker(PROGINFO *) ;
 int proguserlist_begin(PROGINFO *pip)
 {
 	USERLIST	*ulp ;
-	int		size = sizeof(USERLIST) ;
+	const int	size = sizeof(USERLIST) ;
 	int		rs ;
 
 #if	CF_DEBUG

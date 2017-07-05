@@ -18,8 +18,7 @@
 
 /*******************************************************************************
 
-	This subroutine parses a tag (given in a string) into its
-	parts.
+	This subroutine parses a tag (given in a string) into its parts.
 
 	Synopsis:
 
@@ -52,7 +51,6 @@
 #include	<sys/param.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>

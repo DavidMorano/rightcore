@@ -1194,25 +1194,23 @@ static int bibleqs_indmkeigen(BIBLEQS *op,TXTINDEXMK *tip)
 	EIGENDB		*edbp = &op->edb ;
 	TXTINDEXMK_KEY	*keys = NULL ;
 	const int	nkeys = BIBLEQS_NEIGEN ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
-	int		wl ;
-	int		size ;
-	int		i = 0 ;
 	int		c = 0 ;
-	const char	*wp ;
 
 #if	CF_DEBUGS
 	debugprintf("bibleqs_indmkeigen: f_edb=%u\n",op->f.edb) ;
 #endif
 
 	if (op->f.edb) {
-	size = (nkeys + 1) * sizeof(TXTINDEXMK_KEY) ;
+	    const int	size = (nkeys + 1) * sizeof(TXTINDEXMK_KEY) ;
 	if ((rs = uc_malloc(size,&keys)) >= 0) {
+	    int	i = 0 ;
+	int		wl ;
+	const char	*wp ;
 
 	    if ((rs = eigendb_curbegin(edbp,&ecur)) >= 0) {
 
-	        i = 0 ;
 	        while ((wl = eigendb_enum(edbp,&ecur,&wp)) >= 0) {
 	            if (wl == 0) continue ;
 
@@ -1470,12 +1468,8 @@ static int bibleqs_indclose(BIBLEQS *op)
 #if	CF_MKBIBLEQSI
 static int bibleqs_mkbibleqsi(BIBLEQS *op,cchar *dname)
 {
-	pid_t		cpid = 0 ;
 	int		rs ;
 	int		rs1 ;
-	int		i, cstat ;
-	const char	*prog = PROG_MKBIBLEQSI ;
-	char		pbuf[MAXPATHLEN + 1] ;
 	char		dbname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
@@ -1486,9 +1480,11 @@ static int bibleqs_mkbibleqsi(BIBLEQS *op,cchar *dname)
 
 	if (dname[0] == '\0') return SR_INVALID ;
 
-	rs = mkpath2(dbname,dname,op->dbname) ;
-	if (rs < 0)
-	    goto ret0 ;
+	if ((rs = mkpath2(dbname,dname,op->dbname)) >= 0) {
+	pid_t		cpid = 0 ;
+	int		i, cstat ;
+	const char	*prog = PROG_MKBIBLEQSI ;
+	char		pbuf[MAXPATHLEN + 1] ;
 
 	for (i = 0 ; prbins[i] != NULL ; i += 1) {
 	    if ((rs = mkpath3(pbuf,op->pr,prbins[i],prog)) >= 0) {
@@ -1571,7 +1567,7 @@ static int bibleqs_mkbibleqsi(BIBLEQS *op,cchar *dname)
 
 	} /* end if (ok) */
 
-ret0:
+	} /* end if (mkpath) */
 
 #if	CF_DEBUGS
 	debugprintf("bibleqs_mkbibleqsi: ret rs=%d\n",rs) ;
@@ -2514,29 +2510,24 @@ const char	pr[] ;
 const char	dbname[] ;
 int		minwlen ;
 {
-	struct ustat	sb ;
 	IDS		id ;
-	EXPCOOK		cooks ;
 	int		rs ;
+
+	if ((rs = ids_load(&id)) >= 0) {
+	EXPCOOK		cooks ;
+	    if ((rs = expcook_start(&cooks)) >= 0) {
+
+	if ((rs = expcook_add(&cooks,"n",dbname,-1)) >= 0) {
+	    rs = expcook_add(&cooks,"f","eign",-1) ;
+	}
+
+	if (rs >= 0) {
+	struct ustat	sb ;
 	int		i ;
 	int		efl ;
 	const char	*efp = NULL ;
 	char		tmpfname[MAXPATHLEN + 1] ;
 	char		efname[MAXPATHLEN + 1] ;
-
-	rs = ids_load(&id) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	rs = expcook_start(&cooks) ;
-	if (rs < 0)
-	    goto ret1 ;
-
-	rs = expcook_add(&cooks,"n",dbname,-1) ;
-	if (rs >= 0)
-	    rs = expcook_add(&cooks,"f","eign",-1) ;
-	if (rs < 0)
-	    goto ret2 ;
 
 	rs = SR_NOTOPEN ;
 	efname[0] = '\0' ;
@@ -2575,20 +2566,21 @@ int		minwlen ;
 	    if (rs >= 0) break ;
 	} /* end for */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = eigendb_open(edbp,efname) ;
+	}
+
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("bibleqs/eigenfind: eigendb_open() rs=%d\n",rs) ;
 #endif
 
-ret2:
-	expcook_finish(&cooks) ;
+	        expcook_finish(&cooks) ;
+	    } /* end if */
+	    ids_release(&id) ;
+	} /* end if */
 
-ret1:
-	ids_release(&id) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (eigenfind) */

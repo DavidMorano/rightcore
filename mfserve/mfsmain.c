@@ -2699,49 +2699,50 @@ static int procservice(PROGINFO *pip)
 
 		while ((rs = mfswatch_service(pip)) >= 0) {
 
-	        if ((rs >= 0) && (lip->cmd[0] != '\0')) {
-	            rs = procfcmd(pip) ;
-	            if (rs > 0) break ;
-	        }
+	            if ((rs >= 0) && (lip->cmd[0] != '\0')) {
+	                rs = procfcmd(pip) ;
+	                if (rs > 0) break ;
+	            }
 
-		if (rs >= 0) {
-		    if ((rs = locinfo_isreqexit(lip)) > 0) break ;
-		}
-
-		if (pip->intrun > 0) {
-		    if ((pip->daytime - ti_start) >= pip->intrun) break ;
-		}
-
-		if (rs >= 0) {
-		    rs = locinfo_dirmaint(lip) ;
-		}
-
-	        if (rs >= 0) {
-	            logflush(pip) ;
-	        }
-
-		if (rs >= 0) {
-		    if ((rs = lib_issig(SIGTSTP)) > 0) {
-			char	tbuf[TIMEBUFLEN+1] ;
-			timestr_logz(pip->daytime,tbuf) ;
-			fmt = "%s: %s command suspended\n" ;
-			shio_printf(pip->efp,fmt,pn,tbuf) ;
-			shio_flush(pip->efp) ;
-	                rs = uc_raise(SIGSTOP) ;
-			pip->daytime = time(NULL) ;
-			timestr_logz(pip->daytime,tbuf) ;
-			fmt = "%s: %s command resumed\n" ;
-			shio_printf(pip->efp,fmt,pn,tbuf) ;
+		    if (rs >= 0) {
+		        if ((rs = locinfo_isreqexit(lip)) > 0) break ;
 		    }
-		}
+
+		    if (pip->intrun > 0) {
+		        if ((pip->daytime - ti_start) >= pip->intrun) break ;
+		    }
+
+		    if (rs >= 0) {
+		        rs = locinfo_dirmaint(lip) ;
+		    }
+
+	            if (rs >= 0) {
+	                logflush(pip) ;
+	            }
+
+		    if (rs >= 0) {
+		        if ((rs = lib_issig(SIGTSTP)) > 0) {
+			    char	tbuf[TIMEBUFLEN+1] ;
+			    timestr_logz(pip->daytime,tbuf) ;
+			    fmt = "%s: %s command suspended\n" ;
+			    shio_printf(pip->efp,fmt,pn,tbuf) ;
+			    shio_flush(pip->efp) ;
+	                    rs = uc_raise(SIGSTOP) ;
+			    pip->daytime = time(NULL) ;
+			    timestr_logz(pip->daytime,tbuf) ;
+			    fmt = "%s: %s command resumed\n" ;
+			    shio_printf(pip->efp,fmt,pn,tbuf) ;
+		        }
+		    }
 #if	CF_DEBUG
-		if (DEBUGLEVEL(4)) 
-	    	debugprintf("pcsmain/procservice: while-bot rs=%d\n",rs) ;
+		    if (DEBUGLEVEL(4)) 
+	    	        debugprintf("pcsmain/procservice: while-bot rs=%d\n",
+			rs) ;
 #endif
 
-		if (rs >= 0) rs = lib_sigquit() ;
-		if (rs >= 0) rs = lib_sigterm() ;
-		if (rs >= 0) rs = lib_sigintr() ;
+		    if (rs >= 0) rs = lib_sigquit() ;
+		    if (rs >= 0) rs = lib_sigterm() ;
+		    if (rs >= 0) rs = lib_sigintr() ;
 
 		    if (rs < 0) break ;
 		} /* end while */

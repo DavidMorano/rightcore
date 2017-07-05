@@ -50,7 +50,6 @@
 
 #include	<sys/types.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<ascii.h>

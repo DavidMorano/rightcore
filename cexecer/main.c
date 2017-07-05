@@ -8,14 +8,13 @@
 #define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_DEBUGN	0		/* special debugging */
+#define	CF_LOCSETENT	0		/* compile |locinfo_setentry()| */
 
 
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -66,9 +65,6 @@
 
 /* local defines */
 
-#define	TARGETINFO	struct targetinfo
-#define	TARGETINFO_FL	struct targetinfo_flags
-
 #ifndef	PORTBUFLEN
 #define	PORTBUFLEN	20
 #endif
@@ -89,7 +85,9 @@
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
+#ifndef	BUFLEN
 #define	BUFLEN		(4 * VARLEN)
+#endif
 
 #ifndef	VBUFLEN
 #define	VBUFLEN		(MAXNAMELEN+DIGBUFLEN)
@@ -99,7 +97,13 @@
 
 #define	TO_READ		(5 * 60)
 
-#define	NDEBFNAME	"/tmp/cexecer.deb"
+#define	TARGETINFO	struct targetinfo
+#define	TARGETINFO_FL	struct targetinfo_flags
+
+#define	LOCINFO		struct locinfo
+#define	LOCINFO_FL	struct locinfo_flags
+
+#define	NDF		"/tmp/cexecer.deb"
 
 
 /* external subroutines */
@@ -110,8 +114,9 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	matkeystr(const char **,const char *,int) ;
 extern int	vstrkeycmp(const char **,const char **) ;
-extern int	ctdeci(char *,int,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	ctdeci(char *,int,int) ;
+extern int	ctdecl(char *,int,long) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
@@ -122,6 +127,8 @@ extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -143,6 +150,24 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 
 /* local structures */
+
+struct locinfo_flags {
+	uint		stores:1 ;
+	uint		poll:1 ;
+	uint		args:1 ;
+	uint		envs:1 ;
+} ;
+
+struct locinfo {
+	LOCINFO_FL	have, f, changed, final ;
+	LOCINFO_FL	open ;
+	vecstr		stores ;
+	vecstr		args ;
+	vecstr		envs ;
+	PROGINFO	*pip ;
+	cchar		*homedname ;
+	uint		sum ;
+} ;
 
 struct targetinfo_flags {
 	uint		errchan:1 ;
@@ -170,6 +195,13 @@ static int	process_input(PROGINFO *,int,int,
 			TARGETINFO *) ;
 static int	process_record(PROGINFO *,FILEBUF *,int,int,char *,
 			int,TARGETINFO *) ;
+
+static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+
+#if	CF_LOCSETENT
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+#endif
 
 #if	CF_DEBUGS
 extern int	mkhexstr(char *,int,void *,int) ;
@@ -205,8 +237,6 @@ static const struct pivars	initvars = {
 	PROGRAMROOT,
 	VARPRLOCAL
 } ;
-
-static const char	*varnode = VARNODE ;
 
 static const char	*envbads[] = {
 	"_",
@@ -246,6 +276,7 @@ static const char	*envsys[] = {
 int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
+	LOCINFO		li, *lip = &li ;
 	TARGETINFO	ti, *tip = &ti ;
 	BITS		pargs ;
 	bfile		errfile ;
@@ -259,7 +290,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	int	rs, rs1 ;
 	int	i, j ;
 	int	cl ;
-	int	v ;
 	int	pslen, sslen ;
 	int	fd_input = FD_STDIN ;
 	int	fd_output = FD_STDOUT ;
@@ -309,6 +339,13 @@ int main(int argc,cchar **argv,cchar **envv)
 /* initialize */
 
 	pip->verboselevel = 1 ;
+
+	pip->lip = &li ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto badlocstart ;
+	}
 
 /* start parsing the arguments */
 
@@ -534,6 +571,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -551,10 +590,11 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* try to get our program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -582,14 +622,10 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* initialize more stuff */
 
-	rs = vecstr_start(&pip->args,10,VECSTR_PORDERED) ;
-
-	if (rs >= 0) {
-	    rs = vecstr_start(&pip->envs,10,VECSTR_PSORTED) ;
-	    if (rs < 0) vecstr_finish(&pip->args) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
 	}
-
-/* get our node name */
 
 	if (rs >= 0)
 	    rs = getnodename(nodename,NODENAMELEN) ;
@@ -648,8 +684,10 @@ int main(int argc,cchar **argv,cchar **envv)
 #ifdef	COMMENT /* this is the *wrong* (source) nodename; we needed dst */
 	if (rs >= 0) {
 	    const char	*nn = tip->nodename ;
-	    if ((nn != NULL) && (nn[0] != '\0'))
-	        rs = vecstr_envadd(&pip->envs,varnode,nn,-1) ;
+	    if ((nn != NULL) && (nn[0] != '\0')) {
+		cchar	*varnode = VARNODE ;
+	        rs = vecstr_envadd(&lip->envs,varnode,nn,-1) ;
+	    }
 	}
 #endif /* COMMENT */
 
@@ -683,10 +721,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	        debugprintf("main: ENV check path \n") ;
 #endif
 
-	    rs1 = vecstr_search(&pip->envs,varpath,vstrkeycmp,&sp) ;
+	    rs1 = vecstr_search(&lip->envs,varpath,vstrkeycmp,&sp) ;
 	    if (rs1 == SR_NOTFOUND) {
 	        sp = DEFPATH ;
-	        rs = vecstr_envadd(&pip->envs,varpath,sp,-1) ;
+	        rs = vecstr_envadd(&lip->envs,varpath,sp,-1) ;
 	    }
 
 	    xpath = (sp + 5) ;
@@ -707,9 +745,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	        debugprintf("main: ENV check PWD \n") ;
 #endif
 
-	    rs1 = vecstr_search(&pip->envs,varpwd,vstrkeycmp,&sp) ;
+	    rs1 = vecstr_search(&lip->envs,varpwd,vstrkeycmp,&sp) ;
 	    if (rs1 < 0)
-	        rs = vecstr_envadd(&pip->envs,varpwd,tip->pwd,-1) ;
+	        rs = vecstr_envadd(&lip->envs,varpwd,tip->pwd,-1) ;
 
 	} /* end if */
 
@@ -737,7 +775,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    if (tip->progfname[0] != '/') {
 
 	        if (xpath == NULL) {
-	            rs1 = vecstr_search(&pip->envs,varpath, vstrkeycmp,&cp) ;
+	            rs1 = vecstr_search(&lip->envs,varpath, vstrkeycmp,&cp) ;
 	            if (rs1 >= 0) xpath = (cp + 5) ;
 	        } /* end if */
 
@@ -747,18 +785,20 @@ int main(int argc,cchar **argv,cchar **envv)
 	            rs = mkpath2(progfbuf,tip->pwd,tip->progfname) ;
 	            if (rs >= 0)
 	                rs = perm(progfname,-1,-1,NULL,X_OK) ;
-	        } else if (rs > 0)
+	        } else if (rs > 0) {
 	            progfname = progfbuf ;
+		}
 
-	    } else
+	    } else {
 	        rs = perm(progfname,-1,-1,NULL,X_OK) ;
+	    }
 
 /* add the special environment variable '_' */
 
 	    if (rs >= 0) {
-	        rs1 = vecstr_search(&pip->envs,"_", vstrkeycmp,&cp) ;
-	        if (rs1 >= 0) vecstr_del(&pip->envs,rs1) ;
-	        rs = vecstr_envadd(&pip->envs,"_",progfname,-1) ;
+	        rs1 = vecstr_search(&lip->envs,"_", vstrkeycmp,&cp) ;
+	        if (rs1 >= 0) vecstr_del(&lip->envs,rs1) ;
+	        rs = vecstr_envadd(&lip->envs,"_",progfname,-1) ;
 	    }
 
 	} /* end if (program file) */
@@ -792,7 +832,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* do some stuff if we were not instructed to go into light-wight mode */
 
-	if ((rs >= 0) && (! (tip->opts & DIALOPTS_MNOLIGHT))) {
+	if ((rs >= 0) && (! (tip->opts & DIALOPT_NOLIGHT))) {
 	    struct sockaddr_in	*sap ;
 	    const int	af = AF_INET ;
 	    int		port ;
@@ -850,7 +890,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	bflush(pip->efp) ;
 
-	if ((rs >= 0) && (! (tip->opts & DIALOPTS_MNOLIGHT))) {
+	if ((rs >= 0) && (! (tip->opts & DIALOPT_NOLIGHT))) {
 
 	    if ((rs = uc_fork()) == 0) {
 
@@ -887,14 +927,14 @@ int main(int argc,cchar **argv,cchar **envv)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    debugprintf("main: vecstr_i=%d\n",pip->envs.i) ;
-	    debugprintf("main: vecstr_n=%d\n",pip->envs.n) ;
-	    debugprintf("main: vecstr_c=%d\n",pip->envs.c) ;
-	    for (i = 0 ; vecstr_get(&pip->envs,i,&cp) >= 0 ; i += 1)
+	    debugprintf("main: vecstr_i=%d\n",lip->envs.i) ;
+	    debugprintf("main: vecstr_n=%d\n",lip->envs.n) ;
+	    debugprintf("main: vecstr_c=%d\n",lip->envs.c) ;
+	    for (i = 0 ; vecstr_get(&lip->envs,i,&cp) >= 0 ; i += 1)
 	        debugprintf("main: env[%d]=>%s< (%p)\n",i,cp,cp) ;
 	}
-	debugprintf("main: env[OV]=%08x\n",pip->envs.va[i]) ;
-#endif
+	debugprintf("main: env[OV]=%08x\n",lip->envs.va[i]) ;
+#endif /* CF_DEBUG */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -902,7 +942,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (rs >= 0)
-	    rs = vecstr_sort(&pip->envs,vstrkeycmp) ;
+	    rs = vecstr_sort(&lip->envs,vstrkeycmp) ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -925,12 +965,12 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif /* CF_DEBUG */
 
 	    if (rs >= 0) {
-	        rs = vecstr_getvec(&pip->args,&cpp) ;
+	        rs = vecstr_getvec(&lip->args,&cpp) ;
 	        av = (const char **) cpp ;
 	    }
 
 	    if (rs >= 0) {
-	        rs = vecstr_getvec(&pip->envs,&cpp) ;
+	        rs = vecstr_getvec(&lip->envs,&cpp) ;
 	        ev = (const char **) cpp ;
 	    }
 
@@ -948,22 +988,19 @@ int main(int argc,cchar **argv,cchar **envv)
 done:
 	ex = (rs >= 0) ? EX_OK : EX_NOEXEC ;
 
-ret3:
 badio:
-	vecstr_finish(&pip->args) ;
-
-	vecstr_finish(&pip->envs) ;
 
 /* early return thing */
 badproto:
 badinit:
 retearly:
-ret2:
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
 	        pip->progname,ex,rs) ;
+	}
 
 	if (pip->efp != NULL) {
+	    pip->open.errfile = FALSE ;
 	    bclose(pip->efp) ;
 	    pip->efp = NULL ;
 	}
@@ -971,6 +1008,9 @@ ret2:
 	bits_finish(&pargs) ;
 
 badpargs:
+	locinfo_finish(lip) ;
+
+badlocstart:
 	proginfo_finish(pip) ;
 
 badprogstart:
@@ -1005,15 +1045,12 @@ badarg:
 /* local subroutines */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int	rs ;
-	int	wlen = 0 ;
-
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
-
 
 	fmt = "%s: USAGE> %s\n",
 	rs = bprintf(pip->efp,fmt,pn,pn) ;
@@ -1028,27 +1065,23 @@ PROGINFO	*pip ;
 /* end subroutine (usage) */
 
 
-static int procenvsys(pip)
-PROGINFO	*pip ;
+static int procenvsys(PROGINFO *pip)
 {
+	LOCINFO		*lip = pip->lip ;
 	struct utsname	un ;
-
-	int	rs ;
-	int	rs1 ;
-	int	i ;
-	int	n = 0 ;
-
+	int		rs ;
+	int		rs1 ;
+	int		i ;
+	int		n = 0 ;
 	const char	**envs = envsys ;
 	const char	*tp ;
-	const char	*ep ;
-
-	char	vbuf[VBUFLEN+1] = { 0 } ;
-
+	char		vbuf[VBUFLEN+1] = { 0 } ;
 
 	if ((rs = u_uname(&un)) >= 0) {
 
-	    if ((tp = strchr(un.nodename,'.')) != NULL)
+	    if ((tp = strchr(un.nodename,'.')) != NULL) {
 	        un.nodename[tp-un.nodename] = '\0' ;
+	    }
 
 	    for (i = 0 ; (rs >= 0) && (envs[i] != NULL) ; i += 1) {
 	        int	sc = (envs[i][0] & 0xff) ;
@@ -1109,7 +1142,7 @@ PROGINFO	*pip ;
 
 	        if ((rs >= 0) && (tp != NULL)) {
 	            n += 1 ;
-	            rs = vecstr_envadd(&pip->envs,envs[i],tp,-1) ;
+	            rs = vecstr_envadd(&lip->envs,envs[i],tp,-1) ;
 	        } /* end if */
 
 	    } /* end for */
@@ -1122,29 +1155,24 @@ PROGINFO	*pip ;
 
 
 static int process_input(pip,fd,to,tip)
-PROGINFO		*pip ;
-int			fd ;
-int			to ;
+PROGINFO	*pip ;
+int		fd ;
+int		to ;
 TARGETINFO	*tip ;
 {
 	struct dialcprogmsg_end		m0 ;
 	struct dialcprogmsg_light	m5 ;
 
 	FILEBUF		rd ;
-
 	const int	salen = sizeof(SOCKADDRESS) ;
 	const int	fbo = FILEBUF_ONET ;
-
-	int	rs ;
-	int	rs1 ;
-	int	type ;
-	int	cl, mlen ;
-	int	f_exit = FALSE ;
-
-	ushort	usw ;
-
-	char	buf[BUFLEN + 1] ;
-
+	int		rs ;
+	int		rs1 ;
+	int		type ;
+	int		cl, mlen ;
+	int		f_exit = FALSE ;
+	ushort		usw ;
+	char		buf[BUFLEN + 1] ;
 
 	memset(tip,0,sizeof(TARGETINFO)) ;
 
@@ -1152,7 +1180,6 @@ TARGETINFO	*tip ;
 	    f_exit = FALSE ;
 
 	    while ((! f_exit) && ((rs = filebuf_read(&rd,buf,1,to)) > 0)) {
-
 	        type = buf[0] & 0xff ;
 
 #if	CF_DEBUG
@@ -1240,8 +1267,9 @@ TARGETINFO	*tip ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (filebuf) */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = (f_exit) ? SR_OK : SR_PROTO ;
+	}
 
 	return rs ;
 }
@@ -1249,22 +1277,21 @@ TARGETINFO	*tip ;
 
 
 static int process_record(pip,fbp,to,type,rbuf,rlen,tip)
-PROGINFO		*pip ;
-FILEBUF			*fbp ;
-int			to ;
-int			type ;
-char			rbuf[] ;
-int			rlen ;
+PROGINFO	*pip ;
+FILEBUF		*fbp ;
+int		to ;
+int		type ;
+char		rbuf[] ;
+int		rlen ;
 TARGETINFO	*tip ;
 {
-	int	rs ;
-	int	len ;
-	int	envlen ;
-
-	ushort	usw ;
-
-	char	*lenbuf = (rbuf + 1) ;
-	char	*envbuf = (rbuf + 3) ;
+	LOCINFO		*lip = pip->lip ;
+	int		rs ;
+	int		len ;
+	int		envlen ;
+	ushort		usw ;
+	char		*lenbuf = (rbuf + 1) ;
+	char		*envbuf = (rbuf + 3) ;
 
 	if ((rs = filebuf_read(fbp,lenbuf,2,to)) >= 0) {
 	    stdorder_rushort(lenbuf,&usw) ;
@@ -1284,11 +1311,11 @@ TARGETINFO	*tip ;
 	                vpp = &tip->progfname ;
 	                break ;
 	            case dialcprogmsgtype_arg:
-	                rs = vecstr_add(&pip->args,envbuf,(len - 1)) ;
+	                rs = vecstr_add(&lip->args,envbuf,(len - 1)) ;
 	                break ;
 	            case dialcprogmsgtype_env:
 	                if (matkeystr(envbads,envbuf,envlen) < 0) {
-	                    rs = vecstr_add(&pip->envs,envbuf,envlen) ;
+	                    rs = vecstr_add(&lip->envs,envbuf,envlen) ;
 	                }
 	                break ;
 		    default:
@@ -1299,13 +1326,99 @@ TARGETINFO	*tip ;
 	    	        rs = uc_mallocstrw(envbuf,envlen,vpp) ;
 		    }
 		} /* end if (read) */
-	    } else
+	    } else {
 	        rs = SR_PROTO ;
+	    }
 	} /* end if (read) */
 
 	return rs ;
 }
 /* end subroutine (process_record) */
 
+
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+	int		vo ;
+
+	memset(lip,0,sizeof(LOCINFO)) ;
+	lip->pip = pip ;
+	lip->f.poll = TRUE ;
+
+	vo = VECSTR_PORDERED ;
+	if ((rs = vecstr_start(&lip->args,10,vo)) >= 0) {
+	    lip->open.args = TRUE ;
+	    if ((rs = vecstr_start(&lip->envs,10,vo)) >= 0) {
+	        lip->open.envs = TRUE ;
+	    }
+	    if (rs < 0) {
+	        lip->open.args = FALSE ;
+		vecstr_finish(&lip->args) ;
+	    }
+	}
+
+	return rs ;
+}
+/* end subroutine (locinfo_start) */
+
+
+static int locinfo_finish(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (lip == NULL) return SR_FAULT ;
+
+	if (lip->open.stores) {
+	    lip->open.stores = FALSE ;
+	    rs1 = vecstr_finish(&lip->stores) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	rs1 = vecstr_finish(&lip->args) ;
+	if (rs >= 0) rs = rs1 ;
+
+	rs1 = vecstr_finish(&lip->envs) ;
+	if (rs >= 0) rs = rs1 ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_finish) */
+
+
+#if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+{
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	if (! lip->open.stores) {
+	    rs = vecstr_start(&lip->stores,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
+	}
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(&lip->stores,*epp) ;
+	    }
+	    if (vp != NULL) {
+	        len = strnlen(vp,vl) ;
+	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(&lip->stores,oi) ;
+	    }
+	} /* end if */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (locinfo_setentry) */
+#endif /* CF_LOCSETENT */
 
 
