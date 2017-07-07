@@ -123,6 +123,8 @@ extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdecmfi(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	listenusd(const char *,mode_t,int) ;
+extern int	isNotValid(int) ;
+extern int	isBadMsg(int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -146,7 +148,7 @@ union conmsg {
 } ;
 
 struct ipcmsginfo {
-	struct msghdr	ipcmsg ;
+	MSGHDR	ipcmsg ;
 	struct iovec	vecs[NIOVECS] ;
 	union conmsg	ipcconbuf ;
 	SOCKADDRESS	ipcfrom ;
@@ -160,6 +162,7 @@ struct ipcmsginfo {
 
 static int	procipcreqother(PROGINFO *,int) ;
 static int	procipcreqmsg(PROGINFO *,int,MSFILE_ENT *) ;
+static int	procipcreqmsger(PROGINFO *,IPCMSGINFO *,MSFILE_ENT *,uint) ;
 
 static int	procipcreqmsg_getstatus(PROGINFO *,IPCMSGINFO *) ;
 static int	procipcreqmsg_getsysmisc(PROGINFO *,IPCMSGINFO *,MSFILE_ENT *) ;
@@ -185,47 +188,48 @@ int procipcbegin(PROGINFO *pip)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
 	    debugprintf("msuadjunct/procipcbegin: f_reuseaddr=%u\n",
-		lip->f.reuseaddr) ;
+	        lip->f.reuseaddr) ;
 #endif
 
 	lip->rfd = -1 ;
-	if (! lip->f.listen) 
-	    goto ret0 ;
+	if (lip->f.listen)  {
 
-	if (lip->reqfname == NULL)
-	    rs = locinfo_reqfname(lip) ;
+	    if (lip->reqfname == NULL) {
+	        rs = locinfo_reqfname(lip) ;
+	    }
 
 /* careful to not destroy variable 'rs' until conditional branch below */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	    debugprintf("msuadjunct/procipcbegin: reqfname=%s\n",
-		lip->reqfname) ;
+	    if (DEBUGLEVEL(5))
+	        debugprintf("msuadjunct/procipcbegin: reqfname=%s\n",
+	            lip->reqfname) ;
 #endif
 
-	if (pip->debuglevel > 0)
-	    shio_printf(pip->efp,"%s: req=%s\n",
-		pip->progname,lip->reqfname) ;
+	    if (pip->debuglevel > 0) {
+	        shio_printf(pip->efp,"%s: req=%s\n",
+	            pip->progname,lip->reqfname) ;
+	    }
 
-	if (pip->open.logprog)
-	    logprintf(pip,"req=%s",lip->reqfname) ;
+	    if (pip->open.logprog)
+	        logprintf(pip,"req=%s",lip->reqfname) ;
 
-	if (rs >= 0) {
-	    const mode_t	om = 0666 ;
-	    int	opts = 0 ;
-	    if (lip->f.reuseaddr) opts |= 1 ;
-	    if ((rs = listenusd(lip->reqfname,om,opts)) >= 0) {
-	        int	fd = rs ;
-	        if ((rs = uc_closeonexec(fd,TRUE)) >= 0) {
-	            lip->rfd = fd ;
-	            lip->open.listen = TRUE ;
-	        }
-	        if (rs < 0)
-		    u_close(fd) ;
-	    } /* end if (listenusd) */
-	} /* end if (ok) */
+	    if (rs >= 0) {
+	        const mode_t	om = 0666 ;
+	        int	opts = 0 ;
+	        if (lip->f.reuseaddr) opts |= 1 ;
+	        if ((rs = listenusd(lip->reqfname,om,opts)) >= 0) {
+	            int	fd = rs ;
+	            if ((rs = uc_closeonexec(fd,TRUE)) >= 0) {
+	                lip->rfd = fd ;
+	                lip->open.listen = TRUE ;
+	            }
+	            if (rs < 0)
+	                u_close(fd) ;
+	        } /* end if (listenusd) */
+	    } /* end if (ok) */
 
-ret0:
+	} /* end if (enabled) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -244,8 +248,9 @@ int procipcend(PROGINFO *pip)
 	int		rs1 ;
 
 	if (lip->reqfname != NULL) {
-	    if (lip->reqfname[0] != '\0')
-		u_unlink(lip->reqfname) ;
+	    if (lip->reqfname[0] != '\0') {
+	        u_unlink(lip->reqfname) ;
+	    }
 	}
 
 #if	CF_IPCPID
@@ -272,7 +277,7 @@ int procipcreq(PROGINFO *pip,int re,MSFILE_ENT *mep)
 	if (re != 0) {
 	    if ((re & POLLIN) || (re & POLLPRI)) {
 	        rs = procipcreqmsg(pip,re,mep) ;
-	    } else  {
+	    } else {
 	        rs = procipcreqother(pip,re) ;
 	    }
 	} /* end if (events) */
@@ -305,7 +310,7 @@ static int procipcreqother(PROGINFO *pip,int re)
 	if ((rs < 0) && (ccp != NULL) && pip->open.logprog) {
 	    f_logged = TRUE ;
 	    logfile_printf(&pip->lh,"%s: IPC port condition=%s",
-		pip->progname,ccp) ;
+	        pip->progname,ccp) ;
 	}
 
 	return (rs >= 0) ? f_logged : rs ;
@@ -316,130 +321,135 @@ static int procipcreqother(PROGINFO *pip,int re)
 static int procipcreqmsg(PROGINFO *pip,int re,MSFILE_ENT *mep)
 {
 	LOCINFO		*lip = pip->lip ;
-	struct ipcmsginfo	mi, *mip = &mi ;
-	struct msghdr	*mp ;
-	uint		mtype ;
-	const int	fdlen = sizeof(int) ;
 	int		rs = SR_OK ;
-	int		*ip = NULL ;
 	int		f_logged = FALSE ;
-	int		f ;
 
-	f = (re & POLLIN) || (re & POLLPRI) ;
-	if (! f)
-	    goto ret0 ;
+	if ((re & POLLIN) || (re & POLLPRI)) {
+	    IPCMSGINFO	mi, *mip = &mi ;
+	    MSGHDR	*mp ;
+	    const int	fdlen = sizeof(int) ;
+	    int		*ip = NULL ;
 
-	ipcmsginfo_init(mip) ;
+	    ipcmsginfo_init(mip) ;
 
-	mp = &mip->ipcmsg ;
-	rs = u_recvmsg(lip->rfd,mp,0) ;
-	mip->ipcmsglen = rs ;
-	if (rs < 0)
-	    goto ret0 ;
+	    mp = &mip->ipcmsg ;
+	    if ((rs = u_recvmsg(lip->rfd,mp,0)) >= 0) {
+	        uint	mtype = UINT_MAX ;
 
-	mtype = (mip->ipcmsglen > 0) ? (mip->ipcbuf[0] & 0xff) : UINT_MAX ;
+	        mip->ipcmsglen = rs ;
+	        if (mip->ipcmsglen > 0) {
+		    mip->ipcmsglen = MKCHAR(mip->ipcbuf[0]) ;
+		}
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("progwatch/pollipc: mtype=%u\n",mtype) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("progwatch/pollipc: mtype=%u\n",mtype) ;
 #endif
 
 /* check if we were passed a FD */
 
-	if (mp->msg_controllen > 0) {
-	    struct cmsghdr	*cmp = CMSG_FIRSTHDR(mp) ;
-	    while (cmp != NULL) {
+	        if (mp->msg_controllen > 0) {
+	            struct cmsghdr	*cmp = CMSG_FIRSTHDR(mp) ;
+	            while (cmp != NULL) {
 
-	        ip = (int *) CMSG_DATA(cmp) ;
-	        if ((cmp->cmsg_level == SOL_SOCKET) && 
-	            (cmp->cmsg_len == CMSG_LEN(fdlen)) &&
-	            (cmp->cmsg_type == SCM_RIGHTS) && (ip != NULL)) {
+	                ip = (int *) CMSG_DATA(cmp) ;
+	                if ((cmp->cmsg_level == SOL_SOCKET) && 
+	                    (cmp->cmsg_len == CMSG_LEN(fdlen)) &&
+	                    (cmp->cmsg_type == SCM_RIGHTS) && (ip != NULL)) {
 
-	            if ((mip->ns < 0) && (mtype == UINT_MAX)) {
-	                mip->ns = *ip ;
-	            } else {
-	                u_close(*ip) ;
-		    }
+	                    if ((mip->ns < 0) && (mtype == UINT_MAX)) {
+	                        mip->ns = *ip ;
+	                    } else {
+	                        u_close(*ip) ;
+	                    }
 
-	        } /* end if */
-	        cmp = CMSG_NXTHDR(mp,cmp) ;
+	                } /* end if */
+	                cmp = CMSG_NXTHDR(mp,cmp) ;
 
-	    } /* end while */
-	} /* end if (had a control-part) */
+	            } /* end while */
+	        } /* end if (had a control-part) */
 
 /* handle the messages (according to our type-code) */
 
-	switch (mtype) {
+	        rs = procipcreqmsger(pip,mip,mep,mtype) ;
 
-	case msumsgtype_getstatus:
-	    rs = procipcreqmsg_getstatus(pip,mip) ;
-	    break ;
+	        if (mip->ns >= 0) {
+	            u_close(mip->ns) ;
+	            mip->ns = -1 ;
+	        }
 
-	case msumsgtype_getsysmisc:
-	    rs = procipcreqmsg_getsysmisc(pip,mip,mep) ;
-	    break ;
+	    } /* end if (u_recvmsg) */
 
-	case msumsgtype_exit:
-	    rs = procipcreqmsg_exit(pip,mip) ;
-	    break ;
+	} /* end if (have some poll ready) */
 
-	case msumsgtype_mark:
-	    f_logged = TRUE ;
-	    rs = procipcreqmsg_mark(pip,mip) ;
-	    break ;
-
-	case msumsgtype_report:
-	    f_logged = TRUE ;
-	    rs = procipcreqmsg_report(pip,mip) ;
-	    break ;
-
-	default:
-	    f_logged = TRUE ;
-	    rs = procipcreqmsg_invalid(pip,mip) ;
-	    break ;
-
-	} /* end switch */
-
-	if (mip->ns >= 0) {
-	    u_close(mip->ns) ;
-	    mip->ns = -1 ;
-	}
-
-ret0:
 	return (rs >= 0) ? f_logged : rs ;
 }
 /* end subroutine (procipcreqmsg) */
 
 
+static int procipcreqmsger(PROGINFO *pip,IPCMSGINFO *mip,MSFILE_ENT *mep,
+		uint mt)
+{
+	int		rs = SR_OK ;
+	int		f_logged = FALSE ;
+	switch (mt) {
+	case msumsgtype_getstatus:
+	    rs = procipcreqmsg_getstatus(pip,mip) ;
+	    break ;
+	case msumsgtype_getsysmisc:
+	    rs = procipcreqmsg_getsysmisc(pip,mip,mep) ;
+	    break ;
+	case msumsgtype_exit:
+	    rs = procipcreqmsg_exit(pip,mip) ;
+	    break ;
+	case msumsgtype_mark:
+	    f_logged = TRUE ;
+	    rs = procipcreqmsg_mark(pip,mip) ;
+	    break ;
+	case msumsgtype_report:
+	    f_logged = TRUE ;
+	    rs = procipcreqmsg_report(pip,mip) ;
+	    break ;
+	default:
+	    f_logged = TRUE ;
+	    rs = procipcreqmsg_invalid(pip,mip) ;
+	    break ;
+	} /* end switch */
+	return (rs >= 0) ? f_logged : rs ;
+}
+/* end subroutine (procipcreqmsger) */
+
+
 static int procipcreqmsg_getstatus(PROGINFO *pip,struct ipcmsginfo *mip)
 {
-	LOCINFO		*lip = pip->lip ;
 	struct msumsg_status	m0 ;
 	struct msumsg_getstatus	m1 ;
+	LOCINFO		*lip = pip->lip ;
 	const int	ipclen = IPCBUFLEN ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
 
-	if ((rs1 = msumsg_getstatus(&m1,1,mip->ipcbuf,ipclen)) >= 0) {
+	if ((rs = msumsg_getstatus(&m1,1,mip->ipcbuf,ipclen)) >= 0) {
 
 #ifdef	OPTIONAL
-	memset(&m0,0,sizeof(struct msumsg_status)) ;
+	    memset(&m0,0,sizeof(struct msumsg_status)) ;
 #endif
 
-	m0.tag = m1.tag ;
-	m0.pid = pip->pid ;
-	m0.rc = msumsgrc_ok ;
+	    m0.tag = m1.tag ;
+	    m0.pid = pip->pid ;
+	    m0.rc = msumsgrc_ok ;
 
-	if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
-	    int	blen = rs ;
+	    if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
+	        int	blen = rs ;
 
-	    mip->ipcmsg.msg_control = NULL ;
-	    mip->ipcmsg.msg_controllen = 0 ;
-	    mip->vecs[0].iov_len = blen ;
-	    rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
+	        mip->ipcmsg.msg_control = NULL ;
+	        mip->ipcmsg.msg_controllen = 0 ;
+	        mip->vecs[0].iov_len = blen ;
+	        rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
 
-	} /* end if */
+	    } /* end if */
 
+	} else if (isBadMsg(rs)) {
+	    rs = SR_OK ;
 	} /* end if (msumsg_getstatus) */
 
 	return rs ;
@@ -449,31 +459,32 @@ static int procipcreqmsg_getstatus(PROGINFO *pip,struct ipcmsginfo *mip)
 
 static int procipcreqmsg_exit(PROGINFO *pip,struct ipcmsginfo *mip)
 {
-	LOCINFO		*lip = pip->lip ;
 	struct msumsg_status	m0 ;
 	struct msumsg_exit	m3 ;
+	LOCINFO		*lip = pip->lip ;
 	const int	ipclen = IPCBUFLEN ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
 
-	if ((rs1 = msumsg_exit(&m3,1,mip->ipcbuf,ipclen)) >= 0) {
+	if ((rs = msumsg_exit(&m3,1,mip->ipcbuf,ipclen)) >= 0) {
 	    if ((rs = locinfo_reqexit(lip,"client")) >= 0) {
 
 /* response */
 
-	m0.tag = m3.tag ;
-	m0.pid = pip->pid ;
-	m0.rc = msumsgrc_ok ;
+	        m0.tag = m3.tag ;
+	        m0.pid = pip->pid ;
+	        m0.rc = msumsgrc_ok ;
 
-	if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
-	    int	blen = rs ;
-	    mip->ipcmsg.msg_control = NULL ;
-	    mip->ipcmsg.msg_controllen = 0 ;
-	    mip->vecs[0].iov_len = blen ;
-	    rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
-	} /* end if */
+	        if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
+	            int	blen = rs ;
+	            mip->ipcmsg.msg_control = NULL ;
+	            mip->ipcmsg.msg_controllen = 0 ;
+	            mip->vecs[0].iov_len = blen ;
+	            rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
+	        } /* end if */
 
 	    } /* end if (locinfo_reqexit) */
+	} else if (isBadMsg(rs)) {
+	    rs = SR_OK ;
 	} /* end if (msumsg_exit) */
 
 	return rs ;
@@ -483,37 +494,38 @@ static int procipcreqmsg_exit(PROGINFO *pip,struct ipcmsginfo *mip)
 
 static int procipcreqmsg_mark(PROGINFO *pip,struct ipcmsginfo *mip)
 {
-	LOCINFO		*lip = pip->lip ;
 	struct msumsg_status	m0 ;
 	struct msumsg_mark	m4 ;
+	LOCINFO		*lip = pip->lip ;
 	long		lw ;
 	const int	ipclen = IPCBUFLEN ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
 
-	if ((rs1 = msumsg_mark(&m4,1,mip->ipcbuf,ipclen)) >= 0) {
+	if ((rs = msumsg_mark(&m4,1,mip->ipcbuf,ipclen)) >= 0) {
 
 /* this is the action */
 
-	lw = labs(pip->intrun - (pip->daytime - lip->ti_start)) ;
-	logmark(pip,lw) ;
+	    lw = labs(pip->intrun - (pip->daytime - lip->ti_start)) ;
+	    logmark(pip,lw) ;
 
 /* response */
 
-	m0.tag = m4.tag ;
-	m0.pid = pip->pid ;
-	m0.rc = msumsgrc_ok ;
+	    m0.tag = m4.tag ;
+	    m0.pid = pip->pid ;
+	    m0.rc = msumsgrc_ok ;
 
-	if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
-	    int	blen = rs ;
+	    if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
+	        int	blen = rs ;
 
-	    mip->ipcmsg.msg_control = NULL ;
-	    mip->ipcmsg.msg_controllen = 0 ;
-	    mip->vecs[0].iov_len = blen ;
-	    rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
+	        mip->ipcmsg.msg_control = NULL ;
+	        mip->ipcmsg.msg_controllen = 0 ;
+	        mip->vecs[0].iov_len = blen ;
+	        rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
 
-	} /* end if */
+	    } /* end if */
 
+	} else if (isBadMsg(rs)) {
+	    rs = SR_OK ;
 	} /* end if (msumsg_mark) */
 
 	return rs ;
@@ -523,35 +535,36 @@ static int procipcreqmsg_mark(PROGINFO *pip,struct ipcmsginfo *mip)
 
 static int procipcreqmsg_report(PROGINFO *pip,struct ipcmsginfo *mip)
 {
-	LOCINFO		*lip = pip->lip ;
 	struct msumsg_status	m0 ;
 	struct msumsg_report	m5 ;
+	LOCINFO		*lip = pip->lip ;
 	const int	ipclen = IPCBUFLEN ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
 
-	if ((rs1 = msumsg_report(&m5,1,mip->ipcbuf,ipclen)) >= 0) {
+	if ((rs = msumsg_report(&m5,1,mip->ipcbuf,ipclen)) >= 0) {
 
 /* this is the action */
 
-	logreport(pip) ;
+	    logreport(pip) ;
 
 /* response */
 
-	m0.tag = m5.tag ;
-	m0.pid = pip->pid ;
-	m0.rc = msumsgrc_ok ;
+	    m0.tag = m5.tag ;
+	    m0.pid = pip->pid ;
+	    m0.rc = msumsgrc_ok ;
 
-	if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
-	    int	blen = rs ;
+	    if ((rs = msumsg_status(&m0,0,mip->ipcbuf,ipclen)) >= 0) {
+	        int	blen = rs ;
 
-	    mip->ipcmsg.msg_control = NULL ;
-	    mip->ipcmsg.msg_controllen = 0 ;
-	    mip->vecs[0].iov_len = blen ;
-	    rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
+	        mip->ipcmsg.msg_control = NULL ;
+	        mip->ipcmsg.msg_controllen = 0 ;
+	        mip->vecs[0].iov_len = blen ;
+	        rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
 
-	} /* end if */
+	    } /* end if */
 
+	} else if (isBadMsg(rs)) {
+	    rs = SR_OK ;
 	} /* end if (msumsg_report) */
 
 	return rs ;
@@ -564,38 +577,39 @@ PROGINFO		*pip ;
 struct ipcmsginfo	*mip ;
 MSFILE_ENT		*mep ;
 {
-	LOCINFO		*lip = pip->lip ;
 	struct msumsg_sysmisc		m6 ;
 	struct msumsg_getsysmisc	m2 ;
+	LOCINFO		*lip = pip->lip ;
 	const int	ipclen = IPCBUFLEN ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		i ;
+	int		rs ;
 
-	if ((rs1 = msumsg_getsysmisc(&m2,1,mip->ipcbuf,ipclen)) >= 0) {
+	if ((rs = msumsg_getsysmisc(&m2,1,mip->ipcbuf,ipclen)) >= 0) {
+	    int		i ;
 
-	memset(&m6,0,sizeof(struct msumsg_sysmisc)) ;
-	m6.tag = m2.tag ;
-	m6.pid = pip->pid ;
-	m6.utime = mep->utime ;
-	m6.btime = mep->btime ;
-	m6.ncpu = mep->ncpu ;
-	m6.nproc = mep->nproc ;
-	for (i = 0 ; i < 3 ; i += 1) {
-	    m6.la[i] = mep->la[i] ;
-	}
-	m6.rc = msumsgrc_ok ;
+	    memset(&m6,0,sizeof(struct msumsg_sysmisc)) ;
+	    m6.tag = m2.tag ;
+	    m6.pid = pip->pid ;
+	    m6.utime = mep->utime ;
+	    m6.btime = mep->btime ;
+	    m6.ncpu = mep->ncpu ;
+	    m6.nproc = mep->nproc ;
+	    for (i = 0 ; i < 3 ; i += 1) {
+	        m6.la[i] = mep->la[i] ;
+	    }
+	    m6.rc = msumsgrc_ok ;
 
-	if ((rs = msumsg_sysmisc(&m6,0,mip->ipcbuf,ipclen)) >= 0) {
-	    int	blen = rs1 ;
+	    if ((rs = msumsg_sysmisc(&m6,0,mip->ipcbuf,ipclen)) >= 0) {
+	        int	blen = rs ;
 
-	    mip->ipcmsg.msg_control = NULL ;
-	    mip->ipcmsg.msg_controllen = 0 ;
-	    mip->vecs[0].iov_len = blen ;
-	    rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
+	        mip->ipcmsg.msg_control = NULL ;
+	        mip->ipcmsg.msg_controllen = 0 ;
+	        mip->vecs[0].iov_len = blen ;
+	        rs = u_sendmsg(lip->rfd,&mip->ipcmsg,0) ;
 
-	} /* end if */
+	    } /* end if */
 
+	} else if (isBadMsg(rs)) {
+	    rs = SR_OK ;
 	} /* end if (msumsg_getsysmisc) */
 
 	return rs ;
@@ -607,8 +621,8 @@ static int procipcreqmsg_invalid(pip,mip)
 PROGINFO		*pip ;
 struct ipcmsginfo	*mip ;
 {
-	LOCINFO		*lip = pip->lip ;
 	struct msumsg_status	m0 ;
+	LOCINFO		*lip = pip->lip ;
 	const int	ipclen = IPCBUFLEN ;
 	int		rs ;
 
@@ -653,7 +667,7 @@ struct ipcmsginfo	*mip ;
 	mip->vecs[0].iov_base = mip->ipcbuf ;
 	mip->vecs[0].iov_len = IPCBUFLEN ;
 
-	memset(&mip->ipcmsg,0,sizeof(struct msghdr)) ;
+	memset(&mip->ipcmsg,0,sizeof(MSGHDR)) ;
 
 	mip->ipcmsg.msg_name = &mip->ipcfrom ;
 	mip->ipcmsg.msg_namelen = sizeof(SOCKADDRESS) ;

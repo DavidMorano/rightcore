@@ -148,7 +148,7 @@ int mfsbuilt_start(MFSBUILT *op,cchar *dname)
 		uc_free(op->dname) ;
 		op->dname = NULL ;
 	    }
-	}
+	} /* end if (m-a) */
 
 	return rs ;
 }
@@ -383,7 +383,6 @@ int mfsbuilt_check(MFSBUILT *op,time_t dt)
 	if (op == NULL) return SR_FAULT ;
 	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
 	if (dt == 0) dt = time(NULL) ;
-	if (op == NULL) return SR_FAULT ;
 	if ((dt - op->ti_check) >= to) {
 	    op->ti_check = dt ;
 	    f = TRUE ;

@@ -209,10 +209,10 @@ int mfsadj_begin(PROGINFO *pip)
 	        if ((rs = listenusd(lip->reqfname,om,opts)) >= 0) {
 	            const int	fd = rs ;
 	            if ((rs = uc_closeonexec(fd,TRUE)) >= 0) {
-			if ((rs = mfsadj_allocbegin(pip)) >= 0) {
+	                if ((rs = mfsadj_allocbegin(pip)) >= 0) {
 	                    lip->rfd = fd ;
 	                    lip->open.listen = TRUE ;
-			}
+	                }
 	            }
 	            if (rs < 0)
 	                u_close(fd) ;
@@ -270,10 +270,10 @@ int mfsadj_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 	        if ((re & POLLIN) || (re & POLLPRI)) {
 	            if ((rs = mfsadj_reqmsg(pip,re)) >= 0) {
 	                rs = mfsadj_register(pip,pmp) ;
-		    }
+	            }
 	        } else {
 	            rs = mfsadj_reqother(pip,re) ;
-		}
+	        }
 	    } /* end if (had something) */
 	} /* end if (events) */
 
@@ -308,7 +308,7 @@ static int mfsadj_allocbegin(PROGINFO *pip)
 	    lip->adj = p ;
 	    rs = mfsadj_objbegin(pip) ;
 	    if (rs < 0)
-		uc_free(p) ;
+	        uc_free(p) ;
 	} /* end if (m-a) */
 	return rs ;
 }
@@ -339,7 +339,7 @@ static int mfsadj_objbegin(PROGINFO *pip)
 	if (lip->adj != NULL) {
 	    MFSADJ	*pap = (MFSADJ *) lip->adj ;
 	    if ((rs = msgdata_init(&pap->m,0)) >= 0) {
-		pap->open.m = TRUE ;
+	        pap->open.m = TRUE ;
 	    }
 	}
 	return rs ;
@@ -410,40 +410,40 @@ static int mfsadj_reqmsg(PROGINFO *pip,int re)
 	mdp = &pap->m ;
 	if ((rs = msgdata_getbuf(mdp,&mbuf)) >= 0) {
 	    if ((rs = msgdata_recv(mdp,lip->rfd)) > 0) {
-		if ((rs = msgdata_conpass(mdp,FALSE)) >= 0) {
-	        int	mtype = MKCHAR(mbuf[0]) ;
-	        lip->ti_lastreq = pip->daytime ;
+	        if ((rs = msgdata_conpass(mdp,FALSE)) >= 0) {
+	            int	mtype = MKCHAR(mbuf[0]) ;
+	            lip->ti_lastreq = pip->daytime ;
 #if	CF_DEBUG
-		if (DEBUGLEVEL(4))
-	    	debugprintf("mfsadj_reqmsg: mtype=%u\n",mtype) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("mfsadj_reqmsg: mtype=%u\n",mtype) ;
 #endif
-		switch (mtype) {
-		case mfsmsgtype_getstatus:
-	    	    rs = mfsadj_getstatus(pip,mdp) ;
-	    	    break ;
-		case mfsmsgtype_gethelp:
-	    	    rs = mfsadj_gethelp(pip,mdp) ;
-	    	    break ;
-		case mfsmsgtype_getval:
-	    	    rs = mfsadj_getval(pip,mdp) ;
-	    	    break ;
-		case mfsmsgtype_mark:
-	    	    f_logged = TRUE ;
-	    	    rs = mfsadj_mark(pip,mdp) ;
-	    	    break ;
-		case mfsmsgtype_exit:
-	    	    rs = mfsadj_exit(pip,mdp) ;
-	    	    break ;
-		default:
-	    	    f_logged = TRUE ;
-	    	    rs = mfsadj_invalid(pip,mdp,SR_INVALID,FALSE) ;
-	    	    break ;
-		} /* end switch */
-	    	if (mdp->ns >= 0) {
-	        	u_close(mdp->ns) ;
-	        	mdp->ns = -1 ;
-	    	}
-		} /* end if (msgdata_conpass) */
+	            switch (mtype) {
+	            case mfsmsgtype_getstatus:
+	                rs = mfsadj_getstatus(pip,mdp) ;
+	                break ;
+	            case mfsmsgtype_gethelp:
+	                rs = mfsadj_gethelp(pip,mdp) ;
+	                break ;
+	            case mfsmsgtype_getval:
+	                rs = mfsadj_getval(pip,mdp) ;
+	                break ;
+	            case mfsmsgtype_mark:
+	                f_logged = TRUE ;
+	                rs = mfsadj_mark(pip,mdp) ;
+	                break ;
+	            case mfsmsgtype_exit:
+	                rs = mfsadj_exit(pip,mdp) ;
+	                break ;
+	            default:
+	                f_logged = TRUE ;
+	                rs = mfsadj_invalid(pip,mdp,SR_INVALID,FALSE) ;
+	                break ;
+	            } /* end switch */
+	            if (mdp->ns >= 0) {
+	                u_close(mdp->ns) ;
+	                mdp->ns = -1 ;
+	            }
+	        } /* end if (msgdata_conpass) */
 	        lip->reqs += 1 ;
 	    } /* end if (msgdata_recv) */
 	} /* end if (msgdata_recv) */
@@ -468,7 +468,7 @@ static int mfsadj_getstatus(PROGINFO *pip,MSGDATA *mdp)
 	    LOCINFO	*lip = pip->lip ;
 
 #ifdef	OPTIONAL
-	memset(&m0,0,sizeof(struct mfsmsg_status)) ;
+	    memset(&m0,0,sizeof(struct mfsmsg_status)) ;
 #endif
 
 	    m0.tag = m1.tag ;
@@ -512,14 +512,14 @@ static int mfsadj_gethelp(PROGINFO *pip,MSGDATA *mdp)
 	    mres.tag = mreq.tag ;
 	    if ((rs = mfscmd_name(pip,idx,&np)) >= 0) {
 	        mres.rc = mfsmsgrc_ok ;
-		mres.vl = (uchar) rs ;
-		strwcpy(mres.val,np,rs) ;
+	        mres.vl = (uchar) rs ;
+	        strwcpy(mres.val,np,rs) ;
 	    } else if (rs == rsn) {
 	        mres.rc = mfsmsgrc_notfound ;
 	    }
 	    if (rs >= 0) {
-		const int	mlen = mdp->mlen ;
-		char		*mbuf = mdp->mbuf ;
+	        const int	mlen = mdp->mlen ;
+	        char		*mbuf = mdp->mbuf ;
 	        if ((rs = mfsmsg_help(&mres,0,mbuf,mlen)) >= 0) {
 	            rs = mfsadj_send(pip,mdp,mreq.tag) ;
 	        } /* end if */
@@ -562,40 +562,40 @@ static int mfsadj_getval(PROGINFO *pip,MSGDATA *mdp)
 	    mres.w = (uchar) w ;
 	    mreq.key[MFSMSG_KEYLEN] = '\0' ;
 	    if ((rs = locinfo_nslook(lip,rbuf,rlen,key,w)) >= 0) {
-		vl = rs ;
+	        vl = rs ;
 	        mres.rc = mfsmsgrc_ok ;
-		mres.vl = (uchar) rs ;
+	        mres.vl = (uchar) rs ;
 	    } else if (rs == rsn) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfsadj_getval: locinfo_nslook() NOTFOUND\n") ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("mfsadj_getval: locinfo_nslook() NOTFOUND\n") ;
 #endif
-		rs = SR_OK ;
+	        rs = SR_OK ;
 	        mres.rc = mfsmsgrc_notfound ;
 	    }
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfsadj_getval: mid rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfsadj_getval: mid rs=%d\n",rs) ;
 #endif
 	    if (rs >= 0) {
-		const int	mlen = mdp->mlen ;
-		char		*mbuf = mdp->mbuf ;
+	        const int	mlen = mdp->mlen ;
+	        char		*mbuf = mdp->mbuf ;
 	        if ((rs = mfsmsg_val(&mres,0,mbuf,mlen)) >= 0) {
-		    char	tbuf[TIMEBUFLEN+1] ;
+	            char	tbuf[TIMEBUFLEN+1] ;
 	            rs = mfsadj_send(pip,mdp,mreq.tag) ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfsadj_getval: mfsadj_send() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("mfsadj_getval: mfsadj_send() rs=%d\n",rs) ;
 #endif
-		    timestr_logz(pip->daytime,tbuf) ;
-		    if ((rs == 0) || (mres.rc != mfsmsgrc_ok)) vl = 0 ;
-		    logprintf(pip,"%s req k=%s w=%u vl=%u",tbuf,key,w,vl) ;
+	            timestr_logz(pip->daytime,tbuf) ;
+	            if ((rs == 0) || (mres.rc != mfsmsgrc_ok)) vl = 0 ;
+	            logprintf(pip,"%s req k=%s w=%u vl=%u",tbuf,key,w,vl) ;
 	        } /* end if (mfsmsg_val) */
 	    } /* end if (ok) */
 	} else if (isBadMsg(rs)) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfsadj_getval: ISBAD rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfsadj_getval: ISBAD rs=%d\n",rs) ;
 #endif
 	    rs = mfsadj_invalid(pip,mdp,rs,TRUE) ;
 	}
@@ -626,14 +626,14 @@ static int mfsadj_mark(PROGINFO *pip,MSGDATA *mdp)
 	    mres.rc = 0 ;
 	    if ((rs = mfsmsg_ack(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
 	        if ((rs = mfsadj_send(pip,mdp,mreq.tag)) > 0) {
-		    LOCINFO		*lip = pip->lip ;
-		    const time_t	dt = pip->daytime ;
-	    	    long 		lw = 0 ;
-		    if (pip->intrun > (dt-lip->ti_start)) {
-			lw = (pip->intrun - (dt-lip->ti_start)) ;
-		    }
-	    	    logmark(pip,lw) ;
-		}
+	            LOCINFO		*lip = pip->lip ;
+	            const time_t	dt = pip->daytime ;
+	            long 		lw = 0 ;
+	            if (pip->intrun > (dt-lip->ti_start)) {
+	                lw = (pip->intrun - (dt-lip->ti_start)) ;
+	            }
+	            logmark(pip,lw) ;
+	        }
 	    } /* end if */
 	} else if (isBadMsg(rs)) {
 	    rs = mfsadj_invalid(pip,mdp,rs,TRUE) ;
@@ -660,9 +660,9 @@ static int mfsadj_exit(PROGINFO *pip,MSGDATA *mdp)
 	    mres.rc = 0 ;
 	    if ((rs = mfsmsg_ack(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
 	        if ((rs = mfsadj_send(pip,mdp,mreq.tag)) > 0) {
-		    LOCINFO	*lip = pip->lip ;
-	    	    rs = locinfo_reqexit(lip,mreq.reason) ;
-		}
+	            LOCINFO	*lip = pip->lip ;
+	            rs = locinfo_reqexit(lip,mreq.reason) ;
+	        }
 	    } /* end if */
 	} else if (isBadMsg(rs)) {
 	    rs = mfsadj_invalid(pip,mdp,rs,TRUE) ;

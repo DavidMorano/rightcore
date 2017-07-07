@@ -40,7 +40,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
@@ -96,7 +95,7 @@ extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	mktmpuserdir(char *,const char *,const char *,mode_t) ;
-extern int	getnprocessors(const char **,int) ;
+extern int	getnprocessors(cchar **,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 
@@ -112,8 +111,9 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
+extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*timestr_logz(time_t,char *) ;
 
 
@@ -160,15 +160,15 @@ static int	usage(PROGINFO *) ;
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procincdirs(PROGINFO *) ;
 static int	procsubprog(PROGINFO *,const char *) ;
-static int	procout_begin(PROGINFO *,void *,const char *) ;
-static int	procout_end(PROGINFO *) ;
-static int	procalready_begin(PROGINFO *) ;
-static int	procalready_stat(PROGINFO *) ;
-static int	procalready_end(PROGINFO *) ;
 static int	proctouchfile(PROGINFO *,const char *) ;
 static int	procdelete(PROGINFO *) ;
 
-static int	loadncpus(PROGINFO *) ;
+static int	procout_begin(PROGINFO *,void *,cchar *) ;
+static int	procout_end(PROGINFO *) ;
+
+static int	procalready_begin(PROGINFO *) ;
+static int	procalready_stat(PROGINFO *) ;
+static int	procalready_end(PROGINFO *) ;
 
 static int	arginfo_start(ARGINFO *,int,const char **) ;
 static int	arginfo_finish(ARGINFO *) ;
@@ -181,21 +181,23 @@ static int	subinfo_start(SUBINFO *,PROGINFO *, ARGINFO *) ;
 static int	subinfo_finish(SUBINFO *) ;
 static int	subinfo_args(SUBINFO *,BITS *,DISP *) ;
 static int	subinfo_argfile(SUBINFO *,DISP *) ;
-static int	subinfo_procfile(SUBINFO *,DISP *,const char *) ;
+static int	subinfo_procfile(SUBINFO *,DISP *,cchar *) ;
 
 #ifdef	COMMENT
 static int	subinfo_stdin(SUBINFO *,DISP *) ;
-static int	ereport(PROGINFO *,const char *,int) ;
+static int	ereport(PROGINFO *,cchar *,int) ;
 #endif
 
 static int	disp_start(DISP *,WARGS *) ;
-static int	disp_addwork(DISP *,const char *,int) ;
+static int	disp_addwork(DISP *,cchar *,int) ;
 static int	disp_finish(DISP *,int) ;
 
 static int	worker(void *) ;
 
 static int	deleter(struct delargs *) ;
 static int	deleter_all(struct delargs *) ;
+
+static int	loadncpus(PROGINFO *) ;
 
 
 /* local variables */
@@ -336,6 +338,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
 	rs = proginfo_setbanner(pip,cp) ;
 
+/* early things to initialize */
+
+	pip->verboselevel = 1 ;
+	pip->f.cache = TRUE ;
+
 	if (rs >= 0)
 	    rs = ptm_create(&pip->efm,NULL) ;
 
@@ -343,11 +350,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	    ex = EX_OSERR ;
 	    goto ret1 ;
 	}
-
-/* early things to initialize */
-
-	pip->verboselevel = 1 ;
-	pip->f.cache = TRUE ;
 
 	rs = arginfo_start(aip,argc,argv) ;
 	if (rs < 0) {
@@ -776,6 +778,18 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* initialize */
 
+	if ((rs >= 0) && (pip->npar == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->npar = rs ;
+	}
+
+	if ((rs >= 0) && (pip->npar == 0)) {
+	    if ((cp = getourenv(envv,VARNPAR)) != NULL) {
+	        rs = optvalue(cp,-1) ;
+	        pip->npar = rs ;
+	    }
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
@@ -783,7 +797,9 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* procopts */
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -809,7 +825,9 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* optionally load the number of CPUs */
 
-	if ((rs >= 0) && (pip->npar == 0)) rs = loadncpus(pip) ;
+	if ((rs >= 0) && (pip->npar == 0)) {
+	    rs = loadncpus(pip) ;
+	}
 
 /* check a few more things */
 
@@ -891,7 +909,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                    rs = SR_INVALID ;
 	                    ex = EX_USAGE ;
 	                    if (! pip->f.quiet) {
-	                        const char	*fmt ;
+	                        cchar	*fmt ;
 	                        fmt = "%s: no files were specified\n" ;
 	                        bprintf(pip->efp,fmt,pip->progname) ;
 	                    }
@@ -1102,11 +1120,7 @@ int progout_printf(PROGINFO *pip,const char *fmt,...)
 /* end subroutine (progout_printf) */
 
 
-int progalready_lookup(pip,cp,cl,rtp)
-PROGINFO	*pip ;
-const char	*cp ;
-int		cl ;
-time_t		*rtp ;
+int progalready_lookup(PROGINFO *pip,cchar *cp,int cl,time_t *rtp)
 {
 	int		rs = SR_OK ;
 	if (pip->open.cache) {
@@ -1147,15 +1161,6 @@ static int usage(PROGINFO *pip)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (usage) */
-
-
-static int loadncpus(PROGINFO *pip)
-{
-	int		rs = getnprocessors(pip->envv,0) ;
-	pip->ncpu = rs ;
-	return rs ;
-}
-/* end subroutine (loadncpus) */
 
 
 static int procopts(PROGINFO *pip,KEYOPT *kop)
@@ -1285,8 +1290,9 @@ static int procsubprog(PROGINFO *pip,cchar *progcpp)
 	        if (rs > 0) {
 	            sl = rs ;
 	            sp = tmpfname ;
-	        } else
+	        } else {
 	            sl = -1 ;
+		}
 	    } else if (isNotPresent(rs)) {
 	        int	i ;
 
@@ -1501,9 +1507,9 @@ static int subinfo_start(SUBINFO *sip,PROGINFO *pip,ARGINFO *aip)
 
 static int subinfo_finish(SUBINFO *sip)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	pan = sip->pan ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		pan = sip->pan ;
 
 	rs1 = ids_release(&sip->id) ;
 	if (rs >= 0) rs = rs1 ;
@@ -1840,11 +1846,8 @@ static int worker(void *ptvp)
 	            break ;
 	    } /* end while */
 
-	    if (rs < 0)
-	        break ;
-
-	    if (dop->f_exit)
-	        break ;
+	    if (rs < 0) break ;
+	    if (dop->f_exit) break ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
@@ -1866,9 +1869,7 @@ static int worker(void *ptvp)
 
 	        rs = progfile(pip,fname) ;
 
-	        if (rs > 0)
-	            c += 1 ;
-
+	        if (rs > 0) c += 1 ;
 	    } /* end if (work to do) */
 
 	    if (rs >= 0) rs = rs1 ;
@@ -2027,7 +2028,7 @@ static int deleter_all(struct delargs *dap)
 
 	    if (rs >= 0) {
 	        for (i = 0 ; vecstr_get(&files,i,&fp) >= 0 ; i += 1) {
-	            if (fp == NULL) continue ;
+	            if (fp != NULL) {
 	            if (fp[0] != '\0') {
 
 #if	CF_DEBUGS
@@ -2036,6 +2037,7 @@ static int deleter_all(struct delargs *dap)
 
 	                u_unlink(fp) ;
 	            }
+		    }
 	        } /* end for */
 	    } /* end if */
 
@@ -2048,5 +2050,14 @@ ret0:
 /* end subroutine (deleter_all) */
 
 #endif /* CF_DELETER */
+
+
+static int loadncpus(PROGINFO *pip)
+{
+	int		rs = getnprocessors(pip->envv,0) ;
+	pip->ncpu = rs ;
+	return rs ;
+}
+/* end subroutine (loadncpus) */
 
 

@@ -66,7 +66,7 @@ static int	numbits(int) ;
 /* exported subroutines */
 
 
-int ba_start(BA	 *cp,BA_NUM *cnp,int n)
+int ba_start(BA *cp,BA_NUM *cnp,int n)
 {
 	int		rs ;
 	int		i, nw ;
@@ -74,18 +74,16 @@ int ba_start(BA	 *cp,BA_NUM *cnp,int n)
 
 	if (cp == NULL) return SR_FAULT ;
 
-	nw = (n / BA_BITSPERWORD) + 1 ;
+	nw = ((n / BA_BITSPERWORD) + 1) ;
 
 	cp->cnp = NULL ;
 
 	size = nw * sizeof(ULONG) ;
 	if ((rs = uc_malloc(size,&cp->a)) >= 0) {
-
 	    for (i = 0 ; i < nw ; i += 1) cp->a[i] = 0 ;
 	    cp->cnp = cnp ;
 	    cp->nbits = n ;
 	    cp->nwords = nw ;
-
 	} /* end if */
 
 	return rs ;

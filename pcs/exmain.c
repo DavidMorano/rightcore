@@ -207,7 +207,7 @@ extern int	strnnlen(const char *,int,int) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern char	*getourenv(cchar **,cchar *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_logz(time_t,char *) ;

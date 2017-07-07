@@ -4,7 +4,7 @@
 /* version %I% last modified %G% */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGS	1		/* compile-time debugging */
 #define	CF_CHECKDIR	0		/* using |sreqdb_checkdir()| */
 
 
@@ -154,6 +154,11 @@ int sreqdb_newjob(SREQDB *jlp,cchar *jobid,int ifd,int ofd)
 
 	if (jlp == NULL) return SR_FAULT ;
 
+#if	CF_DEBUGS
+	debugprintf("sreqdb_newjob: ent jobid=%s ifd=%d ofd=%d\n",
+		jobid,ifd,ofd) ;
+#endif /* CF_DEBUGS */
+
 	if ((rs = mkpath2(template,jlp->tmpdname,try)) >= 0) {
 	    SREQ	*jep ;
 	    const int	jsize = sizeof(SREQ) ;
@@ -169,6 +174,10 @@ int sreqdb_newjob(SREQDB *jlp,cchar *jobid,int ifd,int ofd)
 		}
 	    } /* end if (m-a) */
 	} /* end if (mkpath) */
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_newjob: ret rs=%d ji=%u\n",rs,ji) ;
+#endif /* CF_DEBUGS */
 
 	return (rs >= 0) ? ji : rs ;
 }

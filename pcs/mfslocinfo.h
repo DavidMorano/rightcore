@@ -24,6 +24,7 @@
 #include	<vecobj.h>
 #include	<expcook.h>
 #include	<lfm.h>
+#include	<varsub.h>
 
 #include	"mfsmain.h"
 #include	"mfsns.h"
@@ -65,6 +66,7 @@ struct locinfo_flags {
 	uint		reqexit:1 ;
 	uint		listens:1 ;
 	uint		runasprn:1 ;
+	uint		subs:1 ;
 } ;
 
 struct locinfo {
@@ -88,6 +90,7 @@ struct locinfo {
 	MFSNS		ns ;		/* name-server object */
 	KEYOPT		cmds ;
 	VECOBJ		listens ;
+	VARSUB		subs ;
 	time_t		ti_lastlock ;
 	time_t		ti_start ;
 	time_t		ti_marklog ;
@@ -143,6 +146,8 @@ extern int	locinfo_getaccto(LOCINFO *) ;
 extern int	locinfo_newserial(LOCINFO *) ;
 extern int	locinfo_varbegin(LOCINFO *) ;
 extern int	locinfo_varend(LOCINFO *) ;
+extern int	locinfo_daemonbegin(LOCINFO *) ;
+extern int	locinfo_daemonend(LOCINFO *) ;
 
 #ifdef	__cplusplus
 }

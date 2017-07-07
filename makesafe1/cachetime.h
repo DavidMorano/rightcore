@@ -25,6 +25,7 @@
 #include	<localmisc.h>
 
 
+#define	CACHETIME_MAGIC		0x79854123
 #define	CACHETIME		struct cachetime_head
 #define	CACHETIME_CUR		struct cachetime_c
 #define	CACHETIME_STATS		struct cachetime_s
@@ -63,8 +64,7 @@ extern int cachetime_start(CACHETIME *) ;
 extern int cachetime_lookup(CACHETIME *,const char *,int,time_t *) ;
 extern int cachetime_curbegin(CACHETIME *,CACHETIME_CUR *) ;
 extern int cachetime_curend(CACHETIME *,CACHETIME_CUR *) ;
-extern int cachetime_enum(CACHETIME *,CACHETIME_CUR *,
-		char *,int,time_t *) ;
+extern int cachetime_enum(CACHETIME *,CACHETIME_CUR *,char *,int,time_t *) ;
 extern int cachetime_stats(CACHETIME *,CACHETIME_STATS *) ;
 extern int cachetime_finish(CACHETIME *) ;
 

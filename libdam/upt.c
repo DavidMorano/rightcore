@@ -51,8 +51,6 @@
 
 /* typedefs */
 
-typedef int (*uptsub_t)(void *) ;
-
 
 /* external subroutines */
 

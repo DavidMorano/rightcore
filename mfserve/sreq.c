@@ -61,11 +61,20 @@
 /* external subroutines */
 
 extern int	mkpath2(char *,const char *,const char *) ;
+extern int	sfnext(cchar *,int,cchar **) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	chmods(const char *,mode_t) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* external variables */
@@ -140,6 +149,12 @@ int sreq_finish(SREQ *jep)
 	    jep->efname = NULL ;
 	}
 
+	if (jep->svc != NULL) {
+	    rs1 = uc_free(jep->svc) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->svc = NULL ;
+	}
+
 	jep->pid = -1 ;
 	jep->jobid[0] = '\0' ;
 	return rs ;
@@ -198,6 +213,61 @@ int sreq_svcadd(SREQ *op,cchar *sp,int sl)
 /* end subroutine (sreq_svcadd) */
 
 
+int sreq_setsvc(SREQ *op,cchar *sbuf,int f)
+{
+	int		rs = SR_OK ;
+	int		sl ;
+	cchar		*sp ;
+	op->f_long = MKBOOL(f) ;
+	if (op->svc == NULL) {
+	    if ((sl = sfnext(sbuf,-1,&sp)) >= 0) {
+	        char	*bp ;
+	        if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
+	            cchar	*tp ;
+	            op->svc = bp ;
+	            op->subsvc = strwcpy(bp,sp,sl) ;
+	            if ((tp = strnchr(sp,sl,'+')) != NULL) {
+		        op->subsvc = (tp+1) ;
+		        bp[tp-op->svc] = '\0' ;
+	            }
+	        } /* end if (m-a) */
+	    } /* end if (sfnext) */
+	} else {
+	    rs = SR_BUGCHECK ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_setsvc) */
+
+
+int sreq_setlong(SREQ *op,int f)
+{
+	op->f_long = MKBOOL(f) ;
+	return SR_OK ;
+}
+/* end subroutine (sreq_setlong) */
+
+
+int sreq_getsvc(SREQ *op,cchar **rpp)
+{
+	int		sl ;
+	if (rpp != NULL) *rpp = op->svc ;
+	sl = strlen(op->svc) ;
+	return sl ;
+}
+/* end subroutine (sreq_getsvc) */
+
+
+int sreq_getsubsvc(SREQ *op,cchar **rpp)
+{
+	int		sl ;
+	if (rpp != NULL) *rpp = op->subsvc ;
+	sl = strlen(op->subsvc) ;
+	return sl ;
+}
+/* end subroutine (sreq_getsubsvc) */
+
+
 /* private subroutines */
 
 
@@ -215,6 +285,11 @@ static int sreq_fdfins(SREQ *jep)
 	    jep->ofd = -1 ;
 	}
 	jep->ifd = -1 ;
+	if (jep->efd >= 0) {
+	    rs1 = u_close(jep->efd) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->efd = -1 ;
+	}
 	return rs ;
 }
 /* end subroutine (sreq_fdfins) */
@@ -228,7 +303,7 @@ static int mkfile(cchar *template,cchar **rpp)
 
 	tbuf[0] = '\0' ;
 	if ((rs = mktmpfile(tbuf,0666,template)) >= 0) {
-	    int	tl = rs ;
+	    tl = rs ;
 	    rs = uc_mallocstrw(tbuf,tl,rpp) ;
 	    if (rs < 0) {
 	        u_unlink(tbuf) ;

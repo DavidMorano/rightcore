@@ -1010,8 +1010,9 @@ static int entry_start(VARSUB_SUB *ep,cchar *kp,int kl,cchar *vp,int vl)
 	        ep->vl = vl ;
 	        bp = (strwcpy(bp,vp,vl) + 1) ;
 	    } /* end if (memory-allocation) */
-	} else
+	} else {
 	    rs = SR_DOM ;
+	}
 
 	return rs ;
 }
@@ -1053,8 +1054,9 @@ static int entry_tmp(VARSUB_SUB *ep,cchar *kp,int kl,cchar *vp,int vl)
 	    ep->kl = kl ;
 	    ep->vp = vp ;
 	    ep->vl = (vp != NULL) ? vl : 0 ;
-	} else
+	} else {
 	    rs = SR_DOM ;
+	}
 
 	return rs ;
 }

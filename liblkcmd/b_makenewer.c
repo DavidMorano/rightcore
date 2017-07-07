@@ -172,18 +172,16 @@ static int	usage(PROGINFO *) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_tardname(LOCINFO *,const char *) ;
+static int	locinfo_sufbegin(LOCINFO *) ;
+static int	locinfo_sufend(LOCINFO *) ;
+static int	locinfo_sufmap(LOCINFO *,cchar *,int) ;
 static int	locinfo_finish(LOCINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
-static int	procout_begin(PROGINFO *,void *,const char *) ;
-static int	procout_end(PROGINFO *,void *) ;
-static int	procsufbegin(PROGINFO *) ;
-static int	procsufmap(PROGINFO *,const char *,int) ;
 static int	procsufsub(PROGINFO *,const char *,int) ;
 static int	procsufxxx(PROGINFO *,vecstr *,const char *,int) ;
 static int	procsufadd(PROGINFO *,vecstr *,const char *,int) ;
-static int	procsufend(PROGINFO *) ;
 static int	proctouchfile(PROGINFO *,const char *) ;
 static int	procname(PROGINFO *,void *,const char *) ;
 static int	procdir(PROGINFO *,void *,cchar *,FSDIRTREESTAT *) ;
@@ -192,6 +190,9 @@ static int	procfiler(PROGINFO *,void *,struct ustat *,cchar *) ;
 static int	procdisposition(PROGINFO *,const char *,int) ;
 static int	procfilesuf(PROGINFO *,vecstr *,char *,cchar *,int) ;
 static int	openaccess(cchar *,int,mode_t,int) ;
+
+static int	procout_begin(PROGINFO *,void *,const char *) ;
+static int	procout_end(PROGINFO *,void *) ;
 
 static int	mknewfname(char *,const char *,const char *,cchar *,cchar *) ;
 
@@ -317,7 +318,7 @@ int p_makenewer(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_makenewer) */
 
 
-/* ARGSYSED */
+/* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
@@ -355,7 +356,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*touchfname = NULL ;
 	const char	*cp ;
 
-
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
@@ -387,12 +387,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
-	}
-
-	rs = procsufbegin(pip) ;
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    goto badprocbegin ;
 	}
 
 /* process program arguments */
@@ -710,7 +704,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                rs = procsufmap(pip,argp,argl) ;
+	                                rs = locinfo_sufmap(lip,argp,argl) ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1093,8 +1087,6 @@ retearly:
 	bits_finish(&pargs) ;
 
 badpargs:
-	procsufend(pip) ;
-
 badprocbegin:
 	locinfo_finish(lip) ;
 
@@ -1168,12 +1160,13 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
 	lip->euid = geteuid() ;
+
+	rs = locinfo_sufbegin(lip) ;
 
 	return rs ;
 }
@@ -1185,8 +1178,10 @@ static int locinfo_finish(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
+
+	rs1 = locinfo_sufend(lip) ;
+	if (rs >= 0) rs = rs1 ;
 
 	if (lip->open.stores) {
 	    lip->open.stores = FALSE ;
@@ -1197,6 +1192,38 @@ static int locinfo_finish(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_finish) */
+
+
+static int locinfo_sufbegin(LOCINFO *lip)
+{
+	vecstr		*smp = &lip->sufmaps ;
+	int		rs ;
+
+	if ((rs = vecstr_start(smp,10,0)) >= 0) {
+	    rs = vecstr_start(&lip->sufsubs,10,0) ;
+	    if (rs < 0)
+	        vecstr_finish(smp) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (locinfo_sufbegin) */
+
+
+static int locinfo_sufend(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	rs1 = vecstr_finish(&lip->sufsubs) ;
+	if (rs >= 0) rs = rs1 ;
+
+	rs1 = vecstr_finish(&lip->sufmaps) ;
+	if (rs >= 0) rs = rs1 ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_sufend) */
 
 
 static int locinfo_tardname(LOCINFO *lip,const char *tardname)
@@ -1215,48 +1242,34 @@ static int locinfo_tardname(LOCINFO *lip,const char *tardname)
 /* end subroutine (locinfo_tardname) */
 
 
-static int procsufbegin(PROGINFO *pip)
+static int locinfo_sufmap(LOCINFO *lip,cchar *sp,int sl)
 {
-	LOCINFO		*lip = pip->lip ;
+	PROGINFO	*pip = lip->pip ;
+	vecstr		*lp = &lip->sufmaps ;
 	int		rs ;
-
-	if ((rs = vecstr_start(&lip->sufmaps,10,0)) >= 0) {
-	    rs = vecstr_start(&lip->sufsubs,10,0) ;
-	    if (rs < 0)
-	        vecstr_finish(&lip->sufmaps) ;
-	}
-
-	return rs ;
-}
-/* end subroutine (procsufbegin) */
-
-
-static int procsufmap(PROGINFO *pip,cchar *sp,int sl)
-{
-	LOCINFO		*lip = pip->lip ;
-	vecstr		*lp ;
-	int		rs ;
-	int		i ;
-	const char	*name = "sufmap" ;
-	const char	*cp ;
 
 #if	CF_DEBUGS
-	debugprintf("procsufmap: suf> %t <\n",sp,sl) ;
+	debugprintf("locinfo_sufmap: suf> %t <\n",sp,sl) ;
 #endif
 
-	lp = &lip->sufmaps ;
-	rs = procsufxxx(pip,lp,sp,sl) ;
-
-	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    for (i = 0 ; vecstr_get(lp,i,&cp) >= 0 ; i += 1) {
-	        if (cp == NULL) continue ;
-	        shio_printf(pip->efp,"%s: %s %s\n",pip->progname,name,cp) ;
+	if ((rs = procsufxxx(pip,lp,sp,sl)) >= 0) {
+	    if (pip->debuglevel > 0) {
+		int	i ;
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: %s %s\n" ;
+		cchar	*name = "sufmap" ;
+		cchar	*cp ;
+	        for (i = 0 ; vecstr_get(lp,i,&cp) >= 0 ; i += 1) {
+	            if (cp == NULL) {
+	                shio_printf(pip->efp,fmt,pn,name,cp) ;
+		    }
+	        } /* end for */
 	    }
 	}
 
 	return rs ;
 }
-/* end subroutine (procsufmap) */
+/* end subroutine (locinfo_sufmap) */
 
 
 static int procsufsub(PROGINFO *pip,cchar *sp,int sl)
@@ -1330,23 +1343,6 @@ static int procsufadd(PROGINFO *pip,vecstr *slp,cchar *sp,int sl)
 	return (rs >= 0) ? sl : rs ;
 }
 /* end subroutine (procsufadd) */
-
-
-static int procsufend(PROGINFO *pip)
-{
-	LOCINFO		*lip = pip->lip ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-	rs1 = vecstr_finish(&lip->sufsubs) ;
-	if (rs >= 0) rs = rs1 ;
-
-	rs1 = vecstr_finish(&lip->sufmaps) ;
-	if (rs >= 0) rs = rs1 ;
-
-	return rs ;
-}
-/* end subroutine (procsufend) */
 
 
 /* process the program ako-options */
@@ -1961,7 +1957,7 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 	if ((rs = u_lstat(dstfname,&dsb)) >= 0) {
 
 	    if (S_ISREG(dsb.st_mode)) {
-	        fsize = dsb.st_size ;
+	        fsize = (size_t) dsb.st_size ;
 	        if (lip->f.rmfile) {
 	            f_create = TRUE ;
 	        } else {
@@ -2218,6 +2214,7 @@ int		nl ;
 	    debugprintf("main/procfilesuf: fname=%t\n",np,nl) ;
 #endif
 
+	if (pip == NULL) return SR_FAULT ;
 	newfname[0] = '\0' ;
 	if ((bnl = sfbasename(np,nl,&bnp)) > 0) {
 	    if ((tp = strnrchr(bnp,bnl,'.')) != NULL) {

@@ -38,7 +38,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 #include	<netdb.h>
 
@@ -88,6 +87,7 @@ extern int	cfdecmfi(cchar *,int,int *) ;
 extern int	cfdecui(cchar *,int,uint *) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
+extern int	getnprocessors(cchar **,int) ;
 extern int	vecstr_adduniq(vecstr *,cchar *,int) ;
 extern int	makedate_get(cchar *,cchar **) ;
 extern int	isprintlatin(int) ;
@@ -143,11 +143,14 @@ static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procargs(PROGINFO *,ARGINFO *,cchar *) ;
 static int	process(PROGINFO *,ARGINFO *,PINFO *,cchar *) ;
 
+static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
+static int	procuserinfo_end(PROGINFO *) ;
+
 static int	procmode_begin(PROGINFO *,ARGINFO *,cchar *) ;
 static int	procmode_end(PROGINFO *) ;
 
-static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
-static int	procuserinfo_end(PROGINFO *) ;
+static int	procdef_begin(PROGINFO *) ;
+static int	procdef_end(PROGINFO *) ;
 
 static int	arginfo_start(PROGINFO *,ARGINFO *,int,cchar **) ;
 static int	arginfo_finish(PROGINFO *,ARGINFO *) ;
@@ -184,6 +187,7 @@ static cchar *argopts[] = {
 	"sfn",
 	"dn",
 	"lang",
+	"npar",
 	NULL
 } ;
 
@@ -209,6 +213,7 @@ enum argopts {
 	argopt_sfn,
 	argopt_dn,
 	argopt_lang,
+	argopt_npar,
 	argopt_overlast
 } ;
 
@@ -701,6 +706,19 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            rs = SR_INVALID ;
 	                    break ;
 
+	                case argopt_npar:
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+					pip->npar = rs ;
+				    }
+	                        } else
+	                            rs = SR_INVALID ;
+	                    break ;
+
 /* handle all keyword defaults */
 	                default:
 	                    rs = SR_INVALID ;
@@ -1016,10 +1034,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get our program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,varsearch,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,varsearch,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -1092,6 +1111,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    bprintf(pip->efp,"%s: sendparams=%u\n",pn,f_sp);
 	}
 
+	if ((rs >= 0) && (pip->npar == 0)) {
+	    if ((cp = getourenv(envv,VARNPAR)) != NULL) {
+		rs = optvalue(cp,-1) ;
+		pip->npar = rs ;
+	    }
+	}
+
 /* line length */
 
 	if ((rs >= 0) && (pip->linelen == 0)) {
@@ -1119,7 +1145,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if ((afname != NULL) && (afname[0] != '\0'))
 	    aip->afname = afname ;
 
-
 	if (pip->minwordlen < -1)
 	    pip->minwordlen = MINWORDLEN ;
 
@@ -1131,7 +1156,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	if (pip->eigenwords < 0)
 	    pip->eigenwords = MAXEIGENWORDS ;
-
 
 	if (rs >= 0) {
 	    const int	tlen = MAXPATHLEN ;
@@ -1170,7 +1194,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 			    cchar	*ofn = ofname ;
 			    cchar	*afn = afname ;
 			    if ((rs = procmode_begin(pip,aip,afn)) >= 0) {
-				rs = process(pip,aip,inp,ofn) ;
+				if ((rs = procdef_begin(pip)) >= 0) {
+				    {
+				        rs = process(pip,aip,inp,ofn) ;
+				    }
+				    rs1 = procdef_end(pip) ;
+				    if (rs >= 0) rs = rs1 ;
+				}
 				rs1 = procmode_end(pip) ;
 				if (rs >= 0) rs = rs1 ;
 			    } /* end if (procmode) */
@@ -1662,6 +1692,26 @@ static int procuserinfo_end(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (procuserinfo_end) */
+
+
+static int procdef_begin(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+	if (pip->npar == 0) {
+	    if ((rs = getnprocessors(pip->envv,0)) == 0) rs = 1 ;
+	    pip->npar = rs ;
+	}
+	return rs ;
+}
+/* end subroutine (procdef_begin) */
+
+
+static int procdef_end(PROGINFO *pip)
+{
+	if (pip == NULL) return SR_FAULT ;
+	return SR_OK ;
+}
+/* end subroutine (procdef_end) */
 
 
 static int procmode_begin(PROGINFO *pip,ARGINFO *aip,cchar *afn)

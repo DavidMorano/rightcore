@@ -49,13 +49,21 @@
 
 /* external subroutines */
 
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+
 
 /* external variables */
 
 
 /* forward references */
 
-int keysfinisher(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
+int keys_ender(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
 
 
 /* local variables */
@@ -64,7 +72,7 @@ int keysfinisher(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
 /* exported subroutines */
 
 
-int keysstart(pip,dbp,hashsize)
+int keys_begin(pip,dbp,hashsize)
 PROGINFO	*pip ;
 HDB		*dbp ;
 int		hashsize ;
@@ -78,10 +86,10 @@ int		hashsize ;
 
 	return rs ;
 }
-/* end subroutine (keysstart) */
+/* end subroutine (keys_begin) */
 
 
-int keysadd(pip,dbp,sp,sl)
+int keys_add(pip,dbp,sp,sl)
 PROGINFO	*pip ;
 HDB		*dbp ;
 const char	sp[] ;
@@ -104,7 +112,7 @@ int		sl ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("keys_add: key=%t klen=%d\n",s,sl,sl) ;
+	    debugprintf("keys_add: key=%t klen=%d\n",sp,sl,sl) ;
 #endif
 
 	key.len = sl ;
@@ -131,10 +139,10 @@ int		sl ;
 
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (keysadd) */
+/* end subroutine (keys_add) */
 
 
-int keysfinish(pip,dbp,ofp,omp,fname,recoff,reclen)
+int keys_end(pip,dbp,ofp,omp,fname,recoff,reclen)
 PROGINFO	*pip ;
 HDB		*dbp ;
 bfile		*ofp ;
@@ -146,24 +154,34 @@ int		reclen ;
 	int		rs ;
 	int		rs1 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("keys_end: ent\n") ;
+#endif
+
 	if ((rs = ptm_lock(omp)) >= 0) {
 
-	    rs = keysfinisher(pip,dbp,ofp,omp,fname,recoff,reclen) ;
+	    rs = keys_ender(pip,dbp,ofp,omp,fname,recoff,reclen) ;
 
 	    rs1 = ptm_unlock(omp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("keys_end: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
-/* end subroutine (keysfinish) */
+/* end subroutine (keys_end) */
 
 
 /* local subroutines */
 
 
 /* ARGSUSED */
-int keysfinisher(pip,dbp,ofp,omp,fname,recoff,reclen)
+int keys_ender(pip,dbp,ofp,omp,fname,recoff,reclen)
 PROGINFO	*pip ;
 HDB		*dbp ;
 bfile		*ofp ;
@@ -175,6 +193,11 @@ int		reclen ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		n = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("keys_ender: ent\n") ;
+#endif
 
 	if (recoff <= INT_MAX) {
 	    HDB_CUR	keycursor ;
@@ -230,8 +253,13 @@ int		reclen ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (within range) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("keys_ender: ret rs=%d n=%u\n",rs,n) ;
+#endif
+
 	return (rs >= 0) ? n : rs ;
 }
-/* end subroutine (keysfinisher) */
+/* end subroutine (keys_ender) */
 
 

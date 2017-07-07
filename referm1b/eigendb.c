@@ -250,8 +250,9 @@ int eigendb_exists(EIGENDB *op,cchar wp[],int wl)
 	    key.buf = (char *) wp ;
 	    key.len = wl ;
 	    rs = hdb_fetch(&op->db,key,NULL,NULL) ;
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return rs ;
 }

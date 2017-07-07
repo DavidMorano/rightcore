@@ -42,7 +42,6 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stropts.h>
-#include	<poll.h>
 #include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -54,8 +53,8 @@
 #include	<vecstr.h>
 #include	<lfm.h>
 #include	<utmpacc.h>
-#include	<getax.h>
 #include	<ugetpw.h>
+#include	<getax.h>
 #include	<localmisc.h>
 
 #include	"shio.h"
@@ -185,7 +184,7 @@ static int	vecstr_dump(vecstr *,cchar *) ;
 
 /* local variables */
 
-static const char	*scheds[] = {
+static cchar	*scheds[] = {
 	"%p/etc/%n/%n.%f",
 	"%p/etc/%n/%f",
 	"%p/etc/%n.%f",
@@ -286,10 +285,6 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	    lip->open.stores = (rs >= 0) ;
 	}
 
-#if	CF_DEBUGS && CF_DEBUGDUMP
-	vecstr_dump(slp,"before") ;
-#endif
-
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
@@ -307,8 +302,10 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	} /* end if */
 
 #if	CF_DEBUGS && CF_DEBUGDUMP
-	debugprintf("locinfo_setentry: ret rs=%d l=%u\n",rs,len) ;
 	vecstr_dump(slp,"after") ;
+#endif
+#if	CF_DEBUGS 
+	debugprintf("locinfo_setentry: ret rs=%d l=%u\n",rs,len) ;
 #endif
 
 	return (rs >= 0) ? len : rs ;
@@ -395,6 +392,13 @@ int locinfo_lockbegin(LOCINFO *lip)
 	    if (rs < 0)
 	        locinfo_pidlockend(lip) ;
 	}
+#if	CF_DEBUG
+	{
+	    PROGINFO	*pip = lip->pip ;
+	    if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_lockbegin: ret rs=%d\n",rs) ;
+	}
+#endif
 	return rs ;
 }
 /* end subroutine (locinfo_lockbegin) */
@@ -767,6 +771,7 @@ int locinfo_cmdscount(LOCINFO *lip)
 /* end subroutine (locinfo_cmdscount) */
 
 
+/* Request-An-Exit */
 int locinfo_reqexit(LOCINFO *lip,cchar *reason)
 {
 	PROGINFO	*pip = lip->pip ;
@@ -780,6 +785,7 @@ int locinfo_reqexit(LOCINFO *lip,cchar *reason)
 /* end subroutine (locinfo_reqexit) */
 
 
+/* Is-Requested-Exit */
 int locinfo_isreqexit(LOCINFO *lip)
 {
 	int		rs = MKBOOL(lip->f.reqexit) ;
@@ -788,6 +794,7 @@ int locinfo_isreqexit(LOCINFO *lip)
 /* end subroutine (locinfo_isreqexit) */
 
 
+/* Get-Accept-Timeout */
 int locinfo_getaccto(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
@@ -802,6 +809,7 @@ int locinfo_getaccto(LOCINFO *lip)
 /* end subroutine (locinfo_getaccto) */
 
 
+/* New-Serial */
 int locinfo_newserial(LOCINFO *lip)
 {
 	int		s = lip->serial++ ;
@@ -837,6 +845,37 @@ int locinfo_varend(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_varend) */
+
+
+int locinfo_daemonbegin(LOCINFO *lip)
+{
+	VARSUB		*slp = &lip->subs ;
+	int		rs ;
+	if ((rs = varsub_start(slp,0)) >= 0) {
+	    PROGINFO	*pip = lip->pip ;
+	    if ((rs = varsub_addva(slp,pip->envv)) >= 0) {
+		lip->open.subs = TRUE ;
+	    }
+	    if (rs < 0)
+		varsub_finish(slp) ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_daemonbegin) */
+
+
+int locinfo_daemonend(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (lip->open.subs) {
+	    VARSUB	*slp = &lip->subs ;
+	    rs1 = varsub_finish(slp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_daemonend) */
 
 
 /* private subroutines */
@@ -1046,6 +1085,10 @@ static int locinfo_pidlockbegin(LOCINFO *lip)
 	        lip->open.pidlock = TRUE ;
 	    }
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_pidlockbegin: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (locinfo_pidlockbegin) */
@@ -1084,6 +1127,10 @@ static int locinfo_tmplockbegin(LOCINFO *lip)
 	        }
 	    }
 	} /* end if (null) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_tmplockbegin: mid2 rs=%d\n",rs) ;
+#endif
 	if (rs >= 0) {
 	    LFM		*lfp = &lip->tmplock ;
 	    lfn = lip->tmpfname ;
@@ -1096,11 +1143,15 @@ static int locinfo_tmplockbegin(LOCINFO *lip)
 	        if ((rs = locinfo_genlockbegin(lip,lfp,lfn)) >= 0) {
 	            lip->open.tmplock = TRUE ;
 	        }
-	    }
-	}
+	    } /* end if (not null) */
+	} /* end if (ok) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_tmplockbegin: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
-/* end subroutine (tmplockbegin) */
+/* end subroutine (locinfo_tmplockbegin) */
 
 
 static int locinfo_tmplockend(LOCINFO *lip)
@@ -1120,22 +1171,34 @@ static int locinfo_tmplockend(LOCINFO *lip)
 
 static int locinfo_genlockbegin(LOCINFO *lip,LFM *lfp,cchar *lfn)
 {
+	PROGINFO	*pip = lip->pip ;
 	int		rs ;
 	int		f = FALSE ;
 	if ((rs = locinfo_genlockdir(lip,lfn)) >= 0) {
-	    PROGINFO	*pip = lip->pip ;
 	    LFM_CHECK	lc ;
 	    const int	ltype = LFM_TRECORD ;
 	    const int	to_lock = lip->to_lock ;
 	    cchar	*nn = pip->nodename ;
 	    cchar	*un = pip->username ;
 	    cchar	*bn = pip->banner ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_genlockbegin: lfn=%s\n",lfn) ;
+#endif
 	    if ((rs = lfm_start(lfp,lfn,ltype,to_lock,&lc,nn,un,bn)) >= 0) {
 	        f = TRUE ;
 	    } else if ((rs == SR_LOCKLOST) || (rs == SR_AGAIN)) {
 	        locinfo_genlockprint(lip,lfn,&lc) ;
 	    }
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("locinfo_genlockbegin: lfm_start() rs=%d\n",rs) ;
+#endif
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_genlockbegin: ret rs=%d\n",rs) ;
+#endif
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (locinfo_genlockbegin) */
@@ -1255,6 +1318,10 @@ static int locinfo_tmpourdname(LOCINFO *lip)
 	} else {
 	    pl = strlen(lip->tmpourdname) ;
 	} /* end if (needed) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_tmpourdname: ret rs=%d\n",rs) ;
+#endif
 	return (rs >= 0) ? pl : rs ;
 }
 /* end subroutine (locinfo_tmpourdname) */

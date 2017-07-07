@@ -20,9 +20,9 @@
 extern "C" {
 #endif
 
-extern int keysstart(PROGINFO *,HDB *,int) ;
-extern int keysadd(PROGINFO *,HDB *,const char *,int) ;
-extern int keysfinish(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
+extern int keys_begin(PROGINFO *,HDB *,int) ;
+extern int keys_add(PROGINFO *,HDB *,const char *,int) ;
+extern int keys_end(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
 
 #ifdef	__cplusplus
 }

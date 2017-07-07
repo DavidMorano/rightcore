@@ -91,12 +91,13 @@ int serialbuf_robj(SERIALBUF *sbp,void *sbuf,int slen)
 {
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    memcpy(sbuf,sbp->bp,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        memcpy(sbuf,sbp->bp,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -108,12 +109,13 @@ int serialbuf_wobj(SERIALBUF *sbp,const void *sbuf,int slen)
 {
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    memcpy(sbp->bp,sbuf,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        memcpy(sbp->bp,sbuf,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -126,11 +128,12 @@ int serialbuf_adv(SERIALBUF *sbp,int size)
 {
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= size) {
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -143,11 +146,12 @@ int serialbuf_rchar(SERIALBUF *sbp,char *rp)
 	const int	size = sizeof(char) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
-	    *rp = *sbp->bp++ ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= size) {
+	        *rp = *sbp->bp++ ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -160,16 +164,17 @@ int serialbuf_rshort(SERIALBUF *sbp,short *rp)
 	const int	size = sizeof(ushort) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_rshort(sbp->bp,rp) ;
+	        stdorder_rshort(sbp->bp,rp) ;
 #else
-	    netorder_rshort(sbp->bp,rp) ;
+	        netorder_rshort(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -182,16 +187,17 @@ int serialbuf_rint(SERIALBUF *sbp,int *rp)
 	const int	size = sizeof(int) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_rint(sbp->bp,rp) ;
+	        stdorder_rint(sbp->bp,rp) ;
 #else
-	    netorder_rint(sbp->bp,rp) ;
+	        netorder_rint(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -213,8 +219,9 @@ int serialbuf_rinta(SERIALBUF *sbp,int *rp,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -227,16 +234,17 @@ int serialbuf_rlong(SERIALBUF *sbp,long *rp)
 	const int	size = sizeof(long) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_rlong(sbp->bp,rp) ;
+	        stdorder_rlong(sbp->bp,rp) ;
 #else
-	    netorder_rlong(sbp->bp,rp) ;
+	        netorder_rlong(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -258,8 +266,9 @@ int serialbuf_rlonga(SERIALBUF *sbp,long *rp,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -272,16 +281,17 @@ int serialbuf_rll(SERIALBUF *sbp,LONG *rp)
 	const int	size = sizeof(LONG) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_rll(sbp->bp,rp) ;
+	        stdorder_rll(sbp->bp,rp) ;
 #else
-	    netorder_rll(sbp->bp,rp) ;
+	        netorder_rll(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -300,24 +310,25 @@ int serialbuf_rstrn(SERIALBUF *sbp,char *sbuf,int slen)
 
 #if	CF_DEBUGS
 	debugprintf("serialbuf_rstrn: len=%d i=%d sbuf=%p slen=%d\n",
-		sbp->len,sbp->i,sbuf,slen) ;
+	    sbp->len,sbp->i,sbuf,slen) ;
 #endif
 
 	if (slen < 0) return SR_INVALID ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
+	    if ((sbp->len - sbp->i) >= slen) {
 #if	CF_DEBUGS
-	    cp = strwcpy(sbuf,sbp->bp,slen) ;
-	    debugprintf("serialbuf_rstrn: sbuf=%p cp=%p diff=%d\n",
-		sbuf,cp,(cp - sbuf)) ;
+	        cp = strwcpy(sbuf,sbp->bp,slen) ;
+	        debugprintf("serialbuf_rstrn: sbuf=%p cp=%p diff=%d\n",
+	            sbuf,cp,(cp - sbuf)) ;
 #else
-	    strwcpy(sbuf,sbp->bp,slen) ;
+	        strwcpy(sbuf,sbp->bp,slen) ;
 #endif
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -330,67 +341,67 @@ int serialbuf_rstrw(SERIALBUF *sbp,char *sbuf,int slen)
 {
 
 	if (sbp->i >= 0) {
-	int		sl ;
-	int		cl, rl ;
-	int		i ;
-	char		*cp ;
+	    int		sl ;
+	    int		cl, rl ;
+	    int		i ;
+	    char		*cp ;
 
-	if (slen >= 0) {
+	    if (slen >= 0) {
 
 #ifdef	COMMENT
-	    sl = strlcpy(sbuf,sbp->bp,(size_t) (slen + 1)) ;
-	    sbp->bp += (sl + 1) ;
-	    if (sl > slen) {
-	        sbp->i = SR_TOOBIG ;
-	    } else
-	        sbp->i += (sl + 1) ;
+	        sl = strlcpy(sbuf,sbp->bp,(size_t) (slen + 1)) ;
+	        sbp->bp += (sl + 1) ;
+	        if (sl > slen) {
+	            sbp->i = SR_TOOBIG ;
+	        } else
+	            sbp->i += (sl + 1) ;
 #else /* COMMENT */
 
-	    i = 0 ;
-	    cp = sbp->bp + (sbp->len - sbp->i) ;
-	    while ((i < slen) && (sbp->bp < cp) && 
-	        (sbp->bp[0] != '\0')) {
+	        i = 0 ;
+	        cp = sbp->bp + (sbp->len - sbp->i) ;
+	        while ((i < slen) && (sbp->bp < cp) && 
+	            (sbp->bp[0] != '\0')) {
 
-	        sbuf[i] = *sbp->bp++ ;
-	        i += 1 ;
+	            sbuf[i] = *sbp->bp++ ;
+	            i += 1 ;
 
-	    } /* end while */
+	        } /* end while */
 
-	    sbuf[i] = '\0' ;
-	    if ((i <= slen) && (sbp->bp == cp)) {
+	        sbuf[i] = '\0' ;
+	        if ((i <= slen) && (sbp->bp == cp)) {
 
-	        sbp->i = SR_TOOBIG ;
+	            sbp->i = SR_TOOBIG ;
 
-	    } else if ((i == slen) && (sbp->bp[0] != '\0')) {
+	        } else if ((i == slen) && (sbp->bp[0] != '\0')) {
 
-	        rl = strlen((char *) sbp->bp) ;
+	            rl = strlen((char *) sbp->bp) ;
 
-	        sbp->bp += (rl + 1) ;
-	        sbp->i = SR_TOOBIG ;
+	            sbp->bp += (rl + 1) ;
+	            sbp->i = SR_TOOBIG ;
 
-	    } else {
+	        } else {
 
-	        sbp->bp += 1 ;
-	        sbp->i += (i + 1) ;
+	            sbp->bp += 1 ;
+	            sbp->i += (i + 1) ;
 
-	    } /* end if */
+	        } /* end if */
 
 #endif /* COMMENT */
 
-	} else {
-
-	    cl = sbp->len - sbp->i ;
-	    sl = strwcpy(sbuf,sbp->bp,cl) - sbuf ;
-
-	    if (sl == cl) {
-	        sbp->bp += sl ;
-	        sbp->i = SR_TOOBIG ;
 	    } else {
-	        sbp->bp += (sl + 1) ;
-	        sbp->i += (sl + 1) ;
-	    }
 
-	} /* end if */
+	        cl = sbp->len - sbp->i ;
+	        sl = strwcpy(sbuf,sbp->bp,cl) - sbuf ;
+
+	        if (sl == cl) {
+	            sbp->bp += sl ;
+	            sbp->i = SR_TOOBIG ;
+	        } else {
+	            sbp->bp += (sl + 1) ;
+	            sbp->i += (sl + 1) ;
+	        }
+
+	    } /* end if */
 
 	} /* end if (ok) */
 
@@ -405,12 +416,13 @@ int serialbuf_rbuf(SERIALBUF *sbp,char *sbuf,int slen)
 	if (slen < 0) return SR_INVALID ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    memcpy(sbuf,sbp->bp,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        memcpy(sbuf,sbp->bp,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -423,11 +435,12 @@ int serialbuf_ruchar(SERIALBUF *sbp,uchar *rp)
 	const int	size = sizeof(uchar) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
-	    *rp = (uchar) *sbp->bp++ ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= size) {
+	        *rp = (uchar) *sbp->bp++ ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -440,16 +453,17 @@ int serialbuf_rushort(SERIALBUF *sbp,ushort *rp)
 	const int	size = sizeof(ushort) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_rushort(sbp->bp,rp) ;
+	        stdorder_rushort(sbp->bp,rp) ;
 #else
-	    netorder_rushort(sbp->bp,rp) ;
+	        netorder_rushort(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -462,16 +476,17 @@ int serialbuf_ruint(SERIALBUF *sbp,uint *rp)
 	const int	size = sizeof(uint) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_ruint(sbp->bp,rp) ;
+	        stdorder_ruint(sbp->bp,rp) ;
 #else
-	    netorder_ruint(sbp->bp,rp) ;
+	        netorder_ruint(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -493,8 +508,9 @@ int serialbuf_ruinta(SERIALBUF *sbp,uint *rp,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -507,16 +523,17 @@ int serialbuf_rulong(SERIALBUF *sbp,ulong *rp)
 	const int	size = sizeof(ulong) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_rulong(sbp->bp,rp) ;
+	        stdorder_rulong(sbp->bp,rp) ;
 #else
-	    netorder_rulong(sbp->bp,rp) ;
+	        netorder_rulong(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -538,8 +555,9 @@ int serialbuf_rulonga(SERIALBUF *sbp,ulong *rp,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -552,16 +570,17 @@ int serialbuf_rull(SERIALBUF *sbp,ULONG *rp)
 	const int	size = sizeof(ULONG) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_rull(sbp->bp,rp) ;
+	        stdorder_rull(sbp->bp,rp) ;
 #else
-	    netorder_rull(sbp->bp,rp) ;
+	        netorder_rull(sbp->bp,rp) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -576,12 +595,13 @@ int serialbuf_rustrn(SERIALBUF *sbp,uchar *usbuf,int slen)
 	if (slen < 0) return SR_INVALID ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    strwcpy(sbuf,sbp->bp,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        strwcpy(sbuf,sbp->bp,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -599,52 +619,52 @@ int serialbuf_rustrw(SERIALBUF *sbp,uchar *usbuf,int slen)
 	    char	*cp ;
 	    char	*sbuf = (char *) usbuf ;
 
-	if (slen >= 0) {
+	    if (slen >= 0) {
 
 #ifdef	COMMENT
-	    sl = strlcpy(sbuf,sbp->bp,(size_t) (slen + 1)) ;
-	    sbp->bp += (sl + 1) ;
-	    if (sl > slen) {
-	        sbp->i = SR_TOOBIG ;
-	    } else
-	        sbp->i += (sl + 1) ;
+	        sl = strlcpy(sbuf,sbp->bp,(size_t) (slen + 1)) ;
+	        sbp->bp += (sl + 1) ;
+	        if (sl > slen) {
+	            sbp->i = SR_TOOBIG ;
+	        } else
+	            sbp->i += (sl + 1) ;
 #else /* COMMENT */
 
-	    i = 0 ;
-	    cp = sbp->bp + (sbp->len - sbp->i) ;
+	        i = 0 ;
+	        cp = sbp->bp + (sbp->len - sbp->i) ;
 	        while ((i < slen) && (sbp->bp < cp) && (sbp->bp[0] != '\0')) {
 	            sbuf[i] = *sbp->bp++ ;
 	            i += 1 ;
 	        }
 
-	    sbuf[i] = '\0' ;
-	    if ((i <= slen) && (sbp->bp == cp)) {
-	        sbp->i = SR_TOOBIG ;
-	    } else if ((i == slen) && (sbp->bp[0] != '\0')) {
-	        rl = strlen((char *) sbp->bp) ;
-	        sbp->bp += (rl + 1) ;
-	        sbp->i = SR_TOOBIG ;
-	    } else {
-	        sbp->bp += 1 ;
-	        sbp->i += (i + 1) ;
-	    }
+	        sbuf[i] = '\0' ;
+	        if ((i <= slen) && (sbp->bp == cp)) {
+	            sbp->i = SR_TOOBIG ;
+	        } else if ((i == slen) && (sbp->bp[0] != '\0')) {
+	            rl = strlen((char *) sbp->bp) ;
+	            sbp->bp += (rl + 1) ;
+	            sbp->i = SR_TOOBIG ;
+	        } else {
+	            sbp->bp += 1 ;
+	            sbp->i += (i + 1) ;
+	        }
 
 #endif /* COMMENT */
 
-	} else {
-
-	    cl = sbp->len - sbp->i ;
-	    sl = strwcpy(sbuf,sbp->bp,cl) - sbuf ;
-
-	    if (sl == cl) {
-	        sbp->bp += sl ;
-	        sbp->i = SR_TOOBIG ;
 	    } else {
-	        sbp->bp += (sl + 1) ;
-	        sbp->i += (sl + 1) ;
-	    }
 
-	} /* end if */
+	        cl = sbp->len - sbp->i ;
+	        sl = strwcpy(sbuf,sbp->bp,cl) - sbuf ;
+
+	        if (sl == cl) {
+	            sbp->bp += sl ;
+	            sbp->i = SR_TOOBIG ;
+	        } else {
+	            sbp->bp += (sl + 1) ;
+	            sbp->i += (sl + 1) ;
+	        }
+
+	    } /* end if */
 
 	} /* end if (ok) */
 
@@ -659,12 +679,13 @@ int serialbuf_rubuf(SERIALBUF *sbp,uchar *sbuf,int slen)
 	if (slen < 0) return SR_INVALID ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    memcpy(sbuf,sbp->bp,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        memcpy(sbuf,sbp->bp,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -677,11 +698,12 @@ int serialbuf_wchar(SERIALBUF *sbp,int ch)
 	const int	size = sizeof(char) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
-	    *sbp->bp++ = (char) ch ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= size) {
+	        *sbp->bp++ = (char) ch ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -694,16 +716,17 @@ int serialbuf_wshort(SERIALBUF *sbp,int sw)
 	const int	size = sizeof(short) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wshort(sbp->bp,sw) ;
+	        stdorder_wshort(sbp->bp,sw) ;
 #else
-	    netorder_wshort(sbp->bp,sw) ;
+	        netorder_wshort(sbp->bp,sw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -716,16 +739,17 @@ int serialbuf_wint(SERIALBUF *sbp,int iw)
 	const int	size = sizeof(int) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wint(sbp->bp,iw) ;
+	        stdorder_wint(sbp->bp,iw) ;
 #else
-	    netorder_wint(sbp->bp,iw) ;
+	        netorder_wint(sbp->bp,iw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -747,8 +771,9 @@ int serialbuf_winta(SERIALBUF *sbp,int *iwa,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -761,16 +786,17 @@ int serialbuf_wlong(SERIALBUF *sbp,long lw)
 	const int	size = sizeof(long) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wlong(sbp->bp,lw) ;
+	        stdorder_wlong(sbp->bp,lw) ;
 #else
-	    netorder_wlong(sbp->bp,lw) ;
+	        netorder_wlong(sbp->bp,lw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -792,8 +818,9 @@ int serialbuf_wlonga(SERIALBUF *sbp,long *lwa,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -806,16 +833,17 @@ int serialbuf_wll(SERIALBUF *sbp,LONG lw)
 	const int	size = sizeof(LONG) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wll(sbp->bp,lw) ;
+	        stdorder_wll(sbp->bp,lw) ;
 #else
-	    netorder_wll(sbp->bp,lw) ;
+	        netorder_wll(sbp->bp,lw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -830,12 +858,13 @@ int serialbuf_wstrn(SERIALBUF *sbp,cchar *s,int slen)
 	if (slen < 0) slen = strlen(s) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    strncpy(sbp->bp,s,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        strncpy(sbp->bp,s,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -850,13 +879,14 @@ int serialbuf_wstrw(SERIALBUF *sbp,cchar *sbuf,int slen)
 	slen = strnlen(sbuf,slen) ;
 
 	if (sbp->i >= 0) {
-	int		cl ;
-	if ((sbp->len - sbp->i) >= (slen + 1)) {
-	    cl = strwcpy(sbp->bp,sbuf,slen) - sbp->bp ;
-	    sbp->bp += (cl + 1) ;
-	    sbp->i += (cl + 1) ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    int		cl ;
+	    if ((sbp->len - sbp->i) >= (slen + 1)) {
+	        cl = strwcpy(sbp->bp,sbuf,slen) - sbp->bp ;
+	        sbp->bp += (cl + 1) ;
+	        sbp->i += (cl + 1) ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -870,12 +900,13 @@ int serialbuf_wbuf(SERIALBUF *sbp,cchar *sbuf,int slen)
 	if (slen < 0) return SR_INVALID ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    memcpy(sbp->bp,sbuf,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        memcpy(sbp->bp,sbuf,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -888,11 +919,12 @@ int serialbuf_wuchar(SERIALBUF *sbp,uint ch)
 	const int	size = sizeof(uchar) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
-	    *sbp->bp++ = (char) ch ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= size) {
+	        *sbp->bp++ = (char) ch ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -905,16 +937,17 @@ int serialbuf_wushort(SERIALBUF *sbp,uint sw)
 	const int	size = sizeof(ushort) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wushort(sbp->bp,sw) ;
+	        stdorder_wushort(sbp->bp,sw) ;
 #else
-	    netorder_wushort(sbp->bp,sw) ;
+	        netorder_wushort(sbp->bp,sw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -927,16 +960,17 @@ int serialbuf_wuint(SERIALBUF *sbp,uint iw)
 	const int	size = sizeof(uint) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wuint(sbp->bp,iw) ;
+	        stdorder_wuint(sbp->bp,iw) ;
 #else
-	    netorder_wuint(sbp->bp,iw) ;
+	        netorder_wuint(sbp->bp,iw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -958,8 +992,9 @@ int serialbuf_wuinta(SERIALBUF *sbp,uint *iwa,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -972,16 +1007,17 @@ int serialbuf_wulong(SERIALBUF *sbp,ulong lw)
 	const int	size = sizeof(ulong) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wulong(sbp->bp,lw) ;
+	        stdorder_wulong(sbp->bp,lw) ;
 #else
-	    netorder_wulong(sbp->bp,lw) ;
+	        netorder_wulong(sbp->bp,lw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -1003,8 +1039,9 @@ int serialbuf_wulonga(SERIALBUF *sbp,ulong *lwa,int n)
 #endif
 	        sbp->bp += size ;
 	        sbp->i += size ;
-	    } else
+	    } else {
 	        sbp->i = SR_TOOBIG ;
+	    }
 	} /* end for */
 
 	return sbp->i ;
@@ -1017,16 +1054,17 @@ int serialbuf_wull(SERIALBUF *sbp,ULONG lw)
 	const int	size = sizeof(ULONG) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= size) {
+	    if ((sbp->len - sbp->i) >= size) {
 #if	CF_STDORDER
-	    stdorder_wull(sbp->bp,lw) ;
+	        stdorder_wull(sbp->bp,lw) ;
 #else
-	    netorder_wull(sbp->bp,lw) ;
+	        netorder_wull(sbp->bp,lw) ;
 #endif
-	    sbp->bp += size ;
-	    sbp->i += size ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	        sbp->bp += size ;
+	        sbp->i += size ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -1041,12 +1079,13 @@ int serialbuf_wustrn(SERIALBUF *sbp,const uchar *usbuf,int slen)
 	if (slen < 0) slen = strlen(sbuf) ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    strncpy(sbp->bp,sbuf,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        strncpy(sbp->bp,sbuf,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -1061,13 +1100,14 @@ int serialbuf_wustrw(SERIALBUF *sbp,const uchar *usbuf,int slen)
 	if (slen < 0) slen = strlen(sbuf) ;
 
 	if (sbp->i >= 0) {
-	int		cl ;
-	if ((sbp->len - sbp->i) >= (slen + 1)) {
-	    cl = strwcpy(sbp->bp,sbuf,slen) - sbp->bp ;
-	    sbp->bp += (cl + 1) ;
-	    sbp->i += (cl + 1) ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    int		cl ;
+	    if ((sbp->len - sbp->i) >= (slen + 1)) {
+	        cl = strwcpy(sbp->bp,sbuf,slen) - sbp->bp ;
+	        sbp->bp += (cl + 1) ;
+	        sbp->i += (cl + 1) ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 	return sbp->i ;
@@ -1086,12 +1126,13 @@ int serialbuf_wubuf(SERIALBUF *sbp,const uchar *sbuf,int slen)
 	if (slen < 0) return SR_INVALID ;
 
 	if (sbp->i >= 0) {
-	if ((sbp->len - sbp->i) >= slen) {
-	    memcpy(sbp->bp,sbuf,slen) ;
-	    sbp->bp += slen ;
-	    sbp->i += slen ;
-	} else
-	    sbp->i = SR_TOOBIG ;
+	    if ((sbp->len - sbp->i) >= slen) {
+	        memcpy(sbp->bp,sbuf,slen) ;
+	        sbp->bp += slen ;
+	        sbp->i += slen ;
+	    } else {
+	        sbp->i = SR_TOOBIG ;
+	    }
 	}
 
 #if	CF_DEBUGS

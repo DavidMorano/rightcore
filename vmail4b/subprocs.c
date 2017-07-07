@@ -46,7 +46,6 @@
 #include	<sys/wait.h>
 #include	<limits.h>
 #include	<unistd.h>
-#include	<signal.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -98,8 +97,6 @@ extern int	vstrkeycmp(const void **,const void **) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	getpwd(char *,int) ;
 extern int	dupup(int,int) ;
-extern int	sigignores(const int *) ;
-extern int	sigdefaults(const int *) ;
 extern int	isIOError(int) ;
 extern int	isNotPresent(int) ;
 

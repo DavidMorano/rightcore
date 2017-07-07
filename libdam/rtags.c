@@ -147,8 +147,6 @@ int rtags_finish(RTAGS *op)
 
 /* free up all tags */
 
-/* get out */
-
 	rs1 = vecobj_finish(&op->tags) ;
 	if (rs >= 0) rs = rs1 ;
 
@@ -228,8 +226,9 @@ int rtags_add(RTAGS *op,RTAGS_TAG *tip)
 	                if (rs < 0)
 	                    vecobj_del(&op->fnames,fi) ;
 
-	            } else
+	            } else {
 	                fname_finish(&fe) ;
+		    }
 
 	        } /* end if */
 
@@ -340,7 +339,8 @@ int rtags_curdump(RTAGS *op,RTAGS_CUR *curp)
 
 	    for (i = 0 ; vecobj_get(&op->fnames,i,&fep) >= 0 ; i += 1) {
 	        if (fep != NULL) {
-	            fname_finish(fep) ;
+	            rs1 = fname_finish(fep) ;
+	    	    if (rs >= 0) rs = rs1 ;
 	        }
 	    } /* end for */
 
@@ -517,21 +517,18 @@ static int tag_finish(RTAGS_TE *tep)
 
 static int cmpdef(RTAGS_TE **e1pp,RTAGS_TE **e2pp)
 {
-	int		rc ;
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	rc = (*e1pp)->fi - (*e2pp)->fi ;
-	if (rc == 0)
-	    rc = (*e1pp)->recoff - (*e2pp)->recoff ;
-
+	int		rc  = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            if ((rc = ((*e1pp)->fi - (*e2pp)->fi)) == 0) {
+	                rc = (*e1pp)->recoff - (*e2pp)->recoff ;
+	            }
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = 1 ;
+	}
 	return rc ;
 }
 /* end subroutine (cmpdef) */

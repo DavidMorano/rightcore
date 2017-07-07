@@ -168,7 +168,6 @@ struct clientinfo	*cip ;
 	int		len ;
 	int		opts ;
 	const int	f_socket = isasocket(ifd) ;
-	const char	**sav ;
 	char		svcspec[SVCSPECLEN + 1] ;
 	char		svcbuf[SVCBUFLEN + 1] ;
 
@@ -219,26 +218,10 @@ struct clientinfo	*cip ;
 #endif /* CF_DEBUG */
 
 	    if (rs >= 0) {
-	        vecstr_getvec(&sargs,&sav) ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(5)) {
-	            int	i ;
-	            debugprintf("proghandle: sav¬\n") ;
-	            for (i = 0 ; sav[i] != NULL ; i += 1) {
-	                debugprintf("proghandle: sav[%u]=>%s<\n",
-			i,sav[i]) ;
-		    }
-	        }
-#endif /* CF_DEBUG */
-
-	        rs = progserve(pip,sop,bop,cip,NULL,svcspec,sav) ;
-
-#if	CF_DEBUG
-		if (DEBUGLEVEL(4))
-	    	    debugprintf("proghandle: progserve() rs=%d\n",rs) ;
-#endif
-
+	        cchar	**sav ;
+	        if ((rs = vecstr_getvec(&sargs,&sav)) >= 0) {
+	            rs = progserve(pip,sop,bop,cip,NULL,svcspec,sav) ;
+		}
 	    } /* end if (ok) */
 
 	    vecstr_finish(&sargs) ;

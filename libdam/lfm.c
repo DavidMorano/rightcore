@@ -47,6 +47,15 @@
 	<0	error
 
 
+	= Notes:
+
+	Lock types:
+
+	LFM_TRECORD		0		record lock
+	LFM_TCREATE		1		create file 0444
+	LFM_TEXCLUSIVE		2		exclusive open
+
+
 *******************************************************************************/
 
 
@@ -128,6 +137,14 @@ extern int	format(char *,int,int,const char *,va_list) ;
 extern int	isNotPresent(int) ;
 extern int	isFailOpen(int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
+#endif
+
+extern char	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
@@ -149,7 +166,7 @@ struct lfm_lockinfo {
 
 /* forward references */
 
-static int	ldm_startcheck(LFM *,time_t) ;
+static int	lfm_startcheck(LFM *,time_t) ;
 static int	lfm_startopen(LFM *,LFM_LOCKINFO *) ;
 
 static int	lfm_lockload(LFM *,LFM_CHECK *) ;
@@ -259,7 +276,7 @@ const char	nn[], un[], bn[] ;
 	                    li.un = un ;
 	                    li.bn = bn ;
 	                    if ((rs = u_access(dbuf,am)) >= 0) {
-	                        if ((rs = ldm_startcheck(op,dt)) >= 0) {
+	                        if ((rs = lfm_startcheck(op,dt)) >= 0) {
 	                            rs = lfm_startopen(op,&li) ;
 	                        }
 	                    } else if (rs == rsn) {
@@ -268,6 +285,9 @@ const char	nn[], un[], bn[] ;
 	                            rs = lfm_startopen(op,&li) ;
 	                        }
 	                    }
+#if	CF_DEBUGS
+			    debugprintf("lfm_start: u_access() rs=%d\n",rs) ;
+#endif
 	                } /* end if (mkpath) */
 	            }
 	            if (rs < 0) {
@@ -278,9 +298,7 @@ const char	nn[], un[], bn[] ;
 	            }
 	        } /* end if (m-a) */
 	    } /* end if (sfnamecomp) */
-	} else {
-	    rs = SR_INVALID ;
-	}
+	} /* end if (ok) */
 
 	if (rs < 0) {
 	    if (lcp != NULL) lfm_lockload(op,lcp) ;
@@ -295,7 +313,7 @@ const char	nn[], un[], bn[] ;
 /* end subroutine (lfm_start) */
 
 
-static int ldm_startcheck(LFM *op,time_t dt)
+static int lfm_startcheck(LFM *op,time_t dt)
 {
 	USTAT		sb ;
 	const int	type = op->type ;
@@ -307,7 +325,7 @@ static int ldm_startcheck(LFM *op,time_t dt)
 	        op->ti_check = dt ;
 	        op->ti_stat = dt ;
 	        if (type >= LFM_TCREATE) {
-	            if ((dt - sb.st_mtime) > to) {
+	            if ((dt - sb.st_mtime) >= to) {
 	                u_unlink(op->lfname) ;
 	            } else {
 	                rs = SR_LOCKED ;
@@ -316,10 +334,15 @@ static int ldm_startcheck(LFM *op,time_t dt)
 	    } else {
 	        rs = SR_ISDIR ;
 	    }
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
 	} /* end if (u_stat) */
+#if	CF_DEBUGS
+	debugprintf("lfm_startcheck: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
-/* end subroutine (ldm_startcheck) */
+/* end subroutine (lfm_startcheck) */
 
 
 static int lfm_startopen(LFM *op,LFM_LOCKINFO *lip)
@@ -328,13 +351,19 @@ static int lfm_startopen(LFM *op,LFM_LOCKINFO *lip)
 	int		rs ;
 	int		oflags = (O_RDWR | O_CREAT) ;
 	mode_t		omode = 0664 ;
+
+#if	CF_DEBUGS
+	debugprintf("lfm_startopen: ent lfn=%s\n",op->lfname) ;
+	debugprintf("lfm_startopen: ent type=%u\n",type) ;
+#endif
+
 	if (type >= LFM_TCREATE) omode = 0444 ;
 	if (type >= LFM_TEXCLUSIVE) oflags |= O_EXCL ;
 	if ((rs = u_open(op->lfname,oflags,omode)) >= 0) {
 	    const int	lfd = rs ;
 
 #if	CF_DEBUGS
-	    debugprintf("lfm_start: u_open() rs=%d\n",rs) ;
+	    debugprintf("lfm_startopen: u_open() rs=%d\n",rs) ;
 #endif
 
 	    if ((rs = uc_lockf(lfd,F_TLOCK,0L)) >= 0) {
@@ -360,6 +389,10 @@ static int lfm_startopen(LFM *op,LFM_LOCKINFO *lip)
 	        } /* end switch */
 	    } /* end if */
 	} /* end if (u_open) */
+
+#if	CF_DEBUGS
+	debugprintf("lfm_startopen: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -488,7 +521,7 @@ int lfm_check(LFM *op,LFM_CHECK *cip,time_t dt)
 	        }
 
 	    } /* end if */
-	} /* end if */
+	} /* end if (time-out enabled) */
 
 #if	CF_DEBUGS
 	debugprintf("lfm_check: ret rs=%d\n",rs) ;

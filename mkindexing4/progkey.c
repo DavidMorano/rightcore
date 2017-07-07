@@ -52,14 +52,11 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<ids.h>
-#include	<baops.h>
 #include	<bfile.h>
 #include	<field.h>
-#include	<vecobj.h>
 #include	<hdb.h>
 #include	<ptm.h>
 #include	<psem.h>
@@ -77,8 +74,13 @@
 /* local defines */
 
 #define	SUBINFO		struct subinfo
-#define	DISP		struct disp
-#define	WARGS		struct wargs
+
+#define	DISP		struct disp_head
+#define	DISP_TH		struct disp_thread
+#define	DISP_ARGS	struct disp_args
+
+
+/* typedefs */
 
 
 /* external subroutines */
@@ -89,6 +91,8 @@ extern int	sfbasename(cchar *,int,cchar **) ;
 extern int	sfdirname(cchar *,int,cchar **) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	getnprocessors(cchar **,int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -97,7 +101,7 @@ extern int	strlinelen(const char *,int,int) ;
 #endif
 
 extern int	progkeyer(PROGINFO *,bfile *,PTM *,
-cuchar *,cchar *,cchar *,char *) ;
+			cuchar *,cchar *,cchar *,char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -117,33 +121,38 @@ struct subinfo {
 	int		pan ;
 } ;
 
-struct disp {
-	PROGINFO	*pip ;
-	WARGS		*wap ;
-	FSI		wq ;
-	PSEM		wq_sem ;
-	PTM		om ;		/* output mutex */
-	vecobj		tids ;
-	volatile int	f_exit ;
-	volatile int	f_done ;
-	int		n ;
-} ;
-
-struct wargs {
+struct disp_args {
 	PROGINFO	*pip ;
 	DISP		*dop ;
-	PTM		*omp ;
 	bfile		*ofp ;
 	const uchar	*terms ;
 	const char	*delimiter ;
 	const char	*ignchrs ;
+	int		npar ;
+} ;
+
+struct disp_thread {
+	pthread_t	tid ;
+	int		f_active ;
+} ;
+
+struct disp_head {
+	PROGINFO	*pip ;
+	DISP_TH		*threads ;
+	DISP_ARGS	a ;		/* arguments */
+	FSI		wq ;
+	PSEM		wq_sem ;
+	PTM		om ;		/* output mutex */
+	volatile int	f_exit ;
+	volatile int	f_done ;
+	int		n ;
 } ;
 
 
 /* forward references */
 
 static int	subinfo_start(SUBINFO *,PROGINFO *,
-ARGINFO *,cuchar *,cchar *,cchar *) ;
+			ARGINFO *,cuchar *,cchar *,cchar *) ;
 static int	subinfo_finish(SUBINFO *) ;
 static int	subinfo_sendparams(SUBINFO *,bfile *) ;
 static int	subinfo_sendparamseigens(SUBINFO *,bfile *) ;
@@ -155,13 +164,13 @@ static int	subinfo_argfile(SUBINFO *,DISP *) ;
 static int	subinfo_stdin(SUBINFO *,DISP *) ;
 static int	subinfo_procfile(SUBINFO *,DISP *,const char *) ;
 
-static int	worker(void *) ;
-
 static int	ereport(PROGINFO *,const char *,int) ;
 
-static int	disp_start(DISP *,WARGS *) ;
-static int	disp_addwork(DISP *,const char *,int) ;
+static int	disp_start(DISP *,DISP_ARGS *) ;
+static int	disp_starter(DISP *) ;
+static int	disp_addwork(DISP *,cchar *,int) ;
 static int	disp_finish(DISP *,int) ;
+static int	disp_worker(DISP *) ;
 
 
 /* local variables */
@@ -211,24 +220,25 @@ const char	ofname[] ;
 /* output parameters */
 
 	        if ((rs = subinfo_sendparams(sip,ofp)) >= 0) {
-		    WARGS	wa ;
-		    DISP	disp ;
+	            DISP_ARGS	wa ;
+	            DISP	disp ;
 
 /* process the arguments */
 
-	            memset(&wa,0,sizeof(WARGS)) ;
+	            memset(&wa,0,sizeof(DISP_ARGS)) ;
 	            wa.pip = pip ;
 	            wa.terms = terms ;
 	            wa.delimiter = delimiter ;
 	            wa.ignchrs = ignchrs ;
 	            wa.ofp = ofp ;
+		    wa.npar = pip->npar ;
 
 	            if ((rs = disp_start(&disp,&wa)) >= 0) {
 	                if ((rs = subinfo_args(sip,&disp)) >= 0) {
 	                    if ((rs = subinfo_argfile(sip,&disp)) >= 0) {
 	                        rs = subinfo_stdin(sip,&disp) ;
-			    }
-			}
+	                    }
+	                }
 	                rs1 = disp_finish(&disp,(rs < 0)) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (disp) */
@@ -236,7 +246,7 @@ const char	ofname[] ;
 	        } /* end if (subinfo-sendparams) */
 
 	        rs1 = bclose(ofp) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (output-opened) */
 
 	    pan = subinfo_finish(sip) ;
@@ -341,10 +351,11 @@ static int subinfo_sendparams(SUBINFO *sip,bfile *ofp)
 	            wlen += rs ;
 	            break ;
 	        case mkcmd_lang:
-		    if (pip->eigenlang != NULL) {
-	                rs = subinfo_sendparamsstr(sip,ofp,cp,pip->eigenlang) ;
+	            if (pip->eigenlang != NULL) {
+			cchar	*elang = pip->eigenlang ;
+	                rs = subinfo_sendparamsstr(sip,ofp,cp,elang) ;
 	                wlen += rs ;
-		    }
+	            }
 	            break ;
 	        } /* end switch */
 	        if (rs < 0) break ;
@@ -367,51 +378,51 @@ static int subinfo_sendparamseigens(SUBINFO *sip,bfile *ofp)
 	    if ((rs = progeigen_count(pip)) > 0) {
 	        const int	ci = mkcmd_eigenwords ;
 	        const int	linelen = COLUMNS ;
-		int		llen = 0 ;
+	        int		llen = 0 ;
 	        if ((rs = bprintf(ofp,"-%s",mkcmds[ci])) >= 0) {
-		    PROGEIGEN_CUR	ecur ;
+	            PROGEIGEN_CUR	ecur ;
 	            int			wl ;
 	            cchar		*wp ;
 	            wlen += rs ;
 	            llen += rs ;
 	            if ((rs = progeigen_curbegin(pip,&ecur)) >= 0) {
 
-	        while (rs >= 0) {
-	            wl = progeigen_enum(pip,&ecur,&wp) ;
-	            if (wl == SR_NOTFOUND) break ;
-	            rs = wl ;
+	                while (rs >= 0) {
+	                    wl = progeigen_enum(pip,&ecur,&wp) ;
+	                    if (wl == SR_NOTFOUND) break ;
+	                    rs = wl ;
 
-	            if ((rs >= 0) && (wl > 0)) {
+	                    if ((rs >= 0) && (wl > 0)) {
 
-	                if ((wl + 1) > (linelen - llen)) {
+	                        if ((wl + 1) > (linelen - llen)) {
+	                            llen = 0 ;
+	                            rs = bprintf(ofp,"\n") ;
+	                            wlen += rs ;
+	                            if (rs >= 0) {
+	                                rs = bprintf(ofp,"-%s",mkcmds[ci]) ;
+	                                wlen += rs ;
+	                                llen += rs ;
+	                            }
+	                        }
+
+	                        if (rs >= 0) {
+	                            rs = bprintf(ofp," %t",wp,wl) ;
+	                            wlen += rs ;
+	                            llen += rs ;
+	                        }
+
+	                    } /* end if (have eigen-word) */
+
+	                } /* end while */
+
+	                if ((rs >= 0) && (llen > 0)) {
 	                    llen = 0 ;
 	                    rs = bprintf(ofp,"\n") ;
 	                    wlen += rs ;
-	                    if (rs >= 0) {
-	                        rs = bprintf(ofp,"-%s",mkcmds[ci]) ;
-	                        wlen += rs ;
-	                        llen += rs ;
-	                    }
 	                }
-
-	                if (rs >= 0) {
-	                    rs = bprintf(ofp," %t",wp,wl) ;
-	                    wlen += rs ;
-	                    llen += rs ;
-	                }
-
-	            } /* end if (have eigen-word) */
-
-	        } /* end while */
-
-	        if ((rs >= 0) && (llen > 0)) {
-	            llen = 0 ;
-	            rs = bprintf(ofp,"\n") ;
-	            wlen += rs ;
-	        }
 
 	                rs1 = progeigen_curend(pip,&ecur) ;
-		        if (rs >= 0) rs = rs1 ;
+	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (progeigen-cur) */
 	        } /* end if (ok) */
 	    } /* end if (progeigen_count) */
@@ -422,11 +433,7 @@ static int subinfo_sendparamseigens(SUBINFO *sip,bfile *ofp)
 /* end subroutine (subinfo_sendparamseigens) */
 
 
-static int subinfo_sendparamsval(sip,ofp,cmd,v)
-SUBINFO		*sip ;
-bfile		*ofp ;
-const char	cmd[] ;
-int		v ;
+static int subinfo_sendparamsval(SUBINFO *sip,bfile *ofp,cchar *cmd,int v)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -443,11 +450,7 @@ int		v ;
 /* end subroutine (subinfo_sendparamsval) */
 
 
-static int subinfo_sendparamsstr(sip,ofp,cmd,s)
-SUBINFO		*sip ;
-bfile		*ofp ;
-const char	cmd[] ;
-const char	s[] ;
+static int subinfo_sendparamsstr(SUBINFO *sip,bfile *ofp,cchar *cmd,cchar *s)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -464,9 +467,7 @@ const char	s[] ;
 /* end subroutine (subinfo_sendparamsstr) */
 
 
-static int subinfo_args(sip,dop)
-SUBINFO		*sip ;
-DISP		*dop ;
+static int subinfo_args(SUBINFO *sip,DISP *dop)
 {
 	PROGINFO	*pip = sip->pip ;
 	ARGINFO		*aip = sip->aip ;
@@ -504,38 +505,38 @@ static int subinfo_argfile(SUBINFO *sip,DISP *dop)
 	    bfile	afile ;
 	    cchar	*afname = aip->afname ;
 
-	if (afname[0] == '-') afname = BFILE_STDIN ;
+	    if (afname[0] == '-') afname = BFILE_STDIN ;
 
-	if ((rs = bopen(&afile,afname,"r",0666)) >= 0) {
-	    const int	llen = LINEBUFLEN ;
-	    int		cl ;
-	    cchar	*cp ;
-	    char	lbuf[LINEBUFLEN + 1] ;
+	    if ((rs = bopen(&afile,afname,"r",0666)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        int		cl ;
+	        cchar		*cp ;
+	        char		lbuf[LINEBUFLEN + 1] ;
 
-	    while ((rs = breadline(&afile,lbuf,llen)) > 0) {
-	        int	len = rs ;
+	        while ((rs = breadline(&afile,lbuf,llen)) > 0) {
+	            int	len = rs ;
 
-	        if (lbuf[len - 1] == '\n') len -= 1 ;
-	        lbuf[len] = '\0' ;
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
 
-		if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
-	            if (cp[0] != '#') {
-			lbuf[(cp+cl)-lbuf] = '\0' ;
-	                sip->pan += 1 ;
-	                rs = subinfo_procfile(sip,dop,cp) ;
-		    }
-		}
+	            if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+	                if (cp[0] != '#') {
+	                    lbuf[(cp+cl)-lbuf] = '\0' ;
+	                    sip->pan += 1 ;
+	                    rs = subinfo_procfile(sip,dop,cp) ;
+	                }
+	            }
 
-	        if (rs < 0) break ;
-	    } /* end while (reading lines) */
+	            if (rs < 0) break ;
+	        } /* end while (reading lines) */
 
-	    rs1 = bclose(&afile) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else if (! pip->f.quiet) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: inaccessible (%d) afile=%s\n" ;
-	    bprintf(pip->efp,fmt,pn,rs,aip->afname) ;
-	} /* end if */
+	        rs1 = bclose(&afile) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else if (! pip->f.quiet) {
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: inaccessible (%d) afile=%s\n" ;
+	        bprintf(pip->efp,fmt,pn,rs,aip->afname) ;
+	    } /* end if */
 
 	} /* end if (have) */
 
@@ -562,16 +563,9 @@ static int subinfo_stdin(SUBINFO *sip,DISP *dop)
 static int subinfo_procfile(SUBINFO *sip,DISP *dop,cchar *fname)
 {
 	PROGINFO	*pip = sip->pip ;
-	struct ustat	sb ;
 	int		rs = SR_OK ;
-	int		rs1 = SR_OK ;
 
 /* ignore all files that start w/ a '-' character */
-
-	if ((fname[0] == '-') && (fname[1] != '\0'))
-	    goto ret0 ;
-
-/* continue */
 
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: processing file=%s\n",
@@ -579,126 +573,100 @@ static int subinfo_procfile(SUBINFO *sip,DISP *dop,cchar *fname)
 	}
 
 	if (fname[0] != '-') {
-
-	    rs1 = u_stat(fname,&sb) ;
-	    if (rs1 >= 0)
-	        rs1 = sperm(&sip->id,&sb,R_OK) ;
-
-	    if (rs1 < 0)
-	        ereport(pip,fname,rs1) ;
-
+	    USTAT	sb ;
+	    if ((rs = u_stat(fname,&sb)) >= 0) {
+	        if ((rs = sperm(&sip->id,&sb,R_OK)) >= 0) {
+	            rs = disp_addwork(dop,fname,-1) ;
+	        } else if (isNotAccess(rs)) {
+	            ereport(pip,fname,rs) ;
+	        }
+	    } else if (isNotPresent(rs)) {
+	        rs = SR_OK ;
+	    }
 	} /* end if (flie check) */
 
-	if (rs1 >= 0)
-	    rs = disp_addwork(dop,fname,-1) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (subinfo_procfile) */
 
 
-static int disp_start(DISP *dop,WARGS *wap)
+static int disp_start(DISP *dop,DISP_ARGS *wap)
 {
 	PROGINFO	*pip ;
-	pthread_t	tid, *tidp ;
 	int		rs = SR_OK ;
-	int		rs1 ;
-	int		size ;
-	int		opts ;
-	int		n, i ;
 
 	if (dop == NULL) return SR_FAULT ;
 	if (wap == NULL) return SR_FAULT ;
 
 	pip = wap->pip ;
-	wap->dop = dop ;
 
 	memset(dop,0,sizeof(DISP)) ;
 	dop->pip = pip ;
-	dop->wap = wap ;
+	dop->a = *wap ;
+	dop->n = wap->npar ;
 
-	rs = fsi_start(&dop->wq) ;
-	if (rs < 0)
-	    goto bad0 ;
-
-	rs = psem_init(&dop->wq_sem,FALSE,0) ;
-	if (rs < 0)
-	    goto bad2 ;
-
-	size = sizeof(pthread_t) ;
-	opts = (VECOBJ_OREUSE) ;
-	rs = vecobj_start(&dop->tids,size,10,opts) ;
-	if (rs < 0)
-	    goto bad3 ;
-
-	rs = ptm_init(&dop->om,NULL) ;
-	if (rs < 0)
-	    goto bad4 ;
-
-	wap->omp = &dop->om ;
-
-	dop->n = pip->npar ;
-	if (dop->n == 0) {
-	    rs1 = getnprocessors(pip->envv,0) ;
-	    dop->n = (rs1 >= 0) ? (rs1 + 1) : 1 ;
-	}
-
-	n = uptgetconcurrency() ;
-	if (dop->n > n) {
-	    uptsetconcurrency(dop->n) ;
-	}
-
-	for (i = 0 ; i < dop->n ; i += 1) {
-
-	    rs = uptcreate(&tid,NULL,worker,wap) ;
+	if ((rs = fsi_start(&dop->wq)) >= 0) {
+	    if ((rs = psem_create(&dop->wq_sem,FALSE,0)) >= 0) {
+		const int	size = (dop->n * sizeof(DISP_TH)) ;
+		void		*p ;
+		if ((rs = uc_malloc(size,&p)) >= 0) {
+		    dop->threads = p ;
+		    if ((rs = ptm_create(&dop->om,NULL)) >= 0) {
+			rs = disp_starter(dop) ;
+			if (rs < 0)
+			    ptm_destroy(&dop->om) ;
+		    }
+		    if (rs < 0) {
+			uc_free(dop->threads) ;
+			dop->threads = NULL ;
+		    }
+		} /* end if (m-a) */
+		if (rs < 0)
+		    psem_destroy(&dop->wq_sem) ;
+	    } /* end if (psem_create) */
 	    if (rs < 0)
-	        break ;
+		fsi_finish(&dop->wq) ;
+	} /* end if (fsi_start) */
 
-	    rs = vecobj_add(&dop->tids,&tid) ;
-	    if (rs < 0)
-	        break ;
-
-	} /* end for */
-
-	if (rs < 0) {
-	    dop->f_exit = TRUE ;
-	    for (i = 0 ; i < dop->n ; i += 1)
-	        psem_post(&dop->wq_sem) ;
-	    for (i = 0 ; vecobj_get(&dop->tids,i,&tidp) >= 0 ; i += 1) {
-	        if (tidp == NULL) continue ;
-	        uptjoin(*tidp,NULL) ;
-	    }
-	} /* end if (failure) */
-
-	if (rs < 0)
-	    goto bad6 ;
-
-ret0:
 	return rs ;
-
-/* bad stuff */
-bad6:
-	ptm_destroy(&dop->om) ;
-
-bad4:
-	vecobj_finish(&dop->tids) ;
-
-bad3:
-	psem_destroy(&dop->wq_sem) ;
-
-bad2:
-	fsi_finish(&dop->wq) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (disp_start) */
 
 
+static int disp_starter(DISP *dop)
+{
+	pthread_t	tid ;
+	int		rs = SR_OK ;
+	int		i ;
+
+	for (i = 0 ; (rs >= 0) && (i < dop->n) ; i += 1) {
+	    uptsub_t	fn = (uptsub_t) disp_worker ;
+	    rs = uptcreate(&tid,NULL,fn,dop) ;
+	    dop->threads[i].tid = tid ;
+	    dop->threads[i].f_active = TRUE ;
+	}
+
+	if (rs < 0) {
+	    int		n = i ;
+	    dop->f_exit = TRUE ;
+	    for (i = 0 ; i < n ; i += 1) {
+	        psem_post(&dop->wq_sem) ;
+	    }
+	    for (i = 0 ; i < n ; i += 1) {
+	        tid = dop->threads[i].tid ;
+	        uptjoin(tid,NULL) ;
+		dop->threads[i].f_active = FALSE ;
+	    }
+	} /* end if (failure) */
+
+	return rs ;
+}
+/* end subroutine (disp_starter) */
+
+
 static int disp_finish(DISP *dop,int f_abort)
 {
-	pthread_t	*tidp ;
+	pthread_t	tid ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
@@ -713,17 +681,22 @@ static int disp_finish(DISP *dop,int f_abort)
 	    psem_post(&dop->wq_sem) ;
 	}
 
-	for (i = 0 ; vecobj_get(&dop->tids,i,&tidp) >= 0 ; i += 1) {
-	    if (tidp != NULL) {
-	        rs1 = uptjoin(*tidp,NULL) ;
+	for (i = 0 ; i < dop->n ; i += 1) {
+	    if (dop->threads[i].f_active) {
+	        dop->threads[i].f_active = FALSE ;
+	        tid = dop->threads[i].tid ;
+	        rs1 = uptjoin(tid,NULL) ;
 		if (rs >= 0) rs = rs1 ;
 	    }
 	} /* end if */
 
-	rs1 = ptm_destroy(&dop->om) ;
-	if (rs >= 0) rs = rs1 ;
+	if (dop->threads != NULL) {
+	    rs1 = uc_free(dop->threads) ;
+	    if (rs >= 0) rs = rs1 ;
+	    dop->threads = NULL ;
+	}
 
-	rs1 = vecobj_finish(&dop->tids) ;
+	rs1 = ptm_destroy(&dop->om) ;
 	if (rs >= 0) rs = rs1 ;
 
 	rs1 = psem_destroy(&dop->wq_sem) ;
@@ -758,19 +731,17 @@ static int disp_addwork(DISP *dop,cchar *tagbuf,int taglen)
 /* end subroutine (disp_addwork) */
 
 
-static int worker(void *ptvp)
+static int disp_worker(DISP *dop)
 {
-	PROGINFO	*pip ;
-	WARGS		*wap = (WARGS *) ptvp ;
-	DISP		*dop ;
+	PROGINFO	*pip = dop->pip ;
+	DISP_ARGS	*wap = &dop->a ;
+	PTM		*omp = &dop->om ;
 	pthread_t	tid ;
+	const int	rlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		c = 0 ;
-	char		fname[MAXPATHLEN + 1] ;
+	char		rbuf[MAXPATHLEN + 1] ;
 
-	pip = wap->pip ;
-	dop = wap->dop ;
 	uptself(&tid) ;
 
 #if	CF_DEBUG
@@ -785,7 +756,6 @@ static int worker(void *ptvp)
 	    } /* end while */
 
 	    if (rs < 0) break ;
-
 	    if (dop->f_exit) break ;
 
 #if	CF_DEBUG
@@ -793,28 +763,17 @@ static int worker(void *ptvp)
 	        debugprintf("progkey/worker: tid=%u wakeup\n",tid) ;
 #endif
 
-	    rs1 = fsi_remove(&dop->wq,fname,MAXPATHLEN) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(5))
-	        debugprintf("progkey/worker: t=%u fsi_remove() rs=%d\n",
-	            tid,rs1) ;
-#endif
-
-	    if ((rs1 == SR_NOTFOUND) && dop->f_done)
-	        break ;
-
-	    if (rs1 > 0) {
+	    if ((rs = fsi_remove(&dop->wq,rbuf,rlen)) >= 0) {
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
 	            debugprintf("progkey/worker: tid=%u fname=%s\n",
-	                tid,fname) ;
+	                tid,rbuf) ;
 #endif
 
-	        rs = progkeyer(pip,wap->ofp,wap->omp,
-	            wap->terms,wap->delimiter,wap->ignchrs,
-	            fname) ;
+	        rs = progkeyer(pip,wap->ofp,omp,
+	            wap->terms,wap->delimiter,wap->ignchrs,rbuf) ;
+	        if (rs > 0) c += 1 ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -822,10 +781,11 @@ static int worker(void *ptvp)
 	                tid,rs) ;
 #endif
 
-	        if (rs > 0) c += 1 ;
+
+	    } else if (rs == SR_NOTFOUND) {
+	        if (dop->f_done) break ;
 	    } /* end if (work to do) */
 
-	    if (rs >= 0) rs = rs1 ;
 	} /* end while */
 
 #if	CF_DEBUG
@@ -841,13 +801,11 @@ static int worker(void *ptvp)
 static int ereport(PROGINFO *pip,cchar *fname,int frs)
 {
 	int		rs = SR_OK ;
-
 	if (! pip->f.quiet) {
 	    cchar	*pn = pip->progname ;
 	    bprintf(pip->efp,"%s: file-processing error (%d)\n",pn,frs) ;
 	    bprintf(pip->efp,"%s: file=%s\n",pn,fname) ;
 	}
-
 	return rs ;
 }
 /* end subroutine (ereport) */

@@ -215,20 +215,17 @@ static int mhcom_bake(MHCOM *op,int bl,cchar sp[],int sl)
 
 	        state = MHCOM_SVALUE ;
 	        while ((sl != 0) && (*sp != '\0')) {
-
 #if	CF_DEBUGS
 	            vl = sbuf_getlen((as + MHCOM_SVALUE)) ;
 	            debugprintf("mhcom_start: value len=%d\n",vl) ;
 	            vl = sbuf_getlen((as + MHCOM_SCOMMENT)) ;
 	            debugprintf("mhcom_start: comment len=%d\n",vl) ;
 #endif
-
 #if	CF_DEBUGS
 	            debugprintf("mhcom_start: C='%c' S=%s P=%s cl=%d q=%d\n",
 	                *s,statename[state],
 	                statename[pstate],c_comment,f_quote) ;
 #endif
-
 	            ch = (*sp & 0xff) ;
 	            switch (ch) {
 	            case '\\':
@@ -248,7 +245,6 @@ static int mhcom_bake(MHCOM *op,int bl,cchar sp[],int sl)
 	                sbuf_char((as + state),*sp++) ;
 #endif /* CF_STRIPESC */
 	                break ;
-
 	            case '"':
 	                f_quote = (! f_quote) ;
 	                sbuf_char((as + state),*sp++) ;
@@ -257,19 +253,23 @@ static int mhcom_bake(MHCOM *op,int bl,cchar sp[],int sl)
 	                if (! f_quote) {
 	                    if (c_comment == 0) {
 	                        pc = sbuf_getprev(as + state) ;
-	                        if ((pc >= 0) && (pc != ' '))
+	                        if ((pc >= 0) && (pc != ' ')) {
 	                            sbuf_char((as + state),' ') ;
+				}
 	                        pstate = state ;
 	                        state = MHCOM_SCOMMENT ;
 	                        pc = sbuf_getprev(as + state) ;
-	                        if ((pc >= 0) && (pc != ' '))
+	                        if ((pc >= 0) && (pc != ' ')) {
 	                            sbuf_char((as + state),' ') ;
+				}
 	                        sp += 1 ;
-	                    } else
+	                    } else {
 	                        sbuf_char((as + state),*sp++) ;
+			    }
 	                    c_comment += 1 ;
-	                } else
+	                } else {
 	                    sbuf_char((as + state),*sp++) ;
+			}
 	                break ;
 	            case CH_RPAREN:
 	                if ((! f_quote) && (c_comment > 0)) {
@@ -277,10 +277,12 @@ static int mhcom_bake(MHCOM *op,int bl,cchar sp[],int sl)
 	                    if (c_comment == 0) {
 	                        state = pstate ;
 	                        sp += 1 ;
-	                    } else	
+	                    } else {
 	                        sbuf_char((as + state),*sp++) ;
-	                } else
+			    }
+	                } else {
 	                    sbuf_char((as + state),*sp++) ;
+			}
 	                break ;
 /* I think these cases are just optimizations (not required) */
 	            case '\t':
@@ -307,14 +309,14 @@ static int mhcom_bake(MHCOM *op,int bl,cchar sp[],int sl)
 	            default:
 	                if (c_comment) {
 	                    sbuf_char((as + MHCOM_SCOMMENT),*sp++) ;
-	                } else
+	                } else {
 	                    sbuf_char((as + state),*sp++) ;
+			}
 	                break ;
 	            } /* end switch */
 
 	            if (sl > 0) sl -= 1 ;
 	        } /* end while (scanning characters) */
-
 #if	CF_DEBUGS
 	        debugprintf("mhcom_start: finishing\n") ;
 #endif

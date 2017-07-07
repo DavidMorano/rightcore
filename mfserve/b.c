@@ -220,7 +220,8 @@ extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	mfsdebug_lockprint(PROGINFO *,cchar *) ;
 #endif
 
-extern char	*getourenv(cchar **,cchar *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnrpbrk(cchar *,int,cchar *) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -291,6 +292,7 @@ static cchar *argopts[] = {
 	"REQ",
 	"pid",
 	"req",
+	"pm",
 	"sn",
 	"ef",
 	"of",
@@ -322,6 +324,7 @@ enum argopts {
 	argopt_req0,
 	argopt_pid1,
 	argopt_req1,
+	argopt_pm,
 	argopt_sn,
 	argopt_ef,
 	argopt_of,
@@ -349,6 +352,12 @@ static const struct pivars	initvars = {
 	VARPROGRAMROOT3,
 	PROGRAMROOT,
 	VARPRNAME
+} ;
+
+static cchar	*progmodes[] = {
+	"tcpmuxd",
+	"fingers",
+	NULL
 } ;
 
 static const struct mapex	mapexs[] = {
@@ -496,6 +505,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*argp, *aop, *akp, *avp ;
 	cchar		*argval = NULL ;
 	cchar		*pr = NULL ;
+	cchar		*pm = getourenv(envv,VARPROGMODE) ;
 	cchar		*sn = NULL ;
 	cchar		*efname = NULL ;
 	cchar		*ofname = NULL ;
@@ -701,6 +711,24 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        lip->final.reqfname = TRUE ;
 	                        lip->have.reqfname = TRUE ;
 	                        lip->reqfname = vp ;
+	                    }
+	                    break ;
+
+/* program mode */
+	                case argopt_pm:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            pm = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pm = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
@@ -1247,6 +1275,13 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #if	CF_DEBUGS
 	debugprintf("mfsmain: pid=%d\n",pip->pid) ;
 #endif
+
+	if (pm != NULL) {
+	    int	pmi ;
+	    if ((pmi = matstr(progmodes,pm,-1)) >= 0) {
+		pip->progmode = pmi ;
+	    }
+	}
 
 	if ((ai_pos < 0) || (ai_max < 0)) { /* lint */
 	    rs = SR_BUGCHECK ;
@@ -1829,6 +1864,7 @@ static int procuserinfo_logid(PROGINFO *pip)
 /* end subroutine (procuserinfo_logid) */
 
 
+/* this initialization must precede the configuration-file initializaton */
 static int proclisten_begin(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -2599,10 +2635,12 @@ static int procdaemon(PROGINFO *pip)
 	        LOCINFO		*lip = pip->lip ;
 	        if ((rs = locinfo_defdaemon(lip)) >= 0) {
 	            if ((rs = locinfo_lockbegin(lip)) >= 0) {
-	                {
+			if ((rs = locinfo_daemonbegin(lip)) >= 0) {
 	                    if ((rs = procservice(pip)) >= 0) {
 	                        c = rs ;
 			    }
+			    rs1 = locinfo_daemonend(lip) ;
+			    if (rs >= 0) rs = rs1 ;
 	                }
 	                rs1 = locinfo_lockend(lip) ;
 	                if (rs >= 0) rs = rs1 ;
@@ -2621,6 +2659,11 @@ static int procdaemon(PROGINFO *pip)
 	    logprintf(pip,"%s exiting c=%u (%d)",timebuf,c,rs) ;
 	}
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procdaemon: ret rs=%d\n",rs) ;
+#endif
+
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procdaemon) */
@@ -2636,6 +2679,11 @@ static int procdaemoncheck(PROGINFO *pip)
 #endif
 
 	rs = procmntcheck(pip) ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfsmain/procdaemoncheck: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

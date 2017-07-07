@@ -61,6 +61,8 @@
 #define	ARGBUFLEN	(MAXPATHLEN + 3)
 #define	NDEPS		100		/* default values */
 
+#define	CPPERR		struct cpperr
+
 
 /* external subroutines */
 
@@ -76,10 +78,9 @@ extern int	nextfield(const char *,int,const char **) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
 
-extern int	progeprintf(struct proginfo *,const char *,...) ;
-extern int	progout_printf(struct proginfo *,const char *,...) ;
-extern int	progalready_lookup(struct proginfo *,
-			const char *,int,time_t *) ;
+extern int	progeprintf(PROGINFO *,const char *,...) ;
+extern int	progout_printf(PROGINFO *,const char *,...) ;
+extern int	progalready_lookup(PROGINFO *,cchar *,int,time_t *) ;
 
 extern char	*strnchr(const char *,int,int) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -103,18 +104,17 @@ struct cpperr {
 
 /* forward references */
 
-static int depscheck(struct proginfo *,const char *,time_t,char *) ;
-static int depsget(struct proginfo *,VECSTR *,VECOBJ *,const char *) ;
-static int proclines(struct proginfo *,VECSTR *,int) ;
-static int procline(struct proginfo *,VECSTR *,struct lstate *,
-		const char *,int) ;
-static int procerr(struct proginfo *,VECOBJ *,int) ;
-static int procerrline(struct proginfo *,VECOBJ *,const char *,int) ;
+static int depscheck(PROGINFO *,const char *,time_t,char *) ;
+static int depsget(PROGINFO *,VECSTR *,VECOBJ *,const char *) ;
+static int proclines(PROGINFO *,VECSTR *,int) ;
+static int procline(PROGINFO *,VECSTR *,struct lstate *,cchar *,int) ;
+static int procerr(PROGINFO *,VECOBJ *,int) ;
+static int procerrline(PROGINFO *,VECOBJ *,const char *,int) ;
 static int mkdepname(char *,const char *) ;
 
-static int cpperr_start(struct cpperr *,int,const char *,int) ;
-static int cpperr_ifname(struct cpperr *,const char *,int) ;
-static int cpperr_finish(struct cpperr *) ;
+static int cpperr_start(CPPERR *,int,const char *,int) ;
+static int cpperr_ifname(CPPERR *,const char *,int) ;
+static int cpperr_finish(CPPERR *) ;
 
 
 /* global variables */
@@ -141,30 +141,21 @@ static const char	*depexts[] = {
 /* exported subroutines */
 
 
-int progfile(pip,name)
-struct proginfo	*pip ;
-const char	name[] ;
+int progfile(PROGINFO *pip,cchar *name)
 {
 	struct ustat	sb ;
-
-	time_t	mtime_o ;
-	time_t	mtime_c ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	f_remove = FALSE ;
-
+	time_t		mtime_o ;
+	time_t		mtime_c ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		f_remove = FALSE ;
 	const char	*depout = NULL ;
+	char		depfname[MAXPATHLEN + 1] ;
+	char		outfname[MAXPATHLEN + 1] ;
 
-	char	depfname[MAXPATHLEN + 1] ;
-	char	outfname[MAXPATHLEN + 1] ;
+	if (name == NULL) return SR_FAULT ;
 
-
-	if (name == NULL)
-	    return SR_FAULT ;
-
-	if ((name[0] == '\0') || (name[0] == '-'))
-	    return SR_INVALID ;
+	if ((name[0] == '\0') || (name[0] == '-')) return SR_INVALID ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -234,10 +225,9 @@ const char	name[] ;
 
 	    f_remove = (rs > 0) ;
 	    if ((rs >= 0) && f_remove && (outfname[0] != '\0')) {
-
-	        if (strncmp(outfname,"./",2) == 0)
+	        if (strncmp(outfname,"./",2) == 0) {
 	            depout = outfname + 2 ;
-
+		}
 	    } /* end if */
 
 	} /* end if (checking dependencies) */
@@ -280,30 +270,23 @@ ret0:
 
 /* check the dependencies agains the original (object) file */
 static int depscheck(pip,depfname,mtime_o,outfname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 const char	depfname[] ;
 time_t		mtime_o ;
 char		outfname[] ;
 {
 	struct ustat	sb ;
-
-	VECSTR	deps ;
-
-	VECOBJ	errs ;
-
-	time_t	mtime ;
-
-	int	rs, rs1 ;
-	int	size ;
-	int	i ;
-	int	opts ;
-	int	f_remove = FALSE ;
-
+	VECSTR		deps ;
+	VECOBJ		errs ;
+	time_t		mtime ;
+	int		rs, rs1 ;
+	int		size ;
+	int		i ;
+	int		opts ;
+	int		f_remove = FALSE ;
 	const char	*cp ;
 
-
-	if (outfname != NULL)
-	    outfname[0] = '\0' ;
+	if (outfname != NULL) outfname[0] = '\0' ;
 
 /* prepare to get the dependencies */
 
@@ -312,7 +295,7 @@ char		outfname[] ;
 	if (rs < 0)
 	    goto ret0 ;
 
-	size = sizeof(struct cpperr) ;
+	size = sizeof(CPPERR) ;
 	rs = vecobj_start(&errs,size,10,0) ;
 	if (rs < 0)
 	    goto ret1 ;
@@ -380,27 +363,26 @@ char		outfname[] ;
 /* print out any errors that there may be */
 
 	if (! pip->f.quiet) {
-	    struct cpperr	*ep ;
-
+	    CPPERR	*ep ;
 	    for (i = 0 ; vecobj_get(&errs,i,&ep) >= 0 ; i += 1) {
-	        if (ep == NULL) continue ;
-
+	        if (ep != NULL) {
 	        progeprintf(pip,"%s: dep=%s:%u missing inc=%s\n",
 	            pip->progname,
 	            ep->fname,ep->line,
 	            ep->ifname) ;
 
+		}
 	    } /* end for */
-
 	} /* end if (missing include files) */
 
 /* free up and get out */
 ret2:
 	{
-	    struct cpperr	*ep ;
+	    CPPERR	*ep ;
 	    for (i = 0 ; vecobj_get(&errs,i,&ep) >= 0 ; i += 1) {
-	        if (ep == NULL) continue ;
+	        if (ep != NULL) {
 	        cpperr_finish(ep) ;
+		}
 	    } /* end for */
 	} /* end block */
 
@@ -410,9 +392,10 @@ ret1:
 	vecstr_finish(&deps) ;
 
 ret0:
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    progeprintf(pip,"%s: depscheck (%d)\n",
 	        pip->progname,rs) ;
+	}
 
 	return (rs >= 0) ? f_remove : rs ;
 }
@@ -421,37 +404,29 @@ ret0:
 
 /* get the dependencies for the given file */
 static int depsget(pip,dp,errp,fname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 VECSTR		*dp ;
 VECOBJ		*errp ;
 const char	fname[] ;
 {
-	struct spawnproc	psa ;
-
+	SPAWNPROC	psa ;
 	DIRLIST_CUR	cur ;
-
-	VECSTR	args ;
-
-	pid_t	pid ;
-
+	VECSTR		args ;
 	const mode_t	operms = 0664 ;
 
-	int	rs ;
-	int	cl ;
-	int	opts ;
-	int	oflags ;
-	int	fd_out ;
-	int	fd_err ;
-	int	cstat ;
-
+	int		rs ;
+	int		cl ;
+	int		opts ;
+	int		oflags ;
+	int		fd_out ;
+	int		fd_err ;
+	int		cstat ;
 	const char	**av ;
 	const char	*cp ;
-
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	outfname[MAXPATHLEN + 1] ;
-	char	errfname[MAXPATHLEN + 1] ;
-	char	argbuf[ARGBUFLEN + 1] ;
-
+	char		tmpfname[MAXPATHLEN + 1] ;
+	char		outfname[MAXPATHLEN + 1] ;
+	char		errfname[MAXPATHLEN + 1] ;
+	char		argbuf[ARGBUFLEN + 1] ;
 
 	errfname[0] = '\0' ;
 	outfname[0] = '\0' ;
@@ -482,8 +457,9 @@ const char	fname[] ;
 	        if (rs1 == SR_NOTFOUND) break ;
 	        rs = rs1 ;
 
-	        if (rs >= 0)
+	        if (rs >= 0) {
 	            rs = vecstr_add(&args,argbuf,-1) ;
+		}
 
 	    } /* end while */
 
@@ -541,45 +517,28 @@ const char	fname[] ;
 #endif
 
 	memset(&psa,0,sizeof(SPAWNPROC)) ;
-
 	psa.disp[0] = SPAWNPROC_DCLOSE ;
 	psa.disp[1] = SPAWNPROC_DDUP ;
 	psa.disp[2] = SPAWNPROC_DDUP ;
 	psa.fd[1] = fd_out ;
 	psa.fd[2] = fd_err ;
 
-	rs = spawnproc(&psa,pip->prog_cpp,av,pip->envv) ;
-	pid = rs ;
+	if ((rs = spawnproc(&psa,pip->prog_cpp,av,pip->envv)) >= 0) {
+	    const pid_t	pid = rs ;
+	    while (rs == 0) {
+	        rs = u_waitpid(pid,&cstat,WUNTRACED) ;
+	        if (rs == SR_INTR) rs = SR_OK ;
+	    }
+	} /* end if spawnproc) */
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("depsget: spawnproc() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0)
-	    goto badspawn ;
-
-	rs = 0 ;
-	while (rs == 0) {
-	    rs = u_waitpid(pid,&cstat,WUNTRACED) ;
-	    if (rs == SR_INTR) rs = SR_OK ;
+	if (rs >= 0) {
+	    if ((rs = proclines(pip,dp,fd_out)) >= 0) {
+	        rs = procerr(pip,errp,fd_err) ;
+	    }
 	}
 
-	if (rs < 0)
-	    goto badspawn ;
+/* done */
 
-	rs = proclines(pip,dp,fd_out) ;
-	if (rs < 0)
-	    goto badproclines ;
-
-/* read any STDERR from the program */
-
-	rs = procerr(pip,errp,fd_err) ;
-
-/* get out */
-badproclines:
-badspawn:
-ret3:
 	u_close(fd_out) ;
 
 ret2:
@@ -619,17 +578,14 @@ ret0:
 
 /* process the lines that contain dependency names */
 static int proclines(pip,dp,fd)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 VECSTR		*dp ;
 int		fd ;
 {
-	FILEBUF	buf ;
-
+	FILEBUF		buf ;
 	const int	to = pip->to_read ;
-
-	int	rs ;
-	int	c = 0 ;
-
+	int		rs ;
+	int		c = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -672,9 +628,10 @@ int		fd ;
 	    } /* end if (filebuf) */
 	} /* end if (rewind) */
 
-	if ((pip->debuglevel > 0) && (rs < 0))
+	if ((pip->debuglevel > 0) && (rs < 0)) {
 	    progeprintf(pip,"%s: proclines (%d)\n",
 	        pip->progname,rs) ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -683,19 +640,17 @@ int		fd ;
 
 /* process a dependecy line */
 static int procline(pip,dp,lsp,lbuf,len)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 VECSTR		*dp ;
 struct lstate	*lsp ;
 const char	lbuf[] ;
 int		len ;
 {
-	int	rs = SR_OK ;
-	int	sl, cl ;
-	int	f_continue = FALSE ;
-	int	c = 0 ;
-
+	int		rs = SR_OK ;
+	int		sl, cl ;
+	int		f_continue = FALSE ;
+	int		c = 0 ;
 	const char	*tp, *sp, *cp ;
-
 
 	if ((len > 1) && (lbuf[len - 1] == CH_BSLASH)) {
 	    f_continue = TRUE ;
@@ -732,25 +687,24 @@ int		len ;
 
 /* process the error output */
 static int procerr(pip,errp,fd_err)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 VECOBJ		*errp ;
 int		fd_err ;
 {
 	struct ustat	sb ;
-
-	FILEBUF	buf ;
-
-	int	rs ;
-	int	to = pip->to_read ;
-
+	FILEBUF		buf ;
+	const int	fsize = BUFLEN ;
+	int		rs ;
+	int		to = pip->to_read ;
 
 	rs = u_fstat(fd_err,&sb) ;
 
-	if ((rs >= 0) && (sb.st_size > 0))
+	if ((rs >= 0) && (sb.st_size > 0)) {
 	    rs = u_rewind(fd_err) ;
+	}
 
 	if ((rs >= 0) && (sb.st_size > 0)) {
-	    if ((rs = filebuf_start(&buf,fd_err,0L,BUFLEN,0)) >= 0) {
+	    if ((rs = filebuf_start(&buf,fd_err,0L,fsize,0)) >= 0) {
 	        const int	llen = LINEBUFLEN ;
 	        int		len ;
 	        char		lbuf[LINEBUFLEN + 1] ;
@@ -784,7 +738,7 @@ int		fd_err ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3)) {
 	            int	i ;
-	            struct cpperr	*ep ;
+	            CPPERR	*ep ;
 	            debugprintf("depget: errors\n") ;
 	            for (i = 0 ; vecobj_get(errp,i,&ep) >= 0 ; i += 1) {
 	                if (ep == NULL) continue ;
@@ -805,15 +759,14 @@ int		fd_err ;
 
 /* process an error line */
 static int procerrline(pip,errp,lbuf,len)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 VECOBJ		*errp ;
 const char	lbuf[] ;
 int		len ;
 {
-	int	rs = SR_OK ;
-	int	cl, cl1, cl2 ;
-	int	line ;
-
+	int		rs = SR_OK ;
+	int		cl, cl1, cl2 ;
+	int		line ;
 	const char	*cp ;
 	const char	*cp1, *cp2 ;
 
@@ -823,7 +776,7 @@ int		len ;
 	            const int	dl = (cp2 - (cp1 + cl1)) ;
 	            const char	*dp = (cp1 + cl1) ;
 	            if ((rs = cfdeci(dp,dl,&line)) >= 0) {
-			struct cpperr	e ;
+			CPPERR	e ;
 	                if ((rs = cpperr_start(&e,line,cp,cl)) >= 0) {
 	                    int		sl = (len-((cp2+cl2)-lbuf)) ;
 	                    const char	*sp = (cp2 + cl2) ;
@@ -846,75 +799,55 @@ int		len ;
 
 
 /* create the dependency name from the given name */
-static int mkdepname(depfname,name)
-char		depfname[] ;
-const char	name[] ;
+static int mkdepname(char *rbuf,cchar *name)
 {
-	SBUF	dep ;
-
-	int	rs = SR_INVALID ;
-	int	len = 0 ;
-
+	SBUF		dep ;
+	int		rs = SR_INVALID ;
+	int		len = 0 ;
 	const char	*tp ;
 
+	if ((tp = strrchr(name,'.')) != NULL) {
+	    if (tp[1] == 'o') {
+	        const int	rlen = MAXPATHLEN ;
+	        if ((rs = sbuf_start(&dep,rbuf,rlen)) >= 0) {
 
-	tp = strrchr(name,'.') ;
+	            sbuf_strw(&dep,name,(tp - name)) ;
 
-	if (tp == NULL)
-	    goto ret0 ;
+	            sbuf_char(&dep,'.') ;
 
-	if (tp[1] == '\0')
-	    goto ret0 ;
+	            sbuf_char(&dep,'c') ;
 
-	if (tp[1] != 'o')
-	    goto ret0 ;
+	            len = sbuf_finish(&dep) ;
+	            if (rs >= 0) rs = len ;
+	        } /* end if (SBUF) */
+	    }
+	} /* end if (non-null) */
 
-	if ((rs = sbuf_start(&dep,depfname,MAXNAMELEN)) >= 0) {
-
-	    sbuf_strw(&dep,name,(tp - name)) ;
-
-	    sbuf_char(&dep,'.') ;
-
-	    sbuf_char(&dep,'c') ;
-
-	    len = sbuf_finish(&dep) ;
-	    if (rs >= 0) rs = len ;
-	} /* end if (SBUF) */
-
-ret0:
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (mkdepname) */
 
 
-static int cpperr_start(ep,line,fp,fl)
-struct cpperr	*ep ;
-int		line ;
-const char	fp[] ;
-int		fl ;
+static int cpperr_start(CPPERR *ep,int line,cchar *fp,int fl)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
 
 	if (fp == NULL) return SR_FAULT ;
 
 	ep->line = line ;
-	if ((rs = uc_mallocstrw(fp,fl,&cp)) >= 0)
+	if ((rs = uc_mallocstrw(fp,fl,&cp)) >= 0) {
 	    ep->fname = cp ;
+	}
 
 	return rs ;
 }
 /* end subroutine (cpperr_start) */
 
 
-static int cpperr_ifname(ep,fp,fl)
-struct cpperr	*ep ;
-const char	fp[] ;
-int		fl ;
+static int cpperr_ifname(CPPERR *ep,cchar *fp,int fl)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
 
 	if (fp == NULL) return SR_FAULT ;
@@ -928,12 +861,10 @@ int		fl ;
 /* end subroutine (cpperr_ifname) */
 
 
-static int cpperr_finish(ep)
-struct cpperr	*ep ;
+static int cpperr_finish(CPPERR *ep)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (ep->fname != NULL) {
 	    rs1 = uc_free(ep->fname) ;
@@ -951,6 +882,5 @@ struct cpperr	*ep ;
 	return rs ;
 }
 /* end subroutine (cpperr_finish) */
-
 
 

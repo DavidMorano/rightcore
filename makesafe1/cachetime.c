@@ -44,7 +44,6 @@
 /* local defines */
 
 #define	CACHETIME_ENT		struct cachetime_e
-#define	CACHETIME_MAGIC		0x79854123
 #define	CACHETIME_NENTRY	400
 
 
@@ -63,10 +62,10 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 /* forward references */
 
-static int	cachetime_lookuper(CACHETIME *,const char *,int,time_t *) ;
+static int	cachetime_lookuper(CACHETIME *,cchar *,int,time_t *) ;
 
-static int entry_start(CACHETIME_ENT *,const char *,int) ;
-static int entry_finish(CACHETIME_ENT *) ;
+static int	entry_start(CACHETIME_ENT *,cchar *,int) ;
+static int	entry_finish(CACHETIME_ENT *) ;
 
 
 /* local variables */
@@ -224,9 +223,11 @@ int cachetime_enum(CACHETIME *op,CACHETIME_CUR *curp,
 
 	if ((rs = hdb_enum(&op->db,&curp->cur,&key,&val)) >= 0) {
 	    ep = (CACHETIME_ENT *) val.buf ;
-	    rs = sncpy1(pbuf,plen,ep->name) ;
-	    if ((rs >= 0) && (timep != NULL))
-	        *timep = ep->mtime ;
+	    if ((rs = sncpy1(pbuf,plen,ep->name)) >= 0) {
+	        if (timep != NULL) {
+	            *timep = ep->mtime ;
+		}
+	    }
 	}
 
 	return rs ;

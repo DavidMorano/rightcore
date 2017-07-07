@@ -106,14 +106,11 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	strwcmp(const char *,const char *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
-extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
-extern int	debugprinthexblock(const char *,int,const void *,int) ;
 #endif
 
-extern char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnrpbrk(cchar *,int,cchar *) ;

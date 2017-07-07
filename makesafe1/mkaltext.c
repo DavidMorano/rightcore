@@ -46,7 +46,6 @@
 
 #include	<vsystem.h>
 #include	<sbuf.h>
-#include	<ascii.h>
 #include	<localmisc.h>
 
 
@@ -83,10 +82,7 @@ extern char	*strnchr(const char *,int,int) ;
 /* exported subroutines */
 
 
-int mkaltext(dbuf,name,ext)
-char		dbuf[] ;
-const char	name[] ;
-const char	ext[] ;
+int mkaltext(char *dbuf,cchar *name,cchar *ext)
 {
 	int		rs = SR_INVALID ;
 	int		len = 0 ;

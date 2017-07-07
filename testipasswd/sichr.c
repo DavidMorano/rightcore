@@ -19,7 +19,7 @@
 
 	This subroutine searches for a character within a given string and
 	returns the index to that character (if it is found).  It returns (-1)
-	 if the character does not exist within the given string.
+	if the character does not exist within the given string.
 
 	Synopsis:
 

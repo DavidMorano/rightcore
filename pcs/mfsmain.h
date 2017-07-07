@@ -14,6 +14,13 @@
 #define	MFSMAIN_INCLUDE	1
 
 
+enum progmodes {
+	progmode_tcpmuxd,
+	progmode_fingers,
+	progmode_overlast
+} ;
+
+
 #define	VERSION		"0a"
 #define	WHATINFO	"@(#)mfserve "
 #define	BANNER		"Multi-Function Server"
@@ -32,6 +39,7 @@
 #define	VARSEARCHNAME	"MFSERVE_NAME"
 #define	VAROPTS		"MFSERVE_OPTS"
 #define	VARQUIET	"MFSERVE_QUIET"
+#define	VARPROGMODE	"MFSERVE_PM"
 #define	VARCONFIG	"MFSERVE_CONF"
 #define	VARFILEROOT	"MFSERVE_FILEROOT"
 #define	VARLOGTAB	"MFSERVE_LOGTAB"

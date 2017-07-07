@@ -26,14 +26,15 @@ struct sreq {
 	const char	*netpass ;
 	const char	*netident ;
 	const char	*svcbuf ;		/* service-buffer */
-	const char	*subservice ;		/* subservice */
+	const char	*svc ;			/* allocated */
+	const char	*subsvc ;
 	char		*efname ;		/* Error-File-Name */
 	time_t		stime ;			/* start time */
 	time_t		atime ;			/* arrival? time */
 	pid_t		pid ;			/* child PID */
 	int		salen ;			/* socket length */
 	int		nnames ;		/* number of names */
-	int		ifd ;			/* input */
+	int		ifd ;			/* file-descriptor input */
 	int		ofd ;			/* output */
 	int		efd ;			/* error */
 	int		jtype ;			/* job-type */
@@ -56,6 +57,10 @@ extern int sreq_typeset(SREQ *,int,int) ;
 extern int sreq_getfd(SREQ *) ;
 extern int sreq_havefd(SREQ *,int) ;
 extern int sreq_svcadd(SREQ *,cchar *,int) ;
+extern int sreq_setsvc(SREQ *,cchar *,int) ;
+extern int sreq_setlong(SREQ *,int) ;
+extern int sreq_getsvc(SREQ *,cchar **) ;
+extern int sreq_getsubsvc(SREQ *,cchar **) ;
 extern int sreq_finish(SREQ *) ;
 
 #ifdef	__cplusplus

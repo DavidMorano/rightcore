@@ -26,6 +26,9 @@
 #include	<localmisc.h>
 
 
+typedef int (*uptsub_t)(void *) ;
+
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

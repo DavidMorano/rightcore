@@ -54,7 +54,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -62,7 +61,6 @@
 #include	<field.h>
 #include	<ascii.h>
 #include	<char.h>
-#include	<ptm.h>
 #include	<eigendb.h>
 #include	<localmisc.h>
 
@@ -151,8 +149,9 @@ cchar		*fname ;
 	    debugprintf("progkeyer: delim=>%s<\n",dbuf) ;
 	    debugprintf("progkeyer: terms(%p)\n",terms) ;
 	    for (i = 0 ; i < 256 ; i += 1) {
-	        if (BATST(terms,i))
+	        if (BATST(terms,i)) {
 	            debugprintf("progkeyer: t=%02x\n",i) ;
+		}
 	    }
 	}
 #endif /* CF_DEBUG */
@@ -329,21 +328,31 @@ cchar		*fname ;
 
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: i keysfinish() reclen=%u\n",
+	                    debugprintf("progkeyer: i keys_end() reclen=%u\n",
 				reclen) ;
 #endif
 
-	                rs = keysfinish(pip,&keydb,ofp,omp,
+	                rs = keys_end(pip,&keydb,ofp,omp,
 				fname,recoff,reclen) ;
 	                nk = rs ;
 	                if (nk > 0)
 	                    entries += 1 ;
+
+#if	CF_DEBUG
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("progkeyer: keys_end() rs=%s\n",rs);
+#endif
 
 	            } /* end if */
 
 	        } /* end if (finishing entry) */
 
 	    } /* end if (not whole file -- determining entry boundary) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+		debugprintf("progkeyer: mid2 rs=%d f_start=%u\n",rs,f_start);
+#endif
 
 	    if ((rs >= 0) && f_start) {
 
@@ -367,7 +376,7 @@ cchar		*fname ;
 #endif
 
 	            f_open = TRUE ;
-	            rs = keysstart(pip,&keydb,hashsize) ;
+	            rs = keys_begin(pip,&keydb,hashsize) ;
 
 	        } /* end if (opening keys DB) */
 
@@ -506,11 +515,11 @@ cchar		*fname ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-		debugprintf("progkeyer: f keysfinish() reclen=%u\n",
+		debugprintf("progkeyer: f keys_end() reclen=%u\n",
 				reclen) ;
 #endif
 
-	    rs1 = keysfinish(pip,&keydb,ofp,omp,fname,recoff,reclen) ;
+	    rs1 = keys_end(pip,&keydb,ofp,omp,fname,recoff,reclen) ;
 	    nk = rs1 ;
 	    if (rs >= 0) rs = rs1 ;
 	    if (nk > 0)
@@ -536,10 +545,7 @@ cchar		*fname ;
 
 
 /* which input lines are supposed to be ignored? */
-static int ignoreline(lbuf,ll,ignorechars)
-const char	lbuf[] ;
-const char	ignorechars[] ;
-const int	ll ;
+static int ignoreline(cchar *lbuf,int ll,cchar *ignorechars)
 {
 	int	f = FALSE ;
 	if ((ignorechars != NULL) && (lbuf[0] == '%')) {
@@ -552,66 +558,41 @@ const int	ll ;
 
 
 /* process a word */
-static int procword(pip,keydbp,n,wp,wl)
-PROGINFO	*pip ;
-HDB		*keydbp ;
-int		n ;
-const char	wp[] ;
-int		wl ;
+static int procword(PROGINFO *pip,HDB *keydbp,int n,cchar *wp,int wl)
 {
-	EIGENDB		*edbp = &pip->eigendb ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		f = FALSE ;
 
-/* continue with regular checks */
-
-	if ((pip->maxkeys > 0) && (n >= pip->maxkeys))
-	    goto ret0 ;
-
-	if ((wl == 0) || (wl > NATURALWORDLEN))
-	    goto ret0 ;
-
-	if (wl < pip->minwordlen)
-	    goto ret0 ;
+	if ((pip->maxkeys == 0) || (n < pip->maxkeys)) {
+	    if ((wl > 0) && (wl <= NATURALWORDLEN)) {
+	        if (wl >= pip->minwordlen) {
+	            EIGENDB	*edbp = &pip->eigendb ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    if (wl > 0) {
-	        debugprintf("progkeyer/procword: key=%t\n",wp,wl) ;
-	    } else
-	        debugprintf("progkeyer/procword: zero length field\n") ;
-	}
+		    if (DEBUGLEVEL(4)) {
+	    	        if (wl > 0) {
+	        	    debugprintf("progkeyer/procword: key=%t\n",wp,wl) ;
+	    	        } else {
+	        	    debugprintf("progkeyer/procword: zero length\n") ;
+		        }
+		    }
 #endif /* CF_DEBUG */
 
 /* check if this word is in the eigenword database */
 
-	rs1 = SR_NOTFOUND ;
-	if (pip->eigenwords > 0)  {
-	    rs1 = eigendb_exists(edbp,wp,wl) ;
-	}
+	            if ((rs = eigendb_exists(edbp,wp,wl)) >= 0) {
+	                f = FLASE ;
+	            } else if (rs == rsn) {
+	                if ((pip->maxwordlen > 0) && (wl > pip->maxwordlen)) {
+	                    wl = pip->maxwordlen ;
+	                }
+	                rs = keys_add(pip,keydbp,wp,wl) ;
+	                f = (rs > 0) ;
+	            }
 
-	if (rs1 >= 0)
-	    goto ret0 ;
-
-	if ((pip->maxwordlen > 0) && (wl > pip->maxwordlen)) {
-	    wl = pip->maxwordlen ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("progkeyer/procword: wl=%d\n",wl) ;
-#endif
-
-	rs = keysadd(pip,keydbp,wp,wl) ;
-	f = (rs > 0) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("progkeyer/procword: keysadd() rs=%d\n",rs) ;
-#endif
-
-ret0:
+	        } /* end if (minimum length) */
+	    } /* end if (word length within range) */
+	} /* end if (did not reach maximum key limit) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))

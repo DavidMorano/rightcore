@@ -68,9 +68,9 @@ extern int	strlinelen(const char *,int,int) ;
 extern int	nprintf(const char *,const char *,...) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
-extern char		*strnrchr(const char *,int,int) ;
+extern char	*strnrchr(const char *,int,int) ;
 
 
 /* external variables */

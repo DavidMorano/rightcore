@@ -34,6 +34,7 @@
 #include	<limits.h>
 #include	<unistd.h>
 #include	<stdlib.h>
+#include	<string.h>
 
 #include	<vsystem.h>
 #include	<estrings.h>
@@ -118,6 +119,7 @@ int proguserlist_begin(PROGINFO *pip)
 	if ((rs = uc_malloc(size,&ulp)) >= 0) {
 	    workthr	w = (workthr) proguserlist_worker ;
 	    pthread_t	tid ;
+	    memset(ulp,0,size) ;
 	    pip->userlist = ulp ;
 	    if ((rs = uptcreate(&tid,NULL,w,pip)) >= 0) {
 	        ulp->tid = tid ;

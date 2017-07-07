@@ -1491,8 +1491,9 @@ const char		*sav[] ;
 	    int		i, cr ;
 	    char	*svcargs, *cp ;
 
-	    for (i = 0 ; sav[i] != NULL ; i += 1)
+	    for (i = 0 ; sav[i] != NULL ; i += 1) {
 	        size += ((2 * strlen(sav[i])) + 2 + 1) ;
+	    }
 
 	    if ((rs = uc_malloc(size,&svcargs)) >= 0) {
 	        svcargs[0] = '\0' ;
@@ -1506,8 +1507,9 @@ const char		*sav[] ;
 	                *cp = '\0' ;
 	            }
 	        } /* end for */
-	        if (rs >= 0)
+	        if (rs >= 0) {
 	            rs = expcook_add(&pip->cooks,"a",svcargs,-1) ;
+		}
 	        uc_free(svcargs) ;
 	    } /* end if (memory-allocation) */
 
@@ -1556,27 +1558,22 @@ vecstr			*nlp ;
 	    rs1 = 0 ;
 	    if (cip->salen > 0) {
 	        rs1 = connection_peername(&conn,&cip->sa,cip->salen,peername) ;
-
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(5))
 	            debugprintf("loadpeernames: connection_peername() rs=%d\n",
 			rs1) ;
 
 #endif
-
 	    }
 
 	    if (rs1 >= 0) {
 	        rs1 = connection_mknames(&conn,nlp) ;
-
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(5))
 	            debugprintf("loadpeernames: connection_mknames() rs=%d\n",
 			rs1) ;
 #endif
-
-	        if (rs1 > 0)
-	            n += rs1 ;
+	        if (rs1 > 0) n += rs1 ;
 	    }
 
 	    if ((rs1 >= 0) && (peername[0] != '\0')) {
@@ -1591,7 +1588,6 @@ vecstr			*nlp ;
 /* use 'nlspeername(3dam)' */
 
 	if ((rs >= 0) && (rs1 < 0) && (! pip->f.daemon)) {
-
 	    if ((cp = getenv(VARNLSADDR)) != NULL) {
 	        rs1 = nlspeername(cp,pip->domainname,peername) ;
 	        if (rs1 >= 0) {
@@ -1600,11 +1596,8 @@ vecstr			*nlp ;
 	                n += 1 ;
 	        }
 	    }
-
 	} /* end if */
 
-/* done */
-ret0:
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutines (loadpeernames) */
@@ -1616,20 +1609,18 @@ vecstr		*glp ;
 const char	accbuf[] ;
 int		acclen ;
 {
-	FIELD		af ;
 	int		rs = SR_OK ;
-	int		fl, cl ;
 	int		c = 0 ;
-	const char	*fp ;
-	const char	*cp ;
 
 	if (glp == NULL) return SR_FAULT ;
 	if (accbuf == NULL) return SR_FAULT ;
 
-	if ((acclen != 0) && (accbuf[0] == '\0'))
-	    goto ret0 ;
+	if ((acclen > 0) && (accbuf[0] != '\0')) {
+	    FIELD	af ;
 
-	if ((rs = field_start(&af,accbuf,acclen)) >= 0) {
+	    if ((rs = field_start(&af,accbuf,acclen)) >= 0) {
+		int		fl, cl ;
+		const char	*fp, *cp ;
 
 	    while ((fl = field_get(&af,gterms,&fp)) >= 0) {
 	        int		bl ;
@@ -1647,26 +1638,22 @@ int		acclen ;
 #endif
 
 	            rs = vecstr_adduniq(glp,cp,cl) ;
-	            if (rs < 0)
-	                break ;
-
-	            if (rs < INT_MAX)
-	                c += 1 ;
+	            if (rs < INT_MAX) c += 1 ;
 
 	            bl -= ((cp + cl) - bp) ;
 	            bp = (cp + cl) ;
 
+	            if (rs < 0) break ;
 	        } /* end while */
 
-	        if (rs < 0)
-	            break ;
-
+	        if (rs < 0) break ;
 	    } /* end while (fielding) */
 
 	    field_finish(&af) ;
-	} /* end if */
+	} /* end if (field) */
 
-ret0:
+	} /* end if (ok) */
+
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (loadaccgroups) */

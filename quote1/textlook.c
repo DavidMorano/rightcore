@@ -5,11 +5,8 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUGN	0		/* special debugging */
-#define	CF_EXTRASTRONG	0		/* don't use Strong's eigen-words */
-#define	CF_EXTRAEIGEN	0		/* perform extra EIGEN-DB check */
 #define	CF_SINGLEWORD	1		/* treat extra words as single */
 #define	CF_LOOKPARALLEL	1		/* perform lookup in parallel */
-#define	CF_MULTIPROCESS	1		/* multi-process */
 #define	CF_TESTERROR	0		/* test thread error-exit */
 
 
@@ -26,17 +23,6 @@
 
 	This little object provides access to the TEXTLOOK database and index
 	(if any).
-
-	Note on Strong's eigen-words: There is a compile-time switch
-	('CF_EXTRASTRONG') that chooses between using an internal list of
-	Strong's 1980 set of eigen-words; or, alternatively, to use an
-	eigen-database on the current system.  Using the Strong's list (an
-	internally stored list) has the advantage of giving query consistent
-	results with what would be returned if one was to actually use Strong's
-	concordance.  The disadvantage of using the internal list (Strong's
-	list) is that it is small and may make queries a little bit more time
-	consuming than would be the case when using a typical system eigen-word
-	list (although this should be a very small effect at best).
 
 	Note that any eigen-word list can be used because the list is stored in
 	the index of the DB so that the same list is always used on queries as
@@ -211,8 +197,6 @@
 #define	TO_FILEMOD	(60 * 24 * 3600)
 #define	TO_MKWAIT	(5 * 50)
 
-#define	PROG_MKTEXTLOOKI	"mktextlooki"
-
 #ifndef	TAGBUFLEN
 #define	TAGBUFLEN	MAX((MAXPATHLEN + 40),(2 * 1024))
 #endif
@@ -241,8 +225,7 @@ extern uint	hashelf(void *,int) ;
 
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	sncpy4(char *,int, const char *,const char *,
-			const char *,const char *) ;
+extern int	sncpy4(char *,int, const char *,const char *,cchar *,cchar *) ;
 extern int	sncpylc(char *,int,const char *) ;
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	snwcpylc(char *,int,const char *,int) ;
@@ -269,6 +252,9 @@ extern int	haslc(const char *,int) ;
 extern int	hasuc(const char *,int) ;
 extern int	isalnumlatin(int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -360,39 +346,31 @@ static int	textlook_dispfinish(TEXTLOOK *) ;
 
 static int	textlook_indclose(TEXTLOOK *) ;
 static int	textlook_havekeys(TEXTLOOK *,TXTINDEX_TAG *,int,SEARCHKEYS *) ;
+static int	textlook_havekeyer(TEXTLOOK *,TXTINDEX_TAG *,int,
+			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *) ;
+static int	textlook_havekeyers(TEXTLOOK *,TXTINDEX_TAG *,int,
+			SEARCHKEYS *,int,SEARCHKEYS_POP *) ;
 static int	textlook_havekeysline(TEXTLOOK *,
-			SEARCHKEYS *,SEARCHKEYS_POP *,const char *,int) ;
+			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
 static int	textlook_matchkeys(TEXTLOOK *,
-			SEARCHKEYS *,SEARCHKEYS_POP *,const char *,int) ;
+			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
 static int	textlook_mkhkeys(TEXTLOOK *,vecstr *,SEARCHKEYS *) ;
 
 #if	CF_LOOKPARALLEL
-static int	textlook_lookparallel(TEXTLOOK *,TEXTLOOK_CUR *,
-			int,SEARCHKEYS *,const char **) ;
+static int	textlook_lookparallel(TEXTLOOK *,TEXTLOOK_CUR *,int,
+			SEARCHKEYS *,const char **) ;
 static int	textlook_checkdisp(TEXTLOOK *) ;
 #else
-static int	textlook_lookserial(TEXTLOOK *,TEXTLOOK_CUR *,
-			int,SEARCHKEYS *,const char **) ;
+static int	textlook_lookserial(TEXTLOOK *,TEXTLOOK_CUR *,int,
+			SEARCHKEYS *,const char **) ;
 #endif /* CF_LOOKPARALLEL */
-
-#if	CF_EXTRASTRONG
-static int	textlook_eigenopen(TEXTLOOK *) ;
-static int	textlook_eigenclose(TEXTLOOK *) ;
-#endif
 
 static int	subinfo_start(SUBINFO *) ;
 static int	subinfo_finish(SUBINFO *) ;
 
-#ifdef	COMMENT
-static int	subinfo_ids(SUBINFO *) ;
-#endif
-
-#if	CF_EXTRASTRONG
-static int	eigenfind(EIGENDB *,const char *,const char *,int) ;
-#endif
-
 #if	CF_LOOKPARALLEL
 static int	disp_start(DISP *,TEXTLOOK *) ;
+static int	disp_starter(DISP *,TEXTLOOK *,WARGS *) ;
 static int	disp_finish(DISP *,int) ;
 static int	disp_setparams(DISP *,int,SEARCHKEYS *,RTAGS *) ;
 static int	disp_addwork(DISP *,TXTINDEX_TAG *) ;
@@ -449,15 +427,12 @@ int textlook_open(TEXTLOOK *op,cchar *pr,cchar *dbname,cchar *basedname)
 	if ((rs = textlook_infoloadbegin(op,dbname,basedname)) >= 0) {
 	    if ((rs = subinfo_start(&si)) >= 0) {
 	        {
-		    rs = textlook_indopen(op,&si) ;
-		}
+	            rs = textlook_indopen(op,&si) ;
+	        }
 	        rs1 = subinfo_finish(&si) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if */
 	    if (rs < 0) {
-#if	CF_EXTRASTRONG
-	        textlook_eigenclose(op) ;
-#endif
 	        textlook_infoloadend(op) ;
 	    }
 	} /* end if (textlook_infoloadbegin) */
@@ -500,20 +475,14 @@ int textlook_close(TEXTLOOK *op)
 	rs1 = textlook_indclose(op) ;
 	if (rs >= 0) rs = rs1 ;
 
-#if	CF_EXTRASTRONG
-	rs1 = textlook_eigenclose(op) ;
-	if (rs >= 0) rs = rs1 ;
-#endif
-
 	rs1 = textlook_infoloadend(op) ;
 	if (rs >= 0) rs = rs1 ;
-
-	op->magic = 0 ;
 
 #if	CF_DEBUGN
 	nprintf(NDEBFNAME,"textlook_close: ret rs=%d\n",rs) ;
 #endif
 
+	op->magic = 0 ;
 	return rs ;
 }
 /* end subroutine (textlook_close) */
@@ -663,39 +632,39 @@ int textlook_lookup(TEXTLOOK *op,TEXTLOOK_CUR *curp,int qo,cchar **qsp)
 	                if ((rs = vecstr_getvec(&hkeys,&hkeya)) >= 0) {
 
 #if	CF_DEBUGS
-		{
-	    	    int	i ;
-	    	    debugprintf("textlook_lookup: n=%u hkeys¬\n",rs) ;
-	    	    for (i = 0 ; hkeya[i] != NULL ; i += 1) {
-	        	    debugprintf("textlook_lookup: hkey=>%s<\n",
-				hkeya[i]) ;
-	    	    }
-		}
+	                    {
+	                        int	i ;
+	                        debugprintf("textlook_lookup: hkeys=%u¬\n",rs) ;
+	                        for (i = 0 ; hkeya[i] != NULL ; i += 1) {
+	                            debugprintf("textlook_lookup: hkey=>%s<\n",
+	                                hkeya[i]) ;
+	                        }
+	                    }
 #endif /* CF_DEBUGS */
 
 #if	CF_LOOKPARALLEL
-	rs = textlook_lookparallel(op,curp,qo,&sk,hkeya) ;
-	c = rs ;
+	                    rs = textlook_lookparallel(op,curp,qo,&sk,hkeya) ;
+	                    c = rs ;
 #else /* CF_LOOKPARALLEL */
-	rs = textlook_lookserial(op,curp,qo,&sk,hkeya) ;
-	c = rs ;
+	                    rs = textlook_lookserial(op,curp,qo,&sk,hkeya) ;
+	                    c = rs ;
 #endif /* CF_LOOKPARALLEL */
 
 /* sort the secondary tags */
 
-	if (rs >= 0) {
-	    curp->ntags = c ;
-	    if (c > 1)
-	        rtags_sort(&curp->tags,NULL) ;
-	}
+	                    if (rs >= 0) {
+	                        curp->ntags = c ;
+	                        if (c > 1)
+	                            rtags_sort(&curp->tags,NULL) ;
+	                    }
 
 	                } /* end if (vecstr_getvec) */
 	            } /* end if (textlook_mkhkeys) */
 	            rs1 = vecstr_finish(&hkeys) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (hkeys) */
 	        rs1 = searchkeys_finish(&sk) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (searchkeys) */
 	} /* end if (ok) */
 
@@ -731,8 +700,9 @@ int textlook_read(TEXTLOOK *op,TEXTLOOK_CUR *curp,TEXTLOOK_TAG *tagp)
 	            fl = strwcpy(tagp->fname,rt.fname,plen) - tagp->fname ;
 	        }
 	    }
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("textlook_read: ret rs=%d fl=%u\n",rs,fl) ;
@@ -761,7 +731,7 @@ int textlook_count(TEXTLOOK *op)
 /* private subroutines */
 
 
-static int textlook_infoloadbegin(TEXTLOOK *op,cchar dbname[],cchar *basedname)
+static int textlook_infoloadbegin(TEXTLOOK *op,cchar *dbname,cchar *basedname)
 {
 	int		rs ;
 	const char	*cp ;
@@ -827,33 +797,29 @@ static int textlook_indopen(TEXTLOOK *op,SUBINFO *sip)
 
 static int textlook_snbegin(TEXTLOOK *op)
 {
-	TXTINDEX_INFO	tinfo ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
 	const char	*cp ;
 
-	rs1 = textlook_snend(op) ;
-	if (rs >= 0) rs = rs1 ;
-
-	rs1 = txtindex_info(&op->ind,&tinfo) ;
-	if (rs >= 0) rs = rs1 ;
-
-	if ((rs >= 0) && (tinfo.sdn[0] != '\0')) {
-	    rs = uc_mallocstrw(tinfo.sdn,-1,&cp) ;
-	    op->sdn = cp ;
-	} /* end if (SDN) */
-
-	if ((rs >= 0) && (tinfo.sfn[0] != '\0')) {
-	    if ((rs = uc_mallocstrw(tinfo.sfn,-1,&cp)) >= 0) {
-	        op->sfn = cp ;
+	if ((rs = textlook_snend(op)) >= 0) {
+	    TXTINDEX_INFO	tinfo ;
+	    if ((rs = txtindex_info(&op->ind,&tinfo)) >= 0) {
+		if (tinfo.sdn[0] != '\0') {
+	    	    rs = uc_mallocstrw(tinfo.sdn,-1,&cp) ;
+	    	    op->sdn = cp ;
+		} /* end if (SDN) */
+	        if ((rs >= 0) && (tinfo.sfn[0] != '\0')) {
+	    	    if ((rs = uc_mallocstrw(tinfo.sfn,-1,&cp)) >= 0) {
+	        	op->sfn = cp ;
+	    	    }
+	    	    if (rs < 0) {
+	                if (op->sdn != NULL) {
+	                    uc_free(op->sdn) ;
+	                    op->sdn = NULL ;
+	                }
+		    }
+		}
 	    }
-	    if (rs < 0) {
-	        if (op->sdn != NULL) {
-	            uc_free(op->sdn) ;
-	            op->sdn = NULL ;
-	        }
-	    }
-	} /* end if (SFN) */
+	} /* end if (textlook_snend) */
 
 	return rs ;
 }
@@ -905,32 +871,10 @@ static int textlook_indclose(TEXTLOOK *op)
 static int textlook_havekeys(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
 		SEARCHKEYS *skp)
 {
-	struct ustat	sb ;
-	SEARCHKEYS_POP	pkeys ;
-	offset_t	moff ;
-	offset_t	recoff ;
-	offset_t	recext ;
 	pthread_t	tid ;
-	size_t		ms ;
-	size_t		fsize ;
-	uint		reclen ;
-	const int	maxreclen = TEXTLOOK_MAXRECLEN ;
 	int		rs ;
 	int		rs1 ;
-	int		c ;
-	int		len ;
-	int		ll ;
-	int		fd ;
-	int		mprot ;
-	int		mflags ;
-	int		ml ;
-	int		f_prefix ;
 	int		f = FALSE ;
-	const char	*lp ;
-	const char	*dn, *fn ;
-	const char	*mp, *tp ;
-	char		fname[MAXPATHLEN + 1] ;
-	char		*md = NULL ;
 
 	uptself(&tid) ;
 
@@ -939,104 +883,107 @@ static int textlook_havekeys(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
 	    tid,tagp->recoff,tagp->reclen) ;
 #endif
 
-	if (tagp->reclen == 0) goto ret0 ;
+	if (tagp->reclen > 0) {
+	    SEARCHKEYS_POP	pkeys ;
+	    const int		f_prefix = (qo & TEXTLOOK_OPREFIX) ;
+	    if ((rs = searchkeys_popbegin(skp,&pkeys,f_prefix)) >= 0) {
+	        if (rs > 0) {
+	            cchar	*fn = tagp->fname ;
+	            cchar	*dn ;
+	            char	fname[MAXPATHLEN + 1] ;
 
-	f_prefix = (qo & TEXTLOOK_OPREFIX) ;
-	rs = searchkeys_popbegin(skp,&pkeys,f_prefix) ;
-	c = rs ;
-	if (rs < 0)
-	    goto ret0 ;
+	            if ((fn[0] == '\0') && (op->sfn != NULL)) {
+	                fn = op->sfn ;
+	            }
 
-	if (c == 0) {
-	    f = TRUE ;
-	    goto ret1 ;
-	}
+	            if (fn[0] != '\0') {
 
-/* create the filename */
+	                if (fn[0] != '/') {
+	                    dn = op->sdn ;
+	                    if ((dn == NULL) || (dn[0] == '\0')) {
+	                        dn = op->basedname ;
+	                    }
+	                    if ((dn != NULL) && (dn[0] != '\0')) {
+	                        rs = mkpath2(fname,dn,fn) ;
+	                        fn = fname ;
+	                    }
+	                }
 
-	fn = tagp->fname ;
-	if ((fn[0] == '\0') && (op->sfn != NULL)) fn = op->sfn ;
-	if (fn[0] == '\0')
-	    goto ret1 ;
+	                if (rs >= 0) {
+	                    rs = textlook_havekeyer(op,tagp,qo,skp,&pkeys,fn) ;
+	                }
 
-	if (fn[0] != '/') {
-	    dn = op->sdn ;
-	    if ((dn == NULL) || (dn[0] == '\0')) dn = op->basedname ;
+	            } /* end if */
 
-	    if ((dn != NULL) && (dn[0] != '\0')) {
-	        rs = mkpath2(fname,dn,fn) ;
-	        fn = fname ;
+	        } /* end if (positive) */
+	        rs1 = searchkeys_popend(skp,&pkeys) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (searchkeys-pop) */
+	} /* end if (positive) */
+
+#if	CF_DEBUGS
+	debugprintf("textlook_havekeys: tid=%u ret rs=%d f=%u\n",tid,rs,f) ;
+#endif
+
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (textlook_havekeys) */
+
+
+static int textlook_havekeyer(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
+		SEARCHKEYS *skp,SEARCHKEYS_POP *pkp,cchar *fn)
+{
+	const int	of = O_RDONLY ;
+	int		rs ;
+	int		f = FALSE ;
+	if ((rs = u_open(fn,of,0666)) >= 0) {
+	    USTAT	sb ;
+	    const int	fd = rs ;
+	    if ((rs = u_fstat(fd,&sb)) >= 0) {
+	        if (S_ISREG(sb.st_mode)) {
+	            const size_t	fsize = (sb.st_size & INT_MAX) ;
+	            if (tagp->recoff < fsize) {
+	                rs = textlook_havekeyers(op,tagp,qo,skp,fd,pkp) ;
+	                f = (rs > 0) ;
+	            }
+	        }
 	    }
-	}
+	    u_close(fd) ;
+	} else if (isNotAccess(rs)) {
+	    rs = SR_OK ;
+	} /* end if (file) */
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (textlook_havekeyer) */
 
-	if (rs < 0)
-	    goto ret1 ;
 
-#if	CF_DEBUGS
-	memset(&sb,0,sizeof(struct ustat)) ;
-	debugprintf("textlook_havekeys: tid=%u fname=%s\n",tid,fn) ;
-#endif
-
-	rs1 = u_open(fn,O_RDONLY,0666) ;
-	fd = rs1 ;
-	if ((rs1 == SR_NOENT) || (rs1 == SR_ACCESS))
-	    goto ret1 ;
-
-	rs = rs1 ;
-	if (rs < 0)
-	    goto ret1 ;
-
-	rs = u_fstat(fd,&sb) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-#if	CF_DEBUGS
-	debugprintf("textlook_havekeys: tid=%u st_size=%llu\n",
-	    tid,sb.st_size) ;
-#endif
-
-	fsize = (sb.st_size & INT_MAX) ;
-	if ((fsize == 0) || (! S_ISREG(sb.st_mode)))
-	    goto ret2 ;
-
-#if	CF_DEBUGS
-	debugprintf("textlook_havekeys: tid=%u tag recoff=%u reclen=%u \n",
-	    tid,tagp->recoff,tagp->reclen) ;
-	debugprintf("textlook_havekeys: tid=%u fsize=%lu\n",tid,fsize) ;
-#endif
-
-	if (tagp->recoff >= fsize)
-	    goto ret2 ;
-
-	recoff = tagp->recoff ;
-	reclen = tagp->reclen ;
-
-#if	CF_DEBUGS
-	debugprintf("textlook_havekeys: tid=%u recoff=%llu reclen=%u \n",
-	    tid,recoff,reclen) ;
-#endif
-
+/* ARGSUSED */
+static int textlook_havekeyers(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
+		SEARCHKEYS *skp,int fd,SEARCHKEYS_POP *pkp)
+{
+	offset_t	recoff = tagp->recoff ;
+	offset_t	recext ;
+	offset_t	mo ;
+	size_t		ms ;
+	uint		reclen = tagp->reclen ;
+	const int	maxreclen = TEXTLOOK_MAXRECLEN ;
+	const int	mt = PROT_READ ;
+	const int	mf = MAP_SHARED ;
+	int		rs ;
+	int		rs1 ;
+	int		f = FALSE ;
+	char		*md ;
 	if (reclen > maxreclen) reclen = maxreclen ;
-
-	mprot = PROT_READ ;
-	mflags = MAP_SHARED ;
-	moff = ufloor(recoff,op->pagesize) ;
-
+	mo = ufloor(recoff,op->pagesize) ;
 	recext = (recoff + reclen) ;
-	ms = uceil(recext,op->pagesize) - moff ;
-
-#if	CF_DEBUGS
-	debugprintf("textlook_havekeys: tid=%u recext=%llu \n",tid,recext) ;
-	debugprintf("textlook_havekeys: tid=%u moff=%llu ms=%lu\n",
-	    tid,moff,ms) ;
-#endif
-
-	if ((rs = u_mmap(NULL,ms,mprot,mflags,fd,moff,&md)) >= 0) {
-
-/* process this tag */
-
-	    mp = (md + (tagp->recoff - moff)) ;
-	    ml = reclen ;
+	ms = uceil(recext,op->pagesize) - mo ;
+	if ((rs = u_mmap(NULL,ms,mt,mf,fd,mo,&md)) >= 0) {
+	    int		ml = reclen ;
+	    int		ll ;
+	    int		len ;
+	    cchar	*lp ;
+	    cchar	*tp ;
+	    cchar	*mp = (md + (tagp->recoff - mo)) ;
 	    while ((tp = strnchr(mp,ml,'\n')) != NULL) {
 
 	        len = ((tp + 1) - mp) ;
@@ -1044,7 +991,7 @@ static int textlook_havekeys(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
 	        ll = (len - 1) ;
 
 	        if (ll > 0) {
-	            rs = textlook_havekeysline(op,skp,&pkeys,lp,ll) ;
+	            rs = textlook_havekeysline(op,skp,pkp,lp,ll) ;
 	            f = (rs > 0) ;
 	            if (f) break ;
 	        } /* end if */
@@ -1054,24 +1001,12 @@ static int textlook_havekeys(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
 	        if (rs < 0) break ;
 	    } /* end while (readling lines) */
 
-	    u_munmap(md,ms) ;
+	    rs1 = u_munmap(md,ms) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (memory-map) */
-
-ret2:
-	if (fd >= 0) u_close(fd) ;
-
-ret1:
-	searchkeys_popend(skp,&pkeys) ;
-
-ret0:
-
-#if	CF_DEBUGS
-	debugprintf("textlook_havekeys: tid=%u ret rs=%d f=%u\n",tid,rs,f) ;
-#endif
-
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (textlook_havekeys) */
+/* end subroutine (textlook_havekeyers) */
 
 
 static int textlook_havekeysline(op,skp,pkp,lp,ll)
@@ -1167,6 +1102,7 @@ int		sl ;
 #endif
 
 	int		rs ;
+	int		rs1 ;
 	int		f = FALSE ;
 
 #if	CF_DEBUGS
@@ -1191,7 +1127,8 @@ int		sl ;
 	    rs = searchkeys_processxw(skp,pkp,&xw) ;
 	    f = (rs > 0) ;
 
-	    xwords_finish(&xw) ;
+	    rs1 = xwords_finish(&xw) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if */
 #else /* CF_SINGLEWORD */
 	if ((rs = xwords_start(&xw,sp,sl)) >= 0) {
@@ -1211,20 +1148,19 @@ int		sl ;
 
 	        rs = searchkeys_process(skp,pkp,cp,cl) ;
 	        f = (rs > 0) ;
-	        if (rs < 0) break ;
 
 #if	CF_DEBUGS 
 	        debugprintf("textlook_matchkeys: searchkeys_process() f=%u\n",
 	            f) ;
 #endif
 
-	        if (f)
-	            break ;
-
+	        if (rs < 0) break ;
+	        if (f) break ;
 	        wi += 1 ;
 	    } /* end while (matching words) */
 
-	    xwords_finish(&xw) ;
+	    rs1 = xwords_finish(&xw) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if */
 #endif /* CF_SINGLEWORD */
 
@@ -1235,47 +1171,6 @@ int		sl ;
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (textlook_matchkeys) */
-
-
-#if	CF_EXTRASTRONG
-
-static int textlook_eigenopen(TEXTLOOK *op)
-{
-	int		rs1 ;
-	int		f = FALSE ;
-
-	if (! op->f.edbinit) {
-	op->f.edbinit = TRUE ;
-	rs1 = eigenfind(&op->edb,op->pr,op->dbname,op->minwlen) ;
-	op->f.edb = (rs1 > 0) ;
-	f = op->f.edb ;
-	}
-
-#if	CF_DEBUGS
-	debugprintf("textlook_eigenopen: eigenfind() rs=%d\n",rs1) ;
-#endif
-
-	return f ;
-}
-/* end subroutine (textlook_eigenopen) */
-
-
-static int textlook_eigenclose(TEXTLOOK *op)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-	if (op->f.edb) {
-	    op->f.edb = FALSE ;
-	    rs1 = eigendb_close(&op->edb) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
-
-	return rs ;
-}
-/* end subroutine (textlook_eigenopen) */
-
-#endif /* CF_EXTRASTRONG */
 
 
 static int textlook_mkhkeys(TEXTLOOK *op,vecstr *hkp,SEARCHKEYS *skp)
@@ -1303,11 +1198,6 @@ static int textlook_mkhkeys(TEXTLOOK *op,vecstr *hkp,SEARCHKEYS *skp)
 	        if (kl < op->minwlen) continue ;
 
 	        rs1 = SR_NOTFOUND ;
-
-#if	CF_EXTRAEIGEN && CF_EXTRASTRONG
-	        if (op->f.edb)
-	            rs1 = eigendb_exists(&op->edb,kp,kl) ;
-#endif
 
 	        if (rs1 == SR_NOTFOUND) {
 	            rs = vecstr_adduniq(hkp,kp,kl) ;
@@ -1379,12 +1269,12 @@ const char	**hkeya ;
 
 	                if ((rs >= 0) && (ttag.reclen > 0)) {
 	                    rs = disp_addwork(dop,&ttag) ;
-			}
+	                }
 
 	            } /* end while */
 
 	            rs1 = txtindex_curend(&op->ind,&tcur) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (txtindex-cur) */
 
 	        rs1 = disp_waitdone(dop) ;
@@ -1450,8 +1340,7 @@ const char	**hkeya ;
 	        rs = rs1 ;
 
 	        if ((rs >= 0) && (ttag.reclen > 0)) {
-	            rs = textlook_havekeys(op,&ttag,qo,skp) ;
-	            if (rs > 0) {
+	            if ((rs = textlook_havekeys(op,&ttag,qo,skp)) > 0) {
 	                c += 1 ;
 	                rt.hash = 0 ;
 	                rt.recoff = ttag.recoff ;
@@ -1459,7 +1348,7 @@ const char	**hkeya ;
 	                rt.fname[0] = '\0' ;
 	                if (ttag.fname[0] != '\0') {
 	                    strwcpy(rt.fname,ttag.fname,MAXPATHLEN) ;
-			}
+	                }
 	                rs = rtags_add(&curp->tags,&rt) ;
 	            }
 	        }
@@ -1558,105 +1447,14 @@ static int subinfo_finish(SUBINFO *sip)
 /* end subroutine (subinfo_finish) */
 
 
-#if	CF_EXTRASTRONG
-static int eigenfind(EIGENDB *edbp,cchar *pr,cchar *dbname,int minwlen)
-{
-	struct ustat	sb ;
-	IDS		id ;
-	EXPCOOK		cooks ;
-	int		rs ;
-	int		i ;
-	int		efl ;
-	const char	*efp = NULL ;
-	char		tmpfname[MAXPATHLEN + 1] ;
-	char		efname[MAXPATHLEN + 1] ;
-
-	rs = ids_load(&id) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	rs = expcook_start(&cooks) ;
-	if (rs < 0)
-	    goto ret1 ;
-
-	rs = expcook_add(&cooks,"n",dbname,-1) ;
-	if (rs >= 0)
-	    rs = expcook_add(&cooks,"f","eign",-1) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-	rs = SR_NOTOPEN ;
-	efname[0] = '\0' ;
-	for (i = 0 ; eigenfnames[i] != NULL ; i += 1) {
-
-	    rs = SR_OK ;
-	    efp = eigenfnames[i] ;
-	    efl = -1 ;
-	    if (efp[0] != '/') {
-	        rs = mkpath2(tmpfname,pr,efp) ;
-	        efl = rs ;
-	        if (rs <= 0) {
-	            rs = SR_NOENT ;
-	            efp = NULL ;
-	        } else {
-	            efp = tmpfname ;
-		}
-	    }
-
-	    if (rs >= 0)
-	        rs = expcook_exp(&cooks,0,efname,MAXPATHLEN,efp,efl) ;
-
-	    if (rs >= 0)
-	        rs = u_stat(efname,&sb) ;
-
-	    if ((rs >= 0) && S_ISDIR(sb.st_mode))
-	        rs = SR_ISDIR ;
-
-	    if (rs >= 0)
-	        rs = sperm(&id,&sb,R_OK) ;
-
-#if	CF_DEBUGS
-	    debugprintf("textlook/eigenfind: fname=%s rs=%d\n",
-	        efname,rs) ;
-#endif
-
-	    if (rs >= 0)
-	        break ;
-
-	} /* end for */
-
-	if (rs >= 0)
-	    rs = eigendb_open(edbp,INT_MAX,minwlen,efname) ;
-
-#if	CF_DEBUGS
-	debugprintf("textlook/eigenfind: eigendb_open() rs=%d\n",rs) ;
-#endif
-
-ret2:
-	expcook_finish(&cooks) ;
-
-ret1:
-	ids_release(&id) ;
-
-ret0:
-	return rs ;
-}
-/* end subroutine (eigenfind) */
-#endif /* CF_EXTRASTRONG */
-
-
 #if	CF_LOOKPARALLEL
 
 static int disp_start(DISP *dop,TEXTLOOK *op)
 {
-	WARGS		*wap ;
+	WARGS		*wap = &dop->wa ;
 	const int	qlen = TEXTLOOK_QLEN ;
-	int		rs = SR_OK ;
-	int		size ;
-	int		opts ;
-	int		n, i ;
+	int		rs ;
 	int		f_shared = FALSE ;
-	void		*p ;
 
 	if (dop == NULL) return SR_FAULT ;
 
@@ -1666,122 +1464,102 @@ static int disp_start(DISP *dop,TEXTLOOK *op)
 
 	memset(dop,0,sizeof(DISP)) ;
 
-	{
-	    wap = &dop->wa ;
 	    wap->dop = dop ;
 	    wap->op = op ;
 	    wap->terms = op->wterms ;
-	}
 
-#if	CF_MULTIPROCESS
-	n = uc_nprocessors(0) ;
-	if (n < 1) n = 1 ;
-	n += 1 ;
-	if (n > NCPUMAX) n = NCPUMAX ;
-#else /* CF_MULTIPROCESS */
-	n = 1 ;
-#endif /* CF_MULTIPROCESS */
-	dop->npar = n ;
-	dop->qlen = (n + qlen) ;
+	if ((rs = uc_nprocessors(0)) >= 0) {
+	    const int	vo = (VECHAND_OREUSE | VECHAND_OSTATIONARY) ;
+	    int		n = rs ;
+	    if (n < 1) n = 1 ;
+	    n += 1 ;
+	    if (n > NCPUMAX) n = NCPUMAX ;
+
+	    dop->npar = n ;
+	    dop->qlen = (n + qlen) ;
 
 #if	CF_DEBUGS
 	debugprintf("textlook/disp_start: npar=%u\n",dop->npar) ;
 #endif
 
-	rs = ptm_create(&dop->mutex_threads,NULL) ;
-	if (rs < 0) goto bad0 ;
+	    if ((rs = ptm_create(&dop->mutex_threads,NULL)) >= 0) {
+	        if ((rs = psem_create(&dop->sem_wq,f_shared,0)) >= 0) {
+	            if ((rs = psem_create(&dop->sem_done,f_shared,0)) >= 0) {
+		        VECHAND	*tlp = &dop->threads ;
+		        if ((rs = vechand_start(tlp,dop->npar,vo)) >= 0) {
+		            if ((rs = tagq_start(&dop->wq,dop->qlen)) >= 0) {
+			        n = uptgetconcurrency() ;
+			        if (n < dop->npar) {
+	    			    rs = uptsetconcurrency(dop->npar) ;
+			        }
+			        if (rs >= 0) {
+				    rs = disp_starter(dop,op,wap) ;
+			        }
+			        tagq_finish(&dop->wq) ;
+			    } /* end if (tagq_start) */
+		            vechand_finish(&dop->threads) ;
+		        }
+		        psem_destroy(&dop->sem_done) ;
+		    }
+	            psem_destroy(&dop->sem_wq) ;
+	        }
+	        ptm_destroy(&dop->mutex_threads) ;
+	    } /* end if */
+	} /* end if (uc_nprocessors) */
+    
+	return rs ;
+}
+/* end subroutine (disp_start) */
 
-	rs = psem_create(&dop->sem_wq,f_shared,0) ;
-	if (rs < 0) goto bad2 ;
 
-	rs = psem_create(&dop->sem_done,f_shared,0) ;
-	if (rs < 0) goto bad3 ;
-
-	opts = (VECHAND_OREUSE | VECHAND_OSTATIONARY) ;
-	rs = vechand_start(&dop->threads,dop->npar,opts) ;
-	if (rs < 0) goto bad4 ;
-
-	rs = tagq_start(&dop->wq,dop->qlen) ;
-	if (rs < 0) goto bad5 ;
-
-/* set the concurrency for systems that do something w/ it */
-
-	n = uptgetconcurrency() ;
-	if (n < dop->npar) {
-	    rs = uptsetconcurrency(dop->npar) ;
-	}
-
-/* create the threads */
-
+/* ARGSUSED */
+static int disp_starter(DISP *dop,TEXTLOOK *op,WARGS *wap)
+{
+	vechand		*tlp = &dop->threads ;
+	int		rs = SR_OK ;
+	int		size ;
+	int		i ;
 	for (i = 0 ; (rs >= 0) && (i < dop->npar) ; i += 1) {
 	    pthread_t	tid ;
 	    DISP_THREAD	*tip ;
+	    void	*p ;
 	    size = sizeof(DISP_THREAD) ;
 	    if ((rs = uc_malloc(size,&p)) >= 0) {
 	        int	ti = -1 ;
 	        memset(p,0,size) ;
 	        tip = p ;
-	        if ((rs = vechand_add(&dop->threads,tip)) >= 0) {
+	        if ((rs = vechand_add(tlp,tip)) >= 0) {
 	            ti = rs ;
 	            tip->wap = wap ;
 	            if ((rs = uptcreate(&tid,NULL,worker,tip)) >= 0) {
 	                tip->tid = tid ;
-		    }
+	            }
 	            if (rs < 0)
-	                vechand_del(&dop->threads,ti) ;
+	                vechand_del(tlp,ti) ;
 	        } /* end if (thread added to list) */
 	        if (rs < 0)
 	            uc_free(p) ;
 	    } /* end if (memory-alloccation) */
 	} /* end for */
-
-/* sort the created thread-ids (why are we doing this?) */
-
 	if (rs >= 0) {
 	    rs = disp_threadsort(dop) ;
-	}
-
-/* handle early errors */
-
-	if (rs < 0) {
+	} else {
 	    DISP_THREAD	*tip ;
+	    int		i ;
 	    dop->f_exit = TRUE ;
 	    for (i = 0 ; i < dop->npar ; i += 1) {
 	        psem_post(&dop->sem_wq) ;
 	    }
-	    for (i = 0 ; vechand_get(&dop->threads,i,&tip) >= 0 ; i += 1) {
+	    for (i = 0 ; vechand_get(tlp,i,&tip) >= 0 ; i += 1) {
 	        if (tip != NULL) {
 	            uptjoin(tip->tid,NULL) ;
 	            uc_free(tip) ;
-		}
+	        }
 	    } /* end for */
-	} /* end if (failure) */
-
-	if (rs < 0) goto bad6 ;
-
-ret0:
+	} /* end if */
 	return rs ;
-
-/* bad stuff */
-bad6:
-	tagq_finish(&dop->wq) ;
-
-bad5:
-	vechand_finish(&dop->threads) ;
-
-bad4:
-	psem_destroy(&dop->sem_done) ;
-
-bad3:
-	psem_destroy(&dop->sem_wq) ;
-
-bad2:
-	ptm_destroy(&dop->mutex_threads) ;
-
-bad0:
-	goto ret0 ;
 }
-/* end subroutine (disp_start) */
+/* end subroutine (disp_starter) */
 
 
 static int disp_finish(DISP *dop,int f_abort)
@@ -1809,7 +1587,7 @@ static int disp_finish(DISP *dop,int f_abort)
 	        if (rs >= 0) rs = rs1 ;
 	        if (rs >= 0) rs = tip->rs ;
 	        rs1 = uc_free(tip) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    }
 	} /* end for */
 
@@ -1923,7 +1701,7 @@ static int disp_nbusy(DISP *dop)
 	    for (i = 0 ; vechand_get(&dop->threads,i,&tip) >= 0 ; i += 1) {
 	        if (tip != NULL) {
 	            if (tip->f_busy) n += 1 ;
-		}
+	        }
 	    }
 	    ptm_unlock(&dop->mutex_threads) ;
 	} /* end if */
@@ -1952,7 +1730,7 @@ static int disp_nexited(DISP *dop)
 	    for (i = 0 ; vechand_get(&dop->threads,i,&tip) >= 0 ; i += 1) {
 	        if (tip != NULL) {
 	            if (tip->f_exited) n += 1 ;
-		}
+	        }
 	    }
 	    ptm_unlock(&dop->mutex_threads) ;
 	} /* end if */
@@ -2092,7 +1870,6 @@ static int worker(void *ptvp)
 	            rs = rs1 ;
 	            if (rs < 0) break ;
 
-	            c += 1 ;
 	            qo = wap->qo ;	/* new for each work cycle */
 	            skp = wap->skp ;	/* new for each work cycle */
 	            rtp = wap->rtp ;	/* new for each work cycle */
@@ -2108,21 +1885,23 @@ static int worker(void *ptvp)
 #endif
 
 	            if ((rs = textlook_havekeys(op,&ttag,qo,skp)) > 0) {
+	                c += 1 ;
 	                rt.hash = 0 ;
 	                rt.recoff = ttag.recoff ;
 	                rt.reclen = ttag.reclen ;
 	                rt.fname[0] = '\0' ;
 	                if (ttag.fname[0] != '\0') {
 	                    strwcpy(rt.fname,ttag.fname,MAXPATHLEN) ;
-			}
+	                }
 	                rs = rtags_add(rtp,&rt) ;
 	            } /* end if (found a key) */
 
 	        } /* end while (work) */
 
 	        if (rs >= 0) {
-		    rs = disp_setstate(dop,tip,FALSE) ;
-		}
+	            rs = disp_setstate(dop,tip,FALSE) ;
+	        }
+
 	    } /* end if (worker was busy) */
 
 	    if (dop->f_done) break ;
@@ -2266,7 +2045,6 @@ static int tagq_rem(TAGQ *tqp,TXTINDEX_TAG *tagp)
 static int mkfieldterms(uchar *wterms)
 {
 	int		i ;
-
 	for (i = 0 ; i < 32 ; i += 1) {
 	    wterms[i] = 0xFF ;
 	}
@@ -2278,7 +2056,6 @@ static int mkfieldterms(uchar *wterms)
 	BACLR(wterms,CH_SQUOTE) ;		/* allow apostrophe */
 	BACLR(wterms,'_') ;			/* allow under-score */
 	BACLR(wterms,'-') ;			/* allow minus-sign */
-
 	return i ;
 }
 /* end subroutine (mkfieldterms) */

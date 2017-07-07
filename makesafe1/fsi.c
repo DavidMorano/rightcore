@@ -130,3 +130,10 @@ int fsi_remove(FSI *op,char *sbuf,int slen)
 /* end subroutine (fsi_remove) */
 
 
+int fsi_rem(FSI *op,char *sbuf,int slen)
+{
+	return fsi_remove(op,sbuf,slen) ;
+}
+/* end subroutine (fsi_rem) */
+
+

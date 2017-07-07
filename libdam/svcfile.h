@@ -67,16 +67,16 @@ typedef struct svcfile_e	svcfile_e ;
 extern "C" {
 #endif
 
-extern int svcfile_open(SVCFILE *,const char *) ;
-extern int svcfile_fileadd(SVCFILE *,const char *) ;
+extern int svcfile_open(SVCFILE *,cchar *) ;
+extern int svcfile_fileadd(SVCFILE *,cchar *) ;
 extern int svcfile_curbegin(SVCFILE *,SVCFILE_CUR *) ;
 extern int svcfile_curend(SVCFILE *,SVCFILE_CUR *) ;
 extern int svcfile_enumsvc(SVCFILE *,SVCFILE_CUR *,char *,int) ;
 extern int svcfile_enum(SVCFILE *,SVCFILE_CUR *,
 		SVCFILE_ENT *,char *,int) ;
-extern int svcfile_fetch(SVCFILE *,const char *,SVCFILE_CUR *,
+extern int svcfile_fetch(SVCFILE *,cchar *,SVCFILE_CUR *,
 		SVCFILE_ENT *,char *,int) ;
-extern int svcfile_match(SVCFILE *,const char *) ;
+extern int svcfile_match(SVCFILE *,cchar *) ;
 extern int svcfile_check(SVCFILE *,time_t) ;
 extern int svcfile_close(SVCFILE *) ;
 

@@ -163,7 +163,7 @@ struct svcentry_key {
 int		svcfile_fileadd(SVCFILE *,const char *) ;
 int		svcfile_check(SVCFILE *,time_t) ;
 int		svcfile_fetch(SVCFILE *,const char *,SVCFILE_CUR *,
-SVCFILE_ENT *, char *,int) ;
+			SVCFILE_ENT *,char *,int) ;
 
 static int	svcfile_filefins(SVCFILE *) ;
 static int	svcfile_fileparse(SVCFILE *,int) ;
@@ -191,8 +191,8 @@ static int	svcfile_filealready(SVCFILE *,dev_t,uino_t) ;
 
 static int	svcentry_start(SVCENTRY *,cchar *) ;
 static int	svcentry_addkey(SVCENTRY *,cchar *,int,cchar *,int) ;
-static int	svcentry_nkeys(SVCENTRY *sep) ;
-static int	svcentry_size(SVCENTRY *sep) ;
+static int	svcentry_nkeys(SVCENTRY *) ;
+static int	svcentry_size(SVCENTRY *) ;
 static int	svcentry_finish(SVCENTRY *) ;
 
 static int	file_start(SVCFILE_FILE *,const char *) ;

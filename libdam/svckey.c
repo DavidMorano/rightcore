@@ -56,7 +56,7 @@ extern int	matpstr(const char **,int,const char *,int) ;
 
 /* local variables */
 
-static const char	*svckeys[] = {
+static cchar	*svckeys[] = {
 	"so",
 	"program",
 	"passfile",
@@ -74,9 +74,7 @@ static const char	*svckeys[] = {
 /* exported subroutines */
 
 
-int svckey_load(skp,sep)
-struct svckey	*skp ;
-SVCFILE_ENT	*sep ;
+int svckey_load(SVCKEY *skp,SVCFILE_ENT *sep)
 {
 	int		i ;
 	int		ki ;
@@ -92,7 +90,7 @@ SVCFILE_ENT	*sep ;
 	debugprintf("svckey_load: svc=%s\n",sep->svc) ;
 #endif
 
-	memset(skp,0,sizeof(struct svckey)) ;
+	memset(skp,0,sizeof(SVCKEY)) ;
 
 	skp->svc = sep->svc ;
 	for (i = 0 ; sep->keyvals[i][0] != NULL ; i += 1) {
@@ -102,7 +100,7 @@ SVCFILE_ENT	*sep ;
 	    ki = matostr(svckeys,1,kp,-1) ;
 
 #if	CF_DEBUGS
-	debugprintf("svckey_load: ki=%d kp=%s vp=>%s<\n",ki,kp,vp) ;
+	    debugprintf("svckey_load: ki=%d kp=%s vp=>%s<\n",ki,kp,vp) ;
 #endif
 
 	    switch (ki) {

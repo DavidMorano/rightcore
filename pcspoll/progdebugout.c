@@ -53,7 +53,7 @@
 
 extern int	cfdeci(const char *,int,int *) ;
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 
 /* forward references */

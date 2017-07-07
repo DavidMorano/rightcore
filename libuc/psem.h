@@ -28,7 +28,7 @@ extern "C" {
 extern int	uc_openpsem(const char *,int,mode_t,uint,PSEM **) ;
 
 extern int	psem_close(PSEM *) ;
-extern int	psem_init(PSEM *,int,uint) ;
+
 extern int	psem_create(PSEM *,int,uint) ;
 extern int	psem_destroy(PSEM *) ;
 extern int	psem_count(PSEM *) ;
@@ -38,6 +38,8 @@ extern int	psem_waiter(PSEM *,int) ;
 extern int	psem_waiti(PSEM *) ;
 extern int	psem_trywait(PSEM *) ;
 extern int	psem_post(PSEM *) ;
+
+extern int	psem_init(PSEM *,int,uint) ;
 
 #ifdef	__cplusplus
 }

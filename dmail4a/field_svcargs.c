@@ -70,12 +70,10 @@
 /* exported subroutines */
 
 
-int field_svcargs(fbp,sap)
-FIELD		*fbp ;
-VECSTR		*sap ;
+int field_svcargs(FIELD *fbp,vecstr *sap)
 {
-	int	rs ;
-	int	c = 0 ;
+	int		rs ;
+	int		c = 0 ;
 
 	if (fbp == NULL) return SR_FAULT ;
 	if (sap == NULL) return SR_FAULT ;

@@ -243,7 +243,14 @@ static int	txtindexmks_ntagclose(TXTINDEXMKS *) ;
 static int	txtindexmks_renamefiles(TXTINDEXMKS *) ;
 
 #if	CF_DEBUGS && CF_DEBUGEIGEN
+struct printeigen {
+	int		*ertab ;
+	char		*estab ;
+	int		ersize ;
+	int		erlen ;
+} ;
 static int	txtindexmks_printeigen(TXTINDEXMKS *) ;
+static int	txtindexmks_printeigener(TXTINDEXMKS *,struct printeigen *) ;
 #endif
 
 static int	mknewfname(char *,int,cchar *,cchar *) ;
@@ -1314,93 +1321,82 @@ int txtindexmks_ntagclose(TXTINDEXMKS *op)
 
 static int txtindexmks_printeigen(TXTINDEXMKS *op)
 {
-	const int	nskip = TXTINDEXMKS_NSKIP ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		n, i, si ;
-	int		essize ;
-	int		ersize ;
-	int		eisize ;
-	int		erlen ;
-	int		eilen ;
-	int		sl ;
-	int		*ertab ;
-	int		(*eitab)[3] ;
-	const char	*sp ;
-	char		*estab ;
+	STRTAB		*edp = &op->eigens ;
+	int		rs ;
 
-	n = strtab_count(&op->eigens) ;
-	erlen = (n+1) ;
+	if ((rs = strtab_count(edp)) >= 0) {
+	    int		erlen = (rs+1) ;
+	    if ((rs = strtab_strsize(edp)) >= 0) {
+		int	essize = rs ;
+		char	*estab ;
+		if ((rs = uc_malloc(essize,&estab)) >= 0) {
+		    if ((rs = strtab_strmk(edp,estab,essize)) >= 0) {
+			if ((rs = strtab_recsize(edp)) >= 0) {
+			    int	ersize = rs ;
+			    int	*ertab ;
+			    if ((rs = uc_malloc(ersize,&ertab)) >= 0) {
+				struct printeigen	a ;
+				a.ertab = ertab ;
+				a.estab = estab ;
+				a.ersize = ersize ;
+				a.erlen = erlen ;
+				rs = txtindexmks_printeigener(op,&a) ;
+				uc_free(ertab) ;
+			    } /* end if (m-a) */
+			}
+		    }
+		    uc_free(estab) ;
+		} /* end if (m-a) */
+	    }
+	}
 
-	rs = strtab_strsize(&op->eigens) ;
-	essize = rs ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	rs = uc_malloc(essize,&estab) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	rs = strtab_strmk(&op->eigens,estab,essize) ;
-	if (rs < 0)
-	    goto ret1 ;
-
-	rs = strtab_recsize(&op->eigens) ;
-	ersize = rs ;
-	if (rs < 0)
-	    goto ret1 ;
-
-	rs = uc_malloc(ersize,&ertab) ;
-	if (rs < 0)
-	    goto ret1 ;
-
-	rs = strtab_recmk(&op->eigens,ertab,ersize) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-	rs = strtab_indsize(&op->eigens) ;
-	eisize = rs ;
-	if (rs < 0)
-	    goto ret2 ;
-
-	eilen = strtab_indlen(&op->eigens) ;
-
-	rs = uc_malloc(eisize,&eitab) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-	rs = strtab_indmk(&op->eigens,eitab,eisize,nskip) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-	for (i = 1 ; i < erlen ; i += 1) {
-	    si = ertab[i] ;
-	    if (si > 0)
-	        debugprintf("txtindexmks_printeigen: i=%u si=%u s=%s\n",
-	            i,si,(estab + si)) ;
-
-	    sp = (estab + si) ;
-	    sl = strlen(sp) ;
-
-	    rs1 = strtabfind(estab,eitab,eilen,nskip,sp,sl) ;
-	    debugprintf("txtindexmks_printeigen: strtabfind() rs=%d\n",
-	        rs1) ;
-
-	} /* end for */
-
-ret3:
-	uc_free(eitab) ;
-
-ret2:
-	uc_free(ertab) ;
-
-ret1:
-	uc_free(estab) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (txtindexmks_printeigen) */
+
+
+static int txtindexmks_printeigener(TXTINDEXMKS *op,struct printeigen *ap)
+{
+	STRTAB		*edp = &op->eigens ;
+	int		rs ;
+	int		rs1 ;
+	int		*ertab = ap->ertab ;
+	char		*estab = ap->estab ;
+	int		ersize = ap->ersize ;
+	int		erlen = ap->erlen ;
+	if ((rs = strtab_recmk(edp,ertab,ersize)) >= 0) {
+	    if ((rs = strtab_indsize(edp)) >= 0) {
+		int	(*eitab)[3] ;
+		int	eisize = rs ;
+		int	eilen = strtab_indlen(edp) ;
+		if ((rs = uc_malloc(eisize,&eitab)) >= 0) {
+		    int	ns = TXTINDEXMKS_NSKIP ;
+		    if ((rs = strtab_indmk(edp,eitab,eisize,ns)) >= 0) {
+			int	i ;
+			int	si ;
+			int	sl ;
+			cchar	*sp ;
+			cchar	*fmt ;
+			fmt = "txtindexmks_printeigen: i=%u si=%u s=%s\n" ;
+			for (i = 1 ; i < erlen ; i += 1) {
+	    		    si = ertab[i] ;
+	    		    if (si > 0) {
+	        		debugprintf(fmt,i,si,(estab + si)) ;
+			    }
+	    		    sp = (estab + si) ;
+	    		    sl = strlen(sp) ;
+	    		    rs1 = strtabfind(estab,eitab,eilen,ns,sp,sl) ;
+	    		    fmt = "txtindexmks_printeigen: stabfind() rs=%d\n";
+	    		    debugprintf(fmt,rs1) ;
+			} /* end for */
+		    }
+		    uc_free(eitab) ;
+		} /* end if (m-a) */
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (txtindexmks_printeigener) */
 
 #endif /* CF_DEBUGS */
 

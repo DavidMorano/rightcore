@@ -328,13 +328,13 @@ int mfslisten_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 	    SOCKADDRESS		sa ;
 	    int			salen = sizeof(SOCKADDRESS) ;
 	    f = TRUE ;
-	    if ((rs = locinfo_getaccto(lip)) >= 0) {
+	    if ((rs = locinfo_getaccto(lip)) >= 0) { /* "accept" timeout */
 	        const int	to = rs ;
 	        if ((rs = listenspec_accept(lsp,&sa,&salen,to)) >= 0) {
 	            const int	cfd = rs ;
 		    if ((rs = listenspec_gettype(lsp)) >= 0) {
-			const int	jtype = rs ;
-		        if ((rs = mfslisten_new(pip,jtype,cfd)) >= 0) {
+			const int	stype = rs ; /* sub-type */
+		        if ((rs = mfslisten_new(pip,stype,cfd)) >= 0) {
 			    POLLER_SPEC	ps ;
 			    ps.fd = fd ;
 			    ps.events = (POLLIN | POLLPRI) ;
@@ -571,6 +571,11 @@ static int mfslisten_hit(PROGINFO *pip,LISTENSPEC **rpp,int fd,int re)
 static int mfslisten_new(PROGINFO *pip,int stype,int fd)
 {
 	int		rs = SR_OK ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_new: ent stype=%u fd=%u\n",stype,fd) ;
+#endif
 
 	if (pip->watch != NULL) {
 	    const int	jtype = jobtype_listen ;

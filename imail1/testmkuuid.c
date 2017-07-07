@@ -32,7 +32,7 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char 	*getourenv(const char **,const char *) ;
+extern cchar 	*getourenv(cchar **,cchar *) ;
 
 
 int main(int argc,const char **argv,const char **envv)
