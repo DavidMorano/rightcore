@@ -470,7 +470,7 @@ static int pwfile_loadbegin(PWFILE *dbp)
 /* build the name index! */
 
 	for (i = 0 ; vecitem_get(&dbp->alist,i,&ep) >= 0 ; i += 1) {
-	    if (ep == NULL) continue ;
+	    if (ep != NULL) {
 
 #if	CF_DEBUGS
 	    debugprintf("pwfile_loadbegin: storing, u=%s\n",ep->username) ;
@@ -483,8 +483,9 @@ static int pwfile_loadbegin(PWFILE *dbp)
 	    value.len = sizeof(PWENTRY) ;
 
 	    rs = hdb_store(&dbp->byuser,key,value) ;
-	    if (rs < 0) break ;
 
+	    }
+	    if (rs < 0) break ;
 	} /* end for */
 
 	if (rs < 0)

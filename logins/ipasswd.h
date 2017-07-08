@@ -29,15 +29,11 @@
 #define	IPASSWD_CUR		struct ipasswd_c
 #define	IPASSWD_INFO		struct ipasswd_i
 #define	IPASSWD_ENT		struct ipasswd_e
+#define	IPASSWD_FL		struct ipasswd_flags
 
 #define	IPASSWD_SUF		"pwi"
-#define	IPASSWD_FILEMAGIC	"IPASSWD"
 #define	IPASSWD_MAGIC		0x23456787
 #define	IPASSWD_CURMAGIC	0x23456788
-
-#define	IPASSWD_FILEMAGICLEN	7
-#define	IPASSWD_FILEVERSION	0
-#define	IPASSWD_FILETYPE	0
 
 #define	IPASSWD_USERNAMELEN	32
 #define	IPASSWD_NINDICES	5	/* number of indices */
@@ -96,9 +92,9 @@ struct ipasswd_head {
 	const char	*fname ;
 	caddr_t		mapdata ;
 	const char	*stab ;
-	IPASSWD_ENT	*rectab ;
 	uint		(*recind[IPASSWD_NINDICES])[2] ;
-	struct ipasswd_flags	f ;
+	IPASSWD_ENT	*rectab ;
+	IPASSWD_FL	f ;
 	time_t		mtime ;
 	time_t		ti_open ;
 	time_t		ti_access ;
@@ -106,8 +102,11 @@ struct ipasswd_head {
 	size_t		mapsize ;
 	uint		pagesize ;
 	uint		filesize ;
-	uint		stlen ;
-	uint		rtlen, rilen ;
+	uint		stcount ;
+	uint		stsize ;
+	uint		rtlen ;
+	uint		rtsize ;
+	uint		rilen ;
 	uint		collisions ;
 	uint		ropts ;
 	int		fd ;

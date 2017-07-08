@@ -151,7 +151,7 @@ cchar		*fname ;
 	    for (i = 0 ; i < 256 ; i += 1) {
 	        if (BATST(terms,i)) {
 	            debugprintf("progkeyer: t=%02x\n",i) ;
-		}
+	        }
 	    }
 	}
 #endif /* CF_DEBUG */
@@ -185,347 +185,325 @@ cchar		*fname ;
 	    char	lbuf[LINEBUFLEN + 1], *lp ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("progkeyer: file-processing\n") ;
+	    if (DEBUGLEVEL(2))
+	        debugprintf("progkeyer: file-processing\n") ;
 #endif
 
 /* figure a default hash DB size based on the input file length */
 
-	if (pip->f.wholefile) {
-	    hashsize = 1000 ;
-	    if ((rs = bsize(ifp)) > 0) {
-		hashsize = (rs / 6) ;
-	    }
-	} /* end if (whole-file) */
+	    if (pip->f.wholefile) {
+	        hashsize = 1000 ;
+	        if ((rs = bsize(ifp)) > 0) {
+	            hashsize = (rs / 6) ;
+	        }
+	    } /* end if (whole-file) */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("progkeyer: hashsize=%u\n",hashsize) ;
+	    if (DEBUGLEVEL(2))
+	        debugprintf("progkeyer: hashsize=%u\n",hashsize) ;
 #endif
 
 /* go to it, read the file line by line */
 
-	while (rs >= 0) {
-	    rs = breadline(ifp,(lbuf + lo),(llen - lo)) ;
-	    if (rs < 0) break ;
-	    len = (lo + rs) ;
-	    if (len == 0) break ;
+	    while (rs >= 0) {
+	        rs = breadline(ifp,(lbuf + lo),(llen - lo)) ;
+	        if (rs < 0) break ;
+	        len = (lo + rs) ;
+	        if (len == 0) break ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("progkeyer: line> %t", lbuf,len) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("progkeyer: line> %t", lbuf,len) ;
 #endif
 
 /* we ignore lo...ng lines entirely, but we try to resynchronize up */
 
-	    lp = lbuf ;
-	    ll = len ;
-	    f_eol = (lp[ll - 1] == '\n') ;
-	    if (! f_eol) {
+	        lp = lbuf ;
+	        ll = len ;
+	        f_eol = (lp[ll - 1] == '\n') ;
+	        if (! f_eol) {
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("progkeyer: ignoring long line\n") ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("progkeyer: ignoring long line\n") ;
 #endif
 
-	        offset += len ;
-	        while (((c = bgetc(ifp)) != SR_EOF) && (c != '\n')) {
-	            offset += 1 ;
-	            recoff += 1 ;
-	        } /* end while */
+	            offset += len ;
+	            while (((c = bgetc(ifp)) != SR_EOF) && (c != '\n')) {
+	                offset += 1 ;
+	                recoff += 1 ;
+	            } /* end while */
 
-	        lo = 0 ;
-	        continue ;
+	            lo = 0 ;
+	            continue ;
 
-	    } /* end if (discarding extra line input) */
+	        } /* end if (discarding extra line input) */
 
-	    lp[--ll] = '\0' ;
+	        lp[--ll] = '\0' ;
 
 /* figure out where we start and/or end an entry */
 
-	    if (! pip->f.wholefile) {
+	        if (! pip->f.wholefile) {
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4)) {
 	                debugprintf("progkeyer: NWF f_ent=%u\n",f_ent) ;
 	                debugprintf("progkeyer: delim=>%s<\n",dbuf) ;
-		}
+	            }
 #endif
-		if ((dlen > 0) && (dbuf != NULL)) {
-	        if (dbuf[0] == '\0') {
+	            if ((dlen > 0) && (dbuf != NULL)) {
+	                if (dbuf[0] == '\0') {
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("progkeyer: delimit every line\n") ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: delimit every line\n") ;
 #endif
-	            f_start = TRUE ;
-	            f_finish = TRUE ;
-	        } else if (CHAR_ISWHITE(dbuf[0])) {
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4)) {
-	                debugprintf("progkeyer: delimit using blank lines\n") ;
-	                debugprintf("progkeyer: f_ent=%u\n",f_ent) ;
-		}
-#endif
-	            if ((cl = sfshrink(lp,ll,&cp)) == 0) {
-	                if (f_ent) f_finish = TRUE ;
-	            } else {
-	                if (! f_ent) f_start = TRUE ;
-	            } /* end if */
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4)) {
-	                debugprintf("progkeyer: f_start=%u f_finish=%u\n",
-			f_start,f_finish) ;
-		}
-#endif
-	        } else {
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("progkeyer: specified delimiter\n") ;
-#endif
-	            if (strncmp(lp,dbuf,dlen) == 0) {
-#if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: got a delimiter\n") ;
-#endif
-	                if (f_ent)
-	                    f_finish = TRUE ;
-	            } else {
-#if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: regular line\n") ;
-#endif
-	                if (! f_ent)
 	                    f_start = TRUE ;
-	            } /* end if */
-	        } /* end if (delimiter cascade) */
-		} /* end if (non-null) */
+	                    f_finish = TRUE ;
+	                } else if (CHAR_ISWHITE(dbuf[0])) {
+	                    if ((cl = sfshrink(lp,ll,&cp)) == 0) {
+	                        if (f_ent) f_finish = TRUE ;
+	                    } else {
+	                        if (! f_ent) f_start = TRUE ;
+	                    } /* end if */
+	                } else {
+#if	CF_DEBUG
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: specified delimiter\n") ;
+#endif
+	                    if (strncmp(lp,dbuf,dlen) == 0) {
+#if	CF_DEBUG
+	                        if (DEBUGLEVEL(4))
+	                            debugprintf("progkeyer: got delimiter\n") ;
+#endif
+	                        if (f_ent)
+	                            f_finish = TRUE ;
+	                    } else {
+#if	CF_DEBUG
+	                        if (DEBUGLEVEL(4))
+	                            debugprintf("progkeyer: regular line\n") ;
+#endif
+	                        if (! f_ent)
+	                            f_start = TRUE ;
+	                    } /* end if */
+	                } /* end if (delimiter cascade) */
+	            } /* end if (non-null) */
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4)) {
 	                debugprintf("progkeyer: mid rs=%d\n",rs) ;
 	                debugprintf("progkeyer: f_start=%u f_finish=%u\n",
-			f_start,f_finish) ;
-		}
+	                    f_start,f_finish) ;
+	            }
 #endif
 
-	        if (f_finish) {
-
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("progkeyer: finishing off entry\n") ;
-#endif
-
-	            f_ent = FALSE ;
-	            f_finish = FALSE ;
-	            if (n > 0) {
+	            if (f_finish) {
 
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: closing a DB\n") ;
+	                    debugprintf("progkeyer: finishing off entry\n") ;
 #endif
 
-	                f_open = FALSE ;
-	                reclen = (uint) ((offset - recoff) & UINT_MAX) ;
+	                f_ent = FALSE ;
+	                f_finish = FALSE ;
+	                if (n > 0) {
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: i keys_end() reclen=%u\n",
-				reclen) ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: closing a DB\n") ;
 #endif
 
-	                rs = keys_end(pip,&keydb,ofp,omp,
-				fname,recoff,reclen) ;
-	                nk = rs ;
-	                if (nk > 0)
-	                    entries += 1 ;
+	                    f_open = FALSE ;
+	                    reclen = (uint) ((offset - recoff) & UINT_MAX) ;
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: keys_end() rs=%s\n",rs);
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: i reclen=%u\n",
+	                            reclen) ;
 #endif
 
-	            } /* end if */
-
-	        } /* end if (finishing entry) */
-
-	    } /* end if (not whole file -- determining entry boundary) */
+	                    rs = keys_end(pip,&keydb,ofp,omp,
+	                        fname,recoff,reclen) ;
+	                    nk = rs ;
+	                    if (nk > 0)
+	                        entries += 1 ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-		debugprintf("progkeyer: mid2 rs=%d f_start=%u\n",rs,f_start);
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: keys_end() rs=%s\n",
+				rs) ;
 #endif
 
-	    if ((rs >= 0) && f_start) {
+	                } /* end if */
+
+	            } /* end if (finishing entry) */
+
+	        } /* end if (not whole file -- determining entry boundary) */
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("progkeyer: starting off entry, offset=%ld\n",
-	                offset) ;
+	            debugprintf("progkeyer: mid2 rs=%d f_start=%u\n",rs,f_start) ;
 #endif
 
-	        f_start = FALSE ;
-	        f_ent = TRUE ;
-
-	        n = 0 ;
-	        reclen = 0 ;
-	        recoff = offset ;
-	        if (! f_open) {
+	        if ((rs >= 0) && f_start) {
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
-	                debugprintf("progkeyer: opening a DB\n") ;
+	                debugprintf("progkeyer: starting offset=%ld\n",
+	                    offset) ;
 #endif
 
-	            f_open = TRUE ;
-	            rs = keys_begin(pip,&keydb,hashsize) ;
+	            f_start = FALSE ;
+	            f_ent = TRUE ;
 
-	        } /* end if (opening keys DB) */
+	            n = 0 ;
+	            reclen = 0 ;
+	            recoff = offset ;
+	            if (! f_open) {
 
-	    } /* end if (starting entry) */
+#if	CF_DEBUG
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("progkeyer: opening a DB\n") ;
+#endif
+
+	                f_open = TRUE ;
+	                rs = keys_begin(pip,&keydb,hashsize) ;
+
+	            } /* end if (opening keys DB) */
+
+	        } /* end if (starting entry) */
 
 /* process this current input line if we are supposed to */
 
-	    if ((rs >= 0) && (ll >= pip->minwordlen) && f_ent && 
-	        (! ignoreline(lp,ll,ignorechars))) {
+	        if ((rs >= 0) && (ll >= pip->minwordlen) && f_ent && 
+	            (! ignoreline(lp,ll,ignorechars))) {
 
-	        if ((rs = field_start(&fsb,lp,ll)) >= 0) {
-	            int		fl ;
-	            int		f_first = FALSE ;
-	            const char	*fp ;
+	            if ((rs = field_start(&fsb,lp,ll)) >= 0) {
+	                int		fl ;
+	                int		f_first = FALSE ;
+	                const char	*fp ;
 
-	            if (pip->f.optbible) {
+	                if (pip->f.optbible) {
 
-	                fl = field_get(&fsb,bterms,&fp) ;
+	                    fl = field_get(&fsb,bterms,&fp) ;
 
-	                while ((fl > 0) && (fp[fl - 1] == ':')) {
-	                    fl -= 1 ;
-			}
+	                    while ((fl > 0) && (fp[fl - 1] == ':')) {
+	                        fl -= 1 ;
+	                    }
 
-	                f_first = (fl > 0) ;
+	                    f_first = (fl > 0) ;
 
-	            } /* end if (special bible processing) */
+	                } /* end if (special bible processing) */
 
 /* loop on parsing words (which become keys) from the input line */
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("progkeyer: f_first=%u\n",f_first) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("progkeyer: f_first=%u\n",f_first) ;
 #endif
 
-	            while ((rs >= 0) &&
-	                (f_first || ((fl = field_word(&fsb,terms,&fp)) >= 0))) {
+	                while ((rs >= 0) &&
+	                    (f_first || 
+				((fl = field_word(&fsb,terms,&fp)) >= 0))) {
 
-	                char	lowbuf[LOWBUFLEN + 1] ;
+	                    char	lowbuf[LOWBUFLEN + 1] ;
 
-
-	                f_first = FALSE ;
+	                    f_first = FALSE ;
 
 /* remove apostrophes (single quotes) from the leading edge */
 
-	                if (fl && (fp[0] == CH_SQUOTE)) {
-	                    fp += 1 ;
-	                    fl -= 1 ;
-	                }
+			    if (fl && (fp[0] == CH_SQUOTE)) {
+				fp += 1 ;
+				fl -= 1 ;
+			    }
 
-	                if (fl == 0) continue ;
-
-/* abandon stuff that starts with weirdo characters (if any) */
-
-	                if (! isalnumlatin(fp[0])) continue ;
-
-	                if (fl > NATURALWORDLEN) continue ;
+			    if (fl == 0) continue ;
+	                    if (! isalnumlatin(fp[0])) continue ;
+	                    if (fl > NATURALWORDLEN) continue ;
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: word=%t\n",fp,fl) ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: word=%t\n",fp,fl) ;
 #endif
 
-	                sp = fp ;
-	                sl = fl ;
-	                if (hasuc(fp,fl)) {
-	                    int	ml = MIN(LOWBUFLEN,fl) ;
-	                    sl = strwcpylc(lowbuf,fp,ml) - lowbuf ;
-	                    sp = lowbuf ;
-	                }
+	                    sp = fp ;
+	                    sl = fl ;
+	                    if (hasuc(fp,fl)) {
+	                        int	ml = MIN(LOWBUFLEN,fl) ;
+	                        sl = strwcpylc(lowbuf,fp,ml) - lowbuf ;
+	                        sp = lowbuf ;
+	                    }
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: lowercase word=%t\n",
-	                        sp,sl) ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: lowercase word=%t\n",
+	                            sp,sl) ;
 #endif
 
 /* remove possible trailing single quote */
 
-	                cl = sfword(sp,sl,&cp) ;
+	                    cl = sfword(sp,sl,&cp) ;
 
-	                if (cl <= 0) continue ;
+	                    if (cl <= 0) continue ;
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("progkeyer: sfword() wl=%u wp=>%t<\n",
-	                        cl,cp,cl) ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progkeyer: wl=%u wp=>%t<\n",
+	                            cl,cp,cl) ;
 #endif
 
 #if	CF_EXTRAWORDS
-	                {
-	                    XWORDS	xw ;
-
-	                    if ((rs = xwords_start(&xw,cp,cl)) >= 0) {
-	                        int	i = 0 ;
-
-	                        while ((rs >= 0) &&
-	                            ((sl = xwords_get(&xw,i++,&sp)) > 0)) {
-
-	                            rs = procword(pip,&keydb,n,sp,sl) ;
-	                            if (rs > 0)
-	                                n += 1 ;
-
-	                        } /* end while */
-
-	                        xwords_finish(&xw) ;
-	                    } /* end if */
-
-	                } /* end block */
+	                    {
+	                        XWORDS	xw ;
+	                        if ((rs = xwords_start(&xw,cp,cl)) >= 0) {
+	                            int	i = 0 ;
+	                            while ((rs >= 0) &&
+	                                ((sl = xwords_get(&xw,i++,&sp)) > 0)) {
+	                                rs = procword(pip,&keydb,n,sp,sl) ;
+	                                if (rs > 0) n += 1 ;
+	                            } /* end while */
+	                            xwords_finish(&xw) ;
+	                        } /* end if */
+	                    } /* end block */
 #else /* CF_EXTRAWORDS */
 
-	                rs = procword(pip,&keydb,n,cp,cl) ;
-	                if (rs > 0)
-	                    n += 1 ;
+	                    rs = procword(pip,&keydb,n,cp,cl) ;
+	                    if (rs > 0)
+	                        n += 1 ;
 
 #endif /* CF_EXTRAWORDS */
 
-	                if (rs < 0) break ;
-	            } /* end while (getting word fields from the line) */
+	                    if (rs < 0) break ;
+	                } /* end while (getting word fields from the line) */
 
-	            field_finish(&fsb) ;
-	        } /* end if (field) */
+	                field_finish(&fsb) ;
+	            } /* end if (field) */
 
-	    } /* end if (we were in an entry) */
+	        } /* end if (we were in an entry) */
 
-	    offset += len ;
-	    reclen += len ;
-	    if (rs < 0) break ;
-	} /* end while (looping reading lines) */
+	        offset += len ;
+	        reclen += len ;
+	        if (rs < 0) break ;
+	    } /* end while (looping reading lines) */
 
 /* write out (finish off) the last (or only) entry */
 
-	if (f_open) {
+	    if (f_open) {
 
-	    f_open = FALSE ;
-	    reclen = (uint) ((offset - recoff) & UINT_MAX) ;
+	        f_open = FALSE ;
+	        reclen = (uint) ((offset - recoff) & UINT_MAX) ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-		debugprintf("progkeyer: f keys_end() reclen=%u\n",
-				reclen) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("progkeyer: f keys_end() reclen=%u\n",
+	                reclen) ;
 #endif
 
-	    rs1 = keys_end(pip,&keydb,ofp,omp,fname,recoff,reclen) ;
-	    nk = rs1 ;
-	    if (rs >= 0) rs = rs1 ;
-	    if (nk > 0)
-	        entries += 1 ;
+	        rs1 = keys_end(pip,&keydb,ofp,omp,fname,recoff,reclen) ;
+	        nk = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
+	        if (nk > 0)
+	            entries += 1 ;
 
-	} /* end if */
+	    } /* end if */
 
 	    rs1 = bclose(ifp) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -567,21 +545,22 @@ static int procword(PROGINFO *pip,HDB *keydbp,int n,cchar *wp,int wl)
 	    if ((wl > 0) && (wl <= NATURALWORDLEN)) {
 	        if (wl >= pip->minwordlen) {
 	            EIGENDB	*edbp = &pip->eigendb ;
+	            const int	rsn = SR_NOTFOUND ;
 
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(4)) {
-	    	        if (wl > 0) {
-	        	    debugprintf("progkeyer/procword: key=%t\n",wp,wl) ;
-	    	        } else {
-	        	    debugprintf("progkeyer/procword: zero length\n") ;
-		        }
-		    }
+	            if (DEBUGLEVEL(4)) {
+	                if (wl > 0) {
+	                    debugprintf("progkeyer/procword: key=%t\n",wp,wl) ;
+	                } else {
+	                    debugprintf("progkeyer/procword: zero length\n") ;
+	                }
+	            }
 #endif /* CF_DEBUG */
 
 /* check if this word is in the eigenword database */
 
 	            if ((rs = eigendb_exists(edbp,wp,wl)) >= 0) {
-	                f = FLASE ;
+	                f = FALSE ;
 	            } else if (rs == rsn) {
 	                if ((pip->maxwordlen > 0) && (wl > pip->maxwordlen)) {
 	                    wl = pip->maxwordlen ;

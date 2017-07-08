@@ -9,7 +9,6 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>		/* for '_XXX_ENDIAN' */
-#include	<endian.h>		/* for 'ENDIAN' */
 #include	<localmisc.h>
 
 

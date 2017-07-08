@@ -1,47 +1,45 @@
 /* mkmagic */
 
-/* make the magic sequence of bytes for (usually) an index-type file */
+/* create a string with a (pretty much) standard magic string  */
 
 
-#define	CF_DEBUGS 	0		/* run-time debugging */
+#define	CF_DEBUGS	0		/* switchable debug print-outs */
 
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
-	This subroutine was originally written.
+	= 2004-02-01, David A­D­ Morano
+        This code was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine reads and write a bible-verse-index file.
-
 	Synopsis:
 
-	int mkmagic(mbuf,mp,nl)
-	char		mbuf[] ;
-	const char	mp[] ;
-	int		ml ;
+	int mkmagic(rbuf,rlen,ms)
+	char		rbuf[] ;
+	int		rlen ;
+	const char	*ms ;
 
 	Arguments:
 
-	- mbuf		buffer receiving bytes
-	- mp		magic string pointer
-	- ml		magic string length
+	rbuf		result buffer
+	rlen		result buffer length
+	ms		source string
 
 	Returns:
 
-	>=0		OK
-	<0		error code
+	<0		error
+	>=0		length of resulting string
 
 
 *******************************************************************************/
 
 
-#include	<envstandards.h>	/* must be before others */
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<string.h>
@@ -50,45 +48,31 @@
 #include	<localmisc.h>
 
 
-/* local defines */
-
-
 /* external subroutines */
-
-extern int	sncpy2(char *,int,const char *,const char *) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
 
 
-/* external variables */
-
-
-/* local structures */
-
-
-/* forward references */
-
-
-/* local variables */
+/* local subroutines */
 
 
 /* exported subroutines */
 
 
-int mkmagic(char *rbuf,cchar *mp,int ms)
+int mkmagic(char *rbuf,int rlen,cchar *ms)
 {
-	char		*bp = rbuf ;
-
-	bp = strwcpy(bp,mp,(ms- 1)) ;
+	const int	ml = (rlen-2) ;
+	char		*bp ;
+	bp = strwcpy(rbuf,ms,ml) ;
 	*bp++ = '\n' ;
-	memset(bp,0,(ms - (bp - rbuf))) ;
-
-	return ms ;
+	*bp++ = '\0' ;
+	memset(bp,0,(rbuf+ml)-bp) ;
+	return rlen ;
 }
 /* end subroutine (mkmagic) */
 

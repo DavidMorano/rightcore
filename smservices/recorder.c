@@ -42,7 +42,6 @@
 
 #include	<vsystem.h>
 #include	<localmisc.h>
-#include	<localmisc.h>
 
 #include	"recorder.h"
 
@@ -51,23 +50,7 @@
 
 #define	MODP2(v,n)	((v) & ((n) - 1))
 
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
-
-#define	NSHIFT	6
+#define	NSHIFT		6
 
 #if	CF_DEBUGS
 #ifndef	HEXBUFLEN
@@ -149,7 +132,7 @@ int recorder_start(RECORDER *asp,int n,int opts)
 	debugprintf("recorder_start: allocating RECTAB n=%d\n",n) ;
 #endif
 
-	size = n * sizeof(RECORDER_ENT) ;
+	size = (n * sizeof(RECORDER_ENT)) ;
 	if ((rs = uc_malloc(size,&p)) >= 0) {
 	    asp->rectab = p ;
 	    asp->e = n ;
@@ -337,17 +320,18 @@ int recorder_gettab(RECORDER *asp,RECORDER_ENT **rpp)
 	if (asp->magic != RECORDER_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = asp->rectab ;
+	}
 
-	size = asp->i * sizeof(RECORDER_ENT) ;
+	size = (asp->i * sizeof(RECORDER_ENT)) ;
 	return size ;
 }
 /* end subroutine (recorder_gettab) */
 
 
 /* create a record index for the caller */
-int recorder_mkindl1(RECORDER *asp,cchar s[],uint it[][2],int itsize)
+int recorder_mkindl1(RECORDER *asp,cchar *s,uint (*it)[2],int itsize)
 {
 	uint		rhash ;
 #if	CF_DEBUGSHIFT
@@ -931,8 +915,7 @@ int recorder_mkindun(RECORDER *asp,cchar s[],uint it[][2],int itsize)
 #endif
 
 #if	CF_EXCLUDEKEY
-	    if (sl < nc)
-	        continue ;
+	    if (sl < nc) continue ;
 #endif
 
 	    rhash = hashelf(hp,hl) ;

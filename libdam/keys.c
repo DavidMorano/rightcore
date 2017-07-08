@@ -63,7 +63,7 @@ extern cchar	*getourenv(cchar **,cchar *) ;
 
 /* forward references */
 
-int keys_ender(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
+int	keys_ender(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
 
 
 /* local variables */
@@ -72,10 +72,7 @@ int keys_ender(PROGINFO *,HDB *,bfile *,PTM *,cchar *,offset_t,int) ;
 /* exported subroutines */
 
 
-int keys_begin(pip,dbp,hashsize)
-PROGINFO	*pip ;
-HDB		*dbp ;
-int		hashsize ;
+int keys_begin(PROGINFO *pip,HDB *dbp,int hashsize)
 {
 	const int	f = FALSE ;
 	int		rs ;
@@ -89,11 +86,7 @@ int		hashsize ;
 /* end subroutine (keys_begin) */
 
 
-int keys_add(pip,dbp,sp,sl)
-PROGINFO	*pip ;
-HDB		*dbp ;
-const char	sp[] ;
-int		sl ;
+int keys_add(PROGINFO *pip,HDB *dbp,cchar *sp,int sl)
 {
 	HDB_DATUM	key, value, dumbvalue ;
 	const int	nrs = SR_NOTFOUND ;

@@ -16,7 +16,6 @@
 
 
 #include	<sys/types.h>
-
 #include	<localmisc.h>
 
 
@@ -30,26 +29,26 @@
 
 /* options */
 
-#define	RECORDER_OSEC			0x01
-#define	RECORDER_ORANDLC		0x02
+#define	RECORDER_OSEC		(1<<0)
+#define	RECORDER_ORANDLC	(1<<1)
 
 
 struct recorder_i {
-	uint	cden[RECORDER_NINDICES][RECORDER_NCOLLISIONS] ;
-	uint	c_l1 ;
-	uint	c_l3 ;
-	uint	c_f ;
-	uint	c_fl3 ;
-	uint	c_un ;
-	uint	ilen ;		/* index length */
+	uint		cden[RECORDER_NINDICES][RECORDER_NCOLLISIONS] ;
+	uint		c_l1 ;
+	uint		c_l3 ;
+	uint		c_f ;
+	uint		c_fl3 ;
+	uint		c_un ;
+	uint		ilen ;		/* index length */
 } ;
 
 struct recorder_e {
-	uint	username ;
-	uint	last ;
-	uint	first ;
-	uint	m1 ;
-	uint	m2 ;
+	uint		username ;
+	uint		last ;
+	uint		first ;
+	uint		m1 ;
+	uint		m2 ;
 } ;
 
 struct recorder_head {

@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUG	1		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_DEFGROUP	0		/* for compatibility w/ 'id(1)' */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */

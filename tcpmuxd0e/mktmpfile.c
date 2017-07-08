@@ -22,10 +22,10 @@
 
 	Synopsis:
 
-	int mktmpfile(rbuf,mode,intemplate)
+	int mktmpfile(rbuf,mode,template)
 	char		rbuf[] ;
 	mode_t		mode ;
-	const char	intemplate[] ;
+	const char	template[] ;
 
 	Arguments:
 
@@ -80,12 +80,10 @@ int mktmpfile(char *rbuf,mode_t om,cchar *inname)
 	const int	of = (O_WRONLY|O_CLOEXEC) ;
 	int		rs ;
 	int		len = 0 ;
-
 	if ((rs = opentmpfile(inname,of,om,rbuf)) >= 0) {
 	    u_close(rs) ;
 	    len = strlen(rbuf) ;
-	} /* end if */
-
+	} /* end if (opentmpfile) */
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (mktmpfile) */

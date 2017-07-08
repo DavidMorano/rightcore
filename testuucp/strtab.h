@@ -53,7 +53,7 @@ struct strtab_head {
 	HDB		strdb ;
 	STRTAB_AOBJ	intdb ;
 	int		chunksize ;
-	int		stlen ;		/* "string table" length */
+	int		stsize ;	/* "string table" size */
 	int		count ;		/* total item count */
 } ;
 

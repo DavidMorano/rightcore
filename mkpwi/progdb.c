@@ -1,24 +1,23 @@
 /* progdb */
 
-/* process the system password GECOS fields and create associated DB */
+/* process the system password data and write out to the index file */
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
 #define	CF_DEBUG	0		/* run-time debugging */
-#define	CF_DEBUGFILE	0		/* debug index file */
+#define	CF_DEBUGFILE	1		/* debug index file */
 #define	CF_MKGECOSNAME	1		/* "should" be much faster? */
 
 
 /* revision history:
 
-	= 2001-09-01, David A­D­ Morano
-	This subroutine was hacked from something else.  The other thing
-	appears to have been a PCS cache file creator, but I'm not even sure
-	now (and I even wrote the other thing also!).
+	= 2002-04-29, David A­D­ Morano
+        This subroutine was inspired by something previous (I do not remember
+	what it was).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -38,7 +37,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<endian.h>
+#include	<endianstr.h>
 #include	<getbufsize.h>
 #include	<bfile.h>
 #include	<pwfile.h>
@@ -54,20 +53,10 @@
 
 #include	"recorder.h"
 #include	"ipasswd.h"
+#include	"pwihdr.h"
 
 
 /* local defines */
-
-#define	NREC_GUESS	100		/* guess of number of records */
-
-#define	PWIFILE_MAGIC		"IPASSWD"
-#define	PWIFILE_MAGICLEN	7
-#define	PWIFILE_VERSION		0
-#define	PWIFILE_TYPE		0
-
-#ifndef	ITEMLEN
-#define	ITEMLEN		100
-#endif
 
 #undef	USERNAMELEN
 #ifdef	IPASSWD_USERNAME
@@ -80,22 +69,36 @@
 #define	REALNAMELEN	100		/* real name length */
 #endif
 
+#define	NREC_GUESS	100		/* guess of number of records */
+
+#ifndef	ITEMLEN
+#define	ITEMLEN		100
+#endif
+
+#define	WRCACHE		struct wrcache
+
 
 /* external subroutines */
 
 extern int	snsd(char *,int,cchar *,uint) ;
+extern int	snsds(char *,int,cchar *,cchar *) ;
 extern int	snrealname(char *,int,cchar **,int) ;
 extern int	sncpy2(char *,int,cchar *,cchar *) ;
+extern int	sncpy5(char *,int,cchar *,cchar *,cchar *,cchar *,cchar *) ;
 extern int	snwcpy(char *,int,cchar *,int) ;
 extern int	snwcpyhyphen(char *,int,cchar *,int) ;
 extern int	mkpath1w(char *,cchar *,int) ;
-extern int	mkpath1(char *,cchar *,cchar *) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	mkfnamesuf1(char *,cchar *,cchar *) ;
+extern int	mkfnamesuf2(char *,cchar *,cchar *,cchar *) ;
+extern int	mkmagic(char *,int,cchar *) ;
 extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	sfbasename(cchar *,int,cchar **) ;
 extern int	sfdirname(cchar *,int,cchar **) ;
 extern int	cfdeci(cchar *,int,int *) ;
 extern int	cfdecui(cchar *,int,uint *) ;
+extern int	mktmpfile(char *,mode_t,cchar *) ;
 extern int	mkgecosname(char *,int,cchar *) ;
 extern int	getgecosname(cchar *,int,cchar **) ;
 extern int	perm(cchar *,uid_t,gid_t,gid_t *,int) ;
@@ -116,34 +119,44 @@ extern char	*strnchr(cchar *,int,int) ;
 
 /* local structures */
 
-enum headers {
-	header_writetime,
-	header_writecount,
-	header_rectab,
-	header_rectablen,
-	header_strtab,
-	header_strtabsize,
-	header_indexlen,
-	header_indexl1,
-	header_indexl3,
-	header_indexf,
-	header_indexfl3,
-	header_indexun,
-	header_overlast
+struct wrcache {
+	bfile		ifile ;
+	STRTAB		*stp ;
+	RECORDER	*rp ;
+	RECORDER_ENT	*rectab ;
+	uint		hdr[pwihdr_overlast] ;
+	uint		(*recind)[2] ;
+	char		*stab ;
+	int		fto ;
+	int		ro ;
 } ;
 
 
 /* forward references */
 
-static int	progdber(PROGINFO *,bfile *,cchar *,int,int) ;
+static int	progdber(PROGINFO *,bfile *,cchar *,cchar *,int,int) ;
+static int	procpw(PROGINFO *,STRTAB *,RECORDER *) ;
 static int	procpwfile(PROGINFO *,STRTAB *,RECORDER *) ;
 static int	procpwsys(PROGINFO *,STRTAB *,RECORDER *) ;
 
 static int	procentry(PROGINFO *,STRTAB *,RECORDER *,cchar *,cchar *,int) ;
-static int	wrcache(PROGINFO *,STRTAB *,RECORDER *,cchar *,int,time_t) ;
+static int	wrcache(PROGINFO *,STRTAB *,RECORDER *,cchar *,cchar *,int) ;
+static int	wrfile(PROGINFO *,WRCACHE *,cchar *) ;
+static int	wrsetup(PROGINFO *,WRCACHE *) ;
+static int	wrstuff(PROGINFO *,WRCACHE *) ;
+static int	wridx(PROGINFO *,WRCACHE *) ;
+static int	wridxer(PROGINFO *,WRCACHE *) ;
 static int	wrstats(PROGINFO *,bfile *,RECORDER *) ;
+
+static int	mkourtmp(char *,cchar *,cchar *,cchar *,mode_t) ;
+static int	ourchmod(cchar *) ;
+
+static int	mkpwihdr(uint *,int) ;
 static int	mkro(PROGINFO *) ;
-static int	ensureperms(int,cchar *) ;
+
+#if	CF_DEBUG && CF_DEBUGFILE
+static int	progdb_debugfile(PROGINFO *,cchar *) ;
+#endif
 
 
 /* local variables */
@@ -154,35 +167,44 @@ static int	ensureperms(int,cchar *) ;
 
 int progdb(PROGINFO *pip,bfile *ofp,cchar *dbname)
 {
+	const int	n = NREC_GUESS ;
 	int		rs = SR_OK ;
 	int		dnl ;
-	int		n = NREC_GUESS ;
 	int		c = 0 ;
 	cchar		*dnp ;
 
 	if (dbname == NULL) return SR_FAULT ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("progdb: ent db=%s\n",dbname) ;
+#endif
+
 /* check that the parent directory is writable by us */
 
 	if ((dnl = sfdirname(dbname,-1,&dnp)) > 0) {
-	    char	fname[MAXPATHLEN + 1] ;
-	    if ((rs = mkpath1w(fname,dnp,dnl)) >= 0) {
-		const int	am = (X_OK|W_OK) ;
-		if ((rs = perm(fname,-1,-1,NULL,am)) >= 0) {
-		    if ((rs = mkfnamesuf1(fname,dbname,DBSUF)) >= 0) {
-			if ((rs = mkro(pip)) >= 0) {
-			    const int	ro = rs ;
-	    		    rs = progdber(pip,ofp,fname,ro,n) ;
-			    c = rs ;
-			} /* end if (mkro) */
-		    }
-		}
+	    char	dbuf[MAXPATHLEN + 1] ;
+	    if ((rs = mkpath1w(dbuf,dnp,dnl)) >= 0) {
+	        const int	am = (X_OK|W_OK) ;
+	        if ((rs = perm(dbuf,-1,-1,NULL,am)) >= 0) {
+	                if ((rs = mkro(pip)) >= 0) {
+	                    const int	ro = rs ;
+	                    rs = progdber(pip,ofp,dbuf,dbname,ro,n) ;
+	                    c = rs ;
+	                } /* end if (mkro) */
+	        }
 	    }
 	} /* end if (sfdirname) */
 
+#if	CF_DEBUG && CF_DEBUGFILE
+	if (rs >= 0) {
+	    progdb_debugfile(pip,dbname) ;
+	}
+#endif /* CF_DEBUG && CF_DEBUGFILE */
+
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("progdb: ret rs=%d c=%u\n",rs,c) ;
+	    debugprintf("progdb: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
@@ -190,92 +212,61 @@ int progdb(PROGINFO *pip,bfile *ofp,cchar *dbname)
 /* end subroutine (progdb) */
 
 
-/* local subroutines */
-
-
-static int progdber(PROGINFO *pip,bfile *ofp,cchar *fname,int ro,int n)
+static int progdber(PROGINFO *pip,bfile *ofp,cchar *dn,cchar *db,int ro,int n)
 {
 	STRTAB		st ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
-	    if ((rs = strtab_start(&st,(n * 25))) >= 0) {
-	        RECORDER	rec ;
-	        if ((rs = recorder_start(&rec,n,ro)) >= 0) {
-
-	            if ((pip->pwfname != NULL) && (pip->pwfname[0] != '-')) {
-	                rs = procpwfile(pip,&st,&rec) ;
-	                c = rs ;
-	            } else {
-	                rs = procpwsys(pip,&st,&rec) ;
-	                c = rs ;
-	            }
-
-/* where are we? */
-
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("progdb: mid rs=%d nrecs=%u\n",
-	                    rs,c) ;
-#endif /* CF_DEBUG */
-
-	            if (rs >= 0) {
-	                if ((rs = recorder_count(&rec)) >= 0) {
-	                    const time_t	dt = pip->daytime ;
-			    cchar		*fn = fname ;
-	                    if ((rs = wrcache(pip,&st,&rec,fn,ro,dt)) >= 0) {
-	                        if (pip->verboselevel > 1) {
-				    if (pip->open.outfile) {
-	                                rs = wrstats(pip,ofp,&rec) ;
-				    }
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("progdber: ent dn=%s\n",dn) ;
+	    debugprintf("progdber: db=%s\n",db) ;
+	}
+#endif
+	if ((rs = strtab_start(&st,(n * 25))) >= 0) {
+	    RECORDER	rec ;
+	    if ((rs = recorder_start(&rec,n,ro)) >= 0) {
+		if ((rs = procpw(pip,&st,&rec)) >= 0) {
+	            if ((rs = recorder_count(&rec)) >= 0) {
+	                if ((rs = wrcache(pip,&st,&rec,dn,db,ro)) >= 0) {
+	                    if (pip->verboselevel > 1) {
+	                        if (pip->open.outfile) {
+	                            rs = wrstats(pip,ofp,&rec) ;
 	                        }
-
-#if	CF_DEBUG && CF_DEBUGFILE
-	                        if (DEBUGLEVEL(4)) {
-	                            IPASSWD	pwi ;
-	                            IPASSWD_CUR	cur ;
-	                            const int	rlen = REALNAMELEN ;
-	                            const int	nlen = REALNAMELEN ;
-	                            int		rs1 ;
-	                            cchar	*sa[6] ;
-	                            char	ubuf[IPASSWD_USERNAMELEN + 1] ;
-	                            char	rbuf[REALNAMELEN+1] ;
-	                            char	nbuf[REALNAMELEN+1] ;
-
-	                            rs1 = ipasswd_open(&pwi,fname) ;
-	                            debugprintf("progdb: "
-					"ipasswd_open() rs=%d\n", rs1) ;
-	                        if ((rs = ipasswd_curbegin(&pwi,&cur)) >= 0) {
-	                                while (TRUE) {
-	                                    rs1 = ipasswd_enum(&pwi,&cur,
-	                                        ubuf,sa,rbuf,rlen) ;
-	                                    debugprintf("progdb: "
-						"ipasswd_enum() rs=%d\n",rs1) ;
-	                                    if (rs1 < 0) break ;
-	                                    debugprintf("progdb: username=%s\n",
-	                                        ubuf) ;
-	                                    snrealname(nbuf,nlen,sa,-1) ;
-	                                    debugprintf("main: name=%s\n",
-	                                        nbuf) ;
-	                                }
-	                                ipasswd_curend(&pwi,&cur) ;
-	                            } /* end if (enumerating) */
-	                            ipasswd_close(&pwi) ;
-	                        }
-#endif /* CF_DEBUGFILE */
-	                    } /* end if (wrstats) */
-	                } /* end if (recorder_counts) */
-	            } /* end if (ok) */
-
-	            rs1 = recorder_finish(&rec) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (recorder) */
-	        rs1 = strtab_finish(&st) ;
+	                    }
+	                } /* end if (wrstats) */
+	            } /* end if (recorder_counts) */
+	        } /* end if (ok) */
+	        rs1 = recorder_finish(&rec) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (strtab) */
+	    } /* end if (recorder) */
+	    rs1 = strtab_finish(&st) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (strtab) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("progdber: ret rs=%d c=%u\n",rs,c) ;
+#endif
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (progdber) */
+
+
+static int procpw(PROGINFO *pip,STRTAB *stp,RECORDER *rp)
+{
+	int		rs ;
+	int		c = 0 ;
+	if ((pip->pwfname != NULL) && (pip->pwfname[0] != '-')) {
+	    rs = procpwfile(pip,stp,rp) ;
+	    c = rs ;
+	} else {
+	    rs = procpwsys(pip,stp,rp) ;
+	    c = rs ;
+	}
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procpw) */
 
 
 static int procpwfile(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
@@ -339,21 +330,23 @@ static int procpwfile(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 	                            }
 
 	                        } /* end block */
-	                        gecos_finish(&ge) ;
+	                        rs1 = gecos_finish(&ge) ;
+				if (rs >= 0) rs = rs1 ;
 	                    } /* end if (gecos) */
 	                } /* end block */
 #endif /* CF_MKGECOSNAME */
 
 #if	CF_DEBUG
-			if (DEBUGLEVEL(4))
-			debugprintf("progdb/procpwfile: while-bot rs=%d\n",
-				rs) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("progdb/procpwfile: while-bot rs=%d\n",
+	                        rs) ;
 #endif
 
 	                if (rs < 0) break ;
 	            } /* end while (looping through entries) */
-	            uc_free(pwbuf) ;
-	        } /* end if (m-a) */
+	            rs1 = uc_free(pwbuf) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (m-a-f) */
 	        rs1 = pwfile_curend(&pf,&cur) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (cursor) */
@@ -363,7 +356,7 @@ static int procpwfile(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("progdb/procpwfile: ret rs=%d c=%u\n",rs,c) ;
+	    debugprintf("progdb/procpwfile: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
@@ -384,23 +377,23 @@ static int procpwsys(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 	    const int		pwlen = getbufsize(getbufsize_pw) ;
 	    char		*pwbuf ;
 	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-		if ((rs = getpw_begin()) >= 0) {
+	        if ((rs = getpw_begin()) >= 0) {
 	            while ((rs = getpw_ent(&pw,pwbuf,pwlen)) > 0) {
-		        cchar	*un = pw.pw_name ;
-		        if ((rs = setstr_add(&u,un,-1)) > 0) {
-	    	            GECOS	ge ;
-		            cchar	*gecos = pw.pw_gecos ;
+	                cchar	*un = pw.pw_name ;
+	                if ((rs = setstr_add(&u,un,-1)) > 0) {
+	                    GECOS	ge ;
+	                    cchar	*gecos = pw.pw_gecos ;
 	                    if ((rs = gecos_start(&ge,gecos,-1)) >= 0) {
 	                        const int	req = gecosval_realname ;
-	        	        int		nl ;
-	        	        cchar		*np ;
+	                        int		nl ;
+	                        cchar		*np ;
 	                        if ((nl = gecos_getval(&ge,req,&np)) > 0) {
 	                            char	nbuf[nl+1] ;
 
-	                    	    if (strnchr(np,nl,'-') != NULL) {
-					rs = snwcpyhyphen(nbuf,-1,np,nl) ;
-	                        	np = nbuf ;
-	                    	    }
+	                            if (strnchr(np,nl,'-') != NULL) {
+	                                rs = snwcpyhyphen(nbuf,-1,np,nl) ;
+	                                np = nbuf ;
+	                            }
 
 	                            if (rs >= 0) {
 	                                c += 1 ;
@@ -408,31 +401,33 @@ static int procpwsys(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 	                            }
 
 #if	CF_DEBUG
-				if (DEBUGLEVEL(4))
-				debugprintf("progdb/procpwsys: "
-					"procentry() rs=%d\n",rs) ;
+	                            if (DEBUGLEVEL(4))
+	                                debugprintf("progdb/procpwsys: "
+	                                    "procentry() rs=%d\n",rs) ;
 #endif
 
-	                	} /* end if (gecos_getval) */
+	                        } /* end if (gecos_getval) */
 #if	CF_DEBUG
-				if (DEBUGLEVEL(4))
-				debugprintf("progdb/procpwsys: "
-				   "gecos_getval-out rs=%d\n",rs) ;
+	                        if (DEBUGLEVEL(4))
+	                            debugprintf("progdb/procpwsys: "
+	                                "gecos_getval-out rs=%d\n",rs) ;
 #endif
 	                        rs1 = gecos_finish(&ge) ;
 	                        if (rs >= 0) rs = rs1 ;
 	                    } /* end if (gecos) */
-		        } /* end if (setstr_add) */
+	                } /* end if (setstr_add) */
 #if	CF_DEBUG
-			if (DEBUGLEVEL(4))
-			debugprintf("progdb/procpwsys: gecos-out rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("progdb/procpwsys: gecos-out rs=%d\n",
+				rs) ;
 #endif
 	                if (rs < 0) break ;
 	            } /* end while (looping through entries) */
-		    rs1 = getpw_end() ;
-		    if (rs >= 0) rs = rs1 ;
-		} /* end if (getpw) */
-	        uc_free(pwbuf) ;
+	            rs1 = getpw_end() ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (getpw) */
+		rs1 = uc_free(pwbuf) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a-f) */
 	    rs1 = setstr_finish(&u) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -440,7 +435,7 @@ static int procpwsys(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("progdb/procpwsys: ret rs=%d c=%u\n",rs,c) ;
+	    debugprintf("progdb/procpwsys: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
@@ -458,7 +453,9 @@ int		nlen ;
 {
 	REALNAME	rn ;
 	int		rs ;
+	int		rs1 ;
 
+	if (pip == NULL) return SR_FAULT ;
 	if (username == NULL) return SR_FAULT ;
 	if (nbuf == NULL) return SR_FAULT ;
 
@@ -483,18 +480,22 @@ int		nlen ;
 	    i_username = strtab_already(stp,username,len) ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
+	    if (DEBUGLEVEL(4)) {
+	        debugprintf("procentry: un=%s\n",username) ;
 	        debugprintf("procentry: strtab_already() i_username=%d\n",
 	            i_username) ;
+	    }
 #endif
 
 	    if (i_username < 0) {
 	        rs = strtab_add(stp,username,len) ;
 	        i_username = rs ;
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
+	        if (DEBUGLEVEL(4)) {
 	            debugprintf("procentry: strtab_add() rs=%d i_username=%d\n",
 	                rs,i_username) ;
+	            debugprintf("procentry: un=%s\n",username) ;
+	        }
 #endif
 	    }
 
@@ -578,7 +579,8 @@ int		nlen ;
 	        rs = recorder_add(rtp,&re) ;
 	    } /* end if (adding record to DB) */
 
-	    realname_finish(&rn) ;
+	    rs1 = realname_finish(&rn) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (realname) */
 
 #if	CF_DEBUG
@@ -592,365 +594,42 @@ int		nlen ;
 
 
 /* write out the cache file */
-static int wrcache(pip,stp,rp,fname,ropts,daytime)
-PROGINFO	*pip ;
-STRTAB		*stp ;
-RECORDER	*rp ;
-cchar		fname[] ;
-int		ropts ;
-time_t		daytime ;
+static int wrcache(PROGINFO *pip,STRTAB *stp,RECORDER *rp,
+			cchar *dn,cchar *db,int ro)
 {
-	RECORDER_ENT	*rectab ;
-	uint		(*recind)[2] ;
-	uint		header[header_overlast] ;
-	uint		fto ;
+	const mode_t	fm = 0664 ;
 	int		rs ;
-	int		rs1 ;
-	int		size ;
-	int		rtsize, risize ;
-	int		stsize ;
-	int		rtlen, rilen ;
-	int		oflags ;
-	int		fd_pwi ;
-
-	char		dbfname[MAXPATHLEN + 1] ;
-	char		tmpfname[MAXPATHLEN + 1] ;
-	char		vetu[16] ;
-	char		*stab = NULL ;
-	char		*bp ;
+	cchar		*suf = DBSUF ;
+	cchar		*es = ENDIANSTR ;
+	char		tbuf[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: ent fname=%s\n",fname) ;
+	    debugprintf("wrcache: ent db=%s\n",db) ;
 #endif
 
-	if (fname == NULL) return SR_FAULT ;
-
-	rs = snsd(dbfname,MAXPATHLEN,fname,ENDIAN) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	recind = NULL ;
-	rs = sncpy2(tmpfname,MAXPATHLEN,dbfname,"n") ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	oflags = (O_RDWR | O_CREAT | O_EXCL) ;
-	rs = uc_open(tmpfname,oflags,0664) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: uc_open() rs=%d\n",rs) ;
-#endif
-
-	fd_pwi = rs ;
-	if (rs < 0) {
-	    if (rs == SR_EXIST) {
-	        tmpfname[0] = '\0' ;
-	        rs = SR_OK ;
-	    }
-	    goto ret0 ;
-	}
-
-/* ensure that the file has the correct permissions and group ownership */
-
-	ensureperms(fd_pwi,tmpfname) ;
-
-/* prepare and write the file magic */
-
-	bp = strwcpy(vetu,PWIFILE_MAGIC,15) ;
-	*bp++ = '\n' ;
-	memset(bp,0,(vetu + 16) - bp) ;
-
-	rs = u_write(fd_pwi,vetu,16) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: wrote magic rs=%d\n",rs) ;
-#endif
-
-	fto = 16 ;
-
-/* prepare and write the version and encoding (VETU) */
-
-	vetu[0] = PWIFILE_VERSION ;
-	vetu[1] = ENDIAN ;
-	vetu[2] = ropts ;
-	vetu[3] = 0 ;
-
-	if (rs >= 0)
-	    rs = u_write(fd_pwi,vetu,4) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: wrote version-encoding rs=%d\n",
-	        rs) ;
-#endif
-
-	fto += 4 ;
-
-/* get the tables and write them out (along with table headers) */
-
-/* handle the record table */
-
-	if (rs >= 0)
-	    rs = recorder_gettab(rp,&rectab) ;
-
-	if (rs < 0)
-	    goto ret1 ;
-
-	rtsize = iceil(rs,sizeof(int)) ;
-
-	rs = recorder_rtlen(rp) ;
-	rtlen = rs ;
-	if (rs < 0)
-	    goto ret1 ;
-
-/* handle the string table */
-
-	rs = strtab_strsize(stp) ;
-	stsize = rs ;
-	if (rs >= 0)
-	    rs = uc_malloc(stsize,&stab) ;
-
-	if (rs < 0)
-	    goto ret1 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: stab=%p stsize=%u\n",
-	        stab,stsize) ;
-#endif
-
-	rs = strtab_strmk(stp,stab,stsize) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-/* get the index size and length */
-
-	rs = recorder_indsize(rp) ;
-	risize = rs ;
-	if (rs < 0)
-	    goto ret2 ;
-
-	rs = recorder_indlen(rp) ;
-	rilen = rs ;
-	if (rs < 0)
-	    goto ret2 ;
-
-/* OK, we're ready to start writing stuff out! */
-
-/* header itself */
-
-	fto += (header_overlast * sizeof(uint)) ;
-
-/* everything else */
-
-	header[header_writetime] = (uint) daytime ;
-	header[header_writecount] = 0 ;
-
-	header[header_rectab] = fto ;
-	fto += rtsize ;
-
-	header[header_rectablen] = rtlen ;
-
-	header[header_strtab] = fto ;
-	fto += stsize ;			/* increment by its size not length */
-
-	header[header_strtabsize] = stsize ;
-	header[header_indexlen] = rilen ;
-
-	header[header_indexl1] = fto ;
-	fto += risize ;
-
-	header[header_indexl3] = fto ;
-	fto += risize ;
-
-	header[header_indexf] = fto ;
-	fto += risize ;
-
-	header[header_indexfl3] = fto ;
-	fto += risize ;
-
-	header[header_indexun] = fto ;
-	fto += risize ;
-
-/* write everything out */
-
-/* header */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    int	i ;
-	    for (i = 0 ; i < header_overlast ; i += 1)
-	        debugprintf("wrcache: header[%d]=%08x\n",i,header[i]) ;
-	}
-#endif /* CF_DEBUG */
-
-	size = header_overlast * sizeof(int) ;
-	rs = u_write(fd_pwi,header,size) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() header rs=%d\n",
-	        rs) ;
-#endif
-
-	if (rs < 0)
-	    goto ret2 ;
-
-/* record table */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() record-table\n") ;
-#endif
-
-	rs = u_write(fd_pwi,rectab,rtsize) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-/* string table */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() string-table\n") ;
-#endif
-
-	rs = u_write(fd_pwi,stab,stsize) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-/* get the four indices that we want */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: uc_malloc() size=%u\n",risize) ;
-#endif
-
-	rs = uc_malloc(risize,&recind) ;
-	if (rs < 0)
-	    goto ret2 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    debugprintf("wrcache: clearing memory\n") ;
-	    memset(recind,0,risize) ;
-	}
-#endif
-
-/* index L1 */
-
-	rs = recorder_mkindl1(rp,stab,recind,risize) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: recorder_mkind() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0)
-	    goto ret3 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() record-index L1\n") ;
-#endif
-
-	rs = u_write(fd_pwi,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-/* index L3 */
-
-	rs = recorder_mkindl3(rp,stab,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() record-index L3\n") ;
-#endif
-
-	rs = u_write(fd_pwi,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-/* index F */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() record-index F\n") ;
-#endif
-
-	rs = recorder_mkindf(rp,stab,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-	rs = u_write(fd_pwi,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-/* index FL3 */
-
-	rs = recorder_mkindfl3(rp,stab,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() record-index FL3\n") ;
-#endif
-
-	rs = u_write(fd_pwi,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-/* index UN */
-
-	rs = recorder_mkindun(rp,stab,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("wrcache: u_write() record-index UN\n") ;
-#endif
-
-	rs = u_write(fd_pwi,recind,risize) ;
-	if (rs < 0)
-	    goto ret3 ;
-
-/* we're out of here */
-ret3:
-	if (recind != NULL)
-	    uc_free(recind) ;
-
-ret2:
-	if (stab != NULL)
-	    uc_free(stab) ;
-
-ret1:
-	if (rs >= 0) {
-	    if (pip->egid != pip->gid_tools) {
-	        rs = u_fchown(fd_pwi,-1,pip->gid_tools) ;
+	if ((rs = mkourtmp(tbuf,dn,suf,es,fm)) >= 0) {
+	        WRCACHE		wc ;
+	        memset(&wc,0,sizeof(WRCACHE)) ;
+	        wc.stp = stp ;
+	        wc.rp = rp ;
+	        wc.ro = ro ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("wrcache: u_fchown() rs=%d\n",rs) ;
+	            debugprintf("wrcache: tbuf=%s\n",tbuf) ;
 #endif
-	    }
-	}
-
-	u_close(fd_pwi) ;
-
-	if (rs >= 0) {
-	    rs = u_rename(tmpfname,dbfname) ;
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("wrcache: u_rename() rs=%d\n",rs) ;
-#endif
-	} /* end if (rename) */
-
-ret0:
+	        if ((rs = wrfile(pip,&wc,tbuf)) >= 0) {
+	            if ((rs = ourchmod(tbuf)) >= 0) {
+			char	nbuf[MAXPATHLEN+1] ;
+			if ((rs = mkfnamesuf2(nbuf,db,suf,es)) >= 0) {
+	                    rs = u_rename(tbuf,nbuf) ;
+			}
+	            }
+	            if (rs < 0) {
+	                uc_unlink(tbuf) ;
+	            }
+	        } /* end if (wrfile) */
+	} /* end if (mkourtmp) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -960,6 +639,191 @@ ret0:
 	return rs ;
 }
 /* end subroutine (wrcache) */
+
+
+static int wrfile(PROGINFO *pip,WRCACHE *wcp,cchar *fn)
+{
+	bfile		*ifp = &wcp->ifile ;
+	int		rs ;
+	int		rs1 ;
+	if ((rs = bopen(ifp,fn,"wct",0664)) >= 0) {
+	    const int	ml = 16 ;
+	    cchar	*ms = PWIHDR_MAGICSTR ;
+	    char	vetu[16] ;
+	    if ((rs = mkmagic(vetu,ml,ms)) >= 0) {
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("wrfile: rs=%d magic=%s\n",rs,vetu) ;
+#endif
+	        if ((rs = bwrite(ifp,vetu,rs)) >= 0) {
+	            wcp->fto += rs ;
+	            vetu[0] = PWIHDR_VERSION ;
+	            vetu[1] = ENDIAN ;
+	            vetu[2] = wcp->ro ;
+	            vetu[3] = 0 ;
+	            if ((rs = bwrite(ifp,vetu,4)) >= 0) {
+	                wcp->fto += rs ;
+	                rs = wrsetup(pip,wcp) ;
+	            }
+	        }
+	    }
+	    rs1 = bclose(ifp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("wrfile: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (wrfile) */
+
+
+static int wrsetup(PROGINFO *pip,WRCACHE *wcp)
+{
+	STRTAB		*stp = wcp->stp ;
+	RECORDER	*rp = wcp->rp ;
+	RECORDER_ENT	*rectab ;
+	uint		*hdr = wcp->hdr ;
+	int		rs ;
+	int		rs1 ;
+	if ((rs = recorder_gettab(rp,&rectab)) >= 0) {
+	    wcp->rectab = rectab ;
+	    hdr[pwihdr_recsize] = rs ;
+	    if ((rs = recorder_rtlen(rp)) >= 0) {
+	        hdr[pwihdr_reclen] = rs ;
+	        if ((rs = strtab_strsize(stp)) >= 0) {
+	            const int	stsize = rs ;
+	            char	*stab ;
+	            if ((rs = uc_malloc(stsize,&stab)) >= 0) {
+	                hdr[pwihdr_strsize] = stsize ;
+	                wcp->stab = stab ;
+	                if ((rs = strtab_strmk(stp,stab,stsize)) >= 0) {
+	                    hdr[pwihdr_strlen] = rs ;
+#if	CF_DEBUG
+	                    if (DEBUGLEVEL(5)) {
+	                        debugprintf("procdb/wrsetup: reclen=%u\n",
+					hdr[pwihdr_reclen]) ;
+	                        debugprintf("procdb/wrsetup: recsize=%u\n",
+					hdr[pwihdr_recsize]) ;
+	                        debugprintf("procdb/wrsetup: strlen=%u\n",
+					hdr[pwihdr_strlen]) ;
+	                        debugprintf("procdb/wrsetup: strsize=%u\n",
+					hdr[pwihdr_strsize]) ;
+	                    }
+#endif
+	                    if ((rs = recorder_indsize(rp)) >= 0) {
+	                        hdr[pwihdr_idxsize] = rs ;
+	                        if ((rs = recorder_indlen(rp)) >= 0) {
+	                            hdr[pwihdr_idxlen] = rs ;
+	                            rs = wrstuff(pip,wcp) ;
+	                        }
+	                    }
+	                } /* end if (strtab_strmk) */
+	                rs1 = uc_free(stab) ;
+			if (rs >= 0) rs = rs1 ;
+	                wcp->stab = NULL ;
+	            } /* end if (m-a-f) */
+	        }
+	    }
+	} /* end if (recorder_gettab) */
+	return rs ;
+}
+/* end subroutine (wrsetup) */
+
+
+static int wrstuff(PROGINFO *pip,WRCACHE *wcp)
+{
+	bfile		*ifp = &wcp->ifile ;
+	const int	hdrsize = (pwihdr_overlast * sizeof(uint)) ;
+	uint		*hdrp = wcp->hdr ;
+	int		rs ;
+	int		fto = wcp->fto ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("procdb/wrstuff: ent fto=%u\n",fto) ;
+#endif
+	if ((rs = mkpwihdr(hdrp,(fto+hdrsize))) >= 0) {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(5)) {
+	        debugprintf("procdb/wrstuff: rectab=%u\n",hdrp[pwihdr_rectab]) ;
+	        debugprintf("procdb/wrstuff: strtab=%u\n",hdrp[pwihdr_strtab]) ;
+	    }
+#endif
+	    if ((rs = bwrite(ifp,hdrp,hdrsize)) >= 0) {
+	        RECORDER_ENT	*rectab = wcp->rectab ;
+	        const int	rtsize = hdrp[pwihdr_recsize] ;
+	        if ((rs = bwrite(ifp,rectab,rtsize)) >= 0) {
+	            const int	stsize = hdrp[pwihdr_strsize] ;
+	            char	*stab = wcp->stab ;
+	            if ((rs = bwrite(ifp,stab,stsize)) >= 0) {
+	                rs = wridx(pip,wcp) ;
+	            }
+	        }
+	    }
+	} /* end if (mkpwihdr) */
+	return rs ;
+}
+/* end subroutine (wrstuff) */
+
+
+static int wridx(PROGINFO *pip,WRCACHE *wcp)
+{
+	bfile		*ifp = &wcp->ifile ;
+	uint		(*recind)[2] ;
+	uint		*hdrp = wcp->hdr ;
+	int		idxsize ;
+	int		rs ;
+	int		rs1 ;
+	idxsize = hdrp[pwihdr_idxsize] ;
+	if ((rs = uc_malloc(idxsize,&recind)) >= 0) {
+	    RECORDER	*rp = wcp->rp ;
+	    char	*stab = wcp->stab ;
+	    wcp->recind = recind ;
+	    if ((rs = recorder_mkindl1(rp,stab,recind,idxsize)) >= 0) {
+	        if ((rs = bwrite(ifp,recind,idxsize)) >= 0) {
+	            if ((rs = recorder_mkindl3(rp,stab,recind,idxsize)) >= 0) {
+	                if ((rs = bwrite(ifp,recind,idxsize)) >= 0) {
+	                    rs = wridxer(pip,wcp) ;
+	                }
+	            }
+	        }
+	    }
+	    rs1 = uc_free(recind) ;
+	    if (rs >= 0) rs = rs1 ;
+	    wcp->recind = NULL ;
+	} /* end if (m-a-f) */
+	return rs ;
+}
+/* end subroutine (wridx) */
+
+
+static int wridxer(PROGINFO *pip,WRCACHE *wcp)
+{
+	RECORDER	*rp = wcp->rp ;
+	bfile		*ifp = &wcp->ifile ;
+	uint		(*recind)[2] = wcp->recind ;
+	uint		*hdrp = wcp->hdr ;
+	int		rs ;
+	int		idxsize ;
+	char		*stab = wcp->stab ;
+	if (pip == NULL) return SR_FAULT ;
+	idxsize = hdrp[pwihdr_idxsize] ;
+	if ((rs = recorder_mkindf(rp,stab,recind,idxsize)) >= 0) {
+	    if ((rs = bwrite(ifp,recind,idxsize)) >= 0) {
+	        if ((rs = recorder_mkindfl3(rp,stab,recind,idxsize)) >= 0) {
+	            if ((rs = bwrite(ifp,recind,idxsize)) >= 0) {
+	                const int	ris = hdrp[pwihdr_idxsize] ;
+	                if ((rs = recorder_mkindun(rp,stab,recind,ris)) >= 0) {
+	                    rs = bwrite(ifp,recind,idxsize) ;
+	                }
+	            }
+	        }
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (wridxer) */
 
 
 static int wrstats(PROGINFO *pip,bfile *ofp,RECORDER *recp)
@@ -973,17 +837,11 @@ static int wrstats(PROGINFO *pip,bfile *ofp,RECORDER *recp)
 	    int		i, j ;
 
 	    bprintf(ofp,"       records %6u\n",rs) ;
-
 	    bprintf(ofp,"  index length %6u\n",s.ilen) ;
-
 	    bprintf(ofp,"L1  collisions %6u\n",s.c_l1) ;
-
 	    bprintf(ofp,"L3  collisions %6u\n",s.c_l3) ;
-
 	    bprintf(ofp,"F   collisions %6u\n",s.c_f) ;
-
 	    bprintf(ofp,"FL3 collisions %6u\n",s.c_fl3) ;
-
 	    bprintf(ofp,"UN  collisions %6u\n",s.c_un) ;
 
 	    sum = s.c_l1 + s.c_l3 + s.c_f + s.c_fl3 + s.c_un ;
@@ -1007,6 +865,45 @@ static int wrstats(PROGINFO *pip,bfile *ofp,RECORDER *recp)
 /* end subroutine (wrstats) */
 
 
+static int mkpwihdr(uint *hdrp,int fto)
+{
+	hdrp[pwihdr_wrcount] = 0 ;
+	hdrp[pwihdr_rectab] = fto ;
+	fto += hdrp[pwihdr_recsize] ;
+	hdrp[pwihdr_strtab] = fto ;
+	fto += hdrp[pwihdr_strsize] ;
+	hdrp[pwihdr_idxl1] = fto ;
+	fto += hdrp[pwihdr_idxsize] ;
+	hdrp[pwihdr_idxl3] = fto ;
+	fto += hdrp[pwihdr_idxsize] ;
+	hdrp[pwihdr_idxf] = fto ;
+	fto += hdrp[pwihdr_idxsize] ;
+	hdrp[pwihdr_idxfl3] = fto ;
+	fto += hdrp[pwihdr_idxsize] ;
+	hdrp[pwihdr_idxun] = fto ;
+	fto += hdrp[pwihdr_idxsize] ;
+	return fto ;
+}
+/* end subroutine (mkpwihdr) */
+
+
+static int mkourtmp(char *rbuf,cchar *dbuf,cchar *suf,cchar *es,mode_t fm)
+{
+	const int	clen = MAXNAMELEN ;
+	int		rs ;
+	cchar		*xx = "progdbXX" ;
+	char		cbuf[MAXNAMELEN+1] ;
+	if ((rs = sncpy5(cbuf,clen,xx,".",suf,es,"n")) >= 0) {
+	    char	tbuf[MAXPATHLEN+1] ;
+	    if ((rs = mkpath2(tbuf,dbuf,cbuf)) >= 0) {
+	        rs = mktmpfile(rbuf,fm,tbuf) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (mkourtmp) */
+
+
 static int mkro(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1023,9 +920,9 @@ static int mkro(PROGINFO *pip)
 	                ro |= (RECORDER_OSEC | RECORDER_ORANDLC) ;
 	                break ;
 	            } /* end switch */
-		} else {
+	        } else {
 	            rs = SR_INVALID ;
-		}
+	        }
 	    } else {
 	        rs = SR_INVALID ;
 	    }
@@ -1035,42 +932,60 @@ static int mkro(PROGINFO *pip)
 /* end subroutine (mkro) */
 
 
-static int ensureperms(int fd,cchar *fname)
+static int ourchmod(cchar *fn)
 {
-	int		rs = SR_OK ;
-
-	if (fname == NULL) return SR_FAULT ;
-
-	if (fname[0] == '\0') return SR_INVALID ;
-
-	if (fd >= 0) {
-	    struct ustat	fsb ;
-	    int			dnl ;
-	    cchar		*dnp ;
-	    if ((rs = u_fstat(fd,&fsb)) >= 0) {
-		mode_t fm = (S_IREAD | S_IWRITE | S_IRGRP | S_IWGRP | S_IROTH) ;
-		if ((fsb.st_mode & fm) != fm) {
-	    	    rs = u_fchmod(fd,(fsb.st_mode | fm)) ;
-		}
-		if (rs >= 0) {
-	    	    char	dname[MAXPATHLEN + 1] ;
-	    	    if ((dnl = sfdirname(fname,-1,&dnp)) > 0) {
-	    	        struct ustat	dsb ;
-			snwcpy(dname,MAXPATHLEN,dnp,dnl) ;
-	        	if ((rs = u_stat(dname,&dsb)) >= 0) {
-	            	    if (fsb.st_gid != dsb.st_gid) {
-	                	rs = u_fchown(fd,-1,dsb.st_gid) ;
-		    	    }
-			}
-	    	    }
-		} /* end if (ok) */
-	    } /* end if (u_fstat) */
-	} else {
-	    rs = SR_BADF ;
+	USTAT		sb ;
+	int		rs ;
+	if ((rs = uc_stat(fn,&sb)) >= 0) {
+	    const mode_t fm = (S_IREAD|S_IWRITE|S_IRGRP|S_IWGRP|S_IROTH) ;
+	    if ((sb.st_mode & fm) != fm) {
+	        rs = u_chmod(fn,(sb.st_mode | fm)) ;
+	    }
 	}
-
 	return rs ;
 }
-/* end subroutine (ensureperms) */
+/* end subroutine (ourchmod) */
+
+
+#if	CF_DEBUG && CF_DEBUGFILE
+static int progdb_debugfile(PROGINFO *pip,cchar *dbname)
+{
+	int		rs = SR_OK ;
+	if (DEBUGLEVEL(4)) {
+	    IPASSWD	pwi ;
+	    IPASSWD_CUR	cur ;
+	    const int	rlen = REALNAMELEN ;
+	    const int	nlen = REALNAMELEN ;
+	    int		rs1 ;
+	    int		rs2 ;
+	    cchar	*sa[6] ;
+	    char	ubuf[IPASSWD_USERNAMELEN + 1] ;
+	    char	rbuf[REALNAMELEN+1] ;
+	    char	nbuf[REALNAMELEN+1] ;
+
+	    rs1 = ipasswd_open(&pwi,dbname) ;
+	    debugprintf("progdb: "
+	        "ipasswd_open() rs=%d\n", rs1) ;
+	    if ((rs2 = ipasswd_curbegin(&pwi,&cur)) >= 0) {
+	        while (TRUE) {
+	            rs2 = ipasswd_enum(&pwi,&cur,
+	                ubuf,sa,rbuf,rlen) ;
+	            debugprintf("progdb: "
+	                "ipasswd_enum() rs=%d\n",rs2) ;
+	            if (rs2 < 0) break ;
+	            debugprintf("progdb: username=%s\n",
+	                ubuf) ;
+	            snrealname(nbuf,nlen,sa,-1) ;
+	            debugprintf("main: name=%s\n",
+	                nbuf) ;
+	        }
+	        ipasswd_curend(&pwi,&cur) ;
+	    } /* end if (enumerating) */
+	    ipasswd_close(&pwi) ;
+	}
+	return rs ;
+}
+/* end subroutine (procdb_debugfile) */
+#endif /* CF_DEBUGFILE */
 
 

@@ -194,13 +194,12 @@ int strtab_finish(STRTAB *op)
 
 #if	CF_DEBUGS /* small test */
 	{
-	    int	strsize ;
-	    int	srsize ;
-	    int	rs1 ;
-	    int	n, i, si ;
-	    int	*srtab ;
+	    int		strsize = strtab_strsize(op) ;
+	    int		srsize ;
+	    int		rs1 ;
+	    int		n, i, si ;
+	    int		*srtab ;
 	    char	*stab ;
-	    strsize = strtab_strsize(op) ;
 	    debugprintf("strtab_finish: _strsize() rs=%d\n",strsize) ;
 	    if (uc_malloc(strsize,&stab) >= 0) {
 	        rs1 = strtab_strmk(op,stab,strsize) ;
@@ -214,9 +213,10 @@ int strtab_finish(STRTAB *op)
 	                n = strtab_count(op) ;
 	                for (i = 0 ; i < (n+1) ; i += 1) {
 	                    si = srtab[i] ;
-	                    if (si > 0)
+	                    if (si > 0) {
 	                        debugprintf("strtab_finish: "
 	                            "si=%u s%u=%s\n",si,i,(stab+si)) ;
+			    }
 	                }
 	                uc_free(srtab) ;
 	            } /* end if (memory-allocation) */
@@ -269,7 +269,7 @@ int strtab_add(STRTAB *op,cchar *sp,int sl)
 
 #if	CF_DEBUGS
 	debugprintf("strtab_add: s=%t sl=%u strtab::len=%u\n",
-	    sp,strnlen(sp,sl),sl,op->stlen) ;
+	    sp,strnlen(sp,sl),sl,op->stsize) ;
 #endif
 
 /* do we have it already? */
@@ -412,7 +412,7 @@ int strtab_strsize(STRTAB *op)
 	if (op->magic != STRTAB_MAGIC) return SR_NOTOPEN ;
 #endif
 
-	size = iceil(op->stlen,sizeof(int)) ;
+	size = iceil(op->stsize,sizeof(int)) ;
 
 	return size ;
 }
@@ -422,11 +422,9 @@ int strtab_strsize(STRTAB *op)
 /* make the string table */
 int strtab_strmk(STRTAB *op,char *tabdata,int tabsize)
 {
-	STRTAB_CHUNK	*ccp ;
+	int		rs = SR_OK ;
 	int		size ;
-	int		i ;
 	int		c = 0 ;
-	char		*bp = tabdata ;
 
 #if	CF_SAFE1
 	if (op == NULL) return SR_FAULT ;
@@ -438,26 +436,32 @@ int strtab_strmk(STRTAB *op,char *tabdata,int tabsize)
 
 	if (tabdata == NULL) return SR_FAULT ;
 
-	size = iceil(op->stlen,sizeof(int)) ;
+	size = iceil(op->stsize,sizeof(int)) ;
 
-	if (tabsize < size)
-	    return SR_OVERFLOW ;
+	if (tabsize >= size) {
+	    STRTAB_CHUNK	*ccp ;
+	    int			i ;
+	    char		*bp = tabdata ;
 
-	for (i = 0 ; vechand_get(&op->chunks,i,&ccp) >= 0 ; i += 1) {
-	    if (ccp == NULL) continue ;
+	    c = op->count ;
+	    for (i = 0 ; vechand_get(&op->chunks,i,&ccp) >= 0 ; i += 1) {
+	        if (ccp != NULL) {
+	            if (ccp->cdata != NULL) {
+	                memcpy(bp,ccp->cdata,ccp->cl) ;
+	                bp += ccp->cl ;
+	            }
+	        }
+	    } /* end for */
 
-	    if (ccp->cdata != NULL) {
-	        c += 1 ;
-	        memcpy(bp,ccp->cdata,ccp->cl) ;
-	        bp += ccp->cl ;
+	    while (bp < (tabdata + tabsize)) {
+	        *bp++ = '\0' ;
 	    }
 
-	} /* end for */
+	} else {
+	    rs = SR_OVERFLOW ;
+	}
 
-	while (bp < (tabdata + tabsize))
-	    *bp++ = '\0' ;
-
-	return c ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (strtab_strmk) */
 
@@ -734,7 +738,7 @@ static int strtab_stuff(STRTAB *op,cchar *sp,int sl)
 
 	if ((rs = strtab_extend(op,amount)) >= 0) {
 	    const char	*vp = NULL ;
-	    vi = op->stlen ;
+	    vi = op->stsize ;
 	    if ((rs = chunk_add(op->ccp,sp,sl,&vp)) >= 0) {
 		int	*ip ;
 	        if ((rs = STRTAB_AOGET(&op->intdb,&ip)) >= 0) {
@@ -745,7 +749,7 @@ static int strtab_stuff(STRTAB *op,cchar *sp,int sl)
 	            val.buf = ip ;
 	            val.len = sizeof(int) ;
 	            if ((rs = hdb_store(&op->strdb,key,val)) >= 0) {
-	                op->stlen += amount ;
+	                op->stsize += amount ;
 	                op->count += 1 ;
 	            }
 	        } /* end if (AOGET) */
@@ -826,8 +830,8 @@ static int strtab_newchunk(STRTAB *op,int amount)
 
 	op->ccp = NULL ;
 	if ((rs = uc_malloc(size,&op->ccp)) >= 0) {
-	    if (op->stlen == 0) {
-	        op->stlen = 1 ;
+	    if (op->stsize == 0) {
+	        op->stsize = 1 ;
 	        start = 1 ;
 	    }
 	    if (amount < op->chunksize) amount = op->chunksize ;

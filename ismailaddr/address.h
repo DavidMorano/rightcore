@@ -16,7 +16,7 @@
 
 /* mail address */
 #ifndef	MAILADDRLEN
-#define	MAILADDRLEN	(3 * MAXHOSTNAMELEN)
+#define	MAILADDRLEN		(3 * MAXHOSTNAMELEN)
 #endif
 
 

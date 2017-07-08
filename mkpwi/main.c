@@ -14,12 +14,12 @@
 
 /* revision history:
 
-	= 1994-09-01, David A­D­ Morano
+	= 2002-04-29, David A­D­ Morano
 	This program was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -980,7 +980,9 @@ static int procdbname(PROGINFO *pip)
 		} /* end if (procvardname) */
 	    } /* end if (getclustername) */
 	} /* end if (needed) */
+
 	proglog_printf(pip,"dbname=%s (%d)",pip->dbname,rs) ;
+
 	if (pip->debuglevel > 0) {
 	    cchar	*fmt = "%s: dbname=%s\n" ;
 	    bprintf(pip->efp,fmt,pn,pip->dbname) ;
