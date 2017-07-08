@@ -192,11 +192,9 @@ int getgecosname(cchar *gbuf,int glen,cchar **rpp)
 	const char	*tp ;
 	const char	*cp ;
 
-	if (gbuf == NULL)
-	    return SR_FAULT ;
+	if (gbuf == NULL) return SR_FAULT ;
 
-	if (glen < 0)
-	    glen = strnlen(gbuf,MAXGECOSLEN) ;
+	if (glen < 0) glen = strnlen(gbuf,MAXGECOSLEN) ;
 
 /* find the desired part (the realname) of the GECOS field */
 

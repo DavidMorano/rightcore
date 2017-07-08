@@ -3,14 +3,9 @@
 /* indexed PASSWD GECOS DB */
 
 
-#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_SAFE		0		/* safe mode */
-#define	CF_LOCKING	0		/* use file locking */
-#define	CF_HOLDING	1		/* use file-map holding */
-#define	CF_MEMSYNC	1		/* use memory synchronization? */
 #define	CF_USEFL3	1		/* use first-last3 index (fast) */
-#define	CF_FILEWAIT	0		/* wait for file to "come in" */
-#define	CF_ENUM		1		/* compile in '_enum()' */
 
 
 /* revision history:
@@ -41,6 +36,32 @@
         that file within this object.
 
 	Extra note: this code needs another rewrite!
+
+	Name:
+
+	ipasswd_fetch
+
+	Synopsis:
+
+	int ipasswd_fetch(op,np,curp,opts,up)
+	IPASSWD		*op ;
+	REALNAME	*np ;
+	IPASSWD_CUR	*curp ;
+	int		opts ;
+	char		*up ;
+
+	Arguments:
+
+	op		object pointer
+	np		pointer to REALNAME object
+	curp		cursor pointer
+	opts		options
+	up		resumt buffer (at least USERNAMELEN+1 in size)
+
+	Returns:
+
+	<0		error
+	>=0		found
 
 
 *******************************************************************************/
@@ -93,7 +114,6 @@
 #define	TO_FILECOME	5
 #define	TO_OPEN		(60 * 60)
 #define	TO_ACCESS	(1 * 60)
-#define	TO_LOCK		10		/* seconds */
 #define	TO_CHECK	5
 
 #define	TI_MINUPDATE	4		/* minimum time between updates */
@@ -151,23 +171,21 @@ extern char	*timestr_log(time_t,char *) ;
 
 static int	ipasswd_hdrload(IPASSWD *) ;
 static int	ipasswd_hdrloader(IPASSWD *op) ;
-static int	ipasswd_holdget(IPASSWD *,time_t) ;
-static int	ipasswd_holdrelease(IPASSWD *,time_t) ;
-
-#if	CF_LOCKING
-static int	ipasswd_lockget(IPASSWD *,int) ;
-static int	ipasswd_lockrelease(IPASSWD *) ;
-#endif
+static int	ipasswd_enterbegin(IPASSWD *,time_t) ;
+static int	ipasswd_enterend(IPASSWD *,time_t) ;
 
 static int	ipasswd_fileopen(IPASSWD *,time_t) ;
 static int	ipasswd_fileclose(IPASSWD *) ;
 static int	ipasswd_mapbegin(IPASSWD *,time_t) ;
 static int	ipasswd_mapend(IPASSWD *) ;
+static int	ipasswd_remotefs(IPASSWD *) ;
 static int	ipasswd_keymatchfl3(IPASSWD *,int,int,REALNAME *) ;
 static int	ipasswd_keymatchl3(IPASSWD *,int,int,REALNAME *) ;
 static int	ipasswd_keymatchl1(IPASSWD *,int,int,REALNAME *) ;
 static int	ipasswd_keymatchf(IPASSWD *,int,int,REALNAME *) ;
 static int	ipasswd_keymatchall(IPASSWD *,int,int,REALNAME *) ;
+
+static int	ipaswd_mapcheck(IPASSWD *,time_t) ;
 
 #ifdef	COMMENT
 static int	ipasswd_keymatchlast(IPASSWD *,int,int,char *,int) ;
@@ -210,8 +228,9 @@ IPASSWD_OBJ	ipasswd = {
 
 int ipasswd_open(IPASSWD *op,cchar *dbname)
 {
-	time_t		daytime = time(NULL) ;
+	const time_t	dt = time(NULL) ;
 	int		rs ;
+	int		rs1 ;
 	char		dbfname[MAXPATHLEN + 1] ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -230,31 +249,20 @@ int ipasswd_open(IPASSWD *op,cchar *dbname)
 /* store filename away */
 
 	if ((rs = mkourfname(dbfname,dbname)) >= 0) {
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((rs = uc_mallocstrw(dbfname,-1,&cp)) >= 0) {
 	        op->fname = cp ;
-	        if ((rs = ipasswd_fileopen(op,daytime)) >= 0) {
-	            const size_t	ms = (size_t) op->filesize ;
-	            int			mp = PROT_READ ;
-	            int			mf = MAP_SHARED ;
-	            void		*md ;
-	            if ((rs = u_mmap(NULL,ms,mp,mf,op->fd,0L,&md)) >= 0) {
-	                op->mapdata = md ;
-	                op->mapsize = ms ;
+	        if ((rs = ipasswd_fileopen(op,dt)) >= 0) {
+	            if ((rs = ipasswd_mapbegin(op,dt)) >= 0) {
 	                if ((rs = ipasswd_hdrload(op)) >= 0) {
-	                    op->ti_open = daytime ;
-	                    op->ti_access = daytime ;
-	                    op->ti_map = daytime ;
-	                    op->f.fileinit = TRUE ;
 	                    op->magic = IPASSWD_MAGIC ;
 	                }
 	                if (rs < 0) {
-	                    u_munmap(op->mapdata,op->mapsize) ;
-	                    op->mapdata = NULL ;
-	                    op->mapsize = 0 ;
+	                    ipasswd_mapend(op) ;
 	                }
-	            } /* end if (map-file) */
-	            ipasswd_fileclose(op) ;
+	            } /* end if (ipasswd_mapbegin) */
+	            rs1 = ipasswd_fileclose(op) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (file-open) */
 	        if (rs < 0) {
 	            uc_free(op->fname) ;
@@ -340,7 +348,6 @@ int ipasswd_curbegin(IPASSWD *op,IPASSWD_CUR *curp)
 	if (curp == NULL) return SR_FAULT ;
 
 	op->f.cursor = TRUE ;
-	op->f.cursorlockbroken = FALSE ;
 	op->f.cursoracc = FALSE ;
 
 	for (i = 0 ; i < IPASSWD_NINDICES ; i += 1) {
@@ -356,8 +363,9 @@ int ipasswd_curbegin(IPASSWD *op,IPASSWD_CUR *curp)
 /* free up a cursor */
 int ipasswd_curend(IPASSWD *op,IPASSWD_CUR *curp)
 {
-	const time_t	daytime = time(NULL) ;
+	const time_t	dt = time(NULL) ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		i ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -367,20 +375,9 @@ int ipasswd_curend(IPASSWD *op,IPASSWD_CUR *curp)
 	if (curp->magic != IPASSWD_CURMAGIC) return SR_NOTOPEN ;
 
 	if (op->f.cursoracc)
-	    op->ti_access = daytime ;
+	    op->ti_access = dt ;
 
 	op->f.cursor = FALSE ;
-
-#if	CF_LOCKING
-	if (op->f.lockedread || op->f.lockedwrite)
-	    ipasswd_lockrelease(op) ;
-#endif
-
-#if	CF_HOLDING
-	if (op->f.held)
-	    rs = ipasswd_holdrelease(op,daytime) ;
-#endif
-
 	for (i = 0 ; i < IPASSWD_NINDICES ; i += 1) {
 	    curp->i[i] = -1 ;
 	}
@@ -392,7 +389,6 @@ int ipasswd_curend(IPASSWD *op,IPASSWD_CUR *curp)
 
 
 /* enumerate */
-#if	CF_ENUM
 int ipasswd_enum(op,curp,ubuf,sa,rbuf,rlen)
 IPASSWD		*op ;
 IPASSWD_CUR	*curp ;
@@ -401,12 +397,11 @@ const char	*sa[] ;
 char		rbuf[] ;
 int		rlen ;
 {
-	time_t		daytime ;
+	time_t		dt = 0 ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		ri, si ;
-	int		ui ;
-	const char	*cp ;
+	int		ri ;
+	int		ul = 0 ;
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
@@ -425,25 +420,16 @@ int		rlen ;
 	ri = (curp->i[0] < 1) ? 1 : (curp->i[0] + 1) ;
 
 #if	CF_DEBUGS
-	debugprintf("ipasswd_enum: ri=%u\n",ri) ;
+	debugprintf("ipasswd_enum: ent ri=%u\n",ri) ;
 #endif
 
 /* capture a hold on the file */
 
-#if	CF_HOLDING
-	if (! op->f.held) {
-	    daytime = time(NULL) ;
-	    rs = ipasswd_holdget(op,daytime) ;
-	    if (rs > 0)
-	        rs = ipasswd_hdrload(op) ;
-	    if (rs < 0) return rs ;
-	}
-#endif /* CF_HOLDING */
-
-/* ok, we're good to go */
-
-	if (ri >= op->rtlen)
-	    return SR_NOTFOUND ;
+	if ((rs = ipasswd_enterbegin(op,dt)) >= 0) {
+	    if (ri < op->rtlen) {
+	        int	si ;
+	        int	ui ;
+	        cchar	*cp ;
 
 	if (sa != NULL) {
 	    STOREITEM	sio ;
@@ -517,9 +503,9 @@ int		rlen ;
 
 	    if (ubuf != NULL) {
 	        cp = strwcpy(ubuf,(op->stab + ui),IPASSWD_USERNAMELEN) ;
-	        rs = (cp - ubuf) ;
+	        ul = (cp - ubuf) ;
 	    } else {
-	        rs = strlen(op->stab + ui) ;
+	        ul = strlen(op->stab + ui) ;
 	    }
 
 /* update the cursor */
@@ -528,17 +514,27 @@ int		rlen ;
 
 	} /* end if */
 
-	return rs ;
+	    } else {
+		rs = SR_NOTFOUND ;
+	    } /* end if (valid) */
+	    rs1 = ipasswd_enterend(op,dt) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ipasswd-enter) */
+
+#if	CF_DEBUGS
+	debugprintf("ipasswd_enum: ret rs=%d ul=%u\n",rs,ul) ;
+#endif
+
+	return (rs >= 0) ? ul : rs ;
 }
 /* end subroutine (ipasswd_enum) */
-#endif /* CF_ENUM */
 
 
 /* fetch an entry by key lookup */
 int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 {
 	IPASSWD_CUR	cur ;
-	time_t		daytime = 0 ;
+	time_t		dt = 0 ;
 	uint		hv, hi, ri, ui ;
 	const int	ns = NSHIFT ;
 	int		rs = SR_OK ;
@@ -556,6 +552,8 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 
 	if (op->magic != IPASSWD_MAGIC) return SR_NOTOPEN ;
 #endif
+
+	if (np == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	{
@@ -583,32 +581,13 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 	if (up != NULL)
 	    *up = '\0' ;
 
-	if (np == NULL)
-	    return SR_FAULT ;
-
-#ifdef	COMMENT
-	if (up != NULL)
-	    *up = '\0' ;
-#endif
-
 #if	CF_DEBUGS
 	debugprintf("ipasswd_fetch: holding\n") ;
 #endif
 
 /* do we have a hold on the file? */
 
-#if	CF_HOLDING
-	if (! op->f.held) {
-	    daytime = time(NULL) ;
-	    if ((rs = ipasswd_holdget(op,daytime)) > 0) {
-#if	CF_DEBUGS
-	        debugprintf("ipasswd_fetch: file changed\n") ;
-#endif
-	        rs = ipasswd_hdrload(op) ;
-	    }
-	    if (rs < 0) goto ret0 ;
-	}
-#endif /* CF_HOLDING */
+	if ((rs = ipasswd_enterbegin(op,dt)) >= 0) {
 
 /* continue with regular fetch activities */
 
@@ -858,19 +837,9 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 
 	} /* end if (got one) */
 
-#if	CF_HOLDING
-	if (! op->f.cursor) {
-	    if (daytime == 0) daytime = time(NULL) ;
-	    op->ti_access = daytime ;
-	    rs1 = ipasswd_holdrelease(op,daytime) ;
-#if	CF_DEBUGS
-	    debugprintf("ipasswd_fetch: ipasswd_holdrelease() rs=%d\n",rs) ;
-#endif
+	    rs1 = ipasswd_enterend(op,dt) ;
 	    if (rs >= 0) rs = rs1 ;
-	}
-#endif /* CF_HOLDING */
-
-ret0:
+	} /* end if ipasswd-enter) */
 
 #if	CF_DEBUGS
 	debugprintf("ipasswd_fetch: ret rs=%d ul=%u\n",rs,ul) ;
@@ -886,7 +855,7 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 {
 	IPASSWD_CUR	cur ;
 	REALNAME	rn, *np = &rn ;
-	time_t		daytime = 0 ;
+	time_t		dt = 0 ;
 	uint		hv, hi, ri, ui ;
 	const int	ns = NSHIFT ;
 	int		rs = SR_OK ;
@@ -929,17 +898,7 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 
 /* do we have a hold on the file? */
 
-#if	CF_HOLDING
-	if (! op->f.held) {
-	    daytime = time(NULL) ;
-	    if ((rs = ipasswd_holdget(op,daytime)) > 0) {
-#if	CF_DEBUGS
-	        debugprintf("ipasswd_fetcher: file changed\n") ;
-#endif
-	        rs = ipasswd_hdrload(op) ;
-	    }
-	}
-#endif /* CF_HOLDING */
+	if ((rs = ipasswd_enterbegin(op,dt)) >= 0) {
 
 /* continue with regular fetch activities */
 
@@ -1170,14 +1129,9 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 	    } /* end if (realname) */
 	} /* end if (ok) */
 
-#if	CF_HOLDING
-	if (! op->f.cursor) {
-	    if (daytime == 0) daytime = time(NULL) ;
-	    op->ti_access = daytime ;
-	    rs1 = ipasswd_holdrelease(op,daytime) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
-#endif /* CF_HOLDING */
+	rs1 = ipasswd_enterend(op,dt) ;
+	if (rs >= 0) rs = rs1 ;
+	} /* end if (ipasswd-enter) */
 
 #if	CF_DEBUGS
 	debugprintf("ipasswd_fetcher: ret rs=%d ul=%u\n",rs,ul) ;
@@ -1208,7 +1162,7 @@ int ipasswd_info(IPASSWD *op,IPASSWD_INFO *rp)
 
 
 /* do some checking */
-int ipasswd_check(IPASSWD *op,time_t daytime)
+int ipasswd_check(IPASSWD *op,time_t dt)
 {
 	int		rs = SR_OK ;
 	int		f = FALSE ;
@@ -1217,11 +1171,13 @@ int ipasswd_check(IPASSWD *op,time_t daytime)
 
 	if (op->magic != IPASSWD_MAGIC) return SR_NOTOPEN ;
 
-	if ((! op->f.held) && (op->fd >= 0)) {
-	    f = f || ((daytime - op->ti_access) >= TO_ACCESS) ;
-	    f = f || ((daytime - op->ti_open) >= TO_OPEN) ;
+	if ((! op->f.cursor) && (op->fd >= 0)) {
+	    f = f || ((dt - op->ti_access) >= TO_ACCESS) ;
+	    f = f || ((dt - op->ti_open) >= TO_OPEN) ;
 	    if (f) {
-	        rs = ipasswd_fileclose(op) ;
+		if ((rs = ipasswd_mapend(op)) >= 0) {
+	            rs = ipasswd_fileclose(op) ;
+		}
 	    }
 	}
 
@@ -1363,112 +1319,27 @@ static int ipasswd_hdrloader(IPASSWD *op)
 
 
 /* acquire access to the file (mapped memory) */
-static int ipasswd_holdget(IPASSWD *op,time_t daytime)
+static int ipasswd_enterbegin(IPASSWD *op,time_t dt)
 {
-	struct ustat	sb ;
-	int		rs = SR_OK ;
-	int		mpages, fpages ;
-	int		f_changed = FALSE ;
+	int		rs ;
+	int		f = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("ipasswd_holdget: ent\n") ;
+	debugprintf("ipasswd_enterbegin: ent\n") ;
 #endif
 
-	if (op->f.held)
-	    return SR_OK ;
-
-	if (op->mapdata != NULL) {
-
-	    if ((daytime - op->ti_access) < TO_CHECK)
-	        return SR_OK ;
-
-/* has the file changed at all (try checking size and mtime)? */
-
-	    rs = u_stat(op->fname,&sb) ;
-
-	    if (rs == SR_NOENT)
-	        return SR_OK ;
-
-	    if (rs < 0)
-	        goto bad2 ;
-
-/* has the file size changed? */
-
-	    if (sb.st_size != op->filesize) {
-
-	        f_changed = TRUE ;
-	        mpages = uceil(op->mapsize,op->pagesize) ;
-
-	        fpages = uceil(sb.st_size,op->pagesize) ;
-
-	        if (fpages > mpages) {
-	            f_changed = TRUE ;
-	            u_munmap(op->mapdata,op->mapsize) ;
-	            op->mapdata = NULL ;	/* signal a re-map */
-	        }
-
-	    } /* end if (file size changed) */
-
-#if	CF_MEMSYNC
-	    if ((op->mapdata != NULL) &&
-	        op->f.remote && (sb.st_mtime != op->mtime)) {
-	        const int	mflags = (MS_SYNC | MS_INVALIDATE) ;
-
-	        f_changed = TRUE ;
-	        rs = uc_msync(op->mapdata,op->mapsize,mflags) ;
-
-	    }
-#endif /* CF_MEMSYNC */
-
-	} /* end if (checking existing map) */
-
-/* do a map or a re-map */
-
-	if ((rs >= 0) && (op->mapdata == NULL)) {
-
-	    f_changed = TRUE ;
-	    if ((rs = ipasswd_fileopen(op,daytime)) >= 0) {
-
-	        if ((rs = u_fstat(op->fd,&sb)) >= 0) {
-	            op->filesize = sb.st_size ;
-	            rs = ipasswd_mapbegin(op,daytime) ;
-	        } /* end if (fstat) */
-
-	        ipasswd_fileclose(op) ;
-	    } /* end if (opened the file) */
-
-	    if (rs < 0)
-	        goto bad2 ;
-
-	} /* end if (mapping file) */
-
-	if (f_changed) {
-	    op->filesize = sb.st_size ;
-	    op->mtime = sb.st_mtime ;
+	if ((rs = ipaswd_mapcheck(op,dt)) > 0) {
+	    f = TRUE ;
 	}
 
-#if	CF_DEBUGS
-	debugprintf("ipasswd_holdget: ret rs=%d f_changed=%d\n",
-	    rs,f_changed) ;
-#endif
-
-	if (rs >= 0)
-	    op->f.held = TRUE ;
-
-ret0:
-	return (rs >= 0) ? f_changed : rs ;
-
-/* bad stuff */
-bad2:
-	op->f.held = FALSE ;
-	goto ret0 ;
+	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (ipasswd_holdget) */
+/* end subroutine (ipasswd_enterbegin) */
 
 
 /* release our hold on the filemap */
 /* ARGSUSED */
-static int ipasswd_holdrelease(IPASSWD *op,time_t daytime)
+static int ipasswd_enterend(IPASSWD *op,time_t dt)
 {
 	int		rs = SR_OK ;
 
@@ -1478,258 +1349,41 @@ static int ipasswd_holdrelease(IPASSWD *op,time_t daytime)
 
 	return rs ;
 }
-/* end subroutine (ipasswd_holdrelease) */
+/* end subroutine (ipasswd_enterend) */
 
 
-#if	CF_LOCKING
-
-/* acquire access to the file (mapped memory) */
-static int ipasswd_lockget(IPASSWD *op,time_t daytime,int f_read)
+static int ipasswd_fileopen(IPASSWD *op,time_t dt)
 {
-	struct ustat	sb ;
-	offset_t	fs = op->filesize ;
 	int		rs = SR_OK ;
-	int		mpages, fpages ;
-	int		f_changed = FALSE ;
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_lockget: ent\n") ;
-#endif
 
 	if (op->fd < 0) {
-	    rs = ipasswd_fileopen(op,daytime) ;
-	    fs = op->filesize ;
-	}
+	    if ((rs = uc_open(op->fname,op->oflags,op->operm)) >= 0) {
+		op->fd = rs ;
+	        if (dt == 0) dt = time(NULL) ;
+		op->ti_open = dt ;
+		if ((uc_closeonexec(op->fd,TRUE)) >= 0) {
+		    USTAT	sb ;
+		    if ((rs = u_fstat(op->fd,&sb)) >= 0) {
+			int	size = 0 ;
+			size += IPASSWD_IDLEN ;
+			size += (pwihdr_overlast * sizeof(int)) ;
+			if (sb.st_size >= size) {
+			    op->mtime = sb.st_mtime ;
+			    op->filesize = sb.st_size ;
+			    rs = ipasswd_remotefs(op) ;
+			} else {
+			    rs = SR_NOMSG ;
+			}
+		    }
+		}
+		if (rs < 0) {
+		    u_close(op->fd) ;
+		    op->fd = -1 ;
+		}
+	    } /* end if (u_open) */
+	} /* end if (needed) */
 
-#if	CF_DEBUGS
-	debugprintf("ipasswd_lockget: ipasswd_fileopen() rs=%d fd=%d\n",
-	    rs,op->fd) ;
-#endif
-
-	if (rs >= 0) {
-	    int		cmd ;
-	    if (f_read) {
-	        op->f.lockedread = TRUE ;
-	        cmd = F_RLOCK ;
-	    } else {
-	        op->f.lockedwrite = TRUE ;
-	        cmd = F_WLOCK ;
-	    }
-	    rs = lockfile(op->fd,cmd,0L,fs,TO_LOCK) ;
-	} /* end if (ok) */
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_lockget: lockfile() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0)
-	    goto bad1 ;
-
-/* has the size of the file changed? */
-
-	rs = u_fstat(op->fd,&sb) ;
-	if (rs < 0) goto bad2 ;
-
-	op->filesize = sb.st_size ;
-	if (op->mapdata != NULL) {
-
-	    mpages = uceil(op->mapsize,op->pagesize) ;
-
-	    fpages = uceil(op->filesize,op->pagesize) ;
-
-	    if (fpages > mpages) {
-
-	        f_changed = TRUE ;
-	        u_munmap(op->mapdata,(size_t) op->mapsize) ;
-	        op->mapdata = NULL ;
-
-	    }
-
-#if	CF_MEMSYNC
-	    if ((op->mapdata != NULL) &&
-	        op->f.remote && (op->mtime != sb.st_mtime)) {
-
-	        f_changed = TRUE ;
-	        op->mtime = sb.st_mtime ;
-	        flags = MS_SYNC | MS_INVALIDATE ;
-	        rs = uc_msync(op->mapdata,op->mapsize,flags) ;
-
-	    }
-#endif /* CF_MEMSYNC */
-
-	} /* end if (checking existing map) */
-
-	if ((rs >= 0) && (op->mapdata == NULL)) {
-	    size_t	ms = uceil(op->filesize,op->pagesize) ;
-	    int		mp = (PROT_READ | PROT_WRITE) ;
-	    int		mf = MAP_SHARED ;
-	    void	*md ;
-
-	    f_changed = TRUE ;
-	    if (ms == 0) ms = op->pagesize ;
-
-	    if ((rs = u_mmap(NULL,msize,mprot,mflags,op->fd,0L,&md)) >= 0) {
-	        op->mapdata = md ;
-	        op->mapsize = mse ;
-	        op->mtime = sb.st_mtime ;
-	    }
-
-	} /* end if (mapping file) */
-	if (rs < 0) goto bad2 ;
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_lockget: ret rs=%d\n",rs) ;
-#endif
-
-	return (rs >= 0) ? f_changed : rs ;
-
-/* bad stuff */
-bad2:
-	lockfile(op->fd,F_ULOCK,0L,fs,TO_LOCK) ;
-
-bad1:
-	op->f.lockedread = FALSE ;
-	op->f.lockedwrite = FALSE ;
-
-bad0:
-	return rs ;
-}
-/* end subroutine (ipasswd_lockget) */
-
-
-static int ipasswd_lockrelease(IPASSWD *op)
-{
-	int		rs = SR_OK ;
-
-	if (op->f.lockedread || op->f.lockedwrite) {
-	    offset_t	fs = op->filesize ;
-	    if (op->fd >= 0) {
-	        rs = lockfile(op->fd,F_ULOCK,0L,fs,TO_LOCK) ;
-	    }
-	    op->f.lockedread = FALSE ;
-	    op->f.lockedwrite = FALSE ;
-	}
-
-	return rs ;
-}
-/* end subroutine (ipasswd_lockrelease) */
-
-#endif /* CF_LOCKING */
-
-
-static int ipasswd_fileopen(IPASSWD *op,time_t daytime)
-{
-	struct ustat	sb ;
-	int		rs = SR_OK ;
-	int		size ;
-	int		f ;
-
-	if (op->fd >= 0)
-	    goto ret0 ;
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_fileopen: fname=%s\n",op->fname) ;
-#endif
-
-	rs = uc_open(op->fname,op->oflags,op->operm) ;
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_fileopen: u_open() rs=%d\n",rs) ;
-#endif
-
-	op->fd = rs ;
-	if (rs < 0)
-	    goto bad0 ;
-
-	if (daytime < 0)
-	    daytime = time(NULL) ;
-
-	op->ti_open = daytime ;
-	uc_closeonexec(op->fd,TRUE) ;
-
-	rs = u_fstat(op->fd,&sb) ;
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_fileopen: u_fstat() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0)
-	    goto bad1 ;
-
-/* check file size */
-
-	size = IPASSWD_IDLEN + (pwihdr_overlast * sizeof(int)) ;
-
-/* wait for the file to come in if it is not yet available */
-
-#if	CF_FILEWAIT
-
-	for (i = 0 ; 
-	    (i < TO_FILECOME) && (rs >= 0) && (sb.st_size < size) ;
-	    i += 1) {
-
-	    sleep(1) ;
-
-	    rs = u_fstat(op->fd,&sb) ;
-
-	} /* end while */
-
-	if (rs < 0)
-	    goto bad2 ;
-
-	if (i >= TO_FILECOME) {
-
-#if	CF_DEBUGS
-	    debugprintf("ipasswd_fileopen: file-open to i=%d\n",i) ;
-#endif
-
-	    rs = SR_TIMEDOUT ;
-	    goto bad2 ;
-	}
-
-#else /* CF_FILEWAIT */
-
-	if (sb.st_size < size) {
-	    rs = SR_TIMEDOUT ;
-	    goto bad2 ;
-	}
-
-#endif /* CF_FILEWAIT */
-
-/* is the file on a local or remote filesystem? */
-
-	{
-	    char	fstype[USERNAMELEN + 1] ;
-	    int		fslen ;
-
-	    if ((rs = getfstype(fstype,USERNAMELEN,op->fd)) >= 0) {
-	        fslen = rs ;
-	        f = islocalfs(fstype,fslen) ;
-	        op->f.remote = (! f) ; /* remote if not local! */
-	    }
-
-	} /* end block */
-
-	if (rs < 0)
-	    goto bad1 ;
-
-/* store some file information */
-
-	op->mtime = sb.st_mtime ;
-	op->filesize = sb.st_size ;
-
-/* done */
-ret0:
 	return (rs >= 0) ? op->fd : rs ;
-
-/* bad things */
-bad2:
-bad1:
-	u_close(op->fd) ;
-	op->fd = -1 ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (ipasswd_fileopen) */
 
@@ -1748,25 +1402,27 @@ static int ipasswd_fileclose(IPASSWD *op)
 /* end subroutine (ipasswd_fileclose) */
 
 
-static int ipasswd_mapbegin(IPASSWD *op,time_t daytime)
+static int ipasswd_mapbegin(IPASSWD *op,time_t dt)
 {
-	const int	mp = PROT_READ ;
-	const int	mf = MAP_SHARED ;
-	const int	fd = op->fd ;
-	size_t		ms ;
-	int		rs ;
-	void		*md ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
 
-	ms = uceil(op->filesize,op->pagesize) ;
-	if (ms == 0) ms = op->pagesize ;
+	if (op->mapdata == NULL) {
+	    size_t	ms = uceil(op->filesize,op->pagesize) ;
+	    const int	fd = op->fd ;
+	    const int	mp = PROT_READ ;
+	    const int	mf = MAP_SHARED ;
+	    void	*md ;
+	    if (ms == 0) ms = op->pagesize ;
+	    if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
+	        op->mapdata = md ;
+	        op->mapsize = ms ;
+	        op->ti_map = dt ;
+		f = TRUE ;
+	    }
+	} /* end if (needed) */
 
-	if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
-	    op->mapdata = md ;
-	    op->mapsize = ms ;
-	    op->ti_map = daytime ;
-	}
-
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (ipasswd_mapbegin) */
 
@@ -1782,6 +1438,22 @@ static int ipasswd_mapend(IPASSWD *op)
 	return rs ;
 }
 /* end subroutine (ipasswd_mapend) */
+
+
+static int ipasswd_remotefs(IPASSWD *op)
+{
+	int		rs ;
+	int		fslen ;
+	int		f = FALSE ;
+	    char	fstype[USERNAMELEN + 1] ;
+	    if ((rs = getfstype(fstype,USERNAMELEN,op->fd)) >= 0) {
+	        fslen = rs ;
+	        f = (! islocalfs(fstype,fslen)) ;
+	        op->f.remote = f ;
+	    }
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (ipasswd_remotefs) */
 
 
 static int ipasswd_keymatchfl3(IPASSWD *op,int opts,int ri,REALNAME *np)
@@ -1955,9 +1627,27 @@ static int ipasswd_keymatchall(IPASSWD *op,int opts,int ri,REALNAME *np)
 /* end subroutine (ipasswd_keymatchall) */
 
 
+static int ipaswd_mapcheck(IPASSWD *op,time_t dt)
+{
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	if (op->mapdata == NULL) {
+	    if ((rs = ipasswd_mapbegin(op,dt)) > 0) {
+		f = TRUE ;
+		rs = ipasswd_hdrload(op) ;
+		if (rs < 0) {
+		    ipasswd_mapend(op) ;
+		}
+	    }
+	}
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (ipaswd_mapcheck) */
+
+
 static int mkourfname(char *dbfname,const char *dbname)
 {
-	int	rs ;
+	int		rs ;
 	const char	*suf = IPASSWD_SUF ;
 	const char	*endstr = ((ENDIAN != 0) ? "1" : "0") ;
 

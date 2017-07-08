@@ -640,6 +640,11 @@ static int logfile_fileopen(LOGFILE *op)
 	    const int	of = (op->oflags | O_FLAGS1) ;
 	    if ((rs = uc_open(op->fname,of,op->operm)) >= 0) {
 		op->lfd = rs ;
+		if (op->lfd < 3) {
+		    if ((rs = uc_moveup(op->lfd,3)) >= 0) {
+			op->lfd = rs ;
+		    }
+		}
 		if (rs >= 0) {
 		    rs = uc_closeonexec(op->lfd,TRUE) ;
 		    op->ti_open = time(NULL) ;

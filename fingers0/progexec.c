@@ -78,20 +78,11 @@ extern int	strnnlen(const char *,int,int) ;
 /* exported subroutines */
 
 
-int progexec(pip,progfname,argz,alp)
-struct proginfo	*pip ;
-const char	progfname[] ;
-const char	argz[] ;
-VECSTR		*alp ;
+int progexec(PROGINFO *pip,cchar *progfname,cchar *argz,VECSTR *alp)
 {
 	VECSTR		*elp = &pip->exports ;
-
-	const char	**av ;
-	const char	**ev ;
-
-	int	rs = SR_OK ;
-	int	i ;
-
+	int		rs = SR_OK ;
+	int		i ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
@@ -99,12 +90,14 @@ VECSTR		*alp ;
 	    char	*cp ;
 	    debugprintf("progexec: progfname=%s\n",progfname) ;
 	    debugprintf("progexec: argz=%s\n",argz) ;
-	    for (i = 0 ; vecstr_get(alp,i,&cp) >= 0 ; i += 1)
+	    for (i = 0 ; vecstr_get(alp,i,&cp) >= 0 ; i += 1) {
 	        debugprintf("progexec: arg%u=>%t<\n",i,
 			cp,strnnlen(cp,-1,40)) ;
-	    for (i = 0 ; vecstr_get(elp,i,&cp) >= 0 ; i += 1)
+	    }
+	    for (i = 0 ; vecstr_get(elp,i,&cp) >= 0 ; i += 1) {
 	        debugprintf("progexec: env%u=>%t<\n",i,
 			cp,strnnlen(cp,-1,40)) ;
+	    }
 	}
 #endif /* CF_DEBUG */
 
@@ -128,19 +121,17 @@ VECSTR		*alp ;
 	if (rs >= 0)
 	    rs = vecstr_envset(elp,"_A0",argz,-1) ;
 
-	if (rs >= 0)
-	    vecstr_getvec(alp,&av) ;
-
-	if (rs >= 0)
-	    vecstr_getvec(elp,&ev) ;
-
 	if (rs >= 0) {
-	    const char **eav = (const char **) av ;
-	    const char **eev = (const char **) ev ;
-	    for (i = 3 ; i < NOFILE ; i += 1) {
-		u_close(i) ;
+	    cchar	**av ;
+	    if ((rs = vecstr_getvec(alp,&av)) >= 0) {
+		cchar	**ev ;
+	        if ((rs = vecstr_getvec(elp,&ev)) >= 0) {
+	            for (i = 3 ; i < NOFILE ; i += 1) {
+		        u_close(i) ;
+	            }
+	            rs = uc_execve(progfname,av,ev) ;
+		}
 	    }
-	    rs = u_execve(progfname,eav,eev) ;
 	}
 
 #if	CF_DEBUG

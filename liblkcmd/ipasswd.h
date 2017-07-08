@@ -78,7 +78,6 @@ struct ipasswd_e {
 
 struct ipasswd_flags {
 	uint		remote:1 ;
-	uint		fileinit:1 ;
 	uint		cursor:1 ;
 	uint		cursorlockbroken:1 ;
 	uint		cursoracc:1 ;

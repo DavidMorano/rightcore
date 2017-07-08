@@ -857,7 +857,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_rest: finishing rs=%d\n",rs) ;
+	    debugprintf("main: finishing rs=%d\n",rs) ;
 #endif
 
 /* done */

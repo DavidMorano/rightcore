@@ -413,12 +413,15 @@ int pwi_lookup(PWI *op,char *rbuf,int rlen,cchar *name)
 
 	                } /* end while */
 
-	                ipasswd_curend(&op->db,&cur) ;
+	                rs1 = ipasswd_curend(&op->db,&cur) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (cursor) */
 
-	            realname_finish(&rn) ;
+	            rs1 = realname_finish(&rn) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (realname) */
-		uc_free(pwbuf) ;
+		rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (memory-allocation) */
 	} /* end if (ok) */
 

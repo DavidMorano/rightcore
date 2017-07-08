@@ -1172,8 +1172,7 @@ static int procwatchpollipc_passfd(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 
 	if (mip->ns >= 0) {
 
-	    rs = clientinfo_start(cip) ;
-	    if (rs >= 0) {
+	    if ((rs = clientinfo_start(cip)) >= 0) {
 
 	        cip->fd_input = u_dup(mip->ns) ;
 	        cip->fd_output = u_dup(mip->ns) ;
@@ -1203,8 +1202,7 @@ static int procwatchpollipc_passfd(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 
 	    rc = muximsgrc_nofd ;
 	    if (pip->open.logprog) {
-	        proglog_printf(pip,
-	            "no FD was passed\n") ;
+	        proglog_printf(pip, "no FD was passed\n") ;
 	    }
 
 	} /* end if (nothing was there) */
@@ -1791,11 +1789,12 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
 
 	if ((rs = uc_fork()) == 0) { /* child */
 	    int		oflags ;
-	    int		nsi, nso ;
+	    int		nsi = cip->fd_input ;
+	    int		nso = cip->fd_output ;
 	    int		ex = EX_OK ;
 	    int		f_nsiok, f_nsook ;
 
-/* we are now the CHILD!! */
+/* we are now the CHILD! */
 
 	    pip->logid = jep->jobid ;
 	    cip->pid = getpid() ;
@@ -1814,42 +1813,36 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
 /* close stuff we do not need */
 
 	    if (pip->f.daemon) {
-
 	        if (pip->fd_listenpass >= 0) {
 	            u_close(pip->fd_listenpass) ;
 	            pip->fd_listenpass = -1 ;
 	        }
-
 	        if (pip->fd_listentcp >= 0) {
 	            u_close(pip->fd_listentcp) ;
 	            pip->fd_listentcp = -1 ;
 	        }
-
 	    } /* end if (daemon-mode) */
-
-	    nsi = cip->fd_input ;
-	    nso = cip->fd_output ;
 
 /* move some FDs that we do need, if necessary */
 
 	    f_nsiok = (nsi == FD_STDIN) ;
-
 	    f_nsook = (nso == FD_STDOUT) ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("procwatchnew: 0 nsi=%d nso=%d\n",
-		nsi,nso) ;
+	        debugprintf("procwatchnew: 0 nsi=%d nso=%d\n",nsi,nso) ;
 #endif
 
 /* we must use 'dupup()' and NOT 'uc_moveup()'! */
 
 	    if ((nsi < 3) && (! f_nsiok)) {
 	        nsi = dupup(nsi,3) ;
+		cip->fd_input = nsi ;
 	    }
 
 	    if ((nso < 3) && (! f_nsook)) {
 	        nso = dupup(nso,3) ;
+		cip->fd_output = nso ;
 	    }
 
 #if	CF_DEBUG
@@ -1861,22 +1854,22 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
 /* setup the input and output for this spawned process */
 
 	    for (i = 0 ; i < 3 ; i += 1) {
-	        int	f_keep ;
-
-	        f_keep = ((i == nsi) && f_nsiok) ;
-	        if (! f_keep)
-	            f_keep = ((i == nso) && f_nsook) ;
-
-	        if (! f_keep)
+	        int	f_keep = FALSE ;
+	        f_keep = f_keep || ((i == nsi) && f_nsiok) ;
+	        f_keep = f_keep || ((i == nso) && f_nsook) ;
+	        if (! f_keep) {
 	            u_close(i) ;
-
+	 	}
 	    } /* end for */
 
-	    if (! f_nsiok)
-	        u_dup(nsi) ;
-
-	    if (! f_nsook)
-	        u_dup(nso) ;
+	    if (! f_nsiok) {
+		cip->fd_input = u_dup(nsi) ;
+		u_close(nsi) ;
+	    }
+	    if (! f_nsook) {
+		cip->fd_output = u_dup(nso) ;
+		u_close(nso) ;
+	    }
 
 	    oflags = (O_WRONLY | O_CREAT) ;
 	    i = u_open(jep->efname,oflags,0666) ;
@@ -1906,8 +1899,8 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
 
 	    cip->stime = pip->daytime ;
 	    if (pip->open.logprog) {
-	        proglog_printf(pip,"server pid=%u\n",
-	            (int) cip->pid) ;
+		const int	v = cip->pid ;
+	        proglog_printf(pip,"server pid=%u\n",v) ;
 	    }
 
 /* set keep-alive (if it is not a socket we ignore the failure) */
@@ -2215,9 +2208,9 @@ static int procwatchpolling(PROGINFO *pip,SUBINFO *wip,int fd,int re)
 	                ns = rs1 ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	debugprintf("progwatch/procwatchpolling: "
-		"listenspec_accept() rs=%d\n", rs1) ;
+			if (DEBUGLEVEL(5))
+			debugprintf("progwatch/procwatchpolling: "
+				"listenspec_accept() rs=%d\n", rs1) ;
 #endif
 
 	                if (rs1 >= 0) {
@@ -2244,9 +2237,9 @@ static int procwatchpolling(PROGINFO *pip,SUBINFO *wip,int fd,int re)
 				    timestr_logz(pip->daytime,timebuf),rs) ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-			debugprintf("progwatch/procwatchpolling: "
-			"procwatchnew() rs=%d\n",rs) ;
+			    if (DEBUGLEVEL(5))
+			        debugprintf("progwatch/procwatchpolling: "
+			            "procwatchnew() rs=%d\n",rs) ;
 #endif
 
 			     } /* end if (new-job) */

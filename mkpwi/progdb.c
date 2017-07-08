@@ -7,6 +7,7 @@
 #define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_DEBUGFILE	1		/* debug index file */
 #define	CF_MKGECOSNAME	1		/* "should" be much faster? */
+#define	CF_USEREALNAME	1		/* use realname from |pwfile| */
 
 
 /* revision history:
@@ -137,6 +138,7 @@ struct wrcache {
 static int	progdber(PROGINFO *,bfile *,cchar *,cchar *,int,int) ;
 static int	procpw(PROGINFO *,STRTAB *,RECORDER *) ;
 static int	procpwfile(PROGINFO *,STRTAB *,RECORDER *) ;
+static int	procpwfiler(PROGINFO *,STRTAB *,RECORDER *,PWFILE_ENT *) ;
 static int	procpwsys(PROGINFO *,STRTAB *,RECORDER *) ;
 
 static int	procentry(PROGINFO *,STRTAB *,RECORDER *,cchar *,cchar *,int) ;
@@ -278,11 +280,14 @@ static int procpwfile(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 	int		rs1 ;
 	int		c = 0 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progdb: ent\n") ;
+#endif
+
 	if ((rs = pwfile_open(&pf,pip->pwfname)) >= 0) {
 	    if ((rs = pwfile_curbegin(&pf,&cur)) >= 0) {
 	        const int	pwlen = getbufsize(getbufsize_pw) ;
-	        int		nl ;
-	        cchar		*np ;
 	        char		*pwbuf ;
 	        if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
 	            while ((rs = pwfile_enum(&pf,&cur,&pw,pwbuf,pwlen)) > 0) {
@@ -292,49 +297,7 @@ static int procpwfile(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 	                    debugprintf("progdb: username=%s\n",pw.username) ;
 #endif
 
-#if	CF_MKGECOSNAME
-	                {
-	                    if ((nl = getgecosname(pw.username,-1,&np)) > 0) {
-	                        char	nbuf[nl + 1] ;
-
-	                        if (strnchr(np,nl,'-') != NULL) {
-	                            rs = snwcpyhyphen(nbuf,-1,np,nl) ;
-	                            np = nbuf ;
-	                        }
-
-	                        if (rs >= 0) {
-	                            cchar	*un = pw.username ;
-	                            c += 1 ;
-	                            rs = procentry(pip,stp,rtp,un,np,nl) ;
-	                        }
-
-	                    } /* end if */
-	                } /* end block */
-#else /* CF_MKGECOSNAME */
-	                {
-	                    GECOS	ge ;
-	                    if ((rs = gecos_start(&ge,pw.gecos,-1)) >= 0) {
-	                        const int	req = gecosval_realname ;
-	                        if ((nl = gecos_getval(&ge,req,&np)) > 0) {
-	                            char	nbuf[nl + 1] ;
-
-	                            if (strnchr(np,nl,'-') != NULL) {
-	                                rs = snwcpyhyphen(nbuf,-1,np,nl) ;
-	                                np = nbuf ;
-	                            }
-
-	                            if (rs >= 0) {
-	                                cchar	*un = pw.username ;
-	                                c += 1 ;
-	                                rs = procentry(pip,stp,rtp,un,np,nl) ;
-	                            }
-
-	                        } /* end block */
-	                        rs1 = gecos_finish(&ge) ;
-				if (rs >= 0) rs = rs1 ;
-	                    } /* end if (gecos) */
-	                } /* end block */
-#endif /* CF_MKGECOSNAME */
+			rs = procpwfiler(pip,stp,rtp,&pw) ;
 
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
@@ -362,6 +325,75 @@ static int procpwfile(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procpwfile) */
+
+
+static int procpwfiler(PROGINFO *pip,STRTAB *stp,RECORDER *rtp,PWFILE_ENT *pwp)
+{
+	int		rs = SR_OK ;
+	int		nl = -1 ;
+	int		c = 0 ;
+	cchar		*un = pwp->username ;
+	cchar		*np ;
+
+#if	CF_USEREALNAME
+	if (pwp->realname != NULL) {
+	    np = pwp->realname ;
+	    c += 1 ;
+	    rs = procentry(pip,stp,rtp,un,np,nl) ;
+	} else {
+	    if ((nl = getgecosname(pwp->gecos,-1,&np)) > 0) {
+		char	nbuf[nl + 1] ;
+		if (strnchr(np,nl,'-') != NULL) {
+		    rs = snwcpyhyphen(nbuf,-1,np,nl) ;
+		    np = nbuf ;
+		}
+		if (rs >= 0) {
+		    c += 1 ;
+		    rs = procentry(pip,stp,rtp,un,np,nl) ;
+		}
+	    }
+	}
+#else /* CF_USEREALNAME */
+#if	CF_MKGECOSNAME
+	                {
+	                    if ((nl = getgecosname(pwp->gecos,-1,&np)) > 0) {
+	                        char	nbuf[nl + 1] ;
+	                        if (strnchr(np,nl,'-') != NULL) {
+	                            rs = snwcpyhyphen(nbuf,-1,np,nl) ;
+	                            np = nbuf ;
+	                        }
+	                        if (rs >= 0) {
+	                            c += 1 ;
+	                            rs = procentry(pip,stp,rtp,un,np,nl) ;
+	                        }
+	                    } /* end if */
+	                } /* end block */
+#else /* CF_MKGECOSNAME */
+	                {
+	                    GECOS	ge ;
+	                    if ((rs = gecos_start(&ge,pwp->gecos,-1)) >= 0) {
+	                        const int	req = gecosval_realname ;
+	                        if ((nl = gecos_getval(&ge,req,&np)) > 0) {
+	                            char	nbuf[nl + 1] ;
+	                            if (strnchr(np,nl,'-') != NULL) {
+	                                rs = snwcpyhyphen(nbuf,-1,np,nl) ;
+	                                np = nbuf ;
+	                            }
+	                            if (rs >= 0) {
+	                                c += 1 ;
+	                                rs = procentry(pip,stp,rtp,un,np,nl) ;
+	                            }
+	                        } /* end block */
+	                        rs1 = gecos_finish(&ge) ;
+				if (rs >= 0) rs = rs1 ;
+	                    } /* end if (gecos) */
+	                } /* end block */
+#endif /* CF_MKGECOSNAME */
+#endif /* CF_USEREALNAME */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procpwfiler) */
 
 
 static int procpwsys(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)

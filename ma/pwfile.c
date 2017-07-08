@@ -100,6 +100,7 @@ extern char	*strnchr(const char *,int,int) ;
 static int	pwfile_loadbegin(PWFILE *) ;
 static int	pwfile_loadend(PWFILE *) ;
 static int	pwfile_filefront(PWFILE *) ;
+static int	pwfile_filefronter(PWFILE *) ;
 static int	pwfile_fileback(PWFILE *) ;
 
 static int	pwentry_start(PWENTRY *) ;
@@ -183,7 +184,7 @@ int pwfile_enum(PWFILE *dbp,PWFILE_CUR *curp,PWENTRY *uep,char *rbuf,int rlen)
 	int		rs ;
 
 #if	CF_DEBUGS
-	debugprintf("pwfile_enum: ent, &pe %08lX pebuf %08lX\n",
+	debugprintf("pwfile_enum: ent &pe %08lX pebuf %08lX\n",
 	    uep,rbuf) ;
 #endif
 
@@ -215,6 +216,8 @@ int pwfile_enum(PWFILE *dbp,PWFILE_CUR *curp,PWENTRY *uep,char *rbuf,int rlen)
 
 	if (rs >= 0) {
 	    rs = pwentry_mkcopy(ep,uep,rbuf,rlen) ;
+	} else if (rs == SR_NOTFOUND) {
+	    rs = SR_OK ;
 	}
 
 #if	CF_DEBUGS
@@ -408,7 +411,7 @@ int pwfile_lock(PWFILE *dbp,int type,int to_lock)
 	            }
 	        } else {
 	            rs = SR_INVALID ;
-		}
+	        }
 	        break ;
 	    default:
 	    case F_RTEST:
@@ -431,10 +434,10 @@ int pwfile_lock(PWFILE *dbp,int type,int to_lock)
 	        if (! dbp->f.locked) {
 	            if ((rs = lockfile(dbp->lfd,type,0L,0L,to_lock)) >= 0) {
 	                dbp->f.locked = dbp->f.locked_explicit = TRUE ;
-		    }
+	            }
 	        } else {
 	            rs = SR_INVALID ;
-		}
+	        }
 	        break ;
 	    } /* end switch */
 	} /* end if (ok) */
@@ -450,65 +453,44 @@ int pwfile_lock(PWFILE *dbp,int type,int to_lock)
 /* load up the database */
 static int pwfile_loadbegin(PWFILE *dbp)
 {
-	HDB_DATUM	key, value ;
-	PWENTRY		*ep ;
 	int		rs ;
-	int		n ;
-	int		i ;
+	int		n = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("pwfile_loadbegin: ent\n") ;
 #endif
 
-	rs = pwfile_filefront(dbp) ;
-	n = rs ;
-	if (rs < 0) goto bad1 ;
-
-	rs = hdb_start(&dbp->byuser,n,0,NULL,NULL) ;
-	if (rs < 0) goto bad2 ;
-
-/* build the name index! */
-
-	for (i = 0 ; vecitem_get(&dbp->alist,i,&ep) >= 0 ; i += 1) {
-	    if (ep != NULL) {
-
-#if	CF_DEBUGS
-	    debugprintf("pwfile_loadbegin: storing, u=%s\n",ep->username) ;
-#endif
-
-	    key.buf = ep->username ;
-	    key.len = strlen(ep->username) ;
-
-	    value.buf = ep ;
-	    value.len = sizeof(PWENTRY) ;
-
-	    rs = hdb_store(&dbp->byuser,key,value) ;
-
+	if ((rs = pwfile_filefront(dbp)) >= 0) {
+	    HDB_DATUM	key, val ;
+	    n = rs ;
+	    if ((rs = hdb_start(&dbp->byuser,n,0,NULL,NULL)) >= 0) {
+	        VECITEM	*alp = &dbp->alist ;
+	        PWENTRY	*ep ;
+	        int	i ;
+	        for (i = 0 ; vecitem_get(alp,i,&ep) >= 0 ; i += 1) {
+	            if (ep != NULL) {
+	                key.buf = ep->username ;
+	                key.len = strlen(ep->username) ;
+	                val.buf = ep ;
+	                val.len = sizeof(PWENTRY) ;
+	                rs = hdb_store(&dbp->byuser,key,val) ;
+	            }
+	            if (rs < 0) break ;
+	        } /* end for */
+	        if (rs < 0) {
+	            hdb_finish(&dbp->byuser) ;
+	        }
 	    }
-	    if (rs < 0) break ;
-	} /* end for */
-
-	if (rs < 0)
-	    goto bad3 ;
-
-/* we are out of here */
-ret0:
+	    if (rs < 0) {
+	        pwfile_fileback(dbp) ;
+	    }
+	} /* end if (pwfile_filefront) */
 
 #if	CF_DEBUGS
 	debugprintf("pwfile_loadbegin: ret rs=%d n=%d\n",rs,n) ;
 #endif
 
 	return (rs >= 0) ? n : rs ;
-
-/* bad things come here */
-bad3:
-	hdb_finish(&dbp->byuser) ;
-
-bad2:
-	pwfile_fileback(dbp) ;
-
-bad1:
-	goto ret0 ;
 }
 /* end subroutine (pwfile_loadbegin) */
 
@@ -533,115 +515,118 @@ static int pwfile_loadend(PWFILE *dbp)
 /* load the contents of the file into the appropriate structures */
 static int pwfile_filefront(PWFILE *dbp)
 {
-	struct ustat	sb ;
-	PWENTRY		entry ;
-	bfile		pwfile, *fp = &pwfile ;
-	const int	llen = LINEBUFLEN ;
+	USTAT		sb ;
 	int		rs ;
-	int		fn, len, n ;
-	const char	*tp ;
-	const char	*cp ;
-	char		lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("pwfile_filefront: ent\n") ;
 #endif
 
-	if (dbp->fname[0] == '\0')
-	    return SR_NOENTRY ;
+	if (dbp->fname[0] == '\0') return SR_NOENTRY ;
 
-	rs = bopen(fp,dbp->fname,"rc",0644) ;
-	if (rs < 0) goto bad0 ;
+	if ((rs = uc_stat(dbp->fname,&sb)) >= 0) {
+	    VECITEM	*alp = &dbp->alist ;
+	    const int	vo = VECITEM_PNOHOLES ;
+	    int		n = ((sb.st_size / 60) + 5) ;
+	    if (n < DEFENTRIES) n = DEFENTRIES ;
+	    if ((rs = vecitem_start(alp,n,vo)) >= 0) {
+	        dbp->readtime = sb.st_mtime ;
+	        rs = pwfile_filefronter(dbp) ;
+	        if (rs < 0)
+	            vecitem_finish(alp) ;
+	    }
+	} /* end if (uc_stat) */
 
-	if (! dbp->f.locked) {
-	    rs = bcontrol(fp,BC_LOCKREAD,TO_LOCK) ;
-	}
-	if (rs < 0) goto bad1 ;
+	return rs ;
+}
+/* end subroutine (pwfile_filefront) */
 
-	rs = bcontrol(fp,BC_STAT,&sb) ;
-	if (rs < 0) goto bad2 ;
 
-	dbp->readtime = sb.st_mtime ;	/* mark when we read the file */
+static int pwfile_filefronter(PWFILE *dbp)
+{
+	bfile		pwfile, *fp = &pwfile ;
+	int		rs ;
+	int		rs1 ;
+	int		n = 0 ;
 
-	n = ((sb.st_size / 60) + 5) ;	/* estimate number of entries */
-	if (n < DEFENTRIES)
-	    n = DEFENTRIES ;
+	if ((rs = bopen(fp,dbp->fname,"rc",0644)) >= 0) {
+	    if (! dbp->f.locked) {
+	        rs = bcontrol(fp,BC_LOCKREAD,TO_LOCK) ;
+	    }
+	    if (rs >= 0) {
+	        PWENTRY		entry ;
+	        const int	llen = LINEBUFLEN ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN+1] ;
+	        while ((rs = breadline(fp,lbuf,llen)) > 0) {
+	            len = rs ;
 
-	rs = vecitem_start(&dbp->alist,n,VECITEM_PNOHOLES) ;
-	if (rs < 0) goto bad2 ;
-
-	n = 0 ;
-	while ((rs = breadline(fp,lbuf,llen)) > 0) {
-	    len = rs ;
-
-	    if (lbuf[len - 1] == '\n') len -= 1 ;
-	    lbuf[len] = '\0' ;
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
 
 #if	CF_DEBUGS
-	    debugprintf("pwfile_filefront: read> %t\n",lbuf,len) ;
+	            debugprintf("pwfile_filefront: read> %t\n",lbuf,len) ;
 #endif
 
-	    if ((rs = pwentry_start(&entry)) >= 0) {
-
-	        fn = 0 ;
-	        cp = lbuf ;
-	        while ((tp = strchr(cp,':')) != NULL) {
+	            if ((rs = pwentry_start(&entry)) >= 0) {
+	                int		fn = 0 ;
+	                cchar		*tp ;
+	                cchar		*cp = lbuf ;
+	                while ((tp = strchr(cp,':')) != NULL) {
 
 #if	CF_DEBUGS
-	            debugprintf("pwfile_filefront: %02d field> %t\n",
-	                fn,cp,(tp - cp)) ;
+	                    debugprintf("pwfile_filefront: %02d field> %t\n",
+	                        fn,cp,(tp - cp)) ;
 #endif
 
-	            rs = pwentry_fieldpw(&entry,fn,cp,(tp - cp)) ;
+	                    rs = pwentry_fieldpw(&entry,fn,cp,(tp - cp)) ;
 
-	            cp = (tp + 1) ;
-	            fn += 1 ;
+	                    cp = (tp + 1) ;
+	                    fn += 1 ;
 
-	            if (rs < 0) break ;
-	        } /* end while */
+	                    if (rs < 0) break ;
+	                } /* end while */
 
-	        if ((rs >= 0) && (cp[0] != '\0')) {
-	            rs = pwentry_fieldpw(&entry,fn,cp,-1) ;
-		}
+	                if ((rs >= 0) && (cp[0] != '\0')) {
+	                    rs = pwentry_fieldpw(&entry,fn,cp,-1) ;
+	                }
 
 #if	CF_DEBUGS
-	        debugprintf("pwfile_filefront: created entry u=%s\n",
-	            entry.username) ;
+	                debugprintf("pwfile_filefront: created entry u=%s\n",
+	                    entry.username) ;
 #endif
 
 /* make any extras fields that we want */
 
-	        if (rs >= 0) {
-	            rs = pwentry_mkextras(&entry) ;
+	                if (rs >= 0) {
+	                    rs = pwentry_mkextras(&entry) ;
 #if	CF_DEBUGS
-	            debugprintf("pwfile_filefront: pwentry_mkextras() rs=%d\n",
-	                rs) ;
+	                    debugprintf("pwfile_filefront: "
+	                        "pwentry_mkextras() rs=%d\n",rs) ;
 #endif
-	        }
+	                }
 
 /* add the entry to our list */
 
-	        if (rs >= 0) {
-	            n += 1 ;
-	            rs = vecitem_add(&dbp->alist,&entry,sizeof(PWENTRY)) ;
+	                if (rs >= 0) {
+	                    const int	esize = sizeof(PWENTRY) ;
+	                    n += 1 ;
+	                    rs = vecitem_add(&dbp->alist,&entry,esize) ;
+	                }
+
+	                if (rs < 0)
+	                    pwentry_finish(&entry) ;
+	            } /* end if (initialized new entry) */
+
+	            if (rs < 0) break ;
+	        } /* end while (reading file entries) */
+	        if (! dbp->f.locked) {
+	            bcontrol(fp,BC_UNLOCK,0) ;
 	        }
-
-	        if (rs < 0)
-	            pwentry_finish(&entry) ;
-	    } /* end if (initialized new entry) */
-
-	    if (rs < 0) break ;
-	} /* end while (reading file entries) */
-
-bad2:
-	if (! dbp->f.locked) {
-	    bcontrol(fp,BC_UNLOCK,0) ;
-	}
-
-bad1:
-	bclose(fp) ;
-
-bad0:
+	    } /* end if (ok) */
+	    rs1 = bclose(fp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile) */
 
 #if	CF_DEBUGS
 	debugprintf("pwfile_filefront: ret rs=%d n=%d\n",rs,n) ;
@@ -649,7 +634,7 @@ bad0:
 
 	return (rs >= 0) ? n : rs ;
 }
-/* end subroutine (pwfile_filefront) */
+/* end subroutine (pwfile_filefronter) */
 
 
 /* free up the resources occupied by loading of the file */
@@ -870,10 +855,11 @@ static int pwentry_mkextras(PWENTRY *ep)
 	                                rs = snwcpyhyphen(nbuf,-1,vp,vl) ;
 	                                vp = nbuf ;
 	                            }
-	                            if (rs >= 0)
+	                            if (rs >= 0) {
 	                                rs = loaditem(&ep->realname,vp,vl) ;
+	                            }
 	                            uc_free(p) ;
-	                        } /* end if (memory-allocation) */
+	                        } /* end if (m-a-f) */
 	                        break ;
 	                    case gecosval_account:
 	                        rs = loaditem(&ep->account,vp,vl) ;
@@ -902,7 +888,7 @@ static int pwentry_mkextras(PWENTRY *ep)
 	        rs1 = gecos_finish(&g) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (gecos) */
-	} /* end if */
+	} /* end if (non-null) */
 
 	return rs ;
 }
