@@ -137,6 +137,7 @@ extern int	vecstr_adduniq(vecstr *,cchar *,int) ;
 extern int	mktmpuserdir(char *,cchar *,cchar *,mode_t) ;
 extern int	getnprocessors(cchar **,int) ;
 extern int	opentmpfile(cchar *,int,mode_t,char *) ;
+extern int	opentmp(cchar *,int,mode_t) ;
 extern int	rmdirfiles(cchar *,cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
@@ -288,6 +289,7 @@ static int	locinfo_alreadybegin(LOCINFO *) ;
 static int	locinfo_alreadyend(LOCINFO *) ;
 static int	locinfo_alreadystat(LOCINFO *) ;
 static int	locinfo_incdirs(LOCINFO *) ;
+static int	procdefs_loadargs(PROGINFO *,vecstr *,cchar *) ;
 static int	locinfo_incadds(LOCINFO *,cchar *,int) ;
 static int	locinfo_alreadylookup(LOCINFO *,cchar *,int,time_t *) ;
 
@@ -1853,13 +1855,10 @@ static int depsget(PROGINFO *pip,VECSTR *dp,VECOBJ *errp,cchar *fname)
 	VECSTR		args ;
 	const mode_t	operms = 0664 ;
 	int		rs ;
-	int		cl ;
-	int		opts ;
 	int		oflags ;
 	int		fd_err ;
 	int		cstat ;
 	const char	**av ;
-	const char	*cp ;
 	char		tmpfname[MAXPATHLEN + 1] ;
 	char		errfname[MAXPATHLEN + 1] ;
 
@@ -1884,70 +1883,54 @@ static int depsget(PROGINFO *pip,VECSTR *dp,VECOBJ *errp,cchar *fname)
 	    errfname[0] = '\0' ;
 	}
 
-	opts = VECSTR_OCOMPACT ;
-	rs = vecstr_start(&args,10,opts) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-/* get a basename for the zeroth program argument */
-
-	cl = sfbasename(lip->prog_cpp,-1,&cp) ;
-
-/* create the argument list for the CPP program */
-
-	vecstr_add(&args,cp,cl) ;
-
-	vecstr_add(&args,"-M",-1) ;
-
-/* loop, adding include-directories to the argument list */
-
-	rs = procdeps_incargs(pip,&args) ;
-
-/* add the filename itself */
-
-	if (rs >= 0)
-	rs = vecstr_add(&args,fname,-1) ;
-
-/* start the program */
-
-	if (rs >= 0) {
-	if ((rs = vecstr_getvec(&args,&av)) >= 0) {
-	SPAWNPROC	psa ;
+	if ((rs = opentmp(lip->jobdname,0,0)) >= 0) {
+	    const int	rfd = rs ;
+	    const int	vo = VECSTR_OCOMPACT ;
+	    if ((rs = vecstr_start(&args,10,vo)) >= 0) {
+	        if ((rs = procdefs_loadargs(pip,&args,fname)) >= 0) {
+	            if ((rs = vecstr_getvec(&args,&av)) >= 0) {
+		        SPAWNPROC	psa ;
+	                cchar		*pf = lip->prog_cpp ;
+	                cchar		**ev = pip->envv ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5)) {
-	    int	i ;
-	    for (i = 0 ; av[i] != NULL ; i += 1)
-	        debugprintf("depsget: arg%u=>%s<\n",i,av[i]) ;
-	}
-#endif
-	memset(&psa,0,sizeof(SPAWNPROC)) ;
-	psa.disp[0] = SPAWNPROC_DNULL ;
-	psa.disp[1] = SPAWNPROC_DCREATE ;
-	psa.disp[2] = SPAWNPROC_DDUP ;
-	psa.fd[2] = fd_err ;
-	if ((rs = spawnproc(&psa,lip->prog_cpp,av,pip->envv)) >= 0) {
-	    const pid_t	pid = rs ;
-	    const int	rfd = psa.fd[1] ;
-	    rs = 0 ;
-	    while (rs == 0) {
-	        rs = u_waitpid(pid,&cstat,WUNTRACED) ;
-	        if (rs == SR_INTR) rs = SR_OK ;
-	    }
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(5)) {
-	        debugprintf("b_makesafe/depsget: u_wait() rs=%d pid=%u\n",
-			rs,pid) ;
-	    }
-#endif
-	    if (rs >= 0) {
-	                if ((rs = proclines(pip,dp,rfd)) >= 0) {
-	                    rs = procerr(pip,errp,fd_err) ;
+	                if (DEBUGLEVEL(5)) {
+	                    int	i ;
+	                    for (i = 0 ; av[i] != NULL ; i += 1)
+	                        debugprintf("depsget: arg%u=>%s<\n",i,av[i]) ;
 	                }
-	    } /* end if (ok) */
-		u_close(rfd) ;
-	} /* end if spawnproc) */
-	} /* end if (vecstr_getvec) */
-	} /* end if (ok) */
+#endif
+	                memset(&psa,0,sizeof(SPAWNPROC)) ;
+	                psa.disp[0] = SPAWNPROC_DNULL ;
+	                psa.disp[1] = SPAWNPROC_DDUP ;
+	                psa.disp[2] = SPAWNPROC_DDUP ;
+	                psa.fd[1] = rfd ;
+	                psa.fd[2] = fd_err ;
+	                if ((rs = spawnproc(&psa,pf,av,ev)) >= 0) {
+	    	            const pid_t	pid = rs ;
+	    	            rs = 0 ;
+	    	            while (rs == 0) {
+	        	        rs = u_waitpid(pid,&cstat,WUNTRACED) ;
+	        	        if (rs == SR_INTR) rs = SR_OK ;
+	    	            }
+#if	CF_DEBUG
+	    	            if (DEBUGLEVEL(5)) {
+	        	        debugprintf("b_makesafe/depsget: "
+					"u_wait() rs=%d\n", rs) ;
+	    		    }
+#endif
+	    		    if (rs >= 0) {
+				if ((rs = u_rewind(rfd)) >= 0) {
+	                            if ((rs = proclines(pip,dp,rfd)) >= 0) {
+	                                rs = procerr(pip,errp,fd_err) ;
+				    }
+	                        }
+	    		    } /* end if (ok) */
+		        } /* end if spawnproc) */
+		    } /* end if (vecstr_getvec) */
+	        } /* end if (procdefs_loadargs) */
+	    } /* end if (vecstr-args) */
+	    u_close(rfd) ;
+	} /* end if (opentmp) */
 
 /* done */
 	u_close(fd_err) ;
@@ -1964,7 +1947,6 @@ ret1:
 	    }
 	}
 
-ret0:
 	if ((pip->debuglevel > 0) && (rs < 0)) {
 	    proceprintf(pip,"%s: depsget (%d)\n",
 	        pip->progname,rs) ;
@@ -1978,6 +1960,26 @@ ret0:
 	return rs ;
 }
 /* end subroutine (depsget) */
+
+
+static int procdefs_loadargs(PROGINFO *pip,vecstr *alp,cchar *fn)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs = SR_OK ;
+	int		cl ;
+	cchar		*cp ;
+	if ((cl = sfbasename(lip->prog_cpp,-1,&cp)) > 0) {
+	    vecstr_add(alp,cp,cl) ;
+	    vecstr_add(alp,"-M",-1) ;
+	    if ((rs = procdeps_incargs(pip,alp)) >= 0) {
+	        rs = vecstr_add(alp,fn,-1) ;
+	    }
+	} else {
+	    rs = SR_NOENT ;
+	}
+	return rs ;
+}
+/* end subroutine (procdefs_loadargs) */
 
 
 static int procdeps_incargs(PROGINFO *pip,vecstr *alp)
@@ -2034,7 +2036,6 @@ static int proclines(PROGINFO *pip,VECSTR *dp,int fd)
 #if	CF_TESTSLEEP
 	    sleep(5) ;
 #endif
-	    uc_fdatasync(fd) ;
 	    debugprintf("proclines: ent to=%u\n",to) ;
 	    rs1 = u_fstat(fd,&sb) ;
 	    debugprintf("proclines: u_fstat() rs=%d\n",rs1) ;

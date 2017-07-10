@@ -138,6 +138,7 @@ int opentmpuss(cchar *inname,int of,mode_t om,char *rbuf)
 int opentmp(cchar *dname,int of,mode_t om)
 {
 	int		rs ;
+	int		rs1 ;
 	int		fd = -1 ;
 	const char	*template = "otXXXXXXXXXXXX" ;
 	char		inname[MAXPATHLEN + 1] ;
@@ -162,9 +163,11 @@ int opentmp(cchar *dname,int of,mode_t om)
 	                if (obuf[0] != '\0') uc_unlink(obuf) ;
 	            }
 
-	            sigblock_finish(&blocker) ;
+	            rs1 = sigblock_finish(&blocker) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (sigblock) */
-		uc_free(obuf) ;
+		rs1 = uc_free(obuf) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a) */
 	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 	} /* end if (mkpath) */
