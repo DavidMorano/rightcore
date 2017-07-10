@@ -92,7 +92,7 @@ char		ngdir[] ;
 const char	bbnewsdir[] ;
 const char	newsgroup[] ;
 {
-	struct ustat	statbuf ;
+	struct ustat	sb ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 	int		f_first ;
@@ -127,80 +127,63 @@ const char	newsgroup[] ;
 	debugprintf("pcsngdir: modified bbnewsdir=%s\n",bbnewsdir2) ;
 #endif
 
-	rs = u_stat(bbnewsdir2,&statbuf) ;
+	if ((rs = u_stat(bbnewsdir2,&sb)) >= 0) {
+	    if (S_ISDIR(sb.st_mode)) {
+	        if ((rs = mkpath1(ngdir,newsgroup)) >= 0) {
 
-	if (rs < 0)
-	    goto badnewsdir ;
-
-#if	CF_DEBUGS
-	debugprintf("pcsngdir: checking if not a DIR\n") ;
-#endif
-
-	rs = SR_NOTDIR ;
-	if (! S_ISDIR(statbuf.st_mode))
-	    goto badnewsdir ;
-
-#if	CF_DEBUGS
-	debugprintf("pcsngdir: about to do it\n") ;
-#endif
-
-/* assume the newsgroup is "add directory path" for starters */
-
-	rs = mkpath1(ngdir,newsgroup) ;
-	if (rs < 0) goto done ;
-
-	cp2 = ngdir ;
-	while ((bp = strchr(cp2,'.')) != NULL) {
-	    *bp = '/' ;
-	    cp2 = (bp + 1) ;
-	} /* end while */
+	            cp2 = ngdir ;
+	            while ((bp = strchr(cp2,'.')) != NULL) {
+	                *bp = '/' ;
+	                cp2 = (bp + 1) ;
+	            } /* end while */
 
 /* OK, start looking for the closest directory that matches */
 
 #if	CF_DEBUGS
-	debugprintf("pcsngdir: about to loop\n") ;
+	            debugprintf("pcsngdir: about to loop\n") ;
 #endif
 
-	f_first = TRUE ;
-	rs = SR_ACCESS ;
-	while (f_first || ((bp = strrchr(ngdir,'/')) != NULL)) {
+	            f_first = TRUE ;
+	            rs = SR_ACCESS ;
+	            while (f_first || ((bp = strrchr(ngdir,'/')) != NULL)) {
 
-	    if (! f_first)
-	        *bp = '.' ;
+	                if (! f_first)
+	                    *bp = '.' ;
 
-	    f_first = FALSE ;
-	    if ((rs = mkpath1(ndp,ngdir)) >= 0) {
+	                f_first = FALSE ;
+	                if ((rs = mkpath1(ndp,ngdir)) >= 0) {
 
-	        if ((u_stat(bbnewsdir2,&statbuf) >= 0) && 
-	            S_ISDIR(statbuf.st_mode) &&
-	            (u_access(bbnewsdir2,W_OK) >= 0)) {
+	                    if ((u_stat(bbnewsdir2,&sb) >= 0) && 
+	                        S_ISDIR(sb.st_mode) &&
+	                        (u_access(bbnewsdir2,W_OK) >= 0)) {
 
-	            rs = SR_OK ;
-	            break ;
-	        }
+	                        rs = SR_OK ;
+	                        break ;
+	                    }
 
-	    } /* end if */
+	                } /* end if */
 
-	    if (rs < 0) break ;
-	} /* end while */
+	                if (rs < 0) break ;
+	            } /* end while */
 
 /* if we do not have a directory yet, try the last name we are left with */
 
-	if (rs < 0) {
+	            if (rs < 0) {
 
-	    strcpy(ndp,ngdir) ;
+	                strcpy(ndp,ngdir) ;
 
-	    if ((u_stat(bbnewsdir2,&statbuf) >= 0) && 
-	        S_ISDIR(statbuf.st_mode) &&
-	        (u_access(bbnewsdir2,W_OK) >= 0))
-	        rs = SR_OK ;
+	                if ((u_stat(bbnewsdir2,&sb) >= 0) && 
+	                    S_ISDIR(sb.st_mode) &&
+	                    (u_access(bbnewsdir2,W_OK) >= 0))
+	                    rs = SR_OK ;
 
-	} /* end if (tried to make it) */
+	            } /* end if (tried to make it) */
 
-/* done */
-done:
-badnewsdir:
-ret0:
+	        } /* end if (mkpath) */
+	    } else {
+	        rs = SR_NOTDIR ;
+	    }
+	} /* end if (u_stat) */
 
 #if	CF_DEBUGS
 	debugprintf("pcsngdir: ret rs=%d len=%u\n",rs,len) ;

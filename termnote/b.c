@@ -1133,7 +1133,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	int		pan = 0 ;
 	int		c = 0 ;
 	int		cl ;
-	cchar	*cp ;
+	cchar		*cp ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
@@ -1232,17 +1232,14 @@ static int process(PROGINFO *pip,cchar *ifn)
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		rs1 ;
-	int		m ;
 	int		o = 0 ;
 	int		wlen = 0 ;
-	const char	**rv ;
+	cchar		**rv ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("b_termnote/process: ifn=%s\n",ifn) ;
 #endif
-
-	m = lip->maxterms ;
 
 	if (lip->f.bell) o |= TERMNOTE_OBELL ;
 	if (lip->f.biff) o |= TERMNOTE_OBIFF ;
@@ -1252,6 +1249,7 @@ static int process(PROGINFO *pip,cchar *ifn)
 
 	if ((rs = locinfo_recipvec(lip,&rv)) >= 0) {
 	    SHIO	infile, *ifp = &infile ;
+	    const int	m = lip->maxterms ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
@@ -1266,8 +1264,8 @@ static int process(PROGINFO *pip,cchar *ifn)
 #endif /* CF_DEBUG */
 
 	    if (pip->debuglevel > 0) {
-	        int		i ;
-	        const char	*pn = pip->progname ;
+	        int	i ;
+	        cchar	*pn = pip->progname ;
 	        for (i = 0 ; rv[i] != NULL ; i += 1) {
 	            shio_printf(pip->efp,"%s: recip=%s\n",pn,rv[i]) ;
 	        }

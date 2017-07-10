@@ -197,7 +197,7 @@ int progfile(PROGINFO *pip,cchar *name)
 	} else if (rs < 0)
 	    goto done ;
 
-/* does the dependency exist? (returh if not) */
+/* does the dependency exist? (return if not) */
 
 	rs1 = u_stat(depfname,&sb) ;
 	mtime_c = sb.st_mtime ;
@@ -244,9 +244,10 @@ int progfile(PROGINFO *pip,cchar *name)
 	    if (pip->verboselevel > 0) {
 	        if (pip->verboselevel == 2) {
 	            progout_printf(pip,"%s\n",name) ;
-	        } else if (pip->verboselevel > 2)
+	        } else if (pip->verboselevel > 2) {
 	            progout_printf(pip,"%s %s\n",name,
 	                ((depout != NULL) ? depout : "")) ;
+		}
 	    } /* end if */
 
 	    if (! pip->f.nochange)
@@ -529,13 +530,12 @@ const char	fname[] ;
 	        rs = u_waitpid(pid,&cstat,WUNTRACED) ;
 	        if (rs == SR_INTR) rs = SR_OK ;
 	    }
-	} /* end if spawnproc) */
-
-	if (rs >= 0) {
-	    if ((rs = proclines(pip,dp,fd_out)) >= 0) {
-	        rs = procerr(pip,errp,fd_err) ;
+	    if (rs >= 0) {
+	        if ((rs = proclines(pip,dp,fd_out)) >= 0) {
+	            rs = procerr(pip,errp,fd_err) ;
+	        }
 	    }
-	}
+	} /* end if spawnproc) */
 
 /* done */
 
@@ -591,7 +591,7 @@ int		fd ;
 	if (DEBUGLEVEL(2)) {
 	    struct ustat	sb ;
 	    int	rs1 ;
-	    debugprintf("proclines: entered\n") ;
+	    debugprintf("proclines: ent\n") ;
 	    rs1 = u_fstat(fd,&sb) ;
 	    debugprintf("proclines: u_fstat() rs=%d\n",rs1) ;
 	    debugprintf("proclines: fsize=%u\n",sb.st_size) ;
@@ -603,7 +603,7 @@ int		fd ;
 	        struct lstate	ls ;
 	        const int	llen = LINEBUFLEN ;
 	        int		len ;
-	        char	lbuf[LINEBUFLEN + 1] ;
+	        char		lbuf[LINEBUFLEN + 1] ;
 
 	        memset(&ls,0,sizeof(struct lstate)) ;
 	        while ((rs = filebuf_readline(&buf,lbuf,llen,to)) > 0) {

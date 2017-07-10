@@ -146,6 +146,8 @@ extern int	mkplogid(char *,int,const char *,int) ;
 extern int	isprintlatin(int) ;
 extern int	iceil(int,int) ;
 extern int	ipow(int,int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
 #if	CF_DEBUGS || CF_DEBUGN
 extern int	debugprintf(const char *,...) ;
@@ -408,17 +410,18 @@ int		slen ;
 
 	if (op->magic != TERMNOTE_MAGIC) return SR_NOTOPEN ;
 
-	if (rpp[0] == NULL) goto ret0 ;
+	if (rpp[0] != NULL) {
 
 	if (m < 1) m = INT_MAX ;
 
 #if	CF_DEBUGS
 	{
 	    int	i ;
-	    for (i = 0 ; rpp[i] != NULL ; i += 1)
+	    for (i = 0 ; rpp[i] != NULL ; i += 1) {
 		debugprintf("termnote_write: r[%u]=%s\n",i,rpp[i]) ;
-	     debugprintf("termnte_write: max=%d\n",m) ;
-	     debugprintf("termnte_write: bell=%u biff=%u all=%u\n",
+	    }
+	    debugprintf("termnte_write: max=%d\n",m) ;
+	    debugprintf("termnte_write: bell=%u biff=%u all=%u\n",
 		((o & TERMNOTE_OBELL)?1:0),
 		((o & TERMNOTE_OBIFF)?1:0),
 		((o & TERMNOTE_OALL)?1:0)) ;
@@ -428,26 +431,17 @@ int		slen ;
 	if ((rs >= 0) && op->open.lf) {
 	    char	sublogid[LOGIDLEN+1] ;
 	    char	tbuf[TIMEBUFLEN+1] ;
-	    rs = snsdd(sublogid,LOGIDLEN,op->logid,op->sn) ;
-#if	CF_DEBUGS
-	    debugprintf("termnote_write: snsdd() rs=%d s=>%s<\n",
-		rs,sublogid) ;
-#endif
-	    if (rs >= 0) {
-		rs = logfile_setid(&op->lf,sublogid) ;
-	    }
-#if	CF_DEBUGS
-	    debugprintf("termnote_write: logfile_setid() rs=%d\n",rs) ;
-#endif
-	    if (rs >= 0) {
-		const int	f_bell = ((o & TERMNOTE_OBELL)?1:0) ;
-		const int	f_biff = ((o & TERMNOTE_OBIFF)?1:0) ;
-		const int	f_all = ((o & TERMNOTE_OALL)?1:0) ;
-		cchar		*fmt ;
-		if (dt == 0) dt = time(NULL) ;
-		timestr_logz(dt,tbuf),
-		fmt = "%s bell=%u biff=%u all=%u" ;
-	    	logfile_printf(&op->lf,fmt,tbuf,f_bell,f_biff,f_all) ;
+	    if ((rs = snsdd(sublogid,LOGIDLEN,op->logid,op->sn)) >= 0) {
+		if ((rs = logfile_setid(&op->lf,sublogid)) >= 0) {
+		    const int	f_bell = ((o & TERMNOTE_OBELL)?1:0) ;
+		    const int	f_biff = ((o & TERMNOTE_OBIFF)?1:0) ;
+		    const int	f_all = ((o & TERMNOTE_OALL)?1:0) ;
+		    cchar		*fmt ;
+		    if (dt == 0) dt = time(NULL) ;
+		    timestr_logz(dt,tbuf),
+		    fmt = "%s bell=%u biff=%u all=%u" ;
+	    	    logfile_printf(&op->lf,fmt,tbuf,f_bell,f_biff,f_all) ;
+		}
 	    }
 	} /* end if (logging) */
 
@@ -480,7 +474,7 @@ int		slen ;
 
 	} /* end if (positive) */
 
-ret0:
+	} /* end if (not-empty) */
 
 #if	CF_DEBUGS
 	debugprintf("termnote_write: ret rs=%d c=%u\n",rs,c) ;
@@ -639,9 +633,8 @@ static int termnote_dispose(TERMNOTE *op,cchar **rpp,int n,int o,
 	debugprintf("termnote_dispose: ent\n") ;
 #endif
 
-	for (i = 0 ; rpp[i] != NULL ; i += 1) {
+	for (i = 0 ; (rs >= 0) && (rpp[i] != NULL) ; i += 1) {
 	    rs = termnote_disposeuser(op,n,o,bp,bl,rpp[i]) ;
-	    if (rs < 0) break ;
 	    c += rs ;
 	} /* end for */
 
@@ -693,7 +686,7 @@ const char	un[] ;
 		    for (i = 0 ; vecstr_get(&lines,i,&cp) >= 0 ; i += 1)
 			debugprintf("termnote_disposeuser: termline=%s\n",cp) ;
 		}
-#endif
+#endif /* CF_DEBUGS */
 
 		if (op->open.lf)
 		    logfile_printf(&op->lf,"u=%s termlines=%u",un,nlines) ;
@@ -756,7 +749,8 @@ const char	un[] ;
 
 	    } /* end if */
 
-		vecstr_finish(&lines) ;
+		rs1 = vecstr_finish(&lines) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (user-term lines) */
 
 #if	CF_DEBUGS
@@ -797,7 +791,8 @@ const char	un[] ;
 
 	    } /* end if (ok) */
 
-	    vecobj_finish(&uts) ;
+	    rs1 = vecobj_finish(&uts) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (user-term list) */
 
 #if	CF_DEBUGS
@@ -871,7 +866,6 @@ static int termnote_lfopen(TERMNOTE *op,time_t dt)
 	const mode_t	om = 0666 ;
 	const int	of = O_RDWR ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		f_opened = FALSE ;
 
 	if (! op->init.lf) {
@@ -889,8 +883,10 @@ static int termnote_lfopen(TERMNOTE *op,time_t dt)
 	        rs = mkpath3(lfname,op->pr,LOGDNAME,sn) ;
 	    }
 	    if (rs >= 0) {
-	        rs1 = logfile_open(&op->lf,lfname,of,om,op->logid) ;
-	        op->open.lf = (rs1 >= 0) ;
+		LOGFILE	*lfp = &op->lf ;
+	        if ((rs = logfile_open(lfp,lfname,of,om,op->logid)) >= 0) {
+		    f_opened = TRUE ;
+	            op->open.lf = TRUE ;
 #if	CF_DEBUGS
 		debugprintf("termnote_lfopen: logfile_open() rs=%d\n",rs1) ;
 #endif
@@ -901,8 +897,6 @@ static int termnote_lfopen(TERMNOTE *op,time_t dt)
 		nprintf(dfname,"logfile_open() rs=%d\n",rs1) ;
 		}
 #endif
-	        if (rs1 >= 0) {
-		    f_opened = TRUE ;
 		    if (rs >= 0) {
 		        rs = logfile_checksize(&op->lf,TERMNOTE_LOGSIZE) ;
 		    }
@@ -916,14 +910,16 @@ static int termnote_lfopen(TERMNOTE *op,time_t dt)
 	        	if (dt == 0) dt = time(NULL) ;
 			timestr_logz(dt,timebuf) ;
 			logfile_printf(&op->lf,"%s %s",timebuf,sn) ;
-			rs1 = logfile_printf(&op->lf,"%s!%s",nn,un) ;
+			rs = logfile_printf(&op->lf,"%s!%s",nn,un) ;
 #if	CF_DEBUGS
 			debugprintf("termnote_lfopen: "
 				"logfile_printf() rs=%d\n",rs1) ;
 #endif
 		    }
+		} else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
 		} /* end if (logfile opened) */
-	    }
+	    } /* end if (ok) */
 	} /* end if (needed initialization) */
 
 #if	CF_DEBUGS

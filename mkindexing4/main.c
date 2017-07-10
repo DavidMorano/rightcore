@@ -157,6 +157,8 @@ static int	arginfo_finish(PROGINFO *,ARGINFO *) ;
 static int	arginfo_argmark(ARGINFO *,int) ;
 static int	arginfo_arg(PROGINFO *,ARGINFO *,cchar *,int) ;
 
+static int	loadncpus(PROGINFO *) ;
+
 static int	pinfo_mkterms(PINFO *) ;
 
 
@@ -1118,6 +1120,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    }
 	}
 
+	if ((rs >= 0) && (pip->npar == 0)) {
+	    rs = loadncpus(pip) ;
+	    pip->npar = rs ;
+	}
+
 /* line length */
 
 	if ((rs >= 0) && (pip->linelen == 0)) {
@@ -1842,6 +1849,16 @@ static int arginfo_arg(PROGINFO *pip,ARGINFO *aip,cchar *sp,int sl)
 	return rs ;
 }
 /* end subroutine (arginfo_arg) */
+
+
+static int loadncpus(PROGINFO *pip)
+{
+	int		rs = getnprocessors(pip->envv,0) ;
+	if (pip == NULL) return SR_FAULT ;
+	pip->ncpu = rs ;
+	return rs ;
+}
+/* end subroutine (loadncpus) */
 
 
 static int pinfo_mkterms(PINFO *inp)

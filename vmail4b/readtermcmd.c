@@ -139,12 +139,12 @@ static const uchar	cans[] = "\030\032\033" ;
 
 #ifdef	COMMENT
 static const int	alts[] = {
-	CH_DEL,		/* reg */
-	CH_DEL,		/* ESC */
-	'[',		/* CSI */
-	'P',		/* DCS */
-	'O',		/* PF (also SS3) */
-	0
+	    CH_DEL,		/* reg */
+	    CH_DEL,		/* ESC */
+	    '[',		/* CSI */
+	    'P',		/* DCS */
+	    'O',		/* PF (also SS3) */
+	    0
 } ;
 #endif /* COMMENT */
 
@@ -277,7 +277,7 @@ static int sub_proc_esc(SUB *sip)
 	        } /* end if */
 	        break ;
 	    } /* end switch */
-	} /* end if */
+	} /* end if (sub_readch) */
 
 	return rs ;
 }
@@ -332,100 +332,101 @@ static int sub_proc_escmore(SUB *sip,int ch)
 static int sub_proc_csi(SUB *sip)
 {
 	CMD		*ckp = sip->ckp ;
-	const int	ilen = TERMCMD_ISIZE ;
-	const int	dlen = DIGBUFLEN ;
 	int		rs ;
-	int		dl = 0 ;
-	int		ch ;
-	int		f_expecting = FALSE ;
-	int		f_dover = FALSE ;
-	int		f_leadingzero = TRUE ;
-	char		dbuf[DIGBUFLEN+1] = { 0 } ;
 
 	ckp->type = termcmdtype_csi ;
 	ckp->istr[0] = '\0' ;
 	ckp->dstr[0] = '\0' ;
 
-	rs = sub_readch(sip) ;
-	ch = rs ;
-	if (rs < 0) goto ret0 ;
+	if ((rs = sub_readch(sip)) >= 0) {
+	    const int	ilen = TERMCMD_ISIZE ;
+	    const int	dlen = DIGBUFLEN ;
+	    int		dl = 0 ;
+	    int		ch = rs ;
+	    int		f_expecting = FALSE ;
+	    int		f_dover = FALSE ;
+	    int		f_leadingzero = TRUE ;
+	    char	dbuf[DIGBUFLEN+1] = { 0 } ;
 
-	if (ch == '?') {
-	    ckp->f.private = TRUE ;
-	    rs = sub_readch(sip) ;
-	    ch = rs ;
-	}
+	    if (ch == '?') {
+	        ckp->f.private = TRUE ;
+	        rs = sub_readch(sip) ;
+	        ch = rs ;
+	    }
 
-	while ((rs >= 0) && isparam(ch)) {
-	    if (isdigitlatin(ch)) {
-	        if ((ch != '0') || (! f_leadingzero)) {
-	            if (ch != '0') f_leadingzero = FALSE ;
+	    while ((rs >= 0) && isparam(ch)) {
+	        if (isdigitlatin(ch)) {
+	            if ((ch != '0') || (! f_leadingzero)) {
+	                if (ch != '0') f_leadingzero = FALSE ;
 #if	CF_DEBUGS
-	debugprintf("uterm_readcmd/sub_csi: dl=%u dig=%c\n",
-		dl,ch) ;
+	                debugprintf("uterm_readcmd/sub_csi: dl=%u dig=%c\n",
+	                    dl,ch) ;
 #endif
-	            if (dl < dlen) {
-	                dbuf[dl++] = ch ;
+	                if (dl < dlen) {
+	                    dbuf[dl++] = ch ;
+	                } else {
+	                    f_dover = TRUE ;
+	                }
+	            }
+	        } else if (ch == ';') {
+	            f_expecting = TRUE ;
+	            if (f_dover) {
+	                sip->f_error = TRUE ;
 	            } else {
-	                f_dover = TRUE ;
-		    }
+	                rs = sub_loadparam(sip,dbuf,dl) ;
+	                dbuf[0] = '\0' ;
+	                dl = 0 ;
+	            }
 	        }
-	    } else if (ch == ';') {
-		f_expecting = TRUE ;
-	        if (f_dover) {
-	            sip->f_error = TRUE ;
+	        rs = sub_readch(sip) ;
+	        ch = rs ;
+	        if (rs < 0) break ;
+	    } /* end while (loading parameters) */
+
+	    if ((rs >= 0) && ((dl > 0) || f_expecting)) {
+	        rs = sub_loadparam(sip,dbuf,dl) ;
+	        dbuf[0] = '\0' ;
+	        dl = 0 ;
+	    } /* end if (loading the last parameter) */
+
+	    while ((rs >= 0) && isinter(ch)) {
+	        if (sip->ii < ilen) {
+	            ckp->istr[sip->ii++] = ch ;
 	        } else {
-	            rs = sub_loadparam(sip,dbuf,dl) ;
-	            dbuf[0] = '\0' ;
-	            dl = 0 ;
+	            ckp->f.iover = TRUE ;
+	        }
+	        rs = sub_readch(sip) ;
+	        if (rs < 0) break ;
+	        ch = rs ;
+	    } /* end while */
+
+	    if (rs >= 0) {
+	        if (isfinalcsi(ch)) {
+	            ckp->name = ch ;
+	            rs = 1 ;		/* signal DONE */
+	        } else if (iscancel(ch)) {
+	            termcmd_clear(ckp) ;
+	            ckp->name = 0 ;		/* error */
+	            if (ch == CH_ESC) {
+	                sip->ich = ch ;
+	                rs = 0 ;		/* signal CANCEL w/ continue */
+	            } else {
+	                rs = 1 ;		/* signal DONE w/ error */
+	            }
+	        } else {
+	            ckp->name = 0 ;		/* error */
+	            rs = 1 ;		/* signal DONE w/ error */
+	        }
+	    } /* end if */
+
+	    if ((rs >= 0) && (sip->pi > 0)) {
+	        if (sip->pi < TERMCMD_NP) {
+	            ckp->p[sip->pi] = -1 ;
 	        }
 	    }
-	    rs = sub_readch(sip) ;
-	    ch = rs ;
-	    if (rs < 0) break ;
-	} /* end while (loading parameters) */
 
-	if ((rs >= 0) && ((dl > 0) || f_expecting)) {
-	            rs = sub_loadparam(sip,dbuf,dl) ;
-	            dbuf[0] = '\0' ;
-	            dl = 0 ;
-	} /* end if (loading the last parameter) */
+	} /* end if (sub_readch) */
 
-	while ((rs >= 0) && isinter(ch)) {
-	    if (sip->ii < ilen) {
-	        ckp->istr[sip->ii++] = ch ;
-	    } else
-	        ckp->f.iover = TRUE ;
-	    rs = sub_readch(sip) ;
-	    if (rs < 0) break ;
-	    ch = rs ;
-	} /* end while */
-
-	if (rs >= 0) {
-	    if (isfinalcsi(ch)) {
-	        ckp->name = ch ;
-	        rs = 1 ;		/* signal DONE */
-	    } else if (iscancel(ch)) {
-	        termcmd_clear(ckp) ;
-	        ckp->name = 0 ;		/* error */
-	        if (ch == CH_ESC) {
-	            sip->ich = ch ;
-	            rs = 0 ;		/* signal CANCEL w/ continue */
-	        } else
-	            rs = 1 ;		/* signal DONE w/ error */
-	    } else {
-	        ckp->name = 0 ;		/* error */
-	        rs = 1 ;		/* signal DONE w/ error */
-	    }
-	} /* end if */
-
-	if ((rs >= 0) && (sip->pi > 0)) {
-	    if (sip->pi < TERMCMD_NP) {
-		ckp->p[sip->pi] = -1 ;
-	    }
-	}
-
-ret0:
 	return rs ;
 }
 /* end subroutine (sub_proc_csi) */
@@ -434,124 +435,127 @@ ret0:
 static int sub_proc_dcs(SUB *sip)
 {
 	CMD		*ckp = sip->ckp ;
-	const int	ilen = TERMCMD_ISIZE ;
-	const int	dlen = DIGBUFLEN ;
 	int		rs ;
-	int		dl = 0 ;
-	int		ch ;
-	int		f_expecting = FALSE ;
-	int		f_dover = FALSE ;
-	int		f_leadingzero = TRUE ;
-	char		dbuf[DIGBUFLEN+1] = { 0 } ;
 
 	ckp->type = termcmdtype_dcs ;
 	ckp->istr[0] = '\0' ;
 	ckp->dstr[0] = '\0' ;
 
-	rs = sub_readch(sip) ;
-	ch = rs ;
-	if (rs < 0) goto ret0 ;
+	if ((rs = sub_readch(sip)) >= 0) {
+	    const int	ilen = TERMCMD_ISIZE ;
+	    const int	dlen = DIGBUFLEN ;
+	    int		dl = 0 ;
+	    int		ch = rs ;
+	    int		f_expecting = FALSE ;
+	    int		f_dover = FALSE ;
+	    int		f_leadingzero = TRUE ;
+	    char	dbuf[DIGBUFLEN+1] = { 0 } ;
 
-	if (ch == '?') {
-	    ckp->f.private = TRUE ;
-	    rs = sub_readch(sip) ;
-	    ch = rs ;
-	}
+	    if (ch == '?') {
+	        ckp->f.private = TRUE ;
+	        rs = sub_readch(sip) ;
+	        ch = rs ;
+	    }
 
-	while ((rs >= 0) && isparam(ch)) {
-	    if (isdigitlatin(ch)) {
-	        if ((ch != '0') || (! f_leadingzero)) {
-	            if (ch != '0') f_leadingzero = FALSE ;
-	            if (dl < dlen) {
-	                dbuf[dl++] = ch ;
-	            } else
-	                f_dover = TRUE ;
+	    while ((rs >= 0) && isparam(ch)) {
+	        if (isdigitlatin(ch)) {
+	            if ((ch != '0') || (! f_leadingzero)) {
+	                if (ch != '0') f_leadingzero = FALSE ;
+	                if (dl < dlen) {
+	                    dbuf[dl++] = ch ;
+	                } else
+	                    f_dover = TRUE ;
+	            }
+	        } else if (ch == ';') {
+	            f_expecting = TRUE ;
+	            if (f_dover) {
+	                sip->f_error = TRUE ;
+	            } else {
+	                rs = sub_loadparam(sip,dbuf,dl) ;
+	                dbuf[0] = '\0' ;
+	                dl = 0 ;
+	            }
 	        }
-	    } else if (ch == ';') {
-		f_expecting = TRUE ;
-	        if (f_dover) {
-	            sip->f_error = TRUE ;
+	        rs = sub_readch(sip) ;
+	        ch = rs ;
+	        if (rs < 0) break ;
+	    } /* end while (loading parameters) */
+
+	    if ((rs >= 0) && ((dl > 0) || f_expecting)) {
+	        rs = sub_loadparam(sip,dbuf,dl) ;
+	        dbuf[0] = '\0' ;
+	        dl = 0 ;
+	    } /* end if (loading the last parameter) */
+
+	    while ((rs >= 0) && isinter(ch)) {
+	        if (sip->ii < ilen) {
+	            ckp->istr[sip->ii++] = ch ;
 	        } else {
-	            rs = sub_loadparam(sip,dbuf,dl) ;
-	            dbuf[0] = '\0' ;
-	            dl = 0 ;
+	            ckp->f.iover = TRUE ;
 	        }
-	    }
-	    rs = sub_readch(sip) ;
-	    ch = rs ;
-	    if (rs < 0) break ;
-	} /* end while (loading parameters) */
-
-	if ((rs >= 0) && ((dl > 0) || f_expecting)) {
-	            rs = sub_loadparam(sip,dbuf,dl) ;
-	            dbuf[0] = '\0' ;
-	            dl = 0 ;
-	} /* end if (loading the last parameter) */
-
-	while ((rs >= 0) && isinter(ch)) {
-	    if (sip->ii < ilen) {
-	        ckp->istr[sip->ii++] = ch ;
-	    } else
-	        ckp->f.iover = TRUE ;
-	    rs = sub_readch(sip) ;
-	    if (rs < 0) break ;
-	    ch = rs ;
-	} /* end while */
-
-	if (rs >= 0) {
-	    if (isfinalcsi(ch)) {
-	        ckp->name = ch ;	/* no error */
-	        rs = 1 ;		/* signal OK */
-	    } else if (iscancel(ch)) {
-	        termcmd_clear(ckp) ;
-	        ckp->name = 0 ;		/* error (CANCEL) */
-	        if (ch == CH_ESC) {
-	            sip->ich = ch ;
-	            rs = 0 ;		/* signal CANCEL w/ continue */
-	        } else
-	            rs = 1 ;		/* signal w/ error */
-	    } else {
-	        ckp->name = 0 ;		/* error */
-	        rs = 1 ;		/* signal w/ error */
-	    }
-	} /* end if */
-
-	if ((rs >= 0) && (ckp->name != 0)) {
-	    int	f_seenesc = FALSE ;
-	    const int	dlen = TERMCMD_DSIZE ;
-	    while (rs >= 0) {
 	        rs = sub_readch(sip) ;
 	        if (rs < 0) break ;
 	        ch = rs ;
-		if (f_seenesc) {
-			if (ch != CH_BSLASH) {
-				sip->ich = ch ;
-				rs = 0 ;		/* signal CANCEL */
-			} 
-			break ;
-		}
-	        if (ch == CH_ST) break ;
-		if (ch != CH_ESC) {
-		if (iscancel(ch)) {
-			rs = 0 ;		/* signcal CANCEL */
-			break ;
-		}
-	    if (sip->di < dlen) {
-	        ckp->dstr[sip->di++] = ch ;
-	    } else
-	        ckp->f.dover = TRUE ;
-		} else
-		    f_seenesc = TRUE ;
 	    } /* end while */
-	} /* end if */
 
-	if ((rs >= 0) && (sip->pi > 0)) {
-	    if (sip->pi < TERMCMD_NP) {
-		ckp->p[sip->pi] = -1 ;
+	    if (rs >= 0) {
+	        if (isfinalcsi(ch)) {
+	            ckp->name = ch ;	/* no error */
+	            rs = 1 ;		/* signal OK */
+	        } else if (iscancel(ch)) {
+	            termcmd_clear(ckp) ;
+	            ckp->name = 0 ;		/* error (CANCEL) */
+	            if (ch == CH_ESC) {
+	                sip->ich = ch ;
+	                rs = 0 ;		/* signal CANCEL w/ continue */
+	            } else {
+	                rs = 1 ;		/* signal w/ error */
+	            }
+	        } else {
+	            ckp->name = 0 ;		/* error */
+	            rs = 1 ;		/* signal w/ error */
+	        }
+	    } /* end if */
+
+	    if ((rs >= 0) && (ckp->name != 0)) {
+	        int	f_seenesc = FALSE ;
+	        const int	dlen = TERMCMD_DSIZE ;
+	        while (rs >= 0) {
+	            rs = sub_readch(sip) ;
+	            if (rs < 0) break ;
+	            ch = rs ;
+	            if (f_seenesc) {
+	                if (ch != CH_BSLASH) {
+	                    sip->ich = ch ;
+	                    rs = 0 ;		/* signal CANCEL */
+	                }
+	                break ;
+	            }
+	            if (ch == CH_ST) break ;
+	            if (ch != CH_ESC) {
+	                if (iscancel(ch)) {
+	                    rs = 0 ;		/* signcal CANCEL */
+	                    break ;
+	                }
+	                if (sip->di < dlen) {
+	                    ckp->dstr[sip->di++] = ch ;
+	                } else {
+	                    ckp->f.dover = TRUE ;
+	                }
+	            } else {
+	                f_seenesc = TRUE ;
+	            }
+	        } /* end while */
+	    } /* end if */
+
+	    if ((rs >= 0) && (sip->pi > 0)) {
+	        if (sip->pi < TERMCMD_NP) {
+	            ckp->p[sip->pi] = -1 ;
+	        }
 	    }
-	}
 
-ret0:
+	} /* end if (sub_readch) */
+
 	return rs ;
 }
 /* end subroutine (sub_proc_dcs) */
@@ -577,8 +581,9 @@ static int sub_proc_pf(SUB *sip)
 	        if (ch == CH_ESC) {
 	            sip->ich = ch ;
 	            rs = 0 ;		/* signal CANCEL w/ continue */
-	        } else
+	        } else {
 	            rs = 1 ;		/* signal DONE w/ error */
+	        }
 	    } else {
 	        ckp->name = 0 ;		/* error */
 	        rs = 1 ;		/* signal DONE w/ error */
@@ -629,8 +634,9 @@ static int sub_loadparam(SUB *sip,const char *dbuf,int dl)
 	        sip->pi -= 1 ;
 	    }
 	    ckp->p[sip->pi++] = v ;
-	} else
+	} else {
 	    sip->f_error = TRUE ;
+	}
 
 	return rs ;
 }

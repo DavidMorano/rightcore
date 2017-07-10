@@ -48,7 +48,7 @@ extern int uptsetcanceltype(int,int *) ;
 extern int upttestcancel() ;
 extern int uptequal(pthread_t,pthread_t) ;
 extern int uptself(pthread_t *) ;
-extern int uptatfork(void (*),void (*),void (*)) ;
+extern int uptatfork(void (*)(),void (*)(),void (*)()) ;
 extern int uptncpus(int) ;
 
 #ifdef	__cplusplus

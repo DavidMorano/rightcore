@@ -710,7 +710,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some initialization */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
@@ -731,19 +738,20 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (rs >= 0) {
 	    cchar	*of = ofname ;
 	    cchar	*af = afname ;
-	    rs = procargs(pip,&ainfo,&pargs,of,af) ;
-	    wlen = rs ;
+	    if ((rs = procargs(pip,&ainfo,&pargs,of,af)) >= 0) {
+	        wlen = rs ;
+		if (pip->debuglevel > 0) {
+	            cchar	*pn = pip->progname ;
+	            cchar	*fmt = "%s: bytes=%u\n" ;
+	            shio_printf(pip->efp,fmt,pn,wlen) ;
+		}
+	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    shio_printf(pip->efp,fmt,pn,rs) ;
 	    ex = EX_USAGE ;
 	    usage(pip) ;
-	}
-
-	if ((pip->debuglevel > 0) && (rs >= 0)) {
-	    shio_printf(pip->efp,"%s: bytes=%u\n",
-	        pip->progname,wlen) ;
 	}
 
 /* done */

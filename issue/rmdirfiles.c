@@ -91,7 +91,7 @@ static int	premat(cchar *,int,cchar *,int) ;
 /* exported subroutines */
 
 
-int rmdirfiles(const char *dname,cchar *prefix,int to)
+int rmdirfiles(cchar *dname,cchar *prefix,int to)
 {
 	vecstr		files ;
 	int		rs ;
@@ -133,7 +133,7 @@ static int vecstr_dirfilesload(vecstr *flp,cchar *dname,cchar *prefix,int to)
 	        struct ustat	usb ;
 	        const int	rlen = rs ;
 	        int		nl ;
-	        const char	*np ;
+	        cchar		*np ;
 	        while ((rs = fsdir_read(&dir,&de)) > 0) {
 	            nl = rs ;
 	            np = de.name ;
@@ -152,7 +152,7 @@ static int vecstr_dirfilesload(vecstr *flp,cchar *dname,cchar *prefix,int to)
 	                } /* end if (premat) */
 	            } /* end if (hasNotDots) */
 	            if (rs < 0) break ;
-	        } /* end while */
+	        } /* end while (fsdir_read) */
 	    } /* end if (mkpath) */
 	    rs1 = fsdir_close(&dir) ;
 	    if (rs >= 0) rs = rs1 ;

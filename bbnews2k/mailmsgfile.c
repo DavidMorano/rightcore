@@ -17,20 +17,19 @@
 
 /*******************************************************************************
 
-	This object implements a translation mapping from message-ids
-	(MSGIDs) to unique temporary filenames.  Although not our
-	business, these filenames point to files that hold the content
-	(body) of mail messages.
+        This object implements a translation mapping from message-ids (MSGIDs)
+        to unique temporary filenames. Although not our business, these
+        filenames point to files that hold the content (body) of mail messages.
 
 	Implementation notes:
 
 	+ Why the child process on exit?
 
-	Because deleting files is just way too slow -- for whatever
-	reason.  So we have a child do it do that we can finish up *fast*
-	and get out.  This is a user response-time issue.  We want the
-	user to have the program exit quickly so that they are not annoyed
-	(as they were when we previously deleted all of the files inline).
+        Because deleting files is just way too slow -- for whatever reason. So
+        we have a child do it do that we can finish up *fast* and get out. This
+        is a user response-time issue. We want the user to have the program exit
+        quickly so that they are not annoyed (as they were when we previously
+        deleted all of the files inline).
 
 
 *******************************************************************************/
@@ -154,6 +153,7 @@ static int mailmsgfile_checkbegin(MAILMSGFILE *) ;
 static int mailmsgfile_checkend(MAILMSGFILE *) ;
 static int mailmsgfile_checkout(MAILMSGFILE *) ;
 static int mailmsgfile_checker(MAILMSGFILE *) ;
+static int mailmsgfile_checkerx(MAILMSGFILE *) ;
 
 static int mi_start(MAILMSGFILE_MI *,const char *,const char *,int) ;
 static int mi_finish(MAILMSGFILE_MI *) ;
@@ -718,7 +718,7 @@ static int mailmsgfile_checkout(MAILMSGFILE *op)
 	int		rs = SR_OK ;
 
 	if (op->f.checkout && op->f_checkdone) {
-	    int	trs = SR_OK ;
+	    int		trs = SR_OK ;
 	    if ((rs = uptjoin(op->tid,&trs)) >= 0) {
 	        op->f.checkout = FALSE ;
 	        rs = trs ;
@@ -732,23 +732,32 @@ static int mailmsgfile_checkout(MAILMSGFILE *op)
 
 static int mailmsgfile_checker(MAILMSGFILE *op)
 {
-	time_t		daytime = time(NULL) ;
-	const int	to = MAILMSGFILE_FILEINT ;
 	int		rs = SR_OK ;
-	char		pbuf[MAXPATHLEN + 1] ;
 
-	if (op->tmpdname == NULL) {
+	if (op->tmpdname != NULL) {
+	    if (op->tmpdname[0] != '\0') {
+		msleep(10) ; /* some time for real work to happen elsewhere */
+		rs = mailmsgfile_checkerx(op) ;
+	    } else {
+	        rs = SR_INVALID ;
+	    }
+	} else {
 	    rs = SR_FAULT ;
-	    goto ret0 ;
 	}
 
-	if (op->tmpdname[0] == '\0') {
-	    rs = SR_INVALID ;
-	    goto ret0 ;
-	}
+	op->f_checkdone = TRUE ;
+	return rs ;
+}
+/* end subroutine (mailmsgfile_checker) */
 
-	msleep(10) ; /* some time for real work to happen elsewhere */
 
+static int mailmsgfile_checkerx(MAILMSGFILE *op)
+{
+	const time_t	dt = time(NULL) ;
+	const int	to = MAILMSGFILE_FILEINT ;
+	int		rs ;
+	int		rs1 ;
+	char		pbuf[MAXPATHLEN+1] ;
 	if ((rs = mkpath1(pbuf,op->tmpdname)) >= 0) {
 	    vecpstr	files ;
 	    int		plen = rs ;
@@ -761,43 +770,44 @@ static int mailmsgfile_checker(MAILMSGFILE *op)
 	            int			pl ;
 
 	            while ((rs = fsdir_read(&dir,&de)) > 0) {
-	                if (de.name[0] == '.') continue ;
+	                if (de.name[0] != '.') {
 
 	                if ((rs = pathadd(pbuf,plen,de.name)) >= 0) {
 	                    pl = rs ;
 	                    if (u_stat(pbuf,&sb) >= 0) {
-	                        if ((daytime - sb.st_mtime) >= to) {
+	                        if ((dt - sb.st_mtime) >= to) {
 	                            rs = vecpstr_add(&files,pbuf,pl) ;
 	                        }
 	                    } /* end if (stat) */
 	                } /* end if (pathadd) */
 
+		        }
 	                if (rs < 0) break ;
 	            } /* end while (reading entries) */
 
-	            fsdir_close(&dir) ;
+	            rs1 = fsdir_close(&dir) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (fsdir) */
 
 	        if (rs >= 0) {
 	            int		i ;
 	            const char	*fp ;
 	            for (i = 0 ; vecpstr_get(&files,i,&fp) >= 0 ; i += 1) {
-	                if (fp == NULL) continue ;
-	                if (fp[0] != '\0') {
-	                    u_unlink(fp) ;
-	                }
+	                if (fp != NULL) {
+	                    if (fp[0] != '\0') {
+	                        u_unlink(fp) ;
+	                    }
+			}
 	            } /* end for */
 	        } /* end if */
 
-	        vecpstr_finish(&files) ;
+	        rs1 = vecpstr_finish(&files) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (vecpstr) */
 	} /* end if (mkpath) */
-
-ret0:
-	op->f_checkdone = TRUE ;
 	return rs ;
 }
-/* end subroutine (mailmsgfile_checker) */
+/* end subroutine (mailmsgfile_checkerx) */
 
 
 static int mi_start(mip,msgid,mfname,blen)

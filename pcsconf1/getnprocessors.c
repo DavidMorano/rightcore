@@ -63,6 +63,11 @@ extern int	sncpy1(char *,int,const char *) ;
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
 extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -79,19 +84,19 @@ extern char	**environ ;
 /* exported subroutines */
 
 
-int getnprocessors(const char **envv,int w)
+int getnprocessors(cchar **envv,int w)
 {
 	int		rs = SR_OK ;
 	int		n = 0 ;
 
 	if (w < 0) return SR_INVALID ;
 
-	if (envv == NULL) envv = (const char **) environ ;
+	if (envv == NULL) envv = (cchar **) environ ;
 
-	if (w == 0) { /* environment approximates ONLINE CPUs */
+	if ((w == 0) && (n == 0)) { /* environment approximates ONLINE CPUs */
 	    cchar	*vn = VARNCPU ;
 	    cchar	*cp ;
-	    if ((n == 0) && ((cp = getourenv(envv,vn)) != NULL)) {
+	    if ((cp = getourenv(envv,vn)) != NULL) {
 	        int	v ;
 	        if (cfdeci(cp,-1,&v) >= 0) n = v ;
 	    } /* end if (environment) */

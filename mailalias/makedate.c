@@ -1,2 +1,2 @@
 const char mailalias_makedate[] =
-	"@(#)mailalias               160415_0013:15_USEDT Rightcore Network Services" ;
+"@(#)mailalias               170708_1955:43_USEDT Rightcore Network Services" ;

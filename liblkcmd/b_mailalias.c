@@ -7,6 +7,7 @@
 #define	CF_DEBUGS	0		/* debug print-outs (non-switchable) */
 #define	CF_DEBUG	0		/* debug print-outs switchable */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
+#define	CF_LOCSETENT	0		/* allow |locinfo_setentry()| */
 
 
 /* revision history:
@@ -136,15 +137,17 @@ extern char	**environ ;
 /* local structures */
 
 struct locinfo_flags {
+	uint		stores:1 ;
 	uint		xu:1 ;		/* X-Windows user */
 } ;
 
 struct locinfo {
-	PROGINFO	*pip ;
+	vecstr		stores ;
 	LOCINFO_FL	have, f, changed, final ;
 	IDS		id ;
 	PARAMOPT	lists ;
 	MAILALIAS	madb ;
+	PROGINFO	*pip ;
 } ;
 
 
@@ -162,6 +165,10 @@ static int	madprint(PROGINFO *,SHIO *,const char *,const char *) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
+
+#if	CF_LOCSETENT
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+#endif
 
 
 /* local variables */
@@ -588,8 +595,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -726,7 +735,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* option parsing */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -750,6 +766,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        pip->progname,maprofile) ;
 	}
 
+	            memset(&ainfo,0,sizeof(ARGINFO)) ;
+	            ainfo.argc = argc ;
+	            ainfo.ai = ai ;
+	            ainfo.argv = argv ;
+	            ainfo.ai_max = ai_max ;
+	            ainfo.ai_pos = ai_pos ;
+
 	if (rs >= 0) {
 	if ((rs = ids_load(&lip->id)) >= 0) {
 	    const mode_t	om = 0666 ;
@@ -768,12 +791,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        } else {
 	            const char	*ofn = ofname ;
 	            const char	*afn = afname ;
-	            memset(&ainfo,0,sizeof(ARGINFO)) ;
-	            ainfo.argc = argc ;
-	            ainfo.ai = ai ;
-	            ainfo.argv = argv ;
-	            ainfo.ai_max = ai_max ;
-	            ainfo.ai_pos = ai_pos ;
 	            rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
 	        } /* end if */
 
@@ -883,33 +900,6 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
-static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
-{
-	int		rs ;
-
-	memset(lip,0, sizeof(LOCINFO)) ;
-	lip->pip = pip ;
-
-	rs = paramopt_start(&lip->lists) ;
-
-	return rs ;
-}
-/* end subroutine (locinfo_start) */
-
-
-static int locinfo_finish(LOCINFO *lip)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-	rs1 = paramopt_finish(&lip->lists) ;
-	if (rs >= 0) rs = rs1 ;
-
-	return rs ;
-}
-/* end subroutine (locinfo_finish) */
-
-
 static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
@@ -935,7 +925,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case progopt_xu:
 	                    c += 1 ;
 	                    lip->f.xu = TRUE ;
@@ -944,7 +933,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->f.xu = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -995,16 +983,14 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            }
 	            if (rs < 0) {
 	                if (rs == SR_NOENT) {
-	                    shio_printf(pip->efp,
-	                        "%s: variable not present (%d)\n",
-	                        pip->progname,rs) ;
-	                } else
-	                    shio_printf(pip->efp,
-	                        "%s: error processing variable (%d)\n",
-	                        pip->progname,rs) ;
-	                shio_printf(pip->efp,
-	                    "%s: var=%s\n",
-	                    pip->progname,cp) ;
+			    fmt = "%s: variable not present (%d)\n" ;
+	                    shio_printf(pip->efp,fmt,pn,rs) ;
+	                } else {
+			    fmt = "%s: error processing variable (%d)\n" ;
+	                    shio_printf(pip->efp,fmt,pn,rs) ;
+			}
+			fmt = "%s: var=%s\n" ;
+	                shio_printf(pip->efp,fmt,pn,cp) ;
 	            }
 	            if (rs >= 0) rs = lib_sigterm() ;
 	            if (rs >= 0) rs = lib_sigintr() ;
@@ -1174,17 +1160,15 @@ static int madump(PROGINFO *pip,cchar *dumpfname)
 
 
 /* print out a "dump" mail-alias entry */
+/* ARGSUSED */
 static int madprint(PROGINFO *pip,SHIO *dfp,cchar *kbuf,cchar *vbuf)
 {
+	const int	klen = strlen(kbuf) ;
 	int		rs ;
-	int		klen ;
 	int		blen ;
-	int		ch ;
+	int		ch = MKCHAR(vbuf[0]) ;
 	int		f ;
 
-	klen = strlen(kbuf) ;
-
-	ch = MKCHAR(vbuf[0]) ;
 	f = ((! isalphalatin(ch)) && (ch != ':')) ;
 
 	f = f || haswhite(vbuf,-1) ;
@@ -1199,5 +1183,70 @@ static int madprint(PROGINFO *pip,SHIO *dfp,cchar *kbuf,cchar *vbuf)
 	return rs ;
 }
 /* end subroutine (madprint) */
+
+
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
+{
+	int		rs ;
+
+	memset(lip,0, sizeof(LOCINFO)) ;
+	lip->pip = pip ;
+
+	rs = paramopt_start(&lip->lists) ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_start) */
+
+
+static int locinfo_finish(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	rs1 = paramopt_finish(&lip->lists) ;
+	if (rs >= 0) rs = rs1 ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_finish) */
+
+
+#if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+{
+	VECSTR		*slp ;
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	slp = &lip->stores ;
+	if (! lip->open.stores) {
+	    rs = vecstr_start(slp,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
+	}
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
+	    if (vp != NULL) {
+	        len = strnlen(vp,vl) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (locinfo_setentry) */
+#endif /* CF_LOCSETENT */
 
 

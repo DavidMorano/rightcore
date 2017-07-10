@@ -99,10 +99,7 @@ extern char	*strnchr(const char *,int,int) ;
 /* exported subroutines */
 
 
-int pcsgetprog(pcsroot,output,name)
-const char	pcsroot[] ;
-char		output[] ;
-const char	name[] ;
+int pcsgetprog(cchar *pcsroot,char *output,cchar *name)
 {
 	struct ustat	sb ;
 	int		rs = SR_NOTFOUND ;
@@ -156,8 +153,7 @@ const char	name[] ;
 	    if (rs >= 0)
 		rs = 0 ;
 
-	    goto ret0 ;
-	}
+	} else {
 
 /* check if the PCS root directory exists */
 
@@ -211,8 +207,7 @@ const char	name[] ;
 
 	} /* end if */
 
-/* done */
-ret0:
+	} /* end if */
 
 #if	CF_DEBUGS
 	debugprintf("pcsgetprog: ret rs=%d\n",rs) ;

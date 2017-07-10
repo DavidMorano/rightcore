@@ -16,7 +16,9 @@
 #include	<localmisc.h>
 
 
+#define	MAILMSGVIEWER_MAGIC	0x54837492
 #define	MAILMSGVIEWER		struct mailmsgviewer_head
+#define	MAILMSGVIEWER_FL	struct mailmsgviewer_flags
 
 
 struct mailmsgviewer_flags {
@@ -26,7 +28,7 @@ struct mailmsgviewer_flags {
 struct mailmsgviewer_head {
 	uint		magic ;
 	VECOBJ		lines ;
-	struct mailmsgviewer_flags	f ;
+	MAILMSGVIEWER_FL f ;
 	char		*fname ;
 	char		*mapbuf ;
 	size_t		mapsize ;
@@ -38,8 +40,8 @@ struct mailmsgviewer_head {
 extern "C" {
 #endif
 
-extern int mailmsgviewer_open(MAILMSGVIEWER *,const char *) ;
-extern int mailmsgviewer_getline(MAILMSGVIEWER *,int,const char **) ;
+extern int mailmsgviewer_open(MAILMSGVIEWER *,cchar *) ;
+extern int mailmsgviewer_getline(MAILMSGVIEWER *,int,cchar **) ;
 extern int mailmsgviewer_close(MAILMSGVIEWER *) ;
 
 #ifdef	__cplusplus
@@ -47,6 +49,5 @@ extern int mailmsgviewer_close(MAILMSGVIEWER *) ;
 #endif
 
 #endif /* MAILMSGVIEWER_INCLUDE */
-
 
 

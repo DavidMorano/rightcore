@@ -206,6 +206,7 @@ struct proginfo {
 	int		linelen ;	/* line-fold length */
 	int		indent ;
 	int		nprocessed ;
+	int		ncpu ;
 	int		npar ;		/* number in parallel */
 } ;
 

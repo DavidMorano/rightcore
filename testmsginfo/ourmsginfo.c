@@ -101,20 +101,23 @@ DATER		*dp ;
 int ourmsginfo_finish(op)
 OURMSGINFO	*op ;
 {
+	int		rs = SR_OK ;
+	int		rs1 ;
 	int		i ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	for (i = 0 ; i < ourmsginfohead_overlast ; i += 1) {
-
-	    if ((op->hif >> i) & 1)
-	        vecstr_finish((op->head + i)) ;
-
+	    if ((op->hif >> i) & 1) {
+	        rs1 = vecstr_finish((op->head + i)) ;
+		if (rs >= 0) rs = rs1 ;
+	    }
 	} /* end for */
 
-	dater_finish(&op->edate) ;
+	rs1 = dater_finish(&op->edate) ;
+	if (rs >= 0) rs = rs1 ;
 
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (ourmsginfo_finish) */
 
@@ -136,26 +139,22 @@ int		slen ;
 	if (slen < 0)
 	    slen = strlen(s) ;
 
-	if (slen == 0)
-	    goto ret0 ;
+	if (slen > 0) {
 
 /* is the vector for this header initialized? */
 
-	if (! ((op->hif >> w) & 1)) {
+	    if (! ((op->hif >> w) & 1)) {
+	        opts = 0 ;
+	        rs = vecstr_start((op->head + w),OURMSGINFO_N,opts) ;
+	        op->hif |= (1 << w) ;
+	    } /* end if (needed initialization) */
+    
+	    if (rs >= 0) {
+	        rs = vecstr_add((op->head + w),s,slen) ;
+	    }
 
-	    opts = 0 ;
-	    rs = vecstr_start((op->head + w),OURMSGINFO_N,opts) ;
+	} /* end if (positive) */
 
-	    if (rs < 0)
-	        goto ret0 ;
-
-	    op->hif |= (1 << w) ;
-
-	} /* end if (needed initialization) */
-
-	rs = vecstr_add((op->head + w),s,slen) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (ourmsginfo_addhead) */

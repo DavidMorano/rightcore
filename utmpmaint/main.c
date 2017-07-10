@@ -726,7 +726,14 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* check a few more things */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -755,16 +762,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	        pip->progname,dbfname) ;
 	}
 
-	if ((rs = mapstrint_start(&names,10)) >= 0) {
-
-	    if (lip->f.maint) {
-	        rs = procmaint(pip,dbfname) ;
-	    }
-
-/* open the output file (if we are also printing) */
-
-	    if ((rs >= 0) && (pip->f.print || lip->f.list)) {
-
 	        memset(&ainfo,0,sizeof(ARGINFO)) ;
 	        ainfo.argc = argc ;
 	        ainfo.ai = ai ;
@@ -772,19 +769,34 @@ int main(int argc,cchar **argv,cchar **envv)
 	        ainfo.ai_max = ai_max ;
 	        ainfo.ai_pos = ai_pos ;
 
-	        if (rs >= 0) {
-	            const char	*dfn = dbfname ;
-	            const char	*ofn = ofname ;
-	            const char	*afn = afname ;
-	            rs = procargs(pip,&ainfo,&pargs,&names,dfn,ofn,afn) ;
+	if (rs >= 0) {
+	    if ((rs = mapstrint_start(&names,10)) >= 0) {
+
+	        if (lip->f.maint) {
+	            rs = procmaint(pip,dbfname) ;
 	        }
 
-	    } /* end if (print or list) */
+	        if ((rs >= 0) && (pip->f.print || lip->f.list)) {
+		    ARGINFO	*aip = &ainfo ;
+		    BITS	*bop = &pargs ;
+	            cchar	*dfn = dbfname ;
+	            cchar	*ofn = ofname ;
+	            cchar	*afn = afname ;
+	            rs = procargs(pip,aip,bop,&names,dfn,ofn,afn) ;
+    
+	        } /* end if (print or list) */
 
-	    rs1 = mapstrint_finish(&names) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    ex = EX_OSERR ;
+	        rs1 = mapstrint_finish(&names) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        ex = EX_OSERR ;
+	    }
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
 /* done */

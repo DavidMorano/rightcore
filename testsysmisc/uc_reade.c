@@ -25,18 +25,18 @@
 
 	Synopsis:
 
-	int uc_reade(fd,buf,buflen,to,opts)
+	int uc_reade(fd,rbuf,rlen,to,opts)
 	int		fd ;
-	void		*buf ;
-	int		buflen ;
+	void		*rbuf ;
+	int		rlen ;
 	int		to ;
 	int		opts ;
 
 	Arguments:
 
 	fd		file descriptor
-	buf		user buffer to receive daa
-	buflen		maximum amount of data the user wants
+	rbuf		user buffer to receive daa
+	rlen		maximum amount of data the user wants
 	to		time in seconds to wait
 	opts		user options for time-out handling
 
@@ -155,6 +155,12 @@
 
 extern int	msleep(int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+extern int	bufprintf(char *,int,cchar *,...) ;
+#endif
+
 
 /* local structures */
 
@@ -192,10 +198,11 @@ struct subinfo {
 /* forward references */
 
 static int	subinfo_start(SUBINFO *,int,char *,int,int,int) ;
+static int	subinfo_finish(SUBINFO *) ;
+static int	subinfo_setmode(SUBINFO *,mode_t) ;
 static int	subinfo_readreg(SUBINFO *) ;
 static int	subinfo_readslow(SUBINFO *) ;
 static int	subinfo_readpoll(SUBINFO *) ;
-static int	subinfo_finish(SUBINFO *) ;
 
 #if	CF_DEBUGS
 static char	*d_reventstr() ;
@@ -291,19 +298,15 @@ int		opts ;
 	    sip->f.timeint,sip->f.exact) ;
 #endif
 
-	if ((rs = u_fstat(fd,&sb)) >+ 0) {
-	    int	f ;
+	if ((rs = u_fstat(fd,&sb)) >= 0) {
 
 #if	CF_DEBUGS
 	    debugprintf("uc_reade/subinfo_start: u_fstat() rs=%d\n",rs) ;
+	    debugprintf("uc_reade/subinfo_start: mode=\\o%012o\n",
+		sb.st_mode) ;
 #endif
 
-	    sip->f.isfifo = S_ISFIFO(sb.st_mode) ;
-	    sip->f.ischar = S_ISCHR(sb.st_mode) ;
-	    sip->f.isdir = S_ISDIR(sb.st_mode) ;
-	    sip->f.isblock = S_ISBLK(sb.st_mode) ;
-	    sip->f.isreg = S_ISREG(sb.st_mode) ;
-	    sip->f.issocket = S_ISSOCK(sb.st_mode) ;
+	    if ((rs = subinfo_setmode(sip,sb.st_mode)) >= 0) {
 
 #if	CF_DEBUGS
 	    {
@@ -319,17 +322,13 @@ int		opts ;
 	    }
 #endif /* CF_DEBUGS */
 
-	    f = FALSE ;
-	    f = f || sip->f.isfifo ;
-	    f = f || sip->f.ischar ;
-	    f = f || sip->f.isdir ;
-	    f = f || sip->f.isblock ;
-	    f = f || sip->f.isreg ;
-	    f = f || sip->f.issocket ;
-	    if (! f)
-	        sip->f.isother = TRUE ;
+		if (sip->f.isother) {
 
-/* yes! some (maybe many) files do *not* support none-blocking mode */
+#if	CF_DEBUGS
+	        debugprintf("uc_reade/subinfo_start: OTHER!\n") ;
+#endif
+
+/* yes! some (maybe many) files do *not* support non-blocking mode */
 
 #if	CF_NONBLOCK
 	    if (! sip->f.isreg) {
@@ -354,6 +353,8 @@ int		opts ;
 	    }
 #endif /* CF_NONBLOCK */
 
+	       } /* end if (other file type) */
+	   } /* end if (subinfo_setmode) */
 	} /* end if (stat) */
 
 #if	CF_DEBUGS
@@ -404,6 +405,28 @@ static int subinfo_finish(SUBINFO *sip)
 /* end subroutine (subinfo_finish) */
 
 
+static int subinfo_setmode(SUBINFO *sip,mode_t fm)
+{
+	if (S_ISFIFO(fm)) {
+	    sip->f.isfifo = TRUE ;
+	} else if (S_ISCHR(fm)) {
+	    sip->f.ischar = TRUE ;
+	} else if (S_ISDIR(fm)) {
+	    sip->f.isdir = TRUE ;
+	} else if (S_ISBLK(fm)) {
+	    sip->f.isblock = TRUE ;
+	} else if (S_ISREG(fm)) {
+	    sip->f.isreg = TRUE ;
+	} else if (S_ISSOCK(fm)) {
+	    sip->f.issocket = TRUE ;
+	} else {
+	    sip->f.isother = TRUE ;
+	}
+	return SR_OK ;
+}
+/* end subroutine (subinfo_setmode) */
+
+
 static int subinfo_readreg(SUBINFO *sip)
 {
 	int		rs ;
@@ -436,7 +459,7 @@ static int subinfo_readslow(SUBINFO *sip)
 #endif
 
 #if	CF_DEBUGS
-	debugprintf("uc_reade/subinfo_readslow: ent\n") ;
+	debugprintf("uc_reade/subinfo_readslow: ent to=%d\n",sip->to) ;
 #endif
 
 	sip->maxeof = MAXEOF ;
@@ -496,6 +519,7 @@ static int subinfo_readslow(SUBINFO *sip)
 	} /* end while (looping on poll) */
 
 #if	CF_DEBUGS
+	debugprintf("uc_reade/readslow: ret tlen=%u\n",sip->tlen) ;
 	debugprintf("uc_reade/readslow: ret rs=%d\n",rs) ;
 #endif
 
@@ -515,34 +539,39 @@ static int subinfo_readpoll(SUBINFO *sip)
 	debugprintf("uc_reade/subinfo_readpoll: ent\n") ;
 #endif
 
-	rlen = sip->ulen - sip->tlen ;
+	rlen = (sip->ulen - sip->tlen) ;
 	if ((rs = u_read(sip->fd,sip->bp,rlen)) >= 0) {
-	len = rs ;
+	    len = rs ;
 
-	if (len == 0) {
-	    sip->neof += 1 ;
-	    if ((! sip->f.issocket) || (sip->neof >= sip->maxeof)) {
+#if	CF_DEBUGS
+	    debugprintf("uc_reade/subinfo_readpoll: u_read() rs=%d\n",rs) ;
+#endif
+
+	    if (len == 0) {
+	        sip->neof += 1 ;
+	        if ((! sip->f.issocket) || (sip->neof >= sip->maxeof)) {
+	            f_break = TRUE ;
+	        }
+	    } else {
+	        sip->neof = 0 ;		/* reset */
+	    }
+
+	    sip->tlen += len ;
+	    sip->bp += len ;
+	    if ((! f_break) && (len > 0) && (! sip->f.exact)) {
 	        f_break = TRUE ;
 	    }
-	} else {
-	    sip->neof = 0 ;		/* reset */
-	}
 
-	sip->tlen += len ;
-	sip->bp += len ;
-	if ((! f_break) && (len > 0) && (! sip->f.exact)) {
-	    f_break = TRUE ;
-	}
-
-	if ((! f_break) && (len > 0) && sip->f.timeint) {
-	    sip->to = sip->uto ;	/* reset */
-	}
+	    if ((! f_break) && (len > 0) && sip->f.timeint) {
+	        sip->to = sip->uto ;	/* reset */
+	    }
 
 	} else if (rs == SR_AGAIN) {
 	    if (! sip->f.isnonblock) rs = SR_OK ;
 	}
 
 #if	CF_DEBUGS
+	debugprintf("uc_reade/subinfo_readpoll: ret tlen=%u\n",sip->tlen) ;
 	debugprintf("uc_reade/subinfo_readpoll: ret rs=%d f_break=%u\n",
 	    rs,f_break) ;
 #endif

@@ -81,7 +81,7 @@ static const struct sysret	cvts[] = {
 	{ SR_TXTBSY, "TXTBSY" },
 	{ SR_FBIG, "FBIG" },
 	{ SR_NOSPC, "NOSPC" },
-	{ SR_SPIPE, "SPIPE" },
+	{ SR_SPIPE, "NOTSEEK" },
 	{ SR_ROFS, "ROFS" },
 	{ SR_MLINK, "MLINK" },
 	{ SR_PIPE, "PIPE" },

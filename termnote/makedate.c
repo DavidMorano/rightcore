@@ -1,2 +1,2 @@
 const char termnote_makedate[] =
-	"@(#)termnote                160626_1538:22_USEDT Rightcore Network Services¹" ;
+"@(#)termnote                170708_1722:56_USEDT Rightcore Network Services" ;

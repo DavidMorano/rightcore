@@ -121,6 +121,7 @@ const char	*av[] ;
 	SYSDIALER_ARGS	da ;
 	EXPCOOK		cooks ;
 	int		rs ;
+	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (hostname == NULL) return SR_FAULT ;
@@ -144,24 +145,20 @@ const char	*av[] ;
 
 	memset(&si,0,sizeof(SUBINFO)) ;
 
-/* setup or calculate the cookie values for later */
-
-	rs = expcook_start(&cooks) ;
-	if (rs < 0)
-	    goto bad0 ;
-
-	rs = cm_loadcooks(op,&si,&cooks,ap,hostname,svcname,av) ;
-	if (rs < 0)
-	    goto bad1 ;
-
 /* setup dialer arguments */
 
 	memset(&da,0,sizeof(SYSDIALER_ARGS)) ;
-
 	da.pr = ap->pr ;
 	da.prn = ap->prn ;
 	da.timeout = ap->timeout ;
 	da.options = ap->options ;
+
+/* setup or calculate the cookie values for later */
+
+	if ((rs = expcook_start(&cooks)) >= 0) {
+	    cchar	*hn = hostname ;
+	    cchar	*sn = svcname ;
+	    if ((rs = cm_loadcooks(op,&si,&cooks,ap,hn,sn,av)) >= 0) {
 
 /* search the SYSTEMS file for our host */
 
@@ -196,42 +193,35 @@ const char	*av[] ;
 	debugprintf("cm_open: search-end rs=%d\n",rs) ;
 #endif
 
-	if (rs < 0)
-	    goto bad1 ;
-
 /* save the dialer name */
 
-	{
-	    const char	*cp ;
-	    rs = uc_mallocstrw(sep->dialername,sep->dialernamelen,&cp) ;
-	    if (rs >= 0) op->dname = cp ;
+	if (rs >= 0) {
+	    int		nl = sep->dialernamelen ;
+	    cchar	*np = sep->dialername ;
+	    cchar	*cp ;
+	    if ((rs = uc_mallocstrw(np,nl,&cp)) >= 0) {
+		op->magic = CM_MAGIC ;
+	        op->dname = cp ;
+	    }
 	}
-	if (rs < 0) goto bad2 ;
 
-/* finish up and get out */
+	    } /* end if (load-cooks) */
+	    rs1 = expcook_finish(&cooks) ;
+	} /* end if (expcook) */
 
-	expcook_finish(&cooks) ;
+	if (rs < 0) {
+	    if (op->dobj != NULL) {
+	        if (op->c.close != NULL) {
+	            (*op->c.close)(op->dobj) ;
+		}
+	        uc_free(op->dobj) ;
+	        op->dobj = NULL ;
+	    }
+	    sysdialer_loadout(ap->dp,sep->dialername) ;
+	    op->magic = 0 ;
+	}
 
-	op->magic = CM_MAGIC ;
-
-ret0:
 	return rs ;
-
-/* bad stuff */
-bad2:
-	if (op->c.close != NULL) {
-	    (*op->c.close)(op->dobj) ;
-	}
-
-	uc_free(op->dobj) ;
-
-	sysdialer_loadout(ap->dp,sep->dialername) ;
-
-bad1:
-	expcook_finish(&cooks) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (cm_open) */
 

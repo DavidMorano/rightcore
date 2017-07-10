@@ -168,7 +168,6 @@ mode_t		operm ;
 	op->idxfname = mallocstr(idxfname) ;
 
 	if (op->idxfname == NULL) {
-
 	    rs = SR_NOMEM ;
 	    goto bad0 ;
 	}
@@ -260,7 +259,6 @@ mode_t		operm ;
 /* ok, we're good (?) */
 
 	    op->ti_access = dt ;
-
 	    op->f.fileinit = TRUE ;
 
 #if	CF_DEBUGS
@@ -310,12 +308,9 @@ int lineindex_count(op)
 LINEINDEX	*op ;
 {
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != LINEINDEX_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != LINEINDEX_MAGIC) return SR_NOTOPEN ;
 
 	return op->lines ;
 }
@@ -328,22 +323,15 @@ LINEINDEX	*op ;
 LINEINDEX_CUR	*cp ;
 {
 
+	if (op == NULL) return SR_FAULT ;
+	if (cp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != LINEINDEX_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (cp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != LINEINDEX_MAGIC) return SR_NOTOPEN ;
 
 	op->cursors += 1 ;
 	op->f.cursorlockbroken = FALSE ;
 	op->f.cursoracc = FALSE ;
-
 	cp->i = -1 ;
-
 	return SR_OK ;
 }
 /* end subroutine (lineindex_curbegin) */
@@ -354,8 +342,7 @@ int lineindex_curend(op,cp)
 LINEINDEX	*op ;
 LINEINDEX_CUR	*cp ;
 {
-	time_t	dt = time(NULL) ;
-
+	const time_t	dt = time(NULL) ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (cp == NULL) return SR_FAULT ;
@@ -385,23 +372,18 @@ LINEINDEX	*op ;
 LINEINDEX_CUR	*cup ;
 offset_t	*rp ;
 {
-	int	rs = SR_OK ;
-	int	ri ;
-
+	int		rs = SR_OK ;
+	int		ri ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != LINEINDEX_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != LINEINDEX_MAGIC) return SR_NOTOPEN ;
 #endif
 
-	if (cup == NULL)
-	    return SR_FAULT ;
+	if (cup == NULL) return SR_FAULT ;
 
-	if (op->cursors == 0)
-	    return SR_INVALID ;
+	if (op->cursors == 0) return SR_INVALID ;
 
 	ri = (cup->i < 0) ? 0 : (cup->i + 1) ;
 
@@ -459,30 +441,25 @@ LINEINDEX	*op ;
 uint		ri ;
 offset_t	*rp ;
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != LINEINDEX_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != LINEINDEX_MAGIC) return SR_NOTOPEN ;
 #endif
 
 #if	CF_DEBUGS
 	debugprintf("lineindex_lookup: ent 2\n") ;
 #endif
 
-	if (rp == NULL)
-	    return SR_FAULT ;
+	if (rp == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("lineindex_lookup: ent ri=%d\n",ri) ;
 #endif
 
-	if (ri >= op->lines)
-	    return SR_NOTFOUND ;
+	if (ri >= op->lines) return SR_NOTFOUND ;
 
 /* is the file mapped? */
 
@@ -524,22 +501,16 @@ LINEINDEX	*op ;
 time_t		dt ;
 {
 	struct ustat	sb ;
-
-	int	rs = SR_OK ;
-	int	f_changed = FALSE ;
-
+	int		rs = SR_OK ;
+	int		f_changed = FALSE ;
 #if	CF_DEBUGS
-	char	timebuf[TIMEBUFLEN + 1] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
 #endif
-
 	const char	*cp ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != LINEINDEX_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != LINEINDEX_MAGIC) return SR_NOTOPEN ;
 
 /* check things */
 
@@ -603,20 +574,19 @@ closeit:
 int lineindex_close(op)
 LINEINDEX	*op ;
 {
-	int	rs = SR_BADFMT ;
+	int		rs = SR_BADFMT ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != LINEINDEX_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != LINEINDEX_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (op->mapbuf != NULL)
+	if (op->mapbuf != NULL) {
 	    rs = u_munmap(op->mapbuf,(size_t) op->mapsize) ;
+	}
 
-	if (op->fd >= 0)
+	if (op->fd >= 0) {
 	    u_close(op->fd) ;
+	}
 
 	op->magic = 0 ;
 	return rs ;
@@ -631,16 +601,12 @@ LINEINDEX	*op ;
 static int lineindex_fileheader(op)
 LINEINDEX	*op ;
 {
-	uint	*table ;
-	uint	recoff ;
+	uint		*table ;
+	uint		recoff ;
+	int		rs = SR_OK ;
+	int		f ;
+	const char	*cp = (cchar *) op->mapbuf ;
 
-	int	rs = SR_OK ;
-	int	f ;
-
-	const char	*cp ;
-
-
-	cp = (const char *) op->mapbuf ;
 	f = (strncmp(cp,LINEINDEX_FILEMAGIC,LINEINDEX_FILEMAGICLEN) == 0) ;
 
 	f = f && (*(cp + LINEINDEX_FILEMAGICLEN) == '\n') ;
@@ -723,8 +689,7 @@ static int lineindex_filemap(op,dt)
 LINEINDEX	*op ;
 time_t		dt ;
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
 	debugprintf("lineindex_filemap: ent\n") ;
@@ -766,16 +731,14 @@ time_t		dt ;
 static int lineindex_fileunmap(op)
 LINEINDEX	*op ;
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (op->mapbuf != NULL) {
-
-	    rs = u_munmap(op->mapbuf,(size_t) op->mapsize) ;
-
+	    rs1 = u_munmap(op->mapbuf,(size_t) op->mapsize) ;
+	    if (rs >= 0) rs = rs1 ;
 	    op->mapbuf = NULL ;
 	    op->mapsize = 0 ;
-
 	} /* end if (checking existing map) */
 
 	return rs ;
@@ -795,13 +758,11 @@ time_t		dt ;
 	int	f_create ;
 	int	f_changed = FALSE ;
 
-
 #if	CF_DEBUGS
 	debugprintf("lineindex_fileopen: fname=%s\n",op->idxfname) ;
 #endif
 
-	if (op->fd >= 0)
-	    return op->fd ;
+	if (op->fd < 0) {
 
 #if	CF_DEBUGS
 	debugprintf("lineindex_fileopen: need open\n") ;
@@ -861,6 +822,8 @@ time_t		dt ;
 	    }
 	}
 
+	} 
+
 ret0:
 	return (rs >= 0) ? f_changed : rs ;
 
@@ -878,8 +841,7 @@ bad0:
 static int lineindex_fileclose(op)
 LINEINDEX	*op ;
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 	if (op->fd >= 0) {
 	    rs = u_close(op->fd) ;
@@ -894,27 +856,20 @@ LINEINDEX	*op ;
 static int lineindex_mkindex(op)
 LINEINDEX	*op ;
 {
-	FILEMAP	lmap ;
-
-	bfile	ifile ;
-
+	FILEMAP		lmap ;
+	bfile		ifile ;
 	offset_t	headoff ;
-
-	uint	recoff, lineoff ;
-	uint	table[header_overlast + 1] ;
-	uint	recs[NRECS + 1] ;
-
-	int	rs = SR_OK ;
-	int	i, cl, len ;
-	int	headsize, lines ;
-	int	size ;
-
+	uint		recoff, lineoff ;
+	uint		table[header_overlast + 1] ;
+	uint		recs[NRECS + 1] ;
+	int		rs = SR_OK ;
+	int		i, cl, len ;
+	int		headsize, lines ;
+	int		size ;
 	const char	*cp ;
-
-	char	dfname[MAXPATHLEN + 1] ;
-	char	template[MAXPATHLEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-
+	char		dfname[MAXPATHLEN + 1] ;
+	char		template[MAXPATHLEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("lineindex_mkindex: lfname=%s\n",op->txtfname) ;
@@ -922,16 +877,11 @@ LINEINDEX	*op ;
 
 /* determine if the directory is writable */
 
-	cl = sfdirname(op->idxfname,-1,&cp) ;
-
-#if	CF_DEBUGS
-	debugprintf("lineindex_mkindex: filedir=%t\n",cp,cl) ;
-#endif
-
-	if (cl == 0) {
-	    mkpath1(dfname,".") ;
-	} else
+	if ((cl = sfdirname(op->idxfname,-1,&cp)) > 0) {
 	    mkpath1w(dfname,cp,cl) ;
+	} else {
+	    mkpath1(dfname,".") ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("lineindex_mkindex: dfname=%s\n",dfname) ;
@@ -988,13 +938,10 @@ LINEINDEX	*op ;
 /* write the header on the index file */
 
 	{
-	    int	fml = MIN(LINEINDEX_FILEMAGICLEN,15) ;
-
+	    int		fml = MIN(LINEINDEX_FILEMAGICLEN,15) ;
 	    char	magicbuf[16 + 1], vetu[4] ;
 
-
 	    strncpy(magicbuf,LINEINDEX_FILEMAGIC,16) ;
-
 	    magicbuf[fml] = '\n' ;
 
 	    vetu[0] = LINEINDEX_FILEVERSION ;

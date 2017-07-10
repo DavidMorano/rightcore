@@ -39,6 +39,8 @@
 #include	<pta.h>
 #include	<localmisc.h>
 
+#include	"upt.h"
+
 
 /* local defines */
 

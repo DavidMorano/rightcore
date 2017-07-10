@@ -262,7 +262,7 @@ int ipasswd_open(IPASSWD *op,cchar *dbname)
 	                }
 	            } /* end if (ipasswd_mapbegin) */
 	            rs1 = ipasswd_fileclose(op) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (file-open) */
 	        if (rs < 0) {
 	            uc_free(op->fname) ;
@@ -431,91 +431,91 @@ int		rlen ;
 	        int	ui ;
 	        cchar	*cp ;
 
-	if (sa != NULL) {
-	    STOREITEM	sio ;
-	    DSTR	ss[5] ;
+	        if (sa != NULL) {
+	            STOREITEM	sio ;
+	            DSTR	ss[5] ;
 
 #if	CF_DEBUGS
-	    debugprintf("ipasswd_enum: sa-ing\n") ;
+	            debugprintf("ipasswd_enum: sa-ing\n") ;
 #endif
 
 /* first */
 
-	    si = op->rectab[ri].first ;
-	    ss[0].sbuf = (char *) (op->stab + si) ;
-	    ss[0].slen = -1 ;
+	            si = op->rectab[ri].first ;
+	            ss[0].sbuf = (char *) (op->stab + si) ;
+	            ss[0].slen = -1 ;
 
 /* middle-1 */
 
-	    si = op->rectab[ri].m1 ;
-	    ss[1].sbuf = (char *) (op->stab + si) ;
-	    ss[1].slen = -1 ;
+	            si = op->rectab[ri].m1 ;
+	            ss[1].sbuf = (char *) (op->stab + si) ;
+	            ss[1].slen = -1 ;
 
 /* middle-2 */
 
-	    si = op->rectab[ri].m2 ;
-	    ss[2].sbuf = (char *) (op->stab + si) ;
-	    ss[2].slen = -1 ;
+	            si = op->rectab[ri].m2 ;
+	            ss[2].sbuf = (char *) (op->stab + si) ;
+	            ss[2].slen = -1 ;
 
 /* middle=3 */
 
-	    ss[3].sbuf = NULL ;
-	    ss[3].slen = 0 ;
+	            ss[3].sbuf = NULL ;
+	            ss[3].slen = 0 ;
 
 /* last */
 
-	    si = op->rectab[ri].last ;
-	    ss[4].sbuf = (char *) (op->stab + si) ;
-	    ss[4].slen = -1 ;
+	            si = op->rectab[ri].last ;
+	            ss[4].sbuf = (char *) (op->stab + si) ;
+	            ss[4].slen = -1 ;
 
 /* done */
 
-	    if ((rs = storeitem_start(&sio,rbuf,rlen)) >= 0) {
-	        int		j ;
-	        int		sl ;
-	        int		c = 0 ;
-	        const char	*sp ;
-	        const char	**spp ;
-	        for (j = 0 ; (rs >= 0) && (j < 5) ; j += 1) {
-	            sp = ss[j].sbuf ;
-	            sl = ss[j].slen ;
+	            if ((rs = storeitem_start(&sio,rbuf,rlen)) >= 0) {
+	                int		j ;
+	                int		sl ;
+	                int		c = 0 ;
+	                const char	*sp ;
+	                const char	**spp ;
+	                for (j = 0 ; (rs >= 0) && (j < 5) ; j += 1) {
+	                    sp = ss[j].sbuf ;
+	                    sl = ss[j].slen ;
 #if	CF_DEBUGS
-	            debugprintf("ipasswd_enum: j=%u sl=%d sp=%s\n",j,sl,sp) ;
+	                    debugprintf("ipasswd_enum: j=%u sl=%d sp=%s\n",j,sl,sp) ;
 #endif
-	            if ((sp != NULL) && (sl != 0) && (*sp != '\0')) {
-	                spp = (sa+c++) ;
-	                rs = storeitem_strw(&sio,ss[j].sbuf,ss[j].slen,spp) ;
+	                    if ((sp != NULL) && (sl != 0) && (*sp != '\0')) {
+	                        spp = (sa+c++) ;
+	                        rs = storeitem_strw(&sio,ss[j].sbuf,ss[j].slen,spp) ;
+	                    }
+	                } /* end for */
+	                sa[c] = NULL ;
+	                rs1 = storeitem_finish(&sio) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (storeitem) */
+	        } /* end if */
+
+	        if (rs >= 0) {
+
+	            ui = op->rectab[ri].username ;
+
+#if	CF_DEBUGS
+	            debugprintf("ipasswd_enum: ui=%d\n",ui) ;
+#endif
+
+	            if (ubuf != NULL) {
+	                cp = strwcpy(ubuf,(op->stab + ui),IPASSWD_USERNAMELEN) ;
+	                ul = (cp - ubuf) ;
+	            } else {
+	                ul = strlen(op->stab + ui) ;
 	            }
-	        } /* end for */
-	        sa[c] = NULL ;
-	        rs1 = storeitem_finish(&sio) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (storeitem) */
-	} /* end if */
-
-	if (rs >= 0) {
-
-	    ui = op->rectab[ri].username ;
-
-#if	CF_DEBUGS
-	    debugprintf("ipasswd_enum: ui=%d\n",ui) ;
-#endif
-
-	    if (ubuf != NULL) {
-	        cp = strwcpy(ubuf,(op->stab + ui),IPASSWD_USERNAMELEN) ;
-	        ul = (cp - ubuf) ;
-	    } else {
-	        ul = strlen(op->stab + ui) ;
-	    }
 
 /* update the cursor */
 
-	    curp->i[0] = ri ;
+	            curp->i[0] = ri ;
 
-	} /* end if */
+	        } /* end if */
 
 	    } else {
-		rs = SR_NOTFOUND ;
+	        rs = SR_NOTFOUND ;
 	    } /* end if (valid) */
 	    rs1 = ipasswd_enterend(op,dt) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -535,17 +535,11 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 {
 	IPASSWD_CUR	cur ;
 	time_t		dt = 0 ;
-	uint		hv, hi, ri, ui ;
-	const int	ns = NSHIFT ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		i, wi ;
-	int		hl, c ;
+	int		i ;
 	int		ul = 0 ;
 	int		f_cur = FALSE ;
-	const char	*hp ;
-	const char	*cp ;
-	char		hbuf[4 + 1] ;
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
@@ -588,254 +582,261 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 /* do we have a hold on the file? */
 
 	if ((rs = ipasswd_enterbegin(op,dt)) >= 0) {
+	    uint	hv, hi, ri, ui ;
+	    const int	ns = NSHIFT ;
+	    int		wi ;
+	    int		hl, c ;
+	    const char	*hp ;
+	    const char	*cp ;
+	    char	hbuf[4 + 1] ;
 
 /* continue with regular fetch activities */
 
-	op->f.cursoracc = TRUE ;	/* doesn't hurt if no cursor! */
+	    op->f.cursoracc = TRUE ;	/* doesn't hurt if no cursor! */
 
 /* which index do we want to use? */
 
-	wi = -1 ;
-	if (rs >= 0) {
+	    wi = -1 ;
+	    if (rs >= 0) {
 
-	    if ((np->len.first >= 1) && (np->len.last >= 3)) {
+	        if ((np->len.first >= 1) && (np->len.last >= 3)) {
 #if	CF_USEFL3
-	        wi = index_fl3 ;
-	        hp = hbuf ;
-	        hl = 4 ;
-	        hbuf[0] = np->first[0] ;
-	        strncpy((hbuf + 1),np->last,3) ;
+	            wi = index_fl3 ;
+	            hp = hbuf ;
+	            hl = 4 ;
+	            hbuf[0] = np->first[0] ;
+	            strncpy((hbuf + 1),np->last,3) ;
 #else
-	        wi = index_l3 ;
-	        hp = np->last ;
-	        hl = 3 ;
+	            wi = index_l3 ;
+	            hp = np->last ;
+	            hl = 3 ;
 #endif /* CF_USEFL3 */
-	    } else if (np->len.last >= 3) {
-	        wi = index_l3 ;
-	        hp = np->last ;
-	        hl = 3 ;
-	    } else if (np->len.last >= 1) {
-	        wi = index_l1 ;
-	        hp = np->last ;
-	        hl = 1 ;
-	    } else if (np->len.first >= 1) {
-	        wi = index_f ;
-	        hp = np->first ;
-	        hl = 1 ;
-	    } else {
-	        wi = -1 ;
-	    }
+	        } else if (np->len.last >= 3) {
+	            wi = index_l3 ;
+	            hp = np->last ;
+	            hl = 3 ;
+	        } else if (np->len.last >= 1) {
+	            wi = index_l1 ;
+	            hp = np->last ;
+	            hl = 1 ;
+	        } else if (np->len.first >= 1) {
+	            wi = index_f ;
+	            hp = np->first ;
+	            hl = 1 ;
+	        } else {
+	            wi = -1 ;
+	        }
 
-	    if (wi < 0) {
-	        rs = SR_INVALID ;
-	    }
+	        if (wi < 0) {
+	            rs = SR_INVALID ;
+	        }
 
-	} /* end if (ok) */
+	    } /* end if (ok) */
 
 #if	CF_DEBUGS
-	debugprintf("ipasswd_fetch: wi=%d key=%t\n",wi,hp,hl) ;
-	debugprintf("ipasswd_fetch: rilen=%u (\\x%08x)\n",
-	    op->rilen, op->rilen) ;
+	    debugprintf("ipasswd_fetch: wi=%d key=%t\n",wi,hp,hl) ;
+	    debugprintf("ipasswd_fetch: rilen=%u (\\x%08x)\n",
+	        op->rilen, op->rilen) ;
 #endif
 
 /* OK, we go from here */
 
-	if (rs >= 0) {
+	    if (rs >= 0) {
 
-	    if (curp->i[wi] < 0) {
+	        if (curp->i[wi] < 0) {
 
 #if	CF_DEBUGS
-	        debugprintf("ipasswd_fetch: new cursor\n") ;
+	            debugprintf("ipasswd_fetch: new cursor\n") ;
 #endif
 
-	        hv = hashelf(hp,hl) ;
+	            hv = hashelf(hp,hl) ;
 
-	        hi = hashindex(hv,op->rilen) ;
+	            hi = hashindex(hv,op->rilen) ;
 
 #if	CF_DEBUGS
-	        debugprintf("ipasswd_fetch: hv=%08x hi=%u\n",hv,hi) ;
+	            debugprintf("ipasswd_fetch: hv=%08x hi=%u\n",hv,hi) ;
 #endif
 
 /* start searching! */
 
-	        if (op->ropts & IPASSWD_ROSEC) {
-	            int	f ;
+	            if (op->ropts & IPASSWD_ROSEC) {
+	                int	f ;
 
 #if	CF_DEBUGS
-	            if (hi < op->rilen)
-	                debugprintf("ipasswd_fetch: secondary initial ri=%u\n",
-	                    (op->recind[wi])[hi][0]) ;
+	                if (hi < op->rilen)
+	                    debugprintf("ipasswd_fetch: secondary initial ri=%u\n",
+	                        (op->recind[wi])[hi][0]) ;
 #endif
 
-	            c = 0 ;
-	            while ((ri = (op->recind[wi])[hi][0]) != 0) {
+	                c = 0 ;
+	                while ((ri = (op->recind[wi])[hi][0]) != 0) {
 
 #if	CF_DEBUGS
-	                debugprintf("ipasswd_fetch: trymatch ri=%u\n",ri) ;
+	                    debugprintf("ipasswd_fetch: trymatch ri=%u\n",ri) ;
 #endif
 
-	                if (ri >= op->rtlen) {
-	                    rs = 0 ;
-	                    break ;
+	                    if (ri >= op->rtlen) {
+	                        rs = 0 ;
+	                        break ;
+	                    }
+
+	                    switch (wi) {
+	                    case index_fl3:
+	                        f = ipasswd_keymatchfl3(op,opts,ri,np) ;
+	                        break ;
+	                    case index_l3:
+	                        f = ipasswd_keymatchl3(op,opts,ri,np) ;
+	                        break ;
+	                    case index_l1:
+	                        f = ipasswd_keymatchl1(op,opts,ri,np) ;
+	                        break ;
+	                    case index_f:
+	                        f = ipasswd_keymatchf(op,opts,ri,np) ;
+	                        break ;
+	                    } /* end switch */
+
+	                    if (f) break ;
+
+	                    op->collisions += 1 ;
+	                    if (op->ropts & IPASSWD_RORANDLC) {
+	                        hv = randlc(hv + c) ;
+	                    } else {
+	                        hv = ((hv << (32 - ns)) | (hv >> ns)) + c ;
+	                    }
+
+	                    hi = hashindex(hv,op->rilen) ;
+
+#if	CF_DEBUGS
+	                    debugprintf("ipasswd_fetch: new hv=%08x hi=%u\n",
+	                        hv,hi) ;
+#endif
+
+	                    c += 1 ;
+
+	                } /* end while */
+
+#if	CF_DEBUGS
+	                debugprintf("ipasswd_fetch: index-key-match ri=%u\n",ri) ;
+#endif
+
+	                if (ri == 0) {
+	                    rs = SR_NOTFOUND ;
 	                }
 
-	                switch (wi) {
-	                case index_fl3:
-	                    f = ipasswd_keymatchfl3(op,opts,ri,np) ;
-	                    break ;
-	                case index_l3:
-	                    f = ipasswd_keymatchl3(op,opts,ri,np) ;
-	                    break ;
-	                case index_l1:
-	                    f = ipasswd_keymatchl1(op,opts,ri,np) ;
-	                    break ;
-	                case index_f:
-	                    f = ipasswd_keymatchf(op,opts,ri,np) ;
-	                    break ;
-	                } /* end switch */
+	            } /* end if (secondary hashing) */
 
-	                if (f) break ;
-
-	                op->collisions += 1 ;
-	                if (op->ropts & IPASSWD_RORANDLC) {
-	                    hv = randlc(hv + c) ;
-	                } else {
-	                    hv = ((hv << (32 - ns)) | (hv >> ns)) + c ;
-	                }
-
-	                hi = hashindex(hv,op->rilen) ;
-
-#if	CF_DEBUGS
-	                debugprintf("ipasswd_fetch: new hv=%08x hi=%u\n",
-			hv,hi) ;
-#endif
-
-	                c += 1 ;
-
-	            } /* end while */
-
-#if	CF_DEBUGS
-	            debugprintf("ipasswd_fetch: index-key-match ri=%u\n",ri) ;
-#endif
-
-	            if (ri == 0) {
-	                rs = SR_NOTFOUND ;
-	            }
-
-	        } /* end if (secondary hashing) */
-
-	    } else {
+	        } else {
 
 /* get the next record index (if there is one) */
 
 #if	CF_DEBUGS
-	        debugprintf("ipasswd_fetch: old cursor wi=%u\n",wi) ;
+	            debugprintf("ipasswd_fetch: old cursor wi=%u\n",wi) ;
 #endif
 
-	        hi = curp->i[wi] ;
-	        if ((hi != 0) && (hi < op->rilen)) {
+	            hi = curp->i[wi] ;
+	            if ((hi != 0) && (hi < op->rilen)) {
 
-#if	CF_DEBUGS
-	            debugprintf("ipasswd_fetch: hi=%u\n",hi) ;
-#endif
-
-	            ri = (op->recind[wi])[hi][0] ;
-#if	CF_DEBUGS
-	            debugprintf("ipasswd_fetch: ri=%u\n",ri) ;
-#endif
-
-	            if ((ri != 0) && (ri < op->rtlen)) {
-
-	                hi = (op->recind[wi])[hi][1] ;
 #if	CF_DEBUGS
 	                debugprintf("ipasswd_fetch: hi=%u\n",hi) ;
 #endif
-	                if ((hi != 0) && (hi < op->rilen)) {
-	                    ri = (op->recind[wi])[hi][0] ;
+
+	                ri = (op->recind[wi])[hi][0] ;
 #if	CF_DEBUGS
-	                    debugprintf("ipasswd_fetch: ri=%u\n",ri) ;
+	                debugprintf("ipasswd_fetch: ri=%u\n",ri) ;
 #endif
+
+	                if ((ri != 0) && (ri < op->rtlen)) {
+
+	                    hi = (op->recind[wi])[hi][1] ;
+#if	CF_DEBUGS
+	                    debugprintf("ipasswd_fetch: hi=%u\n",hi) ;
+#endif
+	                    if ((hi != 0) && (hi < op->rilen)) {
+	                        ri = (op->recind[wi])[hi][0] ;
+#if	CF_DEBUGS
+	                        debugprintf("ipasswd_fetch: ri=%u\n",ri) ;
+#endif
+	                    } else
+	                        rs = SR_NOTFOUND ;
+
 	                } else
 	                    rs = SR_NOTFOUND ;
 
 	            } else
 	                rs = SR_NOTFOUND ;
 
-	        } else
+	        } /* end if (preparation) */
+
+	    } /* end if (ok) */
+
+#if	CF_DEBUGS
+	    debugprintf("ipasswd_fetch: match search rs=%d hi=%u ri=%u\n",
+	        rs,hi,ri) ;
+#endif
+
+	    if (rs >= 0) {
+
+	        while ((ri = (op->recind[wi])[hi][0]) != 0) {
+
+#if	CF_DEBUGS
+	            debugprintf("ipasswd_fetch: loop ri=%u\n",ri) ;
+#endif
+
+	            if (ri >= op->rtlen) {
+	                ri = 0 ;
+	                break ;
+	            }
+
+	            if (ipasswd_keymatchall(op,opts,ri,np)) break ;
+
+	            hi = (op->recind[wi])[hi][1] ;
+	            if (hi == 0)
+	                break ;
+
+	            op->collisions += 1 ;
+
+	        } /* end while */
+
+	        if ((ri == 0) || (hi == 0)) {
 	            rs = SR_NOTFOUND ;
-
-	    } /* end if (preparation) */
-
-	} /* end if (ok) */
-
-#if	CF_DEBUGS
-	debugprintf("ipasswd_fetch: match search rs=%d hi=%u ri=%u\n",
-	    rs,hi,ri) ;
-#endif
-
-	if (rs >= 0) {
-
-	    while ((ri = (op->recind[wi])[hi][0]) != 0) {
-
-#if	CF_DEBUGS
-	        debugprintf("ipasswd_fetch: loop ri=%u\n",ri) ;
-#endif
-
-	        if (ri >= op->rtlen) {
-	            ri = 0 ;
-	            break ;
 	        }
 
-	        if (ipasswd_keymatchall(op,opts,ri,np)) break ;
-
-	        hi = (op->recind[wi])[hi][1] ;
-	        if (hi == 0)
-	            break ;
-
-	        op->collisions += 1 ;
-
-	    } /* end while */
-
-	    if ((ri == 0) || (hi == 0)) {
-	        rs = SR_NOTFOUND ;
-	    }
-
-	} /* end if (following the existing chain) */
+	    } /* end if (following the existing chain) */
 
 #if	CF_DEBUGS
-	debugprintf("ipasswd_fetch: done w/ search rs=%d ri=%u\n",rs,ri) ;
+	    debugprintf("ipasswd_fetch: done w/ search rs=%d ri=%u\n",rs,ri) ;
 #endif
 
 /* if successful, retrieve username */
 
-	if (rs >= 0) {
+	    if (rs >= 0) {
 
-	    ui = op->rectab[ri].username ;
-	    if (up != NULL) {
+	        ui = op->rectab[ri].username ;
+	        if (up != NULL) {
 
-	        cp = strwcpy(up,(op->stab + ui),IPASSWD_USERNAMELEN) ;
+	            cp = strwcpy(up,(op->stab + ui),IPASSWD_USERNAMELEN) ;
 
 #if	CF_DEBUGS
-	        debugprintf("ipasswd_fetch: username=%s\n",up) ;
+	            debugprintf("ipasswd_fetch: username=%s\n",up) ;
 #endif
 
-	        ul = (cp - up) ;
+	            ul = (cp - up) ;
 
-	    } else {
-	        ul = strlen(op->stab + ui) ;
-	    }
+	        } else {
+	            ul = strlen(op->stab + ui) ;
+	        }
 
 /* update cursor */
 
 #if	CF_DEBUGS
-	    debugprintf("ipasswd_fetch: update-cur hi=%u\n",hi) ;
+	        debugprintf("ipasswd_fetch: update-cur hi=%u\n",hi) ;
 #endif
 
-	    if (f_cur) {
-	        curp->i[wi] = hi ;
-	    }
+	        if (f_cur) {
+	            curp->i[wi] = hi ;
+	        }
 
-	} /* end if (got one) */
+	    } /* end if (got one) */
 
 	    rs1 = ipasswd_enterend(op,dt) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -851,22 +852,15 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 
 
 int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
-			cchar **sa,int sn)
+		cchar **sa,int sn)
 {
 	IPASSWD_CUR	cur ;
-	REALNAME	rn, *np = &rn ;
 	time_t		dt = 0 ;
-	uint		hv, hi, ri, ui ;
-	const int	ns = NSHIFT ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		i, wi ;
-	int		hl, c ;
+	int		i ;
 	int		ul = 0 ;
 	int		f_cur = FALSE ;
-	const char	*hp ;
-	const char	*cp ;
-	char		hbuf[4 + 1] ;
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
@@ -899,238 +893,247 @@ int ipasswd_fetcher(IPASSWD *op,IPASSWD_CUR *curp,int opts,char *ubuf,
 /* do we have a hold on the file? */
 
 	if ((rs = ipasswd_enterbegin(op,dt)) >= 0) {
+	    REALNAME	rn, *np = &rn ;
+	    uint	hv, hi, ri, ui ;
+	    const int	ns = NSHIFT ;
+	    int		wi ;
+	    int		hl, c ;
+	    const char	*hp ;
+	    const char	*cp ;
+	    char	hbuf[4 + 1] ;
 
 /* continue with regular fetch activities */
 
-	op->f.cursoracc = TRUE ;	/* doesn't hurt if no cursor! */
+	    op->f.cursoracc = TRUE ;	/* doesn't hurt if no cursor! */
 
-	if (rs >= 0) {
-	    if ((rs = realname_startpieces(np,sa,sn)) >= 0) {
+	    if (rs >= 0) {
+	        if ((rs = realname_startpieces(np,sa,sn)) >= 0) {
 
 /* which index do we want to use? */
 
-	        wi = -1 ;
-	        if ((np->len.first >= 1) && (np->len.last >= 3)) {
-#if	CF_USEFL3
-	            wi = index_fl3 ;
-	            hp = hbuf ;
-	            hl = 4 ;
-	            hbuf[0] = np->first[0] ;
-	            strncpy((hbuf + 1),np->last,3) ;
-#else
-	            wi = index_l3 ;
-	            hp = np->last ;
-	            hl = 3 ;
-#endif /* CF_USEFL3 */
-	        } else if (np->len.last >= 3) {
-	            wi = index_l3 ;
-	            hp = np->last ;
-	            hl = 3 ;
-	        } else if (np->len.last >= 1) {
-	            wi = index_l1 ;
-	            hp = np->last ;
-	            hl = 1 ;
-	        } else if (np->len.first >= 1) {
-	            wi = index_f ;
-	            hp = np->first ;
-	            hl = 1 ;
-	        } else {
 	            wi = -1 ;
-		}
+	            if ((np->len.first >= 1) && (np->len.last >= 3)) {
+#if	CF_USEFL3
+	                wi = index_fl3 ;
+	                hp = hbuf ;
+	                hl = 4 ;
+	                hbuf[0] = np->first[0] ;
+	                strncpy((hbuf + 1),np->last,3) ;
+#else
+	                wi = index_l3 ;
+	                hp = np->last ;
+	                hl = 3 ;
+#endif /* CF_USEFL3 */
+	            } else if (np->len.last >= 3) {
+	                wi = index_l3 ;
+	                hp = np->last ;
+	                hl = 3 ;
+	            } else if (np->len.last >= 1) {
+	                wi = index_l1 ;
+	                hp = np->last ;
+	                hl = 1 ;
+	            } else if (np->len.first >= 1) {
+	                wi = index_f ;
+	                hp = np->first ;
+	                hl = 1 ;
+	            } else {
+	                wi = -1 ;
+	            }
 
-	        if (wi < 0) {
-	            rs = SR_INVALID ;
-	        }
+	            if (wi < 0) {
+	                rs = SR_INVALID ;
+	            }
 
 #if	CF_DEBUGS
-	        debugprintf("ipasswd_fetcher: wi=%d key=%t\n",wi,hp,hl) ;
-	        debugprintf("ipasswd_fetcher: rilen=%u (\\x%08x)\n",
-	            op->rilen, op->rilen) ;
+	            debugprintf("ipasswd_fetcher: wi=%d key=%t\n",wi,hp,hl) ;
+	            debugprintf("ipasswd_fetcher: rilen=%u (\\x%08x)\n",
+	                op->rilen, op->rilen) ;
 #endif
 
 /* OK, we go from here */
 
-	        if (rs >= 0) {
+	            if (rs >= 0) {
 
-	            if (curp->i[wi] < 0) {
+	                if (curp->i[wi] < 0) {
 
 #if	CF_DEBUGS
-	                debugprintf("ipasswd_fetcher: new cursor\n") ;
+	                    debugprintf("ipasswd_fetcher: new cursor\n") ;
 #endif
 
-	                hv = hashelf(hp,hl) ;
+	                    hv = hashelf(hp,hl) ;
 
-	                hi = hashindex(hv,op->rilen) ;
+	                    hi = hashindex(hv,op->rilen) ;
 
 #if	CF_DEBUGS
-	                debugprintf("ipasswd_fetcher: hv=%08x hi=%u\n",hv,hi) ;
+	                    debugprintf("ipasswd_fetcher: hv=%08x hi=%u\n",hv,hi) ;
 #endif
 
 /* start searching! */
 
-	                if (op->ropts & IPASSWD_ROSEC) {
-	                    int	f ;
+	                    if (op->ropts & IPASSWD_ROSEC) {
+	                        int	f ;
 
 #if	CF_DEBUGS
-	                    if (hi < op->rilen)
+	                        if (hi < op->rilen)
+	                            debugprintf("ipasswd_fetcher: "
+	                                "sec initial ri=%u\n",
+	                                (op->recind[wi])[hi][0]) ;
+#endif
+
+	                        c = 0 ;
+	                        while ((ri = (op->recind[wi])[hi][0]) != 0) {
+
+#if	CF_DEBUGS
+	                            debugprintf("ipasswd_fetcher: trymatch ri=%u\n",
+	                                ri) ;
+#endif
+
+	                            if (ri >= op->rtlen) {
+	                                rs = 0 ;
+	                                break ;
+	                            }
+
+	                            switch (wi) {
+	                            case index_fl3:
+	                                f = ipasswd_keymatchfl3(op,opts,ri,np) ;
+	                                break ;
+	                            case index_l3:
+	                                f = ipasswd_keymatchl3(op,opts,ri,np) ;
+	                                break ;
+	                            case index_l1:
+	                                f = ipasswd_keymatchl1(op,opts,ri,np) ;
+	                                break ;
+	                            case index_f:
+	                                f = ipasswd_keymatchf(op,opts,ri,np) ;
+	                                break ;
+	                            } /* end switch */
+
+	                            if (f)
+	                                break ;
+
+	                            op->collisions += 1 ;
+	                            if (op->ropts & IPASSWD_RORANDLC) {
+	                                hv = randlc(hv + c) ;
+	                            } else {
+	                                hv = ((hv << (32 - ns)) | (hv >> ns)) +
+	                                    c ;
+	                            }
+
+	                            hi = hashindex(hv,op->rilen) ;
+
+#if	CF_DEBUGS
+	                            debugprintf("ipasswd_fetcher: "
+	                                "new hv=%08x hi=%u\n", hv,hi) ;
+#endif
+
+	                            c += 1 ;
+
+	                        } /* end while */
+
+#if	CF_DEBUGS
 	                        debugprintf("ipasswd_fetcher: "
-					"sec initial ri=%u\n",
-	                            (op->recind[wi])[hi][0]) ;
+	                            "index-key-match ri=%u\n", ri) ;
 #endif
 
-	                    c = 0 ;
-	                    while ((ri = (op->recind[wi])[hi][0]) != 0) {
-
-#if	CF_DEBUGS
-	                        debugprintf("ipasswd_fetcher: trymatch ri=%u\n",
-					ri) ;
-#endif
-
-	                        if (ri >= op->rtlen) {
-	                            rs = 0 ;
-	                            break ;
+	                        if (ri == 0) {
+	                            rs = SR_NOTFOUND ;
 	                        }
 
-	                        switch (wi) {
-	                        case index_fl3:
-	                            f = ipasswd_keymatchfl3(op,opts,ri,np) ;
-	                            break ;
-	                        case index_l3:
-	                            f = ipasswd_keymatchl3(op,opts,ri,np) ;
-	                            break ;
-	                        case index_l1:
-	                            f = ipasswd_keymatchl1(op,opts,ri,np) ;
-	                            break ;
-	                        case index_f:
-	                            f = ipasswd_keymatchf(op,opts,ri,np) ;
-	                            break ;
-	                        } /* end switch */
+	                    } /* end if (secondary hashing) */
 
-	                        if (f)
-	                            break ;
-
-	                        op->collisions += 1 ;
-	                        if (op->ropts & IPASSWD_RORANDLC) {
-	                            hv = randlc(hv + c) ;
-	                        } else {
-	                            hv = ((hv << (32 - ns)) | (hv >> ns)) + c ;
-	                        }
-
-	                        hi = hashindex(hv,op->rilen) ;
-
-#if	CF_DEBUGS
-	                        debugprintf("ipasswd_fetcher: "
-					"new hv=%08x hi=%u\n", hv,hi) ;
-#endif
-
-	                        c += 1 ;
-
-	                    } /* end while */
-
-#if	CF_DEBUGS
-	                    debugprintf("ipasswd_fetcher: "
-				"index-key-match ri=%u\n", ri) ;
-#endif
-
-	                    if (ri == 0) {
-	                        rs = SR_NOTFOUND ;
-	                    }
-
-	                } /* end if (secondary hashing) */
-
-	            } else {
+	                } else {
 
 /* get the next record index (if there is one) */
 
 #if	CF_DEBUGS
-	                debugprintf("ipasswd_fetcher: old cursor\n") ;
+	                    debugprintf("ipasswd_fetcher: old cursor\n") ;
 #endif
 
-	                hi = curp->i[wi] ;
-	                if ((hi != 0) && (hi < op->rilen)) {
+	                    hi = curp->i[wi] ;
+	                    if ((hi != 0) && (hi < op->rilen)) {
 
-	                    ri = (op->recind[wi])[hi][0] ;
-	                    if ((ri != 0) && (ri < op->rtlen)) {
+	                        ri = (op->recind[wi])[hi][0] ;
+	                        if ((ri != 0) && (ri < op->rtlen)) {
 
-	                        hi = (op->recind[wi])[hi][1] ;
-	                        if ((hi != 0) && (hi < op->rilen)) {
-	                            ri = (op->recind[wi])[hi][0] ;
+	                            hi = (op->recind[wi])[hi][1] ;
+	                            if ((hi != 0) && (hi < op->rilen)) {
+	                                ri = (op->recind[wi])[hi][0] ;
+	                            } else
+	                                rs = SR_NOTFOUND ;
+
 	                        } else
 	                            rs = SR_NOTFOUND ;
 
 	                    } else
 	                        rs = SR_NOTFOUND ;
 
-	                } else
-	                    rs = SR_NOTFOUND ;
+	                } /* end if (preparation) */
 
-	            } /* end if (preparation) */
-
-	        } /* end if (ok) */
+	            } /* end if (ok) */
 
 #if	CF_DEBUGS
-	        debugprintf("ipasswd_fetcher: match search rs=%d hi=%u\n",
-			rs,hi) ;
+	            debugprintf("ipasswd_fetcher: match search rs=%d hi=%u\n",
+	                rs,hi) ;
 #endif
 
-	        if (rs >= 0) {
+	            if (rs >= 0) {
 
-	            while ((ri = (op->recind[wi])[hi][0]) != 0) {
+	                while ((ri = (op->recind[wi])[hi][0]) != 0) {
 
-	                if (ri >= op->rtlen) {
-	                    ri = 0 ;
-	                    break ;
+	                    if (ri >= op->rtlen) {
+	                        ri = 0 ;
+	                        break ;
+	                    }
+
+	                    if (ipasswd_keymatchall(op,opts,ri,np)) break ;
+
+	                    hi = (op->recind[wi])[hi][1] ;
+	                    if (hi == 0) break ;
+
+	                    op->collisions += 1 ;
+
+	                } /* end while */
+
+	                if ((ri == 0) || (hi == 0)) {
+	                    rs = SR_NOTFOUND ;
 	                }
 
-	                if (ipasswd_keymatchall(op,opts,ri,np)) break ;
-
-	                hi = (op->recind[wi])[hi][1] ;
-	                if (hi == 0) break ;
-
-	                op->collisions += 1 ;
-
-	            } /* end while */
-
-	            if ((ri == 0) || (hi == 0)) {
-	                rs = SR_NOTFOUND ;
-	            }
-
-	        } /* end if (following the existing chain) */
+	            } /* end if (following the existing chain) */
 
 #if	CF_DEBUGS
-	        debugprintf("ipasswd_fetcher: done w/ search rs=%d\n",rs) ;
+	            debugprintf("ipasswd_fetcher: done w/ search rs=%d\n",rs) ;
 #endif
 
 /* if successful, retrieve username */
 
-	        if (rs >= 0) {
+	            if (rs >= 0) {
 
-	            ui = op->rectab[ri].username ;
-	            if (ubuf != NULL) {
-	                cp = strwcpy(ubuf,(op->stab + ui),IPASSWD_USERNAMELEN) ;
-	                ul = (cp - ubuf) ;
+	                ui = op->rectab[ri].username ;
+	                if (ubuf != NULL) {
+	                    cp = strwcpy(ubuf,(op->stab + ui),IPASSWD_USERNAMELEN) ;
+	                    ul = (cp - ubuf) ;
 #if	CF_DEBUGS
-	                debugprintf("ipasswd_fetcher: username=%s\n",ubuf) ;
+	                    debugprintf("ipasswd_fetcher: username=%s\n",ubuf) ;
 #endif
-	            } else {
-	                ul = strlen(op->stab + ui) ;
-	            }
+	                } else {
+	                    ul = strlen(op->stab + ui) ;
+	                }
 
 /* update cursor */
 
-	            if (f_cur) {
-	                curp->i[wi] = hi ;
-	            }
+	                if (f_cur) {
+	                    curp->i[wi] = hi ;
+	                }
 
-	        } /* end if (got one) */
+	            } /* end if (got one) */
 
-	        rs1 = realname_finish(np) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (realname) */
-	} /* end if (ok) */
+	            rs1 = realname_finish(np) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (realname) */
+	    } /* end if (ok) */
 
-	rs1 = ipasswd_enterend(op,dt) ;
-	if (rs >= 0) rs = rs1 ;
+	    rs1 = ipasswd_enterend(op,dt) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ipasswd-enter) */
 
 #if	CF_DEBUGS
@@ -1175,9 +1178,9 @@ int ipasswd_check(IPASSWD *op,time_t dt)
 	    f = f || ((dt - op->ti_access) >= TO_ACCESS) ;
 	    f = f || ((dt - op->ti_open) >= TO_OPEN) ;
 	    if (f) {
-		if ((rs = ipasswd_mapend(op)) >= 0) {
+	        if ((rs = ipasswd_mapend(op)) >= 0) {
 	            rs = ipasswd_fileclose(op) ;
-		}
+	        }
 	    }
 	}
 
@@ -1358,28 +1361,28 @@ static int ipasswd_fileopen(IPASSWD *op,time_t dt)
 
 	if (op->fd < 0) {
 	    if ((rs = uc_open(op->fname,op->oflags,op->operm)) >= 0) {
-		op->fd = rs ;
+	        op->fd = rs ;
 	        if (dt == 0) dt = time(NULL) ;
-		op->ti_open = dt ;
-		if ((uc_closeonexec(op->fd,TRUE)) >= 0) {
-		    USTAT	sb ;
-		    if ((rs = u_fstat(op->fd,&sb)) >= 0) {
-			int	size = 0 ;
-			size += IPASSWD_IDLEN ;
-			size += (pwihdr_overlast * sizeof(int)) ;
-			if (sb.st_size >= size) {
-			    op->mtime = sb.st_mtime ;
-			    op->filesize = sb.st_size ;
-			    rs = ipasswd_remotefs(op) ;
-			} else {
-			    rs = SR_NOMSG ;
-			}
-		    }
-		}
-		if (rs < 0) {
-		    u_close(op->fd) ;
-		    op->fd = -1 ;
-		}
+	        op->ti_open = dt ;
+	        if ((uc_closeonexec(op->fd,TRUE)) >= 0) {
+	            USTAT	sb ;
+	            if ((rs = u_fstat(op->fd,&sb)) >= 0) {
+	                int	size = 0 ;
+	                size += IPASSWD_IDLEN ;
+	                size += (pwihdr_overlast * sizeof(int)) ;
+	                if (sb.st_size >= size) {
+	                    op->mtime = sb.st_mtime ;
+	                    op->filesize = sb.st_size ;
+	                    rs = ipasswd_remotefs(op) ;
+	                } else {
+	                    rs = SR_NOMSG ;
+	                }
+	            }
+	        }
+	        if (rs < 0) {
+	            u_close(op->fd) ;
+	            op->fd = -1 ;
+	        }
 	    } /* end if (u_open) */
 	} /* end if (needed) */
 
@@ -1418,7 +1421,7 @@ static int ipasswd_mapbegin(IPASSWD *op,time_t dt)
 	        op->mapdata = md ;
 	        op->mapsize = ms ;
 	        op->ti_map = dt ;
-		f = TRUE ;
+	        f = TRUE ;
 	    }
 	} /* end if (needed) */
 
@@ -1445,12 +1448,12 @@ static int ipasswd_remotefs(IPASSWD *op)
 	int		rs ;
 	int		fslen ;
 	int		f = FALSE ;
-	    char	fstype[USERNAMELEN + 1] ;
-	    if ((rs = getfstype(fstype,USERNAMELEN,op->fd)) >= 0) {
-	        fslen = rs ;
-	        f = (! islocalfs(fstype,fslen)) ;
-	        op->f.remote = f ;
-	    }
+	char	fstype[USERNAMELEN + 1] ;
+	if ((rs = getfstype(fstype,USERNAMELEN,op->fd)) >= 0) {
+	    fslen = rs ;
+	    f = (! islocalfs(fstype,fslen)) ;
+	    op->f.remote = f ;
+	}
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (ipasswd_remotefs) */
@@ -1632,11 +1635,13 @@ static int ipaswd_mapcheck(IPASSWD *op,time_t dt)
 	int		rs = SR_OK ;
 	int		f = FALSE ;
 	if (op->mapdata == NULL) {
-	    if ((rs = ipasswd_mapbegin(op,dt)) > 0) {
-		f = TRUE ;
-		rs = ipasswd_hdrload(op) ;
-		if (rs < 0) {
-		    ipasswd_mapend(op) ;
+	    if ((rs = ipasswd_fileopen(op,dt)) >= 0) {
+	        if ((rs = ipasswd_mapbegin(op,dt)) > 0) {
+	            f = TRUE ;
+	            rs = ipasswd_hdrload(op) ;
+	            if (rs < 0) {
+	                ipasswd_mapend(op) ;
+	            }
 		}
 	    }
 	}

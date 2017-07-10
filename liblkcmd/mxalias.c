@@ -644,101 +644,10 @@ int		vlen ;
 /* end subroutine (mxalias_read) */
 
 
-#ifdef	COMMENT
-
-/* do some checking */
-int mxalias_check(op,daytime)
-MXALIAS		*op ;
-time_t		daytime ;
-{
-	struct ustat	sb ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		f_changed = FALSE ;
-
-#if	CF_DEBUGS
-	char		timebuf[TIMEBUFLEN + 1] ;
-#endif
-
-	if (op == NULL) return SR_FAULT ;
-
-	if (op->magic != MXALIAS_MAGIC) return SR_NOTOPEN ;
-
-	if (op->f.held || (op->mapbuf == NULL))
-	    return SR_OK ;
-
-#if	CF_DEBUGS
-	debugprintf("mxalias_check: %s\n",
-	    timestr_log(daytime,timebuf)) ;
-#endif
-
-	if ((daytime - op->ti_access) > TO_ACCESS)
-	    goto closeit ;
-
-	if ((daytime - op->ti_open) > TO_OPEN)
-	    goto closeit ;
-
-/* do not check more rapidly than TO_CHECK time */
-
-	if ((daytime - op->ti_check) > TO_CHECK) {
-
-	    op->ti_check = daytime ;
-
-/* has the file changed? */
-
-	    if ((! f_changed) &&
-	        ((daytime - op->ti_filechanged) > TO_FILECHANGED)) {
-
-	        op->ti_filechanged = daytime ;
-	        rs1 = u_stat(op->dbfname,&sb) ;
-
-	        if (rs1 >= 0) {
-	            rs1 = mxalias_filechanged(op,&sb) ;
-	            f_changed = (rs1 > 0) ;
-	        }
-
-	    }
-
-/* is the file old? */
-
-	    if ((! f_changed) &&
-	        op->f.ocreate && op->f.owrite &&
-	        ((daytime - op->ti_fileold) > TO_FILEOLD)) {
-
-	        op->ti_fileold = daytime ;
-	        rs1 = mxalias_fileold(op,daytime) ;
-	        f_changed = (rs1 > 0) ;
-
-	    }
-
-	    if (f_changed)
-	        goto closeit ;
-
-	} /* end if (within check interval) */
-
-ret0:
-	return (rs >= 0) ? f_changed : rs ;
-
-/* handle a close out */
-changed:
-	f_changed = TRUE ;
-
-closeit:
-	rs = mxalias_dbclose(op) ;
-
-	goto ret0 ;
-}
-/* end subroutine (mxalias_check) */
-
-#endif /* COMMENT */
-
-
 /* private subroutines */
 
 
-static int mxalias_username(op,username)
-MXALIAS		*op ;
-const char	*username ;
+static int mxalias_username(MXALIAS *op,cchar *username)
 {
 	int		rs = SR_OK ;
 	const char	*cp ;
@@ -863,10 +772,7 @@ int mxalias_fileadd(MXALIAS *op,cchar atfname[])
 /* end subroutine (mxalias_fileadd) */
 
 
-static int mxalias_filereg(op,sbp,np)
-MXALIAS		*op ;
-struct ustat	*sbp ;
-const char	*np ;
+static int mxalias_filereg(MXALIAS *op,USTAT *sbp,cchar *np)
 {
 	MXALIAS_FILE	fe ;
 	int		rs ;
@@ -890,9 +796,7 @@ const char	*np ;
 #if	CF_FILECHECK
 
 /* check if files have changed */
-static int mxalias_filechecks(op,daytime)
-MXALIAS		*op ;
-time_t		daytime ;
+static int mxalias_filechecks(MXALIAS *op,time_t daytime)
 {
 	struct ustat	sb ;
 	MXALIAS_FILE	*fep ;
@@ -994,9 +898,7 @@ uino_t		ino ;
 #endif /* COMMENT */
 
 
-static int mxalias_fileparse(op,fi)
-MXALIAS		*op ;
-int		fi ;
+static int mxalias_fileparse(MXALIAS *op,int fi)
 {
 	MXALIAS_FILE	*fep ;
 	int		rs ;
@@ -1025,14 +927,16 @@ int		fi ;
 	                        c += rs ;
 
 	                    } /* end if (needed update) */
-	                } else
+	                } else {
 	                    rs = SR_ISDIR ;
+			}
 	            } /* end if (bcontrol) */
 	            rs1 = bclose(lfp) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (bfile) */
-	    } else
+	    } else {
 	        rs = SR_NOTFOUND ;
+	    }
 	} /* end if (vecobj_get) */
 
 	if (rs < 0) mxalias_filedump(op,fi) ;
@@ -1186,14 +1090,10 @@ FIELD		*fsbp ;
 #endif
 
 	    if (c_field++ == 0) {
-
 	        strwcpy(keybuf,fp,MIN(fl,klen)) ;
-
 	    } else if (keybuf[0] != '\0') {
-
 	        c += 1 ;
 	        rs = keyvals_add(&op->entries,fi,keybuf,fp,fl) ;
-
 	    } /* end if (handling record) */
 
 	    if (fsbp->term == '#') break ;
@@ -1213,6 +1113,7 @@ FIELD		*fsbp ;
 /* end subroutine (mxalias_fileparseline_alias) */
 
 
+/* ARGSUSED */
 static int mxalias_fileparseline_unalias(op,fi,bdp,fsbp)
 MXALIAS		*op ;
 int		fi ;
@@ -1233,11 +1134,9 @@ FIELD		*fsbp ;
 /* end subroutine (mxalias_fileparseline_unalias) */
 
 
-static int mxalias_fileparseline_source(op,fi,bdp,fsbp)
-MXALIAS		*op ;
-int		fi ;
-BUFDESC		*bdp ;
-FIELD		*fsbp ;
+/* ARGSUSED */
+static int mxalias_fileparseline_source(MXALIAS *op,int fi,BUFDESC *bdp,
+		FIELD *fsbp)
 {
 	const int	flen = bdp->flen ;
 	int		rs = SR_OK ;
@@ -1254,9 +1153,7 @@ FIELD		*fsbp ;
 /* end subroutine (mxalias_fileparseline_source) */
 
 
-static int mxalias_filedump(op,fi)
-MXALIAS		*op ;
-int		fi ;
+static int mxalias_filedump(MXALIAS *op,int fi)
 {
 	int		rs = SR_OK ;
 
@@ -1279,9 +1176,7 @@ int		fi ;
 /* end subroutine (mxalias_filedump) */
 
 
-static int mxalias_filedel(op,fi)
-MXALIAS		*op ;
-int		fi ;
+static int mxalias_filedel(MXALIAS *op,int fi)
 {
 	MXALIAS_FILE	*fep ;
 	int		rs ;
@@ -1302,8 +1197,7 @@ int		fi ;
 
 
 /* free up all of the files in this MXALIAS list */
-static int mxalias_filedels(op)
-MXALIAS		*op ;
+static int mxalias_filedels(MXALIAS *op)
 {
 	MXALIAS_FILE	*fep ;
 	int		rs = SR_OK ;
@@ -1324,9 +1218,7 @@ MXALIAS		*op ;
 
 #if	CF_FILECHECK
 
-static int mxalias_filechanged(op,sbp)
-MXALIAS		*op ;
-struct ustat	*sbp ;
+static int mxalias_filechanged(MXALIAS *op,USTAT *sbp)
 {
 
 	if (op->fi.size != sbp->st_size)
@@ -1346,9 +1238,7 @@ struct ustat	*sbp ;
 /* end subroutine (mxalias_filechanged) */
 
 
-static int mxalias_fileold(op,daytime)
-MXALIAS		*op ;
-time_t		daytime ;
+static int mxalias_fileold(MXALIAS *op,time_t daytime)
 {
 	int		rs, rs1 ;
 	int		f = FALSE ;
@@ -1384,7 +1274,7 @@ time_t		daytime ;
 #endif /* CF_FILECHECK */
 
 
-static int mxalias_mkuserfname(MXALIAS *op,char fname[])
+static int mxalias_mkuserfname(MXALIAS *op,char *fname)
 {
 	int		rs ;
 	fname[0] = '\0' ;
@@ -1397,11 +1287,7 @@ static int mxalias_mkuserfname(MXALIAS *op,char fname[])
 /* end subroutine (mxalias_mkuserfname) */
 
 
-static int mxalias_addvals(op,klp,vlp,kp)
-MXALIAS		*op ;
-vecstr		*klp ;
-vecstr		*vlp ;
-const char	*kp ;
+static int mxalias_addvals(MXALIAS *op,vecstr *klp,vecstr *vlp,cchar *kp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1410,9 +1296,9 @@ const char	*kp ;
 	if (kp[0] != '\0') {
 	    KEYVALS_CUR	kcur ;
 	    if ((rs = keyvals_curbegin(&op->entries,&kcur)) >= 0) {
-	        int		vl ;
-	        int		f ;
-	        const char	*vp ;
+	        int	vl ;
+	        int	f ;
+	        cchar	*vp ;
 
 	        while (rs >= 0) {
 
@@ -1430,8 +1316,9 @@ const char	*kp ;
 	                    rs1 = vecstr_findn(klp,vp,vl) ;
 	                    f = (rs1 >= 0) ;
 	                }
-	                if (! f)
+	                if (! f) {
 	                    rs = vecstr_adduniq(vlp,vp,vl) ;
+			}
 
 	            } /* end if (substantive value) */
 
@@ -1439,8 +1326,9 @@ const char	*kp ;
 
 	        keyvals_curend(&op->entries,&kcur) ;
 	    } /* end if (cursor) */
-	    if ((rs >= 0) && (c > 0))
+	    if ((rs >= 0) && (c > 0)) {
 	        rs = vecstr_adduniq(klp,kp,-1) ;
+	    }
 	} /* end if (non-nul) */
 
 #if	CF_DEBUGS
@@ -1452,10 +1340,7 @@ const char	*kp ;
 /* end subroutine (mxalias_addvals) */
 
 
-static int mxalias_mkvals(op,curp,vlp)
-MXALIAS		*op ;
-MXALIAS_CUR	*curp ;
-vecstr		*vlp ;
+static int mxalias_mkvals(MXALIAS *op,MXALIAS_CUR *curp,vecstr *vlp)
 {
 	int		rs = SR_OK ;
 	int		n ;
@@ -1472,17 +1357,19 @@ vecstr		*vlp ;
 	        curp->vals = p ;
 	        size = 1 ;
 	        for (i = 0 ; vecstr_get(vlp,i,&cp) >= 0 ; i += 1) {
-	            if (cp == NULL) continue ;
-	            size += (strlen(cp) + 1) ;
+	            if (cp != NULL) {
+	                size += (strlen(cp) + 1) ;
+		    }
 	        } /* end for */
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
 	            char	*bp = p ;
 	            curp->vbuf = p ;
 	            *bp++ = '\0' ;
 	            for (i = 0 ; vecstr_get(vlp,i,&cp) >= 0 ; i += 1) {
-	                if (cp == NULL) continue ;
-	                curp->vals[c++] = bp ;
-	                bp = strwcpy(bp,cp,-1) + 1 ;
+	                if (cp != NULL) {
+	                    curp->vals[c++] = bp ;
+	                    bp = strwcpy(bp,cp,-1) + 1 ;
+			}
 	            } /* end for */
 	            curp->vals[c] = NULL ;
 	            curp->nvals = c ;
@@ -1503,8 +1390,7 @@ vecstr		*vlp ;
 /* end subroutine (mxalias_mkvals) */
 
 
-static int mxalias_allocfins(op)
-MXALIAS		*op ;
+static int mxalias_allocfins(MXALIAS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1538,8 +1424,7 @@ MXALIAS		*op ;
 /* end subroutine (mxalias_allocfins) */
 
 
-static int mxalias_entfins(op)
-MXALIAS		*op ;
+static int mxalias_entfins(MXALIAS *op)
 {
 	int		rs = SR_OK ;
 
@@ -1550,10 +1435,8 @@ MXALIAS		*op ;
 /* end subroutine (mxalias_entfins) */
 
 
-static int file_start(fep,sbp,fname)
-MXALIAS_FILE	*fep ;
-struct ustat	*sbp ;
-const char	fname[] ;
+/* ARGSUSED */
+static int file_start(MXALIAS_FILE *fep,USTAT *sbp,cchar *fname)
 {
 	int		rs ;
 	const char	*cp ;
@@ -1578,8 +1461,7 @@ const char	fname[] ;
 /* end subroutine (file_start) */
 
 
-static int file_finish(fep)
-MXALIAS_FILE	*fep ;
+static int file_finish(MXALIAS_FILE *fep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1635,28 +1517,22 @@ static int bufdesc_finish(BUFDESC *bdp)
 /* end subroutine (bufdesc_finish) */
 
 
-static int vcmpfe(e1pp,e2pp)
-MXALIAS_FILE	**e1pp, **e2pp ;
+static int vcmpfe(MXALIAS_FILE **e1pp,MXALIAS_FILE **e2pp)
 {
-	MXALIAS_FILE	*e1p ;
-	MXALIAS_FILE	*e2p ;
-	int		rc ;
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return +1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	e1p = *e1pp ;
-	e2p = *e2pp ;
-	rc = (e1p->dev - e2p->dev) ;
-	if (rc == 0)
-	    rc = (e1p->ino - e2p->ino) ;
-
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            MXALIAS_FILE	*e1p = *e1pp ;
+	            MXALIAS_FILE	*e2p = *e2pp ;
+	            if ((rc = (e1p->dev - e2p->dev)) == 0) {
+	                rc = (e1p->ino - e2p->ino) ;
+	            }
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = +1 ;
+	}
 	return rc ;
 }
 /* end subroutine (vcmpfe) */

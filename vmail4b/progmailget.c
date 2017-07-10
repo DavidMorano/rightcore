@@ -104,6 +104,10 @@
 
 #define	UBUFLEN		MAXPATHLEN
 
+#ifndef	TO_LOCK
+#define	TO_LOCK		2
+#endif
+
 
 /* external subroutines */
 
@@ -147,6 +151,7 @@ struct muinfo {
 
 static int	procmailgeter(PROGINFO *,PARAMOPT *) ;
 static int	procmailgeteruc(PROGINFO *,PARAMOPT *,vechand *) ;
+static int	procmailgeterux(PROGINFO *,vechand *,cchar *,cchar *) ;
 static int	procmuc(PROGINFO *,PARAMOPT *,const char *) ;
 static int	procmailgeteru(PROGINFO *,vechand *) ;
 static int	procmailgeterum(PROGINFO *,vechand *,int,const char *) ;
@@ -386,11 +391,11 @@ static int procmuc(PROGINFO *pip,PARAMOPT *app,const char *mup)
 #endif
 
 	if ((rs = paramopt_curbegin(app,&cur)) >= 0) {
-	    struct ustat	sb ;
-	    char		msfname[MAXPATHLEN+1] ;
+	    USTAT	sb ;
+	    char	msfname[MAXPATHLEN+1] ;
 
 	    while (paramopt_enumvalues(app,po,&cur,&ccp) >= 0) {
-	        if (ccp == NULL) continue ;
+	        if (ccp != NULL) {
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3))
@@ -422,6 +427,8 @@ static int procmuc(PROGINFO *pip,PARAMOPT *app,const char *mup)
 	            }
 	        }
 
+		}
+		if (rs < 0) break ;
 	    } /* end while */
 
 	    paramopt_curend(app,&cur) ;
@@ -439,72 +446,73 @@ static int procmuc(PROGINFO *pip,PARAMOPT *app,const char *mup)
 
 static int procmailgeteru(PROGINFO *pip,vechand *mlp)
 {
-	struct ustat	sb ;
-	offset_t	offstart, offend ;
-	const mode_t	om = 0666 ;
-	const int	to = 2 ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		cmd ;
+	int		rs ;
 	int		len = 0 ;
-	const char	*progfname ;
-	char		pfname[MAXPATHLEN + 1] ;
-	char		infname[MAXPATHLEN + 1] ;
+	char		ibuf[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
 	    debugprintf("progmailget/_eru: ent mb=%s\n",pip->mbname_in) ;
 #endif
 
-	rs = mkpath2(infname,pip->folderdname,pip->mbname_in) ;
-	if (rs < 0) goto ret0 ;
+	if ((rs = mkpath2(ibuf,pip->folderdname,pip->mbname_in)) >= 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    cchar	*pfn = pip->prog_getmail ;
+	    char	pbuf[MAXPATHLEN + 1] ;
+	    if ((rs = pcsgetprog(pip->pr,pbuf,pip->prog_getmail)) >= 0) {
+	        if (rs > 0) pfn = pbuf ;
+		if (pip->debuglevel > 0) {
+		    fmt = "%s: pcsgetmail=%s (%d)\n" ;
+	    	    bprintf(pip->efp,fmt,pn,pfn,rs) ;
+		}
+
+#if	CF_DEBUG
+		if (DEBUGLEVEL(3)) {
+	    	debugprintf("progmailget/_eru: ibuf=%s\n",ibuf) ;
+	    	debugprintf("progmailget/_eru: pfn=%s\n",pfn) ;
+		}
+#endif
+
+		rs = procmailgeterux(pip,mlp,ibuf,pfn) ;
+
+	    } else if (isNotPresent(rs)) {
+		fmt = "pcsgetmail=%s (%d)" ;
+	        proglog_printf(pip,fmt,pfn,rs) ;
+		rs = SR_OK ;
+	    } /* end if (ppcsgetprog) */
+	} /* end if (mkpath) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("progmailget/_eru: infname=%s\n",infname) ;
+	    debugprintf("progmailget/_eru: ret rs=%d len=%u\n",rs,len) ;
 #endif
 
-/* check if the get-mail program exists */
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (progmailgeteru) */
 
-	progfname = pip->prog_getmail ;
-	rs1 = pcsgetprog(pip->pr,pfname,pip->prog_getmail) ;
-	if (rs1 > 0) progfname = pfname ;
 
-	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: pcsgetmail=%s (%d)\n",
-	        pip->progname,progfname,rs1) ;
-	}
-
-	if (rs1 < 0) {
-	    if (pip->open.logprog) {
-	        proglog_printf(pip,"pcsgetmail=%s (%d)",
-	            progfname,rs1) ;
-	    }
-	    goto ret0 ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progmailget/_eru: progfname=%s\n",progfname) ;
-#endif
-
-/* open the mailbox file */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progmailget/_eru: infname=%s\n",infname) ;
-#endif
-
-	if ((rs = mbopen(infname,om,pip->gid_mail)) >= 0) {
+static int procmailgeterux(PROGINFO *pip,vechand *mlp,cchar *ifn,cchar *pfn)
+{
+	const mode_t	om = 0666 ;
+	int		rs ;
+	int		rs1 ;
+	int		len = 0 ;
+	if ((rs = mbopen(ifn,om,pip->gid_mail)) >= 0) {
+	    USTAT	sb ;
 	    const int	mfd = rs ;
 	    if ((rs = u_fstat(mfd,&sb)) >= 0) {
 	        if (S_ISREG(sb.st_mode)) {
+		    const int	to = TO_LOCK ;
 	            if ((rs = lockend(mfd,TRUE,0,to)) >= 0) {
+		        offset_t	offstart, offend ;
+			int		cmd ;
 
 	                if ((rs = u_seeko(mfd,0L,SEEK_END,&offstart)) >= 0) {
 
 	                    if (rs >= 0) {
-	                        rs = procmailgeterum(pip,mlp,mfd,progfname) ;
+	                        rs = procmailgeterum(pip,mlp,mfd,pfn) ;
 	                        len = rs ;
 	                    }
 
@@ -519,19 +527,12 @@ static int procmailgeteru(PROGINFO *pip,vechand *mlp)
 	            rs = SR_ISDIR ;
 	        }
 	    } /* end if (statted) */
-	    u_close(mfd) ;
+	    rs1 = u_close(mfd) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (opened) */
-
-ret0:
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progmailget/_eru: ret rs=%d len=%u\n",rs,len) ;
-#endif
-
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (progmailgeteru) */
+/* end subroutine (procmailgeterux) */
 
 
 static int procmailgeterum(pip,mlp,mfd,progfname)
@@ -663,9 +664,9 @@ struct muinfo	*mip ;
 	        debugprintf("progmailget/procmkenvusers: c=%u\n",rs) ;
 #endif
 	    if ((rs = uc_malloc(size,&ubuf)) >= 0) {
-	        int		ul = 0 ;
-	        int		ci = 0 ;
-	        const char	*mup ;
+	        int	ul = 0 ;
+	        int	ci = 0 ;
+	        cchar	*mup ;
 
 	        while (vechand_get(mlp,mip->i,&mup) >= 0) {
 	            char	*bp = (ubuf+ul) ;

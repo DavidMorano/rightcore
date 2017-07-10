@@ -117,6 +117,7 @@ struct proginfo {
 	int		pwdlen ;
 	int		debuglevel ;
 	int		verboselevel ;
+	int		n ;
 } ;
 
 struct options {

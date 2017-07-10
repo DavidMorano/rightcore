@@ -289,6 +289,9 @@ static int envhelp_copy(ENVHELP *op,cchar **envbads,cchar **envv)
 	        for (i = 0 ; (rs >= 0) && (envv[i] != NULL) ; i += 1) {
 	            ep = envv[i] ;
 	            if (matkeystr(envbads,ep,-1) < 0) {
+#if	CF_DEBUGS
+			debugprintf("envhelp_copy: copy e> %s\n",ep) ;
+#endif
 	                n += 1 ;
 	                rs = vechand_add(elp,ep) ;
 	            } /* end if (was not bad) */

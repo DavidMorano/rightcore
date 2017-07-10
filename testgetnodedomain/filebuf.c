@@ -58,6 +58,7 @@
 
 extern LONG	llceil(LONG,int) ;
 
+extern int	snopenflags(char *,int,int) ;
 extern int	ifloor(int,int) ;
 
 #if	CF_DEBUGS
@@ -193,8 +194,9 @@ int filebuf_read(FILEBUF *op,void *rbuf,int rlen,int to)
 	        op->bp = op->buf ;
 		if (to >= 0) {
 	            rs = uc_reade(op->fd,op->buf,op->bufsize,to,fmo) ;
-		} else
+		} else {
 	            rs = u_read(op->fd,op->buf,op->bufsize) ;
+		}
 
 	        if ((rs == SR_TIMEDOUT) && (tlen > 0)) {
 	            f_timedout = TRUE ;
@@ -202,11 +204,9 @@ int filebuf_read(FILEBUF *op,void *rbuf,int rlen,int to)
 	            break ;
 	        }
 
-	        if (rs < 0)
-	            break ;
+	        if (rs < 0) break ;
 
 	        op->len = rs ;
-
 	    } /* end while (refill) */
 
 	    if ((op->len == 0) || f_timedout)
@@ -216,8 +216,9 @@ int filebuf_read(FILEBUF *op,void *rbuf,int rlen,int to)
 
 	    bp = op->bp ;
 	    lastp = op->bp + mlen ;
-	    while (bp < lastp)
+	    while (bp < lastp) {
 	        *dbp++ = *bp++ ;
+	    }
 
 	    op->bp += mlen ;
 	    tlen += mlen ;
@@ -252,7 +253,7 @@ int		to ;
 #endif /* COMMENT */
 
 
-int filebuf_readline(FILEBUF *op,char rbuf[],int rlen,int to)
+int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 {
 	const int	fmo = FM_TIMED ;
 	int		rs = SR_OK ;
@@ -278,14 +279,14 @@ int filebuf_readline(FILEBUF *op,char rbuf[],int rlen,int to)
 	        op->bp = op->buf ;
 		if (to >= 0) {
 	            rs = uc_reade(op->fd,op->buf,op->bufsize,to,fmo) ;
-
-		} else
+		} else {
 	            rs = u_read(op->fd,op->buf,op->bufsize) ;
+		}
 
 #if	CF_DEBUGS
-	debugprintf("filebuf_readline: u_read() rs=%d eof=%u\n",
+		debugprintf("filebuf_readline: u_read() rs=%d eol=%u\n",
 		rs,(op->buf[rs-1]=='\n')) ;
-	debugprintf("filebuf_readline: l=>%t<\n",
+		debugprintf("filebuf_readline: l=>%t<\n",
 		op->buf,strlinelen(op->buf,rs,40)) ;
 #endif
 
@@ -295,11 +296,9 @@ int filebuf_readline(FILEBUF *op,char rbuf[],int rlen,int to)
 	            break ;
 	        }
 
-	        if (rs < 0)
-	            break ;
+	        if (rs < 0) break ;
 
 	        op->len = rs ;
-
 	    } /* end while (refilling up buffer) */
 
 #if	CF_DEBUGS
@@ -309,8 +308,7 @@ int filebuf_readline(FILEBUF *op,char rbuf[],int rlen,int to)
 
 	    if (rs < 0) break ;
 
-	    if ((op->len == 0) || f_timedout)
-	        break ;
+	    if ((op->len == 0) || f_timedout) break ;
 
 	    mlen = MIN(op->len,(rlen - tlen)) ;
 
@@ -347,7 +345,9 @@ int filebuf_readline(FILEBUF *op,char rbuf[],int rlen,int to)
 
 #if	CF_DEBUGS
 	debugprintf("filebuf_readline: ret rs=%d tlen=%u\n",rs,tlen) ;
-	debugprintf("filebuf_readline: roff=%llu\n",op->off) ;
+	debugprintf("filebuf_readline: ret roff=%llu\n",op->off) ;
+	debugprintf("filebuf_readline: ret rbuf=>%t<\n",
+		rbuf,strlinelen(rbuf,tlen,40)) ;
 #endif
 
 	return (rs >= 0) ? tlen : rs ;

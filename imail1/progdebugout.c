@@ -58,6 +58,7 @@ extern cchar	*getourenv(cchar **,cchar *) ;
 
 /* forward references */
 
+static int	procdebugouter(PROGINFO *,int,cchar *,cchar *) ;
 static int	procline(struct proginfo *,int,const char *,int) ;
 
 
@@ -69,75 +70,33 @@ static const char	blanks[] = "        " ;
 /* exported subroutines */
 
 
-int progdebugout(pip,s,fname)
-struct proginfo	*pip ;
-const char	s[] ;
-const char	fname[] ;
+int progdebugout(PROGINFO *pip,cchar *s,cchar *fname)
 {
-	bfile		ofile, *ofp = &ofile ;
 	int		rs = SR_OK ;
 	int		rs1 = SR_OK ;
-	int		columns = -1 ;
+	int		cols = -1 ;
 	int		wlen = 0 ;
-	int		f_title = FALSE ;
-	const char	*pn = pip->progname ;
 	const char	*cp ;
 
-	if (fname == NULL)
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
+	if (pip->efp == NULL) return SR_FAULT ;
 
-	if (fname[0] == '\0')
-	    return SR_INVALID ;
-
-	if (pip->efp == NULL)
-	    goto ret0 ;
+	if (fname[0] == '\0') return SR_INVALID ;
 
 /* determine the column-width of STDERR */
 
 	if ((cp = getourenv(pip->envv,VARCOLUMNS)) != NULL) {
-	    rs1 = cfdeci(cp,-1,&columns) ;
-	    if (rs1 < 0) columns = -1 ;
+	    rs1 = cfdeci(cp,-1,&cols) ;
+	    if (rs1 < 0) cols = -1 ;
 	}
 
-	if (columns < 0)
-	    columns = COLUMNS ;
+	if (cols < 0) cols = COLUMNS ;
 
-	if (columns == 0)
-	    goto ret0 ;
+	if (cols > 0) {
+	    rs = procdebugouter(pip,cols,s,fname) ;
+	    wlen = rs ;
+	}
 
-/* perform */
-
-	if ((rs = bopen(ofp,fname,"r",0666)) >= 0) {
-	    const int	llen = LINEBUFLEN ;
-	    char	lbuf[LINEBUFLEN + 1] ;
-
-	    rs1 = SR_OK ;
-	    while ((rs = breadline(ofp,lbuf,llen)) > 0) {
-	        int	len = rs ;
-
-	        if (lbuf[len - 1] == '\n')
-	            lbuf[--len] = '\0' ;
-
-	        if ((! f_title) && (len > 0) && (s != NULL) && (s[0] != '\0')) {
-	            f_title = TRUE ;
-	            rs1 = shio_printf(pip->efp,"%s: %s>\n",pn,s) ;
-	            wlen += rs1 ;
-	        }
-
-	        if (rs1 >= 0) {
-	            rs1 = procline(pip,columns,lbuf,len) ;
-	            wlen += rs1 ;
-	        }
-
-	        if (rs1 < 0) break ;
-	    } /* end while (reading lines) */
-	    if (rs1 < 0) wlen = 0 ;
-
-	    rs1 = bclose(ofp) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (file-processing) */
-
-ret0:
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (progdebugout) */
@@ -146,11 +105,47 @@ ret0:
 /* local subroutines */
 
 
-static int procline(pip,columns,lp,ll)
-struct proginfo	*pip ;
-int		columns ;
-const char	lp[] ;
-int		ll ;
+static int procdebugouter(PROGINFO *pip,int cols,cchar *s,cchar *fn)
+{
+	bfile		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	int		f_title = FALSE ;
+	cchar		*pn = pip->progname ;
+	if ((rs = bopen(ofp,fn,"r",0666)) >= 0) {
+	    const int	llen = LINEBUFLEN ;
+	    char	lbuf[LINEBUFLEN + 1] ;
+
+	    while ((rs = breadline(ofp,lbuf,llen)) > 0) {
+	        int	len = rs ;
+
+	        if (lbuf[len - 1] == '\n') lbuf[--len] = '\0' ;
+
+	        if ((! f_title) && (len > 0) && (s != NULL) && (s[0] != '\0')) {
+	            f_title = TRUE ;
+	            rs = shio_printf(pip->efp,"%s: %s>\n",pn,s) ;
+	            wlen += rs ;
+	        }
+
+	        if (rs >= 0) {
+	            rs = procline(pip,cols,lbuf,len) ;
+	            wlen += rs ;
+	        }
+
+	        if (rs < 0) break ;
+	    } /* end while (reading lines) */
+
+	    rs1 = bclose(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (file-processing) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (progdebugouter) */
+
+
+static int procline(PROGINFO *pip,int columns,cchar *lp,int ll)
 {
 	SHIO		*efp = pip->efp ;
 	const int	indent = 2 ;

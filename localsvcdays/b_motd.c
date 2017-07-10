@@ -13,7 +13,7 @@
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 #define	CF_MOTDPROC	1		/* call |motd_processXX()| */
 #define	CF_MOTD		1		/* call |procmotd()| */
-#define	CF_TMPMAINT	1		/* perform TMP maintenance */
+#define	CF_LOCJOBDNAME	0		/* compile |locinfo_jobdname{}| */
 
 
 /* revision history:
@@ -419,10 +419,13 @@ static int	procexecname(PROGINFO *,char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 static int	locinfo_loadids(LOCINFO *) ;
 static int	locinfo_mdname(LOCINFO *) ;
 static int	locinfo_tmpcheck(LOCINFO *) ;
 static int	locinfo_tmpmaint(LOCINFO *) ;
+static int	locinfo_tmpdone(LOCINFO *) ;
+static int	locinfo_fchmodown(LOCINFO *,int,struct ustat *,mode_t) ;
 static int	locinfo_getgid(LOCINFO *) ;
 static int	locinfo_chgrp(LOCINFO *,cchar *) ;
 static int	locinfo_termoutbegin(LOCINFO *,void *) ;
@@ -437,10 +440,12 @@ static int	locinfo_rncurend(LOCINFO *,LOCINFO_RNCUR *) ;
 static int	locinfo_rnlook(LOCINFO *,LOCINFO_RNCUR *,cchar *,int) ;
 static int	locinfo_rnread(LOCINFO *,LOCINFO_RNCUR *,char *,int) ;
 static int	locinfo_loadprids(LOCINFO *) ;
-static int	locinfo_fchmodown(LOCINFO *,int,struct ustat *,mode_t) ;
-static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 static int	locinfo_username(LOCINFO *) ;
 static int	locinfo_groupname(LOCINFO *) ;
+
+#if	CF_LOCJOBDNAME
+static int	locinfo_jobdname(LOCINFO *) ;
+#endif
 
 
 /* local variables */
@@ -3006,12 +3011,8 @@ static int locinfo_finish(LOCINFO *lip)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (lip->f.tmpmaint) {
-	    int	trs ;
-	    rs1 = uptjoin(lip->tid,&trs) ;
-	    if (rs >= 0) rs = rs1 ;
-	    if (rs >= 0) rs = trs ;
-	}
+	rs1 = locinfo_tmpdone(lip) ;
+	if (rs >= 0) rs = rs1 ;
 
 	if (lip->mdname != NULL) {
 	    rs1 = uc_free(lip->mdname) ;
@@ -3084,6 +3085,15 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 /* end subroutine (locinfo_setentry) */
 
 
+#if	CF_LOCJOBDNAME
+static int locinfo_jobdname(LOCINFO *lip)
+{
+	return locinfo_mdname(lip) ;
+}
+/* end subroutine (locinfo_jobdname) */
+#endif /* CF_LOCJOBDNAME */
+
+
 static int locinfo_mdname(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
@@ -3099,11 +3109,13 @@ static int locinfo_mdname(LOCINFO *lip)
 	        len = rs ;
 	        if ((rs = uc_mallocstrw(mdname,len,&cp)) >= 0) {
 	            lip->mdname = cp ;
-	        } else
+	        } else {
 	            lip->mdname = NULL ;
+		}
 	    }
-	} else
+	} else {
 	    len = strlen(lip->mdname) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -3180,16 +3192,15 @@ static int locinfo_loadids(LOCINFO *lip)
 static int locinfo_tmpcheck(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	int 		(*thrsub)(void *) = (int (*)(void *)) locinfo_tmpmaint ;
 	int		rs = SR_OK ;
 
-#if	CF_TMPMAINT
 	if (lip->jobdname != NULL) {
 	    TMTIME	t ;
 	    if ((rs = tmtime_localtime(&t,pip->daytime)) >= 0) {
 	        if (t.hour >= 18) {
+		    uptsub_t	thr = (uptsub_t) locinfo_tmpmaint ;
 	            pthread_t	tid ;
-	            if ((rs = uptcreate(&tid,NULL,thrsub,lip)) >= 0) {
+	            if ((rs = uptcreate(&tid,NULL,thr,lip)) >= 0) {
 	                rs = 1 ;
 	                lip->tid = tid ;
 	                lip->f.tmpmaint = TRUE ;
@@ -3197,7 +3208,6 @@ static int locinfo_tmpcheck(LOCINFO *lip)
 	        } /* end if (after hours) */
 	    } /* end if (tmtime_localtime) */
 	} /* end if (job-dname) */
-#endif /* CF_TMPMAINT */
 
 	return rs ;
 }
@@ -3249,6 +3259,48 @@ static int locinfo_tmpmaint(LOCINFO *lip)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (locinfo_tmpmaint) */
+
+
+static int locinfo_tmpdone(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (lip->f.tmpmaint) {
+	    int	trs ;
+	    rs1 = uptjoin(lip->tid,&trs) ;
+	    if (rs >= 0) rs = rs1 ;
+	    if (rs >= 0) rs = trs ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_tmpdone) */
+
+
+static int locinfo_fchmodown(LOCINFO *lip,int fd,struct ustat *sbp,mode_t mm)
+{
+	PROGINFO	*pip = lip->pip ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	if ((sbp->st_size == 0) && (pip->euid == sbp->st_uid)) {
+	    if ((sbp->st_mode & S_IAMB) != mm) {
+	        if ((rs = locinfo_loadprids(lip)) >= 0) {
+	            if ((rs = uc_fminmod(fd,mm)) >= 0) {
+	                const uid_t	uid_pr = lip->uid_pr ;
+	                const gid_t	gid_pr = lip->gid_pr ;
+	                const int	n = _PC_CHOWN_RESTRICTED ;
+	                if ((rs = u_fpathconf(fd,n,NULL)) == 0) {
+	                    f = TRUE ;
+	                    u_fchown(fd,uid_pr,gid_pr) ; /* may fail */
+	                } else if (rs == SR_NOSYS) {
+			    rs = SR_OK ;
+	                }
+	            }
+	        } /* end if (locinfo_loadprids) */
+	    } /* end if (need change) */
+	} /* end if (zero-file) */
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (locinfo_fchmodown) */
 
 
 static int locinfo_getgid(LOCINFO *lip)
@@ -3593,33 +3645,6 @@ static int locinfo_loadprids(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_loadprids) */
-
-
-static int locinfo_fchmodown(LOCINFO *lip,int fd,struct ustat *sbp,mode_t mm)
-{
-	PROGINFO	*pip = lip->pip ;
-	int		rs = SR_OK ;
-	int		f = FALSE ;
-	if ((sbp->st_size == 0) && (pip->euid == sbp->st_uid)) {
-	    if ((sbp->st_mode & S_IAMB) != mm) {
-	        if ((rs = locinfo_loadprids(lip)) >= 0) {
-	            if ((rs = uc_fminmod(fd,mm)) >= 0) {
-	                const uid_t	uid_pr = lip->uid_pr ;
-	                const gid_t	gid_pr = lip->gid_pr ;
-	                const int	n = _PC_CHOWN_RESTRICTED ;
-	                if ((rs = u_fpathconf(fd,n,NULL)) == 0) {
-	                    f = TRUE ;
-	                    u_fchown(fd,uid_pr,gid_pr) ; /* may fail */
-	                } else if (rs == SR_NOSYS) {
-			    rs = SR_OK ;
-	                }
-	            }
-	        } /* end if (locinfo_loadprids) */
-	    } /* end if (need change) */
-	} /* end if (zero-file) */
-	return (rs >= 0) ? f : rs ;
-}
-/* end subroutine (locinfo_fchmodown) */
 
 
 static int locinfo_username(LOCINFO *lip)

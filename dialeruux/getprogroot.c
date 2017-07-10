@@ -88,6 +88,8 @@ extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	mkpr(char *,int,const char *,const char *) ;
+extern int	isNotPresse(int) ;
+extern int	isNotAccess(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -279,11 +281,9 @@ int		nl ;
 
 	    rs = subinfo_check(sip,sp,(tp - sp),output,np,nl) ;
 	    outlen = rs ;
-	    if ((rs >= 0) || (rs == SR_NOMEM))
-	        break ;
 
 	    sp = (tp + 1) ;
-
+	    if ((rs >= 0) || (rs == SR_NOMEM)) break ;
 	} /* end while */
 
 	if ((rs < 0) && (rs != SR_NOMEM) && (sp[0] != '\0')) {
@@ -307,42 +307,35 @@ const char	np[] ;
 int		nl ;
 {
 	struct ustat	sb ;
-	int		rs = SR_NOENT ;
+	const int	rsn = SR_NOTFOUND ;
+	int		rs = SR_OK ;
 	int		rs1 ;
 	int		outlen = 0 ;
 
 	if (sip->f_dirs) {
-	    rs1 = dirseen_havename(&sip->dirs,d,dlen) ;
-	    if (rs1 >= 0) {
+	    if ((rs = dirseen_havename(&sip->dirs,d,dlen)) >= 0) {
 	        rs = SR_NOENT ;
-	        goto ret0 ;
+	    } else if (rs == rsn) {
+		rs = SR_OK ;
 	    }
 	}
-
-	rs = subinfo_dirstat(sip,&sb,d,dlen) ;
 
 	if (rs >= 0) {
-	    rs1 = dirseen_havedevino(&sip->dirs,&sb) ;
-	    if (rs1 >= 0) {
-	        rs = SR_NOENT ;
-	        goto ret0 ;
+	    if ((rs = subinfo_dirstat(sip,&sb,d,dlen)) >= 0) {
+	        if ((rs1 = dirseen_havedevino(&sip->dirs,&sb)) >= 0) {
+	            rs = SR_NOENT ;
+		} else if (rs == rsn) {
+	            rs = SR_OK ;
+		}
+		if ((rs = mkdfname(output,d,dlen,np,nl)) >= 0) {
+		    outlen = rs ;
+		    if ((rs = subinfo_xfile(sip,output)),isNotAccess(rs)) {
+	    		rs = subinfo_record(sip,&sb,d,dlen) ;
+		    }
+	        }
 	    }
-	}
-
-	if ((rs = mkdfname(output,d,dlen,np,nl)) >= 0) {
-	outlen = rs ;
-
-	rs = subinfo_xfile(sip,output) ;
-
-	if ((rs < 0) && (rs != SR_NOMEM)) {
-	    rs1 = subinfo_record(sip,&sb,d,dlen) ;
-	    if (rs1 < 0)
-	        rs = rs1 ;
-	}
-
 	} /* end if (mkdfname) */
 
-ret0:
 	return (rs >= 0) ? outlen : rs ;
 }
 /* end subroutine (subinfo_check) */
@@ -384,15 +377,12 @@ int		nl ;
 	    rs = SR_NOENT ;
 	    for (i = 0 ; prnames[i] != NULL ; i += 1) {
 
-	    rs1 = mkpr(pr,MAXPATHLEN,prnames[i],dn) ;
+	        if ((rs1 = mkpr(pr,MAXPATHLEN,prnames[i],dn)) >= 0) {
+	            rs = subinfo_pr(sip,pr,output,np,nl) ;
+	        }
 
-	    if (rs1 >= 0)
-	        rs = subinfo_pr(sip,pr,output,np,nl) ;
-
-	    if ((rs >= 0) || (rs == SR_NOMEM))
-	        break ;
-
-	} /* end if */
+	        if ((rs >= 0) || (rs == SR_NOMEM)) break ;
+	    } /* end for */
 	} /* end if (getnodedomain) */
 
 	return rs ;

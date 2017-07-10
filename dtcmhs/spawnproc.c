@@ -123,7 +123,7 @@
 
 /* external subroutines */
 
-extern int	snshellunder(char *,int,pid_t,const char *) ;
+extern int	snshellunder(char *,int,pid_t,cchar *) ;
 extern int	sncpy1(char *,int,const char *,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	sncpy2w(char *,int,const char *,const char *,int) ;
@@ -465,6 +465,9 @@ static void spawnproc_child(SPAWNPROC *psap,cchar *fname,
 	if (rs >= 0) {
 	    int	w ;
 	    for (i = 0 ; i < 3 ; i += 1) {
+#if	CF_DEBUGS
+		debugprintf("spawnproc/child: tfd=%u w=%u\n",i,psap->disp[i]) ;
+#endif
 	        switch (psap->disp[i]) {
 	        case SPAWNPROC_DINHERIT:
 	            rs = opendevnull(opens,i) ;
@@ -492,6 +495,9 @@ static void spawnproc_child(SPAWNPROC *psap,cchar *fname,
 	        case SPAWNPROC_DNULL:
 	            u_close(i) ; /* may fail (already closed) */
 	            rs = opendevnull(opens,i) ;
+#if	CF_DEBUGS
+		    debugprintf("spawnproc: opendevnull() rs=%d\n",rs) ;
+#endif
 	            break ;
 	        } /* end switch */
 	        if (rs < 0) break ;
@@ -506,8 +512,10 @@ static void spawnproc_child(SPAWNPROC *psap,cchar *fname,
 	} /* end if (disposition) */
 
 #if	CF_DEBUGS
+	debugprintf("spawnproc: mid2\n") ;
 	showdev(0) ;
 	showdev(1) ;
+	showdev(2) ;
 #endif
 
 	av = argv ;
@@ -580,7 +588,13 @@ static int envhelp_load(ENVHELP *ehp,char *pwd,cchar *efname,cchar **argv)
 		char		*subuf ;
 		if ((rs = uc_malloc((sulen+1),&subuf)) >= 0) {
 	    	    const pid_t	pid = ugetpid() ;
+#if	CF_DEBUGS
+		    debugprintf("spawnproc/envhelp_load: pid=%u\n",pid) ;
+#endif
 	    	    if ((rs = snshellunder(subuf,sulen,pid,efname)) > 0) {
+#if	CF_DEBUGS
+		    debugprintf("spawnproc/envhelp_load: su=%s\n",subuf) ;
+#endif
 	       		rs = envhelp_envset(ehp,"_",subuf,rs) ;
 	    	    }
 	    	    uc_free(subuf) ;

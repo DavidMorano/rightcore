@@ -205,7 +205,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	PROGINFO	pi, *pip = &pi ;
 	BITS		pargs ;
 	bfile		errfile ;
-	bfile		outfile, *ofp = &outfile ;
 	pid_t		pid = 0 ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -587,6 +586,11 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* some initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
@@ -615,24 +619,25 @@ int main(int argc,cchar **argv,cchar **envv)
 	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
 	    ofname = BFILE_STDOUT ;
 
-	if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
-
-	    rs = process(pip,ofp,pid) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: process() rs=%d\n",rs) ;
-#endif
-
-	    bclose(ofp) ;
-	} else {
-	    ex = EX_CANTCREAT ;
-	    bprintf(pip->efp,"%s: inaccesssible output (%d)\n",
-	        pip->progname,rs) ;
+	if (rs >= 0) {
+	    bfile	ofile, *ofp = &ofile ;
+	    if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
+	        rs = process(pip,ofp,pid) ;
+	        bclose(ofp) ;
+	    } else {
+	        ex = EX_CANTCREAT ;
+	        bprintf(pip->efp,"%s: inaccesssible output (%d)\n",
+	            pip->progname,rs) ;
+	    }
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
-badoutopen:
-done:
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    case SR_INVALID:
@@ -651,7 +656,6 @@ done:
 	} /* end if */
 
 /* we are done */
-ret2:
 retearly:
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
@@ -730,7 +734,7 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 {
 	struct utmpx	uc ;
 	struct utmpx	*up ;
-	pid_t		sid ;
+	const pid_t	sid = u_getsid(pid) ;
 	int		rs = SR_OK ;
 	int		si ;
 	int		cl ;
@@ -738,7 +742,6 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 
 
 	lognamebuf[0] = '\0' ;
-	sid = u_getsid(pid) ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))

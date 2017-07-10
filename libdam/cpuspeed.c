@@ -4,8 +4,6 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_NPRINTF	0		/* special hack */
-#define	CF_PARENT	0		/* supply symbols for children */
 
 
 /* revision history:
@@ -121,10 +119,7 @@ static const char	*exts[] = {
 /* exported suroutines */
 
 
-int cpuspeed(pr,name,nruns)
-const char	pr[] ;
-const char	name[] ;
-int		nruns ;
+int cpuspeed(cchar *pr,cchar *name,int nruns)
 {
 	struct loadfile	lf ;
 	int		rs ;
@@ -159,86 +154,32 @@ int		nruns ;
 	        rs = loadfile(&lf,pr,names[i],exts) ;
 	        if (rs > 0) break ;
 	    } /* end for */
-	} else
+	} else {
 	    rs = loadfile(&lf,pr,name,exts) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("loader: search rs=%d\n",rs) ;
 #endif
 
-	if (rs < 0)
-	    goto ret0 ;
-
-#if	CF_NPRINTF
-	nprintf(DEBUGFNAME,"loader: fname=%s\n",lf.fname) ;
-#endif
-
+	if (rs >= 0) {
 	dhp = lf.dhp ;
-
+	if (dhp != NULL) {
 #if	CF_DEBUGS
-	debugprintf("loader: dlopen() returned=%p\n",dhp) ;
-#endif
-
-	if (dhp == NULL) {
-
-#if	CF_DEBUGS || CF_NPRINTF
 	    cp = dlerror() ;
 #endif
-
-#if	CF_DEBUGS
-	    debugprintf("loader: dlopen() NULL err=%s\n",cp) ;
-#endif
-
-#if	CF_NPRINTF
-	    nprintf(DEBUGFNAME,"loader: dlopen() NULL err=%s\n",cp) ;
-#endif
-
+	    if ((fp = (int (*)()) dlsym(dhp,ENTRYNAME)) != NULL) {
+	        speed = (*fp)(nruns) ;
+	    } else {
+	        rs = SR_LIBBAD ;
+	    }
+	    dlclose(dhp) ;
+	} else {
 	    rs = SR_LIBACC ;
-	    goto bad1 ;
 	}
+	} /* end if (ok) */
 
-#if	CF_DEBUGS
-	debugprintf("loader: dlsym()\n") ;
-#endif
-
-	fp = (int (*)()) dlsym(dhp,ENTRYNAME) ;
-
-#if	CF_DEBUGS
-	debugprintf("loader: dlsym() returned=%p\n",fp) ;
-#endif
-
-	if (fp == NULL) {
-	    rs = SR_LIBBAD ;
-	    goto bad2 ;
-	}
-
-#if	CF_PAUSE
-	sleep(60) ;
-#endif
-
-	speed = (*fp)(nruns) ;
-
-#if	CF_DEBUGS
-	debugprintf("loader: cpuspeed() speed=%d\n",speed) ;
-#endif
-
-ret2:
-	dlclose(dhp) ;
-
-retearly:
-ret0:
 	return (rs >= 0) ? speed : rs ;
-
-/* bad things */
-bad0:
-	goto retearly ;
-
-bad1:
-	goto retearly ;
-
-bad2:
-	goto ret2 ;
-
 }
 /* end subroutine (cpuspeed) */
 
@@ -276,9 +217,9 @@ const char	*exts[] ;
 
 	            if (exts[k][0] != '\0') {
 	                fl = mkfnamesuf1(lfp->fname,tmpfname,exts[k]) ;
-
-	            } else
+	            } else {
 	                fl = sncpy1(lfp->fname,MAXPATHLEN,tmpfname) ;
+		    }
 
 #if	CF_DEBUGS
 	            debugprintf("loader/havefile: fname=%s\n",lfp->fname) ;
