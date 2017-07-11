@@ -1,6 +1,6 @@
 MAKESAFE
 
-This program will check all of the C language source files for all of the
+This command will check all of the C language source files for all of the
 include files that they use. It will then check if any include file is newer
 than the corresponding C language object file if one exists. If any include file
 is newer than the object file, the object is removed.
@@ -21,5 +21,6 @@ where:
 			cache[=<n>]	set cache ON or OFF (default is ON)
 			par=<n>		set parallelism
 -z		do not complain about no files specified
--V		print program version to standard error and then exit
+-npar		number of paralleln processors employed
+-V		print command version to standard error and then exit
 

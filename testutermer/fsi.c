@@ -137,3 +137,22 @@ int fsi_rem(FSI *op,char *sbuf,int slen)
 /* end subroutine (fsi_rem) */
 
 
+/* mutex locking is not really necessary here, but we do it anyway! */
+int fsi_count(FSI *op)
+{
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+	if ((rs = ptm_lock(&op->m)) >= 0) {
+	    {
+	        rs = fifostr_count(&op->q) ;
+	        c = rs ;
+	    }
+	    rs1 = ptm_unlock(&op->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (fsi_count) */
+
+

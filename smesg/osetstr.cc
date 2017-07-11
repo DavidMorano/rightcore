@@ -143,8 +143,9 @@ int osetstr_add(osetstr *op,cchar *sp,int sl)
 	    string	v(sp,sl) ;
 	    ret = setp->insert(v) ;
 	    f = (ret.second == false) ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 #if	CF_DEBUGS
 	debugprintf("osetstr_add: ret rs=%d f=%u\n",rs,f) ;
 #endif

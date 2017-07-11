@@ -117,12 +117,11 @@ static int	vecpstr_extvec(VECPSTR *,int) ;
 static int	vecpstr_record(VECPSTR *,cchar *) ;
 static int	vecpstr_reset(VECPSTR *) ;
 
-static int	chunk_start(VECPSTR_CHUNK *,int,int) ;
-static int	chunk_finish(VECPSTR_CHUNK *) ;
-static int	chunk_check(VECPSTR_CHUNK *,int) ;
-static int	chunk_add(VECPSTR_CHUNK *,cchar *,int,cchar **) ;
-static int	chunk_addkeyval(VECPSTR_CHUNK *,cchar *,int,cchar *,int,
-			cchar **) ;
+static int chunk_start(VECPSTR_CHUNK *,int,int) ;
+static int chunk_finish(VECPSTR_CHUNK *) ;
+static int chunk_check(VECPSTR_CHUNK *,int) ;
+static int chunk_add(VECPSTR_CHUNK *,cchar *,int,cchar **) ;
+static int chunk_addkeyval(VECPSTR_CHUNK *,cchar *,int,cchar *,int,cchar **) ;
 
 static int	indexlen(int) ;
 static int	indexsize(int) ;

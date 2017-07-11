@@ -52,8 +52,9 @@ extern "C" {
 #endif
 
 extern int	fsi_start(FSI *) ;
-extern int	fsi_add(FSI *,const char *,int) ;
+extern int	fsi_add(FSI *,cchar *,int) ;
 extern int	fsi_remove(FSI *,char *,int) ;
+extern int	fsi_count(FSI *) ;
 extern int	fsi_finish(FSI *) ;
 
 #ifdef	__cplusplus
