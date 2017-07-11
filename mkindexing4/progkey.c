@@ -635,12 +635,12 @@ static int disp_start(DISP *dop,DISP_ARGS *wap)
 
 static int disp_starter(DISP *dop)
 {
+	uptsub_t	fn = (uptsub_t) disp_worker ;
 	pthread_t	tid ;
 	int		rs = SR_OK ;
 	int		i ;
 
 	for (i = 0 ; (rs >= 0) && (i < dop->n) ; i += 1) {
-	    uptsub_t	fn = (uptsub_t) disp_worker ;
 	    rs = uptcreate(&tid,NULL,fn,dop) ;
 	    dop->threads[i].tid = tid ;
 	    dop->threads[i].f_active = TRUE ;
