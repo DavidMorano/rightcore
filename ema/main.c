@@ -822,7 +822,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* set the default header to choose if one has not been selected */
 
 	if (rs >= 0) {
-	    if (paramopt_havekey(&aparams,PO_HEADER) == SR_NOTFOUND) {
+	    if ((rs = paramopt_havekey(&aparams,PO_HEADER)) == 0) {
 	        rs = paramopt_load(&aparams,PO_HEADER,"to",2) ;
 	    }
 	}

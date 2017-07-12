@@ -3,7 +3,7 @@
 /* try to make a prefix-variable path */
 
 
-#define	CF_DEBUGS	 0		/* compile-time debug print-outs */
+#define	CF_DEBUGS	 1		/* compile-time debug print-outs */
 
 
 /* revision history:

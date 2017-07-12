@@ -145,14 +145,14 @@ struct disp_head {
 	PTM		om ;		/* output mutex */
 	volatile int	f_exit ;
 	volatile int	f_done ;
-	int		n ;
+	int		nthr ;
 } ;
 
 
 /* forward references */
 
-static int	subinfo_start(SUBINFO *,PROGINFO *,
-			ARGINFO *,cuchar *,cchar *,cchar *) ;
+static int	subinfo_start(SUBINFO *,PROGINFO *, ARGINFO *,
+			cuchar *,cchar *,cchar *) ;
 static int	subinfo_finish(SUBINFO *) ;
 static int	subinfo_sendparams(SUBINFO *,bfile *) ;
 static int	subinfo_sendparamseigens(SUBINFO *,bfile *) ;
@@ -171,6 +171,7 @@ static int	disp_starter(DISP *) ;
 static int	disp_addwork(DISP *,cchar *,int) ;
 static int	disp_finish(DISP *,int) ;
 static int	disp_worker(DISP *) ;
+static int	disp_signalled(DISP *) ;
 
 
 /* local variables */
@@ -603,11 +604,11 @@ static int disp_start(DISP *dop,DISP_ARGS *wap)
 	memset(dop,0,sizeof(DISP)) ;
 	dop->pip = pip ;
 	dop->a = *wap ;
-	dop->n = wap->npar ;
+	dop->nthr = wap->npar ;
 
 	if ((rs = fsi_start(&dop->wq)) >= 0) {
 	    if ((rs = psem_create(&dop->wq_sem,FALSE,0)) >= 0) {
-		const int	size = (dop->n * sizeof(DISP_THR)) ;
+		const int	size = (dop->nthr * sizeof(DISP_THR)) ;
 		void		*p ;
 		if ((rs = uc_malloc(size,&p)) >= 0) {
 		    dop->threads = p ;
@@ -640,14 +641,15 @@ static int disp_starter(DISP *dop)
 	int		rs = SR_OK ;
 	int		i ;
 
-	for (i = 0 ; (rs >= 0) && (i < dop->n) ; i += 1) {
-	    rs = uptcreate(&tid,NULL,fn,dop) ;
-	    dop->threads[i].tid = tid ;
-	    dop->threads[i].f_active = TRUE ;
-	}
+	for (i = 0 ; (rs >= 0) && (i < dop->nthr) ; i += 1) {
+	    if ((rs = uptcreate(&tid,NULL,fn,dop)) >= 0) {
+	        dop->threads[i].tid = tid ;
+	        dop->threads[i].f_active = TRUE ;
+	    }
+	} /* end for */
 
 	if (rs < 0) {
-	    int		n = i ;
+	    const int	n = i ;
 	    dop->f_exit = TRUE ;
 	    for (i = 0 ; i < n ; i += 1) {
 	        psem_post(&dop->wq_sem) ;
@@ -666,7 +668,6 @@ static int disp_starter(DISP *dop)
 
 static int disp_finish(DISP *dop,int f_abort)
 {
-	pthread_t	tid ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
@@ -677,24 +678,28 @@ static int disp_finish(DISP *dop,int f_abort)
 	if (f_abort)
 	    dop->f_exit = TRUE ;
 
-	for (i = 0 ; i < dop->n ; i += 1) {
+	for (i = 0 ; i < dop->nthr ; i += 1) {
 	    psem_post(&dop->wq_sem) ;
 	}
 
-	for (i = 0 ; i < dop->n ; i += 1) {
-	    if (dop->threads[i].f_active) {
-	        dop->threads[i].f_active = FALSE ;
-	        tid = dop->threads[i].tid ;
-	        rs1 = uptjoin(tid,NULL) ;
-		if (rs >= 0) rs = rs1 ;
-	    }
-	} /* end if */
-
 	if (dop->threads != NULL) {
+	    DISP_THR	*dtp ;
+	    pthread_t	tid ;
+	    int		trs ;
+	    for (i = 0 ; i < dop->nthr ; i += 1) {
+		dtp = (dop->threads+i) ;
+	        if (dtp->f_active) {
+	            dtp->f_active = FALSE ;
+	            tid = dtp->tid ;
+	            rs1 = uptjoin(tid,&trs) ;
+		    if (rs >= 0) rs = rs1 ;
+		    if (rs >= 0) rs = trs ;
+	        } /* end if (active) */
+	    } /* end for */
 	    rs1 = uc_free(dop->threads) ;
 	    if (rs >= 0) rs = rs1 ;
 	    dop->threads = NULL ;
-	}
+	} /* end if (threads) */
 
 	rs1 = ptm_destroy(&dop->om) ;
 	if (rs >= 0) rs = rs1 ;
@@ -738,7 +743,7 @@ static int disp_worker(DISP *dop)
 	PTM		*omp = &dop->om ;
 	pthread_t	tid ;
 	const int	rlen = MAXPATHLEN ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		c = 0 ;
 	char		rbuf[MAXPATHLEN + 1] ;
 
@@ -749,44 +754,21 @@ static int disp_worker(DISP *dop)
 	    debugprintf("progkey/worker: ent tid=%u\n",tid) ;
 #endif
 
-	while (rs >= 0) {
-
-	    while ((rs = psem_wait(&dop->wq_sem)) < 0) {
-	        if ((rs != SR_AGAIN) && (rs != SR_INTR)) break ;
-	    } /* end while */
-
-	    if (rs < 0) break ;
+	while ((rs = disp_signalled(dop)) >= 0) {
 	    if (dop->f_exit) break ;
 
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(5))
-	        debugprintf("progkey/worker: tid=%u wakeup\n",tid) ;
-#endif
-
 	    if ((rs = fsi_remove(&dop->wq,rbuf,rlen)) >= 0) {
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("progkey/worker: tid=%u fname=%s\n",
-	                tid,rbuf) ;
-#endif
 
 	        rs = progkeyer(pip,wap->ofp,omp,
 	            wap->terms,wap->delimiter,wap->ignchrs,rbuf) ;
 	        if (rs > 0) c += 1 ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("progkey/worker: tid=%u progkeyer() rs=%d\n",
-	                tid,rs) ;
-#endif
-
 
 	    } else if (rs == SR_NOTFOUND) {
 		rs = SR_OK ;
 	        if (dop->f_done) break ;
 	    } /* end if (work to do) */
 
+	    if (rs < 0) break ;
 	} /* end while */
 
 #if	CF_DEBUG
@@ -797,6 +779,17 @@ static int disp_worker(DISP *dop)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (worker) */
+
+
+static int disp_signalled(DISP *dop)
+{
+	int		rs ;
+	while ((rs = psem_wait(&dop->wq_sem)) < 0) {
+	    if ((rs != SR_AGAIN) && (rs != SR_INTR)) break ;
+	} /* end while */
+	return rs ;
+}
+/* end subroutine (disp_signalled) */
 
 
 static int ereport(PROGINFO *pip,cchar *fname,int frs)

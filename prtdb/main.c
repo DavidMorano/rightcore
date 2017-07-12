@@ -781,13 +781,11 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* get ready */
 
-	if (paramopt_havekey(&aparams,PO_SUFFIX) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_SUFFIX)) > 0) {
 	    pip->f.suffix = TRUE ;
-
 	} /* end if */
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
 
 	    paramopt_curbegin(&aparams,&cur) ;
@@ -808,7 +806,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    } /* end while */
 
 	    paramopt_curend(&aparams,&cur) ;
-	} /* end if (progopts) */
+	} /* end if (paramopt_havekey) */
 
 /* check if we have a username for the query */
 

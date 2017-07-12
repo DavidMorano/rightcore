@@ -229,6 +229,12 @@ int main(int argc,const char **argv,const char **envv)
 /* end subroutine (main) */
 
 
+auto special(int a, int b) -> int
+{
+	return (a+b) ;
+}
+
+
 /* local subroutines */
 
 

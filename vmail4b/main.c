@@ -116,6 +116,7 @@ extern int	hasalldig(const char *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_rootname(PROGINFO *) ;
@@ -1146,7 +1147,7 @@ int mainsub(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
-	} else if (! isNotPresent(rs1)) {
+	} else if (! isFailOpen(rs1)) {
 	    if (rs >= 0) rs = rs1 ;
 	}
 
@@ -2070,11 +2071,11 @@ static int procmailusers_env(PROGINFO *pip,cchar *var)
 
 static int procmailusers_arg(PROGINFO *pip,PARAMOPT *app)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		c = 0 ;
 	const char	*po = PO_MAILUSERS ;
 
-	if (paramopt_havekey(app,po) >= 0) {
+	if ((rs = paramopt_havekey(app,po)) > 0) {
 	    PARAMOPT_CUR	cur ;
 
 	    if ((rs = paramopt_curbegin(app,&cur)) >= 0) {

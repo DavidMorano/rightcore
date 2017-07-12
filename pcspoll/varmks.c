@@ -249,8 +249,8 @@ int varmks_open(VARMKS *op,cchar dbname[],int of,mode_t om,int n)
 	op->nfd = -1 ;
 	op->gid = -1 ;
 
-	op->f.ofcreat = (of & O_CREAT) ;
-	op->f.ofexcl = (of & O_EXCL) ;
+	op->f.ofcreat = MKBOOL(of & O_CREAT) ;
+	op->f.ofexcl = MKBOOL(of & O_EXCL) ;
 
 	if ((rs = uc_mallocstrw(dbname,-1,&cp)) >= 0) {
 	    op->dbname = cp ;

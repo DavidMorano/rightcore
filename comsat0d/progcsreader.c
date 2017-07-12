@@ -753,7 +753,6 @@ static int disp_worker(DISP *dop)
 #endif
 
 	while ((rs >= 0) && (! dop->f_exit)) {
-
 	    if ((rs = psem_wait(&dop->wq_sem)) >= 0) {
 	        if ((rs = fsi_remove(&dop->wq,mbuf,mlen)) >= 0) {
 		    const int	ml = rs ;
@@ -768,7 +767,6 @@ static int disp_worker(DISP *dop)
 	    } else if ((rs == SR_AGAIN) || (rs == SR_INTR)) {
 		rs = SR_OK ;
 	    }
-
 	} /* end while (server loop) */
 
 #if	CF_DEBUG

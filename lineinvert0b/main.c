@@ -701,10 +701,8 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* process some options */
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
-
 
 	    paramopt_curbegin(&aparams,&cur) ;
 
@@ -726,16 +724,15 @@ int main(int argc,cchar **argv,cchar **envv)
 	    } /* end while */
 
 	    paramopt_curend(&aparams,&cur) ;
-
-	} /* end if (progopts) */
+	} /* end if (progopt_havekey) */
 
 /* open the output file */
 
-	if ((ofname != NULL) && (ofname[0] != '\0'))
+	if ((ofname != NULL) && (ofname[0] != '\0')) {
 		rs = bopen(ofp,ofname,"wct",0666) ;
-
-	else
+	} else {
 		rs = bopen(ofp,BFILE_STDOUT,"dwct",0666) ;
+	}
 
 	if (rs < 0)
 		goto badoutopen ;

@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* debug print-outs (non-switchable) */
-#define	CF_DEBUG	0		/* debug print-outs switchable */
+#define	CF_DEBUG	1		/* debug print-outs switchable */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_LOCSETENT	0		/* allow |locinfo_setentry()| */
 
@@ -110,8 +110,9 @@ extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	haswhite(const char *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isalphalatin(int) ;
-extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -766,44 +767,45 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        pip->progname,maprofile) ;
 	}
 
-	            memset(&ainfo,0,sizeof(ARGINFO)) ;
-	            ainfo.argc = argc ;
-	            ainfo.ai = ai ;
-	            ainfo.argv = argv ;
-	            ainfo.ai_max = ai_max ;
-	            ainfo.ai_pos = ai_pos ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	if ((rs = ids_load(&lip->id)) >= 0) {
-	    const mode_t	om = 0666 ;
-	    const int		of = (O_RDWR|O_CREAT) ;
-	    const char		*pr = pip->pr ;
-	    const char		*ma = maprofile ;
-	    if ((rs = mailalias_open(&lip->madb,pr,ma,of,om,0)) >= 0) {
+	    if ((rs = ids_load(&lip->id)) >= 0) {
+	        const mode_t	om = 0666 ;
+	        const int	of = (O_RDWR|O_CREAT) ;
+	        const char	*pr = pip->pr ;
+	        const char	*ma = maprofile ;
+	        if ((rs = mailalias_open(&lip->madb,pr,ma,of,om,0)) >= 0) {
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("main: mailalias_open() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("main: mailalias_open() rs=%d\n",rs) ;
 #endif
 
-	        if (dumpfname != NULL) {
-	            rs = madump(pip,dumpfname) ;
-	        } else {
-	            const char	*ofn = ofname ;
-	            const char	*afn = afname ;
-	            rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
-	        } /* end if */
+	            if (dumpfname != NULL) {
+	                rs = madump(pip,dumpfname) ;
+	            } else {
+	                const char	*ofn = ofname ;
+	                const char	*afn = afname ;
+	                rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+	            } /* end if */
 
-	        rs1 = mailalias_close(&lip->madb) ;
-		if (rs >= 0) rs = rs1 ;
-	    } else {
-	        ex = EX_UNAVAILABLE ;
-	        shio_printf(pip->efp,"%s: mailaliases unavailable (%d)\n",
-	            pip->progname,rs) ;
-	    }
-	    rs1 = ids_release(&lip->id) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (ids) */
+	            rs1 = mailalias_close(&lip->madb) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } else {
+		    cchar	*pn = pip->progname ;
+		    cchar	*fmt = "%s: mailaliases unavailable (%d)\n" ;
+	            ex = EX_UNAVAILABLE ;
+	            shio_printf(pip->efp,fmt,pn,rs) ;
+	        }
+	        rs1 = ids_release(&lip->id) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (ids) */
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -977,9 +979,11 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
 	            if (f) {
 	                cp = aip->argv[ai] ;
-	                pan += 1 ;
-	                rs = procname(pip,ofp,cp,-1) ;
-	                c += rs ;
+			if (cp[0] != '\0') {
+	                    pan += 1 ;
+	                    rs = procname(pip,ofp,cp,-1) ;
+	                    c += rs ;
+			}
 	            }
 	            if (rs < 0) {
 	                if (rs == SR_NOENT) {
@@ -1058,15 +1062,15 @@ static int procname(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
-	char		mabuf[MAILADDRLEN + 1] ;
 
 	if (np == NULL) return SR_FAULT ;
 
 	if (np[0] == '\0') return SR_INVALID ;
 
+	if (nl < 0) nl = strlen(np) ;
+
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: query=%t\n",
-	        pip->progname,np,nl) ;
+	    shio_printf(pip->efp,"%s: query=%t\n",pip->progname,np,nl) ;
 	}
 
 #if	CF_DEBUG
@@ -1074,34 +1078,33 @@ static int procname(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 	    debugprintf("b_mailalias/procname: query=%t\n",np,nl) ;
 #endif
 
-	rs = sncpy1w(mabuf,MAILADDRLEN,np,nl) ;
-
-	if (rs >= 0)
-	    rs = shio_printf(ofp,"%t:\n",np,nl) ;
-
-	if (rs >= 0) {
-	    MAILALIAS		*map = &lip->madb ;
-	    MAILALIAS_CUR	cur ;
-	    if ((rs = mailalias_curbegin(map,&cur)) >= 0) {
-	        const int	vlen = VBUFLEN ;
-	        char		vbuf[VBUFLEN + 1] ;
-
-	        while (rs >= 0) {
-	            rs1 = mailalias_fetch(map,0,mabuf,&cur,vbuf,vlen) ;
-	            if (rs1 == SR_NOTFOUND) break ;
-	            rs = rs1 ;
-
-	            if (rs >= 0) {
-	                c += 1 ;
-	                rs = shio_printf(ofp,"  %s\n",vbuf) ;
-	            }
-
-	        } /* end while */
-
-	        rs1 = mailalias_curend(map,&cur) ;
+	if ((rs = shio_printf(ofp,"%t:\n",np,nl)) >= 0) {
+	    const int	malen = nl ;
+	    char	*mabuf ;
+	    if ((rs = uc_malloc((malen+1),&mabuf)) >= 0) {
+		if ((rs = snwcpy(mabuf,malen,np,nl)) >= 0) {
+	            MAILALIAS		*map = &lip->madb ;
+	            MAILALIAS_CUR	cur ;
+	            if ((rs = mailalias_curbegin(map,&cur)) >= 0) {
+	                const int	vlen = VBUFLEN ;
+	                char		vbuf[VBUFLEN + 1] ;
+	                while (rs >= 0) {
+	                    rs1 = mailalias_fetch(map,0,mabuf,&cur,vbuf,vlen) ;
+	                    if (rs1 == SR_NOTFOUND) break ;
+	                    rs = rs1 ;
+	                    if (rs >= 0) {
+	                        c += 1 ;
+	                        rs = shio_printf(ofp,"  %s\n",vbuf) ;
+	                    }
+	                } /* end while */
+	                rs1 = mailalias_curend(map,&cur) ;
+		        if (rs >= 0) rs = rs1 ;
+	            } /* end if (cursor-begin) */
+	        } /* end if (snwcpy) */
+		rs1 = uc_free(mabuf) ;
 		if (rs >= 0) rs = rs1 ;
-	    } /* end if (cursor-begin) */
-	} /* end if (ok) */
+	    } /* end if (m-a-f) */
+	} /* end if (shio_printf) */
 
 	return (rs >= 0) ? c : rs ;
 }

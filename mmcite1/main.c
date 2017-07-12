@@ -786,7 +786,7 @@ const char	*envv[] ;
 
 /* process some options */
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
 		const char	*po = PO_OPTION ;
@@ -1276,7 +1276,7 @@ BDB		*bdbp ;
 	const char	*cp ;
 	char		tmpfname[MAXPATHLEN + 1] ;
 
-	if (paramopt_havekey(app,po) >= 0) {
+	if ((rs = paramopt_havekey(app,po)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    if ((rs = paramopt_curbegin(app,&cur)) >= 0) {
 	        while (paramopt_enumvalues(app,po,&cur,&cp) >= 0) {

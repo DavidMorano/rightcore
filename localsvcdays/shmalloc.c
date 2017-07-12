@@ -66,7 +66,6 @@
 /* external subroutines */
 
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	mkmagic(char *,const char *,int) ;
 extern int	sfshrink(const char *,int,const char **) ;
 extern int	sfbasename(const char *,int,const char **) ;
 extern int	sfdirname(const char *,int,const char **) ;

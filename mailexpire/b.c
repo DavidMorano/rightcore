@@ -1625,7 +1625,7 @@ static int procmailusers_arg(PROGINFO *pip,PARAMOPT *app)
 	int		c = 0 ;
 	cchar		*po = PO_MAILUSERS ;
 
-	if ((rs = paramopt_havekey(app,po)) >= 0) {
+	if ((rs = paramopt_havekey(app,po)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    int			cl ;
 	    cchar		*cp ;
@@ -1647,8 +1647,7 @@ static int procmailusers_arg(PROGINFO *pip,PARAMOPT *app)
 	        paramopt_curend(app,&cur) ;
 	    } /* end if (paramopt-cur) */
 
-	} else if (isNotPresent(rs))
-	    rs = SR_OK ;
+	} /* end if (paramopt_havekey) */
 
 	return (rs >= 0) ? c : rs ;
 }

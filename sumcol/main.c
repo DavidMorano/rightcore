@@ -603,16 +603,12 @@ char	*envv[] ;
 /* get ready */
 
 #ifdef	COMMENT
-	if (paramopt_havekey(&aparams,PO_SUFFIX) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_SUFFIX)) > 0) {
 	    pip->f.suffix = TRUE ;
-
 	} /* end if */
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
-
 
 	    paramopt_curbegin(&aparams,&cur) ;
 

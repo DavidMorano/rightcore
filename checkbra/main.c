@@ -567,21 +567,16 @@ char	*envv[] ;
 
 /* get ready */
 
-	if (paramopt_havekey(&aparams,PO_SUFFIX) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_SUFFIX)) > 0) {
 	    pip->f.suffix = TRUE ;
-
 	} /* end if */
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
-
 
 	    paramopt_curbegin(&aparams,&cur) ;
 
 	    while (paramopt_enumvalues(&aparams,PO_OPTION,&cur,&cp) >= 0) {
-
 		if (cp == NULL) continue ;
 
 	        if ((kwi = matostr(progopts,1,cp,-1)) >= 0) {

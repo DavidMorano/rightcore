@@ -771,13 +771,13 @@ const char	*envv[] ;
 
 /* get ready */
 
-	if (paramopt_havekey(&aparams,PO_SUFFIX) >= 0) {
+	if ((rs = paramopt_havekey(&aparams,PO_SUFFIX)) > 0) {
 	    pip->f.suffix = TRUE ;
 	} /* end if */
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
-	    const char	*vp ;
+	    const char		*vp ;
 
 	    paramopt_curbegin(&aparams,&cur) ;
 

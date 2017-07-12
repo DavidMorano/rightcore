@@ -9,14 +9,13 @@
 
 /* revision history:
 
-	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+	= 1998-02-01, David A­D­ Morano
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -27,27 +26,24 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<baops.h>
 #include	<field.h>
+#include	<paramopt.h>
+#include	<localmisc.h>
 #include	<exitcodes.h>
 
-#include	"localmisc.h"
-#include	"paramopt.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
 
 #define	MAXARGINDEX	600
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
-
 
 
 /* external subroutines */
@@ -484,16 +480,12 @@ char	*envv[] ;
 
 /* get ready */
 
-	if (paramopt_havekey(&param,PO_SUFFIX) >= 0) {
-
+	if ((rs = paramopt_havekey(&param,PO_SUFFIX)) > 0) {
 	    pip->f.suffix = TRUE ;
-
 	} /* end if */
 
-	if (paramopt_havekey(&param,PO_OPTION) >= 0) {
-
+	if ((rs = paramopt_havekey(&param,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
-
 
 	    paramopt_curbegin(&param,&cur) ;
 

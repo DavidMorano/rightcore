@@ -4,7 +4,7 @@
 /* higher-level "open" /w timeout */
 
 
-#define	CF_DEBUGS	0		/* compile-time debug print-outs */
+#define	CF_DEBUGS	1		/* compile-time debug print-outs */
 #define	CF_CDPATH	0		/* allow cd-paths */
 #define	CF_ISMORE	0		/* compile in |isMorePossible()| */
 
@@ -448,7 +448,6 @@ static int open_eval(UCOPENINFO *oip)
 	        rs = open_floatpath(oip,npi) ;
 	        fd = rs ;
 	    } else {
-
 	        if (hasvarpathprefix(oip->fname,-1) && (efname == NULL)) {
 	            const int	size = (MAXPATHLEN + 1) ;
 	            void	*p ;

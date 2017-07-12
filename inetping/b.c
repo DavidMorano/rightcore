@@ -779,7 +779,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    const char		*po = PO_OPTION ;
 	    if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {

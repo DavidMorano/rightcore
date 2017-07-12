@@ -398,6 +398,8 @@ int paramopt_havekey(PARAMOPT *php,cchar *name)
 
 	if ((rs = paramopt_findkey(php,name,&pp)) >= 0) {
 	    c = pp->c ;
+	} else if (rs == SR_NOTFOUND) {
+	    rs = SR_OK ;
 	}
 
 	return (rs >= 0) ? c : rs ;

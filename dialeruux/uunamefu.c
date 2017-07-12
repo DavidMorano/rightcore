@@ -121,14 +121,13 @@ enum his {
 
 /* forward references */
 
-static int	mkmagic(char *,const char *,int) ;
+extern int	mkmagic(char *,int,cchar *) ;
 
 
 /* local variables */
 
 
-
-
+/* exported subroutines */
 
 
 int uunamefu(ep,f,buf,buflen)
@@ -228,7 +227,7 @@ int		buflen ;
 
 /* write */
 
-	    mkmagic(bp,magicstr,magicsize) ;
+	    mkmagic(bp, magicsize, magicstr) ;
 	    bp += magicsize ;
 	    bl -= magicsize ;
 
@@ -264,28 +263,5 @@ int		buflen ;
 	return (rs >= 0) ? (bp - buf) : rs ;
 }
 /* end subroutine (uunamefu) */
-
-
-
-/* LOCAL SUBROUTINES */
-
-
-
-static int mkmagic(buf,magicstr,magicsize)
-char		buf[] ;
-const char	*magicstr ;
-int		magicsize ;
-{
-	char	*cp = buf ;
-
-
-	cp = strwcpy(cp,magicstr,(magicsize - 1)) ;
-	*cp++ = '\n' ;
-	memset(cp,0,(magicsize - (cp - buf))) ;
-
-	return magicsize ;
-}
-/* end subroutine (mkmagic) */
-
 
 

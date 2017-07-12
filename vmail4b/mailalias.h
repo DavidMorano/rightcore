@@ -101,7 +101,7 @@ struct mailalias_head {
 	time_t		ti_access ;
 	time_t		ti_map ;
 	time_t		ti_check ;
-	time_t		ti_filechanged ;
+	time_t		ti_filecheck ;
 	time_t		ti_fileold ;
 	size_t		mapsize ;
 	mode_t		operm ;
@@ -124,13 +124,12 @@ struct mailalias_head {
 extern "C" {
 #endif
 
-extern int	mailalias_open(MAILALIAS *,const char *,const char *,
-			int,mode_t,int) ;
+extern int	mailalias_open(MAILALIAS *,cchar *,cchar *,int,mode_t,int) ;
 extern int	mailalias_info(MAILALIAS *,MAILALIAS_INFO *) ;
 extern int	mailalias_curbegin(MAILALIAS *,MAILALIAS_CUR *) ;
 extern int	mailalias_enum(MAILALIAS *,MAILALIAS_CUR *,
 			char *,int,char *,int) ;
-extern int	mailalias_fetch(MAILALIAS *,int,const char *,
+extern int	mailalias_fetch(MAILALIAS *,int,cchar *,
 			MAILALIAS_CUR *,char *,int) ;
 extern int	mailalias_curend(MAILALIAS *,MAILALIAS_CUR *) ;
 extern int	mailalias_count(MAILALIAS *) ;

@@ -208,6 +208,8 @@ int proginv(PROGINFO *pip,ARGINFO *aip,cchar *dbname)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		pan = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	if (aip == NULL) return SR_FAULT ;
 
@@ -218,18 +220,19 @@ int proginv(PROGINFO *pip,ARGINFO *aip,cchar *dbname)
 
 	if (dbname == NULL) {
 	    rs = SR_FAULT ;
-	    bprintf(pip->efp,"%s: no database specified (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: no database specified (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
 	}
 
 	if ((rs >= 0) && (dbname[0] == '\0')) {
 	    rs = SR_INVALID ;
-	    bprintf(pip->efp,"%s: no database specified (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: no database specified (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
 	}
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    bprintf(pip->efp,"%s: db=%s\n",pip->progname,dbname) ;
+	    fmt = "%s: db=%s\n" ;
+	    bprintf(pip->efp,fmt,pn,dbname) ;
 	}
 
 	if (rs >= 0) {

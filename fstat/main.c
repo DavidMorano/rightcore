@@ -675,16 +675,13 @@ int main(int argc,cchar **argv,cchar **envv)
 /* get ready */
 
 	otype = OTYPE_INT ;
-	if (paramopt_havekey(&aparams,PO_OTYPE) >= 0) {
+	if ((rs = paramopt_havekey(&aparams,PO_OTYPE)) > 0) {
 	    PARAMOPT_CUR	cur ;
 
 	    paramopt_curbegin(&aparams,&cur) ;
 
 	    while (paramopt_enumvalues(&aparams,PO_OTYPE,&cur,&cp) >= 0) {
-
-	        if ((otype = matostr(otypes,2,cp,-1)) >= 0)
-	            break ;
-
+	        if ((otype = matostr(otypes,2,cp,-1)) >= 0) break ;
 	    } /* end while */
 
 	    paramopt_curend(&aparams,&cur) ;

@@ -84,7 +84,7 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* forward references */
 
-static int	mkmagic(char *,const char *,int) ;
+extern int	mkmagic(char *,int,cchar *) ;
 
 
 /* local variables */
@@ -217,7 +217,7 @@ int		buflen ;
 
 /* write */
 
-	    mkmagic(bp,magicstr,magicsize) ;
+	    mkmagic(bp, magicsize, magicstr) ;
 	    bp += magicsize ;
 	    bl -= magicsize ;
 

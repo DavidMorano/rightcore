@@ -58,9 +58,9 @@
 #include	<bfile.h>
 #include	<vecstr.h>
 #include	<field.h>
+#include	<textlook.h>
 #include	<localmisc.h>
 
-#include	"textlook.h"
 #include	"config.h"
 #include	"defs.h"
 
@@ -140,15 +140,12 @@ static const uchar	aterms[] = {
 /* exported subroutines */
 
 
-int progquery(pip,aip,terms,dbname,ofname)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-const uchar	terms[] ;
-const char	dbname[] ;
-const char	ofname[] ;
+int progquery(PROGINFO *pip,ARGINFO *aip,const uchar *terms,
+cchar *dbname,cchar *ofname)
 {
 	bfile		ofile, *ofp = &ofile ;
 	int		rs ;
+	int		rs1 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -165,22 +162,25 @@ const char	ofname[] ;
 
 /* open the output file */
 
-	if ((ofname == NULL) || (ofname[0] == '\0')) ofname = BFILE_STDOUT ;
+	if ((ofname == NULL) || (ofname[0] == '\0')) 
+		ofname = BFILE_STDOUT ;
 
 	if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
 
 	    rs = procdb(pip,aip,ofp,dbname) ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf( "progquery: procdb() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf( "progquery: procdb() rs=%d\n",rs) ;
 #endif
 
-	    bclose(ofp) ;
+	    rs1 = bclose(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (file) */
 
-	if ((rs >= 0) && (pip->debuglevel > 0))
+	if ((rs >= 0) && (pip->debuglevel > 0)) {
 	    bprintf(pip->efp,"%s: matches=%u\n",pip->progname,rs) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -195,157 +195,152 @@ const char	ofname[] ;
 /* local subroutines */
 
 
-static int procdb(pip,aip,ofp,dbname)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-bfile		*ofp ;
-const char	dbname[] ;
+static int procdb(PROGINFO *pip,ARGINFO *aip,bfile *ofp,cchar *dbname)
 {
 	TEXTLOOK	tl, *tlp = &tl ;
-	vecstr		qstr ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		pan = 0 ;
-	int		opts ;
-	int		ai ;
 	int		c_hits = 0 ;
-	int		f ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
-	const char	*afname = aip->afname ;
-	const char	*cp ;
 	char		tmpfname[MAXPATHLEN+1] ;
 
-	rs = mkexpandpath(tmpfname,dbname,-1) ;
-	if (rs > 0) dbname = tmpfname ;
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf( "progquery/procdb: mkexpandpath() rs=%d\n",rs) ;
-#endif
-	if (rs < 0) goto ret0 ;
+	if ((rs = mkexpandpath(tmpfname,dbname,-1)) >= 0) {
+	    cchar	*bdn = pip->basedname ;
+	    if (rs > 0) dbname = tmpfname ;
+	    if ((rs = textlook_open(tlp,pip->pr,dbname,bdn)) >= 0) {
+		vecstr	qstr ;
+	        int	opts ;
+	        int	ai ;
+	        int	f ;
+		cchar	*afn = aip->afname ;
+		cchar	*cp ;
 
-	if ((rs = textlook_open(tlp,pip->pr,dbname,pip->basedname)) >= 0) {
-
-	if (pip->f.optaudit) {
-	    rs = textlook_audit(tlp) ;
-	    if ((rs < 0) || (pip->debuglevel > 0))
-	        bprintf(pip->efp, "%s: DB audit (%d)\n",
-	            pip->progname,rs) ;
-	} /* end if (audit) */
+	        if (pip->f.optaudit) {
+	            rs = textlook_audit(tlp) ;
+	            if ((rs < 0) || (pip->debuglevel > 0)) {
+	                bprintf(pip->efp, "%s: DB audit (%d)\n",
+	                    pip->progname,rs) ;
+	            }
+	        } /* end if (audit) */
 
 /* process the positional arguments */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf( "progquery/procdb: keys as arguments\n") ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf( "progquery/procdb: keys as args\n") ;
 #endif
 
-	opts = VECSTR_OCOMPACT ;
-	if ((rs >= 0) && ((rs = vecstr_start(&qstr,5,opts)) >= 0)) {
-	    BITS	*bop = &aip->pargs ;
-	    int		c = 0 ;
+	        opts = VECSTR_OCOMPACT ;
+	        if ((rs >= 0) && ((rs = vecstr_start(&qstr,5,opts)) >= 0)) {
+	            BITS	*bop = &aip->pargs ;
+	            int		c = 0 ;
+		    cchar	**argv = aip->argv ;
 
-	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
+	            for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
-	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	        f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
-	        if (f) {
-	            cp = aip->argv[ai] ;
-	            pan += 1 ;
-	            rs = vecstr_adduniq(&qstr,cp,-1) ;
-	            c += ((rs < INT_MAX) ? 1 : 0) ;
-		}
+	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	                if (f) {
+	                    cp = argv[ai] ;
+			    if (cp[0] != '\0') {
+	                        pan += 1 ;
+	                        rs = vecstr_adduniq(&qstr,cp,-1) ;
+				if (rs < INT_MAX) c += 1 ;
+			    }
+	                }
 
-	        if (rs >= 0) rs = progexit(pip) ;
-	        if (rs < 0) break ;
-	    } /* end for (looping through positional arguments) */
+	                if (rs >= 0) rs = progexit(pip) ;
+	                if (rs < 0) break ;
+	            } /* end for (looping through positional arguments) */
 
-	    if ((rs >= 0) && (c > 0)) {
-	            if ((rs = vecstr_count(&qstr)) > 0) {
-	                rs = procspec(pip,ofp,tlp,&qstr) ;
-			c_hits += rs ;
-		    }
-	    } /* end if */
+	            if ((rs >= 0) && (c > 0)) {
+	                if ((rs = vecstr_count(&qstr)) > 0) {
+	                    rs = procspec(pip,ofp,tlp,&qstr) ;
+	                    c_hits += rs ;
+	                }
+	            } /* end if */
 
-	    rs1 = vecstr_finish(&qstr) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (positional arguments) */
+	            rs1 = vecstr_finish(&qstr) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (positional arguments) */
 
 /* process any files in the argument filename list file */
 
-	if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
-	    bfile	afile, *afp = &afile ;
+	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	            bfile	afile, *afp = &afile ;
 
-	    if (strcmp(afname,"-") == 0) afname = BFILE_STDIN ;
+	            if (strcmp(afn,"-") == 0) afn = BFILE_STDIN ;
 
-	    if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
-		const int	llen = LINEBUFLEN ;
-		int		len ;
-	        char		lbuf[LINEBUFLEN + 1] ;
+	            if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
+	                const int	llen = LINEBUFLEN ;
+	                int		len ;
+	                char		lbuf[LINEBUFLEN + 1] ;
 
-	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
-	            len = rs ;
+	                while ((rs = breadline(afp,lbuf,llen)) > 0) {
+	                    len = rs ;
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("progquery/procdb: line=>%t<\n",
-	                    lbuf,strlinelen(lbuf,len,60)) ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("progquery/procdb: line=>%t<\n",
+	                            lbuf,strlinelen(lbuf,len,60)) ;
 #endif
 
-	            rs = procspecs(pip,ofp,tlp,lbuf,len) ;
-		    c_hits += rs ;
+	                    rs = procspecs(pip,ofp,tlp,lbuf,len) ;
+	                    c_hits += rs ;
 
-	            if (rs >= 0) rs = progexit(pip) ;
-	            if (rs < 0) break ;
-	        } /* end while (reading lines) */
+	                    if (rs >= 0) rs = progexit(pip) ;
+	                    if (rs < 0) break ;
+	                } /* end while (reading lines) */
 
-	        rs1 = bclose(afp) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } else {
-		fmt = "%s: inaccessible argument-list (%d)\n" ;
-	        bprintf(pip->efp,fmt,pn,rs) ;
-	        bprintf(pip->efp,"%s: afile=%s\n",pn,aip->afname) ;
-	    } /* end if */
+	                rs1 = bclose(afp) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } else {
+	                fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                bprintf(pip->efp,fmt,pn,rs) ;
+	                bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	            } /* end if */
 
-	} /* end if (argument file) */
+	        } /* end if (argument file) */
 
 #if	CF_READSTDIN
-	if ((rs >= 0) && (pan == 0)) {
-	    bfile	infile, *ifp = &infile ;
+	        if ((rs >= 0) && (pan == 0)) {
+	            bfile	infile, *ifp = &infile ;
 
-	    if ((rs = bopen(ifp,BFILE_STDIN,"dr",0666)) >= 0) {
-		const int	llen = LINEBUFLEN ;
-		int		len ;
-	        char		lbuf[LINEBUFLEN + 1] ;
+	            if ((rs = bopen(ifp,BFILE_STDIN,"dr",0666)) >= 0) {
+	                const int	llen = LINEBUFLEN ;
+	                int		len ;
+	                char		lbuf[LINEBUFLEN + 1] ;
 
-	        while ((rs = breadline(ifp,lbuf,llen)) > 0) {
-	            int	len = rs ;
+	                while ((rs = breadline(ifp,lbuf,llen)) > 0) {
+	                    int	len = rs ;
 
-	            rs = procspecs(pip,ofp,tlp,lbuf,len) ;
-	            c_hits += rs ;
+	                    rs = procspecs(pip,ofp,tlp,lbuf,len) ;
+	                    c_hits += rs ;
 
-	            if (rs >= 0) rs = progexit(pip) ;
-	            if (rs < 0) break ;
-	        } /* end while (reading lines) */
+	                    if (rs >= 0) rs = progexit(pip) ;
+	                    if (rs < 0) break ;
+	                } /* end while (reading lines) */
 
-	        bclose(ifp) ;
-	    } else {
-	        fmt = "%s: inaccessible input list (%d)\n" ;
-	        bprintf(pip->efp,fmt,pn,rs) ;
-	    } /* end if (error) */
+	                bclose(ifp) ;
+	            } else {
+	                fmt = "%s: inaccessible input list (%d)\n" ;
+	                bprintf(pip->efp,fmt,pn,rs) ;
+	            } /* end if (error) */
 
-	} /* end if (file list arguments or not) */
+	        } /* end if (file list arguments or not) */
 #endif /* CF_READSTDIN */
 
-	rs1 = textlook_close(tlp) ;
-	if (rs >= 0) rs = rs1 ;
-	} /* end if (textlook) */
-
-ret0:
+	        rs1 = textlook_close(tlp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (textlook) */
+	} /* end if (expand) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progquery/procdb: ret rs=%d c_hits=%u\n",rs,c_hits) ;
+	    debugprintf("progquery/procdb: ret rs=%d c_hits=%u\n",
+	        rs,c_hits) ;
 #endif
 
 	return (rs >= 0) ? c_hits : rs ;
@@ -362,6 +357,7 @@ int		sl ;
 {
 	VECSTR		qstr ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 	if (sp == NULL) return SR_FAULT ;
@@ -370,17 +366,18 @@ int		sl ;
 	    FIELD	fsb ;
 
 	    if ((rs = field_start(&fsb,sp,sl)) >= 0) {
-		const int	wlen = WPBUFLEN ;
-		int		fl ;
-		cchar		*fp ;
-		char		wbuf[WPBUFLEN + 1] ;
+	        const uchar	*at = aterms ;
+	        const int	wlen = WPBUFLEN ;
+	        int		fl ;
+	        cchar		*fp ;
+	        char		wbuf[WPBUFLEN + 1] ;
 
 	        fp = wbuf ;
-	        while ((fl = field_wordphrase(&fsb,aterms,wbuf,wlen)) >= 0) {
+	        while ((fl = field_wordphrase(&fsb,at,wbuf,wlen)) >= 0) {
 	            if (fl > 0) {
 	                rs = vecstr_adduniq(&qstr,fp,fl) ;
 	                c += ((rs < INT_MAX) ? 1 : 0) ;
-		    }
+	            }
 	            if (fsb.term == '#') break ;
 	            if (rs < 0) break ;
 	        } /* end while */
@@ -393,7 +390,7 @@ int		sl ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3)) {
 	            int		i ;
-		    cchar	*fp ;
+	            cchar	*fp ;
 	            for (i = 0 ; vecstr_get(&qstr,i,&fp) >= 0 ; i += 1)
 	                debugprintf("progquery/procspecs: qs=>%s<\n",fp) ;
 	        }
@@ -403,7 +400,8 @@ int		sl ;
 
 	    } /* end if */
 
-	    vecstr_finish(&qstr) ;
+	    rs1 = vecstr_finish(&qstr) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (queries) */
 
 	return (rs >= 0) ? c : rs ;
@@ -433,34 +431,34 @@ vecstr		*qsp ;
 	if ((rs = vecstr_getvec(qsp,&qkeya)) >= 0) {
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3)) {
-	    int	i ;
-	    for (i = 0 ; qkeya[i] != NULL ; i += 1)
-	        debugprintf("progquery/procspec: sk=>%s<\n",qkeya[i]) ;
-	}
+	    if (DEBUGLEVEL(3)) {
+	        int	i ;
+	        for (i = 0 ; qkeya[i] != NULL ; i += 1)
+	            debugprintf("progquery/procspec: sk=>%s<\n",qkeya[i]) ;
+	    }
 #endif /* CF_DEBUG */
 
-	if ((rs = textlook_curbegin(tlp,&cur)) >= 0) {
+	    if ((rs = textlook_curbegin(tlp,&cur)) >= 0) {
 
-	    rs = textlook_lookup(tlp,&cur,qopts,qkeya) ;
-	    ntags = rs ;
+	        rs = textlook_lookup(tlp,&cur,qopts,qkeya) ;
+	        ntags = rs ;
 
-	    while ((rs >= 0) && (ntags > 0)) {
-	        rs1 = textlook_read(tlp,&cur,&tag) ;
-	        if (rs1 == SR_NOTFOUND) break ;
-	        rs = rs1 ;
+	        while ((rs >= 0) && (ntags > 0)) {
+	            rs1 = textlook_read(tlp,&cur,&tag) ;
+	            if (rs1 == SR_NOTFOUND) break ;
+	            rs = rs1 ;
 
-	        if (rs >= 0) {
-	            c += 1 ;
-	            rs = procout(pip,ofp,&tag) ;
-	        }
+	            if (rs >= 0) {
+	                c += 1 ;
+	                rs = procout(pip,ofp,&tag) ;
+	            }
 
-	        if (rs >= 0) rs = progexit(pip) ;
-	        if (rs < 0) break ;
-	    } /* end while */
+	            if (rs >= 0) rs = progexit(pip) ;
+	            if (rs < 0) break ;
+	        } /* end while */
 
-	    textlook_curend(tlp,&cur) ;
-	} /* end if (cursor) */
+	        textlook_curend(tlp,&cur) ;
+	    } /* end if (cursor) */
 
 	} /* end if (vecstr_getvec) */
 

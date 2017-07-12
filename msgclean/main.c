@@ -887,7 +887,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    PARAMOPT	*pop = &aparams ;
 	    cchar	*po = PO_SUFFIX ;
 
-	    if ((rs = paramopt_havekey(pop,po)) >= 0) {
+	    if ((rs = paramopt_havekey(pop,po)) > 0) {
 	        PARAMOPT_CUR	cur ;
 	        const char	*vp ;
 
@@ -913,7 +913,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	    if (rs >= 0) {
 	        const char	*po = PO_OPTION ;
-	        if (paramopt_havekey(pop,po) >= 0) {
+	        if ((rs = paramopt_havekey(pop,po)) > 0) {
 	            PARAMOPT_CUR	cur ;
 	            const char		*vp ;
 
@@ -940,7 +940,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	                paramopt_curend(pop,&cur) ;
 	            } /* end if (cursor) */
-	        } /* end if (progopts) */
+	        } /* end if (paramope_havekey) */
 	    } /* end if (ok) */
 
 /* go */

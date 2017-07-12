@@ -463,16 +463,11 @@ char	*envv[] ;
 	if (pip->tmpdname == NULL)
 	    pip->tmpdname = TMPDIR ;
 
-
-
 /* get ready */
 
-	if (paramopt_havekey(&aparams,PO_SUFFIX) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_SUFFIX)) > 0) {
 	    pip->f.suffix = TRUE ;
-
 	} /* end if */
-
 
 /* OK, we do it */
 

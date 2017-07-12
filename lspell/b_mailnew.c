@@ -2015,11 +2015,11 @@ static int procmailusers_env(PROGINFO *pip,cchar *var)
 
 static int procmailusers_arg(PROGINFO *pip,PARAMOPT *app)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		c = 0 ;
 	const char	*po = PO_MAILUSERS ;
 
-	if (paramopt_havekey(app,po) >= 0) {
+	if ((rs = paramopt_havekey(app,po)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    int			cl ;
 	    const char		*cp ;

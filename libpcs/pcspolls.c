@@ -188,12 +188,11 @@ static int thread_cmdrecv(THREAD *,int) ;
 static int thread_exiting(THREAD *) ;
 static int thread_cmdexit(THREAD *) ;
 static int thread_waitexit(THREAD *) ;
+static int thread_worker(THREAD *) ;
 
 #ifdef	COMMENT
 static int thread_setdone(THREAD *) ;
 #endif
-
-static int	worker(THREAD *) ;
 
 static int work_start(WORK *,THREAD *) ;
 static int work_term(WORK *) ;
@@ -431,8 +430,8 @@ static int thread_start(THREAD *tip,PCSPOLLS *op)
 	    if ((rs = uc_sigsetfill(&nsm)) >= 0) {
 		if ((rs = pt_sigmask(SIG_BLOCK,&nsm,&osm)) >= 0) {
 	    	    pthread_t	tid ;
-	    	    int (*fun)(void *) = (int (*)(void *)) worker ;
-	    	    if ((rs = uptcreate(&tid,NULL,fun,tip)) >= 0) {
+	    	    uptsub_t	fn = (uptsub_t) thread_worker ;
+	    	    if ((rs = uptcreate(&tid,NULL,fn,tip)) >= 0) {
 	    	        tip->tid = tid ;
 		    }
 		    pt_sigmask(SIG_SETMASK,&osm,NULL) ;
@@ -538,7 +537,7 @@ static int thread_setdone(THREAD *tip)
 #endif /* COMMENT */
 
 
-static int worker(THREAD *tip)
+static int thread_worker(THREAD *tip)
 {
 	WORK		w ;
 	const int	to = 4 ;
@@ -589,7 +588,7 @@ static int worker(THREAD *tip)
 
 	return rs ;
 }
-/* end subroutine (worker) */
+/* end subroutine (thread_worker) */
 
 
 static int work_start(WORK *wp,THREAD *tip)

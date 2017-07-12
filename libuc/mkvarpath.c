@@ -3,7 +3,7 @@
 /* try to make a prefix-variable path */
 
 
-#define	CF_DEBUGS	0		/* compile-time debug print-outs */
+#define	CF_DEBUGS	1		/* compile-time debug print-outs */
 
 
 /* revision history:
@@ -69,26 +69,26 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath1w(char *,const char *,int) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	haslc(const char *,int) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
+extern int	mkpath1w(char *,cchar *,int) ;
+extern int	matstr(cchar **,cchar *,int) ;
+extern int	haslc(cchar *,int) ;
 extern int	isNotPresent(int) ;
 extern int	isOneOf(const int *,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern cchar	*getenver(const char *,int) ;
+extern cchar	*getenver(cchar *,int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strwcpylc(char *,const char *,int) ;
-extern char	*strwcpyuc(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strwcpylc(char *,cchar *,int) ;
+extern char	*strwcpyuc(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* external variables */
@@ -110,96 +110,97 @@ static int	mkvarpath_join(char *,const char *,int,const char *) ;
 /* exported subroutines */
 
 
-int mkvarpath(char *efname,cchar *fp,int fl)
+int mkvarpath(char *rbuf,cchar *fp,int fl)
 {
 	const int	ec = CH_EXPAND ;
 	int		rs = SR_OK ;
 	int		pl = 0 ;
 
-	if (efname == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("mkvarpath: ent p=%t\n",
 	    fp,strlinelen(fp,fl,40)) ;
 #endif
 
-	efname[0] = '\0' ;
+	rbuf[0] = '\0' ;
 	if (fp == NULL) return SR_FAULT ;
 
 	if ((fp[0] != ec) && (fp[0] != '/')) {
-	int		f ;
+	    int		f ;
 
-	if (fl < 0) fl = strlen(fp) ;
+	    if (fl < 0) fl = strlen(fp) ;
 
-	f = (fp[0] == ec) || ((fp[0] == '/') && fl && (fp[1] == ec)) ;
-	if (f) {
-	int		vl ;
-	const char	*tp ;
-	const char	*rp ;
-	const char	*vp ;
-	const char	*cp ;
+	    f = (fp[0] == ec) || ((fp[0] == '/') && fl && (fp[1] == ec)) ;
+	    if (f) {
+	        int		vl ;
+	        const char	*tp ;
+	        const char	*rp ;
+	        const char	*vp ;
+	        const char	*cp ;
 
 /* initialize for variable-name extraction by skipping over first character */
 
-	vp = (fp + 1) ;
-	vl = (fl - 1) ;
+	        vp = (fp + 1) ;
+	        vl = (fl - 1) ;
 
 /* test for extra special case to skip over the prefix character */
 
-	if (vl && (vp[0] == ec)) {
-	    vp += 1 ;
-	    vl -= 1 ;
-	}
+	        if (vl && (vp[0] == ec)) {
+	            vp += 1 ;
+	            vl -= 1 ;
+	        }
 
-	rp = NULL ;
-	if ((tp = strnchr(vp,vl,'/')) != NULL) {
-	    vl = (tp-vp) ;
-	    rp = tp ;
-	}
+	        rp = NULL ;
+	        if ((tp = strnchr(vp,vl,'/')) != NULL) {
+	            vl = (tp-vp) ;
+	            rp = tp ;
+	        }
 
-	if (vl > 0) {
-	    char	*varname = NULL ;
+	        if (vl > 0) {
+	            char	*varname = NULL ;
 
-	    if ((cp = getenver(vp,vl)) == NULL) {
-	        if (haslc(vp,vl)) {
-	            char	*p ;
-	            if ((rs = uc_malloc((vl+1),&p)) >= 0) {
-	                varname = p ;
-	                strwcpyuc(varname,vp,vl) ;
-	                cp = getenver(varname,vl) ;
+	            if ((cp = getenver(vp,vl)) == NULL) {
+	                if (haslc(vp,vl)) {
+	                    char	*p ;
+	                    if ((rs = uc_malloc((vl+1),&p)) >= 0) {
+	                        varname = p ;
+	                        strwcpyuc(varname,vp,vl) ;
+	                        cp = getenver(varname,vl) ;
+	                    }
+	                }
 	            }
-	        }
-	    }
 
-	    if (rs >= 0) {
-	        if (cp != NULL) {
+	            if (rs >= 0) {
+	                if (cp != NULL) {
 
-	        if (strchr(cp,':') != NULL) {
-	            rs = mkvarpath_list(efname,cp,rp) ;
-	            pl = rs ;
+	                    if (strchr(cp,':') != NULL) {
+	                        rs = mkvarpath_list(rbuf,cp,rp) ;
+	                        pl = rs ;
+	                    } else {
+	                        rs = mkvarpath_join(rbuf,cp,-1,rp) ;
+	                        pl = rs ;
+	                    }
+
+	                    if (rs == SR_OVERFLOW) rs = SR_NAMETOOLONG ;
+
+	                } else {
+	                    rs = (rp != NULL) ? SR_NOTDIR : SR_NOENT ;
+			}
+	            } /* end if */
+
+	            if (varname != NULL) uc_free(varname) ;
 	        } else {
-	            rs = mkvarpath_join(efname,cp,-1,rp) ;
-	            pl = rs ;
+	            rs = SR_NOTDIR ;
 	        }
 
-	        if (rs == SR_OVERFLOW) rs = SR_NAMETOOLONG ;
-
-	 	} else
-	    	    rs = (rp != NULL) ? SR_NOTDIR : SR_NOENT ;
-	    } /* end if */
-
-	    if (varname != NULL) uc_free(varname) ;
-	} else {
-	    rs = SR_NOTDIR ;
-	}
-
-	} /* end if (go) */
+	    } /* end if (go) */
 
 	} /* end if (go) */
 
 #if	CF_DEBUGS
 	debugprintf("mkvarpath: ret rs=%d pl=%u\n",rs,pl) ;
-	debugprintf("mkvarpath: efname=%s\n",efname) ;
+	debugprintf("mkvarpath: ret rbuf=%s\n",rbuf) ;
 #endif
 
 	return (rs >= 0) ? pl : rs ;
@@ -210,7 +211,7 @@ int mkvarpath(char *efname,cchar *fp,int fl)
 /* local subroutines */
 
 
-static int mkvarpath_list(char *efname,cchar *pathlist,cchar *rp)
+static int mkvarpath_list(char *rbuf,cchar *pathlist,cchar *rp)
 {
 	vecstr		paths ;
 	int		rs ;
@@ -227,7 +228,7 @@ static int mkvarpath_list(char *efname,cchar *pathlist,cchar *rp)
 	        sl = (tp-sp) ;
 	        if (sl || (! f_zero)) {
 	            if ((! f_zero) && (sl == 0)) f_zero = TRUE ;
-	            rs = mkvarpath_one(efname,&paths,sp,sl,rp) ;
+	            rs = mkvarpath_one(rbuf,&paths,sp,sl,rp) ;
 	            pl = rs ;
 	        }
 	        sp = (tp+1) ;
@@ -235,7 +236,7 @@ static int mkvarpath_list(char *efname,cchar *pathlist,cchar *rp)
 	    } /* end while */
 
 	    if ((rs >= 0) && (pl == 0) && ((sp[0] != '\0') || (! f_zero))) {
-	        rs = mkvarpath_one(efname,&paths,sp,-1,rp) ;
+	        rs = mkvarpath_one(rbuf,&paths,sp,-1,rp) ;
 	        pl = rs ;
 	    }
 
@@ -248,8 +249,8 @@ static int mkvarpath_list(char *efname,cchar *pathlist,cchar *rp)
 /* end subroutine (mkvarpath_list) */
 
 
-static int mkvarpath_one(efname,plp,sp,sl,rp)
-char		efname[] ;
+static int mkvarpath_one(rbuf,plp,sp,sl,rp)
+char		rbuf[] ;
 vecstr		*plp ;
 const char	*sp ;
 int		sl ;
@@ -266,7 +267,7 @@ const char	rp[] ;
 	    if ((rs = vecstr_add(plp,sp,sl)) >= 0) {
 	        struct ustat	sb ;
 
-	        rs1 = mkvarpath_join(efname,sp,sl,rp) ;
+	        rs1 = mkvarpath_join(rbuf,sp,sl,rp) ;
 	        pl = rs1 ;
 
 	        if ((rs1 == SR_OVERFLOW) || (rs1 == SR_NAMETOOLONG)) {
@@ -274,8 +275,8 @@ const char	rp[] ;
 	            pl = 0 ;
 	        }
 
-	        if ((rs1 >= 0) && (pl > 0) && (efname[0] != '\0')) {
-	            rs = u_lstat(efname,&sb) ;
+	        if ((rs1 >= 0) && (pl > 0) && (rbuf[0] != '\0')) {
+	            rs = u_lstat(rbuf,&sb) ;
 	            if (rs < 0) pl = 0 ;
 	        }
 
@@ -287,18 +288,18 @@ const char	rp[] ;
 /* end subroutine (mkvarpath_one) */
 
 
-static int mkvarpath_join(char *efname,cchar *sp,int sl,cchar *rp)
+static int mkvarpath_join(char *rbuf,cchar *sp,int sl,cchar *rp)
 {
 	const int	maxpl = MAXPATHLEN ;
 	int		rs = SR_OK ;
 	int		pl = 0 ;
 
 	if (rs >= 0) {
-	    rs = storebuf_strw(efname,maxpl,pl,sp,sl) ;
+	    rs = storebuf_strw(rbuf,maxpl,pl,sp,sl) ;
 	    pl += rs ;
 	}
 	if ((rs >= 0) && (rp != NULL)) {
-	    rs = storebuf_strw(efname,maxpl,pl,rp,-1) ;
+	    rs = storebuf_strw(rbuf,maxpl,pl,rp,-1) ;
 	    pl += rs ;
 	}
 

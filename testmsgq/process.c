@@ -9,31 +9,28 @@
 
 /* revision history:
 
-	= 88/01/01, David A­D­ Morano
-
-	This subroutine (it's the whole program -- same as
-	the FIFO test) was originally written.
-
+	= 1998-05-23, David A­D­ Morano
+        This subroutine (it's the whole program -- same as the FIFO test) was
+        originally written.
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
+
+        This program tests the UNIX Message Queue IPC facility that exists in
+        newer UNIX-type (or other) OSes that have SYSV type features (this was
+        originated on System V). All versions of Solaris have UNIX Message
+        Queues and most other UNIXes that have any SYSV features usually also
+        have this. Note that some UNIXes, like Sun Solaris 1 (SunOS 4.x) can
+        disable these features by not including them in a newly built kernel!
 
 
-/************************************************************************
-
-	This program tests the UNIX Message Queue IPC facility that
-	exists in newer UNIX-type (or other) OSes that have SYSV type
-	features (this was originated on System V).  All versions of
-	Solaris have UNIX Message Queues and most other UNIXes that
-	have any SYSV features usually also have this.  Note that some
-	UNIXes, like Sun Solaris 1 (SunOS 4.x) can disable these
-	features by not including them in a newly built kernel !
+*******************************************************************************/
 
 
-
-***************************************************************************/
-
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/mman.h>
@@ -47,11 +44,10 @@
 #include	<vsystem.h>
 #include	<field.h>
 #include	<bfile.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -62,7 +58,6 @@
 #endif
 
 #define	O_SRVFLAGS	(O_RDONLY | O_CREAT | O_NONBLOCK)
-
 
 
 /* external subroutines */
@@ -87,7 +82,7 @@ int		f_alarm ;
 int		f_signal ;
 
 
-
+/* exported subroutines */
 
 
 /* start of program */
@@ -157,7 +152,7 @@ int		mqid ;
 	        rs = client(gp,mqid,ifp) ;
 
 #if	CF_DEBUGS
-	        debugprintf("process: client return rs=%d\n",rs) ;
+	        debugprintf("process: client() rs=%d\n",rs) ;
 #endif
 
 	        bclose(ifp) ;

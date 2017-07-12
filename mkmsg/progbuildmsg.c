@@ -493,7 +493,7 @@ static int progbuildmsghdrs(PROGINFO *pip,EMA *adds,PARAMOPT *hlp,int f_mime)
 	    dater_mkmsg(&pip->mdate,timebuf,-1) ;
 	    rs = bprintf(pip->ofp,"%s: %s\n",kn,timebuf) ;
 	    wlen += rs ;
-	} else if (paramopt_havekey(hlp,"date") < 0) {
+	} else if ((rs = paramopt_havekey(hlp,"date")) == 0) {
 	    f_date = TRUE ;
 	    if (pip->daytime == 0) pip->daytime = time(NULL) ;
 	    timestr_hdate(pip->daytime,timebuf) ;

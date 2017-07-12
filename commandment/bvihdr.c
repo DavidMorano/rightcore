@@ -64,7 +64,7 @@
 /* external subroutines */
 
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	mkmagic(char *,const char *,int) ;
+extern int	mkmagic(char *,int,cchar *) ;
 extern int	cfhexi(const char *,int,uint *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 
@@ -199,7 +199,7 @@ int bvihdr(BVIHDR *ep,int f,char *hbuf,int hlen)
 
 	    if ((rs >= 0) && (bl >= (magicsize + 4))) {
 
-	    mkmagic(bp,magicstr,magicsize) ;
+	    mkmagic(bp, magicsize, magicstr) ;
 	    bp += magicsize ;
 	    bl -= magicsize ;
 

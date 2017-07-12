@@ -56,6 +56,7 @@
 #include	<field.h>
 #include	<ascii.h>
 #include	<eigendb.h>
+#include	<upt.h>
 #include	<ucmallreg.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
@@ -1122,7 +1123,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	if ((rs >= 0) && (pip->npar == 0)) {
 	    rs = loadncpus(pip) ;
-	    pip->npar = rs ;
+	    pip->npar = (rs+1) ;
+	}
+
+	if (rs >= 0) {
+	    uptsetconcurrency(pip->npar) ; /* for library objects */
 	}
 
 /* line length */
@@ -1177,7 +1182,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        cchar	**vpp = &pip->sdn ;
 	        rs = proginfo_setentry(pip,vpp,sdn,tl) ;
 	    }
-	}
+	} /* end if (ok) */
 
 	if ((rs >= 0) && (sfn != NULL)) {
 	    cchar	**vpp = &pip->sfn ;

@@ -1257,7 +1257,7 @@ static int mailalias_dbopen(MAILALIAS *op,time_t dt)
 	{
 	    char	obuf[100+1] ;
 	    snopenflags(obuf,100,of) ;
-	    debugprintf("mailalias_dbopen: ent ret of=%s\n",obuf) ;
+	    debugprintf("mailalias_dbopen: ent of=%s\n",obuf) ;
 	}
 #endif /* CF_DEBUGS */
 

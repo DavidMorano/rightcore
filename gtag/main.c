@@ -775,7 +775,7 @@ const char	*envv[] ;
 
 /* process some options */
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
 		const char	*po = PO_OPTION ;
@@ -784,23 +784,17 @@ const char	*envv[] ;
 		if (cp == NULL) continue ;
 
 	        if ((kwi = matostr(progopts,2,cp,-1)) >= 0) {
-
 	            switch (kwi) {
-
 	            case progopt_follow:
 	                pip->f.follow = TRUE ;
 	                break ;
-
 	            case progopt_nofollow:
 	                pip->f.follow = FALSE ;
 	                break ;
-
 	            case progopt_uniq:
 	                pip->f.uniq = TRUE ;
 	                break ;
-
 	            } /* end switch */
-
 	        } /* end if (progopts) */
 
 	    } /* end while */

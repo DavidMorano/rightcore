@@ -1662,10 +1662,11 @@ int main(int argc,cchar **argv,cchar **envv)
 /* get ready */
 
 	if (rs >= 0) {
-	    if (paramopt_havekey(&pip->aparams,po_sufreq) >= 0) {
+	    if ((rs = paramopt_havekey(&pip->aparams,po_sufreq)) > 0) {
 	        pip->have.sufreq = TRUE ;
-	        if (pip->debuglevel > 0)
+	        if (pip->debuglevel > 0) {
 	            rs = procprintsufs(pip,po_sufreq) ;
+		}
 	    } /* end if */
 	} /* end if */
 

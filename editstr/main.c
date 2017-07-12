@@ -908,10 +908,8 @@ char	*envv[] ;
 
 /* get ready */
 
-	if (paramopt_havekey(&aparams,PO_SUFFIX) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_SUFFIX)) > 0) {
 	    PARAMOPT_CUR	cur ;
-
 
 	    paramopt_curbegin(&aparams,&cur) ;
 
@@ -940,10 +938,8 @@ char	*envv[] ;
 		goto ret2 ;
 	}
 
-	if (paramopt_havekey(&aparams,PO_OPTION) >= 0) {
-
+	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
-
 
 	    paramopt_curbegin(&aparams,&cur) ;
 

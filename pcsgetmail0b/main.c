@@ -2060,7 +2060,7 @@ static int maildirs_arg(PROGINFO *pip,PARAMOPT *app)
 	int		c = 0 ;
 	const char	*qn = PO_MAILDIRS ;
 
-	if ((rs = paramopt_havekey(app,qn)) >= 0) {
+	if ((rs = paramopt_havekey(app,qn)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    int			vl ;
 	    const char		*vp ;
@@ -2074,9 +2074,7 @@ static int maildirs_arg(PROGINFO *pip,PARAMOPT *app)
 	        } /* end while */
 	        paramopt_curend(app,&cur) ;
 	    } /* end if (paramopt-cur) */
-	} else if (rs == SR_NOTFOUND) {
-	    rs = SR_OK ;
-	} /* end if (maildir arguments) */
+	} /* end if (paramopt_havekey) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -2388,11 +2386,11 @@ static int mailusers_env(PROGINFO *pip,cchar *var)
 
 static int mailusers_arg(PROGINFO *pip,PARAMOPT *app)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		c = 0 ;
 	const char	*qn = PO_MAILUSERS ;
 
-	if (paramopt_havekey(app,qn) >= 0) {
+	if ((rs = paramopt_havekey(app,qn)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    int			vl ;
 	    const char		*vp ;
@@ -2411,7 +2409,7 @@ static int mailusers_arg(PROGINFO *pip,PARAMOPT *app)
 	        paramopt_curend(app,&cur) ;
 	    } /* end if (cursor) */
 
-	} /* end if (mailuser arguments) */
+	} /* end if (paramopt_havekey) */
 
 	return (rs >= 0) ? c : rs ;
 }

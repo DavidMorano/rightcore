@@ -66,7 +66,7 @@
 /* external subroutines */
 
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	mkmagic(char *,const char *,int) ;
+extern int	mkmagic(char *,int,cchar *) ;
 extern int	sfshrink(const char *,int,const char **) ;
 extern int	sfbasename(const char *,int,const char **) ;
 extern int	sfdirname(const char *,int,const char **) ;
@@ -187,7 +187,7 @@ int babiesfu(BABIESFU *ep,int f,char *hbuf,int hlen)
 
 	} else { /* write */
 
-	    mkmagic(bp,magicstr,magicsize) ;
+	    mkmagic(bp, magicsize, magicstr) ;
 	    bp += magicsize ;
 	    bl -= magicsize ;
 
