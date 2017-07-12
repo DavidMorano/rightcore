@@ -1414,9 +1414,9 @@ static int disp_start(DISP *dop,DISP_ARGS *dap)
 	            if (rs < 0)
 	                ptm_destroy(&dop->m) ;
 	        } /* end if */
-	    if (rs < 0)
-	        ptc_destroy(&dop->cond) ;
-	    } /* end if (ptc-create) */
+	        if (rs < 0)
+	            ptc_destroy(&dop->cond) ;
+	        } /* end if (ptc-create) */
 	    if (rs < 0)
 	        ptm_destroy(&dop->m) ;
 	} /* end if (ptm-create) */
@@ -1539,6 +1539,7 @@ static int disp_addwork(DISP *dop,TXTINDEX_TAG *tagp)
 /* end subroutine (disp_addwork) */
 
 
+/* worker threads call this to set their "busy" status */
 static int disp_setstate(DISP *dop,DISP_THR *tip,int f)
 {
 	int		rs ;
@@ -1559,6 +1560,7 @@ static int disp_setstate(DISP *dop,DISP_THR *tip,int f)
 /* end subroutine (disp_setstate) */
 
 
+/* main or manager thread calls this to find out how many workers are busy */
 static int disp_nbusy(DISP *dop)
 {
 	int		rs = SR_OK ;
@@ -1586,6 +1588,7 @@ static int disp_nbusy(DISP *dop)
 /* end subroutine (disp_nbusy) */
 
 
+/* manager thread calls this get get number of exited workers */
 static int disp_nexited(DISP *dop)
 {
 	DISP_THR	*dtp = dop->threads ;
@@ -1743,6 +1746,7 @@ static int disp_worker(DISP *dop)
 
 	        } else if ((rs == SR_AGAIN) || (rs == SR_INTR)) {
 		    rs = SR_OK ;
+	            if (dop->f_exit) break ;
 		}
 	        if (dop->f_done) break ;
 	    } /* end while (waiting) */

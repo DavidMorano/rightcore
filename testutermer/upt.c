@@ -349,10 +349,7 @@ int uptncpus(int w)
 /* local subroutines */
 
 
-static int uptcreator(rp,ptap,arg)
-pthread_t	*rp ;
-pthread_attr_t	*ptap ;
-void		*arg ;
+static int uptcreator(pthread_t *rp,pthread_attr_t *ptap,void *arg0
 {
 	int		to_nomem = TO_NOMEM ;
 	int		rs ;
@@ -362,14 +359,14 @@ void		*arg ;
 	    if ((rs = pthread_create(rp,ptap,uptruner,arg)) > 0) rs = (- rs) ;
 	    if (rs < 0) {
 	        switch (rs) {
-	        case SR_INTR:
-		    break ;
 	        case SR_NOMEM:
 		    if (to_nomem-- > 0) {
 		        msleep(1000) ;
 		    } else {
 		        f_exit = TRUE ;
 		    }
+		    break ;
+	        case SR_INTR:
 		    break ;
 	        default:
 		    f_exit = TRUE ;
@@ -394,8 +391,9 @@ static void *uptruner(void *vp)
 	    void	*arg = oap->ap ;
 	    uc_libfree(oap) ;
 	    rs = (*start)(arg) ;
-	} else
+	} else {
 	    rs = SR_NOEXEC ;
+	}
 
 	vrp = (void *) rs ;
 	return vrp ;

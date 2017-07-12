@@ -664,7 +664,7 @@ static int txtindexmks_idxdirbegin(TXTINDEXMKS *op)
 	if ((dnl = sfdirname(op->dbname,-1,&dnp)) >= 0) {
 	    char	tbuf[MAXPATHLEN + 1] ;
 #if	CF_DEBUGS
-	debugprintf("txtindexmks_idxdirbegin: dnl=%d\n",dnl) ;
+	    debugprintf("txtindexmks_idxdirbegin: dnl=%d\n",dnl) ;
 #endif
 	    if (dnl == 0) {
 	        rs = getpwd(tbuf,MAXPATHLEN) ;
@@ -681,7 +681,7 @@ static int txtindexmks_idxdirbegin(TXTINDEXMKS *op)
 	            }
 	        }
 #if	CF_DEBUGS
-	debugprintf("txtindexmks_idxdirbegin: perm() rs=%d\n",rs) ;
+		debugprintf("txtindexmks_idxdirbegin: perm() rs=%d\n",rs) ;
 #endif
 	    }
 	}

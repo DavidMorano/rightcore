@@ -13,7 +13,7 @@
 
 
 #define	PWIHDR_MAGICSTR		"IPASSWD"
-#define	PWIHDR_MAGICLEN		7
+#define	PWIHDR_MAGICSIZE	16
 #define	PWIHDR_VERSION		0
 #define	PWIHDR_TYPE		0
 

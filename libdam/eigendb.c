@@ -463,8 +463,9 @@ static int eigendb_fileparsemap(EIGENDB *op,int fd,int fsize)
 	        ll = (tp - mp) ;
 	        len = ((tp + 1) - mp) ;
 	        if (*tp == '#') {
-	            if ((tp = strnchr((tp+1),(mp+ml-(tp+1)),'\n')) != NULL)
+	            if ((tp = strnchr((tp+1),(mp+ml-(tp+1)),'\n')) != NULL) {
 	                len = ((tp + 1) - mp) ;
+		    }
 	        }
 
 	        while ((cl = nextfield(lp,ll,&cp)) > 0) {

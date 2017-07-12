@@ -69,7 +69,6 @@
 /* local defines */
 
 #define	HASHFILE_MAGIC		"MKINVHASH"
-#define	HASHFILE_MAGICLEN	9
 #define	HASHFILE_VERSION	0
 #define	HASHFILE_TYPE		0
 

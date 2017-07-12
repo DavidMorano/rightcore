@@ -71,7 +71,9 @@ int mkmagic(char *rbuf,int rlen,cchar *ms)
 	bp = strwcpy(rbuf,ms,ml) ;
 	*bp++ = '\n' ;
 	*bp++ = '\0' ;
-	memset(bp,0,(rbuf+ml)-bp) ;
+	if (((rbuf+rlen)-bp) > 0) {
+	    memset(bp,0,(rbuf+rlen)-bp) ;
+	}
 	return rlen ;
 }
 /* end subroutine (mkmagic) */

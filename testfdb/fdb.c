@@ -9,14 +9,13 @@
 
 /* revision history:
 
-	= 97/05/01, David A­D­ Morano
-
-	This hashing object is based in part on the "hdbm" hasing
-	functions that are a part of Netnews software.
-
+	= 1998-04-01, David A­D­ Morano
+        This hashing object is based in part on the "hdbm" hasing functions that
+        are a part of Netnews software.
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*************************************************************************
 

@@ -176,6 +176,7 @@
 
 /* external subroutines */
 
+extern int	mkmagic(char *,int,cchar *) ;
 extern int	lockfile(int,int,offset_t,offset_t,int) ;
 extern int	getfstype(char *,int,int) ;
 extern int	iceil(int,int) ;
@@ -184,6 +185,7 @@ extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 extern int	stroflags(char *,int) ;
 #endif
 
@@ -1223,20 +1225,15 @@ static int msfile_filecheck(MSFILE *op)
 static int msfile_filetopwrite(MSFILE *op)
 {
 	offset_t	poff = 0L ;
+	int		ml ;
 	int		rs = SR_OK ;
 	int		bl ;
-	char		*bp ;
+	char		*bp = op->topbuf ;
 
 /* write the file header stuff */
 
-	bp = op->topbuf ;
-
-	bp = strwcpy(bp,MSFILE_FILEMAGIC,15) ;
-	*bp++ = '\n' ;
-
-	bl = (16 - (bp - op->topbuf)) ;
-	memset(bp,0,bl) ;
-	bp += bl ;
+	ml = mkmagic(bp,MSFILE_FILEMAGICSIZE,MSFILE_FILEMAGIC) ;
+	bp += ml ;
 
 	*bp++ = MSFILE_FILEVERSION ;
 	*bp++ = MSFILE_ENDIAN ;
@@ -1292,15 +1289,19 @@ static int msfile_fileverify(MSFILE *op)
 
 #if	CF_DEBUGS
 	debugprintf("msfile_fileverify: ent\n") ;
+	debugprintf("msfile_fileverify: filemagic=%s\n",
+		MSFILE_FILEMAGIC) ;
+	debugprintf("msfile_fileverify: filemagicsize=%u\n",
+		MSFILE_FILEMAGICSIZE) ;
 #endif
 
 	if (op->topsize >= MSFILE_TOPLEN) {
-	    int		f ;
 	    cchar	*cp = op->topbuf ;
-	    f = (strncmp(cp,MSFILE_FILEMAGIC,MSFILE_FILEMAGICLEN) == 0) ;
-	    f = f && (*(cp + MSFILE_FILEMAGICLEN) == '\n') ;
-	    if (f) {
-	        cp += 16 ;
+#if	CF_DEBUGS
+	    debugprintf("msfile_fileverify: ms=%t\n",cp,strlinelen(cp,-1,40)) ;
+#endif
+	    if (isValidMagic(cp,op->topsize,MSFILE_FILEMAGIC)) {
+	        cp += MSFILE_FILEMAGICSIZE ;
 	        if (cp[0] <= MSFILE_FILEVERSION) {
 	            op->fileversion = cp[0] ;
 	            if (cp[1] == MSFILE_ENDIAN) {

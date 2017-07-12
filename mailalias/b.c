@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* debug print-outs (non-switchable) */
-#define	CF_DEBUG	1		/* debug print-outs switchable */
+#define	CF_DEBUG	0		/* debug print-outs switchable */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_LOCSETENT	0		/* allow |locinfo_setentry()| */
 

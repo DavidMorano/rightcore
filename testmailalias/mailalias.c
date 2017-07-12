@@ -3,7 +3,7 @@
 /* manage a MAILALIAS object */
 
 
-#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUGSFILE	0		/* file parsing */
 #define	CF_DEBUGSSHIFT	0
 #define	CF_SAFE		1		/* safe mode */

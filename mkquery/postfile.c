@@ -975,22 +975,18 @@ POSTFILE	*op ;
 /* end subroutine (postfile_close) */
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 /* read the file header and check it out */
 static int postfile_fileheader(op)
 POSTFILE	*op ;
 {
-	uint	*table ;
-
-	int	rs = SR_OK, i ;
-	int	f ;
-
-	char	*cp ;
-
+	uint		*table ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		f ;
+	char		*cp ;
 
 	cp = (char *) op->mapbuf ;
 	f = (strncmp(cp,POSTFILE_FILEMAGIC,POSTFILE_FILEMAGICLEN) == 0) ;

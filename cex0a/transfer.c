@@ -4,7 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable debug print-outs */
+#define	CF_DEBUG	0		/* switchable debug print-outs */
 #define	CF_LOCALEOF	1		/* allow local EOF to exit */
 #define	CF_SIGPIPE	1		/* ignore SIGPIPE */
 
