@@ -1,6 +1,6 @@
 MKINDEXING
 
-This program is similar to the 'mkey' program as distributed with some UNIXes
+This program is similar to the MKKEY program as distributed with some UNIXes
 but this program can optionally (normally) pass all useful words through as keys
 instead of filtering out useful words like the original 'mkey' program did!
 

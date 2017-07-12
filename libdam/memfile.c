@@ -20,7 +20,7 @@
 /******************************************************************************
 
         This little object supports some buffered file operations for
-        low-overhead buffered I/O requirements.
+        low-overhead buffered I-O requirements.
 
 
 ******************************************************************************/
@@ -81,17 +81,12 @@ const char	fname[] ;
 int		oflags ;
 int		operms ;
 {
-	int	rs ;
+	int		rs ;
 
+	if (fbp == NULL) return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (fname == NULL)
-	    return SR_FAULT ;
-
-	if (fname[0] == '\0')
-	    return SR_INVALID ;
+	if (fname[0] == '\0') return SR_INVALID ;
 
 	oflags &= (~ (O_RDONLY | O_WRONLY)) ;
 	oflags |= O_RDWR ;
@@ -99,7 +94,7 @@ int		operms ;
 	memset(fbp,0,sizeof(MEMFILE)) ;
 
 	if ((rs = uc_open(fname,oflags,operms)) >= 0) {
-	    struct ustat	sb ;
+	    USTAT	sb ;
 	    int		fd = rs ;
 	    if ((rs = u_fstat(fd,&sb)) >= 0) {
 	        if (S_ISREG(sb.st_mode)) {
@@ -132,8 +127,9 @@ int		operms ;
 	                    fbp->dlen = 0 ;
 	                }
 	            } /* end if (map) */
-	        } else
+	        } else {
 	            rs = SR_PROTO ;
+		}
 	    } /* end if (stat) */
 	    if (rs < 0) {
 	        u_close(fd) ;
@@ -153,15 +149,12 @@ int		operms ;
 int memfile_close(fbp)
 MEMFILE		*fbp ;
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
+	if (fbp == NULL) return SR_FAULT ;
 
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (fbp->magic != MEMFILE_MAGIC)
-	    return SR_NOTOPEN ;
+	if (fbp->magic != MEMFILE_MAGIC) return SR_NOTOPEN ;
 
 	if (fbp->fd >= 0) {
 	    rs1 = u_close(fbp->fd) ;
@@ -182,81 +175,20 @@ MEMFILE		*fbp ;
 /* end subroutine (memfile_close) */
 
 
-#ifdef	COMMENT
-
-int memfile_getline(fbp,bpp)
-MEMFILE		*fbp ;
-char		**bpp ;
-{
-	int	rs = SR_OK ;
-
-	char	*sbp, *ebp ;
-
-
-#if	CF_SAFE
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (bpp == NULL)
-	    return SR_FAULT ;
-
-	if (fbp->dbuf == NULL)
-	    return SR_NOTOPEN ;
-#endif /* CF_SAFE */
-
-	sbp = fbp->bp ;
-	ebp = fbp->dbuf + fbp->dlen ;
-
-#if	CF_DEBUGS
-	debugprintf("memfile_getline: first ch=%02x\n",*sbp) ;
-	debugprintf("memfile_getline: remaining len=%d (%d)\n",
-	    (ebp - fbp->bp),fbp->len) ;
-#endif
-
-	while (fbp->bp < ebp) {
-
-	    fbp->bp += 1 ;
-	    fbp->len -= 1 ;
-
-	    if (fbp->bp[-1] == '\n')
-	        break ;
-
-	} /* end while */
-
-	*bpp = sbp ;
-	rs = fbp->bp - sbp ;
-
-#if	CF_DEBUGS
-	debugprintf("memfile_getline: ret rs=%d \n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (memfile_getline) */
-
-#endif /* COMMENT */
-
-
 int memfile_write(fbp,buf,buflen)
 MEMFILE		*fbp ;
 const void	*buf ;
 int		buflen ;
 {
 	offset_t	off ;
+	uint		pmo ;
+	int		rs = SR_OK ;
+	int		allocation, p, extra, extension ;
+	char		zerobuf[2] ;
 
-	uint	pmo ;
+	if (fbp == NULL) return SR_FAULT ;
 
-	int	rs = SR_OK ;
-	int	allocation, p, extra, extension ;
-
-	char	zerobuf[2] ;
-
-
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (fbp->magic != MEMFILE_MAGIC)
-	    return SR_NOTOPEN ;
+	if (fbp->magic != MEMFILE_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
 	debugprintf("memfile_write: buflen=%d\n",buflen) ;
@@ -282,15 +214,7 @@ int		buflen ;
 
 /* extend the map */
 
-	        rs = memfile_mapextend(fbp,extension) ;
-
-#if	CF_DEBUGS
-	        debugprintf("memfile_write: memfile_mapextend() rs=%d\n",rs) ;
-#endif
-
-/* extend the file itself */
-
-	        if (rs >= 0) {
+	        if ((rs = memfile_mapextend(fbp,extension)) >= 0) {
 
 #if	CF_DEBUGS
 	            debugprintf("memfile_write: extending file\n") ;
@@ -329,10 +253,8 @@ int		buflen ;
 	    } /* end if (extending map and file) */
 
 	    if (rs >= 0) {
-
 	        extra = (fbp->off + buflen) - fbp->fsize ;
 	        fbp->fsize += extra ;
-
 	    }
 
 	} /* end if (writing beyond file end) */
@@ -378,14 +300,11 @@ int		buflen ;
 int memfile_len(fbp)
 MEMFILE		*fbp ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (fbp == NULL) return SR_FAULT ;
 
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (fbp->magic != MEMFILE_MAGIC)
-	    return SR_NOTOPEN ;
+	if (fbp->magic != MEMFILE_MAGIC) return SR_NOTOPEN ;
 
 	return fbp->fsize ;
 }
@@ -395,14 +314,11 @@ MEMFILE		*fbp ;
 int memfile_allocation(fbp)
 MEMFILE		*fbp ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (fbp == NULL) return SR_FAULT ;
 
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (fbp->magic != MEMFILE_MAGIC)
-	    return SR_NOTOPEN ;
+	if (fbp->magic != MEMFILE_MAGIC) return SR_NOTOPEN ;
 
 	return fbp->dlen ;
 }
@@ -413,14 +329,11 @@ int memfile_tell(fbp,offp)
 MEMFILE		*fbp ;
 offset_t	*offp ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (fbp == NULL) return SR_FAULT ;
 
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (fbp->magic != MEMFILE_MAGIC)
-	    return SR_NOTOPEN ;
+	if (fbp->magic != MEMFILE_MAGIC) return SR_NOTOPEN ;
 
 	if (offp != NULL)
 	    *offp = fbp->off ;
@@ -436,12 +349,9 @@ void		*vp ;
 {
 	caddr_t		*rpp = (caddr_t *) vp ;
 
+	if (fbp == NULL) return SR_FAULT ;
 
-	if (fbp == NULL)
-	    return SR_FAULT ;
-
-	if (fbp->magic != MEMFILE_MAGIC)
-	    return SR_NOTOPEN ;
+	if (fbp->magic != MEMFILE_MAGIC) return SR_NOTOPEN ;
 
 	if (rpp != NULL)
 	    *rpp = (caddr_t) fbp->dbuf ;
@@ -459,8 +369,8 @@ static int memfile_extend(fbp)
 MEMFILE		*fbp ;
 {
 	offset_t	off = fbp->fsize ;
-	int	rs = SR_OK ;
-	char	zerobuf[ZEROBUFLEN + 1] ;
+	int		rs = SR_OK ;
+	char		zerobuf[ZEROBUFLEN + 1] ;
 
 	memset(zerobuf,0,ZEROBUFLEN) ;
 
@@ -469,8 +379,9 @@ MEMFILE		*fbp ;
 
 	    if ((off % ZEROBUFLEN) == 0) {
 	        clen = ZEROBUFLEN ;
-	    } else
+	    } else {
 	        clen = uceil((uint) off,ZEROBUFLEN) ;
+	    }
 
 	    dlen = MIN(ZEROBUFLEN,(clen - fbp->fsize)) ;
 
@@ -480,7 +391,6 @@ MEMFILE		*fbp ;
 #endif
 
 	    rs = u_pwrite(fbp->fd,zerobuf,dlen,off) ;
-
 	    off += dlen ;
 
 	    if (rs < 0) break ;
@@ -496,15 +406,11 @@ MEMFILE		*fbp ;
 uint		extension ;
 {
 	offset_t	moff ;
-
-	caddr_t	addr ;
-
-	size_t	msize ;
-
-	int	rs = SR_INVALID ;
-	int	mprot ;
-	int	mflags ;
-
+	caddr_t		addr ;
+	size_t		msize ;
+	int		rs = SR_INVALID ;
+	int		mprot ;
+	int		mflags ;
 
 	mprot = PROT_READ | PROT_WRITE ;
 	mflags = MAP_SHARED ;
@@ -560,26 +466,19 @@ MEMFILE		*fbp ;
 caddr_t		addr ;
 uint		len ;
 {
-	size_t	tlen ;
-
-	caddr_t	ta = addr ;
-
-	int	rs = SR_NOMEM ;
-
-	char	vec[10] ;
-
+	size_t		tlen ;
+	caddr_t		ta = addr ;
+	int		rs = SR_NOMEM ;
+	char		vec[10] ;
 
 	tlen = fbp->pagesize ;
 	for (ta = addr ; ta < (addr + len) ; ta += fbp->pagesize) {
-
 	    rs = u_mincore(ta,tlen,vec) ;
 	    if (rs != SR_NOMEM) break ;
-
 	} /* end for */
 
 	return (rs == SR_NOMEM) ? TRUE : SR_EXIST ;
 }
 /* end subroutine (memfile_ismemfree) */
-
 
 
