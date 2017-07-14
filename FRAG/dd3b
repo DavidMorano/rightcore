@@ -1,4 +1,0 @@
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uc_mallset(1) ;
-	uc_mallout(&mo_start) ;
-#endif

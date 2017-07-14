@@ -4548,6 +4548,8 @@ static int proclink(PROGINFO *pip,cchar *name,USTAT *sbp, FILEINFO *ckp)
 	if (DEBUGLEVEL(3)) {
 	    cchar	*ft = strfiletype(sbp) ;
 	    debugprintf("main/proclink: ent name=%s ft=%s\n",name,ft) ;
+	    debugprintf("main/proclink: loc dev=%08lx\n",sbp->st_dev) ;
+	    debugprintf("main/proclink: tar dev=%08lx\n",pip->tardev) ;
 	}
 #endif
 

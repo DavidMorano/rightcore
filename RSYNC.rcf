@@ -1,8 +1,0 @@
-#!/usr/bin/ksh
-# RSYNC.rcf
-
-
-RSYNC_RSH=/usr/bin/rsh
-export RSYNC_RSH
-
-

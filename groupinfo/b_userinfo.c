@@ -174,6 +174,7 @@ extern int	snfsflags(cchar *,int,ulong) ;
 extern int	mkpath1(char *,cchar *) ;
 extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
+extern int	mkfmtphone(char *,int,cchar *,int) ;
 extern int	pathadd(char *,int,cchar *) ;
 extern int	sfskipwhite(cchar *,int,cchar **) ;
 extern int	matstr(cchar **,cchar *,int) ;
@@ -1820,8 +1821,9 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 		    }
 	            break ;
 	        case qopt_organization:
-	            if (pdp->f.self)
+	            if (pdp->f.self) {
 	                sp = getourenv(pip->envv,VARORGANIZATION) ;
+		    }
 	            if ((rs >= 0) && (sp == NULL)) {
 	                cchar	*homedname = pdp->du.pent.dir ;
 	                rs = gethomeorg(cbuf,clen,homedname) ;
@@ -1868,41 +1870,54 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	                sp = cbuf ;
 	            break ;
 	        case qopt_wphone:
-	            sp = pdp->du.pent.wphone ;
-	            if (sp == NULL)
-	                sp = cbuf ;
-	            break ;
-	        case qopt_hphone:
-	            sp = pdp->du.pent.hphone ;
-	            if (sp == NULL)
-	                sp = cbuf ;
+	     	case qopt_hphone:
+		    {
+			switch (qi) {
+	        	case qopt_wphone:
+			    sp = pdp->du.pent.wphone ;
+			    break ;
+	        	case qopt_hphone:
+			    sp = pdp->du.pent.hphone ;
+			    break ;
+			} /* end switch */
+			if (sp != NULL) {
+			    if ((rs = mkfmtphone(cbuf,clen,sp,sl)) >= 0) {
+				sp = cbuf ;
+				sl = rs ;
+			    }
+			} else {
+			    sp = cbuf ;
+			}
+		    } /* end block */
 	            break ;
 	        case qopt_printer:
-	            if (pdp->f.self)
-	                sp = getourenv(pip->envv,VARPRINTER) ;
-	            if (sp == NULL)
-	                sp = pdp->du.pent.printer ;
-	            if (sp == NULL)
-	                sp = cbuf ;
+	            if (pdp->f.self) sp = getourenv(pip->envv,VARPRINTER) ;
+	            if (sp == NULL) sp = pdp->du.pent.printer ;
+	            if (sp == NULL) sp = cbuf ;
 	            break ;
 	        case qopt_password:
 	        case qopt_passwd:
 	            sp = pdp->du.pent.password ;
 	            break ;
 	        case qopt_lstchg:
-	            sp = cbuf ;
-	            rs = ctdecl(cbuf,clen,(long) pdp->du.pent.lstchg) ;
-	            sl = rs ;
+		    {
+			const long	lv = pdp->du.pent.lstchg ;
+	                sp = cbuf ;
+	                rs = ctdecl(cbuf,clen,lv) ;
+	                sl = rs ;
+		    }
 	            break ;
 	        } /* end switch */
 	    } /* end if (have.pent) */
 	    break ;
 /* group query */
 	case qopt_group:
-	    if (! pdp->du.init.gr)
+	    if (! pdp->du.init.gr) {
 	        rs = datauser_gr(&pdp->du) ;
-	    if ((rs >= 0) && pdp->du.have.gr)
+	    }
+	    if ((rs >= 0) && pdp->du.have.gr) {
 	        sp = pdp->du.gr.gr_name ;
+	    }
 	    break ;
 /* project ID queries */
 	case qopt_projid:
@@ -1927,8 +1942,9 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    case qopt_projid:
 	    case qopt_pjid:
 	        if (pdp->du.have.pj) {
+		    const int	v = (int) pdp->du.pj.pj_projid ;
 	            sp = cbuf ;
-	            rs = ctdeci(cbuf,clen,(int) pdp->du.pj.pj_projid) ;
+	            rs = ctdeci(cbuf,clen,v) ;
 	            sl = rs ;
 	        }
 	        break ;
@@ -2438,7 +2454,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	        debugprintf("procquery: c=>%t<\n",
 			sp,strlinelen(sp,sl,50)) ;
 	}
-#endif
+#endif /* CF_DEBUG */
 
 /* print out */
 

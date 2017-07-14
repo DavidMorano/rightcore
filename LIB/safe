@@ -1,3 +1,0 @@
-safe:
-	makesafe -v -I $(INCDIR) $(OBJ)
-

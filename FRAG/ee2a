@@ -1,8 +1,0 @@
-	if (efname == NULL) efname = getenv(VARERRORFNAME) ;
-	if (efname == NULL) efname = STDERRFNAME ;
-	if ((rs1 = shio_open(&errfile,efname,"wca",0666)) >= 0) {
-	    pip->efp = &errfile ;
-	    pip->open.errfile = TRUE ;
-	    shio_control(&errfile,SHIO_CSETBUFLINE,TRUE) ;
-	}
-

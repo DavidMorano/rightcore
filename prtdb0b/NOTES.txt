@@ -1,7 +1,7 @@
 PRTDB
 
 Printer configuration files are searched for both in the home directory
-(generally under 'etc') and the program root of this program (generlally
+(generally under 'etc') and the program root of this program (generally
 under 'etc' of the program root).
 
 Printer configuration files have the form:
