@@ -17,6 +17,7 @@
 
 #define	PDB_MAGIC	0x77446329
 #define	PDB		struct pdb_head
+#define	PDB_DB		struct pdb_db
 
 
 enum pdbs {
@@ -36,11 +37,11 @@ struct pdb_db {
 
 struct pdb_head {
 	unsigned long	magic ;
-	struct pdb_db	dbs[pdb_overlast] ;
+	PDB_DB		dbs[pdb_overlast] ;
 	time_t		dt ;
-	char		*pr ;
-	char		*ur ;
-	char		*uname ;
+	char		*pr ;		/* root program */
+	char		*ur ;		/* root root */
+	char		*uname ;	/* username */
 	char		*fname ;
 } ;
 
@@ -51,10 +52,8 @@ struct pdb_head {
 extern "C" {
 #endif
 
-extern int	pdb_open(PDB *,const char *,const char *,
-			const char *,const char *) ;
-extern int	pdb_fetch(PDB *,const char *,const char *,
-			char *,int) ;
+extern int	pdb_open(PDB *,cchar *,cchar *,cchar *,cchar *) ;
+extern int	pdb_fetch(PDB *,char *,int,cchar *,cchar *) ;
 extern int	pdb_check(PDB *,time_t) ;
 extern int	pdb_close(PDB *) ;
 

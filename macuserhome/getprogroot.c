@@ -37,7 +37,7 @@
 
 	pr		PCS program root path
 	prnames		list of program-root names
-	prlenp		pointer to result variable to take length PR length
+	prlenp		pointer to result variable to take resulting PR length
 	output		buffer to receive result
 	name		program to find
 
@@ -45,7 +45,7 @@
 
 	<0		program was not found
 	0		program was found in present working directory
-	>0		found the program path and this is the length
+	>0		found the program path and this is the returned length
 
 
 *******************************************************************************/

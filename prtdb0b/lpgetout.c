@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-01-10, Dave morano
-
 	Originally written.
-
 
 */
 
@@ -20,8 +18,8 @@
 
 /******************************************************************************
 
-	This subroutine uses the LPGET program to retrieve a key
-	from the PRINTERS database.
+        This subroutine uses the LPGET program to retrieve a key from the
+        PRINTERS database.
 
 
 ******************************************************************************/
@@ -37,7 +35,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>

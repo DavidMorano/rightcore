@@ -144,6 +144,7 @@ extern int	mkpath1w(char *,const char *,int) ;
 extern int	mkfnamesuf1(char *,const char *,const char *) ;
 extern int	mkfnamesuf2(char *,const char *,const char *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;
+extern int	mkmagic(char *,int,cchar *) ;
 extern int	sfdirname(const char *,int,const char **) ;
 extern int	randlc(int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
@@ -154,6 +155,7 @@ extern int	isfsremote(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
 extern int	isFailOpen(int) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -913,15 +915,8 @@ static int mailalias_checkold(MAILALIAS *op,time_t dt)
 static int mailalias_hdrload(MAILALIAS *op)
 {
 	int		rs = SR_OK ;
-	int		f ;
-	const char	*cp ;
-
-	cp = (cchar *) op->mapdata ;
-	f = (strncmp(cp,MAILALIAS_FILEMAGIC,MAILALIAS_FILEMAGICLEN) == 0) ;
-
-	f = f && (*(cp + MAILALIAS_FILEMAGICLEN) == '\n') ;
-
-	if (f) {
+	cchar		*cp = (cchar *) op->mapdata ;
+	if (isValidMagic(cp,MAILALIAS_FILEMAGICLEN,MAILALIAS_FILEMAGIC)) {
 	    cp += 16 ;
 	    if (cp[0] == MAILALIAS_FILEVERSION) {
 	        if (cp[1] == ENDIAN) {
@@ -1085,19 +1080,8 @@ static int mailalias_keymatch(MAILALIAS *op,int opts,int ri,cchar *aname)
 
 static int mailalias_dbopen(MAILALIAS *op,time_t dt)
 {
-	struct ustat	sb ;
-	int		rs, rs1 ;
-	int		i ;
-	int		size ;
+	int		rs ;
 	int		f_create = FALSE ;
-
-#if	CF_DEBUGS
-	{
-	    char	obuf[100+1] ;
-	    snopenflags(obuf,100,of) ;
-	    debugprintf("mailalias_dbopen: ent of=%s\n",obuf) ;
-	}
-#endif /* CF_DEBUGS */
 
 	if ((rs = mailalias_dbopenfile(op,dt)) >= 0) {
 	    f_create = rs ;
@@ -1105,7 +1089,7 @@ static int mailalias_dbopen(MAILALIAS *op,time_t dt)
 	debugprintf("mailalias_dbopen: open-out rs=%d\n",rs) ;
 	debugprintf("mailalias_dbopen: f_ocreate=%u\n",op->f.ocreate) ;
 #endif
-	   if ((rs = mailalias_dbopenmake(op,dt)) >= 0) {
+	    if ((rs = mailalias_dbopenmake(op,dt)) >= 0) {
 		if ((rs = mailalias_isremote(op)) >= 0) {
 		    if ((rs = mailalias_dbopenwait(op)) >= 0) {
 	    	        if ((rs = mailalias_mapbegin(op,dt)) >= 0) {
@@ -1117,7 +1101,7 @@ static int mailalias_dbopen(MAILALIAS *op,time_t dt)
 	 	        } /* end if (mailalias_mapbegin) */
 		    } /* end if (mailalias_dbopenwait) */
 		} /* end if (mailalias_isremote) */
-	    }
+	    } /* end if (mailalias_dbopenmake) */
 	    if (rs < 0) {
 		mailalias_fileclose(op) ;
 	    }
@@ -1142,6 +1126,14 @@ static int mailalias_dbopenfile(MAILALIAS *op,time_t dt)
 	of &= (~ O_RDWR) ;
 	of &= (~ O_WRONLY) ;
 	of |= O_RDONLY ;
+#if	CF_DEBUGS
+	{
+	    char	obuf[100+1] ;
+	    snopenflags(obuf,100,of) ;
+	    debugprintf("mailalias_dbopenfile: ent of=%s\n",obuf) ;
+	}
+#endif /* CF_DEBUGS */
+
 	if ((rs = u_open(op->dbfname,of,op->operm)) >= 0) {
 	    USTAT	sb ;
 	    op->fd = rs ;
@@ -1156,7 +1148,7 @@ static int mailalias_dbopenfile(MAILALIAS *op,time_t dt)
 	        op->ti_open = dt ;
 
 	        if (op->f.ocreate && op->f.owrite) {
-		    f_crate = (sb.st_size == 0) ;
+		    f_create = (sb.st_size == 0) ;
 	            if (! f_create) {
 	                if ((rs = mailalias_fileold(op,dt)) > 0) {
 	                    f_create = TRUE ;
@@ -1179,7 +1171,7 @@ static int mailalias_dbopenfile(MAILALIAS *op,time_t dt)
 	    op->f.needcreate = TRUE ;
 	} /* end if (successful file open) */
 
-	if (rs >= 0) && f_create) {
+	if ((rs >= 0) && f_create) {
 	    op->f.needcreate = TRUE ;
 	}
 
@@ -1193,7 +1185,9 @@ static int mailalias_dbopenmake(MAILALIAS *op,time_t dt)
 	int		rs = SR_OK ;
 	if (op->f.ocreate && op->f.owrite && op->f.needcreate) {
 	    if ((rs = mailalias_dbmake(op,dt)) >= 0) {
+		const int	of = O_RDONLY ;
 	        if ((rs = u_open(op->dbfname,of,op->operm)) >= 0) {
+		    USTAT	sb ;
 	            op->fd = rs ;
 	            if ((rs = u_fstat(op->fd,&sb)) >= 0) {
 	                op->fi.mtime = sb.st_mtime ;
@@ -1240,7 +1234,7 @@ static int mailalias_dbopenwait(MAILALIAS *op)
 	        if (rs < 0) break ;
 	    } /* end while */
 	    if (rs >= 0) {
-		if (i < to)) {
+		if (i < to) {
 		    op->fi.size = sb.st_size ;
 		    op->fi.mtime = sb.st_mtime ;
 	        } else {
@@ -1250,13 +1244,13 @@ static int mailalias_dbopenwait(MAILALIAS *op)
 	} /* end if (u_fstat) */
 	return rs ;
 }
-/* end subroutine (mailalias_dbopenwait)
+/* end subroutine (mailalias_dbopenwait) */
 
 
 static int mailalias_isremote(MAILALIAS *op)
 {
 	int		rs ;
-	if (rs = isfsremote(op->fd)) > 0) {
+	if ((rs = isfsremote(op->fd)) > 0) {
 	    op->f.remote = TRUE ;
 	}
 	return rs ;
@@ -1654,6 +1648,7 @@ static int mailalias_wrfile(MAILALIAS *op,struct dbmake *dp,time_t dt)
 	int		rklen, rlen, rilen ;
 	int		rksize, rsize, risize ;
 	int		sksize, svsize ;
+	int		ml ;
 #if	CF_DEBUGS
 	int		off = 0 ;
 #endif
@@ -1709,10 +1704,9 @@ static int mailalias_wrfile(MAILALIAS *op,struct dbmake *dp,time_t dt)
 
 /* prepare and write the file magic */
 
-	cp = strwcpy(fidbuf,MAILALIAS_FILEMAGIC,15) ;
-
-	*cp++ = '\n' ;
-	memset(cp,0,(fidbuf + 16) - cp) ;
+	cp = fidbuf ;
+	ml = mkmagic(cp,MAILALIAS_FILEMAGICSIZE,MAILALIAS_FILEMAGIC) ;
+	cp += ml ;
 
 /* prepare and write the version and encoding (VETU) */
 

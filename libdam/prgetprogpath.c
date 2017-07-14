@@ -166,7 +166,7 @@ static cchar	*prbins[] = {
 	NULL
 } ;
 
-static const int	entaccs[] = {
+static const int	rsentacc[] = {
 	SR_NOENT,
 	SR_ACCESS,
 	SR_OVERFLOW,
@@ -179,7 +179,7 @@ static const int	entaccs[] = {
 /* exported subroutines */
 
 
-int prgetprogpath(cchar pr[],char rbuf[],cchar *np,int nl)
+int prgetprogpath(cchar *pr,char *rbuf,cchar *np,int nl)
 {
 	SUBINFO		si, *sip = &si ;
 	int		rs ;
@@ -223,7 +223,6 @@ int prgetprogpath(cchar pr[],char rbuf[],cchar *np,int nl)
 	    rs1 = subinfo_finish(sip) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (subinfo) */
-
 
 #if	CF_DEBUGS
 	debugprintf("prgetprogpath: ret rs=%d rl=%u\n",rs,rl) ;
@@ -319,14 +318,15 @@ static int subinfo_tryroot(SUBINFO *sip,char rbuf[],cchar *np,int nl)
 			rl = 0 ;
 		    }
 		}
-	    } else if (isOverNoEntAcc(rs))
+	    } else if (isOverNoEntAcc(rs)) {
 	        rs = SR_OK ;
+	    }
 	    if (rs < 0) break ;
 	} /* end for */
 
-	    if ((rs >= 0) && (rl > 0)) {
-	        sip->f_changed = TRUE ;
-	    }
+	if ((rs >= 0) && (rl > 0)) {
+	    sip->f_changed = TRUE ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("prgetprogpath/subinfo_tryroot: rs=%d ol=%u\n",rs,rl) ;
@@ -372,8 +372,8 @@ static int subinfo_tryother(SUBINFO *sip,char rbuf[],cchar np[],int nl)
 /* end subroutine (subinfo_other) */
 
 
-static int subinfo_tryothercheck(SUBINFO *sip,cchar dp[],int dl,
-		char rbuf[],cchar np[],int nl)
+static int subinfo_tryothercheck(SUBINFO *sip,cchar *dp,int dl,
+		char *rbuf,cchar *np,int nl)
 {
 	int		rs = SR_NOENT ;
 	int		rl = 0 ;
@@ -415,8 +415,9 @@ static int subinfo_xfile(SUBINFO *sip,cchar name[])
 
 	if ((rs = u_stat(name,&sb)) >= 0) {
 	    rs = SR_NOENT ;
-	    if (S_ISREG(sb.st_mode))
+	    if (S_ISREG(sb.st_mode)) {
 	        rs = sperm(&sip->id,&sb,X_OK) ;
+	    }
 	}
 
 	return rs ;
@@ -466,7 +467,7 @@ static int mkdfname(char rbuf[],cchar dp[],int dl,cchar *np,int nl)
 
 static int isOverNoEntAcc(int rs)
 {
-	return isOneOf(entaccs,rs) ;
+	return isOneOf(rsentacc,rs) ;
 }
 /* end subroutine (isOverNoEntAcc) */
 

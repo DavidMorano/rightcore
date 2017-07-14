@@ -78,7 +78,7 @@ int hasallalnum(cchar *sp,int sl)
 	int		f = TRUE ;
 
 	while (sl && *sp) {
-	    ch = (*sp & 0xff) ;
+	    ch = MKCHAR(*sp) ;
 	    f = isalnumlatin(ch) ;
 	    if (! f) break ;
 	    sp += 1 ;

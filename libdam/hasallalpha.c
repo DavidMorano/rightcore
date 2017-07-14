@@ -82,7 +82,7 @@ int hasallalpha(cchar *sp,int sl)
 	int		f = TRUE ;
 
 	while (sl && *sp) {
-	    ch = (*sp & 0xff) ;
+	    ch = MKCHAR(*sp) ;
 	    f = isalphalatin(ch) ;
 	    if (! f) break ;
 	    sp += 1 ;

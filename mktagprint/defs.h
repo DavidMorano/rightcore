@@ -146,6 +146,7 @@ struct proginfo_flags {
 	uint		indent:1 ;
 	uint		keyfold:1 ;
 	uint		nodebug:1 ;
+	uint		iacc:1 ;	/* ignore no-access problems */
 	uint		optbible:1 ;
 	uint		optnofile:1 ;
 	uint		optoutcookie:1 ;

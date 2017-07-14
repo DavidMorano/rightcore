@@ -79,6 +79,7 @@ struct mailalias_flags {
 	uint		held:1 ;
 	uint		lockedread:1 ;
 	uint		lockedwrite:1 ;
+	uint		needcreate:1 ;
 } ;
 
 struct mailalias_head {

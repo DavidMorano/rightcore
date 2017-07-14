@@ -579,7 +579,14 @@ static int subinfo_procfile(SUBINFO *sip,DISP *dop,cchar *fname)
 	        if ((rs = sperm(&sip->id,&sb,R_OK)) >= 0) {
 	            rs = disp_addwork(dop,fname,-1) ;
 	        } else if (isNotAccess(rs)) {
-	            ereport(pip,fname,rs) ;
+		    if (pip->f.iacc) {
+			if (pip->debuglevel > 0) {
+	                    ereport(pip,fname,rs) ;
+			}
+			rs = SR_OK ;
+		    } else {
+	                ereport(pip,fname,rs) ;
+		    }
 	        }
 	    } else if (isNotPresent(rs)) {
 	        rs = SR_OK ;

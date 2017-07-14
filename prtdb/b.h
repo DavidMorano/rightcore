@@ -4,9 +4,7 @@
 /* revision history:
 
 	= 2000-05-14, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -102,5 +100,7 @@
 
 #define	PO_OPTION	"option"
 #define	PO_SUFFIX	"suffix"
+
+#define	TO_CHILD	5
 
 

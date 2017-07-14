@@ -1226,8 +1226,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            if (rs >= 0) rs = lib_sigterm() ;
 	            if (rs >= 0) rs = lib_sigintr() ;
 	            if (rs < 0) break ;
-	        } /* end for */
-	    } /* end if */
+	        } /* end while */
+	    } /* end if (ok) */
 
 	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
 	        SHIO	afile, *afp = &afile ;

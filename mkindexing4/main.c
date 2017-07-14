@@ -191,6 +191,7 @@ static cchar *argopts[] = {
 	"dn",
 	"lang",
 	"npar",
+	"iacc",
 	NULL
 } ;
 
@@ -217,6 +218,7 @@ enum argopts {
 	argopt_dn,
 	argopt_lang,
 	argopt_npar,
+	argopt_iacc,
 	argopt_overlast
 } ;
 
@@ -271,6 +273,7 @@ static cchar *akonames[] = {
 	"tl",
 	"keyfold",
 	"nodebug",
+	"iacc",
 	NULL
 } ;
 
@@ -287,6 +290,7 @@ enum akonames {
 	akoname_tl,
 	akoname_keyfold,
 	akoname_nodebug,
+	akoname_iacc,
 	akoname_overlast
 } ;
 
@@ -720,6 +724,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 				    }
 	                        } else
 	                            rs = SR_INVALID ;
+	                    break ;
+
+	                case argopt_iacc:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl) {
+				    rs = optbool(avp,avl) ;
+	                            pip->f.iacc = rs ;
+				}
+	                    }
 	                    break ;
 
 /* handle all keyword defaults */
@@ -1540,6 +1554,17 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        if (vl > 0) {
 	                            rs = optbool(vp,vl) ;
 	                            pip->f.nodebug = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_iacc:
+	                    if (! pip->final.iacc) {
+	                        pip->final.iacc = TRUE ;
+	                        pip->have.iacc = TRUE ;
+	                        pip->f.iacc = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.iacc = (rs > 0) ;
 	                        }
 	                    }
 	                    break ;

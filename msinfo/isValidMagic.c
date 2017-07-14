@@ -18,7 +18,7 @@
 
 /*******************************************************************************
 
-        This subroutine verifies that the given unknown string container the
+        This subroutine verifies that the given unknown string contains the
         given valid magic string.
 
 	Synopsis:
@@ -27,9 +27,9 @@
 
 	Arguments:
 
-	tbuf		string buffer to test
-	tlen		length of string buffer
-	ms		givem valid magic string
+	cchar	*tbuf		string buffer to test
+	int	tlen		length of string buffer
+	int	ms		givem valid magic string
 
 	Returns:
 

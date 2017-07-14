@@ -133,6 +133,10 @@ extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(cchar *,int,int) ;
 extern char	*strnrchr(cchar *,int,int) ;
 
+#if	CF_DEBUG
+static cchar	*strfiletype(USTAT *) ;
+#endif
+
 
 /* local structures */
 
@@ -196,6 +200,7 @@ static int	procprintsufs(PROGINFO *,cchar *) ;
 static int	proctars_begin(PROGINFO *) ;
 static int	proctars_end(PROGINFO *) ;
 static int	proctars_check(PROGINFO *) ;
+static int	proctars_checkerr(PROGINFO *,cchar *,int) ;
 static int	proctars_same(PROGINFO *,USTAT *) ;
 static int	proctars_load(PROGINFO *,cchar *,USTAT *) ;
 static int	proctars_fins(PROGINFO *) ;
@@ -669,6 +674,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	pip->namelen = MAXNAMELEN ;
 	pip->verboselevel = 1 ;
 	pip->progmode = -1 ;
+
+	if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	    rs = optvalue(cp,-1) ;
+	    pip->debuglevel = rs ;
+	}
 
 /* process program arguments */
 
@@ -2628,7 +2638,7 @@ static int procdir(PROGINFO *pip,cchar *np,USTAT *sbp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("main/procdir: name=%s\n",np) ;
+	    debugprintf("main/procdir: ent name=%s\n",np) ;
 #endif
 
 	while ((nl > 0) && (np[nl-1] == '/')) nl -= 1 ;
@@ -2789,13 +2799,8 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    cchar	*cp ;
-	    debugprintf("main/procother: ent filepath=%s\n",name) ;
-	    if (S_ISLNK(sbp->st_mode)) cp = "LINK" ;
-	    else if (S_ISDIR(sbp->st_mode)) cp = "DIR" ;
-	    else if (S_ISREG(sbp->st_mode)) cp = "REG" ;
-	    else cp = "OTHER" ;
-	    debugprintf("main/procother: filetype=%s\n",cp) ;
+	    cchar	*cp = strfiletype(sbp) ;
+	    debugprintf("main/procother: ent name=%s ft=%s\n",name,cp) ;
 	}
 #endif /* CF_DEBUG */
 
@@ -3111,6 +3116,12 @@ static int procothers(PROGINFO *pip,cchar *name,USTAT *sbp,FILEINFO *ckp)
 	vechand		*tlp = &pip->tardirs ;
 	int		rs = SR_OK ;
 	int		i ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    cchar	*cp = strfiletype(sbp) ;
+	    debugprintf("main/procothers: ent name=%s ft=%s\n",name,cp) ;
+	}
+#endif
 	for (i = 0 ; vechand_get(tlp,i,&tdp) >= 0 ; i += 1) {
 	    if (tdp != NULL) {
 	        pip->tardname = tdp->dname ;
@@ -3417,6 +3428,10 @@ static int proctars_check(PROGINFO *pip)
 	cchar		*pn = pip->progname ;
 	cchar		*po = PO_TARDIRS ;
 	cchar		*fmt = NULL ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/proctars_check: ent\n") ;
+#endif
 	if ((rs = paramopt_countvals(pop,po)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    if ((rs = paramopt_curbegin(pop,&cur)) >= 0) {
@@ -3438,19 +3453,26 @@ static int proctars_check(PROGINFO *pip)
 	                                c += rs ;
 	                            }
 	                        } else {
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/proctars_check: nto-dir\n") ;
+#endif
 	                            rs = SR_NOTDIR ;
 	                        }
-	                    } else {
-	                        fmt = "%s: inaccessible target (%d)\n" ;
-	                        bprintf(pip->efp,fmt,pn,rs) ;
-	                        fmt = "%s: target=%t\n" ;
-	                        bprintf(pip->efp,fmt,pn,vp,vl) ;
 	                    }
+			    if (rs < 0) {
+				proctars_checkerr(pip,td,rs) ;
+			    }
 	                } /* end if (mkpath) */
+
 	            } /* end if (positive) */
 	            if (rs < 0) break ;
 	        } /* end while */
 	        if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/proctars_check: while-out rs=%d c=%u\n",rs) ;
+#endif
 	        rs1 = paramopt_curend(pop,&cur) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (paramopt-cur) */
@@ -3459,9 +3481,28 @@ static int proctars_check(PROGINFO *pip)
 	    rs = SR_INVALID ;
 	    bprintf(pip->efp,fmt, pip->progname) ;
 	} /* end if */
-	if (rs < 0) {
-	    fmt = NULL ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/proctars_check: ret rs=%d c=%u\n",rs,c) ;
+#endif
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (proctars_check) */
+
+
+static int proctars_checkerr(PROGINFO *pip,cchar *td,int rs)
+{
+	cchar		*pn = pip->progname ;
+	cchar		*fmt = NULL ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/proctars_checker: gen-error rs=%d\n",rs) ;
+#endif
 	    switch (rs) {
+	    case SR_NOENT:
+	    case SR_ACCESS:
+		fmt = "%s: inaccessible target (%d)\n" ;
+		break ;
 	    case SR_XDEV:
 	        fmt = "%s: all targets must be on the same file-system (%d)\n" ;
 	        break ;
@@ -3471,15 +3512,11 @@ static int proctars_check(PROGINFO *pip)
 	    } /* end switch */
 	    if (fmt != NULL) {
 	        bprintf(pip->efp,fmt,pn,rs) ;
+	        bprintf(pip->efp,"%s: tar=%s",pn,td) ;
 	    }
-	} /* end if (error) */
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/proctars_check: ret rs=%d c=%u\n",rs,c) ;
-#endif
-	return (rs >= 0) ? c : rs ;
+	return rs ;
 }
-/* end subroutine (proctars_check) */
+/* end subroutine (proctars_checkerr) */
 
 
 static int proctars_same(PROGINFO *pip,USTAT *sbp)
@@ -4508,8 +4545,10 @@ static int proclink(PROGINFO *pip,cchar *name,USTAT *sbp, FILEINFO *ckp)
 	int		f_linked = FALSE ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/proclink: name=%s\n",name) ;
+	if (DEBUGLEVEL(3)) {
+	    cchar	*ft = strfiletype(sbp) ;
+	    debugprintf("main/proclink: ent name=%s ft=%s\n",name,ft) ;
+	}
 #endif
 
 	if (sbp->st_dev == pip->tardev) {
@@ -4521,7 +4560,19 @@ static int proclink(PROGINFO *pip,cchar *name,USTAT *sbp, FILEINFO *ckp)
 	        int	f_dolink = TRUE ;
 
 	        if ((rs = uc_lstat(tarfname,&tsb)) >= 0) {
-	            if (! S_ISDIR(sbp->st_mode)) {
+	            if (S_ISDIR(sbp->st_mode)) {
+	                if (S_ISDIR(tsb.st_mode)) {
+	                    f_dolink = FALSE ;
+	                } else {
+	                    w = 3 ;
+	                    rs = uc_unlink(tarfname) ;
+#if	CF_DEBUG
+	                    if (DEBUGLEVEL(3))
+	                        debugprintf("main/proclink: unlink() rs=%d\n",
+	                            rs) ;
+#endif
+	                }
+		    } else {
 	                int	f = TRUE ;
 	                f = f && (tsb.st_dev == sbp->st_dev) ;
 	                f = f && (tsb.st_ino == sbp->st_ino) ;
@@ -4537,18 +4588,6 @@ static int proclink(PROGINFO *pip,cchar *name,USTAT *sbp, FILEINFO *ckp)
 	                        rs = uc_unlink(tarfname) ;
 	                    }
 	                }
-	            } else {
-	                if (! S_ISDIR(tsb.st_mode)) {
-	                    w = 3 ;
-	                    rs = uc_unlink(tarfname) ;
-#if	CF_DEBUG
-	                    if (DEBUGLEVEL(3))
-	                        debugprintf("main/proclink: unlink() rs=%d\n",
-	                            rs) ;
-#endif
-	                } else {
-	                    f_dolink = FALSE ;
-	                }
 	            } /* end if */
 	        } else if (isNotStat(rs)) {
 	            rs = SR_OK ;
@@ -4561,7 +4600,17 @@ static int proclink(PROGINFO *pip,cchar *name,USTAT *sbp, FILEINFO *ckp)
 #endif
 
 	        if ((rs >= 0) && f_dolink) {
-	            if (! S_ISDIR(sbp->st_mode)) {
+	            if (S_ISDIR(sbp->st_mode)) {
+	                w = 7 ;
+	                rs = uc_mkdir(tarfname,dm) ;
+	                if ((rs == SR_NOTDIR) || (rs == SR_NOENT)) {
+	                    w = 8 ;
+	                    if ((rs = mkpdirs(tarfname,dm)) >= 0) {
+	                        w = 9 ;
+	                        rs = uc_mkdir(tarfname,dm) ;
+	                    }
+	                }
+	            } else {
 	                f_linked = TRUE ;
 	                w = 4 ;
 	                rs = uc_link(name,tarfname) ;
@@ -4572,17 +4621,7 @@ static int proclink(PROGINFO *pip,cchar *name,USTAT *sbp, FILEINFO *ckp)
 	                        rs = uc_link(name,tarfname) ;
 	                    }
 	                }
-	            } else {
-	                w = 7 ;
-	                rs = uc_mkdir(tarfname,dm) ;
-	                if ((rs == SR_NOTDIR) || (rs == SR_NOENT)) {
-	                    w = 8 ;
-	                    if ((rs = mkpdirs(tarfname,dm)) >= 0) {
-	                        w = 9 ;
-	                        rs = uc_mkdir(tarfname,dm) ;
-	                    }
-	                }
-	            }
+		    } /* end if */
 	        } /* end if (dolink) */
 
 	        if ((rs == SR_EXIST) && (! pip->f.quiet)) {
@@ -5670,5 +5709,45 @@ static int isNotStat(int rs)
 	return isOneOf(rsnostat,rs) ;
 }
 /* end subroutine (vcmprstr) */
+
+
+#if	CF_DEBUG
+#ifdef	COMMENT
+enum ftypes {
+	ftype_reg,
+	ftype_dir,
+	ftype_chr,
+	ftype_blk,
+	ftype_fifo,
+	ftype_sock,
+	ftype_lnk,
+	ftype_other,
+	ftype_overlast
+} ;
+static const cchar *ftypes[] = {
+	"REG",	
+	"DIR",
+	"CHR",
+	"BLK",
+	"FIFO",
+	"SOCK",
+	"LNK",
+	"OTHER",
+	NULL
+} ;
+#endif /* COMMENT */
+static cchar *strfiletype(USTAT *sbp)
+{
+	    cchar	*cp ;
+	    if (S_ISLNK(sbp->st_mode)) cp = "LINK" ;
+	    else if (S_ISDIR(sbp->st_mode)) cp = "DIR" ;
+	    else if (S_ISREG(sbp->st_mode)) cp = "REG" ;
+	    else if (S_ISFIFO(sbp->st_mode)) cp = "FIFO" ;
+	    else if (S_ISSOCK(sbp->st_mode)) cp = "SOCK" ;
+	    else if (S_ISCHR(sbp->st_mode)) cp = "CHR" ;
+	    else cp = "OTHER" ;
+	return cp ;
+} /* end if (strfiletype) */
+#endif /* CF_DEBUG */
 
 

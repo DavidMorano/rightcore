@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The subroutine was adapted from others programs that
-	did similar types of functions.
-
+        The subroutine was adapted from others programs that did similar types
+        of functions.
 
 */
 
@@ -26,10 +24,10 @@
 
 	int pdb_open(op,pr,ur,uname,fname)
 	PDB		*op ;
-	const char	pr[] ;
-	const char	ur[] ;
-	const char	uname[] ;
-	const char	fname[] ;
+	cchar		pr[] ;
+	cchar		ur[] ;
+	cchar		uname[] ;
+	cchar		fname[] ;
 
 	Arguments:
 
@@ -58,10 +56,8 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
-#include	<baops.h>
 #include	<svcfile.h>
 #include	<vecstr.h>
 #include	<mallocstuff.h>
@@ -83,11 +79,16 @@
 
 /* external subroutines */
 
-extern int	sncpy1(char *,int,const char *) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
-extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
-extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
+extern int	sncpy1(char *,int,cchar *) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	vecstr_envadd(vecstr *,cchar *,cchar *,int) ;
+extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
+extern int	permsched(cchar **,vecstr *,char *,int,cchar *,int) ;
+
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
 
 
 /* external variables */
@@ -98,7 +99,7 @@ extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
 
 /* forward references */
 
-static int pdb_fetcher(PDB *,int,const char *,const char *,char *,int) ;
+static int pdb_fetcher(PDB *,char *,int,cchar *,cchar *,int) ;
 static int pdb_dbopen(PDB *,int) ;
 static int pdb_dbcheck(PDB *,int) ;
 static int pdb_dbclose(PDB *,int) ;
@@ -107,7 +108,7 @@ static int pdb_findfile(PDB *,char *,int) ;
 
 /* local variables */
 
-static const char	*dbsched[] = {
+static cchar	*dbsched[] = {
 	"%p/%e/%n/%n.%f",
 	"%p/%e/%n/%f",
 	"%p/%e/%n.%f",
@@ -123,52 +124,37 @@ static const char	*dbsched[] = {
 /* exported subroutines */
 
 
-int pdb_open(op,pr,ur,uname,fname)
-PDB		*op ;
-const char	pr[] ;
-const char	ur[] ;
-const char	uname[] ;
-const char	fname[] ;
+int pdb_open(PDB *op,cchar *pr,cchar *ur,cchar *uname,cchar *fname)
 {
 	int		rs = SR_NOMEM ;
 
 	if (op == NULL) return SR_FAULT ;
-
+	if (pr == NULL) return SR_FAULT ;
+	if (ur == NULL) return SR_FAULT ;
+	if (uname == NULL) return SR_FAULT ;
 	if (fname == NULL) return SR_FAULT ;
+
+	if (fname[0] == '\0') return SR_INVALID ;
 
 	memset(op,0,sizeof(PDB)) ;
 
 	if ((pr != NULL) && (pr[0] != '\0')) {
-
 	    op->pr = mallocstr(pr) ;
-
-	    if (op->pr == NULL)
-	        goto bad1 ;
-
+	    if (op->pr == NULL) goto bad1 ;
 	}
 
 	if ((ur != NULL) && (ur[0] != '\0')) {
-
 	    op->ur = mallocstr(ur) ;
-
-	    if (op->ur == NULL)
-	        goto bad2 ;
-
+	    if (op->ur == NULL) goto bad2 ;
 	}
 
 	if (uname != NULL) {
-
 	    op->uname = mallocstr(uname) ;
-
-	    if (op->uname == NULL)
-	        goto bad3 ;
-
+	    if (op->uname == NULL) goto bad3 ;
 	}
 
 	op->fname = mallocstr(fname) ;
-
-	if (op->fname == NULL)
-	    goto bad4 ;
+	if (op->fname == NULL) goto bad4 ;
 
 #if	CF_DEBUGS
 	    debugprintf("pdb_open: pr=%s\n",op->pr) ;
@@ -208,41 +194,39 @@ bad1:
 /* end subroutine (pdb_open) */
 
 
-int pdb_fetch(op,printer,keyname,buf,buflen)
-PDB		*op ;
-const char	printer[] ;
-const char	keyname[] ;
-char		buf[] ;
-int		buflen ;
+int pdb_fetch(PDB *op,char *vbuf,int vlen,cchar *printer,cchar *key)
 {
+	const int	rsn = SR_NOTFOUND ;
 	int		rs ;
 	int		w ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (printer == NULL) return SR_FAULT ;
-	if (keyname == NULL) return SR_FAULT ;
-	if (buf == NULL) return SR_FAULT ;
+	if (key == NULL) return SR_FAULT ;
+	if (vbuf == NULL) return SR_FAULT ;
 
 	if (op->magic != PDB_MAGIC) return SR_NOTOPEN ;
 
+#if	CF_DEBUGS
+	debugprintf("prtdb_fetch: ent p=%s k=%s\n",printer,key) ;
+#endif
+
 	w = pdb_local ;
-	rs = pdb_fetcher(op,w,printer,keyname,buf,buflen) ;
-
-	if (rs == SR_NOTFOUND) {
-
+	if ((rs = pdb_fetcher(op,vbuf,vlen,printer,key,w)) == rsn) {
 	    w = pdb_system ;
-	    rs = pdb_fetcher(op,w,printer,keyname,buf,buflen) ;
-
+	    rs = pdb_fetcher(op,vbuf,vlen,printer,key,w) ;
 	} /* end if (searching system DB) */
+
+#if	CF_DEBUGS
+	debugprintf("prtdb_fetch: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
 /* end subroutine (pdb_fetch) */
 
 
-int pdb_check(op,daytime)
-PDB		*op ;
-time_t		daytime ;
+int pdb_check(PDB *op,time_t dt)
 {
 	int		rs1 ;
 	int		w ;
@@ -252,7 +236,7 @@ time_t		daytime ;
 
 	if (op->magic != PDB_MAGIC) return SR_NOTOPEN ;
 
-	op->dt = (daytime != 0) ? daytime : time(NULL) ;
+	op->dt = (dt != 0) ? dt : time(NULL) ;
 
 	for (w = 0 ; w < pdb_overlast ; w += 1) {
 
@@ -268,18 +252,15 @@ time_t		daytime ;
 /* end if (pdb_check) */
 
 
-int pdb_close(op)
-PDB		*op ;
+int pdb_close(PDB *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		w ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != PDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != PDB_MAGIC) return SR_NOTOPEN ;
 
 /* close out the DBs */
 
@@ -293,21 +274,25 @@ PDB		*op ;
 	if (op->fname != NULL) {
 	    rs1 = uc_free(op->fname) ;
 	    if (rs >= 0) rs = rs1 ;
+	    op->fname = NULL ;
 	}
 
 	if (op->uname != NULL) {
 	    rs1 = uc_free(op->uname) ;
 	    if (rs >= 0) rs = rs1 ;
+	    op->uname = NULL ;
 	}
 
 	if (op->ur != NULL) {
 	    rs1 = uc_free(op->ur) ;
 	    if (rs >= 0) rs = rs1 ;
+	    op->ur = NULL ;
 	}
 
 	if (op->pr != NULL) {
 	    rs1 = uc_free(op->pr) ;
 	    if (rs >= 0) rs = rs1 ;
+	    op->pr = NULL ;
 	}
 
 	op->magic = 0 ;
@@ -319,29 +304,28 @@ PDB		*op ;
 /* private subroutines*/
 
 
-int pdb_fetcher(op,w,printer,keyname,buf,buflen)
-PDB		*op ;
-int		w ;
-const char	printer[] ;
-const char	keyname[] ;
-char		buf[] ;
-int		buflen ;
+int pdb_fetcher(PDB *op,char *buf,int vlen,cchar *printer,cchar *key,int w)
 {
 	SVCFILE_CUR	cur ;
-	struct pdb_db	*dbp ;
+	PDB_DB		*dbp ;
 	int		rs = SR_OK ;
 	int		i ;
 
 	if (printer == NULL) return SR_FAULT ;
-	if (keyname == NULL) return SR_FAULT ;
+	if (key == NULL) return SR_FAULT ;
 	if (buf == NULL) return SR_FAULT ;
 
 	if (w >= pdb_overlast) return SR_INVALID ;
 
+#if	CF_DEBUGS
+	debugprintf("prtdb_fetcher: ent p=%s k=%s w=%u\n",printer,key,w) ;
+#endif
+
 	dbp = (op->dbs + w) ;
 
-	if (! dbp->f_open)
+	if (! dbp->f_open) {
 	    rs = pdb_dbopen(op,w) ;
+	}
 
 	if (rs >= 0) {
 	    SVCFILE_ENT	ste ;
@@ -356,44 +340,42 @@ int		buflen ;
 	        rs = svcfile_fetch(&dbp->dbfile,printer,&cur,
 	            &ste,stebuf,STEBUFLEN) ;
 
-	        if (rs < 0)
-	            break ;
+	        if (rs < 0) break ;
 
 	        rs = SR_NOTFOUND ;
 	        for (i = 0 ; ste.keyvals[i][0] != NULL ; i += 1) {
-
-	            if (strcmp(keyname,ste.keyvals[i][0]) == 0) {
-
-	                rs = sncpy1(buf,buflen,ste.keyvals[i][1]) ;
-
-	                if ((rs >= 0) || (rs == SR_OVERFLOW))
-	                    break ;
-
+	            if (strcmp(key,ste.keyvals[i][0]) == 0) {
+	                rs = sncpy1(buf,vlen,ste.keyvals[i][1]) ;
+	                if ((rs >= 0) || (rs == SR_OVERFLOW)) break ;
 	            } /* end if (got a key match) */
-
 	        } /* end for (looping through entry keys) */
 
-	        if ((rs >= 0) || (rs == SR_OVERFLOW))
-	            break ;
+	        if ((rs >= 0) || (rs == SR_OVERFLOW)) break ;
 
 	    } /* end while (looping through enties) */
 
 	    svcfile_curend(&dbp->dbfile,&cur) ;
 	} /* end if (DB is open) */
 
+#if	CF_DEBUGS
+	debugprintf("prtdb_fetcher: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (pdb_fetcher) */
 
 
-static int pdb_dbopen(op,w)
-PDB		*op ;
-int		w ;
+static int pdb_dbopen(PDB *op,int w)
 {
-	struct pdb_db	*dbp ;
+	PDB_DB		*dbp ;
 	int		rs = SR_OK ;
 	int		intfind ;
 	char		dbfname[MAXPATHLEN + 1] ;
+
+#if	CF_DEBUGS
+	debugprintf("prtdb_dbopen: ent w=%u\n",w) ;
+#endif
 
 	dbp = (op->dbs + w) ;
 	if (dbp->f_open)
@@ -428,20 +410,29 @@ int		w ;
 	    rs = SR_NOENT ;
 
 ret0:
+
+#if	CF_DEBUGS
+	debugprintf("prtdb_dbopen: ret rs=%d\n") ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (pdb_dbopen) */
 
 
-static int pdb_findfile(op,dbfname,w)
-PDB		*op ;
-char		dbfname[] ;
-int		w ;
+static int pdb_findfile(PDB *op,char *rbuf,int w)
 {
-	struct pdb_db	*dbp ;
+	PDB_DB		*dbp ;
+	const int	rlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
-	const char	*tp ;
+	cchar		*tp ;
 
+#if	CF_DEBUGS
+	debugprintf("prtdb_findfile: ent w=%u\n",w) ;
+	debugprintf("prtdb_findfile: fname=%s\n",op->fname) ;
+#endif
+
+	rbuf[0] = '\0' ;
 	if ((tp = strchr(op->fname,'/')) == NULL) {
 	    vecstr	svars ;
 
@@ -449,68 +440,66 @@ int		w ;
 
 		tp = "/" ;
 		switch (w) {
-
 		case pdb_local:
-	            if ((op->ur != NULL) && (op->ur[0] != '\0'))
+	            if ((op->ur != NULL) && (op->ur[0] != '\0')) {
 			tp = op->ur ;
+		    }
 		    break ;
-
 		case pdb_system:
-	            if ((op->pr != NULL) && (op->pr[0] != '\0'))
+	            if ((op->pr != NULL) && (op->pr[0] != '\0')) {
 			tp = op->pr ;
+		    }
 		    break ;
-
 		} /* end switch */
 
 	        vecstr_envset(&svars,"p",tp,-1) ;
 
 	        vecstr_envset(&svars,"e","etc",-1) ;
 
-	        if ((op->uname != NULL) && (op->uname[0] != '\0'))
+	        if ((op->uname != NULL) && (op->uname[0] != '\0')) {
 	            vecstr_envset(&svars,"n",op->uname,-1) ;
+		}
 
-	        rs = permsched(dbsched,&svars,
-	            dbfname,MAXPATHLEN, op->fname,R_OK) ;
+	        rs = permsched(dbsched,&svars,rbuf,rlen,op->fname,R_OK) ;
 
 	        vecstr_finish(&svars) ;
 	    } /* end if */
 
-	} else
-	    rs = mkpath1(dbfname,op->fname) ;
+	} else {
+	    rs = mkpath1(rbuf,op->fname) ;
+	}
 
 	if (rs >= 0) {
-	    struct ustat	sb ;
-
-	    rs = u_stat(dbfname,&sb) ;
-
-	    if ((rs >= 0) && S_ISDIR(sb.st_mode)) {
-		dbfname[0] = '\0' ;
-	        rs = SR_ISDIR ;
-	    }
-
-	    if (rs >= 0) {
-		dbp = op->dbs + w ;
-		dbp->ti_mtime = sb.st_mtime ;
-	    }
-
+	    USTAT	sb ;
+	    if ((rs = uc_stat(rbuf,&sb)) >= 0) {
+	        if (S_ISDIR(sb.st_mode)) {
+		    rbuf[0] = '\0' ;
+	            rs = SR_ISDIR ;
+		} else {
+		    dbp = (op->dbs + w) ;
+		    dbp->ti_mtime = sb.st_mtime ;
+		}
+	    } /* end if (uc_stat) */
 	} /* end if (directory check) */
+
+#if	CF_DEBUGS
+	debugprintf("prtdb_findfile: ret rs=%d\n",rs) ;
+	debugprintf("prtdb_findfile: ret rbuf=%s\n",rbuf) ;
+#endif
 
 	return rs ;
 }
 /* end subroutine (pdb_findfile) */
 
 
-static int pdb_dbcheck(op,w)
-PDB		*op ;
-int		w ;
+static int pdb_dbcheck(PDB *op,int w)
 {
-	struct pdb_db	*dbp ;
+	PDB_DB		*dbp ;
 	int		rs = SR_OK ;
 
-	if (w >= pdb_overlast)
-	    return SR_INVALID ;
+	if (w >= pdb_overlast) return SR_INVALID ;
 
-	dbp = op->dbs + w ;
+	dbp = (op->dbs + w) ;
 
 	if (dbp->f_open)
 	    rs = svcfile_check(&dbp->dbfile,op->dt) ;
@@ -520,17 +509,14 @@ int		w ;
 /* end subroutine (pdb_dbcheck) */
 
 
-static int pdb_dbclose(op,w)
-PDB		*op ;
-int		w ;
+static int pdb_dbclose(PDB *op,int w)
 {
-	struct pdb_db	*dbp ;
+	PDB_DB		*dbp ;
 	int		rs = SR_OK ;
 
-	if (w >= pdb_overlast)
-	    return SR_INVALID ;
+	if (w >= pdb_overlast) return SR_INVALID ;
 
-	dbp = op->dbs + w ;
+	dbp = (op->dbs + w) ;
 
 	if (dbp->f_open) {
 	    dbp->ti_find = 0 ;

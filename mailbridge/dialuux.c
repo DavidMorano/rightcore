@@ -292,11 +292,11 @@ int		opts ;
 	    rs = vecstr_envadd(&envs,varpruux,op->pr,-1) ;
 #endif /* COMMENT */
 
-#else
+#else /* CF_GETPROGROOT */
 	rs = prgetprogpath(pr,progfname,pn,-1) ;
 	if (rs == 0)
 	    rs = mkpath1(progfname,pn) ;
-#endif
+#endif /* CF_GETPROGROOT */
 
 	if (rs < 0)
 	    goto ret1 ;

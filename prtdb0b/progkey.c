@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The subroutine was adapted from others programs that
-	did similar types of functions.
-
+        The subroutine was adapted from others programs that did similar types
+        of functions.
 
 */
 
@@ -27,7 +25,7 @@
 	Synopsis:
 
 	int progkey(pip,printer,keyname)
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 	const char	printer[] ;
 	const char	keyname[] ;
 
@@ -78,7 +76,7 @@
 /* external subroutines */
 
 extern int	snwcpy(char *,int,const char *,int) ;
-extern int lpgetout(struct proginfo *,const char *,char *,int,const char *) ;
+extern int lpgetout(PROGINFO *,cchar *,char *,int,cchar *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -102,21 +100,17 @@ extern int	strlinelen(const char *,int,int) ;
 
 
 int progkey(pip,printer,kp,kl)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 const char	printer[] ;
 const char	kp[] ;
 int		kl ;
 {
 	const int	vlen = VBUFLEN ;
-
-	int	rs ;
-	int	vl = 0 ;
-
+	int		rs ;
+	int		vl = 0 ;
 	const char	*pp ;
-
-	char	keyname[KEYBUFLEN+1] ;
-	char	vbuf[VBUFLEN + 1] ;
-
+	char		keyname[KEYBUFLEN+1] ;
+	char		vbuf[VBUFLEN + 1] ;
 
 	if (printer == NULL) return SR_FAULT ;
 	if (kp == NULL) return SR_FAULT ;
@@ -184,6 +178,5 @@ ret0:
 	return (rs >= 0) ? vl : rs ;
 }
 /* end subroutine (progkey) */
-
 
 
