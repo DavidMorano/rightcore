@@ -90,6 +90,8 @@ extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
+extern char	*strwcpy(char *,cchar *,int) ;
+
 
 /* external variables */
 
@@ -126,7 +128,9 @@ static cchar	*dbsched[] = {
 
 int pdb_open(PDB *op,cchar *pr,cchar *ur,cchar *uname,cchar *fname)
 {
-	int		rs = SR_NOMEM ;
+	int		rs ;
+	int		size = 0 ;
+	char		*bp ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (pr == NULL) return SR_FAULT ;
@@ -138,23 +142,22 @@ int pdb_open(PDB *op,cchar *pr,cchar *ur,cchar *uname,cchar *fname)
 
 	memset(op,0,sizeof(PDB)) ;
 
-	if ((pr != NULL) && (pr[0] != '\0')) {
-	    op->pr = mallocstr(pr) ;
-	    if (op->pr == NULL) goto bad1 ;
-	}
-
-	if ((ur != NULL) && (ur[0] != '\0')) {
-	    op->ur = mallocstr(ur) ;
-	    if (op->ur == NULL) goto bad2 ;
-	}
-
-	if (uname != NULL) {
-	    op->uname = mallocstr(uname) ;
-	    if (op->uname == NULL) goto bad3 ;
-	}
-
-	op->fname = mallocstr(fname) ;
-	if (op->fname == NULL) goto bad4 ;
+	size += (strlen(pr)+1) ;
+	size += (strlen(ur)+1) ;
+	size += (strlen(uname)+1) ;
+	size += (strlen(fname)+1) ;
+	if ((rs = uc_malloc(size,&bp)) >= 0) {
+	    op->a = bp ;
+	    op->pr = bp ;
+	    bp = (strwcpy(bp,pr,-1)+1) ;
+	    op->ur = bp ;
+	    bp = (strwcpy(bp,ur,-1)+1) ;
+	    op->uname = bp ;
+	    bp = (strwcpy(bp,uname,-1)+1) ;
+	    op->fname = bp ;
+	    bp = (strwcpy(bp,fname,-1)+1) ;
+	    op->magic = PDB_MAGIC ;
+	} /* end if (m-a) */
 
 #if	CF_DEBUGS
 	    debugprintf("pdb_open: pr=%s\n",op->pr) ;
@@ -163,35 +166,44 @@ int pdb_open(PDB *op,cchar *pr,cchar *ur,cchar *uname,cchar *fname)
 	    debugprintf("pdb_open: fname=%s\n",op->fname) ;
 #endif
 
-	rs = SR_OK ;
-	op->magic = PDB_MAGIC ;
-
-/* get out */
-ret0:
-
 #if	CF_DEBUGS
 	    debugprintf("pdb_open: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
-
-/* bad stuff */
-bad4:
-	if (op->uname != NULL)
-	    uc_free(op->uname) ;
-
-bad3:
-	if (op->ur != NULL)
-	    uc_free(op->ur) ;
-
-bad2:
-	if (op->pr != NULL)
-	    uc_free(op->pr) ;
-
-bad1:
-	goto ret0 ;
 }
 /* end subroutine (pdb_open) */
+
+
+int pdb_close(PDB *op)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		w ;
+
+	if (op == NULL) return SR_FAULT ;
+
+	if (op->magic != PDB_MAGIC) return SR_NOTOPEN ;
+
+/* close out the DBs */
+
+	for (w = 0 ; w < pdb_overlast ; w += 1) {
+	   rs1 = pdb_dbclose(op,w) ;
+	   if (rs >= 0) rs = rs1 ;
+	}
+
+/* free everything else */
+
+	if (op->a != NULL) {
+	    rs1 = uc_free(op->a) ;
+	    if (rs >= 0) rs = rs1 ;
+	    op->a = NULL ;
+	}
+
+	op->magic = 0 ;
+	return rs ;
+}
+/* end subroutine (pdb_close) */
 
 
 int pdb_fetch(PDB *op,char *vbuf,int vlen,cchar *printer,cchar *key)
@@ -250,55 +262,6 @@ int pdb_check(PDB *op,time_t dt)
 	return f_changed ;
 }
 /* end if (pdb_check) */
-
-
-int pdb_close(PDB *op)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		w ;
-
-	if (op == NULL) return SR_FAULT ;
-
-	if (op->magic != PDB_MAGIC) return SR_NOTOPEN ;
-
-/* close out the DBs */
-
-	for (w = 0 ; w < pdb_overlast ; w += 1) {
-	   rs1 = pdb_dbclose(op,w) ;
-	   if (rs >= 0) rs = rs1 ;
-	}
-
-/* free everything else */
-
-	if (op->fname != NULL) {
-	    rs1 = uc_free(op->fname) ;
-	    if (rs >= 0) rs = rs1 ;
-	    op->fname = NULL ;
-	}
-
-	if (op->uname != NULL) {
-	    rs1 = uc_free(op->uname) ;
-	    if (rs >= 0) rs = rs1 ;
-	    op->uname = NULL ;
-	}
-
-	if (op->ur != NULL) {
-	    rs1 = uc_free(op->ur) ;
-	    if (rs >= 0) rs = rs1 ;
-	    op->ur = NULL ;
-	}
-
-	if (op->pr != NULL) {
-	    rs1 = uc_free(op->pr) ;
-	    if (rs >= 0) rs = rs1 ;
-	    op->pr = NULL ;
-	}
-
-	op->magic = 0 ;
-	return rs ;
-}
-/* end subroutine (pdb_close) */
 
 
 /* private subroutines*/
@@ -368,21 +331,18 @@ int pdb_fetcher(PDB *op,char *buf,int vlen,cchar *printer,cchar *key,int w)
 
 static int pdb_dbopen(PDB *op,int w)
 {
-	PDB_DB		*dbp ;
+	PDB_DB		*dbp = (op->dbs + w) ;
 	int		rs = SR_OK ;
-	int		intfind ;
-	char		dbfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("prtdb_dbopen: ent w=%u\n",w) ;
 #endif
 
-	dbp = (op->dbs + w) ;
-	if (dbp->f_open)
-	    goto ret0 ;
+	if (! dbp->f_open) {
+	int		intfind ;
+	char		dbfname[MAXPATHLEN + 1] ;
 
-	if (op->dt == 0)
-	    op->dt = time(NULL) ;
+	if (op->dt == 0) op->dt = time(NULL) ;
 
 /* do not try to open (find file and open) if we recently already tried */
 
@@ -406,10 +366,11 @@ static int pdb_dbopen(PDB *op,int w)
 
 	} /* end if (trying to open) */
 
-	} else
+	} else {
 	    rs = SR_NOENT ;
+	}
 
-ret0:
+	} /* end if (needed) */
 
 #if	CF_DEBUGS
 	debugprintf("prtdb_dbopen: ret rs=%d\n") ;

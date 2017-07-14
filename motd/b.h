@@ -126,6 +126,7 @@
 #define	PLANFNAME	".plan"
 #define	MSFNAME		"var/spool/ms"
 #define	MOTDFNAME	"motd"
+#define	TSFNAME		".lastmaint"		/* time-stamp filename */
 
 #define	LOGFNAME	"log/motd"		/* activity log */
 #define	LOCKFNAME	"spool/locks/motd"	/* lock mutex file */

@@ -71,6 +71,7 @@
 #define	HELPFNAME	"help"
 #define	IPASSWDFNAME	"ipasswd"
 #define	DEFLIBFNAME	"lkcmd"
+#define	TSFNAME		".lastmaint"		/* time-stamp filename */
 
 #define	PIDFNAME	"run/kshbi"		/* mutex PID file */
 #define	LOGFNAME	"var/log/kshbi"		/* activity log */

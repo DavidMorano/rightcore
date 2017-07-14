@@ -8,7 +8,6 @@
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_LINEBUFOUT	1		/* line buffering for STDERR */
-#define	CF_TMPMAINT	1		/* compile maintenance */
 
 
 /* revision history:
@@ -108,8 +107,6 @@
 #ifndef	TO_TMPFILES
 #define	TO_TMPFILES	(1*3600)	/* temporary file time-out */
 #endif
-
-#define	TSFNAME		".lastmaint"
 
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
@@ -2207,16 +2204,15 @@ static int locinfo_storedirtmp(LOCINFO *lip,char *tbuf)
 static int locinfo_tmpcheck(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	int 		(*thrsub)(void *) = (int (*)(void *)) locinfo_tmpmaint ;
 	int		rs = SR_OK ;
 
-#if	CF_TMPMAINT
 	if (lip->storedname != NULL) {
 	    TMTIME	t ;
 	    if ((rs = tmtime_localtime(&t,pip->daytime)) >= 0) {
 	        if (t.hour >= 18) {
+		    uptsub_t	thr = (uptsub_t) locinfo_tmpmaint ;
 	            pthread_t	tid ;
-	            if ((rs = uptcreate(&tid,NULL,thrsub,lip)) >= 0) {
+	            if ((rs = uptcreate(&tid,NULL,thr,lip)) >= 0) {
 	                rs = 1 ;
 	                lip->tid = tid ;
 	                lip->f.tmpmaint = TRUE ;
@@ -2224,7 +2220,6 @@ static int locinfo_tmpcheck(LOCINFO *lip)
 	        } /* end if (after hours) */
 	    } /* end if (tmtime_localtime) */
 	} /* end if (store-dname) */
-#endif /* CF_TMPMAINT */
 
 	return rs ;
 }

@@ -162,10 +162,6 @@ typedef const char	cchar ;
 #define	TO_TMPFILES	(1*3600)	/* temporary file time-out */
 #endif
 
-#ifndef	TSFNAME
-#define	TSFNAME		".lastmaint"
-#endif
-
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 #define	LOCINFO_GMCUR	struct locinfo_gmcur

@@ -42,10 +42,10 @@ extern "C" int	sisub(cchar *,int,cchar *) ;
 struct testcon {
 	int		a ;
 	testcon() : a(0) {
-	    printf("testcon: construct a=%d\n",a) ;
+	    fprintf(stderr,"main/testcon: construct a=%d\n",a) ;
 	} ;
 	~testcon() {
-	    printf("testcon: destruct\n") ;
+	    fprintf(stderr,"main/testcon: destruct\n") ;
 	} ;
 	bool have() ;
 } ;
@@ -56,17 +56,17 @@ struct thing {
 	int		a2 ;
 public:
 	thing() : id(0), a1(0), a2(0) {
-	    printf("main: thing:construct\n") ;
+	    fprintf(stderr,"main/thing: thing:construct\n") ;
 	} ;
 	thing(int id) : id(id), a1(0), a2(0) {
-	    printf("main: thing:construct(%d)\n",id) ;
+	    fprintf(stderr,"main/thing: thing:construct(%d)\n",id) ;
 	} ;
 	thing(const thing &a) {
 	    *this = a ;
 	} ;
 #if	CF_COPY
 	thing &operator = (const thing &a) {
-	    printf("main: thing:assignment\n") ;
+	    fprintf(stderr,"main/thing: thing:assignment\n") ;
 	    if (this != &a) {
 	        id = 17 ;
 	        a1 = a.a1 ;
@@ -81,7 +81,8 @@ public:
 	} ;
 #endif /* CF_OP */
 	~thing() {
-	    printf("main: thing:destruct(%u) a1=%d a2=%d\n",id,a1,a2) ;
+	    fprintf(stderr,"main/thing: thing:destruct(%u) a1=%d a2=%d\n",
+		id,a1,a2) ;
 	    id = 0 ;
 	} ;
 	int		init(int) ;
@@ -108,7 +109,7 @@ int thing::get()
 /* this IS is a MEMBER function */
 thing &thing::operator += (const thing &b)
 {
-	printf("main: operator C\n") ;
+	fprintf(stderr,"main: operator C\n") ;
 	this->a1 += b.a1 ;
 	this->a2 += b.a2 ;
 	return *this ;
@@ -116,7 +117,7 @@ thing &thing::operator += (const thing &b)
 
 thing &thing::operator += (const thing b)
 {
-	printf("main: operator B\n") ;
+	fprintf(stderr,"main: operator B\n") ;
 	this->a1 += b.a1 ;
 	this->a2 += b.a2 ;
 	return *this ;
@@ -126,7 +127,7 @@ thing &thing::operator += (const thing b)
 thing operator + (const thing &a,const thing &b)
 {
 	thing	r(18) ;
-	printf("main: operator A\n") ;
+	fprintf(stderr,"main: operator A\n") ;
 	r.a1 = a.a1 + b.a1 ;
 	r.a2 = a.a1 + b.a2 ;
 	return r ;
@@ -157,15 +158,15 @@ int main(int argc,const char **argv,const char **envv)
 	thing		a(1), b(2), c(3) ;
 	const int	n = 10 ;
 
-	printf("main: ent\n") ;
+	fprintf(stderr,"main: ent\n") ;
 
 	tc.have() ;
 
 	c = a + b ;
-	printf("main: thing:c id=%u\n",c.id) ;
+	fprintf(stderr,"main: thing:c id=%u\n",c.id) ;
 
 #if	CF_OP
-	printf("main: a=%d b=%d c=%d\n",*a,*b,*c) ;
+	fprintf(stderr,"main: a=%d b=%d c=%d\n",*a,*b,*c) ;
 #endif /* CF_OP */
 
 #if	CF_INIT
@@ -176,13 +177,13 @@ int main(int argc,const char **argv,const char **envv)
 	c.init(3) ;
 
 	r = a.get() ;
-	printf("main: a.r=%d\n",r) ;
+	fprintf(stderr,"main: a.r=%d\n",r) ;
 
 	r = b.get() ;
-	printf("main: b.r=%d\n",r) ;
+	fprintf(stderr,"main: b.r=%d\n",r) ;
 
 	r = c.get() ;
-	printf("main: c.r=%d\n",r) ;
+	fprintf(stderr,"main: c.r=%d\n",r) ;
 	}
 #endif /* CF_INIT */
 
@@ -205,7 +206,7 @@ int main(int argc,const char **argv,const char **envv)
 	{
 	    int	rch = '¿' ;
 	    int	ch = MKCHAR('¿') ;
-	    printf("main: rch=%08x ch=%08x\n",rch,ch) ;
+	    fprintf(stderr,"main: rch=%08x ch=%08x\n",rch,ch) ;
 	}
 
 	(void) testlambda() ;
@@ -308,7 +309,7 @@ static int testlambda(void)
 
 bool testcon::have() {
 	const int	ans = sisub(hello,-1,"hello") ;
-	printf("ans=%u\n",(ans >= 0)) ;
+	fprintf(stderr,"main/testconn::have: ans=%u\n",(ans >= 0)) ;
 	return (ans >= 0) ;
 }
 

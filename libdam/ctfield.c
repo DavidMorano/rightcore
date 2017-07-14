@@ -132,10 +132,7 @@ static const unsigned char	shterms[] = {
 
 
 /* helper function to build an array of ctfield terminator characters */
-int ctfieldterms(terms,f_retain,s)
-uchar		terms[32] ;
-int		f_retain ;
-const char	*s ;
+int ctfieldterms(uchar *terms,int f_retain,cchar *s)
 {
 	int		i ;
 
@@ -162,14 +159,10 @@ const char	*s ;
 
 
 /* initialize a CTFIELD status block with a buffer and buffer length */
-int ctfield_start(fsbp,lp,ll)
-CTFIELD		*fsbp ;
-const char	*lp ;
-int		ll ;
+int ctfield_start(CTFIELD *fsbp,cchar *lp,int ll)
 {
 
-	if (fsbp == NULL)
-	    return SR_FAULT ;
+	if (fsbp == NULL) return SR_FAULT ;
 
 	fsbp->fp = NULL ;
 	fsbp->flen = 0 ;
@@ -200,9 +193,7 @@ int		ll ;
 
 
 /* get the next CTFIELD in this buffer */
-int ctfield_get(fsbp,terms)
-CTFIELD		*fsbp ;
-const uchar	terms[] ;
+int ctfield_get(CTFIELD *fsbp,const uchar *terms)
 {
 	int		lr ;
 	int		c ;
@@ -210,11 +201,9 @@ const uchar	terms[] ;
 	int		flen = 0 ;
 	unsigned char	*sp, *sap ;
 
-	if (fsbp == NULL)
-	    return SR_FAULT ;
+	if (fsbp == NULL) return SR_FAULT ;
 
-	if (fsbp->lp == NULL)
-	    return SR_NOTOPEN ;
+	if (fsbp->lp == NULL) return SR_NOTOPEN ;
 
 /* get the parameters */
 
@@ -234,8 +223,7 @@ const uchar	terms[] ;
 	sap = sp ;
 	flen = -1 ;
 	term = 0 ;
-	if (lr <= 0)
-	    goto done ;
+	if (lr > 0) {
 
 	flen = 0 ;
 
@@ -274,7 +262,7 @@ const uchar	terms[] ;
 	    debugprintf("ctfield_get: initial non-white c=>%c<\n",c) ;
 #endif
 
-	    sap = sp++ ;	 		/* save ctfield address */
+	    sap = sp++ ;	 	/* save ctfield address */
 	    lr -= 1 ;
 	    while (lr > 0) {
 
@@ -327,7 +315,8 @@ const uchar	terms[] ;
 
 	} /* end if */
 
-done:
+	} /* end if (postiive) */
+
 	fsbp->rlen = lr ;		/* load length remaining in string */
 	fsbp->lp = (char *) sp ;	/* address of remaining string */
 	fsbp->flen = flen ;		/* length of ctfield */
@@ -344,20 +333,16 @@ done:
 
 
 /* get everything up to the next terminator */
-int ctfield_term(fsbp,terms)
-CTFIELD		*fsbp ;
-const uchar	terms[] ;
+int ctfield_term(CTFIELD *fsbp,const uchar *terms)
 {
 	int		lr, flen ;
 	int		c ;
 	int		term ;
 	unsigned char	*sp, *sap ;
 
-	if (fsbp == NULL)
-	    return SR_FAULT ;
+	if (fsbp == NULL) return SR_FAULT ;
 
-	if (fsbp->lp == NULL)
-	    return SR_NOTOPEN ;
+	if (fsbp->lp == NULL) return SR_NOTOPEN ;
 
 /* get the parameters */
 
@@ -370,8 +355,7 @@ const uchar	terms[] ;
 
 	term = 0 ;
 	flen = -1 ;
-	if (lr <= 0)
-	    goto done ;
+	if (lr > 0) {
 
 	flen = 0 ;
 
@@ -422,7 +406,8 @@ const uchar	terms[] ;
 
 	} /* end if */
 
-done:
+	} /* end if (positive) */
+
 	fsbp->rlen = lr ;		/* load length remaining in string */
 	fsbp->lp = (char *) sp ;	/* address of remaining string */
 	fsbp->flen = flen ;		/* length of ctfield */
@@ -449,22 +434,16 @@ done:
 
 */
 
-int ctfield_sharg(fsbp,terms,buf,buflen)
-CTFIELD		*fsbp ;
-const uchar	terms[] ;
-char		buf[] ;
-int		buflen ;
+int ctfield_sharg(CTFIELD *fsbp,const uchar *terms,char *buf,int buflen)
 {
 	int		lr, flen ;
 	int		qe, term ;
 	unsigned char	*cp ;
 	unsigned char	*bp = (unsigned char *) buf ;
 
-	if (fsbp == NULL)
-	    return SR_FAULT ;
+	if (fsbp == NULL) return SR_FAULT ;
 
-	if (fsbp->lp == NULL)
-	    return SR_NOTOPEN ;
+	if (fsbp->lp == NULL) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
 	debugprintf("ctfield_sharg: ent, buflen=%d\n",buflen) ;
@@ -488,8 +467,7 @@ int		buflen ;
 
 	flen = -1 ;			/* end-of-arguments indicator */
 	term = 0 ;
-	if (lr <= 0)
-	    goto done ;
+	if (lr > 0) {
 
 /* process the standard SHELL string */
 
@@ -610,8 +588,8 @@ int		buflen ;
 
 	flen = (bp - ((unsigned char *) buf)) ;
 
-/* we are out of here! */
-done:
+	} /* end if (positive) */
+
 	fsbp->rlen = lr ;		/* load length remaining in string */
 	fsbp->lp = (char *) cp ;	/* address of remaining string */
 	fsbp->flen = flen ;
@@ -628,8 +606,7 @@ done:
 /* end subroutine (ctfield_sharg) */
 
 
-int ctfield_finish(fsbp)
-CTFIELD		*fsbp ;
+int ctfield_finish(CTFIELD *fsbp)
 {
 
 	if (fsbp == NULL) return SR_FAULT ;

@@ -39,10 +39,11 @@ struct pdb_head {
 	unsigned long	magic ;
 	PDB_DB		dbs[pdb_overlast] ;
 	time_t		dt ;
-	char		*pr ;		/* root program */
-	char		*ur ;		/* root root */
-	char		*uname ;	/* username */
-	char		*fname ;
+	cchar		*a ;		/* memory allocation */
+	cchar		*pr ;		/* root program */
+	cchar		*ur ;		/* root root */
+	cchar		*uname ;	/* username */
+	cchar		*fname ;
 } ;
 
 

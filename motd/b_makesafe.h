@@ -69,6 +69,7 @@
 #define	LOGFNAME	"log/makesafe"
 #define	HELPFNAME	"help"
 #define	CPPFNAME	"cpp"
+#define	TSFNAME		".lastmaint"	/* time-stamp filename */
 
 #define	TO_READ		3600		/* timeout to read CPP output */
 #define	TO_TMPFILES	(5*3600)
@@ -78,9 +79,5 @@
 #define	PROG_CPP	"/usr/ccs/lib/cpp"
 
 #define	OPT_CACHE	TRUE
-
-#ifndef	TSFNAME
-#define	TSFNAME		".lastmaint"
-#endif
 
 

@@ -839,9 +839,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	if (rs >= 0) {
 	    if ((rs = locinfo_userinfo(lip)) >= 0) {
 	        if ((rs = locinfo_findlpget(lip)) >= 0) {
-	            if ((rs = locinfo_getprinter(lip)) >= 0) {
-	                rs = 1 ;
-	            }
+	            rs = locinfo_getprinter(lip) ;
 	        }
 	    }
 	}
@@ -1119,17 +1117,17 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *kp,int kl)
 {
 	LOCINFO		*lip = pip->lip ;
 	const int	klen = KBUFLEN ;
-	const int	vlen = VBUFLEN ;
 	int		rs ;
 	int		vl = 0 ;
-	const char	*pp ;
 	char		kbuf[KBUFLEN+1] ;
-	char		vbuf[VBUFLEN + 1] ;
 
 	if (kp == NULL) return SR_FAULT ;
 
-	rs = snwcpy(kbuf,klen,kp,kl) ;
-	if (rs < 0) goto ret0 ;
+	if ((rs = snwcpy(kbuf,klen,kp,kl)) >= 0) {
+	    const int	rsn = SR_NOTFOUND ;
+	    const int	vlen = VBUFLEN ;
+	    const char	*pp ;
+	    char	vbuf[VBUFLEN + 1] ;
 
 #if	CF_DEBUG
 	debugprintf("progkey: ent key=%s\n",kbuf) ;
@@ -1147,14 +1145,9 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *kp,int kl)
 	debugprintf("progkey: pdb-fetch printer=%s k=%s\n",pp,kbuf) ;
 #endif
 
-	    rs = pdb_fetch(pdp,vbuf,vlen,pp,kbuf) ;
-	    vl = rs ;
-
-#if	CF_DEBUG
-	    debugprintf("progkey: pdb_fetch() rs=%d\n",rs) ;
-#endif
-
-	    if (rs == SR_NOTFOUND) {
+	    if ((rs = pdb_fetch(pdp,vbuf,vlen,pp,kbuf)) >= 0) {
+	        vl = rs ;
+	    } else if (rs == rsn) {
 	        rs = SR_OK ;
 	        vl = 0 ;
 	    }
@@ -1168,24 +1161,22 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *kp,int kl)
 	    cchar	*pt = lip->printer ;
 	    rs = lpgetout(pip,vbuf,vlen,pt,kbuf) ;
 	    vl = rs ;
-
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3)) {
 	        debugprintf("progkey: lpgetout() rs=%d\n",rs) ;
 	        debugprintf("progkey: v=>%t<\n",vbuf,strlinelen(vbuf,vl,40)) ;
 	    }
 #endif
-
 	}
 #endif /* CF_LPGET */
 
 /* print out result */
 
-	if (rs >= 0) {
-	    rs = shio_printf(ofp,"%t\n",vbuf,vl) ;
-	}
+	   if (rs >= 0) {
+	       rs = shio_printf(ofp,"%t\n",vbuf,vl) ;
+	   }
 
-ret0:
+	} /* end if (snwcpy) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1201,18 +1192,15 @@ static int lpgetout(PROGINFO *pip,char *vbuf,int vlen,cchar *pt,cchar *key)
 {
 	LOCINFO		*lip = pip->lip ;
 	bfile		ofile, *ofp = &ofile ;
-	const int	llen = LINEBUFLEN ;
-	int		rs = SR_OK ;
+	int		rs ;
+	int		cl ;
+	int		ml ;
 	int		i = 0 ;
-	int		len, cl, ml ;
 	int		vl = 0 ;
-	int		f_gotit ;
-	int		f_first ;
-	const char	*progfname ;
-	const char	*cp, *tp ;
-	const char	*av[6] ;
+	cchar		*cp ;
+	cchar		*progfname ;
+	cchar		*av[6] ;
 	char		progname[MAXNAMELEN + 1] ;
-	char		lbuf[LINEBUFLEN + 1] ;
 
 	if (pt == NULL) return SR_FAULT ;
 	if (vbuf == NULL) return SR_FAULT ;
@@ -1240,7 +1228,6 @@ static int lpgetout(PROGINFO *pip,char *vbuf,int vlen,cchar *pt,cchar *key)
 
 /* prepare arguments */
 
-	i = 0 ;
 	av[i++] = progname ;
 	av[i++] = "-k" ;
 	av[i++] = key ;
@@ -1248,6 +1235,12 @@ static int lpgetout(PROGINFO *pip,char *vbuf,int vlen,cchar *pt,cchar *key)
 	av[i] = NULL ;
 
 	if ((rs = bopenprog(ofp,progfname,"r",av,pip->envv)) >= 0) {
+	    const int	llen = LINEBUFLEN ;
+	    int		f_gotit ;
+	    int		f_first ;
+	    int		len ;
+	    const char	*tp ;
+	    char	lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))

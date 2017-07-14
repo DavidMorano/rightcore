@@ -349,7 +349,7 @@ int uptncpus(int w)
 /* local subroutines */
 
 
-static int uptcreator(pthread_t *rp,pthread_attr_t *ptap,void *arg0
+static int uptcreator(pthread_t *rp,pthread_attr_t *ptap,void *arg)
 {
 	int		to_nomem = TO_NOMEM ;
 	int		rs ;

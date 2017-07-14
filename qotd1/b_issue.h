@@ -126,6 +126,7 @@
 #define	PLANFNAME	".plan"
 #define	MSFNAME		"var/spool/ms"
 #define	ISSUEFNAME	"issue"
+#define	TSFNAME		".lastmaint"
 
 #define	LOGFNAME	"log/issue"		/* activity log */
 #define	LOCKFNAME	"spool/locks/issue"	/* lock mutex file */

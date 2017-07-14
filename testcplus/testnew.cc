@@ -1,12 +1,9 @@
-/* main */
+/* testnew */
 /* lang=C++11 */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_COPY		1
-#define	CF_OP		1		/* operator */
-#define	CF_INIT		0
-#define	CF_TESTLAMBDA	1		/* test Lambda Functions */
 
 
 #include	<envstandards.h>
@@ -39,15 +36,40 @@ extern "C" int	sisub(cchar *,int,cchar *) ;
 
 /* local structures (and methods) */
 
-struct testcon {
+void *operator new (size_t sz) {
+    void *p = malloc(sz) ;
+    fprintf(stderr,"new sz=%u a=%p\n",sz,p) ;
+    return p ;
+}
+
+void *operator new (size_t sz,const nothrow_t &nt) noexcept {
+    void *p = malloc(sz) ;
+    fprintf(stderr,"new-nothrow sz=%u a=%p\n",sz,p) ;
+    return p ;
+}
+
+void operator delete (void *p) noexcept {
+    fprintf(stderr,"delete p=%p\n",p) ;
+    free(p) ;
+}
+
+class testcon {
 	int		a ;
+public:
 	testcon() : a(0) {
-	    fprintf(stderr,"main/testcon: construct a=%d\n",a) ;
+	    fprintf(stderr,"testcon: construct 0 a=%d\n",a) ;
+	} ;
+	testcon(int n) : a(n) {
+	    fprintf(stderr,"testcon: construct 1 a=%d\n",a) ;
 	} ;
 	~testcon() {
-	    fprintf(stderr,"main/testcon: destruct\n") ;
+	    fprintf(stderr,"testcon: destruct\n") ;
 	} ;
 	bool have() ;
+	friend ostream& operator << (ostream &out,const testcon &obj) {
+ 	    out << obj.a ;
+	    return out ;
+	} ;
 } ;
 
 struct thing {
@@ -56,17 +78,17 @@ struct thing {
 	int		a2 ;
 public:
 	thing() : id(0), a1(0), a2(0) {
-	    fprintf(stderr,"main/thing: thing:construct\n") ;
+	    fprintf(stderr,"main: thing:construct\n") ;
 	} ;
 	thing(int id) : id(id), a1(0), a2(0) {
-	    fprintf(stderr,"main/thing: thing:construct(%d)\n",id) ;
+	    fprintf(stderr,"main: thing:construct(%d)\n",id) ;
 	} ;
 	thing(const thing &a) {
 	    *this = a ;
 	} ;
 #if	CF_COPY
 	thing &operator = (const thing &a) {
-	    fprintf(stderr,"main/thing: thing:assignment\n") ;
+	    fprintf(stderr,"main: thing:assignment\n") ;
 	    if (this != &a) {
 	        id = 17 ;
 	        a1 = a.a1 ;
@@ -75,14 +97,8 @@ public:
 	    return *this ;
 	} ;
 #endif /* CF_COPY */
-#if	CF_OP
-	int operator * () {
-	    return id ;
-	} ;
-#endif /* CF_OP */
 	~thing() {
-	    fprintf(stderr,"main/thing: thing:destruct(%u) a1=%d a2=%d\n",
-		id,a1,a2) ;
+	    fprintf(stderr,"main: thing:destruct(%u) a1=%d a2=%d\n",id,a1,a2) ;
 	    id = 0 ;
 	} ;
 	int		init(int) ;
@@ -94,7 +110,6 @@ public:
 
 int thing::init(int a)
 {
-
 	a1 = a ;
 	a2 = a * 2 ;
 	return 0 ;
@@ -102,7 +117,6 @@ int thing::init(int a)
 
 int thing::get()
 {
-
 	return (a1 + a2) ;
 }
 
@@ -136,10 +150,6 @@ thing operator + (const thing &a,const thing &b)
 
 /* forward references */
 
-#if	CF_TESTLAMBDA
-static int testlambda(void) ;
-#endif /* CF_TESTLAMBDA */
-
 static int testio() ;
 
 static int readline(ifstream &,char *,int) ;
@@ -154,86 +164,21 @@ static cchar	*hello = "hello world!" ;
 
 int main(int argc,const char **argv,const char **envv)
 {
-	testcon		tc ;
-	thing		a(1), b(2), c(3) ;
-	const int	n = 10 ;
-
-	fprintf(stderr,"main: ent\n") ;
-
-	tc.have() ;
-
-	c = a + b ;
-	fprintf(stderr,"main: thing:c id=%u\n",c.id) ;
-
-#if	CF_OP
-	fprintf(stderr,"main: a=%d b=%d c=%d\n",*a,*b,*c) ;
-#endif /* CF_OP */
-
-#if	CF_INIT
+	FILE		*efp = stderr ;
+	fprintf(efp,"main: ent\n") ;
 	{
-	    int	r ;
-	a.init(1) ;
-	b.init(2) ;
-	c.init(3) ;
+	    testcon *np = new(nothrow) testcon(1) ;
+	    cout << "testcon-> " << *np << endl ;
 
-	r = a.get() ;
-	fprintf(stderr,"main: a.r=%d\n",r) ;
 
-	r = b.get() ;
-	fprintf(stderr,"main: b.r=%d\n",r) ;
-
-	r = c.get() ;
-	fprintf(stderr,"main: c.r=%d\n",r) ;
+	    delete np ;
 	}
-#endif /* CF_INIT */
-
-	{
-	string	as ;
-	as = "hello world!\n" ;
-	cout << as ;
-	}
-
-	{
-	    int	a[n+1] ;
-	    int	i ;
-	    for (i = 0 ; i < n ; i += 1) a[i] = i ;
-	    for (i = 0 ; i < n ; i += 1) {
-		cout << a[i] ;
-	    }
-	    cout << '\n' ;
-	}
-
-	{
-	    int	rch = '¿' ;
-	    int	ch = MKCHAR('¿') ;
-	    fprintf(stderr,"main: rch=%08x ch=%08x\n",rch,ch) ;
-	}
-
-	(void) testlambda() ;
-
-#ifdef	COMMENT
-	{
-	    ofstream	*osp ;
-	    cchar	*fn = "ourout" ;
-	    if ((ofstream *osp = new(nothrow) ofstream(fn)) != NULL) {
-	        (*osp) << "Hello world!" << endl ;
-	        osp->close() ;
-	        delete osp ;
-	    } /* end if (file) */
-	}
-#else /* COMMENT */
+	fprintf(efp,"main: testio\n") ;
 	testio() ;
-#endif /* COMMENT */
-
+	fprintf(efp,"main: exiting\n") ;
 	return 0 ;
 }
 /* end subroutine (main) */
-
-
-auto special(int a, int b) -> int
-{
-	return (a+b) ;
-}
 
 
 /* local subroutines */
@@ -275,41 +220,9 @@ static int testio()
 /* end subroutine (testio) */
 
 
-#if	CF_TESTLAMBDA
-static int testlambda(void)
-{
-	vector<int>	mv = { 1, 2, 3, 4 } ;
-	int		a[3] = { 2, 1, 3 } ;
-	int		sum = 0 ;
-
-	cout << "range-for " ;
-	for (auto v : a) {
-	    cout << v << ' ' ;
-	}
-	    cout << '\n' ;
-
-	cout << "range-for " ;
-	for (auto v : mv) {
-	    cout << v << ' ' ;
-	}
-	    cout << '\n' ;
-
-	cout << "for-each " ;
-	auto itb = mv.cbegin() ;
-	auto ite = mv.cend() ;
-	auto func = [&sum] (int v) { sum += v ; } ;
-	for_each(itb,ite,func) ;
-	cout << "sum=" << sum << '\n' ;
-
-	return 0 ;
-}
-/* end subroutine (testlambda) */
-#endif /* CF_TESTLAMBDA */
-
-
 bool testcon::have() {
 	const int	ans = sisub(hello,-1,"hello") ;
-	fprintf(stderr,"main/testconn::have: ans=%u\n",(ans >= 0)) ;
+	fprintf(stderr,"ans=%u\n",(ans >= 0)) ;
 	return (ans >= 0) ;
 }
 
