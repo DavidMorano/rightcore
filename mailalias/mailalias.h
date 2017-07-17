@@ -43,8 +43,8 @@
 
 #define	MAILALIAS_DEFAPTAB	"default"
 
-#define	MAILALIAS_OSEC		0x01		/* use secondard hash */
-#define	MAILALIAS_ORANDLC	0x02		/* use 'randlc()' */
+#define	MAILALIAS_OSEC		(1<<0)		/* use secondard hash */
+#define	MAILALIAS_ORANDLC	(1<<1)		/* use 'randlc()' */
 
 
 struct mailalias_c {
@@ -95,7 +95,7 @@ struct mailalias_head {
 	int		(*indtab)[2] ;
 	MAILALIAS_FI	fi ;
 	MAILALIAS_FL	f ;
-	char		*mapdata ;
+	cchar		*mapdata ;
 	vecstr		apfiles ;
 	IDS		id ;
 	time_t		ti_aprofile ;

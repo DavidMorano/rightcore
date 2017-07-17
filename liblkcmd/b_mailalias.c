@@ -609,7 +609,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        pip->verboselevel = 0 ;
 	                        break ;
 
-/* path names */
+/* profile name */
 	                    case 'p':
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;

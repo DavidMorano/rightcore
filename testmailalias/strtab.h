@@ -66,9 +66,9 @@ extern "C" {
 
 extern int	strtab_start(STRTAB *,int) ;
 extern int	strtab_finish(STRTAB *) ;
-extern int	strtab_add(STRTAB *,const char *,int) ;
-extern int	strtab_addfast(STRTAB *,const char *,int) ;
-extern int	strtab_already(STRTAB *,const char *,int) ;
+extern int	strtab_add(STRTAB *,cchar *,int) ;
+extern int	strtab_addfast(STRTAB *,cchar *,int) ;
+extern int	strtab_already(STRTAB *,cchar *,int) ;
 extern int	strtab_count(STRTAB *) ;
 extern int	strtab_strsize(STRTAB *) ;
 extern int	strtab_strmk(STRTAB *,char *,int) ;

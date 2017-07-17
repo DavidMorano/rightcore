@@ -9,6 +9,7 @@
 #include	<envstandards.h>
 
 #include	<stdio.h>
+#include	<cstdlib>
 #include	<cinttypes>
 #include	<new>
 #include	<algorithm>
@@ -162,6 +163,7 @@ static cchar	*hello = "hello world!" ;
 
 /* exported subroutines */
 
+
 int main(int argc,const char **argv,const char **envv)
 {
 	FILE		*efp = stderr ;
@@ -175,7 +177,7 @@ int main(int argc,const char **argv,const char **envv)
 	}
 	fprintf(efp,"main: testio\n") ;
 	testio() ;
-	fprintf(efp,"main: exiting\n") ;
+	fprintf(efp,"main: ret\n") ;
 	return 0 ;
 }
 /* end subroutine (main) */

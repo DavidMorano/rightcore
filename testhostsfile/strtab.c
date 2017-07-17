@@ -517,8 +517,9 @@ int strtab_recmk(STRTAB *op,int *rec,int recsize)
 	        hdb_curend(&op->strdb,&cur) ;
 	    } /* end if */
 	    rec[c] = -1 ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }

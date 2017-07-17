@@ -51,13 +51,19 @@
 
 /* local defines */
 
-#define	DECSTRLEN	21		/* enough for all decimal strings */
+#ifndef	DIGBUFLEN
+#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
+#endif
 
 
 /* external subroutines */
 
 extern ulong	ulceil(ulong,int) ;
+
+extern int	snwcpy(char *,int,cchar *,int) ;
 extern int	ctdeci(char *,int,int) ;
+
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */
@@ -186,7 +192,7 @@ int storeitem_buf(STOREITEM *op,const void *vbp,int vbl,cchar **rpp)
 	    *rpp = dbuf ;
 
 	while (sl-- && dlen--) {
-	        *dp++ = *sp++ ;
+	    *dp++ = *sp++ ;
 	}
 
 	if (dlen < 0) {
@@ -195,8 +201,9 @@ int storeitem_buf(STOREITEM *op,const void *vbp,int vbl,cchar **rpp)
 	}
 
 	*dp = '\0' ;
-	if (rs >= 0)
+	if (rs >= 0) {
 	    op->index += (dp - dbuf + 1) ;
+	}
 
 	return (rs >= 0) ? (dp - dbuf) : rs ;
 }
@@ -215,28 +222,38 @@ int storeitem_dec(STOREITEM *op,int v,cchar **rpp)
 
 	if (op->dbuf == NULL) return SR_NOTOPEN ;
 
-	if (rpp != NULL)
-	    *rpp = NULL ;
-
 	if (op->index < 0)
 	    return op->index ;
 
 	dbuf = (op->dbuf + op->index) ;
 	dlen = (op->dlen - op->index) ;
 
-	if ((op->dlen >= 0) && ((DECSTRLEN+1) <= dlen)) {
-	    rs = ctdeci(dbuf,DECSTRLEN,v) ;
-	    len = rs ;
-	} else {
-	    op->f_overflow = TRUE ;
-	    rs = SR_OVERFLOW ;
+	if (op->dlen >= 0) {
+	    const int	tlen = DIGBUFLEN ;
+	    if (dlen >= (tlen+1)) {
+	        rs = ctdeci(dbuf,tlen,v) ;
+	        len = rs ;
+	    } else {
+	        char	tbuf[DIGBUFLEN+1] ;
+	        if ((rs = ctdeci(tbuf,tlen,v)) >= 0) {
+		    if (dlen >= (rs+1)) {
+			rs = snwcpy(dbuf,dlen,tbuf,rs) ;
+			len = rs ;
+		    } else {
+	                op->f_overflow = TRUE ;
+	                rs = SR_OVERFLOW ;
+		    }
+		}
+	    }
+	} /* end if (possible) */
+
+	if (rpp != NULL) {
+	    *rpp = (rs >= 0) ? dbuf : NULL ;
 	}
 
-	if (rpp != NULL)
-	    *rpp = (rs >= 0) ? dbuf : NULL ;
-
-	if (rs >= 0)
+	if (rs >= 0) {
 	    op->index += (len + 1) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -272,11 +289,13 @@ int storeitem_char(STOREITEM *op,int ch,cchar **rpp)
 	    rs = SR_OVERFLOW ;
 	}
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? dbuf : NULL ;
+	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    op->index += (len + 1) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -320,8 +339,9 @@ int storeitem_ptab(STOREITEM *op,int n,void ***vppp)
 	if ((op->dlen < 0) || (inc <= op->dlen)) {
 	    memset(bp,0,inc) ;
 	    if (op->dlen >= 0) op->index += inc ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? inc : rs ;
 }
@@ -357,8 +377,9 @@ int storeitem_block(STOREITEM *op,int bsize,int align,void **vpp)
 	if ((op->dlen < 0) || (inc <= op->dlen)) {
 	    memset(bp,0,inc) ;
 	    if (op->dlen >= 0) op->index += inc ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? inc : rs ;
 }

@@ -246,6 +246,7 @@ extern char	**environ ;
 struct locinfo_flags {
 	uint		stores:1 ;
 	uint		ns:1 ;
+	uint		phone:1 ;
 } ;
 
 struct locinfo {
@@ -255,6 +256,7 @@ struct locinfo {
 	vecstr		stores ;
 	PCSNS		ns ;
 	cchar		*pr_pcs ;
+	int		phone ;
 } ;
 
 struct datauser_flags {
@@ -371,13 +373,7 @@ static int	mainsub(int,const char **,const char **,void *) ;
 
 static int	usage(PROGINFO *) ;
 
-static int	locinfo_start(LOCINFO *,PROGINFO *) ;
-static int	locinfo_finish(LOCINFO *) ;
-static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
-static int	locinfo_prpcs(LOCINFO *) ;
-static int	locinfo_pcsns(LOCINFO *) ;
-static int	locinfo_pcsnsget(LOCINFO *,char *,int,cchar *,int) ;
-
+static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,PROGDATA *,
 			cchar *,cchar *) ;
 static int	procqueries(PROGINFO *,PROGDATA *,void *,cchar *,int) ;
@@ -433,6 +429,14 @@ static int	datauser_realname(DATAUSER *,char *,int) ;
 static int	datauser_netname(DATAUSER *,cchar *) ;
 static int	datauser_finish(struct datauser *) ;
 static int	datauser_mkgids(DATAUSER *,char *,int) ;
+
+static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+static int	locinfo_prpcs(LOCINFO *) ;
+static int	locinfo_pcsns(LOCINFO *) ;
+static int	locinfo_pcsnsget(LOCINFO *,char *,int,cchar *,int) ;
+static int	locinfo_setphone(LOCINFO *,cchar *,int) ;
 
 static int	mkstrlist(char *,int,vecstr *) ;
 static int	mkgid(char *,int,cchar *) ;
@@ -492,27 +496,15 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-#ifdef	COMMENT
-static cchar	*progmodes[] = {
-	"userinfo",
-	"username",
-	"userdir",
-	"logdir",
-	"logline",
-	"loghost",
+static cchar *progopts[] = {
+	"phone",
 	NULL
 } ;
 
-enum progmodes {
-	progmode_userinfo,
-	progmode_username,
-	progmode_userdir,
-	progmode_logdir,
-	progmode_logline,
-	progmode_loghost,
-	progmode_overlast
+enum progopts {
+	progopt_phone,
+	progopt_overlast
 } ;
-#endif /* COMMENT */
 
 /* define the query keywords */
 static cchar *qopts[] = {
@@ -730,6 +722,18 @@ enum uakeys {
 	uakey_overlast
 } ;
 
+static cchar	*phonetypes[] = {
+	"fancy",
+	"plain",
+	NULL
+} ;
+
+enum phonetypes {
+	phonetype_fancy,
+	phonetype_plain,
+	phonetype_overlast
+} ;
+
 
 /* exported subroutines */
 
@@ -827,6 +831,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* initialize */
 
 	pip->verboselevel = 1 ;
+	pip->daytime = time(NULL) ;
 
 	pip->lip = lip ;
 	if (rs >= 0) rs = locinfo_start(lip,pip) ;
@@ -1213,7 +1218,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->n = rs ;
 	}
 
-	if (pip->daytime == 0) pip->daytime = time(NULL) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	un = NULL ;
 	ai_continue = 1 ;
@@ -1304,7 +1311,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    void	*p ;
 	    if ((rs = uc_malloc(size,&p)) >= 0) {
 	        PROGDATA	*pdp = p ;
-		cchar	*pfn = pwfname ;
+		cchar		*pfn = pwfname ;
 	        if ((rs = progdata_start(pdp,pip,un,f_self,pfn)) >= 0) {
 		    ARGINFO	*aip = &ainfo ;
 		    BITS	*bop = &pargs ;
@@ -1484,6 +1491,59 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
+static int procopts(PROGINFO *pip,KEYOPT *kop)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs = SR_OK ;
+	int		v ;
+	int		c = 0 ;
+	cchar		*cp ;
+ 
+	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
+	    rs = keyopt_loads(kop,cp,-1) ;
+	}
+
+	if (rs >= 0) {
+	    KEYOPT_CUR	kcur ;
+	    if ((rs = keyopt_curbegin(kop,&kcur)) >= 0) {
+	        int	oi ;
+	        int	kl, vl ;
+	        cchar	*kp, *vp ;
+
+	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
+
+	            if ((oi = matostr(progopts,3,kp,kl)) >= 0) {
+
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
+
+	                switch (oi) {
+	                case progopt_phone:
+	                    if (! lip->final.phone) {
+	                        lip->have.phone = TRUE ;
+	                        lip->final.phone = TRUE ;
+	                        if (vl > 0) {
+	                            rs = locinfo_setphone(lip,vp,vl) ;
+			        }
+	                    }
+	                    break ;
+	                } /* end switch */
+
+	                c += 1 ;
+	            } else
+	                rs = SR_INVALID ;
+
+	            if (rs < 0) break ;
+	        } /* end while (looping through key options) */
+
+	        keyopt_curend(kop,&kcur) ;
+	    } /* end if (keyopt-cur) */
+	} /* end if (ok) */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procopts) */
+
+
 static int procargs(pip,aip,bop,pdp,ofn,afn)
 PROGINFO	*pip ;
 ARGINFO		*aip ;
@@ -1630,6 +1690,7 @@ int		len ;
 static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 {
 	struct datauser	*dup = &pdp->du ;
+	LOCINFO		*lip = pip->lip ;
 	const int	clen = CBUFLEN ;
 	int		rs = SR_OK ;
 	int		rs1 = SR_NOENT ;
@@ -1881,10 +1942,14 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 			    break ;
 			} /* end switch */
 			if (sp != NULL) {
-			    if ((rs = mkfmtphone(cbuf,clen,sp,sl)) >= 0) {
-				sp = cbuf ;
-				sl = rs ;
-			    }
+			    switch (lip->phone) {
+			    case phonetype_fancy:
+			        if ((rs = mkfmtphone(cbuf,clen,sp,sl)) >= 0) {
+				    sp = cbuf ;
+				    sl = rs ;
+			        }
+				break ;
+			    } /* end switch */
 			} else {
 			    sp = cbuf ;
 			}
@@ -4138,6 +4203,18 @@ static int locinfo_pcsnsget(LOCINFO *lip,char *rbuf,int rlen,cchar *un,int w)
 	return rs ;
 }
 /* end subroutine (locinfo_pcsnsget) */
+
+
+static int locinfo_setphone(LOCINFO *lip,cchar *vp,int vl)
+{
+	int		rs = SR_OK ;
+	int		oi ;
+	if ((oi = matostr(phonetypes,2,vp,vl)) >= 0) {
+	    lip->phone = oi ;
+	} /* end if */
+	return rs ;
+}
+/* end subroutine (locinfo)setphone) */
 
 
 static int mkstrlist(char *cbuf,int clen,vecstr *lp)

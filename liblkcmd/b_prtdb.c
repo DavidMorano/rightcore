@@ -294,6 +294,9 @@ int p_prtdb(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_prtdb) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 {
@@ -797,7 +800,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	    } else
 	        debugprintf("main: progmode=NONE\n") ;
 	}
-#endif
+#endif /* CF_DEBUG */
 
 	if (pip->progmode < 0)
 	    pip->progmode = progmode_prtdb ;
@@ -956,9 +959,6 @@ badarg:
 
 }
 /* end subroutine (main) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)
