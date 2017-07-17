@@ -9,7 +9,6 @@
 #define	CF_DEBUGSSHIFT	0
 #define	CF_SAFE		1		/* safe mode */
 #define	CF_FASTKEYMATCH	1		/* faster key matching */
-#define	CF_CLOSEONEXEC	0		/* don't need it */
 #define	CF_DEFPROFILE	0		/* always use default MA-profile */
 
 
@@ -660,7 +659,7 @@ int mailalias_fetch(MAILALIAS *op,int opts,cchar *aname,MAILALIAS_CUR *curp,
 	    if ((rs = mailalias_enterbegin(op,dt)) >= 0) {
 	        const int	ns = NSHIFT ;
 	        int		vi, hi, ri, ki ;
-	        int		cl, hl, c, n ;
+	        int		cl, hl, n ;
 	        int		f ;
 	        const char	*hp ;
 	        const char	*cp ;
@@ -702,6 +701,7 @@ int mailalias_fetch(MAILALIAS *op,int opts,cchar *aname,MAILALIAS_CUR *curp,
 /* start searching! */
 
 	            if (op->ropts & MAILALIAS_OSEC) {
+			int	c = 0 ;
 	                int	f ;
 
 #if	CF_DEBUGS
@@ -1033,9 +1033,11 @@ static int mailalias_fileopen(MAILALIAS *op,time_t dt)
 	    if ((rs = u_open(op->dbfname,oflags,op->operm)) >= 0) {
 	        op->fd = rs ;
 	        op->ti_open = dt ;
-#if	CF_CLOSEONEXEC
-	        uc_closeonexec(op->fd,TRUE) ;
-#endif
+	        rs = uc_closeonexec(op->fd,TRUE) ;
+		if (rs < 0) {
+		    u_close(op->fd) ;
+		    op->fd = -1 ;
+		}
 	    } /* end if */
 	} /* end if (needed open) */
 
@@ -1412,7 +1414,7 @@ static int mailalias_dbmaker(MAILALIAS *op,time_t dt,cchar *dname)
 	            u_unlink(nfname) ;
 	        }
 	    } /* end if (mkpath2) */
-	} /* end if (sncpy4) */
+	} /* end if (sncpy5) */
 	return rs ;
 }
 /* end subroutine (mailalias_dbmaker) */
@@ -1692,7 +1694,7 @@ static int mailalias_wrfiler(MAILALIAS *op,DBMAKE *dp,time_t dt)
 	char		*bp ;
 
 #if	CF_DEBUGS
-	debugprintf("mailalias_wrfile: about to write stuff out\n") ;
+	debugprintf("mailalias_wrfiler: ent\n") ;
 #endif
 
 /* prepare the file magic */
@@ -1749,7 +1751,8 @@ static int mailalias_wrfiler(MAILALIAS *op,DBMAKE *dp,time_t dt)
 	    {
 	    int	i ;
 	    for (i = 0 ; i < header_overlast ; i += 1)
-	        debugprintf("writecache: header[%2u]=%08x\n",i,header[i]) ;
+	        debugprintf("mailalis_wrfiler: header[%2u]=%08x\n",
+			i,header[i]) ;
 	    }
 #endif /* CF_DEBUGS */
 
@@ -1764,6 +1767,10 @@ static int mailalias_wrfiler(MAILALIAS *op,DBMAKE *dp,time_t dt)
 	    } /* end if (ok) */
 
 	} /* end if (write of id-section) */
+
+#if	CF_DEBUGS
+	debugprintf("mailalias_wrfiler: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -1826,7 +1833,7 @@ static int mailalias_wrfilekeys(MAILALIAS *op,DBMAKE *dp)
 	    char	*kstab ;
 	    if ((rs = uc_malloc(sksize,&kstab)) >= 0) {
 	        if ((rs = strtab_strmk(dp->klp,kstab,sksize)) >= 0) {
-	            VECOBJ		*rlp = dp->rlp ;
+	            VECOBJ	*rlp = dp->rlp ;
 	            int		(*it)[2] = indtab ;
 	            const int	ris = risize ;
 	            if ((rs = mailalias_mkind(op,rlp,kstab,it,ris)) >= 0) {
@@ -2065,11 +2072,12 @@ static int mailalias_aprofile(MAILALIAS *op,time_t dt)
 {
 	struct ustat	sb ;
 	kvsfile		aptab ;
+	const int	tlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
 	const char	*cp ;
-	char		tmpfname[MAXPATHLEN + 1] ;
+	char		tbuf[MAXPATHLEN + 1] ;
 
 	if ((dt - op->ti_aprofile) <= TO_APROFILE)
 	    return SR_OK ;
@@ -2083,8 +2091,8 @@ static int mailalias_aprofile(MAILALIAS *op,time_t dt)
 
 	    cp = (const char *) aptabsched[i] ;
 	    if (*cp != '/') {
-	        cp = tmpfname ;
-	        mkpath2(tmpfname,op->pr,aptabsched[i]) ;
+	        cp = tbuf ;
+	        mkpath2(tbuf,op->pr,aptabsched[i]) ;
 	    }
 
 #if	CF_DEBUGS
@@ -2115,33 +2123,29 @@ static int mailalias_aprofile(MAILALIAS *op,time_t dt)
 	            }
 	        } /* end for */
 
-	        kvsfile_curbegin(&aptab,&cur) ;
+	        if ((rs = kvsfile_curbegin(&aptab,&cur)) >= 0) {
 
-	        while (rs >= 0) {
+	            while (rs >= 0) {
 
-	            rs1 = kvsfile_fetch(&aptab,op->apname,&cur,
-	                tmpfname,MAXPATHLEN) ;
-
-	            if (rs1 < 0)
-	                break ;
+	                rs1 = kvsfile_fetch(&aptab,op->apname,&cur,tbuf,tlen) ;
+	                if (rs1 < 0) break ;
 
 #if	CF_DEBUGS
-	            debugprintf("mailalias_aprofile: kvsfile_fetch() v=%s\n",
-	                tmpfname) ;
+	                debugprintf("mailalias_aprofile: "
+			    "kvsfile_fetch() v=%s\n",tbuf) ;
 #endif
 
-	            rs = vecstr_add(&op->apfiles,tmpfname,rs1) ;
+	                rs = vecstr_add(&op->apfiles,tbuf,rs1) ;
 
-	        } /* end while */
+	            } /* end while */
 
-	        kvsfile_curend(&aptab,&cur) ;
-
-	        kvsfile_close(&aptab) ;
+	            kvsfile_curend(&aptab,&cur) ;
+		} /* end if (kvsfile-cur) */
 
 	        if (rs >= 0) {
 	            rs = vecstr_getvec(&op->apfiles,&op->aprofile) ;
 	        }
-
+	        kvsfile_close(&aptab) ;
 	    } /* end if (opened key-values table) */
 
 #if	CF_DEFPROFILE
@@ -2156,11 +2160,12 @@ static int mailalias_aprofile(MAILALIAS *op,time_t dt)
 #if	CF_DEBUGS
 	debugprintf("mailalias_aprofile: ret rs=%d enum\n",rs) ;
 	if (rs >= 0) {
-	    for (i = 0 ; op->aprofile[i] != NULL ; i += 1)
+	    for (i = 0 ; op->aprofile[i] != NULL ; i += 1) {
 	        debugprintf("mailalias_aprofile: aprofile file=%s\n",
 	            op->aprofile[i]) ;
+	    }
 	}
-#endif
+#endif /* CF_DEBUGS */
 
 	return rs ;
 }
@@ -2204,6 +2209,7 @@ static int mailalias_enterend(MAILALIAS *op,time_t dt)
 static int mailalias_mapcheck(MAILALIAS *op,time_t dt)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		f = FALSE ;
 	if (op->mapdata == NULL) {
 	    if ((rs = mailalias_fileopen(op,dt)) >= 0) {
@@ -2213,8 +2219,10 @@ static int mailalias_mapcheck(MAILALIAS *op,time_t dt)
 	            if (rs < 0) {
 	                mailalias_mapend(op) ;
 	            }
-	        }
-	    }
+	        } /* end if (mailalias_mapbegin) */
+		rs1 = mailalias_fileclose(op) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (mailalias_fileopen) */
 	}
 	return (rs >= 0) ? f : rs ;
 }

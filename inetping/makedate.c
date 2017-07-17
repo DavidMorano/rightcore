@@ -1,2 +1,2 @@
 const char inetping_makedate[] =
-	"@(#)inetping                160702_0220:46_USEDT Rightcore Network Services¹" ;
+"@(#)inetping                170717_1438:02_USEDT Rightcore Network Services" ;

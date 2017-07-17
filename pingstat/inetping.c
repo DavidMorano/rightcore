@@ -63,6 +63,7 @@
 
 #include	<vsystem.h>
 #include	<estrings.h>
+#include	<getbufsize.h>
 #include	<hostent.h>
 #include	<inetaddr.h>
 #include	<exitcodes.h>
@@ -145,7 +146,7 @@ static int	makeint(void *) ;
 
 /* local variables */
 
-static const char	*pings[] = {
+static cchar	*pings[] = {
 	"/usr/sbin/ping",
 	"/usr/etc/ping",
 	"/usr/bin/ping",
@@ -160,13 +161,9 @@ static const char	*pings[] = {
 int inetping(cchar *rhost,int timeout)
 {
 	struct hostent	he, *hep ;
-	in_addr_t	addr, *iap ;
-	int		rs = SR_OK ;
-	int		i ;
-	int		f_numeric ;
-	const char	*pingprog ;
-	const uchar	*ap ;
-	char		buf[BUFLEN + 1] ;
+	const int	helen = getbufsize(getbufsize_he) ;
+	int		rs ;
+	char		*hebuf ;
 
 #if	CF_DEBUGS
 	debugprintf("inetping: host=%s to=%d\n",rhost,timeout) ;
@@ -178,61 +175,59 @@ int inetping(cchar *rhost,int timeout)
 
 /* get an addressable ("E"ntry) hostname */
 
-	f_numeric = TRUE ;
-	if ((addr = inet_addr(rhost)) == ADDR_NOT) {
-
-	    f_numeric = FALSE ;
-	    hep = &he ;
-	    if (getourhe(rhost,NULL,hep,buf,BUFLEN) < 0) {
-	        rs = SR_HOSTUNREACH ;
-	        goto badret ;
-	    }
-
-	    if (hep->h_addrtype != AF_INET) {
-	        rs = SR_HOSTUNREACH ;
-	        goto badret ;
-	    }
-
-	} /* end (non-numeric addresses) */
-
+	if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
+	    in_addr_t	addr ;
+	    int		f_numeric = TRUE ;
+	    if ((addr = inet_addr(rhost)) == ADDR_NOT) {
+	        f_numeric = FALSE ;
+	        hep = &he ;
+	        if ((rs = getourhe(rhost,NULL,hep,hebuf,helen)) >= 0) {
+	            if (hep->h_addrtype != AF_INET) {
+	                rs = SR_HOSTUNREACH ;
+	            }
+	        }
+	    } /* end (non-numeric addresses) */
 /* find a "ping" program */
-
-	for (i = 0 ; pings[i] != NULL ; i += 1) {
-	    if (u_access(pings[i],X_OK) >= 0) break ;
-	}
-
-	if (pings[i] == NULL)
-	    return SR_NOTSUP ;
-
-#if	CF_DEBUGPING
-	pingprog = "ourping" ;
-#else
-	pingprog = pings[i] ;
-#endif
-
+	    if (rs >= 0) {
+	        int	i ;
+	        for (i = 0 ; pings[i] != NULL ; i += 1) {
+	            if (u_access(pings[i],X_OK) >= 0) break ;
+	        }
+	        if (pings[i] != NULL) {
+	            in_addr_t	*iap ;
+	            const char	*pingprog = NULL ;
 #if	CF_DEBUGS
-	debugprintf("inetping: ping i=%d program=%s\n",i,pings[i]) ;
+	            debugprintf("inetping: ping i=%d program=%s\n",
+			i,pings[i]) ;
 #endif
-
 /* do the dirty deed! */
+	            if (! f_numeric) {
+	                hostent_cur	hc ;
+#if	CF_DEBUGPING
+	                pingprog = "ourping" ;
+#else
+	                pingprog = pings[i] ;
+#endif
+	                if ((rs = hostent_curbegin(&he,&hc)) >= 0) {
+	            	    const uchar	*ap ;
+	                    while (hostent_enumaddr(&he,&hc,&ap) >= 0) {
+	                        iap = (in_addr_t *) ap ;
+	                        rs = pingone(pingprog,iap,timeout) ;
+	                        if (rs >= 0) break ;
+	                    } /* end while */
+	                    hostent_curend(&he,&hc) ;
+	                } /* end if (cursor) */
+	            } else {
+	                iap = (in_addr_t *) &addr ;
+	                rs = pingone(pingprog,iap,timeout) ;
+	            }
+	        } else {
+	            rs = SR_NOTSUP ;
+	        }
+	    } /* end if (ok) */
+	    uc_free(hebuf) ;
+	} /* end if (m-a-f) */
 
-	if (! f_numeric) {
-	    hostent_cur	hc ;
-	    if ((rs = hostent_curbegin(&he,&hc)) >= 0) {
-	        while (hostent_enumaddr(&he,&hc,&ap) >= 0) {
-		    iap = (in_addr_t *) ap ;
-	            rs = pingone(pingprog,iap,timeout) ;
-	            if (rs >= 0) break ;
-	        } /* end while */
-	        hostent_curend(&he,&hc) ;
-	    } /* end if (cursor) */
-	} else {
-	    iap = (in_addr_t *) &addr ;
-	    rs = pingone(pingprog,iap,timeout) ;
-	}
-
-/* we're out of here one way or another! */
-badret:
 	return rs ;
 }
 /* end subroutine (inetping) */
@@ -392,7 +387,8 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 
 #if	CF_DEBUGS
 	debugprintf("inetping/pingone: BUFLEN=%d\n",BUFLEN) ;
-	debugprintf("inetping/pingone: entering loop, timeout=%d\n",timeout) ;
+	debugprintf("inetping/pingone: entering loop, timeout=%d\n",
+		timeout) ;
 #endif
 
 	i = 0 ;
@@ -475,8 +471,7 @@ int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
 	} /* end if */
 
 #if	CF_DEBUGS
-	debugprintf("inetping/pingone: to=%d timeout=%d\n",
-	    to,timeout) ;
+	debugprintf("inetping/pingone: to=%d timeout=%d\n",to,timeout) ;
 #endif
 
 	if (to >= timeout) {

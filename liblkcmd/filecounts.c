@@ -791,24 +791,20 @@ VECOBJ		*ilp ;
 char		lbuf[] ;
 int		llen ;
 {
-	time_t		utime ;
-	uint		v ;
 	int		rs = SR_OK ;
 	int		si ;
-	int		sl ;
-	int		cl ;
-	const char	*sp ;
-	const char	*cp ;
-	const char	*np ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	si = (FILECOUNTS_NUMDIGITS + 1 + FILECOUNTS_LOGZLEN + 1) ;
-	if (llen < (si+1))
-	    goto ret0 ; /* invalid entry */
+	if (llen >= (si+1)) {
+	    uint	v ;
+	    int		sl = llen ;
+	    int		cl ;
+	    const char	*cp ;
+	    const char	*np ;
+	    const char	*sp = lbuf ;
 
-	sp = lbuf ;
-	sl = llen ;
 	if (sl && (sp[sl-1] == '\n')) sl -= 1 ;
 
 	while (sl && CHAR_ISWHITE(sp[sl-1])) /* EOL removal */
@@ -824,6 +820,7 @@ int		llen ;
 	cp = (const char *) sp ;
 	cl = FILECOUNTS_LOGZLEN ;
 	if ((rs = dater_setlogz(dmp,cp,cl)) >= 0) {
+	    time_t	utime ;
 	    if ((rs = dater_gettime(dmp,&utime)) >= 0) {
 
 	sl -= ((cp + cl + 1) - sp) ;
@@ -849,7 +846,7 @@ int		llen ;
 	    } /* end if (dater_setlogz) */
 	} /* end if (cfdecui) */
 
-ret0:
+	} /* end if (zero or positive) */
 
 #if	CF_DEBUGS
 	debugprintf("filecounts_snaperline: ret rs=%d\n",rs) ;
@@ -1124,46 +1121,31 @@ static int actioncmd(int nv)
 
 static int vcmpoff(const void *v1p,const void *v2p)
 {
-	WORKER_ENT	**e1pp, **e2pp ;
-	WORKER_ENT	*e1p, *e2p ;
+	WORKER_ENT	**e1pp = (WORKER_ENT **) v1p ;
+	WORKER_ENT	**e2pp = (WORKER_ENT **) v2p ;
+	WORKER_ENT	*e1p ;
+	WORKER_ENT	*e2p ;
 	int		rc = 0 ;
-
-	e1pp = (WORKER_ENT **) v1p ;
-	e2pp = (WORKER_ENT **) v2p ;
 
 	e1p = *e1pp ;
 	e2p = *e2pp ;
-
-	if ((e1p == NULL) && (e2p == NULL)) {
-	    rc = 0 ;
-	    goto ret0 ;
+	if ((e1p != NULL) || (e2p != NULL)) {
+	    if (e1p != NULL) {
+	        if (e2p != NULL) {
+	            if ((e2p->eoff >= 0) || (e1p->eoff >= 0)) {
+	                if ((rc = (e1p->eoff < 0) ? 1 : 0) == 0) {
+	    	            if ((rc = (e2p->eoff < 0) ? -1 : 0) == 0) {
+	    	                rc = (e1p->eoff - e2p->eoff) ;
+		            }
+	                }
+	            } else
+	                rc = 0 ;
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = 1 ;
 	}
 
-	if (e1p == NULL) {
-	    rc = 1 ;
-	    goto ret0 ;
-	}
-
-	if (e2p == NULL) {
-	    rc = -1 ;
-	    goto ret0 ;
-	}
-
-	if ((e2p->eoff < 0) && (e1p->eoff < 0)) {
-	    rc = 0 ;
-	    goto ret0 ;
-	}
-
-	if (rc == 0)
-	    rc = (e1p->eoff < 0) ? 1 : 0 ;
-
-	if (rc == 0)
-	    rc = (e2p->eoff < 0) ? -1 : 0 ;
-
-	if (rc == 0)
-	    rc = (e1p->eoff - e2p->eoff) ;
-
-ret0:
 	return rc ;
 }
 /* end subroutine (vcmpoff) */

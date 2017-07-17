@@ -1054,95 +1054,53 @@ static int subinfo_mkrt(SUBINFO *sip)
 static int subinfo_mkst(SUBINFO *sip)
 {
 	HOLIDAYS	*op = sip->op ;
-	int		rs = SR_OK ;
-	int		ksize, vsize ;
-	int		kisize ;
-	int		(*kit)[3] ;
-	char		*kst ;
-	char		*vst ;
+	int		rs ;
 
 #if	CF_DEBUGS
 	debugprintf("holidays/subinfo_mkst: rtlen=%u\n",op->rtlen) ;
 #endif
 
-/* key-string table */
-
-	rs = strtab_strsize(&sip->kstrs) ;
-	ksize = rs ;
-	if (rs < 0)
-	    goto bad0 ;
-
-#if	CF_DEBUGS
-	debugprintf("holidays/subinfo_mkst: ksize=%u\n",ksize) ;
-#endif
-
-	rs = uc_malloc(ksize,&kst) ;
-	if (rs < 0)
-	    goto bad0 ;
-
-	rs = strtab_strmk(&sip->kstrs,kst,ksize) ;
-	if (rs < 0)
-	    goto bad1 ;
-
-/* key-index table */
-
-	op->itlen = nextpowtwo(op->rtlen) ;
-
-#if	CF_DEBUGS
-	debugprintf("holidays/subinfo_mkst: itlen=%u\n",op->itlen) ;
-#endif
-
-	kisize = (op->itlen + 1) * 3 * sizeof(int) ;
-	rs = uc_malloc(kisize,&kit) ;
-	if (rs < 0)
-	    goto bad1 ;
-
-	memset(kit,0,kisize) ;
-	rs = subinfo_mkind(sip,kst,kit,op->itlen) ;
-	if (rs < 0)
-	    goto bad2 ;
-
-/* value-string table */
-
-	rs = strtab_strsize(&sip->vstrs) ;
-	vsize = rs ;
-	if (rs < 0)
-	    goto bad2 ;
-
-	rs = uc_malloc(vsize,&vst) ;
-	if (rs < 0)
-	    goto bad2 ;
-
-	rs = strtab_strmk(&sip->vstrs,vst,vsize) ;
-	if (rs < 0)
-	    goto bad3 ;
-
-	op->kst = kst ;
-	op->vst = vst ;
-	op->kit = kit ;
-	op->kslen = ksize ;
-	op->vslen = vsize ;
-
-ret0:
+	if ((rs = strtab_strsize(&sip->kstrs)) >= 0) {
+	    const int	ksize = rs ;
+	    char	*kst ;
+	    if ((rs = uc_malloc(ksize,&kst)) >= 0) {
+		int	kisize ;
+		if ((rs = strtab_strmk(&sip->kstrs,kst,ksize)) >= 0) {
+		    int		(*kit)[3] ;
+		    op->itlen = nextpowtwo(op->rtlen) ;
+		    kisize = (op->itlen + 1) * 3 * sizeof(int) ;
+		    if ((rs = uc_malloc(kisize,&kit)) >= 0) {
+		        memset(kit,0,kisize) ;
+			if ((rs = subinfo_mkind(sip,kst,kit,op->itlen)) >= 0) {
+			    if ((rs = strtab_strsize(&sip->vstrs)) >= 0) {
+				const int	vs = rs ;
+				char		*vst ;
+				if ((rs = uc_malloc(vs,&vst)) >= 0) {
+				    STRTAB	*vsp = &sip->vstrs ;
+				    if ((rs = strtab_strmk(vsp,vst,vs)) >= 0) {
+					op->kst = kst ;
+					op->vst = vst ;
+					op->kit = kit ;
+					op->kslen = ksize ;
+					op->vslen = vs ;
+				    }
+				} /* end if (m-a) */
+			    } /* end if */
+			} /* end if */
+			if (rs < 0)
+			    uc_free(kit) ;
+		    } /* end if (m-a) */
+		}
+	        if (rs < 0)
+		    uc_free(kst) ;
+	    } /* end if (m-a) */
+	} /* end if */
 
 #if	CF_DEBUGS
 	debugprintf("holidays/subinfo_mkdata: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
-
-/* bad stuff */
-bad3:
-	uc_free(vst) ;
-
-bad2:
-	uc_free(kit) ;
-
-bad1:
-	uc_free(kst) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (subinfo_mkst) */
 
@@ -1150,11 +1108,12 @@ bad0:
 /* make an index table of the record table */
 int subinfo_mkind(SUBINFO *sip,cchar kst[],int (*it)[3],int il)
 {
-	struct varentry	ve ;
 	HOLIDAYS	*op = sip->op ;
+	struct varentry	ve ;
 	uint		khash ;
 	uint		(*rt)[3] ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		ri, ki, hi ;
 	int		rtl ;
 	int		sc = 0 ;
@@ -1169,9 +1128,9 @@ int subinfo_mkind(SUBINFO *sip,cchar kst[],int (*it)[3],int il)
 
 #if	CF_FIRSTHASH
 	{
-	    VECOBJ	ves ;
-	    const int	size = sizeof(struct varentry) ;
-	    int		opts ;
+	    VECOBJ		ves ;
+	    const int		size = sizeof(struct varentry) ;
+	    int			opts ;
 
 	    opts = VECOBJ_OCOMPACT ;
 	    if ((rs = vecobj_start(&ves,size,rtl,opts)) >= 0) {
@@ -1186,20 +1145,16 @@ int subinfo_mkind(SUBINFO *sip,cchar kst[],int (*it)[3],int il)
 	            hi = hashindex(khash,il) ;
 
 	            if (it[hi][0] == 0) {
-
 	                it[hi][0] = ri ;
 	                it[hi][1] = (khash & INT_MAX) ;
 	                it[hi][2] = 0 ;
 	                sc += 1 ;
-
 	            } else {
-
 	                ve.ri = ri ;
 	                ve.ki = ki ;
 	                ve.khash = chash ;
 	                ve.hi = hi ;
 	                rs = vecobj_add(&ves,&ve) ;
-
 	            }
 
 	            if (rs < 0) break ;
