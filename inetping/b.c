@@ -5,6 +5,7 @@
 
 #define	CF_DEBUGS	0		/* comapile-time debugging */
 #define	CF_DEBUG	0		/* run-time debugging */
+#define	CF_DEBUGMALL	1		/* debug memory allocations */
 
 
 /* revision history:
@@ -94,6 +95,8 @@ extern int	debugprinthex(const char *,int,const char *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -303,7 +306,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp ;
-
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -1103,45 +1105,35 @@ int prochost(PROGINFO *pip,PARAMOPT *pop,void *ofp,cchar *hp,int hl)
 	if ((rs = nulstr_start(&s,hp,hl,&hn)) >= 0) {
 	    int		f = (pip->verboselevel > 0) ;
 
-	    rs1 = inetping(hn,pip->to) ;
-
-	    if (rs1 == SR_OK) {
-
+	    if ((rs = inetping(hn,pip->to)) >= 0) {
 	        f_alive = TRUE ;
 	        if (f) {
 	            fmt = "%s is alive\n" ;
 	            shio_printf(ofp,fmt,hn) ;
 	        }
-
-	    } else if (rs1 == SR_HOSTDOWN) {
-
+	    } else if (rs == SR_HOSTDOWN) {
 	        if (f) {
 	            fmt = "no answer from %s\n" ;
 	            shio_printf(ofp,fmt,hn) ;
 	        }
-
-	    } else if (rs1 == SR_NETUNREACH) {
-
+		rs = SR_OK ;
+	    } else if (rs == SR_NETUNREACH) {
 	        if (f) {
 	            fmt = "host network is unreachable (%d)\n" ;
 	            shio_printf(ofp,fmt,rs) ;
 	        }
-
-	    } else if (rs1 == SR_HOSTUNREACH) {
-
+		rs = SR_OK ;
+	    } else if (rs == SR_HOSTUNREACH) {
 	        if (f) {
 	            fmt = "host is unreachable! (%d)\n" ;
 	            shio_printf(ofp,fmt,rs) ;
 	        }
-
+		rs = SR_OK ;
 	    } else {
-
-	        rs = rs1 ;
 	        if (! pip->f.quiet) {
 	            fmt = "%s: inetping error (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	        }
-
 	    } /* end if */
 
 	    if (rs >= 0) {

@@ -298,8 +298,8 @@ static int readline_stream(int fd,char *lbuf,int llen,int to)
 	ti_start = ti_now ;
 	while ((rs >= 0) && (tlen < llen) && (to >= 0)) {
 
-	        pd.databuf.buf = (lbuf + tlen) ;
-	        pd.databuf.maxlen = (llen - tlen) ;
+	    pd.databuf.buf = (lbuf + tlen) ;
+	    pd.databuf.maxlen = (llen - tlen) ;
 	    if ((rs = u_poll(fds,1,POLLINTMULT)) > 0) {
 	        if ((rs = u_ioctl(fd,I_PEEK,&pd)) >= 0) {
 	            len = pd.databuf.len ;

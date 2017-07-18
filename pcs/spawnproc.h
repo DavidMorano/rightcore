@@ -59,12 +59,12 @@ the subroutine when the corresponding disposition is OPEN.
 
 
 struct spawnproc {
-	pid_t	pgrp ;
-	int	opts ;
-	int	disp[3] ;
-	int	fd[3] ;
-	int	fd_ctty ;
-	int	nice ;
+	pid_t		pgrp ;		/* input */
+	int		opts ;		/* input */
+	int		disp[3] ;	/* input */
+	int		fd[3] ;		/* input or output */
+	int		fd_ctty ;	/* input */
+	int		nice ;		/* input */
 } ;
 
 
@@ -74,7 +74,7 @@ struct spawnproc {
 extern "C" {
 #endif
 
-extern int spawnproc(struct spawnproc *,cchar *,cchar **,cchar **) ;
+extern int spawnproc(SPAWNPROC *,cchar *,cchar **,cchar **) ;
 
 #ifdef	__cplusplus
 }

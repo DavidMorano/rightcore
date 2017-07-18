@@ -625,7 +625,6 @@ static int subinfo_mkpwi(SUBINFO *sip)
 
 		    } /* end if (vecstr_getvec) */
 	        } /* end if (ok) */
-
 	        vecstr_finish(&envs) ;
 	    } /* end if (vecstr) */
 

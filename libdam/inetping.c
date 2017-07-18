@@ -5,11 +5,9 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time */
-#define	CF_DEBUGPING	0
+#define	CF_DEBUGPING	0		/* debug PING */
+#define	CF_DEBUGINT	0		/* compile |makeint()| */
 #define	CF_BROKEN	1		/* PING program broken */
-#define	CF_GETLINE	1		/* use 'uc_readlinetimed()' */
-#define	CF_PING		0		/* expose a 'ping' entry point */
-#define	CF_EXECVP	CF_DEBUGPING
 
 
 /* revision history:
@@ -28,14 +26,14 @@
 
 	Synopsis:
 
-	int inetping(host,timeout)
+	int inetping(host,to)
 	const char	host[] ;
-	int		timeout ;
+	int		to ;
 
 	Arguments:
 
 	host		character string of host name to 'ping'
-	timeout		number of secnods to wait for a 'ping' response
+	to		number of secnods to wait for a 'ping' response
 
 	Returns:
 
@@ -66,6 +64,7 @@
 #include	<getbufsize.h>
 #include	<hostent.h>
 #include	<inetaddr.h>
+#include	<spawnproc.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -76,10 +75,6 @@
 #define	ADDR_NOT	((uint) (~ 0))
 #endif
 
-#ifndef	NOFILE
-#define	NOFILE		64		/* modern value (old was 20) */
-#endif
-
 #ifndef	DIGBUFLEN
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
@@ -88,8 +83,9 @@
 #define	DOTBUFLEN	40		/* INET dotted-decimal length */
 #endif
 
-#undef	BUFLEN
-#define	BUFLEN		(2 * MAXHOSTNAMELEN)
+#define	TOBUFLEN	DIGBUFLEN
+
+#define	RBUFLEN		MAXNAMELEN
 
 #undef	PROGNAME_PING
 #define	PROGNAME_PING	"INETPING"
@@ -111,6 +107,8 @@
 
 extern int	ctdeci(char *,int,int) ;
 extern int	getourhe(const char *,char *,struct hostent *,char *,int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -138,8 +136,10 @@ typedef unsigned int	in_addr_t ;
 int		inetping(const char *,int) ;
 
 static int	pingone(const char *,in_addr_t *,int) ;
+static int	pingoneresp(int,int) ;
+static int	pingoneparse(cchar *,int) ;
 
-#if	CF_DEBUGS
+#if	CF_DEBUGS & CF_DEBUGINT
 static int	makeint(void *) ;
 #endif
 
@@ -148,9 +148,7 @@ static int	makeint(void *) ;
 
 static cchar	*pings[] = {
 	"/usr/sbin/ping",
-	"/usr/etc/ping",
 	"/usr/bin/ping",
-	"/bin/ping",
 	NULL
 } ;
 
@@ -166,7 +164,7 @@ int inetping(cchar *rhost,int timeout)
 	char		*hebuf ;
 
 #if	CF_DEBUGS
-	debugprintf("inetping: host=%s to=%d\n",rhost,timeout) ;
+	debugprintf("inetping: ent host=%s to=%d\n",rhost,timeout) ;
 #endif
 
 	if (rhost == NULL) return SR_FAULT ;
@@ -209,7 +207,7 @@ int inetping(cchar *rhost,int timeout)
 	                pingprog = pings[i] ;
 #endif
 	                if ((rs = hostent_curbegin(&he,&hc)) >= 0) {
-	            	    const uchar	*ap ;
+	            	    cuchar	*ap ;
 	                    while (hostent_enumaddr(&he,&hc,&ap) >= 0) {
 	                        iap = (in_addr_t *) ap ;
 	                        rs = pingone(pingprog,iap,timeout) ;
@@ -228,329 +226,139 @@ int inetping(cchar *rhost,int timeout)
 	    uc_free(hebuf) ;
 	} /* end if (m-a-f) */
 
+#if	CF_DEBUGS
+	debugprintf("inetping: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (inetping) */
 
 
-#if	CF_PING
-
-int ping(cchar *rhost,int timeout)
-{
-
-	return inetping(rhost,timeout) ;
-}
-
-#endif /* CF_PING */
-
-
 /* local subroutines */
 
 
-int pingone(cchar *pingprog,in_addr_t *ap,int timeout)
+int pingone(cchar *pingprog,in_addr_t *ap,int to)
 {
-	struct ustat	sb ;
 	inetaddr	ia ;
-	pid_t		pid ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
-	int		child_stat ;
-	int		i, len ;
-	int		to ;
-	int		cl ;
-	int		bfd[4] ;
-	int		pfd[2] ;
-	const char	*nullfname = NULLFNAME ;
-	const char	*args[4] ;
-	const char	*cp ;
-	char		buf[BUFLEN + 1] ;
-	char		dotaddr[DOTBUFLEN + 1] ;
-	char		pa_timeout[DIGBUFLEN + 1] ;
+	int		rv = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("inetping/pingone: ent, timeout=%d\n",timeout) ;
-#endif
-
-	inetaddr_start(&ia,ap) ;
-
-	inetaddr_getdotaddr(&ia,dotaddr,DOTBUFLEN) ;
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: addr=%s (\\x%08x)\n",
-	    dotaddr,makeint(ap)) ;
-#endif
-
-
-/* put the program invocation together */
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: putting invocation together \n") ;
+	debugprintf("inetping/pingone: ent to=%d\n",to) ;
 #endif
 
 #if	CF_BROKEN
-	if (timeout < 0)
-	    timeout = TO_PING ;
+	if (to < 0) to = TO_PING ;
 #endif /* CF_BROKEN */
 
-	args[0] = PROGNAME_PING ;
-	args[1] = dotaddr ;
+	if ((rs = inetaddr_start(&ia,ap)) >= 0) {
+	    const int	dotlen = DOTBUFLEN ;
+	    char	dotbuf[DOTBUFLEN + 1] ;
+	    if ((rs = inetaddr_getdotaddr(&ia,dotbuf,dotlen)) >= 0) {
+		SPAWNPROC	ps ;
+		const int	tolen = TOBUFLEN ;
+		int		ai = 0 ;
+		char		tobuf[TOBUFLEN+1] ;
+		cchar		*args[4] ;
 
-	i = 2 ;
-	pa_timeout[0] = '\0' ;
-	if (timeout >= 0) {
-	    ctdeci(pa_timeout,DIGBUFLEN,timeout) ;
+		args[ai++] = PROGNAME_PING ;
+		args[ai++] = dotbuf ;
+	        if (to >= 0) {
+	    	    ctdeci(tobuf,tolen,to) ;
+	    	    args[ai++] = tobuf ;
+	        }
+		args[ai] = NULL ;
+
+		memset(&ps,0,sizeof(SPAWNPROC)) ;
+		ps.disp[0] = SPAWNPROC_DNULL ;
+		ps.disp[1] = SPAWNPROC_DCREATE ;
+		ps.disp[2] = SPAWNPROC_DNULL ;
+		if ((rs = spawnproc(&ps,pingprog,args,NULL)) >= 0) {
+		    const pid_t	pid = rs ;
+		    const int	fd = ps.fd[1] ;
+		    int		cs = 0 ;
+		    if (to < 0) to = TO_PING ;
+		    to += TO_MORETIME ;
+		    if ((rs = pingoneresp(fd,to)) >= 0) {
+	        	rs = u_waitpid(pid,&cs,WNOHANG) ;
+	    	    } else {
+			rv = rs ;
+	        	u_kill(pid,SIGTERM) ;
+	        	rs = u_waitpid(pid,&cs,WNOHANG) ;
+		    }
+		    u_close(fd) ;
+		} /* end if (spawnproc) */
+	    } /* end if (inetaddr_getdotaddr) */
+	    rs1 = inetaddr_finish(&ia) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (inetaddr) */
 #if	CF_DEBUGS
-	    debugprintf("inetping/pingone: timeout=%s\n",pa_timeout) ;
+	debugprintf("inetping/pingone: ret rs=%d rv=%d\n",rs,rv) ;
 #endif
-	    args[i++] = pa_timeout ;
-	}
-
-	args[i] = NULL ;
-
-/* open some low FDs if some are not already occupied */
-
-	for (i = 0 ; i < 3 ; i += 1) {
-
-	    bfd[i] = -1 ;
-	    if (u_fstat(i,&sb) >= 0) continue ;
-
-	    if (i == 0) {
-	        rs = u_open(nullfname,O_RDONLY,0600) ;
-	    } else {
-	        rs = u_open(nullfname,O_WRONLY,0600) ;
-	    }
-
-	    if (rs >= 0) {
-	        bfd[i] = i ;
-	    }
-
-	} /* end for */
-
-/* this is now guaranteed to come up at or above 3! */
-
-	rs = u_pipe(pfd) ;
-	if (rs < 0)
-	    goto done ;
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: got our pipe\n") ;
-#endif
-
-	if ((rs = uc_fork()) == 0) {
-
-	    u_close(pfd[0]) ;
-
-	    for (i = 0 ; i < 3 ; i += 1) {
-	        u_close(i) ;
-	    }
-
-	    u_open(nullfname,O_RDONLY,0666) ;
-
-	    u_dup(pfd[1]) ;
-
-	    u_open(nullfname,O_WRONLY,0666) ;
-
-	    u_close(pfd[1]) ;
-
-	    for (i = 3 ; i < NOFILE ; i += 1) {
-	        u_close(i) ;
-	    }
-
-#if	CF_EXECVP
-	    rs = u_execvp(pingprog,args) ;
-#else
-	    rs = u_execv(pingprog,args) ;
-#endif
-
-	    uc_exit(EX_NOEXEC) ;
-	} else if (rs > 0) {
-	    pid = rs ;
-	} else
-	    goto badfork ;
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: forked pid=%d\n",rs) ;
-#endif
-
-	u_close(pfd[1]) ;
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: opened command OK\n") ;
-#endif
-
-/* read the response from the PING program */
-
-	if (timeout < 0)
-	    timeout = TO_PING ;
-
-	timeout += TO_MORETIME ;
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: BUFLEN=%d\n",BUFLEN) ;
-	debugprintf("inetping/pingone: entering loop, timeout=%d\n",
-		timeout) ;
-#endif
-
-	i = 0 ;
-	to = 0 ;
-	while ((i < BUFLEN) && (to < timeout)) {
-	    int		bl ;
-	    int		f_found ;
-	    char	*bp ;
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: about to read\n") ;
-#endif
-
-	    bp = buf + i ;
-	    bl = BUFLEN - i ;
-
-#if	CF_GETLINE
-	    rs = uc_readlinetimed(pfd[0],bp,bl,TO_READ) ;
-#else
-	    rs = uc_reade(pfd[0],bp,bl,TO_READ,0) ;
-#endif
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: read rs=%d\n",rs) ;
-#endif
-
-	    len = rs ;
-	    if (rs < 0) break ;
-
-	    if (len > 0) {
-#if	CF_DEBUGS
-	        debugprintf("inetping/pingone: buf=>%t<\n",bp,len) ;
-#endif
-	        f_found = (strnchr(bp,len,'\n') != NULL) ;
-	        i += len ;
-	        if (f_found) break ;
-	    } else {
-	        to += TO_READ ;
-	    }
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: bottom loop, to=%d\n",to) ;
-#endif
-
-	} /* end while (reading response from PING program) */
-
-	len = i ;
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: out loop read rs=%d\n",rs) ;
-#endif
-
-/* we have enough output from the program, let it die if it wants to! */
-
-	u_close(pfd[0]) ;
-
-/* find the part of the output string that we like */
-
-	if ((rs >= 0) && (len >= 0)) {
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: read len=%d\n",len) ;
-#endif
-
-	    cl = nextfield(buf,len,&cp) ;
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: read host=%t\n",cp,cl) ;
-#endif
-
-	    rs = SR_HOSTDOWN ;
-	    if (sfsub((buf + cl),(len - cl),"is alive",&cp) >= 0)
-	        rs = SR_OK ;
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: past getting a response rs=%d\n",
-	        rs) ;
-#endif
-
-	} /* end if */
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: to=%d timeout=%d\n",to,timeout) ;
-#endif
-
-	if (to >= timeout) {
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: killing pid=%d sig=%u\n",
-	        pid,SIGTERM) ;
-#endif
-	    u_kill(pid,SIGTERM) ;
-	    sleep(1) ;
-	}
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: TO_CHILDEXIT=%d\n",
-	    TO_CHILDEXIT) ;
-#endif
-
-	to = 0 ;
-	while (to < TO_CHILDEXIT) {
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: wait polling, to=%d\n",
-	        to) ;
-#endif
-
-	    rs1 = u_waitpid(pid,&child_stat,WNOHANG) ;
-
-#if	CF_DEBUGS
-	    debugprintf("inetping/pingone: waitpid rs=%d\n",rs1) ;
-#endif
-
-	    if (rs1 != 0)
-	        break ;
-
-	    to += 1 ;
-	    if (to >= TO_CHILDEXIT) {
-#if	CF_DEBUGS
-	        debugprintf("inetping/pingone: wait killing pid=%d sig=%u\n",
-	            pid,SIGTERM) ;
-#endif
-	        to = MAX((to - 3),0) ;
-	        u_kill(pid,SIGTERM) ;
-	    }
-
-	    sleep(1) ;
-
-	} /* end while */
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: out of wait loop, to=%d\n",
-	    to) ;
-#endif
-
-/* we're out of here */
-done:
-	for (i = 0 ; i < 3 ; i += 1) {
-	    if (bfd[i] >= 0) u_close(i) ;
-	} /* end for */
-
-	inetaddr_finish(&ia) ;
-
-#if	CF_DEBUGS
-	debugprintf("inetping/pingone: ret rs=%d\n",
-	    rs) ;
-#endif
-
-	return rs ;
-
-/* bad stuff */
-badfork:
-	u_close(pfd[0]) ;
-
-	u_close(pfd[1]) ;
-
-	goto done ;
+	return (rs >= 0) ? rv : rs ;
 }
 /* end subroutine (pingone) */
 
 
+static int pingoneresp(int fd,int to)
+{
+	const int	rlen = RBUFLEN ;
+	int		rs = SR_OK ;
+	int		tl = 0 ;
+	int		t = 0 ;
+	int		len = 0 ;
+	char		rbuf[RBUFLEN+1] ;
+	while ((rs >= 0) && (tl < rlen) && (t < to)) {
+	    int		f_found ;
+	    int		rl = (rlen-tl) ;
+	    char	*rp = (rbuf+tl) ;
+	    if ((rs = uc_readlinetimed(fd,rp,rl,TO_READ)) > 0) {
+	        len = rs ;
+	        if (len > 0) {
 #if	CF_DEBUGS
+	            debugprintf("inetping/pingone: rbuf=>%t<\n",rp,len) ;
+#endif
+	            f_found = (strnchr(rp,len,'\n') != NULL) ;
+	            tl += len ;
+	            if (f_found) break ;
+	        } else {
+	            t += TO_READ ;
+	        }
+#if	CF_DEBUGS
+	        debugprintf("inetping/pingone: bottom loop to=%d\n",to) ;
+#endif
+	    } /* end if (uc_readlinetimed) */
+	    if (f_found || (len == 0)) break ;
+	} /* end while (reading response from PING program) */
+	if (rs >= 0) {
+	    rs = pingoneparse(rbuf,tl) ;
+	}
+#if	CF_DEBUGS
+	debugprintf("inetping/pingoneresp: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (pingoneresp) */
+
+
+static int pingoneparse(cchar *rbuf,int rlen)
+{
+	int		rs = SR_OK ;
+	int		cl ;
+	cchar		*cp ;
+	if ((cl = nextfield(rbuf,rlen,&cp)) > 0) {
+	    if (sfsub((rbuf+cl),(rlen-cl),"is alive",&cp) < 0) {
+	        rs = SR_HOSTDOWN ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (pingoneparse) */
+
+
+#if	CF_DEBUGS & CF_DEBUGINT
 static int makeint(void *addr)
 {
 	int		hi = 0 ;
