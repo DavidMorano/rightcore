@@ -47,12 +47,12 @@
 #include	<vsystem.h>
 #include	<intceil.h>
 #include	<vecstr.h>
+#include	<sighand.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
 #include	"kshlib.h"
 #include	"maininfo.h"
-#include	"sighand.h"
 
 
 /* local defines */

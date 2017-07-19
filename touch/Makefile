@@ -149,7 +149,7 @@ OBJ05=
 OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
-OBJ09= sighand.o
+OBJ09=
 OBJ10=
 OBJ11= tmz.o
 OBJ12=
@@ -277,8 +277,6 @@ kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
 sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
-
-sighand.o:		sighand.c sighand.h
 
 
 getutmpent.o:		getutmpent.c getutmpent.h

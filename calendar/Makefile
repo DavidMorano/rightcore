@@ -17,10 +17,9 @@ $(T):		$(T).ksh
 	cp -p $(T).ksh $(T)
 
 install:	$(ALL)
-	bsdinstall $(ALL) $(BINDIR)
+	makenewer -r -o rmsuf $(T).ksh $(BINDIR)
 
 clean:
 	rm -f $(T)
-
 
 

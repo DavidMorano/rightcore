@@ -26,7 +26,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -79,7 +78,7 @@ LDRPATH= $(EXTRA)/lib
 
 LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 
-LDFLAGS_SO= $(LF_LDFLAGS) $(LDFLAGS) -R$(LDRPATH)
+LDFLAGS_SO= $(LF_LDFLAGS) $(LDFLAGS) -R$(LDRPATH):$(CGS_RPATH)
 
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
@@ -165,10 +164,10 @@ OBJ08=
 OBJ09=
 OBJ10= eigendb.o xwords.o rtags.o fsi.o biblebook.o
 OBJ11= textlook.o searchkeys.o
-OBJ12= txtindexmk.o txtindex.o dirseen.o
-OBJ13= ciq.o modload.o vecint.o
-OBJ14= makedate_get.o perm.o
-OBJ15= sfword.o strpcmp.o
+OBJ12= txtindexmk.o txtindex.o
+OBJ13=
+OBJ14= makedate_get.o
+OBJ15=
 
 # optional to include shared-objects directly
 #OBJ16= txtindexfu.o offindex.o
@@ -192,7 +191,7 @@ SOBJ= txtindexes.o txtindexfu.o offindex.o strtabfind.o
 
 TISOBJ= txtindexes.o txtindexfu.o offindex.o strtabfind.o
 
-MKSOBJ= txtindexmks.o txtindexfu.o strtabfind.o setint.o
+MKSOBJ= txtindexmks.o txtindexfu.o strtabfind.o osetint.o
 
 
 SRC= $(OBJ:.c=.o)
@@ -403,6 +402,9 @@ modload.o:		modload.c modload.h
 vecint.o:		vecint.c vecint.h
 
 setint.o:		setint.cc setint.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+osetint.o:		osetint.cc osetint.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 

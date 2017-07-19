@@ -19,7 +19,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions 
 CCOPTS_CCALL= -MT
@@ -69,6 +68,9 @@ GPPFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS)
 #LD= cc
 LD= ld
 
+
+LDRPATH=
+
 LDFLAGS= -m -R$(LIBDIR):$(CGS_RPATH)
 
 
@@ -97,7 +99,7 @@ TLIB3= -luc -lu
 TLIB4= $(CGS_LIBS)
 TLIB5=
 TLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
-TLIB7= -ldl
+TLIB7= -ldl -lc
 
 TLIBS= $(TLIB0) $(TLIB1) $(TLIB2) $(TLIB3) $(TLIB4) $(TLIB5) $(TLIB6) $(TLIB7)
 
@@ -234,9 +236,63 @@ T01OBJd=
 T01OBJ= $(T01OBJa) $(T01OBJb) $(T01OBJc) $(T01OBJd)
 
 $(T01).x:		Makefile $(T01OBJ)
-	$(CC) -o $@ $(T01OBJ) $(TLIBINFO)
+	$(GPP) -o $@ $(T01OBJ) $(TLIBINFO)
 
 $(T01).o:		testsethand.cc sethand.h
-	$(CC) -c $(CCFLAGS) $(CPPFLAGS) testsethand.cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) testsethand.cc
+
+
+T02= testsetint
+
+T02OBJa= $(T02).o
+T02OBJb=
+T02OBJc=
+T02OBJd=
+
+T02OBJ= $(T02OBJa) $(T02OBJb) $(T02OBJc) $(T02OBJd)
+
+T02OBJS= $(CRTFRONT) $(T02OBJ) $(CRTC) $(CRTBACK)
+
+$(T02).x:		Makefile $(T02OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T02OBJS) -lm $(TLIBINFO) > $(T02).lm
+
+$(T02).o:		testsetint.cc setint.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) testsetint.cc
+
+
+T03= testop
+
+T03OBJa= $(T03).o
+T03OBJb=
+T03OBJc=
+T03OBJd=
+
+T03OBJ= $(T03OBJa) $(T03OBJb) $(T03OBJc) $(T03OBJd)
+
+T03OBJS= $(CRTFRONT) $(T03OBJ) $(CRTC) $(CRTBACK)
+
+$(T03).x:		Makefile $(T03OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T03OBJS) -lm $(TLIBINFO) > $(T03).lm
+
+$(T03).o:		$(T03).cc setint.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) $(T03).cc
+
+
+T04= testnew
+
+T04OBJa= $(T04).o
+T04OBJb=
+T04OBJc=
+T04OBJd=
+
+T04OBJ= $(T04OBJa) $(T04OBJb) $(T04OBJc) $(T04OBJd)
+
+T04OBJS= $(CRTFRONT) $(T04OBJ) $(CRTC) $(CRTBACK)
+
+$(T04).x:		Makefile $(T04OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T04OBJS) -lm $(TLIBINFO) > $(T04).lm
+
+$(T04).o:		$(T04).cc setint.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) $(T04).cc
 
 

@@ -259,7 +259,8 @@ getnodedomain.o:	getnodedomain.c filebuf.h
 sperm.o:		sperm.c ids.h
 
 
-mailalias.o:		mailalias.c mailalias.h kvsfile.h
+mailalias.o:		mailalias.cc mailalias.h kvsfile.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) mailalias.cc
 
 filemap.o:		filemap.c filemap.h
 

@@ -13,6 +13,7 @@ SBINDIR= $(SRCROOT)/sbin
 all:		$(ALL)
 
 $(T):		$(T).ksh
+	rm -f $(T)
 	ln -f $(T).ksh $(T)
 
 install:	$(T).ksh

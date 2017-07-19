@@ -76,7 +76,7 @@ OBJ06=
 OBJ07=
 
 OBJ08= vecstr_env.o vecstr_adduniq.o vecstr.o
-OBJ09= filebuf.o filebuf_writeblanks.o
+OBJ09= filebuf.o
 OBJ10= bits.o field.o
 OBJ11= vechand.o
 OBJ12=

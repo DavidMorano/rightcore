@@ -135,14 +135,14 @@ OBJ08= pcsunodes.o
 OBJ09= lockfile.o initnow.o
 OBJ10= mheader.o strnnlen.o ndigits.o
 OBJ11= datestr_envelope.o datestr_header.o
-OBJ12= securefile.o bopenroot.o 
+OBJ12= securefile.o
 OBJ13= sfsubstance.o 
 OBJ14=
 OBJ15= envmgr.o outbuf.o
 OBJ16= useraccdb.o nulstr.o
 OBJ17= mailmsgatt.o mailmsgattent.o mimetypes.o mailalias.o
 OBJ18= mailmsghdrs.o
-OBJ19= contentencodings.o ismmclass.o
+OBJ19= contypevals.o contentencodings.o ismmclass.o
 OBJ20= modload.o
 OBJ21= thrbase.o thrcomm.o
 OBJ22=
@@ -314,7 +314,8 @@ mailmsgattent.o:	mailmsgattent.c mailmsgattent.h
 
 mailmsghdrs.o:		mailmsghdrs.c mailmsghdrs.h
 
-mailalias.o:		mailalias.c mailalias.h
+mailalias.o:		mailalias.cc mailalias.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) mailalias.cc
 
 ids.o:			ids.c ids.h
 
@@ -327,6 +328,8 @@ mailbox_getfrom.o:	mailbox_getfrom.c mailbox.h
 mailmsghdrval.o:	mailmsghdrval.c mailmsghdrval.h
 
 dirseen.o:		dirseen.c dirseen.h
+
+contypevals.o:		contypevals.c contypevals.h
 
 contentencodings.o:	contentencodings.c contentencodings.h
 

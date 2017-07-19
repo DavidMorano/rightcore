@@ -4,18 +4,16 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	0		/* run-time debug print-outs */
+#define	CF_DEBUG	1		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_DIRCLEAN	0		/* do not use */
 #define	CF_LOCSETENT	0		/* |locinfo_setentry()| */
 
 
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 
 */
@@ -66,6 +64,9 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -224,13 +225,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFNAME)) == NULL) {
-	    if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	        cp = getenv(VARDEBUGFD2) ;
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-	if (cp != NULL)
-	    debugopen(cp) ;
-	debugprintf("main: starting\n") ;
 #endif /* CF_DEBUGS */
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -563,6 +561,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (isFailOpen(rs1)) {
+	    rs = SR_OK ;
 	}
 
 	if (rs < 0)
@@ -583,10 +583,11 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -607,9 +608,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* get our program mode */
 
-	if (pmspec == NULL)
-	    pmspec = pip->progname ;
-
+	if (pmspec == NULL) pmspec = pip->progname ;
 	pip->progmode = matstr(progmodes,pmspec,-1) ;
 
 #if	CF_DEBUG
@@ -637,6 +636,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	ex = EX_OK ;
 
 /* check a few more things */
+
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
@@ -834,8 +838,10 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	            lbuf[len] = '\0' ;
 
 	            if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
-	                pan += 1 ;
-	                rs = locinfo_diradd(lip,cp,cl) ;
+			if (cp[0] != '#') {
+	                    pan += 1 ;
+	                    rs = locinfo_diradd(lip,cp,cl) ;
+			}
 		    }
 
 	            if (rs < 0) break ;
@@ -862,8 +868,10 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	            lbuf[len] = '\0' ;
 
 	            if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
-	                pan += 1 ;
-	                rs = locinfo_diradd(lip,cp,cl) ;
+			if (cp[0] != '#') {
+	                    pan += 1 ;
+	                    rs = locinfo_diradd(lip,cp,cl) ;
+			}
 		    }
 
 	            if (rs < 0) break ;

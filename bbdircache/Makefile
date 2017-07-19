@@ -18,11 +18,8 @@ MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 SOLIBDIR= $(SRCROOT)/lib/pcsconf
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
 # NOTES:
@@ -32,12 +29,14 @@ LDCRTDIR= $(SRCROOT)/lib
 #
 #
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -45,6 +44,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -89,61 +89,69 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDRPATH= /usr/lib/lwp
 
 # regular
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(LDRPATH)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 # for profiling
 #LDFLAGS= $(LF_LDFLAGS) -L/usr/lib/libp # -m -R$(LIBDIR)
 
 LDFLAGS_SO= $(LF_LDFLAGS) $(LDFLAGS)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -lpcs -ldam -lb
 LIB2=
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
 
-SLIBDIRS= -L$(LIBDIR)
+
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1= -lpcs -ldam -lb
 SLIB2=
 SLIB3= -luc -lu
-SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB4= $(CGS_LIBS)
 SLIB5= 
 SLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 SLIB7= -ldl
 
 SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
 
+SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
-XLIBDIRS= -L$(LIBDIR)
+
+XLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 XLIB0=
 XLIB1= -lpcs -ldam -lb
 XLIB2=
 XLIB3= -luc -lu
-XLIB4=
+XLIB4= $(CGS_LIBS)
 XLIB5= 
 XLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 XLIB7= -ldl
 
 XLIBS= $(XLIB0) $(XLIB1) $(XLIB2) $(XLIB3) $(XLIB4) $(XLIB5) $(XLIB6) $(XLIB7)
 
+XLIBINFO= $(XLIBDIRS) $(XLIBS)
+
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -189,7 +197,7 @@ OBJ11= pcsconf.o pcspoll.o var.o varmk.o
 OBJ12=
 OBJ13=
 OBJ14=
-OBJ15=
+OBJ15= vecpstr_loaddirs.o
 
 #OBJ16= expcook.o sfcookkey.o
 #OBJ17= pcsconfs.o
@@ -198,7 +206,7 @@ OBJ19=
 #OBJ20= debugprintf.o strlinelen.o debug.o
 #OBJ21=
 #OBJ22= pcspolls.o thrcomm.o fileobject.o hasfext.o
-#OBJ23=
+#OBJ23= 
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07) 
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -241,11 +249,11 @@ all:			$(ALL)
 so:			$(TPCS).so
 
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -269,7 +277,7 @@ $(T):			$(T).x
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
@@ -286,14 +294,14 @@ $(TPCS)-safe:
 
 $(TPCS).so:		$(TPCSOBJ) Makefile $(TPCS).map
 	$(LD) -G -o $@ -M $(TPCS).map $(LDFLAGS_SO) \
-		$(TPCSOBJ) $(SLIBDIRS) $(SLIBS) > $(TPCS).lm
+		$(TPCSOBJ) $(SLIBINFO) > $(TPCS).lm
 
 $(TPPS)-safe:
 	makesafe -v=3 -I $(INCDIR) $(TPPSOBJ)
 
 $(TPPS).so:		$(TPPSOBJ) Makefile $(TPPS).map
 	$(LD) -G -o $@ -M $(TPPS).map $(LDFLAGS_SO) \
-		$(TPPSOBJ) $(SLIBDIRS) $(SLIBS) > $(TPPS).lm
+		$(TPPSOBJ) $(SLIBINFO) > $(TPPS).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)
@@ -347,7 +355,7 @@ testexpcook.x:	te.x
 	ln -f te.x $@
 
 te.x:			$(TEOBJ)
-	$(CC) -o $@ $(CFLAGS) $(TEOBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(CFLAGS) $(TEOBJ) $(XLIBINFO)
 
 
 TAOBJ01= ta.o 
@@ -358,7 +366,7 @@ TAOBJ= $(TAOBJ01) $(TAOBJ02)
 TAOBJS= $(CRTFRONT) $(TAOBJ) $(CRTC) $(CRTBACK)
 
 ta.x:			$(TAOBJ)
-	$(CC) -o $@ $(CFLAGS) $(TAOBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(CFLAGS) $(TAOBJ) $(XLIBINFO)
 
 
 TSR= testspawner
@@ -377,7 +385,7 @@ testspawner.x:		ts.x
 	ln -f ts.x $@
 
 ts.x:			$(TWOBJ)
-	$(CC) -o $@ $(CFLAGS) $(TWOBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(CFLAGS) $(TWOBJ) $(XLIBINFO)
 
 
 TPG= pollprog
@@ -392,7 +400,7 @@ $(TPG)-safe:
 
 $(TPG).so:		$(TPGSOBJ) Makefile $(TPG).map
 	$(LD) -G -o $@ -M $(TPG).map $(LDFLAGS_SO) \
-		$(TPGSOBJ) $(SLIBDIRS) $(SLIBS) > $(TPG).lm
+		$(TPGSOBJ) $(SLIBINFO) > $(TPG).lm
 
 
 main.o:			main.c $(INCS) 
@@ -495,7 +503,7 @@ testpollobj-safe:
 
 testpollobj.so:		$(TPSOBJ) Makefile
 	$(LD) -G -o $@ $(LDFLAGS_SO) \
-		$(TPSOBJ) $(SLIBDIRS) $(SLIBS) > testpollobj.lm
+		$(TPSOBJ) $(SLIBINFO) > testpollobj.lm
 
 testpollobj.o:		testpollobj.c pcspolls.h pcsconf.h thrbase.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<

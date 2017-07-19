@@ -352,6 +352,8 @@ static int pingoneparse(cchar *rbuf,int rlen)
 	    if (sfsub((rbuf+cl),(rlen-cl),"is alive",&cp) < 0) {
 	        rs = SR_HOSTDOWN ;
 	    }
+	} else {
+	    rs = SR_HOSTDOWN ;
 	}
 	return rs ;
 }

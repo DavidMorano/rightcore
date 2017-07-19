@@ -26,6 +26,7 @@ CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #CCOPTS= -g -Wstrict-aliasing $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
+#CCOPTS= -g -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
 
 
 LDSOARRAY=
@@ -71,7 +72,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1=
-LIB2= -ldebug
+LIB2=
 LIB3= -lu
 LIB4= $(CGS_LIBS)
 LIB5= $(LF_LIBS) 
@@ -125,7 +126,7 @@ OBJ004= uc_openfsvc.o uc_openfint.o uc_openusvc.o uc_opendialer.o
 OBJ005= uc_opensys.o uc_opendev.o uc_create.o uc_createfile.o uc_joinus.o
 OBJ006= uc_readn.o uc_reade.o uc_readline.o 
 OBJ007= uc_write.o uc_writen.o uc_writefile.o uc_writedesc.o
-OBJ008= uc_recve.o uc_recvfrome.o uc_recvmsge.o
+OBJ008= uc_recve.o uc_recvfrome.o uc_recvmsge.o uc_peek.o
 OBJ009= uc_remove.o uc_connecte.o uc_stat.o uc_lstat.o uc_statvfs.o uc_fstat.o
 OBJ010= uc_fsync.o uc_fdatasync.o uc_fchmodsuid.o uc_chmodsuid.o uc_fsize.o
 OBJ011= uc_moveup.o uc_closeonexec.o uc_setappend.o uc_keepalive.o
@@ -174,7 +175,7 @@ OBJ053= uc_piper.o uc_thr.o uc_timer.o
 OBJ054= uc_tcsetattr.o uc_tcgetattr.o uc_tcdrain.o uc_tcflush.o uc_tcflow.o
 OBJ055= uc_tcsetpgrp.o uc_tcgetpgrp.o uc_tcgetsid.o
 OBJ056= uc_libmemalloc.o
-OBJ057= uc_getrandom.o
+OBJ057= uc_getrandom.o uc_getsocktype.o
 OBJ058= 
 OBJ059= pt_sigmask.o pt_atfork.o
 OBJ060=
@@ -186,13 +187,13 @@ OBJ064= getprotofamily.o geteaddrinfo.o getaf.o getpwd.o
 OBJ065= getnodedomain.o getutmpent.o getax.o getuserhome.o getxusername.o
 OBJ066= getbufsize.o gethz.o getngroups.o getproto.o getserv.o
 OBJ067= getportnum.o getenver.o getourenv.o
-OBJ068= inetpton.o perm.o sperm.o getprogpath.o findxfile.o xfile.o
+OBJ068= inetpton.o perm.o getprogpath.o findxfile.o xfile.o
 OBJ069= nextpowtwo.o ndigits.o ipow.o findbit.o
 OBJ070= isFailOpen.o isFailConn.o
-OBJ071= isNotPresent.o isNotValid.o isIOError.o isOneOf.o
+OBJ071= isNotPresent.o isNotAccess.o isNotValid.o isIOError.o isOneOf.o
 
-OBJ072= filebuf.o filebuf_writeblanks.o filebuf_writefill.o
-OBJ073= filebuf_writealign.o filebuf_writezero.o
+OBJ072= filebuf.o filebuf_writers.o
+OBJ073=
 OBJ074= vecstr.o vecstr_adduniq.o vecstr_adduniqs.o vecstr_addpath.o
 OBJ075= vecstr_env.o vecstr_envfile.o vecstr_loadfile.o
 OBJ076= vecpstr.o vecpstr_loadfile.o
@@ -218,7 +219,7 @@ OBJ093= strncpyblanks.o strnset.o strnwcpy.o
 OBJ094= strwcpy.o strwcpylc.o strwcpyuc.o
 OBJ095= strdcpy.o strdcpyw.o
 
-OBJ096= snwcpy.o snwcpyclean.o snwcpyshrink.o sntmtime.o
+OBJ096= snwcpy.o snwcpyclean.o snwcpyshrink.o sntmtime.o snshellunder.o 
 OBJ097= sncpy.o sncpyw.o sncpylc.o sncpyuc.o
 OBJ098= snflags.o snfsflags.o snpollflags.o snopenflags.o
 OBJ099= snsds.o snsd.o 
@@ -236,13 +237,13 @@ OBJ109= matstr.o matcasestr.o matostr.o matocasestr.o matkeystr.o
 OBJ110= strkeycmp.o strwcmp.o
 OBJ111= vstrcmp.o vstrcmpr.o vstrkeycmp.o vstrsort.o
 
-OBJ112= tmtime.o
-OBJ113= spawnproc.o
-OBJ114= dupup.o
-OBJ115= upt.o nlsdialassist.o
+OBJ112= 
+OBJ113= 
+OBJ114= 
+OBJ115= upt.o tmtime.o spawnproc.o dupup.o nlsdialassist.o
 OBJ116= mkcleanline.o tabcols.o checkbase.o ncolchar.o ncolstr.o
-OBJ117= snshellunder.o mapex.o
-OBJ118= 
+OBJ117= mapex.o
+OBJ118= calstrs.o
 OBJ119= toxc.o base64.o 
 
 OBJ120= uinfo.o umask.o ugetpw.o utmpacc.o uproguser.o uprogdata.o ugetpid.o
@@ -587,7 +588,7 @@ ptc.o:			ptc.c ptc.h
 # POSIX Semaphore
 psem.o:			psem.c psem.h
 
-# POSIX Read-Write Lock
+# POSIX Read-Write Lock (broken in dynamically loadable modeules)
 ptrwlock.o:		ptrwlock.c ptrwlock.h
 
 # POSIX Thread Read-Write Lock Attribute
@@ -603,10 +604,6 @@ sigblock.o:		sigblock.c sigblock.h
 sigign.o:		sigign.c sigign.h
 
 userattr.o:		userattr.c userattr.h
-
-ucsem.o:		ucsem.c ucsem.h
-
-pta.o:			pta.c pta.h
 
 ucsem.o:		ucsem.c ucsem.h
 
@@ -631,10 +628,6 @@ sbuf_addquoted.o:	sbuf_addquoted.c sbuf.h
 buffer.o:		buffer.c buffer.h
 
 ptca.o:			ptca.c ptca.h
-
-pta.o:			pta.c pta.h
-
-ucsem.o:		ucsem.c ucsem.h
 
 field.o:		field.c field.h
 
@@ -883,7 +876,7 @@ X03OBJ01= uc_openinfo.o uc_openproto.o uc_openprog.o
 X03OBJ02= uc_opendialer.o uc_openfsvc.o uc_openusvc.o
 X03OBJ03= $(XDIALERS)
 X03OBJ04= attachso.o opensvc_hotd.o
-X03OBJ05= snwcpyclean.o
+X03OBJ05= mkvarpath.o mkcdpath.o
 
 X03OBJ= $(X03OBJ00) $(X03OBJ01) $(X03OBJ02) $(X03OBJ03) $(X03OBJ04) $(X03OBJ05)
 

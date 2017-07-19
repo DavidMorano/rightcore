@@ -15,18 +15,18 @@ SVCDIR= $(SRCROOT)/lib/opensvcs
 EXTRALIBDIR= $(EXTRA)/lib
 ESVCDIR= $(EXTRA)/lib/opensvcs
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -69,32 +69,35 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDRPATH= $(EXTRALIBDIR)
 
-LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(EXTRALIBDIR) 
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(EXTRALIBDIR) 
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
 LIB2= -ldebug
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
 
-SLIBDIRS= -L$(LIBDIR)
+
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0= -llkcmd -lcsdb
 SLIB1= -ldam -lb
 SLIB2= -ldebug
 SLIB3= -luc -lu
-SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB4= $(CGS_LIBS)
 SLIB5= 
 SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 SLIB7=
@@ -107,7 +110,7 @@ SLIBS= $(SLIBA) $(SLIBB)
 SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
 
-XLIBDIRS= -L$(LIBDIR)
+XLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 XLIB0=
 XLIB1= -lcsdb -ldam -lb
@@ -120,10 +123,13 @@ XLIB7= -ldl
 
 XLIBS= $(XLIB0) $(XLIB1) $(XLIB2) $(XLIB3) $(XLIB4) $(XLIB5) $(XLIB6) $(XLIB7)
 
+XLIBINFO= $(XLIBDIRS) $(XLIBS)
+
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -208,11 +214,11 @@ default:		$(T).so
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -530,7 +536,7 @@ $(X02).x:		$(X02OBJ)
 	$(GPP) -o $@ $(X02OBJ) $(XLIBDIRS) $(XLIBS)
 
 $(X02).o:		$(X02).cc
-	$(GPP) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $(X02).cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $(X02).cc
 
 
 X03= testshmalloc
@@ -555,7 +561,7 @@ $(X03).x:		$(X03OBJ)
 	$(GPP) -o $@ $(X03OBJ) $(XLIBDIRS) $(XLIBS)
 
 $(X03).o:		$(X03).cc
-	$(GPP) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $(X03).cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $(X03).cc
 
 
 X04= testvotdc
@@ -580,6 +586,6 @@ $(X04).x:		$(X04OBJ)
 	$(GPP) -o $@ $(X04OBJ) $(XLIBDIRS) $(XLIBS)
 
 $(X04).o:		$(X04).cc
-	$(GPP) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $(X04).cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $(X04).cc
 
 

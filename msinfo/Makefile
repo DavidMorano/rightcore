@@ -153,7 +153,7 @@ OBJ11= ebuf.o serialbuf.o
 OBJ12=
 OBJ13=
 OBJ14= getfstype.o
-OBJ15=
+OBJ15= isValidMagic.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)

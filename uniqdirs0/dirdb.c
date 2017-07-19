@@ -3,7 +3,7 @@
 /* handle directory list operations */
 
 
-#define	CF_DEBUGS	0		/* compile-time debug print-outs */
+#define	CF_DEBUGS	1		/* compile-time debug print-outs */
 #define	CF_NOEXIST	1		/* handle names that don't exist */
 #define	CF_STATCMP	0		/* compare only parts of STAT */
 
@@ -33,7 +33,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
@@ -41,7 +40,6 @@
 
 #include	<vsystem.h>
 #include	<hdb.h>
-#include	<mallocstuff.h>
 #include	<localmisc.h>
 
 #include	"dirdb.h"
@@ -55,11 +53,17 @@
 extern int	sncpy1(char *,int,const char *) ;
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	mkpath1(char *,const char *) ;
-extern int	mkpath1w(char *,const char *,int) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	sfdirname(const char *,int,const char **) ;
+extern int	mkpath1w(char *,cchar *,int) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	sfdirname(cchar *,int,cchar **) ;
 extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -73,9 +77,10 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* forward references */
 
 static int	dirdb_alreadyentry(DIRDB *,DIRDB_ENT *) ;
-static int	dirdb_alreadyname(DIRDB *,const char *,int) ;
+static int	dirdb_alreadyname(DIRDB *,cchar *,int) ;
+static int	dirdb_adding(DIRDB *,USTAT *,cchar *,int) ;
 
-static int	entry_start(DIRDB_ENT *,cchar *,int,struct ustat *,int) ;
+static int	entry_start(DIRDB_ENT *,cchar *,int,USTAT *,int) ;
 static int	entry_finish(DIRDB_ENT *) ;
 
 #if	CF_STATCMP
@@ -151,132 +156,74 @@ int dirdb_finish(DIRDB *dbp)
 /* end subroutine (dirdb_finish) */
 
 
-int dirdb_add(DIRDB *dbp,cchar *name,int dlen)
+int dirdb_add(DIRDB *dbp,cchar *dp,int dl)
 {
-	struct ustat	sb ;
-	DIRDB_ENT	*ep ;
 	int		rs ;
-	int		size ;
-	int		nl, cl ;
-	int		dbi ;
 	int		f_new = FALSE ;
-	const char	*np, *dnamep ;
-	const char	*cp ;
+	char		tbuf[MAXPATHLEN+1] ;
 
 	if (dbp == NULL) return SR_FAULT ;
-	if (name == NULL) return SR_FAULT ;
+	if (dp == NULL) return SR_FAULT ;
 
 	if (dbp->magic != DIRDB_MAGIC) return SR_NOTOPEN ;
 
-#if	CF_DEBUGS
-	    debugprintf("dirdb_add: name=%t\n",name,dlen) ;
-#endif
-
-	{
-	    char	tbuf[MAXPATHLEN+1] ;
-	    if ((rs = mkpath1w(tbuf,name,dlen)) >= 0)
-	        rs = u_stat(tbuf,&sb) ;
-	}
+	if (dp[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
-	debugprintf("dirdb_add: u_stat() rs=%d\n",rs) ;
+	debugprintf("dirdb_add: name=%t\n",dp,dl) ;
 #endif
 
+	if (dl < 0) dl = strlen(dp) ;
 
-#if	CF_NOEXIST
-	if (rs < 0) {
-	    rs = SR_OK ;
-	    goto ret0 ;
-	}
-
-	if (! S_ISDIR(sb.st_mode))
-	    goto ret0 ;
-
-#else /* CF_NOEXIST */
-
-	if (rs < 0)
-	    goto ret0 ;
-
-	if (! S_ISDIR(sb.st_mode)) {
-	    rs = SR_NOTDIR ;
-	    goto ret0 ;
-	}
-
-#endif /* CF_NOEXIST */
-
+	if ((rs = mkpath1w(tbuf,dp,dl)) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = u_stat(tbuf,&sb)) >= 0) {
+		if (S_ISDIR(sb.st_mode)) {
+		    int		f_add = TRUE ;
+		    int		nl ;
+		    const char	*np ;
 #if	CF_DEBUGS
-	    debugprintf("dirdb_add: got a dir\n") ;
+	    	    debugprintf("dirdb_add: dl=%d\n",dl) ;
 #endif
-
-	dnamep = name ;
-	if (dlen < 0) dlen = strlen(name) ;
-
+		    while ((dl > 0) && (dp[dl-1] == '/')) {
+	    	        dl -= 1 ;
+		    }
+		    np = dp ;
+		    nl = dl ;
+		    if ((rs = dirdb_alreadyname(dbp,dp,dl)) == 0) {
+	    	        int		cl ;
+  	    		cchar		*cp ;
+			while ((cl = sfdirname(dp,dl,&cp)) > 0) {
 #if	CF_DEBUGS
-	    debugprintf("dirdb_add: dlen=%d\n",dlen) ;
+	    		    debugprintf("dirdb_add: dname=%t\n",cp,cl) ;
 #endif
-
-	while ((dlen > 0) && (dnamep[dlen - 1] == '/'))
-	    dlen -= 1 ;
-
-	np = dnamep ;
-	nl = dlen ;
-
-	if (dirdb_alreadyname(dbp,dnamep,dlen) >= 0)
-	    goto ret0 ;
-
-	while ((cl = sfdirname(dnamep,dlen,&cp)) > 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("dirdb_add: dname=%t\n",cp,cl) ;
-#endif
-
-	    if (dirdb_alreadyname(dbp,cp,cl) >= 0)
-	        goto ret0 ;
-
-	    dnamep = cp ;
-	    dlen = cl ;
-
-	} /* end while */
-
+	    		    if ((rs = dirdb_alreadyname(dbp,cp,cl)) > 0) {
+				f_add = FALSE ;
+				break ;
+			    }
+	    		    dp = cp ;
+	    		    dl = cl ;
+		        } /* end while */
 /* enter this into the database list */
-
 #if	CF_DEBUGS
-	    debugprintf("dirdb_add: adding to DB\n") ;
+		        debugprintf("dirdb_add: adding to DB\n") ;
 #endif
-
-	f_new = TRUE ;
-
 #if	CF_DEBUGS
-	    debugprintf("dirdb_add: id=%d\n",dbp->count) ;
+	    	        debugprintf("dirdb_add: id=%d\n",dbp->count) ;
 #endif
-
-	size = sizeof(DIRDB_ENT) ;
-	if ((rs = uc_malloc(size,&ep)) >= 0) {
-	    if ((rs = entry_start(ep,np,nl,&sb,dbp->count)) >= 0) {
-	        if ((rs = vechand_add(&dbp->dlist,ep)) >= 0) {
-		    HDB_DATUM	key, val ;
-	            dbi = rs ;
-	            key.buf = &ep->fid ;
-	            key.len = sizeof(DIRDB_FID) ;
-	            val.buf = ep ;
-	            val.len = size ;
-	            if ((rs = hdb_store(&dbp->db,key,val)) >= 0) {
-	                dbp->count += 1 ;
-	            } /* end if (hdb_store) */
-	            if (rs < 0)
-		        vechand_del(&dbp->dlist,dbi) ;
-	        } /* end if (vechand_add) */
-	        if (rs < 0)
-	            entry_finish(ep) ;
-	    } /* end if (entry_start) */
-	    if (rs < 0)
-	        uc_free(ep) ;
-	} /* end if (m-a) */
-
-ret0:
+		        if ((rs >= 0) && f_add) {
+		            f_new = TRUE ;
+	    	            rs = dirdb_adding(dbp,&sb,np,nl) ;
+		        } /* end if (ok) */
+		    } /* end if (dirdb_alreadyname) */
+		} /* end if (is-dir) */
+	    } else if (isNotPresent(rs)) {
+		rs = SR_OK ;
+	    } /* end if (stat) */
+	} /* end if (mkpath) */
 
 #if	CF_DEBUGS
-	    debugprintf("dirdb_add: ret rs=%d f_new=%u\n",rs,f_new) ;
+	debugprintf("dirdb_add: ret rs=%d f_new=%u\n",rs,f_new) ;
 #endif
 
 	return (rs >= 0) ? f_new : rs ;
@@ -318,7 +265,8 @@ int dirdb_clean(DIRDB *dbp)
 
 	    } /* end while */
 
-	    hdb_curend(&dbp->db,&cur) ;
+	    rs1 = hdb_curend(&dbp->db,&cur) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (kdb-cursor) */
 
 	return rs ;
@@ -380,41 +328,70 @@ int dirdb_enum(DIRDB *dbp,DIRDB_CUR *curp,DIRDB_ENT **epp)
 /* private subroutines */
 
 
+static int dirdb_adding(DIRDB *op,USTAT *sbp,cchar *np,int nl)
+{
+	DIRDB_ENT	*ep ;
+	const int	size = sizeof(DIRDB_ENT) ;
+	int		rs ;
+	if ((rs = uc_malloc(size,&ep)) >= 0) {
+	    if ((rs = entry_start(ep,np,nl,sbp,op->count)) >= 0) {
+	        if ((rs = vechand_add(&op->dlist,ep)) >= 0) {
+		    HDB_DATUM	key, val ;
+	            int		dbi = rs ;
+	            key.buf = &ep->fid ;
+	            key.len = sizeof(DIRDB_FID) ;
+	            val.buf = ep ;
+	            val.len = size ;
+	            if ((rs = hdb_store(&op->db,key,val)) >= 0) {
+	                op->count += 1 ;
+	            } /* end if (hdb_store) */
+	            if (rs < 0)
+		        vechand_del(&op->dlist,dbi) ;
+	        } /* end if (vechand_add) */
+	        if (rs < 0)
+	            entry_finish(ep) ;
+	    } /* end if (entry_start) */
+	    if (rs < 0)
+	        uc_free(ep) ;
+	} /* end if (m-a) */
+	return rs ;
+}
+/* end subroutine (dirdb_adding) */
+
+
 static int dirdb_alreadyentry(DIRDB *dbp,DIRDB_ENT *ep)
 {
-	int		rs = SR_NOTFOUND ;
+	int		rs = SR_OK ;
 	int		dlen, cl ;
+	int		f = FALSE ;
 	const char	*dnamep ;
 	const char	*cp ;
 
 #if	CF_DEBUGS
-	    debugprintf("dirdb_alreadyentry: ent\n") ;
+	debugprintf("dirdb_alreadyentry: ent\n") ;
 #endif
 
 	dnamep = ep->name ;
 	dlen = strlen(dnamep) ;
 
 	while ((cl = sfdirname(dnamep,dlen,&cp)) > 0) {
-
 #if	CF_DEBUGS
-	        debugprintf("dirdb_alreadyentry: dname=%t\n",cp,cl) ;
+	    debugprintf("dirdb_alreadyentry: dname=%t\n",cp,cl) ;
 #endif
-
-	    if (dirdb_alreadyname(dbp,cp,cl) >= 0) {
-	        rs = SR_OK ;
+	    if ((rs = dirdb_alreadyname(dbp,cp,cl)) > 0) {
+		f = TRUE ;
 	        break ;
 	    }
-
 	    dnamep = cp ;
 	    dlen = cl ;
-
+	    if (rs < 0) break ;
 	} /* end while */
 
 #if	CF_DEBUGS
-	    debugprintf("dirdb_alreadyentry: ret rs=%d\n",rs) ;
+	    debugprintf("dirdb_alreadyentry: ret rs=%d f=%u\n",rs,f) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (dirdb_alreadyentry) */
 
@@ -422,43 +399,48 @@ static int dirdb_alreadyentry(DIRDB *dbp,DIRDB_ENT *ep)
 /* do we already have this name? */
 static int dirdb_alreadyname(DIRDB *dbp,cchar *name,int nlen)
 {
-	struct ustat	sb ;
 	int		rs ;
-	char		tmpdname[MAXPATHLEN + 1] ;
+	int		f = FALSE ;
+	char		tbuf[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
-	    if (nlen < 0) nlen = strlen(name) ;
-	    debugprintf("dirdb_alreadyname: name=%t\n",name,nlen) ;
+	if (nlen < 0) nlen = strlen(name) ;
+	debugprintf("dirdb_alreadyname: name=%t\n",name,nlen) ;
 #endif
 
 	if (nlen < 0)
 	    nlen = strlen(name) ;
 
-	snwcpy(tmpdname,MAXPATHLEN,name,nlen) ;
-
-	if ((rs = u_stat(tmpdname,&sb)) >= 0) {
-	    DIRDB_FID	fid ;
-	    HDB_DATUM	key, val ;
-	    memset(&fid,0,sizeof(DIRDB_FID)) ;
-	    fid.ino = sb.st_ino ;
-	    fid.dev = sb.st_dev ;
-	    key.buf = &fid ;
-	    key.len = sizeof(DIRDB_FID) ;
-	    rs = hdb_fetch(&dbp->db,key,NULL,&val) ;
-	} else
-	    rs = SR_OK ;
+	if ((rs = mkpath1w(tbuf,name,nlen)) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = u_stat(tbuf,&sb)) >= 0) {
+	        DIRDB_FID	fid ;
+	        HDB_DATUM	key, val ;
+	        memset(&fid,0,sizeof(DIRDB_FID)) ;
+	        fid.ino = sb.st_ino ;
+	        fid.dev = sb.st_dev ;
+	        key.buf = &fid ;
+	        key.len = sizeof(DIRDB_FID) ;
+	        if ((rs = hdb_fetch(&dbp->db,key,NULL,&val)) >= 0) {
+		    f = TRUE ;
+	        } else if (rs == SR_NOTFOUND) {
+		    rs = SR_OK ;
+	        }
+	    } else if (isNotPresent(rs)) {
+	        rs = SR_OK ;
+	    }
+	} /* end if (mkpath) */
 
 #if	CF_DEBUGS
-	    debugprintf("dirdb_alreadyname: ret rs=%d\n",rs) ;
+	    debugprintf("dirdb_alreadyname: ret rs=%d f=%u\n",rs,f) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (dirdb_alreadyname) */
 
 
-static int entry_start(DIRDB_ENT *ep,cchar *np,int nl,struct ustat *sbp,
-		int count)
+static int entry_start(DIRDB_ENT *ep,cchar *np,int nl,USTAT *sbp,int count)
 {
 	int		rs ;
 	const char	*cp ;

@@ -16,6 +16,8 @@ HELPDIR= $(SRCROOT)/share/help
 PLIBDIR= $(SRCROOT)/lib/vmail
 
 LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
+
 
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
@@ -62,8 +64,6 @@ DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
 
 INCDIRS= -I$(INCDIR) -I$(LOCAL)/include
 
-LDRPATH= $(LOCAL)/lib:$(GNU)/lib:$(EXTRA)/lib:/usr/lib/lwp
-
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
@@ -71,6 +71,9 @@ CFLAGS= $(CCOPTS)
 #LD= $(CC)
 #LD= cc
 LD= ld
+
+
+LDRPATH= $(LOCAL)/lib:$(GNU)/lib:$(EXTRA)/lib:/usr/lib/lwp
 
 # regular
 LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(LDRPATH)
@@ -97,7 +100,7 @@ LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 LIBINFO= $(LIBDIRS) $(LIBS)
 
 
-TLIBDIRS= -L$(LIBDIR)
+TLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 TLIB0=
 TLIB1= -lpcs -ldam -lb
@@ -173,12 +176,12 @@ OBJ21= varray.o
 OBJ22= hdrdecode.o qpdecoder.o b64decoder.o utf8decoder.o obuf.o
 OBJ23= chartrans.o uiconv.o strmgr.o
 
-#OBJ24= setupmailbox.o search.o psearch.o
-#OBJ25= cmd_delete.o cmd_undelete.o cmd_movemsg.o cmd_sendmail.o
-#OBJ26= cmd_edit.o cmd_pipe.o cmd_reply.o cmd_putfile.o cmd_mlist.o
-#OBJ27= leparse.o mailcheck.o profile.o periph.o
-#OBJ28= booleval.o boxname.o mkmailbox.o scanner.o
-#OBJ29= forward.o fetchfield.o help.o fetchfrom.o fixfrom.o
+OBJ24=
+OBJ25=
+OBJ26=
+OBJ27=
+OBJ28=
+OBJ29=
 OBJ30= headkeymat.o mkdisplayable.o sfsubstance.o
 OBJ31= mkbestaddr.o mkbestfrom.o mktmpuserdir.o
 
@@ -367,8 +370,6 @@ mailmsgviewer.o:	mailmsgviewer.c mailmsgviewer.h
 
 mbdels.o:		mbdels.c mb.h $(INCS)
 
-mbrewrite.o:		mbrewrite.c mb.h $(INCS)
-
 help.o:			help.c $(INCS)
 
 periph.o:		periph.c $(INCS)
@@ -452,6 +453,10 @@ filebuf_writeblanks.o:	filebuf_writeblanks.c filebuf.h
 
 filebuf_writefill.o:	filebuf_writefill.c filebuf.h 
 
+filebuf_writefd.o:	filebuf_writefd.c filebuf.h 
+
+filebuf_mailsupport.o:	filebuf_mailsupport.c filebuf.h 
+
 vecobj.o:		vecobj.c vecobj.h
 
 varray.o:		varray.c varray.h
@@ -528,6 +533,8 @@ sesmsg.o:		sesmsg.c sesmsg.h
 msgdata.o:		msgdata.c msgdata.h
 
 kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
+
+progsig.o:		progsig.c progsig.h sesmsg.h msgdata.h
 
 
 upt.o:			upt.c upt.h

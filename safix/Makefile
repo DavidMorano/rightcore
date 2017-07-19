@@ -261,8 +261,6 @@ vecstr_loadfile.o:	vecstr_loadfile.c
 
 userinfo.o:		userinfo.c userinfo.h
 
-mailalias.o:		mailalias.c mailalias.h
-
 filemap.o:		filemap.c filemap.h
 
 filebuf.o:		filebuf.c filebuf.h

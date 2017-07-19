@@ -29,7 +29,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -196,7 +195,7 @@ XLIBS= -llkcmd $(DLIBS) $(GLIBS) $(ULIBS) -ldl -lc
 XLIBINFO= $(XLIBDIRS) $(XLIBS)
 
 
-VALUES= $(VALDIR)/values-xa.o
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
@@ -317,7 +316,7 @@ OBJ33= mailmsg.o mailmsg_loadmb.o mailmsg_enver.o
 OBJ34= mailmsghdrval.o mailmsghdrfold.o 
 OBJ35= mailmsghdrs.o
 OBJ36= mailalias.o lastlogfile.o 
-OBJ37=
+OBJ37= cachetime.o
 OBJ38= vecstr_avmkstr.o
 OBJ39= field_word.o field_wordphrase.o 
 
@@ -328,9 +327,9 @@ OBJ43= logfile.o logfile_userinfo.o logfile_printfold.o
 OBJ44= mbcache.o conslog.o sigblock.o sigman.o 
 OBJ45= aclinfo.o acltypes.o
 OBJ46= pwi.o ipasswd.o 
-OBJ47= lookword.o address.o mxalias.o issue.o motd.o
+OBJ47= lookword.o mxalias.o issue.o motd.o
 
-OBJ48= osetstr.o setint.o vecint.o raqhand.o
+OBJ48= osetstr.o vecint.o raqhand.o
 OBJ49= sysusernames.o sysrealname.o
 OBJ50= sysusers.o sysgroups.o sysprojects.o sysusershells.o
 OBJ51= sysuserattr.o sysgroup.o sysproject.o
@@ -339,7 +338,7 @@ OBJ53=
 OBJ54= hdrdecode.o qpdecoder.o b64decoder.o hexdecoder.o obuf.o 
 OBJ55= chartrans.o utf8decoder.o
 
-OBJ56= filebuf.o filebuf_writeblanks.o filebuf_writefill.o filebuf_mailsupport.o
+OBJ56= filebuf.o filebuf_mailsupport.o
 OBJ57= outstore.o calyear.o numincr.o modload.o uiconv.o
 OBJ58= sesmsg.o msgdata.o
 OBJ59= msfile.o msfile_best.o msfilee.o ebuf.o
@@ -350,7 +349,7 @@ OBJ63=
 
 OBJ64= initnow.o inittimezone.o spawnproc.o logout.o 
 OBJ65= pwilookup.o mailboxappend.o mailmsgfrom.o
-OBJ66= ndig.o
+OBJ66= ndig.o address.o 
 OBJ67= mkquoted.o mkfingerquery.o mkcleanline.o mkuuid.o
 OBJ68= mailmsgmatenv.o mailmsgmathdr.o
 OBJ69= getopendial.o getfstype.o getuserorg.o getrealname.o
@@ -359,12 +358,12 @@ OBJ71= isOneOf.o isIOError.o
 
 OBJ72= mkdisplayable.o compactstr.o
 OBJ73= mkmid.o
-OBJ74= fileobject.o filebinary.o
+OBJ74= fileobject.o filebinary.o isValidMagic.o
 OBJ75= 
 OBJ76=
 OBJ77=
-OBJ78= perdata.o
-OBJ79= percache.o
+OBJ78= 
+OBJ79= percache.o perdata.o
 
 OBJ80= snwcpyopaque.o snwcpycompact.o snwcpyclean.o snmkuuid.o
 OBJ81= snopenflags.o snflags.o
@@ -427,6 +426,7 @@ MSUOBJS= msumain.o msulocinfo.o msuconfig.o msuadjunct.o msulog.o msudebug.o
 
 PCSOBJS= pcsmain.o pcslocinfo.o pcsconfig.o pscadjunct.o pcslog.o pcsdebug.o
 
+
 XOBJ= main.o maininfo.o sighand.o ucontext_rtn.o
 
 XOBJS= $(CRTFRONT) $(XOBJ) $(CRTC) $(CRTBACK)
@@ -479,7 +479,7 @@ $(T).so:		$(OBJS) Makefile $(T).map
 $(T).x:			$(XOBJ) Makefile $(T).so
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CPPFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(XOBJS) $(XLIBDIRS) $(XLIBS) > main.lm
+	$(LD) -o $@ $(LDFLAGS) $(XOBJS) $(XLIBINFO) > main.lm
 
 $(T).nm nm:		$(T).so
 	$(NM) $(NMFLAGS) $(T).so > $(T).nm
@@ -1123,7 +1123,8 @@ pq.o:			pq.c pq.h
 
 charq.o:		charq.c charq.h
 
-mailalias.o:		mailalias.c mailalias.h
+mailalias.o:		mailalias.cc mailalias.h
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
 
 serialbuf.o:		serialbuf.c serialbuf.h
 
@@ -1404,6 +1405,9 @@ chartrans.o:		chartrans.c chartrans.h
 osetstr.o:		osetstr.c osetstr.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
 
+osetint.o:		osetint.cc osetint.h
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+
 setint.o:		setint.cc setint.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
 
@@ -1437,6 +1441,8 @@ uiconv.o:		uiconv.c uiconv.h
 
 varsub.o:		varsub.c varsub.h
 
+cachetime.o:		cachetime.c cachetime.h
+
 
 # testing
 
@@ -1449,10 +1455,10 @@ X01OBJS= $(CRTFRONT) $(X01OBJ) $(CRTC) $(CRTBACK)
 $(X01).o:		$(X01).c
 
 $(X01).x:		$(X01OBJS)
-	$(LD) -z nodefs -o $@ $(LDFLAGS) $(X01OBJS) $(XLIBDIRS) $(XLIBS) -lfoo
+	$(LD) -z nodefs -o $@ $(LDFLAGS) $(X01OBJS) $(XLIBINFO) -lfoo
 
 $(X01).so:		$(X01OBJS)
-	$(LD) -G -o $@ $(LDFLAGS) $(X01OBJS) $(XLIBDIRS) $(XLIBS)
+	$(LD) -G -o $@ $(LDFLAGS) $(X01OBJS) $(XLIBINFO)
 
 
 X02= testvalues

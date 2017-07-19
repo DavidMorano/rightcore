@@ -1,6 +1,5 @@
 # MAKEFILE
 
-
 T= makeclean
 
 ALL= $(T)
@@ -22,6 +21,5 @@ install:	$(T).ksh
 
 clean:
 	rm -f $(T)
-
 
 

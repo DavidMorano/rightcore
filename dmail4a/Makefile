@@ -138,7 +138,7 @@ OBJ01= proglog.o proglogzone.o proglogenv.o proguserlist.o
 OBJ02= progmsgs.o progprinthdr.o progmsgid.o progcomsat.o
 OBJ03= progexpand.o prognamecache.o
 OBJ04= progdeliver.o progboxer.o 
-OBJ05= mkenvfrom.o
+OBJ05=
 OBJ06= parsenodespec.o recipcopyparts.o
 OBJ07= printhelp.o 
 
@@ -296,8 +296,6 @@ progcomsat.o:		progcomsat.c $(INCS)
 
 prognotify.o:		prognotify.c $(INCS) mcmsg.h
 
-progout.o:		progout.c $(INCS)
-
 progdeliver.o:		progdeliver.c $(INCS) lkmail.h
 
 progboxer.o:		progboxer.c $(INCS)
@@ -355,8 +353,6 @@ mailmsg_enver.o:	mailmsg_enver.c mailmsg.h mailmsg_enver.h
 mailmsgmatenv.o:	mailmsgmatenv.c mailmsgmatenv.h
 
 lkmail.o:		lkmail.c lkmail.h
-
-mailalias.o:		mailalias.c mailalias.h
 
 mapstrint.o:		mapstrint.c mapstrint.h
 

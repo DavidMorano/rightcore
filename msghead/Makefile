@@ -271,8 +271,6 @@ msgheaders.o:		msgheaders.c msgheaders.h
 
 lkmail.o:		lkmail.c lkmail.h
 
-mailalias.o:		mailalias.c mailalias.h
-
 mapstrint.o:		mapstrint.c mapstrint.h
 
 logfile.o:		logfile.c logfile.h

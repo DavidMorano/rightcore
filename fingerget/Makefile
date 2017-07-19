@@ -237,8 +237,6 @@ filebuf.o:		filebuf.c filebuf.h
 
 streamsync.o:		streamsync.c streamsync.h
 
-nodesfile.o:		nodesfile.c nodesfile.h
-
 envlist.o:		envlist.c envlist.h
 
 hdb.o:			hdb.c hdb.h
@@ -258,8 +256,6 @@ msfilee.o:		msfilee.c msfilee.h
 mapstrint.o:		mapstrint.c mapstrint.h
 
 mkcexsync.o:		mkcexsync.c mkcexsync.h
-
-nodesearch.o:		nodesearch.c nodesearch.h
 
 nodedb.o:		nodedb.c nodedb.h
 

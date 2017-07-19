@@ -20,7 +20,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -73,6 +72,8 @@ INCDIRS= -I$(INCDIR) -I$(LOCAL)/include
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+
+CCFLAGS= ${GPPFLAGS) $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
@@ -150,12 +151,12 @@ OBJ01= proglog.o proguserlist.o
 OBJ02= progbuildmsg.o progout.o progmsgid.o progstrmailer.o progexpcook.o
 OBJ03= mkfromaddr.o mkreplyaddr.o mksenderaddr.o mkface.o
 OBJ04= mkrand.o mkfromname.o mkmsgbound.o 
-OBJ05= mailmsgatt.o mailmsgattent.o ismmclass.o contentencodings.o
+OBJ05= 
 OBJ06= ha.o hname.o 
-OBJ07= printhelp.o 
+OBJ07= printhelp.o kshlib.o sesmsg.o msgdata.o
 OBJ08=
-OBJ09= ema.o mimetypes.o
-OBJ10= linefold.o expcook.o
+OBJ09= mailmsgatt.o mailmsgattent.o ismmclass.o
+OBJ10= ema.o mimetypes.o contypevals.o contentencodings.o
 OBJ11= buffer.o buffer_stropaque.o
 OBJ12= paramopt_loadone.o
 OBJ13= dater_setkey.o
@@ -196,7 +197,7 @@ default:		$(T).x
 all:			$(ALL)
 
 .cc.o:
-	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) $<
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
@@ -316,11 +317,15 @@ ha.o:			ha.c ha.h
 hname.o:		hname.c hname.h
 
 
-mailmsgatt.o:		mailmsgatt.c mailmsgatt.h
+mailmsgatt.o:		mailmsgatt.c mailmsgatt.h mailmsgattent.h
+mailmsgatt.o:		contypevals.h
 
-mailmsgattent.o:	mailmsgattent.c mailmsgattent.h mailmsgatt.h
+mailmsgattent.o:	mailmsgattent.c mailmsgattent.h
+mailmsgattent.o:	contypevals.h
 
 ismmclass.o:		ismmclass.c ismmclass.h
+
+contypevals.o:		contypevals.c contypevals.h
 
 contentencodings.o:	contentencodings.c contentencodings.h
 

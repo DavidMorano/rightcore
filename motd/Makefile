@@ -72,6 +72,7 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCFLAGS= $(GPPFLAGS) $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
@@ -368,7 +369,7 @@ finduid.o:		finduid.c finduid.h
 pwcache.o:		pwcache.c pwcache.h
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) termout.cc
 
 sigman.o:		sigman.c sigman.h
 

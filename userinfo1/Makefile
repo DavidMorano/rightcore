@@ -169,14 +169,14 @@ OBJ20= pwi.o userattr.o pwfile.o
 OBJ21= filebuf.o realname.o lastlogfile.o ipasswd.o getfstype.o
 OBJ22= nodedb.o clusterdb.o kvsfile.o storeitem.o gecos.o filemap.o
 OBJ23= sysgroup.o sysproject.o
-OBJ24= field.o
+OBJ24= field.o strtab.o
 OBJ25=
 OBJ26=
 OBJ27= pwentry.o
 OBJ28=
 OBJ29=
 OBJ30=
-OBJ31=
+OBJ31= mkfmtphone.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -368,6 +368,8 @@ pwfile.o:		pwfile.c pwfile.h pwentry.h
 ids.o:			ids.c ids.h
 
 pwi.o:			pwi.c pwi.h ipasswd.h
+
+strtab.o:		strtab.c strtab.h
 
 sysgroup.o:		sysgroup.c sysgroup.h
 

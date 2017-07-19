@@ -119,7 +119,7 @@ OBJ06= realname.o lastlogfile.o
 OBJ07= printhelp.o
 
 OBJ08=
-OBJ09= sighand.o
+OBJ09=
 OBJ10=
 OBJ11=
 OBJ12=

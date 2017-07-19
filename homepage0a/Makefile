@@ -151,7 +151,7 @@ OBJ02= proguserlist.o proglog.o
 OBJ03=
 OBJ04=
 OBJ05=
-OBJ06= sighand.o 
+OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
@@ -324,8 +324,6 @@ kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
 sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
-
-sighand.o:		sighand.c sighand.h
 
 
 cgi.o:			cgi.c cgi.h

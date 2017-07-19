@@ -55,7 +55,7 @@ CFLAGS= $(CCOPTS) $(LF_CFLAGS) $(CPPFLAGS)
 LDFLAGS= $(LF_LDFLAGS)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam
@@ -141,7 +141,7 @@ INCF= $(I20) $(I21) $(I22) $(I32)
 INCS= $(INCA) $(INCB) $(INCC) $(INCD) $(INCE) $(INCF) 
 
 
-OBJ00= substring.o strwhite.o strdomain.o strpcmp.o strwcmp.o strnncmp.o
+OBJ00= substring.o strwhite.o strdomain.o 
 OBJ01= strbasename.o strdirname.o strshrink.o 
 OBJ02= strdictcmp.o strnndictcmp.o
 OBJ03= strkeycmp.o strkeydictcmp.o strnkeycmp.o 
@@ -150,7 +150,7 @@ OBJ05= strsub.o strleadcmp.o strnleadcmp.o strtoken.o strrpbrk.o
 OBJ06= strnchr.o strnrchr.o strnpbrk.o strnrpbrk.o
 OBJ07= vstrkeycmp.o vstrkeydictcmp.o vstrcmp.o vstrcmpr.o
 
-OBJ08= strcasestr.o
+OBJ08= strcasestr.o strwcmp.o strwcasecmp.o strpcmp.o strnncmp.o
 OBJ09= strsub.o strcasesub.o strnsub.o strncasesub.o
 OBJ10= 
 OBJ11= strnlen.o strnnlen.o strlinelen.o
@@ -183,7 +183,7 @@ OBJ34=
 OBJ35= sfsub.o sfcasesub.o sfkey.o sfbreak.o sfskipwhite.o sfshrink.o sfword.o
 OBJ36= sfdirname.o sfbasename.o sfwhitedot.o sfprogroot.o sfdequote.o
 OBJ37= sfcookkey.o sfsubstance.o sfthing.o sfcenter.o sfrootname.o sfnamecomp.o
-OBJ38= sialpha.o sialnum.o sidquote.o sicasechr.o
+OBJ38= sialpha.o sialnum.o sidquote.o sichr.o sicasechr.o sinext.o
 OBJ39= sisub.o sicasesub.o sibreak.o siskipwhite.o sibasename.o sispan.o 
 
 OBJ40= getenv3.o delenv.o env.o
@@ -233,11 +233,11 @@ OBJ77= sntid.o sncat1.o sncat2.o
 OBJ78= strdcpy.o strdcpyw.o strdcpycompact.o strdcpyopaque.o strdcpyclean.o
 OBJ79= strnwcpy.o strnncpy.o strnset.o strdfill.o
 
-OBJ80=
-OBJ81=
+OBJ80= filebuf_mailsupport.o filebuf_writefd.o
+OBJ81= memfile.o
 OBJ82= density.o densitystati.o densitystatll.o denpercents.o
 OBJ83= tmstrs.o shellunder.o udomain.o
-OBJ84= mktmpuserdir.o mkcaselower.o
+OBJ84= mktmpuserdir.o mkcaselower.o mkfmtphone.o
 OBJ85= mklogid.o mkplogid.o mksublogid.o mkquoted.o mkutmpid.o mkmagic.o 
 OBJ86= mktmpfile.o mktmplock.o mkjobfile.o mkdatefile.o mkuuid.o mkchar.o
 OBJ87= nchr.o mnwcpy.o
@@ -249,7 +249,7 @@ OBJ91= getus.o getua.o getpe.o getse.o getne.o gethe.o getus.o getua.o
 OBJ92= unlinkd.o mapshmtmp.o
 OBJ93= mkfnamesuf.o mkfname.o mksofname.o mkfdfname.o
 OBJ94= mkgecosname.o mkmailname.o mkrealname.o mkuiname.o mkuibang.o 
-OBJ95= mkaddrname.o mkbestaddr.o mkbestfrom.o mkdisphdr.o 
+OBJ95= mkaddrname.o mkbestaddr.o mkbestfrom.o mkdisphdr.o mkaltext.o
 
 OBJ96= snflags.o
 OBJ97= comparse.o mhcom.o zos.o tmz.o zdb.o zoffparts.o
@@ -258,10 +258,10 @@ OBJ99= tmpx.o tmpx_getrunlevel.o tmpx_getuserlines.o tmpx_getsessions.o
 OBJ100= mknoise.o rijndael.o expcook.o schedvar.o
 OBJ101= termnote.o egs.o random.o bits.o 
 OBJ102= loadave.o modload.o userinfo.o pwentry.o 
-OBJ103= dw.o fmq.o sigman.o useraccdb.o logsys.o csem.o lockrw.o 
+OBJ103= dw.o fmq.o sigman.o useraccdb.o logsys.o csem.o
 
-OBJ104= sesmsg.o msgdata.o sighand.o
-OBJ105= dater.o dater_getdate.o date.o 
+OBJ104= sesmsg.o msgdata.o
+OBJ105= dater.o dater_getdate.o date.o cachetime.o
 OBJ106= field.o field_word.o field_wordphrase.o field_srvarg.o field_svcargs.o
 OBJ107= lfm.o lastlogfile.o pwi.o raqhand.o spawner.o
 OBJ108= logfile.o logfile_userinfo.o logfile_printfold.o
@@ -270,7 +270,7 @@ OBJ110= strmgr.o dayspec.o bcspec.o termtrans.o uiconv.o chartrans.o obuf.o
 OBJ111= hdrdecode.o qpdecoder.o b64decoder.o hexdecoder.o utf8decoder.o
 
 OBJ112= vecstr_adds.o vecstr_foilcmp.o
-OBJ113= vecpstr_loadgrusers.o vecpstr_loadpjusers.o
+OBJ113= vecpstr_loadgrusers.o vecpstr_loadpjusers.o vecpstr_loaddirs.o
 OBJ114= vechand.o vecitem.o vecint.o veclong.o vecelem.o vecobj.o 
 OBJ115=
 OBJ116= setint.o osetint.o setstr.o osetstr.o mapstrs.o
@@ -296,7 +296,7 @@ OBJ133= bufstr.o stackaddr.o outstore.o dupstr.o
 OBJ134= hdbstr.o mapstrint.o keyopt.o keyvals.o
 OBJ135= envs.o envs_procxe.o envs_subs.o
 
-OBJ136= isSpecialObject.o isDotDir.o 
+OBJ136= isSpecialObject.o isDotDir.o isValidMagic.o
 OBJ137= isNotValid.o isNotAccess.o isNotLib.o
 OBJ138= isBadSend.o isBadRecv.o isBadMsg.o
 OBJ139= isasocket.o isinteractive.o isfsremote.o isproc.o
@@ -334,8 +334,8 @@ OBJ167= listenfifo.o listenpass.o
 
 OBJ168= getprogexec.o getnodedomain.o getmailgid.o getmaxpid.o getrand.o
 OBJ169= getehostname.o getchostname.o getcanonical.o getourhe.o
-OBJ170= gethename.o getheaddr.o getcname.o getfstype.o gethz.o getsockopttype.o
-OBJ171= getsystypenum.o
+OBJ170= gethename.o getheaddr.o getcname.o getfstype.o gethz.o getsocktype.o
+OBJ171= getsystypenum.o getstacksize.o gettid.o
 OBJ172= getnodename.o getclustername.o getnodeinfo.o getdomainname.o getseed.o
 OBJ173= getnprocessors.o getarchitecture.o getnfile.o getpwd.o getrunlevel.o
 OBJ174= getlogname.o getloghost.o getutmpent.o getutmpterm.o getsocktype.o
@@ -858,7 +858,8 @@ schedvar.o:		schedvar.c schedvar.h
 
 varsub.o:		varsub.c varsub.h
 
-mailalias.o:		mailalias.c mailalias.h
+mailalias.o:		mailalias.cc mailalias.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) mailalias.cc
 
 filebuf.o:		filebuf.c filebuf.h
 
@@ -869,6 +870,12 @@ filebuf_writefill.o:	filebuf_writefill.c filebuf.h
 filebuf_writealign.o:	filebuf_writealign.c filebuf.h
 
 filebuf_writezero.o:	filebuf_writezero.c filebuf.h
+
+filebuf_writefd.o:	filebuf_writefd.c filebuf.h 
+
+filebuf_mailsupport.o:	filebuf_mailsupport.c filebuf.h 
+
+memfile.o:		memfile.c memfile.h
 
 baops.o:		baops.c baops.h
 
@@ -1038,6 +1045,12 @@ filecounts.o:		filecounts.c filecounts.h
 
 expcook.o:		expcook.c expcook.h
 
+sesmsg.o:		sesmsg.c sesmsg.h
+
+msgdata.o:		msgdata.c msgdata.h
+
+cachetime.o:		cachetime.c cachetime.h
+
 
 ids.o:			ids.c ids.h
 
@@ -1093,13 +1106,9 @@ newobj.o:		newobj.c newobj.h
 
 emainfo.o:		emainfo.c emainfo.h
 
-sesmsg.o:		sesmsg.c sesmsg.h
-
-msgdata.o:		msgdata.c msgdata.h
-
-sighand.o:		sighand.c sighand.h
-
 sysmemutil.o:		sysmemutil.c sysmemutil.h
+
+address.o:		address.c address.h
 
 
 incfile_rfilewrite.h:	rfilewrite

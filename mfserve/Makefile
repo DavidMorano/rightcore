@@ -187,7 +187,7 @@ OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o proginfo_rootname.o
 OBJ01= proglog.o proguserlist.o
 OBJ02= mfsmain.o
 OBJ03= mfslocinfo.o mfsconfig.o mfsadj.o mfslog.o mfscmd.o mfsdebug.o
-OBJ04= mfslisten.o
+OBJ04= mfslisten.o mfswatch.o mfsbuilt.o
 OBJ05= mfsns.o mfsc.o mfsmsg.o
 OBJ06= cpuspeed.o securefile.o
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
@@ -201,11 +201,11 @@ OBJ14= sreqdb.o sreq.o
 OBJ15=
 
 OBJ16= msghdr.o cmsghdr.o
-OBJ17=
+OBJ17= lfm.o vecstr_svcargs.o
 OBJ18=
 OBJ19=
 OBJ20=
-OBJ21=
+OBJ21= uc_peek.o
 OBJ22= isBadSend.o isBadRecv.o
 OBJ23= isBadMsg.o
 
@@ -355,6 +355,8 @@ mfsconfig.o:		mfsconfig.c mfsconfig.h $(INCS) mfslocinfo.h
 mfslog.o:		mfslog.c mfslog.h $(INCS)
 
 mfslisten.o:		mfslisten.c mfslisten.h $(INCS) mfslocinfo.h mfslog.h
+
+mfswatch.o:		mfswatch.c mfswatch.h $(INCS) mfslocinfo.h mfslog.h
 
 mfsdebug.o:		mfsdebug.c $(INCS)
 

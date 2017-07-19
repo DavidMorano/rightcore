@@ -20,7 +20,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -133,8 +132,8 @@ OBJ09= findfilepath.o getnodename.o getourenv.o
 OBJ10= dialprog.o dialcprog.o dialcprogmsg.o 
 OBJ11= 
 OBJ12= 
-OBJ13=
-OBJ14= streamsync.o msfile.o msfilee.o
+OBJ13= isValidMagic.o
+OBJ14= streamsync.o msfile.o msfilee.o ids.o
 OBJ15= nodedb.o clusterdb.o kvsfile.o serialbuf.o stdorder.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
@@ -257,8 +256,6 @@ filebuf.o:		filebuf.c filebuf.h
 
 streamsync.o:		streamsync.c streamsync.h
 
-nodesfile.o:		nodesfile.c nodesfile.h
-
 envlist.o:		envlist.c envlist.h
 
 lookaside.o:		lookaside.c lookaside.h
@@ -277,8 +274,6 @@ msfilee.o:		msfilee.c msfilee.h
 
 mapstrint.o:		mapstrint.c mapstrint.h
 
-nodesearch.o:		nodesearch.c nodesearch.h
-
 nodedb.o:		nodedb.c nodedb.h
 
 clusterdb.o:		clusterdb.c clusterdb.h kvsfile.h
@@ -292,5 +287,7 @@ serialbuf.o:		serialbuf.c serialbuf.h
 kvsfile.o:		kvsfile.c kvsfile.h
 
 stdorder.o:		stdorder.c stdorder.h
+
+ids.o:			ids.c ids.h
 
 

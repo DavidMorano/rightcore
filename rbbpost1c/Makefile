@@ -220,8 +220,8 @@ $(T):			$(T).ee
 
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
-		$(CC) -c makedate.c
-		$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
+	$(CC) -c makedate.c
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c

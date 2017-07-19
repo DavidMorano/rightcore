@@ -159,7 +159,7 @@ OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09= userinfo.o ids.o
-OBJ10= sighand.o
+OBJ10=
 OBJ11= schedvar.o authfile.o 
 OBJ12= pcsconf.o pcspoll.o thrcomm.o thrbase.o
 OBJ13= 
@@ -361,8 +361,6 @@ scedvar.o:		schedvar.c schedvar.h
 pcsconf.o:		pcsconf.c pcsconf.h
 
 ids.o:			ids.c ids.h
-
-sighand.o:		sighand.c sighand.h
 
 
 pcsconfs.o:		pcsconfs.c pcsconfs.h

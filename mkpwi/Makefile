@@ -23,7 +23,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -89,10 +88,10 @@ GLDFLAGS=
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
-LIB0=
-LIB1= -ldam -lb -ldebug
-LIB2= -luc -lu
-LIB3=
+LIB0= 
+LIB1= -ldam -lb
+LIB2=
+LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
@@ -154,8 +153,8 @@ INCS= config.h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
-OBJ01= proglog.o proguserlist.o progdb.o 
-OBJ02= recorder.o 
+OBJ01= proglog.o proguserlist.o 
+OBJ02= progdb.o recorder.o 
 OBJ03=
 OBJ04=
 OBJ05=
@@ -167,7 +166,7 @@ OBJ10=
 OBJ11= syspasswd.o
 OBJ12= pwfile.o gecos.o strtab.o ipasswd.o
 OBJ13=
-OBJ14=
+OBJ14= mkmagic.o
 OBJ15= strfieldcmp.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07) 

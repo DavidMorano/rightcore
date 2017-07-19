@@ -259,8 +259,6 @@ getnodedomain.o:	getnodedomain.c filebuf.h
 sperm.o:		sperm.c ids.h
 
 
-mailalias.o:		mailalias.c mailalias.h
-
 filemap.o:		filemap.c filemap.h
 
 filebuf.o:		filebuf.c filebuf.h

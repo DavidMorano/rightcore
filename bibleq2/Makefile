@@ -112,7 +112,7 @@ LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
-LIBINFO= $(LIBCIDRS) $(LIBS)
+LIBINFO= $(LIBDIRS) $(LIBS)
 
 
 GGLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
@@ -134,7 +134,16 @@ GGLIBS= $(GGLIBA) $(GGLIBB)
 
 SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
-SLIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6)
+SLIB0=
+SLIB1= -ldam -lb
+SLIB2= -ldebug
+SLIB3= -luc -lu
+SLIB4= $(CGS_LIBS)
+SLIB5= 
+SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+SLIB7= -ldl -lc
+
+SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6)
 
 SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
@@ -301,15 +310,15 @@ so:			$(TIST).so $(MKST).so $(BQST).so
 
 $(BQST).so:		$(BQSOBJ) Makefile $(BQST).map
 	$(LD) -G -o $@ -M $(BQST).map $(LDFLAGS) \
-		$(BQSOBJ) $(SLIBDIRS) $(SLIBS) > $(BQST).lm
+		$(BQSOBJ) $(SLIBINFO) > $(BQST).lm
 
 $(TIST).so:		$(TISOBJ) Makefile $(TIST).map
 	$(LD) -G -o $@ -M $(TIST).map $(LDFLAGS) \
-		$(TISOBJ) $(SLIBDIRS) $(SLIBS) > $(TIST).lm
+		$(TISOBJ) $(SLIBINFO) > $(TIST).lm
 
 $(MKST).so:		$(MKSOBJ) Makefile $(MKST).map
 	$(LD) -G -o $@ -M $(MKST).map $(LDFLAGS) \
-		$(MKSOBJ) $(SLIBDIRS) $(SLIBS) > $(MKST).lm
+		$(MKSOBJ) $(SLIBINFO) > $(MKST).lm
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ) $(TISOBJ) $(MKSOBJ) $(BQSOBJ)

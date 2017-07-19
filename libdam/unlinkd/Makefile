@@ -15,18 +15,21 @@ LIBDIR= $(SRCROOT)/lib
 HELPDIR= $(SRCROOT)/share/help
 MAXDIR= $(SRCROOT)/man
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
-CCOPTS= -O3 -mcpu=v8 # -fpic
-#CCOPTS= -g
-#CCOPTS= -g -pg
+GPPFLAGS= $(CGS_CCFLAGS)
+
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
+CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) -Wall
+CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
+#CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
+#CCOPTS= -g -Wstrict-aliasing -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
+
 
 # HyperSPARC
 #CCOPTS= -xO5 -xtarget=ss20/hs22 -dalign -xdepend
@@ -56,24 +59,27 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDFLAGS= -m # -Bdirect
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
-LIB1= -Bstatic -ldam -lb -luc -lu -Bdynamic
-LIB2=
+LIB1= -ldam -lb 
+LIB2= -luc -lu
 LIB3=
-LIB4=
-LIB5= -L$(GNU)/lib -lgcc
+LIB4= $(CGS_LIBS)
+LIB5=
 LIB6= -lsecdb -lproject -lrt -lpthread -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+
+VALUES= $(VALDIR)/$(CGS_VALDIR)
+
 CRTI= $(LDCRTDIR)/crti.o
 CRT1= $(LDCRTDIR)/crt1.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTN= $(LDCRTDIR)/crtn.o
 
 CRT0= $(CRTI) $(CRT1) $(VALUES)
@@ -124,6 +130,9 @@ OBJS= $(CRT0) $(OBJ) $(CRTC)
 default:		$(T).o
 
 all:			$(ALL)
+
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
@@ -178,6 +187,5 @@ vecstr_loadfile.o:	vecstr_loadfile.c
 vecstr_env.o:		vecstr_env.c
 
 rmermsg.o:		rmermsg.c rmermsg.h
-
 
 

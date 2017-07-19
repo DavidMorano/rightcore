@@ -35,7 +35,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -156,7 +156,7 @@ OBJ05=
 OBJ06= 
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
-OBJ09= sighand.o osetstr.o outema.o 
+OBJ09= osetstr.o outema.o 
 OBJ10= mailmsg.o mailmsgstage.o mailmsghdrfold.o mailmsghdrs.o
 OBJ11= filebuf.o filebuf_mailsupport.o
 OBJ12= ema.o ema_first.o
@@ -317,8 +317,6 @@ kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
 sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
-
-sighand.o:		sighand.c sighand.h
 
 
 b.o:			b.c $(INCS)

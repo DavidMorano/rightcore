@@ -154,8 +154,8 @@ OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09= realname.o pwi.o ipasswd.o
-OBJ10= kvsfile.o hdb.o
-OBJ11= sighand.o
+OBJ10=
+OBJ11=
 OBJ12= address.o
 OBJ13=
 OBJ14=
@@ -287,8 +287,6 @@ kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
 sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
-
-sighand.o:		sighand.c sighand.h
 
 
 address.o:		address.c address.h

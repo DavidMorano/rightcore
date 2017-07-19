@@ -1,6 +1,6 @@
 # MAKEFILE
 
-T= holiday
+T= prtdb
 
 ALL= $(T)
 
@@ -72,7 +72,6 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
-CCFLAGS= $(GPPFLAGS) $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
@@ -82,7 +81,7 @@ LD= ld
 LDRPATH=
 
 # regular
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
 LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 
@@ -101,6 +100,22 @@ LIB7= -ldl -lc
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
 LIBINFO= $(LIBDIRS) $(LIBS)
+
+
+TLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
+
+TLIB0=
+TLIB1= -lpcs -ldam -lb
+TLIB2= -ldebug
+TLIB3= -luc -lu
+TLIB4= $(CGS_LIBS)
+TLIB5=
+TLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
+TLIB7= -ldl
+
+TLIBS= $(TLIB0) $(TLIB1) $(TLIB2) $(TLIB3) $(TLIB4) $(TLIB5) $(TLIB6) $(TLIB7)
+
+TLIBINFO= $(TLIBDIRS) $(TLIBS)
 
 
 VALUES= $(VALDIR)/$(CGS_VALUES)
@@ -148,34 +163,24 @@ INCS= b_$(T).h defs.h
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
 OBJ01= b_$(T).o
 OBJ02= 
-OBJ03= 
+OBJ03= pdb.o
 OBJ04= 
-OBJ05= 
-OBJ06= 
+OBJ05=
+OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
-OBJ10= holidays.o holidayer.o
+OBJ10=
 OBJ11=
 OBJ12=
 OBJ13=
 OBJ14=
 OBJ15=
 
-OBJ16=
-OBJ17=
-OBJ18=
-OBJ19=
-OBJ20=
-OBJ21=
-OBJ22=
-OBJ23=
-
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
-OBJC= $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19) $(OBJ20) $(OBJ21) $(OBJ22) $(OBJ23)
 
-OBJ= $(OBJA) $(OBJB) $(OBJC)
+OBJ= $(OBJA) $(OBJB)
 
 # for regular (no profiling)
 OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
@@ -258,7 +263,7 @@ install-ee:		$(ALL)
 
 install-raw:		$(T).x
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r -o rmsuf $(T).x $(BINDIR)
+	makenewer -o rmsuf -r $(T).x $(BINDIR)
 
 install-help:		$(T).help
 	-mkdir -p $(HELPDIR) 2> /dev/null
@@ -268,7 +273,7 @@ again:
 	rm -f $(ALL) $(T).x
 
 clean:			again
-	makeclean
+	rm -f *.ls *.ln *.i *.o *.so *.x *.lm
 
 control:
 	uname -n > Control
@@ -283,7 +288,7 @@ proginfo.o:		proginfo.c defs.h
 
 proginfo_setpiv_o:	proginfo_setpiv.c defs.h
 
-b_$(T).o:		b_$(T).c $(INCS)
+b_$(T).o:		b_$(T).c $(INCS) shio.h
 
 maininfo.o:		maininfo.c maininfo.h kshlib.h
 
@@ -294,17 +299,18 @@ sesmsg.o:		sesmsg.c sesmsg.h
 msgdata.o:		msgdata.c msgdata.h
 
 
+getutmpent.o:		getutmpent.c getutmpent.h
+
+sntmtime.o:		sntmtime.c tmtime.h
+
+
 shio.o:			shio.c shio.h
 
 userinfo.o:		userinfo.c userinfo.h
 
-vecstr.o:		vecstr.c vecstr.h
+vecstr_loadfile.o:	vecstr_loadfile.c
 
-vecstr_env.o:		vecstr_env.c vecstr.h
-
-vecstr_loadfile.o:	vecstr_loadfile.c vecstr.h
-
-strtab.o:		strtab.c strtab.h
+vecstr_env.o:		vecstr_env.c
 
 filemap.o:		filemap.c filemap.h
 
@@ -318,10 +324,42 @@ lastlogfile.o:		lastlogfile.c lastlogfile.h
 
 tmpx.o:			tmpx.c tmpx.h
 
-holidayer.o:		holidayer.c holidayer.h
+keyopt.o:		keyopt.c keyopt.h
 
-holidays.o:		holidays.c holidays.h
+namecache.o:		namecache.c namecache.h
 
-tmtime.o:		tmtime.c tmtime.h
+hdb.o:			hdb.c hdb.h
+
+zoffparts.o:		zoffparts.c zoffparts.h
+
+grmems.o:		grmems.c grmems.h
+
+sysrealname.o:		sysrealname.c sysrealname.h
+
+pdb.o:			pdb.c pdb.h
+
+osetstr.o:		osetstr.c osetstr.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) osetstr.cc
+
+setstr.o:		setstr.cc setstr.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) setstr.c
+
+
+# testing
+
+T01= testsetstr
+
+T01OBJa= $(T01).o
+T01OBJb= setstr.o
+T01OBJc=
+T01OBJd=
+
+T01OBJ= $(T01OBJa) $(T01OBJb) $(T01OBJc) $(T01OBJd)
+
+$(T01).x:		Makefile $(T01OBJ)
+	$(CC) -o $@ $(T01OBJ) $(TLIBINFO)
+
+$(T01).o:		testsetstr.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) testsetstr.c
 
 

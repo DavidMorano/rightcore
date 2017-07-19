@@ -264,7 +264,8 @@ vecstr_loadfile.o:	vecstr_loadfile.c
 
 vecstr_env.o:		vecstr_env.c
 
-mailalias.o:		mailalias.c mailalias.h kvsfile.h
+mailalias.o:		mailalias.cc mailalias.h kvsfile.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) mailalias.cc
 
 filemap.o:		filemap.c filemap.h
 

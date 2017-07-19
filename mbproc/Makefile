@@ -157,7 +157,7 @@ OBJ09= mbcache.o
 OBJ10= mailbox.o 
 OBJ11= mailmsg.o mailmsg_loadmb.o mailmsg_enver.o
 OBJ12= dater.o date.o
-OBJ13= sighand.o
+OBJ13=
 OBJ14=
 OBJ15=
 
@@ -292,8 +292,6 @@ kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
 sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
-
-sighand.o:		sighand.c sighand.h
 
 
 varsub_extras.o:	varsub_extras.c

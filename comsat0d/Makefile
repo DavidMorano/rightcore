@@ -23,7 +23,9 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
@@ -82,6 +84,8 @@ LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
+
+LIBINFO= $(LIBDIRS) $(LIBS)
 
 
 VALUES= $(VALDIR)/$(CGS_VALUES)
@@ -167,11 +171,11 @@ default:		$(T).x
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -195,7 +199,7 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ -m $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ -m $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)
@@ -315,10 +319,10 @@ uiconv.o:		uiconv.c uiconv.h
 chartrans.o:		chartrans.c chartrans.h
 
 termtrans.o:		termtrans.cc termtrans.h 
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termtrans.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termtrans.cc
 
 hdrdecode.o:		hdrdecode.cc hdrdecode.h 
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) hdrdecode.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) hdrdecode.cc
 
 dispatcher.o:		dispatcher.c dispatcher.h
 

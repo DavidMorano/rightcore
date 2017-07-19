@@ -180,7 +180,7 @@ OBJ09= wordfill.o dayspec.o bcspec.o
 OBJ10= modload.o
 OBJ11= biblepara.o 
 OBJ12=
-OBJ13= sighand.o
+OBJ13=
 OBJ14= snwcpyopaque.o
 OBJ15=
 
@@ -347,8 +347,6 @@ kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
 sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
-
-sighand.o:		sighand.c sighand.h
 
 
 shio.o:			shio.c shio.h

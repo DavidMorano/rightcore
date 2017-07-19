@@ -259,7 +259,8 @@ msgheaders.o:		msgheaders.c msgheaders.h
 
 lkmail.o:		lkmail.c lkmail.h
 
-mailalias.o:		mailalias.c mailalias.h
+mailalias.o:		mailalias.cc mailalias.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) mailalias.cc
 
 mapstrint.o:		mapstrint.c mapstrint.h
 
