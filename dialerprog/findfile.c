@@ -76,10 +76,12 @@ extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath1w(char *,const char *,int) ;
 extern int	mkpath2w(char *,const char *,const char *,int) ;
-extern int	sperm(IDS *,struct ustat *,int) ;
+extern int	sperm(IDS *,USTAT *,int) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* local structures */
@@ -87,8 +89,8 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* forward references */
 
-static int	mkfpathw(char *,const char *,const char *,int) ;
-static int	fileperm(IDS *,const char *,mode_t) ;
+static int	mkfpathw(char *,cchar *,cchar *,int) ;
+static int	fileperm(IDS *,cchar *,mode_t) ;
 
 
 /* local variables */
@@ -105,11 +107,8 @@ char		pbuf[] ;
 const char	fbuf[] ;
 int		flen ;
 {
-	const int	plen = MAXPATHLEN ;
-	int		rs = SR_INVALID ;
+	int		rs = SR_OK ;
 	int		pl = 0 ;
-	int		i ;
-	const char	*pp ;
 
 	if (idp == NULL) return SR_FAULT ;
 	if (plp == NULL) return SR_FAULT ;
@@ -119,39 +118,46 @@ int		flen ;
 	if (flen < 0)
 	    flen = strlen(fbuf) ;
 
-	while ((flen > 0) && (fbuf[flen - 1] == '/'))
+	while ((flen > 0) && (fbuf[flen - 1] == '/')) {
 	    flen -= 1 ;
+	}
 
 	pbuf[0] = '\0' ;
-	if (flen == 0)
-	    goto ret0 ;
+	if (flen != 0) {
+	    int	f_done = FALSE ;
 
-	if (strnchr(fbuf,flen,'/') != NULL) {
+	    if (strnchr(fbuf,flen,'/') != NULL) {
+	        if ((rs = mkpath1w(pbuf,fbuf,flen)) >= 0) {
+	            pl = rs ;
+		    if ((rs = fileperm(idp,pbuf,am)) >= 0) {
+		        f_done = TRUE ;
+		    } else if (isNotAccess(rs)) {
+		        rs = SR_OK ;
+		    }
+	        }
+	    } /* end if (file was already absolute) */
 
-	    if ((rs = snwcpy(pbuf,plen,fbuf,flen)) >= 0) {
-	        pl = rs ;
-		rs = fileperm(idp,pbuf,am) ;
-	    }
+	     if ((rs >= 0) && f_done) {
+		int	i ;
+		cchar	*pp ;
+		for (i = 0 ; (rs = vecstr_get(plp,i,&pp)) >= 0 ; i += 1) {
+	            if (pp != NULL) {
+	                if ((rs = mkfpathw(pbuf,pp,fbuf,flen)) >= 0) {
+	                    pl = rs ;
+	                    if ((rs = fileperm(idp,pbuf,am)) >= 0) {
+				f_done = TRUE ;
+			    } else if (isNotAccess(rs)) {
+				rs = SR_OK ;
+			    }
+	                }
+		    } /* end if */
+		    if (f_done) break ;
+	            if (rs < 0) break ;
+	        } /* end for */
+	    } /* end for (looping through paths) */
 
-	    if (rs >= 0)
-	        goto ret0 ;
+	} /* end if (non-zero) */
 
-	} /* end if (file was already absolute) */
-
-	for (i = 0 ; (rs = vecstr_get(plp,i,&pp)) >= 0 ; i += 1) {
-	    if (pp == NULL) continue ;
-
-	    if ((rs = mkfpathw(pbuf,pp,fbuf,flen)) >= 0) {
-	        pl = rs ;
-	        rs = fileperm(idp,pbuf,am) ;
-	    }
-
-	    if (rs >= 0)
-		break ;
-
-	} /* end for (looping through paths) */
-
-ret0:
 	return (rs >= 0) ? pl : rs ;
 }
 /* end subroutine (findfile) */

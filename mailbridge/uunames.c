@@ -205,9 +205,11 @@ extern int	mkdirs(const char *,mode_t) ;
 extern int	prgetprogpath(const char *,char *,const char *,int) ;
 extern int	getprogroot(const char *,const char **,
 			int *,char *,const char *) ;
+extern int	strpcmp(const char *,const char *) ;
 extern int	hasuc(const char *,int) ;
 extern int	isalnumlatin(int) ;
-extern int	strpcmp(const char *,const char *) ;
+extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
 #if	CF_DEBUGS
 extern int	strnnlen(const char *,int,int) ;
@@ -244,8 +246,8 @@ struct envpop {
 
 /* forward references */
 
-static int	uunames_infoloadinit(UUNAMES *,const char *,const char *) ;
-static int	uunames_infoloadfree(UUNAMES *) ;
+static int	uunames_infoloadbegin(UUNAMES *,const char *,const char *) ;
+static int	uunames_infoloadend(UUNAMES *) ;
 static int	uunames_indopen(UUNAMES *,time_t) ;
 static int	uunames_indopenpr(UUNAMES *,time_t) ;
 static int	uunames_indopentmp(UUNAMES *,time_t) ;
@@ -262,7 +264,7 @@ static int	uunames_indmk(UUNAMES *,const char *,time_t) ;
 static int	uunames_indlist(UUNAMES *) ;
 static int	uunames_indcheck(UUNAMES *,time_t) ;
 
-static int	checkdname(const char *) ;
+static int	checkdname(cchar *) ;
 
 static int	vecstr_defenvs(vecstr *,const char **) ;
 static int	vecstr_loadpath(vecstr *,const char *) ;
@@ -343,25 +345,16 @@ static int	(*indopens[])(UUNAMES *,time_t) = {
 /* exported subroutines */
 
 
-int uunames_open(op,pr,dbname)
-UUNAMES		*op ;
-const char	pr[] ;
-const char	dbname[] ;
+int uunames_open(UUNAMES *op,cchar *pr,cchar *dbname)
 {
-	time_t	daytime = time(NULL) ;
+	time_t		dt = time(NULL) ;
+	int		rs ;
+	int		size ;
 
-	int	rs ;
-	int	size ;
+	if (op == NULL) return SR_FAULT ;
+	if (pr == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (pr == NULL)
-	    return SR_FAULT ;
-
-	if (pr[0] == '\0')
-	    return SR_INVALID ;
+	if (pr[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
 	debugprintf("uunames_open: pr=%s\n",pr) ;
@@ -373,7 +366,7 @@ const char	dbname[] ;
 
 	memset(op,0,sizeof(UUNAMES)) ;
 
-	rs = uunames_infoloadinit(op,pr,dbname) ;
+	rs = uunames_infoloadbegin(op,pr,dbname) ;
 	if (rs < 0)
 	    goto bad0 ;
 
@@ -384,7 +377,7 @@ const char	dbname[] ;
 
 /* open an index file (if we can find one) */
 
-	rs = uunames_indopen(op,daytime) ;
+	rs = uunames_indopen(op,dt) ;
 	if (rs < 0)
 	    goto bad2 ;
 
@@ -404,7 +397,7 @@ bad2:
 	vecobj_finish(&op->list) ;
 
 bad1:
-	uunames_infoloadfree(op) ;
+	uunames_infoloadend(op) ;
 
 bad0:
 	goto ret0 ;
@@ -412,23 +405,23 @@ bad0:
 /* end subroutine (uunames_open) */
 
 
-int uunames_close(op)
-UUNAMES		*op ;
+int uunames_close(UUNAMES *op)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != UUNAMES_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != UUNAMES_MAGIC)
-	    return SR_NOTOPEN ;
+	rs1 = uunames_indclose(op) ;
+	if (rs >= 0) rs = rs1 ;
 
-	uunames_indclose(op) ;
+	rs1 = vecobj_finish(&op->list) ;
+	if (rs >= 0) rs = rs1 ;
 
-	vecobj_finish(&op->list) ;
-
-	uunames_infoloadfree(op) ;
+	rs1 = uunames_infoloadend(op) ;
+	if (rs >= 0) rs = rs1 ;
 
 	op->magic = 0 ;
 	return rs ;
@@ -436,17 +429,13 @@ UUNAMES		*op ;
 /* end subroutine (uunames_close) */
 
 
-int uunames_audit(op)
-UUNAMES		*op ;
+int uunames_audit(UUNAMES *op)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != UUNAMES_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != UUNAMES_MAGIC) return SR_NOTOPEN ;
 
 	rs = uunames_indcheck(op,0) ;
 
@@ -455,21 +444,14 @@ UUNAMES		*op ;
 /* end subroutine (uunames_audit) */
 
 
-int uunames_curbegin(op,curp)
-UUNAMES		*op ;
-UUNAMES_CUR	*curp ;
+int uunames_curbegin(UUNAMES *op,UUNAMES_CUR *curp)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != UUNAMES_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != UUNAMES_MAGIC) return SR_NOTOPEN ;
 
 	memset(curp,0,sizeof(UUNAMES_CUR)) ;
 	curp->i = -1 ;
@@ -482,21 +464,14 @@ UUNAMES_CUR	*curp ;
 /* end subroutine (uunames_curbegin) */
 
 
-int uunames_curend(op,curp)
-UUNAMES		*op ;
-UUNAMES_CUR	*curp ;
+int uunames_curend(UUNAMES *op,UUNAMES_CUR *curp)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != UUNAMES_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != UUNAMES_MAGIC) return SR_NOTOPEN ;
 
 	curp->i = -1 ;
 	if (op->ncursors > 0)
@@ -507,30 +482,19 @@ UUNAMES_CUR	*curp ;
 /* end subroutine (uunames_curend) */
 
 
-int uunames_exists(op,s,slen)
-UUNAMES		*op ;
-const char	s[] ;
-int		slen ;
+int uunames_exists(UUNAMES *op,cchar *s,int slen)
 {
 	struct liner	le ;
-
-	int	rs = SR_OK ;
-	int	kl ;
-
+	int		rs = SR_OK ;
+	int		kl ;
 	const char	*kp = NULL ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (s == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != UUNAMES_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != UUNAMES_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (s == NULL)
-	    return SR_FAULT ;
-
-	if (s[0] == '\0')
-	    return SR_INVALID ;
+	if (s[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
 	debugprintf("uunames_exists: slen=%d s=%t\n",slen,s,slen) ;
@@ -556,32 +520,23 @@ int		slen ;
 #if	CF_NULSTR
 	{
 	    NULSTR	ss ;
-
-
-	    rs = nulstr_start(&ss,s,slen,&kp) ;
-	    kl = rs ;
-	    if (rs >= 0) {
+	    if ((rs = nulstr_start(&ss,s,slen,&kp)) >= 0) {
+	        kl = rs ;
 		le.lp = kp ;
 		le.ll = kl ;
 	        rs = vecobj_search(&op->list,&le,vesrch,NULL) ;
-
 	        nulstr_finish(&ss) ;
-
 	    } /* end if (nulstr) */
-
 	}
 #else
 	{
-
-	    rs = uc_mallocstrw(s,slen,&kp) ;
-	    kl = (rs - 1) ;
+	    if ((rs = uc_mallocstrw(s,slen,&kp)) >= 0) {
+	        kl = (rs - 1) ;
 
 #if	CF_DEBUGS
 	debugprintf("uunames_exists: uc_mallocstrw() rs=%d\n",rs) ;
 	debugprintf("uunames_exists: kl=%d kp=%s\n",kl,kp) ;
 #endif
-
-	    if (rs >= 0) {
 
 	        le.lp = kp ;
 	        le.ll = kl ;
@@ -601,9 +556,7 @@ int		slen ;
 	debugprintf("uunames_exists: vecobj_search() rs=%d\n",rs) ;
 #endif
 
-	    if (kp != NULL)
 	        uc_free(kp) ;
-
 	    } /* end if (allocation) */
 
 	}
@@ -627,23 +580,15 @@ char		buf[] ;
 int		buflen ;
 {
 	struct liner	*lep ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		len = 0 ;
 
-	int	rs = SR_OK ;
-	int	i ;
-	int	len = 0 ;
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (buf == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != UUNAMES_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_FAULT ;
-
-	if (buf == NULL)
-	    return SR_FAULT ;
+	if (op->magic != UUNAMES_MAGIC) return SR_NOTOPEN ;
 
 	i = (curp->i >= 0) ? (curp->i + 1) : 0 ;
 
@@ -651,16 +596,11 @@ int		buflen ;
 	    debugprintf("uunames_enum: c_i=%u\n",i) ;
 #endif
 
-	rs = vecobj_get(&op->list,i,&lep) ;
-
-	if (rs >= 0) {
-
-	    rs = snwcpy(buf,buflen,lep->lp,lep->ll) ;
-	    len = rs ;
-
-	    if (rs >= 0)
+	if ((rs = vecobj_get(&op->list,i,&lep)) >= 0) {
+	    if ((rs = snwcpy(buf,buflen,lep->lp,lep->ll)) >= 0) {
+	        len = rs ;
 	        curp->i = i ;
-
+	    }
 	}
 
 ret0:
@@ -677,19 +617,15 @@ ret0:
 int uunames_count(op)
 UUNAMES		*op ;
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != UUNAMES_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != UUNAMES_MAGIC)
-	    return SR_NOTOPEN ;
-
-	rs = uunames_indcheck(op,0) ;
-
-	if (rs >= 0)
+	if ((rs = uunames_indcheck(op,0)) >= 0) {
 	    rs = vecobj_count(&op->list) ;
+	}
 
 	return rs ;
 }
@@ -699,45 +635,36 @@ UUNAMES		*op ;
 /* private subroutines */
 
 
-static int uunames_infoloadinit(op,pr,dbname)
+static int uunames_infoloadbegin(op,pr,dbname)
 UUNAMES		*op ;
 const char	pr[] ;
 const char	dbname[] ;
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 	op->pr = (char *) pr ;
 	op->dbname = (char *) dbname ;
 
-ret0:
 	return rs ;
 }
-/* end subroutine (uunames_infoloadinit) */
+/* end subroutine (uunames_infoloadbegin) */
 
 
-static int uunames_infoloadfree(op)
-UUNAMES		*op ;
+static int uunames_infoloadend(UUNAMES *op)
 {
-
 
 	op->pr = NULL ;
 	op->dbname = NULL ;
 	return SR_OK ;
 }
-/* end subroutine (uunames_infoloadfree) */
+/* end subroutine (uunames_infoloadend) */
 
 
-static int uunames_indmapcreate(op,indname,daytime)
-UUNAMES		*op ;
-const char	indname[] ;
-time_t		daytime ;
+static int uunames_indmapcreate(UUNAMES *op,cchar *indname,time_t dt)
 {
-	int	rs = SR_OK ;
-	int	fl ;
-
-	char	indfname[MAXPATHLEN + 1] ;
-
+	int		rs = SR_OK ;
+	int		fl ;
+	char		indfname[MAXPATHLEN + 1] ;
 
 	op->indfname = NULL ;
 #if	CF_WITHENDIAN
@@ -753,7 +680,7 @@ time_t		daytime ;
 	if (rs < 0)
 	    goto bad0 ;
 
-	rs = uunames_filemapcreate(op,daytime) ;
+	rs = uunames_filemapcreate(op,dt) ;
 	if (rs < 0)
 	    goto bad1 ;
 
@@ -773,19 +700,20 @@ bad0:
 /* end subroutine (uunames_indmapcreate) */
 
 
-static int uunames_indmapdestroy(op)
-UUNAMES		*op ;
+static int uunames_indmapdestroy(UUNAMES *op)
 {
-	int	rs = SR_OK ;
-	int	i ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
 
 	for (i = 0 ; vecobj_del(&op->list,i) >= 0 ; i += 1) ;
 
-	rs = uunames_filemapdestroy(op) ;
+	rs1 = uunames_filemapdestroy(op) ;
+	if (rs >= 0) rs = rs1 ;
 
 	if (op->indfname != NULL) {
-	    uc_free(op->indfname) ;
+	    rs1 = uc_free(op->indfname) ;
+	    if (rs >= 0) rs = rs1 ;
 	    op->dbname = NULL ;
 	}
 
@@ -794,19 +722,14 @@ UUNAMES		*op ;
 /* end subroutine (uunames_indmapdestroy) */
 
 
-static int uunames_filemapcreate(op,daytime)
-UUNAMES		*op ;
-time_t		daytime ;
+static int uunames_filemapcreate(UUNAMES *op,time_t dt)
 {
-	struct ustat	sb ;
+	USTAT		sb ;
+	int		rs = SR_OK ;
+	int		fd ;
+	int		mprot, mflags ;
 
-	int	rs = SR_OK ;
-	int	fd ;
-	int	mprot, mflags ;
-
-
-	if (daytime == 0)
-	    daytime = time(NULL) ;
+	if (dt == 0) dt = time(NULL) ;
 
 /* open it */
 
@@ -840,8 +763,8 @@ time_t		daytime ;
 	    fd,0L,&op->indfmap) ;
 
 	if (rs >= 0) {
-	    op->ti_map = daytime ;
-	    op->ti_lastcheck = daytime ;
+	    op->ti_map = dt ;
+	    op->ti_lastcheck = dt ;
 	}
 
 /* close it */
@@ -854,15 +777,16 @@ ret0:
 /* end subroutine (uunames_filemapcreate) */
 
 
-static int uunames_filemapdestroy(op)
-UUNAMES		*op ;
+static int uunames_filemapdestroy(UUNAMES *op)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (op->indfmap != NULL) {
-	    rs = u_munmap(op->indfmap,op->indfsize) ;
+	    rs1 = u_munmap(op->indfmap,op->indfsize) ;
+	    if (rs >= 0) rs = rs1 ;
 	    op->indfmap = NULL ;
+	    op->indfsize = 0 ;
 	}
 
 	return rs ;
@@ -870,90 +794,67 @@ UUNAMES		*op ;
 /* end subroutine (uunames_filemapdestroy) */
 
 
-static int uunames_indopen(op,daytime)
-UUNAMES		*op ;
-time_t		daytime ;
+static int uunames_indopen(UUNAMES *op,time_t dt)
 {
-	int	rs = SR_NOENT ;
-	int	i ;
-
+	int		rs = SR_NOENT ;
+	int		f = FALSE ;
+	int		i ;
 
 	for (i = 0 ; indopens[i] != NULL ; i += 1) {
-
-	    rs = (*indopens[i])(op,daytime) ;
-
-	    if (rs == SR_BADFMT)
-		break ;
-
-	    if (rs >= 0)
-	        break ;
-
+	    if ((rs = (*indopens[i])(op,dt)) >= 0) {
+		f = TRUE ;
+	    } else if (isNotPresent(rs)) {
+		rs = SR_OK ;
+	    }
+	    if (rs < 0) break ;
 	} /* end for */
 
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (uunames_indopen) */
 
 
-static int uunames_indopenpr(op,daytime)
-UUNAMES		*op ;
-time_t		daytime ;
+static int uunames_indopenpr(UUNAMES *op,time_t dt)
 {
-	int	rs ;
+	int		rs ;
+	char		idname[MAXPATHLEN + 1] ;
 
-	char	idname[MAXPATHLEN + 1] ;
+	if ((rs = mkpath3(idname,op->pr,VARDNAME,INDDNAME)) >= 0) {
+	    rs = uunames_indopendname(op,idname,dt) ;
+	}
 
-
-	rs = mkpath3(idname,op->pr,VARDNAME,INDDNAME) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	rs = uunames_indopendname(op,idname,daytime) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (uunames_indopenpr) */
 
 
-static int uunames_indopentmp(op,daytime)
-UUNAMES		*op ;
-time_t		daytime ;
+static int uunames_indopentmp(UUNAMES *op,time_t dt)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*tmpdname = TMPVARDNAME ;
 	const char	*inddname = INDDNAME ;
 	const char	*prname ;
+	char		idname[MAXPATHLEN + 1] ;
 
-	char	idname[MAXPATHLEN + 1] ;
+	if ((rs = sfbasename(op->pr,-1,&prname)) > 0) {
+	    if ((rs = mkpath3(idname,tmpdname,prname,inddname)) >= 0) {
+	        rs = uunames_indopendname(op,idname,dt) ;
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
 
-
-	rs = sfbasename(op->pr,-1,&prname) ;
-
-	if (rs >= 0)
-	    rs = mkpath3(idname,tmpdname,prname,inddname) ;
-
-	if (rs >= 0)
-	    rs = uunames_indopendname(op,idname,daytime) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (uunames_indopentmp) */
 
 
-static int uunames_indopendname(op,dname,daytime)
-UUNAMES		*op ;
-const char	dname[] ;
-time_t		daytime ;
+static int uunames_indopendname(UUNAMES *op,cchar *dname,time_t dt)
 {
-	int	rs ;
-	int	f_ok = FALSE ;
-	int	f_mk = FALSE ;
-
-	char	indname[MAXPATHLEN + 1] ;
-
+	int		rs ;
+	int		f_ok = FALSE ;
+	int		f_mk = FALSE ;
+	char		indname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("uunames_indopendname: dname=%s\n",dname) ;
@@ -963,7 +864,7 @@ time_t		daytime ;
 	if (rs < 0)
 	    goto ret0 ;
 
-	rs = uunames_indtest(op,indname,daytime) ;
+	rs = uunames_indtest(op,indname,dt) ;
 	f_ok = (rs > 0) ;
 
 #if	CF_DEBUGS
@@ -975,29 +876,20 @@ time_t		daytime ;
 	    goto ret0 ;
 
 	if (((rs < 0) && (rs != SR_NOMEM)) || (! f_ok)) {
-	    rs = uunames_mkuunamesi(op,dname) ;
-
-#if	CF_DEBUGS
-	    debugprintf("uunames_indopendname: uunames_mkuunamesi() rs=%d\n",
-		rs) ;
-#endif
-
-	    if (rs >= 0) {
+	    if ((rs = uunames_mkuunamesi(op,dname)) >= 0) {
 		f_mk = TRUE ;
-	        rs = uunames_indtest(op,indname,daytime) ;
+	        rs = uunames_indtest(op,indname,dt) ;
 	        f_ok = (rs > 0) ;
-
 #if	CF_DEBUGS
 	    debugprintf("uunames_indopendname: uunames_indtest() rs=%d\n",
 		rs) ;
 #endif
-
 	    }
 	}
 
 	if (((rs < 0) && (rs != SR_NOMEM)) || (! f_ok)) {
 	    f_mk = TRUE ;
-	    rs = uunames_indmk(op,dname,daytime) ;
+	    rs = uunames_indmk(op,dname,dt) ;
 
 #if	CF_DEBUGS
 	    debugprintf("uunames_indopendname: uunames_indmk() rs=%d\n",rs) ;
@@ -1006,14 +898,14 @@ time_t		daytime ;
 	}
 
 	if (rs >= 0) {
-	    rs = uunames_indmapcreate(op,indname,daytime) ;
+	    rs = uunames_indmapcreate(op,indname,dt) ;
 	    op->f.varind = (rs >= 0) ;
 	}
 
 	if ((rs < 0) && (rs != SR_BADFMT) && (! f_mk)) {
-	    rs = uunames_indmk(op,dname,daytime) ;
+	    rs = uunames_indmk(op,dname,dt) ;
 	    if (rs >= 0) {
-		rs = uunames_indmapcreate(op,indname,daytime) ;
+		rs = uunames_indmapcreate(op,indname,dt) ;
 	        op->f.varind = (rs >= 0) ;
 	    }
 	}
@@ -1029,21 +921,14 @@ ret0:
 /* end subroutine (uunames_indopendname) */
 
 
-static int uunames_indtest(op,indname,daytime)
-UUNAMES		*op ;
-const char	indname[] ;
-time_t		daytime ;
+static int uunames_indtest(UUNAMES *op,cchar *indname,time_t dt)
 {
 	struct ustat	sb ;
-
-	time_t	ti_ind ;
-
-	int	rs ;
-	int	rs1 ;
-	int	f = FALSE ;
-
-	char	indfname[MAXPATHLEN + 1] ;
-
+	time_t		ti_ind ;
+	int		rs ;
+	int		rs1 ;
+	int		f = FALSE ;
+	char		indfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("uunames_indtest: indname=%s\n",indname) ;
@@ -1064,8 +949,8 @@ time_t		daytime ;
 	    goto ret0 ;
 
 	rs1 = u_stat(indfname,&sb) ;
-
 	ti_ind = sb.st_mtime ;
+
 	if ((rs1 >= 0) && ((sb.st_size == 0) || (ti_ind == 0)))
 	    rs1 = SR_NOTFOUND ;
 
@@ -1080,7 +965,7 @@ time_t		daytime ;
 	debugprintf("uunames_indtest: 1 rs1=%d\n",rs1) ;
 #endif
 
-	if ((rs1 >= 0) && ((daytime - ti_ind) >= TO_FILEMOD))
+	if ((rs1 >= 0) && ((dt - ti_ind) >= TO_FILEMOD))
 	    rs1 = SR_TIMEDOUT ;
 
 #if	CF_DEBUGS
@@ -1100,36 +985,21 @@ ret0:
 /* end subroutine (uunames_indtest) */
 
 
-static int uunames_indmk(op,dname,daytime)
-UUNAMES		*op ;
-const char	dname[] ;
-time_t		daytime ;
+/* ARGSUSED */
+static int uunames_indmk(UUNAMES *op,cchar *dname,time_t dt)
 {
-	int	rs ;
-	int	c = 0 ;
-
-	char	indname[MAXPATHLEN + 1] ;
-
+	int		rs ;
+	int		c = 0 ;
+	char		indname[MAXPATHLEN + 1] ;
 
 /* check the given directory for writability */
 
-	rs = checkdname(dname) ;
-
-	if (rs == SR_NOENT)
+	if ((rs = checkdname(dname)) == SR_NOENT) {
 	    rs = mkdirs(dname,TMPDMODE) ;
-
-	if (rs < 0)
-	    goto ret0 ;
-
-/* create the index-name */
-
-	rs = mkpath2(indname,dname,op->dbname) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	rs = SR_ACCESS ;
-
-ret0:
+	}
+	if (rs >= 0) {
+	    rs = mkpath2(indname,dname,op->dbname) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("uunames_indmk: ret rs=%d c=%u\n",rs,c) ;
@@ -1140,15 +1010,15 @@ ret0:
 /* end subroutine (uunames_indmk) */
 
 
-static int uunames_indclose(op)
-UUNAMES		*op ;
+static int uunames_indclose(UUNAMES *op)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (op->f.varind) {
 	    op->f.varind = FALSE ;
-	    rs = uunames_indmapdestroy(op) ;
+	    rs1 = uunames_indmapdestroy(op) ;
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	return rs ;
@@ -1484,44 +1354,36 @@ ret0:
 /* end subroutine (uunames_indlist) */
 
 
-static int uunames_indcheck(op,daytime)
-UUNAMES		*op ;
-time_t		daytime ;
+/* ARGSUSED */
+static int uunames_indcheck(UUNAMES *op,time_t dt)
 {
-	int	rs = SR_OK ;
-	int	f = FALSE ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
 
-
-	if (op->indfmap == NULL)
-	    rs = SR_NOTFOUND ;
+	if (op->indfmap == NULL) rs = SR_NOTFOUND ;
 
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (uunames_indcheck) */
 
 
-static int checkdname(dname)
-const char	dname[] ;
+static int checkdname(cchar *dname)
 {
-	struct ustat	sb ;
+	int		rs = SR_OK ;
 
-	int	rs = SR_OK ;
-
-
-	if (dname[0] != '/') {
+	if (dname[0] == '/') {
+	    USTAT	sb ;
+	    if ((rs = u_stat(dname,&sb)) >= 0) {
+		if (S_ISDIR(sb.st_mode)) {
+	    	    rs = perm(dname,-1,-1,NULL,W_OK) ;
+		} else {
+	            rs = SR_NOTDIR ;
+		}
+	    }
+	} else {
 	    rs = SR_INVALID ;
-	    goto ret0 ;
 	}
 
-	rs = u_stat(dname,&sb) ;
-
-	if ((rs >= 0) && (! S_ISDIR(sb.st_mode)))
-	    rs = SR_NOTDIR ;
-
-	if (rs >= 0)
-	    rs = perm(dname,-1,-1,NULL,W_OK) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (checkdname) */
@@ -1648,99 +1510,77 @@ vecstr		*clp ;
 char		vbuf[] ;
 int		vbuflen ;
 {
-	int	rs = SR_OK ;
-	int	i ;
-	int	sch ;
-	int	c = 0 ;
-	int	rlen = 0 ;
-	int	f_semi = FALSE ;
-
+	int		rs = SR_OK ;
+	int		i ;
+	int		sch ;
+	int		c = 0 ;
+	int		rlen = 0 ;
+	int		f_semi = FALSE ;
 	const char	*cp ;
 
-
-	if (vbuflen < 0) {
-	    rs = SR_NOANODE ;
-	    goto ret0 ;
-	}
-
+	if (vbuflen >= 0) {
 	vbuf[0] = '\0' ;
 	for (i = 0 ; vecstr_get(clp,i,&cp) >= 0 ; i += 1) {
+	    if (cp != NULL) {
 
-	    if (cp == NULL) continue ;
+	        if (cp[0] != ';') {
 
-	    if (cp[0] != ';') {
+	            if (c++ > 0) {
+	                if (f_semi) {
+	                    f_semi = FALSE ;
+	                    sch = ';' ;
+	                } else {
+	                    sch = ':' ;
+		        }
 
-	        if (c++ > 0) {
-	            if (f_semi) {
-	                f_semi = FALSE ;
-	                sch = ';' ;
-	            } else
-	                sch = ':' ;
+	                rs = storebuf_char(vbuf,vbuflen,rlen,sch) ;
+	                rlen += rs ;
 
-	            rs = storebuf_char(vbuf,vbuflen,rlen,sch) ;
-	            rlen += rs ;
+	            } /* end if */
 
-	        } /* end if */
-
-	        if (rs >= 0) {
-	            rs = storebuf_strw(vbuf,vbuflen,rlen,cp,-1) ;
-	            rlen += rs ;
+	            if (rs >= 0) {
+	                rs = storebuf_strw(vbuf,vbuflen,rlen,cp,-1) ;
+	                rlen += rs ;
+	            }
+    
+	        } else {
+	            f_semi = TRUE ;
 	        }
 
-	    } else
-	        f_semi = TRUE ;
-
-	    if (rs < 0)
-	        break ;
-
+	    }
+	    if (rs < 0) break ;
 	} /* end for */
+	} else {
+	    rs = SR_NOANODE ;
+	}
 
-ret0:
 	return (rs >= 0) ? rlen : rs ;
 }
 /* end subroutine (mkpathval) */
 
 
 /* find if two entries match (we don't need a "comparison") */
-static int vesrch(v1p,v2p)
-void	*v1p, *v2p ;
+static int vesrch(void *v1p,void *v2p)
 {
 	struct liner	**e1pp = (struct liner **) v1p ;
 	struct liner	**e2pp = (struct liner **) v2p ;
 	struct liner	*l1, *l2 ;
-
-	int	rc = 0 ;
-
-
+	int		rc = 0 ;
 	l1 = *e1pp ;
 	l2 = *e2pp ;
-	if (l1 == NULL) {
+	if (l1 != NULL) {
+	    if (l2 != NULL) {
+		if ((rc = (l1->lp[0] - l2->lp[0])) == 0) {
+	    	    if ((rc = strncmp(l1->lp,l2->lp,l1->ll)) == 0) {
+	    		rc = (l1->ll - l2->ll) ;
+		    }
+		}
+	    } else {
+	        rc = +1 ;
+	    }
+	} else {
 	    rc = -1 ;
-	    goto ret0 ;
 	}
-
-	if (l2 == NULL) {
-	    rc = +1 ;
-	    goto ret0 ;
-	}
-
-#if	CF_DEBUGS && CF_DEBUGEXISTS
-	debugprintf("uunames/vesrch: l1(%p)\n",l1) ;
-	debugprintf("uunames/vesrch: l2(%p)\n",l2) ;
-	debugprintf("uunames/vesrch: l1=%t\n",
-		l1->lp,strnnlen(l1->lp,l1->ll,40)) ;
-	debugprintf("uunames/vesrch: l2=%t\n",
-		l2->lp,strnnlen(l2->lp,l2->ll,40)) ;
-#endif
-
-	rc = (l1->lp[0] - l2->lp[0]) ;
-	if (rc == 0)
-	    rc = strncmp(l1->lp,l2->lp,l1->ll) ;
-
-	if (rc == 0)
-	    rc = (l1->ll - l2->ll) ;
-
-ret0:
 	return rc ;
 }
 /* end subroutine (vesrch) */

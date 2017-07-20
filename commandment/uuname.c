@@ -4,7 +4,6 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_LOOKSELF	0		/* try searching "SELF" for SO */
 
 
 /* revision history:

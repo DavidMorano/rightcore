@@ -80,6 +80,7 @@
 #include	<stdlib.h>
 #include	<string.h>
 
+#include	<initializer_list>
 #include	<vector>
 #include	<string>
 #include	<new>
@@ -225,6 +226,17 @@ struct termout_gch {
 	uchar		ch ;
 	termout_gch(int i=0) : gr(i), ft(i), ch(i) { } ;
 	termout_gch(int ngr,int nft,int nch) : gr(ngr), ft(nft), ch(nch) { } ;
+	termout_gch & operator = (int a) {
+	    gr = 0 ;
+	    ft = 0 ;
+	    ch = a ;
+	} ;
+	termout_gch(initializer_list<int> &list) {
+	    load(list) ;
+	} ;
+	termout_gch & operator = (initializer_list<int> &list) {
+	    load(list) ;
+	} ;
 	termout_gch &set(int i=0) {
 	    gr = i ;
 	    ft = i ;
@@ -243,6 +255,23 @@ struct termout_gch {
 	    ch = nch ;
 	    return (*this) ;
 	} ;
+	void load(initializer_list<int> &list) {
+	    int	i = 0 ;
+	    for (auto a : list) {
+		if (i++ >= 3) break ;
+	        switch (i) {
+		case 0:
+		    gr = a ;
+		    break ;
+		case 1:
+		    ft = a ;
+		    break ;
+		case 2:
+		    ch = a ;
+		    break ;
+		} /* end switch */
+	    } /* end for */
+	} ; /* end method (load) */
 } ;
 
 class termout_line {

@@ -1,6 +1,6 @@
-/* ts */
+/* ts (Time-Stamp) */
 
-/* machine status file */
+/* time-stamp file manager */
 
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
@@ -23,6 +23,7 @@
 
 /* object defines */
 
+#define	TS_MAGIC		918245636
 #define	TS			struct ts_head
 #define	TS_CUR			struct ts_c
 #define	TS_ENT			TSE_ALL

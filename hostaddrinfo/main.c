@@ -655,7 +655,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
-	} else if (! isFailOpen(rs)) {
+	} else if (! isFailOpen(rs1)) {
 	    if (rs >= 0) rs = rs1 ;
 	}
 
