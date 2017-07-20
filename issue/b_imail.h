@@ -108,7 +108,6 @@
 #define	LOGFNAME	"imail"			/* activity log */
 #define	PIDFNAME	"imail"			/* mutex PID file */
 #define	SERIALFNAME	"serial"
-#define	TSFNAME		".lastmaint"		/* time-stamp filename */
 
 #define	MAILERNAME	"imail (RightCore Network Services)"
 

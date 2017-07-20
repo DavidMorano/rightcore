@@ -41,9 +41,8 @@
 
 #include	<sys/types.h>
 #include	<sys/uio.h>
-#include	<sys/stat.h>
 #include	<unistd.h>
-#include	<poll.h>
+#include	<string.h>
 #include	<errno.h>
 
 #include	<vsystem.h>
@@ -62,7 +61,7 @@
 
 /* forward references */
 
-#if	CF_DEBUGWRITE
+#if	CF_DEBUG && CF_DEBUGWRITE
 static int	debugwrite(int,const void *,int) ;
 #endif
 
@@ -73,10 +72,7 @@ static int	debugwrite(int,const void *,int) ;
 /* exported subroutines */
 
 
-int uc_writen(fd,abuf,alen)
-int		fd ;
-const void	*abuf ;
-int		alen ;
+int uc_writen(int fd,const void *abuf,int alen)
 {
 	int		rs = SR_OK ;
 	int		len ;
@@ -89,8 +85,10 @@ int		alen ;
 	if (abuf == NULL)
 	    return SR_FAULT ;
 
-	if (alen < 0)
-	    return SR_INVALID ;
+	if (alen < 0) {
+	    cchar	*ap = (cchar *) abuf ;
+	    alen = strlen(ap) ;
+	}
 
 	if (alenr > 0) {
 
@@ -105,15 +103,15 @@ int		alen ;
 #endif
 
 		if (rs >= 0) {
-			abp += len ;
-			alenr -= len ;
+		    abp += len ;
+		    alenr -= len ;
 		}
 
 	    } /* end while */
 
 	} else {
 
-#if	CF_DEUGWRITE
+#if	CF_DEBUG && CF_DEBUGWRITE
 	    debugprintf("uc_writen: zero-length write!\n") ;
 	        rs = debugwrite(fd,abp,alenr) ;
 #else
@@ -134,7 +132,7 @@ int		alen ;
 /* local subroutines */
 
 
-#if	CF_DEBUGWRITE
+#if	CF_DEBUG && CF_DEBUGWRITE
 #include	<errno.h>
 static int debugwrite(fd,abuf,alen)
 int		fd ;

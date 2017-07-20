@@ -102,106 +102,113 @@ int uc_copy(int sfd,int dfd,int ulen)
 #endif
 
 	if (ulen != 0) {
-	size_t		fsize = SIZE_MAX ;
-	const int	ps = getpagesize() ;
-	int		readlen ;
+	    size_t	fsize = SIZE_MAX ;
+	    const int	ps = getpagesize() ;
+	    int		readlen ;
 
 /* calculate the size of a buffer to allocate */
 
-	if ((ulen < 0) || (ulen > ps)) {
-	    if (ulen >= 0) {
-	        readlen = BCEIL(ulen,ps) ;
+	    if ((ulen < 0) || (ulen > ps)) {
+	        if (ulen >= 0) {
+	            readlen = BCEIL(ulen,ps) ;
+	        } else {
+	            USTAT	sb ;
+	            int		bsize ;
+	            if ((rs = u_fstat(sfd,&sb)) >= 0) {
+	                const mode_t	m = sb.st_mode ;
+	                if (S_ISREG(m) || S_ISBLK(m)) {
+	                    fsize = (size_t) (sb.st_size & SIZE_MAX) ;
+	                    bsize = (MAX(sb.st_size,1) & INT_MAX) ;
+	                    readlen = BCEIL(bsize,ps) ;
+	                } else if (S_ISFIFO(m)) {
+	                    readlen = PIPEBUFLEN ;
+	                } else {
+	                    readlen = ps ;
+	                }
+	            } /* end if (u_fstat) */
+	        } /* end if */
+	        if (readlen > MAXBUFLEN) readlen = MAXBUFLEN ;
 	    } else {
-	        struct ustat	sb ;
-		int		bsize ;
-		if ((rs = u_fstat(sfd,&sb)) >= 0) {
-		    const mode_t	m = sb.st_mode ;
-		    if (S_ISREG(m) || S_ISBLK(m)) {
-			fsize = (size_t) (sb.st_size & SIZE_MAX) ;
-			bsize = (MAX(sb.st_size,1) & INT_MAX) ;
-	        	readlen = BCEIL(bsize,ps) ;
-		    } else if (S_ISFIFO(m)) {
-			readlen = PIPEBUFLEN ;
-		    } else {
-	    	        readlen = ps ;
-		    }
-		}
-	    } /* end if */
-	    if (readlen > MAXBUFLEN) readlen = MAXBUFLEN ;
-	} else {
-	    readlen = ps ;
-	}
+	        readlen = ps ;
+	    }
 
 #if	CF_DEBUGS
-	debugprintf("uc_copy: mid1 rs=%d fsize=%lu readlen=%u\n",rs,
-		fsize,readlen) ;
+	    debugprintf("uc_copy: mid1 rs=%d fsize=%lu readlen=%u\n",rs,
+	        fsize,readlen) ;
 #endif
 
-	if ((rs >= 0) && (fsize > 0)) {
-	size_t		msize = 0 ;
-	char		*mdata = NULL ;
+	    if ((rs >= 0) && (fsize > 0)) {
+	        char		*mdata = NULL ;
+
+#if	CF_VALLOC
+#else
+	        size_t		msize = 0 ;
+#endif /* CF_VALLOC */
 
 #if	CF_DEBUGS
-	debugprintf("uc_copy: readlen=%u\n",readlen) ;
+	        debugprintf("uc_copy: readlen=%u\n",readlen) ;
 #endif
 
 /* allocate the buffer */
 
 #if	CF_VALLOC
-	rs = uc_libvalloc(readlen,&mdata) ;
+	        rs = uc_libvalloc(readlen,&mdata) ;
 #else
-	if (readlen <= ps) {
-	    rs = uc_libvalloc(readlen,&mdata) ;
-	} else {
-	    const int	mprot = (PROT_READ|PROT_WRITE) ;
-	    const int	mflag = (MAP_PRIVATE|MAP_ANON) ;
-	    msize = readlen ;
-	    rs = u_mmap(NULL,msize,mprot,mflag,-1,0L,&mdata) ;
-	}
+	        if (readlen <= ps) {
+	            rs = uc_libvalloc(readlen,&mdata) ;
+	        } else {
+	            const int	mprot = (PROT_READ|PROT_WRITE) ;
+	            const int	mflag = (MAP_PRIVATE|MAP_ANON) ;
+	            msize = readlen ;
+	            rs = u_mmap(NULL,msize,mprot,mflag,-1,0L,&mdata) ;
+	        }
 #endif /* CF_VALLOC */
 
 #if	CF_DEBUGS
-	debugprintf("uc_copy: before rs=%d\n",rs) ;
+	        debugprintf("uc_copy: before rs=%d\n",rs) ;
 #endif
 
-	if (rs >= 0) {
-	    int	wlen ;
+	        if (rs >= 0) {
+	            int	wlen ;
 
 /* perform the copy (using the allocated buffer) */
 
-	    while ((ulen < 0) || (tlen < ulen)) {
-	        int	rlen = readlen ;
+	            while ((ulen < 0) || (tlen < ulen)) {
+	                int	rlen = readlen ;
 
-		if (ulen >= 0) rlen = MIN((ulen - tlen),readlen) ;
+	                if (ulen >= 0) rlen = MIN((ulen - tlen),readlen) ;
 
-	        rs = u_read(sfd,mdata,rlen) ;
-	        wlen = rs ;
-	        if (rs <= 0) break ;
+	                rs = u_read(sfd,mdata,rlen) ;
+	                wlen = rs ;
+#if	CF_DEBUGS
+	                debugprintf("uc_copy: u_read() rs=%d\n",rs) ;
+#endif
+	                if (rs <= 0) break ;
 
-	        rs = uc_writen(dfd,mdata,wlen) ;
-	        tlen += rs ;
+	                rs = uc_writen(dfd,mdata,wlen) ;
+	                tlen += rs ;
 
-	        if (rs < 0) break ;
-	    } /* end while */
+	                if (rs < 0) break ;
+	            } /* end while */
 
 #if	CF_DEBUGS
-	debugprintf("uc_copy: while-end rs=%d tlen=%u\n",rs,tlen) ;
+	            debugprintf("uc_copy: while-end rs=%d tlen=%u\n",rs,tlen) ;
 #endif
 
 #if	CF_VALLOC
-	    uc_libfree(mdata) ;
+	            uc_libfree(mdata) ;
 #else
-	    if (msize == 0) {
-	        uc_libfree(mdata) ;
-	    } else {
-	        u_munmap(mdata,msize) ;
-	    }
+	            if (msize == 0) {
+	                uc_libfree(mdata) ;
+	            } else {
+	                u_munmap(mdata,msize) ;
+	            }
 #endif /* CF_VALLOC */
-	} /* end if (memory allocation) */
+	        } /* end if (memory allocation) */
 
-	tlen &= INT_MAX ;
+	        tlen &= INT_MAX ;
 
-	} /* end if (positive) */
+	    } /* end if (positive) */
 
 	} /* end if (non-zero) */
 

@@ -4,7 +4,7 @@
 /* translation layer interface for UNIX® equivalents */
 
 
-#define	CF_DEBUGS	0
+#define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:
@@ -38,6 +38,13 @@
 
 extern int	mkexpandpath(char *,cchar *,int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 /* exported subroutines */
 
@@ -52,6 +59,9 @@ int uc_utime(cchar *fname,const struct utimbuf *utp)
 	    if ((rs = mkexpandpath(ebuf,fname,-1)) > 0) {
 		rs = u_utime(ebuf,utp) ;
 	    } else if (rs == 0) {
+#if	CF_DEBUGS
+	         debugprintf("uc_utime: fn=%s\n",fname) ;
+#endif
 		rs = u_utime(fname,utp) ;
 	    }
 	    uc_libfree(ebuf) ;

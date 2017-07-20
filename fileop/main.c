@@ -132,6 +132,7 @@ extern cchar	*getourenv(cchar **,cchar *) ;
 extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(cchar *,int,int) ;
 extern char	*strnrchr(cchar *,int,int) ;
+extern char	*timestr_log(time_t,char *) ;
 
 #if	CF_DEBUG
 static cchar	*strfiletype(USTAT *) ;
@@ -2958,13 +2959,13 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 /* check against the suffix-required list */
 
-	        if ((rs >= 0) && pip->have.sufreq) {
+	        if (pip->have.sufreq) {
 	            if ((rs = procsuf_have(pip,sp,sl)) > 0) {
 	                f_accept = TRUE ;
 	            } else if (rs == 0) {
 	                f_process = FALSE ;
 	            }
-	        } /* end if */
+	        } else {
 
 /* check against the suffix-acceptance list */
 
@@ -2988,6 +2989,8 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	            }
 	        } /* end if */
 
+		} /* end if (suffix required or not) */
+
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
 	            debugprintf("main/procother: suf fa=%u f_process=%u\n",
@@ -3002,8 +3005,8 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("main/procother: mid1 rs=%d f_suf=%u f_process=%u\n",
-	        rs,f_suf,f_process) ;
+	    debugprintf("main/procother: mid1 rs=%d f_suf=%u f_c=%u f_p=%u\n",
+	        rs,f_suf,f_continue,f_process) ;
 #endif
 
 /* readable */
@@ -4847,12 +4850,12 @@ static int procsyncer(PROGINFO *pip,cchar *name,USTAT *sbp)
 static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 {
 	USTAT		dsb ;
-	size_t		fsize = 0 ;
+	size_t		dfsize = 0 ;
 	const mode_t	dm = DMODE ;
 	const mode_t	nm = (sbp->st_mode & (~ S_IFMT)) | 0600 ;
 	uid_t		duid = -1 ;
 	int		rs = SR_OK ;
-	int		of ;
+	int		of = 0 ;
 	int		f_create = FALSE ;
 	int		f_update = FALSE ;
 	int		f_updated = FALSE ;
@@ -4885,7 +4888,11 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 	    if (S_ISREG(dsb.st_mode)) {
 	        int	f = FALSE ;
 	        duid = dsb.st_uid ;
-	        fsize = (size_t) dsb.st_size ;
+	        dfsize = (size_t) dsb.st_size ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procsyncer_reg: dfsize=%u\n",dfsize) ;
+#endif
 	        f = f || (sbp->st_size != dsb.st_size) ;
 	        f = f || (sbp->st_mtime > dsb.st_mtime) ;
 	        if (f) {
@@ -4990,6 +4997,11 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 /* update (or create) the target file */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	        debugprintf("main/procsyncer_reg: rs=%d dfn=%s\n",rs,dstfname) ;
+#endif
+
 	of = O_WRONLY ;
 	if (f_create) of |= O_CREAT ;
 
@@ -5014,7 +5026,7 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 	    }
 	}
 	if (rs >= 0) { /* opened */
-	    const int	dfd = rs ;
+	    int		dfd = rs ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
@@ -5040,13 +5052,39 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 	            const int	sfd = rs ;
 	            int		len ;
 
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4)) {
+		USTAT	sb ;
+	        debugprintf("main/procsyncer_reg: sfn=%s\n",name) ;
+	        debugprintf("main/procsyncer_reg: u_open() rs=%d\n",rs) ;
+	        debugprintf("main/procsyncer_reg: u_open() rs=%d\n",rs) ;
+		u_fstat(sfd,&sb) ;
+	        debugprintf("main/procsyncer_reg: sfsize=%llu\n",sb.st_size) ;
+	    }
+#endif
+
 	            if ((rs = uc_copy(sfd,dfd,-1)) >= 0) {
 	                len = rs ;
-	                if (len < fsize) {
+
+#if	CF_DEBUG
+	    	        if (DEBUGLEVEL(4)) {
+			    USTAT	sb ;
+			    size_t	sfsize ;
+	        	    debugprintf("main/procsyncer_reg: "
+				"uc_copy() rs=%d\n",rs) ;
+			    u_fstat(sfd,&sb) ;
+			    sfsize = (size_t) sb.st_size ;
+	        	    debugprintf("main/procsyncer_reg: "
+				"sfsize=%lu\n",sfsize) ;
+	        	    debugprintf("main/procsyncer_reg: "
+				"dfsize=%lu\n",dfsize) ;
+		        }
+#endif
+	                if (len < dfsize) {
 	                    offset_t	uoff = len ;
 	                    rs = uc_ftruncate(dfd,uoff) ;
 	                }
-	            }
+	            } /* end if (uc_copy) */
 
 	            u_close(sfd) ;
 	            if (rs >= 0) {
@@ -5056,13 +5094,28 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 	                f_utime = f_utime || (pip->euid == 0) ;
 	                if (f_utime) {
 	                    struct utimbuf	ut ;
+			    int			rs1 ;
 	                    ut.actime = sbp->st_atime ;
 	                    ut.modtime = sbp->st_mtime ;
+			    u_close(dfd) ;
+			    dfd = -1 ;
 #if	CF_DEBUG
-	                    if (DEBUGLEVEL(3))
+	                    if (DEBUGLEVEL(4)) {
+				char	tbuf[TIMEBUFLEN+1] ;
 	                        debugprintf("main/procsyncer_reg: utime()\n") ;
+	                        debugprintf("main/procsyncer_reg: "
+				    "dfn=%s\n",dstfname) ;
+				timestr_log(ut.modtime,tbuf) ;
+	                        debugprintf("main/procsyncer_reg: "
+				    "mt=%s\n",tbuf) ;
+			    }
 #endif
-	                    uc_utime(dstfname,&ut) ;
+	                    rs1 = uc_utime(dstfname,&ut) ;
+#if	CF_DEBUG
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("main/procsyncer_reg: "
+				"uc_utime() rs=%d\n",rs1) ;
+#endif
 	                }
 	            }
 	        } else if (rs == SR_NOENT) {
@@ -5071,13 +5124,13 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 	        } /* end if (open source) */
 	    } /* end if (update was needed) */
 
-	    u_close(dfd) ;
+	    if (dfd >= 0) u_close(dfd) ;
 	} /* end if (destination file opened) */
 
 ret0:
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
+	if (DEBUGLEVEL(4))
 	    debugprintf("main/procsyncer_reg: ret rs=%d f_updated=%u\n",
 	        rs,f_updated) ;
 #endif
@@ -5341,7 +5394,7 @@ static int procsyncer_lnk(PROGINFO *pip,cchar *name,USTAT *sbp)
 	            }
 	        }
 	    }
-	}
+	} /* end if (create) */
 
 /* update (or create) the target file */
 
