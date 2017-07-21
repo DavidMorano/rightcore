@@ -139,9 +139,11 @@ static int	procuserinfo_logid(PROGINFO *) ;
 
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 
-static int	progenvlogtabs(PROGINFO *,const char *) ;
-static int	progenvlogtab(PROGINFO *,const char *,int) ;
-static int	proguserlogtab(PROGINFO *) ;
+static int	procenvlogtabs(PROGINFO *,const char *) ;
+static int	procenvlogtab(PROGINFO *,const char *,int) ;
+static int	procuserlogtab(PROGINFO *) ;
+
+static int	procuser_envload(PROGINFO *,vecstr *) ;
 
 
 /* local variables */
@@ -668,8 +670,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if ((pip->deflogsize == 0) && ((cp = getenv(VARDEFSIZE)) != NULL)) {
 	    if (cfdecmfi(cp,-1,&v) >= 0) {
 	        pip->deflogsize = v ;
-	    } else
+	    } else {
 	        pip->deflogsize = 0 ;
+	    }
 	}
 
 	if (pip->deflogsize == 0)
@@ -716,7 +719,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	            if ((rs = proglog_begin(pip,&u)) >= 0) {
 	                {
 		    	    ARGINFO	*aip = &ainfo ;
-			     BITS	*bop = &pargs ;
+			    BITS	*bop = &pargs ;
 	                    cchar	*ofn = ofname ;
 	                    cchar	*afn = afname ;
 	                    rs = procargs(pip,aip,bop,ofn,afn) ;
@@ -892,7 +895,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	        if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
 	            int		len ;
-	            char		lbuf[LINEBUFLEN + 1] ;
+	            char	lbuf[LINEBUFLEN + 1] ;
 
 	            while ((rs = breadline(afp,lbuf,llen)) > 0) {
 	                len = rs ;
@@ -926,14 +929,14 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	        ((cp = getenv(VARLOGTAB)) != NULL)) {
 
 	        pan += 1 ;
-	        rs = progenvlogtabs(pip,cp) ;
+	        rs = procenvlogtabs(pip,cp) ;
 
 	    } /* end if (specified in environment) */
 
 	    if ((rs >= 0) && (pan == 0)) {
 
 	        pan += 1 ;
-	        rs = proguserlogtab(pip) ;
+	        rs = procuserlogtab(pip) ;
 
 	    } /* end if (default search for LOGTAB) */
 
@@ -967,17 +970,17 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 /* end subroutine (procargs) */
 
 
-static int progenvlogtabs(PROGINFO *pip,cchar *sp)
+static int procenvlogtabs(PROGINFO *pip,cchar *sp)
 {
 	int		rs = SR_OK ;
 	int		sl = strlen(sp) ;
-	int		c_logfiles = 0 ;
+	int		c = 0 ;
 	const char	*tp ;
 
 	while ((tp = strnpbrk(sp,sl,", \t")) != NULL) {
 
-	    rs = progenvlogtab(pip,sp,(tp - sp)) ;
-	    c_logfiles += rs ;
+	    rs = procenvlogtab(pip,sp,(tp - sp)) ;
+	    c += rs ;
 
 	    sl -= ((tp + 1) - sp) ;
 	    sp = (tp + 1) ;
@@ -986,84 +989,110 @@ static int progenvlogtabs(PROGINFO *pip,cchar *sp)
 	} /* end while */
 
 	if ((rs >= 0) && (sl > 0)) {
-	    rs = progenvlogtab(pip,sp,sl) ;
-	    c_logfiles += rs ;
+	    rs = procenvlogtab(pip,sp,sl) ;
+	    c += rs ;
 	}
 
-	return (rs >= 0) ? c_logfiles : rs ;
+	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (progenvlogtabs) */
+/* end subroutine (procenvlogtabs) */
 
 
-static int progenvlogtab(PROGINFO *pip,cchar *sp,int sl)
+static int procenvlogtab(PROGINFO *pip,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
-	int		c_logfiles = 0 ;
+	int		c = 0 ;
 
 	if (sl > 0) {
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((cl = sfshrink(sp,sl,&cp)) > 0) {
 	        rs = progtab(pip,cp,cl) ;
-	        c_logfiles += rs ;
+	        c += rs ;
 	    }
 	}
 
-	return (rs >= 0) ? c_logfiles : rs ;
+	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (progenvlogtab) */
+/* end subroutine (procenvlogtab) */
 
 
-static int proguserlogtab(PROGINFO *pip)
+static int procuserlogtab(PROGINFO *pip)
 {
-	struct ustat	sb ;
-	VECSTR		defsv ;
+	VECSTR		sv ;
 	int		rs ;
-	int		cl ;
-	int		c_logfiles = 0 ;
-	const char	*ltfname = LOGTABFNAME ;
-	const char	*cp ;
-	char		tmpfname[MAXPATHLEN + 1] ;
+	int		rs1 ;
+	int		c = 0 ;
+	cchar		*ltfname = LOGTABFNAME ;
 
-	if ((rs = vecstr_start(&defsv,6,0)) >= 0) {
+	if ((rs = vecstr_start(&sv,6,0)) >= 0) {
+	    if ((rs = procuser_envload(pip,&sv)) >= 0) {
+		const int	tlen = MAXPATHLEN ;
+		const int	am = R_OK ;
+		cchar		**spp = deflogtabs ;
+		char		tbuf[MAXPATHLEN+1] ;
 
-	    if (rs >= 0)
-	        vecstr_envset(&defsv,"n",pip->searchname,-1) ;
-
-	    if (rs >= 0)
-	        vecstr_envset(&defsv,"p",pip->pr,-1) ;
-
-	    if (rs >= 0)
-	        vecstr_envset(&defsv,"e","etc",-1) ;
-
-	    if (rs >= 0)
-	        vecstr_envset(&defsv,"u",pip->username,-1) ;
-
-	    if (rs >= 0)
-	        vecstr_envset(&defsv,"l","logtabs",-1) ;
-
-	    if (rs >= 0) {
-
-	        cp = tmpfname ;
-	        cl = permsched(deflogtabs,&defsv,
-	            tmpfname,MAXPATHLEN, ltfname,R_OK) ;
-
-	        if ((cl > 0) &&
-	            (u_stat(cp,&sb) >= 0) && S_ISREG(sb.st_mode)) {
-
-	            rs = progtab(pip,cp,cl) ;
-	            c_logfiles += rs ;
-
+		if ((rs = permsched(spp,&sv,tbuf,tlen,ltfname,am)) >= 0) {
+		    USTAT	sb ;
+		    const int	tl = rs ;
+	            if ((rs = u_stat(tbuf,&sb)) >= 0) {
+			if (S_ISREG(sb.st_mode)) {
+	            	    rs = progtab(pip,tbuf,tl) ;
+	            	    c += rs ;
+			}
+		    }
+		} else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
 	        } /* end if (got one) */
 
 	    } /* end if */
 
-	    vecstr_finish(&defsv) ;
-	} /* end if (logtab-file-name) */
+	    rs1 = vecstr_finish(&sv) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (vecstr) */
 
-	return (rs >= 0) ? c_logfiles : rs ;
+	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (proguserlogtab) */
+/* end subroutine (procuserlogtab) */
+
+
+static int procuser_envload(PROGINFO *pip,vecstr *svp)
+{
+	int		rs = SR_OK ;
+	cchar		*keys = "penul" ;
+	cchar		*kp ;
+	cchar		*vp ;
+	char		kbuf[2] ;
+	kbuf[1] = '\0' ;
+	for (kp = keys ; kp[0] != '\0' ; kp += 1) {
+	    int	kch = MKCHAR(kp[0]) ;
+	    vp = NULL ;
+	    switch (kch) {
+	    case 'p':
+	        vp = pip->pr ;
+	        break ;
+	    case 'e':
+	        vp = "etc" ;
+	        break ;
+	    case 'n':
+	        vp = pip->searchname ;
+	        break ;
+	    case 'u':
+	        vp = pip->username ;
+	        break ;
+	    case 'l':
+	        vp = "logtabs" ;
+	        break ;
+	    } /* end switch */
+	    if (vp != NULL) {
+	        kbuf[0] = kch ;
+	        rs = vecstr_envadd(svp,kbuf,vp,-1) ;
+	    }
+	    if (rs < 0) break ;
+	} /* end for */
+	return rs ;
+}
+/* end subroutine (procuser_envload) */
 
 
 static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)

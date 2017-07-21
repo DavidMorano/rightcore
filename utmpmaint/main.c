@@ -119,6 +119,7 @@ struct locinfo_flags {
 	uint		stores:1 ;
 	uint		list:1 ;
 	uint		maint:1 ;
+	uint		hdr:1 ;
 } ;
 
 struct locinfo {
@@ -231,11 +232,13 @@ static const struct mapex	mapexs[] = {
 
 static const char	*akonames[] = {
 	"print",
+	"hdr",
 	NULL
 } ;
 
 enum akonames {
 	akoname_print,
+	akoname_hdr,
 	akoname_overlast
 } ;
 
@@ -547,6 +550,19 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        f_version = TRUE ;
 	                        break ;
 
+			    case 'h':
+	                        lip->final.hdr = TRUE ;
+	                        lip->have.hdr = TRUE ;
+	                        lip->f.hdr = TRUE ;
+	                        if (f_optequal) {
+	                            f_optequal = FALSE ;
+	                            if (avl) {
+	                                rs = optbool(avp,avl) ;
+	                                lip->f.hdr = (rs > 0) ;
+	                            }
+	                        }
+	                        break ;
+
 /* maintenance */
 	                    case 'm':
 	                        lip->f.maint = TRUE ;
@@ -569,7 +585,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            rs = SR_INVALID ;
 	                        break ;
 
-/* print out counter values */
+/* print out */
 	                    case 'p':
 	                        pip->final.print = TRUE ;
 	                        pip->have.print = TRUE ;
@@ -940,6 +956,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
 	lip->to = -1 ;
+	lip->f.hdr = OPT_HDR ;
 
 	return rs ;
 }
@@ -1003,6 +1020,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 /* process the program ako-options */
 static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
+	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		c = 0 ;
 	const char	*cp ;
@@ -1033,6 +1051,17 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        if (vl > 0) {
 	                            rs = optbool(vp,vl) ;
 	                            pip->f.print = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_hdr:
+	                    if (! lip->final.hdr) {
+	                        lip->have.hdr = TRUE ;
+	                        lip->final.hdr = TRUE ;
+	                        lip->f.hdr = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.hdr = (rs > 0) ;
 	                        }
 	                    }
 	                    break ;
@@ -1249,7 +1278,7 @@ static int procmaintbake(PROGINFO *pip,void *md,size_t ms,int fs)
 	    case TMPX_TLOGINPROC:
 	        {
 	            const pid_t	sid = up->ut_pid ;
-	            if (u_kill(sid,0) == SR_SRCH) {
+	            if ((rs = u_kill(sid,0)) == SR_SRCH) {
 	                if (strcmp(up->ut_line,"/dev/console") == 0) {
 	                    if (wup == NULL) wup = up ;
 	                    up = NULL ;
@@ -1260,6 +1289,8 @@ static int procmaintbake(PROGINFO *pip,void *md,size_t ms,int fs)
 	                    if (wup == NULL) wup = up ;
 	                    up = NULL ;
 	                }
+		    } else if (rs == SR_PERM) {
+			rs = SR_OK ;
 	            } /* end if (no-process) */
 	        } /* end block */
 	        break ;
@@ -1341,8 +1372,10 @@ static int proclist(PROGINFO *pip,bfile *ofp,MAPSTRINT *nlp,cchar *dbfn)
 	        if ((rs = tmpx_curbegin(&ut,&ucur)) >= 0) {
 	            const int	nrs = SR_NOTFOUND ;
 	            const char	*fmt ;
+		    fmt = "T   ID %-12s %-12s %6s SN EX TIME\n" ;
 
-		    fmt = "t=%u i=%-4t u=%-12t l=%-12t p=%6u s=%2d e=%2d %s\n" ;
+	            rs = bprintf(ofp,fmt,"USER","LINE","SID") ;
+		    fmt = "%1u %4t %-12t %-12t %6u %02d %2d %s\n" ;
 	            while (rs >= 0) {
 		        int	f = TRUE ;
 	                rs1 = tmpx_enum(&ut,&ucur,up) ;
@@ -1361,7 +1394,7 @@ static int proclist(PROGINFO *pip,bfile *ofp,MAPSTRINT *nlp,cchar *dbfn)
 	            if ((rs >= 0) && f) {
 	                c += 1 ;
 	                timestr_log(up->ut_tv.tv_sec,timebuf) ;
-	                bprintf(ofp,fmt,
+	                rs = bprintf(ofp,fmt,
 	                    up->ut_type,
 	                    up->ut_id,strnlen(up->ut_id,TMPX_LID),
 	                    up->ut_user,strnlen(up->ut_user,TMPX_LUSER),

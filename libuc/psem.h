@@ -16,8 +16,6 @@
 
 #define	PSEM		sem_t
 
-#define	PSEM_NAMELEN	(MAXNAMELEN + 1)
-
 
 #if	(! defined(PSEM_MASTER)) || (PSEM_MASTER == 0)
 

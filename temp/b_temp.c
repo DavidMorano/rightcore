@@ -4,8 +4,8 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
+#define	CF_DEBUG	1		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_LOCSETENT	0		/* compile |locinfo_setentry()| */
 
@@ -856,7 +856,6 @@ static int usage(PROGINFO *pip)
 /* process the program ako-options */
 static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		c = 0 ;
 	cchar		*cp ;
@@ -909,7 +908,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 {
-	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
 	const int	to_open = pip->to_open ;
 	int		rs ;
@@ -1003,7 +1001,6 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 
 static int procquery(PROGINFO *pip,void *ofp,cchar qp[],int ql)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		cl ;
 	int		wlen = 0 ;

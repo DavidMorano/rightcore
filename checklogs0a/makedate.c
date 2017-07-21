@@ -1,2 +1,2 @@
 const char checklogs_makedate[] =
-"@(#)checklogs               170704_1751:43_USEDT Rightcore Network Services" ;
+"@(#)checklogs               170720_2019:35_USEDT Rightcore Network Services" ;

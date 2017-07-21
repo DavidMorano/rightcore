@@ -619,6 +619,7 @@ static int disp_start(DISP *dop,DISP_ARGS *wap)
 		void		*p ;
 		if ((rs = uc_malloc(size,&p)) >= 0) {
 		    dop->threads = p ;
+		    memset(p,0,size) ;
 		    if ((rs = ptm_create(&dop->om,NULL)) >= 0) {
 			rs = disp_starter(dop) ;
 			if (rs < 0)

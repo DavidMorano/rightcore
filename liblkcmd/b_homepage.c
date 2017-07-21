@@ -9,7 +9,6 @@
 #define	CF_DEBUGMOUT	0		/* debug memory-allocations */
 #define	CF_DEBUGLEVEL	0		/* default debug-level */
 #define	CF_PROCARGS	0		/* |procargs()| */
-#define	CF_MULTI	1		/* run in parallel */
 #define	CF_STACKCHECK	1		/* check stacks afterwards */
 #define	CF_UCREADE	1		/* use |uc_reade(3uc)| */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
@@ -2013,7 +2012,7 @@ static int procuserinfo_logid(PROGINFO *pip)
 /* end subroutine (procuserinfo_logid) */
 
 
-static int procourconf_begin(PROGINFO *pip,PARAMOPT *app,cchar cfname[])
+static int procourconf_begin(PROGINFO *pip,PARAMOPT *app,cchar *cfname)
 {
 	const int	csize = sizeof(CONFIG) ;
 	int		rs ;
@@ -5536,8 +5535,9 @@ int locinfo_tmpourdname(LOCINFO *lip)
 	                    const int	am = (R_OK|W_OK|X_OK) ;
 	                    f_needmode = ((usb.st_mode & dm) != dm) ;
 	                    rs = u_access(tmpourdname,am) ;
-	                } else
+	                } else {
 	                    rs = SR_NOTDIR ;
+			}
 	            }
 	            if (rs >= 0) {
 	                if (rs1 == SR_NOENT) {
@@ -5563,17 +5563,20 @@ int locinfo_tmpourdname(LOCINFO *lip)
 	            } /* end if (ok) */
 	        } /* end if (mkpath) */
 	    } else {
-	        shio_printf(pip->efp,"%s: TMPDIR access problem (%d)\n",
-	            pip->progname,rs) ;
-	        shio_printf(pip->efp,"%s: tmpdir=%s\n",
-	            pip->progname,lip->tmpourdname) ;
+		cchar	*pn = pip->progname ;
+		cchar	*fmt ;
+		fmt = "%s: TMPDIR access problem (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+		fmt = "%s: tmpdir=%s\n" ;
+	        shio_printf(pip->efp,fmt,pn,lip->tmpourdname) ;
 	        if (pip->open.logprog) {
 	            proglog_printf(pip,"TMPDIR access problem (%d)\n",rs) ;
 	            proglog_printf(pip,"tmpdir=%s",lip->tmpourdname) ;
 	        }
 	    } /* end if */
-	} else
+	} else {
 	    pl = strlen(lip->tmpourdname) ;
+	}
 
 	return (rs >= 0) ? pl : rs ;
 }

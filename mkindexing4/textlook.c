@@ -1297,18 +1297,20 @@ static int textlook_dispstart(TEXTLOOK *op,int qo,SEARCHKEYS *skp,RTAGS *rtp)
 	        const int	size = sizeof(DISP) ;
 	        void		*p ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
-	            DISP_ARGS	a ;
 	            DISP	*dop = p ;
-	            memset(&a,0,sizeof(DISP_ARGS)) ;
-	            a.op = op ;
-	            a.qo = qo ;
-	            a.skp = skp ;
-	            a.rtp = rtp ;
-	            a.npar = npar ;
-	            a.wterms = op->wterms ;
-	            if ((rs = disp_start(dop,&a)) >= 0) {
-	                op->disp = dop ;
-	            }
+		    {
+	                DISP_ARGS	a ;
+	                memset(&a,0,sizeof(DISP_ARGS)) ;
+	                a.op = op ;
+	                a.qo = qo ;
+	                a.skp = skp ;
+	                a.rtp = rtp ;
+	                a.npar = npar ;
+	                a.wterms = op->wterms ;
+	                if ((rs = disp_start(dop,&a)) >= 0) {
+	                    op->disp = dop ;
+	                }
+		    } /* end block */
 	            if (rs < 0) uc_free(p) ;
 	        } /* end if (memory-allocation) */
 	    } /* end if (uptgetconcurrency) */

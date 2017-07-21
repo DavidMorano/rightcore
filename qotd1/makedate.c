@@ -1,2 +1,2 @@
 const char qotd_makedate[] =
-"@(#)qotd                    170626_1310:39_USEDT Rightcore Network Services" ;
+"@(#)qotd                    170721_1029:57_USEDT Rightcore Network Services" ;

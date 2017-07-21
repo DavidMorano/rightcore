@@ -231,6 +231,7 @@ struct disp_args {
 struct disp_thr {
 	pthread_t	tid ;
 	uint		f_active ;
+	volatile int	f_exiting ;
 } ;
 
 struct disp_head {
@@ -243,8 +244,8 @@ struct disp_head {
 	PTC		cond ;		/* condition variable */
 	volatile int	f_exit ;	/* signal force exit */
 	volatile int	f_done ;	/* signal end of new work */
+	volatile int	f_wakeup ;	/* wait flag */
 	int		nthr ;		/* number of threads */
-	int		wf ;		/* wait flag */
 	int		tasks ;		/* count of completed tasks */
 } ;
 
@@ -273,7 +274,7 @@ static int	procargfile(PROGINFO *,DISP *,cchar *) ;
 static int	procfiler(PROGINFO *,const char *) ;
 static int	procfilerdeps(PROGINFO *,cchar *,time_t) ;
 static int	procfilerfinds(PROGINFO *,cchar *,time_t) ;
-static int	procfilers(PROGINFO *,cchar *,time_t,cchar *) ;
+static int	procfilefind(PROGINFO *,cchar *,time_t,cchar *) ;
 static int	procfiletell(PROGINFO *,cchar *,cchar *) ;
 static int	procfile(PROGINFO *,DISP *,cchar *) ;
 static int	proceprintf(PROGINFO *,cchar *,...) ;
@@ -318,10 +319,12 @@ static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 
 static int	disp_start(DISP *,DISP_ARGS *) ;
 static int	disp_starter(DISP *) ;
-static int	disp_wait(DISP *) ;
+static int	disp_waiting(DISP *) ;
 static int	disp_addwork(DISP *,cchar *,int) ;
 static int	disp_worker(DISP *) ;
 static int	disp_signalled(DISP *) ;
+static int	disp_exiting(DISP *) ;
+static int	disp_allexiting(DISP *) ;
 static int	disp_notready(DISP *,int *) ;
 static int	disp_taskdone(DISP *) ;
 static int	disp_finish(DISP *,int) ;
@@ -1082,18 +1085,27 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	            if (rs >= 0) {
 	                if (pan > 0) {
-	                    while ((rs = disp_wait(&disp)) > 0) {
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	debugprintf("b_makenewer: waiting\n") ;
+#endif
+	                    while ((rs = disp_waiting(&disp)) > 0) {
 	                        if (rs >= 0) rs = lib_sigterm() ;
 	                        if (rs >= 0) rs = lib_sigintr() ;
 	                        if (rs < 0) break ;
 	                    } /* end while */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	debugprintf("b_makenewer: waiting-out\n") ;
+#endif
 	                } else if ((pan == 0) && (! lip->f.zero)) {
 	                    rs = SR_INVALID ;
 	                    ex = EX_USAGE ;
 	                    if (! pip->f.quiet) {
+				cchar	*pn = pip->progname ;
 	                        cchar	*fmt ;
 	                        fmt = "%s: no files were specified\n" ;
-	                        shio_printf(pip->efp,fmt,pip->progname) ;
+	                        shio_printf(pip->efp,fmt,pn) ;
 	                    }
 	                }
 	            } /* end if (ok) */
@@ -1104,12 +1116,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        } /* end if (disp) */
 
 	        if (rs >= 0) {
+		    cchar	*pn = pip->progname ;
 	            cchar	*fmt ;
 	            if (pip->debuglevel > 0) {
 	                fmt = "%s: safefiles processed=%u updated=%u\n" ;
-	                shio_printf(pip->efp,fmt,
-	                    pip->progname,
-	                    lip->c_processed,lip->c_updated) ;
+	                shio_printf(pip->efp,fmt,pn,
+			    lip->c_processed,lip->c_updated) ;
 	            }
 	            if (pip->verboselevel > 0) {
 	                fmt = "safefiles processed=%u updated=%u\n" ;
@@ -1708,6 +1720,10 @@ static int procfilerdeps(PROGINFO *pip,cchar *name,time_t mo)
 	    if (f_done) break ;
 	    if (rs < 0) break ;
 	} /* end for */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("procfilerdeps: ret rs=%d f_done=%u\n",rs,f_done) ;
+#endif 
 	return (rs >= 0) ? f_done : rs ;
 }
 /* end subroutine (procfilerdeps) */
@@ -1715,7 +1731,6 @@ static int procfilerdeps(PROGINFO *pip,cchar *name,time_t mo)
 
 static int procfilerfinds(PROGINFO *pip,cchar *name,time_t mo)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		i ;
 	int		f_done = FALSE ;
@@ -1726,13 +1741,13 @@ static int procfilerfinds(PROGINFO *pip,cchar *name,time_t mo)
 	        if ((rs = mkaltext(dbuf,name,dep)) >= 0) {
 	            USTAT	sb ;
 	            if ((rs = u_stat(dbuf,&sb)) >= 0) {
-		        if ((rs = procfilers(pip,name,mo,dbuf)) > 0) {
+		        if ((rs = procfilefind(pip,name,mo,dbuf)) > 0) {
 			    f_done = TRUE ;
-	                    if (! lip->f.nochange) rs = u_unlink(name) ;
-	                    if (rs >= 0) {
-	                        rs = procfiletell(pip,dbuf,name) ;
-	                    }
-		        }
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("procfilerfinds: mid2 rs=%d\n",rs) ;
+#endif 
+			}
 		    } else if (isNotPresent(rs)) {
 		        rs = SR_OK ;
 		    }
@@ -1741,12 +1756,16 @@ static int procfilerfinds(PROGINFO *pip,cchar *name,time_t mo)
 	    if (f_done) break ;
 	    if (rs < 0) break ;
 	} /* end for */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("procfilerfinds: ret rs=%d f_done=%u\n",rs,f_done) ;
+#endif 
 	return (rs >= 0) ? f_done : rs ;
 }
 /* end subroutine (procfilerfinds) */
 
 
-static int procfilers(PROGINFO *pip,cchar *name,time_t mo,cchar *dbuf)
+static int procfilefind(PROGINFO *pip,cchar *name,time_t mo,cchar *dbuf)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
@@ -1754,7 +1773,7 @@ static int procfilers(PROGINFO *pip,cchar *name,time_t mo,cchar *dbuf)
 	char		obuf[MAXPATHLEN+1] ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("procfilers: ent name=%s\n",name) ;
+	    debugprintf("procfilefind: ent name=%s\n",name) ;
 #endif 
 	if ((rs = procdeps_check(pip,obuf,mo,dbuf)) > 0) {
 	    cchar	*dname = dbuf ;
@@ -1776,7 +1795,7 @@ static int procfilers(PROGINFO *pip,cchar *name,time_t mo,cchar *dbuf)
 #endif 
 	return (rs >= 0) ? f_remove : rs ;
 }
-/* end subroutine (procfilers) */
+/* end subroutine (procfilefind) */
 
 
 static int procfiletell(PROGINFO *pip,cchar *dbuf,cchar *name)
@@ -1962,7 +1981,6 @@ static int procdeps_get(PROGINFO *pip,vecpstr *dp,VECOBJ *errp,cchar *fname)
 	int		rs ;
 	int		rs1 ;
 	int		oflags ;
-	int		cstat ;
 	char		tbuf[MAXPATHLEN + 1] ;
 	char		efname[MAXPATHLEN + 1] ;
 
@@ -2009,7 +2027,9 @@ static int procdeps_get(PROGINFO *pip,vecpstr *dp,VECOBJ *errp,cchar *fname)
 	                    psa.fd[2] = efd ;
 	                    if ((rs = spawnproc(&psa,pf,av,ev)) >= 0) {
 	                        const pid_t	pid = rs ;
+	                        const int	w = WUNTRACED ;
 	                        const int	ofd = psa.fd[1] ;
+				int		cstat ;
 #if	CF_DEBUG
 	                        if (DEBUGLEVEL(5)) {
 	                            debugprintf("b_makesafe/procdeps_get: "
@@ -2017,7 +2037,6 @@ static int procdeps_get(PROGINFO *pip,vecpstr *dp,VECOBJ *errp,cchar *fname)
 	                        }
 #endif
 	                        if ((rs = proclines(pip,dp,ofd)) >= 0) {
-	                            const int	w = WUNTRACED ;
 	                            rs = 0 ;
 	                            while (rs == 0) {
 	                                rs = u_waitpid(pid,&cstat,w) ;
@@ -2026,6 +2045,8 @@ static int procdeps_get(PROGINFO *pip,vecpstr *dp,VECOBJ *errp,cchar *fname)
 	                            if (rs >= 0) {
 	                                rs = procerr(pip,errp,efd) ;
 	                            }
+			        } else {
+	                            u_waitpid(pid,&cstat,w) ;
 	                        }
 	                        u_close(ofd) ;
 	                    } /* end if spawnproc) */
@@ -2515,6 +2536,7 @@ static int disp_start(DISP *dop,DISP_ARGS *wap)
 	                void		*p ;
 	                if ((rs = uc_malloc(size,&p)) >= 0) {
 	                    dop->threads = p ;
+			    memset(p,0,size) ;
 	                    rs = disp_starter(dop) ;
 	                    if (rs < 0) {
 	                        uc_free(dop->threads) ;
@@ -2553,12 +2575,22 @@ static int disp_starter(DISP *dop)
 
 	if (pip == NULL) return SR_FAULT ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main/disp_starter: ent nthr=%u\n",dop->nthr) ;
+#endif
+
 	for (i = 0 ; (rs >= 0) && (i < dop->nthr) ; i += 1) {
 	    uptsub_t	fn = (uptsub_t) disp_worker ;
 	    if ((rs = uptcreate(&tid,NULL,fn,dop)) >= 0) {
 	        dop->threads[i].tid = tid ;
 	        dop->threads[i].f_active = TRUE ;
 	    }
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main/disp_starter: i=%u uptcreate() rs=%d tid=%u\n",
+		i,rs,tid) ;
+#endif
 	} /* end for */
 
 	if (rs < 0) {
@@ -2599,25 +2631,34 @@ static int disp_finish(DISP *dop,int f_abort)
 	    debugprintf("b_makesafe/disp_finish: ent f_abort=%u\n",f_abort) ;
 #endif
 
-	dop->f_done = TRUE ;
-	if (f_abort)
-	    dop->f_exit = TRUE ;
+	if (f_abort) dop->f_exit = TRUE ;
 
+	dop->f_done = TRUE ;		/* exit when no more work */
 	for (i = 0 ; i < dop->nthr ; i += 1) {
 	    rs1 = psem_post(&dop->wq_sem) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_makesafe/disp_finish: mid1 rs=%d\n",rs) ;
+#endif
 
 	if (dop->threads != NULL) {
 	    DISP_THR	*dtp ;
 	    pthread_t	tid ;
 	    int		trs ;
 	    for (i = 0 ; i < dop->nthr ; i += 1) {
-	        dtp = (dop->threads+1) ;
+	        dtp = (dop->threads+i) ;
 	        if (dtp->f_active) {
 	            dtp->f_active = FALSE ;
 	            tid = dtp->tid ;
 	            rs1 = uptjoin(tid,&trs) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    	debugprintf("b_makesafe/disp_finish: "
+			"i=%u uptjoin() tid=%u rs=%d trs=%d\n",i,tid,rs,trs) ;
+#endif
 	            if (rs >= 0) rs = rs1 ;
 	            if (rs >= 0) rs = trs ;
 	            if (rs > 0) c += trs ;
@@ -2627,6 +2668,11 @@ static int disp_finish(DISP *dop,int f_abort)
 	    if (rs >= 0) rs = rs1 ;
 	    dop->threads = NULL ;
 	} /* end if (threads) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_makesafe/disp_finish: mid2 rs=%d\n",rs) ;
+#endif
 
 	rs1 = ptc_destroy(&dop->cond) ;
 	if (rs >= 0) rs = rs1 ;
@@ -2665,17 +2711,19 @@ static int disp_addwork(DISP *dop,cchar *tagbuf,int taglen)
 static int disp_worker(DISP *dop)
 {
 	PROGINFO	*pip = dop->pip ;
-	pthread_t	tid ;
 	const int	rlen = MAXPATHLEN ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 	char		rbuf[MAXPATHLEN + 1] ;
 
-	uptself(&tid) ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
+	if (DEBUGLEVEL(4)) {
+	    pthread_t	tid ;
+	    uptself(&tid) ;
 	    debugprintf("mkkey/worker: ent tid=%u\n",tid) ;
+	}
 #endif
 
 	while ((rs = disp_signalled(dop)) >= 0) {
@@ -2695,9 +2743,15 @@ static int disp_worker(DISP *dop)
 	} /* end while (server loop) */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
+	if (DEBUGLEVEL(4)) {
+	    pthread_t	tid ;
+	    uptself(&tid) ;
 	    debugprintf("mkkey/worker: tid=%u ret rs=%d c=%u\n",tid,rs,c) ;
+	}
 #endif
+
+	rs1 = disp_exiting(dop) ;
+	if (rs >= 0) rs = rs1 ;
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -2715,8 +2769,61 @@ static int disp_signalled(DISP *dop)
 /* end subroutine (disp_signalled) */
 
 
+/* worker thread calls this to register a task completion */
+static int disp_taskdone(DISP *dop)
+{
+	int		rs ;
+	int		rs1 ;
+	if ((rs = ptm_lock(&dop->om)) >= 0) {
+	    dop->tasks += 1 ;
+	    if (! dop->f_wakeup) {
+	        dop->f_wakeup = TRUE ;
+	        rs = ptc_signal(&dop->cond) ;
+	    }
+	    rs1 = ptm_unlock(&dop->om) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
+	return rs ;
+}
+/* end subroutine (disp_taskdone) */
+
+
+static int disp_exiting(DISP *dop)
+{
+	DISP_THR	*threads = dop->threads ;
+	pthread_t	tid ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		f = FALSE ;
+	uptself(&tid) ;
+	for (i = 0 ; i < dop->nthr ; i += 1) {
+	    f = uptequal(threads[i].tid,tid) ;
+	    if (f) break ;
+	}
+	if (f) {
+	    threads[i].f_exiting = TRUE ;
+	}
+	return rs ;
+}
+/* end subroutine (disp_exiting) */
+
+
+static int disp_allexiting(DISP *dop)
+{
+	DISP_THR	*threads = dop->threads ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		f = TRUE ;
+	for (i = 0 ; i < dop->nthr ; i += 1) {
+	    f = f && threads[i].f_exiting ;
+	}
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (disp_allexiting) */
+
+
 /* |main| calls this to intermittently wait for worker completion */
-static int disp_wait(DISP *dop)
+static int disp_waiting(DISP *dop)
 {
 	int		rs ;
 	int		rs1 ;
@@ -2726,47 +2833,49 @@ static int disp_wait(DISP *dop)
 	        rs = ptc_wait(&dop->cond,&dop->om) ;
 	        if (rs < 0) break ;
 	    } /* end while */
-	    dop->wf = FALSE ;
+	    dop->f_wakeup = FALSE ;
 	    rs1 = ptm_unlock(&dop->om) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
+#if	CF_DEBUGS
+	debugprintf("b_makenewer/disp_waiting: ret rs=%d c=%u\n",rs,c) ;
+#endif
 	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (disp_wait) */
+/* end subroutine (disp_waiting) */
 
 
-/* helper function for |disp_wait()| above */
+/* helper function for |disp_waiting()| above */
 static int disp_notready(DISP *dop,int *cp)
 {
 	int		rs ;
 	int		f = FALSE ;
+#if	CF_DEBUGS
+	debugprintf("b_makesafe/disp_notready: ent f_wakeup=%u\n",
+		dop->f_wakeup) ;
+#endif
 	*cp = 0 ;
 	if ((rs = fsi_count(&dop->wq)) > 0) {
 	    *cp = rs ;
-	    f = (! dop->wf) ;
+#if	CF_DEBUGS
+	    debugprintf("b_makesafe/disp_notready: c=%u\n",rs) ;
+#endif
+	    if (! dop->f_wakeup) {
+	        if ((rs = disp_allexiting(dop)) == 0) {
+#if	CF_DEBUGS
+	    debugprintf("b_makesafe/disp_notready: not-allexiting\n") ;
+#endif
+		    f = TRUE ;
+		}
+	    }
 	}
+#if	CF_DEBUGS
+	debugprintf("b_makesafe/disp_notready: ret rs=%d f=%u c=%u\n",
+		rs,f,*cp) ;
+#endif
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (disp_notready) */
-
-
-/* worker thread calls this to register a task completion */
-static int disp_taskdone(DISP *dop)
-{
-	int		rs ;
-	int		rs1 ;
-	if ((rs = ptm_lock(&dop->om)) >= 0) {
-	    dop->tasks += 1 ;
-	    if (! dop->wf) {
-	        dop->wf = TRUE ;
-	        rs = ptc_signal(&dop->cond) ;
-	    }
-	    rs1 = ptm_unlock(&dop->om) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (ptm) */
-	return rs ;
-}
-/* end subroutine (disp_taskdone) */
 
 
 #if	CF_DISPABORT

@@ -27,6 +27,11 @@
 
 	$ querystring [-qs <querystring>]
 
+	Notes:
+
+	+ QueryStrings look like:
+		<url>[?<key1>=<val1>[&<key2>=<val2>[...]]]
+
 
 *******************************************************************************/
 

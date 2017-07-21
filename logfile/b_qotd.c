@@ -169,6 +169,7 @@ struct locinfo_flags {
 	uint		intrun:1 ;
 	uint		separate:1 ;
 	uint		dgram:1 ;
+	uint		rate:1 ;
 } ;
 
 struct locinfo {
@@ -185,6 +186,7 @@ struct locinfo {
 	int		ttl ;
 	int		intrun ;
 	int		af ;
+	int		rate ;
 } ;
 
 
@@ -239,6 +241,7 @@ static cchar *argopts[] = {
 	"to",
 	"tr",
 	"dgram",
+	"rate",
 	NULL
 } ;
 
@@ -254,6 +257,7 @@ enum argopts {
 	argopt_to,
 	argopt_tr,
 	argopt_dgram,
+	argopt_rate,
 	argopt_overlast
 } ;
 
@@ -553,6 +557,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        if (avl) {
 	                            rs = cfdecti(avp,avl,&v) ;
 	                            lip->intrun = v ;
+	                        }
+	                    }
+	                    break ;
+
+/* rate control mode */
+	                case argopt_rate:
+	                    lip->final.rate = TRUE ;
+	                    lip->have.rate = TRUE ;
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl) {
+	                            rs = cfdecti(avp,avl,&v) ;
+	                            lip->rate = v ;
 	                        }
 	                    }
 	                    break ;
@@ -1302,10 +1319,13 @@ static int procdgram(PROGINFO *pip,int nfd)
 	    const int	to = lip->intrun ;
 	    while ((rs = msgdata_recvto(&m,nfd,to)) >= 0) {
 	        if ((rs = procdgramer(pip,&m)) >= 0) {
+		    if (lip->rate > 0) sleep(lip->rate) ;
 		    c += 1 ;
 	            rs = msgdata_send(&m,nfd,rs,0) ;
 	            wlen += rs ;
 	        }
+	        if (rs >= 0) rs = lib_sigterm() ;
+	        if (rs >= 0) rs = lib_sigintr() ;
 	        if (rs < 0) break ;
 	    } /* end while */
 	    rs1 = msgdata_fini(&m) ;

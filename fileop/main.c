@@ -5243,25 +5243,25 @@ static int procsyncer_dir(PROGINFO *pip,cchar *name,USTAT *sbp)
 	            }
 	        }
 	    }
-	}
-	if (rs < 0) goto ret0 ;
+	} /* end if (create) */
 
 /* update (or create) the target file */
 
-	if (f_create) {
-	    rs = mkdir(dstfname,nm) ;
-	}
-
-	if ((rs >= 0) && ((duid < 0) || (duid == pip->euid))) {
-	    f_updated = TRUE ;
-	    if (f_mode) rs = u_chmod(dstfname,nm) ;
-	    if ((rs >= 0) && f_mtime) {
-	        struct utimbuf	ut ;
-	        ut.actime = sbp->st_atime ;
-	        ut.modtime = sbp->st_mtime ;
-	        uc_utime(dstfname,&ut) ;
+	if (rs >= 0) {
+	    if (f_create) {
+	        rs = mkdir(dstfname,nm) ;
 	    }
-	}
+	    if ((rs >= 0) && ((duid < 0) || (duid == pip->euid))) {
+	        f_updated = TRUE ;
+	        if (f_mode) rs = u_chmod(dstfname,nm) ;
+	        if ((rs >= 0) && f_mtime) {
+	            struct utimbuf	ut ;
+	            ut.actime = sbp->st_atime ;
+	            ut.modtime = sbp->st_mtime ;
+	            uc_utime(dstfname,&ut) ;
+	        }
+	    }
+	} /* end if (ok) */
 
 ret0:
 
