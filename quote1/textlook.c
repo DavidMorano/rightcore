@@ -271,8 +271,8 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 TEXTLOOK_OBJ	textlook = {
 	"textlook",
-	sizeof(TEXTLOOK),
-	sizeof(TEXTLOOK_CUR)
+	    sizeof(TEXTLOOK),
+	    sizeof(TEXTLOOK_CUR)
 } ;
 
 
@@ -311,7 +311,7 @@ struct disp_args {
 struct disp_thr {
 	pthread_t	tid ;
 	volatile int	f_busy ;
-	volatile int	f_exited ;
+	volatile int	f_exiting ;
 	volatile int	f_active ;
 	volatile int	rs ;
 } ;
@@ -347,17 +347,17 @@ static int	textlook_dispfinish(TEXTLOOK *) ;
 static int	textlook_indclose(TEXTLOOK *) ;
 static int	textlook_havekeys(TEXTLOOK *,TXTINDEX_TAG *,int,SEARCHKEYS *) ;
 static int	textlook_havekeyer(TEXTLOOK *,TXTINDEX_TAG *,int,
-			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *) ;
+SEARCHKEYS *,SEARCHKEYS_POP *,cchar *) ;
 static int	textlook_havekeyers(TEXTLOOK *,TXTINDEX_TAG *,int,
-			SEARCHKEYS *,int,SEARCHKEYS_POP *) ;
+SEARCHKEYS *,int,SEARCHKEYS_POP *) ;
 static int	textlook_havekeysline(TEXTLOOK *,
-			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
+SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
 static int	textlook_matchkeys(TEXTLOOK *,
-			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
+SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
 static int	textlook_mkhkeys(TEXTLOOK *,vecstr *,SEARCHKEYS *) ;
 
-static int	textlook_lookparallel(TEXTLOOK *,TEXTLOOK_CUR *,int,
-			SEARCHKEYS *,cchar **) ;
+static int	textlook_lookuper(TEXTLOOK *,TEXTLOOK_CUR *,int,
+SEARCHKEYS *,cchar **) ;
 static int	textlook_checkdisp(TEXTLOOK *,int,SEARCHKEYS *,RTAGS *) ;
 
 static int	subinfo_start(SUBINFO *) ;
@@ -369,7 +369,7 @@ static int	disp_finish(DISP *,int) ;
 static int	disp_addwork(DISP *,TXTINDEX_TAG *) ;
 static int	disp_setstate(DISP *,DISP_THR *,int) ;
 static int	disp_nbusy(DISP *) ;
-static int	disp_nexited(DISP *) ;
+static int	disp_nexiting(DISP *) ;
 static int	disp_waitdone(DISP *) ;
 static int	disp_worker(DISP *) ;
 static int	disp_getourthr(DISP *,DISP_THR **) ;
@@ -632,7 +632,7 @@ int textlook_lookup(TEXTLOOK *op,TEXTLOOK_CUR *curp,int qo,cchar **qsp)
 	                    }
 #endif /* CF_DEBUGS */
 
-	                    rs = textlook_lookparallel(op,curp,qo,&sk,hkeya) ;
+	                    rs = textlook_lookuper(op,curp,qo,&sk,hkeya) ;
 	                    c = rs ;
 
 /* sort the secondary tags */
@@ -641,7 +641,7 @@ int textlook_lookup(TEXTLOOK *op,TEXTLOOK_CUR *curp,int qo,cchar **qsp)
 	                        curp->ntags = c ;
 	                        if (c > 1) {
 	                            rtags_sort(&curp->tags,NULL) ;
-				}
+	                        }
 	                    }
 
 	                } /* end if (vecstr_getvec) */
@@ -855,18 +855,18 @@ static int textlook_indclose(TEXTLOOK *op)
 
 /* does this primary tag have the query keys? */
 static int textlook_havekeys(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
-SEARCHKEYS *skp)
+		SEARCHKEYS *skp)
 {
-	pthread_t	tid ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		f = FALSE ;
 
-	uptself(&tid) ;
-
 #if	CF_DEBUGS
-	debugprintf("textlook_havekeys: tid=%u tag recoff=%u reclen=%u \n",
+	{
+	    pthread_t	tid = pthread_self() ;
+	    debugprintf("textlook_havekeys: tid=%u tag recoff=%u reclen=%u\n",
 	    tid,tagp->recoff,tagp->reclen) ;
+	}
 #endif
 
 	if (tagp->reclen > 0) {
@@ -909,7 +909,10 @@ SEARCHKEYS *skp)
 	} /* end if (positive) */
 
 #if	CF_DEBUGS
-	debugprintf("textlook_havekeys: tid=%u ret rs=%d f=%u\n",tid,rs,f) ;
+	{
+	    pthread_t	tid = pthread_self() ;
+	    debugprintf("textlook_havekeys: tid=%u ret rs=%d f=%u\n",tid,rs,f) ;
+	}
 #endif
 
 	return (rs >= 0) ? f : rs ;
@@ -1097,8 +1100,7 @@ int		sl ;
 
 #if	CF_DEBUGS
 	{
-	    pthread_t	tid ;
-	    uptself(&tid) ;
+	    pthread_t	tid = pthread_self() ;
 	    id = (uint) tid ;
 	}
 #endif
@@ -1209,7 +1211,7 @@ static int textlook_mkhkeys(TEXTLOOK *op,vecstr *hkp,SEARCHKEYS *skp)
 /* end subroutine (textlook_mkhkeys) */
 
 
-static int textlook_lookparallel(op,curp,qo,skp,hkeya)
+static int textlook_lookuper(op,curp,qo,skp,hkeya)
 TEXTLOOK	*op ;
 TEXTLOOK_CUR	*curp ;
 int		qo ;
@@ -1251,7 +1253,7 @@ const char	**hkeya ;
 	                    rs = disp_addwork(dop,&ttag) ;
 	                }
 	            } /* end while */
-		} /* end if (txtindex_lookup) */
+	        } /* end if (txtindex_lookup) */
 	        rs1 = txtindex_curend(&op->ind,&tcur) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (txtindex-cur) */
@@ -1266,12 +1268,12 @@ const char	**hkeya ;
 	}
 
 #if	CF_DEBUGS
-	debugprintf("textlook_lookparallel: ret rs=%d c=%u\n",rs,c) ;
+	debugprintf("textlook_lookuper: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (textlook_lookparallel) */
+/* end subroutine (textlook_lookuper) */
 
 
 static int textlook_checkdisp(TEXTLOOK *op,int qo,SEARCHKEYS *skp,RTAGS *rtp)
@@ -1298,7 +1300,7 @@ static int textlook_dispstart(TEXTLOOK *op,int qo,SEARCHKEYS *skp,RTAGS *rtp)
 	        void		*p ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
 	            DISP	*dop = p ;
-		    {
+	            {
 	                DISP_ARGS	a ;
 	                memset(&a,0,sizeof(DISP_ARGS)) ;
 	                a.op = op ;
@@ -1310,7 +1312,7 @@ static int textlook_dispstart(TEXTLOOK *op,int qo,SEARCHKEYS *skp,RTAGS *rtp)
 	                if ((rs = disp_start(dop,&a)) >= 0) {
 	                    op->disp = dop ;
 	                }
-		    } /* end block */
+	            } /* end block */
 	            if (rs < 0) uc_free(p) ;
 	        } /* end if (memory-allocation) */
 	    } /* end if (uptgetconcurrency) */
@@ -1395,9 +1397,9 @@ static int disp_start(DISP *dop,DISP_ARGS *dap)
 	if ((rs = ptm_create(&dop->m,NULL)) >= 0) {
 	    if ((rs = ptc_create(&dop->cond,NULL)) >= 0) {
 	        if ((rs = ptm_create(&dop->m,NULL)) >= 0) {
-		    const int	f_sh = FALSE ;
+	            const int	f_sh = FALSE ;
 	            if ((rs = psem_create(&dop->sem_wq,f_sh,0)) >= 0) {
-		        PSEM	*ws = &dop->sem_done ;
+	                PSEM	*ws = &dop->sem_done ;
 	                if ((rs = psem_create(ws,f_sh,0)) >= 0) {
 	                    dop->qlen = (dop->a.npar + qlen) ;
 	                    if ((rs = tagq_start(&dop->wq,dop->qlen)) >= 0) {
@@ -1418,11 +1420,11 @@ static int disp_start(DISP *dop,DISP_ARGS *dap)
 	        } /* end if */
 	        if (rs < 0)
 	            ptc_destroy(&dop->cond) ;
-	        } /* end if (ptc-create) */
+	    } /* end if (ptc-create) */
 	    if (rs < 0)
 	        ptm_destroy(&dop->m) ;
 	} /* end if (ptm-create) */
-    
+
 	return rs ;
 }
 /* end subroutine (disp_start) */
@@ -1450,7 +1452,7 @@ static int disp_starter(DISP *dop)
 	        if (rs < 0) break ;
 	    } /* end for */
 	    if (rs >= 0) {
-		rs = disp_readyset(dop) ;
+	        rs = disp_readyset(dop) ;
 	    }
 	    if (rs < 0) {
 	        const int	n = i ;
@@ -1480,7 +1482,7 @@ static int disp_finish(DISP *dop,int f_abort)
 
 	if (dop == NULL) return SR_FAULT ;
 
-	dop->f_done = TRUE ;		/* assumed to be aromic! */
+	dop->f_done = TRUE ;		/* assumed to be atomic! */
 	if (f_abort)
 	    dop->f_exit = TRUE ;	/* assumed to be atomic! */
 
@@ -1493,14 +1495,14 @@ static int disp_finish(DISP *dop,int f_abort)
 	    DISP_THR	*dtp ;
 	    pthread_t	tid ;
 	    for (i = 0 ; i < dop->nthr ; i += 1) {
-		dtp = (dop->threads+i) ;
-		if (dtp->f_active) {
-		    dtp->f_active = FALSE ;
+	        dtp = (dop->threads+i) ;
+	        if (dtp->f_active) {
+	            dtp->f_active = FALSE ;
 	            tid = dtp->tid ;
 	            rs1 = uptjoin(tid,NULL) ;
 	            if (rs >= 0) rs = rs1 ;
 	            if (rs >= 0) rs = dtp->rs ;
-		} /* end if (active) */
+	        } /* end if (active) */
 	    } /* end for */
 	    rs1 = uc_free(dop->threads) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -1544,16 +1546,17 @@ static int disp_addwork(DISP *dop,TXTINDEX_TAG *tagp)
 /* worker threads call this to set their "busy" status */
 static int disp_setstate(DISP *dop,DISP_THR *tip,int f)
 {
+	PTM		*mp = &dop->m ;
 	int		rs ;
 	int		rs1 ;
 	int		f_prev = FALSE ;
-	if ((rs = ptm_lock(&dop->m)) >= 0) {
+	if ((rs = ptm_lock(mp)) >= 0) {
 	    f_prev = tip->f_busy ;
 	    tip->f_busy = f ;
 	    if ((! f) && f_prev) {
 	        rs = psem_post(&dop->sem_done) ;
 	    }
-	    rs1 = ptm_unlock(&dop->m) ;
+	    rs1 = ptm_unlock(mp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if */
 
@@ -1567,11 +1570,6 @@ static int disp_nbusy(DISP *dop)
 {
 	int		rs = SR_OK ;
 	int		n = 0 ;
-
-#if	CF_DEBUGS
-	debugprintf("textlook/disp_nbusy: ent n=%u\n",dop->nthr) ;
-#endif
-
 	if (dop->threads != NULL) {
 	    DISP_THR	*dtp ;
 	    int		i ;
@@ -1580,35 +1578,24 @@ static int disp_nbusy(DISP *dop)
 	        if (dtp->f_busy) n += 1 ;
 	    }
 	}
-
-#if	CF_DEBUGS
-	debugprintf("textlook/disp_nbusy: ret rs=%d n=%u\n",rs,n) ;
-#endif
-
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutine (disp_nbusy) */
 
 
 /* manager thread calls this get get number of exited workers */
-static int disp_nexited(DISP *dop)
+static int disp_nexiting(DISP *dop)
 {
 	DISP_THR	*dtp = dop->threads ;
 	int		rs = SR_OK ;
 	int		i ;
 	int		n = 0 ;
-
 	for (i = 0 ; i < dop->nthr ; i += 1) {
-	    if (dtp[i].f_exited) n += 1 ;
+	    if (dtp[i].f_exiting) n += 1 ;
 	}
-
-#if	CF_DEBUGS
-	debugprintf("disp_nexited: ret rs=%d n=%d\n",rs,n) ;
-#endif
-
 	return (rs >= 0) ? n : rs ;
 }
-/* end subroutine (disp_nexited) */
+/* end subroutine (disp_nexiting) */
 
 
 /* main-thread calls this to wait for a parallel query to complete */
@@ -1632,7 +1619,6 @@ static int disp_waitdone(DISP *dop)
 
 	    if ((rs >= 0) && (i > 0)) {
 	        rs = psem_wait(&dop->sem_done) ;
-	        if ((rs == SR_AGAIN) || (rs == SR_INTR)) rs = SR_OK ;
 	    }
 
 	    if ((rs >= 0) && (! f_empty)) {
@@ -1650,7 +1636,7 @@ static int disp_waitdone(DISP *dop)
 	    f_cond = (f_empty && f_notbusy) ;
 
 	    if ((rs >= 0) && (! f_cond)) {
-	        rs = disp_nexited(dop) ;
+	        rs = disp_nexiting(dop) ;
 	        nexited = rs ;
 	        f_allexited = (nexited == dop->nthr) ;
 #if	CF_DEBUGS
@@ -1683,73 +1669,67 @@ static int disp_waitdone(DISP *dop)
 static int disp_worker(DISP *dop)
 {
 	DISP_THR	*dtp ;
-	pthread_t	tid ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
-	uptself(&tid) ;
 #if	CF_DEBUGS
-	debugprintf("procquery/worker: ent tid=%u\n",tid) ;
+	{
+	    pthread_t	tid = pthread_self() ;
+	    debugprintf("procquery/worker: ent tid=%u\n",tid) ;
+	}
 #endif
 	if ((rs = disp_getourthr(dop,&dtp)) >= 0) {
-	    RTAGS_TAG		rt ;
-	    TXTINDEX_TAG	ttag ;
 	    TEXTLOOK		*op = dop->a.op ;
 	    SEARCHKEYS		*skp ;
 	    RTAGS		*rtp ;
 	    int			qo ;
 
 	    while ((rs >= 0) && (! dop->f_exit)) {
-		if ((rs = psem_wait(&dop->sem_wq)) >= 0) {
+	        if ((rs = psem_wait(&dop->sem_wq)) >= 0) {
 	            if (dop->f_exit) break ;
 
 	            if ((rs = disp_setstate(dop,dtp,TRUE)) >= 0) {
+	    		TXTINDEX_TAG	qv ;
 
-	                while ((rs >= 0) && (! dop->f_exit)) {
+	                while ((rs = tagq_rem(&dop->wq,&qv)) > 0) {
 
-	                    rs1 = tagq_rem(&dop->wq,&ttag) ;
-	                    if (rs1 == SR_NOTFOUND) break ;
-	                    rs = rs1 ;
-	                    if (rs < 0) break ;
-
-	                    qo = dop->a.qo ;/* new for each work cycle */
-	                    skp = dop->a.skp ; /* new for each work cycle */
-	                    rtp = dop->a.rtp ; /* new for each work cycle */
+	                    qo = dop->a.qo ; /* renew */
+	                    skp = dop->a.skp ; /* renew */
+	                    rtp = dop->a.rtp ; /* renew */
 
 #if	CF_DEBUGS
-	                    debugprintf("procquery/worker: tid=%u fname=%s\n",
-	                        tid,ttag.fname) ;
+			    {
+			    pthread_t	tid = pthread_self() ;
+	                    debugprintf("procquery/worker: "
+	                        "tid=%u fname=%s\n", tid,qv.fname) ;
+			    }
 #endif
 
 #if	CF_TESTERROR && CF_DEBUGS
-	                    if (strstr(ttag.fname,"belgium") != NULL)
+	                    if (strstr(qv.fname,"belgium") != NULL)
 	                        rs = SR_BADFMT ;
 #endif
 
-	                    if ((rs = textlook_havekeys(op,&ttag,qo,skp)) > 0) {
+	                    if ((rs = textlook_havekeys(op,&qv,qo,skp)) >= 0) {
+	    			RTAGS_TAG	rt ;
 	                        c += 1 ;
 	                        rt.hash = 0 ;
-	                        rt.recoff = ttag.recoff ;
-	                        rt.reclen = ttag.reclen ;
+	                        rt.recoff = qv.recoff ;
+	                        rt.reclen = qv.reclen ;
 	                        rt.fname[0] = '\0' ;
-	                        if (ttag.fname[0] != '\0') {
-	                            strwcpy(rt.fname,ttag.fname,MAXPATHLEN) ;
+	                        if (qv.fname[0] != '\0') {
+	                            mkpath1(rt.fname,qv.fname) ;
 	                        }
 	                        rs = rtags_add(rtp,&rt) ;
 	                    } /* end if (found a key) */
 
 	                } /* end while (work) */
 
-	                if (rs >= 0) {
-	                    rs = disp_setstate(dop,dtp,FALSE) ;
-	                }
-
+	                rs1 = disp_setstate(dop,dtp,FALSE) ;
+	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (worker was busy) */
 
-	        } else if ((rs == SR_AGAIN) || (rs == SR_INTR)) {
-		    rs = SR_OK ;
-	            if (dop->f_exit) break ;
-		}
+	        } /* end if (psem_wait) */
 	        if (dop->f_done) break ;
 	    } /* end while (waiting) */
 
@@ -1758,15 +1738,22 @@ static int disp_worker(DISP *dop)
 	    }
 
 #if	CF_DEBUGS
+	    {
+	    pthread_t	tid = pthread_self() ;
 	    debugprintf("procquery/worker: tid=%u ret rs=%d c=%u\n",
 	        tid,rs,c) ;
+	    }
 #endif
 
 	    dtp->rs = rs ;
-	    dtp->f_exited = TRUE ;
+	    dtp->f_exiting = TRUE ;
 	} /* end if (disp_getourthr) */
 #if	CF_DEBUGN
-	nprintf(NDEBFNAME,"textlook/worker: ret tid=%u rs=%d c=%u\n",tid,rs,c) ;
+	{
+	    pthread_t	tid = pthread_self() ;
+	    nprintf(NDEBFNAME,"textlook/worker: ret tid=%u rs=%d c=%u\n",
+		tid,rs,c) ;
+	}
 #endif
 	return (rs >= 0) ? c : rs ;
 }
@@ -1775,13 +1762,12 @@ static int disp_worker(DISP *dop)
 
 static int disp_getourthr(DISP *dop,DISP_THR **rpp)
 {
-	pthread_t	tid ;
 	int		rs ;
 	int		i = 0 ;
 	int		f = FALSE ;
-	uptself(&tid) ;
 	if ((rs = disp_readywait(dop)) >= 0) {
 	    DISP_THR	*dtp ;
+	    pthread_t	tid = pthread_self() ;
 	    for (i = 0 ; i < dop->nthr ; i += 1) {
 	        dtp = (dop->threads+i) ;
 	        f = uptequal(dtp->tid,tid) ;
@@ -1801,14 +1787,15 @@ static int disp_getourthr(DISP *dop,DISP_THR **rpp)
 /* main-thread calls this to indicate sub-threads can read completed object */
 static int disp_readyset(DISP *dop)
 {
+	PTM		*mp = &dop->m ;
 	int		rs ;
 	int		rs1 ;
-	if ((rs = ptm_lock(&dop->m)) >= 0) {
+	if ((rs = ptm_lock(mp)) >= 0) {
 	    {
 	        dop->f_ready = TRUE ;
 	        rs = ptc_broadcast(&dop->cond) ; /* 0-bit semaphore */
 	    }
-	    rs1 = ptm_unlock(&dop->m) ;
+	    rs1 = ptm_unlock(mp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
 	return rs ;
@@ -1819,14 +1806,15 @@ static int disp_readyset(DISP *dop)
 /* sub-threads call this to wait until object is ready */
 static int disp_readywait(DISP *dop)
 {
+	PTM		*mp = &dop->m ;
 	int		rs ;
 	int		rs1 ;
-	if ((rs = ptm_lock(&dop->m)) >= 0) {
+	if ((rs = ptm_lock(mp)) >= 0) {
 	    while ((! dop->f_ready) && (! dop->f_exit)) {
-	        rs = ptc_wait(&dop->cond,&dop->m) ;
-		if (rs < 0) break ;
+	        rs = ptc_wait(&dop->cond,mp) ;
+	        if (rs < 0) break ;
 	    } /* end while */
-	    rs1 = ptm_unlock(&dop->m) ;
+	    rs1 = ptm_unlock(mp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
 	return rs ;
@@ -1900,10 +1888,7 @@ static int tagq_ins(TAGQ *tqp,TXTINDEX_TAG *tagp)
 	    ttp->reclen = tagp->reclen ;
 	    strwcpy(ttp->fname,tagp->fname,MAXPATHLEN) ;
 
-	    rs = psem_wait(&tqp->wsem) ;
-	    if (rs == SR_INTR) rs = SR_OK ;
-
-	    if (rs >= 0) {
+	    if ((rs = psem_wait(&tqp->wsem)) >= 0) {
 	        rs = ciq_ins(&tqp->q,ttp) ;
 	        rc = rs ;
 	    }
@@ -1927,17 +1912,14 @@ static int tagq_rem(TAGQ *tqp,TXTINDEX_TAG *tagp)
 #endif
 
 	if ((rs = ciq_rem(&tqp->q,&ttp)) >= 0) {
-	    rc = rs ;
-
 	    tagp->recoff = ttp->recoff ;
 	    tagp->reclen = ttp->reclen ;
-	    strwcpy(tagp->fname,ttp->fname,MAXPATHLEN) ;
-
+	    rc = strwcpy(tagp->fname,ttp->fname,MAXPATHLEN) - tagp->fname ;
 	    uc_free(ttp) ;
-
 	    rs = psem_post(&tqp->wsem) ;
-
-	} /* end if */
+	} else if (rs == SR_NOTFOUND) {
+	    rs = SR_OK ;
+	} /* end if (ciq_rem) */
 
 #if	CF_DEBUGS
 	debugprintf("tagq_rem: ret rs=%d rc=%d\n",rs,rc) ;

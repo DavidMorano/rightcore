@@ -240,11 +240,12 @@ struct disp_head {
 	DISP_ARGS	a ;
 	FSI		wq ;		/* work queue */
 	PSEM		wq_sem ;	/* signal-semaphore for workers */
-	PTM		om ;		/* output mutex */
+	PTM		m ;		/* object */
 	PTC		cond ;		/* condition variable */
 	volatile int	f_exit ;	/* signal force exit */
 	volatile int	f_done ;	/* signal end of new work */
 	volatile int	f_wakeup ;	/* wait flag */
+	volatile int	f_ready ;
 	int		nthr ;		/* number of threads */
 	int		tasks ;		/* count of completed tasks */
 } ;
@@ -322,12 +323,14 @@ static int	disp_starter(DISP *) ;
 static int	disp_waiting(DISP *) ;
 static int	disp_addwork(DISP *,cchar *,int) ;
 static int	disp_worker(DISP *) ;
-static int	disp_signalled(DISP *) ;
 static int	disp_exiting(DISP *) ;
 static int	disp_allexiting(DISP *) ;
 static int	disp_notready(DISP *,int *) ;
 static int	disp_taskdone(DISP *) ;
 static int	disp_finish(DISP *,int) ;
+static int	disp_getourthr(DISP *,DISP_THR **) ;
+static int	disp_readyset(DISP *) ;
+static int	disp_readywait(DISP *) ;
 
 #if	CF_DISPABORT
 static int	disp_abort(DISP *) ;
@@ -2530,7 +2533,7 @@ static int disp_start(DISP *dop,DISP_ARGS *wap)
 
 	if ((rs = fsi_start(&dop->wq)) >= 0) {
 	    if ((rs = psem_create(&dop->wq_sem,FALSE,0)) >= 0) {
-	        if ((rs = ptm_create(&dop->om,NULL)) >= 0) {
+	        if ((rs = ptm_create(&dop->m,NULL)) >= 0) {
 	            if ((rs = ptc_create(&dop->cond,NULL)) >= 0) {
 	                const int	size = (dop->nthr * sizeof(DISP_THR)) ;
 	                void		*p ;
@@ -2547,8 +2550,8 @@ static int disp_start(DISP *dop,DISP_ARGS *wap)
 	                    ptc_destroy(&dop->cond) ;
 	            } /* end if (ptc_create) */
 	            if (rs < 0)
-	                ptm_destroy(&dop->om) ;
-	        }
+	                ptm_destroy(&dop->m) ;
+	        } /* end if (ptm_create) */
 	        if (rs < 0)
 	            psem_destroy(&dop->wq_sem) ;
 	    } /* end if (psem_create) */
@@ -2592,6 +2595,9 @@ static int disp_starter(DISP *dop)
 		i,rs,tid) ;
 #endif
 	} /* end for */
+	    if (rs >= 0) {
+		rs = disp_readyset(dop) ;
+	    }
 
 	if (rs < 0) {
 	    int		n = i ;
@@ -2631,9 +2637,9 @@ static int disp_finish(DISP *dop,int f_abort)
 	    debugprintf("b_makesafe/disp_finish: ent f_abort=%u\n",f_abort) ;
 #endif
 
+	dop->f_done = TRUE ;		/* exit when no more work */
 	if (f_abort) dop->f_exit = TRUE ;
 
-	dop->f_done = TRUE ;		/* exit when no more work */
 	for (i = 0 ; i < dop->nthr ; i += 1) {
 	    rs1 = psem_post(&dop->wq_sem) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -2677,7 +2683,7 @@ static int disp_finish(DISP *dop,int f_abort)
 	rs1 = ptc_destroy(&dop->cond) ;
 	if (rs >= 0) rs = rs1 ;
 
-	rs1 = ptm_destroy(&dop->om) ;
+	rs1 = ptm_destroy(&dop->m) ;
 	if (rs >= 0) rs = rs1 ;
 
 	rs1 = psem_destroy(&dop->wq_sem) ;
@@ -2720,13 +2726,12 @@ static int disp_worker(DISP *dop)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    pthread_t	tid ;
-	    uptself(&tid) ;
+	    pthread_t	tid = pthread_self() ;
 	    debugprintf("mkkey/worker: ent tid=%u\n",tid) ;
 	}
 #endif
 
-	while ((rs = disp_signalled(dop)) >= 0) {
+	while ((rs = psem_wait(&dop->wq_sem)) >= 0) {
 	    if (dop->f_exit) break ;
 
 	    if ((rs = fsi_remove(&dop->wq,rbuf,rlen)) >= 0) {
@@ -2744,8 +2749,7 @@ static int disp_worker(DISP *dop)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    pthread_t	tid ;
-	    uptself(&tid) ;
+	    pthread_t	tid = pthread_self() ;
 	    debugprintf("mkkey/worker: tid=%u ret rs=%d c=%u\n",tid,rs,c) ;
 	}
 #endif
@@ -2758,29 +2762,19 @@ static int disp_worker(DISP *dop)
 /* end subroutine (disp_worker) */
 
 
-static int disp_signalled(DISP *dop)
-{
-	int		rs ;
-	while ((rs = psem_wait(&dop->wq_sem)) < 0) {
-	    if ((rs != SR_AGAIN) && (rs != SR_INTR)) break ;
-	} /* end while */
-	return rs ;
-}
-/* end subroutine (disp_signalled) */
-
-
 /* worker thread calls this to register a task completion */
 static int disp_taskdone(DISP *dop)
 {
+	PTM		*mp = &dop->m ;
 	int		rs ;
 	int		rs1 ;
-	if ((rs = ptm_lock(&dop->om)) >= 0) {
+	if ((rs = ptm_lock(mp)) >= 0) {
 	    dop->tasks += 1 ;
 	    if (! dop->f_wakeup) {
 	        dop->f_wakeup = TRUE ;
 	        rs = ptc_signal(&dop->cond) ;
 	    }
-	    rs1 = ptm_unlock(&dop->om) ;
+	    rs1 = ptm_unlock(mp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
 	return rs ;
@@ -2790,20 +2784,15 @@ static int disp_taskdone(DISP *dop)
 
 static int disp_exiting(DISP *dop)
 {
-	DISP_THR	*threads = dop->threads ;
-	pthread_t	tid ;
-	int		rs = SR_OK ;
-	int		i ;
-	int		f = FALSE ;
-	uptself(&tid) ;
-	for (i = 0 ; i < dop->nthr ; i += 1) {
-	    f = uptequal(threads[i].tid,tid) ;
-	    if (f) break ;
-	}
-	if (f) {
-	    threads[i].f_exiting = TRUE ;
-	}
-	return rs ;
+	DISP_THR	*dtp ;
+	int		rs ;
+	int		i = 0 ;
+	if ((rs = disp_getourthr(dop,&dtp)) >= 0) {
+	    i = rs ;
+	    dtp->f_exiting = TRUE ;
+	    rs = ptc_signal(&dop->cond) ;
+	} /* end if (disp_getourthr) */
+	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (disp_exiting) */
 
@@ -2825,16 +2814,17 @@ static int disp_allexiting(DISP *dop)
 /* |main| calls this to intermittently wait for worker completion */
 static int disp_waiting(DISP *dop)
 {
+	PTM		*mp = &dop->m ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
-	if ((rs = ptm_lock(&dop->om)) >= 0) {
+	if ((rs = ptm_lock(mp)) >= 0) {
 	    while ((rs = disp_notready(dop,&c)) > 0) {
-	        rs = ptc_wait(&dop->cond,&dop->om) ;
+	        rs = ptc_wait(&dop->cond,mp) ;
 	        if (rs < 0) break ;
 	    } /* end while */
 	    dop->f_wakeup = FALSE ;
-	    rs1 = ptm_unlock(&dop->om) ;
+	    rs1 = ptm_unlock(mp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
 #if	CF_DEBUGS
@@ -2863,7 +2853,7 @@ static int disp_notready(DISP *dop,int *cp)
 	    if (! dop->f_wakeup) {
 	        if ((rs = disp_allexiting(dop)) == 0) {
 #if	CF_DEBUGS
-	    debugprintf("b_makesafe/disp_notready: not-allexiting\n") ;
+	            debugprintf("b_makesafe/disp_notready: not-allexiting\n") ;
 #endif
 		    f = TRUE ;
 		}
@@ -2876,6 +2866,68 @@ static int disp_notready(DISP *dop,int *cp)
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (disp_notready) */
+
+
+static int disp_getourthr(DISP *dop,DISP_THR **rpp)
+{
+	int		rs ;
+	int		i = 0 ;
+	if ((rs = disp_readywait(dop)) >= 0) {
+	    DISP_THR	*dtp ;
+	    pthread_t	tid = pthread_self() ;
+	    int		f = FALSE ;
+	    for (i = 0 ; i < dop->nthr ; i += 1) {
+	        dtp = (dop->threads+i) ;
+	        f = uptequal(dtp->tid,tid) ;
+	        if (f) break ;
+	    } /* end for */
+	    if (f) {
+	        if (rpp != NULL) *rpp = dtp ;
+	    } else {
+	        rs = SR_BUGCHECK ;
+	    }
+	} /* end if (disp_readywait) */
+	return (rs >= 0) ? i : rs ;
+}
+/* end subroutine (disp_getourthr) */
+
+
+/* main-thread calls this to indicate sub-threads can read completed object */
+static int disp_readyset(DISP *dop)
+{
+	PTM		*mp = &dop->m ;
+	int		rs ;
+	int		rs1 ;
+	if ((rs = ptm_lock(mp)) >= 0) {
+	    {
+	        dop->f_ready = TRUE ;
+	        rs = ptc_broadcast(&dop->cond) ; /* 0-bit semaphore */
+	    }
+	    rs1 = ptm_unlock(mp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
+	return rs ;
+}
+/* end subroutine (disp_readyset) */
+
+
+/* sub-threads call this to wait until object is ready */
+static int disp_readywait(DISP *dop)
+{
+	PTM		*mp = &dop->m ;
+	int		rs ;
+	int		rs1 ;
+	if ((rs = ptm_lock(mp)) >= 0) {
+	    while ((! dop->f_ready) && (! dop->f_exit)) {
+	        rs = ptc_wait(&dop->cond,mp) ;
+		if (rs < 0) break ;
+	    } /* end while */
+	    rs1 = ptm_unlock(mp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
+	return rs ;
+}
+/* end subroutine (disp_readywait) */
 
 
 #if	CF_DISPABORT

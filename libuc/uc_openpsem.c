@@ -70,12 +70,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int uc_openpsem(name,oflag,operm,count,rpp)
-const char	name[] ;
-int		oflag ;
-mode_t		operm ;
-uint		count ;
-PSEM		**rpp ;
+int uc_openpsem(cchar *name,int oflag,mode_t operm,uint count,PSEM **rpp)
 {
 	int		rs ;
 	int		to_mfile = TO_MFILE ;

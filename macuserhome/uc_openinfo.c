@@ -4,7 +4,7 @@
 /* higher-level "open" /w timeout */
 
 
-#define	CF_DEBUGS	1		/* compile-time debug print-outs */
+#define	CF_DEBUGS	0		/* compile-time debug print-outs */
 #define	CF_CDPATH	0		/* allow cd-paths */
 #define	CF_ISMORE	0		/* compile in |isMorePossible()| */
 

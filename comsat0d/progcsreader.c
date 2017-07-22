@@ -190,7 +190,7 @@ int progcsreader(PROGINFO *pip)
 
 #if	CF_DEBUGN
 	nprintf(NDF,"progcsreader: f_issocket=%u fd_msg=%d\n",
-	        pip->f.issocket,pip->fd_msg) ;
+	    pip->f.issocket,pip->fd_msg) ;
 #endif
 
 #if	CF_DEBUG
@@ -203,18 +203,18 @@ int progcsreader(PROGINFO *pip)
 
 	if ((rs = ptm_create(&pip->efm,NULL)) >= 0) {
 	    if ((rs = progloglock_begin(pip)) >= 0) {
-		if ((rs = termnote_open(&pip->tn,pip->pr)) >= 0) {
-		    if ((rs = ptm_create(&pip->tmutex,NULL)) >= 0) {
-			{
-			    rs = procreaders(pip) ;
-		        }
-			ptm_destroy(&pip->tmutex) ;
-		    } /* end if (ptm) */
-		    rs1 = termnote_close(&pip->tn) ;
-		    if (rs >= 0) rs = rs1 ;
-		} /* end if (termnote) */
-		rs1 = progloglock_end(pip) ;
-		if (rs >= 0) rs = rs1 ;
+	        if ((rs = termnote_open(&pip->tn,pip->pr)) >= 0) {
+	            if ((rs = ptm_create(&pip->tmutex,NULL)) >= 0) {
+	                {
+	                    rs = procreaders(pip) ;
+	                }
+	                ptm_destroy(&pip->tmutex) ;
+	            } /* end if (ptm) */
+	            rs1 = termnote_close(&pip->tn) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (termnote) */
+	        rs1 = progloglock_end(pip) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (progloglock) */
 	    rs1 = ptm_destroy(&pip->efm) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -236,16 +236,16 @@ int progeprintf(PROGINFO *pip,const char *fmt,...)
 
 	if (pip->debuglevel > 0) {
 	    if (ptm_lock(&pip->efm) >= 0) {
-		va_list	ap ;
+	        va_list	ap ;
 
 #if	CF_DEBUG
-		if (DEBUGLEVEL(5))
+	        if (DEBUGLEVEL(5))
 	            debugprintf("progcsreader/progeprintf: fmt=>%s<\n",fmt) ;
 #endif /* CF_DEBUG */
 
-		va_begin(ap,fmt) ;
+	        va_begin(ap,fmt) ;
 	        rs = bvprintf(pip->efp,fmt,ap) ;
-		va_end(ap) ;
+	        va_end(ap) ;
 
 	        ptm_unlock(&pip->efm) ;
 	    } /* end if (error-file lock) */
@@ -304,13 +304,13 @@ static int subinfo_start(SUBINFO *sip,PROGINFO *pip)
 	if ((rs = ids_load(&sip->id)) >= 0) {
 	    cchar	*pr = pip->pr ;
 	    if ((rs = hdrdecode_start(&sip->d,pr)) >= 0) {
-		rs = ptm_create(&sip->dm,NULL) ;
-		if (rs < 0) {
-	    	    hdrdecode_finish(&sip->d) ;
-		}
+	        rs = ptm_create(&sip->dm,NULL) ;
+	        if (rs < 0) {
+	            hdrdecode_finish(&sip->d) ;
+	        }
 	    } /* end if (hdrdecode_start) */
 	    if (rs < 0) {
-		ids_release(&sip->id) ;
+	        ids_release(&sip->id) ;
 	    }
 	} /* end if (ids_load) */
 
@@ -413,9 +413,9 @@ static int subinfo_reader(SUBINFO *sip,DISP *dop)
 	        int	opts = FM_TIMED ;
 	        rs1 = uc_recve(fd_msg,msgbuf,msglen,0,10,opts) ;
 	        debugprintf("progcsreader/_reader: 3 pn=%s\n",
-		    pip->progname) ;
+	            pip->progname) ;
 	        debugprintf("progcsreader/_reader: PRE uc_recve() rs=%d\n",
-			rs1) ;
+	            rs1) ;
 	        if (rs1 >= 0) {
 	            debugprintf("progcsreader/_reader: PRE m=%>%t<\n",
 	                msgbuf,strlinelen(msgbuf,rs1,30)) ;
@@ -423,101 +423,94 @@ static int subinfo_reader(SUBINFO *sip,DISP *dop)
 	    }
 #endif /* CF_DEBUG */
 
-	    rs = u_poll(fds,nfds,pollwait) ;
-	    pip->daytime = time(NULL) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4)) {
-	    debugprintf("progcsreader/_reader: 4 pn=%s\n",pip->progname) ;
-	        debugprintf("progcsreader/_reader: u_poll() rs=%d\n",rs) ;
-	    }
-#endif
-
-	    if (rs > 0) {
-		int	i ;
+	    if ((rs = u_poll(fds,nfds,pollwait)) > 0) {
+	        int	i ;
+	        pip->daytime = time(NULL) ;
 	        for (i = 0 ; (rs >= 0) && (i < nfds) ; i += 1) {
 	            const int	re = fds[i].revents ;
-		    const int	fd = fds[i].fd ;
+	            const int	fd = fds[i].fd ;
 	            int		ml = 0 ;
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4)) {
-	            char	ebuf[EBUFLEN+1] ;
-	    	    debugprintf("progcsreader/_reader: 5 pn=%s\n",
-			pip->progname) ;
-	            debugprintf("progcsreader/_reader: poll re=%s\n",
-	                d_reventstr(re,ebuf,EBUFLEN)) ;
-	        }
+	            if (DEBUGLEVEL(4)) {
+	                char	ebuf[EBUFLEN+1] ;
+	                debugprintf("progcsreader/_reader: 5 pn=%s\n",
+	                    pip->progname) ;
+	                debugprintf("progcsreader/_reader: poll re=%s\n",
+	                    d_reventstr(re,ebuf,EBUFLEN)) ;
+	            }
 #endif /* CF_DEBUG */
 
-	        if ((re & POLLIN) || (re & POLLPRI)) {
+	            if ((re & POLLIN) || (re & POLLPRI)) {
 
-	            msgbuf[0] = '\0' ;
-	            if (pip->f.issocket) {
-	                rs = uc_recve(fd,msgbuf,msglen,0,to,opts) ;
-	                ml = rs ;
-	            } else {
-	                rs = uc_reade(fd,msgbuf,msglen,to,opts) ;
-	                ml = rs ;
-	            }
-
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	    		debugprintf("progcsreader/_reader: 6 pn=%s\n",
-			pip->progname) ;
-#endif
-
-	            if (pip->debuglevel > 0) {
-	                progeprintf(pip,"%s: recv(%d)\n",
-	                    pip->progname,rs) ;
-		    }
-
-	            if ((rs >= 0) && (ml >= 0)) {
-
-	                if (ml && (msgbuf[ml-1] == '\n')) ml -= 1 ;
-	                while (ml && CHAR_ISWHITE(msgbuf[ml-1])) ml -= 1 ;
+	                msgbuf[0] = '\0' ;
+	                if (pip->f.issocket) {
+	                    rs = uc_recve(fd,msgbuf,msglen,0,to,opts) ;
+	                    ml = rs ;
+	                } else {
+	                    rs = uc_reade(fd,msgbuf,msglen,to,opts) ;
+	                    ml = rs ;
+	                }
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(4)) {
-	    		debugprintf("progcsreader/_reader: 7 pn=%s\n",
-			pip->progname) ;
-	                    debugprintf("progcsreader/_reader: m=>%t<\n",
-				msgbuf,ml) ;
-			}
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("progcsreader/_reader: 6 pn=%s\n",
+	                        pip->progname) ;
 #endif
 
 	                if (pip->debuglevel > 0) {
-	                    progeprintf(pip,"%s: msg=>%t<\n",
-	                        pn,msgbuf,strlinelen(msgbuf,ml,40)) ;
-			}
+	                    progeprintf(pip,"%s: recv(%d)\n",
+	                        pip->progname,rs) ;
+	                }
 
-	                rs = subinfo_procmsg(sip,dop,msgbuf,ml) ;
+	                if ((rs >= 0) && (ml >= 0)) {
+
+	                    if (ml && (msgbuf[ml-1] == '\n')) ml -= 1 ;
+	                    while (ml && CHAR_ISWHITE(msgbuf[ml-1])) ml -= 1 ;
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(4)) {
-	    			debugprintf("progcsreader/_reader: 8 pn=%s\n",
-					pip->progname) ;
-	    			debugprintf("progcsreader/_reader: "
-					"subinfo_procmsg() rs=%d\n", rs) ;
-			}
+	                    if (DEBUGLEVEL(4)) {
+	                        debugprintf("progcsreader/_reader: 7 pn=%s\n",
+	                            pip->progname) ;
+	                        debugprintf("progcsreader/_reader: m=>%t<\n",
+	                            msgbuf,ml) ;
+	                    }
 #endif
 
-	            } /* end if (had non-zero-length message) */
+	                    if (pip->debuglevel > 0) {
+	                        progeprintf(pip,"%s: msg=>%t<\n",
+	                            pn,msgbuf,strlinelen(msgbuf,ml,40)) ;
+	                    }
 
-	            if (rs == SR_TIMEDOUT) rs = SR_OK ;
+	                    rs = subinfo_procmsg(sip,dop,msgbuf,ml) ;
 
-	        } else if (re & POLLNVAL) {
-	            rs = SR_NOTOPEN ;
-	        } else if (re & POLLERR) {
-	            rs = SR_POLLERR ;
-	        } else if (re & POLLHUP) {
-		    if (ti_hangup == 0) ti_hangup = pip->daytime ;
-		    msleep(200) ; /* wait for remaining data */
-	        } /* end if (poll-events) */
+#if	CF_DEBUG
+	                    if (DEBUGLEVEL(4)) {
+	                        debugprintf("progcsreader/_reader: 8 pn=%s\n",
+	                            pip->progname) ;
+	                        debugprintf("progcsreader/_reader: "
+	                            "subinfo_procmsg() rs=%d\n", rs) ;
+	                    }
+#endif
 
-		} /* end for */
-	    } else if (rs == SR_INTR) 
-		rs = SR_OK ;
+	                } /* end if (had non-zero-length message) */
+
+	                if (rs == SR_TIMEDOUT) rs = SR_OK ;
+
+	            } else if (re & POLLNVAL) {
+	                rs = SR_NOTOPEN ;
+	            } else if (re & POLLERR) {
+	                rs = SR_POLLERR ;
+	            } else if (re & POLLHUP) {
+	                if (ti_hangup == 0) ti_hangup = pip->daytime ;
+	                msleep(200) ; /* wait for remaining data */
+	            } /* end if (poll-events) */
+
+	        } /* end for */
+	    } else if (rs == SR_INTR) {
+	        pip->daytime = time(NULL) ;
+	        rs = SR_OK ;
+	    }
 
 	    if ((rs >= 0) && (intrun > 0)) {
 	        if ((pip->daytime - ti_start) >= intrun) break ;
@@ -531,24 +524,24 @@ static int subinfo_reader(SUBINFO *sip,DISP *dop)
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
 	            debugprintf("progcsreader/_reader: "
-				"progloglock_maint()\n") ;
+	                "progloglock_maint()\n") ;
 #endif
-		progloglock_maint(pip) ;
+	        progloglock_maint(pip) ;
 	    }
 
 	    if ((rs >= 0) && ((pip->daytime - ti_termnote) >= intnote)) {
 	        ti_termnote = pip->daytime ;
-		if ((rs = ptm_lock(&pip->tmutex)) >= 0) {
+	        if ((rs = ptm_lock(&pip->tmutex)) >= 0) {
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
 	                debugprintf("progcsreader/_reader: "
-				"termnote_check()\n") ;
+	                    "termnote_check()\n") ;
 #endif
-		    rs = termnote_check(&pip->tn,pip->daytime) ;
+	            rs = termnote_check(&pip->tn,pip->daytime) ;
 
-	    	    ptm_unlock(&pip->tmutex) ;
-		} /* end if (mutex-lock) */
+	            ptm_unlock(&pip->tmutex) ;
+	        } /* end if (mutex-lock) */
 	    } /* end if (termnote_check) */
 
 	    if (rs >= 0) rs = progexit(pip) ;
@@ -580,10 +573,10 @@ static int subinfo_procmsg(SUBINFO *sip,DISP *dop,cchar mbuf[],int mlen)
 	        rs = disp_addwork(dop,mp,(tp-mp)) ;
 	        pip->c_processed += 1 ;
 
-		ml -= ((tp+1)-mp) ;
-		mp = (tp+1) ;
+	        ml -= ((tp+1)-mp) ;
+	        mp = (tp+1) ;
 
-		if (rs < 0) break ;
+	        if (rs < 0) break ;
 	    } /* end while */
 
 	    if ((rs >= 0) && (ml > 0)) {
@@ -611,7 +604,7 @@ static int disp_start(DISP *dop,PROGINFO *pip,SUBINFO *sip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("disp_start: pn=%s\n",pip->progname) ;
+	    debugprintf("disp_start: pn=%s\n",pip->progname) ;
 #endif
 
 /* determine amount of parallelism */
@@ -634,16 +627,16 @@ static int disp_start(DISP *dop,PROGINFO *pip,SUBINFO *sip)
 /* continue */
 
 	if (rs >= 0) {
-	if ((rs = fsi_start(&dop->wq)) >= 0) {
-	    if ((rs = psem_create(&dop->wq_sem,FALSE,0)) >= 0) {
-	        const int	size = sizeof(pthread_t) ;
-	        const int	vo = (VECOBJ_OREUSE) ;
-	        if ((rs = vecobj_start(&dop->tids,size,10,vo)) >= 0) {
-			pthread_t	tid, *tidp ;
-			workthr		w = (workthr) disp_worker ;
-			int		i ;
+	    if ((rs = fsi_start(&dop->wq)) >= 0) {
+	        if ((rs = psem_create(&dop->wq_sem,FALSE,0)) >= 0) {
+	            const int	size = sizeof(pthread_t) ;
+	            const int	vo = (VECOBJ_OREUSE) ;
+	            if ((rs = vecobj_start(&dop->tids,size,10,vo)) >= 0) {
+	                pthread_t	tid, *tidp ;
+	                workthr		w = (workthr) disp_worker ;
+	                int		i ;
 /* create threads to handle it */
-	                    for (i = 0 ; (rs >= 0) && (i < dop->n) ; i += 1) {
+	                for (i = 0 ; (rs >= 0) && (i < dop->n) ; i += 1) {
 	                    if ((rs = uptcreate(&tid,NULL,w,dop)) >= 0) {
 	                        rs = vecobj_add(&dop->tids,&tid) ;
 	                    }
@@ -653,24 +646,24 @@ static int disp_start(DISP *dop,PROGINFO *pip,SUBINFO *sip)
 	                    dop->f_exit = TRUE ;
 	                    for (i = 0 ; i < dop->n ; i += 1) {
 	                        psem_post(&dop->wq_sem) ;
-			    }
-			    i = 0 ;
-			    while (vecobj_get(&dop->tids,i,&tidp) >= 0) {
-				if (tidp != NULL) {
-	    			    uptjoin(*tidp,NULL) ;
-				}
-				i += 1 ;
-	    		    } /* end while */
-			} /* end if (failure) */
-		    if (rs < 0)
-		        vecobj_finish(&dop->tids) ;
-		} /* end if (vecobj) */
-		if (rs < 0)
-		    psem_destroy(&dop->wq_sem) ;
-	    } /* end if (ptm) */
-	    if (rs < 0)
-		fsi_finish(&dop->wq) ;
-	} /* end if (fsi) */
+	                    }
+	                    i = 0 ;
+	                    while (vecobj_get(&dop->tids,i,&tidp) >= 0) {
+	                        if (tidp != NULL) {
+	                            uptjoin(*tidp,NULL) ;
+	                        }
+	                        i += 1 ;
+	                    } /* end while */
+	                } /* end if (failure) */
+	                if (rs < 0)
+	                    vecobj_finish(&dop->tids) ;
+	            } /* end if (vecobj) */
+	            if (rs < 0)
+	                psem_destroy(&dop->wq_sem) ;
+	        } /* end if (ptm) */
+	        if (rs < 0)
+	            fsi_finish(&dop->wq) ;
+	    } /* end if (fsi) */
 	} /* end if (ok) */
 
 	return rs ;
@@ -699,8 +692,8 @@ static int disp_finish(DISP *dop,int f_abort)
 
 	for (i = 0 ; vecobj_get(&dop->tids,i,&tidp) >= 0 ; i += 1) {
 	    if (tidp != NULL) {
-		rs1 = uptjoin(*tidp,&trs) ;
-		if (rs >= 0) rs = rs1 ;
+	        rs1 = uptjoin(*tidp,&trs) ;
+	        if (rs >= 0) rs = rs1 ;
 	        if (trs > 0) pip->c_updated += trs ;
 	        if (rs >= 0) rs = trs ;
 	    }
@@ -745,8 +738,7 @@ static int disp_worker(DISP *dop)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	pthread_t	tid ;
-	uptself(&tid) ;
+	    pthread_t	tid = pthread_self() ;
 	    debugprintf("progcsreader/worker: starting tid=%u\n",tid) ;
 	    debugprintf("progcsreader/worker: pn=%s\n",pip->progname) ;
 	}
@@ -755,24 +747,23 @@ static int disp_worker(DISP *dop)
 	while ((rs >= 0) && (! dop->f_exit)) {
 	    if ((rs = psem_wait(&dop->wq_sem)) >= 0) {
 	        if ((rs = fsi_remove(&dop->wq,mbuf,mlen)) >= 0) {
-		    const int	ml = rs ;
-		    if (ml > 0) {
+	            const int	ml = rs ;
+	            if (ml > 0) {
 	                rs = progcsmsg(pip,mbuf,ml) ;
 	                if (rs > 0) c += 1 ;
 	            } /* end if (work to do) */
 	        } else if (rs == SR_NOTFOUND) {
-		    rs = SR_OK ;
+	            rs = SR_OK ;
 	            if (dop->f_done) break ;
-	        } 
-	    } else if ((rs == SR_AGAIN) || (rs == SR_INTR)) {
-		rs = SR_OK ;
+	        }
+	    } else if (rs == SR_AGAIN) {
+	        rs = SR_OK ;
 	    }
 	} /* end while (server loop) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	pthread_t	tid ;
-	uptself(&tid) ;
+	    pthread_t	tid = pthread_self() ;
 	    debugprintf("progcsreader/worker: tid=%u ret rs=%d c=%u\n",
 	        tid,rs,c) ;
 	}

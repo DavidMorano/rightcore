@@ -15,6 +15,7 @@
 
 
 #define	PSEM		sem_t
+#define	PSEM_NAMELEN	14
 
 
 #if	(! defined(PSEM_MASTER)) || (PSEM_MASTER == 0)

@@ -1375,7 +1375,8 @@ static int proclist(PROGINFO *pip,bfile *ofp,MAPSTRINT *nlp,cchar *dbfn)
 		    fmt = "T   ID %-12s %-12s %6s SN EX TIME\n" ;
 
 	            rs = bprintf(ofp,fmt,"USER","LINE","SID") ;
-		    fmt = "%1u %4t %-12t %-12t %6u %02d %2d %s\n" ;
+		    fmt = "%1u %4t %-12t %-12t %6u %2d %2d %s\n" ;
+
 	            while (rs >= 0) {
 		        int	f = TRUE ;
 	                rs1 = tmpx_enum(&ut,&ucur,up) ;

@@ -703,13 +703,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    break ;
 
 	                case argopt_lang:
-	                        if (argr > 0) {
+	                    if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                pip->eigenlang = argp ;
-	                        } else
+	                    } else
 	                            rs = SR_INVALID ;
 	                    break ;
 

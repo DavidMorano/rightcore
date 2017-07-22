@@ -171,7 +171,6 @@ static int	disp_starter(DISP *) ;
 static int	disp_addwork(DISP *,cchar *,int) ;
 static int	disp_finish(DISP *,int) ;
 static int	disp_worker(DISP *) ;
-static int	disp_signalled(DISP *) ;
 
 
 /* local variables */
@@ -615,21 +614,21 @@ static int disp_start(DISP *dop,DISP_ARGS *wap)
 
 	if ((rs = fsi_start(&dop->wq)) >= 0) {
 	    if ((rs = psem_create(&dop->wq_sem,FALSE,0)) >= 0) {
-		const int	size = (dop->nthr * sizeof(DISP_THR)) ;
-		void		*p ;
-		if ((rs = uc_malloc(size,&p)) >= 0) {
-		    dop->threads = p ;
-		    memset(p,0,size) ;
-		    if ((rs = ptm_create(&dop->om,NULL)) >= 0) {
+		if ((rs = ptm_create(&dop->om,NULL)) >= 0) {
+		    const int	size = (dop->nthr * sizeof(DISP_THR)) ;
+		    void	*p ;
+		    if ((rs = uc_malloc(size,&p)) >= 0) {
+		        dop->threads = p ;
+		        memset(p,0,size) ;
 			rs = disp_starter(dop) ;
-			if (rs < 0)
-			    ptm_destroy(&dop->om) ;
-		    }
-		    if (rs < 0) {
-			uc_free(dop->threads) ;
-			dop->threads = NULL ;
-		    }
-		} /* end if (m-a) */
+		        if (rs < 0) {
+			    uc_free(dop->threads) ;
+			    dop->threads = NULL ;
+			}
+		    } /* end if (m-a) */
+		    if (rs < 0)
+			ptm_destroy(&dop->om) ;
+		} /* end if (ptm_create) */
 		if (rs < 0)
 		    psem_destroy(&dop->wq_sem) ;
 	    } /* end if (psem_create) */
@@ -749,20 +748,19 @@ static int disp_worker(DISP *dop)
 	PROGINFO	*pip = dop->pip ;
 	DISP_ARGS	*wap = &dop->a ;
 	PTM		*omp = &dop->om ;
-	pthread_t	tid ;
 	const int	rlen = MAXPATHLEN ;
 	int		rs ;
 	int		c = 0 ;
 	char		rbuf[MAXPATHLEN + 1] ;
 
-	uptself(&tid) ;
-
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
+	if (DEBUGLEVEL(4)) {
+	    pthread_t	tid = pthread_self() ;
 	    debugprintf("progkey/worker: ent tid=%u\n",tid) ;
+	}
 #endif
 
-	while ((rs = disp_signalled(dop)) >= 0) {
+	while ((rs = psem_wait(&dop->wq_sem)) >= 0) {
 	    if (dop->f_exit) break ;
 
 	    if ((rs = fsi_remove(&dop->wq,rbuf,rlen)) >= 0) {
@@ -777,27 +775,18 @@ static int disp_worker(DISP *dop)
 	    } /* end if (work to do) */
 
 	    if (rs < 0) break ;
-	} /* end while */
+	} /* end while (server loop) */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
+	if (DEBUGLEVEL(4)) {
+	    pthread_t	tid = pthread_self() ;
 	    debugprintf("progkey/worker: ret tid=%u rs=%d c=%u\n",tid,rs,c) ;
+	}
 #endif
 
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (worker) */
-
-
-static int disp_signalled(DISP *dop)
-{
-	int		rs ;
-	while ((rs = psem_wait(&dop->wq_sem)) < 0) {
-	    if ((rs != SR_AGAIN) && (rs != SR_INTR)) break ;
-	} /* end while */
-	return rs ;
-}
-/* end subroutine (disp_signalled) */
 
 
 static int ereport(PROGINFO *pip,cchar *fname,int frs)
