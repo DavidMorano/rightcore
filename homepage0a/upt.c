@@ -36,7 +36,6 @@
 #include	<errno.h>
 
 #include	<vsystem.h>
-#include	<pta.h>
 #include	<localmisc.h>
 
 #include	"upt.h"
@@ -64,8 +63,8 @@ extern int	hasalldig(cchar *,int) ;
 /* local structures */
 
 struct ourarg {
-	void	*ap ;
-	int	(*start)(void *) ;
+	int		(*start)(void *) ;
+	void		*ap ;
 } ;
 
 

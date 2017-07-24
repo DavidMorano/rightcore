@@ -41,7 +41,7 @@ int hascdpath(cchar *sp,int sl)
 	int		f = FALSE ;
 
 	if (sl && (sp != NULL)) {
-	    int	ch = (sp[0] & UCHAR_MAX) ;
+	    int	ch = MKCHAR(sp[0]) ;
 	    f = (ch == ec) ;
 	}
 

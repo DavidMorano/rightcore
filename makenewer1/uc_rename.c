@@ -4,7 +4,7 @@
 /* translation layer interface for UNIX® equivalents */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
 /* revision history:
@@ -46,27 +46,29 @@ int uc_rename(cchar *ofname,cchar *nfname)
 	const int	elen = MAXPATHLEN ;
 	int		rs ;
 	int		size = 0 ;
+	int		rv = 0 ;
 	char		*bp ;
 
 	size += ((elen+1) * 2) ;
 	if ((rs = uc_libmalloc(size,&bp)) >= 0) {
+	    int		ol = -1 ;
 	    char	*obuf = bp + ((elen+1)*0) ;
 	    char	*nbuf = bp + ((elen+1)*1) ;
-	    if ((rs = mkexpandpath(obuf,ofname,-1)) > 0) {
-		ofname = obuf ;
-	    }
-	    if (rs >= 0) {
-	        if ((rs = mkexpandpath(nbuf,nfname,-1)) > 0) {
-		    nfname = nbuf ;
-	        }
-		if (rs >= 0) {
+	    if ((rs = mkexpandpath(obuf,ofname,-1)) >= 0) {
+		if (rs > 0) {
+		    ol = rs ;
+		    ofname = obuf ;
+		}
+	        if ((rs = mkexpandpath(nbuf,nfname,ol)) >= 0) {
+		    if (rs > 0) nfname = nbuf ;
 		    rs = u_rename(ofname,nfname) ;
+		    rv = rs ;
 		}
 	    } /* end if */
 	    uc_libfree(bp) ;
 	} /* end if (m-a) */
 
-	return rs ;
+	return (rs >= 0) ? rv : rs ;
 }
 /* end subroutine (uc_rename) */
 

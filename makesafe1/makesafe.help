@@ -1,9 +1,10 @@
 MAKESAFE
 
-This command will check all of the C language source files for all of the
-include files that they use. It will then check if any include file is newer
-than the corresponding C language object file if one exists. If any include file
-is newer than the object file, the object is removed.
+This command will checks the dependencies of a given object file to see if any
+of them or any of their dependencies are newer than the given object file.
+Normal language dependencies checked for object files are: C, C++, FORTRAN,
+YACC, and header files. If any dependent files , eithr directly or indirectly,
+dependent are newer than the given object file, the object file gets deleted.
 
 Synopsis:
 

@@ -18,6 +18,11 @@
 	This subroutine tests whether the file-name has the var-path prefix on
 	it.
 
+	A so-called "var-path" prefix looks like either one of the following:
+
+	%<string>/<comething>/<...>
+	/%<string>/<something>/...
+
 
 *******************************************************************************/
 
@@ -38,7 +43,11 @@ int hasvarpathprefix(cchar *sp,int sl)
 
 	if (sp != NULL) {
 	    f = f || (sl && (sp[0] == ec)) ;
-	    f = f || ((sl || (sl > 1)) && (sp[0] == '/') && (sp[1] == ec)) ;
+	    if (!f) {
+		f = TRUE ;
+	        f = f && ((sl < 0) || (sl > 1)) ;
+		f = f && (sp[0] == '/') && (sp[1] == ec) ;
+	    }
 	}
 
 	return f ;

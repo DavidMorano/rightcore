@@ -5,7 +5,6 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_CDPATH	0		/* allow cd-paths */
 #define	CF_ISMORE	0		/* compile in |isMorePossible()| */
 
 
@@ -129,42 +128,42 @@
 /* external subroutines */
 
 extern int	snopenflags(char *,int,int) ;
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	sncpy1w(char *,int,const char *,int) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath1w(char *,const char *,int) ;
-extern int	sfdirname(const char *,int,const char **) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	haslc(const char *,int) ;
-extern int	hascdpath(const char *,int) ;
-extern int	hasvarpathprefix(const char *,int) ;
-extern int	sichr(const char *,int,int) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	sncpy1w(char *,int,cchar *,int) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
+extern int	mkpath1w(char *,cchar *,int) ;
+extern int	sfdirname(cchar *,int,cchar **) ;
+extern int	matstr(cchar **,cchar *,int) ;
+extern int	haslc(cchar *,int) ;
+extern int	hascdpath(cchar *,int) ;
+extern int	hasvarpathprefix(cchar *,int) ;
+extern int	sichr(cchar *,int,int) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	getdomainname(char *,int) ;
-extern int	getuserhome(char *,int,const char *) ;
-extern int	mkpr(char *,int,const char *,const char *) ;
-extern int	mkuserpath(char *,const char *,const char *,int) ;
-extern int	mkvarpath(char *,const char *,int) ;
-extern int	mkcdpath(char *,const char *,int) ;
+extern int	getuserhome(char *,int,cchar *) ;
+extern int	mkpr(char *,int,cchar *,cchar *) ;
+extern int	mkuserpath(char *,cchar *,cchar *,int) ;
+extern int	mkvarpath(char *,cchar *,int) ;
+extern int	mkcdpath(char *,cchar *,int) ;
 extern int	isOneOf(const int *,int) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strwcpylc(char *,const char *,int) ;
-extern char	*strwcpyuc(char *,const char *,int) ;
-extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*strdcpy1(char *,int,const char *) ;
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strwcpylc(char *,cchar *,int) ;
+extern char	*strwcpyuc(char *,cchar *,int) ;
+extern char	*strnpbrk(cchar *,int,cchar *) ;
+extern char	*strdcpy1(char *,int,cchar *) ;
 
 
 /* external variables */
 
-extern const char	**environ ;
+extern cchar	**environ ;
 
 
 /* local structures */
@@ -178,7 +177,7 @@ static int	open_eval(UCOPENINFO *) ;
 static int	open_otherlink(UCOPENINFO *,int *,char *) ;
 static int	open_othertry(UCOPENINFO *,int *,char *) ;
 static int	open_floatpath(UCOPENINFO *,int) ;
-static int	open_abspath(UCOPENINFO *,cchar *,int) ;
+static int	open_pseudopath(UCOPENINFO *,cchar *,int) ;
 static int	open_nonpath(UCOPENINFO *,int) ;
 static int	open_nonpather(UCOPENINFO *,int,cchar *,cchar *) ;
 
@@ -189,7 +188,7 @@ static int	getprefixfs(cchar *,cchar **) ;
 static int	getnormalfs(cchar *,cchar **) ;
 static int	noexist(cchar *,int) ;
 static int	loadargs(vecstr *,cchar *) ;
-static int	hasnonpath(const char *,int) ;
+static int	hasnonpath(cchar *,int) ;
 
 #if	CF_ISMORE
 extern int	isMorePossible(int) ;
@@ -198,7 +197,7 @@ extern int	isMorePossible(int) ;
 
 /* local variables */
 
-static const char	*normalfs[] = {
+static cchar	*normalfs[] = {
 	"devices",
 	"proc",
 	"var",
@@ -210,7 +209,7 @@ static const char	*normalfs[] = {
 	NULL
 } ;
 
-static const char	*prefixfs[] = {
+static cchar	*prefixfs[] = {
 	"proto",
 	"prog",
 	"pass",
@@ -239,7 +238,7 @@ enum accmodes {
 	accmode_overlast
 } ;
 
-static const char	*nonpaths = "/ез~" ;
+static cchar	*nonpaths = "/ез~" ;
 
 enum nonpaths {
 	nonpath_not,
@@ -312,26 +311,32 @@ int uc_openinfo(UCOPENINFO *oip)
 	    debugprintf("uc_openinfo: accmode() rs=%d\n",rs) ;
 #endif
 
-#if	CF_CDPATH
 	    if (hascdpath(oip->fname,-1)) {
-	        char	*cdpath ;
-	        size = (MAXPATHLEN + 1) ;
-	        if ((rs = uc_libmalloc(size,&cdpath)) >= 0) {
-	            if ((rs = mkcdpath(cdpath,oip->fname,-1)) > 0) {
-	                oip->fname = cdpath ;
-	                oip->clinks += 1 ;
-	                rs = uc_openinfo(oip) ;
+	        const int	tlen = MAXPATHLEN ;
+	        char		*tbuf ;
+#if	CF_DEBUGS
+	    debugprintf("uc_openinfo: cd-path\n") ;
+#endif
+	        if ((rs = uc_libmalloc((tlen+1),&tbuf)) >= 0) {
+	            if ((rs = mkcdpath(tbuf,oip->fname,-1)) > 0) {
+#if	CF_DEBUGS
+	    		debugprintf("uc_openinfo: 1 mkcdpath() rs=%d\n",rs) ;
+#endif
+			oip->fname = tbuf ;
+	                rs = open_eval(oip) ;
 	                fd = rs ;
 	            } else if (rs == 0) {
+#if	CF_DEBUGS
+	    		debugprintf("uc_openinfo: 2 mkcdpath() rs=%d\n",rs) ;
+#endif
 	                rs = SR_BADFMT ;
 	            }
-	            uc_libfree(cdpath) ;
+	            uc_libfree(tbuf) ;
 	        } /* end if (memory-allocation) */
-	        f_done = TRUE ;
-	    } /* end if (cd-path) */
-#endif /* CF_CDPATH */
-
-	    if ((rs >= 0) && (fd < 0)) {
+	    } else {
+#if	CF_DEBUGS
+	    debugprintf("uc_openinfo: other \n") ;
+#endif
 	        rs = open_eval(oip) ;
 	        fd = rs ;
 	    }
@@ -439,8 +444,12 @@ static int open_eval(UCOPENINFO *oip)
 	int		npi ;			/* non-path index */
 	int		fd = -1 ;
 	char		*efname = NULL ;
-	char		ofname[MAXPATHLEN+1] = { 
-	    0 	} ;
+	char		ofname[MAXPATHLEN+1] = { 0 } ;
+
+#if	CF_DEBUGS
+	debugprintf("uc_openinfo/open_eval: ent\n") ;
+	debugprintf("uc_openinfo/open_eval: fn=%s\n",oip->fname) ;
+#endif
 
 	while ((rs >= 0) && (fd < 0)) {
 
@@ -451,12 +460,19 @@ static int open_eval(UCOPENINFO *oip)
 	        if (hasvarpathprefix(oip->fname,-1) && (efname == NULL)) {
 	            const int	size = (MAXPATHLEN + 1) ;
 	            void	*p ;
+#if	CF_DEBUGS
+		    debugprintf("uc_openinfo/open_eval: var-path\n") ;
+#endif
 	            if ((rs = uc_libmalloc(size,&p)) >= 0) {
 	                efname = p ;
 	                efname[0] = '\0' ;
 	                if ((rs = mkvarpath(efname,oip->fname,-1)) > 0) {
 	                    oip->fname = efname ;
 	                } else if (rs <= 0) {
+#if	CF_DEBUGS
+			    debugprintf("uc_openinfo/open_eval: "
+				"mkvarpath() rs=%d\n",rs) ;
+#endif
 	                    if (rs == 0) rs = SR_BADFMT ;
 	                    uc_libfree(efname) ;
 	                    efname = NULL ;
@@ -475,7 +491,7 @@ static int open_eval(UCOPENINFO *oip)
 	                debugprintf("uc_openinfo: pathprefix fs=%d\n",pi) ;
 #endif
 
-	                rs = open_abspath(oip,rp,pi) ;
+	                rs = open_pseudopath(oip,rp,pi) ;
 	                fd = rs ;
 
 	            } else if ((oip->fname[0] == '/') && 
@@ -497,11 +513,19 @@ static int open_eval(UCOPENINFO *oip)
 
 	    } /* end if (alternatives) */
 
+#if	CF_DEBUGS
+	debugprintf("uc_openinfo/open_eval: while-bot rs=%d fd=%u\n",rs,fd) ;
+#endif
+
 	} /* end while */
 
 	if (efname != NULL) {
 	    uc_libfree(efname) ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("uc_openinfo/open_eval: ret rs=%d fd=%u\n",rs,fd) ;
+#endif
 
 	return (rs >= 0) ? fd : rs ;
 }
@@ -570,14 +594,10 @@ static int open_othertry(UCOPENINFO *oip,int *fdp,char *ofname)
 	        break ;
 	    } /* end switch */
 	} /* end if */
-
 	if ((rs >= 0) && (fd >= 0)) *fdp = fd ;
-
 #if	CF_DEBUGS
-	debugprintf("uc_openinfo/open_othertry: ret rs=%d fd=%u\n",
-		rs,fd) ;
+	debugprintf("uc_openinfo/open_othertry: ret rs=%d fd=%u\n",rs,fd) ;
 #endif
-
 	return rs ;
 }
 /* end subroutine (open_othertry) */
@@ -610,7 +630,7 @@ static int open_otherlink(UCOPENINFO *oip,int *fdp,char *ofname)
 
 	    } else if ((npi = hasnonpath(rbuf,-1)) > 0) {
 
-	        oip->fname = (const char *) ofname ;
+	        oip->fname = (cchar *) ofname ;
 	        if ((rs = mkpath1(ofname,rbuf)) >= 0) {
 	            rs = open_floatpath(oip,npi) ;
 	            fd = rs ;
@@ -673,44 +693,40 @@ static int open_floatpath(UCOPENINFO *oip,int npi)
 	    rs = SR_NOENT ;
 	    break ;
 	} /* end if */
+#if	CF_DEBUGS
+	debugprintf("uc_openinfo/open_float: rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (open_floatpath) */
 
 
-static int open_abspath(UCOPENINFO *oip,cchar *rp,int pi)
+static int open_pseudopath(UCOPENINFO *oip,cchar *rp,int pi)
 {
 	int		rs = SR_OK ;
-
 	switch (pi) {
-
 	case prefixfs_proto:
 	    rs = uc_openproto(rp,oip->oflags,oip->to,oip->opts) ;
 	    break ;
-
 	case prefixfs_prog:
 	    rs = openproger(rp,oip->oflags,oip->envv) ;
 	    break ;
-
 	case prefixfs_pass:
 	    rs = uc_openpass(rp,oip->oflags,oip->to,0) ;
 	    break ;
-
 	case prefixfs_shm:
 	    rs = uc_openshm(rp,oip->oflags,oip->operms) ;
 	    break ;
-
 	case prefixfs_user:
 	    oip->fname = rp ;
 	    rs = uc_openuserinfo(oip) ;
 	    break ;
-
 	case prefixfs_sys:
 	case prefixfs_dev:
 	    {
 	        int		of = oip->oflags ;
 	        mode_t		om = oip->operms ;
-	        const char	**envv = oip->envv ;
+	        cchar	**envv = oip->envv ;
 	        int		to = oip->to ;
 	        int		opts = oip->opts ;
 	        switch (pi) {
@@ -723,16 +739,16 @@ static int open_abspath(UCOPENINFO *oip,cchar *rp,int pi)
 	        } /* end switch */
 	    } /* end block */
 	    break ;
-
 	default:
 	    rs = SR_NOSYS ;
 	    break ;
-
 	} /* end switch */
-
+#if	CF_DEBUGS
+	debugprintf("uc_openinfo/open_pseudopath: rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
-/* end subroutine (open_abspath) */
+/* end subroutine (open_pseudopath) */
 
 
 static int open_nonpath(UCOPENINFO *oip,int npi)
@@ -741,8 +757,8 @@ static int open_nonpath(UCOPENINFO *oip,int npi)
 	const int	nch = MKCHAR(nonpaths[npi]) ;
 	int		rs = SR_OK ;
 	int		fd = -1 ;
-	const char	*fname = oip->fname ;
-	const char	*tp ;
+	cchar	*fname = oip->fname ;
+	cchar	*tp ;
 	char		brkbuf[4] ;
 
 #if	CF_DEBUGS
@@ -802,15 +818,16 @@ static int open_nonpather(UCOPENINFO *oip,int npi,cchar *prn,cchar *sp)
 #endif
 
 	if ((rs = vecstr_start(&args,4,0)) >= 0) {
+	    const int	prlen = MAXPATHLEN ;
 	    int		sl = -1 ;
 	    cchar	**av = NULL ;
-	    const char	**ev = oip->envv ;
-	    const char	*tp ;
+	    cchar	**ev = oip->envv ;
+	    cchar	*tp ;
 	    char	svc[SVCBUFLEN+1] = { 0 } ;
 	    char	brkbuf[4] ;
 	    char	prbuf[MAXPATHLEN+1] ;
 
-	    if (ev == NULL) ev = (const char **) environ ;
+	    if (ev == NULL) ev = (cchar **) environ ;
 
 	    brkbuf[0] = (char) 0xAD ;
 	    brkbuf[1] = ':' ;
@@ -871,15 +888,16 @@ static int open_nonpather(UCOPENINFO *oip,int npi,cchar *prn,cchar *sp)
 	            break ;
 	        case nonpath_fsvc:
 	            {
-	                char	dn[MAXHOSTNAMELEN+1] ;
-	                if ((rs = getnodedomain(NULL,dn)) >= 0) {
-	                    rs = mkpr(prbuf,MAXPATHLEN,prn,dn) ;
+			const int	dl = MAXHOSTNAMELEN ;
+	                char		dn[MAXHOSTNAMELEN+1] ;
+	                if ((rs = getdomainname(dn,dl)) >= 0) {
+	                    rs = mkpr(prbuf,prlen,prn,dn) ;
 	                }
 	            }
 	            break ;
 	        case nonpath_usvc:
 	            {
-	                rs = getuserhome(prbuf,MAXPATHLEN,prn) ;
+	                rs = getuserhome(prbuf,prlen,prn) ;
 	            }
 	            break ;
 	        } /* end switch */
@@ -944,13 +962,13 @@ static int openproger(cchar *fname,int oflags,cchar **ev)
 	debugprintf("uc_openinfo/openproger: fname=%s\n",fname) ;
 #endif
 
-	if (ev == NULL) ev = (const char **) environ ;
+	if (ev == NULL) ev = (cchar **) environ ;
 
 	if ((rs = mkuserpath(expfname,NULL,fname,-1)) >= 0) {
 	    vecstr	args ;
-	    const char	*fnp = fname ;
-	    const char	*pfp ;
-	    const char	*svcp ;
+	    cchar	*fnp = fname ;
+	    cchar	*pfp ;
+	    cchar	*svcp ;
 	    char	progfname[MAXPATHLEN + 1] ;
 
 	    if (rs > 0) fnp = expfname ;
@@ -1105,7 +1123,7 @@ static int getnormalfs(cchar *fname,cchar **rpp)
 
 	*rpp = NULL ;
 	if (fname[0] == '/') {
-	    const char	*tp, *pp ;
+	    cchar	*tp, *pp ;
 
 	    pp = (fname + 1) ;
 	    while (*pp && (pp[0] == '/')) {
@@ -1133,10 +1151,10 @@ static int getprefixfs(cchar *fname,cchar **rpp)
 {
 	int		rs = SR_OK ;
 	int		pi = -1 ;
-	const char	*tp = NULL ;
+	cchar		*tp = NULL ;
 
 	if (fname[0] == '/') {
-	    const char	*pp = (fname + 1) ;
+	    cchar	*pp = (fname + 1) ;
 	    int		pl = -1 ;
 
 	    while (*pp && (pp[0] == '/')) pp += 1 ;
@@ -1159,11 +1177,13 @@ static int getprefixfs(cchar *fname,cchar **rpp)
 	            rs = noexist(pp,pl) ;
 	            break ;
 	        } /* end switch */
-	    } else
+	    } else {
 	        rs = SR_NOENT ;
+	    }
 
-	} else
+	} else {
 	    rs = SR_NOENT ;
+	}
 
 	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? tp : NULL ;
@@ -1201,27 +1221,22 @@ static int loadargs(vecstr *alp,cchar *sp)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
-	const char	*tp ;
+	cchar		*tp ;
 
 	while ((tp = strchr(sp,0xAD)) != NULL) {
-
 #if	CF_DEBUGS
 	    debugprintf("uc_open/loadargs: a%u=>%t<\n",c,sp,(tp-sp)) ;
 #endif
-
 	    c += 1 ;
 	    rs = vecstr_add(alp,sp,(tp - sp)) ;
 	    sp = (tp+1) ;
-
 	    if (rs < 0) break ;
 	} /* end while */
 
 	if (rs >= 0) {
-
 #if	CF_DEBUGS
 	    debugprintf("uc_open/loadargs: a%u=>%s<\n",c,sp) ;
 #endif
-
 	    c += 1 ;
 	    rs = vecstr_add(alp,sp,-1) ;
 	}
@@ -1239,7 +1254,7 @@ static int hasnonpath(cchar *fp,int fl)
 
 	f = (fp[0] != '/') ;
 	if (f) {
-	    const char	*tp = strnpbrk(fp,fl,nonpaths) ;
+	    cchar	*tp = strnpbrk(fp,fl,nonpaths) ;
 	    f = FALSE ;
 	    if ((tp != NULL) && ((tp-fp) > 0) && (tp[1] != '\0')) {
 	        f = sichr(nonpaths,-1,*tp) ;

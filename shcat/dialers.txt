@@ -89,13 +89,15 @@ d.a.morano@gmail.com[­<subject is here>]
 what¶is
 
 
+= prefix paths
+
 ~dam/rje/daytime
 
 /u/dam/rje/daytime
 
 /%cdpath/rje/daytime
 
-¬rje/daytime
+¬/rje/daytime
 
 
 

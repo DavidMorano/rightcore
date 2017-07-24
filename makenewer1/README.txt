@@ -1,8 +1,8 @@
 MAKENEWER
 
-This program updates files in a target directory to be the same as specified
-files.  It only uses the modification dates of the files in order to determine
-if an update is needed.
+This program updates files in a target directory to be the same as the specified
+files. It only uses the modification dates and the sizes of the files in order
+to determine if an update is needed.
 
 Synopsis:
 $ makenewer <file(s)> [-af <afile>] {{-d <dstdir>}|<dstdir>} [-im]

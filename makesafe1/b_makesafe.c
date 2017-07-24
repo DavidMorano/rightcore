@@ -2723,7 +2723,6 @@ static int disp_worker(DISP *dop)
 	int		c = 0 ;
 	char		rbuf[MAXPATHLEN + 1] ;
 
-
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
 	    pthread_t	tid = pthread_self() ;

@@ -59,9 +59,6 @@ int uc_utime(cchar *fname,const struct utimbuf *utp)
 	    if ((rs = mkexpandpath(ebuf,fname,-1)) > 0) {
 		rs = u_utime(ebuf,utp) ;
 	    } else if (rs == 0) {
-#if	CF_DEBUGS
-	         debugprintf("uc_utime: fn=%s\n",fname) ;
-#endif
 		rs = u_utime(fname,utp) ;
 	    }
 	    uc_libfree(ebuf) ;

@@ -1087,7 +1087,6 @@ retearly:
 	bits_finish(&pargs) ;
 
 badpargs:
-badprocbegin:
 	locinfo_finish(lip) ;
 
 badlocstart:
@@ -2077,16 +2076,20 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
-	    char	ofbuf[100+1] ;
-	    snopenflags(ofbuf,100,of) ;
+	    char	ofbuf[TIMEBUFLEN+1] ;
+	    snopenflags(ofbuf,TIMEBUFLEN,of) ;
 	    debugprintf("main/procfiler: mid rs=%d f_update=%u\n",rs,f_update) ;
 	    debugprintf("main/procfiler: of=%s\n",ofbuf) ;
 	}
 #endif
 
 	if (rs >= 0) {
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(3))
+	            debugprintf("main/procfiler: open dfn=%s\n",dstfname) ;
+#endif
 	    if ((rs = openaccess(dstfname,of,nm,f_create)) >= 0) {
-	        const int	dfd = rs ;
+	        int	dfd = rs ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3))
@@ -2110,6 +2113,10 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 		lip->c_updated += 1 ;
 
 	        if (! lip->f.nochange) {
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(3))
+	            debugprintf("main/procfiler: open fn=%s\n",fname) ;
+#endif
 	            if ((rs = uc_open(fname,O_RDONLY,0666)) >= 0) {
 	                const int	sfd = rs ;
 	                int		len ;
@@ -2123,6 +2130,10 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 	                }
 	                u_close(sfd) ;
 	            } /* end if (open source) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procfiler: mid3 rs=%d\n",rs) ;
+#endif
 	            if (rs >= 0) {
 	                int	f_utime = FALSE ;
 	                f_utime = f_utime || (duid < 0) ;
@@ -2130,20 +2141,33 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 	                f_utime = f_utime || (lip->euid == 0) ;
 	                if (f_utime) {
 			    struct utimbuf	ut ;
+			    u_close(dfd) ;
+			    dfd = -1 ;
 			    ut.actime = ssbp->st_atime ;
 			    ut.modtime = ssbp->st_mtime ;
-	                    uc_utime(dstfname,&ut) ;
+	                    rs = uc_utime(dstfname,&ut) ;
 			}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("main/procfiler: mid4 rs=%d\n",rs) ;
+	    debugprintf("main/procfiler: afn=%s\n",altfname) ;
+	    debugprintf("main/procfiler: dfn=%s\n",dstfname) ;
+	}
+#endif
 			if ((rs >= 0) && lip->f.rmfile) {
 			    rs = uc_rename(dstfname,altfname) ;
 			}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procfiler: mid5 rs=%d\n",rs) ;
+#endif
 	            } /* end if (ok) */
 		    if ((rs < 0) && lip->f.rmfile) {
 			uc_unlink(dstfname) ;
 		    }
 	        } /* end if (allowable actual update) */
 
-	        u_close(dfd) ;
+	        if (dfd >= 0) u_close(dfd) ;
 	    } /* end if (destination file opened) */
 	} /* end if (ok) */
 

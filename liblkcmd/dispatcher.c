@@ -250,8 +250,7 @@ static int dispatcher_worker(DISPATCHER *dop)
 
 #if	CF_DEBUGS
 	{
-	    pthread_t	tid ;
-	    uptself(&tid) ;
+	    pthread_t	tid = pthead_self() ;
 	    debugprintf("dispatcher_worker: ent tid=%u\n",tid) ;
 	}
 #endif
@@ -268,16 +267,13 @@ static int dispatcher_worker(DISPATCHER *dop)
 	            rs = SR_OK ;
 	            if (dop->f_done) break ;
 	        }
-	    } else if ((rs == SR_AGAIN) || (rs == SR_INTR)) {
-	        rs = SR_OK ;
-	    }
+	    } /* end if (psem_wait) */
 
 	} /* end while (server loop) */
 
 #if	CF_DEBUGS
 	{
-	    pthread_t	tid ;
-	    uptself(&tid) ;
+	    pthread_t	tid = pthead_self() ;
 	    debugprintf("dispatcher_worker: tid=%u ret rs=%d c=%u\n",
 	        tid,rs,c) ;
 	}

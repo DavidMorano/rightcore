@@ -786,7 +786,7 @@ static int disp_worker(DISP *dop)
 
 	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (worker) */
+/* end subroutine (disp_worker) */
 
 
 static int ereport(PROGINFO *pip,cchar *fname,int frs)
