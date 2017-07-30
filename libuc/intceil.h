@@ -14,6 +14,9 @@
 #ifndef	INTCEIL_INCLUDE
 #define	INTCEIL_INCLUDE	 1
 
+#include	<envstandards.h>
+#include	<sys/types.h>
+#include	<localmisc.h>
 
 #ifdef	__cplusplus
 extern "C" {

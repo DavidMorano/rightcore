@@ -5,14 +5,13 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
+#define	CF_STRENGTH	1		/* use strength reduction */
 
 
 /* revision history:
 
 	= 1998-07-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -68,6 +67,59 @@
 /* exported subroutines */
 
 
+#if	CF_STRENGTH
+
+int min(int a,int b)
+{
+	const int	sbit = ((sizeof(int)*8)-1) ;
+	const int	d = (a-b) ;
+	const int	sel = (!(((a-b) >> sbit)&1)) ;
+	return (a - (sel*d)) ;
+}
+
+int max(int a,int b)
+{
+	const int	sbit = ((sizeof(int)*8)-1) ;
+	const int	d = (a-b) ;
+	const int	sel = (((a-b) >> sbit)&1) ;
+	return (a - (sel*d)) ;
+}
+
+int lmin(long a,long b)
+{
+	const int	sbit = ((sizeof(long)*8)-1) ;
+	const int	d = (a-b) ;
+	const int	sel = (!(((a-b) >> sbit)&1)) ;
+	return (a - (sel*d)) ;
+}
+
+int lmax(long a,long b)
+{
+	const int	sbit = ((sizeof(long)*8)-1) ;
+	const int	d = (a-b) ;
+	const int	sel = (((a-b) >> sbit)&1) ;
+	return (a - (sel*d)) ;
+}
+
+longlong llmin(longlong a,longlong b)
+{
+	const int	sbit = ((sizeof(longlong)*8)-1) ;
+	const int	d = (a-b) ;
+	const int	sel = (!(((a-b) >> sbit)&1)) ;
+	return (a - (sel*d)) ;
+}
+
+longlong llmax(longlong a,longlong b)
+{
+	const int	sbit = ((sizeof(longlong)*8)-1) ;
+	const int	d = (a-b) ;
+	const int	sel = (((a-b) >> sbit)&1) ;
+	return (a - (sel*d)) ;
+}
+
+
+#else /* CF_STRENGTH */
+
 int min(int a,int b)
 {
 	int	v = a ;
@@ -120,5 +172,7 @@ LONG llmax(LONG a,LONG b)
 	return v ;
 }
 /* end subroutine (llmax) */
+
+#endif /* CF_STRENGTH */
 
 

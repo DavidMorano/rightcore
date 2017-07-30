@@ -45,7 +45,7 @@ int cfjulian(cchar *s,int slen,time_t *rp)
 	int		i ;
 	int		century, year, month, day, hour, min, sec ;
 	int		lr = slen ;
-	const char	*cp = s ;
+	cchar		*cp = s ;
 
 	if (slen < 0)
 	    slen = strlen(s) ;

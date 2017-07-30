@@ -1,2 +1,2 @@
 const char ema_makedate[] =
-"@(#)ema                     170612_0013:31_USEDT Rightcore Network Services" ;
+"@(#)ema                     170727_0015:18_USEDT Rightcore Network Services" ;

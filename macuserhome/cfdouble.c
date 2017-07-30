@@ -38,9 +38,9 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* local variables */
@@ -52,7 +52,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 int cfdouble(cchar *sbuf,int slen,double *rp)
 {
 	int		rs = SR_OK ;
-	const char	*sp ;
+	cchar		*sp ;
 	char		locbuf[LOCBUFLEN + 1] ;
 
 	if (sbuf == NULL) return SR_FAULT ;

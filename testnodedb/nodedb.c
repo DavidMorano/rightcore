@@ -106,6 +106,7 @@ extern int	sfskipwhite(cchar *,int,cchar **) ;
 extern int	getpwds(struct ustat *,char *,int) ;
 extern int	getpwd(char *,int) ;
 extern int	field_srvarg(FIELD *,const uchar *,char *,int) ;
+extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -619,32 +620,15 @@ static int nodedb_checkfiles(NODEDB *op,time_t daytime)
 
 	for (i = 0 ; vecobj_get(&op->files,i,&fep) >= 0 ; i += 1) {
 	    if (fep != NULL) {
-
-	        if ((u_stat(fep->fname,&sb) >= 0) &&
-	            (sb.st_mtime > fep->mtime)) {
-
-	            c_changed += 1 ;
-
-#if	CF_DEBUGS
-	            debugprintf("nodedb_checkfiles: file=%d changed\n",i) ;
-	            debugprintf("nodedb_checkfiles: freeing entries\n") ;
-#endif
-
-	            nodedb_filedump(op,i) ;
-
-#if	CF_DEBUGS
-	            debugprintf("nodedb_checkfiles: parsing again\n") ;
-#endif
-
-	            rs = nodedb_fileparse(op,i) ;
-
-#if	CF_DEBUGS
-	            debugprintf("nodedb_checkfiles: "
-			"nodedb_fileparse rs=%d\n", rs) ;
-#endif
-
-	        } /* end if */
-
+	        if ((rs = u_stat(fep->fname,&sb)) >= 0) {
+	            if (sb.st_mtime > fep->mtime) {
+	                c_changed += 1 ;
+	                nodedb_filedump(op,i) ;
+	                rs = nodedb_fileparse(op,i) ;
+		    }
+		} else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
+	        } /* end if (u_stat) */
 	    }
 	    if (rs < 0) break ;
 	} /* end for (looping through files) */

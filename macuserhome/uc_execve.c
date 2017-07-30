@@ -3,6 +3,7 @@
 /* interface component for UNIX® library-3c */
 
 
+#define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_ISAEXEC	1		/* try ISA-EXEC */
 
 
@@ -53,6 +54,10 @@ int uc_execve(cchar *fname,cchar **av,cchar **ev)
 	int		rs ;
 	char		*ebuf ;
 
+#if	CF_DEBUGS
+	debugprintf("uc_execve: ent fn=%s\n",fname) ;
+#endif
+
 	if ((rs = uc_libmalloc((elen+1),&ebuf)) >= 0) {
 	    if ((rs = mkexpandpath(ebuf,fname,-1)) > 0) {
 		rs = u_execve(ebuf,av,ev) ;
@@ -61,6 +66,10 @@ int uc_execve(cchar *fname,cchar **av,cchar **ev)
 	    }
 	    uc_libfree(ebuf) ;
 	} /* end if (m-a) */
+
+#if	CF_DEBUGS
+	debugprintf("uc_execve: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

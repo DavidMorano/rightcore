@@ -623,6 +623,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialize */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 /* process */

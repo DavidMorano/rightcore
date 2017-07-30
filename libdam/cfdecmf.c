@@ -58,12 +58,12 @@
 
 /* external subroutines */
 
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-extern int	cfdecl(const char *,int,long *) ;
-extern int	cfdecll(const char *,int,LONG *) ;
-extern int	cfdecul(const char *,int,ulong *) ;
-extern int	cfdecull(const char *,int,ULONG *) ;
+extern int	cfdeci(cchar *,int,int *) ;
+extern int	cfdecui(cchar *,int,uint *) ;
+extern int	cfdecl(cchar *,int,long *) ;
+extern int	cfdecll(cchar *,int,LONG *) ;
+extern int	cfdecul(cchar *,int,ulong *) ;
+extern int	cfdecull(cchar *,int,ULONG *) ;
 
 
 /* external variables */
@@ -74,7 +74,7 @@ extern int	cfdecull(const char *,int,ULONG *) ;
 
 /* forward references */
 
-static int	getmf(const char *,int,ulong *) ;
+static int	getmf(cchar *,int,ulong *) ;
 
 
 /* local variables */

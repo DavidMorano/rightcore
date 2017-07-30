@@ -8,6 +8,16 @@
 #define	CF_TESTLAMBDA	1		/* test Lambda Functions */
 
 
+/* revision history:
+
+	= 2010-07-11, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2010 David A­D­ Morano.  All rights reserved. */
+
+
 #include	<envstandards.h>
 
 #include	<stdio.h>
@@ -212,7 +222,7 @@ int main(int argc,const char **argv,const char **envv)
 #ifdef	COMMENT
 	{
 	    ofstream	*osp ;
-	    cchar	*fn = "ourout" ;
+	    cchar	*fn = "ourout.txt" ;
 	    if ((ofstream *osp = new(nothrow) ofstream(fn)) != NULL) {
 	        (*osp) << "Hello world!" << endl ;
 	        osp->close() ;
@@ -237,7 +247,7 @@ static int testio()
 {
 	int		rs = SR_OK ;
 	{
-	    cchar	*ofn = "ourout" ;
+	    cchar	*ofn = "ourout.txt" ;
 	    {
 	        ofstream	os(ofn) ;
 		if (os.good()) {

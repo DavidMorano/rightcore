@@ -24,7 +24,7 @@
 
 	int mkuserpath(rbuf,pp,pl) ;
 	char		rbuf[] ;
-	const char	*pp ;
+	cchar	*pp ;
 	int		pl ;
 
 	Arguments:
@@ -70,19 +70,19 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath2w(char *,const char *,const char *,int) ;
-extern int	strwcmp(const char *,const char *,int) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
+extern int	mkpath2w(char *,cchar *,cchar *,int) ;
+extern int	strwcmp(cchar *,cchar *,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* local structures */
@@ -106,7 +106,7 @@ int mkuserpath(char *rbuf,cchar *un,cchar *pp,int pl)
 	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
-	debugprintf("mkuserpath: ent\n") ;
+	debugprintf("mkuserpath: ent p=%t\n",pp,pl) ;
 #endif
 
 	if (rbuf == NULL) return SR_FAULT ;
@@ -116,15 +116,25 @@ int mkuserpath(char *rbuf,cchar *un,cchar *pp,int pl)
 
 	if (pl < 0) pl = strlen(pp) ;
 
+	while ((pl > 0) && (pp[0] == '/')) {
+	    pp += 1 ;
+	    pl -= 1 ;
+	}
+
 	if (pl > 0) {
 	    if (pp[0] == '~') {
 	        pp += 1 ;
 	        pl -= 1 ;
 	        rs = mkpathsquiggle(rbuf,un,pp,pl) ;
-	    } else {
+	    } else if (pp[0] == 'u') {
 	        rs = mkpathuserfs(rbuf,pp,pl) ;
 	    }
 	} /* end if */
+
+#if	CF_DEBUGS
+	debugprintf("mkuserpath: ret rs=%d\n",rs) ;
+	debugprintf("mkuserpath: ret rbuf=%s\n",rbuf) ;
+#endif
 
 	return rs ;
 }
@@ -134,81 +144,12 @@ int mkuserpath(char *rbuf,cchar *un,cchar *pp,int pl)
 /* local subroutines */
 
 
-static int mkpathuserfs(char *rbuf,const char *pp,int pl)
-{
-	int		rs = SR_OK ;
-
-#if	CF_DEBUGS
-	debugprintf("mkpathuserfs: p=>%t<\n",pp,strlinelen(pp,pl,60)) ;
-#endif
-
-	if (pl < 0) pl = strlen(pp) ;
-	while ((pl > 0) && (pp[0] == '/')) {
-	    pp += 1 ;
-	    pl -= 1 ;
-	}
-
-#if	CF_DEBUGS
-	debugprintf("mkpathuserfs: p=>%t<\n",pp,strlinelen(pp,pl,60)) ;
-#endif
-
-	if ((pl >= 2) && (strncmp("u/",pp,2) == 0)) {
-
-	    pp += 2 ;
-	    pl -= 2 ;
-	    if (pl > 0) {
-
-/* get the username */
-
-	        while (pl && (pp[0] == '/')) {
-	            pp += 1 ;
-	            pl -= 1 ;
-	        }
-
-#if	CF_DEBUGS
-	        debugprintf("mkpathuserfs: p=>%t<\n",
-	            pp,strlinelen(pp,pl,60)) ;
-#endif
-
-	        if (pl > 0) {
-	            const char	*tp ;
-	            const char	*up = pp ;
-	            int		ul = pl ;
-	            if ((tp = strnchr(pp,pl,'/')) != NULL) {
-	                ul = (tp - pp) ;
-	                pl -= ((tp+1)-pp) ;
-	                pp = (tp+1) ;
-	            } else {
-	                pp += pl ;
-	                pl = 0 ;
-	            }
-
-#if	CF_DEBUGS
-	            debugprintf("mkpathuserfs: pop rs=%d u=%t s=%s\n",
-			rs,up,ul,pp) ;
-#endif
-	            rs = mkpathusername(rbuf,up,ul,pp,pl) ;
-	        } /* end if (positive) */
-
-	    } /* end if (positive) */
-
-	} /* end if (user-fs called for) */
-
-#if	CF_DEBUGS
-	debugprintf("mkpathuserfs: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (mkpathuserfs) */
-
-
-static int mkpathsquiggle(char *rbuf,const char *un,const char *pp,int pl)
+static int mkpathsquiggle(char *rbuf,cchar *un,cchar *pp,int pl)
 {
 	int		rs ;
 	int		ul = pl ;
-	const char	*tp ;
-	const char	*up = pp ;
+	cchar		*tp ;
+	cchar		*up = pp ;
 
 	if (pl < 0) pl = strlen(pp) ;
 
@@ -233,10 +174,67 @@ static int mkpathsquiggle(char *rbuf,const char *un,const char *pp,int pl)
 /* end subroutine (mkpathsqiggle) */
 
 
-static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
+static int mkpathuserfs(char *rbuf,cchar *pp,int pl)
 {
 	int		rs = SR_OK ;
-	const char	*un = up ;
+
+#if	CF_DEBUGS
+	debugprintf("mkpathuserfs: ent p=>%t<\n",pp,strlinelen(pp,pl,60)) ;
+#endif
+
+	if ((pl >= 2) && (strncmp("u/",pp,2) == 0)) {
+	    pp += 2 ;
+	    pl -= 2 ;
+	    if (pl > 0) {
+
+/* get the username */
+
+	        while (pl && (pp[0] == '/')) {
+	            pp += 1 ;
+	            pl -= 1 ;
+	        }
+
+#if	CF_DEBUGS
+	        debugprintf("mkpathuserfs: p=>%t<\n",
+	            pp,strlinelen(pp,pl,60)) ;
+#endif
+
+	        if (pl > 0) {
+	            cchar	*tp ;
+	            cchar	*up = pp ;
+	            int		ul = pl ;
+	            if ((tp = strnchr(pp,pl,'/')) != NULL) {
+	                ul = (tp - pp) ;
+	                pl -= ((tp+1)-pp) ;
+	                pp = (tp+1) ;
+	            } else {
+	                pp += pl ;
+	                pl = 0 ;
+	            }
+#if	CF_DEBUGS
+	            debugprintf("mkpathuserfs: pop rs=%d u=%t s=%s\n",
+			rs,up,ul,pp) ;
+#endif
+	            rs = mkpathusername(rbuf,up,ul,pp,pl) ;
+	        } /* end if (positive) */
+
+	    } /* end if (positive) */
+	} /* end if (user-fs called for) */
+
+#if	CF_DEBUGS
+	debugprintf("mkpathuserfs: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (mkpathuserfs) */
+
+
+static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
+{
+	const int	ulen = USERNAMELEN ;
+	int		rs = SR_OK ;
+	cchar		*un = up ;
 	char		ubuf[USERNAMELEN+1] ;
 
 #if	CF_DEBUGS
@@ -244,7 +242,7 @@ static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
 #endif
 
 	if (ul >= 0) {
-	    rs = strwcpy(ubuf,up,MIN(ul,USERNAMELEN)) - ubuf ;
+	    rs = strwcpy(ubuf,up,MIN(ul,ulen)) - ubuf ;
 	    un = ubuf ;
 	}
 
@@ -256,20 +254,21 @@ static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
 	    struct passwd	pw ;
 	    const int		pwlen = getbufsize(getbufsize_pw) ;
 	    char		*pwbuf ;
-	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	    if ((rs = uc_libmalloc((pwlen+1),&pwbuf)) >= 0) {
 	        if ((un[0] == '\0') || (un[0] == '-')) {
 	            rs = getpwusername(&pw,pwbuf,pwlen,-1) ;
 	        } else {
 	            rs = GETPW_NAME(&pw,pwbuf,pwlen,un) ;
 	        }
 	        if (rs >= 0) {
+		    cchar	*dir = pw.pw_dir ;
 	            if (sl > 0) {
-	                rs = mkpath2w(rbuf,pw.pw_dir,sp,sl) ;
+	                rs = mkpath2w(rbuf,dir,sp,sl) ;
 	            } else {
-	                rs = mkpath1(rbuf,pw.pw_dir) ;
+	                rs = mkpath1(rbuf,dir) ;
 	            }
 	        }
-	        uc_free(pwbuf) ;
+	        uc_libfree(pwbuf) ;
 	    } /* end if (memory-allocation) */
 	} /* end if (ok) */
 

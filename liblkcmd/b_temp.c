@@ -4,8 +4,8 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
+#define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_LOCSETENT	0		/* compile |locinfo_setentry()| */
 

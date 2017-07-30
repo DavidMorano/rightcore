@@ -104,7 +104,7 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	getportnum(const char *,const char *) ;
-extern int	getuser_uid(cchar *,int) ;
+extern int	getuid_user(cchar *,int) ;
 extern int	vecpstr_adduniq(VECPSTR *,const char *,int) ;
 extern int	hasalldig(const char *,int) ;
 extern int	isdigitlatin(int) ;
@@ -1274,7 +1274,7 @@ static int proclistusers(PROGINFO *pip,USERPORTS *dbp,bfile *ofp,VECPSTR *alp)
 	for (i = 0 ; vecpstr_get(alp,i,&up) >= 0 ; i += 1) {
 	    if (up == NULL) continue ;
 
-	    if ((rs = getuser_uid(up,-1)) >= 0) {
+	    if ((rs = getuid_user(up,-1)) >= 0) {
 	        uid = rs ;
 	        if ((rs = userports_curbegin(dbp,&cur)) >= 0) {
 		    cchar	*fmt = "%10u %16s %16s\n" ;

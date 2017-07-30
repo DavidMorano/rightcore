@@ -107,7 +107,7 @@ int getuid_name(cchar *np,int nl)
 /* end subroutine (getuid_name) */
 
 
-int getuser_uid(cchar *np,int nl)
+int getuid_user(cchar *np,int nl)
 {
 	int		rs ;
 	if (np == NULL) return SR_FAULT ;
@@ -122,6 +122,12 @@ int getuser_uid(cchar *np,int nl)
 	}
 	return rs ;
 }
-/* end subroutine (getuser_uid) */
+/* end subroutine (getuid_user) */
+
+
+int getuser_uid(cchar *np,int nl)
+{
+	return getuid_user(np,nl) ;
+}
 
 

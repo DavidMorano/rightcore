@@ -65,9 +65,9 @@ struct info {
 
 /* forward references */
 
-int 		cfb26i(const char *,int,int *) ;
+int 		cfb26i(cchar *,int,int *) ;
 
-static int	icfb26(struct info *,const char *,int) ;
+static int	icfb26(struct info *,cchar *,int) ;
 
 static int	isbad(int,int) ;
 
@@ -280,11 +280,13 @@ static int icfb26(struct info *ip,cchar *sp,int sl)
 
 	if (rs >= 0) {
 
-	    while ((i > 0) && CHAR_ISWHITE(sp[i]))
+	    while ((i > 0) && CHAR_ISWHITE(sp[i])) {
 	        i -= 1 ;
+	    }
 
-	    if ((i >= 0) && (sp[i] == '-'))
+	    if ((i >= 0) && (sp[i] == '-')) {
 	        val = (- val) ;
+	    }
 
 	    ip->result = val ;
 

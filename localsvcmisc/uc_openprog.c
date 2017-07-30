@@ -85,24 +85,6 @@
 
 /* local defines */
 
-#ifndef	NULLFNAME
-#define	NULLFNAME	"/dev/null"
-#endif
-
-#ifndef	NOFILE
-#define	NOFILE		20
-#endif
-
-#ifndef	VARPRLOCAL
-#define	VARPRLOCAL	"LOCAL"		/* program-root */
-#endif
-
-#ifndef	VARPREXTRA
-#define	VARPREXTRA	"EXTRA"		/* program-root */
-#endif
-
-#define	TO_CREAD	10
-
 
 /* external subroutines */
 

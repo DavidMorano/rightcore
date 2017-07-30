@@ -96,7 +96,7 @@ int mkexpandpath(char *rbuf,cchar *pp,int pl)
 	if (pl < 0) pl = strlen(pp) ;
 
 #if	CF_DEBUGS
-	debugprintf("mkexpandpath: p=%t\n",pp,pl) ;
+	debugprintf("mkexpandpath: ent p=%t\n",pp,pl) ;
 #endif
 
 	rbuf[0] = '\0' ;
@@ -108,7 +108,7 @@ int mkexpandpath(char *rbuf,cchar *pp,int pl)
 
 #if	CF_DEBUGS
 	debugprintf("mkexpandpath: ret rs=%d\n",rs) ;
-	debugprintf("mkexpandpath: rbuf=%s\n",rbuf) ;
+	debugprintf("mkexpandpath: ret rbuf=%s\n",rbuf) ;
 #endif
 
 	return rs ;

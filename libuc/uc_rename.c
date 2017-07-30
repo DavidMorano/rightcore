@@ -4,7 +4,7 @@
 /* translation layer interface for UNIX® equivalents */
 
 
-#define	CF_DEBUGS	1		/* compile-time debugging */
+#define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:

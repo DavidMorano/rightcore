@@ -38,7 +38,7 @@ outbuf		some whacky thing!
 outstore	this is similar (or essentially exactly the same as) BUFSTR
 storebuf	fixed length non-object continuous buffer management
 
-strtab		string table-generating object
+strtab		string-table generating object
 strstore	string storage object
 strpack		a simple string-packing object (lighter weight than STRSTORE)
 strop		some (relatively) simple operations on counted strings
@@ -137,6 +137,7 @@ strwcpy		copy a maxium length string to another
 strwcpylc	to lower case
 strwcpyuc	to upper case
 strwcpyfc	to foled case
+strwcpyrev	to reversed sequence of source
 
 strljoin	join two strings to a destination (w/ destination length)
 

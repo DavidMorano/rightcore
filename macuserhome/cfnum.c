@@ -66,7 +66,7 @@ extern int	isalphalatin(int) ;
 
 /* forward references */
 
-int	cfnumi(const char *,int,int *) ;
+int		cfnumi(cchar *,int,int *) ;
 
 
 /* local variables */

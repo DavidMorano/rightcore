@@ -147,7 +147,7 @@ extern int	cfdecui(cchar *,int,uint *) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	fsdirtreestat(cchar *,int,FSDIRTREE_STAT *) ;
-extern int	getuser_uid(cchar *,int) ;
+extern int	getuid_user(cchar *,int) ;
 extern int	getgroup_gid(cchar *,int) ;
 extern int	mkplogid(char *,int,cchar *,int) ;
 extern int	mksublogid(char *,int,cchar *,int) ;
@@ -1288,7 +1288,7 @@ static int procacl(PROGINFO *pip,cchar *abuf,int alen)
 	                if ((ait == acltype_user) || 
 			    (ait == acltype_defuser)) {
 
-	                    rs = getuser_uid(idspec,idlen) ;
+	                    rs = getuid_user(idspec,idlen) ;
 	                    ai.uid = rs ;
 
 	                } else if ((ait == acltype_group) ||

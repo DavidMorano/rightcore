@@ -16,8 +16,8 @@
 
 int main()
 {
-	signed char	sch = '¿' ;
-	unsigned char	uch = '¿' ;
+	const signed char	sch = '¿' ;
+	const unsigned char	uch = '¿' ;
 	int		ch = 0xff ;
 	unsigned int	ui ;
 
@@ -34,12 +34,23 @@ int main()
 	ch = 0xff ;
 	fprintf(stdout,"greater=%u\n",(ch > uch)) ;
 
-	sch = 0x80 ;
-	fprintf(stdout,"greater=%u\n",(sch > uch)) ;
+	{
+	char tch = 0x80 ;
+	fprintf(stdout,"greater=%u\n",(tch > uch)) ;
+	}
 
-	sch = 0x81 ;
-	uch = 0x80 ;
-	fprintf(stdout,"greater=%u\n",(sch > uch)) ;
+	{
+	    signed char		t1c = 0x81 ;
+	    unsigned char	t2c = 0x80 ;
+	    fprintf(stdout,"greater=%u\n",(t1c > t2c)) ;
+	}
+
+	{
+	    int	t1 = (uint) sch ;
+	    int	t2 = (sch & 0xff) ;
+	    uint t3= (uint) sch ;
+	    fprintf(stdout,"ti=%08x t2=%08x t3=%08x\n",t1,t2,t3) ;
+	}
 
 	return 0 ;
 }

@@ -1,2 +1,2 @@
 const char comsat_makedate[] =
-"@(#)comsat                  170721_2201:19_USEDT Rightcore Network Services" ;
+"@(#)comsat                  170725_1333:51_USEDT Rightcore Network Services" ;

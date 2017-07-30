@@ -39,10 +39,10 @@
 
 /* external subroutines */
 
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	cfdeci(const char *,int,int *) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	cfdeci(cchar *,int,int *) ;
 
-extern char	*strnpbrk(const char *,int,const char *) ;
+extern char	*strnpbrk(cchar *,int,cchar *) ;
 
 
 /* local structures */
@@ -50,7 +50,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 /* forward references */
 
-static int	convert(const char *,int,int,int *) ;
+static int	convert(cchar *,int,int,int *) ;
 
 
 /* local variables */
@@ -64,7 +64,7 @@ int cfdecti(cchar *sbuf,int slen,int *rp)
 	int		rs = 0 ;
 	int		sl ;
 	int		f_negative = FALSE ;
-	const char	*tp, *sp ;
+	cchar		*tp, *sp ;
 
 	if (sbuf == NULL) return SR_FAULT ;
 	if (rp == NULL) return SR_FAULT ;
@@ -100,13 +100,15 @@ int cfdecti(cchar *sbuf,int slen,int *rp)
 
 	} /* end while */
 
-	if ((rs >= 0) && (sl > 0))
+	if ((rs >= 0) && (sl > 0)) {
 	    rs = convert(sp,sl,0,rp) ;
+	}
 
 /* handle the sign if there was one */
 
-	if (f_negative)
+	if (f_negative) {
 	    *rp = (- *rp) ;
+	}
 
 	return rs ;
 }
@@ -116,19 +118,15 @@ int cfdecti(cchar *sbuf,int slen,int *rp)
 /* local subroutines */
 
 
-static int convert(sp,sl,mc,rp)
-const char	*sp ;
-int		sl ;
-int		mc ;
-int		*rp ;
+static int convert(cchar *sp,int sl,int mc,int *rp)
 {
 	int		rs = 0 ;
 	int		cl ;
-	const char	*cp ;
+	cchar		*cp ;
 
 	if ((cl = sfshrink(sp,sl,&cp)) > 0) {
-	    int	mf = 1 ;
-	    int	v = 0 ;
+	    int		mf = 1 ;
+	    int		v = 0 ;
 	    switch (mc) {
 	    case 'Y':
 	        mf = 365 * 24 * 60 * 60 ;

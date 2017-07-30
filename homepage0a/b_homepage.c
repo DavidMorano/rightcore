@@ -735,7 +735,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*afname = NULL ;
 	cchar		*efname = NULL ;
 	cchar		*ofname = NULL ;
-	cchar		*ifname = NULL ;
 	cchar		*cfname = NULL ;
 	cchar		*wfname = NULL ;
 	cchar		*qs = NULL ;
@@ -960,23 +959,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                ofname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-	                case argopt_if:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            ifname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                ifname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }

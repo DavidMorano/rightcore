@@ -176,7 +176,7 @@ extern int	getsysdomain(char *,int) ;
 extern int	getsystypenum(char *,char *,cchar *,cchar *) ;
 extern int	getgroupname(char *,int,gid_t) ;
 extern int	getnprocessors(cchar **,int) ;
-extern int	getuser_uid(cchar *,int) ;
+extern int	getuid_user(cchar *,int) ;
 extern int	getuserorg(char *,int,cchar *) ;
 extern int	localgetorg(cchar *,char *,int,cchar *) ;
 extern int	inittimezone(char *,int,cchar *) ;
@@ -3499,17 +3499,17 @@ static int ourconf_ifnopreload(OURCONF *ocp)
 	debugprintf("main/ifnopreload: v=%t",vp,vl) ;
 #endif
 		if ((vl > 0) && (vp != NULL)) {
-		    if ((rs = getuser_uid(vp,vl)) >= 0) {
+		    if ((rs = getuid_user(vp,vl)) >= 0) {
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("main/ifnopreload: getuser_uid() rs=%d\n",rs) ;
+	debugprintf("main/ifnopreload: getuid_user() rs=%d\n",rs) ;
 #endif
 			uid_t	u = rs ;
 			f = (u == uid) ;
 		    } else if (rs == rsn) {
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("main/ifnopreload: getuser_uid() rs=%d\n",rs) ;
+	debugprintf("main/ifnopreload: getuid_user() rs=%d\n",rs) ;
 #endif
 			rs = SR_OK ;
 		    }
@@ -3654,7 +3654,7 @@ static int mktmpreportdir(char *rbuf,cchar *ubuf,cchar *dname,mode_t m)
 		if (u == uid) {
 		    if ((rs = uc_minmod(rdname,dm)) >= 0) {
 			cchar	*adm = ADMINUSER ;
-			if ((rs = getuser_uid(adm,-1)) >= 0) {
+			if ((rs = getuid_user(adm,-1)) >= 0) {
 			    const uid_t	uid_admin = rs ;
 			    rs = uc_chown(rdname,uid_admin,-1) ;
 			} else if (isNotPresent(rs)) {

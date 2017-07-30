@@ -58,7 +58,7 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
 
 
 /* forward references */
@@ -74,7 +74,7 @@ int cfdecf(cchar *sp,int sl,double *rp)
 {
 	int		rs = SR_OK ;
 	int		bl ;
-	const char	*bp ;
+	cchar		*bp ;
 	char		tmpbuf[DIGBUFLEN + 1] ;
 	char		*ep ;
 

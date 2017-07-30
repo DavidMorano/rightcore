@@ -10,23 +10,23 @@ import	damutil.* ;
 
 /* local program data structures */
 
-/**
+/****
  * Debug
  *
  * this class stores a debug flag used during debugging
  *
  *
- */
+ ****/
 
 class Debug {
 	static final int	debuglevel = 0 ;
 }
 
 
-/**
+/****
  * DefParam
  *
- **/
+ ****/
 
 class DefParam {
 	final static double	SPEED = 300.0 ;
@@ -37,12 +37,12 @@ class DefParam {
 }
 
 
-/**
+/****
  * ArgOpt
  *
  * this class stores argument option strings
  *
- */
+ ****/
 
 class ArgOpt {
 	final static String	argopts[] = {
@@ -53,39 +53,31 @@ class ArgOpt {
 }
 
 
-/**
+/****
  * BattleLines
  *
  * this is the main class in the program used to create a 'MovingLines'
  * class and to animate it
  *
- */
+ ****/
 
 public class BattleLines extends Applet implements Runnable {
-
 	static MovingLines	c ;
-
 	Thread		t = null ;
-
 	Graphics	g ;
-
 	static double	speed = DefParam.SPEED ;
-
 	static int	numlines = DefParam.NUMLINES ;
 	static int	linelength = DefParam.LINELEN ;
-
 	int		minlines = DefParam.MINLINES ;
 	int		timeout = DefParam.TIMEOUT ;
-
 	boolean		f_running = false ;
 	boolean		f_destroy = false ;
 
 	public	BattleLines() {
-
-	    if (Debug.debuglevel > 0)
+	    if (Debug.debuglevel > 0) {
 	        System.err.println(
 	            "BattleLines/constructor: entered") ;
-
+	    }
 	} /* end constructor */
 
 	public String getAppletInfo() {
@@ -100,18 +92,13 @@ public class BattleLines extends Applet implements Runnable {
 	}
 
 	public static void main(String[] argv) {
-
 	    BattleLines	us = new BattleLines() ;
-
 	    Random	r = new Random() ;
-
 	    Frame	f ;
-
 	    int		argc = argv.length ;
 	    int		intcount = 0 ;
 	    int		i ;
 	    int		linesleft ;
-
 
 /* handle the invocation arguments */
 
@@ -119,36 +106,38 @@ public class BattleLines extends Applet implements Runnable {
 
 	        if ((argc > 0) && (argv[0].charAt(0) != '-')) {
 
-	            if (Debug.debuglevel > 0)
+	            if (Debug.debuglevel > 0) {
 	                System.err.println(
 	                    "BattleLines/main: numlines=" + argv[0]) ;
+		    }
 
 	            numlines = Integer.parseInt(argv[0]) ;
 
-	            if (Debug.debuglevel > 0)
+	            if (Debug.debuglevel > 0) {
 	                System.err.println(
 	                    "BattleLines/main: numlines=" + numlines) ;
+		    }
 
-	        }
+	        } /* end if */
 
 	        if ((argc > 1) && (argv[1].charAt(0) != '-')) {
-
 	            Double	dd ;
 
-
-	            if (Debug.debuglevel > 0)
+	            if (Debug.debuglevel > 0) {
 	                System.err.println(
 	                    "BattleLines/main: speed=" + argv[1]) ;
+		    }
 
 	            dd = Double.valueOf(argv[1]) ;
 
 	            speed = dd.doubleValue() ;
 
-	            if (Debug.debuglevel > 0)
+	            if (Debug.debuglevel > 0) {
 	                System.err.println(
 	                    "BattleLines/main: speed=" + speed) ;
+		    }
 
-	        }
+	        } /* end if */
 
 	    } catch (Exception e) {
 
@@ -161,11 +150,8 @@ public class BattleLines extends Applet implements Runnable {
 	    if (speed < 0.0) speed = DefParam.SPEED ;
 
 	    if (Debug.debuglevel > 0) {
-
 	        System.out.println("numlines=" + numlines) ;
-
 	        System.out.println("speed=" + speed) ;
-
 	    }
 
 /* continue with the business part of the program */
@@ -191,7 +177,7 @@ public class BattleLines extends Applet implements Runnable {
 
 		us.drawinitial(us.g,"remaining") ;
 
-/* start it up ! */
+/* start it up! */
 
 	    c.start() ;
 
@@ -199,8 +185,9 @@ public class BattleLines extends Applet implements Runnable {
 
 	    while ((linesleft = c.linesleft()) > 1) {
 
-	        if (Debug.debuglevel > 1)
+	        if (Debug.debuglevel > 1) {
 	            System.out.println("lines left = " + linesleft) ;
+		}
 
 	        DamUtil.sleep(4) ;
 
@@ -208,8 +195,9 @@ public class BattleLines extends Applet implements Runnable {
 
 /* we are almost done */
 
-	    if (Debug.debuglevel > 1)
+	    if (Debug.debuglevel > 1) {
 	        System.out.println("only one segment is left -- exiting") ;
+	    }
 
 	    DamUtil.sleep(10) ;
 
@@ -234,15 +222,14 @@ public class BattleLines extends Applet implements Runnable {
 	} /* end subroutine (drawinitial) */
 
 	public void	init() {
-
 	    BorderLayout	layout = new BorderLayout() ;
 
-
-	    if (Debug.debuglevel > 0)
+	    if (Debug.debuglevel > 0) {
 	        System.err.println(
 	            "BattleLines/init: entered") ;
+	    }
 
-	    c = new MovingLines(numlines, speed,linelength,
+	    c = new MovingLines(numlines,speed,linelength,
 		"Computer Science") ;
 
 	    setLayout(layout) ;
@@ -257,19 +244,17 @@ public class BattleLines extends Applet implements Runnable {
 
 	public void	start() {
 
-	    if (Debug.debuglevel > 0)
+	    if (Debug.debuglevel > 0) {
 	        System.err.println(
 	            "BattleLines/start: entered") ;
+	    }
 
 	    c.start() ;
 
 	    f_running = true ;
 	    if (t == null) {
-
 	        t = new Thread(this) ;
-
 	        t.start() ;
-
 	    }
 
 	} /* end subroutine (start) */
@@ -280,9 +265,10 @@ public class BattleLines extends Applet implements Runnable {
 
 	public void	stop() {
 
-	    if (Debug.debuglevel > 0)
+	    if (Debug.debuglevel > 0) {
 	        System.err.println(
 	            "BattleLines/stop: entered") ;
+	    }
 
 	    c.stop() ;
 
@@ -292,9 +278,10 @@ public class BattleLines extends Applet implements Runnable {
 
 	public void	destroy() {
 
-	    if (Debug.debuglevel > 0)
+	    if (Debug.debuglevel > 0) {
 	        System.err.println(
 	            "BattleLines/destroy: entered") ;
+	    }
 
 	    synchronized (this) {
 	        f_destroy = true ;
@@ -308,22 +295,19 @@ public class BattleLines extends Applet implements Runnable {
 	} /* end subroutine (destroy) */
 
 	public void	run() {
-
 	    long	daytime ;
 	    long	lasttime = System.currentTimeMillis() ;
-
-	    int	alive_old, alive_new ;
-
-	    boolean f_restart = false ;
-
+	    int		alive_old, alive_new ;
+	    boolean	f_restart = false ;
 
 	    alive_old = numlines ;
 	    while (! f_destroy) {
 
 	        if ((! f_running) && (! f_destroy)) {
 
-	            while ((! f_running) && (! f_destroy))
+	            while ((! f_running) && (! f_destroy)) {
 	                DamUtil.sleep(1) ;
+		    }
 
 		    lasttime = System.currentTimeMillis() ;
 
@@ -339,10 +323,9 @@ public class BattleLines extends Applet implements Runnable {
 	            lasttime = daytime ;
 
 	        if ((alive_new < minlines) || (alive_new == alive_old)) {
-
-	            if (((daytime - lasttime) / 1000) > timeout)
+	            if (((daytime - lasttime) / 1000) > timeout) {
 	                f_restart = true ;
-
+		    }
 	        }
 
 	        alive_old = alive_new ;
@@ -350,9 +333,10 @@ public class BattleLines extends Applet implements Runnable {
 
 	            if (f_restart && (! f_destroy)) {
 
-	                if (Debug.debuglevel > 0)
+	                if (Debug.debuglevel > 0) {
 	                    System.err.println(
 	                        "BattleLines/run: restarting") ;
+			}
 
 	                f_restart = false ;
 	                c.stop() ;
@@ -375,6 +359,5 @@ public class BattleLines extends Applet implements Runnable {
 
 }
 /* end class (BattleLines) */
-
 
 

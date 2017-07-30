@@ -145,7 +145,7 @@ extern int	cfdecui(cchar *,int,uint *) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	fsdirtreestat(cchar *,int,FSDIRTREE_STAT *) ;
-extern int	getuser_uid(cchar *,int) ;
+extern int	getuid_user(cchar *,int) ;
 extern int	getgroup_gid(cchar *,int) ;
 extern int	hasalldig(cchar *,int) ;
 extern int	isdigitlatin(int) ;
@@ -735,7 +735,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                rs = getuser_uid(argp,argl) ;
+	                                rs = getuid_user(argp,argl) ;
 	                                lip->uid_new = rs ;
 				    }
 	                        } else
@@ -902,7 +902,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	    				rs = getuser_uid(argp,argl) ;
+	    				rs = getuid_user(argp,argl) ;
 	        			lip->uid_owner = rs ;
 	    			    }
 	                        } else
@@ -1344,7 +1344,7 @@ static int procacl(PROGINFO *pip,cchar *abuf,int alen)
 	                if ((ai.type == acltype_user) ||
 	                    (ai.type == acltype_defuser)) {
 
-	                    rs = getuser_uid(idspec,idlen) ;
+	                    rs = getuid_user(idspec,idlen) ;
 	                    ai.uid = rs ;
 
 	                } else if ((ai.type == acltype_group) ||

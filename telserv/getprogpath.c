@@ -138,7 +138,7 @@ int getprogpath(IDS *idp,vecstr *plp,char *rbuf,cchar *pnp,int pnl)
 	    char	pwd[MAXPATHLEN + 1] = { 0 } ;
 
 	    for (i = 0 ; vecstr_get(plp,i,&pp) >= 0 ; i += 1) {
-	        if (pp == NULL) continue ;
+	        if (pp != NULL) {
 
 #if	CF_DEBUGS
 		debugprintf("getprogpath: p=>%s<\n",pp) ;
@@ -174,6 +174,7 @@ int getprogpath(IDS *idp,vecstr *plp,char *rbuf,cchar *pnp,int pnl)
 
 	        } /* end if */
 
+		}
 		if (f) break ;
 		if (rs < 0) break ;
 	    } /* end for */

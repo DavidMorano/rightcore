@@ -5,6 +5,15 @@
 #define	CF_DEBUGS	0		/* compile-time debugging */
 
 
+/* revision history:
+
+	= 2010-07-11, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2010 David A­D­ Morano.  All rights reserved. */
+
 #include	<envstandards.h>
 
 #include	<stdio.h>

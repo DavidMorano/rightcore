@@ -55,8 +55,8 @@
 
 /* external subroutines */
 
-extern int	snwcpyshrink(char *,int,const char *,int) ;
-extern int	checkbase(const char *,int,int) ;
+extern int	snwcpyshrink(char *,int,cchar *,int) ;
+extern int	checkbase(cchar *,int,int) ;
 
 
 /* external variables */
@@ -67,7 +67,7 @@ extern int	checkbase(const char *,int,int) ;
 
 /* forward references */
 
-int		cfbini(const char *,int,int *) ;
+int		cfbini(cchar *,int,int *) ;
 
 
 /* local variables */

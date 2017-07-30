@@ -7,6 +7,7 @@
 #define	CF_SAFE1	1		/* safe-level=1 */
 #define	CF_SAFE2	1		/* safe-level=2 (more safe) */
 #define	CF_STRNLEN	0		/* use 'strnlen(3dam)' */
+#define	CF_VSTRSORT	0		/* use |vstrsort()| */
 
 
 /* revision history:
@@ -94,6 +95,10 @@ extern int	strlinelen(const char *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
+
+#if	CF_VSTRSORT
+extern void	vstrsort(char **,int,int (*)()) ;
+#endif
 
 
 /* local structures */

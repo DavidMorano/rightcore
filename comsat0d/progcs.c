@@ -551,7 +551,7 @@ static int progcs_procmsger(PROGINFO *pip,DISPATCHER *dop,cchar *mp,int ml)
 /* end subroutine (progcs_procmsger) */
 
 
-/* parallel threads */
+/* this is a subroutine that runs in a parallel thread */
 static int progcs_worker(PROGINFO *pip,PROGCS_JOB *jp)
 {
 	int		rs = SR_OK ;
@@ -559,9 +559,9 @@ static int progcs_worker(PROGINFO *pip,PROGCS_JOB *jp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	debugprintf("progcs_worker: ent\n") ;
-	debugprintf("progcs_worker: jp{%p}\n",jp) ;
-	debugprintf("progcs_worker: mp{%p} m=>%t<\n",
+	    debugprintf("progcs_worker: ent\n") ;
+	    debugprintf("progcs_worker: jp{%p}\n",jp) ;
+	    debugprintf("progcs_worker: mp{%p} m=>%t<\n",
 		jp->mp,jp->mp,jp->ml) ;
 	}
 #endif
@@ -576,9 +576,8 @@ static int progcs_worker(PROGINFO *pip,PROGCS_JOB *jp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	pthread_t	tid ;
-	    uptself(&tid) ;
-	debugprintf("progcs_worker: tid=%u ret rs=%d\n",tid,rs) ;
+	    pthread_t	tid = pthread_self() ;
+	    debugprintf("progcs_worker: tid=%u ret rs=%d\n",tid,rs) ;
 	}
 #endif
 

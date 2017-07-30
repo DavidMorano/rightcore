@@ -56,27 +56,19 @@
 
 
 /* sort the entries in the list */
-int vecobj_hsort(op,cmpfunc)
-vecobj		*op ;
-int		(*cmpfunc)() ;
+int vecobj_hsort(vecobj *op,int (*cmpfunc)()) 
 {
 
+	if (op == NULL) return SR_FAULT ;
+	if (cmpfunc == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->va == NULL)
-	    return SR_NOTOPEN ;
-
-	if (cmpfunc == NULL)
-	    return SR_FAULT ;
+	if (op->va == NULL) return SR_NOTOPEN ;
 
 	if (! op->f.issorted) {
-
 	    op->f.issorted = TRUE ;
-	    if (op->c > 1)
+	    if (op->c > 1) {
 	        heapsort(op->va,op->i,cmpfunc) ;
-
+	    }
 	}
 
 	return op->c ;

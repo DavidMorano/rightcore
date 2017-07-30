@@ -14,6 +14,9 @@
 #ifndef	INTFLOOR_INCLUDE
 #define	INTFLOOR_INCLUDE	 1
 
+#include	<envstandards.h>
+#include	<sys/types.h>
+#include	<localmisc.h>
 
 #ifdef	__cplusplus
 extern "C" {

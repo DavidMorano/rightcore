@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1995-12-01,  David A.D. Morano
-
 	Module was originally written.
-
 
 */
 
@@ -58,38 +56,62 @@ static int	defcmpfunc() ;
 /* exported subroutines */
 
 
-int sortvec_start(svp,n,cmpfunc)
-sortvec		*svp ;
-int		n ;
-int		(*cmpfunc)() ;
+int sortvec_start(sortvec *svp,int n,int (*cmpfunc)())
 {
+	int		rs ;
+	int		size = 0 ;
+	void		*p ;
 
-	if (n <= 1)
-		n = SORTLIST_DEFENTS ;
+	if (svp == NULL) return SR_FAULT ;
 
+	if (n <= 1) n = SORTLIST_DEFENTS ;
+
+	memset(svp,0,sizeof(sortvec)) ;
 	svp->i = 0 ;
 	svp->c = 0 ;
-	svp->va = (void **)
-	    malloc(sizeof(void **) * (n + 1)) ;
 
-	if (svp->va == NULL) {
-
-	    svp->e = 0 ;
-	    return SR_NOMEM ;
+	size += (sizeof(void **) * (n+1)) ;
+	if ((rs = uc_malloc(size,&p)) >= 0) {
+	    svp->va = p ;
+	    svp->e = n ;
+	    {
+		svp->va[0] = NULL ;
+		svp->cmpfunc = (cmpfunc != NULL) ? cmpfunc : defcmpfunc ;
+	    }
 	}
-
-	svp->va[0] = NULL ;
-	svp->e = n ;
-	svp->cmpfunc = (cmpfunc != NULL) ? cmpfunc : defcmpfunc ;
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (sortvec_start) */
 
 
+int sortvec_finish(sortvec *svp)
+{
+	int		i ;
+
+	if (svp == NULL) return SR_FAULT ;
+
+	if (svp->va != NULL) {
+
+	    for (i = 0 ; i < svp->i ; i += 1) {
+	        if ((svp->va)[i] != NULL)
+	            free((svp->va)[i]) ;
+	    } /* end while */
+
+/* free the sortvec array itself */
+
+	    free(svp->va) ;
+	    svp->va = NULL ;
+	}
+
+	svp->i = 0 ;
+	svp->e = 0 ;
+	return SR_OK ;
+}
+/* end subroutine (sortvec_finish) */
+
+
 /* add an entry to this sorted list */
-int sortvec_add(svp,buf)
-sortvec		*svp ;
-void		buf[] ;
+int sortvec_add(sortvec *svp,void *buf)
 {
 	int		rs ;
 	int		nn ;
@@ -149,7 +171,7 @@ void		buf[] ;
 
 	while ((top - bot) > 0) {
 
-	    if ((rs = (*svp->cmpfunc)(&buf,&svp->va[i])) < 0) {
+	    if ((rs = (*svp->cmpfunc)(&buf,(svp->va+i))) < 0) {
 	        top = i - 1 ;
 	    } else if (rs > 0) {
 	        bot = i + 1 ;
@@ -188,78 +210,21 @@ void		buf[] ;
 /* end subroutine (sortvec_add) */
 
 
-int sortvec_finish(svp)
-sortvec		*svp ;
-{
-	int		i ;
-
-	if (svp == NULL)
-		return SR_FAULT ;
-
-	if (svp->va != NULL) {
-
-	    for (i = 0 ; i < svp->i ; i += 1) {
-
-	        if ((svp->va)[i] != NULL)
-	            free((svp->va)[i]) ;
-
-	    } /* end while */
-
-/* free the sortvec array itself */
-
-	    free(svp->va) ;
-
-	    svp->va = NULL ;
-	}
-
-	svp->i = 0 ;
-	svp->e = 0 ;
-	return SR_OK ;
-}
-/* end subroutine (sortvec_finish) */
-
-
 /* get an entry (enumerated) from the vector list */
-int sortvec_get(svp,i,rpp)
-sortvec		*svp ;
-int		i ;
-void		**rpp ;
+int sortvec_get(sortvec *svp,int i,void **rpp)
 {
 
-#if	CF_DEBUGS
-	debugprintf("sortvecget: ent\n") ;
-#endif
+	if (svp == NULL) return SR_FAULT ;
 
-	if (svp == NULL)
-		return SR_FAULT ;
+	if (rpp != NULL) *rpp = NULL ;
 
-#if	CF_DEBUGS
-	debugprintf("sortvecget: i=%d\n",i) ;
-#endif
+	if ((i < 0) || (i >= svp->i)) return SR_NOTFOUND ;
 
-	if (rpp != NULL)
-		*rpp = NULL ;
+	if (svp->va == NULL) return SR_NOTFOUND ;
 
-	if ((i < 0) || (i >= svp->i))
-		return SR_NOTFOUND ;
-
-#if	CF_DEBUGS
-	debugprintf("sortvecget: 2\n") ;
-#endif
-
-	if (svp->va == NULL)
-		return SR_NOTFOUND ;
-
-#if	CF_DEBUGS
-	debugprintf("sortvecget: 3\n") ;
-#endif
-
-	if (rpp != NULL)
+	if (rpp != NULL) {
 		*rpp = (svp->va)[i] ;
-
-#if	CF_DEBUGS
-	debugprintf("sortvecget: 4\n") ;
-#endif
+	}
 
 	return SR_OK ;
 }
@@ -267,9 +232,7 @@ void		**rpp ;
 
 
 /* delete an entry */
-int sortvec_del(svp,i)
-sortvec		*svp ;
-int		i ;
+int sortvec_del(sortvec *svp,int i)
 {
 	int		j ;
 
@@ -280,8 +243,9 @@ int		i ;
 	if (svp->va == NULL) return SR_NOTFOUND ;
 
 	svp->i -= 1 ;
-	for (j = i ; j < svp->i ; j += 1)
+	for (j = i ; j < svp->i ; j += 1) {
 	    (svp->va)[j] = (svp->va)[j + 1] ;
+	}
 
 	(svp->va)[svp->i] = NULL ;
 
@@ -292,8 +256,7 @@ int		i ;
 
 
 /* return the count of the number of items in this list */
-int sortvec_count(svp)
-sortvec		*svp ;
+int sortvec_count(sortvec *svp)
 {
 
 	if (svp == NULL) return SR_FAULT ;
@@ -311,6 +274,7 @@ void		**rpp ;
 {
 	const int	esize = sizeof(void *) ;
 	int		rs ;
+	int		i ;
 	void		*ep2 ;
 	void		**rpp2 ;
 
@@ -339,11 +303,11 @@ void		**rpp ;
 /* private subroutines */
 
 
-static int defcmpfunc(app,bpp)
-const void	**app, **bpp ;
+static int defcmpfunc(const void *app,const void *bpp)
 {
-
-	return strcmp(*app,*bpp) ;
+	cchar	**e1pp = (cchar **) app ;
+	cchar	**e2pp = (cchar **) bpp ;
+	return strcmp(*e1pp,*e2pp) ;
 }
 /* end subroutine (defcmpfunc) */
 

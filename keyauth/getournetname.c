@@ -73,7 +73,7 @@ extern int	sncpy4(char *,int,cchar *,cchar *,cchar *,cchar *) ;
 extern int	sncpy4w(char *,int,cchar *,cchar *,cchar *,cchar *,int) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	nisdomainname(char *,int) ;
-extern int	getuser_uid(cchar *,int) ;
+extern int	getuid_user(cchar *,int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
@@ -153,7 +153,7 @@ static int getothernetname(char *nbuf,int nlen,cchar *un)
 #if	CF_DEBUGS
 	        debugprintf("getotheretname: nisdomainname() rs=%d\n",rs) ;
 #endif
-		if ((rs = getuser_uid(un,-1)) >= 0) {
+		if ((rs = getuid_user(un,-1)) >= 0) {
 	            const int	dilen = DIGBUFLEN ;
 	            const int	v = rs ;
 	            char	dibuf[DIGBUFLEN+1] ;
@@ -161,7 +161,7 @@ static int getothernetname(char *nbuf,int nlen,cchar *un)
 	                rs = sncpy4w(nbuf,nlen,"unix.",dibuf,"@",dbuf,dl) ;
 	                len = rs ;
 	            }
-	        } /* end if (getuser_uid) */
+	        } /* end if (getuid_user) */
 	    } /* end if (nisdomainname) */
 	} else if (rs == 0) {
 	    rs = SR_UNAVAIL ;

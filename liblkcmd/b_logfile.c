@@ -137,7 +137,7 @@ extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	getnodename(char *,int) ;
 extern int	getusername(char *,int,uid_t) ;
-extern int	getuser_uid(cchar *,int) ;
+extern int	getuid_user(cchar *,int) ;
 extern int	mklogid(char *,int,cchar *,int,int) ;
 extern int	mkdirs(cchar *,mode_t) ;
 extern int	isalphalatin(int) ;
@@ -1464,7 +1464,7 @@ static int mktmpreportdir(char *rbuf,cchar *ubuf,cchar *dname,mode_t m)
 		if (u == uid) {
 		    if ((rs = uc_minmod(rdname,dm)) >= 0) {
 			cchar	*adm = ADMINUSER ;
-			if ((rs = getuser_uid(adm,-1)) >= 0) {
+			if ((rs = getuid_user(adm,-1)) >= 0) {
 			    const uid_t	uid_admin = rs ;
 			    rs = uc_chown(rdname,uid_admin,-1) ;
 			} else if (isNotPresent(rs)) {

@@ -14,6 +14,9 @@
 #ifndef	INTSAT_INCLUDE
 #define	INTSAT_INCLUDE	1
 
+#include	<envstandards.h>
+#include	<sys/types.h>
+#include	<localmisc.h>
 
 #ifdef	__cplusplus
 extern "C" {

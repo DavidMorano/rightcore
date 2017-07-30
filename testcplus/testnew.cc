@@ -6,6 +6,16 @@
 #define	CF_COPY		1
 
 
+/* revision history:
+
+	= 2010-07-11, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2010 David A­D­ Morano.  All rights reserved. */
+
+
 #include	<envstandards.h>
 
 #include	<stdio.h>
@@ -190,7 +200,7 @@ static int testio()
 {
 	int		rs = SR_OK ;
 	{
-	    cchar	*ofn = "ourout" ;
+	    cchar	*ofn = "ourout.txt" ;
 	    {
 	        ofstream	os(ofn) ;
 		if (os.good()) {

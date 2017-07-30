@@ -151,7 +151,7 @@ extern int	getserial(cchar *) ;
 extern int	getportnum(cchar *,cchar *) ;
 extern int	getmailgid(cchar *,gid_t) ;
 extern int	getuid_name(cchar *,int) ;
-extern int	getuser_uid(cchar *,int) ;
+extern int	getuid_user(cchar *,int) ;
 extern int	initnow(struct timeb *,cchar *,int) ;
 extern int	vecstr_envadd(vecstr *,cchar *,cchar *,int) ;
 extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
@@ -4567,7 +4567,7 @@ static int mktmpreportdir(char *rbuf,cchar *ubuf,cchar *dname,mode_t m)
 		if (u == uid) {
 		    if ((rs = uc_minmod(rdname,m)) >= 0) {
 			cchar	*adm = ADMINUSER ;
-			if ((rs = getuser_uid(adm,-1)) >= 0) {
+			if ((rs = getuid_user(adm,-1)) >= 0) {
 			    uid_admin = rs ;
 			    rs = uc_chown(rdname,uid_admin,-1) ;
 			} else if (isNotPresent(rs)) {

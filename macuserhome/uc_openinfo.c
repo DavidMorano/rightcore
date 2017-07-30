@@ -329,7 +329,7 @@ int uc_openinfo(UCOPENINFO *oip)
 #if	CF_DEBUGS
 	    		debugprintf("uc_openinfo: 2 mkcdpath() rs=%d\n",rs) ;
 #endif
-	                rs = SR_BADFMT ;
+	                rs = SR_NOENT ;
 	            }
 	            uc_libfree(tbuf) ;
 	        } /* end if (memory-allocation) */
@@ -959,7 +959,7 @@ static int openproger(cchar *fname,int oflags,cchar **ev)
 	char		expfname[MAXPATHLEN+1] ;
 
 #if	CF_DEBUGS
-	debugprintf("uc_openinfo/openproger: fname=%s\n",fname) ;
+	debugprintf("uc_openinfo/openproger: ent fn=%s\n",fname) ;
 #endif
 
 	if (ev == NULL) ev = (cchar **) environ ;

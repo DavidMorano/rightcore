@@ -42,14 +42,11 @@ extern cchar	**environ ;
 /* exported subroutines */
 
 
-const char *getenv3(name,namelen,epp)
-const char	name[] ;
-int		namelen ;
-const char	**epp ;
+const char *getenv3(cchar *name,int namelen,cchar **epp)
 {
-	register int	len, i ;
-	register cchar	*np ;
-	register cchar	**p, *cp ;
+	int		len, i ;
+	cchar		*np ;
+	cchar		**p, *cp ;
 	cchar		*rp = NULL ;
 
 	if (environ == NULL) return NULL ;

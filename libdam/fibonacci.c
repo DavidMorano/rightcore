@@ -96,18 +96,16 @@ int fibonacci(unsigned int n)
 /* end subroutine (fibonacci) */
 
 
-int fibonaccikill(kfp,n)
-volatile int	*kfp ;
-unsigned int	n ;
+int fibonaccikill(volatile int *kfp,unsigned int n)
 {
-	const int	ntab = nelem(fibotab) ;
 	int		v = -1 ;
 
-	if (kfp != NULL) {
-	    if (*kfp) return 0 ;
+	if ((kfp != NULL) && *kfp) {
+	    v = 0 ;
+	} else {
+	    const int	ntab = nelem(fibotab) ;
+	    if (n < ntab) v = fibotab[n] ;
 	}
-
-	if (n < ntab) v = fibotab[n] ;
 
 	return v ;
 }

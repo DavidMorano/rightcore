@@ -74,10 +74,7 @@
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	sfshrink(const char *,int,const char **) ;
-extern int	matostr(const char **,int,const char *,int) ;
 extern int	isprintlatin(int) ;
 
 #if	CF_DEBUGS
@@ -85,12 +82,6 @@ extern int	debugprintf(const char *,...) ;
 extern int	strnnlen(const char *,int,int) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif /* CF_DEBUGS */
-
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strwcpylc(char *,const char *,int) ;
-extern char	*strwcpyuc(char *,const char *,int) ;
-extern char	*strcpylc(char *,const char *) ;
-extern char	*strcpyuc(char *,const char *) ;
 
 
 /* external variables */

@@ -199,8 +199,7 @@ public:
 	int		sksize ;
 	int		svsize ;
 	int		f_havekey ;
-	dbmake(VECOBJ *arlp,STRTAB *aklp,STRTAB *avlp,int afd) : 
-	ikey(0), c(0) {
+	dbmake(VECOBJ *arlp,STRTAB *aklp,STRTAB *avlp,int afd) : ikey(0), c(0) {
 	    rlp = arlp ;
 	    klp = aklp ;
 	    vlp = avlp ;
@@ -211,8 +210,7 @@ public:
 
 class record {
 public:
-	record() : 
-	key(0), val(0) { 
+	record() : key(0), val(0) { 
 	} ;
 	uint		key ;
 	uint		val ;

@@ -235,6 +235,9 @@ int spawnproc(SPAWNPROC *psap,cchar *fname,cchar **argv,cchar **envv)
 	        debugprintf("spawnproc: argv[%u]=%s\n",i,argv[i]) ;
 	    }
 	}
+#endif /* CF_DEBUGS */
+
+#if	CF_DEBUGS && CF_DEBUGENV
 	if (envv != NULL) {
 	    int	i ;
 	    for (i = 0 ; envv[i] != NULL ; i += 1) {
@@ -525,8 +528,9 @@ static void spawnproc_child(SPAWNPROC *psap,cchar *fname,
 	        arg[0] = cp ;
 	        arg[1] = NULL ;
 	        av = arg ;
-	    } else
+	    } else {
 	        rs = SR_NOENT ;
+	    }
 	} /* end if (argument check) */
 
 /* do the exec */
