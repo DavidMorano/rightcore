@@ -1,0 +1,103 @@
+dialers
+----------
+
+
+= facility open-services
+
+local§hello
+
+local§daytime
+
+local§loginblurb
+
+local§prog­daytime­localhost
+
+local§cotd[­<day>]
+
+local§qotd[­<day>][­-m]
+
+pcs§name­dam
+
+pcs§pcsorg[­<user>]
+
+pcs§mail[­<user>]
+
+pcs§mailmsgs[­<user>]
+
+- mailbox-intercept
+pcs§mb­<type>­<name>[­<arg(s)>]
+
+- mailbox-intercept (PCS Bulletin-Board-Mail-Box) for newsgroup 'test'
+pcs§bbmb­test
+
+
+= user open-service
+dam~damissue
+
+
+= dialers 
+
+prog¥daytime­<arg(s)>
+
+tcp¥localhost:daytime
+
+tcpmux¥localhost:5108:daytime
+
+rshe¥rca:daytime
+
+finger¥rca:daytime
+
+user¥dam:hello­what­is
+
+
+= other?
+
+what¤thing
+
+bang¡hotd
+
+some¦thing
+
+over»there
+
+be«over
+
+host:something
+
+damµfinger
+
+pcsºmb­new
+
+pcsºbbmb­general.misc
+
+openºintercept
+
+mailboxºwebmaster
+
+otherthingªthere
+
+one×two
+
+can·it­be
+
+- send mail to user on machine?
+rca!dam
+
+- send mail to user on machine?
+d.a.morano@gmail.com[­<subject is here>]
+
+what¶is
+
+
+= prefix paths
+
+~dam/rje/daytime
+
+/u/dam/rje/daytime
+
+/%cdpath/rje/daytime
+
+¬/rje/daytime
+
+
+

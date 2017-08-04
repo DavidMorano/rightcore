@@ -18,6 +18,8 @@
 
 /*******************************************************************************
 
+	Does the given string contain a Modified-Julian-Day (MJD) specification?
+
 	Synopsis:
 
 	int hasourmjd(sp,sl)
@@ -41,6 +43,7 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
+#include	<string.h>
 #include	<vsystem.h>
 #include	<char.h>
 #include	<localmisc.h>

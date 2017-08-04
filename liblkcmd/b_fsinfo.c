@@ -304,7 +304,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f ;
 
 	cchar		*argp, *aop, *akp, *avp ;
 	cchar		*argval = NULL ;
@@ -561,6 +560,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        f_version = TRUE ;
 	                        break ;
 
+			    case 'f':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                statfname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                        break ;
+
+/* verbose mode */
+
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
@@ -692,47 +704,42 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* statvfs initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (statfname == NULL) {
-	    for (ai = ai_continue ; ai < argc ; ai += 1) {
-
-	        f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	        f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	        if (f) {
-	            statfname = argv[ai] ;
-	            ai_continue = (ai + 1) ;
-	            break ;
-	        }
-
-	    } /* end for */
+	    if ((cp = getourenv(envv,VARFPATH)) != NULL) {
+		statfname = cp ;
+	    }
 	} /* end if (getting file to append to) */
 
-	if ((statfname != NULL) && (statfname[0] == '-')) {
-	    if (un == NULL) un = "-" ;
-	    if (un[0] == '\0') rs = SR_INVALID ;
-	    if (rs >= 0) {
-	        char	hbuf[MAXPATHLEN+1] ;
-	        int	hlen = MAXPATHLEN ;
-	        if ((rs = getuserhome(hbuf,hlen,un)) >= 0) {
-	            int	hl = rs ;
-	            rs = locinfo_sethome(lip,hbuf,hl) ;
-	            if (rs >= 0) statfname = lip->homedname ;
-	        }
-	    }
-	    if (rs < 0) {
-	        ex = EX_NOUSER ;
+	if (rs >= 0) {
+	    if ((statfname == NULL) || (statfname[0] == '-')) {
+	        if (un == NULL) un = "-" ;
+	        if (un[0] == '\0') rs = SR_INVALID ;
+	        if (rs >= 0) {
+	            char	hbuf[MAXPATHLEN+1] ;
+	            int	hlen = MAXPATHLEN ;
+	            if ((rs = getuserhome(hbuf,hlen,un)) >= 0) {
+	                if ((rs = locinfo_sethome(lip,hbuf,rs)) >= 0) {
+	                    statfname = lip->homedname ;
+		        }
+	            }
+		}
+	        if (rs < 0) {
+	            ex = EX_NOUSER ;
+		}
+	    } else {
+	        rs = locinfo_setpath(lip,statfname) ;
 	    }
 	} /* end if (user-home specified) */
 
-	if ((rs >= 0) && ((statfname == NULL) || (statfname[0] == '\0'))) {
-	    ex = EX_NOINPUT ;
-	    shio_printf(pip->efp,"%s: no file specified\n",
-	        pip->progname) ;
-	}
-
-	if (rs >= 0) {
-	    locinfo_setpath(lip,statfname) ;
+	if ((rs >= 0) && (lip->filepath != NULL)) {
+	    shio_printf(pip->efp,"%s: fn=%s\n",pip->progname,lip->filepath) ;
 	}
 
 /* do the deed */
@@ -984,8 +991,11 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    } /* end if (processing file argument file list) */
 
 	    if ((rs >= 0) && (pan == 0)) {
-	        rs = SR_INVALID ;
-	        shio_printf(pip->efp,"%s: no specifications given\n",pn) ;
+		cl = -1 ;
+		cp = DEFSPEC ;
+		pan += 1 ;
+		rs = procspec(pip,ofp,cp,-1) ;
+		wlen += rs ;
 	    }
 
 	    rs1 = shio_close(ofp) ;
@@ -1026,7 +1036,7 @@ static int procspecs(PROGINFO *pip,void *ofp,cchar *lbuf,int len)
 
 
 /* process a specification name */
-static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
+static int procspec(PROGINFO *pip,void *ofp,cchar *rp,int rl)
 {
 	LOCINFO		*lip = pip->lip ;
 	struct statvfs	*fssp = &lip->fss ;

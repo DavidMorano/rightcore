@@ -46,14 +46,20 @@
 /* local defines */
 
 
+/* typedefs */
+
+
 /* forward references */
 
-int		vecint_add(vecint *,int) ;
+int		vecint_add(vecint *,VECINT_TYPE) ;
 
-static int	vecint_extend(vecint *) ;
+static int	vecint_addval(vecint *op,VECINT_TYPE) ;
+static int	vecint_extend(vecint *,int) ;
 static int	vecint_setopts(vecint *,int) ;
+static int	vecint_insertval(vecint *,int,VECINT_TYPE) ;
+static int	vecint_extrange(vecint *,int) ;
 
-static int	defintcmp(const int *,const int *) ;
+static int	defintcmp(const VECINT_TYPE *,const VECINT_TYPE *) ;
 
 
 /* local variables */
@@ -75,7 +81,7 @@ int vecint_start(vecint *op,int n,int opts)
 	if ((rs = vecint_setopts(op,opts)) >= 0) {
 	    op->n = n ;
 	    if (n > 0) {
-	        const int	size = (n + 1) * sizeof(int) ;
+	        const int	size = (n + 1) * sizeof(VECINT_TYPE) ;
 		void	*p ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
 		    op->va = (int *) p ;
@@ -118,12 +124,8 @@ int vecint_finish(vecint *op)
 /* end subroutine (vecint_finish) */
 
 
-int vecint_add(vecint *op,int v)
+int vecint_add(vecint *op,VECINT_TYPE v)
 {
-	int		rs = SR_OK ;
-	int		i = 0 ; /* ¥ GCC false complaint */
-	int		f_done = FALSE ;
-	int		f ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -131,55 +133,32 @@ int vecint_add(vecint *op,int v)
 	if (op->magic != VECINT_MAGIC) return SR_NOTOPEN ;
 #endif
 
-/* can we fit this new entry within the existing extent? */
-
-	f = (op->f.oreuse || op->f.oconserve) && (! op->f.oordered) ;
-	if (f && (op->c < op->i)) {
-
-	    i = op->fi ;
-	    while ((i < op->i) && (op->va[i] != INT_MIN))
-	        i += 1 ;
-
-	    if (i < op->i) {
-	        (op->va)[i] = v ;
-	        op->fi = (i + 1) ;
-	        f_done = TRUE ;
-	    } else
-	        op->fi = i ;
-
-	} /* end if (possible reuse strategy) */
-
-/* do we have to grow the vector array? */
-
-	if (! f_done) {
-
-/* do we have to grow the array? */
-
-	    if ((op->i + 1) > op->n) {
-	        rs = vecint_extend(op) ;
-	    }
-
-/* link into the list structure */
-
-	    if (rs >= 0) {
-	        i = op->i ;
-	        (op->va)[(op->i)++] = v ;
-	        (op->va)[op->i] = INT_MIN ;
-	    }
-
-	} /* end if */
-
-	if (rs >= 0) {
-	    op->c += 1 ;		/* increment list count */
-	    op->f.issorted = FALSE ;
-	}
-
-	return (rs >= 0) ? i : rs ;
+	return vecint_addval(op,v) ;
 }
 /* end subroutine (vecint_add) */
 
 
-int vecint_adduniq(vecint *op,int v)
+extern int vecint_addlist(vecint *op,const VECINT_TYPE *lp,int ll)
+{
+	int		rs = SR_OK ;
+	int		i ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECINT_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	for (i = 0 ; (rs >= 0) && (i < ll) ; i += 1) {
+	    rs = vecint_addval(op,lp[i]) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (vecint_addlist) */
+
+
+int vecint_adduniq(vecint *op,VECINT_TYPE v)
 {
 	int		rs = INT_MAX ;
 	int		i ;
@@ -197,7 +176,7 @@ int vecint_adduniq(vecint *op,int v)
 	} /* end for */
 
 	if (i >= op->i) {
-	    rs = vecint_add(op,v) ;
+	    rs = vecint_addval(op,v) ;
 	}
 
 	return rs ;
@@ -205,7 +184,98 @@ int vecint_adduniq(vecint *op,int v)
 /* end subroutine (vecint_adduniq) */
 
 
-int vecint_getval(vecint *op,int i,int *rp)
+int vecint_insert(vecint *op,int ii,VECINT_TYPE val)
+{
+	int		rs = SR_OK ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECINT_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if (ii >= 0) {
+	    if ((ii+1) > op->n) {
+	        rs = vecint_extend(op,((ii+1)-op->n)) ;
+	    }
+	    if (rs >= 0) {
+		if ((rs = vecint_extrange(op,(ii+1))) >= 0) {
+	            rs = vecint_insertval(op,ii,val) ;
+		}
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
+
+	return rs ;
+}
+/* end subroutine (vecint_insert) */
+
+
+int vecint_assign(vecint *op,int ii,VECINT_TYPE val) 
+{
+	int		rs = SR_OK ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECINT_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if (ii >= 0) {
+	    if ((ii+1) > op->n) {
+	        rs = vecint_extend(op,((ii+1)-op->n)) ;
+	    }
+	    if (rs >= 0) {
+		if ((rs = vecint_extrange(op,(ii+1))) >= 0) {
+	            op->va[ii] = val ;
+		    op->va[op->i] = INT_MAX ;
+	        }
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
+
+	return rs ;
+}
+/* end subroutine (vecint_assign) */
+
+
+int vecint_resize(vecint *op,int n)
+{
+	int		rs = SR_OK ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECINT_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if (n >= 0) {
+	    if (n != op->i) {
+	        if (n > op->n) {
+	            rs = vecint_extend(op,(n-op->n)) ;
+	        }
+	        if (rs >= 0) {
+		    if ((rs = vecint_extrange(op,n)) >= 0) {
+		        if (n < op->i) {
+			    op->i = n ;
+		        }
+		        op->c = n ;
+		        op->va[op->i] = INT_MIN ;
+		    }
+	        }
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
+
+	return rs ;
+}
+/* end subroutine (vecint_resize) */
+
+
+int vecint_getval(vecint *op,int i,VECINT_TYPE *rp)
 {
 	int		rs = SR_OK ;
 
@@ -350,7 +420,7 @@ int vecint_sort(vecint *op,int (*fcmp)())
 	if (! op->f.issorted) {
 	    op->f.issorted = TRUE ;
 	    if (op->c > 1) {
-	        qsort(op->va,op->i,sizeof(int),fcmp) ;
+	        qsort(op->va,op->i,sizeof(VECINT_TYPE),fcmp) ;
 	    }
 	}
 
@@ -376,7 +446,7 @@ int vecint_setsorted(vecint *op)
 
 
 /* find an entry in the vector list by memory comparison of entry elements */
-int vecint_find(vecint *op,int v)
+int vecint_find(vecint *op,VECINT_TYPE v)
 {
 	int		*rpp2 ;
 	int		rs = SR_OK ;
@@ -391,8 +461,9 @@ int vecint_find(vecint *op,int v)
 #endif
 
 	if (op->f.issorted) {
+	    const int	esz = sizeof(VECINT_TYPE) ;
 	    fcmp = (int (*)(const void *,const void *)) defintcmp ;
-	    rpp2 = (int *) bsearch(&v,op->va,op->i,sizeof(int),fcmp) ;
+	    rpp2 = (int *) bsearch(&v,op->va,op->i,esz,fcmp) ;
 	    rs = SR_NOTFOUND ;
 	    if (rpp2 != NULL) {
 	        i = rpp2 - op->va ;
@@ -410,7 +481,7 @@ int vecint_find(vecint *op,int v)
 /* end subroutine (vecint_find) */
 
 
-int vecint_match(vecint *op,int v)
+int vecint_match(vecint *op,VECINT_TYPE v)
 {
 	int		rs ;
 	if ((rs = vecint_find(op,v)) >= 0) {
@@ -424,7 +495,7 @@ int vecint_match(vecint *op,int v)
 
 
 /* get the vector array address */
-int vecint_getvec(vecint *op,int **rpp)
+int vecint_getvec(vecint *op,VECINT_TYPE **rpp)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -441,7 +512,7 @@ int vecint_getvec(vecint *op,int **rpp)
 
 
 /* for compatibility with other objects */
-int vecint_mkvec(vecint *op,int *va)
+int vecint_mkvec(vecint *op,VECINT_TYPE *va)
 {
 	int		c = 0 ;
 
@@ -490,7 +561,7 @@ int vecint_curend(vecint *op,vecint_cur *curp)
 /* end subroutine (vecint_end) */
 
 
-int vecint_enum(vecint *op,vecint_cur *curp,int *rp)
+int vecint_enum(vecint *op,vecint_cur *curp,VECINT_TYPE *rp)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -538,7 +609,7 @@ int vecint_audit(vecint *op)
 static int vecint_setopts(vecint *op,int options)
 {
 
-	memset(&op->f,0,sizeof(struct vecint_flags)) ;
+	memset(&op->f,0,sizeof(VECINT_FL)) ;
 
 	if (options & VECINT_OREUSE)
 	    op->f.oreuse = 1 ;
@@ -566,38 +637,144 @@ static int vecint_setopts(vecint *op,int options)
 /* end subroutine (vecint_setopts) */
 
 
-static int vecint_extend(vecint *op)
+int vecint_addval(vecint *op,VECINT_TYPE v)
+{
+	int		rs = SR_OK ;
+	int		i = 0 ; /* ¥ GCC false complaint */
+	int		f_done = FALSE ;
+	int		f ;
+
+/* can we fit this new entry within the existing extent? */
+
+	f = (op->f.oreuse || op->f.oconserve) && (! op->f.oordered) ;
+	if (f && (op->c < op->i)) {
+
+	    i = op->fi ;
+	    while ((i < op->i) && (op->va[i] != INT_MIN)) {
+	        i += 1 ;
+	    }
+
+	    if (i < op->i) {
+	        (op->va)[i] = v ;
+	        op->fi = (i + 1) ;
+	        f_done = TRUE ;
+	    } else {
+	        op->fi = i ;
+	    }
+
+	} /* end if (possible reuse strategy) */
+
+/* do we have to grow the vector array? */
+
+	if (! f_done) {
+
+/* do we have to grow the array? */
+
+	    if ((op->i + 1) > op->n) {
+	        rs = vecint_extend(op,1) ;
+	    }
+
+/* link into the list structure */
+
+	    if (rs >= 0) {
+	        i = op->i ;
+	        (op->va)[(op->i)++] = v ;
+	        (op->va)[op->i] = INT_MIN ;
+	    }
+
+	} /* end if */
+
+	if (rs >= 0) {
+	    op->c += 1 ;		/* increment list count */
+	    op->f.issorted = FALSE ;
+	}
+
+	return (rs >= 0) ? i : rs ;
+}
+/* end subroutine (vecint_addval) */
+
+
+static int vecint_extend(vecint *op,int amount)
 {
 	int		rs = SR_OK ;
 
-	if ((op->i + 1) > op->n) {
-	    const int	esize = sizeof(int) ;
-	    int		nn, size ;
-	    int		*va ;
-
+	if (amount > 0) {
+	    const int		esize = sizeof(VECINT_TYPE) ;
+	    int			nn, size ;
+	    VECINT_TYPE		*va ;
 	    if (op->va == NULL) {
-	        nn = VECINT_DEFENTS ;
+	        nn = MAX(amount,VECINT_DEFENTS) ;
 	        size = ((nn + 1) * esize) ;
 	        rs = uc_malloc(size,&va) ;
 	    } else {
-	        nn = ((op->n + 1) * 2) ;
+	        nn = MAX((op->n+amount),(op->n*2)) ;
 	        size = ((nn + 1) * esize) ;
 	        rs = uc_realloc(op->va,size,&va) ;
 	    } /* end if */
-
 	    if (rs >= 0) {
 	        op->va = va ;
 	        op->n = nn ;
 	    }
-
-	} /* end if (extension required) */
+	}
 
 	return rs ;
 }
 /* end subroutine (vecint_extend) */
 
 
-static int defintcmp(const int *l1p,const int *l2p)
+static int vecint_insertval(vecint *op,int ii,VECINT_TYPE val)
+{
+
+	if (ii < op->i) {
+	    int		i, j ;
+
+/* find */
+
+	    for (i = (ii + 1) ; i < op->i ; i += 1) {
+		if (op->va[i] == INT_MIN) break ;
+	    }
+
+/* management */
+
+	    if (i == op->i) {
+	        op->i += 1 ;
+	        op->va[op->i] = INT_MIN ;
+	    }
+
+/* move-up */
+
+	    for (j = i ; j > ii ; j -= 1) {
+		op->va[j] = op->va[j-1] ;
+	    }
+
+	} else if (ii == op->i) {
+	    op->i += 1 ;
+	    op->va[op->i] = INT_MIN ;
+	} /* end if */
+
+	op->va[ii] = val ;
+	op->c += 1 ;
+	op->f.issorted = FALSE ;
+
+	return ii ;
+}
+/* end subroutine (vecint_insertval) */
+
+
+static int vecint_extrange(vecint *op,int n)
+{
+	if (n > op->i) {
+		const int nsz = ((n-op->i)*sizeof(VECINT_TYPE)) ;
+		memset((op->va+op->i),0,nsz) ;
+	    op->i = n ;
+	    op->va[op->i] = INT_MIN ;
+	}
+	return SR_OK ;
+}
+/* end subroutine (vecint_extrange) */
+
+
+static int defintcmp(const VECINT_TYPE *l1p,const VECINT_TYPE *l2p)
 {
 	return (*l1p - *l2p) ;
 }

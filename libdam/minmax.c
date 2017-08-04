@@ -85,35 +85,35 @@ int max(int a,int b)
 	return (a - (sel*d)) ;
 }
 
-int lmin(long a,long b)
+long lmin(long a,long b)
 {
 	const int	sbit = ((sizeof(long)*8)-1) ;
-	const int	d = (a-b) ;
-	const int	sel = (!(((a-b) >> sbit)&1)) ;
+	const long	d = (a-b) ;
+	const long	sel = (!(((a-b) >> sbit)&1)) ;
 	return (a - (sel*d)) ;
 }
 
-int lmax(long a,long b)
+long lmax(long a,long b)
 {
 	const int	sbit = ((sizeof(long)*8)-1) ;
-	const int	d = (a-b) ;
-	const int	sel = (((a-b) >> sbit)&1) ;
+	const long	d = (a-b) ;
+	const long	sel = (((a-b) >> sbit)&1) ;
 	return (a - (sel*d)) ;
 }
 
 longlong llmin(longlong a,longlong b)
 {
 	const int	sbit = ((sizeof(longlong)*8)-1) ;
-	const int	d = (a-b) ;
-	const int	sel = (!(((a-b) >> sbit)&1)) ;
+	const longlong	d = (a-b) ;
+	const longlong	sel = (!(((a-b) >> sbit)&1)) ;
 	return (a - (sel*d)) ;
 }
 
 longlong llmax(longlong a,longlong b)
 {
 	const int	sbit = ((sizeof(longlong)*8)-1) ;
-	const int	d = (a-b) ;
-	const int	sel = (((a-b) >> sbit)&1) ;
+	const longlong	d = (a-b) ;
+	const longlong	sel = (((a-b) >> sbit)&1) ;
 	return (a - (sel*d)) ;
 }
 
@@ -140,7 +140,7 @@ int max(int a,int b)
 
 long lmin(long a,long b)
 {
-	int	v = a ;
+	long	v = a ;
 	if (b < v) v = b ;
 	return v ;
 }
@@ -149,7 +149,7 @@ long lmin(long a,long b)
 
 long lmax(long a,long b)
 {
-	int	v = a ;
+	long	v = a ;
 	if (b > v) v = b ;
 	return v ;
 }
@@ -158,7 +158,7 @@ long lmax(long a,long b)
 
 LONG llmin(LONG a,LONG b)
 {
-	int	v = a ;
+	LONG	v = a ;
 	if (b < v) v = b ;
 	return v ;
 }
@@ -167,7 +167,7 @@ LONG llmin(LONG a,LONG b)
 
 LONG llmax(LONG a,LONG b)
 {
-	int	v = a ;
+	LONG	v = a ;
 	if (b > v) v = b ;
 	return v ;
 }

@@ -1,4 +1,4 @@
-/* ipow */
+/* ipowell */
 
 /* return integer-power */
 /* last modified %G% version %I% */
@@ -23,7 +23,7 @@
 
 	Synopsis:
 
-	int ipow(b,p)
+	LONG ipowell(b,p)
 	int	b, p ;
 
 	Arguments:
@@ -41,6 +41,7 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
+#include	<localmisc.h>		/* 'LONG' type */
 
 
 /* local defines */
@@ -64,15 +65,15 @@
 /* exported subroutines */
 
 
-int ipow(int b,int p)
+LONG ipowell(int b,int p)
 {
+	LONG		r = 1 ;
 	int		i ;
-	int		r = 1 ;
 	for (i = 0 ; i < p ; i += 1) {
 	    r *= b ;
 	}
 	return r ;
 }
-/* end subroutine (ipow) */
+/* end subroutine (ipowell) */
 
 

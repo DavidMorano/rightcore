@@ -239,7 +239,7 @@ int vecobj_addnew(vecobj *op,void **epp)
 
 	return (rs >= 0) ? i : rs ;
 }
-/* end subroutine (vecobj_add) */
+/* end subroutine (vecobj_addnew) */
 
 
 /* insert the entry (possible conditionally) into its proper position */

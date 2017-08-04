@@ -22,6 +22,11 @@
 	This object provides am ordered set of integers.  No two elements can
 	be the same (desired for these purposes).
 
+	= Implementation
+
+	We use the C++ STL |set| container object and let the comparison
+	object default to |less|.
+
 
 *******************************************************************************/
 

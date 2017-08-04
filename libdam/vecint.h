@@ -26,6 +26,7 @@
 #define	VECINT_FL		struct vecint_flags
 #define	VECINT_CUR		struct vecint_c
 #define	VECINT_DEFENTS		2
+#define	VECINT_TYPE		int
 
 /* options */
 
@@ -68,7 +69,7 @@ struct vecint_flags {
 
 struct vecint_head {
 	uint		magic ;
-	int		*va ;
+	VECINT_TYPE	*va ;
 	int		c ;		/* count of items in list */
 	int		i ;		/* highest index */
 	int		n ;		/* extent of array */
@@ -89,21 +90,25 @@ extern "C" {
 
 extern int vecint_start(vecint *,int,int) ;
 extern int vecint_finish(vecint *) ;
-extern int vecint_add(vecint *,int) ;
-extern int vecint_adduniq(vecint *,int) ;
+extern int vecint_add(vecint *,VECINT_TYPE) ;
+extern int vecint_addlist(vecint *,const VECINT_TYPE *,int) ;
+extern int vecint_adduniq(vecint *,VECINT_TYPE) ;
+extern int vecint_insert(vecint *,int,VECINT_TYPE) ;
+extern int vecint_assign(vecint *,int,VECINT_TYPE) ;
+extern int vecint_resize(vecint *,int) ;
 extern int vecint_del(vecint *,int) ;
 extern int vecint_count(vecint *) ;
 extern int vecint_extent(vecint *) ;
 extern int vecint_sort(vecint *,int (*)()) ;
 extern int vecint_setsorted(vecint *) ;
-extern int vecint_find(vecint *,int) ;
-extern int vecint_match(vecint *,int) ;
-extern int vecint_search(vecint *,int (*)()) ;
-extern int vecint_getval(vecint *,int,int *) ;
-extern int vecint_getvec(vecint *,int **) ;
-extern int vecint_mkvec(vecint *,int *) ;
+extern int vecint_find(vecint *,VECINT_TYPE) ;
+extern int vecint_match(vecint *,VECINT_TYPE) ;
+extern int vecint_search(vecint *,VECINT_TYPE (*)()) ;
+extern int vecint_getval(vecint *,int,VECINT_TYPE *) ;
+extern int vecint_getvec(vecint *,VECINT_TYPE **) ;
+extern int vecint_mkvec(vecint *,VECINT_TYPE *) ;
 extern int vecint_curbegin(vecint *,vecint_cur *) ;
-extern int vecint_enum(vecint *,vecint_cur *,int *) ;
+extern int vecint_enum(vecint *,vecint_cur *,VECINT_TYPE *) ;
 extern int vecint_curend(vecint *,vecint_cur *) ;
 extern int vecint_audit(vecint *) ;
 

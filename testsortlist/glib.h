@@ -108,7 +108,7 @@ extern "C" {
  *  defined then the current definition is correct.
  */
 #ifndef	NULL
-#define	NULL	((void*) 0)
+#define	NULL	0
 #endif
 
 #ifndef	FALSE

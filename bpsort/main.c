@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 2002-06-18, David A­D­ Morano
-
 	I grabbed this front-end from some other program.
-
 
 */
 
@@ -55,20 +53,23 @@
 
 /* local defines */
 
+#ifndef	BUFLEN
+#define	BUFLEN		1024
+#endif
+
 #define	MAXARGINDEX	100
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
 
 
 /* external subroutines */
 
-extern int	matstr(char * const *,char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	process(struct proginfo *,vecitem *,char *) ;
-extern int	dbdump(struct proginfo *,vecitem *) ;
+extern int	matstr(cchar **,cchar *,int) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	cfdeci(cchar *,int,int *) ;
+extern int	process(PROGINFO *,vecitem *,cchar *) ;
+extern int	dbdump(PROGINFO *,vecitem *) ;
 extern int	isdigitlatin(int) ;
 
-extern char	*strbasename(char *) ;
-extern char	*strshrink(char *) ;
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
@@ -83,7 +84,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* define command option words */
 
-static char *const argopts[] = {
+static cchar *argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	NULL
@@ -99,11 +100,10 @@ enum argopts {
 /* exported subroutines */
 
 
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 	struct entry	e ;
 	bfile		errfile, *efp = &errfile ;
 	bfile		outfile, *ofp = &outfile ;
@@ -128,24 +128,24 @@ char	*argv[] ;
 	int	f_entok = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
 	const char	*cp, *cp2 ;
 	const char	*ofname = NULL ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1], *bp ;
 
 
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-#endif
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
-	memset(pip,0,sizeof(struct proginfo)) ;
+	sfbasename(argv[0],-1,&cp) ;
 
+	memset(pip,0,sizeof(PROGINFO)) ;
 	pip->version = VERSION ;
-	pip->progname = strbasename(argv[0]) ;
+	pip->progname = cp ;
 
 	if (bopen(efp,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
@@ -155,12 +155,9 @@ char	*argv[] ;
 
 /* initialize */
 
-	pip->f.quiet = FALSE ;
-
 	pip->debuglevel = 0 ;
 	pip->verboselevel = 1 ;
-
-	pip->programroot = NULL ;
+	pip->f.quiet = FALSE ;
 
 /* start parsing the arguments */
 
@@ -217,18 +214,7 @@ char	*argv[] ;
 
 	                }
 
-/* do we have a keyword match or should we assume only key letters ? */
-
-#if	CF_DEBUGS
-	                debugprintf("main: about to check for a key word match\n") ;
-#endif
-
 	                if ((kwi = matstr(argopts,akp,akl)) >= 0) {
-
-#if	CF_DEBUGS
-	                    debugprintf("main: option keyword=%W kwi=%d\n",
-	                        akp,akl,kwi) ;
-#endif
 
 	                    switch (kwi) {
 

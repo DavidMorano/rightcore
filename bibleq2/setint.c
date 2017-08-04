@@ -1,7 +1,7 @@
 /* setint */
 /* lang=C++11 */
 
-/* ordered set of integers */
+/* unordered set of integers */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 2010-07-11, David A­D­ Morano
+	= 2013-07-11, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2010 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

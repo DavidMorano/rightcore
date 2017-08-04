@@ -69,8 +69,7 @@
 
 /* external subroutines */
 
-extern int	fibonacci(uint) ;
-extern int	fibonaccikill(volatile int *,uint) ;
+extern LONG	fibonacci(int) ;
 
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
@@ -230,7 +229,7 @@ int p_fibonacci(int argc,cchar *argv[],cchar *envv[],void *contextp)
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
-	LOCINFO	li, *lip = &li ;
+	LOCINFO		li, *lip = &li ;
 	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
@@ -893,16 +892,14 @@ static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
 	if (nl < 0) nl = strlen(np) ;
 
 	if ((rs = cfdecui(np,nl,&v)) >= 0) {
-	    int		fibo ;
-
-	    if ((fibo = fibonaccikill(NULL,v)) >= 0) {
-	        rs = shio_printf(ofp,"%d\n",fibo) ;
+	    LONG	v ;
+	    if ((v = fibonacci(v)) >= 0) {
+	        rs = shio_printf(ofp,"%lld\n",v) ;
 	        wlen += rs ;
 	    } else {
 	        rs = shio_printf(ofp,"*overflow*\n") ;
 	        wlen += rs ;
 	    }
-
 	} /* end if */
 
 #if	CF_DEBUG

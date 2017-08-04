@@ -211,6 +211,7 @@ int mailmsghdrfold_finish(MAILMSGHDRFOLD *op)
 /* end subroutine (mailmsghdrfold_finish) */
 
 
+/* get the resulting lines from the folding operation */
 int mailmsghdrfold_get(MAILMSGHDRFOLD *op,int ncol,cchar **rpp)
 {
 	const int	ntab = NTABCOLS ;

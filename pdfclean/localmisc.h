@@ -534,8 +534,10 @@ typedef long long		unixtime_t ;
 #ifndef	nelements
 #define	nelements(n)	(sizeof(n) / sizeof((n)[0]))
 #endif
-#endif
+#endif /* LANGUAGE_NELEMENTS */
 
+#ifndef	LANGUAGE_NELEM
+#define	LANGUAGE_NELEM		1
 #ifndef	nelem
 #ifdef	nelements
 #define	nelem		nelements
@@ -543,6 +545,7 @@ typedef long long		unixtime_t ;
 #define	nelem(n)	(sizeof(n) / sizeof((n)[0]))
 #endif
 #endif
+#endif /* LANGUAGE_NELEM */
 
 #ifndef	NULL
 #define	NULL		0

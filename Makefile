@@ -8,22 +8,22 @@ clean:
 	makebelow clean
 
 libdam:
-	makebelow libdam32
+	makebelow libdam
 
 libut:
-	makebelow libut32
+	makebelow libut
 
 libpcs:
-	makebelow libpcs32
+	makebelow libpcs
 
 libb:
-	makebelow libb32
+	makebelow libb
 
 libuc:
-	makebelow libuc32
+	makebelow libuc
 
 libu:
-	makebelow libu32
+	makebelow libu
 
 
 

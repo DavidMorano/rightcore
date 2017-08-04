@@ -1,4 +1,4 @@
-/* envstandards */
+/* envstandards (Solaris) */
 
 
 /* revision history:

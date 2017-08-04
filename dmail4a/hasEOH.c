@@ -18,8 +18,13 @@
 
 /*******************************************************************************
 
-        We test whether the given string consists only of those characters that
-        symbolically represent the "current" user.
+        Determine if the given string consists of an End-Of-Header (EOH)
+        sequence.
+
+	An EOH is a leadering blank like of two sorts:
+
+	<NL>
+	<CR><NL>
 
 	Synopsis:
 

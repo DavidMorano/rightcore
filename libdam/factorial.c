@@ -21,7 +21,7 @@
 
 	Synopsis:
 
-	int factorial(unsigned int n)
+	LONG factorial(unsigned int n)
 
 	Arguments:
 
@@ -34,7 +34,7 @@
 
 	The original Fibonacci function:
 
-	int factorial(int n)
+	LONG factorial(int n)
 	{
 	    return (n * factorial(n-1)) ;
 	}
@@ -49,7 +49,6 @@
 
 
 #include	<envstandards.h>
-
 #include	<limits.h>
 #include	<localmisc.h>
 
@@ -64,18 +63,31 @@ extern int	strlinelen(const char *,int,int) ;
 
 /* local variables */
 
+static const LONG	facttab[] = {
+	0x0000000000000001, 0x0000000000000001, 
+	0x0000000000000002, 0x0000000000000006,
+	0x0000000000000018, 0x0000000000000078, 
+	0x00000000000002d0, 0x00000000000013b0,
+	0x0000000000009d80, 0x0000000000058980, 
+	0x0000000000375f00, 0x0000000002611500,
+	0x000000001c8cfc00, 0x000000017328cc00, 
+	0x000000144c3b2800, 0x0000013077775800,
+	0x0000130777758000, 0x0001437eeecd8000, 
+	0x0016beecca730000, 0x01b02b9306890000,
+	0x21c3677c82b40000
+} ;
+
 
 /* exported subroutines */
 
 
-int factorial(unsigned int n)
+LONG factorial(int n)
 {
-	int		v = 1 ;
-	if (n > 1) {
-	    int	prev = factorial((n-1)) ;
-	    if ((n <= 10) || ((prev % 10) == 0)) {
-	        v = n * prev ;
-		if ((n >= 10) && ((v % 10) != 0)) v = -1 ;
+	LONG		v = -1 ;
+	if (n >= 0) {
+	    const int	ne = nelem(facttab) ;
+	    if (n < ne) {
+	        v = facttab[n] ;
 	    } else {
 		v = -1 ;
 	    }
@@ -83,31 +95,5 @@ int factorial(unsigned int n)
 	return v ;
 }
 /* end subroutine (factorial) */
-
-
-int factorialkill(volatile int *kfp,unsigned int n)
-{
-	int		v = -1 ;
-	if ((kfp != NULL) && *kfp) {
-	    v = 0 ;
-	} else {
-	    v = 1 ;
-	    if (n > 1) {
-		int	prev = factorialkill(kfp,(n-1)) ;
-#if	CF_DEBUGS
-		debugprintf("factorialkill: prev=%d rem=%d\n",
-		prev,(prev%10)) ;
-#endif
-	        if ((n <= 10) || ((prev % 10) == 0)) {
-	            v = n * prev ;
-		    if ((n >= 10) && ((v % 10) != 0)) v = -1 ;
-		} else {
-		    v = -1 ;
-		}
-	    }
-	}
-	return v ;
-}
-/* end subroutine (factorialkill) */
 
 

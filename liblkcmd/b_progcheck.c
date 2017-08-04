@@ -796,9 +796,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #ifdef	COMMENT
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
@@ -1221,12 +1228,12 @@ static int procline(PROGINFO *pip,FUNCOUNT *counts,cchar *lbuf,int llen)
 
 	if (pip == NULL) return SR_FAULT ;
 	for (j = 0 ; j < llen ; j += 1) {
-	    int	k ;
+	    int		k ;
 	    for (k = 0 ; k < NFUN ; k += 1) {
 		if (lbuf[j] == cca[k].c_open) {
-	                    counts[k].c_open += 1 ;
+		    counts[k].c_open += 1 ;
 		} else if (lbuf[j] == cca[k].c_close) {
-	                    counts[k].c_close += 1 ;
+		    counts[k].c_close += 1 ;
 		}
 	    } /* end for */
 	} /* end for */
@@ -1240,26 +1247,28 @@ static int procout(PROGINFO *pip,void *ofp,cchar *fn,FUNCOUNT *counts)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
-	cchar		*pn = pip->progname ;
 	if (lip->f.counts) {
 	    int		k ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    for (k = 0 ; k < NFUN ; k += 1) {
 	        if (counts[k].c_open != counts[k].c_close) {
+		    fmt = "file \"%s\" %s> open=%-3d close=%-3d\n" ;
 
-	            shio_printf(ofp,"file \"%s\" %s> open=%-3d close=%-3d\n",
+	            shio_printf(ofp,fmt,
 	                fn,cca[k].funcname,
 	                counts[k].c_open,counts[k].c_close) ;
 
 	        } else {
 
 		if (pip->verboselevel > 0) {
-	            shio_printf(ofp,"file \"%s\" %s> is clean\n",
-	                fn,cca[k].funcname) ;
+		    fmt = "file \"%s\" %s> is clean\n" ;
+	            shio_printf(ofp,fmt, fn,cca[k].funcname) ;
 		}
 
 		if (pip->debuglevel > 0) {
-		    shio_printf(pip->efp,"%s: file \"%s\" %s> is clean\n",
-	                pn,fn,cca[k].funcname) ;
+		    fmt = "%s: file \"%s\" %s> is clean\n" ;
+		    shio_printf(pip->efp,fmt,pn,fn,cca[k].funcname) ;
 		}
 
 	        } /* end if */

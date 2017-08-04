@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -20,8 +18,7 @@
 
 /*******************************************************************************
 
-	We check is all of the characters in the given string are Alpha
-	characters.
+	Are all of the characters Alpha?
 
 	Synopsis:
 

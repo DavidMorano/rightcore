@@ -3,31 +3,29 @@
 /* dump out the stuff in the DB */
 
 
-#define	CF_DEBUG	1
-#define	F_NULLENTRY	1
+#define	CF_DEBUG	0		/* run-time debugging */
+#define	CF_NULLENTRY	1
 
 
 /* revision history:
 
-	= 96/03/01, David A­D­ Morano
-
-	The subroutine was adapted from others programs that
-	did similar types of functions.
-
+	= 2000-03-01, David A­D­ Morano
+        The subroutine was adapted from others programs that did similar types
+        of functions.
 
 */
 
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
 	This subroutine sorts and dumps out the stuff in the DB.
 
 
-
 ******************************************************************************/
 
 
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -43,8 +41,8 @@
 #include	<bfile.h>
 #include	<field.h>
 #include	<mallocstuff.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"yags.h"
 #include	"bpalpha.h"
 #include	"gspag.h"
@@ -52,7 +50,6 @@
 #include	"tourna.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -66,13 +63,11 @@
 #define	NHMS		100
 
 
-
 /* external subroutines */
 
-extern int	matstr(char * const *,char *,int) ;
-extern int	matstr3(char * const *,char *,int) ;
+extern int	matostr(cchar **,int,cchar *,int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 extern double	fhm(double *,int) ;
 
@@ -100,13 +95,13 @@ static int	cmpname(char **,char **) ;
 
 /* local variables */
 
-static char	*const bpnames[] = {
-	    "yags",
-	    "bpalpha",
-	    "gspag",
+static cchar	*bpnames[] = {
+	"yags",
+	"bpalpha",
+	"gspag",
 	"gskew",
 	"tourna",
-	    NULL
+	NULL
 } ;
 
 enum bpnames {
@@ -119,12 +114,11 @@ enum bpnames {
 } ;
 
 
-
-
+/* exported subroutines */
 
 
 int dbdump(pip,dbp)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 vecitem		*dbp ;
 {
 	struct entry	*ep ;
@@ -135,15 +129,16 @@ vecitem		*dbp ;
 
 	bfile	predfile ;
 
-	vecstr	prognames, vecitem ;
+	vecstr	prognames ;
+	vecitem	configs ;
 
 	int	rs, rs1 ;
 	int	kwi ;
 	int	i, j, k ;
 	int	cl ;
 
+	cchar	*cp ;
 	char	progname[MAXNAMELEN + 1] ;
-	char	*cp ;
 
 
 	vecstr_start(&prognames,20,VECSTR_PSORTED) ;
@@ -187,7 +182,7 @@ vecitem		*dbp ;
 
 /* calculate the bits */
 
-	    kwi = matstr3(bpnames,ep->bpname,-1) ;
+	    kwi = matostr(bpnames,3,ep->bpname,-1) ;
 
 	    if (kwi < 0)
 	        continue ;
@@ -362,8 +357,9 @@ vecitem		*dbp ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
 	    debugprintf("dbdump: prognames\n") ;
-	    for (i = 0 ; vecstr_get(&prognames,i,&cp) >= 0 ; i += 1)
+	    for (i = 0 ; vecstr_get(&prognames,i,&cp) >= 0 ; i += 1) {
 	        debugprintf("dbdump: progname=%s\n",cp) ;
+	    }
 	}
 #endif /* CF_DEBUG */
 
@@ -375,18 +371,12 @@ vecitem		*dbp ;
 /* print stuff out */
 
 	for (j = 0 ; bpnames[j] != NULL ; j += 1) {
-
 	    struct bpconfig	*cep ;
-
 	    bfile	cfile ;
-
 	    double	hms[NHMS + 1] ;
-
 	    int		ci ;
-
+	    cchar	*np ;
 	    char	tmpfname[MAXPATHLEN + 1] ;
-	    char	*np ;
-
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
@@ -509,7 +499,7 @@ struct entry	**e1pp, **e2pp ;
 	    debugprintf("cmpbits: got_one *e2pp=%p\n",(*e2pp)) ;
 #endif
 
-#if	F_NULLENTRY
+#if	CF_NULLENTRY
 	if (((*e1pp) == NULL) && ((*e2pp) == NULL))
 	    return 0 ;
 
@@ -518,7 +508,7 @@ struct entry	**e1pp, **e2pp ;
 
 	else if ((*e2pp) == NULL)
 	    return -1 ;
-#endif /* F_NULLENTRY */
+#endif /* CF_NULLENTRY */
 
 	diff = (*e1pp)->bits - (*e2pp)->bits ;
 
@@ -539,7 +529,7 @@ struct bpconfig	**e1pp, **e2pp ;
 	int	diff ;
 
 
-#if	F_NULLENTRY
+#if	CF_NULLENTRY
 	if (((*e1pp) == NULL) && ((*e2pp) == NULL))
 	    return 0 ;
 
@@ -548,7 +538,7 @@ struct bpconfig	**e1pp, **e2pp ;
 
 	else if ((*e2pp) == NULL)
 	    return -1 ;
-#endif /* F_NULLENTRY */
+#endif /* CF_NULLENTRY */
 
 	diff = (*e1pp)->bits - (*e2pp)->bits ;
 
@@ -576,7 +566,7 @@ char	**e1pp, **e2pp ;
 	    debugprintf("cmpname: got_one *e2pp=%p\n",(*e2pp)) ;
 #endif
 
-#if	F_NULLENTRY
+#if	CF_NULLENTRY
 	if (((*e1pp) == NULL) && ((*e2pp) == NULL))
 	    return 0 ;
 
@@ -585,11 +575,10 @@ char	**e1pp, **e2pp ;
 
 	else if ((*e2pp) == NULL)
 	    return -1 ;
-#endif /* F_NULLENTRY */
+#endif /* CF_NULLENTRY */
 
 	return strcasecmp(*e1pp,*e2pp) ;
 }
 /* end subroutine (cmpname) */
-
 
 

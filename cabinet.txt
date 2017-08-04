@@ -1,0 +1,42 @@
+Cabinet
+-------------------
+
+ 1. Adjutant
+ 2. Intelligence
+ 3. Operations (defense)
+ 4. Logistics (interior, infrastructure, transportation)
+ 5. Marshal (law enforcement)
+ 6. Justice (courts)
+ 7. Security (homeland security)
+ 8. Treasurer
+ 9. Inspector
+10. Surgeon
+11. State (immigration, customs, and trade)
+
+----
+
+Commander in Chief
+Deputy Commander in Chief
+First Deputy Commander in Chief
+Second Deputy Commander in Chief
+
+Chief Executive of the United States
+Deputy Chief Executive of the United States
+First Deputy Chief Executive of the United States
+Second Deputy Chief Executive of the United States
+
+Chief of Staff
+Deputy Chief of Staff
+First Deputy Chief of Staff
+Second Deputy Chief of Staff
+
+Minister General
+
+
+A1 of the United States
+A2 of the United States
+A3 of the United States
+A4 of the United States
+
+
+

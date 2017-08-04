@@ -49,12 +49,15 @@
 
 /* forward references */
 
-int		veclong_add(veclong *,LONG) ;
+int		veclong_add(veclong *,VECLONG_TYPE) ;
 
-static int	veclong_extend(veclong *) ;
+static int	veclong_addval(veclong *op,VECLONG_TYPE) ;
+static int	veclong_extend(veclong *,int) ;
 static int	veclong_setopts(veclong *,int) ;
+static int	veclong_insertval(veclong *,int,VECLONG_TYPE) ;
+static int	veclong_extrange(veclong *,int) ;
 
-static int	deflongcmp(const LONG *,const LONG *) ;
+static int	deflongcmp(const VECLONG_TYPE *,const VECLONG_TYPE *) ;
 
 
 /* local variables */
@@ -111,12 +114,8 @@ int veclong_finish(veclong *op)
 /* end subroutine (veclong_finish) */
 
 
-int veclong_add(veclong *op,LONG v)
+int veclong_add(veclong *op,VECLONG_TYPE v)
 {
-	int		rs = SR_OK ;
-	int		i ;
-	int		f_done = FALSE ;
-	int		f ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -124,55 +123,32 @@ int veclong_add(veclong *op,LONG v)
 	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
 #endif
 
-/* can we fit this new entry within the existing extent? */
-
-	f = (op->f.oreuse || op->f.oconserve) && (! op->f.oordered) ;
-	if (f && (op->c < op->i)) {
-
-	    i = op->fi ;
-	    while ((i < op->i) && (op->va[i] != NULL))
-	        i += 1 ;
-
-	    if (i < op->i) {
-	        (op->va)[i] = v ;
-	        op->fi = i + 1 ;
-	        f_done = TRUE ;
-	    } else
-	        op->fi = i ;
-
-	} /* end if (possible reuse strategy) */
-
-/* do we have to grow the vechand array? */
-
-	if (! f_done) {
-
-/* do we have to grow the array? */
-
-	    if ((op->i + 1) > op->n) {
-	        rs = veclong_extend(op) ;
-	    }
-
-/* link into the list structure */
-
-	    if (rs >= 0) {
-	        i = op->i ;
-	        (op->va)[(op->i)++] = v ;
-	        (op->va)[op->i] = NULL ;
-	    }
-
-	} /* end if (added elsewhere) */
-
-	if (rs >= 0) {
-	    op->c += 1 ;			/* increment list count */
-	    op->f.issorted = FALSE ;
-	}
-
-	return (rs >= 0) ? i : rs ;
+	return veclong_addval(op,v) ;
 }
 /* end subroutine (veclong_add) */
 
 
-int veclong_adduniq(veclong *op,LONG v)
+extern int veclong_addlist(veclong *op,const VECLONG_TYPE *lp,int ll)
+{
+	int		rs = SR_OK ;
+	int		i ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	for (i = 0 ; (rs >= 0) && (i < ll) ; i += 1) {
+	    rs = veclong_addval(op,lp[i]) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (veclong_addlist) */
+
+
+int veclong_adduniq(veclong *op,VECLONG_TYPE v)
 {
 	int		rs = INT_MAX ;
 	int		i ;
@@ -183,12 +159,14 @@ int veclong_adduniq(veclong *op,LONG v)
 	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
 #endif
 
+/* first, search for this value */
+
 	for (i = 0 ; i < op->i ; i += 1) {
 	    if (op->va[i] == v) break ;
-	}
+	} /* end for */
 
 	if (i >= op->i) {
-	    rs = veclong_add(op,v) ;
+	    rs = veclong_addval(op,v) ;
 	}
 
 	return rs ;
@@ -196,7 +174,92 @@ int veclong_adduniq(veclong *op,LONG v)
 /* end subroutine (veclong_adduniq) */
 
 
-int veclong_getval(veclong *op,int i,LONG *rp)
+int veclong_insert(veclong *op,int ii,VECLONG_TYPE val)
+{
+	int		rs = SR_OK ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if (ii >= 0) {
+	    if ((ii+1) > op->n) {
+	        rs = veclong_extend(op,((ii+1)-op->n)) ;
+	    }
+	    if (rs >= 0) {
+		if ((rs = veclong_extrange(op,(ii+1))) >= 0) {
+	            rs = veclong_insertval(op,ii,val) ;
+		}
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
+
+	return rs ;
+}
+/* end subroutine (veclong_insert) */
+
+
+int veclong_assign(veclong *op,int ii,VECLONG_TYPE val) 
+{
+	int		rs = SR_OK ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if (ii >= 0) {
+	    if ((ii+1) > op->n) {
+	        rs = veclong_extend(op,((ii+1)-op->n)) ;
+	    }
+	    if (rs >= 0) {
+		if ((rs = veclong_extrange(op,(ii+1))) >= 0) {
+	            op->va[ii] = val ;
+		}
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
+
+	return rs ;
+}
+/* end subroutine (veclong_assign) */
+
+
+int veclong_resize(veclong *op,int n)
+{
+	int		rs = SR_OK ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if (n >= 0) {
+	    if (n > op->n) {
+	        rs = veclong_extend(op,(n-op->n)) ;
+	    }
+	    if (rs >= 0) {
+		if ((rs = veclong_extrange(op,n)) >= 0) {
+		    op->c = n ;
+		    op->va[n] = LONG_MIN ;
+		}
+	    }
+	} else {
+	    rs = SR_INVALID ;
+	}
+
+	return rs ;
+}
+/* end subroutine (veclong_resize) */
+
+
+int veclong_getval(veclong *op,int i,VECLONG_TYPE *rp)
 {
 	int		rs = SR_OK ;
 
@@ -217,6 +280,77 @@ int veclong_getval(veclong *op,int i,LONG *rp)
 	return rs ;
 }
 /* end subroutine (veclong_getval) */
+
+
+/* for compatibility with other objects */
+int veclong_mkvec(veclong *op,VECLONG_TYPE *va)
+{
+	int		c = 0 ;
+
+	if (op == NULL) return SR_FAULT ;
+
+#if	CF_SAFE
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if (va != NULL) {
+	    const int	n = op->i ;
+	    int		i ;
+	    int		v ;
+	    for (i = 0 ; i < n ; i += 1) {
+		v = (op->va)[i] ;
+		if (v != INT_MIN) {
+		    va[c++] = (op->va)[i] ;
+		}
+	    } /* end for */
+	} /* end if */
+
+	return c ;
+}
+/* end subroutine (veclong_mkvec) */
+
+
+int veclong_curbegin(veclong *op,veclong_cur *curp)
+{
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+	curp->i = 0 ;
+	return SR_OK ;
+}
+/* end subroutine (veclong_curend) */
+
+
+int veclong_curend(veclong *op,veclong_cur *curp)
+{
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+	curp->i = 0 ;
+	return SR_OK ;
+}
+/* end subroutine (veclong_end) */
+
+
+int veclong_enum(veclong *op,veclong_cur *curp,VECLONG_TYPE *rp)
+{
+	int		rs = SR_OK ;
+	int		i ;
+	int		v = 0 ;
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (op->magic != VECLONG_MAGIC) return SR_NOTOPEN ;
+	i = curp->i ;
+	if ((i >= 0) && (i < op->i)) {
+	    v = (op->va)[i] ;
+	    curp->i = (i+1) ;
+	} else {
+	    rs = SR_NOTFOUND ;
+	}
+	if (rp != NULL) *rp = (rs >= 0) ? v : INT_MIN ;
+	return rs ;
+}
+/* end subroutine (veclong_enum) */
 
 
 /* delete an element from the list */
@@ -331,7 +465,7 @@ int veclong_sort(veclong *op,int (*fcmp)())
 	if (! op->f.issorted) {
 	    op->f.issorted = TRUE ;
 	    if (op->c > 1) {
-	        qsort(op->va,op->i,sizeof(LONG),fcmp) ;
+	        qsort(op->va,op->i,sizeof(VECLONG_TYPE),fcmp) ;
 	    }
 	}
 
@@ -357,7 +491,7 @@ int veclong_setsorted(veclong *op)
 
 
 /* find an entry in the vector list by memory comparison of entry elements */
-int veclong_find(veclong *op,LONG v)
+int veclong_find(veclong *op,VECLONG_TYPE v)
 {
 	LONG		*rpp2 ;
 	int		rs = SR_OK ;
@@ -371,9 +505,9 @@ int veclong_find(veclong *op,LONG v)
 #endif
 
 	if (op->f.issorted) {
-
+	    const int	esz = sizeof(VECLONG_TYPE) ;
 	    fcmp = (int (*)(const void *,const void *)) deflongcmp ;
-	    rpp2 = (LONG *) bsearch(&v,op->va,op->i,sizeof(LONG),fcmp) ;
+	    rpp2 = (LONG *) bsearch(&v,op->va,op->i,esz,fcmp) ;
 
 	    rs = SR_NOTFOUND ;
 	    if (rpp2 != NULL) {
@@ -395,7 +529,7 @@ int veclong_find(veclong *op,LONG v)
 /* end subroutine (veclong_find) */
 
 
-int veclong_match(veclong *op,long v)
+int veclong_match(veclong *op,VECLONG_TYPE v)
 {
 	int		rs ;
 	if ((rs = veclong_find(op,v)) >= 0) {
@@ -409,7 +543,7 @@ int veclong_match(veclong *op,long v)
 
 
 /* get the vector array address */
-int veclong_getvec(VECLONG *op,LONG **rpp)
+int veclong_getvec(VECLONG *op,VECLONG_TYPE **rpp)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -454,7 +588,7 @@ int veclong_audit(VECLONG *op)
 static int veclong_setopts(VECLONG *op,int options)
 {
 
-	memset(&op->f,0,sizeof(struct veclong_flags)) ;
+	memset(&op->f,0,sizeof(VECLONG_FL)) ;
 
 	if (options & VECLONG_OREUSE)
 	    op->f.oreuse = 1 ;
@@ -482,38 +616,144 @@ static int veclong_setopts(VECLONG *op,int options)
 /* end subroutine (veclong_setopts) */
 
 
-static int veclong_extend(veclong *op)
+int veclong_addval(veclong *op,VECLONG_TYPE v)
+{
+	int		rs = SR_OK ;
+	int		i = 0 ; /* ¥ GCC false complaint */
+	int		f_done = FALSE ;
+	int		f ;
+
+/* can we fit this new entry within the existing extent? */
+
+	f = (op->f.oreuse || op->f.oconserve) && (! op->f.oordered) ;
+	if (f && (op->c < op->i)) {
+
+	    i = op->fi ;
+	    while ((i < op->i) && (op->va[i] != INT_MIN)) {
+	        i += 1 ;
+	    }
+
+	    if (i < op->i) {
+	        (op->va)[i] = v ;
+	        op->fi = (i + 1) ;
+	        f_done = TRUE ;
+	    } else {
+	        op->fi = i ;
+	    }
+
+	} /* end if (possible reuse strategy) */
+
+/* do we have to grow the vector array? */
+
+	if (! f_done) {
+
+/* do we have to grow the array? */
+
+	    if ((op->i + 1) > op->n) {
+	        rs = veclong_extend(op,1) ;
+	    }
+
+/* link into the list structure */
+
+	    if (rs >= 0) {
+	        i = op->i ;
+	        (op->va)[(op->i)++] = v ;
+	        (op->va)[op->i] = INT_MIN ;
+	    }
+
+	} /* end if */
+
+	if (rs >= 0) {
+	    op->c += 1 ;		/* increment list count */
+	    op->f.issorted = FALSE ;
+	}
+
+	return (rs >= 0) ? i : rs ;
+}
+/* end subroutine (veclong_addval) */
+
+
+static int veclong_extend(veclong *op,int amount)
 {
 	int		rs = SR_OK ;
 
-	if ((op->i + 1) > op->n) {
-	    const int	esize = sizeof(LONG) ;
-	    int		nn, size ;
-	    LONG	*va ;
-
+	if (amount > 0) {
+	    const int		esize = sizeof(VECLONG_TYPE) ;
+	    int			nn, size ;
+	    VECLONG_TYPE	*va ;
 	    if (op->va == NULL) {
-	        nn = VECLONG_DEFENTS ;
-	        size = (nn + 1) * esize ;
+	        nn = MAX(amount,VECLONG_DEFENTS) ;
+	        size = ((nn + 1) * esize) ;
 	        rs = uc_malloc(size,&va) ;
 	    } else {
-	        nn = (op->n + 1) * 2 ;
-	        size = (nn + 1) * esize ;
+	        nn = MAX((op->n+amount),(op->n*2)) ;
+	        size = ((nn + 1) * esize) ;
 	        rs = uc_realloc(op->va,size,&va) ;
-	    }
-
+	    } /* end if */
 	    if (rs >= 0) {
 	        op->va = va ;
 	        op->n = nn ;
 	    }
-
-	} /* end if (extension required) */
+	}
 
 	return rs ;
 }
 /* end subroutine (veclong_extend) */
 
 
-static int deflongcmp(const LONG *l1p,const LONG  *l2p)
+static int veclong_insertval(veclong *op,int ii,VECLONG_TYPE val)
+{
+
+	if (ii < op->i) {
+	    int		i, j ;
+
+/* find */
+
+	    for (i = (ii + 1) ; i < op->i ; i += 1) {
+		if (op->va[i] == LONG_MIN) break ;
+	    }
+
+/* management */
+
+	    if (i == op->i) {
+	        op->i += 1 ;
+	        op->va[op->i] = LONG_MIN ;
+	    }
+
+/* move-up */
+
+	    for (j = i ; j > ii ; j -= 1) {
+		op->va[j] = op->va[j-1] ;
+	    }
+
+	} else if (ii == op->i) {
+	    op->i += 1 ;
+	    op->va[op->i] = LONG_MIN ;
+	} /* end if */
+
+	op->va[ii] = val ;
+	op->c += 1 ;
+	op->f.issorted = FALSE ;
+
+	return ii ;
+}
+/* end subroutine (veclong_insertval) */
+
+
+static int veclong_extrange(veclong *op,int n)
+{
+	if (n > op->i) {
+		const int nsz = ((n-op->i)*sizeof(VECLONG_TYPE)) ;
+		memset((op->va+op->i),0,nsz) ;
+	    op->i = n ;
+	    op->va[op->i] = LONG_MIN ;
+	}
+	return SR_OK ;
+}
+/* end subroutine (veclong_extrange) */
+
+
+static int deflongcmp(const VECLONG_TYPE *l1p,const VECLONG_TYPE  *l2p)
 {
 
 	return (*l1p - *l2p) ;

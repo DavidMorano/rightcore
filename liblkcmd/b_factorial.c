@@ -69,8 +69,7 @@
 
 /* external subroutines */
 
-extern int	factorial(uint) ;
-extern int	factorialkill(volatile int *,uint) ;
+extern LONG	factorial(int) ;
 
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
@@ -226,11 +225,14 @@ int p_factorial(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_factorial) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
-	LOCINFO	li, *lip = &li ;
+	LOCINFO		li, *lip = &li ;
 	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
@@ -725,9 +727,6 @@ badarg:
 /* end subroutine (p_factorial) */
 
 
-/* local subroutines */
-
-
 static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -876,14 +875,13 @@ static int procspecs(PROGINFO *pip,void *ofp,cchar *lbuf,int llen)
 
 
 /* process a specification name */
-static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
+static int procspec(PROGINFO *pip,void *ofp,cchar *np,int nl)
 {
-	uint		v ;
+	int		n ;
 	int		rs ;
 	int		wlen = 0 ;
 
-	if (np == NULL)
-	    return SR_FAULT ;
+	if (np == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -892,17 +890,15 @@ static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
 
 	if (nl < 0) nl = strlen(np) ;
 
-	if ((rs = cfdecui(np,nl,&v)) >= 0) {
-	    int		fibo ;
-
-	    if ((fibo = factorialkill(NULL,v)) >= 0) {
-	        rs = shio_printf(ofp,"%d\n",fibo) ;
+	if ((rs = cfdeci(np,nl,&n)) >= 0) {
+	    LONG	v ;
+	    if ((v = factorial(n)) >= 0) {
+	        rs = shio_printf(ofp,"%lld\n",v) ;
 	        wlen += rs ;
 	    } else {
 	        rs = shio_printf(ofp,"*overflow*\n") ;
 	        wlen += rs ;
 	    }
-
 	} /* end if */
 
 #if	CF_DEBUG
@@ -918,9 +914,7 @@ static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
-
+	if (lip == NULL) return SR_FAULT ;
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
 
@@ -931,10 +925,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 
 static int locinfo_finish(LOCINFO *lip)
 {
-
-	if (lip == NULL)
-	    return SR_FAULT ;
-
+	if (lip == NULL) return SR_FAULT ;
 	return SR_OK ;
 }
 /* end subroutine (locinfo_finish) */

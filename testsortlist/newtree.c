@@ -239,9 +239,7 @@ gint g_tree_nnodes (GTree *tree)
 }
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 static GTreeNode* g_tree_node_new (gpointer key,

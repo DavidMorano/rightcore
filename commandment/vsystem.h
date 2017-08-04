@@ -9,6 +9,9 @@
 	= 1998-03-21, David A­D­ Morano
 	This module was originally written.
 
+	= 2017-08-01, David A­D­ Morano
+	Updated for lack of interfaces in MacOS Darwin
+
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
@@ -319,6 +322,7 @@ typedef ino_t	uino_t ;
 
 #if	defined(OSNAME_Darwin) && (OSNAME_Darwin > 0)
 #ifndef	_OFFSET_T
+#define	_OFFSET_T	1
 #ifndef	TYPEDEF_OFFSET
 #define	TYPEDEF_OFFSET	1
 #if	defined(_FILE_OFFSET_BITS) && (_FILE_OFFSET_BITS == 64)
@@ -1097,11 +1101,14 @@ extern int	uc_getloadavg(double *,int) ;
 extern int	uc_nprocessors(int) ;
 extern int	uc_syspages(int) ;
 extern int	uc_nprocs(int) ;
+
+#if	SYSHAS_TIMER && (SYSHAS_TIMER > 0)
 extern int uc_timercreate(clockid_t,struct sigevent *,timer_t *) ;
-extern int uc_timerdelete(timer_t tid) ;
+extern int uc_timerdelete(timer_t) ;
 extern int uc_timerset(timer_t,int,struct itimerspec *,struct itimerspec *) ;
 extern int uc_timerget(timer_t,struct itimerspec *) ;
 extern int uc_timerover(timer_t) ;
+#endif /* SYSHAS_TIMER */
 
 extern int	uc_fork() ;
 extern int	uc_forklockbegin(int) ;

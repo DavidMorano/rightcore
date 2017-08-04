@@ -3,19 +3,18 @@
 /* process a dbfile */
 
 
-#define	CF_DEBUG	1
+#define	CF_DEBUG	0		/* run-time debugging */
 
 
 /* revision history:
 
-	= 96/03/01, David A­D­ Morano
-
-	The subroutine was adapted from others programs that
-	did similar types of functions.
-
+	= 2000-03-01, David A­D­ Morano
+        The subroutine was adapted from others programs that did similar types
+        of functions.
 
 */
 
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
@@ -23,11 +22,10 @@
 	results.
 
 
-
 ******************************************************************************/
 
 
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -43,21 +41,19 @@
 #include	<bfile.h>
 #include	<field.h>
 #include	<mallocstuff.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
 
 #define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
 
-#ifndef	LINELEN
-#define	LINELEN		100
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
 #endif
-
 
 
 /* external subroutines */
@@ -81,7 +77,7 @@ static int cmpconfig(struct entry **,struct entry **) ;
 
 /* local variables */
 
-static char	*const bpnames[] = {
+static cchar	*bpnames[] = {
 	"yags",
 	"bpalpha",
 	"gspag",
@@ -100,18 +96,12 @@ enum bpnames {
 } ;
 
 
+/* exported subroutines */
 
 
-
-
-int process(pip,dbp,fname)
-struct proginfo	*pip ;
-vecitem		*dbp ;
-char		fname[] ;
+int process(PROGINFO *pip,vecitem *dbp,cchar *fname)
 {
 	struct entry	e ;
-
-	FIELD	lf ;
 
 	bfile	ifile ;
 
@@ -120,7 +110,7 @@ char		fname[] ;
 	int	line ;
 	int	cl ;
 
-	char	linebuf[LINELEN + 1] ;
+	char	lbuf[LINEBUFLEN + 1] ;
 	char	namebuf[MAXNAMELEN + 1] ;
 	char	*cp ;
 
@@ -141,20 +131,19 @@ char		fname[] ;
 
 	c = 0 ;
 	line = 1 ;
-	while ((len = breadline(&ifile,linebuf,LINELEN)) > 0) {
+	while ((len = breadline(&ifile,lbuf,LINEBUFLEN)) > 0) {
+	   FIELD	lf ;
 
-	    if (linebuf[len - 1] == '\n')
-	        len -= 1 ;
-
-	    linebuf[len] = '\0' ;
+	    if (lbuf[len - 1] == '\n') len -= 1 ;
+	    lbuf[len] = '\0' ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
 	        debugprintf("process: line=>%t<\n",
-	            linebuf,len) ;
+	            lbuf,len) ;
 #endif /* CF_DEBUG */
 
-	    field_start(&lf,linebuf,len) ;
+	    field_start(&lf,lbuf,len) ;
 
 	    (void) memset(&e,0,sizeof(struct entry)) ;
 
@@ -163,8 +152,8 @@ char		fname[] ;
 
 /* program name */
 
-	    if ((rs = field_get(&lf,NULL)) > 0) {
-	        e.progname = mallocstrw(lf.fp,lf.flen) ;
+	    if ((rs = field_get(&lf,NULL,NULL)) > 0) {
+	        e.progname = mallocstrw(lf.fp,lf.fl) ;
 	    }
 
 #if	CF_DEBUG
@@ -176,11 +165,11 @@ char		fname[] ;
 
 	    if (rs >= 0) {
 
-	        rs = field_get(&lf,NULL) ;
+	        rs = field_get(&lf,NULL,NULL) ;
 
 	        rs = SR_INVALID ;
-	        if (lf.flen > 0)
-	            rs = cfdecf(lf.fp,lf.flen,&e.accuracy) ;
+	        if (lf.fl > 0)
+	            rs = cfdecf(lf.fp,lf.fl,&e.accuracy) ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -193,10 +182,10 @@ char		fname[] ;
 
 	    if (rs >= 0) {
 
-	        rs = field_get(&lf,NULL) ;
+	        rs = field_get(&lf,NULL,NULL) ;
 
-	        if (lf.flen > 0)
-	            e.bpname = mallocstrw(lf.fp,lf.flen) ;
+	        if (lf.fl > 0)
+	            e.bpname = mallocstrw(lf.fp,lf.fl) ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -209,11 +198,11 @@ char		fname[] ;
 
 	    if (rs >= 0) {
 
-	        field_get(&lf,NULL) ;
+	        field_get(&lf,NULL,NULL) ;
 
-	        if (lf.flen > 0) {
+	        if (lf.fl > 0) {
 
-	            rs = cfdecui(lf.fp,lf.flen,&e.bits) ;
+	            rs = cfdecui(lf.fp,lf.fl,&e.bits) ;
 
 			if ((rs >= 0) && (e.bits == 0))
 				e.bits = -1 ;
@@ -226,10 +215,10 @@ char		fname[] ;
 
 	    if (rs >= 0) {
 
-	        rs = field_get(&lf,NULL) ;
+	        rs = field_get(&lf,NULL,NULL) ;
 
-	        if (lf.flen > 0)
-	            rs = cfdecui(lf.fp,lf.flen,&e.p1) ;
+	        if (lf.fl > 0)
+	            rs = cfdecui(lf.fp,lf.fl,&e.p1) ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -240,28 +229,28 @@ char		fname[] ;
 
 	    if (rs >= 0) {
 
-	        field_get(&lf,NULL) ;
+	        field_get(&lf,NULL,NULL) ;
 
-	        if (lf.flen > 0)
-	            rs = cfdecui(lf.fp,lf.flen,&e.p2) ;
-
-	    }
-
-	    if (rs >= 0) {
-
-	        field_get(&lf,NULL) ;
-
-	        if (lf.flen > 0)
-	            rs = cfdecui(lf.fp,lf.flen,&e.p3) ;
+	        if (lf.fl > 0)
+	            rs = cfdecui(lf.fp,lf.fl,&e.p2) ;
 
 	    }
 
 	    if (rs >= 0) {
 
-	        field_get(&lf,NULL) ;
+	        field_get(&lf,NULL,NULL) ;
 
-	        if (lf.flen > 0)
-	            rs = cfdecui(lf.fp,lf.flen,&e.p4) ;
+	        if (lf.fl > 0)
+	            rs = cfdecui(lf.fp,lf.fl,&e.p3) ;
+
+	    }
+
+	    if (rs >= 0) {
+
+	        field_get(&lf,NULL,NULL) ;
+
+	        if (lf.fl > 0)
+	            rs = cfdecui(lf.fp,lf.fl,&e.p4) ;
 
 	    }
 
@@ -278,13 +267,14 @@ char		fname[] ;
 #endif /* CF_DEBUG */
 
 	        rs = SR_NOANODE ;
-	        if (vecitem_search(dbp,&e,cmpconfig,NULL) < 0)
+	        if (vecitem_search(dbp,&e,cmpconfig,NULL) < 0) {
 	            rs = vecitem_add(dbp,&e,sizeof(struct entry)) ;
 
-		else
+		} else {
 			bprintf(pip->efp,
 			"%s: duplicate configuration prog=%s pred=%s\n",
 			pip->progname,e.progname,e.bpname) ;
+		}
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -296,13 +286,13 @@ char		fname[] ;
 	    if (rs < 0) {
 
 	        if (e.fname != NULL)
-	            free(e.fname) ;
+	            uc_free(e.fname) ;
 
 	        if (e.progname != NULL)
-	            free(e.progname) ;
+	            uc_free(e.progname) ;
 
 	        if (e.bpname != NULL)
-	            free(e.bpname) ;
+	            uc_free(e.bpname) ;
 
 	    } else
 	        c += 1 ;
@@ -323,9 +313,7 @@ char		fname[] ;
 /* end subroutine (process) */
 
 
-
-/* LOCAL SUBROUTINES */
-
+/* local subroutines */
 
 
 static int cmpconfig(e1pp,e2pp)
@@ -371,6 +359,5 @@ struct entry	**e1pp, **e2pp ;
 	return diff ;
 }
 /* end subroutine (cmpconfig) */
-
 
 

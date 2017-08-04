@@ -439,6 +439,7 @@ static cchar	*deps[] = {
 	"h",
 	"f",
 	"y",
+	"cpp",
 	NULL
 } ;
 

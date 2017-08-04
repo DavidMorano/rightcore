@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1988-01-10, David A­D­ Morano
-
-	This subroutine was written (originally) as a test of
-	the Sun Solaris UNIX 'kstat' facility.
-
+        This subroutine was written (originally) as a test of the Sun Solaris 
+        UNIX 'kstat' facility.  But now it just prints the machine ID.
 
 */
 
@@ -28,7 +26,7 @@
 ***************************************************************************/
 
 
-#include	<envstadnards.h>
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -37,7 +35,6 @@
 #include	<netinet/in.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<stdio.h>
@@ -59,6 +56,8 @@
 
 extern int	cfdecl(char *,int,long) ;
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 
 /* external variables */
 
@@ -72,8 +71,10 @@ extern int	cfdecl(char *,int,long) ;
 /* exported subroutines */
 
 
-int main(int argc,cchar *argv[],cchar *envv[])
+int main(int argc,char **aargv,char **aenvv)
 {
+	cchar	**argv = (cchar **) aargv ;
+	cchar	**envv = (cchar **) aenvv ;
 	FILE	*fp = stdout ;
 	long	v ;
 	uint	hostid ;
@@ -86,10 +87,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	int	s ;
 	int	fd = 0 ;
 
+	cchar	*pr = NULL ;
+	cchar	*progname ;
+	cchar	*cp ;
 	char	buf[BUFLEN + 1], *bp ;
-	char	*pr = NULL ;
-	char	*progname ;
-	char	*cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -129,7 +130,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	hostid = (uint) gethostid() ;
 
-	fprintf(fp,"hostid> %u (%08x)\n",
+	fprintf(fp,"hostid> %u (\\x%08x)\n",
 	    (uint) hostid,
 	    (uint) hostid) ;
 

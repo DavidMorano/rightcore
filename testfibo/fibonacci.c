@@ -20,7 +20,7 @@
 
 	Synopsis:
 
-	int fibonacci(unsigned int n)
+	LONG fibonacci(unsigned int n)
 
 	Arguments:
 
@@ -33,7 +33,7 @@
 
 	The original Fibonacci function:
 
-	int fibonacci(int n)
+	LONG fibonacci(int n)
 	{
 	    int	v = 0 ;
 	    if ((n == 1) || (n == 2)) {
@@ -57,9 +57,7 @@
 
 
 #include	<envstandards.h>
-
 #include	<limits.h>
-
 #include	<localmisc.h>
 
 
@@ -77,38 +75,24 @@ static const unsigned int fibotab[] = {
 	0x00213d05, 0x0035c7e2, 0x005704e7, 0x008cccc9,
 	0x00e3d1b0, 0x01709e79, 0x02547029, 0x03c50ea2,
 	0x06197ecb, 0x09de8d6d, 0x0ff80c38, 0x19d699a5,
-	0x29cea5dd, 0x43a53f82, 0x6d73e55f, 0xb11924e1,
+	0x29cea5dd, 0x43a53f82, 0x6d73e55f, 0xb11924e1
 } ;
 
 
 /* exported subroutines */
 
 
-int fibonacci(unsigned int n)
+LONG fibonacci(int n)
 {
 	const int	ntab = nelem(fibotab) ;
-	int		v = -1 ;
-
-	if (n < ntab) v = fibotab[n] ;
-
+	LONG		v = -1 ;
+	if (n < ntab) {
+	    v = fibotab[n] & UINT_MAX ;
+	} else {
+	    v = fibonacci(n-1) * fibonacci(n-2) ;
+	}
 	return v ;
 }
 /* end subroutine (fibonacci) */
-
-
-int fibonaccikill(volatile int *kfp,unsigned int n)
-{
-	int		v = -1 ;
-
-	if ((kfp != NULL) && *kfp) {
-	    v = 0 ;
-	} else {
-	    const int	ntab = nelem(fibotab) ;
-	    if (n < ntab) v = fibotab[n] ;
-	}
-
-	return v ;
-}
-/* end subroutine (fibonaccikill) */
 
 

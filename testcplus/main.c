@@ -11,12 +11,12 @@
 
 /* revision history:
 
-	= 2010-07-11, David A­D­ Morano
+	= 2013-07-11, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2010 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
 #include	<envstandards.h>
 #include	<stdio.h>
@@ -103,7 +103,6 @@ public:
 
 int thing::init(int a)
 {
-
 	a1 = a ;
 	a2 = a * 2 ;
 	return 0 ;
@@ -111,7 +110,6 @@ int thing::init(int a)
 
 int thing::get()
 {
-
 	return (a1 + a2) ;
 }
 

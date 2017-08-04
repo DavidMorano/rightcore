@@ -2,7 +2,7 @@
 /* lang=C++11 */
 
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	SETINT_INCLUDE
 #define	SETINT_INCLUDE	1

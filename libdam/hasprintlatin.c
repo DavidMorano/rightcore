@@ -6,15 +6,15 @@
 /* revision history:
 
 	= 2008-10-10, David A­D­ Morano
-
 	This subroutine was written for Rightcore Network Services.
-
 
 */
 
 /* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
+
+	Are all of the characters printable Latin characters?
 
 	Synopsis:
 

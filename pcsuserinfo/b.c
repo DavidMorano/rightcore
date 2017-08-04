@@ -2100,17 +2100,8 @@ static int locinfo_pcsns(LOCINFO *lip)
 	        if ((rs = pcsns_open(&lip->ns,pr_pcs)) >= 0) {
 		    lip->open.ns = TRUE ;
 		}
-#if	CF_DEBUG
-		if (DEBUGLEVEL(3))
-		debugprintf("pcsuserinfo/locinfo_pcsns: "
-		"pcsns_open() rs=%d\n",rs) ;
-#endif
 	    }
 	} /* end if (needed initialization) */
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("pcsuserinfo/locinfo_pcsnsg: ret rs=%d\n",rs) ;
-#endif
 	return rs ;
 }
 /* end subroutine (locinfo_pcsns) */
@@ -2123,15 +2114,7 @@ static int locinfo_pcsnsget(LOCINFO *lip,char *rbuf,int rlen,cchar *un,int w)
 	if (pip == NULL) return SR_FAULT ;
 	if ((rs = locinfo_pcsns(lip)) >= 0) {
 	    rs = pcsns_get(&lip->ns,rbuf,rlen,un,w) ;
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("pcsuserinfo/procname: pcsns_get() rs=%d\n",rs) ;
-#endif
 	}
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("pcsuserinfo/locinfo_pcsnsget: ret rs=%d\n",rs) ;
-#endif
 	return rs ;
 }
 /* end subroutine (locinfo_pcsnsget) */

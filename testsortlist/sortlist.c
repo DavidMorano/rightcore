@@ -3,29 +3,27 @@
 /* sorted list operations */
 
 
-#define	CF_DEBUGS	1
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
 /* revision history:
 
 	 = David A.D. Morano, 1995-12-01
-
 	Module was originally written.
-
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	These routines are used when the caller just wants to store
-	an item in a sorted list.  The item us usually just a pointer
-	to the user's real data.  Items have keys and values, like
-	with a hash table structure except that we use a balanced
-	binary tree to store everything.
+        These routines are used when the caller just wants to store an item in a
+        sorted list. The item us usually just a pointer to the user's real data.
+        Items have keys and values, like with a hash table structure except that
+        we use a balanced binary tree to store everything.
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #define	SORTLIST_MASTER		1
@@ -36,26 +34,22 @@
 #include	<sys/types.h>
 #include	<stdlib.h>
 #include	<string.h>
+#include	<vsystem.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"sortlist.h"
 
 
-
 /* local defines */
-
-#define	MAGIC		0x31415926
-
 
 
 /* external subroutines */
 
 
+/* exported subroutines */
 
 
-
-
-int sortlist_init(slp,cmpfunc)
+int sortlist_start(slp,cmpfunc)
 SORTLIST	*slp ;
 int		(*cmpfunc)(void *,void *) ;
 {
@@ -66,14 +60,14 @@ int		(*cmpfunc)(void *,void *) ;
 
 	slp->balance = 0 ;
 	slp->root = NULL ;
-	slp->magic = MAGIC ;
+	slp->magic = SORTLIST_MAGIC ;
 
 	return OK ;
 }
-/* end subroutine (sortlist_init) */
+/* end subroutine (sortlist_start) */
 
 
-int sortlist_free(slp)
+int sortlist_finish(slp)
 sortlist	*slp ;
 {
 	int	i ;
@@ -102,7 +96,7 @@ sortlist	*slp ;
 	slp->e = 0 ;
 	return OK ;
 }
-/* end subroutine (sortlist_free) */
+/* end subroutine (sortlist_finish) */
 
 
 /* add an entry to this sorted list */
@@ -121,13 +115,13 @@ int		(*cmpfunc)() ;
 
 
 #if	CF_DEBUGS
-	debugprintf("sortlistadd: entered\n") ;
+	debugprintf("sortlistadd: ent\n") ;
 #endif
 
 	if (slp == NULL) return -1 ;
 
 #if	CF_DEBUGS
-	debugprintf("sortlistadd: entered, i=%d\n",slp->i) ;
+	debugprintf("sortlistadd: ent, i=%d\n",slp->i) ;
 #endif
 
 /* do we have to grow the sortlist array ? */
@@ -175,13 +169,13 @@ int		(*cmpfunc)() ;
 
 	while ((top - bot) > 0) {
 
-	    if ((rs = (*cmpfunc)(p,slp->va[ii])) < 0)
+	    if ((rs = (*cmpfunc)(p,slp->va[ii])) < 0) {
 	        top = ii - 1 ;
 
-	    else if (rs > 0)
+	    } else if (rs > 0) {
 	        bot = ii + 1 ;
 
-	    else
+	    } else
 	        break ;
 
 	    ii = (bot + top) / 2 ;
@@ -199,8 +193,9 @@ int		(*cmpfunc)() ;
 
 /* move all entries from "ii" through "slp->i - 1" down one */
 
-	    for (j = (slp->i - 1) ; j >= ii ; j -= 1)
+	    for (j = (slp->i - 1) ; j >= ii ; j -= 1) {
 	        (slp->va)[j + 1] = (slp->va)[j] ;
+	    }
 
 	} /* end if */
 
@@ -224,7 +219,7 @@ void		**pp ;
 
 
 #if	CF_DEBUGS
-	debugprintf("sortlistget: entered\n") ;
+	debugprintf("sortlistget: ent\n") ;
 #endif
 
 	if (slp == NULL) return BAD ;
@@ -272,8 +267,9 @@ int		i ;
 	if (slp->va == NULL) return OK ;
 
 	slp->i -= 1 ;
-	for (j = i ; j < slp->i ; j += 1)
+	for (j = i ; j < slp->i ; j += 1) {
 	    (slp->va)[j] = (slp->va)[j + 1] ;
+	}
 
 	(slp->va)[slp->i] = NULL ;
 
@@ -322,10 +318,8 @@ void		**pp ;
 
 	rs = BAD ;
 	if (rp != NULL) {
-
 	    i = (rp - slp->va) ;
 	    rs = OK ;
-
 	}
 
 	*pp = NULL ;
@@ -334,6 +328,5 @@ void		**pp ;
 	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (sortlist_search) */
-
 
 

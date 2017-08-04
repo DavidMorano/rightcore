@@ -1,2 +1,2 @@
 const char machid_makedate[] =
-	"@(#)machid                  080829_0341:35_EDT RightCore" ;
+"@(#)machid                  170803_0715:42_USEDT Rightcore Network Services" ;

@@ -1965,7 +1965,6 @@ static int locinfo_prpcs(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs ;
-
 	if (lip->pr_pcs == NULL) {
 	    const int	plen = MAXPATHLEN ;
 	    cchar	*dn = pip->domainname ;
@@ -1974,9 +1973,9 @@ static int locinfo_prpcs(LOCINFO *lip)
 	        cchar	**vpp = &lip->pr_pcs ;
 	        rs = locinfo_setentry(lip,vpp,pbuf,rs) ;
 	    }
-	} else
+	} else {
 	    rs = strlen(lip->pr_pcs) ;
-
+	}
 	return rs ;
 }
 /* end subroutine (locinfo_prpcs) */

@@ -6,6 +6,9 @@
 	= 2000-05-14, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
+	= 2017-08-01, David A­D­ Morano
+	Updated for lack of interfaces in MacOS Darwin
+
 */
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
@@ -31,6 +34,9 @@
 
 /* Solaris: system has STREAMS framework */
 #define	SYSHAS_STREAMS		1
+
+/* Solaris: has POSIX real-time timers */
+#define	SYSHAS_TIMER		1
 
 /* Solaris: system has ACL framework */
 #define	SYSHAS_ACL		1
@@ -142,9 +148,6 @@
 
 /* Solaris: get-directory-entries ('getdents(2)') */
 #define	SYSHAS_GETDENTS		1
-
-/* Solaris: STREAMS */
-#define	SYSHAS_STREAMS		1
 
 /* Solaris: XTI */
 #define	SYSHAS_XTI		1
@@ -331,6 +334,9 @@
 
 /* Darwin: STREAMS */
 #define	SYSHAS_STREAMS		0
+
+/* Darwin: doe *not* have POSIX real-time timers */
+#define	SYSHAS_TIMER		0
 
 /* Darwin: XTI */
 #define	SYSHAS_XTI		0

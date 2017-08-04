@@ -4,10 +4,10 @@ This is a KSH shell built-in command.  It prints out file-system information on
 a file.
 
 Synopsis:
-$ fsinfo <file> <spec(s)> ... [-af <afile>] [-V]
+$ fsinfo [-f <file>] <spec(s)> ... [-af <afile>] [-V]
 
 Arguments:
-<file>		file to get file-system status on
+-f <file>	file to get file-system status on
 <spec(s)>	one of: fsutil fstotal fsavail fsfree fstype 
 -af <afile>	take spec(s) from file
 -V		print command version to standard-error and then exit

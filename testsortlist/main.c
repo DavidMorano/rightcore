@@ -6,7 +6,17 @@
 #define	CF_DEBUGS	1
 
 
+/* revision history:
 
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstanards.h>
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
@@ -27,16 +37,16 @@
 #include	<userinfo.h>
 #include	<baops.h>
 #include	<char.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"sortlist.h"
-
 
 
 /* local defines */
 
-#define	LINELEN	100
-
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
 
 
 /* external subroutines */
@@ -52,9 +62,7 @@ static int	slcmp() ;
 
 
 
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile	infile, *ifp = &infile ;
 	bfile	outfile, *ofp = &outfile ;
@@ -66,7 +74,7 @@ char	*argv[] ;
 
 	int	rs, i, j, len ;
 
-	char	linebuf[LINELEN + 1] ;
+	char	linebuf[LINEBUFLEN + 1] ;
 	char	tmpfname_buf[MAXPATHLEN + 1] ;
 	char	*cp, *cp1, *cp2 ;
 	char	*lp ;
@@ -100,7 +108,7 @@ char	*argv[] ;
 	debugprintf("main: sortlist_init rs=%d\n",rs) ;
 #endif
 
-	while ((len = breadline(ifp,linebuf,LINELEN)) > 0) {
+	while ((len = breadline(ifp,linebuf,LINEBUFLEN)) > 0) {
 
 	    if (linebuf[len - 1] == '\n') len -= 1 ;
 

@@ -58,49 +58,49 @@ int main(int argc,const char **argv,const char **envv)
 
 /* phase 1 */
 
-	if (rs >= 0) {
-	    const int	dlen = DIGBUFLEN ;
-	    int		i ;
-	    int		dl ;
-	    char	dbuf[DIGBUFLEN+1] ;
-	    for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
-		if ((dl = cthex(dbuf,dlen,i)) >= 0) {
-		    rs = vecpstr_add(&nsl,dbuf,dl) ;
-		}
-	    } /* end for */
-	} /* end if (ok) */
+	    if (rs >= 0) {
+	        const int	dlen = DIGBUFLEN ;
+	        int		i ;
+	        int		dl ;
+	        char		dbuf[DIGBUFLEN+1] ;
+	        for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
+	            if ((dl = cthex(dbuf,dlen,i)) >= 0) {
+	                rs = vecpstr_add(&nsl,dbuf,dl) ;
+	            }
+	        } /* end for */
+	    } /* end if (ok) */
 
 /* phase 2 */
 
 #if	CF_DEBUGS
-	debugprintf("main: p2\n") ;
+	    debugprintf("main: p2\n") ;
 #endif
 
-	if (rs >= 0) {
-	    hrtime_t	t0, t1 ;
-	    int		i ;
-	    int		f = FALSE ;
-	    cchar	**va ;
-	    if ((vecpstr_getvec(&nsl,&va)) >= 0) {
-	        cchar	*cp ;
-	    t0 = gethrtime() ;
-	    for (i = 0 ; i < n ; i += 1) {
-		int	j ;
-		cp = va[i] ;
-		for (j = 0 ; cp[j] ; j += 1) {
-		    register int	ch = MKCHAR(cp[j]) ;
-		    f = ishexlatin(ch) ;
-		    if (! f) break ;
-		}
-		if (! f) break ;
-	    } /* end for */
-	    t1 = gethrtime() ;
+	    if (rs >= 0) {
+	        hrtime_t	t0, t1 ;
+	        int		i ;
+	        int		f = FALSE ;
+	        cchar		**va ;
+	        if ((vecpstr_getvec(&nsl,&va)) >= 0) {
+	            cchar	*cp ;
+	            t0 = gethrtime() ;
+	            for (i = 0 ; i < n ; i += 1) {
+	                int	j ;
+	                cp = va[i] ;
+	                for (j = 0 ; cp[j] ; j += 1) {
+	                    register int	ch = MKCHAR(cp[j]) ;
+	                    f = ishexlatin(ch) ;
+	                    if (! f) break ;
+	                }
+	                if (! f) break ;
+	            } /* end for */
+	            t1 = gethrtime() ;
 #if	CF_DEBUGS
-	    debugprintf("main: print-out\n") ;
+	            debugprintf("main: print-out\n") ;
 #endif
-	    fprintf(stdout,"f=%u td=%llu\n",f,(t1-t0)) ;
-	    } /* end if (vecpstr_getvec) */
-	} /* end if (ok) */
+	            fprintf(stdout,"f=%u td=%llu\n",f,(t1-t0)) ;
+	        } /* end if (vecpstr_getvec) */
+	    } /* end if (ok) */
 
 /* done */
 

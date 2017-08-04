@@ -1,0 +1,18 @@
+# SHELLVAR
+
+
+# install
+shellvar -i ncpu NCPU
+
+# remove
+shellvar -r ncpu
+
+
+int vstart_ncpu()
+int vfinish_ncpu()
+
+ncpu.start
+ncpu.finish
+
+
+
