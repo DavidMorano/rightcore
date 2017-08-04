@@ -5,7 +5,7 @@
 
 
 #ifndef	CF_DEBUGS
-#define	CF_DEBUGS	1		/* compile-time debugging */
+#define	CF_DEBUGS	0		/* compile-time debugging */
 #endif
 
 
@@ -230,67 +230,31 @@ class bstree {
         bstree_iterator<T,Comp> FindNodeByVal(nodetype *n,const T &v) const {
 	    bstree_iterator<T,Comp>	it ;
 	    if (root != NULL) {
-#if	CF_DEBUGS
-		debugprintf("bstree::FindNodeByVal: aval=%d nval=%d\n",
-		v,n->val) ;
-#endif
-	    if (keyless(v,n->val)) { /* less */
-#if	CF_DEBUGS
-		debugprintf("bstree::FindNodeByVal: less\n") ;
-#endif
-	        if (n->left != NULL) {
-		    it = FindNodeByVal(n->left,v) ;
+	        if (keyless(v,n->val)) { /* less */
+	            if (n->left != NULL) {
+		        it = FindNodeByVal(n->left,v) ;
+	            }
+	        } else if (keyequal(n->val,v)) { /* equal */
+	            it.setnode(n) ;
+	        } else {
+	            if (n->right != NULL) {
+		        it = FindNodeByVal(n->right,v) ;
+	            }
 	        }
-	    } else if (keyequal(n->val,v)) { /* equal */
-#if	CF_DEBUGS
-		debugprintf("bstree::FindNodeByVal: equal\n") ;
-#endif
-	        it.setnode(n) ;
-	    } else {
-#if	CF_DEBUGS
-		debugprintf("bstree::FindNodeByVal: greater\n") ;
-#endif
-	        if (n->right != NULL) {
-		    it = FindNodeByVal(n->right,v) ;
-	        }
-	    }
-#if	CF_DEBUGS
-		debugprintf("bstree::FindNodeByVal: node=%p\n",it.n) ;
-#endif
 	    } /* end if non-null root) */
-#if	CF_DEBUGS
-	    debugprintf("bstree::FindNodeByVal: ret it=%p\n",it.n) ;
-#endif
 	    return it ;
         } ;
 	void ReplaceUsInParent(nodetype *np,nodetype *c) {
 	    nodetype *p = np->parent ;
-#if	CF_DEBUGS
-	    debugprintf("bstree::ReplaceUsInParent: ent np=%p\n",np) ;
-	    debugprintf("bstree::ReplaceUsInParent: p=%p\n",p) ;
-	    debugprintf("bstree::ReplaceUsInParent: pl=%p\n",p->left) ;
-	    debugprintf("bstree::ReplaceUsInParent: pr=%p\n",p->right) ;
-#endif
 	    if (p->left == np) {
 		p->left = c ;
 	    } else {
 		p->right = c ;
 	    }
 	    if (c != NULL) c->parent = p ;
-#if	CF_DEBUGS
-	    debugprintf("bstree::ReplaceUsInParent: c=%p\n",c) ;
-#endif
 	} ;
 	nodetype *GetChild(nodetype *np) const {
 	    return (np->left != NULL) ? np->left : np->right ;
-	} ;
-	void DeleteSpecialNode(nodetype *np) { /* other than the root node */
-	    nodetype	*cp = GetChild(np) ;
-#if	CF_DEBUGS
-	    debugprintf("bstree:DeleteSpecialNode: ent cp=%p\n",cp) ;
-#endif
-	    ReplaceUsInParent(np,cp) ;
-	    delete np ;
 	} ;
 	nodetype *FindMinNode(nodetype *np) const {
 	    while (np->left != NULL) {
@@ -311,9 +275,6 @@ class bstree {
 	int insert(bstree_node<T,Comp> *n,bstree_node<T,Comp> *nn) {
 	    int		d = 0 ;
 	    if (keyless(nn->val,n->val)) {
-#if	CF_DEBUGS
-	debugprintf("bstree::insert: inserting left\n") ;
-#endif
 		if (n->left != NULL) {
 	            d = insert(n->left,nn) ;
 		} else {
@@ -321,9 +282,6 @@ class bstree {
 		    n->left = nn ;
 		}
 	    } else {
-#if	CF_DEBUGS
-	debugprintf("bstree::insert: inserting right\n") ;
-#endif
 		if (n->right != NULL) {
 	            d = insert(n->right,nn) ;
 		} else {
@@ -335,25 +293,13 @@ class bstree {
 	} ;
 	int walk(std::vector<T> &vl,bstree_node<T,Comp> *n) const {
 	    int	i = 0 ;
-#if	CF_DEBUGS
-	debugprintf("bstree::walk: ent n=%p\n",n) ;
-#endif
 	    if (n != NULL) {
 		if (n->left) {
-#if	CF_DEBUGS
-	debugprintf("bstree::walk: left\n") ;
-#endif
 		    i += walk(vl,n->left) ;
 		}
-#if	CF_DEBUGS
-	debugprintf("bstree::walk: store v=%d\n",n->val) ;
-#endif
 	        vl.push_back(n->val) ;
 	        i += 1 ;
 	        if (n->right) {
-#if	CF_DEBUGS
-	debugprintf("bstree::walk: right\n") ;
-#endif
 		    i += walk(vl,n->right) ;
 		}
 	    }
@@ -442,16 +388,10 @@ public:
 	int add(const T v) {
 	    bstree_node<T,Comp>	*nn = new bstree_node<T,Comp>(v) ;
 	    int			rc = -1 ;
-#if	CF_DEBUGS
-	debugprintf("bstree::add: ent b=%d\n",v) ;
-#endif
 	    if (nn != NULL) {
 		if (root != NULL) {
 	            insert(root,nn) ;
 		} else {
-#if	CF_DEBUGS
-	debugprintf("bstree::add: inserting top\n") ;
-#endif
 		    root = nn ;
 		}
 	        rc = ++c ;
@@ -481,29 +421,16 @@ public:
 	    if (it) {
 	        nodetype	*n = it.n ; /* friend */
 	        nodetype	*l, *r ;
-#if	CF_DEBUGS
-	        debugprintf("bstree::del: val=%d\n",n->val) ;
-#endif
 		l = n->left ;
 		r = n->right ;
-#if	CF_DEBUGS
-	        debugprintf("bstree::del: l=%p r=%p\n",l,r) ;
-#endif
 		if ((l != NULL) || (r != NULL)) { /* one or two children */
 		    if ((l != NULL) && (r != NULL)) { /* two children */
-#if	CF_DEBUGS
-			debugprintf("bstree::del: two children\n") ;
-#endif
 			nodetype *np = FindMinNode(n->right) ;
 			n->SetVal(np->val) ;
-			DeleteSpecialNode(np) ;
+	    		ReplaceUsInParent(np,np->right) ;
+	    	        delete np ;
 		    } else { /* one child */
 			nodetype	*child = GetChild(n) ;
-#if	CF_DEBUGS
-			debugprintf("bstree::del: one child\n") ;
-			debugprintf("bstree::del: child=%p p=%p\n",
-				child,n->parent) ;
-#endif
 		        if (n->parent != NULL) {
 			    ReplaceUsInParent(n,child) ;
 			} else {
@@ -514,9 +441,6 @@ public:
 			delete n ;
 		    }
 		} else { /* leaf node */
-#if	CF_DEBUGS
-		debugprintf("bstree::del: leaf p=%p\n",n->parent) ;
-#endif
 		    if (n->parent != NULL) {
 			ReplaceUsInParent(n,NULL) ;
 			it.setnode(n->parent) ;
@@ -528,16 +452,10 @@ public:
 		}
 		rc = --c ;
 	    } /* end if (iterator not at end) */
-#if	CF_DEBUGS
-		debugprintf("bstree::del: ret rc=%d\n",rc) ;
-#endif
 	    return rc ;
 	} ;
 	int delval(const T &v) {
 	    int		rc = -1 ;
-#if	CF_DEBUGS
-		debugprintf("bstree::delval: ent v=%d\n",v) ;
-#endif
 	    if (root != NULL) {
 		iterator	it ;
 	        if (it = FindNodeByVal(root,v)) {
