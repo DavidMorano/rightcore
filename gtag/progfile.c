@@ -12,33 +12,27 @@
 /* revision history:
 
 	= 1992-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 1998-09-01, David A­D­ Morano
-
-	This subroutine was modified to process the way MMCITE does
-	citation.   It used to use the old GNU 'lookbib' program in
-	addition to the (old) standard UNIX version.  But neither of
-	these are used now.  Straight out citeation keywrd lookup
-	is done directly in a BIB database (files of which are
-	suffixed 'rbd').
-
+        This subroutine was modified to process the way MMCITE does citation. It
+        used to use the old GNU 'lookbib' program in addition to the (old)
+        standard UNIX version. But neither of these are used now. Straight out
+        citeation keywrd lookup is done directly in a BIB database (files of
+        which are suffixed 'rbd').
 
 */
 
 /* Copyright © 1992,1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	This subroutine processes a file by looking up and inserting
-	the bibliographical references into the text.  All input is
-	copied to the output with the addition of the bibliographical
-	references.
+        This subroutine processes a file by looking up and inserting the
+        bibliographical references into the text. All input is copied to the
+        output with the addition of the bibliographical references.
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */

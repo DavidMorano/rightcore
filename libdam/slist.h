@@ -1,4 +1,4 @@
-/* pq */
+/* slist */
 /* lang=C++11 */
 
 /* regular (no-frills) pointer queue (not-circular) */
@@ -13,14 +13,33 @@
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	Single-pointer-List
+
+	This is sort of like |forward_list| in C++ but not as brain damaged.
+
+        C++ is hiding the fact that they used a single-pointer forward list to
+        make their |forward_list| object, but we rejoice in the fact that we did
+        also. Now, due to our honesty, we can make a public interface available
+        to retrieve the add to the bottom of the list, where the C++ STL does
+        not.
+
+
+*******************************************************************************/
+
+
 #ifndef	SLIST_INCLUDE
 #define	SLIST_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<localmisc.h>		/* for 'uint' */
+#include	<limits.h>
+#include	<cinttypes>
+#include	<new>
 #include	<initializer_list>
+#include	<localmisc.h>		/* for 'uint' */
 
 template <class T>
 class slist ;
@@ -56,7 +75,7 @@ public:
 	} ;
 	int add(T v) {
 	    slist_node<T>	*n = tail ;
-	    slist_node<T>	*nn = new slist_node<T>(v) ;
+	    slist_node<T>	*nn = new(nothrow) slist_node<T>(v) ;
 	    if (n != NULL) {
 	        n.next = nn ;
 	    } else {
@@ -74,7 +93,7 @@ public:
 	    return c ;
 	} ;
 	int insfront(T v) {
-	    slist_node<T>	*nn = new slist_node<T>(v) ;
+	    slist_node<T>	*nn = new(nothrow) slist_node<T>(v) ;
 	    slist_node<T>	*n = head ;
 	    if (n != NULL) {
 		nn.next = n.next ;

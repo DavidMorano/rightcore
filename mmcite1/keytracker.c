@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1994-03-24, David A­D­ Morano
-
 	This object module was originally written.
-
 
 */
 
@@ -19,16 +17,15 @@
 
 /******************************************************************************
 
-	This object tracks keys in a key-value pair-like structure
-	(not uncommonly used with file DB queries, in the response to
-	such queries).	It tracks whether the keys are "done" or not as
-	determined by whether the "done" object method is called with
-	the index of the key in the key-value array as an argument.
+        This object tracks keys in a key-value pair-like structure (not
+        uncommonly used with file DB queries, in the response to such queries).
+        It tracks whether the keys are "done" or not as determined by whether
+        the "done" object method is called with the index of the key in the
+        key-value array as an argument.
 
-	Yes, we could have used a hash table of the key names to indicate
-	whether they were "done" or not, but for no good reason we
-	used a bit array (indexed by the key-value index) to track the
-	"done" status.
+        Yes, we could have used a hash table of the key names to indicate
+        whether they were "done" or not, but for no good reason we used a bit
+        array (indexed by the key-value index) to track the "done" status.
 
 
 *****************************************************************************/

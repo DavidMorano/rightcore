@@ -88,8 +88,6 @@ LONG factorial(int n)
 	    const int	ne = nelem(facttab) ;
 	    if (n < ne) {
 	        v = facttab[n] ;
-	    } else {
-		v = -1 ;
 	    }
 	}
 	return v ;

@@ -1,7 +1,7 @@
 /* bstree */
 /* lang=C++11 */
 
-/* regular (no-frills) pointer queue (not-circular) */
+/* binary search tree */
 
 
 #ifndef	CF_DEBUGS
@@ -24,10 +24,9 @@
 
 	Notes:
 
-	Q. How do we handle iterative traveral?
+	Q. How do we handle iterative traversal?
 
-	A. There are at least three popular ways to handle iterative
-	traveral:
+	A. There are at least three popular ways to handle iterative traveral:
 
 	1. maintain a stack of pointers to previous node at least
 	   level of the tree; space would be O(depth)
@@ -61,8 +60,8 @@
 	    stack<node>	stack = new stack<node> ;
 	    node	n ;
 	    iterator(node an) : n(an) { } ;
-	    iterator findnext() {
-		iterator	it(NULL) ;
+	    iterator &findnext() {
+		iterator	it(nullptr) ;
 	        while (n != NULL) {
 		    stack.push(n) ;
 		    n = n->left ;
@@ -89,10 +88,6 @@
 #include	<algorithm>
 #include	<functional>
 #include	<vector>
-#include	<string>
-#include	<fstream>
-#include	<iostream>
-#include	<iomanip>
 #include	<vsystem.h>
 #include	<localmisc.h>
 
@@ -118,16 +113,14 @@ class bstree_node {
 	bstree_node<T,Comp>	*parent = NULL ;
 	bstree_node<T,Comp>	*left = NULL ;
 	bstree_node<T,Comp>	*right = NULL ;
-	T		val ;
-	uint		magic = 0x05020502 ;
-	void SetVal(T v) {
+	T			val ;
+	void SetVal(const T v) {
 	    val = v ;
 	} ;
 public:
 	bstree_node(T av) : val(av) { 
 	} ;
 	~bstree_node() {
-	    magic = 0 ;
 	} ;
  	friend bstree<T,Comp> ;
  	friend bstree_iterator<T,Comp> ;
@@ -201,8 +194,9 @@ template <typename T,typename Comp>
 bstree_iterator<T,Comp> &bstree_iterator<T,Comp>::findnext(int inc) {
 	if (n != NULL) {
 	    if (inc > 1) {
+		findnext(1) ;
 		findnext(inc-1) ;
-	    } else {
+	    } else if (inc > 0) {
    	        if (n->right != NULL) {
       		    n = n->right ;
       		    while (n->left != NULL) {
@@ -218,7 +212,7 @@ bstree_iterator<T,Comp> &bstree_iterator<T,Comp>::findnext(int inc) {
 		}
 	    } /* end if (inc) */
         } /* end if (not-NULL) */
- 	return *this;
+ 	return (*this) ;
 } /* end method (findnext) */
 
 template <typename T,typename Comp>

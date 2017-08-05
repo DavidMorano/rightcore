@@ -30,6 +30,7 @@ function process {
   filefind -t f -s c,h,cc -o uniq ${*} > ${TF}
   xargs < ${TF} wc -l | proc_wc
   xargs < ${TF} ncsl -s | proc_ncsl
+  rm -f ${TF}
 }
 
 TF=/tmp/findncsl${$}

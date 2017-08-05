@@ -1008,7 +1008,7 @@ fi
       if [[ ${RF_DEBUG} -ne 0 ]] || [[ ${RF_V} -ne 0 ]] ; then
         print -u2 ${CMD}
       else :
-        eval $CMD
+        eval $(CMD)
       fi
 
     else

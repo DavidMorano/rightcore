@@ -18,7 +18,7 @@ PFILE=${A%.*}
 PN=${PFILE#-}
 DN=/dev/null
 
-P_USERHOME=/usr/preroot/bin/userhome
+P_USERHOME=/usr/extra/bin/userhome
 P_WHICH=/usr/bin/which
 P_DOMAINNAME=/usr/bin/domainname
 P_FGREP=/usr/bin/fgrep
@@ -141,8 +141,8 @@ for A in "${@}" ; do
       S=${OS}
       ;;
     msg )
-      S=${OS}
       MSG="${A}"
+      S=${OS}
       ;;
     esac
     ;;
@@ -172,6 +172,7 @@ wire|skype|textonly)
       fi
       print -- "${TXT}"
       if [[ -n "${MSG}" ]] ; then
+        logprint "msg=> ${MSG:0:70}<"
         print -- "¥ msg= ${MSG:0:70}"
       fi
     } | tee ${MSGFILE} | notice ${TU} -r -3

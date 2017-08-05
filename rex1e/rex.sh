@@ -1,31 +1,24 @@
-#!/bin/ksh
+#!/usr/bin/ksh
 # XXX
 
 
 if [ -d /usr/sbin ] ; then
-
   MACH=`uname -n`
-
 else
-
   MACH=`hostname`
   PATH=/usr/5bin:${PATH}
-
 fi
 
 
-case $MACH in
-
+case ${MACH} in
 hocp[a-d] | nucleus | logicgate | nitrogen )
   : ${PCS:=/home/gwbb/add-on/pcs}
   : ${TOOLS:=/opt/exptools}
   : ${LOCAL:=/home/gwbb/add-on/local}
   ;;
-
 mt* )
   : ${LOCAL:=/mt/mtgzfs8/hw/add-on/local}
   ;;
-
 esac
 
 
@@ -37,8 +30,6 @@ export LOCAL TOOLS PCS
 
 PROGRAMROOT=${PCS}
 export PROGRAMROOT
-
-
 
 
 # check up on PATH stuff
@@ -107,13 +98,9 @@ if [ ! -x $PNAME ] ; then PNAME=${TOOLS}/bin/execv ; fi
 if [ ! -x $PNAME ] ; then PNAME=`whence pname` ; fi
 
 if [ ! -x $PNAME ] ; then 
-
   if [ -x ${TOOLS}/bin/where ] ; then
-
     PNAME=`${TOOLS}/bin/where pname`
-
   fi
-
 fi
 
 
@@ -162,6 +149,5 @@ fi
 
 echo "${P}: could not find the underlying \"${P}\" program" >&2
 exit 1
-
 
 

@@ -9,26 +9,22 @@
 /* revision history:
 
 	= 1987-09-10, David A­D­ Morano
-
 	This code module was originally written.
 
-
 	= 1998-09-10, David A­D­ Morano
-
 	This module was changed to serve in the REFERM program.
-
 
 */
 
 /* Copyright © 1987,1998 David A­D­ Morano.  All rights reserved. */
 
-/*******************************************************************
+/*******************************************************************************
 
-	This code module contains a sinple object that is used
-	to hold a citation event.
+        This code module contains a sinple object that is used to hold a
+        citation event.
 
 
-*********************************************************************/
+*******************************************************************************/
 
 
 #define	EVENT_MASTER	1

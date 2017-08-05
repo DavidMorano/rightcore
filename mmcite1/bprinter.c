@@ -10,15 +10,11 @@
 /* revision history:
 
 	= 1992-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 1998-09-01, David A­D­ Morano
-
-	This subroutine was modified to remove white-space in front
-	of trailing white-space also.
-
+        This subroutine was modified to remove white-space in front of trailing
+        white-space also.
 
 */
 

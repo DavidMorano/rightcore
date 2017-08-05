@@ -11,30 +11,24 @@
 /* revision history:
 
 	= 1992-03-10, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 1998-09-10, David A­D­ Morano
-
-	This subroutine was modified to be able to handle
-	the response from the GNU 'lookbib' program in addition
-	to the (old) standard UNIX version.
-
+        This subroutine was modified to be able to handle the response from the
+        GNU 'lookbib' program in addition to the (old) standard UNIX version.
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	This subroutine processes a file by looking up and inserting
-	the bibliographical references into the text.  All input is
-	copied to the output with the addition of the bibliographical
-	references.
+        This subroutine processes a file by looking up and inserting the
+        bibliographical references into the text. All input is copied to the
+        output with the addition of the bibliographical references.
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>

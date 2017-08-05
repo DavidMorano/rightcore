@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The subroutine was adapted from others programs that did similar
-	types of functions.
-
+        The subroutine was adapted from others programs that did similar types
+        of functions.
 
 */
 

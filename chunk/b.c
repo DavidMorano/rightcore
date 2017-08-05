@@ -874,11 +874,11 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 
 	if ((rs = procout_begin(pip,&po)) >= 0) {
 	    int		pan = 0 ;
-	    cchar		*cp ;
+	    cchar	*cp ;
 
 	    if (rs >= 0) {
-	        int		ai ;
-	        int		f ;
+	        int	ai ;
+	        int	f ;
 	        cchar	**argv = aip->argv ;
 	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 

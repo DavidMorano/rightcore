@@ -3,12 +3,15 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2011-01-25, David A­D­ Morano
 	Originally written for Rightcore Network Services.
+
+	= 2014-09-25, David A­D­ Morano
+	Some sort of enhancement.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2011,2014 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	MFSMAIN_INCLUDE
 #define	MFSMAIN_INCLUDE	1

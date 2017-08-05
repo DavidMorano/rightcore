@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/ksh
 # MOVEMAIL
 
 
@@ -54,7 +54,5 @@ fi
 
 
 cleanup
-
-exit 0
 
 

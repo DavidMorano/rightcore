@@ -1,7 +1,8 @@
 MKTAGPRINT
 
-This program reads a section of a file specified by an index tag.
-One or more index tags are read from standard input.
+This program reads a section of a file specified by an index tag. One or more
+index tags are read from standard input.  Index tahs are normally generated
+as a result of queries, usually from the output of the MKQURY program.
 
 Synopsis:
 

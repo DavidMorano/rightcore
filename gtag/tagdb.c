@@ -9,14 +9,10 @@
 /* revision history:
 
 	= 1987-09-10, David A­D­ Morano
-
 	This code module was originally written.
 
-
 	= 1998-09-10, David A­D­ Morano
-
 	This module was changed to serve in the REFERM program.
-
 
 */
 
@@ -24,9 +20,9 @@
 
 /******************************************************************************
 
-	This code module (object) maintains a citation database.
-	It stores the citation keys, and a count for each, that are
-	found within the document text.
+        This code module (object) maintains a citation database. It stores the
+        citation keys, and a count for each, that are found within the document
+        text.
 
 	No emumeration is required since only lookups by key are needed.
 

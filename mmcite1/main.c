@@ -11,14 +11,15 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+	= 2009-05-29, David A­D­ Morano
+	I enhanced this in some way.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2009 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -80,11 +81,11 @@ extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	bprintlines(bfile *,int,const char *,int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
+extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
-extern int	progfile(struct proginfo *,PARAMOPT *,
+extern int	progfile(PROGINFO *,PARAMOPT *,
 			BDB *,CITEDB *,const char *) ;
-extern int	progout(struct proginfo *,BDB *,CITEDB *,const char *) ;
+extern int	progout(PROGINFO *,BDB *,CITEDB *,const char *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -106,10 +107,10 @@ extern char	*strshrink(char *) ;
 
 /* forward references */
 
-int		findbibfile(struct proginfo *,PARAMOPT *,const char *,char *) ;
+int		findbibfile(PROGINFO *,PARAMOPT *,const char *,char *) ;
 
-static int	usage(struct proginfo *) ;
-static int	loadbibfiles(struct proginfo *,PARAMOPT *,BDB *) ;
+static int	usage(PROGINFO *) ;
+static int	loadbibfiles(PROGINFO *,PARAMOPT *,BDB *) ;
 
 
 /* local variables */
@@ -196,12 +197,9 @@ enum progopts {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 
 	BITS		pargs ;
 
@@ -911,7 +909,7 @@ const char	*envv[] ;
 	}
 #endif /* CF_DEBUG */
 
-	memset(&pip->tf,0,sizeof(struct proginfo_tmpfile)) ;
+	memset(&pip->tf,0,sizeof(PROGINFO_TMP)) ;
 	rs = bopen(&pip->tf.tfile,tmpfname,"rwc",0666) ;
 
 	if (rs < 0) {
@@ -1195,7 +1193,7 @@ badarg:
 
 
 int findbibfile(pip,app,fname,tmpfname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 PARAMOPT	*app ;
 const char	fname[] ;
 char		tmpfname[] ;
@@ -1243,20 +1241,19 @@ char		tmpfname[] ;
 /* local subroutines */
 
 
-static int usage(pip)
-struct proginfo	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
 	fmt = "%s: USAGE> %s [<file(s)> ...] [-af {<afile>|-}]\n" ;
-	rs = bprintf(pip->efp,fmt,pn,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-B <incdir(s)>] [-p <bibfile(s)>] [-V]\n" ;
-	rs = bprintf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1264,10 +1261,7 @@ struct proginfo	*pip ;
 /* end subroutine (usage) */
 
 
-static int loadbibfiles(pip,app,bdbp)
-struct proginfo	*pip ;
-PARAMOPT	*app ;
-BDB		*bdbp ;
+static int loadbibfiles(PROGINFO *pip,PARAMOPT *app,BDB *bdbp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;

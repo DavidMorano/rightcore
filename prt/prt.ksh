@@ -1,4 +1,4 @@
-#!/usr/bin/ksh
+#!/usr/extra/bin/ksh
 #exec 2> e
 #set -x
 # PRT - local UNISON 'prt' look-alike program
@@ -31,6 +31,8 @@ DEFDST=${LPDEST:-ps}
 DST=${PRINTER:=${DEFDST}}
 
 NODE_LP=rca
+
+RF_DEBUG=false
 
 
 # program specific things
@@ -129,7 +131,7 @@ pathadd() {
   shift
   if [[ $# -ge 1 ]] && [[ -d "${1}" ]] ; then
     eval AA=\${${VARNAME}}
-    echo ${AA} | ${P_FGREP} "${1}" > /dev/null
+    print -- ${AA} | ${P_FGREP} "${1}" > /dev/null
     if [[ $? -ne 0 ]] ; then
       if [[ -z "${AA}" ]] ; then
           AA=${1}
@@ -225,10 +227,10 @@ P=`basename ${0}`
 
 LOGFILE=${LOCAL}/log/prt
 
-LOGID=`echo "${NODE}${$}         " | cut -c 1-14 `
+LOGID=`print -- "${NODE}${$}         " | cut -c 1-14 `
 
 logprint() {
-  echo "${LOGID} ${*}" >> ${LOGFILE}
+  print -- "${LOGID} ${*}" >> ${LOGFILE}
 }
 
 
@@ -274,53 +276,39 @@ sendjob() {
   IM=$2
   UM=$3
 
-  if [ $RF_DEBUG != true ] ; then
+  if [[ ${RF_DEBUG} != true ]] ; then
 
-  case $SW in
-
+  case ${SW} in
   rex )
     AF=${LOCAL}/etc/prt/gwbb
     if [ -f $AF ] ; then
-
       OPTS="-a ${AF}"
-
     else
-
       OPTS="-u guest -p guest*"
-
     fi
-
     eval rex $OPTS $IM $SJ_CMD 
     ;;
-
   rsh )
     eval ${RSH} $IM $SJ_CMD 
     ;;
-
   rsh_uux )
     eval ${RSH} $R_NODE uux -p ${UM}!uuexec ${SJ_CMD}
     ;;
-
   uux )
     eval uux -p ${UM}!uuexec ${SJ_CMD}
     ;;
-
   rslow )
     eval rslow -f $MA -u $USERNAME $IM $SJ_CMD
     ;;
-
   local )
     eval $SJ_CMD
     ;;
-
   esac
 
   else
-
     cat > /dev/null
-    echo $SW $IM $UM $SJ_CMD >&2
-    eval echo $SW $IM $UM $SJ_CMD >&2
-
+    print -- $SW $IM $UM $SJ_CMD >&2
+    eval print -- $SW $IM $UM $SJ_CMD >&2
   fi
 
 }
@@ -400,7 +388,7 @@ for A in "${@}" ; do
     S=form
     ;;
   '-h' )
-    echo "${P}: for more HELP see the manual page" >&2
+    print -u2 "${P}: for more HELP see the manual page"
     ;;
   '-j' )
     OS=${S}
@@ -436,7 +424,7 @@ for A in "${@}" ; do
     RF_INPUT=true
     ;;
   '-'* )
-    echo "${P}: unknown option \"${A}\"" >&2
+    print -u2 "${P}: unknown option \"${A}\""
     exit 1
     ;;
   * )
@@ -462,7 +450,7 @@ for A in "${@}" ; do
         DST=${A}
         ;;
       /* )
-        DST=`echo $A | cut -c2-15`
+        DST=`print -- $A | cut -c2-15`
         ;;
       * )
         DST=${A}
@@ -520,8 +508,8 @@ for A in "${@}" ; do
 done
 
 
-if [[ ${RF_O} == true ]] ; then
-  echo "${P}: option 'o' not supported ; being phased out by UNISON" >&2
+if ${RF_O} ; then
+  print -u2 "${P}: option 'o' not supported ; being phased out by UNISON"
 fi
 
 
@@ -534,10 +522,10 @@ POSTOPTS=""
 
 # validate the arguments
 
-if [[ ${RF_DST} == true ]] && [[ -z ${DST} ]] ; then 
+if ${RF_DST} && [[ -z ${DST} ]] ; then 
 
   logprint "no printer destination was found"
-  echo "${P}: a null printer destination was given" >&2
+  print -u2 "${P}: a null printer destination was given"
   exit 1
 
 fi
@@ -547,18 +535,14 @@ fi
 
 logprint "printer=${DST}"
 
-case $DST in
-
+case ${DST} in
 hp*ps | gwbb*ps | di*ps )
-  if [ $RF_PLANG != true ] ; then
-
+  if [[ ${RF_PLANG} != true ]] ; then
     PLANG=postscript
     RF_PLANG=true
     DST=`lprootname ${DST} `
-
   fi
   ;;
-
 esac
 
 
@@ -596,178 +580,147 @@ logprint "form=${FORM}"
 
 
 case "${PLANG}" in
-
 troff | troffout )
   POSTCVT=${POSTDIR}/dpost
   ;;
-
 post* )
   PLANG=postscript
   POSTCVT=""
   ;;
-
 printer | txt | text | simple )
   PLANG=text
   POSTCVT=${POSTDIR}/dpost
   ;;
-
 troffin | pictpost )
-  echo "${P}: can't handle \"${PLANG}\", run preprocessor yourself" >&2
+  print -u2 "${P}: can't handle \"${PLANG}\", run preprocessor yourself"
   exit 1
   ;;
-
 tek )
   POSTCVT=${POSTDIR}/posttek
   ;;
-
 gif )
   POSTCVT=${POSTDIR}/postgif
   ;;
-
 plot )
   POSTCVT=${POSTDIR}/postplot
   ;;
-
 gplot )
   POSTCVT=plot2ps
   ;;
-
 xplot )
   POSTCVT=p4topost
   ;;
-
 p[bgpn]m )
   PLANG=pnm
   POSTCVT=pnmtops
   ;;
-
 tif* )
   PLANG=tif
   POSTCVT=tiff2ps
   ;;
-
 ras* )
   PLANG=ras
   POSTCVT=ras2ps
   ;;
-
 pct | pict )
   PLANG=pct
   POSTCVT=pct2ps
   ;;
-
 pdf )
   POSTCVT=pdftops
   ;;
-
 esac
 
 logprint "language=${PLANG}"
 
 
 RF_KILLER=false
-if [[ ${RF_FORM} == true ]] ; then
-
+if ${RF_FORM} ; then
   case ${DST}:${FORM} in
-
   *qms:ledger )
     RF_KILLER=true
     ;;
-
   *:* )
     PRTOPTS="${PRTOPTS} -f ${FORM}"
     ;;
-
   esac
-
 fi
 
 
-if [[ ${RF_SIDES} == true ]] ; then
+if ${RF_SIDES} ; then
   if [ "${SIDES}" -gt 2 -o "${SIDES}" -lt 0 ] ; then
     SIDES=2
   fi
   PRTOPTS="${PRTOPTS} -s ${SIDES}"
-
   logprint "sides=${SIDES}"
-
 fi
 
 
-if [ ${RF_PMODE} = true ] ; then
-
+if ${RF_PMODE} ; then
   case "${PMODE}" in
-
   p* )
     PMODE=portrait
     ;;
-
   l* )
     PMODE=landscape
     ;;
-
   2on1 )
     ;;
-
   * )
-    echo "${P}: unknown print mode \"${PMODE}\"" >&2
+    print -u2 "${P}: unknown print mode \"${PMODE}\""
     exit 1
     ;;
-
   esac
-
   addo_cvt -p ${PMODE}
   PRTOPTS="${PRTOPTS} -p ${PMODE}"
-
   logprint "printmode=${PMODE}"
-
 fi
 
-if [[ ${RF_MAIL} == true ]] ; then
+if ${RF_MAIL} ; then
   PRTOPTS="${PRTOPTS} -m"
 fi
 
-if [[ ${RF_BINARY} == true ]] ; then
+if ${RF_BINARY} ; then
   PRTOPTS="${PRTOPTS} -B"
 fi
 
-if [[ ${RF_JOBBIN} == true ]] ; then
+if ${RF_JOBBIN} ; then
   PRTOPTS="${PRTOPTS} -b ${JOBBIN}"
 fi
 
-if [[ ${RF_QUIET} == true ]] ; then
+if ${RF_QUIET} ; then
   PRTOPTS="${PRTOPTS} -q"
 fi
 
-if [[ ${RF_USER} == true ]] ; then
+if ${RF_USER} ; then
   PRTOPTS="${PRTOPTS} -u ${USERNAME}"
 fi
 
-if [[ ${RF_COPIES} == true ]] ; then
+if ${RF_COPIES} ; then
   PRTOPTS="${PRTOPTS} -c ${COPIES}"
 fi
 
-#if [[ ${RF_DST} == true ]] ; then
+#if ${RF_DST} ; then
 #
 #  PRTOPTS="${PRTOPTS} -d ${DST}"
 #
 #fi
 
-  if [[ ${RF_COPIES} == true ]] ; then
+  if ${RF_COPIES} ; then
     LPOPTS="-n ${COPIES}"
     RSOPTS="-c ${COPIES}"
   fi
 
-  if [[ ${RF_MAIL} == true ]] ; then
+  if ${RF_MAIL} ; then
     LPOPTS="${LPOPTS} -m"
     RSOPTS="${RSOPTS} -m"
   fi
 
-  if [[ ${RF_SIDES} == true ]] ; then
+  if ${RF_SIDES} ; then
     RSOPTS="${RSOPTS} -s ${SIDES}"
   fi
 
-  if [[ ${RF_USER} == true ]] ; then
+  if ${RF_USER} ; then
     RSOPTS="${RSOPTS} -u ${USERNAME}"
   fi
 
@@ -792,54 +745,40 @@ while [[ i -lt ki ]] ; do
   fi
 
   case $KEY in
-
   TRAY | tray )
     case $VALUE in
-
     1 | u* | t* )
       TRAY=upper
       ;;
-
     2 | l* | b* )
       TRAY=lower
       ;;
-
     esac
-
     logprint "option tray=${TRAY}"
     ;;
-
   DRAFT | draft )
     RF_DRAFT=1
     logprint "option draft"
     ;;
-
   DUPLEX | duplex )
     case $VALUE in
-
     duplex | on | double )
       DUPLEX=duplex
       ;;
-
     simplex | off | single )
       DUPLEX=simplex
       ;;
-
     short | long | tablet | standard | vd* | hd* )
       DUPLEX=${VALUE}
       ;;
-
     esac
     ;;
-
   SIMPLEX | simplex )
     DUPLEX=simplex
     ;;
-
   esac
 
   (( i += 1 ))
-
 done
 
 
@@ -852,14 +791,11 @@ fi
 
 if [ $RF_DRAFT -ne 0 ] ; then
   case "${PMODE}" in
-
   land* )
     RF_DRAFT=0
     ;;
-
   esac
 fi
-
 
 
 : ${DEVTYPE:=post}
@@ -870,10 +806,9 @@ RF_GOT=false
 # set some LP spooler printer options for some selected printers
 
 case ${DST} in
-
 hp0 | ps )
   DST=hp0
-  if [[ ${RF_SIDES} == true ]] ; then
+  if ${RF_SIDES} ; then
     LPOPTS="${LPOPTS} -o sides=${SIDES}"
   fi
   if [[ -n "${TRAY}" ]] ; then
@@ -883,33 +818,24 @@ hp0 | ps )
     LPOPTS="${LPOPTS} -o duplex=${DUPLEX}"
   fi
   ;;
-
 ep | ep0 )
   DST=ep0
   ;;
-
 gwbb1 )
   DST=gwbb1
   ;;
-
 esac
 
 case ${DST} in
-
 di2* | di3* )
-  if [[ ${RF_FORM} == true ]] ; then
-
+  if ${RF_FORM} ; then
     case ${FORM} in
-
     *hole | 8[xX]11 | 11[xX]17 | letter | ledger | tabloid )
       LPOPTS="${LPOPTS} -o papersize=${FORM}"
       ;;
-
     esac
-
   fi
   ;;
-
 esac
 
 
@@ -924,25 +850,21 @@ esac
 #	SJ_CMD		command to handle final print submission
 #
 
-if [[ ${RF_DST} == true ]] ; then
+if ${RF_DST} ; then
 
   case ${DST} in
-
   hp[0-9]ps | gwbb[0-9]ps | di[0-9]ps )
     PLANG=postscript
     RF_LANG=true
     DST=`lprootname ${DST} `
     ;;
-
   esac
 
   case ${NODE}:${DST} in
-
   *:lp* )
     HANDLE=lp
     : ${DEVTYPE:=nroff}
     ;;
-
   rca:hp0 | rca:ps )
     HANDLE=disco
     SW=local
@@ -951,7 +873,6 @@ if [[ ${RF_DST} == true ]] ; then
     SJ_CMD="lp -s -o nobanner -T postscript -d ${DST} ${LPOPTS}"
     : ${DEVTYPE:=post}
     ;;
-
   rcb:hp0 | rcb:ps )
     HANDLE=disco
     SW=local
@@ -960,7 +881,6 @@ if [[ ${RF_DST} == true ]] ; then
     SJ_CMD="lp -s -o nobanner -T postscript -d ${DST} ${LPOPTS}"
     : ${DEVTYPE:=post}
     ;;
-
   rc*:hp0 | rc*:ps | hocp*:hp0 | hocp*:ps )
     HANDLE=disco
 #    SW=local
@@ -969,14 +889,12 @@ if [[ ${RF_DST} == true ]] ; then
     SJ_CMD="lp -s -o nobanner -T postscript -d ${DST} ${LPOPTS}"
     : ${DEVTYPE:=post}
     ;;
-
   *:hp | *:hp0 | *:ps | *:di0 )
     HANDLE=disco
     PHOST=rca.rightcore.com
     SJ_CMD="lp -s -o nobanner -T postscript -d ${DST} ${LPOPTS}"
     : ${DEVTYPE:=post}
     ;;
-
   rcb:ep0 | rcb:ep )
     HANDLE=disco
     SW=local
@@ -985,31 +903,25 @@ if [[ ${RF_DST} == true ]] ; then
     SJ_CMD="lp -s -o nobanner -T postscript -d ${DST} ${LPOPTS}"
     : ${DEVTYPE:=post}
     ;;
-
   rc*:rp0 | rc*:rp | hocp*:ep0 | hocp*:ep )
     HANDLE=disco
     PHOST=rcb.rightcore.com
     SJ_CMD="lp -s -o nobanner -T postscript -d ${DST} ${LPOPTS}"
     : ${DEVTYPE:=post}
     ;;
-
   *:ep0 | *:ep )
     HANDLE=disco
     PHOST=hocpx.ho.lucent.com
     SJ_CMD="lp -s -o nobanner -T postscript -d ${DST} ${LPOPTS}"
     : ${DEVTYPE:=post}
     ;;
-
   default )
     ;;
-
   null )
     HANDLE=null
     ;;
-
   * )
     ;;
-
   esac
 
 fi
@@ -1017,15 +929,15 @@ fi
 logprint "handle=${HANDLE}"
 
 
-if [[ ${RF_DEBUG} == true ]] ; then
+if ${RF_DEBUG} ; then
 
-  echo "${P}: printer type is \"${HANDLE}\"" >&2
-  echo "${P}: files-" >&2
-  if [ $RF_INPUT = true ] ; then
-    echo "*std_input*" >&2
+  print -u2 "${P}: printer type is \"${HANDLE}\""
+  print -u2 -- "${P}: files-"
+  if ${RF_INPUT} ; then
+    print -u2 -- "*std_input*"
   else
-    for F in $FILES ; do
-      echo "	${F}" >&2
+    for F in ${FILES} ; do
+      print -u2  -- "	${F}"
     done
   fi
 
@@ -1033,267 +945,165 @@ fi
 
 
 case ${HANDLE} in
-
 lp )
-  if [[ ${RF_INPUT} == true ]] ; then
-
+  if ${RF_INPUT} ; then
     case ${NODE} in
-
     mtgbcs | mtgzfs3 )
       uux -p ${NODE_LP}!uuexec lp -s -d ${DST}
       ;;
-
     * )
       $RSH ${R_NODE} uux -p ${NODE_LP}!uuexec lp -s -d ${DST}
       ;;
-
     esac
-
   else
-
     for F in ${FILES} ; do
-
       if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
         case ${NODE} in
-
         mtgbcs | mtgzfs3 )
           uux -C ${NODE_LP}!uuexec lp -s -c -d ${DST} !${F}
           ;;
-
 	* )
           ${RSH} ${R_NODE} uux -p ${NODE_LP}!uuexec lp -s -d ${DST} < $F
           ;;
-
 	esac
-
       else
-
-        echo "${P}: file \"${F}\" is empty or not readable" >&2
-
+        print -u2 -- "${P}: file \"${F}\" is empty or not readable"
       fi
-
     done
-
   fi
   ;;
-
 default )
-  if [[ $RF_DST == true ]] ; then
+  if ${RF_DST} ; then
     PRTOPTS="${PRTOPTS} -d ${DST}"
   fi
-
-  if [[ ${RF_PLANG} == true ]] ; then
+  if ${RF_PLANG} ; then
     PRTOPTS="${PRTOPTS} -l ${PLANG}"
   fi
-
   case ${PLANG} in
-
 # handle postprocessing that the standard UNISON stuff cannot!
-
   ras* | tif* | xplot | gplot | p[bgpn]m | pct )
     PRTOPTS="${PRTOPTS} -l postscript"
     CMD="${POSTCVT} ${POSTOPTS}"
     ;;
-
 # handle postprocessing that we want to be local (even just if for fun?)
-
   troff | troffout )
     PRTOPTS="${PRTOPTS} -l postscript"
     CMD="${POSTCVT} ${POSTOPTS}"
     ;;
-
 # all other stuff can go to the default UNISON stuff
-
   * )
-    if [[ ${RF_PLANG} == true ]] ; then
+    if ${RF_PLANG} ; then
       PRTOPTS="${PRTOPTS} -l ${PLANG}"
     fi
     CMD=""
     ;;
-
   esac
-
 # do it
-
-  if [[ ${RF_INPUT} == true ]] ; then
-
+  if ${RF_INPUT} ; then
     if [[ -x "${U_PRT}" ]] ; then
-
       if [[ -n "${CMD}" ]] ; then
-
-        if [[ ${RF_KILLER} == true ]] ; then
-        eval ${CMD} | ${U_PRT} ${PRTOPTS} -K "\"TRAY 2\""
+        if ${RF_KILLER} ; then
+          eval ${CMD} | ${U_PRT} ${PRTOPTS} -K "\"TRAY 2\""
         else
-        eval ${CMD} | ${U_PRT} ${PRTOPTS}
+          eval ${CMD} | ${U_PRT} ${PRTOPTS}
         fi
-
       else
-
-        if [[ ${RF_KILLER} == true ]] ; then
-        ${U_PRT} ${PRTOPTS} -K "TRAY 2"
+        if ${RF_KILLER} ; then
+          ${U_PRT} ${PRTOPTS} -K "TRAY 2"
         else
-        ${U_PRT} ${PRTOPTS}
+          ${U_PRT} ${PRTOPTS}
         fi
-
       fi
-
     else
-
       ${RSH} -n ${R_NODE} ${R_TEST} 2> /dev/null | fgrep ${R_USAGE} > /dev/null
       if [ $? -eq 0 ] ; then
-
         if [ -n "${CMD}" ] ; then
-
           eval ${CMD} | ${RSH} ${R_NODE} ${R_PRT} ${PRTOPTS}
-
         else
-
           ${RSH} ${R_NODE} ${R_PRT} ${PRTOPTS}
-
         fi
-
       else
-
         if [[ ${RF_USER} != true ]] ; then
-
           PRTOPTS="${PRTOPTS} -u ${USERNAME}"
-
         fi
-
         if [[ -n "${CMD}" ]] ; then
-
-	  eval $CMD | rslow -f ${MA} ${IM} ${R_PRT} ${PRTOPTS}
-
+	  eval ${CMD} | rslow -f ${MA} ${IM} ${R_PRT} ${PRTOPTS}
 	else
-
 	  rslow -f ${MA} ${IM} ${R_PRT} ${PRTOPTS}
-
 	fi
-
       fi
-
     fi
-
   else
-
     if [[ -x "${U_PRT}" ]] ; then
-
       for F in ${FILES} ; do
-
         if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
           if [ -n "${CMD}" ] ; then
-
-        if [[ ${RF_KILLER} == true ]] ; then
+        if ${RF_KILLER} ; then
             ${CMD} $F | ${U_PRT} ${PRTOPTS} -K "TRAY 2"
         else
             ${CMD} $F | ${U_PRT} ${PRTOPTS}
         fi
-
           else
-
-        if [[ ${RF_KILLER} == true ]] ; then
+        if ${RF_KILLER} ; then
             ${U_PRT} ${PRTOPTS} $F -K "TRAY 2"
         else
             ${U_PRT} ${PRTOPTS} $F
         fi
-
           fi
-
         else
-
-          echo "${P}: file \"${F}\" is empty or not readable" >&2
-
+          print -u2 -- "${P}: file \"${F}\" is empty or not readable"
         fi
-
       done
-
     else
-
       ${RSH} -n ${R_NODE} ${R_TEST} | fgrep ${R_USAGE} > /dev/null
       if [[ $? -eq 0 ]] ; then
-
         for F in ${FILES} ; do
-
           if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
             if [[ -n "${CMD}" ]] ; then
-
               eval ${CMD} $F | ${RSH} ${R_NODE} ${R_PRT} ${PRTOPTS}
-
             else
-
               ${RSH} ${R_NODE} ${R_PRT} ${PRTOPTS} < $F
-
             fi
-
           else
-
-            echo "${P}: file \"${F}\" is empty or not readable" >&2
-
+            print -u2 -- "${P}: file \"${F}\" is empty or not readable"
           fi
-
         done
-
       else
-
         if [[ ${RF_USER} != true ]] ; then
-
           PRTOPTS="${PRTOPTS} -u ${USERNAME}"
-
         fi
-
         for F in ${FILES} ; do
-
           if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
 	    if [[ -n "${CMD}" ]] ; then
-
 	      eval $CMD | rslow -f ${MA} ${IM} ${R_PRT} ${PRTOPTS}
-
 	    else
-
 	      rslow -f ${MA} ${IM} ${R_PRT} ${PRTOPTS}
-
 	    fi
-
           else
-
-            echo "${P}: file \"${F}\" is empty or not readable" >&2
-
+            print -u2 -- "${P}: file \"${F}\" is empty or not readable"
           fi
-
         done
-
       fi
-
     fi
-
   fi
   ;;
-
 disco )
   IM=${PHOST}
-  UM=`echo ${PHOST} | cut -d . -f 1 `
+  UM=$( print -- ${PHOST} | cut -d . -f 1 )
 
 # search for a suitable transport agent if we do not already have one
 
 # get anyone who is one of these special logins
 
   if [[ ${RF_GOT} != true ]] || [[ "${SW}" != local ]] ; then
-
     case ${USERNAME} in
-
     root | special | trouble | uucp | nuucp )
       SW=rslow
       RSOPTS="${RSOPTS} -U"
       SJ_CMD="prt -d ${DST} ${PRTOPTS} -l post "
       RF_GOT=true
       ;;
-
     esac
-
   fi
 
 # get eveyone who is left
@@ -1302,35 +1112,25 @@ disco )
 
   ${RSH} -n $IM echo YESCODE 2> /dev/null | fgrep YESCODE > /dev/null
   if [[ $? -eq 0 ]] ; then
-
     SW=rsh
-
   else
-
     case $NODE in
-
     rc* | hocp[w-z] )
       SW=local
       ;;
-
     hocp* )
       SW=rex
       ;;
-
     hodi* | octet | dds | disco | boole | mtgbcs | mtgzfs3 | mtsvi )
       SW=uux
       ;;
-
     mthost* | mtgbs* | mtsol | mtgzfs[0-9]* | mtgz[0-9]* | mtnor )
       SW=rsh_uux
       ;;
-
     * )
       SW=rslow
       ;;
-
     esac
-
   fi
 
   fi
@@ -1345,64 +1145,47 @@ disco )
   LINES=60
   Y_OFFSET=""
 
-  if [[ $RF_DEBUG == true ]] ; then
-
-    echo "prt: dst=${DST} plang=${PLANG}"
-    echo "prt: mach=${NODE}"
-
+  if ${RF_DEBUG} ; then
+    print -- "prt: dst=${DST} plang=${PLANG}"
+    print -- "prt: mach=${NODE}"
   fi >&2
 
   case ${DST}:${PLANG} in
-
   hp[0-9]:text | hp[0-9]:printer )
     case ${NODE} in
-
     rc* | hocp* )
       Y_OFFSET="0.2"
       ;;
-
     * )
       Y_OFFSET="0.2"
       ;;
-
     esac
     ;;
-
   gwbb2:printer | di2:printer )
     case ${NODE} in
-
     rc* | hocp* )
-      if [ $RF_DEBUG = true ] ; then echo "prt: mach=${NODE}" >&2 ; fi
+      if ${RF_DEBUG} ; then print -u2 -- "${0}: mach=${NODE}" ; fi
       Y_OFFSET="0.25"
       ;;
-
     * )
-      if [ $RF_DEBUG = true ] ; then echo "prt: mach=${NODE}" >&2 ; fi
+      if ${RF_DEBUG} ; then print -u2 -- "${0}: mach=${NODE}" ; fi
       ;;
-
     esac
     ;;
-
   gwbb2:troff | gwbb2:troffout | di2:troff | di2:troffout )
     case "${NODE}" in
-
     rc* | hocp* )
       Y_OFFSET="0.1"
       ;;
-
     * )
       Y_OFFSET="0.1"
       ;;
-
     esac
     ;;
-
   esac
 
-  if [ $RF_DEBUG = true ] ; then
-
+  if ${RF_DEBUG} ; then
     print -u2 -- "${0}: yoffset=${Y_OFFSET}"
-
   fi
 
   if [ -n "${Y_OFFSET}" ] ; then 
@@ -1410,241 +1193,150 @@ disco )
   fi
 
   case ${DST} in
-
   gwbb1 | di1 )
     RF_REVERSE=true
     ;;
-
   esac
 
 # we do it
 
   case ${PLANG} in
-
   raw | post* )
-    if [ ${RF_INPUT} = true ] ; then
-
-      if [ $RF_REVERSE = true ] ; then
-
+    if ${RF_INPUT} ; then
+      if $RF_REVERSE ; then
         postreverse | sendjob ${SJ_OPTS}
-
       else
-
         sendjob ${SJ_OPTS}
-
       fi
-
     else
-
-      if [[ ${RF_REVERSE} == true ]] ; then
-
+      if ${RF_REVERSE} ; then
         for F in ${FILES} ; do
-
           if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
 	    postreverse $F | sendjob ${SJ_OPTS}
-
           else
-
             print -u2 -- "${P}: file \"${F}\" is empty or not readable"
-
           fi
-
         done
-
       else
-
         for F in ${FILES} ; do
-
           if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
 	    sendjob ${SJ_OPTS} < $F
-
           else
-
             print -u2 -- "${P}: file \"${F}\" is empty or not readable"
-
           fi
-
         done
-
       fi
-
     fi
     ;;
-
   '-' | txt | text | printer | simple )
-    if [[ ${RF_INPUT} == true ]] ; then
-
+    if ${RF_INPUT} ; then
       cat > $TFA
       FILES=$TFA
-
     fi
-
       for F in ${FILES} ; do
-
         if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
           head -1 $F | grep "^%!PS" > /dev/null
           if [ $? -ne 0 ] ; then
-
 	    CMD="textset -${LINES} ${F}"
             CMD="${CMD} | troff -T${DEVTYPE} | ${POSTCVT} ${POSTOPTS}"
-
             if [ ${RF_DRAFT} -ne 0 ] ; then
               CMD="${CMD} | postdraft"
             fi
-
-            if [ ${RF_REVERSE} = true ] ; then
+            if ${RF_REVERSE} ; then
               CMD="${CMD} | postreverse"
             fi
-
             eval ${CMD} | sendjob ${SJ_OPTS}
-
           else
-
-	    if [[ ${RF_INPUT} == true ]] ; then
+	    if ${RF_INPUT} ; then
               F="** standard input **"
             fi
-
             print -u2 -- "${P}: PostScript as text? - file \"${F}\""
-
           fi
-
         else
-
-	  if [[ ${RF_INPUT} == true ]] ; then
+	  if ${RF_INPUT} ; then
             F="** standard input **"
           fi
-
           print -u2 -- "${P}: file \"${F}\" is empty or not readable"
-
         fi
-
       done
-
     ;;
-
   troff | troffout | tek | gif | plot )
-    if [[ ${RF_INPUT} == true ]] ; then
-
+    if ${RF_INPUT} ; then
       CMD="${POSTCVT} ${POSTOPTS}"
-
             if [[ ${RF_DRAFT} -ne 0 ]] ; then
               CMD="${CMD} | postdraft"
             fi
-
-      if [[ ${RF_REVERSE} == true ]] ; then
+      if ${RF_REVERSE} ; then
         CMD="${CMD} | postreverse"
       fi
-
       eval ${CMD} | sendjob $SJ_OPTS
-
     else
-
       for F in ${FILES} ; do
-
         if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
 	  CMD="${POSTCVT} ${POSTOPTS} ${F}"
-
             if [[ ! ${RF_DRAFT} ]] ; then
               CMD="${CMD} | postdraft"
             fi
-
-          if [[ ${RF_REVERSE} == true ]] ; then
+          if ${RF_REVERSE} ; then
             CMD="${CMD} | postreverse"
           fi
-
           eval ${CMD} | sendjob $SJ_OPTS
-
         else
-
           print -u2 -- "${P}: file \"${F}\" is empty or not readable"
-
         fi
-
       done
-
     fi
     ;;
-
   tif | [gx]plot | pnm | ras | pct | pdf )
-    if [ ${RF_INPUT} = true ] ; then
-
+    if ${RF_INPUT} ; then
       TF=/tmp/prt${RANDOM}${$}
       case $PLANG in
-
       pdf )
         cat > $TF
 	CMD="${POSTCVT} ${TF} -"
         ;;
-
       * )
 	CMD="${POSTCVT} "
         ;;
-
       esac
-
             if ${RF_DRAFT} ; then
               CMD="${CMD} | postdraft"
             fi
-
       if ${RF_REVERSE} ; then
         CMD="${CMD} | postreverse"
       fi
-
       eval ${CMD} | sendjob $SJ_OPTS
-
       rm -f $TF
-
     else
-
       for F in ${FILES} ; do
-
         if [[ -s $F ]] && [[ ! -d $F ]] ; then
-
           case ${PLANG} in
-
           pdf )
 	    CMD="${POSTCVT} ${F} -"
             ;;
-
           * )
 	    CMD="${POSTCVT} ${F}"
             ;;
-
           esac
-
             if ${RF_DRAFT} ; then
               CMD="${CMD} | postdraft"
             fi
-
           if ${RF_REVERSE} ; then
             CMD="${CMD} | postreverse"
           fi
-
           eval ${CMD} | sendjob ${SJ_OPTS}
-
         else
-
           print -u2 -- "${P}: file \"${F}\" is empty or not readable"
-
         fi
-
       done
-
     fi
     ;;
-
   * ) 
     print -u2 -- "${P}: specified language is not supported"
     exit 1
     ;;
-
   esac
   ;;
-
 esac
 
 

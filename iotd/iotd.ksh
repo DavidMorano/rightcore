@@ -9,12 +9,14 @@ LIBLKCMD=liblkcmd.so
 : ${LOCAL:=/usr/add-on/local}
 export LOCAL
 
-builtin -f ${LOCAL}/lib/${LIBLKCMD} 2> /dev/null
+LIB=${LOCAL}/lib/${LIBLKCMD}
+DN=/dev/null
+
+builtin -f ${LIB} 2> ${DN}
 
 
   if [[ -r ${ISSUE} ]] ; then
     shcat ${ISSUE}
   fi
-
 
 

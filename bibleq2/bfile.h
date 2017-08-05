@@ -213,8 +213,6 @@ extern int	bread(bfile *,void *,int) ;
 extern int	breadlinetimed(bfile *,char *,int,int) ;
 extern int	breadline(bfile *,char *,int) ;
 extern int	breadlines(bfile *,char *,int,int *) ;
-extern int	bgetline(bfile *,char *,int) ;
-extern int	bgetlinetimed(bfile *,char *,int,int) ;
 extern int	bgetc(bfile *) ;
 extern int	bwrite(bfile *,const void *,int) ;
 extern int	bwriteblock(bfile *,bfile *,int) ;

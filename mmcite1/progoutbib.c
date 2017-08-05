@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -21,9 +19,9 @@
 
 /******************************************************************************
 
-	This subroutine processes the temporary text file along with
-	the accumulated citation and bibliographical information into
-	the final text output.
+        This subroutine processes the temporary text file along with the
+        accumulated citation and bibliographical information into the final text
+        output.
 
 
 ******************************************************************************/

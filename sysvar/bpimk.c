@@ -149,7 +149,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 BPIMK_OBJ	bpimk = {
 	"bpimk",
-	    sizeof(BPIMK)
+	sizeof(BPIMK)
 } ;
 
 
