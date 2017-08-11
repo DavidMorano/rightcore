@@ -54,6 +54,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<nulstr.h>
 #include	<bfile.h>
 #include	<paramopt.h>
 #include	<mailmsg.h>
@@ -95,6 +96,7 @@ extern cchar	*getourenv(const char **,const char *) ;
 /* forward references */
 
 static int	procinfile(PROGINFO *,PARAMOPT *,bfile *,EMA *,cchar *) ;
+static int	procinfiler(PROGINFO *,bfile *,EMA *,MAILMSG *,cchar *,int) ;
 
 static int	progfile_info(PROGINFO *,bfile *,EMA_ENT *,int) ;
 static int	progfile_addr(PROGINFO *,bfile *,EMA_ENT *,int) ;
@@ -184,7 +186,6 @@ EMA		*emap ;
 const char	fname[] ;
 {
 	bfile		infile, *ifp = &infile ;
-	const int	linelen = pip->linelen ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
@@ -202,9 +203,8 @@ const char	fname[] ;
 	        if ((rs = mailmsg_loadfile(&m,ifp)) >= 0) {
 	            PARAMOPT_CUR	cur ;
 	            if ((rs = paramopt_curbegin(pp,&cur)) >= 0) {
-	                int		hl, vl ;
+	                int		hl ;
 	                const char	*po = PO_HEADER ;
-	                const char	*vp ;
 	                const char	*hp ;
 	                while (rs >= 0) {
 	                    hl = paramopt_enumvalues(pp,po,&cur,&hp) ;
@@ -218,22 +218,8 @@ const char	fname[] ;
 #endif
 
 			    if (rs >= 0) {
-	                        if ((vl = mailmsg_hdrval(&m,hp,&vp)) >= 0) {
-
-#if	CF_DEBUG
-			        if (DEBUGLEVEL(4))
-				    debugprintf("progfile/procinfile: "
-					"val=>%t<\n",vp,strlinelen(vp,vl,50)) ;
-#endif
-
-			            if (matcasestr(emas,hp,hl) >= 0) {
-	                                rs = ema_parse(emap,vp,vl) ;
-				        c += rs ;
-				    } else {
-				        rs = bprintlines(ofp,linelen,vp,vl) ;
-				    }
-
-			        } /* end if (mailmsg_hdrval) */
+				rs = procinfiler(pip,ofp,emap,&m,hp,hl) ;
+				c += rs ;
 			    } /* end if (ok) */
 
 	                } /* end while */
@@ -256,6 +242,42 @@ const char	fname[] ;
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procinfile) */
+
+
+static int procinfiler(PROGINFO *pip,bfile *ofp, EMA *emap, MAILMSG *mmp,
+		cchar *hp,int hl)
+{
+	NULSTR		n ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		c = 0 ;
+	cchar		*hdr ;
+	if ((rs = nulstr_start(&n,hp,hl,&hdr)) >= 0) {
+	    int		vl ;
+	    cchar	*vp ;
+	    if ((vl = mailmsg_hdrval(mmp,hdr,&vp)) >= 0) {
+		const int	linelen = pip->linelen ;
+
+#if	CF_DEBUG
+			        if (DEBUGLEVEL(4))
+				    debugprintf("progfile/procinfile: "
+					"val=>%t<\n",vp,strlinelen(vp,vl,50)) ;
+#endif
+
+			            if (matcasestr(emas,hp,hl) >= 0) {
+	                                rs = ema_parse(emap,vp,vl) ;
+				        c += rs ;
+				    } else {
+				        rs = bprintlines(ofp,linelen,vp,vl) ;
+				    }
+
+	    } /* end if (mailmsg_hdrval) */
+	    rs1 = nulstr_finish(&n) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (nulstr) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procinfiler) */
 
 
 static int progfile_info(pip,ofp,ep,level)

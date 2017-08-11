@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 2001-03-01, David A­D­ Morano
-
 	I first created this for calculating stastics for Levo stuff.
-
 
 */
 
@@ -42,19 +40,17 @@
 
 double fam(double *a,int n)
 {
-	double		d = (double) n ;
-	double		sum ;
-	int		i ;
-
-	if (n == 0)
-	    return 0.0 ;
-
-	sum = 0.0 ;
-	for (i = 0 ; i < n ; i += 1) {
-	    sum += a[i] ;
+	double		ans = 0.0 ;
+	if (n > 0) {
+	    int		i ;
+	    double	d = (double) n ;
+	    double 	sum = 0.0 ;
+	    for (i = 0 ; i < n ; i += 1) {
+	        sum += a[i] ;
+	    }
+	    ans = (sum/d) ;
 	}
-
-	return (sum / d) ;
+	return ans ;
 }
 /* end subroutine (fam) */
 

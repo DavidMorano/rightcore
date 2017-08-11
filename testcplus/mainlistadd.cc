@@ -64,21 +64,24 @@ extern "C" char	*strwcpy(char *,cchar *,int) ;
 
 /* local structures (and methods) */
 
+static int printlist(forward_list<int> &,cchar *) ;
+static int printvec(vector<int> &,cchar *) ;
+
 typedef forward_list<int>	ourlist ;
 
 class listadder {
-	ourlist		&lr ;
+	vector<int>	&lr ;
 	ourlist		&l1 ;
 	ourlist		&l2 ;
 	forward_list<int>::iterator	i1 ;
 	forward_list<int>::iterator	i2 ;
-	forward_list<int>::iterator	ir ;
-	    forward_list<int>::iterator	e1 ;
-	    forward_list<int>::iterator	e2 ;
-	    forward_list<int>::iterator	er ;
+	vector<int>::iterator	ir ;
+	forward_list<int>::iterator	e1 ;
+	forward_list<int>::iterator	e2 ;
+	vector<int>::iterator	er ;
 public:
-	listadder(ourlist &alr,ourlist &al1, ourlist &al2) 
-	: lr(alr), l1(al1), l2(al2) {
+	listadder(vector<int> &alr,ourlist &al1, ourlist &al2)
+	    : lr(alr), l1(al1), l2(al2) {
 	    i1 = l1.begin() ;
 	    i2 = l2.begin() ;
 	    ir = lr.begin() ;
@@ -86,61 +89,57 @@ public:
 	    e2 = l2.end() ;
 	    er = lr.end() ;
 	} ;
+	int addto(int v) {
+	    lr.push_back(v) ;
+	    return 0 ;
+	} ;
 	int addone(int c) {
-#if	CF_DEBUGS
-	debugprintf("main/listadder_addone: ent c=%d\n",c) ;
-#endif
 	    if (c >= 0) {
-#if	CF_DEBUGS
-	debugprintf("main/listadder_addone: in c=%d\n",c) ;
-#endif
-	        if ((i1 != e1) && (i2 != e2)) {
+		if ((i1 != e1) && (i2 != e2)) {
 	            int	vr = c ;
-		    c = 0 ;
-		    if (i1 != e1) {
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: l1=%d\n",*i1) ;
+	            debugprintf("main/listadder_addone: in c=%d\n",c) ;
 #endif
-			vr += *i1++ ;
-		    }
+	            c = 0 ;
+	            if (i1 != e1) {
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: 1 vr=%d\n",vr) ;
+	                debugprintf("main/listadder_addone: l1=%d\n",*i1) ;
 #endif
-		    if (i2 != e2) {
+	                vr += *i1 ; i1++ ;
+	            }
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: l2=%d\n",*i2) ;
+	            debugprintf("main/listadder_addone: 1 vr=%d\n",vr) ;
 #endif
-			vr += *i2++ ;
-		    }
+	            if (i2 != e2) {
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: 2 vr=%d\n",vr) ;
+	                debugprintf("main/listadder_addone: l2=%d\n",*i2) ;
+#endif
+	                vr += *i2 ; i2++ ;
+	            }
+#if	CF_DEBUGS
+	            debugprintf("main/listadder_addone: 2 vr=%d\n",vr) ;
 #endif
 	            if (vr >= 10) {
-		        vr %= 10 ;
-		        c = 1 ;
-		    }
+	                vr %= 10 ;
+	                c = 1 ;
+	            }
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: carrying c=%d\n",c) ;
+	            debugprintf("main/listadder_addone: i vr=%d c=%d\n",vr,c) ;
 #endif
-		    if (lr.empty()) {
-	    	        lr.push_front(vr) ;
-			ir = lr.begin() ;
-		    } else {
-	    	        lr.insert_after(ir++,vr) ;
-		    }
+
+		    addto(vr) ;
+		    
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: inserting done\n") ;
+	            debugprintf("main/listadder_addone: inserting done\n") ;
 #endif
-		    c = addone(c) ;
+	            c = addone(c) ;
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: recurse done\n") ;
+	            debugprintf("main/listadder_addone: recurse done\n") ;
 #endif
-	        } else {
-		    c = -1 ;
-	        }
+		}
 	    }
 #if	CF_DEBUGS
-	debugprintf("main/listadder_addone: ret c=%d\n",c) ;
+	    debugprintf("main/listadder_addone: ret c=%d\n",c) ;
 #endif
 	    return c ;
 	} ;
@@ -148,8 +147,6 @@ public:
 
 
 /* forward references */
-
-int printlist(forward_list<int> &,cchar *) ;
 
 
 /* local variables */
@@ -160,9 +157,9 @@ int printlist(forward_list<int> &,cchar *) ;
 
 int main(int argc,const char **argv,const char **envv)
 {
-	forward_list<int>	l1 = { 2, 4, 6, 1, 0 } ;
-	forward_list<int>	l2 = { 1, 5, 3, 2, 9 } ;
-	forward_list<int>	lr ;
+	forward_list<int>	l1 = { 2, 4, 8, 1, 0 	} ;
+	forward_list<int>	l2 = { 1, 5, 3, 2, 9 	} ;
+	vector<int>		lr ;
 	int			rs = SR_OK ;
 	cchar			*cp ;
 #if	CF_DEBUGS
@@ -174,25 +171,25 @@ int main(int argc,const char **argv,const char **envv)
 	{
 	    listadder		a(lr,l1,l2) ;
 #if	CF_DEBUGS
-	debugprintf("main: insert\n") ;
+	    debugprintf("main: insert\n") ;
 #endif
-	    {
-	    	        lr.push_front(17) ;
+	   
+	printlist(l1,"l1>") ;
+	printlist(l2,"l2>") ;
+
 #if	CF_DEBUGS
-	debugprintf("main: insert-print\n") ;
-#endif
-	        printlist(lr,"lr-test") ;
-	 	lr.clear() ;
-	    }
-#if	CF_DEBUGS
-	debugprintf("main: addone()\n") ;
+	    debugprintf("main: addone()\n") ;
 #endif
 	    a.addone(0) ;
 #if	CF_DEBUGS
-	debugprintf("main: output()\n") ;
+	    debugprintf("main: output()\n") ;
 #endif
-	    printlist(lr,"lr") ;
-	} /* end block */
+	    printvec(lr,"lr") ;
+	} /* end block (central) */
+
+#if	CF_DEBUGS
+	debugprintf("main: ret\n") ;
+#endif
 
 #if	CF_DEBUGS
 	debugclose() ;
@@ -205,7 +202,7 @@ int main(int argc,const char **argv,const char **envv)
 /* local subroutines */
 
 
-int printlist(forward_list<int> &l,cchar *s)
+static int printlist(forward_list<int> &l,cchar *s)
 {
 	int	c = 0 ;
 	for (auto v : l) {
@@ -216,5 +213,18 @@ int printlist(forward_list<int> &l,cchar *s)
 	return c ;
 }
 /* end subroutine (printlist) */
+
+
+static int printvec(vector<int> &l,cchar *s)
+{
+	int	c = 0 ;
+	for (auto v : l) {
+	    c += 1 ;
+	    cout << " " << v ;
+	}
+	cout << endl ;
+	return c ;
+}
+/* end subroutine (printvec) */
 
 

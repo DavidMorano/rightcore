@@ -3193,7 +3193,7 @@ static int locinfo_tmpcheck(LOCINFO *lip)
 	if (lip->jobdname != NULL) {
 	    TMTIME	t ;
 	    if ((rs = tmtime_localtime(&t,pip->daytime)) >= 0) {
-	        if (t.hour >= 18) {
+	        if ((t.hour >= HOUR_MAINT) && lip->f.maint) {
 		    uptsub_t	thr = (uptsub_t) locinfo_tmpmaint ;
 	            pthread_t	tid ;
 	            if ((rs = uptcreate(&tid,NULL,thr,lip)) >= 0) {

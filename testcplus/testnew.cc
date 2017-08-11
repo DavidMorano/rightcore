@@ -49,20 +49,22 @@ extern "C" int	sisub(cchar *,int,cchar *) ;
 
 void *operator new (size_t sz) {
     void *p = malloc(sz) ;
-    fprintf(stderr,"new sz=%u a=%p\n",sz,p) ;
     return p ;
 }
 
 void *operator new (size_t sz,const nothrow_t &nt) noexcept {
     void *p = malloc(sz) ;
-    fprintf(stderr,"new-nothrow sz=%u a=%p\n",sz,p) ;
     return p ;
 }
 
 void operator delete (void *p) noexcept {
-    fprintf(stderr,"delete p=%p\n",p) ;
     free(p) ;
 }
+
+void operator delete (void *p,const std::nothrow_t &nt) noexcept {
+    free(p) ;
+}
+
 
 class testcon {
 	int		a ;
@@ -180,7 +182,7 @@ int main(int argc,const char **argv,const char **envv)
 	fprintf(efp,"main: ent\n") ;
 	{
 	    testcon *np = new(nothrow) testcon(1) ;
-	    cout << "testcon-> " << *np << endl ;
+	    cout << "testcon> " << *np << endl ;
 
 
 	    delete np ;

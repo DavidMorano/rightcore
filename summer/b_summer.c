@@ -1,6 +1,6 @@
-/* main */
+/* b_summer (KSH built-in) */
 
-/* front-end for whatever */
+/* main subroutine for SUMMER */
 
 
 #define	CF_DEBUGS	0		/* non-switchables */
@@ -11,12 +11,14 @@
 /* revision history:
 
 	= 2002-02-01, David A­D­ Morano
-	The program was written from scratch to do what the previous program by
-	the same name did.
+	The program was written from scratch.
+
+	= 2017-08-04, David A­D­ Morano
+	Turned into a KSH built-in.
 
 */
 
-/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2002,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -1047,11 +1049,10 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	    if ((rs = keyopt_curbegin(kop,&cur)) >= 0) {
 
 	        while (rs >= 0) {
-
 	            rs1 = keyopt_enumvalues(kop,progopts[ki],&cur,&cp) ;
-	            if (rs1 < 0) break ;
-	            cl = rs1 ;
-
+	            if (rs1 == SR_NOTFOUND) break ;
+		    rs = rs1 ;
+		    if (rs >= 0) {
 	            switch (ki) {
 	            case progopt_type:
 	                if (cl > 0) {
@@ -1086,7 +1087,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                lip->f.speedup = TRUE ;
 	                break ;
 	            } /* end switch */
-
+		    } /* end if (ok) */
 	        } /* end while (enumerating) */
 
 	        keyopt_curend(kop,&cur) ;

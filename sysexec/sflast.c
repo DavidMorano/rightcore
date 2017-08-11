@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 1998-03-23, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -21,10 +19,10 @@
 	Synopsis:
 
 	int sflast(sp,sl,n,rpp)
-	const char	sp[] ;
+	cchar		sp[] ;
 	int		sl ;
 	int		n ;
-	const char	**rpp ;
+	cchar		**rpp ;
 
 	Arguments:
 
@@ -63,7 +61,7 @@
 /* exported subroutines */
 
 
-int sflast(const char *sp,int sl,int n,const char **rpp)
+int sflast(cchar *sp,int sl,int n,cchar **rpp)
 {
 	if (sl < 0) sl = strlen(sp) ;
 	if (sl < 0) {

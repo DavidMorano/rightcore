@@ -66,15 +66,15 @@ int main(int argc,const char **argv,const char **envv)
 	double		inc = 0.001 ;
 
 	for (x = 3.0 ; x < +ext ; x += inc) {
-	   for (y = 4.0 ; y < +ext ; y += inc) {
-		double	e1 = (y*y - x*x) ;
-		if (around(e1,10.0)) {
-			double	xy = (x*y) ;
-			cout << "x=" << x << " y=" << y << endl ;
-			cout << "xy=" << xy << endl ;
-		}
+	    for (y = 4.0 ; y < +ext ; y += inc) {
+	        double	e1 = (y*y - x*x) ;
+	        if (around(e1,10.0)) {
+	            double	xy = (x*y) ;
+	            cout << "x=" << x << " y=" << y << endl ;
+	            cout << "xy=" << xy << endl ;
+	        }
 	    }
-	}
+	} /* end for */
 
 	return 0 ;
 }

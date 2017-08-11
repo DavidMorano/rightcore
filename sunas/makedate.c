@@ -1,2 +1,2 @@
-const char sysexec_makedate[] =
-"@(#)sysexec                 170308_2252:51_EST Rightcore Network Services¹" ;
+const char sunas_makedate[] =
+"@(#)sunas                   170808_1614:41_USEDT Rightcore Network Services" ;

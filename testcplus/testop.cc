@@ -5,11 +5,11 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_COPY		1
 #define	CF_INIT		0
 #define	CF_TESTLAMBDA	0		/* test Lambda Functions */
 #define	CF_TESTIO	0		/* |testio()| */
-#define	CF_LISTUP	1		/* list up things */
+#define	CF_TESTIN	1		/* |testin()| */
+#define	CF_LISTUP	0		/* list up things */
 #define	CF_ADD		0		/* add */
 
 
@@ -114,7 +114,6 @@ struct thing {
 	thing(const thing &a) {
 	    *this = a ;
 	} ;
-#if	CF_COPY
 	thing &operator = (const thing &a) {
 	    fprintf(stderr,"main: thing:assignment\n") ;
 	    if (this != &a) {
@@ -122,7 +121,6 @@ struct thing {
 	    }
 	    return *this ;
 	} ;
-#endif /* CF_COPY */
 	~thing() {
 	    cchar	*fmt = "main: thing:destruct(%u)\n" ;
 	    fprintf(stderr,fmt,id) ;
@@ -202,6 +200,10 @@ static int testio() ;
 static int readline(ifstream &,char *,int) ;
 #endif /* CF_TESTIO */
 
+#if	CF_TESTIN
+static int testin() ;
+#endif /* CF_TESTIN */
+
 
 /* local variables */
 
@@ -217,12 +219,14 @@ int main(int argc,const char **argv,const char **envv)
 	fprintf(efp,"main: ent\n") ;
 
 #if	CF_ADD
+	if (rs >= 0) {
 	c = a + b ;
 	fprintf(efp,"main: thing:c id=%u\n",c.id) ;
+	}
 #endif
 
 #if	CF_LISTUP
-	{
+	if (rs >= 0) {
 	    ourcon<thing,thingless> ol ;
 	    ol.add(a) ;
 	    ol.add(b) ;
@@ -240,7 +244,7 @@ int main(int argc,const char **argv,const char **envv)
 #endif /* CF_LISTUP */
 
 #if	CF_INIT
-	{
+	if (rs >= 0) {
 	    int	r ;
 	a.init(1) ;
 	b.init(2) ;
@@ -257,18 +261,22 @@ int main(int argc,const char **argv,const char **envv)
 	}
 #endif /* CF_INIT */
 
-
-
 #if	CF_TESTLAMBDA
-	fprintf(efp,"main: lambda\n") ;
-	(void) testlambda() ;
+	if (rs >= 0) {
+	    fprintf(efp,"main: lambda\n") ;
+	    rs = testlambda() ;
+	}
 #endif
 
 #if	CF_TESTIO
-	testio() ;
+	if (rs >= 0) rs = testio() ;
 #endif /* CF_TESTIO */
 
-	fprintf(efp,"main: ret\n") ;
+#if	CF_TESTIN
+	if (rs >= 0) rs = testin() ;
+#endif /* CF_TESTIN */
+
+	fprintf(efp,"main: ret rs=%d\n",rs) ;
 
 	return 0 ;
 }
@@ -358,5 +366,23 @@ static int testlambda(void)
 }
 /* end subroutine (testlambda) */
 #endif /* CF_TESTLAMBDA */
+
+
+#if	CF_TESTIN
+static int testin()
+{
+	const int	n = 20 ;
+	int		rs = SR_OK ;
+	int		i ;
+	for (i = 0 ; i < n ; i += 1) {
+	    int	v ;
+ 	    cin >> v ;
+	    if (cin.eof()) break ;
+	    cout << "i" << i << "=" << v << endl ;
+	}
+	return rs ;
+}
+/* end subroutine (testin) */
+#endif /* CF_TESTIN */
 
 

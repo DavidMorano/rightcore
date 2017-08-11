@@ -1,2 +1,2 @@
-const char logdir_makedate[] =
-	"@(#)logdir                  111002_0224:30_EDT RightCore" ;
+const char helloworld_makedate[] =
+"@(#)helloworld              170808_2225:09_USEDT Rightcore Network Services" ;

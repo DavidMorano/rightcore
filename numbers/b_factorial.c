@@ -7,6 +7,7 @@
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
+#define	CF_TESTFACT	0		/* test using our function */
 
 
 /* revision history:
@@ -133,6 +134,10 @@ static int	procspec(PROGINFO *,void *,const char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
+
+#if	CF_TESTFACT
+static LONG	ourfact(int) ;
+#endif
 
 
 /* local variables */
@@ -884,7 +889,7 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *np,int nl)
 	if (np == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
+	if (DEBUGLEVEL(4))
 	    debugprintf("b_factorial/procspec: name=%t\n",np,nl) ;
 #endif
 
@@ -899,10 +904,18 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *np,int nl)
 	        rs = shio_printf(ofp,"*overflow*\n") ;
 	        wlen += rs ;
 	    }
+#if	CF_DEBUG && CF_TESTFACT
+	    if (DEBUGLEVEL(4)) {
+		LONG	ans = ourfact(n) ;
+		debugprintf("b_factorial/procspec: n=%d\n",n) ;
+		debugprintf("b_factorial/procspec: ans=%016llX\n",ans) ;
+		debugprintf("b_factorial/procspec:   v=%016llX\n",v) ;
+	    }
+#endif
 	} /* end if */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
+	if (DEBUGLEVEL(4))
 	    debugprintf("b_factorial/procspec: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
@@ -929,5 +942,20 @@ static int locinfo_finish(LOCINFO *lip)
 	return SR_OK ;
 }
 /* end subroutine (locinfo_finish) */
+
+
+#if	CF_TESTFACT
+static LONG ourfact(int n)
+{
+	LONG	ans = -1 ;
+	if (n >= 0) {
+	    ans = 1 ;
+	    if (n > 1) {
+		ans = n * ourfact(n-1) ;
+	    }
+	}
+	return ans ;
+}
+#endif /* CF_TESTFACT */
 
 

@@ -114,7 +114,6 @@ int main(int argc,const char **argv,const char **envv)
 	    } /* end if (m-a) */
 	}
 
-
 	return 0 ;
 }
 /* end subroutine (main) */
@@ -144,4 +143,6 @@ static int printnodes(vector<int> &v,int n)
 	}
 	return 0 ;
 }
+/* end subroutine (printnodes) */
+
 

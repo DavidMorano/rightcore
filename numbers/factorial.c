@@ -21,7 +21,7 @@
 
 	Synopsis:
 
-	LONG factorial(unsigned int n)
+	LONG factorial(int n)
 
 	Arguments:
 
@@ -31,6 +31,8 @@
 
 	-	the Fibonacci number of the input
 
+
+	Notes:
 
 	The original Fibonacci function:
 
@@ -44,6 +46,11 @@
         Factorial function that can be represented in the result is 12. An input
         value of 13 overflows the 32-bit unsigned integer result. 
 
+
+	Floating-point:
+
+	f(n) = floor(1.0 / sqrt(5.0)) * pow(((1.0 + sqrt(5.0)) / 2.0),(n+1))
+	
 
 *******************************************************************************/
 

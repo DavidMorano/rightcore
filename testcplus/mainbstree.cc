@@ -80,15 +80,15 @@ extern "C" char	*strwcpy(char *,cchar *,int) ;
 
 #if	CF_CLASSLESS
 struct intless {
-	constexpr bool operator () (const int &v1,const int &v2) const {
+	bool operator () (const int &v1,const int &v2) const {
 	    return (v1 < v2) ;
 	} ;
-	constexpr bool operator () (int &v1,int &v2) const {
+	bool operator () (int &v1,int &v2) const {
 	    return (v1 < v2) ;
 	} ;
 } ;
 #else /* CF_CLASSLESS */
-static constexpr bool intless(const int &v1,const int &v2) {
+static bool intless(const int &v1,const int &v2) {
 	    return (v1 < v2) ;
 } ;
 #endif /* CF_CLASSLESS */
@@ -281,6 +281,11 @@ void *operator new(size_t sz,const nothrow_t &nt) noexcept {
 
 /* for memory allocation tracking */
 void operator delete(void *p) noexcept {
+    	uc_free(p) ;
+}
+
+/* for memory allocation tracking */
+void operator delete(void *p,const std::nothrow_t &nt) noexcept {
     	uc_free(p) ;
 }
 

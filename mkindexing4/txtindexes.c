@@ -148,8 +148,8 @@ extern int	timestr_log(time_t,char *) ;
 
 TXTINDEXES_OBJ	txtindexes = {
 	"txtindexes",
-	sizeof(TXTINDEXES),
-	sizeof(TXTINDEXES_CUR)
+	    sizeof(TXTINDEXES),
+	    sizeof(TXTINDEXES_CUR)
 } ;
 
 
@@ -207,7 +207,7 @@ static int	vcmpkey(const char **,const char **) ;
 /* exported subroutines */
 
 
-int txtindexes_open(TXTINDEXES *op,cchar dbname[])
+int txtindexes_open(TXTINDEXES *op,cchar *dbname)
 {
 	const time_t	dt = time(NULL) ;
 	int		rs = SR_OK ;
@@ -320,11 +320,11 @@ int txtindexes_audit(TXTINDEXES *op)
 	    cchar	*sp = op->tf.mapdata ;
 	    if ((rs = offindex_tags(&oi,sp,sl)) >= 0) {
 	        const int	taglen = rs ;
-		if (taglen == op->ifi.taglen) {
-		    rs = txtindexes_audithash(op,&oi) ;
-		} else {
-	    	    rs = SR_BADFMT ;
-		}
+	        if (taglen == op->ifi.taglen) {
+	            rs = txtindexes_audithash(op,&oi) ;
+	        } else {
+	            rs = SR_BADFMT ;
+	        }
 	    }
 	    rs1 = offindex_finish(&oi) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -595,25 +595,26 @@ int txtindexes_read(TXTINDEXES *op,TXTINDEXES_CUR *curp,TXTINDEXES_TAG *tagp)
 	            i += 1 ;
 	        }
 
-		if (i < curp->taglen) {
+	        if (i < curp->taglen) {
 
-	        tagoff = curp->taglist[i] ;
+	            tagoff = curp->taglist[i] ;
 
 #if	CF_DEBUGS
-	        debugprintf("txtindexes_read: tagfile size=%u\n",fip->mapsize) ;
-	        debugprintf("txtindexes_read: tagoff=%u\n",tagoff) ;
+	            debugprintf("txtindexes_read: tagfile size=%u\n",
+	                fip->mapsize) ;
+	            debugprintf("txtindexes_read: tagoff=%u\n",tagoff) ;
 #endif
 
-	        if (tagoff < fip->mapsize) {
-	            tagbuf = (fip->mapdata + tagoff) ;
-	            rs = tag_parse(tagp,tagbuf,-1) ;
-	            len = rs ;
-	        } else
-	            rs = SR_BADFMT ;
+	            if (tagoff < fip->mapsize) {
+	                tagbuf = (fip->mapdata + tagoff) ;
+	                rs = tag_parse(tagp,tagbuf,-1) ;
+	                len = rs ;
+	            } else
+	                rs = SR_BADFMT ;
 
-		} else {
-		    rs = SR_NOTFOUND ;
-		}
+	        } else {
+	            rs = SR_NOTFOUND ;
+	        }
 
 	    } /* end if */
 
@@ -726,8 +727,8 @@ static int txtindexes_filemapcreate(TXTINDEXES *op,int w,cchar *fn,time_t dt)
 	}
 
 	if ((rs = u_open(fn,O_RDONLY,0666)) >= 0) {
-	    struct ustat	sb ;
-	    int			fd = rs ;
+	    USTAT	sb ;
+	    int		fd = rs ;
 	    if ((rs = u_fstat(fd,&sb)) >= 0) {
 	        size_t	ms = (sb.st_size & UINT_MAX) ;
 	        int	mp = PROT_READ ;
@@ -785,7 +786,7 @@ static int txtindexes_dbproc(TXTINDEXES *op,time_t dt)
 	        mip->ertab = (int *) (fip->mapdata + hip->eroff) ;
 	        mip->eitab = (int (*)[3]) (fip->mapdata + hip->eioff) ;
 	        mip->table = (uint *) (fip->mapdata + hip->taboff) ;
-		c = hip->taglen ;
+	        c = hip->taglen ;
 	    }
 	}
 
@@ -819,7 +820,7 @@ static int txtindexes_mkhashkeys(TXTINDEXES *op,vecstr *clp,cchar **klp)
 #endif
 
 	for (i = 0 ; (kp = klp[i]) != NULL ; i += 1) {
-	    if (kp == NULL) continue ;
+	    if (kp != NULL) {
 
 	    kl = strnlen(kp,klen) ;		/* also prevents overflow */
 
@@ -842,6 +843,7 @@ static int txtindexes_mkhashkeys(TXTINDEXES *op,vecstr *clp,cchar **klp)
 	        }
 	    } /* end if */
 
+	    }
 	    if (rs < 0) break ;
 	} /* end for */
 
@@ -862,245 +864,239 @@ static int txtindexes_mkhashkeys(TXTINDEXES *op,vecstr *clp,cchar **klp)
 static int txtindexes_mktaglist(TXTINDEXES *op,uint **tlpp,vecstr *hlp)
 {
 	TXTINDEXFU	*hip = &op->ifi ;
-	int		rs = SR_OK ;
-	int		n ;
+	int		rs ;
 	int		tagcount = 0 ;
 
 /* allocate an array to hold tag-list results */
 
-	if ((n = vecstr_count(hlp)) > 0) {
+	if ((rs = vecstr_count(hlp)) > 0) {
 	    LISTDESC	*lists = NULL ;
-	    uint	*table = op->mi.table ;
-	    uint	maxtags = hip->maxtags ;
-	    uint	hv ;
-	    uint	listoff ;
-	    uint	*uip ;
-	    uint	*taglist = NULL ;
-	    int		tablen = hip->tablen ;
-	    int		c ;
-	    int		i, j, k ;
-	    int		hi ;
-	    int		taglen ;
-	    int		ntags ;
+	    int		n = rs ;
 	    int		size ;
-	    const char	*kp ;
 
 #if	CF_DEBUGS
-	debugprintf("txtindexes_mktaglist: n=%d\n",n) ;
+	    debugprintf("txtindexes_mktaglist: n=%d\n",n) ;
 #endif
-	size = n * sizeof(LISTDESC) ;
-	if ((rs = uc_malloc(size,&lists)) >= 0) {
+	    size = n * sizeof(LISTDESC) ;
+	    if ((rs = uc_malloc(size,&lists)) >= 0) {
+	        uint	*table = op->mi.table ;
+	        uint	*taglist = NULL ;
+	        uint	maxtags = hip->maxtags ;
+	        uint	hv ;
+	        uint	listoff ;
+	        uint	*uip ;
+	        int	tablen = hip->tablen ;
+	        int	hi ;
+	        int	taglen ;
+	        int	ntags ;
+	        cchar	*kp ;
+	        int	k ;
+		int	i ;
+		int	c = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("txtindexes_mktaglist: size=%u list={%p}\n",size,lists) ;
+	        debugprintf("txtindexes_mktaglist: size=%u list={%p}\n",
+		size,lists) ;
 #endif
 
 /* fill in the tag-list array with results */
 
-	c = 0 ;
-	for (i = 0 ; vecstr_get(hlp,i,&kp) >= 0 ; i += 1) {
-	    if (kp == NULL) continue ;
+	        for (i = 0 ; vecstr_get(hlp,i,&kp) >= 0 ; i += 1) {
+	            if (kp != NULL) {
 
 #if	CF_DEBUGS
-	    debugprintf("txtindexes_mktaglist: kp=%s\n",kp) ;
+	                debugprintf("txtindexes_mktaglist: kp=%s\n",kp) ;
 #endif
 
-	    hv = hashelf(kp,-1) ;
+	                hv = hashelf(kp,-1) ;
 
-	    hi = (hv % tablen) ;
-	    listoff = table[hi] ;
+	                hi = (hv % tablen) ;
+	                listoff = table[hi] ;
 
-	    if (listoff != 0) {
-
-#if	CF_DEBUGS
-	        debugprintf("txtindexes_mktaglist: i=%u listoff=%u\n",
-	            i,listoff) ;
-#endif
+	                if (listoff != 0) {
 
 /* sanity checks */
 
-	        if ((listoff & 3) != 0) {
-	            rs = SR_BADFMT ;
-	            break ;
-	        }
+	                    if ((listoff & 3) != 0) {
+	                        rs = SR_BADFMT ;
+	                        break ;
+	                    }
 
-	        if ((listoff < hip->listoff) || (listoff >= op->hf.mapsize)) {
-	            rs = SR_BADFMT ;
-	            break ;
-	        }
+	                    if ((listoff < hip->listoff) || 
+				(listoff >= op->hf.mapsize)) {
+	                        rs = SR_BADFMT ;
+	                        break ;
+	                    }
 
 /* continue */
 
-	        uip = (uint *) (op->hf.mapdata + listoff) ;
-	        ntags = *uip++ ;
+	                    uip = (uint *) (op->hf.mapdata + listoff) ;
+	                    ntags = *uip++ ;
 
 #if	CF_DEBUGS
-	        debugprintf("txtindexes_mktaglist: i=%u ntags=%u\n",i,ntags) ;
+	                    debugprintf("txtindexes_mktaglist: i=%u ntags=%u\n",
+				i,ntags) ;
 #endif
-#if	CF_DEBUGS && 0
-	        {
-	            int	ti ;
-	            for (ti = 0 ; ti < ntags ; ti += 1) {
-	                debugprintf("txtindexes_mktaglist: tagoff=%u\n",
-	                    uip[ti]) ;
-		    }
-	        }
-#endif /* CF_DEBUGS */
 
-	        if (ntags > 0) {
+	                    if (ntags > 0) {
 
 /* sanity check (optionally requested by index creator!) */
 
-	            if ((maxtags > 0) && (ntags > maxtags)) {
-	                rs = SR_BADFMT ;
-	                break ;
+	                        if ((maxtags > 0) && (ntags > maxtags)) {
+	                            rs = SR_BADFMT ;
+	                            break ;
+	                        }
+
+	                        lists[c].listp = uip ;
+	                        lists[c].ntags = ntags ;
+	                        c += 1 ;
+
+	                    } else {
+	                        c = 0 ;
+	                        break ;
+	                    } /* end if (non-zero number of tags) */
+
+	                } else {
+	                    c = 0 ;
+	                    break ;
+	                }
+
 	            }
-
-	            lists[c].listp = uip ;
-	            lists[c].ntags = ntags ;
-	            c += 1 ;
-
-	        } else {
-	            c = 0 ;
-	            break ;
-	        } /* end if (non-zero number of tags) */
-
-	    } else {
-	        c = 0 ;
-	        break ;
-	    }
-
-	} /* end for */
-	n = c ;
+	            if (rs < 0) break ;
+	        } /* end for */
+	        n = c ;
 
 #if	CF_DEBUGS
-	debugprintf("txtindexes_mktaglist: rs=%d n=%u\n",rs,n) ;
+	        debugprintf("txtindexes_mktaglist: rs=%d n=%u\n",rs,n) ;
 #endif
 
 /* sort the list-descriptors by number of tag entries */
 
 #if	CF_SORTLISTS /* optional but strongly recommended, for performance */
-	if ((rs >= 0) && (n > 1)) {
-	    int	(*cfn)(const void *,const void *) ;
-	    cfn = (int (*)(const void *,const void *)) cmplistdesc ;
-	    qsort(lists,n,sizeof(LISTDESC),cfn) ;
-	}
+	        if ((rs >= 0) && (n > 1)) {
+	            int	(*cfn)(const void *,const void *) ;
+	            cfn = (int (*)(const void *,const void *)) cmplistdesc ;
+	            qsort(lists,n,sizeof(LISTDESC),cfn) ;
+	        }
 #endif /* CF_SORTLISTS */
 
 /* perform the join operation on the tag lists (not the easiest thing to do) */
 
-	taglen = 0 ;
-	for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
+	        taglen = 0 ;
+	        for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
 
-	    uip = lists[i].listp ;
-	    ntags = lists[i].ntags ;
+	            uip = lists[i].listp ;
+	            ntags = lists[i].ntags ;
 
-	    if (i == 0) {
+	            if (i == 0) {
 
-	        tagcount = ntags ;
-	        taglen = ntags ;
-	        size = (taglen + 1) * sizeof(uint) ;
-	        if ((rs = uc_malloc(size,&taglist)) >= 0) {
-	            memcpy(taglist,uip,size) ;
-		}
+	                tagcount = ntags ;
+	                taglen = ntags ;
+	                size = (taglen + 1) * sizeof(uint) ;
+	                if ((rs = uc_malloc(size,&taglist)) >= 0) {
+	                    memcpy(taglist,uip,size) ;
+	                }
 
 #if	CF_DEBUGS
-	        debugprintf("txtindexes_mktaglist: "
-	            "size=%u taglist={%p}\n",
-	            size,taglist) ;
+	                debugprintf("txtindexes_mktaglist: "
+	                    "size=%u taglist={%p}\n",
+	                    size,taglist) ;
 #endif
 
-	    } else {
+	            } else {
+			int	j ;
 
 #if	CF_DYNACOMPACT /* try dynamic compaction? (nerves of steel!) */
 
-	        j = 0 ;
-	        while (j < taglen) {
+	                j = 0 ;
+	                while (j < taglen) {
 
-	            for (k = 0 ; k < ntags ; k += 1) {
-	                if (taglist[j] == uip[k]) break ;
-	            } /* end for */
+	                    for (k = 0 ; k < ntags ; k += 1) {
+	                        if (taglist[j] == uip[k]) break ;
+	                    } /* end for */
 
-	            if (k >= ntags) {
-	                taglen -= 1 ;
-	                if (taglen == 0) break ;
-	                if (j < taglen) taglist[j] = taglist[taglen] ;
-	            } else {
-	                j += 1 ;
-		    }
+	                    if (k >= ntags) {
+	                        taglen -= 1 ;
+	                        if (taglen == 0) break ;
+	                        if (j < taglen) {
+				    taglist[j] = taglist[taglen] ;
+				}
+	                    } else {
+	                        j += 1 ;
+	                    }
 
-	        } /* end while */
-	        tagcount = taglen ;
+	                } /* end while */
+	                tagcount = taglen ;
 
 #else /* CF_DYNACOMPACT */
 
-	        for (j = 0 ; j < taglen ; j += 1) {
-	            if (taglist[j] != UINT_MAX) {
+	                for (j = 0 ; j < taglen ; j += 1) {
+	                    if (taglist[j] != UINT_MAX) {
 
-	                for (k = 0 ; k < ntags ; k += 1) {
-	                    if (taglist[j] == uip[k]) break ;
+	                        for (k = 0 ; k < ntags ; k += 1) {
+	                            if (taglist[j] == uip[k]) break ;
+	                        } /* end for */
+
+	                        if (k >= ntags) {
+	                            taglist[j] = UINT_MAX ;
+	                            tagcount -= 1 ;
+	                            if (tagcount == 0) break ;
+	                        }
+
+	                    } /* end if */
 	                } /* end for */
-
-	                if (k >= ntags) {
-	                    taglist[j] = UINT_MAX ;
-	                    tagcount -= 1 ;
-	                    if (tagcount == 0) break ;
-	                }
-
-	            } /* end if */
-	        } /* end for */
 
 #endif /* CF_DYNACOMPACT */
 
-	        if (tagcount == 0) break ;
-	    } /* end if */
+	                if (tagcount == 0) break ;
+	            } /* end if */
 
-	} /* end for (looping through hash keys) */
+	        } /* end for (looping through hash keys) */
 
 #if	CF_DEBUGS
-	debugprintf("txtindexes_mktaglist: tagcount=%u \n",tagcount) ;
+	        debugprintf("txtindexes_mktaglist: tagcount=%u \n",tagcount) ;
 #endif
 
 /* finishing */
 
-	if ((rs >= 0) && (taglist != NULL)) {
+	        if ((rs >= 0) && (taglist != NULL)) {
 
 #if	CF_DYNACOMPACT
 #else
-	    if ((tagcount > 0) && (taglen != tagcount)) {
-	        rs = taglist_compact(taglist,taglen) ;
-	    }
+	            if ((tagcount > 0) && (taglen != tagcount)) {
+	                rs = taglist_compact(taglist,taglen) ;
+	            }
 #endif /* CF_DYNACOMPACT */
 
-	    taglist[tagcount] = UINT_MAX ;
+	            taglist[tagcount] = UINT_MAX ;
 
 /* sort the tags in this resulting tag-list */
 
 #if	CF_SORT
-	    if ((rs >= 0) && (tagcount > 1)) {
-	        qsort(taglist,tagcount,sizeof(uint),vcmpuint) ;
-	    }
+	            if ((rs >= 0) && (tagcount > 1)) {
+	                qsort(taglist,tagcount,sizeof(uint),vcmpuint) ;
+	            }
 #endif
 
-	} /* end if (finishing) */
+	        } /* end if (finishing) */
 
 /* done */
 
-	if ((rs < 0) || (tlpp == NULL)) {
-	    if (taglist != NULL) {
-	        uc_free(taglist) ;
-	        taglist = NULL ;
-	    }
-	} else {
-	    *tlpp = taglist ;
-	}
+	        if ((rs < 0) || (tlpp == NULL)) {
+	            if (taglist != NULL) {
+	                uc_free(taglist) ;
+	                taglist = NULL ;
+	            }
+	        } else {
+	            *tlpp = taglist ;
+	        }
 
-	if (lists != NULL) {
-	    uc_free(lists) ;
-	    lists = NULL ;
-	}
+	        if (lists != NULL) {
+	            uc_free(lists) ;
+	            lists = NULL ;
+	        }
 
-	} /* end if (m-a) */
+	    } /* end if (m-a) */
 	} /* end if (positive) */
 
 #if	CF_DEBUGS
@@ -1467,7 +1463,7 @@ static int txtindexes_auditeigen(TXTINDEXES *op)
 
 	        if (cp[-1] == '\0') {
 	            rs = strtabfind(estab,eitab,eilen,nskip,cp,cl) ;
-		} else
+	        } else
 	            rs = SR_BADFMT ;
 
 	        if (rs < 0) break ;
@@ -1570,7 +1566,7 @@ static int txtindexes_auditeigen(TXTINDEXES *op)
 
 	        if (rs >= 0) {
 	            rs = strtabfind(estab,eitab,eilen,nskip,cp,cl) ;
-		}
+	        }
 
 	        cp = (cp + cl + 1) ;
 	        if (rs < 0) break ;
@@ -1661,48 +1657,51 @@ static int tag_parse(TXTINDEXES_TAG *tagp,cchar *sp,int sl)
 	if (sl < 0) {
 	    if ((tp = strchr(sp,'\n')) != 0) {
 	        sl = (tp - sp) ;
-	    } else
+	    } else {
 	        rs = SR_BADFMT ;
+	    }
 	}
 
 	if (rs >= 0) {
-	tagp->recoff = 0 ;
-	tagp->reclen = 0 ;
-	tagp->fname[0] = '\0' ;
+	    tagp->recoff = 0 ;
+	    tagp->reclen = 0 ;
+	    tagp->fname[0] = '\0' ;
 
-	if ((tp = strnchr(sp,sl,':')) != NULL) {
+	    if ((tp = strnchr(sp,sl,':')) != NULL) {
 
-	    rs = snwcpy(tagp->fname,MAXPATHLEN,sp,(tp - sp)) ;
-	    len = rs ;
-
-	    sl -= ((tp + 1) - sp) ;
-	    sp = (tp + 1) ;
-
-	} /* end if */
-
-	if (rs >= 0) {
-
-	    if ((tp = strnchr(sp,sl,',')) != NULL) {
-
-	        rs = cfdecui(sp,(tp - sp),&tagp->recoff) ;
+	        rs = snwcpy(tagp->fname,MAXPATHLEN,sp,(tp - sp)) ;
+	        len = rs ;
 
 	        sl -= ((tp + 1) - sp) ;
 	        sp = (tp + 1) ;
-	        if (rs >= 0) {
 
-	            if ((tp = strnpbrk(sp,sl,"\t ")) != NULL)
-	                sl = (tp - sp) ;
+	    } /* end if */
 
-	            tagp->reclen = INT_MAX ;
-	            if (sl >= 0)
-	                rs = cfdecui(sp,sl,&tagp->reclen) ;
+	    if (rs >= 0) {
 
-	        }
+	        if ((tp = strnchr(sp,sl,',')) != NULL) {
 
-	    } else
-	        rs = SR_BADFMT ;
+	            rs = cfdecui(sp,(tp - sp),&tagp->recoff) ;
 
-	} /* end if (ok) */
+	            sl -= ((tp + 1) - sp) ;
+	            sp = (tp + 1) ;
+	            if (rs >= 0) {
+
+	                if ((tp = strnpbrk(sp,sl,"\t ")) != NULL) {
+	                    sl = (tp - sp) ;
+	                }
+
+	                tagp->reclen = INT_MAX ;
+	                if (sl >= 0) {
+	                    rs = cfdecui(sp,sl,&tagp->reclen) ;
+	                }
+
+	            } /* end if (ok) */
+
+	        } else
+	            rs = SR_BADFMT ;
+
+	    } /* end if (ok) */
 
 	} /* end if (ok) */
 
@@ -1734,7 +1733,7 @@ static int taglist_compact(uint taglist[],int taglen)
 	            taglen -= 1 ;
 	            while (taglist[taglen - 1] == UINT_MAX) {
 	                taglen -= 1 ;
-		    }
+	            }
 	        }
 
 	    } /* end if */
@@ -1754,7 +1753,7 @@ static int vcmpuint(const void *v1p,const void *v2p)
 	int		rc = 0 ;
 	if (i1p != NULL) {
 	    if (i2p != NULL) {
-		rc = (*i1p - *i2p) ;
+	        rc = (*i1p - *i2p) ;
 	    } else
 	        rc = -1 ;
 	} else

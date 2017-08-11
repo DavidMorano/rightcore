@@ -1,6 +1,6 @@
-/* sortvec */
+/* vecsorthand */
 
-/* sorted vector list operations */
+/* vector of sorted handles */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 1995-12-01,  David A.D. Morano
+	= 2010-12-01,  David A.D. Morano
 	Module was originally written.
 
 */
 
-/* Copyright © 1995 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2011 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -25,7 +25,7 @@
 *******************************************************************************/
 
 
-#define	SORTLIST_MASTER		1
+#define	VECSORTHAND_MASTER		1
 
 
 #include	<envstandards.h>
@@ -37,12 +37,12 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"sortvec.h"
+#include	"vecsorthand.h"
 
 
 /* local defines */
 
-#define	SORTLIST_DEFENTS	10
+#define	VECSORTHAND_DEFENTS	10
 
 
 /* external subroutines */
@@ -50,13 +50,15 @@
 
 /* forward references */
 
-static int	defcmpfunc() ;
+static int	vecsorthand_extend(vecsorthand *op)
+
+static int	defcmpfunc(const void *,const void *) ;
 
 
 /* exported subroutines */
 
 
-int sortvec_start(sortvec *svp,int n,int (*cmpfunc)())
+int vecsorthand_start(vecsorthand *svp,int n,int (*cmpfunc)())
 {
 	int		rs ;
 	int		size = 0 ;
@@ -64,9 +66,9 @@ int sortvec_start(sortvec *svp,int n,int (*cmpfunc)())
 
 	if (svp == NULL) return SR_FAULT ;
 
-	if (n <= 1) n = SORTLIST_DEFENTS ;
+	if (n <= 1) n = VECSORTHAND_DEFENTS ;
 
-	memset(svp,0,sizeof(sortvec)) ;
+	memset(svp,0,sizeof(vecsorthand)) ;
 	svp->i = 0 ;
 	svp->c = 0 ;
 
@@ -81,24 +83,20 @@ int sortvec_start(sortvec *svp,int n,int (*cmpfunc)())
 	}
 	return rs ;
 }
-/* end subroutine (sortvec_start) */
+/* end subroutine (vecsorthand_start) */
 
 
-int sortvec_finish(sortvec *svp)
+int vecsorthand_finish(vecsorthand *svp)
 {
-	int		i ;
 
 	if (svp == NULL) return SR_FAULT ;
 
 	if (svp->va != NULL) {
-
+	    int	i ;
 	    for (i = 0 ; i < svp->i ; i += 1) {
 	        if ((svp->va)[i] != NULL)
 	            free((svp->va)[i]) ;
 	    } /* end while */
-
-/* free the sortvec array itself */
-
 	    free(svp->va) ;
 	    svp->va = NULL ;
 	}
@@ -107,53 +105,26 @@ int sortvec_finish(sortvec *svp)
 	svp->e = 0 ;
 	return SR_OK ;
 }
-/* end subroutine (sortvec_finish) */
+/* end subroutine (vecsorthand_finish) */
 
 
 /* add an entry to this sorted list */
-int sortvec_add(sortvec *svp,void *buf)
+int vecsorthand_add(vecsorthand *svp,void *buf)
 {
 	int		rs ;
-	int		nn ;
+
+#if	CF_DEBUGS
+	debugprintf("vecsorthandadd: ent\n") ;
+#endif
+
+	if (svp == NULL) return SR_FAULT ;
+
+#if	CF_DEBUGS
+	debugprintf("vecsorthandadd: ent, i=%d\n",svp->i) ;
+#endif
+
+	if ((rs = vecsorthand_extend(op)) >= 0) {
 	int		bot, top, i, j ;
-	void		**ep ;
-
-#if	CF_DEBUGS
-	debugprintf("sortvecadd: ent\n") ;
-#endif
-
-	if (svp == NULL)
-		return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("sortvecadd: ent, i=%d\n",svp->i) ;
-#endif
-
-/* do we have to grow the sortvec array ? */
-
-	if ((svp->i + 1) > svp->e) {
-
-	    if (svp->e == 0) {
-
-	        nn = SORTLIST_DEFENTS ;
-	        ep = (void **)
-	            malloc(sizeof(char **) * (nn + 1)) ;
-
-	    } else {
-
-	        nn = svp->e * 2 ;
-	        ep = (void **)
-	            realloc(svp->va,sizeof(char **) * (nn + 1)) ;
-
-	    }
-
-	    if (ep == NULL)
-		return SR_NOMEM ;
-
-	    svp->va = ep ;
-	    svp->e = nn ;
-
-	} /* end if */
 
 /* do the regular thing */
 
@@ -166,7 +137,7 @@ int sortvec_add(sortvec *svp,void *buf)
 	i = (bot + top) / 2 ;
 
 #if	CF_DEBUGS
-	debugprintf("sortvecadd: bot=%d top=%d i=%d\n",bot,top,i) ;
+	debugprintf("vecsorthandadd: bot=%d top=%d i=%d\n",bot,top,i) ;
 #endif
 
 	while ((top - bot) > 0) {
@@ -183,7 +154,7 @@ int sortvec_add(sortvec *svp,void *buf)
 	} /* end while */
 
 #if	CF_DEBUGS
-	debugprintf("sortvecadd: found bot=%d top=%d i=%d\n",bot,top,i) ;
+	debugprintf("vecsorthandadd: found bot=%d top=%d i=%d\n",bot,top,i) ;
 #endif
 
 	if (i < svp->i) {
@@ -205,13 +176,15 @@ int sortvec_add(sortvec *svp,void *buf)
 	svp->i += 1 ;
 	(svp->va)[svp->i] = NULL ;
 
+	} /* end if (vecsorthand_extend) */
+
 	return i ;
 }
-/* end subroutine (sortvec_add) */
+/* end subroutine (vecsorthand_add) */
 
 
 /* get an entry (enumerated) from the vector list */
-int sortvec_get(sortvec *svp,int i,void **rpp)
+int vecsorthand_get(vecsorthand *svp,int i,void **rpp)
 {
 
 	if (svp == NULL) return SR_FAULT ;
@@ -223,16 +196,16 @@ int sortvec_get(sortvec *svp,int i,void **rpp)
 	if (svp->va == NULL) return SR_NOTFOUND ;
 
 	if (rpp != NULL) {
-		*rpp = (svp->va)[i] ;
+	    *rpp = (svp->va)[i] ;
 	}
 
 	return SR_OK ;
 }
-/* end subroutine (sortvec_get) */
+/* end subroutine (vecsorthand_get) */
 
 
 /* delete an entry */
-int sortvec_del(sortvec *svp,int i)
+int vecsorthand_del(vecsorthand *svp,int i)
 {
 	int		j ;
 
@@ -252,23 +225,23 @@ int sortvec_del(sortvec *svp,int i)
 	svp->c -= 1 ;		/* decrement list count */
 	return SR_OK ;
 }
-/* end subroutine (sortvec_del) */
+/* end subroutine (vecsorthand_del) */
 
 
 /* return the count of the number of items in this list */
-int sortvec_count(sortvec *svp)
+int vecsorthand_count(vecsorthand *svp)
 {
 
 	if (svp == NULL) return SR_FAULT ;
 
 	return svp->c ;
 }
-/* end subroutine (sortvec_count) */
+/* end subroutine (vecsorthand_count) */
 
 
 /* search for an entry in the sorted vector list */
-int sortvec_search(svp,ep,rpp)
-sortvec		*svp ;
+int vecsorthand_search(svp,ep,rpp)
+vecsorthand		*svp ;
 void		*ep ;
 void		**rpp ;
 {
@@ -297,10 +270,37 @@ void		**rpp ;
 
 	return (rs >= 0) ? i : rs ;
 }
-/* end subroutine (sortvec_search) */
+/* end subroutine (vecsorthand_search) */
 
 
 /* private subroutines */
+
+
+static int vecsorthand_extend(vecsorthand *op)
+{
+	int		rs = SR_OK ;
+	if ((svp->i + 1) > svp->e) {
+	    const int	ndef = VECSORTHAND_DEFENTS ;
+	    int		size ;
+	    int		ne ;
+	    cchar	*ep = NULL ;
+	    if (svp->e == 0) {
+	 	ne = ndef ;
+		size = (ndef*sizeof(char **)) ;
+		rs = uc_malloc(size,&np) ;
+	    } else {
+	        const int	ne = (svp->e * 2) ;
+	        size = (ne*sizeof(cchar **)) ;
+		rs = uc_realloc(svp->va,size,&np) ;
+	    }
+	    if (rs >= 0) {
+	        svp->va = ep ;
+	        svp->e = ne ;
+	    }
+	} /* end if */
+	return rs ;
+}
+/* end subroutine (vecsorthand_extend) */
 
 
 static int defcmpfunc(const void *app,const void *bpp)

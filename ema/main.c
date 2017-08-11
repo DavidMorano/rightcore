@@ -94,6 +94,7 @@ extern const char	*getourenv(const char **,const char *) ;
 static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
+static int	procsubpart(PROGINFO *,PARAMOPT *,CMD_LOCAL *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,PARAMOPT *,
 			cchar *,cchar *,cchar *) ;
 
@@ -215,7 +216,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
-	int		i ;
 	int		cl ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
@@ -769,7 +769,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (rs >= 0) {
-	    rs = procopts(pip,&akopts) ;
+	    if ((rs = procopts(pip,&akopts)) >= 0) {
+	        rs = procsubpart(pip,&aparams,lsp) ;
+	    }
 	}
 
 	if ((rs >= 0) && (pip->linelen == 0)) {
@@ -833,68 +835,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: about to set subpart criteria\n") ;
 #endif
-
-	if (rs >= 0) {
-	    PARAMOPT_CUR	c ;
-	    int			spc = 0 ;
-	    int			vl ;
-	    const char		*vp ;
-
-	    if ((rs = paramopt_curbegin(&aparams,&c)) >= 0) {
-	        while (rs >= 0) {
-
-	            vl = paramopt_enumvalues(&aparams,PO_SUBPART,&c,&vp) ;
-	            if (vl == SR_NOTFOUND) break ;
-	            rs = vl ;
-	            if (rs < 0) break ;
-
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("main: lookup subpart=%s\n",cp) ;
-#endif
-
-	            if ((i = matostr(subparts,1,vp,vl)) >= 0) {
-	                switch (i) {
-	                case subpart_address:
-	                    lsp->af.address = TRUE ;
-	                    spc += 1 ;
-	                    break ;
-	                case subpart_route:
-	                    lsp->af.route = TRUE ;
-	                    spc += 1 ;
-	                    break ;
-	                case subpart_comment:
-	                    lsp->af.comment = TRUE ;
-	                    spc += 1 ;
-	                    break ;
-	                case subpart_original:
-	                    lsp->af.original = TRUE ;
-	                    spc += 1 ;
-	                    break ;
-	                case subpart_best:
-	                    lsp->af.best = TRUE ;
-	                    spc += 1 ;
-	                    break ;
-	                case subpart_any:
-	                    lsp->af.any = TRUE ;
-	                    spc += 1 ;
-	                    break ;
-	                } /* end switch */
-	            } else {
-	                rs = SR_INVALID ;
-	                f_usage = TRUE ;
-	                bprintf(pip->efp,
-	                    "%s: unrecognized EMA subpart=%s\n",
-	                    pip->progname,vp) ;
-	            } /* end if */
-	        } /* end while */
-	        paramopt_curend(&aparams,&c) ;
-	    } /* end if */
-
-	    if (spc <= 0)
-	        lsp->af.best = TRUE ;
-
-	} /* end if (ok) */
 
 /* continue */
 
@@ -1091,6 +1031,78 @@ static int procopts(PROGINFO *pip,KEYOPT *akp)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procopts) */
+
+
+static int procsubpart(PROGINFO *pip,PARAMOPT *pop,CMD_LOCAL *lsp)
+{
+	PARAMOPT_CUR	c ;
+	int		rs ;
+	int		spc = 0 ;
+
+	if ((rs = paramopt_curbegin(pop,&c)) >= 0) {
+	    int		i ;
+	    int		vl ;
+	    cchar	*po = PO_SUBPART ;
+	    cchar	*vp ;
+	    while (rs >= 0) {
+
+	            vl = paramopt_enumvalues(pop,po,&c,&vp) ;
+	            if (vl == SR_NOTFOUND) break ;
+	            rs = vl ;
+	            if (rs < 0) break ;
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("main/procsubpart: lookup subpart=%s\n",vp) ;
+#endif
+
+	            if ((i = matostr(subparts,1,vp,vl)) >= 0) {
+	                switch (i) {
+	                case subpart_address:
+	                    lsp->af.address = TRUE ;
+	                    spc += 1 ;
+	                    break ;
+	                case subpart_route:
+	                    lsp->af.route = TRUE ;
+	                    spc += 1 ;
+	                    break ;
+	                case subpart_comment:
+	                    lsp->af.comment = TRUE ;
+	                    spc += 1 ;
+	                    break ;
+	                case subpart_original:
+	                    lsp->af.original = TRUE ;
+	                    spc += 1 ;
+	                    break ;
+	                case subpart_best:
+	                    lsp->af.best = TRUE ;
+	                    spc += 1 ;
+	                    break ;
+	                case subpart_any:
+	                    lsp->af.any = TRUE ;
+	                    spc += 1 ;
+	                    break ;
+	                } /* end switch */
+	            } else {
+			cchar	*pn = pip->progname ;
+			cchar	*fmt = "%s: unrecognized EMA subpart=%s\n" ;
+	                rs = SR_INVALID ;
+	                bprintf(pip->efp,fmt,pn,vp) ;
+	            } /* end if */
+	    } /* end while */
+	    paramopt_curend(pop,&c) ;
+	} /* end if (paramopt_curbegin) */
+	lsp->spc = spc ;
+	if (spc <= 0) {
+	    lsp->af.best = TRUE ;
+	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/procsubpart: ret rs=%d spc=%u\n",rs,spc) ;
+#endif
+	return rs ;
+} 
+/* end subroutine (procsubpart) */
 
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *app,

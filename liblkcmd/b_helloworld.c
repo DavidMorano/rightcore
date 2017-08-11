@@ -5,9 +5,8 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUG	1		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_SHIO		1		/* allow for SHIO? */
 
 
 /* revision history:
@@ -51,16 +50,11 @@
 #include	<time.h>
 #include	<pwd.h>
 
-#if	CF_SFIO
-#else
-#include	<stdio.h>
-#endif
-
 #include	<vsystem.h>
 #include	<bits.h>
 #include	<keyopt.h>
-#include	<getxusername.h>
-#include	<getax.h>
+#include	<estrings.h>
+#include	<cfdec.h>
 #include	<field.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
@@ -73,59 +67,15 @@
 
 /* local defines */
 
-#ifndef	LOGNAMELEN
-#ifdef	LOGNAME_MAX
-#define	LOGNAMELEN	LOGNAME_MAX
-#else
-#define	LOGNAMELEN	32
-#endif
-#endif
-
-#ifndef	USERNAMELEN
-#ifdef	LOGNAME_MAX
-#define	USERNAMELEN	LOGNAME_MAX
-#else
-#define	USERNAMELEN	32
-#endif
-#endif
-
-#ifndef	BUFLEN
-#define	BUFLEN		MAXPATHLEN
-#endif
-
-#ifndef	VARUSERNAME
-#define	VARUSERNAME	"USERNAME"
-#endif
-
-#ifndef	VARLOGNAME
-#define	VARLOGNAME	"LOGNAME"
-#endif
-
-#ifndef	VARUSER
-#define	VARUSER		"USER"
-#endif
-
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 
 
 /* external subroutines */
 
-extern int	snsds(char *,int,const char *,const char *) ;
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	sncpy1(char *,int,const char *) ;
-extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	matostr(const char **,int,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-extern int	cfdecti(const char *,int,int *) ;
-extern int	optbool(const char *,int) ;
-extern int	optvalue(const char *,int) ;
+extern int	matostr(cchar **,int,cchar *,int) ;
+extern int	optbool(cchar *,int) ;
+extern int	optvalue(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -168,8 +118,10 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 
 static int	usage(PROGINFO *) ;
 
-static int	procname(PROGINFO *,FILE *,const char *) ;
-static int	getname(PROGINFO *,struct passwd *,char *,int,cchar *) ;
+static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,SHIO *,cchar *) ;
+static int	procnames(PROGINFO *,SHIO *,cchar *,int) ;
+static int	procname(PROGINFO *,SHIO *,cchar *,int) ;
 
 
 /* local variables */
@@ -192,7 +144,6 @@ enum argopts {
 	argopt_version,
 	argopt_verbose,
 	argopt_help,
-	argopt_pm,
 	argopt_sn,
 	argopt_af,
 	argopt_ef,
@@ -220,24 +171,6 @@ static const struct mapex	mapexs[] = {
 	{ SR_INTR, EX_INTR },
 	{ SR_EXIT, EX_TERM },
 	{ 0, 0 }
-} ;
-
-static const char	*progmodes[] = {
-	"helloworld",
-	"username",
-	"userdir",
-	"logdir",
-	"userhome",
-	NULL
-} ;
-
-enum progmodes {
-	progmode_helloworld,
-	progmode_username,
-	progmode_userdir,
-	progmode_logdir,
-	progmode_userhome,
-	progmode_overlast
 } ;
 
 static const uchar	aterms[] = {
@@ -287,9 +220,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
+	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
-	FILE		*ofp = stdout ;
+	SHIO		errfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	uint		mo_start = 0 ;
@@ -297,30 +231,22 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
-	int		pan = 0 ;
 	int		rs = SR_OK ;
-	int		pmlen = -1 ;
-	int		progmode = progmode_username ;
-	int		n, i, j ;
-	int		size, v ;
+	int		rs1 ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
 	const char	*pr = NULL ;
-	const char	*pm = NULL ;
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*efname = NULL ;
-	const char	*tp, *cp ;
-	char	usernamebuf[USERNAMELEN + 1] ;
-
+	const char	*cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -343,7 +269,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
 	rs = proginfo_setbanner(pip,cp) ;
 
-	pip->efp = stderr ;
 	if ((cp = getourenv(envv,VAREFNAME)) != NULL) {
 	    pip->f.errfile = TRUE ;
 	    pip->efp = fopen(cp,"w") ;
@@ -432,24 +357,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	                case argopt_help:
 	                    f_help = TRUE ;
-	                    break ;
-
-/* program mode */
-	                case argopt_pm:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            pm = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pm = argp ;
-				} else
-	                            rs = SR_INVALID ;
-	                    }
 	                    break ;
 
 /* program search-name */
@@ -640,24 +547,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        pip->progname,VERSION) ;
 	}
 
-/* figure out a program mode */
-
-	if (pm == NULL)
-	    pm = pip->progname ;
-
-	progmode = matostr(progmodes,1,pm,-1) ;
-
-	if (progmode < 0)
-	    progmode = 0 ;
-
-	pip->progmode = progmode ;
-	sn = progmodes[progmode] ;
-
-	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: pm=%s(%u)\n",
-		pip->progname,progmodes[progmode],progmode) ;
-	}
-
 /* set program-root */
 
 	if (rs >= 0) {
@@ -697,110 +586,29 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some preliminary initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	usernamebuf[0] = '\0' ;
-	pip->username = usernamebuf ;
+/* continue */
 
-/* OK, we finally do our thing */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("b_helloworld: con rs=%d\n",rs) ;
+#endif
 
-	if ((ofname != NULL) && (ofname[0] != '\0')) {
-	    pip->f.outfile = TRUE ;
-	    ofp = fopen(ofname,"w") ;
-	}
-
-	if (ofp == NULL) {
-	    rs = SR_NOTOPEN ;
-	    ex = EX_CANTCREAT ;
-	    goto badoutopen ;
-	}
-
-/* go through the loops */
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-
-	for (ai = 1 ; ai < argc ; ai += 1) {
-
-	    f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	    f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	    if (f) {
-	        cp = argv[ai] ;
-	        if (cp[0] != '\0') {
-	            pan += 1 ;
-	            rs = procname(pip,ofp,cp) ;
-		}
-	    }
-
-	    if (rs < 0) break ;
-	} /* end for (handling positional arguments) */
-
-#if	CF_SHIO
-	if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
-	    SHIO	afile, *afp = &afile ;
-
-	    if (strcmp(afname,"-") == 0)
-	        afname = STDINFNAME ;
-
-	    if ((rs = shio_open(afp,afname,"r",0666)) >= 0) {
-	        FIELD		fsb ;
-		const int	llen = LINEBUFLEN ;
-		int		len ;
-	        int		ml ;
-	        int		fl ;
-	        const char	*fp ;
-	        char		lbuf[LINEBUFLEN + 1] ;
-	        char		name[MAXNAMELEN + 1] ;
-
-	        while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
-	            len = rs ;
-
-	            if (lbuf[len - 1] == '\n') len -= 1 ;
-	            lbuf[len] = '\0' ;
-
-	            if ((rs = field_start(&fsb,lbuf,len)) >= 0) {
-
-	                while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
-	                    if (fl > 0) {
-	                        ml = MIN(fl,MAXNAMELEN) ;
-	                        strwcpy(name,fp,ml) ;
-	                        pan += 1 ;
-	    		        rs = procname(pip,ofp,name) ;
-			    }
-	                    if (fsb.term == '#') break ;
-		    if (rs >= 0) rs = lib_sigterm() ;
-		    if (rs >= 0) rs = lib_sigintr() ;
-	                    if (rs < 0) break ;
-	                } /* end while */
-
-	                field_finish(&fsb) ;
-	            } /* end if (field) */
-
-		    if (rs < 0) break ;
-	        } /* end while (reading lines) */
-
-	        rs1 = shio_close(afp) ;
-		if (rs >= 0) rs = rs1 ;
-	    } else {
-	        if (! pip->f.quiet) {
-	            shio_printf(pip->efp,
-	                "%s: inaccessible argument list file (%d)\n",
-	                pip->progname,rs) ;
-	            shio_printf(pip->efp,"%s: afile=%s\n",
-	                pip->progname,afname) ;
-	        }
-	    } /* end if */
-
-	} /* end if (processing file argument file list) */
-#endif /* CF_SHIO */
-
-	if ((rs >= 0) && (pan == 0)) {
-
-	    cp = "-" ;
-	    pan += 1 ;
-	    rs = procname(pip,ofp,cp) ;
-
-	} /* end if (default) */
-
+	    rs = process(pip,&ainfo,&pargs,ofname,afname) ;
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -811,22 +619,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_helloworld: f_outfile=%u\n",pip->f.outfile) ;
+	    debugprintf("b_helloworld: ex=%u rs=%d\n",ex,rs) ;
 #endif
 
-	if (pip->f.outfile) {
-	    fclose(ofp) ;
-	} else {
-	    fflush(ofp) ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	debugprintf("b_helloworld: ex=%u rs=%d nouser=%u\n",
-		ex,rs,lip->f.nouser) ;
-#endif
-
-badoutopen:
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    case SR_INVALID:
@@ -929,36 +725,167 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
-/* process a name */
-static int procname(pip,ofp,name)
-PROGINFO	*pip ;
-FILE		*ofp ;
-const char	name[] ;
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
-	LOCINFO		*lip = pip->lip ;
-	int		rs = SR_OK ;
+	SHIO		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
 	int		wlen = 0 ;
-
-	if (name == NULL)
-	    return SR_FAULT ;
-
-	if (name[0] == '\0')
-	    goto ret0 ;
-
-	if (name[0] == '-')
-	    name = "hello world!" ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("b_helloworld/procname: name=>%s<\n",name) ;
+	debugprintf("b_helloworld/process: ent ofn=%s\n",ofn) ;
 #endif
 
-	if ((rs >= 0) && (pip->verboselevel > 0)) {
-	        rs = fprintf(ofp,"%s\n",name) ;
-	        wlen += rs ;
-	} /* end if (printing) */
+	if ((ofn == NULL) || (ofn[0] == '=')) ofn = STDOUTFNAME ;
 
-ret0:
+	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
+	    {
+	        rs = procargs(pip,aip,bop,ofp,afn) ;
+	        wlen += rs ;
+	    }
+	    rs1 = shio_close(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (shio-ofile) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("b_helloworld/process: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (process) */
+
+
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,SHIO *ofp,cchar *afn)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		cl ;
+	int		wlen = 0 ;
+	int		pan = 0 ;
+	cchar		*cp ;
+
+	if (rs >= 0) {
+	    int		ai ;
+	    int		f ;
+	    cchar	**argv = aip->argv ;
+	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
+
+	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	        if (f) {
+	            cp = argv[ai] ;
+	            if (cp[0] != '\0') {
+	                pan += 1 ;
+	                rs = procname(pip,ofp,cp,-1) ;
+		        wlen += rs ;
+		    }
+	        }
+
+	        if (rs < 0) break ;
+	    } /* end for (handling positional arguments) */
+	} /* end if (ok) */
+
+	if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	    SHIO	afile, *afp = &afile ;
+
+	    if (strcmp(afn,"-") == 0)
+	        afn = STDINFNAME ;
+
+	    if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
+		const int	llen = LINEBUFLEN ;
+		int		len ;
+	        char		lbuf[LINEBUFLEN + 1] ;
+
+	        while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
+	            len = rs ;
+
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
+
+		    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+			if (cp[0] != '#') {
+		    	    rs = procnames(pip,ofp,cp,cl) ;
+			    wlen += rs ;
+			}
+		    }
+
+		    if (rs < 0) break ;
+	        } /* end while (reading lines) */
+
+	        rs1 = shio_close(afp) ;
+		if (rs >= 0) rs = rs1 ;
+	    } else {
+	        if (! pip->f.quiet) {
+		    cchar	*pn = pip->progname ;
+		    cchar	*fmt ;
+		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            shio_printf(pip->efp,fmt,pn,rs) ;
+	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	        }
+	    } /* end if */
+
+	} /* end if (processing file argument file list) */
+
+	if ((rs >= 0) && (pan == 0)) {
+
+	    cp = "-" ;
+	    pan += 1 ;
+	    rs = procname(pip,ofp,cp,-1) ;
+
+	} /* end if (default) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procargs) */
+
+
+static int procnames(PROGINFO *pip,SHIO *ofp,cchar *lbuf,int llen)
+{
+	FIELD		fsb ;
+	int		rs ;
+	int		wlen = 0 ;
+	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
+	    int		fl ;
+	    cchar	*fp ;
+	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
+		if (fl > 0) {
+		    rs = procname(pip,ofp,fp,fl) ;
+		    wlen += rs ;
+		}
+		if (fsb.term == '#') break ;
+		if (rs >= 0) rs = lib_sigterm() ;
+		if (rs >= 0) rs = lib_sigintr() ;
+	        if (rs < 0) break ;
+	    } /* end while */
+	    field_finish(&fsb) ;
+	} /* end if (field) */
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procnames) */
+
+
+/* process a name */
+static int procname(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
+{
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
+
+	if (np == NULL) return SR_FAULT ;
+
+	if (np[0] != '\0') {
+	    if (np[0] == '-') {
+		nl = -1 ;
+		np = "hello world!" ;
+	    }
+	    if (pip->verboselevel > 0) {
+	        rs = shio_printline(ofp,np,nl) ;
+	        wlen += rs ;
+	    } /* end if (printing) */
+	} /* end if */
+
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procname) */

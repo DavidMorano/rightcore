@@ -88,6 +88,14 @@
 #define	SVCARGSLEN	LINEBUFLEN
 #endif
 
+#ifndef	VBUFLEN
+#define	VBUFLEN		(2 * MAXPATHLEN)
+#endif
+
+#ifndef	EBUFLEN
+#define	EBUFLEN		(3 * MAXPATHLEN)
+#endif
+
 #define	TMPDNAME	"/tmp"
 #define	WORKDNAME	"/tmp"
 #define	ETCDNAME	"etc"
@@ -157,6 +165,8 @@
 
 #define	PROG_SENDMAIL	"/usr/lib/sendmail"
 
+#define	HOUR_MAINT	18
+
 #define	TO_RUN		(60*60)		/* default run interval */
 #define	TO_POLL		5		/* poll-interval */
 #define	TO_MARK		(24 * 3600)
@@ -173,13 +183,5 @@
 #define	TO_SVC		60		/* service acquire timeout */
 #define	TO_SPEED	(24*3600)	/* interval between updates */
 #define	TO_MARKTIME	(12*3600)	/* interval between updates */
-
-#ifndef	VBUFLEN
-#define	VBUFLEN		(2 * MAXPATHLEN)
-#endif
-
-#ifndef	EBUFLEN
-#define	EBUFLEN		(3 * MAXPATHLEN)
-#endif
 
 

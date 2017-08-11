@@ -79,4 +79,6 @@
 
 #define	LOGSIZE		(80*1024)
 
+#define	HOUR_MAINT	18
+
 

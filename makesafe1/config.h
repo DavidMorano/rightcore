@@ -78,6 +78,8 @@
 
 #define	PROG_CPP	"/usr/ccs/lib/cpp"
 
+#define	HOUR_MAINT	18
+
 #define	OPT_CACHE	TRUE
 
 

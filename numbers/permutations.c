@@ -33,6 +33,13 @@
 	-	the Fibonacci number of the input
 
 
+	Notes:
+
+	Two ways to calculate:
+	1. nPk = n! / (n-k)!
+	2. nPk = repeat k times using iterator i: *= (n-i)!
+
+
 *******************************************************************************/
 
 

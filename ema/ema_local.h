@@ -32,6 +32,7 @@ struct cmd_aflags {
 struct cmd_local {
 	CMD_FL		f ;
 	CMD_AFL		af ;
+	int		spc ;
 } ;
 
 

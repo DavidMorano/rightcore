@@ -91,13 +91,13 @@ class listadder {
 	ourlist::iterator	e2 ;
 public:
 	listadder(ourlist &alr,ourlist &al1,ourlist &al2)
-		: lr(alr), l1(al1), l2(al2) { 
+	    : lr(alr), l1(al1), l2(al2) { 
 	} ;
 	int addall(int c) {
-		i1 = l1.begin() ;
-		i2 = l2.begin() ;
-		e1 = l1.end() ;
-		e2 = l2.end() ;
+	    i1 = l1.begin() ;
+	    i2 = l2.begin() ;
+	    e1 = l1.end() ;
+	    e2 = l2.end() ;
 #if	CF_DEBUGS
 	    debugprintlist(l1,"listadder::l1") ;
 	    debugprintlist(l2,"listadder::l2") ;
@@ -195,16 +195,16 @@ int main(int argc,const char **argv,const char **envv)
 #endif
 
 	{
-	slist<int>	l1 = { 2, 4, 6, 1, 7 	} ;
-	slist<int>	l2 = { 1, 5, 7, 2, 9 	} ;
-	slist<int>	lr ;
+	    slist<int>	l1 = { 2, 4, 6, 1, 7 	} ;
+	    slist<int>	l2 = { 1, 5, 7, 2, 9 	} ;
+	    slist<int>	lr ;
 
 #if	CF_DEBUGS
-	debugprintlist(l1,"main-l1") ;
-	debugprintlist(l2,"main-l2") ;
+	    debugprintlist(l1,"main-l1") ;
+	    debugprintlist(l2,"main-l2") ;
 #endif
-	printlist(l1,"l1") ;
-	printlist(l2,"l2") ;
+	    printlist(l1,"l1") ;
+	    printlist(l2,"l2") ;
 
 #if	CF_DEBUGONE
 	    {
@@ -219,25 +219,25 @@ int main(int argc,const char **argv,const char **envv)
 #endif /* CF_DEBUGONE */
 
 #if	CF_DEBUGADD
-	{
-	    listadder	a(lr,l1,l2) ;
+	    {
+	        listadder	a(lr,l1,l2) ;
 #if	CF_DEBUGS
-	    debugprintf("main: insert (%d)\n",CF_DEBUGADD) ;
+	        debugprintf("main: insert (%d)\n",CF_DEBUGADD) ;
 #endif
 
 #if	CF_DEBUGS
-	    debugprintf("main: addall()\n") ;
+	        debugprintf("main: addall()\n") ;
 #endif
-	    a.addall(0) ;
+	        a.addall(0) ;
 #if	CF_DEBUGS
-	    debugprintf("main: output()\n") ;
-	    debugprintlist(lr,"lr-final") ;
+	        debugprintf("main: output()\n") ;
+	        debugprintlist(lr,"lr-final") ;
 #endif
-	    printlist(lr,"lr") ;
-	} /* end block */
+	        printlist(lr,"lr") ;
+	    } /* end block */
 #endif /* CF_DEBUGADD */
 
-	} /* end block (main) */
+	} /* end block (central) */
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	{
@@ -300,6 +300,11 @@ void *operator new(size_t sz,const nothrow_t &nt) noexcept {
 
 /* for memory allocation tracking */
 void operator delete(void *p) noexcept {
+    	uc_free(p) ;
+}
+
+/* for memory allocation tracking */
+void operator delete(void *p,const std::nothrow_t &nt) noexcept {
     	uc_free(p) ;
 }
 

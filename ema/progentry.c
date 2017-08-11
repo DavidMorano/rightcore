@@ -18,8 +18,8 @@
 
 /*******************************************************************************
 
-	This subroutine provides some miscellaneous information
-	on the recipients in an email message.
+        This subroutine provides some miscellaneous information on the
+        recipients in an email message.
 
 	Synopsis:
 
