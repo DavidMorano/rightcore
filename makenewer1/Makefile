@@ -156,8 +156,8 @@ OBJ08=
 OBJ09=
 OBJ10=
 OBJ11=
-OBJ12= isNotPresent.o
-OBJ13= mkdirs.o mkvarpath.o mkuserpath.o mkcdpath.o
+OBJ12=
+OBJ13=
 OBJ14=
 OBJ15=
 

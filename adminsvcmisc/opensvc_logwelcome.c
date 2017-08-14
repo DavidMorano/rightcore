@@ -585,15 +585,10 @@ int		to ;
 
 #if	CF_DISUID
 	if ((rs >= 0) && (un != NULL)) {
-	    struct passwd	pw ;
-	    const int		pwlen = getbufsize(getbufsize_pw) ;
-	    char		*pwbuf ;
-	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) {
-	        if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
-	    	    uid = pw.pw_uid ;
-		} else if (isNotPresent(rs)) {
+	    if ((rs = getuid_user(un)) >= 0) {
+	    	    uid = rs ;
+	    } else if (isNotPresent(rs)) {
 		    rs = SR_OK ;
-		}
 	    }
 	}
 #endif /* CF_DISUID */

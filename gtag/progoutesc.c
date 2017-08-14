@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -21,9 +19,9 @@
 
 /******************************************************************************
 
-	This subroutine processes the temporary text file along with
-	the accumulated citation and bibliographical information into
-	the final text output.
+        This subroutine processes the temporary text file along with the
+        accumulated citation and bibliographical information into the final text
+        output.
 
 
 ******************************************************************************/
@@ -36,7 +34,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -97,20 +94,16 @@ const char	ofname[] ;
 {
 	bfile		outfile, *ofp = &outfile ;
 	bfile		*tfp = &pip->tf.tfile ;
-
 	uint		roff = 0 ;
-
-	const int	biblen = BIBBUFLEN ;
-
-	int	rs, rs1 ;
-	int	len ;
-	int	clen ;
-	int	nblock = 0 ;
-	int	wlen = 0 ;
+	int		rs, rs1 ;
+	int		len ;
+	int		clen ;
+	int		nblock = 0 ;
+	int		wlen = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("progoutesc: entered\n") ;
+	    debugprintf("progoutesc: ent\n") ;
 #endif
 
 	if ((ofname == NULL) || (ofname[0] == '\0'))
@@ -119,10 +112,10 @@ const char	ofname[] ;
 	if ((rs = bopen(ofp,ofname,"wct",0644)) >= 0) {
 	    TAGTRACK_ENT	te ;
 	    TAGTRACK_CUR	cur ;
-	    const int	llen = LINEBUFLEN ;
-	    int		ll ;
-	    const char	*lp ;
-	    char	lbuf[LINEBUFLEN + 1] ;
+	    const int		llen = LINEBUFLEN ;
+	    int			ll ;
+	    const char		*lp ;
+	    char		lbuf[LINEBUFLEN + 1] ;
 
 	    if ((rs = tagtrack_curbegin(ttp,&cur)) >= 0) {
 
@@ -158,7 +151,7 @@ const char	ofname[] ;
 	                    ll = len ;
 	                    while (ll && 
 	                        ((nblock > 0) ? 
-	                        isspace(*lp) : CHAR_ISWHITE(*lp))) {
+	                        CHAR_ISWHITE(*lp) : CHAR_ISWHITE(*lp))) {
 	                        lp += 1 ;
 	                        ll -= 1 ;
 	                    }
@@ -234,7 +227,7 @@ const char	ofname[] ;
 
 	            lp = lbuf ;
 	            ll = len ;
-	            while (ll && isspace(*lp)) {
+	            while (ll && CHAR_ISWHITE(*lp)) {
 	                lp += 1 ;
 	                ll -= 1 ;
 	            }

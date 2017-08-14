@@ -25,13 +25,13 @@
 #endif /* ENDIAN_H */
 
 
-/* Useful defines & typedefs */
+/* Useful defines and typedefs */
 
 #define	SHA1			SHA1_INFO
 
 
-typedef unsigned char SHA1_BYTE;	/* 8-bit quantity */
-typedef unsigned long SHA1_LONG;	/* 32-or-more-bit quantity */
+typedef unsigned char SHA1_BYTE ;	/* 8-bit quantity */
+typedef unsigned long	SHA1_LONG ;	/* 32-or-more-bit quantity */
 
 #define SHA1_BLOCKSIZE		64
 #define SHA1_DIGESTSIZE		20
@@ -42,7 +42,6 @@ typedef struct {
     SHA1_BYTE data[SHA1_BLOCKSIZE];	/* SHA1 data buffer */
     int local;				/* unprocessed amount in data */
 } SHA1_INFO ;
-
 
 
 #ifdef	__cplusplus
@@ -59,7 +58,6 @@ extern int sha1_finish(SHA1 *) ;
 #endif
 
 
-
 #ifdef SHA1_FOR_C
 
 #include <stdlib.h>
@@ -68,10 +66,10 @@ extern int sha1_finish(SHA1 *) ;
 void sha_stream(unsigned char [20], SHA1_INFO *, FILE *);
 void sha_print(unsigned char [20]);
 char *sha_version(void);
+
 #endif /* SHA1_FOR_C */
 
 
 #endif /* SHA1_INCLUDE */
-
 
 

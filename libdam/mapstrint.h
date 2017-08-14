@@ -35,20 +35,20 @@ extern "C" {
 
 extern int mapstrint_start(MAPSTRINT *,int) ;
 extern int mapstrint_count(MAPSTRINT *) ;
-extern int mapstrint_add(MAPSTRINT *,const char *,int,int) ;
-extern int mapstrint_already(MAPSTRINT *,const char *,int) ;
-extern int mapstrint_fetch(MAPSTRINT *,const char *,int,
+extern int mapstrint_add(MAPSTRINT *,cchar *,int,int) ;
+extern int mapstrint_already(MAPSTRINT *,cchar *,int) ;
+extern int mapstrint_fetch(MAPSTRINT *,cchar *,int,
 		MAPSTRINT_CUR *,int *) ;
-extern int mapstrint_fetchrec(MAPSTRINT *,const char *,int,
+extern int mapstrint_fetchrec(MAPSTRINT *,cchar *,int,
 		MAPSTRINT_CUR *, char **,int *) ;
 extern int mapstrint_getrec(MAPSTRINT *,MAPSTRINT_CUR *,
-		const char **,int *) ;
+		cchar **,int *) ;
 extern int mapstrint_enum(MAPSTRINT *,MAPSTRINT_CUR *,
-		const char **,int *) ;
-extern int mapstrint_delkey(MAPSTRINT *,const char *,int) ;
+		cchar **,int *) ;
+extern int mapstrint_delkey(MAPSTRINT *,cchar *,int) ;
 extern int mapstrint_delcur(MAPSTRINT *,MAPSTRINT_CUR *,int) ;
 extern int mapstrint_next(MAPSTRINT *,MAPSTRINT_CUR *) ;
-extern int mapstrint_nextkey(MAPSTRINT *,const char *,int,MAPSTRINT_CUR *) ;
+extern int mapstrint_nextkey(MAPSTRINT *,cchar *,int,MAPSTRINT_CUR *) ;
 extern int mapstrint_curbegin(MAPSTRINT *,MAPSTRINT_CUR *) ;
 extern int mapstrint_curend(MAPSTRINT *,MAPSTRINT_CUR *) ;
 extern int mapstrint_setval(MAPSTRINT *,MAPSTRINT_CUR *,int) ;

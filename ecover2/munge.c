@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1999-05-06, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -21,8 +19,8 @@
 
 /*******************************************************************************
 
-	This subroutine will do the munging and unmunging on the clear
-	and scrambled data respectively.
+        This subroutine will do the munging and unmunging on the clear and
+        scrambled data respectively.
 
 
 *******************************************************************************/
@@ -31,14 +29,10 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
-#include	<netdb.h>
+#include	<sys/stat.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
-#include	<time.h>
-#include	<signal.h>
 #include	<string.h>
 
 #include	<vsystem.h>
@@ -79,25 +73,24 @@ extern int	strlinelen(const char *,int,int) ;
 
 
 void munge(gp,n,vector,data,out)
-struct proginfo	*gp ;
+PROGINFO	*gp ;
 int		n ;
 ULONG		vector[] ;
 ULONG		data[] ;
 ULONG		out[] ;
 {
-	ULONG	sum = 0 ;
-	ULONG	extra ;
-
-	int	i ;
-
+	ULONG		sum = 0 ;
+	ULONG		extra ;
+	int		i ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("munge: entered\n") ;
+	    debugprintf("munge: ent\n") ;
 #endif
 
-	for (i = 0 ; i < n ; i += 1)
+	for (i = 0 ; i < n ; i += 1) {
 	    sum = sum + vector[i] ;
+	}
 
 	extra = cheaprand(sum) ;
 

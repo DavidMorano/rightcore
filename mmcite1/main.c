@@ -37,7 +37,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -73,12 +72,16 @@ extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
+extern int	shshrink(cchar *,int,cchar **) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,const char *,
@@ -110,6 +113,13 @@ extern char	*strshrink(char *) ;
 int		findbibfile(PROGINFO *,PARAMOPT *,const char *,char *) ;
 
 static int	usage(PROGINFO *) ;
+
+static int	process(PROGINFO *,ARGINFO *,BITS *,PARAMOPT *,
+			cchar *,cchar *) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,PARAMOPT *,
+			BDB *,CITEDB *,cchar *) ;
+static int	procereport(PROGINFO *,int) ;
+
 static int	loadbibfiles(PROGINFO *,PARAMOPT *,BDB *) ;
 
 
@@ -200,41 +210,33 @@ enum progopts {
 int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
-
+	ARGINFO		ainfo ;
 	BITS		pargs ;
-
 	PARAMOPT	aparams ;
-
-	BDB		bibber ;
-
-	CITEDB		citer ;
-
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	pan = 0 ;
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	opts ;
-	int	v ;
-	int	cl ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_usage = FALSE ;
-	int	f_version = FALSE ;
-	int	f_help = FALSE ;
-	int	f ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		pan = 0 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		opts ;
+	int		v ;
+	int		cl ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_usage = FALSE ;
+	int		f_version = FALSE ;
+	int		f_help = FALSE ;
+	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	char	template[MAXPATHLEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pmspec = NULL ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
@@ -242,6 +244,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp ;
+	char		template[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -297,12 +300,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    argval = (argp + 1) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;
@@ -421,8 +425,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	                    argr -= 1 ;
 	                    argl = strlen(argp) ;
 	                    if (argl) {
-	                        const char	*po = PO_OPTION ;
-	                        rs = paramopt_loads(&aparams,po,argp,argl) ;
+				PARAMOPT	*pop = &aparams ;
+	                        cchar		*po = PO_OPTION ;
+	                        rs = paramopt_loads(pop,po,argp,argl) ;
 			    }
 	                    break ;
 
@@ -689,6 +694,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -699,16 +706,18 @@ int main(int argc,cchar **argv,cchar **envv)
 	debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
-	if (f_version)
+	if (f_version) {
 	    bprintf(pip->efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -727,8 +736,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* get our program mode */
 
-	if (pmspec == NULL)
-	    pmspec = pip->progname ;
+	if (pmspec == NULL) pmspec = pip->progname ;
 
 	pip->progmode = matstr(progmodes,pmspec,-1) ;
 
@@ -737,10 +745,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	    if (pip->progmode >= 0) {
 	        debugprintf("main: progmode=%s(%u)\n",
 	            progmodes[pip->progmode],pip->progmode) ;
-	    } else
+	    } else {
 	        debugprintf("main: progmode=NONE\n") ;
+	    }
 	}
-#endif
+#endif /* CF_DEBUG */
 
 	if (pip->progmode < 0)
 	    pip->progmode = progmode_mmcite ;
@@ -761,6 +770,11 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* check a few more things */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
@@ -768,7 +782,9 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* we need a PWD for later (handling non-rooted BIB files) */
 
-	rs = proginfo_pwd(pip) ;
+	if (rs >= 0) {
+	    rs = proginfo_pwd(pip) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -777,13 +793,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 #endif
 
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    goto retearly ;
-	}
-
 /* process some options */
 
+	if (rs >= 0) {
 	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
@@ -795,19 +807,15 @@ int main(int argc,cchar **argv,cchar **envv)
 	        if ((kwi = matostr(progopts,2,cp,-1)) >= 0) {
 
 	            switch (kwi) {
-
 	            case progopt_follow:
 	                pip->f.follow = TRUE ;
 	                break ;
-
 	            case progopt_nofollow:
 	                pip->f.follow = FALSE ;
 	                break ;
-
 	            case progopt_uniq:
 	                pip->f.uniq = TRUE ;
 	                break ;
-
 	            } /* end switch */
 
 	        } /* end if (progopts) */
@@ -816,7 +824,8 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	        paramopt_curend(&aparams,&cur) ;
 	    } /* end if (progopts) */
-	} /* end if */
+	} /* end if (paramopt_havekey) */
+	} /* end if (ok) */
 
 /* load up BIBDIRS */
 
@@ -824,268 +833,29 @@ int main(int argc,cchar **argv,cchar **envv)
 	    rs = paramopt_loads(&aparams,PO_BIBDIR, cp,-1) ;
 	}
 
-/* open up the common stuff */
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
-	rs = vecstr_start(&pip->filenames,DEFNFILES,0) ;
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    bprintf(pip->efp,"%s: could not initialize (%d)\n",
-	        pip->progname,rs) ;
-	    goto badfilestart ;
-	}
-
-	opts = 0 ;
-	if (pip->f.uniq)
-		opts |= BDB_OUNIQ ;
-
-	rs = bdb_start(&bibber,"Q",opts) ;
-
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    bprintf(pip->efp,"%s: could not initialize (%d)\n",
-	        pip->progname,rs) ;
-	    goto badbibstart ;
-	}
-
-/* load up any BIB files that we have so far */
-
-	rs = loadbibfiles(pip,&aparams,&bibber) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	        debugprintf("main: loadbibfiles() rs=%d\n",rs) ;
-#endif
-
-#ifdef	COMMENT /* this code is wrong: only *files* can be BDBs */
 	if (rs >= 0) {
-	    rs = bdb_add(&bibber,pip->pwd) ;
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	        debugprintf("main: bdb_add() rs=%d\n",rs) ;
-#endif
-	}
-#endif /* COMMENT */
-
-	if (rs < 0) goto badcitestart ;
-
-/* continue with other initialization */
-
-	rs = citedb_start(&citer) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	        debugprintf("main: citedb_start() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    bprintf(pip->efp,"%s: could not initialize (%d)\n",
-	        pip->progname,rs) ;
-	    goto badcitestart ;
-	}
-
-/* start phase one processing */
-
-	mkpath2(template,pip->tmpdname,TMPFX) ;
-
-	rs = mktmpfile(tmpfname,0660,template) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	        debugprintf("main: mktmpfile() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    bprintf(pip->efp,"%s: could not create TMPFILE (%d)\n",
-	        pip->progname,rs) ;
-	    goto badtmpfile ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2)) {
-	    int rs1 = citedb_audit(&citer) ;
-	    debugprintf("main: 1 citedb_audit() rs=%d\n",rs1) ;
-	}
-#endif /* CF_DEBUG */
-
-	memset(&pip->tf,0,sizeof(PROGINFO_TMP)) ;
-	rs = bopen(&pip->tf.tfile,tmpfname,"rwc",0666) ;
-
-	if (rs < 0) {
-	    ex = EX_CANTCREAT ;
-	    bprintf(pip->efp,"%s: could not open TMPFILE (%d)\n",
-	        pip->progname,rs) ;
-	    goto badtmpopen ;
-	}
-
-/* remove the TMPFILE just created (for cleanliness purposes) */
-
-	u_unlink(tmpfname) ;
-	tmpfname[0] = '\0' ;
-
-/* OK, we do it */
-
-	for (ai = 1 ; ai < argc ; ai += 1) {
-
-	    f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	    f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	    if (! f) continue ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2)) {
-	        int rs1 = citedb_audit(&citer) ;
-	        debugprintf("main: 2 citedb_audit() rs=%d\n",rs1) ;
-	    }
-#endif /* CF_DEBUG */
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: process name=%s\n",argv[ai]) ;
-#endif
-
-	    cp = argv[ai] ;
-	    pan += 1 ;
-	    pip->c_files += 1 ;
-	    rs = progfile(pip,&aparams,&bibber,&citer,cp) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: progfile() rs=%d\n",rs) ;
-#endif
-
-	    if (rs < 0) break ;
-	    pip->c_processed += 1 ;
-	} /* end for (looping through requested circuits) */
-
-/* process any files in the argument filename list file */
-
-	if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
-	    bfile	afile, *afp = &afile ;
-
-	    if (afname[0] == '-') afname = BFILE_STDIN ;
-
-	    if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
-	  	const int	llen = LINEBUFLEN ;
-	        int		len ;
-	        char		lbuf[LINEBUFLEN + 1] ;
-
-	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
-	            len = rs ;
-
-	            if (lbuf[len - 1] == '\n') len -= 1 ;
-	            lbuf[len] = '\0' ;
-
-	            cp = lbuf ;
-	            if ((cp[0] == '\0') || (cp[0] == '#'))
-	                continue ;
-
-	            pan += 1 ;
-	    	    pip->c_files += 1 ;
-	            rs = progfile(pip,&aparams,&bibber,&citer,cp) ;
-
-	            if (rs < 0) break ;
-	            pip->c_processed += 1 ;
-	        } /* end while (reading lines) */
-
-	        bclose(afp) ;
-	    } else {
-	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,
-	                "%s: inaccessible argument list file (%d)\n",
-	                pip->progname,rs) ;
-	            bprintf(pip->efp,"%s: afile=%s\n",
-	                pip->progname,afname) ;
-	        }
-	    } /* end if */
-
-	} /* end if (processing file argument file list) */
-
-	if ((rs >= 0) && (pan == 0)) {
-
-	    cp = "-" ;
-	    pan += 1 ;
-	    pip->c_files += 1 ;
-	    rs = progfile(pip,&aparams,&bibber,&citer,cp) ;
-
-	    if (rs >= 0)
-	        pip->c_processed += 1 ;
-
-	} /* end if */
-
-	if ((rs >= 0) && (pan == 0) && (afname == NULL)) {
-	    rs = SR_INVALID ;
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
+	    PARAMOPT	*pop = &aparams ;
+	    cchar	*ofn = ofname ;
+	    cchar	*afn = afname ;
+	    rs = process(pip,aip,bop,pop,ofn,afn) ;
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    ex = EX_USAGE ;
-	    bprintf(pip->efp,"%s: no files were specified\n",
-	        pip->progname) ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
-/* perform phase two processing */
-
-	if (rs >= 0) {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: phase-two\n") ;
-#endif
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2)) {
-	    int rs1 = citedb_audit(&citer) ;
-	    debugprintf("main: 3 citedb_audit() rs=%d\n",rs1) ;
-	}
-#endif /* CF_DEBUG */
-
-	    brewind(&pip->tf.tfile) ;
-
-	    rs = progout(pip,&bibber,&citer,ofname) ;
-
-	    if (rs < 0) {
-
-		if (pip->f.uniq && (rs == SR_NOTUNIQ)) {
-
-	            ex = EX_PROTOCOL ;
-	            bprintf(pip->efp,
-		    	"%s: citation "
-			"was not unique in DB (%d)\n",
-	                    pip->progname,rs) ;
-
-		} else {
-
-	            ex = EX_CANTCREAT ;
-	            bprintf(pip->efp,
-			"%s: could not process citation (%d)\n",
-	                pip->progname,rs) ;
-
-		}
-
-	    } /* end if */
-
-	    if ((pip->debuglevel > 0) && (rs >= 0))
-	        bprintf(pip->efp,"%s: files=%u\n",
-	            pip->progname,pip->c_files) ;
-
-	} /* end if (phase-ii processing) */
-
-	bclose(&pip->tf.tfile) ;
-
-badtmpopen:
-	if (tmpfname[0] != '\0') {
-	    u_unlink(tmpfname) ;
-	    tmpfname[0] = '\0' ;
-	}
-
-badtmpfile:
-	citedb_finish(&citer) ;
-
-badcitestart:
-	bdb_finish(&bibber) ;
-
-badbibstart:
-	vecstr_finish(&pip->filenames) ;
-
-badfilestart:
-done:
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    case SR_INVALID:
@@ -1120,6 +890,7 @@ retearly:
 #endif
 
 	if (pip->efp != NULL) {
+	    pip->open.errfile = FALSE ;
 	    bclose(pip->efp) ;
 	    pip->efp = NULL ;
 	}
@@ -1192,21 +963,13 @@ badarg:
 /* end subroutine (main) */
 
 
-int findbibfile(pip,app,fname,tmpfname)
-PROGINFO	*pip ;
-PARAMOPT	*app ;
-const char	fname[] ;
-char		tmpfname[] ;
+int findbibfile(PROGINFO *pip,PARAMOPT *app,cchar *fname,char *tmpfname)
 {
 	struct ustat	sb ;
-
 	PARAMOPT_CUR	cur ;
-
-	int	rs = SR_OK ;
-	int	fl = 0 ;
-
+	int		rs = SR_OK ;
+	int		fl = 0 ;
 	const char	*cp ;
-
 
 	if (pip == NULL) return SR_FAULT ;
 
@@ -1230,8 +993,9 @@ char		tmpfname[] ;
 	        paramopt_curend(app,&cur) ;
 	    } /* end if */
 
-	} else
+	} else {
 	    fl = mkpath1(tmpfname,fname) ;
+	}
 
 	return (rs >= 0) ? fl : rs ;
 }
@@ -1261,9 +1025,179 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
-static int loadbibfiles(PROGINFO *pip,PARAMOPT *app,BDB *bdbp)
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
+		cchar *ofn,cchar *afn)
+{
+	vecstr		*flp = &pip->filenames ;
+	const int	n = DEFNFILES ;
+	int		rs ;
+	int		rs1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	if ((rs = vecstr_start(flp,n,0)) >= 0) {
+	    BDB		bibber ;
+	    int		opts = 0 ;
+	    if (pip->f.uniq) opts |= BDB_OUNIQ ;
+	    if ((rs = bdb_start(&bibber,"Q",opts)) >= 0) {
+		if ((rs = loadbibfiles(pip,pop,&bibber)) >= 0) {
+	    	    CITEDB	citer ;
+		    if ((rs = citedb_start(&citer)) >= 0) {
+			bfile	*tfp = &pip->tf.tfile ;
+			cchar	*txfn = TMPFX ;
+			memset(&pip->tf,0,sizeof(PROGINFO_TMP)) ;
+			if ((rs = bopentmp(tfp,txfn,"rwc",0666)) >= 0) {
+			    BDB		*b = &bibber ;
+	    	    	    CITEDB	*c = &citer ;
+			    if ((rs = procargs(pip,aip,bop,pop,b,c,afn)) >= 0) {
+	    		        brewind(&pip->tf.tfile) ;
+	    		        rs = progout(pip,&bibber,&citer,ofn) ;
+	    		        if (rs < 0) {
+				    procereport(pip,rs) ;
+	    		        } /* end if */
+	                        if ((pip->debuglevel > 0) && (rs >= 0)) {
+				    fmt = "%s: files=%u\n" ;
+	                            bprintf(pip->efp,fmt,pn,pip->c_files) ;
+				}
+			    } /* end if (procargs) */
+			    rs1 = bclose(tfp) ;
+			    if (rs >= 0) rs = rs1 ;
+			} /* end if (bopentmp) */
+			rs1 = citedb_finish(&citer) ;
+			if (rs >= 0) rs = rs1 ;
+		    } /* end if (citedb) */
+		} /* end if (loadbibfiles) */
+		rs1 = bdb_finish(&bibber) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (hdb) */
+	    rs1 = vecstr_finish(&pip->filenames) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (phase-ii processing) */
+	return rs ;
+}
+/* end subroutine (process) */
+
+
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
+	    BDB *bdp,CITEDB *cdp,cchar *afn)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
+	int		cl ;
+	int		pan = 0 ;
+	cchar		*cp ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+
+	if (rs >= 0) {
+	    int		ai ;
+	    int		f ;
+	    cchar	**argv = aip->argv ;
+	for (ai = 1 ; ai < aip->argc ; ai += 1) {
+
+	    f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	    f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	    if (f) {
+	        cp = argv[ai] ;
+	        if (cp[0] != '\0') {
+	            pan += 1 ;
+	            pip->c_files += 1 ;
+	            rs = progfile(pip,pop,bdp,cdp,cp) ;
+		}
+	    }
+	    if (rs < 0) break ;
+	    pip->c_processed += 1 ;
+	} /* end for (looping through requested circuits) */
+	} /* end if (ok) */
+
+/* process any files in the argument filename list file */
+
+	if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	    bfile	afile, *afp = &afile ;
+
+	    if (afn[0] == '-') afn = BFILE_STDIN ;
+
+	    if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
+	  	const int	llen = LINEBUFLEN ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN + 1] ;
+
+	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
+	            len = rs ;
+
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
+
+		    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+			lbuf[(cp+cl)-lbuf] = '\0' ;
+			if (cp[0] != '#') {
+	            	    pan += 1 ;
+	    	    	    pip->c_files += 1 ;
+	            	    rs = progfile(pip,pop,bdp,cdp,cp) ;
+			}
+		    }
+
+	            if (rs < 0) break ;
+	            pip->c_processed += 1 ;
+	        } /* end while (reading lines) */
+
+	        rs1 = bclose(afp) ;
+		if (rs >= 0) rs = rs1 ;
+	    } else {
+	        if (! pip->f.quiet) {
+		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            bprintf(pip->efp,fmt,pn,rs) ;
+	            bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	        }
+	    } /* end if */
+
+	} /* end if (processing file argument file list) */
+
+	if ((rs >= 0) && (pan == 0)) {
+
+	    cp = "-" ;
+	    pan += 1 ;
+	    pip->c_files += 1 ;
+	    rs = progfile(pip,pop,bdp,cdp,cp) ;
+
+	    if (rs >= 0)
+	        pip->c_processed += 1 ;
+
+	} /* end if */
+
+	if ((rs >= 0) && (pan == 0) && (afn == NULL)) {
+	    fmt = "%s: no files were specified\n" ;
+	    rs = SR_INVALID ;
+	    bprintf(pip->efp,fmt,pn) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (procargs) */
+
+
+static int procereport(PROGINFO *pip,int prs)
+{
+	int		rs = SR_OK ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	if (pip->f.uniq && (prs == SR_NOTUNIQ)) {
+	            bprintf(pip->efp,
+		    	"%s: citation "
+			"was not unique in DB (%d)\n",
+	                    pip->progname,prs) ;
+	} else {
+	            bprintf(pip->efp,
+			"%s: could not process citation (%d)\n",
+	                pip->progname,prs) ;
+	}
+	return rs ;
+}
+/* end subroutine (procereport) */
+
+
+static int loadbibfiles(PROGINFO *pip,PARAMOPT *app,BDB *bdbp)
+{
+	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
 	const char	*po = PO_BIBFILE ;
@@ -1290,7 +1224,7 @@ static int loadbibfiles(PROGINFO *pip,PARAMOPT *app,BDB *bdbp)
 	        } /* end while */
 	        paramopt_curend(app,&cur) ;
 	    } /* end if (paramopt-cur) */
-	} /* end if (PO_BIBFILE) */
+	} /* end if (paramopt_havekey) */
 
 	return (rs >= 0) ? c : rs ;
 }

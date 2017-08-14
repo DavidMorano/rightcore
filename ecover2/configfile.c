@@ -11,28 +11,25 @@
 /* revision history:
 
 	= 2000-01-21, David A­D­ Morano
-
 	This subroutine was enhanced for use by LevoSim.
-
 
 */
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
-	This is the old configuration file reader object.  It is cheap,
-	it is ill-conceived, it is a mess, it works well enough to be
-	used for cheap code.  I didn't want to use this junk for the
-	Levo machine simulator but time pressure decided for us !
+        This is the old configuration file reader object. It is cheap, it is
+        ill-conceived, it is a mess, it works well enough to be used for cheap
+        code. I didn't want to use this junk for the Levo machine simulator but
+        time pressure decided for us!
 
-	Although this whole configuration scheme is messy, it gives
-	us enough of what we need to get some configuration information
-	into the Levo machine simulator and to get a parameter file
-	name.  This is good enough for now.
+        Although this whole configuration scheme is messy, it gives us enough of
+        what we need to get some configuration information into the Levo machine
+        simulator and to get a parameter file name. This is good enough for now.
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #define	CONFIGFILE_MASTER	1
@@ -48,7 +45,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -1096,6 +1092,5 @@ int		pbi ;
 /* end subroutine (vardump) */
 
 #endif /* CF_DEBUGS */
-
 
 

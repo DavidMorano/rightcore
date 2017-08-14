@@ -9,3 +9,7 @@ $ numwords <num(s)>
 Arguments:
 <num(s)>		numbers to convert into word form
 
+Example:
+$ numwords 762
+Seven Hundred and Sixty Two
+$

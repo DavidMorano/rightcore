@@ -1,17 +1,15 @@
 MMCITE
 
-This program is a pre-filter that processes citations found in
-Memorandum-type (MM) TROFF documents.  It takes source MM-type TROFF
-source text documents as input and produces output that has the citations
-annotated with their bibliographical data.
+This program is a pre-filter that processes citations found in Memorandum-type
+(MM) TROFF documents. It takes source MM-type TROFF source text documents as
+input and produces output that has the citations annotated with their
+bibliographical data.
 
 Synopsis:
-
 $ mmcite [<file(s)> ...] [-af <argfile>] [-B <incdir(s)>] 
 	[-p <bibfile(s)>] [-V]
 
-where:
-
+Arguments:
 <file(s)>		files to process
 -af <argfile>		list of files to process
 -B <incdir(s)>		search directories for unrooted BIB files

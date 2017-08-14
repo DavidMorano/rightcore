@@ -1,11 +1,9 @@
-/* opeword */
+/* opword */
 
 
 #include	<sys/types.h>
 
-#include	"localmisc.h"
-
-
+#include	<localmisc.h>
 
 
 union opword {
@@ -13,8 +11,5 @@ union opword {
 	uint		h[2] ;
 	uchar		c[8] ;
 } ;
-
-
-
 
 

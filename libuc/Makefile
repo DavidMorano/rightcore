@@ -235,12 +235,12 @@ OBJ107= nextfield.o
 OBJ108=
 OBJ109= matstr.o matcasestr.o matostr.o matocasestr.o matkeystr.o 
 OBJ110= strkeycmp.o strwcmp.o
-OBJ111= vstrcmp.o vstrcmpr.o vstrkeycmp.o vstrsort.o
+OBJ111= vstrcmp.o vstrcmpr.o vstrkeycmp.o
 
 OBJ112= 
 OBJ113= 
 OBJ114= 
-OBJ115= upt.o tmtime.o spawnproc.o dupup.o nlsdialassist.o
+OBJ115= upt.o uptspawn.o tmtime.o spawnproc.o dupup.o nlsdialassist.o
 OBJ116= mkcleanline.o tabcols.o checkbase.o ncolchar.o ncolstr.o
 OBJ117= mapex.o
 OBJ118= calstrs.o
@@ -837,6 +837,12 @@ ugetpid.o:		ugetpid.c ugetpid.h
 
 uclustername.o:		uclustername.c uclustername.h
 
+mkcdpath.o:		mkcdpath.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) mkcdpath.cc
+
+m.o:			m.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) m.cc
+
 
 # testing
 
@@ -873,17 +879,22 @@ X03= testucopen
 
 X03OBJ00= $(X03).o mkprogenv.o spawnproc.o
 X03OBJ01= uc_openinfo.o uc_openproto.o uc_openprog.o 
-X03OBJ02= uc_opendialer.o uc_openfsvc.o uc_openusvc.o
+X03OBJ02= uc_opendialer.o uc_openfsvc.o uc_openusvc.o uc_execve.o
 X03OBJ03= $(XDIALERS)
-X03OBJ04= attachso.o opensvc_hotd.o
-X03OBJ05= mkvarpath.o mkcdpath.o
 
-X03OBJ= $(X03OBJ00) $(X03OBJ01) $(X03OBJ02) $(X03OBJ03) $(X03OBJ04) $(X03OBJ05)
+X03OBJ04= attachso.o opensvc_hotd.o
+X03OBJ05= mkexpandpath.o mkuserpath.o mkvarpath.o mkcdpath.o
+X03OBJ06=
+X03OBJ07= debug.o
+
+X03OBJa= $(X03OBJ00) $(X03OBJ01) $(X03OBJ02) $(X03OBJ03) 
+X03OBJb= $(X03OBJ04) $(X03OBJ05) $(X03OBJ06) $(X03OBJ07)
+X03OBJ= $(X03OBJa) $(X03OBJb)
 
 $(X03).o:		$(X03).c vsystem.h nlsdialassist.h
 
 $(X03).x:		$(X03OBJ)
-	$(CC) -o $@ $(X03OBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(X03OBJ) $(XLIBINFO)
 
 
 X04= testsafesleep
@@ -893,14 +904,14 @@ X04OBJ01=
 X04OBJ02=
 X04OBJ03=
 X04OBJ04=
-X04OBJ05=
+X04OBJ05= debug.o
 
 X04OBJ= $(X04OBJ00) $(X04OBJ01) $(X04OBJ02) $(X04OBJ03) $(X04OBJ04) $(X04OBJ05)
 
 $(X04).o:		$(X04).c vsystem.h
 
 $(X04).x:		$(X04OBJ)
-	$(CC) -o $@ $(X04OBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(X04OBJ) $(XLIBINFO)
 
 
 X05= testspawnproc
@@ -910,13 +921,13 @@ X05OBJ01= spawnproc.o
 X05OBJ02=
 X05OBJ03=
 X05OBJ04=
-X05OBJ05=
+X05OBJ05= debug.o
 
 X05OBJ= $(X05OBJ00) $(X05OBJ01) $(X05OBJ02) $(X05OBJ03) $(X05OBJ04) $(X05OBJ05)
 
 $(X05).o:		$(X05).c vsystem.h
 
 $(X05).x:		$(X05OBJ)
-	$(CC) -o $@ $(X05OBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(X05OBJ) $(XLIBINFO)
 
 

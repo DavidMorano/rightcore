@@ -18,10 +18,8 @@
 /* revision history:
 
 	= 2002-07-13, David A­D­ Morano
-
         I first made this up to get some addition noise from a UNIX® system that
         is fairly portable (a big problem).
-
 
 */
 
@@ -158,7 +156,7 @@ int sysnoise(uchar *a,int alen)
 	    hrtime_t		hrt ;
 	    ULONG		ulw ;
 	    int			size ;
-	    int			m, i ;
+	    int			i ;
 
 /* get system time for the first few entries */
 
@@ -223,7 +221,6 @@ int sysnoise(uchar *a,int alen)
 /* get some random butt from the system directly */
 
 #if	CF_DEVRANDOM
-
 	    if ((rs1 = u_open(DEVRANDOM,O_RDONLY,0666)) >= 0) {
 	        int	fd = rs1 ;
 
@@ -233,7 +230,6 @@ int sysnoise(uchar *a,int alen)
 
 	        u_close(fd) ;
 	    } /* end if (had DEVRANDOM) */
-
 #endif /* CF_DEVRANDOM */
 
 /* get the VM statistics */
@@ -274,7 +270,7 @@ int sysnoise(uchar *a,int alen)
 
 	                uc_exit(EX_NOEXEC) ;
 	            } else if (rs > 0) {
-	                mode_t		m = 0666 ;
+	                mode_t		om = 0666 ;
 			const int	llen = LINEBUFLEN ;
 	                int		childstat ;
 	                int		cl ;
@@ -290,7 +286,7 @@ int sysnoise(uchar *a,int alen)
 #endif
 
 			mkfdfname(fbuf,pfds[0]) ;
-	                if ((rs = bopen(&outfile,fbuf,"r",m)) >= 0) {
+	                if ((rs = bopen(&outfile,fbuf,"r",om)) >= 0) {
 
 	                    u_close(pfds[0]) ;
 	                    pfds[0] = -1 ;
@@ -348,10 +344,9 @@ int sysnoise(uchar *a,int alen)
 /* now mix everything up */
 
 	    if (rs >= 0) {
-	        m = randbuf_len(&rb) ;
-
-	        if ((rs >= 0) && (m > 0)) {
+	        if ((rs = randbuf_len(&rb)) >= 0) {
 	            SHA1	d ;
+		    int		m = rs ;
 
 	            if ((rs = sha1_start(&d)) >= 0) {
 

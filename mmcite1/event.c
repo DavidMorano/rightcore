@@ -38,7 +38,6 @@
 #include	<fcntl.h>
 #include	<time.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>

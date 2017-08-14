@@ -8,8 +8,9 @@ TPPS= pcspolls
 
 PCSNSO= pcsnso
 
-#ALL= $(T).a $(T).so
-ALL= $(T).a $(T).so $(TPCS).so $(TPPS).so $(PCSNSO).so
+#ALLSO= $(T).a $(T).so
+ALLSO= $(T).so $(TPCS).so $(TPPS).so $(PCSNSO).so
+ALL= $(T).a $(ALLSO)
 
 SRCROOT= $(PCS)
 
@@ -24,10 +25,13 @@ HELPDIR= $(SRCROOT)/share/help
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALLL) $(CCOPTS_GCCLIB)
-#CCOPTS= $(CCOPTS_GCCALLL) $(CCOPTS_GCCLIB)
-#CCOPTS= -g -Wstrict-aliasing $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
-#CCOPTS= -g -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
+GPPFLAGS= $(CGS_CCFLAGS)
+
+#CCOPTS= $(CCOPTS_CCALL) $(CCOPTS_CCOPT) $(CCOPTS_CCLIB)
+#CCOPTS= $(CCOPTS_CCALL) $(CCOPTS_CCOPT) $(CCOPTS_CCLIB) -g
+
+CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCOPT) $(CCOPTS_GCCLIB)
+#CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCOPT) $(CCOPTS_GCCLIB) -g -Wall 
 
 
 DEF0=
@@ -48,6 +52,7 @@ CPPFLAGS= $(DEFS) $(INCDIRS)
 
 
 CFLAGS= $(CCOPTS) $(LF_CFLAGS)
+CCFLAGS= $(GPPFLAGS) $(CCOPTS) $(LF_CFLAGS)
 
 #LD= $(CC)
 
@@ -73,7 +78,7 @@ LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 LIBINFO= $(LIBDIRS) $(LIBS)
 
 
-SLIBDIRS= -L$(LIBDIR) 
+SLIBDIRS= -L$(LIBDIR) -L$(LOCAL)/lib
 
 SLIB0= -lpcs 
 SLIB1= -ldam -lb
@@ -196,11 +201,11 @@ default:		all
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -251,8 +256,8 @@ install:		install-pre $(ALL) $(INCS)
 	makenewer -z $(INCS) $(INCDIR)
 	makeinstall $(T) $(TPCS) $(TPPS) $(PCSNSO)
 
-install-so:		$(ALL)
-	makenewer -r $(ALL) $(LIBDIR)
+install-so:		$(ALLSO)
+	makenewer -r $(ALLSO) $(LIBDIR)
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ)
@@ -315,7 +320,7 @@ mailmsgattent.o:	mailmsgattent.c mailmsgattent.h
 mailmsghdrs.o:		mailmsghdrs.c mailmsghdrs.h
 
 mailalias.o:		mailalias.cc mailalias.h
-	$(GPP) -c $(GPPFLAGS) $(CFLAGS) mailalias.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) mailalias.cc
 
 ids.o:			ids.c ids.h
 

@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -20,9 +18,9 @@
 
 /*****************************************************************************
 
-	This subroutine expands out some per program (the daemon
-	program) parameters into the configuration strings.  Actually
-	this little subroutine is used by many programs.
+        This subroutine expands out some per program (the daemon program)
+        parameters into the configuration strings. Actually this little
+        subroutine is used by many programs.
 
 
 #	The following substitutions are made on command strings:
@@ -52,7 +50,6 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>

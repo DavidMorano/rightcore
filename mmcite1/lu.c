@@ -39,7 +39,6 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
-#include	<ctype.h>
 
 #include	<bfile.h>
 #include	<localmisc.h>

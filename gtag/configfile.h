@@ -13,11 +13,9 @@
 #include	<vecstr.h>
 
 
-
 /* object defines */
 
 #define	CONFIGFILE		struct configfile
-
 
 
 struct configfile {

@@ -22,8 +22,8 @@
 
 /*******************************************************************************
 
-	This subroutine removes trailing white-space from a line,
-	and then prints it.
+        This subroutine removes trailing white-space from a line, and then
+        prints it.
 
 
 *******************************************************************************/
@@ -35,7 +35,6 @@
 #include	<sys/param.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -81,14 +80,10 @@ static const char	puncts[] = ".,;!?:" ;
 /* exported subroutines */
 
 
-int bprinter(tfp,f_bol,lp,ll)
-bfile		*tfp ;
-const char	*lp ;
-int		ll ;
+int bprinter(bfile *tfp,int f_bol,cchar *lp,int ll)
 {
-	int	rs = SR_OK ;
-	int	wlen = 0 ;
-
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
 
 	if (ll > 0) {
 	    const int	splen = NSPUNCTS ;
@@ -135,6 +130,5 @@ int		ll ;
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (bprinter) */
-
 
 

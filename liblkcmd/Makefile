@@ -123,6 +123,7 @@ ASTPCSCPPFLAGS= $(ASTPCSDEFS) $(ASTPCSINCDIRS)
 
 
 CFLAGS= $(CCOPTS) 
+CCFLAGS= $(GPPFLAGS) $(CCOPTS) 
 
 ASTCFLAGS= $(CCOPTS)
 
@@ -285,13 +286,13 @@ OBJ06= b_mailalias.o b_sanity.o b_ismailaddr.o b_babies.o b_inproject.o
 OBJ07= b_sysvar.o b_mxalias.o b_issue.o b_motd.o b_logfile.o b_username.o 
 
 OBJ08= b_querystring.o b_loginblurb.o b_isfile.o b_cal.o b_mkwords.o
-OBJ09= b_fibonacci.o b_makenewer.o b_sysval.o b_temp.o b_lastlog.o
+OBJ09= b_fibonacci.o b_factorial.o b_makenewer.o b_sysval.o b_temp.o b_lastlog.o
 OBJ10= b_netload.o b_doubletext.o b_logsys.o b_termadm.o b_mailnew.o
-OBJ11= b_pcsconf.o b_pcsuserinfo.o b_inetping.o b_linefold.o
+OBJ11= b_pcsconf.o b_pcsuserinfo.o b_inetping.o b_linefold.o b_summer.o
 OBJ12= b_conslog.o b_termnote.o b_uuidgen.o b_strerror.o b_sysdb.o
 OBJ13= b_rest.o b_qotd.o b_mjd.o b_look.o b_append.o b_rfinger.o b_shells.o
 OBJ14= b_mbproc.o b_mbexpire.o b_homepage.o b_progcheck.o b_calyear.o
-OBJ15= b_isproc.o b_webcounter.o
+OBJ15= b_isproc.o b_webcounter.o b_makesafe.o b_numbers.o
 
 OBJ16= 
 OBJ17= kshlib.o lockmemalloc.o 
@@ -728,10 +729,10 @@ b_mkwords.o:		b_mkwords.c b_mkwords.h $(INCS)
 b_fibonacci.o:		b_fibonacci.c b_fibonacci.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
-b_makenewer.o:		b_makenewer.c b_makenewer.h $(INCS)
+b_factorial.o:		b_factorial.c b_factorial.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
-b_webcounter.o:		b_webcounter.c b_webcounter.h $(INCS)
+b_makenewer.o:		b_makenewer.c b_makenewer.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
 b_sysval.o:		b_sysval.c b_sysval.h $(INCS)
@@ -818,6 +819,12 @@ b_linefold.o:		b_linefold.c b_linefold.h $(INCS)
 b_isproc.o:		b_isproc.c b_isproc.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
+b_webcounter.o:		b_webcounter.c b_webcounter.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_makesafe.o:		b_makesafe.c b_makesafe.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
 
 # special PCS (or pseudo PCS)
 
@@ -842,6 +849,9 @@ b_pcs.o:		b_pcs.c b_pcs.h $(INCS)
 b_rest.o:		b_rest.c b_rest.h $(INCS)
 	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
+b_summer.o:		b_summer.c b_summer.h $(INCS)
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
+
 
 # MSU extra code
 msu:			b_msu.o
@@ -864,6 +874,12 @@ pcsdebug.o:		pcsdebug.c pcslog.h $(INCS) $(PCSINCS)
 # special since it needs AST
 pcsmain.o:		pcsmain.c $(INCS) msfile.h $(PCSINCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+
+# put the C++ bullt-ins here
+
+b_numbers.o:		b_numbers.c b_numbers.h $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_numbers.cc
 
 
 # testing
@@ -1123,9 +1139,6 @@ pq.o:			pq.c pq.h
 
 charq.o:		charq.c charq.h
 
-mailalias.o:		mailalias.cc mailalias.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
-
 serialbuf.o:		serialbuf.c serialbuf.h
 
 netorder.o:		netorder.c netorder.h
@@ -1371,6 +1384,9 @@ logfile.o:		logfile.c logfile.h
 logfile_userinfo.o:	logfile_userinfo.c logfile.h
 
 logfile_printfold.o:	logfile_printfold.c logfile.h
+
+mailalias.o:		mailalias.cc mailalias.h
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
 
 termtrans.o:		termtrans.cc termtrans.h 
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<

@@ -19,14 +19,6 @@
 #include	<localmisc.h>
 
 
-#ifndef	PROGINFO
-#define	PROGINFO	struct proginfo
-#endif
-
-#ifndef	PROGINFO_FL
-#define	PROGINFO_FL	struct proginfo_flags
-#endif
-
 #ifndef	FD_STDIN
 #define	FD_STDIN	0
 #define	FD_STDOUT	1
@@ -41,13 +33,25 @@
 #define	TIMEBUFLEN	80
 #endif
 
-#ifndef	DEBUGLEVEL
-#define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
-#endif
-
 #define	BUFLEN		8192
 
 #define	NOPWORDS	128		/* words (64 bit) per block */
+
+#ifndef	PROGINFO
+#define	PROGINFO	struct proginfo
+#endif
+
+#ifndef	PROGINFO_FL
+#define	PROGINFO_FL	struct proginfo_flags
+#endif
+
+#define	PIVARS		struct pivars
+
+#define	ARGINFO		struct arginfo
+
+#ifndef	DEBUGLEVEL
+#define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
+#endif
 
 
 struct proginfo_flags {
@@ -56,6 +60,8 @@ struct proginfo_flags {
 	uint		aparams:1 ;
 	uint		quiet:1 ;
 	uint		errfile:1 ;
+	uint		outfile:1 ;
+	uint		infile:1 ;
 	uint		logprog:1 ;
 	uint		log:1 ;
 	uint		stderror:1 ;
@@ -73,20 +79,32 @@ struct proginfo {
 	const char	*pr ;			/* program root directory */
 	const char	*searchname ;		/* program search name */
 	const char	*version ;
-	const char	*banner ;
-	const char	*nodename ;
-	const char	*domainname ;
-	const char	*username ;
-	const char	*groupname ;
-	const char	*logid ;
+	const char	*banner ;	/* USERINFO */
+	const char	*nodename ;	/* USERINFO */
+	const char	*domainname ;	/* USERINFO */
+	const char	*username ;	/* USERINFO */
+	cchar		*org ;		/* USERINFO */
+	cchar		*gecosname ;	/* USERINFO */
+	cchar		*name ;		/* USERINFO */
+	cchar		*realname ;	/* USERINFO */
+	cchar		*fullname ;	/* USERINFO */
+	cchar		*mailname ;	/* USERINFO */
+	cchar		*logid ;	/* USERINFO */
+	cchar		*hostname ;	/* USERINFO derived */
+	const char	*groupname ;	/* gotten */
 	const char	*tmpdname ;		/* temporary directory */
 	const char	*msgfname ;
 	const char	*lfname ;
 	void		*efp ;			/* error Basic file */
+	void		*lip ;
 	PROGINFO_FL	have, f, changed, final ;
 	PROGINFO_FL	open ;
 	logfile		lh ;
 	time_t		daytime ;
+	pid_t		pid ;
+	uid_t		uid, euid ;
+	gid_t		gid, egid ;
+	uint		hv ;
 	int		pwdlen ;
 	int		progmode ;
 	int		debuglevel ;		/* debugging level */

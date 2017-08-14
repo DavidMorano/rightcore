@@ -73,7 +73,7 @@ int main(int argc,const char **argv,const char **envv)
 	            cout << "x=" << x << " y=" << y << endl ;
 	            cout << "xy=" << xy << endl ;
 	        }
-	    }
+	    } /* end for */
 	} /* end for */
 
 	return 0 ;

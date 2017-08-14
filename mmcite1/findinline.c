@@ -48,9 +48,9 @@
 #include	<sys/param.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<ascii.h>
 #include	<localmisc.h>
 
@@ -87,10 +87,6 @@ extern char	*strnsub(const char *,int,const char *) ;
 static int	getdash(FINDINLINE *,const char *,int) ;
 static int	getpair(FINDINLINE *,const char *,int) ;
 
-static int	getthing(const char *,int,const char *,const char **) ;
-static int	hasgood(const char *,int) ;
-static int	isour(int) ;
-
 
 /* local variables */
 
@@ -100,7 +96,7 @@ static int	isour(int) ;
 
 int findinline(FINDINLINE *fip,const char *lp,int ll)
 {
-	int	skiplen = 0 ;
+	int		skiplen = 0 ;
 
 	if (fip == NULL) return SR_FAULT ;
 	if (lp == NULL) return SR_FAULT ;
@@ -144,8 +140,7 @@ int findinline(FINDINLINE *fip,const char *lp,int ll)
 
 static int getdash(FINDINLINE *fip,const char *sp,int sl)
 {
-	int	skiplen = 0 ;
-
+	int		skiplen = 0 ;
 	const char	*start = (sp-1) ;
 
 	fip->kp = sp ;
@@ -174,14 +169,13 @@ static int getdash(FINDINLINE *fip,const char *sp,int sl)
 
 static int getpair(FINDINLINE *fip,const char *sp,int sl)
 {
-	int	skiplen = 0 ;
-
+	int		skiplen = 0 ;
 	const char	*start = (sp-1) ;
 	const char	*tp ;
 
 	fip->kp = sp ;
 	if ((tp = strnchr(sp,sl,CH_LBRACE)) != NULL) {
-	    int	kl, vl ;
+	    int		kl ;
 	    if ((kl = sfshrink(sp,(tp-sp),NULL)) > 0) {
 		fip->kl = kl ;
 		sl -= ((tp+1)-sp) ;
@@ -199,6 +193,5 @@ static int getpair(FINDINLINE *fip,const char *sp,int sl)
 	return skiplen ;
 }
 /* end subroutine (getpair) */
-
 
 

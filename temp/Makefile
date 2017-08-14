@@ -273,7 +273,7 @@ $(T).cxref:
 	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
 
 safe:
-	makesafe -v=3 -I $(INCDIR) $(OBJ)
+	makesafe 2> e -v=3 -I $(INCDIR) $(OBJ)
 
 strip:			$(T).x
 	strip $(T).x

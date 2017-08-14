@@ -21,6 +21,12 @@
         This executes the Dijjstra algorithm to find the sorted path
         through a weighted graph.
 
+
+	Fatures:
+
+	pretty close to optimal speed
+
+
 	Complexity:
 
 	O ( |v| + |v|log|e| )

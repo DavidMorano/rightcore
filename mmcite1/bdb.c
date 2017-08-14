@@ -65,7 +65,6 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>

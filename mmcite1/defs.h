@@ -163,6 +163,7 @@ struct proginfo {
 	int		progmode ;
 	int		debuglevel ;
 	int		verboselevel ;
+	int		n ;
 	int		minwordlen ;
 	int		maxwordlen ;
 	int		keys ;
@@ -176,6 +177,13 @@ struct pivars {
 	const char	*vpr3 ;
 	const char	*pr ;
 	const char	*vprname ;
+} ;
+
+struct arginfo {
+	cchar		**argv ;
+	int		argc ;
+	int		ai, ai_max, ai_pos ;
+	int		ai_continue ;
 } ;
 
 

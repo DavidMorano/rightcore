@@ -75,7 +75,6 @@
     A = T32(R32(B,5) + f##n(C,D,E) + T + *WP++ + CONST##n); C = R32(C,30)
 
 
-
 /* forward references */
 
 static void sha_final(unsigned char digest[20], SHA1_INFO *sha_info) ;
@@ -83,23 +82,20 @@ static void sha_final(unsigned char digest[20], SHA1_INFO *sha_info) ;
 static void sha_transform(SHA1_INFO *sha_info) ;
 
 
-
-
+/* exported subroutines */
 
 
 /* initialize the SHA1 digest */
 int sha1_start(SHA1_INFO *sha_info)
 {
 
+	if (sha_info == NULL) return -1 ;
 
-	if (sha_info == NULL)
-		return -1 ;
-
-    sha_info->digest[0] = 0x67452301L;
-    sha_info->digest[1] = 0xefcdab89L;
-    sha_info->digest[2] = 0x98badcfeL;
-    sha_info->digest[3] = 0x10325476L;
-    sha_info->digest[4] = 0xc3d2e1f0L;
+    sha_info->digest[0] = 0x67452301UL ;
+    sha_info->digest[1] = 0xefcdab89UL ;
+    sha_info->digest[2] = 0x98badcfeUL ;
+    sha_info->digest[3] = 0x10325476UL ;
+    sha_info->digest[4] = 0xc3d2e1f0UL ;
     sha_info->count_lo = 0L;
     sha_info->count_hi = 0L;
     sha_info->local = 0;
@@ -248,9 +244,7 @@ void sha_final(unsigned char digest[20], SHA1_INFO *sha_info)
 /* end subroutine (sha_final) */
 
 
-
-/* PRIVATE SUBROUTINES */
-
+/* private subroutines */
 
 
 /* do SHA transformation */
@@ -420,6 +414,5 @@ char *sha_version(void)
 }
 
 #endif /* SHA_FOR_C */
-
 
 

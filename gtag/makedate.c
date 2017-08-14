@@ -1,2 +1,2 @@
 const char gtag_makedate[] =
-"@(#)gtag                    161123_0048:08_USEST Rightcore Network Services¹" ;
+"@(#)gtag                    170811_2246:03_USEDT Rightcore Network Services" ;

@@ -210,13 +210,14 @@ OBJ55=
 OBJ58= islowerlatin.o isupperlatin.o isprintterm.o iswhite.o iseol.o rmeol.o
 OBJ59= isinetaddr.o isindomain.o issamehostname.o isleapyear.o isfnamespecial.o
 # this next one is in LIBUC
-#OBJ60= hasuc.o haslc.o haswhite.o hasalldig.o hasallbase.o hasprintbad.o 
+#OBJ60= hasuc.o haslc.o haswhite.o 
+OBJ60= hasalpha.o hasnum.o
 OBJ61= hasalllc.o hasalluc.o hasallalnum.o hasallalpha.o
-OBJ62= hasdoublewhite.o hasallwhite.o hasfext.o hasallof.o hasourmjd.o
-OBJ63= hasMeAlone.o hasEOH.o
+OBJ62= hasalldig.o hasallbase.o hasprintbad.o 
+OBJ63= hasdoublewhite.o hasallwhite.o hasfext.o hasallof.o hasourmjd.o
 
 OBJ64= optbool.o optvalue.o
-OBJ65= freadline.o 
+OBJ65= freadline.o hasMeAlone.o hasEOH.o
 OBJ66= fbreadline.o fbread.o fbwrite.o fbprint.o fbprintf.o
 OBJ67= nextpowtwo.o hashelf.o hashagain.o urotate.o
 OBJ68= fmeanvaral.o fmeanvarai.o cpuspeed.o
@@ -308,9 +309,9 @@ OBJ143= minmax.o intceil.o intfloor.o intsat.o
 OBJ144= cfdouble.o cfdecf.o cfb26.o
 OBJ145= cfdecmf.o cfdect.o
 OBJ146= ctb26.o cthexstr.o
-OBJ147= 
-OBJ148=
-OBJ149=
+OBJ147= quickselect.o
+OBJ148= fam.o fhm.o fsum.o binexp.o
+OBJ149= permutations.o combinations.o factorial.o fibonacci.o ipowell.o
 OBJ150= wsnwcpynarrow.o
 OBJ151= wsfnext.o wsinul.o wsichr.o wsirchr.o
 
@@ -324,7 +325,7 @@ OBJ158= localgetnetload.o localsetnetload.o localgetsystat.o localsetsystat.o
 OBJ159= inetpton.o inetntop.o inet_ntoa_r.o inet4int.o
 
 OBJ160= tabcols.o nextfield.o nextfieldterm.o nextqtoken.o 
-OBJ161= nusers.o mesg.o sysmemutil.o initnow.o fibonacci.o 
+OBJ161= nusers.o mesg.o sysmemutil.o initnow.o 
 OBJ162= getfiledirs.o findfilepath.o findfile.o findxfile.o
 OBJ163= cvttemperature.o dictdiff.o bufprintf.o xfile.o
 OBJ164= mapex.o strsigabbr.o strerrabbr.o strlocktype.o straltwchar.o
@@ -1166,6 +1167,9 @@ calstrs.o:		calstrs.c calstrs.h
 
 findbit.o:		findbit.c findbit.h
 
+hasallunique.o:		hasallunique.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) hasallunique.cc
+
 
 unlinkd.o:		$(*)/$(@)
 	cd $(*) ; make up
@@ -1305,5 +1309,15 @@ $(X10).o:	$(X10).c
 
 $(X10).x:	$(X10OBJ)
 	$(GPP) -o $@ $(X10OBJ) $(XLIBINFO)
+
+
+X11= testminmax
+
+X11OBJ= $(X11).o minmax.o
+
+$(X11).o:	$(X11).c 
+
+$(X11).x:	$(X11OBJ)
+	$(GPP) -o $@ $(X11OBJ) $(XLIBINFO)
 
 

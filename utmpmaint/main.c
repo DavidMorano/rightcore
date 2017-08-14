@@ -102,6 +102,8 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -149,6 +151,7 @@ static int	procname(PROGINFO *,MAPSTRINT *,const char *,int) ;
 static int	procmaint(PROGINFO *,const char *) ;
 static int	procmaintbake(PROGINFO *,void *,size_t,int) ;
 static int	proclist(PROGINFO *,bfile *,MAPSTRINT *,const char *) ;
+static int	procuser(PROGINFO *,MAPSTRINT *,cchar *,int,int *) ;
 
 static void	main_sighand(int,siginfo_t *,void *) ;
 
@@ -326,6 +329,9 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* process program arguments */
 
+	if (rs >= 0) rs = bits_start(&pargs,0) ;
+	if (rs < 0) goto badpargs ;
+
 	if (rs >= 0) {
 	    rs = keyopt_start(&akopts) ;
 	    pip->open.akopts = (rs >= 0) ;
@@ -350,7 +356,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -412,12 +418,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            pip->tmpdname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->tmpdname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->tmpdname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -434,12 +440,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            dbfname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            dbfname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                dbfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -452,12 +458,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            sn = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -470,11 +476,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            afname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        afname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -487,12 +493,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -505,11 +511,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            ofname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -525,7 +531,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	            } else {
 
 	                while (akl--) {
-			    const int	kc = MKCHAR(*akp) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -550,7 +556,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        f_version = TRUE ;
 	                        break ;
 
-			    case 'h':
+	                    case 'h':
 	                        lip->final.hdr = TRUE ;
 	                        lip->have.hdr = TRUE ;
 	                        lip->f.hdr = TRUE ;
@@ -576,12 +582,12 @@ int main(int argc,cchar **argv,cchar **envv)
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            rs = keyopt_loads(&akopts,argp,argl) ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -614,16 +620,16 @@ int main(int argc,cchar **argv,cchar **envv)
 	                                cl = avl ;
 	                            }
 	                        } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl) {
-	                                cp = argp ;
-	                                cl = argl ;
-	                            }
-				} else
-	                            rs = SR_INVALID ;
+	                            if (argr > 0) {
+	                                argp = argv[++ai] ;
+	                                argr -= 1 ;
+	                                argl = strlen(argp) ;
+	                                if (argl) {
+	                                    cp = argp ;
+	                                    cl = argl ;
+	                                }
+	                            } else
+	                                rs = SR_INVALID ;
 	                        }
 	                        if ((rs >= 0) && (cp != NULL)) {
 	                            const char	*po = PO_OPTION ;
@@ -751,11 +757,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	    rs = procopts(pip,&akopts) ;
 	}
 
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    goto retearly ;
-	}
-
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: f_maint=%u\n",
 	        pip->progname,lip->f.maint) ;
@@ -778,12 +779,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	        pip->progname,dbfname) ;
 	}
 
-	        memset(&ainfo,0,sizeof(ARGINFO)) ;
-	        ainfo.argc = argc ;
-	        ainfo.ai = ai ;
-	        ainfo.argv = argv ;
-	        ainfo.ai_max = ai_max ;
-	        ainfo.ai_pos = ai_pos ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
 	    if ((rs = mapstrint_start(&names,10)) >= 0) {
@@ -793,13 +794,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	        }
 
 	        if ((rs >= 0) && (pip->f.print || lip->f.list)) {
-		    ARGINFO	*aip = &ainfo ;
-		    BITS	*bop = &pargs ;
+	            ARGINFO	*aip = &ainfo ;
+	            BITS	*bop = &pargs ;
 	            cchar	*dfn = dbfname ;
 	            cchar	*ofn = ofname ;
 	            cchar	*afn = afname ;
 	            rs = procargs(pip,aip,bop,&names,dfn,ofn,afn) ;
-    
 	        } /* end if (print or list) */
 
 	        rs1 = mapstrint_finish(&names) ;
@@ -830,7 +830,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    } /* end switch */
 	    if (! pip->f.quiet) {
 	        if (fmt != NULL)
-	            bprintf(pip->efp,fmt, pip->progname,rs) ;
+	            bprintf(pip->efp,fmt,pip->progname,rs) ;
 	    }
 	} else if (rs >= 0) {
 	    if (if_exit) {
@@ -934,7 +934,7 @@ static int usage(PROGINFO *pip)
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-	fmt = "%s: USAGE> %s [-db <dbfile>] [-m] [-l]\n" ;
+	fmt = "%s: USAGE> %s [-db <dbfile>] [-m] [-l] [<name>[=<type>]]\n" ;
 	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
@@ -1121,11 +1121,11 @@ const char	*afn ;
 	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
 	            if (f) {
 	                cp = aip->argv[ai] ;
-		        if (cp[0] != '\0') {
+	                if (cp[0] != '\0') {
 	                    pan += 1 ;
 	                    rs = procname(pip,nlp,cp,-1) ;
-		        }
-		    }
+	                }
+	            }
 
 	            if (rs < 0) break ;
 	        } /* end for */
@@ -1149,21 +1149,21 @@ const char	*afn ;
 	                if (lbuf[len - 1] == '\n') len -= 1 ;
 	                lbuf[len] = '\0' ;
 
-			if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-			    if (cp[0] != '#') {
-			        pan += 1 ;
-	                	rs = procname(pip,nlp,cp,cl) ;
-			    }
-			}
+	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                    if (cp[0] != '#') {
+	                        pan += 1 ;
+	                        rs = procname(pip,nlp,cp,cl) ;
+	                    }
+	                }
 
 	                if (rs < 0) break ;
 	            } /* end while (reading lines) */
 
 	            rs1 = bclose(afp) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
-			fmt = "%s: inaccessible argument list (%d)\n" ;
+	                fmt = "%s: inaccessible argument list (%d)\n" ;
 	                bprintf(pip->efp,fmt,pn,rs) ;
 	                bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
@@ -1175,7 +1175,7 @@ const char	*afn ;
 
 	    if ((rs >= 0) && lip->f.list) {
 	        rs = proclist(pip,ofp,nlp,dbfn) ;
-		c += rs ;
+	        c += rs ;
 	    }
 
 	    rs1 = bclose(ofp) ;
@@ -1289,8 +1289,8 @@ static int procmaintbake(PROGINFO *pip,void *md,size_t ms,int fs)
 	                    if (wup == NULL) wup = up ;
 	                    up = NULL ;
 	                }
-		    } else if (rs == SR_PERM) {
-			rs = SR_OK ;
+	            } else if (rs == SR_PERM) {
+	                rs = SR_OK ;
 	            } /* end if (no-process) */
 	        } /* end block */
 	        break ;
@@ -1365,61 +1365,64 @@ static int proclist(PROGINFO *pip,bfile *ofp,MAPSTRINT *nlp,cchar *dbfn)
 
 	if ((rs = mapstrint_count(nlp)) > 0) {
 	    f_restrict = TRUE ;
+	    if (pip->debuglevel > 0) {
+	        bprintf(pip->efp,"%s: restrict=%u\n",pip->progname,rs) ;
+	    }
 	}
 
 	if (rs >= 0) {
 	    if ((rs = tmpx_open(&ut,dbfn,O_RDONLY)) >= 0) {
 	        if ((rs = tmpx_curbegin(&ut,&ucur)) >= 0) {
-	            const int	nrs = SR_NOTFOUND ;
-	            const char	*fmt ;
-		    fmt = "T   ID %-12s %-12s %6s SN EX TIME\n" ;
+	            cchar	*fmt ;
+	            fmt = "T   ID %-12s %-12s %6s SN EX TIME\n" ;
 
 	            rs = bprintf(ofp,fmt,"USER","LINE","SID") ;
-		    fmt = "%1u %4t %-12t %-12t %6u %2d %2d %s\n" ;
+	            fmt = "%1u %4t %-12t %-12t %6u %2d %2d %s\n" ;
 
 	            while (rs >= 0) {
-		        int	f = TRUE ;
+			int	v = -1 ;
+	                int	f = TRUE ;
 	                rs1 = tmpx_enum(&ut,&ucur,up) ;
 	                if (rs1 == SR_NOTFOUND) break ;
 	                rs = rs1 ;
 
-		        if ((rs >= 0) && f_restrict) {
-			    const int	nl = strnlen(up->ut_user,TMPX_LUSER) ;
-			    const char	*np = up->ut_user ;
-			    if ((rs = mapstrint_already(nlp,np,nl)) == nrs) {
-				rs = SR_OK ;
-				f = FALSE ;
+	                if ((rs >= 0) && f_restrict) {
+	                    const int	nl = strnlen(up->ut_user,TMPX_LUSER) ;
+	                    cchar	*np = up->ut_user ;
+			    f = FALSE ;
+			    if ((rs = procuser(pip,nlp,np,nl,&v)) > 0) {
+				f = ((v < 0) || (up->ut_type == v)) ;
 			    }
-		        } /* end if (restriction) */
+	                } /* end if (restriction) */
 
-	            if ((rs >= 0) && f) {
-	                c += 1 ;
-	                timestr_log(up->ut_tv.tv_sec,timebuf) ;
-	                rs = bprintf(ofp,fmt,
-	                    up->ut_type,
-	                    up->ut_id,strnlen(up->ut_id,TMPX_LID),
-	                    up->ut_user,strnlen(up->ut_user,TMPX_LUSER),
-	                    up->ut_line,strnlen(up->ut_line,TMPX_LLINE),
-	                    up->ut_pid,
-	                    up->ut_session,
-	                    up->ut_exit.e_exit,
-			    timebuf) ;
+	                if ((rs >= 0) && f) {
+	                    c += 1 ;
+	                    timestr_log(up->ut_tv.tv_sec,timebuf) ;
+	                    rs = bprintf(ofp,fmt,
+	                        up->ut_type,
+	                        up->ut_id,strnlen(up->ut_id,TMPX_LID),
+	                        up->ut_user,strnlen(up->ut_user,TMPX_LUSER),
+	                        up->ut_line,strnlen(up->ut_line,TMPX_LLINE),
+	                        up->ut_pid,
+	                        up->ut_session,
+	                        up->ut_exit.e_exit,
+	                        timebuf) ;
 
 #if	CF_SYSLEN
-	                bprintf(ofp, "sl=%u host=%t\n",
-	                    up->ut_syslen,
-	                    up->ut_host,strnlen(up->ut_host,TMPX_LHOST)) ;
+	                    bprintf(ofp, "sl=%u host=%t\n",
+	                        up->ut_syslen,
+	                        up->ut_host,strnlen(up->ut_host,TMPX_LHOST)) ;
 #endif
-	            }
+	                } /* end if */
 
-	        } /* end while */
+	            } /* end while */
 
-	        rs1 = tmpx_curend(&ut,&ucur) ;
+	            rs1 = tmpx_curend(&ut,&ucur) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (cursor) */
+	        rs1 = tmpx_close(&ut) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (cursor) */
-	    rs1 = tmpx_close(&ut) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (tmpx) */
+	    } /* end if (tmpx) */
 	} /* end if (ok) */
 
 #if	CF_DEBUG
@@ -1430,5 +1433,27 @@ static int proclist(PROGINFO *pip,bfile *ofp,MAPSTRINT *nlp,cchar *dbfn)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (proclist) */
+
+
+static int procuser(PROGINFO *pip,MAPSTRINT *nlp,cchar *np,int nl,int *vp)
+{
+	const int	nrs = SR_NOTFOUND ;
+	int		rs ;
+	int		f = TRUE ;
+
+	if ((rs = mapstrint_already(nlp,np,nl)) == nrs) {
+	    rs = SR_OK ;
+	    f = FALSE ;
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(3))
+		debugprintf("main/proclist: already\n") ;
+#endif
+	} else if ((rs = mapstrint_fetch(nlp,np,nl,NULL,vp)) >= 0) {
+	     f = TRUE ;
+	}
+
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (procuser) */
 
 

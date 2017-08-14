@@ -1,6 +1,16 @@
 /* main (web traffic) */
 
 
+/* revision history:
+
+	= 2017-08-10, David A­D­ Morano
+	Written originally as a response to an interview question.
+
+*/
+
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
+
+
 #include	<envstandards.h>
 #include	<algorithm>
 #include	<functional>
@@ -15,12 +25,6 @@
 
 /* local defines */
 
-#define	CF_WEB2		1
-#define	CF_WEB3		0
-#define	CF_WEB4		1
-#define	CF_WEB5		1
-#define	CF_WEB6		1
-
 
 /* name spaces */
 
@@ -28,8 +32,6 @@ using namespace	std ;
 
 
 /* forward references */
-
-static int readline(ifstream &,char *,int) ;
 
 static void printa(const int *,int) ;
 static void web1(int *,const int *,int) ;
@@ -51,61 +53,37 @@ static int web6_recurse(int *,const int *,int) ;
 
 int main(int argc,cchar **argv,cchar **envv)
 {
+	const int	algos[] = { 1, 2, 3, 4, 5, 6 } ;
 	const int	a[] = { 8, 6, 9, 4, 8, 8, 3, 10, 2, 1 } ;
 	const int	n = nelem(a) ;
 	int		ans ;
 
-	{
+	for (auto al : algos) {
 	    int	out[n+1] ;
+	    cout << "algo=" << al << endl ;
 	    printa(a,n) ;
-	    web1(out,a,n) ;
+	    switch (al) {
+	    case 1:
+	        web1(out,a,n) ;
+		break ;
+	    case 2:
+	        web2(out,a,n) ;
+		break ;
+	    case 3:
+	        web3(out,a,n) ;
+		break ;
+	    case 4:
+	        web4(out,a,n) ;
+		break ;
+	    case 5:
+	        web5(out,a,n) ;
+		break ;
+	    case 6:
+	        web6(out,a,n) ;
+		break ;
+	    } /* end switch */
 	    printa(out,n) ;
-	}
-
-#if	CF_WEB2
-	{
-	    int	out[n+1] ;
-	    printa(a,n) ;
-	    web2(out,a,n) ;
-	    printa(out,n) ;
-	}
-#endif /* CF_WEB2 */
-
-#if	CF_WEB3
-	{
-	    int	out[n+1] ;
-	    printa(a,n) ;
-	    web3(out,a,n) ;
-	    printa(out,n) ;
-	}
-#endif /* CF_WEB3 */
-
-#if	CF_WEB4
-	{
-	    int	out[n+1] ;
-	    printa(a,n) ;
-	    web4(out,a,n) ;
-	    printa(out,n) ;
-	}
-#endif /* CF_WEB4 */
-
-#if	CF_WEB5
-	{
-	    int	out[n+1] ;
-	    printa(a,n) ;
-	    web5(out,a,n) ;
-	    printa(out,n) ;
-	}
-#endif /* CF_WEB5 */
-
-#if	CF_WEB6
-	{
-	    int	out[n+1] ;
-	    printa(a,n) ;
-	    web6(out,a,n) ;
-	    printa(out,n) ;
-	}
-#endif /* CF_WEB6 */
+	} /* end for */
 
 	return 0 ;
 }
@@ -186,7 +164,7 @@ static int findincer(int *out,const int *data,int n,int v)
 	        break ;
 	    } else if (v > data[j]) {
 	        if (out[j] > 0) {
-		    j += (out[j] - 1) ;
+		    j += (out[j] - 1) ; /* skip ahead */
 		} else {
 		    break ;
 		}
@@ -271,11 +249,7 @@ static int web4_proc(int *out,const int *data,int n)
 	    }
 	} else { /* we are greater than following */
 	    if (out[1] > 0) {
-#ifdef	COMMENT
-	        ans = web4_proc(out+1,data+1,n-1) ;
-#else
 	        ans = findincer(out+1,data+1,n-1,v) ;
-#endif
 	    }
 	}
 	out[0] = ans ;
@@ -287,11 +261,18 @@ static int web4_proc(int *out,const int *data,int n)
 static void web5(int *out,const int *data,int n)
 {
 	if (n > 0) {
-	    int 	i ;
 	    out[n-1] = -1 ;
-	    for (i = (n-1) ; i >= 0 ; i -= 1) {
-	        const int	v = data[i] ;
-	        out[i] = findincer(out+i+1,data+i+1,n-i-1,v) ;
+	    if (n > 1) {
+	        int	max = data[n-1] ;
+	        int 	i ;
+	        for (i = (n-2) ; i >= 0 ; i -= 1) {
+	            const int	v = data[i] ;
+		    out[i] = -1 ;
+		    if (v < max) {
+	                out[i] = findincer(out+i+1,data+i+1,n-i-1,v) ;
+		    }
+		    if (data[i] > max) max = data[i] ;
+	        }
 	    }
 	}
 }
@@ -316,23 +297,12 @@ static int web6_recurse(int *out,const int *data,int n)
 		const int	v = data[0] ;
 	        web6_recurse(out+1,data+1,n-1) ;
 	        ans = findincer(out+1,data+1,n-1,v) ;
-		out[0] = ans ;
 	    }
+	    out[0] = ans ;
 	}
 	return ans ;
 }
 /* end subroutine (web6_recurse) */
-
-
-static int readline(ifstream &is,char *lbuf,int llen)
-{
-	int		rs = SR_OK ;
-	if (is.getline(lbuf,llen)) {
-	    rs = is.gcount() ;
-	}
-	return rs ;
-}
-/* end subroutine (readline) */
 
 
 static void printa(const int *a,int n)

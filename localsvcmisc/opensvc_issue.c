@@ -13,10 +13,8 @@
 /* revision history:
 
 	= 2003-11-04, David A­D­ Morano
-
-	This code was started by taking the corresponding code from the
-	|opensvc_cotd(3opensvc)| module.
-
+        This code was started by taking the corresponding code from the
+        |opensvc_cotd(3opensvc)| module.
 
 */
 

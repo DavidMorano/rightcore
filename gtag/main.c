@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -37,12 +35,13 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<bits.h>
-#include	<paramopt.h>
+#include	<cfdec.h>
 #include	<bfile.h>
+#include	<paramopt.h>
 #include	<vecstr.h>
 #include	<ucmallreg.h>
 #include	<exitcodes.h>
@@ -66,21 +65,18 @@
 
 /* external subroutines */
 
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfdecti(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
-extern int	progscan(PROGINFO *,PARAMOPT *,TAGTRACK *,
-			int,const char *) ;
+extern int	progscan(PROGINFO *,PARAMOPT *,TAGTRACK *,int,cchar *) ;
 extern int	progoutesc(PROGINFO *,TAGTRACK *,const char *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -107,10 +103,16 @@ int		findbibfile(PROGINFO *,PARAMOPT *,const char *,char *) ;
 
 static int	usage(PROGINFO *) ;
 
+static int	process(PROGINFO *,ARGINFO *,BITS *,PARAMOPT *,
+			cchar *,cchar *) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,PARAMOPT *,
+			TAGTRACK *,cchar *) ;
+static int	procereport(PROGINFO *,int) ;
+
 
 /* local variables */
 
-static const char	*progmodes[] = {
+static cchar	*progmodes[] = {
 	"mmcite",
 	NULL
 } ;
@@ -120,7 +122,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -174,7 +176,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"uniq",
 	"follow",
 	"nofollow",
@@ -192,44 +194,32 @@ enum progopts {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
-
+	ARGINFO		ainfo ;
 	BITS		pargs ;
-
 	PARAMOPT	aparams ;
-
-	TAGTRACK	tags ;
-
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	pan = 0 ;
-	int	fi = 0 ;
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	cl ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_usage = FALSE ;
-	int	f_version = FALSE ;
-	int	f_help = FALSE ;
-	int	f ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		cl ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_usage = FALSE ;
+	int		f_version = FALSE ;
+	int		f_help = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	char	template[MAXPATHLEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pmspec = NULL ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
@@ -276,8 +266,10 @@ const char	*envv[] ;
 	rs = paramopt_start(&aparams) ;
 	pip->open.aparams = (rs >= 0) ;
 
-	if ((rs >= 0) && ((cp = getenv(VARBIBFILES)) != NULL)) {
-	    rs = paramopt_loads(&aparams,PO_BIBFILE, cp,-1) ;
+	if (rs >= 0) {
+	    if ((cp = getenv(VARBIBFILES)) != NULL) {
+	        rs = paramopt_loads(&aparams,PO_BIBFILE, cp,-1) ;
+	    }
 	}
 
 	ai_max = 0 ;
@@ -294,11 +286,11 @@ const char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
-		    argval = (argp + 1) ;
+	            argval = (argp + 1) ;
 
 	        } else if (ach == '-') {
 
@@ -318,7 +310,7 @@ const char	*envv[] ;
 	                avl = aop + argl - 1 - avp ;
 	                aol = akl ;
 	            } else {
-			avp = NULL ;
+	                avp = NULL ;
 	                avl = 0 ;
 	                akl = aol ;
 	            }
@@ -335,12 +327,12 @@ const char	*envv[] ;
 	                            pr = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -353,12 +345,12 @@ const char	*envv[] ;
 	                            pmspec = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pmspec = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pmspec = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -378,7 +370,7 @@ const char	*envv[] ;
 	                        if (avl) {
 	                            rs = optvalue(avp,avl) ;
 	                            pip->verboselevel = rs ;
-				}
+	                        }
 	                    }
 	                    break ;
 
@@ -390,12 +382,12 @@ const char	*envv[] ;
 	                            pip->tmpdname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->tmpdname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->tmpdname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -406,31 +398,31 @@ const char	*envv[] ;
 
 /* the user specified some progopts */
 	                case argopt_option:
-	                        if (argr > 0) {
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl) {
-				    PARAMOPT	*pop = &aparams ;
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            PARAMOPT	*pop = &aparams ;
 	                            cchar	*po = PO_OPTION ;
 	                            rs = paramopt_loads(pop,po,argp,argl) ;
-			        }
-			    } else
+	                        }
+	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
 
 /* the user specified some progopts */
 	                case argopt_set:
-	                        if (argr > 0) {
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
 	                        if (argl) {
-				    PARAMOPT	*pop = &aparams ;
+	                            PARAMOPT	*pop = &aparams ;
 	                            rs = paramopt_loadu(pop,argp,argl) ;
-			        }
-				} else
-	                            rs = SR_INVALID ;
+	                        }
+	                    } else
+	                        rs = SR_INVALID ;
 	                    break ;
 
 /* search name */
@@ -441,12 +433,12 @@ const char	*envv[] ;
 	                            sn = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -459,12 +451,12 @@ const char	*envv[] ;
 	                            afname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -477,12 +469,12 @@ const char	*envv[] ;
 	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -495,12 +487,12 @@ const char	*envv[] ;
 	                            ofname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -513,14 +505,14 @@ const char	*envv[] ;
 /* default action and user specified help */
 	                default:
 	                    rs = SR_INVALID ;
-			    break ;
+	                    break ;
 
 	                } /* end switch (key words) */
 
 	            } else {
 
 	                while (akl--) {
-			    const int	kc = MKCHAR(*akp) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -532,25 +524,25 @@ const char	*envv[] ;
 	                        pip->debuglevel = 1 ;
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
-				    if (avl) {
+	                            if (avl) {
 	                                rs = optvalue(avp,avl) ;
-				        pip->debuglevel = rs ;
-				    }
+	                                pip->debuglevel = rs ;
+	                            }
 	                        }
 	                        break ;
 
 /* BIBDIR */
 	                    case 'B':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-				    PARAMOPT	*pop = &aparams ;
-	                            cchar	*po = PO_BIBDIR ;
-	                            rs = paramopt_loads(pop,po,argp,argl) ;
-				}
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                PARAMOPT	*pop = &aparams ;
+	                                cchar	*po = PO_BIBDIR ;
+	                                rs = paramopt_loads(pop,po,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -562,30 +554,30 @@ const char	*envv[] ;
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-				    PARAMOPT	*pop = &aparams ;
-	                            cchar	*po = PO_OPTION ;
-	                            rs = paramopt_loads(pop,po,argp,argl) ;
-				}
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                PARAMOPT	*pop = &aparams ;
+	                                cchar	*po = PO_OPTION ;
+	                                rs = paramopt_loads(pop,po,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 /* BIBFILE */
 	                    case 'p':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-				    PARAMOPT	*pop = &aparams ;
-	                            cchar	*po = PO_BIBFILE ;
-	                            rs = paramopt_loads(pop,po,argp,argl) ;
-				}
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                PARAMOPT	*pop = &aparams ;
+	                                cchar	*po = PO_BIBFILE ;
+	                                rs = paramopt_loads(pop,po,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -601,36 +593,36 @@ const char	*envv[] ;
 
 /* require a suffix for file names */
 	                    case 's':
-				cp = NULL ;
-				cl = -1 ;
+	                        cp = NULL ;
+	                        cl = -1 ;
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
 	                            if (avl) {
 	                                cp = avp ;
-					cl = avl ;
-				    }
+	                                cl = avl ;
+	                            }
 	                        } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl) {
-	                                cp = argp ;
-					cl = argl ;
-				    }
-				} else
-	                            rs = SR_INVALID ;
+	                            if (argr > 0) {
+	                                argp = argv[++ai] ;
+	                                argr -= 1 ;
+	                                argl = strlen(argp) ;
+	                                if (argl) {
+	                                    cp = argp ;
+	                                    cl = argl ;
+	                                }
+	                            } else
+	                                rs = SR_INVALID ;
 	                        }
-				if ((rs >= 0) && (cp != NULL)) {
-				    PARAMOPT	*pop = &aparams ;
-				    cchar	*po = PO_SUFFIX ;
+	                        if ((rs >= 0) && (cp != NULL)) {
+	                            PARAMOPT	*pop = &aparams ;
+	                            cchar	*po = PO_SUFFIX ;
 	                            rs = paramopt_loads(pop,po,cp,cl) ;
-				}
+	                        }
 	                        break ;
 
-			    case 'u':
-				pip->f.uniq = TRUE ;
-				break ;
+	                    case 'u':
+	                        pip->f.uniq = TRUE ;
+	                        break ;
 
 /* verbose output */
 	                    case 'v':
@@ -640,7 +632,7 @@ const char	*envv[] ;
 	                            if (avl) {
 	                                rs = optvalue(avp,avl) ;
 	                                pip->verboselevel = rs ;
-				    }
+	                            }
 	                        }
 	                        break ;
 
@@ -679,6 +671,8 @@ const char	*envv[] ;
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -686,7 +680,7 @@ const char	*envv[] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
+	    debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
 	if (f_version) {
@@ -696,10 +690,11 @@ const char	*envv[] ;
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -728,10 +723,11 @@ const char	*envv[] ;
 	    if (pip->progmode >= 0) {
 	        debugprintf("main: progmode=%s(%u)\n",
 	            progmodes[pip->progmode],pip->progmode) ;
-	    } else
+	    } else {
 	        debugprintf("main: progmode=NONE\n") ;
+	    }
 	}
-#endif
+#endif /* CF_DEBUG */
 
 	if (pip->progmode < 0)
 	    pip->progmode = progmode_mmcite ;
@@ -752,6 +748,11 @@ const char	*envv[] ;
 
 /* check a few more things */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
@@ -759,7 +760,9 @@ const char	*envv[] ;
 
 /* we need a PWD for later (handling non-rooted BIB files) */
 
-	rs = proginfo_pwd(pip) ;
+	if (rs >= 0) {
+	    rs = proginfo_pwd(pip) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -768,249 +771,72 @@ const char	*envv[] ;
 	}
 #endif
 
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    goto retearly ;
-	}
-
 /* process some options */
 
-	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
-	    PARAMOPT_CUR	cur ;
-	    if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
-		const char	*po = PO_OPTION ;
+	if (rs >= 0) {
+	    if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
+	        PARAMOPT_CUR	cur ;
+	        if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
+	            const char	*po = PO_OPTION ;
 
-	    while (paramopt_enumvalues(&aparams,po,&cur,&cp) >= 0) {
-		if (cp == NULL) continue ;
+	            while (paramopt_enumvalues(&aparams,po,&cur,&cp) >= 0) {
+	                if (cp != NULL) {
+	                    if ((kwi = matostr(progopts,2,cp,-1)) >= 0) {
+	                        switch (kwi) {
+	                        case progopt_follow:
+	                            pip->f.follow = TRUE ;
+	                            break ;
+	                        case progopt_nofollow:
+	                            pip->f.follow = FALSE ;
+	                            break ;
+	                        case progopt_uniq:
+	                            pip->f.uniq = TRUE ;
+	                            break ;
+	                        } /* end switch */
+	                    } /* end if (progopts) */
+	                }
+	            } /* end while */
 
-	        if ((kwi = matostr(progopts,2,cp,-1)) >= 0) {
-	            switch (kwi) {
-	            case progopt_follow:
-	                pip->f.follow = TRUE ;
-	                break ;
-	            case progopt_nofollow:
-	                pip->f.follow = FALSE ;
-	                break ;
-	            case progopt_uniq:
-	                pip->f.uniq = TRUE ;
-	                break ;
-	            } /* end switch */
+	            paramopt_curend(&aparams,&cur) ;
 	        } /* end if (progopts) */
-
-	    } /* end while */
-
-	        paramopt_curend(&aparams,&cur) ;
-	    } /* end if (progopts) */
-	} /* end if */
+	    } /* end if (paramopt_havekey) */
+	} /* end if (ok) */
 
 /* load up BIBDIRS */
 
-	if ((cp = getenv(VARBIBDIRS)) != NULL) {
-	    paramopt_loads(&aparams,PO_BIBDIR, cp,-1) ;
+	if (rs >= 0) {
+	    if ((cp = getenv(VARBIBDIRS)) != NULL) {
+	        rs = paramopt_loads(&aparams,PO_BIBDIR, cp,-1) ;
+	    }
 	}
 
 /* open up the common stuff */
 
-	rs = vecstr_start(&pip->filenames,DEFNFILES,0) ;
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    bprintf(pip->efp,"%s: could not initialize (%d)\n",
-	        pip->progname,rs) ;
-	    goto badfilestart ;
-	}
-
-	if (rs < 0) goto badcitestart ;
-
-/* continue with other initialization */
-
-	rs = tagtrack_start(&tags) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	        debugprintf("main: citedb_start() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    bprintf(pip->efp,"%s: could not initialize (%d)\n",
-	        pip->progname,rs) ;
-	    goto badcitestart ;
-	}
-
-/* start phase one processing */
-
-	mkpath2(template,pip->tmpdname,TMPFX) ;
-
-	rs = mktmpfile(tmpfname,0660,template) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	        debugprintf("main: mktmpfile() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    bprintf(pip->efp,"%s: could not create TMPFILE (%d)\n",
-	        pip->progname,rs) ;
-	    goto badtmpfile ;
-	}
-
-	memset(&pip->tf,0,sizeof(PROGINFO_tmpfile)) ;
-	rs = bopen(&pip->tf.tfile,tmpfname,"rwc",0666) ;
-
-	if (rs < 0) {
-	    ex = EX_CANTCREAT ;
-	    bprintf(pip->efp,"%s: could not open TMPFILE (%d)\n",
-	        pip->progname,rs) ;
-	    goto badtmpopen ;
-	}
-
-/* remove the TMPFILE just created (for cleanliness purposes) */
-
-	u_unlink(tmpfname) ;
-	tmpfname[0] = '\0' ;
-
-/* OK, we do it */
-
-	for (ai = 1 ; ai < argc ; ai += 1) {
-
-	    f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	    f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	    if (! f) continue ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: process name=%s\n",argv[ai]) ;
-#endif
-
-	    cp = argv[ai] ;
-	    pan += 1 ;
-	    pip->c_files += 1 ;
-	    rs = progscan(pip,&aparams,&tags,fi++,cp) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: progscan() rs=%d\n",rs) ;
-#endif
-
-	    if (rs < 0) break ;
-	    pip->c_processed += 1 ;
-	} /* end for (looping through requested circuits) */
-
-/* process any files in the argument filename list file */
-
-	if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
-	    bfile	afile, *afp = &afile ;
-
-	    if (afname[0] == '-') afname = BFILE_STDIN ;
-
-	    if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
-	  	const int	llen = LINEBUFLEN ;
-	        int		len ;
-	        char		lbuf[LINEBUFLEN + 1] ;
-
-	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
-	            len = rs ;
-
-	            if (lbuf[len - 1] == '\n') len -= 1 ;
-	            lbuf[len] = '\0' ;
-
-	            cp = lbuf ;
-	            if ((cp[0] == '\0') || (cp[0] == '#'))
-	                continue ;
-
-	            pan += 1 ;
-	    	    pip->c_files += 1 ;
-	            rs = progscan(pip,&aparams,&tags,fi++,cp) ;
-
-	            if (rs < 0) break ;
-	            pip->c_processed += 1 ;
-	        } /* end while (reading lines) */
-
-	        bclose(afp) ;
-	    } else {
-	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,
-	                "%s: inaccessible argument list file (%d)\n",
-	                pip->progname,rs) ;
-	            bprintf(pip->efp,"%s: afile=%s\n",
-	                pip->progname,afname) ;
-	        }
-	    } /* end if */
-
-	} /* end if (processing file argument file list) */
-
-	if ((rs >= 0) && (pan == 0)) {
-
-	    cp = "-" ;
-	    pan += 1 ;
-	    pip->c_files += 1 ;
-	    rs = progscan(pip,&aparams,&tags,fi++,cp) ;
-
-	    if (rs >= 0)
-	        pip->c_processed += 1 ;
-
-	} /* end if */
-
-	if ((rs >= 0) && (pan == 0) && (afname == NULL)) {
-	    rs = SR_INVALID ;
-	    ex = EX_USAGE ;
-	    bprintf(pip->efp,"%s: no files were specified\n",
-	        pip->progname) ;
-	}
-
-/* perform phase two processing */
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: phase-two\n") ;
-#endif
-
-	    brewind(&pip->tf.tfile) ;
-
-	    rs = progoutesc(pip,&tags,ofname) ;
-
-	    if (rs < 0) {
-		if (pip->f.uniq && (rs == SR_NOTUNIQ)) {
-	            ex = EX_PROTOCOL ;
-	            bprintf(pip->efp,
-		    	"%s: citation "
-			"was not unique in DB (%d)\n",
-	                    pip->progname,rs) ;
-		} else {
-	            ex = EX_CANTCREAT ;
-	            bprintf(pip->efp,
-			"%s: could not process citation (%d)\n",
-	                pip->progname,rs) ;
-		}
-	    } /* end if */
-
-	    if ((pip->debuglevel > 0) && (rs >= 0)) {
-	        bprintf(pip->efp,"%s: files=%u\n",
-	            pip->progname,pip->c_files) ;
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
+	    PARAMOPT	*pop = &aparams ;
+	    cchar	*ofn = ofname ;
+	    cchar	*afn = afname ;
+	    if ((rs = process(pip,aip,bop,pop,ofn,afn)) >= 0) {
+	        rs = 1 ;
 	    }
-
-	} /* end if (phase-ii processing) */
-
-	bclose(&pip->tf.tfile) ;
-
-badtmpopen:
-	if (tmpfname[0] != '\0') {
-	    u_unlink(tmpfname) ;
-	    tmpfname[0] = '\0' ;
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
-badtmpfile:
-	tagtrack_finish(&tags) ;
-
-badcitestart:
-badbibstart:
-	vecstr_finish(&pip->filenames) ;
-
-badfilestart:
-done:
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    case SR_INVALID:
@@ -1018,7 +844,7 @@ done:
 	        if (! pip->f.quiet) {
 	            bprintf(pip->efp,"%s: invalid query (%d)\n",
 	                pip->progname,rs) ;
-		}
+	        }
 	        break ;
 	    case SR_NOENT:
 	        ex = EX_CANTCREAT ;
@@ -1045,6 +871,7 @@ retearly:
 #endif
 
 	if (pip->efp != NULL) {
+	    pip->open.errfile = FALSE ;
 	    bclose(pip->efp) ;
 	    pip->efp = NULL ;
 	}
@@ -1070,30 +897,30 @@ badprogstart:
 	    mdiff = (mo-mo_start) ;
 	    debugprintf("main: final mallout=%u\n",mdiff) ;
 	    if (mdiff > 0) {
-		UCMALLREG_CUR	cur ;
-		UCMALLREG_REG	reg ;
-		const int	size = (10*sizeof(uint)) ;
-		int		rs1 ;
-		const char	*ids = "main" ;
-		uc_mallinfo(mi,size) ;
+	        UCMALLREG_CUR	cur ;
+	        UCMALLREG_REG	reg ;
+	        const int	size = (10*sizeof(uint)) ;
+	        int		rs1 ;
+	        const char	*ids = "main" ;
+	        uc_mallinfo(mi,size) ;
 	        debugprintf("main: MIoutnum=%u\n",mi[ucmallreg_outnum]) ;
 	        debugprintf("main: MIoutnummax=%u\n",mi[ucmallreg_outnummax]) ;
 	        debugprintf("main: MIoutsize=%u\n",mi[ucmallreg_outsize]) ;
 	        debugprintf("main: MIoutsizemax=%u\n",
-			mi[ucmallreg_outsizemax]) ;
+	            mi[ucmallreg_outsizemax]) ;
 	        debugprintf("main: MIused=%u\n",mi[ucmallreg_used]) ;
 	        debugprintf("main: MIusedmax=%u\n",mi[ucmallreg_usedmax]) ;
 	        debugprintf("main: MIunder=%u\n",mi[ucmallreg_under]) ;
 	        debugprintf("main: MIover=%u\n",mi[ucmallreg_over]) ;
 	        debugprintf("main: MInotalloc=%u\n",mi[ucmallreg_notalloc]) ;
 	        debugprintf("main: MInotfree=%u\n",mi[ucmallreg_notfree]) ;
-		ucmallreg_curbegin(&cur) ;
-		while (ucmallreg_enum(&cur,&reg) >= 0) {
+	        ucmallreg_curbegin(&cur) ;
+	        while (ucmallreg_enum(&cur,&reg) >= 0) {
 	            debugprintf("main: MIreg.addr=%p\n",reg.addr) ;
 	            debugprintf("main: MIreg.size=%u\n",reg.size) ;
-		    debugprinthexblock(ids,80,reg.addr,reg.size) ;
-		}
-		ucmallreg_curend(&cur) ;
+	            debugprinthexblock(ids,80,reg.addr,reg.size) ;
+	        }
+	        ucmallreg_curend(&cur) ;
 	    }
 	    uc_mallset(0) ;
 	}
@@ -1138,5 +965,160 @@ static int usage(PROGINFO *pip)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (usage) */
+
+
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
+		cchar *ofn,cchar *afn)
+{
+	vecstr		*flp = &pip->filenames ;
+	const int	n = DEFNFILES ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+
+	if ((rs = vecstr_start(flp,n,0)) >= 0) {
+	    TAGTRACK	tags ;
+	    if ((rs = tagtrack_start(&tags)) >= 0) {
+	        bfile	*tfp = &pip->tf.tfile ;
+	        cchar	*tfn = TMPFX ;
+	        memset(&pip->tf,0,sizeof(PROGINFO_TF)) ;
+	        if ((rs = bopentmp(tfp,tfn,"rwc",0666)) >= 0) {
+	            if ((rs = procargs(pip,aip,bop,pop,&tags,afn)) >= 0) {
+	                if ((rs = brewind(&pip->tf.tfile)) >= 0) {
+	                    rs = progoutesc(pip,&tags,ofn) ;
+	                }
+	                if (rs < 0) {
+	                    procereport(pip,rs) ;
+	                } /* end if */
+	                if ((pip->debuglevel > 0) && (rs >= 0)) {
+	                    fmt = "%s: files=%u\n" ;
+	                    bprintf(pip->efp,fmt,pn,pip->c_files) ;
+	                }
+	            } /* end if (procargs) */
+	            rs1 = bclose(tfp) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (bopentmp) */
+	        rs1 = tagtrack_finish(&tags) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (tagtrack_start) */
+	    rs1 = vecstr_finish(&pip->filenames) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (vecstr) */
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (process) */
+
+
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
+		TAGTRACK *ttp,cchar *afn)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		cl ;
+	int		fi = 0 ;
+	cchar		*cp ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+
+	if (rs >= 0) {
+	    int		ai ;
+	    int		f ;
+	    cchar	**argv = aip->argv ;
+	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
+	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	        if (f) {
+	            cp = argv[ai] ;
+	            if (cp[0] != '\0') {
+	                pip->c_files += 1 ;
+	                rs = progscan(pip,pop,ttp,fi++,cp) ;
+	            }
+	        }
+	        if (rs < 0) break ;
+	        pip->c_processed += 1 ;
+	    } /* end for (looping through requested circuits) */
+	} /* end if (ok) */
+
+/* process any files in the argument filename list file */
+
+	if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	    bfile	afile, *afp = &afile ;
+
+	    if (afn[0] == '-') afn = BFILE_STDIN ;
+
+	    if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN + 1] ;
+
+	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
+	            len = rs ;
+
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
+
+	            if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+	                lbuf[(cp+cl)-lbuf] = '\0' ;
+	                if (cp[0] != '#') {
+	                    pip->c_files += 1 ;
+	                    rs = progscan(pip,pop,ttp,fi++,cp) ;
+	                }
+	            }
+
+	            if (rs < 0) break ;
+	            pip->c_processed += 1 ;
+	        } /* end while (reading lines) */
+
+	        rs1 = bclose(afp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        if (! pip->f.quiet) {
+	            fmt = "%s: inaccessible argument list file (%d)\n" ;
+	            bprintf(pip->efp,fmt,pn,rs) ;
+	            bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	        }
+	    } /* end if */
+
+	} /* end if (processing file argument file list) */
+
+	if ((rs >= 0) && (fi == 0)) {
+
+	    cp = "-" ;
+	    pip->c_files += 1 ;
+	    rs = progscan(pip,pop,ttp,fi++,cp) ;
+
+	    if (rs >= 0)
+	        pip->c_processed += 1 ;
+
+	} /* end if */
+
+	if ((rs >= 0) && (fi == 0) && (afn == NULL)) {
+	    rs = SR_INVALID ;
+	    fmt = "%s: no files were specified\n" ;
+	    bprintf(pip->efp,fmt,pn) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (procargs) */
+
+
+static int procereport(PROGINFO *pip,int prs)
+{
+	int		rs = SR_OK ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	if (pip->f.uniq && (prs == SR_NOTUNIQ)) {
+	    fmt = "%s: citation was not unique in DB (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,prs) ;
+	} else {
+	    fmt = "%s: could not process citation (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,prs) ;
+	}
+	return rs ;
+}
+/* end subroutine (procereport) */
 
 

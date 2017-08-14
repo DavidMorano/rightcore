@@ -90,4 +90,3 @@ extern int configfile_finish(CONFIGFILE *) ;
 #endif /* CONFIGFILE_INCLUDE */
 
 
-

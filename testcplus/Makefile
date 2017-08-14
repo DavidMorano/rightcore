@@ -224,6 +224,10 @@ main.o:			main.cc $(INCS)
 whatinfo.o:		whatinfo.c config.h
 
 
+bstree.o:		bstree.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) bstree.h
+
+
 # testing
 
 T01= testsethand
@@ -275,7 +279,7 @@ $(T03).x:		Makefile $(T03OBJ)
 	$(LD) -o $@ $(LDFLAGS) -z defs $(T03OBJS) -lm $(TLIBINFO) > $(T03).lm
 
 $(T03).o:		$(T03).cc setint.h
-	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) $(T03).cc
+	$(GPP) -c $(CCFLAGS) -Wno-reorder $(CPPFLAGS) $(T03).cc
 
 
 T04= testnew
@@ -294,5 +298,77 @@ $(T04).x:		Makefile $(T04OBJ)
 
 $(T04).o:		$(T04).cc setint.h
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) $(T04).cc
+
+
+T05= bstree
+
+T05OBJa= main$(T05).o
+T05OBJb=
+T05OBJc=
+T05OBJd=
+
+T05OBJ= $(T05OBJa) $(T05OBJb) $(T05OBJc) $(T05OBJd)
+
+T05OBJS= $(CRTFRONT) $(T05OBJ) $(CRTC) $(CRTBACK)
+
+$(T05).x:		Makefile $(T05OBJ) bstree.h
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T05OBJS) -lm $(TLIBINFO) > $(T05).lm
+
+main$(T05).o:		main$(T05).cc bstree.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T05).cc
+
+
+T06= listadd
+
+T06OBJa= main$(T06).o
+T06OBJb=
+T06OBJc=
+T06OBJd=
+
+T06OBJ= $(T06OBJa) $(T06OBJb) $(T06OBJc) $(T06OBJd)
+
+T06OBJS= $(CRTFRONT) $(T06OBJ) $(CRTC) $(CRTBACK)
+
+$(T06).x:		Makefile $(T06OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T06OBJS) -lm $(TLIBINFO) > $(T06).lm
+
+main$(T06).o:		main$(T06).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T06).cc
+
+
+T07= forlist
+
+T07OBJa= main$(T07).o
+T07OBJb=
+T07OBJc=
+T07OBJd=
+
+T07OBJ= $(T07OBJa) $(T07OBJb) $(T07OBJc) $(T07OBJd)
+
+T07OBJS= $(CRTFRONT) $(T07OBJ) $(CRTC) $(CRTBACK)
+
+$(T07).x:		Makefile $(T07OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T07OBJS) -lm $(TLIBINFO) > $(T07).lm
+
+main$(T07).o:		main$(T07).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T07).cc
+
+
+T08= prique
+
+T08OBJa= main$(T08).o
+T08OBJb=
+T08OBJc=
+T08OBJd=
+
+T08OBJ= $(T08OBJa) $(T08OBJb) $(T08OBJc) $(T08OBJd)
+
+T08OBJS= $(CRTFRONT) $(T08OBJ) $(CRTC) $(CRTBACK)
+
+$(T08).x:		Makefile $(T08OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T08OBJS) -lm $(TLIBINFO) > $(T08).lm
+
+main$(T08).o:		main$(T08).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T08).cc
 
 

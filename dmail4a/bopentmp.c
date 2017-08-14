@@ -5,7 +5,6 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_MKDIRS	1		/* make any necessary directories */
 
 
 /* revision history:
@@ -96,6 +95,7 @@ extern int	sfdirname(const char *,int,const char **) ;
 
 /* forward references */
 
+static int mkxfn(char *,cchar *) ;
 static int mktmpdirs(const char *,mode_t) ;
 
 
@@ -107,7 +107,7 @@ static int mktmpdirs(const char *,mode_t) ;
 
 int bopentmp(bfile *fp,cchar *tname,cchar *ostr,mode_t om)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	char		xfname[MAXPATHLEN + 1] ;
 
 	if (fp == NULL) return SR_FAULT ;
@@ -115,33 +115,25 @@ int bopentmp(bfile *fp,cchar *tname,cchar *ostr,mode_t om)
 
 	if (ostr[0] == '\0') return SR_INVALID ;
 
-	if ((tname == NULL) || (tname[0] == '\0')) tname = BFILE_TEMPLATE ;
+	if ((tname == NULL) || (tname[0] == '\0')) {
+	    tname = BFILE_TEMPLATE ;
+	}
 
-	if (tname[0] != '/') {
-	    const char	*tmpdname = getenv(VARTMPDNAME) ;
-	    if (tmpdname == NULL) tmpdname = TMPDNAME ;
-	    rs = mkpath2(xfname,tmpdname,tname) ;
-	} else
-	    rs = mkpath1(xfname,tname) ;
-
-#if	CF_MKDIRS
-	if (rs >= 0)
-	    rs = mktmpdirs(xfname,om) ;
-#endif /* CF_MKDIRS */
-
-	if (rs >= 0) {
-	    SIGBLOCK	b ;
-	    if ((rs = sigblock_start(&b,NULL)) >= 0) {
-		char	tmpfname[MAXPATHLEN + 1] ;
-	
-	        if ((rs = mktmpfile(tmpfname,om,xfname)) >= 0) {
-	            rs = bopen(fp,tmpfname,ostr,om) ;
-	            u_unlink(tmpfname) ;
-	        } /* end if (tmp-file) */
-
-	        sigblock_finish(&b) ;
-	    } /* end if (sigblock) */
-	} /* end if */
+	if ((rs = mkxfn(xfname,tname)) >= 0) {
+	    if ((rs = mktmpdirs(xfname,om)) >= 0) {
+	        SIGBLOCK	b ;
+	        if ((rs = sigblock_start(&b,NULL)) >= 0) {
+		    char	tbuf[MAXPATHLEN + 1] ;
+    	
+	            if ((rs = mktmpfile(tbuf,om,xfname)) >= 0) {
+	                rs = bopen(fp,tbuf,ostr,om) ;
+	                u_unlink(tbuf) ;
+	            } /* end if (tmp-file) */
+    
+	            sigblock_finish(&b) ;
+	        } /* end if (sigblock) */
+	    } /* end if (mktmpdirs) */
+	} /* end if (ok) */
 
 	return rs ;
 }
@@ -151,23 +143,34 @@ int bopentmp(bfile *fp,cchar *tname,cchar *ostr,mode_t om)
 /* local subroutines */
 
 
-#if	CF_MKDIRS
+static int mkxfn(char *xfname,cchar *tname)
+{
+	int		rs ;
+	if (tname[0] != '/') {
+	    cchar	*tmpdname = getenv(VARTMPDNAME) ;
+	    if (tmpdname == NULL) tmpdname = TMPDNAME ;
+	    rs = mkpath2(xfname,tmpdname,tname) ;
+	} else {
+	    rs = mkpath1(xfname,tname) ;
+	}
+	return rs ;
+}
+/* end subroutine (mkxfn) */
+
+
 static int mktmpdirs(const char *xfname,mode_t om)
 {
 	int		rs = SR_OK ;
 	int		cl ;
-	const char	*cp ;
-
+	cchar		*cp ;
 	if ((cl = sfdirname(xfname,-1,&cp)) > 0) {
 	    char	dname[MAXPATHLEN+1] ;
 	    if ((rs = mkpath1w(dname,cp,cl)) >= 0) {
 		rs = mkdirs(dname,om) ;
 	    }
 	}
-
 	return rs ;
 } 
 /* end subrouine (mktmpdirs) */
-#endif /* CF_MKDIRS */
 
 

@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1999-05-06, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -21,8 +19,8 @@
 
 /*******************************************************************************
 
-	This subroutine encodes the input so that it is better
-	suited for encryption later.
+        This subroutine encodes the input so that it is better suited for
+        encryption later.
 
 	The format of the output "covered" file is:
 
@@ -116,52 +114,53 @@ ECMSG		*emp ;
 int		ifd, ofd ;
 {
 	struct ecmsgdesc	md ;
-
 	struct ustat	stat_i ;
+	ULONG		key[NOPWORDS] ;
+	ULONG		vector[NOPWORDS] ;
+	ULONG		data[NOPWORDS] ;
+	ULONG		mask[NOPWORDS] ;
+	ULONG		out[NOPWORDS] ;
 
-	ULONG	key[NOPWORDS] ;
-	ULONG	vector[NOPWORDS] ;
-	ULONG	data[NOPWORDS] ;
-	ULONG	mask[NOPWORDS] ;
-	ULONG	out[NOPWORDS] ;
+	CKSUM		filesum, msgsum ;
 
-	CKSUM	filesum, msgsum ;
+	time_t		filetime ;
+	time_t		msgtime ;
 
-	time_t	filetime ;
-	time_t	msgtime ;
+	uint		val ;
 
-	uint	val ;
-
-	int	rs ;
-	int	i, j ;
-	int	len, filelen ;
-	int	cl ;
-	int	ndatablocks = 0 ;
-	int	n = NOPWORDS ;
-
-	char	*cp ;
+	int		rs ;
+	int		i, j ;
+	int		len, filelen ;
+	int		cl ;
+	int		ndatablocks = 0 ;
+	int		n = NOPWORDS ;
+	char		*cp ;
 
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("encode: entered\n") ;
+	    debugprintf("encode: ent\n") ;
 #endif
 
 /* initialization */
 
-	for (i = 0 ; i < NOPWORDS ; i += 1)
+	for (i = 0 ; i < NOPWORDS ; i += 1) {
 	    randomvar_getulong(rvp,(key + i)) ;
+	}
 
-	for (i = 0 ; i < NOPWORDS ; i += 1)
+	for (i = 0 ; i < NOPWORDS ; i += 1) {
 	    randomvar_getulong(rvp,(data + i)) ;
+	}
 
-	for (i = 0 ; i < NOPWORDS ; i += 1)
+	for (i = 0 ; i < NOPWORDS ; i += 1) {
 	    randomvar_getulong(rvp,(mask + i)) ;
+	}
 
 /* load the vector for starters */
 
-	for (i = 0 ; i < NOPWORDS ; i += 1)
+	for (i = 0 ; i < NOPWORDS ; i += 1) {
 	    vector[i] = key[i] ;
+	}
 
 /* get the input file modification time */
 
@@ -262,8 +261,9 @@ int		ifd, ofd ;
 
 /* this is the special part! */
 
-	    for (i = 0 ; i < (n - pip->necinfo) ; i += 1)
+	    for (i = 0 ; i < (n - pip->necinfo) ; i += 1) {
 	        data[i] = data[i] ^ mask[i] ;
+	    }
 
 	    munge(pip,n,vector,data,out) ;
 
@@ -294,9 +294,7 @@ int		ifd, ofd ;
 
 	        rs = uc_writen(ofd,out,BLOCKLEN) ;
 
-		if (rs < 0)
-		    break ;
-
+		if (rs < 0) break ;
 	    } /* end while */
 
 	} /* end if (there was more input data to read) */
@@ -304,9 +302,7 @@ int		ifd, ofd ;
 /* now fill in blocks with the rest of the extra message */
 
 	while ((rs >= 0) && (md.rlen > 0)) {
-
 	    int	mlen ;
-
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -345,11 +341,8 @@ int		ifd, ofd ;
 /* prepare the check information */
 
 	if (rs >= 0) {
-
 		struct ecinfo_data	m0 ;
-
 		uint	msg_cksum ;
-
 
 		cksum_getsum(&msgsum,&msg_cksum) ;
 
@@ -368,8 +361,9 @@ int		ifd, ofd ;
 /* mask the ECINFO words with the first words of the block */
 
 	j = 0 ;
-	for (i = (n - pip->necinfo) ; i < n ; i += 1)
+	for (i = (n - pip->necinfo) ; i < n ; i += 1) {
 	    mask[i] = mask[i] ^ mask[j++] ;
+	}
 
 	munge(pip,n,vector,mask,out) ;
 
@@ -397,11 +391,13 @@ int		ifd, ofd ;
 	len = len & (BLOCKLEN - 1) ;
 
 	j = (len / sizeof(ULONG)) + 1 ;
-	for (i = 0 ; i < j ; i += 1)
+	for (i = 0 ; i < j ; i += 1) {
 	    randomvar_getulong(rvp,(data + i)) ;
+	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = u_write(ofd,data,len) ;
+	}
 
 /* done */
 badread:
@@ -433,17 +429,15 @@ int			len ;		/* length filled already */
 struct ecmsgdesc	*mdp ;
 RANDOMVAR		*rvp ;
 {
-	int	blocklen = n * sizeof(ULONG) ;
-	int	rlen, mlen ;
-	int	nchars ;
-	int	i ;
-
-	uchar	*dp ;
-
+	int		blocklen = n * sizeof(ULONG) ;
+	int		rlen, mlen ;
+	int		nchars ;
+	int		i ;
+	uchar		*dp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("encode/blockfinish: entered\n") ;
+	    debugprintf("encode/blockfinish: ent\n") ;
 #endif
 
 /* fill in this block as necessary */
@@ -472,11 +466,8 @@ RANDOMVAR		*rvp ;
 /* fill the rest with random data */
 
 	if (rlen > 0) {
-
 	    ULONG	rv ;
-
 	    int		k ;
-
 
 	    nchars = rlen % sizeof(ULONG) ;
 	    i = len / sizeof(ULONG) ;
@@ -486,8 +477,9 @@ RANDOMVAR		*rvp ;
 	    memcpy(dp,&rv,nchars) ;
 
 	    i += 1 ;
-	    for (k = 0 ; k < (NOPWORDS - i) ; k += 1)
+	    for (k = 0 ; k < (NOPWORDS - i) ; k += 1) {
 	        randomvar_getulong(rvp,(block + i)) ;
+	    }
 
 	} /* end if */
 
@@ -502,12 +494,9 @@ RANDOMVAR		*rvp ;
 
 #ifdef	COMMENT
 
-static ULONG packlong(h1,h0)
-uint	h0, h1 ;
+static ULONG packlong(uint h1,uint h0)
 {
-	ULONG	r, r0, r1 ;
-
-
+	ULONG		r, r0, r1 ;
 	r0 = h0 ;
 	r1 = h1 ;
 	r = r0 | (r1 << 32) ;

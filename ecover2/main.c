@@ -7,19 +7,16 @@
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	0		/* switchable debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory allocations */
+#define	CF_LOCSETENT	0		/* |locinfo_setentry()| */
 
 
 /* revision history:
 
-	= 1994-09-01, David A­D­ Morano
-
+	= 1997-05-03, David A­D­ Morano
 	This subroutine was originally written.
 
-
-	= 1997-05-03, David A­D­ Morano
-
-	This subroutine was enhanced to take multiple input files.
-
+	= 2003-04-28, David A­D­ Morano
+	This has been slightly refactored.
 
 */
 
@@ -64,7 +61,7 @@
 #include	"ecinfo.h"
 #include	"config.h"
 #include	"defs.h"
-#include	"configfile.h"
+#include	"proglog.h"
 
 
 /* local defines */
@@ -84,14 +81,17 @@
 #define	NOISEBUFLEN	100
 #endif
 
-#ifndef		FILEINFO
-#define		FILEINFO	struct fileinfo
+#ifndef	FILEINFO
+#define	FILEINFO	struct fileinfo
 #endif
+
+#define	LOCINFO		struct locinfo
+#define	LOCINFO_FL	struct locinfo_flags
 
 
 /* external subroutines */
 
-extern uint	hashelf(const char *,int) ;
+extern uint	hashelf(cchar *,int) ;
 
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
@@ -102,14 +102,15 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	iceil(int,int) ;
-extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,cchar *,cchar *) ;
+extern int	ecmsg_loadfile(ECMSG *,cchar *) ;
 extern int	isdigitlatin(int) ;
 extern int	isalnumlatin(int) ;
+extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
-extern int	proglogfname(PROGINFO *,char *,
-			const char *,const char *) ;
+extern int	lightnoise(PROGINFO *,USERINFO *,cchar *) ;
 extern int	encode(PROGINFO *,RANDOMVAR *,
 			FILEINFO *,ECMSG *,int,int) ;
 extern int	decode(PROGINFO *,RANDOMVAR *,
@@ -128,14 +129,46 @@ extern char	*getourenv(cchar **,cchar *) ;
 /* external variables */
 
 
+/* local structures */
+
+struct locinfo_flags {
+	uint		stores:1 ;
+	uint		extra:1 ;
+} ;
+
+struct locinfo {
+	LOCINFO_FL	have, f, changed, final ;
+	LOCINFO_FL	open ;
+	vecstr		stores ;
+	ECMSG		extra ;
+	PROGINFO	*pip ;
+} ;
+
+
 /* forward references */
 
 static int	usage(PROGINFO *) ;
 
-static uint	lightnoise(PROGINFO *,USERINFO *,const char *) ;
+static int	process(PROGINFO *,cchar *,cchar *) ;
+static int	procereport(PROGINFO *,FILEINFO *,int) ;
 
+static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
+static int	procuserinfo_end(PROGINFO *) ;
 
-/* local structures */
+static int	procout_begin(PROGINFO *,cchar *) ;
+static int	procout_end(PROGINFO *,int) ;
+
+static int	procinput_begin(PROGINFO *,cchar *) ;
+static int	procinput_end(PROGINFO *,int) ;
+
+static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_loadmsg(LOCINFO *,cchar *,int) ;
+static int	locinfo_loadfile(LOCINFO *,cchar *) ;
+
+#if	CF_LOCSETENT
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+#endif /* CF_LOCSETENT */
 
 
 /* local variables */
@@ -196,14 +229,6 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*tmpdirs[] = {
-	"/tmp",
-	"/var/tmp",
-	"/var/spool/uucppublic",
-	".",
-	NULL
-} ;
-
 
 /* exported subroutines */
 
@@ -211,12 +236,8 @@ static const char	*tmpdirs[] = {
 int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
-	FILEINFO	fi ;
-	USERINFO	u ;
-	RANDOMVAR	rv ;
-	ECMSG		extra ;
+	LOCINFO		li, *lip = &li ;
 	bfile		errfile ;
-	uint		hv ;
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
@@ -241,7 +262,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*ifname = NULL ;
-	const char	*lfname = NULL ;
 	const char	*helpfname = NULL ;
 	const char	*jobid = NULL ;
 	const char	*cp ;
@@ -270,11 +290,14 @@ int main(int argc,cchar **argv,cchar **envv)
 /* initialize */
 
 	pip->verboselevel = 1 ;
+	pip->daytime = time(NULL) ;
+	pip->f.logprog = TRUE ;
 
-	rs = ecmsg_start(&extra) ;
+	pip->lip = &li ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
-	    goto badecinit ;
+	    goto badlocstart ;
 	}
 
 /* start parsing the arguments */
@@ -389,14 +412,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
 	                            if (avl)
-	                                lfname = avp ;
+	                                pip->lfname = avp ;
 	                        } else {
 	                            if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                lfname = argp ;
+	                                pip->lfname = argp ;
 				    } else
 					rs = SR_INVALID ;
 	                        }
@@ -576,7 +599,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                rs = ecmsg_loadbuf(&extra,argp,argl) ;
+	                                rs = locinfo_loadmsg(lip,argp,argl) ;
 				    }
 				    } else
 					rs = SR_INVALID ;
@@ -637,6 +660,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -687,139 +712,18 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	ex = EX_OK ;
 
-/* get some host/user information */
+/* defaults */
 
-	rs = userinfo(&u,userbuf,USERINFO_LEN,NULL) ;
-	if (rs < 0) {
-		ex = EX_NOUSER ;
-	        bprintf(pip->efp,"%s: no user (%d)\n",
-	            pip->progname,rs) ;
-		goto retearly ;
-	}
-
-	pip->nodename = u.nodename ;
-	pip->domainname = u.domainname ;
-	pip->username = u.username ;
-	pip->groupname = u.groupname ;
-
-	pip->daytime = time(NULL) ;
-
-	if (pip->debuglevel > 0)
-	    bprintf(pip->efp,"%s: mode=%s\n",
-		pip->progname,
-		((pip->f.unscramble) ? "decode" : "encode")) ;
-
-/* create a good (?) starting seed value */
-
-	hv = lightnoise(pip,&u,ofname) ;
-
-/* initialize our random generator */
-
-	rs = randomvar_start(&rv,FALSE,hv) ;
-
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    goto badnoise ;
-	}
-
-/* check program parameters */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: checking program parameters\n") ;
-#endif
-
-	if (pip->tmpdname == NULL)
-	    pip->tmpdname = getenv(VARTMPDNAME) ;
+	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 
 	if ((pip->tmpdname == NULL) || (pip->tmpdname[0] == '\0')) {
-	    const int	am = (W_OK|R_OK|X_OK) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: for-access\n") ;
-#endif
-
-	    for (i = 0 ; tmpdirs[i] != NULL ; i += 1) {
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: access fn=%s\n",tmpdirs[i]) ;
-#endif
-	        if (u_access(tmpdirs[i],am) >= 0) break ;
-	    } /* end for */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: for-out rs=%d\n",rs) ;
-#endif
-
-	    if (tmpdirs[i] != NULL) {
-	        pip->tmpdname = tmpdirs[i] ;
-	    }
-
-	} /* end if */
-
-	if ((pip->tmpdname == NULL) || (pip->tmpdname[0] == '\0'))
 	    pip->tmpdname = TMPDNAME ;
-
-/* possibly clean up the user specified JOB ID */
-
-	if (jobid != NULL) {
-	    cp = jobid ;
-	    i = 0 ;
-	    while ((*cp != '\0') && (i < LOGFILE_LOGIDLEN)) {
-		int ch = MKCHAR(*cp) ;
-	        if (isalnumlatin(ch) || (*cp == '_')) {
-	            jobidbuf[i++] = *cp ;
-		}
-	        cp += 1 ;
-	    } /* end while */
-	    jobid = jobidbuf ;
-	} else
-	    jobid = u.logid ;
-
-/* do we have an activity log file? */
-
-	rs = proglogfname(pip,tmpfname,LOGCNAME,lfname) ;
-	if (rs > 0) lfname = tmpfname ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: lfname=%s\n",tmpfname) ;
-#endif
-
-	if ((rs >= 0) && (lfname != NULL)) {
-	    rs1 = SR_NOENT ;
-	    if ((lfname[0] != '\0') && (lfname[0] != '-'))
-	        rs1 = logfile_open(&pip->lh,lfname,0,0666,jobid) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: logfile_open() rs=%d\n",rs) ;
-#endif
-
-	    if (rs1 >= 0) {
-	        pip->open.log = TRUE ;
-	        if (loglen < 0) loglen = LOGSIZE ;
-	        logfile_checksize(&pip->lh,loglen) ;
-	        logfile_userinfo(&pip->lh,&u,
-		    pip->daytime,pip->progname,pip->version) ;
-	    } /* end if (we have a log file or not) */
-
-	} /* end if */
-	if (rs < 0) goto retearly ;
-
-/* initialize (calculate) the number of OPwords to store ECINFO */
-
-	size = sizeof(struct ecinfo_data) ;
-	pip->necinfo = iceil(size,sizeof(ULONG)) / sizeof(ULONG) ;
-
-	if (pip->necinfo >= (NOPWORDS/2)) {
-		ex = EX_SOFTWARE ;
-		goto done ;
 	}
 
-/* process the positional arguments */
+	if (pip->debuglevel > 0) {
+	    bprintf(pip->efp,"%s: mode=%s\n", pip->progname,
+		((pip->f.unscramble) ? "decode" : "encode")) ;
+	}
 
 	for (ai = 1 ; ai < argc ; ai += 1) {
 
@@ -838,120 +742,51 @@ int main(int argc,cchar **argv,cchar **envv)
 	    if (ifname != NULL) break ;
 	} /* end for (processing positional arguments) */
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	debugprintf("main: ifname=%s\n",ifname) ;
-#endif
+/* initialize (calculate) the number of OPwords to store ECINFO */
 
-/* open the input */
+	size = sizeof(ECINFO) ;
+	pip->necinfo = iceil(size,sizeof(ULONG)) / sizeof(ULONG) ;
+	if (pip->necinfo > (NOPWORDS/2)) pip->necinfo = (NOPWORDS/2) ;
 
-	ifd = FD_STDIN ;
-	if ((ifname != NULL) && (ifname[0] != '\0') && (ifname[0] != '-')) {
-	    rs = uc_open(ifname,O_RDONLY,0666) ;
-	    ifd = rs ;
-	}
-
-	if (rs < 0) {
-	ex = EX_NOINPUT ;
-	bprintf(pip->efp,"%s: inaccessible input file (%d)\n",
-	    pip->progname,rs) ;
-	    goto badinopen ;
-	}
-
-/* open the output */
-
-	ofd = FD_STDOUT ;
-	if ((ofname != NULL) && (ofname[0] != '\0')) {
-	    rs = u_open(ofname,O_CREAT | O_TRUNC | O_WRONLY,0666) ;
-	    ofd = rs ;
-	}
-
-	if (rs < 0) {
-	ex = EX_CANTCREAT ;
-	bprintf(pip->efp,"%s: inaccessible output file (%d)\n",
-	    pip->progname,rs) ;
-	    goto badoutopen ;
-	}
-
-/* what program mode are we running in? */
-
-	if (pip->f.unscramble) {
-
-	    rs = decode(pip,&rv,&fi,&extra,ifd,ofd) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	debugprintf("main: decode() rs=%d\n",rs) ;
-#endif
-
-	} else {
-
-	    if ((pip->msgfname != NULL) && (ecmsg_already(&extra) == 0)) {
-		const char	*msgfname = pip->msgfname ;
-
-	        if ((rs1 = uc_open(msgfname,O_RDONLY,0666)) >= 0) {
-		    const int	mfd = rs1 ;
-
-				size = MIN(BUFLEN,ECMSG_MAXBUFLEN) ;
-				rs1 = uc_readn(mfd,buf,size) ;
-
-				ecmsg_loadbuf(&extra,buf,rs1) ;
-
-		    u_close(mfd) ;
-		} /* end if (ec) */
-
-	    } /* end if (message file) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(5)) {
-	    debugprintf("main: extra.buf(%p) extra.buflen=%d\n",
-		extra.buf,extra.buflen) ;
-		if (extra.buf != NULL)
-	    debugprintf("main: extra=>%t<\n",
-		extra.buf,strnlen(extra.buf,extra.buflen)) ;
-	}
-#endif /* CF_DEBUG */
+/* continue */
 
 	if (rs >= 0) {
+	    USERINFO	u ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    if ((rs = userinfo_start(&u,NULL)) >= 0) {
+	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
+	            if ((rs = proglog_begin(pip,&u)) >= 0) {
+	    		RANDOMVAR	rv ;
+			cchar	*ofn = ofname ;
+			cchar	*ifn = ifname ;
+			if ((rs = lightnoise(pip,&u,ofn)) >= 0) {
+	                    if ((rs = process(pip,ofn,ifn)) > 0) {
+				if (pip->debuglevel > 0) {
+				    cchar	*pn = pip->progname ;
+				    cchar	*fmt = "%s: process (%d)\n" ;
+				    bprintf(pip->efp,fmt,pn,rs) ;
+				}
+			    } /* end if (process) */
+			} /* end if (lightnoise) */
+			rs1 = proglog_end(pip) ;
+			if (rs >= 0) rs = rs1 ;
+		    } /* end if (proglog) */
+	            rs1 = procuserinfo_end(pip) ;
+	            if (rs >= 0) rs = rs1 ;
+		} /* end if (procuserinfo) */
+		rs1 = userinfo_finish(&u) ;
+		if (rs >= 0) rs = rs1 ;
+	   } /* end if (userinfo) */
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
+	} /* end if */
 
-	    rs = encode(pip,&rv,&fi,&extra,ifd,ofd) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	debugprintf("main: encode() rs=%d\n",rs) ;
-#endif
-
-	}
-
-	} /* end if (encode or decode) */
-
-	if (rs < 0) {
-
-	    logfile_printf(&pip->lh,"mode=%c",
-	        ((pip->f.unscramble) ? 'd' : 'e')) ;
-
-	    logfile_printf(&pip->lh,"sent cksum=\\x%08x (%u)",
-	        fi.cksum,fi.cksum) ;
-
-	    logfile_printf(&pip->lh,"failed (%d)",rs) ;
-
-	    if ((pip->debuglevel > 0) || (! pip->f.quiet))
-	        bprintf(pip->efp,"%s: failed (%d)\n",
-	            pip->progname,rs) ;
-
-	} else {
-	    logfile_printf(&pip->lh,"mode=%c cksum=\\x%08x (%u)",
-	        ((pip->f.unscramble) ? 'u' : 's'),
-	        fi.cksum,fi.cksum) ;
-	}
-
-	u_close(ofd) ;
-
-badoutopen:
-	u_close(ifd) ;
-
-badinopen:
-done:
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    default:
@@ -959,16 +794,6 @@ done:
 		break ;
 	    } /* end switch */
 	} /* end if */
-
-/* start the exit sequence */
-
-	if (pip->open.log) {
-	    pip->open.log = FALSE ;
-	    logfile_close(&pip->lh) ;
-	}
-
-badnoise:
-	randomvar_finish(&rv) ;
 
 retearly:
 	if (pip->debuglevel > 0) {
@@ -987,9 +812,9 @@ retearly:
 	    pip->efp = NULL ;
 	}
 
-	ecmsg_finish(&extra) ;
+	locinfo_finish(lip) ;
 
-badecinit:
+badlocstart:
 	proginfo_finish(pip) ;
 
 badprogstart:
@@ -1023,15 +848,15 @@ static int usage(PROGINFO *pip)
 	const char	*fmt ;
 
 	fmt = "%s: USAGE> %s [<file>] \n" ;
-	rs = bprintf(pip->efp,fmt,pn,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-s|-u] [-of <ofile>]\n" ;
-	rs = bprintf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
-	rs = bprintf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1039,70 +864,302 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
-static uint lightnoise(PROGINFO *pip,USERINFO *uip,cchar *ofname)
+static int process(PROGINFO *pip,cchar *ofn,cchar *ifn)
 {
-	struct timeval	tod ;
-	SBUF		hb ;
-	uint		v = 0 ;
-	uint		hv = 0 ;
-	const int	dlen = BUFLEN ;
+	LOCINFO		*lip = pip->lip ;
+	const uint	hv = pip->hv ;
+	RANDOMVAR	rv ;
 	int		rs ;
-	int		i ;
-	int		bl = 0 ;
-	char		dbuf[BUFLEN + 1] ;
+	int		rs1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	if ((rs = randomvar_start(&rv,FALSE,hv)) >= 0) {
+	    if ((rs = procout_begin(pip,ofn)) >= 0) {
+		const int	ofd = rs ;
+		if ((rs = procinput_begin(pip,ifn)) >= 0) {
+	            ECMSG	*emp = &lip->extra ;
+		    FILEINFO	fi ; /* result data */
+		    const int	ifd = rs ;
+		    if (pip->f.unscramble) {
+	    	        rs = decode(pip,&rv,&fi,emp,ifd,ofd) ;
+		    } else {
+			if (pip->msgfname != NULL) {
+			    cchar	*mfn = pip->msgfname ;
+			    rs = locinfo_loadfile(lip,mfn) ;
+			}
+		        if (rs >= 0) {
+	    	    	    rs = encode(pip,&rv,&fi,emp,ifd,ofd) ;
+			}
+		    } /* end if (encode or decode) */
+		    if (rs < 0) {
+	    	        procereport(pip,&fi,rs) ;
+		    } else {
+			fmt = "mode=%c cksum=\\x%08x (%u)" ;
+	    	        logfile_printf(&pip->lh,fmt,
+	        	    ((pip->f.unscramble) ? 'u' : 's'),
+	        	    fi.cksum,fi.cksum) ;
+		    }
+		    rs1 = procinput_end(pip,ifd) ;
+		    if (rs >= 0) rs = rs1 ;
+		} /* end if (procinput) */
+		rs1 = procout_end(pip,ofd) ;
+		if (rs >= 0) rs = rs1 ;
+	    } else {
+	        fmt = "%s: inaccessible output (%d)\n" ;
+	        bprintf(pip->efp,fmt,pn,rs) ;
+	        bprintf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
+	    } /* end if (procout) */
+	    rs1 = randomvar_finish(&rv) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (randomvar) */
 
-	if ((rs = sbuf_start(&hb,dbuf,dlen)) >= 0) {
-	    pid_t	pid_parent = getppid() ;
+	return rs ;
+}
+/* end subroutine (process) */
 
-/* get some miscellaneous stuff */
 
-	    if (uip->username != NULL)
-	        sbuf_strw(&hb,uip->username,-1) ;
+static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
+{
+	int		rs = SR_OK ;
 
-	    if (uip->homedname != NULL)
-	        sbuf_strw(&hb,uip->homedname,-1) ;
+	pip->nodename = uip->nodename ;
+	pip->domainname = uip->domainname ;
+	pip->username = uip->username ;
+	pip->gecosname = uip->gecosname ;
+	pip->realname = uip->realname ;
+	pip->name = uip->name ;
+	pip->fullname = uip->fullname ;
+	pip->mailname = uip->mailname ;
+	pip->org = uip->organization ;
+	pip->logid = uip->logid ;
+	pip->pid = uip->pid ;
+	pip->uid = uip->uid ;
+	pip->euid = uip->euid ;
+	pip->gid = uip->gid ;
+	pip->egid = uip->egid ;
 
-	    if (uip->nodename != NULL)
-	        sbuf_strw(&hb,uip->nodename,-1) ;
-
-	    if (uip->domainname != NULL)
-	        sbuf_strw(&hb,uip->domainname,-1) ;
-
-	    sbuf_deci(&hb,(int) uip->pid) ;
-
-	    sbuf_decl(&hb,(long) pip->daytime) ;
-
-	    if (ofname != NULL)
-	        sbuf_strw(&hb,ofname,-1) ;
-
-	    sbuf_deci(&hb,(int) pid_parent) ;
-
-	    uc_gettimeofday(&tod,NULL) ;
-
-	    sbuf_buf(&hb,(char *) &tod,sizeof(struct timeval)) ;
-
-	    bl = sbuf_finish(&hb) ;
-	    if (rs >= 0) rs = bl ;
-	} /* end if (sbuf) */
-
-	    hv = hashelf(dbuf,bl) ;
-
-/* pop in our environment also! */
-
-	for (i = 0 ; pip->envv[i] != NULL ; i += 1) {
-	    v ^= hashelf(pip->envv[i],-1) ;
+	if (rs >= 0) {
+	    const int	hlen = MAXHOSTNAMELEN ;
+	    char	hbuf[MAXHOSTNAMELEN+1] ;
+	    cchar	*nn = pip->nodename ;
+	    cchar	*dn = pip->domainname ;
+	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	        cchar	**vpp = &pip->hostname ;
+	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
+	    }
 	}
-	hv ^= v ;
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_begin) */
+
+
+static int procuserinfo_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_end) */
+
+
+static int procout_begin(PROGINFO *pip,cchar *ofn)
+{
+	int		rs = SR_OK ;
+	int		ofd = FD_STDOUT ;
+	if ((ofn != NULL) && (ofn[0] != '\0')) {
+	    const int	of = (O_CREAT | O_TRUNC | O_WRONLY) ;
+	    rs = u_open(ofn,of,0666) ;
+	    ofd = rs ;
+	}
+	return (rs >= 0) ? ofd : rs ;
+}
+/* end subroutine (procout_begin) */
+
+
+static int procout_end(PROGINFO *pip,int ofd)
+{
+	int		rs = SR_OK ;
+	if (pip->f.outfile && (ofd >= 0)) {
+	    pip->f.outfile = FALSE ;
+	    rs = u_close(ofd) ;
+	}
+	return rs ;
+}
+/* end subroutine (procinput_end) */
+
+
+static int procinput_begin(PROGINFO *pip,cchar *ifn)
+{
+	int		rs = SR_OK ;
+	int		ifd = FD_STDIN ;
+	if ((ifn != NULL) && (ifn[0] != '\0') && (ifn[0] != '-')) {
+	    const int	of = O_RDONLY ;
+	    if ((rs = uc_open(ifn,of,0666)) >= 0) {
+		pip->f.infile = TRUE ;
+	        ifd = rs ;
+	    }
+	}
+	return (rs >= 0) ? ifd : rs ;
+}
+/* end subroutine (procinput_begin) */
+
+
+static int procinput_end(PROGINFO *pip,int ifd)
+{
+	int		rs = SR_OK ;
+	if (pip->f.infile && (ifd >= 0)) {
+	    pip->f.infile = FALSE ;
+	    rs = u_close(ifd) ;
+	}
+	return rs ;
+}
+/* end subroutine (procinput_end) */
+
 
 #ifdef	COMMENT
-	if ((cp = getenv("RANDOM")) != NULL) {
-	    if (cfdecui(cp,-1,&v) >= 0)
-	        hv ^= v ;
+
+	if (jobid != NULL) {
+	    cp = jobid ;
+	    i = 0 ;
+	    while ((*cp != '\0') && (i < LOGFILE_LOGIDLEN)) {
+		int ch = MKCHAR(*cp) ;
+	        if (isalnumlatin(ch) || (*cp == '_')) {
+	            jobidbuf[i++] = *cp ;
+		}
+	        cp += 1 ;
+	    } /* end while */
+	    jobid = jobidbuf ;
+	} else {
+	    jobid = u.logid ;
 	}
+
 #endif /* COMMENT */
 
-	return hv ;
+
+static int procereport(PROGINFO *pip,FILEINFO *fip,int prs)
+{
+	int		rs = SR_OK ;
+
+	proglog_printf(pip,"mode=%c",
+	        ((pip->f.unscramble) ? 'd' : 'e')) ;
+
+	proglog_printf(pip,"sent cksum=\\x%08x (%u)",
+	        fip->cksum,fip->cksum) ;
+
+	proglog_printf(pip,"failed (%d)",prs) ;
+
+	if ((pip->debuglevel > 0) || (! pip->f.quiet)) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    fmt = "%s: failed (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,prs) ;
+	}
+
+	return rs ;
 }
-/* end subroutine (lightnoise) */
+/* end subroutine (procereport) */
+
+
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	memset(lip,0,sizeof(LOCINFO)) ;
+	lip->pip = pip ;
+	if ((rs = ecmsg_start(&lip->extra)) >= 0) {
+	    lip->open.extra = TRUE ;
+	}
+
+	return rs ;
+}
+/* end subroutine (locinfo_start) */
+
+
+static int locinfo_finish(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (lip == NULL) return SR_FAULT ;
+
+	if (lip->open.extra) {
+	    rs1 = ecmsg_finish(&lip->extra) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	if (lip->open.stores) {
+	    lip->open.stores = FALSE ;
+	    rs1 = vecstr_finish(&lip->stores) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	return rs ;
+}
+/* end subroutine (locinfo_finish) */
+
+
+#if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+{
+	VECSTR		*slp ;
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	slp = &lip->stores ;
+	if (! lip->open.stores) {
+	    rs = vecstr_start(slp,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
+	}
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
+	    if (vp != NULL) {
+	        len = strnlen(vp,vl) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (locinfo_setentry) */
+#endif /* CF_LOCSETENT */
+
+
+static int locinfo_loadmsg(LOCINFO *lip,cchar *mp,int ml)
+{
+	int		rs = SR_OK ;
+	if (lip->open.extra) {
+	     ECMSG	*emp = &lip->extra ;
+	     rs = ecmsg_loadbuf(emp,mp,ml) ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_loadmsg) */
+
+
+static int locinfo_loadfile(LOCINFO *lip,cchar *mfn)
+{
+	ECMSG		*emp = &lip->extra ;
+	int		rs = SR_OK ;
+	if ((rs = ecmsg_already(emp) == 0)) {
+	    rs = ecmsg_loadfile(emp,mfn) ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_loadfile) */
 
 

@@ -13,15 +13,11 @@
 /* revision history:
 
 	= 1986-07-01, David A­D­ Morano
-
 	This program was originally written.
 
-
 	= 1998-07-01, David A­D­ Morano
-
-	I added the ability to specify the "from_address" for the case
-	when we add an envelope header to the message.
-
+        I added the ability to specify the "from_address" for the case when we
+        add an envelope header to the message.
 
 */
 
@@ -29,8 +25,8 @@
 
 /*******************************************************************************
 
-	This subroutine decodes the input data that was previously
-	scrambled by this same program (in scramble mode).
+        This subroutine decodes the input data that was previously scrambled by
+        this same program (in scramble mode).
 
 
 *******************************************************************************/

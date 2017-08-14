@@ -1,15 +1,27 @@
 /* ecinfo */
 
 
+/* revision history:
+
+	= 1998-04-19, David A­D­ Morano
+	This module was originally written.
+
+*/
+
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
+
 #ifndef	ECINFO_INCLUDE
 #define	ECINFO_INCLUDE	1
 
 
 #include	<sys/types.h>
 
-#include	"localmisc.h"
+#include	<localmisc.h>		/* for 'uint' */
 
 
+#define	ECINFO			struct ecinfo_data
+#define	ECINFO_DATA		struct ecinfo_data
 #define	ECINFO_REASONLEN	100
 
 
@@ -48,6 +60,5 @@ extern int	ecinfo_data(char *,int,int,struct ecinfo_data *) ;
 
 
 #endif /* ECINFO_INCLUDE */
-
 
 

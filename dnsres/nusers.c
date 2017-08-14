@@ -102,18 +102,6 @@ int nusers(cchar *utmpfname)
 	debugprintf("nusers-tmpx: utmpfname=%s\n",utmpfname) ;
 #endif
 
-#if	CF_DEBUGS
-	rs = tmpx_open(&ut,utmpfname,O_RDONLY) ;
-	debugprintf("nusers-tmpx: tmpx_open() rs=%d\n",rs) ;
-	if (rs >= 0) {
-
-	    rs = tmpx_nusers(&ut) ;
-	    n = rs ;
-
-	    rs1 = tmpx_close(&ut) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (tmpx) */
-#else
 	if ((rs = tmpx_open(&ut,utmpfname,O_RDONLY)) >= 0) {
 
 	    rs = tmpx_nusers(&ut) ;
@@ -122,7 +110,6 @@ int nusers(cchar *utmpfname)
 	    rs1 = tmpx_close(&ut) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (tmpx) */
-#endif /* CF_DEBUGS */
 
 #if	CF_DEBUGS
 	debugprintf("nusers-tmpx: ret rs=%d n=%u\n",rs,n) ;
@@ -174,7 +161,7 @@ int nusers(cchar *utmpfname)
 	        utmpxname(UTMPXFNAME) ;
 #endif
 
-	} /* end if */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? n : rs ;
 }
@@ -220,7 +207,7 @@ int nusers(cchar *utmpfname)
 	        utmpname(UTMPFNAME) ;
 #endif
 
-	} /* end if */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? n : rs ;
 }

@@ -21,6 +21,11 @@
         This is the (famous) Depth-First-Search algorithm to find the
         connectivity route through an un-weighted graph.
 
+	Features:
+
+	recursive
+
+
 	Complexity:
 
 	O ( |v| + |e| )
@@ -125,8 +130,8 @@ int dfs1_one(res_t *resp,edges_t &edges,int vertices,int u)
 	    resp[i].prev = -1 ;
 	}
 
-	    resp[u].dist = 0 ; /* level */
-	    rs = dfs1_visit(resp,edges,u) ;
+	resp[u].dist = 0 ; /* level */
+	rs = dfs1_visit(resp,edges,u) ;
 
 	return rs ;
 }
@@ -138,18 +143,18 @@ int dfs1_visit(res_t *resp,edges_t &edges,int u)
 	edgeit_t	elit ; /* edge-list-iterator */
 	edgeit_t	end ; /* edge-list-iterator */
 	int		rs = SR_OK ;
-	        elit = edges[u].begin() ; /* this is 'list.begin()' */
-	        end = edges[u].end() ; /* this is 'list.end()' */
-	        while (elit != end) {
-	            const int	v = (*elit).dst ; /* dst vertex */
-	            if (resp[v].dist < 0) { /* not visited */
-	                resp[v].dist = (resp[u].dist + 1) ;
-	                resp[v].prev = u ;
-			rs = dfs1_visit(resp,edges,v) ;
-	            } /* end if */
-	            elit++ ;
-		    if (rs < 0) break ;
-		} /* end while */
+	elit = edges[u].begin() ; /* this is 'list.begin()' */
+	end = edges[u].end() ; /* this is 'list.end()' */
+	while (elit != end) {
+	    const int	v = (*elit).dst ; /* dst vertex */
+	    if (resp[v].dist < 0) { /* not visited */
+	        resp[v].dist = (resp[u].dist + 1) ;
+	        resp[v].prev = u ;
+	        rs = dfs1_visit(resp,edges,v) ;
+	    } /* end if */
+	    elit++ ;
+	    if (rs < 0) break ;
+	} /* end while */
 	return rs ;
 }
 /* end subroutine (dfs1_visit) */

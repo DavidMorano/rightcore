@@ -8,18 +8,20 @@
 
 /* revision history:
 
-	= 1999-07-21, David A­D­ Morano
-
+	= 1998-04-19, David A­D­ Morano
 	This module was originally written.
 
+	= 1999-07-21, David A­D­ Morano
+	I changed something.
 
 */
 
+/* Copyright © 1998,1999 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
-	This module contains the code to make and parse the internal
-	messages that are used in this whole server facility.
+        This module contains the code to make and parse the internal messages
+        that are used in this whole server facility.
 
 
 ******************************************************************************/
@@ -33,23 +35,15 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/socket.h>
-#include	<sys/uio.h>
-#include	<arpa/inet.h>
-#include	<unistd.h>
-#include	<fcntl.h>
 
 #include	<vsystem.h>
+#include	<serialbuf.h>
+#include	<localmisc.h>
 
-#include	"serialbuf.h"
-
-#include	"localmisc.h"
 #include	"ecinfo.h"
 
 
-
 /* local defines */
-
 
 
 /* external subroutines */
@@ -68,7 +62,7 @@ int ecinfo_data(buf,buflen,f,sp)
 char			buf[] ;
 int			buflen ;
 int			f ;
-struct ecinfo_data	*sp ;
+ECINFO_DATA		*sp ;
 {
 	SERIALBUF	msgbuf ;
 	int		rs ;

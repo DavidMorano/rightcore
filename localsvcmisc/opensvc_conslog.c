@@ -10,12 +10,9 @@
 /* revision history:
 
 	= 2003-11-04, David A­D­ Morano
-
-	This code was started by taking the corresponding code from the
-	TCP-family module.  In retrospect, that was a mistake.  Rather
-	I should have started this code by using the corresponding UUX
-	dialer module.
-
+        This code was started by taking the corresponding code from the
+        TCP-family module. In retrospect, that was a mistake. Rather I should
+        have started this code by using the corresponding UUX dialer module.
 
 */
 
@@ -23,9 +20,8 @@
 
 /*******************************************************************************
 
-	This is an user open-service module.  This little diddy supplies
-	a fast little "issue" message for programs that perform logins
-	onto the host.
+        This is an user open-service module. This little diddy supplies a fast
+        little "issue" message for programs that perform logins onto the host.
 
 	Synopsis:
 

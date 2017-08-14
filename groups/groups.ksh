@@ -35,8 +35,6 @@ else
   P=/usr/xpg4/bin/id
   if [[ -x ${P} ]] ; then
     LIST=$( if -Gn "${U}" ) 
-  else
-    LIST
   fi
 fi
 print ${LIST}
