@@ -9,9 +9,7 @@
 /* revision history:
 
 	- 1998-10-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -39,8 +37,7 @@
 #include	<signal.h>
 #include	<time.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<localmisc.h>

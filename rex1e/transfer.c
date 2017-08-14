@@ -8,11 +8,10 @@
 
 /* revision history:
 
-	- David A.D. Morano, 97/06/28
-	This subroutine was derived from a previous version of the
-	REX program.  This really just represents a repartitioning
-	of the REX program in general.
-
+	= 1998-08-29, David A.D. Morano
+        This subroutine was derived from a previous version of the REX program.
+        This really just represents a repartitioning of the REX program in
+        general.
 
 */
 
@@ -39,14 +38,13 @@
 #include	<stdlib.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
-#include	<string.h>
-#include	<time.h>
 #include	<stropts.h>
 #include	<poll.h>
+#include	<time.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<errno.h>
+#include	<pwd.h>
+#include	<grp.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>

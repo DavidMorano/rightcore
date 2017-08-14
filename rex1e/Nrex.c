@@ -10,17 +10,12 @@
 
 /* revision history:
 
-	- David A.D. Morano, 96/11/21
-
+	= 1998-11-21, David A.D. Morano
 	This program was started by copying from the RSLOW program.
 
-
-	- David A.D. Morano, 96/12/12
-
+	= 1998-12-12, David A.D. Morano
 	I modified the program to take the username and password
 	from a specified file (for better security).
-
-
 
 */
 
@@ -75,15 +70,14 @@
 #include	<arpa/inet.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
-#include	<string.h>
-#include	<time.h>
 #include	<netdb.h>
 #include	<stropts.h>
 #include	<poll.h>
+#include	<time.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<errno.h>
+#include	<pwd.h>
+#include	<grp.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>

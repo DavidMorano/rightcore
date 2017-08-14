@@ -53,7 +53,7 @@
 #include	<fcntl.h>
 #include	<time.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<netdb.h>
 
 #include	<vsystem.h>

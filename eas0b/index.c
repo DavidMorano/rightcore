@@ -28,32 +28,30 @@
 ******************************************************************************/
 
 
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
-#include	<sys/utsname.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
+#include	<sys/stat.h>
+#include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<time.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<signal.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<errno.h>
 
 #include	<bfile.h>
 #include	<baops.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 
 
-
 /* local defines */
-
 
 
 /* external functions */
@@ -71,7 +69,7 @@ extern struct global		g ;
 
 struct circuit		*mkcircuit() ;
 
-offset_t			gotcircuit() ;
+offset_t		gotcircuit() ;
 
 int			addblock() ;
 int			writecir() ;
@@ -83,14 +81,13 @@ void			deleteblock() ;
 #endif
 
 
-/* local data structures */
-
+/* local structures */
 
 
 /* local globals */
 
 
-/* local statics */
+/* local variables */
 
 static char	*keywords[] = {
 	NULL,
@@ -101,9 +98,7 @@ static char	*keywords[] = {
 	NULL,
 } ;
 
-
 /* circuit types */
-
 char	*cirtypes[] = {
 	"envelope",
 	"main",
@@ -117,12 +112,10 @@ char	*cirtypes[] = {
 #define	CIR_SUB		2
 
 
+/* exported subroutines */
 
 
-
-int mkindex(argc,argv)
-int	argc ;
-char	*argv[] ;
+int mkindex(int argc,cchar **argv,cchar **envv)
 {
 	bfile	infile, *ifp = &infile ;
 	bfile	tmpfile, *tfp = &tmpfile ;

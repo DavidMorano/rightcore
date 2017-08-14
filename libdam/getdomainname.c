@@ -80,7 +80,7 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* |strncasecmp()| */
 
 #include	<vsystem.h>
 #include	<getbufsize.h>
@@ -116,6 +116,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern int	sncpy1w(char *,int,const char *,int) ;
 extern int	sncpy1(char *,int,const char *) ;

@@ -12,10 +12,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The subroutine was written from scratch but based on previous
-	versions of the 'mkmsg' program.
-
+        The subroutine was written from scratch but based on previous versions
+        of the 'mkmsg' program.
 
 */
 
@@ -66,8 +64,7 @@
 #include	<fcntl.h>
 #include	<time.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<bfile.h>

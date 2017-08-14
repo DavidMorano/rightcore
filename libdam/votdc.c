@@ -36,7 +36,7 @@
 #include	<sys/mman.h>
 #include	<limits.h>
 #include	<unistd.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<stdarg.h>
 
 #include	<vsystem.h>

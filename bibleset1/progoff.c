@@ -30,8 +30,7 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<bfile.h>

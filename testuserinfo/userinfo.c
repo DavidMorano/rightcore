@@ -67,7 +67,7 @@
 #include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>

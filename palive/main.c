@@ -38,8 +38,7 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>

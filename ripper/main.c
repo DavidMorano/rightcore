@@ -1,22 +1,24 @@
 /* main (ripper) */
 
 
+#include	<envstandards.h>
+
 #include <sys/types.h>
 #include <sys/cdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <malloc.h>
 #include <assert.h>
 #include <volmgt.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include <stdio.h>
 
-#include	"localmisc.h"
+#include	<localmisc.h>
+
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* global data */

@@ -46,7 +46,7 @@
 #include	<netinet/in.h>
 #include	<arpa/inet.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<netdb.h>
 
 #include	<vsystem.h>

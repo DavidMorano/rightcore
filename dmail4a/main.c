@@ -1,4 +1,4 @@
-/* main */
+/* main (DMAIL) */
 
 /* fairly generic (PCS) front-end */
 
@@ -51,13 +51,11 @@
 #include	<sys/stat.h>
 #include	<sys/socket.h>
 #include	<netinet/in.h>
-#include	<termios.h>
 #include	<signal.h>
 #include	<unistd.h>
 #include	<time.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<grp.h>
 
 #include	<vsystem.h>

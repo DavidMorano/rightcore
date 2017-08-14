@@ -12,30 +12,24 @@
 /* revision history:
 
 	= 1997-04-01, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 1999-02-01, David A­D­ Morano
-
-	I added a little code to "post" articles that do not have a
-	valid newsgroup to a special "dead article" directory in the BB
-	spool area.
-
+        I added a little code to "post" articles that do not have a valid
+        newsgroup to a special "dead article" directory in the BB spool area.
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/****************************************************************************
+/*******************************************************************************
 
-	This module processes one or more mail messages (in appropriate
-	mailbox format if more than one) on STDIN.  The output is a
-	single file that is ready to be added to each individual mailbox
-	in the spool area.
+        This module processes one or more mail messages (in appropriate mailbox
+        format if more than one) on STDIN. The output is a single file that is
+        ready to be added to each individual mailbox in the spool area.
 
 
-****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -48,7 +42,7 @@
 #include	<signal.h>
 #include	<time.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<netdb.h>
 
 #include	<vsystem.h>

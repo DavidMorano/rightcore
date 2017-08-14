@@ -1,8 +1,17 @@
 /* process */
 
 
-#define	CF_DEBUG	1
+#define	CF_DEBUG	1		/* run-time debugging */
 
+
+/* revision history:
+
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -15,8 +24,7 @@
 #include	<signal.h>
 #include	<dirent.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<time.h>
 #include	<ftw.h>
 
@@ -30,18 +38,16 @@
 #include	<msg.h>
 #include	<msgheaders.h>
 #include	<ema.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
 
 #undef	BUFLEN
 #define	BUFLEN	100
-
 
 
 /* external subroutines */
@@ -76,8 +82,7 @@ static int	ext_id() ;
 static int	didheader() ;
 
 
-
-
+/* exported subroutines */
 
 
 int process(ifp,aqp)

@@ -55,7 +55,7 @@
 #include	<netinet/in.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<strings.h>
+#include	<strings.h>		/* |strncasecmp(3c)| */
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -75,6 +75,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;

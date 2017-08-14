@@ -8,15 +8,16 @@
 
 /* revision history:
 
-	 = 1996-11-21, David A­D­ Morano 
+	- David A.D. Morano, 96/11/21
 
 	This program was started by copying from the RSLOW program.
 
 
-	= i1996-12-12, David A­D­ Morano
+	- David A.D. Morano, 96/12/12
 
 	I modified the program to take the username and password
 	from a specified file (for better security).
+
 
 
 */
@@ -24,63 +25,52 @@
 
 /**************************************************************************
 
-	Synopsis:
+	Call as :
 
-	int hostequiv(h1,h2,localdomain)
-	char	h1[], h2[], localdomain[] ;
-
-	Arguments:
-
-	h1		one host name
-	h2		another host name
-	localdomain	the local domain name
-
-	Returns:
-
-	TRUE	the two hosts are equivalent
-	FALSE	they are not
 
 
 **************************************************************************/
 
 
-#include	<envstandards.h>	/* MUST be first to configure */
+#include	<envstandards.h>
 
 #include	<sys/types.h>
+#include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<sys/wait.h>
-#include	<sys/param.h>
+#include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
-#include	<string.h>
-#include	<time.h>
-#include	<netdb.h>
 #include	<stropts.h>
 #include	<poll.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
+#include	<time.h>
+#include	<netdb.h>
+#include	<errno.h>
+#include	<pwd.h>
+#include	<grp.h>
 
-#include	<vsystem.h>
 #include	<bfile.h>
 #include	<logfile.h>
-
-#include	"localmisc.h"
-
+#include	<userinfo.h>
+#include	<localmisc.h>
 
 
 /* local defines */
 
-
-/* external variables */
+extern char	*strshrink() ;
+extern char	*strbasename() ;
 
 
 /* forward subroutines */
 
 
+/* external variables */
+
+extern int	errno ;
+
+
 /* local variables */
-
-
 
 
 

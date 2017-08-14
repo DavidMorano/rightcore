@@ -40,6 +40,8 @@
 #define	MAILENVELOPE_MASTER	1
 
 
+#include	<envstandards.h>
+
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
@@ -62,10 +64,6 @@
 /* external subroutines */
 
 extern int	sfsub(const char *,int,const char *,const char **) ;
-
-#if	defined(BSD)
-extern int	strncasecmp() ;
-#endif
 
 extern char	*strwcpy(char *,const char *,int) ;
 

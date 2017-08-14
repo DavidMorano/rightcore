@@ -53,9 +53,8 @@
 #include	<netdb.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<bfile.h>

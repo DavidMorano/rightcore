@@ -12,29 +12,24 @@
 /* revision history:
 
 	= 1988-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 1988-02-01, David A­D­ Morano
-
-	This subroutine was modified to not write out anything
-	to standard output if the access time of the associated
-	terminal has not been changed in 10 minutes.
-
+        This subroutine was modified to not write out anything to standard
+        output if the access time of the associated terminal has not been
+        changed in 10 minutes.
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/************************************************************************
+/*******************************************************************************
 
-	Call as :
-
+	Synopsis:
 	$ rfinger user@host [-d dialerspec]
 
 
-*************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -45,12 +40,11 @@
 #include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<time.h>
 #include	<signal.h>
 #include	<netdb.h>
+#include	<time.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<bfile.h>

@@ -9,7 +9,7 @@
 #include	<sys/types.h>
 #include	<math.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<bfile.h>

@@ -49,7 +49,7 @@
 #include	<fcntl.h>
 #include	<stropts.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* |strncasecmp(3c)| */
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -64,6 +64,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 
 /* external variables */

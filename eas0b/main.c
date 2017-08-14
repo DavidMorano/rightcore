@@ -52,8 +52,7 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<time.h>
-#include	<signal.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<pwd.h>
 #include	<grp.h>
 

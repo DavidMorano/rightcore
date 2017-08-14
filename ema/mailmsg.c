@@ -69,7 +69,7 @@
 #include	<sys/param.h>
 #include	<unistd.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* |strncasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<estrings.h>
@@ -113,6 +113,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern int	snwcpy(char *,int,cchar *,int) ;
 extern int	mailmsgmathdr(cchar *,int,int *) ;

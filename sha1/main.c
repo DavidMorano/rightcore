@@ -1154,6 +1154,7 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar *fname)
 
 	    if (rs >= 0) {
 		rs = procout(pip,ofp,&d) ;
+		wlen = rs ;
 	    }
 
 	    sha1_finish(&d) ;
@@ -1180,6 +1181,7 @@ static int procout(PROGINFO *pip,bfile *ofp,SHA1 *sop)
 {
 	const int	m = 20 ;
 	int		rs = SR_OK ;
+	int		wlen = 0 ;
 	uchar		*digest ;
 
 	if ((digest = new(nothrow) uchar[m]) != NULL) {
@@ -1190,6 +1192,7 @@ static int procout(PROGINFO *pip,bfile *ofp,SHA1 *sop)
 		    cchar	*mp = (cchar *) digest ;
 		    if ((rs = cthexstr(obuf,olen,mp,m)) >= 0) {
 		        rs = bprintline(ofp,obuf,rs) ;
+			wlen += rs ;
 		    }
 		    delete [] obuf ;
 		} else {
@@ -1200,7 +1203,7 @@ static int procout(PROGINFO *pip,bfile *ofp,SHA1 *sop)
 	} else {
 	    rs = SR_NOMEM ;
 	}
-	return rs ;
+	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procout) */
 

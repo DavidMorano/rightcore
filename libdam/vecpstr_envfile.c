@@ -54,7 +54,7 @@
 #include	<sys/param.h>
 #include	<unistd.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* |strncasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<vecpstr.h>
@@ -84,6 +84,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern int	sfskipwhite(const char *,int,const char **) ;
 extern int	sfshrink(const char *,int,const char **) ;

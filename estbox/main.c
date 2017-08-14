@@ -35,9 +35,9 @@
 
 
 #include	<sys/types.h>
+#include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<sys/wait.h>
-#include	<sys/param.h>
 #include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<fcntl.h>
@@ -45,7 +45,7 @@
 #include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<time.h>
 #include	<netdb.h>
 #include	<stropts.h>
@@ -57,12 +57,11 @@
 #include	<userinfo.h>
 #include	<vecitem.h>
 #include	<vsystem.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"netfile.h"
-
 
 
 /* local defines */
@@ -1048,12 +1047,12 @@ char	**argv ;
 
 /* make a log about where we want to go */
 
-	if (((cp = strchr(hostname,'.')) != NULL) &&
-	    (strcasecmp(cp + 1,u.domainname) == 0))
+	if (((cp = strchr(hostname,'.')) != NULL) && 
+	    (strcasecmp(cp + 1,u.domainname) == 0)) {
 	    logfile_printf(&g.lh,
 	        "target h=%W u=%s\n",hostname,cp - hostname,username) ;
 
-	else
+	} else
 	    logfile_printf(&g.lh,"target h=%s u=%s\n",hostname,username) ;
 
 	if (rs < 0) {

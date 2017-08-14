@@ -65,7 +65,7 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* |strncasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<endian.h>
@@ -133,6 +133,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern "C" int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern "C" uint	nextpowtwo(uint) ;
 extern "C" uint	uceil(uint,int) ;

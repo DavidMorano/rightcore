@@ -8,19 +8,19 @@
 
 /* revision history:
 
-	= 96/11/21, David A­D­ Morano
+	- David A.D. Morano, 96/11/21
 
 	This program was started by copying from the RSLOW program.
 
 
-	= 96/12/12, David A­D­ Morano
+	- David A.D. Morano, 96/12/12
 
 	I modified the program to take the username and password
 	from a specified file (for better security).
 
 
-*/
 
+*/
 
 
 /**************************************************************************
@@ -32,29 +32,28 @@
 **************************************************************************/
 
 
+#include	<envstandards.h>
 
 #include	<sys/types.h>
+#include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<sys/wait.h>
-#include	<sys/param.h>
 #include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<time.h>
 #include	<stropts.h>
 #include	<poll.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
+#include	<time.h>
+#include	<netdb.h>
+#include	<errno.h>
 #include	<pwd.h>
 #include	<grp.h>
-#include	<netdb.h>
-#include	<string.h>
-#include	<ctype.h>
 
 #include	<bfile.h>
 #include	<logfile.h>
 #include	<userinfo.h>
-
-#include	"localmisc.h"
-
+#include	<localmisc.h>
 
 
 /* local defines */
@@ -63,16 +62,15 @@ extern char	*strshrink() ;
 extern char	*strbasename() ;
 
 
-/* external variables */
-
-
 /* forward subroutines */
 
 
+/* external variables */
+
+extern int	errno ;
+
+
 /* local variables */
-
-
-
 
 
 

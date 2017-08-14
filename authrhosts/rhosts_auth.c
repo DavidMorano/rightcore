@@ -11,12 +11,12 @@
 #include <security/pam_modules.h>
 #include <rpc/types.h>
 #include <rpc/auth.h>
-#include <string.h>
 #include <crypt.h>
 #include <syslog.h>
 #include <locale.h>
 #include <pwd.h>
 #include <shadow.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<localmisc.h>

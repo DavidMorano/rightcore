@@ -32,7 +32,7 @@
 #include	<sys/stat.h>
 #include	<unistd.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -419,7 +419,8 @@ vecitem		*dbp ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("dbdump: bopen() rs=%d fname=%s\n",rs,tmpfname) ;
+	            debugprintf("dbdump: bopen() rs=%d fname=%s\n",
+			rs,tmpfname) ;
 #endif
 
 	            for (i = 0 ; vecitem_get(dbp,i,&ep) >= 0 ; i += 1) {

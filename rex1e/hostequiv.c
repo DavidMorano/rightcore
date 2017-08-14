@@ -32,29 +32,28 @@
 **************************************************************************/
 
 
+#include	<envstandards.h>
+
 #include	<sys/types.h>
+#include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<sys/wait.h>
-#include	<sys/param.h>
 #include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
-#include	<string.h>
-#include	<time.h>
-#include	<netdb.h>
 #include	<stropts.h>
 #include	<poll.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
+#include	<time.h>
+#include	<netdb.h>
 #include	<errno.h>
+#include	<pwd.h>
+#include	<grp.h>
 
 #include	<bfile.h>
 #include	<logfile.h>
 #include	<userinfo.h>
-
-#include	"localmisc.h"
-
+#include	<localmisc.h>
 
 
 /* local defines */

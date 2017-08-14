@@ -11,36 +11,16 @@
 
 /* revision history:
 
-	= 89/03/01, David A­D­ Morano
-
-	This subroutine was originally written.  This whole program,
-	LOGDIR, is needed for use on the Sun CAD machines because Sun
-	doesn't support LOGDIR or LOGNAME at this time.  There was a
-	previous program but it is lost and not as good as this one
-	anyway.  This one handles NIS+ also.  (The previous one
-	didn't.) 
-
-
-	= 98/06/01, David A­D­ Morano
-
-	I enhanced the program a little to print out some other user
-	information besides the user's name and login home directory.
-
-
-	= 99/03/01, David A­D­ Morano
-
-	I enhanced the program to also print out effective UID and
-	effective GID.
-
+	= 1999-11-21, David A­D­ Morano
+	Written to test VECHAND object.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 /**************************************************************************
 
 	Synopsis:
-
 	$ testvechand.x
 
 
@@ -58,7 +38,7 @@
 #include	<fcntl.h>
 #include	<time.h>
 #include	<stdlib.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>

@@ -71,10 +71,6 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matcasestr(const char **,const char *,int) ;
 extern int	field_word(FIELD *,const uchar *,const char **) ;
 
-#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
-extern int	strncasecmp(const char *,const char *,int) ;
-#endif
-
 extern char	*strwcpy(char *,const char *,int) ;
 
 

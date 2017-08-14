@@ -45,10 +45,9 @@
 #include	<stdlib.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<ctype.h>
 #include	<stropts.h>
 #include	<poll.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<pwd.h>
 #include	<grp.h>
 #include	<time.h>

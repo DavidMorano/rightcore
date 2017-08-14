@@ -42,7 +42,7 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<string.h>
+#include	<strings.h>		/* |strncasecmp()| */
 
 #include	<char.h>
 #include	<localmisc.h>
@@ -56,6 +56,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern int	nleadstr(cchar *,cchar *,int) ;
 extern int	nleadcasestr(cchar *,cchar *,int) ;

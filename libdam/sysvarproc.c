@@ -47,7 +47,7 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* |strncasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<filebuf.h>
@@ -86,6 +86,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern int	vecstr_envfile(VECSTR *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;

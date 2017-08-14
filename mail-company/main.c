@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	- David A.D. Morano, December 1994
+	- 1998-12-01, David A.D. Morano
 	This program completely (I think) can replace any existing
 	'rslow' programs.  Some elements of some previous 'rslow' 
 	programs may have been used but it is all mixed in now.
 
-	- David A.D. Morano, 96/06/05
+	- 1992-12-21, David A.D. Morano
 	Added code to create directories in the UUCPPUBLIC
 	area so that any soft links pointing into here (for user 'pcs')
 	will point to something that exists !
@@ -27,9 +27,8 @@
 
 /**************************************************************************
 
-	Execute as :
-
-	cmail [-f from_address]
+	Synopsis:
+	$ cmail [-f from_address]
 		[-i input] address [address ...] < input
 
 
@@ -45,10 +44,9 @@
 #include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<time.h>
 #include	<errno.h>
 

@@ -38,7 +38,7 @@
 
 #include	<sys/types.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<netdb.h>
 
 #include	<vsystem.h>

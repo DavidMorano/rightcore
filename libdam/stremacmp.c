@@ -42,7 +42,7 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 #include	<vsystem.h>
 #include	<localmisc.h>
 

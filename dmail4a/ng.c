@@ -35,7 +35,7 @@
 #include	<sys/param.h>
 #include	<limits.h>
 #include	<unistd.h>
-#include	<string.h>
+#include	<strings.h>		/* for |strcasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<vecitem.h>

@@ -52,7 +52,7 @@
 #include	<sys/param.h>
 #include	<unistd.h>
 #include	<stdlib.h>
-#include	<strings.h>
+#include	<strings.h>		/* |strncasecmp(3c)| */
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -72,6 +72,10 @@
 
 
 /* external subroutines */
+
+#if	defined(BSD) && (! defined(EXTERN_STRNCASECMP))
+extern int	strncasecmp(const char *,const char *,int) ;
+#endif
 
 extern int	bopenroot(bfile *,const char *,const char *,
 			char *,const char *,mode_t) ;
