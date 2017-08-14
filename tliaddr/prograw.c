@@ -91,9 +91,11 @@ static const char	hextable[] = {
 int prograw(pip,familyname,netaddr1,netaddr2)
 PROGINFO	*pip ;
 const char	familyname[] ;
-const char	netaddr1[], netaddr2[] ;
+const char	netaddr1[] ;
+const char	netaddr2[] ;
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if ((netaddr1 != NULL) && (netaddr1[0] != '\0')) {
 	    if ((rs = progout_open(pip)) >= 0) {
@@ -101,7 +103,8 @@ const char	netaddr1[], netaddr2[] ;
 	        if ((rs = makehex(hexbuf,netaddr1,-1)) >= 0) {
 		    rs = progout_printf(pip,"%t\n",hexbuf,rs) ;
 		}
-	        progout_close(pip) ;
+	        rs1 = progout_close(pip) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (progout) */
 	} else {
 	    cchar	*pn = pip->progname ;

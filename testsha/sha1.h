@@ -49,8 +49,8 @@ extern "C" {
 #endif
 
 extern int sha1_start(SHA1 *) ;
-extern int sha1_update(SHA1 *,char *, int) ;
-extern int sha1_digest(SHA1 *,unsigned char [20]) ;
+extern int sha1_update(SHA1 *,const char *, int) ;
+extern int sha1_digest(SHA1 *,unsigned char[20]) ;
 extern int sha1_finish(SHA1 *) ;
 
 #ifdef	__cplusplus

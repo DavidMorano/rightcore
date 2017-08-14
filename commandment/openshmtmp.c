@@ -81,7 +81,6 @@ extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	matkeystr(const char **,const char *,int) ;
-extern int	cthexstr(char *,int,const uchar *,int) ;
 extern int	vstrkeycmp(const void **,const void **) ;
 extern int	strkeycmp(const char *,const char *) ;
 

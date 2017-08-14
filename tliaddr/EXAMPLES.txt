@@ -1,6 +1,18 @@
 TPIADDR
 
-Examples.
+
+Synopsis:
+
+$ tliaddr -f inet rca listen
+\x00020ace000000000000000000000000
+$
+
+
+$ tliaddr -f unix /tmp/entropy
+\x0001.....
+
+
+Examples:
 
 To get a TLI address for use over regular Internet (not using IP
 version 5) with a host of 'rca' and a port of 'listen' AND using a

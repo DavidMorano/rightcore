@@ -1,4 +1,4 @@
-/* testishex */
+/* main (testishex) */
 /* lang=C99 */
 
 #define	CF_DEBUGS	1
@@ -11,6 +11,13 @@
 */
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
+
+	We test the |ishexlatin| subroutine.
+
+
+*******************************************************************************/
 
 #include	<envstandards.h>
 #include	<sys/types.h>

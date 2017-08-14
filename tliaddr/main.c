@@ -613,7 +613,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
 	        f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
 	        if (f) {
-	            cp = argv[ai] ;
+	            cp = argv[ai] ; /* no NUL check on purpose */
 	            switch (pan) {
 	            case 0:
 	                netaddr1 = cp ;
@@ -623,7 +623,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                break ;
 	            } /* end switch */
 	            pan += 1 ;
-	        }
+	        } /* end if */
 
 	    } /* end for */
 	} /* end if */

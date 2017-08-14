@@ -66,7 +66,7 @@ static const char	*digtab = "0123456789ABCDEF" ;
 /* exported subroutines */
 
 
-int cthexstr(char *dbuf,int dlen,cchar *sp,int sl)
+int cthexstring(char *dbuf,int dlen,cchar *sp,int sl,int f)
 {
 	int		i ;
 	int		ch ;
@@ -77,7 +77,7 @@ int cthexstr(char *dbuf,int dlen,cchar *sp,int sl)
 
 	for (i = 0 ; (dlen >= 3) && (i < sl) ; i += 1) {
 	    ch = vp[i] ;
-	    if (i > 0) {
+	    if (f && (i > 0)) {
 	        dbuf[j++] = ' ' ;
 		dlen -= 1 ;
 	    }
@@ -89,6 +89,18 @@ int cthexstr(char *dbuf,int dlen,cchar *sp,int sl)
 
 	return j ;
 }
-/* end subroutine (cthexstr) */
+/* end subroutine (cthexstring) */
+
+
+int cthexstrs(char *dbuf,int dlen,cchar *sp,int sl)
+{
+	return cthexstring(dbuf,dlen,sp,sl,TRUE) ;
+}
+
+
+int cthexstr(char *dbuf,int dlen,cchar *sp,int sl)
+{
+	return cthexstring(dbuf,dlen,sp,sl,FALSE) ;
+}
 
 

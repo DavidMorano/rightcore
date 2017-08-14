@@ -255,8 +255,9 @@ const char	netaddr2[] ;
 
 	            rs = progout_printf(pip,"\\x%t\n",hbuf,hl) ;
 
-	            progout_close(pip) ;
-	        } /* end if */
+	            rs1 = progout_close(pip) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (progout) */
 
 	    } /* end if (gethex) */
 

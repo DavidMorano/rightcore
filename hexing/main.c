@@ -67,7 +67,7 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfhexi(const char *,int,int *) ;
-extern int	cthexstr(char *,int,cchar *,int) ;
+extern int	cthexstrs(char *,int,cchar *,int) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
@@ -1021,10 +1021,10 @@ static int procencode(PROGINFO *pip,bfile *ofp,cchar *fn)
 		ibuf = (abuf+0) ;
 		cbuf = (abuf+(ilen+1)) ;
 	        while ((rs = bread(ifp,ibuf,ilen)) > 0) {
-		    if ((rs = cthexstr(cbuf,clen,ibuf,rs)) >= 0) {
+		    if ((rs = cthexstrs(cbuf,clen,ibuf,rs)) >= 0) {
 		        rs = bprintline(ofp,cbuf,rs) ;
 		        wlen += rs ;
-		    } /* end if (cthexstr) */
+		    } /* end if (cthexstrs) */
 		    if (rs < 0) break ;
 	        } /* end while (reading) */
 		uc_free(abuf) ;

@@ -106,13 +106,11 @@ int sha1_start(SHA1_INFO *sha_info)
 
 
 /* update the SHA digest */
-int sha1_update(SHA1_INFO *sha_info,char *ubuf, int count)
+int sha1_update(SHA1_INFO *sha_info,const char *ubuf, int count)
 {
-    int i;
-    SHA1_LONG clo;
-
+    	SHA1_LONG 	clo;
 	SHA1_BYTE	*buffer = (SHA1_BYTE *) ubuf ;
-
+    	int 		i;
 
 	if (sha_info == NULL)
 		return -1 ;
@@ -153,11 +151,8 @@ int sha1_update(SHA1_INFO *sha_info,char *ubuf, int count)
 
 
 /* get the final digest */
-int sha1_digest(sha_info,digest)
-SHA1_INFO	*sha_info ;
-unsigned char	digest[20] ;
+int sha1_digest(SHA1_INFO *sha_info,unsigned char *digest)
 {
-
 
 	if (sha_info == NULL)
 		return -1 ;
@@ -173,7 +168,6 @@ int sha1_finish(sha_info)
 SHA1	*sha_info ;
 {
 
-
 	if (sha_info == NULL)
 		return -1 ;
 
@@ -184,25 +178,21 @@ SHA1	*sha_info ;
 /* end subroutine (sha1_finish) */
 
 
-
 /* deprecated API */
-
 
 
 /* finish computing the SHA digest */
 void sha_final(unsigned char digest[20], SHA1_INFO *sha_info)
 {
-    SHA1_LONG lo_bit_count, hi_bit_count;
-
-    int count;
-
+    SHA1_LONG 	lo_bit_count, hi_bit_count;
+    int 	count;
 
     lo_bit_count = sha_info->count_lo;
     hi_bit_count = sha_info->count_hi;
     count = (int) ((lo_bit_count >> 3) & 0x3f);
     ((SHA1_BYTE *) sha_info->data)[count++] = 0x80;
     if (count > SHA1_BLOCKSIZE - 8) {
-	memset(((SHA1_BYTE *) sha_info->data) + count, 0, SHA1_BLOCKSIZE - count);
+     memset(((SHA1_BYTE *) sha_info->data) + count, 0, SHA1_BLOCKSIZE - count);
 	sha_transform(sha_info);
 	memset((SHA1_BYTE *) sha_info->data, 0, SHA1_BLOCKSIZE - 8);
     } else {
