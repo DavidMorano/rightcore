@@ -80,6 +80,7 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDRPATH= $(EXTRA)/lib
 
 # regular
@@ -136,7 +137,7 @@ TLIBS= $(TLIB0) $(TLIB1) $(TLIB2) $(TLIB3) $(TLIB4) $(TLIB5) $(TLIB6) $(TLIB7)
 TLIBINFO= $(TLIBDIRS) $(TLIBS)
 
 
-VALUES= $(VALDIR)/values-xa.o
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o

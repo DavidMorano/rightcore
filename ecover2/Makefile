@@ -15,23 +15,22 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
-CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
+CCOPTS= $(CCOPTS_GCCALL) -O2 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
@@ -70,17 +69,19 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
-#LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR)
-LDFLAGS= -m $(LF_LDFLAGS)
+
+LDRPATH=
+
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
 LIB2=
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
@@ -90,13 +91,13 @@ LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 LIBINFO= $(LIBDIRS) $(LIBS)
 
 
-TLIBDIRS= -L$(LIBDIR)
+TLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 TLIB0=
 TLIB1= -ldam -lb
 TLIB2= -ldebug
 TLIB3= -luc -lu
-TLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+TLIB4= $(CGS_LIBS)
 TLIB5=
 TLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 TLIB7= -ldl
@@ -106,9 +107,10 @@ TLIBS= $(TLIB0) $(TLIB1) $(TLIB2) $(TLIB3) $(TLIB4) $(TLIB5) $(TLIB6) $(TLIB7)
 TLIBINFO= $(TLIBDIRS) $(TLIBS)
 
 
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -142,20 +144,21 @@ INCS= config.h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
-OBJ01= proglog.o proglogfname.o
-OBJ02=
-OBJ03= encode.o decode.o munge.o
-OBJ04= ecmsg.o ecinfo.o
+OBJ01= proglog.o
+OBJ02= lightnoise.o encode.o decode.o munge.o
+OBJ03= 
+OBJ04= 
+OBJ04= 
 OBJ05=
 OBJ06=
 OBJ07= printhelp.o 
-OBJ08= randomvar.o sha.o cksum.o
+OBJ08= randomvar.o
 OBJ09= cheaprand.o
 OBJ10=
 OBJ11=
 OBJ12= 
-OBJ13=
-OBJ14=
+OBJ13= ecinfo.o
+OBJ14= ecmsg.o ecmsg_loadfile.o
 OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
@@ -256,15 +259,13 @@ proginfo_setpiv.o:	proginfo_setpiv.c $(INCS)
 
 proglog.o:		proglog.c proglog.h $(INCS)
 
-expander.o:		expander.c $(INCS)
+lightnoise.o:		lightnoise.c $(INCS)
 
-scramble.o:		scramble.c $(INCS)
+encode.o:		encode.c $(INCS)
 
-unscramble.o:		unscramble.c $(INCS)
+decode.o:		decode.c $(INCS)
 
 munge.o:		munge.c $(INCS)
-
-proglogfname.o:		proglogfname.c $(INCS)
 
 
 ecmsg.o:		ecmsg.c ecmsg.h
@@ -278,7 +279,7 @@ vecstr_env.o:		vecstr_env.c
 
 randomvar.o:		randomvar.c randomvar.h
 
-sha.o:			sha.c sha.h
+sha1.o:			sha1.c sha1.h
 
 cksum.o:		cksum.c cksum.h
 

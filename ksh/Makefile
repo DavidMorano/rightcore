@@ -366,7 +366,7 @@ loadave.o:		loadave.c loadave.h
 
 entropy.o:		entropy.c entropy.h
 
-sha.o:			sha.c sha.h
+sha1.o:			sha1.c sha1.h
 
 buffer.o:		buffer.c buffer.h
 

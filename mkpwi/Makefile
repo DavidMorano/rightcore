@@ -7,7 +7,6 @@ EGROUP= tools
 ALL= $(T)
 
 SRCROOT= $(LOCAL)
-TGC= /usr/tgcware
 
 
 BINDIR= $(SRCROOT)/bin

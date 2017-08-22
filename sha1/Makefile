@@ -1,6 +1,6 @@
 # MAKEFILE
 
-T= bpsort
+T= sha1
 
 ALL= $(T)
 
@@ -32,7 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -90,7 +90,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -146,20 +146,20 @@ INCS= config.h defs.h
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
 OBJ01= 
-OBJ02= process.o dbdump.o
-OBJ03= yags.o bpalpha.o gspag.o gskew.o tourna.o
+OBJ02=
+OBJ03=
 OBJ04=
 OBJ05=
 OBJ06= 
 OBJ07= printhelp.o
-OBJ08=
+OBJ08= sha1.o
 OBJ09=
 OBJ10=
 OBJ11=
 OBJ12=
 OBJ13=
 OBJ14=
-OBJ15= fhm.o
+OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -266,26 +266,14 @@ control:
 	date >> Control
 
 
-main.o:			main.c $(INCS)
+main.o:			main.cc $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) main.cc
 
 whatinfo.o:		whatinfo.c config.h
 
 proginfo.o:		proginfo.c defs.h
 
 proginfo_setpiv.o:	proginfo_setpiv.c defs.h
-
-
-yags.o:		yags.c yags.h bpload.h
-
-tourna.o:	tourna.c tourna.h bpload.h
-
-bpalpha.o:	bpalpha.c bpalpha.h bpload.h
-
-gspag.o:	gspag.c gspag.h bpload.h
-
-eveight.o:	eveight.c eveight.h bpload.h
-
-gskew.o:	gskew.c gskew.h bpload.h
 
 
 userinfo.o:		userinfo.c userinfo.h
@@ -319,5 +307,7 @@ hdb.o:			hdb.c hdb.h
 bits.o:			bits.c bits.h baops.h
 
 baops.o:		baops.c baops.h
+
+sha1.o:			sha1.c sha1.h
 
 

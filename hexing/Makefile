@@ -125,22 +125,22 @@ NMFLAGS= -xs -v
 CPP= cpp
 
 
-INCS= config.h defs.h
+INCS= b_$(T).h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
-OBJ01=
+OBJ01= b_$(T).o
 OBJ02= 
 OBJ03=
 OBJ04=
 OBJ05=
 OBJ06=
-OBJ07= printhelp.o
+OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09= hexdecoder.o
-OBJ10=
+OBJ10= sbuf.o
 OBJ11=
-OBJ12=
+OBJ12= cthexstr.o
 OBJ13=
 OBJ14=
 OBJ15=
@@ -250,12 +250,22 @@ proginfo.o:		proginfo.c $(INCS)
 
 proginfo_setpiv.o:	proginfo_setpiv.c $(INCS)
 
-process.o:		process.c $(INCS)
+maininfo.o:		maininfo.c maininfo.h kshlib.h
 
+kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
+
+sesmsg.o:		sesmsg.c sesmsg.h
+
+msgdata.o:		msgdata.c msgdata.h
+
+
+shio.o:			shio.c shio.h
 
 vecstr_loadfile.o:	vecstr_loadfile.c
 
 vecstr_env.o:		vecstr_env.c
+
+sbuf.o:			sbuf.c sbuf.h
 
 hexdecoder.o:		hexdecoder.cc hexdecoder.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) hexdecoder.cc

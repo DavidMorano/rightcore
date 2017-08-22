@@ -1113,7 +1113,7 @@ loadave.o:		loadave.c loadave.h
 
 entropy.o:		entropy.c entropy.h
 
-sha.o:			sha.c sha.h
+sha1.o:			sha1.c sha1.h
 
 buffer.o:		buffer.c buffer.h
 
@@ -1392,40 +1392,39 @@ termtrans.o:		termtrans.cc termtrans.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 linehist.o:		linehist.cc linehist.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) linehist.cc
 
 hdrdecode.o:		hdrdecode.cc hdrdecode.h 
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) hdrdecode.cc
 
 qpdecoder.o:		qpdecoder.cc qpdecoder.h char.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) qpdecoder.cc
 
 b64decoder.o:		b64decoder.cc b64decoder.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) b64decoder.cc
 
 hexdecoder.o:		hexdecoder.cc hexdecoder.h 
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) hdrdecoder.cc
 
 utf8decoder.o:		utf8decoder.cc utf8decoder.h 
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) utf8decoder.cc
 
 obuf.o:			obuf.cc obuf.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
-
-chartrans.o:		chartrans.c chartrans.h 
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) obuf.cc
 
 osetstr.o:		osetstr.c osetstr.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) osetstr.cc
 
 osetint.o:		osetint.cc osetint.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) osetint.cc
 
 setint.o:		setint.cc setint.h
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) setint.o
+
+chartrans.o:		chartrans.c chartrans.h 
 
 mbcache.o:		mbcache.c mbcache.h
 

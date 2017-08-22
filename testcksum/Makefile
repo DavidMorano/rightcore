@@ -13,19 +13,30 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
-CCOPTS= -O3 -mcpu=ultrasparc
-CCOPTS= -g
-#CCOPTS= -g -xs
-#CCOPTS= -g -pg
+GPPFLAGS= $(CGS_CCFLAGS)
+CCOPTS_GCCALL= -pthreads -fexceptions
+CCOPTS_CCALL= -MT
+
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
+CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
+CCOPTS_GCCLIBSPARC= -mno-app-regs
+
+CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
+#CCOPTS= $(CCOPTS_GCCALL) -g -O
+#CCOPTS= $(CCOPTS_GCCALL) -g -pg
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+
+CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
+
+#CCOPTS= $(CCOPTS_CCALL) -g -xs
 
 # HyperSPARC
 # regular
@@ -66,35 +77,46 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
+LDRPATH= $(EXTRA)/lib
+
 # regular
-LDFLAGS= -R$(LIBDIR):$(EXTRA)/lib -m
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
-LDFLAGS_P= -L/usr/lib/libp # -R$(LIBDIR):${EXTRA}/lib
+LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
-LIB1= -Bstatic -ldam -Bdynamic
-LIB2=
-LIB3= -Bstatic -lb -luc -Bdynamic
-LIB4= -Bstatic -lu -Bdynamic
-LIB5= -L$(GNU)/lib -lgcc
+LIB1= -ldam -lb
+LIB2= -ldebug
+LIB3= -luc -lu
+LIB4= $(CGS_LIBS)
+LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
 
-CRTI= $(LDCRTDIR)/crti.o
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
+CRTI= $(LDCRTDIR)/crti.o
+CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
-VALUES= $(LDCRTDIR)/values-xa.o
+CRTEND= $(LDCRTDIR)/crtend.o
 CRTN= $(LDCRTDIR)/crtn.o
 
+CRTFRONT= $(CRT1) $(CRTI) $(VALUES) $(CRTBEGIN)
+CRTBACK= $(CRTEND) $(CRTN)
+
 # for regular (no profiling)
-CRT0= $(CRTI) $(CRT1) $(VALUES)
+CRT0= $(CRT1) $(CRTI) $(VALUES)
 # for 'prof(1)'
 MCRT0= $(CRTI) $(MCRT1) $(VALUES)
 # for 'gprof(1)'
@@ -119,22 +141,21 @@ TSORT= tsort
 RM= rm -f
 
 
-
 INCS= config.h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
 OBJ01= 
-OBJ02= cksum.o
-OBJ03= 
-OBJ04= 
-OBJ05= 
+OBJ02=
+OBJ03=
+OBJ04=
+OBJ05=
 OBJ06= 
 OBJ07= printhelp.o
 OBJ08=
-OBJ09= 
+OBJ09=
 OBJ10=
-OBJ11=
+OBJ11= cksum.o
 OBJ12=
 OBJ13=
 OBJ14=
@@ -146,12 +167,11 @@ OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
 OBJ= $(OBJA) $(OBJB)
 
 # for regular (no profiling)
-OBJS= $(CRT0) $(OBJ) $(CRTC)
+OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
 # for 'prof(1)'
 MOBJS= $(MCRT0) $(OBJ) $(CRTC)
 # for 'gprof(1)'
 GOBJS= $(GCRT0) $(OBJ) $(CRTC)
-
 
 SRC= $(OBJ:.c=.o)
 
@@ -162,6 +182,9 @@ SRC= $(OBJ:.c=.o)
 default:		$(T).x
 
 all:			$(ALL)
+
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
@@ -188,17 +211,17 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO)
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS)
 
 $(T).gprof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS)
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)
@@ -216,54 +239,50 @@ strip:			$(T).x
 	strip $(T).x
 	rm -f $(T).$(OFF) $(T)
 
-install:		install-raw
+aliases:		$(T).x
+	makealiases $(T).x
+
+install:		install-raw install-help
 
 install-ee:		$(ALL)
 	makenewer -r $(ALL) $(BINDIR)
 
 install-raw:		$(T).x
 	rm -f $(T)
-	ln $(T).x $(T)
+	ln -f $(T).x $(T)
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r $(T) $(BINDIR)
+	makeinstall
 
-install-help:		$(T).help
-	rm -f $(T)
-	ln $(T).help $(T)
-	-mkdir -p $(HELPDIR) 2> /dev/null
-	makenewer $(T) $(HELPDIR)
+install-help:
+	makeinstall-help $(HELPDIR)
 
 again:
 	rm -f $(ALL) $(T).x
 
 clean:			again
-	rm -f *.i *.o *.ls *.ln *.lm
+	rm -f *.ls *.ln *.i *.o *.so *.x *.lm
 
 control:
 	uname -n > Control
 	date >> Control
 
 
-
-main.o:			main.c $(INCS) cksum.h
+main.o:			main.c $(INCS)
 
 whatinfo.o:		whatinfo.c config.h
 
 proginfo.o:		proginfo.c defs.h
 
-proginfo_setpiv_o:	proginfo_setpiv.c defs.h
+proginfo_setpiv.o:	proginfo_setpiv.c defs.h
 
 
 userinfo.o:		userinfo.c userinfo.h
 
-getutmpent.o:		getutmpent.c getutmpent.h
-
-
-shio.o:			shio.c shio.h
-
 vecstr_loadfile.o:	vecstr_loadfile.c
 
 vecstr_env.o:		vecstr_env.c
+
+vecpstr.o:		vecpstr.c vecpstr.h
 
 filemap.o:		filemap.c filemap.h
 
@@ -277,7 +296,18 @@ lastlogfile.o:		lastlogfile.c lastlogfile.h
 
 tmpx.o:			tmpx.c tmpx.h
 
-cksum.o:		cksum.c cksum.h
+fsdirtree.o:		fsdirtree.c fsdirtree.h
 
+fsdir.o:		fsdir.c fsdir.h
+
+fifostr.o:		fifostr.c fifostr.h
+
+hdb.o:			hdb.c hdb.h
+
+bits.o:			bits.c bits.h baops.h
+
+baops.o:		baops.c baops.h
+
+cksum.o:		cksum.c cksum.h
 
 
