@@ -95,6 +95,6 @@
 
 #define	LOGSIZE		(80*1024)
 
-#define	NDEFAULT	10
+#define	NDEFAULT	10		/* default numbers of input numbers */
 
 

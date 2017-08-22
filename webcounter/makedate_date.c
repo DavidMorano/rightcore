@@ -52,6 +52,8 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
+extern int	isalphalatin(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -80,10 +82,9 @@ extern char	*timestr_logz(time_t,char *) ;
 
 
 /* get the date out of the ID string */
-int makedate_date(md,rpp)
-const char	md[] ;
-const char	**rpp ;
+int makedate_date(cchar *md,cchar **rpp)
 {
+	int		ch ;
 	const char	*sp ;
 	const char	*cp ;
 
@@ -97,7 +98,8 @@ const char	**rpp ;
 	while (CHAR_ISWHITE(*cp))
 	    cp += 1 ;
 
-	if (! isdigit(*cp)) {
+	ch = MKCHAR(*cp) ;
+	if (! isdigitlatin(ch)) {
 
 	    while (*cp && (! CHAR_ISWHITE(*cp)))
 	        cp += 1 ;

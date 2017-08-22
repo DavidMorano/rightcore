@@ -58,6 +58,7 @@ int	cthexi(char *,int,int) ;
 /* exported subroutines */
 
 
+/* integer */
 int cthex(char *dp,int dl,int val)
 {
 
@@ -66,6 +67,7 @@ int cthex(char *dp,int dl,int val)
 /* end subroutine (cthex) */
 
 
+/* character */
 int cthexc(char *dp,int dl,int val)
 {
 	ulonglong	v = val ;
@@ -76,6 +78,7 @@ int cthexc(char *dp,int dl,int val)
 /* end subroutine (cthexc) */
 
 
+/* unsigned character */
 int cthexuc(char *dp,int dl,uint val)
 {
 	ulonglong	v = val ;
@@ -86,6 +89,7 @@ int cthexuc(char *dp,int dl,uint val)
 /* end subroutine (cthexuc) */
 
 
+/* short */
 int cthexs(char *dp,int dl,int val)
 {
 	ulonglong	v = val ;
@@ -96,6 +100,7 @@ int cthexs(char *dp,int dl,int val)
 /* end subroutine (cthexs) */
 
 
+/* unsigned short */
 int cthexus(char *dp,int dl,uint val)
 {
 	ulonglong	v = val ;
@@ -106,6 +111,7 @@ int cthexus(char *dp,int dl,uint val)
 /* end subroutine (cthexus) */
 
 
+/* integer */
 int cthexi(char *dp,int dl,int val)
 {
 	ulonglong	v = val ;
@@ -116,6 +122,7 @@ int cthexi(char *dp,int dl,int val)
 /* end subroutine (cthexi) */
 
 
+/* unsigned integer */
 int cthexui(char *dp,int dl,uint val)
 {
 	ulonglong	v = val ;
@@ -126,6 +133,7 @@ int cthexui(char *dp,int dl,uint val)
 /* end subroutine (cthexui) */
 
 
+/* long */
 int cthexl(char *dp,int dl,long val)
 {
 	ulonglong	v = val ;
@@ -136,6 +144,7 @@ int cthexl(char *dp,int dl,long val)
 /* end subroutine (cthexl) */
 
 
+/* unsigned long */
 int cthexul(char *dp,int dl,ulong val)
 {
 	ulonglong	v = val ;
@@ -146,6 +155,7 @@ int cthexul(char *dp,int dl,ulong val)
 /* end subroutine (cthexul) */
 
 
+/* long-long */
 int cthexll(char *dp,int dl,longlong val)
 {
 	ulonglong	v = val ;
@@ -156,6 +166,7 @@ int cthexll(char *dp,int dl,longlong val)
 /* end subroutine (cthexll) */
 
 
+/* unsigned long-long */
 int cthexull(char *dp,int dl,ulonglong val)
 {
 	ulonglong	v = val ;

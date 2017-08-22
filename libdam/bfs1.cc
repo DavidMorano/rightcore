@@ -18,9 +18,8 @@
 
 /*******************************************************************************
 
-        This is the (famous) Breath-First-Search algorithm to find the
-        shorted (least number of hops) route through an un-weighted
-        graph.
+        This is the (famous) Breath-First-Search algorithm to find the shorted
+        (least number of hops) route through an un-weighted graph.
 
 	Complexity:
 

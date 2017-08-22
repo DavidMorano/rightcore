@@ -89,7 +89,7 @@
 #define	DEVFNAME	"/dev/null"
 #define	DEVRANDOM	"/dev/urandom"
 
-#define	NNENTS	1000
+#define	NNENTS		1000
 #define	DIGESTLEN	20
 
 #ifndef	LINEBUFLEN
@@ -151,12 +151,12 @@ int sysnoise(uchar *a,int alen)
 	if (a == NULL) return SR_FAULT ;
 
 	if ((rs = randbuf_start(&rb,buf,NNENTS)) >= 0) {
-	    struct timeval	tv ;
-	    RANDBUF		rb ;
-	    hrtime_t		hrt ;
-	    ULONG		ulw ;
-	    int			size ;
-	    int			i ;
+	    TIMEVAL	tv ;
+	    RANDBUF	rb ;
+	    hrtime_t	hrt ;
+	    ULONG	ulw ;
+	    int		size ;
+	    int		i ;
 
 /* get system time for the first few entries */
 

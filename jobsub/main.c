@@ -140,6 +140,7 @@ extern int	vstrkeycmp(void *,void *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	getrootdname(char *,int,const char *,const char *) ;
 extern int	batch(struct proginfo *,void *,vecstr *) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -474,13 +475,14 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            if ((argl - 1) > 0)
 	                rs = cfdecti((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

@@ -6,7 +6,6 @@
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	0		/* switchable at invocation */
-#define	CF_GETEXECNAME	1		/* get the 'exec(2)' name */
 #define	CF_CPUSPEED	1		/* calculate CPU speed */
 
 
@@ -1003,72 +1002,9 @@ const char	*envv[] ;
 
 /* get the program root */
 
-	if (pr == NULL) {
-
-	    pr = getenv(VARPROGRAMROOT1) ;
-
-	    if (pr == NULL)
-	        pr = getenv(VARPROGRAMROOT2) ;
-
-	    if (pr == NULL)
-	        pr = getenv(VARPROGRAMROOT3) ;
-
-	    if (pr == NULL) {
-
-	        char	rootdname[MAXPATHLEN + 1] ;
-
-
-	        if (nodename[0] == '\0')
-	            getnodedomain(nodename,domainname) ;
-
-	        rs = getrootdname(rootdname,MAXPATHLEN,domainname,VARPRLOCAL) ;
-
-	        if (rs > 0)
-	            proginfo_setprogroot(pip,rootdname,-1) ;
-
-	    }
-
-/* try to see if a path was given at invocation */
-
-	    if ((pr == NULL) && (pip->pr == NULL) && 
-	        (pip->progdname != NULL)) {
-
-	        proginfo_rootprogdname(pip) ;
-
-	    }
-
-/* do the special thing */
-
-#if	CF_GETEXECNAME && defined(SOLARIS) && (SOLARIS >= 8)
-	    if ((pr == NULL) && (pip->pr == NULL)) {
-
-	        const char	*pp ;
-
-
-	        pp = getexecname() ;
-
-	        if (pp != NULL)
-	            proginfo_execname(pip,pp) ;
-
-	    }
-#endif /* SOLARIS */
-
-	} /* end if (getting a program root) */
-
-	if (pip->pr == NULL) {
-
-	    if (pr == NULL)
-	        pr = PROGRAMROOT ;
-
-	    proginfo_setprogroot(pip,pr,-1) ;
-
-	}
-
 	if (pip->debuglevel > 0) {
-
 	    shio_printf(pip->efp,
 	        "%s: pr=%s\n",pip->progname,pip->pr) ;
-
 	}
 
 /* program search name */

@@ -82,11 +82,11 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<endian.h>
 #include	<estrings.h>
 #include	<vecobj.h>
 #include	<filebuf.h>
 #include	<char.h>
-#include	<endianstr.h>
 #include	<localmisc.h>
 
 #include	"cmimk.h"

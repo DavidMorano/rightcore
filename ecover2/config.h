@@ -3,19 +3,18 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-
+	= 1999-06-13, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 
 #define	VERSION		"0"
 #define	WHATINFO	"@(#)ECOVER "
-#define	BANNER		"Email Cover (ECOVER)"
+#define	BANNER		"Email Cover"
 #define	SEARCHNAME	"ecover"
 #define	VARPRNAME	"LOCAL"
 
@@ -30,7 +29,11 @@
 #define	VARBANNER	"ECOVER_BANNER"
 #define	VARSEARCHNAME	"ECOVER_NAME"
 #define	VAROPTS		"ECOVER_OPTS"
-#define	CONFVAR		"ECOVER_CONF"
+#define	VARCONF		"ECOVER_CONF"
+#define	VARLOGSIZE	"ECOVER_LOGSIZE"
+#define	VARJOBID	"ECOVER_JOBID"
+#define	VARLFNAME	"ECOVER_LF"
+#define	VARIFNAME	"ECOVER_IF"
 #define	VAREFNAME	"ECOVER_EF"
 #define	VARERRORFNAME	"ECOVER_ERRORFILE"
 

@@ -98,6 +98,7 @@ extern int	vstrkeycmp(const void *,const void *) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_logz(time_t,char *) ;
@@ -235,18 +236,15 @@ const char	**argv ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                argval = (argl - 1) ;
 
 	            } else {
-
-#if	CF_DEBUGS
-	                debugprintf("main: got an option\n") ;
-#endif
 
 	                aop = argp + 1 ;
 	                aol = argl - 1 ;

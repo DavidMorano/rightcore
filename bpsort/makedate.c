@@ -1,2 +1,2 @@
 const char bpsort_makedate[] =
-"@(#)bpsort                  170803_0749:08_USEDT Rightcore Network Services" ;
+"@(#)bpsort                  170820_1958:12_USEDT Rightcore Network Services" ;

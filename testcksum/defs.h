@@ -1,8 +1,14 @@
 /* defs */
 
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* revision history:
 
+	= 1998-11-01, David A­D­ Morano
+	This subroutine was written for Rightcore Network Services (RNS).
+
+*/
+
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	DEFS_INCLUDE
 #define	DEFS_INCLUDE	1
@@ -12,13 +18,18 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
+#include	<sys/stat.h>
 #include	<limits.h>
-#include	<time.h>
 
+#include	<vechand.h>
 #include	<vecstr.h>
 #include	<logfile.h>
-#include	<dater.h>
-#include	<ids.h>
+#include	<keyopt.h>
+#include	<paramopt.h>
+#include	<fsdirtree.h>
+#include	<vecpstr.h>
+#include	<hdbstr.h>
+#include	<hdb.h>
 #include	<localmisc.h>
 
 
@@ -48,9 +59,12 @@
 #define	MSGBUFLEN	2048
 #endif
 
-/* service name */
 #ifndef	SVCNAMELEN
 #define	SVCNAMELEN	32
+#endif
+
+#ifndef	PASSWDLEN
+#define	PASSWDLEN	32
 #endif
 
 #ifndef	LOGNAMELEN
@@ -61,41 +75,12 @@
 #endif
 #endif
 
-#ifndef	PASSWDLEN
-#define	PASSWDLEN	32
-#endif
-
 #ifndef	USERNAMELEN
 #ifndef	LOGNAME_MAX
 #define	USERNAMELEN	LOGNAME_MAX
 #else
 #define	USERNAMELEN	32
 #endif
-#endif
-
-#ifndef	GROUPNAMELEN
-#ifndef	LOGNAME_MAX
-#define	GROUPNAMELEN	LOGNAME_MAX
-#else
-#define	GROUPNAMELEN	32
-#endif
-#endif
-
-/* Solaris project name */
-#ifndef	PROJNAMELEN
-#ifndef	LOGNAME_MAX
-#define	PROJNAMELEN	LOGNAME_MAX
-#else
-#define	PROJNAMELEN	32
-#endif
-#endif
-
-#ifndef	GNAMELEN
-#define	GNAMELEN	80		/* GECOS name length */
-#endif
-
-#ifndef	REALNAMELEN
-#define	REALNAMELEN	100		/* real name length */
 #endif
 
 #ifndef	LINEBUFLEN
@@ -106,22 +91,12 @@
 #endif
 #endif
 
-/* timezone (zoneinfo) name */
-#ifndef	TZLEN
-#define	TZLEN		60
-#endif
-
 #ifndef	LOGIDLEN
 #define	LOGIDLEN	15
 #endif
 
-/* mail address */
 #ifndef	MAILADDRLEN
 #define	MAILADDRLEN	(3 * MAXHOSTNAMELEN)
-#endif
-
-#ifndef	NULLDEV
-#define	NULLDEV		"/dev/null"
 #endif
 
 #ifndef	TIMEBUFLEN
@@ -132,131 +107,139 @@
 #define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
 #endif
 
-#ifndef	STDINFNAME
-#define	STDINFNAME	"*STDIN*"
-#endif
+#define	MEGABYTE	(1024 * 1024)
+#define	UNIXBLOCK	512
 
-#ifndef	STDOUTFNAME
-#define	STDOUTFNAME	"*STDOUT*"
-#endif
+#define	PROGINFO	struct proginfo
+#define	PROGINFO_FL	struct proginfo_flags
 
-#ifndef	STDERRFNAME
-#define	STDERRFNAME	"*STDERR*"
-#endif
+#define	PIVARS		struct pivars
 
-#ifndef	KBUFLEN
-#define	KBUFLEN		120
-#endif
-
-#ifndef	VBUFLEN
-#define	VBUFLEN		(6 * MAXPATHLEN)
-#endif
-
-#ifndef	EBUFLEN
-#define	EBUFLEN		(6 * MAXPATHLEN)
-#endif
-
-#ifndef	DIGBUFLEN
-#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
-#endif
-
-#ifndef	EX_OLDER
-#define	EX_OLDER	1
-#endif
+#define	ARGINFO		struct arginfo
 
 
 struct proginfo_flags {
-	uint		progdash : 1 ;
-	uint		akopts : 1 ;
-	uint		aparams : 1 ;
-	uint		quiet : 1 ;
-	uint		outfile : 1 ;
-	uint		errfile : 1 ;
-	uint		configfile : 1 ;
-	uint		pidfile : 1 ;
-	uint		lockfile : 1 ;
-	uint		logfile : 1 ;
-	uint		msfile : 1 ;
-	uint		config : 1 ;
-	uint		pidlock : 1 ;
-	uint		daemon : 1 ;
-	uint		log : 1 ;
-	uint		logsize : 1 ;
-	uint		speed : 1 ;
-	uint		geekout : 1 ;
-	uint		nodeonly : 1 ;
-	uint		tmpdate : 1 ;
-	uint		disable : 1 ;
-	uint		all : 1 ;
-	uint		def : 1 ;
-	uint		list : 1 ;
-	uint		bufwhole : 1 ;
-	uint		bufline : 1 ;
-	uint		bufnone : 1 ;
-	uint		intrun : 1 ;
-	uint		intdis : 1 ;
-	uint		intpoll : 1 ;
-	uint		intlock : 1 ;
-	uint		intmark : 1 ;
+	uint		progdash:1 ;
+	uint		akopts:1 ;
+	uint		aparams:1 ;
+	uint		quiet:1 ;
+	uint		errfile:1 ;
+	uint		tmpdir:1 ;
+	uint		logprog:1 ;
+	uint		logsize:1 ;
+	uint		nochange:1 ;
+	uint		print:1 ;
+	uint		follow:1 ;	/* follow symbolic links */
+	uint		tardirs:1 ;
+	uint		nice:1 ;	/* nice value */
+	uint		ff:1 ;		/* first-follow */
+	uint		iacc:1 ;	/* ignore no-access */
+	uint		im:1 ;		/* ignore missing */
+	uint		zargs:1 ;	/* allow zero arguments */
+	uint		younger:1 ;
+	uint		sufreq:1 ;
+	uint		sufacc:1 ;
+	uint		sufrej:1 ;
+	uint		nostop:1 ;
+	uint		cores:1 ;	/* specify core files */
+	uint		rmfile:1 ;
+	uint		rmdirs:1 ;
+	uint		dirs:1 ;	/* dir-id management */
+	uint		files:1 ;	/* file-id management */
+	uint		links:1 ;	/* file-link management */
+	uint		readable:1 ;	/* readable */
+	uint		older:1 ;	/* older */
+	uint		accessed:1 ;	/* accessed */
+	uint		prune:1 ;	/* prune-mode */
+	uint		summary:1 ;	/* summary mode (for lines) */
+	uint		ignasscomm:1 ;	/* ignore assembly comments */
+	uint		igncomm:1 ;	/* ignore comments w/ character */
+	uint		f_uniq:1 ;
+	uint		f_name:1 ;
+	uint		f_noprog:1 ;
+	uint		f_nopipe:1 ;
+	uint		f_nodev:1 ;
+	uint		f_noname:1 ;
+	uint		f_nolink:1 ;
+	uint		f_nosock:1 ;
+	uint		f_nodoor:1 ;
+	uint		f_noextra:1 ;
+	uint		f_nodotdir:1 ;
 } ;
 
 struct proginfo {
 	vecstr		stores ;
 	const char	**envv ;
 	const char	*pwd ;
-	const char	*progename ;		/* execution filename */
-	const char	*progdname ;		/* dirname of arg[0] */
-	const char	*progname ;		/* basename of arg[0] */
-	const char	*pr ;			/* program root */
-	const char	*rootname ;		/* distribution name */
+	const char	*progename ;
+	const char	*progdname ;
+	const char	*progname ;
+	const char	*pr ;
 	const char	*searchname ;
 	const char	*version ;
 	const char	*banner ;
-	const char	*nodename ;
-	const char	*domainname ;
 	const char	*username ;
 	const char	*groupname ;
-	const char	*name ;			/* person name */
-	const char	*logid ;
+	const char	*nodename ;
+	const char	*domainname ;
+	cchar		*gecosname ;
+	cchar		*realname ;
+	cchar		*name ;
+	cchar		*fullname ;
+	cchar		*mailname ;
+	cchar		*org ;
+	cchar		*logid ;
+	const char	*homedname ;
+	cchar		*hostname ;
 	const char	*tmpdname ;
-	const char	*maildname ;
-	const char	*configfname ;
-	const char	*helpfname ;
-	const char	*pidfname ;
-	const char	*logfname ;
-	const char	*msfname ;
+	const char	*tardname ;
+	const char	*jobdname ;
+	const char	*lfname ;
+	const char	*hfname ;
+	cchar		**prune ;
+	void		*lip ;
 	void		*efp ;
-	void		*buffer ;		/* general buffer */
-	void		*lip ;			/* local information */
-	void		*config ;		/* for MSU */
-	void		*contextp ;		/* SHELL context */
-	struct proginfo_flags	have, f, changed, final ;
-	struct proginfo_flags	open ;
-	struct timeb	now ;
+	void		*ofp ;
+	void		*userlist ;	/* user-list state */
+	void		*config ;	/* configuration */
+	PROGINFO_FL	have, f, changed, final ;
+	PROGINFO_FL	open ;
+	KEYOPT		akopts ;
+	PARAMOPT	aparams ;
+	FSDIRTREE_STAT	tarstat ;
 	LOGFILE		lh ;
-	DATER		tmpdate, mdate ;
-	IDS		id ;
+	VECHAND		tardirs ;
+	VECPSTR		sufs[3] ;
+	VECPSTR		rmdirs ;
+	HDBSTR		dirnames ;
+	HDB		dirs ;		/* dir-id management */
+	HDB		files ;		/* file-id management */
+	HDB		links ;		/* link-something management */
+	dev_t		tardev ;	/* target directory device (linker) */
 	time_t		daytime ;
-	time_t		lastcheck ;
+	uid_t		uid, euid, uid_tmp ;
+	gid_t		gid, egid, gid_tmp ;
 	pid_t		pid ;
+	uint		bytes ;
+	uint		megabytes ;
+	uint		fts ;		/* file types specified */
+	uint		fnos ;		/* file "nos" */
 	int		pwdlen ;
-	int		progmode ;		/* program mode */
+	int		progmode ;
 	int		debuglevel ;
 	int		verboselevel ;
-	int		to ;			/* general time-out */
-	int		to_open ;		/* open time-out */
-	int		to_read ;		/* read time-out */
+	int		logsize ;
+	int		namelen ;
+	int		younger ;
+	int		older ;
+	int		accessed ;
+	int		nice ;
+	int		cch ;		/* comment character */
 	int		n ;
-	int		logsize ;		/* max log-file size */
-	int		intrun ;		/* run interval */
-	int		intdis ;		/* disable interval */
-	int		intpoll ;		/* poll interval */
-	int		intmark ;		/* mark interval */
-	int		intlock ;		/* lock interval */
-	int		intspeed ;		/* speed-check interval */
-	char		cmd[LOGIDLEN + 1] ;	/* for MSU */
-	char		speedname[MAXNAMELEN + 1] ; /* really for MSU */
-	char		zname[DATER_ZNAMESIZE + 1] ;
+	int		c_files ;
+	int		c_processed ;
+	int		c_linkerr ;
+	int		c_lines ;
 } ;
 
 struct pivars {
@@ -267,27 +250,35 @@ struct pivars {
 	const char	*vprname ;
 } ;
 
+struct arginfo {
+	const char	**argv ;
+	int		argc ;
+	int		ai, ai_max, ai_pos ;
+	int		ai_continue ;
+} ;
+
 
 #ifdef	__cplusplus
-}
+extern "C" {
 #endif
 
-extern int proginfo_start(struct proginfo *,char **,const char *,const char *) ;
-extern int proginfo_setprogroot(struct proginfo *,const char *,int) ;
-extern int proginfo_rootprogdname(struct proginfo *) ;
-extern int proginfo_rootexecname(struct proginfo *,const char *) ;
-extern int proginfo_rootname(struct proginfo *) ;
-extern int proginfo_setentry(struct proginfo *,const char **,const char *,int) ;
-extern int proginfo_setversion(struct proginfo *,const char *) ;
-extern int proginfo_setbanner(struct proginfo *,const char *) ;
-extern int proginfo_setsearchname(struct proginfo *,const char *,const char *) ;
-extern int proginfo_setprogname(struct proginfo *,const char *) ;
-extern int proginfo_setexecname(struct proginfo *,const char *) ;
-extern int proginfo_pwd(struct proginfo *) ;
-extern int proginfo_getpwd(struct proginfo *,char *,int) ;
-extern int proginfo_getename(struct proginfo *,char *,int) ;
-extern int proginfo_nodename(struct proginfo *) ;
-extern int proginfo_finish(struct proginfo *) ;
+extern int proginfo_start(PROGINFO *,cchar **,cchar *,cchar *) ;
+extern int proginfo_setentry(PROGINFO *,const char **,const char *,int) ;
+extern int proginfo_setversion(PROGINFO *,const char *) ;
+extern int proginfo_setbanner(PROGINFO *,const char *) ;
+extern int proginfo_setsearchname(PROGINFO *,const char *,const char *) ;
+extern int proginfo_setprogname(PROGINFO *,const char *) ;
+extern int proginfo_setexecname(PROGINFO *,const char *) ;
+extern int proginfo_setprogroot(PROGINFO *,const char *,int) ;
+extern int proginfo_pwd(PROGINFO *) ;
+extern int proginfo_rootname(PROGINFO *) ;
+extern int proginfo_progdname(PROGINFO *) ;
+extern int proginfo_progename(PROGINFO *) ;
+extern int proginfo_nodename(PROGINFO *) ;
+extern int proginfo_getpwd(PROGINFO *,char *,int) ;
+extern int proginfo_getename(PROGINFO *,char *,int) ;
+extern int proginfo_getenv(PROGINFO *,const char *,int,const char **) ;
+extern int proginfo_finish(PROGINFO *) ;
 
 #ifdef	__cplusplus
 }

@@ -12,13 +12,16 @@
 #include	<localmisc.h>
 
 
-#define	PWIHDR_MAGICSTR		"IPASSWD"
+#define	PWIHDR			struct pwihdr
 #define	PWIHDR_MAGICSIZE	16
+#define	PWIHDR_MAGICSTR		"IPASSWD"
+#define	PWIHDR_MAGICLEN		sizeof(PWIHDR_MAGICSTR)
 #define	PWIHDR_VERSION		0
 #define	PWIHDR_TYPE		0
 
 
 enum pwihdrs {
+	pwihdr_fsize,		/* source DB file size */
 	pwihdr_wrtime,
 	pwihdr_wrcount,
 	pwihdr_rectab,
@@ -38,20 +41,23 @@ enum pwihdrs {
 } ;
 
 struct pwihdr {
+	uint		fsize ;
 	uint		wrtime ;
 	uint		wrcount ;
 	uint		rectab ;
 	uint		recsize ;
 	uint		reclen ;
 	uint		strtab ;
+	uint		strlen ;
 	uint		strsize ;
-	uint		idxsize ;
 	uint		idxlen ;
+	uint		idxsize ;
 	uint		idxl1 ;
 	uint		idxl3 ;
 	uint		idxf ;
 	uint		idxfl3 ;
 	uint		idxun ;
+	uchar		vetu[4] ;
 } ;
 
 

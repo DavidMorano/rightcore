@@ -10,21 +10,19 @@
 /* revision history:
 
 	= 1999-03-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
-/**********************************************************************
+/*******************************************************************************
 
 	This subroutine forms a program that sends data to a remote
 	INET host to its 'echo' service.
 
 
-***********************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -82,6 +80,7 @@ extern int	dialuss(const char *,int,int) ;
 extern int	dialusd(const char *,int,int) ;
 extern int	opentmpusd(const char *,int,mode_t,char *) ;
 extern int	dialticotsordnls(const char *,int,const char *,int,int) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strbasename(char *) ;
@@ -217,10 +216,11 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (cfdeci(argp + 1,argl - 1,&argnum))
 	                    goto badargval ;

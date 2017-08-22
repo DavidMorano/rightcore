@@ -24,7 +24,7 @@
 
 	Fatures:
 
-	pretty close to optimal speed
+	+ pretty close to optimal speed (no queue, just linear search)
 
 
 	Complexity:

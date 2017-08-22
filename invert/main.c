@@ -62,6 +62,7 @@
 /* external subroutines */
 
 extern int	mktmplock(const char **,const char *,mode_t,char *) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strbasename(char *) ;
 
@@ -134,10 +135,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	    argl = strlen(argp) ;
 
 	    if ((argl > 0) && (*argp == '-')) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                bprintf(efp,"%s: numeric option ignored\n",
 	                    progname) ;

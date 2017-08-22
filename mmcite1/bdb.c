@@ -163,8 +163,7 @@ static int bdbkey_start(struct bdb_key *,int,uint,const char *,int) ;
 static int bdbkey_finish(struct bdb_key *) ;
 
 static int bibentry_start(struct bibentry *,int) ;
-static int bibentry_begin(struct bibentry *,const char *,int,
-		const char *,int) ;
+static int bibentry_begin(struct bibentry *,cchar *,int,cchar *,int) ;
 static int bibentry_continue(struct bibentry *,const char *,int) ;
 static int bibentry_end(struct bibentry *) ;
 static int bibentry_finish(struct bibentry *) ;
@@ -198,18 +197,13 @@ static const char	*states[] = {
 /* exported subroutines */
 
 
-int bdb_start(op,qkey,opts)
-BDB		*op ;
-const char	qkey[] ;
-int		opts ;
+int bdb_start(BDB *op,cchar *qkey,int opts)
 {
-	int	rs ;
-	int	size ;
-	int	vecopts ;
+	int		rs ;
+	int		cl ;
+	const char	*cp ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
 	memset(op,0,sizeof(BDB)) ;
 
@@ -222,81 +216,47 @@ int		opts ;
 
 /* store away stuff */
 
+	cl = strlen(qkey) ;
 	op->opts = opts ;
 
-	{
-	    int		cl = strlen(qkey) ;
-	    const char	*cp ;
-	    if ((rs = uc_mallocstrw(qkey,cl,&cp)) >= 0) {
-	        op->qkbuf = cp ;
-	        op->qklen = cl ;
+	if ((rs = uc_mallocstrw(qkey,cl,&cp)) >= 0) {
+	    const int	esize = sizeof(struct bdb_file) ;
+	    const int	nf = BDB_DEFFILES ;
+	    const int	vo = (VECOBJ_OORDERED | VECOBJ_OSTATIONARY) ;
+	    op->qkbuf = cp ;
+	    op->qklen = cl ;
+	    if ((rs = vecobj_start(&op->files,esize,nf,vo)) >= 0) {
+		const int	ne = BDB_DEFENTRIES ;
+		if ((rs = hdb_start(&op->keys,ne,1,NULL,NULL)) >= 0) {
+		    op->magic = BDB_MAGIC ;
+		}
+		if (rs < 0)
+		    vecobj_finish(&op->files) ;
+	    } /* end if (vecobj_start) */
+	    if (rs < 0) {
+	        uc_free(op->qkbuf) ;
+	        op->qkbuf = NULL ;
 	    }
-	}
-
-#if	CF_DEBUGS
-	debugprintf("bdb_start: uc_mallocstrw() rs=%d\n",rs) ;
-#endif
-	if (rs < 0) goto bad0 ;
-
-#if	CF_DEBUGS
-	debugprintf("bdb_start: qkey=%s opts=\\x%02x\n",
-	    op->qkbuf,op->opts) ;
-#endif
-
-/* set up the other structures needed */
-
-	size = sizeof(struct bdb_file) ;
-	vecopts = (VECOBJ_OORDERED | VECOBJ_OSTATIONARY) ;
-	rs = vecobj_start(&op->files,size,BDB_DEFFILES,vecopts) ;
-	if (rs < 0)
-	    goto bad1 ;
-
-	rs = hdb_start(&op->keys,BDB_DEFENTRIES,1,NULL,NULL) ;
-	if (rs < 0)
-	    goto bad2 ;
-
-/* finish up */
-
-	op->magic = BDB_MAGIC ;
-
-ret0:
+	} /* end if (m-a) */
+	
 	return rs ;
-
-/* bad stuff */
-bad2:
-	vecobj_finish(&op->files) ;
-
-bad1:
-	if (op->qkbuf != NULL) {
-	    uc_free(op->qkbuf) ;
-	    op->qkbuf = NULL ;
-	}
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (bdb_start) */
 
 
-int bdb_finish(op)
-BDB		*op ;
+int bdb_finish(BDB *op)
 {
 	struct bdb_file	*bfep ;
 	struct bdb_key	*bkp ;
-
 	HDB_CUR		cur ;
 	HDB_DATUM	key, value ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
+	if (op == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != BDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BDB_MAGIC) return SR_NOTOPEN ;
 
 	if (op->qkbuf != NULL) {
 	    rs1 = uc_free(op->qkbuf) ;
@@ -344,14 +304,10 @@ BDB		*op ;
 /* end subroutine (bdb_finish) */
 
 
-int bdb_add(op,fname)
-BDB		*op ;
-const char	fname[] ;
+int bdb_add(BDB *op,cchar *fname)
 {
 	struct ustat	sb ;
-
-	int	rs ;
-
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (fname == NULL) return SR_FAULT ;
@@ -380,60 +336,13 @@ const char	fname[] ;
 /* end subroutine (bdb_add) */
 
 
-#ifdef	COMMENT
-
-/* find a paramter by name (path of the bibliography) */
-int bdb_find(op,name,len,rpp)
-BDB		*op ;
-char		name[] ;
-char		len ;
-BDB_VALUE	**rpp ;
+int bdb_count(BDB *op)
 {
-	HDB_DATUM	key, value ;
+	int		rs ;
 
-	int	rs ;
-	int	len = 0 ;
+	if (op == NULL) return SR_FAULT ;
 
-
-#if	CF_DEBUGS
-	debugprintf("bdbfind: entered, n=%s\n",name) ;
-#endif
-
-	key.buf = name ;
-	key.len = (len >= 0) ? len : strlen(name) ;
-
-	rs = hdb_fetch(&op->keys,key,NULL,&value) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-#if	CF_DEBUGS
-	debugprintf("bdbfind: got it\n") ;
-#endif
-
-	if (rpp != NULL)
-	    *rpp = (struct bdb__value *) value.buf ;
-
-	len = value.len ;
-
-ret0:
-	return (rs >= 0) ? len : rs ;
-}
-/* end subroutine (bdb_find) */
-
-#endif /* COMMENT */
-
-
-int bdb_count(op)
-BDB		*op ;
-{
-	int	rs ;
-
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != BDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BDB_MAGIC) return SR_NOTOPEN ;
 
 	rs = hdb_count(&op->keys) ;
 
@@ -442,68 +351,15 @@ BDB		*op ;
 /* end subroutine (bdb_count) */
 
 
-#ifdef	COMMENT
-
-/* get the entry under the current cursor */
-int bdb_getname(op,cp,rpp)
-BDB		*op ;
-BDB_CUR		*cp ;
-char		**rpp ;
-{
-	HDB_DATUM	key, value ;
-
-	int	rs ;
-
-
-#if	CF_DEBUGS
-	debugprintf("bdbgetkey: entered\n") ;
-#endif
-
-	if ((rs = hdb_enum(&op->keys,(HDB_CUR *) cp,&key,&value)) >= 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("bdbgetkey: loop\n") ;
-#endif
-
-	    rs = -1 ;
-	    if ((key.buf != NULL) && (key.len > 0)) {
-
-	        if (rpp != NULL)
-	            *rpp = key.buf ;
-
-	        rs = key.len ;
-	    }
-
-	} /* end if */
-
-#if	CF_DEBUGS
-	debugprintf("bdbgetkey: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (bdb_getname) */
-
-#endif /* COMMENT */
-
-
 /* delete the entry under the current cursor */
-int bdb_delcur(op,curp,f_adv)
-BDB		*op ;
-BDB_CUR		*curp ;
-int		f_adv ;
+int bdb_delcur(BDB *op,BDB_CUR *curp,int f_adv)
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != BDB_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_INVALID ;
+	if (op->magic != BDB_MAGIC) return SR_NOTOPEN ;
 
 	rs = hdb_delcur(&op->keys,&curp->cur,f_adv) ;
 
@@ -520,21 +376,18 @@ int		f_adv ;
 int bdb_query(op,citekey,bep,bebuf,belen)
 BDB		*op ;
 const char	citekey[] ;
-BDB_ENT	*bep ;
+BDB_ENT		*bep ;
 char		bebuf[] ;
 int		belen ;
 {
 	struct bdb_key	bke ;
-
 	HDB_DATUM	key ;
-
-	int	rs ;
-	int	rs1 ;
-	int	n ;
-
+	int		rs ;
+	int		rs1 ;
+	int		n ;
 
 #if	CF_DEBUGS
-	debugprintf("bdb_query: entered citekey=%s\n",citekey) ;
+	debugprintf("bdb_query: ent citekey=%s\n",citekey) ;
 #endif
 
 	if (op == NULL) return SR_FAULT ;
@@ -666,21 +519,14 @@ ret0:
 /* end subroutine (bdb_query) */
 
 
-int bdb_curbegin(op,curp)
-BDB		*op ;
-BDB_CUR		*curp ;
+int bdb_curbegin(BDB *op,BDB_CUR *curp)
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != BDB_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != BDB_MAGIC) return SR_NOTOPEN ;
 
 	rs = hdb_curbegin(&op->keys,(HDB_CUR *) curp) ;
 
@@ -689,21 +535,14 @@ BDB_CUR		*curp ;
 /* end subroutine (bdb_curbegin) */
 
 
-int bdb_curend(op,curp)
-BDB		*op ;
-BDB_CUR		*curp ;
+int bdb_curend(BDB *op,BDB_CUR *curp)
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != BDB_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != BDB_MAGIC) return SR_NOTOPEN ;
 
 	rs = hdb_curend(&op->keys,(HDB_CUR *) curp) ;
 
@@ -715,19 +554,13 @@ BDB_CUR		*curp ;
 /* private subroutines */
 
 
-static int bdb_scan(op,key,ubkp)
-BDB		*op ;
-HDB_DATUM	key ;
-struct bdb_key	*ubkp ;
+static int bdb_scan(BDB *op,HDB_DATUM key,struct bdb_key *ubkp)
 {
 	struct bdb_key	*bkp ;
-
 	HDB_CUR		cur ;
 	HDB_DATUM	value ;
-
-	int	rs ;
-	int	c = 0 ;
-
+	int		rs ;
+	int		c = 0 ;
 
 	if ((rs = hdb_curbegin(&op->keys,&cur)) >= 0) {
 	    int	fi = -1 ;
@@ -757,22 +590,17 @@ struct bdb_key	*ubkp ;
 
 
 /* index one BDB database file (the most recent unindexed file) */
-static int bdb_fileindex(op,n)
-BDB		*op ;
-int		n ;
+static int bdb_fileindex(BDB *op,int n)
 {
 	struct bdb_file	*bfep = NULL ;
-
-	int	rs = SR_OK ;
-	int	fi = 0 ;
-
+	int		rs = SR_OK ;
+	int		fi = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("bdb_fileindex: entered n=%u\n",n) ;
+	debugprintf("bdb_fileindex: ent n=%u\n",n) ;
 #endif
 
-	if (n == 0)
-	    return SR_NOTFOUND ;
+	if (n == 0) return SR_NOTFOUND ;
 
 /* find the youngest file that has not been indexed */
 
@@ -781,10 +609,9 @@ int		n ;
 	    (fi >= 0) && ((rs = vecobj_get(&op->files,fi,&bfep)) >= 0) ; 
 	    fi -= 1) {
 
-	    if (bfep == NULL) continue ;
-
-	    if (! bfep->f_indexed)
-	        break ;
+	    if (bfep != NULL) {
+	        if (! bfep->f_indexed) break ;
+	    }
 
 	} /* end for */
 
@@ -807,22 +634,16 @@ int		n ;
 /* end subroutine (bdb_fileindex) */
 
 
-static int bdb_fileproc(op,fi,bfep)
-BDB		*op ;
-int		fi ;
-struct bdb_file	*bfep ;
+static int bdb_fileproc(BDB *op,int fi,struct bdb_file *bfep)
 {
 	SBUF		citekey ;
-
 	bfile		bibfile, *bfp = &bibfile ;
-
 	uint		foff = 0 ;
 	uint		coff ;
-
-	int	rs ;
-	int	len ;
-	int	state ;
-	int	f_inkey = FALSE ;
+	int		rs ;
+	int		len ;
+	int		state ;
+	int		f_inkey = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("bdb_fileproc: fi=%u\n",fi) ;
@@ -989,13 +810,15 @@ struct bdb_file	*bfep ;
 	    bclose(bfp) ;
 	} /* end if (opened file) */
 
-	if (f_inkey)
+	if (f_inkey) {
 	    sbuf_finish(&citekey) ;
+	}
 
 /* mark this file as being indexed */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    bdbfile_indexed(bfep) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("bdb_fileproc: ret rs=%d\n",rs) ;
@@ -1015,10 +838,8 @@ const char	cbuf[] ;
 int		clen ;
 {
 	struct bdb_key		*bkp ;
-
-	int	rs ;
-	int	esize = sizeof(struct bdb_key) ;
-
+	int		rs ;
+	int		esize = sizeof(struct bdb_key) ;
 
 #if	CF_DEBUGS
 	debugprintf("bdb_keyinsert: coff=%u\n",coff) ;
@@ -1060,22 +881,20 @@ int		clen ;
 /* read a BIB entry */
 static int bdb_readentry(op,bep,bebuf,belen,bkp)
 BDB		*op ;
-BDB_ENT	*bep ;
+BDB_ENT		*bep ;
 char		bebuf[] ;
 int		belen ;
 struct bdb_key	*bkp ;
 {
 	struct bibentry	ie ;
-
 	struct bdb_file	*bfep ;
-
-	int	rs ;
-	int	rlen ;
-	int	n = 0 ;
-	int	f_inkey ;
+	int		rs ;
+	int		rlen ;
+	int		n = 0 ;
+	int		f_inkey ;
 
 #if	CF_DEBUGS
-	debugprintf("bdb_readentry: entered\n") ;
+	debugprintf("bdb_readentry: ent\n") ;
 #endif
 
 #ifdef	COMMENT
@@ -1208,10 +1027,8 @@ static int bdbfile_start(fp,fname)
 struct bdb_file	*fp ;
 const char	fname[] ;
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
-
 
 	memset(fp,0,sizeof(struct bdb_file)) ;
 
@@ -1227,12 +1044,10 @@ const char	fname[] ;
 static int bdbfile_finish(fp)
 struct bdb_file	*fp ;
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
-
-	if (fp == NULL)
-	    return SR_FAULT ;
+	if (fp == NULL) return SR_FAULT ;
 
 	if (fp->fname != NULL) {
 	    rs1 = uc_free(fp->fname) ;
@@ -1249,9 +1064,7 @@ static int bdbfile_indexed(fp)
 struct bdb_file	*fp ;
 {
 
-
-	if (fp == NULL)
-	    return SR_FAULT ;
+	if (fp == NULL) return SR_FAULT ;
 
 	fp->f_indexed = TRUE ;
 	return SR_OK ;
@@ -1267,10 +1080,8 @@ uint		coff ;
 const char	citekey[] ;
 int		clen ;
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
-
 
 #if	CF_DEBUGS
 	debugprintf("bdb/bdbkey_start: fi=%u\n",fi) ;
@@ -1284,8 +1095,9 @@ int		clen ;
 	bkp->fi = fi ;
 	bkp->coff = coff ;
 	bkp->clen = clen ;
-	rs = uc_mallocstrw(citekey,-1,&cp) ;
-	if (rs >= 0) bkp->citekey = cp ;
+	if ((rs = uc_mallocstrw(citekey,-1,&cp)) >= 0) {
+	    bkp->citekey = cp ;
+	}
 
 	return rs ;
 }
@@ -1295,12 +1107,10 @@ int		clen ;
 static int bdbkey_finish(bkp)
 struct bdb_key	*bkp ;
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
-
-	if (bkp == NULL)
-	    return SR_FAULT ;
+	if (bkp == NULL) return SR_FAULT ;
 
 	if (bkp->citekey != NULL) {
 	    rs1 = uc_free(bkp->citekey) ;
@@ -1320,9 +1130,7 @@ struct bibentry	*iep ;
 int		fi ;
 {
 	const int	size = sizeof(struct keyval) ;
-
-	int	rs ;
-
+	int		rs ;
 
 	memset(iep,0,sizeof(struct bibentry)) ;
 
@@ -1341,60 +1149,34 @@ struct bibentry	*iep ;
 const char	*kp, *vp ;
 int		kl, vl ;
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
 
-
-	if (kl < 0)
-	    kl = strlen(kp) ;
+	if (kl < 0) kl = strlen(kp) ;
 
 /* key */
 
 	iep->kp = NULL ;
-	rs = uc_mallocstrw(kp,kl,&cp) ;
-	if (rs < 0) goto bad0 ;
-
-/* enter the key */
-
-	iep->kp = cp ;
-	iep->kl = kl ;
-
-/* value */
-
-	rs = buffer_start(&iep->vb,80) ;
-	if (rs < 0)
-	    goto bad1 ;
-
-/* enter the value */
-
-	if (vl < 0)
-	    vl = strlen(vp) ;
-
-	while (vl && CHAR_ISWHITE(*vp)) {
-	    vp += 1 ;
-	    vl -= 1 ;
+	if ((rs = uc_mallocstrw(kp,kl,&cp)) >= 0) {
+	    iep->kp = cp ;
+	    iep->kl = kl ;
+	    if ((rs = buffer_start(&iep->vb,80)) >= 0) {
+	        if (vl < 0) vl = strlen(vp) ;
+	        while (vl && CHAR_ISWHITE(*vp)) {
+	            vp += 1 ;
+	            vl -= 1 ;
+	        }
+	        rs = buffer_strw(&iep->vb,vp,vl) ;
+	        if (rs < 0)
+	            buffer_finish(&iep->vb) ;
+	    }
+	    if (rs < 0) {
+	        uc_free(iep->kp) ;
+	        iep->kp = NULL ;
+	    }
 	}
 
-	rs = buffer_strw(&iep->vb,vp,vl) ;
-	if (rs < 0)
-	    goto bad2 ;
-
-ret0:
 	return rs ;
-
-/* bad stuff */
-bad2:
-	buffer_finish(&iep->vb) ;
-
-bad1:
-	if (iep->kp != NULL) {
-	    uc_free(iep->kp) ;
-	    iep->kp = NULL ;
-	}
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (bibentry_begin) */
 
@@ -1404,14 +1186,11 @@ struct bibentry	*iep ;
 const char	*vp ;
 int		vl ;
 {
-	int	rs ;
-	int	bl ;
-
+	int		rs ;
+	int		bl ;
 	const char	*bp ;
 
-
-	if (vl < 0)
-	    vl = strlen(vp) ;
+	if (vl < 0) vl = strlen(vp) ;
 
 	while (vl && CHAR_ISWHITE(*vp)) {
 	    vp += 1 ;
@@ -1422,8 +1201,9 @@ int		vl ;
 	bl = rs ;
 	if (rs > 0) {
 
-	    if (! CHAR_ISWHITE(bp[bl - 1]))
+	    if (! CHAR_ISWHITE(bp[bl - 1])) {
 	        rs = buffer_char(&iep->vb,' ') ;
+	    }
 
 	} /* end if */
 
@@ -1439,15 +1219,12 @@ static int bibentry_end(iep)
 struct bibentry	*iep ;
 {
 	struct keyval	kv ;
-
-	int	rs ;
-	int	rs1 ;
-	int	vl ;
-	int	size ;
-
+	int		rs ;
+	int		rs1 ;
+	int		vl ;
+	int		size ;
 	const char	*vp ;
 	const char	*cp ;
-
 
 	keyval_start(&kv) ;
 
@@ -1489,11 +1266,9 @@ static int bibentry_finish(iep)
 struct bibentry	*iep ;
 {
 	struct keyval	*kvp ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
 
 	if (iep->kp != NULL) {
 	    rs1 = uc_free(iep->kp) ;
@@ -1502,11 +1277,10 @@ struct bibentry	*iep ;
 	}
 
 	for (i = 0 ; vecobj_get(&iep->keyvals,i,&kvp) >= 0 ; i += 1) {
-	    if (kvp == NULL) continue ;
-
-	    rs1 = keyval_finish(kvp) ;
-	    if (rs >= 0) rs = rs1 ;
-
+	    if (kvp != NULL) {
+	        rs1 = keyval_finish(kvp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
 	} /* end for */
 
 	rs1 = vecobj_finish(&iep->keyvals) ;
@@ -1525,19 +1299,15 @@ int			ebuflen ;
 struct bibentry		*iep ;
 {
 	struct keyval	*kvp ;
-
-	int	rs ;
-	int	tabsize, size ;
-	int	n ;
-	int	bo, i, j, kal ;
+	int		rs ;
+	int		tabsize, size ;
+	int		n ;
+	int		bo, i, j, kal ;
 #ifdef	OPTIONAL
-	int	bl ;
+	int		bl ;
 #endif
-
 	const char	*(*keyvals)[2] ;
-
-	char	*bp ;
-
+	char		*bp ;
 
 	rs = vecobj_count(&iep->keyvals) ;
 	n = rs ;
@@ -1559,7 +1329,7 @@ struct bibentry		*iep ;
 
 	    j = 0 ;
 	    for (i = 0 ; vecobj_get(&iep->keyvals,i,&kvp) >= 0 ; i += 1) {
-	        if (kvp == NULL) continue ;
+	        if (kvp != NULL) {
 
 	        keyvals[j][0] = bp ;
 	        bp = strwcpy(bp,kvp->kp,kvp->kl) + 1 ;
@@ -1569,15 +1339,15 @@ struct bibentry		*iep ;
 #endif
 
 	        if (kvp->vp != NULL) {
-
 	            keyvals[j][1] = bp ;
 	            bp = strwcpy(bp,kvp->vp,kvp->vl) + 1 ;
-
-	        } else
+	        } else {
 	            keyvals[j][1] = NULL ;
+		}
 
 	        j += 1 ;
 
+	        }
 	    } /* end for */
 
 	    keyvals[j][0] = NULL ;
@@ -1601,7 +1371,6 @@ static int keyval_start(kvp)
 struct keyval	*kvp ;
 {
 
-
 	memset(kvp,0,sizeof(struct keyval)) ;
 	return SR_OK ;
 }
@@ -1611,9 +1380,8 @@ struct keyval	*kvp ;
 static int keyval_size(kvp)
 struct keyval	*kvp ;
 {
-	int	rs = SR_OK ;
-	int	size = 2 ;
-
+	int		rs = SR_OK ;
+	int		size = 2 ;
 
 	if (kvp->kp != NULL)
 	    size += kvp->kl ;
@@ -1629,9 +1397,8 @@ struct keyval	*kvp ;
 static int keyval_finish(kvp)
 struct keyval	*kvp ;
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (kvp->kp != NULL) {
 	    rs1 = uc_free(kvp->kp) ;
@@ -1651,13 +1418,10 @@ struct keyval	*kvp ;
 
 
 /* is there a key? */
-static int iskey(lp,ll)
-const char	lp[] ;
-int		ll ;
+static int iskey(cchar *lp,int ll)
 {
-	int	ch ;
-	int	f = FALSE ;
-
+	int		ch ;
+	int		f = FALSE ;
 
 	if (ll >= 2) {
 	    f = (lp[0] == '%') ;
@@ -1670,6 +1434,5 @@ int		ll ;
 	return f ;
 }
 /* end subroutine (iskey) */
-
 
 

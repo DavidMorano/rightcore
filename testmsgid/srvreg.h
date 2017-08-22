@@ -26,13 +26,10 @@
 #define	SRVREG_CUR		struct srvreg_c
 #define	SRVREG_ENT		SRVREGE_ALL
 
-
-/* other defines */
-
 #define	SRVREG_FILEPATH		"/tmp/srvreg"
 
 #define	SRVREG_FILEMAGIC	"SRVREG"
-#define	SRVREG_FILEMAGICLEN	6
+#define	SRVREG_FILEMAGICLEN	strlen(SRVREG_FILEMAGIC)
 #define	SRVREG_FILEVERSION	0
 #define	SRVREG_ENDIAN		1
 

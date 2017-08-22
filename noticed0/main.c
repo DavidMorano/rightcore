@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -111,6 +109,7 @@ extern char	makedate[] ;
 /* forward references */
 
 static int	usage(struct proginfo *) ;
+extern int	isdigitlatin(int) ;
 
 #if	CF_DEBUGS
 extern int	mkhexstr(char *,int,void *,int) ;
@@ -258,12 +257,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	            if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
-	                	rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
+		    rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

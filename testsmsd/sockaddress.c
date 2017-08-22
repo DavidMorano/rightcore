@@ -156,8 +156,7 @@ uint		flow ;
 /* end subroutine (sockaddress_startaddr) */
 
 
-int sockaddress_finish(sap)
-SOCKADDRESS	*sap ;
+int sockaddress_finish(SOCKADDRESS  *sap)
 {
 
 	if (sap == NULL) return SR_FAULT ;
@@ -169,8 +168,7 @@ SOCKADDRESS	*sap ;
 
 
 /* get the address family type for this sockaddress */
-int sockaddress_getaf(sap)
-SOCKADDRESS	*sap ;
+int sockaddress_getaf(SOCKADDRESS *sap)
 {
 	int		rs ;
 
@@ -184,8 +182,7 @@ SOCKADDRESS	*sap ;
 
 
 /* get the port for this sockaddress (based on address family type) */
-int sockaddress_getport(sap)
-SOCKADDRESS	*sap ;
+int sockaddress_getport(SOCKADDRESS *sap)
 {
 	struct sockaddr_in	*inet4_sap ;
 	struct sockaddr_in6	*inet6_sap ;
@@ -218,9 +215,7 @@ SOCKADDRESS	*sap ;
 /* end subroutine (sockaddress_getport) */
 
 
-int sockaddress_getflow(sap,rp)
-SOCKADDRESS	*sap ;
-uint		*rp ;
+int sockaddress_getflow(SOCKADDRESS *sap,uint *rp)
 {
 	struct sockaddr_in6	*inet6_sap ;
 	uint		flow = 0 ;
@@ -253,10 +248,7 @@ uint		*rp ;
 
 
 /* get the address for this sockaddress (based on address type) */
-int sockaddress_getaddr(sap,abuf,alen)
-SOCKADDRESS	*sap ;
-char		abuf[] ;
-int		alen ;
+int sockaddress_getaddr(SOCKADDRESS *sap,char *abuf,int alen)
 {
 	struct sockaddr_un	*unix_sap ;
 	struct sockaddr_in	*inet4_sap ;
@@ -303,9 +295,7 @@ int		alen ;
 /* end subroutine (sockaddress_getaddr) */
 
 
-int sockaddress_getscope(sap,rp)
-SOCKADDRESS	*sap ;
-uint		*rp ;
+int sockaddress_getscope(SOCKADDRESS *sap,uint *rp)
 {
 	struct sockaddr_in6	*inet6_sap ;
 	uint		v = 0 ;
@@ -337,9 +327,7 @@ uint		*rp ;
 /* end subroutine (sockaddress_getscope) */
 
 
-int sockaddress_getextra(sap,rp)
-SOCKADDRESS	*sap ;
-uint		*rp ;
+int sockaddress_getextra(SOCKADDRESS *sap,uint *rp)
 {
 	struct sockaddr_in6	*inet6_sap ;
 	uint		v = 0 ;
@@ -377,10 +365,7 @@ uint		*rp ;
 
 
 /* get the entire socket address (the TLI address) in HEXADECIMAL */
-int sockaddress_gethex(sap,rbuf,rlen)
-SOCKADDRESS	*sap ;
-char		rbuf[] ;
-int		rlen ;
+int sockaddress_gethex(SOCKADDRESS *sap,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -412,8 +397,9 @@ int		rlen ;
 	    break ;
 	} /* end switch */
 
-	if ((rs >= 0) && (rlen >= 0) && (rlen < ((salen * 2) + 1)))
+	if ((rs >= 0) && (rlen >= 0) && (rlen < ((salen * 2) + 1))) {
 	    rs = SR_TOOBIG ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("sockaddress_gethex: salen=%d\n",salen) ;
@@ -434,8 +420,7 @@ int		rlen ;
 
 
 /* get the entire socket address length (like for a TPI address) */
-int sockaddress_getlen(sap)
-SOCKADDRESS	*sap ;
+int sockaddress_getlen(SOCKADDRESS *sap)
 {
 	int		rs = SR_OK ;
 	int		af ;
@@ -468,8 +453,7 @@ SOCKADDRESS	*sap ;
 /* end subroutine (sockaddress_getlen) */
 
 
-int sockaddress_getaddrlen(sap)
-SOCKADDRESS	*sap ;
+int sockaddress_getaddrlen(SOCKADDRESS *sap)
 {
 	int		rs = SR_OK ;
 	int		af ;
@@ -503,9 +487,7 @@ SOCKADDRESS	*sap ;
 
 
 /* write the address family field */
-int sockaddress_putaf(sap,af)
-SOCKADDRESS	*sap ;
-int		af ;
+int sockaddress_putaf(SOCKADDRESS *sap,int af)
 {
 
 	if (sap == NULL) return SR_FAULT ;
@@ -517,9 +499,7 @@ int		af ;
 
 
 /* put a port number in there */
-int sockaddress_putport(sap,port)
-SOCKADDRESS	*sap ;
-int		port ;
+int sockaddress_putport(SOCKADDRESS *sap,int port)
 {
 	struct sockaddr_in	*inet4_sap ;
 	struct sockaddr_in6	*inet6_sap ;
@@ -553,9 +533,7 @@ int		port ;
 
 
 /* put a transport-specific-part address */
-int sockaddress_putaddr(sap,vaddr)
-SOCKADDRESS	*sap ;
-const void	*vaddr ;
+int sockaddress_putaddr(SOCKADDRESS *sap,const void *vaddr)
 {
 	struct sockaddr		*x_sap ;
 	struct sockaddr_in	*inet4_sap ;

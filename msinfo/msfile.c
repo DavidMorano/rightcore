@@ -181,6 +181,7 @@ extern int	lockfile(int,int,offset_t,offset_t,int) ;
 extern int	getfstype(char *,int,int) ;
 extern int	iceil(int,int) ;
 extern int	islocalfs(const char *,int) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
@@ -746,7 +747,7 @@ int msfile_update(MSFILE *op,time_t dt,MSFILE_ENT *ep)
 	                    MSFILEE_DTIME	ed ;
 	                    MSFILEE_ATIME	ea ;
 	                    MSFILEE_STIME	es ;
-	                    int		f_swap = FALSE ;
+	                    int			f_swap = FALSE ;
 
 	                    if (ep->dtime == 0) {
 	                        msfilee_dtime(&ed,1,bp,ebs) ;
@@ -954,8 +955,9 @@ static int msfile_findname(MSFILE *op,cchar *nnp,int nnl,char **rpp)
 	            mapstrint_delkey(&op->ni,nnp,nnl) ;
 	        } /* end if */
 
-	    } else
+	    } else {
 	        rs = SR_NOTFOUND ;
+	    }
 
 	} /* end if (was in the index) */
 
@@ -1296,12 +1298,13 @@ static int msfile_fileverify(MSFILE *op)
 #endif
 
 	if (op->topsize >= MSFILE_TOPLEN) {
+	    const int	msize = MSFILE_FILEMAGICSIZE ;
 	    cchar	*cp = op->topbuf ;
 #if	CF_DEBUGS
 	    debugprintf("msfile_fileverify: ms=%t\n",cp,strlinelen(cp,-1,40)) ;
 #endif
-	    if (isValidMagic(cp,op->topsize,MSFILE_FILEMAGIC)) {
-	        cp += MSFILE_FILEMAGICSIZE ;
+	    if (isValidMagic(cp,msize,MSFILE_FILEMAGIC)) {
+	        cp += msize ;
 	        if (cp[0] <= MSFILE_FILEVERSION) {
 	            op->fileversion = cp[0] ;
 	            if (cp[1] == MSFILE_ENDIAN) {
@@ -1626,8 +1629,9 @@ static int msfile_ebufstart(MSFILE *op)
 	        int	n = MSFILE_NEPW ;
 	        rs = ebuf_start(&op->ebm,op->fd,soff,esize,nways,n) ;
 	        op->f.ebuf = (rs >= 0) ;
-	    } else
+	    } else {
 	        rs = SR_NOANODE ;
+	    }
 	} /* end if (needed) */
 
 	return rs ;
@@ -1666,7 +1670,7 @@ static int msfile_readentry(MSFILE *op,int ei,char **rpp)
 
 #if	CF_NIENUM
 	    if (rs >= 0) {
-	        int		nl ;
+	        int	nl ;
 	        char	*np ;
 	        np = bp + MSFILEE_ONODENAME ;
 	        nl = strnlen(np,MSFILEE_LNODENAME) ;

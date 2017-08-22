@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1994-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -21,15 +19,15 @@
 
 /*******************************************************************************
 
-	This subroutine forms the front-end part of a generic PCS type
-	of program.  This front-end is used in a variety of PCS programs.
+        This subroutine forms the front-end part of a generic PCS type of
+        program. This front-end is used in a variety of PCS programs.
 
-	This subroutine was originally part of the Personal Communications
-	Services (PCS) package but can also be used independently from it.
-	Historically, this was developed as part of an effort to maintain
-	high function (and reliable) email communications in the face
-	of increasingly draconian security restrictions imposed on the
-	computers in the DEFINITY development organization.
+        This subroutine was originally part of the Personal Communications
+        Services (PCS) package but can also be used independently from it.
+        Historically, this was developed as part of an effort to maintain high
+        function (and reliable) email communications in the face of increasingly
+        draconian security restrictions imposed on the computers in the DEFINITY
+        development organization.
 
 
 *******************************************************************************/
@@ -49,7 +47,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>
@@ -345,12 +342,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

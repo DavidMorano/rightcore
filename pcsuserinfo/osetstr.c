@@ -73,8 +73,9 @@ int osetstr_start(osetstr *op,int n)
 	if (n < 0) n = 0 ;
 	if ((setp = new(nothrow) set<string>) != NULL) {
 	    op->setp = (void *) setp ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutine (osetstr_start) */
@@ -88,8 +89,9 @@ int osetstr_finish(osetstr *op)
 	    set<string>	*setp  = (set<string> *) op->setp ;
 	    delete setp ;
 	    op->setp = NULL ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return rs ;
 }
 /* end subroutine (osetstr_finish) */
@@ -115,10 +117,12 @@ int osetstr_already(osetstr *op,cchar *sp,int sl)
 	            f = FALSE ;
 		}
 		delete strp ;
-	    } else
+	    } else {
 		rs = SR_NOMEM ;
-	} else
+	    }
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 #if	CF_DEBUGS
 	debugprintf("osetstr_already: ret rs=%d f=%u\n",rs,f) ;
 #endif
@@ -168,8 +172,9 @@ int osetstr_del(osetstr *op,cchar *sp,int sl)
 		f = TRUE ;
 		setp->erase(it) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (osetstr_del) */
@@ -184,8 +189,9 @@ int osetstr_count(osetstr *op)
 	if (op->setp != NULL) {
 	    set<string>	*setp  = (set<string> *) op->setp ;
 	    c = setp->size() ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (osetstr_count) */
@@ -201,8 +207,9 @@ int osetstr_curbegin(osetstr *op,osetstr_cur *curp)
 	    set<string>	*setp  = (set<string> *) op->setp ;
 	    *interp = setp->begin() ;
 	    curp->interp = (void *) interp ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 	return rs ;
 }
 /* end subroutine (osetstr_curbegin) */
@@ -218,8 +225,9 @@ int osetstr_curend(osetstr *op,osetstr_cur *curp)
 		(set<string>::iterator *) curp->interp ;
 	    delete interp ;
 	    curp->interp = NULL ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 	return rs ;
 }
 /* end subroutine (osetstr_curend) */
@@ -241,10 +249,12 @@ int osetstr_enum(osetstr *op,osetstr_cur *curp,cchar **rpp)
 		*rpp = (*(*interp)).c_str() ;
 		rs = (*(*interp)).length() ;
 	        (*interp)++ ;
-	    } else
+	    } else {
 		rs = SR_NOTFOUND ;
-	} else
+	    }
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 	return rs ;
 }
 /* end subroutine (osetstr_enum) */

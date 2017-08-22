@@ -38,6 +38,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<endian.h>
 #include	<endianstr.h>
 #include	<getbufsize.h>
 #include	<bfile.h>
@@ -94,8 +95,6 @@ extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	mkfnamesuf1(char *,cchar *,cchar *) ;
 extern int	mkfnamesuf2(char *,cchar *,cchar *,cchar *) ;
 extern int	mkmagic(char *,int,cchar *) ;
-extern int	sfshrink(cchar *,int,cchar **) ;
-extern int	sfbasename(cchar *,int,cchar **) ;
 extern int	sfdirname(cchar *,int,cchar **) ;
 extern int	cfdeci(cchar *,int,int *) ;
 extern int	cfdecui(cchar *,int,uint *) ;
@@ -189,11 +188,11 @@ int progdb(PROGINFO *pip,bfile *ofp,cchar *dbname)
 	    if ((rs = mkpath1w(dbuf,dnp,dnl)) >= 0) {
 	        const int	am = (X_OK|W_OK) ;
 	        if ((rs = perm(dbuf,-1,-1,NULL,am)) >= 0) {
-	                if ((rs = mkro(pip)) >= 0) {
-	                    const int	ro = rs ;
-	                    rs = progdber(pip,ofp,dbuf,dbname,ro,n) ;
-	                    c = rs ;
-	                } /* end if (mkro) */
+	            if ((rs = mkro(pip)) >= 0) {
+	                const int	ro = rs ;
+	                rs = progdber(pip,ofp,dbuf,dbname,ro,n) ;
+	                c = rs ;
+	            } /* end if (mkro) */
 	        }
 	    }
 	} /* end if (sfdirname) */
@@ -229,7 +228,7 @@ static int progdber(PROGINFO *pip,bfile *ofp,cchar *dn,cchar *db,int ro,int n)
 	if ((rs = strtab_start(&st,(n * 25))) >= 0) {
 	    RECORDER	rec ;
 	    if ((rs = recorder_start(&rec,n,ro)) >= 0) {
-		if ((rs = procpw(pip,&st,&rec)) >= 0) {
+	        if ((rs = procpw(pip,&st,&rec)) >= 0) {
 	            if ((rs = recorder_count(&rec)) >= 0) {
 	                if ((rs = wrcache(pip,&st,&rec,dn,db,ro)) >= 0) {
 	                    if (pip->verboselevel > 1) {
@@ -297,7 +296,7 @@ static int procpwfile(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 	                    debugprintf("progdb: username=%s\n",pw.username) ;
 #endif
 
-			rs = procpwfiler(pip,stp,rtp,&pw) ;
+	                rs = procpwfiler(pip,stp,rtp,&pw) ;
 
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
@@ -342,52 +341,52 @@ static int procpwfiler(PROGINFO *pip,STRTAB *stp,RECORDER *rtp,PWFILE_ENT *pwp)
 	    rs = procentry(pip,stp,rtp,un,np,nl) ;
 	} else {
 	    if ((nl = getgecosname(pwp->gecos,-1,&np)) > 0) {
-		char	nbuf[nl + 1] ;
-		if (strnchr(np,nl,'-') != NULL) {
-		    rs = snwcpyhyphen(nbuf,-1,np,nl) ;
-		    np = nbuf ;
-		}
-		if (rs >= 0) {
-		    c += 1 ;
-		    rs = procentry(pip,stp,rtp,un,np,nl) ;
-		}
+	        char	nbuf[nl + 1] ;
+	        if (strnchr(np,nl,'-') != NULL) {
+	            rs = snwcpyhyphen(nbuf,-1,np,nl) ;
+	            np = nbuf ;
+	        }
+	        if (rs >= 0) {
+	            c += 1 ;
+	            rs = procentry(pip,stp,rtp,un,np,nl) ;
+	        }
 	    }
 	}
 #else /* CF_USEREALNAME */
 #if	CF_MKGECOSNAME
-	                {
-	                    if ((nl = getgecosname(pwp->gecos,-1,&np)) > 0) {
-	                        char	nbuf[nl + 1] ;
-	                        if (strnchr(np,nl,'-') != NULL) {
-	                            rs = snwcpyhyphen(nbuf,-1,np,nl) ;
-	                            np = nbuf ;
-	                        }
-	                        if (rs >= 0) {
-	                            c += 1 ;
-	                            rs = procentry(pip,stp,rtp,un,np,nl) ;
-	                        }
-	                    } /* end if */
-	                } /* end block */
+	{
+	    if ((nl = getgecosname(pwp->gecos,-1,&np)) > 0) {
+	        char	nbuf[nl + 1] ;
+	        if (strnchr(np,nl,'-') != NULL) {
+	            rs = snwcpyhyphen(nbuf,-1,np,nl) ;
+	            np = nbuf ;
+	        }
+	        if (rs >= 0) {
+	            c += 1 ;
+	            rs = procentry(pip,stp,rtp,un,np,nl) ;
+	        }
+	    } /* end if */
+	} /* end block */
 #else /* CF_MKGECOSNAME */
-	                {
-	                    GECOS	ge ;
-	                    if ((rs = gecos_start(&ge,pwp->gecos,-1)) >= 0) {
-	                        const int	req = gecosval_realname ;
-	                        if ((nl = gecos_getval(&ge,req,&np)) > 0) {
-	                            char	nbuf[nl + 1] ;
-	                            if (strnchr(np,nl,'-') != NULL) {
-	                                rs = snwcpyhyphen(nbuf,-1,np,nl) ;
-	                                np = nbuf ;
-	                            }
-	                            if (rs >= 0) {
-	                                c += 1 ;
-	                                rs = procentry(pip,stp,rtp,un,np,nl) ;
-	                            }
-	                        } /* end block */
-	                        rs1 = gecos_finish(&ge) ;
-				if (rs >= 0) rs = rs1 ;
-	                    } /* end if (gecos) */
-	                } /* end block */
+	{
+	    GECOS	ge ;
+	    if ((rs = gecos_start(&ge,pwp->gecos,-1)) >= 0) {
+	        const int	req = gecosval_realname ;
+	        if ((nl = gecos_getval(&ge,req,&np)) > 0) {
+	            char	nbuf[nl + 1] ;
+	            if (strnchr(np,nl,'-') != NULL) {
+	                rs = snwcpyhyphen(nbuf,-1,np,nl) ;
+	                np = nbuf ;
+	            }
+	            if (rs >= 0) {
+	                c += 1 ;
+	                rs = procentry(pip,stp,rtp,un,np,nl) ;
+	            }
+	        } /* end block */
+	        rs1 = gecos_finish(&ge) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (gecos) */
+	} /* end block */
 #endif /* CF_MKGECOSNAME */
 #endif /* CF_USEREALNAME */
 
@@ -451,14 +450,14 @@ static int procpwsys(PROGINFO *pip,STRTAB *stp,RECORDER *rtp)
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
 	                    debugprintf("progdb/procpwsys: gecos-out rs=%d\n",
-				rs) ;
+	                        rs) ;
 #endif
 	                if (rs < 0) break ;
 	            } /* end while (looping through entries) */
 	            rs1 = getpw_end() ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (getpw) */
-		rs1 = uc_free(pwbuf) ;
+	        rs1 = uc_free(pwbuf) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a-f) */
 	    rs1 = setstr_finish(&u) ;
@@ -627,7 +626,7 @@ int		nlen ;
 
 /* write out the cache file */
 static int wrcache(PROGINFO *pip,STRTAB *stp,RECORDER *rp,
-			cchar *dn,cchar *db,int ro)
+		cchar *dn,cchar *db,int ro)
 {
 	const mode_t	fm = 0664 ;
 	int		rs ;
@@ -641,26 +640,26 @@ static int wrcache(PROGINFO *pip,STRTAB *stp,RECORDER *rp,
 #endif
 
 	if ((rs = mkourtmp(tbuf,dn,suf,es,fm)) >= 0) {
-	        WRCACHE		wc ;
-	        memset(&wc,0,sizeof(WRCACHE)) ;
-	        wc.stp = stp ;
-	        wc.rp = rp ;
-	        wc.ro = ro ;
+	    WRCACHE		wc ;
+	    memset(&wc,0,sizeof(WRCACHE)) ;
+	    wc.stp = stp ;
+	    wc.rp = rp ;
+	    wc.ro = ro ;
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("wrcache: tbuf=%s\n",tbuf) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("wrcache: tbuf=%s\n",tbuf) ;
 #endif
-	        if ((rs = wrfile(pip,&wc,tbuf)) >= 0) {
-	            if ((rs = ourchmod(tbuf)) >= 0) {
-			char	nbuf[MAXPATHLEN+1] ;
-			if ((rs = mkfnamesuf2(nbuf,db,suf,es)) >= 0) {
-	                    rs = u_rename(tbuf,nbuf) ;
-			}
+	    if ((rs = wrfile(pip,&wc,tbuf)) >= 0) {
+	        if ((rs = ourchmod(tbuf)) >= 0) {
+	            char	nbuf[MAXPATHLEN+1] ;
+	            if ((rs = mkfnamesuf2(nbuf,db,suf,es)) >= 0) {
+	                rs = u_rename(tbuf,nbuf) ;
 	            }
-	            if (rs < 0) {
-	                uc_unlink(tbuf) ;
-	            }
-	        } /* end if (wrfile) */
+	        }
+	        if (rs < 0) {
+	            uc_unlink(tbuf) ;
+	        }
+	    } /* end if (wrfile) */
 	} /* end if (mkourtmp) */
 
 #if	CF_DEBUG
@@ -679,7 +678,7 @@ static int wrfile(PROGINFO *pip,WRCACHE *wcp,cchar *fn)
 	int		rs ;
 	int		rs1 ;
 	if ((rs = bopen(ifp,fn,"wct",0664)) >= 0) {
-	    const int	ml = 16 ;
+	    const int	ml = PWIHDR_MAGICSIZE ;
 	    cchar	*ms = PWIHDR_MAGICSTR ;
 	    char	vetu[16] ;
 	    if ((rs = mkmagic(vetu,ml,ms)) >= 0) {
@@ -698,7 +697,7 @@ static int wrfile(PROGINFO *pip,WRCACHE *wcp,cchar *fn)
 	                rs = wrsetup(pip,wcp) ;
 	            }
 	        }
-	    }
+	    } /* end if (mkmagic) */
 	    rs1 = bclose(ifp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (bfile) */
@@ -713,13 +712,13 @@ static int wrfile(PROGINFO *pip,WRCACHE *wcp,cchar *fn)
 
 static int wrsetup(PROGINFO *pip,WRCACHE *wcp)
 {
-	STRTAB		*stp = wcp->stp ;
 	RECORDER	*rp = wcp->rp ;
 	RECORDER_ENT	*rectab ;
-	uint		*hdr = wcp->hdr ;
 	int		rs ;
 	int		rs1 ;
 	if ((rs = recorder_gettab(rp,&rectab)) >= 0) {
+	    STRTAB	*stp = wcp->stp ;
+	    uint	*hdr = wcp->hdr ;
 	    wcp->rectab = rectab ;
 	    hdr[pwihdr_recsize] = rs ;
 	    if ((rs = recorder_rtlen(rp)) >= 0) {
@@ -735,13 +734,13 @@ static int wrsetup(PROGINFO *pip,WRCACHE *wcp)
 #if	CF_DEBUG
 	                    if (DEBUGLEVEL(5)) {
 	                        debugprintf("procdb/wrsetup: reclen=%u\n",
-					hdr[pwihdr_reclen]) ;
+	                            hdr[pwihdr_reclen]) ;
 	                        debugprintf("procdb/wrsetup: recsize=%u\n",
-					hdr[pwihdr_recsize]) ;
+	                            hdr[pwihdr_recsize]) ;
 	                        debugprintf("procdb/wrsetup: strlen=%u\n",
-					hdr[pwihdr_strlen]) ;
+	                            hdr[pwihdr_strlen]) ;
 	                        debugprintf("procdb/wrsetup: strsize=%u\n",
-					hdr[pwihdr_strsize]) ;
+	                            hdr[pwihdr_strsize]) ;
 	                    }
 #endif
 	                    if ((rs = recorder_indsize(rp)) >= 0) {
@@ -753,7 +752,7 @@ static int wrsetup(PROGINFO *pip,WRCACHE *wcp)
 	                    }
 	                } /* end if (strtab_strmk) */
 	                rs1 = uc_free(stab) ;
-			if (rs >= 0) rs = rs1 ;
+	                if (rs >= 0) rs = rs1 ;
 	                wcp->stab = NULL ;
 	            } /* end if (m-a-f) */
 	        }
@@ -994,10 +993,8 @@ static int progdb_debugfile(PROGINFO *pip,cchar *dbname)
 	    char	ubuf[IPASSWD_USERNAMELEN + 1] ;
 	    char	rbuf[REALNAMELEN+1] ;
 	    char	nbuf[REALNAMELEN+1] ;
-
 	    rs1 = ipasswd_open(&pwi,dbname) ;
-	    debugprintf("progdb: "
-	        "ipasswd_open() rs=%d\n", rs1) ;
+	    debugprintf("progdb: ipasswd_open() rs=%d\n",rs1) ;
 	    if ((rs2 = ipasswd_curbegin(&pwi,&cur)) >= 0) {
 	        while (TRUE) {
 	            rs2 = ipasswd_enum(&pwi,&cur,

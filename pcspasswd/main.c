@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -38,7 +36,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -47,10 +44,10 @@
 #include	<field.h>
 #include	<paramopt.h>
 #include	<getxusername.h>
+#include	<pwfile.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
-#include	"pwfile.h"
 #include	"config.h"
 #include	"defs.h"
 
@@ -66,6 +63,8 @@
 extern int	isinteractive() ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
+
 extern int	process(struct proginfo *,PARAMOPT *,PWFILE *,bfile *,
 			const char *) ;
 
@@ -195,13 +194,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	            if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 			if ((argl - 1) > 0)
 	                	rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

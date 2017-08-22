@@ -5,29 +5,26 @@
 
 #define	CF_DEBUGS	0
 #define	CF_DEBUGS2	0
-#define	F_SAFE		1
-#define	F_ALLONES	0		/* initialize META to ones */
-#define	F_ALLMIDDLE	1
-#define	F_MUSTAGREE	0		/* predictor must agree w/ outcome */
+#define	CF_SAFE		1
+#define	CF_ALLONES	0		/* initialize META to ones */
+#define	CF_ALLMIDDLE	1
+#define	CF_MUSTAGREE	0		/* predictor must agree w/ outcome */
 
 
 /* revision history:
 
-	= 02/05/01, David A­D­ Morano
-
-	This object module was created for Levo research.
-	It is a value predictor.  This is not coded as
-	hardware.  It is like Atom analysis subroutines !
-
+	= 2002-05-01, David A­D­ Morano
+        This object module was created for Levo research. It is a value
+        predictor. This is not coded as hardware. It is like Atom analysis
+        subroutines!
 
 */
 
+/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
 
-/******************************************************************************
-
-	This object module implements the GSKEW (2Bc-gskew) branch
-	predictor.
+	This object module implements the GSKEW (2Bc-gskew) branch predictor.
 
 
 	Synopsis:
@@ -36,25 +33,25 @@
 	GSKEW	*op ;
 	int	p1, p2, p3, p4 ;
 
-
 	Arguments:
 
 	p1	table length
 	p2	number of history bits
 
-
 	Returns:
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #define	GSKEW_MASTER	0
 
 
+#include	<envstandards.h>
+
 #include	<sys/types.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
+#include	<sys/stat.h>
 #include	<sys/mman.h>		/* Memory Management */
 #include	<unistd.h>
 #include	<fcntl.h>
@@ -62,16 +59,14 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"bpload.h"
 #include	"gskew.h"
 
 
-
 /* local defines */
 
-#define	GSKEW_MAGIC		0x45678429
 #define	GSKEW_DEFLEN		(64 * 1024)
 #define	GSKEW_STATES		4
 #define	GSKEW_DEFGLEN		4		/* default entries */
@@ -88,23 +83,6 @@
 #define	GETPRED3(c)	(((c) >> 2) & 1)
 
 #define	BIT(w,n)	(((w) >> (n)) & 1)
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
-
 
 
 /* external subroutines */
@@ -135,26 +113,21 @@ struct bpload	gskew = {
 /* local variables */
 
 
-
-
-
-
+/* exported subroutines */
 
 
 int gskew_init(op,p1,p2,p3,p4)
 GSKEW	*op ;
 int	p1, p2, p3, p4 ;
 {
-	int	rs, i ;
-	int	size ;
-	int	max ;
+	int		rs ;
+	int		i ;
+	int		size ;
+	int		max ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	(void) memset(op,0,sizeof(GSKEW)) ;
-
+	memset(op,0,sizeof(GSKEW)) ;
 
 	max = p1 ;
 	if (max < 0)
@@ -186,7 +159,7 @@ int	p1, p2, p3, p4 ;
 
 	(void) memset(op->table,0,size) ;
 
-#if	F_ALLMIDDLE
+#if	CF_ALLMIDDLE
 
 	for (i = 0 ; i < op->tlen ; i += 1) {
 
@@ -197,14 +170,14 @@ int	p1, p2, p3, p4 ;
 
 	}
 
-#else /* F_ALLMIDDLE */
+#else /* CF_ALLMIDDLE */
 
-#if	F_ALLONES
+#if	CF_ALLONES
 	for (i = 0 ; i < op->tlen ; i += 1)
 	    op->table[i].meta = 3 ;
 #endif
 
-#endif /* F_ALLMIDDLE */
+#endif /* CF_ALLMIDDLE */
 
 /* we're out of here */
 
@@ -222,24 +195,20 @@ bad0:
 int gskew_free(op)
 GSKEW	*op ;
 {
-	int	rs = SR_BADFMT ;
+	int		rs = SR_BADFMT ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSKEW_MAGIC)
-	    return SR_NOTOPEN ;
-
+	if (op->magic != GSKEW_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS2
 	debugprintf("gskew_free: lu=%u bim=%u eskew=%u\n",
 	    op->s.lu,op->s.use_bim,op->s.use_eskew) ;
 #endif
 
-	if (op->table != NULL)
+	if (op->table != NULL) {
 	    free(op->table) ;
-
+	}
 
 	op->magic = 0 ;
 	return rs ;
@@ -252,25 +221,19 @@ int gskew_lookup(op,ia)
 GSKEW	*op ;
 uint	ia ;
 {
-	ULONG	v ;
+	ULONG		v ;
+	uint		a ;
+	uint		v1, v2 ;
+	int		ibim, ig0, ig1, imeta ;
+	int		f_meta ;
+	int		f_bim, f_g0, f_g1 ;
+	int		f_pred ;
 
-	uint	a ;
-	uint	v1, v2 ;
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-	int	rs ;
-	int	ibim, ig0, ig1, imeta ;
-	int	f_meta ;
-	int	f_bim, f_g0, f_g1 ;
-	int	f_pred ;
-
-
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSKEW_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != GSKEW_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 #if	CF_DEBUGS
 	debugprintf("gskew_lookup: ia=%08x bhist=%08x\n",ia,op->bhistory) ;
@@ -319,9 +282,7 @@ uint	ia ;
 	    f_pred = f_bim ;
 
 	} else {
-
 	    int	vote ;
-
 
 	    op->s.use_eskew += 1 ;
 
@@ -354,24 +315,18 @@ int gskew_confidence(op,ia)
 GSKEW	*op ;
 uint	ia ;
 {
-	ULONG	v ;
+	ULONG		v ;
+	uint		a ;
+	uint		v1, v2 ;
+	uint		c ;
+	int		ibim, ig0, ig1, imeta ;
+	int		f_meta ;
 
-	uint	a ;
-	uint	v1, v2 ;
-	uint	c ;
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-	int	rs ;
-	int	ibim, ig0, ig1, imeta ;
-	int	f_meta ;
-
-
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSKEW_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != GSKEW_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 	a = ia >> 2 ;
 
@@ -382,11 +337,9 @@ uint	ia ;
 	v1 = v & op->tmask ;
 	v2 = (v >> op->n) & op->tmask ;
 
-
 	imeta = fi_meta(op->n,v1,v2) ;
 
 	ibim = fi_bim(op->n,op->bhistory,a) & op->tmask ;
-
 
 	f_meta = GETPRED(op->table[imeta].meta) ;
 
@@ -399,10 +352,8 @@ uint	ia ;
 	    op->s.use_bim += 1 ;
 
 	} else {
-
 	    uint	sum ;
 	    uint	vote ;
-
 
 	    op->s.use_eskew += 1 ;
 
@@ -474,28 +425,22 @@ GSKEW	*op ;
 uint	ia ;
 int	f_outcome ;
 {
-	ULONG	v ;
+	ULONG		v ;
+	uint		nc ;
+	uint		a ;
+	uint		v1, v2 ;
+	int		ibim, ig0, ig1, imeta ;
+	int		vote ;
+	int		f_meta ;
+	int		f_bim, f_eskew, f_g0, f_g1 ;
+	int		f_pred ;
+	int		f_bimagree ;
 
-	uint	nc ;
-	uint	a ;
-	uint	v1, v2 ;
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-	int	rs ;
-	int	ibim, ig0, ig1, imeta ;
-	int	vote ;
-	int	f_meta ;
-	int	f_bim, f_eskew, f_g0, f_g1 ;
-	int	f_pred ;
-	int	f_bimagree ;
-
-
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSKEW_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != GSKEW_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 #if	CF_DEBUGS
 	debugprintf("gskew_update: ia=%08x f_outcome=%d\n",ia,f_outcome) ;
@@ -509,7 +454,6 @@ int	f_outcome ;
 
 	v1 = v & op->tmask ;
 	v2 = (v >> op->n) & op->tmask ;
-
 
 	imeta = fi_meta(op->n,v1,v2) ;
 
@@ -568,13 +512,11 @@ int	f_outcome ;
 /* correct prediction */
 
 	    if (f_meta) {
-
 	        int	f ;
-
 
 	        op->s.update_bim += 1 ;
 
-#if	F_MUSTAGREE
+#if	CF_MUSTAGREE
 	        f = LEQUIV(f_bim,f_outcome) ;
 #else
 	        f = TRUE ;
@@ -654,8 +596,7 @@ int	f_outcome ;
 
 	op->bhistory = (op->bhistory << 1) | f_outcome ;
 
-
-	return 0 ;
+	return f_pred ;
 }
 /* end subroutine (gskew_update) */
 
@@ -664,16 +605,13 @@ int	f_outcome ;
 int gskew_zerostats(op)
 GSKEW		*op ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != GSKEW_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != GSKEW_MAGIC)
-	    return SR_NOTOPEN ;
-
-	(void) memset(&op->s,0,sizeof(GSKEW_STATS)) ;
+	memset(&op->s,0,sizeof(GSKEW_STATS)) ;
 
 	return rs ;
 }
@@ -685,14 +623,11 @@ int gskew_stats(op,rp)
 GSKEW		*op ;
 GSKEW_STATS	*rp ;
 {
-	int	bits_total ;
+	int		bits_total ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSKEW_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != GSKEW_MAGIC) return SR_NOTOPEN ;
 
 /* calculate the bits */
 
@@ -702,8 +637,6 @@ GSKEW_STATS	*rp ;
 	    uint	bits_g1 ;
 	    uint	bits_meta ;
 	    uint	bits_history ;
-
-
 
 	    bits_bim = op->tlen * 2 ;
 
@@ -724,7 +657,7 @@ GSKEW_STATS	*rp ;
 
 	if (rp != NULL) {
 
-	    (void) memcpy(rp,&op->s,sizeof(GSKEW_STATS)) ;
+	    memcpy(rp,&op->s,sizeof(GSKEW_STATS)) ;
 
 	    rp->tlen = op->tlen ;
 	    rp->bits = bits_total ;
@@ -736,9 +669,7 @@ GSKEW_STATS	*rp ;
 /* end subroutine (gskew_stats) */
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 static uint satcount(v,n,f_up)
@@ -746,14 +677,13 @@ uint	v ;
 uint	n ;
 int	f_up ;
 {
-	uint	r ;
+	uint		r ;
 
-
-	if (f_up)
+	if (f_up) {
 	    r = (v == (n - 1)) ? v : (v + 1) ;
-
-	else 
+	} else {
 	    r = (v == 0) ? 0 : (v - 1) ;
+	}
 
 	return r ;
 }
@@ -766,7 +696,6 @@ int	n ;
 uint	h, a ;
 {
 
-
 	return a ;
 }
 /* end subroutine (fi_bim) */
@@ -776,7 +705,6 @@ static uint fi_g0(n,v1,v2)
 int	n ;
 uint	v1, v2 ;
 {
-
 
 	return h(n,v1) ^ hinv(n,v2) ^ v1 ;
 }
@@ -788,7 +716,6 @@ int	n ;
 uint	v1, v2 ;
 {
 
-
 	return hinv(n,v1) ^ h(n,v2) ^ v2 ;
 }
 /* end subroutine (fi_g1) */
@@ -798,7 +725,6 @@ static uint fi_meta(n,v1,v2)
 int	n ;
 uint	v1, v2 ;
 {
-
 
 	return h(n,v1) ^ hinv(n,v2) ^ v2 ;
 }
@@ -811,7 +737,6 @@ int	n ;
 uint	v ;
 {
 
-
 	return (v >> 1) | ((BIT(v,(n - 1)) ^ (v & 1)) << (n - 1)) ;
 }
 /* end subroutine (h) */
@@ -823,10 +748,8 @@ int	n ;
 uint	v ;
 {
 
-
 	return (v << 1) | (BIT(v,(n - 1)) ^ BIT(v,(n - 2))) ;
 }
 /* end subroutine (hinv) */
-
 
 

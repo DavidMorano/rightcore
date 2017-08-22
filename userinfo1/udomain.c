@@ -8,7 +8,7 @@
 
 /* revision history:
 
-	= 1997-10-01, David A­D­ Morano
+	= 1998-10-01, David A­D­ Morano
         I made up this idea for supporting multiple domains on the same machine
         so that each user could have a different domain name. This idea of
         multiplexing a single machine to appear to be multiple different
@@ -16,7 +16,7 @@
 
 */
 
-/* Copyright © 1997 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

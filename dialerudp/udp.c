@@ -84,6 +84,7 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	getpwd(char *,int) ;
 extern int	dialudp(const char *,const char *,int,int,int) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -216,8 +217,9 @@ const char	*av[] ;
 	        f_optminus = (*argp == '-') ;
 	        f_optplus = (*argp == '+') ;
 	        if ((argl > 1) && (f_optminus || f_optplus)) {
+			const int	ach = MKCHAR(argp[1]) ;
 
-	                if (isdigit(argp[1])) {
+	                if (isdigitlatin(ach)) {
 
 			    if ((argl - 1) > 0)
 	                        rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;

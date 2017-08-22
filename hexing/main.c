@@ -1,18 +1,21 @@
-/* main */
+/* main (liblkcmd) */
 
-/* part of the DEHEX program */
+/* generic front-end for SHELL built-ins */
+/* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUG	0		/* run-time debugging */
-#define	CF_DEBUGMALL	1		/* debug memory allocation */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
+#define	CF_DEBUGN	0		/* special debugging */
+#define	CF_UTIL		0		/* run the utility worker */
+#define	CF_SIGHAND	1		/* install signal handlers */
+#define	CF_SIGALTSTACK	0		/* do *not* define */
 
 
 /* revision history:
 
-	= 1996-03-01, David A­D­ Morano
-	The program was written from scratch to do what the previous program by
-	the same name did.
+	= 1998-07-28, David A­D­ Morano
+	This subroutine was written for use as a front-end for Korn Shell (KSH)
+	commands that are compiled as stand-alone programs.
 
 */
 
@@ -20,73 +23,76 @@
 
 /*******************************************************************************
 
-	This is the front-end subroutine for the HEX and DEHEX program.
+	This is the front-end to make the various SHELL (KSH) built-in commands
+	into stand-alone programs.
 
 
 *******************************************************************************/
 
 
-#include	<envstandards.h>	/* MUST be first to configure */
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
+#include	<sys/mman.h>
+#include	<limits.h>
 #include	<unistd.h>
+#include	<signal.h>
+#include	<fcntl.h>
+#include	<ucontext.h>
+#include	<dlfcn.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<time.h>
 
 #include	<vsystem.h>
-#include	<ascii.h>
-#include	<char.h>
-#include	<field.h>
-#include	<bits.h>
-#include	<paramopt.h>
-#include	<nulstr.h>
-#include	<bfile.h>
-#include	<hexdecoder.h>
-#include	<ucmallreg.h>
+#include	<intceil.h>
+#include	<vecstr.h>
+#include	<sighand.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
-#include	"config.h"
-#include	"defs.h"
+#include	"kshlib.h"
+#include	"maininfo.h"
 
 
 /* local defines */
 
-#ifndef	LINEBUFLEN
-#define	LINEBUFLEN	2048
+#if	defined(KSHBUILTIN) && (KSHBUILTIN > 0)
+#define	CF_LOCKMEMALLOC		1
+#else
+#define	CF_LOCKMEMALLOC		0
 #endif
+
+#define	NDF		"main.deb"
 
 
 /* external subroutines */
 
-extern int	sfskipwhite(cchar *,int,cchar **) ;
-extern int	nextfield(const char *,int,const char **) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	matostr(const char **,int,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfhexi(const char *,int,int *) ;
-extern int	cthexstrs(char *,int,cchar *,int) ;
-extern int	optbool(const char *,int) ;
-extern int	optvalue(const char *,int) ;
-extern int	isdigitlatin(int) ;
-extern int	isalphalatin(int) ;
-extern int	isalnumlatin(int) ;
-extern int	isNotPresent(int) ;
+extern int	snwcpy(char *,int,const char *,int) ;
+extern int	sncpy2(char *,int,const char *,const char *) ;
+extern int	sncpy2w(char *,int,const char *,const char *,int) ;
+extern int	sncpylc(char *,int,const char *) ;
+extern int	sncpyuc(char *,int,const char *) ;
+extern int	sfbasename(const char *,int,const char **) ;
+extern int	ucontext_rtn(ucontext_t *,long *) ;
+extern int	bufprintf(char *,int,const char *,...) ;
+extern int	msleep(int) ;
+extern int	haslc(const char *,int) ;
+extern int	hasuc(const char *,int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
-
-#if	CF_DEBUGS || CF_DEBUG
+#if	CF_DEBUGS || CF_DEBUGN
 extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
-extern int	debugprinthex(const char *,int,const char *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+#if	CF_DEBUGN
+extern int	nprintf(const char *,const char *,...) ;
+#endif
+
+extern cchar	*getourenv(const char **,const char *) ;
+extern cchar	*strsigabbr(int) ;
 
 
 /* external variables */
@@ -94,73 +100,29 @@ extern const char	*getourenv(const char **,const char *) ;
 
 /* local structures */
 
+#ifndef	TYPEDEF_CCHAR
+#define	TYPEDEF_CCHAR	1
+typedef const char	cchar ;
+#endif
+
+struct sigcode {
+	int		code ;
+	const char	*name ;
+} ;
+
 
 /* forward references */
 
-static int	usage(PROGINFO *) ;
+static int	maininfo_sigbegin(MAININFO *) ;
+static int	maininfo_sigend(MAININFO *) ;
 
-static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
-static int	procfiles(PROGINFO *,bfile *,cchar *,int) ;
-static int	procfile(PROGINFO *,bfile *,cchar *,int) ;
-static int	procencode(PROGINFO *,bfile *,cchar *) ;
-static int	procdecode(PROGINFO *,bfile *,cchar *) ;
+static void	main_sighand(int,siginfo_t *,void *) ;
+static int	main_sigdump(siginfo_t *) ;
+
+static cchar	*strsigcode(const struct sigcode *,int) ;
 
 
 /* local variables */
-
-static const char *argopts[] = {
-	"ROOT",
-	"VERSION",
-	"VERBOSE",
-	"TMPDIR",
-	"HELP",
-	"pm",
-	"sn",
-	"ef",
-	"of",
-	"option",
-	"set",
-	"follow",
-	NULL
-} ;
-
-enum argopts {
-	argopt_root,
-	argopt_version,
-	argopt_verbose,
-	argopt_tmpdir,
-	argopt_help,
-	argopt_pm,
-	argopt_sn,
-	argopt_ef,
-	argopt_of,
-	argopt_option,
-	argopt_set,
-	argopt_follow,
-	argopt_overlast
-} ;
-
-#ifdef	COMMENT
-static const char	*progopts[] = {
-	"follow",
-	"nofollow",
-	NULL
-} ;
-
-enum progopts {
-	progopt_follow,
-	progopt_nofollow,
-	progopt_overlast
-} ;
-#endif /* COMMENT */
-
-static const struct pivars	initvars = {
-	VARPROGRAMROOT1,
-	VARPROGRAMROOT2,
-	VARPROGRAMROOT3,
-	PROGRAMROOT,
-	VARPRLOCAL
-} ;
 
 static const struct mapex	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
@@ -173,32 +135,42 @@ static const struct mapex	mapexs[] = {
 	{ SR_NOSPC, EX_TEMPFAIL },
 	{ SR_INTR, EX_INTR },
 	{ SR_EXIT, EX_TERM },
+	{ SR_DOM, EX_NOPROG },
 	{ 0, 0 }
 } ;
 
-static cchar	*progmodes[] = {
-	"hexing",
-	"hex",
-	"dehex",
-	NULL
+static const int	sigcatches[] = {
+	SIGILL, 
+	SIGSEGV,
+	SIGBUS,
+	SIGQUIT,
+	SIGABRT,
+	0
 } ;
 
-enum progmodes {
-	progmode_hexing,
-	progmode_hex,
-	progmode_dehex,
-	progmode_overlast
+static const struct sigcode	sigcode_ill[] = {
+	{ ILL_ILLOPC, "ILLOPC" },
+	{ ILL_ILLOPN, "ILLOPN" },
+	{ ILL_ILLADR, "ILLADR" },
+	{ ILL_ILLTRP, "ILLTRP" },
+	{ ILL_PRVOPC, "PRBOPC" },
+	{ ILL_PRVREG, "PRVREG" },
+	{ ILL_COPROC, "COPROC" },
+	{ ILL_BADSTK, "BADSTK" },
+	{ 0, NULL }
 } ;
 
-static const uchar	aterms[] = {
-	0x00, 0x2E, 0x00, 0x00,
-	0x09, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00
+static const struct sigcode	sigcode_segv[] = {
+	{ SEGV_MAPERR, "MAPERR" },
+	{ SEGV_ACCERR, "ACCERR" },
+	{ 0, NULL }
+} ;
+
+static const struct sigcode	sigcode_bus[] = {
+	{ BUS_ADRALN, "ADRALN" },
+	{ BUS_ADRERR, "ADRERR" },
+	{ BUS_OBJERR, "OBJERR" },
+	{ 0, NULL }
 } ;
 
 
@@ -207,596 +179,72 @@ static const uchar	aterms[] = {
 
 int main(int argc,cchar *argv[],cchar *envv[])
 {
-	PROGINFO	pi, *pip = &pi ;
-	ARGINFO		ainfo ;
-	BITS		pargs ;
-	PARAMOPT	aparams ;
-	bfile		errfile ;
-	bfile		outfile, *ofp = &outfile ;
-
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint		mo_start = 0 ;
-#endif
-
-	int		argr, argl, aol, akl, avl, kwi ;
-	int		ai, ai_max, ai_pos ;
-	int		rs ;
+	const int	f_lockmemalloc = CF_LOCKMEMALLOC ;
+	const int	f_util = CF_UTIL ;
+	int		rs = SR_OK ;
 	int		rs1 ;
 	int		ex = EX_INFO ;
-	int		f_optminus, f_optplus, f_optequal ;
-	int		f_usage = FALSE ;
-	int		f_version = FALSE ;
-	int		f_help = FALSE ;
 
-	const char	*argp, *aop, *akp, *avp ;
-	const char	*argval = NULL ;
-	cchar		*pmspec = NULL ;
-	const char	*pr = NULL ;
-	const char	*sn = NULL ;
-	const char	*afname = NULL ;
-	const char	*efname = NULL ;
-	const char	*ofname = NULL ;
-	const char	*cp ;
-
-#if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
-	    rs = debugopen(cp) ;
-	    debugprintf("main: starting DFD=%d\n",rs) ;
-	}
-#endif /* CF_DEBUGS */
-
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uc_mallset(1) ;
-	uc_mallout(&mo_start) ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main: ent\n") ;
 #endif
 
-	rs = proginfo_start(pip,envv,argv[0],VERSION) ;
-	if (rs < 0) {
-	    ex = EX_OSERR ;
-	    goto badprogstart ;
-	}
+	if (argv != NULL) {
+	    MAININFO	mi, *mip = &mi ;
+	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
+	        if ((rs = maininfo_sigbegin(mip)) >= 0) {
+#if	CF_DEBUGN
+	            nprintf(NDF,"main: sig-begin\n") ;
+#endif
+	            if ((rs = lib_initmemalloc(f_lockmemalloc)) >= 0) {
+	                if ((rs = lib_mainbegin(envv,NULL)) >= 0) {
+	                    if ((rs = maininfo_utilbegin(mip,f_util)) >= 0) {
+	                        const char	*srch ;
 
-	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
-
-/* early things to initialize */
-
-	pip->ofp = ofp ;
-	pip->verboselevel = 1 ;
-
-/* process program arguments */
-
-	if (rs >= 0) rs = bits_start(&pargs,1) ;
-	if (rs < 0) goto badpargs ;
-
-	rs = paramopt_start(&aparams) ;
-	pip->open.aparams = (rs >= 0) ;
-
-	ai_max = 0 ;
-	ai_pos = 0 ;
-	argr = argc ;
-	for (ai = 0 ; (ai < argc) && (argv[ai] != NULL) ; ai += 1) {
-	    if (rs < 0) break ;
-	    argr -= 1 ;
-	    if (ai == 0) continue ;
-
-	    argp = argv[ai] ;
-	    argl = strlen(argp) ;
-
-	    f_optminus = (*argp == '-') ;
-	    f_optplus = (*argp == '+') ;
-	    if ((argl > 1) && (f_optminus || f_optplus)) {
-	        const int	ach = MKCHAR(argp[1]) ;
-
-	        if (isdigitlatin(ach)) {
-
-	            argval = (argp + 1) ;
-
-	        } else if (ach == '-') {
-
-	            ai_pos = ai ;
-	            break ;
-
-	        } else {
-
-	            aop = argp + 1 ;
-	            akp = aop ;
-	            aol = argl - 1 ;
-	            f_optequal = FALSE ;
-	            if ((avp = strchr(aop,'=')) != NULL) {
-	                f_optequal = TRUE ;
-	                akl = avp - aop ;
-	                avp += 1 ;
-	                avl = aop + argl - 1 - avp ;
-	                aol = akl ;
-	            } else {
-	                avp = NULL ;
-	                avl = 0 ;
-	                akl = aol ;
-	            }
-
-	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
-
-	                switch (kwi) {
-
-/* program-root */
-	                case argopt_root:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            pr = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                pr = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* version */
-	                case argopt_version:
-	                    f_version = TRUE ;
-	                    if (f_optequal)
-	                        rs = SR_INVALID ;
-	                    break ;
-
-/* verbose */
-	                case argopt_verbose:
-	                    pip->f.verbose = TRUE ;
-	                    pip->verboselevel = 2 ;
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl) {
-	                            rs = optvalue(avp,avl) ;
-	                            pip->verboselevel = rs ;
-	                        }
-	                    }
-	                    break ;
-
-/* temporary directory */
-	                case argopt_tmpdir:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            pip->tmpdname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                pip->tmpdname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-	                case argopt_help:
-	                    f_help = TRUE ;
-	                    break ;
-
-/* program mode */
-	                case argopt_pm:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            pmspec = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                pmspec = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* program search-name */
-	                case argopt_sn:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            sn = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                sn = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* error file name */
-	                case argopt_ef:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            efname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                efname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* file output */
-	                case argopt_of:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            ofname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                ofname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* the user specified some progopts */
-	                case argopt_option:
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            PARAMOPT	*pop = &aparams ;
-	                            cchar	*po = PO_OPTION ;
-	                            rs = paramopt_loads(pop,po,argp,argl) ;
-	                        }
-	                    } else
-	                        rs = SR_INVALID ;
-	                    break ;
-
-/* the user specified some progopts */
-	                case argopt_set:
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            PARAMOPT	*pop = &aparams ;
-	                            rs = paramopt_loadu(pop,argp,argl) ;
-	                        }
-	                    } else
-	                        rs = SR_INVALID ;
-	                    break ;
-
-/* follow symbolic links */
-	                case argopt_follow:
-	                    pip->f.follow = TRUE ;
-	                    break ;
-
-/* default action and user specified help */
-	                default:
-	                    rs = SR_INVALID ;
-	                    break ;
-
-	                } /* end switch (key words) */
-
-	            } else {
-
-	                while (akl--) {
-	                    const int	kc = MKCHAR(*akp) ;
-
-	                    switch (kc) {
-
-	                    case 'V':
-	                        f_version = TRUE ;
-	                        break ;
-
-	                    case 'D':
-	                        pip->debuglevel = 1 ;
-	                        if (f_optequal) {
-	                            f_optequal = FALSE ;
-	                            if (avl) {
-	                                rs = optvalue(avp,avl) ;
-	                                pip->debuglevel = rs ;
-	                            }
-	                        }
-	                        break ;
-
-	                    case 'e':
-				pip->final.encode = TRUE ;
-				pip->have.encode = TRUE ;
-				pip->f.encode = TRUE ;
-	                        if (f_optequal) {
-	                            f_optequal = FALSE ;
-	                            if (avl) {
-	                                rs = optbool(avp,avl) ;
-					pip->f.encode = (rs > 0) ;
-	                            }
-	                        }
-	                        break ;
-
-/* no-change */
-	                    case 'n':
-	                        pip->f.nochange = TRUE ;
-	                        break ;
-
-/* quiet */
-	                    case 'q':
-	                        pip->f.quiet = TRUE ;
-	                        break ;
-
-/* verbose output */
-	                    case 'v':
-	                        pip->f.verbose = TRUE ;
-	                        pip->verboselevel = 2 ;
-	                        if (f_optequal) {
-	                            f_optequal = FALSE ;
-	                            if (avl) {
-	                            rs = optvalue(avp,avl) ;
-	                            pip->verboselevel = rs ;
-	                            }
-	                        }
-	                        break ;
-
-	                case 'w':
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-				    pip->linelen = rs ;
-	                        }
-	                    } else
-	                        rs = SR_INVALID ;
-	                    break ;
-
-	                    case '?':
-	                        f_usage = TRUE ;
-	                        break ;
-
-	                    default:
-	                        rs = SR_INVALID ;
-	                        break ;
-
-	                    } /* end switch */
-	                    akp += 1 ;
-
-	                    if (rs < 0) break ;
-	                } /* end while */
-
-	            } /* end if (individual option key letters) */
-
-	        } /* end if (digits or progopts) */
-
-	    } else {
-
-	        rs = bits_set(&pargs,ai) ;
-	        ai_max = ai ;
-
-	    } /* end if (key letter/word or positional) */
-
-	    ai_pos = ai ;
-
-	} /* end while (all command line argument processing) */
-
-	if (efname == NULL) efname = getenv(VAREFNAME) ;
-	if (efname == NULL) efname = BFILE_STDERR ;
-	if ((rs1 = bopen(&errfile,efname,"wca",0666)) >= 0) {
-	    pip->efp = &errfile ;
-	    pip->open.errfile = TRUE ;
-	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
-	} else if (! isNotPresent(rs1)) {
-	    if (rs >= 0) rs = rs1 ;
-	}
-
-	if (rs < 0)
-	    goto badarg ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
+#if	CF_DEBUGN
+	                        nprintf(NDF,"main: progname=%s\n",pn) ;
 #endif
 
-	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
-	}
-
-/* get the program root */
-
-	if (rs >= 0) {
-	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
-	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
-	    }
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    debugprintf("main: pr=%s\n",pip->pr) ;
-	    debugprintf("main: sn=%s\n",pip->searchname) ;
-	}
+	                        if ((rs = maininfo_srchname(mip,&srch)) >= 0) {
+#if	CF_DEBUGN
+	                            nprintf(NDF,"main: srch=%s\n",srch) ;
 #endif
+	                            ex = lib_callcmd(srch,argc,argv,envv,NULL) ;
+#if	CF_DEBUGN
+	                            nprintf(NDF,"main: lib_callcmd() ex=%u\n",
+	                                ex) ;
+#endif
+	                        } /* end if */
 
-	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
-	    bprintf(pip->efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
-	} /* end if */
-
-/* get our program mode */
-
-	if (pmspec == NULL) pmspec = pip->progname ;
-
-	if ((pip->progmode = matstr(progmodes,pmspec,-1)) < 0) {
-	    cchar	*pn = pip->progname ;
-	    ex = EX_USAGE ;
-	    rs = SR_INVALID ;
-	    bprintf(pip->efp,"%s: invalid program-mode (%s)\n",pn,pmspec) ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    if (pip->progmode >= 0) {
-	        debugprintf("main: progmode=%s(%u)\n",
-	            progmodes[pip->progmode],pip->progmode) ;
+	                        rs1 = maininfo_utilend(mip) ;
+	                        if (rs >= 0) rs = rs1 ;
+	                    } /* end if (maininfo-util) */
+	                    rs1 = lib_mainend() ;
+	                    if (rs >= 0) rs = rs1 ;
+	                } /* end if (lib-main) */
+	            } /* end if (lib_initmemalloc) */
+#if	CF_DEBUGN
+	            nprintf(NDF,"main: sig-end\n") ;
+#endif
+	            rs1 = maininfo_sigend(&mi) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (maininfo-sig) */
+	        rs1 = maininfo_finish(mip) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } else
-	        debugprintf("main: progmode=NONE\n") ;
-	}
-#endif /* CF_DEBUG */
+	        ex = EX_OSERR ;
+	} else
+	    ex = EX_OSERR ;
 
-	if ((pip->debuglevel > 0) && (pip->progmode >= 0)) {
-	    bprintf(pip->efp,"%s: progmode=%s(%u)\n",
-	        pip->progname,progmodes[pip->progmode],pip->progmode) ;
-	}
-
-	if (! pip->have.encode) {
-	   switch (pip->progmode) {
-	   case progmode_hex:
-	   case progmode_hexing:
-		pip->f.encode = TRUE ;
-		break ;
-	   } /* end switch */
-	} /* end if (encode-mode) */
-
-	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: encode=%u\n",pip->progname,pip->f.encode) ;
-	}
-
-	if (rs < 0) goto retearly ;
-
-	if (f_usage)
-	    usage(pip) ;
-
-	if (f_help)
-	    printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
-
-	if (f_version || f_help || f_usage)
-	    goto retearly ;
-
-
-	ex = EX_OK ;
-
-/* check a few more things */
-
-	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
-	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
-
-	if ((rs >= 0) && (pip->linelen == 0) && (argval != NULL)) {
-	    rs = optvalue(argval,-1) ;
-	    pip->linelen = rs ;
-	}
-
-	if ((rs >= 0) && (pip->linelen == 0)) {
-	    if ((cp = getourenv(envv,VARCOLUMNS)) != NULL) {
-	        rs = optvalue(cp,-1) ;
-	        pip->linelen = rs ;
-	    }
-	}
-
-	if ((rs >= 0) && (pip->linelen == 0)) {
-	    pip->linelen = COLUMNS ;
-	}
-
-	if ((rs >= 0) && (pip->linelen < 3)) {
-	    rs = SR_INVALID ;
-	}
-
-	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: linelen=%u\n" ;
-	    bprintf(pip->efp,fmt,pn,pip->linelen) ;
-	}
-
-/* continue */
-
-	memset(&ainfo,0,sizeof(ARGINFO)) ;
-	ainfo.argc = argc ;
-	ainfo.ai = ai ;
-	ainfo.argv = argv ;
-	ainfo.ai_max = ai_max ;
-	ainfo.ai_pos = ai_pos ;
-
-	if (rs >= 0) {
-	    cchar	*ofn = ofname ;
-	    cchar	*afn = afname ;
-	    rs = process(pip,&ainfo,&pargs,ofn,afn) ;
-	} else if (ex == EX_OK) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
-	    ex = EX_USAGE ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
-	    usage(pip) ;
-	}
-
-/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    ex = mapex(mapexs,rs) ;
 	}
 
-retearly:
-	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
-	        pip->progname,ex,rs) ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("main: exiting ex=%u rs=%d\n",ex,rs) ;
-#endif
-
-	if (pip->efp != NULL) {
-	    pip->open.errfile = FALSE ;
-	    bclose(pip->efp) ;
-	    pip->efp = NULL ;
-	}
-
-	if (pip->open.aparams) {
-	    paramopt_finish(&aparams) ;
-	    pip->open.aparams = FALSE ;
-	}
-
-	bits_finish(&pargs) ;
-
-badpargs:
-	proginfo_finish(pip) ;
-
-badprogstart:
-
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	{
-	    uint	mo, mdiff ;
-	    uc_mallout(&mo) ;
-	    mdiff = (mo-mo_start) ;
-	    debugprintf("main: final mallout=%u\n",mdiff) ;
-	}
-#endif /* CF_DEBUGMALL */
-
-#if	(CF_DEBUGS || CF_DEBUG)
-	debugclose() ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main: exiting ex=%u (%d)\n",ex,rs) ;
 #endif
 
 	return ex ;
-
-/* bad stuff */
-badarg:
-	ex = EX_USAGE ;
-	bprintf(pip->efp,"%s: invalid argument specified (%d)\n",
-	    pip->progname,rs) ;
-	usage(pip) ;
-	goto retearly ;
-
 }
 /* end subroutine (main) */
 
@@ -804,298 +252,184 @@ badarg:
 /* local subroutines */
 
 
-static int usage(PROGINFO *pip)
+#if	CF_SIGALTSTACK
+static int maininfo_sigbegin(MAININFO *mip)
+{
+	size_t		ms ;
+	const int	ps = getpagesize() ;
+	const int	ss = (2*SIGSTKSZ) ;
+	int		rs ;
+	int		mp = (PROT_READ|PROT_WRITE) ;
+	int		mf = (MAP_PRIVATE|MAP_NORESERVE|MAP_ANON) ;
+	int		fd = -1 ;
+	void		*md ;
+	ms = iceil(ss,ps) ;
+	if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
+	    mip->mdata = md ;
+	    mip->msize = ms ;
+	    mip->astack.ss_size = ms ;
+	    mip->astack.ss_sp = md ;
+	    mip->astack.ss_flags = 0 ;
+	    if ((rs = u_sigaltstack(&mip->astack,NULL)) >= 0) {
+	        void	(*sh)(int,siginfo_t *,void *) = main_sighand ;
+	        rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+	        if (rs < 0) {
+	            mip->astack.ss_flags = SS_DISABLE ;
+	            u_sigaltstack(&mip->astack,NULL) ;
+	        }
+	    } /* end if (u_sigaltstack) */
+	    if (rs < 0) {
+	        u_munmap(mip->mdata,mip->msize) ;
+	        mip->mdata = NULL ;
+	    }
+	} /* end if (mmap) */
+#if	CF_DEBUGN
+	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (maininfo_sigbegin) */
+#else /* CF_SIGALTSTACK */
+static int maininfo_sigbegin(MAININFO *mip)
 {
 	int		rs = SR_OK ;
-	int		wlen = 0 ;
-	const char	*pn = pip->progname ;
-	const char	*fmt ;
-
-	fmt = "%s: USAGE> %s [<file(s)>] [-e]\n" ;
-	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
-	wlen += rs ;
-
-	fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
-	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
-	wlen += rs ;
-
-	return (rs >= 0) ? wlen : rs ;
+	void		(*sh)(int,siginfo_t *,void *) = main_sighand ;
+#if	CF_SIGHAND
+	rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+#endif
+#if	CF_DEBUGN
+	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
 }
-/* end subroutine (usage) */
+/* end subroutine (maininfo_sigbegin) */
+#endif /* CF_SIGALTSTACK */
 
 
-static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
+static int maininfo_sigend(MAININFO *mip)
 {
-	bfile		ofile, *ofp = &ofile ;
-	int		rs ;
+	int		rs = SR_OK ;
 	int		rs1 ;
-	int		wlen = 0 ;
-	cchar		*pn = pip->progname ;
-	cchar		*fmt ;
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("main/process: ent\n") ;
+#if	CF_SIGHAND
+	rs1 = sighand_finish(&mip->sh) ;
+	if (rs >= 0) rs = rs1 ;
 #endif
 
-	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
-	    ofn = BFILE_STDOUT ;
+#if	CF_SIGALTSTACK
+	mip->astack.ss_flags = SS_DISABLE ;
+	rs1 = u_sigaltstack(&mip->astack,NULL) ;
+	if (rs >= 0) rs = rs1 ;
 
-	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
-	    int		pan = 0 ;
-	    int		cl ;
-	    cchar	*cp ;
-
-	    if (rs >= 0) {
-	        int	ai ;
-	        int	f ;
-	        cchar	**argv = aip->argv ;
-	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
-
-	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
-	            if (f) {
-	                cp = argv[ai] ;
-	                if (cp[0] != '\0') {
-	                    pan += 1 ;
-	                    rs = procfile(pip,ofp,cp,-1) ;
-	                    wlen += rs ;
-	                }
-	            }
-
-	            if (rs < 0) break ;
-	        } /* end for (looping through requested circuits) */
-	    } /* end if (ok) */
-
-	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	        bfile	afile, *afp = &afile ;
-
-	        if (strcmp(afn,"-") == 0) afn = BFILE_STDIN ;
-
-	        if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
-	            const int	llen = LINEBUFLEN ;
-	            int		len ;
-	            char	lbuf[LINEBUFLEN + 1] ;
-
-	            while ((rs = breadline(afp,lbuf,llen)) > 0) {
-	                len = rs ;
-
-	                if (lbuf[len - 1] == '\n') len -= 1 ;
-	                lbuf[len] = '\0' ;
-
-	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                    lbuf[(cp+cl)-lbuf] = '\0' ;
-	                    if (cp[0] != '#') {
-	                        pan += 1 ;
-	                        rs = procfiles(pip,ofp,cp,cl) ;
-	                        wlen += rs ;
-	                    }
-	                }
-
-	                if (rs < 0) break ;
-	            } /* end while (reading lines) */
-
-	            rs1 = bclose(afp) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } else {
-	            if (! pip->f.quiet) {
-	                fmt = "%s: inaccessible argument-list (%d)\n" ;
-	                bprintf(pip->efp,fmt,pn,rs) ;
-	                bprintf(pip->efp,"%s: afile=%s\n",rs,afn) ;
-	            }
-	        } /* end if */
-
-	    } /* end if (processing file argument file list */
-
-	    if ((rs >= 0) && (pan == 0)) {
-
-	        cp = "-" ;
-	        pan += 1 ;
-	        rs = procfile(pip,ofp,cp,-1) ;
-	        wlen += rs ;
-
-	    } /* end if */
-
-	    rs1 = bclose(ofp) ;
+	if (mip->mdata != NULL) {
+	    rs1 = u_munmap(mip->mdata,mip->msize) ;
 	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    fmt = "%s: inaccessible output (%d)\n" ;
-	    bprintf(pip->efp,fmt,pn,rs) ;
-	    bprintf(pip->efp,"%s: afile=%s\n",rs,ofn) ;
-	} /* end if (file-output) */
+	    mip->mdata = NULL ;
+	    mip->msize = 0 ;
+	}
+#endif /* CF_SIGALTSTACK */
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	debugprintf("main/process: ret rs=%d wlen=%u\n",rs,wlen) ;
+	return rs ;
+}
+/* end subroutine (maininfo_sigend) */
+
+
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
+{
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: sn=%d(%s)\n",sn,strsigabbr(sn)) ;
 #endif
 
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (process) */
-
-
-static int procfiles(PROGINFO *pip,bfile *ofp,cchar *lbuf,int llen)
-{
-	FIELD		fsb ;
-	int		rs ;
-	int		wlen = 0 ;
-	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
-	    int		fl ;
-	    cchar	*fp ;
-	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
-	        if (fl > 0) {
-	            rs = procfile(pip,ofp,fp,fl) ;
-	            wlen += rs ;
-	        }
-	        if (fsb.term == '#') break ;
-	        if (rs < 0) break ;
-	    } /* end while */
-	    field_finish(&fsb) ;
-	} /* end if (field) */
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (procfiles) */
-
-
-static int procfile(PROGINFO *pip,bfile *ofp,cchar *np,int nl)
-{
-	NULSTR		n ;
-	int		rs ;
-	int		rs1 ;
-	int		wlen = 0 ;
-	cchar		*fn ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("main/procfile: ent enc=%u\n",pip->f.encode) ;
-#endif
-
-	if (np == NULL) return SR_FAULT ;
-
-	if ((rs = nulstr_start(&n,np,nl,&fn)) >= 0) {
-	    if (pip->f.encode) {
-		rs = procencode(pip,ofp,fn) ;
-		wlen += rs ;
-	    } else {
-		rs = procdecode(pip,ofp,fn) ;
-		wlen += rs ;
+	if (vcp != NULL) {
+	    Dl_info	dl ;
+	    long	ra ;
+	    ucontext_t	*ucp = (ucontext_t *) vcp ;
+	    void	*rtn ;
+	    const int	wlen = LINEBUFLEN ;
+	    int		wl ;
+	    cchar	*fmt ;
+	    char	wbuf[LINEBUFLEN+1] ;
+	    ucontext_rtn(ucp,&ra) ;
+	    if (ra != 0) {
+	        rtn = (void *) ra ;
+	        dladdr(rtn,&dl) ;
+	        fmt = "rtn=%08lX fn=%s sym=%s\n" ;
+	        wl = bufprintf(wbuf,wlen,fmt,ra,dl.dli_fname,dl.dli_sname) ;
+	        write(2,wbuf,wl) ;
 	    }
-	    rs1 = nulstr_finish(&n) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (nulstr) */
-
-	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: %t %d\n" ;
-	    bprintf(pip->efp,fmt,pn,np,nl,wlen) ;
 	}
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("main/procfile: ret rs=%d wlen=%u\n",rs,wlen) ;
-#endif
-
-	return (rs >= 0) ? wlen : rs ;
+	if (sip != NULL) {
+	    main_sigdump(sip) ;
+	}
+	u_exit(EX_TERM) ;
 }
-/* end subroutine (procfile) */
+/* end subroutine (main_sighand) */
 
 
-static int procencode(PROGINFO *pip,bfile *ofp,cchar *fn)
+static int main_sigdump(siginfo_t *sip)
 {
-	bfile		ifile, *ifp = &ifile ;
-	int		rs ;
-	int		rs1 ;
-	int		wlen = 0 ;
-	if ((fn == NULL) || (fn[0] == '-')) fn = BFILE_STDIN ;
-	if ((rs = bopen(ifp,fn,"r",0666)) >= 0) {
-	    const int	clen = pip->linelen ;
-	    int		ilen ;
-	    int		size = 0 ;
-            char	*ibuf ;
-	    char	*cbuf ;
-	    char	*abuf ;
-	    ilen = (clen/3) ;
-	    size += (ilen+1) ;
-	    size += (clen+1) ;
-	    if ((rs = uc_malloc(size,&abuf)) >= 0) {
-		ibuf = (abuf+0) ;
-		cbuf = (abuf+(ilen+1)) ;
-	        while ((rs = bread(ifp,ibuf,ilen)) > 0) {
-		    if ((rs = cthexstrs(cbuf,clen,ibuf,rs)) >= 0) {
-		        rs = bprintline(ofp,cbuf,rs) ;
-		        wlen += rs ;
-		    } /* end if (cthexstrs) */
-		    if (rs < 0) break ;
-	        } /* end while (reading) */
-		uc_free(abuf) ;
-	    } /* end if (m-a) */
-	    rs1 = bclose(ifp) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (ifile) */
-	return (rs >= 0) ? wlen : rs ;
+	const int	wlen = LINEBUFLEN ;
+	const int	si_signo = sip->si_signo ;
+	const int	si_code = sip->si_code ;
+	int		wl ;
+	const char	*sn = strsigabbr(sip->si_signo) ;
+	const char	*as = "*na*" ;
+	const char	*scs = NULL ;
+	const char	*fmt ;
+	char		wbuf[LINEBUFLEN+1] ;
+	char		abuf[16+1] ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: signo=%d\n",si_signo) ;
+#endif
+	switch (si_signo) {
+	case SIGILL:
+	    scs = strsigcode(sigcode_ill,si_code) ;
+	    break ;
+	case SIGSEGV:
+	    scs = strsigcode(sigcode_segv,si_code) ;
+	    bufprintf(abuf,16,"%p",sip->si_addr) ;
+	    as = abuf ;
+	    break ;
+	case SIGBUS:
+	    scs = strsigcode(sigcode_bus,si_code) ;
+	    bufprintf(abuf,16,"%p",sip->si_addr) ;
+	    as = abuf ;
+	    break ;
+	case SIGQUIT:
+	    scs = "¤na¤" ;
+	    break ;
+	default:
+	    scs = "¤default¤" ;
+	    break ;
+	} /* end switch */
+	fmt = "SIG=%s code=%d(%s) addr=%s\n" ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: bufprintf() sn=%s\n",sn) ;
+#endif
+	wl = bufprintf(wbuf,wlen,fmt,sn,si_code,scs,as) ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: bufprintf() rs=%d\n",wl) ;
+#endif
+	write(2,wbuf,wl) ;
+	return 0 ;
 }
-/* end subroutine (procencode) */
+/* end subroutine (main_sigdump) */
 
 
-static int procdecode(PROGINFO *pip,bfile *ofp,cchar *fn)
+static const char *strsigcode(const struct sigcode *scp,int code)
 {
-	const int	llen = LINEBUFLEN ;
-	const int	olen = LINEBUFLEN ;
-	int		size = 0 ;
-	int		rs ;
-	int		rs1 ;
-	int		wlen = 0 ;
-	char		*lbuf ;
-	char		*obuf ;
-	char		*abuf ;
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("main/procdecode: ent fn=%s\n",fn) ;
-#endif
-	if (pip == NULL) return SR_FAULT ;
-	size += (llen+1) ;
-	size += (olen+1) ;
-	if ((rs = uc_malloc(size,&abuf)) >= 0) {
-	    HEXDECODER	d ;
-	    lbuf = (abuf + 0) ;
-	    obuf = (abuf + (llen+1)) ;
-	    if ((rs = hexdecoder_start(&d)) >= 0) {
-	        bfile	ifile, *ifp = &ifile ;
-		if ((fn == NULL) || (fn[0] == '-')) fn = BFILE_STDIN ;
-	        if ((rs = bopen(ifp,fn,"r",0666)) >= 0) {
-	            int		len ;
-	            while ((rs = breadline(ifp,lbuf,llen)) > 0) {
-	                len = rs ;
-
-	                if (lbuf[len - 1] == '\n') len -= 1 ;
-	                lbuf[len] = '\0' ;
-
-	                if ((rs = hexdecoder_load(&d,lbuf,len)) >= 0) {
-	                    while ((rs = hexdecoder_read(&d,obuf,olen)) > 0) {
-	                        rs = bwrite(ofp,obuf,rs) ;
-	                        wlen += rs ;
-	                        if (rs < 0) break ;
-	                    } /* end while */
-	                } /* end if (hexdecoder_load) */
-
-	                if (rs < 0) break ;
-	            } /* end while (reading lines) */
-
-	            rs1 = bclose(ifp) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (ifile) */
-	        rs1 = hexdecoder_finish(&d) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (hexdecoder) */
-	    rs1 = uc_free(abuf) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (m-a-f) */
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("main/procdecode: ret rs=%d wlen=%u\n",rs,wlen) ;
-#endif
-	return (rs >= 0) ? wlen : rs ;
+	int		i ;
+	int		f = FALSE ;
+	const char	*sn = "UNKNOWN" ;
+	for (i = 0 ; scp[i].code != 0 ; i += 1) {
+	    f = (scp[i].code == code) ;
+	    if (f) break ;
+	}
+	if (f) sn = scp[i].name ;
+	return sn ;
 }
-/* end subroutine (procdecode) */
+/* end subroutine (strsigcode) */
 
 

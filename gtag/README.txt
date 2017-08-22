@@ -1,6 +1,6 @@
 GTAG
 
-This program is a pre-filter that processes tab-citations found in
+This program is a pre-filter that processes tag-citations found in
 Memorandum-type (MM) TROFF documents. It was intended for MM-type TROFF source
 text documents as input but can really be used on almost any TROFF source.
 

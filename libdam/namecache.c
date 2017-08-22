@@ -406,8 +406,9 @@ static int namecache_repentry(NAMECACHE *op,NAMECACHE_ENT **epp,cchar *un,
 	if ((rs >= 0) && (ep != NULL)) {
 	    entry_finish(ep) ;
 	    rs = entry_start(ep,un,np,nl) ;
-	} else
+	} else {
 	    rs = SR_NOANODE ;
+	}
 
 	if (epp != NULL)
 	    *epp = ep ;

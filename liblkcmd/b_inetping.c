@@ -325,7 +325,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    goto badprogstart ;
 	}
 
-	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
 	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
@@ -692,8 +692,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	} /* end while (all command line argument processing) */
 
-	if (efname == NULL) efname = getenv(VAREFNAME) ;
-	if (efname == NULL) efname = getenv(VARERRORFNAME) ;
+	if (efname == NULL) efname = getourenv(envv,VAREFNAME) ;
+	if (efname == NULL) efname = getourenv(envv,VARERRORFNAME) ;
 	if (efname == NULL) efname = BFILE_STDERR ;
 	if ((rs1 = shio_open(&errfile,efname,"wca",0666)) >= 0) {
 	    pip->efp = &errfile ;
@@ -776,9 +776,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* check a few more things */
 
-	if (afname == NULL) afname = getenv(VARAFNAME) ;
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
+	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
 	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {

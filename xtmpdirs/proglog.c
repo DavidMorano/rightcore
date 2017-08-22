@@ -154,8 +154,9 @@ int proglog_end(PROGINFO *pip)
 	int		rs1 ;
 
 	if (pip->open.logprog) {
+	    LOGFILE	*lhp = &pip->lh ;
 	    pip->open.logprog = FALSE ;
-	    rs1 = logfile_close(&pip->lh) ;
+	    rs1 = logfile_close(lhp) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
 
@@ -203,8 +204,9 @@ int proglog_intro(PROGINFO *pip,USERINFO *uip)
 int proglog_checksize(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
-	if ((pip->open.logprog) && (pip->logsize > 0)) {
-	    rs = logfile_checksize(&pip->lh,pip->logsize) ;
+	if (pip->open.logprog && (pip->logsize > 0)) {
+	    LOGFILE	*lhp = &pip->lh ;
+	    rs = logfile_checksize(lhp,pip->logsize) ;
 	}
 	return rs ;
 }
@@ -215,7 +217,8 @@ int proglog_check(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	if (pip->open.logprog) {
-	    rs = logfile_check(&pip->lh,pip->daytime) ;
+	    LOGFILE	*lhp = &pip->lh ;
+	    rs = logfile_check(lhp,pip->daytime) ;
 	}
 	return rs ;
 }
@@ -228,7 +231,8 @@ int proglog_print(PROGINFO *pip,cchar *sp,int sl)
 	if (pip == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
 	if (pip->open.logprog) {
-	    rs = logfile_print(&pip->lh,sp,sl) ;
+	    LOGFILE	*lhp = &pip->lh ;
+	    rs = logfile_print(lhp,sp,sl) ;
 	}
 	return rs ;
 }
@@ -286,7 +290,8 @@ int proglog_printfold(PROGINFO *pip,cchar *pre,cchar *sp,int sl)
 	if (pre == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
 	if (pip->open.logprog) {
-	    rs = logfile_printfold(&pip->lh,pre,sp,sl) ;
+	    LOGFILE	*lhp = &pip->lh ;
+	    rs = logfile_printfold(lhp,pre,sp,sl) ;
 	}
 	return rs ;
 }
@@ -298,7 +303,8 @@ int proglog_flush(PROGINFO *pip)
 	int		rs = SR_OK ;
 	if (pip == NULL) return SR_FAULT ;
 	if (pip->open.logprog) {
-	    rs = logfile_flush(&pip->lh) ;
+	    LOGFILE	*lhp = &pip->lh ;
+	    rs = logfile_flush(lhp) ;
 	}
 	return rs ;
 }
@@ -310,7 +316,8 @@ int proglog_setid(PROGINFO *pip,cchar *id)
 	int		rs = SR_OK ;
 	if (pip == NULL) return SR_FAULT ;
 	if (pip->open.logprog) {
-	    rs = logfile_setid(&pip->lh,id) ;
+	    LOGFILE	*lhp = &pip->lh ;
+	    rs = logfile_setid(lhp,id) ;
 	}
 	return rs ;
 }

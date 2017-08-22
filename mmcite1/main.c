@@ -300,11 +300,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
-		    argval = (argp + 1) ;
+	            argval = (argp + 1) ;
 
 	        } else if (ach == '-') {
 
@@ -324,7 +324,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                avl = aop + argl - 1 - avp ;
 	                aol = akl ;
 	            } else {
-			avp = NULL ;
+	                avp = NULL ;
 	                avl = 0 ;
 	                akl = aol ;
 	            }
@@ -342,15 +342,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl)
 	                            pr = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
 	                    }
 	                    break ;
 
@@ -361,15 +360,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl)
 	                            pmspec = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pmspec = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pmspec = argp ;
 	                    }
 	                    break ;
 
@@ -388,7 +386,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl) {
 	                            rs = optvalue(avp,avl) ;
 	                            pip->verboselevel = rs ;
-				}
+	                        }
 	                    }
 	                    break ;
 
@@ -399,15 +397,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl)
 	                            pip->tmpdname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->tmpdname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->tmpdname = argp ;
 	                    }
 	                    break ;
 
@@ -417,31 +414,31 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* the user specified some progopts */
 	                case argopt_option:
-	                    if (argr <= 0) {
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            PARAMOPT	*pop = &aparams ;
+	                            cchar	*po = PO_OPTION ;
+	                            rs = paramopt_loads(pop,po,argp,argl) ;
+	                        }
+	                    } else
 	                        rs = SR_INVALID ;
-	                        break ;
-	                    }
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl) {
-				PARAMOPT	*pop = &aparams ;
-	                        cchar		*po = PO_OPTION ;
-	                        rs = paramopt_loads(pop,po,argp,argl) ;
-			    }
 	                    break ;
 
 /* the user specified some progopts */
 	                case argopt_set:
-	                    if (argr <= 0) {
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            PARAMOPT	*pop = &aparams ;
+	                            rs = paramopt_loadu(pop,argp,argl) ;
+	                        }
+	                    } else
 	                        rs = SR_INVALID ;
-	                        break ;
-	                    }
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl)
-	                        rs = paramopt_loadu(&aparams,argp,argl) ;
 	                    break ;
 
 /* search name */
@@ -451,15 +448,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl)
 	                            sn = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
 	                    }
 	                    break ;
 
@@ -470,15 +466,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl)
 	                            afname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
 	                    }
 	                    break ;
 
@@ -489,15 +484,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl)
 	                            efname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
 	                    }
 	                    break ;
 
@@ -508,15 +502,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl)
 	                            ofname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
 	                    }
 	                    break ;
 
@@ -528,14 +521,14 @@ int main(int argc,cchar **argv,cchar **envv)
 /* default action and user specified help */
 	                default:
 	                    rs = SR_INVALID ;
-			    break ;
+	                    break ;
 
 	                } /* end switch (key words) */
 
 	            } else {
 
 	                while (akl--) {
-			    const int	kc = MKCHAR(*akp) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -547,26 +540,26 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        pip->debuglevel = 1 ;
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
-				    if (avl) {
+	                            if (avl) {
 	                                rs = optvalue(avp,avl) ;
-				        pip->debuglevel = rs ;
-				    }
+	                                pip->debuglevel = rs ;
+	                            }
 	                        }
 	                        break ;
 
 /* BIBDIR */
 	                    case 'B':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                PARAMOPT	*pop = &aparams ;
+	                                cchar		*po = PO_BIBDIR ;
+	                                rs = paramopt_loads(pop,po,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            const char	*po = PO_BIBDIR ;
-	                            rs = paramopt_loads(&aparams,po,argp,argl) ;
-				}
 	                        break ;
 
 /* quiet */
@@ -576,32 +569,32 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* options */
 	                    case 'o':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                PARAMOPT	*pop = &aparams ;
+	                                cchar		*po = PO_OPTION ;
+	                                rs = paramopt_loads(pop,po,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            const char	*po = PO_OPTION ;
-	                            rs = paramopt_loads(&aparams,po,argp,argl) ;
-				}
 	                        break ;
 
 /* BIBFILE */
 	                    case 'p':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                PARAMOPT	*pop = &aparams ;
+	                                cchar		*po = PO_BIBFILE ;
+	                                rs = paramopt_loads(pop,po,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            const char	*po = PO_BIBFILE ;
-	                            rs = paramopt_loads(&aparams,po,argp,argl) ;
-				}
 	                        break ;
 
 /* take input file arguments from STDIN */
@@ -616,36 +609,36 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* require a suffix for file names */
 	                    case 's':
-				cp = NULL ;
-				cl = -1 ;
+	                        cp = NULL ;
+	                        cl = -1 ;
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
 	                            if (avl) {
 	                                cp = avp ;
-					cl = avl ;
-				    }
-	                        } else {
-	                            if (argr <= 0) {
-	                                rs = SR_INVALID ;
-	                                break ;
+	                                cl = avl ;
 	                            }
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl) {
-	                                cp = argp ;
-					cl = argl ;
-				    }
+	                        } else {
+	                            if (argr > 0) {
+	                                argp = argv[++ai] ;
+	                                argr -= 1 ;
+	                                argl = strlen(argp) ;
+	                                if (argl) {
+	                                    cp = argp ;
+	                                    cl = argl ;
+	                                }
+	                            } else
+	                                rs = SR_INVALID ;
 	                        }
-				if (cp != NULL) {
-				    const char	*po = PO_SUFFIX ;
+	                        if ((rs >= 0) && (cp != NULL)) {
+	                            PARAMOPT	*pop = &aparams ;
+	                            cchar	*po = PO_SUFFIX ;
 	                            rs = paramopt_loads(&aparams,po,cp,cl) ;
-				}
+	                        }
 	                        break ;
 
-			    case 'u':
-				pip->f.uniq = TRUE ;
-				break ;
+	                    case 'u':
+	                        pip->f.uniq = TRUE ;
+	                        break ;
 
 /* verbose output */
 	                    case 'v':
@@ -655,7 +648,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            if (avl) {
 	                                rs = optvalue(avp,avl) ;
 	                                pip->verboselevel = rs ;
-				    }
+	                            }
 	                        }
 	                        break ;
 
@@ -703,7 +696,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
+	    debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
 	if (f_version) {
@@ -730,8 +723,8 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
-	    bprintf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
+	    bprintf(pip->efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
+	    bprintf(pip->efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
 	}
 
 /* get our program mode */
@@ -796,35 +789,34 @@ int main(int argc,cchar **argv,cchar **envv)
 /* process some options */
 
 	if (rs >= 0) {
-	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
-	    PARAMOPT_CUR	cur ;
-	    if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
-		const char	*po = PO_OPTION ;
+	    if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
+	        PARAMOPT_CUR	cur ;
+	        if ((rs = paramopt_curbegin(&aparams,&cur)) >= 0) {
+	            cchar	*po = PO_OPTION ;
 
-	    while (paramopt_enumvalues(&aparams,po,&cur,&cp) >= 0) {
-		if (cp == NULL) continue ;
+	            while (paramopt_enumvalues(&aparams,po,&cur,&cp) >= 0) {
+	                if (cp != NULL) {
 
-	        if ((kwi = matostr(progopts,2,cp,-1)) >= 0) {
+	                    if ((kwi = matostr(progopts,2,cp,-1)) >= 0) {
+	                        switch (kwi) {
+	                        case progopt_follow:
+	                            pip->f.follow = TRUE ;
+	                            break ;
+	                        case progopt_nofollow:
+	                            pip->f.follow = FALSE ;
+	                            break ;
+	                        case progopt_uniq:
+	                            pip->f.uniq = TRUE ;
+	                            break ;
+	                        } /* end switch */
+	                    } /* end if (matostr) */
 
-	            switch (kwi) {
-	            case progopt_follow:
-	                pip->f.follow = TRUE ;
-	                break ;
-	            case progopt_nofollow:
-	                pip->f.follow = FALSE ;
-	                break ;
-	            case progopt_uniq:
-	                pip->f.uniq = TRUE ;
-	                break ;
-	            } /* end switch */
+	                }
+	            } /* end while */
 
+	            paramopt_curend(&aparams,&cur) ;
 	        } /* end if (progopts) */
-
-	    } /* end while */
-
-	        paramopt_curend(&aparams,&cur) ;
-	    } /* end if (progopts) */
-	} /* end if (paramopt_havekey) */
+	    } /* end if (paramopt_havekey) */
 	} /* end if (ok) */
 
 /* load up BIBDIRS */
@@ -863,7 +855,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	        if (! pip->f.quiet) {
 	            bprintf(pip->efp,"%s: invalid query (%d)\n",
 	                pip->progname,rs) ;
-		}
+	        }
 	        break ;
 	    case SR_NOENT:
 	        ex = EX_CANTCREAT ;
@@ -916,30 +908,30 @@ badprogstart:
 	    mdiff = (mo-mo_start) ;
 	    debugprintf("main: final mallout=%u\n",mdiff) ;
 	    if (mdiff > 0) {
-		UCMALLREG_CUR	cur ;
-		UCMALLREG_REG	reg ;
-		const int	size = (10*sizeof(uint)) ;
-		int		rs1 ;
-		const char	*ids = "main" ;
-		uc_mallinfo(mi,size) ;
+	        UCMALLREG_CUR	cur ;
+	        UCMALLREG_REG	reg ;
+	        const int	size = (10*sizeof(uint)) ;
+	        int		rs1 ;
+	        const char	*ids = "main" ;
+	        uc_mallinfo(mi,size) ;
 	        debugprintf("main: MIoutnum=%u\n",mi[ucmallreg_outnum]) ;
 	        debugprintf("main: MIoutnummax=%u\n",mi[ucmallreg_outnummax]) ;
 	        debugprintf("main: MIoutsize=%u\n",mi[ucmallreg_outsize]) ;
 	        debugprintf("main: MIoutsizemax=%u\n",
-			mi[ucmallreg_outsizemax]) ;
+	            mi[ucmallreg_outsizemax]) ;
 	        debugprintf("main: MIused=%u\n",mi[ucmallreg_used]) ;
 	        debugprintf("main: MIusedmax=%u\n",mi[ucmallreg_usedmax]) ;
 	        debugprintf("main: MIunder=%u\n",mi[ucmallreg_under]) ;
 	        debugprintf("main: MIover=%u\n",mi[ucmallreg_over]) ;
 	        debugprintf("main: MInotalloc=%u\n",mi[ucmallreg_notalloc]) ;
 	        debugprintf("main: MInotfree=%u\n",mi[ucmallreg_notfree]) ;
-		ucmallreg_curbegin(&cur) ;
-		while (ucmallreg_enum(&cur,&reg) >= 0) {
+	        ucmallreg_curbegin(&cur) ;
+	        while (ucmallreg_enum(&cur,&reg) >= 0) {
 	            debugprintf("main: MIreg.addr=%p\n",reg.addr) ;
 	            debugprintf("main: MIreg.size=%u\n",reg.size) ;
-		    debugprinthexblock(ids,80,reg.addr,reg.size) ;
-		}
-		ucmallreg_curend(&cur) ;
+	            debugprinthexblock(ids,80,reg.addr,reg.size) ;
+	        }
+	        ucmallreg_curend(&cur) ;
 	    }
 	    uc_mallset(0) ;
 	}
@@ -965,20 +957,20 @@ badarg:
 
 int findbibfile(PROGINFO *pip,PARAMOPT *app,cchar *fname,char *tmpfname)
 {
-	struct ustat	sb ;
-	PARAMOPT_CUR	cur ;
 	int		rs = SR_OK ;
 	int		fl = 0 ;
-	const char	*cp ;
 
 	if (pip == NULL) return SR_FAULT ;
 
 	if (fname[0] != '/') {
+	    USTAT		sb ;
+	    PARAMOPT_CUR	cur ;
+	    const char		*cp ;
 
 	    rs = SR_NOENT ;
 	    tmpfname[0] = '\0' ;
 	    if ((paramopt_curbegin(app,&cur)) >= 0) {
-		const char	*po = PO_BIBDIR ;
+	        cchar	*po = PO_BIBDIR ;
 
 	        while (paramopt_enumvalues(app,po,&cur,&cp) >= 0) {
 
@@ -1039,35 +1031,35 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 	    int		opts = 0 ;
 	    if (pip->f.uniq) opts |= BDB_OUNIQ ;
 	    if ((rs = bdb_start(&bibber,"Q",opts)) >= 0) {
-		if ((rs = loadbibfiles(pip,pop,&bibber)) >= 0) {
-	    	    CITEDB	citer ;
-		    if ((rs = citedb_start(&citer)) >= 0) {
-			bfile	*tfp = &pip->tf.tfile ;
-			cchar	*txfn = TMPFX ;
-			memset(&pip->tf,0,sizeof(PROGINFO_TMP)) ;
-			if ((rs = bopentmp(tfp,txfn,"rwc",0666)) >= 0) {
-			    BDB		*b = &bibber ;
-	    	    	    CITEDB	*c = &citer ;
-			    if ((rs = procargs(pip,aip,bop,pop,b,c,afn)) >= 0) {
-	    		        brewind(&pip->tf.tfile) ;
-	    		        rs = progout(pip,&bibber,&citer,ofn) ;
-	    		        if (rs < 0) {
-				    procereport(pip,rs) ;
-	    		        } /* end if */
+	        if ((rs = loadbibfiles(pip,pop,&bibber)) >= 0) {
+	            CITEDB	citer ;
+	            if ((rs = citedb_start(&citer)) >= 0) {
+	                bfile	*tfp = &pip->tf.tfile ;
+	                cchar	*txfn = TMPFX ;
+	                memset(&pip->tf,0,sizeof(PROGINFO_TMP)) ;
+	                if ((rs = bopentmp(tfp,txfn,"rwc",0666)) >= 0) {
+	                    BDB		*b = &bibber ;
+	                    CITEDB	*c = &citer ;
+	                    if ((rs = procargs(pip,aip,bop,pop,b,c,afn)) >= 0) {
+	                        brewind(&pip->tf.tfile) ;
+	                        rs = progout(pip,&bibber,&citer,ofn) ;
+	                        if (rs < 0) {
+	                            procereport(pip,rs) ;
+	                        } /* end if */
 	                        if ((pip->debuglevel > 0) && (rs >= 0)) {
-				    fmt = "%s: files=%u\n" ;
+	                            fmt = "%s: files=%u\n" ;
 	                            bprintf(pip->efp,fmt,pn,pip->c_files) ;
-				}
-			    } /* end if (procargs) */
-			    rs1 = bclose(tfp) ;
-			    if (rs >= 0) rs = rs1 ;
-			} /* end if (bopentmp) */
-			rs1 = citedb_finish(&citer) ;
-			if (rs >= 0) rs = rs1 ;
-		    } /* end if (citedb) */
-		} /* end if (loadbibfiles) */
-		rs1 = bdb_finish(&bibber) ;
-		if (rs >= 0) rs = rs1 ;
+	                        }
+	                    } /* end if (procargs) */
+	                    rs1 = bclose(tfp) ;
+	                    if (rs >= 0) rs = rs1 ;
+	                } /* end if (bopentmp) */
+	                rs1 = citedb_finish(&citer) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (citedb) */
+	        } /* end if (loadbibfiles) */
+	        rs1 = bdb_finish(&bibber) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (hdb) */
 	    rs1 = vecstr_finish(&pip->filenames) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -1078,7 +1070,7 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
-	    BDB *bdp,CITEDB *cdp,cchar *afn)
+		BDB *bdp,CITEDB *cdp,cchar *afn)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1092,21 +1084,20 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 	    int		ai ;
 	    int		f ;
 	    cchar	**argv = aip->argv ;
-	for (ai = 1 ; ai < aip->argc ; ai += 1) {
-
-	    f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	    f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
-	    if (f) {
-	        cp = argv[ai] ;
-	        if (cp[0] != '\0') {
-	            pan += 1 ;
-	            pip->c_files += 1 ;
-	            rs = progfile(pip,pop,bdp,cdp,cp) ;
-		}
-	    }
-	    if (rs < 0) break ;
-	    pip->c_processed += 1 ;
-	} /* end for (looping through requested circuits) */
+	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
+	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	        if (f) {
+	            cp = argv[ai] ;
+	            if (cp[0] != '\0') {
+	                pan += 1 ;
+	                pip->c_files += 1 ;
+	                rs = progfile(pip,pop,bdp,cdp,cp) ;
+	            }
+	        }
+	        if (rs < 0) break ;
+	        pip->c_processed += 1 ;
+	    } /* end for (looping through requested circuits) */
 	} /* end if (ok) */
 
 /* process any files in the argument filename list file */
@@ -1117,7 +1108,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 	    if (afn[0] == '-') afn = BFILE_STDIN ;
 
 	    if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
-	  	const int	llen = LINEBUFLEN ;
+	        const int	llen = LINEBUFLEN ;
 	        int		len ;
 	        char		lbuf[LINEBUFLEN + 1] ;
 
@@ -1127,24 +1118,24 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 	            if (lbuf[len - 1] == '\n') len -= 1 ;
 	            lbuf[len] = '\0' ;
 
-		    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
-			lbuf[(cp+cl)-lbuf] = '\0' ;
-			if (cp[0] != '#') {
-	            	    pan += 1 ;
-	    	    	    pip->c_files += 1 ;
-	            	    rs = progfile(pip,pop,bdp,cdp,cp) ;
-			}
-		    }
+	            if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+	                lbuf[(cp+cl)-lbuf] = '\0' ;
+	                if (cp[0] != '#') {
+	                    pan += 1 ;
+	                    pip->c_files += 1 ;
+	                    rs = progfile(pip,pop,bdp,cdp,cp) ;
+	                }
+	            }
 
 	            if (rs < 0) break ;
 	            pip->c_processed += 1 ;
 	        } /* end while (reading lines) */
 
 	        rs1 = bclose(afp) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } else {
 	        if (! pip->f.quiet) {
-		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            fmt = "%s: inaccessible argument-list (%d)\n" ;
 	            bprintf(pip->efp,fmt,pn,rs) ;
 	            bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	        }
@@ -1181,14 +1172,14 @@ static int procereport(PROGINFO *pip,int prs)
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 	if (pip->f.uniq && (prs == SR_NOTUNIQ)) {
-	            bprintf(pip->efp,
-		    	"%s: citation "
-			"was not unique in DB (%d)\n",
-	                    pip->progname,prs) ;
+	    bprintf(pip->efp,
+	        "%s: citation "
+	        "was not unique in DB (%d)\n",
+	        pip->progname,prs) ;
 	} else {
-	            bprintf(pip->efp,
-			"%s: could not process citation (%d)\n",
-	                pip->progname,prs) ;
+	    bprintf(pip->efp,
+	        "%s: could not process citation (%d)\n",
+	        pip->progname,prs) ;
 	}
 	return rs ;
 }

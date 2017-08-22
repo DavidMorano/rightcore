@@ -626,8 +626,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+					}
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -778,7 +780,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	if ((pip->logsize == 0) && (argval != NULL)) {
+	if ((rs >= 0) && (pip->logsize == 0) && (argval != NULL)) {
 	    pip->have.logsize = TRUE ;
 	    pip->final.logsize = TRUE ;
 	    rs = cfdecmfi(argval,-1,&v) ;
@@ -791,6 +793,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (to_read < 1) to_read = 1 ;
 	lip->to_read = to_read ;
+
+	if (pip->lfname == NULL) pip->lfname = getourenv(envv,VARLFNAME) ;
+	if (pip->lfname == NULL) pip->lfname = getourenv(envv,VARLOGFNAME) ;
 
 	if ((rs >= 0) && (pip->logsize == 0)) {
 	    if ((cp = getourenv(envv,VARLOGSIZE)) != NULL) {
@@ -1021,7 +1026,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_audit:
 	                    if (! lip->final.audit) {
 	                        lip->have.audit = TRUE ;
@@ -1033,7 +1037,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_create:
 	                    if (! lip->final.create) {
 	                        lip->have.create= TRUE ;
@@ -1045,7 +1048,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_logsize:
 	                    if (! pip->final.logsize) {
 	                        pip->have.logsize = TRUE ;
@@ -1056,7 +1058,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

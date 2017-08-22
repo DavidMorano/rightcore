@@ -63,8 +63,9 @@ int setint_start(setint *op)
 	if (op == NULL) return SR_FAULT ;
 	if ((setp = new(nothrow) unordered_set<int>) != NULL) {
 	    op->setp = (void *) setp ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 	return rs ;
 }
 /* end subroutine (setint_start) */
@@ -78,8 +79,9 @@ int setint_finish(setint *op)
 	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    delete setp ;
 	    op->setp = NULL ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return rs ;
 }
 /* end subroutine (setint_finish) */
@@ -95,8 +97,9 @@ int setint_addval(setint *op,int v)
 	    pair<unordered_set<int>::iterator,bool>	ret ;
 	    ret = setp->insert(v) ;
 	    if (ret.second == true) f = 0 ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (setint_addval) */
@@ -109,8 +112,9 @@ int setint_delval(setint *op,int v)
 	if (op->setp != NULL) {
 	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    setp->erase(v) ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return rs ;
 }
 /* end subroutine (setint_delval) */
@@ -125,8 +129,9 @@ int setint_count(setint *op)
 	if (op->setp != NULL) {
 	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    c = setp->size() ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (setint_count) */
@@ -141,8 +146,9 @@ int setint_extent(setint *op)
 	if (op->setp != NULL) {
 	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    c = setp->max_size() ;
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (setint_extent) */
@@ -164,8 +170,9 @@ int setint_mkvec(setint *op,int *va)
 	    } else {
 		c = setp->size() ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (setint_mkvec) */
@@ -181,8 +188,9 @@ int setint_curbegin(setint *op,setint_cur *curp)
 	    unordered_set<int>	*setp = (unordered_set<int> *) op->setp ;
 	    *interp = setp->begin() ;
 	    curp->interp = (void *) interp ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 	return rs ;
 }
 /* end subroutine (setint_curbegin) */
@@ -198,8 +206,9 @@ int setint_curend(setint *op,setint_cur *curp)
 		(unordered_set<int>::iterator *) curp->interp ;
 	    delete interp ;
 	    curp->interp = NULL ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 	return rs ;
 }
 /* end subroutine (setint_curend) */
@@ -220,10 +229,12 @@ int setint_enum(setint *op,setint_cur *curp,int *rp)
 	    if (*interp != it_end) {
 	        *rp = *(*interp) ;
 	        (*interp)++ ;
-	    } else
+	    } else {
 		rs = SR_NOTFOUND ;
-	} else
+	    }
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 	return rs ;
 }
 /* end subroutine (setint_enum) */

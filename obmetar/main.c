@@ -12,22 +12,20 @@
 /* revision history:
 
 	= 1999-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Syopsis:
 
 	$ obmetar [filename]
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -39,7 +37,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>
@@ -51,11 +48,10 @@
 #include	<char.h>
 #include	<vecstr.h>
 #include	<sbuf.h>
+#include	<pwfile.h>
+#include	<ipasswd.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
-
-#include	"pwfile.h"
-#include	"ipasswd.h"
 
 #include	"config.h"
 #include	"defs.h"
@@ -86,6 +82,7 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	headkeymat(const char *,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 
@@ -125,19 +122,13 @@ enum argopts {
 } ;
 
 
+/* exported subroutines */
 
 
-
-
-
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct group	*gep = NULL ;
-
 	struct proginfo	pi, *pip = &pi ;
+	struct group	*gep = NULL ;
 
 	bfile		errfile ;
 	bfile		outfile, *ofp = &outfile ;
@@ -170,13 +161,12 @@ char	*envv[] ;
 	const char	*sp, *cp, *cp2 ;
 
 
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
@@ -192,7 +182,6 @@ char	*envv[] ;
 
 	usernamebuf[0] = '\0' ;
 
-	pip->debuglevel = 0 ;
 	pip->verboselevel = 1 ;
 
 	pip->f.quiet = FALSE ;
@@ -215,10 +204,11 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (((argl - 1) > 0) && 
 	                    (cfdeci(argp + 1,argl - 1,&argvalue) < 0))
@@ -226,32 +216,16 @@ char	*envv[] ;
 
 	            } else {
 
-#if	CF_DEBUGS
-	                debugprintf("main: got an option\n") ;
-#endif
-
 	                aop = argp + 1 ;
 	                aol = argl - 1 ;
 	                akp = aop ;
 	                f_optequal = FALSE ;
 	                if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option key w/ a value\n") ;
-#endif
-
 	                    akl = avp - aop ;
 	                    avp += 1 ;
 	                    avl = aop + aol - avp ;
 	                    f_optequal = TRUE ;
-
-#if	CF_DEBUGS
-	                    debugprintf("main: aol=%d avp=\"%s\" avl=%d\n",
-	                        aol,avp,avl) ;
-
-	                    debugprintf("main: akl=%d akp=\"%s\"\n",
-	                        akl,akp) ;
-#endif
 
 	                } else {
 
@@ -259,8 +233,6 @@ char	*envv[] ;
 	                    avl = 0 ;
 
 	                }
-
-/* do we have a keyword match or should we assume only key letters? */
 
 	                if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
 

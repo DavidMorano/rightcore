@@ -23,7 +23,7 @@
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -740,7 +740,7 @@ int lib_kshbegin(void *cxp,const int *catches)
 	    if ((rs = kshlib_init()) >= 0) {
 	        KSHLIB	*kip = &kshlib_data ;
 	        if ((rs = kshlib_sigbegin(kip,catches)) >= 0) {
-	                kip->runmode |= KSHLIB_RMKSH ;
+	            kip->runmode |= KSHLIB_RMKSH ;
 	        } /* end if (kshlib_sigbegin) */
 	    } /* end if (kshlib_init) */
 	} /* end if (lib_initenviron) */

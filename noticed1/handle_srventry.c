@@ -10,19 +10,12 @@
 
 /* revision history:
 
-	= 1986-07-01, David A­D­ Morano
-
-	This program was originally written.
-
-
 	= 1998-07-01, David A­D­ Morano
-
-	This subroutine has been enhanced with some modifications to
-	the user and group handling of the spawned server program.
-
+	This program was originally written.
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /**************************************************************************
 
@@ -40,7 +33,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<time.h>
@@ -78,6 +70,7 @@ extern int	getgid_name(cchar *) ;
 extern int	quoteshellarg() ;
 extern int	findfilepath(const char *,char *,const char *,int) ;
 extern int	field_svcargs(FIELD *,vecstr *) ;
+extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 
 extern int	processargs(PROGINFO *,char *,vecstr *) ;
@@ -357,25 +350,17 @@ vecstr		*elp ;
 
 	            for (j = 0 ; (rs = vecstr_get(&names,j,&mnp)) >= 0 ; 
 	                j += 1) {
-
-	                if (mnp == NULL) continue ;
-
-			if (isdigit(mnp[0])) continue ;
-
-#if	CF_DEBUG
-	    if (pip->debuglevel > 1)
-	        debugprintf("handle_srventry: sysnetgr n=%s m=%s\n",
-				ngp,mnp) ;
-#endif
-
-	                if (innetgr(ngp,mnp,NULL,pip->domainname))
-	                    break ;
-
+	                if (mnp != NULL) {
+			    int	ch = MKCHAR(mnp[0]) ;
+			    if (! isdigitlatin(ch)) {
+	                        if (innetgr(ngp,mnp,NULL,pip->domainname)) {
+	                    	    break ;
+				}
+			    }
+			}
 	            } /* end for (machine names) */
 
-	            if (rs >= 0)
-	                break ;
-
+	            if (rs >= 0) break ;
 	        } /* end for (netgroups) */
 
 #if	CF_DEBUG

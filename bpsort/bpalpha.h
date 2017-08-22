@@ -1,25 +1,28 @@
 /* bpalpha */
 
 
+/* revision history:
+
+	= 2001-03-22, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
+
+
 #ifndef	BPALPHA_INCLUDE
 #define	BPALPHA_INCLUDE	1
 
 
+#include	<envstandards.h>
 #include	<sys/types.h>
-#include	<time.h>
-
-#include	"localmisc.h"
+#include	<localmisc.h>
 
 
-
-/* object defines */
-
+#define	BPALPHA_MAGIC		0x29456781
 #define	BPALPHA			struct bpalpha_head
 #define	BPALPHA_STATS		struct bpalpha_stats
-
-
-
-
 
 
 /* statistics */
@@ -45,7 +48,6 @@ struct bpalpha_head {
 } ;
 
 
-
 #if	(! defined(BPALPHA_MASTER)) || (BPALPHA_MASTER == 0)
 
 extern int	bpalpha_init(BPALPHA *,int,int,int) ;
@@ -58,8 +60,6 @@ extern int	bpalpha_free(BPALPHA *) ;
 
 #endif /* BPALPHA_MASTER */
 
-
 #endif /* BPALPHA_INCLUDE */
-
 
 

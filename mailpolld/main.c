@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1999-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -96,6 +94,7 @@
 extern int	nextfield(const char *,int,const char **) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	listenusd(const char *,int,int) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strbasename(char *) ;
@@ -263,12 +262,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = (argp + 1) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

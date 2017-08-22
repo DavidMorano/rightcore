@@ -163,6 +163,7 @@ extern int	hmatch() ;
 extern int	mkuiname(char *,int,USERINFO *) ;
 extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
 			const char *, const char *) ;
+extern int	isdigitlatin(int) ;
 
 #if	CF_PCSUSERFILE
 extern int	pcsuserfile() ;

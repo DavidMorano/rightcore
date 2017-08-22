@@ -8,16 +8,14 @@
 
 /* revision history:
 
-	= 1994-03-01, David A­D­ Morano
-
+	= 1998-03-01, David A­D­ Morano
 	This subroutine was originally written.
-
 
 */
 
-/* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/***********************************************************************
+/*******************************************************************************
 
 	This subroutine writes out the hash file.
 
@@ -42,7 +40,7 @@
 	<0		error code
 
 
-***********************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* must be before others */
@@ -56,6 +54,7 @@
 #include	<ctype.h>
 
 #include	<vsystem.h>
+#include	<endian.h>
 #include	<localmisc.h>
 
 #include	"uunamefu.h"
@@ -65,22 +64,6 @@
 
 #define	UUNAMEFU_MAGICSTR	"MKINVHASH"
 #define	UUNAMEFU_MAGICSIZE	16
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
 
 #ifndef	ITEMLEN
 #define	ITEMLEN		100

@@ -84,12 +84,12 @@ int		citedb_add(CITEDB *,int,uint,const char *,int) ;
 
 static int	mkcitestr(char *,int) ;
 
-static int	store_start(struct citedb_store *,const char *,int) ;
-static int	store_update(struct citedb_store *,int) ;
-static int	store_finish(struct citedb_store *) ;
+static int	store_start(CITEDB_STORE *,const char *,int) ;
+static int	store_update(CITEDB_STORE *,int) ;
+static int	store_finish(CITEDB_STORE *) ;
 
-static int	entry_load(CITEDB_ENT *,struct citedb_store *,
-			struct citedb_offset *) ;
+static int	entry_load(CITEDB_ENT *,CITEDB_STORE *,
+			CITEDB_OFF *) ;
 
 
 /* local variables */
@@ -98,20 +98,16 @@ static int	entry_load(CITEDB_ENT *,struct citedb_store *,
 /* exported subroutines */
 
 
-int citedb_start(op)
-CITEDB		*op ;
+int citedb_start(CITEDB *op)
 {
 	const int	n = CITEDB_DEFENTRIES ;
-	const int	size = sizeof(struct citedb_offset) ;
+	const int	size = sizeof(CITEDB_OFF) ;
+	int		rs ;
 
-	int	rs ;
-
-
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("citedb_start: entered\n") ;
+	debugprintf("citedb_start: ent\n") ;
 #endif
 
 	memset(op,0,sizeof(CITEDB)) ;
@@ -134,20 +130,13 @@ CITEDB		*op ;
 /* end subroutine (citedb_start) */
 
 
-int citedb_adds(op,fi,coff,kp,kl)
-CITEDB		*op ;
-int		fi ;
-uint		coff ;
-const char	kp[] ;
-int		kl ;
+int citedb_adds(CITEDB *op,int fi,uint coff,cchar *kp,int kl)
 {
-	int	rs = SR_OK ;
-	int	cl ;
-	int	c = 0 ;
-
+	int		rs = SR_OK ;
+	int		cl ;
+	int		c = 0 ;
 	const char	*cp ;
 	const char	*tp ;
-
 
 	if (op == NULL) return SR_FAULT ;
 	if (kp == NULL) return SR_FAULT ;
@@ -180,19 +169,11 @@ int		kl ;
 
 
 /* load a string parameter into the DB */
-int citedb_add(op,fi,coff,kp,kl)
-CITEDB		*op ;
-int		fi ;
-uint		coff ;
-const char	kp[] ;
-int		kl ;
+int citedb_add(CITEDB *op,int fi,uint coff,cchar *kp,int kl)
 {
-	struct citedb_store	*sp ;
-
+	CITEDB_STORE	*sp ;
 	HDB_DATUM	key, value ;
-
-	int	rs ;
-
+	int		rs ;
 
 #if	CF_DEBUGS
 	debugprintf("citedb_add: coff=%u\n",coff) ;
@@ -221,14 +202,14 @@ int		kl ;
 
 	if ((rs = hdb_fetch(&op->store,key,NULL,&value)) >= 0) {
 
-	    sp = (struct citedb_store *) value.buf ;
+	    sp = (CITEDB_STORE *) value.buf ;
 	    rs = store_update(sp,op->citestrindex) ;
 
 	    if (sp->n == 2)
 	    	op->citestrindex += 1 ;
 
 	} else if (rs == SR_NOTFOUND) {
-	    const int	size = sizeof(struct citedb_store) ;
+	    const int	size = sizeof(CITEDB_STORE) ;
 
 	    if ((rs = uc_malloc(size,&sp)) >= 0) {
 
@@ -262,13 +243,13 @@ int		kl ;
 /* now check if it is in the "offset" DB */
 
 	if (rs >= 0) {
-	    struct citedb_offset	offe ;
+	    CITEDB_OFF	offe ;
 
 #if	CF_DEBUGS
 	    debugprintf("citedb_add: store cn=%u\n",sp->n) ;
 #endif
 
-	    memset(&offe,0,sizeof(struct citedb_offset)) ;
+	    memset(&offe,0,sizeof(CITEDB_OFF)) ;
 	    offe.sp = sp ;
 	    offe.coff = coff ;
 	    offe.fi = fi ;
@@ -297,24 +278,17 @@ int		kl ;
 /* end subroutine (citedb_add) */
 
 
-int citedb_curbegin(op,curp)
-CITEDB		*op ;
-CITEDB_CUR	*curp ;
+int citedb_curbegin(CITEDB *op,CITEDB_CUR *curp)
 {
 
-
 #if	CF_DEBUGS
-	debugprintf("citedb_curbegin: entered \n") ;
+	debugprintf("citedb_curbegin: ent \n") ;
 #endif
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
 
-	if (op->magic != CITEDB_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != CITEDB_MAGIC) return SR_NOTOPEN ;
 
 	curp->i = -1 ;
 	return SR_OK ;
@@ -322,24 +296,17 @@ CITEDB_CUR	*curp ;
 /* end subroutine (citedb_curbegin) */
 
 
-int citedb_curend(op,curp)
-CITEDB		*op ;
-CITEDB_CUR	*curp ;
+int citedb_curend(CITEDB *op,CITEDB_CUR *curp)
 {
 
-
 #if	CF_DEBUGS
-	debugprintf("citedb_curend: entered \n") ;
+	debugprintf("citedb_curend: ent \n") ;
 #endif
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
 
-	if (op->magic != CITEDB_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (curp == NULL)
-	    return SR_FAULT ;
+	if (op->magic != CITEDB_MAGIC) return SR_NOTOPEN ;
 
 	curp->i = -1 ;
 	return SR_OK ;
@@ -347,20 +314,15 @@ CITEDB_CUR	*curp ;
 /* end subroutine (citedb_curend) */
 
 
-int citedb_enum(op,curp,ep)
-CITEDB		*op ;
-CITEDB_CUR	*curp ;
-CITEDB_ENT	*ep ;
+int citedb_enum(CITEDB *op,CITEDB_CUR *curp,CITEDB_ENT *ep)
 {
-	struct citedb_offset	*offp ;
-	struct citedb_store	*sp ;
-
-	int	rs ;
-	int	i ;
-
+	CITEDB_OFF	*offp ;
+	CITEDB_STORE	*sp ;
+	int		rs ;
+	int		i ;
 
 #if	CF_DEBUGS
-	debugprintf("citedb_enum: entered \n") ;
+	debugprintf("citedb_enum: ent\n") ;
 #endif
 
 	if (op == NULL) return SR_FAULT ;
@@ -398,51 +360,37 @@ CITEDB_ENT	*ep ;
 /* end subroutine (citedb_enum) */
 
 
-int citedb_fetch(op,citekey,curp,ep)
-CITEDB		*op ;
-const char	citekey[] ;
-CITEDB_CUR	*curp ;
-CITEDB_ENT	*ep ;
+int citedb_fetch(CITEDB *op,cchar *citekey,CITEDB_CUR *curp,CITEDB_ENT *ep)
 {
-	struct citedb_offset	*offp ;
-	struct citedb_store	*sp ;
-
+	CITEDB_OFF	*offp ;
+	CITEDB_STORE	*sp ;
 	CITEDB_CUR		cur ;
+	int		rs ;
+	int		i ;
 
-	int	rs ;
-	int	i ;
+	if (op == NULL) return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
+	if (citekey == NULL) return SR_FAULT ;
 
+	if (op->magic != CITEDB_MAGIC) return SR_NOTOPEN ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != CITEDB_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if ((citekey == NULL) || (citekey[0] == '\0'))
-	    return SR_INVALID ;
+	if (citekey[0] == '\0') return SR_INVALID ;
 
 	if (curp == NULL) {
 	    curp = &cur ;
 	    curp->i = -1 ;
 	}
 
-	if (ep == NULL)
-	    return SR_FAULT ;
-
 	i = (curp->i >= 0) ? (curp->i + 1) : 0 ;
 
 /* do the lookup */
 
 	while ((rs = vecobj_get(&op->list,i,&offp)) >= 0) {
-	    if (offp == NULL) continue ;
-
-	    sp = offp->sp ;
-	    if (strcmp(sp->citekey,citekey) == 0)
-	        break ;
-
-	    i += 1 ;
-
+	    if (offp != NULL) {
+	        sp = offp->sp ;
+	        if (strcmp(sp->citekey,citekey) == 0) break ;
+	        i += 1 ;
+	    }
 	} /* end while */
 
 	if ((rs >= 0) && (offp != NULL)) {
@@ -459,29 +407,23 @@ CITEDB_ENT	*ep ;
 /* end subroutine (citedb_fetch) */
 
 
-int citedb_finish(op)
-CITEDB		*op ;
+int citedb_finish(CITEDB *op)
 {
-	struct citedb_store	*sp ;
-
+	CITEDB_STORE	*sp ;
 	HDB_CUR		keycursor ;
 	HDB_DATUM	key, value ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
+	if (op == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != CITEDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != CITEDB_MAGIC) return SR_NOTOPEN ;
 
 /* clean out the "store" DB */
 
 	if (hdb_curbegin(&op->store,&keycursor) >= 0) {
 	    while (hdb_enum(&op->store,&keycursor,&key,&value) >= 0) {
-	        sp = (struct citedb_store *) value.buf ;
+	        sp = (CITEDB_STORE *) value.buf ;
 	        rs1 = store_finish(sp) ;
 	        if (rs >= 0) rs = rs1 ;
 		rs1 = uc_free(sp) ;
@@ -507,17 +449,13 @@ CITEDB		*op ;
 /* end subroutine (citedb_finish) */
 
 
-int citedb_audit(op)
-CITEDB		*op ;
+int citedb_audit(CITEDB *op)
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != CITEDB_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != CITEDB_MAGIC) return SR_NOTOPEN ;
 
 	rs = vecobj_audit(&op->list) ;
 
@@ -534,22 +472,17 @@ CITEDB		*op ;
 
 
 static int store_start(sp,kp,kl)
-struct citedb_store	*sp ;
+CITEDB_STORE	*sp ;
 const char		*kp ;
 int			kl ;
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
 
+	if (sp == NULL) return SR_FAULT ;
+	if (kp == NULL) return SR_FAULT ;
 
-	if (sp == NULL)
-	    return SR_FAULT ;
-
-	if (kp == NULL)
-	    return SR_FAULT ;
-
-	memset(sp,0,sizeof(struct citedb_store)) ;
+	memset(sp,0,sizeof(CITEDB_STORE)) ;
 
 	if ((rs = uc_mallocstrw(kp,kl,&cp)) >= 0) {
 	    sp->citekey = cp ;
@@ -562,17 +495,16 @@ int			kl ;
 
 
 static int store_update(sp,n)
-struct citedb_store	*sp ;
+CITEDB_STORE	*sp ;
 int			n ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (sp == NULL) return SR_FAULT ;
 
-	if (sp == NULL)
-	    return SR_FAULT ;
-
-	if (sp->n == 1)
+	if (sp->n == 1) {
 	    rs = mkcitestr(sp->citestr,n) ;
+	}
 
 	if (rs >= 0)
 	    sp->n += 1 ;
@@ -583,14 +515,12 @@ int			n ;
 
 
 static int store_finish(sp)
-struct citedb_store	*sp ;
+CITEDB_STORE	*sp ;
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
-
-	if (sp == NULL)
-	    return SR_FAULT ;
+	if (sp == NULL) return SR_FAULT ;
 
 	if (sp->citekey != NULL) {
 	    rs1 = uc_free(sp->citekey) ;
@@ -603,12 +533,9 @@ struct citedb_store	*sp ;
 /* end subroutine (store_finish) */
 
 
-static int entry_load(ep,sp,offp)
-CITEDB_ENT		*ep ;
-struct citedb_store	*sp ;
-struct citedb_offset	*offp ;
+static int entry_load(CITEDB_ENT *ep,CITEDB_STORE *sp,CITEDB_OFF *offp)
 {
-	int	rs ;
+	int		rs ;
 
 	ep->coff = 0 ;
 	ep->fi = 0 ;
@@ -635,7 +562,6 @@ char	buf[] ;
 int	index ;
 {
 
-
 	buf[0] = '\0' ;
 	if (index > (2 * 26))
 	    return SR_OVERFLOW ;
@@ -647,6 +573,5 @@ int	index ;
 	return SR_OK ;
 }
 /* end subroutine (mkcitestr) */
-
 
 

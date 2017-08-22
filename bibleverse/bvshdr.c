@@ -8,12 +8,15 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 2007-03-01, David A­D­ Morano
 	This subroutine was originally written.
+
+	= 2017-08-17, David A­D­ Morano
+	I enhanced to use |isValidMagic()|.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2007,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -48,13 +51,11 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<limits.h>
-#include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<endianstr.h>
+#include	<endian.h>
 #include	<localmisc.h>
 
 #include	"bvshdr.h"
@@ -65,13 +66,8 @@
 
 /* external subroutines */
 
-extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	mkmagic(char *,int,cchar *) ;
-extern int	cfhexi(const char *,int,uint *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 
 
 /* external variables */
@@ -102,82 +98,44 @@ enum his {
 /* exported subroutines */
 
 
-int bvshdr(ep,f,hbuf,hlen)
-BVSHDR		*ep ;
-int		f ;
-char		hbuf[] ;
-int		hlen ;
+int bvshdr(BVSHDR *ep,int f,char *hbuf,int hlen)
 {
-	uint	*header ;
-
+	uint		*header ;
+	const int	headsize = hi_overlast * sizeof(uint) ;
 	const int	magicsize = BVSHDR_MAGICSIZE ;
-
-	int	rs = SR_OK ;
-	int	headsize ;
-	int	bl, cl ;
-
+	int		rs = SR_OK ;
+	int		bl = hlen ;
 	const char	*magicstr = BVSHDR_MAGICSTR ;
-	const char	*tp, *cp ;
+	char		*bp = hbuf ;
 
-	char	*bp ;
+	if (ep == NULL) return SR_FAULT ;
+	if (hbuf == NULL) return SR_FAULT ;
 
-
-	if (ep == NULL)
-	    return SR_FAULT ;
-
-	if (hbuf == NULL)
-	    return SR_FAULT ;
-
-	bp = hbuf ;
-	bl = hlen ;
-	headsize = hi_overlast * sizeof(uint) ;
 	if (f) { /* read */
-
-/* the magic string is within the first 15 bytes */
-
-	    if ((rs >= 0) && (bl > 0)) {
-
-	        if (bl >= magicsize) {
-
-	            cp = bp ;
-	            cl = magicsize ;
-	            if ((tp = strnchr(cp,cl,'\n')) != NULL)
-	                cl = (tp - cp) ;
-
-	            bp += magicsize ;
-	            bl -= magicsize ;
-
-/* verify the magic string */
-
-	            if (strncmp(cp,magicstr,cl) != 0)
-	                rs = SR_NXIO ;
-
-	        } else
-	            rs = SR_ILSEQ ;
-
-	    } /* end if (item) */
+	    if ((bl > magicsize) && isValidMagic(bp,magicsize,magicstr)) {
+	        bp += magicsize ;
+	        bl -= magicsize ;
 
 /* read out the VETU information */
-
-	    if ((rs >= 0) && (bl > 0)) {
 
 	        if (bl >= 4) {
 
 	            memcpy(ep->vetu,bp,4) ;
 
-	            if (ep->vetu[0] != BVSHDR_VERSION)
+	            if (ep->vetu[0] != BVSHDR_VERSION) {
 	                rs = SR_PROTONOSUPPORT ;
+		    }
 
-	            if ((rs >= 0) && (ep->vetu[1] != ENDIAN))
+	            if ((rs >= 0) && (ep->vetu[1] != ENDIAN)) {
 	                rs = SR_PROTOTYPE ;
+		    }
 
 	            bp += 4 ;
 	            bl -= 4 ;
 
-	        } else
+	        } else {
 	            rs = SR_ILSEQ ;
-
-	    } /* end if (item) */
+		}
 
 	    if ((rs >= 0) && (bl > 0)) {
 
@@ -198,53 +156,49 @@ int		hlen ;
 	            bp += headsize ;
 	            bl -= headsize ;
 
-	        } else
+	        } else {
 	            rs = SR_ILSEQ ;
+		}
 
 	    } /* end if (item) */
 
+	    } /* end if (isValidMagic) */
 	} else { /* write */
 
-	    if ((rs >= 0) && (bl >= (magicsize + 4))) {
+	    if (bl >= (magicsize + 4)) {
+	        if ((rs = mkmagic(bp,magicsize,magicstr)) >= 0) {
+	            bp += magicsize ;
+	            bl -= magicsize ;
+	    	    memcpy(bp,ep->vetu,4) ;
+	    	    bp[0] = BVSHDR_VERSION ;
+	    	    bp[1] = ENDIAN ;
+	    	    bp += 4 ;
+	    	    bl -= 4 ;
+	    	    if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	header[hi_fsize] = ep->fsize ;
+	        	header[hi_wtime] = ep->wtime ;
+	        	header[hi_nverses] = ep->nverses ;
+	        	header[hi_nzverses] = ep->nzverses ;
+	        	header[hi_nzbooks] = ep->nzbooks ;
+	        	header[hi_btoff] = ep->btoff ;
+	        	header[hi_btlen] = ep->btlen ;
+	        	header[hi_ctoff] = ep->ctoff ;
+	        	header[hi_ctlen] = ep->ctlen ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+	            } else {
+	                rs = SR_OVERFLOW ;
+	            }
+	        } /* end if (mkmagic) */
+	    } else {
+	        rs = SR_OVERFLOW ;
+	    }
 
-	    mkmagic(bp, magicsize, magicstr) ;
-	    bp += magicsize ;
-	    bl -= magicsize ;
-
-	    memcpy(bp,ep->vetu,4) ;
-	    bp[0] = BVSHDR_VERSION ;
-	    bp[1] = ENDIAN ;
-	    bp += 4 ;
-	    bl -= 4 ;
-
-	    } else
-		rs = SR_OVERFLOW ;
-
-	    if ((rs >= 0) && (bl >= headsize)) {
-
-	        header = (uint *) bp ;
-
-	        header[hi_fsize] = ep->fsize ;
-	        header[hi_wtime] = ep->wtime ;
-	        header[hi_nverses] = ep->nverses ;
-	        header[hi_nzverses] = ep->nzverses ;
-	        header[hi_nzbooks] = ep->nzbooks ;
-	        header[hi_btoff] = ep->btoff ;
-	        header[hi_btlen] = ep->btlen ;
-	        header[hi_ctoff] = ep->ctoff ;
-	        header[hi_ctlen] = ep->ctlen ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-	    } else
-		rs = SR_OVERFLOW ;
-
-	} /* end if */
+	} /* end if (read-write) */
 
 	return (rs >= 0) ? (bp - hbuf) : rs ;
 }
 /* end subroutine (bvshdr) */
-
 
 

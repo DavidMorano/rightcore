@@ -135,7 +135,7 @@ int chartrans_open(CHARTRANS *op ,cchar *pr,int maxtx)
 	    void	*p ;
 	    op->pr = cp ;
 	    if ((rs = uc_malloc(asize,&p)) >= 0) {
-	        op->sets = p ;
+	        op->sets = (CHARTRANS_SET *) p ;
 	        op->nmax = maxtx ;
 	        op->magic = CHARTRANS_MAGIC ;
 	        memset(p,0,asize) ;
@@ -159,7 +159,7 @@ int chartrans_close(CHARTRANS *op)
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->utf8decoder != NULL) {
-	    UTF8DECODER	*uop = op->utf8decoder ;
+	    UTF8DECODER	*uop = (UTF8DECODER *) op->utf8decoder ;
 	    rs1 = utf8decoder_finish(uop) ;
 	    if (rs >= 0) rs = rs1 ;
 	    rs1 = uc_free(op->utf8decoder) ;

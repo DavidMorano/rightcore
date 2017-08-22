@@ -6,10 +6,8 @@
 /* revision history:
 
 	= 2002-02-16, David A­D­ Morano
-
-	This was originally written for performing some statistical
-	calculations for simulation related work.
-
+        This was originally written for performing some statistical calculations
+        for simulation related work.
 
 */
 
@@ -17,10 +15,10 @@
 
 /*******************************************************************************
 
-	Floating Point Mean/Variance Calculator (for Arrays of LONGs)
+	Floating Point Mean-Variance Calculator (for Arrays of LONGs)
 
-	This subroutine will calculate the mean and variance for an array
-	of 64-bit integer values.  The results are floating point values.
+        This subroutine will calculate the mean and variance for an array of
+        64-bit integer values. The results are floating point values.
 
 	Synopsis:
 
@@ -53,68 +51,55 @@
 #include	<localmisc.h>
 
 
+/* local defines */
+
+
 /* exported subroutines */
 
 
-int densitystatll(a,n,mp,vp)
-ULONG		a[] ;
-int		n ;
-double		*mp, *vp ;
+int densitystatll(ULONG a[],int n,double *mp,double *vp)
 {
-	double		s1, s2 ;
-	double		m1, m2 ;
-	double		x, p, fnp ;
-	ULONG		np ;
-	int		i ;
 
-	if (a == NULL)
-	    return SR_FAULT ;
+	if (a == NULL) return SR_FAULT ;
 
-	if (mp != NULL)
-	    *mp = 0.0 ;
+	if (mp != NULL) *mp = 0.0 ;
 
-	if (vp != NULL)
-	    *vp = 0.0 ;
+	if (vp != NULL) *vp = 0.0 ;
 
-	if (n == 0)
-	    return SR_OK ;
+	if (n > 0) {
+	    double	s1 = 0.0 ;
+	    double	s2 = 0.0 ;
+	    double	m1, m2 ;
+	    double	x, p, fnp ;
+	    ULONG	np = 0 ;
+	    int		i ;
 
-	s1 = 0.0 ;
-	s2 = 0.0 ;
-	np = 0 ;
-	for (i = 0 ; i < n ; i += 1) {
+	    for (i = 0 ; i < n ; i += 1) {
+	        x = (double) i ;
+	        p = (double) a[i] ;
+	        np += a[i] ;
+	        s1 += (p * x) ;
+	        s2 += (p * x * x) ;
+	    } /* end for */
 
-	    x = (double) i ;
-	    p = (double) a[i] ;
-	    np += a[i] ;
-	    s1 += (p * x) ;
-	    s2 += (p * x * x) ;
+	    if (np > 0) {
+	        fnp = (double) np ;
+	        m1 = s1 / fnp ;
+	        if (mp != NULL) *mp = m1 ;
+	        if (vp != NULL) {
+	            m2 = s2 / fnp ;
+	            *vp = m2 - (m1 * m1) ;
+	        }
+	    } /* end if */
 
-	} /* end for */
-
-	if (np > 0) {
-
-	    fnp = (double) np ;
-	    m1 = s1 / fnp ;
-	    if (mp != NULL)
-	        *mp = m1 ;
-
-	    if (vp != NULL) {
-	        m2 = s2 / fnp ;
-	        *vp = m2 - (m1 * m1) ;
-	    }
-
-	} /* end if */
+	} /* end if (positive) */
 
 	return SR_OK ;
 }
 /* end subroutine (densitystatll) */
 
 
-int densitystat(a,n,mp,vp)
-ULONG		a[] ;
-int		n ;
-double		*mp, *vp ;
+int densitystat(ULONG a[],int n,double *mp,double *vp)
 {
 
 	return densitystatll(a,n,mp,vp) ;

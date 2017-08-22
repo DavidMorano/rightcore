@@ -19,8 +19,7 @@
 
 /*******************************************************************************
 
-	This little object just keeps track of a list of newsgroup
-	names.
+	This little object just keeps track of a list of newsgroup names.
 
 
 *******************************************************************************/
@@ -97,34 +96,33 @@ int ng_finish(NG *ngp)
 #endif
 
 #if	CF_DEBUGS
-	debugprintf("mg_finish: non-NULL object\n") ;
+	debugprintf("mg_finish: ent\n") ;
 #endif
 
 	for (i = 0 ; vecitem_get(ngp,i,&ep) >= 0 ; i += 1) {
-	    if (ep == NULL) continue ;
+	    if (ep != NULL) {
 
-#if	CF_DEBUGS
-	    debugprintf("mg_finish: got a live one\n") ;
-#endif
+	        if (ep->name != NULL) {
+	            rs1 = uc_free(ep->name) ;
+		    if (rs >= 0) rs = rs1 ;
+		    ep->name = NULL ;
+	        }
 
-	    if (ep->name != NULL) {
-	        rs1 = uc_free(ep->name) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (ep->dir != NULL) {
+	            rs1 = uc_free(ep->dir) ;
+		    if (rs >= 0) rs = rs1 ;
+		    ep->dir = NULL ;
+	        }
+
 	    }
-
-	    if (ep->dir != NULL) {
-	        rs1 = uc_free(ep->dir) ;
-		if (rs >= 0) rs = rs1 ;
-	    }
-
 	} /* end for */
-
-#if	CF_DEBUGS
-	debugprintf("mg_finish: about to final free\n") ;
-#endif
 
 	rs1 = vecitem_finish(ngp) ;
 	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("mg_finish: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -149,15 +147,9 @@ int ng_search(NG *ngp,cchar *name,NG_ENT **rpp)
 	    rpp = &ep ;
 
 	for (i = 0 ; (rs = vecitem_get(ngp,i,rpp)) >= 0 ; i += 1) {
-	    if ((*rpp) == NULL) continue ;
-
-#if	CF_DEBUGS
-	    debugprintf("ng_search: loop %i\n",i) ;
-#endif
-
-	    if (strcasecmp(name,(*rpp)->name) == 0)
-	        break ;
-
+	    if ((*rpp) != NULL) {
+	        if (strcasecmp(name,(*rpp)->name) == 0) break ;
+	    }
 	} /* end for */
 
 	return (rs >= 0) ? i : rs ;
@@ -181,7 +173,7 @@ int ng_add(NG *ngp,cchar *ngbuf,int nglen,cchar *ngdname)
 	    ne.len = (rs-1) ;
 	    ne.name = cp ;
 	    if (ngdname != NULL) {
-		const char	*dp ;
+		cchar	*dp ;
 		if ((rs = uc_mallocstrw(ngdname,-1,&dp)) >= 0) {
 		    ne.dir = dp ;
 		}
@@ -193,7 +185,7 @@ int ng_add(NG *ngp,cchar *ngbuf,int nglen,cchar *ngdname)
 		if (ne.dir != NULL) uc_free(ne.dir) ;
 		uc_free(cp) ;
 	    }
-	} /* end if */
+	} /* end if (m-a) */
 
 	return rs ;
 }
@@ -260,6 +252,7 @@ int ng_addparse(NG *ngp,cchar *sp,int sl)
 	EMA		aid ;
 	EMA_ENT		*ep ;
 	int		rs ;
+	int		rs1 ;
 	int		n = 0 ;
 
 #if	CF_SAFE
@@ -282,10 +275,9 @@ int ng_addparse(NG *ngp,cchar *sp,int sl)
 #endif
 
 	        for (i = 0 ; ema_get(&aid,i,&ep) >= 0 ; i += 1) {
-	            int		sl = 0 ;
-	            const char	*sp = NULL ;
-	            if (ep == NULL) continue ;
-	            if (ep->f.error) continue ;
+	            if ((ep != NULL) && (! ep->f.error)) {
+	                int	sl = 0 ;
+	                cchar	*sp = NULL ;
 
 	            if ((ep->rp != NULL) && (ep->rl > 0)) {
 	                sp = ep->rp ;
@@ -296,19 +288,21 @@ int ng_addparse(NG *ngp,cchar *sp,int sl)
 	            }
 
 		    if (sp != NULL) {
-			int		cl ;
-			const char	*cp ;
+			int	cl ;
+			cchar	*cp ;
 	                if ((cl = sfshrink(sp,sl,&cp)) > 0) {
 	                    rs = ng_add(ngp,cp,cl,NULL) ;
 			    if (rs < INT_MAX) n += 1 ;
 			}
 	            } /* end if (had something) */
 
+		    }
 	            if (rs < 0) break ;
 	        } /* end for */
 
 	    } /* end if (parse) */
-	    ema_finish(&aid) ;
+	    rs1 = ema_finish(&aid) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ema) */
 
 #if	CF_DEBUGS

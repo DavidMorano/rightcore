@@ -57,7 +57,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<bfile.h>
 #include	<bits.h>
 #include	<char.h>
 #include	<ascii.h>
@@ -310,7 +309,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    goto badprogstart ;
 	}
 
-	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
 	rs = proginfo_setbanner(pip,cp) ;
 
 /* other initialization */
@@ -656,7 +655,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	} /* end while (all command line argument processing) */
 
-	if (efname == NULL) efname = getenv(VAREFNAME) ;
+	if (efname == NULL) efname = getourenv(envv,VAREFNAME) ;
 	if (efname == NULL) efname = STDERRFNAME ;
 	if ((rs1 = shio_open(&errfile,efname,"wca",0666)) >= 0) {
 	    pip->efp = &errfile ;

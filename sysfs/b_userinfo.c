@@ -1495,7 +1495,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
-	int		v ;
 	int		c = 0 ;
 	cchar		*cp ;
  

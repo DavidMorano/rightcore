@@ -8,13 +8,13 @@
 
 /* revision history:
 
-	= 1997-11-18, David A­D­ Morano
+	= 1998-11-18, David A­D­ Morano
 	This little subroutine was put together to get the system physical
 	memory utilization in terms of a percentage of the total.
 
 */
 
-/* Copyright © 1997 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -83,8 +83,9 @@ int sysmemutil(SYSMEMUTIL *mup)
 			    mup->ma = ma ;
 			    mup->mu = percent ;
 			}
-		    } else
+		    } else {
 			f = TRUE ;
+		    }
 		} /* end if (sysconf) */
 	    } /* end if (sysconf) */
 

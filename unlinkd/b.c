@@ -767,7 +767,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
 	                            if (avl) {
-	                                if (isdigit(*avp)) {
+					const int	ch = MKCHAR(acp[0]) ;
+	                		if (isdigitlatin(ch)) {
 	                                    pip->final.intrun = TRUE ;
 	                                    rs = cfdecti(avp,avl,&v) ;
 	                                    pip->intrun = v ;

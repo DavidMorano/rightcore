@@ -1,0 +1,126 @@
+.\"_
+.TH REM 1 "1981-02-23" PCS
+.ad b
+.PM BP
+.SH NAME
+rem \- request a reminder notification
+.SH SYNOPSIS
+.B rem
+hour:minute 'message'
+.br
+.B rem
+-
+.br
+.B rem
+\(+-mail
+.br
+.B rem
++today
+
+.br
+.B remday
+day hour:minute 'message'
+.SH DESCRIPTION
+.I Rem
+logs requests for reminder notifications.
+Reminder items consist of a time and a message.
+The time is of the form 
+"hours:minutes" (e.g. 9:15) or "hours" (e.g. 20).
+The hour may be specified on a 24 hour clock.
+Alternatively, hours specified on a 12 hour clock are assumed to 
+be between 8 AM and 7 PM.
+This is done by converting times between 1:00 and 7:59 to the corresponding
+24 hour time (i.e. 1:00 to 7:59 in the afternoon).
+.P
+Every five minutes, the reminder demon checks whether any reminder messages 
+should be announced.  If so, it writes the message and the current time to
+the user's terminal.
+A message is announced when it is near to its specified time.
+The definition of "near" is given in the environment variable,
+\f3REM_TIMES\f1, set by the PCS profiler.  The default value of this
+is 30, 10, and 5 minutes.  Thus the reminder is announced 30 minutes
+before, 10 minutes before, 5 minutes before, and at the specified time
+of the message.
+The values of these warning variables may range between 0 and 90 minutes;
+if 0 no announcement is given.
+.P  
+If 
+.I rem 
+is invoked with the "-" argument, reminder records will be read from
+the standard input.  Each record consists of one line containing
+"hour:minutes\ message".
+.P
+The +mail and -mail options respectively add and delete a user 
+from the mail notification list.
+If a user is in the mail notification list, that user's mailbox will be checked
+every five minutes by the reminder service demon to determine
+if mail has arrived within that period.
+If so, the message "new mail arrived" will be issued
+to all terminals on which the user is currently active (logged in).
+Once added to the notification list, a user remains on it until a
+"rem\ -mail" command is explicitly entered.
+.P
+The +today option displays all of a user's reminders
+for the current day. These will include items passed
+to the reminder service by "cal2rem" during the
+standard PCS startup.
+.P
+Reminders are for the current day, since all reminder items enqueued are removed at midnight.
+The cal2rem program, invoked automatically by the 
+default PCS startup, places calendar items for today into the reminder
+queue.
+.I Rem 
+places each reminder in a unique file in the reminder directory.
+These items are merged into the reminder file by the reminder monitor after
+its next five minute pass through the file.
+Reminder items, once entered, may not be removed.
+The REM_TIMES variable is used when rem enqueues the reminder, not dynamically
+during the day.
+.I Remday
+accepts requests for reminder notifications.
+If the day specified is the current day of the week,
+the reminder is passed to 
+.I rem
+in the usual fashion; otherwise
+.I remday
+has no effect.
+.I Remday
+is designed to be placed in a user's .profile file to automatically
+request reminders for specific days of the week.
+For example:
+
+remday fri 8:45 fill out time card
+
+The day may be specified in as few letters as necessary to distinguish
+it from another day. (i.e. fr, tue, etc.)
+
+.SH FILES
+.PD 0
+.TP 30
+${PCSDIR}/src/rem
+directory of source files
+.TP
+${PCSBIN}/rem
+executable program
+.TP
+${PCSBIN}/cal2rem
+executable program
+.TP
+${PCSBIN}/remday
+executable program
+.TP
+${PCSLIB}/remdata/remfile
+master reminder queue
+.TP
+${PCSLIB}/remdata/rem.*
+items not yet queued
+.TP
+${PCSLIB}/remdata/remtoday
+executable program
+.TP
+${PCSLIB}/remdata/mc_users
+users desiring mail notification
+.PD
+.SH "SEE ALSO"
+profiler (PCS)
+.\"_

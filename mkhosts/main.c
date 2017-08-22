@@ -10,35 +10,32 @@
 /* revision history:
 
 	= 1987-09-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1987 David A­D­ Morano.  All rights reserved. */
 
-/*******************************************************************
+/*******************************************************************************
 
-	This program will read a DNS database (in ASCII) and convert
-	it into a 'hosts' type of file.
+        This program will read a DNS database (in ASCII) and convert it into a
+        'hosts' type of file.
 
 	Synopsis:
 
 	$ mkhosts [input_file] [-DV] 
 
 
-*********************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
 
 #include	<sys/types.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
+#include	<sys/stat.h>
 #include	<fcntl.h>
 #include	<time.h>
-#include	<ctype.h>
 #include	<string.h>
 #include	<stdlib.h>
 
@@ -46,11 +43,10 @@
 #include	<baops.h>
 #include	<exitcodes.h>
 #include	<mallocstuff.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -64,12 +60,13 @@
 #define	DEFPOINT	10
 
 
-
 /* external subroutines */
 
 extern int	matstr(const char **,const char *,int) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
+
 extern int	procfile() ;
 
 extern char	*strbasename(char *) ;
@@ -176,10 +173,11 @@ char	*argv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (cfdeci(argp + 1,argl - 1,&argnum))
 	                    goto badargvalue ;

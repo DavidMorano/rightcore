@@ -79,6 +79,7 @@ extern int	sncpy1(char *,int,const char *) ;
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	strwcmp(const char *,const char *,int) ;
+extern int	isNotValid(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strdcpy1w(char *,int,const char *,int) ;
@@ -95,7 +96,7 @@ enum cts {
 } ;
 
 struct grmems_r {
-	PQ_ENT	linkage ;
+	PQ_ENT		linkage ;
 	const char	**mems ;
 	time_t		ti_create ;
 	time_t		ti_access ;
@@ -373,14 +374,16 @@ int grmems_lookread(GRMEMS *op,GRMEMS_CUR *curp,char *rbuf,int rlen)
 	                if ((rs = sncpy1(rbuf,rlen,ep->mems[i])) >= 0) {
 	                    curp->i = i ;
 	                }
-	            } else
+	            } else {
 	                rs = SR_NOTFOUND ;
+		    }
 	        } /* end if */
 
-	    } else
+	    } else {
 	        rs = SR_NOTFOUND ;
+	    }
 
-	} /* end if */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	if (rs >= 0) debugprintf("grmems_lookread: ubuf=%s\n",ubuf) ;
@@ -1299,11 +1302,7 @@ static int record_getgnp(GRMEMS_REC *ep,const char **rpp)
 /* end subroutine (record_getgnp) */
 
 
-static int usergid_load(ugp,unp,unl,gid)
-GRMEMS_USERGID	*ugp ;
-const char	*unp ;
-int		unl ;
-gid_t		gid ;
+static int usergid_load(GRMEMS_USERGID *ugp,cchar *unp,int unl,gid_t gid)
 {
 	int		ul = strnwcpy(ugp->un,USERNAMELEN,unp,unl) - ugp->un ;
 	ugp->gid = gid ;
@@ -1330,10 +1329,12 @@ static int pwentparse(cchar *lbuf,int llen,gid_t *gp)
 	        case 3:
 	            {
 	                int	v ;
-	                if (cfdeci(lp,(tp-lp),&v) >= 0) {
+	                if ((rs = cfdeci(lp,(tp-lp),&v)) >= 0) {
 	                    *gp = (gid_t) v ;
-	                } else
+	                } else if (isNotValid(rs)) {
+			    rs = SR_OK ;
 	                    ul = 0 ;
+			}
 	            } /* end block */
 	            break ;
 	        } /* end switch */

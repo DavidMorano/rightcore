@@ -71,21 +71,15 @@ DENSITYDBE_ALL	*ep ;
 	if (buflen < 0) 
 	    buflen = INT_MAX ;
 
-	if ((rs = serialbuf_start(&msgbuf,(char *) buf,buflen)) >= 0) {
+	if ((rs = serialbuf_start(&msgbuf,buf,buflen)) >= 0) {
 
-	if (f_read) {
-
-	    serialbuf_ruint(&msgbuf,&ep->count) ;
-
-	    serialbuf_ruint(&msgbuf,&ep->utime) ;
-
-	} else {
-
-	    serialbuf_wuint(&msgbuf,ep->count) ;
-
-	    serialbuf_wuint(&msgbuf,ep->utime) ;
-
-	}
+	    if (f_read) {
+	        serialbuf_ruint(&msgbuf,&ep->count) ;
+	        serialbuf_ruint(&msgbuf,&ep->utime) ;
+	    } else {
+	        serialbuf_wuint(&msgbuf,ep->count) ;
+	        serialbuf_wuint(&msgbuf,ep->utime) ;
+	    }
 
 	    rs1 = serialbuf_finish(&msgbuf) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -93,6 +87,44 @@ DENSITYDBE_ALL	*ep ;
 
 	return rs ;
 }
-/* end subroutine (entry_all) */
+/* end subroutine (densitydbe_all) */
+
+
+int densitydbe_upd(buf,buflen,f_read,ep)
+char		buf[] ;
+int		buflen ;
+int		f_read ;
+DENSITYDBE_UPD	*ep ;
+{
+	SERIALBUF	msgbuf ;
+	int		rs ;
+	int		rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("densitydbe_upd: buf=%p buflen=%d\n",buf,buflen) ;
+#endif
+
+	if (ep == NULL) return SR_FAULT ;
+
+	if (buflen < 0) 
+	    buflen = INT_MAX ;
+
+	if ((rs = serialbuf_start(&msgbuf,buf,buflen)) >= 0) {
+
+	    if (f_read) {
+	        serialbuf_ruint(&msgbuf,&ep->count) ;
+	        serialbuf_ruint(&msgbuf,&ep->utime) ;
+	    } else {
+	        serialbuf_wuint(&msgbuf,ep->count) ;
+	        serialbuf_wuint(&msgbuf,ep->utime) ;
+	    }
+
+	    rs1 = serialbuf_finish(&msgbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (serialbuf) */
+
+	return rs ;
+}
+/* end subroutine (densitydbe_upd) */
 
 

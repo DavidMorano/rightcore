@@ -13,17 +13,13 @@
 /* revision history:
 
 	- 1991-11-01, David A­D­ Morano
-
 	This was a total rewrite from scratch of the old SATSIM filter
 	program.  This should be quite a bit faster for such a simple function
 	(although Rick Meis was a cleavor guy when we wrote his version).
 
-
 	- 1995-10-01, David A­D­ Morano
-
 	This was adapted for use as a general macro variable expansion filter.
 	No real program changes have been made (including the comments below).
-
 
 */
 
@@ -89,6 +85,8 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	varsub_loadfile(VARSUB *,const char *) ;
+extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -265,9 +263,6 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	char	fzfname[MAXPATHLEN + 1] ;
-	char	fbuf[FBUFLEN + 1] ;
-	char	keychar[4] ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
@@ -278,15 +273,15 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*keychars = NULL ;
 	const char	*ffname = NULL ;
 	const char	*cp ;
+	char	fzfname[MAXPATHLEN + 1] ;
+	char	fbuf[FBUFLEN + 1] ;
+	char	keychar[4] ;
 
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFNAME)) == NULL) {
-	    if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	        cp = getenv(VARDEBUGFD2) ;
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-	if (cp != NULL)
-	    debugopen(cp) ;
-	debugprintf("main: starting\n") ;
 #endif /* CF_DEBUGS */
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -344,12 +339,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = (argp + 1) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;
@@ -371,8 +367,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	                avl = 0 ;
 	                akl = aol ;
 	            }
-
-/* do we have a keyword match or should we assume only key letters? */
 
 	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
 
@@ -619,8 +613,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = vecstr_addpair(&substrs,argp,argl) ;
+	                            if (argl) {
+					VECSTR	*ssp = &substrs ;
+	                                rs = vecstr_addpair(ssp,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -676,6 +672,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -909,8 +907,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	opts = 0 ;
 	if (sopts.blanks) {
 	    opts &= (~ VARSUB_MNOBLANK) ;
-	} else
+	} else {
 	    opts |= VARSUB_MNOBLANK ;
+	}
 
 	if (sopts.badnokey)
 	    opts |= VARSUB_MBADNOKEY ;
@@ -974,8 +973,9 @@ int main(int argc,cchar **argv,cchar **envv)
 /* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    ex = mapex(mapexs,rs) ;
-	} else
+	} else {
 	    ex = ((! sopts.blanks) && sopts.badnokey) ? EX_BADNOKEY : EX_OK ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1047,24 +1047,23 @@ badarg:
 /* local subroutines */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
 	fmt = "%s: USAGE> %s [-db <map>] [<file(s)>] [-of <ofile>]\n" ;
-	rs = bprintf(pip->efp,fmt,pn,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-s <var>=<value>] [-k <keychar>] [-z]\n" ;
-	rs = bprintf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
-	rs = bprintf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1073,16 +1072,15 @@ PROGINFO	*pip ;
 
 
 /* process the program ako-options */
-static int procopts(pip,kop)
-PROGINFO	*pip ;
-KEYOPT		*kop ;
+static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
 	const char	*cp ;
 
-	if ((cp = getenv(VAROPTS)) != NULL)
+	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
@@ -1093,13 +1091,12 @@ KEYOPT		*kop ;
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
-	            vl = keyopt_fetch(kop,kp,NULL,&vp) ;
-
 	            if ((oi = matostr(akonames,2,kp,kl)) >= 0) {
+
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                c += 1 ;
 	                switch (oi) {
-
 	                case akoname_badnokey:
 	                    if (! pip->final.badnokey) {
 	                        pip->have.badnokey = TRUE ;
@@ -1111,7 +1108,6 @@ KEYOPT		*kop ;
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_blanks:
 	                    if (! pip->final.blanks) {
 	                        pip->have.blanks = TRUE ;
@@ -1123,7 +1119,6 @@ KEYOPT		*kop ;
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	            } /* end if (valid option) */

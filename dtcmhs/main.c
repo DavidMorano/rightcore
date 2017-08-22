@@ -388,15 +388,16 @@ char	*envv[] ;
 
 	                        f_optequal = FALSE ;
 	                        if (avl) {
+				    const int	ch = MKCHAR(avp[0]) ;
 
-	                            if (isdigit(avp[0]))
+	                            if (isdigitlatin(ch)) {
 	                                rs = cfdecti(avp,avl,&pip->maxidle) ;
 
-	                            else if ((tolower(avp[0]) == 'i') ||
-	                                (avp[0] == '-'))
+	                            } else if ((tolower(avp[0]) == 'i') ||
+	                                (avp[0] == '-')) {
 	                                pip->maxidle = INT_MAX ;
 
-	                            else
+	                            } else
 	                                rs = SR_INVALID ;
 
 	                        }
@@ -413,15 +414,16 @@ char	*envv[] ;
 	                        argl = strlen(argp) ;
 
 	                        if (argl) {
+				    const int	ch = MKCHAR(argp[0]) ;
 
-	                            if (isdigit(argp[0]))
+	                            if (isdigitlatin(ch)) {
 	                                rs = cfdecti(argp,argl,&pip->maxidle) ;
 
-	                            else if ((tolower(argp[0]) == 'i') ||
-	                                (argp[0] == '-'))
+	                            } else if ((tolower(argp[0]) == 'i') ||
+	                                (argp[0] == '-')) {
 	                                pip->maxidle = INT_MAX ;
 
-	                            else
+	                            } else
 	                                rs = SR_INVALID ;
 
 	                        }
@@ -523,15 +525,16 @@ char	*envv[] ;
 	                        argl = strlen(argp) ;
 
 	                        if (argl) {
+				    const int	ch = MKCHAR(argp[0]) ;
 
-	                            if (isdigit(argp[0]))
+	                            if (isdigitlatin(ch)) {
 	                                rs = cfdecti(argp,argl,&pip->maxidle) ;
 
-	                            else if ((tolower(argp[0]) == 'i') ||
-	                                (argp[0] == '-'))
+	                            } else if ((tolower(argp[0]) == 'i') ||
+	                                (argp[0] == '-')) {
 	                                pip->maxidle = INT_MAX ;
 
-	                            else
+	                            } else
 	                                rs = SR_INVALID ;
 
 	                        }

@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -56,7 +54,7 @@
 #include	<ctype.h>
 
 #include	<vsystem.h>
-#include	<endianstr.h>
+#include	<endian.h>
 #include	<localmisc.h>
 
 #include	"cyihdr.h"

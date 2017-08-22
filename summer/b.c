@@ -57,6 +57,8 @@
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
+#include	"shio.h"
+#include	"kshlib.h"
 #include	"b_summer.h"
 #include	"defs.h"
 
@@ -300,7 +302,7 @@ int b_asum(int argc,cchar *argv[],void *contextp)
 
 int b_amean(int argc,cchar *argv[],void *contextp)
 {
-	return b_amean(argc,argv,contextp) ;
+	return b_summer(argc,argv,contextp) ;
 }
 /* end subroutine (b_amean) */
 
@@ -314,9 +316,9 @@ int b_hmean(int argc,cchar *argv[],void *contextp)
 
 int b_speedup(int argc,cchar *argv[],void *contextp)
 {
-	return b_speedup(argc,argv,contextp) ;
+	return b_summer(argc,argv,contextp) ;
 }
-/* end subroutine (b_aspeedup) */
+/* end subroutine (b_speedup) */
 
 
 int p_summer(int argc,cchar *argv[],cchar *envv[],void *contextp)
@@ -404,7 +406,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	    goto badprogstart ;
 	}
 
-	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
 	proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
@@ -426,7 +428,6 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	rs = keyopt_start(&akopts) ;
 	pip->open.akopts = (rs >= 0) ;
 
-	ai = 0 ;
 	ai_max = 0 ;
 	ai_pos = 0 ;
 	argr = argc ;
@@ -743,7 +744,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 	} /* end while (all command line argument processing) */
 
-	if (efname == NULL) efname = getenv(VAREFNAME) ;
+	if (efname == NULL) efname = getourenv(envv,VAREFNAME) ;
 	if (efname == NULL) efname = STDERRFNAME ;
 	if ((rs1 = shio_open(&errfile,efname,"wca",0666)) >= 0) {
 	    pip->efp = &errfile ;
@@ -800,11 +801,12 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    if (pip->progmode >= 0)
+	    if (pip->progmode >= 0) {
 	        debugprintf("main: progmode=%s(%u)\n",
 	            progmodes[pip->progmode],pip->progmode) ;
-	        else
+	    } else {
 	        debugprintf("main: progmode=NONE\n") ;
+	    }
 	}
 #endif /* CF_DEBUG */
 
@@ -842,14 +844,21 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 /* check a few more things */
 
-	if (afname == NULL) afname = getenv(VARAFNAME) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
-	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
 /* get some progopts */
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 /* if we don't have a request for something yet, use our progmode */
 
@@ -910,7 +919,9 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	    rs = process(pip,&ainfo,&pargs,ofname,afname,ifname) ;
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
+	    rs = process(pip,aip,bop,ofname,afname,ifname) ;
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -920,12 +931,6 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	}
 
 /* done */
-
-#ifdef	COMMENT
-	if (pip->debuglevel > 0)
-	    shio_printf(pip->efp,"%s: files=%u processed=%u\n",
-	        pip->progname,pip->c_files,pip->c_processed) ;
-#endif
 
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
@@ -949,7 +954,6 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	} /* end if */
 
 /* we are out of here */
-badoutopen:
 retearly:
 	if (pip->debuglevel > 0) {
 	    shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
@@ -1053,40 +1057,40 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	            if (rs1 == SR_NOTFOUND) break ;
 		    rs = rs1 ;
 		    if (rs >= 0) {
-	            switch (ki) {
-	            case progopt_type:
-	                if (cl > 0) {
-	                    wi = matostr(whiches,2,cp,cl) ;
-	                    switch (wi) {
-	                    case which_sum:
-	                        lip->f.sum = TRUE ;
-	                        break ;
-	                    case which_amean:
-	                        lip->f.amean = TRUE ;
-	                        break ;
-	                    case which_hmean:
-	                        lip->f.hmean = TRUE ;
-	                        break ;
-	                    case which_speedup:
-	                        lip->f.speedup = TRUE ;
-	                        break ;
-	                    } /* end switch */
-	                } /* end if (non-zero value) */
-	                break ;
-	            case progopt_sum:
-	            case progopt_asum:
-	                lip->f.sum = TRUE ;
-	                break ;
-	            case progopt_amean:
-	                lip->f.amean = TRUE ;
-	                break ;
-	            case progopt_hmean:
-	                lip->f.hmean = TRUE ;
-	                break ;
-	            case progopt_speedup:
-	                lip->f.speedup = TRUE ;
-	                break ;
-	            } /* end switch */
+	                switch (ki) {
+	                case progopt_type:
+	                    if (cl > 0) {
+	                        wi = matostr(whiches,2,cp,cl) ;
+	                        switch (wi) {
+	                        case which_sum:
+	                            lip->f.sum = TRUE ;
+	                            break ;
+	                        case which_amean:
+	                            lip->f.amean = TRUE ;
+	                            break ;
+	                        case which_hmean:
+	                            lip->f.hmean = TRUE ;
+	                            break ;
+	                        case which_speedup:
+	                            lip->f.speedup = TRUE ;
+	                            break ;
+	                        } /* end switch */
+	                    } /* end if (non-zero value) */
+	                    break ;
+	                case progopt_sum:
+	                case progopt_asum:
+	                    lip->f.sum = TRUE ;
+	                    break ;
+	                case progopt_amean:
+	                    lip->f.amean = TRUE ;
+	                    break ;
+	                case progopt_hmean:
+	                    lip->f.hmean = TRUE ;
+	                    break ;
+	                case progopt_speedup:
+	                    lip->f.speedup = TRUE ;
+	                    break ;
+	                } /* end switch */
 		    } /* end if (ok) */
 	        } /* end while (enumerating) */
 
@@ -1165,12 +1169,12 @@ cchar		*ifn ;
 	                    if (lbuf[len - 1] == '\n') len -= 1 ;
 	                    lbuf[len] = '\0' ;
 
-	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                    if (cp[0] != '#') {
-	                        pan += 1 ;
-	                    	rs = processor_add(&nproc,cp,cl) ;
+	                    if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                        if (cp[0] != '#') {
+	                            pan += 1 ;
+	                    	    rs = processor_add(&nproc,cp,cl) ;
+	                        }
 	                    }
-	                }
 
 			    if (rs < 0) break ;
 	                } /* end while (reading lines) */
@@ -1181,7 +1185,7 @@ cchar		*ifn ;
 	                if (! pip->f.quiet) {
 			    fmt = "%s: inaccessible argument-list (%d)\n" ;
 	                    shio_printf(pip->efp,fmt,pn,rs) ;
-	                    shio_printf(pip->efp,"%s:  afile=%s\n",pn,rs) ;
+	                    shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	                }
 	            } /* end if */
 
@@ -1204,12 +1208,12 @@ cchar		*ifn ;
 	                    if (lbuf[len - 1] == '\n') len -= 1 ;
 	                    lbuf[len] = '\0' ;
 
-	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                    if (cp[0] != '#') {
-	                        pan += 1 ;
-	                    	rs = processor_add(&nproc,cp,cl) ;
+	                    if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                        if (cp[0] != '#') {
+	                            pan += 1 ;
+	                    	    rs = processor_add(&nproc,cp,cl) ;
+	                        }
 	                    }
-	                }
 
 			    if (rs < 0) break ;
 	                } /* end while (reading lines) */
@@ -1229,60 +1233,60 @@ cchar		*ifn ;
 /* print out the results */
 
 	        if (rs >= 0) {
-	            double	fnum ;
-	            int	wi ;
+		    if (pan > 0) {
+	                double	fnum ;
+	                int	wi ;
 
-	            if (lip->f.sum) {
-	                wi = which_sum ;
-	                rs = processor_result(&nproc,wi,&fnum) ;
-	                if (rs >= 0)
-	                    shio_printf(ofp,"%14.4f\n",fnum) ;
-	            }
+	                if (lip->f.sum) {
+	                    wi = which_sum ;
+	                    rs = processor_result(&nproc,wi,&fnum) ;
+	                    if (rs >= 0)
+	                        shio_printf(ofp,"%14.4f\n",fnum) ;
+	                }
 
-	            if (lip->f.amean) {
-	                wi = which_amean ;
-	                rs = processor_result(&nproc,wi,&fnum) ;
-	                if (rs >= 0)
-	                    shio_printf(ofp,"%14.4f\n",fnum) ;
-	            }
+	                if (lip->f.amean) {
+	                    wi = which_amean ;
+	                    rs = processor_result(&nproc,wi,&fnum) ;
+	                    if (rs >= 0)
+	                        shio_printf(ofp,"%14.4f\n",fnum) ;
+	                }
 
-	            if (lip->f.hmean) {
-	                wi = which_hmean ;
-	                rs = processor_result(&nproc,wi,&fnum) ;
-	                if (rs >= 0)
-	                    shio_printf(ofp,"%14.4f\n",fnum) ;
-	            }
+	                if (lip->f.hmean) {
+	                    wi = which_hmean ;
+	                    rs = processor_result(&nproc,wi,&fnum) ;
+	                    if (rs >= 0)
+	                        shio_printf(ofp,"%14.4f\n",fnum) ;
+	                }
 
-	            if (lip->f.speedup) {
-	                int	size, i ;
-	                double	*fa ;
+	                if (lip->f.speedup) {
+	                    int		size, i ;
+	                    double	*fa ;
 
-	                size = pan * sizeof(double) ;
-	                if ((rs = uc_malloc(size,&fa)) >= 0) {
+	                    size = pan * sizeof(double) ;
+	                    if ((rs = uc_malloc(size,&fa)) >= 0) {
 
-	                    wi = which_speedup ;
-	                    rs = processor_result(&nproc,wi,fa) ;
+	                        wi = which_speedup ;
+	                        rs = processor_result(&nproc,wi,fa) ;
+				if (rs >= 0) {
+				    cchar	*s = "" ;
+				    fmt = "%s%14.4f" ;
+	                            for (i = 0 ; i < pan ; i += 1) {
+				        if (i > 0) s = " " ;
+	                                shio_printf(ofp,fmt,s,fa[i]) ;
+	                            }
+	                            shio_printf(ofp,"\n") ;
+	                        } /* end if */
 
-	                    if (rs >= 0) {
-	                        for (i = 0 ; i < pan ; i += 1) {
-	                            shio_printf(ofp,"%s%14.4f",
-	                                ((i > 0) ? " " : ""),
-	                                fa[i]) ;
-	                        }
-	                        shio_printf(ofp,"\n") ;
-	                    } /* end if */
+	                        uc_free(fa) ;
+	                    } /* end if (m-a-f) */
 
-	                    uc_free(fa) ;
-	                } /* end if (memory-allocation) */
+	                } /* end if (speedup result) */
 
-	            } /* end if (speedup result) */
-
-	        } /* end if (outputting results) */
-
-	        if ((rs >= 0) && (pan == 0)) {
-		    fmt = "%s: no numbers were specified\n" ;
-	            shio_printf(pip->efp,pn) ;
-	        }
+	            } else {
+		        fmt = "%s: no numbers were specified\n" ;
+	                shio_printf(pip->efp,fmt,pn) ;
+		    }
+	        } /* end if (ok) */
 
 	        rs1 = processor_finish(&nproc) ;
 	        if (rs >= 0) rs = rs1 ;
@@ -1314,12 +1318,12 @@ static int processor_start(PROCESSOR *op,int n)
 	size = sizeof(double) ;
 	opts = VECOBJ_OCOMPACT ;
 	rs = vecobj_start(&op->numbers,size,n,opts) ;
+	op->open = (rs >= 0) ;
 
 #if	CF_DEBUGS
 	debugprintf("main/processor_start: vecobj_start() rs=%d\n",rs) ;
 #endif
 
-	op->open = (rs >= 0) ;
 	return rs ;
 }
 /* end subroutine (processor_start) */
@@ -1347,22 +1351,21 @@ static int processor_finish(PROCESSOR *op)
 /* end subroutine (processor_finish) */
 
 
-static int processor_add(PROCESSOR *op,cchar s[],int slen)
+static int processor_add(PROCESSOR *op,cchar *sp,int sl)
 {
 	double		fnum ;
 	int		rs = SR_OK ;
-	int		sl, cl ;
-	const char	*sp ;
+	int		cl ;
 	const char	*tp, *cp ;
 
 	if (! op->open)
 	    return SR_NOTOPEN ;
 
-	sp = s ;
-	sl = (slen >= 0) ? slen : strlen(s) ;
+	if (sl < 0) sl = strlen(sp) ;
 
-	if ((tp = strnchr(sp,sl,'#')) != NULL)
+	if ((tp = strnchr(sp,sl,'#')) != NULL) {
 	    sl = (tp - sp) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("main/processor_add: line=>%t<\n",sp,sl) ;
@@ -1370,18 +1373,9 @@ static int processor_add(PROCESSOR *op,cchar s[],int slen)
 
 	while ((cl = nextfield(sp,sl,&cp)) > 0) {
 
-#if	CF_DEBUGS
-	    debugprintf("main/processor_add: str=>%t<\n",cp,cl) ;
-#endif
-
-	    rs = cfdecf(cp,cl,&fnum) ;
-
-#if	CF_DEBUGS
-	    debugprintf("main/processor_add: cfdecf() rs=%d\n",rs) ;
-#endif
-
-	    if (rs >= 0)
+	    if ((rs = cfdecf(cp,cl,&fnum)) >= 0) {
 	        rs = vecobj_add(&op->numbers,&fnum) ;
+	    }
 
 	    sl -= (cp + cl - sp) ;
 	    sp = (cp + cl) ;
@@ -1397,17 +1391,14 @@ static int processor_add(PROCESSOR *op,cchar s[],int slen)
 static int processor_result(PROCESSOR *op,int which,double *rp)
 {
 	int		rs = SR_OK ;
-	int		n ;
 
-	if (! op->open)
-	    return SR_NOTOPEN ;
+	if (rp == NULL) return SR_FAULT ;
 
-	if (rp == NULL)
-	    return SR_FAULT ;
+	if (! op->open) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
 	{
-	    int	i ;
+	    int		i ;
 	    double	*fnp ;
 	    rs = vecobj_count(&op->numbers) ;
 	    n = rs ;
@@ -1420,54 +1411,52 @@ static int processor_result(PROCESSOR *op,int which,double *rp)
 #endif /* CF_DEBUG */
 
 	if (op->fa == NULL) {
-	    double	*fnp ;
-	    int		size, i, j ;
-
-	    rs = vecobj_count(&op->numbers) ;
-	    n = rs ;
-	    size = (n + 1) * sizeof(double) ;
-	    if (rs >= 0) {
+	    if ((rs = vecobj_count(&op->numbers)) >= 0) {
+	    	const int	size = ((rs + 1) * sizeof(double)) ;
+	        int		n = rs ;
 	        void	*p ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
 	            VECOBJ	*flp = &op->numbers ;
+	    	    double	*fnp ;
+		    int		j = 0 ;
+		    int		i ;
 	            op->fa = p ;
 
-	            j = 0 ;
 	            for (i = 0 ; vecobj_get(flp,i,&fnp) >= 0 ; i += 1) {
-	                if (fnp == NULL) continue ;
-	                op->fa[j++] = *fnp ;
+	                if (fnp != NULL) {
+	                    op->fa[j++] = *fnp ;
+			}
 	            } /* end for */
 
 	            n = j ;
-	        } /* end if (populating) */
+	        } /* end if (m-a) */
 
-	    } /* end if */
-	} /* end if (creating array) */
-
-	if (rs >= 0) {
-	    switch (which) {
-	    case which_sum:
-	        *rp = fsum(op->fa,n) ;
-	        break ;
-	    case which_amean:
-	        *rp = fam(op->fa,n) ;
-	        break ;
-	    case which_hmean:
-	        *rp = fhm(op->fa,n) ;
-	        break ;
-	    case which_speedup:
-	        if (n > 0) {
-	            int	i ;
-	            rp[0] = 1.0 ;
-	            for (i = 1 ; i < n ; i += 1) {
+	        switch (which) {
+	        case which_sum:
+	            *rp = fsum(op->fa,n) ;
+	            break ;
+	        case which_amean:
+	            *rp = fam(op->fa,n) ;
+	            break ;
+	        case which_hmean:
+	            *rp = fhm(op->fa,n) ;
+	            break ;
+	        case which_speedup:
+	            if (n > 0) {
+	                int	i ;
 	                rp[0] = 1.0 ;
-	                if (op->fa[0] > 0)
-	                    rp[i] = (op->fa[i] / op->fa[0]) ;
-	            } /* end for */
-	        } /* end if */
-	        break ;
-	    } /* end switch */
-	} /* end if (ok) */
+	                for (i = 1 ; i < n ; i += 1) {
+	                    rp[0] = 1.0 ;
+	                    if (op->fa[0] > 0) {
+	                        rp[i] = (op->fa[i] / op->fa[0]) ;
+			    }
+	                } /* end for */
+	            } /* end if */
+	            break ;
+	        } /* end switch */
+
+	    } /* end if (vecobj_count) */
+	} /* end if (creating array) */
 
 	return rs ;
 }
@@ -1504,7 +1493,7 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-#if	CF_SETLOCENT
+#if	CF_LOCSETENT
 int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 {
 	int		rs = SR_OK ;
@@ -1520,23 +1509,23 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
-
-	    if (*epp != NULL) oi = vecstr_findaddr(&lip->stores,*epp) ;
-
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(&lip->stores,*epp) ;
+	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
 	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
-	    } else
+	    } else {
 	        *epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
 	        vecstr_del(&lip->stores,oi) ;
-
-	} /* end if */
+	    }
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (locinfo_setentry) */
-#endif /* CF_SETLOCENT */
+#endif /* CF_LOCSETENT */
 
 

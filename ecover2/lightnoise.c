@@ -38,16 +38,13 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<userinfo.h>
 #include	<sbuf.h>
-#include	<randomvar.h>
-#include	<exitcodes.h>
+#include	<userinfo.h>
 #include	<localmisc.h>
 
 #include	"config.h"

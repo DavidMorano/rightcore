@@ -722,10 +722,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
 	                cp = argv[ai] ;
-	                if (isdigit(cp[0])) {
-	                    datespec = cp ;
-	                    ai_continue = (ai + 1) ;
-			    bits_clear(&pargs,ai) ;
+	                if (cp[0] != '\0') {
+			    const int	ch = MKCHAR(cp[0]) ;
+	                    if (isdigitlatin(ch)) {
+	                        datespec = cp ;
+	                        ai_continue = (ai + 1) ;
+			        bits_clear(&pargs,ai) ;
+			    }
 	                }
 	                break ;
 		    }

@@ -16,17 +16,13 @@
 /* revision history:
 
 	= 2004-01-10, David A­D­ Morano
-
 	This code was written as a KSH builtin.  
 
-
 	= 2011-09-23, David A­D­ Morano
-
 	I put the "environment" hack into this code.  See the design
 	note in the comments below.
 
 	= 2011-11-08, David A­D­ Morano
-
 	I took the "environment" hack *out* of the code.  It was actually
 	not correct in a multithreaded environment.  Currently (at this
 	present time) the KSH Shell is not multithreaded, but other
@@ -43,16 +39,15 @@
 	environment already but it was not general for opening any
 	sort of "file."  The new LIBUC call ('uc_openenv(3uc)') is.
 
-
 */
 
 /* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This is a built-in command to the KSH shell.  It should also
-	be able to be made into a stand-alone program without much
-	(if almost any) difficulty, but I have not done that yet.
+        This is a built-in command to the KSH shell. It should also be able to
+        be made into a stand-alone program without much (if almost any)
+        difficulty, but I have not done that yet.
 
 	Synopsis:
 
@@ -60,25 +55,25 @@
 
 	Design problems:
 
-	I put a real hack into this code.  The RESOLVES object was supposed
-	to handle all aspects of the actual RESOLVES processing.  But a new
-	issue arose.  People want any subprograms executed as a result of
-	reading sub-RESOLVES files to know the client UID and GID (the only
-	things that we know).  We are currently doing this by placing
-	these as special environment variables into our own process
-	environment before executing 'resolves_process()'.	But switching
-	out own actual environment in a way that does not leak memory
-	(meaning do not use 'putenv(3c)') adds a little complication,
-	which can be seen below.  Somehow in the future we will try
-	to move some kind of processing into the RESOLVES object itself.
+        I put a real hack into this code. The RESOLVES object was supposed to
+        handle all aspects of the actual RESOLVES processing. But a new issue
+        arose. People want any subprograms executed as a result of reading
+        sub-RESOLVES files to know the client UID and GID (the only things that
+        we know). We are currently doing this by placing these as special
+        environment variables into our own process environment before executing
+        'resolves_process()'. But switching out own actual environment in a way
+        that does not leak memory (meaning do not use 'putenv(3c)') adds a
+        little complication, which can be seen below. Somehow in the future we
+        will try to move some kind of processing into the RESOLVES object
+        itself.
 
 	Updated note on design problems:
 
-	The hack above to pass modified environment down to the RESOLVES
-	object is no longer needed.  The RESOLVES object itself now handles
-	that.  A new RESOLVES object method has been added to pass fuller
-	specified identification down into the RESOLVES object.  This new
-	interface is 'resolves_procid()'.
+        The hack above to pass modified environment down to the RESOLVES object
+        is no longer needed. The RESOLVES object itself now handles that. A new
+        RESOLVES object method has been added to pass fuller specified
+        identification down into the RESOLVES object. This new interface is
+        'resolves_procid()'.
 
 
 *******************************************************************************/
@@ -107,7 +102,6 @@
 #include	<dlfcn.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<netdb.h>
 
@@ -239,6 +233,7 @@ extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	acceptpass(int,struct strrecvfd *,int) ;
 extern int	hasalldig(const char *,int) ;
+extern int	isdigitlatin(int) ;
 
 extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
@@ -593,13 +588,13 @@ void	*contextp ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-		int ch = (argp[1] & 0xff) ;
-	        if (isdigit(ch)) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = (argp+1) ;
 
-	        } else if (ch == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

@@ -11,9 +11,12 @@
 	= 1998-03-01, David A­D­ Morano
 	This subroutine was originally written.
 
+	= 2017-08-15, David A­D­ Morano
+	Rewrote to use the SBUF object.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -43,6 +46,7 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
 #include	<strings.h>
+#include	<sbuf.h>
 #include	<localmisc.h>
 
 
@@ -60,34 +64,35 @@
 
 /* local variables */
 
-static const char	*digtab = "0123456789ABCDEF" ;
-
 
 /* exported subroutines */
 
 
 int cthexstring(char *dbuf,int dlen,cchar *sp,int sl,int f)
 {
-	int		i ;
-	int		ch ;
-	int		j = 0 ;
-	const uchar	*vp = (const uchar *) sp ;
+	SBUF		b ;
+	int		rs ;
+	int		len = 0 ;
 
 	if (sl < 0) sl = strlen(sp) ;
 
-	for (i = 0 ; (dlen >= 3) && (i < sl) ; i += 1) {
-	    ch = vp[i] ;
-	    if (f && (i > 0)) {
-	        dbuf[j++] = ' ' ;
-		dlen -= 1 ;
-	    }
-	    dbuf[j++] = digtab[(ch>>4)&15] ;
-	    dbuf[j++] = digtab[(ch>>0)&15] ;
-	    dlen -= 2 ;
-	} /* end for */
-	dbuf[j] = '\0' ;
+	if ((rs = sbuf_start(&b,dbuf,dlen)) >= 0) {
+	    int		ch ;
+	    int		v ;
+	    int		i ;
+	    const uchar	*vp = (const uchar *) sp ;
+	    for (i = 0 ; (rs >= 0) && (i < sl) ; i += 1) {
+	        ch = vp[i] ;
+	        if (f && (i > 0)) {
+		    sbuf_char(&b,' ') ;
+	        }
+		rs = sbuf_hexc(&b,ch) ;
+	    } /* end for */
+	    len = sbuf_finish(&b) ;
+	    if (rs >= 0) rs = len ;
+	} /* end if (sbuf) */
 
-	return j ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (cthexstring) */
 
@@ -96,11 +101,13 @@ int cthexstrs(char *dbuf,int dlen,cchar *sp,int sl)
 {
 	return cthexstring(dbuf,dlen,sp,sl,TRUE) ;
 }
+/* end subroutine (cthexstrs) */
 
 
 int cthexstr(char *dbuf,int dlen,cchar *sp,int sl)
 {
 	return cthexstring(dbuf,dlen,sp,sl,FALSE) ;
 }
+/* end subroutine (cthexstr) */
 
 

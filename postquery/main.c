@@ -11,25 +11,23 @@
 /* revision history:
 
 	= 1999-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
-/*****************************************************************************
+/*******************************************************************************
 
-	This is the 'main' module for the 'mkkey' program.  This module
-	processes the program invocation arguments and performs some
-	preprocessing steps before any actual input files are scanned.
+        This is the 'main' module for the 'mkkey' program. This module processes
+        the program invocation arguments and performs some preprocessing steps
+        before any actual input files are scanned.
 
-	The real work of processing the input files (one at a time)
-	is performed by the 'process()' subroutine.
+        The real work of processing the input files (one at a time) is performed
+        by the 'process()' subroutine.
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -45,7 +43,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 #include	<time.h>
 
@@ -94,6 +91,7 @@ extern int	nextfield(const char *,int,const char **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matpstr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	process(struct proginfo *,bfile *,EIGENDB *,uchar *,
 			char *,char *,char *) ;
@@ -275,10 +273,11 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (((argl - 1) > 0) && 
 	                    (cfdeci(argp + 1,argl - 1,&argnum) < 0))
@@ -286,32 +285,16 @@ char	*envv[] ;
 
 	            } else {
 
-#if	CF_DEBUGS
-	                debugprintf("main: got an option\n") ;
-#endif
-
 	                aop = argp + 1 ;
 	                aol = argl - 1 ;
 	                akp = aop ;
 	                f_optequal = FALSE ;
 	                if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option key w/ a value\n") ;
-#endif
-
 	                    akl = avp - aop ;
 	                    avp += 1 ;
 	                    avl = aop + aol - avp ;
 	                    f_optequal = TRUE ;
-
-#if	CF_DEBUGS
-	                    debugprintf("main: aol=%d avp=\"%s\" avl=%d\n",
-	                        aol,avp,avl) ;
-
-	                    debugprintf("main: akl=%d akp=\"%s\"\n",
-	                        akl,akp) ;
-#endif
 
 	                } else {
 
@@ -320,18 +303,7 @@ char	*envv[] ;
 
 	                }
 
-/* do we have a keyword match or should we assume only key letters ? */
-
-#if	CF_DEBUGS
-	                debugprintf("main: about to check for a key word match\n") ;
-#endif
-
 	                if ((kwi = matstr(argopts,akp,akl)) >= 0) {
-
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option keyword, kwi=%d\n",
-	                        kwi) ;
-#endif
 
 	                    switch (kwi) {
 

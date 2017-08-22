@@ -1,33 +1,38 @@
 /* yags */
 
 
+/* revision history:
+
+	= 2001-03-22, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
+
+
 #ifndef	YAGS_INCLUDE
 #define	YAGS_INCLUDE	1
 
 
+#include	<envstandards.h>
 #include	<sys/types.h>
 #include	<time.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"bpload.h"
 
 
-
-/* object defines */
-
+#define	YAGS_MAGIC	0x29456781
 #define	YAGS			struct yags_head
 #define	YAGS_STATS		struct yags_stats
-
 
 /* more important defines */
 
 #define	YAGS_TAGBITS		8	/* number of tag bits */
 #define	YAGS_COUNTBITS		2	/* counter bits */
 
-
-
 #define	YAGS_TAGMASK		((1 << YAGS_TAGBITS) - 1)
-
 
 
 /* statistics */
@@ -60,7 +65,6 @@ struct yags_head {
 } ;
 
 
-
 #if	(! defined(YAGS_MASTER)) || (YAGS_MASTER == 0)
 
 extern int	yags_init(YAGS *,int,int) ;
@@ -72,8 +76,6 @@ extern int	yags_free(YAGS *) ;
 
 #endif /* YAGS_MASTER */
 
-
 #endif /* YAGS_INCLUDE */
-
 
 

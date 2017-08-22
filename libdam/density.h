@@ -43,9 +43,9 @@ struct density_s {
 extern "C" {
 #endif
 
-extern int	density_start(DENSITY *,uint) ;
-extern int	density_update(DENSITY *,uint) ;
-extern int	density_slot(DENSITY *,uint,ULONG *) ;
+extern int	density_start(DENSITY *,int) ;
+extern int	density_update(DENSITY *,int) ;
+extern int	density_slot(DENSITY *,int,ULONG *) ;
 extern int	density_stats(DENSITY *,DENSITY_STATS *) ;
 extern int	density_finish(DENSITY *) ;
 

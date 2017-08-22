@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1999-05-06, David A­D­ Morano
+	= 1999-06-13, David A­D­ Morano
 	This program was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

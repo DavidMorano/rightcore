@@ -134,7 +134,7 @@ static int makehex(char *hexbuf,cchar *addr,int alen)
 	for (i = 0 ; i < alen ; i += 1) {
 	    v = MKCHAR(addr[i]) ;
 	    hexbuf[j++] = hextable[(v >> 4) & 15] ;
-	    hexbuf[j++] = hextable[v & 15] ;
+	    hexbuf[j++] = hextable[(v >> 0) & 15] ;
 	}
 
 	hexbuf[j] = '\0' ;

@@ -56,6 +56,7 @@ int cfbbdate(PROGINFO *pip,cchar *s,int slen,time_t *rp)
 	int		rs = SR_OK ;
 	int		i, lr ;
 	int		century, year, month, day, hour, min, sec ;
+	int		ch ;
 	const char	*cp = s ;
 	char		name[DATE_TZNAMESIZE + 1] ;
 
@@ -101,7 +102,8 @@ int cfbbdate(PROGINFO *pip,cchar *s,int slen,time_t *rp)
 /* special handling for 4 digit year */
 
 	for (i = 0 ; i < lr ; i += 1) {
-		if (! isdigit(cp[i])) break ;
+	    ch = MKCHAR(cp[i]) ;
+	    if (! isdigitlatin(ch)) break ;
 	} /* end for */
 
 	if (i >= 14) {

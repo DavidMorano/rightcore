@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 2001-03-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -20,8 +18,8 @@
 
 /*******************************************************************************
 
-	This subroutine forms a program that tests the input-update
-	capability (at least a little bit) of the PINGSTAT program.
+        This subroutine forms a program that tests the input-update capability
+        (at least a little bit) of the PINGSTAT program.
 
 
 *******************************************************************************/
@@ -104,6 +102,7 @@ extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	opentmpusd(const char *,int,mode_t,char *) ;
 extern int	dater_setkey(DATER *,const char *,int,struct timeb *,
 			const char *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
@@ -321,12 +320,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

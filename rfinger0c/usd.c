@@ -113,6 +113,7 @@ extern int	vecstr_envadds(VECSTR *,const char *,int) ;
 extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
 			const char *,const char *) ;
 extern int	hasleadcolon(const char *,int) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -806,12 +807,13 @@ struct subinfo	*sip ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if ((argl == 2) && (argp[1] == '-')) {
+	        } else if ((argl == 2) && (ach == '-')) {
 
 	            f_doubledash = TRUE ;
 	            ai += 1 ;

@@ -12,22 +12,20 @@
 /* revision history:
 
 	= 1999-06-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ palive [-x execfname] [-u username] {{-f pidfile} | pid}
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -50,11 +48,10 @@
 #include	<vecstr.h>
 #include	<vechand.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -78,6 +75,7 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 
@@ -199,14 +197,15 @@ const char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                    rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

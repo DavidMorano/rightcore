@@ -16,7 +16,7 @@
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/*****************************************************************************
+/*******************************************************************************
 
         This subroutine expands out some per program (the daemon program)
         parameters into the configuration strings. Actually this little
@@ -38,7 +38,7 @@
 #
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -72,157 +72,117 @@ extern int	snsds(char *,int,const char *,const char *) ;
 /* exported subroutines */
 
 
-int expander(app,buf,buflen,rbuf,rlen)
-struct proginfo	*app ;
-const char	buf[] ;
+int expander(app,sbuf,slen,rbuf,rlen)
+PROGINFO	*app ;
+const char	sbuf[] ;
 char		rbuf[] ;
-int		buflen ;
+int		slen ;
 int		rlen ;
 {
-	int	rs = SR_OK ;
-	int	len ;
-	int	cl ;
-	int	ch ;
-	int	elen = 0 ;
-
-	char	hostname[MAXHOSTNAMELEN + 1] ;
-	char	*rbp = rbuf ;
-	const char	*bp = buf ;
+	int		rs = SR_OK ;
+	int		len ;
+	int		cl ;
+	int		ch ;
+	int		elen = 0 ;
+	const char	*bp = sbuf ;
 	const char	*cp ;
-
+	char		hostname[MAXHOSTNAMELEN + 1] ;
+	char		*rbp = rbuf ;
 
 #if	CF_DEBUGS
-	debugprintf("expnader: entered buflen=%d rbuflen=%d\n",
+	debugprintf("expnader: ent buflen=%d rbuflen=%d\n",
 	    buflen,rlen) ;
 #endif
 
-	if (app == NULL)
-	    return SR_FAULT ;
+	if (app == NULL) return SR_FAULT ;
+	if (sbuf == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
 
-	if (buf == NULL)
-	    return SR_FAULT ;
-
-	if (rbuf == NULL)
-	    return SR_FAULT ;
-
-	len = strnlen(buf,buflen) ;
-	if (len == 0) goto ret0 ;
+	len = strnlen(sbuf,slen) ;
 
 #if	CF_DEBUGS
-	debugprintf("expnader: buf=>%t<\n",buf,len) ;
+	debugprintf("expnader: buf=>%t<\n",sbuf,len) ;
 #endif
 
 	while ((len > 0) && (elen < rlen)) {
-
-	    ch = (*bp & 0xff) ;
+	    ch = MKCHAR(*bp) ;
 	    switch (ch) {
-
 	    case '%':
 	        bp += 1 ;
 	        len -= 1 ;
-	        if (len == 0)
-		    break ;
-
+	        if (len == 0) break ;
 		cl = 0 ;
 	        switch (ch) {
-
 	        case 'V':
 	            cp = app->version ;
 	            cl = strlen(cp) ;
 	            break ;
-
 #if	defined(DEFS_ROOTNAME) && (DEFS_ROOTNAME > 0)
 	        case 'B':
 		    if ((cp = app->rootname) != NULL)
 	            	cl = strlen(cp) ;
 	            break ;
 #endif /* P_RCPMUXD */
-
 	        case 'P':
 	            cp = app->progname ;
 	            cl = strlen(cp) ;
 	            break ;
-
 	        case 'S':
 		    if ((cp = app->searchname) != NULL)
 	            	cl = strlen(cp) ;
 	            break ;
-
 	        case 'N':
 	            cp = app->nodename ;
 	            cl = strlen(cp) ;
 	            break ;
-
 	        case 'D':
 	            cp = app->domainname ;
 	            cl = strlen(cp) ;
 	            break ;
-
 	        case 'H':
 	            cp = hostname ;
 	            cl = snsds(hostname,MAXHOSTNAMELEN,
 	                app->nodename,app->domainname) ;
 	            break ;
-
 /* handle the expansion of our program root */
 	        case 'R':
 	            if ((cp = app->pr) != NULL)
 	                cl = strlen(cp) ;
 	            break ;
-
 	        case 'U':
 		    if ((cp = app->username) != NULL)
 			cl = strlen(cp) ;
 	            break ;
-
 	        case 'G':
 		    if ((cp = app->groupname) != NULL)
 			cl = strlen(cp) ;
 	            break ;
-
 	        default:
 	            cp = bp ;
 	            cl = 1 ;
-
+		    break ;
 	        } /* end switch */
-
 	        bp += 1 ;
 	        len -= 1 ;
-
 	        if ((elen + cl) > rlen) {
 		    rs = SR_OVERFLOW ;
 	            break ;
 		}
-
-#if	CF_DEBUGS
-	        debugprintf("expnader: copying over, cl=%d\n",cl) ;
-#endif
-
-	        if (cl > 0)
-	            strncpy(rbp,cp,cl) ;
-
-#if	CF_DEBUGS
-	        debugprintf("expnader: copied\n") ;
-#endif
-
+	        if (cl > 0) strncpy(rbp,cp,cl) ;
 	        rbp += cl ;
 	        elen += cl ;
 	        break ;
-
 	    default:
 	        *rbp++ = *bp++ ;
 	        elen += 1 ;
 	        len -= 1 ;
-
+		break ;
 	    } /* end switch */
-
 	} /* end while */
 
 	if ((rs >= 0) && (elen >= rlen))
 	    rs = SR_OVERFLOW ;
 
-/* we are out of here */
-ret0:
 	rbuf[elen] = '\0' ;
 
 #if	CF_DEBUGS
@@ -234,6 +194,5 @@ ret0:
 	return (rs >= 0) ? elen : rs ;
 }
 /* end subroutine (expander) */
-
 
 

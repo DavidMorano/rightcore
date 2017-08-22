@@ -9,11 +9,7 @@
 /* revision history:
 
 	= 2004-02-09, David A­D­ Morano
-        No it wasn't (referring to the above). I snarfed this from another
-        program with that previous change note! Almost every subroutine starts
-        from a previous one. Why do we keep the old change notes? Also, what was
-        the previous program by the same name? Never mind, it doesn't really
-        matter since I have gutted this subroutine almost to the bone!
+        I snarfed this from another program of mine.
 
 */
 
@@ -53,7 +49,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -103,11 +98,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 /* exported subroutines */
 
 
-int bprintlines(fp,flen,lbuf,llen)
-bfile		*fp ;
-int		flen ;
-const char	lbuf[] ;
-int		llen ;
+int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -174,10 +165,8 @@ int		llen ;
 	                f_sbuf = FALSE ;
 	                sbuf_finish(&b) ;
 
-	                rs = bprintline(fp,fbuf,len) ;
-	                wlen += rs ;
-
-	                if (rs >= 0) {
+	                if ((rs = bprintline(fp,fbuf,len)) >= 0) {
+	                    wlen += rs ;
 	                    wc = 0 ;
 	                    len = 0 ;
 	                    rs = sbuf_start(&b,fbuf,flen) ;
@@ -223,8 +212,9 @@ int		llen ;
 	            wlen += rs ;
 	        }
 
-	        if ((tp = strnchr(sp,sl,'\n')) == NULL)
+	        if ((tp = strnchr(sp,sl,'\n')) == NULL) {
 	            tp = (sp + sl - 1) ;
+	 	}
 
 	        ll -= ((tp + 1) - lp) ;
 	        lp = (tp + 1) ;

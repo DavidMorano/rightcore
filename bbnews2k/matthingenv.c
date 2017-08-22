@@ -93,6 +93,7 @@
 
 extern int	matcasestr(const char **,const char *,int) ;
 extern int	sibreak(const char *,int,const char *) ;
+extern int	isdigitlatin(int) ;
 
 
 /* external variables */
@@ -129,6 +130,7 @@ int matthingenv(cchar *s,int slen)
 	int		fromlen ;
 	int		i, ll, fromindex = 0 ;
 	int		f_len, f_esc ;
+	int		ch ;
 	const char	*cp, *cp2 ;
 	const char	*from, *day, *month ;
 
@@ -253,10 +255,8 @@ int matthingenv(cchar *s,int slen)
 	    return 0 ;
 
 	for (i = 0 ; i < ll ; i += 1) {
-
-		if (! isdigit(cp2[i]))
-	    		return 0 ;
-
+	    ch = MKCHAR(cp2[i]) ;
+	    if (! isdigitlatin(ch)) return 0 ;
 	}
 
 /* the next field should have one or more colons in it (the rest digits) */
@@ -266,7 +266,8 @@ int matthingenv(cchar *s,int slen)
 	if ((ll = nexttoken(cp,slen,&cp2)) < 4)
 	    return 0 ;
 
-	if ((! isdigit(cp2[0])) || (strchr(cp2,':') == NULL))
+	ch = KMCHAR(cp2[0]) ;
+	if ((! isdigitlatin(ch)) || (strchr(cp2,':') == NULL))
 		return 0 ;
 
 /* if we have gotten this far OK, then we assume this IS an envelope! */

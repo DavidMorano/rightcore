@@ -479,20 +479,19 @@ static int buffer_ext(BUFFER *op,int req)
 	        if ((rs = uc_malloc(ne,&buf)) >= 0) {
 	            op->buf = buf ;
 		    op->e = ne ;
-	        } else
+	        } else {
 	            op->len = rs ;
+	        }
 
 	    } else {
 
 		ne = op->e ;
 	        while ((op->len + (req+1)) > ne) {
-
 #if	CF_FASTGROW
 	            ne = ((ne + 1) * 2) ;
 #else
 	            ne = (ne + BUFFER_STARTLEN) ;
 #endif /* CF_FASTGROW */
-
 	        } /* end while */
 
 	        if ((rs = uc_realloc(op->buf,ne,&buf)) >= 0) {

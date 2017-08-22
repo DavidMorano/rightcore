@@ -11,53 +11,41 @@
 
 /* revision history:
 
-	= 89/03/01, David A­D­ Morano
-
+	= 1989-03-01, David A­D­ Morano
 	This subroutine was originally written.  
 
+	= 1998-06-01, David A­D­ Morano
+	I enhanced the program a little to print out some other information.
 
-	= 98/06/01, David A­D­ Morano
+	= 1999-03-01, David A­D­ Morano
+	I enhanced the program a little to to do something (I forget what).
 
-	I enhanced the program a little to print out some other
-	information.
+	= 2004-01-10, David A­D­ Morano
+	This subroutine was originally written.  
+        The KSH program switched to using a fakey "large file" (64-bit fake-out
+        mode) compilation mode on Solaris. This required some checking to see if
+        any references to 'u_stat()' had to be updated to work with the new KSH.
+        Although we call 'u_stat()' here, its structure is not passed to other
+        subroutines expecting the regular 32-bit structure.
 
-
-	= 99/03/01, David A­D­ Morano
-
-	I enhanced the program a little to to do something (I forget
-	what).
-
-
-	= 04/01/10, David A­D­ Morano
-
-	The KSH program switched to using a fakey "large file" (64-bit
-	fake-out mode) compilation mode on Solaris.  This required
-	some checking to see if any references to 'u_stat()' had to be
-	updated to work with the new KSH.  Although we call 'u_stat()'
-	here, its structure is not passed to other subroutines expecting
-	the regular 32-bit structure.
-
-
-	= 05/04/20, David A­D­ Morano
-
-	I changed the program so that the configuration file is consulted
-	even if the program is not run in daemon-mode.	Previously, the
-	configuration file was only consulted when run in daemon-mode.
-	The thinking was that running the program in regular (non-daemon)
-	mode should be quick.  The problem is that the MS file had to
-	be guessed without the aid of consulting the configuration file.
-	Although not a problem in most practice, it was not aesthetically
-	appealing.  It meant that if the administrator changed the MS file
-	in the configuration file, it also had to be changed by specifying
-	it explicitly at invocation in non-daemon-mode of the program.
-	This is the source of some confusion (which the world really
-	doesn't need).	So now the configuration is always consulted.
-	The single one-time invocation is still fast enough for the
-	non-smoker aged under 40 ! :-) :-)
-
+	= 2005-04-20, David A­D­ Morano
+        I changed the program so that the configuration file is consulted even
+        if the program is not run in daemon-mode. Previously, the configuration
+        file was only consulted when run in daemon-mode. The thinking was that
+        running the program in regular (non-daemon) mode should be quick. The
+        problem is that the MS file had to be guessed without the aid of
+        consulting the configuration file. Although not a problem in most
+        practice, it was not aesthetically appealing. It meant that if the
+        administrator changed the MS file in the configuration file, it also had
+        to be changed by specifying it explicitly at invocation in
+        non-daemon-mode of the program. This is the source of some confusion
+        (which the world really doesn't need). So now the configuration is
+        always consulted. The single one-time invocation is still fast enough
+        for the non-smoker aged under 40! :-) :-)
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /**************************************************************************
 
@@ -74,7 +62,7 @@
 	have to take care to force child processes to exit explicitly.
 	Child processes are only created when run in "daemon" mode.
 
-	Execute as :
+	Synopsis:
 
 	$ msu [-speed[=<name>]] [-zerospeed] [-msfile <file>]
 
@@ -92,6 +80,8 @@
 
 *****************************************************************************/
 
+
+#include	<envstandards.h>
 
 #if	defined(SFIO) || defined(KSHBUILTIN)
 #undef	CF_SFIO
@@ -114,7 +104,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -804,10 +793,9 @@ char	*envv[] ;
 	                                    rs = cfdecti(avp,avl,
 	                                        &pip->runint) ;
 
-	                                } else if (tolower(*avp) == 'i')
+	                                } else if (tolower(*avp) == 'i') {
 	                                    pip->runint = INT_MAX ;
-
-	                                else
+	                                } else
 	                                    rs = SR_INVALID ;
 
 	                            }

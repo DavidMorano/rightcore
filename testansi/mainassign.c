@@ -35,8 +35,8 @@ int main()
 	fprintf(stdout,"greater=%u\n",(ch > uch)) ;
 
 	{
-	char tch = 0x80 ;
-	fprintf(stdout,"greater=%u\n",(tch > uch)) ;
+	    char tch = 0x80 ;
+	    fprintf(stdout,"greater=%u\n",(tch > uch)) ;
 	}
 
 	{

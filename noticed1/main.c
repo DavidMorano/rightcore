@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 1999-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -22,17 +20,15 @@
 
 /*****************************************************************************
 
-	This subroutine forms the front-end part of a generic PCS
-	type of program.  This front-end is used in a variety of
-	PCS programs.
+        This subroutine forms the front-end part of a generic PCS type of
+        program. This front-end is used in a variety of PCS programs.
 
-	This subroutine was originally part of the Personal
-	Communications Services (PCS) package but can also be used
-	independently from it.  Historically, this was developed as
-	part of an effort to maintain high function (and reliable)
-	email communications in the face of increasingly draconian
-	security restrictions imposed on the computers in the DEFINITY
-	development organization.
+        This subroutine was originally part of the Personal Communications
+        Services (PCS) package but can also be used independently from it.
+        Historically, this was developed as part of an effort to maintain high
+        function (and reliable) email communications in the face of increasingly
+        draconian security restrictions imposed on the computers in the DEFINITY
+        development organization.
 
 
 *****************************************************************************/
@@ -54,7 +50,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 
@@ -119,6 +114,7 @@ extern int	procfileenv(char *,char *,VECSTR *) ;
 extern int	procfilepaths(char *,char *,VECSTR *) ;
 extern int	watch(struct proginfo *,struct serverinfo *,
 			varsub *,vecstr *,SRVTAB *,ACCTAB *,BUILTIN *) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strnchr(char *,int,int) ;
 extern char	*strbasename(char *) ;
@@ -415,13 +411,12 @@ char	*argv[], *envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
-
+	            if (isdigitlatin(ach)) {
 	                int	port ;
-
 
 	                if (((argl - 1) > 0) && 
 	                    (cfdeci(argp + 1,argl - 1,&port) < 0))
@@ -432,32 +427,16 @@ char	*argv[], *envv[] ;
 
 	            } else {
 
-#if	CF_DEBUGS
-	                debugprintf("main: got an option\n") ;
-#endif
-
 	                aop = argp + 1 ;
 	                aol = argl - 1 ;
 	                akp = aop ;
 	                f_optequal = FALSE ;
 	                if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option key w/ a value\n") ;
-#endif
-
 	                    akl = avp - aop ;
 	                    avp += 1 ;
 	                    avl = aop + aol - avp ;
 	                    f_optequal = TRUE ;
-
-#if	CF_DEBUGS
-	                    debugprintf("main: aol=%d avp=\"%s\" avl=%d\n",
-	                        aol,avp,avl) ;
-
-	                    debugprintf("main: akl=%d akp=\"%s\"\n",
-	                        akl,akp) ;
-#endif
 
 	                } else {
 
@@ -466,19 +445,7 @@ char	*argv[], *envv[] ;
 
 	                }
 
-/* do we have a keyword match or should we assume only key letters ?
-					    */
-
-#if	CF_DEBUGS
-	                debugprintf("main: about to check for a key word match\n") ;
-#endif
-
 	                if ((kwi = matstr(argopts,akp,akl)) >= 0) {
-
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option keyword, kwi=%d\n",
-	                        kwi) ;
-#endif
 
 	                    switch (kwi) {
 

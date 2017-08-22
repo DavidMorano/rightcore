@@ -15,25 +15,22 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This program was originally written for PCS.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/*****************************************************************************
+/*******************************************************************************
 
-	This subroutine forms the front-end part of a generic PCS type
-	of program.  This front-end is used in a variety of PCS programs.
+        This subroutine forms the front-end part of a generic PCS type of
+        program. This front-end is used in a variety of PCS programs.
 
-	This subroutine was originally part of the Personal Communications
-	Services (PCS) package but can also be used independently from it.
-	Historically, this was developed as part of an effort to maintain
-	high function (and reliable) email communications in the face
-	of increasingly draconian security restrictions imposed on the
-	computers in the DEFINITY development organization.
+        This subroutine was originally part of the Personal Communications
+        Services (PCS) package but can also be used independently from it.
+        Historically, this was developed as part of an effort to maintain high
+        function (and reliable) email communications in the face of increasingly
+        draconian security restrictions.
 
 
 *****************************************************************************/
@@ -53,7 +50,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 #include	<pwd.h>
 #include	<grp.h>
@@ -136,6 +132,7 @@ extern int	getserial(const char *) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
 			const char *,const char *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	proginfo_setpiv(struct proginfo *,const char *,
 extern int	printhelp(void *,const char *,const char *,const char *) ;
@@ -427,12 +424,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

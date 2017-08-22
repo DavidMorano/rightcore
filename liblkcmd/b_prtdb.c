@@ -1193,6 +1193,7 @@ static int lpgetout(PROGINFO *pip,char *vbuf,int vlen,cchar *pt,cchar *key)
 	LOCINFO		*lip = pip->lip ;
 	bfile		ofile, *ofp = &ofile ;
 	int		rs ;
+	int		rs1 ;
 	int		cl ;
 	int		ml ;
 	int		i = 0 ;
@@ -1306,7 +1307,8 @@ static int lpgetout(PROGINFO *pip,char *vbuf,int vlen,cchar *pt,cchar *key)
 
 	    } /* end if (extracting value) */
 
-	    bclose(ofp) ;
+	    rs1 = bclose(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (reading child output) */
 
 #if	CF_DEBUG

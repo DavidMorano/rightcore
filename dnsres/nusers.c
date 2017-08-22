@@ -10,7 +10,7 @@
 
 /* revision history:
 
-	= 1997-11-18, David A­D­ Morano
+	= 1998-11-18, David A­D­ Morano
 	This little subroutine was put together to get the current number of
 	logged-in users without having to resort to an underlying API that may
 	be different for different OSes.  Other motivations were along the same
@@ -21,7 +21,7 @@
 
 */
 
-/* Copyright © 1997 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

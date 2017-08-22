@@ -10,10 +10,7 @@
 /* revision history:
 
 	= 2003-10-07, David A­D­ Morano
-
-	I hacked this up to clean up stupid garbage from stupid M$
-	servers.
-
+	I hacked this up to clean up stupid garbage from stupid M$ servers.
 
 */
 
@@ -76,6 +73,7 @@ extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
 extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	isdigitlatin(int) ;
 
 extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
@@ -165,7 +163,8 @@ char	*envv[] ;
 	int	ai, ai_max, ai_pos ;
 	int	argvalue = -1 ;
 	int	pan ;
-	int	rs, rs1 ;
+	int	rs = SR_OK ;
+	int	rs1 ;
 	int	af = AF_INET ;
 	int	timeout = TO_CONNECT ;
 	int	ex = EX_INFO ;
@@ -218,7 +217,6 @@ char	*envv[] ;
 
 /* start parsing the arguments */
 
-	rs = SR_OK ;
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1) 
 		argpresent[ai] = 0 ;
 
@@ -235,12 +233,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

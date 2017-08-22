@@ -125,6 +125,7 @@ extern int	getnodedomain(char *,char *) ;
 extern int	mkpr(char *,int,const char *,const char *) ;
 extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
 			const char *,const char *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	dialuux(const char *,const char *,const char *,const char **,
 			const char *,const char *,int) ;
@@ -707,12 +708,13 @@ struct subinfo	*sip ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

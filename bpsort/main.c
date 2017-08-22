@@ -17,14 +17,14 @@
 
 /* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ bpsort <dbfile(s)> ...
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -35,16 +35,12 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<baops.h>
-#include	<exitcodes.h>
 #include	<pwfile.h>
+#include	<exitcodes.h>
 #include	<localmisc.h>
 
 #include	"config.h"
@@ -109,29 +105,29 @@ int main(int argc,cchar **argv,cchar **envv)
 	bfile		outfile, *ofp = &outfile ;
 	bfile		nisfile, *nfp = &nisfile ;
 
-	vecitem	db ;
+	vecitem		db ;
 
-	time_t	daytime = 0 ;
+	time_t		daytime = 0 ;
 
-	int	argr, argl, aol, akl, avl ;
-	int	argvalue = -1 ;
-	int	maxai, pan, npa, kwi, i, j, k ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_extra = FALSE ;
-	int	rs, len ;
-	int	sl, ci ;
-	int	ex = EX_INFO ;
-	int	fd_debug ;
-	int	f_version = FALSE ;
-	int	f_usage = FALSE ;
-	int	f_self = FALSE ;
-	int	f_entok = FALSE ;
+	int		argr, argl, aol, akl, avl ;
+	int		argvalue = -1 ;
+	int		maxai, pan, npa, kwi, i, j, k ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_extra = FALSE ;
+	int		rs ;
+	int		len ;
+	int		sl, ci ;
+	int		ex = EX_INFO ;
+	int		f_version = FALSE ;
+	int		f_usage = FALSE ;
+	int		f_self = FALSE ;
+	int		f_entok = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*cp, *cp2 ;
 	const char	*ofname = NULL ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
+	char		argpresent[MAXARGGROUPS] ;
+	char		buf[BUFLEN + 1], *bp ;
 
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -155,9 +151,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* initialize */
 
-	pip->debuglevel = 0 ;
 	pip->verboselevel = 1 ;
-	pip->f.quiet = FALSE ;
 
 /* start parsing the arguments */
 
@@ -193,25 +187,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	                akp = aop ;
 	                f_optequal = FALSE ;
 	                if ((avp = strchr(aop,'=')) != NULL) {
-
 	                    akl = avp - aop ;
 	                    avp += 1 ;
 	                    avl = aop + aol - avp ;
 	                    f_optequal = TRUE ;
-
-#if	CF_DEBUGS
-	                    debugprintf("main: aol=%d avp=\"%s\" avl=%d\n",
-	                        aol,avp,avl) ;
-
-	                    debugprintf("main: akl=%d akp=\"%s\"\n",
-	                        akl,akp) ;
-#endif
-
 	                } else {
-
 	                    akl = aol ;
 	                    avl = 0 ;
-
 	                }
 
 	                if ((kwi = matstr(argopts,akp,akl)) >= 0) {
@@ -396,9 +378,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	    debugprintf("main: finished parsing arguments\n") ;
 #endif
 
-	if (f_version)
+	if (f_version) {
 	    bprintf(efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
 	if (f_usage)
 	    goto usage ;
@@ -406,23 +389,23 @@ int main(int argc,cchar **argv,cchar **envv)
 	if (f_version)
 	    goto earlyret ;
 
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(efp,"%s: debuglevel=%u\n",
 	        pip->progname,pip->debuglevel) ;
+	}
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
 	    debugprintf("main: special debugging turned on\n") ;
 #endif
 
-
 /* open the output file */
 
-	if (ofname != NULL)
+	if (ofname != NULL) {
 	    rs = bopen(ofp,ofname,"wct",0666) ;
-
-	else
+	} else {
 	    rs = bopen(ofp,BFILE_STDOUT,"dwct",0666) ;
+	}
 
 	if (rs < 0)
 	    goto badoutopen ;
@@ -450,7 +433,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
-	            debugprintf("main: positional argument i=%d pan=%d arg=%s\n",
+	            debugprintf("main: pos-arg i=%d pan=%d arg=%s\n",
 	                i,pan,argv[i]) ;
 #endif
 

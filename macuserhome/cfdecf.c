@@ -59,6 +59,7 @@
 /* external subroutines */
 
 extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	isdigitlatin(int) ;
 
 
 /* forward references */
@@ -72,10 +73,11 @@ extern int	snwcpy(char *,int,cchar *,int) ;
 
 int cfdecf(cchar *sp,int sl,double *rp)
 {
+	const int	dlen = DIGBUFLEN ;
 	int		rs = SR_OK ;
 	int		bl ;
 	cchar		*bp ;
-	char		tmpbuf[DIGBUFLEN + 1] ;
+	char		dbuf[DIGBUFLEN + 1] ;
 	char		*ep ;
 
 	while (sl && CHAR_ISWHITE(*sp)) {
@@ -86,13 +88,14 @@ int cfdecf(cchar *sp,int sl,double *rp)
 	bp = sp ;
 	bl = sl ;
 	if ((sl >= 0) && sp[sl]) {
-	    bp = tmpbuf ;
-	    rs = snwcpy(tmpbuf,DIGBUFLEN,sp,sl) ;
+	    bp = dbuf ;
+	    rs = snwcpy(dbuf,dlen,sp,sl) ;
 	    bl = rs ;
 	}
 
 	if ((rs >= 0) && bl) {
-	    if ((! isdigit(*bp)) && (*bp != '.'))
+	    const int	ch = MKCHAR(*bp) ;
+	    if ((! isdigitlatin(ch)) && (ch != '.'))
 	        rs = SR_INVALID ;
 	}
 

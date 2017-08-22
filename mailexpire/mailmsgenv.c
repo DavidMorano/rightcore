@@ -281,7 +281,7 @@ int mailmsgenv_start(MAILMSGENV *mep,cchar *sbuf,int slen)
 	}
 
 	ch = (cp2[0] & 0xff) ;
-	if ((! isdigit(ch)) || (strchr(cp2,':') == NULL)) {
+	if ((! isdigitlatin(ch)) || (strchr(cp2,':') == NULL)) {
 	    rs = SR_INVALID ;
 	    goto bad0 ;
 	}

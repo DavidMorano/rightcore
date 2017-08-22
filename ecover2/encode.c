@@ -10,7 +10,7 @@
 
 /* revision history:
 
-	= 1999-05-06, David A­D­ Morano
+	= 1999-06-13, David A­D­ Morano
 	This program was originally written.
 
 */
@@ -46,14 +46,11 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<time.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<bfile.h>
 #include	<randomvar.h>
 #include	<cksum.h>
 #include	<localmisc.h>
@@ -73,7 +70,7 @@
 
 /* external subroutines */
 
-extern void	munge(struct proginfo *,int,ULONG *,ULONG *,ULONG *) ;
+extern void	munge(PROGINFO *,int,ULONG *,ULONG *,ULONG *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -95,8 +92,8 @@ extern int	strlinelen(const char *,int,int) ;
 static ULONG	packlong(uint,uint) ;
 #endif
 
-static void	blockfinish(struct proginfo *,
-			ULONG *,int,int,struct ecmsgdesc *,
+static void	blockfinish(PROGINFO *,
+			ULONG *,int,int,ECMSGDESC *,
 			RANDOMVAR *) ;
 
 
@@ -107,13 +104,13 @@ static void	blockfinish(struct proginfo *,
 
 
 int encode(pip,rvp,fip,emp,ifd,ofd)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 RANDOMVAR	*rvp ;
-struct fileinfo	*fip ;
+FILEINFO	*fip ;
 ECMSG		*emp ;
 int		ifd, ofd ;
 {
-	struct ecmsgdesc	md ;
+	ECMSGDESC	md ;
 	struct ustat	stat_i ;
 	ULONG		key[NOPWORDS] ;
 	ULONG		vector[NOPWORDS] ;
@@ -422,18 +419,20 @@ ret0:
 
 
 static void blockfinish(pip,block,n,len,mdp,rvp)
-struct proginfo		*pip ;
-ULONG			block[] ;
-int			n ;
-int			len ;		/* length filled already */
-struct ecmsgdesc	*mdp ;
-RANDOMVAR		*rvp ;
+PROGINFO	*pip ;
+ULONG		block[] ;
+int		n ;
+int		len ;		/* length filled already */
+ECMSGDESC	*mdp ;
+RANDOMVAR	*rvp ;
 {
 	int		blocklen = n * sizeof(ULONG) ;
 	int		rlen, mlen ;
 	int		nchars ;
 	int		i ;
 	uchar		*dp ;
+
+	if (pip == NULL) return ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -490,20 +489,5 @@ RANDOMVAR		*rvp ;
 
 }
 /* end subroutine (blockfinish) */
-
-
-#ifdef	COMMENT
-
-static ULONG packlong(uint h1,uint h0)
-{
-	ULONG		r, r0, r1 ;
-	r0 = h0 ;
-	r1 = h1 ;
-	r = r0 | (r1 << 32) ;
-	return r ;
-}
-/* end subroutine (packlong) */
-
-#endif /* COMMENT */
 
 

@@ -77,6 +77,7 @@ extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	process(PROGINFO *,const char *) ;
 
@@ -253,12 +254,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	                rs = cfdecti((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

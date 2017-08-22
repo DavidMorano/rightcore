@@ -1,7 +1,7 @@
 /* netorder */
 
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	NETORDER_INCLUDE
 #define	NETORDER_INCLUDE	1

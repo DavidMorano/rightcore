@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -70,8 +68,7 @@
 
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	mkpath4(char *,const char *,const char *,const char *,
-			const char *) ;
+extern int	mkpath4(char *,cchar *,cchar *,cchar *,cchar *) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
@@ -79,6 +76,7 @@ extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	mkdirs(const char *,mode_t) ;
+extern int	isdigitlatin(int) ;
 
 extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
@@ -251,8 +249,9 @@ const char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = (argp + 1) ;
 

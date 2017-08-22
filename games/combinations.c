@@ -74,9 +74,6 @@ extern LONG	permutations(int,int) ;
 LONG combinations(int n,int k)
 {
 	LONG		ans = -1 ;
-#if	CF_DEBUGS
-	debugprintf("combinations: ent n=%d k=%d\n",n,k) ;
-#endif
 	if ((n >= 0) && (k >= 0)) {
 	    ans = 1 ;
 	    if (k == 1) {

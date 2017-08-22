@@ -3,12 +3,12 @@
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
+	= 2001-03-24, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	STDORDER_INCLUDE
 #define	STDORDER_INCLUDE	1

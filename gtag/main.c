@@ -539,7 +539,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                PARAMOPT	*pop = &aparams ;
-	                                cchar	*po = PO_BIBDIR ;
+	                                cchar		*po = PO_BIBDIR ;
 	                                rs = paramopt_loads(pop,po,argp,argl) ;
 	                            }
 	                        } else
@@ -559,7 +559,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                PARAMOPT	*pop = &aparams ;
-	                                cchar	*po = PO_OPTION ;
+	                                cchar		*po = PO_OPTION ;
 	                                rs = paramopt_loads(pop,po,argp,argl) ;
 	                            }
 	                        } else
@@ -574,7 +574,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                PARAMOPT	*pop = &aparams ;
-	                                cchar	*po = PO_BIBFILE ;
+	                                cchar		*po = PO_BIBFILE ;
 	                                rs = paramopt_loads(pop,po,argp,argl) ;
 	                            }
 	                        } else

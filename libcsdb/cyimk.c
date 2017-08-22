@@ -90,6 +90,7 @@
 #include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
+#include	<endian.h>
 #include	<endianstr.h>
 #include	<estrings.h>
 #include	<ids.h>

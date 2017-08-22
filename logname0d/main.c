@@ -104,8 +104,9 @@ extern int	lastlogin(char *,uid_t,time_t *,char *,char *) ;
 extern int	getusername(char *,int,uid_t) ;
 extern int	mkgecosname(char *,int,cchar *) ;
 extern int	udomain(const char *,char *,int,const char *) ;
+extern int	isdigitlatin(int) ;
 
-extern const char	*getourenv(cchar **,cchar *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
@@ -292,10 +293,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (((argl - 1) > 0) && 
 	                    (cfdeci(argp + 1,argl - 1,&argvalue) < 0))
@@ -303,32 +305,16 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	            } else {
 
-#if	CF_DEBUGS
-	                eprintf("main: got an option\n") ;
-#endif
-
 	                aop = argp + 1 ;
 	                aol = argl - 1 ;
 	                akp = aop ;
 	                f_optequal = FALSE ;
 	                if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	CF_DEBUGS
-	                    eprintf("main: got an option key w/ a value\n") ;
-#endif
-
 	                    akl = avp - aop ;
 	                    avp += 1 ;
 	                    avl = aop + aol - avp ;
 	                    f_optequal = TRUE ;
-
-#if	CF_DEBUGS
-	                    eprintf("main: aol=%d avp=\"%s\" avl=%d\n",
-	                        aol,avp,avl) ;
-
-	                    eprintf("main: akl=%d akp=\"%s\"\n",
-	                        akl,akp) ;
-#endif
 
 	                } else {
 

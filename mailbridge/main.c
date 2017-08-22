@@ -13,9 +13,7 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -104,6 +102,7 @@ extern int	pcspoll(const char *,const char *,PCSCONF *,VECSTR *) ;
 extern int	pcstrustuser(const char *,const char *) ;
 extern int	headkeymat(const char *,const char *,int) ;
 extern int	isindomain(const char *,const char *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(struct proginfo *,const char *,
@@ -334,12 +333,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

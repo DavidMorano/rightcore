@@ -88,11 +88,7 @@ extern char	*strnchr(const char *,int,int) ;
 
 #if	CF_PEEK
 
-int sfreadlinetimed(fp,rbuf,rlen,to)
-Sfio_t	*fp ;
-char	rbuf[] ;
-int	rlen ;
-int	to ;
+int sfreadlinetimed(Sfio_t *fp,char *rbuf,int rlen,int to)
 {
 	Sfio_t		*streams[2] ;
 	time_t		daytime = time(NULL) ;
@@ -117,7 +113,6 @@ int	to ;
 /* CONSTCOND */
 	while (TRUE) {
 	    int	r ;
-	    int	v ;
 
 	    r = sfpoll(streams,1,1000) ;
 
@@ -126,7 +121,7 @@ int	to ;
 #endif
 
 	    if (r > 0) {
-		v = sfvalue(fp) ;
+		int	v = sfvalue(fp) ;
 
 #if	CF_DEBUGS
 	    debugprintf("sfreadline: sfvalue() v=%04x\n",v) ;
@@ -158,8 +153,9 @@ int	to ;
 #endif
 			    if (len >= 0) {
 			        rl += len ;
-			    } else
+			    } else {
 			        rl = -1 ;
+			    }
 #if	CF_DEBUGS
 		if (rl >= 0)
 	    debugprintf("sfreadline: got line=>%t<\n",
@@ -188,8 +184,9 @@ int	to ;
 			break ;
 		    }
 
-		} else
+		} else {
 		    msleep(10) ;
+		}
 	    } /* end if (positive) */
 
 	    if (r < 0) {
@@ -218,11 +215,7 @@ ret0:
 
 #else /* CF_PEEK */
 
-int sfreadlinetimed(fp,rbuf,rlen,to)
-Sfio_t	*fp ;
-char	rbuf[] ;
-int	rlen ;
-int	to ;
+int sfreadlinetimed(Sfio_t *fp,char *rbuf,int rlen,int to)
 {
 	Sfio_t		*streams[2] ;
 	time_t		ti_start ;
@@ -246,7 +239,6 @@ int	to ;
 /* CONSTCOND */
 	while (TRUE) {
 	    int	r ;
-	    int	v ;
 
 	    r = sfpoll(streams,1,1000) ;
 
@@ -255,7 +247,7 @@ int	to ;
 #endif
 
 	    if (r > 0) {
-		v = sfvalue(fp) ;
+		int	v = sfvalue(fp) ;
 
 #if	CF_DEBUGS
 	    debugprintf("sfreadline: sfvalue() v=%04x\n",v) ;
@@ -264,7 +256,7 @@ int	to ;
 		if (v & SF_READ) {
 		    int		rbl = (rlen-rl) ;
 		    char	*rbp = (rbuf+rl) ;
-		    const char	*rp = sfgetr(fp,'\n',0) ;
+		    cchar	*rp = sfgetr(fp,'\n',0) ;
 #if	CF_DEBUGS
 	    debugprintf("sfreadline: sfgetr() rp=%p\n",rp) ;
 #endif
@@ -286,8 +278,9 @@ int	to ;
 
 			    rl = snwcpy(rbp,rbl,rp,v) ;
 			    break ;
-			} else
+			} else {
 			    rl = -1 ;
+			}
 		    } else {
 		        rp = sfgetr(fp,'\n',SF_LASTR) ;
 #if	CF_DEBUGS
@@ -309,8 +302,9 @@ int	to ;
 			    break ;
 			}
 		    }
-		} else
+		} else {
 		    msleep(10) ;
+		}
 	    } /* end if (poll says we have some data) */
 
 	    if (r < 0) {
@@ -343,11 +337,7 @@ ret0:
 
 #else /* CF_SFPOLL */
 
-int sfreadlinetimed(fp,rbuf,rlen,to)
-Sfio_t	*fp ;
-char	rbuf[] ;
-int	rlen ;
-int	to ;
+int sfreadlinetimed(Sfio_t *fp,char *rbuf,int rlen,int to)
 {
 	int		rl = 0 ;
 
@@ -363,30 +353,32 @@ int	to ;
 
 #if	CF_SFGETR
 	{
-	    const char	*rp = sfgetr(fp,'\n',0) ;
+	    cchar	*rp = sfgetr(fp,'\n',0) ;
 #if	CF_DEBUGS
 	debugprintf("sfreadlinetimed: sfgetr() rp=%p\n",rp) ;
 #endif
 	    if (rp != NULL) {
 	        rl = sfvalue(fp) ;
 #if	CF_DEBUGS
-	debugprintf("sfreadlinetimed: sfvalue() rl=%d\n",rl) ;
+		debugprintf("sfreadlinetimed: sfvalue() rl=%d\n",rl) ;
 #endif
 	    } else {
 	        rp = sfgetr(fp,'\n',SF_LASTR) ;
 #if	CF_DEBUGS
-	debugprintf("sfreadlinetimed: sfgetr(LAST) rp=%p\n",rp) ;
+		debugprintf("sfreadlinetimed: sfgetr(LAST) rp=%p\n",rp) ;
 #endif
 	        if (rp != NULL) {
 	            rl = sfvalue(fp) ;
 #if	CF_DEBUGS
-	debugprintf("sfreadlinetimed: sfvalue() rl=%d\n",rl) ;
+		    debugprintf("sfreadlinetimed: sfvalue() rl=%d\n",rl) ;
 #endif
-		} else
+		} else {
 		    rl = 0 ;
+		}
 	    } /* end if */
-	        if ((rl > 0) && (snwcpy(rbuf,rlen,rp,rl) < 0))
-		    rl = -1 ;
+	    if ((rl > 0) && (snwcpy(rbuf,rlen,rp,rl) < 0)) {
+		rl = -1 ;
+	    }
 	}
 #else /* CF_SFGETR */
 	{
@@ -412,10 +404,7 @@ ret0:
 #endif /* CF_SFPOLL */
 
 
-int sfreadline(fp,rbuf,rlen)
-Sfio_t	*fp ;
-char	rbuf[] ;
-int	rlen ;
+int sfreadline(Sfio_t *fp,char *rbuf,int rlen)
 {
 
 #if	CF_DEBUGS

@@ -16,9 +16,9 @@
 
 #define	BVIHDR			struct bvihdr
 
+#define	BVIHDR_MAGICSIZE	16
 #define	BVIHDR_MAGICSTR		"BIBLEVERSEINDEX"
 #define	BVIHDR_MAGICLEN		sizeof(BVIHDR_MAGICSTR)
-#define	BVIHDR_MAGICSIZE	16
 #define	BVIHDR_VERSION		0
 
 

@@ -1,7 +1,7 @@
 '\" t
 .TH PCSPROJINFO 1 0 PCS
 .SH NAME
-pcsprojinfo \- get or set PCS project-information
+pcsprojinfo \- get or set the PCS project-information
 .SH SYNOPSIS
 .\"_
 .\"_

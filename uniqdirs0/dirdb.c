@@ -362,7 +362,8 @@ static int dirdb_adding(DIRDB *op,USTAT *sbp,cchar *np,int nl)
 static int dirdb_alreadyentry(DIRDB *dbp,DIRDB_ENT *ep)
 {
 	int		rs = SR_OK ;
-	int		dlen, cl ;
+	int		dlen ;
+	int		cl ;
 	int		f = FALSE ;
 	const char	*dnamep ;
 	const char	*cp ;
@@ -482,21 +483,15 @@ static int entry_finish(DIRDB_ENT *ep)
 
 
 #if	CF_STATCMP
-static uint statcmp(e1pp,e2pp)
-struct ustat	**e1pp, **e2pp ;
+static uint statcmp(const USTAT **e1pp,const USTAT **e2pp)
 {
-	struct ustat	*e1p, *e2p ;
-
-	e1p = *e1pp ;
-	e2p = *e2pp ;
-
-	if (e1p->st_ino != e2p->st_ino)
-	    return 1 ;
-
-	if (e1p->st_dev != e2p->st_dev)
-	    return 1 ;
-
-	return 0 ;
+	const USTAT	*e1p = *e1pp ;
+	const USTAT	*e2p = *e2pp ;
+	int		rc = (e1p->st_ino - e2p->st_ino) ;
+	if (rc == 0) {
+	    rc = (e1p->st_dev - e2p->st_dev)
+	}
+	return rc ;
 }
 #endif /* CF_STATCMP */
 

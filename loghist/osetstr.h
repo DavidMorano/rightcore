@@ -12,7 +12,7 @@
 
 
 #ifndef	OSETSTR_INCLUDE
-#define	OSETSTR_INCLUDE	1
+#define	OSETSTR_INCLUDE		1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -35,6 +35,7 @@ struct osetstr_head {
 
 typedef struct osetstr_head	osetstr ;
 typedef struct osetstr_c	osetstr_cur ;
+
 
 #if	(! defined(OSETSTR_MASTER)) || (OSETSTR_MASTER == 0)
 

@@ -1,2 +1,2 @@
 const char logfile_makedate[] =
-"@(#)logfile                 170213_0612:25_USEST Rightcore Network Services¹" ;
+"@(#)logfile                 170817_1100:28_USEDT Rightcore Network Services" ;

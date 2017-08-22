@@ -8,24 +8,13 @@
 
 /* revision history:
 
-	= 1995-01-22, David A­D­ Morano
+	= 1998-09-22, David A­D­ Morano
 	This subroutine module was adopted for use from a previous NETRC
 	reading program.  This version currently ignores all 'macdef' entries.
 
-	= 1997-12-10, David A­D­ Morano
-	I enhanced the subroutine to parse a "default" keyword that now appears
-	in some (apparently newer) ".netrc" files.  I process it by assumming
-	that a machine name of "*default*" was given.  I did not know what else
-	to do with it except to possibly ignore it.  Programs should be changed
-	to ignore a machine entry with a "*default*" as a name if they have
-	trouble with this.  I have already modified a program to ignore this.
-	Note that this name ("*default*") will FAIL a name lookup eventually.
-	If your name lookups are slow (like mine is) you may want to avoid this
-	name altogether to not have to wait for the failure to come back!
-
 */
 
-/* Copyright © 1995,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

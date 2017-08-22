@@ -211,7 +211,7 @@ int setstr_curend(setstr *op,setstr_cur *curp)
 int setstr_enum(setstr *op,setstr_cur *curp,cchar **rpp)
 {
 	HDB_DATUM	key, val ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rl = 0 ;
 
 	if (op == NULL) return SR_FAULT ;

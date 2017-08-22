@@ -1,6 +1,14 @@
 /* defs INCLUDE FILE */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
+/* revision history:
+
+	= 1999-06-13, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 
 #ifndef	DEFS_INCLUDE
@@ -49,6 +57,10 @@
 
 #define	ARGINFO		struct arginfo
 
+#define	ECMSGDESC	struct ecmsgdesc
+
+#define	FILEINFO	struct fileinfo
+
 #ifndef	DEBUGLEVEL
 #define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
 #endif
@@ -64,8 +76,7 @@ struct proginfo_flags {
 	uint		infile:1 ;
 	uint		logprog:1 ;
 	uint		log:1 ;
-	uint		stderror:1 ;
-	uint		seekable:1 ;
+	uint		logsize:1 ;
 	uint		unscramble:1 ;
 } ;
 
@@ -110,7 +121,23 @@ struct proginfo {
 	int		debuglevel ;		/* debugging level */
 	int		verboselevel ;		/* verbosity level */
 	int		logsize ;
+	int		n ;
 	int		necinfo ;		/* number OPwords for ECINFO */
+} ;
+
+struct pivars {
+	const char	*vpr1 ;
+	const char	*vpr2 ;
+	const char	*vpr3 ;
+	const char	*pr ;
+	const char	*vprname ;
+} ;
+
+struct arginfo {
+	cchar		**argv ;
+	int		argc ;
+	int		ai, ai_max, ai_pos ;
+	int		ai_continue ;
 } ;
 
 struct ecmsgdesc {
@@ -122,14 +149,6 @@ struct fileinfo {
 	time_t		mtime ;
 	uint		len ;
 	uint		cksum ;
-} ;
-
-struct pivars {
-	const char	*vpr1 ;
-	const char	*vpr2 ;
-	const char	*vpr3 ;
-	const char	*pr ;
-	const char	*vprname ;
 } ;
 
 

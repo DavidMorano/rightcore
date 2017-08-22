@@ -11,22 +11,20 @@
 
 /* revision history:
 
-	= 02/05/01, David A­D­ Morano
-
+	= 2002-05-01, David A­D­ Morano
 	This object module was created for Levo research.
-
 
 */
 
+/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
-	This object module implements a branch predictor.  This BP is a
-	Tournament type branch predictor (see McFarling and then Alpha
-	21264).
+        This object module implements a branch predictor. This BP is a
+        Tournament type branch predictor (see McFarling and then Alpha 21264).
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #define	BPALPHA_MASTER	0
@@ -36,24 +34,22 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/mman.h>		/* Memory Management */
 #include	<sys/stat.h>
+#include	<sys/mman.h>		/* Memory Management */
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"bpload.h"
 #include	"bpalpha.h"
 
 
-
 /* local defines */
 
-#define	BPALPHA_MAGIC		0x29456781
 #define	BPALPHA_DEFGLEN		4		/* default entries */
 #define	BPALPHA_DEFLPLEN	4		/* default entries */
 #define	BPALPHA_DEFLBLEN	4		/* default entries */
@@ -66,23 +62,6 @@
 #define	GETPRED(c)	(((c) >> 1) & 1)
 #define	GETPRED2(c)	(((c) >> 1) & 1)
 #define	GETPRED3(c)	(((c) >> 2) & 1)
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
-
 
 
 /* external subroutines */
@@ -108,9 +87,7 @@ struct bpload	bpalpha = {
 /* local variables */
 
 
-
-
-
+/* exported subroutines */
 
 
 int bpalpha_init(op,lhlen,lplen,glen)
@@ -119,15 +96,12 @@ int	lhlen ;
 int	lplen ;
 int	glen ;
 {
-	int	rs ;
-	int	size ;
+	int		rs ;
+	int		size ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	(void) memset(op,0,sizeof(BPALPHA)) ;
-
+	memset(op,0,sizeof(BPALPHA)) ;
 
 /* the choice PHT */
 
@@ -149,7 +123,7 @@ int	glen ;
 	malloclog_alloc(op->cpht,rs,"bpalpha_init:cpht") ;
 #endif
 
-	(void) memset(op->cpht,0,size) ;
+	memset(op->cpht,0,size) ;
 
 /* global PHT */
 
@@ -162,7 +136,7 @@ int	glen ;
 	malloclog_alloc(op->gpht,rs,"bpalpha_init:gpht") ;
 #endif
 
-	(void) memset(op->gpht,0,size) ;
+	memset(op->gpht,0,size) ;
 
 /* local BHT */
 
@@ -186,7 +160,7 @@ int	glen ;
 	malloclog_alloc(op->lbht,rs,"bpalpha_init:lbht") ;
 #endif
 
-	(void) memset(op->lbht,0,size) ;
+	memset(op->lbht,0,size) ;
 
 /* local PHT */
 
@@ -210,12 +184,11 @@ int	glen ;
 	malloclog_alloc(op->lpht,rs,"bpalpha_init:lpht") ;
 #endif
 
-	(void) memset(op->lpht,0,size) ;
+	memset(op->lpht,0,size) ;
 
 /* global branch history register */
 
 	op->historymask = (op->glen - 1) ;
-
 
 /* we're out of here */
 
@@ -254,53 +227,26 @@ bad0:
 int bpalpha_free(op)
 BPALPHA	*op ;
 {
-	int	rs = SR_BADFMT ;
+	int		rs = SR_BADFMT ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != BPALPHA_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BPALPHA_MAGIC) return SR_NOTOPEN ;
 
 	if (op->lpht != NULL) {
-
 	    free(op->lpht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->lpht,"bpalpha_free:lpht") ;
-#endif
-
 	}
 
 	if (op->lbht != NULL) {
-
 	    free(op->lbht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->lbht,"bpalpha_free:lbht") ;
-#endif
-
 	}
 
 	if (op->gpht != NULL) {
-
 	    free(op->gpht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->gpht,"bpalpha_free:gpht") ;
-#endif
-
 	}
 
 	if (op->cpht != NULL) {
-
 	    free(op->cpht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->cpht,"bpalpha_free:cpht") ;
-#endif
-
 	}
 
 	op->magic = 0 ;
@@ -314,18 +260,15 @@ int bpalpha_lookup(op,ia)
 BPALPHA	*op ;
 uint	ia ;
 {
-	int	lbi, lpi ;
-	int	gi ;
-	int	f_pred ;
-	int	f_select ;
-
+	int		lbi, lpi ;
+	int		gi ;
+	int		f_pred ;
+	int		f_select ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != BPALPHA_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BPALPHA_MAGIC) return SR_NOTOPEN ;
 #endif /* F_SAFE */
 
 	gi = op->bhistory & op->historymask ;
@@ -363,18 +306,15 @@ int bpalpha_confidence(op,ia)
 BPALPHA	*op ;
 uint	ia ;
 {
-	int	lbi, lpi ;
-	int	gi ;
-	int	pred ;
-	int	f_select ;
-
+	int		lbi, lpi ;
+	int		gi ;
+	int		pred ;
+	int		f_select ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != BPALPHA_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BPALPHA_MAGIC) return SR_NOTOPEN ;
 #endif /* F_SAFE */
 
 	gi = op->bhistory & op->historymask ;
@@ -413,21 +353,16 @@ BPALPHA	*op ;
 uint	ia ;
 int	f_outcome ;
 {
-	uint	ncount ;
-
-	int	rs ;
-	int	lbi, lpi ;
-	int	gi ;
-	int	f_lpred, f_gpred ;
-	int	f_lagree, f_gagree ;
-
+	uint		ncount ;
+	int		lbi, lpi ;
+	int		gi ;
+	int		f_lpred, f_gpred ;
+	int		f_lagree, f_gagree ;
 
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != BPALPHA_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BPALPHA_MAGIC) return SR_NOTOPEN ;
 #endif /* F_SAFE */
 
 	lbi = (ia >> 2) % op->lhlen ;
@@ -482,30 +417,17 @@ int		ri ;
 BPALPHA_ENT	**rpp ;
 {
 
-
 #if	CF_DEBUGS
-	debugprintf("bpalpha_get: entered 0\n") ;
+	debugprintf("bpalpha_get: ent 0\n") ;
 #endif
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (rpp == NULL) return SR_FAULT ;
+
+	if (op->magic != BPALPHA_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("bpalpha_get: entered 1\n") ;
-#endif
-
-	if (op->magic != BPALPHA_MAGIC)
-	    return SR_NOTOPEN ;
-
-#if	CF_DEBUGS
-	debugprintf("bpalpha_get: entered 2\n") ;
-#endif
-
-	if (rpp == NULL)
-	    return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("bpalpha_get: entered ri=%d\n",ri) ;
+	debugprintf("bpalpha_get: ent ri=%d\n",ri) ;
 #endif
 
 	if ((ri < 0) || (ri >= op->tablen))
@@ -530,16 +452,13 @@ BPALPHA_ENT	**rpp ;
 int bpalpha_zerostats(op)
 BPALPHA		*op ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != BPALPHA_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != BPALPHA_MAGIC)
-	    return SR_NOTOPEN ;
-
-	(void) memset(&op->s,0,sizeof(BPALPHA_STATS)) ;
+	memset(&op->s,0,sizeof(BPALPHA_STATS)) ;
 
 	return rs ;
 }
@@ -551,14 +470,11 @@ int bpalpha_stats(op,rp)
 BPALPHA		*op ;
 BPALPHA_STATS	*rp ;
 {
-	int	bits_total ;
+	int		bits_total ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != BPALPHA_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != BPALPHA_MAGIC) return SR_NOTOPEN ;
 
 /* calculate the bits */
 
@@ -569,13 +485,12 @@ BPALPHA_STATS	*rp ;
 	    uint	bits_gpht ;
 	    uint	bits_ghistory ;
 
-
-	    bits_ghistory = flbsi(op->lplen) ;
+	    bits_ghistory = flbsi(op->lplen) ; /* is this correct? */
 
 	    bits_lbht = op->lhlen * bits_ghistory ;
 	    bits_lpht = op->lplen * 3 ;
 
-	    bits_ghistory = flbsi(op->glen) ;
+	    bits_lhistory = flbsi(op->glen) ; /* is this correct? */
 
 /* there are two of these tables (the selector and the real GPHT) */
 
@@ -590,7 +505,7 @@ BPALPHA_STATS	*rp ;
 
 	if (rp != NULL) {
 
-	(void) memcpy(rp,&op->s,sizeof(BPALPHA_STATS)) ;
+	memcpy(rp,&op->s,sizeof(BPALPHA_STATS)) ;
 
 	rp->lbht = op->lhlen ;
 	rp->lpht = op->lplen ;
@@ -604,9 +519,7 @@ BPALPHA_STATS	*rp ;
 /* end subroutine (bpalpha_stats) */
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 static uint satcount(v,n,f_up)
@@ -614,18 +527,16 @@ uint	v ;
 uint	n ;
 int	f_up ;
 {
-	uint	r ;
+	uint		r ;
 
-
-	if (f_up)
+	if (f_up) {
 	    r = (v == (n - 1)) ? v : (v + 1) ;
-
-	else 
+	} else {
 	    r = (v == 0) ? 0 : (v - 1) ;
+	}
 
 	return r ;
 }
 /* end subroutine (satcount) */
-
 
 

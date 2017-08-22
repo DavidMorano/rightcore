@@ -646,7 +646,7 @@ static int dirsearch(cchar *basedname,cchar *username)
 	int		f_found = FALSE ;
 
 	if ((rs = fsdir_open(&dir,basedname)) >= 0) {
-	    const char	*fnp ;
+	    cchar	*fnp ;
 	    while ((rs = fsdir_read(&dir,&ds)) > 0) {
 		fnp = ds.name ;
 		if (fnp[0] != '.') {

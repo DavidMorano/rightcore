@@ -6,10 +6,8 @@
 /* revision history:
 
 	= 2002-02-16, David A­D­ Morano
-
-	This was written for some statistics gathering for some software
-	evaluation.
-
+        This was written for some statistics gathering for some software
+        evaluation.
 
 */
 
@@ -17,8 +15,8 @@
 
 /*******************************************************************************
 
-	This object facilitates maintaining the probability density for
-	some random variable.
+        This object facilitates maintaining the probability density for some
+        random variable.
 
 
 *******************************************************************************/
@@ -46,9 +44,7 @@ extern int	densitystatll(ULONG *,int,double *,double *) ;
 /* exported subroutines */
 
 
-int density_start(op,len)
-DENSITY		*op ;
-uint		len ;
+int density_start(DENSITY *op,int len)
 {
 	int		rs ;
 	int		size ;
@@ -65,15 +61,14 @@ uint		len ;
 	    memset(op->a,0,size) ;
 	    op->len = len ;
 	    op->magic = DENSITY_MAGIC ;
-	} /* end if */
+	} /* end if (m-a) */
 
 	return rs ;
 }
 /* end subroutine (density_start) */
 
 
-int density_finish(op)
-DENSITY		*op ;
+int density_finish(DENSITY *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -96,9 +91,7 @@ DENSITY		*op ;
 /* end subroutine (density_finish) */
 
 
-int density_update(op,ai)
-DENSITY		*op ;
-uint		ai ;
+int density_update(DENSITY *op,int ai)
 {
 	int		rs = SR_OK ;
 
@@ -125,10 +118,7 @@ uint		ai ;
 /* end subroutine (density_update) */
 
 
-int density_slot(op,ai,rp)
-DENSITY		*op ;
-uint		ai ;
-ULONG		*rp ;
+int density_slot(DENSITY *op,int ai,ULONG *rp)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -144,9 +134,7 @@ ULONG		*rp ;
 /* end subroutine (density_slot) */
 
 
-int density_stats(op,sp)
-DENSITY		*op ;
-DENSITY_STATS	*sp ;
+int density_stats(DENSITY *op,DENSITY_STATS *sp)
 {
 	int		rs ;
 	int		len ;

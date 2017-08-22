@@ -52,8 +52,6 @@
 
 /* local defines */
 
-#define	NDF	"rmsesfiles.deb"
-
 
 /* external subroutines */
 

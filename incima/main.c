@@ -79,6 +79,7 @@ extern int	mkfnamesuf1(char *,const char *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	bufprintf(char *,int,const char *,...) ;
+extern int	isdigitlatin(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -267,8 +268,9 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-		if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 

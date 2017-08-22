@@ -102,8 +102,9 @@ int hexdecoder_start(HEXDECODER *op)
 	if ((obp = new(nothrow) obuf) != NULL) {
 	    op->outbuf = (void *) obp ;
 	    op->magic = HEXDECODER_MAGIC ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 
 	return rs ;
 }
@@ -165,8 +166,9 @@ int hexdecoder_load(HEXDECODER *op,cchar *sp,int sl)
 		sp += 1 ;
 		sl -= 1 ;
 	    } /* end while */
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -194,8 +196,9 @@ int hexdecoder_read(HEXDECODER *op,char *rbuf,int rlen)
 	    }
 	    rbuf[i] = '\0' ;
 	    rs = obp->adv(i) ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -217,8 +220,9 @@ static int hexdecoder_cvt(HEXDECODER *op)
 	    v |= (hexval(ch0)<<4) ;
 	    v |= (hexval(ch1)<<0) ;
 	    obp->add(v) ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 	return (rs >= 0) ? 1 : rs ;
 }
 /* end subroutine (hexdecoder_cvt) */

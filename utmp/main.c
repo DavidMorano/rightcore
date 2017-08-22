@@ -8,28 +8,17 @@
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_LOCALWTMP	0		/* use local WTMP */
+#define	CF_LOCSETENT	0		/* |locinfo_setentry()| */
 
 
 /* revision history:
 
-	= 1989-03-01, David A­D­ Morano
-        This subroutine was originally written. This whole program, LOGDIR, is
-        needed for use on the Sun CAD machines because Sun doesn't support
-        LOGDIR or LOGNAME at this time. There was a previous program but it is
-        lost and not as good as this one anyway. This one handles NIS+ also.
-        (The previous one didn't.)
-
-	= 1998-06-01, David A­D­ Morano
-        I enhanced the program a little to print out some other user information
-        besides the user's name and login home directory.
-
-	= 1999-03-01, David A­D­ Morano
-        I enhanced the program to also print out effective UID and effective
-        GID.
+	= 2000-12-13, David A­D­ Morano
+        This program was originally written (as a test).
 
 */
 
-/* Copyright © 1989,1998,1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -50,9 +39,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
-#include	<pwd.h>
-#include	<grp.h>
 #include	<time.h>
 #include	<utmpx.h>
 #include	<netdb.h>
@@ -82,8 +68,14 @@
 #define	UTMPFNAME	"/var/adm/utmpx"
 #endif
 
+#ifndef	BUFLEN
 #define	BUFLEN		1024
+#endif
+
 #define	TERMBUFLEN	(TMPX_LLINE + 5)
+
+#define	LOCINFO		struct locinfo
+#define	LOCINFO_FL	struct locinfo_flags
 
 
 /* external subroutines */
@@ -116,6 +108,8 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 
@@ -125,17 +119,41 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* local structures */
 
+struct locinfo_flags {
+	uint		stores:1 ;
+	uint		searchline:1 ;
+	uint		yes:1 ;
+	uint		no:1 ;
+	uint		zap:1 ;
+} ;
+
+struct locinfo {
+	LOCINFO_FL	have, f, changed, final ;
+	LOCINFO_FL	open ;
+	vecstr		stores ;
+	PROGINFO	*pip ;
+	cchar		*searchline ;
+} ;
+
 
 /* forward references */
 
 static int	usage(PROGINFO *) ;
+
 static int	process(PROGINFO *,bfile *,pid_t) ;
 static int	zaputx(struct utmpx *) ;
+
+static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+
+#if	CF_LOCSETENT
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+#endif
 
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -203,6 +221,7 @@ static const char	*utmptypes[] = {
 int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
+	LOCINFO		li, *lip = &li ;
 	BITS		pargs ;
 	bfile		errfile ;
 	pid_t		pid = 0 ;
@@ -258,6 +277,13 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	pip->verboselevel = 1 ;
 
+	pip->lip = &li ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto badlocstart ;
+	}
+
 /* start parsing the arguments */
 
 	if (rs >= 0) rs = bits_start(&pargs,1) ;
@@ -277,7 +303,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -301,7 +327,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                avl = aop + argl - 1 - avp ;
 	                aol = akl ;
 	            } else {
-			avp = NULL ;
+	                avp = NULL ;
 	                avl = 0 ;
 	                akl = aol ;
 	            }
@@ -325,7 +351,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if (avl) {
 	                            rs = optvalue(avp,avl) ;
 	                            pip->verboselevel = rs ;
-				}
+	                        }
 	                    }
 	                    break ;
 
@@ -341,12 +367,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            sn = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -359,12 +385,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            afname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -377,12 +403,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -395,12 +421,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            ofname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -415,7 +441,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	            } else {
 
 	                while (akl--) {
-			    const int	kc = MKCHAR(*akp) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -427,7 +453,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            if (avl) {
 	                                rs = optvalue(avp,avl) ;
 	                                pip->debuglevel = rs ;
-				    }
+	                            }
 	                        }
 	                        break ;
 
@@ -443,33 +469,33 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	                    case 'h':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->hostname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->hostname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'y':
-	                        pip->f.yes = TRUE ;
+	                        lip->f.yes = TRUE ;
 	                        break ;
 
 	                    case 'n':
-	                        pip->f.no = TRUE ;
+	                        lip->f.no = TRUE ;
 	                        break ;
 
 	                    case 'p':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-	                            pid = rs ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+	                                pid = rs ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -485,12 +511,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            if (avl) {
 	                                rs = optvalue(avp,avl) ;
 	                                pip->verboselevel = rs ;
-				    }
+	                            }
 	                        }
 	                        break ;
 
 	                    case 'z':
-	                        pip->f.zap = TRUE ;
+	                        lip->f.zap = TRUE ;
 	                        break ;
 
 	                    case '?':
@@ -606,11 +632,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	        if (cp[0] != '\0') {
 	            switch (pan) {
 	            case 0:
-	                pip->searchterm = cp ;
+	                lip->searchline = cp ;
 	                break ;
 	            } /* end switch */
-	    	    pan += 1 ;
-		} /* end if (non-nul) */
+	            pan += 1 ;
+	        } /* end if (non-nul) */
 	    }
 	} /* end for */
 
@@ -676,6 +702,9 @@ retearly:
 	bits_finish(&pargs) ;
 
 badpargs:
+	locinfo_finish(lip) ;
+
+badlocstart:
 	proginfo_finish(pip) ;
 
 badprogstart:
@@ -717,7 +746,7 @@ static int usage(PROGINFO *pip)
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-	fmt = "%s: USAGE> %s [-y|-n] [-h <hostname>] <searchterm> [-z]\n" ;
+	fmt = "%s: USAGE> %s [-y|-n] [-h <hostname>] <searchline> [-z]\n" ;
 	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
@@ -734,23 +763,26 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 {
 	struct utmpx	uc ;
 	struct utmpx	*up ;
+	LOCINFO		*lip = pip->lip ;
 	const pid_t	sid = u_getsid(pid) ;
 	int		rs = SR_OK ;
 	int		si ;
 	int		cl ;
 	char		lognamebuf[TMPX_LUSER + 1] ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 
 	lognamebuf[0] = '\0' ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("main: sid=%d\n",sid) ;
+	    debugprintf("main: ent sid=%d\n",sid) ;
 #endif
 
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: sid=%d\n",
-	        pip->progname,sid) ;
+	    fmt = "%s: sid=%d\n" ;
+	    bprintf(pip->efp,fmt,pn,sid) ;
 	}
 
 /* loop */
@@ -762,7 +794,7 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
-		int	i ;
+	        int	i ;
 #ifdef	COMMENT
 	        debugprintf("main: si=%u up=%p\n",si,up) ;
 #endif
@@ -785,9 +817,10 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 	    }
 #endif /* CF_DEBUG */
 
-	    if (pip->f.zap && (pip->searchterm != NULL)) {
+	    if (lip->f.zap && (lip->searchline != NULL)) {
+		cchar	*searchline = lip->searchline ;
 
-	        if (strncmp(up->ut_line,pip->searchterm,TMPX_LLINE) == 0)
+	        if (strncmp(up->ut_line,searchline,TMPX_LLINE) == 0)
 	            break ;
 
 	    } else if ((up->ut_type == TMPX_TUSERPROC) &&
@@ -813,10 +846,10 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("main: loguser=%s f_zap=%u up=%p\n",
-	        lognamebuf,pip->f.zap,up) ;
+	        lognamebuf,lip->f.zap,up) ;
 #endif /* CF_DEBUG */
 
-	if (pip->f.zap && (pip->searchterm != NULL)) {
+	if (lip->f.zap && (lip->searchline != NULL)) {
 
 	    uc = *up ;		/* copy the record found */
 
@@ -827,12 +860,12 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 	    rs = zaputx(&uc) ;
 
 	    if (rs < 0) {
-	        bprintf(pip->efp,
-	            "%s: operation not allowed (%d)\n",
-	            pip->progname,rs) ;
+		fmt = "%s: operation not allowed (%d)\n" ;
+	        bprintf(pip->efp,fmt,pn,rs) ;
 	    }
 
-	} else if ((! pip->f.yes) && (! pip->f.no)) {
+	} else if ((! lip->f.yes) && (! lip->f.no)) {
+	    fmt = "id=%-4t line=%-12t user=%-12t sid=%-5u ses=%u host=%t\n" ;
 
 	    if (up != NULL) {
 
@@ -842,26 +875,28 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 	                si,up->ut_pid) ;
 #endif
 
-	        bprintf(ofp,
-	            "id=%-4t line=%-12t user=%-12t sid=%-5u ses=%u host=%t\n",
+	        bprintf(ofp,fmt,
 	            up->ut_id,strnlen(up->ut_id,TMPX_LID),
 	            up->ut_line,strnlen(up->ut_line,TMPX_LLINE),
 	            up->ut_user,strnlen(up->ut_user,TMPX_LUSER),
 	            up->ut_pid,
-		    up->ut_session,
+	            up->ut_session,
 	            up->ut_host,strnlen(up->ut_host,TMPX_LHOST)) ;
 
-	    } else
+	    } else {
 	        bprintf(ofp,"not logged in\n") ;
+	    }
 
-	} else if (pip->f.yes) {
+	} else if (lip->f.yes) {
 
 	    if (up == NULL) {
-	        int	tl ;
-	        char	termbuf[TERMBUFLEN + 1] ;
+		const int	termlen = TERMBUFLEN ;
+	        int		tl ;
+	        char		termbuf[TERMBUFLEN + 1] ;
 
-	        rs = termdevice(termbuf,TERMBUFLEN,FD_STDIN) ;
-	        tl = rs ;
+	        if ((rs = termdevice(termbuf,termlen,FD_STDIN)) >= 0) {
+	            char	idbuf[TMPX_LID + 1] ;
+	            tl = rs ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -870,8 +905,6 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 	                termbuf,((rs > 0) ? rs : 0)) ;
 #endif
 
-	        if (rs >= 0) {
-	            char	idbuf[TMPX_LID + 1] ;
 
 	            memset(&uc,0,sizeof(struct utmpx)) ;
 
@@ -887,8 +920,9 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 
 	            strncpy(uc.ut_line,(termbuf + 5),TMPX_LLINE) ;
 
-		    if (lognamebuf[0] == '\0')
-			getusername(lognamebuf,USERNAMELEN,-1) ;
+	            if (lognamebuf[0] == '\0') {
+	                getusername(lognamebuf,USERNAMELEN,-1) ;
+		    }
 
 	            strncpy(uc.ut_user,lognamebuf,TMPX_LUSER) ;
 
@@ -905,9 +939,9 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 	                uc.ut_syslen = (cl + 1) ;
 
 	            } else {
-			uc.ut_host[0] = '\0' ;
+	                uc.ut_host[0] = '\0' ;
 	                uc.ut_syslen = 0 ;
-		    }
+	            }
 
 	            gettimeofday(&uc.ut_tv,NULL) ;
 
@@ -930,11 +964,13 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 	                    pip->progname) ;
 	            }
 
-	        } else
+	        } else {
 	            bprintf(ofp,"no terminal on standard input\n") ;
+		}
 
-	    } else
-	            bprintf(ofp,"already logged in\n") ;
+	    } else {
+	        bprintf(ofp,"already logged in\n") ;
+	    }
 
 	} else {
 
@@ -955,9 +991,8 @@ static int process(PROGINFO *pip,bfile *ofp,pid_t pid)
 
 	        if (up == NULL) {
 	            rs = SR_ACCESS ;
-	            bprintf(pip->efp,
-	                "%s: operation not allowed\n",
-	                pip->progname) ;
+		    fmt = "%s: operation not allowed\n" ;
+	            bprintf(pip->efp,fmt,pn) ;
 	        }
 
 	    } /* end if */
@@ -1019,5 +1054,73 @@ static int zaputx(struct utmpx *up)
 	return (rs >= 0) ? ei : rs ;
 }
 /* end subroutine (zaputx) */
+
+
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	memset(lip,0,sizeof(LOCINFO)) ;
+	lip->pip = pip ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_start) */
+
+
+static int locinfo_finish(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (lip == NULL) return SR_FAULT ;
+
+	if (lip->open.stores) {
+	    lip->open.stores = FALSE ;
+	    rs1 = vecstr_finish(&lip->stores) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	return rs ;
+}
+/* end subroutine (locinfo_finish) */
+
+
+#if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+{
+	VECSTR		*slp ;
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	slp = &lip->stores ;
+	if (! lip->open.stores) {
+	    rs = vecstr_start(slp,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
+	}
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
+	    if (vp != NULL) {
+	        len = strnlen(vp,vl) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (locinfo_setentry) */
+#endif /* CF_LOCSETENT */
 
 

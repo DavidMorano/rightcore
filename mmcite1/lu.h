@@ -36,14 +36,21 @@
 #include	<localmisc.h>
 
 
+#define	LU		struct lu_head
+#define	LU_HEAD		struct lu_head
+#define	LU_FL		struct lu_flags
+#define	LU_CUR		struct hdb_cur
+#define	LU_CURSOR	struct hdb_cur
+#define	LU_VALUE	struct hdb_value
+
 
 struct lu_flags {
-	uint	open : 1 ;
+	uint		open:1 ;
 } ;
 
 struct lu_value {
-	struct lu_flags	f ;
-	bfile			infile, outfile, errfile ;
+	LU_FL		f ;
+	bfile		infile, outfile, errfile ;
 } ;
 
 struct lu_head {
@@ -53,13 +60,6 @@ struct lu_head {
 
 
 typedef struct lu_head	lu ;
-
-
-#define	LU		struct lu_head
-#define	LU_HEAD		struct lu_head
-#define	LU_CUR		struct hdb_cur
-#define	LU_CURSOR	struct hdb_cur
-#define	LU_VALUE	struct hdb_value
 
 
 #ifndef	LU_MASTER
@@ -74,6 +74,5 @@ extern int	lu_delcur(LU *,LU_CUR *) ;
 
 
 #endif /* LU_INCLUDE */
-
 
 

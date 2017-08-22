@@ -11,16 +11,12 @@
 /* revision history:
 
 	= 1887-09-01, David A­D­ Morano
-
 	This program was originally written.
 
-
 	- 1998-02-20, David A­D­ Morano
-
-	This program has been enhanced to provide for an arbitrary (user
-	defined) header on the print-outs.  Not having a user defined
-	header on print-outs has proven to be dissasterous in the past.
-
+        This program has been enhanced to provide for an arbitrary (user
+        defined) header on the print-outs. Not having a user defined header on
+        print-outs has proven to be dissasterous in the past.
 
 */
 
@@ -94,6 +90,7 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	getpwd(char *,int) ;
 extern int	getnodedomain(char *,char *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	expander() ;
 
@@ -168,7 +165,8 @@ char	*envp[] ;
 	int	argr, argl, aol, akl, avl, kwi ;
 	int	maxai, pan, npa ;
 	int	argvalue = -1 ;
-	int	rs, rs1 ;
+	int	rs = SR_OK ;
+	int	rs1 ;
 	int	i, j, k, l ;
 	int	len, srs ;
 	int	loglen = -1 ;
@@ -213,16 +211,13 @@ char	*envp[] ;
 	if (fstat(3,&sb) >= 0)
 	    debugsetfd(3) ;
 
-
 /* we want to open up some files so that the first few FD slots are FULL !! */
 
 	for (i = 0 ; i < 3 ; i += 1) {
-
-	    if (fstat(i,&sb) != 0) 
+	    if (fstat(i,&sb) != 0) {
 		u_open("/dev/null",O_RDWR,0666) ;
-
+	    }
 	}
-
 
 /* general initialization */
 
@@ -249,7 +244,6 @@ char	*envp[] ;
 
 /* start parsing the arguments */
 
-	rs = SR_OK ;
 	for (i = 0 ; i < MAXARGGROUPS ; i += 1) argpresent[i] = 0 ;
 
 	npa = 0 ;			/* number of positional so far */
@@ -265,10 +259,11 @@ char	*envp[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                    rs = cfdeci(argp + 1,argl - 1,&ro.maxlines) ;
 

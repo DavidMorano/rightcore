@@ -6,11 +6,9 @@ of hexadecimal digits (in pairs) representing encoded bytes of the clear text
 data.
 
 Synopsis:
-
 $ %{S} <file(s)> [-V]
 
-Where:
-
+Arguments:
 <file(s)>	file(s) to de-hexify
 -V		print program version to standard-error and then exit
 

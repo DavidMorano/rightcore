@@ -13,10 +13,7 @@
 /* revision history:
 
 	= 1999-02-09, David A­D­ Morano
-
-	This subroutine is being hacked again to make the MKHTMARTICLES
-	program.
-
+        This subroutine is being hacked again to make the MKHTMARTICLES program.
 
 */
 
@@ -85,6 +82,7 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	isdigitlatin(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(struct proginfo *,const char *,
@@ -259,12 +257,13 @@ const char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    rs = cfdecti((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;
@@ -1050,9 +1049,9 @@ const char	s[] ;
 int		sl ;
 const char	**rpp ;
 {
-	int	rs = SR_OK ;
-	int	cl ;
-
+	int		rs = SR_OK ;
+	int		cl ;
+	int		ch ;
 	const char	*cp ;
 
 
@@ -1068,7 +1067,7 @@ const char	**rpp ;
 	    sl -= 1 ;
 	}
 
-	while ((sl > 0) && (! isdigit(*s))) {
+	while ((sl > 0) && ((ch = MKCHAR(*s)),(! isdigitlatin(ch)))) {
 	    s += 1 ;
 	    sl -= 1 ;
 	}
@@ -1080,7 +1079,7 @@ const char	**rpp ;
 
 	cp = s ;
 	cl = sl ;
-	while ((cl > 0) && isdigit(*cp)) {
+	while ((cl > 0) && ((ch = MKCHAR(*cp)),isdigitlatin(ch))) {
 	    cp += 1 ;
 	    cl -= 1 ;
 	}

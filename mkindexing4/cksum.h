@@ -1,5 +1,7 @@
 /* cksum */
 
+/* perform the POSIX 1003.2 CRC checksum algorithm */
+
 
 /* revision history:
 
@@ -28,8 +30,7 @@
 
 
 struct cksum_flags {
-	uint		started:1 ;
-	uint		finished:1 ;
+	uint		begun:1 ;
 } ;
 
 struct cksum_head {

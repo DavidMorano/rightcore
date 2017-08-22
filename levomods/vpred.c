@@ -12,11 +12,9 @@
 /* revision history:
 
 	= 2002-05-01, David A­D­ Morano
-
-	This object module was created for Levo research.
-	It is a value predictor.  This is not coded as
-	hardware.  It is like Atom analysis subroutines !
-
+        This object module was created for Levo research. It is a value
+        predictor. This is not coded as hardware. It is like Atom analysis
+        subroutines!
 
 */
 
@@ -24,9 +22,9 @@
 
 /******************************************************************************
 
-	This object module implements a value predictor.  It is not
-	coded as if it was real hardware (like LevoSim for example).
-	It is coded like an analysis subroutine for Atom.
+        This object module implements a value predictor. It is not coded as if
+        it was real hardware (like LevoSim for example). It is coded like an
+        analysis subroutine for Atom.
 
 
 *****************************************************************************/
@@ -39,8 +37,8 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/mman.h>		/* Memory Management */
 #include	<sys/stat.h>
+#include	<sys/mman.h>		/* Memory Management */
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
@@ -61,22 +59,6 @@
 #define	VPRED_SREPLACE	1		/* stride threshold (counter) */
 
 #define	MODP2(v,n)	((v) & ((n) - 1))
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
 
 
 /* external subroutines */
@@ -108,11 +90,9 @@ int		sbits ;
 
 	char	*cp ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	(void) memset(op,0,sizeof(VPRED)) ;
+	memset(op,0,sizeof(VPRED)) ;
 
 	if (nentry <= 0)
 	    nentry = VPRED_DEFN ;
@@ -178,21 +158,12 @@ VPRED		*op ;
 {
 	int	rs = SR_BADFMT ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != VPRED_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != VPRED_MAGIC) return SR_NOTOPEN ;
 
 	if (op->table != NULL) {
-
 	    free(op->table) ;
-
-#ifdef	MALLOCLOG
-	malloclog_free(op->table,rs,"vpred_free:table") ;
-#endif
-
 	}
 
 	op->magic = 0 ;
@@ -216,16 +187,11 @@ int		n ;
 	int	i, c ;
 	int	mops ;
 
-
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (values == NULL) return SR_FAULT ;
 
-	if (op->magic != VPRED_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (values == NULL)
-	    return SR_FAULT ;
+	if (op->magic != VPRED_MAGIC) return SR_NOTOPEN ;
 #endif /* F_SAFE */
 
 	ti = (ia >> 2) % op->tablen ;
@@ -290,16 +256,11 @@ uint		values[] ;
 	int	f_miss = FALSE ;
 	int	f_same ;
 
-
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (values == NULL) return SR_FAULT ;
 
-	if (op->magic != VPRED_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (values == NULL)
-	    return SR_FAULT ;
+	if (op->magic != VPRED_MAGIC) return SR_NOTOPEN ;
 #endif /* F_SAFE */
 
 	ti = (ia >> 2) % op->tablen ;
@@ -421,31 +382,14 @@ int		ri ;
 VPRED_ENT	**rpp ;
 {
 
-
 #if	CF_DEBUGS
 	debugprintf("vpred_get: entered 0\n") ;
 #endif
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (rpp == NULL) return SR_FAULT ;
 
-#if	CF_DEBUGS
-	debugprintf("vpred_get: entered 1\n") ;
-#endif
-
-	if (op->magic != VPRED_MAGIC)
-	    return SR_NOTOPEN ;
-
-#if	CF_DEBUGS
-	debugprintf("vpred_get: entered 2\n") ;
-#endif
-
-	if (rpp == NULL)
-	    return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("vpred_get: entered ri=%d\n",ri) ;
-#endif
+	if (op->magic != VPRED_MAGIC) return SR_NOTOPEN ;
 
 	if ((ri < 0) || (ri >= op->tablen))
 	    return SR_NOTFOUND ;
@@ -469,14 +413,11 @@ VPRED		*op ;
 {
 	int	rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != VPRED_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != VPRED_MAGIC)
-	    return SR_NOTOPEN ;
-
-	(void) memset(&op->s,0,sizeof(VPRED_STATS)) ;
+	memset(&op->s,0,sizeof(VPRED_STATS)) ;
 
 	return rs ;
 }
@@ -490,26 +431,19 @@ VPRED_STATS	*rp ;
 {
 	int	rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
+	if (rp == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != VPRED_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != VPRED_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (rp == NULL)
-	    return SR_FAULT ;
-
-	(void) memcpy(rp,&op->s,sizeof(VPRED_STATS)) ;
+	memcpy(rp,&op->s,sizeof(VPRED_STATS)) ;
 
 	return rs ;
 }
 /* end subroutine (vpred_stats) */
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 static uint satcount(v,n,f_up)
@@ -517,18 +451,16 @@ uint	v ;
 uint	n ;
 int	f_up ;
 {
-	uint	r ;
+	uint		r ;
 
-
-	if (f_up)
+	if (f_up) {
 	    r = (v == (n - 1)) ? v : (v + 1) ;
-
-	else 
+	} else {
 	    r = (v == 0) ? 0 : (v - 1) ;
+	}
 
 	return r ;
 }
 /* end subroutine (satcount) */
-
 
 

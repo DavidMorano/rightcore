@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -102,6 +100,7 @@
 
 extern int	cfdeci(const char *,int,int *) ;
 extern int	listenusd(const char *,int) ;
+extern int	isdigitlatin(int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
@@ -263,10 +262,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (cfdeci(argp + 1,argl - 1,&argnum))
 	                    goto badargval ;

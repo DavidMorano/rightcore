@@ -39,7 +39,9 @@
 
 
 #define	CITEDB			struct citedb_head
+#define	CITEDB_STORE		struct citedb_store
 #define	CITEDB_ENT		struct citedb_e
+#define	CITEDB_OFF		struct citedb_offset
 #define	CITEDB_CUR		struct citedb_cur
 
 #define	CITEDB_CITESTRLEN	3
@@ -62,7 +64,7 @@ struct citedb_e {
 
 /* store key-offset in list */
 struct citedb_offset {
-	struct citedb_store	*sp ;
+	CITEDB_STORE	*sp ;
 	uint		coff ;		/* file offset of citation */
 	int		fi ;		/* file index */
 	int		ci ;		/* citation index of this citation */

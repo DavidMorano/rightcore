@@ -1,6 +1,16 @@
 /* print out the check sum of a PLD JEDEC file a JEDEC */
 
 
+/* revision history:
+
+	= 1996-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 1996 David A­D­ Morano.  All rights reserved. */
+
+
 /* 
 	$ pld_sum file1 file2 .. 
 
@@ -12,7 +22,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<bfile.h>
 #include	<localmisc.h>
@@ -24,12 +33,15 @@
 #define		NFILES		100
 
 
+/* external subroutines */
+
+extern int	isdigitlatin(int) ;
+
+
 /* exported subroutines */
 
 
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile		errfile, *efp = &errfile ;
 	bfile		outfile, *ofp = &outfile ;
@@ -70,10 +82,11 @@ char	*argv[] ;
 	    argl = strlen(argp) ;
 
 	    if ((argl > 0) && (*argp == '-')) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                bprintf(efp,"%s: illegal option \"%s\" ignored\n",
 				progname,argp) ;

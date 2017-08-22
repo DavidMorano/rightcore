@@ -20,10 +20,8 @@
 /* revision history:
 
 	= 1999-09-01, David A­D­ Morano
-
 	This subroutine was borrowed and modified from previous generic
 	front-end 'main' subroutines!
-
 
 */
 
@@ -42,7 +40,7 @@
         development organization.
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -430,8 +428,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	            if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	                if ((argl - 1) > 0)
 	                    rs = cfdecti((argp + 1),(argl - 1),

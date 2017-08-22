@@ -62,6 +62,8 @@
 
 extern int	nleadstr(const char *,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
+extern int	isalphalatin(int) ;
 
 extern char	*strwcpylc(char *,const char *,int) ;
 
@@ -111,12 +113,12 @@ int getlogpri(const char *np,int nl)
 	nlen = strwcpylc(nbuf,np,nl) - nbuf ;
 
 	ch = nbuf[0] ;
-	if (isdigit(ch)) {
+	if (isdigitlatin(ch)) {
 	    rs = cfdeci(nbuf,nlen,&logpri) ;
 	    if (rs >= 0) {
 		if ((logpri < 0) || (logpri > 7)) rs = SR_DOM ;
 	    }
-	} else if (isalpha(ch)) {
+	} else if (isalphalatin(ch)) {
 	    for (i = 0 ; lfs[i].name != NULL ; i += 1) {
 	        anp = lfs[i].name ;
 	        m = nleadstr(anp,nbuf,nlen) ;

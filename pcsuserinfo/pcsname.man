@@ -1,7 +1,7 @@
 '\" t
 .TH PCSNAME 1 0 PCS
 .SH NAME
-pcsname \- get or set PCS user real name
+pcsname \- get or set the PCS real name
 .SH SYNOPSIS
 .\"_
 .\"_
@@ -84,7 +84,7 @@ pcsname \- get or set PCS user real name
 .\"_
 .BR pcsname
 .OP -u " user" ] [
-.OP -s " organization-name" ] [
+.OP -s " name" ] [
 .OP -R " program-root" ] [
 .OP -D[=<n>] "" ] [
 .OP -V "" ] [

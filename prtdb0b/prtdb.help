@@ -10,11 +10,11 @@ $ prtdb <key(s)> [-af <argfile>] [-d <printer>] [-u <username>]
 
 where:
 
--d <printer>	printer destination to lookup (else use default)
 <key(s)>	keys to lookup the values of (prints one value per line)
 -af <argfile>	file of key(s)
+-d <printer>	printer destination to lookup (else use default)
+-u <username>	query as this alternate username
 -db <dbfile>	database file to use instead of default
 -un <utility>	utility name
--u <username>	query as this alternate username
 -V		print program version and then exit
 

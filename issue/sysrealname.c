@@ -40,10 +40,10 @@
 #include	<vsystem.h>
 #include	<vecstr.h>
 #include	<realname.h>
+#include	<modload.h>
 #include	<localmisc.h>
 
 #include	"sysrealname.h"
-#include	"modload.h"
 
 
 /* local defines */
@@ -102,7 +102,7 @@ static int	isrequired(int) ;
 
 /* local variables */
 
-static const char	*subs[] = {
+static cchar	*subs[] = {
 	"open",
 	"info",
 	"curbegin",

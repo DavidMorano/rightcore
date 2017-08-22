@@ -1,2 +1,2 @@
 const char la_makedate[] =
-"@(#)la                      170703_2142:26_USEDT Rightcore Network Services" ;
+"@(#)la                      170816_0431:33_USEDT Rightcore Network Services" ;

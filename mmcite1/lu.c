@@ -92,8 +92,9 @@ void		bufdesc_init(), br_init() ;
 int lu_open(bdbp)
 bdb	*bdbp ;
 {
-
-
+	if (bdbp == NULL) return SR_FAULT ;
+	memset(bdbp,0,sizeof(LU)) ;
+	return SR_OK ;
 }
 /* end subroutine (lu_open) */
 

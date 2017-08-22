@@ -1,4 +1,4 @@
-TESTSHA
+SHA1
 
 This program calculates the SHA1 digest on the given files and returns the
 corrsponding hexadecimal string for each (20 bytes).

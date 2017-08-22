@@ -16,7 +16,7 @@
 
 /* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
         This subrotuine checks some names against the UNIX system set of
         netgroups (if there are any).
@@ -40,7 +40,7 @@
 	>0		match (allowed)
 
 
-***************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -52,7 +52,6 @@
 #include	<arpa/inet.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<time.h>
@@ -102,6 +101,7 @@ extern int	nextfield(const char *,int,const char **) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vstrkeycmp(const char **,const char **) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpylc(char *,const char *,int) ;
@@ -143,20 +143,16 @@ vecstr		*nlp ;
 	    if (ngp == NULL) continue ;
 
 	    for (j = 0 ; vecstr_get(nlp,j,&mnp) >= 0 ; j += 1) {
-
-	        if (mnp == NULL) continue ;
-
-	        if (isdigit(mnp[0])) continue ;
-
-	        f = innetgr(ngp,mnp,NULL,dname) ;
-	 	if (f)
-	            break ;
-
+	        if (mnp != NULL) {
+		    const int	ch = MKCHAR(mnp[0]) ;
+	            if (! isdigitlatin(ch)) {
+	                f = innetgr(ngp,mnp,NULL,dname) ;
+	 	        if (f) break ;
+		    }
+		}
 	    } /* end for (machine names) */
 
-	    if (f || (rs < 0))
-	        break ;
-
+	    if (f || (rs < 0)) break ;
 	} /* end for (netgroups) */
 
 ret0:

@@ -42,6 +42,7 @@
 #include	<netdb.h>
 
 #include	<vsystem.h>
+#include	<char.h>
 #include	<bfile.h>
 #include	<hostinfo.h>
 #include	<sockaddress.h>
@@ -95,7 +96,7 @@ extern int	getportnum(const char *,const char *) ;
 extern int	getaf(const char *,int) ;
 extern int	getaflen(int) ;
 extern int	cfnumi(const char *,int,int *) ;
-extern int	progout_printf(struct proginfo *,const char *,...) ;
+extern int	progout_printf(PROGINFO *,const char *,...) ;
 extern int	tolower(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -107,10 +108,11 @@ extern char	*timestr_log(time_t,char *) ;
 
 /* forward references */
 
-int		progout_open(struct proginfo *) ;
-int		progout_close(struct proginfo *) ;
+int		progout_open(PROGINFO *) ;
+int		progout_close(PROGINFO *) ;
 
-static int	gethostinfo(struct proginfo *,char *,int,const char *,int *) ;
+static int	procsocker(PROGINFO *,int,cchar *,int) ;
+static int	gethostinfo(PROGINFO *,char *,int,const char *,int *) ;
 
 
 /* local structures */
@@ -123,12 +125,11 @@ static int	gethostinfo(struct proginfo *,char *,int,const char *,int *) ;
 
 
 int progsock(pip,familyname,netaddr1,netaddr2)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 const char	familyname[] ;
 const char	netaddr1[] ;
 const char	netaddr2[] ;
 {
-	SOCKADDRESS	sa ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		i ;
@@ -145,20 +146,18 @@ const char	netaddr2[] ;
 
 	if (netaddr1 == NULL) return SR_FAULT ;
 
-	if ((netaddr1[0] == '\0') || (netaddr1[0] == '-'))
+	if ((netaddr1[0] == '\0') || (netaddr1[0] == '-')) {
 	    netaddr1 = ANYHOST ;
+	}
 
 	if (familyname != NULL) {
-
 	    rs = getaf(familyname,-1) ;
 	    af = rs ;
-
 	} else {
-
 	    af = AF_INET ;
-	    if (netaddr1[0] == '/')
+	    if (netaddr1[0] == '/') {
 	        af = AF_UNIX ;
-
+	    }
 	} /* end if (getting address family code) */
 
 #if	CF_DEBUG
@@ -166,106 +165,56 @@ const char	netaddr2[] ;
 	    debugprintf("progsock: rs=%d af=%d\n",rs,af) ;
 #endif
 
-	if (rs < 0)
-	    goto badnosup ;
+	if (rs >= 0) {
 
-	if ((pip->debuglevel > 0) && (af >= 0))
+	if ((pip->debuglevel > 0) && (af >= 0)) {
 	    bprintf(pip->efp,
 	        "%s: address family=%s (%u)\n",
 	        pip->progname,familyname,af) ;
+	}
 
 /* process thje given address family */
 
 	switch (af) {
-
 	case AF_UNIX:
 	    strwcpy(netaddr,netaddr1,SOCKADDRESSLEN) ;
 	    break ;
-
 	case AF_INET4:
 	case AF_INET6:
 	    rs = gethostinfo(pip,netaddr,af,netaddr1,&aport) ;
-
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
-	        debugprintf("main: gethostinfo() rs=%d port=%d\n",rs,aport) ;
+	        debugprintf("main: gethostinfo() rs=%d port=%d\n",
+		rs,aport) ;
 #endif
-
-	    if (port < 0)
-	        port = aport ;
-
+	    if (port < 0) port = aport ;
 	    rs1 = SR_NOTFOUND ;
 	    if ((rs >= 0) && (netaddr2 != NULL)) {
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(3))
-	            debugprintf("main: 2 netaddr2=%s\n",netaddr2) ;
-#endif
-
 	        rs1 = getportnum(proto,netaddr2) ;
 	        port = rs1 ;
 	    }
-
 	    if (rs1 < 0) {
-
 	        rs1 = getportnum(proto,INETPORT_LISTEN) ;
 	        port = rs1 ;
 	        if (rs1 < 0)
 	            port = INETPORTNUM_LISTEN ;
-
 	    }
 	    break ;
-
 	default:
 	    rs = SR_AFNOSUPPORT ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("progsock: not supported af=%d\n",
-	            af) ;
-#endif
-
 	    break ;
-
 	} /* end switch */
-
-	if (rs < 0) {
-	    bprintf(pip->efp,"%s: error with network address >%s<\n",
-	        pip->progname,netaddr1) ;
-	    goto badaddr ;
-	}
 
 /* OK, we have everything we might need, do it! */
 
-	if ((rs = sockaddress_start(&sa,af,netaddr,port,0)) >= 0) {
-	    const int	hlen = HEXBUFLEN ;
-	    char	hbuf[HEXBUFLEN + 1] ;
+	if (rs >= 0) {
+	    rs = procsocker(pip,af,netaddr,port) ;
+	} else {
+	    bprintf(pip->efp,"%s: error with network address >%s<\n",
+	        pip->progname,netaddr1) ;
+	}
 
-	    if ((rs = sockaddress_gethex(&sa,hbuf,hlen)) >= 0) {
-	        int	hl = rs ;
-
-/* lower case */
-
-	        for (i = 0 ; i < hl ; i += 1) {
-	            if (isupper(hbuf[i]))
-	                hbuf[i] = tolower(hbuf[i]) ;
-	        }
-
-	        if ((rs = progout_open(pip)) >= 0) {
-
-	            rs = progout_printf(pip,"\\x%t\n",hbuf,hl) ;
-
-	            rs1 = progout_close(pip) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } /* end if (progout) */
-
-	    } /* end if (gethex) */
-
-	    sockaddress_finish(&sa) ;
-	} /* end if (sockaddress) */
-
-badaddr:
-badnosup:
+	} /* end if (ok) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -280,8 +229,50 @@ badnosup:
 /* local subroutine */
 
 
+static int procsocker(PROGINFO *pip,int af,cchar *netaddr,int port)
+{
+	SOCKADDRESS	sa ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+
+	if ((rs = sockaddress_start(&sa,af,netaddr,port,0)) >= 0) {
+	    const int	hlen = HEXBUFLEN ;
+	    char	hbuf[HEXBUFLEN + 1] ;
+
+	    if ((rs = sockaddress_gethex(&sa,hbuf,hlen)) >= 0) {
+	        int	hl = rs ;
+		int	i ;
+
+/* lower case */
+
+	        for (i = 0 ; i < hl ; i += 1) {
+	            if (CHAR_ISUC(hbuf[i])) {
+	                hbuf[i] = tolower(hbuf[i]) ;
+		    }
+	        } /* end for */
+
+	        if ((rs = progout_open(pip)) >= 0) {
+		    {
+	                rs = progout_printf(pip,"\\x%t\n",hbuf,hl) ;
+		        wlen += rs ;
+		    }
+	            rs1 = progout_close(pip) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (progout) */
+
+	    } /* end if (gethex) */
+
+	    sockaddress_finish(&sa) ;
+	} /* end if (sockaddress) */
+
+	return rs ;
+}
+/* end subroutine (procsocker) */
+
+
 static int gethostinfo(pip,netaddr,af,namespec,pp)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 char		netaddr[] ;
 int		af ;
 const char	namespec[] ;
@@ -313,8 +304,9 @@ int		*pp ;
 
 	    sncpy1(portname,PORTNAMELEN,(tp + 1)) ;
 
-	} else
+	} else {
 	    sncpy1(hostname,MAXHOSTNAMELEN,namespec) ;
+	}
 
 	if (pp != NULL)
 	    *pp = -1 ;

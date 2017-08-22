@@ -11,14 +11,10 @@
 /* revision history:
 
 	= 1994-09-01, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 1997-05-03, David A­D­ Morano
-
 	This subroutine was enhanced to take multiple input files.
-
 
 */
 
@@ -49,7 +45,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -91,6 +86,8 @@
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	sfshrink(const char *,int,char **) ;
 extern int	cfdeci(const char *,int,int *) ;
+extern int	isdigitlatin(int) ;
+
 extern int	expander(struct proginfo *,const char *,int,char *,int) ;
 extern int	process() ;
 
@@ -251,10 +248,11 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (((argl - 1) > 0) && 
 	                    (cfdeci((argp + 1),(argl - 1),&argvalue) < 0))
@@ -262,32 +260,16 @@ char	*envv[] ;
 
 	            } else {
 
-#if	CF_DEBUGS
-	                debugprintf("main: got an option\n") ;
-#endif
-
 	                aop = argp + 1 ;
 	                aol = argl - 1 ;
 	                akp = aop ;
 	                f_optequal = FALSE ;
 	                if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option key w/ a value\n") ;
-#endif
-
 	                    akl = avp - aop ;
 	                    avp += 1 ;
 	                    avl = aop + aol - avp ;
 	                    f_optequal = TRUE ;
-
-#if	CF_DEBUGS
-	                    debugprintf("main: aol=%d avp=\"%s\" avl=%d\n",
-	                        aol,avp,avl) ;
-
-	                    debugprintf("main: akl=%d akp=\"%s\"\n",
-	                        akl,akp) ;
-#endif
 
 	                } else {
 

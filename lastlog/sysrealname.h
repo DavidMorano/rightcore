@@ -28,7 +28,7 @@
 #define	SYSREALNAME		struct sysrealname_head
 #define	SYSREALNAME_CUR		struct sysrealname_c
 #define	SYSREALNAME_INFO	struct sysrealname_i
-#define	SYSREALNAME_CA	struct sysrealname_calls
+#define	SYSREALNAME_CA		struct sysrealname_calls
 #define	SYSREALNAME_MAGIC	0x88776216
 #define	SYSREALNAME_CURMAGIC	0x88776217
 #define	SYSREALNAME_PR		"/usr/extra"

@@ -69,24 +69,19 @@ int keytracker_start(op,keyvals)
 KEYTRACKER	*op ;
 const char	*(*keyvals)[2] ;
 {
-	int	rs ;
-	int	n = 0 ;
+	int		rs ;
+	int		n = 0 ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (keyvals == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (keyvals == NULL) return SR_FAULT ;
 
 	memset(op,0,sizeof(KEYTRACKER)) ;
 
 	for (n = 0 ; keyvals[n][0] != NULL ; n += 1) ;
 
-	rs = bits_start(&op->dones,n) ;
-
-	if (rs >= 0)
+	if ((rs = bits_start(&op->dones,n)) >= 0) {
 	    op->keyvals = keyvals ;
+	}
 
 	return (rs >= 0) ? n : rs ;
 }
@@ -100,11 +95,9 @@ KEYTRACKER	*op ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->keyvals == NULL)
-	    return SR_NOTOPEN ;
+	if (op->keyvals == NULL) return SR_NOTOPEN ;
 
 	rs1 = bits_finish(&op->dones) ;
 	if (rs >= 0) rs = rs1 ;
@@ -119,17 +112,13 @@ int keytracker_done(op,n)
 KEYTRACKER	*op ;
 int		n ;
 {
-	int	rs ;
+	int		rs ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->keyvals == NULL) return SR_NOTOPEN ;
 
-	if (op->keyvals == NULL)
-	    return SR_NOTOPEN ;
-
-	if (n > op->n)
-	    return SR_INVALID ;
+	if (n > op->n) return SR_INVALID ;
 
 	rs = bits_set(&op->dones,n) ;
 
@@ -143,17 +132,13 @@ int keytracker_more(op,morestr)
 KEYTRACKER	*op ;
 const char	morestr[] ;
 {
-	int	rs = SR_OK ;
-	int	f = FALSE ;
-
+	int		rs = SR_OK ;
+	int		f = FALSE ;
 	const char	*tp, *sp ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->keyvals == NULL)
-	    return SR_NOTOPEN ;
+	if (op->keyvals == NULL) return SR_NOTOPEN ;
 
 	sp = morestr ;
 	while ((tp = strchr(sp,',')) != NULL) {
@@ -165,9 +150,7 @@ const char	morestr[] ;
 	} /* end while */
 
 	if ((! f) && (sp[0] != '\0')) {
-
 	    f = keytracker_checkmore(op,sp,-1) ;
-
 	}
 
 	return (rs >= 0) ? f : rs ;
@@ -183,11 +166,9 @@ KEYTRACKER	*op ;
 const char	*sp ;
 int		sl ;
 {
-	int	cl ;
-	int	f = FALSE ;
-
+	int		cl ;
+	int		f = FALSE ;
 	const char	*cp ;
-
 
 	if (sl < 0)
 	    sl = strlen(sp) ;
@@ -210,9 +191,8 @@ const char	*(*keyvals)[2] ;
 const char	kp[] ;
 int		kl ;
 {
-	int	i ;
-	int	f = FALSE ;
-
+	int		i ;
+	int		f = FALSE ;
 
 	if (kl < 0)
 	    kl = strlen(kp) ;
@@ -229,6 +209,5 @@ int		kl ;
 	return (f) ? i : -1 ;
 }
 /* end subroutine (matkey) */
-
 
 

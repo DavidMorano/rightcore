@@ -87,8 +87,9 @@ int cfhexs(cchar *sp,int sl,uchar *rp)
 	    if ((rs >= 0) && (cl > 0)) {
 		rs = SR_INVALID ;
 	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? (rp-rbuf) : rs ;
 }

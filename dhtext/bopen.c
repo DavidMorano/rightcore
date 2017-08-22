@@ -936,7 +936,7 @@ static int extfd(const char *s) {
 	int	fd = 0 ;
 	if (*s++ == BFILE_FDCH) {
 	   const int	ch = MKCHAR(s[0]) ;
-	   if (isdigit(ch)) rs = cfdeci(s,-1,&fd) ;
+	   if (isdigitlatin(ch)) rs = cfdeci(s,-1,&fd) ;
 	}
 	return (rs >= 0) ? fd : rs ;
 }

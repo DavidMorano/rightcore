@@ -42,6 +42,11 @@
 
 /* local defines */
 
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
 
 /* external subroutines */
 

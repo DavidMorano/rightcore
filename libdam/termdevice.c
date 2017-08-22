@@ -181,8 +181,9 @@ int termdevice(char *dbuf,int dlen,int fd)
 	        } /* end for */
 	        subinfo_finish(&si) ;
 	    } /* end if (subinfo) */
-	} else
+	} else {
 	    rs = SR_NOTTY ;
+	}
 
 	return rs ;
 }
@@ -221,16 +222,16 @@ static int getname_var(SUBINFO *sip)
 	int		len = 0 ;
 
 	if ((rs = u_fstat(sip->fd,&st1)) >= 0) {
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((cp = getenv(VARTERMDEV)) != NULL) {
 	        if ((rs = u_stat(cp,&st2)) >= 0) {
-		    rs = SR_NOENT ;
+	            rs = SR_NOENT ;
 	            if (st1.st_rdev == st2.st_rdev) {
-		        rs = sncpy1(sip->dbuf,sip->dlen,cp) ;
-			len = rs ;
-		    }
-		} else if (isNotPresent(rs)) {
-	    	    rs = SR_OK ;
+	                rs = sncpy1(sip->dbuf,sip->dlen,cp) ;
+	                len = rs ;
+	            }
+	        } else if (isNotPresent(rs)) {
+	            rs = SR_OK ;
 	        }
 	    } /* end if (environment variable worked out !) */
 	} /* end if (stat) */
@@ -263,73 +264,74 @@ static int getname_fork(SUBINFO *sip)
 	int		pfds[2] ;
 
 	if ((rs = u_pipe(pfds)) >= 0) {
-	const int	dlen = MAXPATHLEN ;
-	int		i = 0 ;
-	int		cs ;
-	int		fd = sip->fd ;
-	char		dbuf[MAXPATHLEN + 2] = { '\0' } ;
+	    const int	dlen = MAXPATHLEN ;
+	    int		i = 0 ;
+	    int		cs ;
+	    int		fd = sip->fd ;
+	    char	dbuf[MAXPATHLEN + 2] = { '\0' } ;
 
-	if ((rs = uc_fork()) == 0) {
-	    const char	*av[3] ;
+	    if ((rs = uc_fork()) == 0) {
+	        const char	*av[3] ;
 
 #if	CF_DEBUGS
-	    debugprintf("termdevice: child process\n") ;
+	        debugprintf("termdevice: child process\n") ;
 #endif
 
-	    u_close(pfds[0]) ; /* not used */
+	        u_close(pfds[0]) ; /* not used */
 
-	    for (i = 0 ; i < 3 ; i += 1) u_close(i) ;
+	        for (i = 0 ; i < 3 ; i += 1) u_close(i) ;
 
-	    u_dup(fd) ;
-	    u_close(fd) ;		/* done using it */
+	        u_dup(fd) ;
+	        u_close(fd) ;		/* done using it */
 
-	    u_dup(pfds[1]) ;		/* standard output */
-	    u_close(pfds[1]) ;		/* done using it */
+	        u_dup(pfds[1]) ;		/* standard output */
+	        u_close(pfds[1]) ;		/* done using it */
 
-	    u_open(NULLFNAME,O_WRONLY,0666) ;
+	        u_open(NULLFNAME,O_WRONLY,0666) ;
 
-	    av[0] = "tty" ;
-	    av[1] = NULL ;
+	        av[0] = "tty" ;
+	        av[1] = NULL ;
 
-	    u_execv(PROG_TTY,av) ;
+	        u_execv(PROG_TTY,av) ;
 
-	    uc_exit(EX_NOEXEC) ;
+	        uc_exit(EX_NOEXEC) ;
 
-	} else if (rs > 0) {
-	    const pid_t	pid_child = rs ;
-	    const int	to = TO_READ ;
-	    const int	opts = FM_TIMED ;
+	    } else if (rs > 0) {
+	        const pid_t	pid_child = rs ;
+	        const int	to = TO_READ ;
+	        const int	opts = FM_TIMED ;
 
-	    u_close(pfds[1]) ;	/* not used */
-	    pfds[1] = -1 ;
+	        u_close(pfds[1]) ;	/* not used */
+	        pfds[1] = -1 ;
 
-	    if ((rs = uc_reade(pfds[0],dbuf,dlen,to,opts)) > 0) {
+	        if ((rs = uc_reade(pfds[0],dbuf,dlen,to,opts)) > 0) {
+	            len = rs ;
+	            for (i = 0 ; i < len ; i += 1) {
+	                if (dbuf[i] == '\n') break ;
+	            }
+	            if (i == len) rs = SR_RANGE ;
+	            dbuf[i] = '\0' ;
+	        } /* end if */
+
+#if	CF_DEBUGS
+	        debugprintf("termdevice: termdevice=%s\n",dbuf) ;
+#endif
+
+	        u_waitpid(pid_child,&cs,0) ;
+
+	    } else {
+	        rs = SR_BADE ;
+	    }
+
+	    u_close(pfds[0]) ;
+	    if (pfds[1] >= 0) {
+	        u_close(pfds[1]) ;
+	    }
+
+	    if (rs >= 0) {
+	        rs = snwcpy(sip->dbuf,sip->dlen,dbuf,i) ;
 	        len = rs ;
-	        for (i = 0 ; i < len ; i += 1) {
-	            if (dbuf[i] == '\n') break ;
-	        }
-	        if (i == len) rs = SR_RANGE ;
-	        dbuf[i] = '\0' ;
-	    } /* end if */
-
-#if	CF_DEBUGS
-	    debugprintf("termdevice: termdevice=%s\n",dbuf) ;
-#endif
-
-	    u_waitpid(pid_child,&cs,0) ;
-
-	} else
-	    rs = SR_BADE ;
-
-	u_close(pfds[0]) ;
-	if (pfds[1] >= 0) {
-	    u_close(pfds[1]) ;
-	}
-
-	if (rs >= 0) {
-	    rs = snwcpy(sip->dbuf,sip->dlen,dbuf,i) ;
-	    len = rs ;
-	}
+	    }
 
 	} /* end if (pipe) */
 

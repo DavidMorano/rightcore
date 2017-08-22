@@ -1,13 +1,23 @@
-/* maintestuchar */
+/* main (maintestuchar) */
+
+
+/* revision history:
+
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
 
 #include	<stdio.h>
+
 
 int main()
 {
 	unsigned int	uv1, uv2, uv3 ;
-
-	int	v1, v2, v3 ;
-
+	int		v1, v2, v3 ;
 	unsigned char	uch = '°' ;
 	signed char	sch = '°' ;
 	char		ch = '°' ;

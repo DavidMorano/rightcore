@@ -11,9 +11,13 @@
 	= 2004-02-01, David A­D­ Morano
         This code was originally written.
 
+	= 2017-07-17, David A­D­ Morano
+	I added the code to return overflow if the given string cannot fit into
+	the result buffer.
+
 */
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -66,15 +70,20 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 int mkmagic(char *rbuf,int rlen,cchar *ms)
 {
-	const int	ml = (rlen-2) ;
-	char		*bp ;
-	bp = strwcpy(rbuf,ms,ml) ;
-	*bp++ = '\n' ;
-	*bp++ = '\0' ;
-	if (((rbuf+rlen)-bp) > 0) {
-	    memset(bp,0,(rbuf+rlen)-bp) ;
+	const int	mslen = strlen(ms) ;
+	int		rs = SR_OK ;
+	if ((mslen+2) <= rlen) {
+	    char	*bp = strwcpy(rbuf,ms,-1) ;
+	    *bp++ = '\n' ;
+	    *bp++ = '\0' ;
+	    if (((rbuf+rlen)-bp) > 0) {
+	        memset(bp,0,(rbuf+rlen)-bp) ;
+	    }
+	} else {
+	    if (rlen > 0) rbuf[0] = '\0' ;
+	    rs = SR_OVERFLOW ;
 	}
-	return rlen ;
+	return (rs >= 0) ? rlen : rs ;
 }
 /* end subroutine (mkmagic) */
 

@@ -1,14 +1,13 @@
 UTMP
 
-This little program is used to login or logout out without actually
-logging in or logging out.
+This little program is used to login or logout out without actually logging in
+or logging out.
 
 Synopsis:
+$ utmp [-y|-n] [-h <hostname>] [<searchline>] [-z] [-V]
 
-$ utmp [-y|-n] [-h <hostname>] [<searchterm>] [-z] [-V]
-
-where:
-
+Arguments:
+<searchline>	terminal line (e.g. 'pts/17') to search for
 -y		create a UTMP entry (if there is not one already)
 -n		delete the current UTMP entry (if there is one)
 -h <hostname>	enter this hostname into the UTMP entry when logging in

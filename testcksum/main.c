@@ -4,26 +4,35 @@
 
 
 #define	CF_DEBUGS	1		/* compile-time debugging */
-#define	CF_STDIO	1
-#define	CF_CRC		0
 
 
+/* revision history:
+
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+	= 2017-08-17, David A­D­ Morano
+        I refactoed this somewhat.  I looked at this because I needed to test
+	the CKSUM object again (due to a relatively small change w/ that).
+
+*/
+
+/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 
-#if	CF_STDIO
-#include	<stdio.h>
-#endif /* CF_STDIO */
-
 #include	<vsystem.h>
 #include	<bfile.h>
+#include	<exitcodes.h>
 #include	<localmisc.h>
 
 #include	"cksum.h"
@@ -36,12 +45,27 @@
 #define	LINEBUFLEN	2048
 #endif
 
+#ifndef	RBUFLEN
+#define	RBUFLEN		MAXPATHLEN
+#endif
+
 
 /* external subroutines */
 
-#if	CF_CRC
-extern int	crc() ;
+#if	CF_DEBUGS
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
+extern int	debugclose() ;
+extern int	strlinelen(cchar *,int,int) ;
+extern int	nprintf(cchar *,cchar *,...) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
+extern char	*strnrchr(cchar *,int,int) ;
 
 
 /* forward references */
@@ -50,25 +74,13 @@ extern int	crc() ;
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile		outfile, *ofp = &outfile ;
-
-	CKSUM		sum ;
-
-	int	rs ;
-	int	i, len, fd ;
-	int	err_fd ;
-	uint	v ;
-	int	ex = 0 ;
-
-	char	*progname ;
-	char	*filename ;
-	char	buf[MAXPATHLEN + 1] ;
-	char	*cp ;
+	int		rs = SR_OK ;
+	int		ex = EX_OK ;
+	cchar		*ifname = NULL ;
+	cchar		*cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -77,87 +89,69 @@ char	*envv[] ;
 	}
 #endif /* CF_DEBUGS */
 
-	progname = argv[0] ;
-	if (bopen(ofp,BFILE_STDOUT,"wct",0666) >= 0)
-	    bcontrol(ofp,BC_LINEBUF,0) ;
-
-
 #if	CF_DEBUGS
-	debugprintf("main: entered\n") ;
+	debugprintf("main: ent\n") ;
 #endif
-
 
 	if ((argc >= 2) && (argv[1] != NULL)) {
-	    filename = argv[1] ;
+	    ifname = argv[1] ;
+	} else {
+	    ifname = "q" ;
+	}
 
-	} else
-	    filename = "q" ;
+	if ((rs = bopen(ofp,BFILE_STDOUT,"wct",0666)) >= 0) {
+	    bcontrol(ofp,BC_LINEBUF,0) ;
 
+	    if ((ifname == NULL) || (ifname[0] == '\0'))
+	        ifname = "/dev/fd/0" ;
 
-	if ((fd = u_open(filename,O_RDONLY,0666)) < 0)
-	    goto badopen ;
+	    if ((rs = uc_open(ifname,O_RDONLY,0666)) >= 0) {
+	        CKSUM		sum ;
+	        const int	fd = rs ;
 
-	if ((rs = cksum_start(&sum)) >= 0) {
+	        if ((rs = cksum_start(&sum)) >= 0) {
+		    int		tlen = 0 ;
 
-	    if ((rs = cksum_begin(&sum)) >= 0) {
+	            if ((rs = cksum_begin(&sum)) >= 0) {
+	                const int	rlen = RBUFLEN ;
+			int		len ;
+	                char		rbuf[RBUFLEN+ 1] ;
 
-	        while ((len = u_read(fd,buf,MAXPATHLEN)) > 0)
-	            cksum_accum(&sum,buf,len) ;
+	                while ((len = u_read(fd,rbuf,rlen)) > 0) {
+			    tlen += len ;
+	                    cksum_accum(&sum,rbuf,len) ;
+			}
 
 #if	CF_DEBUGS
-	        debugprintf("main: CKSUM intermediate crc=%u\n",sum.sum) ;
+	                debugprintf("main: CKSUM intermediate crc=%u\n",
+			    sum.sum) ;
 #endif
 
-	        cksum_end(&sum) ;
+	                cksum_end(&sum) ;
+	            } /* end if (cksum-accum) */
 
-	    } /* end if */
+	            {
+	                uint	val ;
+	                tlen = cksum_getsum(&sum,&val) ;
+	                bprintf(ofp,"cksum=%u len=%d\n",val,tlen) ;
+	            }
 
-	    len = cksum_getsum(&sum,&v) ;
+	            cksum_finish(&sum) ;
+	        } /* end if (cksum) */
 
-	    bprintf(ofp,"cksum=%u len=%d\n",
-	        v,len) ;
+	        u_close(fd) ;
+	    } /* end if (file-input) */
 
-#if	CF_STDIO
-	    printf("cksum=%u\n",v) ;
+	    bclose(ofp) ;
+	} /* end if (file-output) */
 
-	    fclose(stdout) ;
-#endif /* CF_STDIO */
-
-	    cksum_finish(&sum) ;
-
-	} /* end if */
-
-#if	CF_CRC
-	u_seek(fd,0L,SEEK_SET) ;
-
-	crc(fd,&v,&len) ;
-
-	bprintf(ofp,"cksum=%u len=%d\n",
-	    v,len) ;
-
-#endif /* CF_CRC */
-
-	u_close(fd) ;
-
-
-	ex = 0 ;
-
-done:
-	bclose(ofp) ;
+	if (rs < 0) ex = EX_DATAERR ;
 
 #if	(CF_DEBUGS || CF_DEBUG)
 	debugclose() ;
 #endif
 
 	return ex ;
-
-badopen:
-	bprintf(ofp,"could not open input file (rs %d)\n",
-	    fd) ;
-
-	ex = 1 ;
-	goto done ;
-
 }
 /* end subroutine (main) */
 

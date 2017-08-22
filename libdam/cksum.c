@@ -11,22 +11,29 @@
 	= 1998-03-17, David A­D­ Morano
 	This object module was originally written.
 
+	= 2017-08-17, David A­D­ Morano
+        I simplified from two (usage mode) state bits to only one state bit. I
+        tested this but am still not sure if it is the same behavior as before
+        or not. I am not even sure if the previous behavior (if it is indeed
+        different) was a correct one, or a desired one. This was a small change
+        in any event.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         This object provides a way to accumulate a check sum like what the UNIX®
         System V utility program 'cksum(1)' does.
 
-        The caller initializes this object and then applies the 'cksum_accum'
-        subroutine for as much data as desired. A call to 'cksum_getsum'
+        The caller initializes this object and then applies the |cksum_accum|
+        subroutine for as much data as desired. A call to |cksum_getsum|
         retrieves the accumulated check sum.
 
-        This routine provides only the POSIX 1003.2 version of 'cksum'. Any
-        other options that your UNIX 'cksum(1)' program may have other than the
-        POSIX 1003.2 basic function is not provided by this object module.
+        This routine provides only the POSIX 1003.2 version of CKSUM. Any other
+        options that your UNIX |cksum(1)| program may have other than the POSIX
+        1003.2 basic function is not provided by this object module.
 
         In the interest of avoiding any further confusion than I have caused
         already, the polynomial used for this check sum is:
@@ -43,7 +50,9 @@
 
 		open_file_1
 
-		accumulate_file_1
+		accumulate_file_1 {
+		    cksum_accum()
+		}
 
 		close_file_1
 
@@ -55,7 +64,9 @@
 
 		open_file_2
 
-		accumulate_file_2
+		accumulate_file_2 {
+		   cksum_accum()
+		}
 
 		close_file_2
 
@@ -73,8 +84,9 @@
 
 		cksum_start()
 
-			while (not_done)
-				chsum_accum()
+		while (not_done) {
+		    chsum_accum()
+		}
 
 		cksum_getsum() ;
 
@@ -91,6 +103,7 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
+#include	<limits.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 
@@ -165,22 +178,19 @@ static const uint	table[] = {
 	0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4, 0x89b8fd09,
 	0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662,
 	0x933eb0bb, 0x97ffad0c, 0xafb010b1, 0xab710d06, 0xa6322bdf,
-	0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4,
+	0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
 } ;
 
 
 /* exported subroutines */
 
 
-int cksum_start(csp)
-CKSUM	*csp ;
+int cksum_start(CKSUM *csp)
 {
 
-	if (csp == NULL)
-	    return SR_FAULT ;
+	if (csp == NULL) return SR_FAULT ;
 
-	csp->f.started = FALSE ;
-	csp->f.finished = FALSE ;
+	csp->f.begun = FALSE ;
 	csp->sum = 0 ;
 	csp->len = 0 ;
 	csp->totalsum = (uint) (~ 0) ;
@@ -190,27 +200,22 @@ CKSUM	*csp ;
 /* end subroutine (cksum_start) */
 
 
-int cksum_finish(csp)
-CKSUM	*csp ;
+int cksum_finish(CKSUM *csp)
 {
 
-	if (csp == NULL)
-	    return SR_FAULT ;
+	if (csp == NULL) return SR_FAULT ;
 
 	return SR_OK ;
 }
 /* end subroutine (cksum_finish) */
 
 
-int cksum_begin(csp)
-CKSUM	*csp ;
+int cksum_begin(CKSUM *csp)
 {
 
-	if (csp == NULL)
-	    return SR_FAULT ;
+	if (csp == NULL) return SR_FAULT ;
 
-	csp->f.started = TRUE ;
-	csp->f.finished = FALSE ;
+	csp->f.begun = TRUE ;
 	csp->sum = 0 ;
 	csp->len = 0 ;
 	csp->totalsum = (~ csp->totalsum) ;
@@ -219,12 +224,10 @@ CKSUM	*csp ;
 /* end subroutine (cksum_begin) */
 
 
-int cksum_accum(csp,buf,buflen)
-CKSUM	*csp ;
-void	*buf ;
-int	buflen ;
+int cksum_accum(CKSUM *csp,void *buf,int buflen)
 {
 	uint		ch ;
+	int		rs = SR_OK ;
 	uchar		*olp, *bp ;
 
 #if	CF_DEBUGS
@@ -243,74 +246,55 @@ int	buflen ;
 
 	bp = (uchar *) buf ;
 	olp = bp + buflen ;
-	if (csp->f.started) {
-
+	if (csp->f.begun) {
 	    while (bp < olp) {
-
 		ch = (*bp & 0xff) ;
 	        ADDSUM(csp->sum,ch) ;
-
 	        ADDSUM(csp->totalsum,ch) ;
-
 	        bp += 1 ;
-
 	    } /* end while */
-
 	} else {
-
 	    while (bp < olp) {
-
 		ch = (*bp & 0xff) ;
 	        ADDSUM(csp->sum,ch) ;
-
 	        bp += 1 ;
-
 	    } /* end while */
-
 	} /* end if (started) */
 
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (cksum_accum) */
 
 
-int cksum_end(csp)
-CKSUM	*csp ;
+int cksum_end(CKSUM *csp)
 {
 	uint		v ;
 	uint		ch ;
-	int		i ;
+	int		i = 0 ;
 
-	if (csp == NULL)
-	    return SR_FAULT ;
+	if (csp == NULL) return SR_FAULT ;
 
 /* only include the smallest number of bytes needed to hold the length! */
 
 	v = csp->len ;
-	i = 0 ;
 	while ((v != 0) && (i < sizeof(uint))) {
-
 	    ch = (v & 0xff) ;
 	    ADDSUM(csp->sum,ch) ;
-
-	    if (csp->f.started)
+	    if (csp->f.begun) {
 	    	ADDSUM(csp->totalsum,ch) ;
-
+	    }
 	    v = (v >> 8) ;		/* unsigned shift, zero fill */
 	    i += 1 ;
-
 	} /* end while */
 
-	csp->f.finished = TRUE ;
 	csp->totalsum = (~ csp->totalsum) ;
+	csp->f.begun = FALSE ;
 	return SR_OK ;
 }
 /* end subroutine (cksum_end) */
 
 
-int cksum_getlen(csp,rp)
-CKSUM	*csp ;
-uint	*rp ;
+int cksum_getlen(CKSUM *csp,uint *rp)
 {
 
 	if (csp == NULL) return SR_FAULT ;
@@ -323,9 +307,7 @@ uint	*rp ;
 
 
 /* get the cksum accummulated so far */
-int cksum_getsum(csp,rp)
-CKSUM	*csp ;
-uint	*rp ;
+int cksum_getsum(CKSUM *csp,uint *rp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -333,28 +315,29 @@ uint	*rp ;
 	if (csp == NULL) return SR_FAULT ;
 	if (rp == NULL) return SR_FAULT ;
 
-	if (! csp->f.finished) {
-	    rs1 = cksum_finish(csp) ;
+	if (csp->f.begun) {
+	    rs1 = cksum_end(csp) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	*rp = (~ csp->sum) ;
+	if (rp != NULL) *rp = (~ csp->sum) ;
+
+	if (rs >= 0) rs = (csp->len & INT_MAX) ;
+
 	return rs ;
 }
 /* end subroutine (cksum_getsum) */
 
 
 /* get the total checksum and total length */
-int cksum_gettotal(csp,rp)
-CKSUM	*csp ;
-uint	*rp ;
+int cksum_gettotal(CKSUM *csp,uint *rp)
 {
 
 	if (csp == NULL) return SR_FAULT ;
 	if (rp == NULL) return SR_FAULT ;
 
 	*rp = csp->totalsum ;
-	return ((csp->f.started) ? csp->totallen : SR_INVALID) ;
+	return ((csp->f.begun) ? csp->totallen : SR_INVALID) ;
 }
 /* end subroutine (cksum_gettotal) */
 

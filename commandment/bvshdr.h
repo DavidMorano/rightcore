@@ -16,9 +16,9 @@
 
 #define	BVSHDR			struct bvshdr
 
+#define	BVSHDR_MAGICSIZE	16
 #define	BVSHDR_MAGICSTR		"BVS"
 #define	BVSHDR_MAGICLEN		sizeof(BVSHDR_MAGICSTR)
-#define	BVSHDR_MAGICSIZE	16
 #define	BVSHDR_VERSION		0
 
 

@@ -1120,7 +1120,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    SHIO	*efp = (SHIO *) pip->efp ;
 	    fmt = "%s: inaccessible output (%d)\n" ;
 	    shio_printf(efp,fmt,pn,rs) ;
-	    fmt = "%s: ofname=%s\n" ;
+	    fmt = "%s: ofn=%s\n" ;
 	    shio_printf(efp,fmt,pn,ofn) ;
 	}
 

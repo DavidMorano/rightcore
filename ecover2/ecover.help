@@ -10,7 +10,7 @@ $ ecover [{ -d | -e }] [<file>] [-m <message>] > [-of <ofile>] [-V]
 where:
 
 <file>		optional source file, otherwise STDIN is used
--e		perform encoding
+-e		perform encoding (default)
 -d		perform decoding
 -m <message>	an optional message to be encoded as metadata
 -of <ofile>	output file

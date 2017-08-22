@@ -106,10 +106,9 @@ extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isprintlatin(int) ;
 extern int	isdigitlatin(int) ;
-static int	isEol(int) ;
+extern int	isEOL(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
-static int	isOther(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -164,7 +163,7 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,cchar *) ;
-static int	procfile(PROGINFO *,void *,const char *) ;
+static int	procfile(PROGINFO *,void *,cchar *) ;
 static int	mkgeekout(PROGINFO *,char *,int,const char *,int) ;
 static int	procoutline(PROGINFO *,void *,const char *,int) ;
 
@@ -175,10 +174,12 @@ static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 #endif
 
+static int	isOther(int) ;
+
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar *argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -232,7 +233,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"toopen",
 	"toread",
 	"width",
@@ -252,7 +253,7 @@ enum progopts {
 	progopt_overlast
 } ;
 
-const char	blanks[NBLANKS+1] = "        " ;
+static cchar	blanks[NBLANKS+1] = "        " ;
 
 
 /* exported subroutines */
@@ -1267,7 +1268,7 @@ const char	*afn ;
 
 
 /* process a file */
-static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
+static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 {
 	LOCINFO		*lip = pip->lip ;
 	volatile int	*intarr[3] ;
@@ -1339,7 +1340,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 #endif /* CF_DEBUG */
 
 		    f_zero = (lbuf[0] == 0) ;
-	            while (len && isEol(lbuf[len-1])) len -= 1 ;
+	            while (len && isEOL(lbuf[len-1])) len -= 1 ;
 
 	            if (len > 0) {
 	                cp = lbuf ;
@@ -1401,7 +1402,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 /* end subroutine (procfile) */
 
 
-static int procoutline(PROGINFO *pip,void *ofp,cchar lbuf[],int llen)
+static int procoutline(PROGINFO *pip,void *ofp,cchar *lbuf,int llen)
 {
 	LOCINFO		*lip = pip->lip ;
 	LINEFOLD	liner ;
@@ -1483,14 +1484,6 @@ static int mkgeekout(PROGINFO *pip,char *gbuf,int glen,cchar *sp,int sl)
 	return j ;
 }
 /* end subroutine (mkgeekout) */
-
-
-static int isEol(int ch)
-{
-	ch &= UCHAR_MAX ;
-	return ((ch == '\n') || (ch == '\r') || (ch == '\0')) ;
-}
-/* end if (isEol) */
 
 
 static int isOther(int ch)

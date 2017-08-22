@@ -4,28 +4,26 @@
 
 
 #define	CF_DEBUGS	0
-#define	F_SAFE		1
-#define	F_VOTEREPLACE	0		/* replace by voting among counters */
-#define	F_COUNTREPLACE	1		/* replace by counting all counters */
+#define	CF_SAFE		1
+#define	CF_VOTEREPLACE	0		/* replace by voting among counters */
+#define	CF_COUNTREPLACE	1		/* replace by counting all counters */
 
 
 /* revision history:
 
-	= 02/05/01, David A­D­ Morano
-
-	This object module was created for Levo research.
-	It is a value predictor.  This is not coded as
-	hardware.  It is like Atom analysis subroutines !
-
+	= 2002-05-01, David A­D­ Morano
+        This object module was created for Levo research. It is a value
+        predictor. This is not coded as hardware. It is like Atom analysis
+        subroutines!
 
 */
 
-
+/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
-	This object module implements a branch predictor.  This BP is a
-	GSPAG (see Patt and then McFarling) type branch predictor.
+        This object module implements a branch predictor. This BP is a GSPAG
+        (see Patt and then McFarling) type branch predictor.
 
 
 *****************************************************************************/
@@ -34,26 +32,24 @@
 #define	GSPAG_MASTER	0
 
 
+#include	<envstandards.h>
+
 #include	<sys/types.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
-#include	<sys/mman.h>		/* Memory Management */
+#include	<sys/stat.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"bpload.h"
 #include	"gspag.h"
 
 
-
 /* local defines */
 
-#define	GSPAG_MAGIC	0x29656781
 #define	GSPAG_DEFBHLEN	4		/* default entries */
 #define	GSPAG_DEFPHLEN	4		/* default entries */
 #define	GSPAG_GPHSTATES	4		/* GPHT states */
@@ -63,23 +59,6 @@
 #define	GETPRED(c)	(((c) >> 1) & 1)
 #define	GETPRED2(c)	(((c) >> 1) & 1)
 #define	GETPRED3(c)	(((c) >> 2) & 1)
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
-
 
 
 /* external subroutines */
@@ -106,9 +85,7 @@ struct bpload	gspag = {
 /* local variables */
 
 
-
-
-
+/* exported subroutines */
 
 
 int gspag_init(op,bhlen,phlen)
@@ -116,15 +93,12 @@ GSPAG	*op ;
 int	bhlen ;
 int	phlen ;
 {
-	int	rs ;
-	int	size ;
+	int		rs ;
+	int		size ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	(void) memset(op,0,sizeof(GSPAG)) ;
-
+	memset(op,0,sizeof(GSPAG)) ;
 
 /* BHT */
 
@@ -188,33 +162,18 @@ bad0:
 int gspag_free(op)
 GSPAG	*op ;
 {
-	int	rs = SR_BADFMT ;
+	int		rs = SR_BADFMT ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSPAG_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != GSPAG_MAGIC) return SR_NOTOPEN ;
 
 	if (op->gpht != NULL) {
-
 	    free(op->gpht) ;
-
-#ifdef	MALLOCLOG
-	malloclog_free(op->gpht,"gspag_free:gpht") ;
-#endif
-
 	}
 
 	if (op->lbht != NULL) {
-
 	    free(op->lbht) ;
-
-#ifdef	MALLOCLOG
-	malloclog_free(op->lbht,"gspag_free:lbht") ;
-#endif
-
 	}
 
 	op->magic = 0 ;
@@ -228,17 +187,14 @@ int gspag_lookup(op,ia)
 GSPAG	*op ;
 uint	ia ;
 {
-	int	lbi, gpi ;
-	int	f_pred ;
+	int		lbi, gpi ;
+	int		f_pred ;
 
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSPAG_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != GSPAG_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 	lbi = (ia >> 2) % op->bhlen ;
 	gpi = (op->lbht[lbi] ^ (ia >> 2)) % op->phlen ;
@@ -259,17 +215,14 @@ int gspag_confidence(op,ia)
 GSPAG	*op ;
 uint	ia ;
 {
-	int	rs ;
-	int	lbi, gpi ;
+	int		rs ;
+	int		lbi, gpi ;
 
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSPAG_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != GSPAG_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 	lbi = (ia >> 2) % op->bhlen ;
 	gpi = (op->lbht[lbi] ^ (ia >> 2)) % op->phlen ;
@@ -291,20 +244,15 @@ GSPAG	*op ;
 uint	ia ;
 int	f_outcome ;
 {
-	uint	ncount ;
+	uint		ncount ;
+	int		lbi, gpi ;
+	int		f_pred ;
 
-	int	rs ;
-	int	lbi, gpi ;
-	int	f_pred ;
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSPAG_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != GSPAG_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 	lbi = (ia >> 2) % op->bhlen ;
 	gpi = (op->lbht[lbi] ^ (ia >> 2)) % op->phlen ;
@@ -320,7 +268,7 @@ int	f_outcome ;
 
 	op->lbht[lbi] = (op->lbht[lbi] << 1) | f_outcome ;
 
-	return 0 ;
+	return f_pred ;
 }
 /* end subroutine (gspag_update) */
 
@@ -334,31 +282,14 @@ int		ri ;
 GSPAG_ENT	**rpp ;
 {
 
-
 #if	CF_DEBUGS
-	debugprintf("gspag_get: entered 0\n") ;
+	debugprintf("gspag_get: ent 0\n") ;
 #endif
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (rpp == NULL) return SR_FAULT ;
 
-#if	CF_DEBUGS
-	debugprintf("gspag_get: entered 1\n") ;
-#endif
-
-	if (op->magic != GSPAG_MAGIC)
-	    return SR_NOTOPEN ;
-
-#if	CF_DEBUGS
-	debugprintf("gspag_get: entered 2\n") ;
-#endif
-
-	if (rpp == NULL)
-	    return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("gspag_get: entered ri=%d\n",ri) ;
-#endif
+	if (op->magic != GSPAG_MAGIC) return SR_NOTOPEN ;
 
 	if ((ri < 0) || (ri >= op->tablen))
 	    return SR_NOTFOUND ;
@@ -381,16 +312,13 @@ GSPAG_ENT	**rpp ;
 int gspag_zerostats(op)
 GSPAG		*op ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != GSPAG_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != GSPAG_MAGIC)
-	    return SR_NOTOPEN ;
-
-	(void) memset(&op->s,0,sizeof(GSPAG_STATS)) ;
+	memset(&op->s,0,sizeof(GSPAG_STATS)) ;
 
 	return rs ;
 }
@@ -402,14 +330,11 @@ int gspag_stats(op,rp)
 GSPAG		*op ;
 GSPAG_STATS	*rp ;
 {
-	int	bits_total ;
+	int		bits_total ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != GSPAG_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != GSPAG_MAGIC) return SR_NOTOPEN ;
 
 /* calculate the bits */
 
@@ -417,9 +342,7 @@ GSPAG_STATS	*rp ;
 		uint	bits_lbht ;
 		uint	bits_gpht ;
 		uint	bits_history ;
-
 		int	n ;
-
 
 		n = flbsi(op->phlen) ;
 
@@ -437,8 +360,7 @@ GSPAG_STATS	*rp ;
 
 	if (rp != NULL) {
 
-	(void) memcpy(rp,&op->s,sizeof(GSPAG_STATS)) ;
-
+	memcpy(rp,&op->s,sizeof(GSPAG_STATS)) ;
 	rp->lbht = op->bhlen ;
 	rp->gpht = op->phlen ;
 	rp->bits = bits_total ;
@@ -450,9 +372,7 @@ GSPAG_STATS	*rp ;
 /* end subroutine (gspag_stats) */
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 static uint satcount(v,n,f_up)
@@ -460,18 +380,16 @@ uint	v ;
 uint	n ;
 int	f_up ;
 {
-	uint	r ;
+	uint		r ;
 
-
-	if (f_up)
+	if (f_up) {
 	    r = (v == (n - 1)) ? v : (v + 1) ;
-
-	else 
+	} else {
 	    r = (v == 0) ? 0 : (v - 1) ;
+	}
 
 	return r ;
 }
 /* end subroutine (satcount) */
-
 
 

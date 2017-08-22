@@ -1013,7 +1013,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_cvtcase:
 	                case akoname_casecvt:
 	                case akoname_cc:
@@ -1021,11 +1020,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->have.cvtcase = TRUE ;
 	                        lip->final.cvtcase = TRUE ;
 	                        lip->f.cvtcase = TRUE ;
-	                        if (vl > 0)
+	                        if (vl > 0) {
 	                            rs = procsetcase(pip,vp,vl) ;
+				}
 	                    }
 	                    break ;
-
 	                case akoname_bufwhole:
 	                case akoname_whole:
 	                    if (! pip->final.bufwhole) {
@@ -1038,7 +1037,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufline:
 	                case akoname_line:
 	                    if (! pip->final.bufline) {
@@ -1051,7 +1049,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufnone:
 	                case akoname_none:
 	                case akoname_un:
@@ -1065,7 +1062,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_termout:
 	                    if (! lip->final.termout) {
 	                        lip->have.termout = TRUE ;
@@ -1077,14 +1073,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_empty:
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

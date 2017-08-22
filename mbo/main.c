@@ -109,6 +109,7 @@ extern int	pcsuserfile(const char *,const char *,
 			const char *,const char *, char *) ;
 extern int	lockfile(int,int,offset_t,offset_t,int) ;
 extern int	initnow(struct timeb *,char *,int) ;
+extern int	isdigitlatin(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(struct proginfo *,const char *,
@@ -370,12 +371,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-		if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;
@@ -1436,17 +1438,13 @@ vecstr		*setsp ;
 	            cp = "+" ;
 	            cl = 1 ;
 	            if (vlen > 0) {
-
-	                if (isdigit(vp[0])) {
-
+			const int	ch = MKCHAR(vp[0]) ;
+	                if (isdigitlatin(ch)) {
 	                    if (cfdeci(vp,vlen,&val) >= 0)
 	                        cp = (val > 0) ? "+" : "-" ;
-
 	                } else {
-
 	                    cp = vp ;
 	                    cl = vlen ;
-
 	                }
 	            }
 

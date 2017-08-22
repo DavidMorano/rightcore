@@ -71,9 +71,9 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	isdigitlatin(int) ;
 
-extern int	proginfo_setpiv(PROGINFO *,const char *,
-			const struct pivars *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	procfile(PROGINFO *,PARAMOPT *,bfile *, const char *) ;
 
@@ -241,12 +241,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    rs = cfdecti((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

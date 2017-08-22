@@ -19,7 +19,7 @@
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
         This is a cheapy random number generator. There is no theory or proofs
         that this is a "good" RNG. Although this RNG is part of a
@@ -37,7 +37,7 @@
         RNGs. Again, there is no theory or proof that this is a good RNG either.
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -60,12 +60,10 @@ static uint	randmac(uint) ;
 ULONG cheaprand(ULONG ow)
 {
 	ULONG		result ;
-	ULONG		hi, lo ;
+	ULONG		lo = (ow >> 00) ;
+	ULONG		hi = (ow >> 32) ;
 	uint		ihi, ilo ;
 	uint		ehi, elo ;
-
-	hi = ow >> 32 ;
-	lo = ow ;
 
 	ihi = (uint) hi ;
 	ilo = (uint) lo ;
@@ -101,11 +99,11 @@ ULONG cheaprand(ULONG ow)
 
 static uint randmac(uint v)
 {
-	ULONG		sum, prod, x ;
+	ULONG		x = (ULONG) v ;
+	ULONG		sum, prod ;
 	ULONG		a = 1967773755 ;
 	uint		nv ;
 
-	x = (ULONG) v ;
 	prod = a * x ;
 	sum = prod + (prod >> 32) ;
 

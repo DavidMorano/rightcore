@@ -95,6 +95,8 @@ static const char *argopts[] = {
 /* external subroutines */
 
 extern int	getnodedomain() ;
+extern int	isdigitlatin(int) ;
+
 extern int	authfile() ;
 extern int	rex_rexec(), rex_rcmd() ;
 extern int	hostequiv() ;
@@ -235,10 +237,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optplus || f_optminus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (cfdec(argp + 1,argl - 1,&argnum) < 0)
 	                    goto badarg ;

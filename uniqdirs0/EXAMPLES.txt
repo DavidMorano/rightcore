@@ -4,7 +4,5 @@ Examples:
 
 $ find * -type d -print | uniqdirs
 
-$ uniqdirs [dir(s) ...] [-af {argfile|-}] [-V]
-
-
+$ uniqdirs [<dir(s)> ...] [-af {<argfile>|-}] [-V]
 

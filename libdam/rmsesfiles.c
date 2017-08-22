@@ -290,7 +290,7 @@ static int rmsesdir(IDS *idp,char *pbuf,int plen)
 /* end subroutine (rmsesdir) */
 
 
-int rmdirfiles(char *pbuf,int plen)
+static int rmdirfiles(char *pbuf,int plen)
 {
 	vecpstr		files ;
 	const int	cs = RMDIRSFILES_DIRSIZE ;

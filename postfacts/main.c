@@ -10,27 +10,25 @@
 /* revision history:
 
 	= 1987-09-10, David A­D­ Morano
-
 	This subroutine was originally written but it was probably started from
 	any one of the numerous subroutine which perform a similar
 	"file-processing" fron end.
-
 
 */
 
 /* Copyright © 1987 David A­D­ Morano.  All rights reserved. */
 
-/*******************************************************************
+/*******************************************************************************
 
-	This program will read the input file, separate one paragraph from
-	another and then post each paragraph using the MSGS program.
+        This program will read the input file, separate one paragraph from
+        another and then post each paragraph using the MSGS program.
 
 	Synopsis:
 
 	$0 [input_file [...]] [-DV] [-o offset]
 
 
-*********************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -43,7 +41,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<bfile.h>
 #include	<vecstr.h>
@@ -70,6 +67,8 @@
 /* external subroutines */
 
 extern int	cfdeci(char *,int,int *) ;
+extern int	isdigitlatin(int) ;
+
 extern int	getpfopts(struct proginfo *,vecstr *) ;
 extern int	procfile(struct proginfo *,bfile *,char *,int) ;
 
@@ -189,12 +188,13 @@ char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;
@@ -216,8 +216,6 @@ char	*envv[] ;
 	                avl = 0 ;
 	                akl = aol ;
 	            }
-
-/* do we have a keyword match or should we assume only key letters? */
 
 	                if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
 

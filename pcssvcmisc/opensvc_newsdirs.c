@@ -121,6 +121,7 @@ extern int	pcsgetnames(const char *,char *,int,const char *,int) ;
 extern int	pcsmailcheck(const char *,char *,int,const char *) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	strwcmp(const char *,const char *,int) ;
+extern int	isdigitlatin(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -260,13 +261,13 @@ int		to ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		int ch = (argp[1] & 0xff) ;
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(ch)) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = (argp+1) ;
 
-	        } else if (ch == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

@@ -12,23 +12,22 @@
 /* revision history:
 
 	= 2002-05-01, David A­D­ Morano
-
-	This object module was created for Levo research.  It is a
-	value predictor.  This is not coded as hardware.  It is like
-	Atom analysis subroutines!
-
+        This object module was created for Levo research. It is a value
+        predictor. This is not coded as hardware. It is like Atom analysis
+        subroutines!
 
 */
 
+/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
-	This object module implements a branch predictor.  This BP
-	is a YAGS (see Mudge) type branch predictor.  This BP *may*
-	be among the best of the "share" type predictors.
+        This object module implements a branch predictor. This BP is a YAGS (see
+        Mudge) type branch predictor. This BP *may* be among the best of the
+        "share" type predictors.
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #define	YAGS_MASTER	0
@@ -45,39 +44,20 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"bpload.h"
 #include	"yags.h"
 
 
-
 /* local defines */
 
-#define	YAGS_MAGIC	0x29456781
 #define	YAGS_DEFCH	4		/* default entries */
 #define	YAGS_DEFCA	4		/* default entries */
 
 #define	MODP2(v,n)	((v) & ((n) - 1))
 
 #define	GETPRED(c)	(((c) >> 1) & 1)
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
-
 
 
 /* external subroutines */
@@ -107,9 +87,7 @@ struct bpload	yags = {
 /* local variables */
 
 
-
-
-
+/* exported subroutines */
 
 
 int yags_init(op,chlen,calen)
@@ -120,12 +98,9 @@ int		calen ;
 	int	rs ;
 	int	size ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	(void) memset(op,0,sizeof(YAGS)) ;
-
+	memset(op,0,sizeof(YAGS)) ;
 
 /* the choice PHT */
 
@@ -184,8 +159,7 @@ int		calen ;
 	malloclog_alloc(op->nottaken,rs,"yags_init:nottaken") ;
 #endif
 
-	(void) memset(op->nottaken,0,size) ;
-
+	memset(op->nottaken,0,size) ;
 
 /* we're out of here */
 
@@ -217,43 +191,22 @@ bad0:
 int yags_free(op)
 YAGS		*op ;
 {
-	int	rs = SR_BADFMT ;
+	int		rs = SR_BADFMT ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != YAGS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != YAGS_MAGIC) return SR_NOTOPEN ;
 
 	if (op->choice != NULL) {
-
 	    free(op->choice) ;
-
-#ifdef	MALLOCLOG
-	malloclog_free(op->choice,"yags_free:choice") ;
-#endif
-
 	}
 
 	if (op->taken != NULL) {
-
 	    free(op->taken) ;
-
-#ifdef	MALLOCLOG
-	malloclog_free(op->taken,"yags_free:taken") ;
-#endif
-
 	}
 
 	if (op->nottaken != NULL) {
-
 	    free(op->nottaken) ;
-
-#ifdef	MALLOCLOG
-	malloclog_free(op->nottaken,"yags_free:nottaken") ;
-#endif
-
 	}
 
 	op->magic = 0 ;
@@ -277,13 +230,10 @@ uint		ia ;
 	int	f_pred ;
 	int	f_chpred ;
 
-
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != YAGS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != YAGS_MAGIC) return SR_NOTOPEN ;
 #endif /* F_SAFE */
 
 	chi = (ia >> 2) % op->chlen ;
@@ -316,12 +266,11 @@ uint		ia ;
 	} /* end if (taken/not-taken) */
 
 	if (rs >= 0) {
-
 	    op->nottaken[cai].lru = ((rs == 0) ? 1 : 0) ;
 	    f_pred = ((count_ca >> 1) & 1) ;
-
-	} else
+	} else {
 	    f_pred = f_chpred ;
+	}
 
 	return f_pred ;
 }
@@ -346,13 +295,10 @@ int		f_outcome ;
 	int	f_pred ;
 	int	f_chpred ;
 
-
 #if	CF_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != YAGS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != YAGS_MAGIC) return SR_NOTOPEN ;
 #endif /* F_SAFE */
 
 	chi = (ia >> 2) % op->chlen ;
@@ -386,12 +332,11 @@ int		f_outcome ;
 
 	f_hit = FALSE ;
 	if (rs >= 0) {
-
-		f_hit = TRUE ;
+	    f_hit = TRUE ;
 	    f_pred = ((count_ca >> 1) & 1) ;
-
-	} else
+	} else {
 	    f_pred = f_chpred ;
+	}
 
 /* update stuff */
 
@@ -450,31 +395,14 @@ int		ri ;
 YAGS_ENT	**rpp ;
 {
 
-
 #if	CF_DEBUGS
 	debugprintf("yags_get: entered 0\n") ;
 #endif
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (rpp == NULL) return SR_FAULT ;
 
-#if	CF_DEBUGS
-	debugprintf("yags_get: entered 1\n") ;
-#endif
-
-	if (op->magic != YAGS_MAGIC)
-	    return SR_NOTOPEN ;
-
-#if	CF_DEBUGS
-	debugprintf("yags_get: entered 2\n") ;
-#endif
-
-	if (rpp == NULL)
-	    return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("yags_get: entered ri=%d\n",ri) ;
-#endif
+	if (op->magic != YAGS_MAGIC) return SR_NOTOPEN ;
 
 	if ((ri < 0) || (ri >= op->tablen))
 	    return SR_NOTFOUND ;
@@ -499,14 +427,11 @@ YAGS		*op ;
 {
 	int	rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != YAGS_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != YAGS_MAGIC)
-	    return SR_NOTOPEN ;
-
-	(void) memset(&op->s,0,sizeof(YAGS_STATS)) ;
+	memset(&op->s,0,sizeof(YAGS_STATS)) ;
 
 	return rs ;
 }
@@ -520,12 +445,9 @@ YAGS_STATS	*rp ;
 {
 	int	bits_total ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != YAGS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != YAGS_MAGIC) return SR_NOTOPEN ;
 
 /* calculate the bits for this predictor */
 
@@ -534,7 +456,6 @@ YAGS_STATS	*rp ;
 		uint	bits_dpht ;
 		uint	bits_caentry ;
 		uint	bits_history ;
-
 
 		bits_history = flbsi(op->calen) ;
 
@@ -550,8 +471,7 @@ YAGS_STATS	*rp ;
 
 	if (rp != NULL) {
 
-	(void) memcpy(rp,&op->s,sizeof(YAGS_STATS)) ;
-
+	memcpy(rp,&op->s,sizeof(YAGS_STATS)) ;
 	rp->cpht = op->chlen ;
 	rp->dpht = op->calen ;
 	rp->bits = bits_total ;
@@ -563,9 +483,7 @@ YAGS_STATS	*rp ;
 /* end subroutine (yags_stats) */
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 uint satcount(v,n,f_up)
@@ -573,14 +491,13 @@ uint	v ;
 uint	n ;
 int	f_up ;
 {
-	uint	r ;
+	uint		r ;
 
-
-	if (f_up)
+	if (f_up) {
 	    r = (v == (n - 1)) ? v : (v + 1) ;
-
-	else 
+	} else {
 	    r = (v == 0) ? 0 : (v - 1) ;
+	}
 
 	return r ;
 }
@@ -594,8 +511,7 @@ uint			ci ;
 uint			tag ;
 uint			*rp ;
 {
-	int	rs ;
-
+	int		rs ;
 
 #if	CF_DEBUGS
 	debugprintf("yags/calu: cp=%p ci=%d tag=%d\n",cp,ci,tag) ;
@@ -603,15 +519,11 @@ uint			*rp ;
 
 	rs = -1 ;
 	if (cp[ci].tag0 == tag) {
-
 	    rs = 0 ;
 	    *rp = cp[ci].counter0 ;
-
 	} else if (cp[ci].tag1 == tag) {
-
 	    rs = 1 ;
 	    *rp = cp[ci].counter1 ;
-
 	}
 
 	return rs ;
@@ -627,12 +539,10 @@ uint			tag ;
 int			f_outcome ;
 int			f_type ;
 {
-	uint	count, ncount ;
-	uint	tag0, tag1 ;
-	uint	p0, p1 ;
-
-	int	rs ;
-
+	uint		count, ncount ;
+	uint		tag0, tag1 ;
+	uint		p0, p1 ;
+	int		rs ;
 
 #if	CF_DEBUGS
 	debugprintf("yags/caup: cp=%p ci=%d tag=%d\n",cp,ci,tag) ;
@@ -661,11 +571,11 @@ int			f_type ;
 
 	    ncount = satcount(count,YAGS_COUNTBITS,f_outcome) ;
 
-	    if (rs == 0)
+	    if (rs == 0) {
 	        cp[ci].counter0 = ncount ;
-
-	    else
+	    } else {
 	        cp[ci].counter1 = ncount ;
+	    }
 
 	} else {
 
@@ -679,29 +589,21 @@ int			f_type ;
 	        if (! LEQUIV(p0,p1)) {
 
 	            if (! p0) {
-
 	                cp[ci].tag0 = tag ;
 	                cp[ci].counter0 = f_outcome ;
-
 	            } else {
-
 	                cp[ci].tag1 = tag ;
 	                cp[ci].counter1 = f_outcome ;
-
 	            }
 
 	        } else {
 
 	            if (cp[ci].lru) {
-
 	                cp[ci].tag0 = tag ;
 	                cp[ci].counter0 = f_outcome ;
-
 	            } else {
-
 	                cp[ci].tag1 = tag ;
 	                cp[ci].counter1 = f_outcome ;
-
 	            }
 
 	        }
@@ -709,15 +611,11 @@ int			f_type ;
 	    } else {
 
 	        if (cp[ci].lru) {
-
 	            cp[ci].tag0 = tag ;
 	            cp[ci].counter0 = f_outcome ;
-
 	        } else {
-
 	            cp[ci].tag1 = tag ;
 	            cp[ci].counter1 = f_outcome ;
-
 	        }
 
 	    }
@@ -726,6 +624,5 @@ int			f_type ;
 	return rs ;
 }
 /* end subroutine (caup) */
-
 
 

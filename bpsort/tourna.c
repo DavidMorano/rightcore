@@ -4,40 +4,39 @@
 
 
 #define	CF_DEBUGS	0
-#define	F_SAFE		1
-#define	F_VOTEREPLACE	0		/* replace by voting among counters */
-#define	F_COUNTREPLACE	1		/* replace by counting all counters */
+#define	CF_SAFE		1
+#define	CF_VOTEREPLACE	0		/* replace by voting among counters */
+#define	CF_COUNTREPLACE	1		/* replace by counting all counters */
 
 
 /* revision history:
 
-	= 02/05/01, David A­D­ Morano
-
-	This object module was created for Levo research.
-	It is a value predictor.  This is not coded as
-	hardware.  It is like Atom analysis subroutines !
-
+	= 2002-05-01, David A­D­ Morano
+        This object module was created for Levo research. It is a value
+        predictor. This is not coded as hardware. It is like Atom analysis
+        subroutines!
 
 */
 
+/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
-	This object module implements a branch predictor.  This BP is a
-	Tournament type branch predictor (see McFarling and then Alpha
-	21264).
-
+        This object module implements a branch predictor. This BP is a
+        Tournament type branch predictor (see McFarling and then Alpha 21264).
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #define	TOURNA_MASTER	0
 
 
+#include	<envstandards.h>
+
 #include	<sys/types.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
+#include	<sys/stat.h>
 #include	<sys/mman.h>		/* Memory Management */
 #include	<unistd.h>
 #include	<fcntl.h>
@@ -45,16 +44,14 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"bpload.h"
 #include	"tourna.h"
 
 
-
 /* local defines */
 
-#define	TOURNA_MAGIC		0x29456781
 #define	TOURNA_DEFGLEN		4		/* default entries */
 #define	TOURNA_DEFLPLEN		4		/* default entries */
 #define	TOURNA_DEFLBLEN		4		/* default entries */
@@ -67,23 +64,6 @@
 #define	GETPRED(c)	(((c) >> 1) & 1)
 #define	GETPRED2(c)	(((c) >> 1) & 1)
 #define	GETPRED3(c)	(((c) >> 2) & 1)
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
-
 
 
 /* external subroutines */
@@ -109,9 +89,7 @@ struct bpload	tourna = {
 /* local variables */
 
 
-
-
-
+/* exported subroutines */
 
 
 int tourna_init(op,lhlen,lplen,glen)
@@ -123,12 +101,9 @@ int	glen ;
 	int	rs ;
 	int	size ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	(void) memset(op,0,sizeof(TOURNA)) ;
-
+	memset(op,0,sizeof(TOURNA)) ;
 
 /* the choice PHT */
 
@@ -217,7 +192,6 @@ int	glen ;
 
 	op->historymask = (op->glen - 1) ;
 
-
 /* we're out of here */
 
 	op->magic = TOURNA_MAGIC ;
@@ -255,53 +229,26 @@ bad0:
 int tourna_free(op)
 TOURNA	*op ;
 {
-	int	rs = SR_BADFMT ;
+	int		rs = SR_BADFMT ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != TOURNA_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != TOURNA_MAGIC) return SR_NOTOPEN ;
 
 	if (op->lpht != NULL) {
-
 	    free(op->lpht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->lpht,"tourna_free:lpht") ;
-#endif
-
 	}
 
 	if (op->lbht != NULL) {
-
 	    free(op->lbht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->lbht,"tourna_free:lbht") ;
-#endif
-
 	}
 
 	if (op->gpht != NULL) {
-
 	    free(op->gpht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->gpht,"tourna_free:gpht") ;
-#endif
-
 	}
 
 	if (op->cpht != NULL) {
-
 	    free(op->cpht) ;
-
-#ifdef	MALLOCLOG
-	    malloclog_free(op->cpht,"tourna_free:cpht") ;
-#endif
-
 	}
 
 	op->magic = 0 ;
@@ -320,14 +267,11 @@ uint	ia ;
 	int	f_pred ;
 	int	f_select ;
 
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != TOURNA_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != TOURNA_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 	gi = op->bhistory & op->historymask ;
 
@@ -369,14 +313,11 @@ uint	ia ;
 	int	pred ;
 	int	f_select ;
 
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != TOURNA_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != TOURNA_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 	gi = op->bhistory & op->historymask ;
 
@@ -409,27 +350,19 @@ uint	ia ;
 
 
 /* update on branch resolution */
-int tourna_update(op,ia,f_outcome)
-TOURNA	*op ;
-uint	ia ;
-int	f_outcome ;
+int tourna_update(TOURNA *op,uint ia,int f_outcome)
 {
 	uint	ncount ;
-
-	int	rs ;
 	int	lbi, lpi ;
 	int	gi ;
 	int	f_lpred, f_gpred ;
 	int	f_lagree, f_gagree ;
 
+#if	CF_SAFE
+	if (op == NULL) return SR_FAULT ;
 
-#if	F_SAFE
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != TOURNA_MAGIC)
-	    return SR_NOTOPEN ;
-#endif /* F_SAFE */
+	if (op->magic != TOURNA_MAGIC) return SR_NOTOPEN ;
+#endif /* CF_SAFE */
 
 	lbi = (ia >> 2) % op->lhlen ;
 
@@ -483,30 +416,17 @@ int		ri ;
 TOURNA_ENT	**rpp ;
 {
 
-
 #if	CF_DEBUGS
-	debugprintf("tourna_get: entered 0\n") ;
+	debugprintf("tourna_get: ent 0\n") ;
 #endif
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (rpp == NULL) return SR_FAULT ;
+
+	if (op->magic != TOURNA_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("tourna_get: entered 1\n") ;
-#endif
-
-	if (op->magic != TOURNA_MAGIC)
-	    return SR_NOTOPEN ;
-
-#if	CF_DEBUGS
-	debugprintf("tourna_get: entered 2\n") ;
-#endif
-
-	if (rpp == NULL)
-	    return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("tourna_get: entered ri=%d\n",ri) ;
+	debugprintf("tourna_get: ent ri=%d\n",ri) ;
 #endif
 
 	if ((ri < 0) || (ri >= op->tablen))
@@ -533,14 +453,11 @@ TOURNA		*op ;
 {
 	int	rs = SR_OK ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op->magic != TOURNA_MAGIC) return SR_NOTOPEN ;
 
-	if (op->magic != TOURNA_MAGIC)
-	    return SR_NOTOPEN ;
-
-	(void) memset(&op->s,0,sizeof(TOURNA_STATS)) ;
+	memset(&op->s,0,sizeof(TOURNA_STATS)) ;
 
 	return rs ;
 }
@@ -552,14 +469,11 @@ int tourna_stats(op,rp)
 TOURNA		*op ;
 TOURNA_STATS	*rp ;
 {
-	int	bits_total ;
+	int		bits_total ;
 
+	if (op == NULL) return SR_FAULT ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != TOURNA_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != TOURNA_MAGIC) return SR_NOTOPEN ;
 
 /* calculate the bits */
 
@@ -569,7 +483,6 @@ TOURNA_STATS	*rp ;
 	    uint	bits_lpht ;
 	    uint	bits_ghistory ;
 	    uint	bits_gpht ;
-
 
 	    bits_lhistory = flbsi(op->lhlen) ;
 
@@ -591,7 +504,7 @@ TOURNA_STATS	*rp ;
 
 	if (rp != NULL) {
 
-	(void) memcpy(rp,&op->s,sizeof(TOURNA_STATS)) ;
+	memcpy(rp,&op->s,sizeof(TOURNA_STATS)) ;
 
 	rp->lbht = op->lhlen ;
 	rp->lpht = op->lplen ;
@@ -605,9 +518,7 @@ TOURNA_STATS	*rp ;
 /* end subroutine (tourna_stats) */
 
 
-
-/* INTERNAL SUBROUTINES */
-
+/* private subroutines */
 
 
 static uint satcount(v,n,f_up)
@@ -615,18 +526,16 @@ uint	v ;
 uint	n ;
 int	f_up ;
 {
-	uint	r ;
+	uint		r ;
 
-
-	if (f_up)
+	if (f_up) {
 	    r = (v == (n - 1)) ? v : (v + 1) ;
-
-	else 
+	} else {
 	    r = (v == 0) ? 0 : (v - 1) ;
+	}
 
 	return r ;
 }
 /* end subroutine (satcount) */
-
 
 

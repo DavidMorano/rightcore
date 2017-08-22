@@ -116,6 +116,7 @@ extern int	varsub_addvec(VARSUB *,VECSTR *) ;
 extern int	varsub_subbuf(), varsub_merge() ;
 extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
 			const char *,const char *) ;
+extern int	isdigitlatin(int) ;
 
 extern int	expander() ;
 extern int	procfileenv(char *,char *,VECSTR *) ;
@@ -340,12 +341,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            rs = cfdeci((argp + 1),(argl - 1),&argvalue) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

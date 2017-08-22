@@ -1,2 +1,2 @@
 const char hexing_makedate[] =
-"@(#)hexing                  170105_2234:58_USEST Rightcore Network Services¹" ;
+"@(#)hexing                  170822_1258:44_USEDT Rightcore Network Services" ;

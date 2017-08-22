@@ -162,11 +162,7 @@ static const struct prefix	specials[] = {
 /* exported subroutines */
 
 
-int mkutmpid(idbuf,idlen,devbuf,devlen)
-char		idbuf[] ;
-int		idlen ;
-const char	devbuf[] ;
-int		devlen ;
+int mkutmpid(char *idbuf,int idlen,cchar *devbuf,int devlen)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -188,12 +184,13 @@ int		devlen ;
 	ll = strnlen(devbuf,devlen) ;
 
 	if (strncmp(devbuf,"/dev/",5) == 0) {
-		lp += 5 ;
-		ll -= 5 ;
+	    lp += 5 ;
+	    ll -= 5 ;
 	}
 
-	if (ll < 1)
-	    return SR_INVALID ;
+	if (ll < 1) {
+	    rs = SR_INVALID ;
+	}
 
 /* handle subdirectories first */
 
@@ -201,6 +198,7 @@ int		devlen ;
 	debugprintf("mkutmpid: directory match line=%t\n",lp,ll) ;
 #endif
 
+	if (rs >= 0) {
 	if ((cp = strnchr(lp,ll,'/')) != NULL) {
 
 	    sp = lp ;
@@ -220,30 +218,19 @@ int		devlen ;
 #endif
 
 	    for (i = 0 ; prefixes[i].name != NULL ; i += 1) {
-
 	        pp = prefixes[i].name ;
 	        pl = strlen(pp) ;
-
-	        if ((pl == sl) && (strncmp(pp,sp,pl) == 0))
-	            break ;
-
+	        if ((pl == sl) && (strncmp(pp,sp,pl) == 0)) break ;
 	    } /* end for */
 
 	    if (prefixes[i].name != NULL) {
-
 	        pp = prefixes[i].prefix ;
 	        pl = strlen(pp) ;
-
-#if	CF_DEBUGS
-	        debugprintf("mkutmpid: prefix=%t\n",
-	            pp,strnlen(pp,pl)) ;
-#endif
-
 	        rs = idcpy(idbuf,idlen,pp,pl,cp,cl) ;
-
 	    } /* end if */
 
 	} /* end if (tried for a directory match) */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	if (idbuf[0] == '\0')
@@ -271,17 +258,9 @@ int		devlen ;
 	    } /* end for */
 
 	    if (prefixes[i].name != NULL) {
-
 	        pp = prefixes[i].prefix ;
 	        pl = strlen(pp) ;
-
-#if	CF_DEBUGS
-	        debugprintf("mkutmpid: prefix=%t\n",
-	            pp,strnlen(pp,pl)) ;
-#endif
-
 	        rs = idcpy(idbuf,idlen,pp,pl,cp,cl) ;
-
 	    } /* end if */
 
 	} /* end if (raw prefix match) */
@@ -294,26 +273,14 @@ int		devlen ;
 	    cl = ll ;
 
 	    for (i = 0 ; specials[i].name != NULL ; i += 1) {
-
 	        pp = specials[i].name ;
-
-	        if (strcmp(pp,lp) == 0)
-	            break ;
-
+	        if (strcmp(pp,lp) == 0) break ;
 	    } /* end for */
 
 	    if (specials[i].name != NULL) {
-
 	        pp = specials[i].prefix ;
 	        pl = strlen(pp) ;
-
-#if	CF_DEBUGS
-	        debugprintf("mkutmpid: special=%t\n",
-	            pp,strnlen(pp,pl)) ;
-#endif
-
 	        rs = idcpy(idbuf,idlen,pp,pl,NULL,0) ;
-
 	    } /* end if */
 
 	} /* end if (special terminal devices) */
@@ -367,13 +334,7 @@ int		devlen ;
 /* local subroutines */
 
 
-static int idcpy(idbuf,idlen,pp,pl,cp,cl)
-char		idbuf[] ;
-int		idlen ;
-const char	pp[] ;
-int		pl ;
-const char	cp[] ;
-int		cl ;
+static int idcpy(char *idbuf,int idlen,cchar *pp,int pl,cchar *cp,int cl)
 {
 	int		rs ;
 	int		j, k ;

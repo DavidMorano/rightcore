@@ -7,18 +7,16 @@
 
 int main()
 {
-	int	rs,i, ifd = 0 ;
-	int	p[10] ;
-	int	sum ;
-	int	size, iw ;
-
-	short	sw ;
-
-	double	r ;
-
-	char	digbuf[24] ;
-	char	*cp ;
-
+	double		r ;
+	int		rs ;
+	int		i ;
+	int		p[10] ;
+	int		sum ;
+	int		size, iw ;
+	int		ifd = 0 ;
+	short		sw ;
+	char		digbuf[24] ;
+	char		*cp ;
 
 	size = 10 * sizeof(int) ;
 	(void) memset(p,0,size) ;
@@ -29,8 +27,9 @@ int main()
 		ctdeci(digbuf,20,iw) ;
 
 		cp = digbuf ;
-		while (*cp == '\0')
+		while (*cp == '\0') {
 			cp += 1 ;
+		}
 
 		iw = (*cp - '0') & 0xff ;
 		p[iw] += 1 ;
@@ -41,7 +40,6 @@ int main()
 	for (i = 0 ; i < 10 ; i += 1) {
 		sum += p[i] ;
 	}
-
 
 	printf("sum=%d\n",sum) ;
 

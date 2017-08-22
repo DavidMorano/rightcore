@@ -5,13 +5,13 @@
 
 /* revision history:
 
-	= 1998-03-24, David A­D­ Morano
+	= 2001-03-24, David A­D­ Morano
         This code was written from scratch to get some portable network ordering
         for Ethernet (ETHCON) development work.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

@@ -12,16 +12,12 @@
 
 /* revision history:
 
-	= 1986-07-01, David A­D­ Morano
+	= 1999-06-13, David A­D­ Morano
 	This program was originally written.
-
-	= 1998-07-01, David A­D­ Morano
-        I added the ability to specify the "from_address" for the case when we
-        add an envelope header to the message.
 
 */
 
-/* Copyright © 1986,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -38,14 +34,11 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<time.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<bfile.h>
 #include	<randomvar.h>
 #include	<cksum.h>
 #include	<localmisc.h>
@@ -73,7 +66,7 @@
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
 
-extern void	munge(struct proginfo *,int,ULONG *,ULONG *,ULONG *) ;
+extern void	munge(PROGINFO *,int,ULONG *,ULONG *,ULONG *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -89,12 +82,12 @@ extern int	strlinelen(const char *,int,int) ;
 /* local structures */
 
 struct msgdesc {
-	CKSUM	sumer ;
-	uint	cksum ;
-	uint	msglen ;
-	uint	tlen ;
-	uint	i ;
-	uint	wlen ;
+	CKSUM		sumer ;
+	uint		cksum ;
+	uint		msglen ;
+	uint		tlen ;
+	uint		i ;
+	uint		wlen ;
 } ;
 
 struct msgstate {
@@ -105,10 +98,9 @@ struct msgstate {
 
 /* forward references */
 
-static int	decode_start(struct proginfo *,struct msgstate *,int,int) ;
-static int	decode_proc(struct proginfo *,struct msgstate *,
-			char *,int) ;
-static int	decode_finish(struct proginfo *,struct msgstate *) ;
+static int	decode_start(PROGINFO *,struct msgstate *,int,int) ;
+static int	decode_proc(PROGINFO *,struct msgstate *,char *,int) ;
+static int	decode_finish(PROGINFO *,struct msgstate *) ;
 
 
 /* local variables */
@@ -117,62 +109,57 @@ static int	decode_finish(struct proginfo *,struct msgstate *) ;
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int decode(pip,rvp,fip,emp,ifd,ofd)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 RANDOMVAR	*rvp ;
-struct fileinfo	*fip ;
+FILEINFO	*fip ;
 ECMSG		*emp ;
 int		ifd, ofd ;
 {
 	struct msgstate	ms ;
-
 	struct ustat	sb ;
-
-	ULONG	key[NOPWORDS] ;
-	ULONG	vector[NOPWORDS] ;
-	ULONG	mask[NOPWORDS] ;
-	ULONG	first[NOPWORDS] ;
-	ULONG	scrambled[NOPWORDS] ;
-	ULONG	clear[NOPWORDS] ;
+	ULONG		key[NOPWORDS] ;
+	ULONG		vector[NOPWORDS] ;
+	ULONG		mask[NOPWORDS] ;
+	ULONG		first[NOPWORDS] ;
+	ULONG		scrambled[NOPWORDS] ;
+	ULONG		clear[NOPWORDS] ;
 
 #if	(! CF_UNIFIED)
-	CKSUM	filesum, msgsum ;
+	CKSUM		filesum, msgsum ;
 #endif
 
 	offset_t	offset ;
-
-	time_t	filetime ;
-	time_t	msgtime ;
-
-	uint	val ;
-	uint	filecksum, msgcksum ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i, j, rlen, len ;
-	int	cl ;
-	int	n = NOPWORDS ;
-	int	sfd, mfd = -1 ;
-	int	totalblocks ;
-	int	datablocks ;
-	int	filelen, msglen ;
-	int	oflags ;
-	int	f_spoolinput = FALSE ;
-
-	char	*cp ;
-
+	time_t		filetime ;
+	time_t		msgtime ;
+	uint		val ;
+	uint		filecksum, msgcksum ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i, j, rlen, len ;
+	int		cl ;
+	int		n = NOPWORDS ;
+	int		sfd, mfd = -1 ;
+	int		totalblocks ;
+	int		datablocks ;
+	int		filelen, msglen ;
+	int		oflags ;
+	int		f_spoolinput = FALSE ;
+	char		*cp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("decode: entered\n") ;
+	    debugprintf("decode: ent\n") ;
 #endif
+
+	if (pip == NULL) return SR_FAULT ;
 
 	fip->mtime = 0 ;
 	fip->len = 0 ;
 	fip->cksum = 0 ;
 
 	rs = u_fstat(ifd,&sb) ;
-
 	if (rs < 0)
 	    goto ret0 ;
 
@@ -263,7 +250,6 @@ int		ifd, ofd ;
 /* do we have to stage the output file? */
 
 	rs = u_fstat(ofd,&sb) ;
-
 	if (rs < 0)
 	    goto badoutstat ;
 
@@ -296,14 +282,12 @@ int		ifd, ofd ;
 	    mkpath2(infname,pip->tmpdname,"ecXXXXXXXXXXXX") ;
 
 	    rs = mktmpfile(tmpfname,0600,infname) ;
-
 	    if (rs < 0)
 	        goto badtmpmk2 ;
 
 	    rs = u_open(tmpfname,O_RDWR,0600) ;
 
 	    u_unlink(tmpfname) ;
-
 	    if (rs < 0)
 	        goto badtmpopen2 ;
 
@@ -322,8 +306,9 @@ int		ifd, ofd ;
 
 	u_seek(ifd,0L,SEEK_SET) ;
 
-	for (i = 0 ; i < n ; i += 1)
+	for (i = 0 ; i < n ; i += 1) {
 	    vector[i] = key[i] ;
+	}
 
 /* read the leader block */
 
@@ -333,7 +318,6 @@ int		ifd, ofd ;
 #endif
 
 	rs = u_read(ifd,scrambled,BLOCKLEN) ;
-
 	if (rs < 0)
 	    goto badread ;
 
@@ -367,8 +351,9 @@ int		ifd, ofd ;
 
 /* save the first block so that we can get the clear-text later */
 
-	    for (i = 0 ; i < NOPWORDS ; i += 1)
+	    for (i = 0 ; i < NOPWORDS ; i += 1) {
 	        first[i] = clear[i] ;
+	    }
 
 /* don't bother writing anything for the first block yet, just skip */
 
@@ -390,6 +375,7 @@ int		ifd, ofd ;
 #endif
 
 	        rs = u_read(ifd,scrambled,BLOCKLEN) ;
+	        len = rs ;
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
@@ -397,9 +383,7 @@ int		ifd, ofd ;
 	                i,rs) ;
 #endif
 
-	        len = rs ;
-	        if (rs < BLOCKLEN)
-	            break ;
+	        if (rs < BLOCKLEN) break ;
 
 	        munge(pip,n,vector,scrambled,clear) ;
 
@@ -413,9 +397,7 @@ int		ifd, ofd ;
 
 	    } /* end for (there was more input data to read) */
 
-	    if (rs < 0)
-	        goto badread ;
-
+	    if (rs < 0) goto badread ;
 	} /* end if (there were data blocks) */
 
 #if	CF_DEBUG
@@ -445,8 +427,9 @@ int		ifd, ofd ;
 
 /* OK, decode the beginning of the first block with the mask block */
 
-	for (i = 0 ; i < (n - pip->necinfo) ; i += 1)
+	for (i = 0 ; i < (n - pip->necinfo) ; i += 1) {
 	    first[i] = first[i] ^ mask[i] ;
+	}
 
 /* decode the last few words of the mask block itself, with itself */
 
@@ -541,9 +524,7 @@ int		ifd, ofd ;
 
 	{
 	    int		fd ;
-
 	    char	buf[BUFLEN + 1], *bp ;
-
 
 #if	CF_UNIFIED
 
@@ -590,8 +571,9 @@ int		ifd, ofd ;
 
 #if	CF_UNIFIED
 
-	    if (sfd != ofd)
+	    if (sfd != ofd) {
 	        u_seek(sfd,(offset_t) BLOCKLEN,SEEK_SET) ;
+	    }
 
 	    while ((ms.main.tlen < ms.main.msglen) ||
 	        (ms.extra.tlen < ms.extra.msglen)) {
@@ -610,8 +592,9 @@ int		ifd, ofd ;
 
 	        decode_proc(pip,&ms,buf,len) ;
 
-	        if ((sfd != ofd) && (ms.main.wlen > 0))
+	        if ((sfd != ofd) && (ms.main.wlen > 0)) {
 	            rs = u_write(ofd,(buf + ms.main.i),ms.main.wlen) ;
+		}
 
 	        if ((rs >= 0) && (mfd >= 0) && (ms.extra.wlen > 0)) {
 
@@ -667,8 +650,9 @@ int		ifd, ofd ;
 	        u_close(sfd) ;
 	    } /* end if (needed a "stage" file) */
 
-	    if (sfd == ofd)
+	    if (sfd == ofd) {
 	        uc_ftruncate(ofd,(offset_t) filelen) ;
+	    }
 
 #else /* CF_UNIFIED */
 
@@ -837,13 +821,11 @@ int		ifd, ofd ;
 	        u_seek(sfd,(offset_t) 0,SEEK_SET) ;
 
 	        for (i = 0 ; i < datablocks ; i += 1) {
-
-	            for (j = 0 ; j < n ; j += 1)
+	            for (j = 0 ; j < n ; j += 1) {
 	                randomvar_getulong(rvp,(scrambled + j)) ;
-
+		    }
 	            rs = u_write(sfd,scrambled,BLOCKLEN) ;
 		    if (rs < 0) break ;
-
 	        } /* end for */
 
 	        u_close(sfd) ;
@@ -981,15 +963,15 @@ badtmpmk2:
 #if	CF_UNIFIED
 
 static int decode_start(pip,msp,l1,l2)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct msgstate	*msp ;
 int		l1, l2 ;
 {
-	int	rs ;
+	int		rs ;
 
+	if (pip == NULL) return SR_FAULT ;
 
 	memset(msp,0,sizeof(struct  msgstate)) ;
-
 	msp->main.msglen = l1 ;
 	msp->extra.msglen = l2 ;
 
@@ -1015,14 +997,15 @@ bad0:
 
 
 static int decode_proc(pip,msp,data,datalen)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct msgstate	*msp ;
 char		data[] ;
 int		datalen ;
 {
-	int	rlen ;
-	int	i = 0 ;
+	int		rlen ;
+	int		i = 0 ;
 
+	if (pip == NULL) return SR_FAULT ;
 
 	rlen = msp->main.msglen - msp->main.tlen ;
 	msp->main.i = 0 ;
@@ -1064,12 +1047,14 @@ int		datalen ;
 
 
 static int decode_finish(pip,msp)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct msgstate	*msp ;
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-	uint	val ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	uint		val ;
+
+	if (pip == NULL) return SR_FAULT ;
 
 	cksum_getsum(&msp->main.sumer,&val) ;
 

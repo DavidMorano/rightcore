@@ -3,12 +3,10 @@ MKPWI
 This program is a utility that rebuilds the IPASSWD database.
 
 Synopsis:
-
 $ mkpwi [-if <passwdfile>] [-db <dbname>] [-ROOT <pr>]
 	[-Q] [-D] [-v[=n]] [-V]
 
-where:
-
+Arguments:
 -if <passwdfile>	password file
 -db <dbname>		filepath to DB
 -ROOT <pr>		program-root

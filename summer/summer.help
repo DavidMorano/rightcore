@@ -4,12 +4,10 @@ This program calculates a variety of sums and means the input values.  Types of
 output available include: harmonic mean, arithmetic mean, and arithmetic sum.
 
 Synopsis:
-
 $ ${S} [-pm <progmode>] [<number(s)>] [-af <afile>] 
 		[-o <type>=<value>] [-o <opt(s)>] [-V]
 
-where:
-
+Arguments:
 -pm <progmode>		program mode to run in; one of:
 				<asum>
 				<amean>

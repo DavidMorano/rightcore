@@ -1,7 +1,7 @@
 '\" t
 .TH PCSORG 1 0 PCS
 .SH NAME
-pcsorg \- get or set PCS organization
+pcsorg \- get or set the PCS organization
 .SH SYNOPSIS
 .\"_
 .\"_

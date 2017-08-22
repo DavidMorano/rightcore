@@ -18,9 +18,9 @@
 
 #define	BPIHDR			struct bpihdr
 
+#define	BPIHDR_MAGICSIZE	16
 #define	BPIHDR_MAGICSTR		"BIBLEPARAINDEX"
 #define	BPIHDR_MAGICLEN		sizeof(BPIHDR_MAGICSTR)
-#define	BPIHDR_MAGICSIZE	16
 #define	BPIHDR_VERSION		0
 
 

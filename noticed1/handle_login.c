@@ -12,26 +12,22 @@
 /* revision history:
 
 	= 1986-07-01, David A­D­ Morano
-
 	This program was originally written.
 
-
 	= 1998-07-01, David A­D­ Morano
-
 	This subroutine has been enhanced with some modifications to
 	the user and group handling of the spawned server program.
-
 
 */
 
 /* Copyright © 1996,1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Handle a request for which we have a matching login entry.
 
 
-***************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -293,9 +289,7 @@ struct passwd	*pep ;
 
 	            } /* end for (machine names) */
 
-	            if (rs >= 0)
-	                break ;
-
+	            if (rs >= 0) break ;
 	        } /* end for (netgroups) */
 
 #if	CF_DEBUG

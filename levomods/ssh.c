@@ -10,11 +10,8 @@
 /* revision history:
 
 	= 2002-05-01, David A­D­ Morano
-
-	This object module was created for Levo research, to determine
-	if a conditional branch at a given instruction address is
-	a SS-Hamock or not.
-
+        This object module was created for Levo research, to determine if a
+        conditional branch at a given instruction address is a SS-Hamock or not.
 
 */
 
@@ -22,10 +19,9 @@
 
 /******************************************************************************
 
-	This object module provides an interface to a data base of
-	information about SS-Hammock branchs.  A query can be made to
-	retrieve information about a conditional branch as specified by
-	its instruction address.
+        This object module provides an interface to a data base of information
+        about SS-Hammock branchs. A query can be made to retrieve information
+        about a conditional branch as specified by its instruction address.
 
 
 *****************************************************************************/
@@ -46,6 +42,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<endian.h>
 #include	<localmisc.h>
 
 #include	"ssh.h"
@@ -56,22 +53,6 @@
 #define	SSH_MAGIC	0x23456787
 
 #define	MODP2(v,n)	((v) & ((n) - 1))
-
-#ifndef	ENDIAN
-#if	defined(SOLARIS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
 
 
 /* external subroutines */

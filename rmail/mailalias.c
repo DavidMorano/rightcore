@@ -958,10 +958,11 @@ static int mailalias_checkold(MAILALIAS *op,time_t dt)
 /* read the file header and check it out */
 static int mailalias_hdrload(MAILALIAS *op)
 {
+	const int	msize = MAILALIAS_FILEMAGICSIZE ;
 	int		rs = SR_OK ;
 	cchar		*cp = (cchar *) op->mapdata ;
-	if (isValidMagic(cp,MAILALIAS_FILEMAGICLEN,MAILALIAS_FILEMAGIC)) {
-	    cp += 16 ;
+	if (isValidMagic(cp,msize,MAILALIAS_FILEMAGIC)) {
+	    cp += msize ;
 	    if (cp[0] == MAILALIAS_FILEVERSION) {
 	        if (cp[1] == ENDIAN) {
 	            op->ropts = MKCHAR(cp[2]) ;
@@ -975,7 +976,6 @@ static int mailalias_hdrload(MAILALIAS *op)
 	} else {
 	    rs = SR_BADFMT ;
 	}
-
 	return rs ;
 }
 /* end subroutine (mailalias_hdrload) */

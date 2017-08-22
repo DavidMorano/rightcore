@@ -11,9 +11,19 @@
 	= 1998-03-24, David A­D­ Morano
 	This object module was originally written.
 
+	= 2016-11-06, David A­D­ Morano
+        I did some optimization for the method |sbuf_decX()| and |sbuf_hexX()|
+        to form the digits in the object buffer directly rather than in a
+        separate buffer and then copying the data into the object buffer.
+
+	= 2017-11-06, David A­D­ Morano
+        I enhanced the |sbuf_hexXX()| methods using the property that the length
+        (in bytes) of the result is known ahead of time. We cannot do this
+	(really quickly) with decimal conversions.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2016,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -397,97 +407,12 @@ int sbuf_decull(SBUF *sbp,ulonglong v)
 /* end subroutine (sbuf_decull) */
 
 
-int sbuf_hexui(SBUF *sbp,uint v)
+int sbuf_hexc(SBUF *sbp,int v)
 {
-	const int	hlen = HEXBUFLEN ;
-	int		rs ;
-	int		bl ;
-	int		len = 0 ;
-
-	if (sbp == NULL) return SR_FAULT ;
-
-	if (SBUF_INDEX < 0) return SBUF_INDEX ;
-
-	bl = (SBUF_RLEN-SBUF_INDEX) ;
-	if (bl >= hlen) {
-	    char	*bp = (SBUF_RBUF+SBUF_INDEX) ;
-	    if ((rs = cthexui(bp,bl,v)) >= 0) {
-		SBUF_INDEX += rs ;
-		len = rs ;
-	    }
-	} else {
-	    char	hbuf[HEXBUFLEN + 1] ;
-	    if ((rs = cthexui(hbuf,hlen,v)) >= 0) {
-	        len = rs ;
-	        rs = sbuf_addstrw(sbp,hbuf,len) ;
-	    }
-	}
-
-	return (rs >= 0) ? len : rs ;
+	uint		uv = (uint) v ;
+	return sbuf_hexuc(sbp,uv) ;
 }
-/* end subroutine (sbuf_hexui) */
-
-
-int sbuf_hexul(SBUF *sbp,ulong v)
-{
-	const int	hlen = HEXBUFLEN ;
-	int		rs ;
-	int		bl ;
-	int		len = 0 ;
-
-	if (sbp == NULL) return SR_FAULT ;
-
-	if (SBUF_INDEX < 0) return SBUF_INDEX ;
-
-	bl = (SBUF_RLEN-SBUF_INDEX) ;
-	if (bl >= hlen) {
-	    char	*bp = (SBUF_RBUF+SBUF_INDEX) ;
-	    if ((rs = cthexul(bp,bl,v)) >= 0) {
-		SBUF_INDEX += rs ;
-		len = rs ;
-	    }
-	} else {
-	    char	hbuf[HEXBUFLEN + 1] ;
-	    if ((rs = cthexul(hbuf,hlen,v)) >= 0) {
-	        len = rs ;
-	        rs = sbuf_addstrw(sbp,hbuf,len) ;
-	    }
-	}
-
-	return (rs >= 0) ? len : rs ;
-}
-/* end subroutine (sbuf_hexul) */
-
-
-int sbuf_hexull(SBUF *sbp,ulonglong v)
-{
-	const int	hlen = HEXBUFLEN ;
-	int		rs ;
-	int		bl ;
-	int		len = 0 ;
-
-	if (sbp == NULL) return SR_FAULT ;
-
-	if (SBUF_INDEX < 0) return SBUF_INDEX ;
-
-	bl = (SBUF_RLEN-SBUF_INDEX) ;
-	if (bl >= hlen) {
-	    char	*bp = (SBUF_RBUF+SBUF_INDEX) ;
-	    if ((rs = cthexull(bp,bl,v)) >= 0) {
-		SBUF_INDEX += rs ;
-		len = rs ;
-	    }
-	} else {
-	    char	hbuf[HEXBUFLEN + 1] ;
-	    if ((rs = cthexull(hbuf,hlen,v)) >= 0) {
-	        len = rs ;
-	        rs = sbuf_addstrw(sbp,hbuf,len) ;
-	    }
-	}
-
-	return (rs >= 0) ? len : rs ;
-}
-/* end subroutine (sbuf_hexull) */
+/* end subroutine (sbuf_hexi) */
 
 
 /* store a hexadecimal number (as a string) into the buffer */
@@ -515,11 +440,108 @@ int sbuf_hexll(SBUF *sbp,longlong v)
 /* end subroutine (sbuf_hexll) */
 
 
-int sbuf_hex(SBUF *sbp,int v)
+/* unsigned character (uchar) */
+int sbuf_hexuc(SBUF *sbp,uint v)
 {
-	return sbuf_hexi(sbp,v) ;
+	const int	hlen = (2*sizeof(uchar)) ; /* unsigned character */
+	int		rs = SR_OVERFLOW ;
+	int		bl ;
+	int		len = 0 ;
+
+	if (sbp == NULL) return SR_FAULT ;
+
+	if (SBUF_INDEX < 0) return SBUF_INDEX ;
+
+	bl = (SBUF_RLEN-SBUF_INDEX) ;
+	if (bl >= hlen) {
+	    char	*bp = (SBUF_RBUF+SBUF_INDEX) ;
+	    if ((rs = cthexuc(bp,bl,v)) >= 0) {
+		SBUF_INDEX += rs ;
+		len = rs ;
+	    }
+	}
+
+	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (sbuf_hex) */
+/* end subroutine (sbuf_hexuc) */
+
+
+/* unsigned integer */
+int sbuf_hexui(SBUF *sbp,uint v)
+{
+	const int	hlen = (2*sizeof(uint)) ; /* unsigned integer */
+	int		rs = SR_OVERFLOW ;
+	int		bl ;
+	int		len = 0 ;
+
+	if (sbp == NULL) return SR_FAULT ;
+
+	if (SBUF_INDEX < 0) return SBUF_INDEX ;
+
+	bl = (SBUF_RLEN-SBUF_INDEX) ;
+	if (bl >= hlen) {
+	    char	*bp = (SBUF_RBUF+SBUF_INDEX) ;
+	    if ((rs = cthexui(bp,bl,v)) >= 0) {
+		SBUF_INDEX += rs ;
+		len = rs ;
+	    }
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (sbuf_hexui) */
+
+
+/* unsigned long */
+int sbuf_hexul(SBUF *sbp,ulong v)
+{
+	const int	hlen = (2*sizeof(ulong)) ; /* unsigned long */
+	int		rs = SR_OVERFLOW ;
+	int		bl ;
+	int		len = 0 ;
+
+	if (sbp == NULL) return SR_FAULT ;
+
+	if (SBUF_INDEX < 0) return SBUF_INDEX ;
+
+	bl = (SBUF_RLEN-SBUF_INDEX) ;
+	if (bl >= hlen) {
+	    char	*bp = (SBUF_RBUF+SBUF_INDEX) ;
+	    if ((rs = cthexul(bp,bl,v)) >= 0) {
+		SBUF_INDEX += rs ;
+		len = rs ;
+	    }
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (sbuf_hexul) */
+
+
+/* unsigned long-long */
+int sbuf_hexull(SBUF *sbp,ulonglong v)
+{
+	const int	hlen = (2*sizeof(ulonglong)) ; /* unsigned long-long */
+	int		rs = SR_OVERFLOW ;
+	int		bl ;
+	int		len = 0 ;
+
+	if (sbp == NULL) return SR_FAULT ;
+
+	if (SBUF_INDEX < 0) return SBUF_INDEX ;
+
+	bl = (SBUF_RLEN-SBUF_INDEX) ;
+	if (bl >= hlen) {
+	    char	*bp = (SBUF_RBUF+SBUF_INDEX) ;
+	    if ((rs = cthexull(bp,bl,v)) >= 0) {
+		SBUF_INDEX += rs ;
+		len = rs ;
+	    }
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (sbuf_hexull) */
 
 
 /* store a character */
@@ -539,8 +561,9 @@ int sbuf_char(SBUF *sbp,int ch)
 	if (SBUF_RLEN >= 0) {
 	    if (SBUF_RLEN >= ni) {
 		*bp++ = ch ;
-	    } else
+	    } else {
 		rs = SR_OVERFLOW ;
+	    }
 	} else {
 	    *bp++ = ch ;
 	}
@@ -649,6 +672,7 @@ int sbuf_adv(SBUF *sbp,int adv,char **dpp)
 /* end subroutine (sbuf_adv) */
 
 
+/* get the remaining length in the buffer */
 int sbuf_rem(SBUF *sbp)
 {
 	int		rs ;
@@ -692,7 +716,7 @@ int sbuf_getpoint(SBUF *sbp,cchar **rpp)
 /* end subroutine (sbuf_getpoint) */
 
 
-/* get the previous character (if there is one) */
+/* get (retrieve) the previous character (if there is one) */
 int sbuf_getprev(SBUF *sbp)
 {
 	int		rs = SR_NOENT ;
@@ -710,10 +734,16 @@ int sbuf_getprev(SBUF *sbp)
 
 int sbuf_dec(SBUF *sbp,int v)
 {
-
 	return sbuf_deci(sbp,v) ;
 }
 /* end subroutine (sbuf_dec) */
+
+
+int sbuf_hex(SBUF *sbp,int v)
+{
+	return sbuf_hexi(sbp,v) ;
+}
+/* end subroutine (sbuf_hex) */
 
 
 /* private subroutines */

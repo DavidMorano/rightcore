@@ -95,8 +95,9 @@ extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	opentmp(const char *,int,mode_t) ;
 extern int	opentermnote(const char *,const char **,int,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
+extern int	isdigitlatin(int) ;
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 
 /* local structures */
@@ -227,12 +228,13 @@ int		to ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = NULL ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;

@@ -11,20 +11,18 @@
 /* revision history:
 
 	= 1994-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
 /* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
 
-/*****************************************************************************
+/*******************************************************************************
 
 	This is the front-end subroutine for the REFERM program.
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -40,7 +38,6 @@
 #include	<dirent.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>
@@ -90,6 +87,8 @@
 
 extern int	cfdeci(const char *,int,int *) ;
 extern int	sfshrink(const char *,int,char **) ;
+extern int	isdigitlatin(int) ;
+
 extern int	varsub_subbuf(), varsub_merge() ;
 extern int	expander() ;
 extern int	process() ;
@@ -147,7 +146,6 @@ int	argc ;
 char	*argv[], *envv[] ;
 {
 	struct proginfo		g, *pip = &g ;
-	
 	struct userinfo		u ;
 
 	CONFIGFILE	cf ;
@@ -274,10 +272,11 @@ char	*argv[], *envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (argl > 1) {
 
-	            if (isdigit(argp[1])) {
+	            if (isdigitlatin(ach)) {
 
 	                if (((argl - 1) > 0) && 
 	                    (cfdeci(argp + 1,argl - 1,&argnum) < 0))
@@ -285,32 +284,16 @@ char	*argv[], *envv[] ;
 
 	            } else {
 
-#if	CF_DEBUGS
-	                debugprintf("main: got an option\n") ;
-#endif
-
 	                aop = argp + 1 ;
 	                aol = argl - 1 ;
 	                akp = aop ;
 	                f_optequal = FALSE ;
 	                if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option key w/ a value\n") ;
-#endif
-
 	                    akl = avp - aop ;
 	                    avp += 1 ;
 	                    avl = aop + aol - avp ;
 	                    f_optequal = TRUE ;
-
-#if	CF_DEBUGS
-	                    debugprintf("main: aol=%d avp=\"%s\" avl=%d\n",
-	                        aol,avp,avl) ;
-
-	                    debugprintf("main: akl=%d akp=\"%s\"\n",
-	                        akl,akp) ;
-#endif
 
 	                } else {
 
@@ -319,18 +302,7 @@ char	*argv[], *envv[] ;
 
 	                }
 
-/* do we have a keyword match or should we assume only key letters ? */
-
-#if	CF_DEBUGS
-	                debugprintf("main: about to check for a key word match\n") ;
-#endif
-
 	                if ((kwi = matstr(argopts,akp,akl)) >= 0) {
-
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option keyword, kwi=%d\n",
-	                        kwi) ;
-#endif
 
 	                    switch (kwi) {
 

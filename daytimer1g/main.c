@@ -141,7 +141,6 @@ extern const char	daytimer_makedate[] ;
 /* forward references */
 
 static int	usage(struct proginfo *) ;
-static int	makedate_get(const char *,const char **) ;
 static int	mklinename(char *,const char *) ;
 static int	procopts(struct proginfo *,KEYOPT *) ;
 
@@ -671,11 +670,6 @@ const char	*envv[] ;
 	if (f_version) {
 	    bprintf(pip->efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
-		if (f_makedate) {
-		cl = makedate_get(daytimer_makedate,&cp) ;
-	    	bprintf(pip->efp,"%s: makedate %t\n",
-	        	pip->progname,cp,cl) ;
-		}
 	}
 
 /* program root */
@@ -1342,54 +1336,12 @@ struct proginfo	*pip ;
 /* end subroutines (usage) */
 
 
-/* get the date out of the ID string */
-static int makedate_get(md,rpp)
-const char	md[] ;
-const char	**rpp ;
-{
-	int		rs ;
-	const char	*sp ;
-	const char	*cp ;
-
-	if (rpp != NULL)
-		*rpp = NULL ;
-
-	if ((cp = strchr(md,CH_RPAREN)) == NULL)
-		return SR_NOENT ;
-
-	while (CHAR_ISWHITE(*cp))
-		cp += 1 ;
-
-	if (! isdigit(*cp)) {
-
-	while (*cp && (! CHAR_ISWHITE(*cp)))
-		cp += 1 ;
-
-	while (CHAR_ISWHITE(*cp))
-		cp += 1 ;
-
-	} /* end if (skip over the name) */
-
-	sp = cp ;
-	if (rpp != NULL)
-		*rpp = cp ;
-
-	while (*cp && (! CHAR_ISWHITE(*cp)))
-		cp += 1 ;
-
-	return (cp - sp) ;
-}
-/* end subroutine (makedate_get) */
-
-
 static int mklinename(linename,termdevfname)
 char		linename[] ;
 const char	termdevfname[] ;
 {
-	int	i ;
-
+	int		i ;
 	const char	*sp, *tp ;
-
 
 	sp = termdevfname ;
 	while (*sp && (*sp == '/'))

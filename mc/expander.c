@@ -73,7 +73,7 @@ extern int	snsds(char *,int,const char *,const char *) ;
 
 
 int expander(app,sbuf,slen,rbuf,rlen)
-struct proginfo	*app ;
+PROGINFO	*app ;
 const char	sbuf[] ;
 char		rbuf[] ;
 int		slen ;

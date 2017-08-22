@@ -134,7 +134,7 @@ int tmpx_open(TMPX *op,cchar dbfname[],int oflags)
 	}
 
 	if (rs >= 0) {
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((rs = uc_mallocstrw(dbfname,-1,&cp)) >= 0) {
 	        op->fname = cp ;
 	        if ((rs = tmpx_fileopen(op,dt)) >= 0) {
@@ -212,16 +212,18 @@ int tmpx_write(TMPX *op,int ei,TMPX_ENT *ep)
 
 	am = (op->oflags & O_ACCMODE) ;
 	if ((am == SR_WRONLY) || (am == O_RDWR)) {
-	    if (op->fd < 0)
+	    if (op->fd < 0) {
 	        rs = tmpx_fileopen(op,0L) ;
+	    }
 	    if (rs >= 0) {
 	        offset_t	poff ;
 	        const int	esize = TMPX_ENTSIZE ;
 	        poff = (offset_t) (ei * esize) ;
 	        rs = u_pwrite(op->fd,ep,esize,poff) ;
 	    }
-	} else
+	} else {
 	    rs = SR_BADF ;
+	}
 
 	return rs ;
 }
@@ -347,8 +349,9 @@ int tmpx_enum(TMPX *op,TMPX_CUR *curp,TMPX_ENT *ep)
 	        memcpy(ep,bp,TMPX_ENTSIZE) ;
 	    }
 	    curp->i = ei ;
-	} else
+	} else {
 	    rs = SR_EOF ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("tmpx_enum: ret rs=%d ei=%u\n",rs,ei) ;
@@ -396,10 +399,12 @@ int tmpx_fetchpid(TMPX *op,TMPX_ENT *ep,pid_t pid)
 	        } /* end for */
 	        if (f) break ;
 	    } /* end while */
-	    if ((rs >= 0) && f && (ep != NULL))
+	    if ((rs >= 0) && f && (ep != NULL)) {
 	        memcpy(ep,up,TMPX_ENTSIZE) ;
-	    if ((rs == SR_OK) && (! f))
+	    }
+	    if ((rs == SR_OK) && (! f)) {
 	        rs = SR_SEARCH ;
+	    }
 	} /* end if (ok) */
 
 #if	CF_DEBUGS
@@ -538,8 +543,8 @@ int tmpx_nusers(TMPX *op)
 
 #if	CF_DYNENTS
 	{
-	const int	esize = TMPX_ENTSIZE ;
-	en = ((op->fsize / esize) + 1) ;
+	    const int	esize = TMPX_ENTSIZE ;
+	    en = ((op->fsize / esize) + 1) ;
 	}
 #else
 	en = TMPX_NENTS ;
@@ -705,8 +710,9 @@ static int tmpx_mapents(TMPX *op,int ei,int en,TMPX_ENT **rpp)
 	                n = rs ;
 	            } /* end if */
 
-	        } else
+	        } else {
 	            n = 0 ;
+		}
 
 	    } /* end if (need a map) */
 
@@ -780,8 +786,9 @@ static int tmpx_mapper(TMPX *op,int ei,uint woff,uint wsize)
 	        op->mapei = eoff / esize ;
 	        op->mapen = (eext - eoff) / esize ;
 
-	        if (ei >= op->mapei)
+	        if (ei >= op->mapei) {
 	            n = ((op->mapei + op->mapen) - ei) ;
+		}
 
 	    } /* end if (madvise) */
 	} /* end if (mapped) */

@@ -84,6 +84,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<endian.h>
 #include	<endianstr.h>
 #include	<estrings.h>
 #include	<vecobj.h>

@@ -1710,7 +1710,7 @@ int		cmd ;
 	    iap->numlen -= 1 ;
 	    rs = display_cmddig(&iap->di,(iap->numlen+pl),cmd) ;
 	    iap->numbuf[iap->numlen] = '\0' ;
-	} else if (isdigit(cmd) && (iap->numlen < BBINTER_NUMLEN)) {
+	} else if (isdigitlatin(cmd) && (iap->numlen < BBINTER_NUMLEN)) {
 	    iap->numbuf[iap->numlen] = cmd ;
 	    rs = display_cmddig(&iap->di,(iap->numlen+pl),cmd) ;
 	    iap->numlen += 1 ;

@@ -111,6 +111,7 @@ extern int	expander(PROGINFO *,char *,int,char *,int) ;
 extern int	procfileenv(char *,char *,VECSTR *) ;
 extern int	procfilepaths(char *,char *,VECSTR *) ;
 extern int	process_input(PROGINFO *,int) ;
+extern int	isdigitlatin(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -136,7 +137,6 @@ struct openstuff {
 
 /* forward references */
 
-static int	makedate_get(const char *,char **) ;
 static int	getlocalnames(PROGINFO *) ;
 static int	procfile(PROGINFO *,int (*)(char *,char *,VECSTR *),
 			char *,vecstr *,char *,VECSTR *) ;
@@ -859,11 +859,6 @@ char	*envv[] ;
 
 	if (f_version) {
 	    bprintf(efp,"%s: version %s\n",pip->progname,VERSION) ;
-	    if (f_makedate) {
-		cl = makedate_get(makedate,&cp) ;
-	        bprintf(efp,"%s: makedate %t\n",
-	            pip->progname,cp,cl) ;
-	    }
 	}
 
 	if (f_usage)
@@ -2105,48 +2100,6 @@ badmore3:
 
 
 /* local subroutines */
-
-
-/* get the date out of the ID string */
-static int makedate_get(md,rpp)
-const char	md[] ;
-char		**rpp ;
-{
-	int	rs ;
-
-	char	*sp ;
-	char	*cp ;
-
-
-	if (rpp != NULL)
-		*rpp = NULL ;
-
-	if ((cp = strchr(md,CH_RPAREN)) == NULL)
-		return SR_NOENT ;
-
-	while (CHAR_ISWHITE(*cp))
-		cp += 1 ;
-
-	if (! isdigit(*cp)) {
-
-	while (*cp && (! CHAR_ISWHITE(*cp)))
-		cp += 1 ;
-
-	while (CHAR_ISWHITE(*cp))
-		cp += 1 ;
-
-	} /* end if (skip over the name) */
-
-	sp = cp ;
-	if (rpp != NULL)
-		*rpp = cp ;
-
-	while (*cp && (! CHAR_ISWHITE(*cp)))
-		cp += 1 ;
-
-	return (cp - sp) ;
-}
-/* end subroutine (makedate_get) */
 
 
 static int procfile(pip,func,pr,svp,fname,elp)

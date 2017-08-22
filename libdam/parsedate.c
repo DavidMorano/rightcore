@@ -8,19 +8,15 @@
 
 /* revision history:
 
-	= 1997-06-03, David A­D­ Morano
+	= 1998-08-14, David A­D­ Morano
 	I modified the 'prsindate' subroutine to make it "Year 2000" safe.
 
-	= 1998-08-14, David A­D­ Morano
-        I fixed a long-time bug where the default timezone is not set on Sun
-        Solaris. I also am now handling correctly, like the program never did at
-        all, for a missing timezone specified in the input string. Whew -- what
-        a hassle this was to correct! This code is garbage! Beware if you try
-        and modify further.
+	= 1999-11-23, David A­D­ Morano
+	I enhanced something.
 
 */
 
-/* Copyright © 1997,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,1999 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 

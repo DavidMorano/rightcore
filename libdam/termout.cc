@@ -32,37 +32,11 @@
 
 	Implementation note:
 
-	Yes, this can be written so that it performs in a more efficient manner.
-	But this thing is quite seldom used right now (a-days).  If there is
-	ever a real need, yes, we can certaintly speed this up.  So it is no
-	big deal right now.
-
-	Notes on the C++ language: It is really not all that cracked up as
-	people think!   It, in fact, just sometimes plain sucks!  Yes, we could
-	write an algorithm as if C++ container classes did not exist, but what
-	do (managers, others?) think should happen?  They think that using the
-	stupid C++ container classes are the cat's meow and the best thing
-	since sliced bread was invented; so we go along with the farce and do
-	it all "their" way!  And yes, using C++ containers probably makes the
-	object much slower than it would be otherwise, despite what Mr. Barjne
-	Shroustrup says.
-
-	More on using C++: Just look at the crazy crap needed to use C++
-	containers?  If an allocated plain C-language array would really do
-	(which it very likely does in this situation) one should just *use*
-	it!  But remember that we have to be a bitch to the C++ gods!
-
-	Updated note: After thinking about the design of this object, I now
-	think that it is quite ridiculously over designed using this C++
-	container crap!  I can't believe I did this!  It is way less efficient
-	and slower than if we had just done it not using these ridiculous
-	containers!
-
-	Additional note (on the C++ language):
+	Note (on the C++ language):
         Note how we had to create a mess out of our character database below
         because of how f**ked up the C++ language is. There is no way to provide
         an unsigned char literal in the language without an incredible mess!
-        F**k that language.
+        This does not occur with the regular C language.
 
 
 *******************************************************************************/

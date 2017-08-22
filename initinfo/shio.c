@@ -553,8 +553,9 @@ int shio_reade(SHIO *op,void *abuf,int alen,int to,int opts)
 #if	CF_DEBUGS
 	                        debugprintf("shio_reade: sfvalue() v=%d\n",v) ;
 #endif
-	                        if (rs >= 0)
+	                        if (rs >= 0) {
 	                            rs = snwcpy(rbuf,rlen,p,v) ;
+				}
 	                    } else {
 	                        p = sfgetr(op->fp,'\n',SF_LASTR) ;
 	                        if (p != NULL) {
@@ -576,10 +577,12 @@ int shio_reade(SHIO *op,void *abuf,int alen,int to,int opts)
 #endif
 	                }
 	                break ;
-	            } else
+	            } else {
 	                msleep(10) ;
-	        } else if (rs < 0)
+		    }
+	        } else if (rs < 0) {
 	            break ;
+		}
 	        if (to >= 0) {
 	            ti_now = time(NULL) ;
 	            if ((ti_now - ti_start) >= to) {
@@ -588,8 +591,9 @@ int shio_reade(SHIO *op,void *abuf,int alen,int to,int opts)
 	            }
 	        }
 	    } /* end while */
-	} else
+	} else {
 	    rs = breade(op->fp,rbuf,rlen,to,opts) ;
+	}
 #else /* CF_SFIO */
 	rs = breade(op->fp,rbuf,rlen,to,opts) ;
 

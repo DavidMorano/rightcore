@@ -24,7 +24,7 @@
 
 	Fatures:
 
-	close to optimal speed because we used queue for future work
+	+ close to optimal speed because we used queue for future work
 
 
 	Complexity:

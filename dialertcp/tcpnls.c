@@ -87,8 +87,8 @@ extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	getpwd(char *,int) ;
 extern int	dialtcpnls(const char *,const char *,int,const char *,int,int) ;
-extern int	dialtcpmux(const char *,const char *,int,const char *,
-			const char **,int,int) ;
+extern int	dialtcpmux(cchar *,cchar *,int,cchar *,cchar **,int,int) ;
+extern int	isdigitlatin(int) ;
 
 
 /* external variables */
@@ -231,8 +231,9 @@ const char	*av[] ;
 	        if ((argl > 0) && (f_optminus || f_optplus)) {
 
 	            if (argl > 1) {
+			const int	ach = MKCHAR(argp[1]) ;
 
-	                if (isdigit(argp[1])) {
+	                if (isdigitlatin(ach)) {
 
 	                    argval = (argp+1) ;
 
