@@ -116,9 +116,6 @@ extern int	opentmp(const char *,int,mode_t) ;
 extern int	statvfsdir(const char *,struct statvfs *) ;
 extern int	getusername(char *,int,uid_t) ;
 extern int	getuserhome(char *,int,const char *) ;
-extern int	localgetorg(const char *,char *,int,const char *) ;
-extern int	pcsgetnames(const char *,char *,int,const char *,int) ;
-extern int	pcsmailcheck(const char *,char *,int,const char *) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	strwcmp(const char *,const char *,int) ;
 extern int	isdigitlatin(int) ;
@@ -163,7 +160,7 @@ static int	subinfo_setentry(SUBINFO *,cchar **,cchar *,int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"sn",
 	"ttl",

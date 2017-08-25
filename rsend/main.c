@@ -197,25 +197,16 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	struct sigaction	sigs ;
-
 	struct ustat	sb ;
-
 	struct proginfo	g, *pip = &g ;
-
 	struct userinfo	u ;
-
 	SYSTEMS		sysdb ;
-
 	DIALER		d ;
-
 	CM_ARGS		ca ;
-
 	sigset_t	signalmask ;
-
 	bfile		errfile ;
 	bfile		pidfile ;
-
-	time_t	daytime ;
+	time_t		daytime ;
 
 	int	argr, argl, aol, avl ;
 	int	maxai, pan, npa, kwi, i, j ;
@@ -232,7 +223,13 @@ char	*envv[] ;
 	int	f_anyformat = TRUE ;
 	int	f_help = FALSE ;
 
-	char	*argp, *aop, *avp ;
+	cchar	*argp, *aop, *avp ;
+	cchar	*pr = NULL ;
+	cchar	*logfname = NULL ;
+	cchar	*dialerspec = NULL ;
+	cchar	*portspec = NULL ;
+	cchar	*svcspec = NULL ;
+	cchar	*sp, *cp, *cp2 ;
 	char	argpresent[NARGPRESENT] ;
 	char	tmpfname[MAXPATHLEN + 1] ;
 	char	buf[BUFLEN + 1] ;
@@ -241,55 +238,25 @@ char	*envv[] ;
 	char	userpart[USERPARTLEN + 3] ;
 	char	hostpart[HOSTPARTLEN + 1] ;
 	char	timebuf[TIMEBUFLEN] ;
-	char	*pr = NULL ;
-	char	*logfname = NULL ;
-	char	*dialerspec = NULL ;
-	char	*portspec = NULL ;
-	char	*svcspec = NULL ;
-	char	*sp, *cp, *cp2 ;
 
-
-	cp = getenv(VARDEBUGFD1) ;
-
-	if (cp == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if (cp == NULL)
-	    cp = getenv(VARDEBUGFD3) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
-#if	CF_DEBUGS
-	debugprintf("main: errfd=%d\n",fd_debug) ;
-#endif
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
-
-#if	COMMENT
-	    u_close(2) ;
-#endif
-
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
-
 	}
 
-	pip->helpfname = NULL ;
-
-	pip->debuglevel = 0 ;
 	pip->verboselevel = 1 ;
-
-	pip->f_exit = FALSE ;
-	pip->f.quiet = FALSE ;
-
 
 /* process program arguments */
 

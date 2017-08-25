@@ -13,14 +13,11 @@
 /* revision history:
 
 	= 2004-11-09, David A­D­ Morano
-
-	This code frame was borrowed from LOHNAME (!), and turned into
-	this.
-
+	This code frame was borrowed from LOHNAME (!), and turned into this.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -43,7 +40,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #if	defined(SOLARIS) && (SOLARIS >= 8)
@@ -102,6 +98,8 @@ extern int	isdigitlatin(int) ;
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	checkaudio(struct proginfo *,bfile *,const char *) ;
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strbasename(char *) ;
 extern char	*strshrink(char *) ;
@@ -110,14 +108,6 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 
 /* external variables */
-
-#define	A	(__STDC__ != 0) 
-#define	B	defined(_POSIX_C_SOURCE) 
-#define	C	defined(_XOPEN_SOURCE)
-
-#if	(A != 0) || (B != 0) || (C != 0)
-extern long	altzone ;
-#endif
 
 
 /* local structures */
@@ -201,19 +191,17 @@ char	*envv[] ;
 	const char	*un = NULL ;
 	const char	*sp, *cp, *cp2 ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL) {
-	    cp = getenv(VARDEBUGFD2) ;
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 
 	pip->efp = NULL ;

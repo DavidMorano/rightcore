@@ -391,7 +391,7 @@ int filebuf_readlines(FILEBUF *fp,char lbuf[],int llen,int to,int *lcp)
 
 
 /* update a section of the buffer */
-int filebuf_update(FILEBUF *op,offset_t roff,cchar rbuf[],int rlen)
+int filebuf_update(FILEBUF *op,offset_t roff,cchar *rbuf,int rlen)
 {
 	uint		boff, bext ;
 	uint		rext = roff + rlen ;
@@ -491,8 +491,9 @@ int filebuf_write(FILEBUF *op,const void *abuf,int alen)
 
 	} /* end while */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    op->off += alen ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("filebuf_write: ret rs=%d alen=%u\n",rs,alen) ;
@@ -554,7 +555,7 @@ int filebuf_print(FILEBUF *op,cchar *sp,int sl)
 /* end subroutine (filebuf_print) */
 
 
-int filebuf_printf(FILEBUF *op,const char fmt[],...)
+int filebuf_printf(FILEBUF *op,cchar *fmt,...)
 {
 	const int	dlen = LINEBUFLEN ;
 	int		rs = SR_OK ;
@@ -781,10 +782,7 @@ int filebuf_poll(FILEBUF *op,int mto)
 /* private subroutines */
 
 
-static int filebuf_bufcpy(op,abp,mlen)
-FILEBUF		*op ;
-const char	*abp ;
-int		mlen ;
+static int filebuf_bufcpy(FILEBUF *op,cchar *abp,int mlen)
 {
 
 	if (mlen > MEMCPYLEN) {

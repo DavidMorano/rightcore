@@ -12,22 +12,20 @@
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ filtername [names(s) ...] [-af namefile]
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -39,7 +37,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 #include	<time.h>
 
@@ -167,9 +164,6 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	linebuf[LINEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*pmspec = NULL ;
 	const char	*searchname = NULL ;
@@ -178,6 +172,9 @@ char	*envv[] ;
 	const char	*ofname = NULL ;
 	const char	*bnp ;
 	const char	*cp ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	linebuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -188,7 +185,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;

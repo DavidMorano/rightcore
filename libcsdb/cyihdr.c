@@ -3,13 +3,16 @@
 /* text-index for VAR-INDEX file */
 
 
-#define	CF_DEBUG 	0		/* run-time debugging */
+#define	CF_DEBUGS 	0		/* run-time debugging */
 
 
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
 	This subroutine was originally written.
+
+	= 2017-08-22, David A­D­ Morano
+	I enhanced to use |isValidMagic()|.
 
 */
 
@@ -51,7 +54,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<endian.h>
@@ -65,12 +67,9 @@
 
 /* external subroutines */
 
-extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	mkmagic(char *,int,cchar *) ;
-extern int	cfhexi(const char *,int,uint *) ;
-extern int	cfdecui(const char *,int,uint *) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 
 
@@ -107,47 +106,23 @@ enum his {
 int cyihdr(CYIHDR *ep,int f,char *hbuf,int hlen)
 {
 	uint		*header ;
+	const int	headsize = hi_overlast * sizeof(uint) ;
 	const int	magicsize = CYIHDR_MAGICSIZE ;
 	int		rs = SR_OK ;
-	int		headsize ;
-	int		bl, cl ;
+	int		bl = hlen ;
 	const char	*magicstr = CYIHDR_MAGICSTR ;
-	const char	*tp, *cp ;
-	char		*bp ;
+	char		*bp = hbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
 	if (hbuf == NULL) return SR_FAULT ;
 
-	bp = hbuf ;
-	bl = hlen ;
-	headsize = hi_overlast * sizeof(uint) ;
 	if (f) { /* read */
-
-/* the magic string is within the first 15 bytes */
-
-	    if ((rs >= 0) && (bl > 0)) {
-	        if (bl >= magicsize) {
-
-	        cp = bp ;
-	        cl = magicsize ;
-	        if ((tp = strnchr(cp,cl,'\n')) != NULL)
-	            cl = (tp - cp) ;
-
+	    if ((bl > magicsize) && isValidMagic(bp,magicsize,magicstr)) {
 	        bp += magicsize ;
 	        bl -= magicsize ;
 
-/* verify the magic string */
-
-	        if (strncmp(cp,magicstr,cl) != 0)
-	            rs = SR_NXIO ;
-
-		} else
-		    rs = SR_ILSEQ ;
-	    } /* end if (item) */
-
 /* read out the VETU information */
 
-	    if ((rs >= 0) && (bl > 0)) {
 		if (bl >= 4) {
 
 	        memcpy(ep->vetu,bp,4) ;
@@ -161,68 +136,69 @@ int cyihdr(CYIHDR *ep,int f,char *hbuf,int hlen)
 	        bp += 4 ;
 	        bl -= 4 ;
 
-		} else
+		} else {
 		    rs = SR_ILSEQ ;
-	    } /* end if (item) */
+		}
 
-	    if ((rs >= 0) && (bl > 0)) {
-		if (bl >= headsize) {
+	        if (rs >= 0) {
+		    if (bl >= headsize) {
+	                header = (uint *) bp ;
+	                ep->fsize = header[hi_fsize] ;
+	                ep->wtime = header[hi_wtime] ;
+	                ep->diroff = header[hi_diroff] ;
+	                ep->caloff = header[hi_caloff] ;
+	                ep->vioff = header[hi_vioff] ;
+	                ep->vilen = header[hi_vilen] ;
+	                ep->vloff = header[hi_vloff] ;
+	                ep->vllen = header[hi_vllen] ;
+	                ep->nentries = header[hi_nentries] ;
+	                ep->nskip = header[hi_nskip] ;
+	                ep->year = header[hi_year] ;
+	                bp += headsize ;
+	        	bl -= headsize ;
+	            } else {
+	                rs = SR_OVERFLOW ;
+	            }
+	        } /* end if (mkmagic) */
 
-	        header = (uint *) bp ;
-
-	        ep->fsize = header[hi_fsize] ;
-	        ep->wtime = header[hi_wtime] ;
-	        ep->diroff = header[hi_diroff] ;
-	        ep->caloff = header[hi_caloff] ;
-	        ep->vioff = header[hi_vioff] ;
-	        ep->vilen = header[hi_vilen] ;
-	        ep->vloff = header[hi_vloff] ;
-	        ep->vllen = header[hi_vllen] ;
-	        ep->nentries = header[hi_nentries] ;
-	        ep->nskip = header[hi_nskip] ;
-	        ep->year = header[hi_year] ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-		} else
-		    rs = SR_ILSEQ ;
-	    } /* end if (item) */
-
+	    } else {
+	        rs = SR_OVERFLOW ;
+	    }
 	} else { /* write */
 
-	    mkmagic(bp, magicsize, magicstr) ;
-	    bp += magicsize ;
-	    bl -= magicsize ;
+	    if (bl >= (magicsize + 4)) {
+	        if ((rs = mkmagic(bp,magicsize,magicstr)) >= 0) {
+	            bp += magicsize ;
+	            bl -= magicsize ;
+	    	    memcpy(bp,ep->vetu,4) ;
+	    	    bp[0] = CYIHDR_VERSION ;
+	    	    bp[1] = ENDIAN ;
+	    	    bp += 4 ;
+	    	    bl -= 4 ;
+	    	    if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	header[hi_fsize] = ep->fsize ;
+	        	header[hi_wtime] = ep->wtime ;
+	        	header[hi_diroff] = ep->diroff ;
+	        	header[hi_caloff] = ep->caloff ;
+	        	header[hi_vioff] = ep->vioff ;
+	        	header[hi_vilen] = ep->vilen ;
+	        	header[hi_vloff] = ep->vloff ;
+	        	header[hi_vllen] = ep->vllen ;
+	        	header[hi_nentries] = ep->nentries ;
+	        	header[hi_nskip] = ep->nskip ;
+	        	header[hi_year] = ep->year ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+	            } else {
+	                rs = SR_OVERFLOW ;
+	            }
+	        } /* end if (mkmagic) */
+	    } else {
+	        rs = SR_OVERFLOW ;
+	    }
 
-	    memcpy(bp,ep->vetu,4) ;
-	    bp[0] = CYIHDR_VERSION ;
-	    bp[1] = ENDIAN ;
-	    bp += 4 ;
-	    bl -= 4 ;
-
-	    if ((rs >= 0) && (bl >= headsize)) {
-
-	        header = (uint *) bp ;
-
-	        header[hi_fsize] = ep->fsize ;
-	        header[hi_wtime] = ep->wtime ;
-	        header[hi_diroff] = ep->diroff ;
-	        header[hi_caloff] = ep->caloff ;
-	        header[hi_vioff] = ep->vioff ;
-	        header[hi_vilen] = ep->vilen ;
-	        header[hi_vloff] = ep->vloff ;
-	        header[hi_vllen] = ep->vllen ;
-	        header[hi_nentries] = ep->nentries ;
-	        header[hi_nskip] = ep->nskip ;
-	        header[hi_year] = ep->year ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-	    } /* end if */
-
-	} /* end if */
+	} /* end if (read-write) */
 
 	return (rs >= 0) ? (bp - hbuf) : rs ;
 }

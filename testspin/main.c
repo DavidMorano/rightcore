@@ -11,15 +11,14 @@
 
 /* revision history:
 
-	= 94/09/01, David A­D­ Morano
-
+	= 1994-09-01, David A­D­ Morano
 	This program was originally written.
-
 
 */
 
+/* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
 
-/*****************************************************************************
+/*******************************************************************************
 
 	This subroutine forms the front-end part of a generic PCS
 	type of program.  This front-end is used in a variety of
@@ -34,8 +33,10 @@
 	development organization.
 
 
-*****************************************************************************/
+*******************************************************************************/
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -112,7 +113,9 @@ extern int	expander() ;
 extern int	procfileenv(char *,char *,VECSTR *) ;
 extern int	procfilepaths(char *,char *,VECSTR *) ;
 
-extern char	*strbasename(char *), *strshrink(char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strshrink(char *) ;
 extern char	*timestr_log(time_t,char *) ;
 
 #if	CF_DEBUG
@@ -243,7 +246,12 @@ char	*argv[], *envv[] ;
 	int	f_procfilepaths = FALSE ;
 	int	f_help = FALSE ;
 
-	char	*argp, *aop, *akp, *avp ;
+	xchar	*argp, *aop, *akp, *avp ;
+	xchar	*pr = NULL ;
+	xchar	*configfname = NULL ;
+	xchar	*afname = NULL ;
+	xchar	*defsizespec = NULL ;
+	xchar	*cp ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	*programroot = NULL ;
 	char	buf[BUFLEN + 1], *bp ;
@@ -256,29 +264,21 @@ char	*argv[], *envv[] ;
 	char	lockfname[MAXPATHLEN + 1] ;
 	char	logfname[MAXPATHLEN + 1] ;
 	char	helpfname[MAXPATHLEN + 1] ;
-	char	*pr = NULL ;
-	char	*configfname = NULL ;
-	char	*afname = NULL ;
-	char	*defsizespec = NULL ;
-	char	*cp ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-		cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(efp,BFILE_STDERR,"dwca",0666) >= 0)
 	    bcontrol(efp,BC_LINEBUF,0) ;
-
 
 	pip->pid = getpid() ;
 
@@ -287,21 +287,9 @@ char	*argv[], *envv[] ;
 
 /* initialize */
 
-	pip->username = NULL ;
-	pip->groupname = NULL ;
-	pip->pidfname = NULL ;
-	pip->lockfname = NULL ;
-	pip->tmpdname = NULL ;
-	pip->workdname = NULL ;
-	pip->fileroot = NULL ;
 	pip->lfp = &logfile ;
 
-	pip->debuglevel = 0 ;
-	pip->verboselevel = 0 ;
-
-	pip->f.quiet = FALSE ;
-	pip->f.log = FALSE ;
-
+	pip->verboselevel = 1 ;
 
 	pidfname[0] = '\0' ;
 	lockfname[0] = '\0' ;

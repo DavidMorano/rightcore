@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1994-01-13, David A­D­ Morano
-
 	This object module was originally written.
-
 
 */
 
@@ -20,6 +18,8 @@
 
 #define	TPIADDR_MASTER	1
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<netinet/in.h>

@@ -59,6 +59,7 @@
 
 extern int	snopenflags(char *,int,int) ;
 extern int	bufprintf(char *,int,const char *,...) ;
+extern int	getdig(int) ;
 extern int	nprintf(const char *,const char *,...) ;
 extern int	debugprintf(const char *,...) ;
 extern int	debugprint(const char *,int) ;
@@ -85,11 +86,6 @@ static int	checkbasebounds(const char *,int,void *) ;
 
 
 /* local variables */
-
-static const char	hextable[] = {
-	'0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-} ;
 
 
 /* exported subroutines */
@@ -208,8 +204,8 @@ int mkhexstr(char *dbuf,int dlen,const void *vp,int vl)
 	for (i = 0 ; (dlen >= 3) && (i < sl) ; i += 1) {
 	    ch = MKCHAR(sp[i]) ;
 	    if (i > 0) dbuf[j++] = ' ' ;
-	    dbuf[j++] = hextable[(ch>>4)&15] ;
-	    dbuf[j++] = hextable[(ch>>0)&15] ;
+	    dbuf[j++] = getdig((ch>>4)&15) ;
+	    dbuf[j++] = getdig((ch>>0)&15) ;
 	    dlen -= ((i > 0) ? 3 : 2) ;
 	} /* end for */
 	dbuf[j] = '\0' ;
@@ -235,10 +231,11 @@ int mkhexnstr(char *hbuf,int hlen,int maxcols,cchar *sbuf,int slen)
 
 int debugprinthex(cchar *ids,int maxcols,cchar *sp,int sl)
 {
+	const int	plen = PRINTBUFLEN ;
 	int		rs ;
 	int		idlen = 0 ;
 	int		wlen = 0 ;
-	char		printbuf[PRINTBUFLEN + 1] ;
+	char		pbuf[PRINTBUFLEN + 1] ;
 
 	if (ids != NULL) idlen = strlen(ids) ;
 
@@ -246,11 +243,11 @@ int debugprinthex(cchar *ids,int maxcols,cchar *sp,int sl)
 
 	if (idlen > 0) maxcols -= (idlen + 1) ;
 
-	if ((rs = mkhexnstr(printbuf,PRINTBUFLEN,maxcols,sp,sl)) >= 0) {
+	if ((rs = mkhexnstr(pbuf,plen,maxcols,sp,sl)) >= 0) {
 	    if (idlen > 0) {
-	        rs = debugprintf("%t %s\n",ids,idlen,printbuf) ;
+	        rs = debugprintf("%t %s\n",ids,idlen,pbuf) ;
 	    } else {
-	        rs = debugprintf("%s\n",printbuf) ;
+	        rs = debugprintf("%s\n",pbuf) ;
 	    }
 	    wlen = rs ;
 	}
@@ -322,6 +319,7 @@ int debugprinthexblock(cchar *ids,int maxcols,const void *vp,int vl)
 
 int hexblock(cchar *ids,cchar *ap,int n)
 {
+	const int	hexlen = HEXBUFLEN ;
 	int		i, sl ;
 	char		hexbuf[HEXBUFLEN + 3] ;
 
@@ -329,7 +327,7 @@ int hexblock(cchar *ids,cchar *ap,int n)
 	    debugprint(ids,-1) ;
 
 	for (i = 0 ; i < n ; i += 1) {
-	    sl = mkhexstr(hexbuf,HEXBUFLEN,ap,4) ;
+	    sl = mkhexstr(hexbuf,hexlen,ap,4) ;
 	    hexbuf[sl++] = '\n' ;
 	    hexbuf[sl] = '\0' ;
 	    ap += 4 ;

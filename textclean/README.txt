@@ -13,7 +13,7 @@ where:
 <file(s)>	one or more files to clean up (they are concatenated
 		by default)
 -af <afile>	argument list-file
-<opt(s)>	one or more of:
+-o <opt(s)>	one or more of:
 		inplace		write cleaned up file back to its original
 		lower		change to lower case
 		leading		remove leading white-space

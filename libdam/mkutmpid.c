@@ -170,9 +170,8 @@ int mkutmpid(char *idbuf,int idlen,cchar *devbuf,int devlen)
 	const char	*sp, *cp, *lp, *pp ;
 
 #if	CF_DEBUGS
-	debugprintf("mkutmpid: ent\n") ;
-	debugprintf("mkutmpid: termdev=%t\n",
-		devbuf,devlen) ;
+	debugprintf("mkutmpid: ent termdev=%t\n",
+	    devbuf,devlen) ;
 #endif
 
 	if (idlen < 0)
@@ -199,37 +198,37 @@ int mkutmpid(char *idbuf,int idlen,cchar *devbuf,int devlen)
 #endif
 
 	if (rs >= 0) {
-	if ((cp = strnchr(lp,ll,'/')) != NULL) {
+	    if ((cp = strnchr(lp,ll,'/')) != NULL) {
 
-	    sp = lp ;
-	    sl = (cp - lp) ;
-
-#if	CF_DEBUGS
-	    debugprintf("mkutmpid: dir=%t\n",
-	        sp,strnlen(sp,sl)) ;
-#endif
-
-	    cp += 1 ;
-	    cl = ll - (cp - lp) ;
+	        sp = lp ;
+	        sl = (cp - lp) ;
 
 #if	CF_DEBUGS
-	    debugprintf("mkutmpid: remainder=%t\n",
-	        cp,strnlen(cp,cl)) ;
+	        debugprintf("mkutmpid: dir=%t\n",
+	            sp,strnlen(sp,sl)) ;
 #endif
 
-	    for (i = 0 ; prefixes[i].name != NULL ; i += 1) {
-	        pp = prefixes[i].name ;
-	        pl = strlen(pp) ;
-	        if ((pl == sl) && (strncmp(pp,sp,pl) == 0)) break ;
-	    } /* end for */
+	        cp += 1 ;
+	        cl = ll - (cp - lp) ;
 
-	    if (prefixes[i].name != NULL) {
-	        pp = prefixes[i].prefix ;
-	        pl = strlen(pp) ;
-	        rs = idcpy(idbuf,idlen,pp,pl,cp,cl) ;
-	    } /* end if */
+#if	CF_DEBUGS
+	        debugprintf("mkutmpid: remainder=%t\n",
+	            cp,strnlen(cp,cl)) ;
+#endif
 
-	} /* end if (tried for a directory match) */
+	        for (i = 0 ; prefixes[i].name != NULL ; i += 1) {
+	            pp = prefixes[i].name ;
+	            pl = strlen(pp) ;
+	            if ((pl == sl) && (strncmp(pp,sp,pl) == 0)) break ;
+	        } /* end for */
+
+	        if (prefixes[i].name != NULL) {
+	            pp = prefixes[i].prefix ;
+	            pl = strlen(pp) ;
+	            rs = idcpy(idbuf,idlen,pp,pl,cp,cl) ;
+	        } /* end if */
+
+	    } /* end if (tried for a directory match) */
 	} /* end if (ok) */
 
 #if	CF_DEBUGS
@@ -337,7 +336,8 @@ int mkutmpid(char *idbuf,int idlen,cchar *devbuf,int devlen)
 static int idcpy(char *idbuf,int idlen,cchar *pp,int pl,cchar *cp,int cl)
 {
 	int		rs ;
-	int		j, k ;
+	int		k ;
+	int		j = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("idcpy: prefix=>%t<\n",
@@ -346,7 +346,6 @@ static int idcpy(char *idbuf,int idlen,cchar *pp,int pl,cchar *cp,int cl)
 	    cp,strnlen(cp,cl)) ;
 #endif
 
-	j = 0 ;
 	for (k = 0 ; (j < idlen) && (k < pl) ; j += 1) {
 	    idbuf[j] = pp[k++] ;
 	}

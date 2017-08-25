@@ -39,7 +39,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -91,6 +90,7 @@ extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -135,9 +135,9 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	process(PROGINFO *,ARGINFO *,BITS *,
-			cchar *, cchar *, cchar *, cchar *) ;
-static int	procargs(PROGINFO *,ARGINFO *,BITS *,void *,const char *) ;
-static int	procout(PROGINFO *,ARGINFO *,BITS *,cchar *, cchar *) ;
+			cchar *,cchar *,cchar *,cchar *) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,void *,cchar *) ;
+static int	procout(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procpagetitle(PROGINFO *) ;
 
 static int	loadpvs(PROGINFO *,const char *,int) ;
@@ -156,7 +156,7 @@ static char	*alldown(char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -228,7 +228,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"hyphenate",
 	"ha",
 	"ps",
@@ -320,7 +320,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -939,6 +939,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -956,10 +958,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -994,16 +997,20 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	ex = EX_OK ;
 
-/* load up the environment options */
-
-	rs = procopts(pip,&akopts) ;
-
 /* some initialization */
 
 	if ((rs >= 0) && (pip->linewidth == 0) && (argval != NULL)) {
 	    rs = cfdeci(argval,-1,&v) ;
 	    pip->linewidth = v ;
 	}
+
+/* load up the environment options */
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
+
+/* more initialization */
 
 	if (pip->linewidth == 0)
 	    pip->linewidth = LINEWIDTH ;
@@ -1088,6 +1095,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 		cchar *fmt = "%s: data written=%d\n" ;
 	        bprintf(pip->efp,fmt,pip->progname,wlen) ;
 	    }
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	    usage(pip) ;
 	} /* end if (ok) */
 
 /* done */
@@ -1096,7 +1109,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    case SR_INVALID:
 	        ex = EX_USAGE ;
 	        if (! pip->f.quiet) {
-	            const char	*fmt = "%s: invalid text encountered (%d)\n" ;
+	            cchar	*fmt = "%s: invalid text encountered (%d)\n" ;
 	            bprintf(pip->efp,fmt,pip->progname,rs) ;
 	        }
 	        break ;

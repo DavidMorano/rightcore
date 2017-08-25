@@ -4,7 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUG	1		/* run-time debugging */
+#define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_DEBUGMALL	1		/* debug memory-alloctions */
 
 
@@ -73,6 +73,9 @@ typedef const char	cchar ;
 #define	OPTIONS		struct options
 #define	OPTIONS_FL	struct options_flags
 
+#define	STATE		struct state
+#define	STATE_FL	struct state_flags
+
 
 /* external subroutines */
 
@@ -94,7 +97,9 @@ extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
 extern int	vecstr_envadd(vecstr *,cchar *,cchar *,int) ;
 extern int	hasallwhite(const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	iseol(int) ;
 extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -143,7 +148,7 @@ struct state_flags  {
 } ;
 
 struct state {
-	struct state_flags	f ;
+	STATE_FL	f ;
 	int		dummy ;
 } ;
 
@@ -167,7 +172,7 @@ static int	procout_post(PROGINFO *,OPTIONS *,bfile *,bfile *) ;
 static int	process(PROGINFO *,ARGINFO *,BITS *,OPTIONS *,void *,cchar *) ;
 static int	procfile(PROGINFO *,OPTIONS *,bfile *,const char *,int) ;
 static int	procfiler(PROGINFO *,bfile *,bfile *) ;
-static int	procline(PROGINFO *,bfile *,struct state *, cchar *,int) ;
+static int	procline(PROGINFO *,bfile *,STATE *, cchar *,int) ;
 
 static int	msmapdef(char *) ;
 
@@ -256,14 +261,14 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	*msmaps[] = {
+static cchar	*msmaps[] = {
 	"%p/etc/%n/%n.%f",
 	"%p/etc/%n/%f",
 	"%p/etc/%n.%f",
 	NULL
 } ;
 
-static const char	selfchars[] = {
+static cchar	selfchars[] = {
 	CH_TAB,
 	CH_CR,
 	CH_NL,
@@ -327,8 +332,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    goto badprogstart ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
@@ -653,7 +658,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
-	} else if (! isNotPresent(rs1)) {
+	} else if (! isFailOpen(rs1)) {
 	    if (rs >= 0) rs = rs1 ;
 	}
 
@@ -711,12 +716,19 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* check a few more things */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
 	    struct options	*opp = pip->config ;
@@ -742,13 +754,15 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	if (rs >= 0) {
 	    if ((rs = procextras(pip)) >= 0) {
-		OPTIONS	*opp = (OPTIONS *) pip->config ;
+		OPTIONS		*opp = (OPTIONS *) pip->config ;
 	        if ((rs = procmsmap(pip,opp,mfname)) >= 0) {
 	            bfile	ofile, *ofp = &ofile ;
 	            if ((rs = procout_begin(pip,&opts,ofp,ofname)) >= 0) {
 	                {
+			    ARGINFO	*aip = &ainfo ;
+			    BITS	*bop = &pargs ;
 			    cchar	*afn = afname ;
-	                    rs = process(pip,&ainfo,&pargs,&opts,ofp,afn) ;
+	                    rs = process(pip,aip,bop,&opts,ofp,afn) ;
 	                }
 	                rs1 = procout_end(pip,&opts,ofp) ;
 	                if (rs >= 0) rs = rs1 ;
@@ -1119,6 +1133,7 @@ static int procmsmapline(PROGINFO *pip,char *mp,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	cchar		*tp ;
+	if (pip == NULL) return SR_FAULT ;
 	if ((tp = strnchr(sp,sl,'#')) != NULL) {
 	    sl = (tp-sp) ;
 	}
@@ -1263,18 +1278,19 @@ const char	*afn ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("main/process: ent\n") ;
+	    debugprintf("main/process: ent\n") ;
 #endif
 
 	if (rs >= 0) {
-	    int	ai ;
-	    int	f ;
+	    int		ai ;
+	    int		f ;
+	    cchar	**argv = aip->argv ;
 	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	        f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	        if (f) {
-	            cp = aip->argv[ai] ;
+	            cp = argv[ai] ;
 	            if (cp[0] != '\0') {
 	                pan += 1 ;
 	                rs = procfile(pip,optp,ofp,cp,-1) ;
@@ -1392,32 +1408,36 @@ static int procfile(PROGINFO *pip,OPTIONS *opp,bfile *ofp,cchar *fp,int fl)
 static int procfiler(PROGINFO *pip,bfile *ifp,bfile *ofp)
 {
 	struct options	*opp = pip->config ;
-	struct state	fs ;
+	STATE		fs ;
 	const int	llen = LINEBUFLEN ;
 	int		rs = SR_OK ;
 	int		len ;
+	int		ll ;
+	int		fo = 0 ;
 	int		wlen = 0 ;
 	char		lbuf[LINEBUFLEN+1] ;
 
 	if (opp == NULL) return SR_FAULT ;
 
-	memset(&fs,0,sizeof(struct state)) ;
+	memset(&fs,0,sizeof(STATE)) ;
 
 	while ((rs = breadline(ifp,lbuf,llen)) > 0) {
 	    len = rs ;
+	    ll = rs ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
+	    if (DEBUGLEVEL(4)) {
 	        debugprintf("procfiler: breadline() rs=%d\n",rs) ;
+	        debugprintf("procfiler: fo=%u c1=%02x c2=%02x\n",
+			fo,lbuf[len-1],lbuf[len-2]) ;
+	    }
 #endif
 
-	    if (lbuf[len-1] == '\n') {
-	        len -= 1 ;
-	        if (len && (lbuf[len-1] == '\r')) len -= 1 ;
-	        lbuf[len] = '\0' ;
+	    while (ll && iseol(lbuf[ll-1])) {
+	        ll -= 1 ;
 	    }
 
-	    rs = procline(pip,ofp,&fs,lbuf,len) ;
+	    rs = procline(pip,ofp,&fs,lbuf,ll) ;
 	    wlen += rs ;
 
 #if	CF_DEBUG
@@ -1425,6 +1445,7 @@ static int procfiler(PROGINFO *pip,bfile *ifp,bfile *ofp)
 	        debugprintf("procfiler: procline() rs=%d\n",rs) ;
 #endif
 
+	    fo += len ;
 	    if (rs < 0) break ;
 	} /* end while */
 
@@ -1438,12 +1459,7 @@ static int procfiler(PROGINFO *pip,bfile *ifp,bfile *ofp)
 /* end subroutine (procfiler) */
 
 
-static int procline(pip,ofp,fsp,lbuf,ll)
-PROGINFO	*pip ;
-bfile		*ofp ;
-struct state	*fsp ;
-const char	lbuf[] ;
-int		ll ;
+static int procline(PROGINFO *pip,bfile *ofp,STATE *fsp,cchar *lbuf,int ll)
 {
 	struct options	*opp = pip->config ;
 	const int	olen = LINEBUFLEN ;
@@ -1476,8 +1492,8 @@ int		ll ;
 	}
 
 	if (opp->f.mscrap && (pip->msmap != NULL)) {
-	    int	kch ;
-	    int	rch ;
+	    int		kch ;
+	    int		rch ;
 	    for (i = 0 ; (i < ll) && (ol < olen) ; i += 1) {
 	        kch = MKCHAR(lbuf[i]) ;
 		rch = MKCHAR(pip->msmap[kch]) ;
@@ -1489,12 +1505,17 @@ int		ll ;
 	    }
 	}
 
-	if (opp->f.snug) {
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("procline: ol=%u\n",ol) ;
+#endif
+
+	if (opp->f.snug && ol) {
 	    int		c = 0 ;
-	    int		sl, cl ;
-	    const char	*sp, *cp ;
-	    sp = obuf ;
-	    sl = ol ;
+	    int		sl = ol ;
+	    int		cl ;
+	    cchar	*sp = obuf ;
+	    cchar	*cp ;
 	    ol = 0 ;
 	    while ((cl = nextfield(sp,sl,&cp)) > 0) {
 	        if (c++ > 0) obuf[ol++] = ' ' ;
@@ -1510,7 +1531,7 @@ int		ll ;
 	}
 
 	if (opp->f.subnbsp && ol) {
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; i < ol ; i += 1) {
 	        if (obuf[i] == CH_SP) obuf[i] = CH_NBSP ;
 	    } /* end for */
@@ -1520,15 +1541,15 @@ int		ll ;
 	    while ((ol < olen) && (ol < opp->pad)) obuf[ol++] = ' ' ;
 	}
 
-	if (f_print && ol) {
-	    if (hasallwhite(obuf,ol)) {
-	        if (opp->f.half && (! fsp->f.blank)) {
-	            f_print = FALSE ;
+	if (f_print) {
+	        if ((ol == 0) || hasallwhite(obuf,ol)) {
+	            if (opp->f.half && (! fsp->f.blank)) {
+	                f_print = FALSE ;
+	            }
+	            fsp->f.blank = TRUE ;
+	        } else {
+	            fsp->f.blank = FALSE ;
 	        }
-	        fsp->f.blank = TRUE ;
-	    } else {
-	        fsp->f.blank = FALSE ;
-	    }
 	}
 
 #if	CF_DEBUG

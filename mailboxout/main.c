@@ -45,7 +45,6 @@
 #include	<sysexits.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<grp.h>
 #include	<syslog.h>
 
@@ -113,6 +112,8 @@ extern int	isdigitlatin(int) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	process(struct proginfo *,bfile *,bfile *,vecobj *) ;
 extern int	deliver(struct proginfo *,int,struct recip *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strdcpy3(char *,int,const char *,const char *,const char *) ;
 extern char	*strwcpy(char *,const char *,int) ;
@@ -272,28 +273,19 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	struct ustat	sb ;
-
 	struct pcsconf	p ;
-
 	struct proginfo	pi, *pip = &pi ;
-
 	struct group	ge ;
-
 	USERINFO	u ;
-
 	KEYOPT		akopts ;
 
-	bfile	errfile ;
-	bfile	infile, *ifp = &infile ;
-	bfile	outfile, *ofp = &outfile ;
-	bfile	tmpfile, *tfp = &tmpfile ;
-
+	bfile		errfile ;
+	bfile		infile, *ifp = &infile ;
+	bfile		outfile, *ofp = &outfile ;
+	bfile		tmpfile, *tfp = &tmpfile ;
 	vecstr		sets ;
-
 	vecobj		info ;
-
 	vecobj		recips ;
-
 	sigset_t	signalmask ;
 	sigset_t	oldsigmask, newsigmask ;
 
@@ -317,13 +309,6 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS + 1] ;
-	char	userbuf[USERINFO_LEN + 1] ;
-	char	pcsconfbuf[PCSCONF_LEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	logfname[MAXPATHLEN + 1] ;
-	char	buf[BUFSIZE + 1], *bp ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*ifname = NULL ;
 	const char	*afname = NULL ;
@@ -333,6 +318,13 @@ char	*envv[] ;
 	const char	*uu_user = NULL ;
 	const char	*protospec = NULL ;
 	const char	*up, *sp, *cp ;
+	char	argpresent[MAXARGGROUPS + 1] ;
+	char	userbuf[USERINFO_LEN + 1] ;
+	char	pcsconfbuf[PCSCONF_LEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	logfname[MAXPATHLEN + 1] ;
+	char	buf[BUFSIZE + 1], *bp ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -343,7 +335,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -361,11 +354,6 @@ char	*envv[] ;
 	tmpfname[0] = '\0' ;
 	logfname[0] = '\0' ;
 
-
-	pip->tmpdname = NULL ;
-	pip->maildname = NULL ;
-	pip->deadmaildname = NULL ;
-
 	initnow(&pip->now,pip->zname,DATER_ZNAMESIZE) ;
 
 	dater_start(&pip->tmpdate,&pip->now,pip->zname,-1) ;
@@ -375,7 +363,6 @@ char	*envv[] ;
 
 	timestr_logz(pip->daytime,pip->stamp) ;
 
-	pip->debuglevel = 0 ;
 	pip->verboselevel = 1 ;
 
 	pip->loglen = -1 ;

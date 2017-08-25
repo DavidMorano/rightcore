@@ -79,6 +79,8 @@ extern int	isdigitlatin(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
@@ -144,15 +146,15 @@ const char	*envv[] ;
 	int	f_help = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
+	const char	*pr = NULL ;
+	const char	*afname = NULL ;
+	const char	*ofname = NULL ;
+	const char	*sp, *cp, *cp2 ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	buf[BUFLEN + 1], *bp ;
 	char	nodename[NODENAMELEN + 1] ;
 	char	domainname[MAXHOSTNAMELEN + 1] ;
 	char	usernamebuf[LOGNAME_MAX + 1] ;
-	const char	*pr = NULL ;
-	const char	*afname = NULL ;
-	const char	*ofname = NULL ;
-	const char	*sp, *cp, *cp2 ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -163,7 +165,8 @@ const char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

@@ -1,2 +1,2 @@
 const char holiday_makedate[] =
-"@(#)holiday                 170717_1421:40_USEDT Rightcore Network Services" ;
+"@(#)holiday                 170823_0827:26_EDT Rightcore Network Services" ;

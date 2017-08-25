@@ -1,4 +1,4 @@
-/* main */
+/* main (mkfindbit) */
 
 
 #define	CF_VERIFY	1		/* ? */
@@ -7,7 +7,7 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-06-29, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
@@ -50,7 +50,8 @@ static int	ffbsb(int), flbsb(int) ;
 /* exported subroutines */
 
 
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 
 
@@ -69,12 +70,10 @@ int main()
 
 static int mktabfbs()
 {
-	int	i, j ;
-	int	n ;
-	int	v ;
-
+	int		i, j ;
+	int		n ;
+	int		v ;
 	const char	*fmt ;
-
 
 	fprintf(stdout,"\n") ;
 
@@ -96,23 +95,20 @@ static int mktabfbs()
 
 		if ((j % MOD) == 0) {
 			fmt = "\t0x%02x," ;
-
 		} else if ((j % MOD) == (MOD - 1)) {
 			fmt = " 0x%02x,\n" ;
-
-		} else
+		} else {
 			fmt = " 0x%02x," ;
+		}
 
 	        fprintf(stdout,fmt,v) ;
 
 		j += 1 ;
 	} /* end for */
 
-	fprintf(stdout,
-	    "} ;\n") ;
+	fprintf(stdout, "} ;\n") ;
 
 	fprintf(stdout,"\n") ;
-
 
 	return 0 ;
 }
@@ -121,12 +117,10 @@ static int mktabfbs()
 
 static int mktablbs()
 {
-	int	i, j ;
-	int	n ;
-	int	v ;
-
+	int		i, j ;
+	int		n ;
+	int		v ;
 	const char	*fmt ;
-
 
 	fprintf(stdout,"\n") ;
 
@@ -148,23 +142,20 @@ static int mktablbs()
 
 		if ((j % MOD) == 0) {
 			fmt = "\t0x%02x," ;
-
 		} else if ((j % MOD) == (MOD - 1)) {
 			fmt = " 0x%02x,\n" ;
-
-		} else
+		} else {
 			fmt = " 0x%02x," ;
+		}
 
 	        fprintf(stdout,fmt,v) ;
 
 		j += 1 ;
 	} /* end for */
 
-	fprintf(stdout,
-	    "} ;\n") ;
+	fprintf(stdout, "} ;\n") ;
 
 	fprintf(stdout,"\n") ;
-
 
 	return 0 ;
 }
@@ -173,8 +164,7 @@ static int mktablbs()
 
 static int ffbsb(int v)
 {
-	int	i = -1 ;
-
+	int		i = -1 ;
 
 	if (v) {
 	    for (i = 0 ; i < 8 ; i += 1) {
@@ -190,8 +180,7 @@ static int ffbsb(int v)
 
 static int flbsb(int v)
 {
-	int	i ;
-
+	int		i ;
 
 	for (i = 7 ; i >= 0 ; i -= 1) {
 	    if ((v>>i) & 1) break ;

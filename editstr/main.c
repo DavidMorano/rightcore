@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -35,7 +33,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -227,18 +224,16 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*pmspec = NULL ;
 	const char	*searchname = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp ;
-
+	char	argpresent[MAXARGGROUPS] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
 	if_int = 0 ;
-
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -249,7 +244,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -263,13 +259,8 @@ char	*envv[] ;
 /* early things to initialize */
 
 	pip->ofp = &outfile ;
-
 	pip->namelen = MAXNAMELEN ;
-
 	pip->verboselevel = 1 ;
-
-	pip->bytes = 0 ;
-	pip->megabytes = 0 ;
 	pip->progmode = -1 ;
 	pip->ageint = -1 ;
 

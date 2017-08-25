@@ -150,40 +150,36 @@ int txtindexfu(TXTINDEXFU *ep,int f,char *hbuf,int hlen)
 		    rs = SR_ILSEQ ;
 		}
 
-	    if ((rs >= 0) && (bl > 0)) {
-	        if (bl >= headsize) {
-
-	        header = (uint *) bp ;
-
-	        ep->hfsize = header[hi_hfsize] ;
-	        ep->tfsize = header[hi_tfsize] ;
-	        ep->ersize = header[hi_ersize] ;
-	        ep->eisize = header[hi_eisize] ;
-	        ep->wtime = header[hi_wtime] ;
-	        ep->sdnoff = header[hi_sdnoff] ;
-	        ep->sfnoff = header[hi_sfnoff] ;
-	        ep->listoff = header[hi_listoff] ;
-	        ep->esoff = header[hi_esoff] ;
-	        ep->essize = header[hi_essize] ;
-	        ep->eroff = header[hi_eroff] ;
-	        ep->erlen = header[hi_erlen] ;
-	        ep->eioff = header[hi_eioff] ;
-	        ep->eilen = header[hi_eilen] ;
-	        ep->eiskip = header[hi_eiskip] ;
-	        ep->taboff = header[hi_taboff] ;
-	        ep->tablen = header[hi_tablen] ;
-	        ep->taglen = header[hi_taglen] ;
-	        ep->maxtags = header[hi_maxtags] ;
-	        ep->minwlen = header[hi_minwlen] ;
-	        ep->maxwlen = header[hi_maxwlen] ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-		} else {
-		    rs = SR_ILSEQ ;
-		}
-	    } /* end if (item) */
+	        if (rs >= 0) {
+	            if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	ep->hfsize = header[hi_hfsize] ;
+	        	ep->tfsize = header[hi_tfsize] ;
+	        	ep->ersize = header[hi_ersize] ;
+	        	ep->eisize = header[hi_eisize] ;
+	        	ep->wtime = header[hi_wtime] ;
+	        	ep->sdnoff = header[hi_sdnoff] ;
+	        	ep->sfnoff = header[hi_sfnoff] ;
+	        	ep->listoff = header[hi_listoff] ;
+	        	ep->esoff = header[hi_esoff] ;
+	        	ep->essize = header[hi_essize] ;
+	        	ep->eroff = header[hi_eroff] ;
+	        	ep->erlen = header[hi_erlen] ;
+	        	ep->eioff = header[hi_eioff] ;
+	        	ep->eilen = header[hi_eilen] ;
+	        	ep->eiskip = header[hi_eiskip] ;
+	        	ep->taboff = header[hi_taboff] ;
+	        	ep->tablen = header[hi_tablen] ;
+	        	ep->taglen = header[hi_taglen] ;
+	        	ep->maxtags = header[hi_maxtags] ;
+	        	ep->minwlen = header[hi_minwlen] ;
+	        	ep->maxwlen = header[hi_maxwlen] ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+		    } else {
+		        rs = SR_ILSEQ ;
+		    }
+	        } /* end if (item) */
 
 	    } /* end if (mkmagic) */
 	} else { /* write */

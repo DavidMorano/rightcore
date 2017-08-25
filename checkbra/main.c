@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -37,7 +35,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -45,18 +42,16 @@
 #include	<baops.h>
 #include	<field.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
 
 #define	MAXARGINDEX	600
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
-
 
 
 /* external subroutines */
@@ -66,6 +61,8 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 
 extern int	procfile(struct proginfo *,PARAMOPT *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strshrink(char *) ;
 
@@ -162,7 +159,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->efp = efp ;
 	if (bopen(efp,BFILE_STDERR,"dwca",0666) >= 0)

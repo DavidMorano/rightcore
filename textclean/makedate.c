@@ -1,2 +1,2 @@
 const char textclean_makedate[] =
-"@(#)textclean               170303_2332:44_USEST Rightcore Network Services¹" ;
+"@(#)textclean               170823_2222:55_EDT Rightcore Network Services" ;

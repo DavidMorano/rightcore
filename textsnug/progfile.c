@@ -10,23 +10,20 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	This module will take as input a fname and it will perform
-	specified cleanup activities on the contents of the file and
-	write the results out to either STDOUT or back to the original
-	file.
+        This module will take as input a fname and it will perform specified
+        cleanup activities on the contents of the file and write the results out
+        to either STDOUT or back to the original file.
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -36,7 +33,6 @@
 #include	<sys/stat.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -76,7 +72,7 @@ extern int	mktmpfile(char *,mode_t,const char *) ;
 
 /* forward references */
 
-static int	procline(struct proginfo *,bfile *,const char *,int) ;
+static int	procline(PROGINFO *,bfile *,const char *,int) ;
 
 
 /* local variables */
@@ -86,13 +82,12 @@ static int	procline(struct proginfo *,bfile *,const char *,int) ;
 
 
 int progfile(pip,ofp,fname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 bfile		*ofp ;
 const char	fname[] ;
 {
-	bfile	infile, *ifp = &infile ;
-	bfile	workfile, *wfp = &workfile ;
-
+	bfile		infile, *ifp = &infile ;
+	bfile		workfile, *wfp = &workfile ;
 	const int	llen = LINEBUFLEN ;
 
 	int	rs = SR_OK ;
@@ -274,23 +269,23 @@ ret0:
 
 
 static int procline(pip,wfp,lbuf,llen)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 bfile		*wfp ;
 const char	lbuf[] ;
 int		llen ;
 {
-	int	rs = SR_OK ;
-	int	sl, cl ;
-	int	si ;
-	int	c = 0 ;
-	int	wlen = 0 ;
-
+	int		rs = SR_OK ;
+	int		sl, cl ;
+	int		si ;
+	int		c = 0 ;
+	int		wlen = 0 ;
 	const char	*tp, *sp ;
 	const char	*cp ;
 
 
-	if ((llen > 0) && (lbuf[llen - 1] == '\n'))
+	if ((llen > 0) && (lbuf[llen - 1] == '\n')) {
 	    llen -= 1 ;
+	}
 
 	sp = lbuf ;
 	sl = llen ;
@@ -346,6 +341,5 @@ int		llen ;
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procline) */
-
 
 

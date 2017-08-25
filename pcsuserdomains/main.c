@@ -59,7 +59,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<grp.h>
 
 #include	<vsystem.h>
@@ -298,7 +297,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	int	f_checksecure ;
 	int	f_schedvar = FALSE ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*pr = NULL ;
+	cchar	*configfname = NULL ;
+	cchar	*cp ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	buf[BUFLEN + 2] ;
 	char	buf2[BUFLEN + 2] ;
@@ -316,27 +318,21 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	char	stampfname[MAXPATHLEN + 2] ;
 	char	pcsconfbuf[PCSCONF_LEN + 1] ;
 	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*pr = NULL ;
-	char	*configfname = NULL ;
-	char	*cp ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-		cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	if (u_fstat(FD_STDIN,&sb) < 0)
 	    (void) u_open("/dev/null",O_RDONLY,0666) ;
 
-
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->f.fd_stdout = TRUE ;
 
@@ -363,39 +359,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* initialize */
 
-	pip->username = NULL ;
-	pip->groupname = NULL ;
-	pip->pidfname = NULL ;
-	pip->lockfname = NULL ;
-	pip->tmpdname = NULL ;
-	pip->workdname = NULL ;
-	pip->stampdname = NULL ;
-	pip->defuser = NULL ;
-	pip->defgroup = NULL ;
-	pip->defacc = NULL ;
-	pip->srvtab = NULL ;
-	pip->acctab = NULL ;
-
-	pip->prog_rmail = NULL ;
-	pip->prog_sendmail = NULL ;
-
-	pip->debuglevel = 0 ;
 	pip->verboselevel = 1 ;
-	pip->quietlevel = 0 ;
 
 	pip->interval = -1 ;	/* program check interval */
 	pip->runtime = 0 ;	/* regular mode requires '0' here */
 	pip->maxjobs = MAXJOBS ;
-
-	pip->f.quiet = FALSE ;
-	pip->f.log = FALSE ;
-	pip->f.slog = FALSE ;
-	pip->f.daemon = FALSE ;
-	pip->f.named = FALSE ;
-	pip->f.srvtab = FALSE ;
-	pip->f.acctab = FALSE ;
-	pip->f.defacc = FALSE ;
-
 
 	stampdname[0] = '\0' ;
 	newsdname[0] = '\0' ;
@@ -406,9 +374,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	logfname[0] = '\0' ;
 	stampfname[0] = '\0' ;
 	accfname[0] = '\0' ;
-
-
-	rs = SR_OK ;
 
 /* start parsing the arguments */
 

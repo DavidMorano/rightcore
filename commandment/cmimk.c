@@ -83,6 +83,7 @@
 
 #include	<vsystem.h>
 #include	<endian.h>
+#include	<endianstr.h>
 #include	<estrings.h>
 #include	<vecobj.h>
 #include	<filebuf.h>

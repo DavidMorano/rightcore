@@ -12,27 +12,25 @@
 /* revision history:
 
 	= 1997-09-10, David A­D­ Morano
-
-	This subroutine was originally written but it was probably started
-	from any one of the numerous subroutine which perform a similar
-	"file-processing" fron end.
-
+        This subroutine was originally written but it was probably started from
+        any one of the numerous subroutine which perform a similar
+        "file-processing" fron end.
 
 */
 
 /* Copyright © 1997 David A­D­ Morano.  All rights reserved. */
 
-/*******************************************************************
+/*******************************************************************************
 
-	This program will read the input file and format it into
-	'troff' constant width font style source input language.
+        This program will read the input file and format it into 'troff'
+        constant width font style source input language.
 
 	Synopsis:
 
 	$ cookieset <input_file> > <out.dwb>
 
 
-*********************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -43,7 +41,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -82,6 +79,8 @@ extern int	isdigitlatin(int) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	procfile(PROGINFO *,char *,int,int) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 
 /* external variables */
@@ -194,7 +193,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -214,7 +214,6 @@ char	*envv[] ;
 
 /* process program arguments */
 
-	rs = SR_OK ;
 	for (ai = 0 ; ai < NARGGROUPS ; ai += 1)
 	    argpresent[ai] = 0 ;
 

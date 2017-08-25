@@ -1,6 +1,6 @@
 /* pcs-log */
 
-/* utilies to support logging */
+/* utility to support logging */
 /* last modified %G% version %I% */
 
 

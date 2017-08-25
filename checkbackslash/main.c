@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	The program was written from scratch to do what the previous program by
 	the same name did.
-
 
 */
 
@@ -34,7 +32,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -59,6 +56,8 @@
 extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	progfile(PROGINFO *,PARAMOPT *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 
 /* external variables */
@@ -146,14 +145,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
-
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
-
 	}
 
 /* early things to initialize */

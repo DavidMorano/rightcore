@@ -54,16 +54,11 @@
 
 #include	<vsystem.h>
 #include	<inetaddr.h>
-#include	<storebuf.h>
 #include	<cthex.h>
 #include	<localmisc.h>
 
 
 /* local defines */
-
-#ifndef	DIGBUFLEN
-#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
-#endif
 
 #ifndef	INET4ADDRLEN
 #define	INET4ADDRLEN	sizeof(in_addr_t)
@@ -169,9 +164,9 @@ static int sninet4(char *dbuf,int dlen,cchar *addr)
 	int		rs ;
 
 	if ((rs = inetaddr_start(&ia,addr)) >= 0) {
-
-	    rs = inetaddr_getdotaddr(&ia,dbuf,dlen) ;
-
+	    {
+	        rs = inetaddr_getdotaddr(&ia,dbuf,dlen) ;
+	    }
 	    inetaddr_finish(&ia) ;
 	} /* end if (inetaddr) */
 
@@ -204,8 +199,9 @@ static int sninet6(char *dbuf,int dlen,cchar *addr)
 	        dbuf[pl++] = digbuf[7] ;
 #endif /* CF_CTHEXC */
 	    } /* end for */
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	dbuf[pl] = '\0' ;
 	return (rs >= 0) ? pl : rs ;

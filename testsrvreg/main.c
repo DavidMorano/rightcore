@@ -13,23 +13,21 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This is (was) a hack from a previous program adopted for
 	the current purpose.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ testsrvreg.x
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -51,14 +49,13 @@
 #include	<bfile.h>
 #include	<baops.h>
 #include	<vecstr.h>
-#include	<exitcodes.h>
 #include	<mallocstuff.h>
+#include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"srvreg.h"
-
 
 
 /* local defines */
@@ -71,7 +68,6 @@
 #endif
 
 #define	O_FLAGS		(O_RDWR | O_CREAT)
-
 
 
 /* external subroutines */
@@ -87,6 +83,8 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
@@ -177,17 +175,17 @@ char	*envv[] ;
 	int	f_name = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	nodename[NODENAMELEN + 1] ;
-	char	domainname[MAXHOSTNAMELEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*ofname = NULL ;
 	const char	*srfname = NULL ;
 	const char	*svcname = NULL ;
 	const char	*un = NULL ;
 	const char	*cp, *cp2 ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1], *bp ;
+	char	nodename[NODENAMELEN + 1] ;
+	char	domainname[MAXHOSTNAMELEN + 1] ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -202,7 +200,8 @@ char	*envv[] ;
 	    goto ret0 ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;

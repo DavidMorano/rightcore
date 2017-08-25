@@ -11,9 +11,7 @@
 /* revision history:
 
 	- 1998-05-23, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -41,7 +39,6 @@
 #include	<poll.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 #include	<netdb.h>
 
@@ -87,6 +84,8 @@ extern int	isdigitlatin(int) ;
 extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*timestr_log(time_t,char *) ;
 
@@ -189,7 +188,8 @@ const char	*envv[] ;
 	    goto badprogstart ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -205,8 +205,6 @@ const char	*envv[] ;
 	pip->verboselevel = 1 ;
 
 /* parse arguments */
-
-	rs = SR_OK ;
 
 	for (ai = 0 ; ai < NARGGROUPS ; ai += 1) 
 		argpresent[ai] = 0 ;

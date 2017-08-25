@@ -14,9 +14,7 @@
 /* revision history:
 
 	= 2001-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  
-
 
 */
 
@@ -65,7 +63,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -291,9 +288,7 @@ static const struct errormap	errormaps[] = {
 } ;
 
 
-
-
-
+/* exported subroutines */
 
 
 int main(argc,argv,envv)
@@ -321,8 +316,9 @@ char	*envv[] ;
 	int	argr, argl, aol, akl, avl, kwi ;
 	int	ai, ai_max, ai_pos ;
 	int	argvalue = -1 ;
-	int	pan ;
-	int	rs, rs1, n, i, j ;
+	int	pan = 0 ;
+	int	rs, rs1 ;
+	int		n, i, j ;
 	int	size ;
 	int	sl, cl, ml, pl ;
 	int	fd_debug = -1 ;
@@ -336,12 +332,6 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	nodename[NODENAMELEN + 1] ;
-	char	domainname[MAXHOSTNAMELEN + 1] ;
-	char	username[USERNAMELEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*configfname = NULL ;
 	const char	*efname = NULL ;
@@ -350,9 +340,21 @@ char	*envv[] ;
 	const char	*serverprog = NULL ;
 	const char	*serverefname = NULL ;
 	const char	*sp, *cp ;
-
+	char	argpresent[MAXARGGROUPS] ;
+	char	nodename[NODENAMELEN + 1] ;
+	char	domainname[MAXHOSTNAMELEN + 1] ;
+	char	username[USERNAMELEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 	if_int = 0 ;
+
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	n = nelem(sigints) + nelem(sigignores) ;
 	size = n * sizeof(struct sigaction) ;
@@ -400,26 +402,10 @@ char	*envv[] ;
 
 	} /* end for */
 
-
-#if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-	if (cp != NULL) {
-	    if (cfdeci(cp,-1,&fd_debug) >= 0) {
-	        debugsetfd(fd_debug) ;
-	    } else
-	        fd_debug = debugopen(cp) ;
-	}
-#endif /* CF_DEBUGS */
-
-#if	CF_DEBUGS && 0
-	for (i = 0 ; envv[i] != NULL ; i += 1)
-	    debugprintf("main: envv[%u]=%s\n",i,envv[i]) ;
-#endif
-
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->verboselevel = 1 ;
 

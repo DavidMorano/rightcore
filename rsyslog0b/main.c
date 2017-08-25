@@ -14,22 +14,20 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ rsyslog [recipient(s) ...] [-p priority] [-t tag]
 
 
-*************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -44,7 +42,6 @@
 #include	<netdb.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -113,6 +110,8 @@ extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
 extern int	proginfo_rootname(struct proginfo *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_hdate(time_t,char *) ;
@@ -314,7 +313,19 @@ char	*envv[] ;
 	int	f_addrs ;
 	int	f ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*pr = NULL ;
+	cchar	*afname = NULL ;
+	cchar	*ifname = NULL ;
+	cchar	*logfname = NULL ;
+	cchar	*hostname ;
+	cchar	*loghost = NULL ;
+	cchar	*svcspec = NULL ;
+	cchar	*fromaddr = NULL ;
+	cchar	*logpriority = NULL ;
+	cchar	*logtag = NULL ;
+	cchar	*tospec = NULL ;
+	cchar	*sp, *cp, *cp2 ;
 	char	argpresent[NARGPRESENT] ;
 	char	tmpfname[MAXPATHLEN + 1] ;
 	char	buf[BUFLEN + 1] ;
@@ -322,18 +333,6 @@ char	*envv[] ;
 	char	userinfobuf[USERINFO_LEN + 1] ;
 	char	pcsconfbuf[PCSCONF_LEN + 1] ;
 	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*pr = NULL ;
-	char	*afname = NULL ;
-	char	*ifname = NULL ;
-	char	*logfname = NULL ;
-	char	*hostname ;
-	char	*loghost = NULL ;
-	char	*svcspec = NULL ;
-	char	*fromaddr = NULL ;
-	char	*logpriority = NULL ;
-	char	*logtag = NULL ;
-	char	*tospec = NULL ;
-	char	*sp, *cp, *cp2 ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -348,7 +347,8 @@ char	*envv[] ;
 	    goto ret0 ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

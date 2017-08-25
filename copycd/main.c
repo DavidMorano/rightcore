@@ -9,17 +9,17 @@
 
 /* revision history:
 
-	= 96/02/01, David A­D­ Morano
-
-	The program was written from scratch for reading certain
-	CDROMs that (although are supposed to be in ISO-9660 format)
-	have weirdo directory names and file names that wreak
-	havoc on UNIX !
-
+	= 1996-02-01, David A­D­ Morano
+        The program was written from scratch for reading certain CDROMs that
+        (although are supposed to be in ISO-9660 format) have weirdo directory
+        names and file names that wreak havoc on UNIX!
 
 */
 
+/* Copyright © 1996 David A­D­ Morano.  All rights reserved. */
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -31,16 +31,15 @@
 #include	<time.h>
 
 #include	<vsystem.h>
+#include	<paramopt.h>
 #include	<bfile.h>
 #include	<baops.h>
 #include	<field.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
-#include	"paramopt.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -49,11 +48,12 @@
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
 
 
-
 /* external subroutines */
 
 extern int	matstr3(char **,char *,int) ;
 extern int	cfdeci(char *,int,int *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strbasename(char *), *strshrink(char *) ;
 
@@ -130,46 +130,37 @@ char	*envv[] ;
 	int	f_version = FALSE ;
 	int	f ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*srcdir = NULL ;
+	cchar	*dstdir = NULL ;
+	cchar	*cp ;
 	char	argpresent[MAXARGGROUPS] ;
-	char	*srcdir = NULL ;
-	char	*dstdir = NULL ;
-	char	*cp ;
 
 
-	if (((cp = getenv("ERROR_FD")) != NULL) &&
-	    (cfdeci(cp,-1,&err_fd) >= 0))
-	    debugsetfd(err_fd) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0)
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
 	}
 
-
 /* early things to initialize */
 
 	pip->ofp = ofp ;
-	pip->debuglevel = 0 ;
 	pip->tmpdname = NULL ;
 	pip->namelen = MAXNAMELEN ;
 
-	pip->bytes = 0 ;
-	pip->megabytes = 0 ;
-
 	(void) memset(&pip->f,0,sizeof(struct proginfo_flags)) ;
-
-	pip->f.verbose = FALSE ;
-	pip->f.nochange = FALSE ;
-	pip->f.quiet = FALSE ;
-	pip->f.follow = FALSE ;
-	pip->f.suffix = FALSE ;
 
 /* process program arguments */
 

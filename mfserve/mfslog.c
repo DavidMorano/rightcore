@@ -1,6 +1,6 @@
 /* mfs-log */
 
-/* utilies to support logging */
+/* utility to support logging */
 /* last modified %G% version %I% */
 
 
@@ -372,7 +372,7 @@ int loginfo(PROGINFO *pip)
 /* end subroutine (loginfo) */
 
 
-int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar np[])
+int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar *np)
 {
 	char		timebuf[TIMEBUFLEN + 1] ;
 

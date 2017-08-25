@@ -10,21 +10,17 @@
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 	= 2008-01-15, David A­D­ Morano
-
-	I almost wrote this whole program again -- and for little good
-	reason!  I added the options to include the sets of all lower
-	and upper case characters in the output.
-
+        I almost wrote this whole program again -- and for little good reason! I
+        added the options to include the sets of all lower and upper case
+        characters in the output.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1996,2008 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -44,7 +40,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -101,7 +96,7 @@ static int addupper(PROGINFO *,char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -215,7 +210,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1)
 	    argpresent[ai] = 0 ;
 
-	ai = 0 ;
 	ai_max = 0 ;
 	ai_pos = 0 ;
 	argr = argc ;
@@ -504,6 +498,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)

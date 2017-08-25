@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 2009-05-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -42,7 +40,6 @@
 #include	<netdb.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -107,6 +104,8 @@ extern int	proginfo_setpiv(PROGINFO *,const char *,
 extern int	debugprintf(const char *,...) ;
 extern int	nprintf(const char *,const char *,...) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_hdate(time_t,char *) ;
@@ -240,12 +239,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	buf[BUFLEN + 1] ;
-	char	fromaddrbuf[MAILADDRLEN + 1] ;
-	char	userinfobuf[USERINFO_LEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*afname = NULL ;
 	const char	*ifname = NULL ;
@@ -259,6 +252,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*ofname = NULL ;
 	const char	*sp, *cp ;
 
+	char	argpresent[MAXARGGROUPS] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	buf[BUFLEN + 1] ;
+	char	fromaddrbuf[MAILADDRLEN + 1] ;
+	char	userinfobuf[USERINFO_LEN + 1] ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 	if_int = 0 ;
 
@@ -279,7 +278,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    goto badprogstart ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

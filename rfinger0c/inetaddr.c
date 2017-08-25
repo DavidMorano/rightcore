@@ -56,6 +56,7 @@
 /* external subroutines */
 
 extern int	cfnumui(char *,int,uint *) ;
+extern int	getdig(int) ;
 
 extern char	*strwcpy(char *,char *,int) ;
 
@@ -70,11 +71,6 @@ extern char	*strwcpy(char *,char *,int) ;
 
 
 /* local variables */
-
-static cchar	hextable[] = {
-	'0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-} ;
 
 
 /* exported subroutines */
@@ -127,8 +123,9 @@ int inetaddr_startstr(inetaddr *ip,char *addr,int addrlen)
 	        if (ip->a.s_addr == ((in_addr_t) BADTHING)) {
 	            rs = SR_INVALID ;
 		}
-	    } else
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	} /* end if */
 
 	return rs ;
@@ -170,8 +167,9 @@ int inetaddr_startdot(inetaddr *ip,char *addr,int addrlen)
 	    if (ip->a.s_addr == ((in_addr_t) BADTHING)) {
 	        rs = SR_INVALID ;
 	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return rs ;
 }
@@ -201,11 +199,12 @@ int inetaddr_gethexaddr(inetaddr *ip,char *rbuf,int rlen)
 	    int		i ;
 	    for (i = 0 ; i < INET4ADDRLEN ; i += 1) {
 	        v = MKCHAR(ip->straddr[i]) ;
-	        rbuf[j++] = hextable[(v >> 4) & 0x0F] ;
-	        rbuf[j++] = hextable[v & 0x0F] ;
+	        rbuf[j++] = getdig((v >> 4) & 0xf) ;
+	        rbuf[j++] = getdig((v >> 0) & 0xf) ;
 	    } /* end for */
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	rbuf[j] = '\0' ;
 	return (rs >= 0) ? j : rs ;
@@ -231,8 +230,9 @@ int inetaddr_getdotaddr(inetaddr *ip,char *rbuf,int rlen)
 	        bp += rs ;
 	        if (rs < 0) break ;
 	    } /* end for */
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	*bp = '\0' ;
 	return (rs >= 0) ? (bp - rbuf) : rs ;

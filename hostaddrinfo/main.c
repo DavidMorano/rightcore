@@ -41,7 +41,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -95,16 +94,16 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 extern int	cfdecti(const char *,int,int *) ;
-extern int	optbool(const char *,int) ;
-extern int	optvalue(const char *,int) ;
+extern int	optbool(cchar *,int) ;
+extern int	optvalue(cchar *,int) ;
 extern int	getnodename(char *,int) ;
-extern int	getaf(const char *,int) ;
+extern int	getaf(cchar *,int) ;
 extern int	inetpton(void *,int,int,cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	hasINET4AddrStr(cchar *,int) ;
 extern int	isFailOpen(int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
+extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -178,7 +177,7 @@ static int	morder_ruint(const void *,uint *) ;
 
 /* local variables */
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"TMPDIR",
 	"VERSION",
@@ -598,8 +597,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -702,7 +703,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    goto retearly ;
 
 
-	ex = EX_USAGE ;
+	ex = EX_OK ;
 
 /* check arguments */
 
@@ -719,9 +720,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* user-information */
 
 	if (rs >= 0) {
+	    const int	nlen = NODENAMELEN ;
 	    char	nbuf[NODENAMELEN+1] ;
-	    if ((rs = getnodename(nbuf,NODENAMELEN)) >= 0) {
-	        const char	**vpp = &pip->nodename ;
+	    if ((rs = getnodename(nbuf,nlen)) >= 0) {
+	        cchar	**vpp = &pip->nodename ;
 	        rs = proginfo_setentry(pip,vpp,nbuf,rs) ;
 	    }
 	}
@@ -733,8 +735,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-	ex = EX_OK ;
-
 /* go */
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -745,9 +745,17 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	    const char	*ofn = ofname ;
-	    const char	*afn = afname ;
-	    rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
+	    cchar	*ofn = ofname ;
+	    cchar	*afn = afname ;
+	    rs = procargs(pip,aip,bop,ofn,afn) ;
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
 /* done */
@@ -870,17 +878,18 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if (rs >= 0) {
 	        int	ai ;
 	        int	f ;
+	        cchar	**argv = aip->argv ;
 	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
-	                cp = aip->argv[ai] ;
+	                cp = argv[ai] ;
 	                pan += 1 ;
 	                rs = procname(pip,ofp,cp) ;
 	                wlen += rs ;
@@ -907,8 +916,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	                lbuf[len] = '\0' ;
 
 	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                    lbuf[(cp-lbuf)+cl] = '\0' ;
 	                    if (cp[0] != '#') {
+	                        lbuf[(cp-lbuf)+cl] = '\0' ;
 	                        pan += 1 ;
 	                        rs = procname(pip,ofp,cp) ;
 	                        wlen += rs ;
@@ -916,17 +925,17 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	                }
 
 	                if (rs < 0) {
-			    fmt = "%s: error (%d) name=%s\n" ;
+	                    fmt = "%s: error (%d) name=%s\n" ;
 	                    bprintf(pip->efp,fmt,pn,rs,cp) ;
 	                    break ;
 	                }
 	            } /* end while (reading lines) */
 
 	            rs1 = bclose(afp) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
-	                fmt = "%s: inaccessible argument list (%d)\n" ;
+	                fmt = "%s: inaccessible argument-list (%d)\n" ;
 	                bprintf(pip->efp,fmt,pn,rs) ;
 	                bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
@@ -935,12 +944,10 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    } /* end if (processing file argument file list) */
 
 	    if ((rs >= 0) && (pan == 0)) {
-
-	        cp = "-" ;
-	        pan += 1 ;
-	        rs = procname(pip,ofp,cp) ;
-	        wlen += rs ;
-
+	            pan += 1 ;
+		    cp = "-" ;
+	            rs = procname(pip,ofp,cp) ;
+	            wlen += rs ;
 	    } /* end if (processing requests) */
 
 	    rs1 = bclose(ofp) ;
@@ -975,36 +982,36 @@ static int procname(PROGINFO *pip,bfile *ofp,cchar *np)
 	chostname[0] = '\0' ;
 	if ((np[0] == '\0') || (np[0] == '-')) {
 	    np = pip->nodename ;
-	    nl = 1 ;
+	    nl = -1 ;
 	}
 
 	if ((rs = nulstr_start(&n,np,nl,&name)) >= 0) {
 	    nl = rs ;
 	    while (name[nl-1] == '.') nl -= 1 ;
 
-	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: query=%t\n",
-	        pip->progname,name,nl) ;
-	}
-
-	if ((rs = procspecial(pip,ofp,name,nl)) == 0) {
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("procname: procinfo=%t\n",name,nl) ;
-#endif
-	    rs = procinfo(pip,ofp,chostname,name,nl) ;
-	}
-
-	if (rs == SR_NOTFOUND) {
-
-	    if (! pip->f.quiet) {
-	        bprintf(pip->efp,"%s: not found query=%s (%d)\n",
-	            pip->progname,name,rs) ;
+	    if (pip->debuglevel > 0) {
+	        bprintf(pip->efp,"%s: query=%t\n",
+	            pip->progname,name,nl) ;
 	    }
 
-	    rs = bprintf(ofp,"\n") ;
+	    if ((rs = procspecial(pip,ofp,name,nl)) == 0) {
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(3))
+	            debugprintf("procname: procinfo=%t\n",name,nl) ;
+#endif
+	        rs = procinfo(pip,ofp,chostname,name,nl) ;
+	    }
 
-	} /* end if */
+	    if (rs == SR_NOTFOUND) {
+
+	        if (! pip->f.quiet) {
+	            bprintf(pip->efp,"%s: not found query=%s (%d)\n",
+	                pip->progname,name,rs) ;
+	        }
+
+	        rs = bprintf(ofp,"\n") ;
+
+	    } /* end if */
 
 	    rs1 = nulstr_finish(&n) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -1032,14 +1039,14 @@ static int procspecial(PROGINFO *pip,bfile *ofp,cchar *np,int nl)
 	f = f && lip->f.ao ;
 	f = f && ((pip->af == AF_UNSPEC) || (pip->af == AF_INET4)) ;
 	if (f) {
-	f = hasINET4AddrStr(np,nl) ;
+	    f = hasINET4AddrStr(np,nl) ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/procspecial: hasINET4AddrStr=%u\n",f) ;
+	    if (DEBUGLEVEL(3))
+	        debugprintf("main/procspecial: hasINET4AddrStr=%u\n",f) ;
 #endif
 	}
 	if (f) {
-	    bprintline(ofp,np,nl) ;
+	    rs = bprintline(ofp,np,nl) ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
@@ -1081,19 +1088,19 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 
 /* effective */
 
-		if (f_all) {
-	        rs1 = hostinfo_geteffective(&hi,&np) ;
-	        if (rs1 < 0) np = "" ;
-	        bprintf(ofp,"%sename=%s\n",indent,np) ;
-		}
+	        if (f_all) {
+	            rs1 = hostinfo_geteffective(&hi,&np) ;
+	            if (rs1 < 0) np = "" ;
+	            bprintf(ofp,"%sename=%s\n",indent,np) ;
+	        }
 
 /* canonical */
 
-		if (f_all) {
-	        rs1 = hostinfo_getcanonical(&hi,&np) ;
-	        if (rs1 < 0) np = "" ;
-	        bprintf(ofp,"%scname=%s\n",indent,np) ;
-		}
+	        if (f_all) {
+	            rs1 = hostinfo_getcanonical(&hi,&np) ;
+	            if (rs1 < 0) np = "" ;
+	            bprintf(ofp,"%scname=%s\n",indent,np) ;
+	        }
 
 /* names */
 
@@ -1102,19 +1109,19 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 	            debugprintf("procinfo: names\n") ;
 #endif
 
-		if (f_all) {
+	        if (f_all) {
 	            if ((rs = hostinfo_curbegin(&hi,&cur)) >= 0) {
 
 	                while ((nl = hostinfo_enumname(&hi,&cur,&np)) >= 0) {
 	                    if (nl > 0) {
 	                        rs = bprintf(ofp,"%salias=%s\n",indent,np) ;
-			    }
+	                    }
 	                    if (rs < 0) break ;
 	                } /* end while */
 
 	                hostinfo_curend(&hi,&cur) ;
 	            } /* end if (cursor) */
-		} /* end if (print all) */
+	        } /* end if (print all) */
 
 /* addresses */
 
@@ -1131,7 +1138,7 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 
 	                    if (pip->verboselevel >= 2) {
 	                        bprintf(ofp,"%saddrlen=%u\n",indent,al) ;
-			    }
+	                    }
 
 	                    if (al == INET4ADDRLEN) {
 	                        rs = procprint4(pip,ofp,indent,ap,al) ;
@@ -1139,7 +1146,7 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 	                        rs = procprint6(pip,ofp,indent,ap,al) ;
 	                    } else if (f_all) {
 	                        rs = bprintf(ofp,"%saddr=(not known)\n",
-				indent) ;
+	                            indent) ;
 	                    }
 
 	                    if (rs < 0) break ;
@@ -1148,10 +1155,10 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 	                hostinfo_curend(&hi,&cur) ;
 	            } /* end if (cursor) */
 
-	        } /* end if */
+	        } /* end if (ok) */
 
 	        rs1 = hostinfo_finish(&hi) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (hostinfo) */
 
 	    rs1 = prepname_finish(&pn) ;
@@ -1163,17 +1170,14 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 /* end subroutine (procinfo) */
 
 
-static int procprint4(pip,ofp,indent,ap,al)
-PROGINFO	*pip ;
-bfile		*ofp ;
-const char	*indent ;
-const uchar	*ap ;
-int		al ;
+static int procprint4(PROGINFO *pip,bfile *ofp,cchar *indent,
+		const uchar *ap,int al)
 {
 	LOCINFO		*lip = pip->lip ;
 	INETADDR	ia ;
 	int		rs ;
 	int		f_all ;
+	cchar		*fmt ;
 	char		astr4[INET4_ADDRSTRLEN + 1] ;
 
 	if ((al >= 0) && (al < INET4ADDRLEN)) return SR_DOM ;
@@ -1183,13 +1187,14 @@ int		al ;
 	    const int	aslen = INET4_ADDRSTRLEN ;
 
 	    if ((rs = inetaddr_getdotaddr(&ia,astr4,aslen)) >= 0) {
-	        uint	v ;
-	        morder_ruint(ap,&v) ;
-		if (f_all) {
-	            rs = bprintf(ofp,"%saddr=%s (\\x%08X)\n",indent,astr4,v) ;
-		} else {
+	        if (f_all) {
+	            uint	v ;
+	            morder_ruint(ap,&v) ;
+		    fmt = "%saddr=%s (\\x%08X)\n" ;
+	            rs = bprintf(ofp,fmt,indent,astr4,v) ;
+	        } else {
 	            rs = bprintline(ofp,astr4,-1) ;
-		}
+	        }
 	    } else if (f_all) {
 	        rs = bprintf(ofp,"%saddr=*\n",indent) ;
 	    }
@@ -1204,12 +1209,8 @@ int		al ;
 /* end subroutine (procprint4) */
 
 
-static int procprint6(pip,ofp,indent,ap,al)
-PROGINFO	*pip ;
-bfile		*ofp ;
-const char	*indent ;
-const uchar	*ap ;
-int		al ;
+static int procprint6(PROGINFO *pip,bfile *ofp,cchar *indent,
+		const uchar *ap,int al)
 {
 	LOCINFO		*lip = pip->lip ;
 	const int	diglen = DIGBUFLEN ;

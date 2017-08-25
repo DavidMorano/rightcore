@@ -245,8 +245,9 @@ int sysrealname_curbegin(SYSREALNAME *op,SYSREALNAME_CUR *curp)
 		    curp->scp = NULL ;
 		}
 	    } /* end if (memory-allocation) */
-	} else
+	} else {
 	    rs = SR_NOSYS ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("sysrealname_curbegin: ret rs=%d\n",rs) ;
@@ -332,8 +333,9 @@ int sysrealname_lookparts(SYSREALNAME *op,SYSREALNAME_CUR *curp,int fo,
 
 	if (op->call.fetcher != NULL) {
 	    rs = sysrealname_curload(op,curp,fo,sa,sn) ;
-	} else
+	} else {
 	    rs = SR_NOSYS ;
+	}
 
 	return rs ;
 }
@@ -371,8 +373,9 @@ int sysrealname_lookread(SYSREALNAME *op,SYSREALNAME_CUR *curp,char *rbuf)
 	    if ((rs = (*op->call.fetcher)(op->obj,icp,fo,rbuf,sa,sn)) == rsn) {
 		rs = SR_OK ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOSYS ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("sysrealname_lookread: ret rs=%d\n",rs) ;
@@ -399,8 +402,9 @@ int sysrealname_enum(SYSREALNAME *op,SYSREALNAME_CUR *curp,char *ubuf,
 	if (op->call.enumerate != NULL) {
 	    IPASSWD_CUR	*icp = curp->scp ;
 	    rs = (*op->call.enumerate)(op->obj,icp,ubuf,sa,rbuf,rlen) ;
-	} else
+	} else {
 	    rs = SR_NOTAVAIL ;
+	}
 
 	return rs ;
 }
@@ -542,33 +546,18 @@ static int sysrealname_loadcalls(SYSREALNAME *op,cchar objname[])
 	for (i = 0 ; subs[i] != NULL ; i += 1) {
 
 	    rs = sncpy3(symname,SYMNAMELEN,objname,"_",subs[i]) ;
-
-#if	CF_DEBUGS
-	    debugprintf("sysrealname_loadcalls: sncpy3() rs=%d\n",rs) ;
-#endif
-
-	    if (rs < 0)
-		break ;
-
-#if	CF_DEBUGS
-	    debugprintf("sysrealname_loadcalls: symname=%s\n",symname) ;
-#endif
+	    if (rs < 0) break ;
 
 	    rs1 = modload_getsym(lp,symname,&snp) ;
 
-#if	CF_DEBUGS
-	    debugprintf("sysrealname_loadcalls: modload_getsym() rs=%d\n",rs1) ;
-#endif
-
 	    if (rs1 == SR_NOTFOUND) {
 		snp = NULL ;
-		if (isrequired(i))
-		    break ;
-	    } else
+		if (isrequired(i)) break ;
+	    } else {
 		rs = rs1 ;
+	    }
 
-	    if (rs < 0)
-		break ;
+	    if (rs < 0) break ;
 
 #if	CF_DEBUGS
 	    debugprintf("sysrealname_loadcalls: call=%s %c\n",

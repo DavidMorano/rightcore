@@ -18,8 +18,8 @@
 
 /*******************************************************************************
 
-        This executes the Dijjstra algorithm to find the sorted path
-        through a weighted graph.
+        This executes the Dijjstra algorithm to find the sorted path through a
+        weighted graph.
 
 
 	Fatures:
@@ -43,6 +43,8 @@
 #include	<algorithm>
 #include	<functional>
 #include	<vector>
+#include	<iostream>
+#include	<iomanip>
 #include	<vsystem.h>
 #include	<localmisc.h>
 
@@ -86,44 +88,47 @@ int dijkstra1(res_t *resp,edges_t &edges,int vertices,int vstart)
 	int		rs = SR_OK ;
 	bool		*visited ;
 	if ((visited = new(nothrow) bool [vertices+1]) != NULL) {
-	edgeit_t	elit ; /* edge-list-iterator */
-	edgeit_t	end ; /* edge-list-iterator */
-	int		i ;
+	    edgeit_t	elit ; /* edge-list-iterator */
+	    edgeit_t	end ; /* edge-list-iterator */
+	    const int	ne = edges.size() ;
+	    int		i ;
 
-	for (i = 0 ; i < vertices ; i += 1) visited[i] = false ;
+	    for (i = 0 ; i < vertices ; i += 1) visited[i] = false ;
 
-	for (i = 0 ; i < vertices ; i += 1) {
-	    resp[i].dist = INT_MAX ;
-	    resp[i].prev = -1 ;
-	}
+	    for (i = 0 ; i < vertices ; i += 1) {
+	        resp[i].dist = INT_MAX ;
+	        resp[i].prev = -1 ;
+	    }
 
-	resp[vstart].dist = 0 ;
-	resp[vstart].prev = -1 ;
+	    resp[vstart].dist = 0 ;
 
-	for (i = 0 ; i < (vertices-1) ; i += 1) {
-	    const int	u = minvertex(visited,resp,vertices) ;
-	    if (u < INT_MAX) {
-	        elit = edges[u].begin() ; /* this is 'list.begin()' */
-	        end = edges[u].end() ; /* this is 'list.end()' */
+	    for (i = 0 ; i < (vertices-1) ; i += 1) {
+	        const int	u = minvertex(visited,resp,vertices) ;
+		    cout << "u=" << u << endl ;
+	        if ((u >= 0) && (u < ne)) {
+		    cout << "u=go" << endl ;
+	            elit = edges[u].begin() ; /* this is 'list.begin()' */
+	            end = edges[u].end() ; /* this is 'list.end()' */
 
-		visited[u] = true ;
-
-	        while (elit != end) {
-	            if ((! visited[u]) && (resp[u].dist != INT_MAX)) {
-	                const int	d = resp[u].dist ;
-	                const int	w = (*elit).weight ;
+		    visited[u] = true ;
+	            while (elit != end) {
 	                const int	v = (*elit).dst ; /* dst vertex */
+		    cout << "v=" << v << endl ;
+	                if ((! visited[v]) && (resp[u].dist != INT_MAX)) {
+	                    const int	d = resp[u].dist ;
+	                    const int	w = (*elit).weight ;
 
-	                if ((d+w) < resp[v].dist) {
-	                    resp[v].dist = (d+w) ;
-	                    resp[v].prev = u ;
-	                }
+	                    if ((d+w) < resp[v].dist) {
+	                        resp[v].dist = (d+w) ;
+	                        resp[v].prev = u ;
+	                    }
 
-	            } /* end if (distance to current vertex not INF) */
-	            elit++ ;
-	        } /* end while */
-	    } /* end block */
-	} /* end for */
+	                } /* end if (distance to current vertex not INF) */
+	                elit++ ;
+	            } /* end while */
+
+	        } /* end block */
+	    } /* end for */
 
 	} else {
 	    rs = SR_NOMEM ;
@@ -139,7 +144,7 @@ int dijkstra1(res_t *resp,edges_t &edges,int vertices,int vstart)
 static int minvertex(bool *visited,res_t *resp,int n)
 {
 	int	min = INT_MAX ;
-	int	v = 0 ;
+	int	v = -1 ;
 	int	i ;
    	for (i = 0 ; i < n ; i += 1) {
             if (! visited[i]) {

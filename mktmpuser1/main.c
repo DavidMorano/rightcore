@@ -1,4 +1,4 @@
-/* main */
+/* main (mktmpuser) */
 
 /* front-end subroutine for the MKTMPUSER program */
 
@@ -35,7 +35,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bits.h>
@@ -78,8 +77,7 @@ extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	isdigitlatin(int) ;
 
-extern int	proginfo_setpiv(struct proginfo *,const char *,
-			const struct pivars *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -99,9 +97,9 @@ extern int	strlinelen(const char *,int,int) ;
 
 /* forward references */
 
-static int	usage(struct proginfo *) ;
-static int	proctmpuser(struct proginfo *) ;
-static int	procname(struct proginfo *,bfile *,const char *) ;
+static int	usage(PROGINFO *) ;
+static int	proctmpuser(PROGINFO *) ;
+static int	procname(PROGINFO *,bfile *,const char *) ;
 static int	ensuremode(const char *,mode_t) ;
 
 #ifdef	COMMENT
@@ -111,7 +109,7 @@ static int	dirok(const char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -163,19 +161,13 @@ static const struct mapex	mapexs[] = {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo	pi, *pip = &pi ;
-
+	PROGINFO	pi, *pip = &pi ;
 	USERINFO	u ;
-
 	BITS		pargs ;
-
 	KEYOPT		akopts ;
-
 	bfile		errfile ;
 	bfile		outfile, *ofp = &outfile ;
 
@@ -803,7 +795,7 @@ badarg:
 
 
 static int usage(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int	rs ;
 	int	wlen = 0 ;
@@ -826,7 +818,7 @@ struct proginfo	*pip ;
 
 
 static int proctmpuser(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	struct ustat	sb ;
 
@@ -883,26 +875,20 @@ ret0:
 
 
 static int procname(pip,ofp,name)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 bfile		*ofp ;
 const char	name[] ;
 {
 	struct ustat	sb ;
-
-	int	rs ;
-	int	rs1 ;
-	int	wlen = 0 ;
-
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
 	const char	*td = TMPUSERDNAME ;
+	char		tmpdname[MAXPATHLEN + 1] ;
 
-	char	tmpdname[MAXPATHLEN + 1] ;
+	if (name == NULL) return SR_FAULT ;
 
-
-	if (name == NULL)
-	    return SR_FAULT ;
-
-	if (name[0] == '\0')
-	    return SR_INVALID ;
+	if (name[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))

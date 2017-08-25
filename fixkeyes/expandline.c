@@ -14,6 +14,7 @@
 
 */
 
+/* Copyright © 1987 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -24,9 +25,9 @@
 	Synopsis:
 
 	int expandline(ibp,il,obp,ol,flagp)
-	char	*ibp, *obp ;
-	int	il, ol ;
-	int	*flagp ;
+	char		*ibp, *obp ;
+	int		il, ol ;
+	int		*flagp ;
 
 	Arguments:
 
@@ -51,7 +52,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<bfile.h>
@@ -81,20 +81,19 @@
 
 
 int expandline(ibp,il,obp,ol,flagp)
-char	*ibp, *obp ;
-int	il, ol ;
-int	*flagp ;
+char		*ibp, *obp ;
+int		il, ol ;
+int		*flagp ;
 {
-	int	c ;
-	int	j, k ;
-	int	i = 0 ;
-	int	l = 0 ;
-	int	op = 0  ;
-	int	cur_l = 0 ;
-	int	last_l = 0 ;
-
-	char	*cur_obp = NULL ;
-	char	*last_obp = NULL ;
+	int		c ;
+	int		j, k ;
+	int		i = 0 ;
+	int		l = 0 ;
+	int		op = 0  ;
+	int		cur_l = 0 ;
+	int		last_l = 0 ;
+	char		*cur_obp = NULL ;
+	char		*last_obp = NULL ;
 
 
 	*flagp = FALSE ;
@@ -147,11 +146,9 @@ int	*flagp ;
 
 	        ibp += 1 ;
 	        if (l > 0) {
-
 	            l = last_l ;
 	            op -= 1 ;
 	            obp = last_obp ;
-
 	        }
 
 	    } else if (c == '\n') {

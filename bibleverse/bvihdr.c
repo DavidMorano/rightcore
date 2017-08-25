@@ -141,12 +141,9 @@ int bvihdr(BVIHDR *ep,int f,char *hbuf,int hlen)
 	            rs = SR_ILSEQ ;
 	        }
 
-	        if ((rs >= 0) && (bl > 0)) {
-
+	        if (rs >= 0) {
 	            if (bl >= headsize) {
-
 	                header = (uint *) bp ;
-
 	                ep->fsize = header[hi_fsize] ;
 	                ep->wtime = header[hi_wtime] ;
 	                ep->vioff = header[hi_vioff] ;
@@ -157,14 +154,11 @@ int bvihdr(BVIHDR *ep,int f,char *hbuf,int hlen)
 	                ep->nzverses = header[hi_nzverses] ;
 	                ep->maxbook = header[hi_maxbook] ;
 	                ep->maxchapter = header[hi_maxchapter] ;
-
 	                bp += headsize ;
 	                bl -= headsize ;
-
 	            } else {
 	                rs = SR_ILSEQ ;
 	            }
-
 	        } /* end if (item) */
 
 	    } else {

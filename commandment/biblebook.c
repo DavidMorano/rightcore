@@ -218,8 +218,9 @@ int biblebook_open(BIBLEBOOK *op,cchar pr[],cchar dbname[])
 	if ((rs = biblebook_openload(op,pr,dbname)) == SR_NOENT) {
 	    rs = biblebook_openlocal(op) ;
 	}
-	if (rs >= 0)
+	if (rs >= 0) {
 	    op->magic = BIBLEBOOK_MAGIC ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("biblebook_open: ret rs=%d\n",rs) ;

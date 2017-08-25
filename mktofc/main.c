@@ -8,7 +8,7 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-06-29, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
@@ -34,7 +34,6 @@
 #include	<sys/param.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<stdio.h>
 
 #include	<vsystem.h>
@@ -69,22 +68,19 @@ static int	printout(FILE *,const uchar *) ;
 /* exported subroutines */
 
 
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	FILE	*ifp = stdin ;
-	FILE	*ofp = stdout ;
-
-	int	i ;
-	int	bch, ch ;
-	int	len ;
-	int	ll, cl ;
-
-	uchar	a[256] ;
-
+	FILE		*ifp = stdin ;
+	FILE		*ofp = stdout ;
+	int		i ;
+	int		bch, ch ;
+	int		len ;
+	int		ll, cl ;
+	uchar		a[256] ;
 	const char	*lp ;
 	const char	*cp ;
-
-	char	lbuf[LINEBUFLEN + 1] ;
+	char		lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUGS 
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -119,8 +115,9 @@ int main()
 		if (isalnumlatin(ch)) {
 		    if (i++ > 0) {
 		        a[ch] = bch ;
-		    } else
+		    } else {
 			bch = ch ;
+		    }
 		}
 
 		ll -= ((cp + cl) - lp) ;
@@ -153,10 +150,8 @@ FILE		*ofp ;
 const uchar	a[] ;
 {
 	const int	n = 8 ;
-
-	int	i, j ;
-	int	order ;
-
+	int		i, j ;
+	int		order ;
 
 	fprintf(ofp,"const unsigned char char_tofc[] = %c\n",CH_LBRACE) ;
 
@@ -186,6 +181,5 @@ const uchar	a[] ;
 	return 0 ;
 }
 /* end subroutine (printout) */
-
 
 

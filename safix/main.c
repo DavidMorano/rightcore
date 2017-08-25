@@ -12,38 +12,32 @@
 /* revision history:
 
 	= 1989-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  This whole program, LOGDIR, is
 	needed for use on the Sun CAD machines because Sun doesn't support
 	LOGDIR or LOGNAME at this time.  There was a previous program but it is
 	lost and not as good as this one anyway.  This one handles NIS+ also.
 	(The previous one didn't.)
 
-
 	= 1998-06-01, David A­D­ Morano
-
-	I enhanced the program a little to print out some other user
-	information besides the user's name and login home directory.
-
+        I enhanced the program a little to print out some other user information
+        besides the user's name and login home directory.
 
 	= 1999-03-01, David A­D­ Morano
-
 	I enhanced the program to also print out effective UID and
 	effective GID.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ safix
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -55,15 +49,14 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<baops.h>
 #include	<vecstr.h>
-#include	<exitcodes.h>
 #include	<mallocstuff.h>
+#include	<exitcodes.h>
 #include	<localmisc.h>
 
 #include	"config.h"
@@ -117,6 +110,8 @@ extern int	matstr(const char **,const char *,int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	process(PROGINFO *,bfile *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strshrink(char *) ;
@@ -191,18 +186,17 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	char		nodename[NODENAMELEN + 1] ;
 	char		domainname[MAXHOSTNAMELEN + 1] ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
@@ -213,7 +207,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* initialize */
 
 	pip->verboselevel = 1 ;
-	pip->f.quiet = FALSE ;
 
 /* start parsing the arguments */
 

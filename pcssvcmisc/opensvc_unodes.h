@@ -79,7 +79,4 @@
 
 #define	TO_CACHE	2
 
-#define	USAGECOLS	4
-
-
 

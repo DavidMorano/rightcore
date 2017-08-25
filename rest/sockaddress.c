@@ -53,6 +53,7 @@
 
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	sncpy1(char *,int,const char *) ;
+extern int	getdig(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnwcpy(char *,int,const char *,int) ;
@@ -67,11 +68,6 @@ int	sockaddress_startaddr(SOCKADDRESS *,int,const void *,int,int,uint) ;
 
 
 /* local variables */
-
-static const char	hextable[] = {
-	'0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-} ;
 
 
 /* exported subroutines */
@@ -408,8 +404,8 @@ int sockaddress_gethex(SOCKADDRESS *sap,char *rbuf,int rlen)
 	if (rs >= 0) {
 	    for (i = 0 ; i < salen ; i += 1) {
 	        v = MKCHAR(sap->str[i]) ;
-	        rbuf[j++] = hextable[(v >> 4) & 15] ;
-	        rbuf[j++] = hextable[(v >> 0) & 15] ;
+	        rbuf[j++] = getdig((v >> 4) & 15) ;
+	        rbuf[j++] = getdig((v >> 0) & 15) ;
 	    } /* end for */
 	    rbuf[j++] = '\0' ;
 	} /* end if */

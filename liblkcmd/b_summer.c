@@ -147,6 +147,7 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,cchar *) ;
+static int	procout(PROGINFO *,void *,PROCESSOR *,int) ;
 
 static int	processor_start(PROCESSOR *,int) ;
 static int	processor_finish(PROCESSOR *) ;
@@ -407,14 +408,14 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
 	pip->verboselevel = 1 ;
 
 	pip->lip = &li ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -1126,9 +1127,9 @@ cchar		*ifn ;
 	    PROCESSOR	nproc ;
 
 	    if ((rs = processor_start(&nproc,NDEFAULT)) >= 0) {
-	        int		cl ;
-	        int		pan = 0 ;
-	        cchar		*cp ;
+	        int	cl ;
+	        int	pan = 0 ;
+	        cchar	*cp ;
 
 	        if (rs >= 0) {
 	            int		ai ;
@@ -1233,59 +1234,8 @@ cchar		*ifn ;
 /* print out the results */
 
 	        if (rs >= 0) {
-		    if (pan > 0) {
-	                double	fnum ;
-	                int	wi ;
-
-	                if (lip->f.sum) {
-	                    wi = which_sum ;
-	                    rs = processor_result(&nproc,wi,&fnum) ;
-	                    if (rs >= 0)
-	                        shio_printf(ofp,"%14.4f\n",fnum) ;
-	                }
-
-	                if (lip->f.amean) {
-	                    wi = which_amean ;
-	                    rs = processor_result(&nproc,wi,&fnum) ;
-	                    if (rs >= 0)
-	                        shio_printf(ofp,"%14.4f\n",fnum) ;
-	                }
-
-	                if (lip->f.hmean) {
-	                    wi = which_hmean ;
-	                    rs = processor_result(&nproc,wi,&fnum) ;
-	                    if (rs >= 0)
-	                        shio_printf(ofp,"%14.4f\n",fnum) ;
-	                }
-
-	                if (lip->f.speedup) {
-	                    int		size, i ;
-	                    double	*fa ;
-
-	                    size = pan * sizeof(double) ;
-	                    if ((rs = uc_malloc(size,&fa)) >= 0) {
-
-	                        wi = which_speedup ;
-	                        rs = processor_result(&nproc,wi,fa) ;
-				if (rs >= 0) {
-				    cchar	*s = "" ;
-				    fmt = "%s%14.4f" ;
-	                            for (i = 0 ; i < pan ; i += 1) {
-				        if (i > 0) s = " " ;
-	                                shio_printf(ofp,fmt,s,fa[i]) ;
-	                            }
-	                            shio_printf(ofp,"\n") ;
-	                        } /* end if */
-
-	                        uc_free(fa) ;
-	                    } /* end if (m-a-f) */
-
-	                } /* end if (speedup result) */
-
-	            } else {
-		        fmt = "%s: no numbers were specified\n" ;
-	                shio_printf(pip->efp,fmt,pn) ;
-		    }
+		    rs = procout(pip,ofp,&nproc,pan) ;
+		    wlen += rs ;
 	        } /* end if (ok) */
 
 	        rs1 = processor_finish(&nproc) ;
@@ -1297,12 +1247,83 @@ cchar		*ifn ;
 	} else {
 	    fmt = "%s: inaccessible output (%d)\n" ;
 	    shio_printf(pip->efp,fmt,pn,rs) ;
-	    shio_printf(pip->efp,"%s: ifile=%s\n",pn,ifn) ;
+	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (process) */
+
+
+static int procout(PROGINFO *pip,void *ofp,PROCESSOR *pp,int pan)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+
+	if (pan > 0) {
+	    double	fnum ;
+	    int		wi ;
+
+	    if (lip->f.sum) {
+	        wi = which_sum ;
+	        rs = processor_result(pp,wi,&fnum) ;
+	        if (rs >= 0) {
+	            rs = shio_printf(ofp,"%14.4f\n",fnum) ;
+		    wlen += rs ;
+		}
+	    }
+
+	    if (lip->f.amean) {
+	        wi = which_amean ;
+	        rs = processor_result(pp,wi,&fnum) ;
+	        if (rs >= 0)
+	            rs = shio_printf(ofp,"%14.4f\n",fnum) ;
+		    wlen += rs ;
+	    }
+
+	    if (lip->f.hmean) {
+	        wi = which_hmean ;
+	        rs = processor_result(pp,wi,&fnum) ;
+	        if (rs >= 0)
+	            rs = shio_printf(ofp,"%14.4f\n",fnum) ;
+		    wlen += rs ;
+	    }
+
+	    if (lip->f.speedup) {
+	        const int	size = pan * sizeof(double) ;
+	        double		*fa ;
+	        if ((rs = uc_malloc(size,&fa)) >= 0) {
+	            wi = which_speedup ;
+	            rs = processor_result(pp,wi,fa) ;
+	            if (rs >= 0) {
+			int	i ;
+	                cchar	*s = "" ;
+	                fmt = "%s%14.4f" ;
+	                for (i = 0 ; (rs >= 0) && (i < pan) ; i += 1) {
+	                    if (i > 0) s = " " ;
+	                    rs = shio_printf(ofp,fmt,s,fa[i]) ;
+		    	    wlen += rs ;
+	                }
+			if (rs >= 0) {
+	                    rs = shio_printf(ofp,"\n") ;
+		    	    wlen += rs ;
+			}
+	            } /* end if */
+	            uc_free(fa) ;
+	        } /* end if (m-a-f) */
+	    } /* end if (speedup result) */
+
+	} else {
+	    fmt = "%s: no numbers were specified\n" ;
+	    shio_printf(pip->efp,fmt,pn) ;
+	}
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procout) */
 
 
 static int processor_start(PROCESSOR *op,int n)
@@ -1414,7 +1435,7 @@ static int processor_result(PROCESSOR *op,int which,double *rp)
 	    if ((rs = vecobj_count(&op->numbers)) >= 0) {
 	    	const int	size = ((rs + 1) * sizeof(double)) ;
 	        int		n = rs ;
-	        void	*p ;
+	        void		*p ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
 	            VECOBJ	*flp = &op->numbers ;
 	    	    double	*fnp ;

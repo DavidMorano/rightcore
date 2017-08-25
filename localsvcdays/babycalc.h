@@ -36,11 +36,11 @@ struct babycalc_i {
 } ;
 
 struct babycalc_calls {
-	int	(*open)(void *,const char *,const char *) ;
-	int	(*check)(void *,time_t) ;
-	int	(*lookup)(void *,time_t,uint *) ;
-	int	(*info)(void *,BABYCALCS_INFO *) ;
-	int	(*close)(void *) ;
+	int		(*open)(void *,cchar *,cchar *) ;
+	int		(*check)(void *,time_t) ;
+	int		(*lookup)(void *,time_t,uint *) ;
+	int		(*info)(void *,BABYCALCS_INFO *) ;
+	int		(*close)(void *) ;
 } ;
 
 struct babycalc_head {
@@ -57,7 +57,7 @@ struct babycalc_head {
 extern "C" {
 #endif
 
-extern int	babycalc_open(BABYCALC *,const char *,const char *) ;
+extern int	babycalc_open(BABYCALC *,cchar *,cchar *) ;
 extern int	babycalc_check(BABYCALC *,time_t) ;
 extern int	babycalc_lookup(BABYCALC *,time_t,uint *) ;
 extern int	babycalc_info(BABYCALC *,BABYCALC_INFO *) ;

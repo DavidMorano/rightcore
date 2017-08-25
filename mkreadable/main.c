@@ -9,21 +9,20 @@
 
 /* revision history:
 
-	= 1996-03-01, David A­D­ Morano, March 1996
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+	= 1996-03-01, David A­D­ Morano
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
 /* Copyright © 1996 David A­D­ Morano.  All rights reserved. */
 
 
+#include	<envstandards.h>
+
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -36,11 +35,10 @@
 #include	<wdt.h>
 #include	<paramopt.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -49,14 +47,15 @@
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
 
 
-
 /* external subroutines */
 
 extern int	matstr(const char **,const char *,int) ;
 extern int	wdt() ;
 extern int	checkname() ;
 
-extern char	*strbasename(), *strshrink() ;
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strshrink() ;
 
 
 /* forward references */
@@ -84,23 +83,17 @@ static const char *argopts[] = {
 #define	ARGOPT_OPTION		3
 
 
+/* exported subroutines */
 
 
-
-
-
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	struct proginfo	pi, *pip = &pi ;
-
 	PARAMOPT	aparams ;
-
-	bfile	errfile, *efp = &errfile ;
-	bfile	outfile, *ofp = &outfile ;
-	bfile	argfile, *afp = &argfile ;
+	bfile		errfile, *efp = &errfile ;
+	bfile		outfile, *ofp = &outfile ;
+	bfile		argfile, *afp = &argfile ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
 	int	ai, ai_max, ai_pos ;
@@ -116,22 +109,23 @@ char	*envv[] ;
 	int	f ;
 
 	char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
 	char	*pr = NULL ;
 	char	*searchname = NULL ;
 	char	*afname = NULL ;
 	char	*cp ;
+	char	argpresent[MAXARGGROUPS] ;
 
-
-	if (((cp = getenv("ERROR_FD")) != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->efp = efp ;
 	if (bopen(efp,BFILE_STDERR,"dwca",0666) >= 0)
@@ -141,16 +135,7 @@ char	*envv[] ;
 /* early things to initialize */
 
 	pip->ofp = ofp ;
-	pip->debuglevel = 0 ;
-	pip->tmpdname = NULL ;
 	pip->namelen = MAXNAMELEN ;
-
-	pip->bytes = 0 ;
-	pip->megabytes = 0 ;
-
-	pip->f.verbose = FALSE ;
-	pip->f.nochange = FALSE ;
-	pip->f.quiet = FALSE ;
 
 /* process program arguments */
 

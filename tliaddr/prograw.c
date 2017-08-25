@@ -79,20 +79,11 @@ static int	makehex(char *,const char *,int) ;
 
 /* local variables */
 
-static const char	hextable[] = {
-	'0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-} ;
-
 
 /* exported subroutines */
 
 
-int prograw(pip,familyname,netaddr1,netaddr2)
-PROGINFO	*pip ;
-const char	familyname[] ;
-const char	netaddr1[] ;
-const char	netaddr2[] ;
+int prograw(PROGINFO *pip,cchar *familyname,cchar *netaddr1,cchar *netaddr2)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -133,8 +124,8 @@ static int makehex(char *hexbuf,cchar *addr,int alen)
 	hexbuf[j++] = 'x' ;
 	for (i = 0 ; i < alen ; i += 1) {
 	    v = MKCHAR(addr[i]) ;
-	    hexbuf[j++] = hextable[(v >> 4) & 15] ;
-	    hexbuf[j++] = hextable[(v >> 0) & 15] ;
+	    hexbuf[j++] = getdig((v >> 4) & 15) ;
+	    hexbuf[j++] = getdig((v >> 0) & 15) ;
 	}
 
 	hexbuf[j] = '\0' ;

@@ -13,10 +13,8 @@
 /* revision history:
 
 	= 1999-05-01, David A­D­ Morano
-
-	This code module was completely rewritten to 
-	replace any original garbage that was here before.
-
+        This code module was completely rewritten to replace any original
+        garbage that was here before.
 
 */
 
@@ -24,8 +22,8 @@
 
 /******************************************************************************
 
-	This program just locks a mailbox file and copies it out.
-	After a successful copy, the mailbox file is truncated.
+        This program just locks a mailbox file and copies it out. After a
+        successful copy, the mailbox file is truncated.
 
 
 ******************************************************************************/
@@ -44,7 +42,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<grp.h>
 #include	<syslog.h>
 
@@ -120,6 +117,8 @@ extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
 extern int	debugclose() ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strdcpy3(char *,int,const char *,const char *,const char *) ;
 extern char	*strwcpy(char *,const char *,int) ;
@@ -234,25 +233,16 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	struct ustat	sb ;
-
 	struct proginfo	pi, *pip = &pi ;
-
 	struct group	ge ;
-
 	PCSCONF		p ;
-
 	USERINFO	u ;
-
 	KEYOPT		akopts ;
-
 	bfile		errfile ;
 	bfile		infile, *ifp = &infile ;
 	bfile		outfile, *ofp = &outfile ;
-
 	vecstr		sets ;
-
 	vecobj		info ;
-
 	sigset_t	signalmask ;
 	sigset_t	oldsigmask, newsigmask ;
 
@@ -274,13 +264,6 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS + 1] ;
-	char	userbuf[USERINFO_LEN + 1] ;
-	char	pcsconfbuf[PCSCONF_LEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	logfname[MAXPATHLEN + 1] ;
-	char	buf[BUFSIZE + 1], *bp ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*ifname = NULL ;
 	const char	*afname = NULL ;
@@ -290,6 +273,13 @@ char	*envv[] ;
 	const char	*uu_user = NULL ;
 	const char	*protospec = NULL ;
 	const char	*up, *sp, *cp ;
+	char	argpresent[MAXARGGROUPS + 1] ;
+	char	userbuf[USERINFO_LEN + 1] ;
+	char	pcsconfbuf[PCSCONF_LEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	logfname[MAXPATHLEN + 1] ;
+	char	buf[BUFSIZE + 1], *bp ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -300,7 +290,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

@@ -1,23 +1,31 @@
-/* main */
+/* main (mkdp) */
 
 
+/* revision history:
 
+	= 1998-06-29, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstandards.h>
 #include	<stdio.h>
 
 
-
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	int	j ;
-	int	b ;
-	int	addr, size ;
-	int	a, s ;
-	int	dp ;
-
+	int		j = 0 ;
+	int		b ;
+	int		addr, size ;
+	int		a, s ;
+	int		dp ;
 
 	fprintf(stdout,"static unsigned short dps[] = {\n") ;
 
-	j = 0 ;
 	for (addr = 0 ; addr < 8 ; addr += 1) {
 
 	    for (size = 0 ; size < 16 ; size += 1) {
@@ -28,20 +36,19 @@ int main()
 
 	            b = a + s ;
 	            if (b >= 8) {
-
 	                dp = 0xFFFF ;
 	                break ;
-
-	            } else
+	            } else {
 	                dp |= (1 << b) ;
+		    }
 
-	        }
+	        } /* end for */
 
-	        if ((j % 8) == 0)
+	        if ((j % 8) == 0) {
 	            fprintf(stdout,"\t") ;
-
-	        else
+	        } else {
 	            fprintf(stdout," ") ;
+		}
 
 	        fprintf(stdout,"0x%04x,",dp) ;
 
@@ -56,11 +63,8 @@ int main()
 
 	fprintf(stdout,"} ;\n") ;
 
-	fclose(stdout) ;
-
 	return 0 ;
 }
 /* end subroutine (main) */
-
 
 

@@ -249,8 +249,8 @@ int cyimk_open(CYIMK *op,int year,cchar dname[],cchar cname[],int of,mode_t om)
 	op->nfd = -1 ;
 	op->year = year ;
 
-	op->f.ofcreat = (of & O_CREAT) ;
-	op->f.ofexcl = (of & O_EXCL) ;
+	op->f.ofcreat = MKBOOL(of & O_CREAT) ;
+	op->f.ofexcl = MKBOOL(of & O_EXCL) ;
 	op->f.none = (! op->f.ofcreat) && (! op->f.ofexcl) ;
 
 	if (rs >= 0) {

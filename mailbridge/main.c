@@ -41,7 +41,6 @@
 #include	<netdb.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -63,7 +62,6 @@
 #include	"cm.h"
 
 
-
 /* local defines */
 
 #define	NPARG		2	/* number of positional arguments */
@@ -80,7 +78,6 @@
 #ifndef	TO_READ
 #define	TO_READ		10
 #endif
-
 
 
 /* external subroutines */
@@ -109,6 +106,8 @@ extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
 extern int	proginfo_rootname(struct proginfo *) ;
 extern int	procflow(struct proginfo *,CM *,bfile *,int *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -231,27 +230,16 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	struct proginfo	pi, *pip = &pi ;
-
 	struct sigaction	sigs ;
-
 	struct ustat	sb ;
-
 	PCSCONF		p ;
-
 	USERINFO	u ;
-
 	SYSTEMS		sysdb ;
-
 	DIALER		d ;
-
 	CM		con ;
-
 	KEYOPT		akopts ;
-
 	sigset_t	signalmask ;
-
 	bfile		errfile ;
-
 	vecstr		sets, addrs ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
@@ -297,7 +285,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

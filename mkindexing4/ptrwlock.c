@@ -31,6 +31,9 @@
 
 	** broken on SOLARIS®! **
 
+	Use a working read-write lock, like for example LOCKRW by
+	David A­D­ Morano.
+
 	Updated note:
 
 	This object (or rather the underlying RW-LOCK facility itself) is
@@ -39,7 +42,7 @@
 	(through |dlopen(3dl)|) it fails by messing up its lock state for some
 	reason.  This failure, although quite obscure for most, makes this
 	object unusable for any of our purposes.  Use our own read-write lock
-	(which we dveloped ourselves) instead.  We do not make stupid-ass
+	(which we developed ourselves) instead.  We do not make stupid-ass
 	mistakes like the Solaris® developers do.  Maybe we make our own types
 	of mistakes, but not the stupid-ass mistakes that the Solaris®
 	developers have done.

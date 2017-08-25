@@ -173,7 +173,7 @@ int bvi_open(BVI *op,cchar *dbname)
 	memset(op,0,sizeof(BVI)) ;
 
 	if ((rs = uc_mallocstrw(dbname,-1,&cp)) >= 0) {
-	    const char	*es = ENDIANSTR ;
+	    cchar	*es = ENDIANSTR ;
 	    char	tmpfname[MAXPATHLEN + 1] ;
 	    op->dbname = cp ;
 	    if ((rs = mkfnamesuf2(tmpfname,op->dbname,BVI_SUF,es)) >= 0) {
@@ -544,10 +544,10 @@ static int bvi_mapcreate(BVI *op,time_t dt)
 	if (op->fname == NULL) return SR_BUGCHECK ;
 
 	if ((rs = u_open(op->fname,O_RDONLY,0666)) >= 0) {
-	    struct ustat	sb ;
-	    int			fd = rs ;
+	    USTAT	sb ;
+	    int		fd = rs ;
 	    if ((rs = u_fstat(fd,&sb)) >= 0) {
-	        size_t	fsize = (sb.st_size & UINT_MAX) ;
+	        const size_t	fsize = (sb.st_size & UINT_MAX) ;
 	        if (fsize > 0) {
 	            size_t	ms = fsize ;
 	            int		mp = PROT_READ ;
@@ -598,7 +598,7 @@ static int bvi_checkupdate(BVI *op,time_t dt)
 	if (op->ncursors == 0) {
 	    if (dt <= 0) dt = time(NULL) ;
 	    if ((dt - op->ti_lastcheck) >= TO_CHECK) {
-	        struct ustat	sb ;
+	        USTAT		sb ;
 	        BVI_FMI		*mip = &op->fmi ;
 	        op->ti_lastcheck = dt ;
 	        if ((rs = u_stat(op->fname,&sb)) >= 0) {
@@ -922,11 +922,13 @@ static int bvi_loadbve(BVI *op,BVI_VERSE *bvep,char *ebuf,int elen,int vi)
 	            lines[i].llen = 0 ;
 	        }
 
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 
-	} else
+	} else {
 	    rs = SR_BADFMT ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("bvi_loadbve: ret rs=%d nlines=%u\n",rs,nlines) ;

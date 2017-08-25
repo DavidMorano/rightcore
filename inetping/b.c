@@ -78,9 +78,9 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	sfskipwhite(cchar *,int,cchar **) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
-extern int	optbool(const char *,int) ;
-extern int	optvalue(const char *,int) ;
-extern int	inetping(const char *,int) ;
+extern int	optbool(cchar *,int) ;
+extern int	optvalue(cchar *,int) ;
+extern int	inetping(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -244,10 +244,6 @@ int b_inetping(int argc,cchar *argv[],void *contextp)
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-#if	CD_DEBUGN
-	nprintf(NDF,"b_inetping: B ent\n") ;
-#endif
-
 	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
 	    cchar	**envv = (cchar **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
@@ -256,10 +252,6 @@ int b_inetping(int argc,cchar *argv[],void *contextp)
 	} /* end if (ksh) */
 
 	if ((rs < 0) && (ex == EX_OK)) ex = EX_DATAERR ;
-
-#if	CD_DEBUGN
-	nprintf(NDF,"b_inetping: B ret ex=%u (%d)\n",ex,rs) ;
-#endif
 
 	return ex ;
 }
@@ -943,7 +935,6 @@ static int usage(PROGINFO *pip)
 
 static int procoutopen(PROGINFO *pip,void *ofp,const char *ofname)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	if (pip->verboselevel > 0) {
 	    rs = shio_open(ofp,ofname,"wct",0666) ;
@@ -955,7 +946,6 @@ static int procoutopen(PROGINFO *pip,void *ofp,const char *ofname)
 
 static int procoutclose(PROGINFO *pip,void *ofp)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	if (pip->verboselevel > 0) {
@@ -1091,7 +1081,6 @@ static int prochosts(PROGINFO *pip,PARAMOPT *pop,void *ofp,cchar *lbuf,int llen)
 
 int prochost(PROGINFO *pip,PARAMOPT *pop,void *ofp,cchar *hp,int hl)
 {
-	LOCINFO		*lip = pip->lip ;
 	NULSTR		s ;
 	int		rs ;
 	int		rs1 ;
@@ -1102,10 +1091,22 @@ int prochost(PROGINFO *pip,PARAMOPT *pop,void *ofp,cchar *hp,int hl)
 
 	if (pop == NULL) return SR_FAULT ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("prochost: ent h=%t\n",hp,hl) ;
+#endif
+
 	if ((rs = nulstr_start(&s,hp,hl,&hn)) >= 0) {
 	    int		f = (pip->verboselevel > 0) ;
 
-	    if ((rs = inetping(hn,pip->to)) >= 0) {
+	    rs = inetping(hn,pip->to) ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("prochost: inetping() rs=%d\n",rs) ;
+#endif
+
+	    if (rs >= 0) {
 	        f_alive = TRUE ;
 	        if (f) {
 	            fmt = "%s is alive\n" ;

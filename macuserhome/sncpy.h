@@ -58,7 +58,7 @@ extern int snfsflags(char *,int,ulong) ;
 extern int snopenflags(char *,int,int) ;
 extern int snpollflags(char *,int,int) ;
 extern int snxtilook(char *,int,int) ;
-extern int sninetaddr(char *,int,const void *) ;
+extern int sninetaddr(char *,int,int,const char *) ;
 extern int snsigabbr(char *,int,uint) ;
 
 #ifdef	__cplusplus

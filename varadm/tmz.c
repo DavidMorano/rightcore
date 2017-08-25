@@ -299,12 +299,14 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 	}
 
 	if ((rs >= 0) && ((rs = tmz_getzname(op,sp,sl)) > 0)) {
-	    sl = rs ;
 	    sp += rs ;
 	    sl -= rs ;
 	}
 
-	if (rs >= 0) rs = strnlen(op->zname,TMZ_ZNAMESIZE) ;
+	if (rs >= 0) {
+	    rs = strnlen(op->zname,TMZ_ZNAMESIZE) ;
+	    zl = rs ; /* return value for subroutine */
+	}
 
 #if	CF_DEBUGS
 	debugprintf("tmz_msg: ret f_zoff=%d zoff=%dm\n",
@@ -580,7 +582,8 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	    if ((rs >= 0) && (cl > 0)) {
 	        int	ch = MKCHAR(*cp) ;
 	        if (isalphalatin(ch)) {
-	            rs = strnwcpy(op->zname,TMZ_ZNAMESIZE,cp,cl) - op->zname ;
+		    const int	zlen = TMZ_ZNAMESIZE ;
+	            rs = strnwcpy(op->zname,zlen,cp,cl) - op->zname ;
 	            zl = rs ;
 	        } else {
 	            rs = SR_INVALID ;
@@ -606,11 +609,6 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 
 #if	CF_DEBUGS
 	        debugprintf("tmz_strdig: mid2 rs=%d\n",rs) ;
-	        debugprintf("tmz_strdig: s=%t\n",sp,sl) ;
-#endif
-
-#if	CF_DEBUGS
-	        debugprintf("tmz_strdig: mid3 rs=%d\n",rs) ;
 	        debugprintf("tmz_strdig: s=%t\n",sp,sl) ;
 #endif
 
@@ -780,7 +778,7 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 #endif
 	                if (sl && ((ch = MKCHAR(*sp)),isalphalatin(ch))) {
 	                    rs = tmz_getzname(op,sp,sl) ;
-	                    zl = rs ;
+	                    zl = strlen(op->zname) ;
 	                }
 		    } else {
 			rs = SR_INVALID ;
@@ -1027,7 +1025,7 @@ static int tmz_getday(TMZ *op,cchar *sp,int sl)
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
 	    const int	tch = MKCHAR(*cp) ;
 	    if (isdigitlatin(tch)) {
-	        int		v ;
+	        int	v ;
 	        rs = cfdeci(cp,cl,&v) ;
 	        op->st.tm_mday = v ;
 	        si += ((cp+cl)-sp) ;
@@ -1247,8 +1245,8 @@ static int getzoff(int *zop,cchar *sp,int sl)
 	f = f || isplusminus(MKCHAR(*sp)) ;
 	f = f || isdigitlatin(MKCHAR(*sp)) ;
 	if ((sl >= 2) && f) {
-	    int	i, sign ;
-	    int	hours, mins ;
+	    int		i, sign ;
+	    int		hours, mins ;
 
 	    rs = SR_OK ;
 	    sign = ((*sp == '+') || isdigitlatin(MKCHAR(*sp))) ? -1 : 1 ;

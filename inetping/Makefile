@@ -157,7 +157,7 @@ OBJ09=
 OBJ10=
 OBJ11=
 OBJ12=
-OBJ13= 
+OBJ13= spawnproc.o
 OBJ14= inetping.o
 OBJ15=
 
@@ -312,5 +312,7 @@ nodedb.o:		nodedb.c nodedb.h
 clusterdb.o:		clusterdb.c clusterdb.h
 
 kvsfile.o:		kvsfile.c kvsfile.h
+
+spawnproc.o:		spawnproc.c spawnproc.h
 
 

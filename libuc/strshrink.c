@@ -35,8 +35,6 @@
 
 /* local defines */
 
-#define	C	s[l - 1]
-
 
 /* exported subroutines */
 
@@ -47,15 +45,17 @@ char *strshrink(char *s)
 
 /* skip leading white space */
 
-	while (CHAR_ISWHITE(*s)) 
+	while (CHAR_ISWHITE(*s)) {
 	    s += 1 ;
+	}
 
 	l = strlen(s) ;
 
 /* skip trailing white space */
 
-	while ((l > 0) && CHAR_ISWHITE(C))
+	while ((l > 0) && CHAR_ISWHITE(s[l-1])) {
 	    l -= 1 ;
+	}
 
 	s[l] = '\0' ;
 	return s ;

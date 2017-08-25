@@ -14,25 +14,19 @@
 /* revision history:
 
 	= 1989-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  This whole program, LOGDIR, is
 	needed for use on the Sun CAD machines because Sun doesn't support
 	LOGDIR or LOGNAME at this time.  There was a previous program but it is
 	lost and not as good as this one anyway.  This one handles NIS+ also.
 	(The previous one didn't.)
 
-
 	= 1998-06-01, David A­D­ Morano
-
 	I enhanced the program a little to print out some other user
 	information besides the user's name and login home directory.
 
-
 	= 1999-03-01, David A­D­ Morano
-
 	I enhanced the program to also print out effective UID and effective
 	GID.
-
 
 */
 
@@ -57,7 +51,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>
@@ -113,6 +106,8 @@ extern int	cfdeci(const char *,int,int *) ;
 #if	CF_PRINTHELP
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_logz(time_t,char *) ;
@@ -207,14 +202,14 @@ char	*envv[] ;
 	int	f_full = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char		argpresent[MAXARGGROUPS] ;
-	char		buf[BUFLEN + 1], *bp ;
-	char		pwbuf[PWBUFLEN + 1] ;
 	const char	*arg_username = NULL ;
 	const char	*pr = NULL ;
 	const char	*ofname = NULL ;
 	const char	*sp, *cp, *cp2 ;
 	void		*ofp ;
+	char		argpresent[MAXARGGROUPS] ;
+	char		buf[BUFLEN + 1], *bp ;
+	char		pwbuf[PWBUFLEN + 1] ;
 
 #if	CF_EPRINTF
 	if ((cp = getenv(VARDEBUGFNAME)) != NULL) {
@@ -225,10 +220,10 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->efp = stderr ;
-	pip->f.errfile = TRUE ;
 
 /* initialize */
 
@@ -236,7 +231,6 @@ char	*envv[] ;
 
 /* start parsing the arguments */
 
-	rs = SR_OK ;
 	for (i = 0 ; i < MAXARGGROUPS ; i += 1) argpresent[i] = 0 ;
 
 	npa = 0 ;			/* number of positional so far */

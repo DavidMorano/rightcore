@@ -18,6 +18,7 @@
 #include	"babiesfu.h"
 
 
+#define	BABYCALCS_DBNAME	"babies"
 #define	BABYCALCS_MAGIC		0x43628199
 #define	BABYCALCS		struct babycalcs_head
 #define	BABYCALCS_OBJ		struct babycalcs_obj
@@ -76,7 +77,7 @@ struct babycalcs_head {
 extern "C" {
 #endif
 
-extern int	babycalcs_open(BABYCALCS *,const char *,const char *) ;
+extern int	babycalcs_open(BABYCALCS *,cchar *,cchar *) ;
 extern int	babycalcs_check(BABYCALCS *,time_t) ;
 extern int	babycalcs_lookup(BABYCALCS *,time_t,uint *) ;
 extern int	babycalcs_info(BABYCALCS *,BABYCALCS_INFO *) ;

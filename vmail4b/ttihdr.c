@@ -120,20 +120,18 @@ char		hbuf[] ;
 int		hlen ;
 {
 	uint		*header ;
+	const int	headsize = hi_overlast * sizeof(uint) ;
 	const int	magicsize = TTIHDR_MAGICSIZE ;
 	int		rs = SR_OK ;
-	int		headsize ;
-	int		bl, cl ;
+	int		bl = hlen ;
+	int		cl ;
 	const char	*magicstr = TTIHDR_MAGICSTR ;
 	const char	*tp, *cp ;
-	char		*bp ;
+	char		*bp = hbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
 	if (hbuf == NULL) return SR_FAULT ;
 
-	bp = hbuf ;
-	bl = hlen ;
-	headsize = hi_overlast * sizeof(uint) ;
 	if (f) { /* read */
 
 /* the magic string is within the first 15 bytes */

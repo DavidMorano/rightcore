@@ -51,7 +51,7 @@
 /* exported subroutines */
 
 
-int siskipwhite(const char *sp,int sl)
+int siskipwhite(cchar *sp,int sl)
 {
 	register int	i ;
 

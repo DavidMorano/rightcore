@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -36,7 +34,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -127,7 +124,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const char	*progmodes[] = {
+static cchar	*progmodes[] = {
 	"stripleading",
 	"shave",
 	NULL
@@ -179,11 +176,9 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	PROGINFO	pi, *pip = &pi ;
-
-	KEYOPT	akopts ;
-
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
+	KEYOPT		akopts ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
 	int	ai, ai_max, ai_pos ;
@@ -214,13 +209,10 @@ char	*envv[] ;
 
 
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFNAME)) == NULL) {
-	    if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	        cp = getenv(VARDEBUGFD2) ;
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-	if (cp != NULL)
-	    debugopen(cp) ;
-	debugprintf("b_la: starting\n") ;
 #endif /* CF_DEBUGS */
 
 	rs = proginfo_start(pip,envv,argv[0],VERSION) ;
@@ -229,7 +221,8 @@ char	*envv[] ;
 	    goto badprogstart ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 

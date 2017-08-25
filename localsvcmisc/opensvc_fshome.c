@@ -170,7 +170,7 @@ static int	mkfsline(char *,int,int,const char *,struct statvfs *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"sn",
 	NULL

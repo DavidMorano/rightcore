@@ -149,7 +149,7 @@ static int	locinfo_cvtdaterfin(LOCINFO *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -557,9 +557,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -855,7 +855,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    if (rs >= 0) {
 	        int	ai ;
 	        int	f ;
-		cchar	**argv = aip->argv ;
+	        cchar	**argv = aip->argv ;
 	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
 	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
@@ -905,7 +905,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            rs1 = shio_close(afp) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
-		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            fmt = "%s: inaccessible argument-list (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
@@ -1108,7 +1108,7 @@ static int locinfo_dbopen(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("locinfo_dbopen: ret rs=%d\n",rs) ;
+	    debugprintf("locinfo_dbopen: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -1148,7 +1148,7 @@ static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("b_babies/locinfo_lookup: ent q=%t\n",np,nl) ;
+	    debugprintf("b_babies/locinfo_lookup: ent q=%t\n",np,nl) ;
 #endif
 
 	if (nl < 0) nl = strlen(np) ;
@@ -1166,36 +1166,36 @@ static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 
 	if (rs >= 0) {
 	    if ((rs = locinfo_cvtdater(lip)) >= 0) {
-		time_t	rd = pip->daytime ;
+	        time_t	rd = pip->daytime ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("b_babies/locinfo_lookup: mid2 rs=%d\n",rs) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("b_babies/locinfo_lookup: mid2 rs=%d\n",rs) ;
 #endif
 
-	if ((rs >= 0) && (nl > 0) && (np[0] != '-')) {
-	    rs = cvtdater_load(&lip->cvt,&rd,np,nl) ;
+	        if ((rs >= 0) && (nl > 0) && (np[0] != '-')) {
+	            rs = cvtdater_load(&lip->cvt,&rd,np,nl) ;
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("b_babies/locinfo_lookup: cvtdater_load() rs=%d\n",
-	            rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("b_babies/locinfo_lookup: "
+	                    "cvtdater_load() rs=%d\n", rs) ;
 #endif
-	}
+	        }
 
-	if (rs >= 0) {
-	    rs = babycalc_lookup(&lip->bc,rd,rp) ;
-	} /* end if */
+	        if (rs >= 0) {
+	            rs = babycalc_lookup(&lip->bc,rd,rp) ;
+	        } /* end if */
 
-	if ((rs < 0) && (rp != NULL)) {
-	    *rp = 0 ;
-	}
+	        if ((rs < 0) && (rp != NULL)) {
+	            *rp = 0 ;
+	        }
 
 	    } /* end if (locinfo_cvtdater) */
 	} /* end if (ok) */
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	debugprintf("b_babies/locinfo_lookup: ret rs=%d\n",rs) ;
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_babies/locinfo_lookup: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;

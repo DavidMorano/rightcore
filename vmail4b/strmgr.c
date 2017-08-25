@@ -27,7 +27,6 @@
 #include	<sys/types.h>
 #include	<string.h>
 #include	<vsystem.h>
-#include	<ascii.h>
 #include	<localmisc.h>
 
 #include	"strmgr.h"

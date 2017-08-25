@@ -13,22 +13,20 @@
 /* revision history:
 
 	= 1999-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ spamchecked [file(s)]
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -40,7 +38,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 #include	<netdb.h>
 
@@ -49,11 +46,10 @@
 #include	<baops.h>
 #include	<vecstr.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -93,7 +89,6 @@
 #endif
 
 
-
 /* external subroutines */
 
 extern uint	nextpowtwo(uint) ;
@@ -109,6 +104,8 @@ extern int	cfdeci(const char *,int,int *) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	process(struct proginfo *,bfile *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strshrink(char *) ;
@@ -189,27 +186,26 @@ char	*envv[] ;
 	int	f_checked = TRUE ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	nodename[NODENAMELEN + 1] ;
-	char	domainname[MAXHOSTNAMELEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*ofname = NULL ;
 	const char	*afname = NULL ;
 	const char	*sp, *cp, *cp2 ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	nodename[NODENAMELEN + 1] ;
+	char	domainname[MAXHOSTNAMELEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
@@ -220,7 +216,6 @@ char	*envv[] ;
 /* initialize */
 
 	pip->verboselevel = 1 ;
-	pip->f.quiet = FALSE ;
 
 /* start parsing the arguments */
 

@@ -102,12 +102,15 @@ int snwcpy(char *dp,int dl,cchar *sp,int sl)
 	    if (sl >= 0) {
 	        if (sl > dl) {
 	            rs = sncpy1(dp,dl,sp) ;
-	        } else
+	        } else {
 	            rs = strwcpy(dp,sp,sl) - dp ;
-	    } else
+		}
+	    } else {
 	        rs = sncpy1(dp,dl,sp) ;
-	} else
+	    }
+	} else {
 	    rs = strwcpy(dp,sp,sl) - dp ;
+	}
 
 	return rs ;
 }

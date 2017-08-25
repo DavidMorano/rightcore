@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 2004-02-01, David A­D­ Morano
-
 	The program was written from scratch.
-
 
 */
 
@@ -34,7 +32,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 #include	<math.h>
 
@@ -68,6 +65,8 @@ extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	process(struct proginfo *,KEYOPT *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -178,13 +177,13 @@ char	*envv[] ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*searchname = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -195,14 +194,13 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
 	}
-
 
 /* early things to initialize */
 

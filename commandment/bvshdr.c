@@ -137,9 +137,8 @@ int bvshdr(BVSHDR *ep,int f,char *hbuf,int hlen)
 	            rs = SR_ILSEQ ;
 		}
 
-	    if ((rs >= 0) && (bl > 0)) {
-
-	        if (bl >= headsize) {
+	        if (rs >= 0) {
+	            if (bl >= headsize) {
 
 	            header = (uint *) bp ;
 
@@ -156,11 +155,10 @@ int bvshdr(BVSHDR *ep,int f,char *hbuf,int hlen)
 	            bp += headsize ;
 	            bl -= headsize ;
 
-	        } else {
-	            rs = SR_ILSEQ ;
-		}
-
-	    } /* end if (item) */
+	            } else {
+	                rs = SR_ILSEQ ;
+		    }
+	        } /* end if (item) */
 
 	    } /* end if (isValidMagic) */
 	} else { /* write */

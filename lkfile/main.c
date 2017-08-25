@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -22,17 +20,15 @@
 
 /*******************************************************************************
 
-	This subroutine forms the front-end part of a generic PCS
-	type of program.  This front-end is used in a variety of
-	PCS programs.
+        This subroutine forms the front-end part of a generic PCS type of
+        program. This front-end is used in a variety of PCS programs.
 
-	This subroutine was originally part of the Personal
-	Communications Services (PCS) package but can also be used
-	independently from it.  Historically, this was developed as
-	part of an effort to maintain high function (and reliable)
-	email communications in the face of increasingly draconian
-	security restrictions imposed on the computers in the DEFINITY
-	development organization.
+        This subroutine was originally part of the Personal Communications
+        Services (PCS) package but can also be used independently from it.
+        Historically, this was developed as part of an effort to maintain high
+        function (and reliable) email communications in the face of increasingly
+        draconian security restrictions imposed on the computers in the DEFINITY
+        development organization.
 
 
 *******************************************************************************/
@@ -53,7 +49,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>
@@ -296,13 +291,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	    goto ret0 ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
-
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
-
 	}
 
 	pip->pid = getpid() ;
@@ -314,16 +308,12 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	pip->verboselevel = 1 ;
 
-	pip->f.quiet = FALSE ;
-	pip->f.log = FALSE ;
-
 	pidfname[0] = '\0' ;
 	lockfname[0] = '\0' ;
 	logfname[0] = '\0' ;
 
 /* start parsing the arguments */
 
-	rs = SR_OK ;
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1) 
 		argpresent[ai] = 0 ;
 

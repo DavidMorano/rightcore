@@ -5,12 +5,12 @@
 
 /* revision history:
 
-	= 1998-02-15, David A­D­ Morano
+	= 2000-02-17, David A­D­ Morano
 	This code was started for Levo related work.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	PARAMFILE_INCLUDE
 #define	PARAMFILE_INCLUDE	1

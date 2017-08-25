@@ -12,29 +12,27 @@
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This was originally written.
 
-
 	= 1999-03-01, David A­D­ Morano
-
-	I enhanced the program to also print out effective UID and
-	effective GID.
-
+        I enhanced the program to also print out effective UID and effective
+        GID.
 
 */
 
 /* Copyright © 1998,1999 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ testmailalias.x
 
 
-*****************************************************************************/
+*******************************************************************************/
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -44,7 +42,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>
@@ -55,17 +52,15 @@
 #include	<vecstr.h>
 #include	<sbuf.h>
 #include	<realname.h>
-#include	<exitcodes.h>
 #include	<mallocstuff.h>
-
 #include	"svcfile.h"
 #include	"kvsfile.h"
 #include	"mailalias.h"
+#include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -105,7 +100,6 @@
 #endif
 
 
-
 /* external subroutines */
 
 extern uint	nextpowtwo(uint) ;
@@ -124,20 +118,14 @@ extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
 
 /* external variables */
-
-#define	A	(__STDC__ != 0) 
-#define	B	defined(_POSIX_C_SOURCE) 
-#define	C	defined(_XOPEN_SOURCE)
-
-#if	(A != 0) || (B != 0) || (C != 0)
-extern long	altzone ;
-#endif
 
 
 /* local structures */
@@ -236,14 +224,14 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*mafname = NULL ;
 	const char	*sp, *cp, *cp2 ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1], *bp ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -254,7 +242,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

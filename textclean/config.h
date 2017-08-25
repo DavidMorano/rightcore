@@ -95,8 +95,6 @@
 
 #define	LOGSIZE		(80*1024)
 
-#define	DEFSIZESPEC	"100000"		/* default target log size */
-
 #define	TO_FILEMOD	(1 * 60 * 60)		/* IPASSWD timeout */
 
 #define	PO_OPTION	"option"

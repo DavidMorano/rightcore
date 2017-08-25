@@ -13,16 +13,12 @@
 /* revision history:
 
 	= 1988-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 1988-02-01, David A­D­ Morano
-
-	This subroutine was modified to not write out anything to standard
-	output if the access time of the associated terminal has not been
-	changed in 10 minutes.
-
+        This subroutine was modified to not write out anything to standard
+        output if the access time of the associated terminal has not been
+        changed in 10 minutes.
 
 */
 
@@ -30,7 +26,7 @@
 
 /*******************************************************************************
 
-	Invocation:
+	Synopsis:
 
 	$ dtcm_have [-c calendar]
 
@@ -51,7 +47,6 @@
 #include	<netdb.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -353,7 +348,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    goto ret0 ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

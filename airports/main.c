@@ -175,6 +175,8 @@ extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	getrootdname(char *,int,const char *,const char *) ;
 extern int	watch(struct proginfo *,LFM *) ;
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
@@ -380,6 +382,13 @@ char	*envv[] ;
 	if_int = 0 ;
 	if_child = 0 ;
 
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
+
 	n = nelem(sigints) + nelem(sigignores) ;
 	size = n * sizeof(struct sigaction) ;
 	memset(sao,0,size) ;
@@ -426,26 +435,10 @@ char	*envv[] ;
 
 	} /* end for */
 
-
-#if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if (cp != NULL) {
-
-	    if (cfdeci(cp,-1,&fd_debug) >= 0)
-	        debugsetfd(fd_debug) ;
-
-	    else
-	        fd_debug = debugopen(cp) ;
-
-	}
-#endif /* CF_DEBUGS */
-
-
 	proginfo_start(pip,environ,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 
 	if ((cp = getenv(VARSTDERRFNAME)) == NULL)

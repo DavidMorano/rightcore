@@ -157,18 +157,18 @@ CPP= cpp
 INCS= config.h defs.h
 
 
-OBJ00= opensvc_hello.o opensvc_name.o 
-OBJ01= opensvc_projinfo.o
+OBJ00= opensvc_hello.o 
+OBJ01= opensvc_pcsinfo.o
 OBJ02= opensvc_pcsmotd.o
-OBJ03= opensvc_pcsorg.o
+OBJ03= 
 OBJ04= opensvc_mailmsgs.o
 OBJ05= opensvc_newsdirs.o
 OBJ06= opensvc_unodes.o
 OBJ07=
 OBJ08=
-OBJ09= pcsgetnames.o pcsgetorg.o pcsmailcheck.o
+OBJ09= pcsmailcheck.o
 OBJ10= getourenv.o sfsubstance.o
-OBJ11= 
+OBJ11= opensvcpcs.o
 OBJ12= openpcsdircache.o
 OBJ13= sysusernames.o
 OBJ14= motd.o dirlist.o
@@ -274,8 +274,13 @@ whatinfo.o:		whatinfo.c config.h
 
 proginfo.o:		proginfo.c $(INCS)
 
+optnsvcpcs.o:		opensvcpcs.c opensvcpcs.h defs.h
+
 
 opensvc_hello.o:	opensvc_hello.c opensvc_hello.h
+	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+opensvc_pcsinfo.o:	opensvc_pcsinfo.c opensvc_pcsinfo.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 opensvc_name.o:		opensvc_name.c opensvc_name.h

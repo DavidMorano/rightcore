@@ -74,7 +74,6 @@
 /* local defines */
 
 #define	BABYCALCS_OBJNAME	"babycalcs"
-#define	BABYCALCS_DBNAME	"babies"
 #define	BABYCALCS_DBDNAME	"share/misc"
 #define	BABYCALCS_DBSUF		"txt"
 #define	BABYCALCS_SHMPOSTFIX	"dbc"
@@ -121,8 +120,6 @@
 
 /* external subroutines */
 
-extern ulong	ulceil(ulong,int) ;
-
 extern uint	uceil(uint,int) ;
 
 extern int	snsds(char *,int,const char *,const char *) ;
@@ -138,6 +135,7 @@ extern int	nextfield(const char *,int,const char **) ;
 extern int	strnnlen(const char *,int,int) ;
 extern int	cfdecui(const char *,int,uint *) ;
 extern int	msleep(uint) ;
+extern int	iceil(int,int) ;
 extern int	filebuf_writefill(FILEBUF *,const char *,int) ;
 extern int	filebuf_writezero(FILEBUF *,int) ;
 extern int	isOneOf(const int *,int) ;
@@ -180,7 +178,8 @@ static int	babycalcs_proctxt(BABYCALCS *,vecobj *) ;
 static int	babycalcs_proctxtline(BABYCALCS *,vecobj *,CVTDATER *,
 			cchar *,int) ;
 
-static int	babycalcs_shmwr(BABYCALCS *,time_t,int,int) ;
+static int	babycalcs_shmwr(BABYCALCS *,time_t,int,mode_t) ;
+static int	babycalcs_shmwrer(BABYCALCS *,time_t,int,mode_t,BABIESFU *) ;
 static int	babycalcs_openshmwait(BABYCALCS *,const char *) ;
 static int	babycalcs_mutexinit(BABYCALCS *) ;
 static int	babycalcs_procmap(BABYCALCS *,time_t) ;
@@ -534,6 +533,10 @@ static int babycalcs_mapbegin(BABYCALCS *op,time_t dt,int fd)
 
 	if (dt == 0) dt = time(NULL) ;
 
+#if	CF_DEBUGS
+	debugprintf("babycalcs_mapbegin: ent ms=%lu\n",msize) ;
+#endif
+
 	if ((rs = u_mmap(NULL,msize,mprot,mflags,fd,0L,&md)) >= 0) {
 	    op->mapdata = md ;
 	    op->mapsize = msize ;
@@ -675,6 +678,7 @@ static int babycalcs_proctxt(BABYCALCS *op,vecobj *tlp)
 {
 	CVTDATER	cdater ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 	if (tlp == NULL) return SR_FAULT ;
@@ -692,7 +696,7 @@ static int babycalcs_proctxt(BABYCALCS *op,vecobj *tlp)
 	    const int	llen = LINEBUFLEN ;
 	    int		len ;
 	    int		ll ;
-	    const char	*tp, *lp ;
+	    cchar	*tp, *lp ;
 	    char	lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUGS
@@ -731,7 +735,8 @@ static int babycalcs_proctxt(BABYCALCS *op,vecobj *tlp)
 
 	        } /* end if (bcontrol) */
 
-	        bclose(&txtfile) ;
+	        rs1 = bclose(&txtfile) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (file-open) */
 
 	    if ((rs >= 0) && (! op->f.sorted)) {
@@ -740,7 +745,8 @@ static int babycalcs_proctxt(BABYCALCS *op,vecobj *tlp)
 	            vecobj_sort(tlp,vcmpentry) ;
 	    }
 
-	    cvtdater_finish(&cdater) ;
+	    rs1 = cvtdater_finish(&cdater) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (cvtdater) */
 
 	return (rs >= 0) ? c : rs ;
@@ -749,7 +755,7 @@ static int babycalcs_proctxt(BABYCALCS *op,vecobj *tlp)
 
 
 static int babycalcs_proctxtline(BABYCALCS *op,vecobj *tlp,CVTDATER *cdp,
-cchar *lbuf,int llen)
+		cchar *lbuf,int llen)
 {
 	int		rs = SR_OK ;
 	int		cl ;
@@ -759,8 +765,8 @@ cchar *lbuf,int llen)
 	if ((cl = nextfield(lbuf,llen,&cp)) > 0) {
 	    time_t	datereq ;
 	    if ((rs = cvtdater_load(cdp,&datereq,cp,cl)) >= 0) {
-	        int		ll = llen ;
-	        const char	*lp = lbuf ;
+	        int	ll = llen ;
+	        cchar	*lp = lbuf ;
 	        ll -= ((cp + cl) - lp) ;
 	        lp = (cp + cl) ;
 	        if ((cl = nextfield(lp,ll,&cp)) > 0) {
@@ -793,23 +799,16 @@ cchar *lbuf,int llen)
 /* end subroutine (babycalcs_proctxtline) */
 
 
-static int babycalcs_shmwr(BABYCALCS *op,time_t dt,int fd,int om)
+static int babycalcs_shmwr(BABYCALCS *op,time_t dt,int fd,mode_t om)
 {
-	FILEBUF		babyfile ;
-	uint		fileoff = 0 ;
-	int		rs = SR_OK ;
-	int		size ;
+	BABIESFU	hf ;
+	int		rs ;
+	int		foff = 0 ;
 
 	op->shmsize = 0 ;
 	if (dt == 0) dt = time(NULL) ;
 
 	if (op->pagesize == 0) op->pagesize = getpagesize() ;
-
-	size = (op->pagesize * 4) ;
-	if ((rs = filebuf_start(&babyfile,fd,0,size,0)) >= 0) {
-	    BABIESFU	hf ;
-	    int		bl ;
-	    char		hdrbuf[HDRBUFLEN + 1] ;
 
 /* prepare the file-header */
 
@@ -822,73 +821,89 @@ static int babycalcs_shmwr(BABYCALCS *op,time_t dt,int fd,int om)
 	    hf.dbtime = (uint) op->ti_mdb ;
 	    hf.wtime = (uint) dt ;
 
-/* create the file-header */
+/* process */
 
-	    if ((rs = babiesfu(&hf,0,hdrbuf,HDRBUFLEN)) >= 0) {
+	if ((rs = babycalcs_shmwrer(op,dt,fd,om,&hf)) >= 0) {
+	    foff = rs ;
+	    if ((rs = u_rewind(fd)) >= 0) {
+		const int	hlen = HDRBUFLEN ;
+		char		hbuf[HDRBUFLEN+1] ;
+
+	        if ((rs = babiesfu(&hf,0,hbuf,hlen)) >= 0) {
+	            if ((rs = u_write(fd,hbuf,rs)) >= 0) {
+	                op->shmsize = foff ;
+	                rs = u_fchmod(fd,om) ;
+		    }
+	        }
+
+	    } /* end if (u_rewind) */
+	} /* end if (babycalcs_shmwrer) */
+
+	return (rs >= 0) ? foff : rs ;
+}
+/* end subroutine (babycalcs_shmwr) */
+
+
+static int babycalcs_shmwrer(BABYCALCS *op,time_t dt,int fd,mode_t om,
+		BABIESFU *hfp)
+{
+	FILEBUF		babyfile ;
+	const int	bsize = op->pagesize ;
+	int		rs ;
+	int		rs1 ;
+	int		foff = 0 ;
+	if ((rs = filebuf_start(&babyfile,fd,0,bsize,0)) >= 0) {
+	    const int	hlen = HDRBUFLEN ;
+	    int		bl ;
+	    char	hbuf[HDRBUFLEN + 1] ;
+
+	    if ((rs = babiesfu(hfp,0,hbuf,hlen)) >= 0) {
+		int	tsize ;
 	        bl = rs ;
 
 /* write file-header */
 
 	        if (rs >= 0) {
-	            rs = filebuf_writefill(&babyfile,hdrbuf,bl) ;
-	            fileoff += rs ;
+	            rs = filebuf_writefill(&babyfile,hbuf,bl) ;
+	            foff += rs ;
 	        }
 
 /* write the mutex (align up to the next 8-byte boundary) */
 
 	        if (rs >= 0) {
-	            int	noff = ulceil(fileoff,8) ;
-	            if (noff != fileoff) {
-	                rs = filebuf_writezero(&babyfile,(noff - fileoff)) ;
-	                fileoff += rs ;
+	            int		noff = iceil(foff,8) ;
+	            if (noff != foff) {
+	                rs = filebuf_writezero(&babyfile,(noff - foff)) ;
+	                foff += rs ;
 	            }
 	        }
 
-	        hf.muoff = fileoff ;
-	        hf.musize = uceil(sizeof(PTM),sizeof(uint)) ;
+	        hfp->muoff = foff ;
+	        hfp->musize = uceil(sizeof(PTM),sizeof(uint)) ;
 	        if (rs >= 0) {
-	            rs = filebuf_writezero(&babyfile,hf.musize) ;
-	            fileoff += rs ;
+	            rs = filebuf_writezero(&babyfile,hfp->musize) ;
+	            foff += rs ;
 	        }
 
 /* write the table */
 
-	        hf.btoff = fileoff ;
-	        hf.btlen = op->nentries ;
-	        size = (op->nentries + 1) * sizeof(BABYCALCS_ENT) ;
+	        hfp->btoff = foff ;
+	        hfp->btlen = op->nentries ;
+	        tsize = (op->nentries + 1) * sizeof(BABYCALCS_ENT) ;
 	        if (rs >= 0) {
-	            rs = filebuf_write(&babyfile,op->table,size) ;
-	            fileoff += rs ;
+	            rs = filebuf_write(&babyfile,op->table,tsize) ;
+	            foff += rs ;
 	        }
 
+	        hfp->shmsize = foff ;
 	    } /* end if (babiesfu) */
 
-	    filebuf_finish(&babyfile) ;
-
-	    if (rs >= 0) {
-
-	        hf.shmsize = fileoff ;
-	        u_seek(fd,0L,SEEK_SET) ;
-
-	        if ((rs = babiesfu(&hf,0,hdrbuf,HDRBUFLEN)) >= 0) {
-	            bl = rs ;
-	            rs = u_write(fd,hdrbuf,bl) ;
-	        }
-
-	    } /* end if */
-
-/* set file permissions */
-
-	    if (rs >= 0) {
-	        op->shmsize = fileoff ;
-	        rs = u_fchmod(fd,om) ;
-	    }
-
+	    rs1 = filebuf_finish(&babyfile) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (filebuf) */
-
-	return (rs >= 0) ? fileoff : rs ;
+	return (rs >= 0) ? foff : rs ;
 }
-/* end subroutine (babycalcs_shmwr) */
+/* end subroutine (babycalcs_shmwrer) */
 
 
 static int babycalcs_mutexinit(BABYCALCS *op)
@@ -978,15 +993,35 @@ static int babycalcs_verify(BABYCALCS *op,time_t dt)
 #endif /* CF_DEBUGS */
 
 	f = f && (hfp->muoff <= op->mapsize) ;
+
+#if	CF_DEBUGS
+	debugprintf("babycalcs_verify: mid3 f=%u\n",f) ;
+#endif
+
 	size = hfp->musize ;
 	if (size > 0) {
 	    f = f && ((hfp->muoff + size) <= hfp->btoff) ;
+#if	CF_DEBUGS
+	debugprintf("babycalcs_verify: mid4 f=%u\n",f) ;
+#endif
 	    f = f && ((hfp->muoff + size) <= op->mapsize) ;
+#if	CF_DEBUGS
+	debugprintf("babycalcs_verify: mid5 f=%u\n",f) ;
+#endif
 	}
 
 	f = f && (hfp->btoff <= op->mapsize) ;
+
+#if	CF_DEBUGS
+	debugprintf("babycalcs_verify: mid6 f=%u\n",f) ;
+#endif
+
 	size = hfp->btlen * sizeof(BABYCALCS_ENT) ;
 	f = f && ((hfp->btoff + size) <= op->mapsize) ;
+
+#if	CF_DEBUGS
+	debugprintf("babycalcs_verify: mid7 f=%u\n",f) ;
+#endif
 
 /* get out */
 

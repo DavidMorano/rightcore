@@ -13,24 +13,22 @@
 /* revision history:
 
 	= 2008-08-28, David A­D­ Morano
-
-	This is a complete rewrite of the previous program by the
-	same name.  We perform the same function but have rewritten it
-	completely from scratch (that is the way life is sometimes!).
-
+        This is a complete rewrite of the previous program by the same name. We
+        perform the same function but have rewritten it completely from scratch
+        (that is the way life is sometimes!).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ testformat.x
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -89,6 +87,8 @@ extern int	debugprintf(const char *,...) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strdcpy1(char *,int,const char *) ;
 extern char	*timestr_logz(time_t,char *) ;
@@ -187,14 +187,14 @@ const char	*envv[] ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*searchname = NULL ;
 	const char	*pr = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp, *cp2 ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1], *bp ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -209,7 +209,8 @@ const char	*envv[] ;
 	    goto badprogstart ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 #if	CF_BFILE
 	cp = getenv(VARERRFILE) ;

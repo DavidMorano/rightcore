@@ -22,7 +22,7 @@
 	anything else, but it is here if you want to use it.
 
 	Synopsis:
-	$ book <file> [<queryies>]
+	$ book <file> [<queries>]
 
 
 *******************************************************************************/
@@ -44,8 +44,11 @@
 #include	<fstream>
 #include	<iostream>
 #include	<iomanip>
-#include	<estrings.h>
 #include	<vsystem.h>
+#include	<baops.h>
+#include	<estrings.h>
+#include	<field.h>
+#include	<ascii.h>
 #include	<localmisc.h>
 
 
@@ -61,7 +64,10 @@ using namespace std ;
 
 /* external subroutines */
 
+extern "C" int	sfshrink(cchar *,int,cchar **) ;
 extern "C" int	sisub(cchar *,int,cchar *) ;
+extern "C" int	field_word(FIELD *,const uchar *,cchar **) ;
+extern "C" int	isalphalatin(int) ;
 
 #if	CF_DEBUGS
 extern "C" int	debugopen(cchar *) ;
@@ -78,10 +84,16 @@ extern "C" cchar	*getourenv(cchar **,cchar *) ;
 
 /* local structures (and methods) */
 
+static int	mkterms(uchar *) ;
+
 class wordcount {
 	unordered_map<string,int>	db ;
+	uchar				wterms[256] ;
+	int procline(string *,cchar *,int) ;
 public:
-	wordcount() { } ;
+	wordcount() { 
+	    mkterms(wterms) ;
+	} ;
 	int load(cchar *) ;
 	int query(cchar *) ;
 } ;
@@ -89,7 +101,9 @@ public:
 
 /* forward references */
 
-static int readline(ifstream &,char *,int) ;
+static int	mkterms(uchar *) ;
+static int	readline(ifstream &,char *,int) ;
+static int	procword(char *,cchar *,int) ;
 
 
 /* local variables */
@@ -121,8 +135,8 @@ int main(int argc,const char **argv,const char **envv)
 		    if (rs < 0) break ;
 		    cout << w << " " << rs << endl ;
 		} /* end for */
-	    }
-	}
+	    } /* end if (book.load) */
+	} /* end if (arguments) */
 
 #if	CF_DEBUGS
 	debugclose() ;
@@ -147,32 +161,17 @@ int wordcount::load(cchar *ifn)
 	    char	lbuf[LINEBUFLEN+1] ;
 	    while ((rs = readline(is,lbuf,llen)) > 0) {
 		int	len = rs ;
-		int	cl, sl ;
-		cchar	*cp, *sp ;
-		char	*tbuf ;
+		int	cl ;
+		cchar	*cp ;
+
 		if (lbuf[len-1] == '\n') len -= 1 ;
 		lbuf[len] = '\0' ;
-		sp = lbuf ;
-		sl = len ;
-		while ((cl = nextfield(sp,sl,&cp)) > 0) {
-		    s.clear() ;
-		    if ((tbuf = new(nothrow) char [len+1]) != NULL) {
-			strwcpylc(tbuf,cp,cl) ;
-		        s.append(tbuf,cl) ;
-		        try {
-		            int &val = db.at(s) ;
-			    val += 1 ;
-		        } catch (const exception& err) {
-			    pair<string,int>	e(s,1) ;
-			    db.insert(e) ;
-		            c += 1 ;
-		        }
-		    } else {
-			rs = SR_NOMEM ;
-		    }
-		    sl -= ((cp+cl)-sp) ;
-		    sp = (cp+cl) ;
-		} /* end while (processing line) */
+
+		if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+		    rs = procline(&s,cp,cl) ;
+		}
+
+		if (rs < 0) break ;
 	    } /* end while (reading lines) */
 	} else {
 	    cerr << "bad open on input" << endl ;
@@ -180,6 +179,54 @@ int wordcount::load(cchar *ifn)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (wordcount::load) */
+
+
+int wordcount::procline(string *sp,cchar *lbuf,int llen)
+{
+	FIELD		fsb ;
+	int		rs ;
+	int		c = 0 ;
+
+	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
+	    int		fl ;
+	    cchar	*fp ;
+
+	    while ((fl = field_word(&fsb,wterms,&fp)) >= 0) {
+	        if (fl > 0) {
+		    int		wl ;
+		    cchar	*wp ;
+	            if ((wl = sfword(fp,fl,&wp)) > 0) {
+			char	*tbuf ;
+
+		    sp->clear() ;
+		    if ((tbuf = new(nothrow) char [wl+1]) != NULL) {
+			int	tl ;
+			if ((tl = procword(tbuf,wp,wl)) > 0) {
+		            sp->append(tbuf,tl) ;
+		            try {
+		                int &val = db.at(*sp) ;
+			        val += 1 ;
+		            } catch (const exception& err) {
+			        pair<string,int>	e(*sp,1) ;
+			        db.insert(e) ;
+		                c += 1 ;
+		            }
+			} /* end if (procword) */
+		    } else {
+			rs = SR_NOMEM ;
+		    }
+
+	            } /* end if (have word) */
+	        } /* end if (positive) */
+	        if (rs < 0) break ;
+	    } /* end while (fielding words) */
+
+	    field_finish(&fsb) ;
+	} /* end if (field) */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (wordcount::procline) */
 
 
 int wordcount::query(cchar *wp)
@@ -215,5 +262,36 @@ int readline(ifstream &is,char *lbuf,int llen)
 	return rs ;
 }
 /* end subroutine (readline) */
+
+
+static int procword(char *tbuf,cchar *cp,int cl)
+{
+	return strwcpylc(tbuf,cp,cl) - tbuf ;
+}
+/* end subroutine (procword) */
+
+
+static int mkterms(uchar *wterms)
+{
+	int		i ;
+
+	for (i = 0 ; i < 32 ; i += 1) {
+	    wterms[i] = 0xFF ;
+	}
+
+	BACLR(wterms,'_') ;
+	BACLR(wterms,'-') ;
+
+	BACLR(wterms,CH_SQUOTE) ;
+
+	for (i = 0x20 ; i < 256 ; i += 1) {
+	    if (isalphalatin(i)) {
+	        BACLR(wterms,i) ;
+	    }
+	} /* end for */
+
+	return SR_OK ;
+}
+/* end subroutine (mkterms) */
 
 

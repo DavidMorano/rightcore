@@ -45,12 +45,13 @@
 
 	Notes:
 
-	= CF_ALLOWSMORE: I don't know but this was a (vain?) attempt at speeding
-	up this subroutine.  Profiles show that time is being spent in here (how
-	much compared with everything else?).  There is not much to improve
-	upon, without removing nice old faithful subroutine calls (like
-	'sfshrink(3dam)').  Instead we play around with removing the string
-	conversion to lower-case before an array comparison.  You be the judge.
+        = CF_ALLOWSMORE: I don't know but this was a (vain?) attempt at speeding
+        up this subroutine. Profiles show that time is being spent in here (how
+        much compared with everything else?). There is not much to improve upon,
+        without removing nice old faithful subroutine calls (like
+        'sfshrink(3dam)'). Instead we play around (elsewhere) with removing the
+        string conversion to lower-case before an array comparison. You be the
+        judge.
 
 
 *******************************************************************************/
@@ -120,15 +121,16 @@ int sfword(cchar *sp,int sl,cchar **rpp)
 
 	    if (cl > 2) {
 
-		if ((tp = strnrchr(cp,cl,CH_SQUOTE)) != NULL)
+		if ((tp = strnrchr(cp,cl,CH_SQUOTE)) != NULL) {
 		    f = ((cl - ((tp + 1) - cp)) > 1) ;
+		}
 
 		if (! f) {
 	    	    int	i = (cl - 2) ;
 
 #if	CF_ALLOWSMORE
 		    {
-			register int j ;
+			register int 		j ;
 			register const char	*cc = (cp+i) ;
 	                for (j = 0 ; allows[j] != NULL ; j += 1) {
 			    f = (allows[j][0] == cc[0]) ;
@@ -138,8 +140,8 @@ int sfword(cchar *sp,int sl,cchar **rpp)
 		    }
 #else /* CF_ALLOWSMORE */
 		    {
-			register int j ;
-			char	lowbuf[4] ;
+			register int		j ;
+			char			lowbuf[4] ;
 			register const char	*cc = lowbuf ;
 			lowbuf[0] = CHAR_TOLC((cp+i)[0]) ;
 			lowbuf[1] = CHAR_TOLC((cp+i)[1]) ;
@@ -153,10 +155,11 @@ int sfword(cchar *sp,int sl,cchar **rpp)
 
 		} /* end if */
 
-	    } /* end if */
+	    } /* end if (more than one character) */
 
-	    if ((! f) && (cp[cl - 1] == CH_SQUOTE))
+	    if ((! f) && (cp[cl - 1] == CH_SQUOTE)) {
 	        cl -= 1 ;
+	    }
 
 	} /* end if (non-zero) */
 

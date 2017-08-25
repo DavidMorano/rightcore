@@ -5,7 +5,7 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-06-29, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
@@ -80,17 +80,15 @@ static const char	case_upper[] = {
 /* exported subroutines */
 
 
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-
 
 	mkisxc(case_tolower) ;
 
 	mkisxc(case_toupper) ;
 
 	mkisalpha(case_toupper) ;
-
-	fclose(stdout) ;
 
 	return 0 ;
 }
@@ -100,15 +98,12 @@ int main()
 /* local subroutines */
 
 
-static int mkisxc(w)
-int	w ;
+static int mkisxc(int w)
 {
-	int	i ;
-	int	j = 0 ;
-	int	rc ;
-
+	int		i ;
+	int		j = 0 ;
+	int		rc ;
 	const char	*name ;
-
 
 	if ((w < 0) || (w >= case_overlast))
 	    return SR_INVALID ;

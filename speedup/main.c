@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -37,7 +35,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -85,10 +82,10 @@ extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
+extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strshrink(char *) ;
@@ -108,7 +105,7 @@ struct locinfo {
 	LOCINFO_FL	have, f, changed, final ;
 	LOCINFO_FL	open ;
 	vecstr		stores ;
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 	const char	*pr_pcs ;
 	const char	*homedname ;
 	uint		sum ;
@@ -123,9 +120,9 @@ struct processor {
 
 /* forward references */
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 
-static int	locinfo_start(struct locinfo *,struct proginfo *) ;
+static int	locinfo_start(struct locinfo *,PROGINFO *) ;
 static int	locinfo_finish(struct locinfo *) ;
 
 #if	CF_LOCSETENT
@@ -253,7 +250,7 @@ int		argc ;
 const char	*argv[] ;
 const char	*envv[] ;
 {
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 	struct locinfo	li, *lip = &li ;
 	struct processor	nproc ;
 	KEYOPT		akopts ;
@@ -1116,7 +1113,7 @@ badarg:
 
 
 static int usage(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -1308,7 +1305,7 @@ double			*rp ;
 
 static int locinfo_start(lip,pip)
 struct locinfo	*lip ;
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int		rs = SR_OK ;
 

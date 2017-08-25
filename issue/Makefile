@@ -72,6 +72,7 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCFLAGS= $(GPPFLAGS) $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
@@ -359,18 +360,18 @@ lfm.o:			lfm.c lfm.h
 
 vechand.o:		vechand.c vechand.h
 
-termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
-
 sigman.o:		sigman.c sigman.h
 
 sysrealname.o:		sysrealname.c sysrealname.h
 
 sysusernames.o:		sysusernames.c sysusernames.h
 
-osetstr.o:		osetstr.c osetstr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) osetstr.cc
-
 spawner.o:		spawner.c spawner.h
+
+osetstr.o:		osetstr.c osetstr.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) osetstr.cc
+
+termout.o:		termout.cc termout.h ansigr.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 

@@ -1,10 +1,21 @@
 /* hostinfo */
 
 
+/* revision history:
+
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+
 #ifndef	HOSTINFO_INCLUDE
 #define	HOSTINFO_INCLUDE	1
 
 
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -16,12 +27,10 @@
 #include	<vsystem.h>
 
 
-
 /* local object defines */
 
 #define	HOSTINFO		struct hostinfo_head
 #define	HOSTINFO_CURSOR		struct hostinfo_c
-
 
 
 struct hostinfo_head {
@@ -34,12 +43,9 @@ struct hostinfo_c {
 } ;
 
 
-
-
-
 #if	(! defined(HOSTINFO_MASTER)) || (HOSTINFO_MASTER == 0)
 
-extern int hostinfo_init(HOSTINFO *,const char *,const char *,const char *,
+extern int hostinfo_init(HOSTINFO *,cchar *,cchar *,cchar *,
 		struct addrinfo *) ;
 extern int hostinfo_getofficial(HOSTINFO *,char **) ;
 extern int hostinfo_getcanonical(HOSTINFO *,char **) ;
@@ -53,8 +59,6 @@ extern int hostinfo_free(HOSTINFO *) ;
 
 #endif /* HOSTINFO_MASTER */
 
-
 #endif /* HOSTINFO_INCLUDE */
-
 
 

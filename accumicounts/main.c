@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 2004-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -29,7 +27,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -55,7 +52,9 @@ extern int	matstr3(const char **,char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	isdigitlatin(int) ;
 
-extern char	*strbasename(char *), *strshrink(char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strshrink(char *) ;
 
 
 /* forward references */
@@ -106,8 +105,7 @@ enum options {
 } ;
 
 
-
-
+/* exported subroutines */
 
 
 int main(argc,argv,envv)
@@ -144,18 +142,17 @@ char	*envv[] ;
 	char	*afname = NULL ;
 	char	*cp ;
 
-	if ((cp = getenv(VARDEBUGFD1)) == NULL) {
-	    cp = getenv(VARDEBUGFD2) ;
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {

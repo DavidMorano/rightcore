@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1994-02-03, David A­D­ Morano
-
 	This module was originally written.
-
 
 */
 
@@ -19,17 +17,16 @@
 
 /*******************************************************************************
 
-	These routines provide means to peruse the elements of a
-	'hostinfo' structure as returned by the system subroutines:
+        These routines provide means to peruse the elements of a 'hostinfo'
+        structure as returned by the system subroutines:
 
 		gethostbyname
 		gethostbyaddr
 
 	and their kin.
 
-	All INET addresses (when in any sort of binary form) are in
-	network byte order!  This is true of the above subroutines
-	as well.
+        All INET addresses (when in any sort of binary form) are in network byte
+        order! This is true of the above subroutines as well.
 
 	Below is the structure that represents the object itself:
 

@@ -9,7 +9,7 @@ this is just some filler
 
 The output file is >${OUTFILE}<
 
-This is the new $(OUTFILE) thing !
+This is the new $(OUTFILE) thing!
 
 What about ${WHAT} ?
 

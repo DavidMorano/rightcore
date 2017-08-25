@@ -75,6 +75,7 @@ extern int	sfbasename(const char *,int,const char **) ;
 extern int	sfdirname(const char *,int,const char **) ;
 extern int	cfhexi(const char *,int,uint *) ;
 extern int	cfdecui(const char *,int,uint *) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -114,48 +115,25 @@ enum his {
 int varhdr(VARHDR *ep,int f,char hbuf[],int hlen)
 {
 	uint		*header ;
+	const int	headsize = hi_overlast * sizeof(uint) ;
 	const int	magicsize = VARHDR_MAGICSIZE ;
 	int		rs = SR_OK ;
-	int		headsize ;
-	int		bl, cl ;
+	int		bl = hlen ;
+	int		cl ;
 	const char	*magicstr = VARHDR_MAGICSTR ;
 	const char	*tp, *cp ;
-	char		*bp ;
+	char		*bp = hbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
 	if (hbuf == NULL) return SR_FAULT ;
 
-	bp = hbuf ;
-	bl = hlen ;
-	headsize = hi_overlast * sizeof(uint) ;
 	if (f) { /* read */
-
-/* the magic string is with the first 16 bytes */
-
-	    if ((rs >= 0) && (bl > 0)) {
-	        if (bl >= magicsize) {
-
-	            cp = bp ;
-	            cl = magicsize ;
-	            if ((tp = strnchr(cp,cl,'\n')) != NULL)
-	                cl = (tp - cp) ;
-
-	            bp += magicsize ;
-	            bl -= magicsize ;
-
-/* verify the magic string */
-
-	            if (strncmp(magicstr,cp,cl) != 0)
-	                rs = SR_NXIO ;
-
-	        } else
-	            rs = SR_ILSEQ ;
-
-	    } /* end if (item) */
+	    if ((bl > magicsize) && isValidMagic(bp,magicsize,magicstr)) {
+	        bp += magicsize ;
+	        bl -= magicsize ;
 
 /* read out the VETU information */
 
-	    if ((rs >= 0) && (bl > 0)) {
 	        if (bl >= 4) {
 
 	            memcpy(ep->vetu,bp,4) ;
@@ -169,12 +147,12 @@ int varhdr(VARHDR *ep,int f,char hbuf[],int hlen)
 	            bp += 4 ;
 	            bl -= 4 ;
 
-	        } else
+	        } else {
 	            rs = SR_ILSEQ ;
-	    } /* end if (item) */
+		}
 
-	    if ((rs >= 0) && (bl > 0)) {
-	        if (bl >= headsize) {
+	        if (rs >= 0) {
+	            if (bl >= headsize) {
 
 	            header = (uint *) bp ;
 
@@ -194,44 +172,45 @@ int varhdr(VARHDR *ep,int f,char hbuf[],int hlen)
 	            bp += headsize ;
 	            bl -= headsize ;
 
-	        } else
-	            rs = SR_ILSEQ ;
-	    } /* end if (item) */
+	            } else {
+	                rs = SR_ILSEQ ;
+		    }
+	        } /* end if (item) */
 
+	    } /* end if (isValidMagic) */
 	} else { /* write */
 
-	    mkmagic(bp, magicsize, magicstr) ;
-	    bp += magicsize ;
-	    bl -= magicsize ;
-
-	    memcpy(bp,ep->vetu,4) ;
-	    *bp = VARHDR_VERSION ;
-	    bp += 4 ;
-	    bl -= 4 ;
-
-	    if ((rs >= 0) && (bl >= headsize)) {
-
-	        header = (uint *) bp ;
-
-	        header[hi_fsize] = ep->fsize ;
-	        header[hi_wtime] = ep->wtime ;
-	        header[hi_ksoff] = ep->ksoff ;
-	        header[hi_kslen] = ep->kslen ;
-	        header[hi_vsoff] = ep->vsoff ;
-	        header[hi_vslen] = ep->vslen ;
-	        header[hi_rtoff] = ep->rtoff ;
-	        header[hi_rtlen] = ep->rtlen ;
-	        header[hi_itoff] = ep->itoff ;
-	        header[hi_itlen] = ep->itlen ;
-	        header[hi_nvars] = ep->nvars ;
-	        header[hi_nskip] = ep->nskip ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
+	    if (bl >= (magicsize + 4)) {
+	        if ((rs = mkmagic(bp,magicsize,magicstr)) >= 0) {
+	            bp += magicsize ;
+	            bl -= magicsize ;
+	    	    memcpy(bp,ep->vetu,4) ;
+	    	    *bp = VARHDR_VERSION ;
+	    	    bp += 4 ;
+	    	    bl -= 4 ;
+	            if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	header[hi_fsize] = ep->fsize ;
+	        	header[hi_wtime] = ep->wtime ;
+	        	header[hi_ksoff] = ep->ksoff ;
+	        	header[hi_kslen] = ep->kslen ;
+	        	header[hi_vsoff] = ep->vsoff ;
+	        	header[hi_vslen] = ep->vslen ;
+	        	header[hi_rtoff] = ep->rtoff ;
+	        	header[hi_rtlen] = ep->rtlen ;
+	        	header[hi_itoff] = ep->itoff ;
+	        	header[hi_itlen] = ep->itlen ;
+	        	header[hi_nvars] = ep->nvars ;
+	        	header[hi_nskip] = ep->nskip ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+		    } /* end if */
+		} /* end if (mkmagic) */
+	    } else {
+	        rs = SR_OVERFLOW ;
 	    } /* end if */
 
-	} /* end if */
+	} /* end if (read-write) */
 
 	return (rs >= 0) ? (bp - hbuf) : rs ;
 }

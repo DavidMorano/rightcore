@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -38,7 +36,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -80,6 +77,8 @@ extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	isdigitlatin(int) ;
 
 extern int	process(PROGINFO *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -165,11 +164,9 @@ char	*envv[] ;
 {
 	PROGINFO	pi, *pip = &pi ;
 	struct ustat	sb ;
-
 	PARAMOPT	aparams ;
-
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
 	int	ai, ai_max, ai_pos ;
@@ -186,8 +183,6 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*pmspec = NULL ;
 	const char	*searchname = NULL ;
@@ -196,19 +191,20 @@ char	*envv[] ;
 	const char	*ifname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*tp, *cp ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->verboselevel = 1 ;
 

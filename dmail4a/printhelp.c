@@ -113,7 +113,7 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_loadfile(VECSTR *,int,const char *) ;
 extern int	isNotPresent(int) ;
 
-#if	CF_DEBUGS || CF_DEBUG
+#if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif

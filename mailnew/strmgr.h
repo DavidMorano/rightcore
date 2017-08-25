@@ -21,9 +21,8 @@
 #include	<localmisc.h>
 
 
-/* object defines */
-
 #define	STRMGR		struct strmgr_head
+
 
 struct strmgr_head {
 	char		*dp ;
@@ -44,7 +43,7 @@ extern "C" {
 extern int strmgr_start(STRMGR *,char *,int) ;
 extern int strmgr_avail(STRMGR *) ;
 extern int strmgr_rem(STRMGR *) ;
-extern int strmgr_str(STRMGR *,const char *,int) ;
+extern int strmgr_str(STRMGR *,cchar *,int) ;
 extern int strmgr_char(STRMGR *,int) ;
 extern int strmgr_finish(STRMGR *) ;
 

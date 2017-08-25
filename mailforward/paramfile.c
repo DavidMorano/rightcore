@@ -9,14 +9,14 @@
 
 /* revision history:
 
-	= 2000-02-05, David A­D­ Morano
+	= 2000-02-17, David A­D­ Morano
 	Some code for this subroutine was taken from something that did
 	something similar to what we are doing here.  The rest was originally
 	written for LevoSim.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

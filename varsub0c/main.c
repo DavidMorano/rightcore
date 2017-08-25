@@ -147,7 +147,7 @@ static int	debugsubs(PROGINFO *,VARSUB *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	"TMPDIR",
@@ -197,7 +197,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*progmodes[] = {
+static cchar	*progmodes[] = {
 	"varsub",
 	NULL
 } ;
@@ -207,7 +207,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static const char	*akonames[] = {
+static cchar	*akonames[] = {
 	"badnokey",
 	"blanks",
 	NULL
@@ -245,21 +245,21 @@ int main(int argc,cchar **argv,cchar **envv)
 	bfile		errfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	opts ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_usage = FALSE ;
-	int	f_version = FALSE ;
-	int	f_help = FALSE ;
-	int	f_env = FALSE ;
-	int	f_remove = TRUE ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		opts ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_usage = FALSE ;
+	int		f_version = FALSE ;
+	int		f_help = FALSE ;
+	int		f_env = FALSE ;
+	int		f_remove = TRUE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -273,9 +273,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*keychars = NULL ;
 	const char	*ffname = NULL ;
 	const char	*cp ;
-	char	fzfname[MAXPATHLEN + 1] ;
-	char	fbuf[FBUFLEN + 1] ;
-	char	keychar[4] ;
+	char		fzfname[MAXPATHLEN + 1] ;
+	char		fbuf[FBUFLEN + 1] ;
+	char		keychar[4] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -749,11 +749,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	    rs = procopts(pip,&akopts) ;
 	}
 
-	if (rs < 0) {
-	    ex = EX_USAGE ;
-	    goto retearly ;
-	}
-
 /* check the arguments */
 
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
@@ -855,8 +850,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	        ex = EX_BADFILTER ;
 	        bprintf(pip->efp,"%s: filter file unavailable (%d)\n",
 	            pip->progname,rs) ;
-
-	        goto badfilter ;
 	    }
 
 	} /* end if (filter file) */
@@ -940,14 +933,16 @@ int main(int argc,cchar **argv,cchar **envv)
 	                    rs = varsub_addva(&subs,pip->envv) ;
 	                }
 	                if (rs >= 0) {
-	                    const char	*ofn = ofname ;
-	                    const char	*afn = afname ;
-	                    const char	*ifn = ifname ;
+			    ARGINFO	*aip = &ainfo ;
+			    BITS	*bop = &pargs ;
+	                    cchar	*ofn = ofname ;
+	                    cchar	*afn = afname ;
+	                    cchar	*ifn = ifname ;
 #if	CF_DEBUG
 	                    debugsubs(pip,&subs) ;
 #endif
 
-	                    rs = procargs(pip,&ainfo,&pargs,&subs,ofn,afn,ifn) ;
+	                    rs = procargs(pip,aip,bop,&subs,ofn,afn,ifn) ;
 
 	                } /* end if (ok) */
 	            } else {
@@ -987,7 +982,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	    fzfname[0] = '\0' ;
 	}
 
-badfilter:
 retearly:
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
@@ -1085,9 +1079,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
 	    if ((rs = keyopt_curbegin(kop,&kcur)) >= 0) {
-	        int		oi ;
-	        int		kl, vl ;
-	        const char	*kp, *vp ;
+	        int	oi ;
+	        int	kl, vl ;
+	        cchar	*kp, *vp ;
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
@@ -1148,6 +1142,8 @@ const char	*ifn ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
 	    ofn = BFILE_STDOUT ;
@@ -1155,7 +1151,7 @@ const char	*ifn ;
 	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp = NULL ;
 
 	    if (rs >= 0) {
 	        int	ai ;
@@ -1186,7 +1182,7 @@ const char	*ifn ;
 	        if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
 	            int		len ;
-	            char		lbuf[LINEBUFLEN + 1] ;
+	            char	lbuf[LINEBUFLEN + 1] ;
 
 	            while ((rs = breadline(afp,lbuf,llen)) > 0) {
 	                len = rs ;
@@ -1196,6 +1192,7 @@ const char	*ifn ;
 
 	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
 	                    if (cp[0] != '#') {
+				lbuf[(cp+cl)-lbuf] = '\0' ;
 	                        pan += 1 ;
 	                        rs = procfiles(pip,vsp,ofp,cp,cl) ;
 	                        wlen += rs ;
@@ -1205,14 +1202,13 @@ const char	*ifn ;
 	                if (rs < 0) break ;
 	            } /* end while (reading lines) */
 
-	            bclose(afp) ;
+	            rs1 = bclose(afp) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
-	                bprintf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                bprintf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afn) ;
+			fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                bprintf(pip->efp,fmt,pn,rs) ;
+	                bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
 	        } /* end if */
 
@@ -1225,12 +1221,6 @@ const char	*ifn ;
 	        rs = procfile(pip,vsp,ofp,cp,-1) ;
 	        wlen += rs ;
 
-	        if (rs < 0) {
-	            bprintf(pip->efp,
-	                "%s: processing error (%d) file=%s\n",
-	                pip->progname,rs,cp) ;
-	        }
-
 	    } /* end if (processing standard input) */
 
 	    if ((rs >= 0) && (pan == 0)) {
@@ -1240,18 +1230,19 @@ const char	*ifn ;
 	        rs = procfile(pip,vsp,ofp,cp,-1) ;
 	        wlen += rs ;
 
-	        if (rs < 0) {
-	            bprintf(pip->efp,
-	                "%s: processing error (%d) file=%s\n",
-	                pip->progname,rs,cp) ;
-	        }
 	    } /* end if (processing standard input) */
+
+	    if ((rs < 0) && (cp != NULL)) {
+	        fmt = "%s: processing error (%d) file=%s\n" ;
+	        bprintf(pip->efp,fmt,pn,rs,cp) ;
+	    }
 
 	    rs1 = bclose(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
-	    bprintf(pip->efp,"%s: inaccesile output (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: inaccesile output (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    bprintf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;

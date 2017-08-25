@@ -185,7 +185,7 @@ static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"HELP",
 	"VERSION",
@@ -301,7 +301,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1269,7 +1269,7 @@ static int locinfo_loadmsg(LOCINFO *lip,cchar *mp,int ml)
 static int locinfo_loadfile(LOCINFO *lip,cchar *mfn)
 {
 	ECMSG		*emp = &lip->extra ;
-	int		rs = SR_OK ;
+	int		rs ;
 	if ((rs = ecmsg_already(emp)) == 0) {
 	    rs = ecmsg_loadfile(emp,mfn) ;
 	}

@@ -62,9 +62,11 @@ int cmsghdr_passed(CMSGHDR *cmp)
 	const int	fdlen = sizeof(int) ;
 	int		fd = -1 ;
 	int		*ip = (int *) CMSG_DATA(cmp) ;
-	if ((cmp->cmsg_level == SOL_SOCKET) && 
-	            (cmp->cmsg_len == CMSG_LEN(fdlen)) &&
-	            (cmp->cmsg_type == SCM_RIGHTS) && (ip != NULL)) {
+	int		f = TRUE ;
+	f = f && (cmp->cmsg_level == SOL_SOCKET) ;
+	f = f && (cmp->cmsg_len == CMSG_LEN(fdlen)) ;
+	f = f && (cmp->cmsg_type == SCM_RIGHTS) && (ip != NULL) ;
+	if (f) {
 	    fd = *ip ;
 	}
 	return fd ;

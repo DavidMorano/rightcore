@@ -34,7 +34,6 @@
 #include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 #include	<netdb.h>
 
@@ -46,8 +45,8 @@
 #include	<paramopt.h>
 #include	<dater.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"pingstatmsg.h"
@@ -107,6 +106,8 @@ extern int	isdigitlatin(int) ;
 extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -242,15 +243,7 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*poh = PO_PINGHOST ;
-
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS + 1] ;
-	char	msgbuf[MSGBUFLEN + 1] ;
-	char	srcpath[MAXPATHLEN + 1] ;
-	char	localhost[MAXHOSTNAMELEN + 1] ;
-	char	domainname[MAXHOSTNAMELEN + 1] ;
-	char	hostnamebuf[MAXHOSTNAMELEN + 1] ;
-	char	dialspecbuf[MAXHOSTNAMELEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*logfname = NULL ;
 	const char	*ofname = NULL ;
@@ -261,6 +254,13 @@ char	*envv[] ;
 	const char	*svcspec = NULL ;
 	const char	*datestr = NULL ;
 	const char	*cp ;
+	char	argpresent[MAXARGGROUPS + 1] ;
+	char	msgbuf[MSGBUFLEN + 1] ;
+	char	srcpath[MAXPATHLEN + 1] ;
+	char	localhost[MAXHOSTNAMELEN + 1] ;
+	char	domainname[MAXHOSTNAMELEN + 1] ;
+	char	hostnamebuf[MAXHOSTNAMELEN + 1] ;
+	char	dialspecbuf[MAXHOSTNAMELEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -275,7 +275,8 @@ char	*envv[] ;
 	    goto ret0 ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

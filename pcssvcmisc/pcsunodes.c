@@ -32,7 +32,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<stdio.h>
 
 #include	<vsystem.h>
 #include	<vecpstr.h>

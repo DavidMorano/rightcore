@@ -76,12 +76,15 @@ int snwcpyuc(char *dp,int dl,cchar *sp,int sl)
 	    if (sl >= 0) {
 	        if (sl > dl) {
 	            rs = sncpyuc(dp,dl,sp) ;
-	        } else
+	        } else {
 	            rs = strwcpyuc(dp,sp,sl) - dp ;
-	    } else
+		}
+	    } else {
 	        rs = sncpyuc(dp,dl,sp) ;
-	} else
+	    }
+	} else {
 	    rs = strwcpyuc(dp,sp,sl) - dp ;
+	}
 
 	return rs ;
 }

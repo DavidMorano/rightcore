@@ -14,26 +14,23 @@
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	This is the front-end for retrieving environment variables
-	and outputting them in a packaged-up format for SHELL
-	interpretation.
+        This is the front-end for retrieving environment variables and
+        outputting them in a packaged-up format for SHELL interpretation.
 
 	Synopsis:
 
 	$ envget [-tee <teefile>]
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -45,7 +42,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -87,6 +83,8 @@ extern int	isdigitlatin(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -190,17 +188,16 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1] ;
-	char	userinfobuf[USERINFO_LEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*envfname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*teefname = NULL ;
 	const char	*sp, *cp ;
-
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1] ;
+	char	userinfobuf[USERINFO_LEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -211,7 +208,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

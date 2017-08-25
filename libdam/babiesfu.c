@@ -65,15 +65,9 @@
 
 /* external subroutines */
 
-extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	mkmagic(char *,int,cchar *) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	sfdirname(const char *,int,const char **) ;
-extern int	cfhexi(const char *,int,uint *) ;
-extern int	cfdecui(const char *,int,uint *) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 
 
@@ -95,133 +89,98 @@ extern char	*strnchr(const char *,int,int) ;
 int babiesfu(BABIESFU *ep,int f,char *hbuf,int hlen)
 {
 	uint		*header ;
+	const int	headsize = babiesfuh_overlast * sizeof(uint) ;
 	const int	magicsize = BABIESFU_MAGICSIZE ;
 	int		rs = SR_OK ;
-	int		headsize ;
-	int		bl, cl ;
+	int		bl = hlen ;
 	const char	*magicstr = BABIESFU_MAGICSTR ;
-	const char	*tp, *cp ;
-	char		*bp ;
+	char		*bp = hbuf ;
 
-	if (ep == NULL)
-	    return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
+	if (hbuf == NULL) return SR_FAULT ;
 
-	if (hbuf == NULL)
-	    return SR_FAULT ;
-
-	bp = hbuf ;
-	bl = hlen ;
-	headsize = babiesfuh_overlast * sizeof(uint) ;
 	if (f) { /* read */
-
-/* the magic string is within the first 15 bytes */
-
-	    if ((rs >= 0) && (bl > 0)) {
-
-	        if (bl >= magicsize) {
-
-	            cp = bp ;
-	            cl = magicsize ;
-	            if ((tp = strnchr(cp,cl,'\n')) != NULL)
-	                cl = (tp - cp) ;
-
-	            bp += magicsize ;
-	            bl -= magicsize ;
-
-/* verify the magic string */
-
-	            if (strncmp(cp,magicstr,cl) != 0)
-	                rs = SR_NXIO ;
-
-	        } else
-	            rs = SR_ILSEQ ;
-
-	    } /* end if (item) */
+	    if ((bl > magicsize) && isValidMagic(bp,magicsize,magicstr)) {
+	        bp += magicsize ;
+	        bl -= magicsize ;
 
 /* read out the VETU information */
-
-	    if ((rs >= 0) && (bl > 0)) {
 
 	        if (bl >= 4) {
 
 	            memcpy(ep->vetu,bp,4) ;
 
-	            if (ep->vetu[0] != BABIESFU_VERSION)
+	            if (ep->vetu[0] != BABIESFU_VERSION) {
 	                rs = SR_PROTONOSUPPORT ;
+		    }
 
-	            if ((rs >= 0) && (ep->vetu[1] != ENDIAN))
+	            if ((rs >= 0) && (ep->vetu[1] != ENDIAN)) {
 	                rs = SR_PROTOTYPE ;
+		    }
 
 	            bp += 4 ;
 	            bl -= 4 ;
 
-	        } else
+	        } else {
 	            rs = SR_ILSEQ ;
+		}
 
-	    } /* end if (item) */
+	        if (rs >= 0) {
+	            if (bl >= headsize) {
+	                header = (uint *) bp ;
+	                ep->shmsize = header[babiesfuh_shmsize] ;
+	                ep->dbsize = header[babiesfuh_dbsize] ;
+	                ep->dbtime = header[babiesfuh_dbtime] ;
+	                ep->wtime = header[babiesfuh_wtime] ;
+	                ep->atime = header[babiesfuh_atime] ;
+	                ep->acount = header[babiesfuh_acount] ;
+	                ep->muoff = header[babiesfuh_muoff] ;
+	                ep->musize = header[babiesfuh_musize] ;
+	                ep->btoff = header[babiesfuh_btoff] ;
+	                ep->btlen = header[babiesfuh_btlen] ;
+	                bp += headsize ;
+	                bl -= headsize ;
+	            } else {
+	                rs = SR_ILSEQ ;
+		    }
+	        } /* end if (ok) */
 
-	    if ((rs >= 0) && (bl > 0)) {
-
-	        if (bl >= headsize) {
-
-	            header = (uint *) bp ;
-
-	            ep->shmsize = header[babiesfuh_shmsize] ;
-	            ep->dbsize = header[babiesfuh_dbsize] ;
-	            ep->dbtime = header[babiesfuh_dbtime] ;
-	            ep->wtime = header[babiesfuh_wtime] ;
-	            ep->atime = header[babiesfuh_atime] ;
-	            ep->acount = header[babiesfuh_acount] ;
-	            ep->muoff = header[babiesfuh_muoff] ;
-	            ep->musize = header[babiesfuh_musize] ;
-	            ep->btoff = header[babiesfuh_btoff] ;
-	            ep->btlen = header[babiesfuh_btlen] ;
-
-	            bp += headsize ;
-	            bl -= headsize ;
-
-	        } else
-	            rs = SR_ILSEQ ;
-
-	    } /* end if (item) */
-
+	    } /* end if (isValidMagic) */
 	} else { /* write */
-
-	    mkmagic(bp, magicsize, magicstr) ;
-	    bp += magicsize ;
-	    bl -= magicsize ;
-
-	    memcpy(bp,ep->vetu,4) ;
-	    bp[0] = BABIESFU_VERSION ;
-	    bp[1] = ENDIAN ;
-	    bp += 4 ;
-	    bl -= 4 ;
-
-	    if ((rs >= 0) && (bl >= headsize)) {
-
-	        header = (uint *) bp ;
-
-	        header[babiesfuh_shmsize] = ep->shmsize ;
-	        header[babiesfuh_dbsize] = ep->dbsize ;
-	        header[babiesfuh_dbtime] = ep->dbtime ;
-	        header[babiesfuh_wtime] = ep->wtime ;
-	        header[babiesfuh_atime] = ep->atime ;
-	        header[babiesfuh_acount] = ep->acount ;
-	        header[babiesfuh_muoff] = ep->muoff ;
-	        header[babiesfuh_musize] = ep->musize ;
-	        header[babiesfuh_btoff] = ep->btoff ;
-	        header[babiesfuh_btlen] = ep->btlen ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-	    } /* end if */
-
-	} /* end if */
+	    if (bl >= (magicsize + 4)) {
+	        if ((rs = mkmagic(bp,magicsize,magicstr)) >= 0) {
+	            bp += magicsize ;
+	            bl -= magicsize ;
+	    	    memcpy(bp,ep->vetu,4) ;
+	    	    bp[0] = BABIESFU_VERSION ;
+	    	    bp[1] = ENDIAN ;
+	    	    bp += 4 ;
+	    	    bl -= 4 ;
+	    	    if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	header[babiesfuh_shmsize] = ep->shmsize ;
+	        	header[babiesfuh_dbsize] = ep->dbsize ;
+	        	header[babiesfuh_dbtime] = ep->dbtime ;
+	        	header[babiesfuh_wtime] = ep->wtime ;
+	        	header[babiesfuh_atime] = ep->atime ;
+	        	header[babiesfuh_acount] = ep->acount ;
+	        	header[babiesfuh_muoff] = ep->muoff ;
+	        	header[babiesfuh_musize] = ep->musize ;
+	        	header[babiesfuh_btoff] = ep->btoff ;
+	        	header[babiesfuh_btlen] = ep->btlen ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+	            } else {
+	                rs = SR_OVERFLOW ;
+	            }
+	        } /* end if (mkmagic) */
+	    } else {
+	        rs = SR_OVERFLOW ;
+	    }
+	} /* end if (read-write) */
 
 	return (rs >= 0) ? (bp - hbuf) : rs ;
 }
 /* end subroutine (babiesfu) */
-
 
 

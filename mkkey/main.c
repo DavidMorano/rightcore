@@ -10,24 +10,24 @@
 
 /* revision history:
 
-	= 1994-09-01, David A­D­ Morano
+	= 2000-09-21, David A­D­ Morano
 	This program was originally written.
 
 */
 
-/* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
-/*****************************************************************************
+/*******************************************************************************
 
-	This is the 'main' module for the 'mkkey' program.  This module
-	processes the program invocation arguments and performs some
-	preprocessing steps before any actual input files are scanned.
+        This is the 'main' module for the 'mkkey' program. This module processes
+        the program invocation arguments and performs some preprocessing steps
+        before any actual input files are scanned.
 
-	The real work of processing the input files (one at a time) is
-	performed by the 'process()' subroutine.
+        The real work of processing the input files (one at a time) is performed
+        by the 'process()' subroutine.
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -36,7 +36,6 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<sys/socket.h>
-#include	<sys/utsname.h>
 #include	<netinet/in.h>
 #include	<arpa/inet.h>
 #include	<netdb.h>
@@ -1089,72 +1088,13 @@ char	*envp[] ;
 	} /* end if (we tried to open another log file) */
 
 	if (rs >= 0) {
+	    pip->open.log = TRUE ;
 
-		struct utsname	un ;
-
-
-	    pip->f.log = TRUE ;
-
-#if	CF_DEBUG
-	    if (pip->debuglevel > 1)
-	        eprintf("main: we opened a logfile\n") ;
-#endif
-
-/* we opened it, maintenance this log file if we have to */
-
-	    if (loglen < 0) 
-		loglen = LOGSIZE ;
+	    if (loglen < 0) loglen = LOGSIZE ;
 
 	    logfile_checksize(&pip->lh,loglen) ;
 
-#if	CF_DEBUG
-	    if (pip->debuglevel > 1)
-	        eprintf("main: we checked its length\n") ;
-#endif
-
-	    (void) u_time(&daytime) ;
-
-#if	CF_DEBUG
-	    if (pip->debuglevel > 1)
-	        eprintf("main: making log entry\n") ;
-#endif
-
-	    logfile_printf(&pip->lh,"%s %s\n",
-	        timestr_log(daytime,timebuf),
-	        BANNER) ;
-
-	    logfile_printf(&pip->lh,"%-14s %s/%s\n",
-	        pip->progname,
-	        VERSION,(u.f.sysv_ct) ? "SYSV" : "BSD") ;
-
-
-	    buf[0] = '\0' ;
-	    if ((u.name != NULL) && (u.name[0] != '\0'))
-	        sprintf(buf,"(%s)",u.name) ;
-
-	    else if ((u.gecosname != NULL) && (u.gecosname[0] != '\0'))
-	        sprintf(buf,"(%s)",u.gecosname) ;
-
-	    else if ((u.fullname != NULL) && (u.fullname[0] != '\0'))
-	        sprintf(buf,"(%s)",u.fullname) ;
-
-	    logfile_printf(&pip->lh,"%s!%s %s\n",
-	        u.nodename,u.username,buf) ;
-
-		(void) u_uname(&un) ;
-
-	    logfile_printf(&pip->lh,"ostype=%s os=%s(%s) pid=%d\n",
-	        u.f.sysv_rt ? "SYSV" : "BSD",
-		un.sysname,un.release,
-		u.pid) ;
-
-
-	    if (eigenfname != NULL)
-	        logfile_printf(&pip->lh,"eigenfile=%s\n",
-	            eigenfname) ;
-
 	} /* end if (we have a log file or not) */
-
 
 /* print out the help file if requested */
 

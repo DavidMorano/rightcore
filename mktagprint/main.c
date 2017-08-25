@@ -19,9 +19,9 @@
 
 /*****************************************************************************
 
-	This is the 'main' module for the MKTAGPRINT program.  This
-	program reads tags and prints out the associated original text
-	with possibly some minor formatting.
+        This is the 'main' module for the MKTAGPRINT program. This program reads
+        tags and prints out the associated original text with possibly some
+        minor formatting.
 
 
 *****************************************************************************/
@@ -35,7 +35,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -84,7 +83,7 @@ extern int	proginfo_setpiv(struct proginfo *,const char *,
 extern int	mktagprint(struct proginfo *,struct arginfo *,
 			const char *,const char *,const char *) ;
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -104,7 +103,7 @@ static int	usage(struct proginfo *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"CONFIG",
 	"VERSION",
@@ -172,7 +171,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*progmodes[] = {
+static cchar	*progmodes[] = {
 	"mkkey",
 	"mkinv",
 	"mkquery",
@@ -192,23 +191,16 @@ enum progmodes {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	struct proginfo	pi, *pip = &pi ;
-
 	struct arginfo	ainfo ;
-
 	USERINFO	u ;
-
 	bfile		errfile ;
 	bfile		eigenfile, *ifp = &eigenfile ;
-
-	varsub	vsh_e, vsh_d ;
-
-	time_t	daytime ;
+	varsub		vsh_e, vsh_d ;
+	time_t		daytime ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
 	int	ai ;
@@ -231,8 +223,6 @@ const char	*envv[] ;
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
 	const char	*logdname = LOGDNAME ;
-	char	userbuf[USERINFO_LEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
 	const char	*pmspec = NULL ;
@@ -251,6 +241,8 @@ const char	*envv[] ;
 	const char	*dn = NULL ;
 	const char	*fn = NULL ;
 	const char	*sp, *cp ;
+	char		userbuf[USERINFO_LEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -293,10 +285,10 @@ const char	*envv[] ;
 
 /* start parsing the arguments */
 
-	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1) 
-		ainfo.argpresent[ai] = 0 ;
+	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1) {
+	    ainfo.argpresent[ai] = 0 ;
+	}
 
-	ai = 0 ;
 	ainfo.ai_max = 0 ;
 	ainfo.ai_pos = 0 ;
 	ainfo.argc = argc ;

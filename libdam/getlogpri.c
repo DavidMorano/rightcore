@@ -127,8 +127,9 @@ int getlogpri(const char *np,int nl)
 	    } /* end for */
 	    logpri = lfs[i].pri ;
 	    if (! f) rs = SR_NOTFOUND ;
-	} else if (ch != '\0')
+	} else if (ch != '\0') {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? logpri : rs ;
 }
@@ -136,8 +137,7 @@ int getlogpri(const char *np,int nl)
 
 
 #ifdef	COMMENT
-const char *strfacname(fac)
-int	fac ;
+const char *strfacname(int fac)
 {
 	const LOCPRI	*lfs = logpris ;
 	int		i ;

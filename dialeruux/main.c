@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -41,7 +39,6 @@
 #include	<netdb.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -52,17 +49,16 @@
 #include	<userinfo.h>
 #include	<logfile.h>
 #include	<serialbuf.h>
-#include	<exitcodes.h>
 #include	<mallocstuff.h>
+#include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"systems.h"
 #include	"dialer.h"
 #include	"cm.h"
 #include	"prog.h"
-
 
 
 /* local defines */
@@ -79,7 +75,6 @@
 #ifndef	TO_READ
 #define	TO_READ		10
 #endif
-
 
 
 /* external subroutines */
@@ -242,25 +237,25 @@ const char	*envv[] ;
 	int	f_cm = FALSE ;
 	int	f ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*pr = NULL ;
+	cchar	*afname = NULL ;
+	cchar	*ifname = NULL ;
+	cchar	*logfname = NULL ;
+	cchar	*hostname ;
+	cchar	*loghost = NULL ;
+	cchar	*svcspec = NULL ;
+	cchar	*fromaddr = NULL ;
+	cchar	*logpriority = NULL ;
+	cchar	*logtag = NULL ;
+	cchar	*tospec = NULL ;
+	cchar	*sp, *cp, *cp2 ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	tmpfname[MAXPATHLEN + 1] ;
 	char	buf[BUFLEN + 1] ;
 	char	fromaddrbuf[MAILADDRLEN + 1] ;
 	char	userinfobuf[USERINFO_LEN + 1] ;
 	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*pr = NULL ;
-	char	*afname = NULL ;
-	char	*ifname = NULL ;
-	char	*logfname = NULL ;
-	char	*hostname ;
-	char	*loghost = NULL ;
-	char	*svcspec = NULL ;
-	char	*fromaddr = NULL ;
-	char	*logpriority = NULL ;
-	char	*logtag = NULL ;
-	char	*tospec = NULL ;
-	char	*sp, *cp, *cp2 ;
 
 	if_int = 0 ;
 
@@ -273,7 +268,8 @@ const char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

@@ -19,10 +19,7 @@
 /* revision history:
 
 	= 1998-02-05, David A­D­ Morano
-
-	I put this together to see if this old object still works
-	as intended!
-
+        I put this together to see if this old object still works as intended!
 
 */
 
@@ -30,8 +27,8 @@
 
 /******************************************************************************
 
-	This subroutine is the main part of a program to test the
-	random variable generator object.
+        This subroutine is the main part of a program to test the random
+        variable generator object.
 
 
 ******************************************************************************/
@@ -82,7 +79,7 @@ extern char	*strbasename(char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"CONFIG",
 	"VERSION",
@@ -104,7 +101,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const char *randtypes[] = {
+static cchar	*randtypes[] = {
 	"randomvar",
 	"randmwc",
 	"random",
@@ -124,28 +121,18 @@ enum randtypes {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	RANDOMVAR	rng ;
-
 	CHEAP		cng ;
-
 	RANDMWC		mwc ;
-
 	RANDOM		std ;
-
 	bfile		outfile, *ofp = &outfile ;
-
-	ULONG	words[NWORDS] ;
-	ULONG	rv1, rv2 ;
-
-	time_t	daytime ;
-
-	uint	uiw ;
-	uint	ihi, ilo ;
+	ULONG		words[NWORDS] ;
+	ULONG		rv1, rv2 ;
+	time_t		daytime ;
+	uint		uiw ;
+	uint		ihi, ilo ;
 
 	int	rs ;
 	int	ex = 0 ;

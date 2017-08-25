@@ -16,28 +16,25 @@
 
 /* revision history:
 
-	= 94/09/01, David A­D­ Morano
-
+	= 1994-09-01, David A­D­ Morano
 	This subroutine was borrowed and modified from previous generic
 	front-end 'main' subroutines !
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine forms the front-end part of a generic PCS
-	type of program.  This front-end is used in a variety of
-	PCS programs.
+        This subroutine forms the front-end part of a generic PCS type of
+        program. This front-end is used in a variety of PCS programs.
 
-	This subroutine was originally part of the Personal
-	Communications Services (PCS) package but can also be used
-	independently from it.  Historically, this was developed as
-	part of an effort to maintain high function (and reliable)
-	email communications in the face of increasingly draconian
-	security restrictions imposed on the computers in the DEFINITY
-	development organization.
+        This subroutine was originally part of the Personal Communications
+        Services (PCS) package but can also be used independently from it.
+        Historically, this was developed as part of an effort to maintain high
+        function (and reliable) email communications in the face of increasingly
+        draconian security restrictions imposed on the computers in the DEFINITY
+        development organization.
 
 
 *******************************************************************************/
@@ -59,7 +56,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<grp.h>
 
 #include	<vsystem.h>
@@ -137,6 +133,8 @@ extern int	procfileenv(char *,char *,vecstr *) ;
 extern int	procfilepath(char *,char *,vecstr *) ;
 
 extern int	process(struct proginfo *,vecstr *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strbasename(char *) ;
@@ -245,29 +243,19 @@ int	argc ;
 char	*argv[], *envv[] ;
 {
 	struct ustat		sb ;
-
 	struct proginfo		pi, *pip = &pi ;
-
 	struct configfile	cf ;
-
 	struct group	ge ;
-
 	PCSCONF		pc ;
-
 	USERINFO	u ;
-
 	bfile		errfile ;
 	bfile		logfile ;
 	bfile		pidfile ;
-
 	vecstr		defines, unsets ;
 	VECSTR		svars ;
-
 	varsub		vsh_e, vsh_d ;
-
 	SRVTAB_ENT	*srvp ;
-
-	time_t	daytime = time(NULL) ;
+	time_t		daytime = time(NULL) ;
 
 	int	argr, argl, aol, akl, avl ;
 	int	maxai, pan, npa, kwi, i ;
@@ -293,7 +281,10 @@ char	*argv[], *envv[] ;
 	int	f_changedroot = FALSE ;
 	int	f_checksecure ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*pr = NULL ;
+	cchar	*configfname = NULL ;
+	cchar	*cp ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	buf[BUFLEN + 2] ;
 	char	buf2[BUFLEN + 2] ;
@@ -312,18 +303,13 @@ char	*argv[], *envv[] ;
 	char	maildname[MAXPATHLEN + 2] ;
 	char	pcsconfbuf[PCSCONF_LEN + 1] ;
 	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*pr = NULL ;
-	char	*configfname = NULL ;
-	char	*cp ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-		cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 /* we want to open up some files so that the first few FD slots are FULL !! */
 
@@ -332,7 +318,8 @@ char	*argv[], *envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->f.fd_stdout = TRUE ;
 
@@ -346,8 +333,9 @@ char	*argv[], *envv[] ;
 	    pip->f.fd_stderr = TRUE ;
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
-	} else
-	    (void) u_open("/dev/null",O_WRONLY,0666) ;
+	} else {
+	    u_open("/dev/null",O_WRONLY,0666) ;
+	}
 
 	pip->lfp = &logfile ;
 
@@ -357,36 +345,9 @@ char	*argv[], *envv[] ;
 
 /* initialize */
 
-	pip->username = NULL ;
-	pip->groupname = NULL ;
-	pip->pidfname = NULL ;
-	pip->lockfname = NULL ;
-	pip->tmpdname = NULL ;
-	pip->workdname = NULL ;
-	pip->stampdname = NULL ;
-	pip->defuser = NULL ;
-	pip->defgroup = NULL ;
-	pip->defacc = NULL ;
-	pip->srvtab = NULL ;
-	pip->acctab = NULL ;
-
-	pip->prog_rmail = NULL ;
-	pip->prog_sendmail = NULL ;
-
-	pip->debuglevel = 0 ;
 	pip->interval = -1 ;	/* program check interval */
 	pip->runtime = 0 ;	/* regular mode requires '0' here */
 	pip->maxjobs = MAXJOBS ;
-
-	pip->f.quiet = FALSE ;
-	pip->f.log = FALSE ;
-	pip->f.slog = FALSE ;
-	pip->f.daemon = FALSE ;
-	pip->f.named = FALSE ;
-	pip->f.srvtab = FALSE ;
-	pip->f.acctab = FALSE ;
-	pip->f.defacc = FALSE ;
-
 
 	pathfname[0] = '\0' ;
 	srvfname[0] = '\0' ;
@@ -396,7 +357,6 @@ char	*argv[], *envv[] ;
 	logfname[0] = '\0' ;
 	stampfname[0] = '\0' ;
 	stampdname[0] = '\0' ;
-
 
 /* start parsing the arguments */
 

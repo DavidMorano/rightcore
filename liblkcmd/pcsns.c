@@ -137,7 +137,7 @@ int pcsns_open(PCSNS *op,cchar *pr)
 /* end subroutine (pcsns_open) */
 
 
-int pcsns_close( PCSNS *op)
+int pcsns_close(PCSNS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -215,7 +215,7 @@ int pcsns_get(PCSNS *op,char *rbuf,int rlen,cchar *un,int w)
 
 int pcsns_curbegin(PCSNS *op,PCSNS_CUR *curp)
 {
-	int		rs = SR_OK ;
+	int		rs = SR_NOTSUP ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
@@ -236,8 +236,7 @@ int pcsns_curbegin(PCSNS *op,PCSNS_CUR *curp)
 	    	    curp->scp = NULL ;
 		}
 	    } /* end if (memory-allocation) */
-	} else
-	    rs = SR_NOTSUP ;
+	}
 
 	return rs ;
 }
@@ -246,7 +245,7 @@ int pcsns_curbegin(PCSNS *op,PCSNS_CUR *curp)
 
 int pcsns_curend(PCSNS *op,PCSNS_CUR *curp)
 {
-	int		rs = SR_OK ;
+	int		rs = SR_NOTSUP ;
 	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -263,8 +262,7 @@ int pcsns_curend(PCSNS *op,PCSNS_CUR *curp)
 	    rs1 = uc_free(curp->scp) ;
 	    if (rs >= 0) rs = rs1 ;
 	    curp->scp = NULL ;
-	} else
-	    rs = SR_NOTSUP ;
+	}
 
 	curp->magic = 0 ;
 	return rs ;

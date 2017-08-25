@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written (from previous like it).
-
 
 */
 
@@ -43,7 +41,6 @@
 #include	<utime.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -51,11 +48,10 @@
 #include	<char.h>
 #include	<bfile.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -83,6 +79,8 @@ extern int	isdigitlatin(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strbasename(char *) ;
@@ -160,11 +158,9 @@ int	argc ;
 char	*argv[] ;
 char	*envv[] ;
 {
-	PROGINFO	pi, *pip = &pi ;
-
 	struct ustat	sa, sb ;
-
 	struct utimbuf	ft ;
+	PROGINFO	pi, *pip = &pi ;
 
 	bfile	errfile ;
 	bfile	infile, *ifp = &infile ;
@@ -205,6 +201,14 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
+	const char	*pr = NULL ;
+	const char	*rline ;
+	const char	*homedir = getenv(VARHOMEDNAME) ;
+	const char	*imatype ;
+	const char	*ifname = NULL ;
+	const char	*ofname = NULL ;
+	const char	*imafname = NULL ;
+	const char	*cp, *cp2 ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	linebuf[LINELEN + 1] ;
 	char	buf[CMDBUFLEN + 1] ;
@@ -214,14 +218,6 @@ char	*envv[] ;
 	char	ps_noexist[MAXPATHLEN + 1] ;
 	char	ps_noread[MAXPATHLEN + 1] ;
 	char	ps_unknown[MAXPATHLEN + 1] ;
-	const char	*pr = NULL ;
-	const char	*rline ;
-	const char	*homedir = getenv(VARHOMEDNAME) ;
-	const char	*imatype ;
-	const char	*ifname = NULL ;
-	const char	*ofname = NULL ;
-	const char	*imafname = NULL ;
-	const char	*cp, *cp2 ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -232,7 +228,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 	
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -251,7 +248,6 @@ char	*envv[] ;
 
 /* go to the arguments */
 
-	rs = SR_OK ;
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1) 
 		argpresent[ai] = 0 ;
 

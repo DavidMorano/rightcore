@@ -11,40 +11,36 @@
 
 /* revision history:
 
-	= 89/03/01, David A­D­ Morano
+	= 1989-03-01, David A­D­ Morano
+        This subroutine was originally written. This whole program, LOGDIR, is
+        needed for use on the Sun CAD machines because Sun doesn't support
+        LOGDIR or LOGNAME at this time. There was a previous program but it is
+        lost and not as good as this one anyway. This one handles NIS+ also.
+        (The previous one didn't.)
 
-	This subroutine was originally written.  This whole program,
-	LOGDIR, is needed for use on the Sun CAD machines because Sun
-	doesn't support LOGDIR or LOGNAME at this time.  There was a
-	previous program but it is lost and not as good as this one
-	anyway.  This one handles NIS+ also.  (The previous one
-	didn't.) 
-
-
-	= 98/06/01, David A­D­ Morano
-
+	= 1998-06-01, David A­D­ Morano
 	I enhanced the program a little to print out some other user
 	information besides the user's name and login home directory.
 
-
-	= 99/03/01, David A­D­ Morano
-
+	= 1999-03-01, David A­D­ Morano
 	I enhanced the program to also print out effective UID and
 	effective GID.
 
-
 */
 
+/* Copyright © 1989,1998,1999 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	Execute as:
+	Synopsis:
 
 	$ testpthread.x
 
 
-*****************************************************************************/
+*******************************************************************************/
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -68,16 +64,14 @@
 #include	<schedvar.h>
 #include	<sbuf.h>
 #include	<realname.h>
-#include	<exitcodes.h>
 #include	<mallocstuff.h>
-
 #include	"pwfile.h"
 #include	"ipasswd.h"
+#include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -114,9 +108,9 @@ extern int	lastlogin(char *,uid_t,time_t *,char *,char *) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strbasename(char *) ;
-extern char	*strshrink(char *) ;
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
@@ -192,30 +186,29 @@ const char	*envv[] ;
 	int	f_self = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	nodename[NODENAMELEN + 1] ;
-	char	domainname[MAXHOSTNAMELEN + 1] ;
-	char	usernamebuf[LOGNAME_MAX + 1] ;
 	const char	*pr = NULL ;
 	const char	*ofname = NULL ;
 	const char	*pwfname = NULL ;
 	const char	*pwifname = NULL ;
 	const char	*un = NULL ;
 	const char	*sp, *cp, *cp2 ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1], *bp ;
+	char	nodename[NODENAMELEN + 1] ;
+	char	domainname[MAXHOSTNAMELEN + 1] ;
+	char	usernamebuf[LOGNAME_MAX + 1] ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
@@ -226,7 +219,6 @@ const char	*envv[] ;
 /* initialize */
 
 	pip->verboselevel = 1 ;
-	pip->f.quiet = FALSE ;
 
 /* start parsing the arguments */
 

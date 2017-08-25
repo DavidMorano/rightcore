@@ -10,23 +10,20 @@
 
 /* revision history:
 
-	= 92/03/01, David A­D­ Morano
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+	= 1992-03-01, David A­D­ Morano
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
 /* Copyright © 1992 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
-	This is a fairly generic front-end subroutine for small
-	programs.
+        This is a fairly generic front-end subroutine for small programs.
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -34,22 +31,20 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
-#include	<exitcodes.h>
 #include	<bfile.h>
 #include	<baops.h>
 #include	<field.h>
+#include	"paramopt.h"
+#include	<exitcodes.h>
 #include	<localmisc.h>
 
-#include	"paramopt.h"
 #include	"config.h"
 #include	"defs.h"
 
@@ -180,7 +175,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
@@ -189,19 +185,7 @@ char	*envv[] ;
 
 /* early things to initialize */
 
-	pip->tmpdname = NULL ;
 	pip->verboselevel = 1 ;
-	pip->f.nochange = FALSE ;
-	pip->f.quiet = FALSE ;
-
-/* processing options */
-
-	opts.lower = FALSE ;
-	opts.inplace = FALSE ;
-	opts.doublespace = FALSE ;
-	opts.half = FALSE ;
-	opts.leading = FALSE ;
-	opts.oneblank = FALSE ;
 
 /* process program arguments */
 

@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -44,7 +42,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
@@ -209,12 +206,6 @@ char	*envv[] ;
 	uchar	terms[32] ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1] ;
-	char	buf2[BUFLEN + 1] ;
-	char	userbuf[USERINFO_LEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*configfname = NULL ;
 	const char	*logfname = NULL ;
@@ -223,6 +214,12 @@ char	*envv[] ;
 	const char	*ofname = NULL ;
 	const char	*indexname = NULL ;
 	const char	*sp, *cp ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1] ;
+	char	buf2[BUFLEN + 1] ;
+	char	userbuf[USERINFO_LEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -233,7 +230,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -252,7 +250,6 @@ char	*envv[] ;
 
 /* start parsing the arguments */
 
-	rs = 0 ;
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1) 
 		argpresent[ai] = 0 ;
 

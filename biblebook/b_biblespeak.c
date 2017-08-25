@@ -1227,8 +1227,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                } /* end switch */
 
 	                c += 1 ;
-	            } else
+	            } else {
 			rs = SR_INVALID ;
+		    }
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1564,8 +1565,8 @@ static int procparse(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar sp[],int sl)
 	int		rs ;
 
 	if ((rs = bcspec_load(&bb,sp,sl)) >= 0) {
-	    const char	*np = bb.np ;
 	    const int	nl = bb.nl ;
+	    cchar	*np = bb.np ;
 	    qp->b = bb.b ;
 	    qp->c = bb.c ;
 	    qp->v = bb.v ;
@@ -1906,8 +1907,9 @@ static int procword(PROGINFO *pip,WORDFILL *wp,cchar *cp,int cl)
 
 	    } /* end if */
 
-	    if ((rs >= 0) && (cl > 0))
+	    if ((rs >= 0) && (cl > 0)) {
 	        rs = wordfill_addword(wp,cp,cl) ;
+	    }
 
 	} /* end if */
 
@@ -1938,8 +1940,7 @@ int		cl ;
 /* end subroutine (mkwordclean) */
 
 
-static int metawordsbegin(pip)
-PROGINFO	*pip ;
+static int metawordsbegin(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
@@ -2008,8 +2009,7 @@ PROGINFO	*pip ;
 /* end subroutine (metawordsbegin) */
 
 
-static int metawordsfins(pip)
-PROGINFO	*pip ;
+static int metawordsfins(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -2105,7 +2105,7 @@ static int locinfo_nlookup(LOCINFO *lip,char *rbuf,int rlen,int bi)
 /* end subroutine (locinfo_nlookup) */
 
 
-static int locinfo_bookmatch(LOCINFO *lip,cchar mbuf[],int mlen)
+static int locinfo_bookmatch(LOCINFO *lip,cchar *mbuf,int mlen)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;

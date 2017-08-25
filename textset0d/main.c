@@ -41,12 +41,11 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<bits.h>
 #include	<bfile.h>
-#include	<estrings.h>
 #include	<ucmallreg.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
@@ -229,7 +228,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialization */
 
@@ -256,7 +255,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -297,12 +296,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            pip->pr = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->pr = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -347,16 +346,16 @@ int main(int argc,cchar **argv,cchar **envv)
 /* offset */
 	                case argopt_offset:
 	                case argopt_fo:
-	                        if (argr > 0) {
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl) {
-	                        rs = optvalue(argp,argl) ;
-	                        coffset = rs ;
-	                    }
-				} else
-	                            rs = SR_INVALID ;
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            rs = optvalue(argp,argl) ;
+	                            coffset = rs ;
+	                        }
+	                    } else
+	                        rs = SR_INVALID ;
 	                    break ;
 
 /* progream search-name */
@@ -367,12 +366,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            sn = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -384,12 +383,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            afname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -402,12 +401,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -420,12 +419,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            ofname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -465,25 +464,25 @@ int main(int argc,cchar **argv,cchar **envv)
 /* blank lines at the top of a page */
 	                    case 'b':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-	                            blanklines = rs ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+	                                blanklines = rs ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'f':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->fontname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->fontname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -499,77 +498,77 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	                    case 'l':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-	                            pagelines = rs ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+	                                pagelines = rs ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'p':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            pointstring = argp ;
-	                            pointlen = argl ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                pointstring = argp ;
+	                                pointlen = argl ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'v':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-	                            pip->vs = rs ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+	                                pip->vs = rs ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'w':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'x':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-	                            xoffset = rs ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+	                                xoffset = rs ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'y':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-	                            yoffset = rs ;
-	                        }
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+	                                yoffset = rs ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -703,16 +702,16 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	    if (i >= 0) {
 	        if (i > 0) {
-		    rs = optvalue(pointstring,i) ;
-		    pip->ps = rs ;
-		}
+	            rs = optvalue(pointstring,i) ;
+	            pip->ps = rs ;
+	        }
 	        if ((rs >= 0) && ((pointlen - i) > 1)) {
 	            rs = optvalue((pointstring + i + 1),(pointlen - i - 1)) ;
-		    pip->vs = rs ;
-		}
+	            pip->vs = rs ;
+	        }
 	    } else {
 	        rs = optvalue(pointstring,pointlen) ;
-		pip->ps = rs ;
+	        pip->ps = rs ;
 	    }
 
 	} /* end if (handling the 'pointstring') */
@@ -757,7 +756,15 @@ int main(int argc,cchar **argv,cchar **envv)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	    rs = process(pip,&ainfo,&pargs,ofname,afname) ;
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
+	    rs = process(pip,aip,bop,ofname,afname) ;
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
 	if (pip->debuglevel > 0) {
@@ -897,9 +904,9 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    pip->ofp = ofp ;
 
 	    if ((rs = procleader(pip,ofp)) >= 0) {
-		if ((rs = procargs(pip,aip,bop,ofp,afn)) >= 0) {
-		    rs = proctrailer(pip,ofp) ;
-		}
+	        if ((rs = procargs(pip,aip,bop,ofp,afn)) >= 0) {
+	            rs = proctrailer(pip,ofp) ;
+	        }
 	    }
 
 	    pip->ofp = NULL ;
@@ -922,21 +929,21 @@ static int procleader(PROGINFO *pip,bfile *ofp)
 {
 	int		rs = SR_OK ;
 
-	    bprintf(ofp,".\\\"_ textset start-of-job\n") ;
+	bprintf(ofp,".\\\"_ textset start-of-job\n") ;
 
-	    bprintf(ofp,".nf\n") ;
+	bprintf(ofp,".nf\n") ;
 
-	    if (matstr(stdfonts,pip->fontname,-1) < 0) {
-	        bprintf(ofp,".fp 9 %s\n",pip->fontname) ;
-	    }
+	if (matstr(stdfonts,pip->fontname,-1) < 0) {
+	    bprintf(ofp,".fp 9 %s\n",pip->fontname) ;
+	}
 
-	    bprintf(ofp,".ft %s\n",pip->fontname) ;
+	bprintf(ofp,".ft %s\n",pip->fontname) ;
 
 /* change to running point size */
 
-	    bprintf(ofp,".ps %d\n",pip->ps) ;
+	bprintf(ofp,".ps %d\n",pip->ps) ;
 
-	    bprintf(ofp,".vs %d\n",pip->vs) ;
+	bprintf(ofp,".vs %d\n",pip->vs) ;
 
 	return rs ;
 }
@@ -973,64 +980,64 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,bfile *ofp,cchar *afn)
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
 	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	        if (f) {
-		    cp = argv[ai] ;
-		    if (cp[0] != '\0') {
-	        	pan += 1 ;
-	        	rs = progfile(pip,cp) ;
-			wlen += rs ;
-		    }
-		}
-		if (rs < 0) break ;
+	            cp = argv[ai] ;
+	            if (cp[0] != '\0') {
+	                pan += 1 ;
+	                rs = progfile(pip,cp) ;
+	                wlen += rs ;
+	            }
+	        }
+	        if (rs < 0) break ;
 	    } /* end for (got a positional argument) */
 	} /* end if (ok) */
 
 	if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	        bfile	afile, *afp = &afile ;
+	    bfile	afile, *afp = &afile ;
 
-	        if ((afn == NULL) || (afn[0] == '-')) afn = BFILE_STDIN ;
+	    if ((afn == NULL) || (afn[0] == '-')) afn = BFILE_STDIN ;
 
-	        if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
-	            const int	llen = LINEBUFLEN ;
-	            int		len ;
-	            char	lbuf[LINEBUFLEN + 1] ;
+	    if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN + 1] ;
 
-	            while ((rs = breadline(afp,lbuf,llen)) > 0) {
-	                len = rs ;
+	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
+	            len = rs ;
 
-	                if (lbuf[len - 1] == '\n') len -= 1 ;
-	                lbuf[len] = '\0' ;
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
 
-	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                    if (cp[0] != '#') {
-	                        pan += 1 ;
-				lbuf[(cp+cl)-lbuf] = '\0' ;
-	                	rs = progfile(pip,cp) ;
-	                        wlen += rs ;
-	                    }
+	            if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                if (cp[0] != '#') {
+	                    pan += 1 ;
+	                    lbuf[(cp+cl)-lbuf] = '\0' ;
+	                    rs = progfile(pip,cp) ;
+	                    wlen += rs ;
 	                }
-
-			if (rs < 0) break ;
-	            } /* end while (reading lines) */
-
-	            rs1 = bclose(&afile) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } else {
-	            if (! pip->f.quiet) {
-			cchar	*pn = pip->progname ;
-			cchar	*fmt = "%s: inaccessible argument-list (%d)\n" ;
-	                bprintf(pip->efp,fmt,pn,rs) ;
-	                bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
-	        } /* end if */
+
+	            if (rs < 0) break ;
+	        } /* end while (reading lines) */
+
+	        rs1 = bclose(&afile) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        if (! pip->f.quiet) {
+	            cchar	*pn = pip->progname ;
+	            cchar	*fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            bprintf(pip->efp,fmt,pn,rs) ;
+	            bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	        }
+	    } /* end if */
 
 	} /* end if (processing file argument file list) */
 
 	if ((rs >= 0) && (pan == 0)) {
 
-	        cp = "-" ;
-	        pan += 1 ;
-	        rs = progfile(pip,cp) ;
-		wlen += rs ;
+	    cp = "-" ;
+	    pan += 1 ;
+	    rs = progfile(pip,cp) ;
+	    wlen += rs ;
 
 	} /* end if (standard input) */
 

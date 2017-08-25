@@ -13,37 +13,32 @@
 /* revision history:
 
 	= 1989-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  This whole program, LOGDIR, is
 	needed for use on the Sun CAD machines because Sun doesn't support
 	LOGDIR or LOGNAME at this time.  There was a previous program but it is
 	lost and not as good as this one anyway.  This one handles NIS+ also.
 	(The previous one didn't.)
 
-
 	= 1998-06-01, David A­D­ Morano
-
-	I enhanced the program a little to print out some other user
-	information besides the user's name and login home directory.
-
+        I enhanced the program a little to print out some other user information
+        besides the user's name and login home directory.
 
 	= 1999-03-01, David A­D­ Morano
-
-	I enhanced the program to also print out effective UID and
-	effective GID.
-
+        I enhanced the program to also print out effective UID and effective
+        GID.
 
 */
 
+/* Copyright © 1989,1998,1999 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	Execute as:
+	Synopsis:
 
 	$ sortfilename < inputfilelist > outputlist
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -55,7 +50,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 #include	<netdb.h>
 
@@ -65,11 +59,10 @@
 #include	<vecstr.h>
 #include	<sbuf.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -97,6 +90,8 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
@@ -168,14 +163,14 @@ const char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	nodename[NODENAMELEN + 1] ;
-	char	domainname[MAXHOSTNAMELEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*sp, *cp, *cp2 ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1], *bp ;
+	char	nodename[NODENAMELEN + 1] ;
+	char	domainname[MAXHOSTNAMELEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -186,7 +181,8 @@ const char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

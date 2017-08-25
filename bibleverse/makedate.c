@@ -1,2 +1,2 @@
 const char bibleverse_makedate[] =
-"@(#)bibleverse              170817_2259:09_USEDT Rightcore Network Services" ;
+"@(#)bibleverse              170823_0503:45_USEDT Rightcore Network Services" ;

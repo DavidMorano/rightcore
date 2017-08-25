@@ -378,60 +378,21 @@ int b_pcsuserinfo(int argc,cchar *argv[],void *contextp)
 
 int b_pcsname(int argc,cchar *argv[],void *contextp)
 {
-	int		rs ;
-	int		rs1 ;
-	int		ex = EX_OK ;
-
-	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
-	    cchar	**envv = (cchar **) environ ;
-	    ex = mainsub(argc,argv,envv,contextp) ;
-	    rs1 = lib_kshend() ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (ksh) */
-
-	if ((rs < 0) && (ex == EX_OK)) ex = EX_DATAERR ;
-
-	return ex ;
+	return b_pcsuserinfo(argc,argv,contextp) ;
 }
 /* end subroutine (b_pcsname) */
 
 
 int b_pcsorg(int argc,cchar *argv[],void *contextp)
 {
-	int		rs ;
-	int		rs1 ;
-	int		ex = EX_OK ;
-
-	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
-	    cchar	**envv = (cchar **) environ ;
-	    ex = mainsub(argc,argv,envv,contextp) ;
-	    rs1 = lib_kshend() ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (ksh) */
-
-	if ((rs < 0) && (ex == EX_OK)) ex = EX_DATAERR ;
-
-	return ex ;
+	return b_pcsuserinfo(argc,argv,contextp) ;
 }
 /* end subroutine (b_pcsorg) */
 
 
 int b_pcsprojinfo(int argc,cchar *argv[],void *contextp)
 {
-	int		rs ;
-	int		rs1 ;
-	int		ex = EX_OK ;
-
-	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
-	    cchar	**envv = (cchar **) environ ;
-	    ex = mainsub(argc,argv,envv,contextp) ;
-	    rs1 = lib_kshend() ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (ksh) */
-
-	if ((rs < 0) && (ex == EX_OK)) ex = EX_DATAERR ;
-
-	return ex ;
+	return b_pcsuserinfo(argc,argv,contextp) ;
 }
 /* end subroutine (b_pcsprojinfo) */
 

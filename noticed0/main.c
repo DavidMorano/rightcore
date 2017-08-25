@@ -17,14 +17,14 @@
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ noticed
 
 
-*************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -38,7 +38,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 #include	<time.h>
 
@@ -94,6 +93,8 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	listenusd(const char *,int) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*timestr_log(time_t,char *) ;
 
@@ -164,21 +165,13 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	struct proginfo	pi, *pip = &pi ;
-
 	struct pollfd	fds[3] ;
-
 	struct msghdr	mh ;
-
 	struct iovec	vecs[NIOVECS] ;
-
 	struct ustat	sb ;
-
 	USERINFO	u ;
-
 	LFM		lk ;
-
 	SOCKADDRESS	from ;
-
 	bfile		errfile ;
 	bfile		outfile, *ofp = &outfile ;
 	bfile		infile, *ifp = &infile ;
@@ -201,7 +194,13 @@ char	*envv[] ;
 	int	f_help = FALSE ;
 	int	f ;
 
-	char	*argp, *aop, *avp ;
+	cchar	*argp, *aop, *avp ;
+	cchar	*pr = NULL ;
+	cchar	*searchname = NULL ;
+	cchar	*logfname = NULL ;
+	cchar	*hostname = NULL ;
+	cchar	*portspec = NULL ;
+	cchar	*cp ;
 	char	argpresent[NARGPRESENT] ;
 	char	buf[BUFLEN + 1] ;
 	char	tmpdname[MAXPATHLEN + 1] ;
@@ -209,12 +208,6 @@ char	*envv[] ;
 	char	userinfobuf[USERINFO_LEN + 1] ;
 	char	fromname[MAXPATHLEN + 1] ;
 	char	timebuf[TIMEBUFLEN] ;
-	char	*pr = NULL ;
-	char	*searchname = NULL ;
-	char	*logfname = NULL ;
-	char	*hostname = NULL ;
-	char	*portspec = NULL ;
-	char	*cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -225,7 +218,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -240,7 +234,6 @@ char	*envv[] ;
 
 /* process program arguments */
 
-	rs = SR_OK ;
 	for (ai = 0 ; ai < NARGPRESENT ; ai += 1) 
 		argpresent[ai] = 0 ;
 

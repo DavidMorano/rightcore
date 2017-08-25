@@ -159,7 +159,7 @@ OBJ08=
 OBJ09=
 OBJ10=
 OBJ11= varsub.o varsub_loadfile.o varsub_extras.o
-OBJ12= buffer.o vecobj.o lookaside.o pq.o
+OBJ12=
 OBJ13= 
 OBJ14=
 OBJ15=
@@ -289,7 +289,7 @@ vecstr_env.o:		vecstr_env.c
 
 vecstr.o:		vecstr.c vecstr.h
 
-varsub.o:		varsub.c varsub.h buffer.h
+varsub.o:		varsub.c varsub.h
 
 varsub_loadfile.o:	varsub_loadfile.c varsub.h
 

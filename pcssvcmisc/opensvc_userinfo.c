@@ -95,7 +95,7 @@
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	sfskipwhite(cchar *,int,cchar **) ;
-extern int	matstr(cchar **,int,cchar *,int) ;
+extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
 extern int	matkeystr(const char **,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
@@ -155,7 +155,7 @@ static int	getuser(cchar **,char *,int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"sn",
 	"af",

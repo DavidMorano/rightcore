@@ -205,11 +205,11 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	process(PROGINFO *,ARGINFO *,BITS *,
-			PARAMOPT *,const char *,const char *,int,int) ;
+			PARAMOPT *,cchar *,cchar *,int,int) ;
 static int	procsome(PROGINFO *,ARGINFO *,BITS *,
-			PARAMOPT *,const char *,int,int) ;
-static int	procspecs(PROGINFO *,const char *,int) ;
-static int	procspec(PROGINFO *,const char *,int) ;
+			PARAMOPT *,cchar *,int,int) ;
+static int	procspecs(PROGINFO *,cchar *,int) ;
+static int	procspec(PROGINFO *,cchar *,int) ;
 
 static int	procnow(PROGINFO *,int,int) ;
 
@@ -705,7 +705,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                PARAMOPT	*pop = &aparams ;
-	                                const char	*po = PO_NAME ;
+	                                cchar		*po = PO_NAME ;
 	                                rs = paramopt_loads(pop,po,argp,argl) ;
 	                            }
 	                        } else
@@ -1356,11 +1356,11 @@ int		f_apm ;
 	int		cl ;
 	int		pan = 0 ;
 	int		wlen = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 
 	if (rs >= 0) {
-	    int	ai ;
-	    int	f ;
+	    int		ai ;
+	    int		f ;
 	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
@@ -1542,10 +1542,10 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 
 	} /* end if */
 
-	    if ((rs < 0) && isNotGoodCite(rs) && lip->f.interactive) {
-		fmt = "invalid citation=>%t< (%d)\n" ;
-	        rs = shio_printf(lip->ofp,fmt,sp,sl,rs) ;
-	    }
+	if ((rs < 0) && isNotGoodCite(rs) && lip->f.interactive) {
+	    fmt = "invalid citation=>%t< (%d)\n" ;
+	    rs = shio_printf(lip->ofp,fmt,sp,sl,rs) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1658,8 +1658,8 @@ static int procnames(PROGINFO *pip,PARAMOPT *app)
 
 	if ((rs = paramopt_curbegin(app,&cur)) >= 0) {
 	    int		nl ;
-	    const char	*po = PO_NAME ;
-	    const char	*np ;
+	    cchar	*po = PO_NAME ;
+	    cchar	*np ;
 
 	    while (rs >= 0) {
 	        nl = paramopt_fetch(app,po,&cur,&np) ;

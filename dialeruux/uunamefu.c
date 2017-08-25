@@ -21,18 +21,18 @@
 
 	Synopsis:
 
-	int uunamefu(ep,f,buf,buflen)
+	int uunamefu(ep,f,hbuf,hlen)
 	UUNAMEFU	*ep ;
 	int		f ;
-	char		buf[] ;
-	int		buflen ;
+	char		hbuf[] ;
+	int		hlen ;
 
 	Arguments:
 
 	- ep		object pointer
 	- f		read=1, write=0
-	- buf		buffer containing object
-	- buflen	length of buffer
+	- hbuf		buffer containing object
+	- hlen	length of buffer
 
 	Returns:
 
@@ -51,7 +51,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<endian.h>
@@ -72,11 +71,6 @@
 
 /* external subroutines */
 
-extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	cfhexi(const char *,int,uint *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-
-extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 
 
@@ -105,6 +99,7 @@ enum his {
 /* forward references */
 
 extern int	mkmagic(char *,int,cchar *) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 
 
 /* local variables */
@@ -113,135 +108,110 @@ extern int	mkmagic(char *,int,cchar *) ;
 /* exported subroutines */
 
 
-int uunamefu(ep,f,buf,buflen)
+int uunamefu(ep,f,hbuf,hlen)
 UUNAMEFU	*ep ;
 int		f ;
-char		buf[] ;
-int		buflen ;
+char		hbuf[] ;
+int		hlen ;
 {
-	uint	*header ;
-
-	int	rs = SR_OK ;
-	int	headsize ;
-	int	magicsize = UUNAMEFU_MAGICSIZE ;
-	int	bl, cl ;
-
+	uint		*header ;
+	const int	headsize = hi_overlast * sizeof(uint) ;
+	const int	magicsize = UUNAMEFU_MAGICSIZE ;
+	int		rs = SR_OK ;
+	int		bl = hlen ;
+	int		cl ;
 	const char	*magicstr = UUNAMEFU_MAGICSTR ;
+	char		*bp = hbuf ;
+	char		*tp, *cp ;
 
-	char	*bp ;
-	char	*tp, *cp ;
+	if (ep == NULL) return SR_FAULT ;
+	if (buf == NULL) return SR_FAULT ;
 
+	if (buflen < 1) return SR_OVERFLOW ;
 
-	if (ep == NULL)
-	    return SR_FAULT ;
-
-	if (buf == NULL)
-	    return SR_FAULT ;
-
-	if (buflen < 1)
-	    return SR_OVERFLOW ;
-
-	bp = buf ;
-	bl = buflen ;
-	headsize = hi_overlast * sizeof(uint) ;
-	if (f) {
-
-/* read */
-
-/* the magic string is with the first 16 bytes */
-
-	    if ((rs >= 0) && (bl >= magicsize)) {
-
-	        cp = bp ;
-	        cl = magicsize ;
-	        if ((tp = strnchr(cp,cl,'\n')) != NULL)
-	            cl = (tp - cp) ;
-
+	if (f) { /* read */
+	    if ((bl > magicsize) && isValidMagic(bp,magicsize,magicstr)) {
 	        bp += magicsize ;
 	        bl -= magicsize ;
 
-/* verify the magic string */
-
-	        if (strncmp(cp,magicstr,cl) != 0)
-	            rs = SR_BADFMT ;
-
-	    } /* end if (item) */
-
 /* read out the VETU information */
 
-	    if ((rs >= 0) && (bl >= 4)) {
+	        if (bl >= 4) {
 
-	        memcpy(ep->vetu,bp,4) ;
+	            memcpy(ep->vetu,bp,4) ;
 
-	        if (ep->vetu[0] != UUNAMEFU_VERSION)
-	            rs = SR_PROTONOSUPPORT ;
+	            if (ep->vetu[0] != UUNAMEFU_VERSION)
+	                rs = SR_PROTONOSUPPORT ;
 
-	        if ((rs >= 0) && (ep->vetu[1] != ENDIAN))
-	            rs = SR_INVALID ;
+	            if ((rs >= 0) && (ep->vetu[1] != ENDIAN))
+	                rs = SR_INVALID ;
 
-	        bp += 4 ;
-	        bl -= 4 ;
+	            bp += 4 ;
+	            bl -= 4 ;
 
-	    } /* end if (item) */
+	        } else {
+	            rs = SR_ILSEQ ;
+	        } /* end if (item) */
 
-	    if ((rs >= 0) && (bl >= headsize)) {
+	        if (rs >= 0) {
+		    if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	ep->hfsize = header[hi_hfsize] ;
+	        	ep->tfsize = header[hi_tfsize] ;
+	        	ep->wtime = header[hi_wtime] ;
+	        	ep->sdnoff = header[hi_sdnoff] ;
+	        	ep->sfnoff = header[hi_sfnoff] ;
+	        	ep->listoff = header[hi_listoff] ;
+	        	ep->taboff = header[hi_taboff] ;
+	        	ep->tablen = header[hi_tablen] ;
+	        	ep->taglen = header[hi_taglen] ;
+	        	ep->maxtags = header[hi_maxtags] ;
+	        	ep->minwlen = header[hi_minwlen] ;
+	        	ep->maxwlen = header[hi_maxwlen] ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+	            } else {
+	                rs = SR_ILSEQ ;
+	            }
+	        } /* end if (item) */
 
-	        header = (uint *) bp ;
+	    } else {
+	        rs = SR_ILSEQ ;
+	    } /* end if (isValidMagic) */
+	} else { /* write */
+	    if (bl >= (magicsize + 4)) {
+	        if ((rs = mkmagic(bp,magicsize,magicstr)) >= 0) {
+	            bp += magicsize ;
+	            bl -= magicsize ;
+	    	    memcpy(bp,ep->vetu,4) ;
+	    	    *bp = UUNAMEFU_VERSION ;
+	    	    bp += 4 ;
+	    	    bl -= 4 ;
+	    	    if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	header[hi_hfsize] = ep->hfsize ;
+	        	header[hi_tfsize] = ep->tfsize ;
+	        	header[hi_wtime] = ep->wtime ;
+	        	header[hi_sdnoff] = ep->sdnoff ;
+	        	header[hi_sfnoff] = ep->sfnoff ;
+	        	header[hi_listoff] = ep->listoff ;
+	        	header[hi_taboff] = ep->taboff ;
+	        	header[hi_tablen] = ep->tablen ;
+	        	header[hi_taglen] = ep->taglen ;
+	        	header[hi_maxtags] = ep->maxtags ;
+	        	header[hi_minwlen] = ep->minwlen ;
+	        	header[hi_maxwlen] = ep->maxwlen ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+	            } else {
+	                rs = SR_OVERFLOW ;
+	            }
+	        } /* end if (mkmagic) */
+	    } else {
+	        rs = SR_OVERFLOW ;
+	    }
 
-	        ep->hfsize = header[hi_hfsize] ;
-	        ep->tfsize = header[hi_tfsize] ;
-	        ep->wtime = header[hi_wtime] ;
-	        ep->sdnoff = header[hi_sdnoff] ;
-	        ep->sfnoff = header[hi_sfnoff] ;
-	        ep->listoff = header[hi_listoff] ;
-	        ep->taboff = header[hi_taboff] ;
-	        ep->tablen = header[hi_tablen] ;
-	        ep->taglen = header[hi_taglen] ;
-	        ep->maxtags = header[hi_maxtags] ;
-	        ep->minwlen = header[hi_minwlen] ;
-	        ep->maxwlen = header[hi_maxwlen] ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-	    } /* end if (item) */
-
-	} else {
-
-/* write */
-
-	    mkmagic(bp, magicsize, magicstr) ;
-	    bp += magicsize ;
-	    bl -= magicsize ;
-
-	    memcpy(bp,ep->vetu,4) ;
-	    *bp = UUNAMEFU_VERSION ;
-	    bp += 4 ;
-	    bl -= 4 ;
-
-	    if ((rs >= 0) && (bl >= headsize)) {
-
-	        header = (uint *) bp ;
-
-	        header[hi_hfsize] = ep->hfsize ;
-	        header[hi_tfsize] = ep->tfsize ;
-	        header[hi_wtime] = ep->wtime ;
-	        header[hi_sdnoff] = ep->sdnoff ;
-	        header[hi_sfnoff] = ep->sfnoff ;
-	        header[hi_listoff] = ep->listoff ;
-	        header[hi_taboff] = ep->taboff ;
-	        header[hi_tablen] = ep->tablen ;
-	        header[hi_taglen] = ep->taglen ;
-	        header[hi_maxtags] = ep->maxtags ;
-	        header[hi_minwlen] = ep->minwlen ;
-	        header[hi_maxwlen] = ep->maxwlen ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-	    } /* end if */
-
-	} /* end if */
+	} /* end if (read-write) */
 
 	return (rs >= 0) ? (bp - buf) : rs ;
 }

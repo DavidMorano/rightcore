@@ -11,6 +11,9 @@
 	= 1998-03-01, David A­D­ Morano
 	This subroutine was originally written.
 
+	= 2017-08-23, David A­D­ Morano
+	I enhanced to use |isValidMagic()|.
+
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
@@ -64,16 +67,13 @@
 
 /* external subroutines */
 
-extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	mkmagic(char *,int,cchar *) ;
-extern int	cfhexi(const char *,int,uint *) ;
-extern int	cfdecui(const char *,int,uint *) ;
+extern int	isValidMagic(cchar *,int,cchar *) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 
 
@@ -109,49 +109,22 @@ enum his {
 int cmihdr(CMIHDR *ep,int f,char *hbuf,int hlen)
 {
 	uint		*header ;
+	const int	headsize = hi_overlast * sizeof(uint) ;
 	const int	magicsize = CMIHDR_MAGICSIZE ;
 	int		rs = SR_OK ;
-	int		headsize ;
-	int		bl, cl ;
+	int		bl = hlen ;
 	const char	*magicstr = CMIHDR_MAGICSTR ;
-	const char	*tp, *cp ;
-	char		*bp ;
+	char		*bp = hbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
 	if (hbuf == NULL) return SR_FAULT ;
 
-	bp = hbuf ;
-	bl = hlen ;
-	headsize = hi_overlast * sizeof(uint) ;
 	if (f) { /* read */
-
-/* the magic string is within the first 15 bytes */
-
-	    if ((rs >= 0) && (bl > 0)) {
-
-	        if (bl >= magicsize) {
-
-	            cp = bp ;
-	            cl = magicsize ;
-	            if ((tp = strnchr(cp,cl,'\n')) != NULL)
-	                cl = (tp - cp) ;
-
-	            bp += magicsize ;
-	            bl -= magicsize ;
-
-/* verify the magic string */
-
-	            if (strncmp(cp,magicstr,cl) != 0)
-	                rs = SR_NXIO ;
-
-	        } else
-	            rs = SR_ILSEQ ;
-
-	    } /* end if (item) */
+	    if ((bl > magicsize) && isValidMagic(bp,magicsize,magicstr)) {
+	        bp += magicsize ;
+	        bl -= magicsize ;
 
 /* read out the VETU information */
-
-	    if ((rs >= 0) && (bl > 0)) {
 
 	        if (bl >= 4) {
 
@@ -168,75 +141,67 @@ int cmihdr(CMIHDR *ep,int f,char *hbuf,int hlen)
 	            bp += 4 ;
 	            bl -= 4 ;
 
-	        } else
+	        } else {
 	            rs = SR_ILSEQ ;
+		}
 
-	    } /* end if (item) */
+	        if (rs >= 0) {
+	            if (bl >= headsize) {
+	                header = (uint *) bp ;
+	                ep->dbsize = header[hi_dbsize] ;
+	                ep->dbtime = header[hi_dbtime] ;
+	                ep->idxsize = header[hi_idxsize] ;
+	                ep->idxtime = header[hi_idxtime] ;
+	                ep->vioff = header[hi_vioff] ;
+	                ep->vilen = header[hi_vilen] ;
+	                ep->vloff = header[hi_vloff] ;
+	                ep->vllen = header[hi_vllen] ;
+	                ep->nents = header[hi_nents] ;
+	                ep->maxent = header[hi_maxent] ;
+	                bp += headsize ;
+	                bl -= headsize ;
+	            } else {
+	                rs = SR_ILSEQ ;
+	            }
+	        } /* end if (item) */
 
-	    if ((rs >= 0) && (bl > 0)) {
-
-	        if (bl >= headsize) {
-
-	            header = (uint *) bp ;
-
-	            ep->dbsize = header[hi_dbsize] ;
-	            ep->dbtime = header[hi_dbtime] ;
-	            ep->idxsize = header[hi_idxsize] ;
-	            ep->idxtime = header[hi_idxtime] ;
-	            ep->vioff = header[hi_vioff] ;
-	            ep->vilen = header[hi_vilen] ;
-	            ep->vloff = header[hi_vloff] ;
-	            ep->vllen = header[hi_vllen] ;
-	            ep->nents = header[hi_nents] ;
-	            ep->maxent = header[hi_maxent] ;
-
-	            bp += headsize ;
-	            bl -= headsize ;
-
-	        } else
-	            rs = SR_ILSEQ ;
-
-	    } /* end if (item) */
-
+	    } else {
+	        rs = SR_ILSEQ ;
+	    } /* end if (isValidMagic) */
 	} else { /* write */
 
-	    if ((rs >= 0) && (bl >= (magicsize + 4))) {
+	    if (bl >= (magicsize + 4)) {
+	        if ((rs = mkmagic(bp,magicsize,magicstr)) >= 0) {
+	            bp += magicsize ;
+	            bl -= magicsize ;
+	    	    memcpy(bp,ep->vetu,4) ;
+	    	    bp[0] = CMIHDR_VERSION ;
+	    	    bp[1] = ENDIAN ;
+	    	    bp += 4 ;
+	    	    bl -= 4 ;
+	    	    if (bl >= headsize) {
+	        	header = (uint *) bp ;
+	        	header[hi_dbsize] = ep->dbsize ;
+	        	header[hi_dbtime] = ep->dbtime ;
+	        	header[hi_idxsize] = ep->idxsize ;
+	        	header[hi_idxtime] = ep->idxtime ;
+	        	header[hi_vioff] = ep->vioff ;
+	        	header[hi_vilen] = ep->vilen ;
+	        	header[hi_vloff] = ep->vloff ;
+	        	header[hi_vllen] = ep->vllen ;
+	        	header[hi_nents] = ep->nents ;
+	        	header[hi_maxent] = ep->maxent ;
+	        	bp += headsize ;
+	        	bl -= headsize ;
+	            } else {
+	                rs = SR_OVERFLOW ;
+	            }
+	        } /* end if (mkmagic) */
+	    } else {
+	        rs = SR_OVERFLOW ;
+	    }
 
-	    mkmagic(bp, magicsize, magicstr) ;
-	    bp += magicsize ;
-	    bl -= magicsize ;
-
-	    memcpy(bp,ep->vetu,4) ;
-	    bp[0] = CMIHDR_VERSION ;
-	    bp[1] = ENDIAN ;
-	    bp += 4 ;
-	    bl -= 4 ;
-
-	    } else
-		rs = SR_OVERFLOW ;
-
-	    if ((rs >= 0) && (bl >= headsize)) {
-
-	        header = (uint *) bp ;
-
-	        header[hi_dbsize] = ep->dbsize ;
-	        header[hi_dbtime] = ep->dbtime ;
-	        header[hi_idxsize] = ep->idxsize ;
-	        header[hi_idxtime] = ep->idxtime ;
-	        header[hi_vioff] = ep->vioff ;
-	        header[hi_vilen] = ep->vilen ;
-	        header[hi_vloff] = ep->vloff ;
-	        header[hi_vllen] = ep->vllen ;
-	        header[hi_nents] = ep->nents ;
-	        header[hi_maxent] = ep->maxent ;
-
-	        bp += headsize ;
-	        bl -= headsize ;
-
-	    } else
-		rs = SR_OVERFLOW ;
-
-	} /* end if */
+	} /* end if (read-write) */
 
 #if	CF_DEBUGS
 	debugprintf("bvidu: f=%d rs=%d\n",f,rs) ;

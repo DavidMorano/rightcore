@@ -80,6 +80,9 @@ int cfdecf(cchar *sp,int sl,double *rp)
 	char		dbuf[DIGBUFLEN + 1] ;
 	char		*ep ;
 
+	if (sp == NULL) return SR_FAULT ;
+	if (rp == NULL) return SR_FAULT ;
+
 	while (sl && CHAR_ISWHITE(*sp)) {
 	    sp += 1 ;
 	    sl -= 1 ;
@@ -95,8 +98,9 @@ int cfdecf(cchar *sp,int sl,double *rp)
 
 	if ((rs >= 0) && bl) {
 	    const int	ch = MKCHAR(*bp) ;
-	    if ((! isdigitlatin(ch)) && (ch != '.'))
+	    if ((! isdigitlatin(ch)) && (ch != '.')) {
 	        rs = SR_INVALID ;
+	    }
 	}
 
 	if (rs >= 0) {

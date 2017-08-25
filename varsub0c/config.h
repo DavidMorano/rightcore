@@ -4,9 +4,7 @@
 /* revision history:
 
 	= 2000-05-14, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -95,13 +93,13 @@
 
 #define	DEFSIZESPEC	"100000"		/* default target log size */
 
-#define	TO_FILEMOD	(1 * 60 * 60)		/* IPASSWD timeout */
-
 #define	FZPATH		"/tmp"
 #define	FZPREFIX	"fz"
 #define	NFILTERS	500
 #define	MAXTMP		100		/* maximum attempts */
 #define	FZMAGIC		0x01234567
+
+#define	TO_FILEMOD	(1 * 60 * 60)		/* IPASSWD timeout */
 
 #define	PO_OPTION	"option"
 

@@ -45,31 +45,14 @@
 
 /* external subroutines */
 
-extern int	sncpy1(char *,int,const char *) ;
-extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	siskipwhite(const char *,int) ;
 extern int	sibreak(const char *,int,const char *) ;
 extern int	sispan(const char *,int,const char *) ;
-extern int	nleadcasestr(const char *,const char *,int) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	matcasestr(const char **,const char *,int) ;
-extern int	matostr(const char **,int,const char *,int) ;
-extern int	matpstr(const char **,int,const char *,int) ;
-extern int	isalphalatin(int) ;
-extern int	isdigitlatin(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
-
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*strncasestr(const char *,int,const char *) ;
 
 
 /* external variables */
@@ -107,7 +90,7 @@ int strop_finish(STROP *sop)
 /* end subroutine (strop_finish) */
 
 
-int strop_breakfield(STROP *sop,cchar ss[],cchar **rpp)
+int strop_breakfield(STROP *sop,cchar *ss,cchar **rpp)
 {
 	int		si = -1 ;
 	int		rl = -1 ;
@@ -168,7 +151,7 @@ int strop_whitedash(STROP *sop)
 /* end subroutine (strop_whitedash) */
 
 
-int strop_span(STROP *sop,cchar stuff[])
+int strop_span(STROP *sop,cchar *stuff)
 {
 	int		si ;
 

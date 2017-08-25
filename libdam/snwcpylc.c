@@ -76,12 +76,15 @@ int snwcpylc(char *dp,int dl,cchar *sp,int sl)
 	    if (sl >= 0) {
 	        if (sl > dl) {
 	            rs = sncpylc(dp,dl,sp) ;
-	        } else
+	        } else {
 	            rs = strwcpylc(dp,sp,sl) - dp ;
-	    } else
+		}
+	    } else {
 	        rs = sncpylc(dp,dl,sp) ;
-	} else
+	    }
+	} else {
 	    rs = strwcpylc(dp,sp,sl) - dp ;
+	}
 
 	return rs ;
 }

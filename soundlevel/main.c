@@ -51,7 +51,9 @@
 extern int	matstr3(char **,char *,int) ;
 extern int	cfdeci(char *,int,int *) ;
 
-extern char	*strbasename(char *), *strshrink(char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strshrink(char *) ;
 
 
 /* forward references */
@@ -125,44 +127,34 @@ char	*envv[] ;
 	int	f_help = FALSE ;
 	int	f ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*afname = NULL ;
+	cchar	*cp ;
 	char	argpresent[MAXARGGROUPS] ;
-	char	*afname = NULL ;
-	char	*cp ;
 
-
-	if (((cp = getenv("ERROR_FD")) != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
-
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
 	}
 
-
 /* early things to initialize */
 
 	pip->ofp = ofp ;
-	pip->debuglevel = 0 ;
 	pip->namelen = MAXNAMELEN ;
 
-	pip->bytes = 0 ;
-	pip->megabytes = 0 ;
-
 	(void) memset(&pip->f,0,sizeof(struct proginfo_flags)) ;
-
-	pip->f.verbose = FALSE ;
-	pip->f.nochange = FALSE ;
-	pip->f.quiet = FALSE ;
-	pip->f.follow = FALSE ;
-	pip->f.suffix = FALSE ;
 
 /* process program arguments */
 

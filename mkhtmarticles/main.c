@@ -40,7 +40,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<netdb.h>
 #include	<tzfile.h>
 
@@ -85,9 +84,9 @@ extern int	bprintlines(bfile *,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
+extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
-extern int	progfile(struct proginfo *,struct artinfo *,const char *) ;
+extern int	progfile(PROGINFO *,struct artinfo *,const char *) ;
 
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
@@ -102,7 +101,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* forward references */
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 
 static int	sfdigits(const char *,int,const char **) ;
 static int	cmpfwd(const char **,const char **) ;
@@ -170,7 +169,7 @@ int		argc ;
 const char	*argv[] ;
 const char	*envv[] ;
 {
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 	struct ustat	sb ;
 
 	VECSTR	names ;
@@ -887,22 +886,19 @@ badarg:
 /* local subroutines */
 
 
-static int usage(pip)
-struct proginfo	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int	rs ;
-	int	wlen = 0 ;
-
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-
 	fmt = "%s: USAGE> %s [<filename(s)> ...] [-af <afile>] [-r]\n" ;
-	rs = bprintf(pip->efp,fmt,pn,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-Q] [-D] [-v[=n]] [-HELP] [-V]\n" ;
-	rs = bprintf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	return (rs >= 0) ? wlen : rs ;
@@ -913,13 +909,11 @@ struct proginfo	*pip ;
 static int cmpfwd(e1p,e2p)
 const char	**e1p, **e2p ;
 {
-	int	c ;
-	int	cmplen ;
-	int	c1l, c2l ;
-	int	f_low1, f_low2 ;
-
+	int		c ;
+	int		cmplen ;
+	int		c1l, c2l ;
+	int		f_low1, f_low2 ;
 	const char	*c1p, *c2p ;
-
 
 #if	CF_DEBUGS
 	debugprintf("main/sortfunc: e1=>%s<\n",*e1p) ;
@@ -980,13 +974,11 @@ const char	**e1p, **e2p ;
 static int cmprev(e1p,e2p)
 const char	**e1p, **e2p ;
 {
-	int	c ;
-	int	cmplen ;
-	int	c1l, c2l ;
-	int	f_low1, f_low2 ;
-
+	int		c ;
+	int		cmplen ;
+	int		c1l, c2l ;
+	int		f_low1, f_low2 ;
 	const char	*c1p, *c2p ;
-
 
 #if	CF_DEBUGS
 	debugprintf("main/sortfunc: e1=>%s<\n",*e1p) ;

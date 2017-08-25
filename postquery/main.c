@@ -193,12 +193,6 @@ char	*envv[] ;
 	uchar	terms[32] ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp, *linebuf = buf ;
-	char	buf2[BUFLEN + 1] ;
-	char	userbuf[USERINFO_LEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*configfname = NULL ;
 	const char	*logfname = NULL ;
@@ -209,37 +203,31 @@ char	*envv[] ;
 	const char	*ignorechars = IGNORECHARS ;
 	const char	*delimiter = " " ;
 	const char	*sp, *cp ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1], *bp, *linebuf = buf ;
+	char	buf2[BUFLEN + 1] ;
+	char	userbuf[USERINFO_LEN + 1] ;
+	char	timebuf[TIMEBUFLEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
-
-#if	CF_DEBUG || CF_DEBUGS
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-#endif
-
-
-#if	CF_DEBUGS
-	debugprintf("main: started\n") ;
-#endif
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	pip->tmpdname = getenv("TMPDIR") ;
 	pip->verboselevel = 1 ;
-	pip->debuglevel = 0 ;
 	pip->minwordlen = -2 ;
 	pip->maxwordlen = -2 ;
 	pip->eigenwords = -2 ;
 	pip->keys = -2 ;
-	pip->f.log = FALSE ;
-	pip->f.removelabel = FALSE ;
-	pip->f.wholefile = FALSE ;
-	pip->f.quiet = FALSE ;
 
 	pip->f.stderror = TRUE ;
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {

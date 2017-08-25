@@ -149,6 +149,8 @@ static int	makeint(void *) ;
 static cchar	*pings[] = {
 	"/usr/sbin/ping",
 	"/usr/bin/ping",
+	"/sbin/ping",
+	"/bin/ping",
 	NULL
 } ;
 
@@ -193,19 +195,17 @@ int inetping(cchar *rhost,int timeout)
 	        }
 	        if (pings[i] != NULL) {
 	            in_addr_t	*iap ;
-	            const char	*pingprog = NULL ;
+	            cchar	*pingprog = pings[i] ;
 #if	CF_DEBUGS
-	            debugprintf("inetping: ping i=%d program=%s\n",
-			i,pings[i]) ;
+	            debugprintf("inetping: ping i=%d prog=%s\n",
+			i,pingprog) ;
 #endif
 /* do the dirty deed! */
-	            if (! f_numeric) {
+	            if (f_numeric) {
+	                iap = (in_addr_t *) &addr ;
+	                rs = pingone(pingprog,iap,timeout) ;
+	            } else {
 	                hostent_cur	hc ;
-#if	CF_DEBUGPING
-	                pingprog = "ourping" ;
-#else
-	                pingprog = pings[i] ;
-#endif
 	                if ((rs = hostent_curbegin(&he,&hc)) >= 0) {
 	            	    cuchar	*ap ;
 	                    while (hostent_enumaddr(&he,&hc,&ap) >= 0) {
@@ -215,9 +215,6 @@ int inetping(cchar *rhost,int timeout)
 	                    } /* end while */
 	                    hostent_curend(&he,&hc) ;
 	                } /* end if (cursor) */
-	            } else {
-	                iap = (in_addr_t *) &addr ;
-	                rs = pingone(pingprog,iap,timeout) ;
 	            }
 	        } else {
 	            rs = SR_NOTSUP ;
@@ -246,8 +243,16 @@ int pingone(cchar *pingprog,in_addr_t *ap,int to)
 	int		rv = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("inetping/pingone: ent to=%d\n",to) ;
-#endif
+	{
+	    const int	af = AF_INET4 ;
+	    cchar	*as = (cchar *) ap ;
+	    char	abuf[INETX_ADDRSTRLEN+1] ;
+	    debugprintf("inetping/pingone: ent to=%d\n",to) ;
+	    sninetaddr(abuf,INETX_ADDRSTRLEN,af,as) ;
+	    debugprintf("inetping/pingone: a=%s\n",abuf) ;
+	    debugprintf("inetping/pingone: pingprog=%s\n",pingprog) ;
+	}
+#endif /* CF_DEBUGS */
 
 #if	CF_BROKEN
 	if (to < 0) to = TO_PING ;
@@ -260,8 +265,8 @@ int pingone(cchar *pingprog,in_addr_t *ap,int to)
 		SPAWNPROC	ps ;
 		const int	tolen = TOBUFLEN ;
 		int		ai = 0 ;
-		char		tobuf[TOBUFLEN+1] ;
 		cchar		*args[4] ;
+		char		tobuf[TOBUFLEN+1] ;
 
 		args[ai++] = PROGNAME_PING ;
 		args[ai++] = dotbuf ;
@@ -271,6 +276,10 @@ int pingone(cchar *pingprog,in_addr_t *ap,int to)
 	        }
 		args[ai] = NULL ;
 
+#if	CF_DEBUGS
+	debugprintf("inetping/pingone: mid2 rs=%d\n",rs) ;
+#endif
+
 		memset(&ps,0,sizeof(SPAWNPROC)) ;
 		ps.disp[0] = SPAWNPROC_DNULL ;
 		ps.disp[1] = SPAWNPROC_DCREATE ;
@@ -279,6 +288,9 @@ int pingone(cchar *pingprog,in_addr_t *ap,int to)
 		    const pid_t	pid = rs ;
 		    const int	fd = ps.fd[1] ;
 		    int		cs = 0 ;
+#if	CF_DEBUGS
+	debugprintf("inetping/pingone: mid3 rs=%d\n",rs) ;
+#endif
 		    if (to < 0) to = TO_PING ;
 		    to += TO_MORETIME ;
 		    if ((rs = pingoneresp(fd,to)) >= 0) {
@@ -288,8 +300,14 @@ int pingone(cchar *pingprog,in_addr_t *ap,int to)
 	        	u_kill(pid,SIGTERM) ;
 	        	rs = u_waitpid(pid,&cs,WNOHANG) ;
 		    }
+#if	CF_DEBUGS
+	debugprintf("inetping/pingone: mid5 rs=%d\n",rs) ;
+#endif
 		    u_close(fd) ;
 		} /* end if (spawnproc) */
+#if	CF_DEBUGS
+	debugprintf("inetping/pingone: spawnproc-out rs=%d\n",rs) ;
+#endif
 	    } /* end if (inetaddr_getdotaddr) */
 	    rs1 = inetaddr_finish(&ia) ;
 	    if (rs >= 0) rs = rs1 ;

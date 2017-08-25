@@ -118,7 +118,8 @@ extern int	proginfo_setpiv(struct proginfo *,const char *,
 			const struct pivars *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 
-extern char	*strbasename(char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strshrink(char *) ;
 extern char	*timestr_log(time_t,char *) ;
 
@@ -226,20 +227,13 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	struct ustat	sb ;
-
 	struct group	ge ;
-
 	struct proginfo	pi, *pip = &pi ;
-
 	USERINFO	u ;
-
 	CONFIGFILE	cf ;
-
 	VECSTR		defines, unsets, exports ;
 	VECSTR		svars ;
-
 	VARSUB		vsh_e, vsh_d ;
-
 	bfile		errfile ;
 	bfile		outfile, *ofp = &outfile ;
 	bfile		pidfile ;
@@ -273,6 +267,12 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
+	const char	*pr = NULL ;
+	const char	*afname = NULL ;
+	const char	*ofname = NULL ;
+	const char	*configfname = NULL ;
+	const char	*defsizespec = NULL ;
+	const char	*cp ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	*programroot = NULL ;
 	char	buf[BUFLEN + 1], *bp ;
@@ -285,12 +285,6 @@ char	*envv[] ;
 	char	logfname[MAXPATHLEN + 1] ;
 	char	helpfname[MAXPATHLEN + 1] ;
 	char	timebuf[TIMEBUFLEN + 1] ;
-	const char	*pr = NULL ;
-	const char	*afname = NULL ;
-	const char	*ofname = NULL ;
-	const char	*configfname = NULL ;
-	const char	*defsizespec = NULL ;
-	const char	*cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -301,7 +295,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

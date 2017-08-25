@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
-	This is a pretty much standard module for the start-up code
-	of a program.
-
+        This is a pretty much standard module for the start-up code of a
+        program.
 
 */
 
@@ -22,8 +20,8 @@
 
 /******************************************************************************
 
-	This is the front-end (all of it I think) of a little program
-	to allow users to execute SUID SHELL programs.
+        This is the front-end (all of it I think) of a little program to allow
+        users to execute SUID SHELL programs.
 
 
 ******************************************************************************/
@@ -40,7 +38,6 @@
 #include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -79,6 +76,8 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	findfilepath(const char *,char *,const char *,int) ;
 extern int	execer(struct proginfo *,struct ustat *,char *,char *,char *,
 			int,char **,char **) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -168,33 +167,32 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS + 1] ;
 	const char	*afname = NULL ;
 	const char	*pwfname = NULL ;
 	const char	*euser = NULL, *egroup = NULL ;
-	char	buf[BUFLEN + 1] ;
-	char	filebuf[MAXNAMELEN + 1], *pp ;
-	char	pwdbuf[MAXPATHLEN + 1], *pwd = NULL ;
-	char	progfname[MAXPATHLEN + 1] ;
 	const char	*pr ;
 	const char	*program = NULL ;
 	const char	**pargv ;
 	const char	*arg0 = NULL ;
 	const char	*interpreter, *interpretarg ;
 	const char	*cp ;
+	char	argpresent[MAXARGGROUPS + 1] ;
+	char	buf[BUFLEN + 1] ;
+	char	filebuf[MAXNAMELEN + 1], *pp ;
+	char	pwdbuf[MAXPATHLEN + 1], *pwd = NULL ;
+	char	progfname[MAXPATHLEN + 1] ;
 
-
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if ((cp != NULL) &&
-	    (cfdeci(cp,-1,&fd_debug) >= 0))
-	    debugsetfd(fd_debug) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 		pip->efp = &errfile ;
@@ -206,10 +204,6 @@ char	*envv[] ;
 	pip->ofp = ofp ;
 
 	pip->verboselevel = 1 ;
-
-	pip->f.quiet = FALSE ;
-	pip->f.sevenbit = FALSE ;
-
 
 	pip->uid = getuid() ;
 

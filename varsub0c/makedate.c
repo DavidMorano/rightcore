@@ -1,2 +1,2 @@
 const char varsub_makedate[] =
-"@(#)varsub                  170822_1526:06_USEDT Rightcore Network Services" ;
+"@(#)varsub                  170822_2102:12_USEDT Rightcore Network Services" ;

@@ -43,7 +43,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<errno.h>
 #include	<stdio.h>
 #include	<syslog.h>
@@ -106,6 +105,8 @@ extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
 			const char *,const char *) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -218,18 +219,18 @@ char	*envv[] ;
 	int	f_entok = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1] ;
-	char	userbuf[USERINFO_LEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	logfname[MAXPATHLEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*caldname = NULL ;
 	const char	*hostspec = NULL ;
 	const char	*portspec = NULL ;
 	const char	*ofname = NULL ;
 	const char	*tp, *sp, *cp ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	buf[BUFLEN + 1] ;
+	char	userbuf[USERINFO_LEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	logfname[MAXPATHLEN + 1] ;
+	char	timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -240,7 +241,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -255,13 +257,11 @@ char	*envv[] ;
 /* initialize some basic stuff */
 
 	pip->verboselevel = 1 ;
-
 	pip->runint = -2 ;
 	pip->maxidle = -1 ;
 
 /* start parsing the arguments */
 
-	rs = SR_OK ;
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1)
 	    argpresent[ai] = 0 ;
 

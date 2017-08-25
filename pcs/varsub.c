@@ -45,10 +45,10 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<ascii.h>
 #include	<buffer.h>
 #include	<bfile.h>
-#include	<estrings.h>
 #include	<localmisc.h>
 
 #include	"varsub.h"

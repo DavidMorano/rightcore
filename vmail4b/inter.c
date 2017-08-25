@@ -334,7 +334,7 @@ static int	inter_test(INTER *) ;
 
 /* local variables */
 
-static const char	*cmds[] = {
+static cchar	*cmds[] = {
 	"quitquick",
 	"refresh",
 	"msginfo",
@@ -486,7 +486,7 @@ static const CMDMAP_E	defcmds[] = {
 	{ -1, -1 },
 } ;
 
-static const char	*grterms[] = {
+static cchar	*grterms[] = {
 	"screen",
 	"vt520",
 	"vt540",
@@ -497,14 +497,14 @@ static const char	*grterms[] = {
 	NULL
 } ;
 
-static const char	*syscmdmap[] = {
+static cchar	*syscmdmap[] = {
 	"%p/etc/%s/%s.%f",
 	"%p/etc/%s/%f",
 	"%p/etc/%s.%f",
 	NULL
 } ;
 
-static const char	*usrcmdmap[] = {
+static cchar	*usrcmdmap[] = {
 	"%h/etc/%s/%s.%f",
 	"%h/etc/%s/%f",
 	"%h/etc/%s.%f",
@@ -3708,8 +3708,6 @@ static int inter_cmdmsgdelnum(INTER *iap,int f_del,int argnum)
 {
 	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
-	int		mi ;
-	const char	*ccp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -3718,18 +3716,18 @@ static int inter_cmdmsgdelnum(INTER *iap,int f_del,int argnum)
 #endif
 
 	if (argnum <= 0) argnum = 1 ;
-	if (! iap->open.mbcache) goto ret0 ;
-	mi = iap->miscanpoint ;
-	if ((mi < 0) || (mi >= iap->nmsgs)) /* user error */ goto ret0 ;
-
-	if ((rs = inter_msgdelnum(iap,mi,argnum,f_del)) >= 0) {
-	    int		c = rs ;
-	    ccp = "deletions %s=%u\v" ;
-	    rs = inter_info(iap,FALSE,ccp,
-	        ((f_del) ? "scheduled" : "canceled"),c) ;
+	if (iap->open.mbcache) {
+	    const int	mi = iap->miscanpoint ;
+	    if ((mi > 0) && (mi < iap->nmsgs)) {
+	        if ((rs = inter_msgdelnum(iap,mi,argnum,f_del)) >= 0) {
+	            int		c = rs ;
+	            cchar	*s = ((f_del) ? "scheduled" : "canceled") ;
+	            cchar	*fmt = "deletions %s=%u\v" ;
+	            rs = inter_info(iap,FALSE,fmt,s,c) ;
+	        }
+	    }
 	}
 
-ret0:
 	return rs ;
 }
 /* end subroutine (inter_cmdmsgdelnum) */
@@ -4353,7 +4351,6 @@ static int inter_msgdelnum(INTER *iap,int mi,int num,int delcmd)
 	    } /* end if */
 
 	    mi += 1 ;
-
 	} /* end for */
 
 	if ((rs >= 0) && (delcmd > 0) && pip->f.nextdel) {

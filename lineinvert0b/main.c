@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
         The program was written from scratch to do what the previous program by
         the same name did.
-
 
 */
 
@@ -35,7 +33,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -185,15 +182,15 @@ int main(int argc,cchar **argv,cchar **envv)
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	template[MAXPATHLEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*pmspec = NULL ;
 	const char	*searchname = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp ;
+	char	argpresent[MAXARGGROUPS] ;
+	char	template[MAXPATHLEN + 1] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -204,12 +201,14 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
-	} else
+	} else {
 	    rs = bopen(&errfile,BFILE_STDERR,"dwca",0666) ;
+	}
 	if (rs >= 0) {
 	    pip->efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;

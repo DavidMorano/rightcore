@@ -4,7 +4,7 @@ This program performs some (simple) maintenance on the UTMPX database.
 
 Synopsis:
 
-$ utmpmaint [-l|-m] [<name>[=<type>]] [-db <dbfile>] [-V] 
+$ utmpmaint [-l] [-m] [<name>[=<type>]] [-db <dbfile>] [-V] 
 
 where:
 

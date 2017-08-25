@@ -5,10 +5,8 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
-
+	= 1998-06-29, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services.
-
 
 */
 
@@ -16,8 +14,8 @@
 
 /******************************************************************************
 
-	This program creates an array that is used to translate a character
-	into its base value of between zero (0) and thirthy-five (35).
+        This program creates an array that is used to translate a character into
+        its base value of between zero (0) and thirthy-five (35).
 
 
 ******************************************************************************/
@@ -27,7 +25,7 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<ctype.h>
+#include	<ctype.h>		/* needed: actually used */
 #include	<stdio.h>
 
 #include	<vsystem.h>
@@ -40,8 +38,6 @@
 
 
 /* forward references */
-
-static int mktoxc(int) ;
 
 
 /* local variables */
@@ -56,7 +52,8 @@ enum cases {
 /* exported subroutines */
 
 
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	int		i ;
 	int		j = 0 ;
@@ -90,10 +87,7 @@ int main()
 
 	} /* end for */
 
-	fprintf(stdout,"%c ;\n",
-	    CH_RBRACE) ;
-
-	fclose(stdout) ;
+	fprintf(stdout,"%c ;\n", CH_RBRACE) ;
 
 	return 0 ;
 }

@@ -13,7 +13,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1987 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -33,7 +33,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<bfile.h>
 #include	<localmisc.h>
@@ -157,9 +156,9 @@ int progfile(PROGINFO *pip,cchar *infname)
 	    if (f_startbreak) {
 
 	        f_startbreak = FALSE ;
-	        if (pip->f.eject)
+	        if (pip->f.eject) {
 	            bprintf(pip->ofp,".bp\n") ;
-
+		}
 	        bprintf(pip->ofp,".bp\n") ;
 
 	    }
@@ -217,8 +216,9 @@ int progfile(PROGINFO *pip,cchar *infname)
 
 	        if (f_stdinput) {
 	            strcpy((headline + 40),"** standard input **") ;
-	        } else
+	        } else {
 	            strcpy((headline + 40),infname) ;
+		}
 
 	        bprintf(pip->ofp,"%s\n\n",headline) ;
 

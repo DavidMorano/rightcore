@@ -14,7 +14,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	VSYSTEM_INCLUDE
 #define	VSYSTEM_INCLUDE		1

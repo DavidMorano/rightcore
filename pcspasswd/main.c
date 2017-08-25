@@ -140,12 +140,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	int	f_passed = FALSE ;
 	int	f ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*pr = NULL ;
+	cchar	*afname = NULL ;
+	cchar	*pwfname = NULL ;
+	cchar	*tp, *sp, *cp ;
 	char	argpresent[MAXARGGROUPS] ;
-	char	*pr = NULL ;
-	char	*afname = NULL ;
-	char	*pwfname = NULL ;
-	char	*tp, *sp, *cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -156,7 +156,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;

@@ -108,8 +108,6 @@ extern int	opentmp(const char *,int,mode_t) ;
 extern int	statvfsdir(const char *,struct statvfs *) ;
 extern int	getusername(char *,int,uid_t) ;
 extern int	getuserhome(char *,int,const char *) ;
-extern int	localgetorg(const char *,char *,int,const char *) ;
-extern int	pcsgetnames(const char *,char *,int,const char *,int) ;
 extern int	pcsmailcheck(const char *,char *,int,const char *) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	isdigitlatin(int) ;
@@ -154,7 +152,7 @@ static int	isNoMail(int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"sn",
 	NULL
@@ -464,8 +462,8 @@ int		to ;
 /* process this user */
 
 	if (rs >= 0) {
-	rs = pcsmailcheck(pr,fbuf,flen,un) ;
-	nmsgs = rs ;
+	    rs = pcsmailcheck(pr,fbuf,flen,un) ;
+	    nmsgs = rs ;
 	}
 
 #if	CF_DEBUGN
@@ -487,8 +485,9 @@ int		to ;
 	        const char	*fmt ;
 	        if (nmsgs > 0) {
 	            fmt = "mail u=%s msgs=%u from=>%s<" ;
-	        } else
+	        } else {
 	            fmt = "mail u=%s msgs=%u" ;
+		}
 	        rs = bufprintf(lbuf,llen,fmt,un,nmsgs,fbuf) ;
 	        ll = rs ;
 	    } /* end if (summary or full) */

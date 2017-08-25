@@ -55,8 +55,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
-int		mapstrint_fetch(MAPSTRINT *,const char *,int,
-			MAPSTRINT_CUR *,int *) ;
+int		mapstrint_fetch(MAPSTRINT *,cchar *,int,MAPSTRINT_CUR *,int *) ;
 
 #ifdef	COMMENT
 static int	cmpentry(const char *,const char *,int) ;
@@ -69,9 +68,7 @@ static int	cmpentry(const char *,const char *,int) ;
 /* exported subroutines */
 
 
-int mapstrint_start(dbp,nitems)
-MAPSTRINT	*dbp ;
-int		nitems ;
+int mapstrint_start(MAPSTRINT *dbp,int nitems)
 {
 	int		rs ;
 
@@ -82,11 +79,9 @@ int		nitems ;
 /* end subroutine (mapstrint_start) */
 
 
-int mapstrint_count(dbp)
-MAPSTRINT	*dbp ;
+int mapstrint_count(MAPSTRINT *dbp)
 {
 	int		rs ;
-
 
 	rs = hdb_count(dbp) ;
 
@@ -96,8 +91,7 @@ MAPSTRINT	*dbp ;
 
 
 /* delete this whole DB */
-int mapstrint_finish(dbp)
-MAPSTRINT	*dbp ;
+int mapstrint_finish(MAPSTRINT *dbp)
 {
 	MAPSTRINT_CUR	keycursor ;
 	int		rs = SR_OK ;
@@ -132,11 +126,7 @@ MAPSTRINT	*dbp ;
 
 
 /* add a string-int pair to the database */
-int mapstrint_add(dbp,kstr,klen,ival)
-MAPSTRINT	*dbp ;
-const char	kstr[] ;
-int		klen ;
-int		ival ;
+int mapstrint_add(MAPSTRINT *dbp,cchar *kstr,int klen,int ival)
 {
 	int		rs ;
 	int		size ;
@@ -182,10 +172,7 @@ int		ival ;
 /* end subroutine (mapstrint_add) */
 
 
-int mapstrint_already(op,kstr,klen)
-MAPSTRINT	*op ;
-const char	kstr[] ;
-int		klen ;
+int mapstrint_already(MAPSTRINT *op,cchar *kstr,int klen)
 {
 	int		rs ;
 	int		v ;
@@ -198,11 +185,7 @@ int		klen ;
 
 
 /* enumerate all of the entries */
-int mapstrint_enum(dbp,curp,kpp,vp)
-MAPSTRINT	*dbp ;
-MAPSTRINT_CUR	*curp ;
-const char	**kpp ;
-int		*vp ;
+int mapstrint_enum(MAPSTRINT *dbp,MAPSTRINT_CUR *curp,cchar **kpp,int *vp)
 {
 	HDB_DATUM	key, val ;
 	int		rs ;
@@ -312,11 +295,7 @@ int		*vp ;
 
 
 /* get the current record under the cursor */
-int mapstrint_getrec(dbp,curp,kpp,vp)
-MAPSTRINT	*dbp ;
-MAPSTRINT_CUR	*curp ;
-const char	**kpp ;
-int		*vp ;
+int mapstrint_getrec(MAPSTRINT *dbp,MAPSTRINT_CUR *curp,cchar **kpp,int *vp)
 {
 	HDB_DATUM	key, val ;
 	int		rs ;
@@ -341,9 +320,7 @@ int		*vp ;
 
 
 /* advance the cursor to the next entry regardless of key */
-int mapstrint_next(dbp,curp)
-MAPSTRINT	*dbp ;
-MAPSTRINT_CUR	*curp ;
+int mapstrint_next(MAPSTRINT *dbp,MAPSTRINT_CUR *curp)
 {
 	int		rs ;
 
@@ -355,11 +332,7 @@ MAPSTRINT_CUR	*curp ;
 
 
 /* advance the cursor to the next entry with the given key */
-int mapstrint_nextkey(dbp,kstr,klen,curp)
-MAPSTRINT	*dbp ;
-const char	kstr[] ;
-int		klen ;
-MAPSTRINT_CUR	*curp ;
+int mapstrint_nextkey(MAPSTRINT *dbp,cchar *kstr,int klen,MAPSTRINT_CUR *curp)
 {
 	HDB_DATUM	key ;
 	int		rs ;
@@ -383,10 +356,7 @@ MAPSTRINT_CUR	*curp ;
 
 
 /* delete all of the entries that match a key */
-int mapstrint_delkey(dbp,kstr,klen)
-MAPSTRINT	*dbp ;
-const char	kstr[] ;
-int		klen ;
+int mapstrint_delkey(MAPSTRINT *dbp,cchar *kstr,int klen)
 {
 	HDB_DATUM	skey, key, val ;
 	MAPSTRINT_CUR	keycursor ;
@@ -447,10 +417,7 @@ int		klen ;
 
 
 /* delete the item under the cursor */
-int mapstrint_delcur(dbp,curp,f_adv)
-MAPSTRINT	*dbp ;
-MAPSTRINT_CUR	*curp ;
-int		f_adv ;
+int mapstrint_delcur(MAPSTRINT *dbp,MAPSTRINT_CUR *curp,int f_adv)
 {
 	HDB_DATUM	key, val ;
 	int		rs ;
@@ -468,9 +435,7 @@ int		f_adv ;
 /* end subroutine (mapstrint_delcur) */
 
 
-int mapstrint_curbegin(dbp,curp)
-MAPSTRINT	*dbp ;
-MAPSTRINT_CUR	*curp ;
+int mapstrint_curbegin(MAPSTRINT *dbp,MAPSTRINT_CUR *curp)
 {
 
 	return hdb_curbegin(dbp,curp) ;
@@ -478,9 +443,7 @@ MAPSTRINT_CUR	*curp ;
 /* end subroutine (mapstrint_curbegin) */
 
 
-int mapstrint_curend(dbp,curp)
-MAPSTRINT	*dbp ;
-MAPSTRINT_CUR	*curp ;
+int mapstrint_curend(MAPSTRINT *dbp,MAPSTRINT_CUR *curp)
 {
 
 	return hdb_curend(dbp,curp) ;
@@ -489,10 +452,7 @@ MAPSTRINT_CUR	*curp ;
 
 
 /* set the value for a string (addressed by its cursor) */
-int mapstrint_setval(dbp,curp,ival)
-MAPSTRINT	*dbp ;
-MAPSTRINT_CUR	*curp ;
-int		ival ;
+int mapstrint_setval(MAPSTRINT *dbp,MAPSTRINT_CUR *curp,int ival)
 {
 	HDB_DATUM	key, val ;
 	int		rs ;
@@ -512,27 +472,5 @@ int		ival ;
 
 
 /* private subroutines */
-
-
-#ifdef	COMMENT
-
-static int cmpentry(s1,s2,len)
-const char	s1[] ;
-const char	s2[] ;
-int		len ;
-{
-	int		rc = 0 ;
-
-	if (len > 0) {
-	    rc = (s2[len] - s1[len]) ;
-	    if (rc == 0)
-	        rc = strncmp(s1,s2,len) ;
-	}
-
-	return rc ;
-}
-/* end subroutine (cmpentry) */
-
-#endif /* COMMENT */
 
 

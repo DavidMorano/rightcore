@@ -47,41 +47,35 @@
 /* exported subroutines */
 
 
-int netorder_rchar(buf,cwp)
-char	*buf ;
-char	*cwp ;
+int netorder_rchar(char *buf,char *cwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(char) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*cwp = ubuf[0] ;
-	return 1 ;
+	return rs ;
 }
 /* end subroutine (netorder_rchar) */
 
 
-int netorder_rshort(buf,swp)
-char	*buf ;
-short	*swp ;
+int netorder_rshort(char *buf,short *swp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(short) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*swp = 0 ;
 	*swp |= (ubuf[0] << 8) ;
 	*swp |= (ubuf[1] << 0) ;
 
-	return 2 ;
+	return rs ;
 }
 /* end subroutine (netorder_rshort) */
 
 
-int netorder_rint(buf,iwp)
-char	*buf ;
-int	*iwp ;
+int netorder_rint(char *buf,int *iwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(int) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*iwp = 0 ;
 	*iwp |= (ubuf[0] << 24) ;
@@ -89,19 +83,17 @@ int	*iwp ;
 	*iwp |= (ubuf[2] << 8) ;
 	*iwp |= (ubuf[3] << 0) ;
 
-	return 4 ;
+	return rs ;
 }
 /* end subroutine (netorder_rint) */
 
 
 #if	(LONG_BIT == 64)
 
-int netorder_rlong(buf,lwp)
-char	*buf ;
-long	*lwp ;
+int netorder_rlong(char *buf,long *lwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(long) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*lwp = 0 ;
 	*lwp |= (((long) ubuf[0]) << 56) ;
@@ -113,18 +105,16 @@ long	*lwp ;
 	*lwp |= (((long) ubuf[6]) << 8) ;
 	*lwp |= (((long) ubuf[7]) << 0) ;
 
-	return 8 ;
+	return rs ;
 }
 /* end subroutine (netorder_rlong) */
 
 #else /* (LONG_BIT == 64) */
 
-int netorder_rlong(buf,lwp)
-char	*buf ;
-long	*lwp ;
+int netorder_rlong(char *buf,long *lwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(long) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*lwp = 0 ;
 	*lwp |= (((long) ubuf[0]) << 24) ;
@@ -132,19 +122,17 @@ long	*lwp ;
 	*lwp |= (((long) ubuf[2]) << 8) ;
 	*lwp |= (((long) ubuf[3]) << 0) ;
 
-	return 8 ;
+	return rs ;
 }
 /* end subroutine (netorder_rlong) */
 
 #endif /* (LONG_BIT == 64) */
 
 
-int netorder_rll(buf,lwp)
-char	*buf ;
-LONG	*lwp ;
+int netorder_rll(char *buf,LONG *lwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(LONG) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*lwp = 0 ;
 	*lwp |= (((LONG) ubuf[0]) << 56) ;
@@ -156,46 +144,40 @@ LONG	*lwp ;
 	*lwp |= (((LONG) ubuf[6]) << 8) ;
 	*lwp |= (((LONG) ubuf[7]) << 0) ;
 
-	return 8 ;
+	return rs ;
 }
 /* end subroutine (netorder_rll) */
 
 
-int netorder_ruchar(buf,cwp)
-char	*buf ;
-uchar	*cwp ;
+int netorder_ruchar(char *buf,uchar *cwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(uchar) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*cwp = ubuf[0] ;
-	return 1 ;
+	return rs ;
 }
 /* end subroutine (netorder_ruchar) */
 
 
-int netorder_rushort(buf,swp)
-char	*buf ;
-ushort	*swp ;
+int netorder_rushort(char *buf,ushort *swp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(ushort) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*swp = 0 ;
 	*swp |= (ubuf[0] << 8) ;
 	*swp |= (ubuf[1] << 0) ;
 
-	return 2 ;
+	return rs ;
 }
 /* end subroutine (netorder_rushort) */
 
 
-int netorder_ruint(buf,iwp)
-char	*buf ;
-uint	*iwp ;
+int netorder_ruint(char *buf,uint *iwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(uint) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*iwp = 0 ;
 	*iwp |= (ubuf[0] << 24) ;
@@ -203,19 +185,17 @@ uint	*iwp ;
 	*iwp |= (ubuf[2] << 8) ;
 	*iwp |= (ubuf[3] << 0) ;
 
-	return 4 ;
+	return rs ;
 }
 /* end subroutine (netorder_ruint) */
 
 
 #if	(LONG_BIT == 64)
 
-int netorder_rulong(buf,lwp)
-char	*buf ;
-ulong	*lwp ;
+int netorder_rulong(char *buf,ulong *lwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(ulong) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*lwp = 0 ;
 	*lwp |= (((ulong) ubuf[0]) << 56) ;
@@ -227,18 +207,16 @@ ulong	*lwp ;
 	*lwp |= (((ulong) ubuf[6]) << 8) ;
 	*lwp |= (((ulong) ubuf[7]) << 0) ;
 
-	return 8 ;
+	return rs ;
 }
 /* end subroutine (netorder_rulong) */
 
 #else /* (LONG_BIT == 64) */
 
-int netorder_rulong(buf,lwp)
-char	*buf ;
-ulong	*lwp ;
+int netorder_rulong(char *buf,ulong *lwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(ulong) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*lwp = 0 ;
 	*lwp |= (((ulong) ubuf[0]) << 24) ;
@@ -246,19 +224,17 @@ ulong	*lwp ;
 	*lwp |= (((ulong) ubuf[2]) << 8) ;
 	*lwp |= (((ulong) ubuf[3]) << 0) ;
 
-	return 4 ;
+	return rs ;
 }
 /* end subroutine (netorder_rulong) */
 
 #endif /* (LONG_BIT == 64) */
 
 
-int netorder_rull(buf,lwp)
-char	*buf ;
-ULONG	*lwp ;
+int netorder_rull(char *buf,ULONG *lwp)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(ULONG) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	*lwp = 0 ;
 	*lwp |= (((ULONG) ubuf[0]) << 56) ;
@@ -270,64 +246,60 @@ ULONG	*lwp ;
 	*lwp |= (((ULONG) ubuf[6]) << 8) ;
 	*lwp |= (((ULONG) ubuf[7]) << 0) ;
 
-	return 8 ;
+	return rs ;
 }
 /* end subroutine (netorder_rull) */
 
 
-int netorder_wchar(buf,cw)
-char	*buf ;
-int	cw ;
+/* write char */
+int netorder_wchar(char *buf,int cw)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(char) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	ubuf[0] = (uchar) cw ;
-	return 1 ;
+	return rs ;
 }
 /* end subroutine (netorder_wchar) */
 
 
-int netorder_wshort(buf,sw)
-char	*buf ;
-int	sw ;
+/* write short */
+int netorder_wshort(char *buf,int sw)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(short) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	ubuf[0] = (uchar) ((sw >> 8) & 0xff) ;
 	ubuf[1] = (uchar) ((sw >> 0) & 0xff) ;
 
-	return 2 ;
+	return rs ;
 }
 /* end subroutine (netorder_wshort) */
 
 
-int netorder_wint(buf,iw)
-char	*buf ;
-int	iw ;
+/* write int */
+int netorder_wint(char *buf,int iw)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(int) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	ubuf[0] = (uchar) ((iw >> 24) & 0xff) ;
 	ubuf[1] = (uchar) ((iw >> 16) & 0xff) ;
 	ubuf[2] = (uchar) ((iw >> 8) & 0xff) ;
 	ubuf[3] = (uchar) ((iw >> 0) & 0xff) ;
 
-	return 4 ;
+	return rs ;
 }
 /* end subroutine (netorder_wint) */
 
 
 #if	(LONG_BIT == 64)
 
-int netorder_wlong(buf,lw)
-char	*buf ;
-long	lw ;
+/* write long */
+int netorder_wlong(char *buf,long lw)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(long) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	ubuf[0] = ((lw >> 56) & 0xff) ;
 	ubuf[1] = ((lw >> 48) & 0xff) ;
@@ -339,37 +311,35 @@ long	lw ;
 	ubuf[6] = ((lw >> 8) & 0xff) ;
 	ubuf[7] = ((lw >> 0) & 0xff) ;
 
-	return 8 ;
+	return rs ;
 }
 /* end subroutine (netorder_wlong) */
 
 #else
 
-int netorder_wlong(buf,lw)
-char	*buf ;
-long	lw ;
+/* write long */
+int netorder_wlong(char *buf,long lw)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(long) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	ubuf[0] = ((lw >> 24) & 0xff) ;
 	ubuf[1] = ((lw >> 16) & 0xff) ;
 	ubuf[2] = ((lw >> 8) & 0xff) ;
 	ubuf[3] = ((lw >> 0) & 0xff) ;
 
-	return 4 ;
+	return rs ;
 }
 /* end subroutine (netorder_wlong) */
 
 #endif /* (LONG_BIT == 64) */
 
 
-int netorder_wll(buf,lw)
-char	*buf ;
-LONG	lw ;
+/* write LONG */
+int netorder_wll(char *buf,LONG lw)
 {
-	uchar	*ubuf = (uchar *) buf ;
-
+	const int	rs = sizeof(LONG) ;
+	uchar		*ubuf = (uchar *) buf ;
 
 	ubuf[0] = ((lw >> 56) & 0xff) ;
 	ubuf[1] = ((lw >> 48) & 0xff) ;
@@ -381,7 +351,7 @@ LONG	lw ;
 	ubuf[6] = ((lw >> 8) & 0xff) ;
 	ubuf[7] = ((lw >> 0) & 0xff) ;
 
-	return 8 ;
+	return rs ;
 }
 /* end subroutine (netorder_wll) */
 
@@ -391,9 +361,7 @@ LONG	lw ;
 
 #ifdef	COMMENT
 
-int netorder_readl(buf,ulwp)
-char	*buf ;
-ULONG	*ulwp ;
+int netorder_readl(char *buf,ULONG *ulwp)
 {
 	LONG	*lwp = (LONG *) ulwp ;
 
@@ -401,58 +369,43 @@ ULONG	*ulwp ;
 }
 
 
-int netorder_writel(buf,ulw)
-char	*buf ;
-ULONG	ulw ;
+int netorder_writel(char *buf,ULONG ulw)
 {
-
 
 	return netorder_wlong(buf,ulw) ;
 }
 
 
-int netorder_readi(buf,uiwp)
+int netorder_readi(char *buf,uint *uiwp)
 char	*buf ;
-uint	*uiwp ;
 {
 	int	*iwp = (int *) uiwp ;
-
 
 	return netorder_rint(buf,iwp) ;
 }
 
 
-int netorder_writei(buf,uiw)
-char	*buf ;
-uint	uiw ;
+int netorder_writei(char *buf,uint uiw)
 {
-
 
 	return netorder_wint(buf,uiw) ;
 }
 
 
-int netorder_reads(buf,uswp)
-char	*buf ;
-ushort	*uswp ;
+int netorder_reads(char *buf,ushort *uswp)
 {
 	short	*swp = (short *) uswp ;
-
 
 	return netorder_rshort(buf,swp) ;
 }
 
 
-int netorder_writes(buf,usw)
-char	*buf ;
-uint	usw ;
+int netorder_writes(char *buf,uint usw)
 {
-
 
 	return netorder_wshort(buf,usw) ;
 }
 
 #endif /* COMMENT */
-
 
 

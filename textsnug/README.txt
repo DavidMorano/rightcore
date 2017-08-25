@@ -3,11 +3,9 @@ TEXTSNUG
 This program deletes excess white space from between words.
 
 Synopsis:
-
 $ textsnug <file(s)> [-af <afile>] [-o <opts>] [-V]
 
-where:
-
+Arguments:
 <file(s)>	files to snuggle text in
 -af <afile>	file of argument-files to process
 -o <opts>	options: inplace, rmleading, rmmiddle, rmtrailing

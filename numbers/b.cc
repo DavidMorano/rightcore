@@ -407,14 +407,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
 
-	cchar	*argp, *aop, *akp, *avp ;
-	cchar	*argval = NULL ;
-	cchar	*pr = NULL ;
-	cchar	*sn = NULL ;
-	cchar	*afname = NULL ;
-	cchar	*efname = NULL ;
-	cchar	*ofname = NULL ;
-	cchar	*cp ;
+	cchar		*argp, *aop, *akp, *avp ;
+	cchar		*argval = NULL ;
+	cchar		*pr = NULL ;
+	cchar		*sn = NULL ;
+	cchar		*afname = NULL ;
+	cchar		*efname = NULL ;
+	cchar		*ofname = NULL ;
+	cchar		*cp ;
 
 
 #if	CF_DEBUGS || CF_DEBUG

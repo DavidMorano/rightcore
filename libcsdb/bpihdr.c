@@ -139,8 +139,7 @@ int bpihdr(BPIHDR *ep,int f,char *hbuf,int hlen)
 	            rs = SR_ILSEQ ;
 	        }
 
-	        if ((rs >= 0) && (bl > 0)) {
-
+	        if (rs >= 0) {
 	            if (bl >= headsize) {
 
 	                header = (uint *) bp ;
@@ -160,7 +159,6 @@ int bpihdr(BPIHDR *ep,int f,char *hbuf,int hlen)
 	            } else {
 	                rs = SR_ILSEQ ;
 	            }
-
 	        } /* end if (item) */
 
 	    } /* end if (isValidMagic) */

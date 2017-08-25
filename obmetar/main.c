@@ -149,16 +149,16 @@ int main(int argc,cchar **argv,cchar **envv)
 	int	f_help = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
+	const char	*pr = NULL ;
+	const char	*ofname = NULL ;
+	const char	*fname = NULL ;
+	const char	*sp, *cp, *cp2 ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	buf[BUFLEN + 1], *bp ;
 	char	nodename[NODENAMELEN + 1] ;
 	char	domainname[MAXHOSTNAMELEN + 1] ;
 	char	usernamebuf[LOGNAME_MAX + 1] ;
 	char	ipasswdfname[MAXPATHLEN + 1] ;
-	const char	*pr = NULL ;
-	const char	*ofname = NULL ;
-	const char	*fname = NULL ;
-	const char	*sp, *cp, *cp2 ;
 
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -170,7 +170,8 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if (bopen(&errfile,BFILE_STDERR,"dwca",0666) >= 0) {
 	    pip->efp = &errfile ;
@@ -183,9 +184,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	usernamebuf[0] = '\0' ;
 
 	pip->verboselevel = 1 ;
-
-	pip->f.quiet = FALSE ;
-
 
 /* start parsing the arguments */
 

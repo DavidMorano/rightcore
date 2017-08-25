@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -36,7 +34,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -71,6 +68,8 @@ extern int	cfhexi(const char *,int,int *) ;
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strshrink(char *) ;
 
@@ -181,7 +180,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    goto ret0 ;
 	}
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;

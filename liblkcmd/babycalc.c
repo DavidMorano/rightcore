@@ -17,14 +17,14 @@
 
 /*******************************************************************************
 
-	This module implements an interface (a trivial one) that provides
-	access to the BABYCALC object (which is dynamically loaded).
+        This module implements an interface (a trivial one) that provides access
+        to the BABYCALC object (which is dynamically loaded).
 
 
 *******************************************************************************/
 
 
-#define	BABYCALC_MASTER	0
+#define	BABYCALC_MASTER		0
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -101,7 +101,7 @@ static int	isrequired(int) ;
 
 /* local variables */
 
-static const char	*subs[] = {
+static cchar	*subs[] = {
 	"open",
 	"check",
 	"lookup",
@@ -272,7 +272,7 @@ static int babycalc_objloadbegin(BABYCALC *op,cchar *pr,cchar *objname)
 	    } /* end for */
 
 	    if (rs >= 0) {
-	        const char	**sv ;
+	        cchar	**sv ;
 	        if ((rs = vecstr_getvec(&syms,&sv)) >= 0) {
 	            const char	*modbname = BABYCALC_MODBNAME ;
 	            opts = (MODLOAD_OLIBVAR | MODLOAD_OPRS | MODLOAD_OSDIRS) ;

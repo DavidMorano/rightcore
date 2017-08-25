@@ -58,7 +58,6 @@
 /* external subroutines */
 
 extern int	bfile_pagein(bfile *,offset_t,int) ;
-extern int	isEOL(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
@@ -79,6 +78,8 @@ struct bfile_reload {
 static int	breadlinemap(bfile *,char *,int) ;
 static int	breadlinereg(bfile *,char *,int,int) ;
 static int	breload(bfile *,BRELOAD *,int,int) ;
+
+static int	iseol(int) ;
 
 
 /* local variables */
@@ -232,7 +233,7 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	        bp = fp->bp ;
 	        lastp = fp->bp + mlen ;
 	        while (bp < lastp) {
-	            if (isEOL(*dbp++ = *bp++)) break ;
+	            if (iseol(*dbp++ = *bp++)) break ;
 	        }
 	        i = bp - fp->bp ;
 	        fp->bp += i ;
@@ -241,7 +242,7 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	        fp->len += i ;
 	        runoff += i ;
 	        tlen += i ;
-	        if ((i > 0) && isEOL(dbp[-1])) break ;
+	        if ((i > 0) && iseol(dbp[-1])) break ;
 
 	    } /* end if (move it) */
 
@@ -253,8 +254,7 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	        debugprintf("breadlinetimed: offset at end\n") ;
 #endif
 
-	        if (f_already)
-	            break ;
+	        if (f_already) break ;
 
 #if	CF_DEBUGS
 	        debugprintf("breadlinetimed: re-statting\n") ;
@@ -263,26 +263,23 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	        rs = bfilefstat(fp->fd,&sb) ;
 
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: u_fstat() rs=%d\n",
-	            rs) ;
+	        debugprintf("breadlinetimed: u_fstat() rs=%d\n", rs) ;
 #endif
-
-	        if (rs < 0)
-	            break ;
 
 	        fp->size = sb.st_size ;
 	        f_already = TRUE ;
-
 	    } /* end if (file size limited) */
 
 #if	CF_DEBUGS
 	    debugprintf("breadlinetimed: bottom loop\n") ;
 #endif
 
+	    if (rs < 0) break ;
 	} /* end while (reading) */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    fp->offset += tlen ;
+	}
 
 	return (rs >= 0) ? tlen : rs ;
 }
@@ -341,7 +338,7 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 	        bp = fp->bp ;
 	        lastp = fp->bp + mlen ;
 	        while (bp < lastp) {
-	            if (isEOL(*dbp++ = *bp++)) break ;
+	            if (iseol(*dbp++ = *bp++)) break ;
 	        } /* end while */
 	        i = bp - fp->bp ;
 	        fp->bp += i ;
@@ -353,7 +350,7 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 
 	        fp->len -= i ;
 	        tlen += i ;
-	        if ((i > 0) && isEOL(dbp[-1])) break ;
+	        if ((i > 0) && iseol(dbp[-1])) break ;
 
 	        ulen -= mlen ;
 
@@ -365,8 +362,9 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 
 	} /* end while (trying to satisfy request) */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    fp->offset += tlen ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("breadlinetimed: ret rs=%d tlen=%u\n",rs,tlen) ;
@@ -408,8 +406,9 @@ static int breload(bfile *fp,BRELOAD *sp,int to,int opts)
 	    if (rs >= 0) {
 	        if (len == 0) {
 	            neof += 1 ;
-	        } else
+	        } else {
 	            neof = 0 ;
+		}
 	    }
 
 	} /* end while */
@@ -426,5 +425,12 @@ static int breload(bfile *fp,BRELOAD *sp,int to,int opts)
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (breload) */
+
+
+static int iseol(int ch)
+{
+	return (ch == '\n') ;
+}
+/* end subroutine (iseol) */
 
 

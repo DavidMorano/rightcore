@@ -11,86 +11,70 @@
 
 /* revision history:
 
-	= 89/03/01, David A­D­ Morano
+	= 1998-06-01, David A­D­ Morano
+	This subroutine was originally written.
 
-	This subroutine was originally written.  
+	= 1999-03-01, David A­D­ Morano
+	I enhanced the program a little to to do something (I forget what).
 
+	= 2004-01-10, David A­D­ Morano
+        The KSH program switched to using a fakey "large file" (64-bit fake-out
+        mode) compilation mode on Solaris. This required some checking to see if
+        any references to 'u_stat()' had to be updated to work with the new KSH.
+        Although we call 'u_stat()' here, its structure is not passed to other
+        subroutines expecting the regular 32-bit structure.
 
-	= 98/06/01, David A­D­ Morano
-
-	I enhanced the program a little to print out some other
-	information.
-
-
-	= 99/03/01, David A­D­ Morano
-
-	I enhanced the program a little to to do something (I forget
-	what).
-
-
-	= 04/01/10, David A­D­ Morano
-
-	The KSH program switched to using a fakey "large file" (64-bit
-	fake-out mode) compilation mode on Solaris.  This required
-	some checking to see if any references to 'u_stat()' had to be
-	updated to work with the new KSH.  Although we call 'u_stat()'
-	here, its structure is not passed to other subroutines expecting
-	the regular 32-bit structure.
-
-
-	= 05/04/20, David A­D­ Morano
-
-	I changed the program so that the configuration file is consulted
-	even if the program is not run in daemon-mode.	Previously, the
-	configuration file was only consulted when run in daemon-mode.
-	The thinking was that running the program in regular (non-daemon)
-	mode should be quick.  The problem is that the MS file had to
-	be guessed without the aid of consulting the configuration file.
-	Although not a problem in most practice, it was not aesthetically
-	appealing.  It meant that if the administrator changed the MS file
-	in the configuration file, it also had to be changed by specifying
-	it explicitly at invocation in non-daemon-mode of the program.
-	This is the source of some confusion (which the world really
-	doesn't need).	So now the configuration is always consulted.
-	The single one-time invocation is still fast enough for the
-	non-smoker aged under 40! :-) :-)
-
+	= 2005-04-20, David A­D­ Morano
+        I changed the program so that the configuration file is consulted even
+        if the program is not run in daemon-mode. Previously, the configuration
+        file was only consulted when run in daemon-mode. The thinking was that
+        running the program in regular (non-daemon) mode should be quick. The
+        problem is that the MS file had to be guessed without the aid of
+        consulting the configuration file. Although not a problem in most
+        practice, it was not aesthetically appealing. It meant that if the
+        administrator changed the MS file in the configuration file, it also had
+        to be changed by specifying it explicitly at invocation in
+        non-daemon-mode of the program. This is the source of some confusion
+        (which the world really doesn't need). So now the configuration is
+        always consulted. The single one-time invocation is still fast enough
+        for the non-smoker aged under 40! :-) :-)
 
 */
 
+/* Copyright © 1998,1999,2004,2005 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	This is a built-in command to the KSH shell.  It should also
-	be able to be made into a stand-alone program without much
-	(if almost any) difficulty, but I have not done that yet (we
-	already have a MSU program out there).
+        This is a built-in command to the KSH shell. It should also be able to
+        be made into a stand-alone program without much (if almost any)
+        difficulty, but I have not done that yet (we already have a MSU program
+        out there).
 
-	Note that special care needed to be taken with the child processes
-	because we cannot let them ever return normally!  They cannot
-	return since they would be returning to a KSH program that thinks
-	it is alive (!) and that geneally causes some sort of problem or
-	another.  That is just some weird thing asking for trouble.  So we
-	have to take care to force child processes to exit explicitly.
-	Child processes are only created when run in "daemon" mode.
+        Note that special care needed to be taken with the child processes
+        because we cannot let them ever return normally! They cannot return
+        since they would be returning to a KSH program that thinks it is alive
+        (!) and that geneally causes some sort of problem or another. That is
+        just some weird thing asking for trouble. So we have to take care to
+        force child processes to exit explicitly. Child processes are only
+        created when run in "daemon" mode.
 
-	Execute as :
+	Synopsis:
 
 	$ msu [-speed[=<name>]] [-zerospeed] [-msfile <file>]
 
 
 	Implementation note:
 
-	It is difficult to close files when run as a SHELL builtin!
-	We want to close files when we run in the background, but when
-	running as a SHELL builtin, we cannot close file descriptors
-	untill after we fork (else we corrupt the enclosing SHELL).
-	However, we want to keep the files associated with persistent
-	objects open across the fork.  This problem is under review.
-	Currently, there is not an adequate self-contained solution.
+        It is difficult to close files when run as a SHELL builtin! We want to
+        close files when we run in the background, but when running as a SHELL
+        builtin, we cannot close file descriptors untill after we fork (else we
+        corrupt the enclosing SHELL). However, we want to keep the files
+        associated with persistent objects open across the fork. This problem is
+        under review. Currently, there is not an adequate self-contained
+        solution.
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -116,7 +100,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -187,6 +170,8 @@ extern int	batch(struct proginfo *,void *,vecstr *) ;
 #if	CF_CPUSPEED
 extern int	cpuspeed(const char *,const char *,int) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
@@ -380,7 +365,7 @@ const char	*envv[] ;
 	int	f_caf = FALSE ;
 	int	f ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	nodename[NODENAMELEN + 1] ;
 	char	domainname[MAXHOSTNAMELEN + 1] ;
@@ -388,14 +373,21 @@ const char	*envv[] ;
 	char	tmpfname[MAXPATHLEN + 1] ;
 	char	mailaddr[MAILADDRLEN + 1] ;
 	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*pr = NULL ;
-	char	*configfname = NULL ;
-	char	*outfname = NULL ;
-	char	*msfname = NULL ;
-	char	*cp ;
+	cchar	*pr = NULL ;
+	cchar	*configfname = NULL ;
+	cchar	*outfname = NULL ;
+	cchar	*msfname = NULL ;
+	cchar	*cp ;
 
 
 	if_int = 0 ;
+
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	n = nelem(sigints) + nelem(sigignores) ;
 	size = n * sizeof(struct sigaction) ;
@@ -443,26 +435,10 @@ const char	*envv[] ;
 
 	} /* end for */
 
-
-#if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	    cp = getenv(VARDEBUGFD2) ;
-
-	if (cp != NULL) {
-
-	    if (cfdeci(cp,-1,&fd_debug) >= 0)
-	        debugsetfd(fd_debug) ;
-
-	    else
-	        fd_debug = debugopen(cp) ;
-
-	}
-#endif /* CF_DEBUGS */
-
-
 	proginfo_start(pip,environ,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 
 	if ((cp = getenv(VARSTDERRFNAME)) == NULL)
@@ -474,7 +450,6 @@ const char	*envv[] ;
 	    pip->efp = &errfile ;
 	    pip->f.errfile = TRUE ;
 	    shio_control(&errfile,SHIO_CLINEBUF,0) ;
-
 	}
 
 

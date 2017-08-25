@@ -1,2 +1,2 @@
 const char ecover_makedate[] =
-"@(#)ecover                  170817_1257:05_USEDT Rightcore Network Services" ;
+"@(#)ecover                  170822_1611:58_USEDT Rightcore Network Services" ;

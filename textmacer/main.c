@@ -1,36 +1,26 @@
-/* main */
+/* main (textmacer) */
 
 
-
+#include	<envstandards.h>
 
 #include	<stdio.h>
 
 
 
-
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,const char **argv,const char **envv)
 {
-	FILE	*ifp = stdin ;
-	FILE	*ofp = stdout ;
-
-	int	c ;
-
+	FILE		*ifp = stdin ;
+	FILE		*ofp = stdout ;
+	int		c ;
 
 	while ((c = fgetc(ifp)) >= 0) {
-
-		if (c == '\r')
-			c = '\n' ;
-
+		if (c == '\r') c = '\n' ;
 		fputc(c,ofp) ;
-
 	} /* end while */
 
 	return 0 ;
 }
 /* end subroutine (main) */
-
 
 

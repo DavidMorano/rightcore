@@ -258,7 +258,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	PARAMOPT	apam ;
-	MAPSTRINT	names ;
 	bfile		errfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -314,14 +313,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
 	pip->verboselevel = 1 ;
 
 	pip->lip = lip ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -585,8 +584,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -632,8 +633,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	                                rs = SR_INVALID ;
 	                        }
 	                        if ((rs >= 0) && (cp != NULL)) {
-	                            const char	*po = PO_OPTION ;
-	                            rs = paramopt_loads(&apam,po,cp,cl) ;
+				    PARAMOPT	*pop = &apam ;
+	                            cchar	*po = PO_OPTION ;
+	                            rs = paramopt_loads(pop,po,cp,cl) ;
 	                        }
 	                        break ;
 
@@ -787,6 +789,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
+	    MAPSTRINT	names ;
 	    if ((rs = mapstrint_start(&names,10)) >= 0) {
 
 	        if (lip->f.maint) {

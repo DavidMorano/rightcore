@@ -139,6 +139,7 @@ extern int	hasalldig(cchar *,int) ;
 extern int	isprintlatin(int) ;
 extern int	strlinelen(cchar *,int,int) ;
 extern int	msleep(int) ;
+extern int	getdig(int) ;
 
 #if	CF_DEBUGN
 extern int	nprintf(cchar *,cchar *,...) ;
@@ -191,11 +192,6 @@ static char	*convdeci(LONG,char *) ;
 /* local variables */
 
 static DEBUGPRINT	ef ; /* zero-initialized */
-
-static const char	cthextable[] = {
-	'0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 0
-} ;
 
 
 /* exported subroutines */
@@ -826,7 +822,7 @@ static int cthexi(char *dp,int dl,int val)
 	if (n <= dl) {
 	    int		i  ;
 	    for (i = (n - 1) ; i >= 0 ; i -= 1) {
-	        dp[i] = cthextable[val & 0x0F] ;
+	        dp[i] = getdig(val & 0x0F) ;
 	        val >>= 4 ;
 	    } /* end for */
 	    dp[n] = '\0' ;

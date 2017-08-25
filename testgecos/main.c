@@ -10,39 +10,33 @@
 
 /* revision history:
 
-	= 89/03/01, David A­D­ Morano
+	= 1989-03-01, David A­D­ Morano
+        This subroutine was originally written. This whole program, LOGDIR, is
+        needed for use on the Sun CAD machines because Sun doesn't support
+        LOGDIR or LOGNAME at this time. There was a previous program but it is
+        lost and not as good as this one anyway. This one handles NIS+ also.
+        (The previous one didn't.)
 
-	This subroutine was originally written.  This whole program,
-	LOGDIR, is needed for use on the Sun CAD machines because Sun
-	doesn't support LOGDIR or LOGNAME at this time.  There was a
-	previous program but it is lost and not as good as this one
-	anyway.  This one handles NIS+ also.  (The previous one
-	didn't.) 
+	= 1998-06-01, David A­D­ Morano
+        I enhanced the program a little to print out some other user information
+        besides the user's name and login home directory.
 
-
-	= 98/06/01, David A­D­ Morano
-
-	I enhanced the program a little to print out some other user
-	information besides the user's name and login home directory.
-
-
-	= 99/03/01, David A­D­ Morano
-
-	I enhanced the program to also print out effective UID and
-	effective GID.
-
+	= 1999-03-01, David A­D­ Morano
+        I enhanced the program to also print out effective UID and effective
+        GID.
 
 */
 
+/* Copyright © 1989,1998,1999 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	$ testgecos.x [username]
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<evnstandards.h>
@@ -90,6 +84,8 @@ extern int	matpstr(const char **,int,const char *,int) ;
 extern int	sfshrink(const char *,int,char **) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	initnow(struct timeb *,char *,int) ;
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
@@ -178,13 +174,13 @@ char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*mbfname = NULL ;
 	const char	*cp, *cp2 ;
+	char		argpresent[MAXARGGROUPS] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -195,7 +191,8 @@ char	*envv[] ;
 
 	proginfo_start(pip,envv,argv[0],VERSION) ;
 
-	proginfo_setbanner(pip,BANNER) ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
@@ -209,14 +206,10 @@ char	*envv[] ;
 
 /* initialize */
 
-	pip->debuglevel = 0 ;
 	pip->verboselevel = 1 ;
-
-	pip->f.quiet = FALSE ;
 
 /* start parsing the arguments */
 
-	rs = SR_OK ;
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1)
 	    argpresent[ai] = 0 ;
 

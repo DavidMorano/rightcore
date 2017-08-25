@@ -95,8 +95,9 @@ int lockrw_create(LOCKRW *psp,int f_shared)
 	        if (rs < 0)
 		    ptm_destroy(&psp->m) ;
 	    } /* end if (PTM created) */
-	} else
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 	return rs ;
 }

@@ -1,2 +1,2 @@
 const char textsnug_makedate[] =
-	"@(#)textsnug                140628_1429:59_EDT Rightcore Network Services" ;
+"@(#)textsnug                170823_2243:38_USEDT Rightcore Network Services" ;

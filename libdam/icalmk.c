@@ -113,7 +113,7 @@
 #undef	RECTAB
 #define	RECTAB		struct icalmk_rectab
 
-#define	BUFLEN		(sizeof(CYIFU) + 128)
+#define	BUFLEN		(sizeof(ICALHDR) + 128)
 
 #define	FSUF_IND	"ical"
 
@@ -705,7 +705,7 @@ ICALMK	*op ;
 
 	struct blentry	*blep ;
 
-	CYIFU	hf ;
+	ICALHDR	hf ;
 
 	FILEBUF	cyifile ;
 
@@ -738,9 +738,9 @@ ICALMK	*op ;
 
 /* prepare the file-header */
 
-	memset(&hf,0,sizeof(CYIFU)) ;
+	memset(&hf,0,sizeof(ICALHDR)) ;
 
-	hf.vetu[0] = CYIFU_VERSION ;
+	hf.vetu[0] = ICALHDR_VERSION ;
 	hf.vetu[1] = ENDIAN ;
 	hf.vetu[2] = 0 ;
 	hf.vetu[3] = 0 ;
@@ -751,7 +751,7 @@ ICALMK	*op ;
 
 /* create the file-header */
 
-	rs = cyifu(&hf,0,buf,BUFLEN) ;
+	rs = icalhdr(&hf,0,buf,BUFLEN) ;
 	bl = rs ;
 	if (rs < 0)
 	    goto ret2 ;
@@ -845,7 +845,7 @@ ret2:
 
 	    hf.fsize = fileoff ;
 
-	    rs = cyifu(&hf,0,buf,BUFLEN) ;
+	    rs = icalhdr(&hf,0,buf,BUFLEN) ;
 	    bl = rs ;
 	    if (rs >= 0)
 	        rs = u_pwrite(op->nfd,buf,bl,0L) ;

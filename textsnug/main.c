@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -22,8 +20,7 @@
 
 /*******************************************************************************
 
-	This is a fairly generic front-end subroutine for small
-	programs.
+	This is a fairly generic front-end subroutine for small programs.
 
 
 *******************************************************************************/
@@ -34,7 +31,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
@@ -67,10 +63,11 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(PROGINFO *,const char *,
-			const struct pivars *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 extern int	progfile(PROGINFO *,bfile *,const char *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -80,7 +77,7 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 
 /* external variables */
@@ -98,7 +95,7 @@ static int	procopts(PROGINFO *,KEYOPT *) ;
 
 /* local variables */
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -144,7 +141,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*akonames[] = {
+static cchar	*akonames[] = {
 	"inplace",
 	"rmleading",
 	"rmtrailing",
@@ -164,7 +161,7 @@ enum akonames {
 /* exported subroutines */
 
 
-int main(int argc,cchar *argv,cchar *envv)
+int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
 	BITS		pargs ;
@@ -173,19 +170,21 @@ int main(int argc,cchar *argv,cchar *envv)
 	bfile		errfile ;
 	bfile		outfile, *ofp = &outfile ;
 
-	uint	mo_start = 0 ;
+#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+	uint		mo_start = 0 ;
+#endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	pan = 0 ;
-	int	rs, rs1 ;
-	int	cl ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_usage = FALSE ;
-	int	f_version = FALSE ;
-	int	f_help = FALSE ;
-	int	f ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		pan = 0 ;
+	int		rs, rs1 ;
+	int		cl ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_usage = FALSE ;
+	int		f_version = FALSE ;
+	int		f_help = FALSE ;
+	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -222,7 +221,7 @@ int main(int argc,cchar *argv,cchar *envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
@@ -535,6 +534,8 @@ int main(int argc,cchar *argv,cchar *envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -678,8 +679,8 @@ int main(int argc,cchar *argv,cchar *envv)
 
 	    if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
 		const int	llen = LINEBUFLEN ;
-	        int	len ;
-	        char	lbuf[LINEBUFLEN+ 1] ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN+ 1] ;
 
 	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
 		    len = rs ;
@@ -859,8 +860,9 @@ KEYOPT		*kop ;
 	const char	*kp, *vp ;
 	const char	*cp ;
 
-	if ((cp = getenv(VAROPTS)) != NULL)
+	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs < 0)
 	    goto ret0 ;
@@ -937,6 +939,5 @@ ret0:
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procopts) */
-
 
 

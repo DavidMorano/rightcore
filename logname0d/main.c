@@ -11,25 +11,19 @@
 /* revision history :
 
 	= 1989-03-01, David A­D­ Morano
-
         This subroutine was originally written. This whole program, LOGDIR, is
         needed for use on the Sun CAD machines because Sun doesn't support
         LOGDIR or LOGNAME at this time. There was a previous program but it is
         lost and not as good as this one anyway. This one handles NIS+ also.
         (The previous one didn't.)
 
-
 	= 1998-06-01, David A­D­ Morano
-
 	I enhanced the program a little to print out some other user
 	information besides the user's name and login home directory.
 
-
 	= 1999-03-01, David A­D­ Morano
-
 	I enhanced the program to also print out effective UID and
 	effective GID.
-
 
 */
 
@@ -97,7 +91,7 @@
 
 extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	sfbasename(cchar *,int,cchar **) ;
-extern int	matstr(cchar **,int,cchar *,int) ;
+extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	lastlogin(char *,uid_t,time_t *,char *,char *) ;
