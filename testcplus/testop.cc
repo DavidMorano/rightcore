@@ -8,9 +8,10 @@
 #define	CF_INIT		0
 #define	CF_TESTLAMBDA	0		/* test Lambda Functions */
 #define	CF_TESTIO	0		/* |testio()| */
-#define	CF_TESTIN	1		/* |testin()| */
+#define	CF_TESTIN	0		/* |testin()| */
 #define	CF_LISTUP	0		/* list up things */
 #define	CF_ADD		0		/* add */
+#define	CF_INH		1		/* inheritance */
 
 
 /* revision history:
@@ -30,12 +31,14 @@
 #include	<cinttypes>
 #include	<new>
 #include	<initializer_list>
-#include	<algorithm>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<string>
 #include	<fstream>
 #include	<iostream>
+#include	<ostream>
 #include	<iomanip>
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -188,6 +191,34 @@ thing operator + (const thing &a,const thing &b)
 	return r ;
 }
 
+struct tupler {
+	int	a = 0 ;
+	int	b = 0 ;
+	int	c = 0 ;
+	tupler() { } ;
+	tupler(const tupler &) = default ;
+	tupler(initializer_list<int> &il) {
+	    int	p = 0 ;
+	    for (auto &e : il) {
+		switch (p++) {
+		case 0:
+		    a = e ;
+		    break ;
+		case 1:
+		    b = e ;
+		    break ;
+		case 2:
+		    c = e ;
+		    break ;
+		} /* end switch */
+	    }
+	} ;
+	friend ostream &operator << (ostream &out,const tupler &t) {
+	    cout << "(" << t.a << "," << t.b << "m" << t.c << endl ;
+	    return out ;
+	} ;
+} ;
+
 
 /* forward references */
 
@@ -204,6 +235,10 @@ static int readline(ifstream &,char *,int) ;
 static int testin() ;
 #endif /* CF_TESTIN */
 
+#if	CF_INH
+static int inh() ;
+#endif /* CF_INH */
+
 
 /* local variables */
 
@@ -214,6 +249,7 @@ int main(int argc,const char **argv,const char **envv)
 {
 	FILE		*efp = stderr ;
 	thing		a(11), b(23), c(9) ;
+	int		ex = 0 ;
 	int		rs = SR_OK ;
 
 	fprintf(efp,"main: ent\n") ;
@@ -276,9 +312,14 @@ int main(int argc,const char **argv,const char **envv)
 	if (rs >= 0) rs = testin() ;
 #endif /* CF_TESTIN */
 
+#if	CF_INH
+	if (rs >= 0) rs = inh() ;
+#endif
+
 	fprintf(efp,"main: ret rs=%d\n",rs) ;
 
-	return 0 ;
+	if (rs < 0) ex = 1 ;
+	return ex ;
 }
 /* end subroutine (main) */
 
@@ -384,5 +425,42 @@ static int testin()
 }
 /* end subroutine (testin) */
 #endif /* CF_TESTIN */
+
+
+#if	CF_INH
+struct A {
+	int		n = 0 ;
+	A() { 
+	   fprintf(stderr,"A(%u) ctor ­\n",n) ;
+	} ;
+	A(int an) : n(an) {
+	   fprintf(stderr,"A(%u) ctor\n",n) ;
+	} ;
+	~A() {
+	   fprintf(stderr,"A(%u) dtor\n",n) ;
+	} ;
+} ;
+
+struct B : public A {
+	int		n = 0 ;
+	B() {
+	   fprintf(stderr,"B(%u) ctor ­\n",n) ;
+	} ;
+	B(int an) : n(an) {
+	   fprintf(stderr,"B(%u) ctor\n",n) ;
+	} ;
+	~B() {
+	   fprintf(stderr,"B(%u) dtor\n",n) ;
+	} ;
+} ;
+
+static int inh() {
+	A		a(23) ;
+	B		b(1) ;
+	cout << a.n ;
+	return 0 ;
+}
+/* end subroutine (inh) */
+#endif /* CG_INH */
 
 

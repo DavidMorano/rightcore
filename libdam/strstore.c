@@ -320,7 +320,7 @@ int strstore_enum(STRSTORE *op,STRSTORE_CUR *curp,cchar **rpp)
 
 
 /* is a given string already represented? */
-int strstore_already(STRSTORE *op,cchar sp[],int sl)
+int strstore_already(STRSTORE *op,cchar *sp,int sl)
 {
 	HDB_DATUM	key, val ;
 	int		rs ;

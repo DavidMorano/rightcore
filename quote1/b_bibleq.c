@@ -12,13 +12,12 @@
 
 /* revision history:
 
-	= 2004-06-02, David A­D­ Morano
-	This subroutine was originally written and is the BIBLEQ KSH built-in
-	command.
+	= 2008-10-01, David A­D­ Morano
+	This module was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

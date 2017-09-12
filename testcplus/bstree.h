@@ -28,8 +28,8 @@
 
 	A. There are at least three popular ways to handle iterative traveral:
 
-	1. maintain a stack of pointers to previous node at least
-	   level of the tree; space would be O(depth)
+	1. maintain a stack of pointers to previous node at each level of the 
+	   tree; space would be O(depth)
 
 	2. use a so-called "threaded" tree structure where each dangling
 	   right-side node (with no additional right-child) actually
@@ -38,7 +38,9 @@
 	3. use the "parent" method where each node has a pointer to its own
 	   parent; we use this method below
 
-        It we find that there is no right-child (from our current node), we
+	The "parent" scheme:
+
+        If we find that there is no right-child (from our current node), we
         traverse back up to our parent, checking (at each step) if we (the
         current node) is equal the right-child node. If we arrive at our parent
         from its left-child, then our parent becomes the next current node. If
@@ -71,6 +73,7 @@
 		n = n->right ;
 		return it ;
 	    } ;
+	} ;
 
 
 *******************************************************************************/
@@ -87,6 +90,7 @@
 #include	<initializer_list>
 #include	<algorithm>
 #include	<functional>
+#include	<stack>
 #include	<vector>
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -128,10 +132,11 @@ public:
 
 template <typename T,typename Comp>
 class bstree_iterator {
-	typedef			bstree_node<T,Comp> nodetype ;
+	typedef bstree_node<T,Comp>	nodetype ;
 	bstree_node<T,Comp>	*n = NULL ;
 	mutable T		defval ;
 	bstree_iterator<T,Comp> &findnext(int) ;
+	typedef bstree_iterator	bit ;
 public:
 	bstree_iterator() { } ;
 	bstree_iterator(bstree_node<T,Comp>* an) : n(an) { } ;
@@ -171,6 +176,9 @@ public:
 	    return findnext(1) ;
 	} ;
 	bstree_iterator<T,Comp> &operator += (int inc) {
+	    return findnext(inc) ;
+	} ;
+	bstree_iterator<T,Comp> &operator + (int inc) {
 	    return findnext(inc) ;
 	} ;
 	operator int() const {
@@ -215,16 +223,25 @@ bstree_iterator<T,Comp> &bstree_iterator<T,Comp>::findnext(int inc) {
  	return (*this) ;
 } /* end method (findnext) */
 
+struct bstree_depth {
+	int		min = INT_MAX ;
+	int		max = 0 ;
+	void clear() {
+	    min = INT_MAX ;
+	    max = 0 ;
+	} ;
+} ;
+
 template <typename T,typename Comp>
 class bstree {
 	bstree_node<T,Comp>	*root = NULL ;
-	Comp			keyless ;
+	Comp			keycmp ;
 	int			c = 0 ;
 	typedef			bstree_node<T,Comp> nodetype ;
         bstree_iterator<T,Comp> FindNodeByVal(nodetype *n,const T &v) const {
 	    bstree_iterator<T,Comp>	it ;
 	    if (root != NULL) {
-	        if (keyless(v,n->val)) { /* less */
+	        if (keycmp(v,n->val)) { /* less */
 	            if (n->left != NULL) {
 		        it = FindNodeByVal(n->left,v) ;
 	            }
@@ -268,7 +285,7 @@ class bstree {
 	} ;
 	int insert(bstree_node<T,Comp> *n,bstree_node<T,Comp> *nn) {
 	    int		d = 0 ;
-	    if (keyless(nn->val,n->val)) {
+	    if (keycmp(nn->val,n->val)) {
 		if (n->left != NULL) {
 	            d = insert(n->left,nn) ;
 		} else {
@@ -301,8 +318,8 @@ class bstree {
 	} ;
 	bool keyequal(const T &v1,const T &v2) const { /* equal */
 	    bool f = TRUE ;
-	    f = f && (! keyless(v1,v2)) ;
-	    f = f && (! keyless(v2,v1)) ;
+	    f = f && (! keycmp(v1,v2)) ;
+	    f = f && (! keycmp(v2,v1)) ;
 	    return f ;
 	} ;
 public:
@@ -532,6 +549,33 @@ public:
 	    }
 	    return it ;
 	} ;
+	int depth(bstree_depth *resp) {
+	    int	d = 0 ;
+	    if (resp != NULL) resp->clear() ;
+	    d = depthrecurse(resp,0,root) ;
+ 	    return d ;
+        } ; /* end method (depth) */
+	int depthrecurse(bstree_depth *resp,int i,bstree_node<T,Comp> *rp) {
+	    int	d = 0 ;
+#if	CF_DEBUGS
+	    debugprintf("bstree::depthrecurse: ent i=%u\n",i) ;
+#endif
+	    if (rp != NULL) {
+	        int	d_left = depthrecurse(resp,(i+1),rp->left) ;
+	        int	d_right = depthrecurse(resp,(i+1),rp->right) ;
+	        d = 1 ;
+	        d += std::max(d_left,d_right) ;
+	    } else {
+		if (resp != NULL) {
+		     resp->min = std::min(resp->min,i) ;
+		     resp->max = std::max(resp->max,i) ;
+		}
+	    }
+#if	CF_DEBUGS
+	    debugprintf("bstree::depthrecurse: ret d=%u\n",d) ;
+#endif
+	    return d ;
+    } ; /* end method (depthrecurse) */
 } ; /* end class (bstree) */
 
 #endif /* BSTREE_INCLUDE */

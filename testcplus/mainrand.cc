@@ -16,11 +16,13 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
-#include	<stdio.h>
 #include	<climits>
 #include	<cstdlib>
 #include	<cinttypes>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
 #include	<vector>
 #include	<string>

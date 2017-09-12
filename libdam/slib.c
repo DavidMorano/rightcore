@@ -6,8 +6,7 @@
 
 /* revision history:
 
-	= David A.D. Morano, 1982
-
+	= 1983-12-02, David A.D. Morano
 	This library module was originally written being traslated from
 	MC68000 assembly.
 
@@ -45,10 +44,8 @@ int	len ;
 long	*rp ;
 char	*s ;
 {
-	register int	val, n, si ;
-
-	register char	c ;
-
+	int		val, n, si ;
+	char		c ;
 
 	val = 0 ;
 	if (len == 0) 
@@ -58,10 +55,8 @@ char	*s ;
 	si = len - 1 ;
 
 	while (s[si] == '\t' || s[si] == ' ') {
-
 		if (si == 0) 
 		goto cfh_done ;
-
 		si -= 1 ;
 	}
 
@@ -138,8 +133,7 @@ int cmpc(len,src,dst)
 long	len ;
 char	*src, *dst ;
 {
-	register int	i ;
-
+	int		i ;
 
 	for (i = 0 ; i < len ; i++) {
 	    if (*src++ != *dst++) 
@@ -160,7 +154,7 @@ char *cup(len,src,dst)
 long	len ;
 char	*src, *dst ;
 {
-	register long	i ;
+	long		i ;
 
 	for (i = 0 ; i < len ; i++) {
 	    *dst++ = 
@@ -177,7 +171,7 @@ char *clow(len,src,dst)
 long	len ;
 char	*src, *dst ;
 {
-	register long	i ;
+	long		i ;
 
 	for (i = 0 ; i < len ; i++) {
 	    *dst++ = 

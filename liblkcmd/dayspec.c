@@ -351,8 +351,9 @@ static int parsemonth(cchar *mp,int ml)
 	        rs = cfdeci(cp,cl,&mi) ;
 	        mi -= 1 ;
 	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? mi : rs ;
 }
@@ -361,9 +362,9 @@ static int parsemonth(cchar *mp,int ml)
 
 static int siourbrk(cchar *sp,int sl,int f_dig)
 {
-	register int	i = -1 ;
-	register int	ch ;
-	register int	f = FALSE ;
+	int		i = -1 ;
+	int		ch ;
+	int		f = FALSE ;
 
 	for (i = 0 ; i < sl ; i += 1) {
 	    ch = (sp[i] & 0xff) ;

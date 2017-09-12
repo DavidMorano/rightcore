@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 2016-06-02, David A­D­ Morano
-
 	This module was originally written.
-
 
 */
 

@@ -889,7 +889,7 @@ static int usage(PROGINFO *pip)
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-	fmt = "%s: USAGE> %s [<file(s)>] [-e]\n" ;
+	fmt = "%s: USAGE> %s [-pm <mode>] [<file(s)>] [-e]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 

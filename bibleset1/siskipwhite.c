@@ -53,7 +53,7 @@
 
 int siskipwhite(cchar *sp,int sl)
 {
-	register int	i ;
+	int		i ;
 
 	for (i = 0 ; sl-- && sp[i] ; i += 1) {
 	    if (! CHAR_ISWHITE(sp[i])) break ;

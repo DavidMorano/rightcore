@@ -20,8 +20,10 @@
 #include	<stdio.h>
 #include	<cinttypes>
 #include	<new>
-#include	<algorithm>
+#include	<initializer_list>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<string>
 #include	<fstream>

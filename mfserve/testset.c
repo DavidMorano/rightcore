@@ -30,8 +30,10 @@
 #include	<limits.h>
 #include	<string.h>
 #include	<new>
+#include	<initializer_list>
 #include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<set>
 #include	<string>
 #include	<iostream>

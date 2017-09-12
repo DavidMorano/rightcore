@@ -27,24 +27,20 @@
 	white-space characters).
 
 	Synopsis:
-
 	int sfword(sp,sl,rpp)
 	const char	*sp ;
 	int		sl ;
 	const char	**rpp ;
 
 	Arguments:
-
 	sp		source string
 	sl		length of supplied source string
 	rpp		pointer to pointer to get result (an English word)
 
 	Return:
-
 	-		length of resulting word
 
 	Notes:
-
         = CF_ALLOWSMORE: I don't know but this was a (vain?) attempt at speeding
         up this subroutine. Profiles show that time is being spent in here (how
         much compared with everything else?). There is not much to improve upon,
@@ -112,7 +108,7 @@ int sfword(cchar *sp,int sl,cchar **rpp)
 	const char	*cp ;
 
 	if ((cl = sfshrinkmore(sp,sl,&cp)) > 0) {
-	    register int	f = FALSE ;
+	    int	f = FALSE ;
 
 	    if (cp[0] == CH_SQUOTE) {
 		cp += 1 ;
@@ -130,8 +126,8 @@ int sfword(cchar *sp,int sl,cchar **rpp)
 
 #if	CF_ALLOWSMORE
 		    {
-			register int 		j ;
-			register const char	*cc = (cp+i) ;
+			int 	j ;
+			cchar	*cc = (cp+i) ;
 	                for (j = 0 ; allows[j] != NULL ; j += 1) {
 			    f = (allows[j][0] == cc[0]) ;
 	                    f = f && (strncmp(allows[j],cc,2) == 0) ;
@@ -140,9 +136,9 @@ int sfword(cchar *sp,int sl,cchar **rpp)
 		    }
 #else /* CF_ALLOWSMORE */
 		    {
-			register int		j ;
-			char			lowbuf[4] ;
-			register const char	*cc = lowbuf ;
+			int	j ;
+			char	lowbuf[4] ;
+			cchar	*cc = lowbuf ;
 			lowbuf[0] = CHAR_TOLC((cp+i)[0]) ;
 			lowbuf[1] = CHAR_TOLC((cp+i)[1]) ;
 	                for (j = 0 ; allows[j] != NULL ; j += 1) {

@@ -1,2 +1,2 @@
 const char harmonic_makedate[] =
-	"@(#)harmonic                020212_0939:09_EST RightCore" ;
+"@(#)harmonic                170906_2115:22_USEDT Rightcore Network Services" ;

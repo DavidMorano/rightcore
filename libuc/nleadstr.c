@@ -74,7 +74,7 @@
 
 int nleadstr(cchar *bs,cchar *sp,int sl)
 {
-	register int	i ;
+	int		i ;
 
 	if (sl < 0) sl = INT_MAX ;
 

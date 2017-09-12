@@ -203,10 +203,10 @@ OBJ079= storeitem.o storebuf.o buffer.o field.o char.o mkprogenv.o
 
 OBJ080= fsdir.o pmq.o sigblock.o userattr.o filemap.o uname.o 
 OBJ081= vechand.o vecobj.o vecelem.o recarr.o
-OBJ082= envlist.o hdb.o lookaside.o pq.o ids.o linefold.o nulstr.o strpack.o
+OBJ082= envlist.o hdb.o lookaside.o pq.o ids.o linefold.o nulstr.o 
 OBJ083= dirseen.o dirseen_not.o
-OBJ084= sigign.o ucsem.o
-OBJ085= varray.o dirlist.o  randomvar.o
+OBJ084= strpack.o
+OBJ085= varray.o dirlist.o randomvar.o strmgr.o sigign.o ucsem.o
 OBJ086= sbuf.o sbuf_addquoted.o 
 OBJ087= hostinfo.o hostaddr.o hostent.o inetaddr.o sockaddress.o upwcache.o
 
@@ -262,7 +262,7 @@ OBJ131= isasocket.o isinetaddr.o isindomain.o
 OBJ132= hasNotDots.o
 OBJ133= nleadstr.o nleadcasestr.o nleadkeystr.o
 OBJ134= format.o
-OBJ135= getrootdname.o randlc.o
+OBJ135= getrootdname.o getdig.o randlc.o
 
 OBJ136= ctbin.o ctoct.o ctdec.o cthex.o ctdecp.o ctdecf.o cvtdig.o
 OBJ137= cfbin.o cfoct.o cfdec.o cfdecmf.o cfhex.o cfnum.o cfhexs.o hexval.o
@@ -717,6 +717,8 @@ varray.o:		varray.c varray.h
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -DVARRAY_LIBMEMALLOC=1 $<
 
 randomvar.o:		randomvar.c randomvar.h
+
+strmgr.o:		strmgr.c strmgr.h
 
 
 upt.o:			upt.c upt.h

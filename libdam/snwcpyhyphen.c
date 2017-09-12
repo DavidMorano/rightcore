@@ -81,8 +81,8 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 int snwcpyhyphen(char *dbuf,int dlen,cchar *sp,int sl)
 {
-	register int	dl = 0 ;
-	register int	ch ;
+	int		dl = 0 ;
+	int		ch ;
 	int		rs = SR_OK ;
 
 	while (dlen-- && sl && *sp) {

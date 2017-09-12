@@ -84,10 +84,10 @@ int matpstr(cchar **a,int n,cchar *sp,int sl)
 	if (sl < 0) sl = strlen(sp) ;
 
 	if (n >= 0) {
-	    register int	lc = sp[0] ; /* exveryting promotes */
-	    register int	i ;
-	    int			m_max = 0 ;
-	    int			m ;
+	    const int	lc = sp[0] ; /* exveryting promotes */
+	    int		i ;
+	    int		m_max = 0 ;
+	    int		m ;
 	    si = -1 ;
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
 		if ((m = (lc == a[i][0])) > 0) {

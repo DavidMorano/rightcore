@@ -33,11 +33,13 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<limits.h>
+#include	<climits>
 #include	<cinttypes>
 #include	<new>
-#include	<algorithm>
+#include	<initializer_list>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -63,8 +65,8 @@ extern "C" int	strlinelen(cchar *,cchar *,int) ;
 
 /* local structures */
 
-typedef bellmanford2_res	res_t ;
-typedef bellmanford2_edge	edge_t ;
+typedef graph_res		res_t ;
+typedef graph_edger		edger_t ;
 
 
 /* forward references */
@@ -73,10 +75,11 @@ typedef bellmanford2_edge	edge_t ;
 /* exported subroutines */
 
 
-int bellmanford2(res_t *resp,edge_t *edges,int vertices,int vstart)
+int bellmanford2(res_t *resp,edger_t *edges,int vertices,int vstart)
 {
 	int		rs = SR_OK ;
-	int		i, j ;
+	int		i ;
+	int		j ;
 
 	for (i = 0 ; i < vertices ; i += 1) {
 	    resp[i].dist = INT_MAX ;
@@ -84,7 +87,6 @@ int bellmanford2(res_t *resp,edge_t *edges,int vertices,int vstart)
 	}
 
 	resp[vstart].dist = 0 ;
-	resp[vstart].prev = -1 ;
 
 	for (i = 0 ; i < (vertices-1) ; i += 1) {
 	    int		f_nochange = TRUE ;

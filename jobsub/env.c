@@ -57,9 +57,9 @@ extern char	**environ ;
 
 static char *__findenv(const char *name,int *offset)
 {
-	register int len ;
-	register char *np ;
-	register char **p, *c ;
+	int 		len ;
+	char 		*np ;
+	char 		**p, *c ;
 
 	if (name == NULL || environ == NULL)
 	    return (NULL) ;
@@ -97,9 +97,9 @@ const char	name[] ;
 const char	value[] ;
 int		rewrite ;
 {
-	static int alloced;			/* if allocated space before */
-	register char *c ;
-	int l_value, offset ;
+	static int	alloced ;		/* if allocated space before */
+	char 		*c ;
+	int 		l_value, offset ;
 
 	if (*value == '=')			/* no `=' in value */
 	    ++value ;
@@ -114,8 +114,8 @@ int		rewrite ;
 	    }
 
 	} else {					/* create new slot */
-	    register int cnt ;
-	    register char **p ;
+	    int 	cnt ;
+	    char	**p ;
 
 	    for (p = environ, cnt = 0; *p; ++p, ++cnt) ;
 
@@ -170,9 +170,8 @@ int		rewrite ;
 void unsetenv(name)
 const char	name[] ;
 {
-	extern char **environ ;
-	register char **p ;
-	int offset ;
+	char 		**p ;
+	int 		offset ;
 
 	while (__findenv(name, &offset)) {	/* if set multiple times */
 	    for (p = &environ[offset];; ++p) {

@@ -494,6 +494,7 @@ int txtindexes_lookup(TXTINDEXES *op,TXTINDEXES_CUR *curp,cchar **klp)
 	vecstr		hkeys ;
 	uint		*taglist = NULL ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		taglen = 0 ;
 
 #if	CF_DEBUGS
@@ -540,7 +541,8 @@ int txtindexes_lookup(TXTINDEXES *op,TXTINDEXES_CUR *curp,cchar **klp)
 	        } /* end if (txtindexes_mktaglist) */
 	    } /* end if (txtindexes_mkhashkeys) */
 
-	    vecstr_finish(&hkeys) ;
+	    rs1 = vecstr_finish(&hkeys) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (hkeys) */
 
 #if	CF_DEBUGS
@@ -609,8 +611,9 @@ int txtindexes_read(TXTINDEXES *op,TXTINDEXES_CUR *curp,TXTINDEXES_TAG *tagp)
 	                tagbuf = (fip->mapdata + tagoff) ;
 	                rs = tag_parse(tagp,tagbuf,-1) ;
 	                len = rs ;
-	            } else
+	            } else {
 	                rs = SR_BADFMT ;
+		    }
 
 	        } else {
 	            rs = SR_NOTFOUND ;
@@ -822,26 +825,28 @@ static int txtindexes_mkhashkeys(TXTINDEXES *op,vecstr *clp,cchar **klp)
 	for (i = 0 ; (kp = klp[i]) != NULL ; i += 1) {
 	    if (kp != NULL) {
 
-	    kl = strnlen(kp,klen) ;		/* also prevents overflow */
+	        kl = strnlen(kp,klen) ;	/* also prevents overflow */
 
 #if	CF_DEBUGS
 	    debugprintf("txtindexes_mkhashkeys: k=>%t<\n",kp,kl) ;
 #endif
 
-	    if (kl < minwlen) continue ;
+	        if (kl >= minwlen) {
 
-	    if (hasuc(kp,kl)) {
-	        strwcpylc(keybuf,kp,kl) ;	/* cannot overflow */
-	        kp = keybuf ;
-	    }
+	            if (hasuc(kp,kl)) {
+	                strwcpylc(keybuf,kp,kl) ;	/* cannot overflow */
+	                kp = keybuf ;
+	            }
 
-	    if ((rs = txtindexes_oureigen(op,kp,kl)) == 0) {
-	        if (kl > maxwlen) kl = maxwlen ;
-	        if ((rs = vecstr_findn(clp,kp,kl)) == nrs) {
-	            c += 1 ;
-	            rs = vecstr_add(clp,kp,kl) ;
-	        }
-	    } /* end if */
+	    	    if ((rs = txtindexes_oureigen(op,kp,kl)) == 0) {
+			if (kl > maxwlen) kl = maxwlen ;
+	                if ((rs = vecstr_findn(clp,kp,kl)) == nrs) {
+	                    c += 1 ;
+	                    rs = vecstr_add(clp,kp,kl) ;
+	                }
+	            } /* end if */
+
+		} /* end if (go) */
 
 	    }
 	    if (rs < 0) break ;
@@ -1463,8 +1468,9 @@ static int txtindexes_auditeigen(TXTINDEXES *op)
 
 	        if (cp[-1] == '\0') {
 	            rs = strtabfind(estab,eitab,eilen,nskip,cp,cl) ;
-	        } else
+	        } else {
 	            rs = SR_BADFMT ;
+		}
 
 	        if (rs < 0) break ;
 	    } /* end for */

@@ -103,7 +103,7 @@ const unsigned char	flbstab[] = {
 /* find first bit set in INT (32 bits) */
 int ffbsi(uint v)
 {
-	register uint	ti, tr ;
+	uint		ti, tr ;
 	const int	nb = sizeof(uint) ;
 	int		i = -1 ;
 	int		b ;
@@ -127,7 +127,7 @@ int ffbsi(uint v)
 /* find first bit set in LONG (whatever) */
 int ffbsl(ulong v)
 {
-	register ulong	ti, tr ;
+	ulong		ti, tr ;
 	const int	nb = sizeof(ulong) ;
 	int		i = -1 ;
 	int		b ;
@@ -217,7 +217,7 @@ int ffbcll(ulonglong v)
 /* find last bit set in INT (32 bits) */
 int flbsi(uint v)
 {
-	register uint	ti, tr ;
+	uint		ti, tr ;
 	const int	nb = sizeof(uint) ;
 	int		i = -1 ;
 	int		b ;
@@ -241,7 +241,7 @@ int flbsi(uint v)
 /* find last bit set in LONG (whatever) */
 int flbsl(ulong v)
 {
-	register ulong	ti, tr ;
+	ulong		ti, tr ;
 	const int	nb = sizeof(ulong) ;
 	int		i = -1 ;
 	int		b ;

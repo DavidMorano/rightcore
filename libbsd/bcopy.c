@@ -1,6 +1,6 @@
-/* bcopy */
+/* bcopy (the BSD interface) */
 
-/* copy a file to another file */
+/* copy one string to another (the old BSD way) */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -17,31 +17,22 @@
 
 /*******************************************************************************
 
-        This subroutine copies the remainder of the input file to the output
-        file.
+	We provide the old BSD |bcopy()| function.
 
 	Synospsis:
-
-	int bcopy(ifp,ofp,ulen)
-	bfile	*ifp, *ofp ;
-	int	ulen ;
+	int bcopy(cchar *s1,char *s2,int slen)
 
 	Arguments:
-
-	ifp		input file pointer to copy from
-	ofp		output file pointer to copy to
-	ulen		length of supplied buffer
+	s1		source string
+	s2		destiation string
+	slen		number of characters (bytes) to copy
 
 	Returns:
-
 	>=0		length of data copied or error return
 	<0		error
 
 
 *******************************************************************************/
-
-
-#define	BFILE_MASTER	0
 
 
 #undef	bcopy
@@ -54,8 +45,6 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"bfile.h"
-
 
 /* local defines */
 
@@ -66,10 +55,9 @@
 /* exported subroutines */
 
 
-int bcopy(bfile *ifp,bfile *ofp,ulen)
-{
+int bcopy(cchar *s1,char *s1,int slen)
 
-	return bcopyblock(ifp,ofp,ulen) ;
+	return memcpy(s2,s1,slen) ;
 }
 /* end subroutine (bcopy) */
 

@@ -9,13 +9,21 @@
 
 /* revision history:
 
-	= 1998-09-10, David A­D­ Morano
+	= 2000-09-10, David A­D­ Morano
         I created this modeled after something similar that was used for some of
         my PCS programs.
 
+	= 2017-09-11, David A­D­ Morano
+        Whew! Enhanced this module (subroutine |dirlist_add()| in particular) to
+        make it more robust in the face of a bug in KSH. The KSH shell adds
+        stuff to LD_LIBRARY_PATH to suit what it thinks are its own needs. It
+        adds stuff at the front of that path.  But KSH is broken and adds an
+	invalid path to the front of LD_LIBRARY_PATH.  We now try to ignore as
+	much as possible invalid library-search paths.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -53,6 +61,12 @@
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy1w(char *,int,const char *,int) ;
 extern int	pathclean(char *,const char *,int) ;
+extern int	isNotPresent(int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif /* CF_DEBUGS */
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
@@ -75,13 +89,13 @@ typedef int (*vcmp_t)(DIRLIST_ENT **,DIRLIST_ENT **) ;
 
 /* forward references */
 
-int		dirlist_add(DIRLIST *,const char *,int) ;
+int		dirlist_add(DIRLIST *,cchar *,int) ;
 
-static int vcmpname(DIRLIST_ENT **,DIRLIST_ENT **) ;
-static int vcmpdevino(DIRLIST_ENT **,DIRLIST_ENT **) ;
+static int	vcmpname(DIRLIST_ENT **,DIRLIST_ENT **) ;
+static int	vcmpdevino(DIRLIST_ENT **,DIRLIST_ENT **) ;
 
-static int entry_start(DIRLIST_ENT *,const char *,int,dev_t,uino_t) ;
-static int entry_finish(DIRLIST_ENT *) ;
+static int	entry_start(DIRLIST_ENT *,cchar *,int,dev_t,uino_t) ;
+static int	entry_finish(DIRLIST_ENT *) ;
 
 
 /* local variables */
@@ -181,11 +195,11 @@ int dirlist_adds(DIRLIST *op,cchar *sp,int sl)
 
 	    if (rs >= 0) {
 	        rs = dirlist_add(op,cp,cl) ;
-		c += rs ;
+	        c += rs ;
 	    }
 
 	    if ((rs >= 0) && (tp[0] == ';')) {
-		 rs = dirlist_semi(op) ;
+	        rs = dirlist_semi(op) ;
 	    }
 
 	    sl -= ((tp + 1) - sp) ;
@@ -221,7 +235,7 @@ int dirlist_add(DIRLIST *op,cchar *sp,int sl)
 
 #if	CF_DEBUGS
 	debugprintf("dirlist_add: ent >%t<\n",
-		sp,strlinelen(sp,sl,50)) ;
+	    sp,strlinelen(sp,sl,50)) ;
 #endif
 
 	if (sl < 0) sl = strlen(sp) ;
@@ -245,45 +259,47 @@ int dirlist_add(DIRLIST *op,cchar *sp,int sl)
 
 /* any NUL (blank) paths need to be converted to "." */
 
-	if (plen == 0) {
-	    pbuf[0] = '.' ;
-	    pbuf[1] = '\0' ;
-	    plen = 1 ;
-	}
+	    if (plen == 0) {
+	        pbuf[0] = '.' ;
+	        pbuf[1] = '\0' ;
+	        plen = 1 ;
+	    }
 
 #if	CF_DEBUGS
-	debugprintf("dirlist_add: apath=>%t<\n",
-	    pbuf,strlinelen(pbuf,plen,50)) ;
+	    debugprintf("dirlist_add: apath=>%t<\n",
+	        pbuf,strlinelen(pbuf,plen,50)) ;
 #endif
 
 /* now see if it is already in the list by NAME */
 
-	e.np = pbuf ;
-	e.nl = plen ;
-	if ((rs = vecobj_search(&op->db,&e,vcmpname,&ep)) == rsn) {
-	    struct ustat	sb ;
+	    e.np = pbuf ;
+	    e.nl = plen ;
+	    if ((rs = vecobj_search(&op->db,&e,vcmpname,&ep)) == rsn) {
+	        struct ustat	sb ;
 /* now see if it is already in the list by DEV-INO */
-	    if ((rs = u_stat(pbuf,&sb)) >= 0) {
-	        if (S_ISDIR(sb.st_mode)) {
-		    vcmp_t vc = vcmpdevino ;
-	            e.dev = sb.st_dev ;
-	            e.ino = sb.st_ino ;
-	            if ((rs = vecobj_search(&op->db,&e,vc,&ep)) == rsn) {
-			dev_t	d = sb.st_dev ;
-			uino_t	i = sb.st_ino ;
-		        f_added = TRUE ;
-		        if ((rs = entry_start(&e,pbuf,plen,d,i)) >= 0) {
-	    	            op->tlen += (rs+1) ;
-	    	            rs = vecobj_add(&op->db,&e) ;
-	    	            if (rs < 0)
-	        	        entry_finish(&e) ;
-		        } /* end if (entry_start) */
-	            } /* end if (was not found) */
-	        } else {
-		    rs = SR_NOENT ;
-	        } /* end if (isDir) */
-	    } /* end if (stat) */
-	} /* end if (was not found) */
+	        if ((rs = u_stat(pbuf,&sb)) >= 0) {
+	            if (S_ISDIR(sb.st_mode)) {
+	                vcmp_t vc = vcmpdevino ;
+	                e.dev = sb.st_dev ;
+	                e.ino = sb.st_ino ;
+	                if ((rs = vecobj_search(&op->db,&e,vc,&ep)) == rsn) {
+	                    dev_t	d = sb.st_dev ;
+	                    uino_t	i = sb.st_ino ;
+	                    f_added = TRUE ;
+	                    if ((rs = entry_start(&e,pbuf,plen,d,i)) >= 0) {
+	                        op->tlen += (rs+1) ;
+	                        rs = vecobj_add(&op->db,&e) ;
+	                        if (rs < 0)
+	                            entry_finish(&e) ;
+	                    } /* end if (entry_start) */
+	                } /* end if (was not found) */
+	            } else {
+	                rs = SR_NOENT ;
+	            } /* end if (isDir) */
+		} else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
+	        } /* end if (stat) */
+	    } /* end if (was not found) */
 
 	} /* end if (ok) */
 
@@ -451,8 +467,8 @@ int dirlist_joinmk(DIRLIST *op,char *jbuf,int jlen)
 	        dl = ep->nl ;
 
 #if	CF_DEBUGS
-	debugprintf("dirlist_joinmk: dl=%d e=>%t<\n",
-		dl,dp,strlinelen(dp,dl,50)) ;
+	        debugprintf("dirlist_joinmk: dl=%d e=>%t<\n",
+	            dl,dp,strlinelen(dp,dl,50)) ;
 #endif
 
 	        if (dp[0] != ';') {
@@ -465,17 +481,17 @@ int dirlist_joinmk(DIRLIST *op,char *jbuf,int jlen)
 	            }
 
 #if	CF_DEBUGS
-	debugprintf("dirlist_joinmk: pc=>%t<\n",dp,dl) ;
+	            debugprintf("dirlist_joinmk: pc=>%t<\n",dp,dl) ;
 #endif
 
 #if	CF_NULPATH
 	            if ((dl > 0) && (! ((dp[0] == '.') && (dl == 1)))) {
 	                bp = strwcpy(bp,dp,dl) ;
-		    }
+	            }
 #else
 	            if (dl > 0) {
 	                bp = strwcpy(bp,dp,dl) ;
-		    }
+	            }
 #endif
 	            c += 1 ;
 	        } else
@@ -562,7 +578,7 @@ static int vcmpdevino(DIRLIST_ENT **e1pp,DIRLIST_ENT **e2pp)
 	    if (rc == 0) {
 	        if ((rc = ((*e1pp)->ino - (*e2pp)->ino)) == 0) {
 	            rc = (*e1pp)->dev - (*e2pp)->dev ;
-		}
+	        }
 	    }
 	}
 	return rc ;

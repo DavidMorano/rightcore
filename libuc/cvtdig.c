@@ -101,7 +101,7 @@ int cvtdig(char *rbuf,int rlen,ulonglong val,int n,int b)
 static int ffbs(int v)
 {
 	const int	n = (sizeof(int)*8) ;
-	register int	i ;
+	int		i ;
 	for (i = 0 ; i < n ; i += 1) {
 	    if (v&1) break ;
 	    v >>= 1 ;

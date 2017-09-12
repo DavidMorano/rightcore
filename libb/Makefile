@@ -129,7 +129,7 @@ OBJ06= bcontrol.o btruncate.o brewind.o bisterm.o
 OBJ07= bseek.o btell.o
 
 OBJ08= bread.o breadline.o breadlines.o bgetc.o 
-OBJ09= bcopyblock.o bwritefile.o
+OBJ09= bwritefile.o
 OBJ10= 
 OBJ11= bfile.o bfile_pagein.o
 OBJ12= mkfdfname.o 
@@ -296,9 +296,7 @@ snflags.o:		snflags.c snflags.h
 
 bcontrol.o:		bcontrol.c bfile.h
 bisterm.o:		bisterm.c bfile.h
-bcopy.o:		bcopy.c bfile.h
 bcopyblock.o:		bcopyblock.c bfile.h
-bcopyfile.o:		bcopyfile.c bfile.h
 bflush.o:		bflush.c bfile.h
 breserve.o:		breserve.c bfile.h
 bgetc.o:		bgetc.c bfile.h

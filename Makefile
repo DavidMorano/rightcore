@@ -2,7 +2,7 @@
 
 
 default:
-	echo "we can only clean up stuff ; make what you want individually"
+	null "we can only clean up stuff ; make what you want individually"
 
 clean:
 	makebelow clean
@@ -24,6 +24,5 @@ libuc:
 
 libu:
 	makebelow libu
-
 
 

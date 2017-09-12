@@ -74,8 +74,8 @@ extern int	nleadstr(cchar *,cchar *,int) ;
 int sisub(cchar *sp,int sl,cchar *s2)
 {
 	const int	s2len = strlen(s2) ;
-	register int	i = 0 ;
-	register int	f = FALSE ;
+	int		i = 0 ;
+	int		f = FALSE ;
 
 	if (sl < 0) sl = strlen(sp) ;
 

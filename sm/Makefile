@@ -1,8 +1,8 @@
-# MAKEFILE (logline)
+# MAKEFILE (sm)
 
 T= sm
 
-ALL= $(T) $(T).ksh
+ALL= $(T)
 
 SRCROOT= $(HOME)
 
@@ -22,14 +22,11 @@ install-ee:	$(ALL)
 	makenewer -r $(ALL) $(BINDIR)
 
 install-raw:	$(T).ksh
-	rm -f $(T)
-	cp -p $(T).ksh $(T)
 	rm -f $(BINDIR)/$(T).ksh
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r $(T) $(BINDIR)
+	makenewer -r -o rmsuf $(T).ksh $(BINDIR)
 	
 clean:
 	rm -f $(T)
-
 
 

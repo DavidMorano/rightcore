@@ -19,17 +19,14 @@
 /*******************************************************************************
 
 	Synopsis:
-
 	int readline(ifstream &is,char *lbuf,int llen)
 
 	Arguments:
-
 	is		reference to stream (file)
 	lbuf		buffer to receive
 	llen		length of supplied buffer
 
 	Returns:
-
 	-		lenght of bytes read
 
 
@@ -39,12 +36,12 @@
 #include	<envstandards.h>
 #include	<sys/types.h>
 #include	<limits.h>
-#include	<stdio.h>
 #include	<cinttypes>
 #include	<new>
 #include	<initializer_list>
-#include	<algorithm>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<string>
 #include	<fstream>

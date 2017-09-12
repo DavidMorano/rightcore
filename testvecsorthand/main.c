@@ -3,10 +3,20 @@
 /* sorted list testing */
 
 
-#define	CF_DEBUGS	1
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
+/* revision history:
 
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -15,29 +25,25 @@
 #include	<fcntl.h>
 #include	<signal.h>
 #include	<time.h>
-#include	<ftw.h>
-#include	<dirent.h>
 #include	<string.h>
 #include	<stdlib.h>
-#include	<errno.h>
 
 #include	<bfile.h>
 #include	<field.h>
 #include	<logfile.h>
 #include	<vechand.h>
-#include	<userinfo.h>
-#include	<baops.h>
 #include	<char.h>
+#include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
-#include	"sortvec.h"
-
+#include	"vecsorthand.h"
 
 
 /* local defines */
 
-#define	LINELEN	100
-
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
 
 
 /* external subroutines */
@@ -50,36 +56,34 @@ extern char	*malloc_str(char *) ;
 static int	slcmp() ;
 
 
+/* exported subroutines */
 
 
-
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	bfile	infile, *ifp = &infile ;
-	bfile	outfile, *ofp = &outfile ;
-	bfile	tmpfile, *tfp = &tmpfile ;
+	SORTVEC		list1 ;
+	VECHAND		list2 ;
+	bfile		infile, *ifp = &infile ;
+	bfile		outfile, *ofp = &outfile ;
+	bfile		tmpfile, *tfp = &tmpfile ;
+	int		rs ;
+	int		i, j, len ;
+	int		err_fd ;
 
-	SORTVEC	list1 ;
-
-	VECHAND	list2 ;
-
-	int	rs, i, j, len ;
-	int	err_fd ;
-
-	char	linebuf[LINELEN + 1] ;
+	char	lbuf[LINEBUFLEN + 1] ;
 	char	tmpfname_buf[MAXPATHLEN + 1] ;
-	char	*cp, *cp1, *cp2 ;
-	char	*lp ;
-	char	*ep ;
-	char	*progname ;
+	cchar	*cp, *cp1, *cp2 ;
+	cchar	*lp ;
+	cchar	*ep ;
+	cchar	*progname ;
 
 
-	if (((cp = getenv("ERROR_FD")) != NULL) &&
-	    (cfdeci(cp,-1,&err_fd) >= 0))
-	    debugsetfd(err_fd) ;
-
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
 
 	progname = argv[0] ;
 	(void) bopen(ofp,BFILE_STDOUT,"wct",0666) ;
@@ -107,12 +111,12 @@ char	*argv[] ;
 	debugprintf("main: sortvec_init rs=%d\n",rs) ;
 #endif
 
-	while ((len = breadline(ifp,linebuf,LINELEN)) > 0) {
+	while ((len = breadline(ifp,lbuf,LINEBUFLEN)) > 0) {
 
-	    if (linebuf[len - 1] == '\n') len -= 1 ;
+	    if (lbuf[len - 1] == '\n') len -= 1 ;
 
-	    linebuf[len] = '\0' ;
-	    cp = linebuf ;
+	    lbuf[len] = '\0' ;
+	    cp = lbuf ;
 	    while (CHAR_ISWHITE(*cp)) cp += 1 ;
 
 	    cp1 = cp ;
@@ -148,11 +152,9 @@ char	*argv[] ;
 
 
 	for (i = 0 ; sortvec_get(&list1,i,(void **) &lp) >= 0 ; i += 1) {
-
 	    if (lp == NULL) continue ;
 
 	    write(4,lp,strlen(lp)) ;
-
 	    write(4,"\n",1) ;
 
 	}
@@ -163,7 +165,6 @@ char	*argv[] ;
 #endif
 
 	for (i = 0 ; vechandget(&list2,i,&lp) >= 0 ; i += 1) {
-
 	    if (lp == NULL) continue ;
 
 #if	CF_DEBUGS
@@ -184,9 +185,7 @@ char	*argv[] ;
 
 	bprintf(ofp,"comparing phase\n\n") ;
 
-
 	for (i = 0 ; vechandget(&list2,i,&lp) >= 0 ; i += 1) {
-
 	    if (lp == NULL) continue ;
 
 #if	CF_DEBUGS
@@ -208,7 +207,6 @@ char	*argv[] ;
 	bprintf(ofp,"\n") ;
 
 	rs = 0 ;
-
 
 done:
 	sortvec_free(&list1) ;
@@ -246,14 +244,10 @@ badopen:
 /* end subroutine (main) */
 
 
-
 static int slcmp(app,bpp)
 char	**app, **bpp ;
 {
-
-
 	return strcmp(*app,*bpp) ;
 }
-
 
 

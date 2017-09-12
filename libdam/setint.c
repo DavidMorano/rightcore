@@ -31,7 +31,10 @@
 #include	<sys/types.h>
 #include	<limits.h>
 #include	<new>
+#include	<initializer_list>
 #include	<utility>
+#include	<functional>
+#include	<algorithm>
 #include	<unordered_set>
 #include	<vsystem.h>
 #include	<localmisc.h>

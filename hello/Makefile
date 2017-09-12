@@ -4,9 +4,7 @@ T= hello
 
 ALL= $(T)
 
-HELPFILE= $(T).help
-
-#SRCROOT= $(LOCAL)
+SRCROOT= $(LOCAL)
 
 
 BINDIR= $(SRCROOT)/bin
@@ -15,36 +13,46 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
-#CCOPTS= -O3 -mcpu=ultrasparc # -fpic
-#CCOPTS= -g -O
-#CCOPTS= -g
-#CCOPTS= -g -pg
+GPPFLAGS= $(CGS_CCFLAGS)
+CCOPTS_GCCALL= -pthreads -fexceptions
+CCOPTS_CCALL= -MT
+
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
+CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
+CCOPTS_GCCLIBSPARC= -mno-app-regs
+
+CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
+#CCOPTS= $(CCOPTS_GCCALL) -g -O
+#CCOPTS= $(CCOPTS_GCCALL) -g -pg
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+
+CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
+
+#CCOPTS= $(CCOPTS_CCALL) -g -xs
 
 # HyperSPARC
 # regular
-#CCOPTS= -xO5 -xtarget=ss20/hs22 -dalign -xdepend
+#CCOPTS= -xO5 -xtarget=ss20/hs22 -xdepend
 # profiling 'prof(1)'
-#CCOPTS= -p -xO5 -xtarget=ss20/hs22 -dalign -xdepend
+#CCOPTS= -p -xO5 -xtarget=ss20/hs22 -xdepend
 # profiling 'gprof(1)' 
-#CCOPTS= -xpg -xO5 -xtarget=ss20/hs22 -dalign -xdepend
+#CCOPTS= -xpg -xO5 -xtarget=ss20/hs22 -xdepend
 
 # UltraSPARC
 # regular
-CCOPTS= -xO5 -xtarget=ultra -xsafe=mem -dalign -xdepend
-#CCOPTS= -xO5 -xtarget=ultra -xarch=v8plus -xsafe=mem -dalign -xdepend
+#CCOPTS= -xO5 -xtarget=ultra -xsafe=mem -xdepend
 # profiling 'prof(1)'
-#CCOPTS= -p -xO5 -xtarget=ultra -xsafe=mem -dalign -xdepend
+#CCOPTS= -p -xO5 -xtarget=ultra -xsafe=mem -xdepend
 # profiling 'gprof(1)' 
-#CCOPTS= -xpg -xO5 -xtarget=ultra -xsafe=mem -dalign -xdepend
+#CCOPTS= -xpg -xO5 -xtarget=ultra -xsafe=mem -xdepend
 
 
 DEF0=
@@ -69,35 +77,46 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
+LDRPATH=
+
 # regular
-LDFLAGS= -m -R$(LIBDIR)
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
-LDFLAGS_P= -L/usr/lib/libp # -m -R$(LIBDIR)
+LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
-LIB1= -ldam -lb -luc
+LIB1= -ldam -lb
 LIB2=
-LIB3= -Bstatic -lu -Bdynamic
-LIB4= -L$(GNU)/lib -lgcc
+LIB3= -luc -lu
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
 
-CRTI= $(LDCRTDIR)/crti.o
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
+CRTI= $(LDCRTDIR)/crti.o
+CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
-VALUES= $(LDCRTDIR)/values-xa.o
+CRTEND= $(LDCRTDIR)/crtend.o
 CRTN= $(LDCRTDIR)/crtn.o
 
+CRTFRONT= $(CRT1) $(CRTI) $(VALUES) $(CRTBEGIN)
+CRTBACK= $(CRTEND) $(CRTN)
+
 # for regular (no profiling)
-CRT0= $(CRTI) $(CRT1) $(VALUES)
+CRT0= $(CRT1) $(CRTI) $(VALUES)
 # for 'prof(1)'
 MCRT0= $(CRTI) $(MCRT1) $(VALUES)
 # for 'gprof(1)'
@@ -125,15 +144,22 @@ RM= rm -f
 INCS= config.h defs.h
 
 
-OBJ00=
-OBJ01= main_date.o whatinfo.o proginfo.o proginfo_setpiv.o
+OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
+OBJ01= 
 OBJ02=
-OBJ03= ctdec.o
-OBJ04= format.o
+OBJ03=
+OBJ04=
 OBJ05=
-OBJ06=
+OBJ06= 
 OBJ07= printhelp.o
 OBJ08=
+OBJ09=
+OBJ10=
+OBJ11=
+OBJ12=
+OBJ13=
+OBJ14=
+OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -141,22 +167,24 @@ OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
 OBJ= $(OBJA) $(OBJB)
 
 # for regular (no profiling)
-OBJS= $(CRT0) $(OBJ) $(CRTC)
+OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
 # for 'prof(1)'
 MOBJS= $(MCRT0) $(OBJ) $(CRTC)
 # for 'gprof(1)'
 GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
-
 SRC= $(OBJ:.c=.o)
 
 
-.SUFFIXES:	.ls .i .cx .cs
+.SUFFIXES:		.ls .i .cx .cs
 
 
 default:		$(T).x
 
 all:			$(ALL)
+
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
@@ -183,17 +211,17 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO)
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS)
 
 $(T).gprof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS)
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)
@@ -211,46 +239,54 @@ strip:			$(T).x
 	strip $(T).x
 	rm -f $(T).$(OFF) $(T)
 
-install:		$(ALL)
+aliases:		$(T).x
+	makealiases $(T).x
+
+install:		install-raw install-help
+
+install-ee:		$(ALL)
 	makenewer -r $(ALL) $(BINDIR)
 
 install-raw:		$(T).x
 	rm -f $(T)
-	cp -p $(T).x $(T)
+	ln -f $(T).x $(T)
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r $(T) $(BINDIR)
+	makeinstall
 
-install-help:		$(T).help
-	-mkdir -p $(SRCROOT)/share/help
-	cp -p $(T).help $(T)
-	makenewer $(T) $(SRCROOT)/share/help
+install-help:
+	makeinstall-help $(HELPDIR)
 
 again:
 	rm -f $(ALL) $(T).x
 
 clean:			again
-	rm -f *.o
+	rm -f *.ls *.ln *.i *.o *.so *.x *.lm
 
 control:
 	uname -n > Control
 	date >> Control
 
 
-main.o:			main.c $(INCS) 
+main.o:			main.c $(INCS)
 
 whatinfo.o:		whatinfo.c config.h
 
 proginfo.o:		proginfo.c defs.h
 
+proginfo_setpiv.o:	proginfo_setpiv.c defs.h
+
 
 userinfo.o:		userinfo.c userinfo.h
 
-getutmpent.o:		getutmpent.c getutmpent.h
-
-
 vecstr_loadfile.o:	vecstr_loadfile.c
 
+vecstr_env.o:		vecstr_env.c
+
+vecpstr.o:		vecpstr.c vecpstr.h
+
 filemap.o:		filemap.c filemap.h
+
+filebuf.o:		filebuf.c filebuf.h
 
 realname.o:		realname.c realname.h
 
@@ -258,5 +294,18 @@ ipasswd.o:		ipasswd.c ipasswd.h
 
 lastlogfile.o:		lastlogfile.c lastlogfile.h
 
+tmpx.o:			tmpx.c tmpx.h
+
+fsdirtree.o:		fsdirtree.c fsdirtree.h
+
+fsdir.o:		fsdir.c fsdir.h
+
+fifostr.o:		fifostr.c fifostr.h
+
+hdb.o:			hdb.c hdb.h
+
+bits.o:			bits.c bits.h baops.h
+
+baops.o:		baops.c baops.h
 
 

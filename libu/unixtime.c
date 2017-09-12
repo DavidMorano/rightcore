@@ -13,6 +13,22 @@
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	We return the UNIX time in a 64-bit number.
+
+	Synopsis:
+	int64_t unixtime(int64_t *rp)
+
+	Arguemnts:
+	rp		pointer to 64-bit value to store result or NULL
+
+	Returns:
+	-		64-bit UNIX time
+
+
+*******************************************************************************/
+
 
 #include	<envstandards.h>
 

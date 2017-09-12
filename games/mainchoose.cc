@@ -29,6 +29,9 @@
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
 #include	<array>
 #include	<vector>
@@ -71,6 +74,7 @@ static int printcoms(vector<int> &,int) ;
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int main(int argc,const char **argv,const char **envv)
 {
 	vector<int>	k10s = { 3, 1, 2, 7, 9, 10, 8, 6 } ;

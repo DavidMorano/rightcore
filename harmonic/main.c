@@ -1,27 +1,39 @@
 /* main */
 
+/* calculate the harmonic mean of given input number sequence */
 
-#define	F_DEBUGS	0
+
+#define	CF_DEBUGS	0
 
 
+/* revision history:
+
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<stdlib.h>
-#include	<errno.h>
 #include	<stdio.h>
 
+#include	<vsystem.h>
+#include	<cfdec.h>
 #include	<exitcodes.h>
-
-#include	"misc.h"
-
+#include	<localmisc.h>
 
 
 /* local defines */
 
-#define		MAXENTRIES	30
+#define	MAXENTRIES	30
 
-#ifndef	LINELEN
-#define	LINELEN		200
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
 #endif
 
 
@@ -35,144 +47,89 @@ extern double	fhm(double *,int) ;
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	double	a[MAXENTRIES + 1] ;
-	double	result ;
-
-	int	ex = EX_INFO ;
-	int	rs, i ;
-	int	n = 0 ;
-	int	sl, cl ;
-	int	ll ;
-	int	f_bad = FALSE ;
-
+	double		a[MAXENTRIES + 1] ;
+	double		result ;
+	const int	llen = LINEBUFLEN ;
+	int		ex = EX_OK ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		n = 0 ;
+	int		sl, cl ;
+	int		ll ;
+	int		f_bad = FALSE ;
 	const char	*sp, *cp ;
-
-	char	linebuf[LINELEN + 1] ;
-
+	char		lbuf[LINEBUFLEN + 1] ;
 
 	if (argc < 2) {
 
-	    while ((! f_bad) && ((ll = fgetline(stdin,linebuf,LINELEN)) > 0)) {
+	    while ((! f_bad) && ((ll = fgetline(stdin,lbuf,llen)) > 0)) {
 
-	        sp = linebuf ;
+	        sp = lbuf ;
 	        sl = ll ;
 	        while ((! f_bad) && ((cl = nextfield(sp,sl,&cp)) > 0)) {
+		    double	fv ;
+	            if (n > MAXENTRIES) break ;
 
-	            if (n > MAXENTRIES)
-	                break ;
-
-	            cp[cl] = '\0' ;
-
-#if	F_DEBUGS
-		fprintf(stderr,"fl=%d str=%s\n",cl,cp) ;
-#endif
-
-	            errno = 0 ;
-	            a[n++] = atof(cp) ;
-
-	            if (errno != 0) {
-
-	                f_bad = TRUE ;
-	                break ;
-	            }
+		    rs = cfdecf(cp,cl,&fv) ;
+	            a[n++] = fv ;
 
 	            sl -= (cp + cl + 1 - sp) ;
 	            sp = (cp + cl + 1) ;
 
-#if	F_DEBUGS
-		fprintf(stderr,"llr=%d\n",sl) ;
-#endif
-
+		    if (rs < 0) break ;
 	        } /* end while */
 
-#ifdef	COMMENT
-	        if (sl > 0) {
-
-	            if (n > MAXENTRIES)
-	                break ;
-
-#if	F_DEBUGS
-		fprintf(stderr,"fl=%d str=%s\n",sl,sp) ;
-#endif
-
-	            errno = 0 ;
-	            a[n++] = atof(sp) ;
-
-	            if (errno != 0) {
-
-	                f_bad = TRUE ;
-	                break ;
-	            }
-
-
-	        }
-#endif /* COMMENT */
-
+		if (rs < 0) break ;
 	    } /* end while */
 
 	} else {
+	    double	fv ;
 
 	    for (i = 1 ; argv[i] != NULL ; i += 1) {
+	        if (n > MAXENTRIES) break ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 		fprintf(stderr,"str=%s\n",argv[i]) ;
 #endif
 
-	        errno = 0 ;
-	        a[n++] = atof(argv[i]) ;
+		    rs = cfdecf(cp,cl,&fv) ;
+	            a[n++] = fv ;
 
-	        if (errno != 0) {
-
-	            f_bad = TRUE ;
-	            break ;
-	        }
-
-	        if (n > MAXENTRIES)
-	            break ;
-
+		if (rs < 0) break ;
 	    } /* end for */
 
 	} /* end if */
 
-	if ((! f_bad) && (n < MAXENTRIES)) {
+	if (rs >= 0) {
+	    if (n < MAXENTRIES) {
+	        if (n > 0) {
 
-	    if (n > 0) {
-
-#if	F_DEBUGS
-		for (i = 0 ; i < n ; i += 1)
-			fprintf(stderr,"n[%d]=%12.4f\n",
-				i,a[i]) ;
+#if	CF_DEBUGS
+		    for (i = 0 ; i < n ; i += 1) {
+			fprintf(stderr,"n[%d]=%12.4f\n", i,a[i]) ;
+		    }
 #endif
 
-	        result = fhm(a,n) ;
+	            result = fhm(a,n) ;
+	            fprintf(stdout,"%12.4f\n",result) ;
 
-	        fprintf(stdout,"%12.4f\n",result) ;
-
-	    } else
-	        fprintf(stdout,"no numbers specified\n") ;
-
+	        } else {
+	            fprintf(stdout,"no numbers specified\n") ;
+		    rs = SR_INVALID ;
+		}
+	    } else {
+	        fprintf(stdout,"too many number were given\n") ;
+		rs = SR_TOOBIG ;
+	    }
 	} else {
-
-		if (f_bad)
 	    fprintf(stdout,"a bad number was given\n") ;
-
-		else
-	    fprintf(stdout,"too many number were given\n") ;
-
 	}
 
-	fclose(stdout) ;
-
-	fclose(stderr) ;
-
-	return 0 ;
+	if (rs < 0) ex = EX_DATAERR ;
+	return ex ;
 }
 /* end subroutine (main) */
-
 
 

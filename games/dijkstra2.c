@@ -45,12 +45,13 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<limits.h>
+#include	<climits>
 #include	<cinttypes>
 #include	<new>
 #include	<initializer_list>
-#include	<algorithm>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<queue>
 #include	<vector>
 #include	<vsystem.h>
@@ -77,8 +78,9 @@ extern "C" int	strlinelen(cchar *,cchar *,int) ;
 
 /* local structures */
 
-typedef dijkstra2_res		res_t ;
-typedef dijkstra2_edge		edge_t ;
+typedef graph_res		res_t ;
+typedef graph_edge		edge_t ;
+
 typedef vector<list<edge_t>>	edges_t ;
 typedef list<edge_t>::iterator	edgeit_t ;
 
@@ -134,7 +136,7 @@ int dijkstra2(res_t *resp,edges_t &edges,int vertices,int vstart)
 	bool		*visited ;
 	if ((visited = new(nothrow) bool [vertices+1]) != NULL) {
 	    const int	ne = edges.size() ;
-	    ourmin	pq ;
+	    ourmin	pq ; /* min-heap */
 	    nodeval	nv ;
 	    edgeit_t	elit ; /* edge-list-iterator */
 	    edgeit_t	end ; /* edge-list-iterator */

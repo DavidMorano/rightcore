@@ -1,6 +1,10 @@
-LIBU
+LIBCX
 
-This is a UNIX interface library.  The idea is that the subroutines
-in this library are front-ends for UNIX section-2 calls.
+This is a UNIX interface library.  This library provides some function
+interfaces which might be missing in the standard distribution libraries.
 
+Currently we only make up for some missing library calls in Sun (Oracle)
+Solaris®.  These are:
+	strtoimax(3c)
+	strtoumax(3c)
 

@@ -156,7 +156,7 @@ char *convdecu(ULONG lval,char *endptr)
 /* execute the first loop to get value down to <= INT_MAX */
 
 	    {
-	        register ULONG	nv ;
+	        ULONG	nv ;
 	        while (lval > INT_MAX) {
 	            nv = lval / 10 ;
 	            *--bp = (char) ((lval - (nv * 10)) + '0') ;
@@ -167,8 +167,8 @@ char *convdecu(ULONG lval,char *endptr)
 /* this activity does not lose precision since 'sval' is <= INT_MAX */
 
 	    {
-	        register uint	sval = (uint) lval ;
-	        register uint	nv ;
+	        uint	sval = (uint) lval ;
+	        uint	nv ;
 	        while (sval > 0) {
 	            nv = sval / 10 ;
 	            *--bp = (char) ((sval - (nv * 10)) + '0') ;

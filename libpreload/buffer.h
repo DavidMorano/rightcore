@@ -5,7 +5,7 @@
 
 /* revision history:
 
-	= 1998-01-23, David A­D­ Morano
+	= 1998-03-24, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
 */

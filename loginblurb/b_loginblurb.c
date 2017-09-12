@@ -1600,7 +1600,7 @@ static int locinfo_utmpend(LOCINFO *lip)
 /* this is our extra little surprise */
 static int matextra(cchar *a[],int n,cchar *s,int slen)
 {
-	register int	lc = s[0] ;
+	const int	lc = s[0] ;
 	const int	shift = 2 ;
 	int		i ;
 	int		m ;

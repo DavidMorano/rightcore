@@ -230,10 +230,10 @@ struct timeb	*nowp ;
 static int prsabsdate(timestr, nowp, tm, tzp)
 char		timestr[] ;
 struct timeb	*nowp ;
-register struct tm *tm ;
+struct 		tm *tm ;
 int		*tzp ;
 {
-	register int	nf ;
+	int		nf ;
 	int		rs ;
 	char		*fields[MAXDATEFIELDS + 1] ;
 
@@ -251,9 +251,7 @@ int		*tzp ;
 #endif
 
 	if ((rs = tryabsdate(fields, nf, nowp, tm, tzp)) < 0) {
-
-	    register char	*p = timestr ;
-
+	    char	*p = timestr ;
 
 #if	CF_DEBUGS
 	    debugprintf("prsabsdate: bad date on first try\n") ;
@@ -303,13 +301,13 @@ static int tryabsdate(fields, nf, nowp, tm, tzp)
 char			*fields[] ;
 int			nf ;
 struct timeb		*nowp ;
-register struct tm	*tm ;
+struct tm		*tm ;
 int			*tzp ;
 {
-	struct timeb		ftz ;
-	register datetkn	*tp ;
-	register long	flg = 0, ty ;
-	register int	i ;
+	struct timeb	ftz ;
+	datetkn		*tp ;
+	long		flg = 0, ty ;
+	int		i ;
 	int		mer = HR24, bigval = -1 ;
 	int		f_tz = FALSE ;
 

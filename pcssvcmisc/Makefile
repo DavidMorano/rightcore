@@ -171,7 +171,7 @@ OBJ10= getourenv.o sfsubstance.o
 OBJ11= opensvcpcs.o
 OBJ12= openpcsdircache.o
 OBJ13= sysusernames.o
-OBJ14= motd.o dirlist.o
+OBJ14= motd.o
 OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)

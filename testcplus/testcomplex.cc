@@ -12,7 +12,14 @@
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 
+#include	<envstandards.h>
+#include	<sys/types.h>
 #include	<stdio.h>
+#include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
+#include	<algorithm>
 #include	<complex>
 
 using namespace	std ;

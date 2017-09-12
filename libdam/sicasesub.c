@@ -85,14 +85,14 @@ extern int	nleadcasestr(cchar *,cchar *,int) ;
 int sicasesub(cchar *sp,int sl,cchar *s2)
 {
 	const int	s2len = strlen(s2) ;
-	register int	i = 0 ;
-	register int	f = FALSE ;
+	int		i = 0 ;
+	int		f = FALSE ;
 
 	if (sl < 0) sl = strlen(sp) ;
 
 	if (s2len <= sl) {
-	    const int		s2lead = tolc(s2[0]) ;
-	    register int	m ;
+	    const int	s2lead = tolc(s2[0]) ;
+	    int		m ;
 	    for (i = 0 ; i <= (sl-s2len) ; i += 1) {
 		f = ((s2len == 0) || (tolc(sp[i]) == s2lead)) ;
 		if (f) {

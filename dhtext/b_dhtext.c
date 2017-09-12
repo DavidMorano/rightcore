@@ -1,4 +1,4 @@
-/* b_doubletext */
+/* b_dhtext */
 
 /* this is a SHELL built-in command to print text to a terminal */
 /* last modified %G% version %I% */
@@ -27,7 +27,7 @@
 
 	$ doubletext [-af <afile>] [-of <ofile>] <word(s)> [-V]
 
-	where:
+	Arguments:
 
 	<word(s)>	words to print
 	-af <afile>	file containing file names to read as input
@@ -69,7 +69,7 @@
 
 #include	"shio.h"
 #include	"kshlib.h"
-#include	"b_doubletext.h"
+#include	"b_dhtext.h"
 #include	"defs.h"
 
 
@@ -219,7 +219,7 @@ static int	liner_clear(LINER *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -271,7 +271,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"cvtcase",
 	"cc",
 	"casecvt",
@@ -307,7 +307,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	*cases[] = {
+static cchar	*cases[] = {
 	"upper",
 	"lower",
 	NULL
@@ -317,7 +317,7 @@ static const char	*cases[] = {
 /* exported subroutines */
 
 
-int b_doubletext(int argc,cchar *argv[],void *contextp)
+int b_dhtext(int argc,cchar *argv[],void *contextp)
 {
 	int		rs ;
 	int		rs1 ;
@@ -334,14 +334,14 @@ int b_doubletext(int argc,cchar *argv[],void *contextp)
 
 	return ex ;
 }
-/* end subroutine (b_doubletext) */
+/* end subroutine (b_dhtext) */
 
 
-int p_doubletext(int argc,cchar *argv[],cchar *envv[],void *contextp)
+int p_dhtext(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	return mainsub(argc,argv,envv,contextp) ;
 }
-/* end subroutine (p_doubletext) */
+/* end subroutine (p_dhtext) */
 
 
 /* ARGSUSED */
@@ -386,7 +386,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
-	    debugprintf("b_doubletext: starting DFD=%u\n",rs) ;
+	    debugprintf("b_dhtext: starting DFD=%u\n",rs) ;
 	}
 #endif /* CF_DEBUGS */
 
@@ -812,7 +812,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_doubletext: debuglevel=%u\n",pip->debuglevel) ;
+	    debugprintf("b_dhtext: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
 	if (f_version) {
@@ -891,10 +891,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
-	    debugprintf("b_doubletext: to_open=%d\n",pip->to_open) ;
-	    debugprintf("b_doubletext: to_read=%d\n",pip->to_read) ;
-	    debugprintf("b_doubletext: f_bufline=%u\n",pip->f.bufline) ;
-	    debugprintf("b_doubletext: f_bufnone=%u\n",pip->f.bufnone) ;
+	    debugprintf("b_dhtext: to_open=%d\n",pip->to_open) ;
+	    debugprintf("b_dhtext: to_read=%d\n",pip->to_read) ;
+	    debugprintf("b_dhtext: f_bufline=%u\n",pip->f.bufline) ;
+	    debugprintf("b_dhtext: f_bufnone=%u\n",pip->f.bufnone) ;
 	}
 #endif /* CF_DEBUG */
 
@@ -952,7 +952,7 @@ retearly:
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_doubletext: exiting ex=%u (%d)\n",ex,rs) ;
+	    debugprintf("b_dhtext: exiting ex=%u (%d)\n",ex,rs) ;
 #endif
 
 	if (pip->efp != NULL) {
@@ -980,7 +980,7 @@ badprogstart:
 	{
 	    uint	mo ;
 	    uc_mallout(&mo) ;
-	    debugprintf("b_doubletext: final mallout=%u\n",mo-mo_start) ;
+	    debugprintf("b_dhtext: final mallout=%u\n",mo-mo_start) ;
 	    uc_mallset(0) ;
 	}
 #endif
@@ -1000,7 +1000,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_doubletext) */
+/* end subroutine (b_dhtext) */
 
 
 /* local subroutines */
@@ -1360,7 +1360,7 @@ static int procword(PROGINFO *pip,void *ofp,cchar *fname)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("b_doubletext/procword: fname=%s\n",fname) ;
+	    debugprintf("b_dhtext/procword: fname=%s\n",fname) ;
 #endif
 
 	if (fname == NULL) return SR_FAULT ;
@@ -1425,11 +1425,11 @@ static int procword(PROGINFO *pip,void *ofp,cchar *fname)
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4)) {
-	            debugprintf("b_doubletext/procword: "
+	            debugprintf("b_dhtext/procword: "
 	                "shio_readintr() rs=%d\n",
 	                rs) ;
 	            if (rs >= 0)
-	                debugprintf("b_doubletext/procword: d=>%t<\n",
+	                debugprintf("b_dhtext/procword: d=>%t<\n",
 	                    lbuf,strlinelen(lbuf,len,40)) ;
 	        }
 #endif
@@ -1446,7 +1446,7 @@ static int procword(PROGINFO *pip,void *ofp,cchar *fname)
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
-	                debugprintf("b_doubletext/procword: c=>%t<\n",
+	                debugprintf("b_dhtext/procword: c=>%t<\n",
 	                    lbuf,strlinelen(lbuf,len,40)) ;
 #endif
 
@@ -1459,7 +1459,7 @@ static int procword(PROGINFO *pip,void *ofp,cchar *fname)
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
-	                debugprintf("b_doubletext/procword: "
+	                debugprintf("b_dhtext/procword: "
 	                    "shio_write() rs=%d\n",
 	                    rs) ;
 #endif
@@ -1474,7 +1474,7 @@ static int procword(PROGINFO *pip,void *ofp,cchar *fname)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("b_doubletext/procword: after rs=%d\n",rs) ;
+	    debugprintf("b_dhtext/procword: after rs=%d\n",rs) ;
 #endif
 
 	shio_close(ifp) ;
@@ -1486,7 +1486,7 @@ ret0:
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("b_doubletext/procword: ret rs=%d wlen=%u\n",
+	    debugprintf("b_dhtext/procword: ret rs=%d wlen=%u\n",
 	        rs,wlen) ;
 #endif
 
@@ -1690,10 +1690,10 @@ static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4)) {
 	                const int	maxcols = COLUMNS ;
-	                debugprintf("b_doubletext/locinfo_termoutprint: "
+	                debugprintf("b_dhtext/locinfo_termoutprint: "
 	                    "maxcols=%u ll=%u\n",
 	                    maxcols,ll) ;
-	                debugprintf("b_doubletext/locinfo_termoutprint: "
+	                debugprintf("b_dhtext/locinfo_termoutprint: "
 	                    "l=>%t<\n",
 	                    lp,strlinelen(lp,ll,40)) ;
 	            }

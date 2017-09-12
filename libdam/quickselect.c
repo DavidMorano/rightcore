@@ -1,4 +1,5 @@
 /* quickselect */
+/* lang=C99 */
 
 /* quickselect function */
 
@@ -20,18 +21,15 @@
 	We create the quickselect order on the given array.
 
 	Synopsis:
-
 	int quickselect(int a[],int low,int high,int k)
 
 	Arguments:
-
 	a	array
 	low	low
 	hight	high
 	k	k-th smallest element
 
 	Returns:
-
 	-	
 
 
@@ -59,9 +57,10 @@ static void arrswap(int *,int,int) ;
 /* local variables */
 
 
-void quickselect(int a[],int low,int n,int k)
+void quickselect(int *a,int low,int n,int k)
 {
 	int	high = (n-1) ;
+	k += 1 ;
 	if ((high - low) >= k) {
 	    int	mid = (low + ((high - low) / 2)) ;
 	    int	i, j ;
@@ -104,8 +103,7 @@ void quickselect(int a[],int low,int n,int k)
 
 static void arrswap(int *a,int i1,int i2)
 {
-	int	t ;
-	t = a[i1] ;
+	int	t = a[i1] ;
 	a[i1] = a[i2] ;
 	a[i2] = t ;
 }

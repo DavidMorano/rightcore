@@ -95,7 +95,7 @@ int main(int argc,const char **argv,const char **envv)
 	                int	j ;
 	                cp = va[i] ;
 	                for (j = 0 ; cp[j] ; j += 1) {
-	                    register int	ch = MKCHAR(cp[j]) ;
+	                    int	ch = MKCHAR(cp[j]) ;
 	                    f = ishexlatin(ch) ;
 	                    if (! f) break ;
 	                }

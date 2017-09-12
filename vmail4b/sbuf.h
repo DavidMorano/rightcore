@@ -3,7 +3,7 @@
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
+	= 1998-03-24, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
 */

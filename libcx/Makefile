@@ -11,11 +11,14 @@ BINDIR= $(SRCROOT)/bin
 INCDIR= $(SRCROOT)/include
 LIBDIR= $(SRCROOT)/lib
 
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
-CC= gcc
-GPP= g++
 
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
+
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #CCOPTS= -g -Wstrict-aliasing $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
@@ -35,24 +38,25 @@ DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
 
 INCDIRS= -I$(INCDIR)
 
-LDRPATH= /usr/lib/lwp
-
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS) $(LF_CFLAGS)
 
 #LD= $(CC)
 
-LDFLAGS= $(LF_LDFLAGS) -R$(LDRPATH)
+
+LDRPATH= /usr/lib/lwp
+
+LDFLAGS= $(LF_LDFLAGS) -R$(CGS_RPATH):$(LDRPATH)
 
 
-SLIBDIRS=
+SLIBDIRS= -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1=
 SLIB2=
 SLIB3=
-SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB4= $(CGS_LIBS)
 SLIB5= $(LF_LIBS) 
 SLIB6=
 SLIB7=
@@ -62,13 +66,13 @@ SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
 SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
 
-XLIBDIRS= -L$(LIBDIR)
+XLIBDIRS= -L$(CGS_LIBDIR)
 
 XLIB0=
 XLIB1= -ldam -lb
 XLIB2= -ldebug
-XLIB3= -luc -lut -lu
-XLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+XLIB3= -luc -lu
+XLIB4= $(CGS_LIBS)
 XLIB5= 
 XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 XLIB7= -ldl
@@ -76,9 +80,10 @@ XLIB7= -ldl
 XLIBS= $(XLIB0) $(XLIB1) $(XLIB2) $(XLIB3) $(XLIB4) $(XLIB5) $(XLIB6) $(XLIB7)
 
 
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o

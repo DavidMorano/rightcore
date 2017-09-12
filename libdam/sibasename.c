@@ -52,7 +52,7 @@
 
 int sibasename(const char *sp,int sl)
 {
-	register int	si ;
+	int		si ;
 
 	if (sl < 0) 
 	    sl = strlen(sp) ;

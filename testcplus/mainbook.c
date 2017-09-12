@@ -30,15 +30,17 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
-#include	<stdio.h>
 #include	<cstdlib>
 #include	<cstring>
 #include	<cinttypes>
 #include	<exception>
 #include	<new>
-#include	<map>
-#include	<unordered_map>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
+#include	<unordered_map>
+#include	<map>
 #include	<vector>
 #include	<string>
 #include	<fstream>
@@ -198,23 +200,23 @@ int wordcount::procline(string *sp,cchar *lbuf,int llen)
 	            if ((wl = sfword(fp,fl,&wp)) > 0) {
 			char	*tbuf ;
 
-		    sp->clear() ;
-		    if ((tbuf = new(nothrow) char [wl+1]) != NULL) {
-			int	tl ;
-			if ((tl = procword(tbuf,wp,wl)) > 0) {
-		            sp->append(tbuf,tl) ;
-		            try {
-		                int &val = db.at(*sp) ;
-			        val += 1 ;
-		            } catch (const exception& err) {
-			        pair<string,int>	e(*sp,1) ;
-			        db.insert(e) ;
-		                c += 1 ;
-		            }
-			} /* end if (procword) */
-		    } else {
-			rs = SR_NOMEM ;
-		    }
+		        sp->clear() ;
+		        if ((tbuf = new(nothrow) char [wl+1]) != NULL) {
+			    int	tl ;
+			    if ((tl = procword(tbuf,wp,wl)) > 0) {
+		                sp->append(tbuf,tl) ;
+		                try {
+		                    int &val = db.at(*sp) ;
+			            val += 1 ;
+		                } catch (const exception& err) {
+			            pair<string,int>	e(*sp,1) ;
+			            db.insert(e) ;
+		                    c += 1 ;
+		                }
+			    } /* end if (procword) */
+		        } else {
+			    rs = SR_NOMEM ;
+		        }
 
 	            } /* end if (have word) */
 	        } /* end if (positive) */

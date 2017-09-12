@@ -1,2 +1,2 @@
 const char commandment_makedate[] =
-"@(#)commandment             170823_1014:28_USEDT Rightcore Network Services" ;
+"@(#)commandment             170904_1409:56_EDT Rightcore Network Services" ;

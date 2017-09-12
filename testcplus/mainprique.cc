@@ -16,11 +16,13 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
-#include	<stdio.h>
 #include	<cstdlib>
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
 #include	<vector>
 #include	<queue>
@@ -52,6 +54,8 @@ extern "C" char	*strwcpy(char *,cchar *,int) ;
 
 
 /* forward references */
+
+static int	printa(const int *,int) ;
 
 
 /* local variables */
@@ -89,22 +93,25 @@ int main(int argc,const char **argv,const char **envv)
 /* largest three numbers */
 
 	if (rs >= 0) {
-	    priority_queue<int,vector<int>,greater<int>>	mh ;
-	    const int	a[] = { 10, 3, 4, 5, 9, 11 } ;
-	    const int	n = 3 ;
+	    priority_queue<int,vector<int>,greater<int>>	minheap ;
+	    const int	a[] = { 10, 3, 4, 5, 9, 11, 11, 21, 31 } ;
+	    const int	n = 3 ; /* how many largest numbers */
+	    int		ne ;
 	    int		c = 0 ;
+	    ne = nelem(a) ;
 	    for (auto v : a ) {
-		mh.push(v) ;
+		minheap.push(v) ;
 		if (c++ >= n) {
-		    mh.pop() ;
-		    c -= 1 ;
+		    minheap.pop() ;
 		}
 	    }
-	    cout << "largest numbers\n" ;
-	    while (! mh.empty()) {
-		int v = mh.top() ;
+	    cout << "source list\n" ;
+	    printa(a,ne) ;
+	    cout << "largest " << n << " numbers\n" ;
+	    while (! minheap.empty()) {
+		int v = minheap.top() ;
 	        cout << " " << v ;
-		mh.pop() ;
+		minheap.pop() ;
 	    }
 	    cout << endl ;
 	}
@@ -115,5 +122,17 @@ int main(int argc,const char **argv,const char **envv)
 
 
 /* local subroutines */
+
+
+static int printa(const int *a,int n)
+{
+	int		i ;
+	for (i = 0 ; i < n ; i += 1) {
+	    cout << " " << a[i] ;
+	}
+	cout << endl ;
+	return i ;
+}
+/* end subroutine (printa) */
 
 

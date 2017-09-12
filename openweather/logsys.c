@@ -711,8 +711,8 @@ static int mkclean(char outbuf[],int outlen,cchar *sbuf,int slen)
 
 static int hasourbad(cchar *sp,int sl)
 {
-	register int	ch ;
-	register int	f = FALSE ;
+	int		ch ;
+	int		f = FALSE ;
 
 	while (sl && (sp[0] != '\0')) {
 

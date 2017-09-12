@@ -66,10 +66,7 @@
 /* exported subroutines */
 
 
-int bwriteblock(ofp,ifp,ulen)
-bfile		*ofp ;
-bfile		*ifp ;
-int		ulen ;
+int bwriteblock(bfile *ofp,bfile *ifp,int ulen)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -122,5 +119,19 @@ int		ulen ;
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (bwriteblock) */
+
+
+int bcopyblock(bfile *ifp,bfile *ofp,int ulen)
+{
+	return bwriteblock(ofp,ifp,ulen) ;
+}
+/* end subroutine (bcopyblock) */
+
+
+int bcopy(bfile *ifp,bfile *ofp,ulen)
+{
+	return bcopyblock(ifp,ofp,ulen) ;
+}
+/* end subroutine (bcopy) */
 
 

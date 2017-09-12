@@ -23,7 +23,7 @@
 	The Dijkstra Algorithm
 
 	Synopsis:
-	int dijkstra1(res1_t *resp,edges1_t &edges,int vertices,int vstart)
+	int dijkstra1(res1_t *resp,edges_t &edges,int vertices,int vstart)
 
 	Arguments:
 	resp		result array of structures
@@ -44,11 +44,15 @@
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
 #include	<array>
 #include	<vector>
 #include	<list>
 #include	<string>
+#include	<set>
 #include	<fstream>
 #include	<iostream>
 #include	<iomanip>
@@ -57,6 +61,8 @@
 
 #include	"dijkstra1.hh"
 #include	"dijkstra2.hh"
+#include	"bellmanford1.hh"
+#include	"bellmanford2.hh"
 
 
 /* name-spaces */
@@ -72,21 +78,19 @@ using namespace std ;
 
 /* local structures (and methods) */
 
-typedef struct dijkstra1_edge		edge1_t ;
-typedef struct dijkstra1_res		res1_t ;
+typedef struct graph_edge		edge1_t ;
+typedef struct graph_res		res1_t ;
 
-typedef struct dijkstra2_edge		edge2_t ;
-typedef struct dijkstra2_res		res2_t ;
-
-typedef vector<list<edge1_t>>		edges1_t ;
-typedef list<edge1_t>::iterator		edgeit1_t ;
+typedef vector<list<edge1_t>>		edges_t ;
+typedef list<edge1_t>::iterator		edgeit_t ;
 
 
 /* forward references */
 
-static int edgesadd(edges1_t &,int,int,int) ;
-static int edgesvertices(edges1_t &) ;
-static int printgraph(edges1_t &) ;
+static int edgesload(edges_t &) ;
+static int edgesadd(edges_t &,int,int,int) ;
+static int edgesvertices(edges_t &) ;
+static int printgraph(edges_t &) ;
 static int printlist(int,list<edge1_t> &) ;
 static int printresult(res1_t *,int) ;
 
@@ -97,21 +101,15 @@ static int printresult(res1_t *,int) ;
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int main(int argc,const char **argv,const char **envv)
 {
-	edges1_t	es ;
+	const int	algos[] = { 1, 2, 3 } ;
+	edges_t		es ;
 	const int	nv = 6 ;
 
-	edgesadd(es,0,1,5) ;
-	edgesadd(es,0,2,7) ;
 
-	edgesadd(es,1,3,4) ;
-
-	edgesadd(es,2,4,3) ;
-
-	edgesadd(es,3,5,1) ;
-
-	edgesadd(es,4,5,2) ;
+	edgesload(es) ;
 
 	{
 	    int	n = edgesvertices(es) ;
@@ -126,9 +124,21 @@ int main(int argc,const char **argv,const char **envv)
 	    if (n < nv) n = nv ;
 	    if ((rp = new(nothrow) res1_t[n+1]) != NULL) {
 
-	        dijkstra1(rp,es,n,0) ;
-
+	    for (auto al : algos) {
+	        cout << "algo=" << al << " n=" << n << endl ;
+	        switch (al) {
+	        case 1:
+	            dijkstra1(rp,es,n,0) ;
+		    break ;
+	        case 2:
+	            dijkstra2(rp,es,n,0) ;
+		    break ;
+	        case 3:
+	            bellmanford1(rp,es,n,0) ;
+		    break ;
+	        } /* end switch */
 		printresult(rp,n) ;
+	    } /* end for */
 
 		delete [] rp ;
 	    } /* end if (m-a-f) */
@@ -142,7 +152,7 @@ int main(int argc,const char **argv,const char **envv)
 /* local subroutines */
 
 
-static int edgesadd(edges1_t &e,int u,int v,int w)
+static int edgesadd(edges_t &e,int u,int v,int w)
 {
 	edge1_t		tmp(v,w) ;
 	const size_t	vsize = (uint) (u+1) ;
@@ -155,12 +165,12 @@ static int edgesadd(edges1_t &e,int u,int v,int w)
 /* end subroutine (edgesadd) */
 
 
-static int edgesvertices(edges1_t &e)
+static int edgesvertices(edges_t &e)
 {
 	int		vmax = 0 ;
 	for (auto &v : e) {
-	    edgeit1_t	end = v.end() ;
-	    edgeit1_t	it = v.begin() ;
+	    edgeit_t	end = v.end() ;
+	    edgeit_t	it = v.begin() ;
 	    while (it != end) {
 		if (it->dst > vmax) {
 		    vmax = it->dst ;
@@ -173,7 +183,7 @@ static int edgesvertices(edges1_t &e)
 /* end subroutine (edgesadd) */
 
 
-static int printgraph(edges1_t &es)
+static int printgraph(edges_t &es)
 {
 	const int	n = es.size() ;
 	int		i ;
@@ -208,5 +218,23 @@ static int printresult(res1_t *rp,int nr)
 	return 0 ;
 }
 /* end subroutine (printresult) */
+
+
+static int edgesload(edges_t &es)
+{
+
+	edgesadd(es,0,1,5) ;
+	edgesadd(es,0,2,7) ;
+
+	edgesadd(es,1,3,4) ;
+
+	edgesadd(es,2,4,3) ;
+
+	edgesadd(es,3,5,1) ;
+
+	edgesadd(es,4,5,2) ;
+	return 0 ;
+}
+/* end subroutine (edgesload) */
 
 

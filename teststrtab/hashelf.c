@@ -55,9 +55,9 @@
 
 uint hashelf(const char *sp,int sl)
 {
-	register unsigned	h = 0 ;
-	register unsigned	g ;
-	register unsigned	v ;
+	unsigned	h = 0 ;
+	unsigned	g ;
+	unsigned	v ;
 
 	if (sl < 0) sl = strlen(sp) ;
 

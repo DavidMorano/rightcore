@@ -32,20 +32,17 @@
 	the NL.
 
 	Synopsis:
-
 	int nextfield(sp,sl,spp)
 	const char	*sp ;
 	int		sl ;
 	const char	**spp ;
 
 	Arguments:
-
 	sp		pointer to start of user supplied buffer
 	sl		length of user supplied buffer
 	spp		pointer to pointer of the found field
 
 	Returns:
-
 	>0		length of found field
 	==0		no field found or a NL character was encountered
 

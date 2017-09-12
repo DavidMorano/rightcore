@@ -105,9 +105,9 @@ extern int	strlinelen(const char *,int,int) ;
 
 int mailmsgmathdr(cchar *ts,int tslen,int *ip)
 {
-	register int	tl ;
+	int		tl ;
 	int		kl = 0 ;
-	register cchar	*tp ;
+	cchar		*tp ;
 
 #if	CF_DEBUGS
 	debugprintf("mailmsgmathdr: ent tl=%d t=>%t<\n",
@@ -127,8 +127,8 @@ int mailmsgmathdr(cchar *ts,int tslen,int *ip)
 
 #if	CF_ALT1
 	{
-	    register int ch ;
-	    register int f = FALSE ;
+	    int		ch ;
+	    int		f = FALSE ;
 	    while (tl) {
 	        ch = *tp ;
 		f = (ch == 0) ;

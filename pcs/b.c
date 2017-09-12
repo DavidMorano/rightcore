@@ -1,6 +1,6 @@
 /* pcs-main */
 
-/* update the machine status for the current machine */
+/* Personal Communication Services (PCS) server for PCS requests */
 /* last modified %G% version %I% */
 
 
@@ -16,18 +16,7 @@
 
 	= 2005-04-20, David A­D­ Morano
 	I changed the program so that the configuration file is consulted even
-	if the program is not run in daemon-mode.  Previously, the
-	configuration file was only consulted when run in daemon-mode.  The
-	thinking was that running the program in regular (non-daemon) mode
-	should be quick.  The problem is that the MS file had to be guessed
-	without the aid of consulting the configuration file.  Although not a
-	problem in most practice, it was not aesthetically appealing.  It meant
-	that if the administrator changed the MS file in the configuration
-	file, it also had to be changed by specifying it explicitly at
-	invocation in non-daemon-mode of the program.  This is the source of
-	some confusion (which the world really doesn't need).  So now the
-	configuration is always consulted.  The single one-time invocation is
-	still fast enough for the non-smoker aged under 40!
+	if the program is not run in daemon-mode.  
 
 	= 2011-01-25, David A­D­ Morano
 	Code was removed and placed in other files (so that they can be

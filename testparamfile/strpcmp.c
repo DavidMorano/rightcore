@@ -54,18 +54,13 @@
 /* exported subroutines */
 
 
-int strpcmp(s1,s2)
-const char	s1[], s2[] ;
+int strpcmp(cchar *s1,cchar *s2)
 {
 
 	while (*s1 && *s2) {
-
-	    if (*s1 != *s2)
-	        break ;
-
+	    if (*s1 != *s2) break ;
 	    s1 += 1 ;
 	    s2 += 1 ;
-
 	} /* end while */
 
 /* exact match */

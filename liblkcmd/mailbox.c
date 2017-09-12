@@ -683,8 +683,8 @@ int mailbox_readline(MAILBOX *mbp,MAILBOX_READ *curp,char *lbuf,int llen)
 	int		mfd ;
 	int		i, mlen ;
 	int		tlen = 0 ;
-	register char	*lbp = lbuf ;
-	register char	*bp, *lastp ;
+	char		*lbp = lbuf ;
+	char		*bp, *lastp ;
 
 	if (mbp == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;

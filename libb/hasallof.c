@@ -17,6 +17,19 @@
         Determine if the given string has all of the specified characters within
         it.
 
+	Synopsis:
+	int hasallof(cchar *sp,int sl,cchar *tstr)
+
+	Arguments:
+	sp		source string
+	sl		length of source string
+	tstr		string of characters to test against
+
+	Returns:
+	<0		error
+	==0		failed, did not have all characters specified
+	>0		yes, the string has all of the characters specified
+
 
 *******************************************************************************/
 

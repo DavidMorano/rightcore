@@ -14,28 +14,20 @@
 
 /*******************************************************************************
 
-	These subroutine calculates the unsigned remainder of a fivision of the
-	two given number.
+	These subroutine calculates the unsigned remainder of a division of the
+	two given numbers.
 
 	Synopsis:
-
 	int irem(v,m)
 	int	v ;
 	int	m ;
 
 	Arguments:
-
-	v	number to find the ceiling for
+	v	number to find the remainder for
 	m	the modulus to use in the calculation
 
 	Returns:
-
-	-	the ceiling value
-
-	Implementtion note:
-
-        Note that a "sequence point" needs to be present in this code so that
-        the total expression doesn't get optimized out!
+	-	the remainder value
 
 
 *******************************************************************************/
@@ -45,7 +37,7 @@
 
 #include	<sys/types.h>
 
-#include	<localmisc.h>
+#include	<localmisc.h>		/* for shortened unsigned types */
 
 
 /* exported subroutines */
@@ -67,7 +59,7 @@ long lrem(long v,long m)
 /* end subroutine (lrem) */
 
 
-LONG llrem(LONG v,LONG m)
+LONG llrem(LONG v,int m)
 {
 	const LONG	q = (v/m) ;
 	return (v-(q*m)) ;
@@ -75,12 +67,12 @@ LONG llrem(LONG v,LONG m)
 /* end subroutine (llrem) */
 
 
-uint uceil(uint v,uint m)
+uint iurem(uint v,int m)
 {
-	const uint	q = (v/m) ;
+	const int	q = (v/m) ;
 	return (v-(q*m)) ;
 }
-/* end subroutine (uceil) */
+/* end subroutine (iurem) */
 
 
 ulong ulrem(ulong v,int m)

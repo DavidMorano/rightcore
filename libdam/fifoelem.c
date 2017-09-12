@@ -9,9 +9,7 @@
 /* revision history :
 
 	= 1998-12-01, David A­D­ Morano
-
 	Module was originally written.
-
 
 */
 

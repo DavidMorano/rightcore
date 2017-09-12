@@ -74,9 +74,9 @@ extern int	nleadcasestr(const char *,const char *,int) ;
 
 int matostr(cchar **a,int n,cchar *sp,int sl)
 {
-	register int	lc = sp[0] ; /* ok: everything promotes similarly */
-	register int	i ;
-	register int	m ;
+	const int	lc = sp[0] ; /* ok: everything promotes similarly */
+	int		i ;
+	int		m ;
 
 	if (sl < 0) sl = strlen(sp) ;
 

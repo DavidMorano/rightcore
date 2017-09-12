@@ -801,8 +801,8 @@ static int termenq_mapper(TERMENQ *op,int ei,uint woff,uint wsize)
 
 static int isproctype(int type)
 {
-	register int	i ;
-	register int	f = FALSE ;
+	int		i ;
+	int		f = FALSE ;
 
 	for (i = 0 ; proctypes[i] >= 0 ; i += 1) {
 	    f = (type == proctypes[i]) ;

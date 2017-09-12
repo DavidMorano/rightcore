@@ -61,8 +61,8 @@ extern char	*strnchr(const char *,int,int) ;
 #if	CF_STRNCHR
 int nchr(cchar *sp,int sl,int sch)
 {
-	register int	n = 0 ;
-	const char	*tp ;
+	int		n = 0 ;
+	cchar		*tp ;
 
 	if (sl < 0) sl = strlen(sp) ;
 
@@ -78,8 +78,8 @@ int nchr(cchar *sp,int sl,int sch)
 #else /* CF_STRNCHR */
 int nchr(cchar *sp,int sl,int sch)
 {
-	register int	ch ;
-	register int	n = 0 ;
+	int		ch ;
+	int		n = 0 ;
 
 	while (sl-- && sp[0]) {
 	   ch = MKCHAR(sp[0]) ;

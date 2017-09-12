@@ -746,7 +746,7 @@ static int bpi_loadbve(BPI *op,BPI_VERSE *bvep,int vi)
 
 static int mkcitekey(BPI_QUERY *bvp,uint *cip)
 {
-	register uint	ci = 0 ;
+	uint	ci = 0 ;
 
 	ci |= (bvp->b & UCHAR_MAX) ;
 

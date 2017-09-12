@@ -3,38 +3,38 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-	Originally written for Rightcore Network Services.
+	= 2004-03-01, David A­D­ Morano
+	This subroutine was originally written as a KSH built-in command.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
 
 
 #define	VERSION		"0"
-#define	WHATINFO	"@(#)doubletext "
-#define	BANNER		"Double (high-wide) Text"
-#define	SEARCHNAME	"doubletext"
+#define	WHATINFO	"@(#)dhtext "
+#define	BANNER		"Double Height (high-wide) Text"
+#define	SEARCHNAME	"dhtext"
 #define	VARPRNAME	"LOCAL"
 
 #ifndef	PROGRAMROOT
 #define	PROGRAMROOT	"/usr/add-on/local"
 #endif
 
-#define	VARPROGRAMROOT1	"DOUBLETEXT_PROGRAMROOT"
+#define	VARPROGRAMROOT1	"DHTEXT_PROGRAMROOT"
 #define	VARPROGRAMROOT2	VARPRNAME
 #define	VARPROGRAMROOT3	"PROGRAMROOT"
 
-#define	VARBANNER	"DOUBLETEXT_BANNER"
-#define	VARSEARCHNAME	"DOUBLETEXT_NAME"
-#define	VAROPTS		"DOUBLETEXT_OPTS"
-#define	VARFILEROOT	"DOUBLETEXT_FILEROOT"
-#define	VARLOGTAB	"DOUBLETEXT_LOGTAB"
-#define	VARAFNAME	"DOUBLETEXT_AF"
-#define	VAREFNAME	"DOUBLETEXT_EF"
+#define	VARBANNER	"DHTEXT_BANNER"
+#define	VARSEARCHNAME	"DHTEXT_NAME"
+#define	VAROPTS		"DHTEXT_OPTS"
+#define	VARFILEROOT	"DHTEXT_FILEROOT"
+#define	VARLOGTAB	"DHTEXT_LOGTAB"
+#define	VARAFNAME	"DHTEXT_AF"
+#define	VAREFNAME	"DHTEXT_EF"
 
-#define	VARDEBUGFNAME	"DOUBLETEXT_DEBUGFILE"
-#define	VARDEBUGFD1	"DOUBLETEXT_DEBUGFD"
+#define	VARDEBUGFNAME	"DHTEXT_DEBUGFILE"
+#define	VARDEBUGFD1	"DHTEXT_DEBUGFD"
 #define	VARDEBUGFD2	"DEBUGFD"
 
 #define	VARNODE		"NODE"
@@ -68,9 +68,9 @@
 #define	HELPFNAME	"help"
 #define	IPASSWDFNAME	"ipasswd"
 
-#define	PIDFNAME	"run/doubletext"		/* mutex PID file */
-#define	LOGFNAME	"var/log/doubletext"		/* activity log */
-#define	LOCKFNAME	"spool/locks/doubletext"	/* lock mutex file */
+#define	PIDFNAME	"run/dhtext"		/* mutex PID file */
+#define	LOGFNAME	"var/log/dhtext"		/* activity log */
+#define	LOCKFNAME	"spool/locks/dhtext"	/* lock mutex file */
 
 #define	LOGSIZE		(80*1024)
 

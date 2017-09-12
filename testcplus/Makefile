@@ -81,7 +81,7 @@ LIB1= -ldam -lb
 LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
-LIB5= 
+LIB5= -lm
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
@@ -97,7 +97,7 @@ TLIB1= -ldam -lb
 TLIB2= -ldebug
 TLIB3= -luc -lu
 TLIB4= $(CGS_LIBS)
-TLIB5=
+TLIB5= -lm
 TLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 TLIB7= -ldl -lc
 
@@ -184,7 +184,6 @@ $(T):			$(T).ee
 	cp -p $(T).ee $(T)
 
 $(T).x:			$(OBJ) Makefile
-	echo LDCRTDIR=$(LDCRTDIR)
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
 	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
@@ -224,8 +223,8 @@ main.o:			main.cc $(INCS)
 whatinfo.o:		whatinfo.c config.h
 
 
-bstree.o:		bstree.h
-	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) bstree.h
+bstree.o:		bstree.hh
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) bstree.hh
 
 
 # testing
@@ -311,10 +310,10 @@ T05OBJ= $(T05OBJa) $(T05OBJb) $(T05OBJc) $(T05OBJd)
 
 T05OBJS= $(CRTFRONT) $(T05OBJ) $(CRTC) $(CRTBACK)
 
-$(T05).x:		Makefile $(T05OBJ) bstree.h
+$(T05).x:		Makefile $(T05OBJ) bstree.hh
 	$(LD) -o $@ $(LDFLAGS) -z defs $(T05OBJS) -lm $(TLIBINFO) > $(T05).lm
 
-main$(T05).o:		main$(T05).cc bstree.h
+main$(T05).o:		main$(T05).cc bstree.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T05).cc
 
 
@@ -370,5 +369,122 @@ $(T08).x:		Makefile $(T08OBJ)
 
 main$(T08).o:		main$(T08).cc
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T08).cc
+
+
+T09= book
+
+T09OBJa= main$(T09).o
+T09OBJb=
+T09OBJc=
+T09OBJd=
+
+T09OBJ= $(T09OBJa) $(T09OBJb) $(T09OBJc) $(T09OBJd)
+
+T09OBJS= $(CRTFRONT) $(T09OBJ) $(CRTC) $(CRTBACK)
+
+$(T09).x:		Makefile $(T09OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T09OBJS) -lm $(TLIBINFO) > $(T09).lm
+
+main$(T09).o:		main$(T09).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T09).cc
+
+
+T10= lister
+
+T10OBJa= main$(T10).o
+T10OBJb=
+T10OBJc=
+T10OBJd=
+
+T10OBJ= $(T10OBJa) $(T10OBJb) $(T10OBJc) $(T10OBJd)
+
+T10OBJS= $(CRTFRONT) $(T10OBJ) $(CRTBACK)
+
+$(T10).x:		Makefile $(T10OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T10OBJS) $(TLIBINFO) > $(T10).lm
+
+main$(T10).o:		main$(T10).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T10).cc
+
+
+T11= quick
+
+T11OBJa= main$(T11).o
+T11OBJb= quickselect.o
+T11OBJc= arrswap.o partitionai.o nthai.o
+T11OBJd= debugprintf.o
+
+T11OBJ= $(T11OBJa) $(T11OBJb) $(T11OBJc) $(T11OBJd)
+
+T11OBJS= $(CRTFRONT) $(T11OBJ) $(CRTBACK)
+
+$(T11).x:		Makefile $(T11OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T11OBJS) $(TLIBINFO) > $(T11).lm
+
+main$(T11).o:		main$(T11).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T11).cc
+
+nthai.o:		nthai.cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) nthai.cc
+
+isort.o:		isort.cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) isort.cc
+
+partitionai.o:		partitionai.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) partitionai.c
+
+
+T12= heap
+
+T12OBJa= main$(T12).o
+T12OBJb=
+T12OBJc=
+T12OBJd=
+
+T12OBJ= $(T12OBJa) $(T12OBJb) $(T12OBJc) $(T12OBJd)
+
+T12OBJS= $(CRTFRONT) $(T12OBJ) $(CRTBACK)
+
+$(T12).x:		Makefile $(T12OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T12OBJS) $(TLIBINFO) > $(T12).lm
+
+main$(T12).o:		main$(T12).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T12).cc
+
+
+T13= testpart
+
+T13OBJa= testpartitionai.o
+T13OBJb= partitionai.o arrswap.o
+T13OBJc=
+T13OBJd= debugprintf.o
+
+T13OBJ= $(T13OBJa) $(T13OBJb) $(T13OBJc) $(T13OBJd)
+
+T13OBJS= $(CRTFRONT) $(T13OBJ) $(CRTBACK)
+
+$(T13).x:		Makefile $(T13OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T13OBJS) $(TLIBINFO) > $(T13).lm
+
+testpartitionai.o:	testpartitionai.cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) testpartitionai.cc
+
+
+T14= sorts
+
+T14OBJa= mainsorts.o
+T14OBJb= arrswap.o
+T14OBJc= isort.o
+T14OBJd= debugprintf.o
+
+T14OBJ= $(T14OBJa) $(T14OBJb) $(T14OBJc) $(T14OBJd)
+
+T14OBJS= $(CRTFRONT) $(T14OBJ) $(CRTBACK)
+
+$(T14).x:		Makefile $(T14OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T14OBJS) $(TLIBINFO) > $(T14).lm
+
+main$(T14).o:		main$(T14).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T14).cc
 
 

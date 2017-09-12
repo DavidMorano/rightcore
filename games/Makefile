@@ -27,7 +27,7 @@ CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
-CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
+#CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
@@ -60,6 +60,9 @@ INCDIRS= -I$(INCDIR)
 
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
+XFLAGS= $(CCOPTS_GCCALL)
+XXFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS_GCCALL) 
+
 CFLAGS= $(CCOPTS)
 CCFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS) 
 GPPFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS) 
@@ -81,7 +84,7 @@ LIB1= -ldam -lb
 LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
-LIB5= 
+LIB5= -lm
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
@@ -97,7 +100,7 @@ TLIB1= -ldam -lb
 TLIB2= -ldebug
 TLIB3= -luc -lu
 TLIB4= $(CGS_LIBS)
-TLIB5=
+TLIB5= -lm
 TLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 TLIB7= -ldl -lc
 
@@ -224,6 +227,19 @@ main.o:			main.cc $(INCS)
 whatinfo.o:		whatinfo.c config.h
 
 
+dijkstra1.o:		dijkstra1.cc dijkstra1.hh
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) dijkstra1.cc
+
+dijkstra2.o:		dijkstra2.cc dijkstra2.hh
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) dijkstra2.cc
+
+bellmanford1.o:		bellmanford1.cc bellmanford1.hh
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) bellmanford1.cc
+
+bellmanford2.o:		bellmanford2.cc bellmanford2.hh
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) bellmanford2.cc
+
+
 # testing
 
 T01= testsethand
@@ -256,7 +272,7 @@ T02OBJ= $(T02OBJa) $(T02OBJb) $(T02OBJc) $(T02OBJd)
 T02OBJS= $(CRTFRONT) $(T02OBJ) $(CRTBACK)
 
 $(T02).x:		Makefile $(T02OBJ) 
-	$(LD) -o $@ $(LDFLAGS) -z defs $(T02OBJS) -lm $(TLIBINFO) > $(T02).lm
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T02OBJS) $(TLIBINFO) > $(T02).lm
 
 $(T02).o:		testsetint.cc setint.h
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) testsetint.cc
@@ -274,7 +290,7 @@ T03OBJ= $(T03OBJa) $(T03OBJb) $(T03OBJc) $(T03OBJd)
 T03OBJS= $(CRTFRONT) $(T03OBJ) $(CRTBACK)
 
 $(T03).x:		Makefile $(T03OBJ) 
-	$(LD) -o $@ $(LDFLAGS) -z defs $(T03OBJS) -lm $(TLIBINFO) > $(T03).lm
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T03OBJS) $(TLIBINFO) > $(T03).lm
 
 $(T03).o:		$(T03).cc setint.h
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) $(T03).cc
@@ -292,9 +308,135 @@ T04OBJ= $(T04OBJa) $(T04OBJb) $(T04OBJc) $(T04OBJd)
 T04OBJS= $(CRTFRONT) $(T04OBJ) $(CRTBACK)
 
 $(T04).x:		Makefile $(T04OBJ) 
-	$(LD) -o $@ $(LDFLAGS) -z defs $(T04OBJS) -lm $(TLIBINFO) > $(T04).lm
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T04OBJS) $(TLIBINFO) > $(T04).lm
 
-$(T04).o:		main$(T04).cc
-	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) $(T04).cc
+main$(T04).o:		main$(T04).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T04).cc
+
+
+T05= graph
+
+T05OBJa= main$(T05).o 
+T05OBJb= dijkstra1.o dijkstra2.o 
+T05OBJc= bellmanford1.o bellmanford2.o
+T05OBJd=
+
+T05OBJ= $(T05OBJa) $(T05OBJb) $(T05OBJc) $(T05OBJd)
+
+T05OBJS= $(CRTFRONT) $(T05OBJ) $(CRTBACK)
+
+$(T05).x:		Makefile $(T05OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T05OBJS) $(TLIBINFO) > $(T05).lm
+
+main$(T05).o:		main$(T05).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T05).cc
+
+
+T06= trailing
+
+T06OBJa= main$(T06).o
+T06OBJb=
+T06OBJc=
+T06OBJd=
+
+T06OBJ= $(T06OBJa) $(T06OBJb) $(T06OBJc) $(T06OBJd)
+
+T06OBJS= $(CRTFRONT) $(T06OBJ) $(CRTBACK)
+
+$(T06).x:		Makefile $(T06OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T06OBJS) $(TLIBINFO) > $(T06).lm
+
+main$(T06).o:		main$(T06).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T06).cc
+
+
+T07= web
+
+T07OBJa= main$(T07).o
+T07OBJb=
+T07OBJc=
+T07OBJd=
+
+T07OBJ= $(T07OBJa) $(T07OBJb) $(T07OBJc) $(T07OBJd)
+
+T07OBJS= $(CRTFRONT) $(T07OBJ) $(CRTBACK)
+
+$(T07).x:		Makefile $(T07OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T07OBJS) $(TLIBINFO) > $(T07).lm
+
+main$(T07).o:		main$(T07).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T07).cc
+
+
+T08= bal
+
+T08OBJa= main$(T08).o
+T08OBJb=
+T08OBJc=
+T08OBJd=
+
+T08OBJ= $(T08OBJa) $(T08OBJb) $(T08OBJc) $(T08OBJd)
+
+T08OBJS= $(CRTFRONT) $(T08OBJ) $(CRTBACK)
+
+$(T08).x:		Makefile $(T08OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T08OBJS) $(TLIBINFO) > $(T08).lm
+
+main$(T08).o:		main$(T08).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T08).cc
+
+
+T09= strs
+
+T09OBJa= main$(T09).o
+T09OBJb=
+T09OBJc=
+T09OBJd=
+
+T09OBJ= $(T09OBJa) $(T09OBJb) $(T09OBJc) $(T09OBJd)
+
+T09OBJS= $(CRTFRONT) $(T09OBJ) $(CRTBACK)
+
+$(T09).x:		Makefile $(T09OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T09OBJS) $(TLIBINFO) > $(T09).lm
+
+main$(T09).o:		main$(T09).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T09).cc
+
+
+T10= minsquares
+
+T10OBJa= main$(T10).o
+T10OBJb= igcd.o
+T10OBJc=
+T10OBJd=
+
+T10OBJ= $(T10OBJa) $(T10OBJb) $(T10OBJc) $(T10OBJd)
+
+T10OBJS= $(CRTFRONT) $(T10OBJ) $(CRTBACK)
+
+$(T10).x:		Makefile $(T10OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T10OBJS) $(TLIBINFO) > $(T10).lm
+
+main$(T10).o:		main$(T10).cc
+	$(GPP) -c $(XXFLAGS) $(CPPFLAGS) main$(T10).cc
+
+
+T11= anas
+
+T11OBJa= main$(T11).o
+T11OBJb=
+T11OBJc=
+T11OBJd=
+
+T11OBJ= $(T11OBJa) $(T11OBJb) $(T11OBJc) $(T11OBJd)
+
+T11OBJS= $(CRTFRONT) $(T11OBJ) $(CRTBACK)
+
+$(T11).x:		Makefile $(T11OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T11OBJS) $(TLIBINFO) > $(T11).lm
+
+main$(T11).o:		main$(T11).cc
+	$(GPP) -c $(XXFLAGS) $(CPPFLAGS) main$(T11).cc
 
 

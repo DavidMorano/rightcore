@@ -194,9 +194,9 @@ int bcspec_load(BCSPEC *op,const char *sbuf,int slen)
 
 static int siourbrk(cchar *sp,int sl,int f_dig)
 {
-	register int	i = -1 ;
-	register int	ch ;
-	register int	f = FALSE ;
+	int		i = -1 ;
+	int		ch ;
+	int		f = FALSE ;
 
 	for (i = 0 ; i < sl ; i += 1) {
 	    ch = MKCHAR(sp[i]) ;

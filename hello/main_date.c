@@ -1,6 +1,18 @@
 /* main (date) */
 
 
+/* revision history:
+
+	= 2017-09-07, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstandards.h>
+
 #include	<sys/types.h>
 #include	<time.h>
 #include	<stdio.h>
@@ -31,6 +43,5 @@ int main()
 	return 0 ;
 }
 /* end subroutine (main) */
-
 
 

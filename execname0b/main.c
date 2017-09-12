@@ -8,7 +8,7 @@
 #define	CF_DEBUG	0		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_DEBUGARGZ	0		/* debug ARGZ problems */
-#define	CF_DEBUGENV	1		/* debug 'execve(2)' call */
+#define	CF_DEBUGENV	0		/* debug 'execve(2)' call */
 #define	CF_DEBUGEXEC	0		/* debug 'execve(2)' call */
 #define	CF_ISAEXEC	1		/* use 'isaexec(3c)' */
 #define	CF_FINDXFILE	1		/* use 'getprogpath(3dam)' */
@@ -19,9 +19,7 @@
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -29,9 +27,9 @@
 
 /*******************************************************************************
 
-	This subroutine is pretty much the whole little program here.
-	This program really just allows for the changing of ARG[0]
-	when a program is executed.
+        This subroutine is pretty much the whole little program here. This
+        program really just allows for the changing of ARG[0] when a program is
+        executed.
 
 	Synopsis:
 
@@ -50,7 +48,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<ids.h>
@@ -65,6 +62,7 @@
 
 #include	"config.h"
 #include	"defs.h"
+#include	"progreport.h"
 
 
 /* local defines */
@@ -91,10 +89,10 @@ extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	strkeycmp(const char *,const char *) ;
-extern int	matostr(const char **,int,const char *,int) ;
-extern int	matkeystr(const char **,const char *,int) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	strkeycmp(cchar *,cchar *) ;
+extern int	matostr(cchar **,int,cchar *,int) ;
+extern int	matkeystr(cchar **,cchar *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 extern int	optbool(const char *,int) ;
@@ -117,11 +115,14 @@ extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
-extern int	debugprinthex(const char *,int,const char *,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthex(cchar *,int,cchar *,int) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif /* CF_DEBUGS */
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -157,7 +158,7 @@ static int	procexecend(PROGINFO *) ;
 static int	procexecbeginer(PROGINFO *,ARGINFO *,cchar *) ;
 static int	procexecargz(PROGINFO *,ARGINFO *,const char *) ;
 static int	procexecname(PROGINFO *,ARGINFO *,const char *) ;
-static int	procexecgo(PROGINFO *pip,ARGINFO *aip) ;
+static int	procexecgo(PROGINFO *,ARGINFO *) ;
 
 static int	procexecvarspecials(PROGINFO *) ;
 static int	procexecvarclean(PROGINFO *) ;
@@ -179,7 +180,7 @@ static int	sofar(const char *,int) ;
 
 /* local variables */
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -227,7 +228,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*envpaths[] = {
+static cchar	*envpaths[] = {
 	"PATH",
 	"LD_LIBRARY_PATH",
 	"MANPATH",
@@ -275,7 +276,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*argval = NULL ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
-	const char	*afname = NULL ;
 	const char	*efname = NULL ;
 	const char	*program = NULL ;
 	const char	*cp ;
@@ -287,7 +287,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getourenv(envv,VARNDF)) != NULL) {
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
 	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
@@ -305,9 +305,16 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
+
+	if (rs >= 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	    	rs = optvalue(cp,-1) ;
+		pip->debuglevel = rs ;
+	    }
+	}
 
 	pip->verboselevel = 1 ;
 	pip->pagesize = getpagesize() ;
@@ -433,24 +440,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                sn = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* argument-file */
-	                case argopt_af:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            afname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                afname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -622,10 +611,11 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* get our program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -669,10 +659,15 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 #endif
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (program == NULL) {
 	    bprintf(pip->efp,"%s: no program specified\n",pip->progname) ;
 	    ex = EX_NOPROG ;
-	    goto retearly ;
+	    rs = SR_INVALID ;
 	}
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -683,21 +678,27 @@ int main(int argc,cchar **argv,cchar **envv)
 	ainfo.ai_max = ai_max ;
 	ainfo.ai_pos = ai_pos ;
 
-	if ((rs = procexecbegin(pip,&ainfo,program)) >= 0) {
-	    if ((rs = procexecvarspecials(pip)) >= 0) {
-	        if ((rs = procexecvarclean(pip)) >= 0) {
-	            rs = procexecgo(pip,&ainfo) ;
-	        }
-	    }
-
+	if (rs >= 0) {
+	    if ((rs = procexecbegin(pip,&ainfo,program)) >= 0) {
+	        if ((rs = procexecvarspecials(pip)) >= 0) {
+	            if ((rs = procexecvarclean(pip)) >= 0) {
+	                rs = procexecgo(pip,&ainfo) ;
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: procexecgo() rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(2))
+	                    debugprintf("main: procexecgo() rs=%d\n",rs) ;
 #endif
-
-	    rs1 = procexecend(pip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (procexec) */
+	            }
+	        }
+	        rs1 = procexecend(pip) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (procexec) */
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	    usage(pip) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -712,6 +713,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: done ex=%u (%d)\n",ex,rs) ;
 #endif
+
+	if (rs < 0) {
+	    mkreport(pip,argc,argv,rs) ;
+	}
 
 	if ((rs < 0) && (ex == EX_OK)) {
 	    if (! pip->f.quiet) {
@@ -729,7 +734,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	            "%s: program not executable (%d)\n",
 	            pip->progname,rs) ;
 	    }
-	} /* end if */
+	} /* end if (exitcode) */
 
 retearly:
 	bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",pip->progname,ex,rs) ;
@@ -761,7 +766,6 @@ badprogstart:
 	        UCMALLREG_CUR	cur ;
 	        UCMALLREG_REG	reg ;
 	        const int	size = (10*sizeof(uint)) ;
-	        int		rs1 ;
 	        const char	*ids = "main" ;
 	        uc_mallinfo(mi,size) ;
 	        debugprintf("main: MIoutnum=%u\n",mi[ucmallreg_outnum]) ;
@@ -799,6 +803,7 @@ badarg:
 	bprintf(pip->efp,
 	    "%s: bad argument specified (%d)\n",
 	    pip->progname,rs) ;
+	mkreport(pip,argc,argv,rs) ;
 	goto retearly ;
 
 }
@@ -815,7 +820,7 @@ static int usage(PROGINFO *pip)
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-	fmt = "%s: USAGE> %s <progfname> [{+|-|<arg0>} [<arg(s)> ...]]\n" ;
+	fmt = "%s: USAGE> %s <progpath> [{+|-|<arg0>} [<arg(s)> ...]]\n" ;
 	rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
@@ -890,18 +895,24 @@ static int procexecargz(PROGINFO *pip,ARGINFO *aip,cchar *program)
 	int		rs = SR_OK ;
 	int		cl = 0 ;
 	const char	*cp = NULL ;
-	const char	*argz = NULL ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
+	if (DEBUGLEVEL(4)) {
 	    debugprintf("main/procexecargz: argr=%d\n",aip->argr) ;
+	    debugprintf("main/procexecargz: program=%s\n",program) ;
+	}
 #endif
 
 	if (aip->argr > 0) {
 	    int		argl ;
-	    const char	*argp ;
-
+	    cchar	*argp ;
 	    aip->ai += 1 ;
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("main/procexecargz: ai=%u\n",aip->ai) ;
+#endif
+
 	    argp = aip->argv[aip->ai] ;
 	    argl = strlen(argp) ;
 	    aip->argr -= 1 ;
@@ -914,28 +925,40 @@ static int procexecargz(PROGINFO *pip,ARGINFO *aip,cchar *program)
 
 	    cl = sfbasename(program,-1,&cp) ;
 
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("main/procexecargz: c=>%t<\n",cp,cl) ;
+#endif
+
 	    if (strcmp(argp,"-") == 0) {
 	        const int	size = (cl + 2) ;
-	        char	*bp ;
+	        char		*bp ;
 	        if ((rs = uc_malloc(size,&bp)) >= 0) {
-	            const char	**vpp = &pep->argz ;
-	            argz = bp ;
+	            cchar	**vpp = &pep->argz ;
 	            sncpy2(bp,(cl + 1),"-",cp) ;
 	            rs = proginfo_setentry(pip,vpp,bp,(cl+1)) ;
 	            uc_free(bp) ;
 	        } /* end if (memory-allocation) */
 	    } else if (strcmp(argp,"+") == 0) {
-	        argz = cp ;
-	    } else if (argp[0] != '\0')
-	        argz = argp ;
+	        pep->argz = cp ;
+	    } else if (argp[0] != '\0') {
+	        pep->argz = argp ;
+	    }
+
 	} /* end if (had additional argument) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("main/procexecargz: mid2 rs=%d az=%s\n",rs,pep->argz) ;
+	}
+#endif
+
 	if (rs >= 0) {
-	    if (argz == NULL) {
-	        if (cp == NULL) cl = sfbasename(program,-1,&cp) ;
-	        pep->argz = cp ;
-	    } else if (pep->argz == NULL) {
-	        pep->argz = argz ;
+	    if (pep->argz == NULL) {
+	            if (program != NULL) {
+		        cl = sfbasename(program,-1,&cp) ;
+	                pep->argz = cp ;
+		    }
 	    }
 	}
 
@@ -958,6 +981,8 @@ static int procexecbeginer(PROGINFO *pip,ARGINFO *aip,cchar *program)
 	const int	vn = 150 ;
 	const int	vo = VECHAND_OORDERED ;
 	int		rs ;
+
+	memset(pep,0,sizeof(PROGEXEC)) ;
 
 	if ((rs = strpack_start(&pep->store,ssize)) >= 0) {
 	    pep->f.store = TRUE ;
@@ -987,29 +1012,37 @@ static int procexecname(PROGINFO *pip,ARGINFO *aip,cchar *program)
 	PROGEXEC	*pep = pip->progexec ;
 	IDS		id ;
 	int		rs ;
-	const char	*progfname = program ;
-	char		tmpfname[MAXPATHLEN+1] ;
+	int		rs1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	cchar		*progfname = program ;
+
+	if (pip->debuglevel > 0) {
+	    fmt = "%s: program=%s\n" ;
+	    bprintf(pip->efp,fmt,pn,program) ;
+	}
 
 	if ((rs = ids_load(&id)) >= 0) {
+	    char	tbuf[MAXPATHLEN+1] ;
 
 	    if (program[0] != '/') {
 
 	        if (strchr(program,'/') == NULL) {
-	            progfname = tmpfname ;
+	            progfname = tbuf ;
 
 #if	CF_FINDXFILE
-	            rs = findxfile(&id,tmpfname,program) ;
+	            rs = findxfile(&id,tbuf,program) ;
 #else
-	            rs = findfilepath(NULL,tmpfname,program,X_OK) ;
+	            rs = findfilepath(NULL,tbuf,program,X_OK) ;
 	            if (rs == 0)
-	                rs = mkpath1(tmpfname,program) ;
+	                rs = mkpath1(tbuf,program) ;
 #endif /* CF_FINDXFILE */
 
 	        } else {
 
 	            if ((rs = proginfo_pwd(pip)) >= 0) {
-	                progfname = tmpfname ;
-	                if ((rs = mkpath2(tmpfname,pip->pwd,program)) >= 0) {
+	                progfname = tbuf ;
+	                if ((rs = mkpath2(tbuf,pip->pwd,program)) >= 0) {
 	                    rs = xfile(&id,program) ;
 	                }
 	            }
@@ -1018,18 +1051,23 @@ static int procexecname(PROGINFO *pip,ARGINFO *aip,cchar *program)
 
 	    } else {
 
-	        if ((rs = mkpath1(tmpfname,program)) >= 0) {
+	        if ((rs = mkpath1(tbuf,program)) >= 0) {
 	            rs = xfile(&id,program) ;
 	        }
 
 	    } /* end if */
 
-	    ids_release(&id) ;
+	    rs1 = ids_release(&id) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ids) */
 
 	if (rs >= 0) {
-	    const char	**vpp = &pep->progfname ;
+	    cchar	**vpp = &pep->progfname ;
 	    rs = proginfo_setentry(pip,vpp,progfname,-1) ;
+	    if (pip->debuglevel > 0) {
+	        fmt = "%s: progpath=%s\n" ;
+	        bprintf(pip->efp,fmt,pn,progfname) ;
+	    }
 	}
 
 	return rs ;
@@ -1041,57 +1079,63 @@ static int procexecgo(PROGINFO *pip,ARGINFO *aip)
 {
 	PROGEXEC	*pep = pip->progexec ;
 	int		rs ;
-	int		size ;
-	int		ai = aip->ai ;
 	const int	n = (aip->argr+1) ;
-	const char	**av ;
-	const char	**ev ;
 
-	size = (n + 1) * sizeof(const char **) ;
-	if ((rs = uc_malloc(size,&av)) >= 0) {
-	    vechand	*elp = &pep->list ;
-	    int		i ;
+	if ((rs = bflush(pip->efp)) >= 0) {
+	    const int	size = (n + 1) * sizeof(cchar **) ; 
+	    cchar	**av ;
+	    if ((rs = uc_malloc(size,&av)) >= 0) {
+	        vechand		*elp = &pep->list ;
+	        int		ai = aip->ai ;
+	        cchar		**ev ;
+	        int		i ;
 
-	    av[0] = pep->argz ;
-	    for (i = 1 ; i < n ; i += 1) av[i] = aip->argv[++ai] ;
-	    av[i] = NULL ;
+	        av[0] = pep->argz ;
+	        for (i = 1 ; i < n ; i += 1) av[i] = aip->argv[++ai] ;
+	        av[i] = NULL ;
 
-	    if ((rs = vechand_getvec(elp,&ev)) >= 0) {
+	        if ((rs = vechand_getvec(elp,&ev)) >= 0) {
 
-#if	CF_DEBUGENV && CF_DEBUG
-	        if (DEBUGLEVEL(3)) {
-	            debugprintf("main: progfname=%s\n",pep->progfname) ;
-	            for (i = 0 ; ev[i] != NULL ; i += 1)
-	                debugprintf("main: env[%d] >%t<\n",i,
-	                    ev[i],strlinelen(ev[i],-1,50)) ;
-	            for (i = 0 ; av[i] != NULL ; i += 1)
-	                debugprintf("main: arg[%d] >%t<\n",i,
-	                    av[i],strlinelen(av[i],-1,50)) ;
-	        }
-#endif /* CF_DEBUGS */
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(3)) {
+	                debugprintf("main: progfname=%s\n",pep->progfname) ;
+#if	CF_DEBUGENV
+	                for (i = 0 ; ev[i] != NULL ; i += 1) {
+	                    debugprintf("main: env[%d] >%t<\n",i,
+	                        ev[i],strlinelen(ev[i],-1,50)) ;
+		        }
+#endif /* CF_DEBUGENV */
+	                for (i = 0 ; av[i] != NULL ; i += 1) {
+	                    debugprintf("main: arg[%d] >%t<\n",i,
+	                        av[i],strlinelen(av[i],-1,50)) ;
+		        }
+	            }
+#endif /* CF_DEBUG */
 
 #if	CF_DEBUGEXEC && CF_DEBUG
-	        rs = SR_OK ;
-	        if (DEBUGLEVEL(3))
-	            debugprintf("procexecgo: progfname=%s\n",pep->progfname) ;
+	            rs = SR_OK ;
+	            if (DEBUGLEVEL(3))
+	                debugprintf("procexecgo: progfname=%s\n",
+				pep->progfname) ;
 #else /* CF_DEBUGEXEC */
 #if	CF_ISAEXEC && defined(OSNAME_SunOS) && (OSNAME_SunOS > 0) && \
 	    defined(OSNUM) && (OSNUM >= 8)
-	        rs = uc_isaexecve(pep->progfname,av,ev) ;
+	            rs = uc_isaexecve(pep->progfname,av,ev) ;
 #else
-	        rs = uc_execve(pep->progfname,av,ev) ;
+	            rs = uc_execve(pep->progfname,av,ev) ;
 #endif
 #endif /* CF_DEBUGEXEC */
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(3))
-	            debugprintf("main: u_execve() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(3))
+	                debugprintf("main: u_execve() rs=%d\n",rs) ;
 #endif
 
-	    } /* end if */
+	        } /* end if (vecstr_getvec) */
 
-	    uc_free(av) ;
-	} /* end if (memory-allocation) */
+	        uc_free(av) ;
+	    } /* end if (memory-allocation) */
+	} /* end if (bflush) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1189,7 +1233,6 @@ static int procexecvarclean(PROGINFO *pip)
 
 static int procexecvarcleaner(PROGINFO *pip,const char *ep)
 {
-	PROGEXEC	*pep = pip->progexec ;
 	const int	el = strlen(ep) ;
 	int		rs = SR_OK ;
 	int		vl = 0 ;
@@ -1232,9 +1275,13 @@ static int procexecaddenv(PROGINFO *pip,cchar *kp,int kl,cchar *vp,int vl)
 {
 	PROGEXEC	*pep = pip->progexec ;
 	strpack		*spp ;
-	vechand		*elp ;
 	int		rs ;
 	const char	*rp ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("main/procexecaddenv: k=%t v=%t\n",kp,kl,vp,vl) ;
+#endif
 
 	spp = &pep->store ;
 	if ((rs = strpack_envstorer(spp,kp,kl,vp,vl,&rp)) >= 0) {
@@ -1251,6 +1298,7 @@ static int procexecvarcleanmk(PROGINFO *pip,cchar *kp,int kl,cchar *vp,int vl)
 {
 	DIRLIST		db ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 #if	CF_DEBUG
@@ -1277,32 +1325,27 @@ static int procexecvarcleanmk(PROGINFO *pip,cchar *kp,int kl,cchar *vp,int vl)
 
 	            if ((rs = uc_malloc((jlen+1),&jbuf)) >= 0) {
 	                if ((rs = dirlist_joinmk(&db,jbuf,jlen)) >= 0) {
-
-#if	CF_DEBUG
-	                    if (DEBUGLEVEL(4))
-	                        debugprintf("main/procexecvarcleanmk: jbuf=>%t<\n",
-	                            jbuf,strlinelen(jbuf,rs,50)) ;
-#endif
-
 	                    rs = procexecaddenv(pip,kp,kl,jbuf,rs) ;
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(4))
+	                debugprintf("main/procexecvarcleanmk: "
+				"procexecaddenv() rs=%d\n",rs) ;
+#endif
 	                } /* end if (dirlist-joinmk) */
-	                uc_free(jbuf) ;
+	                rs1 = uc_free(jbuf) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (memory-allocation) */
 	        } /* end if (dirlist-joinsize) */
 
+	    } /* end if (dirlist_adds) */
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("main/procexecvarcleanmk: dirlist_strsize-out rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("main/procexecvarcleanmk: "
+			"dirlist_adds-out rs=%d\n",rs) ;
 #endif
 
-	    } /* end if (dirlist-adds) */
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main/procexecvarcleanmk: dirlist_adds-out rs=%d\n",rs) ;
-#endif
-
-	    dirlist_finish(&db) ;
+	    rs1 = dirlist_finish(&db) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (dirlist) */
 
 #if	CF_DEBUG

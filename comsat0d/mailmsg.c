@@ -12,16 +12,21 @@
 	= 1998-11-01, David A­D­ Morano
 	This subroutine was originally written.
 
+	= 2004-10-13, David A­D­ Morano
+	Removed VECSTR as an optional storage object.
+
+	= 2017-09-06, David A­D­ Morano
+	Removed some unused subroutine at the end.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         This module operates on mail messages. It is expected that a file be
-        opened that contains the mail message to be parsed. The file must be a
-        BIO type file. The order of processing should proceed as follows by the
-        user:
+        opened and fed to this object one line at a time. The order of
+        processing should proceed roughly as follows by the user:
 
 	call	mailmsg_start()
 
@@ -1268,49 +1273,5 @@ static int msghdrinst_finish(MAILMSGHDRINST *hip)
 	return rs ;
 }
 /* end subroutine (msghdrinst_finish) */
-
-
-#ifdef	COMMENT
-
-/* this is the sorting function used to sort one header from another */
-static int vheadcmp(e1p,e2p)
-MAILMSG_HDR	**e1p, **e2p ;
-{
-	MAILMSG_HDR	*mh1p, *mh2p ;
-	int		rc ;
-
-#if	CF_DEBUGS
-	debugprintf("msg/vheadcmp: ent\n") ;
-#endif
-
-	if ((*e1p == NULL) && (*e2p == NULL))
-	    return 0 ;
-
-	if (*e1p == NULL)
-	    return 1 ;
-
-	if (*e2p == NULL)
-	    return -1 ;
-
-	mh1p = *e1p ;
-	mh2p = *e2p ;
-	rc = (mh1p->nlen - mh2p->nlen) ;
-	if (rc == 0) {
-	    rc = (tolc(mh1p->name[0]) - tolc(mh2p->name[0])) ;
-	    if (rc == 0) {
-	        rc = strncasecmp(mh1p->name,mh2p->name,mh1p->nlen) ;
-	    }
-	}
-
-#if	CF_DEBUGS
-	debugprintf("msg/vheadcmp: rc=%d n1=%s n2=%s\n",
-	    rc,(*e1p)->name,(*e2p)->name) ;
-#endif
-
-	return rc ;
-}
-/* end subroutine (vheadcmp) */
-
-#endif /* COMMENT */
 
 

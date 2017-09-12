@@ -87,10 +87,10 @@ int matpcasestr(cchar **a,int n,cchar *sp,int sl)
 	if (sl < 0) sl = strlen(sp) ;
 
 	if (n >= 0) {
-	    register int	lc = tolc(sp[0]) ;
-	    register int	i ;
-	    int			m_max = 0 ;
-	    int			m ;
+	    int		lc = tolc(sp[0]) ;
+	    int		i ;
+	    int		m_max = 0 ;
+	    int		m ;
 	    si = -1 ;
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
 		if ((m = (lc == tolc(a[i][0]))) > 0) {

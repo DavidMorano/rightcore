@@ -72,7 +72,7 @@ extern int	nleadcasestr(cchar *,cchar *,int) ;
 
 int matcasesubstr(cchar **a,cchar *sp,int sl)
 {
-	register int	i ;
+	int		i ;
 	for (i = 0 ; a[i] != NULL ; i += 1) {
 	    if (sicasesub(sp,sl,a[i]) >= 0) break ;
 	} /* end for */

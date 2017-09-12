@@ -3,12 +3,12 @@
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
-	This subroutine was originally written.
+	= 2008-10-01, David A­D­ Morano
+	This module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	BVI_INCLUDE
 #define	BVI_INCLUDE	1

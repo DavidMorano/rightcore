@@ -28,8 +28,9 @@
 #include	<sys/types.h>
 #include	<vector>
 #include	<list>
-#include	<vsystem.h>
 #include	<localmisc.h>
+
+#include	"graph.hh"
 
 
 /* external subroutines */
@@ -42,35 +43,10 @@ extern "C" int	strlinelen(cchar *,cchar *,int) ;
 
 /* local structures */
 
-struct dijkstra2_edge {
-	int		dst ;	/* destination vertex */
-	int		weight ; /* weight of edge to this vertex */
-	dijkstra2_edge() : dst(0), weight(0) { } ;
-	dijkstra2_edge(int adst,int aweight = 0) : dst(adst), weight(aweight) {
-	} ;
-} ;
-
-struct dijkstra2_res {
-	int		dist ; /* distance (summed weight) to present vertex */
-	int		prev ; /* previous vertex */
-	dijkstra2_res() : dist(0), prev(-1) { } ;
-	dijkstra2_res(int adist,int aprev = -1) : dist(adist), prev(aprev) {
-	} ;
-	dijkstra2_res &operator = (const dijkstra2_res &other) {
-	    dist = other.dist ;
-	    prev = other.prev ;
-	    return (*this) ;
-	} ;
-	dijkstra2_res &operator = (int adist) {
-	    dist = adist ;
-	    prev = -1 ;
-	    return (*this) ;
-	} ;
-} ;
 
 
-extern int dijkstra2(dijkstra2_res *,
-		std::vector<std::list<dijkstra2_edge>> &,
+extern int dijkstra2(graph_res *,
+		std::vector<std::list<graph_edge>> &,
 		int,int) ;
 
 

@@ -8,15 +8,15 @@
 
 /* revision history:
 
-	= 2007-03-01, David A­D­ Morano
-	This subroutine was originally written.
+	= 2008-10-01, David A­D­ Morano
+	This module was originally written.
 
 	= 2017-08-17, David A­D­ Morano
 	I enhanced to use |isValidMagic()|.
 
 */
 
-/* Copyright © 2007,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2009,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

@@ -53,8 +53,8 @@
 
 int sidquote(const char *sp,int sl)
 {
-	register int	i ;
-	register int	ch ;
+	int		i ;
+	int		ch ;
 	int		f_skip = FALSE ;
 	int		f_done = FALSE ;
 

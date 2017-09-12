@@ -8,28 +8,25 @@
 
 /* revision history:
 
-	= 1998-09-10, David A­D­ Morano
+	= 2001-03-01, David A­D­ Morano
 	This was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	We calculate the combinations of the given number.
+	We calculate the combinations of the given number *without* repititions.
 
 	Synopsis:
-
 	LONG combinations(int n,int k)
 
 	Arguments:
-
 	n	number of items to choose from
 	k	nuber of item to choose without repitition
 
 	Returns:
-
 	-	the Fibonacci number of the input
 
 	= Notes:
@@ -38,6 +35,20 @@
 	+ k == 1 -> ans = n 
 	+ k == n -> ans = 1
 	+ k > n  -> ans = 0		(sort of a special case)
+
+	Note for combinations *with* repitition:
+
+	For combinations *with* repitition the result is:
+
+		(n-k-1)!	  { n-k-1 )   { n-k-1  )
+	        --------	= ( ----- } = { ------ )
+		k! · (n-1)!	  {   k!  }   { (n-1)! )
+
+	Combination *with* repitition are also called "multicombinations."
+	A subroutine for multicombinations is provied (below) and is:
+
+	Synopsis:
+	LONG multicombinations(int n,int k)
 
 
 *******************************************************************************/

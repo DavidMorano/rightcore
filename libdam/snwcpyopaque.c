@@ -75,8 +75,8 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 int snwcpyopaque(char *dbuf,int dlen,cchar *sp,int sl)
 {
-	register int	ch ;
-	register int	dl = 0 ;
+	int		ch ;
+	int		dl = 0 ;
 	int		rs = SR_OK ;
 	while (sl && *sp) {
 	    ch = MKCHAR(*sp) ;

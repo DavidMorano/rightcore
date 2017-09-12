@@ -234,15 +234,15 @@ int ctdecull(char *dbuf,int dlen,ulonglong v)
 static int ictdec(char *dbuf,int dlen,ulonglong v)
 {
 	const int	b = 10 ;
-	register char	*rp = (dbuf + dlen) ;
+	char		*rp = (dbuf + dlen) ;
 
 	*rp = '\0' ;
 	if (v != 0) {
 
 #if	defined(_ILP32) /* may speed things up on some machines */
 	    if ((v & (~ULONG_MAX)) == 0LL) {
-		register ulong	lv = (ulong) v ;
-		register ulong	nv ;
+		ulong	lv = (ulong) v ;
+		ulong	nv ;
 		while (lv != 0) {
 	            nv = lv / b ;
 	            *--rp = (char) ((lv - (nv * b)) + '0') ;
@@ -252,7 +252,7 @@ static int ictdec(char *dbuf,int dlen,ulonglong v)
 	    }
 #endif /* _ILP32 */
 	    {
-		register ulonglong	nv ;
+		ulonglong	nv ;
 	        while (v != 0) {
 	            nv = v / b ;
 	            *--rp = (char) ((v - (nv * b)) + '0') ;

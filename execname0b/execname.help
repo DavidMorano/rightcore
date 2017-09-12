@@ -4,12 +4,10 @@ This program executes a specified program with an optionally specified
 zeroth argument.
 
 Synopsis:
+$ execname [-V] <progpath> {<arg0>|-|+} [<arg1> ...]
 
-$ execname [-V] <progfname> {<arg0>|-|+} [<arg1> ...]
-
-where:
-
-<progfname>	filename of program to execute
+Arguments:
+<progpath>	filename of program to execute
 <arg0>		optionally specified zeroth argument
 -		prepend the basename of the program-file with a '-' character
 +		use the basename of the program-file as the zeroth argument

@@ -748,7 +748,7 @@ static int bpimk_renamefiles(BPIMK *op)
 
 static int mkcitation(uint *cip,BPIMK_VERSE *bvp)
 {
-	register uint	ci = 0 ;
+	uint		ci = 0 ;
 	uint		nlines = 0 ;
 
 	ci |= (nlines & UCHAR_MAX) ;

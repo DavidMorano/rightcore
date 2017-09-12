@@ -1,6 +1,8 @@
 /* mainlister */
 /* lang=C++11 */
 
+/* test of SLIST object */
+
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUGMALL	1		/* debug memory allocations */
@@ -17,16 +19,27 @@
 
 /* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	We really are just (mostly) testing the SLIST object.
+
+
+*******************************************************************************/
+
+
 #include	<envstandards.h>
 #include	<sys/types.h>
 #include	<cstdlib>
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
+#include	<algorithm>
 #include	<list>
 #include	<vector>
 #include	<string>
-#include	<algorithm>
 #include	<fstream>
 #include	<iostream>
 #include	<iomanip>
@@ -34,7 +47,7 @@
 #include	<ucmallreg.h>
 #include	<localmisc.h>
 
-#include	"slist.h"
+#include	"slist.hh"
 
 
 /* local defines */
@@ -91,7 +104,7 @@ class listadder {
 	ourlist::iterator	e2 ;
 public:
 	listadder(ourlist &alr,ourlist &al1,ourlist &al2)
-	    : lr(alr), l1(al1), l2(al2) { 
+	    : l1(al1), l2(al2), lr(alr) { 
 	} ;
 	int addall(int c) {
 	    i1 = l1.begin() ;
@@ -176,20 +189,22 @@ static int	printlist(slist<int> &,cchar *) ;
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int main(int argc,const char **argv,const char **envv)
 {
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+
+#if	CF_DEBUGS && CF_DEBUGMALL
 	uint		mo_start ;
 #endif
-	int		rs = SR_OK ;
-	cchar		*cp ;
+
 #if	CF_DEBUGS
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
 	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
 #endif /* CF_DEBUGS */
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+
+#if	CF_DEBUGS && CF_DEBUGMALL
 	uc_mallset(1) ;
 	uc_mallout(&mo_start) ;
 #endif

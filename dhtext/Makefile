@@ -1,6 +1,6 @@
 # MAKEFILE
 
-T= doubletext
+T= dhtext
 
 ALL= $(T)
 
@@ -13,19 +13,18 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -59,7 +58,7 @@ CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 DEF0=
 DEF1=
 DEF2=
-DEF3= -DKSHBUILTIN=0
+DEF3=
 DEF4=
 DEF5=
 DEF6=
@@ -67,69 +66,62 @@ DEF7= $(LF_DEFS)
 
 DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
 
-ASTDEFS= $(DEFS)
 
-
-#INCDIRS= -I$(INCDIR) -I$(AST)/include/ast
-INCDIRS= -I$(INCDIR) 
-
-ASTINCDIRS= -I$(AST)/include/ast
-
+INCDIRS= -I$(INCDIR)
 
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
-#ASTCPPFLAGS= $(ASTDEFS) $(INCDIRS)
-ASTCPPFLAGS= $(ASTDEFS) $(INCDIRS) $(ASTINCDIRS)
-
-ASTCFLAGS= $(CCOPTS)
-
 CFLAGS= $(CCOPTS)
-
 
 #LD= $(CC)
 #LD= cc
 LD= ld
 
+
+LDRPATH=
+
 # regular
-LDFLAGS= -R$(LIBDIR):$(EXTRA)/lib
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
-LDFLAGS_P= -L/usr/lib/libp # -R$(LIBDIR)
-
-#ASTLIBDIRS= -L$(AST)/lib
-ASTLIBDIRS=
+LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR) $(ASTLIBDIRS)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
-DAMLIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4)
+LIBINFO= $(LIBDIRS) $(LIBS)
 
 
-#ASTLIBS= -lshell -last
-ASTLIBS=
+TLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
+
+TLIB0=
+TLIB1= -lpcs -ldam -lb
+TLIB2= -ldebug
+TLIB3= -luc -lu
+TLIB4= $(CGS_LIBS)
+TLIB5=
+TLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
+TLIB7= -ldl
+
+TLIBS= $(TLIB0) $(TLIB1) $(TLIB2) $(TLIB3) $(TLIB4) $(TLIB5) $(TLIB6) $(TLIB7)
+
+TLIBINFO= $(TLIBDIRS) $(TLIBS)
 
 
-GNULIBS= -L$(GNU)/lib -lgcc
-
-
-SYSLIBS= $(LIB6) $(LIB7)
-
-SLIBS= $(ASTLIBS) $(DAMLIBS) $(GNULIBS) $(SYSLIBS)
-
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -171,63 +163,24 @@ INCS= b_$(T).h defs.h
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
 OBJ01= b_$(T).o
 OBJ02= 
-OBJ03=
+OBJ03= 
 OBJ04= 
-OBJ05= 
-OBJ06= 
+OBJ05=
+OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
-OBJ08=
-OBJ09=
-OBJ10= termout.o
-OBJ11= 
-OBJ12= shio_printdline.o
+OBJ08= shio_printdline.o
+OBJ09= termout.o
+OBJ10=
+OBJ11=
+OBJ12=
 OBJ13=
 OBJ14=
-OBJ15= 
-OBJ16= termescseq.o
-OBJ17=
-OBJ18=
-OBJ19=
-OBJ20=
-OBJ21=
-OBJ22=
-OBJ23=
-
-OBJ24=
-OBJ25=
-OBJ26=
-OBJ27=
-OBJ28=
-OBJ29= 
-OBJ30=
-OBJ31=
-
-OBJ32=
-OBJ33=
-OBJ34=
-OBJ35=
-OBJ36=
-OBJ37=
-OBJ38=
-OBJ39= debug.o
-
-#OBJ40= bopen.o 
-#OBJ41= breadlines.o breadline.o bread.o
-#OBJ42= bwrite.o bprintf.o bflush.o bfile_flush.o 
-#OBJ43= bcontrol.o 
-#OBJ44= bclose.o
-OBJ45=
-OBJ46=
-OBJ47=
+OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
-OBJC= $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19) $(OBJ20) $(OBJ21) $(OBJ22) $(OBJ23)
-OBJD= $(OBJ24) $(OBJ25) $(OBJ26) $(OBJ27) $(OBJ28) $(OBJ29) $(OBJ30) $(OBJ31)
-OBJE= $(OBJ32) $(OBJ33) $(OBJ34) $(OBJ35) $(OBJ36) $(OBJ37) $(OBJ38) $(OBJ39)
-OBJF= $(OBJ40) $(OBJ41) $(OBJ42) $(OBJ43) $(OBJ44) $(OBJ45) $(OBJ46) $(OBJ47)
 
-OBJ= $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJE) $(OBJF)
+OBJ= $(OBJA) $(OBJB)
 
 # for regular (no profiling)
 OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
@@ -247,11 +200,11 @@ default:		$(T).x
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GCC) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -275,7 +228,7 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
@@ -303,14 +256,14 @@ strip:			$(T).x
 	strip $(T).x
 	rm -f $(T).$(OFF) $(T)
 
-install:		install-raw
+install:		install-raw install-help
 
 install-ee:		$(ALL)
 	makenewer -r $(ALL) $(BINDIR)
 
 install-raw:		$(T).x
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r -o rmsuf $(T).x $(BINDIR)
+	makenewer -o rmsuf -r $(T).x $(BINDIR)
 
 install-help:		$(T).help
 	-mkdir -p $(HELPDIR) 2> /dev/null
@@ -320,7 +273,7 @@ again:
 	rm -f $(ALL) $(T).x
 
 clean:			again
-	makeclean
+	rm -f *.ls *.ln *.i *.o *.so *.x *.lm
 
 control:
 	uname -n > Control
@@ -335,8 +288,7 @@ proginfo.o:		proginfo.c defs.h
 
 proginfo_setpiv_o:	proginfo_setpiv.c defs.h
 
-b_$(T).o:		b_$(T).c $(INCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+b_$(T).o:		b_$(T).c $(INCS) shio.h
 
 maininfo.o:		maininfo.c maininfo.h kshlib.h
 
@@ -349,20 +301,12 @@ msgdata.o:		msgdata.c msgdata.h
 
 getutmpent.o:		getutmpent.c getutmpent.h
 
-getnodedomain.o:	getnodedomain.c filebuf.h
-
-dialtcp.o:		dialtcp.c
-
-dialtcpnls.o:		dialtcpnls.c
-
-dialtcpmux.o:		dialtcpmux.c
-
-dialudp.o:		dialudp.c
-
-upt.o:			upt.c upt.h
+sntmtime.o:		sntmtime.c tmtime.h
 
 
 shio.o:			shio.c shio.h
+
+shio_printdline.o:	shio_printdline.c shio.h
 
 userinfo.o:		userinfo.c userinfo.h
 
@@ -374,12 +318,6 @@ filemap.o:		filemap.c filemap.h
 
 filebuf.o:		filebuf.c filebuf.h
 
-filebuf_writeblanks.o:	filebuf_writeblanks.c filebuf.h
-
-sbuf.o:			sbuf.c sbuf.h
-
-sbuf_addquoted.o:	sbuf_addquoted.c sbuf.h
-
 realname.o:		realname.c realname.h
 
 ipasswd.o:		ipasswd.c ipasswd.h
@@ -388,79 +326,25 @@ lastlogfile.o:		lastlogfile.c lastlogfile.h
 
 tmpx.o:			tmpx.c tmpx.h
 
-envlist.o:		envlist.c envlist.h
+keyopt.o:		keyopt.c keyopt.h
 
-hostinfo.o:		hostinfo.c hostinfo.h
+namecache.o:		namecache.c namecache.h
 
-hostaddr.o:		hostaddr.c hostaddr.h
+hdb.o:			hdb.c hdb.h
 
-hostent.o:		hostent.c hostent.h
+zoffparts.o:		zoffparts.c zoffparts.h
 
-inetaddr.o:		inetaddr.c inetaddr.h
+grmems.o:		grmems.c grmems.h
 
-sockaddress.o:		sockaddress.c sockaddress.h
+sysrealname.o:		sysrealname.c sysrealname.h
 
-linefold.o:		linefold.c linefold.h
+osetstr.o:		osetstr.c osetstr.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) osetstr.cc
 
-modload.o:		modload.c modload.h
+termout.o:		termout.c termout.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
-termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
-
-
-bopen.o:		bopen.c bfile.h
-
-bread.o:		bread.c bfile.h
-
-breadline.o:		breadline.c bfile.h
-
-breadlines.o:		breadlines.c bfile.h
-
-bwrite.o:		bwrite.c bfile.h
-
-bprintf.o:		bprintf.c bfile.h
-
-bflush.o:		bflush.c bfile.h
-
-bcontrol.o:		bcontrol.c bfile.h
-
-bclose.o:		bclose.c bfile.h
-
-bfile_flush.o:		bfile_flush.c bfile.h
-
-
-shio.o:			shio.c shio.h
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $(*).c
-
-sfreadline.o:		sfreadline.c
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $(*).c
-
-sfisterm.o:		sfisterm.c
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $(*).c
-
-sfreadline.ls:	sfreadline.c
-	$(LINT) $(LINTFLAGS) $(ASTCPPFLAGS) $(ASTINCDIRS) $(*).c
-
-sfisterm.ls:	sfisterm.c
-	$(LINT) $(LINTFLAGS) $(ASTCPPFLAGS) $(ASTINCDIRS) $(*).c
-
-
-localsvchotd.o:		localsvchotd.c
-	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
-
-
-openint_copyout.o:	openint_copyout.c config_copyout.h
-
-openint_hello.o:	openint_hello.c openint_hello.h
-
-opensvc_logwelcome.o:	opensvc_logwelcome.c opensvc_logwelcome.h
-
-opendialer_hello.o:	opendialer_hello.c opendialer_hello.h
-
-opendialer_prog.o:	opendialer_prog.c opendialer_prog.h
-
-opendialer_tcp.o:	opendialer_tcp.c opendialer_tcp.h
-
-opendialer_tcpmux.o:	opendialer_tcpmux.c opendialer_tcpmux.h
+setstr.o:		setstr.cc setstr.h
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) setstr.c
 
 

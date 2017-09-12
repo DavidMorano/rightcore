@@ -181,8 +181,8 @@ int filebuf_read(FILEBUF *op,void *rbuf,int rlen,int to)
 	int		rc ;
 	int		tlen = 0 ;
 	int		f_timedout = FALSE ;
-	register char	*dbp = (char *) rbuf ;
-	register char	*bp, *lastp ;
+	char		*dbp = (char *) rbuf ;
+	char		*bp, *lastp ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -261,8 +261,8 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 	int		rc ;		/* retry-count */
 	int		tlen = 0 ;
 	int		f_timedout = FALSE ;
-	register char	*rbp = rbuf ;
-	register char	*bp, *lastp ;
+	char		*rbp = rbuf ;
+	char		*bp, *lastp ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -788,8 +788,8 @@ static int filebuf_bufcpy(FILEBUF *op,cchar *abp,int mlen)
 	if (mlen > MEMCPYLEN) {
 	    memcpy(op->bp,abp,mlen) ;
 	} else {
-	    register int	i ;
-	    register char	*bp = op->bp ;
+	    int		i ;
+	    char	*bp = op->bp ;
 	    for (i = 0 ; i < mlen ; i += 1) {
 	        *bp++ = *abp++ ;
 	    }

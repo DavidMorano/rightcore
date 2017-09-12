@@ -83,8 +83,8 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 int snwcpylatin(char *dbuf,int dlen,cchar *sp,int sl)
 {
-	register int	ch ;
-	register int	dl = 0 ;
+	int		ch ;
+	int		dl = 0 ;
 	int		rs = SR_OK ;
 
 	while (dlen-- && sl && *sp) {

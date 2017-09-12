@@ -67,9 +67,9 @@ extern int	strlinelen(cchar *,int,int) ;
 
 int sichr(const char *sp,int sl,int sch)
 {
-	register int	i ;
-	register int	ch ;
-	register int	f = FALSE ;
+	int		i ;
+	int		ch ;
+	int		f = FALSE ;
 
 	sch &= 0xff ;
 	for (i = 0 ; sl-- && sp[i] ; i += 1) {

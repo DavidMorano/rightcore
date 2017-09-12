@@ -45,7 +45,7 @@
 /* standard positive random number (do not touch!) */
 int randlc(int v)
 {
-	register int	hi, lo ;
+	int		hi, lo ;
 
 	if (v <= 0) v = (31415926 ^ v) ;
 

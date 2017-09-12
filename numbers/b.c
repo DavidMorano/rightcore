@@ -162,6 +162,7 @@ struct locinfo_flags {
 	uint		otype:1 ;
 	uint		hex:1 ;
 	uint		multi:1 ;	/* multi-set variant */
+	uint		with:1 ;	/* *with* repitition */
 } ;
 
 struct locinfo {
@@ -718,6 +719,18 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        }
 	                        break ;
 
+/* specigy with or without repititions */
+	                    case 'w':
+	                        lip->f.with = TRUE ;
+	                        if (f_optequal) {
+	                            f_optequal = FALSE ;
+	                            if (avl) {
+	                                rs = optbool(avp,avl) ;
+	                                lip->f.with = (rs > 0) ;
+	                            }
+	                        }
+	                        break ;
+
 	                    case '?':
 	                        f_usage = TRUE ;
 	                        break ;
@@ -1174,30 +1187,40 @@ static int procspec(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 
 	if ((rs = query.load(np,nl)) >= 0) {
 	    LONG	v = 0 ;
+	    int		n = query.n ;
+	    int		k = query.k ;
 	    if (rs > 0) numtype = rs ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
 	        debugprintf("b_numbers/procspec: rs=%d n=%d k=%d nt=%d\n",
-		    rs,query.n,query.k,query.numtype) ;
+		    rs,n,k,numtype) ;
 	        debugprintf("b_numbers/procspec: switch nt=%d\n",numtype) ;
 	    }
 #endif
 	    switch (numtype) {
+	    case numtype_exponetial:
+		v = ipowell(n,k) ;
+		break ;
 	    case numtype_permutations:
-		v = permutations(query.n,query.k) ;
+	        if (lip->f.with) {
+		    v = ipowell(n,k) ;
+		} else {
+		    v = permutations(n,k) ;
+		}
 		break ;
 	    case numtype_combinations:
-		v = combinations(query.n,query.k) ;
+	        if (lip->f.with) {
+		    v = multicombinations(n,k) ;
+		} else {
+		    v = combinations(n,k) ;
+		}
 		break ;
 	    case numtype_multicombinations:
-		v = multicombinations(query.n,query.k) ;
+		v = multicombinations(n,k) ;
 		break ;
 	    case numtype_factorial:
 	    case numtype_default:
 		v = factorial(query.n) ;
-		break ;
-	    case numtype_exponetial:
-		v = ipowell(query.n,query.k) ;
 		break ;
 	    default:
 		rs = SR_INVALID ;

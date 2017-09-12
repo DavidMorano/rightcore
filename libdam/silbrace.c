@@ -78,7 +78,7 @@ extern char	*strnchr(const char *,int,int) ;
 
 int silbrace(const char *sp,int sl)
 {
-	register int	si = 0 ;
+	int		si = 0 ;
 
 	while (sl && CHAR_ISWHITE(*sp)) {
 	    sp += 1 ;

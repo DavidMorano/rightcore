@@ -92,8 +92,8 @@ static int	isour(int) ;
 
 int snwcpyclean(char *dbuf,int dlen,int sch,cchar *sp,int sl)
 {
-	register int	ch ;
-	register int	dl = 0 ;
+	int		ch ;
+	int		dl = 0 ;
 	int		rs = SR_OK ;
 	while (dlen-- && sl && *sp) {
 	    ch = MKCHAR(*sp) ;

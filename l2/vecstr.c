@@ -606,7 +606,7 @@ int vecstr_finder(vecstr *op,cchar *sp,vecstr_vcmpfunc vcmpfunc,cchar **rpp)
 
 int vecstr_find(vecstr *op,cchar *sp)
 {
-	register int	sch ;
+	int		sch ;
 	int		rs = SR_NOTFOUND ;
 	int		i ;
 	const char	*ep ;
@@ -634,7 +634,7 @@ int vecstr_find(vecstr *op,cchar *sp)
 /* find a counted string */
 int vecstr_findn(vecstr *op,cchar *sp,int sl)
 {
-	register int	sch ; 
+	int		sch ; 
 	int		rs = SR_NOTFOUND ;
 	int		i ;
 	int		m ;

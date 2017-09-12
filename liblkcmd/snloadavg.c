@@ -171,7 +171,7 @@ int snloadavg(char *dbuf,int dlen,uint la,int w,int p,int fill)
 
 static int parts_load(struct parts *pp,uint la)
 {
-	register uint	partf ;
+	uint		partf ;
 	partf = (la & (FSCALE-1)) ;
 	partf = (partf * 1000) ;
 	partf = (partf / FSCALE) ;

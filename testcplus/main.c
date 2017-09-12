@@ -3,10 +3,17 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_COPY		1
-#define	CF_OP		1		/* operator */
-#define	CF_INIT		0
-#define	CF_TESTLAMBDA	1		/* test Lambda Functions */
+#define	CF_HELLO	0		/* hello */
+#define	CF_TESTCON	0		/* test-con */
+#define	CF_DYMARRAY	0		/* dynamic arrays */
+#define	CF_SIGNED	0		/* signed numbers */
+#define	CF_COPY		0		
+#define	CF_OP		0		/* operator */
+#define	CF_INIT		1		
+#define	CF_LAMBDA	0		/* test Lambda Functions */
+#define	CF_VECTUP	0		
+#define	CF_SET		1		/* set */
+#define	CF_HASDUP	1		/* has duplicate */
 
 
 /* revision history:
@@ -23,13 +30,22 @@
 #include	<cstdlib>
 #include	<cinttypes>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
+#include	<set>
+#include	<map>
+#include	<unordered_set>
+#include	<unordered_map>
 #include	<vector>
 #include	<string>
 #include	<fstream>
 #include	<iostream>
+#include	<ostream>
 #include	<iomanip>
 #include	<vsystem.h>
+#include	<hasduplicate.hh>
 #include	<localmisc.h>
 
 
@@ -140,12 +156,58 @@ thing operator + (const thing &a,const thing &b)
 	return r ;
 }
 
+struct tupler {
+	int	a = 0 ;
+	int	b = 0 ;
+	int	c = 0 ;
+	tupler() { } ;
+	tupler(const tupler &) = default ;
+	tupler(const initializer_list<int> &il) {
+	    int	p = 0 ;
+	    for (auto &e : il) {
+		switch (p++) {
+		case 0:
+		    a = e ;
+		    break ;
+		case 1:
+		    b = e ;
+		    break ;
+		case 2:
+		    c = e ;
+		    break ;
+		} /* end switch */
+	    }
+	} ;
+	tupler &operator = (const tupler &) = default ;
+	tupler &operator = (const initializer_list<int> &il) {
+	    int	p = 0 ;
+	    for (auto &e : il) {
+		switch (p++) {
+		case 0:
+		    a = e ;
+		    break ;
+		case 1:
+		    b = e ;
+		    break ;
+		case 2:
+		    c = e ;
+		    break ;
+		} /* end switch */
+	    }
+	    return (*this) ;
+	} ;
+	friend ostream &operator << (ostream &out,const tupler &t) {
+	    out << "(" << t.a << "," << t.b << "," << t.c << ")" << endl ;
+	    return out ;
+	} ;
+} ;
+
 
 /* forward references */
 
-#if	CF_TESTLAMBDA
+#if	CF_LAMBDA
 static int testlambda(void) ;
-#endif /* CF_TESTLAMBDA */
+#endif /* CF_LAMBDA */
 
 static int testio() ;
 
@@ -163,14 +225,22 @@ int main(int argc,const char **argv,const char **envv)
 {
 	testcon		tc ;
 	thing		a(1), b(2), c(3) ;
-	const int	n = 10 ;
 
 	fprintf(stderr,"main: ent\n") ;
 
-	tc.have() ;
+#if	CF_HELLO
+	{
+	string	as ;
+	as = "hello world!\n" ;
+	cout << as ;
+	}
+#endif /* CF_HELLO */
 
+#if	CF_TESTCON
+	tc.have() ;
 	c = a + b ;
 	fprintf(stderr,"main: thing:c id=%u\n",c.id) ;
+#endif	/* CF_TESTCON */
 
 #if	CF_OP
 	fprintf(stderr,"main: a=%d b=%d c=%d\n",*a,*b,*c) ;
@@ -191,32 +261,77 @@ int main(int argc,const char **argv,const char **envv)
 
 	r = c.get() ;
 	fprintf(stderr,"main: c.r=%d\n",r) ;
+
+	    {
+		tupler	a = { 1, 3, 5 } ;
+		cout << a << endl ;
+	    }
+
 	}
 #endif /* CF_INIT */
 
-	{
-	string	as ;
-	as = "hello world!\n" ;
-	cout << as ;
-	}
-
-	{
-	    int	a[n+1] ;
-	    int	i ;
-	    for (i = 0 ; i < n ; i += 1) a[i] = i ;
-	    for (i = 0 ; i < n ; i += 1) {
-		cout << a[i] ;
+#if	CF_VECTUP
+	    {
+		vector<tupler>	v = { { 1, 3, 5 } } ;
+		cout << v[0] << endl ;
 	    }
-	    cout << '\n' ;
-	}
+#endif /* COMMENT */
 
+#if	CF_DYMARRAY
+	{
+	    const int	n = 10 ;
+	    {
+	        int	a[n+1] ;
+	        int	i ;
+	        for (i = 0 ; i < n ; i += 1) a[i] = i ;
+	        for (i = 0 ; i < n ; i += 1) {
+		    cout << a[i] ;
+	        }
+	        cout << '\n' ;
+	    }
+	}
+#endif /* CF_DYMARRAY */
+
+#if	CF_SIGNED
 	{
 	    int	rch = '¿' ;
 	    int	ch = MKCHAR('¿') ;
 	    fprintf(stderr,"main: rch=%08x ch=%08x\n",rch,ch) ;
 	}
+#endif /* CF_SIGNED */
 
+#if	CF_LAMBDA
 	(void) testlambda() ;
+#endif /* CF_LAMBDA */
+
+#if	CF_SET
+	{
+	    typedef unordered_set<int>	set_t ;
+	    const unordered_set<int>	os = { 0, 1, 2, 18, 27 } ;
+	    {
+	        set_t::const_iterator	end = os.cend() ;
+	        set_t::const_iterator	it = os.cbegin() ;
+	        cout << "set\n" ;
+	        auto fo = [] (int e) { cout << " " << e ; } ;
+	        for_each(it,end,fo) ;
+	        cout << endl ;
+	    }
+	}
+#endif /* CF_SET */
+
+#if	CF_HASDUP
+	{
+	    const int	os[] = { 0, 1, 2, 1, 18, 27 } ;
+	    {
+		int	sl = nelem(os) ;
+		bool	f = false ;
+		if (hasduplicate(os,sl)) {
+		    f = true ;
+		}
+	        cout << "dup=" << f << endl ;
+	    }
+	}
+#endif /* CF_HASDUP */
 
 #ifdef	COMMENT
 	{
@@ -282,7 +397,7 @@ static int testio()
 /* end subroutine (testio) */
 
 
-#if	CF_TESTLAMBDA
+#if	CF_LAMBDA
 static int testlambda(void)
 {
 	vector<int>	mv = { 1, 2, 3, 4 } ;
@@ -311,7 +426,7 @@ static int testlambda(void)
 	return 0 ;
 }
 /* end subroutine (testlambda) */
-#endif /* CF_TESTLAMBDA */
+#endif /* CF_LAMBDA */
 
 
 bool testcon::have() {

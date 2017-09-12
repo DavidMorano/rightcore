@@ -133,19 +133,20 @@ int strnkeycmp(cchar *e1p,cchar *e2p,int n)
 
 	} /* end if */
 
-	if (n == 0)
-	    return rc ;
+	if (n != 0) {
+	    rc = 0 ;
+	    if (*e1p != *e2p) {
+	        if ((rc == 0) && (*e1p == '=')) {
+	            rc = (*e2p == '\0') ? 0 : -1 ;
+	        }
+	        if ((rc == 0) && (*e2p == '=')) {
+	            rc = (*e1p == '\0') ? 0 : 1 ;
+	        }
+	        if (rc == 0) rc = (*e1p - *e2p) ;
+	    }
+	}
 
-	if (*e1p == *e2p)
-	    return 0 ;
-
-	if (*e1p == '=')
-	    return (*e2p == '\0') ? 0 : -1 ;
-
-	if (*e2p == '=')
-	    return (*e1p == '\0') ? 0 : 1 ;
-
-	return (*e1p - *e2p) ;
+	return rc ;
 }
 /* end subroutine (strnkeycmp) */
 

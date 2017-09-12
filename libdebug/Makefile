@@ -111,7 +111,7 @@ OBJ00= debugprintf.o debug.o
 OBJ01= nprintf.o fdprintf.o 
 OBJ02= strlinelen.o
 OBJ03= 
-OBJ04= bufprintf.o
+OBJ04= bufprintf.o getdig.o
 OBJ05= format.o
 OBJ06=
 OBJ07=
@@ -125,7 +125,7 @@ OBJ13=
 OBJ14= 
 OBJ15= 
 
-OBJ16= char.o
+OBJ16= char.o strmgr.o
 OBJ17=
 OBJ18=
 OBJ19=
@@ -284,53 +284,9 @@ sbuf.o:			sbuf.c sbuf.h
 strmgr.o:		strmgr.c strmgr.h
 ids.o:			ids.c ids.h
 storebuf.o:		storebuf.c storebuf.h
+strmgr.o:		strmgr.c strmgr.h
 char.o:			char.c char.h
 snflags.o:		snflags.c snflags.h
-
-
-bcontrol.o:		bcontrol.c bfile.h
-bisterm.o:		bisterm.c bfile.h
-bcopy.o:		bcopy.c bfile.h
-bcopyblock.o:		bcopyblock.c bfile.h
-bcopyfile.o:		bcopyfile.c bfile.h
-bflush.o:		bflush.c bfile.h
-breserve.o:		breserve.c bfile.h
-bgetc.o:		bgetc.c bfile.h
-bopen.o:		bopen.c bfile.h
-bopencmd.o:		bopencmd.c bfile.h
-bopenlock.o:		bopenlock.c bfile.h
-bopenrcmd.o:		bopenrcmd.c bfile.h
-bopenremote.o:		bopenremote.c bfile.h
-bopensched.o:		bopensched.c bfile.h
-bopentmp.o:		bopentmp.c bfile.h
-bprintf.o:		bprintf.c bfile.h
-bprintline.o:		bprintline.c bfile.h
-bputc.o:		bputc.c bfile.h
-bread.o:		bread.c bfile.h
-breadline.o:		breadline.c bfile.h
-breadlines.o:		breadlines.c bfile.h
-breadlinetimed.o:	breadlinetimed.c bfile.h
-bseek.o:		bseek.c bfile.h
-btell.o:		btell.c bfile.h
-btruncate.o:		btruncate.c bfile.h
-bwasteline.o:		bwasteline.c bfile.h
-bwrite.o:		bwrite.c bfile.h
-bwriteblanks.o:		bwriteblanks.c bfile.h
-bprintcleanline.o:	bprintcleanline.c bfile.h
-bprintcleanlines.o:	bprintcleanlines.c bfile.h
-brewind.o:		brewind.c bfile.h
-
-btell64.o:		btell64.c bfile.h
-bseek64.o:		bseek64.c bfile.h
-
-bfile.o:		bfile.c bfile.h
-bdup.o:			bdup.c bfile.h
-
-bfile_flush.o:		bfile_flush.c bfile.h
-bfile_pagein.o:		bfile_pagein.c bfile.h
-bfile_fnames.o:		bfile_fnames.c bfile.h
-
-mkfdfname.o:		mkfdfname.c bfile.h
 
 
 format.o:		format.c

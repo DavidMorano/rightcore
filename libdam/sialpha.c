@@ -57,11 +57,11 @@ extern int	isalphalatin(int) ;
 /* exported subroutines */
 
 
-int sialpha(const char *sp,int sl)
+int sialpha(cchar *sp,int sl)
 {
-	register int	i ;
-	register int	ch ;
-	register int	f = FALSE ;
+	int		i ;
+	int		ch ;
+	int		f = FALSE ;
 
 	for (i = 0 ; sl && sp[i] ; i += 1) {
 	    ch = MKCHAR(sp[i]) ;

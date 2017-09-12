@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
-	This subroutine was originally written.
+	= 2008-10-01, David A­D­ Morano
+	This module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -1061,7 +1061,7 @@ static int chapters_finish(struct chapters *cp)
 
 static int mkcitekey(BVI_QUERY *bvp,uint *cip)
 {
-	register uint	ci = 0 ;
+	uint		ci = 0 ;
 
 	ci |= (bvp->b & UCHAR_MAX) ;
 

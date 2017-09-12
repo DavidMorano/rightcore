@@ -56,7 +56,7 @@
 
 char *strnrpbrk(cchar *sp,int sl,cchar *ss)
 {
-	register int	ch ;
+	int		ch ;
 	int		f = FALSE ;
 	char		*rsp ;
 

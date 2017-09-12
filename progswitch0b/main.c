@@ -362,11 +362,10 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 	                if ((rs = procinfo(pip,pbuf)) >= 0) {
 	                    if (len > 0) {
-
 	                        bflush(pip->efp) ;
 	                        {
-	                            const char **eav = (const char **) argv ;
-	                            const char **eev = (const char **) envv ;
+	                            cchar **eav = (cchar **) argv ;
+	                            cchar **eev = (cchar **) envv ;
 	                            rs = u_execve(pbuf,eav,eev) ;
 	                        }
 	                        ex = EX_NOEXEC ;

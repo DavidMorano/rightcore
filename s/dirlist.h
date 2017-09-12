@@ -1,7 +1,15 @@
 /* dirlist */
 
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* revision history:
+
+	= 2000-09-10, David A­D­ Morano
+        I created this modeled after something similar that was used for some of
+        my PCS programs.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	DIRLIST_INCLUDE
 #define	DIRLIST_INCLUDE		1

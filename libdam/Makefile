@@ -48,7 +48,9 @@ INCDIRS= -I$(INCDIR)
 
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
-CFLAGS= $(CCOPTS) $(LF_CFLAGS) $(CPPFLAGS)
+XCFLAGS= $(LF_CFLAGS) $(CPPFLAGS)
+CFLAGS= $(CCOPTS) $(XCFLAGS)
+
 
 #LD= $(CC)
 
@@ -106,10 +108,11 @@ INSTALLINC0= install-inca install-incb install-incc install-incd
 INSTALLINC1= install-ince install-incf install-incg install-inch
 INSTALLINC2= install-inci install-incj install-inck install-incl
 INSTALLINC3= install-incm install-incn install-inco install-incp
-INSTALLINC4= install-incq
+INSTALLINC4= install-incq install-incr install-incs install-inct
+INSTALLINC5= install-incu install-incv
 
 INSTALLINCa= $(INSTALLINC0) $(INSTALLINC1) $(INSTALLINC2) $(INSTALLINC3)
-INSTALLINCb= $(INSTALLINC4) 
+INSTALLINCb= $(INSTALLINC4) $(INSTALLINC5)
 
 INSTALLINCS= $(INSTALLINCa) $(INSTALLINCb)
 
@@ -304,12 +307,12 @@ OBJ139= isasocket.o isinteractive.o isfsremote.o isproc.o
 OBJ140= fsdirtreestat.o statvfsdir.o
 OBJ141= removes.o rmdirfiles.o rmsesfiles.o dircount.o isdirempty.o
 OBJ142= prgetprogpath.o prsetfname.o prmktmpdir.o
-OBJ143= minmax.o intceil.o intfloor.o intsat.o
+OBJ143= intceil.o intfloor.o intsat.o
 
 OBJ144= cfdouble.o cfdecf.o cfb26.o
 OBJ145= cfdecmf.o cfdect.o
 OBJ146= ctb26.o cthexstr.o
-OBJ147= quickselect.o
+OBJ147= quickselect.o igcd.o minmax.o
 OBJ148= fam.o fhm.o fsum.o binexp.o
 OBJ149= permutations.o combinations.o factorial.o fibonacci.o ipowell.o
 OBJ150= wsnwcpynarrow.o
@@ -329,7 +332,7 @@ OBJ161= nusers.o mesg.o sysmemutil.o initnow.o
 OBJ162= getfiledirs.o findfilepath.o findfile.o findxfile.o
 OBJ163= cvttemperature.o dictdiff.o bufprintf.o xfile.o
 OBJ164= mapex.o strsigabbr.o strerrabbr.o strlocktype.o straltwchar.o
-OBJ165= ncolchar.o ncolstr.o emainfo.o
+OBJ165= ncolchar.o ncolstr.o emainfo.o getdig.o
 OBJ166= listentcp.o listenudp.o listenuss.o listenusd.o 
 OBJ167= listenfifo.o listenpass.o 
 
@@ -411,7 +414,7 @@ OBJFILE= $(OBJFILE0) $(OBJFILE1) $(OBJFILE2)
 .SUFFIXES:		.ls .i .cx .cs
 
 
-default:		belowincs install-incs all
+default:		belowincs install-inc all
 #default:		all
 
 all:			below $(ALL) 
@@ -466,15 +469,19 @@ safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJP)
 	makesafe -v=3 -I $(INCDIR) $(OBJQ)
 	makesafe -v=3 -I $(INCDIR) $(OBJR)
+	makesafe -v=3 -I $(INCDIR) $(OBJS)
+	makesafe -v=3 -I $(INCDIR) $(OBJT)
+	makesafe -v=3 -I $(INCDIR) $(OBJU)
+	makesafe -v=3 -I $(INCDIR) $(OBJV)
 
 install-pre:
 	filefind . -s h | makenewer -af - -d $(INCDIR)
 
-install:		install-incs Makefile $(ALL)
+install:		install-inc Makefile $(ALL)
 	makenewer -r $(ALL) -d $(SRCROOT)/lib
 
-install-incs:		install-ih install-io
-	touch install-incs
+install-inc:		install-ih install-io
+	touch install-inc
 
 install-ih:		$(INSTALLINCS)
 	touch install-ih
@@ -520,6 +527,16 @@ install-inco:		$(INCO)
 install-incp:		$(INCP)
 	makenewer -z $? -d $(INCDIR) -t $@
 install-incq:		$(INCQ)
+	makenewer -z $? -d $(INCDIR) -t $@
+install-incr:		$(INCR)
+	makenewer -z $? -d $(INCDIR) -t $@
+install-incs:		$(INCS)
+	makenewer -z $? -d $(INCDIR) -t $@
+install-inct:		$(INCT)
+	makenewer -z $? -d $(INCDIR) -t $@
+install-incu:		$(INCU)
+	makenewer -z $? -d $(INCDIR) -t $@
+install-incv:		$(INCV)
 	makenewer -z $? -d $(INCDIR) -t $@
 
 install-io:		$(OBJ)
@@ -1218,7 +1235,7 @@ X01OBJ= $(X01).o grcache.o groupent.o cq.o
 $(X01).o:		$(X01).c grcache.h groupent.h cq.h
 
 $(X01).x:		$(X01OBJ)
-	$(GPP) -o $@ $(X01OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X01OBJ) $(XLIBINFO)
 
 
 X02= testgetuserhome
@@ -1228,7 +1245,7 @@ X02OBJ= $(X02).o getuserhome.o
 $(X02).o:		$(X02).c getxusername.h getax.h ugetpw.h
 
 $(X02).x:		$(X02OBJ)
-	$(GPP) -o $@ $(X02OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X02OBJ) $(XLIBINFO)
 
 
 X03= testgetrunlevel
@@ -1238,7 +1255,7 @@ X03OBJ= $(X03).o getrunlevel.o
 $(X03).o:		$(X03).c tmpx.h
 
 $(X03).x:		$(X03OBJ)
-	$(GPP) -o $@ $(X03OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X03OBJ) $(XLIBINFO)
 
 
 X04= testcomparse
@@ -1248,7 +1265,7 @@ X04OBJ= $(X04).o comparse.o
 $(X04).o:		$(X04).c comparse.h
 
 $(X04).x:		$(X04OBJ)
-	$(GPP) -o $@ $(X04OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X04OBJ) $(XLIBINFO)
 
 
 X05= testmkuserpath
@@ -1258,7 +1275,7 @@ X05OBJ= $(X05).o mkuserpath.o
 $(X05).o:		$(X05).c getxusername.h getax.h ugetpw.h
 
 $(X05).x:		$(X05OBJ)
-	$(GPP) -o $@ $(X05OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X05OBJ) $(XLIBINFO)
 
 
 X06= testmkuuid
@@ -1268,7 +1285,7 @@ X06OBJ= $(X06).o mkuuid.o snmkuuid.o debug.o
 $(X06).o:		$(X06).c mkuuid.h snmkuuid.h
 
 $(X06).x:		$(X06OBJ)
-	$(GPP) -o $@ $(X06OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X06OBJ) $(XLIBINFO)
 
 
 X07= testhasallof
@@ -1278,7 +1295,7 @@ X07OBJ= $(X07).o hasallof.o
 $(X07).o:		$(X07).c
 
 $(X07).x:		$(X07OBJ)
-	$(GPP) -o $@ $(X07OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X07OBJ) $(XLIBINFO)
 
 
 X08= testnifinfo
@@ -1288,7 +1305,7 @@ X08OBJ= $(X08).o nifinfo.o
 $(X08).o:	$(X08).c $(X08).h
 
 $(X08).x:	$(X08OBJ)
-	$(GPP) -o $@ $(X08OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X08OBJ) $(XLIBINFO)
 
 
 X09= testjunker
@@ -1298,7 +1315,7 @@ X09OBJ= $(X09).o
 $(X09).o:	$(X09).c
 
 $(X09).x:	$(X09OBJ)
-	$(GPP) -o $@ $(X09OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X09OBJ) $(XLIBINFO)
 
 
 X10= testishex
@@ -1308,7 +1325,7 @@ X10OBJ= $(X10).o ishexlatin.o
 $(X10).o:	$(X10).c 
 
 $(X10).x:	$(X10OBJ)
-	$(GPP) -o $@ $(X10OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X10OBJ) $(XLIBINFO)
 
 
 X11= testminmax
@@ -1318,6 +1335,28 @@ X11OBJ= $(X11).o minmax.o
 $(X11).o:	$(X11).c 
 
 $(X11).x:	$(X11OBJ)
-	$(GPP) -o $@ $(X11OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(X11OBJ) $(XLIBINFO)
+
+
+X12= testigcd
+
+X12OBJ= $(X12).o igcd.o
+
+$(X12).o:	$(X12).c 
+	$(CC) -c -g -Wall $(XCFLAGS) $(CPPFLAGS) $(X12).c
+
+$(X12).x:	$(X12OBJ)
+	$(CC) -o $@ $(X12OBJ) $(XLIBINFO)
+
+
+X13= testpartitionai
+
+X13OBJ= $(X13).o partitionai.o arrswap.o
+
+$(X13).o:	$(X13).c 
+	$(CC) -c -g -Wall $(XCFLAGS) $(CPPFLAGS) $(X13).c
+
+$(X13).x:	$(X13OBJ)
+	$(CC) -o $@ $(X13OBJ) $(XLIBINFO)
 
 

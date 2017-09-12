@@ -423,10 +423,10 @@ static int reccmp(const void *v1p,const void *v2p)
 /* do a little binary search to find the zone-name (if we have it) */
 static int findname(cchar np[],int nl)
 {
-	register int	i = 0 ;
-	register int	rc = 1 ;
-	register int	first = 0 ;
-	register int	last = (ZDB_NZONES - 1) ;
+	int		i = 0 ;
+	int		rc = 1 ;
+	int		first = 0 ;
+	int		last = (ZDB_NZONES - 1) ;
 	const char	*znp ;
 
 	while (last >= first) {

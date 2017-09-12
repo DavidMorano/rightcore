@@ -1,7 +1,14 @@
 /* bvihdr */
 
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* revision history:
+
+	= 2008-10-01, David A­D­ Morano
+	This module was originally written.
+
+*/
+
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	BVIHDR_INCLUDE
 #define	BVIHDR_INCLUDE	1

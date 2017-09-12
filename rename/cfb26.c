@@ -194,8 +194,8 @@ int cfb26ull(cchar *sp,int sl,ULONG *rp)
 static int icfb26(struct info *ip,cchar *sp,int sl)
 {
 	ULONG		val, weight ;
-	register int	ch ;
 	int		rs = SR_OK ;
+	int		ch ;
 	int		n, i ;
 	int		cb ;
 	int		f_cc ;

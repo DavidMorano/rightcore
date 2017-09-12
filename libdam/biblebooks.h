@@ -1,6 +1,13 @@
 /* biblebooks */
 
 
+/* revision history:
+
+	- 2008-10-01, David A­D­ Morano
+	This module was originally written for hardware CAD support.
+
+*/
+
 /* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	BIBLEBOOKS_INCLUDE

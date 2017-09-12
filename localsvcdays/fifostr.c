@@ -160,7 +160,7 @@ int fifostr_add(FIFOSTR *op,cchar sp[],int sl)
 
 
 /* read the head entry of the FIFO */
-int fifostr_headread(FIFOSTR *op,char rbuf[],int rlen)
+int fifostr_headread(FIFOSTR *op,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
 	int		sl ;
@@ -214,7 +214,7 @@ int fifostr_headlen(FIFOSTR *op)
 
 
 /* read the specified entry */
-int fifostr_entread(FIFOSTR *op,int n,char rbuf[],int rlen)
+int fifostr_entread(FIFOSTR *op,int n,char *rbuf,int rlen)
 {
 	FIFOSTR_ENT	*ep ;
 	int		rs = SR_OK ;
@@ -295,7 +295,7 @@ int fifostr_entlen(FIFOSTR *op,int n)
 
 
 /* remove a string (from the head) */
-int fifostr_remove(FIFOSTR *op,char rbuf[],int rlen)
+int fifostr_remove(FIFOSTR *op,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
 	int		sl = 0 ;
@@ -373,7 +373,7 @@ int fifostr_curend(FIFOSTR *op,FIFOSTR_CUR *curp)
 
 
 /* fetch the next entry from the one under the cursor (or at the head) */
-int fifostr_enum(FIFOSTR *op,FIFOSTR_CUR *curp,char rbuf[],int rlen)
+int fifostr_enum(FIFOSTR *op,FIFOSTR_CUR *curp,char *rbuf,int rlen)
 {
 	FIFOSTR_ENT	*ep ;
 	int		rs = SR_OK ;
@@ -496,7 +496,7 @@ int fifostr_count(FIFOSTR *op)
 #ifdef	COMMENT
 
 /* search for a string in the FIFO string object */
-int fifostr_finder(FIFOSTR *op,char s[],int (*cmpfunc)(),char **rpp)
+int fifostr_finder(FIFOSTR *op,char *s,int (*cmpfunc)(),char **rpp)
 {
 	fifostr_cur	cur ;
 	int		rs ;
@@ -541,26 +541,5 @@ static int fifostr_mat(FIFOSTR *op,FIFOSTR_ENT *mep)
 	return rs ;
 }
 /* end subroutine (fifostr_mat) */
-
-
-#ifdef	COMMENT
-
-static int cmpdefault(cchar **e1pp,cchar **e2pp)
-{
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	return strcmp(*e1pp,*e2pp) ;
-}
-/* end subroutine (cmpdefault) */
-
-#endif /* COMMENT */
 
 

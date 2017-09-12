@@ -85,10 +85,12 @@ struct proginfo {
 	PROGINFO_FL	have, f, changed, final ;
 	PROGINFO_FL	open ;
 	time_t		daytime ;
+	pid_t		pid ;
 	int		pwdlen ;
 	int		debuglevel ;
 	int		verboselevel ;
 	int		pagesize ;
+	int		n ;
 } ;
 
 struct pivars {

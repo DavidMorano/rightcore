@@ -8,28 +8,25 @@
 
 /* revision history:
 
-	= 1998-09-10, David A­D­ Morano
+	= 2001-03-01, David A­D­ Morano
 	This was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	We calculate the permutations of the given number.
+	We calculate the permutations of the given number (without repititions).
 
 	Synopsis:
-
 	LONG permutations(int n,int k)
 
 	Arguments:
-
 	n	number of items to choose from
-	k	nuber of item to choose without repitition
+	k	number of item to choose without repitition
 
 	Returns:
-
 	-	the Fibonacci number of the input
 
 
@@ -38,6 +35,10 @@
 	Two ways to calculate:
 	1. nPk = n! / (n-k)!
 	2. nPk = repeat k times using iterator i: *= (n-i)!
+
+	Note that for permutions *with* repitition, the result of nPk is simply
+		exp(n,k)
+	(that is: n raised to the power k).
 
 
 *******************************************************************************/

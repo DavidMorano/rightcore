@@ -37,11 +37,13 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<limits.h>
+#include	<climits>
 #include	<cinttypes>
 #include	<new>
-#include	<algorithm>
+#include	<initializer_list>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<iostream>
 #include	<iomanip>
@@ -69,8 +71,9 @@ extern "C" int	strlinelen(cchar *,cchar *,int) ;
 
 /* local structures */
 
-typedef dijkstra1_res		res_t ;
-typedef dijkstra1_edge		edge_t ;
+typedef graph_res		res_t ;
+typedef graph_edge		edge_t ;
+
 typedef vector<list<edge_t>>	edges_t ;
 typedef list<edge_t>::iterator	edgeit_t ;
 

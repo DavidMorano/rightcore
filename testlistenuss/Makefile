@@ -11,14 +11,14 @@ BINDIR= $(SRCROOT)/bin
 INCDIR= $(SRCROOT)/include
 LIBDIR= $(SRCROOT)/lib
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
+
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS= -O3 -mcpu=ultrasparc # -fpic
 #CCOPTS= -g -O
 #CCOPTS= -g

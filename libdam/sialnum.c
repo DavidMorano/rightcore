@@ -60,9 +60,9 @@ extern int	isalnumlatin(int) ;
 
 int sialnum(const char *sp,int sl)
 {
-	register int	i ;
-	register int	ch ;
-	register int	f = FALSE ;
+	int		i ;
+	int		ch ;
+	int		f = FALSE ;
 
 	for (i = 0 ; sl && sp[i] ; i += 1) {
 	    ch = MKCHAR(sp[i]) ;

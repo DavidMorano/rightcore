@@ -89,15 +89,19 @@ int strkeycmp(cchar *e1p,cchar *e2p)
 	                if (*e1p != '=') {
 	                    if (*e2p != '=') {
 	                        rc = (*e1p - *e2p) ;
-	                    } else
+	                    } else {
 	                        rc = (*e1p == '\0') ? 0 : 1 ;
-	                } else
+			    }
+	                } else {
 	                    rc = (*e2p == '\0') ? 0 : -1 ;
+			}
 	            }
-	        } else
+	        } else {
 	            rc = -1 ;
-	    } else
+		}
+	    } else {
 	        rc = 1 ;
+	    }
 	}
 	return rc ;
 }

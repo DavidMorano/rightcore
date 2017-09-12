@@ -39,7 +39,7 @@
 
 char *strrpbrk(cchar *s,cchar *ss)
 {
-	register int	ch ;
+	int		ch ;
 	int		n = strlen(s) ;
 	int		f = FALSE ;
 	char		*rsp ;

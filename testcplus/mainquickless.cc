@@ -2,17 +2,31 @@
 /* lang=C++11 */
 
 
+/* revision history:
+
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+
 #include	<envstandards.h>
 #include	<sys/types.h>
 #include	<stdio.h>
 #include	<new>
-#include	<algorithm>
+#include	<initializer_list>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<list>
 #include	<array>
 #include	<localmisc.h>
 
+
+/* name spaces */
 
 using namespace	std ;
 
@@ -30,7 +44,8 @@ extern int kthSmallest(int *,int,int,int) ;
 static void printa(const int *,int) ;
 
 
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	int		a[] = { 2, 3, 4, 1, 27, 9, 13, 17 } ;
 	int		n = nelem(a) ;
@@ -56,7 +71,7 @@ static void printa(const int *a,int n)
 {
 	int	i ;
 	for (i = 0 ; i < n ; i += 1) {
-		printf(" %u",a[i]) ;
+	    printf(" %u",a[i]) ;
 	}
 	printf("\n") ;
 }

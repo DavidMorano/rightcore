@@ -72,8 +72,8 @@ extern int	nleadcasestr(const char *,const char *,int) ;
 
 int matstr(cchar **a,cchar *sp,int sl)
 {
-	register int	lc = sp[0] ; /* ok: everything promotes similarly */
-	register int	i ;
+	const int	lc = sp[0] ; /* ok: everything promotes similarly */
+	int		i ;
 
 	if (sl >= 0) {
 	    register int	m ;

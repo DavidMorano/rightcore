@@ -30,7 +30,7 @@ int cmpc(len,src,dst)
 int		len ;
 const char	*src, *dst ;
 {
-	register int	i ;
+	int		i ;
 	int		rc = 0 ;
 
 	for (i = 0 ; i < len ; i += 1) {

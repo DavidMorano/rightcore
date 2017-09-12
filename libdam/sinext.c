@@ -70,8 +70,8 @@ extern int	strlinelen(cchar *,int,int) ;
 
 int sinext(cchar *sp,int sl)
 {
-	register int	i = 0 ;
-	register int	f = FALSE ;
+	int		i = 0 ;
+	int		f = FALSE ;
 
 	if (sl < 0) sl = strlen(sp) ;
 

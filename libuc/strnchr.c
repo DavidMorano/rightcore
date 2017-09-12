@@ -55,8 +55,8 @@
 
 char *strnchr(cchar *sp,int sl,int sch)
 {
-	register int	f = FALSE ;
-	register cchar	*lsp ;
+	int		f = FALSE ;
+	cchar		*lsp ;
 	char		*rsp ;
 
 	sch &= 0xff ;

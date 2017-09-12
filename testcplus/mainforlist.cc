@@ -20,8 +20,10 @@
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
-#include	<algorithm>
+#include	<initializer_list>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<forward_list>
 #include	<vector>
 #include	<string>

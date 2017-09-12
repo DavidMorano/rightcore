@@ -1,2 +1,2 @@
 const char liblkcmd_makedate[] =
-"@(#)liblkcmd                170823_1700:07_EDT Rightcore Network Services" ;
+"@(#)liblkcmd                170911_2143:55_EDT Rightcore Network Services" ;

@@ -33,16 +33,18 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<limits.h>
+#include	<climits>
 #include	<cinttypes>
 #include	<new>
-#include	<algorithm>
+#include	<initializer_list>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"bellmanford1.h"
+#include	"bellmanford1.hh"
 
 
 /* local defines */
@@ -63,8 +65,9 @@ extern "C" int	strlinelen(cchar *,cchar *,int) ;
 
 /* local structures */
 
-typedef bellmanford1_res	res_t ;
-typedef bellmanford1_edge	edge_t ;
+typedef graph_res		res_t ;
+typedef graph_edge		edge_t ;
+
 typedef vector<list<edge_t>>	edges_t ;
 typedef list<edge_t>::iterator	edgeit_t ;
 
@@ -79,8 +82,10 @@ int bellmanford1(res_t *resp,edges_t &edges,int vertices,int vstart)
 {
 	edgeit_t	elit ; /* edge-list-iterator */
 	edgeit_t	end ; /* edge-list-iterator */
+	const int	ne = edges.size() ;
 	int		rs = SR_OK ;
-	int		i, u ;
+	int		i ;
+	int		u ;
 
 	for (i = 0 ; i < vertices ; i += 1) {
 	    resp[i].dist = INT_MAX ;
@@ -88,11 +93,10 @@ int bellmanford1(res_t *resp,edges_t &edges,int vertices,int vstart)
 	}
 
 	resp[vstart].dist = 0 ;
-	resp[vstart].prev = -1 ;
 
 	for (i = 0 ; i < (vertices-1) ; i += 1) {
 	    int		f_nochange = TRUE ;
-	    for (u = 0 ; u < vertices ; u += 1) { /* edges(u,v) */
+	    for (u = 0 ; u < ne ; u += 1) { /* edges(u,v) */
 	        elit = edges[u].begin() ; /* this is 'list.begin()' */
 	        end = edges[u].end() ; /* this is 'list.end()' */
 
@@ -117,7 +121,7 @@ int bellmanford1(res_t *resp,edges_t &edges,int vertices,int vstart)
 
 /* this is the famous "extra cycle" to check for negative paths */
 
-	for (u = 0 ; u < vertices ; u += 1) {
+	for (u = 0 ; u < ne ; u += 1) {
 	    const int	d = resp[u].dist ;
 	    const int	v = (*elit).dst ; /* dst vertex */
 	    const int	w = (*elit).weight ;

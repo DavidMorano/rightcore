@@ -277,7 +277,7 @@ static int mailmsgmatenv_date(MAILMSGMATENV *mep,cchar *sp,int sl)
 
 static int mailmsgmatenv_datefin(MAILMSGMATENV *mep,cchar *rp,int rl)
 {
-	register int	i ;
+	int		i ;
 	int		si = -1 ;
 	for (i = 0 ; exts[i] != NULL ; i += 1) {
 	    if ((si = sisub(rp,rl,exts[i])) >= 0) break ;

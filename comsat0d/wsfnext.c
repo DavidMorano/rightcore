@@ -91,7 +91,7 @@
 
 int wsfnext(const wchar_t *wsp,int wsl,const wchar_t **spp)
 {
-	register int	ch ;
+	int		ch ;
 
 	while (wsl) {
 	    ch = (int) *wsp ;

@@ -81,9 +81,9 @@ extern int	touc(int) ;
 
 int matcasestr(cchar **a,cchar *sp,int sl)
 {
-	register int	lc = tolc(sp[0]) ;
-	register int	i ;
-	register int	m ;
+	int		lc = tolc(sp[0]) ;
+	int		i ;
+	int		m ;
 
 	if (sl >= 0) {
 	    for (i = 0 ; a[i] != NULL ; i += 1) {

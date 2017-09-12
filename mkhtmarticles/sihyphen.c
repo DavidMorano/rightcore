@@ -58,7 +58,7 @@ extern int	strnchr(const char *,int,int) ;
 
 int sihyphen(const char *sp,int sl)
 {
-	register int	i ;
+	int		i ;
 	int		f = FALSE ;
 
 	if (sl < 0) sl = strlen(sp) ;

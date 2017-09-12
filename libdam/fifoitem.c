@@ -9,9 +9,7 @@
 /* revision history:
 
 	- 2005-12-01, David A­D­ Morano
-
 	Module was originally written.
-
 
 */
 
@@ -19,8 +17,8 @@
 
 /*******************************************************************************
 
-	This object manages a FIFO of fixed sized entries and of fixed
-	sized depth.
+        This object manages a FIFO of fixed sized entries and of fixed sized
+        depth.
 
 
 *******************************************************************************/

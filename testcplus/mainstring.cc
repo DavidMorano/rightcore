@@ -15,13 +15,14 @@
 /* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
 #include	<envstandards.h>
-#include	<stdio.h>
 #include	<cstdlib>
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
-#include	<algorithm>
+#include	<initializer_list>
+#include	<utility>
 #include	<functional>
+#include	<algorithm>
 #include	<vector>
 #include	<string>
 #include	<fstream>

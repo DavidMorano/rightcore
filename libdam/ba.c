@@ -109,9 +109,6 @@ int ba_zero(BA *cp)
 
 #if	CF_DEBUGS
 	debugprintf("ba_zero: ent\n") ;
-#endif
-
-#if	CF_DEBUGS
 	debugprintf("ba_zero: nwords=%u nbits=%u\n",cp->nwords,cp->nbits) ;
 #endif
 

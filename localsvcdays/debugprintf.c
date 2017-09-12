@@ -99,7 +99,6 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<stdarg.h>
-#include	<stdio.h>
 
 #include	<vsystem.h>
 #include	<ptm.h>
@@ -437,7 +436,7 @@ int debugsetfd(int fd)
 
 	ef.fd = -1 ;
 	if (fd >= 0) {
-	    struct ustat	sb ;
+	    USTAT	sb ;
 	    if ((fd < FD_MAX) && ((rs = u_fstat(fd,&sb)) >= 0)) {
 	        ef.fd = fd ;
 	        ef.size = sb.st_size ;
@@ -480,7 +479,7 @@ int debugopen(cchar *fname)
 	} /* end if */
 
 	if (rs >= 0) {
-	    struct ustat	sb ;
+	    USTAT	sb ;
 	    ef.fd = fd ;
 	    ef.size = 0 ;
 	    if ((rs = u_fstat(ef.fd,&sb)) >= 0) {
@@ -536,6 +535,7 @@ static int debugprinter(cchar *sbuf,int slen)
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	int		f_needeol = FALSE ;
+	int		f_restore = FALSE ;
 	char		*abuf = NULL ;
 
 #if	CF_LINELEN
@@ -548,10 +548,15 @@ static int debugprinter(cchar *sbuf,int slen)
 /* preparation and check if need EOL */
 
 	if ((slen == 0) || (sbuf[slen-1] != '\n')) {
-	    f_needeol = TRUE ;
+	    if ((slen > 0) && (sbuf[slen-1] == '\\')) {
+		slen -= 1 ;
+	    } else {
+	        f_needeol = TRUE ;
+	    }
 	} else {
 	    slen -= 1 ;
-	}
+	    f_restore = TRUE ;
+	} /* end if (special EOL handling) */
 
 /* scan for bad characters */
 
@@ -561,19 +566,20 @@ static int debugprinter(cchar *sbuf,int slen)
 	        if ((rs = snwcpyprintclean(abuf,(alen-2),sbuf,slen)) >= 0) {
 		    sbuf = abuf ;
 		    slen = rs ;
-		    abuf[slen++] = '\n' ;
+		    if (f_needeol) abuf[slen++] = '\n' ;
 	        }
 		if (rs < 0) {
 		    uc_free(abuf) ;
 		    abuf = NULL ;
 		}
 	    } /* end if (memory-allocation) */
-	} else
+	} else if (f_restore) {
 	    slen += 1 ;
+	} /* end if (special EIK handling) */
 
 /* write the line-buffer out */
 
-	if (rs >= 0) {
+	if ((rs >= 0) && (slen > 0)) {
 	    rs = debugprinters(sbuf,slen) ;
 	    wlen = rs ;
 	} /* end if (ok) */
@@ -593,6 +599,7 @@ static int debugprinter(cchar *sbuf,int slen)
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	int		f_needeol = FALSE ;
+	int		f_restore = FALSE ;
 	char		abuf[LINEBUFLEN+3] ; /* room for added EOL */
 
 #if	CF_LINELEN
@@ -605,9 +612,14 @@ static int debugprinter(cchar *sbuf,int slen)
 /* preparation and check if need EOL */
 
 	if ((slen == 0) || (sbuf[slen-1] != '\n')) {
-	    f_needeol = TRUE ;
+	    if ((slen > 0) && (sbuf[slen-1] == '\\')) {
+		slen -= 1 ;
+	    } else {
+	        f_needeol = TRUE ;
+	    }
 	} else {
 	    slen -= 1 ;
+	    f_restore = TRUE ;
 	}
 
 /* scan for bad characters */
@@ -616,14 +628,15 @@ static int debugprinter(cchar *sbuf,int slen)
 	    if ((rs = snwcpyprintclean(abuf,(alen-2),sbuf,slen)) >= 0) {
 		sbuf = abuf ;
 		slen = rs ;
-		abuf[slen++] = '\n' ;
+		if (f_needeol) abuf[slen++] = '\n' ;
 	    }
-	} else
+	} else if (f_restore) {
 	    slen += 1 ;
+	}
 
 /* write the line-buffer out */
 
-	if (rs >= 0) {
+	if ((rs >= 0) && (slen > 0)) {
 	    rs = debugprinters(sbuf,slen) ;
 	    wlen = rs ;
 	} /* end if (ok) */
@@ -638,6 +651,7 @@ static int debugprinter(cchar *sbuf,int slen)
 	int		alen ;
 	int		wlen = 0 ;
 	int		f_needeol = FALSE ;
+	int		f_restore = FALSE ;
 
 #if	CF_LINELEN
 	slen = strlinelen(sbuf,slen,LINEBUFLEN) ; /* some protection */
@@ -649,9 +663,14 @@ static int debugprinter(cchar *sbuf,int slen)
 /* preparation and check if need EOL */
 
 	if ((slen == 0) || (sbuf[slen-1] != '\n')) {
-	    f_needeol = TRUE ;
+	    if ((slen > 0) && (sbuf[slen-1] == '\\')) {
+		slen -= 1 ;
+	    } else {
+	        f_needeol = TRUE ;
+	    }
 	} else {
 	    slen -= 1 ;
+	    f_restore = TRUE ;
 	}
 
 	alen = (slen+2) ; /* room for added EOL */
@@ -664,14 +683,15 @@ static int debugprinter(cchar *sbuf,int slen)
 	        if ((rs = snwcpyprintclean(abuf,(alen-2),sbuf,slen)) >= 0) {
 		    sbuf = abuf ;
 		    slen = rs ;
-		    abuf[slen++] = '\n' ;
+		    if (f_needeol) abuf[slen++] = '\n' ;
 	        }
-	    } else
+	    } else if (f_restore) {
 	        slen += 1 ;
+	    }
 
 /* write the line-buffer out */
 
-	    if (rs >= 0) {
+	    if ((rs >= 0) && (slen > 0)) {
 	        rs = debugprinters(sbuf,slen) ;
 	        wlen = rs ;
 	    } /* end if (ok) */
@@ -719,12 +739,14 @@ extern int	nprintf(cchar *,cchar *,...) ;
 
 static int debugtestlock(fd)
 {
-	struct flock	fl ;
 	int		rs = SR_OK ;
+#if	CF_TESTLOCK
 	int		loop = 0 ;
 	int		f_locked = FALSE ;
+#endif
 #if	CF_TESTLOCK
 	repeat {
+	    struct flock	fl ;
 	    memset(&fl,0,sizeof(struct flock)) ;
 	    fl.l_type = F_LOCK ;
 	    fl.l_whence = SEEK_SET ;
@@ -763,25 +785,25 @@ static int debugtestlock(fd)
 
 static int debugprinterest(int fd,cchar *sbuf,int slen)
 {
-		    struct ustat	sb ;
+	USTAT		sb ;
 	int		rs ;
 	int		wlen = 0 ;
-		    if ((rs = u_fstat(fd,&sb)) >= 0) {
+	if ((rs = u_fstat(fd,&sb)) >= 0) {
 
-	        	if (S_ISREG(sb.st_mode) && (sb.st_size != ef.size)) {
-	            	    offset_t	uoff = sb.st_size ;
-	            	    ef.size = sb.st_size ;
-	            	    u_seek(fd,uoff,SEEK_SET) ;
-			}
+	    if (S_ISREG(sb.st_mode) && (sb.st_size != ef.size)) {
+		offset_t	uoff = sb.st_size ;
+		ef.size = sb.st_size ;
+		rs = u_seek(fd,uoff,SEEK_SET) ;
+	    }
 
-			if (rs >= 0) {
-	                    if ((rs = u_write(fd,sbuf,slen)) >= 0) {
-	                        wlen = rs ;
-	                        ef.size += wlen ;
-	                    }
-			}
+	    if (rs >= 0) {
+		if ((rs = u_write(fd,sbuf,slen)) >= 0) {
+		    wlen = rs ;
+		    ef.size += wlen ;
+		}
+	    }
 
-		    } /* end if (u_fstat) */
+	} /* end if (u_fstat) */
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (debugprinterest) */
@@ -836,8 +858,8 @@ static int cthexi(char *dp,int dl,int val)
 
 static int snwcpyprintclean(char *dbuf,int dlen,cchar *sp,int sl)
 {
-	register int	ch ;
-	register int	dl = 0 ;
+	int		ch ;
+	int		dl = 0 ;
 	int		rs = SR_OK ;
 	while (dlen-- && sl && *sp) {
 	    ch = MKCHAR(*sp) ;

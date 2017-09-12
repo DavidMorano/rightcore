@@ -1,7 +1,8 @@
 %{SS}
 
-This is a utility program and is not generally meant to be executed by users
-directly.  This program rebuilds newsgroup directory caches.
+This is a Persnal Communication Services (PCS) utility program and is not
+generally meant to be executed by users directly. This program rebuilds
+newsgroup directory caches.
 
 Synopsis:
 

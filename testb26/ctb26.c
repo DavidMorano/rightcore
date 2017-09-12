@@ -259,7 +259,7 @@ int ctb26ull(char *rbuf,int rlen,int type,int prec,ULONG v)
 static int ictb26(char *rbuf,int rlen,int type,int prec,ULONG v)
 {
 	const int	base = DIGBASE ;
-	register char	*rp ;
+	char		*rp ;
 
 #if	CF_DEBUGS
 	debugprintf("ictb26: ent\n") ;
@@ -274,7 +274,7 @@ static int ictb26(char *rbuf,int rlen,int type,int prec,ULONG v)
 	        v = (v / base) ;
 #else
 		{
-		    register ULONG	nv ;
+		    ULONG	nv ;
 	            nv = v / base ;
 	            *--rp = (char) ((v - (nv * base)) + type) ;
 	            v = nv ;

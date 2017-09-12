@@ -134,11 +134,13 @@ int strnndictcmp(cchar *s1,int s1len,cchar *s2,int s2len)
 	        debugprintf("strnndictcmp: 0 rc=%d\n",rc) ;
 #endif
 
-	        if (rc == 0)
+	        if (rc == 0) {
 	            rc = (s1len - s2len) ; /* more determinism */
+		}
 
-	        if (rc == 0)
+	        if (rc == 0) {
 	            rc = strdocmp(s1,s2,i) ; /* break ties so far */
+		}
 
 #if	CF_DEBUGS
 	        debugprintf("strnndictcmp: 1 rc=%d\n",rc) ;
@@ -154,8 +156,9 @@ int strnndictcmp(cchar *s1,int s1len,cchar *s2,int s2len)
 	        debugprintf("strnndictcmp: 2 rc=%d\n",rc) ;
 #endif
 
-	        if (rc == 0)
+	        if (rc == 0) {
 	            rc = strncmp(s1,s2,s2len) ; /* absolute determinism (?) */
+		}
 
 #if	CF_DEBUGS
 	        debugprintf("strnndictcmp: 3 rc=%d\n",rc) ;

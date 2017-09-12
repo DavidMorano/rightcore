@@ -20,6 +20,9 @@
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
 #include	<vector>
 #include	<string>
@@ -59,6 +62,7 @@ static int around(double e,double v) ;
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int main(int argc,const char **argv,const char **envv)
 {
 	const double	ext = 6.0 ;

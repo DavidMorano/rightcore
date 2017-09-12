@@ -66,7 +66,7 @@
 
 char *strdcpyopaque(char *dp,int dl,const char *sp,int sl)
 {
-	register int	ch ;
+	int		ch ;
 
 	while (sl && *sp)  {
 	    ch = MKCHAR(*sp) ;

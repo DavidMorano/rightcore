@@ -69,9 +69,9 @@ char *strnrchr(cchar *sp,int sl,int sch)
 	}
 
 	if (sl >= 0) {
-	    register int	ch ;
-	    register int	f = FALSE ;
-	    register const char	*csp = (sp+sl) ;
+	    int		ch ;
+	    int		f = FALSE ;
+	    cchar	*csp = (sp+sl) ;
 	    while (--csp >= sp) {
 	        ch = MKCHAR(*csp) ;
 	        f = (ch == sch) ;

@@ -108,6 +108,8 @@
 
 #define	MODP2(v,n)	((v) & ((n) - 1))
 
+#define	BLENTRY		struct blentry
+
 
 /* external subroutines */
 
@@ -342,8 +344,8 @@ int cmimk_add(CMIMK *op,CMIMK_ENT *bvp)
 #endif
 
 	if ((bvp->lines != NULL) && (bvp->nlines > 0)) {
-	    struct blentry	ble ;
-	    int			i ;
+	    BLENTRY	ble ;
+	    int		i ;
 	    for (i = 0 ; i < bvp->nlines ; i += 1) {
 
 	        ble.loff = bvp->lines[i].loff ;
@@ -734,7 +736,7 @@ static int cmimk_mkidxwrents(CMIMK *op,CMIHDR *hdrp,FILEBUF *hfp,int off)
 
 static int cmimk_mkidxwrlines(CMIMK *op,CMIHDR *hdrp,FILEBUF *hfp,int off)
 {
-	struct blentry	*blep ;
+	BLENTRY		*blep ;
 	uint		a[4] ;
 	const int	size = (2 * sizeof(uint)) ;
 	int		rs = SR_OK ;

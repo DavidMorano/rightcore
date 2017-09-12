@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1998-09-10, David A­D­ Morano
+	= 2008-10-01, David A­D­ Morano
 	This module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

@@ -86,7 +86,6 @@
         something to be said for simple data strctures after all! Enjoy!
 
 	Synopsis:
-
 	int hdb_start(op,n,at,hashfunc,cmpfunc)
 	HDB		*op ;
 	int		n ;
@@ -95,7 +94,6 @@
 	int		(*cmpfunc)() ;
 
 	Arguments:
-
 	op		object pointer
 	n		starting number of entries (estimated)
 	at		allocation-type:
@@ -105,7 +103,6 @@
 	cmpfunc		the key-comparison function
 
 	Returns:
-
 	<0		error
 	>=0		OK
 
@@ -1790,8 +1787,8 @@ static int fetchcur_adv(FETCHCUR *fcp)
 /* default hash function */
 static uint defhashfunc(const void *buf,int buflen)
 {
-	register unsigned	h = 0, g ;
-	const char		*s = (const char *) buf ;
+	unsigned	h = 0, g ;
+	const char	*s = (const char *) buf ;
 
 #if	CF_DEBUGS && CF_DEBUGHASH
 	char		prbuf[HDB_PRBUFLEN + 1] ;

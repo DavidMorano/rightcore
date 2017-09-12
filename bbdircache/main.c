@@ -21,8 +21,8 @@
 	Updated slightly.
 
 	= 2008-10-07, David A­D­ Morano
-	This was modified to allow for the new PCSCONF facility
-	that used loadable modules for polling things.
+        This was modified to allow for the new PCSCONF facility that used
+        loadable modules for polling things.
 
 
 */

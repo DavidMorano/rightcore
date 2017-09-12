@@ -56,8 +56,8 @@
 
 int sfbreak(cchar *sp,int sl,cchar *s2,cchar **rpp)
 {
-	register int	j = 0 ;
-	register int	f = FALSE ;
+	int		j = 0 ;
+	int		f = FALSE ;
 
 	if (sl < 0)
 	    sl = strlen(sp) ;

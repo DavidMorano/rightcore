@@ -76,12 +76,12 @@ extern int	strkeycmp(const char *,const char *) ;
 
 int matkeystr(cchar **a,cchar *sp,int sl)
 {
-	register int	sch = sp[0] ; /* ok: everything promotes the same */
-	register int	i ;
-	register int	f = FALSE ;
+	int		sch = sp[0] ; /* ok: everything promotes the same */
+	int		i ;
+	int		f = FALSE ;
 
 	if (sl >= 0) {
-	    register int	m ;
+	    int		m ;
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
 		m = (sch == a[i][0]) ;
 		if (m > 0) {

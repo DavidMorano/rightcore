@@ -1,2 +1,2 @@
-const char shcat_makedate[] =
-	"@(#)shcat                   140101_2202:20_USEST Rightcore Network Services" ;
+const char dhtext_makedate[] =
+"@(#)dhtext                  170907_2241:24_USEDT Rightcore Network Services" ;

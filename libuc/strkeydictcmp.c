@@ -112,8 +112,7 @@ int strkeydictcmp(cchar *s1,cchar *s2)
 	    }
 
 	    rc = dictdiff(*s1,*s2) ;
-	    if (rc != 0)
-	        break ;
+	    if (rc != 0) break ;
 
 	    s1 += 1 ;
 	    s2 += 1 ;
@@ -121,13 +120,13 @@ int strkeydictcmp(cchar *s1,cchar *s2)
 	} /* end while */
 
 	if (rc == *s2)
-	    return 0 ;
+	    rc = 0 ;
 
 	if (*s1 == '=')
-	    return (*s2 == '\0') ? 0 : -1 ;
+	    rc = (*s2 == '\0') ? 0 : -1 ;
 
 	if (*s2 == '=')
-	    return (*s1 == '\0') ? 0 : 1 ;
+	    rc = (*s1 == '\0') ? 0 : 1 ;
 
 	return rc ;
 }

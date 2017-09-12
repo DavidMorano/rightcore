@@ -235,7 +235,7 @@ int vecpstr_add(VECPSTR *op,cchar *sp,int sl)
 
 int vecpstr_adduniq(VECPSTR *op,cchar *sp,int sl)
 {
-	register int	sch ;
+	int		sch ;
 	int		rs ;
 	int		i ;
 	int		m ;
@@ -383,7 +383,7 @@ int vecpstr_store(VECPSTR *op,cchar *sp,int sl,cchar **rpp)
 /* is a given string already represented? */
 int vecpstr_already(VECPSTR *op,cchar *sp,int sl)
 {
-	register int	sch ;
+	int		sch ;
 	int		rs = SR_NOTFOUND ;
 	int		m ;
 	int		i ;
@@ -722,7 +722,7 @@ int vecpstr_finder(VECPSTR *op,cchar sp[],int (*vcmpfunc)(),cchar **rpp)
 
 int vecpstr_find(VECPSTR *op,cchar sp[])
 {
-	register int	sch ;
+	int		sch ;
 	int		rs = SR_NOTFOUND ;
 	int		i ;
 	const char	*ep ;

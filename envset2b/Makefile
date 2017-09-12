@@ -168,7 +168,7 @@ INCS= config.h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o proginfo_rootname.o
-OBJ01= progfindprog.o progexec.o
+OBJ01= progreport.o progfindprog.o progexec.o
 OBJ02= defproc.o
 OBJ03=
 OBJ04=
@@ -330,6 +330,8 @@ proginfo.o:		proginfo.c defs.h
 proginfo_setpiv.o:	proginfo_setpiv.c defs.h
 
 proginfo_rootname.o:	proginfo_rootname.c defs.h
+
+progreport.o:		progreport.c progreport.h defs.h config.h
 
 progfindprog.o:		progfindprog.c $(INCS)
 

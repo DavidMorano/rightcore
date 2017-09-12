@@ -1,6 +1,8 @@
 /* mainhide */
 /* lang=C++11 */
 
+/* name hiding in C++ */
+
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 
@@ -20,6 +22,9 @@
 #include	<cinttypes>
 #include	<cstring>
 #include	<new>
+#include	<initializer_list>
+#include	<utility>
+#include	<functional>
 #include	<algorithm>
 #include	<vector>
 #include	<string>

@@ -28,8 +28,9 @@
 #include	<sys/types.h>
 #include	<vector>
 #include	<list>
-#include	<vsystem.h>
 #include	<localmisc.h>
+
+#include	"graph.hh"
 
 
 /* external subroutines */
@@ -42,19 +43,9 @@ extern "C" int	strlinelen(cchar *,cchar *,int) ;
 
 /* local structures */
 
-struct bellmanford1_edge {
-	int		dst ;	/* destination vertex */
-	int		weight ; /* weight of edge to this vertex */
-} ;
 
-struct bellmanford1_res {
-	int		prev ; /* previous vertex */
-	int		dist ; /* distance (summed weight) to present vertex */
-} ;
-
-
-extern int bellmanford1(bellmanford1_res *,
-		std::vector<std::list<bellmanford1_edge>> *,
+extern int bellmanford1(graph_res *,
+		std::vector<std::list<graph_edge>> &,
 		int,int) ;
 
 

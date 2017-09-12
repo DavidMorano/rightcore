@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1998-12-01, David A­D­ Morano
+	= 2008-03-01, David A­D­ Morano
 	This module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -531,6 +531,9 @@ static int commandments_argsend(COMMANDMENTS *op)
 static int commandments_findbegin(COMMANDMENTS *op,cchar *pr,cchar *dbname)
 {
 	int		rs ;
+#if	CF_DEBUGS
+	debugprintf("commandments_findbegin: ent db=%s\n",dbname) ;
+#endif
 	if ((rs = commandments_userhome(op)) >= 0) {
 	    cchar	*cname = COMMANDMENTS_DBDNAME ;
 	    char	tbuf[MAXPATHLEN+1] ;
@@ -847,6 +850,9 @@ static int commandments_idxmk(COMMANDMENTS *op,cchar *tbuf)
 	const int	of = 0 ;
 	int		rs ;
 	int		rs1 ;
+#if	CF_DEBUGS
+	debugprintf("commandments_idxmk: ent tbuf=%s\n",tbuf) ;
+#endif
 	if ((rs = cmimk_open(&mk,tbuf,of,om)) >= 0) {
 	    if ((rs = cmimk_setdb(&mk,op->size_db,op->ti_db)) >= 0) {
 		rs = commandments_dbproc(op,&mk) ;
@@ -854,6 +860,9 @@ static int commandments_idxmk(COMMANDMENTS *op,cchar *tbuf)
 	    rs1 = cmimk_close(&mk) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (cmimk) */
+#if	CF_DEBUGS
+	debugprintf("commandments_idxmk: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (commandments_idxmk) */
@@ -862,11 +871,20 @@ static int commandments_idxmk(COMMANDMENTS *op,cchar *tbuf)
 static int commandments_idxmapbegin(COMMANDMENTS *op,cchar *tbuf)
 {
 	int		rs ;
+#if	CF_DEBUGS
+	debugprintf("commandments_idxmapbegin: ent tbuf=%s\n",tbuf) ;
+#endif
 	if ((rs = commandments_idxopencheck(op,tbuf)),isStale(rs)) {
+#if	CF_DEBUGS
+	    debugprintf("commandments_idxmapbegin: isStale rs=%d n=%u\n",rs) ;
+#endif
 	    if ((rs = commandments_idxmk(op,tbuf)) >= 0) {
 		rs = commandments_idxopencheck(op,tbuf) ;
 	    }
 	}
+#if	CF_DEBUGS
+	debugprintf("commandments_idxmapbegin: ret rs=%d n=%u\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (commandments_idxmapbegin) */
@@ -1036,6 +1054,10 @@ static int commandments_dbproc(COMMANDMENTS *op,CMIMK *cmp)
 	int		f_ent = FALSE ;
 	const char	*tp, *lp ;
 	const char	*mp = op->data_db ;
+
+#if	CF_DEBUGS
+	debugprintf("commandments_dbproc: ent ml=%d\n",ml) ;
+#endif
 
 	while ((tp = strnchr(mp,ml,'\n')) != NULL) {
 
@@ -1225,9 +1247,9 @@ static int commandments_chownpr(COMMANDMENTS *op,cchar *tbuf)
 	int		rs ;
 	if (op->uid < 0) op->uid = getuid() ;
 	if ((rs = commandments_ids(op)) >= 0) {
-		    const uid_t	uid_pr = op->uid_pr ;
-		    const gid_t	gid_pr = op->gid_pr ;
-		    rs = u_chown(tbuf,uid_pr,gid_pr) ;
+	    const uid_t	uid_pr = op->uid_pr ;
+	    const gid_t	gid_pr = op->gid_pr ;
+	    rs = u_chown(tbuf,uid_pr,gid_pr) ;
 	} /* end if (commandments_ids) */
 	return rs ;
 }

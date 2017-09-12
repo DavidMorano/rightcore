@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 1999-08-19, David A­D­ Morano
+	= 2008-10-07, David A­D­ Morano
 	This module was originally written.
 
 */
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -67,11 +67,9 @@ static int	thrcomm_ptcinit(THRCOMM *,int) ;
 /* exported subroutines */
 
 
-int thrcomm_start(psp,f_shared)
-THRCOMM		*psp ;
-int		f_shared ;
+int thrcomm_start(THRCOMM *psp,int f_shared)
 {
-	int	rs ;
+	int		rs ;
 
 	if (psp != NULL) {
 	    memset(psp,0,sizeof(THRCOMM)) ;
@@ -82,25 +80,23 @@ int		f_shared ;
 	        if (rs < 0)
 		    ptm_destroy(&psp->m) ;
 	    } /* end if (PTM created) */
-	} else
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 	return rs ;
 }
 /* end subroutine (thrcomm_start) */
 
 
-int thrcomm_finish(psp)
-THRCOMM		*psp ;
+int thrcomm_finish(THRCOMM *psp)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
-	if (psp == NULL)
-	    return SR_FAULT ;
+	if (psp == NULL) return SR_FAULT ;
 
-	if (psp->magic != THRCOMM_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != THRCOMM_MAGIC) return SR_NOTOPEN ;
 
 	rs1 = ptc_destroy(&psp->c) ;
 	if (rs >= 0) rs = rs1 ;
@@ -114,22 +110,15 @@ THRCOMM		*psp ;
 /* end subroutine (thrcomm_finish) */
 
 
-int thrcomm_cmdsend(psp,cmd,to)
-THRCOMM		*psp ;
-int		cmd ;
-int		to ;
+int thrcomm_cmdsend(THRCOMM *psp,int cmd,int to)
 {
 	struct timespec	ts ;
+	int		rs ;
+	int		rs1 ;
 
-	int	rs ;
-	int	rs1 ;
+	if (psp == NULL) return SR_FAULT ;
 
-
-	if (psp == NULL)
-	    return SR_FAULT ;
-
-	if (psp->magic != THRCOMM_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != THRCOMM_MAGIC) return SR_NOTOPEN ;
 
 	if (to >= 0) {
 	    clock_gettime(CLOCK_REALTIME,&ts) ;
@@ -166,22 +155,16 @@ int		to ;
 /* end subroutine (thrcomm_cmdsend) */
 
 
-int thrcomm_cmdrecv(psp,to)
-THRCOMM		*psp ;
-int		to ;
+int thrcomm_cmdrecv(THRCOMM *psp,int to)
 {
 	struct timespec	ts ;
+	int		rs ;
+	int		rs1 ;
+	int		cmd = 0 ;
 
-	int	rs ;
-	int	rs1 ;
-	int	cmd = 0 ;
+	if (psp == NULL) return SR_FAULT ;
 
-
-	if (psp == NULL)
-	    return SR_FAULT ;
-
-	if (psp->magic != THRCOMM_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != THRCOMM_MAGIC) return SR_NOTOPEN ;
 
 	if (to >= 0) {
 	    clock_gettime(CLOCK_REALTIME,&ts) ;
@@ -212,22 +195,15 @@ int		to ;
 /* end subroutine (thrcomm_cmdrecv) */
 
 
-int thrcomm_rspsend(psp,rrs,to)
-THRCOMM		*psp ;
-int		rrs ;
-int		to ;
+int thrcomm_rspsend(THRCOMM *psp,int rrs,int to)
 {
 	struct timespec	ts ;
+	int		rs ;
+	int		rs1 ;
 
-	int	rs ;
-	int	rs1 ;
+	if (psp == NULL) return SR_FAULT ;
 
-
-	if (psp == NULL)
-	    return SR_FAULT ;
-
-	if (psp->magic != THRCOMM_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != THRCOMM_MAGIC) return SR_NOTOPEN ;
 
 	if (to >= 0) {
 	    clock_gettime(CLOCK_REALTIME,&ts) ;
@@ -258,22 +234,16 @@ int		to ;
 /* end subroutine (thrcomm_rspsend) */
 
 
-int thrcomm_rsprecv(psp,to)
-THRCOMM		*psp ;
-int		to ;
+int thrcomm_rsprecv(THRCOMM *psp,int to)
 {
 	struct timespec	ts ;
+	int		rs ;
+	int		rs1 ;
+	int		rrs = 0 ;
 
-	int	rs ;
-	int	rs1 ;
-	int	rrs = 0 ;
+	if (psp == NULL) return SR_FAULT ;
 
-
-	if (psp == NULL)
-	    return SR_FAULT ;
-
-	if (psp->magic != THRCOMM_MAGIC)
-	    return SR_NOTOPEN ;
+	if (psp->magic != THRCOMM_MAGIC) return SR_NOTOPEN ;
 
 	if (to >= 0) {
 	    clock_gettime(CLOCK_REALTIME,&ts) ;
@@ -304,10 +274,9 @@ int		to ;
 /* end subroutine (thrcomm_rsprecv) */
 
 
-int thrcomm_exiting(psp)
-THRCOMM		*psp ;
+int thrcomm_exiting(THRCOMM *psp)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 	psp->f_exiting = TRUE ;
 	psp->cmd = 0 ;
 	if (psp->f_cmd) {
@@ -321,16 +290,12 @@ THRCOMM		*psp ;
 /* private subroutines */
 
 
-static int thrcomm_ptminit(psp,f_shared)
-THRCOMM		*psp ;
-int		f_shared ;
+static int thrcomm_ptminit(THRCOMM *psp,int f_shared)
 {	
-	PTMA	a ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	f_ptm = FALSE ;
-
+	PTMA		a ;
+	int		rs ;
+	int		rs1 ;
+	int		f_ptm = FALSE ;
 
 	if ((rs = ptma_create(&a)) >= 0) {
 
@@ -354,16 +319,12 @@ int		f_shared ;
 /* end subroutine (thrcomm_ptminit) */
 
 
-static int thrcomm_ptcinit(psp,f_shared)
-THRCOMM		*psp ;
-int		f_shared ;
+static int thrcomm_ptcinit(THRCOMM *psp,int f_shared)
 {	
-	PTCA	a ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	f_ptc = FALSE ;
-
+	PTCA		a ;
+	int		rs ;
+	int		rs1 ;
+	int		f_ptc = FALSE ;
 
 	if ((rs = ptca_create(&a)) >= 0) {
 

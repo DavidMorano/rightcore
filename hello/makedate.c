@@ -1,2 +1,2 @@
-const char testdate_makedate[] =
-	"@(#)testdate                040119_2159:37_EST RightCore" ;
+const char hello_makedate[] =
+"@(#)hello                   170907_1228:48_USEDT Rightcore Network Services" ;

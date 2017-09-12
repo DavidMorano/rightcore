@@ -287,7 +287,7 @@ OBJ07= b_sysvar.o b_mxalias.o b_issue.o b_motd.o b_logfile.o b_username.o
 
 OBJ08= b_querystring.o b_loginblurb.o b_isfile.o b_cal.o b_mkwords.o
 OBJ09= b_fibonacci.o b_factorial.o b_makenewer.o b_sysval.o b_temp.o b_lastlog.o
-OBJ10= b_netload.o b_doubletext.o b_logsys.o b_termadm.o b_mailnew.o
+OBJ10= b_netload.o b_dhtext.o b_logsys.o b_termadm.o b_mailnew.o
 OBJ11= b_pcsconf.o b_pcsuserinfo.o b_inetping.o b_linefold.o b_summer.o
 OBJ12= b_conslog.o b_termnote.o b_uuidgen.o b_strerror.o b_sysdb.o
 OBJ13= b_rest.o b_qotd.o b_mjd.o b_look.o b_append.o b_rfinger.o b_shells.o
@@ -344,7 +344,7 @@ OBJ57= outstore.o calyear.o numincr.o modload.o uiconv.o
 OBJ58= sesmsg.o msgdata.o
 OBJ59= msfile.o msfile_best.o msfilee.o ebuf.o
 OBJ60= sysvar.o var.o varmk.o
-OBJ61= namecache.o gncache.o dirlist.o msumsg.o termout.o linehist.o
+OBJ61= namecache.o gncache.o msumsg.o termout.o linehist.o
 OBJ62= sbuf.o
 OBJ63=
 
@@ -744,7 +744,7 @@ b_netload.o:		b_netload.c b_netload.h $(INCS)
 b_rfinger.o:		b_rfinger.c b_rfinger.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
-b_doubletext.o:		b_doubletext.c b_doubletext.h $(INCS)
+b_dhtext.o:		b_dhtext.c b_dhtext.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
 b_logsys.o:		b_logsys.c b_logsys.h $(INCS)

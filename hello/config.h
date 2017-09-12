@@ -1,51 +1,87 @@
 /* config */
 
 
-#define	VERSION		"0"
-#define	WHATINFO	"@(#)hello "
+/* revision history:
+
+	= 1998-11-01, David A­D­ Morano
+	This subroutine was written for Rightcore Network Services (RNS).
+
+*/
+
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
+
+#define	VERSION		"0a"
+#define	WHATINFO	"@(#)HELLO "
 #define	BANNER		"Hello"
 #define	SEARCHNAME	"hello"
-
-#define	VARPROGRAMROOT1	"DATE_PROGRAMROOT"
-#define	VARPROGRAMROOT2	"LOCAL"
-#define	VARPROGRAMROOT3	"PROGRAMROOT"
-
-#define	VARBANNER	"DATE_BANNER"
-#define	VARSEARCHNAME	"DATE_NAME"
-#define	VARFILEROOT	"DATE_FILEROOT"
-#define	VARLOGTAB	"DATE_LOGTAB"
-
-#define	VARDEBUGFD1	"DATE_DEBUGFD"
-#define	VARDEBUGFD2	"DEBUGFD"
+#define	VARPRNAME	"LOCAL"
 
 #ifndef	PROGRAMROOT
 #define	PROGRAMROOT	"/usr/add-on/local"
 #endif
 
+#define	VARPROGRAMROOT1	"HELLO_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
+
+#define	VARBANNER	"HELLO_BANNER"
+#define	VARSEARCHNAME	"HELLO_NAME"
+#define	VAROPTS		"HELLO_OPTS"
+#define	VARFTYPES	"HELLO_FTYPES"
+#define	VARSUFREQ	"HELLO_SUFREQ"
+#define	VARSA		"HELLO_SUFACC"
+#define	VARSR		"HELLO_SUFREJ"
+#define	VARPRUNE	"HELLO_PRUNE"
+#define	VARTARDNAME	"HELLO_TARDIR"
+#define	VARRFNAME	"HELLO_RF"
+#define	VARAFNAME	"HELLO_AF"
+#define	VAREFNAME	"HELLO_EF"
+
+#define	VARDEBUGLEVEL	"HELLO_DEBUGLEVEL"
+#define	VARDEBUGFNAME	"HELLO_DEBUGFILE"
+#define	VARDEBUGFD1	"HELLO_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	VARNODE		"NODE"
+#define	VARSYSNAME	"SYSNAME"
+#define	VARRELEASE	"RELEASE"
+#define	VARMACHINE	"MACHINE"
+#define	VARARCHITECTURE	"ARCHITECTURE"
+#define	VARCLUSTER	"CLUSTER"
+#define	VARSYSTEM	"SYSTEM"
+#define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARTERM		"TERM"
+#define	VARPRINTER	"PRINTER"
+#define	VARLPDEST	"LPDEST"
+#define	VARPAGER	"PAGER"
+#define	VARMAIL		"MAIL"
+#define	VARORGANIZATION	"ORGANIZATION"
+#define	VARLINES	"LINES"
+#define	VARCOLUMNS	"COLUMNS"
+#define	VARNAME		"NAME"
+#define	VARFULLNAME	"FULLNAME"
+
+#define	VARHOMEDNAME	"HOME"
+#define	VARTMPDNAME	"TMPDIR"
+#define	VARMAILDNAME	"MAILDIR"
+#define	VARMAILDNAMES	"MAILDIRS"
+
+#define	VARPRLOCAL	"LOCAL"
+#define	VARPRPCS	"PCS"
+
 #define	TMPDNAME	"/tmp"
-#define	WORKDNAME	"/tmp"
 
-#define	DEFLOGFNAME	"/etc/default/login"
-#define	DEFINITFNAME	"/etc/default/init"
-#define	NISDOMAINNAME	"/etc/defaultdomain"
-
-#define	CONFIGFNAME	"conf"
-#define	ENVFNAME	"environ"
-#define	PATHSFNAME	"paths"
+#define	CONFIGFNAME	"etc/hello/conf"
+#define	LOGFNAME	"log/hello"
 #define	HELPFNAME	"help"
-#define	IPASSWDFNAME	"ipasswd"
 
-#define	PIDFNAME	"run/hello"		/* mutex PID file */
-#define	LOGFNAME	"var/log/hello"		/* activity log */
-#define	LOCKFNAME	"spool/locks/hello"	/* lock mutex file */
-
-#define	LOGSIZE		(80*1024)
-
-#define	DEFSIZESPEC	"100000"		/* default target log size */
-
-#define	TO_FILEMOD	(1 * 60 * 60)		/* IPASSWD timeout */
-
-#define	PROG_MKPWI	"mkpwi"
-
+#define	PO_OPTION	"option"
+#define	PO_FTS		"fts"			/* file-types */
+#define	PO_SUFREQ	"sufreq"		/* suffix-required */
+#define	PO_SUFREJ	"sufacc"		/* suffix-reject */
+#define	PO_SUFACC	"sufrej"		/* suffix-accept */
+#define	PO_PRUNE	"prune"			/* prune components */
+#define	PO_TARDIRS	"tardirs"
 
 
