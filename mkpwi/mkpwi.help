@@ -1,6 +1,7 @@
 MKPWI
 
-This program is a utility that rebuilds the IPASSWD database.
+This program is a utility that rebuilds the IPASSWD database. It is usually
+automatically run in the background when neeeded.
 
 Synopsis:
 $ mkpwi [-if <passwdfile>] [-db <dbname>] [-ROOT <pr>]

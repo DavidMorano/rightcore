@@ -34,9 +34,9 @@ if whence userinfo > /dev/null ; then
 else
   P=/usr/xpg4/bin/id
   if [[ -x ${P} ]] ; then
-    LIST=$( if -Gn "${U}" ) 
+    LIST=$( ${P} -Gn "${U}" ) 
   fi
 fi
-print ${LIST}
+print -- ${LIST}
 
 

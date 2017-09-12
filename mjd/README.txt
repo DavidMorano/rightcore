@@ -1,6 +1,6 @@
 MJD
 
-This is a KSH shell built-in command.  It convert a date specification
+This is a KSH shell built-in command. It converts a date specification
 (yyyymmmdd) to a MJD decimal integer.
 
 Synopsis:

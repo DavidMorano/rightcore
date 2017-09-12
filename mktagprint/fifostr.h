@@ -2,7 +2,17 @@
 /* FIFO string structures (FIFO String) */
 
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* revision history:
+
+	= 1999-12-09, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+	= 2017-09-12, David A­D­ Morano
+	Small interface change to |fifostr_entread()|.
+
+*/
+
+/* Copyright © 1999,2017 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	FIFOSTR_INCLUDE
 #define	FIFOSTR_INCLUDE	1
@@ -47,7 +57,7 @@ extern int fifostr_start(fifostr *) ;
 extern int fifostr_add(fifostr *,const char *,int) ;
 extern int fifostr_headread(fifostr *,char *,int) ;
 extern int fifostr_headlen(fifostr *) ;
-extern int fifostr_entread(fifostr *,int,char *,int) ;
+extern int fifostr_entread(fifostr *,char *,int,int) ;
 extern int fifostr_entlen(fifostr *,int) ;
 extern int fifostr_remove(fifostr *,char *,int) ;
 extern int fifostr_count(fifostr *) ;

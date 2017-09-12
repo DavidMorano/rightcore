@@ -79,9 +79,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 /* exported subroutines */
 
 
-int bvcitekey_set(bvp,ckp)
-BVCITEKEY	*bvp ;
-uint		*ckp ;
+int bvcitekey_set(BVCITEKEY *bvp,uint *ckp)
 {
 	register uint	ck = 0 ;
 
@@ -99,9 +97,7 @@ uint		*ckp ;
 /* end subroutine (bvcitekey_set) */
 
 
-int bvcitekey_get(bvp,ckp)
-BVCITEKEY	*bvp ;
-uint		*ckp ;
+int bvcitekey_get(BVCITEKEY *bvp,uint *ckp)
 {
 	register uint	ck = *ckp ;
 

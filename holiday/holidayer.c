@@ -297,7 +297,7 @@ int holidayer_curend(HOLIDAYER *op,HOLIDAYER_CUR *curp)
 
 
 int holidayer_fetchcite(HOLIDAYER *op,HOLIDAYER_CITE *qp,
-HOLIDAYER_CUR *curp,char rp[],int rl)
+		HOLIDAYER_CUR *curp,char rp[],int rl)
 {
 	int		rs ;
 	int		vl = 0 ;
@@ -782,8 +782,9 @@ static int holidayer_holaudit(HOLIDAYER *op,HOLIDAYER_HOL *hep)
 	if (op == NULL) return SR_FAULT ;
 	if (hep->year > 0) {
 	    rs = holidays_audit(&hep->hol) ;
-	} else
+	} else {
 	    rs = SR_BADFMT ;
+	}
 	return rs ;
 }
 /* end subroutine (holidayer_holaudit) */

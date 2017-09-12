@@ -1,5 +1,5 @@
-#!/bin/ksh
-# BUEN
+#!/usr/bin/ksh
+# BURN
 
 
 execname filerm burn -ab "${@}"

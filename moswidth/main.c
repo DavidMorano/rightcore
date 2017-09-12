@@ -10,19 +10,16 @@
 /* revision history:
 
 	= 1992-03-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
+/* Copyright © 1992 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	Synopsis:
-
-	moswidth [infile] [-i infile] [-o outfile]
-
+	$ moswidth [infile] [-i infile] [-o outfile]
 
 	This program will process width specifications
 	for MOSFETs.  Specifically, we will look for
@@ -30,29 +27,26 @@
 	and we will convert these to straight microns.
 
 
-*********************************************************************/
+*******************************************************************************/
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
-#include	<sys/utsname.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
+#include	<sys/stat.h>
 #include	<unistd.h>
 #include	<errno.h>
 #include	<time.h>
-#include	<signal.h>
 #include	<string.h>
-#include	<pwd.h>
-#include	<grp.h>
 
 #include	<bfile.h>
 #include	<baops.h>
 #include	<char.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -78,8 +72,6 @@ extern char	*strbasename(char *) ;
 
 /* local globals */
 
-struct global		g ;
-
 
 /* local statics */
 
@@ -96,23 +88,21 @@ static const char *argopts[] = {
 #define	ARGOPT_TMPDIR	1
 
 
+/* exported subroutines */
 
 
-
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	bfile	errfile, *efp = &errfile ;
-	bfile	infile, *ifp = &infile ;
-	bfile	outfile ;
-
-	struct global	*gdp = &g ;
+	struct global	g, *gdp = &g ;
+	bfile		errfile, *efp = &errfile ;
+	bfile		infile, *ifp = &infile ;
+	bfile		outfile ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
+	int	rs = SR_OK ;
 	int	npa, i, ai ;
-	int	len, rs ;
+	int	len ;
 	int	maxai ;
 	int	l, pn ;
 	int	blen ;
@@ -147,8 +137,6 @@ char	*envv[] ;
 	gdp->verboselevel = 1 ;
 
 /* process program arguments */
-
-	rs = SR_OK ;
 
 	npa = 0 ;			/* number of positional so far */
 	maxai = 0 ;
@@ -578,11 +566,5 @@ badwritecir:
 
 }
 /* end subroutine (main) */
-
-
-
-/* LOCAL SUBROUTINES */
-
-
 
 

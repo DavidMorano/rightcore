@@ -96,6 +96,7 @@ static void printres(const set<string> &res) ;
 
 static set<string> bal1(int) ;
 static set<string> bal2(int) ;
+static set<string> bal3(int) ;
 
 
 /* exported subroutines */
@@ -149,7 +150,7 @@ bool IsBalanced2(const std::string &input) {
 /* ARGSUSED */
 int main(int argc,cchar **argv,cchar **envv)
 {
-	const int	algos[] = { 1, 2 } ;
+	const int	algos[] = { 1, 2, 3 } ;
 	const int	lengths[] = { 1, 2, 4, 6, 8 } ;
 
 	for (auto n : lengths) {
@@ -162,6 +163,9 @@ int main(int argc,cchar **argv,cchar **envv)
 		    break ;
 	        case 2:
 	            res = bal2(n) ;
+		    break ;
+	        case 3:
+	            res = bal3(n) ;
 		    break ;
 	        } /* end switch */
 	        printres(res) ;
@@ -293,6 +297,81 @@ static res_t bal2(const int N) {
   return res ;
 }
 /* end subroutine (bal2) */
+
+
+struct bal3_item {
+	int	c = 0 ; /* count */
+	int	i = 0 ; /* index */
+	int	w = 0 ; /* which-type */
+	bal3_item() { 
+	} ;
+	bal3_item(int _c,int _i,int _w) : c(_c), i(_i), w(_w) { 
+	} ;
+	bal3_item &operator = (const bal3_item &wi) = default ;
+	/* do not need 'move' constructor or assignment (too simple) */
+} ;
+
+static void bal3_recurse(stack<bal3_item> &work,int c,int i)
+{
+	const int	n = 2 ;
+	for (int w = 0 ; w < n ; w += 1) {
+	    bal3_item	wi(c,i,w) ;
+	    work.push(wi) ;
+	}
+}
+/* end subroutine (bal3_recurse) */
+
+static res_t bal3(const int N) {
+	set<string>	res ;
+	string	s ;
+	if (N == 0) {
+	    s = "" ;
+	    res.insert(s) ;
+	} else if ((N & 1) == 0) {
+	    stack<bal3_item>	work ;
+	    bal3_item		wi ;
+	    int			c = 1 ;
+	    int			i, w ;
+	    s.resize(N) ;
+	    s[0] = '(' ;
+	    bal3_recurse(work,c,1) ;
+	    while (! work.empty()) {
+	        wi = work.top() ;
+	        c = wi.c ;
+	        i = wi.i ;
+	        w = wi.w ;
+	        work.pop() ;
+	        if (i < N) {
+	            switch (w) {
+		    case 1:
+	                if (c < (N-i)) {
+	                    s[i] = '(' ;
+	                    c += 1 ;
+	                    if ((i+1) == N) {
+	                        res.insert(s) ;
+	                    } else {
+	                        bal3_recurse(work,c,i+1) ;
+	                    }
+	                }
+			break ;
+		    case 0:
+	                if (c > 0) {
+	                    s[i] = ')' ;
+	                    c -= 1 ;
+	                    if ((i+1) == N) {
+	                        res.insert(s) ;
+	                    } else {
+	                        bal3_recurse(work,c,i+1) ;
+	                    }
+	                }
+			break ;
+	            } /* end switch */
+	        } /* end if */
+	    } /* end while */
+	} /* end if */
+	return res ;
+}
+/* end subroutine (bal3) */
 
 
 static void printres(const set<string> &res)

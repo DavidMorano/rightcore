@@ -125,13 +125,17 @@ struct anas {
 	    debugprintf("anas::inc: new c=%u\n",m[w].counts[i]) ;
 	} ;
 	void enter(int i) {
+	    const int	n = m.size() ;
 	    debugprintf("anas::enter: i=%u\n",i) ;
 	    if (i > 0) {
-		const int	n = m.size() ;
 		for (int w = 0 ; w < n ; w += 1) {
 		    m[w].counts[i] = m[w].counts[i-1] ;
 		    debugprintf("anas::enter: counts[%u]=%u\n",
 			w,m[w].counts[i]) ;
+		}
+	    } else {
+		for (int w = 0 ; w < n ; w += 1) {
+		    m[w].counts[i] = 0 ;
 		}
 	    }
 	} ;
@@ -182,10 +186,9 @@ static void	printres(res_t *) ;
 
 static cchar	*cases[] = {
 	"ab",
-#ifdef	COMMENT
 	"abc",
 	"abcd",
-#endif
+	"abcdc",
 	NULL
 } ;
 

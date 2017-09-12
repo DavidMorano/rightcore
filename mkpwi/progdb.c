@@ -16,14 +16,19 @@
         This subroutine was inspired by something previous (I do not remember
 	what it was).
 
+	= 2017-09-12, David A­D­ Morano
+        Small enhancement to allocate the (on-stack) buffer for the index file
+        magic string to be PWIHDR_MAGICSIZE instead of just 16 (what that
+        define is anyway).
+
 */
 
-/* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2002,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
 	This subroutine reads the system PASSWD database and creates an inverse
-	password database file (ipasswd) that maps real name to usernames.
+	password database file (ipasswd) that maps real names to usernames.
 
 
 *******************************************************************************/
@@ -680,7 +685,7 @@ static int wrfile(PROGINFO *pip,WRCACHE *wcp,cchar *fn)
 	if ((rs = bopen(ifp,fn,"wct",0664)) >= 0) {
 	    const int	ml = PWIHDR_MAGICSIZE ;
 	    cchar	*ms = PWIHDR_MAGICSTR ;
-	    char	vetu[16] ;
+	    char	vetu[PWIHDR_MAGICSIZE+1] ;
 	    if ((rs = mkmagic(vetu,ml,ms)) >= 0) {
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))

@@ -1,15 +1,27 @@
-/* main */
+/* main (KSHLD) */
 
+/* **unfinished** */
+
+
+/* revision history:
+
+	= 2017-09-07, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
-	This program tries to load the KSH program with the
-	LD_LIBRARY_PATH set to something so that KSH doesn't f**k up
-	on startup!
+        This program tries to load the KSH program with the LD_LIBRARY_PATH set
+        to something so that KSH doesn't f**k up on startup!
 
 
 ******************************************************************************/
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -19,33 +31,27 @@
 
 #include	<vsystem.h>
 #include	<vecstr.h>
-
-#include	"localmisc.h"
-
+#include	<localmisc.h>
 
 
+/* local defines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+/* exported subroutines */
+
+
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	int	rs ;
-	int	i ;
-
-	char	*cp ;
-	char	execfname[MAXPATHLEN + 1] ;
-
-
-
+	int		rs ;
+	int		i ;
+	cchar		*cp ;
+	char		execfname[MAXPATHLEN + 1] ;
 
 	rs = u_execve(execfname,argc,argv,ev) ;
-
 
 	return 0 ;
 }
 /* end subroutine (main) */
-
 
 

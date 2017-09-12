@@ -1,4 +1,4 @@
-LIBB32
+LIBB
 
 To make:
 

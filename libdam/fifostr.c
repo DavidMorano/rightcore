@@ -9,12 +9,15 @@
 
 /* revision history:
 
-	= 1998-12-01, David A­D­ Morano
-	Module was originally written.
+	= 1999-12-09, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+	= 2017-09-12, David A­D­ Morano
+	Small interface change to |fifostr_entread()|.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -214,7 +217,7 @@ int fifostr_headlen(FIFOSTR *op)
 
 
 /* read the specified entry */
-int fifostr_entread(FIFOSTR *op,int n,char *rbuf,int rlen)
+int fifostr_entread(FIFOSTR *op,char *rbuf,int rlen,int n)
 {
 	FIFOSTR_ENT	*ep ;
 	int		rs = SR_OK ;

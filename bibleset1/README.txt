@@ -1,16 +1,14 @@
 BIBLESET
 
-This program typesets the Bible.
+This program typesets the Bible (or any text in appropriate database form)..
 
 Synopsis:
-
 $ bibleset <file(s)> [-ff <fontfamily>] [-ps <ps>[:<vs>] [-vs <vs>] 
 	[-vzle <w>[:<p>]] [-front <front>] [-ibz] [-back <b>]
 	[-ndb <ndb>] [-mdb <wdb>] [-cover <cover>] [-tc[=<n>]] 
 	[-V]
 
-where:
-
+Arguments:
 <file(s)>		text file(s) to process
 -ff <fontfamily>	is one of: T, P, B, N, H, R, A, C
 -front <front>		include front-matter from file <front>

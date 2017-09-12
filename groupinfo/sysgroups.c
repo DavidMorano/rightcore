@@ -108,11 +108,7 @@ int sysgroups_close(SYSGROUPS *op)
 /* end subroutine (sysgroups_close) */
 
 
-int sysgroups_readent(op,grp,grbuf,grlen)
-SYSGROUPS	*op ;
-struct group	*grp ;
-char		grbuf[] ;
-int		grlen ;
+int sysgroups_readent(SYSGROUPS *op,struct group *grp,char *grbuf,int grlen)
 {
 	const int	glen = GROUPNAMELEN ;
 	int		rs ;
@@ -146,8 +142,7 @@ int		grlen ;
 /* end subroutine (sysgroups_readent) */
 
 
-int sysgroups_reset(op)
-SYSGROUPS	*op ;
+int sysgroups_reset(SYSGROUPS *op)
 {
 	int		rs ;
 

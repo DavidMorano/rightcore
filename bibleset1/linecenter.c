@@ -609,7 +609,7 @@ int		brklen ;
 	    char	wbuf[WORDBUFLEN + 1] ;
 	    wp = wbuf ;
 	    len = 0 ;
-	    for (i = 0 ; (wl = fifostr_entread(&op->sq,i,wbuf,wlen)) >= 0 ; 
+	    for (i = 0 ; (wl = fifostr_entread(&op->sq,wbuf,wlen,i)) >= 0 ; 
 	        i += 1) {
 
 	    if (wl == 0) continue ;

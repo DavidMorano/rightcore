@@ -1,7 +1,7 @@
 INETPING
 
 This program is similar to the standard UNIX 'ping' program except that it does
-not hang for unknown strange reasons.
+not hang for unknown strange reasons.  A time-out can be specified.
 
 Synopsis:
 $ inetping [<hostname(s)>] [-af <afile>] [-t <to>] [-n] [-s] [-v] [-V]

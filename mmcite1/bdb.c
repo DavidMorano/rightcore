@@ -19,7 +19,7 @@
         what that BIB entry was? The new strategy (implemented by the MMCITE
         program) is more like what is done with BibTeX in the TeX (or LaTeX)
         world. All BIB databases are really expected to be maintained by the
-        document creator -- not some centralized entiry. The older centralized
+        document creator -- not some centralized entity. The older centralized
         model reflected more the use in the corporate world (where different
         people create BIB entries) than in the more "modern"
         personal-responsibility type of world! :-) Anyway, this is the way the

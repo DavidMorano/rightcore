@@ -1,7 +1,7 @@
 FSINFO
 
-This is a KSH shell built-in command.  It prints out file-system information on
-a file.
+This is a KSH shell built-in command.  It prints out file-system information
+given a file within the desired file-system.
 
 Synopsis:
 $ fsinfo [-f <file>] <spec(s)> ... [-af <afile>] [-V]

@@ -1,4 +1,4 @@
-/* inetping */
+/* b_inetping */
 
 /* fairly generic program front-end subroutine */
 
@@ -14,9 +14,12 @@
 	The program was written from scratch for network (INET) maintenance
 	purposes.
 
+	= 2017-03-19, David A­D­ Morano
+	This was converted into a KSH built-in command.
+
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -263,6 +266,9 @@ int p_inetping(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_inetping) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -773,6 +779,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
+	if (rs >= 0) {
 	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    const char		*po = PO_OPTION ;
@@ -790,10 +797,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        paramopt_curend(&aparams,&cur) ;
 	    } /* end if (cursor) */
 	} /* end if (progopts) */
+	} /* end if (ok) */
 
 /* check arguments */
 
-	if ((pip->to <= 0) && (argval != NULL)) {
+	if ((rs >= 0) && (pip->to <= 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;
 	    pip->to = rs ;
 	}
@@ -908,9 +916,6 @@ badarg:
 
 }
 /* end subroutine (main) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)
@@ -1031,7 +1036,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 	        } else {
 	            if (! pip->f.quiet) {
 	                fmt = "%s: inaccessible argument-list (%d)\n",
-	                    shio_printf(pip->efp,fmt,pn,rs) ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
 	                shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
 	        } /* end if */
