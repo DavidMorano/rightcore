@@ -22,21 +22,17 @@
 	Latin-1 characters also.
 
 	Synopsis:
-
 	int ishexlatin(int ch)
 
 	Arguments:
-
 	ch		character to test (can be an 8-bit character)
 
 	Returns:
-
 	TRUE		yes
 	FALSE		no
 
 
 	= Compile-option:
-
 	CF_LOOKUP	set if you want to use a look-up table algorithm
 
         As we suspected, the version of this subroutine *WITHOUT* the look-up
@@ -45,7 +41,7 @@
         always the case. You can mull over why it might be the case that the
         non-look-up table algorithm wins out, but taking a little bit of a
         closer look at that algorithm (and comparing with the look-up table
-        version) might reveal the answer!
+        version -- closely) might reveal the answer!
 
 
 *******************************************************************************/

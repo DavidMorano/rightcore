@@ -344,6 +344,9 @@ int p_dhtext(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_dhtext) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1000,10 +1003,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_dhtext) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

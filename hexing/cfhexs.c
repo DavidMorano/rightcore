@@ -21,17 +21,14 @@
 	faster).
 
 	Synopsis:
-
 	int cfhexs(cchar *sbuf,int slen,uchar *dbuf)
 
 	Arguments:
-
 	sbuf		address of string to be converted
 	slen		len of source address to convert
 	dbuf		address of buffer to store result
 
 	Outputs:
-
 	<0		error
 	>=0		length of result
 

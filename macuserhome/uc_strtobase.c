@@ -23,19 +23,16 @@
 #include	<errno.h>
 
 #include	<vsystem.h>
+#include	<localmisc.h>
 
 
 /* exported subroutines */
 
 
-int uc_strtoi(startp,endpp,b,rp)
-const char	startp[] ;
-char		**endpp ;
-int		b ;
-int		*rp ;
+int uc_strtoi(cchar *startp,char **endpp,int b,int *rp)
 {
-	int	rs ;
-	char	*endp = NULL ;
+	int		rs ;
+	char		*endp = NULL ;
 
 	if (rp == NULL) return SR_FAULT ;
 	errno = 0 ;
@@ -48,14 +45,10 @@ int		*rp ;
 /* end subroutine (uc_strtoi) */
 
 
-int uc_strtol(startp,endpp,b,rp)
-const char	startp[] ;
-char		**endpp ;
-int		b ;
-long		*rp ;
+int uc_strtol(cchar *startp,char **endpp,int b,long *rp)
 {
-	int	rs ;
-	char	*endp = NULL ;
+	int		rs ;
+	char		*endp = NULL ;
 
 	if (rp == NULL) return SR_FAULT ;
 	errno = 0 ;
@@ -68,14 +61,10 @@ long		*rp ;
 /* end subroutine (uc_strtol) */
 
 
-int uc_strtoll(startp,endpp,b,rp)
-const char	startp[] ;
-char		**endpp ;
-int		b ;
-LONG		*rp ;
+int uc_strtoll(cchar *startp,char **endpp,int b,LONG *rp)
 {
-	int	rs ;
-	char	*endp = NULL ;
+	int		rs ;
+	char		*endp = NULL ;
 
 	if (rp == NULL) return SR_FAULT ;
 	errno = 0 ;
@@ -88,14 +77,10 @@ LONG		*rp ;
 /* end subroutine (uc_strtoll) */
 
 
-int uc_strtoui(startp,endpp,b,rp)
-const char	startp[] ;
-char		**endpp ;
-int		b ;
-uint		*rp ;
+int uc_strtoui(cchar *startp,char **endpp,int b,uint *rp)
 {
-	int	rs ;
-	char	*endp = NULL ;
+	int		rs ;
+	char		*endp = NULL ;
 
 	if (rp == NULL) return SR_FAULT ;
 	errno = 0 ;
@@ -108,14 +93,10 @@ uint		*rp ;
 /* end subroutine (uc_strtoui) */
 
 
-int uc_strtoul(startp,endpp,b,rp)
-const char	startp[] ;
-char		**endpp ;
-int		b ;
-ulong		*rp ;
+int uc_strtoul(cchar *startp,char **endpp,int b,ulong *rp)
 {
-	int	rs ;
-	char	*endp = NULL ;
+	int		rs ;
+	char		*endp = NULL ;
 
 	if (rp == NULL) return SR_FAULT ;
 	errno = 0 ;
@@ -128,14 +109,10 @@ ulong		*rp ;
 /* end subroutine (uc_strtoul) */
 
 
-int uc_strtoull(startp,endpp,b,rp)
-const char	startp[] ;
-char		**endpp ;
-int		b ;
-ULONG		*rp ;
+int uc_strtoull(cchar *startp,char **endpp,int b,ULONG *rp)
 {
-	int	rs ;
-	char	*endp = NULL ;
+	int		rs ;
+	char		*endp = NULL ;
 
 	if (rp == NULL) return SR_FAULT ;
 	errno = 0 ;

@@ -1404,7 +1404,7 @@ static int procmsghdr_xpriority(PROGINFO *pip,PROCDATA *pdp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("progmsgs/procmsghdr_xpriority: hdr=%s\n",hdr) ;
+	debugprintf("progmsgs/procmsghdr_xpriority: enr\n") ;
 #endif
 	if (pip->f.logmsg) {
 	    MAILMSG	*msgp = pdp->msgp ;

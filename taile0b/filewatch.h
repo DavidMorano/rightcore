@@ -23,6 +23,7 @@
 /* object defines */
 #define	FILEWATCH		struct filewatch_head
 #define	FILEWATCH_ARGS		struct filewatch_args
+#define	FILEWATCH_FL		struct filewatch_flags
 
 
 /* options */
@@ -58,8 +59,8 @@ struct filewatch_head {
 	char		*lp ;
 	char		*buf ;
 	STRFILTER	*sfp ;
+	FILEWATCH_FL	f ;
 	bfile		wfile ;
-	struct filewatch_flags	f ;
 	time_t		lastcheck ;
 	time_t		lastchange ;
 	time_t		opentime ;
@@ -82,8 +83,7 @@ struct filewatch_head {
 extern "C" {
 #endif
 
-extern int filewatch_start(FILEWATCH *,FILEWATCH_ARGS *,
-		STRFILTER *,const char *) ;
+extern int filewatch_start(FILEWATCH *,FILEWATCH_ARGS *,STRFILTER *,cchar *) ;
 extern int filewatch_check(FILEWATCH *,time_t,bfile *) ;
 extern int filewatch_readline(FILEWATCH *,time_t,char *,int) ;
 extern int filewatch_finish(FILEWATCH *) ;

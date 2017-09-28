@@ -488,6 +488,9 @@ int p_la(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_la) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1072,9 +1075,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 #if	CF_PERCACHE

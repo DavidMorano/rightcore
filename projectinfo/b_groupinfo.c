@@ -333,6 +333,9 @@ int p_groupinfo(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_groupinfo) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {

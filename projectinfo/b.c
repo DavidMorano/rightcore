@@ -225,9 +225,9 @@ static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_setproject(LOCINFO *,cchar *) ;
 
-#ifdef	COMMENT
+#if	CF_LOCSETENT
 static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
-#endif /* COMMENT */
+#endif /* CF_LOCSETENT */
 
 static int	mklist(char *,int,char **) ;
 
@@ -343,6 +343,9 @@ int p_projectinfo(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_projectinfo) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -744,8 +747,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
-	    shio_printf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
+	    shio_printf(pip->efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
+	    shio_printf(pip->efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
 	} /* end if */
 
 	if (f_usage)
@@ -1076,6 +1079,111 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,void *ofp,cchar *afn)
 /* end subroutine (procargs) */
 
 
+static int procqueries(PROGINFO *pip,void *ofp,cchar *lbuf,int len)
+{
+	FIELD		fsb ;
+	int		rs ;
+	int		wlen = 0 ;
+	if ((rs = field_start(&fsb,lbuf,len)) >= 0) {
+	    int		fl ;
+	    cchar	*fp ;
+	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
+	        if (fl > 0) {
+	            rs = procquery(pip,ofp,fp,fl) ;
+	            wlen += rs ;
+	        }
+	        if (fsb.term == '#') break ;
+	        if (rs < 0) break ;
+	    } /* end while */
+	    field_finish(&fsb) ;
+	} /* end if (field) */
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procqueries) */
+
+
+/* process a query specification */
+static int procquery(PROGINFO *pip,void *ofp,cchar *np,int nl)
+{
+	LOCINFO		*lip = pip->lip ;
+	const int	vlen = VBUFLEN ;
+	int		rs = SR_OK ;
+	int		rs1 = SR_NOENT ;
+	int		ci ;
+	int		v ;
+	int		vl = -1 ;
+	int		wlen = 0 ;
+	cchar		*vp = NULL ;
+	char		vbuf[VBUFLEN + 1] ;
+
+	vbuf[0] = '\0' ;
+	ci = matostr(qopts,1,np,nl) ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("procquery: query=%t i=%d\n",
+	        np,nl,ci) ;
+#endif
+
+	if (pip->debuglevel > 0) {
+	    shio_printf(pip->efp,"%s: query=%t(%d)\n",
+	        pip->progname,np,nl,ci) ;
+	}
+
+	switch (ci) {
+	case qopt_pjid:
+	    v = lip->pj.pj_projid ;
+	    if ((rs1 = ctdeci(vbuf,vlen,v)) >= 0) {
+	        vp = vbuf ;
+	        vl = rs1 ;
+	    }
+	    break ;
+	case qopt_name:
+	case qopt_projectname:
+	    vp = lip->pj.pj_name ;
+	    break ;
+	case qopt_comment:
+	case qopt_description:
+	    vp = lip->pj.pj_comment ;
+	    break ;
+	case qopt_users:
+	    if ((rs = mklist(vbuf,vlen,lip->pj.pj_users)) >= 0) {
+	        vp = vbuf ;
+	        vl = rs ;
+	    }
+	    break ;
+	case qopt_groups:
+	    if ((rs = mklist(vbuf,vlen,lip->pj.pj_groups)) >= 0) {
+	        vp = vbuf ;
+	        vl = rs ;
+	    }
+	    break ;
+	default:
+	    rs = SR_INVALID ;
+	    break ;
+	} /* end switch */
+
+/* print out */
+
+	if ((rs >= 0) && (pip->verboselevel > 0)) {
+
+	    if (vp == NULL) {
+	        vp = "*" ;
+	        vl = 1 ;
+	    }
+
+	    if (vl < 0) vl = strlen(vp) ;
+
+	    rs = shio_print(ofp,vp,vl) ;
+	    wlen += rs ;
+
+	} /* end if (printing out) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procquery) */
+
+
 static int proclist(PROGINFO *pip,void *ofp)
 {
 	vecpstr		pjl ;
@@ -1211,111 +1319,6 @@ static int proclistgroup(PROGINFO *pip,vecpstr *plp,
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (proclistgroup) */
-
-
-static int procqueries(PROGINFO *pip,void *ofp,cchar *lbuf,int len)
-{
-	FIELD		fsb ;
-	int		rs ;
-	int		wlen = 0 ;
-	if ((rs = field_start(&fsb,lbuf,len)) >= 0) {
-	    int		fl ;
-	    cchar	*fp ;
-	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
-	        if (fl > 0) {
-	            rs = procquery(pip,ofp,fp,fl) ;
-	            wlen += rs ;
-	        }
-	        if (fsb.term == '#') break ;
-	        if (rs < 0) break ;
-	    } /* end while */
-	    field_finish(&fsb) ;
-	} /* end if (field) */
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (procqueries) */
-
-
-/* process a query specification */
-static int procquery(PROGINFO *pip,void *ofp,cchar np[],int nl)
-{
-	LOCINFO		*lip = pip->lip ;
-	const int	vlen = VBUFLEN ;
-	int		rs = SR_OK ;
-	int		rs1 = SR_NOENT ;
-	int		ci ;
-	int		v ;
-	int		vl = -1 ;
-	int		wlen = 0 ;
-	cchar		*vp = NULL ;
-	char		vbuf[VBUFLEN + 1] ;
-
-	vbuf[0] = '\0' ;
-	ci = matostr(qopts,1,np,nl) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("procquery: query=%t i=%d\n",
-	        np,nl,ci) ;
-#endif
-
-	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: query=%t(%d)\n",
-	        pip->progname,np,nl,ci) ;
-	}
-
-	switch (ci) {
-	case qopt_pjid:
-	    v = lip->pj.pj_projid ;
-	    if ((rs1 = ctdeci(vbuf,vlen,v)) >= 0) {
-	        vp = vbuf ;
-	        vl = rs1 ;
-	    }
-	    break ;
-	case qopt_name:
-	case qopt_projectname:
-	    vp = lip->pj.pj_name ;
-	    break ;
-	case qopt_comment:
-	case qopt_description:
-	    vp = lip->pj.pj_comment ;
-	    break ;
-	case qopt_users:
-	    if ((rs = mklist(vbuf,vlen,lip->pj.pj_users)) >= 0) {
-	        vp = vbuf ;
-	        vl = rs ;
-	    }
-	    break ;
-	case qopt_groups:
-	    if ((rs = mklist(vbuf,vlen,lip->pj.pj_groups)) >= 0) {
-	        vp = vbuf ;
-	        vl = rs ;
-	    }
-	    break ;
-	default:
-	    rs = SR_INVALID ;
-	    break ;
-	} /* end switch */
-
-/* print out */
-
-	if ((rs >= 0) && (pip->verboselevel > 0)) {
-
-	    if (vp == NULL) {
-	        vp = "*" ;
-	        vl = 1 ;
-	    }
-
-	    if (vl < 0) vl = strlen(vp) ;
-
-	    rs = shio_print(ofp,vp,vl) ;
-	    wlen += rs ;
-
-	} /* end if (printing out) */
-
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (procquery) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
@@ -1471,7 +1474,7 @@ static int locinfo_setproject(LOCINFO *lip,cchar *pjn)
 /* end subroutine (locinfo_setproject) */
 
 
-static int mklist(char rbuf[],int rlen,char **names)
+static int mklist(char *rbuf,int rlen,char **names)
 {
 	SBUF		b ;
 	int		rs ;

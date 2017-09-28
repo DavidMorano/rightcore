@@ -1,4 +1,4 @@
-/* ipow */
+/* ipowell */
 
 /* return integer-power */
 /* last modified %G% version %I% */
@@ -23,7 +23,7 @@
 
 	Synopsis:
 
-	int ipow(b,p)
+	LONG ipowell(b,p)
 	int	b, p ;
 
 	Arguments:
@@ -65,7 +65,7 @@
 /* exported subroutines */
 
 
-int ipow(int b,int p)
+LONG ipowell(int b,int p)
 {
 	LONG		r = 1 ;
 	int		i ;
@@ -74,6 +74,6 @@ int ipow(int b,int p)
 	}
 	return r ;
 }
-/* end subroutine (ipow) */
+/* end subroutine (ipowell) */
 
 

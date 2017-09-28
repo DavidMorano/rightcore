@@ -148,7 +148,7 @@ extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	fsdirtreestat(cchar *,int,FSDIRTREE_STAT *) ;
 extern int	getuid_user(cchar *,int) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	mkplogid(char *,int,cchar *,int) ;
 extern int	mksublogid(char *,int,cchar *,int) ;
 extern int	hasalldig(cchar *,int) ;
@@ -427,6 +427,9 @@ int p_backmaint(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_backmaint) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -797,7 +800,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                rs = getgroup_gid(argp,argl) ;
+	                                rs = getgid_group(argp,argl) ;
 	                                lip->gid_new = rs ;
 	                            }
 	                        } else
@@ -1126,9 +1129,6 @@ badarg:
 /* end subroutine (b_backmaint) */
 
 
-/* local subroutines */
-
-
 static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1294,7 +1294,7 @@ static int procacl(PROGINFO *pip,cchar *abuf,int alen)
 	                } else if ((ait == acltype_group) ||
 	                    (ait == acltype_defgroup)) {
 
-	                    rs = getgroup_gid(idspec,idlen) ;
+	                    rs = getgid_group(idspec,idlen) ;
 	                    ai.gid = rs ;
 
 	                } /* end if (translations) */

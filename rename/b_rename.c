@@ -316,6 +316,9 @@ int p_rename(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_rename) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -613,9 +616,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
 	                            if (argl) {
 					KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
@@ -876,10 +879,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_rename) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

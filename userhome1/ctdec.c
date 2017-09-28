@@ -19,31 +19,26 @@
 /*******************************************************************************
 
 	Description:
-
         These subroutines convert an integer (signed or unsigned) into a decimal
         string that is placed into the caller supplied buffer (of specified
         length).
 
 	Synopsis:
-
 	int ctdecXX(rbuf,rlen,v)
 	char		rbuf[] ;
 	int		rlen ;
 	int		v ;
 
 	Arguments:
-
 	rbuf		caller supplied buffer
 	rlen		caller supplied buffer length
 	v		integer value to be converted
 
 	Returns:
-
 	>=0		length of buffer used by the conversion
 	<0		error in the conversion
 
 	Notes:
-
         As it stands now, these subroutines do not perform any funny business in
         trying to make this process faster! These subroutines are, therefore,
         probably the slowest such conversions routinely available. To really

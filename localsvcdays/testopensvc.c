@@ -1,5 +1,8 @@
-/* testucopen */
+/* testopensvc */
 /* lang=C89 */
+
+/* test opening a service */
+
 
 #define	CF_DEBUGS	1		/* compile-time debugging */
 #define	CF_DEBUGMALL	1		/* debugging memory-allocations */
@@ -46,7 +49,7 @@ extern int	debugprinthexblock(const char *,int,const void *,int) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern cchar 	*getourenv(const char **,const char *) ;
+extern cchar 	*getourenv(cchar **,cchar *) ;
 
 extern char	*timestr_logz(time_t,char *) ;
 
@@ -55,24 +58,22 @@ extern char	*timestr_logz(time_t,char *) ;
 static int dumpfile(FILE *,int,int) ;
 static int dumpdir(int,int) ;
 
-#ifdef	COMMENT
-static int filebuf_oread(FILEBUF *,void *,int,int) ;
-static int filebuf_refill(FILEBUF *,int) ;
-#endif /* COMMENT */
 
 /* exported subroutines */
 
-int main(int argc,const char **argv,const char **envv)
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	FILE		*ofp = stdout ;
 #if	CF_DEBUGS && CF_DEBUGMALL
 	uint		mo_start = 0 ;
 #endif
 	int		rs = SR_OK ;
+	int		ex = 0 ;
 
 #if	CF_DEBUGS
 	{
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	        rs = debugopen(cp) ;
 	        debugprintf("main: starting rs=%d\n",rs) ;
@@ -88,8 +89,8 @@ int main(int argc,const char **argv,const char **envv)
 	if (argv != NULL) {
 	    int		ai ;
 	    for (ai = 1 ; (ai < argc) && (argv[ai] != NULL) ; ai += 1) {
-	        const char	*fn = argv[ai] ;
 	        const int	of = O_RDONLY ;
+	        cchar		*fn = argv[ai] ;
 #if	CF_DEBUGS
 	        debugprintf("main: fn=%s\n",fn) ;
 #endif
@@ -130,7 +131,7 @@ int main(int argc,const char **argv,const char **envv)
 	} /* end if (arguments) */
 
 	if (rs < 0) {
-	printf("failure (%d)\n",rs) ;
+	    printf("failure (%d)\n",rs) ;
 	}
 
 #if	CF_DEBUGS
@@ -178,7 +179,8 @@ int main(int argc,const char **argv,const char **envv)
 	debugclose() ;
 #endif
 
-	return 0 ;
+	if (rs < 0) ex = 1 ;
+	return ex ;
 }
 /* end subroutine (main) */
 
@@ -192,6 +194,7 @@ static int dumpfile(FILE *ofp,int fd,int of)
 	const int	to = 5 ;
 	const int	fo = (of | O_NETWORK) ;
 	int		rs ;
+	int		rs1 ;
 #if	CF_DEBUGS
 	debugprintf("main/dumpfile: ent to=%d\n",to) ;
 #endif
@@ -212,7 +215,8 @@ static int dumpfile(FILE *ofp,int fd,int of)
 #endif /* CF_DEBUGS */
 	        if (rs < 0) break ;
 	    } /* end while */
-	    filebuf_finish(&b) ;
+	    rs1 = filebuf_finish(&b) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (filebuf) */
 
 #if	CF_DEBUGS
@@ -230,6 +234,7 @@ static int dumpdir(int fd,int of)
 	FSDIR_ENT	de ;
 	const int	dlen = MAXPATHLEN ;
 	int		rs ;
+	int		rs1 ;
 	char		dbuf[USERNAMELEN+1] ;
 
 #if	CF_DEBUGS
@@ -240,9 +245,10 @@ static int dumpdir(int fd,int of)
 	        while ((rs = fsdir_read(&d,&de)) > 0) {
 	            printf("e=%s\n",de.name) ;
 	        } /* end while */
-	        fsdir_close(&d) ;
+	        rs1 = fsdir_close(&d) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (fsdir) */
-	} /* end if */
+	} /* end if (bufprintf) */
 
 #if	CF_DEBUGS
 	debugprintf("main/dumpdir: ret rs=%d\n",rs) ;
@@ -250,138 +256,5 @@ static int dumpdir(int fd,int of)
 	return rs ;
 }
 /* end subroutine (dumpdir) */
-
-
-#ifdef	COMMENT
-
-static int filebuf_oread(op,rbuf,rlen,to)
-FILEBUF		*op ;
-void		*rbuf ;
-int		rlen ;
-int		to ;
-{
-	int	rs = SR_OK ;
-	int	mlen ;
-	int	rc ;
-	int	tlen = 0 ;
-	int	f_timedout = FALSE ;
-
-	register char	*dbp = (char *) rbuf ;
-	register char	*bp, *lastp ;
-
-	if (op == NULL) return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("filebuf_oread: rlen=%d to=%d\n",rlen,to) ;
-#endif
-
-	rc = (op->f.net) ? FILEBUF_RCNET : 1 ;
-	while (tlen < rlen) {
-
-#if	CF_DEBUGS
-	    debugprintf("filebuf_oread: 0 while-top tlen=%d op->len=%d\n", 
-	        tlen,op->len) ;
-#endif
-	    if (op->len <= 0) {
-	        rs = filebuf_refill(op,to) ;
-	        if ((rs == SR_TIMEDOUT) && (tlen > 0)) {
-	            rs = SR_OK ;
-	            f_timedout = TRUE ;
-	        }
-	    }
-
-#if	CF_DEBUGS
-	    debugprintf("filebuf_oread: refilled rs=%d f_to=%u\n",
-		rs,f_timedout) ;
-	    debugprintf("filebuf_oread: op->len=%d tlen=%d\n", op->len,tlen) ;
-#endif
-
-	    if ((op->len == 0) || f_timedout)
-	        break ;
-
-	    mlen = MIN(op->len,(rlen - tlen)) ;
-
-	    bp = op->bp ;
-	    lastp = op->bp + mlen ;
-	    while (bp < lastp)
-	        *dbp++ = *bp++ ;
-
-	    op->bp += mlen ;
-	    tlen += mlen ;
-	    op->len -= mlen ;
-
-	} /* end while */
-
-	if (rs >= 0)
-	    op->off += tlen ;
-
-	if (rs == SR_TIMEDOUT) {
-	    char	tbuf[10+1] = { 0 } ;
-	    int	i ;
-	    rs = u_write(op->fd,tbuf,0) ;
-#if	CF_DEBUGS
-	    debugprintf("filebuf_oread: timed-out? rs=%d\n",rs) ;
-#endif
-	    for (i = 0 ; i < 4 ; i += 1) {
-	        rs = u_read(op->fd,tbuf,10) ;
-#if	CF_DEBUGS
-	        debugprintf("filebuf_oread: u_read() rs=%d\n",rs) ;
-#endif
-	    }
-	} /* end if (timed-out) */
-
-#if	CF_DEBUGS
-	debugprintf("filebuf_oread: ret rs=%d tlen=%u\n",rs,tlen) ;
-#endif
-
-	return (rs >= 0) ? tlen : rs ;
-}
-/* end subroutine (filebuf_read) */
-
-
-static int filebuf_refill(FILEBUF *op,int to)
-{
-	const int	fmo = FM_TIMED ;
-	int		rs = SR_OK ;
-	int		rc = 4 ;
-	int		tlen = 0 ;
-
-	while ((op->len <= 0) && (rc-- > 0)) {
-
-#if	CF_DEBUGS
-	    debugprintf("filebuf_refill: 1 while-top tlen=%d len=%d rc=%d\n",
-	        tlen,op->len,rc) ;
-	    debugprintf("filebuf_refill: reading=%d to=%d\n",op->bufsize,to) ;
-#endif
-	    op->bp = op->buf ;
-	    if (to >= 0) {
-	        rs = uc_reade(op->fd,op->buf,op->bufsize,to,fmo) ;
-	    } else
-	        rs = u_read(op->fd,op->buf,op->bufsize) ;
-
-#if	CF_DEBUGS
-	    debugprintf("filebuf_refill: read rs=%d\n",rs) ;
-#endif
-
-	    if ((rs == SR_TIMEDOUT) && (tlen > 0)) {
-	        rs = SR_OK ;
-	        break ;
-	    } else if (rs == 0) {
-	        to = 0 ;
-	    }
-
-	    if (rs < 0) break ;
-	    op->len = rs ;
-	    tlen += rs ;
-	} /* end while (refill) */
-
-#if	CF_DEBUGS
-	debugprintf("filebuf_refill: ret rs=%d tlen=%d\n",rs,tlen) ;
-#endif
-	return (rs >= 0) ? tlen : rs ;
-}
-/* end subroutine (filebuf_refill) */
-
-#endif /* COMMENT */
 
 

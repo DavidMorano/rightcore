@@ -146,7 +146,7 @@ extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	fsdirtreestat(cchar *,int,FSDIRTREE_STAT *) ;
 extern int	getuid_user(cchar *,int) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	hasalldig(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
@@ -419,6 +419,9 @@ int p_chacl(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_chacl) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -749,7 +752,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                rs = getgroup_gid(argp,argl) ;
+	                                rs = getgid_group(argp,argl) ;
 	                                lip->gid_new = rs ;
 	                            }
 	                        } else
@@ -820,7 +823,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                rs = getgroup_gid(argp,argl) ;
+	                                rs = getgid_group(argp,argl) ;
 	                                lip->gid_owner = rs ;
 	                            }
 	                        } else
@@ -1172,10 +1175,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_chacl) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)
@@ -1350,7 +1350,7 @@ static int procacl(PROGINFO *pip,cchar *abuf,int alen)
 	                } else if ((ai.type == acltype_group) ||
 	                    (ai.type == acltype_defgroup)) {
 
-	                    rs = getgroup_gid(idspec,idlen) ;
+	                    rs = getgid_group(idspec,idlen) ;
 	                    ai.gid = rs ;
 
 	                } /* end if (translations) */

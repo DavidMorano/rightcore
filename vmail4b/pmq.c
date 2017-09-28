@@ -82,7 +82,7 @@
 
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	msleep(int) ;
 extern int	isNotValid(int) ;
 
@@ -528,9 +528,9 @@ static int getpmqgid(void)
 	const int	nrs = SR_NOTFOUND ;
 	int		rs ;
 	cchar		*gn = PMQ_GROUPNAME1 ;
-	if ((rs = getgroup_gid(gn,-1)) == nrs) {
+	if ((rs = getgid_group(gn,-1)) == nrs) {
 	    gn = PMQ_GROUPNAME2 ;
-	    if ((rs = getgroup_gid(gn,-1)) == nrs) {
+	    if ((rs = getgid_group(gn,-1)) == nrs) {
 		rs = PMQ_GID ;
 	    }
 	}

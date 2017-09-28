@@ -1,5 +1,5 @@
 /* isort */
-/* lang=C++11 */
+/* lang=C++98 */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -42,13 +42,11 @@
 #include	<limits.h>
 #include	<string.h>
 #include	<new>
-#include	<initializer_list>
 #include	<utility>
 #include	<functional>
 #include	<algorithm>
 #include	<vector>
 #include	<list>
-#include	<array>
 #include	<vsystem.h>
 #include	<localmisc.h>
 
@@ -69,8 +67,6 @@ using namespace	std ;
 /* external subroutines */
 
 extern "C" int	isort(void *,int,int,sortcmp_t) ;
-
-extern "C" void	arrswap(int *,int,int) ;
 
 #if	CF_DEBUGS
 extern "C" int	debugprintf(cchar *,...) ;
@@ -110,8 +106,5 @@ int isort(void *base,int nelem,int esize,sortcmp_t cmp)
 	return rs ;
 }
 /* end subroutine (isort) */
-
-
-/* local subroutines */
 
 

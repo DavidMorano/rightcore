@@ -17,16 +17,13 @@
 	This subroutine returns a project-ID for a specified program-name. 
 
 	Synopsis:
-
 	int getpjid_name(cchar *np,int nl)
 
 	Arguments:
-
 	np		name of project to look up 
 	nl		length of name (in bytes)
 
 	Returns:
-
 	<0		error
 	>=0		PJID of given project name
 
@@ -69,8 +66,10 @@ int getpjid_name(cchar *np,int nl)
 	    const int		pjlen = getbufsize(getbufsize_pj) ;
 	    char		*pjbuf ;
 	    if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
-	        rs = getpj_name(&pj,pjbuf,pjlen,name) ;
-	        pjid = pj.pj_projid ;
+		{
+	            rs = getpj_name(&pj,pjbuf,pjlen,name) ;
+	            pjid = pj.pj_projid ;
+		}
 	        rs1 = uc_free(pjbuf) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (memory-allocation) */
@@ -82,7 +81,7 @@ int getpjid_name(cchar *np,int nl)
 /* end subroutine (getpjid_name) */
 
 
-int getproj_pjid(cchar *np,int nl)
+int getphid_proj(cchar *np,int nl)
 {
 	int		rs ;
 	if (np == NULL) return SR_FAULT ;
@@ -97,6 +96,6 @@ int getproj_pjid(cchar *np,int nl)
 	}
 	return rs ;
 }
-/* end subroutine (getproj_pjid) */
+/* end subroutine (getpjid_proj) */
 
 

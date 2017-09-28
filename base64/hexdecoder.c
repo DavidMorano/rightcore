@@ -46,14 +46,10 @@
 #include	<localmisc.h>
 
 #include	"hexdecoder.h"
-#include	"obuf.h"
+#include	"obuf.hh"
 
 
 /* local defines */
-
-#ifndef	MKCHAR
-#define	MKCHAR(ch)	((ch) & UCHAR_MAX)
-#endif
 
 
 /* namespaces */

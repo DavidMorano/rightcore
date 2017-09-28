@@ -200,16 +200,18 @@ struct termout_gch {
 	uchar		ch ;
 	termout_gch(int i=0) : gr(i), ft(i), ch(i) { } ;
 	termout_gch(int ngr,int nft,int nch) : gr(ngr), ft(nft), ch(nch) { } ;
-	termout_gch & operator = (int a) {
+	termout_gch &operator = (int a) {
 	    gr = 0 ;
 	    ft = 0 ;
 	    ch = a ;
+	    return (*this) ;
 	} ;
 	termout_gch(initializer_list<int> &list) {
 	    load(list) ;
 	} ;
-	termout_gch & operator = (initializer_list<int> &list) {
+	termout_gch &operator = (initializer_list<int> &list) {
 	    load(list) ;
+	    return (*this) ;
 	} ;
 	termout_gch &set(int i=0) {
 	    gr = i ;

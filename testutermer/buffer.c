@@ -335,7 +335,6 @@ int buffer_deci(BUFFER *op,int v)
 {
 	const int	dlen = DIGBUFLEN ;
 	int		rs ;
-	int		len = 0 ;
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
@@ -345,10 +344,9 @@ int buffer_deci(BUFFER *op,int v)
 	    char	*bp = (op->buf + op->len) ;
 	    rs = ctdeci(bp,dlen,v) ;
 	    op->len += rs ;
-	    len = rs ;
 	}
 
-	return (rs >= 0) ? len : rs ;
+	return rs ;
 }
 /* end subroutine (buffer_deci) */
 
@@ -357,7 +355,6 @@ int buffer_decui(BUFFER *op,uint v)
 {
 	const int	dlen = DIGBUFLEN ;
 	int		rs ;
-	int		len = 0 ;
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
@@ -367,10 +364,9 @@ int buffer_decui(BUFFER *op,uint v)
 	    char	*bp = (op->buf + op->len) ;
 	    rs = ctdecui(bp,dlen,v) ;
 	    op->len += rs ;
-	    len = rs ;
 	}
 
-	return (rs >= 0) ? len : rs ;
+	return rs ;
 }
 /* end subroutine (buffer_decui) */
 
@@ -380,7 +376,6 @@ int buffer_vprintf(BUFFER *op,cchar *fmt,va_list ap)
 {
 	const int	flen = LINEBUFLEN ;
 	int		rs ;
-	int		len = 0 ;
 	char		fbuf[LINEBUFLEN+1] ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -388,10 +383,9 @@ int buffer_vprintf(BUFFER *op,cchar *fmt,va_list ap)
 
 	if ((rs = format(fbuf,flen,0x01,fmt,ap)) >= 0) {
 	    rs = buffer_strw(op,fbuf,rs) ;
-	    len = rs ;
 	}
 
-	return (rs >= 0) ? len : rs ;
+	return rs ;
 }
 /* end subroutine (buffer_vprintf) */
 

@@ -309,6 +309,9 @@ int p_logfile(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_logfile) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -968,10 +971,7 @@ badprogstart:
 
 	return ex ;
 }
-/* end subroutine (b_logfile) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

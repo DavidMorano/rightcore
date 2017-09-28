@@ -231,7 +231,7 @@ static int userattr_sysdb(USERATTR *op,char *rbuf,int rlen,cchar *keyname)
 
 	if (rs >= 0) {
 	    if (op->have.sysdb) {
-	        const char	*cp ;
+	        cchar	*cp ;
 	        if ((rs = uc_kvamatch(op->uap->attr,keyname,&cp)) >= 0) {
 		    if (rbuf != NULL) {
 		        rs = sncpy1(rbuf,rlen,cp) ;
@@ -277,8 +277,9 @@ static int userattr_udomain(USERATTR *op,char *rbuf,int rlen)
 	        if ((rs >= 0) && (op->domain != NULL)) {
 		    if (rbuf != NULL) {
 		        rs = sncpy1(rbuf,rlen,op->domain) ;
-		    } else
+		    } else {
 		        rs = strlen(op->domain) ;
+		    }
 	        } /* end if (successful lookup) */
 	    } else {
 	        rs = SR_NOTFOUND ;

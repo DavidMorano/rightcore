@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	 = David A.D. Morano, 1995-12-01
+	 = 1999-12-01, David A.D. Morano, 
 	Module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -210,7 +210,7 @@ int		(*cmpfunc)() ;
 /* end subroutine (sortlist_add) */
 
 
-/* get an entry (enumerated) from the vector list */
+/* get an entry (enumerated) from the sorted list */
 int sortlist_get(slp,i,pp)
 sortlist	*slp ;
 int		i ;
@@ -292,7 +292,7 @@ sortlist	*slp ;
 /* end subroutine (sortlist_count) */
 
 
-/* search for an entry in the vector list */
+/* search for an entry in the sorted list */
 int sortlist_search(slp,ep,cmpfunc,pp)
 sortlist	*slp ;
 void		*ep ;

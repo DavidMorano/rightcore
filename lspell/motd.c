@@ -183,7 +183,7 @@ extern int	matstr(cchar **,cchar *,int) ;
 extern int	nleadstr(cchar *,cchar *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	permsched(cchar **,vecstr *,char *,int,cchar *,int) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	ctdecui(char *,int,uint) ;
 extern int	opentmp(cchar *,int,mode_t) ;
@@ -805,7 +805,7 @@ static int motd_idcheck(MOTD *op,MOTD_ID *idp,char *ubuf)
 	}
 
 	if ((rs >= 0) && (idp->gid < 0)) {
-	    rs = getgroup_gid(idp->groupname,-1) ;
+	    rs = getgid_group(idp->groupname,-1) ;
 	    idp->gid = rs ;
 	}
 

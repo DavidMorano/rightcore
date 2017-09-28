@@ -1,17 +1,14 @@
 TAILE
 
-This little program watches one or more files for writes to those files at
-their tails.  Any data written to any of the watched files gets written
-to the output.
+This little program watches one or more files for writes to those files at their
+tails. Any data written to any of the watched files gets written to the output.
 
 Synopsis:
-
 $ taile [<file(s)> ...] [-af <afile>] [-b] [-t <interval>] [-<interval>)
 	[-ssf <str-select-file>] [-sxf <str-exclude-file>]
 	[-r] [-wait] [-c <num>] [-V]
 
-where:
-
+Arguments:
 <file(s)>	files to watch
 -af <afile>	file of files to watch
 -b		run in the background

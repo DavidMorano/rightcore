@@ -47,7 +47,7 @@
 #include	<localmisc.h>
 
 #include	"qpdecoder.h"
-#include	"obuf.h"
+#include	"obuf.hh"
 
 
 /* local defines */

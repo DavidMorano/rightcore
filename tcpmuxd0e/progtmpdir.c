@@ -55,7 +55,7 @@
 /* external subroutines */
 
 extern int	mkpath2(char *,const char *,const char *) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	isNotPresent(int) ;
 
 
@@ -151,7 +151,7 @@ static int procdirgroup(PROGINFO *pip)
 
 	if (pip->gid_rootname < 0) {
 	    if (pip->rootname != NULL) {
-		if ((rs = getgroup_gid(pip->rootname,-1)) >= 0) {
+		if ((rs = getgid_group(pip->rootname,-1)) >= 0) {
 	            pip->gid_rootname = rs ;
 		} else if (isNotPresent(rs)) {
 	            pip->gid_rootname = 0 ;

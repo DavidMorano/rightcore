@@ -480,6 +480,9 @@ int b_logdir(int argc,cchar *argv[],void *contextp)
 /* local subroutines */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {

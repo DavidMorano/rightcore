@@ -1,7 +1,7 @@
 /* linehist */
 /* lang=C++98 */
 
-/* Line History */
+/* Line History (object) */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -52,10 +52,6 @@
 
 
 /* local defines */
-
-#ifndef	MKCHAR
-#define	MKCHAR(ch)	((ch) & UCHAR_MAX)
-#endif
 
 
 /* default name spaces */
@@ -164,7 +160,7 @@ int linehist_proc(LINEHIST *op,int ln,cchar *sp,int sl)
 		    item	a(ln,0) ;
 		    lvp->push_back(a) ;
 		} else if (ch == sch1) {
-		    int	f = TRUE ;
+		    int		f = TRUE ;
 		    if (lvp->size() > 0) {
 			const item	li = lvp->back() ;
 			if (li.type() == 0) {

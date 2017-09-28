@@ -1,18 +1,29 @@
 /* main (numwords) */
 /* lang=C++11 */
 
+/* convert a Number to Words */
+
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:
 
-	= 2010-08-23, David A­D­ Morano
+	= 2017-08-23, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2010 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
+
+        This subroutine takes numbers (positive integers) as arguments and
+        creates a string containing the necessary words to describe each given
+        number.
+
+
+*******************************************************************************/
 
 #include	<envstandards.h>
 #include	<sys/types.h>
@@ -27,6 +38,8 @@
 #include	<iostream>
 #include	<iomanip>
 #include	<vsystem.h>
+#include	<cfdec.h>
+#include	<ctwords.hh>
 #include	<localmisc.h>
 
 
@@ -41,10 +54,6 @@ using namespace std ;
 
 
 /* external subroutines */
-
-extern "C" int	sisub(cchar *,int,cchar *) ;
-extern "C" int	cfdeci(cchar *,int,int *) ;
-extern "C" int	mkrevstr(char *,int) ;
 
 #if	CF_DEBUGS
 extern "C" int	debugopen(cchar *) ;
@@ -66,65 +75,14 @@ extern "C" char	*strwcpy(char *,cchar *,int) ;
 
 /* forward references */
 
-static int speak(string *,int) ;
-static int speak_billions(string *,int) ;
-static int speak_millions(string *,int) ;
-static int speak_thousands(string *,int) ;
-static int speak_group(string *,int) ;
-static int speak_hundreds(string *,int) ;
-static int speak_tens(string *,int) ;
-static int speak_teens(string *,int) ;
-static int speak_ones(string *,int) ;
-
 
 /* local variables */
-
-static cchar	*ones[] = {
-	"Zero",
-	"One",
-	"Two",
-	"Three",
-	"Four",
-	"Five",
-	"Six",
-	"Seven",
-	"Eight",
-	"Nine",
-	NULL
-} ;
-
-static cchar	*teens[] = {
-	"Ten",
-	"Eleven",
-	"Twelve",
-	"Thirteen",
-	"Fourteen",
-	"Fifteen",
-	"Sixteen",
-	"Seventeen",
-	"Eighteen",
-	"Nineteen",
-	NULL
-} ;
-
-static cchar	*tens[] = {
-	"and",
-	"Ten",
-	"Twenty",
-	"Thirty",
-	"Forty",
-	"Fifty",
-	"Sixty",
-	"Seventy",
-	"Eighty",
-	"Ninety",
-	NULL
-} ;
 
 
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int main(int argc,const char **argv,const char **envv)
 {
 	int		rs = SR_OK ;
@@ -144,7 +102,7 @@ int main(int argc,const char **argv,const char **envv)
 		cchar	*a = argv[ai] ;
 		if ((rs = cfdeci(a,-1,&v)) >= 0) {
 		    string	s ;
-		    rs = speak(&s,v) ;
+		    rs = ctwords(&s,v) ;
 		    cout << s << endl ;
 		}
 		if (rs < 0) break ;
@@ -156,122 +114,5 @@ int main(int argc,const char **argv,const char **envv)
 	return 0 ;
 }
 /* end subroutine (main) */
-
-
-/* local subroutines */
-
-
-static int speak(string *sp,int v)
-{
-	if (v > 0) {
-	    while (v > 0) {
-		if (v >= 1000000000) {
-		    speak_billions(sp,v) ;
-		    v = (v%1000000000) ;
-		} else if (v >= 1000000) {
-		    speak_millions(sp,v) ;
-		    v = (v%1000000) ;
-		} else if (v >= 1000) {
-		    speak_thousands(sp,v) ;
-		    v = (v%1000) ;
-		} else {
-		    speak_group(sp,v) ;
-		    v = 0 ;
-		}
-	    } /* end while */
-	} else {
-	    sp->append(" ") ;
-	    sp->append(ones[0]) ;
-	}
-	return 0 ;
-}
-/* end subroutine (speak) */
-
-
-static int speak_billions(string *sp,int v)
-{
-	const int	lv = (v/1000000000) ;
-	speak_group(sp,lv) ;
-	sp->append(" Billion") ;
-	return 0 ;
-}
-/* end subroutine (speak_nillions) */
-
-
-static int speak_millions(string *sp,int v)
-{
-	const int	lv = (v/1000000) ;
-	speak_group(sp,lv) ;
-	sp->append(" Million") ;
-	return 0 ;
-}
-/* end subroutine (speak_millions) */
-
-
-static int speak_thousands(string *sp,int v)
-{
-	const int	lv = (v/1000) ;
-	speak_group(sp,lv) ;
-	sp->append(" Thousand") ;
-	return 0 ;
-}
-/* end subroutine (speak_thousands) */
-
-
-static int speak_group(string *sp,int v)
-{
-	while (v > 0) {
-	    if (v >= 100) {
-	        speak_hundreds(sp,v) ;
-		v = (v%100) ;
-	    } else if ((v >= 10) && (v < 20)) {
-		speak_teens(sp,v) ;
-		v = 0 ;
-	    } else if (v >= 10) {
-		speak_tens(sp,v) ;
-		v = (v%10) ;
-	    } else if (v > 0) {
-		speak_ones(sp,v) ;
-		v = 0 ;
-	    }
-	} /* end while */
-	return 0 ;
-}
-/* end subroutine (speak_group) */
-
-
-static int speak_hundreds(string *sp,int v)
-{
-	const int	h = (v/100) ;
-	speak_ones(sp,h) ;
-	sp->append(" Hundred") ;
-	return 0 ;
-}
-
-static int speak_tens(string *sp,int v)
-{
-	const int	t = (v/10) ;
-	sp->append(" ") ;
-	sp->append(tens[t]) ;
-	return 0 ;
-}
-
-static int speak_teens(string *sp,int v)
-{
-	const int	t = (v%10) ;
-	sp->append(" ") ;
-	sp->append(teens[t]) ;
-	return 0 ;
-}
-/* end subroutine (speak_ones) */
-
-
-static int speak_ones(string *sp,int v)
-{
-	sp->append(" ") ;
-	sp->append(ones[v]) ;
-	return 0 ;
-}
-/* end subroutine (speak_ones) */
 
 

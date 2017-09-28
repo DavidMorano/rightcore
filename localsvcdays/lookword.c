@@ -16,6 +16,12 @@
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	We lookup a word in a dictionary.
+
+
+*******************************************************************************/
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
@@ -43,13 +49,6 @@
 #ifndef	LINEBUFLEN
 #define	LINEBUFLEN	2048
 #endif
-
-#ifndef	COLUMNS
-#define	COLUMNS		80
-#endif
-
-#undef	MAXSTRLEN
-#define	MAXSTRLEN	256		/* GNU man-page say this */
 
 #ifndef	LOGICVAL
 #define	LOGICVAL(v)	((v)?1:0)
@@ -413,8 +412,9 @@ const char	*string, *front, *back ;
 	            } /* end if (whole or partial) */
 
 	            front = (tp + 1) ;
-	        } else
+	        } else {
 	            front = back ;
+		}
 
 	    } /* end while */
 
@@ -550,8 +550,9 @@ const char	*string, *front, *back ;
 
 	    if (compare(op,p,back,string,NULL) > 0) {
 	        front = p ;
-	    } else
+	    } else {
 	        back = p ;
+	    }
 
 	    p = front + ((back - front) / 2) ;
 	    SKNL(p, back) ;
@@ -567,16 +568,15 @@ const char	*string, *front, *back ;
 /* end subroutine (binary_search) */
 
 
-/*
- * Find the first line that starts with string, linearly searching from front
- * to back.
- *
- * Return NULL for no such line.
- *
- * This routine assumes:
- * 	+ front points at the first character in a line
- *	+ front is before or at the first line to be printed
- */
+/****
+  Find the first line that starts with string, linearly searching from front to
+  back. Return NULL for no such line.
+
+  This routine assumes: 
+  + front points at the first character in a line 
+  + front is before or at the first line to be printed
+
+ ****/
 
 static const char *linear_search(op,front,back,string)
 LOOKWORD	*op ;
@@ -604,9 +604,6 @@ const char	*string, *front, *back ;
  *
  * 	o Matches up to len(s1) are EQUAL.
  *	o Matches up to len(s2) are GREATER.
- *
- * Compare understands about the -f and -d flags, and treats comparisons
- * appropriately.
  *
  * The string "s1" is NUL terminated.  The string s2 is '\n' terminated (or
  * "back" terminated).
@@ -663,8 +660,9 @@ int		*np ;
 	        }
 #endif
 
-	    } else
+	    } else {
 	        rc = (ch1 - ch2) ;
+	    }
 
 #if	CF_DEBUGS
 	    debugprintf("look/compare: rc=%d\n",rc) ;

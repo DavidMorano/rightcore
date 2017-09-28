@@ -52,6 +52,8 @@
 
 /* typedefs */
 
+typedef	void	(*voidfunc)(void) ;
+
 
 /* external subroutines */
 
@@ -299,10 +301,7 @@ int uptsetconcurrency(int c)
 /* end subroutine (uptsetconcurrency) */
 
 
-int uptatfork(pre,par,chi)
-void	(*pre)() ;
-void	(*par)() ;
-void	(*chi)() ;
+int uptatfork(voidfunc pre,voidfunc par,voidfunc chi)
 {
 	int		rs ;
 

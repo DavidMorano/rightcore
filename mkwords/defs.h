@@ -310,10 +310,10 @@ struct proginfo {
 	int		logsize ;	/* max log-file size */
 	int		intrun ;	/* interval run */
 	int		intidle ;	/* interval idle */
-	int		intdis ;	/* interval disable */
 	int		intpoll ;	/* interval poll */
 	int		intmark ;	/* interval mark */
 	int		intlock ;	/* interval lock */
+	int		intdis ;	/* interval disable */
 } ;
 
 struct pivars {

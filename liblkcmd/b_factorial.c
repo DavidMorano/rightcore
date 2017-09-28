@@ -517,8 +517,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -729,7 +731,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (p_factorial) */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

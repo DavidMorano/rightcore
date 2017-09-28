@@ -1,2 +1,2 @@
 const char cookieset_makedate[] =
-	"@(#)cookieset               081020_1209:08_EDT RightCore" ;
+"@(#)cookieset               170914_1554:22_USEDT Rightcore Network Services" ;

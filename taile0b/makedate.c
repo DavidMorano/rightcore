@@ -1,2 +1,2 @@
 const char taile_makedate[] =
-"@(#)taile                   170315_1949:53_EDT Rightcore Network Services¹" ;
+"@(#)taile                   170920_2355:25_USEDT Rightcore Network Services" ;

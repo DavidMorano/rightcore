@@ -915,7 +915,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (main) */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

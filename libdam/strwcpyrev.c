@@ -3,9 +3,6 @@
 /* copy a string to a maximum extent */
 
 
-#define	CF_CHAR		1		/* use 'char(3dam)' */
-
-
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
@@ -45,29 +42,15 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
 #include	<stdlib.h>
+#include	<string.h>
 #include	<char.h>
 #include	<localmisc.h>
 
 
 /* local defines */
 
-#if	defined(CF_CHAR) && (CF_CHAR == 1)
-#define	CF_CHAREXTERN	0
-#define	tolc(c)		CHAR_TOLC(c)
-#define	touc(c)		CHAR_TOUC(c)
-#define	tofc(c)		CHAR_TOFC(c)
-#else
-#define	CF_CHAREXTERN	1
-#endif
-
 
 /* external subroutines */
-
-#if	CF_CHAREXTERN
-extern int	tolc(int) ;
-extern int	touc(int) ;
-extern int	tofc(int) ;
-#endif
 
 
 /* exported subroutines */

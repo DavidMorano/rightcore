@@ -272,6 +272,9 @@ int p_mailalias(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_mailalias) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -867,10 +870,7 @@ badprogstart:
 
 	return ex ;
 }
-/* end subroutine (b_mailalias) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 /* print out (standard error) some short usage */

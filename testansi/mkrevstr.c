@@ -3,9 +3,6 @@
 /* reverse the characters in a string in place */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
-
-
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
@@ -38,12 +35,6 @@
 
 
 /* external subroutines */
-
-#if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strnnlen(const char *,int,int) ;
-extern int	strlinelen(const char *,int,int) ;
-#endif /* CF_DEBUGS */
 
 
 /* external variables */

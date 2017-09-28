@@ -318,6 +318,9 @@ int p_makenewer(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_makenewer) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -668,8 +671,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -703,8 +708,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
+	                            if (argl) {
 	                                rs = locinfo_sufmap(lip,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -715,8 +721,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
+	                            if (argl) {
 	                                rs = procsufsub(pip,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1119,9 +1126,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 /* print out (standard error) some short usage */

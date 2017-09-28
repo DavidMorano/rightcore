@@ -1,0 +1,624 @@
+Delivered-To: coldspacemachine@gmail.com
+Received: by 10.2.176.195 with SMTP id w3csp4170670jah;
+        Tue, 26 Sep 2017 11:39:06 -0700 (PDT)
+X-Received: by 10.233.244.1 with SMTP id y1mr16333659qkl.231.1506451146303;
+        Tue, 26 Sep 2017 11:39:06 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1506451146; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=RLW23eyinQA+800FhTlG90R8ce3S2QJKQwj83TAVOKrSdT6yDqEEpkjpceq6ti8Vsi
+         QZ3VLdabJMSX1kTavzgyetKYjd4JP9fbkxRk9iMEZYZgvIL3c1JsZT828F+2tWk+XY+b
+         ySTx3bHwwenkeCBi8ctFyhynV9TyOswZcC7ZgQtb7mPe7tLPrkciFqu0oejreGPdiVlH
+         u0lo09UQgfyYhl2BBpI8DwyoxDYoewfw74DoiUiaM0oNh5X9kD9R7HYfUrMkP0cn63LP
+         HyxX6Upg+93gJFmP4EEnZVu70OQr9AJMuNI64r5plskZSfRdLC0H/FlwHyT9ZOOOnfkH
+         a7pg==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=message-id:mime-version:feedback-id:subject:to:from:date
+         :dkim-signature:arc-authentication-results:arc-message-signature
+         :delivered-to:arc-authentication-results;
+        bh=FcMrqALHXkWMddGmbc4DAA0KndF1Fptk6o8BISwl3zM=;
+        b=UIez+MQOa05dNskcHa0aorbYNgBRz4BIViYPOLImLH11stJCY64wRA+wBDwQoM/8qe
+         nHV6pbmKP29J0iZ6LGMmCtmQbdJ6ZLLjHkIF/CSpTmM8BpHtP/xDuCIxMPomQ4oxfRQw
+         DtFumWNRyGvdieAhB3pfhQjWLK8ACNj+ZIi4uz2fVUzEvQFbAb9BOlSQqCP8ka3gibXx
+         wXgHNbdgnT2fSVUKig1WiJFILWjmG2ZSXGuV3QLfrtqJeiMZ+YgzLnE9SStszkcZCL5h
+         bm3YdMpdoIyzs0jmIfI9VoA9EEXGoGNvY4uBk6Z3j52T2SUxY2EUefhPHhslCdon+p76
+         rEHw==
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@rmsend.com header.s=fbl header.b=VdFk3QOv;
+       arc=pass (i=1 spf=pass spfdomain=mmsend10.com dkim=pass dkdomain=rmsend.com);
+       spf=pass (google.com: domain of david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com
+Return-Path: <david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])
+        by mx.google.com with SMTPS id r62sor4008798qkd.36.2017.09.26.11.39.06
+        for <coldspacemachine@gmail.com>
+        (Google Transport Security);
+        Tue, 26 Sep 2017 11:39:06 -0700 (PDT)
+Received-SPF: pass (google.com: domain of david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@rmsend.com header.s=fbl header.b=VdFk3QOv;
+       arc=pass (i=1 spf=pass spfdomain=mmsend10.com dkim=pass dkdomain=rmsend.com);
+       spf=pass (google.com: domain of david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:date:from:to:subject
+         :feedback-id:mime-version:message-id;
+        bh=FcMrqALHXkWMddGmbc4DAA0KndF1Fptk6o8BISwl3zM=;
+        b=l2LGof8bYjXvuD5xFpsE9vlSgJIpXnrNwrdUmW6UCLkSZw13nwxCy1bz4D+W2Go5RX
+         eSlh1cT1zos2vnFPeg6Q7O/51d6lAHuvZjyAULEM5+QbroJofkA6KBIFqEVkyUSZ0AGo
+         m1xM7Ku2ekHxEQqi1RcrxlFj3mtVJoE8N0kUT7yx9h75Zk2FdeZgn2Bno49b7YOqR6lS
+         D4bCklNqmBSv+1uCdupcHJc6wT4CxhjQQopMTRG0Ko/P75V0omWk1VJvmWeKwmtq+Pi4
+         FFxMMjFDhCt8IhpfljzrNuZgdrGqKcaHmLUe5ayOgZTRLhGhtvycDP9WWEasjDMgeka3
+         vilw==
+X-Gm-Message-State: AHPjjUi/5uL1p7HZBUBqSeD5T3NbGHYpDfDhTs1ULCA/SsNhu7t2SKFB hyuOfUMzkHj++KGhkP2tSMgZIA8Wf8nvbHaUrDvP0wyhcflwtXg=
+X-Received: by 10.233.230.66 with SMTP id x2mr15693751qkl.340.1506451145963;
+        Tue, 26 Sep 2017 11:39:05 -0700 (PDT)
+X-Forwarded-To: coldspacemachine@gmail.com
+X-Forwarded-For: david.a.morano@gmail.com coldspacemachine@gmail.com
+Delivered-To: david.a.morano@gmail.com
+Received: by 10.200.47.246 with SMTP id m51csp4130980qta;
+        Tue, 26 Sep 2017 11:39:04 -0700 (PDT)
+X-Google-Smtp-Source: AOwi7QCChSgV6psJC/+83n+xYWXdNN9piwUBhF07Y4pCWU1WVtbXu/QVSNrTgCd0ZkPKwSy0Ey/r
+X-Received: by 10.55.0.213 with SMTP id t82mr17063580qkg.286.1506451144808;
+        Tue, 26 Sep 2017 11:39:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1506451144; cv=none;
+        d=google.com; s=arc-20160816;
+        b=PZJn94PU4Y57mMytGrdfpC0WN6EQZhYzha2FxWvBSRq95dFOQqk0+0tE0/46iEypfd
+         M74n4Nfo1K8fpnWx3okG8msewwydlZr5b3Knifx0DZHw/lVpjnr7SXYdZQQbyr5kR8Hi
+         O6B8B58hnJ4vmt8eORXWv0/rIPBt1egTOQ/m8Nb4U8uQ4RyafQeYvSsqMikLce84v/Hh
+         2bpZwzI3y9RUIgoJmZ4n2SCyFlI330IbC5UiKhy7w9Zse0YjN5KSqR5+p+gVeQRyzKP+
+         Otsq5f0+ZBaAVIF22HU18Q3P79nsn1wQ71i8u7yzbZpULOsrFd6GL90OPiEm4G6xUQYX
+         HFdQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=message-id:mime-version:feedback-id:subject:to:from:date
+         :dkim-signature:arc-authentication-results;
+        bh=FcMrqALHXkWMddGmbc4DAA0KndF1Fptk6o8BISwl3zM=;
+        b=ZPwiANo5MWeMZzwZa7K+3TyzVyOuEf/2SgnRivgoJOpdiHsq/Hh6W7MmAuLnoTlYJD
+         RcvOe/fNzrsf15H8NMQyhj+QqBMDAjHGhK/dAj4SMgUPqEyITbmgXfWL9XHFm7Zyqmk+
+         82kBuetUEpZ6VMFf7Nt13cSqd2ZWK2fs0toy3Tc9En6ZAqA6RG7nJQYFAkRATNBlaUah
+         8f7XdFAdv+6IShLZtS4fDVzDdPdjwidhAt2Uo+9JRoy6MReX+RJDdHqGF8Z717cJtUcb
+         1IVsjaXdHOyrjgS6tsGwU7ghW++p5t0VHdgdk68NnTuWty393XuDXOeP23UlAuOyXy9s
+         4Ywg==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@rmsend.com header.s=fbl header.b=VdFk3QOv;
+       spf=pass (google.com: domain of ieee_return8@mmsend10.com designates 209.18.93.103 as permitted sender) smtp.mailfrom=ieee_return8@mmsend10.com
+Return-Path: <ieee_return8@mmsend10.com>
+Received: from mail103.mmsend40.com (mail103.mmsend40.com. [209.18.93.103])
+        by mx.google.com with ESMTPS id o3si9404844qta.404.2017.09.26.11.39.04
+        for <david.a.morano@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 26 Sep 2017 11:39:04 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ieee_return8@mmsend10.com designates 209.18.93.103 as permitted sender) client-ip=209.18.93.103;
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; s=fbl; d=rmsend.com; h=Date:From:To:Subject:Feedback-ID:MIME-Version:Content-Type:Message-ID; bh=pQkVVX/xvqpEDmKzzyhj7QdmQ1c=; b=VdFk3QOv9PbNK14kMo3nK2D4ld+zhaRX5j6NXyKbAkz58Lwfl/GoySZrAHFKqtnDZ0+pdyG/7xtZ
+   THyfToK+umzDTOFn+Ewwc79H0ESr4o9o96CGzpZfV+OIFAXp8Qlidv2azStIVmfhl7iE9fA65HGj
+   E9+P755IwI2AO2R3nLY=
+Received: from RMPMTA03 (172.17.103.3) by mail103.mmsend40.com id hpafcg259tsu for <david.a.morano@gmail.com>; Tue, 26 Sep 2017 14:36:53 -0400 (envelope-from <ieee_return8@mmsend10.com>)
+Date: Tue, 26 Sep 2017 14:36:53 -0400
+From: IEEE ComSoc Meetings <noreply@comsoc.org>
+To: <david.a.morano@gmail.com>
+Subject: Join the Global Hub at IEEE GLOBECOM 2017
+X-TokenInfo-NoToken: 
+Feedback-ID: 7727:7727_1789527:7727_38770403:realmagnet
+x-jobid: 38770403
+X-Bps1: 36956905557
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="_NextPart_000_14727655_2017926_143652938"
+Message-ID: <0.0.1.2E9.1D336F66CBB8C6C.2CA09@mail103.mmsend40.com>
+
+--_NextPart_000_14727655_2017926_143652938
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+To see the web version of this message click here:=20
+http://contentsharing.net/actions/email_web_version.cfm?recipient_id=3D2505=
+62244&message_id=3D14727655&user_id=3DIEEECOMSOC&jobid=3D38770403
+
+IEEE Global Communications Conference (GLOBECOM 2017)
+4-8 December 2017 // Singapore
+http://globecom2017.ieee-globecom.org
+
+IEEE GLOBECOM 2017 is dedicated to driving innovations and technological br=
+eakthroughs in broadband, wireless, multimedia, Internet, image and voice c=
+ommunications.=09Register now
+=20
+This 5-day event features a comprehensive agenda specifically designed to a=
+dvance technologies, systems and infrastructure reshaping the world and pro=
+viding access to an unprecedented spectrum of high-speed, seamless and cost=
+-effective global telecommunications services.
+
+- Keynote addresses on various aspects of digital and wireless technologies=
+ given by industry, academic and government officials.
+- Series of industry presentations and demonstrations led by National Instr=
+uments, Intel, MathWorks, TelNet Management Consulting, Data 61, CSIRO and =
+IS-Wireless.
+- 180+ technical and interactive sessions highlighting the latest research =
+and innovations.
+- YP/WIE/WICE to host a panel on the opportunities and challenges of resear=
+ch, innovation and commercialization.
+- Tutorials and workshops exploring different areas of 5G, IoT, SDR, big da=
+ta, autonomous vehicles, energy harvesting and massive MIMO.
+- Lightning Talks to offer a lively, informal format for 20 separate presen=
+ters to address timely and pressing technical industry topics in brief, fiv=
+e-minute talks.=20
+- Exhibits showcasing the latest communications products and services.
+
+There is a full slate of events for everybody - engineers, scientists, stud=
+ents, technologists, entrepreneurs, business leaders, policy makers - at IE=
+EE GLOBECOM 2017.
+
+For registration and program information, visit http://globecom2017.ieee-gl=
+obecom.org.
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+If you no longer wish to receive emails from the IEEE Communications Societ=
+y,=20
+please send an email to opt-out@comsoc.org with REMOVE in the subject line.
+
+IEEE Communications Society
+3 Park Avenue, 17 Floor
+New York, NY 10016
+http://www.comsoc.org?utm_source=3DReal%20Magnet&utm_medium=3DINSERT_CHANNE=
+L&utm_campaign=3DINSERT_LINK_ID
+
+************************************************************** =20
+IEEE Communications Society - 17th floor , 3 Park Avenue, New York, NY 1001=
+6 =20
+**************************************************************Use this link=
+ to unsubscribe:
+http://unsubscribe.magnetmail.net/Actions/unsubscribe.cfm?message_id=3D1472=
+7655&user_id=3DIEEECOMSOC&recipient_id=3D250562244&group_id=3D1789527&jobid=
+=3D38770403
+
+--_NextPart_000_14727655_2017926_143652938
+Content-Type: text/html; charset="ISO-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html><html=20
+xmlns=3D"http://www.w3.org/1999/xhtml"><head><meta=20
+http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8"><title>g=
+lobecom17 reg 9.20.17</title><style>body { margin:0px; padding:0px; -moz-te=
+xt-size-adjust:none; -webkit-text-size-adjust:none; -ms-text-size-adjust:no=
+ne;}
+        @media screen and (max-width:649px){
+        td[class=3D"main_message"] {width: 100% !important; border:none !im=
+portant;}
+        td[class=3D"image_container_2col"] {padding: 0px 0px 20px 0px !impo=
+rtant; margin:0px auto !important; max-width:310px !important;}
+        td[class=3D"image_container_3col"] {padding: 0px 0px 20px 0px !impo=
+rtant; margin:0px auto !important; max-width:200px !important;}
+        td[class=3D"feature_button"] {padding-bottom:0px !important;} =20
+        td[class=3D"mobile_stack"] {padding: 0px !important;}
+        td[class=3D"article_stack_r"] {padding-bottom:20px !important;}
+        td[class=3D"article_stack_l"] {padding-top:20px !important;}=20
+        td[data-zone=3D"vertical container"] td[class=3D"social_container"]=
+ {width:10% !important;}
+        td[class=3D"thumb"] img {max-width:150px !important; width:100% !im=
+portant; height:auto !important; align:center !important;}
+        td[class=3D"social_btn"] img {max-width:32px !important; width:100%=
+ !important; height:auto !important; text-align:center !important;}
+        td[data-zone=3D"swyn"] img {max-width:120px !important; width:100% =
+!important; height:auto !important;}
+        td[class=3D"rm_logo"] img {max-width:100px !important; width:100% !=
+important; height:auto !important;}
+        td [data-zone=3D"image"]  img {width:100% !important; height:auto !=
+important;}
+        tbody{ width:100% !important;}
+=09=09table[class=3D"full_width"] {width:100% !important;}
+        td[data-zone=3D"vertical container"], td[data-zone=3D"horizontal co=
+ntainer"], td[data-zone=3D"article"], td[data-zone=3D"text"], td [data-zone=
+=3D"image"], td[data-zone=3D"data-image-choices"], td[class=3D"he_nodrop"],=
+ td[class=3D"full_width"] {width: 100% !important;} =20
+        td[data-zone=3D"horizontal container"] td[data-zone=3D"vertical con=
+tainer"] {display:block !important;}
+        td[data-zone=3D"article"] td[data-zone=3D"vertical container"] {dis=
+play:block !important;}
+=09=09td[data-zone=3D"text"] {line-height:150% !important;}
+        td[data-zone=3D"text"] div span {line-height:150% !important;}
+        }</style></head><body=20
+style=3D"font-family: tahoma, sans-serif; font-size: 13px; background-color=
+: rgb(230, 230, 230);"><div=20
+style=3D"display:none !important; visibility: hidden !important; opacity: 0=
+ !important; color: transparent !important; height: 0px !important; width: =
+0px !important; font-size:0px; line-height:0; overflow:hidden; mso-hide: al=
+l;" width=3D"0" height=3D"0">4-8 December | Singapore |</div>
+<p=20
+style=3D"text-align: center"><span=20
+style=3D"font-family: Arial; "><span=20
+style=3D"font-size: 9pt; ">View message online -&nbsp;</span></span><span=
+=20
+style=3D"font-size: 9pt"><a=20
+href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZqUf3cLQ6ag~~&amp;p=
+e=3D-vzzQo89exZsCi1MMXM3t6jBrGQ4G0FA2-WBOyTcLsr9zHkyqiSuIqP6LguIPJD1b0_LTgZ=
+0IU3K6n619ji-bw~~"><span=20
+style=3D"font-family: Arial; ">Click here</span></a></span><span=20
+style=3D"font-family: Arial; "><span=20
+style=3D"font-size: 9pt; ">.</span></span>&nbsp;&nbsp;</p>
+<div=20
+class=3D"grammarly-disable-indicator">&nbsp;</div><div=20
+style=3D"font-family: tahoma, sans-serif; font-size: 13px; background-color=
+: rgb(230, 230, 230);" align=3D"center" class=3D"he_stage" data-theme=3D"18=
+9432" width=3D"100%" data-color=3D"1">
+    <style=20
+type=3D"text/css">
+        body { margin:0px; padding:0px; -moz-text-size-adjust:none; -webkit=
+-text-size-adjust:none; -ms-text-size-adjust:none;}
+        @media screen and (max-width:649px){
+        td[class=3D"main_message"] {width: 100% !important; border:none !im=
+portant;}
+        td[class=3D"image_container_2col"] {padding: 0px 0px 20px 0px !impo=
+rtant; margin:0px auto !important; max-width:310px !important;}
+        td[class=3D"image_container_3col"] {padding: 0px 0px 20px 0px !impo=
+rtant; margin:0px auto !important; max-width:200px !important;}
+        td[class=3D"feature_button"] {padding-bottom:0px !important;} =20
+        td[class=3D"mobile_stack"] {padding: 0px !important;}
+        td[class=3D"article_stack_r"] {padding-bottom:20px !important;}
+        td[class=3D"article_stack_l"] {padding-top:20px !important;}=20
+        td[data-zone=3D"vertical container"] td[class=3D"social_container"]=
+ {width:10% !important;}
+        td[class=3D"thumb"] img {max-width:150px !important; width:100% !im=
+portant; height:auto !important; align:center !important;}
+        td[class=3D"social_btn"] img {max-width:32px !important; width:100%=
+ !important; height:auto !important; text-align:center !important;}
+        td[data-zone=3D"swyn"] img {max-width:120px !important; width:100% =
+!important; height:auto !important;}
+        td[class=3D"rm_logo"] img {max-width:100px !important; width:100% !=
+important; height:auto !important;}
+        td [data-zone=3D"image"]  img {width:100% !important; height:auto !=
+important;}
+        tbody{ width:100% !important;}
+=09=09table[class=3D"full_width"] {width:100% !important;}
+        td[data-zone=3D"vertical container"], td[data-zone=3D"horizontal co=
+ntainer"], td[data-zone=3D"article"], td[data-zone=3D"text"], td [data-zone=
+=3D"image"], td[data-zone=3D"data-image-choices"], td[class=3D"he_nodrop"],=
+ td[class=3D"full_width"] {width: 100% !important;} =20
+        td[data-zone=3D"horizontal container"] td[data-zone=3D"vertical con=
+tainer"] {display:block !important;}
+        td[data-zone=3D"article"] td[data-zone=3D"vertical container"] {dis=
+play:block !important;}
+=09=09td[data-zone=3D"text"] {line-height:150% !important;}
+        td[data-zone=3D"text"] div span {line-height:150% !important;}
+        }
+    </style>
+    <table=20
+style=3D"width: 650px; margin-bottom: 0px;" cellspacing=3D"0" cellpadding=
+=3D"0" width=3D"650" class=3D"full_width">
+      =20
+ <tbody>
+          =20
+ <tr>
+                <td=20
+align=3D"left" valign=3D"top" data-zone=3D"vertical container" data-restric=
+t=3D"delete" class=3D"he_nodrop full_width" style=3D"width: 650px; backgrou=
+nd-color: rgb(255, 255, 255);" data-color=3D"3">
+                    <table=20
+border=3D"0" cellspacing=3D"0" cellpadding=3D"0" style=3D"margin-bottom:0;"=
+>
+                      =20
+ <tbody>
+                          =20
+ <tr>
+                                <td=20
+valign=3D"top" data-zone=3D"vertical container" data-restrict=3D"drag delet=
+e edit copy" width=3D"*" style=3D"width: 650px; height: auto;" class=3D"mai=
+n_message">
+                                    <table=20
+width=3D"100%" style=3D"margin-bottom:0;" cellspacing=3D"0" cellpadding=3D"=
+0">
+                                      =20
+ <tbody>
+                                          =20
+ <tr>
+                                                <td=20
+valign=3D"top" data-zone=3D"image" data-restrict=3D"drop" style=3D"left: 0p=
+x; top: 0px; text-align: center; width: 650px; border-collapse: collapse; h=
+eight: auto;" class=3D"" data-image-choices=3D"https://images.magnetmail.ne=
+t/images/template/Template_Library/business/NE_Temp/business_banner_01a_201=
+4.jpg,
+https://images.magnetmail.net/images/template/Template_Library/business/NE_=
+Temp/business_banner_02_2014.jpg,
+https://images.magnetmail.net/images/template/Template_Library/business/NE_=
+Temp/business_banner_03_2014.jpg,
+https://images.magnetmail.net/images/template/Template_Library/associations=
+/NE_Temp/associations_banner_01_2014.jpg,=20
+https://images.magnetmail.net/images/template/Template_Library/associations=
+/NE_Temp/associations_banner_03_2014.jpg,
+https://images.magnetmail.net/images/template/Template_Library/associations=
+/NE_Temp/associations_banner_02_2014.jpg,
+https://images.magnetmail.net/images/template/Template_Library/communicatio=
+ns/banner_communications_a1.jpg,
+https://images.magnetmail.net/images/template/Template_Library/communicatio=
+ns/banner_communications_a3.jpg,=20
+https://images.magnetmail.net/images/template/Template_Library/communicatio=
+ns/banner_communications_a2.jpg,
+https://images.magnetmail.net/images/template/Template_Library/finance/new_=
+editor/banner_finance_01.jpg,
+https://images.magnetmail.net/images/template/Template_Library/finance/new_=
+editor/banner_finance_02.jpg,=20
+https://images.magnetmail.net/images/template/Template_Library/finance/new_=
+editor/banner_finance_03.jpg,
+https://images.magnetmail.net/images/template/Template_Library/Technology/B=
+anner_Technology_01.jpg,
+https://images.magnetmail.net/images/template/Template_Library/Technology/B=
+anner_Technology_03.jpg,
+https://images.magnetmail.net/images/template/Template_Library/Technology/B=
+anner_Technology_02.jpg,
+https://images.magnetmail.net/images/template/Template_Library/healthcare/n=
+ew_editor/banner_healthcare_1.jpg,
+https://images.magnetmail.net/images/template/Template_Library/healthcare/n=
+ew_editor/banner_healthcare_3.jpg,=20
+https://images.magnetmail.net/images/template/Template_Library/healthcare/n=
+ew_editor/banner_healthcare_2.jpg, https://images.magnetmail.net/images/tem=
+plate/Template_Library/Education/NewEditor/Education_banner_01.jpg, https:/=
+/images.magnetmail.net/images/template/Template_Library/Education/NewEditor=
+/Education_banner_02.jpg, https://images.magnetmail.net/images/template/Tem=
+plate_Library/Education/NewEditor/Education_banner_03.jpg, https://images.m=
+agnetmail.net/images/template/template_library/responsive_generic/650_moreo=
+pts.jpg
+">
+                                                    <a=20
+target=3D"_blank" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZ=
+qUf3cLQ6ag~~&amp;pe=3Dn-YF2M7QeHja-CL1MjXD8n1WUeGIcYX2JQrWhUqvVfDSPqGH7qTtk=
+eNpqzp0lRc_cZPkP7eSKt2WxLnec_kVGw~~" align=3D"center"><img=20
+class=3D"" src=3D"http://images.magnetmail.net/images/clients/IEEECOMSOC/gl=
+obecombanner(1).jpg" alt=3D"IEEE GLOBECOM 2017" border=3D"0" style=3D"width=
+: 650px; height: 200px;" width=3D"650" height=3D"200" align=3D"center" hspa=
+ce=3D"0" vspace=3D"0" draggable=3D"false"></a>
+                                                </td>
+                                            </tr>
+                                           =20
+                                               =20
+                                           =20
+                                          =20
+ <tr>
+                                                <td=20
+valign=3D"top" data-zone=3D"vertical container" width=3D"*" style=3D"width:=
+ 630px; padding: 10px; height: auto;" class=3D"">
+                                                    <table=20
+width=3D"100%" style=3D"margin-bottom:0;" cellspacing=3D"0" cellpadding=3D"=
+0">
+                                                      =20
+ <tbody>
+                                                          =20
+ <tr>
+                                                                <td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 2px 0px 0px; width: 630=
+px; font-size: 14px; font-family: arial, sans-serif; color: rgb(0, 0, 0); h=
+eight: auto;" class=3D""><div=20
+style=3D"clear:both;">
+<table=20
+border=3D"0" cellpadding=3D"1" cellspacing=3D"1" style=3D"width:630px;">
+=09<tbody>
+=09=09<tr>
+=09=09=09<td><span=20
+style=3D"font-size:14px;"><strong><a=20
+data-fontcolor=3D"4" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvH=
+mKZqUf3cLQ6ag~~&amp;pe=3DwkfCkM9Sjo1RlPtIAuDig14nQc-4IaetYbCBbsRkxOYtZqFjAu=
+mot7pVbf1bUA206jJ1jtcbod-dZcgXhoUdNw~~" style=3D"text-decoration: none; col=
+or: rgb(4, 107, 148);" target=3D"_blank">IEEE GLOBECOM 2017</a>&nbsp;</stro=
+ng>is&nbsp;dedicated to driving innovations and technological breakthroughs=
+ in broadband, wireless,&nbsp;multimedia, Internet, image and voice communi=
+cations.</span></td>
+=09=09=09<td><span=20
+style=3D"font-size:14px;"><a=20
+align=3D"center" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZq=
+Uf3cLQ6ag~~&amp;pe=3DDMgSy0uw5PAbw7nJ-nC3q9h2YgEqd0jZvdynSHH0eWPWhv2_7AGOa3=
+g5-FnBeihgmdIaICKV7qqFH3SX3fPFsQ~~" target=3D"_blank"><img=20
+align=3D"center" alt=3D"Register now" border=3D"0" draggable=3D"false" heig=
+ht=3D"44" hspace=3D"0" src=3D"http://images.magnetmail.net/images/clients/I=
+EEECOMSOC/Buttons/Register-Now_Button.png" style=3D"width: 132px; height: 4=
+4px;" vspace=3D"0" width=3D"132"></a></span>
+<br>
+=09=09=09&nbsp;</td>
+=09=09</tr>
+=09</tbody>
+</table>
+</div>
+
+<div=20
+style=3D"clear:both;">
+<br>
+<span=20
+style=3D"font-size:14px;">This 5-day event features a comprehensive agenda&=
+nbsp;specifically designed to advance technologies, systems and infrastruct=
+ure reshaping&nbsp;the world and providing&nbsp;access to an unprecedented =
+spectrum of high-speed, seamless and cost-effective global telecommunicatio=
+ns services.</span></div>
+
+<div=20
+style=3D"clear:both;">
+<ul>
+=09<li><span=20
+style=3D"font-size:14px;">Keynote addresses on various aspects of digital a=
+nd wireless technologies given by industry, academic and government officia=
+ls.</span>
+<br>
+=09&nbsp;</li>
+=09<li><span=20
+style=3D"font-size:14px;">Series of industry presentations and demonstratio=
+ns led by National Instruments, Intel, MathWorks, TelNet Management Consult=
+ing, CSIRO, Nokia&nbsp;Bell Labs and IS-Wireless.</span>
+<br>
+=09&nbsp;</li>
+=09<li><span=20
+style=3D"font-size:14px;">180+ technical and interactive sessions&nbsp;high=
+lighting the&nbsp;latest research and innovations.</span>
+<br>
+=09&nbsp;</li>
+=09<li><span=20
+style=3D"font-size:14px;">YP/WIE/WICE panel on the opportunities and challe=
+nges of research, innovation
+<br>
+=09and commercialization.</span>
+<br>
+=09&nbsp;</li>
+=09<li><span=20
+style=3D"font-size:14px;">Tutorials and workshops exploring&nbsp;different =
+areas of 5G, IoT, SDR, big data, autonomous vehicles, energy harvesting and=
+ massive MIMO.</span>
+<br>
+=09&nbsp;</li>
+=09<li><span=20
+style=3D"font-size:14px;">Lightning Talks offering a lively, informal forma=
+t for 20 separate presenters to address timely and pressing technical indus=
+try topics in brief, five-minute talks.&nbsp;</span>
+<br>
+=09&nbsp;</li>
+=09<li><span=20
+style=3D"font-size:14px;">Exhibits&nbsp;showcasing the latest communication=
+s products and services.</span></li>
+</ul>
+
+<div>
+<table=20
+border=3D"0" cellpadding=3D"1" cellspacing=3D"1" style=3D"width:630px;">
+=09<tbody>
+=09=09<tr>
+=09=09=09<td><span=20
+style=3D"font-size:14px;">There is a full slate of events for everybody &nd=
+ash; engineers, scientists, students, technologists, entrepreneurs, busines=
+s leaders, policy makers &ndash; at <a=20
+data-fontcolor=3D"4" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvH=
+mKZqUf3cLQ6ag~~&amp;pe=3DRMJficEPZt7sPihFh5agMPbfYNFaP6VhMemTmlk7dQdHz3Q_TN=
+whQWdVwcaGJTSdXOj9JFezVw0r118Tc_JVuw~~" style=3D"color: rgb(4, 107, 148); t=
+ext-decoration: none;" target=3D"_blank">IEEE GLOBECOM 2017</a>.</span></td=
+>
+=09=09</tr>
+=09</tbody>
+</table>
+</div>
+</div>
+</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                          =20
+ <tr><td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 0px; left: 0px; top: 0p=
+x; font-family: tahoma, sans-serif; font-size: 13px; width: 650px; height: =
+auto; background-color: rgb(230, 230, 230);" class=3D"" data-color=3D"1"></=
+td></tr><tr><td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 1px; left: 0px; top: 0p=
+x; font-family: tahoma, sans-serif; font-size: 13px; width: 648px; height: =
+auto; background-color: rgb(230, 230, 230);" class=3D"" data-color=3D"1"></=
+td></tr><tr><td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 4px; left: 0px; top: 0p=
+x; font-family: tahoma, sans-serif; font-size: 13px; width: 642px; height: =
+auto; background-color: rgb(230, 230, 230);" class=3D"" data-color=3D"1"></=
+td></tr><tr><td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 0px; left: 0px; top: 0p=
+x; font-family: tahoma, sans-serif; font-size: 13px; width: 650px; height: =
+auto; background-color: rgb(230, 230, 230);" class=3D"" data-color=3D"1"></=
+td></tr><tr><td=20
+valign=3D"top" data-zone=3D"image" style=3D"text-align: center; width: 650p=
+x; padding-top: 2px; height: auto;" class=3D""><a=20
+target=3D"_blank" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZ=
+qUf3cLQ6ag~~&amp;pe=3DrnCLRySdtEf84WjlkpQ_4bn296p5o8io7dDJlR07f7wP_bc8pP1j7=
+BTpIck9rD-4ggPpR9DmL3OZgMUfuSVUlg~~" align=3D"center"><img=20
+class=3D"" src=3D"http://images.magnetmail.net/images/clients/IEEECOMSOC/Bu=
+ttons/Patrons_Exhibitors.png" alt=3D"Patrons &amp; Exhibitors" border=3D"0"=
+ style=3D"width: 625px; height: 219px;" width=3D"625" height=3D"219" align=
+=3D"center" hspace=3D"0" vspace=3D"0" draggable=3D"false"></a></td></tr><tr=
+><td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 2px 10px 15px; font-fam=
+ily: tahoma, sans-serif; font-size: 13px; width: 630px; height: auto;" clas=
+s=3D""><div><strong><span=20
+style=3D"font-size:14px;"><span=20
+style=3D"font-family:Arial,sans-serif;"><a=20
+data-fontcolor=3D"4" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvH=
+mKZqUf3cLQ6ag~~&amp;pe=3DCK4DhhkoLC_uXykPiAOpBQKaHl2xOvY2tJ580BR-1uWSiLX3g0=
+UngZ_qksFAVPJVs2YkEEr3QxXThYIGENO5GQ~~" style=3D"text-decoration: none; col=
+or: rgb(4, 107, 148);" target=3D"_blank">http://globecom2017.ieee-globecom.=
+org</a>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp=
+; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nb=
+sp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &=
+nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;=
+ &nbsp; &nbsp; <a=20
+align=3D"center" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZq=
+Uf3cLQ6ag~~&amp;pe=3DVqoeJxtz7ScN5U_MXEQNbt7rhZzPGGnjyyhd2xqjw1oCGOxKYiPC53=
+iEnZvr_W0Y1DHZsFg6qLpYzc6OU-MRBQ~~" target=3D"_blank"><img=20
+align=3D"center" alt=3D"FACBOOK" border=3D"0" draggable=3D"false" height=3D=
+"20" hspace=3D"0" src=3D"http://images.magnetmail.net/images/clients/IEEECO=
+MSOC/Jackies_Images/Facebook_20x20.png" style=3D"width: 20px; height: 20px;=
+" vspace=3D"0" width=3D"20"></a></span></span></strong></div>
+</td></tr><tr><td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 4px; left: 0px; top: 0p=
+x; font-family: tahoma, sans-serif; font-size: 13px; width: 642px; height: =
+auto; background-color: rgb(230, 230, 230);" class=3D"" data-color=3D"1"></=
+td></tr><tr><td=20
+valign=3D"top" data-zone=3D"image" style=3D"left: 0px; top: 0px; text-align=
+: center; width: 650px; height: auto;" class=3D""><a=20
+target=3D"_blank" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZ=
+qUf3cLQ6ag~~&amp;pe=3Dji7bfYIGLXRIB4qIPeUVF68asFQQMLE18NAcn5wvd0XB1dMDdJFNR=
+sBligHSFpT4sgIBsxM0lCS3tdClbNW5ew~~" align=3D"center"><img=20
+class=3D"" src=3D"http://images.magnetmail.net/images/clients/IEEECOMSOC/Ja=
+ckies_Images/Membership-Ads-Join-Renew-Pt1-Stack_650px.png" alt=3D"Become a=
+ ComSoc member today!" border=3D"0" style=3D"width: 650px; height: 59px;" w=
+idth=3D"650" height=3D"59" align=3D"center" hspace=3D"0" vspace=3D"0" dragg=
+able=3D"false"></a></td></tr><tr><td=20
+valign=3D"top" data-zone=3D"image" style=3D"left: 0px; top: 0px; text-align=
+: center; width: 650px; height: auto;"><a=20
+target=3D"_blank" href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZ=
+qUf3cLQ6ag~~&amp;pe=3D1e6-MNvOLaJ6zW0KAqDt5jqaki1bwONcx8Hfm8P_3VsuXNbS3qzwh=
+6lpXw7EYGVxbcqNDkiSxlfieMv8Lbr4LQ~~" align=3D"center"><img=20
+class=3D"" src=3D"http://images.magnetmail.net/images/clients/IEEECOMSOC/Ja=
+ckies_Images/Membership-Ads-Join-Renew-Pt2-Stack_650px.png" alt=3D"Time to =
+renew your ComSoc membership!" border=3D"0" style=3D"width: 650px; height: =
+94px;" width=3D"650" height=3D"94" align=3D"center" hspace=3D"0" vspace=3D"=
+0" draggable=3D"false"></a></td></tr>
+                               =20
+                           =20
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+          =20
+ <tr>
+                <td=20
+valign=3D"top" data-zone=3D"text" style=3D"padding: 10px; left: 0px; top: 0=
+px; width: 630px; font-family: tahoma, sans-serif; font-size: 13px;" class=
+=3D"" data-restrict=3D"all">
+                    <div=20
+style=3D"text-align: center;"> <a=20
+href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZqUf3cLQ6ag~~&amp;p=
+e=3DjxmuUK85L6haMXSM3pHKdEc-MJQ-lxg3ZJhVS5w7oqyzEpuCKhA-Qj8l4r7NmNtTf7l_zbY=
+fUneejiQl8BzQPA~~" style=3D"text-decoration: underline;" target=3D"_blank" =
+data-unsub-link=3D"true">Unsubscribe</a> from these messages.</div>
+                </td>
+            </tr>
+          =20
+ <tr>
+                <td=20
+valign=3D"top" data-zone=3D"image" style=3D"text-align: center; width: 650p=
+x;" class=3D"rm_logo" data-restrict=3D"all">
+                    <a=20
+href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZqUf3cLQ6ag~~&amp;p=
+e=3DIcg2qpvzebCuJIhlOLtPfcy6RBHg1w4jQbSV8IGO3YM1_LwxbAIUaCtQhnZyiqXvWEglmRd=
+9pHjYC1L-3GKMIg~~" align=3D"center"><img=20
+src=3D"http://images.magnetmail.net/images/clients/REALDESIGN/poweredByDark=
+.png" alt=3D"poweredByDark.png" border=3D"0" style=3D"width: 100px; height:=
+ 40px;" align=3D"center" hspace=3D"0" vspace=3D"0" draggable=3D"false" clas=
+s=3D""></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<br><div=20
+style=3D"font-family: Arial, sans-serif; font-size: 10px; text-align: cente=
+r;"><a=20
+href=3D"http://www.mmsend10.com/link.cfm?r=3DxaYo9cfvHmKZqUf3cLQ6ag~~&amp;p=
+e=3DYK3NsITjxtW8bC9oOwmn8z6EXcaF51nMqMBPh3Pjj1VjUY2eexe4OqiQlVfQhiVSCR9Pnmm=
+w0Fbos5UZAzHBuA~~" target=3D"_blank">www.comsoc.org</a>
+<br>
+IEEE Communications Society - 17th floor, 3 Park Avenue, New York, NY 10016=
+</div>
+<br><img=20
+src=3D"http://www.mmsend10.com/spacer.cfm?tracking_id=3D36956905557&amp;jid=
+=3D38770403"></body></html>
+
+--_NextPart_000_14727655_2017926_143652938--

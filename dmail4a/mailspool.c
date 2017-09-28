@@ -165,6 +165,7 @@ int mailspool_open(MAILSPOOL *op,cchar *md,cchar *un,int of,mode_t om,int to)
 	if (md == NULL) return SR_FAULT ;
 	if (un == NULL) return SR_FAULT ;
 
+	of |= O_LARGEFILE ;
 	if ((rs = subinfo_start(sip,op,md,un,of,om,to)) >= 0) {
 	    if ((rs = mailspool_lfbegin(op,md,un)) >= 0) {
 	        if ((rs = subinfo_checkcreate(sip)) >= 0) {

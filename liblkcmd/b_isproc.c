@@ -324,6 +324,9 @@ int p_isNotRunning(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_isNotRunning) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -944,10 +947,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_isproc) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

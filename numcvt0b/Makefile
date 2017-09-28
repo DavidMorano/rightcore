@@ -152,8 +152,8 @@ OBJ04=
 OBJ05= 
 OBJ06= 
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
-OBJ08=
-OBJ09= 
+OBJ08= ctroman.o
+OBJ09= cfroman.o
 OBJ10=
 OBJ11=
 OBJ12=
@@ -273,6 +273,7 @@ proginfo.o:		proginfo.c defs.h
 proginfo_setpiv_o:	proginfo_setpiv.c defs.h
 
 b_$(T).o:		b_$(T).c $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) b_$(T).cc
 
 maininfo.o:		maininfo.c maininfo.h kshlib.h
 
@@ -302,5 +303,13 @@ ipasswd.o:		ipasswd.c ipasswd.h
 lastlogfile.o:		lastlogfile.c lastlogfile.h
 
 tmpx.o:			tmpx.c tmpx.h
+
+
+cfroman.o:		cfroman.c cfroman.h
+
+ctroman.o:		ctroman.c ctroman.h
+
+ctwords.o:		ctwords.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) ctwords.cc
 
 

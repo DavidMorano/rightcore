@@ -1463,7 +1463,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	} /* end while (all command line argument processing) */
 
 	if (efname == NULL) efname = getenv(VAREFNAME) ;
-	if (efname == NULL) efname = STDERRFNAME ;
+	if (efname == NULL) efname = BFILE_STDERR ;
 	if ((rs1 = bopen(&errfile,efname,"wca",0666)) >= 0) {
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;

@@ -75,8 +75,6 @@ extern "C" int	msort(void *base,int n,int es,sortcmp_t *cmp)
 
 extern "C" int	partitionai(int *,int,partpred_t,int) ;
 
-extern "C" void	arrswap(int *,int,int) ;
-
 #if	CF_DEBUGS
 extern "C" int	debugprintf(cchar *,...) ;
 extern "C" int	strlinelen(cchar *,cchar *,int) ;

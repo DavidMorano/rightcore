@@ -1,4 +1,4 @@
-/* main */
+/* b_prtdb */
 
 /* the front-end of the PRTDB program */
 

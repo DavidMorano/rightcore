@@ -20,17 +20,14 @@
 	Subroutines to convert decimal strings to binary floating values.
 
 	Synopsis:
-
 	int cfdecf(cchar *sp,int sl,double *rp)
 
 	Arguments:
-
 	sp		source string
 	sl		source string length
 	rp		pointer to hold result
 
 	Returns:
-
 	<0		error
 	>=0		OK
 

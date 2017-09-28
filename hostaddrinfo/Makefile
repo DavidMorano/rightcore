@@ -20,7 +20,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
@@ -120,7 +119,7 @@ OBJ04=
 OBJ05=
 OBJ06=
 OBJ07= printhelp.o
-OBJ08=
+OBJ08= hostinfo.o
 OBJ09=
 OBJ10=
 OBJ11=

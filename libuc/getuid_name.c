@@ -23,16 +23,13 @@
         to be a user-name.
 
 	Synopsis:
-
 	int getuid_name(cchar *np,int nl)
 
 	Arguments:
-
 	np		user-name to lookup
 	nl		length of name string
 
 	Returns:
-
 	<0		error
 	>=0		retrieved UID
 
@@ -94,8 +91,10 @@ int getuid_name(cchar *np,int nl)
 	    const int		pwlen = getbufsize(getbufsize_pw) ;
 	    char		*pwbuf ;
 	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	        rs = GETPW_NAME(&pw,pwbuf,pwlen,name) ;
-	        uid = pw.pw_uid ;
+		{
+		    rs = GETPW_NAME(&pw,pwbuf,pwlen,name) ;
+	            uid = pw.pw_uid ;
+		}
 	        rs1 = uc_free(pwbuf) ;
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (memory-allocation) */

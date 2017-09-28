@@ -100,6 +100,7 @@ extern int	snwcpy(char *,int,cchar *,int) ;
 extern int	sncpy1(char *,int,cchar *) ;
 extern int	nleadstr(cchar *,cchar *,int) ;
 extern int	getnodedomain(char *,char *) ;
+extern int	getaflen(int) ;
 extern int	inetpton(char *,int,int,cchar *,int) ;
 extern int	inetntop(char *,int,int,const void *) ;
 extern int	isinetaddr(cchar *) ;
@@ -161,7 +162,6 @@ static int	getinet_rem(HOSTINFO *,int) ;
 static int	getinet_remlocal(HOSTINFO *,int) ;
 static int	getinet_known(HOSTINFO *,int) ;
 
-static int	getalen(int) ;
 static int	matknown(const char *,int) ;
 static int	vcmpname(const void *,const void *) ;
 static int	vcmpaddr(const void *,const void *) ;
@@ -1163,7 +1163,7 @@ static int hostinfo_addrbegin(HOSTINFO *op,int af)
 	    if (rs1 >= 0) {
 	        const void	*vp ;
 
-	        inetaddrlen = getalen(rs1) ;
+	        inetaddrlen = getaflen(rs1) ;
 
 	        if ((rs = uc_mallocbuf(inetaddr,inetaddrlen,&vp)) >= 0) {
 	            op->addr.addr = vp ;
@@ -1208,7 +1208,7 @@ static int hostinfo_loadknownaddr(HOSTINFO *op,int af,uint ka)
 	HOSTINFO_A	a ;
 	uint		na = htonl(ka) ;
 	const int	nrs = SR_NOTFOUND ;
-	const int	addrlen = getalen(af) ;
+	const int	addrlen = getaflen(af) ;
 	int		rs ;
 	int		c = 0 ;
 
@@ -1570,24 +1570,6 @@ static int getinet_known(HOSTINFO *op,int af)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (getinet_known) */
-
-
-static int getalen(int af)
-{
-	int		alen = SR_NOTFOUND ;
-
-	switch (af) {
-	case AF_INET:
-	    alen = INET4ADDRLEN ;
-	    break ;
-	case AF_INET6:
-	    alen = INET6ADDRLEN ;
-	    break ;
-	} /* end switch */
-
-	return alen ;
-}
-/* end subroutine (getalen) */
 
 
 static int matknown(cchar *name,int nl)

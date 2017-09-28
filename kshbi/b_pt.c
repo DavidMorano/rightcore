@@ -352,6 +352,9 @@ int p_pt(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_pt) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -977,9 +980,6 @@ badarg:
 
 }
 /* end subroutine (b_pt) */
-
-
-/* local subroutines */
 
 
 /* print out (standard error) some short usage */

@@ -1,2 +1,2 @@
 const char numcvt_makedate[] =
-"@(#)numcvt                  170802_2127:20_EDT Rightcore Network Services" ;
+"@(#)numcvt                  170922_0111:15_USEDT Rightcore Network Services" ;

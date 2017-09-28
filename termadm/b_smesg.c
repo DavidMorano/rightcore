@@ -522,6 +522,9 @@ int p_notes(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_smesg) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1324,10 +1327,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_smesg) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 #if	CF_PERCACHE

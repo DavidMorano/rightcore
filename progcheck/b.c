@@ -1,4 +1,5 @@
 /* b_progcheck */
+/* lang=C99 */
 
 /* check C-language programs for some simple problems */
 /* last modified %G% version %I% */
@@ -78,8 +79,7 @@
 #endif
 #endif /* LINEBUFLEN */
 
-#define	NUMNAMES	4
-#define	NFUN		2
+#define	PROGCHECK_NCH	3
 
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
@@ -96,6 +96,7 @@
 extern int	sncpy3(char *,int,cchar *,cchar *,cchar *) ;
 extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
 extern int	vstrcmp(const void *,const void *) ;
@@ -148,8 +149,7 @@ struct locinfo {
 } ;
 
 struct hist_head {
-	LINEHIST	par ;
-	LINEHIST	bra ;
+	LINEHIST	types[3] ;
 } ;
 
 struct fun_tab {
@@ -197,7 +197,7 @@ static cchar	*chartype(int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -249,7 +249,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"bufwhole",
 	"bufline",
 	"bufnone",
@@ -276,9 +276,16 @@ enum akonames {
 } ;
 
 static struct fun_tab	cca[] = {
-	{ "par", CH_LPAREN, CH_RPAREN },
-	{ "bra", CH_LBRACE, CH_RBRACE },
-	{ NULL, 0, 0 }
+	{ "paren", CH_LPAREN, CH_RPAREN },
+	{ "brace", CH_LBRACE, CH_RBRACE },
+	{ "brack", CH_LBRACK, CH_RBRACK }
+} ;
+
+static cchar	*balstrs[] = {
+	"()",
+	"{}",
+	"[]",
+	NULL
 } ;
 
 static cchar	*chartypes[] = {
@@ -317,6 +324,9 @@ int p_progcheck(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_progcheck) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -410,6 +420,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    argp = argv[ai] ;
 	    argl = strlen(argp) ;
 
+#if	CF_DEBUGS
+	    debugprintf("b_progcheck: a=>%t<\n",argp,argl) ;
+#endif
+
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
@@ -441,6 +455,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                avl = 0 ;
 	                akl = aol ;
 	            }
+
+#if	CF_DEBUGS
+	    	debugprintf("b_progcheck: ak=>%t<\n",akp,akl) ;
+#endif
 
 	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
 
@@ -952,9 +970,6 @@ badarg:
 /* end subroutine (mainsub) */
 
 
-/* local subroutines */
-
-
 static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1087,6 +1102,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 
 	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
 	    int		pan = 0 ;
+	    int		cl ;
 	    cchar	*cp ;
 
 	    if (rs >= 0) {
@@ -1126,9 +1142,12 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	                    if (lbuf[len - 1] == '\n') len -= 1 ;
 	                    lbuf[len] = '\0' ;
 
-	                    if (len > 0) {
-	                        pan += 1 ;
-	                        rs = procfile(pip,ofp,lbuf) ;
+			    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+				if (cp[0] != '#') {
+				    lbuf[(cp+cl)-lbuf] = '\0' ;
+	                            pan += 1 ;
+	                            rs = procfile(pip,ofp,lbuf) ;
+				}
 	                    }
 
 	                    if (rs >= 0) rs = lib_sigterm() ;
@@ -1173,9 +1192,10 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
 	debugprintf("progcheck/procfile: ent fn=%s\n",fn) ;
 #endif
 	if ((rs = hist_start(&h)) >= 0) {
+	    const int	ncca = nelem(cca) ;
 	    SHIO	cfile, *cfp = &cfile ;
 	    if ((rs = shio_open(cfp,fn,"r",0666)) >= 0) {
-	        FUNCOUNT	counts[NFUN+1] ;
+	        FUNCOUNT	counts[ncca+1] ;
 	        const int	llen = LINEBUFLEN ;
 	        int		len ;
 	        int		line = 1 ;
@@ -1223,13 +1243,14 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
 
 static int procline(PROGINFO *pip,FUNCOUNT *counts,cchar *lbuf,int llen)
 {
+	const int	ncca = nelem(cca) ;
 	int		rs = SR_OK ;
 	int		j ;
 
 	if (pip == NULL) return SR_FAULT ;
 	for (j = 0 ; j < llen ; j += 1) {
 	    int		k ;
-	    for (k = 0 ; k < NFUN ; k += 1) {
+	    for (k = 0 ; k < ncca ; k += 1) {
 		if (lbuf[j] == cca[k].c_open) {
 		    counts[k].c_open += 1 ;
 		} else if (lbuf[j] == cca[k].c_close) {
@@ -1246,12 +1267,13 @@ static int procline(PROGINFO *pip,FUNCOUNT *counts,cchar *lbuf,int llen)
 static int procout(PROGINFO *pip,void *ofp,cchar *fn,FUNCOUNT *counts)
 {
 	LOCINFO		*lip = pip->lip ;
+	const int	ncca = nelem(cca) ;
 	int		rs = SR_OK ;
 	if (lip->f.counts) {
 	    int		k ;
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt ;
-	    for (k = 0 ; k < NFUN ; k += 1) {
+	    for (k = 0 ; k < ncca ; k += 1) {
 	        if (counts[k].c_open != counts[k].c_close) {
 		    fmt = "file \"%s\" %s> open=%-3d close=%-3d\n" ;
 
@@ -1261,15 +1283,15 @@ static int procout(PROGINFO *pip,void *ofp,cchar *fn,FUNCOUNT *counts)
 
 	        } else {
 
-		if (pip->verboselevel > 0) {
-		    fmt = "file \"%s\" %s> is clean\n" ;
-	            shio_printf(ofp,fmt, fn,cca[k].funcname) ;
-		}
+		    if (pip->verboselevel > 0) {
+		        fmt = "file \"%s\" %s> is clean\n" ;
+	                shio_printf(ofp,fmt, fn,cca[k].funcname) ;
+		    }
 
-		if (pip->debuglevel > 0) {
-		    fmt = "%s: file \"%s\" %s> is clean\n" ;
-		    shio_printf(pip->efp,fmt,pn,fn,cca[k].funcname) ;
-		}
+		    if (pip->debuglevel > 0) {
+		        fmt = "%s: file \"%s\" %s> is clean\n" ;
+		        shio_printf(pip->efp,fmt,pn,fn,cca[k].funcname) ;
+		    }
 
 	        } /* end if */
 	    } /* end for */
@@ -1281,9 +1303,10 @@ static int procout(PROGINFO *pip,void *ofp,cchar *fn,FUNCOUNT *counts)
 
 static int procouthist(PROGINFO *pip,void *ofp,HIST *hlp)
 {
+	const int	ncca = nelem(cca) ;
 	int		rs = SR_OK ;
 	int		w ;
-	for (w = 1 ; w < 3 ; w += 1) {
+	for (w = 0 ; w < ncca ; w += 1) {
 	    if ((rs = hist_count(hlp,w)) > 0) {
 		int	i ;
 		int	ln ;
@@ -1385,12 +1408,23 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 
 static int hist_start(HIST *hlp)
 {
-	int		rs ;
-	if ((rs = linehist_start(&hlp->par,"()")) >= 0) {
-	    rs = linehist_start(&hlp->bra,"{}") ;
-	    if (rs < 0)
-		linehist_finish(&hlp->par) ;
+	const int	n = PROGCHECK_NCH ;
+	int		rs = SR_OK ;
+	int		i ;
+
+	for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
+	    LINEHIST	*lhp = (hlp->types+i) ;
+	    rs = linehist_start(lhp,balstrs[i]) ;
 	}
+
+	if (rs < 0) {
+	    int	j = i ;
+	    for (j = 0 ; j < i ; j += 1) {
+	        LINEHIST	*lhp = (hlp->types+j) ;
+		linehist_finish(lhp) ;
+	    }
+	}
+
 	return rs ;
 }
 /* end subroutine (hist_start) */
@@ -1398,12 +1432,15 @@ static int hist_start(HIST *hlp)
 
 static int hist_finish(HIST *hlp)
 {
+	const int	n = PROGCHECK_NCH ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	rs1 = linehist_finish(&hlp->par) ;
-	if (rs >= 0) rs = rs1 ;
-	rs1 = linehist_finish(&hlp->bra) ;
-	if (rs >= 0) rs = rs1 ;
+	int		j ;
+	for (j = 0 ; j < n ; j += 1) {
+	    LINEHIST	*lhp = (hlp->types+j) ;
+	    rs1 = linehist_finish(lhp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 	return rs ;
 }
 /* end subroutine (hist_finish) */
@@ -1411,9 +1448,12 @@ static int hist_finish(HIST *hlp)
 
 static int hist_proc(HIST *hlp,int ln,cchar *sp,int sl)
 {
+	const int	n = PROGCHECK_NCH ;
 	int		rs ;
-	if ((rs = linehist_proc(&hlp->par,ln,sp,sl)) >= 0) {
-	    rs = linehist_proc(&hlp->bra,ln,sp,sl) ;
+	int		i ;
+	for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
+	    LINEHIST	*lhp = (hlp->types+i) ;
+	    rs = linehist_proc(lhp,ln,sp,sl) ;
 	}
 	return rs ;
 }
@@ -1423,11 +1463,8 @@ static int hist_proc(HIST *hlp,int ln,cchar *sp,int sl)
 static int hist_count(HIST *hlp,int w)
 {
 	int		rs = SR_INVALID ;
-	if (w == 1) {
-	    LINEHIST	*lhp = &hlp->par ;
-	    rs = linehist_count(lhp) ;
-	} else if (w == 2) {
-	    LINEHIST	*lhp = &hlp->bra ;
+	if (w < PROGCHECK_NCH) {
+	    LINEHIST	*lhp = (hlp->types+w) ;
 	    rs = linehist_count(lhp) ;
 	}
 	return rs ;
@@ -1438,11 +1475,8 @@ static int hist_count(HIST *hlp,int w)
 static int hist_get(HIST *hlp,int w,int i,int *lnp)
 {
 	int		rs = SR_INVALID ;
-	if (w == 1) {
-	    LINEHIST	*lhp = &hlp->par ;
-	    rs = linehist_get(lhp,i,lnp) ;
-	} else if (w == 2) {
-	    LINEHIST	*lhp = &hlp->bra ;
+	if (w < PROGCHECK_NCH) {
+	    LINEHIST	*lhp = (hlp->types+w) ;
 	    rs = linehist_get(lhp,i,lnp) ;
 	}
 	return rs ;
@@ -1452,8 +1486,9 @@ static int hist_get(HIST *hlp,int w,int i,int *lnp)
 
 static int funcount_clear(FUNCOUNT *counts)
 {
+	const int	ncca = nelem(cca) ;
 	int		i ;
-	for (i = 0 ; i < NFUN ; i += 1) {
+	for (i = 0 ; i < ncca ; i += 1) {
 	    counts[i].c_open = 0 ;
 	    counts[i].c_close = 0 ;
 	}

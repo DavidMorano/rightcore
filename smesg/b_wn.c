@@ -402,6 +402,9 @@ int p_wn(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_wn) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {

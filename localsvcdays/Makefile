@@ -64,6 +64,7 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCFLAGS= $(GPPFLAGS) $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
@@ -79,7 +80,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -95,7 +96,7 @@ SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0= -llkcmd -lcsdb
 SLIB1= -ldam -lb
-SLIB2= -ldebug
+SLIB2=
 SLIB3= -luc -lu
 SLIB4= $(CGS_LIBS)
 SLIB5= 
@@ -495,8 +496,8 @@ oc.o:			oc.c oc.h
 X01= testopensvc
 
 X01OBJ00= $(X01).o 
-X01OBJ01=
-X01OBJ02=
+#X01OBJ01= votdc.o votdchdr.o
+#X01OBJ02= shmalloc.o
 X01OBJ03=
 X01OBJ04=
 X01OBJ05=
@@ -567,7 +568,7 @@ $(X03).o:		$(X03).cc
 X04= testvotdc
 
 X04OBJ00= $(X04).o 
-X04OBJ01= votdc.o
+X04OBJ01= votdc.o votdchdr.o
 X04OBJ02= shmalloc.o
 X04OBJ03=
 X04OBJ04=

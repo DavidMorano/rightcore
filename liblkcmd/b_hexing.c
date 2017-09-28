@@ -81,7 +81,7 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfhexi(const char *,int,int *) ;
-extern int	cthexstrs(char *,int,cchar *,int) ;
+extern int	cthexstr(char *,int,cchar *,int) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
@@ -278,6 +278,9 @@ int p_hexing(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_hexing) */
+
+
+/* local subroutines */
 
 
 /* local subroutines */
@@ -1099,10 +1102,10 @@ static int procencode(PROGINFO *pip,SHIO *ofp,cchar *fn)
 		ibuf = (abuf+0) ;
 		cbuf = (abuf+(ilen+1)) ;
 	        while ((rs = shio_read(ifp,ibuf,ilen)) > 0) {
-		    if ((rs = cthexstrs(cbuf,clen,ibuf,rs)) >= 0) {
+		    if ((rs = cthexstr(cbuf,clen,ibuf,rs)) >= 0) {
 		        rs = shio_printline(ofp,cbuf,rs) ;
 		        wlen += rs ;
-		    } /* end if (cthexstrs) */
+		    } /* end if (cthexstr) */
 		    if (rs < 0) break ;
 	        } /* end while (reading) */
 		rs1 = uc_free(abuf) ;

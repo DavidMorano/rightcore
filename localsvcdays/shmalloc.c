@@ -20,20 +20,17 @@
         This object manages shared-memory allocation in a shared-memory segment.
 
 	Synopsis:
-
 	int shmalloc_init(op,strp,size)
 	SHMALLOC	*op ;
 	char		*strp ;
 	int		size ;
 
 	Arguments:
-
 	- op		object pointer
 	- strp		pointer to string table (free-memory area)
 	- size		size of free-memory area
 
 	Returns:
-
 	>=0		OK
 	<0		error code
 
@@ -211,8 +208,8 @@ int shmalloc_free(SHMALLOC *op,int uoff)
 	SHMALLOC_B	*fsp, *csp, *nsp ;
 	const int	asize = SHMALLOC_ALIGNSIZE ;
 	int		rs = SR_OK ;
-	int		foff ;
 	int		fsize ;
+	int		foff ;
 	int		coff ;
 	char		*rp = (char *) op ;
 	char		*strp ;
@@ -227,8 +224,8 @@ int shmalloc_free(SHMALLOC *op,int uoff)
 #if	CF_DEBUGS
 	debugprintf("shmalloc_free: f=%d:%d:%d\n",foff,fsp->size,fsp->next) ;
 #endif
-	fsize = fsp->size ;
 	coff = psp->next ;
+	fsize = fsp->size ;
 #if	CF_DEBUGS
 	debugprintf("shmalloc_free: fsize=%u coff=%d\n",fsize,coff) ;
 #endif
@@ -325,6 +322,7 @@ int shmalloc_already(SHMALLOC *op,int uoff)
 #endif
 	fsize = fsp->size ;
 	coff = psp->next ;
+	if (coff < fsize) {
 	while ((coff >= 0) && (coff < op->b.size)) {
 	    csp = (SHMALLOC_B *) (strp+coff) ;
 #if	CF_DEBUGS
@@ -336,6 +334,7 @@ int shmalloc_already(SHMALLOC *op,int uoff)
 
 	    coff = csp->next ;
 	} /* end while */
+	} /* end if */
 #if	CF_DEBUGS
 	debugprintf("shmalloc_already: ret rs=%d f=%u\n",rs,f) ;
 #endif

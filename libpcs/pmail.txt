@@ -1,6 +1,6 @@
 PMAIL
 
-Synopsis:
+Example:
 
 $ print -- "hello there" | pmail d.a.morano
 

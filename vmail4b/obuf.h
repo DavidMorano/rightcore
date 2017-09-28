@@ -20,7 +20,7 @@
 #include	<sys/types.h>
 #include	<limits.h>
 #include	<string.h>
-#include	<vector>
+#include	<string>
 #include	<localmisc.h>
 
 
@@ -30,8 +30,8 @@
 
 
 class obuf {
-	std::vector<char>	b ;
-	int			oi ;		/* output index */
+	std::string	b ;
+	int		oi ;		/* output index */
 public:
 	obuf() : oi(0) { 
 	} ;

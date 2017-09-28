@@ -186,7 +186,7 @@ extern int	nleadstr(const char *,const char *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
 extern int	getnodedomain(char *,char *) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	getuserhome(char *,int,cchar *) ;
 extern int	ctdecui(char *,int,uint) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
@@ -978,7 +978,7 @@ char		*ubuf ;
 	}
 
 	if ((rs >= 0) && (idp->gid < 0)) {
-	    rs = getgroup_gid(idp->groupname,-1) ;
+	    rs = getgid_group(idp->groupname,-1) ;
 	    idp->gid = rs ;
 	}
 

@@ -1,0 +1,20 @@
+<hr />
+<div class="left">
+<p class="center">
+<a
+ class="center"
+ href="mailto:webmaster@rightcore.com"
+ title="webmaster@rightcore.com">
+webmaster
+</a>
+</p>
+<p class="center">
+Copyright (c) 2015-2017 David A.D. Morano.  All rights reserved.
+</p>
+</div>
+<div class="exticons">
+<img
+ src="http://rightcore.com/CGI/wc?db=rightcore&c=homepage"
+ title="web counter"
+ alt="web counter" width="20" height="22" />
+</div>

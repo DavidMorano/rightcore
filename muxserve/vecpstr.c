@@ -541,18 +541,18 @@ int vecpstr_delall(VECPSTR *op)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (op->va != NULL) {
-	    rs1 = uc_free(op->va) ;
-	    if (rs >= 0) rs = rs1 ;
-	    op->va = NULL ;
-	}
-
 	rs1 = vecpstr_finchunks(op) ;
 	if (rs >= 0) rs = rs1 ;
 	op->ccp = NULL ;
 
 	rs1 = vechand_delall(&op->chunks) ;
 	if (rs >= 0) rs = rs1 ;
+
+	if (op->va != NULL) {
+	    rs1 = uc_free(op->va) ;
+	    if (rs >= 0) rs = rs1 ;
+	    op->va = NULL ;
+	}
 
 	if (rs >= 0) {
 	    rs = vecpstr_reset(op) ;

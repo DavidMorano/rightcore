@@ -1,6 +1,7 @@
 /* b_numcvt */
+/* lang=C++11 */
 
-/* generic front-end subroutine */
+/* convert numbers from one base to another */
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
@@ -15,14 +16,21 @@
 	The program was written from scratch to do what the previous program by
 	the same name did.
 
+	= 2017-09-19, David A­D­ Morano
+	Converted this to C++ so that we can use the |ctwords(3dam)| C++
+	subroutine.
+
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
+	We converts numbers (given as arguments or on STDIN) from one numberic
+	base to another.
+
 	This subroutine is fairly standard as front-ends go.  It calls
-	'process()' to do the real work.
+	|procspec()| to do the real work.
 
 
 *******************************************************************************/
@@ -47,15 +55,24 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
+#include	<string>
 
 #include	<vsystem.h>
 #include	<toxc.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<field.h>
-#include	<ctbin.h>
-#include	<ctoct.h>
+#include	<cfnum.h>
+#include	<cfhex.h>
+#include	<cfdec.h>
+#include	<cfoct.h>
+#include	<cfbin.h>
 #include	<cthex.h>
+#include	<ctdec.h>
+#include	<ctoct.h>
+#include	<ctbin.h>
+#include	<ctroman.h>
+#include	<ctwords.hh>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -75,42 +92,46 @@
 #define	BASERECORD	struct baserecord
 
 
+/* name-spaces */
+
+using namespace	std ;
+
+
+/* typedefs */
+
+
 /* external subroutines */
 
-extern int	matstr(const char **,const char *,int) ;
-extern int	matostr(const char **,int,const char *,int) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	cfdecmfui(const char *,int,uint *) ;
-extern int	cfnumui(const char *,int,uint *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-extern int	cfhexui(const char *,int,uint *) ;
-extern int	cfoctui(const char *,int,uint *) ;
-extern int	cfbinui(const char *,int,uint *) ;
-extern int	ctdecui(char *,int,uint) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	optbool(const char *,int) ;
-extern int	optvalue(const char *,int) ;
-extern int	bufprintf(char *,int,const char *,...) ;
-extern int	hasalldig(cchar *,int) ;
-extern int	isdigitlatin(int) ;
-extern int	isFailOpen(int) ;
-extern int	isNotPresent(int) ;
-extern int	isNotValid(int) ;
+extern "C" int	b_numcvt(int,cchar **,void *) ;
+extern "C" int	p_numcvt(int,cchar **,cchar **,void *) ;
 
-extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
-extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
+extern "C" int	matstr(const char **,const char *,int) ;
+extern "C" int	matostr(const char **,int,const char *,int) ;
+extern "C" int	sfshrink(const char *,int,const char **) ;
+extern "C" int	cfromani(cchar *,int,int *) ;
+extern "C" int	optbool(const char *,int) ;
+extern "C" int	optvalue(const char *,int) ;
+extern "C" int	bufprintf(char *,int,const char *,...) ;
+extern "C" int	hasalldig(cchar *,int) ;
+extern "C" int	isdigitlatin(int) ;
+extern "C" int	isFailOpen(int) ;
+extern "C" int	isNotPresent(int) ;
+extern "C" int	isNotValid(int) ;
+
+extern "C" int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern "C" int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
-extern int	debugclose() ;
-extern int	strlinelen(const char *,int,int) ;
+extern "C" int	debugopen(const char *) ;
+extern "C" int	debugprintf(const char *,...) ;
+extern "C" int	debugclose() ;
+extern "C" int	strlinelen(const char *,int,int) ;
 #endif
 
-extern cchar	*getourenv(cchar **,cchar *) ;
+extern "C" cchar	*getourenv(cchar **,cchar *) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(cchar *,int,int) ;
+extern "C" char	*strwcpy(char *,const char *,int) ;
+extern "C" char	*strnchr(cchar *,int,int) ;
 
 
 /* external variables */
@@ -148,19 +169,21 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 
 static int	usage(PROGINFO *) ;
 
-static int	findbase(PROGINFO *,const struct baserecord *,cchar *,int) ;
+static int	findbase(PROGINFO *,const BASERECORD *,cchar *,int) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,cchar *) ;
-static int	procspecs(PROGINFO *,void *,cchar *,int) ;
-static int	process(PROGINFO *,SHIO *,const char *,int) ;
+static int	procspecs(PROGINFO *,SHIO *,cchar *,int) ;
+static int	procspec(PROGINFO *,SHIO *,cchar *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_base(LOCINFO *,cchar *,int) ;
 
+static int	isNotValidBase(int) ;
+
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -227,11 +250,13 @@ static const uchar	aterms[] = {
 	0x00, 0x00, 0x00, 0x00
 } ;
 
-static const struct baserecord	bases[] = {
+static const BASERECORD	bases[] = {
 	{ "hexadecimal", 16 },
 	{ "decimal", 10 },
 	{ "octal", 8 },
 	{ "binary", 2 },
+	{ "roman", 1 },
+	{ "words", 3 },
 	{ NULL, 0 }
 } ;
 
@@ -264,6 +289,9 @@ int p_numcvt(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_numcvt) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -624,14 +652,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                        break ;
 
-/* default output base */
 	                    case 'o':
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                baseo = argp ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -704,8 +733,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(efp,"%s: version %s\n",pn,VERSION) ;
 	}
 
 /* get the program root */
@@ -727,8 +757,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
-	    shio_printf(pip->efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    shio_printf(efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
+	    shio_printf(efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
 	}
 
 	if (f_usage)
@@ -768,7 +799,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if ((rs >= 0) && (basei != NULL) && (basei[0] != '\0')) {
 	    rs = findbase(pip,bases,basei,-1) ;
 	    lip->basei = rs ;
-	    if ((rs != 2) && (rs != 8) && (rs != 10) && (rs != 16)) {
+	    if ((rs >= 0) && isNotValidBase(rs)) {
 	        rs = SR_INVALID ;
 	    }
 	} /* end if */
@@ -776,7 +807,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if ((rs >= 0) && (baseo != NULL) && (baseo[0] != '\0')) {
 	    rs = findbase(pip,bases,baseo,-1) ;
 	    lip->baseo = rs ;
-	    if ((rs != 2) && (rs != 8) && (rs != 10) && (rs != 16)) {
+	    if ((rs >= 0) && isNotValidBase(rs)) {
 	        rs = SR_INVALID ;
 	    }
 	} /* end if */
@@ -802,9 +833,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    const char	*afn = afname ;
 	    rs = procargs(pip,&ainfo,&pargs,ofn,ifn,afn) ;
 	} else if (ex == EX_OK) {
+	    SHIO	*efp = (SHIO *) pip->efp ;
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    shio_printf(efp,fmt,pn,rs) ;
 	    ex = EX_USAGE ;
 	    usage(pip) ;
 	}
@@ -829,7 +861,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 retearly:
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    shio_printf(efp,"%s: exiting ex=%u (%d)\n",
 	        pip->progname,ex,rs) ;
 	}
 
@@ -839,8 +872,9 @@ retearly:
 #endif
 
 	if (pip->efp != NULL) {
+	    SHIO	*efp = (SHIO *) pip->efp ;
 	    pip->open.errfile = FALSE ;
-	    shio_close(pip->efp) ;
+	    shio_close(efp) ;
 	    pip->efp = NULL ;
 	}
 
@@ -875,36 +909,37 @@ badprogstart:
 	return ex ;
 
 badargs:
+	{
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    cchar	*pn = pip->progname ;
 	    ex = EX_USAGE ;
-	    shio_printf(pip->efp,"%s: invalid argument specified (%d)\n",
-	        pip->progname,rs) ;
+	    shio_printf(efp,"%s: invalid argument specified (%d)\n",pn,rs) ;
 	    usage(pip) ;
+	}
 	    goto retearly ;
 
 }
-/* end subroutine (b_numcvt) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)
 {
+	SHIO		*efp = (SHIO *) pip->efp ;
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
 	fmt = "%s: USAGE> %s [<value(s)> ...] [-af {<afile>|-}]\n" ;
-	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
+	if (rs >= 0) rs = shio_printf(efp,fmt,pn,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-b [<basei>][:<baseo>] [-m <mod>] [-u]\n" ;
-	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = shio_printf(efp,fmt,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
-	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = shio_printf(efp,fmt,pn) ;
 	wlen += rs ;
 
 	return (rs >= 0) ? wlen : rs ;
@@ -913,13 +948,10 @@ static int usage(PROGINFO *pip)
 
 
 /* find the base from a name */
-static int findbase(pip,basemap,bname,blen)
-PROGINFO		*pip ;
-struct baserecord	const basemap[] ;
-const char		bname[] ;
-int			blen ;
+static int findbase(PROGINFO *pip,const BASERECORD *basemap,
+		cchar *bname,int blen)
 {
-	int		rs ;
+	int		rs ; /* initialization (here) not needed */
 	int		cl ;
 	int		base ;
 	const char	*cp ;
@@ -962,6 +994,7 @@ int			blen ;
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *ifn,
 		cchar *afn)
 {
+	SHIO		*efp = (SHIO *) pip->efp ;
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
@@ -972,10 +1005,10 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *ifn,
 	    ofn = STDOUTFNAME ;
 
 	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
-	    LOCINFO	*lip = pip->lip ;
+	    LOCINFO	*lip = (LOCINFO *) pip->lip ;
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if (lip->f.bufline)
 	        rs = shio_control(ofp,SHIO_CSETBUFLINE,TRUE) ;
@@ -991,7 +1024,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *ifn,
 	                cp = aip->argv[ai] ;
 	                if (cp[0] != '\0') {
 	                    pan += 1 ;
-	                    rs = process(pip,ofp,cp,-1) ;
+	                    rs = procspec(pip,ofp,cp,-1) ;
 	                }
 	            }
 
@@ -1040,8 +1073,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *ifn,
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
 		    fmt = "%s: inaccesible argument-list (%d)\n" ;
-	            shio_printf(pip->efp,fmt,pn,rs) ;
-	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	            shio_printf(efp,fmt,pn,rs) ;
+	            shio_printf(efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
 
 	    } /* end if (processing file argument file list) */
@@ -1083,8 +1116,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *ifn,
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
 		    fmt = "%s: inaccessible input (%d)\n" ;
-	            shio_printf(pip->efp,fmt,pn,rs) ;
-	            shio_printf(pip->efp,"%s: ifile=%s\n",pn,ifn) ;
+	            shio_printf(efp,fmt,pn,rs) ;
+	            shio_printf(efp,"%s: ifile=%s\n",pn,ifn) ;
 	        } /* end if (opened input) */
 
 	    } /* end if (processing input) */
@@ -1093,8 +1126,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *ifn,
 	    if (rs >= 0) rs = rs1 ;
 	} else {
 	    fmt = "%s: inaccessible output (%d)\n" ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
-	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
+	    shio_printf(efp,fmt,pn,rs) ;
+	    shio_printf(efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
 	return rs ;
@@ -1102,7 +1135,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *ifn,
 /* end subroutine (procargs) */
 
 
-static int procspecs(PROGINFO *pip,void *ofp,cchar *lbuf,int llen)
+static int procspecs(PROGINFO *pip,SHIO *ofp,cchar *lbuf,int llen)
 {
 	FIELD		fsb ;
 	int		rs ;
@@ -1112,7 +1145,7 @@ static int procspecs(PROGINFO *pip,void *ofp,cchar *lbuf,int llen)
 	    cchar	*fp ;
 	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
 	        if (fl > 0) {
-	            rs = process(pip,ofp,fp,fl) ;
+	            rs = procspec(pip,ofp,fp,fl) ;
 	            c += rs ;
 	        }
 	        if (fsb.term == '#') break ;
@@ -1125,16 +1158,13 @@ static int procspecs(PROGINFO *pip,void *ofp,cchar *lbuf,int llen)
 /* end subroutine (procspecs) */
 
 
-static int process(PROGINFO *pip,SHIO *ofp,cchar name[],int namelen)
+static int procspec(PROGINFO *pip,SHIO *ofp,cchar *name,int namelen)
 {
-	LOCINFO		*lip = pip->lip ;
+	LOCINFO		*lip = (LOCINFO *) pip->lip ;
 	unsigned int	value = 0 ;
-	const int	olen = OUTBUFLEN ;
 	int		rs = SR_OK ;
-	int		i ;
 	int		cl ;
 	const char	*cp ;
-	char		obuf[OUTBUFLEN + 1] ;
 
 	if (name == NULL) return SR_FAULT ;
 
@@ -1156,8 +1186,9 @@ static int process(PROGINFO *pip,SHIO *ofp,cchar name[],int namelen)
 #endif
 
 	    rs = SR_INVALID ;
-	    if (cp[0] == '\\')
+	    if (cp[0] == '\\') {
 	        rs = cfnumui(cp,cl,&value) ;
+	    }
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
@@ -1166,6 +1197,13 @@ static int process(PROGINFO *pip,SHIO *ofp,cchar name[],int namelen)
 
 	    if (isNotValid(rs)) {
 	        switch (lip->basei) {
+		case 1:
+		    {
+			int	ival ;
+		        rs = cfromani(cp,cl,&ival) ;
+			value = ival ;
+		    }
+		    break ;
 	        case 2:
 	            rs = cfbinui(cp,cl,&value) ;
 	            break ;
@@ -1266,36 +1304,61 @@ static int process(PROGINFO *pip,SHIO *ofp,cchar name[],int namelen)
 #endif
 
 	if (rs >= 0) {
+	    const int	olen = OUTBUFLEN ;
+	    int		ol = -1 ;
+	    cchar	*obufp = NULL ;
+	    char	obuf[OUTBUFLEN + 1] ;
+	    obufp = obuf ;
 	    switch (lip->baseo) {
+	    case 1:
+	        rs = ctromani(obuf,olen,value) ;
+		ol = rs ;
+		break ;
+	    case 3:
+		{
+		    string	s ;
+	            if ((rs = ctwords(&s,value)) >= 0) {
+			obufp = s.c_str() ;
+		    }
+		}
+		break ;
 	    case 2:
 	        rs = ctbini(obuf,olen,value) ;
+		ol = rs ;
 	        break ;
 	    case 8:
 	        rs = ctocti(obuf,olen,value) ;
+		ol = rs ;
 	        break ;
 	    case 10:
 	        rs = ctdecui(obuf,olen,value) ;
+		ol = rs ;
 	        break ;
 	    case 16:
 	        if ((rs = cthexi(obuf,olen,value)) > 0) {
+		    int	i ;
 	            if (lip->f.uppercase) {
 	                if ((i = strcspn(obuf,"abcdef")) > 0) {
 	                    while (i < 8) {
-	                        obuf[i] = toupper(obuf[i]) ;
+	                        obuf[i] = touc(obuf[i]) ;
 	                        i += 1 ;
 	                    }
 	                }
 	            } else {
 	                if ((i = strcspn(obuf,"ABCDEF")) > 0) {
 	                    while (i < 8) {
-	                        obuf[i] = tolower(obuf[i]) ;
+	                        obuf[i] = tolc(obuf[i]) ;
 	                        i += 1 ;
 	                    }
 	                }
 	            } /* end if */
+		    ol = rs ;
 	        } /* end if (case conversion) */
 	        break ;
 	    } /* end switch */
+	    if (rs >= 0) {
+	        rs = shio_printf(ofp,"%t\n",obufp,ol) ;
+	    }
 	} /* end if (ok) */
 
 #if	CF_DEBUG
@@ -1303,18 +1366,9 @@ static int process(PROGINFO *pip,SHIO *ofp,cchar name[],int namelen)
 	    debugprintf("process: result rs=%d obuf=>%t<\n",rs,obuf,rs) ;
 #endif
 
-	if (rs >= 0) {
-	    rs = shio_printf(ofp,"%s\n",obuf) ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("process: ret rs=%d\n",rs) ;
-#endif
-
 	return rs ;
 }
-/* end subroutine (process) */
+/* end subroutine (procspec) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
@@ -1388,5 +1442,23 @@ static int locinfo_base(LOCINFO *lip,cchar *sp,int sl)
 	return rs ;
 }
 /* end subroutine (locinfo_base) */
+
+
+static int isNotValidBase(int b)
+{
+	int	f = FALSE ;
+	switch (b) {
+	case 1:
+	case 3:
+	case 2:
+	case 8:
+	case 10:
+	case 16:
+	    f = TRUE ;
+	    break ;
+	} /* end switch */
+	return f ;
+}
+/* end subroutine (isNotValidBase) */
 
 

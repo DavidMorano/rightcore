@@ -680,6 +680,9 @@ int p_sysval(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_sysval) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1016,8 +1019,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1291,9 +1296,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 #if	CF_PERCACHE

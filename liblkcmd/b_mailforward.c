@@ -326,6 +326,9 @@ int p_mailforward(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_mailforward) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -716,8 +719,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&kopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 				} else
 	                            rs = SR_INVALID ;
 	                            break ;
@@ -1118,10 +1123,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_mailforward) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

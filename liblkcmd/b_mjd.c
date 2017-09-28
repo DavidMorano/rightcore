@@ -317,6 +317,9 @@ int p_mjd(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_mjd) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1025,10 +1028,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_mjd) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

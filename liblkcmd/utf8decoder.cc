@@ -125,7 +125,7 @@ public:
 	    return rch ;
 	} ;
 	int adv(int al) ;
-} ;
+} ; /* end structure (widebuf) */
 
 
 /* forward references */
@@ -149,8 +149,9 @@ int utf8decoder_start(UTF8DECODER *op)
 	if ((wbp = new(nothrow) widebuf) != NULL) {
 	    op->outbuf = (void *) wbp ;
 	    op->magic = UTF8DECODER_MAGIC ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 
 	return rs ;
 }
@@ -233,8 +234,9 @@ int utf8decoder_load(UTF8DECODER *op,cchar *sp,int sl)
 		    } /* end if (multi type) */
 		} /* end if (single or multi) */
 	   } /* end while */
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("utf8decoder_load: ret rs=%d c=%u\n",rs,c) ;
@@ -273,8 +275,9 @@ int utf8decoder_read(UTF8DECODER *op,wchar_t *rbuf,int rlen)
 	        }
 	        rbuf[i] = '\0' ;
 	        rs = wbp->adv(i) ;
-	    } else
+	    } else {
 	        rs = SR_BUGCHECK ;
+	    }
 	} /* end if (positive) */
 
 #if	CF_DEBUGS

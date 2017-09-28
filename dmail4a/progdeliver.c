@@ -143,12 +143,18 @@ int progdeliver(PROGINFO *pip,int tfd,RECIP *rp)
 #endif
 
 	if ((rs = progdeliverer(pip,tfd,rp,md,TRUE)) >= 0) {
+	    md = pip->copymaildname ;
 	    tlen = rs ;
-	    if (pip->f.optcopy) {
-		md = pip->copymaildname ;
-		if (md != NULL) {
-	            rs = progdeliverer(pip,tfd,rp,md,FALSE) ;
-		}
+	    if (pip->f.optcopy && (md != NULL)) {
+		    cchar *fmt ;
+	            if ((rs = progdeliverer(pip,tfd,rp,md,FALSE)) >= 0) {
+			fmt = "  msg-copy (%d)" ;
+	    		proglog_printf(pip,fmt,rs) ;
+		    } else if (rs == SR_FBIG) {
+			fmt = "  msg-copy too big (%d)" ;
+	    		proglog_printf(pip,fmt,rs) ;
+			rs = SR_OK ;
+		    }
 	    } /* end if (opt-copy) */
 	} /* end if (progdeliverer-primary) */
 

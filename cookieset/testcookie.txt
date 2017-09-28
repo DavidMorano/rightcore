@@ -1,0 +1,5 @@
+%
+Here is a cookie entry.
+%
+Here is another cookie string.
+%

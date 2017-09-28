@@ -39,7 +39,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<time.h>
 
 #include	<vsystem.h>
@@ -700,12 +699,11 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    cchar	*pn = pip->progname ;
+	    bprintf(pip->efp,"%s: version %s\n",pn,VERSION) ;
 	    if (f_makedate) {
 	        cl = makedate_date(utmpmaint_makedate,&cp) ;
-	        bprintf(pip->efp,"%s: makedate %t\n",
-	            pip->progname,cp,cl) ;
+	        bprintf(pip->efp,"%s: makedate %t\n",pn,cp,cl) ;
 	    }
 	} /* end if */
 
@@ -760,10 +758,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: f_maint=%u\n",
-	        pip->progname,lip->f.maint) ;
-	    bprintf(pip->efp,"%s: f_list=%u\n",
-	        pip->progname,lip->f.list) ;
+	    cchar	*pn = pip->progname ;
+	    bprintf(pip->efp,"%s: f_maint=%u\n",pn,lip->f.maint) ;
+	    bprintf(pip->efp,"%s: f_list=%u\n",pn,lip->f.list) ;
 	}
 
 /* remaining initialization */
@@ -777,8 +774,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	if (dbfname == NULL) dbfname = getenv(VARDBFNAME) ;
 
 	if ((pip->debuglevel > 0) && (dbfname != NULL)) {
-	    bprintf(pip->efp,"%s: dbfile=%s\n",
-	        pip->progname,dbfname) ;
+	    bprintf(pip->efp,"%s: dbfile=%s\n",pip->progname,dbfname) ;
 	}
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -1113,7 +1109,7 @@ const char	*afn ;
 
 	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if (rs >= 0) {
 	        int	ai ;
@@ -1240,8 +1236,8 @@ static int procmaint(PROGINFO *pip,cchar *fn)
 	        int	mf = MAP_SHARED ;
 	        int	fs = rs ;
 	        if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
-	            const int		madv = MADV_SEQUENTIAL ;
 	            const caddr_t	ma = md ;
+	            const int		madv = MADV_SEQUENTIAL ;
 	            if ((rs = uc_madvise(ma,ms,madv)) >= 0) {
 	                if ((rs = procmaintbake(pip,md,ms,fs)) > 0) {
 #if	CF_DEBUG
@@ -1270,10 +1266,10 @@ static int procmaintbake(PROGINFO *pip,void *md,size_t ms,int fs)
 	TMPX_ENT	*up ;
 	const int	es = sizeof(TMPX_ENT) ;
 	int		rs = SR_OK ;
-	const char	*mp, *mep ;
+	cchar		*mp, *mep ;
 
-	mp = (const char *) md ;
-	mep = (const char *) md ;
+	mp = (cchar *) md ;
+	mep = (char *) md ;
 	while (mep < (mp+fs)) {
 	    up = (TMPX_ENT *) mep ;
 
@@ -1282,6 +1278,7 @@ static int procmaintbake(PROGINFO *pip,void *md,size_t ms,int fs)
 	        {
 	            const pid_t	sid = up->ut_pid ;
 	            if ((rs = u_kill(sid,0)) == SR_SRCH) {
+			rs = SR_OK ;
 	                if (strcmp(up->ut_line,"/dev/console") == 0) {
 	                    if (wup == NULL) wup = up ;
 	                    up = NULL ;
@@ -1323,10 +1320,9 @@ static int procmaintbake(PROGINFO *pip,void *md,size_t ms,int fs)
 	    if (rs < 0) break ;
 	} /* end while */
 
-	if (lup != NULL) {
+	if ((rs >= 0) && (lup != NULL)) {
 	    offset_t	feo ;
-	    const char	*mlp ;
-	    mlp = (const char *) (lup+1) ;
+	    cchar	*mlp = (cchar *) (lup+1) ;
 	    feo = (mlp-mp) ;
 	    if (feo < fs) {
 	        rs = (int) (feo & INT_MAX) ;

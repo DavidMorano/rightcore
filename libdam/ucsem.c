@@ -75,7 +75,7 @@
 
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	msleep(int) ;
 
 #if	CF_DEBUGS
@@ -535,9 +535,9 @@ static int getucsemgid(void)
 	const int	nrs = SR_NOTFOUND ;
 	int		rs ;
 	cchar		*gn = UCSEM_GROUPNAME1 ;
-	if ((rs = getgroup_gid(gn,-1)) == nrs) {
+	if ((rs = getgid_group(gn,-1)) == nrs) {
 	    gn = UCSEM_GROUPNAME2 ;
-	    if ((rs = getgroup_gid(gn,-1)) == nrs) {
+	    if ((rs = getgid_group(gn,-1)) == nrs) {
 		rs = UCSEM_GID ;
 	    }
 	}

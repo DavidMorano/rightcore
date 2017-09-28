@@ -12,10 +12,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	The program was written from scratch to do what the previous program by
 	the same name did.
-
 
 */
 
@@ -42,7 +40,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bits.h>
@@ -82,10 +79,10 @@ extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	isproc(pid_t) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
-extern int	proginfo_setpiv(PROGINFO *,cchar *,
-			const struct pivars *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
@@ -208,6 +205,7 @@ static const struct mapex	mapexs[] = {
 /* exported subroutines */
 
 
+/* ARGSUSED */
 int main(int argc,cchar *argv[],cchar *envv[])
 {
 	struct sigaction	sigs ;
@@ -734,6 +732,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0) goto badarg ;
@@ -750,10 +750,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -1135,13 +1136,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                break ;
 
 	            if ((rs == SR_NOENT) && (! pip->f.wait)) {
-
 	                filewatch_finish(wp) ;
 	                vechand_del(&watchers,i) ;
 	                uc_free(wp) ;
-
-	            } else
+	            } else {
 	                nfiles += 1 ;
+		    }
 
 	            rs = SR_OK ;
 
@@ -1291,8 +1291,7 @@ static void int_exit(int sn)
 /* end subroutine (int_exit) */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;

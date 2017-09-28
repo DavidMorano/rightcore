@@ -152,7 +152,7 @@ OBJ04=
 OBJ05=
 OBJ06= 
 OBJ07= printhelp.o
-OBJ08=
+OBJ08= ctwords.o
 OBJ09=
 OBJ10=
 OBJ11=
@@ -307,5 +307,9 @@ hdb.o:			hdb.c hdb.h
 bits.o:			bits.c bits.h baops.h
 
 baops.o:		baops.c baops.h
+
+
+ctwords.o:		ctwords.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) ctwords.cc
 
 

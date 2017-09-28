@@ -1,0 +1,26 @@
+Transport Connections
+
+
+Connections that are passed on the pass-pipe can be preceeded with some
+data that provides additional information about the subsequently passed
+connection.  This data is passed by passing the name of a file that
+contains the additional information.
+
+Additional information that may be in the passed file (specified by the
+passed file name) includes :
+
+item		description
+-------------------------------------------------------
+
+transport	incoming transport provider
+username	username of passing user (UID is determined elsewhere)
+hostname	host name of originating host
+ident		identification of originating user (if known)
+
+
+The UID owner of the file must match the subsequent UID of the passed
+file descriptor in order for the association between the two to be
+made.
+
+
+

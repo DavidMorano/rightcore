@@ -1,6 +1,6 @@
 /* strfilter */
 
-/* pawatch a file for changes and report */
+/* filter a string of text against some criteria */
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
@@ -28,9 +28,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<unistd.h>
-#include	<fcntl.h>
-#include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>

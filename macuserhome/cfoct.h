@@ -10,8 +10,8 @@
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-#ifndef	CFDEC_INCLUDE
-#define	CFDEC_INCLUDE	1
+#ifndef	CFOCT_INCLUDE
+#define	CFOCT_INCLUDE	1
 
 
 #include	<envstandards.h>
@@ -39,6 +39,6 @@ extern int cfoctull(const char *,int,ulonglong *) ;
 }
 #endif
 
-#endif /* CFDEC_INCLUDE	*/
+#endif /* CFOCT_INCLUDE	*/
 
 

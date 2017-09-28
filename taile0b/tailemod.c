@@ -9,25 +9,22 @@
 /* revision history:
 
 	- 1996-02-01, David A­D­ Morano
-
 	This subroutine was adopted for use from the DWD program.
 
-
 	- 2003-11-04, David A­D­ Morano
-
-	I don't know where all this has been (apparently "around") but
-	I grabbed it from the CM object !
-
+        I don't know where all this has been (apparently "around") but I grabbed
+        it from the CM object !
 
 */
 
+/* Copyright © 1996,2003 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
 	This object manages what tailemod have been loaded so far.
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #define	TAILEMOD_MASTER	0
@@ -44,7 +41,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<vecobj.h>
@@ -57,8 +53,6 @@
 
 
 /* local defines */
-
-#define	TAILEMOD_MAGIC	31815927
 
 #define	TO_FILECHECK	3
 

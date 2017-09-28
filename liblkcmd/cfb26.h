@@ -16,7 +16,7 @@
 #define	CFB26_INCLUDE	1
 
 
-#if	(! defined(VECPSTR_MASTER)) || (VECPSTR_MASTER == 0)
+#if	(! defined(CFB26_MASTER)) || (CFB26_MASTER == 0)
 
 #ifdef	__cplusplus
 extern "C" {

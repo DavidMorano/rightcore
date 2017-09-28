@@ -187,7 +187,7 @@ static int	locinfo_pcspr(LOCINFO * lip) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -237,7 +237,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *progopts[] = {
+static cchar	*progopts[] = {
 	"poll",
 	"pollint",
 	"intpoll",
@@ -293,6 +293,9 @@ int p_rest(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_rest) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -676,7 +679,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	    pip->open.errfile = TRUE ;
 	    shio_control(pip->efp,SHIO_CSETBUFLINE,TRUE) ;
 	} else if (! isFailOpen(rs1)) {
-	     if (rs >= 0) rs = rs1 ;
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -954,9 +957,6 @@ badarg:
 /* end subroutine (mainsub) */
 
 
-/* local subroutines */
-
-
 static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1045,149 +1045,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procopts) */
-
-
-static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
-{
-	int		rs = SR_OK ;
-
-	pip->nodename = uip->nodename ;
-	pip->domainname = uip->domainname ;
-	pip->username = uip->username ;
-	pip->gecosname = uip->gecosname ;
-	pip->realname = uip->realname ;
-	pip->name = uip->name ;
-	pip->fullname = uip->fullname ;
-	pip->mailname = uip->mailname ;
-	pip->org = uip->organization ;
-	pip->logid = uip->logid ;
-	pip->pid = uip->pid ;
-	pip->uid = uip->uid ;
-	pip->euid = uip->euid ;
-	pip->gid = uip->gid ;
-	pip->egid = uip->egid ;
-
-	if (rs >= 0) {
-	    const int	hlen = MAXHOSTNAMELEN ;
-	    char	hbuf[MAXHOSTNAMELEN+1] ;
-	    cchar	*nn = pip->nodename ;
-	    cchar	*dn = pip->domainname ;
-	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-	        cchar	**vpp = &pip->hostname ;
-	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
-	    }
-	}
-
-	if (rs >= 0) {
-	    rs = procuserinfo_logid(pip) ;
-	} /* end if (ok) */
-
-	if (rs >= 0) {
-	    LOCINFO	*lip = pip->lip ;
-	    rs = locinfo_pcspr(lip) ;
-	}
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_begin) */
-
-
-static int procuserinfo_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-	if (pip == NULL) return SR_FAULT ;
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_end) */
-
-
-static int procuserinfo_logid(PROGINFO *pip)
-{
-	int		rs ;
-	if ((rs = lib_runmode()) >= 0) {
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
-#endif
-	    if (rs & KSHLIB_RMKSH) {
-	        if ((rs = lib_serial()) >= 0) {
-	            const int	s = rs ;
-	            const int	plen = LOGIDLEN ;
-	            const int	pv = pip->pid ;
-	            cchar	*nn = pip->nodename ;
-	            char	pbuf[LOGIDLEN+1] ;
-	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
-	                const int	slen = LOGIDLEN ;
-	                char		sbuf[LOGIDLEN+1] ;
-	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
-	                    cchar	**vpp = &pip->logid ;
-	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
-	                }
-	            }
-	        } /* end if (lib_serial) */
-	    } /* end if (runmode-KSH) */
-	} /* end if (lib_runmode) */
-	return rs ;
-}
-/* end subroutine (procuserinfo_logid) */
-
-
-static int procpcsconf_begin(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("b_rest/procpcsconf_begin: ent\n") ;
-#endif
-
-	if (pip->open.pcsconf) {
-	    PCSCONF	*pcp = pip->pcsconf ;
-	    if (pcp == NULL) rs = SR_FAULT ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3)) {
-	        PCSCONF_CUR	cur ;
-	        if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
-	            const int	klen = KBUFLEN ;
-	            const int	vlen = VBUFLEN ;
-	            int		vl ;
-	            char	kbuf[KBUFLEN+1] ;
-	            char	vbuf[VBUFLEN+1] ;
-	            while (rs >= 0) {
-	                vl = pcsconf_enum(pcp,&cur,kbuf,klen,vbuf,vlen) ;
-	                if (vl == SR_NOTFOUND) break ;
-	                debugprintf("b_rest/procpcsconf: pair> %s=%t\n",
-	                    kbuf,vbuf,vl) ;
-	            } /* end while */
-	            pcsconf_curend(pcp,&cur) ;
-	        } /* end if (cursor) */
-	    }
-#endif /* CF_DEBUG */
-
-	} /* end if (configured) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("b_rest/procpcsconf_begin: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (procpcsconf_begin) */
-
-
-static int procpcsconf_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-	if (pip == NULL) return SR_FAULT ;
-
-	return rs ;
-}
-/* end subroutine (procpcsconf_end) */
 
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
@@ -1391,6 +1248,149 @@ static int procsleep(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (procsleep) */
+
+
+static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
+{
+	int		rs = SR_OK ;
+
+	pip->nodename = uip->nodename ;
+	pip->domainname = uip->domainname ;
+	pip->username = uip->username ;
+	pip->gecosname = uip->gecosname ;
+	pip->realname = uip->realname ;
+	pip->name = uip->name ;
+	pip->fullname = uip->fullname ;
+	pip->mailname = uip->mailname ;
+	pip->org = uip->organization ;
+	pip->logid = uip->logid ;
+	pip->pid = uip->pid ;
+	pip->uid = uip->uid ;
+	pip->euid = uip->euid ;
+	pip->gid = uip->gid ;
+	pip->egid = uip->egid ;
+
+	if (rs >= 0) {
+	    const int	hlen = MAXHOSTNAMELEN ;
+	    char	hbuf[MAXHOSTNAMELEN+1] ;
+	    cchar	*nn = pip->nodename ;
+	    cchar	*dn = pip->domainname ;
+	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	        cchar	**vpp = &pip->hostname ;
+	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
+	    }
+	}
+
+	if (rs >= 0) {
+	    rs = procuserinfo_logid(pip) ;
+	} /* end if (ok) */
+
+	if (rs >= 0) {
+	    LOCINFO	*lip = pip->lip ;
+	    rs = locinfo_pcspr(lip) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_begin) */
+
+
+static int procuserinfo_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_end) */
+
+
+static int procuserinfo_logid(PROGINFO *pip)
+{
+	int		rs ;
+	if ((rs = lib_runmode()) >= 0) {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
+#endif
+	    if (rs & KSHLIB_RMKSH) {
+	        if ((rs = lib_serial()) >= 0) {
+	            const int	s = rs ;
+	            const int	plen = LOGIDLEN ;
+	            const int	pv = pip->pid ;
+	            cchar	*nn = pip->nodename ;
+	            char	pbuf[LOGIDLEN+1] ;
+	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
+	                const int	slen = LOGIDLEN ;
+	                char		sbuf[LOGIDLEN+1] ;
+	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
+	                    cchar	**vpp = &pip->logid ;
+	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
+	                }
+	            }
+	        } /* end if (lib_serial) */
+	    } /* end if (runmode-KSH) */
+	} /* end if (lib_runmode) */
+	return rs ;
+}
+/* end subroutine (procuserinfo_logid) */
+
+
+static int procpcsconf_begin(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_rest/procpcsconf_begin: ent\n") ;
+#endif
+
+	if (pip->open.pcsconf) {
+	    PCSCONF	*pcp = pip->pcsconf ;
+	    if (pcp == NULL) rs = SR_FAULT ;
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(3)) {
+	        PCSCONF_CUR	cur ;
+	        if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
+	            const int	klen = KBUFLEN ;
+	            const int	vlen = VBUFLEN ;
+	            int		vl ;
+	            char	kbuf[KBUFLEN+1] ;
+	            char	vbuf[VBUFLEN+1] ;
+	            while (rs >= 0) {
+	                vl = pcsconf_enum(pcp,&cur,kbuf,klen,vbuf,vlen) ;
+	                if (vl == SR_NOTFOUND) break ;
+	                debugprintf("b_rest/procpcsconf: pair> %s=%t\n",
+	                    kbuf,vbuf,vl) ;
+	            } /* end while */
+	            pcsconf_curend(pcp,&cur) ;
+	        } /* end if (cursor) */
+	    }
+#endif /* CF_DEBUG */
+
+	} /* end if (configured) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_rest/procpcsconf_begin: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (procpcsconf_begin) */
+
+
+static int procpcsconf_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procpcsconf_end) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)

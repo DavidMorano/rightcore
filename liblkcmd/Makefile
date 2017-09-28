@@ -699,9 +699,6 @@ b_calyear.o:		b_calyear.c b_calyear.h $(INCS)
 b_logfile.o:		b_logfile.c b_logfile.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
-b_numcvt.o:		b_numcvt.c b_numcvt.h $(INCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
-
 b_querystring.o:	b_querystring.c b_querystring.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
@@ -880,6 +877,9 @@ pcsmain.o:		pcsmain.c $(INCS) msfile.h $(PCSINCS)
 
 b_numbers.o:		b_numbers.c b_numbers.h $(INCS)
 	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_numbers.cc
+
+b_numcvt.o:		b_numcvt.c b_numcvt.h $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_numcvt.cc
 
 
 # testing
@@ -1385,6 +1385,9 @@ logfile_userinfo.o:	logfile_userinfo.c logfile.h
 
 logfile_printfold.o:	logfile_printfold.c logfile.h
 
+hdrdecode.o:		hdrdecode.cc hdrdecode.h 
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) hdrdecode.cc
+
 mailalias.o:		mailalias.cc mailalias.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) $<
 
@@ -1397,17 +1400,14 @@ termout.o:		termout.cc termout.h ansigr.h
 linehist.o:		linehist.cc linehist.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) linehist.cc
 
-hdrdecode.o:		hdrdecode.cc hdrdecode.h 
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) hdrdecode.cc
+hexdecoder.o:		hexdecoder.cc hexdecoder.h 
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) hexdecoder.cc
 
 qpdecoder.o:		qpdecoder.cc qpdecoder.h char.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) qpdecoder.cc
 
 b64decoder.o:		b64decoder.cc b64decoder.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) b64decoder.cc
-
-hexdecoder.o:		hexdecoder.cc hexdecoder.h 
-	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) hdrdecoder.cc
 
 utf8decoder.o:		utf8decoder.cc utf8decoder.h 
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) utf8decoder.cc

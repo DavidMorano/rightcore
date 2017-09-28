@@ -423,6 +423,9 @@ int p_bibleverse(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_bibleverse) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1253,9 +1256,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)

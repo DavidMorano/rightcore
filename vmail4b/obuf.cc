@@ -1,7 +1,7 @@
 /* obuf */
 /* lang=C++98 */
 
-/* Output Buffer */
+/* Output Buffer (object) */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -10,7 +10,7 @@
 /* revision history:
 
 	= 2016-06-29, David A­D­ Morano
-	This was really made from scratch.
+	This was carved out of an existing subroutine.
 
 */
 
@@ -28,7 +28,7 @@
 #include	<sys/types.h>
 #include	<new>
 #include	<localmisc.h>
-#include	"obuf.h"
+#include	"obuf.hh"
 
 
 /* local defines */
@@ -55,32 +55,32 @@
 /* exported subroutines */
 
 
-	int obuf::adv(int al) {
-	    const int	sl = b.size() ;
-	    int		rl = 0 ;
-	    if (al > 0) {
-	        if (sl > (oi+al)) {
-	            rl = (sl - oi) ;
-	            oi += rl ;
-	        } else {
-	            rl = (sl - oi) ;
-	            oi += rl ;
-	            if (rl == 0) {
-	                b.clear() ;
-	                oi = 0 ;
-	            }
-	        }
-	    } else if (al < 0) {
-	        if (sl > oi) {
-	            rl = (sl - oi) ;
-	            oi += rl ;
-	        } else {
+int obuf::adv(int al) {
+	const int	sl = b.size() ;
+	int		rl = 0 ;
+	if (al > 0) {
+	    if (sl > (oi+al)) {
+	        rl = (sl - oi) ;
+	        oi += rl ;
+	    } else {
+	        rl = (sl - oi) ;
+	        oi += rl ;
+	        if (rl == 0) {
 	            b.clear() ;
 	            oi = 0 ;
 	        }
 	    }
-	    return rl ;
+	} else if (al < 0) {
+	    if (sl > oi) {
+	        rl = (sl - oi) ;
+	        oi += rl ;
+	    } else {
+	        b.clear() ;
+	        oi = 0 ;
+	    }
 	}
+	return rl ;
+}
 /* end subroutine (obuf::adv) */
 
 

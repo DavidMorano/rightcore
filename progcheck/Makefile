@@ -372,4 +372,7 @@ termout.o:		termout.cc termout.h ansigr.h
 linehist.o:		linehist.cc linehist.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) linehist.cc
 
+progbal.o:		progbal.cc progbal.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) progbal.cc
+
 

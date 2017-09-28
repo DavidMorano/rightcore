@@ -81,25 +81,20 @@ extern char	*strnchr(const char *,int,int) ;
 /* exported subroutines */
 
 
-int getaflen(af)
-int	af ;
+int getaflen(int af)
 {
 	int	alen = SR_AFNOSUPPORT ;
 
 	switch (af) {
-
 	case AF_UNIX:
 	    alen = MAXPATHLEN ;
 	    break ;
-
 	case AF_INET4:
 	    alen = INET4ADDRLEN ;
 	    break ;
-
 	case AF_INET6:
 	    alen = INET6ADDRLEN ;
 	    break ;
-
 	} /* end switch */
 
 	return alen ;
@@ -107,8 +102,7 @@ int	af ;
 /* end subroutine (getaflen) */
 
 
-int getaddrlen(af)
-int	af ;
+int getaddrlen(int af)
 {
 	return getaflen(af) ;
 }

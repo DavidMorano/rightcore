@@ -272,6 +272,9 @@ int p_mxalias(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_mxalias) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -607,9 +610,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,
-	                                    argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -903,10 +907,7 @@ badarg:
 	usage(pip) ;
 	goto retearly ;
 }
-/* end subroutine (b_mxalias) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 /* print out (standard error) some short usage */

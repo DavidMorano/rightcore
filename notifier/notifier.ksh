@@ -59,6 +59,7 @@ for PR in ${PRS} ; do
   pathadd LD_LIBRARY_PATH ${PR}/lib
 done
 
+
 : ${USERNAME:=$( username )}
 export USERNAME
 
@@ -151,7 +152,7 @@ for A in "${@}" ; do
 done
 
 case ${FAC} in
-wire|skype|textonly)
+wire|skype|textonly|facetime)
   MSGFILE=${TMPUSERDIR}/notifier${$}
   touch ${MSGFILE}
   logprint "${FAC} ${DS}"
@@ -187,6 +188,7 @@ wire|skype|textonly)
   fi
   ;;
 *)
+  print -- "unknown facility"
   print -u2 -- "${PN}: no facility"
   logprint "no facility"
   ;;

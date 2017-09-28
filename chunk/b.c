@@ -1,4 +1,4 @@
-/* main (chunk) */
+/* b_chunk (KSH builtin) */
 
 /* program to chunk-a-size up a large file into smaller ones */
 /* last modified %G% version %I% */
@@ -260,6 +260,9 @@ int p_chunk(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_chunk) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -828,10 +831,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (main) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

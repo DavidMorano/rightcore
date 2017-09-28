@@ -1,5 +1,5 @@
 /* nthai */
-/* lang=C++11 */
+/* lang=C++98 */
 
 /* find Nth index-value function (for an array of integers) */
 
@@ -51,7 +51,6 @@ typedef int	(*partpred_t)(int,int) ;
 extern "C" int	nthai(int *,int,int,int) ;
 
 extern "C" int	partitionai(int *,int,partpred_t,int) ;
-extern "C" int	arrswap(int *,int,int) ;
 
 #if	CF_DEBUGS
 extern "C" int	debugprintf(const char *,...) ;
@@ -104,6 +103,41 @@ int nthai(int *a,int ri,int rl,int n)
 /* local subroutines */
 
 
+int recurser::nrecurse(int ri,int rl)
+{
+	int		ans = INT_MAX ;
+#if	CF_DEBUGS
+	debugprintf("nthai/nrecurse: ent ri=%u rl=%u \n",ri,rl) ;
+	debugprinta(a,al) ;
+#endif
+	if ((n >= 0) && (n < (ri+rl))) {
+	    int		pv ;
+	    int		pi1, pi2 ;
+	    int		new_ri, new_rl ;
+	    pv = getpivot(a+ri,rl) ;
+	    pi1 = partitionai(a+ri,rl,partpred1,pv) + ri ;
+	    pi2 = partitionai(a+pi1,((ri+rl)-pi1),partpred2,pv) + pi1 ;
+	    if ((n >= pi1) && (n < pi2)) {
+	        ans = a[n] ;
+	    } else if (n < pi1) {
+		new_ri = ri ;
+	  	new_rl = (pi1-ri) ;
+	        ans = nrecurse(new_ri,new_rl) ;
+	    } else {
+		new_ri = pi2 ;
+	  	new_rl = ((ri+rl)-pi2) ;
+	        ans = nrecurse(new_ri,new_rl) ;
+	    }
+	} /* end if (valid) */
+#if	CF_DEBUGS
+	debugprintf("nthai/nrecurse: ret ans=%d\n",ans) ;
+	debugprinta(a,al) ;
+#endif
+	return ans ;
+}
+/* end subroutine (recursoer::nrecurse) */
+
+
 static int partpred1(int e,int pv)
 {
 	return (e < pv) ;
@@ -124,41 +158,6 @@ static int getpivot(const int *a,int al)
 	}
 	return a[pvi] ;
 }
-
-
-int recurser::nrecurse(int ri,int rl)
-{
-	int		ans = INT_MAX ;
-#if	CF_DEBUGS
-	debugprintf("nthai/nrecurse: ent ri=%u rl=%u \n",ri,rl) ;
-	debugprinta(a,al) ;
-#endif
-	if ((n >= 0) && (n < (ri+rl))) {
-	    int		pv ;
-	    int		pi1, pi2 ;
-	    int		new_ri, new_rl ;
-	    pv = getpivot(a+ri,rl) ;
-	    pi1 = partitionai(a+ri,rl,partpred1,pv) + ri ;
-	    pi2 = partitionai(a+pi1, (ri+rl)-pi1 ,partpred2,pv) + pi1 ;
-	    if ((n >= pi1) && (n < pi2)) {
-	        ans = a[n] ;
-	    } else if (n < pi1) {
-		new_ri = ri ;
-	  	new_rl = (pi1-ri) ;
-	        ans = nrecurse(new_ri,new_rl) ;
-	    } else {
-		new_ri = pi2 ;
-	  	new_rl = ((ri+rl)-pi2) ;
-	        ans = nrecurse(new_ri,new_rl) ;
-	    }
-	} /* end if (valid) */
-#if	CF_DEBUGS
-	debugprintf("nthai/nrecurse: ret ans=%d\n",ans) ;
-	debugprinta(a,al) ;
-#endif
-	return ans ;
-}
-/* end subroutine (recursoer::nrecurse) */
 
 
 #if	CF_DEBUGS

@@ -5,6 +5,7 @@
 #define	TAILEMOD_INCLUDE	1
 
 
+#define	TAILEMOD_MAGIC	31815927
 #define	TAILEMOD	struct tailemod_head
 #define	TAILEMOD_CALLS	struct tailemod_calls
 #define	TAILEMOD_ENT	struct tailemod_ent

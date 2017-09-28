@@ -96,7 +96,7 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	fileobject(const char *) ;
 extern int	filebinary(const char *) ;
@@ -331,6 +331,9 @@ int p_isfile(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_isfile) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -1020,10 +1023,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_isfile) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)
@@ -1559,7 +1559,7 @@ static int locinfo_getgroup(LOCINFO *lip)
 	    lip->have.group = TRUE ;
 	    if (lip->gid_tar < 0) {
 	        cchar	*tg = lip->group_tar ;
-	        if ((rs = getgroup_gid(tg,-1)) >= 0) {
+	        if ((rs = getgid_group(tg,-1)) >= 0) {
 	            lip->gid_tar = rs ;
 	        } else if (isNotPresent(rs)) {
 	            rs = SR_OK ;

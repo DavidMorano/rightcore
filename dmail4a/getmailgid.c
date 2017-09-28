@@ -17,6 +17,16 @@
 	This subroutine returns a GID for a specified groupname.  A default GID
 	is returned if the groupname does not exist.
 
+	Synopsis:
+	int getmailgid(cchar *gname,gid_t gid)
+
+	Arguments:
+	gname		groupname to lookup
+	gid		default GID if lookup fails
+
+	Returns:
+	-		GID found or the default GID
+
 
 *******************************************************************************/
 
@@ -36,7 +46,7 @@
 
 /* external subroutines */
 
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 
 
 /* exported subroutines */
@@ -47,7 +57,7 @@ int getmailgid(cchar *gname,gid_t gid)
 	const int	nrs = SR_NOTFOUND ;
 	int		rs ;
 	if (gname == NULL) return SR_FAULT ;
-	if ((rs = getgroup_gid(gname,-1)) == nrs) {
+	if ((rs = getgid_group(gname,-1)) == nrs) {
 	    if (gid >= 0) {
 	        gid = rs ;
 	    } else {

@@ -1,4 +1,4 @@
-/* main (look) */
+/* b_look */
 
 /* this is the LOOK program (for looking up words in a dictionary) */
 
@@ -259,6 +259,9 @@ int p_look(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_look) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -885,9 +888,6 @@ badarg:
 	goto retearly ;
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)

@@ -1,0 +1,13 @@
+  <meta charset="ISO-8859-1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="language" content="en">
+  <META NAME="distribution" CONTENT="global">
+  <META NAME="resource-type" CONTENT="document">
+  <meta name="author" content="David A.D. Morano">
+  <META NAME="description" CONTENT="RightCore Network Services homepage">
+  <META NAME="keywords" CONTENT="RightCore Network Services homepage">
+  <style type="text/css">
+    a { text-decoration:none }
+  </style>
+  <link rel="stylesheet" type="text/css" href="/CSS/homepage.css">
+  <title>RightCore Network Services</title>

@@ -141,7 +141,7 @@ extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	permsched(cchar **,vecstr *,char *,int,cchar *,int) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	getuserhome(char *,int,cchar *) ;
-extern int	getgroup_gid(cchar *,int) ;
+extern int	getgid_group(cchar *,int) ;
 extern int	mkuserpath(char *,cchar *,cchar *,int) ;
 extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
 extern int	msleep(int) ;
@@ -876,7 +876,7 @@ static int statmsg_idcheck(STATMSG *op,STATMSG_ID *idp,char *ubuf)
 	}
 
 	if ((rs >= 0) && (idp->gid < 0)) {
-	    rs = getgroup_gid(idp->groupname,-1) ;
+	    rs = getgid_group(idp->groupname,-1) ;
 	    idp->gid = rs ;
 	}
 

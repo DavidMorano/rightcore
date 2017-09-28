@@ -51,7 +51,7 @@
 *******************************************************************************/
 
 
-#define	SBUF_MASTER	1
+#define	SBUF_MASTER	0		/* we want our own declarations! */
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -547,9 +547,9 @@ int sbuf_hexull(SBUF *sbp,ulonglong v)
 /* store a character */
 int sbuf_char(SBUF *sbp,int ch)
 {
-	int		rs = SR_OK ;
-	int		ni ;
-	int		len = 1 ;
+	const int	len = 1 ;
+	int		rs = SR_OVERFLOW ;
+	int		bl ;
 	char		*bp ;
 
 	if (sbp == NULL) return SR_FAULT ;
@@ -557,20 +557,12 @@ int sbuf_char(SBUF *sbp,int ch)
 	if (SBUF_INDEX < 0) return SBUF_INDEX ;
 
 	bp = (SBUF_RBUF + SBUF_INDEX) ;
-	ni = (SBUF_INDEX + len) ;
-	if (SBUF_RLEN >= 0) {
-	    if (SBUF_RLEN >= ni) {
-		*bp++ = ch ;
-	    } else {
-		rs = SR_OVERFLOW ;
-	    }
-	} else {
+	bl = (SBUF_RLEN-SBUF_INDEX) ;
+	if (bl >= len) {
 	    *bp++ = ch ;
-	}
-
-	if (rs >= 0) {
-	    SBUF_INDEX = ni ;
 	    *bp = '\0' ;
+	    SBUF_INDEX += len ;
+	    rs = SR_OK ;
 	} else {
 	    SBUF_INDEX = rs ;
 	}
@@ -582,6 +574,37 @@ int sbuf_char(SBUF *sbp,int ch)
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (sbuf_char) */
+
+
+/* store a character (n-times) */
+int sbuf_nchar(SBUF *sbp,int len,int ch)
+{
+	int		rs = SR_OVERFLOW ;
+	int		bl ;
+	char		*bp ;
+
+	if (sbp == NULL) return SR_FAULT ;
+	if (len < 0) return SR_INVALID ;
+
+	if (SBUF_INDEX < 0) return SBUF_INDEX ;
+
+	bp = (SBUF_RBUF + SBUF_INDEX) ;
+	bl = (SBUF_RLEN-SBUF_INDEX) ;
+	if (bl >= len) {
+	    int	i ;
+	    for (i = 0 ; i < len ; i += 1) {
+		*bp++ = ch ;
+	    }
+	    SBUF_INDEX += len ;
+	    rs = SR_OK ;
+	    *bp = '\0' ;
+	} else {
+	    SBUF_INDEX = rs ;
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (sbuf_nchar) */
 
 
 int sbuf_blanks(SBUF *sbp,int n)

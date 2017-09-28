@@ -353,9 +353,9 @@ int kvsfile_fileadd(KVSFILE *op,cchar atfname[])
 #if	CF_DEBUGS && CF_DEBUGLIST
 	if (rs >= 0) {
 	    KVSFILE_ENT	*ep ;
-	    KVSFILE_KEY		*kep ;
-	    HDB_CUR		cur ;
-	    HDB_DATUM		key, val ;
+	    KVSFILE_KEY	*kep ;
+	    HDB_CUR	cur ;
+	    HDB_DATUM	key, val ;
 	    int		rs1 ;
 	    int		i ;
 	    hdb_curbegin(&op->entries,&cur) ;
@@ -500,7 +500,7 @@ int		vallen ;
 	cur = curp->ec ;
 	if ((rs = hdb_enum(&op->entries,&cur,&key,&val)) >= 0) {
 	    KVSFILE_ENT	*ep ;
-	    const char	*kp, *vp ;
+	    cchar	*kp, *vp ;
 
 	    kp = (const char *) key.buf ;
 	    kl = key.len ;
@@ -552,7 +552,7 @@ int		vallen ;
 
 	if (op->magic != KVSFILE_MAGIC) return SR_NOTOPEN ;
 
-	kp = (const char *) keybuf ;
+	kp = (cchar *) keybuf ;
 	if (keybuf[0] == '\0')
 	    kp = "default" ;
 
@@ -682,7 +682,7 @@ static int kvsfile_checkfiles(KVSFILE *op,time_t daytime)
 /* check the files */
 
 	for (i = 0 ; vecobj_get(&op->files,i,&fep) >= 0 ; i += 1) {
-	    if (fep == NULL) continue ;
+	    if (fep != NULL) {
 
 	    if ((u_stat(fep->fname,&sb) >= 0) &&
 	        (sb.st_mtime > fep->mtime)) {
@@ -710,6 +710,7 @@ static int kvsfile_checkfiles(KVSFILE *op,time_t daytime)
 
 	    } /* end if */
 
+	    } /* end if */
 	    if (rs < 0) break ;
 	} /* end for */
 
@@ -1027,8 +1028,8 @@ static int kvsfile_addentry(KVSFILE *op,KVSFILE_ENT *nep)
 {
 	KVSFILE_KEY	*kep ;
 	KVSFILE_ENT	*ep ;
+	const int	size = sizeof(KVSFILE_ENT) ;
 	int		rs ;
-	int		size ;
 
 #if	CF_DEBUGS
 	kep = nep->kep ;
@@ -1036,7 +1037,6 @@ static int kvsfile_addentry(KVSFILE *op,KVSFILE_ENT *nep)
 	    kep->kname,nep->vname) ;
 #endif
 
-	size = sizeof(KVSFILE_ENT) ;
 	if ((rs = uc_malloc(size,&ep)) >= 0) {
 	    HDB_DATUM	key, val ;
 	    *ep = *nep ;
@@ -1057,8 +1057,9 @@ static int kvsfile_addentry(KVSFILE *op,KVSFILE_ENT *nep)
 	            {
 	                key.buf = ep ;
 	                key.len = sizeof(KVSFILE_ENT) ;
-	                if (hdb_fetch(&op->keyvals,key,&cur,&val) >= 0)
+	                if (hdb_fetch(&op->keyvals,key,&cur,&val) >= 0) {
 	                    hdb_delcur(&op->keyvals,&cur,0) ;
+			}
 	            }
 	            hdb_curend(&op->keyvals,&cur) ;
 	        } /* end if (bad) */
@@ -1082,7 +1083,7 @@ static int kvsfile_filedump(KVSFILE *op,int fi)
 	KVSFILE_ENT	*ep ;
 	HDB_CUR		cur ;
 	HDB_DATUM	key, val ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 
 #if	CF_DEBUGS
@@ -1320,51 +1321,35 @@ KVSFILE_ENT	*ep ;
 /* end subroutine (entry_finish) */
 
 
-static int cmpfname(e1pp,e2pp)
-KVSFILE_FILE	**e1pp, **e2pp ;
+static int cmpfname(KVSFILE_FILE **e1pp,KVSFILE_FILE **e2pp)
 {
-	int		rc ;
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	rc = strcmp((*e1pp)->fname,(*e2pp)->fname) ;
-
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            rc = strcmp((*e1pp)->fname,(*e2pp)->fname) ;
+	        } else
+	            rc = -1 ;
+	    } else
+	       rc = 1 ;
+	}
 	return rc ;
 }
 /* end subroutine (cmpfname) */
 
 
-static int cmpkey(e1pp,e2pp)
-KVSFILE_KEY	**e1pp, **e2pp ;
+static int cmpkey(KVSFILE_KEY **e1pp,KVSFILE_KEY **e2pp)
 {
-	int		rc ;
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-#if	CF_DEBUGS
-	debugprintf("kvsfile/cmpkey: k1(%p)=%s k2(%p)=%s\n",
-	    (*e1pp)->kname,
-	    (*e1pp)->kname,
-	    (*e2pp)->kname,
-	    (*e2pp)->kname) ;
-#endif
-
-	rc = strcmp((*e1pp)->kname,(*e2pp)->kname) ;
-
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            rc = strcmp((*e1pp)->kname,(*e2pp)->kname) ;
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = 1 ;
+	}
 	return rc ;
 }
 /* end subroutine (cmpkey) */
@@ -1388,10 +1373,7 @@ int		len ;
 
 
 /* ARGSUSED */
-static int cmpkeyval(e1p,e2p,len)
-KVSFILE_ENT	*e1p ;
-KVSFILE_ENT	*e2p ;
-int		len ;
+static int cmpkeyval(KVSFILE_ENT *e1p,KVSFILE_ENT *e2p,int len)
 {
 	int		rc ;
 

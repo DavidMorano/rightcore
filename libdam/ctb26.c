@@ -24,7 +24,6 @@
         length).
 
 	Synopsis:
-
 	int ctb26XX(rbuf,rlen,type,prec,v)
 	char		rbuf[] ;
 	int		rlen ;
@@ -33,7 +32,6 @@
 	int		v ;
 
 	Arguments:
-
 	buf		caller supplied buffer
 	buflen		caller supplied buffer length
 	type		which alphabet 'a' or 'A'
@@ -41,7 +39,6 @@
 	v		integer value to be converted
 
 	Returns:
-
 	>=0		length of buffer used by the conversion
 	<0		error in the conversion
 

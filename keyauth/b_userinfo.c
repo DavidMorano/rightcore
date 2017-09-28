@@ -360,7 +360,7 @@ struct progdata {
 	cchar		*domainname ;
 	cchar		*pwfname ;
 	PROGDATA_FL	f ;
-	struct datauser	du ;
+	DATAUSER	du ;
 	struct datasys	ds ;
 	char		hostname[MAXHOSTNAMELEN + 1] ;
 	char		prpcs[MAXPATHLEN + 1] ;
@@ -369,7 +369,7 @@ struct progdata {
 
 /* forward references */
 
-static int	mainsub(int,const char **,const char **,void *) ;
+static int	mainsub(int,cchar **,cchar **,void *) ;
 
 static int	usage(PROGINFO *) ;
 
@@ -404,30 +404,30 @@ static int	datasys_domain(struct datasys *) ;
 static int	datasys_nisdomain(struct datasys *) ;
 
 static int	datauser_start(DATAUSER *,PROGINFO *,cchar *,cchar *) ;
-static int	datauser_ua(struct datauser *) ;
-static int	datauser_domain(struct datauser *) ;
-static int	datauser_pw(struct datauser *) ;
-static int	datauser_gr(struct datauser *) ;
-static int	datauser_pj(struct datauser *) ;
-static int	datauser_groups(struct datauser *) ;
+static int	datauser_ua(DATAUSER *) ;
+static int	datauser_domain(DATAUSER *) ;
+static int	datauser_pw(DATAUSER *) ;
+static int	datauser_gr(DATAUSER *) ;
+static int	datauser_pj(DATAUSER *) ;
+static int	datauser_groups(DATAUSER *) ;
 #if	CF_DEFGROUP
-static int	datauser_groupdef(struct datauser *) ;
+static int	datauser_groupdef(DATAUSER *) ;
 #endif /* CF_DEFGROUP */
-static int	datauser_groupsfind(struct datauser *) ;
-static int	datauser_projects(struct datauser *) ;
-static int	datauser_projectsfind(struct datauser *) ;
-static int	datauser_tz(struct datauser *) ;
-static int	datauser_lastlog(struct datauser *) ;
-static int	datauser_statvfs(struct datauser *) ;
-static int	datauser_utmpent(struct datauser *) ;
-static int	datauser_orgcode(struct datauser *) ;
-static int	datauser_orgloc(struct datauser *) ;
-static int	datauser_lastseen(struct datauser *) ;
-static int	datauser_lastseener(struct datauser *,char *,int,vecstr *) ;
+static int	datauser_groupsfind(DATAUSER *) ;
+static int	datauser_projects(DATAUSER *) ;
+static int	datauser_projectsfind(DATAUSER *) ;
+static int	datauser_tz(DATAUSER *) ;
+static int	datauser_lastlog(DATAUSER *) ;
+static int	datauser_statvfs(DATAUSER *) ;
+static int	datauser_utmpent(DATAUSER *) ;
+static int	datauser_orgcode(DATAUSER *) ;
+static int	datauser_orgloc(DATAUSER *) ;
+static int	datauser_lastseen(DATAUSER *) ;
+static int	datauser_lastseener(DATAUSER *,char *,int,vecstr *) ;
 static int	datauser_username(DATAUSER *,char *,int) ;
 static int	datauser_realname(DATAUSER *,char *,int) ;
 static int	datauser_netname(DATAUSER *,cchar *) ;
-static int	datauser_finish(struct datauser *) ;
+static int	datauser_finish(DATAUSER *) ;
 static int	datauser_mkgids(DATAUSER *,char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
@@ -763,6 +763,9 @@ int p_userinfo(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_userinfo) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -1433,9 +1436,6 @@ badarg:
 /* end subroutine (mainsub) */
 
 
-/* local subroutines */
-
-
 static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1688,7 +1688,7 @@ int		len ;
 /* process a query specification */
 static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 {
-	struct datauser	*dup = &pdp->du ;
+	DATAUSER	*dup = &pdp->du ;
 	LOCINFO		*lip = pip->lip ;
 	const int	clen = CBUFLEN ;
 	int		rs = SR_OK ;
@@ -2831,26 +2831,21 @@ static int progdata_host(PROGDATA *pdp)
 {
 	int		rs = SR_OK ;
 
-	if (pdp->f.host)
-	    goto ret0 ;
-
-	if (pdp->hostname[0] != '\0')
-	    goto ret0 ;
-
-	pdp->f.host = TRUE ;
-	if (! pdp->ds.f.node) {
-	    rs = datasys_node(&pdp->ds) ;
-	}
-	if ((rs >= 0) && (! pdp->f.domain)) {
-	    rs = progdata_domain(pdp) ;
-	}
-	if ((rs >= 0) && (pdp->ds.nodename[0] != '\0') &&
-	    (pdp->domainname != NULL)) {
-	    rs = sncpy3(pdp->hostname,MAXHOSTNAMELEN,
-	        pdp->ds.nodename,".",pdp->domainname) ;
+	if ((! pdp->f.host) && (pdp->hostname[0] == '\0')) {
+	    pdp->f.host = TRUE ;
+	    if (! pdp->ds.f.node) {
+	        rs = datasys_node(&pdp->ds) ;
+	    }
+	    if ((rs >= 0) && (! pdp->f.domain)) {
+	        rs = progdata_domain(pdp) ;
+	    }
+	    if ((rs >= 0) && (pdp->ds.nodename[0] != '\0') &&
+	        (pdp->domainname != NULL)) {
+	        rs = sncpy3(pdp->hostname,MAXHOSTNAMELEN,
+	            pdp->ds.nodename,".",pdp->domainname) ;
+	    }
 	}
 
-ret0:
 	return rs ;
 }
 /* end subroutine (progdata_host) */
@@ -2860,8 +2855,9 @@ static int progdata_haveuser(PROGDATA *pdp)
 {
 	int		rs = SR_OK ;
 
-	if (pdp->du.init.pent && (! pdp->du.have.pent))
+	if (pdp->du.init.pent && (! pdp->du.have.pent)) {
 	    rs = SR_SEARCH ;
+	}
 
 	return rs ;
 }
@@ -2904,17 +2900,20 @@ int datasys_setentry(DATASYS *dsp,cchar **epp,cchar *vp,int vl)
 	if (dsp == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
-	if (*epp != NULL)
+	if (*epp != NULL) {
 	    oi = vecstr_findaddr(&dsp->stores,*epp) ;
+	}
 
 	if (vp != NULL) {
 	    len = strnlen(vp,vl) ;
 	    rs = vecstr_store(&dsp->stores,vp,len,epp) ;
-	} else if (epp != NULL)
+	} else if (epp != NULL) {
 	    *epp = NULL ;
+	}
 
-	if ((rs >= 0) && (oi >= 0))
+	if ((rs >= 0) && (oi >= 0)) {
 	    vecstr_del(&dsp->stores,oi) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -3166,7 +3165,7 @@ static int datauser_start(DATAUSER *dup,PROGINFO *pip,cchar *un,cchar *pwfname)
 	debugprintf("userinfo/datauser_start: ent un=%s\n",un) ;
 #endif
 
-	memset(dup,0,sizeof(struct datauser)) ;
+	memset(dup,0,sizeof(DATAUSER)) ;
 	dup->pip = pip ;
 	dup->ruid = -1 ;
 	dup->euid = -1 ;
@@ -3306,42 +3305,37 @@ static int datauser_domain(DATAUSER *dup)
 {
 	int		rs = SR_OK ;
 
-	if (dup == NULL)
-	    return SR_FAULT ;
+	if (dup == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("datauser_domain: un=%s\n",dup->un) ;
 #endif
 
-	if (dup->init.domain)
-	    goto ret0 ;
+	if (! dup->init.domain) {
+	    dup->init.domain = TRUE ;
 
-	dup->init.domain = TRUE ;
+	    if (! dup->init.ua) {
+	        rs = datauser_ua(dup) ;
+	    }
 
-#if	CF_DEBUGS
-	debugprintf("datauser_domain: trying Solaris user_attributes\n") ;
-#endif
-
-	if (! dup->init.ua)
-	    rs = datauser_ua(dup) ;
-
-	if ((rs >= 0) && dup->have.dn) {
-	    rs = sncpy1(dup->domainname,MAXHOSTNAMELEN,dup->dn) ;
-	    dup->have.domain = (rs >= 0) ;
-	}
+	    if ((rs >= 0) && dup->have.dn) {
+	        rs = sncpy1(dup->domainname,MAXHOSTNAMELEN,dup->dn) ;
+	        dup->have.domain = (rs >= 0) ;
+	    }
 
 #ifdef	COMMENT
-	if ((rs >= 0) && (! dup->have.domain)) {
-	    const int	dlen = MAXHOSTNAMELEN ;
-	    rs1 = udomain(NULL,dup->domainname,dlen,dup->un) ;
-	    if (rs1 <= 0) {
-	        dup->domainname[0] = '\0' ;
-	    } else
-	        dup->have.domain = (dup->domainname[0] != '\0') ;
-	} /* end if */
+	    if ((rs >= 0) && (! dup->have.domain)) {
+	        const int	dlen = MAXHOSTNAMELEN ;
+	        rs1 = udomain(NULL,dup->domainname,dlen,dup->un) ;
+	        if (rs1 <= 0) {
+	            dup->domainname[0] = '\0' ;
+	        } else {
+	            dup->have.domain = (dup->domainname[0] != '\0') ;
+	        }
+	    } /* end if */
 #endif /* COMMENT */
 
-ret0:
+	} /* end if (needed) */
 
 #if	CF_DEBUGS
 	debugprintf("datauser_domain: ret rs=%d\n",rs) ;
@@ -3509,12 +3503,12 @@ static int datauser_pj(DATAUSER *dup)
 	    cchar		*un = dup->un ;
 	    char		*pjbuf = dup->pjbuf ;
 	    dup->init.pj = TRUE ;
-	        if ((rs = uc_getdefaultproj(un,pjp,pjbuf,pjlen)) >= 0) {
-		    dup->have.pj = TRUE ;
-		    f = TRUE ;
-		} else if (isNotPresent(rs)) {
-		    rs = SR_OK ;
-		}
+	    if ((rs = uc_getdefaultproj(un,pjp,pjbuf,pjlen)) >= 0) {
+		dup->have.pj = TRUE ;
+		f = TRUE ;
+	    } else if (isNotPresent(rs)) {
+		rs = SR_OK ;
+	    }
 	} else {
 	    f = dup->have.pj ;
 	} /* end if (needed initialization) */
@@ -3625,7 +3619,7 @@ static int datauser_groupsfind(DATAUSER *dup)
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (sysgroup) */
 	    uc_free(grbuf) ;
-	} /* end if (memory-allocations) */
+	} /* end if (m-a-f) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -3791,18 +3785,17 @@ static int datauser_lastlog(DATAUSER *dup)
 {
 	int		rs = SR_OK ;
 
-	if (dup == NULL)
-	    return SR_FAULT ;
+	if (dup == NULL) return SR_FAULT ;
 
 	if (! dup->init.lastlog) {
 	    dup->init.lastlog = TRUE ;
 	    if ((rs >= 0) && (! dup->have.lastlog)) {
 	        if (! dup->init.pent) rs = datauser_pw(dup) ;
 	        if ((rs >= 0) && (dup->have.pent)) {
-
-	            rs = lastlogin(NULL,dup->pent.uid,
-	                &dup->lasttime,dup->lasthost,dup->lastline) ;
-
+		    const uid_t	uid = dup->pent.uid ;
+		    time_t	t ;
+	            rs = lastlogin(NULL,uid,&t,dup->lasthost,dup->lastline) ;
+	            dup->lasttime = t ;
 	            dup->have.lastlog = (rs >= 0) ;
 	        }
 	    }
@@ -3817,24 +3810,21 @@ static int datauser_statvfs(DATAUSER *dup)
 {
 	int		rs = SR_OK ;
 
-	if (dup == NULL)
-	    return SR_FAULT ;
+	if (dup == NULL) return SR_FAULT ;
 
-	if (dup->init.statvfs)
-	    goto ret0 ;
+	if (! dup->init.statvfs) {
+	    dup->init.statvfs = TRUE ;
+	    if ((rs >= 0) && (! dup->have.statvfs)) {
+	        if (! dup->init.pent) {
+	            rs = datauser_pw(dup) ;
+	        }
+	        if ((rs >= 0) && (dup->have.pent)) {
+	            rs = statvfsdir(dup->pent.dir,&dup->fss) ;
+	            dup->have.statvfs = (rs >= 0) ;
+	        }
+	    } /* end if */
+	}
 
-	dup->init.statvfs = TRUE ;
-	if ((rs >= 0) && (! dup->have.statvfs)) {
-	    if (! dup->init.pent) {
-	        rs = datauser_pw(dup) ;
-	    }
-	    if ((rs >= 0) && (dup->have.pent)) {
-	        rs = statvfsdir(dup->pent.dir,&dup->fss) ;
-	        dup->have.statvfs = (rs >= 0) ;
-	    }
-	} /* end if */
-
-ret0:
 	return rs ;
 }
 /* end subroutine (datauser_statvfs) */
@@ -3879,7 +3869,7 @@ static int datauser_utmpent(DATAUSER *dup)
 /* end subroutine (datauser_utmpent) */
 
 
-static int datauser_orgcode(struct datauser *dup)
+static int datauser_orgcode(DATAUSER *dup)
 {
 	PROGINFO	*pip = dup->pip ;
 	const int	bl = ORGCODELEN ;
@@ -3898,7 +3888,7 @@ static int datauser_orgcode(struct datauser *dup)
 /* end subroutine (datauser_orgcode) */
 
 
-static int datauser_orgloc(struct datauser *dup)
+static int datauser_orgloc(DATAUSER *dup)
 {
 	PROGINFO	*pip = dup->pip ;
 	const int	bl = ORGLOCLEN ;
@@ -3914,8 +3904,9 @@ static int datauser_orgloc(struct datauser *dup)
 	if (bp[0] == '\0') {
 	    rs = localgetorgloc(pip->pr,bp,bl,dup->un) ;
 	    len = rs ;
-	} else
+	} else {
 	    len = strlen(bp) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -3927,7 +3918,7 @@ static int datauser_orgloc(struct datauser *dup)
 /* end subroutine (datauser_orgloc) */
 
 
-static int datauser_lastseen(struct datauser *dup)
+static int datauser_lastseen(DATAUSER *dup)
 {
 	const int	bl = LASTLOGFILE_LLINE ;
 	int		rs = SR_OK ;
@@ -3945,8 +3936,9 @@ static int datauser_lastseen(struct datauser *dup)
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (vecstr) */
 	    } /* end if (datauser_pw) */
-	} else
+	} else {
 	    len = strlen(bp) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -3964,11 +3956,11 @@ static int datauser_lastseener(DATAUSER *dup,char *bp,int bl,vecstr *tlp)
 	    if ((rs = tmpx_getuserlines(&ut,tlp,un)) > 0) {
 	        char	tbuf[MAXPATHLEN+1] ;
 	        if ((rs = mkpath1(tbuf,DEVDNAME)) >= 0) {
-	            struct ustat	sb ;
-	            time_t		max = 0 ;
-	            const int		tlen = rs ;
-	            int			i ;
-	            cchar		*lp ;
+	            USTAT	sb ;
+	            time_t	max = 0 ;
+	            const int	tlen = rs ;
+	            int		i ;
+	            cchar	*lp ;
 	            for (i = 0 ; vecstr_get(tlp,i,&lp) >= 0 ; i += 1) {
 	                if (lp != NULL) {
 	                    if ((rs = pathadd(tbuf,tlen,lp)) >= 0) {
@@ -4169,8 +4161,9 @@ static int locinfo_prpcs(LOCINFO *lip)
 	        cchar	**vpp = &lip->pr_pcs ;
 	        rs = locinfo_setentry(lip,vpp,pbuf,rs) ;
 	    }
-	} else
+	} else {
 	    rs = strlen(lip->pr_pcs) ;
+	}
 
 	return rs ;
 }

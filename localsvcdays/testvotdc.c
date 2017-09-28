@@ -1,8 +1,10 @@
 /* testvotdc */
 /* lang=C++98 */
 
+/* test the VOTDC facility */
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+
+#define	CF_DEBUGS	1		/* compile-time debugging */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_PHASE1	1		/* phase-1 */
 
@@ -34,6 +36,8 @@
 
 /* local defines */
 
+#define	VARPRNAME	"LOCAL"
+
 #define	SHSIZEMULT	100
 #define	SHSIZEMOD	256
 
@@ -57,7 +61,7 @@ extern "C" int	debugclose() ;
 extern "C" int	strlinelen(const char *,int,int) ;
 #endif
 
-extern "C" const char	*getourenv(const char **,const char *) ;
+extern "C" cchar	*getourenv(const char **,const char *) ;
 
 
 /* local structures */
@@ -97,7 +101,7 @@ static int subinfo_already(SUBINFO *) ;
 
 int main(int argc,const char **argv,const char **envv)
 {
-	struct subinfo	si, *sip = &si ;
+	SUBINFO		si, *sip = &si ;
 	VOTDC		v ;
 	time_t		dt = time(NULL) ;
 	FILE		*ofp = stdout ;
@@ -110,15 +114,18 @@ int main(int argc,const char **argv,const char **envv)
 	int		rs ;
 	int		rs1 ;
 	int		ex = EX_OK ;
-	cchar		*pr = "/usr/add-on/local" ;
+	cchar		*pr = getourenv(envv,VARPRNAME) ;
 	cchar		*lang = "English" ;
 	cchar		*pn = argv[0] ;
 	char		*strp = NULL ;
 
 #if	CF_DEBUGS
-	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
-	    rs = debugopen(cp) ;
-	    debugprintf("main: starting DFD=%d\n",rs) ;
+	{
+	    cchar	*cp ;
+	    if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	        rs = debugopen(cp) ;
+	        debugprintf("main: starting DFD=%d\n",rs) ;
+	    }
 	}
 #endif /* CF_DEBUGS */
 
@@ -128,27 +135,27 @@ int main(int argc,const char **argv,const char **envv)
 #endif
 
 	if ((rs = votdc_open(&v,pr,lang,of)) >= 0) {
-	        if ((rs = subinfo_start(sip,dt,ofp,&v,strp,shsize,ps)) >= 0) {
+	    if ((rs = subinfo_start(sip,dt,ofp,&v,strp,shsize,ps)) >= 0) {
 
 #if	CF_PHASE1
-	            if (rs >= 0) {
-	                rs = subinfo_phase1(sip) ;
-		    }
+	        if (rs >= 0) {
+	            rs = subinfo_phase1(sip) ;
+	        }
 #endif /* CF_PHASE1 */
 
-	            if (rs >= 0) {
-	                rs = subinfo_phase2(sip) ;
-		    }
+	        if (rs >= 0) {
+	            rs = subinfo_phase2(sip) ;
+	        }
 
-	            if (rs >= 0) {
-	                rs = subinfo_phase3(sip) ;
-		    }
+	        if (rs >= 0) {
+	            rs = subinfo_phase3(sip) ;
+	        }
 
-	            rs1 = subinfo_finish(sip) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (subinfo) */
-	        rs1 = votdc_close(&v) ;
+	        rs1 = subinfo_finish(sip) ;
 	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (subinfo) */
+	    rs1 = votdc_close(&v) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (votdc) */
 
 	if (rs < 0) {
@@ -183,7 +190,7 @@ int main(int argc,const char **argv,const char **envv)
 
 
 static int subinfo_start(SUBINFO *sip,time_t dt,FILE *ofp,
-	VOTDC *vip,char *strp,int shsize,int ps)
+		VOTDC *vip,char *strp,int shsize,int ps)
 {
 	int		rs ;
 	int		seed ;
@@ -292,7 +299,7 @@ static int subinfo_populate(SUBINFO *sip)
 	        if ((rs = votdc_alloc(shp,asize)) >= 0) {
 	            REQUESTS_ITEM	ai ;
 	            tsize += asize ;
-		    c += 1 ;
+	            c += 1 ;
 #if	CF_DEBUGS
 	            debugprintf("subinfo_populate: votdc_alloc() rs=%d\n",
 	                rs) ;
@@ -326,7 +333,7 @@ static int subinfo_allfree(SUBINFO *sip)
 	REQUESTS	*asp = &sip->as ;
 	int		rs ;
 #if	CF_DEBUGS
-	    debugprintf("subinfo_allfree: ent\n") ;
+	debugprintf("subinfo_allfree: ent\n") ;
 #endif
 	if ((rs = requests_count(asp)) >= 0) {
 	    REQUESTS_ITEM	ai ;
@@ -334,26 +341,26 @@ static int subinfo_allfree(SUBINFO *sip)
 #if	CF_DEBUGS
 	    debugprintf("subinfo_allfree: c=%u\n",rs) ;
 #endif
-	for (i = 0 ; requests_get(asp,i,&ai) >= 0 ; i += 1) {
-	    if (ai.ro >= 0) {
+	    for (i = 0 ; requests_get(asp,i,&ai) >= 0 ; i += 1) {
+	        if (ai.ro >= 0) {
 #if	CF_DEBUGS
-	        debugprintf("subinfo_allfree: bi=%u r=%d:%d\n",
-		i,ai.ro,ai.rs) ;
+	            debugprintf("subinfo_allfree: bi=%u r=%d:%d\n",
+	                i,ai.ro,ai.rs) ;
 #endif
-	        fprintf(ofp,"free ro=%d\n",ai.ro) ;
-	        if ((rs = votdc_free(shp,ai.ro)) >= 0) {
-	            if ((rs = subinfo_check(sip)) >= 0) {
+	            fprintf(ofp,"free ro=%d\n",ai.ro) ;
+	            if ((rs = votdc_free(shp,ai.ro)) >= 0) {
+	                if ((rs = subinfo_check(sip)) >= 0) {
 #if	CF_DEBUGS
-	                if (rs < 0)
-	                    debugprintf("subinfo_allfree: "
-	                        "votdc_check() rs=%d\n",rs) ;
+	                    if (rs < 0)
+	                        debugprintf("subinfo_allfree: "
+	                            "votdc_check() rs=%d\n",rs) ;
 #endif
-	                rs = requests_del(asp,i--) ;
+	                    rs = requests_del(asp,i--) ;
+	                }
 	            }
 	        }
-	    }
-	    if (rs < 0) break ;
-	} /* end for */
+	        if (rs < 0) break ;
+	    } /* end for */
 	} /* end if (requests_count) */
 #if	CF_DEBUGS
 	debugprintf("subinfo_allfree: ret rs=%d\n",rs) ;
@@ -428,7 +435,7 @@ static int subinfo_phase3(SUBINFO *sip)
 	                debugprintf("subinfo_phase3: bo=%u\n",bi) ;
 #endif
 
-			if (rs > 0) {
+	                if (rs > 0) {
 #if	CF_DEBUGS
 	                    debugprintf("subinfo_phase3: "
 	                        "subinfo_del() rs=%d\n", rs) ;
@@ -438,7 +445,7 @@ static int subinfo_phase3(SUBINFO *sip)
 
 	                if (rs < 0) break ;
 	            } /* end for */
-		    if (rs == SR_NOTFOUND) rs = SR_OK ;
+	            if (rs == SR_NOTFOUND) rs = SR_OK ;
 	            if (rs >= 0) {
 	                rs = subinfo_allfree(sip) ;
 	            }

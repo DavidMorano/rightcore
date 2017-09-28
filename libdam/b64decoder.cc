@@ -47,7 +47,7 @@
 
 #include	"b64decoder.h"
 #include	"base64.h"
-#include	"obuf.h"
+#include	"obuf.hh"
 
 
 /* local defines */
@@ -100,8 +100,9 @@ int b64decoder_start(B64DECODER *op)
 	if ((obp = new(nothrow) obuf) != NULL) {
 	    op->outbuf = (void *) obp ;
 	    op->magic = B64DECODER_MAGIC ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 
 	return rs ;
 }
@@ -206,8 +207,9 @@ int b64decoder_load(B64DECODER *op,cchar *sp,int sl)
 	        } /* end if (remaining source) */
 	        if (rs < 0) break ;
 	    } /* end while (nextfield) */
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -242,8 +244,9 @@ int b64decoder_read(B64DECODER *op,char *rbuf,int rlen)
 	        }
 	        rbuf[i] = '\0' ;
 	        rs = obp->adv(i) ;
-	    } else
+	    } else {
 	        rs = SR_BUGCHECK ;
+	    }
 	} /* end if (positive) */
 
 #if	CF_DEBUGS
@@ -273,10 +276,12 @@ static int b64decoder_cvt(B64DECODER *op,cchar *cp,int cl)
 	            rs = SR_ILSEQ ;
 		}
 	        delete [] rbuf ;
-	    } else /* memory allocation */
+	    } else { /* memory allocation */
 	        rs = SR_NOMEM ;
-	} else
+	    }
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 #if	CF_DEBUGS
 	debugprintf("b64decoder_cvt: ret rs=%d c=%u\n",rs,c) ;
 #endif

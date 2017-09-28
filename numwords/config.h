@@ -12,31 +12,31 @@
 
 
 #define	VERSION		"0a"
-#define	WHATINFO	"@(#)wn "
-#define	BANNER		"Who Names"
-#define	SEARCHNAME	"wn"
+#define	WHATINFO	"@(#)numwords "
+#define	BANNER		"Number Words"
+#define	SEARCHNAME	"numwords"
 #define	VARPRNAME	"LOCAL"
 
 #ifndef	PROGRAMROOT
 #define	PROGRAMROOT	"/usr/add-on/local"
 #endif
 
-#define	VARPROGRAMROOT1	"WN_PROGRAMROOT"
+#define	VARPROGRAMROOT1	"NUMWORDS_PROGRAMROOT"
 #define	VARPROGRAMROOT2	VARPRNAME
 #define	VARPROGRAMROOT3	"PROGRAMROOT"
 
-#define	VARBANNER	"WN_BANNER"
-#define	VARSEARCHNAME	"WN_NAME"
-#define	VAROPTS		"WN_OPTS"
-#define	VARFILEROOT	"WN_FILEROOT"
-#define	VARLOGTAB	"WN_LOGTAB"
-#define	VARMSFNAME	"WN_MSFILE"
-#define	VARUTFNAME	"WN_UTFILE"
-#define	VARAFNAME	"WN_AF"
-#define	VAREFNAME	"WN_EF"
+#define	VARBANNER	"NUMWORDS_BANNER"
+#define	VARSEARCHNAME	"NUMWORDS_NAME"
+#define	VAROPTS		"NUMWORDS_OPTS"
+#define	VARFILEROOT	"NUMWORDS_FILEROOT"
+#define	VARLOGTAB	"NUMWORDS_LOGTAB"
+#define	VARMSFNAME	"NUMWORDS_MSFILE"
+#define	VARUTFNAME	"NUMWORDS_UTFILE"
+#define	VARAFNAME	"NUMWORDS_AF"
+#define	VAREFNAME	"NUMWORDS_EF"
 
-#define	VARDEBUGFNAME	"WN_DEBUGFILE"
-#define	VARDEBUGFD1	"WN_DEBUGFD"
+#define	VARDEBUGFNAME	"NUMWORDS_DEBUGFILE"
+#define	VARDEBUGFD1	"NUMWORDS_DEBUGFD"
 #define	VARDEBUGFD2	"DEBUGFD"
 
 #define	VARSYSNAME	"SYSNAME"
@@ -84,11 +84,6 @@
 #define	ENVFNAME	"environ"
 #define	PATHSFNAME	"paths"
 #define	HELPFNAME	"help"
-
-#define	PIDFNAME	"run/wn"		/* mutex PID file */
-#define	LOGFNAME	"var/log/wn"	/* activity log */
-#define	LOCKFNAME	"spool/locks/wn"	/* lock mutex file */
-#define	MSFNAME		"ms"
 
 #define	LOGSIZE		(80*1024)
 

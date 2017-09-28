@@ -4,9 +4,7 @@
 /* revision history:
 
 	= 2000-05-14, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -33,6 +31,7 @@
 #define	VARFILE		"TAILE_FILE"
 #define	VARLINELEN	"TAILE_LINELEN"
 #define	VARTRACKPID	"TAILE_TPID"
+#define	VARAFNAME	"TAILE_AF"
 #define	VAREFNAME	"TAILE_EF"
 #define	VARERRORFNAME	"TAILE_ERRORFILE"
 

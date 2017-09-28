@@ -107,7 +107,6 @@ int dijkstra1(res_t *resp,edges_t &edges,int vertices,int vstart)
 
 	    for (i = 0 ; i < (vertices-1) ; i += 1) {
 	        const int	u = minvertex(visited,resp,vertices) ;
-		    cout << "u=" << u << endl ;
 	        if ((u >= 0) && (u < ne)) {
 		    cout << "u=go" << endl ;
 	            elit = edges[u].begin() ; /* this is 'list.begin()' */
@@ -116,7 +115,6 @@ int dijkstra1(res_t *resp,edges_t &edges,int vertices,int vstart)
 		    visited[u] = true ;
 	            while (elit != end) {
 	                const int	v = (*elit).dst ; /* dst vertex */
-		    cout << "v=" << v << endl ;
 	                if ((! visited[v]) && (resp[u].dist != INT_MAX)) {
 	                    const int	d = resp[u].dist ;
 	                    const int	w = (*elit).weight ;

@@ -509,6 +509,9 @@ int p_mailnew(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_mailnew) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1263,10 +1266,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_mailnew) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)

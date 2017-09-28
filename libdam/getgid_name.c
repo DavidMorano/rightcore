@@ -17,15 +17,12 @@
 	This subroutine returns a GID for a specified group-name. 
 
 	Synopsis:
-
 	int getgid_name(cchar *gname)
 
 	Arguments:
-
 	gname		name of group to look up 
 
 	Returns:
-
 	<0		error
 	>=0		GID of given group name
 
@@ -68,8 +65,10 @@ int getgid_name(cchar *np,int nl)
 	    const int		grlen = getbufsize(getbufsize_gr) ;
 	    char		*grbuf ;
 	    if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
-	        rs = getgr_name(&gr,grbuf,grlen,name) ;
-	        gid = gr.gr_gid ;
+		{
+	            rs = getgr_name(&gr,grbuf,grlen,name) ;
+	            gid = gr.gr_gid ;
+		}
 	        rs1 = uc_free(grbuf) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (memory-allocation) */
@@ -81,7 +80,7 @@ int getgid_name(cchar *np,int nl)
 /* end subroutine (getgid_name) */
 
 
-int getgroup_gid(cchar *np,int nl)
+int getgid_group(cchar *np,int nl)
 {
 	int		rs ;
 	if (np == NULL) return SR_FAULT ;
@@ -96,6 +95,12 @@ int getgroup_gid(cchar *np,int nl)
 	}
 	return rs ;
 }
-/* end subroutine (getgroup_gid) */
+/* end subroutine (getgid_group) */
+
+
+int getgroup_gid(cchar *np,int nl)
+{
+	return getgid_group(np,nl) ;
+}
 
 

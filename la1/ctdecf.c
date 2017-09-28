@@ -19,13 +19,11 @@
 /*******************************************************************************
 
 	Description:
-
 	This subroutine provides a rather flexible way to get a binary floating
 	point variables converted to a decimal string (with decimal points and
 	the such).
 
 	Synopsis:
-
 	int ctdecf(dbuf,dlen,dv,fcode,w,p,fill)
 	char		dbuf[] ;
 	int		dlen ;
@@ -36,7 +34,6 @@
 	int		fill ;
 
 	Arguments:
-
 	dbuf		caller supplied buffer
 	dlen		caller supplied buffer length
 	dv		double value to convert
@@ -46,7 +43,6 @@
 	fill		fill indicator (-1=no-fill, 0=zero-fill)
 
 	Returns:
-
 	>=0		length of buffer used by the conversion
 	<0		error in the conversion
 

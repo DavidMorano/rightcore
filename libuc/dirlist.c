@@ -275,7 +275,7 @@ int dirlist_add(DIRLIST *op,cchar *sp,int sl)
 	    e.np = pbuf ;
 	    e.nl = plen ;
 	    if ((rs = vecobj_search(&op->db,&e,vcmpname,&ep)) == rsn) {
-	        struct ustat	sb ;
+	        USTAT	sb ;
 /* now see if it is already in the list by DEV-INO */
 	        if ((rs = u_stat(pbuf,&sb)) >= 0) {
 	            if (S_ISDIR(sb.st_mode)) {

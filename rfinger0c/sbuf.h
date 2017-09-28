@@ -61,6 +61,7 @@ extern int	sbuf_hexui(SBUF *,uint) ;
 extern int	sbuf_hexul(SBUF *,ulong) ;
 extern int	sbuf_hexull(SBUF *,ulonglong) ;
 extern int	sbuf_char(SBUF *,int) ;
+extern int	sbuf_nchar(SBUF *,int,int) ;
 extern int	sbuf_blanks(SBUF *,int) ;
 extern int	sbuf_adv(SBUF *,int,char **) ;
 extern int	sbuf_rem(SBUF *) ;

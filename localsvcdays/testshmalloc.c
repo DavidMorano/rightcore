@@ -47,17 +47,17 @@
 /* external subroutines */
 
 #ifdef	COMMENT
-extern "C" int	main(int,const char **,const char **) ;
+extern "C" int	main(int,cchar **,cchar **) ;
 #endif
 
 #if	CF_DEBUGS
-extern "C" int	debugopen(const char *) ;
-extern "C" int	debugprintf(const char *,...) ;
+extern "C" int	debugopen(cchar *) ;
+extern "C" int	debugprintf(cchar *,...) ;
 extern "C" int	debugclose() ;
-extern "C" int	strlinelen(const char *,int,int) ;
+extern "C" int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern "C" const char	*getourenv(const char **,const char *) ;
+extern "C" cchar	*getourenv(cchar **,cchar *) ;
 
 
 /* local structures */
@@ -95,9 +95,10 @@ static int subinfo_already(SUBINFO *) ;
 
 /* exported subroutines */
 
-int main(int argc,const char **argv,const char **envv)
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct subinfo	si, *sip = &si ;
+	SUBINFO		si, *sip = &si ;
 	time_t		dt = time(NULL) ;
 	FILE		*ofp = stdout ;
 #if	CF_DEBUGS && CF_DEBUGMALL
@@ -182,7 +183,7 @@ int main(int argc,const char **argv,const char **envv)
 
 
 static int subinfo_start(SUBINFO *sip,time_t dt,FILE *ofp,
-SHMALLOC *shp,char *strp,int shsize,int ps)
+		SHMALLOC *shp,char *strp,int shsize,int ps)
 {
 	int		rs ;
 	int		seed ;

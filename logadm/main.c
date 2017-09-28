@@ -13,13 +13,13 @@
 
 /* revision history:
 
-	= 1998-07-07, David A­D­ Morano
+	= 2001-11-01, David A­D­ Morano
 	This subroutine was written for use as a front-end for Korn Shell (KSH)
 	commands that are compiled as stand-alone programs.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

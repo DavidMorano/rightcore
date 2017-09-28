@@ -445,6 +445,9 @@ int p_pcsconf(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_pcsconf) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -1214,9 +1217,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)

@@ -1,0 +1,21 @@
+<p 
+ style="width: 320px; text-align: center; 
+  font-family: sans-serif; font-size: 12px;"> 
+<a 
+ href="http://www.wunderground.com/cgi-bin/findweather/getForecast?query=zmw:02148.1.99999&bannertypeclick=wu_clean2day" 
+ title="Malden, Massachusetts Weather Forecast" 
+ target="_blank">
+<img 
+src="http://weathersticker.wunderground.com/weathersticker/cgi-bin/banner/ban/wxBanner?bannertype=wu_clean2day_cond&airportcode=KBOS&ForcedCity=Malden&ForcedState=MA&zip=02148&language=EN" 
+  alt="Find more about Weather in Malden, MA" 
+  height="100" width="300" />
+</a>
+<br>
+<a 
+ href="http://www.wunderground.com/cgi-bin/findweather/getForecast?query=zmw:02148.1.99999&bannertypeclick=wu_clean2day" 
+ title="Get latest Weather Forecast updates" 
+ style="font-family: sans-serif; font-size: 12px" 
+ target="_blank">
+click for weather forecast
+</a>
+</p>

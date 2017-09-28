@@ -364,6 +364,9 @@ int p_quote(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_quote) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -713,11 +716,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            rs = keyopt_loads(&akopts,argp,argl) ;
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 				} else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1237,15 +1242,10 @@ badprogstart:
 
 	return ex ;
 }
-/* end subroutine (b_quote) */
+/* end subroutine (mainsub) */
 
 
-/* local subroutines */
-
-
-static int locinfo_start(lip,pip)
-LOCINFO	*lip ;
-PROGINFO	*pip ;
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 
@@ -1257,8 +1257,7 @@ PROGINFO	*pip ;
 /* end subroutine (locinfo_start) */
 
 
-static int locinfo_finish(lip)
-LOCINFO	*lip ;
+static int locinfo_finish(LOCINFO *lip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1275,11 +1274,7 @@ LOCINFO	*lip ;
 /* end subroutine (locinfo_finish) */
 
 
-static int locinfo_nlookup(lip,bi,buf,buflen)
-LOCINFO	*lip ;
-int		bi ;
-char		buf[] ;
-int		buflen ;
+static int locinfo_nlookup(LOCINFO *lip,int bi,char *buf,int buflen)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;

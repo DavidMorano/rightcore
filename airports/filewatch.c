@@ -9,21 +9,19 @@
 /* revision history:
 
 	= 1998-07-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
-	This module watches a single file for changes and prints out
-	the trailing changes to a file.
+        This module watches a single file for changes and prints out the
+        trailing changes to a file.
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -36,7 +34,6 @@
 #include	<fcntl.h>
 #include	<time.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>

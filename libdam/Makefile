@@ -50,6 +50,7 @@ CPPFLAGS= $(DEFS) $(INCDIRS)
 
 XCFLAGS= $(LF_CFLAGS) $(CPPFLAGS)
 CFLAGS= $(CCOPTS) $(XCFLAGS)
+CCFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 
 #LD= $(CC)
@@ -167,7 +168,7 @@ OBJ17=
 OBJ18= 
 OBJ19= 
 OBJ20= strcpylc.o strcpyuc.o strcpyfc.o
-OBJ21= strwcpy.o strwcpylc.o strwcpyuc.o strwcpyfc.o
+OBJ21= strwcpy.o strwcpylc.o strwcpyuc.o strwcpyfc.o strwcpyrev.o
 OBJ22= strwcpycompact.o strwcpyopaque.o strwcpyblanks.o strwcpywide.o
 OBJ23= strncpyfc.o strncpyuc.o strncpyfc.o strncpyblanks.o
 
@@ -228,7 +229,7 @@ OBJ69= sncpyarray.o snrealname.o snxtilook.o snxtierr.o
 OBJ70= snddd.o snscs.o snses.o snsdd.o snabbr.o snkeyval.o
 OBJ71= sncpy.o sncpylc.o sncpyuc.o sncpyfc.o sncpyw.o
 
-OBJ72= snwcpy.o snwcpylc.o snwcpyuc.o snwcpyfc.o snwcpyshrink.o
+OBJ72= snwcpy.o snwcpylc.o snwcpyuc.o snwcpyfc.o snwcpyshrink.o snwcpyrev.o
 OBJ73= snwcpyhyphen.o snwcpylatin.o snwcpyclean.o snwcpycompact.o snwcpyopaque.o
 OBJ74= snwcpywidehdr.o strwset.o 
 OBJ75= snfsflags.o snopenflags.o snpollflags.o snfilemode.o snshellunder.o 
@@ -310,9 +311,9 @@ OBJ142= prgetprogpath.o prsetfname.o prmktmpdir.o
 OBJ143= intceil.o intfloor.o intsat.o
 
 OBJ144= cfdouble.o cfdecf.o cfb26.o
-OBJ145= cfdecmf.o cfdect.o
-OBJ146= ctb26.o cthexstr.o
-OBJ147= quickselect.o igcd.o minmax.o
+OBJ145= cfdecmf.o cfdect.o cfroman.o
+OBJ146= ctb26.o cthexstr.o ctroman.o ctwords.o
+OBJ147= quickselecti.o igcd.o minmax.o isort.o
 OBJ148= fam.o fhm.o fsum.o binexp.o
 OBJ149= permutations.o combinations.o factorial.o fibonacci.o ipowell.o
 OBJ150= wsnwcpynarrow.o
@@ -1185,7 +1186,13 @@ calstrs.o:		calstrs.c calstrs.h
 findbit.o:		findbit.c findbit.h
 
 hasallunique.o:		hasallunique.cc
-	$(GPP) -c $(GPPFLAGS) $(CFLAGS) hasallunique.cc
+	$(GPP) -c $(CCFLAGS) hasallunique.cc
+
+isort.o:		isort.cc
+	$(GPP) -c $(CCFLAGS) isort.cc
+
+ctwords.o:		ctwords.cc ctwords.hh
+	$(GPP) -c $(CCFLAGS) ctwords.cc
 
 
 unlinkd.o:		$(*)/$(@)

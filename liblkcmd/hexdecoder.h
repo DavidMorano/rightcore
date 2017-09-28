@@ -1,4 +1,5 @@
 /* hexdecoder */
+/* lang=C99 */
 
 /* HEX decoder */
 

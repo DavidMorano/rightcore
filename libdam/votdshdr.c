@@ -23,7 +23,6 @@
         This subroutine reads and writes the VOTDs shared-memory segment header.
 
 	Synopsis:
-
 	int votdchdr(ep,f,hbuf,hlen)
 	VOTDCHDR	*ep ;
 	int		f ;
@@ -31,14 +30,12 @@
 	int		hlen ;
 
 	Arguments:
-
 	- ep		object pointer
 	- f		read=1, write=0
 	- hbuf		buffer containing object
 	- hlen		length of buffer
 
 	Returns:
-
 	>=0		OK
 	<0		error code
 
