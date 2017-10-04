@@ -115,10 +115,7 @@ static int	htm_printout(HTM *,int,const char *,int) ;
 /* exported subroutines */
 
 
-int htm_start(op,ofp,lang)
-HTM		*op ;
-SHIO		*ofp ;
-const char	lang[] ;
+int htm_start(HTM *op,SHIO *ofp,cchar *lang)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -158,8 +155,7 @@ const char	lang[] ;
 /* end subroutine (htm_start) */
 
 
-int htm_finish(op)
-HTM		*op ;
+int htm_finish(HTM *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -226,7 +222,7 @@ int htm_headend(HTM *op)
 /* end subroutine (htm_headend) */
 
 
-int htm_bodybegin(HTM *op,const char *cfname)
+int htm_bodybegin(HTM *op,cchar *cfname)
 {
 	int		rs ;
 	int		rs1 ;
@@ -273,12 +269,7 @@ int htm_bodyend(HTM *op)
 /* end subroutine (htm_bodyend) */
 
 
-int htm_tagbegin(op,tag,class,id,kv)
-HTM		*op ;
-const char	*tag ;
-const char	*class ;
-const char	*id ;
-const char	*(*kv)[2] ;
+int htm_tagbegin(HTM *op,cchar *tag,cchar *class,cchar *id,cchar *(*kv)[2])
 {
 	BUFFER		b ;
 	const int	c = COLUMNS ;
@@ -312,15 +303,17 @@ const char	*(*kv)[2] ;
 	        if (rs < 0) break ;
 	    } /* end for */
 	    if ((rs >= 0) && (kv != NULL)) {
-		const char	*fmt ;
+		cchar	*fmt ;
 	        for (i = 0 ; kv[i][0] != NULL ; i += 1) {
 		    if (kv[i][1] != NULL) {
 			if (kv[i][1][0] != '\0') {
 	                    fmt = " %s=\"%s\"" ;
-			} else
+			} else {
 	                    fmt = " %s=" ;
-		    } else
+			}
+		    } else {
 	                fmt = " %s" ;
+		    }
 	            rs = buffer_printf(&b,fmt,kv[i][0],kv[i][1]) ;
 	            if (rs < 0) break ;
 	        } /* end for */
@@ -434,10 +427,9 @@ const char	*(*tkv)[2] ;
 /* end subroutine (htm_textbegin) */
 
 
-int htm_textend(op)
-HTM		*op ;
+int htm_textend(HTM *op)
 {
-	const char	*tag = "textarea" ;
+	cchar	*tag = "textarea" ;
 	return htm_tagend(op,tag) ;
 }
 /* end subroutine (htm_textend) */
@@ -523,20 +515,14 @@ int htm_aend(HTM *op)
 /* end subroutine (htm_aend) */
 
 
-int htm_hr(op,class,id)
-HTM		*op ;
-const char	*class ;
-const char	*id ;
+int htm_hr(HTM *op,cchar *class,cchar *id)
 {
 	return htm_tagalone(op,"hr",class,id) ;
 }
 /* end subroutine (htm_hr) */
 
 
-int htm_br(op,class,id)
-HTM		*op ;
-const char	*class ;
-const char	*id ;
+int htm_br(HTM *op,cchar *class,cchar *id)
 {
 	return htm_tagalone(op,"br",class,id) ;
 }
@@ -565,8 +551,8 @@ int		w, h ;
 	if (tag[0] == '\0') return SR_INVALID ;
 	if ((rs = sbuf_start(&b,lbuf,llen)) >= 0) {
 	    int		c ;
-	    const char	*k ;
-	    const char	*v ;
+	    cchar	*k ;
+	    cchar	*v ;
 	    sbuf_char(&b,CH_LANGLE) ;
 	    sbuf_strw(&b,tag,-1) ;
 	    for (c = 0 ; c < 5 ; c += 1) {
@@ -621,10 +607,7 @@ int		w, h ;
 /* end subroutine (htm_img) */
 
 
-int htm_write(op,lbuf,llen)
-HTM		*op ;
-const void	*lbuf ;
-int		llen ;
+int htm_write(HTM *op,const void *lbuf,int llen)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -639,10 +622,7 @@ int		llen ;
 /* end subroutine (htm_write) */
 
 
-int htm_printline(op,lbuf,llen)
-HTM		*op ;
-const char	lbuf[] ;
-int		llen ;
+int htm_printline(HTM *op,cchar *lbuf,int llen)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -657,7 +637,7 @@ int		llen ;
 /* end subroutine (htm_printline) */
 
 
-int htm_printf(HTM *op,const char fmt[],...)
+int htm_printf(HTM *op,cchar *fmt,...)
 {
 	va_list		ap ;
 	int		rs ;
@@ -669,7 +649,7 @@ int htm_printf(HTM *op,const char fmt[],...)
 /* end subroutine (htm_printf) */
 
 
-int htm_vprintf(HTM *op,const char *fmt,va_list ap)
+int htm_vprintf(HTM *op,cchar *fmt,va_list ap)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -683,9 +663,7 @@ int htm_vprintf(HTM *op,const char *fmt,va_list ap)
 /* end subroutine (htm_vprintf) */
 
 
-int htm_putc(op,ch)
-HTM		*op ;
-int		ch ;
+int htm_putc(HTM *op,int ch)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -702,11 +680,7 @@ int		ch ;
 /* private subroutines */
 
 
-int htm_tagalone(op,tag,class,id)
-HTM		*op ;
-const char	*tag ;
-const char	*class ;
-const char	*id ;
+int htm_tagalone(HTM *op,cchar *tag,cchar *class,cchar *id)
 {
 	SBUF		b ;
 	const int	llen = LINEBUFLEN ;
@@ -720,8 +694,8 @@ const char	*id ;
 	if (tag[0] == '\0') return SR_INVALID ;
 	if ((rs = sbuf_start(&b,lbuf,llen)) >= 0) {
 	    int		c ;
-	    const char	*k ;
-	    const char	*v ;
+	    cchar	*k ;
+	    cchar	*v ;
 	    sbuf_char(&b,CH_LANGLE) ;
 	    sbuf_strw(&b,tag,-1) ;
 	    for (c = 0 ; c < 2 ; c += 1) {
@@ -758,11 +732,7 @@ const char	*id ;
 /* end subroutine (htm_tagalone) */
 
 
-static int htm_printout(op,c,bp,bl)
-HTM		*op ;
-int		c ;
-const char	*bp ;
-int		bl ;
+static int htm_printout(HTM *op,int c,cchar *bp,int bl)
 {
 	LINEFOLD	f ;
 	int		rs ;

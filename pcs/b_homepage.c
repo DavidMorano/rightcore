@@ -33,9 +33,11 @@
 	specified file.
 
 	Synopsis:
+
 	$ homepage [-V]
 
 	Arguments:
+
 	-V		print program version to standard-error and then exit
 
 
@@ -63,6 +65,7 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
+#include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
 #include	<estrings.h>
@@ -92,6 +95,8 @@
 #include	<ugetpw.h>
 #include	<spawner.h>
 #include	<lfm.h>
+#include	<tmtime.h>
+#include	<querystring.h>
 #include	<ucmallreg.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
@@ -278,6 +283,7 @@ struct locinfo_flags {
 	uint		force:1 ;
 	uint		maint:1 ;
 	uint		s:1 ;			/* SVCFILE */
+	uint		cooks:1 ;
 } ;
 
 struct locinfo {
@@ -287,6 +293,7 @@ struct locinfo {
 	SVCFILE		s ;
 	GATHER		g ;
 	LFM		pidlock ;
+	EXPCOOK		cooks ;
 	PROGINFO	*pip ;
 	void		*svcs ;
 	cchar		*tmpourdname ;		/* work-dir */
@@ -299,10 +306,13 @@ struct locinfo {
 	cchar		*mntfname ;
 	cchar		*msfname ;
 	cchar		*termtype ;
+	cchar		*copyright ;
+	cchar		*webmaster ;
 	gid_t		gid_rootname ;
 	int		start ;
 	int		nproc ;
 	int		cols ;
+	int		year ;
 	int		intcache ;		/* interval cache */
 	int		intspeed ;
 	int		intconf ;
@@ -322,10 +332,8 @@ struct config {
 	uint		magic ;
 	PROGINFO	*pip ;
 	PARAMOPT	*app ;
-	EXPCOOK		cooks ;
 	vecobj		files ;
 	uint		f_p:1 ;
-	uint		f_cooks:1 ;
 } ;
 
 
@@ -356,6 +364,7 @@ static int	locinfo_svclistdel(LOCINFO *,int) ;
 static int	locinfo_svclistdelall(LOCINFO *) ;
 static int	locinfo_svclistcount(LOCINFO *) ;
 static int	locinfo_svclistfinal(LOCINFO *) ;
+static int	locinfo_copyright(LOCINFO *,cchar *,int) ;
 static int	locinfo_defs(LOCINFO *) ;
 static int	locinfo_defsvc(LOCINFO *) ;
 static int	locinfo_defpfname(LOCINFO *) ;
@@ -375,12 +384,14 @@ static int	locinfo_lockend(LOCINFO *) ;
 static int	locinfo_lockbeginone(LOCINFO *,LFM *,cchar *) ;
 static int	locinfo_lockcheck(LOCINFO *,LFM_CHECK *) ;
 
+static int	locinfo_cookbegin(LOCINFO *) ;
+static int	locinfo_cookend(LOCINFO *) ;
+static int	locinfo_cookexp(LOCINFO *,int,char *,int,cchar *,int) ;
+
 static int	config_start(CONFIG *,PROGINFO *,PARAMOPT *,cchar *) ;
 static int	config_addfile(CONFIG *,cchar *) ;
 static int	config_addfins(CONFIG *) ;
 static int	config_check(CONFIG *) ;
-static int	config_cookbegin(CONFIG *) ;
-static int	config_cookend(CONFIG *) ;
 static int	config_load(CONFIG *,cchar *) ;
 static int	config_havefile(CONFIG *,vecstr *,char *,cchar *,cchar *) ;
 static int	config_read(CONFIG *,cchar *) ;
@@ -630,6 +641,8 @@ static cchar	*cparams[] = {
 	"logsize",
 	"head",
 	"svcs",
+	"copyright",
+	"webmaster",
 	"intrun",
 	"intidle",
 	"intpoll",
@@ -650,6 +663,8 @@ enum cparams {
 	cparam_logsize,
 	cparam_head,
 	cparam_svcs,
+	cparam_copyright,
+	cparam_webmaster,
 	cparam_intrun,
 	cparam_intidle,
 	cparam_intpoll,
@@ -1807,7 +1822,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    if (! lip->final.svcs) {
 	                        if (vl > 0) {
 	                            lip->have.svcs = TRUE ;
-	                            rs = locinfo_svclistadd(lip,vp,vl) ;
+	                            rs = locinfo_svclistadds(lip,vp,vl) ;
 	                        }
 			    }
 	                    break ;
@@ -1985,6 +2000,15 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 	    rs = procuserinfo_logid(pip) ;
 	} /* end if (ok) */
 
+	if (rs >= 0) {
+	    LOCINFO	*lip = pip->lip ;
+	    TMTIME	t ;
+	    if ((rs = tmtime_gmtime(&t,pip->daytime)) >= 0) {
+		lip->year = (t.year + TM_YEAR_BASE) ;
+	        rs = locinfo_cookbegin(lip) ;
+	    }
+	}
+
 	if (pip->debuglevel > 0) {
 	    shio_printf(pip->efp,"%s: username=%s\n",
 	        pip->progname,pip->username) ;
@@ -1998,8 +2022,15 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 static int procuserinfo_end(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (pip == NULL) return SR_FAULT ;
+
+	{
+	    LOCINFO	*lip = pip->lip ;
+	    rs1 = locinfo_cookend(lip) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
 	return rs ;
 }
@@ -2053,6 +2084,15 @@ static int procourconf_begin(PROGINFO *pip,PARAMOPT *app,cchar *cfname)
 	        pip->config = NULL ;
 	    }
 	} /* end if (memory-allocation) */
+
+	if (rs >= 0) {
+	    LOCINFO	*lip = pip->lip ;
+	    if (lip->copyright == NULL) {
+		if ((rs = locinfo_copyright(lip,COPYRIGHT,-1)) >= 0) {
+		    if (lip->webmaster == NULL) lip->webmaster = WEBMASTER ;
+		}
+	    }
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -3507,25 +3547,35 @@ static int procdocbodyfooterleft(PROGINFO *pip,HTM *hdp)
 	int		rs1 ;
 	if (pip == NULL) return SR_FAULT ;
 	if ((rs = htm_tagbegin(hdp,"div","left",NULL,NULL)) >= 0) {
+	    LOCINFO	*lip = pip->lip ;
 	    if ((rs = htm_tagbegin(hdp,"p","center",NULL,NULL)) >= 0) {
-	        cchar	*n = NULL ;
-	        cchar	*class = "center" ;
-	        cchar	*href = "mailto:webmaster@rightcore.com" ;
-	        cchar	*title = "webmaster@rightcore.com" ;
-	        if ((rs = htm_abegin(hdp,class,n,href,title)) >= 0) {
-	            rs = htm_printline(hdp,"webmaster",-1) ;
-	            rs1 = htm_aend(hdp) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (htm-a) */
+		const int	hlen = (strlen(lip->webmaster)+10) ;
+	        cchar		*n = NULL ;
+	        cchar		*class = "center" ;
+	        cchar		*title = lip->webmaster ;
+		char		*hbuf ;
+		if ((rs = uc_malloc((hlen+1),&hbuf)) >= 0) {
+	            cchar	*href = hbuf ;
+		    strdcpy2(hbuf,hlen,"mailto:",title) ;
+	            if ((rs = htm_abegin(hdp,class,n,href,title)) >= 0) {
+		        {
+	                    rs = htm_printline(hdp,"webmaster",-1) ;
+		        }
+	                rs1 = htm_aend(hdp) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (htm-a) */
+		    uc_free(hbuf) ;
+		} /* end if (m-a-f) */
 	        rs1 = htm_tagend(hdp,"p") ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (htm-p) */
 	    if (rs >= 0) {
 	        if ((rs = htm_tagbegin(hdp,"p","center",NULL,NULL)) >= 0) {
-	            cchar	*t = "Copyright (c) 2015-2017 "
-	                "David A.D. Morano."
-	                "  All rights reserved." ;
-	            rs = htm_printline(hdp,t,-1) ;
+		    LOCINFO	*lip = pip->lip ;
+		    {
+	                cchar	*c = lip->copyright ;
+	                rs = htm_printline(hdp,c,-1) ;
+		    }
 	            rs1 = htm_tagend(hdp,"p") ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (htm-tag) */
@@ -4819,6 +4869,12 @@ static int locinfo_finish(LOCINFO *lip)
 	rs1 = locinfo_svclistend(lip) ;
 	if (rs >= 0) rs = rs1 ;
 
+	if (lip->open.cooks) {
+	    lip->open.cooks = FALSE ;
+	    rs1 = locinfo_cookend(lip) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if */
+
 	if (lip->open.stores) {
 	    lip->open.stores = FALSE ;
 	    rs1 = vecstr_finish(&lip->stores) ;
@@ -5163,6 +5219,31 @@ static int locinfo_svclistfinal(LOCINFO *lip)
 	return f ;
 }
 /* end subroutine (locinfo_svclistfinal) */
+
+
+static int locinfo_copyright(LOCINFO *lip,cchar *vp,int vl)
+{
+	PROGINFO	*pip = lip->pip ;
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	if (lip->copyright == NULL) {
+	    const int	elen = (vl+MAXNAMELEN) ;
+	    char	*ebuf ;
+	    if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
+		const int	w = FALSE ;
+		if ((rs = locinfo_cookexp(lip,w,ebuf,elen,vp,vl)) >= 0) {
+		    cchar	**vpp = &lip->copyright ;
+		    rs = locinfo_setentry(lip,vpp,ebuf,rs) ;
+		}
+		uc_free(ebuf) ;
+	    } /* end if (m-a-f) */
+	} /* end if (needed) */
+
+	return rs ;
+}
+/* end subroutine (locinfo_copyright) */
 
 
 static int locinfo_defs(LOCINFO *lip)
@@ -5879,19 +5960,25 @@ static int locinfo_defpfname(LOCINFO *lip)
 static int locinfo_qs(LOCINFO *lip,cchar *qs)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		c = 0 ;
 	if ((! lip->final.svcs) && (qs != NULL)) {
-	    cchar	*tp ;
-	    while ((tp = strchr(qs,'&')) != NULL) {
-	        rs = locinfo_svclistadd(lip,qs,(tp-qs)) ;
-		c += rs ;
-	        if (rs < 0) break ;
-	        qs = (tp+1) ;
-	    } /* end while */
-	    if ((rs >= 0) && (qs[0] != '\0')) {
-	        rs = locinfo_svclistadd(lip,qs,-1) ;
-		c += rs ;
-	    }
+	    QUERYSTRING		ps ;
+	    QUERYSTRING_CUR	cur ;
+	    if ((rs = querystring_start(&ps,qs,-1)) >= 0) {
+		if ((rs = querystring_curbegin(&ps,&cur)) >= 0) {
+		    cchar	*kp, *vp ;
+	  	    while ((rs1 = querystring_enum(&ps,&cur,&kp,&vp)) >= 0) {
+			if (vp == NULL) break ; /* lint */
+	                rs = locinfo_svclistadd(lip,kp,-1) ;
+		        c += rs ;
+	                if (rs < 0) break ;
+		    } /* end while */
+		    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+		} /* end if (querystring-cur) */
+		rs1 = querystring_finish(&ps) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (querystring) */
 	    lip->final.svcs = (c > 0) ;
 	} /* end if (allowed) */
 	return (rs >= 0) ? c : rs ;
@@ -5909,6 +5996,113 @@ static int locinfo_finalize(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (finalize) */
+
+
+static int locinfo_cookbegin(LOCINFO *lip)
+{
+	PROGINFO	*pip = lip->pip ;
+	EXPCOOK		*clp = &lip->cooks ;
+	int		rs ;
+
+	if ((rs = expcook_start(clp)) >= 0) {
+	    const int	hlen = MAXHOSTNAMELEN ;
+	    int		i ;
+	    int		kch ;
+	    int		vl ;
+	    cchar	*ks = "PSNDHRUY" ;
+	    cchar	*vp ;
+	    char	hbuf[MAXHOSTNAMELEN+1] ;
+	    char	kbuf[2] ;
+
+	    kbuf[1] = '\0' ;
+	    for (i = 0 ; (rs >= 0) && (ks[i] != '\0') ; i += 1) {
+	        kch = MKCHAR(ks[i]) ;
+	        vp = NULL ;
+	        vl = -1 ;
+	        switch (kch) {
+	        case 'P':
+	            vp = pip->progname ;
+	            break ;
+	        case 'S':
+	            vp = pip->searchname ;
+	            break ;
+	        case 'N':
+	            vp = pip->nodename ;
+	            break ;
+	        case 'D':
+	            vp = pip->domainname ;
+	            break ;
+	        case 'H':
+	            {
+	                cchar	*nn = pip->nodename ;
+	                cchar	*dn = pip->domainname ;
+	                rs = snsds(hbuf,hlen,nn,dn) ;
+	                vl = rs ;
+	                vp = hbuf ;
+	            }
+	            break ;
+	        case 'R':
+	            vp = pip->pr ;
+	            break ;
+	        case 'U':
+	            vp = pip->username ;
+	            break ;
+		case 'Y':
+	            {
+			const int	ylen = USERNAMELEN ;
+	                char		ybuf[USERNAMELEN+1] ;
+	                rs = ctdeci(ybuf,ylen,lip->year) ;
+	                vl = rs ;
+	                vp = ybuf ;
+	            }
+		    break ;
+	        } /* end switch */
+	        if ((rs >= 0) && (vp != NULL)) {
+	            kbuf[0] = kch ;
+	            rs = expcook_add(clp,kbuf,vp,vl) ;
+	        }
+	    } /* end for */
+
+	    if (rs >= 0) {
+	        lip->open.cooks = TRUE ;
+	    } else {
+	        expcook_finish(clp) ;
+	    }
+	} /* end if (expcook_start) */
+
+	return rs ;
+}
+/* end subroutine (locinfo_cookbegin) */
+
+
+static int locinfo_cookend(LOCINFO *lip)
+{
+	EXPCOOK		*clp = &lip->cooks ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (lip->open.cooks) {
+	    lip->open.cooks = FALSE ;
+	    rs1 = expcook_finish(clp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	return rs ;
+}
+/* end subroutine (locinfo_cookend) */
+
+
+static int locinfo_cookexp(LOCINFO *lip,int w,char *ebuf,int elen,
+		cchar *vbuf,int vl)
+{
+	EXPCOOK		*clp = &lip->cooks ;
+	int		rs ;
+	
+	rs = expcook_exp(clp,w,ebuf,elen,vbuf,vl) ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_cookexp) */
 
 
 /* configuration */
@@ -5937,7 +6131,6 @@ static int config_start(CONFIG *csp,PROGINFO *pip,PARAMOPT *app,cchar *cfname)
 #endif /* COMMENT */
 
 	if ((rs = vecobj_start(&csp->files,esize,2,0)) >= 0) {
-	    if ((rs = config_cookbegin(csp)) >= 0) {
 	        if ((cfname != NULL) && (cfname[0] != '\0')) {
 	            if ((rs = config_addfile(csp,cfname)) >= 0) {
 	                rs = config_read(csp,cfname) ;
@@ -5953,10 +6146,7 @@ static int config_start(CONFIG *csp,PROGINFO *pip,PARAMOPT *app,cchar *cfname)
 	        if (rs >= 0) {
 	            csp->f_p = TRUE ;
 	            csp->magic = CONFIG_MAGIC ;
-	        } else {
-	            config_cookend(csp) ;
 	        }
-	    } /* end if (config_cookbegin) */
 	    if (rs < 0)
 	        vecobj_finish(&csp->files) ;
 	} /* end if (vecobj_start) */
@@ -5978,12 +6168,6 @@ static int config_finish(CONFIG *csp)
 
 	if (csp == NULL) return SR_FAULT ;
 	if (csp->magic != CONFIG_MAGIC) return SR_NOTOPEN ;
-
-	if (csp->f_p) {
-	    rs1 = config_cookend(csp) ;
-	    if (rs >= 0) rs = rs1 ;
-	    csp->f_p = FALSE ;
-	} /* end if */
 
 	rs1 = config_addfins(csp) ;
 	if (rs >= 0) rs = rs1 ;
@@ -6033,88 +6217,6 @@ static int config_addfins(CONFIG *csp)
 	return rs ;
 }
 /* end subroutine (config_addfins) */
-
-
-static int config_cookbegin(CONFIG *csp)
-{
-	PROGINFO	*pip = csp->pip ;
-	int		rs ;
-
-	if ((rs = expcook_start(&csp->cooks)) >= 0) {
-	    const int	hlen = MAXHOSTNAMELEN ;
-	    int		i ;
-	    int		kch ;
-	    int		vl ;
-	    cchar	*ks = "PSNDHRU" ;
-	    cchar	*vp ;
-	    char	hbuf[MAXHOSTNAMELEN+1] ;
-	    char	kbuf[2] ;
-
-	    kbuf[1] = '\0' ;
-	    for (i = 0 ; (rs >= 0) && (ks[i] != '\0') ; i += 1) {
-	        kch = MKCHAR(ks[i]) ;
-	        vp = NULL ;
-	        vl = -1 ;
-	        switch (kch) {
-	        case 'P':
-	            vp = pip->progname ;
-	            break ;
-	        case 'S':
-	            vp = pip->searchname ;
-	            break ;
-	        case 'N':
-	            vp = pip->nodename ;
-	            break ;
-	        case 'D':
-	            vp = pip->domainname ;
-	            break ;
-	        case 'H':
-	            {
-	                cchar	*nn = pip->nodename ;
-	                cchar	*dn = pip->domainname ;
-	                rs = snsds(hbuf,hlen,nn,dn) ;
-	                vl = rs ;
-	                vp = hbuf ;
-	            }
-	            break ;
-	        case 'R':
-	            vp = pip->pr ;
-	            break ;
-	        case 'U':
-	            vp = pip->username ;
-	            break ;
-	        } /* end switch */
-	        if ((rs >= 0) && (vp != NULL)) {
-	            kbuf[0] = kch ;
-	            rs = expcook_add(&csp->cooks,kbuf,vp,vl) ;
-	        }
-	    } /* end for */
-
-	    if (rs >= 0) {
-	        csp->f_cooks = TRUE ;
-	    } else
-	        expcook_finish(&csp->cooks) ;
-	} /* end if (expcook_start) */
-
-	return rs ;
-}
-/* end subroutine (config_cookbegin) */
-
-
-static int config_cookend(CONFIG *csp)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-	if (csp->f_cooks) {
-	    csp->f_cooks = FALSE ;
-	    rs1 = expcook_finish(&csp->cooks) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
-
-	return rs ;
-}
-/* end subroutine (config_cookend) */
 
 
 static int config_check(CONFIG *csp)
@@ -6345,8 +6447,8 @@ static int config_reader(CONFIG *csp,PARAMFILE *pfp)
 	            ebuf[0] = '\0' ;
 	            el = 0 ;
 	            if (vl > 0) {
-	                el = expcook_exp(&csp->cooks,0,ebuf,elen,vbuf,vl) ;
-	                if (el >= 0) ebuf[el] = '\0' ;
+	                rs = locinfo_cookexp(lip,0,ebuf,elen,vbuf,vl) ;
+	                el = rs ;
 	            }
 
 #if	CF_DEBUG
@@ -6354,7 +6456,7 @@ static int config_reader(CONFIG *csp,PARAMFILE *pfp)
 	                debugprintf("config_reader: ebuf=>%t<\n",ebuf,el) ;
 #endif
 
-	            if (el > 0) {
+	            if ((rs >= 0) && (el > 0)) {
 	                cchar	*sn = pip->searchname ;
 	                char	tbuf[MAXPATHLEN + 1] ;
 	                switch (i) {
@@ -6411,6 +6513,21 @@ static int config_reader(CONFIG *csp,PARAMFILE *pfp)
 	                            rs = locinfo_svclistadd(lip,ebuf,el) ;
 	                        }
 	                    }
+	                    break ;
+	                case cparam_copyright:
+			    if (lip->copyright == NULL) {
+	                        if (el > 0) {
+	                            rs = locinfo_copyright(lip,ebuf,el) ;
+	                        }
+			    }
+	                    break ;
+	                case cparam_webmaster:
+			    if (lip->webmaster == NULL) {
+	                        if (el > 0) {
+				    cchar	**vpp = &lip->webmaster ;
+	                            rs = locinfo_setentry(lip,vpp,ebuf,el) ;
+	                        }
+			    }
 	                    break ;
 	                case cparam_intrun:
 	                    if (! pip->final.intrun) {

@@ -67,8 +67,8 @@ extern int	hasdoublewhite(const char *,int) ;
 extern int	isprintlatin(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strdcpy1(char *,int,const char *) ;

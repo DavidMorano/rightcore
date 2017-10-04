@@ -7,6 +7,7 @@
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
+#define	CF_LOCSETENT	0		/* allow |locinfo_setentry()| */
 
 
 /* revision history:
@@ -14,9 +15,13 @@
 	= 2004-03-01, David A­D­ Morano
 	This subroutine was originally written.  
 
+	= 2017-09-29, David A­D­ Morano
+	I updated this to use the QUERYSTRING object instead of doing it
+	hack-piece previously.
+
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -24,9 +29,11 @@
 	to standard-output.
 
 	Synopsis:
+
 	$ querystring [-qs <querystring>]
 
 	Notes:
+
 	+ QueryStrings look like:
 		<url>[?<key1>=<val1>[&<key2>=<val2>[...]]]
 
@@ -61,6 +68,7 @@
 #include	<field.h>
 #include	<userinfo.h>
 #include	<char.h>
+#include	<querystring.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -113,8 +121,8 @@ extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 extern int	strlinelen(const char *,int,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	debugclose() ;
 #endif
 
@@ -173,15 +181,15 @@ static int	procargs(PROGINFO *,ARGINFO *,BITS *,
 			cchar *,cchar *,cchar *,cchar *) ;
 static int	procinput(PROGINFO *,void *,cchar *) ;
 static int	procname(PROGINFO *,void *, const char *) ;
-static int	procnamer(PROGINFO *,void *,cchar *,int) ;
-static int	procfixval(PROGINFO *,char *,int,cchar *,int) ;
 static int	proclogline(PROGINFO *,cchar *) ;
 static int	proclog(PROGINFO *,cchar *,int,cchar *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 
-static char	*strwebhex(char *,cchar *,int) ;
+#if	CF_LOCSETENT
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+#endif
 
 
 /* local variables */
@@ -1126,151 +1134,69 @@ static int procinput(PROGINFO *pip,void *ofp,cchar *ifn)
 static int procname(PROGINFO *pip,void *ofp,cchar *qs)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		wlen = 0 ;
 
-	if ((qs != NULL) && (qs[0] != '\0')) {
-	    int		sl = strlen(qs) ;
-	    int		cl ;
-	    cchar	*sp = qs ;
-	    cchar	*tp ;
-	    cchar	*cp ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_querystring/procname: ent q=>%s<\n",qs) ;
+#endif
 
-	    if (pip->verboselevel >= 2)
+	if ((qs != NULL) && (qs[0] != '\0')) {
+	    QUERYSTRING	ps ;
+
+	    if (pip->verboselevel >= 2) {
 	        proclogline(pip,qs) ;
+	    }
 
 	    if (pip->debuglevel > 0) {
 	        shio_printf(pip->efp,"%s: £ »%t«\n",
 	            pip->progname,qs,strlinelen(qs,-1,60)) ;
 	    }
 
-	    while ((tp = strnchr(sp,sl,'&')) != NULL) {
-	        cp = sp ;
-	        cl = (tp-sp) ;
-	        if (cl > 0) {
-	            rs = procnamer(pip,ofp,cp,cl) ;
-	            wlen += rs ;
-	        }
-	        sl -= ((tp-1)-sp) ;
-	        sp = (tp+1) ;
-	        if (rs < 0) break ;
-	    } /* end while */
-	    if ((rs >= 0) && (sl > 0)) {
-	        rs = procnamer(pip,ofp,sp,sl) ;
-	        wlen += rs ;
-	    }
+	    if ((rs = querystring_start(&ps,qs,-1)) >= 0) {
+	        QUERYSTRING_CUR	cur ;
+		int		kl, vl ;
+		cchar		*kp ;
+		cchar		*vp ;
+		if ((rs = querystring_curbegin(&ps,&cur)) >= 0) {
+		    while ((rs1 = querystring_enum(&ps,&cur,&kp,&vp)) >= 0) {
+
+#if	CF_DEBUG
+	                if (DEBUGLEVEL(4)) {
+	                    debugprintf("b_querystring/procname: k=>%s<\n",kp) ;
+	                    debugprintf("b_querystring/procname: v=>%s<\n",vp) ;
+	                }
+#endif
+
+	                rs = shio_printf(ofp,"%s\t%s\n",kp,vp) ;
+	                wlen += rs ;
+	                if (pip->open.logprog && pip->f.logprog) {
+			    kl = strlen(kp) ;
+			    vl = strlen(vp) ;
+	                    proclog(pip,kp,kl,vp,vl) ;
+	                }
+
+			if (rs < 0) break ;
+		    } /* end while */
+		    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+		    rs1 = querystring_curend(&ps,&cur) ;
+		    if (rs >= 0) rs = rs1 ;
+		} /* end if (querystring-cur) */
+		rs1 = querystring_finish(&ps) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (querystring) */
 
 	} /* end if (non-null) */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
+	if (DEBUGLEVEL(4))
 	    debugprintf("b_querystring/procname: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procname) */
-
-
-static int procnamer(PROGINFO *pip,void *ofp,cchar *sp,int sl)
-{
-	int		rs = SR_OK ;
-	int		kl ;
-	int		vl = 0 ;
-	int		wlen = 0 ;
-	const char	*tp ;
-	const char	*kp ;
-	const char	*vp = NULL ;
-	if (sl < 0) sl = strlen(sp) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    debugprintf("b_querystring/procnamer: ent\n") ;
-	    debugprintf("b_querystring/procnamer: sl=%d s=>%t<\n",
-	        sl,sp,sl) ;
-	}
-#endif
-	while ((sl > 0) && CHAR_ISWHITE(*sp)) {
-	    sp += 1 ;
-	    sl -= 1 ;
-	} /* end while */
-	kp = sp ;
-	kl = sl ;
-	if ((tp = strnchr(sp,sl,'=')) != NULL) {
-	    kl = (tp - sp) ;
-	    vp = (tp + 1) ;
-	    vl = ((sp + sl) - vp) ;
-	}
-	if (kl > 0) {
-	    const int	vlen = MAXNAMELEN ;
-	    char	vbuf[MAXNAMELEN+1] ;
-	    while ((vl > 0) && CHAR_ISWHITE(*vp)) {
-	        vp += 1 ;
-	        vl -= 1 ;
-	    }
-	    if ((vl > 0) && ((strnpbrk(vp,vl,"% +\t")) != NULL)) {
-	        rs = procfixval(pip,vbuf,vlen,vp,vl) ;
-	        vl = rs ;
-	        vp = vbuf ;
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("b_querystring/procnamer: "
-			"vl=%d f=>%t<\n",vl,vp,vl) ;
-#endif
-	    } /* end if (value) */
-	    if (rs >= 0) {
-	        rs = shio_printf(ofp,"%t\t%t\n",kp,kl,vp,vl) ;
-	        wlen += rs ;
-	        if (pip->open.logprog && pip->f.logprog) {
-	            proclog(pip,kp,kl,vp,vl) ;
-	        }
-	    } /* end if (ok) */
-	} /* end if (key) */
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (procnamer) */
-
-
-static int procfixval(PROGINFO *pip,char *rbuf,int rlen,cchar *vp,int vl)
-{
-	int		rs = SR_OK ;
-	int		i = 0 ;
-	if (vl > 0) {
-	    cchar	*tp ;
-	    char	*rp = rbuf ;
-	    if (vl > rlen) vl = rlen ;
-	    while ((tp = strnpbrk(vp,vl,"%+\t")) != NULL) {
-	        const int	sch = MKCHAR(*tp) ;
-	        if ((tp-vp) > 0) {
-	            rp = strwcpy(rp,vp,(tp-vp)) ;
-	        }
-	        switch (sch) {
-	        case '+':
-	            if (((rp-rbuf) == 0) || (rp[-1] != ' ')) *rp++ = ' ' ;
-	            break ;
-	        case '\t':
-	            if (((rp-rbuf) == 0) || (rp[-1] != ' ')) *rp++ = ' ' ;
-	            break ;
-	        case '%':
-	            {
-	                const int	tl = (vl-(tp-vp)) ;
-	                rp = strwebhex(rp,tp,tl) ;
-	                tp += MIN(2,tl) ;
-	            }
-	            break ;
-	        } /* end switch */
-	        vl -= ((tp+1)-vp) ;
-	        vp = (tp+1) ;
-	    } /* end while */
-	    if ((rs >= 0) && (vl > 0)) {
-	        while ((vl > 0) && CHAR_ISWHITE(vp[vl-1])) vl -= 1 ;
-	        rp = strwcpy(rp,vp,vl) ;
-	    }
-	    i = (rp-rbuf) ;
-	} /* end if (positive) */
-	rbuf[i] = '\0' ;
-	return (rs >= 0) ? i : rs ;
-}
-/* end subroutine (procfixval) */
 
 
 static int proclogline(PROGINFO *pip,cchar *qs)
@@ -1368,7 +1294,7 @@ static int procuserinfo_logid(PROGINFO *pip)
 	                const int	slen = LOGIDLEN ;
 	                char		sbuf[LOGIDLEN+1] ;
 	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
-	                    const char	**vpp = &pip->logid ;
+	                    cchar	**vpp = &pip->logid ;
 	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
 	                }
 	            }
@@ -1403,20 +1329,41 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-static char *strwebhex(char *rp,cchar *tp,int tl)
+#if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
-	if ((tl >= 3) && (*tp == '%')) {
-	    const int	ch1 = MKCHAR(tp[1]) ;
-	    const int	ch2 = MKCHAR(tp[2]) ;
-	    if (ishexlatin(ch1) && ishexlatin(ch2)) {
-	        int	v ;
-	        if (cfhexi((tp+1),2,&v) >= 0) {
-	            *rp++ = v ;
-	        }
-	    }
+	VECSTR		*slp ;
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	slp = &lip->stores ;
+	if (! lip->open.stores) {
+	    rs = vecstr_start(slp,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
 	}
-	return rp ;
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
+	    if (vp != NULL) {
+	        len = strnlen(vp,vl) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
+
+	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (strwebhex) */
+/* end subroutine (locinfo_setentry) */
+#endif /* CF_LOCSETENT */
 
 

@@ -208,7 +208,7 @@ GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
 
 SOBJ0= bibleverses.o bvi.o bvimk.o bvihdr.o bvcitekey.o
-SOBJ1= dirseen.o
+SOBJ1= dirseen.o mkmagic.o
 
 SOBJ= $(SOBJ0) $(SOBJ1)
 
@@ -432,5 +432,8 @@ bpimk.o:		bpimk.c bpimk.h bpihdr.h
 
 bpihdr.o:		bpihdr.c bpihdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+
+mkmagic.o:		mkmagic.c mkmagic.h
 
 

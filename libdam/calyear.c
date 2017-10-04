@@ -70,11 +70,11 @@ extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	mkpath4(char *,cchar *,cchar *,cchar *,cchar *) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* local structures */

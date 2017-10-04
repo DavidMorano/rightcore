@@ -3,7 +3,7 @@
 /* text-index header for VAR-INDEX file */
 
 
-#define	CF_DEBUGS 	0		/* run-time debugging */
+#define	CF_DEBUGS 	0		/* compile-time debugging */
 
 
 /* revision history:

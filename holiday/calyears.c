@@ -156,8 +156,8 @@ extern int	isNotAccess(int) ;
 extern int	isOneOf(const int *,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -1120,7 +1120,7 @@ static int calyears_gethash(CALYEARS *op,CALENT *ep,uint *rp)
 /* end subroutine (calyears_gethash) */
 
 
-/* get the CALMGR (pointer to) give a CALMGR index */
+/* get the CALMGR (pointer to) given a CALMGR index */
 static int calyears_getcm(CALYEARS *op,int ci,CALMGR **rpp)
 {
 	vechand		*clp = &op->cals ;
@@ -1188,7 +1188,7 @@ static int calyears_getcalbase(CALYEARS *op,CALENT *ep,cchar **rpp)
 /* end subroutine (calyears_getcalbase) */
 
 
-static int calyears_loadbuf(CALYEARS *op,char rbuf[],int rlen,CALENT *ep)
+static int calyears_loadbuf(CALYEARS *op,char *rbuf,int rlen,CALENT *ep)
 {
 	int		rs ;
 
@@ -1246,10 +1246,10 @@ static int calyears_transhol(CALYEARS *op,CALCITE *qp,int y,cchar *sp,int sl)
 	    debugprintf("calyears/subinfo_transhol: f_neg=%u\n",f_negative) ;
 	} else
 	    debugprintf("calyears/subinfo_transhol: *no_number*\n") ;
-#endif
+#endif /* CF_DEBUGS */
 
 	if ((rs = calyears_dayname(op,qp,y,sp,sl)) > 0) {
-		f_found = TRUE ;
+	    f_found = TRUE ;
 	    if (nl > 0) {
 	        int	odays ;
 	        if ((rs = cfdeci(np,nl,&odays)) >= 0) {
@@ -1726,22 +1726,22 @@ static int subinfo_loadnames(SUBINFO *sip,vecstr *nlp,cchar dirname[])
 	        debugprintf("calyears_loadnames: name=%s\n",ds.name) ;
 #endif
 
-	        if ((tp = strrchr(ds.name,'.')) != NULL) {
-	                	if (strcmp((tp+1),calsuf) == 0) {
-	            if ((rs = mkpath2(tbuf,dirname,ds.name)) >= 0) {
-	                if ((rs = u_stat(tbuf,&sb)) >= 0) {
-	            	    if (S_ISREG(sb.st_mode)) {
-	                    	    np = ds.name ;
-	                    	    nl = (tp - ds.name) ;
-	                            c += 1 ;
-	                            rs = vecstr_add(nlp,np,nl) ;
-	            	    } /* end if (regular file) */
-			} else if (isNotPresent(rs)) {
-			    rs = SR_OK ;
-	                } /* end if (correct file extension) */
-	            } /* end if (mkpath) */
-				} /* end if (our suffix) */
-	        } /* end if (candidate) */
+	            if ((tp = strrchr(ds.name,'.')) != NULL) {
+		        if (strcmp((tp+1),calsuf) == 0) {
+	                    if ((rs = mkpath2(tbuf,dirname,ds.name)) >= 0) {
+	                        if ((rs = u_stat(tbuf,&sb)) >= 0) {
+	            	            if (S_ISREG(sb.st_mode)) {
+	                    	        np = ds.name ;
+	                    	        nl = (tp - ds.name) ;
+	                                c += 1 ;
+	                                rs = vecstr_add(nlp,np,nl) ;
+	            	            } /* end if (regular file) */
+			        } else if (isNotPresent(rs)) {
+			            rs = SR_OK ;
+	                        } /* end if (correct file extension) */
+	                    } /* end if (mkpath) */
+			} /* end if (our suffix) */
+	            } /* end if (candidate) */
 	        } /* end if (not invisible) */
 	        if (rs < 0) break ;
 	    } /* end while */

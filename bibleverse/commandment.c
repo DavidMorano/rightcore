@@ -65,7 +65,8 @@ extern int	nleadstr(const char *,const char *,int) ;
 extern int	pathclean(char *,const char *,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 

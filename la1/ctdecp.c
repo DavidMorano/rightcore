@@ -83,7 +83,7 @@ static int	zerofill(char *,int,int,int) ;
 /* exported subroutines */
 
 
-int ctdecpi(char rbuf[],int rlen,int prec,int v)
+int ctdecpi(char *rbuf,int rlen,int prec,int v)
 {
 	uint		uv = v ;
 	int		rs ;
@@ -98,19 +98,20 @@ int ctdecpi(char rbuf[],int rlen,int prec,int v)
 	    rp += 1 ;
 	    rl -= 1 ;
 	}
-	rs = ctdecpui(rp,rl,prec,uv) ;
-	n = rs ;
-	if ((rs >= 0) && (v < 0)) {
-	    rbuf[0] = '-' ;
-	    n += 1 ;
-	} /* end if */
+	if ((rs = ctdecpui(rp,rl,prec,uv)) >= 0) {
+	    n = rs ;
+	    if (v < 0) {
+	        rbuf[0] = '-' ;
+	        n += 1 ;
+	    }
+	} /* end if (ctdecpio) */
 
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutine (ctdecpi) */
 
 
-int ctdecpui(char rbuf[],int rlen,int prec,uint uv)
+int ctdecpui(char *rbuf,int rlen,int prec,uint uv)
 {
 	int		rs ;
 
@@ -140,8 +141,9 @@ static int zerofill(char *rbuf,int rlen,int prec,int n)
 		rbuf[i] = '0' ;
 	    }
 	    rs = prec ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return rs ;
 }

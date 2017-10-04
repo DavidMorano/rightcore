@@ -164,11 +164,11 @@ extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	debugclose() ;
 extern int	debugprinthexblock(cchar *,int,const void *,int) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern cchar	*getourenv(cchar **,cchar *) ;

@@ -21,15 +21,12 @@
         abbreviation string.
 
 	Synopsis:
-
 	cchar *strerrabbr(uint n)
 
 	Arguments:
-
 	n		system-error return number to lookup
 
 	Returns:
-
 	-		character-string representation of system-error return
 
 

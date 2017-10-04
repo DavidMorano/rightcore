@@ -85,7 +85,7 @@ static int	iswhitemore(int) ;
 
 /* local variables */
 
-static const char	*allows[] = {
+static cchar	*allows[] = {
 	"'s",
 	"'t",
 	"s'",
@@ -104,8 +104,8 @@ static const char	*allows[] = {
 int sfword(cchar *sp,int sl,cchar **rpp)
 {
 	int		cl ;
-	const char	*tp ;
-	const char	*cp ;
+	cchar		*tp ;
+	cchar		*cp ;
 
 	if ((cl = sfshrinkmore(sp,sl,&cp)) > 0) {
 	    int	f = FALSE ;

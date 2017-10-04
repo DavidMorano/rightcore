@@ -76,7 +76,8 @@ extern int	getnodedomain(char *,char *) ;
 extern int	pathclean(char *,const char *,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 

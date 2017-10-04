@@ -155,11 +155,11 @@ extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG || CF_DEBUGN
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	debugclose() ;
-extern int	strlinelen(const char *,int,int) ;
-extern int	nprintf(const char *,const char *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+extern int	nprintf(cchar *,cchar *,...) ;
 #endif
 
 extern cchar	*getourenv(cchar **,cchar *) ;

@@ -18,7 +18,6 @@
         that white-space characters not copied over to the result.
 
 	Synopsis:
-
 	int snwcpyopaque(dp,dl,sp,sl)
 	char		*dp ;
 	int		dl ;
@@ -26,20 +25,17 @@
 	int		sl ;
 
 	Arguments:
-
 	dp		destination string buffer
 	dl		destination string buffer length
 	sp		source string
 	sl		source string length
 
 	Returns:
-
 	>=0		number of bytes in result
 	<0		error
 
 
 	See-also:
-
 	snwcpy(3dam),
 	snwcpylatin(3dam), 
 	snwcpyopaque(3dam), 
@@ -62,9 +58,9 @@
 
 /* external subroutines */
 
-extern int	sncpy1(char *,int,const char *) ;
+extern int	sncpy1(char *,int,cchar *) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */

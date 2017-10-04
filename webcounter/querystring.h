@@ -17,14 +17,28 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<strpack.h>
+#include	<localmisc.h>		/* extra types */
 
 
-struct querystring_head {
-	cchar		*(*kv)[2] ;
-	strpack		p ;
-	int		n ;
+#define	QUERYSTRING	struct querystring_head
+#define	QUERYSTRING_FL	struct querystring_flags
+#define	QUERYSTRING_CUR	struct querystring_cur
+
+
+struct querystring_cur {
+	int		i ;
 } ;
 
+struct querystring_flags {
+	uint		packer:1 ;
+} ;
+
+struct querystring_head {
+	QUERYSTRING_FL	open ;
+	strpack		packer ;
+	cchar		*(*kv)[2] ;
+	int		n ;
+} ;
 
 
 #if	(! defined(QUERYSTRING_MASTER)) || (QUERYSTRING_MASTER == 0)
@@ -34,8 +48,14 @@ extern "C" {
 #endif
 
 extern int querystring_start(QUERYSTRING *,cchar *,int) ;
-extern int querystring_getkey(QUERYSTRING *,int,cchar **,cchar **) ;
-extern int querystring_getval(QUERYSTRING *,int,cchar **,cchar **) ;
+extern int querystring_count(QUERYSTRING *) ;
+extern int querystring_already(QUERYSTRING *,cchar *,int) ;
+extern int querystring_curbegin(QUERYSTRING *,QUERYSTRING_CUR *) ;
+extern int querystring_curend(QUERYSTRING *,QUERYSTRING_CUR *) ;
+extern int querystring_fetch(QUERYSTRING *,cchar *,int,QUERYSTRING_CUR *,
+		cchar **) ;
+extern int querystring_enum(QUERYSTRING *,QUERYSTRING_CUR *,cchar **,cchar **) ;
+extern int querystring_get(QUERYSTRING *,int,cchar **,cchar **) ;
 extern int querystring_finish(QUERYSTRING *) ;
 
 #ifdef	__cplusplus

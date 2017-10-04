@@ -122,4 +122,7 @@
 #define	OPT_LOGPROG	TRUE		/* (program) logging */
 #define	OPT_CACHE	1		/* use cache */
 
+#define	COPYRIGHT	"2015-%Y (c) David A­D­ Morano. All rights reserved."
+#define	WEBMASTER	"webmaster@rightcore.com"
+
 

@@ -10,13 +10,19 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 2000-03-02, David A­D­ Morano
         The program was written from scratch to do what the previous program by
         the same name did.
 
+	= 2017-10-02, David A­D­ Morano
+	I update this to use the QUERYSTRING object.  Frist, using that object
+	puts that "query string" parsing code all in one place, and Secondly,
+	it handles the weirdo cases of query-string which we previously did
+	not handle fully everywhere welse.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -48,6 +54,7 @@
 #include	<time.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>
@@ -58,6 +65,7 @@
 #include	<vecstr.h>
 #include	<mapstrint.h>
 #include	<prsetfname.h>
+#include	<querystring.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -81,21 +89,13 @@
 #define	CONFIG		struct config
 #define	CONFIG_MAGIC	0x23FFEEDD
 
+#define	COUNTINFO	struct countinfo
+
 #define	PO_OPTION	"option"
 
 
 /* external subroutines */
 
-extern int	snsds(char *,int,const char *,const char *) ;
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	sncpy1(char *,int,const char *) ;
-extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	mkpath1w(char *,const char *,int) ;
-extern int	mkpath2w(char *,const char *,const char *,int) ;
-extern int	mkpath3w(char *,const char *,const char *,const char *,int) ;
 extern int	mkfnamesuf1(char *,const char *,const char *) ;
 extern int	mkplogid(char *,int,cchar *,int) ;
 extern int	mksublogid(char *,int,cchar *,int) ;
@@ -149,7 +149,7 @@ struct locinfo_flags {
 	uint		list:1 ;
 	uint		hdr:1 ;
 	uint		basedname:1 ;
-	uint		dbfname:1 ;
+	uint		dbname:1 ;
 } ;
 
 struct locinfo {
@@ -160,7 +160,7 @@ struct locinfo {
 	vecstr		sufmaps ;
 	vecstr		sufsubs ;
 	const char	*basedname ;
-	const char	*dbfname ;
+	const char	*dbname ;
 	void		*ofp ;
 } ;
 
@@ -172,6 +172,13 @@ struct config {
 	EXPCOOK		cooks ;
 	uint		f_p:1 ;
 	uint		f_cooks:1 ;
+} ;
+
+struct countinfo {
+	cchar		*dbp ;
+	cchar		*cnp ;
+	int		dbl ;
+	int		cnl ;
 } ;
 
 
@@ -187,6 +194,8 @@ static int	proclist(PROGINFO *) ;
 static int	procreg(PROGINFO *,MAPSTRINT *) ;
 static int	procreger(PROGINFO *,cchar *,int,int,MAPSTRINT *) ;
 static int	procqs(PROGINFO *,cchar *) ;
+static int	procqsget(PROGINFO *,QUERYSTRING *,COUNTINFO *) ;
+static int	procqser(PROGINFO *pip,cchar *,cchar *,int,int) ;
 
 static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
 static int	procuserinfo_end(PROGINFO *) ;
@@ -204,11 +213,10 @@ static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
-static int	locinfo_dbinfo(LOCINFO *,const char *,const char *) ;
-static int	locinfo_basedir(LOCINFO *,const char *,int) ;
+static int	locinfo_basedir(LOCINFO *,cchar *,int) ;
 
 static int	config_start(CONFIG *,PROGINFO *,PARAMOPT *,cchar *) ;
-static int	config_findfile(CONFIG *,char *,const char *) ;
+static int	config_findfile(CONFIG *,char *,cchar *) ;
 static int	config_cookbegin(CONFIG *) ;
 static int	config_cookend(CONFIG *) ;
 static int	config_read(CONFIG *) ;
@@ -401,8 +409,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cfname = NULL ;
-	const char	*basedname = NULL ;
-	const char	*dbfname = NULL ;
 	const char	*qs = NULL ;
 	const char	*cp ;
 
@@ -674,8 +680,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                    }
 	                    if ((rs >= 0) && (cp != NULL)) {
-	                        lip->final.dbfname = TRUE ;
-	                        dbfname = cp ;
+	                        lip->final.dbname = TRUE ;
+	                        lip->dbname = cp ;
 	                    }
 	                    break ;
 
@@ -774,7 +780,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                lip->final.basedname = TRUE ;
-	                                basedname = argp ;
+	                                lip->basedname = argp ;
 	                            }
 	                        } else
 	                            rs = SR_INVALID ;
@@ -811,9 +817,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -990,13 +996,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    shio_printf(pip->efp,"%s: f_inc=%u\n",pn,lip->f.inc) ;
 	}
 
-#ifdef	COMMENT
-	if ((rs >= 0) && (dbfname == NULL)) {
-	    rs = SR_INVALID ;
-	    ex = EX_UNAVAILABLE ;
-	}
-#endif /* COMMENT */
-
 	if (qs == NULL) qs = getourenv(envv,VARQS) ;
 	if (qs == NULL) qs = getourenv(envv,VARQUERYSTRING) ;
 
@@ -1010,13 +1009,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-	if (basedname == NULL) basedname = getourenv(envv,VARBASEDNAME) ;
+	if (lip->basedname == NULL) {
+	    lip->basedname = getourenv(envv,VARBASEDNAME) ;
+	}
 
-	if (dbfname == NULL) dbfname = getourenv(envv,VARDB) ;
-	if (dbfname == NULL) dbfname = getourenv(envv,VARDBFNAME) ;
+	if (lip->dbname == NULL) lip->dbname = getourenv(envv,VARDB) ;
+	if (lip->dbname == NULL) lip->dbname = getourenv(envv,VARDBFNAME) ;
 
 	if (rs >= 0) {
-	    rs = locinfo_dbinfo(lip,basedname,dbfname) ;
+	    rs = locinfo_basedir(lip,pip->searchname,-1) ;
 	}
 
 /* argument information */
@@ -1183,7 +1184,7 @@ static int usage(PROGINFO *pip)
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
-	fmt = "%s:  [-p[=<b>]] [-l] [-a[=<b>]] [-i[=<b>]]\n" ;
+	fmt = "%s:  [-b <basedir>] [-p[=<b>]] [-l] [-a[=<b>]] [-i[=<b>]]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
@@ -1492,7 +1493,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *qs)
 
 	if ((rs = mapstrint_start(&names,10)) >= 0) {
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if (rs >= 0) {
 	        int	ai ;
@@ -1623,8 +1624,8 @@ static int procdebugdb(PROGINFO *pip,const char *qs)
 	    if (lip->basedname != NULL) {
 	        shio_printf(pip->efp,"%s: dbdir=%s\n",pn,lip->basedname) ;
 	    }
-	    if (lip->dbfname != NULL) {
-	        shio_printf(pip->efp,"%s: db=%s\n",pn,lip->dbfname) ;
+	    if (lip->dbname != NULL) {
+	        shio_printf(pip->efp,"%s: db=%s\n",pn,lip->dbname) ;
 	    }
 	    if (qs != NULL) {
 	        shio_printf(pip->efp,"%s: qs=>%s<\n",pn,qs) ;
@@ -1635,8 +1636,8 @@ static int procdebugdb(PROGINFO *pip,const char *qs)
 	    if (lip->basedname != NULL) {
 	        logfile_printf(lfp,"dbdir=%s",lip->basedname) ;
 	    }
-	    if (lip->dbfname != NULL) {
-	        logfile_printf(lfp,"db=%s",lip->dbfname) ;
+	    if (lip->dbname != NULL) {
+	        logfile_printf(lfp,"db=%s",lip->dbname) ;
 	    }
 	    if (qs != NULL) {
 	        logfile_printf(lfp,"qs=>%s<",qs) ;
@@ -1650,99 +1651,97 @@ static int procdebugdb(PROGINFO *pip,const char *qs)
 static int proclist(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
-	FILECOUNTS	fc ;
-	FILECOUNTS_CUR	cur ;
-	FILECOUNTS_INFO	fci ;
-	mode_t		operms ;
-	const int	nlen = REALNAMELEN ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		oflags ;
-	int		nl ;
 	int		c = 0 ;
-	const char	*basedname = lip->basedname ;
-	const char	*dbfn = lip->dbfname ;
+	const char	*basedname ;
+	const char	*dbfn ;
 	char		tbuf[MAXPATHLEN + 1] ;
-	char		nbuf[REALNAMELEN + 1] ;
-	char		*np ;
+
+	basedname = lip->basedname ;
+	dbfn = lip->dbname ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("main/proclist: dbfn=%s\n",dbfn) ;
+	    debugprintf("main/proclist: ent bd=%s dbfn=%s\n",basedname,dbfn) ;
 #endif
 
-	if ((dbfn == NULL) || (dbfn[0] == '\0')) {
-	    rs = SR_INVALID ;
-	    goto ret0 ;
-	}
+	if ((dbfn != NULL) && (dbfn[0] != '\0')) {
 
-	if ((basedname != NULL) && (basedname[0] != '\0')) {
-	    if (dbfn[0] != '/') {
-	        rs = mkpath2(tbuf,basedname,dbfn) ;
-	        dbfn = tbuf ;
+	    if ((basedname != NULL) && (basedname[0] != '\0')) {
+	        if (dbfn[0] != '/') {
+	            rs = mkpath2(tbuf,basedname,dbfn) ;
+	            dbfn = tbuf ;
+	        }
 	    }
-	}
-	if (rs < 0)
-	    goto ret0 ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("b_webcounter/proclist: db=%s\n",db) ;
-#endif
-
-	oflags = O_RDONLY ;
-	operms = 0664 ;
-	if ((rs = filecounts_open(&fc,dbfn,oflags,operms)) >= 0) {
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
-	        debugprintf("main/proclist: filecounts_open() rs=%d\n",rs) ;
+	        debugprintf("b_webcounter/proclist: db=%s\n",dbfn) ;
 #endif
 
-	    if ((rs = filecounts_curbegin(&fc,&cur)) >= 0) {
-
-	        if ((rs = filecounts_snap(&fc,&cur)) >= 0) {
-	            int		nfl, tfl ;
-	            char	tbuf[TIMEBUFLEN + 1] ;
-
-	            np = nbuf ;
-	            while (rs >= 0) {
-	                nl = filecounts_read(&fc,&cur,&fci,np,nlen) ;
-	                if (nl == SR_NOTFOUND) break ;
-	                rs = nl ;
+	    if (rs >= 0) {
+	        FILECOUNTS	fc ;
+	        FILECOUNTS_CUR	cur ;
+	        FILECOUNTS_INFO	fci ;
+	        const mode_t	om = 0664 ;
+	        const int		of = O_RDONLY ;
+	        if ((rs = filecounts_open(&fc,dbfn,of,om)) >= 0) {
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(3)) {
-	                    debugprintf("main/proclist: "
-	                        "filecounts_read() rs=%d\n",nl) ;
-	                    debugprintf("main/proclist: n=%t\n",np,nl) ;
-	                }
+	            if (DEBUGLEVEL(3))
+	                debugprintf("main/proclist: filecounts_open() rs=%d\n",rs) ;
 #endif
 
-	                if (rs >= 0) {
-			    SHIO	*ofp = lip->ofp ;
-	                    const int	v = fci.value ;
-	                    cchar	*fmt = "%*u %-*s %t\n" ;
-	                    c += 1 ;
-	                    nfl = FILECOUNTS_NUMDIGITS ;
-	                    tfl = FILECOUNTS_LOGZLEN ;
-	                    timestr_logz(fci.utime,tbuf) ;
-	                    rs = shio_printf(ofp,fmt,nfl,v,tfl,tbuf,np,nl) ;
-	                }
+	            if ((rs = filecounts_curbegin(&fc,&cur)) >= 0) {
+	                if ((rs = filecounts_snap(&fc,&cur)) >= 0) {
+	                    const int	nlen = REALNAMELEN ;
+	                    int		nfl, tfl ;
+	                    int		nl ;
+	                    char	nbuf[REALNAMELEN + 1] ;
+	                    char	tbuf[TIMEBUFLEN + 1] ;
 
-	            } /* end while (reading counters) */
+	                    while (rs >= 0) {
+	                        nl = filecounts_read(&fc,&cur,&fci,nbuf,nlen) ;
+	                        if (nl == SR_NOTFOUND) break ;
+	                        rs = nl ;
 
-	        } /* end if (took snapshot) */
+#if	CF_DEBUG
+	                        if (DEBUGLEVEL(3)) {
+	                            debugprintf("main/proclist: "
+	                                "filecounts_read() rs=%d\n",nl) ;
+	                            debugprintf("main/proclist: n=%t\n",nbuf,nl) ;
+	                        }
+#endif
 
-	        rs1 = filecounts_curend(&fc,&cur) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (cursor) */
+	                        if (rs >= 0) {
+	                            SHIO	*ofp = lip->ofp ;
+	                            const int	v = fci.value ;
+	                            cchar	*fmt = "%*u %-*s %t\n" ;
+	                            c += 1 ;
+	                            nfl = FILECOUNTS_NUMDIGITS ;
+	                            tfl = FILECOUNTS_LOGZLEN ;
+	                            timestr_logz(fci.utime,tbuf) ;
+	                            rs = shio_printf(ofp,fmt,nfl,v,tfl,tbuf,nbuf,
+	                                nl) ;
+	                        }
 
-	    rs1 = filecounts_close(&fc) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (filecounts) */
+	                    } /* end while (reading counters) */
 
-ret0:
+	                } /* end if (took snapshot) */
+
+	                rs1 = filecounts_curend(&fc,&cur) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (cursor) */
+
+	            rs1 = filecounts_close(&fc) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (filecounts) */
+	    } /* end if (ok) */
+
+	} else {
+	    rs = SR_INVALID ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1758,55 +1757,51 @@ static int procreg(PROGINFO *pip,MAPSTRINT *nlp)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
-	int		rs1 ;
-	int		action = -1 ;
 	int		nc = 0 ;
-	cchar		*basedname ;
 	cchar		*dbfn ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
+	dbfn = lip->dbname ;
+
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
 	    debugprintf("main/procreg: ent\n") ;
-	    debugprintf("main/procreg: basedname=%s\n",basedname) ;
 	    debugprintf("main/procreg: dbfn=%s\n",dbfn) ;
 	}
 #endif
 
-	basedname = lip->basedname ;
-	dbfn = lip->dbfname ;
 	if ((dbfn != NULL) && (dbfn[0] != '\0')) {
 	    char	tbuf[MAXPATHLEN + 1] ;
 
-	if ((basedname != NULL) && (basedname[0] != '\0')) {
 	    if (dbfn[0] != '/') {
-	        rs = mkpath2(tbuf,basedname,dbfn) ;
+	        rs = mkpath2(tbuf,lip->basedname,dbfn) ;
 	        dbfn = tbuf ;
 	    }
-	}
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/procreg: db rs=%d db=%s\n",rs,db) ;
+	    if (DEBUGLEVEL(3))
+	        debugprintf("main/procreg: rs=%d dbfn=%s\n",rs,dbfn) ;
 #endif
 
-	if (rs >= 0) {
+	    if (rs >= 0) {
+	        int	act = -1 ;
 
-	if (lip->f.add) action = 0 ;
-	if (lip->f.inc) action = 1 ;
+	        if (lip->f.add) act = 0 ;
+	        if (lip->f.inc) act = 1 ;
 
 /* preliminary (if we need to do anything at all) */
 
-	if ((nc = mapstrint_count(nlp)) > 0) {
-	    if (pip->debuglevel > 0) {
-	        shio_printf(pip->efp,"%s: processing regular\n",pn) ;
-	    }
+	        if ((nc = mapstrint_count(nlp)) > 0) {
+	            if (pip->debuglevel > 0) {
+	                fmt = "%s: processing regular\n" ;
+	                shio_printf(pip->efp,fmt,pn) ;
+	            }
 /* try to open the DB */
-	    rs = procreger(pip,dbfn,nc,action,nlp) ;
-	}
+	            rs = procreger(pip,dbfn,nc,act,nlp) ;
+	        }
 
-	} /* end if (ok) */
+	    } /* end if (ok) */
 
 	} else {
 	    rs = SR_NOENT ;
@@ -1841,19 +1836,19 @@ static int procreger(PROGINFO *pip,cchar *db,int nc,int ac,MAPSTRINT *nlp)
 	        int		i = 0 ;
 
 	        if ((rs = mapstrint_curbegin(nlp,&cur)) >= 0) {
-		    int		v ;
-		    cchar	*np ;
+	            int		v ;
+	            cchar	*np ;
 	            while (mapstrint_enum(nlp,&cur,&np,&v) >= 0) {
 	                if (np != NULL) {
 	                    if (i < nc) {
 	                        namelist[i].name = np ;
-	                        namelist[i].value = (v >= 0) ? v : ac;
+	                        namelist[i].value = (v >= 0) ? v : ac ;
 	                        i += 1 ;
 	                    }
 	                }
 	            } /* end while */
 	            rs1 = mapstrint_curend(nlp,&cur) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mapstrint-cursor) */
 
 	        namelist[i].name = NULL ;
@@ -1881,7 +1876,6 @@ static int procreger(PROGINFO *pip,cchar *db,int nc,int ac,MAPSTRINT *nlp)
 	                rs = shio_printf(ofp,fmt,namelist[i].value) ;
 	                if (rs < 0) break ;
 	            } /* end for */
-
 	        } else if ((rs < 0) && (! pip->f.quiet)) {
 	            fmt = "%s: could not process names (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
@@ -1902,125 +1896,138 @@ static int procreger(PROGINFO *pip,cchar *db,int nc,int ac,MAPSTRINT *nlp)
 static int procqs(PROGINFO *pip,cchar *qs)
 {
 	LOCINFO		*lip = pip->lip ;
-	FILECOUNTS	fc ;
-	FILECOUNTS_N	*namelist = NULL ;
-	mode_t		operms ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		dbl = 0 ;
-	int		cnl = 0 ;
-	int		sl, cl ;
-	int		kl, vl ;
-	int		ki ;
-	int		oflags ;
-	int		nc ;
-	int		action = -1 ;
-	cchar		*basedname ;
-	cchar		*dbfn ;
-	const char	*tp ;
-	const char	*kp, *vp ;
-	const char	*dbp = NULL ;
-	const char	*cnp = NULL ;
-	const char	*sp ;
-	const char	*cp ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
-	char		tmpdname[MAXPATHLEN + 1] ;
-	char		dbfname[MAXPATHLEN + 1] ;
 
-	if ((qs == NULL) || (qs[0] == '\0'))
-	    goto ret0 ;
-
-	basedname = lip->basedname ;
-	dbfn = lip->dbfname ;
-	if ((basedname == NULL) || (basedname[0] == '\0')) {
-	    rs = mkpath3(tmpdname,pip->pr,VDNAME,pip->searchname) ;
-	    basedname = tmpdname ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("main/procqs: ent qs=>%s<\n",qs) ;
+	    debugprintf("main/procqs: bd=%s\n",lip->basedname) ;
 	}
-	if (rs < 0) goto ret0 ;
+#endif
 
-	if (lip->f.add) action = 0 ;
-	if (lip->f.inc) action = 1 ;
+	if ((qs != NULL) && (qs[0] != '\0')) {
+	    int		act = -1 ;
 
-	sp = qs ;
-	sl = strlen(qs) ;
+	    if (lip->f.add) act = 0 ;
+	    if (lip->f.inc) act = 1 ;
 
-	while (sl > 0) {
+	    if (rs >= 0) {
+	        QUERYSTRING	ps ;
+	        if ((rs = querystring_start(&ps,qs,-1)) >= 0) {
+	            COUNTINFO	ci ;
+	            if ((rs = procqsget(pip,&ps,&ci)) >= 0) {
 
-	    cp = sp ;
-	    cl = sl ;
-	    if ((tp = strnpbrk(sp,sl,";&")) != NULL) {
-	        cl = (tp - sp) ;
-	    }
+#if	CF_DEBUG
+	                if (DEBUGLEVEL(3))
+	                    debugprintf("main/procqs: db=>%t< cn=>%t<\n", 
+	                        ci.dbp,ci.dbl, ci.cnp,ci.cnl) ;
+#endif
 
-	    kp = cp ;
-	    kl = cl ;
-	    vp = NULL ;
-	    vl = -1 ;
-	    if ((tp = strnchr(cp,cl,'=')) != NULL) {
-	        kl = (tp - cp) ;
-	        vp = (tp + 1) ;
-	        vl = ((cp + cl) - vp) ;
-	    }
+	                if ((ci.dbp != NULL) && (ci.cnp != NULL)) {
+	    		    cchar	*basedname = lip->basedname ;
+	    		    char	dbname[MAXPATHLEN + 1] ;
 
-	    if ((ki = matstr(qkeys,kp,kl)) >= 0) {
-	        switch (ki) {
-	        case qkey_db:
-	            dbp = vp ;
-	            dbl = vl ;
-	            break ;
-	        case qkey_n:
-	        case qkey_c:
-	            cnp = vp ;
-	            cnl = vl ;
-	            break ;
-	        } /* end switch */
-	    } /* end if (match) */
+	                    if (pip->debuglevel > 0) {
+	                        fmt = "%s: processing query-string\n" ;
+	                        shio_printf(pip->efp,fmt,pn) ;
+	                    }
 
-	    sl -= ((cp + cl + 1) - sp) ;
-	    sp = (cp + cl + 1) ;
+	                    rs = mkpath2w(dbname,basedname,ci.dbp,ci.dbl) ;
 
-	} /* end while */
+	                    if (pip->debuglevel > 0) {
+	                        fmt = "%s: qsdb=%s\n" ;
+	                        shio_printf(pip->efp,fmt,pn,dbname) ;
+	                    }
+
+	                    if (rs >= 0) {
+	                        rs = procqser(pip,dbname,ci.cnp,ci.cnl,act) ;
+	                    }
+
+	                } /* end if (have) */
+
+	            } /* end if (procqsget) */
+
+	            rs1 = querystring_finish(&ps) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (querystring_start) */
+	    } /* end if (ok) */
+
+	} /* end if (not empty) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("main/procqs: db=%t cn=%t\n", dbp,dbl, cnp,cnl) ;
+	    debugprintf("main/procqs: ret rs=%d\n",rs) ;
 #endif
 
-	if ((dbp == NULL) || (cnp == NULL))
-	    goto ret0 ;
+	return rs ;
+}
+/* end subroutine (procqs) */
 
-	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: processing query-string\n",
-	        pip->progname) ;
-	}
 
-	if (basedname[0] != '\0') {
-	    rs = mkpath2w(dbfname,basedname,dbp,dbl) ;
-	} else {
-	    rs = mkpath1w(dbfname,dbp,dbl) ;
-	}
-	if (rs < 0)
-	    goto ret0 ;
+static int procqsget(PROGINFO *pip,QUERYSTRING *qsp,COUNTINFO *cip)
+{
+	QUERYSTRING_CUR	cur ;
+	int		rs ;
+	int		rs1 ;
+	if (pip == NULL) return SR_FAULT ;
+	if ((rs = querystring_curbegin(qsp,&cur)) >= 0) {
+	    cchar	*kp, *vp ;
+	    while ((rs1 = querystring_enum(qsp,&cur,&kp,&vp)) >= 0) {
+	        int		ki ;
+	        int		vl = rs1 ;
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("main/procqsget: "
+			"enum() rs=%d kp=%s bp=%s\n",rs1,kp,vp) ;
+#endif
+	        if ((ki = matstr(qkeys,kp,-1)) >= 0) {
+	            switch (ki) {
+	            case qkey_db:
+	                cip->dbp = vp ;
+	                cip->dbl = vl ;
+	                break ;
+	            case qkey_n:
+	            case qkey_c:
+	                cip->cnp = vp ;
+	                cip->cnl = vl ;
+	                break ;
+	            } /* end switch */
+	        } /* end if (match) */
+	    } /* end while */
+	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	    rs1 = querystring_curend(qsp,&cur) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (querystring-cur) */
+	return rs ;
+}
+/* end subroutine (procqsget) */
 
-	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: qsdb=%s\n",pip->progname,dbfname) ;
-	}
 
-	oflags = (O_RDWR | O_CREAT) ;
-	operms = 0664 ;
-	    nc = 1 ;
-	if ((rs = filecounts_open(&fc,dbfname,oflags,operms)) >= 0) {
+static int procqser(PROGINFO *pip,cchar *dbfname,cchar *cnp,int cnl,int ac)
+{
+	LOCINFO		*lip = pip->lip ;
+	FILECOUNTS	fc ;
+	FILECOUNTS_N	*namelist = NULL ;
+	const mode_t	om = 0664 ;
+	const int	of = (O_RDWR | O_CREAT) ;
+	int		rs ;
+	int		rs1 ;
+	int		nc = 1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	if ((rs = filecounts_open(&fc,dbfname,of,om)) >= 0) {
 	    const int	nlsize = (nc + 1) * sizeof(FILECOUNTS_N) ;
 	    if ((rs = uc_malloc(nlsize,&namelist)) >= 0) {
-	        int	n, i ;
+	        int	n = 0 ;
 	        char	cn[MAXNAMELEN + 1] ;
 
 	        snwcpy(cn,MAXNAMELEN,cnp,cnl) ;
 
-	        n = 0 ;
 	        namelist[n].name = cn ;
-	        namelist[n].value = action ;
+	        namelist[n].value = ac ;
 	        n += 1 ;
 
 	        namelist[n].name = NULL ;
@@ -2031,13 +2038,14 @@ static int procqs(PROGINFO *pip,cchar *qs)
 	        rs = filecounts_process(&fc,namelist) ;
 
 	        if ((rs >= 0) && lip->f.print) {
-		    SHIO	*ofp = lip->ofp ;
+	            SHIO	*ofp = lip->ofp ;
+	            int		i ;
 	            for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
 	                fmt = (namelist[i].value >= 0) ? "%u\n" : "\n" ;
 	                rs = shio_printf(ofp,fmt,namelist[i].value) ;
 	            } /* end for */
 	        } else if ((rs < 0) && (! pip->f.quiet)) {
-		    fmt = "%s: could not process names (%d)\n" ;
+	            fmt = "%s: could not process names (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	        }
 
@@ -2048,17 +2056,9 @@ static int procqs(PROGINFO *pip,cchar *qs)
 	    rs1 = filecounts_close(&fc) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (filecounts) */
-
-ret0:
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/procqs: ret rs=%d\n",rs) ;
-#endif
-
 	return rs ;
 }
-/* end subroutine (procqs) */
+/* end subroutine (procqser) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
@@ -2131,54 +2131,13 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 /* end subroutine (locinfo_setentry) */
 
 
-static int locinfo_dbinfo(LOCINFO *lip,cchar *basedname,cchar *dbfname)
-{
-	PROGINFO	*pip = lip->pip ;
-	int		rs = SR_OK ;
-
-	if (pip == NULL) return SR_FAULT ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3)) {
-	    debugprintf("main/locinfo_dbinfo: basedb=%s\n",basedname) ;
-	    debugprintf("main/locinfo_dbinfo: dbfname=%s\n",dbfname) ;
-	}
-#endif
-
-	if ((rs >= 0) && (lip->basedname == NULL)) {
-	    if (basedname != NULL) {
-	        rs = locinfo_basedir(lip,basedname,-1) ;
-	    }
-	}
-
-	if ((rs >= 0) && (lip->dbfname == NULL)) {
-	    if (dbfname != NULL) {
-	        cchar	**vpp = &lip->dbfname ;
-	        lip->final.dbfname = TRUE ;
-	        rs = locinfo_setentry(lip,vpp,dbfname,-1) ;
-	    }
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3)) {
-	    debugprintf("main/locinfo_dbinfo: ret basedb=%s\n",lip->basedname) ;
-	    debugprintf("main/locinfo_dbinfo: ret dbfname=%s\n",lip->dbfname) ;
-	    debugprintf("main/locinfo_dbinfo: ret rs=%d\n",rs) ;
-	}
-#endif
-
-	return rs ;
-}
-/* end subroutine (locinfo_dbinfo) */
-
-
-static int locinfo_basedir(LOCINFO *lip,const char *vp,int vl)
+static int locinfo_basedir(LOCINFO *lip,cchar *vp,int vl)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
 
 	if (lip->basedname == NULL) {
-	    cchar	*inter = WEBCOUNTER_VARBASE ;
+	    cchar	*inter = VDNAME ;
 	    cchar	*pr = pip->pr ;
 	    char	tbuf[MAXPATHLEN+1] ;
 	    if ((rs = mkourname(tbuf,pr,inter,vp,vl)) >= 0) {
@@ -2497,7 +2456,7 @@ static int config_read(CONFIG *csp)
 	                                cchar	**vpp = &pip->lfname ;
 	                                pip->changed.lfname = TRUE ;
 	                                rs = proginfo_setentry(pip,vpp,
-						tbuf,ml) ;
+	                                    tbuf,ml) ;
 	                            }
 	                        }
 	                        break ;

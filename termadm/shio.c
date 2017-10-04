@@ -150,8 +150,8 @@ extern int	sfisterm(Sfio_t *) ;
 extern int	format(char *,int,int,const char *,va_list) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strnchr(const char *,int,int) ;

@@ -670,6 +670,9 @@ static int bvimk_mkidxwrmain(BVIMK *op,BVIHDR *hdrp)
 	int		rs ;
 	int		rs1 ;
 	int		off = 0 ;
+#if	CF_DEBUGS
+	debugprintf("bvimk_mkidxwrmain: ent\n") ;
+#endif
 	bsize = (ps * 4) ;
 	if ((rs = filebuf_start(hfp,nfd,0,bsize,0)) >= 0) {
 	    if ((rs = bvimk_mkidxwrhdr(op,hdrp,hfp)) >= 0) {
@@ -686,6 +689,9 @@ static int bvimk_mkidxwrmain(BVIMK *op,BVIHDR *hdrp)
 	    rs1 = filebuf_finish(hfp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (filebuf) */
+#if	CF_DEBUGS
+	debugprintf("bvimk_mkidxwrmain: ret rs=%d off=%u\n",rs,off) ;
+#endif
 	return (rs >= 0) ? off : rs ;
 }
 /* end subroutine (bvimk_mkidxwrmain) */
@@ -698,11 +704,20 @@ static int bvimk_mkidxwrhdr(BVIMK *op,BVIHDR *hdrp,FILEBUF *hfp)
 	int		rs ;
 	int		wlen = 0 ;
 	char		hbuf[HDRBUFLEN+1] ;
+#if	CF_DEBUGS
+	debugprintf("bvimk_mkidxwrhdr: ent\n") ;
+#endif
 	if (op == NULL) return SR_FAULT ; /* LINT */
 	if ((rs = bvihdr(hdrp,0,hbuf,hlen)) >= 0) {
 	    rs = filebuf_writefill(hfp,hbuf,rs) ;
 	    wlen += rs ;
+#if	CF_DEBUGS
+	debugprintf("bvimk_mkidxwrhdr: filebuf_writefill() rs=%d\n",rs) ;
+#endif
 	}
+#if	CF_DEBUGS
+	debugprintf("bvimk_mkidxwrhdr: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (bvimk_mkidxwrhdr) */
@@ -731,6 +746,9 @@ static int bvimk_mkidxwrverses(BVIMK *op,BVIHDR *hdrp,FILEBUF *hfp,int off)
 	    if (rs < 0) break ;
 	} /* end for */
 	hdrp->vilen = n ;
+#if	CF_DEBUGS
+	debugprintf("bvimk_mkidxwrverses: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (bvimk_mkidxwrverses) */
@@ -757,6 +775,9 @@ static int bvimk_mkidxwrlines(BVIMK *op,BVIHDR *hdrp,FILEBUF *hfp,int off)
 	    if (rs < 0) break ;
 	} /* end for */
 	hdrp->vllen = n ;
+#if	CF_DEBUGS
+	debugprintf("bvimk_mkidxwrlines: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (bvimk_mkidxwrlines) */

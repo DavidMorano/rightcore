@@ -72,6 +72,7 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCFLAGS= $(GPPFLAGS) $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
@@ -155,7 +156,7 @@ OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
-OBJ10=
+OBJ10= querystring.o
 OBJ11= cgi.o htm.o
 OBJ12= 
 OBJ13= 
@@ -337,8 +338,6 @@ opensvc_hotd.o:		opensvc_hotd.c opensvc_hotd.h
 
 passwdent.o:		passwdent.c passwdent.h
 
-debug.o:		debug.c debug.h
-
 
 shio.o:			shio.c shio.h
 
@@ -385,5 +384,8 @@ storeitem.o:		storeitem.c storeitem.h
 spawner.o:		spawner.c spawner.h
 
 useraccdb.o:		useraccdb.c useraccdb.h
+
+querystring.o:		querystring.cc querystring.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) querystring.cc
 
 

@@ -3,7 +3,7 @@
 /* index for bible-paragraph file */
 
 
-#define	CF_DEBUG 	0		/* run-time debugging */
+#define	CF_DEBUGS 	0		/* compile-time debugging */
 
 
 /* revision history:
@@ -69,7 +69,7 @@ extern int	mkmagic(char *,int,cchar *) ;
 extern int	isValidMagic(cchar *,int,cchar *) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 #endif
 
 

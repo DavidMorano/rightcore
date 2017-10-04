@@ -4,7 +4,7 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
+#define	CF_DEBUGS	0		/* compile-time debug print-outs */
 
 
 /* revision history:

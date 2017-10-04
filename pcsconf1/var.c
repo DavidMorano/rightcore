@@ -90,7 +90,8 @@ extern int	mkpr(char *,int,const char *,const char *) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;

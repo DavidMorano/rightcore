@@ -134,7 +134,7 @@ extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
 extern int	snopenflags(char *,int,int) ;
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;

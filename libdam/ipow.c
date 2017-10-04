@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-
+#define	CF_DYNAMIC	1		/* dynamic programming */
 
 /* revision history:
 
@@ -34,6 +34,10 @@
 	Returns:
 
 	-	result (b**p)
+
+	Notes: 
+
+	Only defined for positive exponents.
 
 
 *******************************************************************************/
@@ -65,6 +69,29 @@
 /* exported subroutines */
 
 
+#if	CF_DYNAMIC
+
+LONG ipowell(int b,int n)
+{
+	LONG		r = 1 ;
+	if (n == 1) {
+	    r = b ;
+	} else if (n == 2) { /* common case */
+	    r = b*b ;
+	} else if (n > 2) {
+	    LONG	t = ipowell(b,(n/2)) ;
+	    if ((n&1) == 0) {
+		r = (t*t) ;
+	    } else {
+		r = b*(t*t) ;
+	    }
+	}
+	return r ;
+}
+/* end subroutine (ipow) */
+
+#else /* CF_DYNAMIC */
+
 LONG ipowell(int b,int p)
 {
 	LONG		r = 1 ;
@@ -75,5 +102,7 @@ LONG ipowell(int b,int p)
 	return r ;
 }
 /* end subroutine (ipowell) */
+
+#endif /* CF_DYNAMIC */
 
 

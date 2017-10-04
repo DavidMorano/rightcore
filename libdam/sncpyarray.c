@@ -14,10 +14,10 @@
 
 /*******************************************************************************
 
-	This subroutine copies the successive elements of an array of strings.
+	This subroutine copies the successive elements of an array of strings
+	to the given destination (result) buffer.
 
 	Synopsis:
-
 	int sncpyarray(rbuf,rlen,a,n)
 	char		rbuf[] ;
 	int		rlen ;
@@ -25,14 +25,12 @@
 	uint		n ;
 
 	Arguments:
-
 	rbuf		result buffer
 	rlen		size of supplied result buffer
 	a		array of strings
 	v		number of strings in array
 
 	Returns:
-
 	>=0		resulting length
 	<0		error
 

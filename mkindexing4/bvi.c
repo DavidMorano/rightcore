@@ -89,7 +89,8 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 extern char	*timestr_log(time_t,char *) ;
 #endif
 

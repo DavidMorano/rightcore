@@ -78,7 +78,7 @@ extern int	mkpr(char *,int,const char *,const char *) ;
 extern int	pathclean(char *,const char *,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;

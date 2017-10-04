@@ -9,7 +9,7 @@ webmaster
 </a>
 </p>
 <p class="center">
-Copyright (c) 2015-2017 David A.D. Morano.  All rights reserved.
+Copyright (c) 2015-%(Y) David A.D. Morano.  All rights reserved.
 </p>
 </div>
 <div class="exticons">

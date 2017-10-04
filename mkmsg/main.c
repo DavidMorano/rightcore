@@ -1443,7 +1443,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 
 	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;

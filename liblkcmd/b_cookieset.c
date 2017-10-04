@@ -30,6 +30,7 @@
         constant width font style source input language.
 
 	Synopsis:
+
 	$ cookieset <input_file> > <out.dwb>
 
 

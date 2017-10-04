@@ -136,7 +136,8 @@ extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 extern int	timestr_log(time_t,char *) ;
 #endif
 

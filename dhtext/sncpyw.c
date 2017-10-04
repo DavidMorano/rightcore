@@ -140,7 +140,7 @@ int sncpyw(char *dp,int dl,int n,...)
 	            ml = strlcpy(bp,sp,rlen) ;
 	            if (ml < rlen) bp += ml ;
 	        } else { /* emulate 'strlcpy(3c)' but w/ given length */
-	            int	sl = (int) va_arg(ap,int) ;
+	            int		sl = (int) va_arg(ap,int) ;
 		    ml = 0 ;
 		    while ((ml < (rlen-1)) && sl-- && *sp) {
 		        *bp++ = *sp++ ;
@@ -151,8 +151,9 @@ int sncpyw(char *dp,int dl,int n,...)
 	        }
 	        if (ml < rlen) {
 	            rlen -= ml ;
-	        } else
+	        } else {
 		    rs = SR_OVERFLOW ;
+		}
 	    } /* end for */
 	    va_end(ap) ;
 	}

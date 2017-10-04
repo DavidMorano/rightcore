@@ -25,7 +25,7 @@
 
 	$ qotd [<day>|<mjd> -m] [-af <afile>] [-r] [-e] [-l <qfile>] [-V]
 
-	where:
+	Arguments:
 
 	<day>		quote for this day (default today): <mon><mday>
 	-af <afile>	argument file of <day(s)>

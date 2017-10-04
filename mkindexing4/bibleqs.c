@@ -236,7 +236,7 @@ extern int	isOneOf(const int *,int) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
 

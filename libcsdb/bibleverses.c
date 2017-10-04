@@ -133,7 +133,7 @@ extern int	isNotPresent(int) ;
 extern int	isNotValid(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;

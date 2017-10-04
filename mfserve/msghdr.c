@@ -3,7 +3,7 @@
 /* messsage-header methods */
 
 
-#define	CF_DEBUGS	0		/* compile-time */
+#define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:

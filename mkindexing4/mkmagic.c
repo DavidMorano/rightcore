@@ -55,8 +55,8 @@
 /* external subroutines */
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(char *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -72,7 +72,10 @@ int mkmagic(char *rbuf,int rlen,cchar *ms)
 {
 	const int	mslen = strlen(ms) ;
 	int		rs = SR_OK ;
-	if ((mslen+2) <= rlen) {
+#if	CF_DEBUGS
+	debugprintf("mkmagic: ent rlen=%u msl=%u\n",rlen,mslen) ;
+#endif
+	if ((mslen+1) <= rlen) {
 	    char	*bp = strwcpy(rbuf,ms,-1) ;
 	    *bp++ = '\n' ;
 	    *bp++ = '\0' ;
@@ -83,6 +86,9 @@ int mkmagic(char *rbuf,int rlen,cchar *ms)
 	    if (rlen > 0) rbuf[0] = '\0' ;
 	    rs = SR_OVERFLOW ;
 	}
+#if	CF_DEBUGS
+	debugprintf("mkmagic: ret rs=%d rlen=%u\n",rs,rlen) ;
+#endif
 	return (rs >= 0) ? rlen : rs ;
 }
 /* end subroutine (mkmagic) */

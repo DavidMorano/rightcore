@@ -81,10 +81,10 @@ extern int	haslc(const char *,int) ;
 extern int	hasuc(const char *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUGN
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	debugclose() ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 #if	CF_DEBUGN

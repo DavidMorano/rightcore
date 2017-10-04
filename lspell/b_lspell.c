@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 2004-03-01, David A­D­ Morano
-
 	The program was written from scratch.
-
 
 */
 
@@ -84,6 +82,9 @@
 #define	BUFLEN		4096
 #endif
 
+#define	LOCINFO		struct locinfo
+#define	LOCINFO_FL	struct locinfo_flags
+
 
 /* external subroutines */
 
@@ -99,9 +100,8 @@ extern int	isalphalatin(int) ;
 extern int	isprintlatin(int) ;
 extern int	isdigitlatin(int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
-			const struct pivars *) ;
+extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -111,9 +111,9 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */
@@ -123,20 +123,20 @@ extern char	**environ ;
 
 /* local structures */
 
-struct locinfo_flags {
+struct xlocinfo_flags {
 	uint		stores:1 ;
 	uint		foldcase:1 ;
 	uint		uniq:1 ;
 	uint		counts:1 ;
 } ;
 
-struct locinfo {
-	struct proginfo	*pip ;
+struct xlocinfo {
+	PROGINFO	*pip ;
 	vecstr		stores ;
 	STRPACK		wstore ;
 	HDB		wdb ;
-	struct locinfo_flags	have, f, changed, final ;
-	struct locinfo_flags	open ;
+	LOCINFO_FL	have, f, changed, final ;
+	LOCINFO_FL	open ;
 } ;
 
 struct wordent {
@@ -149,20 +149,20 @@ struct wordent {
 
 int		p_lspell(int,const char **,const char **,void *) ;
 
-static int	locinfo_start(struct locinfo *,struct proginfo *) ;
-static int	locinfo_setentry(struct locinfo *,const char **,
+static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_setentry(LOCINFO *,const char **,
 			const char *,int) ;
-static int	locinfo_finish(struct locinfo *) ;
+static int	locinfo_finish(LOCINFO *) ;
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 
-static int	procopts(struct proginfo *,KEYOPT *) ;
-static int	procargs(struct proginfo *,struct arginfo *,BITS *,PARAMOPT *,
+static int	procopts(PROGINFO *,KEYOPT *) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,PARAMOPT *,
 			void *,uchar *,const char *,const char *) ;
-static int	procfile(struct proginfo *,void *,uchar *,const char *) ;
-static int	procword(struct proginfo *,const char *,int) ;
-static int	procoutcounts(struct proginfo *,void *) ;
-static int	printuniq(struct proginfo *,SHIO *,const char *,int) ;
+static int	procfile(PROGINFO *,void *,uchar *,const char *) ;
+static int	procword(PROGINFO *,const char *,int) ;
+static int	procoutcounts(PROGINFO *,void *) ;
+static int	printuniq(PROGINFO *,SHIO *,const char *,int) ;
 
 static int	mkourterms(uchar *) ;
 
@@ -232,7 +232,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -298,35 +298,29 @@ const char	*argv[] ;
 const char	*envv[] ;
 void		*contextp ;
 {
-	struct proginfo	pi, *pip = &pi ;
-	struct locinfo	li, *lip = &li ;
-	struct arginfo	ainfo ;
-
+	PROGINFO	pi, *pip = &pi ;
+	LOCINFO		li, *lip = &li ;
+	ARGINFO		ainfo ;
 	SIGMAN		sm ;
-
 	BITS		pargs ;
-
 	KEYOPT		akopts ;
-
 	PARAMOPT	aparams ;
-
 	SHIO		errfile ;
 	SHIO		outfile, *ofp = &outfile ;
-
 	unsigned char	wterms[32] ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	rs, rs1 ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_usage = FALSE ;
-	int	f_version = FALSE ;
-	int	f_help = FALSE ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		rs, rs1 ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_usage = FALSE ;
+	int		f_version = FALSE ;
+	int		f_help = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -391,7 +385,6 @@ void		*contextp ;
 	rs = paramopt_start(&aparams) ;
 	pip->open.aparams = (rs >= 0) ;
 
-	ai = 0 ;
 	ai_max = 0 ;
 	ai_pos = 0 ;
 	argr = argc ;
@@ -785,7 +778,7 @@ void		*contextp ;
 	}
 #endif /* CF_DEBUG */
 
-	memset(&ainfo,0,sizeof(struct arginfo)) ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
 	ainfo.argc = argc ;
 	ainfo.ai = ai ;
 	ainfo.argv = argv ;
@@ -803,7 +796,7 @@ void		*contextp ;
 	    ofname = STDOUTFNAME ;
 
 	if ((rs = shio_open(ofp,ofname,"wct",0666)) >= 0) {
-	    struct arginfo	*aip = &ainfo ;
+	    ARGINFO	*aip = &ainfo ;
 	    PARAMOPT	*app = &aparams ;
 	    const char	*afn = afname ;
 	    const char	*ifn = ifname ;
@@ -944,8 +937,8 @@ int	sn ;
 
 
 static int locinfo_start(lip,pip)
-struct locinfo	*lip ;
-struct proginfo	*pip ;
+LOCINFO	*lip ;
+PROGINFO	*pip ;
 {
 	const int	n = (20*1024) ;
 	const int	ssize = (10*1024) ;
@@ -954,7 +947,7 @@ struct proginfo	*pip ;
 
 	if (lip == NULL) return SR_FAULT ;
 
-	memset(lip,0,sizeof(struct locinfo)) ;
+	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
 
 	if ((rs = strpack_start(&lip->wstore,ssize)) >= 0) {
@@ -969,7 +962,7 @@ struct proginfo	*pip ;
 
 
 static int locinfo_finish(lip)
-struct locinfo	*lip ;
+LOCINFO	*lip ;
 {
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -1011,7 +1004,7 @@ struct locinfo	*lip ;
 
 
 int locinfo_setentry(lip,epp,vp,vl)
-struct locinfo	*lip ;
+LOCINFO	*lip ;
 const char	**epp ;
 const char	vp[] ;
 int		vl ;
@@ -1051,11 +1044,11 @@ int		vl ;
 
 
 static int locinfo_storeword(lip,wp,wl)
-struct locinfo	*lip ;
+LOCINFO	*lip ;
 const char	*wp ;
 int		wl ;
 {
-	struct proginfo	*pip = lip->pip ;
+	PROGINFO	*pip = lip->pip ;
 
 	HDB		*dbp = &lip->wdb ;
 	HDB_DATUM	k, v ;
@@ -1118,7 +1111,7 @@ int		wl ;
 
 
 static int usage(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int	rs = SR_OK ;
 	int	wlen = 0 ;
@@ -1142,10 +1135,10 @@ struct proginfo	*pip ;
 
 /* process the program ako-options */
 static int procopts(pip,kop)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 KEYOPT		*kop ;
 {
-	struct locinfo	*lip = pip->lip ;
+	LOCINFO	*lip = pip->lip ;
 
 	int	rs = SR_OK ;
 	int	c = 0 ;
@@ -1229,8 +1222,8 @@ KEYOPT		*kop ;
 
 
 static int procargs(pip,aip,bop,app,ofp,wterms,ifname,afname)
-struct proginfo	*pip ;
-struct arginfo	*aip ;
+PROGINFO	*pip ;
+ARGINFO		*aip ;
 BITS		*bop ;
 PARAMOPT	*app ;
 void		*ofp ;
@@ -1238,8 +1231,8 @@ uchar		wterms[] ;
 const char	*ifname ;
 const char	*afname ;
 {
-	int	rs = SR_OK ;
-	int	pan = 0 ;
+	int		rs = SR_OK ;
+	int		pan = 0 ;
 	const char	*cp ;
 
 	if (rs >= 0) {
@@ -1249,11 +1242,13 @@ const char	*afname ;
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
 	        f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
-	        if (! f) continue ;
-
-	        cp = aip->argv[ai] ;
-	        pan += 1 ;
-	        rs = procfile(pip,ofp,wterms,cp) ;
+	        if (f) {
+	            cp = aip->argv[ai] ;
+		    if (cp[0] != '\0') {
+	                pan += 1 ;
+	                rs = procfile(pip,ofp,wterms,cp) ;
+		    }
+		}
 
 	        if ((rs >= 0) && if_exit) rs = SR_EXIT ;
 	        if ((rs >= 0) && if_int) rs = SR_INTR ;
@@ -1335,12 +1330,12 @@ const char	*afname ;
 
 
 static int procfile(pip,ofp,wterms,fname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 void		*ofp ;
 unsigned char	wterms[] ;
 const char	fname[] ;
 {
-	struct locinfo	*lip = pip->lip ;
+	LOCINFO	*lip = pip->lip ;
 
 	FIELD	fsb ;
 
@@ -1433,9 +1428,9 @@ const char	fname[] ;
 /* end subroutine (procfile) */
 
 
-static int procword(struct proginfo *pip,const char *wp,int wl)
+static int procword(PROGINFO *pip,const char *wp,int wl)
 {
-	struct locinfo	*lip = pip->lip ;
+	LOCINFO	*lip = pip->lip ;
 
 	int	rs ;
 
@@ -1446,9 +1441,9 @@ static int procword(struct proginfo *pip,const char *wp,int wl)
 /* end subroutine (procword) */
 
 
-static int procoutcounts(struct proginfo *pip,void *ofp)
+static int procoutcounts(PROGINFO *pip,void *ofp)
 {
-	struct locinfo	*lip = pip->lip ;
+	LOCINFO	*lip = pip->lip ;
 
 	HDB		*dbp ;
 	HDB_CUR		cur ;
@@ -1483,15 +1478,14 @@ static int procoutcounts(struct proginfo *pip,void *ofp)
 
 
 static int printuniq(pip,ofp,wp,wl)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 SHIO		*ofp ;
 const char	*wp ;
 int		wl ;
 {
-	struct locinfo	*lip = pip->lip ;
-
-	int	rs ;
-	int	wlen = 0 ;
+	LOCINFO		*lip = pip->lip ;
+	int		rs ;
+	int		wlen = 0 ;
 
 	if ((rs = locinfo_storeword(lip,wp,wl)) == 0) {
 	    rs = shio_printline(ofp,wp,wl) ;

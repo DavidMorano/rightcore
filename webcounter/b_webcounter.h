@@ -3,7 +3,7 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-03-02, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
 */
@@ -96,9 +96,6 @@
 #define	PIDFNAME	"run/webcounter"		/* mutex PID file */
 #define	LOGFNAME	"var/log/webcounter"		/* activity log */
 #define	LOCKFNAME	"spool/locks/webcounter"	/* lock mutex file */
-
-#define	WEBCOUNTER_VARBASE	"var"
-#define	WEBCOUNTER_VARLOG	"var/log"
 
 #define	LOGSIZE		(80*1024)
 

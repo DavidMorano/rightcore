@@ -1,2 +1,2 @@
 const char calyear_makedate[] =
-"@(#)calyear                 170823_0446:53_USEDT Rightcore Network Services" ;
+"@(#)calyear                 171001_0530:17_USEDT Rightcore Network Services" ;

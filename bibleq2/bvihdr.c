@@ -3,7 +3,7 @@
 /* index for bible-verse file */
 
 
-#define	CF_DEBUG 	0		/* run-time debugging */
+#define	CF_DEBUGS 	0		/* compile-time debugging */
 
 
 /* revision history:
@@ -69,7 +69,8 @@ extern int	mkmagic(char *,int,cchar *) ;
 extern int	isValidMagic(cchar *,int,cchar *) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 
@@ -111,6 +112,10 @@ int bvihdr(BVIHDR *ep,int f,char *hbuf,int hlen)
 	int		bl = hlen ;
 	const char	*magicstr = BVIHDR_MAGICSTR ;
 	char		*bp = hbuf ;
+
+#if	CF_DEBUGS
+	debugprintf("bvihdr: ent f=%u ms=%u hlen=%u\n",f,magicsize,hlen) ;
+#endif
 
 	if (ep == NULL) return SR_FAULT ;
 	if (hbuf == NULL) return SR_FAULT ;
@@ -166,6 +171,10 @@ int bvihdr(BVIHDR *ep,int f,char *hbuf,int hlen)
 	    } /* end if (isValidMagic) */
 	} else { /* write */
 
+#if	CF_DEBUGS
+	    debugprintf("bvihdr: write ms=%u bl=%u\n",magicsize,bl) ;
+#endif
+
 	    if (bl >= (magicsize + 4)) {
 	        if ((rs = mkmagic(bp,magicsize,magicstr)) >= 0) {
 	            bp += magicsize ;
@@ -197,10 +206,14 @@ int bvihdr(BVIHDR *ep,int f,char *hbuf,int hlen)
 	        rs = SR_OVERFLOW ;
 	    }
 
+#if	CF_DEBUGS
+	    debugprintf("bvihdr: write rs=%d\n",rs) ;
+#endif
+
 	} /* end if (read-write) */
 
 #if	CF_DEBUGS
-	debugprintf("bvidu: ret f=%d rs=%d\n",f,rs) ;
+	debugprintf("bvidu: ret rs=%d ret=%u\n",rs,(bp-hbuf)) ;
 #endif
 
 	return (rs >= 0) ? (bp - hbuf) : rs ;

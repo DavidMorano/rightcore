@@ -1,22 +1,23 @@
 /* main */
 
 
-#define	CF_DEBUGS	0		/* compile-time */
+#define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* run-time */
 #define	CF_NOSEND	1
 
 
-/************************************************************************
+/*******************************************************************************
  *									
 	= 94-01-06, David A­D­ Morano 
 
 	This subroutine was adopted from the 'main' subroutine of the
-	old SENDMAIL program.
+	old PCS SENDMAIL program.
 
 *
-************************************************************************/
+*******************************************************************************/
 
 
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -44,13 +45,12 @@
 #include	<userinfo.h>
 #include	<pcsconf.h>
 #include	<vecstr.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"prompt.h"
 #include	"header.h"
-
 
 
 /* local subroutine defines */
@@ -87,10 +87,9 @@ extern struct userinfo	u ;
 static int	popt_store() ;
 
 
-
 /* local static data */
 
-char	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"TMPDIR",
 	"TERM",
@@ -113,7 +112,7 @@ char	*argopts[] = {
 
 /* program options */
 
-char	*progopts[] = {
+static const char	*progopts[] = {
 	"verify",
 	"filecopy",
 	"edit",

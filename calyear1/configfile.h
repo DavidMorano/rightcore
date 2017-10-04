@@ -13,11 +13,9 @@
 #include	<vecstr.h>
 
 
-
 /* object defines */
 
 #define	CONFIGFILE		struct configfile
-
 
 
 struct configfile {
@@ -70,7 +68,6 @@ struct configfile {
 } ;
 
 
-
 #ifndef	CONFIGFILE_MASTER
 
 #ifdef	__cplusplus
@@ -86,8 +83,6 @@ extern int configfile_finish(CONFIGFILE *) ;
 
 #endif /* CONFIGFILE_MASTER */
 
-
 #endif /* CONFIGFILE_INCLUDE */
-
 
 

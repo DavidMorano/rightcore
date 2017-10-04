@@ -1022,8 +1022,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,void *ofp,cchar *afn)
 	            lbuf[len] = '\0' ;
 
 	            if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                lbuf[(cp-lbuf)+cl] = '\0' ;
 	                if (cp[0] != '#') {
+	                    lbuf[(cp-lbuf)+cl] = '\0' ;
 	                    pan += 1 ;
 	                    rs = procfile(pip,ofp,cp) ;
 	                    wlen += rs ;

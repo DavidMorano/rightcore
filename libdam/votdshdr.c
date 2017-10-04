@@ -3,7 +3,7 @@
 /* header for VOTDs shared-memory segment */
 
 
-#define	CF_DEBUGS 	0		/* run-time debugging */
+#define	CF_DEBUGS 	0		/* compile-time debugging */
 
 
 /* revision history:

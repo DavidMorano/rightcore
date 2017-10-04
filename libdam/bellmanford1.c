@@ -1,7 +1,7 @@
-/* bellmanford-1 */
+/* dijkstra-1 */
 /* lang=C++11 */
 
-/* Bellman-Ford algorithm for shortest path through graph */
+/* Dijkstra (shortest path through graph) */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -18,14 +18,18 @@
 
 /*******************************************************************************
 
-        This is better than Dijjstra because this algorithm can handle negative
-        edge weights and will detect an overall negative path length.
+        This executes the Dijjstra algorithm to find the sorted path through a
+        weighted graph.
+
+
+	Fatures:
+
+	+ pretty close to optimal speed (no queue, just linear search)
+
 
 	Complexity:
 
-	time worst	O ( |v| · |e| )
-	time best	O ( |e| )
-	space		O ( |v| )
+	O ( |v| + |v|log|e| )
 
 
 *******************************************************************************/
@@ -33,7 +37,7 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<climits>
+#include	<limits.h>
 #include	<cinttypes>
 #include	<new>
 #include	<initializer_list>
@@ -41,10 +45,13 @@
 #include	<functional>
 #include	<algorithm>
 #include	<vector>
+#include	<iostream>
+#include	<iomanip>
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"bellmanford1.hh"
+#include	"graph.hh"
+#include	"dijkstra1.hh"
 
 
 /* local defines */
@@ -72,67 +79,87 @@ typedef vector<list<edge_t>>	edges_t ;
 typedef list<edge_t>::iterator	edgeit_t ;
 
 
-/* forward references */
+/* forward refereces */
+
+static int minvertex(bool *,res_t *,int) ;
 
 
 /* exported subroutines */
 
 
-int bellmanford1(res_t *resp,edges_t &edges,int vertices,int vstart)
+int dijkstra1(res_t *resp,edges_t &edges,int vertices,int vstart)
 {
-	edgeit_t	elit ; /* edge-list-iterator */
-	edgeit_t	end ; /* edge-list-iterator */
-	const int	ne = edges.size() ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		u ;
+	bool		*visited ;
+	if ((visited = new(nothrow) bool [vertices+1]) != NULL) {
+	    edgeit_t	elit ; /* edge-list-iterator */
+	    edgeit_t	end ; /* edge-list-iterator */
+	    const int	ne = edges.size() ;
+	    int		i ;
 
-	for (i = 0 ; i < vertices ; i += 1) {
-	    resp[i].dist = INT_MAX ;
-	    resp[i].prev = -1 ;
-	}
+	    for (i = 0 ; i < vertices ; i += 1) visited[i] = false ;
 
-	resp[vstart].dist = 0 ;
-
-	for (i = 0 ; i < (vertices-1) ; i += 1) {
-	    int		f_nochange = TRUE ;
-	    for (u = 0 ; u < ne ; u += 1) { /* edges(u,v) */
-	        elit = edges[u].begin() ; /* this is 'list.begin()' */
-	        end = edges[u].end() ; /* this is 'list.end()' */
-
-	        while (elit != end) {
-	            if (resp[u].dist != INT_MAX) {
-	                const int	d = resp[u].dist ;
-	                const int	w = (*elit).weight ;
-	                const int	v = (*elit).dst ; /* dst vertex */
-
-	                if ((d+w) < resp[v].dist) {
-	                    resp[v].dist = (d+w) ;
-	                    resp[v].prev = u ;
-			    f_nochange = FALSE ;
-	                }
-
-	            } /* end if (distance to current vertex not INF) */
-	            elit++ ;
-	        } /* end while */
-	    } /* end for */
-	    if (f_nochange) break ;
-	} /* end for */
-
-/* this is the famous "extra cycle" to check for negative paths */
-
-	for (u = 0 ; u < ne ; u += 1) {
-	    const int	d = resp[u].dist ;
-	    const int	v = (*elit).dst ; /* dst vertex */
-	    const int	w = (*elit).weight ;
-	    if ((d+w) < resp[v].dist) {
-	        rs = SR_LOOP ;
+	    for (i = 0 ; i < vertices ; i += 1) {
+	        resp[i].dist = INT_MAX ;
+	        resp[i].prev = -1 ;
 	    }
-	    if (rs < 0) break ;
-	} /* end for */
 
+	    resp[vstart].dist = 0 ;
+
+	    for (i = 0 ; i < (vertices-1) ; i += 1) {
+	        const int	u = minvertex(visited,resp,vertices) ;
+		    cout << "u=" << u << endl ;
+	        if ((u >= 0) && (u < ne)) {
+		    cout << "u=go" << endl ;
+	            elit = edges[u].begin() ; /* this is 'list.begin()' */
+	            end = edges[u].end() ; /* this is 'list.end()' */
+
+		    visited[u] = true ;
+	            while (elit != end) {
+	                const int	v = (*elit).dst ; /* dst vertex */
+		    cout << "v=" << v << endl ;
+	                if ((! visited[v]) && (resp[u].dist != INT_MAX)) {
+	                    const int	d = resp[u].dist ;
+	                    const int	w = (*elit).weight ;
+
+	                    if ((d+w) < resp[v].dist) {
+	                        resp[v].dist = (d+w) ;
+	                        resp[v].prev = u ;
+	                    }
+
+	                } /* end if (distance to current vertex not INF) */
+	                elit++ ;
+	            } /* end while */
+
+	        } /* end block */
+	    } /* end for */
+
+	} else {
+	    rs = SR_NOMEM ;
+	}
 	return rs ;
 }
-/* end subroutine (bellmanford1) */
+/* end subroutine (dijkstra1) */
+
+
+/* local subroutines */
+
+
+static int minvertex(bool *visited,res_t *resp,int n)
+{
+	int	min = INT_MAX ;
+	int	v = -1 ;
+	int	i ;
+   	for (i = 0 ; i < n ; i += 1) {
+            if (! visited[i]) {
+		if (resp[i].dist <= min) {
+		    min = resp[i].dist ;
+		    v = i ;
+		}
+	    }
+	}
+   	return v ;
+}
+/* end subroutine (minvertex) */
 
 

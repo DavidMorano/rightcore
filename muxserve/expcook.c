@@ -27,6 +27,14 @@
 	The left brace character is HEX '\x7b', the right brace character is
 	HEX '\x7d'.  Deal with it!
 
+	Cookies take the form:
+
+	$(<key>)
+
+	Where:
+
+	<key>		is the key to look-up
+
 
 *******************************************************************************/
 
@@ -201,7 +209,7 @@ int expcook_curend(EXPCOOK *ecp,EXPCOOK_CUR *curp)
 /* end subroutine (expcook_curend) */
 
 
-int expcook_enum(EXPCOOK *ecp,EXPCOOK_CUR *curp,char rbuf[],int rlen)
+int expcook_enum(EXPCOOK *ecp,EXPCOOK_CUR *curp,char *rbuf,int rlen)
 {
 	int		rs ;
 	int		vl ;
@@ -241,7 +249,7 @@ int expcook_findkey(EXPCOOK *ecp,cchar *kp,int kl,cchar **rpp)
 /* end subroutine (expcook_findkey) */
 
 
-int expcook_delkey(EXPCOOK *ecp,cchar key[])
+int expcook_delkey(EXPCOOK *ecp,cchar *key)
 {
 	int		rs ;
 
@@ -256,7 +264,7 @@ int expcook_delkey(EXPCOOK *ecp,cchar key[])
 /* end subroutine (expcook_delkey) */
 
 
-int expcook_exp(EXPCOOK *ecp,int wch,char rbuf[],int rlen,cchar sp[],int sl)
+int expcook_exp(EXPCOOK *ecp,int wch,char *rbuf,int rlen,cchar *sp,int sl)
 {
 	BUFFER		bo ;
 	int		rs ;
@@ -295,8 +303,9 @@ int expcook_exp(EXPCOOK *ecp,int wch,char rbuf[],int rlen,cchar sp[],int sl)
 	        rs1 = buffer_finish(&bo) ;
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (buffer) */
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("expcook_exp: ret rs=%d bl=%u\n",rs,bl) ;
@@ -307,7 +316,7 @@ int expcook_exp(EXPCOOK *ecp,int wch,char rbuf[],int rlen,cchar sp[],int sl)
 /* end subroutine (expcook_exp) */
 
 
-int expcook_expbuf(EXPCOOK *ecp,int wch,BUFFER *bufp,cchar sp[],int sl)
+int expcook_expbuf(EXPCOOK *ecp,int wch,BUFFER *bufp,cchar *sp,int sl)
 {
 	const int	sch = '%' ;
 	int		rs = SR_OK ;

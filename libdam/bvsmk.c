@@ -126,7 +126,8 @@ extern int	filebuf_writealign(FILEBUF *,int,uint) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;

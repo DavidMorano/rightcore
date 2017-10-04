@@ -25,7 +25,7 @@
 
 	$ temp[<temp(s)>] [-af <afile>] [-V]
 
-	where:
+	Arguments:
 
 	<temp(s)>	form: <v>[c|f]
 	-af <afile>	argument file of <temp(s)>

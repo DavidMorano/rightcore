@@ -60,11 +60,11 @@ extern int	iseol(int) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS || CF_DEBUGN
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
-extern int	debugprinthexblock(const char *,int,const void *,int) ;
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 #if	CF_DEBUGN

@@ -79,8 +79,8 @@
 
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	bufprintf(char *,int,const char *,...) ;
+extern int	matstr(cchar **,cchar *,int) ;
+extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	msleep(int) ;
 extern int	isOneOf(const int *,int) ;
 
@@ -89,8 +89,8 @@ extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern char	*strnchr(const char *,int,int) ;
-extern char	*strnrchr(const char *,int,int) ;
+extern char	*strnchr(cchar *,int,int) ;
+extern char	*strnrchr(cchar *,int,int) ;
 extern char	*timestr_std(time_t,char *) ;
 extern char	*timestr_msg(time_t,char *) ;
 
@@ -112,8 +112,8 @@ extern char	*timestr_msg(time_t,char *) ;
 
 int cgi_start(CGI *op,SHIO *ofp)
 {
-	int	rs = SR_OK ;
-	int	wlen = 0 ;
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (ofp == NULL) return SR_FAULT ;
@@ -132,10 +132,9 @@ int cgi_start(CGI *op,SHIO *ofp)
 /* end subroutine (cgi_start) */
 
 
-int cgi_finish(op)
-CGI		*op ;
+int cgi_finish(CGI *op)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (op->magic != CGI_MAGIC) return SR_NOTOPEN ;
@@ -149,8 +148,8 @@ CGI		*op ;
 
 int cgi_eoh(CGI *op)
 {
-	int	rs ;
-	int	wlen = 0 ;
+	int		rs ;
+	int		wlen = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->magic != CGI_MAGIC) return SR_NOTOPEN ;
 	rs = shio_putc(op->ofp,CH_NL) ;
@@ -188,13 +187,13 @@ int cgi_hdrdate(CGI *op,time_t t)
 /* end subroutine (cgi_hdrdate) */
 
 
-int cgi_hdr(CGI *op,const char *kp,const char *vp,int vl)
+int cgi_hdr(CGI *op,cchar *kp,cchar *vp,int vl)
 {
-	SHIO	*ofp ;
+	SHIO		*ofp ;
 	const int	klen = KBUFLEN ;
-	int	rs ;
-	int	wlen = 0 ;
-	char	kbuf[KBUFLEN+1] ;
+	int		rs ;
+	int		wlen = 0 ;
+	char		kbuf[KBUFLEN+1] ;
 #if	CF_DEBUGS
 	debugprintf("cgi_hdr: ent k=%s v=>%t<\n",kp,vp,vl) ;
 #endif
@@ -218,13 +217,10 @@ int cgi_hdr(CGI *op,const char *kp,const char *vp,int vl)
 /* end subroutine (cgi_hdr) */
 
 
-int cgi_write(op,lbuf,llen)
-CGI		*op ;
-const void	*lbuf ;
-int		llen ;
+int cgi_write(CGI *op,const void *lbuf,int llen)
 {
-	int	rs ;
-	int	wlen = 0 ;
+	int		rs ;
+	int		wlen = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (lbuf == NULL) return SR_FAULT ;
 	if (op->magic != CGI_MAGIC) return SR_NOTOPEN ;
@@ -236,13 +232,10 @@ int		llen ;
 /* end subroutine (cgi_write) */
 
 
-int cgi_printline(op,lbuf,llen)
-CGI		*op ;
-const char	lbuf[] ;
-int		llen ;
+int cgi_printline(CGI *op,cchar *lbuf,int llen)
 {
-	int	rs ;
-	int	wlen = 0 ;
+	int		rs ;
+	int		wlen = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (lbuf == NULL) return SR_FAULT ;
 	if (op->magic != CGI_MAGIC) return SR_NOTOPEN ;
@@ -254,10 +247,10 @@ int		llen ;
 /* end subroutine (cgi_printline) */
 
 
-int cgi_printf(CGI *op,const char fmt[],...)
+int cgi_printf(CGI *op,cchar *fmt,...)
 {
-	va_list	ap ;
-	int	rs ;
+	va_list		ap ;
+	int		rs ;
 	va_begin(ap,fmt) ;
 	rs = cgi_vprintf(op,fmt,ap) ;
 	va_end(ap) ;
@@ -266,10 +259,10 @@ int cgi_printf(CGI *op,const char fmt[],...)
 /* end subroutine (cgi_printf) */
 
 
-int cgi_vprintf(CGI *op,const char *fmt,va_list ap)
+int cgi_vprintf(CGI *op,cchar *fmt,va_list ap)
 {
-	int	rs ;
-	int	wlen = 0 ;
+	int		rs ;
+	int		wlen = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->magic != CGI_MAGIC) return SR_NOTOPEN ;
 	rs = shio_vprintf(op->ofp,fmt,ap) ;
@@ -280,12 +273,10 @@ int cgi_vprintf(CGI *op,const char *fmt,va_list ap)
 /* end subroutine (cgi_vprintf) */
 
 
-int cgi_putc(op,ch)
-CGI		*op ;
-int		ch ;
+int cgi_putc(CGI *op,int ch)
 {
-	int	rs ;
-	int	wlen = 0 ;
+	int		rs ;
+	int		wlen = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->magic != CGI_MAGIC) return SR_NOTOPEN ;
 	rs = shio_putc(op->ofp,ch) ;

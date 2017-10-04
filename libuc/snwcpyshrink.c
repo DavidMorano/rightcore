@@ -115,6 +115,3 @@ int snwcpyshrink(char *dbuf,int dlen,cchar *sp,int sl)
 #endif /* CF_ONEOVER */
 
 
-/* local subroutines */
-
-

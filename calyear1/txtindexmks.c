@@ -193,7 +193,8 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 extern char	*strwset(char *,int,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 #if	CF_DEBUGS && CF_DEBUGEIGEN

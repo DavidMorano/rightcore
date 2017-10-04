@@ -72,6 +72,7 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 #LD= $(CC)
 #LD= cc
@@ -153,7 +154,7 @@ OBJ05=
 OBJ06= 
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
-OBJ09= 
+OBJ09= querystring.o
 OBJ10=
 OBJ11=
 OBJ12=
@@ -308,5 +309,8 @@ ipasswd.o:		ipasswd.c ipasswd.h
 lastlogfile.o:		lastlogfile.c lastlogfile.h
 
 tmpx.o:			tmpx.c tmpx.h
+
+querystring.o:		querystring.cc querystring.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) querystring.cc
 
 

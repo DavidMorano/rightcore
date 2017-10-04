@@ -52,7 +52,8 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;

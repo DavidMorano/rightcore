@@ -283,7 +283,7 @@ OBJ117= msfile.o msfilee.o ebuf.o nodedb.o clusterdb.o kinfo.o nulstr.o
 OBJ118= cksum.o sha1.o gecos.o pwfile.o ipasswd.o ema.o fsi.o
 OBJ119= q.o plainq.o pq.o cpq.o cq.o piq.o ciq.o fifostr.o fifoitem.o charq.o 
 
-OBJ120= kvsfile.o paramfile.o strtab.o strstore.o svcfile.o
+OBJ120= kvsfile.o paramfile.o strtab.o strstore.o svcfile.o querystring.o
 OBJ121= mailmsgmatenv.o mailmsgmathdr.o mailmsgfrom.o mailmsgstage.o
 OBJ122= mailbox.o mailbox_getfrom.o
 OBJ123= mailmsg.o mailmsg_loadmb.o mailmsg_loadfile.o mailmsg_loadfd.o
@@ -1025,6 +1025,9 @@ osetint.o:		osetint.cc osetint.h
 
 osetstr.o:		osetstr.cc osetstr.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) osetstr.cc
+
+querystring.o:		querystring.cc querystring.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) querystring.cc
 
 setstr.o:		setstr.c setstr.h
 

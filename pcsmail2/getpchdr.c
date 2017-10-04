@@ -1,7 +1,7 @@
 /* getpchdr */
 
 
-#define	CF_DEBUG	0
+#define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /************************************************************************
@@ -27,21 +27,21 @@
  * forks off the rest of sendmail in the background
 
 
-************************************************************************/
+*******************************************************************************/
 
 
+#include	<envstandards.h>
 
 #include	<string.h>
 #include	<signal.h>
 #include	<stdio.h>
 
 #include	<logfile.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"header.h"
-
 
 
 
@@ -114,6 +114,8 @@ char	*argv[];
 	iswait = 1;
 	strcpy( message, "  " );
 
+	setsig( SIG_IGN );
+
 	if (fork() != 0)  exit(0) ;
 
 	runcmd = YES ;
@@ -127,6 +129,5 @@ VOID pcusage()
 	printf("%s: usage %s [+/-del] [+/-not] [+/-ver] name message\n",
 		comm_name, comm_name);
 }
-
 
 

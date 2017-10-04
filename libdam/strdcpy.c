@@ -138,7 +138,7 @@ static char *strdcpy(char *dp,int dl,int n,...)
 	    const char	*sp ;
 	    va_begin(ap,n) ;
 	    for (i = 0 ; (dl > 0) && (i < n) ; i += 1) {
-	        sp = (const char *) va_arg(ap,char *) ;
+	        sp = (cchar *) va_arg(ap,char *) ;
 	        while ((dl > 0) && (sp[0] != '\0')) {
 		    *dp++ = *sp++ ;
 		    dl -= 1 ;

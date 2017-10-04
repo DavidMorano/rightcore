@@ -1,2 +1,2 @@
 const char pcs_makedate[] =
-"@(#)pcs                     170823_2001:29_USEDT Rightcore Network Services" ;
+"@(#)pcs                     170929_2231:16_USEDT Rightcore Network Services" ;

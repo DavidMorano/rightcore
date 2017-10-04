@@ -102,8 +102,9 @@ int paramopt_loadone(PARAMOPT *php,cchar *sp,int sl)
 	        rs1 = nulstr_finish(&kn) ;
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (nulstr) */
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? i : rs ;
 }

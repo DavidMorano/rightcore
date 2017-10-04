@@ -45,9 +45,9 @@
 /* external subroutines */
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 extern int	nprintf(const char *,const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
 #endif
 
 

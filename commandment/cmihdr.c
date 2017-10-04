@@ -3,7 +3,7 @@
 /* index for Commandment-entry file */
 
 
-#define	CF_DEBUG 	0		/* run-time debugging */
+#define	CF_DEBUGS 	0		/* compile-time debugging */
 
 
 /* revision history:
