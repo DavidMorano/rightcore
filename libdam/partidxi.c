@@ -21,15 +21,18 @@
 	Partition an array of integers.
 
 	Synopsis:
+
 	int partidxi(int *a,int first,int last,int idx)
 
 	Arguments:
+
 	a		array
 	fist		starting index
 	last		over-last index
 	idx		index to use as pivot
 
 	Returns:
+
 	pi		resulting pivot index
 
 

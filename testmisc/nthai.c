@@ -21,15 +21,18 @@
 	Find nth element (by index) of an array of numbers.
 
 	Synopsis:
+
 	int nthai(int *a,int ri,int rl,int n)
 
 	Arguments:
+
 	a	array
 	ri	low
 	rl	high
 	n	n-th smallest element
 
 	Returns:
+
 	-	
 
 

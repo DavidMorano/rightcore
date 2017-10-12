@@ -25,7 +25,6 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-
 /* local defines */
 
 #define	TO_AGAIN	60		/* sixty (60) seconds */
@@ -39,10 +38,7 @@ extern int	msleep(int) ;
 /* exported subroutines */
 
 
-int uc_sigtimedwait(ssp,sip,tsp)
-const sigset_t	*ssp ;
-siginfo_t	*sip ;
-const struct timespec	*tsp ;
+int uc_sigtimedwait(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
 {
 	int		rs ;
 	int		to_again = TO_AGAIN ;
@@ -71,10 +67,7 @@ const struct timespec	*tsp ;
 /* end subroutine (uc_sigtimedwait) */
 
 
-int uc_sigwaitinfoto(ssp,sip,tsp)
-const sigset_t	*ssp ;
-siginfo_t	*sip ;
-const struct timespec	*tsp ;
+int uc_sigwaitinfoto(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
 {
 	return uc_sigtimedwait(ssp,sip,tsp) ;
 }

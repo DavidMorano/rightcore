@@ -176,6 +176,7 @@ int uc_setus()
 }
 /* end subroutine (uc_setus) */
 
+
 int uc_endus()
 {
 	GETUS		*uip = &getus_data ;
@@ -198,6 +199,7 @@ int uc_endus()
 	return rs ;
 }
 /* end subroutine (uc_endus) */
+
 
 int uc_getus(char *rbuf,int rlen)
 {

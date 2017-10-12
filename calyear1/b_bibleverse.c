@@ -1047,8 +1047,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            shio_printf(pip->efp,"%s: qtype=%s(%u)\n",
 	                pip->progname,qtypes[v],v) ;
 	        }
-	    } else
+	    } else {
 		rs = SR_INVALID ;
+	    }
 	}
 
 #if	CF_DEBUG

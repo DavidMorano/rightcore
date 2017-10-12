@@ -22,15 +22,18 @@
 	We perform a "quick-select" function on an array of integers.
 
 	Synopsis:
+
 	int quickselecti(int *a,int first,int last,int k)
 
 	Arguments:
+
 	a		array of integers to sort
 	first		index of first element in range to sort
 	last		index of over-last element of range to sort
 	k		index of pivot element
 
 	Returns:
+
 	-		inconsequential at this time
 
 

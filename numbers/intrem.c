@@ -18,15 +18,18 @@
 	two given numbers.
 
 	Synopsis:
+
 	int irem(v,m)
 	int	v ;
 	int	m ;
 
 	Arguments:
+
 	v	number to find the remainder for
 	m	the modulus to use in the calculation
 
 	Returns:
+
 	-	the remainder value
 
 

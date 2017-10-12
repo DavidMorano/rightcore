@@ -19,14 +19,17 @@
 /*******************************************************************************
 
 	Synopsis:
+
 	int readline(ifstream &is,char *lbuf,int llen)
 
 	Arguments:
+
 	is		reference to stream (file)
 	lbuf		buffer to receive
 	llen		length of supplied buffer
 
 	Returns:
+
 	-		lenght of bytes read
 
 

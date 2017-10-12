@@ -24,14 +24,17 @@
 	We swap two elements in an array of integers.
 
 	Synopsis:
+
 	void arrswapi(int *a,int i1,int i2)
 
 	Arguments:
+
 	a	array
 	i1	element to swap
 	i2	element to swap
 
 	Returns:
+
 	-
 
 

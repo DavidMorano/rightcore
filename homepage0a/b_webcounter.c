@@ -1928,22 +1928,22 @@ static int procqs(PROGINFO *pip,cchar *qs)
 
 	                if ((ci.dbp != NULL) && (ci.cnp != NULL)) {
 	    		    cchar	*basedname = lip->basedname ;
-	    		    char	dbname[MAXPATHLEN + 1] ;
+	    		    char	dbfname[MAXPATHLEN + 1] ;
 
 	                    if (pip->debuglevel > 0) {
 	                        fmt = "%s: processing query-string\n" ;
 	                        shio_printf(pip->efp,fmt,pn) ;
 	                    }
 
-	                    rs = mkpath2w(dbname,basedname,ci.dbp,ci.dbl) ;
+	                    rs = mkpath2w(dbfname,basedname,ci.dbp,ci.dbl) ;
 
 	                    if (pip->debuglevel > 0) {
 	                        fmt = "%s: qsdb=%s\n" ;
-	                        shio_printf(pip->efp,fmt,pn,dbname) ;
+	                        shio_printf(pip->efp,fmt,pn,dbfname) ;
 	                    }
 
 	                    if (rs >= 0) {
-	                        rs = procqser(pip,dbname,ci.cnp,ci.cnl,act) ;
+	                        rs = procqser(pip,dbfname,ci.cnp,ci.cnl,act) ;
 	                    }
 
 	                } /* end if (have) */

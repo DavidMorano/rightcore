@@ -1,3 +1,6 @@
+/* main (strchr) */
+
+
 #include	<envstandards.h>
 #include	<string.h>
 #include	<stdio.h>

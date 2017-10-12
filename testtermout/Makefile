@@ -336,6 +336,6 @@ fifostr.o:		fifostr.c fifostr.h
 hdb.o:			hdb.c hdb.h
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 

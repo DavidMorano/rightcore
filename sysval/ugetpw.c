@@ -90,10 +90,10 @@ struct ugetpw_head {
 	UPWCACHE	*pwc ;		/* PW cache (allocated) */
 	int		max ;
 	int		ttl ;
-	volatile int	waiters ;
-	volatile int	f_capture ;	/* capture flag */
 	volatile int	f_init ;	/* race-condition, blah, blah */
 	volatile int	f_initdone ;
+	volatile int	f_capture ;	/* capture flag */
+	volatile int	waiters ;
 } ;
 
 
@@ -214,7 +214,7 @@ int ugetpw_name(struct passwd *pwp,char *pwbuf,int pwlen,const char *un)
 	            UPWCACHE	*pwcp = (UPWCACHE *) uip->pwc ;
 
 #if	CF_DEBUGS
-	debugprintf("ugetpw_name: upwcache_lookup()\n") ;
+		    debugprintf("ugetpw_name: upwcache_lookup()\n") ;
 #endif
 
 	            rs = upwcache_lookup(pwcp,pwp,pwbuf,pwlen,un) ;
@@ -360,22 +360,6 @@ static int ugetpw_capend(UGETPW *uip)
 /* end subroutine (ugetpw_capend) */
 
 
-static void ugetpw_atforkbefore()
-{
-	UGETPW		*uip = &ugetpw_data ;
-	ptm_lock(&uip->m) ;
-}
-/* end subroutine (ugetpw_atforkbefore) */
-
-
-static void ugetpw_atforkafter()
-{
-	UGETPW		*uip = &ugetpw_data ;
-	ptm_unlock(&uip->m) ;
-}
-/* end subroutine (ugetpw_atforkafter) */
-
-
 static int ugetpw_begin(UGETPW *uip)
 {
 	int		rs = SR_OK ;
@@ -428,5 +412,21 @@ static int ugetpw_end(UGETPW *uip)
 	return rs ;
 }
 /* end subroutine (ugetpw_end) */
+
+
+static void ugetpw_atforkbefore()
+{
+	UGETPW		*uip = &ugetpw_data ;
+	ptm_lock(&uip->m) ;
+}
+/* end subroutine (ugetpw_atforkbefore) */
+
+
+static void ugetpw_atforkafter()
+{
+	UGETPW		*uip = &ugetpw_data ;
+	ptm_unlock(&uip->m) ;
+}
+/* end subroutine (ugetpw_atforkafter) */
 
 

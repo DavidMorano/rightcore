@@ -25,6 +25,14 @@
 
 /* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	General testing.
+
+
+*******************************************************************************/
+
+
 #include	<envstandards.h>
 #include	<stdio.h>
 #include	<cstdlib>

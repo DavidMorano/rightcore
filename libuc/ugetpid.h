@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-extern pid_t	ugetpid() ;
+extern int	ugetpid() ;
 extern void	usetpid(pid_t) ;
 
 #ifdef	__cplusplus

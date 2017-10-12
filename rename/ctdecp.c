@@ -22,6 +22,7 @@
         decimal string representation.
 
 	Synopsis:
+
 	int ctdecpX(rbuf,rlen,prec,v)
 	char		rbuf[] ;
 	int		rlen ;
@@ -29,6 +30,7 @@
 	int		v ;
 
 	Arguments:
+
 	X		'i' or 'ui'
 	rbuf		result buffer
 	rlen		length of result buffer
@@ -36,6 +38,7 @@
 	v		value to convert
 
 	Returns:
+
 	>=0		length of result string
 	<0		error
 

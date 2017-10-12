@@ -24,15 +24,18 @@
 	string.
 
 	Synopsis:
+
 	int cthexstr(char *dbuf,int dlen,cchar *vp,int vl)
 
 	Arguments:
+
 	dbuf		result buffer
 	dlen		length of result buffer
 	vp		pointer to source buffer (value)
 	sl		length of source in bytes
 
 	Returns:
+
 	<0		error (overflow)
 	>=0		length of result bytes
 

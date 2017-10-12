@@ -21,6 +21,14 @@
 
 /* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	This is the test jig for testing the BSTREE object.
+
+
+*******************************************************************************/
+
+
 #include	<envstandards.h>
 #include	<sys/types.h>
 #include	<cstdlib>

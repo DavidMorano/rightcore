@@ -27,20 +27,24 @@
 	white-space characters).
 
 	Synopsis:
+
 	int sfword(sp,sl,rpp)
 	const char	*sp ;
 	int		sl ;
 	const char	**rpp ;
 
 	Arguments:
+
 	sp		source string
 	sl		length of supplied source string
 	rpp		pointer to pointer to get result (an English word)
 
 	Return:
+
 	-		length of resulting word
 
 	Notes:
+
         = CF_ALLOWSMORE: I don't know but this was a (vain?) attempt at speeding
         up this subroutine. Profiles show that time is being spent in here (how
         much compared with everything else?). There is not much to improve upon,

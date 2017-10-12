@@ -21,6 +21,7 @@
 	destination while removing extra white-space from the source.
 
 	Synopsis:
+
 	int snwcpycompact(dbuf,dlen,sp,sl)
 	char		dbuf[] ;
 	int		dlen ;
@@ -28,12 +29,14 @@
 	int		sl ;
 
 	Arguments:
+
 	dbuf		result buffer
 	dlen		length of supplied result buffer
 	sp		source string
 	sl		source string length
 
 	Returns:
+
 	<0		error
 	>=0		resulting string length
 

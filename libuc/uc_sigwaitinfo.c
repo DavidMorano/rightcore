@@ -15,6 +15,14 @@
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	This modeule implements both:
+		uc_sigwaitinfo
+		uc_sigtimedwait
+
+
+*******************************************************************************/
 
 #include	<envstandards.h>
 
@@ -66,5 +74,48 @@ int uc_sigwaitinfo(const sigset_t *ssp,siginfo_t *sip)
 	return rs ;
 }
 /* end subroutine (uc_sigwaitinfo) */
+
+
+int uc_sigtimedwait(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
+{
+	int		rs ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
+
+	repeat {
+	    if ((rs = sigtimedwait(ssp,sip,tsp)) < 0) rs = (- errno) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+	                msleep(1000) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
+
+	return rs ;
+}
+/* end subroutine (uc_sigtimedwait) */
+
+
+int uc_sigwaitinfoto(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
+{
+	int		rs ;
+	if (tsp == NULL) {
+	     rs = uc_sigwaitinfo(ssp,sip) ;
+	} else {
+	     rs = uc_sigtimedwait(ssp,sip,tsp) ;
+	}
+	return rs ;
+}
+/* end subroutine (uc_sigwaitinfoto) */
+
 
 

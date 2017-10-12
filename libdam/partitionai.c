@@ -21,18 +21,22 @@
 	Partition an array of integers.
 
 	Synopsis:
+
 	int partitionai(int *a,int al,partpred_t partpred,int)
 
 	Arguments:
+
 	a		array
 	al		array length
 	partpred	function to evaluate the predicate
 	int		value to pass to the predicate function
 
 	Returns:
+
 	-	index of pivot (based from 'ri')
 
 	Notes:
+
         + Everyone has their own! (funny!)
 
 

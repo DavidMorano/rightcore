@@ -19,21 +19,25 @@
 /*******************************************************************************
 
 	Description:
+
         These subroutines convert an integer (signed or unsigned) into a Roman
 	Numeral representation.
 
 	Synopsis:
+
 	int ctromanXX(rbuf,rlen,v)
 	char		rbuf[] ;
 	int		rlen ;
 	int		v ;
 
 	Arguments:
+
 	rbuf		caller supplied buffer
 	rlen		caller supplied buffer length
 	v		integer value to be converted
 
 	Returns:
+
 	>=0		length of buffer used by the conversion
 	<0		error in the conversion
 

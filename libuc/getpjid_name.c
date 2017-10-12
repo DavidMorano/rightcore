@@ -17,13 +17,16 @@
 	This subroutine returns a project-ID for a specified program-name. 
 
 	Synopsis:
+
 	int getpjid_name(cchar *np,int nl)
 
 	Arguments:
+
 	np		name of project to look up 
 	nl		length of name (in bytes)
 
 	Returns:
+
 	<0		error
 	>=0		PJID of given project name
 

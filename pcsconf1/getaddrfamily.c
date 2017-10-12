@@ -55,7 +55,8 @@
 
 /* external subroutines */
 
-extern int	nleadstr(const char *,const char *,int) ;
+extern int	nleadstr(cchar *,cchar *,int) ;
+extern int	nleadcasestr(cchar *,cchar *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpylc(char *,const char *,int) ;

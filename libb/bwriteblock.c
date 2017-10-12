@@ -128,10 +128,3 @@ int bcopyblock(bfile *ifp,bfile *ofp,int ulen)
 /* end subroutine (bcopyblock) */
 
 
-int bcopy(bfile *ifp,bfile *ofp,ulen)
-{
-	return bcopyblock(ifp,ofp,ulen) ;
-}
-/* end subroutine (bcopy) */
-
-

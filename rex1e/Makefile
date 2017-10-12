@@ -319,7 +319,7 @@ inetaddr.o:		inetaddr.c inetaddr.h
 linefold.o:		linefold.c linefold.h
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CGGFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 sysvar.o:		sysvar.c sysvar.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<

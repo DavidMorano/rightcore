@@ -382,6 +382,6 @@ linefold.o:		linefold.c linefold.h
 modload.o:		modload.c modload.h
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 

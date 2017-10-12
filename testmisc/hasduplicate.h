@@ -1,7 +1,7 @@
 /* hasdupplicate */
 /* lang=C++11 */
 
-/* does the given array of integers have duplicate entries */
+/* does the given array of elements have duplicate entries */
 
 
 /* revision history:
@@ -19,13 +19,16 @@
         duplicate entries.
 
 	Synopsis:
+
 	int hasdupplicate(const int *sp,int sl)
 
 	Arguments:
+
 	sp		source array of integers
 	sl		length of source array
 
 	Returns:
+
 	<0		error
 	==0		no duplicates
 	==1		found a duplicate entry

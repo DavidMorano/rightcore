@@ -159,6 +159,8 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* forward references */
 
+static int	mainsub(int,cchar **,cchar **) ;
+
 static int	usage(PROGINFO *) ;
 
 static int	procmain(PROGINFO *,PARAMOPT *) ;

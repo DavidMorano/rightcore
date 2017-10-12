@@ -383,7 +383,7 @@ finduid.o:		finduid.c finduid.h
 pwcache.o:		pwcache.c pwcache.h
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 sigman.o:		sigman.c sigman.h
 

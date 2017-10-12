@@ -19,7 +19,6 @@ VALDIR= $(VGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 
 CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
@@ -29,17 +28,20 @@ CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #CCOPTS= -g -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
 
 
-LDSOARRAY=
-#LDSOARRAY += -z initarray=ucatfork_init -z finiarray=ucatfork_fini
-#LDSOARRAY += -z initarray=ucfork_init -z finiarray=ucfork_fini
-#LDSOARRAY += -z initarray=ucmemalloc_init -z finiarray=ucmemalloc_fini
-#LDSOARRAY += -z initarray=ugetpw_init -z finiarray=ugetpw_fini
-#LDSOARRAY += -z initarray=uinfo_init -z finiarray=uinfo_fini
-#LDSOARRAY += -z initarray=umask_init -z finiarray=umask_fini
-#LDSOARRAY += -z initarray=utmpacc_init -z finiarray=utmpacc_fini
-#LDSOARRAY += -z initarray=uproguser_init -z finiarray=uproguser_fini
-#LDSOARRAY += -z initarray=uprogdata_init -z finiarray=uprogdata_fini
-#LDSOARRAY += -z initarray=uclustername_init -z finiarray=uclustername_fini
+LDA=
+# must be ON (no longer strictly necessary)
+LDA += -z initarray=ugetpid_init -z finiarray=ugetpid_fini
+# optional
+LDA += -z initarray=ucatfork_init -z finiarray=ucatfork_fini
+LDA += -z initarray=ucfork_init -z finiarray=ucfork_fini
+LDA += -z initarray=ucmemalloc_init -z finiarray=ucmemalloc_fini
+#LDA += -z initarray=ugetpw_init -z finiarray=ugetpw_fini
+#LDA += -z initarray=uinfo_init -z finiarray=uinfo_fini
+#LDA += -z initarray=umask_init -z finiarray=umask_fini
+#LDA += -z initarray=utmpacc_init -z finiarray=utmpacc_fini
+#LDA += -z initarray=uproguser_init -z finiarray=uproguser_fini
+#LDA += -z initarray=uprogdata_init -z finiarray=uprogdata_fini
+#LDA += -z initarray=uclustername_init -z finiarray=uclustername_fini
 
 
 DEF0=
@@ -59,13 +61,14 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS) $(LF_CFLAGS)
+CCFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 #LD= $(CC)
 
 
 LDRPATH= $(EXTRA)/lib
 
-LDFLAGS= $(LF_LDFLAGS) $(LDSOARRAY) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
+LDFLAGS= $(LF_LDFLAGS) $(LDA) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
@@ -91,7 +94,7 @@ XLIB1= -ldam -lb
 XLIB2= -ldebug
 XLIB3= -lut -luc -lu
 XLIB4= $(CGS_LIBS)
-XLIB5=  $(LF_LIBS)
+XLIB5= $(LF_LIBS)
 XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 XLIB7= -ldl
 
@@ -146,7 +149,7 @@ OBJ024= uc_getlogin.o uc_getrusage.o uc_getloadavg.o
 OBJ025= uc_system.o uc_localtime.o uc_gmtime.o uc_ztime.o uc_sigset.o 
 OBJ026=
 OBJ027= uc_raise.o uc_killpg.o uc_sigqueue.o uc_syncer.o
-OBJ028= uc_sigwaitinfo.o uc_sigtimedwait.o uc_sigpause.o
+OBJ028= uc_sigwaitinfo.o uc_sigpause.o
 OBJ029= uc_sigdefault.o uc_sigignore.o uc_sighold.o uc_sigrelease.o
 OBJ030= uc_settimeofday.o uc_gettimeofday.o
 OBJ031= uc_getpw.o uc_getsp.o uc_getgr.o 
@@ -183,12 +186,12 @@ OBJ061= getrandom.o
 OBJ062=
 OBJ063=
 
-OBJ064= getprotofamily.o geteaddrinfo.o getaf.o getpwd.o
+OBJ064= getprotofamily.o geteaddrinfo.o getaf.o getaflen.o getpwd.o
 OBJ065= getnodedomain.o getutmpent.o getax.o getuserhome.o getxusername.o
 OBJ066= getbufsize.o gethz.o getngroups.o getproto.o getserv.o
 OBJ067= getportnum.o getenver.o getourenv.o
 OBJ068= inetpton.o perm.o getprogpath.o findxfile.o xfile.o
-OBJ069= nextpowtwo.o ndigits.o ipow.o findbit.o
+OBJ069= nextpowtwo.o ndigits.o ipow.o llpow.o findbit.o
 OBJ070= isFailOpen.o isFailConn.o
 OBJ071= isNotPresent.o isNotAccess.o isNotValid.o isIOError.o isOneOf.o
 
@@ -256,7 +259,7 @@ OBJ126= passwdent.o shadowent.o groupent.o projectent.o userattrent.o
 OBJ127= utmpaccent.o
 
 OBJ128=
-OBJ129=
+OBJ129= sigevent.o timespec.o
 OBJ130= sigignores.o sigdefaults.o
 OBJ131= isasocket.o isinetaddr.o isindomain.o
 OBJ132= hasNotDots.o
@@ -721,6 +724,10 @@ randomvar.o:		randomvar.c randomvar.h
 strmgr.o:		strmgr.c strmgr.h
 
 
+timespec.o:		timespec.c timespec.h
+
+sigevent.o:		sigevent.c sigevent.h
+
 upt.o:			upt.c upt.h
 
 base64.o:		base64.c base64.h
@@ -855,7 +862,7 @@ X01OBJ= $(X01).o ugetpw.o upwcache.o recarr.o
 $(X01).o:		$(X01).c ugetpw.h upwcache.h recarr.h
 
 $(X01).x:		$(X01OBJ)
-	$(CC) -o $@ $(X01OBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(LDFLAGS) $(X01OBJ) $(XLIBINFO)
 
 
 X02= testutmpacc
@@ -865,7 +872,7 @@ X02OBJ= $(X02).o utmpacc.o utmpaccent.o filemap.o recarr.o
 $(X02).o:		$(X02).c utmpacc.h utmpaccent.h filemap.h recarr.h
 
 $(X02).x:		$(X02OBJ)
-	$(CC) -o $@ $(X02OBJ) $(XLIBDIRS) $(XLIBS)
+	$(CC) -o $@ $(LDFLAGS) $(X02OBJ) $(XLIBINFO)
 
 
 XDIAL0= dialticotsordnls.o dialticotsordmux.o dialticotsord.o 
@@ -896,7 +903,7 @@ X03OBJ= $(X03OBJa) $(X03OBJb)
 $(X03).o:		$(X03).c vsystem.h nlsdialassist.h
 
 $(X03).x:		$(X03OBJ)
-	$(CC) -o $@ $(X03OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(LDFLAGS) $(X03OBJ) $(XLIBINFO)
 
 
 X04= testsafesleep
@@ -913,7 +920,7 @@ X04OBJ= $(X04OBJ00) $(X04OBJ01) $(X04OBJ02) $(X04OBJ03) $(X04OBJ04) $(X04OBJ05)
 $(X04).o:		$(X04).c vsystem.h
 
 $(X04).x:		$(X04OBJ)
-	$(CC) -o $@ $(X04OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(LDFLAGS) $(X04OBJ) $(XLIBINFO)
 
 
 X05= testspawnproc
@@ -930,6 +937,29 @@ X05OBJ= $(X05OBJ00) $(X05OBJ01) $(X05OBJ02) $(X05OBJ03) $(X05OBJ04) $(X05OBJ05)
 $(X05).o:		$(X05).c vsystem.h
 
 $(X05).x:		$(X05OBJ)
-	$(CC) -o $@ $(X05OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(LDFLAGS) $(X05OBJ) $(XLIBINFO)
+
+
+X06= testugetpid
+
+LDA=
+LDA += -z initarray=ugetpid_init -z finiarray=ugetpid_fini
+
+X06OBJ00= $(X06).o 
+X06OBJ01= ugetpid.o
+X06OBJ02=
+X06OBJ03=
+X06OBJ04=
+X06OBJ05= debug.o
+
+X06OBJa= $(X06OBJ00) $(X06OBJ01) $(X06OBJ02) $(X06OBJ03) 
+X06OBJb= $(X06OBJ04) $(X06OBJ05)
+
+X06OBJ= $(X06OBJa) $(X06OBJb)
+
+$(X06).o:		$(X06).c vsystem.h
+
+$(X06).x:		$(X06OBJ)
+	$(CC) -o $@ $(LDFLAGS) $(X06OBJ) $(XLIBINFO)
 
 

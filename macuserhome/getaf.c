@@ -62,7 +62,7 @@
 /* local defines */
 
 #ifndef	AFNAMELEN
-#define	AFNAMELEN	12
+#define	AFNAMELEN	12		/* maximum of lengths in table below */
 #endif
 
 #ifndef	AF_INET4
@@ -83,7 +83,7 @@ extern char	*strdcpy1w(char *,int,cchar *,int) ;
 /* local structures */
 
 struct addrfam {
-	const char	*name ;
+	cchar		*name ;
 	int		af ;
 } ;
 
@@ -208,15 +208,16 @@ int getaf(const char *np,int nl)
 	    const int		n = 2 ;
 	    int			i ;
 	    int			m ;
-	    const char		*anp ;
+	    cchar		*anp ;
 	    for (i = 0 ; afs[i].name != NULL ; i += 1) {
 	        anp = afs[i].name ;
 	        m = nleadstr(anp,abuf,al) ;
 	        if ((m == al) && ((m >= n) || (anp[m] == '\0'))) break ;
 	    } /* end for */
 	    rs = (afs[i].name != NULL) ? afs[i].af : SR_AFNOSUPPORT ;
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return rs ;
 }

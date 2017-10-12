@@ -20,6 +20,7 @@ extern const char 	*getourenv(const char **,const char *) ;
 int main(int argc,const char **argv,const char **envv)
 {
 	int		rs ;
+	int		ex = 0 ;
 	cchar		*msg = "here\nis\033" ;
 	cchar		*cp ;
 
@@ -40,7 +41,8 @@ int main(int argc,const char **argv,const char **envv)
 	debugclose() ;
 #endif
 
-	return 0 ;
+	if (rs < 0) ex = 1 ;
+	return ex ;
 }
 /* end subroutine (main) */
 

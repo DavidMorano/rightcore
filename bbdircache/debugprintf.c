@@ -272,12 +272,14 @@ int debugprintf(cchar *fmt,...)
 	        if ((len = format(lbuf,llen,fm,fmt,ap)) >= 0) {
 	            rs = debugprint(lbuf,len) ;
 	            wlen += rs ;
-	        } else
+	        } else {
 	            rs = SR_TOOBIG ;
+		}
 	        va_end(ap) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 #if	CF_DEBUGN
 	nprintf(NDF,"debugprintf: ret rs=%d wlen=%u\n",rs,wlen) ;
@@ -558,15 +560,25 @@ static int debugprinter(cchar *sbuf,int slen)
 	    f_restore = TRUE ;
 	} /* end if (special EOL handling) */
 
+#if	CF_DEBUGN
+	nprintf(NDF,"debugprinter: f_needeol=%u\n",f_needeol) ;
+	nprintf(NDF,"debugprinter: f_restore=%u\n",f_restore) ;
+#endif
+
 /* scan for bad characters */
 
 	if (f_needeol || hasprintbad(sbuf,slen)) {
 	    const int	alen = (slen+2) ; /* additional room for added EOL */
+#if	CF_DEBUGN
+	nprintf(NDF,"debugprinter: course 1\n") ;
+#endif
 	    if ((rs = uc_malloc((alen+1),&abuf)) >= 0) {
 	        if ((rs = snwcpyprintclean(abuf,(alen-2),sbuf,slen)) >= 0) {
 		    sbuf = abuf ;
 		    slen = rs ;
-		    if (f_needeol) abuf[slen++] = '\n' ;
+		    if (f_needeol || f_restore) {
+			abuf[slen++] = '\n' ;
+		    }
 	        }
 		if (rs < 0) {
 		    uc_free(abuf) ;
@@ -574,17 +586,27 @@ static int debugprinter(cchar *sbuf,int slen)
 		}
 	    } /* end if (memory-allocation) */
 	} else if (f_restore) {
+#if	CF_DEBUGN
+	nprintf(NDF,"debugprinter: course 2\n") ;
+#endif
 	    slen += 1 ;
 	} /* end if (special EIK handling) */
 
 /* write the line-buffer out */
 
 	if ((rs >= 0) && (slen > 0)) {
+#if	CF_DEBUGN
+	nprintf(NDF,"debugprinter: >%t<\n",sbuf,slen) ;
+#endif
 	    rs = debugprinters(sbuf,slen) ;
 	    wlen = rs ;
 	} /* end if (ok) */
 
 	if (abuf != NULL) uc_free(abuf) ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"debugprinter: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -628,7 +650,7 @@ static int debugprinter(cchar *sbuf,int slen)
 	    if ((rs = snwcpyprintclean(abuf,(alen-2),sbuf,slen)) >= 0) {
 		sbuf = abuf ;
 		slen = rs ;
-		if (f_needeol) abuf[slen++] = '\n' ;
+		if (f_needeol || f_restore) abuf[slen++] = '\n' ;
 	    }
 	} else if (f_restore) {
 	    slen += 1 ;
@@ -683,7 +705,7 @@ static int debugprinter(cchar *sbuf,int slen)
 	        if ((rs = snwcpyprintclean(abuf,(alen-2),sbuf,slen)) >= 0) {
 		    sbuf = abuf ;
 		    slen = rs ;
-		    if (f_needeol) abuf[slen++] = '\n' ;
+		    if (f_needeol || f_restore) abuf[slen++] = '\n' ;
 	        }
 	    } else if (f_restore) {
 	        slen += 1 ;
@@ -719,6 +741,7 @@ static int debugprinters(cchar *sbuf,int slen)
 		    if ((rs = uc_lockfile(fd,cmd,0L,0L,-1)) >= 0) {
 
 		        rs = debugprinterest(fd,sbuf,slen) ;
+		        wlen = rs ;
 			ef.serial += 1 ;
 
 		        cmd = F_UNLOCK ;

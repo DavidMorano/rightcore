@@ -17,12 +17,15 @@
 	This subroutine returns a GID for a specified group-name. 
 
 	Synopsis:
+
 	int getgid_name(cchar *gname)
 
 	Arguments:
+
 	gname		name of group to look up 
 
 	Returns:
+
 	<0		error
 	>=0		GID of given group name
 

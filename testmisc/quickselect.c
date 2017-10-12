@@ -21,15 +21,18 @@
 	We create the quickselect order on the given array.
 
 	Synopsis:
+
 	int quickselect(int a[],int low,int high,int k)
 
 	Arguments:
+
 	a	array
 	low	low
 	hight	high
 	k	k-th smallest element
 
 	Returns:
+
 	-	
 
 

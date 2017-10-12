@@ -3025,10 +3025,8 @@ static int loaddefsfile(PROGINFO *pip,cchar *dfname)
 	int		f = FALSE ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3)) {
-	    debugprintf("main/loaddefsfile: ret rs=%d\n",rs) ;
+	if (DEBUGLEVEL(3))
 	    debugprintf("main/loaddefsfile: dfname=%s\n",dfname) ;
-	}
 #endif
 
 	if ((rs = u_stat(dfname,&sb)) >= 0) {

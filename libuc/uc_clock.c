@@ -48,13 +48,33 @@
 /* exported subroutines */
 
 
-int uc_clockgettime(clockid_t cid,struct timespec *tsp)
+int uc_clockset(clockid_t cid,const struct timespec *tsp)
+{
+	int		rs ;
+	if (tsp == NULL) return SR_FAULT ;
+	if ((rs = clock_settime(cid,tsp)) < 0) rs = (-errno) ;
+	return rs ;
+}
+/* end subroutine (uc_clockset) */
+
+
+int uc_clockres(clockid_t cid,struct timespec *tsp)
+{
+	int		rs ;
+	if (tsp == NULL) return SR_FAULT ;
+	if ((rs = clock_getres(cid,tsp)) < 0) rs = (-errno) ;
+	return rs ;
+}
+/* end subroutine (uc_clockres) */
+
+
+int uc_clockget(clockid_t cid,struct timespec *tsp)
 {
 	int		rs ;
 	if (tsp == NULL) return SR_FAULT ;
 	if ((rs = clock_gettime(cid,tsp)) < 0) rs = (-errno) ;
 	return rs ;
 }
-/* end subroutine (uc_clockgettime) */
+/* end subroutine (uc_clockget) */
 
 

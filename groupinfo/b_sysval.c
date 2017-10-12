@@ -1824,7 +1824,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	case qopt_uts:
 	    {
 	        struct timespec	ts ;
-		if ((rs = uc_clockgettime(CLOCK_REALTIME,&ts)) >= 0) {
+		if ((rs = uc_clockget(CLOCK_REALTIME,&ts)) >= 0) {
 		    cchar	*fmt = "%08lx:%08lx" ;
 		    rs = bufprintf(cvtbuf,cvtlen,fmt,ts.tv_sec,ts.tv_nsec) ;
 	            cbp = cvtbuf ;
@@ -2557,7 +2557,7 @@ static int locinfo_rtime(LOCINFO *lip,ulong *tp)
 	struct timespec	ts ;
 	int		rs ;
 	if (pip == NULL) return SR_FAULT ;
-	if ((rs = uc_clockgettime(CLOCK_REALTIME,&ts)) >= 0) {
+	if ((rs = uc_clockget(CLOCK_REALTIME,&ts)) >= 0) {
 	    *tp = ts.tv_sec ;
 	}
 #if	CF_DEBUG

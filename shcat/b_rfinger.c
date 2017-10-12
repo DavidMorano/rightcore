@@ -396,8 +396,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
-	int		n ;
 	int		v ;
+	int		n ;
 	int		timeout = -1 ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
@@ -968,17 +968,17 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	rs1 = (DEFPRECISION + 2) ;
 	if ((rs >= 0) && (lip->linelen < rs1) && (argval != NULL)) {
-	    int		v ;
 	    lip->have.linelen = TRUE ;
 	    lip->final.linelen = TRUE ;
-	    rs = cfdeci(argval,-1,&v) ;
-	    lip->linelen = v ;
+	    rs = optvalue(argval,-1) ;
+	    lip->linelen = rs ;
 	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
 	    debugprintf("b_rfinger: dialerspec=%s\n",dialerspec) ;
 	    debugprintf("b_rfinger: argspec=%s\n",argspec) ;
+	    debugprintf("b_rfinger: linewidth=%u\n",lip->linelen) ;
 	}
 #endif
 
@@ -1024,6 +1024,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (DEBUGLEVEL(2))
 	    debugprintf("b_rfinger: linelen=%d\n",lip->linelen) ;
 #endif
+
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: linelen=%u\n" ;
+	    shio_printf(pip->efp,fmt,pn,lip->linelen) ;
+	}
 
 	lip->f.longer = f_long ;
 
@@ -1500,12 +1506,12 @@ static int procdialread(PROGINFO *pip,void *ofp,int s,LINEBUF *lbp)
 		cchar	*lp = lbuf ;
 		int	ll = rs ;
 
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/procsystem: ll=%d l=>%t<\n",ll,lp,ll) ;
-#endif
-
 		if ((ll > 0) && (lp[ll-1] == '\n')) ll -= 1 ;
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(3))
+	            debugprintf("main/procsystem: ll=%d l=>%t<\n",ll,lp,ll) ;
+#endif
 
 		if (rs >= 0) rs = lib_sigterm() ;
 		if (rs >= 0) rs = lib_sigintr() ;

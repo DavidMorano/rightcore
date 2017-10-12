@@ -22,6 +22,7 @@
 	anything else, but it is here if you want to use it.
 
 	Synopsis:
+
 	$ book <file> [<queries>]
 
 

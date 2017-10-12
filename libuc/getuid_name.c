@@ -23,13 +23,16 @@
         to be a user-name.
 
 	Synopsis:
+
 	int getuid_name(cchar *np,int nl)
 
 	Arguments:
+
 	np		user-name to lookup
 	nl		length of name string
 
 	Returns:
+
 	<0		error
 	>=0		retrieved UID
 

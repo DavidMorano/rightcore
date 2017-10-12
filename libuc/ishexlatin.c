@@ -22,12 +22,15 @@
 	Latin-1 characters also.
 
 	Synopsis:
+
 	int ishexlatin(int ch)
 
 	Arguments:
+
 	ch		character to test (can be an 8-bit character)
 
 	Returns:
+
 	TRUE		yes
 	FALSE		no
 

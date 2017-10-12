@@ -21,16 +21,19 @@
 	Everyone has their own, right?
 
 	Synopsis:
+
 	typedef int	(*sortcmp_t)(const void *,const void *) ;
 	void isort(void *base,int nelem,int esize,sortcmp_t *cmp)
 
 	Arguments:
+
 	base		pointer to base of array to sort
 	nelem		number of elements in array
 	esize		size in bytes of an array element
 	cmp		comparison function
 
 	Returns:
+
 	-		nothing (sorted array in place)
 
 

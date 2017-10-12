@@ -329,7 +329,7 @@ osetstr.o:		osetstr.c osetstr.h
 	$(GPP) -c $(CFLAGS) $(CPPFLAGS) osetstr.cc
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 sysrealname.o:		sysrealname.c sysrealname.h
 

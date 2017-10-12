@@ -36,11 +36,7 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
-#include	<sys/resource.h>
-#include	<unistd.h>
-#include	<fcntl.h>
-#include	<stdlib.h>
+#include	<string.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -49,10 +45,6 @@
 
 
 /* local defines */
-
-#define	BO_READ		1
-#define	BO_WRITE	2
-#define	BO_APPEND	4
 
 
 /* external subroutines */
@@ -73,15 +65,12 @@
 /* exported subroutines */
 
 
-int bdup(fp,fnewp)
-bfile		*fp ;
-bfile		*fnewp ;
+int bdup(bfile *fp,bfile *fnewp)
 {
 	int		rs = SR_OK ;
-	char		*p ;
 
 #if	CF_DEBUGS
-	debugprintf("bdup: entered\n") ;
+	debugprintf("bdup: ent\n") ;
 #endif
 
 	if (fp == NULL) return SR_FAULT ;
@@ -89,41 +78,34 @@ bfile		*fnewp ;
 
 	if (fp->magic != BFILE_MAGIC) return SR_NOTOPEN ;
 
-	if (fp->f.nullfile) {
-	    rs = SR_NOSYS ;
-	    goto ret0 ;
-	}
-
 	memcpy(fnewp,fp,sizeof(bfile)) ;
 
-	rs = bfile_flush(fp) ;
-	if (rs < 0)
-	    goto bad0 ;
+	if ((rs = bfile_flush(fp)) >= 0) {
+	    if ((rs = u_dup(fp->fd)) >= 0) {
+	        fnewp->fd = rs ;
+	        if (fp->bsize > 0) {
+		    char	*p ;
+	            if ((rs = uc_malloc(fp->bsize,&p)) >= 0) {
+	                fnewp->bdata = p ;
+	                fnewp->bbp = p ;
+	                fnewp->bp = p ;
+	            }
+	        }
+		if (rs < 0) {
+		    u_close(fnewp->fd) ;
+		    fnewp->fd = -1 ;
+		}
+	    } /* end if (u_dup) */
+	    if (rs < 0) {
+		fnewp->magic = 0 ;
+	    }
+	} /* end if (bfile_flush) */
 
-	rs = u_dup(fp->fd) ;
-	fnewp->fd = rs ;
-	if (rs < 0)
-	    goto bad0 ;
+#if	CF_DEBUGS
+	debugprintf("bdup: ret rs=%d\n",rs) ;
+#endif
 
-	if (fp->bsize > 0) {
-	    rs = uc_malloc(fp->bsize,&p) ;
-	    if (rs < 0) goto bad1 ;
-	    fnewp->bdata = p ;
-	    fnewp->bbp = p ;
-	    fnewp->bp = p ;
-	}
-
-ret0:
 	return rs ;
-
-/* bad stuff */
-bad1:
-	u_close(fnewp->fd) ;
-	fnewp->fd = -1 ;
-
-bad0:
-	fnewp->magic = 0 ;
-	goto ret0 ;
 }
 /* end subroutine (bdup) */
 

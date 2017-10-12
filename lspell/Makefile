@@ -371,7 +371,7 @@ modload.o:		modload.c modload.h
 xwords.o:		xwords.c xwords.h
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(GPPFAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 
 sfreadline.o:		sfreadline.c

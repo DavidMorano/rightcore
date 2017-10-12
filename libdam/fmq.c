@@ -863,23 +863,6 @@ static int fmq_irecv(FMQ *op,void *buf,int buflen,int opts)
 	char		lenbuf[4 + 1] ;
 	char		*cbuf = (char *) buf ;
 
-#ifdef	COMMENT
-	if (op == NULL) return SR_FAULT ;
-
-	if (op->magic != FMQ_MAGIC) return SR_NOTOPEN ;
-
-	if (buf == NULL) return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("fmq_irecv: ent buflen=%u\n",
-	    buflen) ;
-#endif
-
-	if (! op->f.writable)
-	    return SR_RDONLY ;
-
-#endif /* COMMENT */
-
 /* are we in optional slow-poll mode? */
 
 	if ((opts & FM_SLOWPOLL) && (op->h.nmsg == 0)) {
@@ -947,11 +930,10 @@ static int fmq_irecv(FMQ *op,void *buf,int buflen,int opts)
 /* prepare to read */
 
 	if (op->h.ri >= op->h.wi) {
-
 	    dlen = op->h.wi - op->h.ri ;
-
-	} else
+	} else {
 	    dlen = op->h.size - op->h.ri ;
+	}
 
 	dlen -= llen ;
 	if (buflen < dlen)

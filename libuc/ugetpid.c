@@ -1,9 +1,9 @@
 /* ugetpid */
 
-/* get the current process PID */
+/* get the current process PID (quickly and fork-safely) */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
 /* revision history:
@@ -65,10 +65,12 @@
 #define	UGETPID		struct ugetpid
 #endif
 
+#define	NDF		"ugetpid.deb"
+
 
 /* external subroutines */
 
-extern int	msleep(int);
+extern int	msleep(int) ;
 
 
 /* local structures */
@@ -93,7 +95,7 @@ static void	ugetpid_atforkchild() ;
 
 /* lcoal variables */
 
-static UGETPID			ugetpid_data ; /* zero-initialized */
+static UGETPID		ugetpid_data ; /* zero-initialized */
 
 
 /* exported subroutines */
@@ -153,20 +155,23 @@ void ugetpid_fini()
 /* end subroutine (ugetpid_fini) */
 
 
-pid_t ugetpid(void)
+int ugetpid(void)
 {
 	UGETPID		*dip = &ugetpid_data ;
-	if (dip->pid == 0) dip->pid = getpid() ;
-	return dip->pid ;
+	int		rs = SR_OK ;
+	if (! dip->f_init) rs = ugetpid_init() ;
+	if (rs >= 0) {
+	    if (dip->pid == 0) dip->pid = getpid() ;
+	    rs = dip->pid ;
+	}
+	return rs ;
 }
 /* end subroutine (ugetpid) */
 
 
-pid_t ucgetpid(void)
+int ucgetpid(void)
 {
-	UGETPID		*dip = &ugetpid_data ;
-	if (dip->pid == 0) dip->pid = getpid() ;
-	return dip->pid ;
+	return ugetpid() ;
 }
 /* end subroutine (ucgetpid) */
 

@@ -207,6 +207,7 @@ const char	*av[] ;
 
 	    } /* end if (load-cooks) */
 	    rs1 = expcook_finish(&cooks) ;
+            if (rs >= 0) rs = rs1 ;
 	} /* end if (expcook) */
 
 	if (rs < 0) {

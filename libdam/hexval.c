@@ -19,12 +19,15 @@
 	return either an error or the value of the symbolic hexadecimal digit.
 
 	Synopsis:
+
 	int hexval(int ch)
 
 	Arguments:
+
 	ch		character to evaluate
 
 	Outputs:
+
 	<0		error
 	>=0		value of symbolic hexadecimal digit
 

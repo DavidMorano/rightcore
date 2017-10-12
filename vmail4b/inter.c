@@ -3710,15 +3710,17 @@ static int inter_cmdmsgdelnum(INTER *iap,int f_del,int argnum)
 	int		rs = SR_OK ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
+	if (DEBUGLEVEL(5)) {
 	    debugprintf("inter_cmdmsgdelnum: f_del=%u argnum=%d\n",
 	        f_del,argnum) ;
+	    debugprintf("inter_cmdmsgdelnum: nmsgs=%u\n",iap->nmsgs) ;
+	}
 #endif
 
 	if (argnum <= 0) argnum = 1 ;
 	if (iap->open.mbcache) {
 	    const int	mi = iap->miscanpoint ;
-	    if ((mi > 0) && (mi < iap->nmsgs)) {
+	    if ((mi >= 0) && (mi < iap->nmsgs)) {
 	        if ((rs = inter_msgdelnum(iap,mi,argnum,f_del)) >= 0) {
 	            int		c = rs ;
 	            cchar	*s = ((f_del) ? "scheduled" : "canceled") ;
@@ -4274,36 +4276,37 @@ static int inter_msgdel(INTER *iap,int mi,int delcmd)
 {
 	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
-	int		mark ;
 	int		f_delprev = FALSE ;
 
-	if ((mi < 0) || (mi >= iap->nmsgs)) /* user error */
-	    goto ret0 ;
+	if ((mi >= 0) && (mi < iap->nmsgs)) {
+	    int		mark ;
+	    if ((rs = mbcache_msgdel(&iap->mc,mi,delcmd)) >= 0) {
+		f_delprev = (rs > 0) ;
 
-	rs = mbcache_msgdel(&iap->mc,mi,delcmd) ;
-	f_delprev = (rs > 0) ;
+	        if (delcmd >= 0) {
 
-	if ((rs >= 0) && (delcmd >= 0)) {
-	    if (! LEQUIV(f_delprev,delcmd)) {
-	        if (delcmd) {
-	            mark = iap->delmark ;
-	            iap->nmsgdels += 1 ;
-	        } else {
-	            mark = ' ' ;
-	            iap->nmsgdels -= 1 ;
-	        }
-	        rs = display_scanmark(&iap->di,mi,mark) ;
-	    }
+	            if (! LEQUIV(f_delprev,delcmd)) {
+	                if (delcmd) {
+	                    mark = iap->delmark ;
+	                    iap->nmsgdels += 1 ;
+	                } else {
+	                    mark = ' ' ;
+	                    iap->nmsgdels -= 1 ;
+	                }
+	                rs = display_scanmark(&iap->di,mi,mark) ;
+	            }
 
-	    if (rs >= 0) {
-		if (delcmd && pip->f.nextdel && ((mi+1) < iap->nmsgs)) {
-	            rs = inter_msgpoint(iap,(mi+1)) ;
-	        }
-	    }
+	            if (rs >= 0) {
+		        if (delcmd && pip->f.nextdel && ((mi+1) < iap->nmsgs)) {
+	                    rs = inter_msgpoint(iap,(mi+1)) ;
+	                }
+	            }
 
-	} /* end if (delcmd >= 0) */
+	        } /* end if (delcmd >= 0) */
 
-ret0:
+	    } /* end if (mbcache_msgdel) */
+	} /* end if (ok) */
+
 	return (rs >= 0) ? f_delprev : rs ;
 }
 /* end subroutine (inter_msgdel) */
@@ -4314,10 +4317,7 @@ static int inter_msgdelnum(INTER *iap,int mi,int num,int delcmd)
 {
 	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		mark ;
 	int		c = 0 ;
-	int		f_delprev = FALSE ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -4325,11 +4325,10 @@ static int inter_msgdelnum(INTER *iap,int mi,int num,int delcmd)
 	        mi,num,delcmd) ;
 #endif
 
-	if ((mi < 0) || (mi >= iap->nmsgs)) /* user error */
-	    goto ret0 ;
-
-	if (delcmd < 0)
-	    goto ret0 ;
+	if ((mi >= 0) && (mi < iap->nmsgs) && (delcmd >= 0)) {
+	    int		mark ;
+	    int		i ;
+	    int		f_delprev = FALSE ;
 
 	for (i = 0 ; (rs >= 0) && (i < num) ; i += 1) {
 	    if (mi >= iap->nmsgs) break ;
@@ -4358,7 +4357,8 @@ static int inter_msgdelnum(INTER *iap,int mi,int num,int delcmd)
 	    rs = inter_msgpoint(iap,mi) ;
 	} /* end if */
 
-ret0:
+	} /* end if (ok) */
+
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (inter_msgdelnum) */
@@ -4765,10 +4765,11 @@ static int inter_cmdpathprefix(INTER *iap)
 	            } /* end if (mkpath) */
 	        } /* end if (non-zero string) */
 	        if (f_ok) {
-	            if (px != NULL)
+	            if (px != NULL) {
 	                rs = inter_info(iap,FALSE,"dir=%s\v",px) ;
+		    }
 	        } else {
-	            const char	*fmt = "inaccessible dir=%t\v" ;
+	            cchar	*fmt = "inaccessible dir=%t\v" ;
 	            rs = inter_info(iap,TRUE,fmt,cp,cl) ;
 	        } /* end if */
 	    } /* end if (positive response) */
@@ -4786,11 +4787,14 @@ static int inter_cmdshell(INTER *iap)
 	int		rs ;
 	int		rs1 ;
 	int		rs2 ;
-	const char	*ccp = "cmd: " ;
+	int		rs3 ;
+	cchar		*ccp = "cmd: " ;
 	char		rbuf[RBUFLEN + 1] ;
 
 	if ((rs = inter_response(iap,rbuf,rlen,ccp)) > 0) {
 	    if ((rs = display_suspend(&iap->di)) >= 0) {
+		rs2 = SR_OK ;
+		rs3 = SR_OK ;
 
 	        if ((rs = uterm_suspend(iap->utp)) >= 0) {
 	            const char	*cmdshell = pip->prog_shell ;
@@ -4807,11 +4811,11 @@ static int inter_cmdshell(INTER *iap)
 	                ps.pgrp = iap->pgrp ;
 	            }
 
-	            if ((rs1 = spawncmdproc(&ps,cmdshell,rbuf)) >= 0) {
-	                const pid_t	pid = rs1 ;
+	            if ((rs2 = spawncmdproc(&ps,cmdshell,rbuf)) >= 0) {
+	                const pid_t	pid = rs2 ;
 	            	int		cs ;
 
-	                rs2 = u_waitpid(pid,&cs,0) ;
+	                rs3 = u_waitpid(pid,&cs,0) ;
 
 	                if (iap->f.ctty) {
 	    		    int	ucmd = utermcmd_setpgrp ;
@@ -4819,14 +4823,21 @@ static int inter_cmdshell(INTER *iap)
 	                }
 	            } /* end if (spawncmdproc) */
 
-	            rs2 = uterm_resume(iap->utp) ;
+	            rs1 = uterm_resume(iap->utp) ;
 	        } /* end if (uterm) */
 	        display_resume(&iap->di) ;
 
 	        if (rs >= 0) {
 	            ccp = "resume> \v" ;
 	            if ((rs = inter_response(iap,rbuf,rlen,ccp)) >= 0) {
-	                rs = inter_refresh(iap) ;
+	                if ((rs = inter_refresh(iap)) >= 0) {
+			    if (rs1 >= 0) rs1 = rs2 ;
+			    if (rs1 >= 0) rs1 = rs3 ;
+			    if (rs1 < 0) {
+	            	        cchar	*fmt = "command error (%d)\v" ;
+	            		rs = inter_info(iap,TRUE,fmt,rs1) ;
+			    }
+			}
 		    }
 	        } /* end if */
 

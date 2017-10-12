@@ -349,22 +349,6 @@ int uinfo_aux(UINFO_AUX *uxp)
 /* local subroutines */
 
 
-static void uinfo_atforkbefore()
-{
-	UINFO		*uip = &uinfo_data ;
-	ptm_lock(&uip->m) ;
-}
-/* end subroutine (uinfo_atforkbefore) */
-
-
-static void uinfo_atforkafter()
-{
-	UINFO		*uip = &uinfo_data ;
-	ptm_unlock(&uip->m) ;
-}
-/* end subroutine (uinfo_atforkafter) */
-
-
 static int uinfo_getaux(UINFO_TMPAUX *tap)
 {
 	const int	nlen = NODENAMELEN ;
@@ -405,5 +389,21 @@ static int uinfo_getaux(UINFO_TMPAUX *tap)
 	return rs ;
 }
 /* end subroutine (uinfo_getaux) */
+
+
+static void uinfo_atforkbefore()
+{
+	UINFO		*uip = &uinfo_data ;
+	ptm_lock(&uip->m) ;
+}
+/* end subroutine (uinfo_atforkbefore) */
+
+
+static void uinfo_atforkafter()
+{
+	UINFO		*uip = &uinfo_data ;
+	ptm_unlock(&uip->m) ;
+}
+/* end subroutine (uinfo_atforkafter) */
 
 

@@ -251,9 +251,9 @@ int vechand_ent(vechand *op,const void *vp)
 	if (op->va == NULL) return SR_NOTOPEN ;
 
 	for (i = 0 ; i < op->i ; i += 1) {
-	    if (op->va[i] == NULL) continue ;
-	    if (op->va[i] == vp)
-	        break ;
+	    if (op->va[i] != NULL) {
+	        if (op->va[i] == vp) break ;
+	    }
 	} /* end for */
 
 	if (i == op->i)
@@ -334,12 +334,8 @@ int vechand_del(vechand *op,int i)
 	if (op->f.oconserve) {
 
 	    while (op->i > i) {
-
-	        if (op->va[op->i - 1] != NULL)
-	            break ;
-
+	        if (op->va[op->i - 1] != NULL) break ;
 	        op->i -= 1 ;
-
 	    } /* end while */
 
 	} /* end if */

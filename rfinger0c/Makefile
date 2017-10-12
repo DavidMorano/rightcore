@@ -62,10 +62,14 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCLAGS= $(GPPFLAGS) $(CFLAGS)
 
 #LD= $(CC)
 #LD= cc
 LD= ld
+
+
+LDRPATH=
 
 LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 
@@ -164,7 +168,7 @@ OBJ35=
 OBJ36=
 OBJ37=
 OBJ38=
-OBJ39=
+#OBJ39= debug.o debugprintf.o nprintf.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -343,7 +347,7 @@ inetaddr.o:		inetaddr.c inetaddr.h
 linefold.o:		linefold.c linefold.h
 
 termout.o:		termout.cc termout.h ansigr.h
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) termout.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 sysvar.o:		sysvar.c sysvar.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
