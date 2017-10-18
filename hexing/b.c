@@ -105,7 +105,7 @@ extern cchar	*getourenv(cchar **,cchar *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

@@ -1,3 +1,5 @@
+/* readconf (fragment) */
+
 
 /* open configuration file */
 

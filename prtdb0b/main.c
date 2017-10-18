@@ -199,10 +199,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	            if ((rs = lib_initmemalloc(f_lockmemalloc)) >= 0) {
 	                if ((rs = lib_mainbegin(envv,NULL)) >= 0) {
 	                    if ((rs = maininfo_utilbegin(mip,f_util)) >= 0) {
-	                        const char	*srch ;
+	                        cchar	*srch ;
 
 #if	CF_DEBUGN
-	                        nprintf(NDF,"main: progname=%s\n",pn) ;
+	                        nprintf(NDF,"main: maininfo_srchname()\n") ;
 #endif
 
 	                        if ((rs = maininfo_srchname(mip,&srch)) >= 0) {
@@ -215,6 +215,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                                ex) ;
 #endif
 	                        } /* end if */
+
+#if	CF_DEBUGN
+	                        nprintf(NDF,
+				"main: maininfo_srchname-out rs=%d ex=%u\n",
+				rs,ex) ;
+#endif
 
 	                        rs1 = maininfo_utilend(mip) ;
 	                        if (rs >= 0) rs = rs1 ;

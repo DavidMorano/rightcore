@@ -116,7 +116,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -150,13 +150,7 @@ static int	procwords(PROGINFO *,SEARCHINFO *,void *,cchar *) ;
 
 /* local variables */
 
-static const int	sigints[] = {
-	SIGINT,
-	SIGTERM,
-	0
-} ;
-
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",

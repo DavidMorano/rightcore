@@ -14,6 +14,13 @@
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	We test some sorting algorithms.
+
+
+*******************************************************************************/
+
 
 #include	<envstandards.h>
 #include	<sys/types.h>

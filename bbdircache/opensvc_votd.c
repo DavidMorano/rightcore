@@ -24,6 +24,29 @@
 
 	This is a facility-open-service module.
 
+	File-name:
+
+	votd[­-sn][­-af][­-ndb][­-pdb][­-vdb][­-sdb][­-bookname][­-lang]
+		[­o­<option(s)>]
+
+	File-name options:
+
+	audit		perform a recursive audit
+	linelen=<v>	number of columns		
+	indent=<v>	number of columns to indent
+	bookname[=<b>]	use names rather than numbers (default)	
+	interactive	run in interactive mode
+	separate	separate entries with a blank line
+	defnull		?
+	default		perform a default operation
+	qtype <s>	specify Q-type as string <s>
+	atype <s>	specigy A-type as string <s>
+	para		?
+	gmt		use GMT time
+	lang=<lang>	specify language <lang>
+	allcache[=<b>]	dump entire cache (as there might be)
+
+
 	Synopsis:
 
 	int opensvc_votd(pr,prn,of,om,argv,envv,to)
@@ -343,7 +366,7 @@ static int votdsq_load(VOTDC_Q *,BIBLEVERSE_Q *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"HELP",
 	"sn",
@@ -774,8 +797,10 @@ int		to ;
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+	                                KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;

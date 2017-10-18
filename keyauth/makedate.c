@@ -1,2 +1,2 @@
 const char keyauth_makedate[] =
-"@(#)keyauth                 170705_0846:05_USEDT Rightcore Network Services" ;
+"@(#)keyauth                 171015_0011:21_USEDT Rightcore Network Services" ;

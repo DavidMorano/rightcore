@@ -1,2 +1,2 @@
 const char envset_makedate[] =
-"@(#)envset                  170911_2203:52_USEDT Rightcore Network Services" ;
+"@(#)envset                  171012_2235:24_USEDT Rightcore Network Services" ;

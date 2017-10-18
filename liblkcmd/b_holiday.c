@@ -157,7 +157,7 @@ static int	isNotGoodCite(int) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -166,7 +166,7 @@ struct locinfo_flags {
 	uint		audit:1 ;
 	uint		linelen:1 ;
 	uint		indent:1 ;
-	uint		nentries:1 ;
+	uint		nitems:1 ;
 	uint		monthname:1 ;
 	uint		separate:1 ;
 	uint		interactive:1 ;
@@ -179,6 +179,7 @@ struct locinfo_flags {
 	uint		allents:1 ;
 	uint		gmt:1 ;
 	uint		year:1 ;
+	uint		apm:1 ;
 } ;
 
 struct locinfo {
@@ -190,7 +191,7 @@ struct locinfo {
 	LOCINFO_FL	open ;
 	int		linelen ;
 	int		indent ;
-	int		nentries ;
+	int		nitems ;
 	int		count, max ;
 	int		cout ;
 	int		year ;
@@ -205,9 +206,8 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	process(PROGINFO *,ARGINFO *,BITS *,
-			PARAMOPT *,cchar *,cchar *,int,int) ;
-static int	procsome(PROGINFO *,ARGINFO *,BITS *,
-			PARAMOPT *,cchar *,int,int) ;
+			PARAMOPT *,cchar *,cchar *) ;
+static int	procsome(PROGINFO *,ARGINFO *,BITS *,PARAMOPT *,cchar *) ;
 static int	procspecs(PROGINFO *,cchar *,int) ;
 static int	procspec(PROGINFO *,cchar *,int) ;
 
@@ -377,7 +377,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
-	int		argvalue = -1 ;
 	int		rs, rs1 ;
 	int		n ;
 	int		ex = EX_INFO ;
@@ -385,7 +384,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f_apm = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -473,7 +471,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	        if (isdigitlatin(ach)) {
 
-	            if (f_optplus) f_apm = TRUE ;
+	            if (f_optplus) lip->f.apm = TRUE ;
 	            argval = (argp+1) ;
 
 	        } else if (ach == '-') {
@@ -885,15 +883,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* argument processing */
 
-	if (argval != NULL) {
+	if ((lip->nitems <= 0) && (argval != NULL)) {
+	    lip->have.nitems = TRUE ;
+	    lip->final.nitems = TRUE ;
 	    rs = optvalue(argval,-1) ;
-	    argvalue = rs ;
-	}
-
-	if ((lip->nentries <= 0) && (argvalue > 0)) {
-	    lip->have.nentries = TRUE ;
-	    lip->final.nentries = TRUE ;
-	    lip->nentries = argvalue ;
+	    lip->nitems = rs ;
 	}
 
 /* load up the environment options */
@@ -939,11 +933,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (lip->linelen < rs1)
 	    lip->linelen = COLUMNS ;
 
-	if ((lip->nentries < 1) && (! lip->have.nentries))
-	    lip->nentries = 1 ;
+	if ((lip->nitems < 1) && (! lip->have.nitems))
+	    lip->nitems = 1 ;
 
-	if (lip->nentries < 0)
-	    lip->nentries = 1 ;
+	if (lip->nitems < 0)
+	    lip->nitems = 1 ;
 
 /* go */
 
@@ -981,12 +975,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        if (rs >= 0) {
 	            if ((rs = locinfo_tmtime(lip)) >= 0) {
 	                PARAMOPT	*pop = &aparams ;
-		        ARGINFO	*aip = &ainfo ;
-		        BITS	*bop = &pargs ;
-	                const int	aval = argvalue ;
+		        ARGINFO		*aip = &ainfo ;
+		        BITS		*bop = &pargs ;
 	                const char	*ofn = ofname ;
 	                const char	*afn = afname ;
-	                rs = process(pip,aip,bop,pop,ofn,afn,aval,f_apm) ;
+	                rs = process(pip,aip,bop,pop,ofn,afn) ;
 	            } /* end if (locinfo_tmtime) */
 	        } /* end if (ok) */
 
@@ -1295,15 +1288,13 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int process(pip,aip,bop,pop,ofn,afn,aval,f_apm)
+static int process(pip,aip,bop,pop,ofn,afn)
 PROGINFO	*pip ;
 ARGINFO		*aip ;
 BITS		*bop ;
 PARAMOPT	*pop ;
 const char	*ofn ;
 const char	*afn ;
-int		aval ;
-int		f_apm ;
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
@@ -1321,7 +1312,7 @@ int		f_apm ;
 	        rs = procallents(pip) ;
 	        wlen += rs ;
 	    } else {
-	        rs = procsome(pip,aip,bop,pop,afn,aval,f_apm) ;
+	        rs = procsome(pip,aip,bop,pop,afn) ;
 	        wlen += rs ;
 	    }
 
@@ -1341,14 +1332,12 @@ int		f_apm ;
 /* end subroutine (process) */
 
 
-static int procsome(pip,aip,bop,pop,afn,aval,f_apm)
+static int procsome(pip,aip,bop,pop,afn)
 PROGINFO	*pip ;
 ARGINFO		*aip ;
 BITS		*bop ;
 PARAMOPT	*pop ;
 const char	*afn ;
-int		aval ;
-int		f_apm ;
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -1422,10 +1411,10 @@ int		f_apm ;
 
 	} /* end if (afile arguments) */
 
-	if ((rs >= 0) && f_apm) {
+	if ((rs >= 0) && lip->f.apm) {
 
 	    pan += 1 ;
-	    rs = procnow(pip,f_apm,aval) ;
+	    rs = procnow(pip,lip->f.apm,lip->nitems) ;
 	    wlen += rs ;
 
 	} /* end if */
@@ -1434,7 +1423,7 @@ int		f_apm ;
 	    int	ndays = 1 ;
 
 	    pan += 1 ;
-	    if (aval > 1) ndays = aval ;
+	    if (lip->nitems > 1) ndays = lip->nitems ;
 	    rs = procnow(pip,TRUE,ndays) ;
 	    wlen += rs ;
 
@@ -1507,7 +1496,7 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 
 	if ((sp[0] == '+') || (sp[0] == '-')) {
 	    const int	f_plus = (sp[0] == '+') ;
-	    int		v = (lip->nentries-1) ;
+	    int		v = (lip->nitems-1) ;
 
 	    if (sl > 1) {
 	        const int	cl = (sl - 1) ;
@@ -1530,7 +1519,7 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 	            q.y = (ds.y >= 0) ? ds.y : lip->year ;
 	            q.m = ds.m ;
 	            q.d = ds.d ;
-	            rs = procqueries(pip,&q,(lip->nentries-1)) ;
+	            rs = procqueries(pip,&q,(lip->nitems-1)) ;
 	            wlen += rs ;
 	        } else {
 	            if (lip->f.interactive) {

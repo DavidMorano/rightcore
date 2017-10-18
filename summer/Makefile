@@ -146,7 +146,7 @@ INCS= config.h defs.h
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
 OBJ01= b_$(T).o
-OBJ02= fhm.o fam.o fsum.o
+OBJ02=
 OBJ03=
 OBJ04=
 OBJ05=
@@ -155,7 +155,7 @@ OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
 OBJ10=
-OBJ11= strnnlen.o cfdecf.o
+OBJ11=
 OBJ12=
 OBJ13= 
 OBJ14=
@@ -302,5 +302,7 @@ nodedb.o:		nodedb.c nodedb.h
 clusterdb.o:		clusterdb.c clusterdb.h
 
 kvsfile.o:		kvsfile.c kvsfile.h
+
+cksum.o:		cksum.c cksum.h
 
 

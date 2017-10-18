@@ -120,7 +120,7 @@ extern char	*strwcpy(char *,cchar *,int) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

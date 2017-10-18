@@ -10,21 +10,21 @@ SRCROOT= $(LOCAL)
 BINDIR= $(SRCROOT)/bin
 INCDIR= $(SRCROOT)/include
 LIBDIR= $(SRCROOT)/lib
+MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -72,34 +72,60 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+XFLAGS= $(CFLAGS)
+XXFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 #LD= $(CC)
 #LD= cc
 LD= ld
 
+
+LDRPATH=
+
 # regular
-LDFLAGS= -m -R$(LIBDIR)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
-LDFLAGS_P= -L/usr/lib/libp # -m -R$(LIBDIR)
+LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -m -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
 LIB2=
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
+
+
+XLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
+
+XOBJ= debug.o debugprintf.o nprintf.o
+
+XLIB0=
+XLIB1= -ldam -lb
+XLIB2= -ldebug
+XLIB3= -luc -lu
+XLIB4= $(CGS_LIBS)
+XLIB5= 
+XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+XLIB7= -ldl
+
+XLIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
+
+XLIBINFO= $(XLIBDIRS) $(XLIBS)
+
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -139,17 +165,17 @@ INCS= config.h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
-OBJ01= 
-OBJ02= cksum.o
+OBJ01= b_$(T).o
+OBJ02=
 OBJ03=
 OBJ04=
 OBJ05=
 OBJ06=
-OBJ07= printhelp.o 
+OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
 OBJ10=
-OBJ11=
+OBJ11= cksum.o
 OBJ12=
 OBJ13= 
 OBJ14=
@@ -178,11 +204,11 @@ default:		$(T).x
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -203,10 +229,15 @@ all:			$(ALL)
 $(T):			$(T).ee
 	cp -p $(T).ee $(T)
 
+$(T).d:			$(OBJ) $(XOBJ) Makefile
+	makedate -m $(T) > makedate.c
+	$(CC) -c $(CFLAGS) makedate.c
+	$(GPP) -o $@ $(LD_LDFLAGS) $(OBJ) $(XOBJ) $(CRTC) $(XLIBINFO) > $(T).lm
+
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
@@ -227,11 +258,17 @@ $(T).nm nm:		$(T).x
 $(T).cxref:
 	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
 
+safe:
+	makesafe -v=3 -I $(INCDIR) $(OBJ)
+
 strip:			$(T).x
 	strip $(T).x
 	rm -f $(T).$(OFF) $(T)
 
 install:		install-raw install-help
+
+install-ee:		$(ALL)
+	makenewer -r $(ALL) $(BINDIR)
 
 install-raw:		$(T).x
 	rm -f $(BINDIR)/$(T).$(OFF)
@@ -245,7 +282,7 @@ again:
 	rm -f $(ALL) $(T).x
 
 clean:			again
-	rm -f *.o
+	makeclean
 
 control:
 	uname -n > Control
@@ -258,10 +295,17 @@ whatinfo.o:		whatinfo.c config.h
 
 proginfo.o:		proginfo.c defs.h
 
-proginfo_setpiv.o:	proginfo_setpiv.c defs.h
+b_$(T).o:		b_$(T).cc b_$(T).h defs.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) b_$(T).cc
 
+maininfo.o:		maininfo.c maininfo.h kshlib.h
 
-userinfo.o:		userinfo.c userinfo.h
+kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
+
+sesmsg.o:		sesmsg.c sesmsg.h
+
+msgdata.o:		msgdata.c msgdata.h
+
 
 vecstr_loadfile.o:	vecstr_loadfile.c
 
@@ -286,5 +330,25 @@ clusterdb.o:		clusterdb.c clusterdb.h
 kvsfile.o:		kvsfile.c kvsfile.h
 
 cksum.o:		cksum.c cksum.h
+
+
+# testing
+
+T01= testold
+
+T01OBJa= omain.o
+T01OBJb= cksum.o
+T01OBJc=
+T01OBJd=
+
+T01OBJ= $(T01OBJa) $(T01OBJb) $(T01OBJc) $(T01OBJd)
+
+T01OBJS= $(CRTFRONT) $(T01OBJ) $(CRTBACK)
+
+$(T01).x:		Makefile $(T01OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T01OBJS) $(XLIBINFO) > $(T01).lm
+
+$(T01).o:		omain.c
+	$(GPP) -c $(XXFLAGS) $(CPPFLAGS) omain.c
 
 

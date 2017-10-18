@@ -119,8 +119,9 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* external variables */
 
-extern char	**environ ;
-extern char	chunk_makedate[] ;
+extern cchar	chunk_makedate[] ;
+
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

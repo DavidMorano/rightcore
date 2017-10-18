@@ -115,7 +115,7 @@ static void	int_exit(int) ;
 static volatile int	if_exit ;
 static volatile int	if_int ;
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -313,7 +313,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -349,12 +349,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* program-root */
 	                case argopt_root:
 	                    if (argr > 0) {
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl)
-	                        pr = argp ;
-			    } else
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            pr = argp ;
+	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
 
@@ -384,14 +384,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            pip->tmpdname = avp ;
 	                    } else {
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pip->tmpdname = argp ;
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pip->tmpdname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
@@ -407,14 +407,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            sn = avp ;
 	                    } else {
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
@@ -425,14 +425,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            afname = avp ;
 	                    } else {
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
@@ -443,14 +443,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            ofname = avp ;
 	                    } else {
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
@@ -461,14 +461,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        if (avl)
 	                            efname = avp ;
 	                    } else {
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
@@ -481,17 +481,17 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            pip->ssfname = avp ;
 	                        }
 	                    } else {
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            pip->final.ssfile = TRUE ;
-	                            pip->have.ssfile = TRUE ;
-	                            pip->ssfname = argp ;
-	                        }
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                pip->final.ssfile = TRUE ;
+	                                pip->have.ssfile = TRUE ;
+	                                pip->ssfname = argp ;
+	                            }
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
@@ -504,45 +504,45 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            pip->sxfname = avp ;
 	                        }
 	                    } else {
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            pip->final.sxfile = TRUE ;
-	                            pip->have.sxfile = TRUE ;
-	                            pip->sxfname = argp ;
-	                        }
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                pip->final.sxfile = TRUE ;
+	                                pip->have.sxfile = TRUE ;
+	                                pip->sxfname = argp ;
+	                            }
+	                        } else
+	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
 
 /* post-processing module(s) */
 	                case argopt_ppm:
 	                    if (argr > 0) {
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl) {
-	                        rs = paramopt_loads(&aparams,PO_PPM,
-	                            argp,argl) ;
-			    }
-			    } else
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            rs = paramopt_loads(&aparams,PO_PPM,
+	                                argp,argl) ;
+	                        }
+	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
 
 /* track PID */
 	                case argopt_tpid:
 	                    if (argr > 0) {
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl) {
-	                        rs = cfdecui(argp,argl,&uiw) ;
-	                        pip->pid_track = (pid_t) uiw ;
-	                    }
-			    } else
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            rs = cfdecui(argp,argl,&uiw) ;
+	                            pip->pid_track = (pid_t) uiw ;
+	                        }
+	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
 
@@ -567,7 +567,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        f_optequal = FALSE ;
 	                        if (avl) {
 	                            rs = optvalue(avp,avl) ;
-				    pip->linelen = rs ;
+	                            pip->linelen = rs ;
 	                            if (pip->linelen > 0) {
 	                                pip->have.linelen = TRUE ;
 	                            } else {
@@ -608,14 +608,14 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* program-root */
 	                    case 'R':
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'V':
@@ -627,29 +627,29 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        break ;
 
 	                    case 'c':
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = optvalue(argp,argl) ;
-	                            cutoff = rs ;
-	                        }
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = optvalue(argp,argl) ;
+	                                cutoff = rs ;
+	                            }
+	                        } else
+	                            rs = SR_INVALID ;
 	                        break ;
 
 /* options */
 	                    case 'o':
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = keyopt_loads(&akopts,argp,argl) ;
-				}
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            }
+	                        } else
+	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'r':
@@ -658,15 +658,15 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* poll interval */
 	                    case 't':
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = cfdecti(argp,argl,&interval) ;
-				}
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = cfdecti(argp,argl,&interval) ;
+	                            }
+	                        } else
+	                            rs = SR_INVALID ;
 	                        break ;
 
 /* verbose output */
@@ -683,18 +683,18 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* line width */
 	                    case 'w':
-	                    if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            pip->have.linelen = TRUE ;
-	                            pip->final.linelen = TRUE ;
-	                            rs = optvalue(argp,argl) ;
-	                            pip->linelen = rs ;
-	                        }
-			    } else
-	                        rs = SR_INVALID ;
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                pip->have.linelen = TRUE ;
+	                                pip->final.linelen = TRUE ;
+	                                rs = optvalue(argp,argl) ;
+	                                pip->linelen = rs ;
+	                            }
+	                        } else
+	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case '?':
@@ -854,7 +854,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    if ((cp = getenv(VARTRACKPID)) != NULL) {
 	        if (cfdecui(cp,-1,&uiw) >= 0) {
 	            pip->pid_track = (pid_t) uiw ;
-		}
+	        }
 	    }
 	} /* end if */
 
@@ -888,12 +888,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    bfile	argfile, *afp = &argfile ;
 
 	    if (afname[0] == '-') {
-		afname = BFILE_STDIN ;
+	        afname = BFILE_STDIN ;
 	        f_used = TRUE ;
 	    }
 
 	    if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
-		const int	llen = LINEBUFLEN ;
+	        const int	llen = LINEBUFLEN ;
 	        char	lbuf[LINEBUFLEN + 1] ;
 
 	        while ((rs = breadline(afp,lbuf,llen)) > 0) {
@@ -1017,12 +1017,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                pip->progname,cp) ;
 
 	        for (i = 0 ; vechand_get(&watchers,i,&wp) >= 0 ; i += 1) {
-	            if (wp == NULL) continue ;
-
-	            filewatch_finish(wp) ;
-	            uc_free(wp) ;
-	            vechand_del(&watchers,i--) ;
-
+	            if (wp != NULL) {
+	                filewatch_finish(wp) ;
+	                uc_free(wp) ;
+	                vechand_del(&watchers,i--) ;
+		    }
 	        } /* end for */
 
 	    } /* end if (could not open a file) */
@@ -1141,7 +1140,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                uc_free(wp) ;
 	            } else {
 	                nfiles += 1 ;
-		    }
+	            }
 
 	            rs = SR_OK ;
 
@@ -1167,12 +1166,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* get out and close everything */
 
 	for (i = 0 ; vechand_get(&watchers,i,&wp) >= 0 ; i += 1) {
-	    if (wp == NULL) continue ;
-
-	    filewatch_finish(wp) ;
-	    uc_free(wp) ;
-	    vechand_del(&watchers,i--) ;
-
+	    if (wp != NULL) {
+	        filewatch_finish(wp) ;
+	        uc_free(wp) ;
+	        vechand_del(&watchers,i--) ;
+	    }
 	} /* end for */
 
 	if (pip->open.watchers) {
@@ -1197,7 +1195,7 @@ done:
 	        if (! pip->f.quiet) {
 	            bprintf(pip->efp,"%s: invalid query (%d)\n",
 	                pip->progname,rs) ;
-		}
+	        }
 	        break ;
 	    case SR_NOENT:
 	        ex = EX_CANTCREAT ;
@@ -1334,131 +1332,121 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	if (rs >= 0) {
 	    KEYOPT_CUR	cur ;
 	    if ((rs = keyopt_curbegin(kop,&cur)) >= 0) {
-		uint	uv ;
+	        uint	uv ;
 	        int	oi ;
 	        int	kl, vl ;
 	        cchar	*kp, *vp ;
 
-	    while ((kl = keyopt_enumkeys(kop,&cur,&kp)) >= 0) {
+	        while ((kl = keyopt_enumkeys(kop,&cur,&kp)) >= 0) {
 
-	        vl = keyopt_fetch(kop,kp,NULL,&vp) ;
+	            vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
-	        oi = matostr(progopts,2,kp,kl) ;
+	            oi = matostr(progopts,2,kp,kl) ;
 
-	        switch (oi) {
-
-		case progopt_wait:
-	            if (! pip->final.wait) {
-	                n += 1 ;
-	                pip->have.wait = TRUE ;
-	                pip->f.wait = TRUE ;
-	                if (vl > 0) {
-	                    rs = optbool(vp,vl) ;
-	                    pip->f.wait = (rs > 0) ;
+	            switch (oi) {
+	            case progopt_wait:
+	                if (! pip->final.wait) {
+	                    n += 1 ;
+	                    pip->have.wait = TRUE ;
+	                    pip->f.wait = TRUE ;
+	                    if (vl > 0) {
+	                        rs = optbool(vp,vl) ;
+	                        pip->f.wait = (rs > 0) ;
+	                    }
 	                }
-	            }
-	            break ;
-
-		case progopt_stdin:
-	            if (! pip->final.usestdin) {
-	                n += 1 ;
-	                pip->have.usestdin = TRUE ;
-	                pip->f.usestdin = TRUE ;
-	                if (vl > 0) {
-	                    rs = optbool(vp,vl) ;
-	                    pip->f.usestdin = (rs > 0) ;
+	                break ;
+	            case progopt_stdin:
+	                if (! pip->final.usestdin) {
+	                    n += 1 ;
+	                    pip->have.usestdin = TRUE ;
+	                    pip->f.usestdin = TRUE ;
+	                    if (vl > 0) {
+	                        rs = optbool(vp,vl) ;
+	                        pip->f.usestdin = (rs > 0) ;
+	                    }
 	                }
-	            }
-	            break ;
-
-		case progopt_own:
-	            if (! pip->final.useown) {
-	                n += 1 ;
-	                pip->have.useown = TRUE ;
-	                pip->f.useown = TRUE ;
-	                if (vl > 0) {
-	                    rs = optbool(vp,vl) ;
-	                    pip->f.useown = (rs > 0) ;
+	                break ;
+	            case progopt_own:
+	                if (! pip->final.useown) {
+	                    n += 1 ;
+	                    pip->have.useown = TRUE ;
+	                    pip->f.useown = TRUE ;
+	                    if (vl > 0) {
+	                        rs = optbool(vp,vl) ;
+	                        pip->f.useown = (rs > 0) ;
+	                    }
 	                }
-	            }
-	            break ;
-
-		case progopt_fold:
-	            if (! pip->final.fold) {
-	                n += 1 ;
-	                pip->have.fold = TRUE ;
-	                pip->f.fold = TRUE ;
-	                if (vl > 0) {
-	                    rs = optbool(vp,vl) ;
-	                    pip->f.fold = (rs > 0) ;
+	                break ;
+	            case progopt_fold:
+	                if (! pip->final.fold) {
+	                    n += 1 ;
+	                    pip->have.fold = TRUE ;
+	                    pip->f.fold = TRUE ;
+	                    if (vl > 0) {
+	                        rs = optbool(vp,vl) ;
+	                        pip->f.fold = (rs > 0) ;
+	                    }
 	                }
-	            }
-	            break ;
-
-		case progopt_clean:
-	            if (! pip->final.clean) {
-	                n += 1 ;
-	                pip->have.clean = TRUE ;
-	                pip->f.clean = TRUE ;
-	                if (vl > 0) {
-	                    rs = optbool(vp,vl) ;
-	                    pip->f.clean = (rs > 0) ;
+	                break ;
+	            case progopt_clean:
+	                if (! pip->final.clean) {
+	                    n += 1 ;
+	                    pip->have.clean = TRUE ;
+	                    pip->f.clean = TRUE ;
+	                    if (vl > 0) {
+	                        rs = optbool(vp,vl) ;
+	                        pip->f.clean = (rs > 0) ;
+	                    }
 	                }
-	            }
-	            break ;
-
-		case progopt_ssf:
-	            if (! pip->final.ssfile) {
-	                n += 1 ;
-	                pip->have.ssfile = TRUE ;
-	                if (vl > 0) {
-	                    cchar	**vpp = &pip->ssfname ;
-	                    rs = proginfo_setentry(pip,vpp,vp,vl) ;
-			}
-	            }
-	            break ;
-
-		case progopt_sxf:
-	            if (! pip->final.sxfile) {
-	                n += 1 ;
-	                pip->have.sxfile = TRUE ;
-	                if (vl > 0) {
-	                    cchar	**vpp = &pip->sxfname ;
-	                    rs = proginfo_setentry(pip,vpp,vp,vl) ;
-			}
-	            }
-	            break ;
-
-	        case progopt_linelen:
-	            if (! pip->final.linelen) {
-	                n += 1 ;
-	                pip->have.linelen = TRUE ;
-	                pip->final.linelen = TRUE ;
-	                pip->f.linelen = TRUE ;
-	                if (vl > 0) {
-	                    rs = cfdecui(vp,vl,&uv) ;
-	                    pip->linelen = uv ;
+	                break ;
+	            case progopt_ssf:
+	                if (! pip->final.ssfile) {
+	                    n += 1 ;
+	                    pip->have.ssfile = TRUE ;
+	                    if (vl > 0) {
+	                        cchar	**vpp = &pip->ssfname ;
+	                        rs = proginfo_setentry(pip,vpp,vp,vl) ;
+	                    }
 	                }
-	            }
-	            break ;
-
-	        case progopt_indent:
-	            if (! pip->final.indent) {
-	                n += 1 ;
-	                pip->have.indent = TRUE ;
-	                pip->final.indent = TRUE ;
-	                pip->f.indent = TRUE ;
-	                pip->indent = 8 ;
-	                if (vl > 0) {
-	                    rs = cfdecui(vp,vl,&uv) ;
-	                    pip->indent = uv ;
+	                break ;
+	            case progopt_sxf:
+	                if (! pip->final.sxfile) {
+	                    n += 1 ;
+	                    pip->have.sxfile = TRUE ;
+	                    if (vl > 0) {
+	                        cchar	**vpp = &pip->sxfname ;
+	                        rs = proginfo_setentry(pip,vpp,vp,vl) ;
+	                    }
 	                }
-	            }
-	            break ;
+	                break ;
+	            case progopt_linelen:
+	                if (! pip->final.linelen) {
+	                    n += 1 ;
+	                    pip->have.linelen = TRUE ;
+	                    pip->final.linelen = TRUE ;
+	                    pip->f.linelen = TRUE ;
+	                    if (vl > 0) {
+	                        rs = cfdecui(vp,vl,&uv) ;
+	                        pip->linelen = uv ;
+	                    }
+	                }
+	                break ;
+	            case progopt_indent:
+	                if (! pip->final.indent) {
+	                    n += 1 ;
+	                    pip->have.indent = TRUE ;
+	                    pip->final.indent = TRUE ;
+	                    pip->f.indent = TRUE ;
+	                    pip->indent = 8 ;
+	                    if (vl > 0) {
+	                        rs = cfdecui(vp,vl,&uv) ;
+	                        pip->indent = uv ;
+	                    }
+	                }
+	                break ;
+	            } /* end switch */
 
-	        } /* end switch */
-
-		    if (rs < 0) break ;
+	            if (rs < 0) break ;
 	        } /* end while (looping over keys) */
 
 	        keyopt_curend(kop,&cur) ;
@@ -1477,12 +1465,12 @@ static int istrack(PROGINFO *pip)
 	if (pip->pid_track > 0) {
 
 #if	CF_ISPROC
-	f_track = isproc(pip->pid_track) ;
+	    f_track = isproc(pip->pid_track) ;
 #else /* CF_ISPROC */
-	{
-	    int	rs1 = u_kill(pip->pid_track,0) ;
-	    f_track = (rs1 >= 0) ;
-	}
+	    {
+	        int	rs1 = u_kill(pip->pid_track,0) ;
+	        f_track = (rs1 >= 0) ;
+	    }
 #endif /* CF_ISPROC */
 
 	} /* end if (not-zero) */

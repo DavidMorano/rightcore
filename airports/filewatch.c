@@ -60,7 +60,7 @@
 #define	TO_OPEN		60
 
 #ifndef	STDINFNAME
-#define	STDINFNAME		"*STDIN*"
+#define	STDINFNAME	"*STDIN*"
 #endif
 
 #ifndef	STDOUTFNAME
@@ -88,8 +88,7 @@ extern int	isprintlatin(int) ;
 static int	filewatch_fileopen(FILEWATCH *,time_t,const char *,int) ;
 static int	filewatch_fileclose(FILEWATCH *) ;
 static int	filewatch_putout(FILEWATCH *,bfile *,char *,int) ;
-static int	filewatch_putoutline(FILEWATCH *,bfile *,int,
-			const char *,int) ;
+static int	filewatch_putoutline(FILEWATCH *,bfile *,int,cchar *,int) ;
 
 static int	mkclean(char *,int,const char *,int) ;
 static int	hasourbad(const char *,int) ;
@@ -256,11 +255,8 @@ bfile		*ofp ;
 /* CONSTCOND */
 
 	        while (TRUE) {
-
 	            int		blen ;
-
 	            char	*bp ;
-
 
 	            bp = op->buf + op->bi ;
 	            blen = FILEWATCH_BUFLEN - op->bi ;

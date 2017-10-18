@@ -32,11 +32,11 @@
         retrieves the accumulated check sum.
 
         This routine provides only the POSIX 1003.2 version of CKSUM. Any other
-        options that your UNIX |cksum(1)| program may have other than the POSIX
-        1003.2 basic function is not provided by this object module.
+        options that your UNIX© |cksum(1)| program may have other than the
+        POSIX© 1003.2 basic function is not provided by this object.
 
         In the interest of avoiding any further confusion than I have caused
-        already, the polynomial used for this check sum is:
+        already, the polynomial used for this check-sum is:
 
 		x32+x26+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x1+1
 
@@ -75,7 +75,7 @@
 
 		cksum_getsum() ;
 
-		cksum_gettotal()
+		cksum_getsumall()
 
 		cksum_finish()
 
@@ -106,6 +106,7 @@
 #include	<limits.h>
 #include	<unistd.h>
 #include	<stdlib.h>
+#include	<string.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -190,11 +191,7 @@ int cksum_start(CKSUM *csp)
 
 	if (csp == NULL) return SR_FAULT ;
 
-	csp->f.begun = FALSE ;
-	csp->sum = 0 ;
-	csp->len = 0 ;
-	csp->totalsum = (uint) (~ 0) ;
-	csp->totallen = 0 ;
+	memset(csp,0,sizeof(CKSUM)) ;
 	return SR_OK ;
 }
 /* end subroutine (cksum_start) */
@@ -215,16 +212,15 @@ int cksum_begin(CKSUM *csp)
 
 	if (csp == NULL) return SR_FAULT ;
 
-	csp->f.begun = TRUE ;
-	csp->sum = 0 ;
-	csp->len = 0 ;
-	csp->totalsum = (~ csp->totalsum) ;
+	csp->f.local = TRUE ;
+	csp->local.len = 0 ;
+	csp->local.sum = 0 ;
 	return SR_OK ;
 }
 /* end subroutine (cksum_begin) */
 
 
-int cksum_accum(CKSUM *csp,void *buf,int buflen)
+int cksum_accum(CKSUM *csp,void *abuf,int alen)
 {
 	uint		ch ;
 	int		rs = SR_OK ;
@@ -235,28 +231,28 @@ int cksum_accum(CKSUM *csp,void *buf,int buflen)
 #endif
 
 	if (csp == NULL) return SR_FAULT ;
-	if (buf == NULL) return SR_FAULT ;
-
-	csp->len += buflen ;
-	csp->totallen += buflen ;
+	if (abuf == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("cksum_accum: buflen=%d len=%d\n",buflen,csp->len) ;
+	debugprintf("cksum_accum: alen=%d len=%d\n",alen,csp->local.len) ;
 #endif
 
-	bp = (uchar *) buf ;
-	olp = bp + buflen ;
-	if (csp->f.begun) {
+	bp = (uchar *) abuf ;
+	olp = (bp + alen) ;
+	if (csp->f.local) {
+	    csp->local.len += alen ;
+	    csp->total.len += alen ;
 	    while (bp < olp) {
-		ch = (*bp & 0xff) ;
-	        ADDSUM(csp->sum,ch) ;
-	        ADDSUM(csp->totalsum,ch) ;
+		ch = MKCHAR(*bp) ;
+	        ADDSUM(csp->local.sum,ch) ;
+	        ADDSUM(csp->total.sum,ch) ;
 	        bp += 1 ;
 	    } /* end while */
 	} else {
+	    csp->local.len += alen ;
 	    while (bp < olp) {
-		ch = (*bp & 0xff) ;
-	        ADDSUM(csp->sum,ch) ;
+		ch = MKCHAR(*bp) ;
+	        ADDSUM(csp->local.sum,ch) ;
 	        bp += 1 ;
 	    } /* end while */
 	} /* end if (started) */
@@ -268,27 +264,10 @@ int cksum_accum(CKSUM *csp,void *buf,int buflen)
 
 int cksum_end(CKSUM *csp)
 {
-	uint		v ;
-	uint		ch ;
-	int		i = 0 ;
 
 	if (csp == NULL) return SR_FAULT ;
 
-/* only include the smallest number of bytes needed to hold the length! */
-
-	v = csp->len ;
-	while ((v != 0) && (i < sizeof(uint))) {
-	    ch = (v & 0xff) ;
-	    ADDSUM(csp->sum,ch) ;
-	    if (csp->f.begun) {
-	    	ADDSUM(csp->totalsum,ch) ;
-	    }
-	    v = (v >> 8) ;		/* unsigned shift, zero fill */
-	    i += 1 ;
-	} /* end while */
-
-	csp->totalsum = (~ csp->totalsum) ;
-	csp->f.begun = FALSE ;
+	csp->f.local = FALSE ;
 	return SR_OK ;
 }
 /* end subroutine (cksum_end) */
@@ -300,7 +279,7 @@ int cksum_getlen(CKSUM *csp,uint *rp)
 	if (csp == NULL) return SR_FAULT ;
 	if (rp == NULL) return SR_FAULT ;
 
-	*rp = csp->len ;
+	*rp = csp->local.len ;
 	return SR_OK ;
 }
 /* end subroutine (cksum_getlen) */
@@ -309,36 +288,57 @@ int cksum_getlen(CKSUM *csp,uint *rp)
 /* get the cksum accummulated so far */
 int cksum_getsum(CKSUM *csp,uint *rp)
 {
+	uint		sum ;
+	uint		v ;
+	uint		ch ;
 	int		rs = SR_OK ;
-	int		rs1 ;
+	int		i = 0 ;
 
 	if (csp == NULL) return SR_FAULT ;
-	if (rp == NULL) return SR_FAULT ;
 
-	if (csp->f.begun) {
-	    rs1 = cksum_end(csp) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
+/* only include the smallest number of bytes needed to hold the length! */
 
-	if (rp != NULL) *rp = (~ csp->sum) ;
+	v = csp->local.len ;
+	sum = csp->local.sum ;
+	while ((v != 0) && (i < sizeof(uint))) {
+	    ch = MKCHAR(v) ;
+	    ADDSUM(sum,ch) ;
+	    v = (v >> 8) ;		/* unsigned shift, zero fill */
+	    i += 1 ;
+	} /* end while */
 
-	if (rs >= 0) rs = (csp->len & INT_MAX) ;
-
+	if (rp != NULL) *rp = (~ sum) ;
+	if (rs >= 0) rs = (csp->local.len & INT_MAX) ;
 	return rs ;
 }
 /* end subroutine (cksum_getsum) */
 
 
 /* get the total checksum and total length */
-int cksum_gettotal(CKSUM *csp,uint *rp)
+int cksum_getsumall(CKSUM *csp,uint *rp)
 {
-
+	uint		sum ;
+	uint		v ;
+	uint		ch ;
+	int		i = 0 ;
+	int		rs ;
 	if (csp == NULL) return SR_FAULT ;
-	if (rp == NULL) return SR_FAULT ;
 
-	*rp = csp->totalsum ;
-	return ((csp->f.begun) ? csp->totallen : SR_INVALID) ;
+/* only include the smallest number of bytes needed to hold the length! */
+
+	v = csp->total.len ;
+	sum = csp->total.sum ;
+	while ((v != 0) && (i < sizeof(uint))) {
+	    ch = MKCHAR(v) ;
+	    ADDSUM(sum,ch) ;
+	    v = (v >> 8) ;		/* unsigned shift, zero fill */
+	    i += 1 ;
+	} /* end while */
+
+	if (rp != NULL) *rp = (~ sum) ;
+	rs = (csp->total.len & INT_MAX) ;
+	return rs ;
 }
-/* end subroutine (cksum_gettotal) */
+/* end subroutine (cksum_getsumall) */
 
 

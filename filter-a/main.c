@@ -11,11 +11,9 @@
 /* revision history:
 
 	= 1987-09-01, David A­D­ Morano
-
-	This subroutine was originally written but it was probably started
-	from any one of the numerous subroutine which perform a similar
-	"file-processing" fron end.
-
+        This subroutine was originally written but it was probably started from
+        any one of the numerous subroutine which perform a similar
+        "file-processing" fron end.
 
 */
 
@@ -23,8 +21,8 @@
 
 /*******************************************************************************
 
-	This program will read the input file and filter into a file
-	with one email address per line.
+        This program will read the input file and filter into a file with one
+        email address per line.
 
 	Synopsis:
 
@@ -43,17 +41,15 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<baops.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -70,12 +66,11 @@
 #endif
 
 
-
 /* external subroutines */
 
 extern int	matstr(const char **,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
-extern int	procfile(struct proginfo *,bfile *,const char *,int) ;
+extern int	procfile(PROGINFO *,bfile *,const char *,int) ;
 extern int	isdigitlatin(int) ;
 
 extern char	*strbasename(char *) ;
@@ -83,7 +78,7 @@ extern char	*strbasename(char *) ;
 
 /* forward references */
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 static int	helpfile(const char *,bfile *) ;
 
 
@@ -111,20 +106,19 @@ static const char *argopts[] = {
 #define	ARGOPT_HELP		4
 
 
+/* exported subroutines */
 
 
-
-
-
+/* ARGSUSED */
 int main(argc,argv,envv)
 int		argc ;
 const char	*argv[] ;
 const char	*envv[] ;
 {
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
 
 	int	argr, argl, aol, avl, kwi ;
 	int	ai, ai_max, ai_pos ;
@@ -141,9 +135,6 @@ const char	*envv[] ;
 	int	f ;
 
 	const char	*argp, *aop, *avp ;
-	char	argpresent[NARGGROUPS] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	buf[BUFLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*pmspec = NULL ;
 	const char	*searchname = NULL ;
@@ -152,9 +143,11 @@ const char	*envv[] ;
 	const char	*ifname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp ;
+	char	argpresent[NARGGROUPS] ;
+	char	tmpfname[MAXPATHLEN + 1] ;
+	char	buf[BUFLEN + 1] ;
 
-
-	memset(pip,0,sizeof(struct proginfo)) ;
+	memset(pip,0,sizeof(PROGINFO)) ;
 	pip->verboselevel = 1 ;
 
 	pip->progname = strbasename(argv[0]) ;
@@ -162,10 +155,8 @@ const char	*envv[] ;
 	if (bopen(&errfile,BFILE_STDERR,"wca",0666) < 0)
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
 
-
 	pip->efp = &errfile ;
 	pip->debuglevel = 0 ;
-
 
 /* process program arguments */
 
@@ -595,40 +586,35 @@ badoutopen:
 /* end subroutine (main) */
 
 
-
-/* LOCAL SUBROUTINES */
-
+/* local subroutines */
 
 
-static int usage(pip)
-struct proginfo	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int	rs ;
-	int	wlen ;
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
 
-
-	wlen = 0 ;
-	rs = bprintf(pip->efp,
+	if (rs >= 0) rs = bprintf(pip->efp,
 	    "%s: USAGE> %s [-w outfile] [infile [...]]\n",
 	    pip->progname,pip->progname) ;
 
 	wlen += rs ;
-	rs = bprintf(pip->efp,"\t\t[-DV]\n") ;
+	if (rs >= 0) rs = bprintf(pip->efp,"\t\t[-DV]\n") ;
 
 	wlen += rs ;
-	rs = bprintf(pip->efp,
+	if (rs >= 0) rs = bprintf(pip->efp,
 	    "\tinfile      input file\n") ;
 
 	wlen += rs ;
-	rs = bprintf(pip->efp,
+	if (rs >= 0) rs = bprintf(pip->efp,
 	    "\t-w outfile  output file\n") ;
 
 	wlen += rs ;
-	rs = bprintf(pip->efp,
+	if (rs >= 0) rs = bprintf(pip->efp,
 	    "\t-D          debugging flag\n") ;
 
 	wlen += rs ;
-	rs = bprintf(pip->efp,
+	if (rs >= 0) rs = bprintf(pip->efp,
 	    "\t-V          program version\n") ;
 
 	wlen += rs ;
@@ -641,13 +627,10 @@ static int helpfile(f,ofp)
 const char	f[] ;
 bfile		*ofp ;
 {
-	bfile	file, *ifp = &file ;
-
-	int	rs ;
-	int	wlen ;
-
-	char	buf[BUFLEN + 1] ;
-
+	bfile		file, *ifp = &file ;
+	int		rs ;
+	int		wlen ;
+	char		buf[BUFLEN + 1] ;
 
 	if ((f == NULL) || (f[0] == '\0')) 
 		return SR_FAULT ;
@@ -659,12 +642,10 @@ bfile		*ofp ;
 
 	    wlen += rs ;
 	    bclose(ifp) ;
-
-	}
+	} /* end if (bfile) */
 
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (helpfile) */
-
 
 

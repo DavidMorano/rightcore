@@ -222,7 +222,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -815,10 +815,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (rs >= 0) rs = bits_start(&pargs,0) ;
 	if (rs < 0) goto badpargs ;
 
-	if (rs >= 0) {
-	    rs = keyopt_start(&akopts) ;
-	    pip->open.akopts = (rs >= 0) ;
-	}
+	rs = keyopt_start(&akopts) ;
+	pip->open.akopts = (rs >= 0) ;
 
 	if (rs >= 0) {
 	    rs = paramopt_start(&aparams) ;

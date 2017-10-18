@@ -855,9 +855,9 @@ static int procinfonames(PROGINFO *pip)
 
 static int process(PROGINFO *pip,cchar *un)
 {
+	const int	dl = pip->debuglevel ;
+	const int	vl = pip->verboselevel ;
 	int		rs ;
-	int		dl = pip->debuglevel ;
-	int		vl = pip->verboselevel ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
@@ -870,13 +870,13 @@ static int process(PROGINFO *pip,cchar *un)
 	    const int	nlen = MAXNETNAMELEN ;
 	    char	nbuf[MAXNETNAMELEN+1] ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: havenis() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(3))
+	        debugprintf("main/process: havenis() rs=%d\n",rs) ;
 #endif
 	    if ((rs = getournetname(nbuf,nlen,un)) > 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: getournetname() rs=%d\n",rs) ;
+	        if (DEBUGLEVEL(3))
+	            debugprintf("main/process: getournetname() rs=%d\n",rs) ;
 #endif
 	        if (vl >= 3) {
 	            progout_printf(pip,"netname=%s\n",nbuf) ;
@@ -887,8 +887,9 @@ static int process(PROGINFO *pip,cchar *un)
 	        }
 	        if ((rs = onckeyalready(nbuf)) > 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: onckeyalready() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(3))
+	                debugprintf("main/process: onckeyalready() rs=%d\n",
+				rs) ;
 #endif
 	            rs = SR_OK ;
 	            if ((vl >= 2) || pip->f.no) {
@@ -909,19 +910,11 @@ static int process(PROGINFO *pip,cchar *un)
 	                progout_printf(pip,fmt) ;
 	            } else {
 	                if ((rs = prockeylogin(pip,nbuf,un)) >= 0) {
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: prockeylogin() rs=%d\n",rs) ;
-#endif
 	                    if (vl >= 2) {
 	                        fmt = "key-logged in!\n" ;
 	                        progout_printf(pip,fmt) ;
 	                    }
 	                } else {
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: prockeylogin() rs=%d\n",rs) ;
-#endif
 	                    if (dl > 0) {
 	                        fmt = "%s: key-login failed (%d)\n" ;
 	                        bprintf(pip->efp,fmt,pn,rs) ;
@@ -934,8 +927,8 @@ static int process(PROGINFO *pip,cchar *un)
 	        } /* end if (onckeyalready) */
 	    } else if (rs == 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: getournetname() rs=%d\n",rs) ;
+	        if (DEBUGLEVEL(3))
+	            debugprintf("main/process: getournetname() rs=%d\n",rs) ;
 #endif
 	        if (vl >= 2) {
 	            fmt = "no net-name available\n" ;
@@ -947,8 +940,8 @@ static int process(PROGINFO *pip,cchar *un)
 	        }
 	    } else if (rs == SR_UNAVAIL) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: getournetname() rs=%d\n",rs) ;
+	       if (DEBUGLEVEL(3))
+	           debugprintf("main/process: getournetname() rs=%d\n",rs) ;
 #endif
 	        if (vl >= 2) {
 	            fmt = "NIS server is unavailable\n" ;
@@ -960,13 +953,13 @@ static int process(PROGINFO *pip,cchar *un)
 	        }
 	    } /* end if (getournetname) */
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: getournetname-out rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(3))
+	        debugprintf("main/process: getournetname-out rs=%d\n",rs) ;
 #endif
 	} else if (rs == 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/process: havenis() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(3))
+	        debugprintf("main/process: havenis() rs=%d\n",rs) ;
 #endif
 	    if (vl >= 2) {
 	        fmt = "NIS is not initialized\n" ;
@@ -1013,7 +1006,7 @@ static int prockeylogin(PROGINFO *pip,cchar *netname,cchar *un)
 
 static int prockeylogin_auth(PROGINFO *pip,cchar *netname,cchar *un)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 	int		f = FALSE ;
 	cchar		*aufn = pip->aufname ;
 	char		abuf[MAXPATHLEN+1] ;
@@ -1039,7 +1032,7 @@ static int prockeylogin_auth(PROGINFO *pip,cchar *netname,cchar *un)
 	    } else if (isNotPresent(rs)) {
 	        rs = SR_OK ;
 	    } /* end if */
-	} /* end if (mkpath) */
+	} /* end if (ok) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("main/prockeylogin_auth: ret rs=%d f=%u\n",rs,f) ;

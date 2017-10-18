@@ -170,7 +170,7 @@ extern char	*timestr_logz(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

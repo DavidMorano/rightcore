@@ -55,7 +55,7 @@
 /* external subroutines */
 
 #if	CF_DEBUGS
-extern int	debugprintf(char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
 

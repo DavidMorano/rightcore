@@ -214,10 +214,10 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 #if	CF_PERCACHE
-extern PERCACHE		pc ;		/* unitialized it stays in BSS */
+extern PERCACHE	pc ;			/* unitialized it stays in BSS */
 #endif
 
 

@@ -1,14 +1,16 @@
+/* quoted */
 /* version %I% last modified %G% */
 
 /* parse out a quoted field */
 
-/*
-	David A.D. Morano
-	November 1991
+
+/* revision history:
+
+	= 1991-11-01, David A.D. Morano
+	
 */
 
-
-/*****************************************************************************
+/*******************************************************************************
 
 	This subroutine is used to parse out a quoted field from
 	a buffer which is passed as an argument.  The resultant
@@ -24,15 +26,13 @@
 	- length of parsed out string
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
-
-#include	"localmisc.h"
-
+#include	<envstandards.h>
 #include	<ascii.h>
-
 #include	<baops.h>
+#include	<localmisc.h>
 
 
 /* static data */
@@ -156,5 +156,6 @@ int	rlen, len ;
 
 	return elen ;
 }
+/* end subroutine (quoted) */
 
 

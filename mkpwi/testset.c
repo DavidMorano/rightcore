@@ -52,7 +52,9 @@ using namespace		std ;		/* yes, we want punishment! */
 /* external subroutines */
 
 #if	CF_DEBUGS
+extern "C" int	debugopen(cchar *) ;
 extern "C" int	debugprintf(cchar *,...) ;
+extern "C" int	debugclose() ;
 extern "C" int	strlinelen(cchar *,int,int) ;
 #endif
 

@@ -19,6 +19,12 @@
 
 /* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	We test the CKSUM object.
+
+
+*******************************************************************************/
 
 #include	<envstandards.h>
 
@@ -52,7 +58,7 @@
 
 /* external subroutines */
 
-#if	CF_DEBUGS
+#if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
 extern int	debugprintf(cchar *,...) ;
 extern int	debugprinthexblock(cchar *,int,const void *,int) ;
@@ -78,6 +84,7 @@ int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile		outfile, *ofp = &outfile ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		ex = EX_OK ;
 	cchar		*ifname = NULL ;
 	cchar		*cp ;
@@ -109,6 +116,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	        CKSUM		sum ;
 	        const int	fd = rs ;
 
+#if	CF_DEBUGS
+		debugprintf("main: cksum_start()\n") ;
+#endif
+
 	        if ((rs = cksum_start(&sum)) >= 0) {
 		    int		tlen = 0 ;
 
@@ -117,33 +128,48 @@ int main(int argc,cchar **argv,cchar **envv)
 			int		len ;
 	                char		rbuf[RBUFLEN+ 1] ;
 
-	                while ((len = u_read(fd,rbuf,rlen)) > 0) {
+	                while ((rs = u_read(fd,rbuf,rlen)) > 0) {
+			    len = rs ;
 			    tlen += len ;
-	                    cksum_accum(&sum,rbuf,len) ;
-			}
+	                    rs = cksum_accum(&sum,rbuf,len) ;
+			    if (rs < 0) break ;
+			} /* end while */
 
 #if	CF_DEBUGS
-	                debugprintf("main: CKSUM intermediate crc=%u\n",
-			    sum.sum) ;
+	                debugprintf("main: out rs=%d\n",rs) ;
 #endif
 
-	                cksum_end(&sum) ;
+	                rs1 = cksum_end(&sum) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (cksum-accum) */
 
-	            {
+#if	CF_DEBUGS
+		    debugprintf("main: accum-out rs=%d tlen=%u\n",rs,tlen) ;
+#endif
+
+	            if (rs >= 0) {
 	                uint	val ;
 	                tlen = cksum_getsum(&sum,&val) ;
-	                bprintf(ofp,"cksum=%u len=%d\n",val,tlen) ;
+	                bprintf(ofp,"cksum=%10u len=%10d\n",val,tlen) ;
 	            }
 
-	            cksum_finish(&sum) ;
+	            rs1 = cksum_finish(&sum) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (cksum) */
+
+#if	CF_DEBUGS
+		debugprintf("main: cksum_start() out rs=%d\n",rs) ;
+#endif
 
 	        u_close(fd) ;
 	    } /* end if (file-input) */
 
 	    bclose(ofp) ;
 	} /* end if (file-output) */
+
+#if	CF_DEBUGS
+	debugprintf("main: done rs=%d\n",rs) ;
+#endif
 
 	if (rs < 0) ex = EX_DATAERR ;
 

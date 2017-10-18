@@ -19,6 +19,8 @@
 
 /*******************************************************************************
 
+	We manage optional program output.
+
 	Synopsis:
 
 	int progout_begin(PROGINFO *pip)
@@ -81,7 +83,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
-static int progout_check(PROGINFO *) ;
+static int	progout_check(PROGINFO *) ;
 
 
 /* local variables */

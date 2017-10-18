@@ -18,7 +18,7 @@
 	= 2000-05-14, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
-	= 2018-09-15, David A­D­ Morano
+	= 2017-09-15, David A­D­ Morano
 	Looking over again. Added standard |quickselecti()| in the form of the
 	C++ STL |partial_sort()| function.
 

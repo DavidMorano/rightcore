@@ -1,32 +1,30 @@
-/* main */
+/* main (liblkcmd) */
 
-/* check summing program */
+/* generic front-end for SHELL built-ins */
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0		/* compile-time */
-#define	CF_DEBUG	0		/* run-time */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
+#define	CF_DEBUGN	0		/* special debugging */
+#define	CF_UTIL		0		/* run the utility worker */
+#define	CF_SIGHAND	1		/* install signal handlers */
+#define	CF_SIGALTSTACK	0		/* do *not* define */
 
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
-        This subroutine was written for Rightcore Network Services (RNS). The
-        program handles very large (greater than 1Gbyte) files without any
-        fudging problems.
+	= 2001-11-01, David A­D­ Morano
+	This subroutine was written for use as a front-end for Korn Shell (KSH)
+	commands that are compiled as stand-alone programs.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	Compute a checksum (POSIX 'cksum' style) on the data
-	passing from input to output.
-
-	Execute as :
-
-	$ cksumpass -s ansfile [input [...]] > outfile
+	This is the front-end to make the various SHELL (KSH) built-in commands
+	into stand-alone programs.
 
 
 *******************************************************************************/
@@ -36,36 +34,65 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
+#include	<sys/mman.h>
+#include	<limits.h>
 #include	<unistd.h>
-#include	<stdlib.h>
+#include	<signal.h>
 #include	<fcntl.h>
+#include	<ucontext.h>
+#include	<dlfcn.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<bfile.h>
-#include	<cksum.h>
+#include	<intceil.h>
+#include	<vecstr.h>
+#include	<sighand.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
-#include	"config.h"
-#include	"defs.h"
+#include	"kshlib.h"
+#include	"maininfo.h"
 
 
 /* local defines */
 
-#define	NPARG		1
+#if	defined(KSHBUILTIN) && (KSHBUILTIN > 0)
+#define	CF_LOCKMEMALLOC		1
+#else
+#define	CF_LOCKMEMALLOC		0
+#endif
 
-#define	DEFRECLEN	((BLOCKSIZE * 126) * 10)
-#define	MAXRECLEN	((BLOCKSIZE * 128) * 10)
+#define	NDF		"main.deb"
 
 
 /* external subroutines */
 
-extern int	isdigitlatin(int) ;
+extern int	snwcpy(char *,int,const char *,int) ;
+extern int	sncpy2(char *,int,const char *,const char *) ;
+extern int	sncpy2w(char *,int,const char *,const char *,int) ;
+extern int	sncpylc(char *,int,const char *) ;
+extern int	sncpyuc(char *,int,const char *) ;
+extern int	sfbasename(const char *,int,const char **) ;
+extern int	ucontext_rtn(ucontext_t *,long *) ;
+extern int	bufprintf(char *,int,const char *,...) ;
+extern int	msleep(int) ;
+extern int	haslc(const char *,int) ;
+extern int	hasuc(const char *,int) ;
 
-extern char	*strbasename(char *) ;
+#if	CF_DEBUGS || CF_DEBUGN
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugclose() ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+#if	CF_DEBUGN
+extern int	nprintf(const char *,const char *,...) ;
+#endif
+
+extern cchar	*getourenv(const char **,const char *) ;
+extern cchar	*strsigabbr(int) ;
 
 
 /* external variables */
@@ -73,446 +100,342 @@ extern char	*strbasename(char *) ;
 
 /* local structures */
 
+#ifndef	TYPEDEF_CCHAR
+#define	TYPEDEF_CCHAR	1
+typedef const char	cchar ;
+#endif
+
+struct sigcode {
+	int		code ;
+	const char	*name ;
+} ;
+
 
 /* forward references */
 
+static int	maininfo_sigbegin(MAININFO *) ;
+static int	maininfo_sigend(MAININFO *) ;
+
+static void	main_sighand(int,siginfo_t *,void *) ;
+static int	main_sigdump(siginfo_t *) ;
+
+static cchar	*strsigcode(const struct sigcode *,int) ;
+
 
 /* local variables */
+
+static const struct mapex	mapexs[] = {
+	{ SR_NOENT, EX_NOUSER },
+	{ SR_AGAIN, EX_TEMPFAIL },
+	{ SR_DEADLK, EX_TEMPFAIL },
+	{ SR_NOLCK, EX_TEMPFAIL },
+	{ SR_TXTBSY, EX_TEMPFAIL },
+	{ SR_ACCESS, EX_NOPERM },
+	{ SR_REMOTE, EX_PROTOCOL },
+	{ SR_NOSPC, EX_TEMPFAIL },
+	{ SR_INTR, EX_INTR },
+	{ SR_EXIT, EX_TERM },
+	{ SR_DOM, EX_NOPROG },
+	{ 0, 0 }
+} ;
+
+static const int	sigcatches[] = {
+	SIGILL, 
+	SIGSEGV,
+	SIGBUS,
+	SIGQUIT,
+	SIGABRT,
+	0
+} ;
+
+static const struct sigcode	sigcode_ill[] = {
+	{ ILL_ILLOPC, "ILLOPC" },
+	{ ILL_ILLOPN, "ILLOPN" },
+	{ ILL_ILLADR, "ILLADR" },
+	{ ILL_ILLTRP, "ILLTRP" },
+	{ ILL_PRVOPC, "PRBOPC" },
+	{ ILL_PRVREG, "PRVREG" },
+	{ ILL_COPROC, "COPROC" },
+	{ ILL_BADSTK, "BADSTK" },
+	{ 0, NULL }
+} ;
+
+static const struct sigcode	sigcode_segv[] = {
+	{ SEGV_MAPERR, "MAPERR" },
+	{ SEGV_ACCERR, "ACCERR" },
+	{ 0, NULL }
+} ;
+
+static const struct sigcode	sigcode_bus[] = {
+	{ BUS_ADRALN, "ADRALN" },
+	{ BUS_ADRERR, "ADRERR" },
+	{ BUS_OBJERR, "OBJERR" },
+	{ 0, NULL }
+} ;
 
 
 /* exported subroutines */
 
 
-int main(int argc,cchar **argv,cchar **envv)
+int main(int argc,cchar *argv[],cchar *envv[])
 {
-	PROGINFO	pi, *pip = &pi ;
-	CKSUM		sum ;
-	bfile		errfile ;
-	bfile		outfile, *ofp = &outfile ;
-	uint		sv ;
-	int		argr, argl, aol ;
-	int		argvalue = -1 ;
+	const int	f_lockmemalloc = CF_LOCKMEMALLOC ;
+	const int	f_util = CF_UTIL ;
 	int		rs = SR_OK ;
-	int		i, len, npa ;
-	int		ifd, ofd = 1 ;
-	int		trec_t, trec_f, trec_p ;
-	int		bytes, blocks ;
-	int		maxnrec = MAXNREC ;
-	int		reclen = DEFRECLEN ;
-	int		nfile = 0 ;
+	int		rs1 ;
 	int		ex = EX_INFO ;
-	int		fd_debug = -1 ;
-	int		f_version = FALSE ;
-	int		f_verbose = FALSE ;
-	int		f_usage = FALSE ;
-	int		f_ignore = FALSE ;
-	int		f_ignorezero = FALSE ;
-	int		f_zero ;
 
-	char	*argp, *aop ;
-	char	*pr = NULL ;
-	char	*infname = NULL ;
-	char	*sumfname = NULL ;
-	char	*blockbuf = NULL ;
-	char	*reclenp = NULL ;
-	char	*cp ;
-
-#if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
-	    rs = debugopen(cp) ;
-	    debugprintf("main: starting DFD=%d\n",rs) ;
-	}
-#endif /* CF_DEBUGS */
-
-	memset(pip,0,sizeof(PROGINFO)) ;
-
-	pip->progname = strbasename(argv[0]) ;
-
-	if (bopen(&errfile,BFILE_STDERR,"wca",0666) >= 0) {
-		pip->efp = &errfile ;
-		bcontrol(&errfile,BC_LINEBUF,0) ;
-	}
-
-	pip->debuglevel = 0 ;
-	pip->f.quiet = FALSE ;
-
-	npa = 0 ;			/* number of positional so far */
-	i = 1 ;
-	argr = argc - 1 ;
-	while ((rs >= 0) && (argr > 0)) {
-
-	    argp = argv[i++] ;
-	    argr -= 1 ;
-	    argl = strlen(argp) ;
-
-	    if ((argl > 0) && (*argp == '-')) {
-
-	        if (argl > 1) {
-		     const int	ach = MKCHAR(argp[1]) ;
-
-	            if (isdigitlatin(ach)) {
-
-	                if ((rs = cfdec(argp + 1,argl - 1,&maxnrec)) < 0)
-	                    goto badarg ;
-
-	                if (maxnrec < 0)
-				maxnrec = MAXNREC ;
-
-	            } else {
-
-	                aop = argp ;
-	                aol = argl ;
-	                while (--aol) {
-
-	                    akp += 1 ;
-	                    switch ((int) *aop) {
-
-	                    case 'D':
-	                        pip->debuglevel = 2 ;
-	                        break ;
-
-	                    case 'V':
-	                        f_version = TRUE ;
-	                        break ;
-
-/* record length */
-	                    case 'b':
-	                    case 'r':
-	                        if (argr <= 0) goto badargnum ;
-
-	                        argp = argv[i++] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-
-	                        if (argl > 0) reclenp = argp ;
-
-	                        break ;
-
-	                    case 'q':
-	                        pip->f.quiet = TRUE ;
-	                        break ;
-
-/* file to receive the cksum answer in */
-			case 's':
-	                        if (argr <= 0) goto badargnum ;
-
-	                        argp = argv[i++] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-
-	                        if (argl) sumfname = argp ;
-
-	                        break ;
-
-	                    case 'v':
-	                        f_verbose = TRUE ;
-	                        break ;
-
-	                    case 'z':
-	                        f_ignorezero = TRUE ;
-	                        break ;
-
-	                    default:
-	                        bprintf(pip->efp,"%s: unknown option - %c\n",
-	                            pip->progname,*aop) ;
-
-	                    case '?':
-	                        f_usage = TRUE ;
-
-	                    } ; /* end switch */
-
-	                } /* end while */
-
-	            } /* end if */
-
-	        } else {
-
-	            npa += 1 ;	/* increment position count */
-
-	        } /* end if */
-
-	    } else {
-
-	        if (npa < NPARG) {
-
-	            switch (npa) {
-
-	            case 0:
-	                if (argl > 0) infname = argp ;
-
-	                break ;
-
-	            default:
-	                break ;
-	            }
-
-	            npa += 1 ;
-
-	        } else {
-
-			ex = EX_USAGE ;
-			f_usage = TRUE ;
-	            bprintf(pip->efp,"%s: extra arguments specified\n",
-	                pip->progname) ;
-
-	        }
-
-	    } /* end if */
-
-	} /* end while (arguments) */
-
-
-/* done w/ arguments, now handle miscellaneous */
-
-#if	CF_DEBUG
-	if (pip->debuglevel > 1)
-		debugprintf("main: finished parsing arguments\n") ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main: ent\n") ;
 #endif
 
-	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
-	    goto retearly ;
-	}
+	if (argv != NULL) {
+	    MAININFO	mi, *mip = &mi ;
+	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
+	        if ((rs = maininfo_sigbegin(mip)) >= 0) {
+#if	CF_DEBUGN
+	            nprintf(NDF,"main: sig-begin\n") ;
+#endif
+	            if ((rs = lib_initmemalloc(f_lockmemalloc)) >= 0) {
+	                if ((rs = lib_mainbegin(envv,NULL)) >= 0) {
+	                    if ((rs = maininfo_utilbegin(mip,f_util)) >= 0) {
+	                        cchar	*srch ;
 
-	if (f_usage) 
-		goto usage ;
-
-
-/* check arguments */
-
-	if (reclenp == NULL) {
-
-	    reclen = DEFRECLEN ;
-	    if (pip->debuglevel > 0)
-		bprintf(pip->efp,
-	        "%s: no record length given, using default %d\n",
-	        pip->progname,reclen) ;
-
-	} else {
-
-		int	mf ;
-
-
-#ifdef	COMMENT
-	    l = strlen(reclenp) ;
-
-	    mf = 1 ;
-	    if (l > 0) {
-
-	        if (reclenp[l - 1] == 'b') {
-
-	            mf = BLOCKSIZE ;
-	            reclenp[l-- - 1] = '\0' ;
-
-	        } else if (reclenp[l - 1] == 'k') {
-
-	            mf = 1024 ;
-	            reclenp[l-- - 1] = '\0' ;
-
-	        } else if (tolower(reclenp[l - 1]) == 'm') {
-
-	            mf = 1024 * 1024 ;
-	            reclenp[l-- - 1] = '\0' ;
-
-	        }
-
-	    }
-
-	    if (pip->debuglevel > 0) 
-		bprintf(pip->efp, "%s: record string \"%s\"\n",
-	        pip->progname,reclenp) ;
-
-	    if ((rs = cfdec(reclenp,l,&reclen)) < 0)
-	        goto badarg ;
-
-	    reclen = reclen * mf ;
-#else
-	    if ((rs = cfdecmfi(reclenp,-1,&reclen)) < 0)
-	        goto badarg ;
-
-#endif /* COMMENT */
-
-	} /* end if */
-
-	if (reclen > MAXRECLEN) {
-
-	    reclen = MAXRECLEN ;
-		if (! pip->f.quiet)
-	    bprintf(pip->efp,
-		"%s: record length is too large - reduced to %d\n",
-	        pip->progname,reclen) ;
-
-	}
-
-	if ((sumfname != NULL) && (sumfname[0] != '\0'))
-		bopen(ofp,sumfname,"wct",0666) ;
-
-
-	if (pip->debuglevel > 0)
-		bprintf(pip->efp,"%s: running with record size %d\n",
-	    pip->progname,reclen) ;
-
-
-/* allocate the buffer for the date from the tape */
-
-	if ((blockbuf = valloc(reclen)) == NULL)
-		goto badalloc ;
-
-
-/* open files */
-
-	if (infname != NULL) {
-	    if ((ifd = u_open(infname,O_RDONLY,0666)) < 0)
-	        goto badinfile ;
-	} else 
-	    ifd = 0 ;
-
-
-/* finally go through the loops */
-
-	if (pip->debuglevel > 0)
-		bprintf(pip->efp,"%s: about to enter while loop\n",
-	    pip->progname) ;
-
-	f_zero = FALSE ;
-	trec_f = trec_p = 0 ;
-	bytes = blocks = 0 ;
-
-
-	cksum_start(&sum) ;
-
-	while ((len = u_read(ifd,blockbuf,reclen)) > 0) {
-
-		cksum_accum(&sum,blockbuf,len) ;
-
-		u_write(ofd,blockbuf,len) ;
-
-		if (len == reclen) {
-			trec_f += 1 ;
-		} else
-			trec_p += 1 ;
-
-		bytes += len ;
-		if (bytes >= BLOCKSIZE) {
-
-#if	CF_DEBUG
-	if (pip->debuglevel > 1)
-		debugprintf("main: block increment, bytes=%d\n",bytes) ;
+#if	CF_DEBUGN
+	                        nprintf(NDF,"main: maininfo_srchname()\n") ;
 #endif
 
-			blocks += (bytes / BLOCKSIZE) ;
-			bytes = bytes % BLOCKSIZE ;
+	                        if ((rs = maininfo_srchname(mip,&srch)) >= 0) {
+#if	CF_DEBUGN
+	                            nprintf(NDF,"main: srch=%s\n",srch) ;
+#endif
+	                            ex = lib_callcmd(srch,argc,argv,envv,NULL) ;
+#if	CF_DEBUGN
+	                            nprintf(NDF,"main: lib_callcmd() ex=%u\n",
+	                                ex) ;
+#endif
+	                        } /* end if */
 
-		}
-
-	} /* end while */
-
-
-#if	CF_DEBUG
-	if (pip->debuglevel > 1)
-		debugprintf("main: out of loop\n") ;
+#if	CF_DEBUGN
+	                        nprintf(NDF,
+				"main: maininfo_srchname-out rs=%d ex=%u\n",
+				rs,ex) ;
 #endif
 
+	                        rs1 = maininfo_utilend(mip) ;
+	                        if (rs >= 0) rs = rs1 ;
+	                    } /* end if (maininfo-util) */
+	                    rs1 = lib_mainend() ;
+	                    if (rs >= 0) rs = rs1 ;
+	                } /* end if (lib-main) */
+	            } /* end if (lib_initmemalloc) */
+#if	CF_DEBUGN
+	            nprintf(NDF,"main: sig-end\n") ;
+#endif
+	            rs1 = maininfo_sigend(&mi) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (maininfo-sig) */
+	        rs1 = maininfo_finish(mip) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else
+	        ex = EX_OSERR ;
+	} else
+	    ex = EX_OSERR ;
 
-	trec_t = trec_f + trec_p ;
-
-
-	bprintf(ofp,"records\t\tP=%ld F=%ld T=%ld (record size=%db)\n",
-	    trec_p,trec_f,trec_t,
-		(reclen / BLOCKSIZE)) ;
-
-	bprintf(ofp,"UNIX blocks\t%d remaining bytes %d\n",
-	    blocks,bytes) ;
-
-	cksum_getsum(&sum,&sv) ;
-
-#if	CF_DEBUG
-	if (pip->debuglevel > 1) {
-
-		rs = cksum_getlen(&sum,&len) ;
-
-		debugprintf("main: rs=%d len=%u\n",rs,len) ;
+	if ((rs < 0) && (ex == EX_OK)) {
+	    ex = mapex(mapexs,rs) ;
 	}
+
+#if	CF_DEBUGN
+	nprintf(NDF,"main: exiting ex=%u (%d)\n",ex,rs) ;
 #endif
 
-	bprintf(ofp,"cksum\t\t\\x%08x (%u)\n",sv,sv) ;
-
-	bprintf(ofp,"size\t\t%d Mibytes %d bytes\n",
-	    (blocks / 2048),
-	    (((blocks % 2048) * BLOCKSIZE) + bytes)) ;
-
-
-	bclose(ofp) ;
-
-
-	cksum_finish(&sum) ;
-
-
-/* finish off */
-
-	u_close(ifd) ;
-
-	u_close(ofd) ;
-
-done:
-retearly:
-ret1:
-	bclose(pip->efp) ;
-
-ret0:
 	return ex ;
-
-/* usage */
-usage:
-	bprintf(pip->efp,
-	    "%s: USAGE> %s [-s ansfile] [infile(s) ...]",
-	    pip->progname,pip->progname) ;
-
-	bprintf(pip->efp," [-V]\n") ;
-
-	goto badret ;
-
-/* bad arguments */
-badargnum:
-	bprintf(pip->efp,"%s: not enough arguments specified\n",
-	    pip->progname) ;
-
-	goto badarg ;
-
-badarg:
-	ex = EX_USAGE ;
-	bprintf(pip->efp,"%s: bad argument given (rs %d)\n",
-	    pip->progname,rs) ;
-
-	goto ret1 ;
-
-/* other bad */
-badalloc:
-	bprintf(pip->efp,"%s: could not allocate buffer memory\n",
-	    pip->progname) ;
-
-	goto badret ;
-
-badinfile:
-	bprintf(pip->efp,"%s: cannot open the input file (rs %d)\n",
-	    pip->progname,ifd) ;
-
-	goto badret ;
-
-badoutopen:
-	bprintf(pip->efp,"%s: cannot open the output file (rs %d)\n",
-	    pip->progname,rs) ;
-
-	goto badret ;
-
-badret:
-	ex = EX_DATAERR ;
-	goto ret1 ;
-
 }
 /* end subroutine (main) */
 
 
 /* local subroutines */
+
+
+#if	CF_SIGALTSTACK
+static int maininfo_sigbegin(MAININFO *mip)
+{
+	size_t		ms ;
+	const int	ps = getpagesize() ;
+	const int	ss = (2*SIGSTKSZ) ;
+	int		rs ;
+	int		mp = (PROT_READ|PROT_WRITE) ;
+	int		mf = (MAP_PRIVATE|MAP_NORESERVE|MAP_ANON) ;
+	int		fd = -1 ;
+	void		*md ;
+	ms = iceil(ss,ps) ;
+	if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
+	    mip->mdata = md ;
+	    mip->msize = ms ;
+	    mip->astack.ss_size = ms ;
+	    mip->astack.ss_sp = md ;
+	    mip->astack.ss_flags = 0 ;
+	    if ((rs = u_sigaltstack(&mip->astack,NULL)) >= 0) {
+	        void	(*sh)(int,siginfo_t *,void *) = main_sighand ;
+	        rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+	        if (rs < 0) {
+	            mip->astack.ss_flags = SS_DISABLE ;
+	            u_sigaltstack(&mip->astack,NULL) ;
+	        }
+	    } /* end if (u_sigaltstack) */
+	    if (rs < 0) {
+	        u_munmap(mip->mdata,mip->msize) ;
+	        mip->mdata = NULL ;
+	    }
+	} /* end if (mmap) */
+#if	CF_DEBUGN
+	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (maininfo_sigbegin) */
+#else /* CF_SIGALTSTACK */
+static int maininfo_sigbegin(MAININFO *mip)
+{
+	int		rs = SR_OK ;
+	void		(*sh)(int,siginfo_t *,void *) = main_sighand ;
+#if	CF_SIGHAND
+	rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+#endif
+#if	CF_DEBUGN
+	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (maininfo_sigbegin) */
+#endif /* CF_SIGALTSTACK */
+
+
+static int maininfo_sigend(MAININFO *mip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+#if	CF_SIGHAND
+	rs1 = sighand_finish(&mip->sh) ;
+	if (rs >= 0) rs = rs1 ;
+#endif
+
+#if	CF_SIGALTSTACK
+	mip->astack.ss_flags = SS_DISABLE ;
+	rs1 = u_sigaltstack(&mip->astack,NULL) ;
+	if (rs >= 0) rs = rs1 ;
+
+	if (mip->mdata != NULL) {
+	    rs1 = u_munmap(mip->mdata,mip->msize) ;
+	    if (rs >= 0) rs = rs1 ;
+	    mip->mdata = NULL ;
+	    mip->msize = 0 ;
+	}
+#endif /* CF_SIGALTSTACK */
+
+	return rs ;
+}
+/* end subroutine (maininfo_sigend) */
+
+
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
+{
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: sn=%d(%s)\n",sn,strsigabbr(sn)) ;
+#endif
+
+	if (vcp != NULL) {
+	    Dl_info	dl ;
+	    long	ra ;
+	    ucontext_t	*ucp = (ucontext_t *) vcp ;
+	    void	*rtn ;
+	    const int	wlen = LINEBUFLEN ;
+	    int		wl ;
+	    cchar	*fmt ;
+	    char	wbuf[LINEBUFLEN+1] ;
+	    ucontext_rtn(ucp,&ra) ;
+	    if (ra != 0) {
+	        rtn = (void *) ra ;
+	        dladdr(rtn,&dl) ;
+	        fmt = "rtn=%08lX fn=%s sym=%s\n" ;
+	        wl = bufprintf(wbuf,wlen,fmt,ra,dl.dli_fname,dl.dli_sname) ;
+	        write(2,wbuf,wl) ;
+	    }
+	}
+
+	if (sip != NULL) {
+	    main_sigdump(sip) ;
+	}
+	u_exit(EX_TERM) ;
+}
+/* end subroutine (main_sighand) */
+
+
+static int main_sigdump(siginfo_t *sip)
+{
+	const int	wlen = LINEBUFLEN ;
+	const int	si_signo = sip->si_signo ;
+	const int	si_code = sip->si_code ;
+	int		wl ;
+	const char	*sn = strsigabbr(sip->si_signo) ;
+	const char	*as = "*na*" ;
+	const char	*scs = NULL ;
+	const char	*fmt ;
+	char		wbuf[LINEBUFLEN+1] ;
+	char		abuf[16+1] ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: signo=%d\n",si_signo) ;
+#endif
+	switch (si_signo) {
+	case SIGILL:
+	    scs = strsigcode(sigcode_ill,si_code) ;
+	    break ;
+	case SIGSEGV:
+	    scs = strsigcode(sigcode_segv,si_code) ;
+	    bufprintf(abuf,16,"%p",sip->si_addr) ;
+	    as = abuf ;
+	    break ;
+	case SIGBUS:
+	    scs = strsigcode(sigcode_bus,si_code) ;
+	    bufprintf(abuf,16,"%p",sip->si_addr) ;
+	    as = abuf ;
+	    break ;
+	case SIGQUIT:
+	    scs = "¤na¤" ;
+	    break ;
+	default:
+	    scs = "¤default¤" ;
+	    break ;
+	} /* end switch */
+	fmt = "SIG=%s code=%d(%s) addr=%s\n" ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: bufprintf() sn=%s\n",sn) ;
+#endif
+	wl = bufprintf(wbuf,wlen,fmt,sn,si_code,scs,as) ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: bufprintf() rs=%d\n",wl) ;
+#endif
+	write(2,wbuf,wl) ;
+	return 0 ;
+}
+/* end subroutine (main_sigdump) */
+
+
+static const char *strsigcode(const struct sigcode *scp,int code)
+{
+	int		i ;
+	int		f = FALSE ;
+	const char	*sn = "UNKNOWN" ;
+	for (i = 0 ; scp[i].code != 0 ; i += 1) {
+	    f = (scp[i].code == code) ;
+	    if (f) break ;
+	}
+	if (f) sn = scp[i].name ;
+	return sn ;
+}
+/* end subroutine (strsigcode) */
 
 

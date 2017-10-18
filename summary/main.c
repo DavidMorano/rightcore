@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1991-01-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -19,15 +17,15 @@
 
 /*******************************************************************************
 
-	This program will read the input file and reduce the data down to
-	a brief summary report of the most important test case failure
-	information.
+        This program will read the input file and reduce the data down to a
+        brief summary report of the most important test case failure
+        information.
 
 
 *******************************************************************************/
 
 
-#Include	<envstandards.h>
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -86,21 +84,20 @@ char	separator[] =
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
-	bfile	infile, *ifp = &infile ;
-	bfile	tmpfile, *tfp = &tmpfile ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
+	bfile		infile, *ifp = &infile ;
+	bfile		tmpfile, *tfp = &tmpfile ;
 
 	long	tflen ;
 
 	int	argl, aol ;
+	int	rs ;
+	int	len, mlen ;
 	int	pan, i, j ;
-	int	rs, len, mlen ;
 	int	nilen, tslen ;
 	int	nlines = NFDEF ;
 	int	flen[NFMOD] ;
@@ -340,15 +337,11 @@ find_next:
 /* scan for the start of a script */
 
 	    if ((pi = substring(lbp,len,SS_TSTART)) >= 0) {
-
 	        f_ts = TRUE ;
 	        break ;
-
 	    } else if ((pi = substring(lbp,len,SS_SSTART)) >= 0) {
-
 	        f_ss = TRUE ;
 	        break ;
-
 	    }
 
 	} /* end while */
@@ -389,10 +382,8 @@ find_next:
 /* print out the script path */
 
 	if (f_ni) {
-
 	    f_ni = FALSE ;
 	    bwrite(tfp,nibuf,nilen) ;
-
 	}
 
 /* scan for the failure while searching for description lines */
@@ -439,10 +430,8 @@ find_next:
 	    if (substring(lbp,len,SS_FEATURE) >= 0) {
 
 	        if (f_ni) {
-
 	            f_ni = FALSE ;
 	            bwrite(tfp,nibuf,nilen) ;
-
 	        }
 
 	        f_findpath = FALSE ;
@@ -462,10 +451,8 @@ find_next:
 	        if ((pi >= 0) && (pi <= 4)) {
 
 	            if (f_ni) {
-
 	                f_ni = FALSE ;
 	                bwrite(tfp,nibuf,nilen) ;
-
 	            }
 
 	            f_desc = TRUE ;
@@ -491,10 +478,8 @@ find_next:
 
 	            ndesc += 1 ;
 	            if (substring(lbp,len,SS_END) >= 0) {
-
 	                f_desc = FALSE ;
 	                bputc(tfp,'\n') ;
-
 	            }
 
 	        } else {
@@ -525,9 +510,7 @@ find_next:
 	        nfail += 1 ;
 
 	        if (f_ni) {
-
 	            bwrite(tfp,nibuf,nilen) ;
-
 	        }
 
 	        bputc(ofp,'\n') ;
@@ -546,10 +529,8 @@ find_next:
 
 	            mlen = (LINEBUFLEN < tflen) ? LINEBUFLEN : tflen ;
 	            rs = bread(tfp,linebuf,mlen) ;
-
 		    len = rs ;
-	            if (rs <= 0)
-			break ;
+	            if (rs <= 0) break ;
 
 	            tflen -= len ;
 	            bwrite(ofp,linebuf,len) ;
@@ -612,9 +593,7 @@ find_next:
 	    if (! (f_ss || f_ts)) {
 
 	        if (nilen > 0) {
-
 	            bprintf(ofp,"\n%W",nibuf,nilen) ;
-
 	        }
 
 	        bprintf(ofp,"\nscript passed OK\n") ;
@@ -723,6 +702,5 @@ char	*buf ;
 }
 
 #endif /* COMMENT */
-
 
 

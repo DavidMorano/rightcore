@@ -1084,16 +1084,31 @@ int lib_callcmd(cchar *name,int argc,cchar **argv,cchar **envv,void *cxp)
 	    if ((rs = sncpy2(symname,MAXNAMELEN,"p_",name)) >= 0) {
 	        void	*sop = RTLD_SELF ;
 	        void	*p ;
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: srch-sym=%s\n",symname) ;
+#endif
 	        if ((p = dlsym(sop,symname)) != NULL) {
 	            int (*cf)(int,cchar **,cchar **,void *) ;
 	            cf = (int (*)(int,cchar **,cchar **,void *)) p ;
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: call-before\n") ;
+#endif
 	            ex = (*cf)(argc,argv,envv,cxp) ;
-	        } else
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: call-after ex=%u\n",ex) ;
+#endif
+	        } else {
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: unavailable\n") ;
+#endif
 	            ex = EX_UNAVAILABLE ;
-	    } else
+		}
+	    } else {
 	        ex = EX_NOPROG ;
-	} else
+	    }
+	} else {
 	    ex = EX_NOPROG ;
+	}
 	if ((rs < 0) && (ex == EX_OK)) ex = EX_OSERR ;
 
 #if	CF_DEBUGN

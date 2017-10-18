@@ -112,7 +112,7 @@ extern double	fhm(double *,int) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -373,8 +373,6 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
-	int		ki, wi ;
-	int		cl ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_usage = FALSE ;
@@ -603,19 +601,19 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	                    }
 	                    break ;
 
-/* input file */
-	                case argopt_if:
+/* error file name */
+	                case argopt_ef:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            ifname = avp ;
+	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                ifname = argp ;
+	                                efname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -639,19 +637,19 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	                    }
 	                    break ;
 
-/* error file name */
-	                case argopt_ef:
+/* input file */
+	                case argopt_if:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            efname = avp ;
+	                            ifname = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                efname = argp ;
+	                                ifname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -764,8 +762,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -889,26 +886,28 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: requests- sum=%u amean=%u hmean=%u\n",
-	        pip->f.sum,pip->f.amean,pip->f.hmean) ;
+	        lip->f.sum,lip->f.amean,lip->f.hmean) ;
 #endif
 
 	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: request> %s\n" ;
 
-	    if (lip->f.sum)
-	        shio_printf(pip->efp,"%s: request> %s\n",
-	            pip->progname,whiches[which_sum]) ;
+	    if (lip->f.sum) {
+	        shio_printf(pip->efp,fmt,pn,whiches[which_sum]) ;
+	    }
 
-	    if (lip->f.amean)
-	        shio_printf(pip->efp,"%s: request> %s\n",
-	            pip->progname,whiches[which_amean]) ;
+	    if (lip->f.amean) {
+	        shio_printf(pip->efp,fmt,pn,whiches[which_amean]) ;
+	    }
 
-	    if (lip->f.hmean)
-	        shio_printf(pip->efp,"%s: request> %s\n",
-	            pip->progname,whiches[which_hmean]) ;
+	    if (lip->f.hmean) {
+	        shio_printf(pip->efp,fmt,pn,whiches[which_hmean]) ;
+	    }
 
-	    if (lip->f.speedup)
-	        shio_printf(pip->efp,"%s: request> %s\n",
-	            pip->progname,whiches[which_speedup]) ;
+	    if (lip->f.speedup) {
+	        shio_printf(pip->efp,fmt,pn,whiches[which_speedup]) ;
+	    }
 
 	} /* end if */
 
@@ -1012,11 +1011,15 @@ static int usage(PROGINFO *pip)
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-	fmt = "%s: USAGE> %s [<value(s)> ...] [-o <calculation>] [-Vv]\n" ;
+	fmt = "%s: USAGE> %s [<value(s)> ...] [-o <calculation>]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
-	fmt = "%s:  [-af {<afile>|-}]\n" ;
+	fmt = "%s:  [-af {<afile>|-}] [-of <ofile>]\n" ;
+	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
+	wlen += rs ;
+
+	fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
@@ -1029,7 +1032,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		ki ;
 	int		wi ;
 	int		c = 0 ;
@@ -1054,9 +1056,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	    if ((rs = keyopt_curbegin(kop,&cur)) >= 0) {
 
 	        while (rs >= 0) {
-	            rs1 = keyopt_enumvalues(kop,progopts[ki],&cur,&cp) ;
-	            if (rs1 == SR_NOTFOUND) break ;
-		    rs = rs1 ;
+	            cl = keyopt_enumvalues(kop,progopts[ki],&cur,&cp) ;
+	            if (cl == SR_NOTFOUND) break ;
+		    rs = cl ;
 		    if (rs >= 0) {
 	                switch (ki) {
 	                case progopt_type:
@@ -1112,7 +1114,6 @@ cchar		*ofn ;
 cchar		*afn ;
 cchar		*ifn ;
 {
-	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
@@ -1149,7 +1150,7 @@ cchar		*ifn ;
 	                }
 
 	                if (rs < 0) break ;
-	            } /* end for (looping through requested circuits) */
+	            } /* end for */
 	        } /* end if (ok) */
 
 /* process any files in the argument filename list file */
@@ -1436,6 +1437,7 @@ static int processor_result(PROCESSOR *op,int which,double *rp)
 	    	const int	size = ((rs + 1) * sizeof(double)) ;
 	        int		n = rs ;
 	        void		*p ;
+
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
 	            VECOBJ	*flp = &op->numbers ;
 	    	    double	*fnp ;

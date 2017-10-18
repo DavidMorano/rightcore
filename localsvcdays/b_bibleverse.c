@@ -171,7 +171,7 @@ extern char	*strncasestr(const char *,int,const char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -195,6 +195,7 @@ struct locinfo_flags {
 	uint		para:1 ;
 	uint		gmt:1 ;
 	uint		all:1 ;
+	uint		apm:1 ;
 } ;
 
 struct locinfo {
@@ -239,8 +240,8 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
-static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,int) ;
-static int	procsome(PROGINFO *,ARGINFO *,BITS *,cchar *,int) ;
+static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+static int	procsome(PROGINFO *,ARGINFO *,BITS *,cchar *) ;
 static int	procspecs(PROGINFO *,const char *,int) ;
 static int	procspec(PROGINFO *,const char *,int) ;
 static int	procall(PROGINFO *) ;
@@ -449,7 +450,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f_apm = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -526,7 +526,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	        if (isdigitlatin(ach)) {
 
-	            if (f_optplus) f_apm = TRUE ;
+	            if (f_optplus) lip->f.apm = TRUE ;
 	            argval = (argp+1) ;
 
 	        } else if (ach == '-') {
@@ -1149,7 +1149,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif /* CF_DEBUG */
 
 	        if (rs >= 0) {
-	            rs = process(pip,&ainfo,&pargs,ofn,afn,f_apm) ;
+	            rs = process(pip,&ainfo,&pargs,ofn,afn) ;
 	        }
 
 	        lip->open.vdb = FALSE ;
@@ -1439,13 +1439,12 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int process(pip,aip,bop,ofn,afn,f_apm)
+static int process(pip,aip,bop,ofn,afn)
 PROGINFO	*pip ;
 ARGINFO		*aip ;
 BITS		*bop ;
 const char	*ofn ;
 const char	*afn ;
-int		f_apm ;
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
@@ -1463,7 +1462,7 @@ int		f_apm ;
 	        rs = procall(pip) ;
 	        wlen += rs ;
 	    } else {
-	        rs = procsome(pip,aip,bop,afn,f_apm) ;
+	        rs = procsome(pip,aip,bop,afn) ;
 	        wlen += rs ;
 	    }
 
@@ -1488,12 +1487,11 @@ int		f_apm ;
 /* end subroutine (process) */
 
 
-static int procsome(pip,aip,bop,afn,f_apm)
+static int procsome(pip,aip,bop,afn)
 PROGINFO	*pip ;
 ARGINFO		*aip ;
 BITS		*bop ;
 const char	*afn ;
-int		f_apm ;
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -1570,7 +1568,7 @@ int		f_apm ;
 
 	} /* end if (afile arguments) */
 
-	if ((rs >= 0) && f_apm) {
+	if ((rs >= 0) && lip->f.apm) {
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))
@@ -1578,7 +1576,7 @@ int		f_apm ;
 #endif
 
 	    pan += 1 ;
-	    rs = proctoday(pip,f_apm,(lip->nitems+1)) ;
+	    rs = proctoday(pip,lip->f.apm,(lip->nitems+1)) ;
 	    wlen += rs ;
 
 	} /* end if */

@@ -4,6 +4,7 @@
 /* this is the famous "satconfig" program used to perform SAT activities */
 
 
+#define	CF_DEBUGS	1		/* compile-time debugging */
 #define	CF_PRINT	1
 #define	CF_FIELD	0
 
@@ -12,12 +13,11 @@
 
 	= 1991-09-03, David A­D­ Morano
 
-
 */
 
 /* Copyright © 1991 David A­D­ Morano.  All rights reserved. */
 
-/*****************************************************************************
+/*******************************************************************************
 
 	This program is used to perform SAT activities.
 
@@ -30,7 +30,7 @@
 		A_PRAIRIE	Prairie program
 
 
-*****************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -71,7 +71,7 @@
 
 /* local library subroutines */
 
-extern int	cfdec() ;
+extern int	cfdec(cchar *,int,int *) ;
 
 extern int	quoted(), expand() ;
 
@@ -137,30 +137,25 @@ struct namelist		cfk[] = { 	/* configuration file key */
 #define	FUN_UNLOCK	2
 #define	FUN_OVERLAST	3
 
-char	*funtab[FUN_OVERLAST] = {
+static cchar	*funtab[FUN_OVERLAST] = {
 	"dbq",
 	"db",
 	"unlock",
+	NULL
 } ;
 
 
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+/& ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	struct ustat	ss ;
-
-	struct field	fsb ;
-
 	struct system	system[NSYSTEM] ;
-
 	struct direct	direntry ;
-
 	struct expand	se ;
+	FIELD		fsb ;
 
 	bfile		errfile, *efp = &errfile ;
 	bfile		outfile, *ofp = &outfile ;
@@ -247,8 +242,7 @@ char	*envv[] ;
 
 	cp = getenv("A_RELEASE") ;
 
-	if (cp != ((char *) 0)) {
-
+	if (cp != NULL) {
 	    releasep = cp ;
 	    f_release = 2 ;
 	}
@@ -259,9 +253,7 @@ char	*envv[] ;
 /* set the default function to the name after "sat" in our program name */
 
 	if ((len > 3) && (substring(progname,len,"sat") == 0)) {
-
 	    funname = progname + 3 ;
-
 	}
 
 /* set working directory */
@@ -396,9 +388,7 @@ char	*envv[] ;
 /* check arguments */
 
 	if (f_debug) {
-
 	    bprintf(efp,"function (%s)\n",funname) ;
-
 	}
 
 /* perform initialization processing */
@@ -408,9 +398,7 @@ char	*envv[] ;
 
 	f_builtin = FALSE ;
 	for (i = 0 ; i < FUN_OVERLAST ; i += 1) {
-
 	    if (strcmp(funtab[i],funname) == 0) {
-
 	        f_builtin = TRUE ;
 	        break ;
 	    }
@@ -456,9 +444,7 @@ char	*envv[] ;
 /* does the specified system name exist in the database ? */
 
 	for (si = 0 ; si < nsys ; si += 1) {
-
 	    if (strcmp(sysname,system[si].name) == 0) break ;
-
 	}
 
 	if (si >= nsys) {
@@ -507,9 +493,9 @@ char	*envv[] ;
 
 	cp = getenv("A_LIBDIR") ;
 
-	if (cp != NULL) libdirp = cp ;
-
-	else {
+	if (cp != NULL) {
+	    libdirp = cp ;
+	} else {
 
 	    if ((cp == NULL) || (strcmp(cp,libdirp) != 0)) {
 
@@ -554,11 +540,11 @@ char	*envv[] ;
 
 /* create the lock file name */
 
-	if (condirp == NULL)
+	if (condirp == NULL) {
 	    len = sprintf(buf,"%s%s",LOCKPREFIX,sysname) ;
-
-	else
+	} else {
 	    len = sprintf(buf,"%s/%s%s",condirp,LOCKPREFIX,sysname) ;
+	}
 
 	if ((len + 1) > (REALNAMELEN - (nbp - namebuf))) goto badnamestore ;
 
@@ -584,11 +570,11 @@ char	*envv[] ;
 	j = pid ;
 	for (i = 0 ; i < TMPTRIES ; i += 1) {
 
-	    if (workdirp == NULL)
+	    if (workdirp == NULL) {
 	        sprintf(tmpfname,"%s%08X",TMPPREFIX,j + i) ;
-
-	    else
+	    } else {
 	        sprintf(tmpfname,"%s/%s%08X",workdirp,TMPPREFIX,j + i) ;
+	    }
 
 	    if (mknod(tmpfname,0010664,0) >= 0) break ;
 
@@ -640,9 +626,7 @@ char	*envv[] ;
 	    if (f_builtin) {
 
 	        for (i = 0 ; i < FUN_OVERLAST ; i += 1) {
-
 	            if (strcmp(funtab[i],funname) == 0) break ;
-
 	        }
 
 	        switch (i) {
@@ -668,9 +652,7 @@ char	*envv[] ;
 
 	            cp = system[si].gtdev2 ;
 	            if ((cp != NULL) && (strcmp(cp,"-") != 0)) {
-
 	                bprintf(ofp, "GTDEV2=%s\n",cp) ;
-
 	            }
 
 	            bprintf(ofp,"A_SATFILTER=%s\n",system[si].filtfile) ;
@@ -680,10 +662,9 @@ char	*envv[] ;
 	            bprintf(ofp,"A_SATDICT=%s\n",system[si].dictfile) ;
 
 	            for (i = 0 ; i < nlenv ; i += 1) {
-
 	                bprintf(ofp,"%s\n",lenviron[i]) ;
-
 	            }
+
 	            break ;
 
 		case FUN_UNLOCK:
@@ -695,7 +676,7 @@ char	*envv[] ;
 	            bprintf(efp,"%s: error in built-in function\n",
 	                progname) ;
 
-	        }
+	        } /* end switch */
 
 	    } else {
 
@@ -811,7 +792,7 @@ char	*envv[] ;
 
 	        if (funopt & FO_LOCK) unlink(lockfname) ;
 
-	    }
+	    } /* end if */
 
 	} /* end for */
 
@@ -895,5 +876,6 @@ badarg:
 
 	goto badret ;
 }
+/* end subroutine (main) */
 
 

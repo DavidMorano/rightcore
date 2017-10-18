@@ -1,6 +1,6 @@
 /* calmgr */
 
-/* calendar object manager */
+/* calendar manager object */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -29,7 +29,7 @@
 *******************************************************************************/
 
 
-#define	CALENT_MASTER	0
+#define	CALMGR_MASTER	0
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -125,7 +125,7 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
-extern int	mktmpuserdir(char *,const char *,const char *,mode_t) ;
+extern int	mktmpuserdir(char *,cchar *,cchar *,mode_t) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
@@ -135,9 +135,9 @@ extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
-extern char	*strnpbrk(const char *,int,const char *) ;
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
+extern char	*strnpbrk(cchar *,int,cchar *) ;
 extern char	*timestr_log(time_t,char *) ;
 
 
@@ -418,8 +418,8 @@ static int calmgr_dbmapcreate(CALMGR *calp,time_t dt)
 	    char	dbfname[MAXPATHLEN + 1] ;
 	    if ((rs = mkpath2(dbfname,calp->dn,nbuf)) >= 0) {
 	        if ((rs = u_open(dbfname,O_RDONLY,0666)) >= 0) {
-	            struct ustat	sb ;
-	            const int		fd = rs ;
+	            USTAT	sb ;
+	            const int	fd = rs ;
 	            if ((rs = u_fstat(fd,&sb)) >= 0) {
 	                if (S_ISREG(sb.st_mode)) {
 	                    calp->filesize = sb.st_size ;
@@ -437,10 +437,12 @@ static int calmgr_dbmapcreate(CALMGR *calp,time_t dt)
 	                            calp->ti_map = dt ;
 	                            calp->ti_lastcheck = dt ;
 	                        } /* end if (u_mmap) */
-	                    } else
+	                    } else {
 	                        rs = SR_TOOBIG ;
-	                } else
+			    }
+	                } else {
 	                    rs = SR_NOTSUP ;
+			}
 	            } /* end if (stat) */
 	            u_close(fd) ;
 	        } /* end if (file) */
@@ -574,7 +576,7 @@ static int calmgr_lookone(CALMGR *calp,vecobj *rlp,CYI *cip,CALMGR_Q *qp)
 	                    n += 1 ;
 	                    if (! f_ent) {
 	                        uint	lo = loff ;
-	                        int		ll = llen ;
+	                        int	ll = llen ;
 	                        if ((rs = calent_start(&e,qp,lo,ll)) >= 0) {
 	                            f_ent = TRUE ;
 	                            calent_sethash(&e,ce.hash) ;
@@ -597,11 +599,12 @@ static int calmgr_lookone(CALMGR *calp,vecobj *rlp,CYI *cip,CALMGR_Q *qp)
 	                    f_ent = FALSE ;
 	                    if ((rs >= 0) && (! f_already)) {
 	                        rs = vecobj_add(rlp,&e) ;
-	                    } else
+	                    } else {
 	                        calent_finish(&e) ;
-	                }
+			    }
+	                } /* end if */
 
-	            } /* end if */
+	            } /* end if (positive) */
 
 	        } /* end while */
 
@@ -727,7 +730,6 @@ static int calmgr_cyiopen(CALMGR *calp,CALMGR_IDX *cip,int y)
 	        rs = cyi_open(cyp,y,dn,cn) ;
 	    }
 	} /* end if (cyi_open) */
-
 
 #if	CF_DEBUGS
 	debugprintf("calmgr_cyiopen: ret rs=%d\n",rs) ;
@@ -1039,7 +1041,7 @@ static int mkbve_start(CYIMK_ENT *bvep,cchar *md,CALENT *ep)
 	        const int	size = (nlines + 1) * sizeof(CYIMK_LINE) ;
 	        bvep->nlines = nlines ;
 	        if ((rs = uc_malloc(size,&lines)) >= 0) {
-	            int	i ;
+	            int		i ;
 	            bvep->lines = lines ;
 	            for (i = 0 ; i < nlines ; i += 1) {
 	                lines[i].loff = ep->lines[i].loff ;
@@ -1048,8 +1050,9 @@ static int mkbve_start(CYIMK_ENT *bvep,cchar *md,CALENT *ep)
 	            lines[i].loff = 0 ;
 	            lines[i].llen = 0 ;
 	        } /* end if (memory-allocation) */
-	    } else
+	    } else {
 	        rs = SR_TOOBIG ;
+	    }
 	} /* end if (calent_mkhash) */
 
 	return (rs >= 0) ? nlines : rs ;

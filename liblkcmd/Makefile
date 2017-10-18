@@ -292,7 +292,7 @@ OBJ11= b_pcsconf.o b_pcsuserinfo.o b_inetping.o b_linefold.o b_summer.o
 OBJ12= b_conslog.o b_termnote.o b_uuidgen.o b_strerror.o b_sysdb.o
 OBJ13= b_rest.o b_qotd.o b_mjd.o b_look.o b_append.o b_rfinger.o b_shells.o
 OBJ14= b_mbproc.o b_mbexpire.o b_homepage.o b_progcheck.o b_calyear.o
-OBJ15= b_isproc.o b_webcounter.o b_makesafe.o b_numbers.o
+OBJ15= b_isproc.o b_webcounter.o b_makesafe.o b_numbers.o b_cksumpass.o
 
 OBJ16= 
 OBJ17= kshlib.o lockmemalloc.o 
@@ -582,11 +582,11 @@ objm.o:			$(OBJM) Makefile
 	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJM)
 
 
-b_la.o:			b_la.c b_la.h $(INCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
-
 b_msu.o:		$(MSUOBJS)
 	$(LD) -r -o $@ -M msu.map -B reduce $(LDFLAGS_R) $(MSUOBJS)
+
+b_la.o:			b_la.c b_la.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
 b_msinfo.o:		b_msinfo.c b_msinfo.h $(INCS) msfile.h
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
@@ -880,6 +880,9 @@ b_numbers.o:		b_numbers.c b_numbers.h $(INCS)
 
 b_numcvt.o:		b_numcvt.c b_numcvt.h $(INCS)
 	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_numcvt.cc
+
+b_cksumpass.o:		b_cksumpass.c b_cksumpass.h $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_cksumpass.cc
 
 
 # testing

@@ -121,7 +121,7 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

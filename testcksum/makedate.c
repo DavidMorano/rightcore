@@ -1,2 +1,2 @@
 const char testcksum_makedate[] =
-"@(#)testcksum               170817_1422:04_USEDT Rightcore Network Services" ;
+"@(#)testcksum               171017_2344:45_USEDT Rightcore Network Services" ;

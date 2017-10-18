@@ -208,7 +208,7 @@ extern char	*timestr_log(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -609,7 +609,6 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 	rs = keyopt_start(&akopts) ;
 	pip->open.akopts = (rs >= 0) ;
-	if (rs < 0) goto badkeystart ;
 
 	ai_max = 0 ;
 	ai_pos = 0 ;
@@ -1168,7 +1167,6 @@ retearly:
 	    keyopt_finish(&akopts) ;
 	}
 
-badkeystart:
 	bits_finish(&pargs) ;
 
 badpargs:

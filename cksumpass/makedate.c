@@ -1,2 +1,2 @@
 const char cksumpass_makedate[] =
-	"@(#)cksumpass               060301_2129:59_EST RightCore" ;
+"@(#)cksumpass               171017_2351:37_USEDT Rightcore Network Services" ;

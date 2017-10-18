@@ -24,7 +24,6 @@
 #include	<vechand.h>
 #include	<vecstr.h>
 #include	<logfile.h>
-#include	<keyopt.h>
 #include	<paramopt.h>
 #include	<fsdirtree.h>
 #include	<vecpstr.h>
@@ -204,7 +203,6 @@ struct proginfo {
 	void		*config ;	/* configuration */
 	PROGINFO_FL	have, f, changed, final ;
 	PROGINFO_FL	open ;
-	KEYOPT		akopts ;
 	PARAMOPT	aparams ;
 	FSDIRTREE_STAT	tarstat ;
 	LOGFILE		lh ;

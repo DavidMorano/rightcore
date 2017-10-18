@@ -13,21 +13,28 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
-CCOPTS= -O -mcpu=ultrasparc # -fpic
-#CCOPTS= -g -Wstrict-aliasing
-# debugging with extra symbol information w/ Sun Workshop C
-#CCOPTS= -g -xs
-# debugging with profiling w/ GNU C
-#CCOPTS= -g -pg
+GPPFLAGS= $(CGS_CCFLAGS)
+CCOPTS_GCCALL= -pthreads -fexceptions
+CCOPTS_CCALL= -MT
+
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
+CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
+CCOPTS_GCCLIBSPARC= -mno-app-regs
+
+CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
+#CCOPTS= $(CCOPTS_GCCALL) -g -O
+#CCOPTS= $(CCOPTS_GCCALL) -g -pg
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+
+CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
 # HyperSPARC
 # regular
@@ -63,40 +70,52 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCFLAGS= $(GPPFLAGS) $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
 LD= ld
 
+
+LDRPATH=
+
 # regular
-LDFLAGS= -m -R$(LIBDIR)
+LDFLAGS= -m -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
 LDFLAGS_P= -L/usr/lib/libp # -m -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
-LIB1= -ldam -lb -luc
+LIB1= -ldam -lb
 LIB2=
-LIB3= -Bstatic -lu -Bdynamic
-LIB4= -L$(GNU)/lib -lgcc
-LIB5= 
+LIB3= -luc -lu
+LIB4= $(CGS_LIBS)
+LIB5= -lm
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
 
-CRTI= $(LDCRTDIR)/crti.o
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
+CRTI= $(LDCRTDIR)/crti.o
+CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
-VALUES= $(LDCRTDIR)/values-xa.o
+CRTEND= $(LDCRTDIR)/crtend.o
 CRTN= $(LDCRTDIR)/crtn.o
 
+CRTFRONT= $(CRT1) $(CRTI) $(VALUES) $(CRTBEGIN)
+CRTBACK= $(CRTEND) $(CRTN)
+
 # for regular (no profiling)
-CRT0= $(CRTI) $(CRT1) $(VALUES)
+CRT0= $(CRT1) $(CRTI) $(VALUES)
 # for 'prof(1)'
 MCRT0= $(CRTI) $(MCRT1) $(VALUES)
 # for 'gprof(1)'
@@ -125,7 +144,7 @@ INCS= config.h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
-OBJ01= process.o
+OBJ01= progfile.o
 OBJ02= 
 OBJ03=
 OBJ04=
@@ -147,7 +166,7 @@ OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
 OBJ= $(OBJA) $(OBJB)
 
 # for regular (no profiling)
-OBJS= $(CRT0) $(OBJ) $(CRTC)
+OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
 # for 'prof(1)'
 MOBJS= $(MCRT0) $(OBJ) $(CRTC)
 # for 'gprof(1)'
@@ -163,6 +182,9 @@ SRC= $(OBJ:.c=.o)
 default:		$(T).x
 
 all:			$(ALL)
+
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
@@ -189,7 +211,7 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) $(CRTN) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
@@ -223,16 +245,12 @@ install-ee:		$(ALL)
 	makenewer -r $(ALL) $(BINDIR)
 
 install-raw:		$(T).x
-	rm -f $(T)
-	ln -f $(T).x $(T)
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r $(T) $(BINDIR)
+	makenewer -r -o rmsuf $(T).x $(BINDIR)
 
 install-help:		$(T).help
-	rm -f $(T)
-	ln -f $(T).help $(T)
 	-mkdir -p $(HELPDIR) 2> /dev/null
-	makenewer $(T) $(HELPDIR)
+	makenewer -o rmsuf $(T).help $(HELPDIR)
 
 again:
 	rm -f $(ALL) $(T).x
@@ -253,7 +271,7 @@ proginfo.o:		proginfo.c defs.h
 
 proginfo_setpiv.o:	proginfo_setpiv.c defs.h
 
-process.o:		process.c $(INCS)
+progfile.o:		progfile.c $(INCS)
 
 
 getutmpent.o:		getutmpent.c getutmpent.h
@@ -282,6 +300,5 @@ nodedb.o:		nodedb.c nodedb.h
 clusterdb.o:		clusterdb.c clusterdb.h
 
 kvsfile.o:		kvsfile.c kvsfile.h
-
 
 

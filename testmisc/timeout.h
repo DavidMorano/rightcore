@@ -1,7 +1,7 @@
-/* timemgr */
+/* timeout */
 /* lang=C99 */
 
-/* time manger interface */
+/* time-out interface */
 
 
 /* revision history:
@@ -20,12 +20,12 @@
 
 	Synopsis:
 
-	int uc_timemgr(const cmd,TIMEMGR *entp)
+	int uc_timeout(const cmd,TIMEOUT *entp)
 
 	Arguments:
 
 	cmd		command
-	entp		pointer to TIMEMGR object
+	entp		pointer to TIMEOUT object
 
 	Returns:
 
@@ -36,8 +36,8 @@
 *******************************************************************************/
 
 
-#ifndef	TIMENGR_INCLUDE
-#define	TIMEMGR_INCLUDE		1
+#ifndef	TIMEOUT_INCLUDE
+#define	TIMEOUT_INCLUDE		1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -47,7 +47,12 @@
 
 /* local defines */
 
-#define	TIMEMGR		struct timemgr
+#define	TIMEOUT		struct timeout
+
+
+/* time-defs */
+
+typedef int	(*timeout_met)(void *,uint,int) ;
 
 
 /* external subroutines */
@@ -55,13 +60,13 @@
 
 /* local structures */
 
-enum timemgrcmds {
-	timemgrcmd_set,
-	timemgrcmd_cancel,
-	timemgrcmd_overlast
+enum timeoutcmds {
+	timeoutcmd_set,
+	timeoutcmd_cancel,
+	timeoutcmd_overlast
 } ;
 
-struct timemgr {
+struct timeout {
 	void		*objp ;
 	void		*metp ;
 	time_t		val ;
@@ -77,20 +82,20 @@ struct timemgr {
 /* exported subroutines */
 
 
-#if	(! defined(TIMEMGR_MASTER)) || (TIMEMGR_MASTER == 0)
+#if	(! defined(TIMEOUT_MASTER)) || (TIMEOUT_MASTER == 0)
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-extern int uc_timemgr(int,TIMEMGR *) ;
+extern int timeout_init(TIMEOUT *,time_t,void *,timeout_met,uint,int) ;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* TIMEMGR_MASTER */
+#endif /* TIMEOUT_MASTER */
 
-#endif /* TIMEMGR_INCLUDE */
+#endif /* TIMEOUT_INCLUDE */
 
 

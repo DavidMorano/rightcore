@@ -180,7 +180,7 @@ extern char	*strncasestr(const char *,int,const char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -196,7 +196,7 @@ struct locinfo_flags {
 	uint		audit:1 ;
 	uint		linelen:1 ;
 	uint		indent:1 ;
-	uint		nentries:1 ;
+	uint		nitems:1 ;
 	uint		monthname:1 ;
 	uint		separate:1 ;
 	uint		interactive:1 ;
@@ -208,6 +208,7 @@ struct locinfo_flags {
 	uint		allcals:1 ;
 	uint		allents:1 ;
 	uint		gmt:1 ;
+	uint		apm:1 ;
 } ;
 
 struct locinfo {
@@ -229,7 +230,7 @@ struct locinfo {
 	int		timecount ;
 	int		linelen ;
 	int		indent ;
-	int		nentries ;
+	int		nitems ;
 	int		count, max ;
 	int		cout ;
 	int		ncites ;
@@ -250,8 +251,8 @@ struct config {
 } ;
 
 static cchar	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec", NULL
+	    "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+	    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", NULL
 } ;
 
 
@@ -266,7 +267,7 @@ static int	config_check(CONFIG *) ;
 #endif /* CF_CONFIGCHECK */
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
-static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,int,int) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procspecs(PROGINFO *,const char *,int) ;
 static int	procspec(PROGINFO *,const char *,int) ;
 static int	procnames(PROGINFO *,PARAMOPT *) ;
@@ -312,7 +313,7 @@ static int	isNotGoodCite(int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"HELP",
@@ -360,7 +361,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"audit",
 	"linelen",
 	"indent",
@@ -386,7 +387,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	*params[] = {
+static cchar	*params[] = {
 	"logsize",
 	"logfile",
 	"caldirs",
@@ -402,7 +403,7 @@ enum params {
 	param_overlast
 } ;
 
-static const char	*schedconf[] = {
+static cchar	*schedconf[] = {
 	"%r/etc/%n/%n.%f",
 	"%r/etc/%n/%f",
 	"%r/etc/%n.%f",
@@ -410,7 +411,7 @@ static const char	*schedconf[] = {
 	NULL
 } ;
 
-static const char	blanks[] = "                    " ;
+static cchar	blanks[] = "                    " ;
 
 static const uchar	aterms[] = {
 	0x00, 0x2E, 0x00, 0x00,
@@ -434,7 +435,7 @@ int b_calyear(int argc,cchar *argv[],void *contextp)
 	int		ex = EX_OK ;
 
 	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
-	    const char	**envv = (const char **) environ ;
+	    cchar	**envv = (cchar **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
 	    if (rs >= 0) rs = rs1 ;
@@ -475,7 +476,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
-	int		argvalue = -1 ;
 	int		rs, rs1 ;
 	int		n, i ;
 	int		v ;
@@ -484,7 +484,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f_apm = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -568,7 +567,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	        if (isdigitlatin(ach)) {
 
-	            if (f_optplus) f_apm = TRUE ;
+	            if (f_optplus) lip->f.apm = TRUE ;
 	            argval = (argp+1) ;
 
 	        } else if (ach == '-') {
@@ -804,7 +803,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					PARAMOPT	*pop = &aparams ;
+	                                PARAMOPT	*pop = &aparams ;
 	                                cchar		*po = PO_NAME ;
 	                                lip->have.calnames = TRUE ;
 	                                lip->final.calnames = TRUE ;
@@ -821,9 +820,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -986,14 +985,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
 
-	if (argval != NULL) {
-	    rs = cfdeci(argval,-1,&argvalue) ;
-	}
-
-	if ((lip->nentries <= 0) && (argvalue > 0)) {
-	    lip->have.nentries = TRUE ;
-	    lip->final.nentries = TRUE ;
-	    lip->nentries = argvalue ;
+	if ((lip->nitems <= 0) && (argval != NULL)) {
+	    lip->have.nitems = TRUE ;
+	    lip->final.nitems = TRUE ;
+	    rs = optvalue(argval,-1) ;
+	    lip->nitems = rs ;
 	}
 
 /* load up the environment options */
@@ -1039,8 +1035,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (lip->linelen < rs1)
 	    lip->linelen = COLUMNS ;
 
-	if (lip->nentries < 1)
-	    lip->nentries = 1 ;
+	if (lip->nitems < 1)
+	    lip->nitems = 1 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1069,7 +1065,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        if ((rs >= 0) && (pip->debuglevel > 0)) {
 	            shio_printf(pip->efp,"%s: ENV caldir\n",
 	                pip->progname) ;
-		}
+	        }
 
 	    } /* end if */
 	} /* end if (cal-dirs from environment) */
@@ -1114,117 +1110,122 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	pip->config = &co ;
-	if ((rs = config_start(pip->config,pip,cfname)) >= 0) {
-	    const char	**caldirs = NULL ;
-	    const char	**calnames = NULL ;
-	    pip->open.config = TRUE ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    pip->config = &co ;
+	    if ((rs = config_start(pip->config,pip,cfname)) >= 0) {
+	        cchar	**caldirs = NULL ;
+	        cchar	**calnames = NULL ;
+	        pip->open.config = TRUE ;
 
 /* more initialization */
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(2)) {
-	        debugprintf("b_calyear: process\n") ;
-	        shio_flush(pip->efp) ;
-	    }
+	        if (DEBUGLEVEL(2)) {
+	            debugprintf("b_calyear: process\n") ;
+	            shio_flush(pip->efp) ;
+	        }
 #endif
 
-	    if (rs >= 0)
-	        rs = locinfo_getstuff(lip,&caldirs,&calnames) ;
-
-	    if ((rs >= 0) && lip->f.allcals)
-	        calnames = NULL ;
-
-	    if ((rs >= 0) && (pip->debuglevel > 0)) {
-	        if (caldirs != NULL) {
-	            for (i = 0 ; caldirs[i] != NULL ; i += 1)
-	                shio_printf(pip->efp,"%s: caldir=%s\n",
-	                    pip->progname,caldirs[i]) ;
+	        if (rs >= 0) {
+	            rs = locinfo_getstuff(lip,&caldirs,&calnames) ;
 	        }
-	        if (calnames != NULL) {
-	            for (i = 0 ; calnames[i] != NULL ; i += 1)
-	                shio_printf(pip->efp,"%s: calname=%s\n",
-	                    pip->progname,calnames[i]) ;
-	        }
-	    } /* end if (debug printout) */
+
+	        if ((rs >= 0) && lip->f.allcals)
+	            calnames = NULL ;
+
+	        if ((rs >= 0) && (pip->debuglevel > 0)) {
+	            if (caldirs != NULL) {
+	                fmt = "%s: caldir=%s\n" ;
+	                for (i = 0 ; caldirs[i] != NULL ; i += 1) {
+	                    shio_printf(pip->efp,fmt,pn,caldirs[i]) ;
+	                }
+	            }
+	            if (calnames != NULL) {
+	                fmt = "%s: calname=%s\n" ;
+	                for (i = 0 ; calnames[i] != NULL ; i += 1) {
+	                    shio_printf(pip->efp,fmt,pn,calnames[i]) ;
+	                }
+	            }
+	        } /* end if (debug printout) */
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(2)) {
-	        debugprintf("b_calyear: caldirs:\n") ;
-	        if (caldirs != NULL) {
-	            for (i = 0 ; caldirs[i] != NULL ; i += 1) {
-	                debugprintf("b_calyear: caldir%02u=%s\n",
-	                    i,caldirs[i]) ;
-		    }
+	        if (DEBUGLEVEL(2)) {
+	            debugprintf("b_calyear: caldirs:\n") ;
+	            if (caldirs != NULL) {
+	                for (i = 0 ; caldirs[i] != NULL ; i += 1) {
+	                    debugprintf("b_calyear: caldir%02u=%s\n",
+	                        i,caldirs[i]) ;
+	                }
+	            }
+	            debugprintf("b_calyear: calnames:\n") ;
+	            if (calnames != NULL) {
+	                for (i = 0 ; calnames[i] != NULL ; i += 1) {
+	                    debugprintf("b_calyear: calname%02u=%s\n",
+	                        i,calnames[i]) ;
+	                }
+	            }
 	        }
-	        debugprintf("b_calyear: calnames:\n") ;
-	        if (calnames != NULL) {
-	            for (i = 0 ; calnames[i] != NULL ; i += 1) {
-	                debugprintf("b_calyear: calname%02u=%s\n",
-	                    i,calnames[i]) ;
-		    }
-	        }
-	    }
 #endif /* CF_DEBUG */
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(2)) {
-	        debugprintf("b_calyear: calyear_open()\n") ;
-	        shio_flush(pip->efp) ;
-	    }
+	        if (DEBUGLEVEL(2)) {
+	            debugprintf("b_calyear: calyear_open()\n") ;
+	            shio_flush(pip->efp) ;
+	        }
 #endif
 
-	    if (rs >= 0) {
-	        const char	*pr = pip->pr ;
-	        const char	**cd = caldirs ;
-	        const char	**cn = calnames ;
-	        if ((rs = calyear_open(&lip->holdb,pr,cd,cn)) >= 0) {
-	            const int	aval = argvalue ;
-	            const int	ncalendars = rs ;
-	            const char	*of = ofname ;
-	            const char	*af = afname ;
+	        if (rs >= 0) {
+	            cchar	*pr = pip->pr ;
+	            cchar	**cd = caldirs ;
+	            cchar	**cn = calnames ;
+	            if ((rs = calyear_open(&lip->holdb,pr,cd,cn)) >= 0) {
+	                const int	ncalendars = rs ;
+	                cchar		*of = ofname ;
+	                cchar		*af = afname ;
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(2))
-	                debugprintf("b_calyear: calyear_open() rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(2))
+	                    debugprintf("b_calyear: calyear_open() rs=%d\n",
+				rs) ;
 #endif
 
-	            if (lip->f.audit) {
-	                rs = calyear_audit(&lip->holdb) ;
+	                if (lip->f.audit) {
+	                    rs = calyear_audit(&lip->holdb) ;
+	                    if (pip->debuglevel > 0) {
+	                        fmt = "%s: DB audit (%d)\n" ;
+	                        shio_printf(pip->efp,fmt,pn,rs) ;
+	                    }
+	                }
+
 	                if (pip->debuglevel > 0) {
-	                    shio_printf(pip->efp,
-	                        "%s: DB audit (%d)\n",pip->progname,rs) ;
-			}
-	            }
+	                    fmt = "%s: calendars=%u\n" ;
+	                    shio_printf(pip->efp,fmt,pn,ncalendars) ;
+	                }
 
-	            if (pip->debuglevel > 0) {
-	                shio_printf(pip->efp,"%s: calendars=%u\n",
-	                    pip->progname,ncalendars) ;
-		    }
+	                if (rs >= 0) {
+	                    ARGINFO	*aip = &ainfo ;
+	                    BITS	*bop = &pargs ;
+	                    rs = procargs(pip,aip,bop,of,af) ;
+	                }
 
-	            if (rs >= 0) {
-	                rs = procargs(pip,&ainfo,&pargs,of,af,aval,f_apm) ;
-	            }
+	                rs1 = calyear_close(&lip->holdb) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } else {
+	                fmt = "%s: calendars inaccessible (%d)\n" ;
+	                ex = EX_CONFIG ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
+	            } /* end if (calyear) */
+	        } /* end if */
 
-	            rs1 = calyear_close(&lip->holdb) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } else {
-		    cchar	*pn = pip->progname ;
-	            cchar	*fmt = "%s: calendars inaccessible (%d)\n" ;
-	            ex = EX_CONFIG ;
-	            shio_printf(pip->efp,fmt,pn,rs) ;
-	        } /* end if (calyear) */
-	    } /* end if */
-
-	    pip->open.config = FALSE ;
-	    config_finish(pip->config) ;
-	    pip->config = NULL ;
-	} else {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: invalid configuration (%d)\n" ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
-	    ex = EX_OSERR ;
-	}
+	        pip->open.config = FALSE ;
+	        config_finish(pip->config) ;
+	        pip->config = NULL ;
+	    } else {
+	        fmt = "%s: invalid configuration (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	        ex = EX_OSERR ;
+	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -1235,7 +1236,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* done */
 	if ((rs < 0) && (ex == EX_OK)) {
-	    const char	*fmt ;
+	    cchar	*fmt ;
 	    if (! pip->f.quiet) {
 	        fmt = "%s: could not perform function (%d)\n" ;
 	        shio_printf(pip->efp,fmt,pip->progname,rs) ;
@@ -1538,7 +1539,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 	                c += 1 ;
 	            } else
-			rs = SR_INVALID ;
+	                rs = SR_INVALID ;
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1552,14 +1553,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int procargs(pip,aip,bop,ofn,afn,argvalue,f_apm)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-const char	*ofn ;
-const char	*afn ;
-int		argvalue ;
-int		f_apm ;
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
@@ -1576,7 +1570,7 @@ int		f_apm ;
 	    int		pan = 0 ;
 	    int		cl ;
 	    int		f_a = FALSE ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    lip->ofp = ofp ;
 
 	    if (! f_a) {
@@ -1633,16 +1627,17 @@ int		f_apm ;
 	            } /* end while */
 
 	            rs1 = shio_close(afp) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } else {
-		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            fmt = "%s: inaccessible argument-list (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
 
 	    } /* end if (afile arguments) */
 
-	    if ((rs >= 0) && (! f_a) && f_apm) {
+	    if ((rs >= 0) && (! f_a) && lip->f.apm) {
+		const int	f_apm = lip->f.apm ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(2))
@@ -1650,15 +1645,16 @@ int		f_apm ;
 #endif
 
 	        pan += 1 ;
-	        rs = procval(pip,f_apm,argvalue) ;
+	        rs = procval(pip,f_apm,lip->nitems) ;
 	        wlen += rs ;
 
 	    } /* end if */
 
 	    if ((rs >= 0) && (! f_a) && (lip->ncites == 0) && lip->f.defnull) {
-	        int	edays = 0 ;
+		const int	aval = lip->nitems ;
+	        int		edays = 0 ;
 
-	        if (argvalue > 1) edays = (argvalue-1) ;
+	        if (aval > 1) edays = (aval-1) ;
 	        rs = procval(pip,TRUE,edays) ;
 	        wlen += rs ;
 
@@ -1689,8 +1685,9 @@ int		f_apm ;
 #endif
 
 	                rs = cbl ;
-	                if (rs >= 0)
+	                if (rs >= 0) {
 	                    rs = procoutcite(pip,&q,cbuf,cbl) ;
+			}
 
 	            } /* end while */
 
@@ -1819,7 +1816,7 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 
 	if ((sp[0] == '+') || (sp[0] == '-')) {
 	    const int	f_plus = (sp[0] == '+') ;
-	    int		v = (lip->nentries-1) ;
+	    int		v = (lip->nitems-1) ;
 
 	    if (sl > 1) {
 	        const int	cl = (sl - 1) ;
@@ -1842,7 +1839,7 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 	            q.y = ds.y ;
 	            q.m = ds.m ;
 	            q.d = ds.d ;
-	            rs = procqueries(pip,&q,(lip->nentries-1)) ;
+	            rs = procqueries(pip,&q,(lip->nitems-1)) ;
 	            wlen += rs ;
 	        } /* end if (locinfo_defdayspec) */
 	    } else {
@@ -1854,10 +1851,10 @@ static int procspec(PROGINFO *pip,cchar sp[],int sl)
 
 	} /* end if */
 
-	    if ((rs < 0) && isNotGoodCite(rs) && lip->f.interactive) {
-		fmt = "invalid citation=>%t< (%d)\n" ;
-	        rs = shio_printf(lip->ofp,fmt,sp,sl,rs) ;
-	    }
+	if ((rs < 0) && isNotGoodCite(rs) && lip->f.interactive) {
+	    fmt = "invalid citation=>%t< (%d)\n" ;
+	    rs = shio_printf(lip->ofp,fmt,sp,sl,rs) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1981,29 +1978,29 @@ static int procquery(PROGINFO *pip,CALYEAR_CITE *qp)
 	calp = &lip->holdb ;
 	if ((rs = calyear_curbegin(calp,&cur)) >= 0) {
 	    if ((rs = calyear_lookcite(calp,&cur,qp)) >= 0) {
-		const int	vlen = VBUFLEN ;
-		int		vl ;
-		char		vbuf[VBUFLEN + 1] ;
-	    while (rs >= 0) {
+	        const int	vlen = VBUFLEN ;
+	        int		vl ;
+	        char		vbuf[VBUFLEN + 1] ;
+	        while (rs >= 0) {
 
-	        vl = calyear_read(calp,&cur,&cc,vbuf,vlen) ;
-	        if (vl == SR_NOTFOUND) break ;
-	        rs = vl ;
-	        if (rs < 0) break ;
+	            vl = calyear_read(calp,&cur,&cc,vbuf,vlen) ;
+	            if (vl == SR_NOTFOUND) break ;
+	            rs = vl ;
+	            if (rs < 0) break ;
 
-	        if (pip->verboselevel > 0) {
-	            rs = procoutcite(pip,&cc,vbuf,vl) ;
-	            wlen += rs ;
+	            if (pip->verboselevel > 0) {
+	                rs = procoutcite(pip,&cc,vbuf,vl) ;
+	                wlen += rs ;
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("b_calyear/procquery: "
-	                    "procoutcite() rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("b_calyear/procquery: "
+	                        "procoutcite() rs=%d\n",rs) ;
 #endif
 
-	        }
+	            }
 
-	    } /* end while */
+	        } /* end while */
 	    } /* end if (calyear_lookcite) */
 	    rs1 = calyear_curend(calp,&cur) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -2238,7 +2235,7 @@ static int locinfo_userinfo(LOCINFO *lip)
 	    const char	*vp ;
 	    int		i ;
 	    for (i = 0 ; i < 4 ; i += 1) {
-		vp = NULL ;
+	        vp = NULL ;
 	        switch (i) {
 	        case 0:
 	            vpp = &pip->username ;
@@ -2257,9 +2254,9 @@ static int locinfo_userinfo(LOCINFO *lip)
 	            vp = u.homedname ;
 	            break ;
 	        } /* end switch */
-		if (vp != NULL) {
+	        if (vp != NULL) {
 	            rs = proginfo_setentry(pip,vpp,vp,-1) ;
-		}
+	        }
 	        if (rs < 0) break ;
 	    } /* end for */
 	    rs1 = userinfo_finish(&u) ;
@@ -2420,8 +2417,8 @@ static int locinfo_today(LOCINFO *lip)
 	if ((rs >= 0) && (lip->today.y == 0)) {
 	    if ((rs = locinfo_tmtime(lip)) >= 0) {
 	        lip->today.y = (lip->tm.year + TM_YEAR_BASE) ;
-		lip->today.m = lip->tm.mon ;
-		lip->today.d = lip->tm.mday ;
+	        lip->today.m = lip->tm.mon ;
+	        lip->today.d = lip->tm.mday ;
 	    }
 	}
 
@@ -2580,7 +2577,7 @@ static int config_start(CONFIG *cfp,PROGINFO *pip,cchar *cfname)
 	    if (c > 0) {
 	        if ((rs = config_cooks(cfp)) >= 0) {
 	            rs = config_read(cfp) ;
-		}
+	        }
 	    }
 	    if (rs < 0)
 	        config_finish(cfp) ;

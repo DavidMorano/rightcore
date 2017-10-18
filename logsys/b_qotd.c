@@ -147,7 +147,7 @@ extern char	*strdcpy1w(char *,int,cchar *,int) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

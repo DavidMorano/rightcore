@@ -186,10 +186,10 @@ extern char	*strdcpy1(char *,int,cchar *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 #if	CF_PERCACHE
-extern PERCAHE		pc ;		/* unitialized it stays in BSS */
+extern PERCAHE	pc ;			/* unitialized it stays in BSS */
 #endif
 
 

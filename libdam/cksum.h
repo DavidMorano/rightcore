@@ -27,18 +27,20 @@
 
 #define	CKSUM		struct cksum_head
 #define	CKSUM_FL	struct cksum_flags
+#define	CKSUM_STATE	struct cksum_stage
 
 
 struct cksum_flags {
-	uint		begun:1 ;
+	uint		local:1 ;
+} ;
+
+struct cksum_stage {
+	uint		len, sum ;
 } ;
 
 struct cksum_head {
 	CKSUM_FL	f ;
-	uint		sum ;
-	uint		len ;
-	uint		totallen ;
-	uint		totalsum ;
+	CKSUM_STATE	local, total ;
 } ;
 
 
@@ -53,10 +55,10 @@ extern "C" {
 
 extern int cksum_start(CKSUM *) ;
 extern int cksum_begin(CKSUM *) ;
-extern int cksum_accum(CKSUM *,void *,int) ;
+extern int cksum_accum(CKSUM *,const void *,int) ;
 extern int cksum_end(CKSUM *) ;
 extern int cksum_getsum(CKSUM *,uint *) ;
-extern int cksum_gettotal(CKSUM *,uint *) ;
+extern int cksum_getsumall(CKSUM *,uint *) ;
 extern int cksum_finish(CKSUM *) ;
 
 #ifdef	__cplusplus

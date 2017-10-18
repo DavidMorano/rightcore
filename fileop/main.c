@@ -113,6 +113,7 @@ extern int	strwcmp(cchar *,cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
+extern int	isFailOpen(int) ;
 extern int	isOneOf(const int *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
@@ -185,7 +186,7 @@ static int	usage(PROGINFO *) ;
 static int	loadfnos(PROGINFO *) ;
 
 static int	procsig(PROGINFO *) ;
-static int	procopts(PROGINFO *) ;
+static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procfts(PROGINFO *) ;
 static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *) ;
@@ -612,6 +613,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	ARGINFO		ainfo ;
 	SIGHAND		sm ;
 	BITS		pargs ;
+	KEYOPT		akopts ;
 	bfile		errfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -668,7 +670,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
@@ -676,9 +678,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	pip->verboselevel = 1 ;
 	pip->progmode = -1 ;
 
-	if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	    rs = optvalue(cp,-1) ;
-	    pip->debuglevel = rs ;
+	if (rs >= 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        rs = optvalue(cp,-1) ;
+	        pip->debuglevel = rs ;
+	    }
 	}
 
 /* process program arguments */
@@ -686,10 +690,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	if (rs >= 0) rs = bits_start(&pargs,1) ;
 	if (rs < 0) goto badpargs ;
 
-	if (rs >= 0) {
-	    rs = keyopt_start(&pip->akopts) ;
-	    pip->open.akopts = (rs >= 0) ;
-	}
+	rs = keyopt_start(&akopts) ;
+	pip->open.akopts = (rs >= 0) ;
 
 	if (rs >= 0) {
 	    rs = paramopt_start(&pip->aparams) ;
@@ -768,7 +770,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl) {
-	                            KEYOPT	*kop = &pip->akopts ;
+	                            KEYOPT	*kop = &akopts ;
 	                            rs = keyopt_loads(kop,argp,argl) ;
 	                        }
 	                    } else
@@ -1301,7 +1303,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                KEYOPT	*kop = &pip->akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
 	                            }
 	                        } else
@@ -1468,7 +1470,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
-	} else if (! isNotPresent(rs1)) {
+	} else if (! isFailOpen(rs1)) {
 	    if (rs >= 0) rs = rs1 ;
 	}
 
@@ -1606,7 +1608,7 @@ int main(int argc,cchar **argv,cchar **envv)
 /* get more program options */
 
 	if (rs >= 0) {
-	    if ((rs = procopts(pip)) >= 0) {
+	    if ((rs = procopts(pip,&akopts)) >= 0) {
 	        if ((rs = procfts(pip)) >= 0) {
 	            if (pip->f.cores) pip->fts |= (1 << ft_r) ;
 	            if ((rs >= 0) && (pip->debuglevel > 0)) {
@@ -1714,7 +1716,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	        rs1 = proctars_end(pip) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (proctars) */
-	} else {
+	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    ex = EX_USAGE ;
@@ -1781,7 +1783,7 @@ retearly:
 
 	if (pip->open.akopts) {
 	    pip->open.akopts = FALSE ;
-	    keyopt_finish(&pip->akopts) ;
+	    keyopt_finish(&akopts) ;
 	}
 
 	bits_finish(&pargs) ;
@@ -1924,9 +1926,8 @@ static int loadfnos(PROGINFO *pip)
 /* end if (loadfnos) */
 
 
-static int procopts(PROGINFO *pip)
+static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
-	KEYOPT		*kop = &pip->akopts ;
 	KEYOPT_CUR	kcur ;
 	int		rs = SR_OK ;
 	int		c = 0 ;
@@ -2421,8 +2422,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	cchar		*cp ;
 
 	if (rs >= 0) {
-	    int	ai ;
-	    int	f ;
+	    int		ai ;
+	    int		f ;
 	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;

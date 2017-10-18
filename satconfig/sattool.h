@@ -1,3 +1,4 @@
+/* sattool */
 /* last modified %G% version %I% */
 
 
@@ -23,9 +24,9 @@
 #define		ENVLEN		2000
 
 
-/*************************************************************************
+/*******************************************************************************
 
-#	The following substitutions are made on command strings :
+#	The following substitutions are made on command strings:
 #		%a	file name argument
 #		%s	system name
 #		%f	SAT filter file
@@ -37,7 +38,7 @@
 #		%r	SUT release
 #
 
-**************************************************************************/
+*******************************************************************************/
 
 struct expand {
 	char	*a ;

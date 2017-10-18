@@ -128,7 +128,7 @@ extern char	*strncasestr(cchar *,int,cchar *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

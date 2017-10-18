@@ -7,11 +7,18 @@
 #define	SEARCHNAME	"sumcol"
 #define	VARPRNAME	"LOCAL"
 
+#ifndef	PROGRAMROOT
+#define	PROGRAMROOT	"/usr/add-on/local"
+#endif
+
 #define	VARPROGRAMROOT1	"SUMCOL_PROGRAMROOT"
 #define	VARPROGRAMROOT2	VARPRNAME
 #define	VARPROGRAMROOT3	"PROGRAMROOT"
 
 #define	VARSEARCHNAME	"SUMCOL_NAME"
+#define	VARBANNER	"SUMCOL_BANNER"
+#define	VAROPTS		"SUMCOL_OPTS"
+#define	VAREFNAME	"SUMCOL_EF"
 #define	VARERRORFNAME	"SUMCOL_ERRORFILE"
 
 #define	VARDEBUGFNAME	"SUMCOL_DEBUGFILE"
@@ -53,10 +60,6 @@
 
 #define	VARPRLOCAL	"LOCAL"
 #define	VARPRPCS	"PCS"
-
-#ifndef	PROGRAMROOT
-#define	PROGRAMROOT	"/usr/add-on/local"
-#endif
 
 #define	TMPDNAME	"/tmp"
 #define	LOGDNAME	"var/log"

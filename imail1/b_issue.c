@@ -51,6 +51,7 @@
 #include	<sys/param.h>
 #include	<sys/wait.h>
 #include	<sys/stat.h>
+#include	<signal.h>
 #include	<stropts.h>
 #include	<unistd.h>
 #include	<fcntl.h>
@@ -245,7 +246,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */

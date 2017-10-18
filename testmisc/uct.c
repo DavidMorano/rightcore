@@ -1,7 +1,7 @@
-/* uc_timemgr */
+/* uc_timeout */
 /* lang=C++11 */
 
-/* UNIX® time management */
+/* UNIX® time-out management */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -23,13 +23,13 @@
 
 	Synopsis:
 
-	int uc_timemgr(int cmd,TIMEMGR *val)
+	int uc_timeout(int cmd,TIMEOUT *val)
 
 	Arguments:
 
 	cmd		command:
-			    timemgrcmd_set,
-			    timemgrcmd_cancel
+			    timeoutcmd_set,
+			    timeoutcmd_cancel
 
 	Returns:
 
@@ -59,16 +59,16 @@
 #include	<ciq.h>			/* container-interlocked-queue */
 #include	<localmisc.h>
 
-#include	"timemgr.h"
+#include	"timeout.h"
 
 
 /* local defines */
 
-#define	UCTIMEMGR	struct uctimemgr
-#define	UCTIMEMGR_FL	struct uctimemgr_flags
-#define	UCTIMEMGR_SCOPE	PTHREAD_SCOPE_SYSTEM
+#define	UCTIMEOUT	struct uctimeout
+#define	UCTIMEOUT_FL	struct uctimeout_flags
+#define	UCTIMEOUT_SCOPE	PTHREAD_SCOPE_SYSTEM
 
-#define	NDF		"uctimemgr.deb"
+#define	NDF		"uctimeout.deb"
 
 
 /* external subroutines */
@@ -83,19 +83,19 @@ extern int	msleep(int) ;
 typedef	int (*tworker)(void *) ;
 #endif
 
-struct uctimemgr_flags {
+struct uctimeout_flags {
 	uint		timer:1 ;	/* UNIX-RT timer created */
 	uint		working:1 ;
 	uint		running_catch:1 ;
 	uint		running_disp:1 ;
 } ;
 
-struct uctimemgr {
+struct uctimeout {
 	PTM		m ;		/* data mutex */
 	PTC		c ;		/* condition variable */
 	vechand		ents ;
 	ciq		pass ;
-	UCTIMEMGR_FL	open, f ;
+	UCTIMEOUT_FL	open, f ;
 	pririty_queue	*pqp ;
 	pid_t		pid ;
 	pthread_t	tid_catch ;
@@ -123,69 +123,69 @@ enum cmds {
 
 /* forward references */
 
-extern "C" int	uctimemgr_init() ;
-extenr "C" void	uctimemgr_fini() ;
+extern "C" int	uctimeout_init() ;
+extenr "C" void	uctimeout_fini() ;
 
-static int	uctimemgr_capbegin(UCTIMEMGR *,int) ;
-static int	uctimemgr_capend(UCTIMEMGR *) ;
+static int	uctimeout_capbegin(UCTIMEOUT *,int) ;
+static int	uctimeout_capend(UCTIMEOUT *) ;
 
-static int	uctimemgr_workready(UCTIMEMGR *) ;
-static int	uctimemgr_workbegin(UCTIMEMGR *) ;
-static int	uctimemgr_workend(UCTIMEMGR *) ;
+static int	uctimeout_workready(UCTIMEOUT *) ;
+static int	uctimeout_workbegin(UCTIMEOUT *) ;
+static int	uctimeout_workend(UCTIMEOUT *) ;
 
-static int	uctimemgr_priqbegin(UCTIMEMGR *) ;
-static int	uctimemgr_priqend(UCTIMEMGR *) ;
+static int	uctimeout_priqbegin(UCTIMEOUT *) ;
+static int	uctimeout_priqend(UCTIMEOUT *) ;
 
-static int	uctimemgr_timerbegin(UCTIMEMGR *) ;
-static int	uctimemgr_timerend(UCTIMEMGR *) ;
+static int	uctimeout_timerbegin(UCTIMEOUT *) ;
+static int	uctimeout_timerend(UCTIMEOUT *) ;
 
-static int	uctimemgr_thrsbegin(UCTIMEMGR *) ;
-static int	uctimemgr_thrsend(UCTIMEMGR *) ;
+static int	uctimeout_thrsbegin(UCTIMEOUT *) ;
+static int	uctimeout_thrsend(UCTIMEOUT *) ;
 
-static int	uctimemgr_thrcatchbegin(UCTIMEMGR *) ;
-static int	uctimemgr_thrcatchend(UCTIMEMGR *) ;
-static int	uctimemgr_thrcatchproc(UCTIMEMGR *) ;
+static int	uctimeout_thrcatchbegin(UCTIMEOUT *) ;
+static int	uctimeout_thrcatchend(UCTIMEOUT *) ;
+static int	uctimeout_thrcatchproc(UCTIMEOUT *) ;
 
-static int	uctimemgr_thrdispbegin(UCTIMEMGR *) ;
-static int	uctimemgr_thrdispend(UCTIMEMGR *) ;
+static int	uctimeout_thrdispbegin(UCTIMEOUT *) ;
+static int	uctimeout_thrdispend(UCTIMEOUT *) ;
 
-static int	uctimemgr_sendsync(UCTIMEMGR *) ;
-static int	uctimemgr_run(UCTIMEMGR *) ;
-static int	uctimemgr_runcheck(UCTIMEMGR *) ;
-static int	uctimemgr_runner(UCTIMEMGR *) ;
-static int	uctimemgr_worker(UCTIMEMGR *) ;
-static int	uctimemgr_worksync(UCTIMEMGR *) ;
-static int	uctimemgr_cmdsend(UCTIMEMGR *,int) ;
-static int	uctimemgr_cmdrecv(UCTIMEMGR *) ;
-static int	uctimemgr_waitdone(UCTIMEMGR *) ;
+static int	uctimeout_sendsync(UCTIMEOUT *) ;
+static int	uctimeout_run(UCTIMEOUT *) ;
+static int	uctimeout_runcheck(UCTIMEOUT *) ;
+static int	uctimeout_runner(UCTIMEOUT *) ;
+static int	uctimeout_worker(UCTIMEOUT *) ;
+static int	uctimeout_worksync(UCTIMEOUT *) ;
+static int	uctimeout_cmdsend(UCTIMEOUT *,int) ;
+static int	uctimeout_cmdrecv(UCTIMEOUT *) ;
+static int	uctimeout_waitdone(UCTIMEOUT *) ;
 
-static void	uctimemgr_atforkbefore() ;
-static void	uctimemgr_atforkparent() ;
-static void	uctimemgr_atforkchild() ;
+static void	uctimeout_atforkbefore() ;
+static void	uctimeout_atforkparent() ;
+static void	uctimeout_atforkchild() ;
 
 
 /* local variables */
 
-static UCTIMEMGR	uctimemgr_data ; /* zero-initialized */
+static UCTIMEOUT	uctimeout_data ; /* zero-initialized */
 
 
 /* exported subroutines */
 
 
-int uctimemgr_init()
+int uctimeout_init()
 {
-	UCTIMEMGR	*uip = &uctimemgr_data ;
+	UCTIMEOUT	*uip = &uctimeout_data ;
 	int		rs = SR_OK ;
 	int		f = FALSE ;
 	if (! uip->f_init) {
 	    uip->f_init = TRUE ;
 	    if ((rs = ptm_create(&uip->m,NULL)) >= 0) {
 	        if ((rs = ptc_create(&uip->c,NULL)) >= 0) {
-	    	    void	(*b)() = uctimemgr_atforkbefore ;
-	    	    void	(*ap)() = uctimemgr_atforkparent ;
-	    	    void	(*ac)() = uctimemgr_atforkchild ;
+	    	    void	(*b)() = uctimeout_atforkbefore ;
+	    	    void	(*ap)() = uctimeout_atforkparent ;
+	    	    void	(*ac)() = uctimeout_atforkchild ;
 	            if ((rs = uc_atfork(b,ap,ac)) >= 0) {
-	                if ((rs = uc_atexit(uctimemgr_fini)) >= 0) {
+	                if ((rs = uc_atexit(uctimeout_fini)) >= 0) {
 	    	            uip->f_initdone = TRUE ;
 			    uip->pid = getpid() ;
 			    f = TRUE ;
@@ -210,63 +210,63 @@ int uctimemgr_init()
 	}
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (uctimemgr_init) */
+/* end subroutine (uctimeout_init) */
 
 
-void uctimemgr_fini()
+void uctimeout_fini()
 {
-	UCTIMEMGR	*uip = &uctimemgr_data ;
+	UCTIMEOUT	*uip = &uctimeout_data ;
 	if (uip->f_initdone) {
 	    uip->f_initdone = FALSE ;
-	    uctimemgr_waitdone(uip) ;
+	    uctimeout_waitdone(uip) ;
 	    {
-	        void	(*b)() = uctimemgr_atforkbefore ;
-	        void	(*ap)() = uctimemgr_atforkparent ;
-	        void	(*ac)() = uctimemgr_atforkchild ;
+	        void	(*b)() = uctimeout_atforkbefore ;
+	        void	(*ap)() = uctimeout_atforkparent ;
+	        void	(*ac)() = uctimeout_atforkchild ;
 	        uc_atforkrelease(b,ap,ac) ;
 	    }
 	    ptc_destroy(&uip->c) ;
 	    ptm_destroy(&uip->m) ;
-	    memset(uip,0,sizeof(UCTIMEMGR)) ;
+	    memset(uip,0,sizeof(UCTIMEOUT)) ;
 	} /* end if (atexit registered) */
 }
-/* end subroutine (uctimemgr_fini) */
+/* end subroutine (uctimeout_fini) */
 
 
-int uc_timemgr(int cmd,TIMEMGR *valp)
+int uc_timeout(int cmd,TIMEOUT *valp)
 {
-	UCTIMEMGR	*uip = &uctimemgr_data ;
+	UCTIMEOUT	*uip = &uctimeout_data ;
 	int		rs ;
 
-	if ((rs = uctimemgr_init()) >= 0) {
-	    if ((rs = uctimemgr_capbegin(uip,-1)) >= 0) {
-		if ((rs = uctimemgr_workready(uip)) >= 0) {
+	if ((rs = uctimeout_init()) >= 0) {
+	    if ((rs = uctimeout_capbegin(uip,-1)) >= 0) {
+		if ((rs = uctimeout_workready(uip)) >= 0) {
 	            switch (cmd) {
-	            case timemgrcmd_set:
-	                rs = uctimemgr_cmdset(valp) ;
+	            case timeoutcmd_set:
+	                rs = uctimeout_cmdset(valp) ;
 	                break ;
-	            case timemgrcmd_cancel:
-	                rs = uctimemgr_cmdcancel(valp) ;
+	            case timeoutcmd_cancel:
+	                rs = uctimeout_cmdcancel(valp) ;
 	                break ;
 		    default:
 		        rs = SR_INVALID ;
 		        break ;
 	            } /* end switch */
-		} /* end if (uctimemgr_workready) */
-	        rs1 = uctimemgr_capend(uip) ;
+		} /* end if (uctimeout_workready) */
+	        rs1 = uctimeout_capend(uip) ;
 		if (rs >= 0) rs = rs1 ;
-	    } /* end if (uctimemgr-cap) */
-	} /* end if (uctimemgr_init) */
+	    } /* end if (uctimeout-cap) */
+	} /* end if (uctimeout_init) */
 
 	return rs ;
 }
-/* end subroutine (uc_timemgr) */
+/* end subroutine (uc_timeout) */
 
 
 /* local subroutines */
 
 
-static int uctimemgr_capbegin(UCTIMEMGR *uip,int to)
+static int uctimeout_capbegin(UCTIMEOUT *uip,int to)
 {
 	int		rs ;
 	int		rs1 ;
@@ -289,10 +289,10 @@ static int uctimemgr_capbegin(UCTIMEMGR *uip,int to)
 
 	return rs ;
 }
-/* end subroutine (uctimemgr_capbegin) */
+/* end subroutine (uctimeout_capbegin) */
 
 
-static int uctimemgr_capend(UCTIMEMGR *uip)
+static int uctimeout_capend(UCTIMEOUT *uip)
 {
 	int		rs ;
 	int		rs1 ;
@@ -310,18 +310,18 @@ static int uctimemgr_capend(UCTIMEMGR *uip)
 
 	return rs ;
 }
-/* end subroutine (uctimemgr_capend) */
+/* end subroutine (uctimeout_capend) */
 
 
-static int uctimemgr_workready(UCTIMEMGR *uip)
+static int uctimeout_workready(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	if (! uip->f_workready) {
-	    rs = uctimemgr_workbegin(uip) ;
+	    rs = uctimeout_workbegin(uip) ;
 	}
 	return rs ;
 }
-/* end subroutine (uctimemgr_workready) */
+/* end subroutine (uctimeout_workready) */
 
 
 #ifdef	COMMENT
@@ -350,7 +350,7 @@ int sigevent_init(SIGEVENT *sep,int notify,int signo,int val)
 /* end subroutine (sigevent_init) */
 #endif /* COMMENT */
 
-static int uctimemgr_workbegin(UCTIMEMGR *uip)
+static int uctimeout_workbegin(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -359,10 +359,10 @@ static int uctimemgr_workbegin(UCTIMEMGR *uip)
 	    so |= (VECHAND_OSTATIONARY|VECHAND_OREUSE| VECHAND_OCOMPACT) ;
 	    vo |= ( VECHAND_OSWAP| VECHAND_OCONSERVE) ;
 	    if ((rs = vechand_start(&uip->ents,0,vo)) >= 0) {
-		if ((rs = uctimemgr_priqbegin(uip)) >= 0) {
-		    if ((rs = uctimemgr_timerbegin(uip)) >= 0) {
+		if ((rs = uctimeout_priqbegin(uip)) >= 0) {
+		    if ((rs = uctimeout_timerbegin(uip)) >= 0) {
 			if ((rs = ciq_start(&uip->pass)) >= 0) {
-			    if ((rs = uctimemgr_thrsbegin(uip)) >= 0) {
+			    if ((rs = uctimeout_thrsbegin(uip)) >= 0) {
 			        uip->open.working = TRUE ;
 			    }
 			    if (rs < 0) {
@@ -370,11 +370,11 @@ static int uctimemgr_workbegin(UCTIMEMGR *uip)
 			    }
 			}
 			if (rs < 0) {
-		    	    uctimemgr_timerend(uip) ;
+		    	    uctimeout_timerend(uip) ;
 			}
 		    }
 		    if (rs < 0) {
-			uctimemgr_priqend(uip) ;
+			uctimeout_priqend(uip) ;
 		    }
 	        }
 		if (rs < 0) {
@@ -384,21 +384,21 @@ static int uctimemgr_workbegin(UCTIMEMGR *uip)
 	}
 	return rs ;
 }
-/* end subroutine (uctimemgr_workbegin) */
+/* end subroutine (uctimeout_workbegin) */
 
 
-static int uctimemgr_workend(UCTIMEMGR *uip)
+static int uctimeout_workend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 	if (uip->open.working) {
-	    rs1 = uctimemgr_thrsend(uip) ;
+	    rs1 = uctimeout_thrsend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
 	    rs1 = ciq_finish(&uip->pass) ;
 	    if (rs >= 0) rs = rs1 ;
-	    rs1 = uctimemgr_timerend(uip) ;
+	    rs1 = uctimeout_timerend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
-	    rs1 = uctimemgr_priqend(uip) ;
+	    rs1 = uctimeout_priqend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
 	    rs1 = vechand_finish(&uip->ents) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -406,35 +406,35 @@ static int uctimemgr_workend(UCTIMEMGR *uip)
 	}
 	return rs ;
 }
-/* end subroutine (uctimemgr_workend) */
+/* end subroutine (uctimeout_workend) */
 
 
-static int uctimemgr_priqbegin(UCTIMEMGR *uip)
+static int uctimeout_priqbegin(UCTIMEOUT *uip)
 {
 	void		*p ;
 	int		rs = SR_OK ;
-	p = new(nothrow) priority_queue<TIMEMGR *,vector<TIMEMGR *>,ourcmp> ;
+	p = new(nothrow) priority_queue<TIMEOUT *,vector<TIMEOUT *>,ourcmp> ;
 	if (p != NULL) {
-	    uip->pqp = (priority_queue<TIMEMGR *>) p ;
+	    uip->pqp = (priority_queue<TIMEOUT *>) p ;
 	} else {
 	    rs = SR_NOMEM ;
 	}
 	return rs ;
 }
-/* end subroutine (uctimemgr_priqbegin) */
+/* end subroutine (uctimeout_priqbegin) */
 
 
-static int uctimemgr_priqend(UCTIMEMGR *uip)
+static int uctimeout_priqend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	delete uip->pqp ;
 	uip->pqp = NULL ;
 	return rs ;
 }
-/* end subroutine (uctimemgr_priqend) */
+/* end subroutine (uctimeout_priqend) */
 
 
-static int uctimemgr_timerbegin(UCTIMEMGR *uip)
+static int uctimeout_timerbegin(UCTIMEOUT *uip)
 {
 	const int	cid = CLOCK_REALTIME ;
 	timer_t		tid ;
@@ -445,10 +445,10 @@ static int uctimemgr_timerbegin(UCTIMEMGR *uip)
 	}
 	return rs ;
 }
-/* end subroutine (uctimemgr_timerbegin) */
+/* end subroutine (uctimeout_timerbegin) */
 
 
-static int uctimemgr_timerend(UCTIMEMGR *uip)
+static int uctimeout_timerend(UCTIMEOUT *uip)
 {
 	timer_t		tid = uip->timerid ;
 	int		rs = SR_OK ;
@@ -459,36 +459,36 @@ static int uctimemgr_timerend(UCTIMEMGR *uip)
 	uip->open.timer = FALSE ;
 	return rs ;
 }
-/* end subroutine (uctimemgr_timerend) */
+/* end subroutine (uctimeout_timerend) */
 
 
-static int uctimemgr_thrsbegin(UCTIMEMGR *uip)
+static int uctimeout_thrsbegin(UCTIMEOUT *uip)
 {
 	int		rs ;
-	if ((rs = uctimemgr_thrcatchbegin(uip)) >= 0) {
-	    rs = uctimemgr_thrdispbegin(uip) ;
+	if ((rs = uctimeout_thrcatchbegin(uip)) >= 0) {
+	    rs = uctimeout_thrdispbegin(uip) ;
 	    if (rs < 0) {
-		uctimemgr_thrcatchend(uip) ;
+		uctimeout_thrcatchend(uip) ;
 	    }
 	}
 	return rs ;
 }
-/* end subroutine (uctimemgr_thrsbegin) */
+/* end subroutine (uctimeout_thrsbegin) */
 
 
-static int uctimemgr_thrsend(UCTIMEMGR *uip)
+static int uctimeout_thrsend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
-	rs1 = uctimemgr_thrcatchend(uip) ;
+	rs1 = uctimeout_thrcatchend(uip) ;
 	if (rs >= 0) rs = rs1 ;
-	rs1 = uctimemgr_thrdispend(uip) ;
+	rs1 = uctimeout_thrdispend(uip) ;
 	if (rs >= 0) rs = rs1 ;
 	return rs ;
 }
-/* end subroutine (uctimemgr_thrsend) */
+/* end subroutine (uctimeout_thrsend) */
 
 
-static int uctimemgr_thrcatchbegin(UCTIMEMGR *uip)
+static int uctimeout_thrcatchbegin(UCTIMEOUT *uip)
 {
 	PTA		a ;
 	int		rs ;
@@ -496,10 +496,10 @@ static int uctimemgr_thrcatchbegin(UCTIMEMGR *uip)
 	int		f = FALSE ;
 
 	if ((rs = pta_create(&a)) >= 0) {
-	    const int	scope = UCTIMEMGR_SCOPE ;
+	    const int	scope = UCTIMEOUT_SCOPE ;
 	    if ((rs = pta_setscope(&a,scope)) >= 0) {
 		pthread_t	tid ;
-		tworker		wt = (tworker) uctimemgr_thrcatchproc ;
+		tworker		wt = (tworker) uctimeout_thrcatchproc ;
 		if ((rs = uptcreate(&tid,NULL,wt,uip)) >= 0) {
 		    uip->f.running_catch = TRUE ;
 		    uip->tid_catch = tid ;
@@ -511,15 +511,15 @@ static int uctimemgr_thrcatchbegin(UCTIMEMGR *uip)
 	} /* end if (pta) */
 
 #if	CF_DEBUGN
-	nprintf(NDF,"uctimemgr_thrcatchbegin: ret rs=%d f=%u\n",rs,f) ;
+	nprintf(NDF,"uctimeout_thrcatchbegin: ret rs=%d f=%u\n",rs,f) ;
 #endif
 
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (uctimemgr_thrcatchbegin) */
+/* end subroutine (uctimeout_thrcatchbegin) */
 
 
-static int uctimemgr_thrcatchend(UCTIMEMGR *uip)
+static int uctimeout_thrcatchend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -533,27 +533,27 @@ static int uctimemgr_thrcatchend(UCTIMEMGR *uip)
 		        uip->f.running_catch = FALSE ;
 		        rs = SR_OK ;
 		    }
-	        } /* end if (uctimemgr_sendsync) */
+	        } /* end if (uctimeout_sendsync) */
 	}
 	return rs ;
 }
-/* end subroutine (uctimemgr_thrcatchend) */
+/* end subroutine (uctimeout_thrcatchend) */
 
 
-static int uctimemgr_thrcatchproc(UCTIMEMGR *uip)
+static int uctimeout_thrcatchproc(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
-	while ((rs = uctimemgr_sigwait(uip)) > 0) {
+	while ((rs = uctimeout_sigwait(uip)) > 0) {
 	   if (uip->f.thrcatch_exit) break ;
 
 
 	} /* end while */
 	return rs ;
 }
-/* end subroutine (uctimemgr_thrcatchproc) */
+/* end subroutine (uctimeout_thrcatchproc) */
 
 
-static int uctimemgr_sigwait(UCTIMEMGR *uip)
+static int uctimeout_sigwait(UCTIMEOUT *uip)
 {
 	siginfo_t	si ;
 	int		rs ;
@@ -563,10 +563,10 @@ static int uctimemgr_sigwait(UCTIMEMGR *uip)
 
 	return rs ;
 }
-/* end subroutine (uctimemgr_sigwait) */
+/* end subroutine (uctimeout_sigwait) */
 
 
-static int uctimemgr_thrdispbegin(UCTIMEMGR *uip)
+static int uctimeout_thrdispbegin(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	if (uip == NULL) return SR_FAULT ;
@@ -574,10 +574,10 @@ static int uctimemgr_thrdispbegin(UCTIMEMGR *uip)
 
 	return rs ;
 }
-/* end subroutine (uctimemgr_thrdispbegin) */
+/* end subroutine (uctimeout_thrdispbegin) */
 
 
-static int uctimemgr_thrdispend(UCTIMEMGR *uip)
+static int uctimeout_thrdispend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	if (uip == NULL) return SR_FAULT ;
@@ -585,10 +585,10 @@ static int uctimemgr_thrdispend(UCTIMEMGR *uip)
 
 	return rs ;
 }
-/* end subroutine (uctimemgr_thrdispend) */
+/* end subroutine (uctimeout_thrdispend) */
 
 
-static int uctimemgr_sendsync(UCTIMEMGR *uip)
+static int uctimeout_sendsync(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
@@ -596,10 +596,10 @@ static int uctimemgr_sendsync(UCTIMEMGR *uip)
 	if (! uip->f_syncing) {
 	    SIGBLOCK	b ;
 	    if ((rs = sigblock_start(&b,NULL)) >= 0) {
-	        if ((rs = uctimemgr_init()) >= 0) {
-		    if ((rs = uctimemgr_run(uip)) >= 0) {
+	        if ((rs = uctimeout_init()) >= 0) {
+		    if ((rs = uctimeout_run(uip)) >= 0) {
 		        const int	cmd = cmd_sync ;
-		        rs = uctimemgr_cmdsend(uip,cmd) ;
+		        rs = uctimeout_cmdsend(uip,cmd) ;
 		        c = uip->count ;
 		    }
 	        } /* end if (init) */
@@ -608,15 +608,15 @@ static int uctimemgr_sendsync(UCTIMEMGR *uip)
 	} /* end if (syncing not in progress) */
 
 #if	CF_DEBUGN
-	nprintf(NDF,"uctimemgr_sendsync: ret rs=%d c=%u\n",rs,c) ;
+	nprintf(NDF,"uctimeout_sendsync: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (uctimemgr_sendsync) */
+/* end subroutine (uctimeout_sendsync) */
 
 
-static int uctimemgr_run(UCTIMEMGR *uip)
+static int uctimeout_run(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -626,10 +626,10 @@ static int uctimemgr_run(UCTIMEMGR *uip)
 	    if ((rs = uc_forklockbegin(-1)) >= 0) { /* multi */
 	        if ((rs = ptm_lock(&uip->m)) >= 0) { /* single */
 		    if (! uip->f_running) {
-		        rs = uctimemgr_runner(uip) ;
+		        rs = uctimeout_runner(uip) ;
 		        f = rs ;
 		    } else {
-		        rs = uctimemgr_runcheck(uip) ;
+		        rs = uctimeout_runcheck(uip) ;
 		        f = rs ;
 		    } /* end if (not running) */
 	            rs1 = ptm_unlock(&uip->m) ;
@@ -639,20 +639,20 @@ static int uctimemgr_run(UCTIMEMGR *uip)
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} else {
-	    rs = uctimemgr_runcheck(uip) ;
+	    rs = uctimeout_runcheck(uip) ;
 	    f = rs ;
 	} /* end if (not-running) */
 
 #if	CF_DEBUGN
-	nprintf(NDF,"uctimemgr_run: ret rs=%d f=%u\n",rs,f) ;
+	nprintf(NDF,"uctimeout_run: ret rs=%d f=%u\n",rs,f) ;
 #endif
 
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (uctimemgr_run) */
+/* end subroutine (uctimeout_run) */
 
 
-static int uctimemgr_runcheck(UCTIMEMGR *uip)
+static int uctimeout_runcheck(UCTIMEOUT *uip)
 {
 	const pid_t	pid = getpid() ;
 	int		rs = SR_OK ;
@@ -661,15 +661,15 @@ static int uctimemgr_runcheck(UCTIMEMGR *uip)
 		uip->f_running = FALSE ;
 		uip->f_exiting = FALSE ;
 		uip->pid = pid ;
-		rs = uctimemgr_run(uip) ;
+		rs = uctimeout_run(uip) ;
 		f = rs ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (uctimemgr_runcheck) */
+/* end subroutine (uctimeout_runcheck) */
 
 
-static int uctimemgr_runner(UCTIMEMGR *uip)
+static int uctimeout_runner(UCTIMEOUT *uip)
 {
 	PTA		a ;
 	int		rs ;
@@ -677,10 +677,10 @@ static int uctimemgr_runner(UCTIMEMGR *uip)
 	int		f = FALSE ;
 
 	if ((rs = pta_create(&a)) >= 0) {
-	    const int	scope = UCTIMEMGR_SCOPE ;
+	    const int	scope = UCTIMEOUT_SCOPE ;
 	    if ((rs = pta_setscope(&a,scope)) >= 0) {
 		pthread_t	tid ;
-		tworker		wt = (tworker) uctimemgr_worker ;
+		tworker		wt = (tworker) uctimeout_worker ;
 		if ((rs = uptcreate(&tid,NULL,wt,uip)) >= 0) {
 		    uip->f_running = TRUE ;
 		    uip->tid = tid ;
@@ -692,39 +692,39 @@ static int uctimemgr_runner(UCTIMEMGR *uip)
 	} /* end if (pta) */
 
 #if	CF_DEBUGN
-	nprintf(NDF,"uctimemgr_runner: ret rs=%d f=%u\n",rs,f) ;
+	nprintf(NDF,"uctimeout_runner: ret rs=%d f=%u\n",rs,f) ;
 #endif
 
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (uctimemgr_runner) */
+/* end subroutine (uctimeout_runner) */
 
 
 /* it always takes a good bit of code to make this part look easy! */
-static int uctimemgr_worker(UCTIMEMGR *uip)
+static int uctimeout_worker(UCTIMEOUT *uip)
 {
 	int		rs ;
 
-	while ((rs = uctimemgr_cmdrecv(uip)) > 0) {
+	while ((rs = uctimeout_cmdrecv(uip)) > 0) {
 	    switch (rs) {
 	    case cmd_sync:
-		rs = uctimemgr_worksync(uip) ;
+		rs = uctimeout_worksync(uip) ;
 		break ;
 	    } /* end switch */
 	    if (rs < 0) break ;
 	} /* end while (looping on commands) */
 
 #if	CF_DEBUGN
-	nprintf(NDF,"uctimemgr_worker: ret rs=%d\n",rs) ;
+	nprintf(NDF,"uctimeout_worker: ret rs=%d\n",rs) ;
 #endif
 
 	uip->f_exiting = TRUE ;
 	return rs ;
 }
-/* end subroutine (uctimemgr_worker) */
+/* end subroutine (uctimeout_worker) */
 
 
-static int uctimemgr_worksync(UCTIMEMGR *uip)
+static int uctimeout_worksync(UCTIMEOUT *uip)
 {
 	int		rs ;
 	uip->f_syncing = TRUE ;
@@ -734,10 +734,10 @@ static int uctimemgr_worksync(UCTIMEMGR *uip)
 	uip->f_syncing = FALSE ;
 	return rs ;
 }
-/* end subroutine (uctimemgr_worksync) */
+/* end subroutine (uctimeout_worksync) */
 
 
-static int uctimemgr_cmdsend(UCTIMEMGR *uip,int cmd)
+static int uctimeout_cmdsend(UCTIMEOUT *uip,int cmd)
 {
 	int		rs ;
 	int		rs1 ;
@@ -769,10 +769,10 @@ static int uctimemgr_cmdsend(UCTIMEMGR *uip,int cmd)
 
 	return rs ;
 }
-/* end subroutine (uctimemgr_cmdsend) */
+/* end subroutine (uctimeout_cmdsend) */
 
 
-static int uctimemgr_cmdrecv(UCTIMEMGR *uip)
+static int uctimeout_cmdrecv(UCTIMEOUT *uip)
 {
 	int		rs ;
 	int		rs1 ;
@@ -802,10 +802,10 @@ static int uctimemgr_cmdrecv(UCTIMEMGR *uip)
 
 	return (rs >= 0) ? cmd : rs ;
 }
-/* end subroutine (uctimemgr_cmdrecv) */
+/* end subroutine (uctimeout_cmdrecv) */
 
 
-static int uctimemgr_waitdone(UCTIMEMGR *uip)
+static int uctimeout_waitdone(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 
@@ -813,7 +813,7 @@ static int uctimemgr_waitdone(UCTIMEMGR *uip)
 	    const pid_t	pid = getpid() ;
 	    if (pid == uip->pid) {
 	        const int	cmd = cmd_exit ;
-	        if ((rs = uctimemgr_cmdsend(uip,cmd)) >= 0) {
+	        if ((rs = uctimeout_cmdsend(uip,cmd)) >= 0) {
 	 	    pthread_t	tid = uip->tid ;
 		    int		trs ;
 		    if ((rs = uptjoin(tid,&trs)) >= 0) {
@@ -823,7 +823,7 @@ static int uctimemgr_waitdone(UCTIMEMGR *uip)
 		        uip->f_running = FALSE ;
 		        rs = SR_OK ;
 		    }
-	        } /* end if (uctimemgr_sendsync) */
+	        } /* end if (uctimeout_sendsync) */
 	    } else {
 		uip->f_running = FALSE ;
 	    }
@@ -831,33 +831,33 @@ static int uctimemgr_waitdone(UCTIMEMGR *uip)
 
 	return rs ;
 }
-/* end subroutine (uctimemgr_waitdone) */
+/* end subroutine (uctimeout_waitdone) */
 
 
-static void uctimemgr_atforkbefore()
+static void uctimeout_atforkbefore()
 {
-	UCTIMEMGR	*uip = &uctimemgr_data ;
+	UCTIMEOUT	*uip = &uctimeout_data ;
 	ptm_lock(&uip->m) ;
 }
-/* end subroutine (uctimemgr_atforkbefore) */
+/* end subroutine (uctimeout_atforkbefore) */
 
 
-static void uctimemgr_atforkparent()
+static void uctimeout_atforkparent()
 {
-	UCTIMEMGR	*uip = &uctimemgr_data ;
+	UCTIMEOUT	*uip = &uctimeout_data ;
 	ptm_unlock(&uip->m) ;
 }
-/* end subroutine (uctimemgr_atforkparent) */
+/* end subroutine (uctimeout_atforkparent) */
 
 
-static void uctimemgr_atforkchild()
+static void uctimeout_atforkchild()
 {
-	UCTIMEMGR	*uip = &uctimemgr_data ;
+	UCTIMEOUT	*uip = &uctimeout_data ;
 	uip->f_running = FALSE ;
 	uip->f_exiting = FALSE ;
 	uip->pid = getpid() ;
 	ptm_unlock(&uip->m) ;
 }
-/* end subroutine (uctimemgr_atforkchild) */
+/* end subroutine (uctimeout_atforkchild) */
 
 

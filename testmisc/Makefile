@@ -506,3 +506,39 @@ main$(T15).o:		main$(T15).cc
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T15).cc
 
 
+T16= timeout
+
+T16OBJa= main$(T16).o
+T16OBJb= uc_timeout.o
+T16OBJc=
+T16OBJd=
+
+T16OBJ= $(T16OBJa) $(T16OBJb) $(T16OBJc) $(T16OBJd)
+
+T16OBJS= $(CRTFRONT) $(T16OBJ) $(CRTBACK)
+
+$(T16).x:		Makefile $(T16OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T16OBJS) $(TLIBINFO) > $(T16).lm
+
+main$(T16).o:		main$(T16).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T16).cc
+
+
+T17= two
+
+T17OBJa= main$(T17).o
+T17OBJb=
+T17OBJc=
+T17OBJd=
+
+T17OBJ= $(T17OBJa) $(T17OBJb) $(T17OBJc) $(T17OBJd)
+
+T17OBJS= $(CRTFRONT) $(T17OBJ) $(CRTBACK)
+
+$(T17).x:		Makefile $(T17OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T17OBJS) $(TLIBINFO) > $(T17).lm
+
+main$(T17).o:		main$(T17).c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) main$(T17).c
+
+
