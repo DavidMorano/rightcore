@@ -189,14 +189,15 @@ int getbufsize_init()
 	    nprintf(NDF,"getbufsize_init: _begin()\n") ;
 #endif
 	    if ((rs = getbufsize_begin(uip)) >= 0) {
-	        f = TRUE ;
 	        uip->f_initdone = TRUE ;
+	        f = TRUE ;
 	    }
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
 	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
 	        rs = msleep(1) ;
+		if (rs == SR_INTR) break ;
 	    }
 	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}

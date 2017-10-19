@@ -190,6 +190,7 @@ int lockmemalloc_init()
 	} else {
 	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
 		rs = msleep(1) ;
+		if (rs == SR_INTR) break ;
 	    }
 	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}

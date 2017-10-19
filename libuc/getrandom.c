@@ -168,6 +168,7 @@ int getrandom_init()
 {
 	GETRANDOM	*uip = &getrandom_data ;
 	int		rs = SR_OK ;
+	int		f = FALSE ;
 	if (! uip->f_init) {
 	    uip->f_init = TRUE ;
 	    if ((rs = ptm_create(&uip->m,NULL)) >= 0) {
@@ -176,8 +177,8 @@ int getrandom_init()
 	    	    void	(*a)() = getrandom_atforkafter ;
 	            if ((rs = uc_atfork(b,a,a)) >= 0) {
 	                if ((rs = uc_atexit(getrandom_fini)) >= 0) {
-	                    rs = 1 ;
 	                    uip->f_initdone = TRUE ;
+		 	    f = TRUE ;
 	                }
 	                if (rs < 0)
 	                    uc_atforkrelease(b,a,a) ;
@@ -193,10 +194,11 @@ int getrandom_init()
 	} else {
 	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
 		rs = msleep(1) ;
+		if (rs == SR_INTR) break ;
 	    }
 	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (getrandom_init) */
 

@@ -87,6 +87,7 @@ static struct ids_reserve	ids_data ; /* zero-initialized */
 /* exported subroutines */
 
 
+/* special case of returning number of configured groups */
 int ids_init()
 {
 	IDS_RESERVE	*irp = &ids_data ;

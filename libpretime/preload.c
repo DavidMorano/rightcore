@@ -51,9 +51,6 @@
 
 /* pragmas */
 
-#pragma		init(preload_init)
-#pragma		fini(preload_fini)
-
 
 /* external subroutines */
 

@@ -105,8 +105,12 @@ int		proginfo_progename(PROGINFO *) ;
 static int	proginfo_setdefnames(PROGINFO *) ;
 
 #ifdef	COMMENT
-static int proginfo_setdefdn(PROGINFO *) ;
-static int proginfo_setdefpn(PROGINFO *) ;
+static int	proginfo_setdefdn(PROGINFO *) ;
+static int	proginfo_setdefpn(PROGINFO *) ;
+#endif
+
+#if	CF_DEBUGN
+static int	proginfo_storelists(PROGINFO *,cchar *) ;
 #endif
 
 static int	hasourbad(cchar *,int) ;
@@ -151,6 +155,10 @@ int proginfo_start(PROGINFO *pip,cchar *envv[],cchar argz[],cchar ver[])
 	    if (rs < 0)
 	        vecstr_finish(&pip->stores) ;
 	} /* end if (vecstr-stores) */
+
+#if	CF_DEBUGS
+	debugprintf("proginfo_start: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

@@ -12,9 +12,12 @@
 	= 2016-06-29, David A­D­ Morano
 	This was really made from scratch.
 
+	= 2017-10-19, David A­D­ Morano
+	Enhanced to ignore characters within character literals.
+
 */
 
-/* Copyright © 2016 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2016,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

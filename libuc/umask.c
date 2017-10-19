@@ -86,8 +86,8 @@ int umask_init()
 	        void	(*a)() = umask_atforkafter ;
 	        if ((rs = uc_atfork(b,a,a)) >= 0) {
 	            if ((rs = uc_atexit(umask_fini)) >= 0) {
-		        f = TRUE ;
 	    	        uip->f_initdone = TRUE ;
+		        f = TRUE ;
 		    }
 		    if (rs < 0)
 		        uc_atforkrelease(b,a,a) ;

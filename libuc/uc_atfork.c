@@ -4,6 +4,7 @@
 
 
 #define	CF_DEBUGN	0		/* special compile-time debugging */
+#define	CF_DEBUGINIT	0		/* debug initialization section */
 
 
 /* revision history:
@@ -69,6 +70,19 @@
 #define	NDF		"ucatfork.deb"
 
 
+/* pragmas (these just do not really work) */
+
+#ifdef	COMMENT
+#pragma		init(ucatfork_init)
+#pragma		fini(ucatfork_fini)
+#endif /* COMMENT */
+
+
+/* typedefs */
+
+typedef void	(*atfork_t)(void) ;
+
+
 /* external subroutines */
 
 extern int	msleep(int) ;
@@ -125,20 +139,30 @@ int ucatfork_init()
 	UCATFORK	*udp = &ucatfork_data ;
 	int		rs = SR_OK ;
 	int		f = FALSE ;
+#if	CF_DEBUGINIT
+	nprintf(NDF,"ucatfork_init: ent\n") ;
+#endif
 	if (! udp->f_init) {
 	    udp->f_init = TRUE ;
 	    if ((rs = ptm_create(&udp->m,NULL)) >= 0) {
 	        udp->f_initdone = TRUE ;
 	        f = TRUE ;
+#if	CF_DEBUGINIT
+		nprintf(NDF,"ucatfork_init: done\n") ;
+#endif
 	    } /* end if (ptm_create) */
 	    if (rs < 0)
 	        udp->f_init = FALSE ;
 	} else {
 	    while ((rs >= 0) && udp->f_init && (! udp->f_initdone)) {
 		rs = msleep(1) ;
+		if (rs == SR_INTR) break ;
 	    }
 	    if ((rs >= 0) && (! udp->f_init)) rs = SR_LOCKLOST ;
 	}
+#if	CF_DEBUGINIT
+	nprintf(NDF,"ucatfork_init: ret rs=%d f=%u\n",rs,f) ;
+#endif
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (ucatfork_init) */
@@ -159,15 +183,16 @@ void ucatfork_fini()
 /* end subroutine (ucatfork_fini) */
 
 
-int uc_atfork(sb,sp,sc)
-void		(*sb)() ;
-void		(*sp)() ;
-void		(*sc)() ;
+int uc_atfork(atfork_t sb,atfork_t sp,atfork_t sc)
 {
 	UCATFORK	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
 	int		rs ;
 	int		rs1 ;
+
+#if	CF_DEBUGINIT
+	nprintf(NDF,"uc_atfork: ent\n") ;
+#endif
 
 	if ((rs = sigblock_start(&b,NULL)) >= 0) {
 	    if ((rs = ucatfork_init()) >= 0) {
@@ -209,15 +234,16 @@ void		(*sc)() ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (sigblock) */
 
+#if	CF_DEBUGINIT
+	nprintf(NDF,"uc_atfork: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (uc_atfork) */
 
 
-int uc_atforkrelease(sb,sp,sc)
-void		(*sb)() ;
-void		(*sp)() ;
-void		(*sc)() ;
+int uc_atforkrelease(atfork_t sb,atfork_t sp,atfork_t sc)
 {
 	UCATFORK	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
@@ -371,11 +397,7 @@ static void ucatfork_atforkchild()
 /* end subroutine (ucatfork_atforkchild) */
 
 
-static int entry_match(ep,sb,sp,sc)
-UCATFORK_ENT	*ep ;
-void		(*sb)() ;
-void		(*sp)() ;
-void		(*sc)() ;
+static int entry_match(UCATFORK_ENT *ep,atfork_t sb,atfork_t sp,atfork_t sc)
 {
 	int		f = TRUE ;
 	f = f && (ep->sub_before == sb) ;

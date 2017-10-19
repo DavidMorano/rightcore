@@ -157,8 +157,8 @@ int uproguser_init()
 	        void	(*a)() = uproguser_atforkafter ;
 	        if ((rs = uc_atfork(b,a,a)) >= 0) {
 	            if ((rs = uc_atexit(uproguser_fini)) >= 0) {
-	                f = TRUE ;
 	                uip->f_initdone = TRUE ;
+	                f = TRUE ;
 	            }
 	            if (rs < 0)
 	                uc_atforkrelease(b,a,a) ;

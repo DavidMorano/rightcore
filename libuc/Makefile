@@ -30,11 +30,11 @@ CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 
 LDA=
 # must be ON (no longer strictly necessary)
-LDA += -z initarray=ugetpid_init -z finiarray=ugetpid_fini
-# optional
 LDA += -z initarray=ucatfork_init -z finiarray=ucatfork_fini
-LDA += -z initarray=ucfork_init -z finiarray=ucfork_fini
-LDA += -z initarray=ucmemalloc_init -z finiarray=ucmemalloc_fini
+# optional
+#LDA += -z initarray=ucmemalloc_init -z finiarray=ucmemalloc_fini
+#LDA += -z initarray=ucfork_init -z finiarray=ucfork_fini
+#LDA += -z initarray=ugetpid_init -z finiarray=ugetpid_fini
 #LDA += -z initarray=ugetpw_init -z finiarray=ugetpw_fini
 #LDA += -z initarray=uinfo_init -z finiarray=uinfo_fini
 #LDA += -z initarray=umask_init -z finiarray=umask_fini
@@ -68,31 +68,33 @@ CCFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 LDRPATH= $(EXTRA)/lib
 
-LDFLAGS= $(LF_LDFLAGS) $(LDA) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
+SLDFLAGS= $(LF_LDFLAGS) $(LDA) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH) -m
 
 
-LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
-LIB0=
-LIB1=
-LIB2=
-LIB3= -lu
-LIB4= $(CGS_LIBS)
-LIB5= $(LF_LIBS) 
-LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
-LIB7= -ldl
+SLIB0=
+SLIB1=
+SLIB2=
+SLIB3= -lu
+SLIB4= $(CGS_LIBS)
+SLIB5= $(LF_LIBS) 
+SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+SLIB7= -ldl
 
-LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
+SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
 
-LIBINFO= $(LIBDIRS) $(LIBS)
+SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
+
+XLDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 
 XLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 XLIB0=
 XLIB1= -ldam -lb
 XLIB2= -ldebug
-XLIB3= -lut -luc -lu
+XLIB3= -luc -lu
 XLIB4= $(CGS_LIBS)
 XLIB5= $(LF_LIBS)
 XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
@@ -285,6 +287,15 @@ OBJ149= dialtcp.o dialtcpmux.o dialtcpnls.o
 OBJ150= dialudp.o dialusd.o dialpass.o
 OBJ151= dialprog.o dialhttp.o dialfinger.o
 
+OBJ152= bufprintf.o
+OBJ153= debug.o debugprintf.o nprintf.o
+OBJ154=
+OBJ155=
+OBJ156=
+OBJ157=
+OBJ158=
+OBJ159=
+
 OBJAa= $(OBJ000) $(OBJ001) $(OBJ002) $(OBJ003)
 OBJAb= $(OBJ004) $(OBJ005) $(OBJ006) $(OBJ007) 
 OBJA= $(OBJAa) $(OBJAb)
@@ -361,16 +372,20 @@ OBJSa= $(OBJ144) $(OBJ145) $(OBJ146) $(OBJ147)
 OBJSb= $(OBJ148) $(OBJ149) $(OBJ150) $(OBJ151)
 OBJS= $(OBJSa) $(OBJSb)
 
+OBJTa= $(OBJ152) $(OBJ153) $(OBJ154) $(OBJ155)
+OBJTb= $(OBJ156) $(OBJ157) $(OBJ158) $(OBJ159)
+OBJT= $(OBJTa) $(OBJTb)
+
 
 OBJg0= $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJE) $(OBJF) $(OBJG) $(OBJH) 
 OBJg1= $(OBJI) $(OBJJ) $(OBJK) $(OBJL) $(OBJM) $(OBJN) $(OBJO) $(OBJP)
-OBJg2= $(OBJQ) $(OBJR) $(OBJS)
+OBJg2= $(OBJQ) $(OBJR) $(OBJS) $(OBJT)
 
 OBJ= $(OBJg0) $(OBJg1) $(OBJg2)
 
 
 SOBJ0= obja.o objb.o objc.o objd.o obje.o objf.o objg.o objh.o obji.o objj.o
-SOBJ1= objk.o objl.o objm.o objn.o objo.o objp.o objq.o objr.o objs.o
+SOBJ1= objk.o objl.o objm.o objn.o objo.o objp.o objq.o objr.o objs.o objt.o
 
 SOBJ= $(SOBJ0) $(SOBJ1)
 
@@ -438,7 +453,8 @@ $(TT).a:		$(TOBJ)
 	$(AR) -rc $@ $?
 
 $(T).so:		$(SOBJ) Makefile $(T).a
-	$(LD) -G -o $@ $(LDFLAGS) $(SOBJ) $(LIBINFO)
+	echo LDA=$(LDA)
+	$(LD) -G -o $@ $(SLDFLAGS) $(SOBJ) $(SLIBINFO) > $(T).lm
 
 $(T).a:			$(OBJ)
 	$(AR) -rc $@ $?
@@ -475,6 +491,10 @@ install-incs:
 	makenewer -im -z -m o=h $(OBJN) -d $(INCDIR)
 	makenewer -im -z -m o=h $(OBJO) -d $(INCDIR)
 	makenewer -im -z -m o=h $(OBJP) -d $(INCDIR)
+	makenewer -im -z -m o=h $(OBJQ) -d $(INCDIR)
+	makenewer -im -z -m o=h $(OBJR) -d $(INCDIR)
+	makenewer -im -z -m o=h $(OBJS) -d $(INCDIR)
+	makenewer -im -z -m o=h $(OBJT) -d $(INCDIR)
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJA)
@@ -493,6 +513,10 @@ safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJN)
 	makesafe -v=3 -I $(INCDIR) $(OBJO)
 	makesafe -v=3 -I $(INCDIR) $(OBJP)
+	makesafe -v=3 -I $(INCDIR) $(OBJQ)
+	makesafe -v=3 -I $(INCDIR) $(OBJR)
+	makesafe -v=3 -I $(INCDIR) $(OBJS)
+	makesafe -v=3 -I $(INCDIR) $(OBJT)
 
 again:
 	rm -f $(ALL)
@@ -505,61 +529,64 @@ control:
 
 
 obja.o:			$(OBJA)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJA)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJA)
 
 objb.o:			$(OBJB)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJB)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJB)
 
 objc.o:			$(OBJC)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJC)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJC)
 
 objd.o:			$(OBJD)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJD)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJD)
 
 obje.o:			$(OBJE)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJE)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJE)
 
 objf.o:			$(OBJF)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJF)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJF)
 
 objg.o:			$(OBJG)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJG)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJG)
 
 objh.o:			$(OBJH)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJH)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJH)
 
 obji.o:			$(OBJI)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJI)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJI)
 
 objj.o:			$(OBJJ)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJJ)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJJ)
 
 objk.o:			$(OBJK)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJK)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJK)
 
 objl.o:			$(OBJL)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJL)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJL)
 
 objm.o:			$(OBJM)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJM)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJM)
 
 objn.o:			$(OBJN)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJN)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJN)
 
 objo.o:			$(OBJO)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJO)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJO)
 
 objp.o:			$(OBJP)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJP)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJP)
 
 objq.o:			$(OBJQ)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJQ)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJQ)
 
 objr.o:			$(OBJR)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJR)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJR)
 
 objs.o:			$(OBJS)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJS)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJS)
+
+objt.o:			$(OBJT)
+	$(LD) -r -o $@ $(SLDFLAGS) $(OBJT)
 
 
 uc_safesleep.o:		uc_safesleep.c
@@ -862,7 +889,7 @@ X01OBJ= $(X01).o ugetpw.o upwcache.o recarr.o
 $(X01).o:		$(X01).c ugetpw.h upwcache.h recarr.h
 
 $(X01).x:		$(X01OBJ)
-	$(CC) -o $@ $(LDFLAGS) $(X01OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(XLDFLAGS) $(X01OBJ) $(XLIBINFO)
 
 
 X02= testutmpacc
@@ -872,7 +899,7 @@ X02OBJ= $(X02).o utmpacc.o utmpaccent.o filemap.o recarr.o
 $(X02).o:		$(X02).c utmpacc.h utmpaccent.h filemap.h recarr.h
 
 $(X02).x:		$(X02OBJ)
-	$(CC) -o $@ $(LDFLAGS) $(X02OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(XLDFLAGS) $(X02OBJ) $(XLIBINFO)
 
 
 XDIAL0= dialticotsordnls.o dialticotsordmux.o dialticotsord.o 
@@ -903,7 +930,7 @@ X03OBJ= $(X03OBJa) $(X03OBJb)
 $(X03).o:		$(X03).c vsystem.h nlsdialassist.h
 
 $(X03).x:		$(X03OBJ)
-	$(CC) -o $@ $(LDFLAGS) $(X03OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(XLDFLAGS) $(X03OBJ) $(XLIBINFO)
 
 
 X04= testsafesleep
@@ -920,7 +947,7 @@ X04OBJ= $(X04OBJ00) $(X04OBJ01) $(X04OBJ02) $(X04OBJ03) $(X04OBJ04) $(X04OBJ05)
 $(X04).o:		$(X04).c vsystem.h
 
 $(X04).x:		$(X04OBJ)
-	$(CC) -o $@ $(LDFLAGS) $(X04OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(XLDFLAGS) $(X04OBJ) $(XLIBINFO)
 
 
 X05= testspawnproc
@@ -937,29 +964,50 @@ X05OBJ= $(X05OBJ00) $(X05OBJ01) $(X05OBJ02) $(X05OBJ03) $(X05OBJ04) $(X05OBJ05)
 $(X05).o:		$(X05).c vsystem.h
 
 $(X05).x:		$(X05OBJ)
-	$(CC) -o $@ $(LDFLAGS) $(X05OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(XLDFLAGS) $(X05OBJ) $(XLIBINFO)
 
 
 X06= testugetpid
 
-LDA=
-LDA += -z initarray=ugetpid_init -z finiarray=ugetpid_fini
-
 X06OBJ00= $(X06).o 
-X06OBJ01= ugetpid.o
+#X06OBJ01= ugetpid.o
 X06OBJ02=
 X06OBJ03=
 X06OBJ04=
 X06OBJ05= debug.o
+X06OBJ06=
+X06OBJ07=
 
 X06OBJa= $(X06OBJ00) $(X06OBJ01) $(X06OBJ02) $(X06OBJ03) 
-X06OBJb= $(X06OBJ04) $(X06OBJ05)
+X06OBJb= $(X06OBJ04) $(X06OBJ05) $(X06OBJ06) $(X06OBJ07)
 
 X06OBJ= $(X06OBJa) $(X06OBJb)
 
 $(X06).o:		$(X06).c vsystem.h
 
 $(X06).x:		$(X06OBJ)
-	$(CC) -o $@ $(LDFLAGS) $(X06OBJ) $(XLIBINFO)
+	$(CC) -o $@ $(XLDFLAGS) $(X06OBJ) $(XLIBINFO)
+
+
+X07= testnaked
+
+X07OBJ00= $(X07).o 
+X07OBJ01=
+X07OBJ02=
+X07OBJ03=
+X07OBJ04=
+X07OBJ05=
+X07OBJ06=
+X07OBJ07=
+
+X07OBJa= $(X07OBJ00) $(X07OBJ01) $(X07OBJ02) $(X07OBJ03) 
+X07OBJb= $(X07OBJ04) $(X07OBJ05) $(X07OBJ06) $(X07OBJ07)
+
+X07OBJ= $(X07OBJa) $(X07OBJb)
+
+$(X07).o:		$(X07).c vsystem.h
+
+$(X07).x:		$(X07OBJ)
+	$(CC) -o $@ $(XLDFLAGS) $(X07OBJ) $(XLIBINFO)
 
 

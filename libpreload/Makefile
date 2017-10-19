@@ -35,7 +35,6 @@ CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #
 
 LDSOARRAY=
-LDSOARRAY += -z initarray=preload_init -z finiarray=preload_fini
 
 
 DEF0=
@@ -58,10 +57,10 @@ CFLAGS= $(CCOPTS) $(LF_CFLAGS)
 
 #LD= $(CC)
 
-LDFLAGS= $(LF_LDFLAGS) $(LDSOARRAY)
 
+LDRPATH= $(EXTRA)/lib
 
-LDRPATH= $(EXTRA}/lib
+LDFLAGS= $(LF_LDFLAGS) $(LDSOARRAY) -R$(LDRPATH):$(CGS_RPATH)
 
 
 SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
@@ -118,7 +117,7 @@ OBJ00= preload.o
 OBJ01= confstr.o
 OBJ02= sysinfo.o
 OBJ03= gethostid.o
-OBJ04= getpagesize.o
+OBJ04=
 OBJ05=
 OBJ06=
 OBJ07=

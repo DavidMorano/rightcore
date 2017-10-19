@@ -3,7 +3,7 @@
 /* get the current process PID (quickly and fork-safely) */
 
 
-#define	CF_DEBUGS	1		/* compile-time debugging */
+#define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:
@@ -114,8 +114,8 @@ int ugetpid_init()
 	        void	(*ac)() = ugetpid_atforkchild ;
 	        if ((rs = uc_atfork(b,ap,ac)) >= 0) {
 	            if ((rs = uc_atexit(ugetpid_fini)) >= 0) {
-	                f = TRUE ;
 	                uip->f_initdone = TRUE ;
+	                f = TRUE ;
 	            }
 	            if (rs < 0)
 	                uc_atforkrelease(b,ap,ac) ;

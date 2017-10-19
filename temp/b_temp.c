@@ -670,8 +670,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -681,6 +680,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
 	    }
 	}
+
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("b_temp: set-stuff rs=%d\n",rs) ;
+#endif
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;

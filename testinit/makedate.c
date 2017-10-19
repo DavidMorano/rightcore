@@ -1,2 +1,2 @@
 const char testinit_makedate[] =
-"@(#)testinit                161103_0859:24_USEDT Rightcore Network Services¹" ;
+"@(#)testinit                171019_1745:52_EDT Rightcore Network Services" ;
