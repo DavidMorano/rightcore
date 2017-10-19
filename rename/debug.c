@@ -293,8 +293,9 @@ int debugprinthexblock(cchar *ids,int maxcols,const void *vp,int vl)
 	            pbp += i ;
 	            pbl -= i ;
 	            cols -= i ;
-	        } else
+	        } else {
 	            rs = SR_OVERFLOW ;
+		}
 	    }
 
 	    if (rs >= 0) {

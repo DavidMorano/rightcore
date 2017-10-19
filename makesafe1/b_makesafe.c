@@ -2054,7 +2054,7 @@ static int procdeps_get(PROGINFO *pip,vecpstr *dp,VECOBJ *errp,cchar *fname)
 	                            u_waitpid(pid,&cstat,w) ;
 	                        }
 	                        u_close(ofd) ;
-	                    } /* end if spawnproc) */
+	                    } /* end if (spawnproc) */
 	                } /* end if (vecstr_getvec) */
 	            } /* end if (procdeps_loadargs) */
 	            rs1 = vecstr_finish(&args) ;

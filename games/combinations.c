@@ -40,9 +40,9 @@
 
 	For combinations *with* repitition the result is:
 
-		(n-k-1)!	  { n-k-1 )   { n-k-1  )
-	        --------	= ( ----- } = { ------ )
-		k! · (n-1)!	  {   k!  }   { (n-1)! )
+		(n-k-1)!	  { n-k-1 }   { n-k-1  }
+	        --------	= { ----- } = { ------ }
+		k! · (n-1)!	  {   k!  }   { (n-1)! }
 
 	Combination *with* repitition are also called "multicombinations."
 	A subroutine for multicombinations is provied (below) and is:

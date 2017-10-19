@@ -21,6 +21,9 @@
 
 /*******************************************************************************
 
+	This is a point solution for copying a file while removing (leaving)
+	the last line of it.
+
 	Synopsis:
 
 	$ lastoff [<file(s)>]
@@ -161,7 +164,7 @@ static int	procfile(PROGINFO *,void *,const char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	"ROOT",
@@ -576,8 +579,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -648,7 +650,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_lastoff: finishing rs=%d\n",rs) ;
 #endif
 
-done:
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    ex = EX_DATAERR ;
 	    shio_printf(pip->efp,"%s: could not process file (%d)\n",
@@ -664,8 +666,8 @@ done:
 /* we are done */
 retearly:
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: exiting ex=%u\n",
-	        pip->progname,ex) ;
+	    shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
+		pip->progname,ex,rs) ;
 	}
 
 	if (pip->efp != NULL) {
@@ -734,17 +736,14 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
-static int procargs(pip,aip,bop,ofn,afn)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-const char	*ofn ;
-const char	*afn ;
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
 	    ofn = STDOUTFNAME ;
@@ -787,7 +786,7 @@ const char	*afn ;
 	        if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
 	            int		len ;
-	            char		lbuf[LINEBUFLEN + 1] ;
+	            char	lbuf[LINEBUFLEN + 1] ;
 
 	            while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
 	                len = rs ;
@@ -813,11 +812,9 @@ const char	*afn ;
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
-	                shio_printf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                shio_printf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afn) ;
+			fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                shio_printf(pip->efp,fmt,rs) ;
+	                shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
 	        } /* end if */
 
@@ -834,8 +831,9 @@ const char	*afn ;
 	    rs1 = shio_close(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
-	    shio_printf(pip->efp,"%s: inaccessible output (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;
@@ -843,10 +841,7 @@ const char	*afn ;
 /* end subroutine (procargs) */
 
 
-static int procfile(pip,ofp,fname)
-PROGINFO	*pip ;
-void		*ofp ;
-const char	fname[] ;
+static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 {
 	struct lbuf	lb[2] ;
 	SHIO		infile ;
@@ -911,8 +906,9 @@ const char	fname[] ;
 	            if (pip->f.bufline) {
 	                lb[plbi].buf[lb[plbi].len] = '\0' ;
 	                rs = shio_printf(ofp,"%s",lb[plbi].buf) ;
-	            } else
+	            } else {
 	                rs = shio_write(ofp,lb[plbi].buf,lb[plbi].len) ;
+		    }
 	        }
 
 	        clen += lb[lbi].len ;
@@ -926,8 +922,7 @@ const char	fname[] ;
 	} /* end if (opened file) */
 
 	if (rs < 0) {
-	    shio_printf(pip->efp,"%s: file=%s\n",
-	        pip->progname,fname) ;
+	    shio_printf(pip->efp,"%s: file=%s\n", pip->progname,fname) ;
 	}
 
 #if	CF_DEBUG

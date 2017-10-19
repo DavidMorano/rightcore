@@ -1178,8 +1178,7 @@ static int mapper_processor(STATMSG_MAPPER *mmp,cchar *ev[],cchar *adms[],
 
 #if	CF_PARAMFILE
 
-static int mapper_mapload(mmp)
-STATMSG_MAPPER	*mmp ;
+static int mapper_mapload(STATMSG_MAPPER *mmp)
 {
 	struct ustat	sb ;
 	PARAMFILE	*pfp = &mmp->dirsfile ;
@@ -1195,20 +1194,19 @@ STATMSG_MAPPER	*mmp ;
 #if	CF_DEBUGN
 	nprintf(NDEBFNAME,"statmsg/mapper_mapload: ent\n") ;
 #endif
-	if (u_stat(mmp->fname,&sb) >= 0) {
+	if ((rs = u_stat(mmp->fname,&sb)) >= 0) {
 	    mmp->ti_mtime = sb.st_mtime ;
 	    if ((rs = paramfile_curbegin(pfp,&cur)) >= 0) {
 	        const int	plen = PBUFLEN ;
 		int		kl, vl ;
 		int		fl ;
-		cchar	*kp, *vp ;
+		cchar		*kp, *vp ;
 		char		pbuf[PBUFLEN + 1] ;
 
 	        while (rs >= 0) {
 
 	            kl = paramfile_enum(pfp,&cur,&pe,pbuf,plen) ;
 	            if (kl == SR_NOTFOUND) break ;
-
 	            rs = kl ;
 	            if (rs < 0) break ;
 
@@ -1235,6 +1233,8 @@ STATMSG_MAPPER	*mmp ;
 
 	        paramfile_curend(&mmp->dirsfile,&cur) ;
 	    } /* end if (paramfile-cursor) */
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
 	} /* end if (stat) */
 
 	return (rs >= 0) ? c : rs ;
@@ -1243,8 +1243,7 @@ STATMSG_MAPPER	*mmp ;
 
 #else /* CF_PARAMFILE */
 
-static int mapper_mapload(mmp)
-STATMSG_MAPPER	*mmp ;
+static int mapper_mapload(STATMSG_MAPPER *mmp)
 {
 	bfile		mfile, *mfp = &mfile ;
 	int		rs = SR_OK ;
@@ -1252,8 +1251,8 @@ STATMSG_MAPPER	*mmp ;
 	int		kl, vl ;
 	int		sl ;
 	int		c = 0 ;
-	cchar	*tp, *sp ;
-	cchar	*kp, *vp ;
+	cchar		*tp, *sp ;
+	cchar		*kp, *vp ;
 
 	if (mmp == NULL) return SR_FAULT ;
 
@@ -1292,9 +1291,9 @@ STATMSG_MAPPER	*mmp ;
 	    	if (rs < 0) break ;
 		} /* end while (reading lines) */
 
-	    } /* end if */
+	    } /* end if (bcontrol) */
 	    bclose(mfp) ;
-	} /* end if (file-open) ;
+	} /* end if (file-open) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -1303,12 +1302,7 @@ STATMSG_MAPPER	*mmp ;
 #endif /* CF_PARAMFILE */
 
 
-static int mapper_mapadd(mmp,kp,kl,vp,vl)
-STATMSG_MAPPER	*mmp ;
-int		kl ;
-int		vl ;
-cchar	*kp ;
-cchar	*vp ;
+static int mapper_mapadd(STATMSG_MAPPER *mmp,cchar *kp,int kl,cchar *vp,int vl)
 {
 	STATMSG_MAPDIR	*ep ;
 	const int	size = sizeof(STATMSG_MAPDIR) ;
@@ -1337,8 +1331,7 @@ cchar	*vp ;
 /* end subroutine (mapper_mapadd) */
 
 
-static int mapper_mapfins(mmp)
-STATMSG_MAPPER	*mmp ;
+static int mapper_mapfins(STATMSG_MAPPER *mmp)
 {
 	STATMSG_MAPDIR	*ep ;
 	vechand		*mlp = &mmp->mapdirs ;
@@ -1366,12 +1359,8 @@ STATMSG_MAPPER	*mmp ;
 /* end subroutine (mapper_mapfins) */
 
 
-static int mapdir_start(ep,un,uh,kp,kl,vp,vl)
-STATMSG_MAPDIR	*ep ;
-cchar		un[] ;
-cchar		uh[] ;
-cchar		*kp, *vp ;
-int		kl, vl ;
+static int mapdir_start(STATMSG_MAPDIR *ep,cchar *un,cchar *uh,
+		cchar *kp,int kl,cchar *vp,int vl)
 {
 	int		rs = SR_OK ;
 

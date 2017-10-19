@@ -167,32 +167,28 @@ int nprint(cchar *fn,cchar *sp,int sl)
 
 int nprintf(cchar *fn,cchar *fmt,...)
 {
-	const int	flen = FBUFLEN ;
-	int		rs ;
+	int		rs = SR_OK ;
 	int		fl = 0 ;
-	char		fbuf[FBUFLEN + 1] ;
 
 	if (fn == NULL) return SR_FAULT ;
 	if (fmt == NULL) return SR_FAULT ;
 
 	if (fn[0] == '\0') return SR_INVALID ;
-	if (fmt[0] == '\0') return SR_INVALID ;
 
-	    {
-		va_list	ap ;
-	        va_begin(ap,fmt) ;
-	        if ((fl = format(fbuf,flen,1,fmt,ap)) > 0) {
-		    rs = nprint(fn,fbuf,fl) ;
-		}
-	        va_end(ap) ;
+	if (fmt[0] != '\0') {
+	    va_list	ap ;
+	    va_begin(ap,fmt) ;
+	    const int	flen = FBUFLEN ;
+	    char	fbuf[FBUFLEN + 1] ;
+	    if ((fl = format(fbuf,flen,1,fmt,ap)) > 0) {
+		rs = nprint(fn,fbuf,fl) ;
 	    }
+	    va_end(ap) ;
+	} /* end if (non-nul) */
 
 	return (rs >= 0) ? fl : rs ;
 }
 /* end subroutine (nprintf) */
-
-
-/* exported subroutines */
 
 
 int nprinthexblock(cchar *fn,cchar *id,int mc,const void *vp,int vl)
@@ -281,7 +277,7 @@ static int subinfo_wrline(SUBINFO *sip,cchar *sp,int sl)
 		    ul = n ;
 		}
 	    }
-	}
+	} /* end if (subinfo_flushover) */
 
 	return (rs >= 0) ? ul : rs ;
 }

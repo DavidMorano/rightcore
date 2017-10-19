@@ -54,13 +54,6 @@ int		ptrwa_create(PTRWA *) ;
 /* exported subroutines */
 
 
-int ptrwa_init(PTRWA *op)
-{
-	return ptrwa_create(op) ;
-}
-/* end subroutine (ptrwa_init) */
-
-
 int ptrwa_create(PTRWA *op)
 {
 	int		rs ;

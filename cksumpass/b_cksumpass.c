@@ -135,15 +135,16 @@ struct locinfo_flags {
 
 struct locinfo_stat {
 	longlong_t	bytes = 0 ;
-	locinfo_stat() : bytes(0) { } ;
+	locinfo_stat() : bytes(0) { 
+	} ;
 	void clear() {
 	    bytes = 0 ;
 	} ;
-	locinfo_stat &operator += (int a) { 
+	locinfo_stat &operator += (int a) {
 	    bytes += a ;
 	    return (*this) ;
 	} ;
-	locinfo_stat &operator += (locinfo_stat &a) { 
+	locinfo_stat &operator += (const locinfo_stat &a) {
 	    bytes += a.bytes ;
 	    return (*this) ;
 	} ;
@@ -525,9 +526,9 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl) {
-				    KEYOPT	*kop = &akopts ;
+	                            KEYOPT	*kop = &akopts ;
 	                            rs = keyopt_loads(kop,argp,argl) ;
-				}
+	                        }
 	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
@@ -662,9 +663,9 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -839,7 +840,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	    case SR_INVALID:
 	        ex = EX_USAGE ;
 	        if (! pip->f.quiet) {
-	    	    SHIO	*efp = (SHIO *) pip->efp ;
+	            SHIO	*efp = (SHIO *) pip->efp ;
 	            shio_printf(efp,"%s: invalid query (%d)\n",
 	                pip->progname,rs) ;
 	        }
@@ -967,17 +968,17 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	        while (rs >= 0) {
 	            cl = keyopt_enumvalues(kop,progopts[ki],&cur,&cp) ;
 	            if (cl == SR_NOTFOUND) break ;
-		    rs = cl ;
-		    if (rs >= 0) {
+	            rs = cl ;
+	            if (rs >= 0) {
 	                switch (ki) {
 	                case progopt_type:
-			    if (cl > 0) {
-				rs = optvalue(cp,cl) ;
-				lip->type = rs ;
-			    }
-			    break ;
-			} /* end switch */
-		    } /* end if (ok) */
+	                    if (cl > 0) {
+	                        rs = optvalue(cp,cl) ;
+	                        lip->type = rs ;
+	                    }
+	                    break ;
+	                } /* end switch */
+	            } /* end if (ok) */
 	        } /* end while (enumerating) */
 
 	        keyopt_curend(kop,&cur) ;
@@ -1006,21 +1007,21 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	if ((rs = shio_open(ofp,ofn,"wct",0644)) >= 0) {
 	    if ((rs = locinfo_repbegin(lip)) >= 0) {
 	        if ((rs = procsum_begin(pip)) >= 0) {
-		    if ((rs = procargs(pip,aip,bop,ofp,afn,ifn)) >= 0) {
-			wlen += rs ;
-			rs = procoutall(pip) ;
-    		    }
+	            if ((rs = procargs(pip,aip,bop,ofp,afn,ifn)) >= 0) {
+	                wlen += rs ;
+	                rs = procoutall(pip) ;
+	            }
 	            rs1 = procsum_end(pip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (procsum) */
-		rs1 = locinfo_repend(lip) ;
+	        rs1 = locinfo_repend(lip) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (locinfo-rep) */
 	    rs1 = shio_close(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
-	    debugprintf("b_cksumpass/process: shio_close() rs1=%d\n",rs1) ;
+	        debugprintf("b_cksumpass/process: shio_close() rs1=%d\n",rs1) ;
 #endif
 	} else {
 	    SHIO	*efp = (SHIO *) pip->efp ;
@@ -1031,7 +1032,7 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("b_cksumpass/process: ret rs=%d wlen=%u\n",rs,wlen) ;
+	    debugprintf("b_cksumpass/process: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
 	wlen &= INT_MAX ;
@@ -1052,79 +1053,80 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,SHIO *ofp,
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
-	        if (rs >= 0) {
-	            int		ai ;
-	            int		argc = aip->argc ;
-	            int		f ;
-	            cchar	**argv = aip->argv ;
-	            for (ai = 1 ; ai < argc ; ai += 1) {
+	if (rs >= 0) {
+	    int		ai ;
+	    int		argc = aip->argc ;
+	    int		f ;
+	    cchar	**argv = aip->argv ;
+	    for (ai = 1 ; ai < argc ; ai += 1) {
 
-	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
-	                if (f) {
-	                    cp = argv[ai] ;
-	                    if (cp[0] != '\0') {
-	                        pan += 1 ;
-	                        rs = procsum_pass(pip,ofp,cp,-1) ;
-				wlen += rs ;
-	                    }
-	                }
+	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	        if (f) {
+	            cp = argv[ai] ;
+	            if (cp[0] != '\0') {
+	                pan += 1 ;
+	                rs = procsum_pass(pip,ofp,cp,-1) ;
+	                wlen += rs ;
+	            }
+	        }
 
-	                if (rs < 0) break ;
-	            } /* end for */
-	        } /* end if (ok) */
+	        if (rs < 0) break ;
+	    } /* end for */
+	} /* end if (ok) */
 
 /* process any files in the argument filename list file */
 
-	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	            SHIO	afile, *afp = &afile ;
+	if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	    SHIO	afile, *afp = &afile ;
 
-	            if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
+	    if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
 
-	            if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
-	                const int	llen = LINEBUFLEN ;
-	                int		len ;
-	                char		lbuf[LINEBUFLEN + 1] ;
+	    if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN + 1] ;
 
-	                while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
-	                    len = rs ;
+	        while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
+	            len = rs ;
 
-	                    if (lbuf[len - 1] == '\n') len -= 1 ;
-	                    lbuf[len] = '\0' ;
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
 
-	                    if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                        if (cp[0] != '#') {
-	                            pan += 1 ;
-	                    	    rs = procsum_pass(pip,ofp,cp,cl) ;
-				    wlen += rs ;
-	                        }
-	                    }
-
-			    if (rs < 0) break ;
-	                } /* end while (reading lines) */
-
-	                rs1 = shio_close(afp) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } else {
-	                if (! pip->f.quiet) {
-			    SHIO	*efp = (SHIO *) pip->efp ;
-			    fmt = "%s: inaccessible argument-list (%d)\n" ;
-	                    shio_printf(efp,fmt,pn,rs) ;
-	                    shio_printf(efp,"%s: afile=%s\n",pn,afn) ;
+	            if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                if (cp[0] != '#') {
+	                    pan += 1 ;
+	                    rs = procsum_pass(pip,ofp,cp,cl) ;
+	                    wlen += rs ;
 	                }
-	            } /* end if */
+	            }
 
-	        } /* end if (processing file argument file list) */
+	            if (rs < 0) break ;
+	        } /* end while (reading lines) */
 
-	        if ((rs >= 0) && (pan == 0)) {
+	        rs1 = shio_close(afp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        if (! pip->f.quiet) {
+	            SHIO	*efp = (SHIO *) pip->efp ;
+	            fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            shio_printf(efp,fmt,pn,rs) ;
+	            shio_printf(efp,"%s: afile=%s\n",pn,afn) ;
+	        }
+	    } /* end if */
 
-	   	    pan += 1 ;
-		    cp = "-" ;
-		    cl = -1 ;
-		    rs = procsum_pass(pip,ofp,cp,cl) ;
-		    wlen += rs ;
+	} /* end if (processing file argument file list) */
 
-	        } /* end if (processing STDIN) */
+	if ((rs >= 0) && (pan == 0)) {
+
+	    if ((ifn == NULL) || (ifn[0] == '\0') || (ifn[0] == '-'))
+		ifn = STDINFNAME ;
+
+	    pan += 1 ;
+	    rs = procsum_pass(pip,ofp,ifn,-1) ;
+	    wlen += rs ;
+
+	} /* end if (processing STDIN) */
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -1138,20 +1140,21 @@ static int procoutfile(PROGINFO *pip,cchar *sfn)
 	if (lip->rfname != NULL) {
 	    ulonglong	bytes ;
 	    if ((rs = locinfo_bytesfile(lip,&bytes)) >= 0) {
-		uint	sv ;
+	        uint	sv ;
 	        if ((rs = locinfo_getsum(lip,&sv)) >= 0) {
-		    SHIO	*rfp = &lip->rfile ;
+	            SHIO	*rfp = &lip->rfile ;
 	            rs = shio_printf(rfp,"%10u %14llu %s\n",sv,bytes,sfn) ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("b_cksumpass/procoutfile: shio_printf() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("b_cksumpass/procoutfile: "
+				"shio_printf() rs=%d\n",rs) ;
 #endif
 	        }
 	    }
 	} /* end if (enabled) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("b_cksumpass/procoutfile: ret rs=%d\n",rs) ;
+	    debugprintf("b_cksumpass/procoutfile: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -1165,21 +1168,21 @@ static int procoutall(PROGINFO *pip)
 	if (lip->rfname != NULL) {
 	    ulonglong	bytes ;
 	    if ((rs = locinfo_bytesall(lip,&bytes)) >= 0) {
-		uint	sv ;
+	        uint	sv ;
 	        if ((rs = locinfo_getsumall(lip,&sv)) >= 0) {
-		    SHIO	*rfp = &lip->rfile ;
+	            SHIO	*rfp = &lip->rfile ;
 	            rs = shio_printf(rfp,"%10u %14llu TOTAL\n",sv,bytes) ;
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(4))
-		    debugprintf("b_cksumpass/procoutall: shio_printf() rs=%d\n",
-			rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("b_cksumpass/procoutall: "
+			    "shio_printf() rs=%d\n", rs) ;
 #endif
 	        }
 	    }
 	} /* end if (enabled) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("b_cksumpass/procoutall: ret rs=%d\n",rs) ;
+	    debugprintf("b_cksumpass/procoutall: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -1231,58 +1234,60 @@ static int procsum_pass(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	debugprintf("b_cksumpass/procsum_pass: ent n=%t\n",np,nl) ;
-	debugprintf("b_cksumpass/procsum_pass: open.sum=%u\n",lip->open.sum) ;
+	    debugprintf("b_cksumpass/procsum_pass: ent n=%t\n",np,nl) ;
+	    debugprintf("b_cksumpass/procsum_pass: open.sum=%u\n",
+		lip->open.sum) ;
 	}
 #endif
 
-	   if ((rs = nulstr_start(&fs,np,nl,&sfn)) >= 0) {
-	        SHIO	sfile, *sfp = &sfile ;
-	        if ((sfn[0] == '\0') || (sfn[0] == '-')) sfn = STDINFNAME ;
-	        if ((rs = shio_open(sfp,sfn,"r",0666)) >= 0) {
-		    const int	slen = getpagesize() ;
-		    char	*sbuf ;
-		    if ((rs = uc_malloc(slen,&sbuf)) >= 0) {
-			if ((rs = locinfo_cktxbegin(lip)) >= 0) {
-	                    while ((rs = shio_read(sfp,sbuf,slen)) > 0) {
-			        const int	len = rs ;
-			        if ((rs = locinfo_ckaccum(lip,sbuf,len)) >= 0) {
-				    if ((rs = shio_write(ofp,sbuf,len)) >= 0) {
-				        wlen += rs ;
-				        rs = locinfo_repupdate(lip,len) ;
-				    }
-			        } /* end if (locinfo_ckaccum) */
-			        if (rs < 0) break ;
-			    } /* end while */
+	if ((rs = nulstr_start(&fs,np,nl,&sfn)) >= 0) {
+	    SHIO	sfile, *sfp = &sfile ;
+	    if ((sfn[0] == '\0') || (sfn[0] == '-')) sfn = STDINFNAME ;
+	    if ((rs = shio_open(sfp,sfn,"r",0666)) >= 0) {
+	        const int	slen = getpagesize() ;
+	        char	*sbuf ;
+	        if ((rs = uc_malloc(slen,&sbuf)) >= 0) {
+	            if ((rs = locinfo_cktxbegin(lip)) >= 0) {
+	                while ((rs = shio_read(sfp,sbuf,slen)) > 0) {
+	                    const int	len = rs ;
+	                    if ((rs = locinfo_ckaccum(lip,sbuf,len)) >= 0) {
+	                        if ((rs = shio_write(ofp,sbuf,len)) >= 0) {
+	                            wlen += rs ;
+	                            rs = locinfo_repupdate(lip,len) ;
+	                        }
+	                    } /* end if (locinfo_ckaccum) */
+	                    if (rs < 0) break ;
+	                } /* end while */
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("b_cksumpass/procsum_pass: while-out rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("b_cksumpass/procsum_pass: "
+				"while-out rs=%d\n",rs) ;
 #endif
-			    if (rs >= 0) {
-			        rs = procoutfile(pip,sfn) ;
-			    }
-			    rs1 = locinfo_cktxend(lip) ;
-			    if (rs >= 0) rs = rs1 ;
-		        } /* end if (locinfo-ckfile) */
-			uc_free(sbuf) ;
-		    } /* end if (m-a-f) */
-		    rs1 = shio_close(sfp) ;
-		    if (rs >= 0) rs = rs1 ;
-		} else {
-		    SHIO	*efp = (SHIO *) pip->efp ;
-		    cchar	*pn = pip->progname ;
-		    cchar	*fmt ;
-		    fmt = "%s: inaccessible input (%d)\n" ;
-		    shio_printf(efp,fmt,pn,rs) ;
-		    shio_printf(efp,"%s: ifile=%t\n",pn,np,nl) ;
-		} /* end if (shio) */
-		rs1 = nulstr_finish(&fs) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (nulstr) */
+	                if (rs >= 0) {
+	                    rs = procoutfile(pip,sfn) ;
+	                }
+	                rs1 = locinfo_cktxend(lip) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (locinfo-ckfile) */
+	            uc_free(sbuf) ;
+	        } /* end if (m-a-f) */
+	        rs1 = shio_close(sfp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        SHIO	*efp = (SHIO *) pip->efp ;
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt ;
+	        fmt = "%s: inaccessible input (%d)\n" ;
+	        shio_printf(efp,fmt,pn,rs) ;
+	        shio_printf(efp,"%s: ifile=%t\n",pn,np,nl) ;
+	    } /* end if (shio) */
+	    rs1 = nulstr_finish(&fs) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (nulstr) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("b_cksumpass/procsum_pass: ret rs=%d\n",rs) ;
+	    debugprintf("b_cksumpass/procsum_pass: ret rs=%d\n",rs) ;
 #endif
 
 	wlen &= INT_MAX ;
@@ -1384,12 +1389,12 @@ static int locinfo_repbegin(LOCINFO *lip)
 	    if (rfn != NULL) {
 	        SHIO		*rfp = &lip->rfile ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	debugprintf("b_cksumpass/locinfo_repbegin: rfn=%s\n",rfn) ;
+	        if (DEBUGLEVEL(5))
+	            debugprintf("b_cksumpass/locinfo_repbegin: rfn=%s\n",rfn) ;
 #endif
 	        if ((rfn[0] == '\0') || (rfn[0] == '-')) rfn = STDOUTFNAME ;
 	        if ((rs = shio_open(rfp,rfn,"wct",0666)) >= 0) {
-		    lip->open.rfile = TRUE ;
+	            lip->open.rfile = TRUE ;
 	        } /* end if (shio-report) */
 	    } /* end if (non-null) */
 	} /* end if (enabled) */
@@ -1411,7 +1416,7 @@ static int locinfo_repend(LOCINFO *lip)
 	} /* end if (open) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("b_cksumpass/locinfo_repend: ret rs=%d\n",rs) ;
+	    debugprintf("b_cksumpass/locinfo_repend: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -1448,7 +1453,7 @@ static int locinfo_getsumall(LOCINFO *lip,uint *rp)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("b_cksumpass/locinfo_getsumall: ret rs=%d\n",rs) ;
+	    debugprintf("b_cksumpass/locinfo_getsumall: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -1488,7 +1493,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(&lip->stores,*epp) ;
+	        oi = vecstr_findaddr(&lip->stores,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;

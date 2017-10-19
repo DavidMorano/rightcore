@@ -48,7 +48,6 @@
 /* local defines */
 
 #define	COMPARSE_DEFSIZE	80
-
 #define	COMPARSE_SVALUE		0
 #define	COMPARSE_SCOMMENT	1
 #define	COMPARSE_SOVERLAST	2
@@ -76,14 +75,10 @@ static const char	*statename[] = {
 /* exported subroutines */
 
 
-int comparse_start(cpp,sp,sl)
-COMPARSE	*cpp ;
-const char	sp[] ;
-int		sl ;
+int comparse_start(COMPARSE *cpp,cchar *sp,int sl)
 {
-	int	rs ;
-	int	vl = 0 ;
-
+	int		rs ;
+	int		vl = 0 ;
 
 	if (cpp == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
@@ -121,12 +116,10 @@ int		sl ;
 /* end subroutine (comparse_start) */
 
 
-int comparse_finish(cpp)
-COMPARSE	*cpp ;
+int comparse_finish(COMPARSE *cpp)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (cpp == NULL) return SR_FAULT ;
 	if (cpp->magic != COMPARSE_MAGIC) return SR_NOTOPEN ;
@@ -153,12 +146,9 @@ COMPARSE	*cpp ;
 /* end subroutine (comparse_finish) */
 
 
-int comparse_getval(cpp,rpp)
-COMPARSE	*cpp ;
-const char	**rpp ;
+int comparse_getval(COMPARSE *cpp,cchar **rpp)
 {
-	int	rs = 0 ;
-
+	int		rs = 0 ;
 
 	if (cpp == NULL) return SR_FAULT ;
 	if (cpp->magic != COMPARSE_MAGIC) return SR_NOTOPEN ;
@@ -177,12 +167,9 @@ const char	**rpp ;
 /* end subroutine (comparse_getval) */
 
 
-int comparse_getcom(cpp,rpp)
-COMPARSE	*cpp ;
-const char	**rpp ;
+int comparse_getcom(COMPARSE *cpp,cchar **rpp)
 {
-	int	rs = 0 ;
-
+	int		rs = 0 ;
 
 	if (cpp == NULL) return SR_FAULT ;
 	if (cpp->magic != COMPARSE_MAGIC) return SR_NOTOPEN ;
@@ -200,22 +187,17 @@ const char	**rpp ;
 /* private subroutines */
 
 
-int comparse_bake(cpp,sp,sl)
-COMPARSE	*cpp ;
-const char	*sp ;
-int		sl ;
+int comparse_bake(COMPARSE *cpp,cchar *sp,int sl)
 {
 	BUFFER		as[COMPARSE_SOVERLAST] ;
-
 	const int	defsize = COMPARSE_DEFSIZE ;
-
-	int	rs ;
-	int	cl ;
-	int	pc ;
-	int	ch ;
-	int	vl = 0 ;
-	int	f_quote = FALSE ;
-
+	int		rs ;
+	int		rs1 ;
+	int		cl ;
+	int		pc ;
+	int		ch ;
+	int		vl = 0 ;
+	int		f_quote = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("comparse_bake: ent s=>%t<\n",sp,sl) ;
@@ -265,7 +247,7 @@ int		sl ;
 	                }
 	                break ;
 
-	            case '"':
+	            case CH_DQUOTE:
 	                f_quote = (! f_quote) ;
 	                sp += 1 ;
 	                sl -= 1 ;
@@ -328,8 +310,9 @@ int		sl ;
 	            default:
 	                if (c_comment > 0) {
 	                    buffer_char((as + COMPARSE_SCOMMENT),*sp++) ;
-	                } else
+	                } else {
 	                    buffer_char((as + state),*sp++) ;
+			}
 	                sl -= 1 ;
 	                break ;
 
@@ -345,8 +328,7 @@ int		sl ;
 	            const char	*cp ;
 	            const char	*bp ;
 	            int		bl ;
-	            int		w ;
-	            w = COMPARSE_SCOMMENT ;
+	            int		w = COMPARSE_SCOMMENT ;
 	            if ((rs = buffer_get((as+w),&bp)) >= 0) {
 	                bl = rs ;
 	                while (bl && CHAR_ISWHITE(bp[bl-1])) bl -= 1 ;
@@ -367,10 +349,11 @@ int		sl ;
 	                        cpp->com.sp = NULL ;
 	                    }
 	                } /* end if (memory-allocation) */
-	            }
+	            } /* end if (buffer_get) */
 	        } /* end if (finishing-up) */
 
-	        buffer_finish(&as[1]) ;		/* comment */
+	        rs1 = buffer_finish(&as[1]) ;	/* comment */
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (buffer) */
 
 	    vl = buffer_finish(&as[0]) ;	/* value */

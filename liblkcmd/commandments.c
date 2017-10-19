@@ -1135,7 +1135,7 @@ static int commandments_dbproc(COMMANDMENTS *op,CMIMK *cmp)
 	    }
 	    f_ent = FALSE ;
 	    mkent_finish(&e) ;
-	} /* end if (entry */
+	} /* end if (entry) */
 
 	if (f_ent) {
 	    mkent_finish(&e) ;

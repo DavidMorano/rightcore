@@ -1,0 +1,19 @@
+/* main */
+
+/* " there is a thing */
+
+#include	<stdio.h>
+
+int main()
+{
+	int		a[2] ;
+	const char	*s1 = "abc\"def" ;
+	const char	*s2 = "abc\"de{(f" ;
+	const char	*s3 = "abc\"de[f" ;
+
+	a[0] = b ;
+
+	return 0 ;
+}
+
+

@@ -17,6 +17,10 @@
 	This was created quickly as a hack to replace the existing CHECKBRA
 	program.
 
+	= 2017-10-18, David A­D­ Morano
+	I tried to update this to ignore characters within double quotation
+	marks.
+
 */
 
 /* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
@@ -59,6 +63,7 @@
 #include	<vecstr.h>
 #include	<ascii.h>
 #include	<char.h>
+#include	<langstate.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -173,7 +178,7 @@ static int	usage(PROGINFO *) ;
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procfile(PROGINFO *,void *,cchar *) ;
-static int	procline(PROGINFO *,FUNCOUNT *,cchar *,int) ;
+static int	procline(PROGINFO *,LANGSTATE *,FUNCOUNT *,int,cchar *,int) ;
 static int	procout(PROGINFO *,void *,cchar *,FUNCOUNT *) ;
 static int	procouthist(PROGINFO *,void *,HIST *) ;
 
@@ -764,8 +769,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1192,43 +1196,49 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
 	debugprintf("progcheck/procfile: ent fn=%s\n",fn) ;
 #endif
 	if ((rs = hist_start(&h)) >= 0) {
-	    const int	ncca = nelem(cca) ;
-	    SHIO	cfile, *cfp = &cfile ;
-	    if ((rs = shio_open(cfp,fn,"r",0666)) >= 0) {
-	        FUNCOUNT	counts[ncca+1] ;
-	        const int	llen = LINEBUFLEN ;
-	        int		len ;
-	        int		line = 1 ;
-	        char		lbuf[LINEBUFLEN + 1] ;
-	        funcount_clear(counts) ;
-	        while ((rs = shio_readline(cfp,lbuf,llen)) > 0) {
-	            len = rs ;
+	    LANGSTATE	ls ;
+	    if ((rs = langstate_start(&ls)) >= 0) {
+	        const int	ncca = nelem(cca) ;
+	        SHIO		cfile, *cfp = &cfile ;
+	        if ((rs = shio_open(cfp,fn,"r",0666)) >= 0) {
+	            FUNCOUNT	counts[ncca+1] ;
+	            const int	llen = LINEBUFLEN ;
+	            int		len ;
+	            int		ln = 1 ;
+	            char	lbuf[LINEBUFLEN + 1] ;
+	            funcount_clear(counts) ;
+	            while ((rs = shio_readline(cfp,lbuf,llen)) > 0) {
+	                len = rs ;
 
-		    if (lbuf[len-1] == '\n') len -= 1 ;
+		        if (lbuf[len-1] == '\n') len -= 1 ;
 
-		    if (len > 0) {
-		        if ((rs = procline(pip,counts,lbuf,len)) >= 0) {
-			    rs = hist_proc(&h,line,lbuf,len) ;
+		        if (len > 0) {
+	                    FUNCOUNT	*c = counts ;
+		            if ((rs = procline(pip,&ls,c,ln,lbuf,len)) >= 0) {
+			        rs = hist_proc(&h,ln,lbuf,len) ;
+		            }
 		        }
-		    }
 
-		    line += 1 ;
-		    if (rs < 0) break ;
-	        } /* end while (reading lines) */
+		        ln += 1 ;
+		        if (rs < 0) break ;
+	            } /* end while (reading lines) */
     
-	        if (rs >= 0) {
-		    if ((rs = procout(pip,ofp,fn,counts)) >= 0) {
-		        rs = procouthist(pip,ofp,&h) ;
-		    }
-	        } /* end if */
+	            if (rs >= 0) {
+		        if ((rs = procout(pip,ofp,fn,counts)) >= 0) {
+		            rs = procouthist(pip,ofp,&h) ;
+		        }
+	            } /* end if (ok) */
 
-	        rs1 = shio_close(cfp) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } else {
-	        fmt = "%s: inaccessible file (%d)\n" ;
-	        shio_printf(pip->efp,fmt,pn,rs) ;
-	        shio_printf(pip->efp,"%s: file=%s\n",pn,fn) ;
-	    } /* end for */
+	            rs1 = shio_close(cfp) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } else {
+	            fmt = "%s: inaccessible file (%d)\n" ;
+	            shio_printf(pip->efp,fmt,pn,rs) ;
+	            shio_printf(pip->efp,"%s: file=%s\n",pn,fn) ;
+	        } /* end if */
+		rs1 = langstate_finish(&ls) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (langstate) */
 	    rs1 = hist_finish(&h) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (hist) */
@@ -1241,7 +1251,8 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
 /* end subroutine (procfile) */
 
 
-static int procline(PROGINFO *pip,FUNCOUNT *counts,cchar *lbuf,int llen)
+static int procline(PROGINFO *pip,LANGSTATE *lsp,FUNCOUNT *counts,
+		int ln,cchar *lbuf,int llen)
 {
 	const int	ncca = nelem(cca) ;
 	int		rs = SR_OK ;
@@ -1249,14 +1260,17 @@ static int procline(PROGINFO *pip,FUNCOUNT *counts,cchar *lbuf,int llen)
 
 	if (pip == NULL) return SR_FAULT ;
 	for (j = 0 ; j < llen ; j += 1) {
-	    int		k ;
-	    for (k = 0 ; k < ncca ; k += 1) {
-		if (lbuf[j] == cca[k].c_open) {
-		    counts[k].c_open += 1 ;
-		} else if (lbuf[j] == cca[k].c_close) {
-		    counts[k].c_close += 1 ;
-		}
-	    } /* end for */
+	    const int	ch = MKCHAR(lbuf[j]) ;
+	    if ((rs = langstate_proc(lsp,ln,ch)) > 0) {
+	        int	k ;
+	        for (k = 0 ; k < ncca ; k += 1) {
+		    if (ch == cca[k].c_open) {
+		        counts[k].c_open += 1 ;
+		    } else if (ch == cca[k].c_close) {
+		        counts[k].c_close += 1 ;
+		    }
+	        } /* end for */
+	    } /* end if (langstate_proc) */
 	} /* end for */
 
 	return rs ;
@@ -1313,18 +1327,21 @@ static int procouthist(PROGINFO *pip,void *ofp,HIST *hlp)
 		int	t ;
 		cchar	*fmt = NULL ;
 		switch (w) {
-		case 1:
+		case 0:
 		    fmt = "parentheses¬\n" ;
 		    break ;
-		case 2:
+		case 1:
 		    fmt = "braces¬\n" ;
+		    break ;
+		case 2:
+		    fmt = "brackets¬\n" ;
 		    break ;
 		} /* end switch */
 		if (fmt != NULL) {
 		    shio_printf(ofp,fmt) ;
 		}
 	        for (i = 0 ; (t = hist_get(hlp,w,i,&ln)) > 0 ; i += 1) {
-		    cchar	*ts = chartype(w) ;
+		    cchar	*ts = chartype(t) ;
 		    rs = shio_printf(ofp,"%s %u\n",ts,ln) ;
 		    if (rs < 0) break ;
 		} /* end for */
@@ -1412,13 +1429,14 @@ static int hist_start(HIST *hlp)
 	int		rs = SR_OK ;
 	int		i ;
 
-	for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
+	for (i = 0 ; (i < n) ; i += 1) {
 	    LINEHIST	*lhp = (hlp->types+i) ;
 	    rs = linehist_start(lhp,balstrs[i]) ;
-	}
+	    if (rs < 0) break ;
+	} /* end for */
 
 	if (rs < 0) {
-	    int	j = i ;
+	    int	j ;
 	    for (j = 0 ; j < i ; j += 1) {
 	        LINEHIST	*lhp = (hlp->types+j) ;
 		linehist_finish(lhp) ;
@@ -1499,7 +1517,7 @@ static int funcount_clear(FUNCOUNT *counts)
 
 static cchar *chartype(int w)
 {
-	cchar	*cs = "unknown" ;
+	cchar		*cs = "unknown" ;
 	if ((w >= 0) && (w < 3)) {
 	    cs = chartypes[w] ;
 	} /* end if */

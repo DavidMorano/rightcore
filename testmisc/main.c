@@ -1,4 +1,4 @@
-/* main */
+/* main (testmisc) */
 /* lang=C++11 */
 
 

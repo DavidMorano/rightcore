@@ -195,7 +195,7 @@ int mhcom_getcom(MHCOM *op,cchar **rpp)
 /* private subroutines */
 
 
-static int mhcom_bake(MHCOM *op,int bl,cchar sp[],int sl)
+static int mhcom_bake(MHCOM *op,int bl,cchar *sp,int sl)
 {
 	SBUF		as[MHCOM_SOVERLAST] ;
 	int		rs ;
@@ -245,7 +245,7 @@ static int mhcom_bake(MHCOM *op,int bl,cchar sp[],int sl)
 	                sbuf_char((as + state),*sp++) ;
 #endif /* CF_STRIPESC */
 	                break ;
-	            case '"':
+	            case CH_DQUOTE:
 	                f_quote = (! f_quote) ;
 	                sbuf_char((as + state),*sp++) ;
 	                break ;

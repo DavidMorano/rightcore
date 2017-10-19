@@ -73,14 +73,16 @@
 
 /* external subroutines */
 
-extern int	msleep(int) ;
+extern "C" int	uc_timeout(int cmd,TIMEOUT *valp) ;
+
+extern "C" int	msleep(int) ;
 
 
 /* local structures */
 
 #ifndef	TYPEDEF_TWORKER
 #define	TYPEDEF_TWORKER	1
-typedef	int (*tworker)(void *) ;
+typedef	int	(*tworker)(void *) ;
 #endif
 
 struct uctimeout_flags {
@@ -629,8 +631,14 @@ static int uctimeout_run(UCTIMEOUT *uip)
 		        rs = uctimeout_runner(uip) ;
 		        f = rs ;
 		    } else {
-		        rs = uctimeout_runcheck(uip) ;
-		        f = rs ;
+			const pid_t	pid = getpid() ;
+			if (pid != uip->pid) {
+				uip->f_running = FALSE ;
+				uip->f_exiting = FALSE ;
+				uip->pid = pid ;
+				rs = ucsyncer_runner(uip) ;
+				f = rs ;
+			}
 		    } /* end if (not running) */
 	            rs1 = ptm_unlock(&uip->m) ;
 		    if (rs >= 0) rs = rs1 ;

@@ -344,7 +344,7 @@ OBJ57= outstore.o calyear.o numincr.o modload.o uiconv.o
 OBJ58= sesmsg.o msgdata.o
 OBJ59= msfile.o msfile_best.o msfilee.o ebuf.o
 OBJ60= sysvar.o var.o varmk.o
-OBJ61= namecache.o gncache.o msumsg.o termout.o linehist.o
+OBJ61= namecache.o gncache.o msumsg.o termout.o linehist.o langstate.o
 OBJ62= sbuf.o
 OBJ63=
 
@@ -1402,6 +1402,9 @@ termout.o:		termout.cc termout.h ansigr.h
 
 linehist.o:		linehist.cc linehist.h
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) linehist.cc
+
+langstate.o:		langstate.cc langstate.h
+	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) langstate.cc
 
 hexdecoder.o:		hexdecoder.cc hexdecoder.h 
 	$(GPP) -c $(CCOPTS_GCCOPTSGPP) $(CFLAGS) $(CPPFLAGS) hexdecoder.cc

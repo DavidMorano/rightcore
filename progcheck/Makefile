@@ -32,7 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -77,6 +77,7 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDRPATH=
 
 # regular
@@ -89,7 +90,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5=
@@ -152,7 +153,7 @@ OBJ05=
 OBJ06= 
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
-OBJ09= linehist.o
+OBJ09= linehist.o langstate.o
 OBJ10=
 OBJ11=
 OBJ12=
@@ -374,5 +375,8 @@ linehist.o:		linehist.cc linehist.h
 
 progbal.o:		progbal.cc progbal.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) progbal.cc
+
+langstate.o:		langstate.cc langstate.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) langstate.cc
 
 

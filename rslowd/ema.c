@@ -429,7 +429,7 @@ static int ema_parseit(EMA *hp,ASS *bp)
 	        }
 	        break ;
 
-	    case '"':
+	    case CH_DQUOTE:
 	        ass_adv(bp) ;
 	        f_quote = (! f_quote) ;
 	        break ;

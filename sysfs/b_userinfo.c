@@ -4206,7 +4206,7 @@ static int locinfo_setphone(LOCINFO *lip,cchar *vp,int vl)
 	} /* end if */
 	return rs ;
 }
-/* end subroutine (locinfo)setphone) */
+/* end subroutine (locinfo_setphone) */
 
 
 static int mkstrlist(char *cbuf,int clen,vecstr *lp)

@@ -986,7 +986,7 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            }
 	        } /* end if */
 
-	    } /* end if (processing file argument file list */
+	    } /* end if (processing file argument file list) */
 
 	    if ((rs >= 0) && (pan == 0)) {
 

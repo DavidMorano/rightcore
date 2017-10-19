@@ -87,7 +87,7 @@ XLIB1= -ldam -lb
 XLIB2= -ldebug
 XLIB3= -lut -luc -lu
 XLIB4= $(CGS_LIBS)
-XLIB5=  $(LF_LIBS)
+XLIB5= $(LF_LIBS)
 XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 XLIB7= -ldl
 
@@ -306,7 +306,7 @@ $(TT).a:		$(TOBJ)
 	$(AR) -rc $@ $?
 
 $(T).so:		$(OBJS) Makefile $(T).map
-	$(LD) -G -o $@ $(LDFLAGS) -M $(T).map $(OBJS) $(SLIBDIRS) $(SLIBS)
+	$(LD) -G -o $@ $(LDFLAGS) -M $(T).map $(OBJS) $(SLIBINFO)
 
 $(T).a:			$(OBJ)
 	$(AR) -rc $@ $?

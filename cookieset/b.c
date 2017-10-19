@@ -1070,7 +1070,7 @@ static int procfile(PROGINFO *pip,SHIO *ofp,cchar *fname,int fn,int f_eject)
 	                shio_printf(ofp,".SP\n") ;
 
 #if	F_DSBLOCK
-	                shio_printf(ofp,".DS CB F \\\\n(aI\n") ;
+	                shio_printf(ofp,".DS CB F \\\\n%caI\n",CH_LPAREN) ;
 #else
 	                shio_printf(ofp,".QS\n") ;
 #endif
@@ -1249,8 +1249,11 @@ static int procout_begin(PROGINFO *pip,SHIO *ofp)
 	if (rs >= 0) rs = shio_printf(ofp,".nr iJ 5\n") ;
 	wlen += rs ;
 
-	if (rs >= 0) rs = shio_printf(ofp,".if \\n(iI>0 .nr iJ \\n(iI\n") ;
-	wlen += rs ;
+	if (rs >= 0) {
+	    cchar	*fmt = ".if \\n%ciI>0 .nr iJ \\n%ciI\n" ;
+	    rs = shio_printf(ofp,fmt,CH_LPAREN,CH_LPAREN) ;
+	    wlen += rs ;
+	}
 
 	return (rs >= 0) ? wlen : rs ;
 }

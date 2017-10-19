@@ -18,7 +18,7 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<vecobj.h>
+#include	<langstate.h>
 #include	<localmisc.h>
 
 
@@ -29,6 +29,7 @@
 
 struct linehist_head {
 	uint		magic ;
+	LANGSTATE	ls ;
 	void		*lvp ;		/* line history */
 	char		ss[2] ;		/* search-characters */
 } ;

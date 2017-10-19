@@ -23,7 +23,7 @@
 
         Note carefully, the resulting name is by no means guaranteed to be a
         valid mail address name. This routine only makes it LOOK like it may be
-        a mail address name !
+        a mail address name!
 
 	Arguments:
 
@@ -54,6 +54,7 @@
 #include	<string.h>
 
 #include	<char.h>
+#include	<ascii.h>
 #include	<localmisc.h>
 
 
@@ -81,7 +82,7 @@ int		len ;
 /* strip off AT&T GECOS information separator garbage if present */
 
 	if (((cp = strchr(gn,'-')) != NULL) &&
-	    ((cp2 = strchr(cp,'(')) != NULL)) {
+	    ((cp2 = strchr(cp,CH_LPAREN)) != NULL)) {
 
 	    cp += 1 ;
 	    cp3 = cp ;

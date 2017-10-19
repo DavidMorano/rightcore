@@ -50,13 +50,6 @@ int		ptma_create(PTMA *) ;
 /* exported subroutines */
 
 
-int ptma_init(PTMA *op)
-{
-	return ptma_create(op) ;
-}
-/* end subroutine (ptma_init) */
-
-
 int ptma_create(PTMA *op)
 {
 	int		rs ;

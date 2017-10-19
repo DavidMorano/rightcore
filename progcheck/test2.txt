@@ -1,0 +1,57 @@
+
+static int mapper_mapload(STATMSG_MAPPER *mmp)
+{
+	bfile		mfile, *mfp = &mfile ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		kl, vl ;
+	int		sl ;
+	int		c = 0 ;
+	cchar		*tp, *sp ;
+	cchar		*kp, *vp ;
+
+	if (mmp == NULL) return SR_FAULT ;
+
+	if (mmp->magic != STATMSG_MAPPERMAGIC) return SR_NOTOPEN ;
+
+	if ((rs1 = bopen(mfp,mmp->fname,"r",0666)) >= 0) {
+	    struct ustat	sb ;
+	    if ((rs = bcontrol(mfp,BC_STAT,&sb)) >= 0) {
+		const int	llen ;
+		int		len ;
+		char		lbuf[LINEBUFLEN + 1] ;
+
+		mmp->ti_mtime = sb.st_mtime ;
+		while ((rs = breadline(mfp,lbuf,llen)) > 0) {
+	    	    len = rs ;
+
+	    sp = lbuf ;
+	    sl = len ;
+	    if (sp[0] == '#') continue ;
+
+	    if ((tp = strnchr(sp,sl,'#')) != NULL)
+	        sl = (tp - sp) ;
+
+	    kl = nextfield(sp,sl,&kp) ;
+	    if (kl == 0) continue ;
+
+	    sl -= ((kp + kl) - sp) ;
+	    sp = (kp + kl) ;
+
+	    vl = nextfield(sp,sl,&vp) ;
+	    if (vl == 0) continue ;
+
+	    c += 1 ;
+	    rs = mapper_mapadd(mmp,kp,kl,vp,vl) ;
+
+	    	if (rs < 0) break ;
+		} /* end while (reading lines) */
+
+	    } /* end if (bcontrol) */
+	    bclose(mfp) ;
+	} /* end if (file-open) */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (mapper_mapload) */
+

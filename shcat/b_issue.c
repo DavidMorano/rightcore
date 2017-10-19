@@ -29,7 +29,7 @@
 
 	Synopsis:
 
-	$ issue [-k <keyname>] [-a <admin(s)>] [-d[=<intrun>] [-V]
+	$ issue [-k <keyname>] [-a <admin(s)>] [-d[=<intrun>]] [-V]
 
 
 *******************************************************************************/

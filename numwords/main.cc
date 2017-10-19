@@ -25,6 +25,7 @@
 
 *******************************************************************************/
 
+
 #include	<envstandards.h>
 #include	<sys/types.h>
 #include	<cstdlib>
@@ -44,8 +45,6 @@
 
 
 /* local defines */
-
-#define	VARDEBUGFNAME	"NUMWORDS_DEBUGFILE" 
 
 
 /* name-spaces */

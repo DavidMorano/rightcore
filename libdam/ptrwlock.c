@@ -99,13 +99,6 @@ int		ptrwlock_create(PTRWLOCK *,PTRWA *) ;
 /* exported subroutines */
 
 
-int ptrwlock_init(PTRWLOCK *psp,PTRWA *atp)
-{
-	return ptrwlock_create(psp,atp) ;
-}
-/* end subroutine (ptrwlock_init) */
-
-
 int ptrwlock_create(PTRWLOCK *psp,PTRWA *atp)
 {
 	int		rs ;

@@ -52,6 +52,7 @@
 /* pragmas */
 
 #pragma		init(preload_init)
+#pragma		fini(preload_fini)
 
 
 /* external subroutines */
@@ -111,9 +112,9 @@ static int	preload_capend(PRELOAD *) ;
 static int	preload_seter(PRELOAD *,int,const char *,int,int) ;
 static int	preload_geter(PRELOAD *,int,char *,int) ;
 
-static int entry_start(PRELOAD_ENT *,const char *,int,int) ;
-static int entry_reload(PRELOAD_ENT *,const char *,int,int) ;
-static int entry_finish(PRELOAD_ENT *) ;
+static int	entry_start(PRELOAD_ENT *,cchar *,int,int) ;
+static int	entry_reload(PRELOAD_ENT *,cchar *,int,int) ;
+static int	entry_finish(PRELOAD_ENT *) ;
 
 
 /* local variables */
@@ -127,7 +128,7 @@ static PRELOAD	preload_data ; /* zero-initialized */
 int preload_init()
 {
 	PRELOAD		*uip = &preload_data ;
-	int		rs = 1 ;
+	int		rs = SR_OK ;
 	if (! uip->f_init) {
 	    uip->f_init = TRUE ;
 	    if ((rs = ptm_create(&uip->m,NULL)) >= 0) {
@@ -136,7 +137,7 @@ int preload_init()
 	    	    void	(*a)() = preload_atforkafter ;
 	            if ((rs = uc_atfork(b,a,a)) >= 0) {
 	                if ((rs = uc_atexit(preload_fini)) >= 0) {
-	                    rs = 0 ;
+	                    rs = 1 ;
 	                    uip->f_initdone = TRUE ;
 	                }
 	                if (rs < 0)

@@ -64,7 +64,7 @@
 /* local defines */
 
 #ifndef	NOFILE
-#define	NOFILE	20
+#define	NOFILE		20
 #endif
 
 #define	LOCINFO		struct locinfo
@@ -141,7 +141,7 @@ static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -187,7 +187,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *progopts[] = {
+static cchar	*progopts[] = {
 	"parallel",
 	"background",
 	NULL
@@ -237,7 +237,7 @@ int p_syncer(int argc,cchar *argv[],cchar *envv[],void *contextp)
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
-	LOCINFO	li, *lip = &li ;
+	LOCINFO		li, *lip = &li ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	SHIO		errfile ;
@@ -529,6 +529,18 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                        break ;
 
+/* parallel mode */
+			    case 'p':
+	                        lip->f.parallel = TRUE ;
+	                        if (f_optequal) {
+	                            f_optequal = FALSE ;
+	                            if (avl) {
+	                                rs = optbool(avp,avl) ;
+	                                lip->f.parallel = (rs > 0) ;
+				    }
+	                        }
+	                        break ;
+
 /* verbose mode */
 	                    case 'v':
 	                        pip->verboselevel = 2 ;
@@ -589,8 +601,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -753,10 +764,13 @@ badprogstart:
 
 /* the bad things */
 badarg:
-	ex = EX_USAGE ;
-	shio_printf(pip->efp,"%s: invalid argument specified (%d)\n",
-	    pip->progname,rs) ;
-	usage(pip) ;
+	{
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument specified (%d)\n" ;
+	    ex = EX_USAGE ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    usage(pip) ;
+	}
 	goto retearly ;
 
 }
@@ -788,7 +802,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		c = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 
 	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;

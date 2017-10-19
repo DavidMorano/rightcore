@@ -1323,7 +1323,7 @@ static int usage(PROGINFO *pip)
 	}
 
 	if (rs >= 0) {
-	    fmt = "%s:  [-utf <utmpx>] [-s[=<b>]\n" ;
+	    fmt = "%s:  [-utf <utmpx>] [-s[=<b>]]\n" ;
 	    rs = shio_printf(pip->efp,fmt,pn) ;
 	    wlen += rs ;
 	}

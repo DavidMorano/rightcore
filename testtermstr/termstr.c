@@ -569,7 +569,7 @@ static int termstr_curm(TERMSTR *op,int curtype,int n)
 	    if (n <= 1) {
 	        bp = tbuf ;
 	        *bp++ = '\033' ;
-	        *bp++ = '[' ;
+	        *bp++ = CH_LBRACK ;
 	        *bp++ = name ;
 	        bl = 3 ;
 	        rs = buffer_strw(&op->b,bp,bl) ;

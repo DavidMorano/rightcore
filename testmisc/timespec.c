@@ -1,7 +1,7 @@
 /* timespec */
 /* lang=C99 */
 
-/* UNIX® signal event initialization */
+/* UNIX® time specification initialization */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */

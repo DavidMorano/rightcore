@@ -69,13 +69,6 @@ int		psem_create(PSEM *,int,uint) ;
 /* exported subroutines */
 
 
-int psem_init(PSEM *psp,int pshared,uint count)
-{
-	return psem_create(psp,pshared,count) ;
-}
-/* end subroutine (psem_init) */
-
-
 int psem_create(PSEM *psp,int pshared,uint count)
 {
 	const int	ic = (int) (count & INT_MAX) ;

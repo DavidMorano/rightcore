@@ -60,13 +60,6 @@ int		ptm_lockto(PTM *,int) ;
 /* exported subroutines */
 
 
-int ptm_init(PTM *op,PTMA *ap)
-{
-	return ptm_create(op,ap) ;
-}
-/* end subroutine (ptm_init) */
-
-
 int ptm_create(PTM *op,PTMA *ap)
 {
 	int		rs ;

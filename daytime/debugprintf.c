@@ -199,7 +199,7 @@ static DEBUGPRINT	ef ; /* zero-initialized */
 int debugprint_init()
 {
 	DEBUGPRINT	*uip = &ef ;
-	int		rs = 1 ;
+	int		rs = SR_OK ;
 	if (! uip->f_init) {
 	    uip->f_init = TRUE ;
 	    if ((rs = ptm_create(&uip->m,NULL)) >= 0) {
@@ -207,7 +207,7 @@ int debugprint_init()
 	        void	(*a)() = debugprint_atforkafter ;
 	        if ((rs = uc_atfork(b,a,a)) >= 0) {
 	            if ((rs = uc_atexit(debugprint_fini)) >= 0) {
-	                rs = 0 ;
+	                rs = 1 ;
 	                uip->f_initdone = TRUE ;
 	            }
 	            if (rs < 0)

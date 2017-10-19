@@ -1,5 +1,7 @@
 /* main (MINSQUARES) */
 
+/* find the minimum squares cut up from a sheet of paper */
+
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 
@@ -15,8 +17,8 @@
 
 /*******************************************************************************
 
-	Given a length and width of a piece of paper, we calculate the
-	minimum number of squares that can be cut from it.
+        Given a length and width of a piece of paper, we calculate the minimum
+        number of squares that can be cut from it.
 
 
 *******************************************************************************/

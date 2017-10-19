@@ -73,7 +73,7 @@ int vsinit()
 
 /* initialize the process-wide variables */
 
-	ptm_init(&hp->pm,NULL) ;
+	rs = ptm_create(&hp->pm,NULL) ;
 
 #if	CF_DEBUGS
 	debugprintf("vsinit: ret rs=%d\n",rs) ;

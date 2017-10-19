@@ -62,8 +62,8 @@ using namespace		std ;		/* yes, we want punishment! */
 /* external subroutines */
 
 #if	CF_DEBUGS
-extern "C" int	debugprintf(const char *,...) ;
-extern "C" int	strlinelen(const char *,int,int) ;
+extern "C" int	debugprintf(cchar *,...) ;
+extern "C" int	strlinelen(cchar *,int,int) ;
 #endif
 
 
@@ -105,10 +105,17 @@ int linehist_start(LINEHIST *op,cchar *ss)
 
 	if ((lvp = new(nothrow) vector<item>) != NULL) {
 	    op->lvp = (void *) lvp ;
-	    strncpy(op->ss,ss,2) ;
-	    op->magic = LINEHIST_MAGIC ;
-	} else
+	    if ((rs = langstate_start(&op->ls)) >= 0) {
+	        strncpy(op->ss,ss,2) ;
+	        op->magic = LINEHIST_MAGIC ;
+	    } /* end if (langstate_start) */
+	    if (rs < 0) {
+		delete lvp ;
+		op->lvp = NULL ;
+	    }
+	} else {
 	    rs = SR_NOMEM ;
+	}
 
 	return rs ;
 }
@@ -118,6 +125,7 @@ int linehist_start(LINEHIST *op,cchar *ss)
 int linehist_finish(LINEHIST *op)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -128,6 +136,9 @@ int linehist_finish(LINEHIST *op)
 	    delete lvp ;
 	    op->lvp = NULL ;
 	}
+
+	rs1 = langstate_finish(&op->ls) ;
+	if (rs >= 0) rs = rs1 ;
 
 	op->magic = 0 ;
 	return rs ;
@@ -156,29 +167,32 @@ int linehist_proc(LINEHIST *op,int ln,cchar *sp,int sl)
 	    int		ch ;
 	    while ((rs >= 0) && sl && *sp) {
 		ch = MKCHAR(*sp) ;
-		if (ch == sch0) {
-		    item	a(ln,0) ;
-		    lvp->push_back(a) ;
-		} else if (ch == sch1) {
-		    int		f = TRUE ;
-		    if (lvp->size() > 0) {
-			const item	li = lvp->back() ;
-			if (li.type() == 0) {
-			    f = FALSE ;
-			    lvp->pop_back() ;
-			}
-		    }
-		    if (f) {
-		        item	a(ln,1) ;
+		if ((rs = langstate_proc(&op->ls,ln,ch)) > 0) {
+		    if (ch == sch0) {
+		        item	a(ln,0) ;
 		        lvp->push_back(a) ;
-		    }
-		} /* end if */
+		    } else if (ch == sch1) {
+		        int	f = TRUE ;
+		        if (lvp->size() > 0) {
+			    const item	li = lvp->back() ;
+			    if (li.type() == 0) {
+			        f = FALSE ;
+			        lvp->pop_back() ;
+			    }
+		        }
+		        if (f) {
+		            item	a(ln,1) ;
+		            lvp->push_back(a) ;
+		        }
+		    } /* end if */
+		} /* end if (langstate_proc) */
 		sp += 1 ;
 		sl -= 1 ;
 	    } /* end while */
 	    c = lvp->size() ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -197,8 +211,9 @@ int linehist_count(LINEHIST *op)
 
 	if ((lvp = ((vector<item> *) op->lvp)) != NULL) {
 	    c = lvp->size() ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -227,8 +242,9 @@ int linehist_get(LINEHIST *op,int i,int *lnp)
 		    *lnp = vi.line() ;
 		}
 	    }
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return (rs >= 0) ? type : rs ;
 }

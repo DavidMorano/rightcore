@@ -53,13 +53,6 @@ int		ptc_create(PTC *,PTCA *) ;
 /* exported subroutines */
 
 
-int ptc_init(PTC *op,PTCA *ap)
-{
-	return ptc_create(op,ap) ;
-}
-/* end subroutine (ptc_init) */
-
-
 int ptc_create(PTC *op,PTCA *ap)
 {
 	int		rs ;

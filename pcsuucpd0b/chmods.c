@@ -117,7 +117,7 @@ int chmods(cchar *dname,mode_t dm)
 	    } /* end if (mkpath) */
 	    rs = checkinfo_finish(&ci) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (checkinfo */
+	} /* end if (checkinfo) */
 
 	return rs ;
 }

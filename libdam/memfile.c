@@ -75,11 +75,7 @@ static int	memfile_ismemfree(MEMFILE *,caddr_t,uint) ;
 /* exported subroutines */
 
 
-int memfile_open(fbp,fname,oflags,operms)
-MEMFILE		*fbp ;
-const char	fname[] ;
-int		oflags ;
-int		operms ;
+int memfile_open(MEMFILE *fbp,cchar *fname,int oflags,mode_t om)
 {
 	int		rs ;
 
@@ -93,9 +89,9 @@ int		operms ;
 
 	memset(fbp,0,sizeof(MEMFILE)) ;
 
-	if ((rs = uc_open(fname,oflags,operms)) >= 0) {
+	if ((rs = uc_open(fname,oflags,om)) >= 0) {
 	    USTAT	sb ;
-	    int		fd = rs ;
+	    const int	fd = rs ;
 	    if ((rs = u_fstat(fd,&sb)) >= 0) {
 	        if (S_ISREG(sb.st_mode)) {
 	            size_t	ms, e ;
@@ -146,8 +142,7 @@ int		operms ;
 /* end subroutine (memfile_open) */
 
 
-int memfile_close(fbp)
-MEMFILE		*fbp ;
+int memfile_close(MEMFILE *fbp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -175,10 +170,7 @@ MEMFILE		*fbp ;
 /* end subroutine (memfile_close) */
 
 
-int memfile_write(fbp,buf,buflen)
-MEMFILE		*fbp ;
-const void	*buf ;
-int		buflen ;
+int memfile_write(MEMFILE *fbp,const void *buf,int buflen)
 {
 	offset_t	off ;
 	uint		pmo ;
@@ -281,10 +273,9 @@ int		buflen ;
 #endif /* CF_ACTUAL */
 
 	if (rs >= 0) {
-
-	    if ((fbp->off + buflen) > fbp->fsize)
+	    if ((fbp->off + buflen) > fbp->fsize) {
 	        fbp->fsize = (fbp->off + buflen) ;
-
+	    }
 	    fbp->off += buflen ;
 	}
 
@@ -297,8 +288,7 @@ int		buflen ;
 /* end subroutine (memfile_write) */
 
 
-int memfile_len(fbp)
-MEMFILE		*fbp ;
+int memfile_len(MEMFILE *fbp)
 {
 	int		rs = SR_OK ;
 
@@ -311,8 +301,7 @@ MEMFILE		*fbp ;
 /* end subroutine (memfile_len) */
 
 
-int memfile_allocation(fbp)
-MEMFILE		*fbp ;
+int memfile_allocation(MEMFILE *fbp)
 {
 	int		rs = SR_OK ;
 
@@ -325,9 +314,7 @@ MEMFILE		*fbp ;
 /* end subroutine (memfile_allocation) */
 
 
-int memfile_tell(fbp,offp)
-MEMFILE		*fbp ;
-offset_t	*offp ;
+int memfile_tell(MEMFILE *fbp,offset_t *offp)
 {
 	int		rs = SR_OK ;
 
@@ -343,9 +330,7 @@ offset_t	*offp ;
 /* end subroutine (memfile_tell) */
 
 
-int memfile_buf(fbp,vp)
-MEMFILE		*fbp ;
-void		*vp ;
+int memfile_buf(MEMFILE *fbp,void *vp)
 {
 	caddr_t		*rpp = (caddr_t *) vp ;
 
@@ -353,8 +338,7 @@ void		*vp ;
 
 	if (fbp->magic != MEMFILE_MAGIC) return SR_NOTOPEN ;
 
-	if (rpp != NULL)
-	    *rpp = (caddr_t) fbp->dbuf ;
+	if (rpp != NULL) *rpp = (caddr_t) fbp->dbuf ;
 
 	return SR_OK ;
 }
@@ -365,8 +349,7 @@ void		*vp ;
 
 
 /* extend the file out to the allocation (for starters) */
-static int memfile_extend(fbp)
-MEMFILE		*fbp ;
+static int memfile_extend(MEMFILE *fbp)
 {
 	offset_t	off = fbp->fsize ;
 	int		rs = SR_OK ;
@@ -401,9 +384,7 @@ MEMFILE		*fbp ;
 /* end subroutine (memfile_extend) */
 
 
-static int memfile_mapextend(fbp,extension)
-MEMFILE		*fbp ;
-uint		extension ;
+static int memfile_mapextend(MEMFILE *fbp,uint extension)
 {
 	offset_t	moff ;
 	caddr_t		addr ;
@@ -443,7 +424,7 @@ uint		extension ;
 
 	    if (rs >= 0) {
 	        const int	fd = fbp->fd ;
-	        void	*p ;
+	        void		*p ;
 
 	        msize = (fbp->dlen + extension) ;
 	        fbp->dlen = 0 ;
@@ -461,10 +442,7 @@ uint		extension ;
 /* end subroutine (memfile_mapextend) */
 
 
-static int memfile_ismemfree(fbp,addr,len)
-MEMFILE		*fbp ;
-caddr_t		addr ;
-uint		len ;
+static int memfile_ismemfree(MEMFILE *fbp,caddr_t addr,uint len)
 {
 	size_t		tlen ;
 	caddr_t		ta = addr ;

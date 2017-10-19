@@ -238,8 +238,8 @@ OBJ77= sntid.o sncat1.o sncat2.o
 OBJ78= strdcpy.o strdcpyw.o strdcpycompact.o strdcpyopaque.o strdcpyclean.o
 OBJ79= strnwcpy.o strnncpy.o strnset.o strdfill.o
 
-OBJ80= filebuf_mailsupport.o filebuf_writefd.o
-OBJ81= memfile.o
+OBJ80= 
+OBJ81= 
 OBJ82= density.o densitystati.o densitystatll.o denpercents.o
 OBJ83= tmstrs.o shellunder.o udomain.o
 OBJ84= mktmpuserdir.o mkcaselower.o mkfmtphone.o
@@ -256,8 +256,8 @@ OBJ93= mkfnamesuf.o mkfname.o mksofname.o mkfdfname.o
 OBJ94= mkgecosname.o mkmailname.o mkrealname.o mkuiname.o mkuibang.o 
 OBJ95= mkaddrname.o mkbestaddr.o mkbestfrom.o mkdisphdr.o mkaltext.o
 
-OBJ96= snflags.o
-OBJ97= comparse.o mhcom.o zos.o tmz.o zdb.o zoffparts.o
+OBJ96= memfile.o linehist.o langstate.o
+OBJ97= comparse.o mhcom.o zos.o tmz.o zdb.o zoffparts.o snflags.o
 OBJ98= openportmsg.o varsub.o mailalias.o userattr.o 
 OBJ99= tmpx.o tmpx_getrunlevel.o tmpx_getuserlines.o tmpx_getsessions.o
 OBJ100= mknoise.o rijndael.o expcook.o schedvar.o
@@ -277,7 +277,7 @@ OBJ111= hdrdecode.o qpdecoder.o b64decoder.o hexdecoder.o utf8decoder.o
 OBJ112= vecstr_adds.o vecstr_foilcmp.o
 OBJ113= vecpstr_loadgrusers.o vecpstr_loadpjusers.o vecpstr_loaddirs.o
 OBJ114= vechand.o vecitem.o vecint.o veclong.o vecelem.o vecobj.o 
-OBJ115=
+OBJ115= filebuf_mailsupport.o filebuf_writefd.o
 OBJ116= setint.o osetint.o setstr.o osetstr.o mapstrs.o
 OBJ117= msfile.o msfilee.o ebuf.o nodedb.o clusterdb.o kinfo.o nulstr.o
 OBJ118= cksum.o sha1.o gecos.o pwfile.o ipasswd.o ema.o fsi.o
@@ -1028,6 +1028,12 @@ osetstr.o:		osetstr.cc osetstr.h
 
 querystring.o:		querystring.cc querystring.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) querystring.cc
+
+linehist.o:		linehist.cc linehist.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) linehist.cc
+
+langstate.o:		langstate.cc langstate.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) langstate.cc
 
 setstr.o:		setstr.c setstr.h
 

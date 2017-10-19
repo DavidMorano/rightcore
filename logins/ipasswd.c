@@ -843,7 +843,7 @@ int ipasswd_fetch(IPASSWD *op,REALNAME *np,IPASSWD_CUR *curp,int opts,char *up)
 
 	    rs1 = ipasswd_enterend(op,dt) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if ipasswd-enter) */
+	} /* end if (ipasswd-enter) */
 
 #if	CF_DEBUGS
 	debugprintf("ipasswd_fetch: ret rs=%d ul=%u\n",rs,ul) ;

@@ -357,7 +357,7 @@ const char	pr[] ;
 	if (rs < 0) goto bad0 ;
 	op->pr = cp ;
 
-	rs = ptm_init(&op->m,NULL) ;
+	rs = ptm_create(&op->m,NULL) ;
 	if ( rs < 0) goto bad1 ;
 
 	rs = resolves_mapfind(op,daytime) ;

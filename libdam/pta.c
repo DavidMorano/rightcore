@@ -49,13 +49,6 @@ int		pta_create(PTA *) ;
 /* exported subroutines */
 
 
-int pta_init(PTA *op)
-{
-	return pta_create(op) ;
-}
-/* end subroutine (pta_init) */
-
-
 int pta_create(PTA *op)
 {
 	int		rs ;

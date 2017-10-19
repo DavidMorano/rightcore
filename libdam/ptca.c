@@ -50,13 +50,6 @@ int		ptca_create(PTCA *) ;
 /* exported subroutines */
 
 
-int ptca_init(PTCA *op)
-{
-	return ptca_create(op) ;
-}
-/* end subroutine (ptca_init) */
-
-
 int ptca_create(PTCA *op)
 {
 	int		rs ;

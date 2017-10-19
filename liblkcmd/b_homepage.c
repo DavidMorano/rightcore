@@ -6632,7 +6632,7 @@ static int svcfileent_val(SVCFILE_ENT *sep,cchar *k,cchar **rpp)
 	cchar		*(*kv)[2] = sep->keyvals ;
 	return svckv(kv,n,k,rpp) ;
 }
-/* end subroutine svcfileent_val) */
+/* end subroutine (svcfileent_val) */
 
 
 static int svcfileent_deval(SVCFILE_ENT *sep,cchar *k,cchar **rpp)

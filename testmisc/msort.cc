@@ -105,7 +105,7 @@ struct msort_data {
 	    delete [] tmp ;
 	    delete [] pvp ;
 	}
-	void swap(int i1,int i2 {
+	void swap(int i1,int i2) {
 	    char	*i1p = (base+(i1*es)) ;
 	    char	*i2p = (base+(i2*es)) ;
  	    memcpy(tmp,i1p) ;

@@ -167,7 +167,7 @@ int getentropy(void *rbuf,size_t rlen)
 int getrandom_init()
 {
 	GETRANDOM	*uip = &getrandom_data ;
-	int		rs = 1 ;
+	int		rs = SR_OK ;
 	if (! uip->f_init) {
 	    uip->f_init = TRUE ;
 	    if ((rs = ptm_create(&uip->m,NULL)) >= 0) {
@@ -176,7 +176,7 @@ int getrandom_init()
 	    	    void	(*a)() = getrandom_atforkafter ;
 	            if ((rs = uc_atfork(b,a,a)) >= 0) {
 	                if ((rs = uc_atexit(getrandom_fini)) >= 0) {
-	                    rs = 0 ;
+	                    rs = 1 ;
 	                    uip->f_initdone = TRUE ;
 	                }
 	                if (rs < 0)

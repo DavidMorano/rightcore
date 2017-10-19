@@ -34,7 +34,7 @@ struct memfile_head {
 extern "C" {
 #endif
 
-extern int	memfile_open(MEMFILE *,const char *,int,int) ;
+extern int	memfile_open(MEMFILE *,cchar *,int,mode_t) ;
 extern int	memfile_write(MEMFILE *,const void *,int) ;
 extern int	memfile_len(MEMFILE *) ;
 extern int	memfile_allocation(MEMFILE *) ;

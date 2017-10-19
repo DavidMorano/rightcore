@@ -55,6 +55,7 @@
 #include	<time.h>
 
 #include	<vsystem.h>
+#include	<ascii.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<field.h>
@@ -1894,7 +1895,7 @@ static int procword(PROGINFO *pip,WORDFILL *wp,cchar *cp,int cl)
 
 	    if (strnpbrk(cp,cl,"[]") != NULL) {
 
-	        if (cp[0] == '[') {
+	        if (cp[0] == CH_LBRACK) {
 	            cp += 1 ;
 	            cl -= 1 ;
 	        }
@@ -1916,28 +1917,6 @@ static int procword(PROGINFO *pip,WORDFILL *wp,cchar *cp,int cl)
 	return rs ;
 }
 /* end subroutine (procword) */
-
-
-static int mkwordclean(wordbuf,wordbuflen,cp,cl)
-char		wordbuf[] ;
-int		wordbuflen ;
-const char	*cp ;
-int		cl ;
-{
-	int		i = 0 ;
-
-	while ((i < wordbuflen) && cl && cp[0]) {
-	    if ((cp[0] != '[') && (cp[0] != ']')) {
-	        wordbuf[i++] = cp[0] ;
-	    }
-	    cp += 1 ;
-	    cl -= 1 ;
-	} /* end while */
-	wordbuf[i] = '\0' ;
-
-	return i ;
-}
-/* end subroutine (mkwordclean) */
 
 
 static int metawordsbegin(PROGINFO *pip)
@@ -2124,6 +2103,24 @@ static int locinfo_bookmatch(LOCINFO *lip,cchar *mbuf,int mlen)
 	return (rs >= 0) ? bi : rs ;
 }
 /* end subroutine (locinfo_bookmatch) */
+
+
+static int mkwordclean(char *wordbuf,int wordbuflen,cchar *cp,int cl)
+{
+	int		i = 0 ;
+
+	while ((i < wordbuflen) && cl && cp[0]) {
+	    if ((cp[0] != '[') && (cp[0] != ']')) {
+	        wordbuf[i++] = cp[0] ;
+	    }
+	    cp += 1 ;
+	    cl -= 1 ;
+	} /* end while */
+	wordbuf[i] = '\0' ;
+
+	return i ;
+}
+/* end subroutine (mkwordclean) */
 
 
 static char *firstup(char *cp)

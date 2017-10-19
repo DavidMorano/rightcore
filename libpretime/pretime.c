@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 2004-11-22, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -58,7 +56,7 @@
 
 /* typedefs */
 
-typedef int (*gettimeofday_t)(struct timeval *,void *) ;
+typedef int	(*gettimeofday_t)(struct timeval *,void *) ;
 
 
 /* external subroutines */

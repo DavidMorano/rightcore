@@ -85,7 +85,7 @@ extern int	sncpy1(char *,int,cchar *) ;
 extern int	snwcpy(char *,int,cchar *,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	mkhexstr(char *,int,const void *,int) ;
 #endif /* CF_DEBUGS */
 

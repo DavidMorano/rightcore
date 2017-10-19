@@ -128,7 +128,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 static int ourwake(void *objp,uint tag,int arg)
 {
-	printf("int tag=%u arg=%d\n",tag,arg) ;
+	printf("int objp=%p tag=%u arg=%d\n",objp,tag,arg) ;
 	return 0 ;
 }
 /* end subroutine (ourwake) */

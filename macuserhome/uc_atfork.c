@@ -114,7 +114,7 @@ static int	entry_match(UCATFORK_ENT *,void (*)(),void (*)(),void (*)()) ;
 
 /* local variables */
 
-static struct ucatfork	ucatfork_data ; /* zero-initialized */
+static UCATFORK	ucatfork_data ; /* zero-initialized */
 
 
 /* exported subroutines */
@@ -122,7 +122,7 @@ static struct ucatfork	ucatfork_data ; /* zero-initialized */
 
 int ucatfork_init()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	int		rs = SR_OK ;
 	int		f = FALSE ;
 	if (! udp->f_init) {
@@ -146,7 +146,7 @@ int ucatfork_init()
 
 void ucatfork_fini()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	if (udp->f_initdone) {
 	    udp->f_initdone = FALSE ;
 	    if (udp->f_track) {
@@ -164,7 +164,7 @@ void		(*sb)() ;
 void		(*sp)() ;
 void		(*sc)() ;
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
 	int		rs ;
 	int		rs1 ;
@@ -219,7 +219,7 @@ void		(*sb)() ;
 void		(*sp)() ;
 void		(*sc)() ;
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
 	int		rs ;
 	int		rs1 ;
@@ -323,7 +323,7 @@ void ucatfork_trackend(UCATFORK *udp)
 
 static void ucatfork_atforkbefore()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	if (ptm_lock(&udp->m) >= 0) {
 	    UCATFORK_ENT	*ep = udp->list.tail ;
 	    UCATFORK_ENT	*nep ;
@@ -339,7 +339,7 @@ static void ucatfork_atforkbefore()
 
 static void ucatfork_atforkparent()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	{
 	    UCATFORK_ENT	*ep = udp->list.head ;
 	    UCATFORK_ENT	*nep ;
@@ -356,7 +356,7 @@ static void ucatfork_atforkparent()
 
 static void ucatfork_atforkchild()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	{
 	    UCATFORK_ENT	*ep = udp->list.head ;
 	    UCATFORK_ENT	*nep ;
