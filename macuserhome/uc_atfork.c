@@ -70,7 +70,7 @@
 #define	NDF		"ucatfork.deb"
 
 
-/* pragmas (these just do not really work) */
+/* pragmas (these just do not work in shared object libraries) */
 
 #ifdef	COMMENT
 #pragma		init(ucatfork_init)
@@ -202,7 +202,7 @@ int uc_atfork(atfork_t sb,atfork_t sp,atfork_t sc)
 
 	                if ((rs = ucatfork_trackbegin(udp)) >= 0) {
 	                    UCATFORK_ENT	*ep, *lep ;
-	                    const int	esize = sizeof(UCATFORK_ENT) ;
+	                    const int		esize = sizeof(UCATFORK_ENT) ;
 	                    if ((rs = uc_libmalloc(esize,&ep)) >= 0) {
 	                        ep->sub_before = sb ;
 	                        ep->sub_parent = sp ;

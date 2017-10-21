@@ -18,7 +18,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 
 CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
@@ -26,8 +25,8 @@ CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #CCOPTS= -g -Wstrict-aliasing $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
 
 
-LDSOARRAY=
-LDSOARRAY += -z initarray=pretime_init -z finiarray=pretime_fini
+LDA=
+LDA += -z initarray=pretime_init -z finiarray=pretime_fini
 
 
 DEF0=
@@ -53,8 +52,11 @@ CFLAGS= $(CCOPTS) $(LF_CFLAGS)
 
 LDRPATH= $(EXTRA}/lib
 
-LDFLAGS= $(LF_LDFLAGS) $(LDSOARRAY)
 
+RLDFLAGS=
+
+
+SLDFLAGS= $(LF_LDFLAGS) $(LDA)
 
 SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
@@ -298,7 +300,7 @@ $(TT).a:		$(TOBJ)
 	$(AR) -rc $@ $?
 
 $(T).so:		$(OBJS) Makefile $(T).map
-	$(LD) -G -o $@ $(LDFLAGS) -M $(T).map $(OBJS) $(SLIBDIRS) $(SLIBS)
+	$(LD) -G -o $@ $(SLDFLAGS) -M $(T).map $(OBJS) $(SLIBDIRS) $(SLIBS)
 
 $(T).a:			$(OBJ)
 	$(AR) -rc $@ $?
@@ -358,40 +360,40 @@ control:
 
 
 obja.o:			$(OBJA)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJA)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJA)
 
 objb.o:			$(OBJB)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJB)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJB)
 
 objc.o:			$(OBJC)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJC)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJC)
 
 objd.o:			$(OBJD)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJD)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJD)
 
 obje.o:			$(OBJE)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJE)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJE)
 
 objf.o:			$(OBJF)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJF)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJF)
 
 objg.o:			$(OBJG)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJG)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJG)
 
 objh.o:			$(OBJH)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJH)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJH)
 
 obji.o:			$(OBJI)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJI)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJI)
 
 objj.o:			$(OBJJ)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJJ)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJJ)
 
 objk.o:			$(OBJK)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJK)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJK)
 
 objl.o:			$(OBJL)
-	$(LD) -r -o $@ $(LDFLAGS) $(OBJL)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJL)
 
 
 # library private subroutine modules

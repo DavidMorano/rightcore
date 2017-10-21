@@ -75,8 +75,8 @@ LD= ld
 
 LDRPATH=
 
-LDFLAGS= -m -R$(LIBDIR):$(CGS_RPATH) $(LDA)
 
+LDFLAGS= $(LF_LDFLAGS) -m -R$(LIBDIR):$(CGS_RPATH) $(LDA)
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
@@ -94,7 +94,9 @@ LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 LIBINFO= $(LIBDIRS) $(LIBS)
 
 
-SLDFLAGS= -m -R$(LIBDIR):$(CGS_RPATH) -z initarray=libtest_init
+SLDA= -z initarray=libtest_init -z finiarray=libtest_fini
+
+SLDFLAGS= $(LF_LDFLAGS) -m -R$(LIBDIR):$(CGS_RPATH) $(SLDA)
 
 SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
@@ -102,7 +104,7 @@ SLIB0=
 SLIB1= -ldam -lb
 SLIB2=
 SLIB3= -luc -lu
-SLIB4= $(CGSLIBS)
+SLIB4= $(CGS_LIBS)
 SLIB5= 
 SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 SLIB7=
@@ -141,7 +143,7 @@ INCS= config.h defs.h
 
 
 OBJ00= main.o
-OBJ01=
+OBJ01= sub.o
 OBJ02=
 OBJ03=
 OBJ04=
@@ -233,5 +235,11 @@ main.o:			main.c $(INCS)
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) main.c
 
 whatinfo.o:		whatinfo.c config.h
+
+sub.o:			sub.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) sub.cc
+
+libtest.o:		libtest.cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) libtest.cc
 
 

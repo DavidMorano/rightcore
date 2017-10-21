@@ -28,8 +28,17 @@
 #define	LANGSTATE_STAT		struct langstate_stat
 
 
+enum langstatetypes {
+	langstatetype_clear,
+	langstatetype_comment,
+	langstatetype_quote,
+	langstatetype_literal,
+	langstatetype_overlast
+} ;
+
 struct langstate_stat {
 	int		line ;
+	int		type ;
 } ;
 
 struct langstate_flags {

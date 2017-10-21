@@ -57,10 +57,12 @@ CCFLAGS= $(GPPFLAGS) $(CCOPTS) $(LF_CFLAGS)
 #LD= $(CC)
 
 
+LDA= -z initarray=pcsnsmgr_init -z finiarray=pcsnsmgr_fini
+
 LDRPATH= $(EXTRA)/lib:/usr/lib/lwp
 
-LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(LOCAL)/lib:$(CGS_RPATH):$(LDRPATH)
 
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(LOCAL)/lib:$(CGS_RPATH):$(LDRPATH)
 
 LIBDIRS= -L$(LIBDIR) -L$(LOCAL)/lib -L$(CGS_LIBDIR)
 
@@ -78,6 +80,8 @@ LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 LIBINFO= $(LIBDIRS) $(LIBS)
 
 
+SLDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(LOCAL)/lib:$(CGS_RPATH):$(LDRPATH)
+
 SLIBDIRS= -L$(LIBDIR) -L$(LOCAL)/lib
 
 SLIB0= -lpcs 
@@ -94,7 +98,9 @@ SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
 SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
 
-XLIBDIRS= -L$(LIBDIR)
+XLDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(LOCAL)/lib:$(CGS_RPATH):$(LDRPATH)
+
+XLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 XLIB0=
 XLIB1= -ldam -lb
@@ -128,55 +134,69 @@ TOUCH= /bin/touch
 INCS= pcsconf.h mimetypes.h
 
 
-OBJ00=
-OBJ01= pcsconf.o pcspoll.o
-OBJ02= pcsgetserial.o pcsmsgid.o pcsuserfile.o
-OBJ03= pcsngdir.o pcsgetprog.o pcsgetprogpath.o pcsdialuucp.o
-OBJ04= pcstrustuser.o pcsmailhost.o pcsgetnames.o pcsmailcheck.o
-OBJ05= pcsgetfacility.o pcsgetorg.o
-OBJ06= pcsinfoset.o
-OBJ07= pcsns.o pcsnsmgr.o pcsnsrecs.o pcsnsc.o pcsmsg.o
-OBJ08= pcsunodes.o
-OBJ09= lockfile.o initnow.o
-OBJ10= mheader.o strnnlen.o ndigits.o
-OBJ11= datestr_envelope.o datestr_header.o
-OBJ12= securefile.o
-OBJ13= sfsubstance.o 
-OBJ14=
-OBJ15= envmgr.o outbuf.o
-OBJ16= useraccdb.o nulstr.o
-OBJ17= mailmsgatt.o mailmsgattent.o mimetypes.o mailalias.o
-OBJ18= mailmsghdrs.o
-OBJ19= contypevals.o contentencodings.o ismmclass.o
-OBJ20= modload.o
-OBJ21= thrbase.o thrcomm.o
-OBJ22=
-OBJ23=
-OBJ24= prmktmpdir.o
-OBJ25= fileobject.o nchr.o sfcookkey.o
-OBJ26=
-OBJ27=
-OBJ28=
-OBJ29=
-OBJ30=
-OBJ31=
+SOBJ00=
+SOBJ01= pcsconf.o pcspoll.o
+SOBJ02= pcsgetserial.o pcsmsgid.o pcsuserfile.o
+SOBJ03= pcsngdir.o pcsgetprog.o pcsgetprogpath.o pcsdialuucp.o
+SOBJ04= pcstrustuser.o pcsmailhost.o pcsgetnames.o pcsmailcheck.o
+SOBJ05= pcsgetfacility.o pcsgetorg.o
+SOBJ06= pcsinfoset.o
+SOBJ07= pcsns.o pcsnsmgr.o pcsnsrecs.o pcsnsc.o pcsmsg.o
+SOBJ08= pcsunodes.o
+SOBJ09= lockfile.o initnow.o
+SOBJ10= mheader.o strnnlen.o ndigits.o
+SOBJ11= datestr_envelope.o datestr_header.o
+SOBJ12= securefile.o
+SOBJ13= sfsubstance.o 
+SOBJ14=
+SOBJ15= envmgr.o outbuf.o
+SOBJ16= useraccdb.o nulstr.o
+SOBJ17= mailmsgatt.o mailmsgattent.o mimetypes.o mailalias.o
+SOBJ18= mailmsghdrs.o
+SOBJ19= contypevals.o contentencodings.o ismmclass.o
+SOBJ20= modload.o
+SOBJ21= thrbase.o thrcomm.o
+SOBJ22=
+SOBJ23=
+SOBJ24= prmktmpdir.o
+SOBJ25= fileobject.o nchr.o sfcookkey.o
+SOBJ26=
+SOBJ27=
+SOBJ28=
+SOBJ29=
+SOBJ30=
+SOBJ31=
 
-OBJ32= mkbestfrom.o
-OBJ33= hasalldig.o hasfext.o
-OBJ34=
-OBJ35=
-OBJ36=
-OBJ37=
-OBJ38=
-OBJ39=
+SOBJ32= mkbestfrom.o
+SOBJ33= hasalldig.o hasfext.o
+SOBJ34=
+SOBJ35=
+SOBJ36=
+SOBJ37=
+SOBJ38=
+SOBJ39=
 
-OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
-OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
-OBJC= $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19) $(OBJ20) $(OBJ21) $(OBJ22) $(OBJ23) 
-OBJD= $(OBJ24) $(OBJ25) $(OBJ26) $(OBJ27) $(OBJ28) $(OBJ29) $(OBJ30) $(OBJ31) 
-OBJE= $(OBJ32) $(OBJ33) $(OBJ34) $(OBJ35) $(OBJ36) $(OBJ37) $(OBJ38) $(OBJ39)
+SOBJAa= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03)
+SOBJAb= $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
+SOBJA= $(SOBJa) $(SOBJb)
 
-OBJ= $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJE)
+SOBJBa= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11)
+SOBJBb= $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
+SOBJB= $(SOBJBa) $(SOBJb)
+
+SOBJCa= $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19)
+SOBJCb= $(OBJ20) $(OBJ21) $(OBJ22) $(OBJ23) 
+SOBJC= $(SOBJa) $(SOBJb)
+
+SOBJDa= $(OBJ24) $(OBJ25) $(OBJ26) $(OBJ27)
+SOBJDb= $(OBJ28) $(OBJ29) $(OBJ30) $(OBJ31) 
+SOBJD= $(SOBJa) $(SOBJb)
+
+SOBJEa= $(OBJ32) $(OBJ33) $(OBJ34) $(OBJ35)
+SOBJEb= $(OBJ36) $(OBJ37) $(OBJ38) $(OBJ39)
+SOBJE= $(SOBJEa) $(SOBJEb)
+
+SOBJ= $(SOBJA) $(SOBJB) $(SOBJC) $(SOBJD) $(SOBJE)
 
 
 TPCSOBJ00= pcsconfs.o
@@ -226,19 +246,19 @@ all:			$(ALL)
 so:			$(TPCS).so $(TPPS).so $(PCSNSO).so
 
 $(TPCS).so:		$(TPCSOBJ) Makefile $(TPCS).map
-	$(LD) -G -o $@ -M $(TPCS).map $(LDFLAGS) $(TPCSOBJ) $(SLIBINFO)
+	$(LD) -G -o $@ -M $(TPCS).map $(SLDFLAGS) $(TPCSOBJ) $(SLIBINFO)
 
 $(TPPS).so:		$(TPPSOBJ) Makefile $(TPPS).map
-	$(LD) -G -o $@ -M $(TPPS).map $(LDFLAGS) $(TPPSOBJ) $(SLIBINDO)
+	$(LD) -G -o $@ -M $(TPPS).map $(SLDFLAGS) $(TPPSOBJ) $(SLIBINDO)
 
 $(PCSNSO).so:		$(PCSNSOBJ) Makefile $(PCSNSO).map
-	$(LD) -G -o $@ -M $(PCSNSO).map $(LDFLAGS) $(PCSNSOBJ) $(SLIBINFO)
+	$(LD) -G -o $@ -M $(PCSNSO).map $(SLDFLAGS) $(PCSNSOBJ) $(SLIBINFO)
 
-$(T).a:			$(OBJ)
+$(T).a:			$(SOBJ)
 	$(AR) -rc $(T).a $?
 
-$(T).so:		$(OBJ) Makefile $(T).a
-	$(LD) -G -o $@ $(LDFLAGS) $(OBJ) $(LIBINFO)
+$(T).so:		$(SOBJ) Makefile $(T).a
+	$(LD) -G -o $@ $(SLDFLAGS) $(LDA) $(SOBJ) $(SLIBINFO)
 
 $(T).order order:	$(OBJ) $(T).a
 	$(LORDER) $(T).a | $(TSORT) > $(T).order

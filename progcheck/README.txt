@@ -1,6 +1,7 @@
 PROGCHECK
 
-We perform some source-code program checking.  We are also a KSH command.
+We perform some source-code program checking.  We check for unbalanced:
+	parentheses, quotes, literals, comments.
 
 Synopsis:
 $ progcheck <file(s)> [-o <opt(s)>] [-V]

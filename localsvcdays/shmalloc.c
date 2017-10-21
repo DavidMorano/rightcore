@@ -57,7 +57,7 @@
 
 /* local defines */
 
-#define	SHMVER		1
+#define	SHMVER		1		/* implementation version */
 
 
 /* external subroutines */
@@ -323,17 +323,17 @@ int shmalloc_already(SHMALLOC *op,int uoff)
 	fsize = fsp->size ;
 	coff = psp->next ;
 	if (coff < fsize) {
-	while ((coff >= 0) && (coff < op->b.size)) {
-	    csp = (SHMALLOC_B *) (strp+coff) ;
+	    while ((coff >= 0) && (coff < op->b.size)) {
+	        csp = (SHMALLOC_B *) (strp+coff) ;
 #if	CF_DEBUGS
-	    debugprintf("shmalloc_already: c=%d:%d:%d\n",
-	        coff,csp->size,csp->next) ;
+	        debugprintf("shmalloc_already: c=%d:%d:%d\n",
+	            coff,csp->size,csp->next) ;
 #endif
-	    f = ((foff >= coff) && (foff < (coff+csp->size))) ;
-	    if (f) break ;
+	        f = ((foff >= coff) && (foff < (coff+csp->size))) ;
+	        if (f) break ;
 
-	    coff = csp->next ;
-	} /* end while */
+	        coff = csp->next ;
+	    } /* end while */
 	} /* end if */
 #if	CF_DEBUGS
 	debugprintf("shmalloc_already: ret rs=%d f=%u\n",rs,f) ;

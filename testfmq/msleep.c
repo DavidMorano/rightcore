@@ -51,8 +51,6 @@
 
 /* local defines */
 
-#define	POLLINTMULT	1000		/* poll-time multiplier */
-
 
 /* external subroutines */
 

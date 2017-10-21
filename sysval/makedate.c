@@ -1,2 +1,2 @@
 const char sysval_makedate[] =
-"@(#)sysval                  170816_0430:27_USEDT Rightcore Network Services" ;
+"@(#)sysval                  171019_2045:57_USEDT Rightcore Network Services" ;

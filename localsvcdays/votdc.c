@@ -653,8 +653,9 @@ int		vl ;
 			            	vi = rs ;
 			    		rs = verse_dump(vep,vap,li) ;
 				    }
-			        } else
+			        } else {
 			            vi = rs ;
+				}
 #if	CF_DEBUGS
 				debugprintf("votdc_verseload: "
 					"_verseslotfind() rs=%d\n",rs) ;
@@ -672,7 +673,8 @@ int		vl ;
 				vl = rs ;
 #if	CF_DEBUGS
 	if (rs >= 0) {
-	debugprintf("votdc_verseload: verse_load() rs=%d mjd=%u b=%u\n",
+	debugprintf("votdc_verseload: "
+		"verse_load() rs=%d mjd=%u b=%u\n",
 		rs,vep->mjd, vep->book) ;
 	}
 #endif
@@ -875,8 +877,9 @@ static int votdc_shmbegin(VOTDC *op,int of,mode_t om)
 		        }
 	            } /* end if (uc_openshm) */
 	        } /* end if (create mode) */
-	    } else
+	    } else {
 	        fd = rs ;
+	    }
 	} /* end if (uc_openshm) */
 
 #if	CF_DEBUGS
@@ -922,8 +925,9 @@ static int votdc_shmbegin(VOTDC *op,int of,mode_t om)
 	    	    if ((rs = uc_fsize(fd)) > 0) {
 	                op->shmsize = rs ;
 			rs = votdc_shmbeginer(op,dt,fd,om,TRUE) ;
-		    } else
+		    } else {
 			rs = SR_LIBACC ;
+		    }
 		}
 	    } /* end if (uc_fsize) */
 	    if (rs < 0) {
@@ -1313,8 +1317,9 @@ static int votdc_shmchown(VOTDC *op)
 	        if ((rs = getpw_name(&pw,pwbuf,pwlen,ubuf)) >= 0) {
 		    const uid_t	uid = pw.pw_uid ;
 		    u_fchown(op->fd,uid,-1) ;
-	        } else if (rs == SR_NOENT)
+	        } else if (rs == SR_NOENT) {
 		    rs = SR_OK ;
+		}
 	    } /* end if (sfrootname) */
 	    uc_free(pwbuf) ;
 	} /* end if (m-a) */
@@ -1385,8 +1390,9 @@ static int votdc_shmhandbegin(VOTDC *op,const char *pr)
 	            op->shmname = np ;
 	        }
 	    } /* end if (mkshmname) */
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 	return rs ;
 }
 /* end subroutine (votdc_shmhandbegin) */
@@ -1458,8 +1464,9 @@ static int votdc_bookslotfind(VOTDC *op,const char *lang)
 	    const char	*elang = blp[i].lang ;
 	    if (elang[0] != '\0') {
 		f_same = (strcmp(elang,lang) == 0) ;
-	    } else
+	    } else {
 		i_empty = i ;
+	    }
 	    if (f_same) break ;
 	} /* end for */
 
@@ -1478,10 +1485,12 @@ static int votdc_bookslotfind(VOTDC *op,const char *lang)
 	        } /* end for */
 	        rs = votdc_bookslotdump(op,oi) ;
 		i = oi ;
-	    } else
+	    } else {
 		i = i_empty ;
-	} else
+	    }
+	} else {
 	    rs = votdc_bookslotdump(op,i) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("votdc_bookslotfind: ret rs=%d i=%u\n",rs,i) ;

@@ -125,6 +125,7 @@ int pretime_init()
 {
 	PRETIME		*op = &pretime_data ;
 	int		rs = SR_OK ;
+	int		f = FALSE ;
 	if (! op->f_init) {
 	    op->f_init = TRUE ;
 	    if (op->func_time == NULL) {
@@ -140,7 +141,7 @@ int pretime_init()
 		                if ((rs = uc_mktime(&ts,&ti_base)) >= 0) {
 			            time_t ti_now = (*op->func_time)(NULL) ;
 			            op->off = (ti_base-ti_now) ;
-			            rs = 1 ;
+			            f = TRUE ;
 		                }
 		            }
 	                }
@@ -161,6 +162,7 @@ int pretime_init()
 	} else {
 	    while ((rs >= 0) && op->f_init && (! op->f_initdone)) {
 		rs = msleep(1) ;
+		if (rs == SR_INTR) rs = SR_OK ;
 	    }
 	    if ((rs >= 0) && (! op->f_init)) rs = SR_LOCKLOST ;
 	}
@@ -168,7 +170,7 @@ int pretime_init()
 #if	CF_DEBUGN
 	nprintf(NDF,"pretime_init: ret rs=%d off=%ld\n",rs,op->off) ;
 #endif
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (pretime_init) */
 
@@ -315,8 +317,9 @@ static int pretime_loadsyms(PRETIME *op)
 	            op->func_ftime = (int (*)(struct timeb *)) sp ;
 		    break ;
 	        } /* end switch */
-	    } else
+	    } else {
 		rs = SR_LIBACC ;
+	    }
 	} /* end for */
 	return rs ;
 }

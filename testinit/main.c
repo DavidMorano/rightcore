@@ -1,4 +1,4 @@
-/* main */
+/* main (testinit) */
 /* lang=C99 */
 
 
@@ -24,6 +24,11 @@
 	compilers). But the GNU compiler (GCC) does have some similar
 	mechanism, I just forgot what it is!
 
+	Findings:
+
+        The GCC pragma works for an absolute executable but not for shared
+        object libraries.
+
 
 *******************************************************************************/
 
@@ -45,6 +50,11 @@
 /* name-spaces */
 
 
+/* external subroutines */
+
+extern int	libtest_other() ;
+
+
 /* local structures (and methods) */
 
 
@@ -58,10 +68,13 @@ void maininit()
 	printf("main-init!\n") ;
 }
 
+/* ARGSUSED */
 int main(int argc,const char **argv,const char **envv)
 {
+	int		ex ;
 	printf("hello world!\n") ;
-	return 0 ;
+	ex = libtest_other() ;
+	return ex ;
 }
 /* end subroutine (main) */
 

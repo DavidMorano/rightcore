@@ -33,6 +33,16 @@
 
 	$ progcheck [<file(s)> ...] [<opt(s)>]
 
+	Notes:
+
+        This program is quite inefficient. It calls LANGSTATE four times for
+        each character of input. A proper implementation would call if just once
+        for each character of input! How did this happen? It happened because we
+        built the program in incremental stages and what should have happened
+        was that a rewrite, refactor, whatever should have reorganized the
+        program to call LANGSTATE only once for each input character. Whatever,
+        the program works right now.
+
 
 *******************************************************************************/
 
@@ -181,6 +191,7 @@ static int	procfile(PROGINFO *,void *,cchar *) ;
 static int	procline(PROGINFO *,LANGSTATE *,FUNCOUNT *,int,cchar *,int) ;
 static int	procout(PROGINFO *,void *,cchar *,FUNCOUNT *) ;
 static int	procouthist(PROGINFO *,void *,HIST *) ;
+static int	procoutlang(PROGINFO *,void *,LANGSTATE *) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
@@ -214,6 +225,7 @@ static cchar	*argopts[] = {
 	"if",
 	"to",
 	"tr",
+	"c",
 	NULL
 } ;
 
@@ -229,6 +241,7 @@ enum argopts {
 	argopt_if,
 	argopt_to,
 	argopt_tr,
+	argopt_c,
 	argopt_overlast
 } ;
 
@@ -297,6 +310,14 @@ static cchar	*chartypes[] = {
 	"unspec",
 	"open",
 	"close",
+	NULL
+} ;
+
+static cchar	*langstatetypes[] = {
+	"clear",
+	"comment",
+	"quote",
+	"literal",
 	NULL
 } ;
 
@@ -615,6 +636,20 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                                ofname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+/* specify counts */
+	                case argopt_c:
+	                    lip->f.counts = TRUE ;
+	                    lip->final.counts = TRUE ;
+	                    lip->have.counts = TRUE ;
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl) {
+	                            rs = optbool(avp,avl) ;
+	                            lip->f.counts = (rs > 0) ;
+	                        }
 	                    }
 	                    break ;
 
@@ -1225,7 +1260,9 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
     
 	            if (rs >= 0) {
 		        if ((rs = procout(pip,ofp,fn,counts)) >= 0) {
-		            rs = procouthist(pip,ofp,&h) ;
+		            if ((rs = procouthist(pip,ofp,&h)) >= 0) {
+				rs = procoutlang(pip,ofp,&ls) ;
+			    }
 		        }
 	            } /* end if (ok) */
 
@@ -1261,6 +1298,10 @@ static int procline(PROGINFO *pip,LANGSTATE *lsp,FUNCOUNT *counts,
 	if (pip == NULL) return SR_FAULT ;
 	for (j = 0 ; j < llen ; j += 1) {
 	    const int	ch = MKCHAR(lbuf[j]) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("progcheck/procline: ln=%u\n",ln) ;
+#endif
 	    if ((rs = langstate_proc(lsp,ln,ch)) > 0) {
 	        int	k ;
 	        for (k = 0 ; k < ncca ; k += 1) {
@@ -1350,6 +1391,28 @@ static int procouthist(PROGINFO *pip,void *ofp,HIST *hlp)
 	return rs ;
 }
 /* end subroutine (procouthist) */
+
+
+static int procoutlang(PROGINFO *pip,void *ofp,LANGSTATE *lsp)
+{
+	LANGSTATE_STAT	stat ;
+	int		rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("progcheck/procoutlang: ent\n") ;
+#endif
+	if ((rs = langstate_stat(lsp,&stat)) > 0) {
+		cchar	*cp = langstatetypes[stat.type] ;
+		cchar	*fmt = "unbalanced »%s« at line=%u\n" ;
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("progcheck/procoutlang: type=%u\n",stat.type) ;
+#endif
+		rs = shio_printf(ofp,fmt,cp,stat.line) ;
+	}
+	return rs ;
+}
+/* end subroutine (procoutlang) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)

@@ -394,7 +394,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"audit",
 	"linelen",
 	"indent",
@@ -800,7 +800,7 @@ int		to ;
 	                            if (argl) {
 	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1191,7 +1191,7 @@ static int procopts(SUBINFO *sip,KEYOPT *kop)
 
 
 static int process(SUBINFO *sip,ARGINFO *aip,BITS *bop,cchar *afn,
-		int aval,int f_apm)
+int aval,int f_apm)
 {
 	FILEBUF		b ;
 	const int	fd = sip->wfd ;
@@ -1237,7 +1237,7 @@ static int process(SUBINFO *sip,ARGINFO *aip,BITS *bop,cchar *afn,
 
 
 static int procsome(SUBINFO *sip,ARGINFO *aip,BITS *bop,cchar *afn,
-		int aval,int f_apm)
+int aval,int f_apm)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1258,7 +1258,7 @@ static int procsome(SUBINFO *sip,ARGINFO *aip,BITS *bop,cchar *afn,
 	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 #if	CF_DEBUGS
-	    debugprintf("opensvc_votd/process: pos-arg\n") ;
+	        debugprintf("opensvc_votd/process: pos-arg\n") ;
 #endif
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
@@ -1446,8 +1446,9 @@ static int procspec(SUBINFO *sip,cchar sp[],int sl)
 	                rs = cfdecui(sp,sl,&uv) ;
 	                mjd = (int) uv ;
 	            }
-	        } else
+	        } else {
 	            rs = SR_INVALID ;
+	        }
 
 	        if ((rs >= 0) && (mjd >= 0)) {
 	            rs = procmjds(sip,mjd,TRUE,ndays) ;
@@ -1493,7 +1494,7 @@ static int procallcache(SUBINFO *sip)
 	        while ((vl = votdc_vcurenum(vcp,&vc,&vcite,vbuf,vlen)) > 0) {
 #if	CF_DEBUGS
 	            debugprintf("opensvc_votd/procallcache: "
-			"votdc_vcurenum() rs=%d\n", rs) ;
+	                "votdc_vcurenum() rs=%d\n", rs) ;
 #endif
 	            rs = procallcacheout(sip,vcp,&vcite,vbuf,vl) ;
 	            wlen += rs ;
@@ -1507,7 +1508,7 @@ static int procallcache(SUBINFO *sip)
 	    } /* end if (votdc-cur) */
 #if	CF_DEBUGS
 	    debugprintf("opensvc_votd/procallcache: votdc_vcur-out rs=%d\n",
-		rs) ;
+	        rs) ;
 #endif
 	    sip->open.vcache = FALSE ;
 	    rs1 = votdc_close(&sip->vcache) ;
@@ -1523,7 +1524,7 @@ static int procallcache(SUBINFO *sip)
 
 
 static int procallcacheout(SUBINFO *sip,VOTDC *vcp,VOTDC_CITE *citep,
-			char *vbuf,int vl)
+char *vbuf,int vl)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -1626,7 +1627,7 @@ static int procall(SUBINFO *sip)
 	            {
 	                debugprintf("opensvc_votd/procall: bvl=%d\n",bvl) ;
 	                debugprintf("opensvc_votd/procall: q=%u:%u:%u\n",
-			    q.b,q.c,q.v) ;
+	                    q.b,q.c,q.v) ;
 	            }
 #endif
 
@@ -1635,7 +1636,7 @@ static int procall(SUBINFO *sip)
 	                wlen += rs ;
 	            }
 
-		    if ((sip->nitems > 0) && (++c >= sip->nitems)) break ;
+	            if ((sip->nitems > 0) && (++c >= sip->nitems)) break ;
 	        } /* end while */
 
 	        rs1 = bibleverse_curend(vdbp,&cur) ;
@@ -1675,7 +1676,7 @@ static int procmulti(SUBINFO *sip,BIBLEVERSE_Q *qp,int f_cite,int ndays)
 	size = (ndays * sizeof(VRBUF)) ;
 	if ((rs = uc_malloc(size,&vrp)) >= 0) {
 	    if ((rs = procload(sip,vrp,ndays,qp)) > 0) {
-		const int	nv = rs ;
+	        const int	nv = rs ;
 	        int		i ;
 
 	        sip->ncites += nv ;
@@ -1683,7 +1684,7 @@ static int procmulti(SUBINFO *sip,BIBLEVERSE_Q *qp,int f_cite,int ndays)
 	        if (f_cite) {
 	            rs = procoutcite(sip,qp,nv) ;
 	            wlen += rs ;
-		}
+	        }
 
 	        if (rs >= 0) {
 	            rs = procoutverse(sip,qp,vrp->vbuf,vrp->vl) ;
@@ -1692,8 +1693,8 @@ static int procmulti(SUBINFO *sip,BIBLEVERSE_Q *qp,int f_cite,int ndays)
 	        }
 
 	        for (i = 1 ; (rs >= 0) && (i < nv) ; i += 1) {
-		    const int	vl = vrp[i].vl ;
-		    char	*vbuf = vrp[i].vbuf ;
+	            const int	vl = vrp[i].vl ;
+	            char	*vbuf = vrp[i].vbuf ;
 	            rs = procoutverse(sip,qp,vbuf,vl) ;
 	            wlen += rs ;
 	            qp->v += 1 ;
@@ -1836,7 +1837,7 @@ static int procvcache(SUBINFO *sip,int mjd,int ndays)
 	        wlen = rs ;
 #if	CF_DEBUGS
 	        debugprintf("opensvc_votd/procvcache: procvcacher() rs=%d\n",
-			rs) ;
+	            rs) ;
 #endif
 	        if ((rs = procvoutcite(sip,&vci,ndays)) >= 0) {
 #if	CF_DEBUGS
@@ -1950,7 +1951,7 @@ static int procvoutverse(SUBINFO *sip,VCINFO *vcip)
 	int		rs = SR_OK ;
 	int		vlen = vcip->vlen ;
 	int		wlen = 0 ;
-	cchar	*vbuf = vcip->vbuf ;
+	cchar		*vbuf = vcip->vbuf ;
 
 	rs = procoutverse(sip,qp,vbuf,vlen) ;
 	wlen += rs ;
@@ -2063,7 +2064,7 @@ static int procoutverse(SUBINFO *sip,BIBLEVERSE_Q *qp,cchar vp[],int vl)
 	        if (f_p) {
 	            if ((rs = wordfill_addword(&w,"¶",1)) >= 0) {
 	                rs = wordfill_addlines(&w,vp,vl) ;
-		    }
+	            }
 	        }
 
 	        while (rs >= 0) {
@@ -2086,7 +2087,7 @@ static int procoutverse(SUBINFO *sip,BIBLEVERSE_Q *qp,cchar vp[],int vl)
 	                line += 1 ;
 	            } else if (cl != SR_NOTFOUND) {
 	                rs = cl ;
-		    }
+	            }
 	        } /* end if (partial lines) */
 
 	        rs1 = wordfill_finish(&w) ;
@@ -2484,13 +2485,14 @@ static int subinfo_bvsbuild(SUBINFO *sip)
 	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
-	    debugprintf("b_bibleverse/subinfo_bvsbuild: ent\n") ;
+	debugprintf("b_bibleverse/subinfo_bvsbuild: ent\n") ;
 #endif
 
 	if (sip->open.vdb) {
 	    rs = subinfo_bvsbuilder(sip) ;
-	} else 
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 	return rs ;
 }
@@ -2508,68 +2510,70 @@ static int subinfo_bvsbuilder(SUBINFO *sip)
 	const char	*sdbname = sip->sdbname ;
 
 #if	CF_DEBUGS
-	    debugprintf("b_bibleverse/subinfo_bvsbuilder: ent\n") ;
+	debugprintf("b_bibleverse/subinfo_bvsbuilder: ent\n") ;
 #endif
 
 	if ((rs = bvsmk_open(bmp,pr,sdbname,of,om)) >= 0) {
 	    sip->open.bvsmk = TRUE ;
 	    if (rs == 0) {
-	    BIBLEVERSE		*vdbp = &sip->vdb ;
-	    BIBLEVERSE_INFO	binfo ;
-	    if ((rs = bibleverse_info(vdbp,&binfo)) >= 0) {
-	        const int	maxbook = binfo.maxbook ;
-	        const int	maxchapter = binfo.maxchapter ;
-	        int		bal ;
-	        int		size ;
-		uchar		*bap = NULL ;
-	        bal = (maxchapter + 1) ;
-	        size = (bal * sizeof(uchar)) ;
-	        if ((rs = uc_malloc(size,&bap)) >= 0) {
-		    int		b ;
-		    int		nc ;
+	        BIBLEVERSE	*vdbp = &sip->vdb ;
+	        BIBLEVERSE_INFO	binfo ;
+	        if ((rs = bibleverse_info(vdbp,&binfo)) >= 0) {
+	            const int	maxbook = binfo.maxbook ;
+	            const int	maxchapter = binfo.maxchapter ;
+	            int		bal ;
+	            int		size ;
+	            uchar		*bap = NULL ;
+	            bal = (maxchapter + 1) ;
+	            size = (bal * sizeof(uchar)) ;
+	            if ((rs = uc_malloc(size,&bap)) >= 0) {
+	                int		b ;
+	                int		nc ;
 
-	            for (b = 0 ; (rs >= 0) && (b <= maxbook) ; b += 1) {
+	                for (b = 0 ; (rs >= 0) && (b <= maxbook) ; b += 1) {
 
 #if	CF_DEBUGS
-	                    debugprintf("b_bibleverse/subinfo_bvsbuild: b=%u\n",
-	                        b) ;
+	                    debugprintf("b_bibleverse/subinfo_bvsbuild: "
+	                        "b=%u\n", b) ;
 #endif
 
-	                rs1 = bibleverse_chapters(vdbp,b,bap,bal) ;
-	                nc = rs1 ;
+	                    rs1 = bibleverse_chapters(vdbp,b,bap,bal) ;
+	                    nc = rs1 ;
 
 #if	CF_DEBUGS
 	                    debugprintf("b_bibleverse/subinfo_bvsbuild: "
 	                        "bibleverses_chapters() rs=%d\n",rs1) ;
 #endif
 
-	                if (rs1 == SR_NOTFOUND) {
-	                    nc = 0 ;
-	                } else
-	                    rs = rs1 ;
+	                    if (rs1 == SR_NOTFOUND) {
+	                        nc = 0 ;
+	                    } else {
+	                        rs = rs1 ;
+			    }
 
-	                if (rs >= 0)
-	                    rs = bvsmk_add(bmp,b,bap,nc) ;
+	                    if (rs >= 0) {
+	                        rs = bvsmk_add(bmp,b,bap,nc) ;
+			    }
 
 #if	CF_DEBUGS
 	                    debugprintf("b_bibleverse/subinfo_bvsbuild: "
 	                        "bvsmk_add() rs=%d\n",rs) ;
 #endif
 
-	            } /* end for (looping through the books) */
+	                } /* end for (looping through the books) */
 
-	            uc_free(bap) ;
-	            bap = NULL ;
-	        } /* end if (temporary memory allocation) */
-	    } /* end if (bibleverse_info) */
-	} /* end if (majing) */
-	sip->open.bvsmk = FALSE ;
-	rs1 = bvsmk_close(bmp) ;
-	if (rs >= 0) rs = rs1 ;
+	                uc_free(bap) ;
+	                bap = NULL ;
+	            } /* end if (temporary memory allocation) */
+	        } /* end if (bibleverse_info) */
+	    } /* end if (majing) */
+	    sip->open.bvsmk = FALSE ;
+	    rs1 = bvsmk_close(bmp) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (bvsmk) */
 
 #if	CF_DEBUGS
-	    debugprintf("b_bibleverse/subinfo_bvsbuild: ret rs=%d\n",rs) ;
+	debugprintf("b_bibleverse/subinfo_bvsbuild: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -2649,8 +2653,9 @@ static int subinfo_ispara(SUBINFO *sip,BIBLEVERSE_Q *qp)
 	if (! sip->open.pdb) {
 	    if ((rs = biblepara_open(&sip->pdb,sip->pr,sip->pdbname)) >= 0) {
 	        sip->open.pdb = TRUE ;
-	    } else if (isNotPresent(rs))
+	    } else if (isNotPresent(rs)) {
 	        rs = SR_OK ;
+	    }
 	}
 
 	if ((rs >= 0) && sip->open.pdb) {
@@ -2822,12 +2827,12 @@ static int subinfo_text(SUBINFO *sip)
 	    cchar	*pr = sip->pr ;
 	    cchar	*vdb = sip->vdbname ;
 #if	CF_DEBUGS
-	debugprintf("subinfo_text: pr=%s\n",pr) ;
-	debugprintf("subinfo_text: vdb=%s\n",vdb) ;
+	    debugprintf("subinfo_text: pr=%s\n",pr) ;
+	    debugprintf("subinfo_text: vdb=%s\n",vdb) ;
 #endif
 	    if ((rs = bibleverse_open(&sip->vdb,pr,vdb)) >= 0) {
 	        sip->open.vdb = TRUE ;
-		rs = 1 ;
+	        rs = 1 ;
 	    }
 	}
 #if	CF_DEBUGS

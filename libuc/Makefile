@@ -68,8 +68,10 @@ CCFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 LDRPATH= $(EXTRA)/lib
 
-SLDFLAGS= $(LF_LDFLAGS) $(LDA) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH) -m
+RLDFLAGS= $(LF_LDFLAGS)
 
+
+SLDFLAGS= $(LF_LDFLAGS) -m $(LDA) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 
 SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
@@ -453,7 +455,6 @@ $(TT).a:		$(TOBJ)
 	$(AR) -rc $@ $?
 
 $(T).so:		$(SOBJ) Makefile $(T).a
-	echo LDA=$(LDA)
 	$(LD) -G -o $@ $(SLDFLAGS) $(SOBJ) $(SLIBINFO) > $(T).lm
 
 $(T).a:			$(OBJ)
@@ -529,64 +530,64 @@ control:
 
 
 obja.o:			$(OBJA)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJA)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJA)
 
 objb.o:			$(OBJB)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJB)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJB)
 
 objc.o:			$(OBJC)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJC)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJC)
 
 objd.o:			$(OBJD)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJD)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJD)
 
 obje.o:			$(OBJE)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJE)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJE)
 
 objf.o:			$(OBJF)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJF)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJF)
 
 objg.o:			$(OBJG)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJG)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJG)
 
 objh.o:			$(OBJH)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJH)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJH)
 
 obji.o:			$(OBJI)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJI)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJI)
 
 objj.o:			$(OBJJ)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJJ)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJJ)
 
 objk.o:			$(OBJK)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJK)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJK)
 
 objl.o:			$(OBJL)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJL)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJL)
 
 objm.o:			$(OBJM)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJM)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJM)
 
 objn.o:			$(OBJN)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJN)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJN)
 
 objo.o:			$(OBJO)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJO)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJO)
 
 objp.o:			$(OBJP)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJP)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJP)
 
 objq.o:			$(OBJQ)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJQ)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJQ)
 
 objr.o:			$(OBJR)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJR)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJR)
 
 objs.o:			$(OBJS)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJS)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJS)
 
 objt.o:			$(OBJT)
-	$(LD) -r -o $@ $(SLDFLAGS) $(OBJT)
+	$(LD) -r -o $@ $(RLDFLAGS) $(OBJT)
 
 
 uc_safesleep.o:		uc_safesleep.c

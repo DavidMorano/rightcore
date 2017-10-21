@@ -1,2 +1,2 @@
 const char progcheck_makedate[] =
-"@(#)progcheck               171019_0802:54_USEDT Rightcore Network Services" ;
+"@(#)progcheck               171020_2118:16_USEDT Rightcore Network Services" ;

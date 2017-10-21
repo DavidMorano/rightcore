@@ -254,10 +254,12 @@ int uc_libfree(const void *vp)
 	    if ((v & 3) == 0) {
 	        void	*fvp = (void *) vp ;
 	        free(fvp) ;
-	    } else
+	    } else {
 		rs = SR_BADFMT ;
-	} else
+	    }
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 #if	CF_DEBUGN
 	nprintf(NDEBFNAME,"uc_libfree: ret a=%p rs=%d\n",vp,rs) ;

@@ -1,2 +1,2 @@
 const char hostaddrinfo_makedate[] =
-"@(#)hostaddrinfo            170923_0050:21_USEDT Rightcore Network Services" ;
+"@(#)hostaddrinfo            171019_2042:31_USEDT Rightcore Network Services" ;
