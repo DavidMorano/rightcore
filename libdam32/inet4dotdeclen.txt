@@ -1,3 +1,0 @@
-#ifndef	INET4DOTDECLEN
-#define	INET4DOTDECLEN	18
-#endif
