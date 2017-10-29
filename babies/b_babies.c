@@ -631,8 +631,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1138,13 +1137,10 @@ static int locinfo_lookinfo(LOCINFO *lip,BABYCALC_INFO *bip)
 
 static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 {
-	PROGINFO	*pip ;
+	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
 
-	if (lip == NULL) return SR_FAULT ;
 	if (np == NULL) return SR_FAULT ;
-
-	pip = lip->pip ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1153,7 +1149,6 @@ static int locinfo_lookup(LOCINFO *lip,cchar *np,int nl,uint *rp)
 
 	if (nl < 0) nl = strlen(np) ;
 
-	pip = lip->pip ;
 	if (! lip->f.babycalc) {
 	    rs = locinfo_dbopen(lip) ;
 	}

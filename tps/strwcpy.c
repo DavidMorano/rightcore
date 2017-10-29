@@ -52,13 +52,11 @@
 
 char *strwcpy(char *dp,cchar *sp,int sl)
 {
-
 	if (sl >= 0) {
 	    while (sl-- && *sp) *dp++ = *sp++ ;
 	} else {
 	    while (*sp) *dp++ = *sp++ ;
 	} /* end if */
-
 	*dp = '\0' ;
 	return dp ;
 }

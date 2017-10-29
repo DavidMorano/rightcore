@@ -174,7 +174,7 @@ OBJ06=
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
-OBJ10= tmz.o
+OBJ10= tmz.o tmtime.o
 OBJ11= modload.o dirseen.o
 OBJ12= babycalc.o cvtdater.o
 OBJ13= 
@@ -364,13 +364,17 @@ babycalcs.o:		babycalcs.c babycalcs.h
 babiesfu.o:		babiesfu.c babiesfu.h cvtdater.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-cvtdater.o:		cvtdater.c cvtdater.h tmz.h
-	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
-
 filebuf.o:		filebuf.c filebuf.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
+cvtdater.o:		cvtdater.c cvtdater.h tmz.h dayspec.h
+	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+
+tmtime.o:		tmtime.c tmtime.h
+
 tmz.o:			tmz.c tmz.h
+
+dayspec.o:		dayspec.c dayspec.h
 
 ptm.o:			ptm.c ptm.h
 

@@ -126,12 +126,15 @@ extern char	**environ ;		/* definition required by AT&T AST */
 /* local structures */
 
 struct locinfo_flags {
+	uint		stores:1 ;
 	uint		empty:1 ;
 	uint		onlyfirst:1 ;
 } ;
 
 struct locinfo {
 	LOCINFO_FL	f ;
+	vecstr		stores ;
+	PROGINFO	*pip ;
 } ;
 
 struct searchinfo {
@@ -150,10 +153,17 @@ static int	procargs(PROGINFO *,ARGINFO *,BITS *,
 			SEARCHINFO *,cchar *,cchar *,cchar *) ;
 static int	procfile(PROGINFO *,SEARCHINFO *,void *,cchar *) ;
 
+static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+
+#if	CF_LOCSETENT
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+#endif
+
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -314,8 +324,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	pip->verboselevel = 1 ;
 
-	pip->lip = &li ;
-	memset(&li,0,sizeof(LOCINFO)) ;
+	pip->lip = lip ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto badlocstart ;
+	}
 
 /* start parsing the arguments */
 
@@ -822,6 +836,9 @@ retearly:
 	bits_finish(&pargs) ;
 
 badpargs:
+	locinfo_finish(lip) ;
+
+badlocstart:
 	proginfo_finish(pip) ;
 
 badprogstart:
@@ -1083,4 +1100,68 @@ static int procfile(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar fname[])
 }
 /* end subroutine (procfile) */
 
+
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+	cchar		*varterm = VARTERM ;
+
+	if (lip == NULL) return SR_FAULT ;
+
+	memset(lip,0,sizeof(LOCINFO)) ;
+	lip->pip = pip ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_start) */
+
+
+static int locinfo_finish(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (lip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_finish) */
+
+
+#if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+{
+	VECSTR		*slp ;
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	slp = &lip->stores ;
+	if (! lip->open.stores) {
+	    rs = vecstr_start(slp,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
+	}
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
+	    if (vp != NULL) {
+	        len = strnlen(vp,vl) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (locinfo_setentry) */
+#endif /* CF_LOCSETENT */
 

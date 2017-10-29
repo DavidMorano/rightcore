@@ -110,7 +110,7 @@
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 
-#define	DEBUGFNAME	"/tmp/l.deb"
+#define	NDF		"/tmp/l.deb"
 
 
 /* external subroutines */
@@ -194,7 +194,7 @@ static int	hasdots(cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -240,7 +240,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"dummy",
 	NULL
 } ;
@@ -608,7 +608,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
 	                            }
 	                        } else
@@ -752,13 +752,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* argument options */
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: reverse=%u\n",
-	        pip->progname,lip->f.reverse) ;
-	    shio_printf(pip->efp,"%s: timeorder=%u\n",
-	        pip->progname,lip->f.timeorder) ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: reverse=%u\n",pn,lip->f.reverse) ;
+	    shio_printf(pip->efp,"%s: timeorder=%u\n",pn,lip->f.timeorder) ;
 	}
-
-	if (rs < 0) goto badarg ;
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
 	ainfo.argc = argc ;
@@ -897,14 +894,14 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                switch (oi) {
 	                case akoname_dummy:
 	                    break ;
-			default:
-			    if (vl > 0) rs = vl ;
-			    break ;
+	                default:
+	                    if (vl > 0) rs = vl ;
+	                    break ;
 	                } /* end switch */
 
 	                c += 1 ;
 	            } else
-			rs = SR_INVALID ;
+	                rs = SR_INVALID ;
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -931,127 +928,125 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    ofn = STDOUTFNAME ;
 
 	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
-	        vecstr	dlist ;
-	        int	pan = 0 ;
+	    vecstr	dlist ;
+	    int		pan = 0 ;
 
-	        if ((rs = vecstr_start(&dlist,10,0)) >= 0) {
-	            LOCINFO	*lip = pip->lip ;
-	            const int	nrs = SR_NOTFOUND ;
-	            int		cl ;
-	            cchar	*cp ;
+	    if ((rs = vecstr_start(&dlist,10,0)) >= 0) {
+	        LOCINFO		*lip = pip->lip ;
+	        const int	nrs = SR_NOTFOUND ;
+	        int		cl ;
+	        cchar		*cp ;
 
-		    if (rs >= 0) {
-			const int	ai_pos = aip->ai_pos ;
-			const int	ai_max = aip->ai_max ;
-	                int		ai ;
-	                int		f ;
-	                cchar		**argv = aip->argv ;
-	                for (ai = 1 ; ai < aip->argc ; ai += 1) {
+	        if (rs >= 0) {
+	            const int	ai_pos = aip->ai_pos ;
+	            const int	ai_max = aip->ai_max ;
+	            int		ai ;
+	            int		f ;
+	            cchar	**argv = aip->argv ;
+	            for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
-	                    f = (ai <= ai_max) && (bits_test(bop,ai) > 0) ;
-	                    f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	                    if (f) {
-	                        cp = argv[ai] ;
-	                        if (cp[0] != '\0') {
-	                            if ((rs = vecstr_find(&dlist,cp)) == nrs) {
-	                                pan += 1 ;
-	                                rs = vecstr_add(&dlist,cp,-1) ;
-	                            }
+	                f = (ai <= ai_max) && (bits_test(bop,ai) > 0) ;
+	                f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
+	                if (f) {
+	                    cp = argv[ai] ;
+	                    if (cp[0] != '\0') {
+	                        if ((rs = vecstr_find(&dlist,cp)) == nrs) {
+	                            pan += 1 ;
+	                            rs = vecstr_add(&dlist,cp,-1) ;
 	                        }
-	                    } /* end if */
+	                    }
+	                } /* end if */
+
+	                if (rs >= 0) rs = lib_sigterm() ;
+	                if (rs >= 0) rs = lib_sigintr() ;
+	                if (rs < 0) break ;
+	            } /* end for */
+	        } /* end if (ok) */
+
+	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	            SHIO	afile, *afp = &afile ;
+
+	            if (afn[0] == '-')
+	                afn = STDINFNAME ;
+
+	            if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
+	                const int	llen = LINEBUFLEN ;
+	                int		len ;
+	                char		lbuf[LINEBUFLEN + 1] ;
+
+	                while (rs >= 0) {
+	                    rs = shio_readline(afp,lbuf,llen) ;
+	                    len = rs ;
+	                    if (rs <= 0) break ;
+
+	                    if (lbuf[len - 1] == '\n') len -= 1 ;
+	                    lbuf[len] = '\0' ;
+
+	                    cp = lbuf ;
+	                    cl = len ;
+	                    if (cl > 0) {
+	                        if ((rs = vecstr_find(&dlist,cp)) == nrs) {
+	                            pan += 1 ;
+	                            rs = vecstr_add(&dlist,cp,cl) ;
+	                        }
+	                    }
 
 	                    if (rs >= 0) rs = lib_sigterm() ;
 	                    if (rs >= 0) rs = lib_sigintr() ;
-	                    if (rs < 0) break ;
-	                } /* end for */
-		    } /* end if (ok) */
+	                } /* end while */
 
-	            if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	                SHIO	afile, *afp = &afile ;
+	                rs1 = shio_close(afp) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } else {
+	                fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
+	                shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	            } /* end if (opened argument file) */
 
-	                if (afn[0] == '-')
-	                    afn = STDINFNAME ;
+	        } /* end if (argument file was specified) */
 
-	                if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
-	                    const int	llen = LINEBUFLEN ;
-	                    int		len ;
-	                    char	lbuf[LINEBUFLEN + 1] ;
+	        if ((rs >= 0) && (pan == 0)) {
 
-	                    while (rs >= 0) {
-	                        rs = shio_readline(afp,lbuf,llen) ;
-	                        len = rs ;
-	                        if (rs <= 0) break ;
+	            pan += 1 ;
+	            rs = procdir(pip,ofp,&dlist) ;
+	            c += rs ;
 
-	                        if (lbuf[len - 1] == '\n') len -= 1 ;
-	                        lbuf[len] = '\0' ;
-
-	                        cp = lbuf ;
-	                        cl = len ;
-	                        if (cl > 0) {
-	                            if ((rs = vecstr_find(&dlist,cp)) == nrs) {
-	                                pan += 1 ;
-	                                rs = vecstr_add(&dlist,cp,cl) ;
-	                            }
-	                        }
-
-	                        if (rs >= 0) rs = lib_sigterm() ;
-	                        if (rs >= 0) rs = lib_sigintr() ;
-	                    } /* end while */
-
-	                    rs1 = shio_close(afp) ;
-			    if (rs >= 0) rs = rs1 ;
-	                } else {
-			    fmt = "%s: inaccessible argument-list (%d)\n" ;
-	                    shio_printf(pip->efp,fmt,pn,rs) ;
-	                    shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
-	                } /* end if (opened argument file) */
-
-	            } /* end if (argument file was specified) */
-
-	            if ((rs >= 0) && (pan == 0)) {
-
-	                pan += 1 ;
-	                rs = procdir(pip,ofp,&dlist) ;
-	                c += rs ;
-
-	            } /* end if (getting names) */
+	        } /* end if (getting names) */
 
 /* sort the names given */
 
-	            if (rs >= 0) {
+	        if (rs >= 0) {
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(3))
-	                    debugprintf("b_l: reverse=%u\n",lip->f.reverse) ;
+	            if (DEBUGLEVEL(3))
+	                debugprintf("b_l: reverse=%u\n",lip->f.reverse) ;
 #endif
 
-	                if (pip->debuglevel > 0) {
-	                    shio_printf(pip->efp,
-	                        "%s: reverse=%u\n",
-	                        pip->progname,lip->f.reverse) ;
-	                }
+	            if (pip->debuglevel > 0) {
+	                shio_printf(pip->efp,
+	                    "%s: reverse=%u\n",
+	                    pip->progname,lip->f.reverse) ;
+	            }
 
-	                if (lip->f.reverse) {
-	                    rs = vecstr_sort(&dlist,vstrcmpr) ;
-	                } else {
-	                    rs = vecstr_sort(&dlist,NULL) ;
-			}
+	            if (lip->f.reverse) {
+	                rs = vecstr_sort(&dlist,vstrcmpr) ;
+	            } else {
+	                rs = vecstr_sort(&dlist,NULL) ;
+	            }
 
-	            } /* end if (sorting) */
+	        } /* end if (sorting) */
 
 /* print the list out */
 
-	            if (rs >= 0) {
-
-	                rs = procprint(pip,ofp,&dlist) ;
-
-	            } /* end if (printing out) */
+	        if (rs >= 0) {
+	            rs = procprint(pip,ofp,&dlist) ;
+	        } /* end if (printing out) */
 
 /* finish up => get out */
 
-	            rs1 = vecstr_finish(&dlist) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } /* end if (initialized list) */
+	        rs1 = vecstr_finish(&dlist) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (initialized list) */
 
 	    rs1 = shio_close(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -1131,7 +1126,7 @@ static int procprint(PROGINFO *pip,void *ofp,VECSTR *dlp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("b_l: printing\n") ;
+	    debugprintf("b_l/procprint: ent\n") ;
 #endif
 
 	for (i = 0 ; vecstr_get(dlp,i,&fnp) >= 0 ; i += 1) {
@@ -1202,8 +1197,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -1218,8 +1212,7 @@ static int locinfo_finish(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	if (lip->open.stores) {
 	    lip->open.stores = FALSE ;
@@ -1251,7 +1244,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(slp,*epp) ;
+	        oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
@@ -1286,8 +1279,8 @@ static int filesuf(cchar fname[],int fl)
 	    si = suffix_nonpath ;
 
 	} else {
-	    struct ustat	sb ;
-	    char		tmpfname[MAXPATHLEN+1] ;
+	    USTAT	sb ;
+	    char	tmpfname[MAXPATHLEN+1] ;
 
 	    if ((rs = mkvarpath(tmpfname,fname,fl)) > 0) {
 	        fname = tmpfname ;
@@ -1326,8 +1319,8 @@ static int filesuf(cchar fname[],int fl)
 	                si = suffix_name ;
 	            } else {
 	                si = suffix_unk ;
-		    }
-		} /* end if (u_stat) */
+	            }
+	        } /* end if (u_stat) */
 	    } /* end if (ok) */
 
 	} /* end if (type of path) */

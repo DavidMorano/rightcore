@@ -11,18 +11,19 @@
 /* revision history:
 
 	= 1995-11-01, David A­D­ Morano
-
 	This program was originally written.
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
-/* Copyright © 1995 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine is used to get a canonical INET hostname for a
-	supplied name.  Note carefully that the returned hostname, if
+        This subroutine is used to get a canonical INET hostname for a supplied
+        name. Note carefully that the returned hostname, if
 
 	Synopsis:
 

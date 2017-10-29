@@ -10,16 +10,17 @@
 /* revision history:
 
 	= 1994-01-17, David A­D­ Morano
-
 	I have made major modifications from a previous version of this
 	subroutine (which was total junk!).  The previous functions that are
 	now in this subroutine were scattered all over the place in the past.
 	The code was previously unmaintainable!
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
-/* Copyright © 1994,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

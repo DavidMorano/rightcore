@@ -9,14 +9,18 @@
 /* revision history:
 
 	= 1995-05-01, David A­D­ Morano
+        This code module was completely rewritten to replace any original
+        garbage that was here before, if any.
 
-	This code module was completely rewritten to replace any
-	original garbage that was here before, if any.
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
+	= 2017-10-24, David A­D­ Morano
+	Some small refactoring.
 
 */
 
-/* Copyright © 1995,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -49,10 +53,9 @@
 
 /* local defines */
 
-#define	ARTLIST_MAGIC		0x83465875
-#define	ARTLIST_CURMAGIC	0x83465876
-
+#ifndef	ARTLIST_NET
 #define	ARTLIST_NET	10
+#endif
 
 #ifndef	TIMEBUFLEN
 #define	TIMEBUFLEN	80
@@ -84,10 +87,9 @@ static int	cmpaf(), cmpar() ;
 static int	cmppf(), cmppr() ;
 static int	cmpcf(), cmpcr() ;
 
-static int	entry_start(ARTLIST_ENT *,DATER *,
-			const char *,const char *) ;
+static int	entry_start(ARTLIST_ENT *,DATER *,cchar *,cchar *) ;
 static int	entry_finish(ARTLIST_ENT *) ;
-static int	entry_load(ARTLIST_ENT *,DATER *,const char *) ;
+static int	entry_load(ARTLIST_ENT *,DATER *,cchar *) ;
 
 static int	timecmp(time_t *,time_t *) ;
 
@@ -98,13 +100,9 @@ static int	timecmp(time_t *,time_t *) ;
 /* exported subroutines */
 
 
-int artlist_start(alp,nowp,zname)
-ARTLIST		*alp ;
-struct timeb	*nowp ;
-const char	zname[] ;
+int artlist_start(ARTLIST *alp,struct timeb *nowp,cchar *zname)
 {
-	int	rs ;
-
+	int		rs ;
 
 	if (alp == NULL) return SR_FAULT ;
 	if (zname == NULL) return SR_FAULT ;
@@ -131,25 +129,23 @@ const char	zname[] ;
 
 
 /* free up this object */
-int artlist_finish(alp)
-ARTLIST		*alp ;
+int artlist_finish(ARTLIST *alp)
 {
 	ARTLIST_ENT	*ep ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
 
 	if (alp == NULL) return SR_FAULT ;
 	if (alp->magic != ARTLIST_MAGIC) return SR_NOTOPEN ;
 
 	for (i = 0 ; vechand_get(&alp->arts,i,&ep) >= 0 ; i += 1) {
-	    if (ep == NULL) continue ;
-	    rs1 = entry_finish(ep) ;
-	    if (rs >= 0) rs = rs1 ;
-	    rs1 = uc_free(ep) ;
-	    if (rs >= 0) rs = rs1 ;
+	    if (ep != NULL) {
+	        rs1 = entry_finish(ep) ;
+	        if (rs >= 0) rs = rs1 ;
+	        rs1 = uc_free(ep) ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
 	} /* end for */
 
 	rs1 = vechand_finish(&alp->arts) ;
@@ -165,16 +161,11 @@ ARTLIST		*alp ;
 
 
 /* add another entry to this object */
-int artlist_add(alp,ngdir,name)
-ARTLIST		*alp ;
-const char	ngdir[] ;
-const char	name[] ;
+int artlist_add(ARTLIST *alp,cchar *ngdir,cchar *name)
 {
 	ARTLIST_ENT	*aep ;
-
-	int	rs ;
-	int	size ;
-
+	int		rs ;
+	int		size ;
 
 	if (alp == NULL) return SR_FAULT ;
 	if (ngdir == NULL) return SR_FAULT ;
@@ -185,7 +176,7 @@ const char	name[] ;
 	if (name[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
-	debugprintf("artlist_add: entered name=%s\n",name) ;
+	debugprintf("artlist_add: ent name=%s\n",name) ;
 #endif
 
 	size = sizeof(ARTLIST_ENT) ;
@@ -205,21 +196,14 @@ const char	name[] ;
 
 
 /* sort the entries with given sorting mode and direction */
-int artlist_sort(alp,sortmode,f_reverse)
-ARTLIST		*alp ;
-int		sortmode ;
-int		f_reverse ;
+int artlist_sort(ARTLIST *alp,int sortmode,int f_reverse)
 {
-	int	rs ;
+	int		rs ;
+	int		(*cmpfunc)(const void *,const void *) ;
 
-	int	(*cmpfunc)(const void *,const void *) ;
+	if (alp == NULL) return SR_FAULT ;
 
-
-	if (alp == NULL)
-	    return SR_FAULT ;
-
-	if (alp->magic != ARTLIST_MAGIC)
-	    return SR_NOTOPEN ;
+	if (alp->magic != ARTLIST_MAGIC) return SR_NOTOPEN ;
 
 	switch (sortmode) {
 
@@ -254,26 +238,17 @@ int		f_reverse ;
 
 
 /* get the basic information from the given entry */
-int artlist_get(alp,i,ngdpp,npp,mp)
-ARTLIST		*alp ;
-int		i ;
-const char	**ngdpp ;
-const char	**npp ;
-time_t		*mp ;
+int artlist_get(ARTLIST *alp,int i,cchar **ngdpp,cchar **npp,time_t *mp)
 {
 	ARTLIST_ENT	*ep ;
+	int		rs ;
 
-	int	rs ;
+	if (alp == NULL) return SR_FAULT ;
 
-
-	if (alp == NULL)
-	    return SR_FAULT ;
-
-	if (alp->magic != ARTLIST_MAGIC)
-	    return SR_NOTOPEN ;
+	if (alp->magic != ARTLIST_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("artlist_get: entered, i=%d\n",i) ;
+	debugprintf("artlist_get: ent, i=%d\n",i) ;
 #endif
 
 	if (ngdpp != NULL)
@@ -320,22 +295,16 @@ time_t		*mp ;
 
 
 /* get the whole entry */
-int artlist_getentry(alp,i,epp)
-ARTLIST		*alp ;
-int		i ;
-ARTLIST_ENT	**epp ;
+int artlist_getentry(ARTLIST *alp,int i,ARTLIST_ENT **epp)
 {
-	int	rs ;
+	int		rs ;
 
+	if (alp == NULL) return SR_FAULT ;
 
-	if (alp == NULL)
-	    return SR_FAULT ;
-
-	if (alp->magic != ARTLIST_MAGIC)
-	    return SR_NOTOPEN ;
+	if (alp->magic != ARTLIST_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("artlist_getentry: entered, i=%d\n",i) ;
+	debugprintf("artlist_getentry: ent i=%d\n",i) ;
 #endif
 
 	if (epp == NULL)
@@ -356,16 +325,10 @@ ARTLIST_ENT	**epp ;
 
 
 /* initialize an article entry */
-static int entry_start(ep,dp,ngdir,name)
-ARTLIST_ENT	*ep ;
-DATER		*dp ;
-const char	ngdir[] ;
-const char	name[] ;
+static int entry_start(ARTLIST_ENT *ep,DATER *dp,cchar *ngdir,cchar *name)
 {
 	struct ustat	sb ;
-
-	int	rs ;
-
+	int		rs ;
 	const char	*cp ;
 
 	if (ep == NULL) return SR_FAULT ;
@@ -378,7 +341,7 @@ const char	name[] ;
 	memset(ep,0,sizeof(ARTLIST_ENT)) ;
 
 #if	CF_DEBUGS
-	debugprintf("artlist/entry_start: entered\n") ;
+	debugprintf("artlist/entry_start: ent\n") ;
 #endif
 
 	if ((rs = u_stat(name,&sb)) >= 0) {
@@ -404,12 +367,10 @@ const char	name[] ;
 /* end subroutine (entry_start) */
 
 
-static int entry_finish(ep)
-ARTLIST_ENT	*ep ;
+static int entry_finish(ARTLIST_ENT *ep)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (ep->name != NULL) {
 	    rs1 = uc_free(ep->name) ;
@@ -452,10 +413,7 @@ ARTLIST_ENT	*ep ;
 /* end subroutine (entry_finish) */
 
 
-static int entry_load(ep,dp,name)
-ARTLIST_ENT	*ep ;
-DATER		*dp ;
-const char	*name ;
+static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 {
 	bfile		afile ;
 	int		rs ;
@@ -614,7 +572,6 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
 
-
 #ifdef	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
 	    return 0 ;
@@ -645,7 +602,6 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 {
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
-
 
 #ifdef	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
@@ -678,9 +634,7 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 {
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
-
-	time_t	e1t, e2t ;
-
+	time_t		e1t, e2t ;
 
 #if	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
@@ -707,9 +661,7 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 {
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
-
-	time_t	e1t, e2t ;
-
+	time_t		e1t, e2t ;
 
 #if	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
@@ -736,9 +688,7 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 {
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
-
-	time_t	e1t, e2t ;
-
+	time_t		e1t, e2t ;
 
 #if	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
@@ -751,13 +701,17 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 	    return -1 ;
 #endif
 
-	if ((e1t = e1p->ptime) == 0)
-	    if ((e1t = e1p->atime) == 0)
+	if ((e1t = e1p->ptime) == 0) {
+	    if ((e1t = e1p->atime) == 0) {
 	        e1t = e1p->mtime ;
+	    }
+	}
 
-	if ((e2t = e2p->ptime) == 0)
-	    if ((e2t = e2p->atime) == 0)
+	if ((e2t = e2p->ptime) == 0) {
+	    if ((e2t = e2p->atime) == 0) {
 	        e2t = e2p->mtime ;
+	    }
+	}
 
 	return (e1t - e2t) ;
 }
@@ -770,9 +724,7 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 {
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
-
-	time_t	e1t, e2t ;
-
+	time_t		e1t, e2t ;
 
 #if	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
@@ -785,13 +737,16 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 	    return -1 ;
 #endif
 
-	if ((e1t = e1p->ptime) == 0)
-	    if ((e1t = e1p->atime) == 0)
+	if ((e1t = e1p->ptime) == 0) {
+	    if ((e1t = e1p->atime) == 0) {
 	        e1t = e1p->mtime ;
-
-	if ((e2t = e2p->ptime) == 0)
-	    if ((e2t = e2p->atime) == 0)
+	    }
+	}
+	if ((e2t = e2p->ptime) == 0) {
+	    if ((e2t = e2p->atime) == 0) {
 	        e2t = e2p->mtime ;
+	    }
+	}
 
 	return (e2t - e1t) ;
 }
@@ -799,14 +754,11 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 
 
 /* compare article compose times (forward) */
-static int cmpcf(e1pp,e2pp)
-ARTLIST_ENT	**e1pp, **e2pp ;
+static int cmpcf(ARTLIST_ENT **e1pp,ARTLIST_ENT **e2pp)
 {
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
-
-	time_t	e1t, e2t ;
-
+	time_t		e1t, e2t ;
 
 #if	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
@@ -819,15 +771,21 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 	    return -1 ;
 #endif
 
-	if ((e1t = e1p->ctime) == 0)
-	    if ((e1t = e1p->ptime) == 0)
-	        if ((e1t = e1p->atime) == 0)
+	if ((e1t = e1p->ctime) == 0) {
+	    if ((e1t = e1p->ptime) == 0) {
+	        if ((e1t = e1p->atime) == 0) {
 	            e1t = e1p->mtime ;
+		}
+	    }
+	}
 
-	if ((e2t = e2p->ctime) == 0)
-	    if ((e2t = e2p->ptime) == 0)
-	        if ((e2t = e2p->atime) == 0)
+	if ((e2t = e2p->ctime) == 0) {
+	    if ((e2t = e2p->ptime) == 0) {
+	        if ((e2t = e2p->atime) == 0) {
 	            e2t = e2p->mtime ;
+		}
+	    }
+	}
 
 	return (e1t - e2t) ;
 }
@@ -835,14 +793,11 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 
 
 /* compare article compose times (reverse) */
-static int cmpcr(e1pp,e2pp)
-ARTLIST_ENT	**e1pp, **e2pp ;
+static int cmpcr(ARTLIST_ENT **e1pp,ARTLIST_ENT **e2pp)
 {
 	ARTLIST_ENT	*e1p = (ARTLIST_ENT *) *e1pp ;
 	ARTLIST_ENT	*e2p = (ARTLIST_ENT *) *e2pp ;
-
-	time_t	e1t, e2t ;
-
+	time_t		e1t, e2t ;
 
 #if	OPTIONAL
 	if ((*e1pp == NULL) && (*e2pp == NULL))
@@ -855,15 +810,21 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 	    return -1 ;
 #endif
 
-	if ((e1t = e1p->ctime) == 0)
-	    if ((e1t = e1p->ptime) == 0)
-	        if ((e1t = e1p->atime) == 0)
+	if ((e1t = e1p->ctime) == 0) {
+	    if ((e1t = e1p->ptime) == 0) {
+	        if ((e1t = e1p->atime) == 0) {
 	            e1t = e1p->mtime ;
+		}
+	    }
+	}
 
-	if ((e2t = e2p->ctime) == 0)
-	    if ((e2t = e2p->ptime) == 0)
-	        if ((e2t = e2p->atime) == 0)
+	if ((e2t = e2p->ctime) == 0) {
+	    if ((e2t = e2p->ptime) == 0) {
+	        if ((e2t = e2p->atime) == 0) {
 	            e2t = e2p->mtime ;
+		}
+	    }
+	}
 
 	return (e2t - e1t) ;
 }
@@ -871,13 +832,11 @@ ARTLIST_ENT	**e1pp, **e2pp ;
 
 
 /* compare UNIX times */
-static int timecmp(t1p,t2p)
-time_t	*t1p, *t2p ;
+static int timecmp(time_t *t1p,time_t *t2p)
 {
 
 	return (*t1p - *t2p) ;
 }
 /* env subroutine (timecmp) */
-
 
 

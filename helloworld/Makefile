@@ -1,8 +1,8 @@
-# MAKEFILE
+# MAKEFILE (helloworld)
 
 T= helloworld
 
-ALL= $(T) 
+ALL= $(T)
 
 SRCROOT= $(LOCAL)
 
@@ -28,11 +28,11 @@ CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
-CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
+CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -56,12 +56,12 @@ CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
 
 DEF0=
-DEF1= 
+DEF1=
 DEF2=
 DEF3=
 DEF4=
 DEF5=
-DEF6= 
+DEF6=
 DEF7= $(LF_DEFS)
 
 DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
@@ -69,9 +69,9 @@ DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
 
 INCDIRS= -I$(INCDIR)
 
-CPPFLAGS= $(DEFS) $(INCDIRS) $(LF_CPPFLAGS)
+CPPFLAGS= $(DEFS) $(INCDIRS)
 
-CFLAGS= $(CCOPTS) $(LF_CFLAGS)
+CFLAGS= $(CCOPTS)
 
 #LD= $(CC)
 #LD= cc
@@ -81,16 +81,16 @@ LD= ld
 LDRPATH=
 
 # regular
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
-LDFLAGS_P= -L/usr/lib/libp # -R$(LIBDIR)
+LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -141,17 +141,17 @@ TSORT= tsort
 RM= rm -f
 
 
-INCS= b_$(T).h defs.h
+INCS= config.h defs.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
-OBJ01= b_$(T).o
-OBJ02= 
-OBJ03= 
+OBJ01= 
+OBJ02=
+OBJ03=
 OBJ04=
 OBJ05=
-OBJ06=
-OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
+OBJ06= 
+OBJ07= printhelp.o
 OBJ08=
 OBJ09=
 OBJ10=
@@ -173,15 +173,13 @@ MOBJS= $(MCRT0) $(OBJ) $(CRTC)
 # for 'gprof(1)'
 GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
-
 SRC= $(OBJ:.c=.o)
 
 
 .SUFFIXES:		.ls .i .cx .cs
 
 
-default:
-	makeit $(ALL)
+default:		$(T).x
 
 all:			$(ALL)
 
@@ -207,23 +205,23 @@ all:			$(ALL)
 	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
 
 
-$(T):			$(T).x
-	ln -f $(T).x $(T)
+$(T):			$(T).ee
+	cp -p $(T).ee $(T)
 
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO)
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS)
 
 $(T).gprof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS)
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)
@@ -241,28 +239,35 @@ strip:			$(T).x
 	strip $(T).x
 	rm -f $(T).$(OFF) $(T)
 
+aliases:		$(T).x
+	makealiases $(T).x
+
 install:		install-raw install-help
 
-install-raw:		$(T).x
-	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r -o rmsuf $(T).x $(BINDIR)
+install-ee:		$(ALL)
+	makenewer -r $(ALL) $(BINDIR)
 
-install-help:		$(T).help
-	-mkdir -p $(HELPDIR) 2> /dev/null
+install-raw:		$(T).x
+	rm -f $(T)
+	ln -f $(T).x $(T)
+	rm -f $(BINDIR)/$(T).$(OFF)
+	makeinstall
+
+install-help:
 	makeinstall-help $(HELPDIR)
 
 again:
-	rm -f $(ALL) $(T).x $(T).lm
+	rm -f $(ALL) $(T).x
 
 clean:			again
-	makeclean
+	rm -f *.ls *.ln *.i *.o *.so *.x *.lm
 
 control:
 	uname -n > Control
 	date >> Control
 
 
-main.o:			main.c $(INCS) maininfo.h
+main.o:			main.c $(INCS)
 
 whatinfo.o:		whatinfo.c config.h
 
@@ -270,24 +275,14 @@ proginfo.o:		proginfo.c defs.h
 
 proginfo_setpiv.o:	proginfo_setpiv.c defs.h
 
-b_$(T).o:		b_$(T).c $(INCS)
-
-maininfo.o:		maininfo.c maininfo.h kshlib.h
-
-kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
-
-sesmsg.o:		sesmsg.c sesmsg.h
-
-msgdata.o:		msgdata.c msgdata.h
-
-
-shio.o:			shio.c shio.h
 
 userinfo.o:		userinfo.c userinfo.h
 
 vecstr_loadfile.o:	vecstr_loadfile.c
 
 vecstr_env.o:		vecstr_env.c
+
+vecpstr.o:		vecpstr.c vecpstr.h
 
 filemap.o:		filemap.c filemap.h
 
@@ -301,6 +296,16 @@ lastlogfile.o:		lastlogfile.c lastlogfile.h
 
 tmpx.o:			tmpx.c tmpx.h
 
-objfile.o:		objfile.c objfile.h
+fsdirtree.o:		fsdirtree.c fsdirtree.h
+
+fsdir.o:		fsdir.c fsdir.h
+
+fifostr.o:		fifostr.c fifostr.h
+
+hdb.o:			hdb.c hdb.h
+
+bits.o:			bits.c bits.h baops.h
+
+baops.o:		baops.c baops.h
 
 

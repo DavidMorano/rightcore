@@ -73,6 +73,7 @@
 #include	<sbuf.h>
 #include	<getax.h>
 #include	<sysusers.h>
+#include	<projectent.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -197,7 +198,7 @@ struct locinfo {
 	LOCINFO_FL	have, f, changed, final ;
 	LOCINFO_FL	open ;
 	vecstr		stores ;
-	struct project	pj ;
+	PROJECTENT	pj ;
 	PROGINFO	*pip ;
 	int		pjlen ;
 	cchar		*projname ;
@@ -952,16 +953,13 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
 	    ofn = STDOUTFNAME ;
 
 	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
-	    cchar	*pn = pip->progname ;
-
-/* handle list mode */
 
 	    if (pip->f.list) {
 	        if (pip->debuglevel > 0) {
@@ -1001,9 +999,9 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,void *ofp,cchar *afn)
 	cchar		*cp ;
 
 	if (rs >= 0) {
-	    cchar	**argv = aip->argv ;
 	    int		ai ;
 	    int		f ;
+	    cchar	**argv = aip->argv ;
 	    for (ai = aip->ai_continue ; ai < aip->argc ; ai += 1) {
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
@@ -1422,17 +1420,17 @@ static int locinfo_setproject(LOCINFO *lip,cchar *pjn)
 #endif
 
 	if (f_self) {
-	    struct project	*pjp = &lip->pj ;
-	    char		*pjbuf = lip->pjbuf ;
-	    const int		pjlen = lip->pjlen ;
+	    PROJECTENT	*pjp = &lip->pj ;
+	    char	*pjbuf = lip->pjbuf ;
+	    const int	pjlen = lip->pjlen ;
 	    pjid = getprojid() ;
 	    if ((rs = getpj_pjid(pjp,pjbuf,pjlen,pjid)) >= 0) {
 		pjn = pjp->pj_name ;
 	    }
 	} else {
-	    struct project	*pjp = &lip->pj ;
-	    char		*pjbuf = lip->pjbuf ;
-	    const int		pjlen = lip->pjlen ;
+	    PROJECTENT	*pjp = &lip->pj ;
+	    char	*pjbuf = lip->pjbuf ;
+	    const int	pjlen = lip->pjlen ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))

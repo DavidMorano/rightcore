@@ -11,31 +11,22 @@
 /* revision history:
 
 	= 1989-03-01, David A­D­ Morano
-
-	This subroutine was originally written.  This whole program,
-	LOGDIR, is needed for use on the Sun CAD machines because Sun
-	doesn't support LOGDIR or LOGNAME at this time.  There was a
-	previous program but it is lost and not as good as this one
-	anyway.  This one handles NIS+ also.  (The previous one
-	didn't.) 
-
+        This subroutine was originally written. This whole program, LOGDIR, is
+        needed for use on the Sun CAD machines because Sun doesn't support
+        LOGDIR or LOGNAME at this time. There was a previous program but it is
+        lost and not as good as this one anyway. This one handles NIS+ also.
+        (The previous one didn't.)
 
 	= 1998-06-01, David A­D­ Morano
-
-	I enhanced the program a little to print out some other user
-	information besides the user's name and login home directory.
-
+        I enhanced the program a little to print out some other user information
+        besides the user's name and login home directory.
 
 	= 1999-03-01, David A­D­ Morano
-
-	I enhanced the program to also print out effective UID and
-	effective GID.
-
+        I enhanced the program to also print out effective UID and effective
+        GID.
 
 	= 2003-10-01, David A­D­ Morano
-
 	This is now a built-in command for the KSH shell.
-
 
 */
 
@@ -111,7 +102,7 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
+extern int	proginfo_setpiv(PROGINFO *,const char *,
 			const struct pivars *) ;
 extern int	nusers(const char *) ;
 
@@ -134,7 +125,7 @@ struct locinfo_flags {
 } ;
 
 struct locinfo {
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 	const char	*utfname ;
 	double		fla[3] ;
 	uint		nprocs ;
@@ -147,17 +138,17 @@ struct locinfo {
 
 static void	sighand_int(int) ;
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 
-static int	locinfo_start(struct proginfo *,struct locinfo *,const char *) ;
-static int	locinfo_finish(struct proginfo *) ;
+static int	locinfo_start(PROGINFO *,struct locinfo *,const char *) ;
+static int	locinfo_finish(PROGINFO *) ;
 
-static int	procspec(struct proginfo *,void *, const char *) ;
+static int	procspec(PROGINFO *,void *, const char *) ;
 
-static int	getla(struct proginfo *) ;
-static int	getnusers(struct proginfo *) ;
-static int	getnprocs(struct proginfo *) ;
-static int	nprocs(struct proginfo *) ;
+static int	getla(PROGINFO *) ;
+static int	getnusers(PROGINFO *) ;
+static int	getnprocs(PROGINFO *) ;
+static int	nprocs(PROGINFO *) ;
 
 
 /* local variables */
@@ -257,7 +248,7 @@ int		argc ;
 const char	*argv[] ;
 void		*contextp ;
 {
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 	struct locinfo	li, *lip = &li ;
 
 	struct sigaction	san ;
@@ -891,7 +882,7 @@ int	sn ;
 
 
 static int usage(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int	rs ;
 	int	i ;
@@ -940,7 +931,7 @@ struct proginfo	*pip ;
 
 /* process a specification name */
 static int procspec(pip,ofp,name)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 void		*ofp ;
 const char	name[] ;
 {
@@ -1022,7 +1013,7 @@ const char	name[] ;
 
 
 static int locinfo_start(pip,lip,utfname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct locinfo	*lip ;
 const char	*utfname ;
 {
@@ -1038,7 +1029,7 @@ const char	*utfname ;
 
 
 static int locinfo_finish(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 
 
@@ -1048,7 +1039,7 @@ struct proginfo	*pip ;
 
 
 static int getla(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	struct locinfo	*lip = pip->lip ;
 
@@ -1068,7 +1059,7 @@ struct proginfo	*pip ;
 
 
 static int getnusers(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	struct locinfo	*lip = pip->lip ;
 
@@ -1088,8 +1079,7 @@ struct proginfo	*pip ;
 /* end subroutine (getnusers) */
 
 
-static int getnprocs(pip)
-struct proginfo	*pip ;
+static int getnprocs(PROGINFO *pip)
 {
 	struct locinfo	*lip = pip->lip ;
 

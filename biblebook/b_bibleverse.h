@@ -92,9 +92,10 @@
 
 #define	TO_MKWAIT	(1 * 50)	/* make-db timeout */
 
-#define	OPT_DEFNULL	1		/* boolean */
-#define	OPT_BOOKNAME	1		/* boolean */
-#define	OPT_SEPARATE	0		/* boolean */
-#define	OPT_TRYCACHE	1		/* boolean */
+#define	OPT_BOOKNAME	TRUE		/* boolean */
+#define	OPT_INDENT	1		/* value */
+#define	OPT_DEFNULL	TRUE		/* boolean */
+#define	OPT_SEPARATE	FALSE		/* boolean */
+#define	OPT_TRYCACHE	TRUE		/* boolean */
 
 

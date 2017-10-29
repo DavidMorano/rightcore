@@ -1,0 +1,407 @@
+
+static int procsystems(struct proginfo *pip,void *ofp,const char *sfname)
+{
+	struct locinfo	*lip = pip->lip ;
+	SYSDIALER	d ;
+	int		rs ;
+
+	if ((rs = sysdialer_start(&d,pip->pr,NULL,NULL)) >= 0) {
+	    CM_ARGS		ca ;
+	    SYSTEMS		sysdb ;
+	    int		al ;
+	    const char	*ap ;
+
+	    memset(&ca,0,sizeof(CM_ARGS)) ;
+	    ca.pr = pip->pr ;
+	    ca.prn = pip->rootname ;
+	    ca.searchname = pip->searchname ;
+	    ca.nodename = pip->nodename ;
+	    ca.domainname = pip->domainname ;
+	    ca.username = pip->username ;
+	    ca.sp = &sysdb ;
+	    ca.dp = &d ;
+	    ca.timeout = lip->to ;
+	    ca.options = (SYSDIALER_MFULL | SYSDIALER_MCO) ;
+
+/* do it */
+
+	    if ((rs = systems_open(&sysdb,sfname)) >= 0) {
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(5))
+	            debugprintf("b_rfinger: systems_open() rs=%d\n",rs) ;
+#endif
+
+	        if (sfname == NULL) {
+	            rs = loadsysfiles(pip,&sysdb) ;
+
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(5))
+	                debugprintf("b_rfinger: loadsysfiles() rs=%d\n",
+	                    rs) ;
+#endif
+
+	        } /* end if (loadfiles) */
+
+#if	CF_DEBUG && 0
+	        if (DEBUGLEVEL(5)) {
+	            SYSTEMS_CUR		cur ;
+	            SYSTEMS_ENTRY	*sep ;
+	            debugprintf("b_rfinger: sysnames: \n") ;
+	            systems_curbegin(&sysdb,&cur) ;
+	            while (systems_enum(&sysdb,&cur,&sep) >= 0) {
+	                debugprintf("b_rfinger: sysname=%s\n",sep->sysname) ;
+	            }
+	            systems_curend(&sysdb,&cur) ;
+	        }
+#endif /* CF_DEBUG */
+
+	        if (rs >= 0) {
+	            int	i = 0 ;
+	            while (rs >= 0) {
+	                al = locinfo_argenum(lip,i++,&ap) ;
+	                if (al == SR_NOTFOUND) break ;
+	                rs = al ;
+
+	                if (rs >= 0) {
+	                    if (ap == NULL) continue ;
+	                    rs = procsystem(pip,ofp,&ca,ap) ;
+	                }
+
+	            } /* end while */
+	        } /* end if */
+
+	        systems_close(&sysdb) ;
+	    } /* end if (systems) */
+
+	    sysdialer_finish(&d) ;
+	} /* end if (sysdialer) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("b_rfinger/procsystems: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (procsystems) */
+
+
+static int procsystem(pip,ofp,cap,ap)
+struct proginfo	*pip ;
+void		*ofp ;
+CM_ARGS		*cap ;
+const char	*ap ;
+{
+	struct locinfo	*lip = pip->lip ;
+	struct query	q ;
+	CM		con ;
+	const int	llen = LINEBUFLEN ;
+	const int	clen = LINEBUFLEN ;
+
+	int	rs ;
+	int	to ;
+	int	ll ;
+	int	cl ;
+	int	ql = -1 ;
+	int	ropts = 0 ;
+	int	wlen = 0 ;
+	int	f_long ;
+
+	const char	**av ;
+	const char	*qp ;
+
+	char	lbuf[LINEBUFLEN + 1], *lp = lbuf ;
+	char	cbuf[LINEBUFLEN+1] ;
+
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("main/procsystem: ap=>%s<\n",ap) ;
+	    debugprintf("main/procsystem: svc=%s\n",lip->svcspec) ;
+	}
+#endif
+
+	f_long = lip->f.longer ;
+	av = lip->av ;
+	to = lip->to ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("main/procsystem: av=%p\n",av) ;
+	    if (av != NULL) {
+	        int	i ;
+	        for (i = 0 ; av[i] != NULL ; i += 1)
+	            debugprintf("main/procsystem: a[%u]=%s\n",i,av[i]) ;
+	    }
+	}
+#endif /* CF_DBEUG */
+
+	rs = query_parse(&q,ap) ;
+	if (rs < 0) goto ret0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("main/procsystem: hpart=>%s<\n",q.hpart) ;
+	    debugprintf("main/procsystem: upart=>%s<\n",q.upart) ;
+	}
+#endif
+
+	rs = mkfingerquery(lbuf,llen,f_long,q.upart,av) ;
+	ql = rs ;
+	if (rs < 0) goto ret0 ;
+	qp = lbuf ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("main/procsystem: mkfingerquery() rs=%d\n",rs) ;
+	    debugprintf("main/procsystem: q=>%t<\n",qp,ql) ;
+	}
+#endif /* CF_DEBUG */
+
+	if ((rs = cm_open(&con,cap,q.hpart,lip->svcspec,NULL)) >= 0) {
+	    const char	*tmpdname = pip->tmpdname ;
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(3))
+	        debugprintf("main/procsystem: cm_open() rs=%d\n",rs) ;
+#endif
+
+/* debug information (if requested) */
+
+	    if (pip->debuglevel > 0) {
+	        CM_INFO	ci ;
+
+	        rs = cm_info(&con,&ci) ;
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(3))
+	            debugprintf("main/procsystem: cm_info() rs=%d\n",rs) ;
+#endif
+
+	        if (rs >= 0)
+	            shio_printf(pip->efp,"%s: selected dialer=%s\n",
+	                pip->progname,ci.dname) ;
+
+	        if (pip->open.logprog)
+	            logfile_printf(&pip->lh,"dialer=%s",
+	                ((rs >= 0) ? ci.dname : "*")) ;
+
+	    } /* end if (dialer information) */
+
+/* write the query */
+
+	    if (rs >= 0) {
+	        if (ql < 0) ql = strlen(qp) ;
+	        rs = cm_write(&con,qp,ql) ;
+	    }
+
+#if	CF_SHUTDOWN
+	    if ((rs >= 0) && lip->f.shutdown)
+	        cm_shutdown(&con,SHUT_WR) ;
+#endif /* CF_SHUTDOWN */
+
+/* read the response */
+
+	    if ((rs >= 0) && ((rs = opentmp(tmpdname,O_RDWR,0664)) >= 0)) {
+	        int	fd = rs ;
+
+	        while (rs >= 0) {
+	            rs = cm_reade(&con,lbuf,llen,to,ropts) ;
+	            ll = rs ;
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(3))
+	                debugprintf("main/procsystem: cm_reade() rs=%d\n",
+	                    rs) ;
+#endif
+	            if (rs <= 0) break ;
+	            rs = u_write(fd,lbuf,ll) ;
+	        } /* end while */
+
+	        if (rs >= 0) rs = u_rewind(fd) ;
+
+	        if (rs >= 0) {
+	            FILEBUF	b ;
+	            const int	opts = 0 ;
+
+	            if ((rs = filebuf_start(&b,fd,0L,512,opts)) >= 0) {
+
+	                while (rs >= 0) {
+	                    rs = filebuf_readlines(&b,lbuf,llen,to,NULL) ;
+	                    ll = rs ;
+	                    if (rs <= 0) break ;
+
+	                    if ((ll > 0) && (lp[ll-1] == '\n')) ll -= 1 ;
+
+	                    if (if_exit) rs = SR_EXIT ;
+	                    if ((rs >= 0) && if_int) rs = SR_INTR ;
+
+	                    if (rs >= 0) {
+	                        rs = snwcpyclean(cbuf,clen,lp,ll) ;
+	                        cl = rs ;
+	                        if (lip->open.outer && (cl > 0)) {
+	                            rs = locinfo_termoutprint(lip,ofp,cbuf,cl) ;
+	                            wlen += rs ;
+	                        } else {
+	                            rs = shio_printline(ofp,cbuf,cl) ;
+	                            wlen += rs ;
+	                        }
+	                    }
+
+	                } /* end while (reading lines) */
+
+	                filebuf_finish(&b) ;
+	            } /* end if (filebuf) */
+
+	        } /* end if */
+
+	        u_close(fd) ;
+	    } /* end if (opentmp) */
+
+	    cm_close(&con) ;
+	} /* end if (cm) */
+
+ret0:
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procsystem: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procsystem) */
+
+
+static int loadsysfiles(pip,sdbp)
+struct proginfo	*pip ;
+SYSTEMS		*sdbp ;
+{
+	SCHEDVAR	sf ;
+
+	int	rs ;
+	int	rs1 ;
+	int	i, j ;
+	int	n = 0 ;
+
+	char	tmpfname[MAXPATHLEN + 1] ;
+
+
+	if ((rs = schedvar_start(&sf)) >= 0) {
+
+	    schedvar_add(&sf,"p",pip->pr,-1) ;
+
+	    schedvar_add(&sf,"n",pip->searchname,-1) ;
+
+	    for (j = 0 ; j < 2 ; j += 1) {
+
+	        if (j == 0) {
+	            schedvar_add(&sf,"f",SYSFNAME1,-1) ;
+	        } else
+	            schedvar_add(&sf,"f",SYSFNAME2,-1) ;
+
+	        for (i = 0 ; sysfiles[i] != NULL ; i += 1) {
+
+	            rs = schedvar_expand(&sf,tmpfname,MAXPATHLEN,
+	                sysfiles[i],-1) ;
+
+	            rs1 = SR_NOENT ;
+	            if (rs >= 0)
+	                rs1 = u_access(tmpfname,R_OK) ;
+
+	            if (rs1 >= 0) {
+
+	                n += 1 ;
+	                rs = systems_fileadd(sdbp,tmpfname) ;
+
+#if	CF_DEBUG
+	                if (DEBUGLEVEL(5)) {
+	                    debugprintf("b_rfinger: "
+	                        "systems_fileadd() rs=%d\n",
+	                        rs) ;
+	                    debugprintf("b_rfinger: fname=%s\n", tmpfname) ;
+	                }
+#endif /* CF_DEBUGS */
+
+	            } /* end if */
+
+	            if (rs < 0) break ;
+	        } /* end for */
+
+	        if (rs < 0) break ;
+	    } /* end for */
+
+	    schedvar_finish(&sf) ;
+	} /* end if (schedvar) */
+
+	return (rs >= 0) ? n : rs ;
+}
+/* end subroutine (loadsysfiles) */
+
+
+static int query_parse(qp,query)
+struct query	*qp ;
+const char	*query ;
+{
+	const int	ulen = QUERY_USERPARTLEN ;
+	const int	hlen = QUERY_HOSTPARTLEN ;
+
+	int	rs = SR_OK ;
+	int	cl ;
+	int	ql = -1 ;
+	int	ul = 0 ;
+
+	const char	*tp, *cp ;
+
+
+	if (qp == NULL) return SR_FAULT ;
+	if (query == NULL) return SR_FAULT ;
+
+#if	CF_DEBUGS
+	debugprintf("query_part: q=>%s<\n",query) ;
+#endif
+
+	qp->hpart[0] = '\0' ;
+	qp->upart[0] = '\0' ;
+	if ((tp = strchr(query,'@')) != NULL) {
+	    ql = (tp-query) ;
+#if	CF_DEBUGS
+	    debugprintf("query_part: hraw=>%s<\n",(tp+1)) ;
+#endif
+	    cl = sfshrink((tp + 1),-1,&cp) ;
+	    if (cl > 0)
+	        rs = snwcpy(qp->hpart,hlen,cp,cl) ;
+	}
+
+	if (rs >= 0) {
+#if	CF_DEBUGS
+	    debugprintf("query_part: uraw=>%t<\n",query,ql) ;
+#endif
+	    cl = sfshrink(query,ql,&cp) ;
+	    if (cl > 0) {
+#if	CF_DEBUGS
+	        debugprintf("query_part: ucooked=>%t<\n",cp,cl) ;
+#endif
+	        rs = snwcpy(qp->upart,ulen,cp,cl) ;
+	        ul = rs ;
+#if	CF_DEBUGS
+	        debugprintf("query_part: ul=%d ucpy=>%s<\n",ul,qp->upart) ;
+#endif
+	    }
+	} /* end if */
+
+	if ((rs >= 0) && (qp->hpart[0] == '\0'))
+	    rs = sncpy1(qp->hpart,hlen,LOCALHOST) ;
+
+#if	CF_DEBUGS
+	debugprintf("query_part: ret rs=%d ul=%u\n",rs,ul) ;
+	debugprintf("query_part: hpart=>%s<\n",qp->hpart) ;
+	debugprintf("query_part: upart=>%s<\n",qp->upart) ;
+#endif
+
+	return (rs >= 0) ? ul : rs ;
+}
+/* end subroutine (query_parse) */
+
+
+

@@ -226,6 +226,15 @@ whatinfo.o:		whatinfo.c config.h
 bstree.o:		bstree.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) bstree.hh
 
+timeval.o:		timeval.c timeval.h
+
+timespec.o:		timespec.c timespec.h
+
+sigevent.o:		sigevent.c sigevent.h
+
+uc_timeout.o:		uc_timeout.c timeout.h timespec.g sigevent.h
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) uc_timeout.cc
+
 
 # testing
 
@@ -510,7 +519,7 @@ T16= timeout
 
 T16OBJa= main$(T16).o
 T16OBJb= uc_timeout.o
-T16OBJc=
+T16OBJc= timespec.o sigevent.o
 T16OBJd=
 
 T16OBJ= $(T16OBJa) $(T16OBJb) $(T16OBJc) $(T16OBJd)

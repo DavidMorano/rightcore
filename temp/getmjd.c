@@ -17,9 +17,18 @@
 
 /*******************************************************************************
 
-	Validity:
+	Introduction:
 
-	These subroutines are only valid for years starting from 1900.
+	Q. What is a Modified-Julian-Day (MJD)?
+	A. Is the the number of days since midnight (morning) of 17 Nov 1858.
+
+	Q. How are Modified-Julian-Days related to Julian-Days?
+        A. The base date for Modified-Julian-Days (17 Nov 1858) is 2400000.5
+        days after the start of day zero (0) of the Julian calendar.
+
+	Validity of thse subroutines:
+
+        These subroutines are only valid for years starting from 1900.
 
 
 	Name:
@@ -84,13 +93,14 @@ define	isleap(y) ((((y) % 4) == 0) && (((y) % 100) != 0 || ((y) % 400) == 0))
 	A. No.  We do not check that the proper number of days for
 	the specified month is given.  For example, a specification
 	(y-m-d) of "feb31" will be accepted (not flagged as as error).
+	Yet, We do check for some domain errors (see the code below).
 
 	Q. Could we have checked for the proper number of days for any
 	given month?
 	A. Yes, of course; But we felt that it was not so necessary.
 
 	Q. What if I want the number of days for any given month to
-	be flagged as an error (if it is a domain error)?
+	be flagged as an error (as if it is a domain error)?
 	A. Of course you can check that yourself before calling this
 	subroutine!
 
@@ -148,7 +158,7 @@ int getmjd(int yr,int mo,int day)
 {
 	const int	yrbase = TM_YEAR_BASE ;
 	int		mjd = 15020 ;	/* MJD of 1900-01-01 */
-	int		nlyears ;	/* prir year leap years from 1900 */
+	int		nlyears ;	/* leap years from 1900 */
 	int		myr ;		/* modified-year (years since 1900) */
 
 	if (yr < 0)
@@ -169,7 +179,8 @@ int getmjd(int yr,int mo,int day)
 	nlyears = (myr - 1)/4 ;		/* number of leap years since 1900 */
 
 /*
-	compute number of days since 1900 + 1 day for each leap year
+	compute number of days since 1900 
+	+ 1 day for each leap year
 	+ number of days since start of this year
 */
 

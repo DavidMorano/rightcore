@@ -9,12 +9,15 @@
 
 /* revision history:
 
-	= 1986-07-10, David A­D­ Morano
+	= 1996-07-10, David A­D­ Morano
 	This subroutine was originally written.
+
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
-/* Copyright © 1986,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1996,1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

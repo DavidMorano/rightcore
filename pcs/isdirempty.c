@@ -104,7 +104,6 @@ int isdirempty(cchar *dname)
 		    f = FALSE ;
 		} /* end (not dots) */
 		if (!f) break ;
-		if (rs < 0) break ;
 	    } /* end while */
 	    rs1 = fsdir_close(&d) ;
 	    if (rs >= 0) rs = rs1 ;

@@ -23,9 +23,12 @@
 		article printing
 		article piping & redirecting
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
+
 */
 
-/* Copyright © 1994,1995,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

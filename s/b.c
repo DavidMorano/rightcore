@@ -285,7 +285,7 @@ static int	sbuf_loadstrs(SBUF *,cchar **) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -337,7 +337,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"init",
 	"all",
 	"sd",

@@ -1,2 +1,2 @@
 const char numbers_makedate[] =
-"@(#)numbers                 170827_1956:08_USEDT Rightcore Network Services" ;
+"@(#)numbers                 171027_1110:28_USEDT Rightcore Network Services" ;

@@ -1,0 +1,106 @@
+<html>
+<head>
+	<title>Exciting new opportunity</title>
+</head>
+
+<body>
+<font style="font-family: calibri;"> 
+Hi David,
+<br/><br/>
+I have an exciting opportunity for a Controls Project Engineer in Boston, MA.
+<br/><br/>
+Check it out: <a href="http://www.CyberCoders.com/qc.aspx?posId=JG6-NS1-1405686&ad=CS2Nick.Strebig&utm_source=candidate&utm_medium=email&utm_campaign=new-jobs1CS">Controls Project Engineer</a>
+<br/><br/>
+If the opportunity seems like something you’d want to pursue, please reply to this email with your latest resume or apply directly through the link.
+<br/><br/>
+Although you came up in my search, I may be referencing an older resume of yours. If you provide your most current resume, I can send you more relevant job matches.
+<br /><br />
+Look forward to hearing from you!
+<br/><br/>
+<table style="border-collapse: collapse; margin-top: 10px; font-family: Calibri, Arial, sans-serif;" class=ImprintUniqueIDTable width="600" border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+            <tr>
+                <td colspan="4">Thanks,<br/>Nick</td>
+            </tr>
+	    <tr>
+                <td colspan="4" height="20"> </td>
+            </tr>
+            <tr>
+                <td width="145" valign="top">
+                    <table style="border-collapse: collapse; font-family: Calibri, Arial, sans-serif;" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                <div>
+									<a href="mailto:nick.strebig@cybercoders.com" style="font-size: 18px; color: #00a1e1; text-transform: uppercase; text-decoration: none; mso-line-height-rule: exactly; line-height: 20px;">Nick Strebig</a>
+								</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="font-size: 14px; color: #444; margin-bottom: 8px; mso-line-height-rule: exactly; line-height: 16px;">Executive Recruiter</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="font-size: 14px; color: #444; mso-line-height-rule: exactly; line-height: 16px;">Phone: 949.577.9660</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="margin-bottom: 5px;"><a href="https://www.cybercoders.com/recruiter/Nick.Strebig/?utm_source=signature&utm_medium=email&utm_content=recruiterbio&utm_campaign=ads" style="font-size: 14px; color: #00a1e1; text-decoration: none; mso-line-height-rule: exactly;line-height: 16px;">View my open jobs</a></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div>
+                                    <a href="https://www.instagram.com/cybercoders/" style="display: inline-block;">
+                                        <img id="insta" border="0" align="bottom" src="https://res.cloudinary.com/cybercoders/image/upload/v1483565872/cc-sig-instagram_wtjbxb.gif" width="18" height="18" />
+                                    </a>
+                                       
+                                    <a href="http://www.linkedin.com/company/cybercoders/cybercoders-recruiting-451541/product" style="display: inline-block;">
+                                        <img id="li" border="0" align="bottom" src="https://res.cloudinary.com/cybercoders/image/upload/v1483565872/cc-sig-li_qnxmer.gif" width="18" height="18" />
+                                    </a>
+                                       
+                                    <a href="http://www.facebook.com/CyberCoders/" style="display: inline-block;">
+                                        <img id="fb" border="0" align="bottom" src="https://res.cloudinary.com/cybercoders/image/upload/v1483565872/cc-sig-fb_x9itzb.gif" width="18" height="18" />
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td width="25" style="border-right: 3px solid #5f407c;"> </td>
+                <td width="25"> </td>
+                <td width="347" valign="middle" nowrap="nowrap">
+                    <table cellpadding="0">
+                        <tr>
+                            <td>
+                                <a href="http://www.cybercoders.com/?utm_source=signature&amp;utm_medium=email&amp;utm_content=logo&amp;utm_campaign=ads">
+                                    <img id=cc border=0 src="http://res.cloudinary.com/cybercoders/image/upload/v1486494229/cc-email-sig-logo_tdecys.gif" width="207" height="57" />
+									<img src="http://www.cybercoders.com/tracking/?type=cbs1var1&date=10-08-2017&id=2760554" />
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+<br/><br/>
+JobID: JG6-NS1-1405686
+<br/><br/>
+<div style="font-family: Arial, sans-serif; font-size: 10px; width: 460px; color: #aaa;">    
+    CyberCoders is an Equal Opportunity Employer. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, national origin, disability, protected veteran status, or any other characteristic protected by law.
+    <br /><br />
+    CyberCoders Headquarters - We recruit candidates worldwide.
+    <br />
+    6591 Irvine Center Drive, Suite 200
+    <br />
+    Irvine, CA 92618
+    <br />
+    <a href="mailto:nick.strebig@cybercoders.com" target="_blank">email</a> | <a href="https://www.cybercoders.com/unsubscribe/byemail?email=david.a.morano@gmail.com&utm_source=candidate&utm_medium=email&utm_campaign=new-jobs" target="_blank">unsubscribe</a>
+</div>
+</font>
+</body>
+
+</html>

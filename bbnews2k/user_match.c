@@ -10,13 +10,15 @@
 /* revision history:
 
 	= 1995-03-13, David A­D­ Morano
-
 	This code module was completely rewritten to replace any original
 	garbage that was here before.
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
+
 */
 
-/* Copyright © 1995,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>

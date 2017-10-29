@@ -4,7 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_BSEARCH	0		/* use 'bsearch(3c)' */
+#define	CF_BSEARCH	0		/* use |bsearch(3c)| */
 
 
 /* revision history:
@@ -176,8 +176,8 @@ static const struct zdb_e	zones[] = {
 	{ "sst", -120, 1 },	/* Swedish Summer Time */
 	{ "swt", -60, 0 },	/* Swedish Winter Time  */
 
-	{ "usakdt", 8*60, 1 },	/* Alaska (US) */
-	{ "usakst", 9*60, 0 },	/* Alaska (US) */
+	{ "usakdt", 8*60, 1 },	/* Alaska daylight (US) */
+	{ "usakst", 9*60, 0 },	/* Alaska standard (US) */
 	{ "uscdt", 5*60, 1 },	/* central daylight time (US) */
 	{ "uscst", 6*60, 0 },	/* central standard time (US) */
 	{ "usedt", 4*60, 1 },	/* eastern daylight time (US) */
@@ -214,7 +214,7 @@ static const struct zdb_e	zones[] = {
 
 
 /* set from 'name' and 'offset' */
-int zdb_nameoff(ZDB *zrp,cchar np[],int nl,int zoff)
+int zdb_nameoff(ZDB *zrp,cchar *np,int nl,int zoff)
 {
 	const int	zlen = ZDB_ZNAMESIZE ;
 	int		i ;
@@ -262,7 +262,7 @@ int zdb_nameoff(ZDB *zrp,cchar np[],int nl,int zoff)
 
 
 /* set from 'name' only */
-int zdb_name(ZDB *zrp,cchar np[],int nl)
+int zdb_name(ZDB *zrp,cchar *np,int nl)
 {
 	const int	zlen = ZDB_ZNAMESIZE ;
 	int		i ;
@@ -381,7 +381,7 @@ struct zdb_e {
 } ;
 */
 
-static int findname(cchar np[],int nl)
+static int findname(cchar *np,int nl)
 {
 	struct zdb_e	ke, *rp ;
 	NULSTR		s ;
@@ -421,7 +421,7 @@ static int reccmp(const void *v1p,const void *v2p)
 #else /* CF_BSEARCH */
 
 /* do a little binary search to find the zone-name (if we have it) */
-static int findname(cchar np[],int nl)
+static int findname(cchar *np,int nl)
 {
 	int		i = 0 ;
 	int		rc = 1 ;

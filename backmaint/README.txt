@@ -3,7 +3,7 @@ BACKMAINT
 This command performs maintenance on directories used by the BACKUP facility.
 
 Synopsis:
-$ chacl [<dir(s)> ...] [-af <afile>] [-V]
+$ backmaint [<dir(s)> ...] [-af <afile>] [-V]
 
 Arguments:
 <dir(s)>	the files or directories

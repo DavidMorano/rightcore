@@ -17,9 +17,12 @@
 	This code module was completely rewritten to replace any original
 	garbage that was here before.
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
+
 */
 
-/* Copyright © 1995,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -189,7 +192,7 @@ static const int	sigints[] = {
 	0
 } ;
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"VERSION",
 	"ROOT",
 	"TMPDIR",
@@ -305,7 +308,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"query",
 	"test",
 	"term",
@@ -468,6 +471,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	pip->termlines = 0 ;
 	pip->showlines = 0 ;
 	pip->whichenvdate = SORTMODE_NOW ;
+	pip->daytime = time(NULL) ;
 
 	pip->termtype = getenv(VARTERM) ;
 
@@ -1300,8 +1304,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (pip->querytext == NULL) pip->querytext = getenv(VARQUERYTEXT) ;
 	if (pip->querytext == NULL) pip->querytext = QUERYTEXT ;
 
-	pip->daytime = time(NULL) ;
-
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
 	    debugprintf("main: progmode=%d\n",pip->progmode) ;
@@ -2079,7 +2081,6 @@ static int procuserboards(PROGINFO *pip,vecpstr *asp,cchar *ofn)
 	    }
 	}
 #endif /* CF_DEBUG */
-
 
 	if ((rs = procnewsdname(pip)) >= 0) {
 	    MKDIRLIST	dl ;

@@ -50,9 +50,9 @@
 #include	<sys/types.h>
 #include	<sys/timeb.h>
 #include	<time.h>
-#include	<tzfile.h>		/* for TM_YEAR_BASE */
 #include	<stdlib.h>
 #include	<string.h>
+#include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
 #include	<localmisc.h>

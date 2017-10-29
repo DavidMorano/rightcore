@@ -810,16 +810,16 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 	switch (pip->progmode) {
 	case progmode_asum:
-	    proginfo_setbanner(pip,BANNER_ASUM) ;
+	    rs = proginfo_setbanner(pip,BANNER_ASUM) ;
 	    break ;
 	case progmode_amean:
-	    proginfo_setbanner(pip,BANNER_AMEAN) ;
+	    rs = proginfo_setbanner(pip,BANNER_AMEAN) ;
 	    break ;
 	case progmode_hmean:
-	    proginfo_setbanner(pip,BANNER_HMEAN) ;
+	    rs = proginfo_setbanner(pip,BANNER_HMEAN) ;
 	    break ;
 	case progmode_speedup:
-	    proginfo_setbanner(pip,BANNER_SPEEDUP) ;
+	    rs = proginfo_setbanner(pip,BANNER_SPEEDUP) ;
 	    break ;
 	default:
 	    pip->progmode = progmode_asum ;

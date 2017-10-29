@@ -44,6 +44,7 @@ struct tmz_head {
 extern "C" {
 #endif
 
+extern int	tmz_init(TMZ *) ;
 extern int	tmz_std(TMZ *,const char *,int) ;
 extern int	tmz_msg(TMZ *,const char *,int) ;
 extern int	tmz_touch(TMZ *,const char *,int) ;
@@ -52,9 +53,15 @@ extern int	tmz_strdig(TMZ *,const char *,int) ;
 extern int	tmz_logz(TMZ *,const char *,int) ;
 extern int	tmz_day(TMZ *,const char *,int) ;
 extern int	tmz_isset(TMZ *) ;
+extern int	tmz_hasyear(TMZ *) ;
+extern int	tmz_haszoff(TMZ *) ;
+extern int	tmz_haszone(TMZ *) ;
+extern int	tmz_setday(TMZ *,int,int,int) ;
 extern int	tmz_setyear(TMZ *,int) ;
 extern int	tmz_setzone(TMZ *,const char *,int) ;
 extern int	tmz_gettm(TMZ *,struct tm *) ;
+extern int	tmz_getdst(TMZ *) ;
+extern int	tmz_getzoff(TMZ *) ;
 
 #ifdef	__cplusplus
 }

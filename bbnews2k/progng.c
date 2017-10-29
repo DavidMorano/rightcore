@@ -14,12 +14,13 @@
 /* revision history:
 
 	= 1994-01-17, David A­D­ Morano
+        I have made major modifications from a previous version of this
+        subroutine (which was total junk!). The previous functions that are now
+        in this subroutine were scattered all over the place in the past. The
+        code was previously unmaintainable!
 
-	I have made major modifications from a previous version of this
-	subroutine (which was total junk!).  The previous functions
-	that are now in this subroutine were scattered all over the
-	place in the past.  The code was previously unmaintainable!
-
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
@@ -27,11 +28,10 @@
 
 /*******************************************************************************
 
-	This subroutine processes articles on a particular newsgroup
-	passed down as an argument using the user's newsgroup pointer
-	entry.	Also passed down is what articles on the newsgroup are to
-	be selected for processing ; namely, old articles, all articles,
-	or new articles.
+        This subroutine processes articles on a particular newsgroup passed down
+        as an argument using the user's newsgroup pointer entry. Also passed
+        down is what articles on the newsgroup are to be selected for processing
+        ; namely, old articles, all articles, or new articles.
 
  	Synopsis:
 

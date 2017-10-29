@@ -82,7 +82,6 @@ extern int	tofc(int) ;
 
 char *strncpylc(char *dst,cchar *src,int n)
 {
-
 	if (n >= 0) {
 	    while (n && *src) {
 	        *dst++ = tolc(*src) ;
@@ -91,9 +90,9 @@ char *strncpylc(char *dst,cchar *src,int n)
 	    } /* end while */
 	    if (n > 0)
 	        memset(dst,0,n) ;
-	} else
+	} else {
 	    dst = strcpylc(dst,src) ;
-
+	}
 	return dst ;
 }
 /* end subroutine (strncpylc) */

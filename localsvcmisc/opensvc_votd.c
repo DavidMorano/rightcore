@@ -337,8 +337,8 @@ static int	subinfo_ndays(SUBINFO *,BIBLEVERSE_Q *,int) ;
 #endif
 
 static int	procopts(SUBINFO *,KEYOPT *) ;
-static int	process(SUBINFO *,ARGINFO *,BITS *,cchar *,int,int) ;
-static int	procsome(SUBINFO *,ARGINFO *,BITS *,cchar *,int,int) ;
+static int	process(SUBINFO *,ARGINFO *,BITS *,cchar *,int) ;
+static int	procsome(SUBINFO *,ARGINFO *,BITS *,cchar *,int) ;
 static int	procspecs(SUBINFO *,cchar *,int) ;
 static int	procspec(SUBINFO *,cchar *,int) ;
 static int	procallcache(SUBINFO *) ;
@@ -358,10 +358,10 @@ static int	procoutcite(SUBINFO *,BIBLEVERSE_Q *,int) ;
 static int	procoutverse(SUBINFO *,BIBLEVERSE_Q *,cchar *,int) ;
 static int	procoutline(SUBINFO *,int,cchar *,int) ;
 
-static int vcinfo_start(VCINFO *) ;
-static int vcinfo_finish(VCINFO *) ;
+static int	vcinfo_start(VCINFO *) ;
+static int	vcinfo_finish(VCINFO *) ;
 
-static int votdsq_load(VOTDC_Q *,BIBLEVERSE_Q *) ;
+static int	votdsq_load(VOTDC_Q *,BIBLEVERSE_Q *) ;
 
 
 /* local variables */
@@ -492,7 +492,6 @@ int		to ;
 	int		argc = 0 ;
 	int		rs, rs1 ;
 	int		n ;
-	int		argvalue = -1 ;
 	int		v ;
 	int		fd = -1 ;
 	int		f_optminus, f_optplus, f_optequal ;
@@ -881,14 +880,11 @@ int		to ;
 	debugprintf("opensvc_votd: subinfo_setroot() rs=%d\n",rs) ;
 #endif
 
-	if ((rs >= 0) && (argval != NULL)) {
-	    rs = cfdeci(argval,-1,&argvalue) ;
-	}
-
-	if ((sip->nitems <= 0) && (argvalue > 0)) {
+	if ((rs >= 0) && (sip->nitems <= 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    sip->nitems = rs ;
 	    sip->have.nitems = TRUE ;
 	    sip->final.nitems = TRUE ;
-	    sip->nitems = argvalue ;
 	}
 
 /* load up the environment options */
@@ -961,10 +957,12 @@ int		to ;
 	    cp = getourenv(envv,VARLINELEN) ;
 	    if (cp == NULL) cp = getourenv(envv,VARCOLUMNS) ;
 	    if (cp != NULL) {
-	        if (((rs = cfdeci(cp,-1,&n)) >= 0) && (n >= rs1)) {
-	            sip->have.linelen = TRUE ;
-	            sip->final.linelen = TRUE ;
-	            sip->linelen = n ;
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (v >= rs1) {
+	                sip->have.linelen = TRUE ;
+	                sip->final.linelen = TRUE ;
+	                sip->linelen = rs ;
+		    }
 	        }
 	    }
 	}
@@ -994,9 +992,8 @@ int		to ;
 	if (rs >= 0) {
 	    if ((rs = subinfo_outbegin(sip)) >= 0) {
 	        {
-	            const int	aval = argvalue ;
 	            cchar	*af = afname ;
-	            rs = process(sip,&ainfo,&pargs,af,aval,f_apm) ;
+	            rs = process(sip,&ainfo,&pargs,af,f_apm) ;
 	        }
 	        fd = subinfo_outend(sip,rs) ;
 	        if (rs >= 0) rs = fd ;
@@ -1191,18 +1188,13 @@ static int procopts(SUBINFO *sip,KEYOPT *kop)
 
 
 static int process(SUBINFO *sip,ARGINFO *aip,BITS *bop,cchar *afn,
-int aval,int f_apm)
+		int f_apm)
 {
 	FILEBUF		b ;
 	const int	fd = sip->wfd ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
-
-#if	CF_DEBUGS
-	debugprintf("opensvc_votd/process: ent aval=%d f_apm=%u\n",
-	    aval,f_apm) ;
-#endif
 
 	if ((rs = filebuf_start(&b,fd,0L,512,0)) >= 0) {
 	    sip->ofp = &b ;
@@ -1214,7 +1206,7 @@ int aval,int f_apm)
 	        rs = procall(sip) ;
 	        wlen += rs ;
 	    } else {
-	        rs = procsome(sip,aip,bop,afn,aval,f_apm) ;
+	        rs = procsome(sip,aip,bop,afn,f_apm) ;
 	        wlen += rs ;
 	    }
 
@@ -1237,7 +1229,7 @@ int aval,int f_apm)
 
 
 static int procsome(SUBINFO *sip,ARGINFO *aip,BITS *bop,cchar *afn,
-int aval,int f_apm)
+		int f_apm)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1248,7 +1240,6 @@ int aval,int f_apm)
 
 #if	CF_DEBUGS
 	debugprintf("opensvc_votd/procsome: ent\n") ;
-	debugprintf("opensvc_votd/procsome: aval=%d f_apm=%u\n",aval,f_apm) ;
 	debugprintf("opensvc_votd/procsome: argc=%u\n",aip->argc) ;
 #endif
 
@@ -1315,27 +1306,23 @@ int aval,int f_apm)
 	} /* end if (ok) */
 
 	if ((rs >= 0) && f_apm) {
-	    int	ndays = 1 ;
-
-#if	CF_DEBUGS
-	    debugprintf("opensvc_votd/process: +%u\n",aval) ;
-#endif
+	    int		ndays = 1 ;
 
 	    pan += 1 ;
-	    if (aval > 0) ndays = (aval+1) ;
+	    if (sip->nitems > 0) ndays = (sip->nitems+1) ;
 	    rs = proctoday(sip,TRUE,ndays) ;
 	    wlen += rs ;
 
 	} /* end if */
 
 	if ((rs >= 0) && (pan == 0) && sip->f.defnull) {
-	    int	ndays = 1 ;
+	    int		ndays = 1 ;
 
 #if	CF_DEBUGS
 	    debugprintf("opensvc_votd/process: defnull\n") ;
 #endif
 
-	    if (aval > 1) ndays = aval ;
+	    if (sip->nitems > 1) ndays = sip->nitems ;
 	    rs = proctoday(sip,TRUE,ndays) ;
 	    wlen += rs ;
 
@@ -1524,7 +1511,7 @@ static int procallcache(SUBINFO *sip)
 
 
 static int procallcacheout(SUBINFO *sip,VOTDC *vcp,VOTDC_CITE *citep,
-char *vbuf,int vl)
+		char *vbuf,int vl)
 {
 	int		rs ;
 	int		wlen = 0 ;

@@ -103,6 +103,7 @@ struct uctimeout {
 	pthread_t	tid_catch ;
 	pthread_t	tid_disp ;
 	timer_t		timerid ;
+	volatile int	waiters ;
 	volatile int	f_init ;	/* race-condition, blah, blah */
 	volatile int	f_initdone ;
 	volatile int	f_capture ;	/* capture flag */
@@ -111,7 +112,7 @@ struct uctimeout {
 	volatile int	f_cmd ;
 	volatile int	f_syncing ;
 	volatile int	f_exiting ;
-	volatile int	waiters ;
+	volatile int	f_reqexit ;
 	int		cmd ;
 	int		count ;
 } ;
@@ -134,6 +135,7 @@ static int	uctimeout_capend(UCTIMEOUT *) ;
 static int	uctimeout_workready(UCTIMEOUT *) ;
 static int	uctimeout_workbegin(UCTIMEOUT *) ;
 static int	uctimeout_workend(UCTIMEOUT *) ;
+static int	uctimeout_workfins(UCTIMEOUT *) ;
 
 static int	uctimeout_priqbegin(UCTIMEOUT *) ;
 static int	uctimeout_priqend(UCTIMEOUT *) ;
@@ -150,6 +152,9 @@ static int	uctimeout_thrcatchproc(UCTIMEOUT *) ;
 
 static int	uctimeout_thrdispbegin(UCTIMEOUT *) ;
 static int	uctimeout_thrdispend(UCTIMEOUT *) ;
+
+static int	uctimeout_sigwait(UCTIMEOUT *) ;
+static int	uctimeout_sigserve(UCTIMEOUT *) ;
 
 static int	uctimeout_sendsync(UCTIMEOUT *) ;
 static int	uctimeout_run(UCTIMEOUT *) ;
@@ -318,7 +323,7 @@ static int uctimeout_capend(UCTIMEOUT *uip)
 static int uctimeout_workready(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
-	if (! uip->f_workready) {
+	if (! uip->f.working) {
 	    rs = uctimeout_workbegin(uip) ;
 	}
 	return rs ;
@@ -356,7 +361,7 @@ static int uctimeout_workbegin(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	if (! uip->f_workready) {
+	if (! uip->f_working) {
 	    int	vo = 0 ;
 	    so |= (VECHAND_OSTATIONARY|VECHAND_OREUSE| VECHAND_OCOMPACT) ;
 	    vo |= ( VECHAND_OSWAP| VECHAND_OCONSERVE) ;
@@ -383,7 +388,7 @@ static int uctimeout_workbegin(UCTIMEOUT *uip)
 		    vechand_finish(&uip->ents) ;
 		}
 	    } /* end if (vechand_start) */
-	}
+	} /* end if (needed) */
 	return rs ;
 }
 /* end subroutine (uctimeout_workbegin) */
@@ -402,6 +407,8 @@ static int uctimeout_workend(UCTIMEOUT *uip)
 	    if (rs >= 0) rs = rs1 ;
 	    rs1 = uctimeout_priqend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
+	    rs1 = uctimeout_workfins(uip) ;
+	    if (rs >= 0) rs = rs1 ;
 	    rs1 = vechand_finish(&uip->ents) ;
 	    if (rs >= 0) rs = rs1 ;
 	    uip->open.working = FALSE ;
@@ -409,6 +416,24 @@ static int uctimeout_workend(UCTIMEOUT *uip)
 	return rs ;
 }
 /* end subroutine (uctimeout_workend) */
+
+
+static int uctimeout_workfins(UCTIMEOUT *uip)
+{
+	vechand		*elp = &uip->ents ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	void		*top ;
+	for (i = 0 ; vechand_get(elp,i,&top) >= 0 ; i += 1) {
+	    if (top != NULL) {
+		rs1 = uc_free(top) ;
+		if (rs >= 0) rs = rs1 ;
+	    }
+	} /* end for */
+	return rs ;
+}
+/* end subroutine (uctimeout_workfins) */
 
 
 static int uctimeout_priqbegin(UCTIMEOUT *uip)
@@ -528,27 +553,30 @@ static int uctimeout_thrcatchend(UCTIMEOUT *uip)
 	if (uip->f.running_catch) {
 	 	    pthread_t	tid = uip->tid_catch ;
 		    int		trs ;
-		    if ((rs = uptjoin(tid,&trs)) >= 0) {
 		        uip->f.running_catch = FALSE ;
+		    if ((rs = uptjoin(tid,&trs)) >= 0) {
 		        rs = trs ;
 		    } else if (rs == SR_SRCH) {
-		        uip->f.running_catch = FALSE ;
 		        rs = SR_OK ;
 		    }
-	        } /* end if (uctimeout_sendsync) */
 	}
 	return rs ;
 }
 /* end subroutine (uctimeout_thrcatchend) */
 
 
+/* this is an independent thread of execution */
 static int uctimeout_thrcatchproc(UCTIMEOUT *uip)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	while ((rs = uctimeout_sigwait(uip)) > 0) {
-	   if (uip->f.thrcatch_exit) break ;
-
-
+	    if (uip->f_reqexit) break ;
+	    switch (rs) {
+	    case 1:
+	        rs = uctimeout_sigserve(uip) ;
+		break ;
+	    }
+	    if (rs < 0) break ;
 	} /* end while */
 	return rs ;
 }
@@ -557,15 +585,53 @@ static int uctimeout_thrcatchproc(UCTIMEOUT *uip)
 
 static int uctimeout_sigwait(UCTIMEOUT *uip)
 {
+	sigset_t	ss ;
 	siginfo_t	si ;
+	const int	sig = SIGTIMEOUT ;
 	int		rs ;
-	while ((rs = uc_sigwaitinfo()) > 0) {
-	   if (uip->f.thrcatch_exit) break ;
-
-
+	int		f = FALSE ;
+	int		f_exit = FALSE ;
+	uc_sigsetempty(&ss) ;
+	uc_sigsetadd(sig) ;
+	timespec_init(&ts,10,0) ;
+	repeat {
+	    rs = uc_sigwaitinfo(&ss,&si,&ts) ;
+	    if (rs < 0) {
+		switch (rs) {
+		case SR_INTR:
+		case SR_AGAIN:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+		} /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
+	if (rs >= 0) {
+	    rs = (sig == si.si_signo) ; /* logical */
+	}
 	return rs ;
 }
 /* end subroutine (uctimeout_sigwait) */
+
+
+static int uctimeout_sigserve(UCTIMEOUT *uip)
+{
+	const time_t	dt = time(NULL) ;
+	int		rs = SR_OK ;
+	int		qs ;
+	while ((qs = pqp->size()) > 0) {
+	    TIMEOUT	*top = pqp->top() ;
+	    if (top->val > dt) break ;
+	    pqp->pop() ;
+	    if ((rs = ciq_ins(&uip->pass,top)) >= 0) {
+	        rs = ptc_signal(&uip->c) ;
+	    }
+	    if (rs < 0) break ;
+	} /* end while */
+	return rs ;
+}
+/* end subroutine (uctimeout_sigserve) */
 
 
 static int uctimeout_thrdispbegin(UCTIMEOUT *uip)

@@ -116,7 +116,7 @@
 
 #define	VRBUF		struct vrbuf
 
-#define	NDFNAME		"bibleverse.nd"
+#define	NDF		"/tmp/bibleverse.nd"
 
 
 /* external subroutines */
@@ -150,6 +150,7 @@ extern int	isalphalatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotValid(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -255,6 +256,8 @@ static int	procout(PROGINFO *,BIBLEVERSE_Q *,const char *,int) ;
 static int	procoutline(PROGINFO *,int,const char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_deflinelen(LOCINFO *) ;
 static int	locinfo_booklookup(LOCINFO *,char *,int,int) ;
 static int	locinfo_bookmatch(LOCINFO *,const char *,int) ;
 static int	locinfo_book(LOCINFO *) ;
@@ -262,7 +265,6 @@ static int	locinfo_today(LOCINFO *) ;
 static int	locinfo_defdayspec(LOCINFO *,DAYSPEC *) ;
 static int	locinfo_year(LOCINFO *) ;
 static int	locinfo_tmtime(LOCINFO *) ;
-static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_mkmodquery(LOCINFO *,BIBLEVERSE_Q *,int) ;
 static int	locinfo_bvs(LOCINFO *) ;
 static int	locinfo_bvsbuild(LOCINFO *) ;
@@ -278,7 +280,7 @@ static int	isNotGoodCite(int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"HELP",
@@ -334,7 +336,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"audit",
 	"linelen",
 	"indent",
@@ -366,7 +368,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	blanks[] = "                    " ;
+static cchar	blanks[] = "                    " ;
 
 static const uchar	aterms[] = {
 	0x00, 0x2E, 0x00, 0x00,
@@ -379,7 +381,7 @@ static const uchar	aterms[] = {
 	0x00, 0x00, 0x00, 0x00
 } ;
 
-static const char	*qtypes[] = {
+static cchar	*qtypes[] = {
 	"verses",
 	"days",
 	"mjds",
@@ -1071,26 +1073,24 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        pn,((sdbname != NULL) ? sdbname : "NULL")) ;
 	}
 
-	rs1 = (DEFPRECISION + 2) ;
-	if ((rs >= 0) && (lip->linelen < rs1)) {
-	    cp = getourenv(envv,VARLINELEN) ;
-	    if (cp == NULL) cp = getourenv(envv,VARCOLUMNS) ;
-	    if (cp != NULL) {
-	        if ((rs = optvalue(cp,-1)) >= 0) {
-		    if (v >= rs1) {
-	                lip->have.linelen = TRUE ;
-	                lip->final.linelen = TRUE ;
-	                lip->linelen = v ;
-		    }
-	        }
-	    }
+	if (rs >= 0) {
+	    rs = locinfo_deflinelen(lip) ;
 	}
 
-	if (lip->linelen < rs1) lip->linelen = COLUMNS ;
+#if	CF_DEBUGN
+	nprintf(NDF,"b_bibleverse: 3 ll=%d\n",lip->linelen) ;
+#endif
 
 	if ((lip->nitems < 1) && (! lip->have.nitems)) lip->nitems = 1 ;
 
 	if (lip->nitems < 0) lip->nitems = 1 ;
+
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: linelen=%u\n",pn,lip->linelen) ;
+	    shio_printf(pip->efp,"%s: indent=%u\n",pn,lip->indent) ;
+	    shio_printf(pip->efp,"%s: nitems=%u\n",pn,lip->nitems) ;
+	}
 
 /* process */
 
@@ -1439,12 +1439,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int process(pip,aip,bop,ofn,afn)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-const char	*ofn ;
-const char	*afn ;
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
@@ -1487,11 +1482,7 @@ const char	*afn ;
 /* end subroutine (process) */
 
 
-static int procsome(pip,aip,bop,afn)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-const char	*afn ;
+static int procsome(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -1634,7 +1625,7 @@ static int procspecs(PROGINFO *pip,cchar *sp,int sl)
 /* end subroutine (procspecs) */
 
 
-static int procspec(PROGINFO *pip,cchar sp[],int sl)
+static int procspec(PROGINFO *pip,cchar *sp,int sl)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -1783,7 +1774,7 @@ static int procall(PROGINFO *pip)
 /* end subroutine (procall) */
 
 
-static int procparse(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar sp[],int sl)
+static int procparse(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar *sp,int sl)
 {
 	BCSPEC		bb ;
 	int		rs ;
@@ -2055,7 +2046,7 @@ static int procoutcite(PROGINFO *pip,BIBLEVERSE_Q *qp,int ndays)
 /* end subroutine (procoutcite) */
 
 
-static int procout(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar vp[],int vl)
+static int procout(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar *vp,int vl)
 {
 	LOCINFO		*lip = pip->lip ;
 	WORDFILL	w ;
@@ -2077,6 +2068,11 @@ static int procout(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar vp[],int vl)
 #endif
 
 	cbl = MIN((lip->linelen - lip->indent),clen) ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"b_bibleverse/procout: clen=%d ll=%d ind=%d cbl=%d\n",
+		clen,lip->linelen,lip->indent,cbl) ;
+#endif
 
 	if ((rs >= 0) && lip->f.para) {
 	    rs = locinfo_ispara(lip,qp) ;
@@ -2100,6 +2096,10 @@ static int procout(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar vp[],int vl)
 	            if ((cl == 0) || (cl == SR_NOTFOUND)) break ;
 	            rs = cl ;
 
+#if	CF_DEBUGN
+	nprintf(NDF,"b_bibleverse/procout: 1 cl=%d\n",cl) ;
+#endif
+
 	            if (rs >= 0) {
 	                rs = procoutline(pip,line,cbuf,cl) ;
 	                wlen += rs ;
@@ -2110,6 +2110,9 @@ static int procout(PROGINFO *pip,BIBLEVERSE_Q *qp,cchar vp[],int vl)
 
 	        if (rs >= 0) {
 	            if ((cl = wordfill_mklinepart(&w,cbuf,cbl)) > 0) {
+#if	CF_DEBUGN
+	nprintf(NDF,"b_bibleverse/procout: 2 cl=%d\n",cl) ;
+#endif
 	                rs = procoutline(pip,line,cbuf,cl) ;
 	                wlen += rs ;
 	                line += 1 ;
@@ -2156,7 +2159,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
 	lip->indent = 1 ;
-	lip->linelen = 0 ;
 	lip->count = -1 ;
 	lip->max = -1 ;
 	lip->nitems = -1 ;
@@ -2203,6 +2205,35 @@ static int locinfo_finish(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_finish) */
+
+
+static int locinfo_deflinelen(LOCINFO *lip)
+{
+	const int	def = (DEFPRECISION + 2) ;
+	int		rs = SR_OK ;
+	if (lip->linelen < def) {
+	    PROGINFO	*pip = lip->pip ;
+	    cchar	*cp = NULL ;
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARLINELEN) ;
+	    }
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARCOLUMNS) ;
+	    }
+	    if (! isStrEmpty(cp,-1)) {
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (rs >= def) {
+	                lip->have.linelen = TRUE ;
+	                lip->final.linelen = TRUE ;
+	                lip->linelen = rs ;
+		    }
+	        }
+	    }
+	}
+	if (lip->linelen < def ) lip->linelen = COLUMNS ;
+	return rs ;
+}
+/* end subroutine (locinfo_deflinelen) */
 
 
 static int locinfo_booklookup(LOCINFO *lip,char *rbuf,int rlen,int bi)
@@ -2446,8 +2477,9 @@ static int locinfo_bvsbuild(LOCINFO *lip)
 	if (pip == NULL) return SR_FAULT ;
 	if (lip->open.vdb) {
 	    rs = locinfo_bvsbuilder(lip) ;
-	} else 
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 	return rs ;
 }
@@ -2460,7 +2492,7 @@ static int locinfo_bvsbuilder(LOCINFO *lip)
 	BVSMK		*bmp = &lip->bsmk ;
 	const mode_t	om = 0666 ;
 	const int	of = 0 ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	const char	*pr = pip->pr ;
 	const char	*sdbname = lip->sdbname ;

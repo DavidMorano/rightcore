@@ -12,28 +12,25 @@
 /* revision history:
 
 	= 1994-11-01, David A­D­ Morano
-
 	- added a mode to intercept for mailbox use
 
-
 	= 1994-12-01, David A­D­ Morano
-
 	- modified to only print out header fields that a user
 	  is normally interested in
 
-
 	= 1995-07-01, David A­D­ Morano
-
 	- extensively modified to add:
 		article follow-up capability
 		article previous
 		article printing
 		article piping & redirecting
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
-/* Copyright © 1994,1995,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

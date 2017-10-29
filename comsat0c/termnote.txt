@@ -1,0 +1,17 @@
+TERMNOTE
+
+
+int termnote_open(TERMNOTE *op,const char *pr) ;
+
+int termnote_close(TERMNOTE *op) ;
+
+int termnote_write(TERMNOTE *op,const char **recips,int n,int opts,
+		const char *,int) ;
+
+int termnote_printf(TERMNOTE *op,const char **recips,int n,int opts,
+		const char *,...) ;
+int termnote_vprintf(TERMNOTE *op,const char **recips,int n,int opts,
+		const char *,va_list) ;
+
+
+

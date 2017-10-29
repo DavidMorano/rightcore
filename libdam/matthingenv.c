@@ -266,7 +266,7 @@ int matthingenv(cchar *s,int slen)
 	if ((ll = nexttoken(cp,slen,&cp2)) < 4)
 	    return 0 ;
 
-	ch = KMCHAR(cp2[0]) ;
+	ch = MKCHAR(cp2[0]) ;
 	if ((! isdigitlatin(ch)) || (strchr(cp2,':') == NULL))
 		return 0 ;
 

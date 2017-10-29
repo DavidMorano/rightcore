@@ -10,20 +10,16 @@
 /* revision history:
 
 	= 1995-05-01, David A­D­ Morano
-
         This code module was completely rewritten to replace any original
         garbage that was here before.
 
-
 	= 1998-02-10, David A­D­ Morano
-
         Slightly modified to isolate all of the BBNEWSRC code into confined
         spaces.
 
-
 */
 
-/* Copyright © 1995,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

@@ -124,6 +124,7 @@ extern int	isdigitlatin(int) ;
 extern int	isprintlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -232,6 +233,7 @@ static int	procsystemout(PROGINFO *,void *,int,LINEBUF *) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_deflinelen(LOCINFO *) ;
 static int	locinfo_argload(LOCINFO *,cchar *,int) ;
 static int	locinfo_argenum(LOCINFO *,int,cchar **) ;
 static int	locinfo_logdialer(LOCINFO *) ;
@@ -397,7 +399,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
 	int		v ;
-	int		n ;
 	int		timeout = -1 ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
@@ -1004,21 +1005,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (timeout <= 0) timeout = TO_CONNECT ;
 	lip->to = timeout ;
 
-	rs1 = (DEFPRECISION + 2) ;
-	if ((rs >= 0) && (lip->linelen < rs1)) {
-	    cp = getourenv(envv,VARLINELEN) ;
-	    if (cp == NULL) cp = getourenv(envv,VARCOLUMNS) ;
-	    if (cp != NULL) {
-	        if (((rs = cfdeci(cp,-1,&n)) >= 0) && (n >= rs1)) {
-	            lip->have.linelen = TRUE ;
-	            lip->final.linelen = TRUE ;
-	            lip->linelen = n ;
-	        }
-	    }
+	if (rs >= 0) {
+	    rs = locinfo_deflinelen(lip) ;
 	}
-
-	if (lip->linelen < rs1)
-	    lip->linelen = COLUMNS ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -2077,6 +2066,35 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 }
 /* end subroutine (locinfo_setentry) */
 #endif /* CF_LOCSETENT */
+
+
+static int locinfo_deflinelen(LOCINFO *lip)
+{
+	const int	def = (DEFPRECISION + 2) ;
+	int		rs = SR_OK ;
+	if (lip->linelen < def) {
+	    PROGINFO	*pip = lip->pip ;
+	    cchar	*cp = NULL ;
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARLINELEN) ;
+	    }
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARCOLUMNS) ;
+	    }
+	    if (! isStrEmpty(cp,-1)) {
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (rs >= def) {
+	                lip->have.linelen = TRUE ;
+	                lip->final.linelen = TRUE ;
+	                lip->linelen = rs ;
+		    }
+	        }
+	    }
+	}
+	if (lip->linelen < def ) lip->linelen = COLUMNS ;
+	return rs ;
+}
+/* end subroutine (locinfo_deflinelen) */
 
 
 int locinfo_argload(LOCINFO *lip,cchar *ap,int al)

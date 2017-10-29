@@ -1,0 +1,44 @@
+'\" t
+.nr X
+.TH mkdirs 3 "1998-01-10" LOCAL
+.SH NAME
+mkdirs \- create directories in a path
+.\"_
+.SH "SYNOPSIS"
+.LP
+.BI "int mkdirs(const char *" "path" ,
+.BI "mode_t " "mode" );
+.\"_
+.SH DESCRIPTION
+.IX "mkdirs" "" "\fLmkdirs\fP \(em create directories in a path"
+.B mkdirs(\|)
+creates all the missing directories in the given
+\f2path\f1 with the given \f2mode\f1.  See
+.BR chmod (2) 
+for the values of \f2mode.\f1
+.\"_
+.SH EXAMPLES
+.EX
+/\(** create scratch directories \(**/
+if (mkdirs("/tmp/sub1/sub2/sub3", 0755) < 0) {
+	fprintf(stderr, "cannot create directory");
+	exit(1);
+}
+chdir("/tmp/sub1/sub2/sub3");
+\&\.
+\&\.
+\&\.
+.EE
+.\"_
+.SH "RETURN VALUES"
+If a needed directory cannot be created,
+.B mkdirs(\|)
+returns a value less than zero indicating the error.
+If all the directories are 
+created, or existed to begin with, it returns zero.
+.\"_
+.SH "SEE ALSO"
+.BR mkdir (2),
+.BR rmdir (2),
+.BR mkdirp (3G)
+.\"_

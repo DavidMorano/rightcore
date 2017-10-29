@@ -1,0 +1,13 @@
+	    ISSUE	m ;
+	    fd = rs ;
+
+	    if ((rs = issue_open(&m,pr)) >= 0) {
+
+	        rs = issue_process(&m,kn,admins,fd) ;
+
+		issue_close(&m) ;
+	    } /* end if (issue) */
+
+	    if (rs >= 0) u_rewind(fd) ;
+	    if (rs < 0) u_close(fd) ;
+

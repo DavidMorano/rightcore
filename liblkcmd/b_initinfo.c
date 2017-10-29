@@ -104,7 +104,7 @@ extern int	strlinelen(const char *,int,int) ;
 
 extern cchar	*getourenv(cchar **,cchar *) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
@@ -125,7 +125,7 @@ struct locinfo_flags {
 struct locinfo {
 	LOCINFO_FL	f ;
 	PROGINFO	*pip ;
-	const char	*utfname ;
+	cchar		*utfname ;
 	double		fla[3] ;
 	uint		nprocs ;
 	uint		nusers ;
@@ -150,7 +150,7 @@ static int	locinfo_finish(LOCINFO *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -179,7 +179,7 @@ enum argopts {
 } ;
 
 /* define the configuration keywords */
-static const char *reqopts[] = {
+static cchar	*reqopts[] = {
 	"btime",
 	"path",
 	"supath",

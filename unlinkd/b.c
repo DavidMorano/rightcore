@@ -463,7 +463,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -475,8 +475,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	pip->intpoll = -1 ;
 	pip->intdis = -1 ;
 
-	pip->lip = lip ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) {
+	    pip->lip = lip ;
+	    rs = locinfo_start(lip,pip) ;
+	}
+
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;

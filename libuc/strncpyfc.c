@@ -65,7 +65,6 @@ extern int	tofc(int) ;
 
 char *strncpyfc(char *dst,cchar *src,int n)
 {
-
 	if (n >= 0) {
 	    while (n && *src) {
 	        *dst++ = tofc(*src) ;
@@ -74,8 +73,9 @@ char *strncpyfc(char *dst,cchar *src,int n)
 	    } /* end while */
 	    if (n > 0)
 	        memset(dst,0,n) ;
-	} else
+	} else {
 	    dst = strcpyfc(dst,src) ;
+	}
 
 	return dst ;
 }

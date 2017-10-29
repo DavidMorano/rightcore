@@ -1,0 +1,1327 @@
+Deliveres-To: coldspacemachine@gmail.com
+Received: by 10.36.83.69 with SMTP id n66csp1598279itb;
+        Tue, 10 Jan 2017 17:14:44 -0800 (PST)
+X-Received: by 10.55.22.233 with SMTP id 102mr6596645qkw.102.1484097284426;
+        Tue, 10 Jan 2017 17:14:44 -0800 (PST)
+Return-Path: <david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com>
+Received: from mail-qk0-x236.google.com (mail-qk0-x236.google.com. [2607:f8b0:400d:c09::236])
+        by mx.google.com with ESMTPS id v13si23871qta.74.2017.01.10.17.14.44
+        for <coldspacemachine@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 10 Jan 2017 17:14:44 -0800 (PST)
+Received-SPF: pass (google.com: domain of david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com designates 2607:f8b0:400d:c09::236 as permitted sender) client-ip=2607:f8b0:400d:c09::236;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@computer.org;
+       dkim=pass header.i=@mailgun.org;
+       spf=pass (google.com: domain of david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com designates 2607:f8b0:400d:c09::236 as permitted sender) smtp.mailfrom=david.a.morano+caf_=coldspacemachine=gmail.com@gmail.com
+Received: by mail-qk0-x236.google.com with SMTP id 11so59194796qkl.3
+        for <coldspacemachine@gmail.com>; Tue, 10 Jan 2017 17:14:44 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:delivered-to:dkim-signature:domainkey-signature
+         :dkim-signature:domainkey-signature:date:message-id:list-unsubscribe
+         :reply-to:to:from:subject:mime-version;
+        bh=4EzIZrNYMuSCI4xtnvuPEwdOoY6cS9gW1R8Ouqh3ebE=;
+        b=uFRkj7SLWDGF/lnImcr7TGMBE9/VkrOFYsRc1FYngkFklyRz8WozNG/mwdEtATcv/A
+         qq64/iSVj4G7O3S8KoFYaJbQBHmPn9mMdWc2vBWJmH8ET4NxEzhqX5bIiZMk+TGQ9zuo
+         8ZOuiqMIrsXWXAdYIsvZ9e8JqZXKRFwhzvvf6UaMOmEDKTiD3GVao8FeTyy4C8zE5EP6
+         CutGdHa2oLSyVbK7LuNI89FLINZqTccQB2S7BfrIa6oXpbVIuzPJbC/XsHO9wZXMoyRZ
+         SaJWUxo18FQyYOj68oS3bTDJSIxdGAjZmATzi5he9puJ3S/M3dgjWqKdNeG9hacgwzfI
+         9UQw==
+X-Gm-Message-State: AIkVDXLLaZsQ/yQ/L0PWHBNzBCa8t5sAKn3qovoy93ven6EYvVWXMX0AC8Xid4sJoYC6xoRcZpHyJjZugfdrPuTdIDpNf1k=
+X-Received: by 10.55.60.136 with SMTP id j130mr5533611qka.304.1484097284109;
+        Tue, 10 Jan 2017 17:14:44 -0800 (PST)
+X-Forwarded-To: coldspacemachine@gmail.com
+X-Forwarded-For: david.a.morano@gmail.com coldspacemachine@gmail.com
+Delivered-To: david.a.morano@gmail.com
+Received: by 10.200.0.201 with SMTP id d9csp511055qtg;
+        Tue, 10 Jan 2017 17:14:42 -0800 (PST)
+X-Received: by 10.107.186.136 with SMTP id k130mr6042940iof.195.1484097282824;
+        Tue, 10 Jan 2017 17:14:42 -0800 (PST)
+Return-Path: <bounce+be45dd.508906-david.a.morano=gmail.com@computer.org>
+Received: from m71-52.mailgun.net (m71-52.mailgun.net. [166.78.71.52])
+        by mx.google.com with ESMTPS id y101si3514808ioe.235.2017.01.10.17.14.42
+        for <david.a.morano@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 10 Jan 2017 17:14:42 -0800 (PST)
+Received-SPF: pass (google.com: domain of bounce+be45dd.508906-david.a.morano=gmail.com@computer.org designates 166.78.71.52 as permitted sender) client-ip=166.78.71.52;
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=computer.org; q=dns/txt; s=pic; t=1484097282; h=Content-Type: Mime-Version: Subject: From: To: Reply-To: List-Unsubscribe: Message-Id: Date: X-Feedback-Id; bh=4EzIZrNYMuSCI4xtnvuPEwdOoY6cS9gW1R8Ouqh3ebE=; b=Tloj1PGiUafIlxLRo1oiqBdK5N4cFJWyARRlFIP5NIDojefToqlXyrb9kUiFi8G9q3u4slZl nmYFjlHzoNCq7u8zvcliywZVQwiK7UmhPqSDJ8ECjw2MRnRsW3gSSy58xmT3uRS1kKMq2goA w5F6fYJ+/kfCa5S8EnFhICiGSxs=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=computer.org; s=pic; q=dns; h=X-Feedback-Id: Date: Message-Id: List-Unsubscribe: Reply-To: To: From: Subject: Mime-Version: Content-Type; b=F54q5i+pFA182+H6lQAAFDIgYOoVwivJnrtRQBO3qEvcsGeouKTaBpC8Zel7cERbpDyML+ bwLh4OfzmnqlzSZ+qQtyIQeEmY4YIEG/HYf9dSCyoMh5LSwQ8kWY8IYnyr4UwOFwoXwRhKTX gAgwFT6HwUoYArcl6nFJfqhhQSA78=
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mailgun.org; q=dns/txt; s=mg; t=1484097282; h=Content-Type: Mime-Version: Subject: From: To: Reply-To: List-Unsubscribe: Message-Id: Date: X-Feedback-Id; bh=4EzIZrNYMuSCI4xtnvuPEwdOoY6cS9gW1R8Ouqh3ebE=; b=fJdJolsalj/9CsRkMSXpUeYSCER6K9YsPhWapzGX93S7quj6pBrsKjiy+UqY3f+loD50tanm E1QHlkZTK+DYn72nEV+yGPpjULptQepyeRAaAERQjgle3PBhMJs0cqfqr7JQjC7xkhAi7R8J AnfGAoryqREuoshUbAP086Yt3as=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=mailgun.org; s=mg; q=dns; h=X-Feedback-Id: Date: Message-Id: List-Unsubscribe: Reply-To: To: From: Subject: Mime-Version: Content-Type; b=hw+Kotn+4R8Ha/N/iKZ7aLDwyrO1aIJVvoWhmdIpDKna93vyr4xa2Zs0cY79oC7QdYaMI7 LklwEp2ob1XQCMr9R8HvTr25o8nXC2V+7rfQw1LQQI8E8475MaKUlNAb8tafm4bqiougi33B IOzQ5rC567+T0hb8nNCcq07AMyQT4=
+X-Feedback-Id: 5621413af3b9c4b6a87572fc:mailgun
+Date: Wed, 11 Jan 2017 01:14:42 +0000
+X-Mailgun-Sending-Ip: 166.78.71.52
+X-Mailgun-Sid: WyIyMGNlZiIsICJkYXZpZC5hLm1vcmFub0BnbWFpbC5jb20iLCAiNTA4OTA2Il0=
+X-Mailgun-Batch-Id: b7bef939-d6eb-4ee2-8acd-ca146038a251
+Received: by luna.mailgun.net with HTTP; Wed, 11 Jan 2017 01:09:30 +0000
+Message-Id: <220170111010930.64098.43371.E61512A5@computer.org>
+X-Mailgun-Variables: {"efMailerCode": "mailer_ieee", "efContactId": "36031308", "campaign_id": "1627824", "x-myid": "4b75afb9dd8255ccb25ebfc8345113fa"}
+X-Complaints-To: abuse@mailgun.org
+List-Unsubscribe: <mailto:autounsubscribe@lfmxmail.com?subject=auto_unsubscribe_4b75afb9dd8255ccb25ebfc8345113fa>, <http://news.computer.org/ef1/emunsub.php?em=19d27ae01264cb1e998dd0fd886a63c1e004266badd759fb8dcaa65e95e626af&li=7b89e5315f6b669429a3ccf6770bff1f&ci=ee0e302f761f3516fb16f14fa974fb02>
+X-Myid: 4b75afb9dd8255ccb25ebfc8345113fa
+Reply-To: csconnection@computer.org
+X-Rpcampaign: Comput20170110170847
+X-Mailgun-Rewrite-Sender-Header: false
+X-Mailgun-Track: false
+To: David Morano <david.a.morano@gmail.com>
+From: IEEE Computer Society <csconnection@computer.org>
+Subject: Get Connected with MemberConnection
+Mime-Version: 1.0
+Content-Type: multipart/alternative; boundary="a86ce223b8654fc5ae4b62ecffc387dd"
+
+--a86ce223b8654fc5ae4b62ecffc387dd
+Content-Type: text/plain; charset="utf-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+
+Having trouble reading this email? View it in your browser -  http://news.c=
+omputer.org/bf/EmailCampaign.php?lf1=3D3511627824e960516109495f61479294&url=
+id=3D564183
+
+=C2=A0
+=C2=A0
+
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D7661627824a38961610949=
+5f61479349&urlid=3D564184 )
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D2861627824b99381610949=
+5f61479427&urlid=3D564185 )   13 December 2016=20
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D1001627824b12501610949=
+5d61479589&urlid=3D564186 )
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D9341627824e13351610949=
+5d61479694&urlid=3D564187 )
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D4371627824a17131610949=
+5f61479723&urlid=3D564188 )
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D2281627824d27641610949=
+5c61479812&urlid=3D564189 )
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D4671627824d98431610949=
+5f61479919&urlid=3D564190 )
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D6141627824a84391610949=
+5a61480022&urlid=3D564191 )     =C2=A0 =C2=A0
+60 Computer Society Members Elevated to Fellow Grade for 2017
+
+Sixty IEEE Computer Society members and 11 IEEE members evaluated by the 20=
+16 CS Fellow Evaluation Committee will be elevated to IEEE Fellow grade in =
+2017. The grade of Fellow recognizes unusual distinction in the profession.=
+ [Click to view the list of Fellows for 2017.](https://www.computer.org/web=
+/pressroom/CS-Fellows-2017?lf1track=3D1 )
+
+[Nominations for the IEEE Fellows Class of 2018 are now being accepted.](ht=
+tps://www.computer.org/web/awards/fellows-call-nominations?lf1track=3D1 ) N=
+ominate a colleague whose career and body of work you consider eligible for=
+ elevation to the IEEE Fellow grade. Deadline: 1 March 2017.
+=C2=A0      MEMBERSHIP EXPIRES 31 DEC =E2=80=94 RENEW TODAY When renewing y=
+our 2017 Computer Society membership you can now choose the type of members=
+hip you want =E2=80=93 and the benefits it provides =E2=80=93 to fit your s=
+pecific career needs. [The Computer Society has introduced a tiered members=
+hip that includes four professional options](http://news.computer.org/bf/Em=
+ailCampaign.php?lf1=3D7641627824e457316109495f61480396&urlid=3D564194 ) (Pr=
+eferred Plus, Training and Development, Research, and Basic) and one studen=
+t option.
+
+Current professional Computer Society members are defaulted to our Preferre=
+d Plus level tier for 2017. Preferred Plus offers the widest access to all =
+Computer Society benefits and combines the benefits and resources of the Tr=
+aining & Development benefits with the benefits of the Research tier. Renew=
+ today and save 10% on the Preferred Plus membership tier! [Higher Grade me=
+mbers click here](http://news.computer.org/bf/EmailCampaign.php?lf1=3D47916=
+27824f501616109495a61480476&urlid=3D564195 ) and [Affiliate members click h=
+ere](http://news.computer.org/bf/EmailCampaign.php?lf1=3D4601627824e9110161=
+09495b61480557&urlid=3D564196 ) to see the savings. YEAR IN REVIEW WEBINAR:=
+ TUES 20 DEC 11 ET 2016 was another year of dramatic improvement, especiall=
+y in the areas of personalization and customization of your membership incl=
+uding the launch of a new membership experience, myCS, more Rock Stars even=
+ts, professional education, 70th Anniversary Student Challenge, mycomputer =
+mobile app, to just name a few of the reasons. [Join Board of Governor memb=
+er, Christina Schober,](https://cc.readytalk.com/registration/#/?meeting=3D=
+n7nzsk0pf8jd&campaign=3Dmszz942c2r1o&lf1track=3D1 ) as we go over all of th=
+e amazing highlights from this past year and how they can benefit you in 20=
+17. ARE YOU USING myCS? SWITCH FROM QMAGS TO myCS STARTS ON 1 JAN=20
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D2041627824b14681610949=
+5e61480853&urlid=3D564199 )Beginning on 1 January 2017, your digital subscr=
+iptions will be fulfilled through myCS. The [myCS interactive portal](http:=
+//news.computer.org/bf/EmailCampaign.php?lf1=3D9621627824e873416109495f6148=
+0850&urlid=3D564199 ) is home to our newly redesigned digital magazines and=
+ journals. The new myCS platform takes you away from the static and hard-to=
+-read PDFs from QMags and provides you with a customizable, fully adaptive =
+experience available 24x7 on your desktop, eReader, laptop, tablet or smart=
+phone. myCS will adapt to your mobile device, and offers you a choice of pd=
+f, e-book, and HTML formats.
+
+Going forward myCS will conveniently archives your magazine and journal sub=
+scriptions in the myCS portal so you'll have every issue right at your fing=
+ertips. We have arranged with Qmags for your archival issues to remain avai=
+lable through 2017, accessible through the Qmags website using your existin=
+g email address and password. You are encouraged to download your existing =
+Qmags archived issues to keep your personal library of past issues intact. =
+[Log in to myCS](http://news.computer.org/bf/EmailCampaign.php?lf1=3D840162=
+7824a897816109495d61480968&urlid=3D564200 ) and explore all that it has to =
+offer! A NEW BENEFIT FOR JOURNAL SUBSCRIBERS
+Starting in January, subscribers to any of the Computer Society=E2=80=99s e=
+lectronic journals will receive [Colloquium, a print digest which puts the =
+abstracts of all recently published articles at your fingertips.](http://ne=
+ws.computer.org/bf/EmailCampaign.php?lf1=3D7101627824d753316109495e61481048=
+&urlid=3D564201 ) Portable enough for your morning commute, efficient enoug=
+h to be read over a cup of coffee, and viewable without Wi-Fi, Colloquium h=
+elps you stay at the cutting edge of your field.
+
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D7101627824d75331610949=
+5e61481048&urlid=3D564201 )  COMPUTER SOCIETY AWARDS [SEYMOUR CRAY COMPUTER=
+ ENGINEERING AWARD](http://news.computer.org/bf/EmailCampaign.php?lf1=3D973=
+1627824f466516109495f61481140&urlid=3D564202 )
+For contributions to high performance computing systems that best exemplify=
+ the creative spirit demonstrated by Seymour Cray. The award consists of a =
+crystal memento and honorarium of US$10,000.
+
+[SIDNEY FERNBACH MEMORIAL AWARD](http://news.computer.org/bf/EmailCampaign.=
+php?lf1=3D2641627824f240016109495c61481291&urlid=3D564203 )
+A certificate and a US$2,000 honorarium, is presented annually to an indivi=
+dual for =E2=80=9Can outstanding contribution in the application of high pe=
+rformance computers using innovative approaches.=E2=80=9D
+
+[IEEE-CS/ACM KEN KENNEDY AWARD](http://news.computer.org/bf/EmailCampaign.p=
+hp?lf1=3D7431627824a123016109495e61481343&urlid=3D564204 )
+A certificate and US$5,000 honorarium are awarded jointly by the IEEE Compu=
+ter Society and ACM for outstanding contributions to programmability or pro=
+ductivity in high performance computing together with significant community=
+ service or mentoring contributions.
+Nomination Deadline: 1 July 2017
+
+[ECKERT-MAUCHLY AWARD](http://news.computer.org/bf/EmailCampaign.php?lf1=3D=
+9211627824a305016109495b61481472&urlid=3D564205 )
+A certificate and US$5,000 are awarded jointly by the Computer Society and =
+ACM for outstanding contributions to the field of computer and digital syst=
+ems architecture. =C2=A0
+Nomination Deadline: 30 March 2017 TECHIGNITE + 9 ROCK STAR EVENTS FOR 2017=
+ [Blockchain Healthcare,](http://news.computer.org/bf/EmailCampaign.php?lf1=
+=3D5511627824a955516109495e61481571&urlid=3D564206 ) Orlando, FL; 22 Feb
+[TechIgnite](http://news.computer.org/bf/EmailCampaign.php?lf1=3D8551627824=
+c391016109495e61481650&urlid=3D564207 ), Burlingame, CA; 21-22 March
+[Blockchain & Cybersecurity,](http://news.computer.org/bf/EmailCampaign.php=
+?lf1=3D5041627824f907816109495a61481731&urlid=3D564208 ) Bengaluru Karnatak=
+a India; 5 April
+[Blockchain,](http://news.computer.org/bf/EmailCampaign.php?lf1=3D326162782=
+4a967616109495c61481831&urlid=3D564209 ) Mountain View, CA; 2 May
+[Emerging Technologies,](http://news.computer.org/bf/EmailCampaign.php?lf1=
+=3D2661627824e575316109495d61481971&urlid=3D564210 ) Austin TX; 11 May
+[Adaptive Cybersecurity,](http://events.computer.org/rock-stars-adaptive-cy=
+bersecurity-woburn?lf1track=3D1 ) Woburn, MA 6 June
+[Deep Learning/Machine Learning,](http://news.computer.org/bf/EmailCampaign=
+.php?lf1=3D4901627824c706416109495a61482164&urlid=3D564212 ) Mountain View,=
+ CA; 12 Sept
+[Smart Robo Technologies,](http://news.computer.org/bf/EmailCampaign.php?lf=
+1=3D2301627824f719616109495d61482229&urlid=3D564213 ) Dallas, TX; 17 Oct
+[Augmented Reality and Virtual Reality,](http://news.computer.org/bf/EmailC=
+ampaign.php?lf1=3D7971627824d492316109495b61482347&urlid=3D564214 ) El Segu=
+ndo, CA; 2 Nov
+[5G,](http://news.computer.org/bf/EmailCampaign.php?lf1=3D9441627824c258216=
+109495f61482440&urlid=3D564215 ) Atlanta, GA; 14 Nov CONFERENCE SCHEDULE 19=
+-22 Dec 2016
+2016 IEEE 23rd International Conference on High Performance Computing (HiPC=
+), Hyderabad, India
+7-11 Jan 2017
+2017 IEEE 23rd Pacific Rim International Symposium on Dependable Computing =
+(PRDC), Christchurch, New Zealand
+30 Jan - 1 Feb
+2017 IEEE 11th International Conference on Semantic Computing (ICSC), San D=
+iego, CA, USA
+4-8 Feb
+2017 IEEE International Symposium on High Performance Computer Architecture=
+ (HPCA), Austin, TX USA
+
+Visit the [conference calendar](http://news.computer.org/bf/EmailCampaign.p=
+hp?lf1=3D9371627824e228516109495e61482530&urlid=3D564216 ) for a complete l=
+isting. JOB LISTINGS  [Tenure-Track/Tenured Faculty Positions | Purdue Univ=
+ersity](http://news.computer.org/bf/EmailCampaign.php?lf1=3D8261621333a9606=
+18611687f61079148&urlid=3D560297&lf1track=3D1 ) [Assistant/Associate Profes=
+sor of Computer Science & Engineering | University of Alaska Anchorage](htt=
+p://news.computer.org/bf/EmailCampaign.php?lf1=3D8841621333e905418611687d61=
+079294&urlid=3D560298&lf1track=3D1 ) [Faculty positions at Amrita Universit=
+y | Amrita University](http://news.computer.org/bf/EmailCampaign.php?lf1=3D=
+8771621333f702718611687f61079374&urlid=3D560299&lf1track=3D1 ) [Software En=
+gineer | Google Inc.](http://news.computer.org/bf/EmailCampaign.php?lf1=3D1=
+681621333c803518611687f61079418&urlid=3D560300&lf1track=3D1 ) [Multiple Pos=
+itions: System Specialist & R&D Engineer | Nokia Solutions and Networks, US=
+ LLC](http://news.computer.org/bf/EmailCampaign.php?lf1=3D5881621333c788718=
+611687b61079550&urlid=3D560301&lf1track=3D1 ) [Consultant (Business Analyst=
+) | GDN Infotech, Inc.](http://news.computer.org/bf/EmailCampaign.php?lf1=
+=3D3541621333d175818611687e61079686&urlid=3D560302&lf1track=3D1 ) [Vice Pre=
+sident; Architect 2 | Bank of America](http://news.computer.org/bf/EmailCam=
+paign.php?lf1=3D2221621333c760318611687f61079784&urlid=3D560303&lf1track=3D=
+1 ) [AVP; Prog Prof MKTS | Bank of America](http://news.computer.org/bf/Ema=
+ilCampaign.php?lf1=3D9591621333c725418611687a61079883&urlid=3D560304&lf1tra=
+ck=3D1 ) [Developer Advocate/ Technical Solutions Engineer/ Analytical Lead=
+ | Google Inc.](http://news.computer.org/bf/EmailCampaign.php?lf1=3D7381621=
+333e422618611687c61079916&urlid=3D560305&lf1track=3D1 ) [Software Engineer =
+positions | Google Inc.](http://news.computer.org/bf/EmailCampaign.php?lf1=
+=3D6181621333a444218611687a61080080&urlid=3D560306&lf1track=3D1 ) [Faculty =
+Position in Cybersecurity | University of South Carolina](http://news.compu=
+ter.org/bf/EmailCampaign.php?lf1=3D8161621333d977118611687c61080136&urlid=
+=3D560307&lf1track=3D1 ) For more=C2=A0job=C2=A0postings, visit=C2=A0http:/=
+/news.computer.org/bf/EmailCampaign.php?lf1=3D5811627824b752116109495b61483=
+875&urlid=3D564229.  =C2=A0      =20
+(http://bs.serving-sys.com/BurstingPipe/adServer.bs?cn=3Dtf&c=3D20&mc=3Dcli=
+ck&pli=3D19281848&PluID=3D0&ord=3D[timestamp]&lf1track=3D1 )=20
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D2751627824b31281610949=
+5e61483931&urlid=3D564230 )
+=C2=A0
+EXCLUSIVE: Edward Snowden's Boss, Steven Bay, Talks Security
+
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D1561627824e92511610949=
+5d61484039&urlid=3D564231 )
+Steven Bay was Edward Snowden's manager when he fled the country with terab=
+ytes of classified data. This past September at the IEEE CS Rock Stars of C=
+ybersecurity event in Seattle he [told the inside story](http://news.comput=
+er.org/bf/EmailCampaign.php?lf1=3D6611627824c567316109495e61484179&urlid=3D=
+564232 ) of his time managing and hunting for Snowden, as well as lessons l=
+earned about how to defend against the insider threat.
+=C2=A0
+[CS Magazine Roundup](http://news.computer.org/bf/EmailCampaign.php?lf1=3D3=
+881627824e821316109495c61484256&urlid=3D564233 )
+See what's=C2=A0[new & noteworthy](http://news.computer.org/bf/EmailCampaig=
+n.php?lf1=3D2151627824f287316109495a61484397&urlid=3D564234 )=C2=A0in the C=
+omputer Society's 13 peer-reviewed magazines.
+
+[Organizing a Conference? Contact Conference Publishing Services](http://ne=
+ws.computer.org/bf/EmailCampaign.php?lf1=3D4661627824f860516109495c61484470=
+&urlid=3D564235 )
+If you're organizing a conference, [contact CPS](http://news.computer.org/b=
+f/EmailCampaign.php?lf1=3D4661627824f860516109495c61484470&urlid=3D564235 )=
+=C2=A0for a quote and for details about options for new media and web publi=
+shing.
+
+[Register for a Conference in Your Specific Technical Area](http://news.com=
+puter.org/bf/EmailCampaign.php?lf1=3D3911627824e164716109495c61484547&urlid=
+=3D564236 )
+Visit the IEEE CS [event calendar](http://news.computer.org/bf/EmailCampaig=
+n.php?lf1=3D7231627824c414416109495f61484685&urlid=3D564237 )=C2=A0to find =
+upcoming conferences in your technical field.
+
+Webinar Tomorrow 14 Dec 2 PM ET: 5 Ways to Optimize Developer Output with A=
+utomated Code Analysis
+It's almost 2017 and if you're still trying to get the most out of your aut=
+omated testing, this webinar presents the myths, facts, and five best pract=
+ices to squeeze as much as you can out of tools available today. Focusing o=
+n static code analysis (SCA) as the tool to help verify security, code qual=
+ity, and standards compliance requirements, this webinar explains the myths=
+ around SCA, why the technology works, and how to integrate it into your De=
+vOps and continuous integration environments to get epic-level results acro=
+ss multiple builds a day.  [Register Now.](https://attendee.gotowebinar.com=
+/register/2164686985308353538?lf1track=3D1 )
+
+[New Computer Society Webinars Feature Leading Thinkers](http://news.comput=
+er.org/bf/EmailCampaign.php?lf1=3D5271627824a176316109495a61484720&urlid=3D=
+564238 )
+IEEE CS webinars deliver insights from some of the profession=E2=80=99s lea=
+ding thinkers in keeping with the mission to advance the practice of softwa=
+re engineering and computer science.=C2=A0[View the full catalog.](http://n=
+ews.computer.org/bf/EmailCampaign.php?lf1=3D5271627824a176316109495a6148472=
+0&urlid=3D564238 )
+[Get Active in Your Local Chapter](http://news.computer.org/bf/EmailCampaig=
+n.php?lf1=3D7911627824c275316109495f61484897&urlid=3D564239 )
+Chapters are a great way to connect and network with local CS members. Netw=
+ork with colleagues and listen to technical talks at one of more than 400 c=
+hapters worldwide. [Connect with your chapter today!](http://news.computer.=
+org/bf/EmailCampaign.php?lf1=3D4981627824e475716109495c61484967&urlid=3D564=
+240 ) If you do not have an active CS chapter in your area we can help you =
+start one!
+Email [chapters@computer.org](mailto:chapters@computer.org ) for more infor=
+mation.
+
+[Contact IEEE Computer Society](http://news.computer.org/bf/EmailCampaign.p=
+hp?lf1=3D1701627824c172116109495f61485064&urlid=3D564241 )
+[Customer service](mailto:help@computer.org?subject=3DContact%20IEEE%20Comp=
+uter%20Society ) [Awards](http://news.computer.org/bf/EmailCampaign.php?lf1=
+=3D5021627824a984516109495d61485125&urlid=3D564242 ) [Newsletters](http://n=
+ews.computer.org/bf/EmailCampaign.php?lf1=3D1591627824d465416109495f6148522=
+4&urlid=3D564243 ) [Advertising](http://news.computer.org/bf/EmailCampaign.=
+php?lf1=3D5091627824d855616109495a61485389&urlid=3D564244 ) [Training](http=
+://news.computer.org/bf/EmailCampaign.php?lf1=3D4201627824c635316109495b614=
+85499&urlid=3D564245 )
+[How Are We Doing?](http://news.computer.org/bf/EmailCampaign.php?lf1=3D615=
+1627824f544216109495b61485594&urlid=3D564246 )
+IEEE Computer Society staff is dedicated to improving the membership experi=
+ence. Share your perspective with us. Email [membership@computer.org](mailt=
+o:membership@computer.org ) and share your thoughts. =C2=A0
+Celebrating 70 Years!
+Honoring CS History &
+Looking to the Future
+
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D1901627824b92391610949=
+5c61485620&urlid=3D564247 )
+
+IEEE
+Computer Society Membership:
+Keeping You At the Center of Technology and Helping You Grow with It
+
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D4911627824f27641610949=
+5e61485756&urlid=3D564248 ) =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=20
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D9061627824b14451610949=
+5e61485829&urlid=3D564249 )   =20
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D2781627824d73051610949=
+5a61485937&urlid=3D564250 ) =C2=A0=20
+(http://news.computer.org/bf/EmailCampaign.php?lf1=3D3881627824d34781610949=
+5a61486047&urlid=3D564251 ) =C2=A0
+
+10662 Los Vaqueros Circle, Los Alamitos, CA 90720
+
+ Forward message to your colleague - http://news.computer.org/ef1/forwardCa=
+mpaign.php?em=3D19d27ae01264cb1e998dd0fd886a63c1e004266badd759fb8dcaa65e95e=
+626af&li=3D7b89e5315f6b669429a3ccf6770bff1f&ci=3Dee0e302f761f3516fb16f14fa9=
+74fb02Forward message to your colleague
+
+Click here to opt out - http://news.computer.org/ef1/emunsub.php?em=3D19d27=
+ae01264cb1e998dd0fd886a63c1e004266badd759fb8dcaa65e95e626af&li=3D7b89e5315f=
+6b669429a3ccf6770bff1f&ci=3Dee0e302f761f3516fb16f14fa974fb02
+
+--a86ce223b8654fc5ae4b62ecffc387dd
+Content-Type: text/html; charset="utf-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+
+<font style=3D'font-size:10px' face=3D'arial, sans serifx'><center>Having t=
+rouble reading this email? <a href=3D"http://news.computer.org/bf/EmailCamp=
+aign.php?lf1=3D3511627824e960516109495f61479294&urlid=3D564183">View it in =
+your browser.</a> </center> </font><html>
+<head>
+=09<title></title>
+</head>
+<body data-gramm=3D"true" data-gramm_editor=3D"true" data-gramm_id=3D"154ee=
+1e4-be4f-0009-54a8-5849129cadad">&nbsp;
+<table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:100%=
+; height:100%; background-color:#eeeeee;">
+=09<tbody>
+=09=09<tr>
+=09=09=09<td>
+=09=09=09<table align=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width:760px; background-color:#ffffff; padding-left:20px; p=
+adding-right:20px; padding-top:5px; padding-bottom:20px; margin-top:20px; m=
+argin-bottom:20px; margin-left:auto; margin-right:auto;">
+=09=09=09=09<tbody>
+=09=09=09=09=09<tr>
+=09=09=09=09=09=09<td>
+=09=09=09=09=09=09<table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" s=
+tyle=3D"font-family:Helvetica, Arial, sans-serif; font-size:14px; color:#00=
+0000; line-height:1.5em;">
+=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td align=3D"center"><img alt=3D"" height=3D"1" =
+src=3D"http://news.computer.org/ef1/files/1849/Strategies/spacer.png" style=
+=3D"display:block;" width=3D"1" /></td>
+=09=09=09=09=09=09=09=09=09<!-- replace this image for ad at very top -->
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10" src=3D"http://ne=
+ws.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bloc=
+k;" width=3D"10" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td align=3D"center"><img alt=3D"Member Connecti=
+on" src=3D"http://news.computer.org/ef1/files/1849/Headers/Newsletter_Membe=
+rConnection_760x80.png" style=3D"border-width: 0px; border-style: solid; wi=
+dth: 760px; height: 80px;" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"5" src=3D"http://new=
+s.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:block=
+;" width=3D"5" />
+=09=09=09=09=09=09=09=09=09<div style=3D"text-align: center;"><a href=3D"ht=
+tp://news.computer.org/bf/EmailCampaign.php?lf1=3D7661627824a389616109495f6=
+1479349&urlid=3D564184" target=3D"_blank"><img alt=3D"Rock Stars of SDE" sr=
+c=3D"http://news.computer.org/ef1/files/1849/House_Ads/SoftwareDefinedEnvir=
+onments_468x60.png" style=3D"width: 468px; height: 60px; float: left; margi=
+n: 10px 175px; display: none !important;" /></a><a href=3D"http://news.comp=
+uter.org/bf/EmailCampaign.php?lf1=3D2861627824b993816109495f61479427&urlid=
+=3D564185" target=3D"_blank"><img alt=3D"IEEE Members save with UPS" src=3D=
+"http://news.computer.org/ef1/files/1849/Advertising/American%20Heart%20Ass=
+ociation%2010192016%20468x60.jpg" style=3D"width: 468px; height: 60px;" /><=
+/a></div>
+=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td>
+=09=09=09=09=09=09=09=09=09<table border=3D"0" cellpadding=3D"0" cellspacin=
+g=3D"0" style=3D"width:100%;">
+=09=09=09=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"font-size:14px; font-weigh=
+t:bold;">10 January 2017</td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"width:50%; text-align:righ=
+t;"><a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D10016278=
+24b125016109495d61479589&urlid=3D564186"><img alt=3D"Facebook" border=3D"0"=
+ height=3D"20" hspace=3D"5" src=3D"http://news.computer.org/ef1/files/1849/=
+Strategies/facebook-tiny.png" width=3D"20" /></a><a href=3D"http://news.com=
+puter.org/bf/EmailCampaign.php?lf1=3D9341627824e133516109495d61479694&urlid=
+=3D564187"><img alt=3D"Twitter" border=3D"0" height=3D"20" hspace=3D"5" src=
+=3D"http://news.computer.org/ef1/files/1849/Strategies/twitter-tiny.png" wi=
+dth=3D"20" /></a><a href=3D"http://news.computer.org/bf/EmailCampaign.php?l=
+f1=3D4371627824a171316109495f61479723&urlid=3D564188"><img alt=3D"LinkedIn"=
+ border=3D"0" height=3D"20" hspace=3D"5" src=3D"http://news.computer.org/ef=
+1/files/1849/Strategies/linkedin-tiny.png" width=3D"20" /></a><a href=3D"ht=
+tp://news.computer.org/bf/EmailCampaign.php?lf1=3D2281627824d276416109495c6=
+1479812&urlid=3D564189"><img alt=3D"YouTube" border=3D"0" height=3D"20" hsp=
+ace=3D"5" src=3D"http://news.computer.org/ef1/files/1849/Strategies/youtube=
+-tiny.png" width=3D"20" /></a><a href=3D"http://news.computer.org/bf/EmailC=
+ampaign.php?lf1=3D4671627824d984316109495f61479919&urlid=3D564190"><img alt=
+=3D"Google+" border=3D"0" height=3D"20" hspace=3D"5" src=3D"http://news.com=
+puter.org/ef1/files/1849/Strategies/google-plus-tiny.png" width=3D"20" /></=
+a><a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D6141627824=
+a843916109495a61480022&urlid=3D564191"><img alt=3D"RSS" border=3D"0" height=
+=3D"20" hspace=3D"5" src=3D"http://news.computer.org/ef1/files/1849/Strateg=
+ies/rss-tiny.png" style=3D"margin-left:5px;" width=3D"20" /></a></td>
+=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09=09=09=09</table>
+=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"5" src=3D"http://new=
+s.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:block=
+;" width=3D"5" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td style=3D"height:1px; line-height: 0; font-si=
+ze: 0; background-color:#cccccc;"><img alt=3D"" height=3D"1" src=3D"http://=
+news.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bl=
+ock;" width=3D"1" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td>
+=09=09=09=09=09=09=09=09=09<table border=3D"0" cellpadding=3D"0" cellspacin=
+g=3D"0" height=3D"86" width=3D"831">
+=09=09=09=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09<td valign=3D"top">&nbsp;</td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td>&nbsp;</td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"color: rgb(0, 0, 0); line-=
+height: 1.5em;" width=3D"100%">
+=09=09=09=09=09=09=09=09=09=09=09=09<p style=3D"font-size: 15px; text-align=
+: center;"><span style=3D"font-size:22px;"><span style=3D"font-family: Helv=
+etica,Arial,sans-serif; font-style: normal; font-variant: normal; letter-sp=
+acing: normal; line-height: 22.5px; text-align: start; text-indent: 0px; te=
+xt-transform: none; white-space: normal; word-spacing: 0px; color: rgb(12, =
+97, 154); font-weight: bold; text-decoration: none; background-color: rgb(2=
+55, 255, 255);"><span style=3D"color: rgb(12, 97, 154); text-decoration: no=
+ne;">Can You Invent a Better World Through Technology?<br />
+=09=09=09=09=09=09=09=09=09=09=09=09Challenge Accepted.</span></span></span=
+></p>
+
+=09=09=09=09=09=09=09=09=09=09=09=09<p style=3D"font-size: 15px;"><img alt=
+=3D"" src=3D"http://news.computer.org/ef1/files/1849/earth-hero-1600x500.jp=
+g" style=3D"float: right; width: 185px; height: 183px; margin: 0px 5px;" />=
+The <a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D86916278=
+24f818516109495f61480132&urlid=3D564192" style=3D"text-decoration:NONE;" ta=
+rget=3D"_blank"><strong>IEEE Computer Society Global Student Challenge</str=
+ong></a> is an international challenge open to all IEEE Computer Society st=
+udent members. Students are invited to create an innovative solution, based=
+ on the <a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D1021=
+627824f699016109495d61480276&urlid=3D564193" style=3D"text-decoration:NONE;=
+" target=3D"_blank"><strong>IEEE Computer Society 2022 report,</strong></a>=
+ that will solve a real-world issue.<br />
+=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09Submit a PowerPoint presentation, video=
+, or storyboard with a supporting essay on what technologies in the 2022 re=
+port are being utilized and why you think your solution will work. <span st=
+yle=3D"color:#990000;"><strong>There are over US$2000 worth of prizes!</str=
+ong> </span>The first place winner will receive US$1500 plus travel expense=
+s to be recognized at the Annual Awards Banquet in June in Phoenix, AZ. <a =
+href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D8691627824f8185=
+16109495f61480132&urlid=3D564192" style=3D"text-decoration:NONE;" target=3D=
+"_blank"><strong>Get started and enter your solution today!</strong></a></p=
+>
+=09=09=09=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09=09=09=09</table>
+=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td style=3D"height:1px; line-height: 0; font-si=
+ze: 0; background-color:#cccccc;">&nbsp;</td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td style=3D"height:1px; line-height: 0; font-si=
+ze: 0; background-color:#cccccc;"><img alt=3D"" height=3D"1" src=3D"http://=
+news.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bl=
+ock;" width=3D"1" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td>
+=09=09=09=09=09=09=09=09=09<table align=3D"center" border=3D"0" cellpadding=
+=3D"0" cellspacing=3D"0" style=3D"width:760px;font-family:Helvetica, Arial,=
+ sans-serif;font-size:15px;color:#333333;line-height:1.5em;">
+=09=09=09=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09<td valign=3D"top" width=3D"489">
+=09=09=09=09=09=09=09=09=09=09=09=09<table border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0">
+=09=09=09=09=09=09=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10=
+" src=3D"http://news.computer.org/ef1/files/1849/Strategies/spacer.png" sty=
+le=3D"display:block;" width=3D"10" /></td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<table border=3D"0" cellpaddin=
+g=3D"7" cellspacing=3D"0" height=3D"1594" width=3D"467">
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">LET US KNOW WHAT YOU ARE=
+ WORKING ON</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><span style=3D"co=
+lor:#990000;"><strong>The IEEE Computer Society will soon be launching, INT=
+ERFACE, a new member communications blog.</strong></span> One section of th=
+e blog will be a member spotlight titled Peer2Peer. In Peer2Peer we plan on=
+ featuring all of the great and exciting work our members do.<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Have you used technol=
+ogy to improve your community? Are you working on a new and innovative proj=
+ect that you want to share? Peer2Peer will give us the opportunity to recog=
+nize all of the great work you do on a daily and yearly basis - and allow u=
+s to brag about you on your behalf!<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Email us your story w=
+ith any appropriate photos so we can share your story with your fellow memb=
+ers and the world. You can email us at <strong><a    style=3D"text-decorati=
+on:NONE"   href=3D"mailto:peer2peer@computer.org?subject=3DStory%20for%20Pe=
+er%202%20Peer">peer2peer@computer.org</a></strong></td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">MEMBERSHIPS EXPIRED ON 3=
+1 DECEMBER =E2=80=94 RENEW TODAY TO KEEP YOUR BENEFITS</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td>If you haven&#39;=
+t renewed your membership for 2017 it expired on 31 December 2016. Don&#39;=
+t delay any longer. Renew your membership today and enjoy the new customize=
+d membership options to fit your career goals and needs. For the 2017 membe=
+rship year, <a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D=
+7641627824e457316109495f61480396&urlid=3D564194" style=3D"text-decoration:N=
+ONE;" target=3D"_blank"><strong>the Computer Society introduced a tiered me=
+mbership that includes four professional options</strong></a> (Preferred Pl=
+us, Training and Development, Research, and Basic) and one student option.<=
+br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Current professional =
+Computer Society members are defaulted to our Preferred Plus level tier for=
+ 2017. Preferred Plus offers the widest access to all Computer Society bene=
+fits and combines the benefits and resources of the Training & Development =
+benefits with the benefits of the Research tier. <span style=3D"color:#9900=
+00;"><strong>Renew today and save 10% on the Preferred Plus membership tier=
+!</strong></span> <a href=3D"http://news.computer.org/bf/EmailCampaign.php?=
+lf1=3D4791627824f501616109495a61480476&urlid=3D564195" style=3D"text-decora=
+tion:NONE;" target=3D"_blank"><strong>Higher Grade members click here</stro=
+ng></a> and <a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D=
+4601627824e911016109495b61480557&urlid=3D564196" style=3D"text-decoration:N=
+ONE;" target=3D"_blank"><strong>Affiliate members click here</strong></a> t=
+o see the savings.</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">BENEFITS OF MEMBERSHIP W=
+EBINAR: TUESDAY 24 JAN at 12 (NOON) ET</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><img alt=3D"" src=
+=3D"http://news.computer.org/ef1/files/1849/cecilia-metra.jpg" style=3D"flo=
+at: right; width: 135px; height: 180px;" />For the 2017 membership year the=
+ IEEE Computer Society introduced a new membership experience giving member=
+s the ability to select and tailor the resources and benefits to meet their=
+ career goals and needs. <strong><a    style=3D"text-decoration:NONE;" targ=
+et=3D"_blank"  href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D=
+2661627824c554216109495e61480668&urlid=3D564197">This webinar will go over =
+the new professional and student membership options and all of the benefits=
+ and resources</a> </strong>provided with membership in the IEEE Computer S=
+ociety. <a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D1161=
+627824e533116109495f61480743&urlid=3D564198" style=3D"text-decoration:NONE;=
+" target=3D"_blank"><strong>Join Cecilia Metra, Vice President of Member & =
+Geographic Activities,</strong></a> as she shows how IEEE Computer Society =
+can meet your career goals and needs and how your membership can place you =
+in the top 1% of computing professionals.</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">ARE YOU USING myCS? ON 1=
+ JAN WE SWITCHED FROM QMAGS TO myCS</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><a href=3D"http:/=
+/news.computer.org/bf/EmailCampaign.php?lf1=3D2041627824b146816109495e61480=
+853&urlid=3D564199" target=3D"_blank"><img alt=3D"" src=3D"http://news.comp=
+uter.org/ef1/files/1849/IEEE-500-x-500_1.jpg" style=3D"float: right; width:=
+ 250px; height: 128px;" /></a>Beginning on 1 January 2017, your digital sub=
+scriptions will be fulfilled through myCS. The <a href=3D"http://news.compu=
+ter.org/bf/EmailCampaign.php?lf1=3D9621627824e873416109495f61480850&urlid=
+=3D564199" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>myCS i=
+nteractive portal</strong></a> is home to our newly redesigned digital maga=
+zines and journals. The new myCS platform takes you away from the static an=
+d hard-to-read PDFs from QMags and provides you with a customizable, fully =
+adaptive experience available 24x7 on your desktop, eReader, laptop, tablet=
+ or smartphone. myCS will adapt to your mobile device, and offers you a cho=
+ice of pdf, e-book, and HTML formats.<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Going forward myCS wi=
+ll conveniently archives your magazine and journal subscriptions in the myC=
+S portal so you&#39;ll have every issue right at your fingertips. <em>We ha=
+ve arranged with Qmags for your archival issues to remain available through=
+ 2017, accessible through the Qmags website using your existing email addre=
+ss and password. <span style=3D"color:#990000;"><strong>You are encouraged =
+to download your existing Qmags archived issues to keep your personal libra=
+ry of past issues intact.</strong></span></em> <a href=3D"http://news.compu=
+ter.org/bf/EmailCampaign.php?lf1=3D8401627824a897816109495d61480968&urlid=
+=3D564200" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>Log in=
+ to myCS</strong></a> and explore all that it has to offer!</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">A NEW BENEFIT FOR JOURNA=
+L SUBSCRIBERS</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div>Starting in Janu=
+ary, <span style=3D"color:#990000;"><strong>subscribers to any of the Compu=
+ter Society=E2=80=99s electronic journals will receive</strong></span> <a h=
+ref=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D7101627824d75331=
+6109495e61481048&urlid=3D564201" style=3D"text-decoration:NONE;" target=3D"=
+_blank"><strong>Colloquium, a print digest which puts the abstracts of all =
+recently published articles at your fingertips.</strong></a> Portable enoug=
+h for your morning commute, efficient enough to be read over a cup of coffe=
+e, and viewable without Wi-Fi, Colloquium helps you stay at the cutting edg=
+e of your field.</div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-al=
+ign: center;"><a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=
+=3D7101627824d753316109495e61481048&urlid=3D564201" style=3D"text-decoratio=
+n:NONE;" target=3D"_blank"><img alt=3D"Colloquium" src=3D"http://news.compu=
+ter.org/ef1/files/1849/colloquium.png" style=3D"width: 450px; height: 129px=
+;" /></a></div>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">COMPUTER SOCIETY AWARDS<=
+/td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><a href=3D"http:/=
+/news.computer.org/bf/EmailCampaign.php?lf1=3D9731627824f466516109495f61481=
+140&urlid=3D564202" style=3D"text-decoration:NONE;" target=3D"_blank"><stro=
+ng>SEYMOUR CRAY COMPUTER ENGINEERING AWARD</strong></a><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09For contributions to =
+high performance computing systems that best exemplify the creative spirit =
+demonstrated by Seymour Cray. The award consists of a crystal memento and h=
+onorarium of US$10,000.<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D2641627824f240016109495c61481291&=
+urlid=3D564203" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>S=
+IDNEY FERNBACH MEMORIAL AWARD</strong></a><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09A certificate and a U=
+S$2,000 honorarium, is presented annually to an individual for =E2=80=9Can =
+outstanding contribution in the application of high performance computers u=
+sing innovative approaches.=E2=80=9D<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D7431627824a123016109495e61481343&=
+urlid=3D564204" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>I=
+EEE-CS/ACM KEN KENNEDY AWARD</strong></a><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09A certificate and US$=
+5,000 honorarium are awarded jointly by the IEEE Computer Society and ACM f=
+or outstanding contributions to programmability or productivity in high per=
+formance computing together with significant community service or mentoring=
+ contributions.<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<strong><span style=
+=3D"color:#990000;">Nomination Deadline: 1 July 2017</span></strong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D9211627824a305016109495b61481472&=
+urlid=3D564205" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>E=
+CKERT-MAUCHLY AWARD</strong></a><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09A certificate and US$=
+5,000 are awarded jointly by the Computer Society and ACM for outstanding c=
+ontributions to the field of computer and digital systems architecture. &nb=
+sp;<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<span style=3D"color:=
+#990000;"><strong>Nomination Deadline: 30 March 2017</strong></span></td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">TECHIGNITE + 9 ROCK STAR=
+ EVENTS FOR 2017</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><a href=3D"http:/=
+/news.computer.org/bf/EmailCampaign.php?lf1=3D5511627824a955516109495e61481=
+571&urlid=3D564206" style=3D"text-decoration:NONE;" target=3D"_blank"><stro=
+ng>Blockchain Healthcare</strong>,</a> Orlando, FL; 22 Feb<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D8551627824c391016109495e61481650&=
+urlid=3D564207" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>T=
+echIgnite</strong></a>, Burlingame, CA; 21-22 March<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D5041627824f907816109495a61481731&=
+urlid=3D564208" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>B=
+lockchain & Cybersecurity</strong>,</a> Bengaluru Karnataka India; 5 April<=
+br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D3261627824a967616109495c61481831&=
+urlid=3D564209" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>B=
+lockchain,</strong></a> Mountain View, CA; 2 May<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D2661627824e575316109495d61481971&=
+urlid=3D564210" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>E=
+merging Technologies</strong>,</a> Austin TX; 11 May<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D4541627824d927616109495a61482084&=
+urlid=3D564211" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>A=
+daptive Cybersecurity</strong>,</a> Waltham, MA 6 June<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D4901627824c706416109495a61482164&=
+urlid=3D564212" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>D=
+eep Learning/Machine Learning</strong>,</a> Mountain View, CA; 12 Sept<br /=
+>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D2301627824f719616109495d61482229&=
+urlid=3D564213" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>S=
+mart Robo Technologies</strong>,</a> Dallas, TX; 17 Oct<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D7971627824d492316109495b61482347&=
+urlid=3D564214" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>A=
+ugmented Reality and Virtual Reality,</strong></a> El Segundo, CA; 2 Nov<br=
+ />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://new=
+s.computer.org/bf/EmailCampaign.php?lf1=3D9441627824c258216109495f61482440&=
+urlid=3D564215" style=3D"text-decoration:NONE;" target=3D"_blank"><strong>5=
+G</strong>,</a> Atlanta, GA; 14 Nov</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">CONFERENCE SCHEDULE</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"font-fam=
+ily:Helvetica, Arial, sans-serif; font-size:15px; color:#333333; line-heigh=
+t:1.5em;"><strong>30 Jan - 1 Feb</strong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=092017 IEEE 11th Intern=
+ational Conference on Semantic Computing (ICSC), San Diego, CA, USA<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<strong>4-8 Feb</stro=
+ng><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=092017 IEEE Internation=
+al Symposium on High Performance Computer Architecture (HPCA), Austin, TX U=
+SA<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<strong>13-16 Feb</st=
+rong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=092017 IEEE Internation=
+al Conference on Big Data and Smart Computing (BigComp), Jeju Island, South=
+ Korea<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<strong>20-24 Feb</st=
+rong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=092017 24th IEEE Intern=
+ational Conference on Software Analysis, Evolution, and Reengineering (SANE=
+R), Klagenfurt, Austria<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Visit the <strong><a =
+   style=3D"text-decoration: NONE;" target=3D"_blank"  href=3D"http://news.=
+computer.org/bf/EmailCampaign.php?lf1=3D9371627824e228516109495e61482530&ur=
+lid=3D564216">conference calendar</a></strong> for a complete listing.</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">JOB LISTINGS</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"font-fam=
+ily:Helvetica, Arial, sans-serif; font-size:15px; color:#333333; line-heigh=
+t:1.5em;">
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<ul>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D5281627824e33601610=
+9495c61482622&urlid=3D564217">Cybersecurity and Cyber Operations Faculty | =
+Dakota State University</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D6091627824f46661610=
+9495d61482732&urlid=3D564218">Faculty Search in Computer Engineering | Clem=
+son University</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D3241627824d50741610=
+9495b61482837&urlid=3D564219">C. Tycho Howle Chair in Computer Engineering =
+| Clemson University</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D4691627824c52781610=
+9495e61482986&urlid=3D564220">Software Engineer | IntraEdge</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D2021627824c53721610=
+9495c61483086&urlid=3D564221">Quantitative Analyst | Google Inc.</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D8491627824a13791610=
+9495d61483157&urlid=3D564222">Network Engineer/ Analytical Lead | Google In=
+c.</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D2031627824e52011610=
+9495e61483287&urlid=3D564223">Senior RF Network Planning & Optimization Lea=
+d / SON Systems Architect | Nokia Solutions and Networks, US LLC</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D3321627824d87411610=
+9495a61483394&urlid=3D564224">Software Engineer | Google Inc.</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D9281627824f98421610=
+9495d61483477&urlid=3D564225">Senior Software Engineer & IP Specialist | No=
+kia USA, Inc.</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D6601627824a16251610=
+9495e61483546&urlid=3D564226">AVP; ASD Professional MKTS | Bank of America<=
+/a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D2351627824d39301610=
+9495b61483632&urlid=3D564227">Multiple IT Openings in Indianapolis | Brite =
+Systems</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li><a    style=3D=
+"color: rgb(17, 85, 204); text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D8171627824f65821610=
+9495a61483723&urlid=3D564228">Lead Software Engineer | FactSet Research Sys=
+tems, Inc.</a></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</ul>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<b style=3D"font-fami=
+ly: Arial, Helvetica, sans-serif; font-style: normal; font-variant: normal;=
+ letter-spacing: normal; text-align: -webkit-left; text-indent: 0px; text-t=
+ransform: none; white-space: normal; word-spacing: 0px; font-size: 14px; li=
+ne-height: 18px; color: rgb(0, 51, 102); background-color: rgb(255, 255, 25=
+5);">For more<span class=3D"Apple-converted-space">&nbsp;</span><span class=
+=3D"il">job</span><span class=3D"Apple-converted-space">&nbsp;</span>postin=
+gs, visit<span class=3D"Apple-converted-space">&nbsp;</span><a href=3D"http=
+://news.computer.org/bf/EmailCampaign.php?lf1=3D5811627824b752116109495b614=
+83875&urlid=3D564229" style=3D"color: rgb(17, 85, 204); text-decoration: no=
+ne;" target=3D"_blank">computer.org/<span class=3D"il">jobs</span></a>.</b>=
+<big><span style=3D"color:#222222;"><span style=3D"font-family:arial;"><spa=
+n style=3D"font-size:9.0pt;"><span style=3D"font-family: Helvetica, Arial, =
+sans-serif; font-style: normal; font-variant: normal; font-weight: normal; =
+letter-spacing: normal; line-height: 22.5px; orphans: auto; text-align: sta=
+rt; text-indent: 0px; text-transform: none; white-space: normal; widows: au=
+to; word-spacing: 0px; -webkit-text-stroke-width: 0px; color: rgb(51, 51, 5=
+1); font-size: 14.6666669845581px; float: none; display: inline !important;=
+ background-color: rgb(255, 255, 255);"> </span></span></span></span></big>=
+</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"backgrou=
+nd-color:#d1e6ff;font-family:Helvetica, Arial, sans-serif; font-size:18px; =
+color:#000000; text-align:left; font-weight:bold;">&nbsp;</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</table>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09=09=09=09=09=09=09</table>
+=09=09=09=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10" src=3D"=
+http://news.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"dis=
+play:block;" width=3D"10" /></td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"width:1px; background-colo=
+r:#cccccc;"><img alt=3D"" height=3D"1" src=3D"http://news.computer.org/ef1/=
+files/1849/Strategies/spacer.png" style=3D"display:block;" width=3D"1" /></=
+td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10" src=3D"=
+http://news.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"dis=
+play:block;" width=3D"10" /></td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td valign=3D"top" width=3D"250">
+=09=09=09=09=09=09=09=09=09=09=09=09<table border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" height=3D"1611" style=3D"font-family: Helvetica,Arial,sans=
+-serif; font-size: 14px; color: rgb(51, 51, 51); line-height: 1.5em;" width=
+=3D"254">
+=09=09=09=09=09=09=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10=
+" src=3D"http://news.computer.org/ef1/files/1849/Strategies/spacer.png" sty=
+le=3D"display:block;" width=3D"10" /><a href=3D"http://news.computer.org/bf=
+/EmailCampaign.php?lf1=3D7641627824e457316109495f61480396&urlid=3D564194" t=
+arget=3D"_blank"><img alt=3D"Membership" src=3D"http://news.computer.org/ef=
+1/files/1849/House_Ads/IEEE-1172_TieredMemb_250x250_BigFish.jpg" style=3D"w=
+idth: 250px; height: 250px;" /></a></td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td><a href=3D"http://news.com=
+puter.org/bf/EmailCampaign.php?lf1=3D2751627824b312816109495e61483931&urlid=
+=3D564230" style=3D"text-decoration:none;" target=3D"_blank"><img alt=3D"Ar=
+t of Hacking" src=3D"http://news.computer.org/ef1/files/1849/House_Ads/ArtO=
+fHacking_250x250px.jpg" style=3D"width: 250px; height: 250px; display: none=
+ !important;" /></a></td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"font-family:Helve=
+tica, Arial, sans-serif; font-size:15px;color:#000000; line-height:1.5em;">
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: cent=
+er;">&nbsp;</div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: cent=
+er;"><span style=3D"font-size:26px;"><strong><span style=3D"font-weight: bo=
+ld; widows: 1;">EXCLUSIVE: Edward Snowden&#39;s Boss, Steven Bay, Talks Sec=
+urity</span></strong></span>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: cent=
+er;"><a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D1561627=
+824e925116109495d61484039&urlid=3D564231"><img alt=3D"" src=3D"http://news.=
+computer.org/ef1/files/1849/Graphics/Snowden.jpg" style=3D"width: 240px; he=
+ight: 135px;" /></a></div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: left=
+;">Steven Bay was Edward Snowden&#39;s manager when he fled the country wit=
+h terabytes of classified data. This past September at the <span style=3D"c=
+olor:#990000;"><strong>IEEE CS Rock Stars of Cybersecurity</strong></span> =
+event in Seattle he <a href=3D"http://news.computer.org/bf/EmailCampaign.ph=
+p?lf1=3D6611627824c567316109495e61484179&urlid=3D564232" style=3D"text-deco=
+ration:NONE;" target=3D"_blank"><strong>told the inside story</strong></a> =
+of his time managing and hunting for Snowden, as well as lessons learned ab=
+out how to defend against the insider threat.<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09&nbsp;</div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: left=
+;"><span style=3D"color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-=
+serif; font-style: normal; font-variant: normal; font-weight: normal; lette=
+r-spacing: normal; line-height: 22.5px; orphans: auto; text-align: start; t=
+ext-indent: 0px; text-transform: none; white-space: normal; widows: 1; word=
+-spacing: 0px; -webkit-text-stroke-width: 0px; font-size: 14.6667px; float:=
+ none; display: inline !important; background-color: rgb(255, 255, 255);"><=
+strong><a    style=3D"color: rgb(153, 0, 0); text-decoration: none;" target=
+=3D"_blank"  href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D38=
+81627824e821316109495c61484256&urlid=3D564233">CS Magazine Roundup</a></str=
+ong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09See what&#39;s<span>&nbsp;</sp=
+an><strong><a    style=3D"text-decoration: none;" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D2151627824f28731610=
+9495a61484397&urlid=3D564234">new & noteworthy</a></strong><span>&nbsp;</sp=
+an>in the Computer Society&#39;s 13 peer-reviewed magazines.</span></div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<p style=3D"color: rgb(0, 0, 0=
+); font-family: Helvetica, Arial, sans-serif; font-style: normal; font-vari=
+ant: normal; font-weight: normal; letter-spacing: normal; line-height: 22.5=
+px; orphans: auto; text-align: start; text-indent: 0px; text-transform: non=
+e; white-space: normal; widows: 1; word-spacing: 0px; -webkit-text-stroke-w=
+idth: 0px; font-size: 14.6667px; background-color: rgb(255, 255, 255);"><st=
+rong><a    style=3D"color: rgb(153, 0, 0); text-decoration: none;" target=
+=3D"_blank"  href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D46=
+61627824f860516109495c61484470&urlid=3D564235">Organizing a Conference? Con=
+tact Conference Publishing Services</a></strong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09If you&#39;re organizing a con=
+ference, <strong><a    style=3D"text-decoration: none;" target=3D"_blank"  =
+href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D4661627824f8605=
+16109495c61484470&urlid=3D564235">contact CPS</a><span>&nbsp;</span></stron=
+g>for a quote and for details about options for new media and web publishin=
+g.</p>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<p style=3D"font-family: Helve=
+tica, Arial, sans-serif; font-style: normal; font-variant: normal; letter-s=
+pacing: normal; line-height: 22.5px; orphans: auto; text-align: start; text=
+-indent: 0px; text-transform: none; white-space: normal; widows: 1; word-sp=
+acing: 0px; -webkit-text-stroke-width: 0px; font-size: 14.6667px; color: rg=
+b(153, 0, 0); font-weight: bold; background-color: rgb(255, 255, 255);"><a =
+   style=3D"color: rgb(153, 0, 0); text-decoration: none;" target=3D"_blank=
+"  href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D3911627824e1=
+64716109495c61484547&urlid=3D564236">Register for a Conference in Your Spec=
+ific Technical Area</a></p>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: left=
+;"><span style=3D"color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-=
+serif; font-style: normal; font-variant: normal; font-weight: normal; lette=
+r-spacing: normal; line-height: 22.5px; orphans: auto; text-align: start; t=
+ext-indent: 0px; text-transform: none; white-space: normal; widows: 1; word=
+-spacing: 0px; -webkit-text-stroke-width: 0px; font-size: 14.6667px; float:=
+ none; display: inline !important; background-color: rgb(255, 255, 255);">V=
+isit the IEEE CS<span> </span><strong><a    style=3D"text-decoration: none;=
+" target=3D"_blank"  href=3D"http://news.computer.org/bf/EmailCampaign.php?=
+lf1=3D7231627824c414416109495f61484685&urlid=3D564237">event calendar</a></=
+strong><span>&nbsp;</span>to find upcoming conferences in your technical fi=
+eld.</span></div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: left=
+;"><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<strong><a    style=3D"color: =
+rgb(153, 0, 0); text-decoration: none;" target=3D"_blank"  href=3D"http://n=
+ews.computer.org/bf/EmailCampaign.php?lf1=3D5271627824a176316109495a6148472=
+0&urlid=3D564238">New Computer Society Webinars Feature Leading Thinkers</a=
+></strong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09IEEE CS webinars deliver insig=
+hts from some of the profession=E2=80=99s leading thinkers in keeping with =
+the mission to advance the practice of software engineering and computer sc=
+ience.<span>&nbsp;</span><strong><a    style=3D"text-decoration: none;" tar=
+get=3D"_blank"  href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=
+=3D5271627824a176316109495a61484720&urlid=3D564238">View the full catalog.<=
+/a></strong></div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: left=
+;"><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<strong style=3D"font-size: 14=
+.6666669845581px;"><span style=3D"color: rgb(0, 0, 0); font-size: 14.666666=
+9845581px; font-weight: normal;"><strong style=3D"font-size: 14.66666698455=
+81px;"><a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D79116=
+27824c275316109495f61484897&urlid=3D564239" style=3D"text-decoration: NONE;=
+" target=3D"_blank"><strong style=3D"font-size: 14.6666669845581px;"><span =
+style=3D"color: rgb(153, 0, 0); font-size: 14.6666669845581px; font-weight:=
+ bold; widows: 1;">Get Active in Your Local Chapter</span></strong></a></st=
+rong></span></strong><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Chapters are a great way to co=
+nnect and network with local CS members. Network with colleagues and listen=
+ to technical talks at one of more than 400 chapters worldwide. <a href=3D"=
+http://news.computer.org/bf/EmailCampaign.php?lf1=3D4981627824e475716109495=
+c61484967&urlid=3D564240" style=3D"text-decoration:NONE;" target=3D"_blank"=
+><strong>Connect with your chapter today!</strong></a> If you do not have a=
+n active CS chapter in your area we can help you start one!<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Email <strong><a    style=3D"t=
+ext-decoration:NONE;"   href=3D"mailto:chapters@computer.org">chapters@comp=
+uter.org</a> </strong>for more information.</div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div class=3D"im" style=3D"col=
+or: rgb(80, 0, 80); font-family: Helvetica, Arial, sans-serif; font-size: 1=
+5.555556297302246px; font-style: normal; font-variant: normal; font-weight:=
+ normal; letter-spacing: normal; line-height: 22.5px; orphans: auto; text-a=
+lign: start; text-indent: 0px; text-transform: none; white-space: normal; w=
+idows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-=
+color: rgb(255, 255, 255);"><br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<strong style=3D"font-size: 14=
+.6666669845581px;"><strong style=3D"font-size: 14.6666669845581px;"><strong=
+><a    style=3D"color: rgb(153, 0, 0); text-decoration: none;" target=3D"_b=
+lank"  href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D17016278=
+24c172116109495f61485064&urlid=3D564241">Contact IEEE Computer Society</a><=
+/strong></strong></strong></div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<ul>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li style=3D"text-align: le=
+ft;"><strong><a    style=3D"text-decoration:NONE"   href=3D"mailto:help@com=
+puter.org?subject=3DContact%20IEEE%20Computer%20Society">Customer service</=
+a></strong></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li style=3D"text-align: le=
+ft;"><strong><a    style=3D"text-decoration:NONE" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D5021627824a98451610=
+9495d61485125&urlid=3D564242">Awards</a></strong></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li style=3D"text-align: le=
+ft;"><strong><a    style=3D"text-decoration:NONE" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D1591627824d46541610=
+9495f61485224&urlid=3D564243">Newsletters</a></strong></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li style=3D"text-align: le=
+ft;"><strong><a    style=3D"text-decoration:NONE" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D5091627824d85561610=
+9495a61485389&urlid=3D564244">Advertising</a></strong></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<li style=3D"text-align: le=
+ft;"><strong><a    style=3D"text-decoration:NONE" target=3D"_blank"  href=
+=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D4201627824c63531610=
+9495b61485499&urlid=3D564245">Training</a></strong></li>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</ul>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<p style=3D"font-family: Helve=
+tica, Arial, sans-serif; font-style: normal; font-variant: normal; letter-s=
+pacing: normal; line-height: 22.5px; orphans: auto; text-align: start; text=
+-indent: 0px; text-transform: none; white-space: normal; widows: auto; word=
+-spacing: 0px; -webkit-text-stroke-width: 0px; font-size: 14.6666669845581p=
+x; color: rgb(153, 0, 0); font-weight: bold; background-color: rgb(255, 255=
+, 255);"><strong style=3D"font-size: 14.6666669845581px;"><strong style=3D"=
+font-size: 14.6666669845581px;"><a    style=3D"color: rgb(153, 0, 0); text-=
+decoration: none;" target=3D"_blank"  href=3D"http://news.computer.org/bf/E=
+mailCampaign.php?lf1=3D6151627824f544216109495b61485594&urlid=3D564246">How=
+ Are We Doing?</a></strong></strong></p>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: left=
+;"><strong style=3D"font-size: 14.6666669845581px;"><strong style=3D"font-s=
+ize: 14.6666669845581px;"><span style=3D"color: rgb(0, 0, 0); font-family: =
+Helvetica, Arial, sans-serif; font-style: normal; font-variant: normal; fon=
+t-weight: normal; letter-spacing: normal; line-height: 22.5px; orphans: aut=
+o; text-align: start; text-indent: 0px; text-transform: none; white-space: =
+normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; fo=
+nt-size: 14.6666669845581px; float: none; display: inline !important; backg=
+round-color: rgb(255, 255, 255);">IEEE Computer Society staff is dedicated =
+to improving the membership experience. Share your perspective with us. Ema=
+il </span></strong><strong style=3D"font-size: 14.6666669845581px;"><span s=
+tyle=3D"color: rgb(0, 0, 0); font-family: Helvetica, Arial, sans-serif; fon=
+t-style: normal; font-variant: normal; font-weight: bold; letter-spacing: n=
+ormal; line-height: 22.5px; orphans: auto; text-align: start; text-indent: =
+0px; text-transform: none; white-space: normal; widows: auto; word-spacing:=
+ 0px; -webkit-text-stroke-width: 0px; font-size: 14.6666669845581px; float:=
+ none; display: inline !important; background-color: rgb(255, 255, 255);"><=
+a    style=3D"text-decoration: NONE;"   href=3D"mailto:membership@computer.=
+org">membership@computer.org</a></span></strong><strong style=3D"font-size:=
+ 14.6666669845581px;"><span style=3D"color: rgb(0, 0, 0); font-family: Helv=
+etica, Arial, sans-serif; font-style: normal; font-variant: normal; font-we=
+ight: normal; letter-spacing: normal; line-height: 22.5px; orphans: auto; t=
+ext-align: start; text-indent: 0px; text-transform: none; white-space: norm=
+al; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; font-s=
+ize: 14.6666669845581px; float: none; display: inline !important; backgroun=
+d-color: rgb(255, 255, 255);"> and share your thoughts.</span></strong></st=
+rong></div>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09&nbsp;
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: cent=
+er;"><span style=3D"font-size:22px;"><span style=3D"text-decoration: none;"=
+><span style=3D"text-decoration: none;"><strong><span style=3D"color: rgb(1=
+53, 0, 0);">Celebrating 70 Years! </span></strong></span></span></span><br =
+/>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<span style=3D"font-size:18px;=
+"><span style=3D"text-decoration: none;"><span style=3D"text-decoration: no=
+ne;"><strong>Honoring CS History &<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Looking to the Future</strong>=
+</span></span></span></div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<div style=3D"text-align: cent=
+er;"><a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D1901627=
+824b923916109495c61485620&urlid=3D564247" target=3D"_blank"><img alt=3D"" s=
+rc=3D"http://news.computer.org/ef1/files/1849/Graphics/70th%20thumbnail.jpg=
+" style=3D"width: 225px; height: 125px;" /></a></div>
+
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<blockquote>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<p style=3D"text-align: center=
+;"><strong style=3D"font-size: 14.6666669845581px;"><strong style=3D"font-s=
+ize: 14.6666669845581px;"><span style=3D"color: rgb(0, 0, 0); font-family: =
+Helvetica, Arial, sans-serif; font-style: normal; font-variant: normal; fon=
+t-weight: normal; letter-spacing: normal; line-height: 22.5px; orphans: aut=
+o; text-align: start; text-indent: 0px; text-transform: none; white-space: =
+normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; fo=
+nt-size: 14.6666669845581px; float: none; display: inline !important; backg=
+round-color: rgb(255, 255, 255);"><span style=3D"font-size:20px;"><span sty=
+le=3D"font-family: georgia,serif;"><em>IEEE<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Computer Society Membership:<b=
+r />
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09Keeping You At the Center of T=
+echnology and Helping You Grow with It</em></span></span></span></strong></=
+strong></p>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</blockquote>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</div>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09=09=09=09=09=09=09</table>
+=09=09=09=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09=09=09=09</table>
+=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td style=3D"height:1px; line-height: 0; font-si=
+ze: 0; background-color:#cccccc;"><img alt=3D"" height=3D"1" src=3D"http://=
+news.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bl=
+ock;" width=3D"1" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10" src=3D"http://ne=
+ws.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bloc=
+k;" width=3D"10" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td align=3D"center"><a href=3D"http://news.comp=
+uter.org/bf/EmailCampaign.php?lf1=3D4911627824f276416109495e61485756&urlid=
+=3D564248" target=3D"_blank"><img alt=3D"" src=3D"http://news.computer.org/=
+ef1/files/1849/House_Ads/RiskBased_West_468x60(2).jpg" style=3D"border-widt=
+h: 0px; border-style: solid; width: 468px; height: 60px; display: none !imp=
+ortant;" /></a></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10" src=3D"http://ne=
+ws.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bloc=
+k;" width=3D"10" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+; <a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D9061627824=
+b144516109495e61485829&urlid=3D564249" target=3D"_blank"><img alt=3D"" src=
+=3D"http://news.computer.org/ef1/files/1849/House_Ads/TechIgnite-WebBanners=
+468%20x%2060.jpg" style=3D"width: 468px; height: 60px;" /></a></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td style=3D"height:1px; line-height: 0; font-si=
+ze: 0; background-color:#cccccc;"><img alt=3D"" height=3D"1" src=3D"http://=
+news.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bl=
+ock;" width=3D"1" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td><img alt=3D"" height=3D"10" src=3D"http://ne=
+ws.computer.org/ef1/files/1849/Strategies/spacer.png" style=3D"display:bloc=
+k;" width=3D"10" /></td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09<td>
+=09=09=09=09=09=09=09=09=09<table border=3D"0" cellpadding=3D"0" cellspacin=
+g=3D"0" width=3D"760">
+=09=09=09=09=09=09=09=09=09=09<tbody>
+=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"width:40%; text-align:righ=
+t;"><a href=3D"http://news.computer.org/bf/EmailCampaign.php?lf1=3D27816278=
+24d730516109495a61485937&urlid=3D564250"><img alt=3D"IEEE: Advancing Techon=
+ology for Humanity" border=3D"0" height=3D"73" src=3D"http://news.computer.=
+org/ef1/files/1849/Strategies/ieee-logo-footer.png" width=3D"130" /></a></t=
+d>
+=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"width:20%;">&nbsp;</td>
+=09=09=09=09=09=09=09=09=09=09=09=09<td style=3D"width:40%;"><a href=3D"htt=
+p://news.computer.org/bf/EmailCampaign.php?lf1=3D3881627824d347816109495a61=
+486047&urlid=3D564251"><img alt=3D"IEEE Computer Society" border=3D"0" heig=
+ht=3D"54" src=3D"http://news.computer.org/ef1/files/1849/Strategies/compute=
+r-society-logo-footer.png" width=3D"150" /></a></td>
+=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09<td colspan=3D"3">&nbsp;</td>
+=09=09=09=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09=09=09=09</table>
+=09=09=09=09=09=09=09=09=09</td>
+=09=09=09=09=09=09=09=09</tr>
+=09=09=09=09=09=09=09</tbody>
+=09=09=09=09=09=09</table>
+=09=09=09=09=09=09</td>
+=09=09=09=09=09</tr>
+=09=09=09=09</tbody>
+=09=09=09</table>
+=09=09=09</td>
+=09=09</tr>
+=09</tbody>
+</table>
+
+
+<center><div align=3D'center'><font style=3D'font-size:10px' face=3D'arial,=
+ sans serifx'>10662 Los Vaqueros Circle, Los Alamitos, CA 90720</font></div=
+></center><center><br/><img height=3D'15' border=3D'0' width=3D'16' href=3D=
+'#' src=3D'http://news.computer.org/ef1/images/icon_forward.gif'/><a href=
+=3D'http://news.computer.org/ef1/forwardCampaign.php?em=3D19d27ae01264cb1e9=
+98dd0fd886a63c1e004266badd759fb8dcaa65e95e626af&li=3D7b89e5315f6b669429a3cc=
+f6770bff1f&ci=3Dee0e302f761f3516fb16f14fa974fb02' ><span id=3D"forcustom" s=
+tyle=3D"color:#000000;font-family:arial;font-size:12px;">Forward message to=
+ your colleague</span></a><br/></center><center><font face=3D'arial, sans s=
+erifx' style=3D'font-size: 10px;'><p>Click here to <a href=3Dhttp://news.co=
+mputer.org/ef1/emunsub.php?em=3D19d27ae01264cb1e998dd0fd886a63c1e004266badd=
+759fb8dcaa65e95e626af&li=3D7b89e5315f6b669429a3ccf6770bff1f&ci=3Dee0e302f76=
+1f3516fb16f14fa974fb02>opt out</a></p></font></center><img src=3D'http://ne=
+ws.computer.org/ef1/emopen.php?emo=3D4b75afb9dd8255ccb25ebfc8345113fa' widt=
+h=3D'1' height=3D'1' /></body></html>
+--a86ce223b8654fc5ae4b62ecffc387dd--

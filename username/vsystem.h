@@ -269,6 +269,10 @@
 #endif
 #endif
 
+#ifndef	SIGTIMEOUT
+#define	SIGTIMEOUT	SIGRTMAX
+#endif
+
 
 /* for 'stat(2)' and its many friends */
 
@@ -1349,6 +1353,7 @@ extern int	uc_kvamatch(kva_t *,const char *,const char **) ;
 
 /* POSIX shared memory operations */
 extern int	uc_openshm(const char *,int,mode_t) ;
+extern int	uc_openshmto(const char *,int,mode_t,int) ;
 extern int	uc_unlinkshm(const char *) ;
 
 /* miscellaneous */

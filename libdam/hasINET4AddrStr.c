@@ -58,8 +58,6 @@ extern int	debugprintf(cchar *,...) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern cchar	*getourenv(cchar **,cchar *) ;
-
 extern char	*strnchr(cchar *,int,int) ;
 
 
@@ -88,9 +86,6 @@ int hasINET4AddrStr(cchar *sp,int sl)
 	if (sl < 0) strlen(sp) ;
 	while ((tp = strnchr(sp,sl,'.')) != NULL) {
 	    f = hasINET4Num(sp,(tp-sp)) ;
-#if	CF_DEBUGS
-	   debugprintf("hasINET4AddrStr: hasINET4Num=%u\n",f) ;
-#endif
 	    if (! f) break ;
 	    sl -= ((tp+1)-sp) ;
 	    sp = (tp+1) ;
@@ -99,18 +94,12 @@ int hasINET4AddrStr(cchar *sp,int sl)
 	if (f && (sl > 0)) {
 	    c += 1 ;
 	    f = hasINET4Num(sp,sl) ;
-#if	CF_DEBUGS
-	   debugprintf("hasINET4AddrStr: hasINET4Num=%u\n",f) ;
-#endif
 	} /* end if */
-#if	CF_DEBUGS
-	   debugprintf("hasINET4AddrStr: mid f=%u c=%u\n",f,c) ;
-#endif
 	if (f && (c != 4)) {
 	    f = FALSE ;
 	}
 #if	CF_DEBUGS
-	   debugprintf("hasINET4AddrStr: ret f=%u\n",f) ;
+	debugprintf("hasINET4AddrStr: ret f=%u\n",f) ;
 #endif
 	return f ;
 }

@@ -291,7 +291,7 @@ OBJ10= b_netload.o b_dhtext.o b_logsys.o b_termadm.o b_mailnew.o
 OBJ11= b_pcsconf.o b_pcsuserinfo.o b_inetping.o b_linefold.o b_summer.o
 OBJ12= b_conslog.o b_termnote.o b_uuidgen.o b_strerror.o b_sysdb.o
 OBJ13= b_rest.o b_qotd.o b_mjd.o b_look.o b_append.o b_rfinger.o b_shells.o
-OBJ14= b_mbproc.o b_mbexpire.o b_homepage.o b_progcheck.o b_calyear.o
+OBJ14= b_mbproc.o b_mbexpire.o b_homepage.o b_progcheck.o b_calyear.o b_hello.o
 OBJ15= b_isproc.o b_webcounter.o b_makesafe.o b_numbers.o b_cksumpass.o
 
 OBJ16= 
@@ -884,11 +884,11 @@ b_numcvt.o:		b_numcvt.c b_numcvt.h $(INCS)
 b_cksumpass.o:		b_cksumpass.c b_cksumpass.h $(INCS)
 	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_cksumpass.cc
 
+b_hello.o:		b_hello.c b_hello.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
 
 # testing
-
-b_helloworld.o:		b_helloworld.c b_helloworld.h $(INCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
 b_null.o:		b_null.c nulb_l.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
@@ -1174,10 +1174,6 @@ mailmsgmatenv.o:	mailmsgmatenv.c mailmsgmatenv.h
 
 mailmsgfrom.o:		mailmsgfrom.c mailmsgfrom.h
 
-dater.o:		dater.c dater.h
-
-dater_setkey.o:		dater_setkey.c dater.h
-
 realname.o:		realname.c realname.h
 
 hostinfo.o:		hostinfo.c hostinfo.h
@@ -1306,9 +1302,15 @@ babycalc.o:		babycalc.c babycalc.h
 
 babiesfu.o:		babiesfu.c babiesfu.h
 
+dater.o:		dater.c dater.h
+
+dater_setkey.o:		dater_setkey.c dater.h
+
 cvtdater.o:		cvtdater.c cvtdater.h
 
 dayspec.o:		dayspec.c dayspec.h
+
+tmz.o:			tmz.c tmz.h
 
 sysvar.o:		sysvar.c sysvar.h
 

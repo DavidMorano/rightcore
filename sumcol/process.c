@@ -3,20 +3,20 @@
 /* process a data file */
 
 
-#define	CF_DEBUG	1		/* compile-time debug print-outs */
+#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUG	0		/* run-time debug print-outs */
 #define	CF_CFDECULL	0		/* use 'cfdecull()' */
 
 
 /* revision history:
 
 	= 2004-03-01, David A­D­ Morano
-
-	The subroutine was adapted from others programs that
-	did similar types of functions.
-
+        The subroutine was adapted from others programs that did similar types
+        of functions.
 
 */
 
+/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
@@ -30,17 +30,13 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<keyopt.h>
 #include	<bfile.h>
 #include	<field.h>
-#include	<mallocstuff.h>
 #include	<localmisc.h>
 
 #include	"config.h"
@@ -60,10 +56,19 @@
 
 /* external subroutines */
 
-extern int	strnnlen(const char *,int,int) ;
-extern int	cfdecf(const char *,int,double *) ;
-extern int	cfdecul(const char *,int,ulong *) ;
-extern int	cfdecull(const char *,int,ULONG *) ;
+extern int	strnnlen(cchar *,int,int) ;
+extern int	cfdecf(cchar *,int,double *) ;
+extern int	cfdecul(cchar *,int,ulong *) ;
+extern int	cfdecull(cchar *,int,ULONG *) ;
+
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* external variables */
@@ -77,8 +82,8 @@ extern int	cfdecull(const char *,int,ULONG *) ;
 
 /* forward references */
 
-static int	putpair(struct proginfo *,int,double,double) ;
-static int	getval(struct proginfo	*,char *,int,double *) ;
+static int	putpair(PROGINFO *,int,double,double) ;
+static int	getval(PROGINFO	*,cchar *,int,double *) ;
 
 
 /* local variables */
@@ -87,132 +92,104 @@ static int	getval(struct proginfo	*,char *,int,double *) ;
 /* exported subroutines */
 
 
-int process(pip,kop,fname)
-struct proginfo	*pip ;
-KEYOPT		*kop ;
-const char	fname[] ;
+/* ARGSUSED */
+int progfile(PROGINFO *pip,cchar *fname)
 {
-	FIELD	lf ;
+	bfile		ifile ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		c = 0 ;
 
-	bfile	ifile ;
-
-	int	rs = SR_OK ;
-	int	len ;
-	int	line ;
-	int	fl, cl ;
-	int	n ;
-	int	c = 0 ;
-
-	char	linebuf[LINEBUFLEN + 1] ;
-	char	namebuf[MAXNAMELEN + 1] ;
-	char	*fp, *cp ;
-
-	if (fname == NULL)
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("process: entered fname=%s\n",fname) ;
 #endif
 
-	if (fname[0] == '-')
-	    rs = bopen(&ifile,BFILE_STDIN,"dr",0666) ;
+	if (fname[0] == '-') fname = BFILE_STDIN ;
 
-	else
-	    rs = bopen(&ifile,fname,"r",0666) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("process: bopen() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0)
-	    goto ret0 ;
+	if ((rs = bopen(&ifile,fname,"r",0666)) >= 0) {
+	    const int	llen = LINEBUFLEN ;
+	    int		line = 1 ;
+	    int		fl ;
+	    int		n ;
+	    cchar	*fp ;
+	    char	lbuf[LINEBUFLEN + 1] ;
 
 /* read 'em */
 
-	c = 0 ;
-	line = 1 ;
-	len = 0 ;
-	while ((rs = breadline(&ifile,linebuf,LINEBUFLEN)) > 0) {
+	    while ((rs = breadline(&ifile,lbuf,llen)) > 0) {
+	        FIELD	lf ;
+	        double	x, y ;
+	        int	len = rs ;
 
-	    double	x, y ;
-
-
-	    len = rs ;
-	    if (linebuf[len - 1] == '\n')
-	        len -= 1 ;
-
-	    linebuf[len] = '\0' ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("process: line=>%t<\n",
-	            linebuf,len) ;
-#endif /* CF_DEBUG */
-
-	    if ((rs = field_start(&lf,linebuf,len)) >= 0) {
-
-		x = 0.0 ;
-		y = 0.0 ;
-		for (n = 1 ; n < pip->ncol ; n += 1) {
-
-	            fl = field_get(&lf,NULL,&fp) ;
-	            if (fl > 0)
-	                rs = getval(pip,fp,fl,&x) ;
-
-		    if ((rs < 0) && pip->f.ignore)
-			rs = SR_OK ;
-
-		    if (rs < 0)
-			break ;
-
-		} /* end for */
-
-		if (rs >= 0)
-	            fl = field_get(&lf,NULL,&fp) ;
-
-	        if ((rs >= 0) && (fl > 0))
-	            rs = getval(pip,fp,fl,&y) ;
+	        if (lbuf[len - 1] == '\n') len -= 1 ;
+	        lbuf[len] = '\0' ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("process: getval() rs=%d x=%12.4f y=%12.4f\n",
-			rs,x,y) ;
+	            debugprintf("process: line=>%t<\n", lbuf,len) ;
+#endif /* CF_DEBUG */
+
+	        if ((rs = field_start(&lf,lbuf,len)) >= 0) {
+
+	            x = 0.0 ;
+	            y = 0.0 ;
+	            for (n = 1 ; n < pip->ncol ; n += 1) {
+
+	                fl = field_get(&lf,NULL,&fp) ;
+	                if (fl > 0)
+	                    rs = getval(pip,fp,fl,&x) ;
+
+	                if ((rs < 0) && pip->f.ignore)
+	                    rs = SR_OK ;
+
+	                if (rs < 0) break ;
+	            } /* end for */
+
+	            if (rs >= 0)
+	                fl = field_get(&lf,NULL,&fp) ;
+
+	            if ((rs >= 0) && (fl > 0))
+	                rs = getval(pip,fp,fl,&y) ;
+
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(4)) {
+	                debugprintf("process: getval() rs=%d\n",rs) ;
+	                debugprintf("process: x=%12.4f y=%12.4f\n",x,y) ;
+		    }
 #endif /* CF_DEBUG */
 
 /* we're out of this one */
 
-	        field_finish(&lf) ;
-
-	    } /* end if (field) */
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("process: field rs=%d\n",rs) ;
-#endif
-
-	    if (rs >= 0) {
-	        rs = putpair(pip,c,x,y) ;
+	            field_finish(&lf) ;
+	        } /* end if (field) */
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("process: putpair() rs=%d\n",rs) ;
+	            debugprintf("process: field rs=%d\n",rs) ;
+#endif
+
+	        if (rs >= 0) {
+	            rs = putpair(pip,c,x,y) ;
+
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(4))
+	                debugprintf("process: putpair() rs=%d\n",rs) ;
 #endif /* CF_DEBUG */
 
-	    } /* end if */
+	        } /* end if */
 
-	    if (rs < 0)
-	        break ;
+	        c += 1 ;
+	        line += 1 ;
 
-	    c += 1 ;
-	    line += 1 ;
+	        if (rs < 0) break ;
+	    } /* end while (reading lines) */
 
-	} /* end while (reading lines) */
-
-	bclose(&ifile) ;
-
-ret0:
+	    rs1 = bclose(&ifile) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -228,7 +205,7 @@ ret0:
 
 
 static int putpair(pip,i,x,y)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 int		i ;
 double		x, y ;
 {
@@ -236,19 +213,16 @@ double		x, y ;
 	int	e ;
 	int	size ;
 
-
 	if ((i + 1) > pip->e) {
-
 	    int	j ;
-
 
 	    e = pip->e + 100 ;
 	    size = e * sizeof(struct process_pair) ;
-	    if (pip->n == 0)
+	    if (pip->n == 0) {
 	        rs = uc_malloc(size,&pip->pairs) ;
-
-	    else
+	    } else {
 	        rs = uc_realloc(pip->pairs,size,&pip->pairs) ;
+	    }
 
 	    if (rs >= 0) {
 
@@ -275,16 +249,9 @@ double		x, y ;
 /* end subroutine (putpair) */
 
 
-static int getval(pip,sp,sl,vp)
-struct proginfo	*pip ;
-char		*sp ;
-int		sl ;
-double		*vp ;
+static int getval(PROGINFO *pip,cchar *sp,int sl,double *vp)
 {
-	int	rs ;
-
-	char	*cp ;
-
+	int		rs ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -298,24 +265,20 @@ double		*vp ;
 	    rs = cfdecf(sp,sl,vp) ;
 
 	} else {
-
-	    ULONG	lw ;
-
 	    ulong	v ;
 
-
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("getval: cfdecu() >%t<\n",
-		sp,strnnlen(sp,sl,40)) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("getval: cfdecu() >%t<\n",
+	            sp,strnnlen(sp,sl,40)) ;
 #endif
 
 #if	CF_CFDECULL
 	    rs = cfdecull(sp,sl,&lw) ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("getval: cfdecull() rs=%d v=%llu\n",rs,lw) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("getval: cfdecull() rs=%d v=%llu\n",rs,lw) ;
 #endif
 
 	    *vp = (rs >= 0) ? ((double) lw) : 0.0 ;
@@ -323,8 +286,8 @@ double		*vp ;
 	    rs = cfdecul(sp,sl,&v) ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("getval: cfdecul() rs=%d v=%lu\n",rs,v) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("getval: cfdecul() rs=%d v=%lu\n",rs,v) ;
 #endif
 
 	    *vp = (rs >= 0) ? ((double) v) : 0.0 ;
@@ -334,13 +297,11 @@ double		*vp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("getval: ret rs=%d v=%12.4f\n",
-	        rs,*vp) ;
+	    debugprintf("getval: ret rs=%d v=%12.4f\n", rs,*vp) ;
 #endif
 
 	return rs ;
 }
 /* end subroutine (getval) */
-
 
 

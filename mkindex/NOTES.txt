@@ -1,0 +1,32 @@
+MKINDEX
+
+This program does very much what the MKINV program does. It creates a set of
+files that serve as an index for input files specified through "tags" created
+from a program like MKKEY.
+
+The index files creates are:
+
+	<name>.post
+	<name>.names
+
+These two files serve the purpose of the TAGS and HASH files from the MKKEY and
+then the MKINV programs.
+
+
+Philosophy of Implementation
+
+The algorithm to produce the index is based on the idea that the
+index can be stored in a memory mapped file and that it can be updated
+(augmented) in that state before being finalized and unmapped, and closed.
+An object used to manipulate the memory mapped file is termed MEMFILE.
+This object facilitates low overhead writing to the file while the
+mapping allows fast reading and updating.
+
+
+Future Experiments
+
+An experiment, apparently purely hypothetical, was started whereby to create an
+object that could process a POST file (whatever exactly that is). The
+experimental object was termed POSTFILE.
+
+

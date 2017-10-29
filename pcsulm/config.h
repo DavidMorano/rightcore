@@ -3,24 +3,27 @@
 
 #define	VERSION		"0"
 #define	WHATINFO	"@(#)pcsulm "
-
-#define	VARPROGRAMROOT1	"PCSULM_PROGRAMROOT"
-#define	VARPROGRAMROOT2	"PCS"
-#define	VARPROGRAMROOT3	"PROGRAMROOT"
-
-#define	VARSEARCHNAME	"PCSULM_NAME"
-#define	VAROPTS		"PCSULM_OPTS"
-
-#define	VARDEBUGFD1	"PCSULM_DEBUGFD"
-#define	VARDEBUGFD2	"DEBUGFD"
+#define	BANNER		"PCS User Location Manager"
+#define	SEARCHNAME	"pcsulm"
+#define	VARPRNAME	"PCS"
 
 #ifndef	PROGRAMROOT
 #define	PROGRAMROOT	"/usr/add-on/pcs"
 #endif
 
-#define	BANNER		"PCS User Location Manager"
+#define	VARPROGRAMROOT1	"PCSULM_PROGRAMROOT"
+#define	VARPROGRAMROOT2	VARPRNAME
+#define	VARPROGRAMROOT3	"PROGRAMROOT"
 
-#define	SEARCHNAME	"pcsulm"
+#define	VARBANNER	"PCSULM_BANNER"
+#define	VARSEARCHNAME	"PCSULM_NAME"
+#define	VAROPTS		"PCSULM_OPTS"
+#define	VARRFNAME	"PCSULM_EF"
+
+#define	VARDEBUGFD1	"PCSULM_DEBUGFD"
+#define	VARDEBUGFD2	"DEBUGFD"
+
+#define	TMPDNAME	"/tmp"
 
 #define	HELPFNAME	"help"
 #define	LOGFNAME	"log/pcsulm"
@@ -29,8 +32,5 @@
 #define	PCSULMHOSTSFILE	"etc/pcsulm/pcsulmhosts"
 #define	PCSULMNOTUSFILE	"etc/pcsulm/pcsulmnames"
 #define	CMDHELPFNAME	"lib/pcsulm/cmdhelp"
-
-#define	TMPDNAME	"/tmp"
-
 
 

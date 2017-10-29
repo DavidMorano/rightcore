@@ -233,6 +233,7 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 
 	        sl -= ti ;
 	        sp += ti ;
+
 #ifdef	COMMENT
 	        if ((sl > 0) && (! isalnumlatin(sp[0]))) {
 	            sl -= 1 ;
@@ -259,6 +260,7 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 
 	            dp = (sp+ti) ;
 	            dl = (sl-ti) ;
+
 #ifdef	COMMENT
 	            if ((dl > 0) && (! isalnumlatin(dp[0]))) {
 	                dl -= 1 ;

@@ -1,6 +1,17 @@
 /* testopendircache */
 /* lang=C89 */
 
+
+/* revision history:
+
+	= 2017-09-07, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
+
+
 #define	CF_DEBUGS	1		/* compile-time debugging */
 #define	CF_DEBUGMALL	1		/* debugging memory-allocations */
 #include	<envstandards.h>

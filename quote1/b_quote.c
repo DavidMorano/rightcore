@@ -129,6 +129,7 @@ extern int	field_wordphrase(FIELD *,const uchar *,char *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -222,13 +223,14 @@ static int	procout(PROGINFO *,const char *,int) ;
 static int	procoutline(PROGINFO *,int,const char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
-static int	locinfo_nlookup(LOCINFO *,int,char *,int) ;
 static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_deflinelen(LOCINFO *) ;
+static int	locinfo_nlookup(LOCINFO *,int,char *,int) ;
 
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"HELP",
@@ -276,7 +278,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"audit",
 	"linelen",
 	"indent",
@@ -296,7 +298,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	*params[] = {
+static cchar	*params[] = {
 	"logsize",
 	"logfile",
 	"quotedirs",
@@ -312,7 +314,7 @@ enum params {
 	param_overlast
 } ;
 
-static const char	*schedconf[] = {
+static cchar	*schedconf[] = {
 	"%r/etc/%n/%n.%f",
 	"%r/etc/%n/%f",
 	"%r/etc/%n.%f",
@@ -320,7 +322,7 @@ static const char	*schedconf[] = {
 	NULL
 } ;
 
-static const char	blanks[] = "                    " ;
+static cchar	blanks[] = "                    " ;
 
 static const uchar	aterms[] = {
 	0x00, 0x2E, 0x00, 0x00,
@@ -449,10 +451,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	lip->ofp = ofp ;
-	lip->linelen = 0 ;
-	lip->count = -1 ;
-	lip->max = -1 ;
-	lip->f.separate = TRUE ;
 
 /* start parsing the arguments */
 
@@ -895,27 +893,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		pip->progname,((vdbname != NULL) ? vdbname : "NULL")) ;
 	}
 
-	rs1 = (DEFPRECISION + 2) ;
-	if ((rs >= 0) && (lip->linelen < rs1)) {
-	    cp = getourenv(envv,VARLINELEN) ;
-	    if (cp == NULL) cp = getourenv(envv,VARCOLUMNS) ;
-	    if (cp != NULL) {
-	        if (((rs = cfdeci(cp,-1,&n)) >= 0) && (n >= rs1)) {
-	            lip->have.linelen = TRUE ;
-	            lip->final.linelen = TRUE ;
-	            lip->linelen = n ;
-	        }
-	    }
+	if (rs >= 0) {
+	    rs = locinfo_deflinelen(lip) ;
 	}
 
-	if (lip->linelen < rs1)
-	    lip->linelen = COLUMNS ;
+	if ((lip->nverses < 1) && (! lip->have.nverses)) lip->nverses = 1 ;
 
-	if ((lip->nverses < 1) && (! lip->have.nverses))
-	    lip->nverses = 1 ;
-
-	if (lip->nverses < 0)
-	    lip->nverses = 1 ;
+	if (lip->nverses < 0) lip->nverses = 1 ;
 
 	if (rs < 0) goto badarg ;
 
@@ -1251,6 +1235,9 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
+	lip->count = -1 ;
+	lip->max = -1 ;
+	lip->f.separate = TRUE ;
 
 	return rs ;
 }
@@ -1272,6 +1259,35 @@ static int locinfo_finish(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_finish) */
+
+
+static int locinfo_deflinelen(LOCINFO *lip)
+{
+	const int	def = (DEFPRECISION + 2) ;
+	int		rs = SR_OK ;
+	if (lip->linelen < def) {
+	    PROGINFO	*pip = lip->pip ;
+	    cchar	*cp = NULL ;
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARLINELEN) ;
+	    }
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARCOLUMNS) ;
+	    }
+	    if (! isStrEmpty(cp,-1)) {
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (rs >= def) {
+	                lip->have.linelen = TRUE ;
+	                lip->final.linelen = TRUE ;
+	                lip->linelen = rs ;
+		    }
+	        }
+	    }
+	}
+	if (lip->linelen < def ) lip->linelen = COLUMNS ;
+	return rs ;
+}
+/* end subroutine (locinfo_deflinelen) */
 
 
 static int locinfo_nlookup(LOCINFO *lip,int bi,char *buf,int buflen)
@@ -1831,7 +1847,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	        	vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	        	switch (oi) {
-
 	        case akoname_audit:
 	            if (! lip->final.audit) {
 	                lip->have.audit = TRUE ;
@@ -1843,7 +1858,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 			}
 	            }
 	            break ;
-
 	        case akoname_linelen:
 	            if (! lip->final.linelen) {
 	                lip->have.linelen = TRUE ;
@@ -1855,7 +1869,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 			}
 	            }
 	            break ;
-
 	        case akoname_indent:
 	            if (! lip->final.indent) {
 	                lip->have.indent = TRUE ;
@@ -1868,7 +1881,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 			}
 	            }
 	            break ;
-
 		case akoname_interactive:
 	            if (! lip->final.interactive) {
 	                lip->have.interactive = TRUE ;
@@ -1880,7 +1892,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 		        }
 		    }
 		    break ;
-
 		case akoname_prefix:
 	            if (! lip->final.prefix) {
 	                lip->have.prefix = TRUE ;
@@ -1892,7 +1903,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 		        }
 		    }
 		    break ;
-
 	        case akoname_separate:
 	            if (! lip->final.separate) {
 	                lip->have.separate = TRUE ;
@@ -1904,7 +1914,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 			}
 	            }
 	            break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

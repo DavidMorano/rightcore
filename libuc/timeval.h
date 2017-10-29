@@ -1,7 +1,7 @@
 /* timeval */
 
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	TIMEVAL_INCLUDE
 #define	TIMEVAL_INCLUDE	1
@@ -13,10 +13,14 @@
 #include	<time.h>
 
 
+#define	TIMEVAL		struct timeval
+
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
+extern int timeval_init(TIMEVAL *,time_t,int) ;
 extern int timeval_add(struct timeval *,struct timeval *,struct timeval *) ;
 extern int timeval_sub(struct timeval *,struct timeval *,struct timeval *) ;
 

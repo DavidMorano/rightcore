@@ -15,8 +15,10 @@
 #include	<localmisc.h>		/* extra types */
 
 
-#define	ARTLIST		struct artlist_head
-#define	ARTLIST_ENT	struct artlist_e
+#define	ARTLIST			struct artlist_head
+#define	ARTLIST_ENT		struct artlist_e
+#define	ARTLIST_MAGIC		0x83465875
+#define	ARTLIST_CURMAGIC	0x83465876
 
 
 struct artlist_head {
@@ -64,8 +66,6 @@ extern int	artlist_getentry(ARTLIST *,int,ARTLIST_ENT **) ;
 
 #endif /* ARTLIST_MASTER */
 
-
 #endif /* ARTLIST_INCLUDE */
-
 
 

@@ -972,8 +972,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;

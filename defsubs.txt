@@ -1,0 +1,5 @@
+extern int proginfo_pwd(struct proginfo *) ;
+extern int proginfo_getpwd(struct proginfo *,char *,int) ;
+extern int proginfo_getename(struct proginfo *,char *,int) ;
+extern int proginfo_nodename(struct proginfo *) ;
+extern int proginfo_free(struct proginfo *) ;

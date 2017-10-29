@@ -10,24 +10,23 @@
 
 /* revision history:
 
-	= 88/01/01, David A­D­ Morano
-	This subroutine (it's the whole program -- same as
-	the FIFO test) was originally written.
-
+	= 1999-02-01, David A­D­ Morano
+        This subroutine (it's the whole program -- same as the FIFO test) was
+        originally written.
 
 */
 
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
-
-/************************************************************************
+*******/************************************************************************
 
 	This subroutine tests the SHA-1 hash object.
 
 
-***************************************************************************/
+*******************************************************************************/
 
 
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<unistd.h>
@@ -38,14 +37,11 @@
 #include	<vsystem.h>
 #include	<field.h>
 #include	<bfile.h>
+#include	<localmisc.h>
 
 #include	"sha.h"
-
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
-
 
 
 /* local defines */
@@ -58,7 +54,6 @@
 #define	O_SRVFLAGS	(O_RDONLY | O_CREAT | O_NONBLOCK)
 
 #define	COLUMNS		8
-
 
 
 /* external subroutines */
@@ -81,35 +76,22 @@ int		f_alarm ;
 int		f_signal ;
 
 
-
-
-
-/* start of program */
 int process(pip,ofp,pathname)
 struct proginfo	*pip ;
 bfile		*ofp ;
 char		pathname[] ;
 {
-	struct sigaction	sigs ;
-
-		SHA	e ;
-
+	SHA		e ;
 	bfile		dfile ;
-
 	uint		digest[5] ;
-
 	int		len, rs ;
 	int		i, j ;
 	int		iw ;
-
-	char	buf[BUFLEN + 1], *bp ;
-	char	*cp ;
-
-
+	char		buf[BUFLEN + 1], *bp ;
+	char		*cp ;
 
 	if ((pathname == NULL) || (pathname[0] == '\0'))
 		return SR_INVALID ;
-
 
 	if ((rs = bopen(&dfile,pathname,"r",0666)) < 0)
 		goto badin ;
@@ -139,19 +121,17 @@ char		pathname[] ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1) {
-
 	debugprintf("process: SHA>") ;
-
-	for (i = 0 ; i < 20 ; i += 1)
+	for (i = 0 ; i < 20 ; i += 1) {
 		debugprintf(" %02x",buf[i]) ;
-
+	}
 	debugprintf("\n") ;
-
 	}
 #endif
 
-		for (i = 0 ; i < 5 ; i += 1)
+		for (i = 0 ; i < 5 ; i += 1) {
 			netorder_readi(buf + (i * 4),digest + i) ;
+		}
 
 #if	CF_DEBUGS
 	if (pip->debuglevel > 1) {
@@ -171,9 +151,7 @@ char		pathname[] ;
 
 		sha_free(&e) ;
 
-
 	bclose(&dfile) ;
-
 
 badret:
 	return rs ;
@@ -186,6 +164,5 @@ badin:
 
 }
 /* end subroutine (process) */
-
 
 

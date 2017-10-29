@@ -1,0 +1,1 @@
+DEF7= $(LF_DEFS)

@@ -1,0 +1,5 @@
+	            shio_printf(pip->efp,
+	                "%s: argument file inaccessible (%d)\n",
+	                pip->progname,rs) ;
+	            shio_printf(pip->efp,"%s: argfile=%s\n",
+	                pip->progname,argfname) ;

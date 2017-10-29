@@ -1,0 +1,27 @@
+	Notes:
+
+	= possible returns to an open attempt
+
+	- OK (creating)
+	- already exists
+	- doesn't exist but is in progress
+	- exists and is in progress
+
+	= open-flags
+
+			if DB exits	if NDB exists	returns
+	___________________________________________________________________
+
+	-		no		no		SR_OK (created)
+	-		no		yes		SR_INPROGRESS
+	-		yes		no		SR_OK
+	-		yes		yes		SR_INPROGRESS
+
+	O_CREAT|O_EXCL	no		no		SR_OK (created)
+	O_CREAT|O_EXCL	no		yes		SR_INPROGRESS
+	O_CREAT|O_EXCL	yes		no		SR_EXIST
+	O_CREAT|O_EXCL	yes		yes		SR_INPROGRESS
+
+	O_CREAT		x		x		SR_OK (created)
+
+

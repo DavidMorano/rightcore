@@ -1082,15 +1082,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((rs >= 0) && (lip->linelen == 0)) {
-	    if ((cp = getourenv(pip->envv,VARCOLUMNS)) != NULL) {
+	    cp = NULL ;
+	    if (cp == NULL) cp = getourenv(pip->envv,VARLINELEN) ;
+	    if (cp == NULL) cp = getourenv(pip->envv,VARCOLUMNS) ;
+	    if (cp != NULL) {
 	        rs = optvalue(cp,-1) ;
 	        lip->linelen = rs ;
 	    }
 	}
 
-	if ((rs >= 0) && (lip->linelen == 0)) {
-	    lip->linelen = COLUMNS ;
-	}
+	if (lip->linelen == 0) lip->linelen = COLUMNS ;
 
 	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
 

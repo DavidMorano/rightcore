@@ -220,7 +220,7 @@ static int procuas_end(PROGINFO *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -268,7 +268,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"utf",
 	"db",
 	NULL
@@ -281,7 +281,7 @@ enum akonames {
 } ;
 
 /* define the configuration keywords */
-static cchar *dbnames[] = {
+static cchar	*dbnames[] = {
 	"shells",
 	"protocols",
 	"networks",
@@ -761,8 +761,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1037,7 +1036,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_utf:
 	                case akoname_db:
 	                    if (! lip->final.dbfname) {
@@ -1049,7 +1047,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1242,6 +1239,8 @@ static int procsome(PROGINFO *pip,int w,void *ofp,ARGINFO *aip,BITS *bop,
 	int		pan = 0 ;
 	int		wlen = 0 ;
 	int		cl ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 	cchar		*cp ;
 
 	if (rs >= 0) {
@@ -1298,11 +1297,9 @@ static int procsome(PROGINFO *pip,int w,void *ofp,ARGINFO *aip,BITS *bop,
 	        rs1 = shio_close(afp) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } else {
-	        shio_printf(pip->efp,
-	            "%s: inaccessible argument-list (%d)\n",
-	            pip->progname,rs) ;
-	        shio_printf(pip->efp,"%s: afile=%s\n",
-	            pip->progname,afn) ;
+		fmt = "%s: inaccessible argument-list (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	        shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	    } /* end if */
 
 	} /* end if (processing file argument file list) */

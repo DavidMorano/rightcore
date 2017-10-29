@@ -253,7 +253,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"str",
 	"date",
 	"time",
@@ -289,7 +289,7 @@ enum progopts {
 	progopt_overlast
 } ;
 
-static const char	*ansiterms[] = {
+static cchar	*ansiterms[] = {
 	"ansi",
 	"sun",
 	"screen",
@@ -311,7 +311,7 @@ static const char	*ansiterms[] = {
 	NULL
 } ;
 
-static const char	*msglogdevs[] = {
+static cchar	*msglogdevs[] = {
 	MSGLOGDEV,
 	CONSOLEDEV,
 	NULL
@@ -850,8 +850,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get our program mode */
@@ -1272,7 +1271,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int procdaemon(PROGINFO *pip,cchar mntfname[])
+static int procdaemon(PROGINFO *pip,cchar *mntfname)
 {
 	int		rs = SR_OK ;
 
@@ -1305,7 +1304,7 @@ static int procdaemon(PROGINFO *pip,cchar mntfname[])
 /* end subroutine (procdaemon) */
 
 
-static int procserve(PROGINFO *pip,cchar mntfname[])
+static int procserve(PROGINFO *pip,cchar *mntfname)
 {
 	struct pollfd	fds[2] ;
 	time_t		ti_run = pip->daytime ;
@@ -1313,7 +1312,7 @@ static int procserve(PROGINFO *pip,cchar mntfname[])
 #ifdef	COMMENT
 	time_t		ti_wait = pip->daytime ;
 #endif
-	int		rs = SR_OK ;
+	int		rs ;
 	int		to = pip->intpoll ;
 	int		to_check = TO_CHECK ;
 	int		pto ;
@@ -1386,8 +1385,8 @@ static int procserve(PROGINFO *pip,cchar mntfname[])
 	    if ((rs >= 0) && (n > 0)) {
 
 	        for (i = 0 ; (rs >= 0) && (i < nfds) ; i += 1) {
-	            int	fd = fds[i].fd ;
-	            int	re = fds[i].revents ;
+	            const int	fd = fds[i].fd ;
+	            const int	re = fds[i].revents ;
 
 	            if (fd == sfd) {
 

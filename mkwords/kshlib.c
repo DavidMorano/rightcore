@@ -2438,9 +2438,9 @@ static int kshlib_sesend(KSHLIB *uip)
 	if (uip->sesdname != NULL) {
 	    if ((rs = kshlib_sid(uip)) >= 0) {
 		if (uip->sid == uip->pid) {
-		     if ((rs = isdirempty(uip->sesdname)) > 0) {
+		    if ((rs = isdirempty(uip->sesdname)) > 0) {
 			rs = u_rmdir(uip->sesdname) ;
-		     }
+		    }
 		}
 	    }
 	}

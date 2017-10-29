@@ -17,7 +17,7 @@
 
 /*******************************************************************************
 
-	This module implements a day-of-month calculator.
+	We return some default time-zone information.
 
 
 *******************************************************************************/

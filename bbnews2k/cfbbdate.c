@@ -12,12 +12,15 @@
         This routine also ignores white space at the front or back of the digit
         string and handles a minus sign.
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
+
 	= 2000-01-18, David A­D­ Morano
 	Hacked to handle Y2K things a little better.
 
 */
 
-/* Copyright © 1995,1998,2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2000 David A­D­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>

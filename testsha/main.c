@@ -1,815 +1,1276 @@
-/* main */
+/* main (sha1) */
+/* lang=C++98 */
 
-/* main subroutine for several programs */
+/* this SHA1 object */
+/* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	1
-#define	CF_DEBUG	1
-
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
+#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUGMALL	1		/* debug memory allocation */
+#define	CF_LOCSETENT	0		/* |locinfo_setent()| */
 
 
 /* revision history:
 
-	= 88/02/01, David A­D­ Morano
-
+	= 2000-03-01, David A­D­ Morano
 	This subroutine was originally written.
-
-
-	= 88/02/01, David A­D­ Morano
-
-	This subroutine was modified to not write out anything
-	to standard output if the access time of the associated
-	terminal has not been changed in 10 minutes.
-
 
 */
 
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
-/************************************************************************
+/*******************************************************************************
 
-	This is a pretty much generic subroutine for several program.
+	Synopsis:
+
+	$ sha1 [<file(s)> ...]
 
 
-*************************************************************************/
+*******************************************************************************/
 
+
+#include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
-#include	<sys/mkdev.h>
+#include	<limits.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
-#include	<libgen.h>
-#include	<signal.h>
-#include	<netdb.h>
+
+#include	<new>
+#include	<algorithm>
+#include	<functional>
 
 #include	<vsystem.h>
+#include	<bits.h>
+#include	<keyopt.h>
 #include	<bfile.h>
-#include	<baops.h>
-#include	<userinfo.h>
-#include	<logfile.h>
+#include	<sha1.h>
+#include	<vecstr.h>
+#include	<char.h>
 #include	<exitcodes.h>
-#include	<mallocstuff.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
 
 
-
 /* local defines */
 
-#define	NPARG		2	/* number of positional arguments */
-#define	MAXARGINDEX	100
+#define	LOCINFO		struct locinfo
+#define	LOCINFO_FL	struct locinfo_flags
 
-#define	NARGPRESENT	(MAXARGINDEX/8 + 1)
 
-#ifndef	LOGNAMELEN
-#define	LOGNAMELEN	32
-#endif
+/* name spaces (default) */
 
-#ifndef	USERNAMELEN
-#define	USERNAMELEN	32
-#endif
-
-#ifndef	LINENAMELEN
-#define	LINENAMELEN	MAXPATHLEN
-#endif
-
-#define	TO		10
-
+using namespace	std ;
 
 
 /* external subroutines */
 
-extern int	matstr() ;
-extern int	cfdeci(char *,int,int *) ;
+extern "C" int	sncpy3(char *,int,cchar *,cchar *,cchar *) ;
+extern "C" int	mkpath2(char *,cchar *,cchar *) ;
+extern "C" int	mkpath3(char *,cchar *,cchar *,cchar *) ;
+extern "C" int	matstr(cchar **,cchar *,int) ;
+extern "C" int	matostr(cchar **,int,cchar *,int) ;
+extern "C" int	vstrcmp(const void *,const void *) ;
+extern "C" int	vstrkeycmp(const void *,const void *) ;
+extern "C" int	cfdeci(cchar *,int,int *) ;
+extern "C" int	cfdecui(cchar *,int,uint *) ;
+extern "C" int	cfdecti(cchar *,int,int *) ;
+extern "C" int	cthexstr(char *,int,cchar *,int) ;
+extern "C" int	optbool(cchar *,int) ;
+extern "C" int	optvalue(cchar *,int) ;
+extern "C" int	isdigitlatin(int) ;
+extern "C" int	isFailOpen(int) ;
+extern "C" int	isNotPresent(int) ;
 
-extern char	*strbasename(char *) ;
-extern char	*timestr_log(time_t,char *) ;
+extern "C" int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern "C" int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
+
+#if	CF_DEBUGS || CF_DEBUG
+extern "C" int	debugopen(cchar *) ;
+extern "C" int	debugprintf(cchar *,...) ;
+extern "C" int	debugprinthex(cchar *,int,cchar *,int) ;
+extern "C" int	debugclose() ;
+extern "C" int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern "C" cchar	*getourenv(cchar **,cchar *) ;
+
+extern "C" char	*strwcpy(char *,cchar *,int) ;
+extern "C" char	*strnrchr(cchar *,int,int) ;
 
 
 /* external variables */
 
-extern char	makedate[] ;
+extern char	**environ ;
 
 
 /* local structures */
 
+struct locinfo_flags {
+	uint		stores:1 ;
+	uint		cvtcase:1 ;
+	uint		cvtuc:1 ;
+	uint		cvtlc:1 ;
+	uint		cvtfc:1 ;
+	uint		outer:1 ;
+} ;
+
+struct locinfo {
+	LOCINFO_FL	have, f, changed, final ;
+	LOCINFO_FL	open ;
+	vecstr		stores ;
+	PROGINFO	*pip ;
+	int		to ;
+} ;
+
 
 /* forward references */
 
-static int	anyformat() ;
+static int	usage(PROGINFO *) ;
 
-static void	helpfile(const char *,bfile *) ;
-static void	int_all() ;
+static int	procopts(PROGINFO *,KEYOPT *) ;
+static int	procsetcase(PROGINFO *,cchar *,int) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+static int	procfile(PROGINFO *,bfile *,cchar *) ;
+static int	procout(PROGINFO *,bfile *,SHA1 *) ;
+
+static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+
+#if	CF_LOCSETENT
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+#endif
 
 
-/* global data */
+/* local variables */
 
-static int	f_signal = FALSE ;
-static int	signal_num = -1 ;
-
-
-/* local data */
-
-/* define command option words */
-
-static char *argopts[] = {
-	        "ROOT",
-	        "DEBUG",
-	        "VERSION",
-	        "VERBOSE",
-	        "HELP",
-	        "LOG",
-	        "MAKEDATE",
-	        NULL,
+static cchar *argopts[] = {
+	"ROOT",
+	"VERSION",
+	"VERBOSE",
+	"HELP",
+	"sn",
+	"af",
+	"ef",
+	"of",
+	"if",
+	"to",
+	"tr",
+	NULL
 } ;
 
-#define	ARGOPT_ROOT		0
-#define	ARGOPT_DEBUG		1
-#define	ARGOPT_VERSION		2
-#define	ARGOPT_VERBOSE		3
-#define	ARGOPT_HELP		4
-#define	ARGOPT_LOG		5
-#define	ARGOPT_MAKEDATE		6
-
-
-static char	*dialers[] = {
-	        "TCP",
-	        "TCPMUX",
-	        "TCPNLS",
-	        NULL
+enum argopts {
+	argopt_root,
+	argopt_version,
+	argopt_verbose,
+	argopt_help,
+	argopt_sn,
+	argopt_af,
+	argopt_ef,
+	argopt_of,
+	argopt_if,
+	argopt_to,
+	argopt_tr,
+	argopt_overlast
 } ;
 
-#define	DIALER_TCP		0
-#define	DIALER_TCPMUX		1
-#define	DIALER_TCPNLS		2
+static const struct pivars	initvars = {
+	VARPROGRAMROOT1,
+	VARPROGRAMROOT2,
+	VARPROGRAMROOT3,
+	PROGRAMROOT,
+	VARPRNAME
+} ;
+
+static const struct mapex	mapexs[] = {
+	{ SR_NOENT, EX_NOUSER },
+	{ SR_AGAIN, EX_TEMPFAIL },
+	{ SR_DEADLK, EX_TEMPFAIL },
+	{ SR_NOLCK, EX_TEMPFAIL },
+	{ SR_TXTBSY, EX_TEMPFAIL },
+	{ SR_ACCESS, EX_NOPERM },
+	{ SR_REMOTE, EX_PROTOCOL },
+	{ SR_NOSPC, EX_TEMPFAIL },
+	{ SR_INTR, EX_INTR },
+	{ SR_EXIT, EX_TERM },
+	{ 0, 0 }
+} ;
+
+static cchar *akonames[] = {
+	"cvtcase",
+	"cc",
+	"casecvt",
+	"bufwhole",
+	"bufline",
+	"bufnone",
+	"whole",
+	"line",
+	"none",
+	"un",
+	"",
+	NULL
+} ;
+
+enum akonames {
+	akoname_cvtcase,
+	akoname_cc,
+	akoname_casecvt,
+	akoname_bufwhole,
+	akoname_bufline,
+	akoname_bufnone,
+	akoname_whole,
+	akoname_line,
+	akoname_none,
+	akoname_un,
+	akoname_empty,
+	akoname_overlast
+} ;
+
+static cchar	*cases[] = {
+	"upper",
+	"lower",
+	"fold",
+	NULL
+} ;
 
 
+/* exported subroutines */
 
 
-
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+/* ARGSUSED */
+int main(int argc,cchar *argv[],cchar *envv[])
 {
-	bfile		errfile, *efp = &errfile ;
-	bfile		outfile, *ofp = &outfile ;
-	bfile		pidfile ;
+	PROGINFO	pi, *pip = &pi ;
+	LOCINFO		li, *lip = &li ;
+	ARGINFO		ainfo ;
+	BITS		pargs ;
+	KEYOPT		akopts ;
+	bfile		errfile ;
 
-	struct sigaction	sigs ;
-
-	sigset_t	signalmask ;
-
-	struct ustat	sb ;
-
-	struct proginfo	g, *pip = &g ;
-
-	struct userinfo	u ;
-
-	time_t	daytime ;
-
-	int	argr, argl, aol, avl ;
-	int	maxai, pan, npa, kwi, i ;
-	int	ec = EC_BADARG ;
-	int	len ;
-	int	argnum ;
-	int	dialer ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_extra = FALSE ;
-	int	f_version = FALSE ;
-	int	f_makedate = FALSE ;
-	int	f_usage = FALSE ;
-	int	f_anyformat = FALSE ;
-	int	f_help ;
-	int	l, rs ;
-	int	err_fd ;
-
-	char	*argp, *aop, *avp ;
-	char	argpresent[NARGPRESENT] ;
-	char	buf[BUFLEN + 1] ;
-	char	userinfobuf[USERINFO_LEN + 1] ;
-	char	timebuf[TIMEBUFLEN] ;
-	char	*logfname = NULL ;
-	char	*pathname = NULL ;
-	char	*srvspec = "daytime" ;
-	char	*cp ;
-
-
-	if (((cp = getenv(ERRORFDVAR)) != NULL) &&
-	    (cfdeci(cp,-1,&err_fd) >= 0))
-	    debugsetfd(err_fd) ;
-
-#if	CF_DEBUGS
-	debugprintf("main: errfd=%d\n",err_fd) ;
+#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+	uint		mo_start = 0 ;
 #endif
 
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		rs, rs1 ;
+	int		v ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_version = FALSE ;
+	int		f_usage = FALSE ;
+	int		f_help = FALSE ;
 
-	pip->banner = BANNER ;
-	pip->progname = strbasename(argv[0]) ;
+	cchar		*argp, *aop, *akp, *avp ;
+	cchar		*argval = NULL ;
+	cchar		*pr = NULL ;
+	cchar		*sn = NULL ;
+	cchar		*afname = NULL ;
+	cchar		*efname = NULL ;
+	cchar		*ofname = NULL ;
+	cchar		*tos_open = NULL ;
+	cchar		*tos_read = NULL ;
+	cchar		*cp ;
 
-	if (bopen(efp,BFILE_STDERR,"dwca",0666) >= 0) {
 
-#if	COMMENT
-	    u_close(2) ;
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("sha1: starting DFD=%u\n",rs) ;
+	}
+#endif /* CF_DEBUGS */
+
+#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+	uc_mallset(1) ;
+	uc_mallout(&mo_start) ;
 #endif
 
-	    bcontrol(efp,BC_LINEBUF,0) ;
-
+	rs = proginfo_start(pip,envv,argv[0],VERSION) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto badprogstart ;
 	}
 
-	pip->efp = efp ;
-	pip->ofp = ofp ;
-	pip->debuglevel = 0 ;
-	pip->programroot = NULL ;
-	pip->helpfile = NULL ;
+	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
+	rs = proginfo_setbanner(pip,cp) ;
 
-	pip->f_exit = FALSE ;
+/* initialize */
 
-	pip->f.verbose = FALSE ;
-	pip->f.quiet = FALSE ;
-	pip->f.server = FALSE ;
+	pip->verboselevel = 1 ;
 
-	f_help = FALSE ;
+	pip->lip = lip ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto badlocstart ;
+	}
 
+/* start parsing the arguments */
 
-/* process program arguments */
+#if	CF_DEBUGS
+	debugprintf("sha1: args\n") ;
+#endif
 
-	for (i = 0 ; i < NARGPRESENT ; i += 1) argpresent[i] = 0 ;
+	if (rs >= 0) rs = bits_start(&pargs,0) ;
+	if (rs < 0) goto badpargs ;
 
-	npa = 0 ;			/* number of positional so far */
-	maxai = 0 ;
-	i = 0 ;
-	argr = argc - 1 ;
-	while (argr > 0) {
+	rs = keyopt_start(&akopts) ;
+	pip->open.akopts = (rs >= 0) ;
 
-	    argp = argv[++i] ;
+	ai_max = 0 ;
+	ai_pos = 0 ;
+	argr = argc ;
+	for (ai = 0 ; (ai < argc) && (argv[ai] != NULL) ; ai += 1) {
+	    if (rs < 0) break ;
 	    argr -= 1 ;
+	    if (ai == 0) continue ;
+
+	    argp = argv[ai] ;
 	    argl = strlen(argp) ;
 
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
-	    if ((argl > 0) && (f_optminus || f_optplus)) {
+	    if ((argl > 1) && (f_optminus || f_optplus)) {
+	        const int ach = MKCHAR(argp[1]) ;
 
-	        if (argl > 1) {
+	        if (isdigitlatin(ach)) {
 
-	            if (isdigit(argp[1])) {
+	            argval = (argp+1) ;
 
-	                if (cfdeci(argp + 1,argl - 1,&argnum))
-	                    goto badargvalue ;
+	        } else if (ach == '-') {
+
+	            ai_pos = ai ;
+	            break ;
+
+	        } else {
+
+	            aop = argp + 1 ;
+	            akp = aop ;
+	            aol = argl - 1 ;
+	            f_optequal = FALSE ;
+	            if ((avp = strchr(aop,'=')) != NULL) {
+	                f_optequal = TRUE ;
+	                akl = avp - aop ;
+	                avp += 1 ;
+	                avl = aop + argl - 1 - avp ;
+	                aol = akl ;
+	            } else {
+	                avp = NULL ;
+	                avl = 0 ;
+	                akl = aol ;
+	            }
+
+	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
+
+	                switch (kwi) {
+
+/* version */
+	                case argopt_version:
+	                    f_version = TRUE ;
+	                    if (f_optequal)
+	                        rs = SR_INVALID ;
+	                    break ;
+
+/* verbose mode */
+	                case argopt_verbose:
+	                    pip->verboselevel = 2 ;
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl) {
+	                            rs = optvalue(avp,avl) ;
+	                            pip->verboselevel = rs ;
+	                        }
+	                    }
+	                    break ;
+
+/* program root */
+	                case argopt_root:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            pr = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+/* open time-out */
+	                case argopt_to:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            tos_open = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                tos_open = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+/* read time-out */
+	                case argopt_tr:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            tos_read = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                tos_read = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+	                case argopt_help:
+	                    f_help = TRUE ;
+	                    break ;
+
+/* program search-name */
+	                case argopt_sn:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            sn = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+/* argument-list file */
+	                case argopt_af:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            afname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+/* error file name */
+	                case argopt_ef:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            efname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+/* output file name */
+	                case argopt_of:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            ofname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+/* handle all keyword defaults */
+	                default:
+	                    rs = SR_INVALID ;
+	                    break ;
+
+	                } /* end switch */
 
 	            } else {
 
-#if	CF_DEBUGS
-	                debugprintf("main: got an option\n") ;
-#endif
+	                while (akl--) {
+	                    const int	kc = MKCHAR(*akp) ;
 
-	                aop = argp + 1 ;
-	                aol = argl - 1 ;
-	                f_optequal = FALSE ;
-	                if ((avp = strchr(aop,'=')) != NULL) {
+	                    switch (kc) {
 
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option key w/ a value\n") ;
-#endif
-
-	                    aol = avp - aop ;
-	                    avp += 1 ;
-	                    avl = aop + argl - 1 - avp ;
-	                    f_optequal = TRUE ;
-
-	                } else
-	                    avl = 0 ;
-
-/* do we have a keyword match or should we assume only key letters ? */
-
-#if	CF_DEBUGS
-	                debugprintf("main: check for key word\n") ;
-#endif
-
-	                if ((kwi = matstr(argopts,aop,aol)) >= 0) {
-
-#if	CF_DEBUGS
-	                    debugprintf("main: got option keyword, kwi=%d\n",
-	                        kwi) ;
-#endif
-
-	                    switch (kwi) {
-
-/* program root */
-	                    case ARGOPT_ROOT:
-	                        if (f_optequal) {
-
-	                            f_optequal = FALSE ;
-	                            if (avl) pip->programroot = avp ;
-
-	                        } else {
-
-	                            if (argr <= 0) goto badargnum ;
-
-	                            argp = argv[++i] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-
-	                            if (argl) pip->programroot = argp ;
-
-	                        }
-
-	                        break ;
-
-/* debug level */
-	                    case ARGOPT_DEBUG:
+/* debug */
+	                    case 'D':
 	                        pip->debuglevel = 1 ;
 	                        if (f_optequal) {
-
-#if	CF_DEBUGS
-	                            debugprintf("main: debug flag, avp=\"%W\"\n",
-	                                avp,avl) ;
-#endif
-
 	                            f_optequal = FALSE ;
-	                            if ((avl > 0) &&
-	                                (cfdec(avp,avl,&pip->debuglevel) < 0))
-	                                goto badargvalue ;
-
+	                            if (avl) {
+	                                rs = optvalue(avp,avl) ;
+	                                pip->debuglevel = rs ;
+	                            }
 	                        }
-
 	                        break ;
 
-	                    case ARGOPT_VERSION:
+/* quiet mode */
+	                    case 'Q':
+	                        pip->f.quiet = TRUE ;
+	                        break ;
+
+/* program-root */
+	                    case 'R':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                        break ;
+
+/* version */
+	                    case 'V':
 	                        f_version = TRUE ;
 	                        break ;
 
-	                    case ARGOPT_VERBOSE:
-	                        pip->f.verbose = TRUE ;
-	                        break ;
-
-/* help file */
-	                    case ARGOPT_HELP:
-	                        if (f_optequal) {
-
-	                            f_optequal = FALSE ;
-	                            if (avl) pip->helpfile = avp ;
-
-	                        }
-
-	                        f_help  = TRUE ;
-	                        break ;
-
-/* log file */
-	                    case ARGOPT_LOG:
-	                        if (f_optequal) {
-
-	                            f_optequal = FALSE ;
-	                            if (avl) logfname = avp ;
-
-	                        }
-
-	                        break ;
-
-/* display the time this program was last "made" */
-	                    case ARGOPT_MAKEDATE:
-	                        f_makedate = TRUE ;
-	                        break ;
-
-	                    } /* end switch (key words) */
-
-	                } else {
-
-#if	CF_DEBUGS
-	                    debugprintf("main: got an option key letter\n") ;
-#endif
-
-	                    while (akl--) {
-
-#if	CF_DEBUGS
-	                        debugprintf("main: option key letters\n") ;
-#endif
-
-	                        switch (*aop) {
-
-	                        case 'D':
-	                            pip->debuglevel = 1 ;
-	                            if (f_optequal) {
-
-	                                f_optequal = FALSE ;
-	                                if (cfdec(avp,avl, &pip->debuglevel) !=
-	                                    OK)
-	                                    goto badargvalue ;
-
+/* options */
+	                    case 'o':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
 	                            }
+	                        } else
+	                            rs = SR_INVALID ;
+	                        break ;
 
-	                            break ;
+/* quiet mode */
+	                    case 'q':
+	                        pip->verboselevel = 0 ;
+	                        break ;
 
-	                        case 'V':
-	                            f_version = TRUE ;
-	                            break ;
-
-	                        case 'd':
-					pip->f.server = TRUE ;
-					break ;
-
-	                        case 'q':
-	                            pip->f.quiet = TRUE ;
-	                            break ;
-
-	                        case 'p':
-	                            if (argr <= 0) 
-					goto badargnum ;
-
-	                            argp = argv[++i] ;
+	                    case 't':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                tos_open = argp ;
+	                                tos_read = argp ;
+	                            }
+	                        } else
+	                            rs = SR_INVALID ;
+	                        break ;
 
-	                            if (argl)
-	                                pathname = argp ;
+/* line-buffered */
+	                    case 'u':
+	                        pip->have.bufnone = TRUE ;
+	                        pip->f.bufnone = TRUE ;
+	                        pip->final.bufnone = TRUE ;
+	                        break ;
 
-	                            break ;
+/* verbose mode */
+	                    case 'v':
+	                        pip->verboselevel = 2 ;
+	                        if (f_optequal) {
+	                            f_optequal = FALSE ;
+	                            if (avl) {
+	                                rs = optvalue(avp,avl) ;
+	                                pip->verboselevel = rs ;
+	                            }
+	                        }
+	                        break ;
 
-	                        case 's':
-	                            if (argr <= 0) 
-					goto badargnum ;
+	                    case '?':
+	                        f_usage = TRUE ;
+	                        break ;
 
-	                            argp = argv[++i] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
+	                    default:
+	                        rs = SR_INVALID ;
+	                        break ;
 
-	                            if (argl)
-	                                srvspec = argp ;
+	                    } /* end switch */
+	                    akp += 1 ;
 
-	                            break ;
+	                    if (rs < 0) break ;
+	                } /* end while */
 
-	                        case 'v':
-	                            pip->f.verbose = TRUE ;
-	                            break ;
+	            } /* end if (individual option key letters) */
 
-	                        case 'x':
-	                            f_anyformat = TRUE ;
-	                            break ;
-
-	                        default:
-	                            bprintf(efp,"%s : unknown option - %c\n",
-	                                pip->progname,*aop) ;
-
-/* fall through from above */
-	                        case '?':
-	                            f_usage = TRUE ;
-
-	                        } /* end switch */
-
-	                        akp += 1 ;
-
-	                    } /* end while */
-
-	                } /* end if (individual option key letters) */
-
-	            } /* end if (digits as argument or not) */
-
-	        } else {
-
-/* we have a plus or minux sign character alone on the command line */
-
-	            if (i < MAXARGINDEX) {
-
-	                BASET(argpresent,i) ;
-	                maxai = i ;
-	                npa += 1 ;	/* increment position count */
-
-	            }
-
-	        } /* end if */
+	        } /* end if (digits as argument or not) */
 
 	    } else {
 
-	        if (i < MAXARGINDEX) {
-
-	            BASET(argpresent,i) ;
-	            maxai = i ;
-	            npa += 1 ;
-
-	        } else {
-
-	            if (! f_extra) {
-
-	                f_extra = TRUE ;
-	                bprintf(efp,"%s: extra arguments ignored\n",
-	                    pip->progname) ;
-
-	            }
-	        }
+	        rs = bits_set(&pargs,ai) ;
+	        ai_max = ai ;
 
 	    } /* end if (key letter/word or positional) */
 
+	    ai_pos = ai ;
+
 	} /* end while (all command line argument processing) */
 
+	if (efname == NULL) efname = getourenv(envv,VAREFNAME) ;
+	if (efname == NULL) efname = STDERRFNAME ;
+	if ((rs1 = bopen(&errfile,efname,"wca",0666)) >= 0) {
+	    pip->efp = &errfile ;
+	    pip->open.errfile = TRUE ;
+	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
+	}
 
-	if (pip->debuglevel > 0)
-	    bprintf(efp,"%s: finished parsing arguments\n",
-	        pip->progname) ;
+#if	CF_DEBUGS
+	debugprintf("sha1: args-out rs=%d\n",rs) ;
+#endif
 
+	if (rs < 0)
+	    goto badarg ;
 
-/* continue w/ the trivia argument processing stuff */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("sha1: debuglevel=%u\n",pip->debuglevel) ;
+#endif
 
-	if (f_version)
+	if (f_version) {
+	    bfile	*efp = (bfile *) pip->efp ;
 	    bprintf(efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
-	if (f_makedate)
-	    bprintf(efp,"%s: built %s\n",
-	        pip->progname,makedate) ;
+/* get the program root */
 
-	ec = EC_INFO ;
-	if (f_usage) 
-		goto usage ;
-
-	if (f_version + f_makedate) 
-		goto exit ;
-
-
-	if (f_help) {
-
-	    if (pip->helpfile == NULL) {
-
-	        l = bufprintf(buf,BUFLEN,"%s/%s",
-	            pip->programroot,HELPFNAME) ;
-
-	        pip->helpfile = (char *) mallocstrw(buf,l) ;
-
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
 	    }
+	}
 
-	    helpfile(pip->helpfile,pip->efp) ;
+	if (rs < 0) {
+	    ex = EX_OSERR ;
+	    goto retearly ;
+	}
 
-	    goto exit ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2)) {
+	    debugprintf("sha1: pr=%s\n",pip->pr) ;
+	    debugprintf("sha1: sn=%s\n",pip->searchname) ;
+	}
+#endif
 
+	if (pip->debuglevel > 0) {
+	    bfile	*efp = (bfile *) pip->efp ;
+	    bprintf(efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
+	    bprintf(efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
 	} /* end if */
 
+	if (f_usage)
+	    usage(pip) ;
 
-	if (pip->debuglevel > 0)
-	    bprintf(efp,"%s: debuglevel %d\n",
-	        pip->progname,pip->debuglevel) ;
+/* help file */
 
+	if (f_help) {
+#if	CF_SFIO
+	    printhelp(sfstdout,pip->pr,pip->searchname,HELPFNAME) ;
+#else
+	    printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
+#endif
+	}
 
-/* get our program root (if we have one) */
-
-	if (pip->programroot == NULL)
-	    pip->programroot = getenv(VARPROGRAMROOT1) ;
-
-	if (pip->programroot == NULL)
-	    pip->programroot = getenv(VARPROGRAMROOT2) ;
-
-	if (pip->programroot == NULL)
-	    pip->programroot = getenv(VARPROGRAMROOT3) ;
-
-	if (pip->programroot == NULL)
-	    pip->programroot = PROGRAMROOT ;
+	if (f_version || f_help || f_usage)
+	    goto retearly ;
 
 
-	if (pip->debuglevel > 0)
-	    bprintf(efp,"%s: programroot=%s\n",
-	        pip->progname,pip->programroot) ;
+	ex = EX_OK ;
 
+/* some initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
-/* initial check arguments that we have so far */
+	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
 
-
-
-/* who are we ? */
-
-	if ((rs = userinfo(&u,userinfobuf,USERINFO_LEN,NULL)) < 0)
-	    goto baduser ;
-
-	pip->pid = u.pid ;
-
-	(void) time(&daytime) ;
-
-/* do we have a log file ? */
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #ifdef	COMMENT
-	if (logfname == NULL)
-	    logfname = LOGFNAME ;
+	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
+	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
+#endif
 
-	if (logfname[0] != '/') {
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
-	    len = bufprintf(buf,BUFLEN,"%s/%s",pip->programroot,logfname) ;
-
-	    logfname = mallocstrw(buf,len) ;
-
+	if (rs >= 0) {
+	    ARGINFO	*aip = &ainfo ;
+	    BITS	*bop = &pargs ;
+	    cchar	*ofn = ofname ;
+	    cchar	*afn = afname ;
+	    rs = procargs(pip,aip,bop,ofn,afn) ;
+	} else if (ex == EX_OK) {
+	    bfile	*efp = (bfile *) pip->efp ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(efp,fmt,pn,rs) ;
+	    usage(pip) ;
 	}
 
-/* make a log entry */
+/* done */
+	if ((rs < 0) && (ex == EX_OK)) {
+	    switch (rs) {
+	    default:
+	        if (! pip->f.quiet) {
+	    	    bfile	*efp = (bfile *) pip->efp ;
+	            cchar	*pn = pip->progname ;
+	            cchar	*fmt = "%s: could not process (%d)\n" ;
+	            bprintf(efp,fmt,pn,rs) ;
+	        }
+		break ;
+	    case SR_PIPE:
+		break ;
+	    } /* end switch */
+	    ex = mapex(mapexs,rs) ;
+	} /* end if */
+
+retearly:
+	if (pip->debuglevel > 0) {
+	    bfile	*efp = (bfile *) pip->efp ;
+	    bprintf(efp,"%s: exiting ex=%u (%d)\n",
+	        pip->progname,ex,rs) ;
+	}
 
 #if	CF_DEBUG
-	if (pip->debuglevel > 1)
-	    debugprintf("main: logfile=%s\n",
-	        logfname) ;
+	if (DEBUGLEVEL(4))
+	    debugprintf("sha1: exiting ex=%u (%d)\n",ex,rs) ;
 #endif
 
-	if ((rs = logfile_open(&pip->lh,logfname,0,0666,u.logid)) >= 0) {
+	if (pip->efp != NULL) {
+	    bfile	*efp = (bfile *) pip->efp ;
+	    pip->open.errfile = FALSE ;
+	    bclose(efp) ;
+	    pip->efp = NULL ;
+	}
 
-	    buf[0] = '\0' ;
-	    if ((u.name != NULL) && (u.name[0] != '\0'))
-	        sprintf(buf,"(%s)",u.name) ;
+	if (pip->open.akopts) {
+	    pip->open.akopts = FALSE ;
+	    keyopt_finish(&akopts) ;
+	}
 
-	    else if ((u.gecosname != NULL) && (u.gecosname[0] != '\0'))
-	        sprintf(buf,"(%s)",u.gecosname) ;
+	bits_finish(&pargs) ;
 
-	    else if ((u.fullname != NULL) && (u.fullname[0] != '\0'))
-	        sprintf(buf,"(%s)",u.fullname) ;
+badpargs:
+	locinfo_finish(lip) ;
 
-	    else if (u.mailname != NULL)
-	        sprintf(buf,"(%s)",u.mailname) ;
+badlocstart:
+	proginfo_finish(pip) ;
 
-#if	CF_DEBUG
-	    if (pip->debuglevel > 2)
-	        debugprintf("main: about to do 'logfile_printf'\n") ;
+badprogstart:
+
+#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+	{
+	    uint	mo ;
+	    uc_mallout(&mo) ;
+	    debugprintf("sha1: final mallout=%u\n",(mo-mo_start)) ;
+	    uc_mallset(0) ;
+	}
 #endif
 
-	    logfile_printf(&pip->lh,"%s %-14s %s/%s\n",
-	        timestr_log(daytime,timebuf),
-	        pip->progname,
-	        VERSION,(u.f.sysv_ct ? "SYSV" : "BSD")) ;
+#if	(CF_DEBUGS || CF_DEBUG)
+	debugclose() ;
+#endif
 
-	    logfile_printf(&pip->lh,"os=%s %s!%s %s\n",
-	        (u.f.sysv_rt ? "SYSV" : "BSD"),u.nodename,u.username,buf) ;
+	return ex ;
 
-	} else {
+/* the bad things */
+badarg:
+	{
+	    bfile	*efp = (bfile *) pip->efp ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument specified (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(efp,fmt,pn,rs) ;
+	    usage(pip) ;
+	}
+	goto retearly ;
 
-	    if (pip->f.verbose || (pip->debuglevel > 0)) {
+}
+/* end subroutine (mainsub) */
 
-	        bprintf(pip->efp,
-	            "%s: logfile=%s\n",
-	            pip->progname,logfname) ;
 
-	        bprintf(pip->efp,
-	            "%s: could not open the log file (rs %d)\n",
-	            pip->progname,rs) ;
+/* local subroutines */
 
+
+static int usage(PROGINFO *pip)
+{
+	bfile		*efp = (bfile *) pip->efp ;
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+
+	fmt = "%s: USAGE> %s [<files(s)> ...] [-af <afile>] [-of <ofile>]\n" ;
+	if (rs >= 0) rs = bprintf(efp,fmt,pn,pn) ;
+	wlen += rs ;
+
+	fmt = "%s:  [-to <to_open>] [-tr <to_read>]\n" ;
+	if (rs >= 0) rs = bprintf(efp,fmt,pn) ;
+	wlen += rs ;
+
+	fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
+	if (rs >= 0) rs = bprintf(efp,fmt,pn) ;
+	wlen += rs ;
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (usage) */
+
+
+/* process the program ako-options */
+static int procopts(PROGINFO *pip,KEYOPT *kop)
+{
+	LOCINFO		*lip = (LOCINFO *) pip->lip ;
+	int		rs = SR_OK ;
+	int		c = 0 ;
+	cchar		*cp ;
+
+	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
+	    rs = keyopt_loads(kop,cp,-1) ;
+	}
+
+	if (rs >= 0) {
+	    KEYOPT_CUR	kcur ;
+	    if ((rs = keyopt_curbegin(kop,&kcur)) >= 0) {
+	        int	oi ;
+	        int	kl, vl ;
+	        cchar	*kp, *vp ;
+
+	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
+
+	            if ((oi = matostr(akonames,2,kp,kl)) >= 0) {
+
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
+
+	                switch (oi) {
+	                case akoname_cvtcase:
+	                case akoname_casecvt:
+	                case akoname_cc:
+	                    if (! lip->final.cvtcase) {
+	                        lip->have.cvtcase = TRUE ;
+	                        lip->final.cvtcase = TRUE ;
+	                        lip->f.cvtcase = TRUE ;
+	                        if (vl > 0) {
+	                            rs = procsetcase(pip,vp,vl) ;
+				}
+	                    }
+	                    break ;
+	                case akoname_bufwhole:
+	                case akoname_whole:
+	                    if (! pip->final.bufwhole) {
+	                        pip->have.bufwhole = TRUE ;
+	                        pip->final.bufwhole = TRUE ;
+	                        pip->f.bufwhole = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.bufwhole = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_bufline:
+	                case akoname_line:
+	                    if (! pip->final.bufline) {
+	                        pip->have.bufline = TRUE ;
+	                        pip->final.bufline = TRUE ;
+	                        pip->f.bufline = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.bufline = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_bufnone:
+	                case akoname_none:
+	                case akoname_un:
+	                    if (! pip->final.bufnone) {
+	                        pip->have.bufnone = TRUE ;
+	                        pip->final.bufnone = TRUE ;
+	                        pip->f.bufnone = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.bufnone = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_empty:
+	                    break ;
+	                default:
+	                    rs = SR_INVALID ;
+	                    break ;
+	                } /* end switch */
+
+	                c += 1 ;
+	            } else
+	                rs = SR_INVALID ;
+
+	            if (rs < 0) break ;
+	        } /* end while (looping through key options) */
+
+	        keyopt_curend(kop,&kcur) ;
+	    } /* end if (keyopt-cur) */
+	} /* end if (ok) */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procopts) */
+
+
+static int procsetcase(PROGINFO *pip,cchar *vp,int vl)
+{
+	int		rs = SR_OK ;
+	int		ci ;
+
+	if ((ci = matostr(cases,1,vp,vl)) >= 0) {
+	    LOCINFO	*lip = (LOCINFO *) pip->lip ;
+	    const int	ch = CHAR_TOLC(vp[0]) ;
+	    switch (ch) {
+	    case 'l':
+	        lip->f.cvtlc = TRUE ;
+	        break ;
+	    case 'u':
+	        lip->f.cvtuc = TRUE ;
+	        break ;
+	    case 'f':
+	        lip->f.cvtfc = TRUE ;
+	        break ;
+	    } /* end switch */
+	    if (pip->debuglevel > 0) {
+	        bfile	*efp = (bfile *) pip->efp ;
+	        cchar	*pn = pip->progname ;
+	        bprintf(efp,"%s: conversion=%u\n",pn,ci) ;
 	    }
-
-	} /* end if (opened a log) */
-
-#endif /* COMMENT */
-
-
-
-	if ((rs = bopen(ofp,BFILE_STDOUT,"dwct",0666)) >= 0) {
-
-
-#if	CF_DEBUG
-	if (pip->debuglevel > 1)
-	    debugprintf("main: checking for positional arguments\n") ;
-#endif
-
-	    if (npa > 0) {
-
-	        pan = 0 ;
-	        for (i = 0 ; i <= maxai ; i += 1) {
-
-	            if (BATST(argpresent,i)) {
-
-		rs = process(pip,ofp,argv[i]) ;
-
-	                pan += 1 ;
-
-	            } /* end if */
-
-	        } /* end for */
-
-	    } /* end if (we have positional arguments) */
-
-
-	bclose(ofp) ;
-
-	} /* end if (opened output file) */
-
-
-
-/* close off and get out ! */
-exit:
-	bclose(efp) ;
+	} else
+	    rs = SR_INVALID ;
 
 	return rs ;
-
-/* what are we about ? */
-usage:
-	bprintf(efp,
-	    "%s: USAGE> %s [file(s) ...]\n",
-	    pip->progname,pip->progname) ;
-
-	ec = EC_INFO ;
-	goto badret ;
-
-badargnum:
-	bprintf(efp,"%s: not enough arguments specified\n",
-		pip->progname) ;
-
-	ec = EC_BADARG ;
-	goto badret ;
-
-badargvalue:
-	bprintf(efp,"%s: bad argument value was specified\n",
-	    pip->progname) ;
-
-	ec = EC_BADARG ;
-	goto badret ;
-
-baddialer:
-	bprintf(efp,
-	    "%s: unknown dialer specification given\n",
-	    pip->progname) ;
-
-	ec = EC_ERROR ;
-	goto badret ;
-
-badsrv:
-	bprintf(efp,
-	    "%s: unknown service specification given\n",
-	    pip->progname) ;
-
-	ec = EC_ERROR ;
-	goto badret ;
-
-baduser:
-	if (! pip->f.quiet)
-	    bprintf(efp,
-	        "%s: could not get user information, rs=%d\n",
-	        pip->progname,rs) ;
-
-	ec = EC_ERROR ;
-	goto badret ;
-
-
-badret:
-	bclose(efp) ;
-
-	return ec ;
 }
-/* end subroutine (main) */
+/* end subroutine (procsetcase) */
 
 
-
-/* LOCAL SUBROUTINES */
-
-
-
-static void helpfile(f,ofp)
-const char	f[] ;
-bfile		*ofp ;
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
+		cchar *ofn,cchar *afn)
 {
-	bfile	file, *ifp = &file ;
+	bfile		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
 
-	if ((f == NULL) || (f[0] == '\0'))
-	    return ;
+	if ((rs = bopen(ofp,ofn,"wct",0666)) >= 0) {
+	    LOCINFO	*lip = (LOCINFO *) pip->lip ;
+	        int	pan = 0 ;
+	        cchar	*cp ;
 
-	if (bopen(ifp,f,"r",0666) >= 0) {
+	        if (rs >= 0) {
+	            int		ai ;
+	            int		f ;
+	            cchar	**argv = aip->argv ;
+	            for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
-	    bcopyblock(ifp,ofp,-1) ;
+	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	                if (f) {
+	                    cp = argv[ai] ;
+	                    if (cp[0] != '\0') {
+	                        pan += 1 ;
+	                        rs = procfile(pip,ofp,cp) ;
+	                        wlen += rs ;
+	                    }
+	                }
 
-	    bclose(ifp) ;
+	                if (rs < 0) break ;
+	            } /* end for */
+	        } /* end if (ok) */
 
+	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	            bfile	afile, *afp = &afile ;
+
+	            if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
+
+	            if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
+	                const int	llen = LINEBUFLEN ;
+	                char		lbuf[LINEBUFLEN + 1] ;
+
+	                while ((rs = breadline(afp,lbuf,llen)) > 0) {
+	                    int	len = rs ;
+
+	                    if (lbuf[len - 1] == '\n') len -= 1 ;
+	                    lbuf[len] = '\0' ;
+
+	                    if (len > 0) {
+	                        pan += 1 ;
+	                        rs = procfile(pip,ofp,lbuf) ;
+	                        wlen += rs ;
+	                    }
+
+	                    if (rs < 0) break ;
+	                } /* end while (reading lines) */
+
+	                rs1 = bclose(afp) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } else {
+	                if (! pip->f.quiet) {
+	    		    bfile	*efp = (bfile *) pip->efp ;
+			    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                    bprintf(efp,fmt,pn,rs) ;
+	                    bprintf(efp,"%s: afile=%s\n",pn,afn) ;
+	                }
+	            } /* end if */
+
+	        } /* end if (procesing file argument file list) */
+
+	        if ((rs >= 0) && (pan == 0)) {
+
+	            cp = "-" ;
+	            pan += 1 ;
+	            rs = procfile(pip,ofp,cp) ;
+	            wlen += rs ;
+
+	        } /* end if (standard-input) */
+
+	    rs1 = bclose(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else {
+	    bfile	*efp = (bfile *) pip->efp ;
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    bprintf(efp,fmt,pn,rs) ;
+	    bprintf(efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
-}
-/* end subroutine (helpfile) */
-
-
-void int_all(signum)
-int	signum ;
-{
-
-
-	f_signal = TRUE ;
-	signal_num = signum ;
-
-}
-
-
-static int anyformat(ofp,s)
-bfile	*ofp ;
-int	s ;
-{
-	int	rlen, tlen = 0 ;
-
-	char	buf[BUFLEN + 1] ;
-
-
-	while ((rlen = uc_readlinetimed(s,buf,BUFLEN,TO)) > 0) {
-
-	    bwrite(ofp,buf,rlen) ;
-
-	    tlen += rlen ;
+	if ((pip->debuglevel > 0) && (rs >= 0)) {
+	    bfile	*efp = (bfile *) pip->efp ;
+	    fmt = "%s: written=%u\n" ;
+	    bprintf(efp,fmt,pn,wlen) ;
 	}
 
-	return ((rlen < 0) ? rlen : tlen) ;
+	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (anyformat) */
+/* end subroutine (procargs) */
 
+
+/* process a file */
+static int procfile(PROGINFO *pip,bfile *ofp,cchar *fname)
+{
+	LOCINFO		*lip = (LOCINFO *) pip->lip ;
+	SHA1		d ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("sha1/procfile: fname=%s\n",fname) ;
+	    debugprintf("sha1/procfile: f_outer=%u\n",lip->open.outer) ;
+	}
+#endif
+
+	if (fname == NULL) return SR_FAULT ;
+
+	if ((fname[0] == '\0') || (strcmp(fname,"-") == 0)) {
+	    fname = STDINFNAME ;
+	}
+
+	if ((rs = sha1_start(&d)) >= 0) {
+	    bfile	infile, *ifp = &infile ;
+
+	    if ((rs = bopen(ifp,fname,"r",0666)) >= 0) {
+		const int	llen = LINEBUFLEN ;
+		int		len ;
+		char		lbuf[LINEBUFLEN + 1] ;
+
+		while ((rs = breadline(ifp,lbuf,llen)) > 0) {
+
+	                rs = sha1_update(&d,lbuf,rs) ;
+
+		    if (rs < 0) break ;
+		} /* end while */
+
+	        rs1 = bclose(ifp) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (file-output) */
+
+	    if (rs >= 0) {
+		rs = procout(pip,ofp,&d) ;
+		wlen = rs ;
+	    }
+
+	    sha1_finish(&d) ;
+	} /* end if (sha1) */
+
+	if (pip->debuglevel > 0) {
+	    bfile	*efp = (bfile *) pip->efp ;
+	    const int	v = ((rs >= 0) ? wlen : rs) ;
+	    cchar	*pn = pip->progname ;
+	    bprintf(efp,"%s: file=%s (%d)\n",pn,fname,v) ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/procfile: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procfile) */
+
+
+static int procout(PROGINFO *pip,bfile *ofp,SHA1 *sop)
+{
+	const int	m = 20 ;
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
+	uchar		*digest ;
+
+	if ((digest = new(nothrow) uchar[m]) != NULL) {
+	    if ((rs = sha1_digest(sop,digest)) >= 0) {
+		const int	olen = (m*3) ;
+		char		*obuf ;
+		if ((obuf = new(nothrow) char[(olen+1)]) != NULL) {
+		    cchar	*mp = (cchar *) digest ;
+		    if ((rs = cthexstr(obuf,olen,mp,m)) >= 0) {
+		        rs = bprintline(ofp,obuf,rs) ;
+			wlen += rs ;
+		    }
+		    delete [] obuf ;
+		} else {
+		    rs = SR_NOMEM ;
+		}
+	    } /* end if */
+	    delete [] digest ;
+	} else {
+	    rs = SR_NOMEM ;
+	}
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procout) */
+
+
+static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+	cchar		*varterm = VARTERM ;
+
+	if (lip == NULL) return SR_FAULT ;
+
+	memset(lip,0,sizeof(LOCINFO)) ;
+	lip->pip = pip ;
+	lip->to = -1 ;
+
+	return rs ;
+}
+/* end subroutine (locinfo_start) */
+
+
+static int locinfo_finish(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (lip == NULL) return SR_FAULT ;
+
+	if (lip->open.stores) {
+	    lip->open.stores = FALSE ;
+	    rs1 = vecstr_finish(&lip->stores) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	return rs ;
+}
+/* end subroutine (locinfo_finish) */
+
+
+#if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+{
+	VECSTR		*slp ;
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	slp = &lip->stores ;
+	if (! lip->open.stores) {
+	    rs = vecstr_start(slp,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
+	}
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
+	    if (vp != NULL) {
+	        len = strnlen(vp,vl) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (locinfo_setentry) */
+#endif /* CF_LOCSETENT */
 
 

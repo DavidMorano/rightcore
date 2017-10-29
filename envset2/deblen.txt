@@ -1,0 +1,1 @@
+#define	DEBLEN(slen,max)	(((slen) >= 0) ? MAX((slen),(max)) : (max))

@@ -647,10 +647,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	cchar		*svdb = NULL ;
 	cchar		*cp ;
 
-#if	CF_DEBUGN
-	nprintf(NDFN,"main: ent\n") ;
-#endif
-
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;

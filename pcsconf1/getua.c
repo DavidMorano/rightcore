@@ -1,6 +1,6 @@
 /* getua */
 
-/* asubroutines to access the user-attribute database */
+/* subroutines to access the user-attribute database */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */

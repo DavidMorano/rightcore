@@ -93,6 +93,8 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	matpcasestr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
+extern int	ctdecull(char *,int,ULONG *) ;
+extern int	ctdecll(char *,int,LONG *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	nleadstr(const char *,const char *,int) ;
@@ -173,13 +175,9 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
-static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
-static int	procspecs(PROGINFO *,void *,cchar *,int) ;
-static int	procspec(PROGINFO *,void *, const char *,int) ;
-static int	procout(PROGINFO *,SHIO *,const char *) ;
+static int	process(PROGINFO *,cchar *) ;
 static int	procprint(PROGINFO *,SHIO *) ;
-
-static int	matextra(const char **,int,const char *,int) ;
+static int	procbuf(PROGINFO *,char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_utmpbegin(LOCINFO *) ;
@@ -192,7 +190,7 @@ static int	locinfo_finish(LOCINFO *) ;
 
 /* local variables */
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -243,7 +241,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"str",
 	"date",
 	"time",
@@ -279,49 +277,7 @@ enum progopts {
 	progopt_overlast
 } ;
 
-/* define the configuration keywords */
-static const char *qopts[] = {
-	"fsbs",
-	"fspbs",
-	"fstotal",
-	"fsavail",
-	"fsfree",
-	"fsused",
-	"fsutil",
-	"fstype",
-	"fsstr",
-	"fsid",
-	"fsflags",
-	NULL
-} ;
-
-enum qopts {
-	qopt_fsbs,
-	qopt_fspbs,
-	qopt_fstotal,
-	qopt_fsavail,
-	qopt_fsfree,
-	qopt_fsused,
-	qopt_fsutil,
-	qopt_fstype,
-	qopt_fsstr,
-	qopt_fsid,
-	qopt_fsflags,
-	qopt_overlast
-} ;
-
-static const uchar	aterms[] = {
-	0x00, 0x2E, 0x00, 0x00,
-	0x09, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00
-} ;
-
-static const char	*ansiterms[] = {
+static cchar	*ansiterms[] = {
 	"ansi",
 	"sun",
 	"screen",
@@ -437,6 +393,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* initialize */
 
 	pip->verboselevel = 1 ;
+	pip->to_open = -1 ;
 	pip->daytime = time(NULL) ;
 
 	pip->lip = lip ;
@@ -767,8 +724,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -810,6 +766,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	rs = procopts(pip,&akopts) ;
 
 #if	CF_DEBUG
@@ -834,7 +795,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        const int	gl= GROUPNAMELEN ;
 	        char		gn[GROUPNAMELEN+1] ;
 	        if ((rs1 = getgroupname(gn,gl,-1)) >= 0) {
-	            const char	**vpp = &pip->groupname ;
+	            cchar	**vpp = &pip->groupname ;
 	            if ((rs = proginfo_setentry(pip,vpp,gn,rs1)) >= 0) {
 	                int	ml = MIN(STRBUFLEN,rs1) ;
 	                strwcpyuc(lip->strbuf,pip->groupname,ml) ;
@@ -844,22 +805,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    } /* end if (still needed a string) */
 	} /* end if (string) */
 
+	if ((rs >= 0) && (afname != NULL) && (afname[0] == '-')) {
+	    rs = SR_INVALID ;
+	}
+
 /* continue -> go */
 
-	    memset(&ainfo,0,sizeof(ARGINFO)) ;
-	    ainfo.argc = argc ;
-	    ainfo.ai = ai ;
-	    ainfo.argv = argv ;
-	    ainfo.ai_max = ai_max ;
-	    ainfo.ai_pos = ai_pos ;
-	    ainfo.ai_continue = ai_continue ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
+	ainfo.ai_continue = ai_continue ;
 
 	if (rs >= 0) {
 	    if ((rs = locinfo_utmpbegin(lip)) >= 0) {
 	        {
 	            cchar	*ofn = ofname ;
-	            cchar	*afn = afname ;
-	            rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+	            rs = process(pip,ofn) ;
 	        }
 	        rs1 = locinfo_utmpend(lip) ;
 	        if (rs >= 0) rs = rs1 ;
@@ -1108,94 +1072,28 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
+static int process(PROGINFO *pip,cchar *ofn)
 {
 	SHIO		ofile, *ofp = &ofile ;
-	const int	to = pip->to_open ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("b_loginblurb/process: ent ofn=%s\n",ofn) ;
+#endif
+
 	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
 	    ofn = STDOUTFNAME ;
 
-	if ((rs = shio_opene(ofp,ofn,"wct",0666,to)) >= 0) {
-	    int		pan = 0 ;
-	    int		cl ;
-	    cchar	*cp ;
-
-	    if (pip->f.bufnone) {
-	        shio_control(ofp,SHIO_CSETBUFNONE,TRUE) ;
-	    }
-
-	    if (rs >= 0) {
-	        int	ai ;
-	        int	f ;
-	        cchar	**argv = aip->argv ;
-	        for (ai = aip->ai_continue ; ai < aip->argc ; ai += 1) {
-
-	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
-	            if (f) {
-	                cp = argv[ai] ;
-	                pan += 1 ;
-	                rs = procspec(pip,ofp,cp,-1) ;
-	                wlen += rs ;
-	            }
-
-	            if (rs >= 0) rs = lib_sigterm() ;
-	            if (rs >= 0) rs = lib_sigintr() ;
-	            if (rs < 0) break ;
-	        } /* end for (handling positional arguments) */
-	    } /* end if */
-
-	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	        SHIO	afile, *afp = &afile ;
-
-	        if (strcmp(afn,"-") == 0)
-	            afn = STDINFNAME ;
-
-	        if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
-	            const int	llen = LINEBUFLEN ;
-	            char	lbuf[LINEBUFLEN + 1] ;
-
-	            while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
-	                int	len = rs ;
-
-	                if (lbuf[len - 1] == '\n') len -= 1 ;
-	                lbuf[len] = '\0' ;
-
-	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                    if (cp[0] != '#') {
-	                        pan += 1 ;
-	                        rs = procspecs(pip,ofp,cp,cl) ;
-	                        wlen += rs ;
-	                    }
-	                }
-
-	                if (rs < 0) break ;
-	            } /* end while (reading lines) */
-
-	            rs1 = shio_close(afp) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } else {
-	            if (! pip->f.quiet) {
-	                fmt = "%s: inaccessible argument-list (%d)\n" ;
-	                shio_printf(pip->efp,fmt,pn,rs) ;
-	                fmt = "%s: afile=%s\n" ;
-	                shio_printf(pip->efp,fmt,afn) ;
-	            }
-	        } /* end if */
-
-	    } /* end if (processing file argument file list) */
-
-	    if ((rs >= 0) && (pan == 0)) {
+	if ((rs = shio_opene(ofp,ofn,"wct",0666,pip->to_open)) >= 0) {
+	    {
 	        rs = procprint(pip,ofp) ;
-	        wlen += rs ;
+		wlen += rs ;
 	    }
-
 	    rs1 = shio_close(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
@@ -1204,134 +1102,22 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (progargs) */
-
-
-static int procspecs(PROGINFO *pip,void *ofp,cchar *lbuf,int llen)
-{
-	FIELD		fsb ;
-	int		rs ;
-	int		wlen = 0 ;
-	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
-	    int		fl ;
-	    cchar	*fp ;
-	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
-	        if (fl > 0) {
-	            rs = procspec(pip,ofp,fp,fl) ;
-	            wlen += rs ;
-	        }
-	        if (fsb.term == '#') break ;
-	        if (rs < 0) break ;
-	    } /* end while */
-	    field_finish(&fsb) ;
-	} /* end if (field) */
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (procqueries) */
-
-
-/* process a specification name */
-static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
-{
-	LONG		v = -1 ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		ri ;
-	int		wlen = 0 ;
-	const char	*cbp = NULL ;
-	char		cvtbuf[CVTBUFLEN + 1] ;
-
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_loginblurb/procspec: r=>%t<\n",rp,rl) ;
-#endif
-
-	if (rl < 0) rl = strlen(rp) ;
-
-	cvtbuf[0] = '\0' ;
-	wlen = 0 ;
-	ri = matostr(qopts,2,rp,rl) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("b_loginblurb/procspec: matostr() rc=%d\n",ri) ;
-#endif
-
-	if (ri < 0) {
-	    ri = matextra(qopts,1,rp,rl) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("b_loginblurb/procspec: matextra() rc=%d\n",ri) ;
-#endif
-
-	}
-
-	if (pip->debuglevel > 0) {
-	    if (ri >= 0) {
-	        shio_printf(pip->efp,"%s: spec=%t (%d)\n",
-	            pip->progname,rp,rl,ri) ;
-	    } else {
-	        shio_printf(pip->efp,"%s: spec=%t notfound\n",
-	            pip->progname,rp,rl) ;
-	    }
-	}
-
-	cbp = cvtbuf ;
-	switch (ri) {
-	default:
-	    rs = SR_INVALID ;
-	    break ;
-	} /* end switch */
-
-	if ((rs >= 0) && (v >= 0)) {
-	    rs = bufprintf(cvtbuf,CVTBUFLEN,"%llu",v) ;
-	}
-
-	if ((rs >= 0) && (pip->verboselevel > 0)) {
-	    rs1 = procout(pip,ofp,cbp) ;
-	    wlen += rs1 ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("b_loginblurb/procspec: ret rs=%d wlen=%u\n",rs,wlen) ;
+	    debugprintf("b_loginblurb/process: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
 	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (procspec) */
-
-
-static int procout(PROGINFO *pip,SHIO *ofp,cchar *buf)
-{
-	int		rs = SR_OK ;
-	int		wlen = 0 ;
-
-	if (pip->verboselevel > 0) {
-	    if (buf == NULL) buf = "*" ;
-	    rs = shio_printf(ofp,"%s\n",buf) ;
-	    wlen += rs ;
-	} /* end if */
-
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (procout) */
+/* end subroutine (process) */
 
 
 /* print the time to the console */
 static int procprint(PROGINFO *pip,SHIO *ofp)
 {
-	LOCINFO		*lip = pip->lip ;
-	SBUF		b ;
 	const int	llen = LINEBUFLEN ;
 	int		rs ;
-	int		c = 0 ;
 	int		wlen = 0 ;
-	int		f_terminal = FALSE ;
 	char		lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUG
@@ -1339,6 +1125,29 @@ static int procprint(PROGINFO *pip,SHIO *ofp)
 	    debugprintf("b_loginblurb/procprint: ent\n") ;
 #endif
 
+	if ((rs = procbuf(pip,lbuf,llen)) >= 0) {
+	    wlen = rs ;
+	    rs = shio_write(ofp,lbuf,wlen) ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("b_loginblurb/procprint: ret rs=%d\n",rs) ;
+#endif
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procprint) */
+
+
+static int procbuf(PROGINFO *pip,char *lbuf,int llen)
+{
+	LOCINFO		*lip = pip->lip ;
+	SBUF		b ;
+	int		rs ;
+	int		c = 0 ;
+	int		wlen = 0 ;
+	int		f_terminal ;
 	f_terminal = lip->f.term ;
 	if ((rs = sbuf_start(&b,lbuf,llen)) >= 0) {
 
@@ -1348,57 +1157,46 @@ static int procprint(PROGINFO *pip,SHIO *ofp)
 /* time */
 
 	    if (lip->f.o_string && (lip->string != NULL)) {
-
 	        c += 1 ;
 	        sbuf_strw(&b,lip->string,-1) ;
-
 	    } /* end if (option-string) */
 
 	    if (lip->f.o_time) {
 	        char	timebuf[TIMEBUFLEN + 1] ;
-
 	        timestr_logz(pip->daytime,timebuf) ;
-
 	        if (c++ > 0) sbuf_char(&b,' ') ;
 	        sbuf_strw(&b,timebuf,23) ;
-
 	    } /* end if (option-time) */
 
 /* node-name */
 
 	    if ((rs >= 0) && lip->f.o_node) {
-
 	        if ((rs = proginfo_nodename(pip)) >= 0) {
 	            if (c++ > 0) sbuf_char(&b,' ') ;
 	            if (lip->f.o_nodetitle)
 	                sbuf_strw(&b,"node=",-1) ;
 	            sbuf_strw(&b,pip->nodename,-1) ;
 	        }
-
 	    } /* end if (option-nodename) */
 
 /* users (number of logged-in users) */
 
 	    if ((rs >= 0) && lip->f.o_users) {
-
 	        if ((rs = locinfo_nusers(lip)) >= 0) {
 	            if (c++ > 0) sbuf_char(&b,' ') ;
 	            sbuf_strw(&b,"users=",-1) ;
 	            sbuf_decui(&b,lip->nusers) ;
 	        }
-
 	    } /* end if (option-users) */
 
 /* number of processes */
 
 	    if ((rs >= 0) && lip->f.o_procs) {
-
 	        if ((rs = locinfo_nprocs(lip)) >= 0) {
 	            if (c++ > 0) sbuf_char(&b,' ') ;
 	            sbuf_strw(&b,"procs=",-1) ;
 	            sbuf_decui(&b,lip->nprocs) ;
 	        }
-
 	    } /* end if (option-processes) */
 
 /* memory usage */
@@ -1421,7 +1219,7 @@ static int procprint(PROGINFO *pip,SHIO *ofp)
 	        if ((rs = locinfo_loadavgs(lip)) >= 0) {
 	            double	dla[3] ;
 	            int		i ;
-	            const char	*fmt ;
+	            cchar	*fmt ;
 	            for (i = 0 ; i < 3 ; i += 1) {
 	                dla[i] = ((double) lip->la[i]) / FSCALE ;
 	            }
@@ -1448,26 +1246,9 @@ static int procprint(PROGINFO *pip,SHIO *ofp)
 	    wlen = sbuf_finish(&b) ;
 	    if (rs >= 0) rs = wlen ;
 	} /* end if (sbuf) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("b_loginblurb/procprint: sbuf-ret rs=%d\n",rs) ;
-#endif
-
-/* write out the line-buffer */
-
-	if (rs >= 0) {
-	    rs = shio_write(ofp,lbuf,wlen) ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("b_loginblurb/procprint: ret rs=%d\n",rs) ;
-#endif
-
 	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (procprint) */
+/* end subroutine (procbuf) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
@@ -1531,8 +1312,9 @@ static int locinfo_nprocs(LOCINFO *lip)
 	    if ((rs = uc_nprocs(0)) >= 0) {
 	        lip->nprocs = rs ;
 	        nproc = rs ;
-	    } else if (isNotPresent(rs) || (rs == SR_NOSYS))
+	    } else if (isNotPresent(rs) || (rs == SR_NOSYS)) {
 	        rs = SR_OK ;
+	    }
 	} /* end if (time-out) */
 
 	return (rs >= 0) ? nproc : rs ;
@@ -1597,36 +1379,5 @@ static int locinfo_utmpend(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_utmpend) */
-
-
-/* this is our extra little surprise */
-static int matextra(cchar *a[],int n,cchar *s,int slen)
-{
-	const int	lc = s[0] ;
-	const int	shift = 2 ;
-	int		i ;
-	int		m ;
-	const char	*asp ;
-
-	if (slen < 0)
-	    slen = strlen(s) ;
-
-	for (i = 0 ; a[i] != NULL ; i += 1) {
-
-	    asp = a[i] ;
-	    if (strlen(asp) > shift) {
-	        asp += shift ;
-	        m = (lc == asp[0]) ;
-	        if (m > 0)
-	            m = nleadstr(asp,s,slen) ;
-	        if ((m == slen) && ((m >= n) || (asp[m] == '\0')))
-	            break ;
-	    }
-
-	} /* end for */
-
-	return (a[i] != NULL) ? i : -1 ;
-}
-/* end subroutine (matextra) */
 
 

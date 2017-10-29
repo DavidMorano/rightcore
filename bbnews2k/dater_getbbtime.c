@@ -9,16 +9,13 @@
 /* revision history:
 
 	= 1994-03-01, David A­D­ Morano
-
         We collect the code that accesses the user currency file pretty much
         into one place. The functions handled by this module were previously
         scattered around in the past!
 
 	= 1998-11-13, David A­D­ Morano
-
         This is enhanced from the older version of the same (that I wrote back
         in the early 90s).
-
 
 */
 

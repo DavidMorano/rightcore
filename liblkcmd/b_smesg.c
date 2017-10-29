@@ -2249,9 +2249,7 @@ static int locinfo_defs(LOCINFO *lip)
 	    }
 	}
 
-	if (lip->linelen == 0) {
-	    lip->linelen = COLUMNS ;
-	}
+	if (lip->linelen == 0) lip->linelen = COLUMNS ;
 
 	return rs ;
 }

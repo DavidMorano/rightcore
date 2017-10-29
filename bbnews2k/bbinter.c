@@ -15,10 +15,8 @@
 /* revision history:
 
 	= 2009-01-20, David A­D­ Morano
-
-	This is a complete rewrite of the trash that performed this
-	function previously.
-
+        This is a complete rewrite of the trash that performed this function
+        previously.
 
 */
 

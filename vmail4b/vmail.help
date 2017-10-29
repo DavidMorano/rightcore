@@ -4,7 +4,7 @@ This is the famous PCS mail program.  This is a screen oriented program that is
 enhanced to use the additional features of the PCS system.
 
 Synopsis:
-$ vmail [=tmpdir <dir>] [-maildir <dir>] [-folderdir <dir>] [<mailbox>] 
+$ vmail [=tmpdir <dir>] [-md <dir>] [-fd <dir>] [<mailbox>] 
 	[-u <mailuser(s)>] [-o <option(s)>] [-L <lines>] [-M <mailer-program>]
 
 Arguments:

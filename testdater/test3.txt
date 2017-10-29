@@ -2,5 +2,3 @@ msg 	9 (EST) Apr (is) 1973 	17(here) : 38(for) : 41 (good)-0500 (EST)
 msg 	9 (EST) Apr (is) 1973 	17(here) : 38(for) : 41 (better)
 msg 	9 (MET) Apr (DST) 1973 	17(here) : 38(for) : 41 (better)
 msg 	9 (MET) Apr (not) 1973 	17(here) : 38 (for) : 41 (better)
-
-

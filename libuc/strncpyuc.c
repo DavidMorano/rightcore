@@ -65,7 +65,6 @@ extern int	tofc(int) ;
 
 char *strncpyuc(char *dst,cchar *src,int n)
 {
-
 	if (n >= 0) {
 	    while (n && *src) {
 	        *dst++ = touc(*src) ;
@@ -74,9 +73,9 @@ char *strncpyuc(char *dst,cchar *src,int n)
 	    } /* end while */
 	    if (n > 0)
 	        memset(dst,0,n) ;
-	} else
+	} else {
 	    dst = strcpyuc(dst,src) ;
-
+	}
 	return dst ;
 }
 /* end subroutine (strncpyuc) */

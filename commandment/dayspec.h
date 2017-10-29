@@ -18,8 +18,8 @@
 
 
 struct dayspec {
-	short	y ;
-	schar	m, d ;
+	short		y ;
+	schar		m, d ;
 } ;
 
 
@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 extern int dayspec_default(DAYSPEC *) ;
-extern int dayspec_load(DAYSPEC *,const char *,int) ;
+extern int dayspec_load(DAYSPEC *,cchar *,int) ;
 extern int dayspec_yday(DAYSPEC *) ;
 
 #ifdef	__cplusplus

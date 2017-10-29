@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 extern int userattrent_load(userattr_t *,char *,int,const userattr_t *) ;
-extern int userattrent_parse(userattr_t *,char *,int,const char *,int) ;
+extern int userattrent_parse(userattr_t *,char *,int,cchar *,int) ;
 extern int userattrent_size(const userattr_t *) ;
 extern int userattrent_format(const userattr_t *,char *,int) ;
 

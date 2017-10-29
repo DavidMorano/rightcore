@@ -6,10 +6,11 @@
 /* revision history:
 
 	= 1994-05-01, David A­D­ Morano
+        This code was written from scratch to support the correct operation of
+        multiple directories for each newsgroup.
 
-	This code was written from scratch to support the correct
-	operation of multiple directories for each newsgroup.
-
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
@@ -17,9 +18,9 @@
 
 /*******************************************************************************
 
-	This subroutine only has to compare for equality (as opposed to
-	an actual comparison of greater-than or less-than) so we only
-	return 'TRUE=OK' or 'FALSE=BAD'.
+        This subroutine only has to compare for equality (as opposed to an
+        actual comparison of greater-than or less-than) so we only return
+        'TRUE=OK' or 'FALSE=BAD'.
 
 
 *******************************************************************************/

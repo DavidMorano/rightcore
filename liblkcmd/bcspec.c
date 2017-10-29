@@ -1,6 +1,6 @@
 /* bcspec (BC-Spec) */
 
-/* load a bible-citation-specification */
+/* load a Bible-Citation-Specification */
 /* last modified %G% version %I% */
 
 
@@ -18,7 +18,7 @@
 
 /*******************************************************************************
 
-        This object parses and loads a given bible-citation-specification string
+        This object parses and loads a given Bible-Citation-Specification string
         into itself. The given citation-specification string looks like:
 
 		<bookname>[:]<chapter>[:<verse>]

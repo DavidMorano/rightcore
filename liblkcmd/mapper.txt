@@ -1,0 +1,9 @@
+		lockmemalloc_init ;
+		lockmemalloc_fini ;
+		lockmemalloc_set ;
+		uc_libmalloc ;
+		uc_libcalloc ;
+		uc_libvalloc ;
+		uc_librealloc ;
+		uc_libfree ;
+

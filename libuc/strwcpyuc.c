@@ -74,13 +74,11 @@ extern int	tofc(int) ;
 
 char *strwcpyuc(char *dp,cchar *sp,int sl)
 {
-
 	if (sl >= 0) {
 	    while (sl-- && *sp) *dp++ = touc(*sp++) ;
 	} else {
 	    while (*sp) *dp++ = touc(*sp++) ;
 	} /* end if */
-
 	*dp = '\0' ;
 	return dp ;
 }

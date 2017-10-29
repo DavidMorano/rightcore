@@ -129,6 +129,7 @@ extern int	isdigitlatin(int) ;
 extern int	isalphalatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -233,9 +234,10 @@ static int	metawordsfins(PROGINFO *) ;
 static int	metawordsend(PROGINFO *) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
+static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_deflinelen(LOCINFO *) ;
 static int	locinfo_nlookup(LOCINFO *,char *,int,int) ;
 static int	locinfo_bookmatch(LOCINFO *,const char *,int) ;
-static int	locinfo_finish(LOCINFO *) ;
 
 static int	mkwordclean(char *,int,const char *,int) ;
 
@@ -452,11 +454,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	lip->ofp = ofp ;
-	lip->linelen = 0 ;
-	lip->count = -1 ;
-	lip->max = -1 ;
-
-	lip->f.bookchapters = TRUE ;
 
 /* start parsing the arguments */
 
@@ -899,7 +896,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    rs = cfdeci(argval,-1,&v) ;
 	    lip->have.linelen = TRUE ;
 	    lip->final.linelen = TRUE ;
-	    lip->linelen = v ;
+	    lip->linelen = rs ;
 	}
 
 /* load up the environment options */
@@ -947,23 +944,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        pip->progname,vdbname) ;
 	}
 
-/* line-length */
-
-	rs1 = (DEFPRECISION + 2) ;
-	if ((rs >= 0) && (lip->linelen < rs1)) {
-	    cp = getourenv(envv,VARLINELEN) ;
-	    if (cp == NULL) cp = getourenv(envv,VARCOLUMNS) ;
-	    if (cp != NULL) {
-	        if (((rs = cfdeci(cp,-1,&n)) >= 0) && (n >= rs1)) {
-	            lip->have.linelen = TRUE ;
-	            lip->final.linelen = TRUE ;
-	            lip->linelen = n ;
-	        }
-	    }
+	if (rs >= 0) {
+	    rs = locinfo_deflinelen(lip) ;
 	}
-
-	if (lip->linelen < rs1)
-	    lip->linelen = COLUMNS ;
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
 	ainfo.argc = argc ;
@@ -2034,6 +2017,9 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
+	lip->count = -1 ;
+	lip->max = -1 ;
+	lip->f.bookchapters = TRUE ;
 
 	return rs ;
 }
@@ -2060,6 +2046,35 @@ static int locinfo_finish(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_finish) */
+
+
+static int locinfo_deflinelen(LOCINFO *lip)
+{
+	const int	def = (DEFPRECISION + 2) ;
+	int		rs = SR_OK ;
+	if (lip->linelen < def) {
+	    PROGINFO	*pip = lip->pip ;
+	    cchar	*cp = NULL ;
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARLINELEN) ;
+	    }
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARCOLUMNS) ;
+	    }
+	    if (! isStrEmpty(cp,-1)) {
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (rs >= def) {
+	                lip->have.linelen = TRUE ;
+	                lip->final.linelen = TRUE ;
+	                lip->linelen = rs ;
+		    }
+	        }
+	    }
+	}
+	if (lip->linelen < def ) lip->linelen = COLUMNS ;
+	return rs ;
+}
+/* end subroutine (locinfo_deflinelen) */
 
 
 static int locinfo_nlookup(LOCINFO *lip,char *rbuf,int rlen,int bi)

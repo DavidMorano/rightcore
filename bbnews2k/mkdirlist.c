@@ -9,17 +9,15 @@
 /* revision history:
 
 	= 1994-04-13, David A­D­ Morano
-
 	This is new so that we can track directory visits for duplicates.
 
 	= 2014-11-25, David A­D­ Morano
-
 	This object was enhanced to include much of the functionality from the
 	old 'get_bds' function.
 
 */
 
-/* Copyright © 1994,2014 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2014 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

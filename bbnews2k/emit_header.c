@@ -10,13 +10,14 @@
 /* revision history:
 
 	= 1994-11-01, David A­D­ Morano
-
 	1) added a mode to intercept for mailbox use
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
-/* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1994,1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

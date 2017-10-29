@@ -75,7 +75,15 @@ extern long	altzone ;
 
 /* external subroutines */
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
 extern char	*strwcpy(char *,const char *,int) ;
+
+
+/* local structures */
 
 
 /* forward references */
@@ -253,6 +261,10 @@ int tmtime_mktimer(TMTIME *op,int f_adj,time_t *tp)
 	struct tm	tms ;
 	time_t		t = 0 ;
 	int		rs ;
+
+#if	CF_DEBUGS
+	debugprintf("tmtime_mktime: ent f_adj=%u\n",f_adj) ;
+#endif
 
 	if (op == NULL) return SR_FAULT ;
 

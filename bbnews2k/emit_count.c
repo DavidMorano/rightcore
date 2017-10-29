@@ -10,10 +10,11 @@
 /* revision history:
 
 	= 1994-11-01, David A­D­ Morano
-
 	I wrote this from scratch to support the familiar function of
 	getting the count of articles not yet read (whatever)!
 
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 

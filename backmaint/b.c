@@ -281,7 +281,7 @@ static int	parseperms(cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -339,7 +339,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *progopts[] = {
+static cchar	*progopts[] = {
 	"nhf",
 	"suid",
 	"sgid",
@@ -958,8 +958,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */

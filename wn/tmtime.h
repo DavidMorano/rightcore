@@ -52,6 +52,7 @@ extern int	tmtime_mktime(TMTIME *,time_t *) ;
 extern int	tmtime_adjtime(TMTIME *,time_t *) ;
 
 #ifdef	COMMENT
+extern int	tmtime_setznoe(TMTIME *,const char *,int) ;
 extern int	mktime_settimez(TMTIME *,const char *,const char *,time_t) ;
 extern int	mktime_gettime(TMTIME *,const char *,time_t *) ;
 #endif /* COMMENT */

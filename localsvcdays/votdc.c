@@ -74,10 +74,6 @@
 				(2*sizeof(SHMALLOC))
 #define	VOTDC_BOOKLEN		80 /* should match 'BIBLEBOOK_LEN' */
 
-#ifndef	LOGICVAL
-#define	LOGICVAL(v)	((v)!=0)
-#endif
-
 #ifndef	LINEBUFLEN
 #ifdef	LINE_MAX
 #define	LINEBUFLEN	MAX(LINE_MAX,2048)
@@ -116,7 +112,6 @@ extern int	strnnlen(const char *,int,int) ;
 extern int	cfdecui(const char *,int,uint *) ;
 extern int	msleep(uint) ;
 extern int	isOneOf(const int *,int) ;
-extern int	uc_openshmto(const char *,int,mode_t,int) ;
 extern int	filebuf_writefill(FILEBUF *,const char *,int) ;
 extern int	filebuf_writezero(FILEBUF *,int) ;
 extern int	filebuf_writealign(FILEBUF *,int) ;
@@ -780,8 +775,8 @@ int votdc_vcurenum(VOTDC *op,VOTDC_VCUR *curp,VOTDC_CITE *citep,
 		const int	vi = (curp->i >= 0) ? (curp->i+1) : 0 ;
 		if ((rs = votdc_verseslotnext(op,vi)) >= 0) {
 		    VOTDC_VERSE	*vep = (op->verses+rs) ;
-		    const int		ci = rs ;
-		    char		*vstr = op->vstr ;
+		    const int	ci = rs ;
+		    char	*vstr = op->vstr ;
 		    if ((rs = verse_read(vep,vstr,citep,rbuf,rlen)) >= 0) {
 			vl = rs ;
 			curp->i = ci ;
@@ -1322,7 +1317,7 @@ static int votdc_shmchown(VOTDC *op)
 		}
 	    } /* end if (sfrootname) */
 	    uc_free(pwbuf) ;
-	} /* end if (m-a) */
+	} /* end if (m-a-f) */
 	return rs ;
 }
 /* end subroutine (votdc_shmchown) */

@@ -11,12 +11,14 @@
 /* revision history:
 
 	= 1994-04-10, David A­D­ Morano
-
 	The method of finding the newsgroups has been changed.
+
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
-/* Copyright © 1994,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

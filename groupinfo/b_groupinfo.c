@@ -228,7 +228,7 @@ static int	mklist(char *,int,char **) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -275,7 +275,7 @@ static const struct mapex	mapexs[] = {
 } ;
 
 /* define the query keywords */
-static cchar *qopts[] = {
+static cchar	*qopts[] = {
 	"gid",
 	"groupname",
 	"users",
@@ -648,9 +648,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -774,7 +774,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
 	    if (f) {
 	        gn = argv[ai] ;
-		if (gn[0] != '\0') {
+	        if (gn[0] != '\0') {
 	            ai_continue = (ai + 1) ;
 	            break ;
 	        }
@@ -782,15 +782,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	} /* end for */
 
-	rs = locinfo_setgroup(lip,gn) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("groupinfo: GR rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0) {
-	    if (rs == SR_NOTFOUND) ex = EX_NOTFOUND ;
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: group=%s\n",pn,gn) ;
 	}
 
 /* continue */
@@ -804,9 +798,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ainfo.ai_continue = ai_continue ;
 
 	if (rs >= 0) {
-	    cchar	*ofn = ofname ;
-	    cchar	*afn = afname ;
-	    rs = process(pip,&ainfo,&pargs,ofn,afn) ;
+	    if ((rs = locinfo_setgroup(lip,gn)) >= 0) {
+	        cchar	*ofn = ofname ;
+	        cchar	*afn = afname ;
+	        rs = process(pip,&ainfo,&pargs,ofn,afn) ;
+	    } else if (rs == SR_NOTFOUND) {
+		ex = EX_NOTFOUND ;
+	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -960,17 +958,17 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 
 	    if (pip->f.list) {
 	        if (pip->debuglevel > 0) {
-		    cchar	*ms = (pip->f.all) ? "all" : "list" ;
+	            cchar	*ms = (pip->f.all) ? "all" : "list" ;
 	            fmt = "%s: mode=%s\n" ;
 	            shio_printf(pip->efp,fmt,pn,ms) ;
-		}
+	        }
 	        rs = proclist(pip,ofp) ;
 	        wlen += rs ;
 	    } else {
 	        if (pip->debuglevel > 0) {
 	            fmt = "%s: mode=query\n" ;
 	            shio_printf(pip->efp,fmt,pn) ;
-		}
+	        }
 	        rs = procargs(pip,aip,bop,ofp,afn) ;
 	        wlen += rs ;
 	    } /* end if */
@@ -992,84 +990,84 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,void *ofp,cchar *afn)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	    int		pan = 0 ;
-	    int		cl ;
+	int		pan = 0 ;
+	int		cl ;
 	int		wlen = 0 ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
-	    cchar	*cp ;
+	cchar		*cp ;
 
-	        if (rs >= 0) {
-	            cchar	**argv = aip->argv ;
-	            int		ai ;
-	            int		f ;
-	            for (ai = aip->ai_continue ; ai < aip->argc ; ai += 1) {
+	if (rs >= 0) {
+	    cchar	**argv = aip->argv ;
+	    int		ai ;
+	    int		f ;
+	    for (ai = aip->ai_continue ; ai < aip->argc ; ai += 1) {
 
-	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
-	                if (f) {
-	                    cp = aip->argv[ai] ;
-	                    if (cp[0] != '\0') {
-	                        pan += 1 ;
-	                        rs = procquery(pip,ofp,cp,-1) ;
-	                        wlen += rs ;
-	                    }
+	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	        if (f) {
+	            cp = aip->argv[ai] ;
+	            if (cp[0] != '\0') {
+	                pan += 1 ;
+	                rs = procquery(pip,ofp,cp,-1) ;
+	                wlen += rs ;
+	            }
+	        }
+
+	        if (rs >= 0) rs = lib_sigterm() ;
+	        if (rs >= 0) rs = lib_sigintr() ;
+	        if (rs < 0) break ;
+	    } /* end for (handling positional arguments) */
+	} /* end if (ok) */
+
+	if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	    SHIO	afile, *afp = &afile ;
+
+	    if (strcmp(afn,"-") == 0)
+	        afn = STDINFNAME ;
+
+	    if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN + 1] ;
+
+	        while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
+	            len = rs ;
+
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
+
+	            if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                if (cp[0] != '#') {
+	                    pan += 1 ;
+	                    rs = procqueries(pip,ofp,cp,cl) ;
+	                    wlen += rs ;
 	                }
+	            }
 
-	                if (rs >= 0) rs = lib_sigterm() ;
-	                if (rs >= 0) rs = lib_sigintr() ;
-	                if (rs < 0) break ;
-	            } /* end for (handling positional arguments) */
-	        } /* end if (ok) */
+	            if (rs >= 0) rs = lib_sigterm() ;
+	            if (rs >= 0) rs = lib_sigintr() ;
+	            if (rs < 0) break ;
+	        } /* end while (reading lines) */
 
-	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	            SHIO	afile, *afp = &afile ;
+	        rs1 = shio_close(afp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        fmt = "%s: inaccessible argument-list (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	        shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	    } /* end if */
 
-	            if (strcmp(afn,"-") == 0)
-	                afn = STDINFNAME ;
+	} /* end if (processing file argument file list) */
 
-	            if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
-	                const int	llen = LINEBUFLEN ;
-	                int		len ;
-	                char		lbuf[LINEBUFLEN + 1] ;
+	if ((rs >= 0) && (pan == 0)) {
 
-	                while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
-	                    len = rs ;
+	    cp = "groupname" ;
+	    pan += 1 ;
+	    rs = procquery(pip,ofp,cp,-1) ;
+	    wlen += rs ;
 
-	                    if (lbuf[len - 1] == '\n') len -= 1 ;
-	                    lbuf[len] = '\0' ;
-
-	                    if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                        if (cp[0] != '#') {
-	                            pan += 1 ;
-	                            rs = procqueries(pip,ofp,cp,cl) ;
-	                            wlen += rs ;
-	                        }
-	                    }
-
-	                    if (rs >= 0) rs = lib_sigterm() ;
-	                    if (rs >= 0) rs = lib_sigintr() ;
-	                    if (rs < 0) break ;
-	                } /* end while (reading lines) */
-
-	                rs1 = shio_close(afp) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } else {
-			fmt = "%s: inaccessible argument-list (%d)\n" ;
-	                shio_printf(pip->efp,fmt,pn,rs) ;
-	                shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
-	            } /* end if */
-
-	        } /* end if (processing file argument file list) */
-
-	        if ((rs >= 0) && (pan == 0)) {
-
-	            cp = "groupname" ;
-	            pan += 1 ;
-	            rs = procquery(pip,ofp,cp,-1) ;
-	            wlen += rs ;
-
-	        } /* end if */
+	} /* end if */
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -1188,7 +1186,6 @@ static int procquery(PROGINFO *pip,void *ofp,cchar np[],int nl)
 	}
 
 	switch (ci) {
-
 	case qopt_gid:
 	case qopt_groupname:
 	case qopt_users:
@@ -1301,7 +1298,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(slp,*epp) ;
+	        oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
@@ -1360,7 +1357,7 @@ static int locinfo_setgroup(LOCINFO *lip,cchar *gn)
 
 	        if ((rs == SR_NOTFOUND) || isInvalid(rs)) {
 	            rs = getgr_name(&lip->gr,lip->grbuf,lip->grlen,gn) ;
-		}
+	        }
 
 	    } else {
 	        rs = getgr_name(&lip->gr,lip->grbuf,lip->grlen,gn) ;

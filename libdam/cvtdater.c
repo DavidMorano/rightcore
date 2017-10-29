@@ -21,6 +21,11 @@
         into UNIX® time values. The hard work is actually done by the included
         TMZ object.
 
+	Source formats include:
+
+	  YYMMDD
+	CCYYMMDD
+
 
 *******************************************************************************/
 
@@ -35,6 +40,7 @@
 #include	<stdarg.h>
 
 #include	<vsystem.h>
+#include	<dayspec.h>
 #include	<tmz.h>
 #include	<tmtime.h>
 #include	<localmisc.h>
@@ -53,9 +59,17 @@ extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
+extern int	hasalpha(cchar *,int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* local subroutines */
@@ -93,18 +107,49 @@ int cvtdater_load(CVTDATER *cdp,time_t *dp,cchar *cp,int cl)
 	if (cdp == NULL) return SR_FAULT ;
 	if (cp == NULL) return SR_FAULT ;
 
-	if ((rs = tmz_day(&stz,cp,cl)) >= 0) {
+#if	CF_DEBUGS
+	debugprintf("cvtdater_load: ent s=>%t<\n",cp,cl) ;
+#endif
+
+	if (hasalpha(cp,cl)) {
+	    DAYSPEC	ds ;
+	    tmz_init(&stz) ;
+	    if ((rs = dayspec_load(&ds,cp,cl)) >= 0) {
+#if	CF_DEBUGS
+	        debugprintf("cvtdater_load: y=%d m=%d d=%d\n",ds.y,ds.m,ds.d) ;
+#endif
+		rs = tmz_setday(&stz,ds.y,ds.m,ds.d) ;
+#if	CF_DEBUGS
+	        debugprintf("cvtdater_load: tmz_setday() rs=%d\n",rs) ;
+	        debugprintf("cvtdater_load: y=%d m=%d d=%d\n",
+		      stz.st.tm_year,stz.st.tm_mon,stz.st.tm_mday) ;
+#endif
+	    }
+#if	CF_DEBUGS
+	debugprintf("cvtdater_load: alpha rs=%d \n",rs) ;
+#endif
+	} else {
+	    rs = tmz_day(&stz,cp,cl) ;
+#if	CF_DEBUGS
+	debugprintf("cvtdater_load: tmz_day() rs=%d \n",rs) ;
+#endif
+	}
+	if (rs >= 0) {
 	    TMTIME	tmt ;
 
 #if	CF_DEBUGS
-	    debugprintf("cvtdater_load: tmz_day() rs=%d\n",rs) ;
+	    debugprintf("cvtdater_load: mid1 rs=%d\n",rs) ;
 #endif
 
-	    if (! stz.f.year) {
+	    if (tmz_hasyear(&stz) == 0) {
 	        cvtdater_daytime(cdp,NULL) ;	/* get current date */
 	        rs = tmtime_localtime(&tmt,cdp->daytime) ;
-	        stz.st.tm_year = tmt.year ;
+		tmz_setyear(&stz,tmt.year) ;
 	    } /* end if (getting the current year) */
+
+#if	CF_DEBUGS
+	    debugprintf("cvtdater_load: mid2 rs=%d\n",rs) ;
+#endif
 
 	    if (rs >= 0) {
 	        time_t	t ;
@@ -112,7 +157,11 @@ int cvtdater_load(CVTDATER *cdp,time_t *dp,cchar *cp,int cl)
 	        if ((rs = tmtime_mktime(&tmt,&t)) >= 0) {
 	            if (dp != NULL) *dp = t ;
 		}
-	    } /* end if */
+	    } /* end if (ok) */
+
+#if	CF_DEBUGS
+	    debugprintf("cvtdater_load: mid3 rs=%d\n",rs) ;
+#endif
 
 	} /* end if (tmz_day) */
 

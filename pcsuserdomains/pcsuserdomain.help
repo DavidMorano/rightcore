@@ -1,0 +1,13 @@
+PCSUSERDOMAINS
+
+This program builds the PCS USERDOMAINS database.  This database is used
+as a cache for domains used within the user-space of the current cluster.
+It is assumed that all nodes in the cluster share the same user-space
+(a reasonably assumption).
+
+Synopsis :
+
+$ pcsuserdomains [database] [-n]
+
+
+

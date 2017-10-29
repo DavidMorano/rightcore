@@ -76,7 +76,7 @@ static int	getfield(const char *,int,const char **) ;
 
 /* local variables */
 
-static const char	*sysnames[] = {
+static cchar	*sysnames[] = {
 	"SunOS",
 	"Darwin",
 	NULL
@@ -130,8 +130,9 @@ int getsystypenum(char *tbuf,char *nbuf,cchar *sysname,cchar *release)
 	    if (rs >= 0) {
 		rs = sncpy1(tbuf,olen,ostype) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("getsystypenum: ret rs=%d\n",rs) ;

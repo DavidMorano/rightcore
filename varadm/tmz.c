@@ -4,7 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */	
-#define	CF_SAFE		1		/* safe mode */
+#define	CF_SAFE		0		/* safe mode */
 #define	CF_MULTIZONE	1		/* allow fragmented time zone names */
 
 
@@ -33,7 +33,7 @@
 
 */
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999,2014 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -133,11 +133,11 @@ extern char	*strdcpy1w(char *,int,cchar *,int) ;
 
 static int	tmz_timeparts(TMZ *,cchar *,int) ;
 static int	tmz_stdtrailing(TMZ *,cchar *,int) ;
-static int	tmz_getday(TMZ *,cchar *,int) ;
-static int	tmz_getmonth(TMZ *,cchar *,int) ;
-static int	tmz_getyear(TMZ *,cchar *,int) ;
-static int	tmz_getzoff(TMZ *,cchar *,int) ;
-static int	tmz_getzname(TMZ *,cchar *,int) ;
+static int	tmz_procday(TMZ *,cchar *,int) ;
+static int	tmz_procmonth(TMZ *,cchar *,int) ;
+static int	tmz_procyear(TMZ *,cchar *,int) ;
+static int	tmz_proczoff(TMZ *,cchar *,int) ;
+static int	tmz_proczname(TMZ *,cchar *,int) ;
 static int	tmz_yearadj(TMZ *,int) ;
 
 static int	getzoff(int *,cchar *,int) ;
@@ -170,6 +170,16 @@ static const uchar	tpterms[] = {
 /* exported subroutines */
 
 
+int tmz_init(TMZ *op)
+{
+	if (op == NULL) return SR_FAULT ;
+	memset(op,0,sizeof(TMZ)) ;
+	op->zoff = SHORT_MIN ;
+	return SR_OK ;
+}
+/* end subroutine (tmz_init) */
+
+
 /* format> [Wed] Nov 14 19:24[:04] [EST] [[19]99] [±0400] */
 int tmz_std(TMZ *op,cchar *sp,int sl)
 {
@@ -186,17 +196,17 @@ int tmz_std(TMZ *op,cchar *sp,int sl)
 	    sl = strlen(sp) ;
 
 	memset(op,0,sizeof(TMZ)) ;
-	op->zoff = SHORT_MAX ;
+	op->zoff = SHORT_MIN ;
 	op->st.tm_year = -1 ;
 	op->st.tm_wday = -1 ;
 	op->st.tm_isdst = -1 ;
 
-	if ((rs >= 0) && ((rs = tmz_getmonth(op,sp,sl)) > 0)) {
+	if ((rs >= 0) && ((rs = tmz_procmonth(op,sp,sl)) > 0)) {
 	    sp += rs ;
 	    sl -= rs ;
 	}
 
-	if ((rs >= 0) && ((rs = tmz_getday(op,sp,sl)) > 0)) {
+	if ((rs >= 0) && ((rs = tmz_procday(op,sp,sl)) > 0)) {
 	    sp += rs ;
 	    sl -= rs ;
 	}
@@ -250,7 +260,7 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 	    sl = strlen(sp) ;
 
 	memset(op,0,sizeof(TMZ)) ;
-	op->zoff = SHORT_MAX ;
+	op->zoff = SHORT_MIN ;
 	op->st.tm_year = -1 ;
 	op->st.tm_wday = -1 ;
 	op->st.tm_isdst = -1 ;
@@ -269,12 +279,12 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 	    sp = (tp+1) ;
 	}
 
-	if ((rs >= 0) && ((rs = tmz_getday(op,sp,sl)) > 0)) {
+	if ((rs >= 0) && ((rs = tmz_procday(op,sp,sl)) > 0)) {
 	    sp += rs ;
 	    sl -= rs ;
 	}
 
-	if ((rs >= 0) && ((rs = tmz_getmonth(op,sp,sl)) > 0)) {
+	if ((rs >= 0) && ((rs = tmz_procmonth(op,sp,sl)) > 0)) {
 	    sp += rs ;
 	    sl -= rs ;
 	}
@@ -283,7 +293,7 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 	    rs = SR_INVALID ;
 	}
 
-	if ((rs >= 0) && ((rs = tmz_getyear(op,sp,sl)) > 0)) {
+	if ((rs >= 0) && ((rs = tmz_procyear(op,sp,sl)) > 0)) {
 	    sp += rs ;
 	    sl -= rs ;
 	}
@@ -293,12 +303,12 @@ int tmz_msg(TMZ *op,cchar *sp,int sl)
 	    sl -= rs ;
 	}
 
-	if ((rs >= 0) && ((rs = tmz_getzoff(op,sp,sl)) > 0)) {
+	if ((rs >= 0) && ((rs = tmz_proczoff(op,sp,sl)) > 0)) {
 	    sp += rs ;
 	    sl -= rs ;
 	}
 
-	if ((rs >= 0) && ((rs = tmz_getzname(op,sp,sl)) > 0)) {
+	if ((rs >= 0) && ((rs = tmz_proczname(op,sp,sl)) > 0)) {
 	    sp += rs ;
 	    sl -= rs ;
 	}
@@ -339,7 +349,7 @@ int tmz_touch(TMZ *op,cchar *sp,int sl)
 
 	stp = &op->st ;
 	memset(op,0,sizeof(TMZ)) ;
-	op->zoff = SHORT_MAX ;
+	op->zoff = SHORT_MIN ;
 	stp->tm_year = -1 ;
 	stp->tm_wday = -1 ;
 	stp->tm_isdst = -1 ;
@@ -419,7 +429,7 @@ int tmz_toucht(TMZ *op,cchar *sp,int sl)
 
 	stp = &op->st ;
 	memset(op,0,sizeof(TMZ)) ;
-	op->zoff = SHORT_MAX ;
+	op->zoff = SHORT_MIN ;
 	stp->tm_year = -1 ;
 	stp->tm_wday = -1 ;
 	stp->tm_isdst = -1 ;
@@ -544,7 +554,7 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 
 	stp = &op->st ;
 	memset(op,0,sizeof(TMZ)) ;
-	op->zoff = SHORT_MAX ;
+	op->zoff = SHORT_MIN ;
 	stp->tm_year = -1 ;
 	stp->tm_wday = -1 ;
 	stp->tm_isdst = -1 ;
@@ -682,7 +692,7 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 
 	stp = &op->st ;
 	memset(op,0,sizeof(TMZ)) ;
-	op->zoff = SHORT_MAX ;
+	op->zoff = SHORT_MIN ;
 	stp->tm_year = -1 ;
 	stp->tm_wday = -1 ;
 	stp->tm_isdst = -1 ;
@@ -777,7 +787,7 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 	                debugprintf("tmz_logz: zname s=>%t<\n",sp,sl) ;
 #endif
 	                if (sl && ((ch = MKCHAR(*sp)),isalphalatin(ch))) {
-	                    rs = tmz_getzname(op,sp,sl) ;
+	                    rs = tmz_proczname(op,sp,sl) ;
 	                    zl = strlen(op->zname) ;
 	                }
 		    } else {
@@ -804,9 +814,7 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 int tmz_day(TMZ *op,cchar *sp,int sl)
 {
 	struct tm	*stp ;
-	const int	n = 3 ;
 	int		rs = SR_OK ;
-	int		i = 0 ;
 	int		cc = -1 ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -824,7 +832,7 @@ int tmz_day(TMZ *op,cchar *sp,int sl)
 
 	stp = &op->st ;
 	memset(op,0,sizeof(TMZ)) ;
-	op->zoff = SHORT_MAX ;
+	op->zoff = SHORT_MIN ;
 	stp->tm_year = -1 ;
 	stp->tm_wday = -1 ;
 	stp->tm_isdst = -1 ;
@@ -840,6 +848,8 @@ int tmz_day(TMZ *op,cchar *sp,int sl)
 #endif
 
 	if (hasalldig(sp,sl)) {
+	    const int	n = 3 ;
+	    int		i = 0 ;
 
 	    if (sl >= 8) {
 	        cc = val(sp) ;
@@ -890,6 +900,48 @@ int tmz_isset(TMZ *op)
 /* end subroutine (tmz_isset) */
 
 
+int tmz_hasyear(TMZ *op)
+{
+	if (op == NULL) return SR_FAULT ;
+	return (op->f.year) ;
+}
+/* end subroutine (tmz_hasyear) */
+
+
+int tmz_haszoff(TMZ *op)
+{
+	if (op == NULL) return SR_FAULT ;
+	return op->f.zoff ;
+}
+/* end subroutine (tmz_haszoff) */
+
+
+int tmz_haszone(TMZ *op)
+{
+	if (op == NULL) return SR_FAULT ;
+	return (op->zname[0] != '\0') ;
+}
+/* end subroutine (tmz_haszone) */
+
+
+int tmz_setday(TMZ *op,int y,int m,int d)
+{
+	struct tm	*stp ;
+	const int	cc = -1 ;
+	if (op == NULL) return SR_FAULT ;
+	stp = &op->st ;
+	if (y >= TM_YEAR_BASE) {
+	    y -= TM_YEAR_BASE ;
+	}
+	stp->tm_year = y ;
+	stp->tm_mon = m ;
+	stp->tm_mday = d ;
+	tmz_yearadj(op,cc) ;
+	return SR_OK ;
+}
+/* end subroutine (tmz_setday) */
+
+
 int tmz_setyear(TMZ *op,int year)
 {
 	if (op == NULL) return SR_FAULT ;
@@ -919,6 +971,20 @@ int tmz_gettm(TMZ *op,struct tm *tmp)
 	return SR_OK ;
 }
 /* end subroutine (tmz_gettm) */
+
+
+int tmz_getdst(TMZ *op)
+{
+	return op->st.tm_isdst ;
+}
+/* end subroutine (tmz_getdst) */
+
+
+int tmz_getzoff(TMZ *op)
+{
+	return op->zoff ;
+}
+/* end subroutine (tmz_getzoff) */
 
 
 /* private subroutines */
@@ -991,11 +1057,11 @@ static int tmz_stdtrailing(TMZ *op,cchar *sp,int sl)
 	    if (sl > 0) {
 	        int	ch = MKCHAR(*sp) ;
 	        if (isalphalatin(ch)) {
-	            rs = tmz_getzname(op,sp,sl) ;
+	            rs = tmz_proczname(op,sp,sl) ;
 	        } else if (isdigitlatin(ch) && (! op->f.year)) {
-	            rs = tmz_getyear(op,sp,sl) ;
+	            rs = tmz_procyear(op,sp,sl) ;
 	        } else if (isplusminus(ch) || isdigitlatin(ch)) {
-	            rs = tmz_getzoff(op,sp,sl) ;
+	            rs = tmz_proczoff(op,sp,sl) ;
 	        } else {
 	            rs = SR_INVALID ;
 	        }
@@ -1015,7 +1081,7 @@ static int tmz_stdtrailing(TMZ *op,cchar *sp,int sl)
 
 
 /* parse out> dd */
-static int tmz_getday(TMZ *op,cchar *sp,int sl)
+static int tmz_procday(TMZ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		si = 0 ;
@@ -1040,11 +1106,11 @@ static int tmz_getday(TMZ *op,cchar *sp,int sl)
 
 	return (rs >= 0) ? si : rs ;
 }
-/* end subroutine (tmz_getday) */
+/* end subroutine (tmz_procday) */
 
 
 /* parse out> [DDD] MMM */
-static int tmz_getmonth(TMZ *op,cchar *sp,int sl)
+static int tmz_procmonth(TMZ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		si = 0 ;
@@ -1084,10 +1150,10 @@ static int tmz_getmonth(TMZ *op,cchar *sp,int sl)
 
 	return (rs >= 0) ? si : rs ;
 }
-/* end subroutine (tmz_getmonth) */
+/* end subroutine (tmz_procmonth) */
 
 
-static int tmz_getyear(TMZ *op,cchar *sp,int sl)
+static int tmz_procyear(TMZ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		si = 0 ;
@@ -1108,16 +1174,16 @@ static int tmz_getyear(TMZ *op,cchar *sp,int sl)
 	} /* end if (nextfield) */
 
 #if	CF_DEBUGS
-	debugprintf("tmz_getyear: ret rs=%d si=%u\n",rs,si) ;
-	debugprintf("tmz_getyear: year=%u\n",op->st.tm_year) ;
+	debugprintf("tmz_procyear: ret rs=%d si=%u\n",rs,si) ;
+	debugprintf("tmz_procyear: year=%u\n",op->st.tm_year) ;
 #endif
 
 	return (rs >= 0) ? si : rs ;
 }
-/* end subroutine (tmz_getyear) */
+/* end subroutine (tmz_procyear) */
 
 
-static int tmz_getzoff(TMZ *op,cchar *sp,int sl)
+static int tmz_proczoff(TMZ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		si = 0 ;
@@ -1141,16 +1207,16 @@ static int tmz_getzoff(TMZ *op,cchar *sp,int sl)
 	} /* end if (nextfield) */
 
 #if	CF_DEBUGS
-	debugprintf("tmz_getzoff: ret rs=%d si=%u\n",rs,si) ;
-	debugprintf("tmz_getzoff: zoff=%u\n",op->zoff) ;
+	debugprintf("tmz_proczoff: ret rs=%d si=%u\n",rs,si) ;
+	debugprintf("tmz_proczoff: zoff=%u\n",op->zoff) ;
 #endif
 
 	return (rs >= 0) ? si : rs ;
 }
-/* end subroutine (tmz_getzoff) */
+/* end subroutine (tmz_proczoff) */
 
 
-static int tmz_getzname(TMZ *op,cchar *sp,int sl)
+static int tmz_proczname(TMZ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		si = 0 ;
@@ -1158,7 +1224,7 @@ static int tmz_getzname(TMZ *op,cchar *sp,int sl)
 	cchar		*cp ;
 
 #if	CF_DEBUGS
-	debugprintf("tmz_getzname: ent s=>%t<\n",sp,sl) ;
+	debugprintf("tmz_proczname: ent s=>%t<\n",sp,sl) ;
 #endif
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
@@ -1175,13 +1241,13 @@ static int tmz_getzname(TMZ *op,cchar *sp,int sl)
 	} /* end if (nextfield) */
 
 #if	CF_DEBUGS
-	debugprintf("tmz_getzname: ret zn=%t\n",op->zname,TMZ_ZNAMESIZE) ;
-	debugprintf("tmz_getzname: ret rs=%d si=%u\n",rs,si) ;
+	debugprintf("tmz_proczname: ret zn=%t\n",op->zname,TMZ_ZNAMESIZE) ;
+	debugprintf("tmz_proczname: ret rs=%d si=%u\n",rs,si) ;
 #endif
 
 	return (rs >= 0) ? si : rs ;
 }
-/* end subroutine (tmz_getzname) */
+/* end subroutine (tmz_proczname) */
 
 
 static int tmz_yearadj(TMZ *op,int cc)
@@ -1194,12 +1260,14 @@ static int tmz_yearadj(TMZ *op,int cc)
 	if (stp->tm_year >= 0) {
 	    op->f.year = TRUE ;
 	    if (cc >= 0) {
-	        const int yy = ((cc*NYEARS_CENTURY)-TM_YEAR_BASE) ;
+	        const int	yy = ((cc*NYEARS_CENTURY)-TM_YEAR_BASE) ;
 	        stp->tm_year += yy ;
 	    } else {
 	        if ((stp->tm_year >= 0) && (stp->tm_year <= 38)) {
 	            stp->tm_year += NYEARS_CENTURY ;
-	        }
+	        } else if (stp->tm_year >= TM_YEAR_BASE) {
+	            stp->tm_year -= TM_YEAR_BASE ;
+		}
 	    }
 	} /* end if (had a year) */
 #if	CF_DEBUGS

@@ -14,7 +14,7 @@ MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
 LDCRTDIR= $(CGS_CRTDIR)
-VALDIR= $*CGS_VALDIR)
+VALDIR= $(CGS_VALDIR)
 
 
 CC= $(CGS_CC)
@@ -78,7 +78,7 @@ CFLAGS= $(CCOPTS)
 LD= ld
 
 
-LDRPATH= $(EXTRA)/lib
+LDRPATH=
 
 # regular
 LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)

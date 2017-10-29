@@ -1,0 +1,333 @@
+'\"	@(#) teco.1:  6.1 12/23/83
+.TH TECO 1 "83/12/23" USTOP
+.PM BP
+.SH NAME
+.HP 15
+teco, create, mung - TECO text editor and programming language
+.SH SYNOPSIS
+\fBcreate\fR [ option ] newfile
+.br
+\fBteco\fR [ option ] oldfile
+.br
+\fBteco\fR [ option ] newfile=oldfile
+.br
+\fBteco\fR [ option ]
+.br
+\fBmung\fR cmdfile [ args ... ]
+.br
+\fBteco\fR @cmdfile [ args ... ]
+.SH DESCRIPTION
+.P
+In the various ways to invoke TECO, \fIoldfile\fR is an
+existing file, \fInewfile\fR is a file that TECO will
+create, and \fIcmdfile\fR is a file containing TECO
+commands.
+If you just say \fIteco\fR, TECO will examine your current directory
+for a \fIteco_memory\fR file.  If one exists, TECO will use the
+filename contained therein and do the equivalent of
+.sp
+	teco \fIfile\fR
+.sp
+.P
+These options may be used with the \fIteco\fR and \fIcreate\fR commands.
+All of them may be abbreviated to a shorter unique prefix, as
+indicated.
+.sp
+.TP 10
+\fB-noc[reate]\fR
+Do not automatically create a new file if the file specified by
+the \fIteco\fR command does not exist.
+.TP 10
+\fB-noi[ni]\fR
+Suppress use of \fIteco.ini\fR.
+\fITeco.ini\fR is an initialization file that may be used to
+pre-select certain options at start-up.
+Consult the reference.
+.TP 10
+\fB-nom[emory]\fR
+Suppress the memory function.
+TECO ignores any \fIteco_memory\fR file in the current default directory
+and does not create one.
+.TP 10
+\fB-in[spect]\fR
+Inspect.
+TECO opens the selected file for reading only.
+This option is useful for browsing without the danger of
+modifying the input file.
+.SH INTRODUCTION
+.P
+TECO is yet another text editor.
+It may also be used as a text processing programming language.
+TECO differs from other UNIX system text editors in several ways.
+First, it traces its lineage to editors available (still) on
+several DEC operating systems, also called TECO.
+The present version is compatible with the DEC PDP-11 version,
+called TECO-11.
+The standard reference for TECO is the
+.IR "PDP-11 TECO User's Guide" .
+.P
+Another difference between TECO and other UNIX system editors is that
+TECO deals with text files in \fIpages\fR, where a page is delimited
+by a Form Feed character (ASCII FF, 014).
+If a text file contains no FF's, TECO will deal with as
+much of the file as it can handle at one time in its buffer (usually the
+whole file) and deal with the remainder as one or more additional
+pages.
+Because of its ability to deal with files piecemeal, TECO
+can process files of any size.
+.P
+Unlike the other editors available with UNIX systems, TECO deals with
+files as a stream of characters, not lines.
+However, TECO does have line-oriented commands to simplify
+routine editing.
+TECO's cursor resides \fIbetween\fR
+two characters in the buffer, or between the beginning (end)
+of the buffer and the next (previous) character.
+.P
+With TECO the user enters a succession of \fIcommand strings\fR.
+When each command string has been entered completely,
+TECO executes the commands.
+There is no direct equivalent of the ``input mode'' that some editors
+have.
+Instead, text is inserted into the text buffer with an insert command,
+and the text to be inserted is part of the command (see below).
+TECO allows any number of commands to be concatenated together
+in a command string before they are executed.
+.P
+TECO commands consist of one or more letters or other characters.
+For commands, upper and lower case letters are equivalent.
+That is, the `c' and `C' commands are identical.
+TECO has some commands that are control characters, like
+control-B.
+These may usually be entered to TECO as two characters
+like ^B or ^b.
+(For the remainder of these pages, control character sequences
+that can appear as two characters will be represented thus:
+^B, while control characters that must be a single character
+will appear thus: \fB^B\fR.
+The \fIESCAPE\fR character is a very important one to TECO
+and echoes as $.
+It will be represented here as \fB$\fR.
+.P
+Typical TECO commands follow one of several command formats.
+Some commands consist of just one or two characters:  X.
+Others take one or two numeric arguments:  nX or m,nX.
+Finally, another group takes, as its argument, a text string:
+X\fItext\fR\fB$\fR.
+.P
+TECO offers no on-line ``help'' facility.
+Users can make a ``panic escape'' from TECO by typing two
+^C characters in succession.
+.SS Command String Editing
+.P
+Before TECO will do anything, the user must enter a command
+string in response to its `*' prompt.
+A command string may be longer than one line, and it
+is terminated by entering two \fB$\fR's in succession.
+Until then command strings may be edited with the characters
+listed below.
+.TP 10
+\fIerase\fR
+The \fIerase\fR key, as defined by \fIstty\fR(1), deletes the
+last command string character typed.
+The deleted character is echoed, but not the \fIerase\fR character.
+If TECO recognizes the terminal defined by your
+\fBTERM\fR variable, TECO will simulate \fIechoe\fR behavior.
+.TP 10
+\fIline kill\fR
+The \fIline kill\fR character selected by \fIstty\fR(1) erases the
+current input command line.
+The \fIline kill\fR character is echoed.
+.TP 10
+\fB^G\fR <space>
+Retypes the current input command line.
+.TP 10
+\fB^G\fR *
+Retypes the entire current command string.
+.TP 10
+\fB^G ^G\fR
+Deletes the entire current command string.
+.TP 10
+\fB^C\fR
+Deletes the entire current command string.
+Two consecutive \fB^C\fR's cause TECO to exit to the shell.
+.P
+The commands described below comprise only a beginner's subset.
+Consult the reference for more information.
+.SS File Manipulation Commands
+Of these commands, only EC and EX affect the text buffer.
+.TP 10
+ER\fIfile\fB$\fR
+Make \fIfile\fR the current input file, where \fIfile\fR is a
+normal UNIX path.
+.TP 10
+EW\fIfile\fB$\fR
+Make \fIfile\fR the current output file.
+No text is written to the output file.
+TECO warns if \fIfile\fR already exists.
+.TP 10
+EK
+``Unopen'' the current output file.
+All text written to the output file is discarded.
+If an existing file was being superseded, it is retained.
+In other words, the new output file disappears without a trace.
+.TP 10
+EB\fIfile\fB$\fR
+Open \fIfile\fR as the current input file and output file.
+A backup file named \fIfile\fR.B will
+be created when the output file is finally closed.
+The backup contains the original \fIfile\fR.
+Except for creating a backup file, EB is equivalent to
+ER\fIfile\fB$\fR EW\fIfile\fB$\fR.
+.TP 10
+EF EC EX
+All three commands close the current output file.
+In all three cases, if the output file had been opened by EB,
+the backup file is established, as described above.
+EF closes the output file without adding any text to it.
+EC writes the current text buffer to the output file,
+passes all remaining text from the input file to the
+output file, then does an EF.
+EX does everything that EC does, and then TECO exits
+to the shell.
+If there is a numeric argument, TECO takes it as the exit value
+to pass to the shell.
+(Default is zero.)
+.SS Simple Commands
+.P
+Pointer positioning commands move TECO's cursor.
+The cursor should be
+thought of as resting \fIbetween\fR two characters, unless it is at
+one of the two text buffer extremes.
+The TECO ``command'' . (dot) has the value of the current cursor
+position.
+The ``command'' Z has a value equal to the number of characters
+in the text buffer.
+.TP 10
+\fIn\fRJ
+Move cursor to position \fIn\fR.
+If \fIn\fR is omitted, zero is assumed -- the cursor is moved
+to the top of the text buffer.
+ZJ moves the cursor to the end of the text buffer.
+.TP 10
+\fIn\fRL
+Move the cursor to the beginning of the line that is \fIn\fR lines away,
+relative to the current position.
+The default for \fIn\fR is one.
+0L moves to the beginning of the current line.
+-1L or -L moves to the beginning of the preceding line.
+1L or L moves to the beginning of the next line.
+.TP 10
+\fIn\fRC, \fIn\fRR
+Move the cursor \fIn\fR positions relative to its current position.
+C moves to the right, R (sorry about this) to the left.
+The default for \fIn\fR is one.
+1C or C moves the cursor one \fIcharacter\fR to the right.
+1R or R moves the cursor one character to the left.
+The TECO idiom ``L2R'' moves to the end of the current line.
+(2R backs up over a Carriage Return and a Line Feed.)
+.TP 10
+\fIn\fRT
+Type part of the text buffer onto the terminal.
+One bound is the current cursor position.
+The other is the cursor position that would be reached by \fIn\fRL.
+0TT prints the current line:  from the beginning of the line to the
+current position, and from the current position to the beginning
+of the next line.
+.TP 10
+I\fItext\fB$\fR
+Insert \fItext\fR into the text buffer at the current position.
+After the insert, the cursor sits just beyond the inserted text.
+To insert text at the beginning of the buffer, use J I\fItext\fB$\fR.
+To insert text at the end of the text buffer, use
+ZJ I\fItext\fB$\fR.
+.TP 10
+\fIn\fRD
+Delete \fIn\fR characters starting at the current cursor position.
+If \fIn\fR is omitted, the default is one.
+If \fIn\fR is positive, characters are deleted to the
+right of the cursor.
+If \fIn\fR is negative, characters to the left of the cursor are deleted.
+.TP 10
+\fIn\fRK
+K is a line-oriented delete.
+The bounds of the deletion are the current cursor position and the
+position that would be reached by \fIn\fRL.
+0KK deletes the current line.
+.TP 10
+P
+Output the entire text buffer, clear the text buffer, and read
+the next page from the input file.
+.TP 10
+S\fItext\fB$\fR
+Search the text buffer for \fItext\fR, starting at the current
+cursor position.
+If \fItext\fR is found, the cursor is positioned immediately
+following it.
+Otherwise an error message is printed, and the cursor is
+positioned at the beginning of the text buffer.
+The default search mode is set so searches are insensitive to
+upper/lower case (A and a are equivalent).
+(There are many variations of this basic search command.
+Consult the reference.)
+.TP 10
+N\fItext\fB$\fR
+The N search is similar to the S search.
+However, if N fails in the current buffer,
+TECO does a P (writes the current buffer,
+reads the next) and tries again.
+This action continues until either \fItext\fR is found or all of the
+text in the file has been passed to the output file.
+In the latter case, an error message is printed;
+the text buffer will have been emptied by the implied P commands.
+However, the output file remains open.
+.TP 10
+FS\fItext1\fB$\fItext2\fB$\fR
+FS is a search and replace command.
+It does an S\fItext1\fB$\fR and, if \fItext1\fR is found, replaces
+it with \fItext2\fR.
+.SH FILES
+.PD 0
+.TP 20
+teco.ini
+Initialization macro.
+.TP 20
+teco.tec
+Initialization command string.
+.TP 20
+teco_memory
+Memory of last file edited.
+.PD
+.SH ENVIRONMENT VARIABLES
+.PD 0
+.TP 20
+TECPATH
+Contains path to search for TECO macros (like CDPATH).
+.TP 20
+TERM
+Contains type of user's terminal.
+.PD
+.SH EXIT CODES
+.PD 0
+.TP 8
+0
+if TECO exits because ^C ^C is typed at command level,
+.TP 8
+1
+if TECO fails in its start-up code,
+.TP 8
+2
+if an error occurs when the ET&128 (abort on error) bit is set
+(usually an error in \fBmung\fR),
+.TP 8
+\fIn\fR
+where \fIn\fR is the numeric argument to the EX or ^C command that caused
+TECO to exit.
+Usually 0.
+.PD
+.SH SEE ALSO
+.I
+PDP-11 TECO User's Guide,
+Digital Equipment Corporation, Order number DE-11-UTECA-B-D.
+.SH AUTHOR
+David M. Kristol

@@ -1,0 +1,17 @@
+CALEVENT
+
+Configuration file:
+
+calendar	file(s)
+calendar	file(s)
+date		datespec(s)
+fileroot	directory root path to calendar files (for those not rooted)
+
+
+The 'datespec's include:
+	(month)/(day)			like 02/03
+	today	
+	tomorrow
+	next
+
+

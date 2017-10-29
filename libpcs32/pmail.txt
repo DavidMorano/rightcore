@@ -1,0 +1,26 @@
+PMAIL
+
+Example:
+
+$ print -- "hello there" | pmail d.a.morano
+
+
+File:
+	pcs§pmail[­<arg(s)>]
+
+
+= input escapes
+
+~errors <error-addr(s)>
+~sender <sender-addr(s)>
+~reply[to] <reply-addr(s)>
+~from <from-addr(s)>
+~to <to-addr(s)>
+~cc <cc-addr(s)>
+~bcc <bcc-addr(s)>
+~subj <subject>
+~org <organization>
+~pri <priority>
+
+
+

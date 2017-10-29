@@ -263,10 +263,7 @@ enum keywords {
 /* exported subroutines */
 
 
-int mxalias_open(op,pr,username)
-MXALIAS		*op ;
-const char	pr[] ;
-const char	username[] ;
+int mxalias_open(MXALIAS *op,cchar *pr,cchar *username)
 {
 	int		rs ;
 	int		c = 0 ;
@@ -323,8 +320,7 @@ const char	username[] ;
 
 
 /* free up this mxalias object */
-int mxalias_close(op)
-MXALIAS		*op ;
+int mxalias_close(MXALIAS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -355,8 +351,7 @@ MXALIAS		*op ;
 
 
 /* get the string count in the table */
-int mxalias_audit(op)
-MXALIAS		*op ;
+int mxalias_audit(MXALIAS *op)
 {
 	int		rs = SR_OK ;
 
@@ -370,8 +365,7 @@ MXALIAS		*op ;
 
 
 /* get the string count in the table */
-int mxalias_count(op)
-MXALIAS		*op ;
+int mxalias_count(MXALIAS *op)
 {
 	int		rs = SR_OK ;
 
@@ -387,9 +381,7 @@ MXALIAS		*op ;
 
 
 /* initialize a cursor */
-int mxalias_curbegin(op,curp)
-MXALIAS		*op ;
-MXALIAS_CUR	*curp ;
+int mxalias_curbegin(MXALIAS *op,MXALIAS_CUR *curp)
 {
 	int		rs = SR_OK ;
 
@@ -413,9 +405,7 @@ MXALIAS_CUR	*curp ;
 
 
 /* free up a cursor */
-int mxalias_curend(op,curp)
-MXALIAS		*op ;
-MXALIAS_CUR	*curp ;
+int mxalias_curend(MXALIAS *op,MXALIAS_CUR *curp)
 {
 	const time_t	daytime = time(NULL) ;
 	int		rs = SR_OK ;
@@ -460,13 +450,8 @@ MXALIAS_CUR	*curp ;
 
 
 /* enumerate */
-int mxalias_enum(op,curp,kbuf,klen,vbuf,vlen)
-MXALIAS		*op ;
-MXALIAS_CUR	*curp ;
-char		kbuf[] ;
-int		klen ;
-char		vbuf[] ;
-int		vlen ;
+int mxalias_enum(MXALIAS *op,MXALIAS_CUR *curp,char *kbuf,int klen,
+		char *vbuf,int vlen)
 {
 	KEYVALS_CUR	*kvcp ;
 	int		rs = SR_OK ;
@@ -528,11 +513,7 @@ int		vlen ;
 
 
 /* lookup an entry by key-name */
-int mxalias_lookup(op,curp,kbuf,klen)
-MXALIAS		*op ;
-MXALIAS_CUR	*curp ;
-const char	kbuf[] ;
-int		klen ;
+int mxalias_lookup(MXALIAS *op,MXALIAS_CUR *curp,cchar *kbuf,int klen)
 {
 	NULSTR		kstr ;
 	VECSTR		klist, vlist ;
@@ -599,11 +580,7 @@ int		klen ;
 /* end subroutine (mxalias_lookup) */
 
 
-int mxalias_read(op,curp,vbuf,vlen)
-MXALIAS		*op ;
-MXALIAS_CUR	*curp ;
-char		vbuf[] ;
-int		vlen ;
+int mxalias_read(MXALIAS *op,MXALIAS_CUR *curp,char *vbuf,int vlen)
 {
 	int		rs = SR_OK ;
 	int		ni ;
@@ -721,7 +698,7 @@ static int mxalias_filesadd(MXALIAS *op,time_t dt)
 
 
 /* add a file to the list of files */
-int mxalias_fileadd(MXALIAS *op,cchar atfname[])
+int mxalias_fileadd(MXALIAS *op,cchar *atfname)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
@@ -856,10 +833,7 @@ static int mxalias_filechecks(MXALIAS *op,time_t daytime)
 
 #ifdef	COMMENT
 
-static int mxalias_filealready(op,dev,ino)
-MXALIAS		*op ;
-dev_t		dev ;
-uino_t		ino ;
+static int mxalias_filealready(MXALIAS *op,dev_t dev,uino_t ino)
 {
 	MXALIAS_FILE	*fep ;
 	int		rs = SR_OK ;
@@ -951,10 +925,7 @@ static int mxalias_fileparse(MXALIAS *op,int fi)
 /* end subroutine (mxalias_fileparse) */
 
 
-static int mxalias_fileparser(op,fi,lfp)
-MXALIAS		*op ;
-int		fi ;
-bfile		*lfp ;
+static int mxalias_fileparser(MXALIAS *op,int fi,bfile *lfp)
 {
 	BUFDESC		bd ;
 	const int	llen = LINEBUFLEN ;
@@ -1010,12 +981,8 @@ bfile		*lfp ;
 /* end subroutine (mxalias_fileparser) */
 
 
-static int mxalias_fileparseline(op,fi,bdp,lp,ll)
-MXALIAS		*op ;
-int		fi ;
-BUFDESC		*bdp ;
-const char	*lp ;
-int		ll ;
+static int mxalias_fileparseline(MXALIAS *op,int fi,BUFDESC *bdp,
+		cchar *lp,int ll)
 {
 	FIELD		fsb ;
 	int		rs ;
@@ -1059,11 +1026,8 @@ int		ll ;
 /* end subroutine (mxalias_fileparseline) */
 
 
-static int mxalias_fileparseline_alias(op,fi,bdp,fsbp)
-MXALIAS		*op ;
-int		fi ;
-BUFDESC		*bdp ;
-FIELD		*fsbp ;
+static int mxalias_fileparseline_alias(MXALIAS *op,int fi,BUFDESC *bdp,
+		FIELD *fsbp)
 {
 	const int	flen = bdp->flen ;
 	const int	klen = bdp->klen ;
@@ -1114,11 +1078,8 @@ FIELD		*fsbp ;
 
 
 /* ARGSUSED */
-static int mxalias_fileparseline_unalias(op,fi,bdp,fsbp)
-MXALIAS		*op ;
-int		fi ;
-BUFDESC		*bdp ;
-FIELD		*fsbp ;
+static int mxalias_fileparseline_unalias(MXALIAS *op,int fi,BUFDESC *bdp,	
+		FIELD *fsbp)
 {
 	const int	flen = bdp->flen ;
 	int		rs = SR_OK ;
@@ -1378,7 +1339,7 @@ static int mxalias_mkvals(MXALIAS *op,MXALIAS_CUR *curp,vecstr *vlp)
 	            uc_free(curp->vals) ;
 	            curp->vals = NULL ;
 	        }
-	    } /* end if */
+	    } /* end if (m-a) */
 	} /* end if (non-zero) */
 
 #if	CF_DEBUGS

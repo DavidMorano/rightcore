@@ -59,12 +59,10 @@
 char *strwcpyrev(char *dp,cchar *sp,int sl)
 {
 	int		i ;
-
 	if (sl < 0) sl = strlen(sp) ;
 	for (i = (sl-1) ; i >= 0 ; i += 1) {
 	    *dp++ = sp[i] ;
 	} /* end for */
-
 	*dp = '\0' ;
 	return dp ;
 }

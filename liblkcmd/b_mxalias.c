@@ -170,7 +170,7 @@ static int	locinfo_outprint(LOCINFO *,SHIO *) ;
 
 /* local variables */
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"DEBUG",
@@ -223,7 +223,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"unresolved",
 	"addr",
 	"audit",
@@ -237,7 +237,7 @@ enum progopts {
 	progopt_overlast
 } ;
 
-static const char	blanks[] =
+static cchar	blanks[] =
 	"                    "
 	"                    " ;
 
@@ -611,9 +611,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -694,8 +694,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -761,45 +760,45 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    un = pip->username ;
 	}
 
-	            memset(&ainfo,0,sizeof(ARGINFO)) ;
-	            ainfo.argc = argc ;
-	            ainfo.ai = ai ;
-	            ainfo.argv = argv ;
-	            ainfo.ai_max = ai_max ;
-	            ainfo.ai_pos = ai_pos ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	if ((rs = mxalias_open(&lip->madb,pip->pr,un)) >= 0) {
+	    if ((rs = mxalias_open(&lip->madb,pip->pr,un)) >= 0) {
 
-	    if (dfname != NULL) {
-	        rs = procmxdump(pip,dfname) ;
+	        if (dfname != NULL) {
+	            rs = procmxdump(pip,dfname) ;
+	        } else {
+	            const char	*ofn = ofname ;
+	            const char	*afn = afname ;
+	            if (lip->f.addr) {
+	                if ((rs = hdbstr_start(&lip->addrs,10)) >= 0) {
+	                    lip->open.addr = TRUE ;
+	                }
+	            } /* end if */
+	            if (rs >= 0) {
+
+	                rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+
+	                if (lip->open.addr) {
+	                    lip->open.addr = FALSE ;
+	                    rs1 = hdbstr_finish(&lip->addrs) ;
+	                    if (rs >= 0) rs = rs1 ;
+	                }
+	            } /* end if (ok) */
+	        } /* end if (alternative modes) */
+
+	        rs1 = mxalias_close(&lip->madb) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } else {
-	        const char	*ofn = ofname ;
-	        const char	*afn = afname ;
-	        if (lip->f.addr) {
-	            if ((rs = hdbstr_start(&lip->addrs,10)) >= 0) {
-	                lip->open.addr = TRUE ;
-	            }
-	        } /* end if */
-	        if (rs >= 0) {
-
-	            rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
-
-	            if (lip->open.addr) {
-	                lip->open.addr = FALSE ;
-	                rs1 = hdbstr_finish(&lip->addrs) ;
-	                if (rs >= 0) rs = rs1 ;
-	            }
-	        } /* end if (ok) */
-	    } /* end if (alternative modes) */
-
-	    rs1 = mxalias_close(&lip->madb) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    ex = EX_UNAVAILABLE ;
-	    shio_printf(pip->efp,"%s: MX-aliases unavailable (%d)\n",
-	        pip->progname,rs) ;
-	}
+	        ex = EX_UNAVAILABLE ;
+	        shio_printf(pip->efp,"%s: MX-aliases unavailable (%d)\n",
+	            pip->progname,rs) ;
+	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -1127,13 +1126,13 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 
 	            if (rs < 0) {
 	                if (rs == SR_NOENT) {
-			    fmt = "%s: variable not present (%d)\n" ;
+	                    fmt = "%s: variable not present (%d)\n" ;
 	                    shio_printf(pip->efp,fmt,pn,rs) ;
 	                } else {
-			    fmt = "%s: error processing variable (%d)\n" ;
+	                    fmt = "%s: error processing variable (%d)\n" ;
 	                    shio_printf(pip->efp,fmt,pn,rs) ;
-			}
-		        fmt = "%s: var=%s\n" ;
+	                }
+	                fmt = "%s: var=%s\n" ;
 	                shio_printf(pip->efp,fmt,pn,cp) ;
 	            }
 
@@ -1184,13 +1183,13 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 
 	                if (rs < 0) {
 	                    if (rs == SR_NOENT) {
-				fmt = "%s: variable not present (%d)\n" ;
+	                        fmt = "%s: variable not present (%d)\n" ;
 	                        shio_printf(pip->efp,fmt,pn,rs) ;
 	                    } else {
-				fmt = "%s: error processing variable (%d)\n" ;
+	                        fmt = "%s: error processing variable (%d)\n" ;
 	                        shio_printf(pip->efp,fmt,pn,rs) ;
-			    }
-			    fmt = "%s: var=%s\n" ;
+	                    }
+	                    fmt = "%s: var=%s\n" ;
 	                    shio_printf(pip->efp,fmt,pn,cp) ;
 	                }
 
@@ -1198,9 +1197,9 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            } /* end while (reading lines) */
 
 	            rs1 = shio_close(afp) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } else {
-		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            fmt = "%s: inaccessible argument-list (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
@@ -1284,7 +1283,7 @@ static int procname(PROGINFO *pip,SHIO *ofp,cchar np[],int nl)
 	            rs = SR_OK ;
 
 	        rs1 = mxalias_curend(&lip->madb,&cur) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (cursor) */
 	} /* end if (ok) */
 
@@ -1333,7 +1332,7 @@ static int procmxdump(PROGINFO *pip,cchar dfname[])
 	        } /* end while */
 
 	        rs1 = mxalias_curend(&lip->madb,&cur) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (cursor) */
 
 	    rs1 = shio_close(dfp) ;

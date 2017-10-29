@@ -65,9 +65,9 @@
 #include	<sys/types.h>
 #include	<sys/timeb.h>
 #include	<time.h>
-#include	<tzfile.h>		/* for TM_YEAR_BASE */
 #include	<stdlib.h>
 #include	<string.h>
+#include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
 #include	<estrings.h>
@@ -96,8 +96,9 @@
 #define	ISSIGN(c)	(((c) == '-') || ((c) == '+'))
 
 #ifndef	TZO_EMPTY
-#define	TZO_EMPTY	SHORT_MAX
+#define	TZO_EMPTY	SHORT_MIN
 #endif
+
 #ifndef	TZO_MAXZOFF
 #define	TZO_MAXZOFF	(14*60)
 #endif
@@ -171,7 +172,11 @@ static int	dater_mkptime(DATER *,struct tm *,int) ;
 static int	dater_mktime(DATER *,struct tm *) ;
 static int	dater_mkpzoff(DATER *,struct tm *,int) ;
 
-static int	mkzname(char *,cchar *,int) ;
+static int	dater_initbase(DATER *) ;
+static int	dater_ldtmz(DATER *,TMZ *) ;
+static int	dater_ldcomzone(DATER *,COMPARSE *) ;
+static int	dater_ldzname(DATER *,cchar *,int) ;
+static int	dater_defs(DATER *,TMZ *) ;
 
 #ifdef	COMMENT
 static int	findtzcomment(char *,int,cchar *) ;
@@ -179,27 +184,6 @@ static int	findtzcomment(char *,int,cchar *) ;
 
 
 /* local variables */
-
-#ifdef	COMMENT
-static const struct knownzone	knownzones[] = {
-	{ "gmt", 0*60, 0 },
-	{ "usakdt", 8*60, 1 },	/* Alaska (US) */
-	{ "usakst", 9*60, 0 },	/* Alaska (US) */
-	{ "uscdt", 5*60, 1 },	/* central daylight time (US) */
-	{ "uscst", 6*60, 0 },	/* central standard time (US) */
-	{ "usedt", 4*60, 1 },	/* eastern daylight time (US) */
-	{ "usest", 5*60, 0 },	/* eastern standard time (US) */
-	{ "ushst", 10*60, 0 },	/* Hawaii */
-	{ "usmdt", 6*60, 1 },	/* mountain daylight time (US) */
-	{ "usmst", 7*60, 0 },	/* mountain standard time (US) */
-	{ "uspdt", 7*60, 1 },	/* pacific daylight time (US) */
-	{ "uspst", 8*60, 0 },	/* pacific standard time (US) */
-	{  "ut", 0*60, 0 },	/* universal time? */
-	{ "utc", 0*60, 0 },	/* UTC */
-	{ "z", 0*60, 0 },
-	{ NULL, 0, 0 }
-} ;
-#endif /* COMMENT */
 
 #if	CF_SNTMTIME
 
@@ -231,7 +215,7 @@ static cchar	*types[] = {
 /* exported subroutines */
 
 
-int dater_start(DATER *dp,struct timeb *nowp,cchar znp[],int znl)
+int dater_start(DATER *dp,struct timeb *nowp,cchar *znp,int znl)
 {
 
 	if (dp == NULL) return SR_FAULT ;
@@ -346,17 +330,15 @@ int dater_setcopy(DATER *dp,DATER *d2p)
 /* set from a standard time string (like UNIX®) */
 int dater_setstd(DATER *dp,cchar *sp,int sl)
 {
-	struct tm	dst ;
 	TMZ		stz ;
 	int		rs ;
 
 #if	CF_DEBUGS
-	char	timebuf[TIMEBUFLEN + 1] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
 #endif
 
 #if	CF_DEBUGS
-	debugprintf("dater_setstd: ent >%t<\n",
-	    sp,strnlen(sp,sl)) ;
+	debugprintf("dater_setstd: ent >%t<\n",sp,strnlen(sp,sl)) ;
 #endif
 
 	if (dp == NULL) return SR_FAULT ;
@@ -365,67 +347,18 @@ int dater_setstd(DATER *dp,cchar *sp,int sl)
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
-	if (sl > 99)
-	    return SR_TOOBIG ;
-
-/* initialize */
-
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* continue */
-
 	if ((rs = tmz_std(&stz,sp,sl)) >= 0) {
-	    int	f = FALSE ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_setstd: tmz_std() rs=%d\n",rs) ;
-	debugprintf("dater_setstd: year=%u mon=%u mday=%d wday=%d\n",
-	    stz.st.tm_year,
-	    stz.st.tm_mon,
-	    stz.st.tm_mday,stz.st.tm_wday) ;
-	debugprintf("dater_setstd: hour=%u min=%u sec=%u\n",
-	    stz.st.tm_hour,
-	    stz.st.tm_min,
-	    stz.st.tm_sec) ;
-	debugprintf("dater_setstd: timezone=%d (%dm) zname=>%t<\n",
-	    stz.zoff,(stz.zoff / 60),
-	    stz.zname,strnlen(stz.zname,MIN(rs,TMZ_ZNAMESIZE))) ;
-#endif /* CF_DEBUGS */
-
-	    dst = stz.st ;
-	    dp->b.timezone = stz.zoff ;
-	    dp->b.dstflag = stz.st.tm_isdst ;
-	    dp->f.zoff = stz.f.zoff ;
-	    strncpylc(dp->zname,stz.zname,DATER_ZNAMESIZE) ;
-	    dp->f.zname = (dp->zname[0] != '\0') ;
-
-	    f = f || (stz.zname[0] == '\0') ;
-	    f = f || (! stz.f.year) ;
-	    f = f || (! stz.f.zoff) ;
-	    if (f) {
-		rs = dater_initcur(dp) ;
+	    struct tm	dst = stz.st ;
+	    dater_ldtmz(dp,&stz) ;
+	    if ((rs = dater_defs(dp,&stz)) >= 0) {
+	        rs = dater_mktime(dp,&dst) ;
 	    }
-	    if (rs >= 0) {
-		if (! stz.f.year) {
-	    	    dst.tm_year = dp->cyear ;
-		}
-		if (! dp->f.zoff) {
-	    	    rs = dater_findzoff(dp,&dst) ;
-		}
-		if (rs >= 0) {
-	    	    rs = dater_mktime(dp,&dst) ;
-		}
-	    } /* end if (ok) */
 	} /* end if (tmz_std) */
 
 #if	CF_DEBUGS
-	debugprintf("dater_setstd: dater_settmzn() rs=%d\n",rs) ;
 	debugprintf("dater_setstd: loctime=%s\n",
 	    timestr_log(dp->b.time,timebuf)) ;
+	debugprintf("dater_setstd: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -436,13 +369,9 @@ int dater_setstd(DATER *dp,cchar *sp,int sl)
 /* set the dater from a message-type string */
 int dater_setmsg(DATER *dp,cchar *sp,int sl)
 {
-	struct tm	dst ;
-	TMZ		stz ;
 	COMPARSE	vc ;
 	int		rs ;
-	int		vl ;
-	cchar		*vp ;
-	char		zname[DATER_ZNAMESIZE + 1] ;
+	int		rs1 ;
 
 #if	CF_DEBUGS
 	debugprintf("dater_setmsg: ent >%t<\n",
@@ -455,107 +384,39 @@ int dater_setmsg(DATER *dp,cchar *sp,int sl)
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
-	if (sl > 99)
-	    return SR_TOOBIG ;
-
-/* initialize */
-
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* continue */
-
 	if ((rs = comparse_start(&vc,sp,sl)) >= 0) {
+	    int		vl ;
+	    cchar	*vp ;
 	    if ((rs = comparse_getval(&vc,&vp)) >= 0) {
-		int	znl ;
-		cchar	*znp ;
+	        TMZ	stz ;
 	        vl = rs ;
 
 #if	CF_DEBUGS
 	        debugprintf("dater_setmsg: datestr=>%t<\n",vp,vl) ;
 #endif
 
-	        rs = tmz_msg(&stz,vp,vl) ;
-	        znl = rs ;
-
-#if	CF_DEBUGS
-	        debugprintf("dater_setmsg: tmz_msg() rs=%d\n",rs) ;
-	        debugprintf("dater_setmsg: year=%u mon=%u mday=%d wday=%d\n",
-	            stz.st.tm_year,
-	            stz.st.tm_mon,
-	            stz.st.tm_mday,stz.st.tm_wday) ;
-	        debugprintf("dater_setmsg: hour=%u min=%u sec=%u\n",
-	            stz.st.tm_hour,
-	            stz.st.tm_min,
-	            stz.st.tm_sec) ;
-	        debugprintf("dater_setmsg: f_zoff=%d zoff=%dm zname=>%t<\n",
-	            stz.f.zoff,
-	            stz.zoff,
-	            stz.zname,strnlen(stz.zname,MIN(rs,TMZ_ZNAMESIZE))) ;
-#endif /* CF_DEBUGS */
-
-/* does it have a comment (first 8 chars only) that looks like a TZ? */
-
-	        znp = stz.zname ;
-	        if ((rs >= 0) && (znp[0] == '\0')) {
-	            int		cl ;
-	            cchar	*cp ;
-
-#if	CF_DEBUGS
-	            debugprintf("dater_setmsg: check comments for ZN\n") ;
-#endif
-	            if ((cl = comparse_getcom(&vc,&cp)) > 0) {
-	                znp = zname ;
-	                znl = mkzname(zname,cp,cl) ;
+	        if ((rs = tmz_msg(&stz,vp,vl)) >= 0) {
+	            struct tm	dst = stz.st ;
+	            dater_ldtmz(dp,&stz) ;
+	            dater_ldcomzone(dp,&vc) ;
+	            if ((rs = dater_defs(dp,&stz)) >= 0) {
+	                rs = dater_mktime(dp,&dst) ;
 	            }
-	        }
+	        } /* end if (tmz_msg) */
 
-	        if (rs >= 0) {
-	            dst = stz.st ;
-	            dp->b.timezone = stz.zoff ;
-	            dp->b.dstflag = stz.st.tm_isdst ;
-	            dp->f.zoff = stz.f.zoff ;
-	            strnwcpy(dp->zname,DATER_ZNAMESIZE,znp,znl) ;
-	            dp->f.zname = (dp->zname[0] != '\0') ;
-	        }
-
-/* can we supply some missing pieces? */
-
-	        if (rs >= 0) {
-	            int	f = FALSE ;
-	            f = f || (stz.zname[0] == '\0') ;
-	            f = f || (! stz.f.year) ;
-	            f = f || (! stz.f.zoff) ;
-	            if (f) rs = dater_initcur(dp) ;
-	        } /* end if */
-
-	        if ((rs >= 0) && (! stz.f.year)) {
-	            dst.tm_year = dp->cyear ;
-	        }
-
-	        if ((rs >= 0) && (! dp->f.zoff)) {
-	            rs = dater_findzoff(dp,&dst) ;
-		}
-
-	        if (rs >= 0) {
-	            rs = dater_mktime(dp,&dst) ;
-		}
-
-	    } /* end if */
-	    comparse_finish(&vc) ;
+	    } /* end if (comparse_getval) */
+	    rs1 = comparse_finish(&vc) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (comparse) */
 
 #if	CF_DEBUGS
 	{
 	    char	timebuf[TIMEBUFLEN+1] ;
-	    debugprintf("dater_setmsg: ret rs=%d\n",rs) ;
 	    debugprintf("dater_setmsg: loctime=%s\n",
 	        timestr_logz(dp->b.time,timebuf)) ;
 	    debugprintf("dater_setmsg: gmttime=%s\n",
 	        timestr_gmlogz(dp->b.time,timebuf)) ;
+	    debugprintf("dater_setmsg: ret rs=%d\n",rs) ;
 	}
 #endif
 
@@ -568,7 +429,6 @@ int dater_setmsg(DATER *dp,cchar *sp,int sl)
 /* format> [CC]YYMMDDhhmm[ss][±<zoff>][<zname>] */
 int dater_setstrdig(DATER *dp,cchar *sp,int sl)
 {
-	struct tm	dst ;
 	TMZ		stz ;
 	int		rs ;
 #if	CF_DEBUGS
@@ -586,81 +446,13 @@ int dater_setstrdig(DATER *dp,cchar *sp,int sl)
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
-	if (sl > 99)
-	    return SR_TOOBIG ;
-
-/* initialize */
-
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* continue */
-
-	rs = tmz_strdig(&stz,sp,sl) ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_setstrdig: tmz_msg() rs=%d\n",rs) ;
-	debugprintf("dater_setstrdig: year=%u mon=%u mday=%u\n",
-	    stz.st.tm_year,
-	    stz.st.tm_mon,
-	    stz.st.tm_mday) ;
-	debugprintf("dater_setstrdig: hour=%u min=%u sec=%u\n",
-	    stz.st.tm_hour,
-	    stz.st.tm_min,
-	    stz.st.tm_sec) ;
-	debugprintf("dater_setstrdig: f_zoff=%d zoff=%dm zname=>%t<\n",
-	    stz.f.zoff,
-	    stz.zoff,
-	    stz.zname,strnlen(stz.zname,MIN(rs,TMZ_ZNAMESIZE))) ;
-#endif /* CF_DEBUGS */
-
-	if (rs >= 0) {
-	    dst = stz.st ;
-	    dp->b.timezone = stz.zoff ;
-	    dp->b.dstflag = stz.st.tm_isdst ;
-	    dp->f.zoff = stz.f.zoff ;
-	    strncpylc(dp->zname,stz.zname,DATER_ZNAMESIZE) ;
-	    dp->f.zname = (dp->zname[0] != '\0') ;
-	}
-
-/* can we supply some missing pieces? */
-
-	if (rs >= 0) {
-	    int	f = FALSE ;
-	    f = f || (stz.zname[0] == '\0') ;
-	    f = f || (! stz.f.year) ;
-	    f = f || (! stz.f.zoff) ;
-	    if (f) rs = dater_initcur(dp) ;
-	} /* end if */
-
-	if ((rs >= 0) && (! stz.f.year)) {
-	    dst.tm_year = dp->cyear ;
-	}
-
-	if ((rs >= 0) && (! dp->f.zoff))
-	    rs = dater_findzoff(dp,&dst) ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_setstd: adjusted year=%d timezone=%dm\n",
-	    stz.st.tm_year, stz.zoff) ;
-	debugprintf("dater_setstd: adjusted zname=>%t<\n",
-	    stz.zname,strnlen(stz.zname,TMZ_ZNAMESIZE)) ;
-#endif /* CF_DEBUGS */
-
-/* go for it */
-
-#if	CF_DEBUGS
-	debugprintf("dater_setstd: dater_mktime() zname=>%t<\n",
-	    stz.zname,strnlen(stz.zname,TMZ_ZNAMESIZE)) ;
-#endif
-
-	if (rs >= 0) {
-	    rs = dater_mktime(dp,&dst) ;
-	}
-
+	if ((rs = tmz_strdig(&stz,sp,sl)) >= 0) {
+	    struct tm	dst = stz.st ;
+	    dater_ldtmz(dp,&stz) ;
+	    if ((rs = dater_defs(dp,&stz)) >= 0) {
+	        rs = dater_mktime(dp,&dst) ;
+	    }
+	} /* end if tmz_strdig) */
 
 #if	CF_DEBUGS
 	if (rs < 0)
@@ -670,7 +462,7 @@ int dater_setstrdig(DATER *dp,cchar *sp,int sl)
 	debugprintf("dater_setstrdig: gmt=%s\n",
 	    timestr_gmlog(dp->b.time,timebuf)) ;
 	debugprintf("dater_setstrdig: f_zoff zoff=%dm\n",
-		dp->f.zoff,dp->b.timezone) ;
+	    dp->f.zoff,dp->b.timezone) ;
 	debugprintf("dater_setstrdig: ret rs=%d\n",rs) ;
 #endif
 
@@ -691,7 +483,6 @@ int dater_setlogz(DATER *dp,cchar *sp,int sl)
 {
 	TMZ		stz ;
 	int		rs ;
-	int		znlen ;
 
 #if	CF_DEBUGS
 	debugprintf("dater_setlogz: ent >%t<\n",
@@ -704,75 +495,15 @@ int dater_setlogz(DATER *dp,cchar *sp,int sl)
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
-	if (sl > 99)
-	    return SR_TOOBIG ;
-
-/* initialize */
-
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* continue */
-
-	rs = tmz_logz(&stz,sp,sl) ;
-	znlen = rs ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_setlogz: tmz_msg() rs=%d\n",rs) ;
-	debugprintf("dater_setlogz: year=%u mon=%u mday=%u\n",
-	    stz.st.tm_mon,
-	    stz.st.tm_mday,
-	    stz.st.tm_hour) ;
-	debugprintf("dater_setlogz: hour=%u min=%u sec=%u\n",
-	    stz.st.tm_year,
-	    stz.st.tm_min,
-	    stz.st.tm_sec) ;
-	debugprintf("dater_setlogz: f_zoff=%d zoff=%dm zname=>%t<\n",
-	    stz.f.zoff,
-	    stz.zoff,
-	    stz.zname,strnlen(stz.zname,MIN(rs,TMZ_ZNAMESIZE))) ;
-
-#endif /* CF_DEBUGS */
-
-/* can we supply some missing pieces? */
-
-	if ((rs >= 0) &&
-	    ((! stz.f.zoff) && (stz.zname[0] == '\0'))) {
-
-	    rs = dater_initcur(dp) ;
-
-	    if (stz.zname[0] == '\0') {
-	        znlen = -1 ;
-	        strncpy(stz.zname,dp->cname,TMZ_ZNAMESIZE) ;
+	if ((rs = tmz_logz(&stz,sp,sl)) >= 0) {
+	    struct tm	dst = stz.st ;
+	    dater_ldtmz(dp,&stz) ;
+	    if ((rs = dater_defs(dp,&stz)) >= 0) {
+	        rs = dater_mktime(dp,&dst) ;
 	    }
+	} /* end if (tmz_logz) */
 
 #if	CF_DEBUGS
-	    debugprintf("dater_setlogz: adjusted year=%d timezone=%dm\n",
-	        stz.st.tm_year, stz.zoff) ;
-	    debugprintf("dater_setlogz: adjusted zname=>%t<\n",
-	        stz.zname,strnlen(stz.zname,TMZ_ZNAMESIZE)) ;
-#endif /* CF_DEBUGS */
-
-	} /* end if (getting missing stuff) */
-
-/* do it */
-
-	if (rs >= 0) {
-	    if (stz.f.zoff && (stz.zname[0] != '\0')) {
-	        rs = dater_settmzon(dp,&stz.st,stz.zoff,stz.zname,znlen) ;
-	    } else if (stz.f.zoff) {
-	        rs = dater_settmzo(dp,&stz.st,stz.zoff) ;
-	    } else if (stz.zname[0] != '\0') {
-	        rs = dater_settmzn(dp,&stz.st,stz.zname,znlen) ;
-	    }
-	} /* end if */
-
-#if	CF_DEBUGS
-	if (rs < 0)
-	    debugprintf("dater_setlogz: dater_settmz[on]() rs=%d\n",rs) ;
 	debugprintf("dater_setlogz: ret rs=%d\n",rs) ;
 #endif
 
@@ -786,7 +517,6 @@ int dater_settouch(DATER *dp,cchar *sp,int sl)
 {
 	TMZ		stz ;
 	int		rs ;
-	int		znlen ;
 
 #if	CF_DEBUGS
 	debugprintf("dater_settouch: ent >%t<\n",
@@ -798,89 +528,20 @@ int dater_settouch(DATER *dp,cchar *sp,int sl)
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
-	if (sl > 99)
-	    return SR_TOOBIG ;
-
-/* initialize */
-
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* continue */
-
-	rs = tmz_touch(&stz,sp,sl) ;
-	znlen = rs ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_settouch: tmz_msg() rs=%d\n",rs) ;
-	debugprintf("dater_settouch: year=%u mon=%u mday=%u\n",
-	    stz.st.tm_mon,
-	    stz.st.tm_mday,
-	    stz.st.tm_hour) ;
-	debugprintf("dater_settouch: hour=%u min=%u sec=%u\n",
-	    stz.st.tm_year,
-	    stz.st.tm_min,
-	    stz.st.tm_sec) ;
-	debugprintf("dater_settouch: timezone=%d zname=>%t<\n",
-	    stz.zoff,
-	    stz.zname,strnlen(stz.zname,MIN(rs,TMZ_ZNAMESIZE))) ;
-#endif /* CF_DEBUGS */
-
-/* can we supply some missing pieces? */
-
-	if ((rs >= 0) &&
-	    ((! stz.f.year) || (stz.zname[0] == '\0'))) {
-
-	    if (! stz.f.year) {
-
-#if	CF_DEBUGS
-	        debugprintf("dater_settouch: try get cyear, f_cyear=%d\n",
-	            dp->f.czn) ;
-#endif
-
-	        if (! dp->f.cyear)
-	            rs = dater_initcur(dp) ;
-
-	        stz.st.tm_year = dp->cyear ;
-
+	if ((rs = tmz_touch(&stz,sp,sl)) >= 0) {
+	    struct tm	dst = stz.st ;
+	    dater_ldtmz(dp,&stz) ;
+	    if ((rs = dater_defs(dp,&stz)) >= 0) {
+	        rs = dater_mktime(dp,&dst) ;
 	    }
-
-	    if ((rs >= 0) &&
-	        ((znlen == 0) || (stz.zname[0] == '\0'))) {
-
-	        if (! dp->f.czn)
-	            rs = dater_initcur(dp) ;
-
-	        znlen = -1 ;
-	        strncpy(stz.zname,dp->cname,TMZ_ZNAMESIZE) ;
-
-	    }
-
-#if	CF_DEBUGS
-	    debugprintf("dater_settouch: adjusted year=%d timezone=%dm\n",
-	        stz.st.tm_year, stz.zoff) ;
-	    debugprintf("dater_settouch: adjusted zname=>%t<\n",
-	        stz.zname,strnlen(stz.zname,TMZ_ZNAMESIZE)) ;
-#endif /* CF_DEBUGS */
-
-	} /* end if (getting missing stuff) */
+	} /* end if (tmz_touch) */
 
 /* go for it */
 
 #if	CF_DEBUGS
 	debugprintf("dater_settouch: dater_settmzn() zname=>%t<\n",
 	    stz.zname,strnlen(stz.zname,TMZ_ZNAMESIZE)) ;
-#endif
-
-	if (rs >= 0)
-	    rs = dater_settmzn(dp,&stz.st,stz.zname,znlen) ;
-
-#if	CF_DEBUGS
-	if (rs < 0)
-	    debugprintf("dater_settouch: dater_settmzn() rs=%d\n",rs) ;
+	debugprintf("dater_settouch: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -893,7 +554,6 @@ int dater_settoucht(DATER *dp,cchar *sp,int sl)
 {
 	TMZ		stz ;
 	int		rs ;
-	int		znlen ;
 
 #if	CF_DEBUGS
 	debugprintf("dater_settoucht: ent >%t<\n",
@@ -905,87 +565,19 @@ int dater_settoucht(DATER *dp,cchar *sp,int sl)
 	if (sl < 0)
 	    sl = strlen(sp) ;
 
-	if (sl > 99)
-	    return SR_TOOBIG ;
-
-/* initialize */
-
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* continue */
-
-	rs = tmz_toucht(&stz,sp,sl) ;
-	znlen = rs ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_settoucht: tmz_msg() rs=%d\n",rs) ;
-	debugprintf("dater_settoucht: year=%u mon=%u mday=%u\n",
-	    stz.st.tm_mon,
-	    stz.st.tm_mday,
-	    stz.st.tm_hour) ;
-	debugprintf("dater_settoucht: hour=%u min=%u sec=%u\n",
-	    stz.st.tm_year,
-	    stz.st.tm_min,
-	    stz.st.tm_sec) ;
-	debugprintf("dater_settoucht: timezone=%d zname=>%t<\n",
-	    stz.zoff,
-	    stz.zname,strnlen(stz.zname,MIN(rs,TMZ_ZNAMESIZE))) ;
-#endif /* CF_DEBUGS */
-
-/* can we supply some missing pieces? */
-
-	if ((rs >= 0) &&
-	    ((! stz.f.year) || (stz.zname[0] == '\0'))) {
-
-	    if (! stz.f.year) {
-
-	        if (! dp->f.cyear)
-	            rs = dater_initcur(dp) ;
-
-	        stz.st.tm_year = dp->cyear ;
-
+	if ((rs = tmz_toucht(&stz,sp,sl)) >= 0) {
+	    struct tm	dst = stz.st ;
+	    dater_ldtmz(dp,&stz) ;
+	    if ((rs = dater_defs(dp,&stz)) >= 0) {
+	        rs = dater_mktime(dp,&dst) ;
 	    }
-
-	    if ((rs >= 0) &&
-	        ((znlen == 0) || (stz.zname[0] == '\0'))) {
-
-	        if (! dp->f.czn)
-	            rs = dater_initcur(dp) ;
-
-	        znlen = -1 ;
-	        strncpy(stz.zname,dp->cname,TMZ_ZNAMESIZE) ;
-
-	    }
-
-#if	CF_DEBUGS
-	    debugprintf("dater_settoucht: adjusted year=%d timezone=%dm\n",
-	        stz.st.tm_year, stz.zoff) ;
-	    debugprintf("dater_settoucht: adjusted zname=>%t<\n",
-	        stz.zname,strnlen(stz.zname,TMZ_ZNAMESIZE)) ;
-#endif /* CF_DEBUGS */
-
-	} /* end if (getting missing stuff) */
+	} /* end if (tmz_toucht) */
 
 /* go for it */
 
 #if	CF_DEBUGS
 	debugprintf("dater_settoucht: dater_settmzn() zname=>%t<\n",
 	    stz.zname,strnlen(stz.zname,TMZ_ZNAMESIZE)) ;
-#endif
-
-	if (rs >= 0)
-	    rs = dater_settmzn(dp,&stz.st,stz.zname,znlen) ;
-
-#if	CF_DEBUGS
-	if (rs < 0)
-	    debugprintf("dater_settoucht: dater_settmzn() rs=%d\n",rs) ;
-#endif
-
-#if	CF_DEBUGS
 	debugprintf("dater_settoucht: ret rs=%d\n",rs) ;
 #endif
 
@@ -1004,8 +596,9 @@ int dater_settmzon(DATER *dp,struct tm *stp,int zoff,cchar *zstr,int zlen)
 	    int	n ;
 	    if (zlen >= 0) {
 	        n = MIN(zlen,DATER_ZNAMESIZE) ;
-	    } else
+	    } else {
 	        n = strnlen(zstr,DATER_ZNAMESIZE) ;
+	    }
 	    debugprintf("dater_settmzon: zoff=%dm zlen=%d zstr=>%t<\n",
 	        zoff,zlen,zstr,n) ;
 	}
@@ -1021,16 +614,7 @@ int dater_settmzon(DATER *dp,struct tm *stp,int zoff,cchar *zstr,int zlen)
 
 /* initialize */
 
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* go */
-
-	if (! dp->f.cb)
-	    rs = dater_initcur(dp) ;
+	dater_initbase(dp) ;
 
 /* load the zone-offset (authoritative) */
 
@@ -1042,7 +626,7 @@ int dater_settmzon(DATER *dp,struct tm *stp,int zoff,cchar *zstr,int zlen)
 /* lookup the zone-name */
 
 	if ((rs >= 0) && (zstr != NULL) && (zstr[0] != '\0')) {
-	    ZDB	zr ;
+	    ZDB		zr ;
 
 	    dp->f.zname = TRUE ;
 	    strnwcpy(dp->zname,DATER_ZNAMESIZE,zstr,zlen) ;
@@ -1055,21 +639,23 @@ int dater_settmzon(DATER *dp,struct tm *stp,int zoff,cchar *zstr,int zlen)
 	    if ((rs = zdb_nameoff(&zr,zstr,zlen,zoff)) >= 0) {
 	        if (stp->tm_isdst < 0) stp->tm_isdst = zr.isdst ;
 	        if (zoff == TZO_EMPTY) zoff = zr.off ;
-	    } else if (isNotPresent(rs)) {
-		rs = SR_OK ;
+	    } else if (rs == SR_NOTFOUND) {
+	        rs = SR_OK ;
 	    } /* end if (got a match) */
 
 	} /* end if (name lookup) */
 
 /* calculate the time */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = dater_mkptime(dp,stp,zoff) ;
+	}
 
 /* now do something with the name */
 
-	if ((rs >= 0) && (dp->zname[0] == '\0'))
+	if ((rs >= 0) && (dp->zname[0] == '\0')) {
 	    rs = dater_mkpzoff(dp,stp,zoff) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("dater_settmzon: ret rs=%d zname=>%t<\n",
@@ -1106,34 +692,20 @@ int dater_settmzo(DATER *dp,struct tm *stp,int zoff)
 
 /* initialize */
 
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* go */
-
-	if (! dp->f.cb)
-	    rs = dater_initcur(dp) ;
+	dater_initbase(dp) ;
 
 /* calculate the time */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = dater_mkptime(dp,stp,zoff) ;
+	}
 
 /* try to find a time zone-name for the information we have */
-
-#ifdef	COMMENT
-	if (rs >= 0)
-	    rs = dater_mkpzoff(dp,stp,zoff) ;
-#endif /* COMMENT */
 
 	if (rs >= 0)
 	    dp->magic = DATER_MAGIC ;
 
 #if	CF_DEBUGS
-	debugprintf("dater_settmzo: ret rs=%d\n",rs) ;
 	debugprintf("dater_settmzo: loctime=%s\n",
 	    timestr_log(dp->b.time,timebuf)) ;
 	debugprintf("dater_settmzo: isdst=%d\n",
@@ -1143,6 +715,7 @@ int dater_settmzo(DATER *dp,struct tm *stp,int zoff)
 	debugprintf("dater_settmzo: f_zname=%u zname=%t\n",
 	    dp->f.zname,
 	    dp->zname,strnlen(dp->zname,DATER_ZNAMESIZE)) ;
+	debugprintf("dater_settmzo: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -1154,7 +727,6 @@ int dater_settmzo(DATER *dp,struct tm *stp,int zoff)
 int dater_settmzn(DATER *dp,struct tm *stp,cchar *zstr,int zlen)
 {
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		zoff = TZO_EMPTY ;
 
 #if	CF_DEBUGS
@@ -1167,16 +739,7 @@ int dater_settmzn(DATER *dp,struct tm *stp,cchar *zstr,int zlen)
 
 /* initialize */
 
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* go */
-
-	if (! dp->f.cb)
-	    rs = dater_initcur(dp) ;
+	dater_initbase(dp) ;
 
 /* lookup the zone-name */
 
@@ -1185,31 +748,32 @@ int dater_settmzn(DATER *dp,struct tm *stp,cchar *zstr,int zlen)
 #endif
 
 	if ((rs >= 0) && (zstr != NULL) && (zstr[0] != '\0')) {
-	    ZDB	zr ;
+	    ZDB		zr ;
 
 	    dp->f.zname = TRUE ;
 	    strnwcpy(dp->zname,DATER_ZNAMESIZE,zstr,zlen) ;
 
-	    rs1 = zdb_name(&zr,zstr,zlen) ;
+	    if ((rs = zdb_name(&zr,zstr,zlen)) >= 0) {
 
 #if	CF_DEBUGS
-	    debugprintf("dater_settmzn: zdb_nameoff() rs=%d\n",rs1) ;
+	        debugprintf("dater_settmzn: zdb_nameoff() rs=%d\n",rs1) ;
 #endif
-
-	    if (rs1 >= 0) {
 
 	        if (stp->tm_isdst < 0) stp->tm_isdst = zr.isdst ;
 
 	        if (zoff == TZO_EMPTY) zoff = zr.off ;
 
-	    } /* end if (got a match) */
+	    } else if (rs == SR_NOTFOUND) {
+	        rs = SR_OK ;
+	    } /* end if (zdb_name) */
 
 	} /* end if (name lookup) */
 
 /* calculate the time */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = dater_mkptime(dp,stp,zoff) ;
+	}
 
 	if (rs >= 0)
 	    dp->magic = DATER_MAGIC ;
@@ -1220,7 +784,7 @@ int dater_settmzn(DATER *dp,struct tm *stp,cchar *zstr,int zlen)
 
 
 /* set from ( time, timezone_name, DST_indication ) */
-int dater_settimezn(DATER *dp,time_t t,cchar *name,int isdst)
+int dater_settimezn(DATER *dp,time_t t,cchar *zname,int isdst)
 {
 	TMTIME		tmt ;
 	int		rs = SR_OK ;
@@ -1232,67 +796,45 @@ int dater_settimezn(DATER *dp,time_t t,cchar *name,int isdst)
 	debugprintf("dater_settimezn: ent t=%s\n",
 	    timestr_logz(t,timebuf)) ;
 	debugprintf("dater_settimezn: name=%s isdst=%d\n",
-	    name,isdst) ;
+	    zname,isdst) ;
 #endif
 
 	if (dp == NULL) return SR_FAULT ;
 
 /* initialize */
 
-	dp->zname[0] = '\0' ;
-	dp->b.timezone = TZO_EMPTY ;
-	dp->b.dstflag = -1 ;
-	dp->f.zname = FALSE ;
-	dp->f.zoff = FALSE ;
-
-/* continue */
-
-	if (! dp->f.cb)
-	    rs = dater_initcur(dp) ;
-
-	dp->b.dstflag = isdst ;
-
-/* start processing */
+	dater_initbase(dp) ;
 
 	dp->b.time = t ;
+	dp->b.dstflag = isdst ;
 
 #if	CF_DEBUGS
 	debugprintf("dater_settimezn: supplied loctime=%s\n",
 	    timestr_log(dp->b.time,timebuf)) ;
 #endif
 
-	if ((name == NULL) || (name[0] == '\0')) {
-
-#if	CF_DEBUGS
-	    debugprintf("dater_settimezn: no zone given\n") ;
-#endif
+	if ((zname != NULL) && (zname[0] != '\0')) {
+	    rs = dater_ldname(dp,zname,-1) ;
+	} else {
 
 	    dp->f.tzset = TRUE ;
 	    if ((rs = tmtime_localtime(&tmt,t)) >= 0) {
-	        name = tmt.zname ;
+	        zname = tmt.zname ;
 	        dp->f.zname = TRUE ;
-	        strncpylc(dp->zname,name,DATER_ZNAMESIZE) ;
+	        strncpylc(dp->zname,zname,DATER_ZNAMESIZE) ;
 	        if (isdst < 0) isdst = tmt.isdst ;
 	    } /* end if */
 
 	    dp->b.dstflag = isdst ;
-
 	    dp->f.zoff = TRUE ;
 	    dp->b.timezone = 0 ;
-	    if (isdst >= 0)
+	    if (isdst >= 0) {
 	        dp->b.timezone = (short) (tmt.gmtoff / 60) ;
+	    }
 
 #if	CF_DEBUGS
-	    debugprintf("dater_settimezn: determined zone=%s\n",name) ;
+	    debugprintf("dater_settimezn: determined zname=%s\n",zname) ;
 #endif
-
-	} else {
-
-#if	CF_DEBUGS
-	    debugprintf("dater_settimezn: given zone=%s\n",name) ;
-#endif
-
-	    rs = dater_ldname(dp,name,-1) ;
 
 	} /* end if */
 
@@ -1352,15 +894,14 @@ int dater_settimezon(DATER *dp,time_t t,int zoff,cchar *zname,int isdst)
 
 /* continue */
 
-	if (! dp->f.cb)
-	    rs = dater_initcur(dp) ;
-
 #if	CF_DEBUGS
 	debugprintf("dater_settimezn: supplied loctime=%s\n",
 	    timestr_log(dp->b.time,timebuf)) ;
 #endif
 
-	if ((zname == NULL) || (zname[0] == '\0')) {
+	if ((zname != NULL) && (zname[0] != '\0')) {
+	    strncpylc(dp->zname,zname,DATER_ZNAMESIZE) ;
+	} else {
 
 #if	CF_DEBUGS
 	    debugprintf("dater_settimezn: no zone given\n") ;
@@ -1368,34 +909,22 @@ int dater_settimezon(DATER *dp,time_t t,int zoff,cchar *zname,int isdst)
 
 	    dp->f.tzset = TRUE ;
 	    if ((rs = tmtime_localtime(&tmt,t)) >= 0) {
-
 	        zname = tmt.zname ;
 	        dp->f.zname = TRUE ;
 	        strncpylc(dp->zname,zname,DATER_ZNAMESIZE) ;
-
-	        if (isdst < 0)
-	            isdst = tmt.isdst ;
-
+	        if (isdst < 0) isdst = tmt.isdst ;
 	    } /* end if */
 
 	    dp->b.dstflag = isdst ;
-
 	    dp->f.zoff = TRUE ;
 	    dp->b.timezone = 0 ;
-	    if (isdst >= 0)
+	    if (isdst >= 0) {
 	        dp->b.timezone = (short) (tmt.gmtoff / 60) ;
+	    }
 
 #if	CF_DEBUGS
 	    debugprintf("dater_settimezn: determined zone=%s\n",zname) ;
 #endif
-
-	} else {
-
-#if	CF_DEBUGS
-	    debugprintf("dater_settimezn: given zone=%s\n",zname) ;
-#endif
-
-	    strncpylc(dp->zname,zname,DATER_ZNAMESIZE) ;
 
 	} /* end if */
 
@@ -1483,9 +1012,10 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 
 /* conversion */
 
-	if (rs >= 0) {
-	    t -= (zoff * 60) ;
-	    rs = tmtime_gmtime(&tmt,t) ;
+	t -= (zoff * 60) ;
+	if ((rs = tmtime_gmtime(&tmt,t)) >= 0) {
+	    tmt.gmtoff = (zoff * 60) ;
+	    strwcpyuc(tmt.zname,znp,TMTIME_ZNAMESIZE) ;
 
 #if	CF_DEBUGS
 	    {
@@ -1494,16 +1024,8 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 	        debugprintf("dater_mkdatestr: mon=%u\n",tmt.mon) ;
 	    }
 #endif
-	} /* end if */
-
-	if (rs >= 0) { /* write adjustment back to object */
-	    tmt.gmtoff = (zoff * 60) ;
-	    strwcpyuc(tmt.zname,znp,TMTIME_ZNAMESIZE) ;
-	}
 
 /* format */
-
-	if (rs >= 0) {
 
 #if	CF_SNTMTIME
 #else /* CF_SNTMTIME */
@@ -1520,8 +1042,9 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 	        sl = rs ;
 #else /* CF_SNTMTIME */
 	        zobuf[0] = '\0' ;
-	        if ((zoff != TZO_EMPTY) && dp->f.zoff)
+	        if ((zoff != TZO_EMPTY) && dp->f.zoff) {
 	            zos_set(zobuf,10,zoff) ;
+	        }
 	        sl = bufprintf(dbuf,dlen,
 	            "%3s %3s %02u %02u:%02u:%02u %s %04u %s",
 	            days[tmt.wday],
@@ -1547,11 +1070,13 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 	        sl = rs ;
 #else /* CF_SNTMTIME */
 	        zobuf[0] = '\0' ;
-	        if ((zoff != TZO_EMPTY) && dp->f.zoff)
+	        if ((zoff != TZO_EMPTY) && dp->f.zoff) {
 	            zos_set(zobuf,10,zoff) ;
+	        }
 	        fmt = "%2u %3s %4u %02u:%02u:%02u %s" ;
-	        if (tz[0] != '\0')
+	        if (tz[0] != '\0') {
 	            fmt = "%2u %3s %4u %02u:%02u:%02u %s (%s)" ;
+	        }
 	        sl = bufprintf(dbuf,dlen,fmt,
 	            tmt.mday,
 	            months[tmt.mon],
@@ -1574,11 +1099,13 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 	        sl = rs ;
 #else /* CF_SNTMTIME */
 	        zobuf[0] = '\0' ;
-	        if ((zoff != TZO_EMPTY) && dp->f.zoff)
+	        if ((zoff != TZO_EMPTY) && dp->f.zoff) {
 	            zos_set(zobuf,10,zoff) ;
+	        }
 	        fmt = "%04u%02u%02u%02u%02u%02u%s" ;
-	        if (dp->f.zname)
+	        if (dp->f.zname) {
 	            fmt = "%04u%02u%02u%02u%02u%02u%s%s" ;
+	        }
 	        sl = bufprintf(dbuf,dlen,fmt,
 	            (tmt.year + TM_YEAR_BASE),
 	            (tmt.mon + 1),
@@ -1602,8 +1129,9 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 	        sl = rs ;
 #else /* CF_SNTMTIME */
 	        fmt = "%02u%02u%02u_%02u%02u:%02u" ;
-	        if (dp->f.zname)
+	        if (dp->f.zname) {
 	            fmt = "%02u%02u%02u_%02u%02u:%02u_%s" ;
+	        }
 	        sl = bufprintf(dbuf,dlen,fmt,
 	            (tmt.year % NYEARS_CENTURY),
 	            (tmt.mon + 1),
@@ -1623,7 +1151,7 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 
 	    } /* end switch */
 
-	} /* end if */
+	} /* end if (tmtime_gmtime) */
 
 #if	CF_DEBUGS
 	debugprintf("dater_mkdatestr: ret rs=%d dbuf=>%s<\n",rs,dbuf) ;
@@ -1697,6 +1225,24 @@ int dater_mkgmtlogz(DATER *dp,char *dbuf,int dlen)
 /* end subroutine (dater_mkgmlogz) */
 
 
+int dater_setzinfo(DATER *dp,DATER_ZINFO *zip)
+{
+	int		rs ;
+
+	if (dp == NULL) return SR_FAULT ;
+	if (zip == NULL) return SR_FAULT ;
+
+	if (dp->magic != DATER_MAGIC) return SR_NOTOPEN ;
+
+	dp->b.timezone = zip->zoff ;
+	dp->b.dstflag = zip->isdst ;
+	rs = strwcpy(dp->zname,zip->zname,DATER_ZNAMESIZE) - dp->zname ;
+
+	return rs ;
+}
+/* end subroutine (dater_setzinfo) */
+
+
 /* return the UNIX® time out of DATER object */
 int dater_gettime(DATER *dp,time_t *tp)
 {
@@ -1742,32 +1288,15 @@ int dater_getzonename(DATER *dp,char *rbuf,int rlen)
 	if (dp->magic != DATER_MAGIC) return SR_NOTOPEN ;
 
 	rbuf[0] = '\0' ;
-	if (! dp->f.zname)
-	    return SR_NOENT ;
-
-	rs = snwcpy(rbuf,rlen,dp->zname,DATER_ZNAMESIZE) ;
+	if (dp->f.zname) {
+	    rs = snwcpy(rbuf,rlen,dp->zname,DATER_ZNAMESIZE) ;
+	} else {
+	    rs = SR_NOTFOUND ;
+	}
 
 	return rs ;
 }
 /* end subroutine (dater_getzonename) */
-
-
-int dater_setzinfo(DATER *dp,DATER_ZINFO *zip)
-{
-	int		rs ;
-
-	if (dp == NULL) return SR_FAULT ;
-	if (zip == NULL) return SR_FAULT ;
-
-	if (dp->magic != DATER_MAGIC) return SR_NOTOPEN ;
-
-	dp->b.timezone = zip->zoff ;
-	dp->b.dstflag = zip->isdst ;
-	rs = strwcpy(dp->zname,zip->zname,DATER_ZNAMESIZE) - dp->zname ;
-
-	return rs ;
-}
-/* end subroutine (dater_setzinfo) */
 
 
 int dater_getzinfo(DATER *dp,DATER_ZINFO *zip)
@@ -1832,7 +1361,7 @@ int dater_zinfo(DATER *dp,DATER_ZINFO *zip,int ei)
 {
 	const int	n = DATER_NZONES ;
 	const int	znsize = DATER_ZNAMESIZE ;
-	int		znlen ;
+	int		znl ;
 
 	if (dp == NULL) return SR_FAULT ;
 	if (zip == NULL) return SR_FAULT ;
@@ -1846,9 +1375,9 @@ int dater_zinfo(DATER *dp,DATER_ZINFO *zip,int ei)
 
 	zip->isdst = zones[ei].isdst ;
 	zip->zoff = zones[ei].off ;
-	znlen = strwcpy(zip->zname,zones[ei].zname,znsize) - zip->zname ;
+	znl = strwcpy(zip->zname,zones[ei].zname,znsize) - zip->zname ;
 
-	return znlen ;
+	return znl ;
 }
 /* end subroutine (dater_zinfo) */
 
@@ -1860,37 +1389,37 @@ int dater_zinfo(DATER *dp,DATER_ZINFO *zip,int ei)
 
 static int dater_initcur(DATER *dp)
 {
-	TMTIME		tmt ;
 	int		rs = SR_OK ;
-	int		zo ;
 
 #if	CF_DEBUGS
 	debugprintf("dater_initcur: f_cyear=%d\n",dp->f.cyear) ;
 #endif
 
 	if (! dp->f.cyear) {
+	    TMTIME	tmt ;
+	    int		zo ;
 
-	if (! dp->f.cb)
-	    dp->cb.time = time(NULL) ;
+	    if (! dp->f.cb)
+	        dp->cb.time = time(NULL) ;
 
-	dp->f.tzset = TRUE ;
-	rs = tmtime_localtime(&tmt,dp->cb.time) ;
+	    dp->f.tzset = TRUE ;
+	    rs = tmtime_localtime(&tmt,dp->cb.time) ;
 
 #if	CF_DEBUGS
-	debugprintf("dater_initcur: localtime() year=%d isdst=%d\n",
-	    tmt.year,tmt.isdst) ;
+	    debugprintf("dater_initcur: localtime() year=%d isdst=%d\n",
+	        tmt.year,tmt.isdst) ;
 #endif
 
-	zo = tmt.gmtoff ; 		/* seconds west of GMT */
+	    zo = tmt.gmtoff ; 		/* seconds west of GMT */
 
-	dp->cyear = tmt.year ;
-	dp->cb.timezone = (zo / 60) ;	/* minutes west of GMT */
-	dp->cb.dstflag = tmt.isdst ;
-	strncpylc(dp->cname,tmt.zname,DATER_ZNAMESIZE) ;
+	    dp->cyear = tmt.year ;
+	    dp->cb.timezone = (zo / 60) ;	/* minutes west of GMT */
+	    dp->cb.dstflag = tmt.isdst ;
+	    strncpylc(dp->cname,tmt.zname,DATER_ZNAMESIZE) ;
 
-	dp->f.cb = TRUE ;
-	dp->f.czn = TRUE ;
-	dp->f.cyear = TRUE ;
+	    dp->f.cb = TRUE ;
+	    dp->f.czn = TRUE ;
+	    dp->f.cyear = TRUE ;
 
 	} /* end if (need current time) */
 
@@ -2060,8 +1589,81 @@ static int dater_mkpzoff(DATER *dp,struct tm *stp,int zoff)
 #endif /* COMMENT */
 
 
+static int dater_ldtmz(DATER *dp,TMZ *tp)
+{
+	dp->b.dstflag = tmz_getdst(tp) ;
+	dp->b.timezone = tmz_getzoff(tp) ;
+	dp->f.zoff = tp->f.zoff ;
+	if (tp->zname[0] != '\0') {
+	    strncpylc(dp->zname,tp->zname,DATER_ZNAMESIZE) ;
+	    dp->f.zname = (dp->zname[0] != '\0') ;
+	}
+	return SR_OK ;
+}
+/* end subroutine (dater_ldtmz) */
+
+
+static int dater_ldzname(DATER *dp,cchar *sp,int sl)
+{
+	const int	znsize = DATER_ZNAMESIZE ;
+	int		len ;
+	cchar		*tp ;
+	if ((tp = strnpbrk(sp,sl," \t")) != NULL) {
+	    sl = (tp - sp) ;
+	}
+	len = strnwcpy(dp->zname,znsize,sp,sl) - dp->zname ;
+	return len ;
+}
+/* end subroutine (dater_ldzname) */
+
+
+static int dater_ldcomzone(DATER *dp,COMPARSE *cpp)
+{
+	int		rs = SR_OK ;
+	if (dp->zname[0] == '\0') {
+	    int		cl ;
+	    cchar	*cp ;
+	    if ((cl = comparse_getcom(cpp,&cp)) > 0) {
+	        dater_ldzname(dp,cp,cl) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (dater_ldcomzone) */
+
+
+static int dater_defs(DATER *dp,TMZ *tp)
+{
+	const int	f_year = tmz_hasyear(tp) ;
+	const int	f_zoff = tmz_haszoff(tp) ;
+	const int	f_zone = tmz_haszone(tp) ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	f = f || (! f_year) ;
+	f = f || (! f_zoff) ;
+	f = f || (! f_zone) ;
+	if (f) rs = dater_initcur(dp) ;
+	if (rs >= 0) {
+	    if (! f_year) {
+	        tmz_setyear(tp,dp->cyear) ;
+	    }
+	    if ((! f_zoff) && (! f_zone) && (dp->zname[0] == '\0')) {
+	        dp->b.dstflag = dp->cb.dstflag ;
+	        dp->b.timezone = dp->cb.timezone ;
+	        dp->f.zoff = TRUE ;
+	        dater_ldzname(dp,dp->cname,-1) ;
+	        dp->f.zname = TRUE ;
+	    } else if (! f_zoff) {
+	        rs = dater_findzoff(dp,&tp->st) ;
+	    }
+	} /* end if (ok) */
+	return rs ;
+}
+/* end subroutine (dater_defs) */
+
+
 /* store a time zone-name into the object */
-static int dater_ldname(DATER *dp,cchar znp[],int znl)
+static int dater_ldname(DATER *dp,cchar *znp,int znl)
 {
 	int		rs = SR_OK ;
 	char		*dnp = dp->zname ;
@@ -2087,8 +1689,9 @@ static int dater_ldname(DATER *dp,cchar znp[],int znl)
 
 	    if (ISSIGN(ch) || isdigitlatin(ch)) {
 	        rs = dater_pnum(dp) ;
-	    } else
+	    } else {
 	        rs = dater_pname(dp) ;
+	    }
 
 #if	CF_DEBUGS
 	    debugprintf("dater_ldname: 2 f_zoff=%d\n",dp->f.zoff) ;
@@ -2134,14 +1737,7 @@ static int dater_pname(DATER *dp)
 	if ((rs = zdb_name(&zr,zp,zl)) >= 0) {
 
 	    if (! dp->f.zoff) {
-
-#if	CF_DEBUGS
-	        debugprintf("dater_pname: adding missing ZOFF i=%d zoff=%dm\n",
-	            zr.off) ;
-#endif
-
 	        dp->b.timezone = zr.off ;
-
 	    }
 
 	    if (dp->b.dstflag < 0)
@@ -2150,8 +1746,7 @@ static int dater_pname(DATER *dp)
 	    dp->f.zname = TRUE ;
 	    dp->f.zoff = TRUE ;
 
-	} else
-	    rs = SR_NOTFOUND ;
+	} /* end if (zdb_name) */
 
 #if	CF_DEBUGS
 	debugprintf("dater_pname: ret rs=%d\n",rs) ;
@@ -2220,7 +1815,7 @@ static int dater_findzname(DATER *dp)
 {
 	int		rs = SR_OK ;
 
-	if ((rs >= 0) && (dp->zname[0] == '\0')) {
+	if (dp->zname[0] == '\0') {
 	    if (! dp->f.cyear) rs = dater_initcur(dp) ;
 	    if (dp->f.zoff && (dp->b.timezone == dp->cb.timezone)) {
 	        cchar	*lp ;
@@ -2242,26 +1837,20 @@ static int dater_findzoff(DATER *dp,struct tm *stp)
 
 	if (stp == NULL) return SR_FAULT ;
 
-	if ((rs >= 0) && (! dp->f.zoff)) {
-	    int	f_def = FALSE ;
+	if (! dp->f.zoff) {
 	    if (! dp->f.cyear) rs = dater_initcur(dp) ;
 	    if (dp->zname[0] != '\0') {
-		ZDB		d ;
-		const int	znlen = DATER_ZNAMESIZE ;
-		f_def = FALSE ;
-		if ((rs = zdb_name(&d,dp->zname,znlen)) >= 0) {
-		    dp->b.timezone = d.off ;
-		    dp->b.dstflag = d.isdst ;
-		    dp->f.zoff = TRUE ;
-		} else if (rs == SR_NOTFOUND)
-		    rs = SR_OK ;
+	        ZDB		d ;
+	        const int	znl = DATER_ZNAMESIZE ;
+	        if ((rs = zdb_name(&d,dp->zname,znl)) >= 0) {
+	            dp->b.timezone = d.off ;
+	            dp->b.dstflag = d.isdst ;
+	            dp->f.zoff = TRUE ;
+	        } else if (rs == SR_NOTFOUND) {
+	            rs = SR_OK ;
+	        }
 	    } /* end if (have a time-zone name) */
-	    if ((rs >= 0) && f_def) {
-	        dp->b.timezone = dp->cb.timezone ;
-	        dp->b.dstflag = dp->cb.dstflag ;
-	        dp->f.zoff = TRUE ;
-	    }
-	} /* end if */
+	} /* end if (needed) */
 
 	return (rs >= 0) ? (dp->f.zoff) : rs ;
 }
@@ -2309,17 +1898,17 @@ static int dater_mkptime(DATER *dp,struct tm *stp,int zoff)
 	    dp->f.zoff = TRUE ;
 
 #if	CF_DEBUGS
-	debugprintf("dater_mkptime: tmtime_mktime() rs=%d\n",rs) ;
-	debugprintf("dater_mkptime: CVT loctime=%s\n",
-	    timestr_log(t,timebuf)) ;
-	debugprintf("dater_mkptime: CVT gmttime=%s\n",
-	    timestr_gmlog(t,timebuf)) ;
-	debugprintf("dater_mkptime: CVT isdst=%d gmtoff=%d(%dm)\n",
-	    tmt.isdst,tmt.gmtoff,
-	    (tmt.gmtoff/60)) ;
+	    debugprintf("dater_mkptime: tmtime_mktime() rs=%d\n",rs) ;
+	    debugprintf("dater_mkptime: CVT loctime=%s\n",
+	        timestr_log(t,timebuf)) ;
+	    debugprintf("dater_mkptime: CVT gmttime=%s\n",
+	        timestr_gmlog(t,timebuf)) ;
+	    debugprintf("dater_mkptime: CVT isdst=%d gmtoff=%d(%dm)\n",
+	        tmt.isdst,tmt.gmtoff,
+	        (tmt.gmtoff/60)) ;
 #endif
 
-	} /* end if */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("dater_mkptime: ret rs=%d\n",rs) ;
@@ -2350,17 +1939,17 @@ static int dater_mktime(DATER *dp,struct tm *stp)
 
 	    dp->f.tzset = TRUE ;		/* mktime() calls it! */
 	    if ((rs = uc_mktime(stp,&t)) >= 0) {
-		GETDEFZINFO	zi ;
-		dp->b.time = t ;
-		if ((rs = getdefzinfo(&zi,stp->tm_isdst)) >= 0) {
-		    const int	znlen = GETDEFZINFO_ZNAMESIZE ;
-	    	    strnwcpy(dp->zname,DATER_ZNAMESIZE,zi.zname,znlen) ;
-		    dp->b.timezone = zi.zoff ;
-		    dp->b.dstflag = stp->tm_isdst ;
-		    dp->f.zoff = TRUE ;
-		    dp->f.zname = TRUE ;
-		}
-	    }
+	        GETDEFZINFO	zi ;
+	        dp->b.time = t ;
+	        if ((rs = getdefzinfo(&zi,stp->tm_isdst)) >= 0) {
+	            const int	znl = GETDEFZINFO_ZNAMESIZE ;
+	            strnwcpy(dp->zname,DATER_ZNAMESIZE,zi.zname,znl) ;
+	            dp->b.timezone = zi.zoff ;
+	            dp->b.dstflag = stp->tm_isdst ;
+	            dp->f.zoff = TRUE ;
+	            dp->f.zname = TRUE ;
+	        }
+	    } /* end if (uc_mktime) */
 
 	} /* end if (something or local) */
 
@@ -2373,9 +1962,9 @@ static int dater_mktime(DATER *dp,struct tm *stp)
 	    char	timebuf[TIMEBUFLEN+1] ;
 	    debugprintf("dater_mktime: ret rs=%d\n",rs) ;
 	    debugprintf("dater_mktime: loctime=%s\n",
-		timestr_logz(dp->b.time,timebuf)) ;
+	        timestr_logz(dp->b.time,timebuf)) ;
 	    debugprintf("dater_mktime: gmttime=%s\n",
-		timestr_gmlogz(dp->b.time,timebuf)) ;
+	        timestr_gmlogz(dp->b.time,timebuf)) ;
 	}
 #endif /* CF_DEBUGS */
 
@@ -2384,88 +1973,15 @@ static int dater_mktime(DATER *dp,struct tm *stp)
 /* end subroutine (dater_mktime) */
 
 
-#ifdef	COMMENT
-
-/* try to "divine" a TZ abbreviation from the comments */
-static int findtzcomment(char *rbuf,int rlen,cchar *comment)
+static int dater_initbase(DATER *dp)
 {
-	SBUF		tzbuf ;
-	int		rs = SR_OK ;
-	int		cl ;
-	int		zl, zl1 ;
-	int		i = -1 ;
-	int		f_two = FALSE ;
-	cchar		*cp ;
-
-/* we first try to concatenate the first two tokens */
-
-	rbuf[0] = '\0' ;
-	if ((cl = nextfield(comment,-1,&cp)) <= rlen) {
-
-	zl1 = 0 ;
-	if ((rs = sbuf_start(&tzbuf,rbuf,rlen)) >= 0) {
-
-	    zl = sbuf_strw(&tzbuf,cp,cl) ;
-
-	    zl1 = zl ;
-	    if ((zl >= 0) && (zl < rlen)) {
-
-	        cl = nextfield((cp + cl),-1,&cp) ;
-
-	        if ((zl + cl) <= rlen) {
-	            f_two = TRUE ;
-	            sbuf_strw(&tzbuf,cp,cl) ;
-	        }
-
-	    } /* end if (had more space) */
-
-	    zl = sbuf_finish(&tzbuf) ;
-	    if (rs >= 0) rs = zl ;
-	} /* end if (sbuf) */
-
-	if (rs >= 0) {
-
-/* convert to lower case */
-
-	    for (i = 0 ; tz[i] != '\0' ; i += 1)
-	        tz[i] |= 0x20 ;
-
-/* look it up */
-
-	    i = findname(tz) ;
-
-	    if ((i < 0) && f_two) {
-
-	        tz[zl1] = '\0' ;
-	        i = findname(tz) ;
-
-	    }
-
-	} /* end if (ok) */
-
-	} /* end if (ok, will fit) */
-
-	return (rs >= 0) ? i : rs ;
+	dp->zname[0] = '\0' ;
+	dp->b.timezone = TZO_EMPTY ;
+	dp->b.dstflag = -1 ;
+	dp->f.zname = FALSE ;
+	dp->f.zoff = FALSE ;
+	return SR_OK ;
 }
-/* end subroutine (findtzcomment) */
-
-#endif /* COMMENT */
-
-
-static int mkzname(char zname[],cchar *sp,int sl)
-{
-	const int	znlen = DATER_ZNAMESIZE ;
-	int		len ;
-	cchar		*tp ;
-
-	if ((tp = strnpbrk(sp,sl," \t")) != NULL) {
-	    sl = (tp - sp) ;
-	}
-
-	len = strwcpy(zname,sp,MIN(znlen,sl)) - zname ;
-
-	return len ;
-}
-/* end subroutine (mkzname) */
+/* end subroutine (dater_initbase) */
 
 

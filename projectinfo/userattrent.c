@@ -192,10 +192,10 @@ const userattr_t	*suap ;
 	            uap->attr = kvap ;
 	            dsize = (n*sizeof(kv_t)) ;
 	            if ((rs = storeitem_block(ibp,dsize,al,&p)) >= 0) {
-	                kv_t		*kvp = p ;
-	                int		i = 0 ;
-	                const char	*rp ;
-	                const char	*dp ;
+	                kv_t	*kvp = p ;
+	                int	i = 0 ;
+	                cchar	*rp ;
+	                cchar	*dp ;
 
 	                uap->attr->length = n ;
 	                uap->attr->data = kvp ;
@@ -216,7 +216,7 @@ const userattr_t	*suap ;
 	    } /* end if (attr) */
 
 	    {
-	        const char	*cp ;
+	        cchar	*cp ;
 	        si_copystr(ibp,&cp,suap->name) ;
 	        uap->name = (char *) cp ;
 	    }
@@ -376,9 +376,9 @@ int		n ;
 	    uap->attr = kvap ;
 	    dsize = (n*sizeof(kv_t)) ;
 	    if ((rs = storeitem_block(ibp,dsize,al,&p)) >= 0) {
-	        kv_t		*kvp = p ;
-	        int		i = 0 ;
-	        const char	*ep ;
+	        kv_t	*kvp = p ;
+	        int	i = 0 ;
+	        cchar	*ep ;
 	        uap->attr->length = n ;
 	        uap->attr->data = kvp ;
 	        for (i = 0 ; vecstr_get(alp,i,&ep) >= 0 ; i += 1) {

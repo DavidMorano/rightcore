@@ -1,4 +1,4 @@
-/* progconfig */
+/* progconf */
 
 /* program configuration */
 /* last modified %G% version %I% */
@@ -87,9 +87,7 @@ extern int	isNotPresent(int) ;
 extern int	securefile(const char *,uid_t,gid_t) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
-extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
@@ -98,7 +96,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
-int		progconfigread(PROGINFO *) ;
+int		progconf_read(PROGINFO *) ;
 
 
 /* local variables */
@@ -139,7 +137,7 @@ enum configopts {
 /* exported subroutines */
 
 
-int progconfigbegin(PROGINFO *pip)
+int progconf_begin(PROGINFO *pip)
 {
 	const int	tlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
@@ -155,9 +153,9 @@ int progconfigbegin(PROGINFO *pip)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
 	    int	i ;
-	    debugprintf("progconfigbegin: search-schedule:\n") ;
+	    debugprintf("progconfbegin: search-schedule:\n") ;
 	    for (i = 0 ; schedp[i] != NULL ; i += 1)
-	        debugprintf("progconfigbegin: sched%u=%s\n",i,schedp[i]) ;
+	        debugprintf("progconfbegin: sched%u=%s\n",i,schedp[i]) ;
 	}
 #endif /* CF_DEBUG */
 
@@ -178,21 +176,20 @@ int progconfigbegin(PROGINFO *pip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progconfigbegin: mid1 rs=%d\n",rs) ;
+	    debugprintf("progconfbegin: mid1 rs=%d\n",rs) ;
 #endif
 
 	if ((rs >= 0) && (cfn != NULL)) {
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progconfigbegin: cfn=%s\n",cfn) ;
+	    debugprintf("progconfbegin: cfn=%s\n",cfn) ;
 #endif
 
 	    if ((rs = paramfile_open(&pip->params,pip->envv,cfn)) >= 0) {
+	        pip->f.pc = TRUE ;
 	        pip->open.params = TRUE ;
-	        if ((rs = progconfigread(pip)) >= 0) {
-	            pip->f.pc = TRUE ;
-		}
+	        rs = progconf_read(pip) ;
 		if (rs < 0) {
 	    	    pip->open.params = FALSE ;
 	    	    paramfile_close(&pip->params) ;
@@ -202,15 +199,43 @@ int progconfigbegin(PROGINFO *pip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progconfigbegin: ret rs=%d f_pc=%u\n",rs,pip->f.pc) ;
+	    debugprintf("progconfbegin: ret rs=%d f_pc=%u\n",rs,pip->f.pc) ;
 #endif
 
 	return rs ;
 }
-/* end subroutine (progconfigbegin) */
+/* end subroutine (progconf_begin) */
 
 
-int progconfigcheck(PROGINFO *pip)
+int progconf_end(PROGINFO *pip)
+{
+	int		rs = SR_NOTOPEN ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progconf_end: ent f_pc=%u\n",pip->f.pc) ;
+#endif
+
+	if (pip->f.pc) {
+	    pip->f.pc = FALSE ;
+	    rs = SR_OK ;
+	    if (pip->open.params) {
+	        pip->open.params = FALSE ;
+	        rs = paramfile_close(&pip->params) ;
+	    }
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progconf_end: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (progconf_end) */
+
+
+int progconf_check(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		f = FALSE ;
@@ -219,38 +244,29 @@ int progconfigcheck(PROGINFO *pip)
 	    PARAMFILE	*pfp = &pip->params ;
 	    if ((rs = paramfile_check(pfp,pip->daytime)) > 0) {
 	        f = TRUE ;
-	        rs = progconfigread(pip) ;
+	        rs = progconf_read(pip) ;
 	    }
 	} /* end if */
 
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (progconfigcheck) */
+/* end subroutine (progconf_check) */
 
 
-int progconfigend(PROGINFO *pip)
+int progconf_read(PROGINFO *pip)
 {
-	int		rs = SR_NOTOPEN ;
-
-	if (pip->f.pc) {
-	    rs = SR_OK ;
-	    if (pip->open.params) {
-	        pip->open.params = FALSE ;
-	        rs = paramfile_close(&pip->params) ;
-	    }
-	}
-
-	return rs ;
-}
-/* end subroutine (progconfigend) */
-
-
-int progconfigread(PROGINFO *pip)
-{
-	PARAMFILE_CUR	cur ;
-	PARAMFILE_ENT	pe ;
 	int		rs = SR_OK ;
 	int		rs1 = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progconf_read: f_pc=%u open_params=%u\n",
+	        pip->f.pc,pip->open.params) ;
+#endif
+
+	if (pip->open.params) {
+	PARAMFILE_CUR	cur ;
+	PARAMFILE_ENT	pe ;
 	int		oi ;
 	int		kl ;
 	int		vl ;
@@ -263,22 +279,6 @@ int progconfigread(PROGINFO *pip)
 	char		tbuf[MAXPATHLEN + 1] ;
 	char		pbuf[PBUFLEN + 1] ;
 	char		ebuf[EBUFLEN + 1] ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("progconfigread: f_pc=%u open_params=%u\n",
-	        pip->f.pc,pip->open.params) ;
-#endif
-
-	if (! pip->f.pc)
-	    goto ret0 ;
-
-	if (! pip->open.params)
-	    goto ret0 ;
-
-	pip->changed.pc = TRUE ;
-
-	rs1 = 0 ;
 	if ((rs = paramfile_curbegin(&pip->params,&cur)) >= 0) {
 
 	while (rs >= 0) {
@@ -287,11 +287,13 @@ int progconfigread(PROGINFO *pip)
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("progconfigread: paramfile_enum() rs=%d\n",
+	        debugprintf("progconf_read: paramfile_enum() rs=%d\n",
 	            kl) ;
 #endif
 
-	    if (kl <= 0) break ;
+	    if (kl == SR_NOTFOUND) break ;
+	    rs = kl ;
+		if (rs < 0) break ;
 
 	    kp = pe.key ;
 	    vp = pe.value ;
@@ -299,7 +301,7 @@ int progconfigread(PROGINFO *pip)
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("progconfigread: enum k=%t\n",kp,kl) ;
+	        debugprintf("progconf_read: enum k=%t\n",kp,kl) ;
 #endif
 
 	    oi = matpstr(configopts,2,kp,kl) ;
@@ -314,90 +316,70 @@ int progconfigread(PROGINFO *pip)
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("progconfigread: ebuf=>%t<\n",ebuf,elen) ;
+	        debugprintf("progconf_read: ebuf=>%t<\n",ebuf,elen) ;
 #endif
 
 	    if (elen < 0) continue ;
 
 	    switch (oi) {
-
 	    case configopt_logsize:
 	        if ((elen > 0) && (! pip->final.logsize)) {
-
 	            rs1 = cfdecmfi(ebuf,elen,&v) ;
 	            if ((rs1 >= 0) && (v >= 0)) {
 	                pip->have.logsize = TRUE ;
 	                pip->changed.logsize = TRUE ;
 	                pip->logsize = v ;
 	            }
-
 	        }
 	        break ;
-
 	    case configopt_markint:
 	case configopt_minpingint:
 	case configopt_minupdateint:
 	case configopt_pingto:
 	        v = -1 ;
-	        if (elen > 0)
+	        if (elen > 0) {
 	            rs1 = cfdecti(ebuf,elen,&v) ;
-
+		}
 	        if ((rs1 >= 0) && (v >= 0)) {
-
 	            switch (oi) {
-
 	            case configopt_markint:
 	                if (! pip->final.intmark) {
 	                    pip->have.intmark = TRUE ;
 	                    pip->changed.intmark = TRUE ;
 	                    pip->intmark = v ;
 	                }
-
 	                break ;
-
 	            case configopt_minpingint:
 	                if (! pip->final.intminping) {
 	                    pip->have.intminping = TRUE ;
 	                    pip->changed.intminping = TRUE ;
 	                    pip->intminping = v ;
 	                }
-
 	                break ;
-
 	            case configopt_minupdateint:
 	                if (! pip->final.intminupdate) {
 	                    pip->have.intminupdate = TRUE ;
 	                    pip->changed.intminupdate = TRUE ;
 	                    pip->intminupdate = v ;
 	                }
-
 	                break ;
-
 	            case configopt_pingto:
 	                if (! pip->final.toping) {
 	                    pip->have.toping = TRUE ;
 	                    pip->changed.toping = TRUE ;
 	                    pip->toping = v ;
 	                }
-
 	                break ;
-
 	            } /* end switch */
-
 	        } /* end if (valid number) */
-
 	        break ;
-
 	    case configopt_sumfile:
 	        if (! pip->final.sumfile) {
-
 	            char	dname[MAXPATHLEN + 1] ;
-
 	            pip->have.sumfile = TRUE ;
-	            mkpath2(dname,VARDNAME,pip->searchname) ;
+	            mkpath2(dname,VDNAME,pip->searchname) ;
 	            tl = prsetfname(pr,tbuf,ebuf,elen,TRUE,
 	                dname,pip->nodename,SUMFEXT) ;
-
 	            f = (pip->sumfname == NULL) ;
 	            f = f || (strcmp(pip->sumfname,tbuf) != 0) ;
 	            if (f) {
@@ -405,37 +387,27 @@ int progconfigread(PROGINFO *pip)
 	                rs = proginfo_setentry(pip,&pip->sumfname,
 	                    tbuf,tl) ;
 	            }
-
 	        }
-
 	        break ;
-
 	    case configopt_pidfile:
-	        if (! pip->final.pidfile) {
-
-	            pip->have.pidfile = TRUE ;
+	        if (! pip->final.pfname) {
+	            pip->have.pfname = TRUE ;
 	            tl = prsetfname(pr,tbuf,ebuf,elen,TRUE,
 	                RUNDNAME,pip->nodename,pip->searchname) ;
-
 	            f = (pip->pfname == NULL) ;
 	            f = f || (strcmp(pip->pfname,tbuf) != 0) ;
 	            if (f) {
 			cchar	**vpp = &pip->pfname ;
-	                pip->changed.pidfile = TRUE ;
+	                pip->changed.pfname = TRUE ;
 	                rs = proginfo_setentry(pip,vpp,tbuf,tl) ;
 	            }
-
 	        }
-
 	        break ;
-
 	    case configopt_logfile:
 	        if (! pip->final.logfile) {
-
 	            pip->have.logfile = TRUE ;
 	            tl = prsetfname(pr,tbuf,ebuf,elen,TRUE,
 	                LOGDNAME,pip->searchname,"") ;
-
 	            f = (pip->lfname == NULL) ;
 	            f = f || (strcmp(pip->lfname,tbuf) != 0) ;
 	            if (f) {
@@ -443,25 +415,20 @@ int progconfigread(PROGINFO *pip)
 	                pip->changed.logfile = TRUE ;
 	                rs = proginfo_setentry(pip,vpp,tbuf,tl) ;
 	            }
-
 	        }
-
 	        break ;
-
 	    } /* end switch */
 
-	    if (rs < 0)
-	        break ;
-
+	    if (rs < 0) break ;
 	} /* end while (enumerating) */
 
-	paramfile_curend(&pip->params,&cur) ;
-	} /* end if */
+	        paramfile_curend(&pip->params,&cur) ;
+	    } /* end if (paramfile_curbegin) */
+	} /* end if (pip->open.params) */
 
-ret0:
 	return rs ;
 }
-/* end subroutine (progconfigread) */
+/* end subroutine (progconf_read) */
 
 
 /* local subroutines */

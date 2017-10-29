@@ -278,8 +278,9 @@ int		to ;
 	    rs = mkpath2(libdname,pr,"lib") ;
 	    i = 0 ;
 	    dnames[i++] = libdname ;
-	    for (j = 0 ; syslibs[j] != NULL ; j += 1) 
+	    for (j = 0 ; syslibs[j] != NULL ; j += 1) {
 		dnames[i++] = syslibs[j] ;
+	    }
 	    dnames[i] = NULL ;
 	    i = 0 ;
 	    syms[i++] = callsymname ;

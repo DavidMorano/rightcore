@@ -1,0 +1,32 @@
+# COOKIES
+# These are the cookies avilable:
+# 
+# SYSNAME  	OS system-name
+# RELEASE  	OS system-release
+# VERSION  	OS system-version
+# MACHINE  	machine-name
+# ARCHITECTURE  UAUX machine-architecture
+# PLATFORM  	UAUX machine platform
+# PROVIDER  	UAUX machine provider
+# HWSERIAL  	UAUX HW-serial
+# NISDOMAIN  
+# NCPU  	number of machine CPUs
+# HZ  		OS clock tics
+# CLUSTER  	cluster-name
+# SYSTEM  	system-name
+# U  		current user username
+# G  		current user groupname
+# HOME  	current user home directory
+# SHELL  	current user shell
+# ORGANIZATION  current user organization name
+# GECOSNAME  	current user gecos-name
+# REALNAME  	current user real-name
+# NAME  	current user name
+# TZ  		current user time-zone
+# N  		nodename
+# D  		INET domainname (for current user)
+# H  		INET hostname
+# R  		program-root
+# RN  		program root-name
+#
+

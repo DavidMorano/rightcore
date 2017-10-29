@@ -18,8 +18,26 @@
 
 /*******************************************************************************
 
-        This subroutine opens a POSIX shared-memory ('sem(3rt)') object but with
-        a time-out.
+        This subroutine opens a POSIX® shared-memory ('sem(3rt)') object but
+        with a time-out. What does this mean to have a time-out while trying to
+        open a shared memory segment? It means that if the segment is access
+        protected, we continue to try until the time-out value has expired.
+
+	Synopsis:
+
+	int uc_openshmto(const char *shmname,int of,mode_t om,int to)
+
+	Arguments:
+
+	shmname		string representing the name of the shared memory
+	of		open flags
+	om		open mode
+	to		time-out
+
+	Returns:
+
+	<0		error
+	>=0		OK (file-descriptor)
 
 
 *******************************************************************************/

@@ -764,8 +764,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            if (argl) {
 	                                lip->have.linelen = TRUE ;
 	                                lip->final.linelen = TRUE ;
-	                                rs = cfdeci(argp,argl,&v) ;
-	                                lip->linelen = v ;
+	                                rs = optvalue(argp,argl) ;
+	                                lip->linelen = rs ;
 	                            }
 	                        } else
 	                            rs = SR_INVALID ;
@@ -1611,9 +1611,8 @@ static int locinfo_setlinelen(LOCINFO *lip)
 	if ((rs >= 0) && (lip->linelen == 0)) {
 	    cchar	*vp = getourenv(pip->envv,VARCOLUMNS) ;
 	    if (vp != NULL) {
-	        uint	uv ;
-	        rs = cfdecui(vp,-1,&uv) ;
-	        lip->linelen = uv ;
+	        rs = optvalue(vp,-1) ;
+	        lip->linelen = rs ;
 	    }
 	} /* end if */
 
@@ -1769,7 +1768,7 @@ static int liner_start(LINER *lrp,LOCINFO *lip,void *ofp)
 	    lrp->lbuf = p ;
 	    lrp->llen = llen ;
 	    lrp->lbuf[0] = '\0' ;
-	}
+	} /* end if (m-a) */
 
 	return rs ;
 }

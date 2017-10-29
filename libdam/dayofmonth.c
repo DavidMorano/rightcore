@@ -161,10 +161,10 @@ int dayofmonth_start(DAYOFMONTH *op,int year)
 	    TMTIME	ts ;
 	    time_t	t = time(NULL) ;
 	    if ((rs = tmtime_localtime(&ts,t)) >= 0) {
-		op->isdst = ts.isdst ;
+	        op->isdst = ts.isdst ;
 	        op->gmtoff = ts.gmtoff ;
 	        op->year = (year >= 0) ? year : (ts.year + TM_YEAR_BASE) ;
-	    	op->magic = DAYOFMONTH_MAGIC ;
+	        op->magic = DAYOFMONTH_MAGIC ;
 	    } /* end if (tmtime_localtime) */
 	} /* end if (ok) */
 
@@ -194,9 +194,9 @@ int dayofmonth_finish(DAYOFMONTH *op)
 
 	for (i = 0 ; i < n ; i += 1) {
 	    if (op->months[i] != NULL) {
-		c += 1 ;
+	        c += 1 ;
 	        rs1 = uc_free(op->months[i]) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	        op->months[i] = NULL ;
 	    }
 	} /* end for */
@@ -228,7 +228,7 @@ int dayofmonth_lookup(DAYOFMONTH *op,int m,int wday,int oday)
 
 #if	CF_DEBUGS
 	debugprintf("dayofmonth_lookup: m=%u wday=%u oday=%u\n",
-		m,wday,oday) ;
+	    m,wday,oday) ;
 #endif
 
 	if ((m < 0) || (m >= n))
@@ -305,7 +305,7 @@ static int dayofmonth_mkmonth(DAYOFMONTH *op,int m)
 	    int			f ;
 #if	CF_DEBUGS
 	    debugprintf("dayofmonth_mkmonth: sizeof(DAYOFMONTH_MON)=%u\n",
-		size) ;
+	        size) ;
 #endif
 	    if ((rs = uc_malloc(size,&mp)) >= 0) {
 	        struct tm	tms ;
@@ -334,16 +334,18 @@ static int dayofmonth_mkmonth(DAYOFMONTH *op,int m)
 	            tms.tm_mday = 1 ;
 	            if ((rs = uc_mktime(&tms,NULL)) >= 0) {
 #if	CF_DEBUGS
-	            debugprintf("dayofmonth_mkmonth: uc_mktime() rs=%d\n",rs) ;
-	            debugprintf("dayofmonth_mkmonth: tms.wday=%u\n",
-			tms.tm_wday) ;
+	                debugprintf("dayofmonth_mkmonth: uc_mktime() rs=%d\n",
+				rs) ;
+	                debugprintf("dayofmonth_mkmonth: tms.wday=%u\n",
+	                    tms.tm_wday) ;
 #endif
-	            f = FALSE ;
-	            day = 1 ;
-	            for (w = 0 ; w < 6 ; w += 1) {
-	                for (wday = 0 ; wday < 7 ; wday += 1) {
-	                    if ((! f) && (wday == tms.tm_wday))
-	                        f = TRUE ;
+	                f = FALSE ;
+	                day = 1 ;
+	                for (w = 0 ; w < 6 ; w += 1) {
+	                    for (wday = 0 ; wday < 7 ; wday += 1) {
+	                        if ((! f) && (wday == tms.tm_wday)) {
+	                            f = TRUE ;
+				}
 	                        if (f && (day <= daymax)) {
 	                            mp->days[w][wday] = day++ ;
 	                        } else {
@@ -351,23 +353,23 @@ static int dayofmonth_mkmonth(DAYOFMONTH *op,int m)
 	                        }
 	                    } /* end for */
 #if	CF_DEBUGS
-		           {
-				int	j, di = 0 ;
-				int	ml ;
-				char	dbuf[100] ;
-				for (j = 0 ; j < 7 ; j += 1) {
-				    int	v ;
-				    dbuf[di++] = ' ' ;
-				    v = mp->days[w][j] ;
-				    ml = ctdecpi((dbuf+di),10,2,v) ;
-				    di += ml ;
-		                }
-		                dbuf[di] = '\0' ;
-	                        debugprintf("dayofmonth_mkmonth: week=%u %s\n",
-					w,dbuf) ;
-			    }
+	                    {
+	                        int	j, di = 0 ;
+	                        int	ml ;
+	                        char	dbuf[100] ;
+	                        for (j = 0 ; j < 7 ; j += 1) {
+	                            int	v ;
+	                            dbuf[di++] = ' ' ;
+	                            v = mp->days[w][j] ;
+	                            ml = ctdecpi((dbuf+di),10,2,v) ;
+	                            di += ml ;
+	                        }
+	                        dbuf[di] = '\0' ;
+	                        debugprintf("dayofmonth_mkmonth: "
+	                            "week=%u %s\n", w,dbuf) ;
+	                    }
 #endif /* CF_DEBUGS */
-			} /* end for */
+	                } /* end for */
 	            } /* end if (uc_mktime) */
 	        } /* end if (ok) */
 	        if (rs < 0) {

@@ -67,14 +67,12 @@ extern char	*strwcpy(char *,cchar *,int) ;
 /* exported subroutines */
 
 
-char *strwcpycompact(char *dp,const char *sp,int sl)
+char *strwcpycompact(char *dp,cchar *sp,int sl)
 {
 	int		c = 0 ;
 	int		cl ;
-	const char	*cp ;
-
+	cchar		*cp ;
 	if (sl < 0) sl = strlen(sp) ;
-
 	while ((cl = nextfield(sp,sl,&cp)) > 0) {
 	    if (c++ > 0) {
 	        *dp++ = CH_SP ;
@@ -83,7 +81,6 @@ char *strwcpycompact(char *dp,const char *sp,int sl)
 	    sl -= ((cp+cl) - sp) ;
 	    sp = (cp+cl) ;
 	} /* end while (looping through string pieces) */
-
 	*dp = '\0' ;
 	return dp ;
 }

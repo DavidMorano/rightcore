@@ -1,0 +1,13 @@
+CHECKPROG
+
+These are various source code program checking utilities.
+
+Synopsis:
+
+$ checkprog <file(s)> [-V]
+
+where:
+
+<file(s)>	C-language file(s) to check for correctness
+-V		print program version to standard-error and then exit
+

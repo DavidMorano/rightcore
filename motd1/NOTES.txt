@@ -1,0 +1,7 @@
+MOTD (notes)
+
+What about a open-facility-service access interface?
+
+	local§motd[­<admin(s)>]
+
+

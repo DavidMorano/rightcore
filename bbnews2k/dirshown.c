@@ -9,10 +9,11 @@
 /* revision history:
 
 	= 1995-05-01, David A­D­ Morano
+        This code module was completely rewritten to replace any original
+        garbage that was here before.
 
-	This code module was completely rewritten to 
-	replace any original garbage that was here before.
-
+	= 1998-11-22, David A­D­ Morano
+        I did some clean-up.
 
 */
 
@@ -20,8 +21,8 @@
 
 /*******************************************************************************
 
-	This module is a simple mechanism to track what articles have
-	been read by the user.
+        This module is a simple mechanism to track what articles have been read
+        by the user.
 
 
 *******************************************************************************/

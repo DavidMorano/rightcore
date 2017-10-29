@@ -92,6 +92,7 @@
 
 /* external subroutines */
 
+extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	optbool(const char *,int) ;
@@ -874,6 +875,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 
 	if ((rs = procout_begin(pip,&po)) >= 0) {
 	    int		pan = 0 ;
+	    int		cl ;
 	    cchar	*cp ;
 
 	    if (rs >= 0) {
@@ -914,10 +916,13 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	                if (lbuf[len - 1] == '\n') len -= 1 ;
 	                lbuf[len] = '\0' ;
 
-	                if (len > 0) {
-	                    pan += 1 ;
-	                    rs = procfile(pip,&po,lbuf) ;
-	                    wlen += rs ;
+	                if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+			    if (cp[0] != '#') {
+			        lbuf[(cp+cl)-lbuf] = '\0' ;
+	                        pan += 1 ;
+	                        rs = procfile(pip,&po,cp) ;
+	                        wlen += rs ;
+			    }
 	                }
 
 	                if (rs >= 0) rs = lib_sigterm() ;
@@ -1084,7 +1089,7 @@ static int procdata(PROGINFO *pip,PROCOUT *pop,int ifd)
 #endif
 
 	        uc_free(rbuf) ;
-	    } /* end if (memory-allocation) */
+	    } /* end if (m-a-f) */
 	} /* end if (fstat) */
 	wlen &= INT_MAX ;
 
@@ -1105,6 +1110,7 @@ static int procout_begin(PROGINFO *pip,PROCOUT *pop)
 	if (pop == NULL) return SR_FAULT ;
 
 	memset(pop,0,sizeof(PROCOUT)) ;
+	pop->ofd = -1 ;
 
 	return SR_OK ;
 }
@@ -1195,13 +1201,12 @@ static int procout_close(PROGINFO *pip,PROCOUT *pop)
 
 	if (pip == NULL) return SR_FAULT ;
 
-	if (pop->ofd > 0) {
+	if (pop->ofd >= 0) {
 	    rs1 = u_close(pop->ofd) ;
 	    if (rs >= 0) rs = rs1 ;
-	    pop->ofd = 0 ;
+	    pop->ofd = -1 ;
 	}
 
-	pop->ofd = 0 ; /* in the case it might be negative */
 	pop->lenrem = 0 ;
 	return rs ;
 }

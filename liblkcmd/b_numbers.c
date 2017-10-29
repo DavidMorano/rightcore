@@ -719,7 +719,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        }
 	                        break ;
 
-/* specigy with or without repititions */
+/* specify with or without repititions */
 	                    case 'w':
 	                        lip->f.with = TRUE ;
 	                        if (f_optequal) {

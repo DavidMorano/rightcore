@@ -22,7 +22,6 @@ VALDIR= $(CGS_VALDIR)
 CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
-
 GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT

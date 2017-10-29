@@ -1,7 +1,7 @@
 CONSOLETIME
 
-This program prints the current time (and other optional information)
-onto the system console.
+This program prints the current time (and other optional information) onto the
+system console.
 
 Synopsis:
 

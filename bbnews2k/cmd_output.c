@@ -9,14 +9,18 @@
 /* revision history:
 
 	= 1994-02-01, David A­D­ Morano
+        I wrote this from scratch when I took over the code. The previous code
+        was a mess (still is in many places !).
 
-	I wrote this from scratch when I took over the code.  The
-	previous code was a mess (still is in many places !).
+	= 1998-02-01, David A­D­ Morano
+        I just did a little bit of clean-up.
 
+	= 2017-10-24, David A­D­ Morano
+        Modernization: changed to using |uc_system(3uc)|.
 
 */
 
-/* Copyright © 1994,1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>
@@ -25,8 +29,8 @@
 #include	<sys/param.h>
 #include	<unistd.h>
 #include	<stdlib.h>
-#include	<errno.h>
 
+#include	<vsystem.h>
 #include	<bfile.h>
 #include	<localmisc.h>
 
@@ -52,21 +56,17 @@ const char	ngdir[] ;
 const char	afname[] ;
 const char	cmd[] ;
 {
-	int	rs ;
+	const int	cmdlen = CMDBUFLEN ;
+	int		rs ;
+	cchar		*fmt = "%s < %s" ;
+	char		cmdbuf[CMDBUFLEN + 1] ;
 
-	char	cmdbuf[CMDBUFLEN + 1] ;
-
-
-	rs = bufprintf(cmdbuf,CMDBUFLEN,"%s < %s",cmd,afname) ;
-
-	if (rs >= 0) {
-	    rs = system(cmdbuf) ;
-	    if (rs == -1) rs = (- errno) ;
+	if ((rs = bufprintf(cmdbuf,cmdlen,fmt,cmd,afname)) >= 0) {
+	    rs = uc_system(cmdbuf) ;
 	}
 
 	return rs ;
 }
 /* end subroutine (cmd_output) */
-
 
 

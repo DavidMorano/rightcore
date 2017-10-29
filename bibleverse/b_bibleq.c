@@ -112,6 +112,7 @@ extern int	field_wordphrase(FIELD *,const uchar *,char *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -176,6 +177,7 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_nlookup(LOCINFO *,int,char *,int) ;
 static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_deflinelen(LOCINFO *) ;
 static int	locinfo_ispara(LOCINFO *,BIBLEQ_Q *) ;
 
 static int	usage(PROGINFO *) ;
@@ -191,7 +193,7 @@ static int	procoutline(PROGINFO *,cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"HELP",
@@ -243,7 +245,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"audit",
 	"linelen",
 	"indent",
@@ -333,7 +335,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
-	int		n ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
@@ -386,11 +387,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
 	}
-
-	lip->linelen = 0 ;
-	lip->count = -1 ;
-	lip->max = -1 ;
-	lip->f.separate = TRUE ;
 
 /* start parsing the arguments */
 
@@ -871,31 +867,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ((vdbname != NULL) ? vdbname : "NULL")) ;
 	}
 
-	rs1 = (DEFPRECISION + 2) ;
-	if ((rs >= 0) && (lip->linelen < rs1)) {
-	    cp = getourenv(envv,VARLINELEN) ;
-	    if (cp == NULL) {
-	        cp = getourenv(envv,VARCOLUMNS) ;
-	    }
-	    if (cp != NULL) {
-	        if ((rs = cfdeci(cp,-1,&n)) >= 0) {
-		    if (n >= rs1) {
-	                lip->have.linelen = TRUE ;
-	                lip->final.linelen = TRUE ;
-	                lip->linelen = n ;
-		    }
-	        }
-	    }
+	if (rs >= 0) {
+	    rs = locinfo_deflinelen(lip) ;
 	}
 
-	if (lip->linelen < rs1)
-	    lip->linelen = COLUMNS ;
+	if ((lip->nverses < 1) && (! lip->have.nverses)) lip->nverses = 1 ;
 
-	if ((lip->nverses < 1) && (! lip->have.nverses))
-	    lip->nverses = 1 ;
-
-	if (lip->nverses < 0)
-	    lip->nverses = 1 ;
+	if (lip->nverses < 0) lip->nverses = 1 ;
 
 /* process */
 
@@ -1617,8 +1595,10 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
+	lip->count = -1 ;
+	lip->max = -1 ;
+	lip->f.separate = TRUE ;
 	lip->indent = OPT_INDENT ;
-
 	lip->f.bookname = OPT_BOOKNAME ;
 
 	return rs ;
@@ -1647,6 +1627,35 @@ static int locinfo_finish(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_finish) */
+
+
+static int locinfo_deflinelen(LOCINFO *lip)
+{
+	const int	def = (DEFPRECISION + 2) ;
+	int		rs = SR_OK ;
+	if (lip->linelen < def) {
+	    PROGINFO	*pip = lip->pip ;
+	    cchar	*cp = NULL ;
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARLINELEN) ;
+	    }
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARCOLUMNS) ;
+	    }
+	    if (! isStrEmpty(cp,-1)) {
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (rs >= def) {
+	                lip->have.linelen = TRUE ;
+	                lip->final.linelen = TRUE ;
+	                lip->linelen = rs ;
+		    }
+	        }
+	    }
+	}
+	if (lip->linelen < def ) lip->linelen = COLUMNS ;
+	return rs ;
+}
+/* end subroutine (locinfo_deflinelen) */
 
 
 static int locinfo_nlookup(LOCINFO *lip,int bi,char nbuf[],int nlen)

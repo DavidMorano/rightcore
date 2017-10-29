@@ -3,49 +3,53 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-	Originally written for Rightcore Network Services.
+	= 1998-11-01, David A­D­ Morano
+	This subroutine was written for Rightcore Network Services (RNS).
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 
-#define	VERSION		"0"
-#define	WHATINFO	"@(#)HELLOWORLD "
-#define	BANNER		"Hello World"
-#define	SEARCHNAME	"helloworld"
+#define	VERSION		"0a"
+#define	WHATINFO	"@(#)HELLO "
+#define	BANNER		"Hello"
+#define	SEARCHNAME	"hello"
 #define	VARPRNAME	"LOCAL"
 
 #ifndef	PROGRAMROOT
 #define	PROGRAMROOT	"/usr/add-on/local"
 #endif
 
-#define	VARPROGRAMROOT1	"HELLOWORLD_PROGRAMROOT"
+#define	VARPROGRAMROOT1	"HELLO_PROGRAMROOT"
 #define	VARPROGRAMROOT2	VARPRNAME
 #define	VARPROGRAMROOT3	"PROGRAMROOT"
 
-#define	VARBANNER	"HELLOWORLD_BANNER"
-#define	VARSEARCHNAME	"HELLOWORLD_NAME"
-#define	VAROPTS		"HELLOWORLD_OPTS"
-#define	VARFILEROOT	"HELLOWORLD_FILEROOT"
-#define	VARLOGTAB	"HELLOWORLD_LOGTAB"
-#define	VARAFNAME	"HELLOWORLD_AF"
-#define	VAREFNAME	"HELLOWORLD_EF"
+#define	VARBANNER	"HELLO_BANNER"
+#define	VARSEARCHNAME	"HELLO_NAME"
+#define	VAROPTS		"HELLO_OPTS"
+#define	VARFTYPES	"HELLO_FTYPES"
+#define	VARSUFREQ	"HELLO_SUFREQ"
+#define	VARSA		"HELLO_SUFACC"
+#define	VARSR		"HELLO_SUFREJ"
+#define	VARPRUNE	"HELLO_PRUNE"
+#define	VARTARDNAME	"HELLO_TARDIR"
+#define	VARRFNAME	"HELLO_RF"
+#define	VARAFNAME	"HELLO_AF"
+#define	VAREFNAME	"HELLO_EF"
 
-#define	VARDEBUGFNAME	"HELLOWORLD_DEBUGFILE"
-#define	VARDEBUGFD1	"HELLOWORLD_DEBUGFD"
+#define	VARDEBUGLEVEL	"HELLO_DEBUGLEVEL"
+#define	VARDEBUGFNAME	"HELLO_DEBUGFILE"
+#define	VARDEBUGFD1	"HELLO_DEBUGFD"
 #define	VARDEBUGFD2	"DEBUGFD"
 
+#define	VARNODE		"NODE"
 #define	VARSYSNAME	"SYSNAME"
 #define	VARRELEASE	"RELEASE"
 #define	VARMACHINE	"MACHINE"
 #define	VARARCHITECTURE	"ARCHITECTURE"
-#define	VARHZ		"HZ"
-#define	VARNODE		"NODE"
 #define	VARCLUSTER	"CLUSTER"
 #define	VARSYSTEM	"SYSTEM"
-#define	VARDOMAIN	"DOMAIN"
 #define	VARNISDOMAIN	"NISDOMAIN"
 #define	VARTERM		"TERM"
 #define	VARPRINTER	"PRINTER"
@@ -57,9 +61,6 @@
 #define	VARCOLUMNS	"COLUMNS"
 #define	VARNAME		"NAME"
 #define	VARFULLNAME	"FULLNAME"
-#define	VARTZ		"TZ"
-#define	VARUSERNAME	"USERNAME"
-#define	VARLOGNAME	"LOGNAME"
 
 #define	VARHOMEDNAME	"HOME"
 #define	VARTMPDNAME	"TMPDIR"
@@ -70,24 +71,17 @@
 #define	VARPRPCS	"PCS"
 
 #define	TMPDNAME	"/tmp"
-#define	WORKDNAME	"/tmp"
-#define	LOGCNAME	"log"
 
-#define	DEFINITFNAME	"/etc/default/init"
-#define	DEFLOGFNAME	"/etc/default/login"
-#define	NISDOMAINNAME	"/etc/defaultdomain"
-
-#define	CONFIGFNAME	"conf"
-#define	ENVFNAME	"environ"
-#define	PATHSFNAME	"paths"
+#define	CONFIGFNAME	"etc/hello/conf"
+#define	LOGFNAME	"log/hello"
 #define	HELPFNAME	"help"
-#define	IPASSWDFNAME	"ipasswd"
-#define	FULLFNAME	".fullname"
 
-#define	PIDFNAME	"run/helloworld"
-#define	LOGFNAME	"var/log/helloworld"
-#define	LOCKFNAME	"spool/locks/helloworld"
-
-#define	LOGSIZE		(80*1024)
+#define	PO_OPTION	"option"
+#define	PO_FTS		"fts"			/* file-types */
+#define	PO_SUFREQ	"sufreq"		/* suffix-required */
+#define	PO_SUFREJ	"sufacc"		/* suffix-reject */
+#define	PO_SUFACC	"sufrej"		/* suffix-accept */
+#define	PO_PRUNE	"prune"			/* prune components */
+#define	PO_TARDIRS	"tardirs"
 
 

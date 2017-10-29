@@ -50,6 +50,10 @@
 
 /* local defines */
 
+#ifndef	INTBILLION
+#define	INTBILLION	1000000000
+#endif
+
 
 /* external subroutines */
 
@@ -69,6 +73,10 @@
 int timespec_init(TIMESPEC *tsp,time_t sec,long nsec)
 {
 	if (tsp == NULL) return SR_FAULT ;
+	while (nsec >= INTBILLION) {
+	    sec += 1 ;
+	    nsec -= INTBILLION ;
+	}
 	tsp->tv_sec = sec ;
 	tsp->tv_nsec = nsec ;
 	return SR_OK ;

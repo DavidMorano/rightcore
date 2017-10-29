@@ -186,7 +186,7 @@ static const int	sigints[] = {
 	0
 } ;
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"TMPDIR",
 	"VERSION",
@@ -242,7 +242,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"test",
 	"logsys",
 	"logfile",
@@ -774,16 +774,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -818,6 +818,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
+	if (lfname == NULL) lfname = getenv(VARLFNAME) ;
 	if (lfname == NULL) lfname = getenv(VARLOGFNAME) ;
 
 	if ((rs >= 0) && (lfname != NULL)) {
@@ -873,7 +874,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ainfo.argv = argv ;
 	ainfo.ai_max = ai_max ;
 	ainfo.ai_pos = ai_pos ;
-
 
 	if (rs >= 0) {
 	    USERINFO	u ;
@@ -1064,7 +1064,7 @@ static int usage(PROGINFO *pip)
 	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
-	fmt = "%s:  [-proto <proto>] [-f <af>] [-t <to>] [-l <logfile>]\n" ;
+	fmt = "%s:  [-proto <proto>] [-f <af>] [-t <to>] [-lf <logfile>]\n" ;
 	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
@@ -1102,8 +1102,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	int		c = 0 ;
 	cchar		*cp ;
 
-	if ((cp = getenv(VAROPTS)) != NULL)
+	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
@@ -1114,12 +1115,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
-	            vl = keyopt_fetch(kop,kp,NULL,&vp) ;
-
 	            if ((oi = matostr(akonames,2,kp,kl)) >= 0) {
 
-	                switch (oi) {
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
+	                switch (oi) {
 	                case akoname_test:
 	                    if (! pip->final.test) {
 	                        pip->have.test = TRUE ;
@@ -1131,7 +1131,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_logsys:
 	                    if (! pip->final.logsys) {
 	                        pip->have.logsys = TRUE ;
@@ -1143,7 +1142,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_logfile:
 	                    if (! pip->final.lfname) {
 	                        pip->have.lfname = TRUE ;
@@ -1161,7 +1159,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1562,23 +1559,20 @@ static int process(PROGINFO *pip,vecobj *rlp)
 static int procwtab(PROGINFO *pip,struct timeval *tvp,
 		struct weights *wtab,int c)
 {
-	double		avg ;
-	double		sumw, sumwv ;
-	int64_t		moff_avg ;
+	int64_t		moff_avg = 0 ;
 	int64_t		mtrip_min = LLONG_MAX ;
 	int64_t		mtrip_max = 0 ;
 	int64_t		mtrip_span ;
 	int		rs = SR_OK ;
-	int		i ;
 
 	if (pip == NULL) return SR_FAULT ;
 	if (tvp == NULL) return SR_FAULT ;
 	if (wtab == NULL) return SR_FAULT ;
 
-	if (c <= 0) {
-	    c = 0 ;
-	    goto ret1 ;
-	}
+	if (c > 0) {
+	    double	avg ;
+	    double	sumw, sumwv ;
+	    int		i ;
 
 /* calculate minimum and maximum round-trip times */
 
@@ -1621,7 +1615,7 @@ static int procwtab(PROGINFO *pip,struct timeval *tvp,
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
-	        debugprintf("main/procwtab: i=%u mt=%llu mo=%lld w=%7.2f\n",
+	           debugprintf("main/procwtab: i=%u mt=%llu mo=%lld w=%7.2f\n",
 	            i,wtab[i].mtrip,wtab[i].moff,wtab[i].w) ;
 	    }
 #endif
@@ -1640,7 +1634,10 @@ static int procwtab(PROGINFO *pip,struct timeval *tvp,
 
 	moff_avg = avg ;
 
-ret1:
+	} else {
+	    c = 0 ;
+	}
+
 	if ((rs >= 0) && (c > 0)) {
 	    rs = tv_loadmsec(tvp,moff_avg) ;
 	} else {
@@ -1691,7 +1688,9 @@ static int mkoffstr(char offbuf[],int offlen,int64_t moff)
 	int64_t		tm ;
 	int		rs = SR_OK ;
 	int		secs, msecs ;
+	int		ch ;
 	int		f_sign = (moff >= 0) ;
+	cchar		*fmt ;
 
 	if (offbuf == NULL) return SR_FAULT ;
 
@@ -1704,10 +1703,9 @@ static int mkoffstr(char offbuf[],int offlen,int64_t moff)
 	tm /= 1000 ;
 	secs = (int) (MIN(tm,999) & INT_MAX) ;
 
-	rs = bufprintf(offbuf,offlen,"%c%3.3u.%3.3u",
-	    ((f_sign) ? '+' : '-'),
-	    secs,
-	    msecs) ;
+	ch = ((f_sign) ? '+' : '-') ;
+	fmt = "%c%3.3u.%3.3u" ;
+	rs = bufprintf(offbuf,offlen,fmt,ch, secs, msecs) ;
 
 	return rs ;
 }

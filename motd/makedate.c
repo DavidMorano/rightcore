@@ -1,2 +1,2 @@
 const char motd_makedate[] =
-"@(#)motd                    170921_2342:13_USEDT Rightcore Network Services" ;
+"@(#)motd                    171021_2331:49_USEDT Rightcore Network Services" ;

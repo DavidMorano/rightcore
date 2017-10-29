@@ -1,0 +1,13 @@
+MAILMSGHDRFOLD
+
+
+	if ((ll = findpieces()) == 0) {
+	    if ((ll = findbreaks()) == 0) {
+		ll = findslices() ;
+	    }
+	}
+
+	return ll ;
+}
+
+

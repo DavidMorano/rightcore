@@ -10,12 +10,11 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
 
 #include	<localmisc.h>
 
 
-#define	CVTDATER		struct cvtdater
+#define	CVTDATER	struct cvtdater
 
 
 struct cvtdater {
@@ -30,7 +29,7 @@ extern "C" {
 #endif
 
 extern int	cvtdater_start(CVTDATER *,time_t) ;
-extern int	cvtdater_load(CVTDATER *,time_t *,const char *,int) ;
+extern int	cvtdater_load(CVTDATER *,time_t *,cchar *,int) ;
 extern int	cvtdater_finish(CVTDATER *) ;
 
 #ifdef	__cplusplus

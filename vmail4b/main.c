@@ -226,6 +226,7 @@ static cchar	*argopts[] = {
 	"LINES",
 	"sn",
 	"tmpdir",
+	"td",
 	"maildir",
 	"md",
 	"folderdir",
@@ -254,6 +255,7 @@ enum argopts {
 	argopt_lines,
 	argopt_sn,
 	argopt_tmpdir,
+	argopt_td,
 	argopt_maildir,
 	argopt_md,
 	argopt_folderdir,
@@ -605,6 +607,7 @@ int mainsub(int argc,cchar **argv,cchar **envv)
 	                    break ;
 
 	                case argopt_tmpdir:
+	                case argopt_td:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)

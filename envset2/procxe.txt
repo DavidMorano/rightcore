@@ -1,0 +1,17 @@
+
+if ((rs = field_start()) >= 0) {
+
+    field_get("? \t+:;Ð=") ;
+
+	if (term == '?') {
+
+		field_get(" \t+:;Ð=") ;
+	}
+
+	if (strchr(strassign,term) != NULL) {
+
+	}
+
+
+} /* end if (field) */
+

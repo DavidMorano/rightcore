@@ -933,8 +933,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1038,8 +1037,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                pip->pcsconf = pcp ;
 	                pip->open.pcsconf = TRUE ;
 	                if ((rs = procpcsconf_begin(pip,pcp)) >= 0) {
-	                    PCSPOLL		poll ;
-	                    cchar		*sn = pip->searchname ;
+	                    PCSPOLL	poll ;
+	                    cchar	*sn = pip->searchname ;
 	                    if ((rs = pcspoll_start(&poll,pcp,sn)) >= 0) {
 	                        if ((rs = proglog_begin(pip,&u)) >= 0) {
 	                            if ((rs = proguserlist_begin(pip)) >= 0) {
@@ -1403,8 +1402,8 @@ static int procbase(PROGINFO *pip,ARGINFO *aip,BITS *app,cchar *afn,cchar *ofn,
 	    struct tdinfo	ti ;
 
 	    if ((rs = procartdname(pip,&ti)) >= 0) {
-	        DATER		*tdp = &pip->td ;
 	        struct timeb	*nowp = &pip->now ;
+	        DATER		*tdp = &pip->td ;
 	        if ((rs = dater_start(tdp,nowp,zn,-1)) >= 0) {
 
 	            if (pip->f.artexpires || pip->f.artmaint) {
@@ -1674,7 +1673,7 @@ vecstr		*nlp ;
 	        int		i ;
 	        int		nl ;
 	        int		ac = 0 ;
-	        cchar	*np ;
+	        cchar		*np ;
 
 	        for (i = 0 ; ema_get(emap,i,&ep) >= 0 ; i += 1) {
 	            if ((rs = emaentry_getbestaddr(ep,&np)) > 0) {
@@ -1870,21 +1869,21 @@ static int procartfins(PROGINFO *pip,vechand *alp)
 	for (i = 0 ; vechand_get(alp,i,&aip) >= 0 ; i += 1) {
 	    if (aip != NULL) {
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main/procartfins: article_finish()\n") ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("main/procartfins: article_finish()\n") ;
 #endif
-	    rs1 = article_finish(aip) ;
-	    if (rs >= 0) rs = rs1 ;
+	        rs1 = article_finish(aip) ;
+	        if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main/procartfins: "
+	        if (DEBUGLEVEL(4))
+	            debugprintf("main/procartfins: "
 			"article_finish() rs=%d\n",rs) ;
 #endif
-	    rs1 = uc_free(aip) ;
-	    if (rs >= 0) rs = rs1 ;
+	        rs1 = uc_free(aip) ;
+	        if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("main/procartfins: for-bot\n") ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("main/procartfins: for-bot\n") ;
 #endif
 	    }
 	} /* end for */
@@ -1919,7 +1918,7 @@ static int procnewsdname(PROGINFO *pip)
 	    if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
 	        cchar	*k = "bb:newsdir" ;
 	        if ((rs1 = pcsconf_fetch(pcp,k,-1,&cur,vbuf,vlen)) >= 0) {
-	            int	vl = rs1 ;
+	            int		vl = rs1 ;
 	            if (vl > 0) {
 	                cchar	**vpp = &pip->newsdname ;
 #if	CF_DEBUG
@@ -2194,7 +2193,7 @@ static int locinfo_mkhdrfromname(LOCINFO *lip)
 	        len = rs ;
 	    }
 
-	} /* end if */
+	} /* end if (ok) */
 
 	} else {
 	    len = strlen(lip->hdrfromname) ;

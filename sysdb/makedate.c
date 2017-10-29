@@ -1,2 +1,2 @@
 const char sysdb_makedate[] =
-"@(#)sysdb                   170422_2221:27_USEDT Rightcore Network Services¹" ;
+"@(#)sysdb                   171021_0102:09_USEDT Rightcore Network Services" ;

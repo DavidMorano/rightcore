@@ -159,6 +159,7 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotValid(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -281,6 +282,7 @@ static int	procoutline(PROGINFO *,int,const char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
+static int	locinfo_deflinelen(LOCINFO *) ;
 static int	locinfo_userinfo(LOCINFO *) ;
 static int	locinfo_loaddirs(LOCINFO *,const char *,int) ;
 static int	locinfo_loaddir(LOCINFO *,const char *,int) ;
@@ -477,8 +479,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
 	int		rs, rs1 ;
-	int		n, i ;
-	int		v ;
+	int		i ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
@@ -528,13 +529,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
 	}
-
-	lip->linelen = 0 ;
-	lip->count = -1 ;
-	lip->max = -1 ;
-
-	lip->f.separate = FALSE ;
-	lip->f.monthname = TRUE ;
 
 /* start parsing the arguments */
 
@@ -852,8 +846,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            if (argl) {
 	                                lip->have.linelen = TRUE ;
 	                                lip->final.linelen = TRUE ;
-	                                rs = cfdeci(argp,argl,&v) ;
-	                                lip->linelen = v ;
+	                                rs = optvalue(argp,argl) ;
+	                                lip->linelen = rs ;
 	                            }
 	                        } else
 	                            rs = SR_INVALID ;
@@ -1012,31 +1006,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ((dbfname != NULL) ? dbfname : "NULL")) ;
 #endif
 
-#ifdef	COMMENT
-	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: dbfname=%s\n",
-	        pip->progname,((dbfname != NULL) ? dbfname : "NULL")) ;
-	}
-#endif /* COMMENT */
-
-	rs1 = (DEFPRECISION + 2) ;
-	if ((rs >= 0) && (lip->linelen < rs1)) {
-	    cp = getourenv(envv,VARLINELEN) ;
-	    if (cp == NULL) cp = getourenv(envv,VARCOLUMNS) ;
-	    if (cp != NULL) {
-	        if (((rs = cfdeci(cp,-1,&n)) >= 0) && (n >= rs1)) {
-	            lip->have.linelen = TRUE ;
-	            lip->final.linelen = TRUE ;
-	            lip->linelen = n ;
-	        }
-	    }
+	if (rs >= 0) {
+	    rs = locinfo_deflinelen(lip) ;
 	}
 
-	if (lip->linelen < rs1)
-	    lip->linelen = COLUMNS ;
-
-	if (lip->nitems < 1)
-	    lip->nitems = 1 ;
+	if (lip->nitems < 1) lip->nitems = 1 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1425,7 +1399,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_audit:
 	                    if (! lip->final.audit) {
 	                        lip->have.audit = TRUE ;
@@ -1437,7 +1410,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_linelen:
 	                    if (! lip->final.linelen) {
 	                        lip->have.linelen = TRUE ;
@@ -1449,7 +1421,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_indent:
 	                    if (! lip->final.indent) {
 	                        lip->have.indent = TRUE ;
@@ -1462,7 +1433,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_monthname:
 	                    if (! lip->final.monthname) {
 	                        lip->have.monthname = TRUE ;
@@ -1474,7 +1444,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_separate:
 	                    if (! lip->final.separate) {
 	                        lip->have.separate = TRUE ;
@@ -1486,7 +1455,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_interactive:
 	                    if (! lip->final.interactive) {
 	                        lip->have.interactive = TRUE ;
@@ -1498,7 +1466,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_citebreak:
 	                    if (! lip->final.citebreak) {
 	                        lip->have.citebreak = TRUE ;
@@ -1510,7 +1477,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_default:
 	                    if (! lip->final.defnull) {
 	                        lip->have.defnull = TRUE ;
@@ -1522,7 +1488,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_gmt:
 	                    if (! lip->final.gmt) {
 	                        lip->have.gmt = TRUE ;
@@ -1534,7 +1499,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -2185,6 +2149,10 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
 	lip->indent = DEFINDENT ;
+	lip->count = -1 ;
+	lip->max = -1 ;
+	lip->f.separate = FALSE ;
+	lip->f.monthname = TRUE ;
 
 	return rs ;
 }
@@ -2219,7 +2187,69 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
+static int locinfo_deflinelen(LOCINFO *lip)
+{
+	const int	def = (DEFPRECISION + 2) ;
+	int		rs = SR_OK ;
+	if (lip->linelen < def) {
+	    PROGINFO	*pip = lip->pip ;
+	    cchar	*cp = NULL ;
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARLINELEN) ;
+	    }
+	    if (isStrEmpty(cp,-1)) {
+		cp = getourenv(pip->envv,VARCOLUMNS) ;
+	    }
+	    if (! isStrEmpty(cp,-1)) {
+	        if ((rs = optvalue(cp,-1)) >= 0) {
+		    if (rs >= def) {
+	                lip->have.linelen = TRUE ;
+	                lip->final.linelen = TRUE ;
+	                lip->linelen = rs ;
+		    }
+	        }
+	    }
+	}
+	if (lip->linelen < def ) lip->linelen = COLUMNS ;
+	return rs ;
+}
+/* end subroutine (locinfo_deflinelen) */
+
+
 #if	CF_LOCSETENT
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+{
+	vecstr		*vsp = &lip->stores ;
+	int		rs = SR_OK ;
+	int		len = 0 ;
+
+	if (lip == NULL) return SR_FAULT ;
+	if (epp == NULL) return SR_FAULT ;
+
+	if (! lip->open.stores) {
+	    rs = vecstr_start(vsp,4,0) ;
+	    lip->open.stores = (rs >= 0) ;
+	}
+
+	if (rs >= 0) {
+	    int	oi = -1 ;
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(vsp,*epp) ;
+	    }
+	    if (vp != NULL) { 
+		len = strnlen(vp,vl) ;
+	        rs = vecstr_store(vsp,vp,len,epp) ;
+	    } else {
+		*epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(vsp,oi) ;
+	    }
+	} /* end if (ok) */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (locinfo_setentry) */
 #endif /* CF_LOCSETENT */
 
 
