@@ -8,10 +8,8 @@
 
 /* revision history:
 
-	- 1998-02-01, David A­D­ Morano
-
+	= 1998-02-01, David A­D­ Morano
 	This subroutine was originally written.
-
 
 */
 
@@ -97,13 +95,14 @@ int optbool(cchar *sp,int sl)
 	    if ((hi = matocasestr(hits,1,sp,sl)) >= 0) {
 	        f = (hi&1) ;
 	    } else {
-	        int	ch = (sp[0] & 0xff) ;
+	        int	ch = MKCHAR(sp[0]) ;
 	        if (isdigitlatin(ch)) {
 	            uint	v ;
 	            rs = cfdecui(sp,sl,&v) ;
 	            f = (v > 0) ;
-	        } else
+	        } else {
 	            rs = SR_INVALID ;
+		}
 	    } /* end if */
 	} /* end if */
 

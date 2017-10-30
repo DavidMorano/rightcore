@@ -1486,7 +1486,7 @@ $(X01).so:		$(X01OBJS)
 
 X02= testvalues
 
-X02OBJ= $(X02).o $(BALUES)
+X02OBJ= $(X02).o $(VALUES)
 
 X02OBJS= $(CRTFRONT) $(X02OBJ) $(CRTC) $(CRTBACK)
 

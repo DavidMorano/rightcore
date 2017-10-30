@@ -214,6 +214,9 @@ TPPSOBJ= $(TPPSOBJ00) $(TPPSOBJ01)
 PCSNSOBJ= pcsnso.o
 
 
+AOBJ= $(SOBJ) $(TPCSOBJ) $(TPPSOBJ) $(PCSNSOBJ)
+
+
 .SUFFIXES:		.ls .i .cx .cs
 
 
@@ -280,7 +283,7 @@ install-so:		$(ALLSO)
 	makenewer -r $(ALLSO) $(LIBDIR)
 
 safe:
-	makesafe -v=3 -I $(INCDIR) $(OBJ)
+	makesafe -z -v=3 -I $(INCDIR) $(AOBJ)
 
 again:
 	rm -f $(ALL) $(T).so $(T).a

@@ -1,6 +1,8 @@
 /* mainlistadd */
 /* lang=C++11 */
 
+/* test of list addition operations */
+
 
 #define	CF_DEBUGS	1		/* compile-time debugging */
 
@@ -13,6 +15,14 @@
 */
 
 /* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
+
+	This is really a sort of game.  We add numbers in two lists and put the
+	results into a third list.
+
+
+*******************************************************************************/
 
 #include	<envstandards.h>
 #include	<sys/types.h>
@@ -82,7 +92,7 @@ class listadder {
 	forward_list<int>::iterator	e2 ;
 	vector<int>::iterator	er ;
 public:
-	listadder(vector<int> &alr,ourlist &al1, ourlist &al2)
+	listadder(vector<int> &alr,ourlist &al1,ourlist &al2)
 	    : lr(alr), l1(al1), l2(al2) {
 	    i1 = l1.begin() ;
 	    i2 = l2.begin() ;
@@ -159,25 +169,28 @@ public:
 
 int main(int argc,const char **argv,const char **envv)
 {
-	forward_list<int>	l1 = { 2, 4, 8, 1, 0 	} ;
-	forward_list<int>	l2 = { 1, 5, 3, 2, 9 	} ;
+	forward_list<int>	l1 = { 2, 4, 8, 1, 0 } ;
+	forward_list<int>	l2 = { 1, 5, 3, 2, 9 } ;
 	vector<int>		lr ;
 	int			rs = SR_OK ;
+	int			ex = 0 ;
 	cchar			*cp ;
+
 #if	CF_DEBUGS
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
 	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
 #endif /* CF_DEBUGS */
+
 	{
 	    listadder		a(lr,l1,l2) ;
 #if	CF_DEBUGS
 	    debugprintf("main: insert\n") ;
 #endif
 	   
-	printlist(l1,"l1>") ;
-	printlist(l2,"l2>") ;
+	    printlist(l1,"l1>") ;
+	    printlist(l2,"l2>") ;
 
 #if	CF_DEBUGS
 	    debugprintf("main: addone()\n") ;
@@ -196,7 +209,9 @@ int main(int argc,const char **argv,const char **envv)
 #if	CF_DEBUGS
 	debugclose() ;
 #endif
-	return 0 ;
+
+	if (rs < 0) ex = 1 ;
+	return ex ;
 }
 /* end subroutine (main) */
 

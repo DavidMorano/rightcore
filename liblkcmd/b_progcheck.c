@@ -36,7 +36,7 @@
 	Notes:
 
         This program is quite inefficient. It calls LANGSTATE four times for
-        each character of input. A proper implementation would call if just once
+        each character of input. A proper implementation would call it just once
         for each character of input! How did this happen? It happened because we
         built the program in incremental stages and what should have happened
         was that a rewrite, refactor, whatever should have reorganized the
@@ -153,6 +153,7 @@ extern char	**environ ;		/* definition required by AT&T AST */
 struct locinfo_flags {
 	uint		stores:1 ;
 	uint		counts:1 ;
+	uint		dirty:1 ;
 } ;
 
 struct locinfo {
@@ -946,6 +947,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
 	        ex = EX_INTR ;
+	    } else if (lip->f.dirty) {
+		ex = EX_DATAERR ;
 	    }
 	} /* end if */
 
@@ -1299,8 +1302,8 @@ static int procline(PROGINFO *pip,LANGSTATE *lsp,FUNCOUNT *counts,
 	for (j = 0 ; j < llen ; j += 1) {
 	    const int	ch = MKCHAR(lbuf[j]) ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("progcheck/procline: ln=%u\n",ln) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("progcheck/procline: ln=%u\n",ln) ;
 #endif
 	    if ((rs = langstate_proc(lsp,ln,ch)) > 0) {
 	        int	k ;
@@ -1332,6 +1335,7 @@ static int procout(PROGINFO *pip,void *ofp,cchar *fn,FUNCOUNT *counts)
 	        if (counts[k].c_open != counts[k].c_close) {
 		    fmt = "file \"%s\" %s> open=%-3d close=%-3d\n" ;
 
+		    lip->f.dirty = TRUE ;
 	            shio_printf(ofp,fmt,
 	                fn,cca[k].funcname,
 	                counts[k].c_open,counts[k].c_close) ;
@@ -1363,10 +1367,12 @@ static int procouthist(PROGINFO *pip,void *ofp,HIST *hlp)
 	int		w ;
 	for (w = 0 ; w < ncca ; w += 1) {
 	    if ((rs = hist_count(hlp,w)) > 0) {
+		LOCINFO	*lip = pip->lip ;
 		int	i ;
 		int	ln ;
 		int	t ;
 		cchar	*fmt = NULL ;
+		lip->f.dirty = TRUE ;
 		switch (w) {
 		case 0:
 		    fmt = "parentheses¬\n" ;
@@ -1399,16 +1405,18 @@ static int procoutlang(PROGINFO *pip,void *ofp,LANGSTATE *lsp)
 	int		rs ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("progcheck/procoutlang: ent\n") ;
+	    debugprintf("progcheck/procoutlang: ent\n") ;
 #endif
 	if ((rs = langstate_stat(lsp,&stat)) > 0) {
-		cchar	*cp = langstatetypes[stat.type] ;
-		cchar	*fmt = "unbalanced »%s« at line=%u\n" ;
+	    LOCINFO	*lip = pip->lip ;
+	    cchar	*cp = langstatetypes[stat.type] ;
+	    cchar	*fmt = "unbalanced »%s« at line=%u\n" ;
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("progcheck/procoutlang: type=%u\n",stat.type) ;
+	    if (DEBUGLEVEL(4))
+		debugprintf("progcheck/procoutlang: type=%u\n",stat.type) ;
 #endif
-		rs = shio_printf(ofp,fmt,cp,stat.line) ;
+	    lip->f.dirty = TRUE ;
+	    rs = shio_printf(ofp,fmt,cp,stat.line) ;
 	}
 	return rs ;
 }

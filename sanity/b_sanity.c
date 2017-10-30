@@ -179,7 +179,7 @@ static int	isOther(int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -756,8 +756,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -991,8 +990,7 @@ static int locinfo_finish(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	if (lip->open.stores) {
 	    lip->open.stores = FALSE ;
@@ -1093,28 +1091,24 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case progopt_toopen:
 	                    if (vl > 0) {
 	                        rs = cfdecti(vp,vl,&v) ;
 	                        pip->to_open = v ;
 	                    }
 	                    break ;
-
 	                case progopt_toread:
 	                    if (vl > 0) {
 	                        rs = cfdecti(vp,vl,&v) ;
 	                        pip->to_read = v ;
 	                    }
 	                    break ;
-
 	                case progopt_width:
 	                    if (vl > 0) {
 	                        rs = optvalue(vp,vl) ;
 	                        lip->linelen = rs ;
 	                    }
 	                    break ;
-
 	                case progopt_sanity:
 	                case progopt_geekout:
 	                    lip->have.geekout = TRUE ;
@@ -1124,7 +1118,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->f.geekout = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                case progopt_pass:
 	                    lip->have.pass = TRUE ;
 	                    lip->f.pass = TRUE ;
@@ -1133,7 +1126,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->f.pass = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1173,7 +1165,7 @@ const char	*afn ;
 	if ((rs = shio_opene(ofp,ofn,"wct",0666,pip->to_open)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if (pip->f.bufline)
 	        shio_control(ofp,SHIO_CSETBUFLINE,TRUE) ;
@@ -1291,8 +1283,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 	    debugprintf("b_sanity/procfile: fname=%s\n",fname) ;
 #endif
 
-	if (fname == NULL)
-	    return SR_FAULT ;
+	if (fname == NULL) return SR_FAULT ;
 
 	{
 	    int	i = 0 ;

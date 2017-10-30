@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-07-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 

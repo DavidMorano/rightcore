@@ -1,12 +1,12 @@
 USERINFO
 
-This program retrieves and prints out information about a particular user.
-Items to be printed are selected using keywords.  The user can be specified
-either by a UNIX username or by the user's real name (see the option needed to
-provide a real name).  Real names can be any combinations of full or
-abbreviated first, middle, and last names, separated by dots (no spaces).  Each
-item specified to be printed out is printed out on a line of its own.  Items
-are printed out in the order that the items were specified.
+This program retrieves and prints out information about a particular user on the
+current system (or cluster). Items to be printed are selected using keywords.
+The user can be specified either by a UNIX® system username or by the user's
+real name (see the option needed to provide a real name). Real names can be any
+combinations of full or abbreviated first, middle, and last names, separated by
+dots (no spaces). Each item specified to be printed out is printed out on a line
+of its own. Items are printed out in the order that the items were specified.
 
 Synopsis:
 $ userinfo [{<username>|-|-n <name>}] [<item(s)>]] [-v] [-V]

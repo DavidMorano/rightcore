@@ -1428,133 +1428,6 @@ static int dater_initcur(DATER *dp)
 /* end subroutine (dater_initcur) */
 
 
-#ifdef	COMMENT
-
-/* get any possible zone-name information from the zone offset */
-static int dater_mkpzoff(dp,stp,zoff)
-DATER		*dp ;
-struct tm	*stp ;
-int		zoff ;
-{
-	int		i ;
-	int		f_havename = FALSE ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_mkpzoff: ent zoff=%dm dstflag=%d\n",
-	    zoff,stp->tm_isdst) ;
-#endif
-
-	if (zoff == dp->cb.timezone) {
-
-#if	CF_ASSUMEZN
-	    dp->f.zname = TRUE ;
-#endif
-
-	    strncpy(dp->zname,dp->cname,DATER_ZNAMESIZE) ;
-
-	    if (dp->b.dstflag < 0)
-	        dp->b.dstflag = dp->cb.dstflag ;
-
-	} else if (zoff == 0) {
-
-#if	CF_ASSUMEZN
-	    dp->f.zname = TRUE ;
-#endif
-
-	    strncpy(dp->zname,"gmt",DATER_ZNAMESIZE) ;
-
-	    if (dp->b.dstflag < 0)
-	        dp->b.dstflag = 0 ;
-
-	} else {
-
-#if	CF_DEBUGS
-	    debugprintf("dater_mkpzoff: need to search\n") ;
-#endif
-
-	    if (stp->tm_isdst >= 0) {
-
-#if	CF_DEBUGS
-	        debugprintf("dater_mkpzoff: supplied zone type dstflag=%d\n",
-	            stp->tm_isdst) ;
-#endif
-
-	        for (i = 0 ; zones[i].zname != NULL ; i += 1) {
-
-	            if ((zones[i].off == zoff) &&
-	                (zones[i].isdst == stp->tm_isdst))
-	                break ;
-
-	        } /* end for */
-
-	        f_havename = (zones[i].zname != NULL) ;
-
-	    } else if (dp->cb.dstflag >= 0) {
-
-#if	CF_DEBUGS
-	        debugprintf("dater_mkpzoff: current zone type dstflag=%d\n",
-	            dp->cb.dstflag) ;
-#endif
-
-	        for (i = 0 ; zones[i].zname != NULL ; i += 1) {
-
-	            if ((zones[i].off == zoff) &&
-	                (zones[i].isdst == dp->cb.dstflag))
-	                break ;
-
-	        } /* end for */
-
-	        f_havename = (zones[i].zname != NULL) ;
-
-	    } /* end if (searhing for zone type of current time-zone) */
-
-	    if (! f_havename) {
-
-#if	CF_DEBUGS
-	        debugprintf("dater_mkpzoff: searching for any zone\n") ;
-#endif
-
-	        for (i = 0 ; zones[i].zname ; i += 1) {
-
-	            if (zones[i].off == zoff)
-	                break ;
-
-	        } /* end for */
-
-	        f_havename = (zones[i].zname != NULL) ;
-
-	    } /* end if (searching for any zone) */
-
-	    if (f_havename) {
-
-#if	CF_DEBUGS
-	        debugprintf("dater_mkpzoff: got a name=%t\n",
-	            zones[i].zname,strnlen(zones[i].zname,DATER_ZNAMESIZE)) ;
-#endif
-
-#if	CF_ASSUMEZN
-	        dp->f.zname = TRUE ;
-#endif
-
-	        strncpy(dp->zname,zones[i].zname,DATER_ZNAMESIZE) ;
-
-	        if (dp->b.dstflag < 0)
-	            dp->b.dstflag = zones[i].isdst ;
-
-	    } else {
-
-	        zos_set(dp->zname,8,zoff) ;
-
-	    } /* end if */
-
-	} /* end if */
-
-	return f_havename ;
-}
-/* end subroutine (dater_mkpzoff) */
-
-#else /* COMMENT */
-
 /* get any possible zone-name information from the zone offset */
 static int dater_mkpzoff(DATER *dp,struct tm *stp,int zoff)
 {
@@ -1567,16 +1440,11 @@ static int dater_mkpzoff(DATER *dp,struct tm *stp,int zoff)
 #endif
 
 	dp->zname[0] = '\0' ;
-	rs = zdb_offisdst(&zr,zoff,stp->tm_isdst) ;
-
-#if	CF_DEBUGS
-	debugprintf("dater_mkpzoff: zdb_offisdst() rs=%d\n",rs) ;
-#endif
-
-	if (rs >= 0) {
+	if ((rs = zdb_offisdst(&zr,zoff,stp->tm_isdst)) >= 0) {
 	    rs = strnwcpy(dp->zname,DATER_ZNAMESIZE,zr.name,-1) - dp->zname ;
-	} else
-	    rs = 0 ;
+	} else {
+	    rs = SR_OK ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("dater_mkpzoff: ret rs=%d\n",rs) ;
@@ -1585,8 +1453,6 @@ static int dater_mkpzoff(DATER *dp,struct tm *stp,int zoff)
 	return rs ;
 }
 /* end subroutine (dater_mkpzoff) */
-
-#endif /* COMMENT */
 
 
 static int dater_ldtmz(DATER *dp,TMZ *tp)
@@ -1927,16 +1793,13 @@ static int dater_mktime(DATER *dp,struct tm *stp)
 	int		rs = SR_OK ;
 
 	if (dp->f.zoff) {
-
 	    if ((rs = tmtime_insert(&tmt,stp)) >= 0) {
 	        tmt.gmtoff = (dp->b.timezone*60) ; /* insert time-zone-offet */
 	        dp->f.tzset = TRUE ;		/* mktime() calls it! */
 	        rs = tmtime_mktime(&tmt,&t) ;
 	        dp->b.time = t ;
 	    }
-
 	} else { /* must be local */
-
 	    dp->f.tzset = TRUE ;		/* mktime() calls it! */
 	    if ((rs = uc_mktime(stp,&t)) >= 0) {
 	        GETDEFZINFO	zi ;
@@ -1950,7 +1813,6 @@ static int dater_mktime(DATER *dp,struct tm *stp)
 	            dp->f.zname = TRUE ;
 	        }
 	    } /* end if (uc_mktime) */
-
 	} /* end if (something or local) */
 
 	if ((rs >= 0) && (dp->zname[0] == '\0')) {

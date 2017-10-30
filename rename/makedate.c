@@ -1,2 +1,2 @@
 const char rename_makedate[] =
-"@(#)rename                  170302_1232:39_USEST Rightcore Network Services¹" ;
+"@(#)rename                  171030_0017:51_USEDT Rightcore Network Services" ;

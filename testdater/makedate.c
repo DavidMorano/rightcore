@@ -1,2 +1,2 @@
 const char testdater_makedate[] =
-"@(#)testdater               171028_1852:49_USEDT Rightcore Network Services" ;
+"@(#)testdater               171029_1943:45_USEDT Rightcore Network Services" ;

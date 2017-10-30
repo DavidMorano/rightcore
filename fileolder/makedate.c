@@ -1,2 +1,2 @@
 const char fileolder_makedate[] =
-"@(#)fileolder               170114_0556:06_USEST Rightcore Network Services¹" ;
+"@(#)fileolder               171030_0349:14_USEDT Rightcore Network Services" ;

@@ -23,6 +23,23 @@
 	provides a platform independent implementation of UNIX® 'passwd'
 	database access subroutines.
 
+	Symopsis:
+
+	int uc_inproj(cchar *username,cchar *projname,char *rbuf,int rlen)
+
+	Arguments:
+
+	username	user to check
+	projname	project to check
+	rbuf		buffer to hold internal project entry data
+	rlen		length of supplied buffer
+
+	Returns:
+
+	<0		error
+	==0		NO (user not in project)
+	>0		YES (user is in project)
+
 
 *******************************************************************************/
 

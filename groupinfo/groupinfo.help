@@ -1,6 +1,6 @@
 GROUPINFO
 
-This program retrieves information from the UNIX GROUP database.
+This program retrieves information from the UNIX® system GROUP database.
 
 Synopsis:
 $ groupinfo [{<groupname>|<gid>|-}] [{<query(s)>|-l|-a}] [-q] [-V]

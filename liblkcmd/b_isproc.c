@@ -177,7 +177,7 @@ static int	procfile(PROGINFO *,cchar *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -227,7 +227,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"quiet",
 	"intage",
 	NULL
@@ -239,7 +239,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char *progmodes[] = {
+static cchar	*progmodes[] = {
 	"isproc",
 	"isnotrunning",
 	"isNotRunning",
@@ -1056,7 +1056,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_isproc/procargs: ret rs=%d f_early=%u\n",rs,f_early) ;
+	    debugprintf("b_isproc/procargs: ret rs=%d f_early=%u\n",
+		rs,f_early) ;
 #endif
 
 	return (rs >= 0) ? f_early : rs ;
@@ -1288,7 +1289,6 @@ static int locinfo_procopts(LOCINFO *lip)
 	                 vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_quiet:
 	                    if (! pip->final.quiet) {
 	                        pip->have.quiet = TRUE ;
@@ -1300,7 +1300,6 @@ static int locinfo_procopts(LOCINFO *lip)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_intage:
 	                    if (! lip->final.intage) {
 	                        lip->have.intage = TRUE ;
@@ -1311,7 +1310,6 @@ static int locinfo_procopts(LOCINFO *lip)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

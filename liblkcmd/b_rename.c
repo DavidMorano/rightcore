@@ -214,7 +214,7 @@ static int	argvals_check(ARGVALS *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"HELP",
@@ -257,7 +257,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"sort",
 	NULL
 } ;
@@ -267,7 +267,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	*sortkeys[] = {
+static cchar	*sortkeys[] = {
 	"default",
 	"name",
 	"mtime",
@@ -713,8 +713,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -756,7 +755,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* load up the environment options */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 /* argument defaults */
 
@@ -777,24 +783,22 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* process */
 
-	        memset(&ainfo,0,sizeof(ARGINFO)) ;
-	        ainfo.argc = argc ;
-	        ainfo.ai = ai ;
-	        ainfo.argv = argv ;
-	        ainfo.ai_max = ai_max ;
-	        ainfo.ai_pos = ai_pos ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
 	    vecstr	names ;
 	    const int	opts = VECSTR_OSTATIONARY | VECSTR_OREUSE ;
 	    if ((rs = vecstr_start(&names,20,opts)) >= 0) {
-		int	pan = 0 ;
 	        if ((rs = procargs(pip,&ainfo,&pargs,&names,afname)) > 0) {
-		    pan = rs ;
 	            if ((rs = vecstr_count(&names)) > 0) {
 		        rs = procnewnames(pip,&avs,&names) ;
 		    } /* end if (nonzero) */
-	        } else if ((rs >= 0) && (pan == 0)) {
+	        } else if (rs >= 0) {
 	    	    cchar	*pn = pip->progname ;
 	            rs = SR_INVALID ;
 	            shio_printf(pip->efp,"%s: no files specified\n",pn) ;
@@ -1124,9 +1128,10 @@ static int procrename(PROGINFO *pip,char *tbuf,vecstr *nlp,vecstr *nnlp)
 	ZOMBIENAME	zn ;
 	int		rs ;
 	int		rs1 ;
+	if (pip == NULL) return SR_FAULT ;
 	if ((rs = zombiename_start(&zn,nnlp)) >= 0) {
 	    int		i ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    for (i = 0 ; vecstr_get(nlp,i,&cp) >= 0 ; i += 1) {
 		if (cp != NULL) {
 		    if ((rs = vecstr_find(nnlp,cp)) >= 0) {
@@ -1141,7 +1146,7 @@ static int procrename(PROGINFO *pip,char *tbuf,vecstr *nlp,vecstr *nnlp)
 		if (rs < 0) break ;
 	    } /* end for */
 	    if (rs >= 0) {
-	        const char	*nnp ;
+	        cchar	*nnp ;
 	        for (i = 0 ; vecstr_get(nlp,i,&cp) >= 0 ; i += 1) {
 	            if (cp != NULL) {
 	                if ((rs = vecstr_get(nnlp,i,&nnp)) >= 0) {
@@ -1191,8 +1196,8 @@ static int makefname(PROGINFO *pip,ARGVALS *sip,cchar *np,char *tbuf)
 	    const int	tlen = MAXPATHLEN ;
 	    int		dl = rs ;
 	    int		sl = -1 ;
-	    const char	*tp ;
-	    const char	*sp = lip->suffix ;
+	    cchar	*tp ;
+	    cchar	*sp = lip->suffix ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -1232,8 +1237,8 @@ static int makefname(PROGINFO *pip,ARGVALS *sip,cchar *np,char *tbuf)
 	    case suf_plus:
 		sp = lip->suffix ;
 		if (sp == NULL) sp = "xxx" ;
-	            sbuf_char(&pbuf,'.') ;
-	            sbuf_strw(&pbuf,sp,-1) ;
+	        sbuf_char(&pbuf,'.') ;
+	        sbuf_strw(&pbuf,sp,-1) ;
 		break ;
 	    case suf_empty:
 		break ;
@@ -1319,7 +1324,7 @@ static int locinfo_setsuf(LOCINFO *lip,cchar *suf)
 	switch (lip->suftype) {
 	case suf_new:
 	    {
-	        const char	*cp ;
+	        cchar	*cp ;
 	        rs = uc_mallocstrw(suf,-1,&cp) ;
 	        if (rs >= 0) lip->suffix = cp ;
 	    }
@@ -1347,7 +1352,7 @@ static int locinfo_findsuf(LOCINFO *lip,cchar *sp,int sl)
 
 	if (lip->f.findsuffix) {
 	    int		cl ;
-	    const char	*tp, *cp ;
+	    cchar	*tp, *cp ;
 	    char	sufbuf[SUFLEN + 1] ;
 	    if ((tp = strnrchr(sp,sl,'.')) != NULL) {
 	        cp = (tp+1) ;
@@ -1410,8 +1415,9 @@ static int locinfo_setsort(LOCINFO *lip,cchar *vp,int vl)
 	    if ((si = matostr(sortkeys,1,vp,vl)) >= 0) {
 	        lip->sortkey = si ;
 	        lip->f.sortkey = TRUE ;
-	    } else
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	}
 
 	return rs ;

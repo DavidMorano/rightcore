@@ -1,6 +1,6 @@
 PROJECTINFO
 
-This program retrieves information from the UNIX® PROJECT database.
+This program retrieves information from the UNIX® system PROJECT database.
 
 Synopsis:
 $ projectinfo [{<projectname>|<pjid>|-}] [{<query(s)>|-a}] [-q] [-V]

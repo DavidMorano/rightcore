@@ -5,6 +5,7 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* run-time debugging */
+#define	CF_DEBUGMALL	1		/* debugging memory allocations */
 
 
 /* revision history:
@@ -19,6 +20,10 @@
 /*******************************************************************************
 
 	Write ("date") the current date on the banner read on STDIN.
+
+	Synopsis:
+
+	$ banner <string> | bandate 
 
 
 *******************************************************************************/
@@ -57,14 +62,14 @@
 extern int	sfnext(const char *,int,const char **) ;
 extern int	bwriteblanks(bfile *,int) ;
 
-#if	CF_DEBUGS || CF_DEBUG
+#if	CF_DEBUGS
 extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -82,8 +87,8 @@ extern char	*strnprbrk(const char *,int,const char *) ;
 /* forward references */
 
 static int process(cchar *,cchar *,cchar *,int) ;
-static int trailprint(bfile *,const char *,const char *,int) ;
-static int subprint(bfile *,const char *,const char *,int) ;
+static int trailprint(bfile *,cchar *,cchar *,int) ;
+static int subprint(bfile *,cchar *,cchar *,int) ;
 
 
 /* local variables */
@@ -112,10 +117,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	TMTIME		tm ;
 	time_t		daytime = time(NULL) ;
 
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+#if	CF_DEBUGS && CF_DEBUGMALL
 	uint		mo_start = 0 ;
 #endif
 
+	const int	dlen = TIMEBUFLEN ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		ex = EX_OK ;
@@ -131,18 +137,17 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*ofname = NULL ;
 	const char	*ifname = BFILE_STDIN ;
 	const char	*cp ;
+	char		dbuf[TIMEBUFLEN+1] ;
 
-	char		dstr[TIMEBUFLEN+1] ;
 
-
-#if	CF_DEBUGS || CF_DEBUG
+#if	CF_DEBUGS
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
 	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
 #endif /* CF_DEBUGS */
 
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+#if	CF_DEBUGS && CF_DEBUGMALL
 	uc_mallset(1) ;
 	uc_mallout(&mo_start) ;
 #endif
@@ -153,15 +158,15 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((rs = tmtime_gmtime(&tm,daytime)) >= 0) {
-	    rs = sntmtime(dstr,TIMEBUFLEN,&tm,tspec) ;
+	    rs = sntmtime(dbuf,dlen,&tm,tspec) ;
 	}
 
 #if	CF_DEBUGS
-	debugprintf("main: dstr=%s\n",dstr) ;
+	debugprintf("main: dstr=%s\n",dbuf) ;
 #endif
 
 	if (rs >= 0) {
-	    rs = process(NULL,NULL,dstr,f_top) ;
+	    rs = process(NULL,ifname,dbuf,f_top) ;
 	    wlen = rs ;
 	}
 
@@ -174,7 +179,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    } /* end switch */
 	}
 
-#if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
+#if	CF_DEBUGS && CF_DEBUGMALL
 	{
 	    uint	mo ;
 	    uc_mallout(&mo) ;
@@ -183,7 +188,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 #endif /* CF_DEBUGMALL */
 
-#if	(CF_DEBUGS || CF_DEBUG)
+#if	CF_DEBUGS
 	debugclose() ;
 #endif
 

@@ -245,15 +245,17 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 	UCTIMEOUT	*uip = &uctimeout_data ;
 	int		rs ;
 
+	if (valp == NULL) return SR_FAULT ;
+
 	if ((rs = uctimeout_init()) >= 0) {
 	    if ((rs = uctimeout_capbegin(uip,-1)) >= 0) {
 		if ((rs = uctimeout_workready(uip)) >= 0) {
 	            switch (cmd) {
 	            case timeoutcmd_set:
-	                rs = uctimeout_cmdset(valp) ;
+	                rs = uctimeout_cmdset(uip,valp) ;
 	                break ;
 	            case timeoutcmd_cancel:
-	                rs = uctimeout_cmdcancel(valp) ;
+	                rs = uctimeout_cmdcancel(uip,valp) ;
 	                break ;
 		    default:
 		        rs = SR_INVALID ;
@@ -271,6 +273,28 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 
 
 /* local subroutines */
+
+
+static int uctimeout_cmdset(UCTIMEOUT *uip,TIMEVAL *valp)
+{
+	int		rs = SR_OK ;
+
+
+
+	return rs ;
+}
+/* end subroutine (uctimeout_cmdset) */
+
+
+static int uctimeout_cmdcancel(UCTIMEOUT *uip,TIMEVAL *valp)
+{
+	int		rs = SR_OK ;
+
+
+
+	return rs ;
+}
+/* end subroutine (uctimeout_cmdcancel) */
 
 
 static int uctimeout_capbegin(UCTIMEOUT *uip,int to)

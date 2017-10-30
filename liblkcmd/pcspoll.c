@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -22,10 +20,10 @@
 
 /*******************************************************************************
 
-	This subroutine is called by PCS programs.  This may initiate an
-	invocation of the PCSPOLL program.  Some quickie checks are made
-	here first before calling that program in order to reduce the
-	number of times that program needs to be invoked unnecessarily.
+        This subroutine is called by PCS programs. This may initiate an
+        invocation of the PCSPOLL program. Some quickie checks are made here
+        first before calling that program in order to reduce the number of times
+        that program needs to be invoked unnecessarily.
 
 	Synopsis:
 

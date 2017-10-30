@@ -3,25 +3,24 @@
 /* process this device */
 
 
-#define	CF_DEBUG 	1
+#define	CF_DEBUG 	1		/* compile-time */
 
 
 /* revision history:
 
-	= 1996-03-01, David A­D­ Morano
-
+	= 1998-03-01, David A­D­ Morano
 	The program was copied very substantially from 'hangup'.
-
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/***********************************************************************
+/*******************************************************************************
 
 	Synopsis:
 
 	int process(pip,basedir,name)
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 	char		basedir[] ;
 	char		name[] ;
 
@@ -37,7 +36,7 @@
 	<0		error
 
 
-***********************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -55,18 +54,16 @@
 
 #include	<vsystem.h>
 #include	<bfile.h>
-
 #include	"localmisc.h"
+
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
 
 #define	O_F1		(O_RDWR | O_NDELAY | O_NOCTTY)
 #define	O_F2		(O_RDONLY | O_NDELAY | O_NOCTTY)
-
 
 
 /* external subroutines */
@@ -80,7 +77,7 @@ extern int	mkpath2(char *,const char *,const char *) ;
 
 /* local variables */
 
-static const char	*turnons[] = {
+static cchar	*turnons[] = {
 	"1",
 	"yes",
 	"y",
@@ -94,7 +91,7 @@ static const char	*turnons[] = {
 
 
 int process(pip,basedir,name)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 char		basedir[] ;
 char		name[] ;
 {

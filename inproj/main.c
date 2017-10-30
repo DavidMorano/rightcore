@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This subroutine (and program) was originally written.
-
 
 */
 
@@ -74,6 +72,7 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -85,6 +84,8 @@ extern int	debugprinthex(const char *,int,const char *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -104,7 +105,7 @@ static int	procname(cchar *,cchar *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -481,6 +482,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 #if	CF_DEBUG
@@ -497,16 +500,16 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -540,6 +543,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	ex = EX_OK ;
 
 /* some initialization */
+
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
@@ -603,6 +611,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	if ((rs = bopen(ofp,ofname,"wct",0666)) >= 0) {
 
 	    rs = procname(un,projname) ;
+	    f = rs ;
 
 	    if ((rs >= 0) && (pip->verboselevel > 0)) {
 	        rs = bprintf(ofp,"%s\n",((f) ? "YES" : "NO")) ;
@@ -718,12 +727,16 @@ static int procname(cchar *un,cchar *projname)
 {
 	const int	pjlen = getbufsize(getbufsize_pj) ;
 	int		rs ;
+	int		rs1 ;
 	int		f = FALSE ;
 	char		*pjbuf ;
 	if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
-	    rs = uc_inproj(un,projname,pjbuf,pjlen) ;
-	    f = rs ;
-	    uc_free(pjbuf) ;
+	    {
+	        rs = uc_inproj(un,projname,pjbuf,pjlen) ;
+	        f = (rs > 0) ;
+	    }
+	    rs1 = uc_free(pjbuf) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (memory-allocation) */
 	return (rs >= 0) ? f : rs ;
 }

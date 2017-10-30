@@ -1,2 +1,2 @@
-const char isproc_makedate[] =
-"@(#)isproc                  170620_1345:59_USEDT Rightcore Network Services" ;
+const char isfile_makedate[] =
+"@(#)isfile                  171030_0356:05_USEDT Rightcore Network Services" ;

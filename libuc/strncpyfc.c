@@ -76,7 +76,6 @@ char *strncpyfc(char *dst,cchar *src,int n)
 	} else {
 	    dst = strcpyfc(dst,src) ;
 	}
-
 	return dst ;
 }
 /* end subroutine (strncpyfc) */

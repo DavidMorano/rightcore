@@ -1,4 +1,5 @@
-/* main (C89) */
+/* main (termcarrier) */
+/* lang=C99 */
 
 /* part of 'termcarrier' -- perform carrier operations */
 
@@ -9,10 +10,8 @@
 
 /* revision history:
 
-	= 1996-03-01, David A­D­ Morano
-
+	= 1998-03-01, David A­D­ Morano
 	The program was copied very substantially from 'hangup'.
-
 
 */
 
@@ -59,7 +58,7 @@
 /* external subroutines */
 
 extern int	matostr(const char **,int,const char *,int) ;
-extern int	process(struct proginfo *,const char *,const char *) ;
+extern int	process(PROGINFO *,const char *,const char *) ;
 
 extern char	*strbasename(char *) ;
 
@@ -78,7 +77,7 @@ extern char	*strbasename(char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	"TMPDIR",
@@ -98,17 +97,13 @@ enum argopts {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo		g ;
-
+	PROGINFO	g ;
 	USERINFO	u ;
-
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
 	int	ai, ai_max, ai_pos ;
@@ -124,9 +119,9 @@ const char	*envv[] ;
 	int	fd_debug ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
 	const char	*devbase = DEVDNAME ;
 	const char	*cp ;
+	char	argpresent[MAXARGGROUPS] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -135,14 +130,15 @@ const char	*envv[] ;
 	}
 #endif /* CF_DEBUGS */
 
-	memset(&g,0,sizeof(struct proginfo)) ;
+	memset(&g,0,sizeof(PROGINFO)) ;
 
 	g.progname = strbasename(argv[0]) ;
 
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
-	} else
+	} else {
 	    rs = bopen(&errfile,BFILE_STDERR,"dwca",0666) ;
+	}
 	if (rs >= 0) {
 	    g.efp = &errfile ;
 	    bcontrol(&errfile,BC_LINEBUF,0) ;
@@ -417,15 +413,9 @@ const char	*envv[] ;
 #endif
 
 	if (g.debuglevel > 0) {
-
-	    bprintf(g.efp,
-	        "%s: debuglevel=%u\n",
-	        g.progname,g.debuglevel) ;
-
+	    bprintf(g.efp, "%s: debuglevel=%u\n", g.progname,g.debuglevel) ;
 	    bcontrol(g.efp,BC_LINEBUF,0) ;
-
 	    bflush(g.efp) ;
-
 	}
 
 	if (f_version)
@@ -580,6 +570,5 @@ badret:
 
 }
 /* end subroutine (main) */
-
 
 

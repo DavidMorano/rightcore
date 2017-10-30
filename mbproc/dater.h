@@ -57,7 +57,7 @@ struct timeb {
 #endif /* COMMENT */
 
 struct dater_zinfo {
-	int		zoff ;		/* minums west of GMT */
+	int		zoff ;		/* minutes west of GMT */
 	int		isdst ;
 	char		zname[DATER_ZNAMESIZE + 1] ;
 } ;

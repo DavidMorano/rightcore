@@ -1,6 +1,6 @@
 /* ugetpw */
 
-/* UNIX® password entries */
+/* get UNIX® password entries (w/ cache) */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
