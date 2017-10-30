@@ -17,19 +17,18 @@ MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 EXTRALIB= $(EXTRA)/lib
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -81,35 +80,38 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDRPATH= $(EXTRALIB)
 
 # regular
-LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(LDRPATH)
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(LDRPATH):$(CGS_RPATH)
 # for profiling
 LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
 LIB2=
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
 
-SLIBDIRS= -L$(LIBDIR)
+
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1= -ldam -lb
 SLIB2= 
 SLIB3= -luc -lu
-SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB4= $(CGS_LIBS)
 SLIB5= 
 #SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 #SLIB7= -ldl -lc
@@ -119,10 +121,13 @@ SLIB5=
 # that are not already in any parent!
 SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5)
 
+SLIBINFO= $(SLIBDIRS) $(SLIBS)
+
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -220,11 +225,11 @@ default:		$(T).x
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -248,7 +253,7 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
@@ -273,15 +278,15 @@ so:			$(SVST).so $(MKST).so $(VIST).so
 
 $(SVST).so:		$(SVSOBJ) Makefile $(SVST).map
 	$(LD) -G -o $@ -M $(SVST).map $(LDFLAGS) \
-		$(SVSOBJ) $(SLIBDIRS) $(SLIBS)
+		$(SVSOBJ) $(SLIBINFO)
 
 $(MKST).so:		$(MKSOBJ) Makefile $(MKST).map
 	$(LD) -G -o $@ -M $(MKST).map $(LDFLAGS) \
-		$(MKSOBJ) $(SLIBDIRS) $(SLIBS)
+		$(MKSOBJ) $(SLIBINFO)
 
 $(VIST).so:		$(VISOBJ) Makefile $(VIST).map
 	$(LD) -G -o $@ -M $(VIST).map $(LDFLAGS) \
-		$(VISOBJ) $(SLIBDIRS) $(SLIBS)
+		$(VISOBJ) $(SLIBINFO)
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ) $(VISOBJ) $(MKSOBJ) $(SVSOBJ)

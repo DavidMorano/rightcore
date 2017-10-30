@@ -1,2 +1,2 @@
 const char smesg_makedate[] =
-"@(#)smesg                   170421_0133:17_USEDT Rightcore Network Services¹" ;
+"@(#)smesg                   171030_1052:14_USEDT Rightcore Network Services" ;

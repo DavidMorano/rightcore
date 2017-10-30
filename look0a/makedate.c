@@ -1,2 +1,2 @@
 const char look_makedate[] =
-	"@(#)look                    160625_2251:36_USEDT Rightcore Network Services¹" ;
+"@(#)look                    171030_1055:40_USEDT Rightcore Network Services" ;

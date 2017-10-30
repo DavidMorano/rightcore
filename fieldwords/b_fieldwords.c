@@ -848,6 +848,7 @@ const char	*afn ;
 	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;
+	int		rs1 ;
 	int		pan = 0 ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;

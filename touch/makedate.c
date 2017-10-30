@@ -1,2 +1,2 @@
 const char touch_makedate[] =
-"@(#)touch                   171025_1618:25_USEDT Rightcore Network Services" ;
+"@(#)touch                   171030_1048:29_USEDT Rightcore Network Services" ;

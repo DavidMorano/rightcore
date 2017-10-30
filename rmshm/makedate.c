@@ -1,2 +1,2 @@
 const char rmshm_makedate[] =
-	"@(#)rmshm                   160312_2350:38_USEST Rightcore Network Services" ;
+"@(#)rmshm                   171030_1100:11_USEDT Rightcore Network Services" ;

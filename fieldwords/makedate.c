@@ -1,2 +1,2 @@
 const char fieldwords_makedate[] =
-	"@(#)fieldwords              150812_2207:24_USEDT Rightcore Network Services" ;
+"@(#)fieldwords              171030_1104:08_USEDT Rightcore Network Services" ;

@@ -1,2 +1,2 @@
 const char pathclean_makedate[] =
-	"@(#)pathclean               150812_1831:00_USEDT Rightcore Network Services" ;
+"@(#)pathclean               171030_1105:52_USEDT Rightcore Network Services" ;

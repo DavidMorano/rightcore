@@ -1,2 +1,2 @@
 const char termadm_makedate[] =
-"@(#)termadm                 170401_2219:29_USEDT Rightcore Network Services¹" ;
+"@(#)termadm                 171030_1103:02_USEDT Rightcore Network Services" ;

@@ -1,2 +1,2 @@
 const char mkincfile_makedate[] =
-"@(#)mkincfile               170123_0652:01_USEST Rightcore Network Services¹" ;
+"@(#)mkincfile               171030_1106:17_USEDT Rightcore Network Services" ;
