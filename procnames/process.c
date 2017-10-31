@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -20,8 +18,8 @@
 
 /*******************************************************************************
 
-	This subroutine processes one name at a time.  The name can
-	be either a file or a directory.
+        This subroutine processes one name at a time. The name can be either a
+        file or a directory.
 
 
 *******************************************************************************/
@@ -60,7 +58,6 @@
 /* external subroutines */
 
 extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strbasename(char *) ;
 
 
 /* external variables */
@@ -72,20 +69,20 @@ extern char	*strbasename(char *) ;
 /* local structures */
 
 struct record {
-	char	fname[100] ;
-	char	lname[100] ;
-	char	phone[20] ;
-	char	street[100] ;
-	char	rest[100] ;
-	char	municpality[100] ;
-	char	principality[100] ;
-	char	zip[20] ;
+	char		fname[100] ;
+	char		lname[100] ;
+	char		phone[20] ;
+	char		street[100] ;
+	char		rest[100] ;
+	char		municpality[100] ;
+	char		principality[100] ;
+	char		zip[20] ;
 } ;
 
 
 /* forward references */
 
-static int process_record(struct proginfo *,bfile *,struct record *) ;
+static int	process_record(PROGINFO *,bfile *,struct record *) ;
 
 
 /* local variables */
@@ -94,17 +91,12 @@ static int process_record(struct proginfo *,bfile *,struct record *) ;
 /* exported subroutines */
 
 
-int process(pip,fname)
-struct proginfo	*pip ;
-const char	fname[] ;
+int process(PROGINFO *pip,cchar *fname)
 {
 	struct ustat	sb, sb2 ;
-
 	struct record	e ;
-
-	bfile	infile, *ifp = &infile ;
-
-	int	rs, rl ;
+	bfile		infile, *ifp = &infile ;
+	int		rs, rl ;
 
 	if (fname == NULL) return SR_FAULT ;
 
@@ -142,18 +134,15 @@ const char	fname[] ;
 
 
 static int process_record(pip,ifp,ep)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 bfile		*ifp ;
 struct record	*ep ;
 {
 	const int	llen = LINEBUFLEN ;
-
-	int	rs ;
-	int	ll, sl, cl ;
-
+	int		rs ;
+	int		ll, sl, cl ;
 	const char	*sp, *cp ;
-
-	char	lbuf[LINEBUFLEN + 1] ;
+	char		lbuf[LINEBUFLEN + 1] ;
 
 	while ((ll = breadline(ifp,lbuf,llen)) > 0) {
 		sl = sfshrink(lbuf,ll,&sp) ;

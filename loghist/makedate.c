@@ -1,2 +1,2 @@
 const char loghist_makedate[] =
-"@(#)loghist                 170708_2045:09_USEDT Rightcore Network Services" ;
+"@(#)loghist                 171030_1526:20_USEDT Rightcore Network Services" ;

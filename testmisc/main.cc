@@ -49,8 +49,8 @@
 #include	<vector>
 #include	<string>
 #include	<fstream>
-#include	<iostream>
 #include	<ostream>
+#include	<iostream>
 #include	<iomanip>
 #include	<vsystem.h>
 #include	<hasduplicate.hh>

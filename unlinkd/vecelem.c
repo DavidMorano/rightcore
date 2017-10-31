@@ -202,8 +202,9 @@ int vecelem_get(vecelem *op,int i,void *vpp)
 	    caddr_t	vep = op->va ;
 	    vep += (i * op->esize) ;
 	    *cvpp = vep ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return rs ;
 }

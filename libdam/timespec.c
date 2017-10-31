@@ -22,7 +22,7 @@
 
 	Synopsis:
 
-	int timespec_init(TIMESPEC *tsp,time_t sec,long nsec)
+	int timespec_load(TIMESPEC *tsp,time_t sec,long nsec)
 
 	Arguments:
 
@@ -70,7 +70,7 @@
 /* exported subroutines */
 
 
-int timespec_init(TIMESPEC *tsp,time_t sec,long nsec)
+int timespec_load(TIMESPEC *tsp,time_t sec,long nsec)
 {
 	if (tsp == NULL) return SR_FAULT ;
 	while (nsec >= INTBILLION) {
@@ -81,6 +81,6 @@ int timespec_init(TIMESPEC *tsp,time_t sec,long nsec)
 	tsp->tv_nsec = nsec ;
 	return SR_OK ;
 }
-/* end subroutine (timespec_init) */
+/* end subroutine (timespec_load) */
 
 

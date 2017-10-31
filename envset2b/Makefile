@@ -79,6 +79,7 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDRPATH= $(EXTRA)/lib
 
 # regular

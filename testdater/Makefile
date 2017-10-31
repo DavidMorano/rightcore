@@ -67,6 +67,9 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
+LDRPATH=
+
 LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 
 

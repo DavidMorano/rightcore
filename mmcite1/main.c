@@ -265,7 +265,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
@@ -700,8 +700,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1043,13 +1042,13 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 	                    if ((rs = procargs(pip,aip,bop,pop,b,c,afn)) >= 0) {
 	                        brewind(&pip->tf.tfile) ;
 	                        rs = progout(pip,&bibber,&citer,ofn) ;
-	                        if (rs < 0) {
-	                            procereport(pip,rs) ;
-	                        } /* end if */
 	                        if ((pip->debuglevel > 0) && (rs >= 0)) {
 	                            fmt = "%s: files=%u\n" ;
 	                            bprintf(pip->efp,fmt,pn,pip->c_files) ;
 	                        }
+	                        if (rs < 0) {
+	                            procereport(pip,rs) ;
+	                        } /* end if */
 	                    } /* end if (procargs) */
 	                    rs1 = bclose(tfp) ;
 	                    if (rs >= 0) rs = rs1 ;
@@ -1192,12 +1191,12 @@ static int loadbibfiles(PROGINFO *pip,PARAMOPT *app,BDB *bdbp)
 	int		rs1 ;
 	int		c = 0 ;
 	const char	*po = PO_BIBFILE ;
-	const char	*cp ;
-	char		tmpfname[MAXPATHLEN + 1] ;
 
 	if ((rs = paramopt_havekey(app,po)) > 0) {
 	    PARAMOPT_CUR	cur ;
 	    if ((rs = paramopt_curbegin(app,&cur)) >= 0) {
+		cchar		*cp ;
+		char		tmpfname[MAXPATHLEN + 1] ;
 	        while (paramopt_enumvalues(app,po,&cur,&cp) >= 0) {
 
 	            rs1 = SR_OK ;
@@ -1209,9 +1208,9 @@ static int loadbibfiles(PROGINFO *pip,PARAMOPT *app,BDB *bdbp)
 	            if (rs1 >= 0) {
 	                c += 1 ;
 	                rs = bdb_add(bdbp,cp) ;
-	                if (rs < 0) break ;
 	            }
 
+		    if (rs < 0) break ;
 	        } /* end while */
 	        paramopt_curend(app,&cur) ;
 	    } /* end if (paramopt-cur) */

@@ -1,7 +1,7 @@
 /* timespec */
 /* lang=C99 */
 
-/* signal event object methods */
+/* time-spec object methods */
 
 
 /* revision history:
@@ -55,7 +55,7 @@
 extern "C" {
 #endif
 
-extern int timespec_init(TIMESPEC *,time_t,long) ;
+extern int timespec_load(TIMESPEC *,time_t,long) ;
 
 #ifdef	__cplusplus
 }

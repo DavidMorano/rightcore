@@ -56,6 +56,7 @@
 #include	<pta.h>
 #include	<upt.h>
 #include	<vechand.h>		/* vector-handles */
+#include	<vecsorthand.h>		/* vector-sorted-handles */
 #include	<ciq.h>			/* container-interlocked-queue */
 #include	<localmisc.h>
 
@@ -69,6 +70,11 @@
 #define	UCTIMEOUT_SCOPE	PTHREAD_SCOPE_SYSTEM
 
 #define	NDF		"uctimeout.deb"
+
+
+/* typedefs */
+
+typedef vecsorthand	prique ;
 
 
 /* external subroutines */
@@ -98,7 +104,7 @@ struct uctimeout {
 	vechand		ents ;
 	ciq		pass ;
 	UCTIMEOUT_FL	open, f ;
-	pririty_queue	*pqp ;
+	vecsorthand	*pqp ;
 	pid_t		pid ;
 	pthread_t	tid_catch ;
 	pthread_t	tid_disp ;
@@ -128,6 +134,12 @@ enum cmds {
 
 extern "C" int	uctimeout_init() ;
 extenr "C" void	uctimeout_fini() ;
+
+static int	uctimeout_cmdset(UCTIMEOUT *,TIMEOUT *) ;
+static int	uctimeout_cmdcancel(UCTIMEOUT *,TIMEOUT *) ;
+
+static int	uctimeout_enterpri(UCTIMEOUT *,TIMEOUT *) ;
+static int	uctimeout_timerset(UCTIMEOUT *,time_t) ;
 
 static int	uctimeout_capbegin(UCTIMEOUT *,int) ;
 static int	uctimeout_capend(UCTIMEOUT *) ;
@@ -169,6 +181,8 @@ static int	uctimeout_waitdone(UCTIMEOUT *) ;
 static void	uctimeout_atforkbefore() ;
 static void	uctimeout_atforkparent() ;
 static void	uctimeout_atforkchild() ;
+
+static int	ourcmp(const void *,const void *) ;
 
 
 /* local variables */
@@ -244,8 +258,10 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
 	int		rs ;
+	int		id = 0 ;
 
 	if (valp == NULL) return SR_FAULT ;
+	if (cmd < 0) return SR_INVALID ;
 
 	if ((rs = uctimeout_init()) >= 0) {
 	    if ((rs = uctimeout_capbegin(uip,-1)) >= 0) {
@@ -253,9 +269,11 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 	            switch (cmd) {
 	            case timeoutcmd_set:
 	                rs = uctimeout_cmdset(uip,valp) ;
+			id = rs ;
 	                break ;
 	            case timeoutcmd_cancel:
 	                rs = uctimeout_cmdcancel(uip,valp) ;
+			id = rs ;
 	                break ;
 		    default:
 		        rs = SR_INVALID ;
@@ -267,7 +285,7 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 	    } /* end if (uctimeout-cap) */
 	} /* end if (uctimeout_init) */
 
-	return rs ;
+	return (rs >= 0) ? id : rs ;
 }
 /* end subroutine (uc_timeout) */
 
@@ -275,26 +293,106 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 /* local subroutines */
 
 
-static int uctimeout_cmdset(UCTIMEOUT *uip,TIMEVAL *valp)
+static int uctimeout_cmdset(UCTIMEOUT *uip,TIMEOUT *valp)
 {
-	int		rs = SR_OK ;
-
-
-
+	TIMEVAL		*ep ;
+	const int	esize = sizeof(TIMEVAL) ;
+	int		rs ;
+	int		rs1 ;
+	if (valp->metp == NULL) return SR_FAULT ;
+	if ((rs = uc_malloc(esize,&ep)) >= 0) {
+		if ((rs = ptm_lock(&op->m)) >= 0) {
+	    if ((rs = vechand_add(&uip->ents,ep)) >= 0) {
+		const int	ei = rs ;
+		*ep = *valp ;
+		    {
+			ep->id = ei ;
+		        rs = uctimeout_enterpri(uip,ep) ;
+		    }
+		if (rs < 0)
+		    vechand_del(ei) ;
+	    } /* end if (vechand_add) */
+		    rs1 = ptm_unlock(&op->m) ;
+		    if (rs >= 0) rs = rs1 ;
+		} /* end if (ptm) */
+	    if (rs < 0)
+		uc_free(ep) ;
+	} /* end if (m-a) */
 	return rs ;
 }
 /* end subroutine (uctimeout_cmdset) */
 
 
-static int uctimeout_cmdcancel(UCTIMEOUT *uip,TIMEVAL *valp)
+static int uctimeout_cmdcancel(UCTIMEOUT *uip,TIMEOUT *valp)
 {
-	int		rs = SR_OK ;
-
-
-
+	const int	id = valp->id ;
+	int		rs ;
+	int		rs1 ;
+	if ((rs = ptm_lock(&op->m)) >= 0) {
+	    TIMEOUT	*ep ;
+	    vechand	*elp = &uip->ents ;
+	    if ((rs = vechand_get(elp,id,&ep)) >= 0) {
+	        prique 		*pqp = uip->pqp ;
+		const int	ei = rs ;
+		if ((rs = vecsorthand_delhand(pqp,ep)) >= 0) {
+		    rs = vechand_del(elp,ei) ;
+		}
+	    }
+	    rs1 = ptm_unlock(&op->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
 	return rs ;
 }
 /* end subroutine (uctimeout_cmdcancel) */
+
+
+static int uctimeout_enterpri(UCTIMEOUT *uip,TIMEOUT *ep)
+{
+	prique		*pqp = uip->pqp ;
+	int		rs ;
+	int		pi = 0 ;
+	if ((rs = vecsorthand_count(pqp)) > 0) {
+	    TIMEOUT	*tep ;
+	    if ((rs = vecsorthand_get(pqp,0,&tep)) >= 0) {
+	        if (ep->val < tep->val) {
+	            if ((rs = vecsorthand_add(pqp,ep)) >= 0) {
+			pi = rs ;
+	                rs = uctimeout_timerset(uip,ep->val) ;
+			if (rs < 0)
+			    vecsorthand_del(pqp,pi) ;
+		    }
+	        } else {
+	            rs = vecsorthand_add(pqp,ep) ;
+		    pi = rs ;
+		}
+	    } /* end if (vecsorthand_get) */
+	} else {
+	    if ((rs = vecsorthand_add(pqp,ep)) >= 0) {
+		pi = rs ;
+	        rs = uctimeout_timerset(uip,ep->val) ;
+		if (rs < 0)
+		    vecsorthand_del(pqp,pi) ;
+	    } /* end if (vecsorthand_add) */
+	}
+	return (rs >= 0) ? pi : rs ;
+}
+/* end subroutine (uctimeout_enterpri) */
+
+
+static int uctimeout_timerset(UCTIMEOUT *uip,time_t val)
+{
+	TIMESPEC	ts ;
+	int		rs ;
+	if ((rs = timespec_load(&ts,val,0)) >= 0) {
+	    ITIMERSPEC	it ;
+	    if ((rs = itimerspec_load(&it,&ts,NULL)) >= 0) {
+		const timer_t	timerid = uip->timerid ;
+	        rs = uc_timerset(timerid,&it,NULL) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (uctimeout_timerset) */
 
 
 static int uctimeout_capbegin(UCTIMEOUT *uip,int to)
@@ -462,14 +560,18 @@ static int uctimeout_workfins(UCTIMEOUT *uip)
 
 static int uctimeout_priqbegin(UCTIMEOUT *uip)
 {
+	const int	osize = sizeof(vecsorthand) ;
+	int		rs ;
 	void		*p ;
-	int		rs = SR_OK ;
-	p = new(nothrow) priority_queue<TIMEOUT *,vector<TIMEOUT *>,ourcmp> ;
-	if (p != NULL) {
-	    uip->pqp = (priority_queue<TIMEOUT *>) p ;
-	} else {
-	    rs = SR_NOMEM ;
-	}
+	if ((rs = uc_malloc(osize,&p)) >= 0) {
+	    priqueue	*pqp = p ;
+	    uip->pqp = p ;
+	    rs = vecsorthand_start(pqp,1,ourcmp) ;
+	    if (rs < 0) {
+		uc_free(uip->pqp) ;
+		uip->pqp = NULL ;
+	    }
+	} /* end if (m-a) */
 	return rs ;
 }
 /* end subroutine (uctimeout_priqbegin) */
@@ -478,8 +580,16 @@ static int uctimeout_priqbegin(UCTIMEOUT *uip)
 static int uctimeout_priqend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
-	delete uip->pqp ;
-	uip->pqp = NULL ;
+	int		rs1 ;
+	{
+	    rs1 = vecsorthand_finish(uip->pqp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	{
+	    rs1 = uc_free(uip->pqp) ;
+	    if (rs >= 0) rs = rs1 ;
+	    uip->pqp = NULL ;
+	}
 	return rs ;
 }
 /* end subroutine (uctimeout_priqend) */
@@ -575,14 +685,14 @@ static int uctimeout_thrcatchend(UCTIMEOUT *uip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	if (uip->f.running_catch) {
-	 	    pthread_t	tid = uip->tid_catch ;
-		    int		trs ;
-		        uip->f.running_catch = FALSE ;
-		    if ((rs = uptjoin(tid,&trs)) >= 0) {
-		        rs = trs ;
-		    } else if (rs == SR_SRCH) {
-		        rs = SR_OK ;
-		    }
+	    pthread_t	tid = uip->tid_catch ;
+	    int		trs ;
+	    uip->f.running_catch = FALSE ;
+	    if ((rs = uptjoin(tid,&trs)) >= 0) {
+		rs = trs ;
+	    } else if (rs == SR_SRCH) {
+		rs = SR_OK ;
+	    }
 	}
 	return rs ;
 }
@@ -617,7 +727,7 @@ static int uctimeout_sigwait(UCTIMEOUT *uip)
 	int		f_exit = FALSE ;
 	uc_sigsetempty(&ss) ;
 	uc_sigsetadd(sig) ;
-	timespec_init(&ts,10,0) ;
+	timespec_load(&ts,10,0) ;
 	repeat {
 	    rs = uc_sigwaitinfo(&ss,&si,&ts) ;
 	    if (rs < 0) {
@@ -641,18 +751,27 @@ static int uctimeout_sigwait(UCTIMEOUT *uip)
 
 static int uctimeout_sigserve(UCTIMEOUT *uip)
 {
-	const time_t	dt = time(NULL) ;
-	int		rs = SR_OK ;
-	int		qs ;
-	while ((qs = pqp->size()) > 0) {
-	    TIMEOUT	*top = pqp->top() ;
-	    if (top->val > dt) break ;
-	    pqp->pop() ;
-	    if ((rs = ciq_ins(&uip->pass,top)) >= 0) {
-	        rs = ptc_signal(&uip->c) ;
-	    }
-	    if (rs < 0) break ;
-	} /* end while */
+	const int	to = 60 ;
+	int		rs ;
+	int		rs1 ;
+	if ((rs = ptm_lockto(&uip->m,to)) >= 0) {
+	    const time_t	dt = time(NULL) ;
+	    while ((rs = vecsorthand_count(pqp)) > 0) {
+	        TIMEOUT		*tep ;
+		if ((rs = vecsorthand_get(pqp,0,&tep)) >= 0) {
+		    const int	ei = rs ;
+	            if (top->val > dt) break ;
+	            if ((rs = vecsorthand_del(pqp,ei)) >= 0) {
+	                if ((rs = ciq_ins(&uip->pass,tep)) >= 0) {
+	                    rs = ptc_signal(&uip->c) ;
+			}
+	            }
+		}
+	        if (rs < 0) break ;
+	    } /* end while */
+	    rs1 = ptm_unlock(&uip->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
 	return rs ;
 }
 /* end subroutine (uctimeout_sigserve) */
@@ -957,5 +1076,28 @@ static void uctimeout_atforkchild()
 	ptm_unlock(&uip->m) ;
 }
 /* end subroutine (uctimeout_atforkchild) */
+
+
+static int ourcmp(const void *a1p,const void *a2p)
+{
+	int		**e1pp = (TIMEOUT **) a1p ;
+	int		**e2pp = (TIMEOUT **) a2p ;
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+		    TIMEOUT	*i1p = (TIMEOUT *) *e1pp ;
+		    TIMEOUT	*i2p = (TIMEOUT *) *e2pp ;
+	            rc = (*i1p - *i2p) ;
+	        } else
+		    rc = -1 ;
+	    } else
+		rc = 1 ;
+	}
+	return rc ;
+
+}
+/* end subroutine (ourcmp) */
+
 
 

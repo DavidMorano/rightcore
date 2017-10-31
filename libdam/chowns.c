@@ -49,7 +49,6 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<string.h>
 
 #include	<vsystem.h>
@@ -79,7 +78,7 @@ struct checkinfo {
 
 /* forward references */
 
-static int checkdir(struct checkinfo *,const char *) ;
+static int	checkdir(struct checkinfo *,const char *) ;
 
 
 /* local variables */

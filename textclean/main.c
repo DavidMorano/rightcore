@@ -671,8 +671,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -732,8 +731,8 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
 	    struct options	*opp = pip->config ;
-	    const char	*pn = pip->progname ;
-	    bfile	*efp = pip->efp ;
+	    const char		*pn = pip->progname ;
+	    bfile		*efp = pip->efp ;
 	    bprintf(efp,"%s: inplace=%u\n",pn,opp->f.inplace) ;
 	    bprintf(efp,"%s: lower=%u\n",pn,opp->f.lower) ;
 	    bprintf(efp,"%s: double=%u\n",pn,opp->f.doublespace) ;

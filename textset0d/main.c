@@ -621,8 +621,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -671,11 +670,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pagelines = rs ;
 	}
 
-	if (pagelines < 1)
-	    pagelines = DEFLINES ;
-
-	if (pagelines > MAXLINES)
-	    pagelines = MAXLINES ;
+	if (pagelines < 1) pagelines = DEFLINES ;
+	if (pagelines > MAXLINES) pagelines = MAXLINES ;
 
 	pip->pagelines = pagelines ;
 

@@ -1,5 +1,7 @@
 /* timeval */
 
+/* time-value object methods */
+
 
 /* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
@@ -20,7 +22,7 @@
 extern "C" {
 #endif
 
-extern int timeval_init(TIMEVAL *,time_t,int) ;
+extern int timeval_load(TIMEVAL *,time_t,int) ;
 extern int timeval_add(struct timeval *,struct timeval *,struct timeval *) ;
 extern int timeval_sub(struct timeval *,struct timeval *,struct timeval *) ;
 

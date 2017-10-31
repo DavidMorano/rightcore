@@ -89,7 +89,7 @@ int uc_sigtimedwait(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
 
 	if (tsp == NULL) {
 	    tsp = &ts ;
-	    timespec_init(&ts,0,0) ;
+	    timespec_load(&ts,0,0) ;
 	}
 
 	repeat {

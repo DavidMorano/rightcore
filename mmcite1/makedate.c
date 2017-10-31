@@ -1,2 +1,2 @@
 const char mmcite_makedate[] =
-"@(#)mmcite                  170818_0502:11_USEDT Rightcore Network Services" ;
+"@(#)mmcite                  171030_1423:29_USEDT Rightcore Network Services" ;

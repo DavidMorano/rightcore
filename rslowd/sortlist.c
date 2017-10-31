@@ -1,4 +1,5 @@
 /* sortlist */
+/* lang=C99 */
 
 /* sorted list operations */
 
@@ -46,7 +47,6 @@
 
 
 /* exported subroutines */
-
 
 
 int sortlist_init(slp,cmpfunc)
@@ -162,13 +162,13 @@ int		(*cmpfunc)() ;
 
 	while ((top - bot) > 0) {
 
-	    if ((rs = (*cmpfunc)(p,slp->va[ii])) < 0)
+	    if ((rs = (*cmpfunc)(p,slp->va[ii])) < 0) {
 	        top = ii - 1 ;
 
-	    else if (rs > 0)
+	    } else if (rs > 0) {
 	        bot = ii + 1 ;
 
-	    else
+	    } else
 	        break ;
 
 	    ii = (bot + top) / 2 ;
@@ -186,8 +186,9 @@ int		(*cmpfunc)() ;
 
 /* move all entries from "ii" through "slp->i - 1" down one */
 
-	    for (j = (slp->i - 1) ; j >= ii ; j -= 1)
+	    for (j = (slp->i - 1) ; j >= ii ; j -= 1) {
 	        (slp->va)[j + 1] = (slp->va)[j] ;
+	    }
 
 	} /* end if */
 

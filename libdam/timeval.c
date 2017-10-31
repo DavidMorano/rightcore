@@ -46,7 +46,7 @@
 /* exported subroutines */
 
 
-int timeval_init(TIMEVAL *dst,time_t sec,int usec)
+int timeval_load(TIMEVAL *dst,time_t sec,int usec)
 {
 	if (dst == NULL) return SR_FAULT ;
 	while (usec >= INTMILLION) {
@@ -57,7 +57,7 @@ int timeval_init(TIMEVAL *dst,time_t sec,int usec)
 	dst->tv_usec = usec ;
 	return SR_OK ;
 }
-/* end subroutine (timeval_init) */
+/* end subroutine (timeval_load) */
 
 
 int timeval_add(TIMEVAL *dst,TIMEVAL *src1,TIMEVAL *src2)

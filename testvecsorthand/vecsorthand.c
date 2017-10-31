@@ -58,7 +58,7 @@ static int	defcmpfunc(const void *,const void *) ;
 /* exported subroutines */
 
 
-int vecsorthand_start(vecsorthand *op,int n,int (*cmpfunc)())
+int vecsorthand_start(vecsorthand *op,int n,vecentcmp_t cmpfunc)
 {
 	int		rs ;
 	int		size = 0 ;
@@ -92,12 +92,6 @@ int vecsorthand_finish(vecsorthand *op)
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->va != NULL) {
-	    int	i ;
-	    for (i = 0 ; i < op->i ; i += 1) {
-	        if ((op->va)[i] != NULL) {
-	            uc_free((op->va)[i]) ;
-	        }
-	    } /* end while */
 	    uc_free(op->va) ;
 	    op->va = NULL ;
 	}
@@ -110,19 +104,19 @@ int vecsorthand_finish(vecsorthand *op)
 
 
 /* add an entry to this sorted list */
-int vecsorthand_add(vecsorthand *op,void *buf)
+int vecsorthand_add(vecsorthand *op,const void *buf)
 {
 	int		rs ;
 	int		i = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("vecsorthandadd: ent\n") ;
+	debugprintf("vecsorthand_add: ent\n") ;
 #endif
 
 	if (op == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("vecsorthandadd: ent, i=%d\n",op->i) ;
+	debugprintf("vecsorthand_add: i=%d\n",op->i) ;
 #endif
 
 	if ((rs = vecsorthand_extend(op)) >= 0) {
@@ -139,7 +133,7 @@ int vecsorthand_add(vecsorthand *op,void *buf)
 	    i = (bot + top) / 2 ;
 
 #if	CF_DEBUGS
-	    debugprintf("vecsorthandadd: bot=%d top=%d i=%d\n",bot,top,i) ;
+	    debugprintf("vecsorthand_add: bot=%d top=%d i=%d\n",bot,top,i) ;
 #endif
 
 	    while ((top - bot) > 0) {
@@ -156,7 +150,7 @@ int vecsorthand_add(vecsorthand *op,void *buf)
 	    } /* end while */
 
 #if	CF_DEBUGS
-	    debugprintf("vecsorthandadd: found bot=%d top=%d i=%d\n",
+	    debugprintf("vecsorthand_add: found bot=%d top=%d i=%d\n",
 		bot,top,i) ;
 #endif
 
@@ -182,28 +176,45 @@ int vecsorthand_add(vecsorthand *op,void *buf)
 
 	} /* end if (vecsorthand_extend) */
 
-	return i ;
+#if	CF_DEBUGS
+	debugprintf("vecsorthand_add: ret rs=%d i=%u\n",rs,i) ;
+#endif
+
+	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (vecsorthand_add) */
 
 
 /* get an entry (enumerated) from the vector list */
-int vecsorthand_get(vecsorthand *op,int i,void **rpp)
+int vecsorthand_get(vecsorthand *op,int i,void *vp)
 {
+	int		rs = SR_NOTFOUND ;
+	const void	*rval = NULL ;
+
+#if	CF_DEBUGS
+	debugprintf("vecsorthand_get: ent i=%d\n",i) ;
+	debugprintf("vecsorthand_get: ii=%d\n",op->i) ;
+#endif
 
 	if (op == NULL) return SR_FAULT ;
 
-	if (rpp != NULL) *rpp = NULL ;
-
-	if ((i < 0) || (i >= op->i)) return SR_NOTFOUND ;
-
 	if (op->va == NULL) return SR_NOTFOUND ;
 
-	if (rpp != NULL) {
-	    *rpp = (op->va)[i] ;
+	if ((i >= 0) && (i < op->i)) {
+	    rval = (op->va)[i] ;
+	    rs = i ;
 	}
 
-	return SR_OK ;
+	if (vp != NULL) {
+	    const void	**rpp = (const void **) vp ;
+	    *rpp = rval ;
+	}
+
+#if	CF_DEBUGS
+	debugprintf("vecsorthand_get: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
 }
 /* end subroutine (vecsorthand_get) */
 
@@ -211,25 +222,44 @@ int vecsorthand_get(vecsorthand *op,int i,void **rpp)
 /* delete an entry */
 int vecsorthand_del(vecsorthand *op,int i)
 {
-	int		j ;
+	int		rs = SR_NOTFOUND ;
 
 	if (op == NULL) return SR_FAULT ;
 
-	if ((i < 0) || (i >= op->i)) return SR_NOTFOUND ;
-
 	if (op->va == NULL) return SR_NOTFOUND ;
 
-	op->i -= 1 ;
-	for (j = i ; j < op->i ; j += 1) {
-	    (op->va)[j] = (op->va)[j + 1] ;
-	}
+	if ((i >= 0) && (i < op->i)) {
+	    int		j ;
+	    op->i -= 1 ;
+	    for (j = i ; j < op->i ; j += 1) {
+	        (op->va)[j] = (op->va)[j + 1] ;
+	    }
+	    (op->va)[op->i] = NULL ;
+	    op->c -= 1 ;		/* decrement list count */
+	    rs = op->c ;
+	} /* end if */
 
-	(op->va)[op->i] = NULL ;
-
-	op->c -= 1 ;		/* decrement list count */
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (vecsorthand_del) */
+
+
+int vecsorthand_delhand(vecsorthand *op,const void *ep)
+{
+	const int	n = op->i ;
+	int		rs = SR_NOTFOUND ;
+	int		i ;
+	int		f = FALSE ;
+	for (i = 0 ; i < n ; i += 1) {
+	    f = ((op->va)[i] == ep) ;
+	    if (f) break ;
+	} /* end for */
+	if (f) {
+	    rs = vecsorthand_del(op,i) ;
+	}
+	return rs ;
+}
+/* end subroutine (vecsorthand_delhand) */
 
 
 /* return the count of the number of items in this list */
@@ -244,30 +274,27 @@ int vecsorthand_count(vecsorthand *op)
 
 
 /* search for an entry in the sorted vector list */
-int vecsorthand_search(op,ep,rpp)
-vecsorthand	*op ;
-void		*ep ;
-void		**rpp ;
+int vecsorthand_search(vecsorthand *op,const void *ep,void *vp)
 {
 	const int	esize = sizeof(void *) ;
-	int		rs ;
+	int		rs = SR_NOTFOUND ;
 	int		i ;
-	void		**rpp2 ;
+	const void	**rpp2 ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (ep == NULL) return SR_FAULT ;
 
 	if (op->va == NULL) return SR_NOTFOUND ;
 
-	rpp2 = (void **) bsearch(&ep,op->va,op->i,esize,op->cmpfunc) ;
+	rpp2 = (const void **) bsearch(&ep,op->va,op->i,esize,op->cmpfunc) ;
 
-	rs = SR_NOTFOUND ;
 	if (rpp2 != NULL) {
 	    i = (rpp2 - op->va) ;
 	    rs = SR_OK ;
 	}
 
-	if (rpp != NULL) {
+	if (vp != NULL) {
+	    const void	**rpp = (const void **) vp ;
 	    *rpp = ((rs >= 0) ? op->va[i] : NULL) ;
 	}
 
@@ -286,7 +313,7 @@ static int vecsorthand_extend(vecsorthand *op)
 	    const int	ndef = VECSORTHAND_DEFENTS ;
 	    int		size ;
 	    int		ne ;
-	    void	**np = NULL ;
+	    const void	**np = NULL ;
 	    if (op->e == 0) {
 	        ne = ndef ;
 	        size = (ndef*sizeof(char **)) ;

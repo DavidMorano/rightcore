@@ -267,7 +267,8 @@ control:
 	date >> Control
 
 
-main.o:			main.c $(INCS)
+main.o:			main.cc $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) main.cc
 
 whatinfo.o:		whatinfo.c config.h
 

@@ -251,7 +251,7 @@ static int	locinfo_pcsnsget(LOCINFO *,char *,int,cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -319,7 +319,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"linebuf",
 	"all",
 	"realname",

@@ -1,2 +1,2 @@
 const char mbproc_makedate[] =
-"@(#)mbproc                  170612_0016:55_USEDT Rightcore Network Services" ;
+"@(#)mbproc                  171030_1444:10_USEDT Rightcore Network Services" ;

@@ -1,6 +1,8 @@
 /* kshlib */
+/* lang=C89 */
 
 /* library initialization for KSH built-in command libraries */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time */
@@ -10,18 +12,18 @@
 #define	CF_PLUGIN	1		/* define 'plugin_version()' */
 #define	CF_LOCKMEMALLOC	1		/* call |lockmemalloc(3uc)| */
 #define	CF_KSHRUN	1		/* run background under KSH */
+#define	CF_MQ		0		/* need |kshlib_mq()| */
+#define	CF_LOCMALSTRW	0		/* use local |mallocstrw()| */
 
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-
+	= 2001-11-01, David A­D­ Morano
 	Originally written for Rightcore Network Services.
-
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -44,7 +46,7 @@
 
 	Synopsis:
 
-	void lib_init(int flags,void *contextp)
+	void lib_init(int flags,void *cxp)
 
 	Arguments:
 
@@ -94,16 +96,16 @@
 
 	Synopsis:
 
-	int lib_initenviron(void *contextp)
+	int lib_initenviron(void *cxp)
 
 	Arguments:
 
-	contextp	context pointer
+	cxp		context pointer
 
 	Returns:
 
-	<0	error
-	>=0	OK
+	<0		error
+	>=0		OK
 
 
 	------------------------------------------------------------------------
@@ -128,12 +130,12 @@
 
 	Synopsis:
 
-	int lib_caller(func,argc,argv,envv,contextp)
+	int lib_caller(func,argc,argv,envv,cxp)
 	int		(*func)(int,cchar **,void *) ;
 	int		argc ;
 	cchar		*argv[] ;
 	cchar		*envv[] ;
-	void		*contextp ;
+	void		*cxp ;
 
 	Arguments:
 
@@ -141,7 +143,7 @@
 	argc		ARGC
 	argv		ARGV
 	envv		ENVV
-	contextp	KSH context
+	cxp		KSH context
 
 	Returns:
 
@@ -195,6 +197,21 @@
 	>=0		OK
 
 
+	Notes:
+
+	= Forked
+        We get forked, screwed, turned, rotated, twisted, yanked and pulled --
+        and probably a few other things. So we have to be very careful about
+        knowing who we are (our PID) and if the state of our address space and
+        threads are still valid.  This whole business is a real fork turner!
+
+	= Aligned integer types?
+
+	"aligned |int|s are already atomic"
+        Well, yes, on almost every platform except for the old (original) DEC
+        Alpha architecture.
+
+
 *******************************************************************************/
 
 
@@ -215,40 +232,28 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<lockmemalloc.h>
 #include	<upt.h>
 #include	<ptm.h>
 #include	<ptc.h>
 #include	<sigman.h>
 #include	<sockaddress.h>
 #include	<raqhand.h>
+#include	<char.h>
+#include	<utmpacc.h>
+#include	<tmtime.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
 #include	"sesmsg.h"
-#include	"msginfo.h"
+#include	"msgdata.h"
 #include	"kshlib.h"
 
 
 /* local defines */
 
-#ifndef	POLLINTMULT
-#define	POLLINTMULT	1000		/* poll-time multiplier */
-#endif
-
-#ifndef	MSGHDR
-#define	MSGHDR		srtuct msghdr
-#endif
-
-#ifndef	MSGBUFLEN
-#define	MSGBUFLEN	2048
-#endif
-
-#ifndef	CMSGBUFLEN
-#define	CMSGBUFLEN	256
-#endif
-
 #ifndef	DIGBUFLEN
-#define	DIGBUFLEN	45		/* can hold int128_t in decimal */
+#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
 #if	(defined(KSHBUILTIN) && (KSHBUILTIN > 0))
@@ -261,7 +266,7 @@
 #define	KSHLIB_SYMSEARCH	RTLD_SELF
 #endif
 
-#define	VARKSHLIBRUN	"KSHLIB_RUN"
+#define	VARKSHLIBRUN	"KSHLIB_RUNOPTS"
 
 #define	NDF		"kshlib.deb"
 
@@ -272,10 +277,15 @@
 #define	TO_LOCKENV	10
 
 #define	KSHLIB		struct kshlib
+#define	KSHLIB_FL	struct kshlib_flags
 #define	KSHLIB_SCOPE	PTHREAD_SCOPE_PROCESS
-#define	KSHLIB_SESDNAME	"/var/tmp/sessions"
 
 #define	STORENOTE	struct storenote
+#define	STORENOTE_FL	struct storenote_flags
+
+#ifndef	TIMEBUFLEN
+#define	TIMEBUFLEN	80
+#endif
 
 
 /* external subroutines */
@@ -287,14 +297,22 @@ extern int	mkpath1(char *,cchar *) ;
 extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
 extern int	mkfnamesuf2(char *,cchar *,cchar *,cchar *) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	siskipwhite(cchar *,int) ;
+extern int	matostr(cchar **,int,cchar *,int) ;
 extern int	cfdeci(cchar *,int,int *) ;
 extern int	cfdecui(cchar *,int,uint *) ;
 extern int	ctdecui(char *,int,uint) ;
 extern int	perm(cchar *,uid_t,gid_t,gid_t *,int) ;
 extern int	mkdirs(cchar *,mode_t) ;
 extern int	listenusd(cchar *,mode_t,int) ;
+extern int	rmsesfiles(cchar *) ;
+extern int	isdirempty(cchar *) ;
 extern int	msleep(int) ;
+extern int	rmeol(cchar *,int) ;
+extern int	iseol(int) ;
 extern int	isNotPresent(int) ;
+extern int	isNotValid(int) ;
 
 #if	CF_LOCKMEMALLOC
 extern int	lockmemalloc_set(int) ;
@@ -306,15 +324,20 @@ extern int	debugprintf(cchar *,...) ;
 extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(cchar *,int,int) ;
-#endif
+#endif /* CF_DEBUGS */
 
 #if	CF_DEBUGN
 extern int	nprintf(cchar *,cchar *,...) ;
-#endif
+static int	nprintpid(cchar *s) ;
+static int	nprintid(cchar *) ;
+static int	nprintutmp(char *) ;
+#endif /* CF_DEBUGN */
 
 extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
+extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */
@@ -339,33 +362,58 @@ typedef	int (*tworker)(void *) ;
 typedef	int (*cmdsub_t)(int,cchar **,cchar **,void *) ;
 typedef	int (*func_caller)(int,cchar **,void *) ;
 
+struct kshlib_flags {
+	uint		notes:1 ;
+	uint		mq:1 ;
+	uint		initrun:1 ;	/* at initialization time */
+} ;
+
 struct kshlib {
 	PTM		m ;		/* mutex data */
 	PTM		menv ;		/* mutex environment */
 	PTC		c ;		/* condition variable */
 	SIGMAN		sm ;
-	cchar		*reqfname ;
 	SOCKADDRESS	servaddr ;	/* server address */
 	RAQHAND		mq ;		/* message queue */
-	pthread_t	tid ;
-	pid_t		pid ;
-	volatile int	f_init ;
-	volatile int	f_initdone ;
-	volatile int	f_running ;
-	volatile int	f_capture ;
-	volatile int	f_exiting ;
-	volatile int	waiters ;
-	int		f_sigterm ;
-	int		f_sigintr ;
-	int		f_mq ;
+	KSHLIB_FL	f, open ;
+	cchar		*sesdname ;	/* session directory-name */
+	cchar		*reqfname ;	/* request file-name */
+	pid_t		sid ;		/* session ID */
+	pid_t		pid ;		/* process ID */
+	pthread_t	tid ;		/* worker thread */
+	time_t		ti_sescheck ;
+	volatile int	f_initonce ;	/* aligned |int|s are already atomic */
+	volatile int	f_init ;	/* aligned |int|s are already atomic */
+	volatile int	f_initdone ;	/* aligned |int|s are already atomic */
+	volatile int	f_running ;	/* aligned |int|s are already atomic */
+	volatile int	f_capture ;	/* aligned |int|s are already atomic */
+	volatile int	f_exiting ;	/* aligned |int|s are already atomic */
+	volatile int	f_autorun ;	/* aligned |int|s are already atomic */
+	volatile int	waiters ;	/* aligned |int|s are already atomic */
+	sig_atomic_t	f_sigquit ;
+	sig_atomic_t	f_sigterm ;
+	sig_atomic_t	f_sigintr ;
+	sig_atomic_t	f_sigwich ;
+	sig_atomic_t	f_sigchild ;
+	sig_atomic_t	f_sigsusp ;
+	int		intpoll ;
+	int		intsescheck ;
+	int		seshour ;
 	int		runmode ;
 	int		serial ;
 	int		sfd ;
 	int		cdefs ;		/* defualt count */
 	int		servlen ;	/* serv-addr length */
+	int		pollcount ;
+} ;
+
+struct storenote_flags {
+	uint		displayed:1 ;	/* displayed by KSH itself */
+	uint		read:1 ;	/* marked as read by comment */
 } ;
 
 struct storenote {
+	STORENOTE_FL	f ;
 	time_t		stime ;
 	cchar		*dbuf ;
 	cchar		*user ;
@@ -377,55 +425,85 @@ struct storenote {
 
 /* forward references */
 
-int	lib_initenviron(void *) ;
-int	lib_callcmd(cchar *,int,cchar **,cchar **,void *) ;
-int 	lib_callfunc(subcmd_t,int,cchar **,cchar **,void *) ;
+int		lib_initenviron(void *) ;
+int		lib_callcmd(cchar *,int,cchar **,cchar **,void *) ;
+int 		lib_callfunc(subcmd_t,int,cchar **,cchar **,void *) ;
 
 static int	kshlib_init(void) ;
 static void	kshlib_fini(void) ;
 
 static void	kshlib_atforkbefore() ;
-static void	kshlib_atforkafter() ;
+static void	kshlib_atforkparent() ;
+static void	kshlib_atforkchild() ;
 static void	kshlib_sighand(int) ;
 
 static int	kshlib_begin(KSHLIB *) ;
 static int	kshlib_end(KSHLIB *) ;
-static int	kshlib_workcheck(KSHLIB *,cchar **) ;
+
+static int	kshlib_autorun(KSHLIB *,cchar **) ;
+static int	kshlib_autorunopt(KSHLIB *,cchar *,int) ;
+static int	kshlib_autorunoptnotes(KSHLIB *,cchar *,int,int) ;
+static int	kshlib_autorunopter(KSHLIB *) ;
+
 static int	kshlib_runbegin(KSHLIB *) ;
 static int	kshlib_runner(KSHLIB *) ;
 static int	kshlib_runend(KSHLIB *) ;
-static int	kshlib_entfins(KSHLIB *) ;
-static int	kshlib_mq(KSHLIB *) ;
-static int	kshlib_mkreqfname(KSHLIB *,char *,cchar *) ;
+
+static int	kshlib_sid(KSHLIB *) ;
+static int	kshlib_sesdname(KSHLIB *) ;
+static int	kshlib_reqfname(KSHLIB *) ;
 static int	kshlib_worker(KSHLIB *) ;
-static int	kshlib_workecho(KSHLIB *,MSGINFO *) ;
-static int	kshlib_workbiff(KSHLIB *,MSGINFO *) ;
+static int	kshlib_worknoop(KSHLIB *,MSGDATA *) ;
+static int	kshlib_workecho(KSHLIB *,MSGDATA *) ;
+static int	kshlib_workbiff(KSHLIB *,MSGDATA *) ;
 static int	kshlib_workbiffer(KSHLIB *,SESMSG_BIFF *) ;
-static int	kshlib_workgen(KSHLIB *,MSGINFO *) ;
+static int	kshlib_workgen(KSHLIB *,MSGDATA *) ;
 static int	kshlib_workgener(KSHLIB *,SESMSG_GEN *) ;
-static int	kshlib_workdef(KSHLIB *,MSGINFO *) ;
+static int	kshlib_workdef(KSHLIB *,MSGDATA *) ;
+
 static int	kshlib_msgenter(KSHLIB *,STORENOTE *) ;
 static int	kshlib_reqopen(KSHLIB *) ;
-static int	kshlib_reqopener(KSHLIB *,cchar *) ;
-static int	kshlib_reqsend(KSHLIB *,MSGINFO *,int) ;
-static int	kshlib_reqrecv(KSHLIB *,MSGINFO *) ;
+static int	kshlib_reqopener(KSHLIB *) ;
+static int	kshlib_reqsend(KSHLIB *,MSGDATA *,int,int) ;
+static int	kshlib_reqrecv(KSHLIB *,MSGDATA *) ;
 static int	kshlib_reqclose(KSHLIB *) ;
 static int	kshlib_poll(KSHLIB *) ;
 static int	kshlib_cmdsend(KSHLIB *,int) ;
 static int	kshlib_capbegin(KSHLIB *,int) ;
 static int	kshlib_capend(KSHLIB *) ;
-static int	kshlib_sigbegin(KSHLIB *) ;
+static int	kshlib_sigbegin(KSHLIB *,const int *) ;
 static int	kshlib_sigend(KSHLIB *) ;
+
+static int	kshlib_notesbegin(KSHLIB *) ;
+static int	kshlib_notesend(KSHLIB *) ;
+static int	kshlib_notesactive(KSHLIB *) ;
+static int	kshlib_notescount(KSHLIB *) ;
+
+static int	kshlib_mqbegin(KSHLIB *) ;
+static int	kshlib_mqend(KSHLIB *) ;
+static int	kshlib_mqfins(KSHLIB *) ;
+static int	kshlib_mqactive(KSHLIB *) ;
+static int	kshlib_mqcount(KSHLIB *) ;
+
+static int	kshlib_sesend(KSHLIB *) ;
+
+#if	CF_MQ
+static int	kshlib_mq(KSHLIB *) ;
+#endif
 
 int		lib_initmemalloc(int) ;
 
 static int	storenote_start(STORENOTE *,int,time_t,cchar *,cchar *,int) ;
 static int	storenote_finish(STORENOTE *) ;
 
-static int	mallocstrw(cchar *,int,cchar **) ;
 static int	sdir(cchar *,int) ;
 static int	mksdir(cchar *,mode_t) ;
 static int	mksdname(char *,cchar *,pid_t) ;
+
+#if	CF_LOCMALSTRW
+static int	mallocstrw(cchar *,int,cchar **) ;
+#endif /* CF_LOCMALSTRW */
+
 
 #if	CF_DEBUGENV && CF_DEBUGN
 static int	ndebugenv(cchar *,cchar **) ;
@@ -444,12 +522,11 @@ static KSHLIB		kshlib_data ; /* zero-initialized */
 static const int	sigblocks[] = {
 	SIGUSR1,
 	SIGUSR2,
-	SIGHUP,
-	SIGCHLD,
 	0
 } ;
 
 static const int	sigigns[] = {
+	SIGHUP,
 	SIGPIPE,
 	SIGPOLL,
 #if	defined(SIGXFSZ)
@@ -459,9 +536,25 @@ static const int	sigigns[] = {
 } ;
 
 static const int	sigints[] = {
-	SIGINT,
+	SIGQUIT,
 	SIGTERM,
+	SIGINT,
+	SIGWINCH,
+	SIGCHLD,
+	SIGTSTP,
 	0
+} ;
+
+enum runopts {
+	runopt_notes,
+	runopt_lognotes,
+	runopt_overlast
+} ;
+
+static cchar	*runopts[] = {
+	"notes",
+	"lognotes",
+	NULL
 } ;
 
 
@@ -469,27 +562,38 @@ static const int	sigints[] = {
 
 
 /* ARGSUSED */
-void lib_init(int flags,void *contextp)
+void lib_init(int flags,void *cxp)
 {
+	KSHLIB		*uip = &kshlib_data ;
+	if (! uip->f_initonce) {
+	    uip->f_initonce = TRUE ;
+
+#if	CF_DEBUGN
+	{
+	    const uint	pid = getpid() ;
+	    const uint	ppid = getppid() ;
+	    nprintf(NDF,"lib_init: ent pid=%u ppid=%u\n",pid,ppid) ;
+	}
+#endif
 
 #if	CF_DEBUGENV && CF_DEBUGN
 	{
 	    const pid_t	pid = getpid() ;
-	    void *p = dlsym(RTLD_DEFAULT,"environ") ;
+	    void 	*p = dlsym(RTLD_DEFAULT,"environ") ;
 	    nprintf(NDF,"lib_init: ent pid=%u\n",pid) ;
 	    nprintf(NDF,"lib_init: flags=%16ß (%u)\n",flags,flags) ;
 	    if (p != NULL) {
-		cchar	***evp = (cchar ***) p ;
-		cchar	**ev ;
-		ev = *evp ;
+	        cchar	***evp = (cchar ***) p ;
+	        cchar	**ev ;
+	        ev = *evp ;
 	        nprintf(NDF,"lib_init: p=%P\n",p) ;
 	        nprintf(NDF,"lib_init: main-environ{%P}=%P\n",evp,ev) ;
 	        nprintf(NDF,"lib_init: lib-environ{%P}=%P\n",
-			&environ,environ) ;
+	            &environ,environ) ;
 	        ndebugenv("lib_init-m",ev) ;
 	    }
 	    nprintf(NDF,"lib_init: lib-environ=%P\n",environ) ;
-	    nprintf(NDF,"lib_init: contextp=%P\n",contextp) ;
+	    nprintf(NDF,"lib_init: cxp=%P\n",cxp) ;
 	}
 #endif /* CF_DEBUGN */
 
@@ -511,25 +615,34 @@ void lib_init(int flags,void *contextp)
 	{
 	    int	rs ;
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_init: KSHRUN\n") ;
+	    nprintf(NDF,"lib_init: KSHRUN\n") ;
 #endif
-	    if ((rs = lib_initenviron(contextp)) >= 0) {
+	    if ((rs = lib_initenviron(cxp)) >= 0) {
 	        if ((rs = kshlib_init()) >= 0) {
-		    KSHLIB	*uip = &kshlib_data ;
-		    cchar	**envv = (cchar **) environ ;
-		    rs = kshlib_workcheck(uip,envv) ;
+	            KSHLIB	*uip = &kshlib_data ;
+	            cchar	**envv = (cchar **) environ ;
+	            rs = kshlib_autorun(uip,envv) ;
 	        } /* end if (init) */
 	    } /* end if (lib_initenviron) */
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_init: KSHRUN rs=%d\n",rs) ;
+	    nprintf(NDF,"lib_init: KSHRUN rs=%d\n",rs) ;
 #endif
 	}
-#endif /* CF_KSHRUN*/
+#endif /* CF_KSHRUN */
 
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_init: ret\n") ;
+	{
+	    const uint	pid = getpid() ;
+	    nprintf(NDF,"lib_init: ret pid=%u\n",pid) ;
+	}
 #endif
 
+	} else {
+#if	CF_DEBUGN
+	    const uint	pid = getpid() ;
+	    nprintf(NDF,"lib_init: REPEAT pid=%u\n",pid) ;
+#endif
+	} /* end if (init-once) */
 }
 /* end subroutine (lib_init) */
 
@@ -542,33 +655,37 @@ void lib_fini(void)
 
 
 /* is this multi-thread safe or not? */
-int lib_initenviron(void *contextp)
+/* ARGSUSED */
+int lib_initenviron(void *cxp)
 {
 	int		rs = SR_OK ;
 	if (environ == NULL) {
-	        char ***eppp = dlsym(RTLD_DEFAULT,"environ") ;
-	        if ((eppp != NULL) && (eppp != &environ)) environ = *eppp ;
-	        if (environ == NULL) environ = (char **) defenviron ;
+	    char ***eppp = dlsym(RTLD_DEFAULT,"environ") ;
+	    if ((eppp != NULL) && (eppp != &environ)) environ = *eppp ;
+	    if (environ == NULL) environ = (char **) defenviron ;
 	} /* end if (environ) */
 	return rs ;
 }
 /* end subroutine (lib_initenviron) */
 
 
-int lib_mainbegin(cchar **envv)
+int lib_mainbegin(cchar **envv,const int *catches)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_mainbegin: ent\n") ;
+	{
+	    const uint	pid = getpid() ;
+	    nprintf(NDF,"lib_mainbegin: ent pid=%u\n",pid) ;
+	}
 #endif
 
 	if ((rs = kshlib_init()) >= 0) {
 	    KSHLIB	*uip = &kshlib_data ;
-	    if ((rs = kshlib_sigbegin(uip)) >= 0) {
-		rs = kshlib_workcheck(uip,envv) ;
-		if (rs < 0)
-	    	    kshlib_sigend(uip) ;
+	    if ((rs = kshlib_sigbegin(uip,catches)) >= 0) {
+	        rs = kshlib_autorun(uip,envv) ;
+	        if (rs < 0)
+	            kshlib_sigend(uip) ;
 	    } /* end if (kshlib_sigbegin) */
 	} /* end if (kshlib_init) */
 
@@ -588,7 +705,11 @@ int lib_mainend(void)
 	int		rs1 ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_mainend: ent\n") ;
+	{
+	    const uint	pid = getpid() ;
+	    nprintf(NDF,"lib_mainend: ent pid=%u\n",pid) ;
+	    nprintf(NDF,"lib_mainend: f_running=%u\n",uip->f_running) ;
+	}
 #endif
 
 	if (uip->f_running) {
@@ -608,30 +729,23 @@ int lib_mainend(void)
 /* end subroutine (lib_mainend) */
 
 
-/* ARGSUSED */
-int lib_kshbegin(void *contextp)
+int lib_kshbegin(void *cxp,const int *catches)
 {
 	int		rs ;
 #if	CF_DEBUGN
 	nprintf(NDF,"lib_kshbegin: ent\n") ;
+	nprintpid("lib_kshbegin") ;
 #endif
-	if ((rs = lib_initenviron(contextp)) >= 0) {
+	if ((rs = lib_initenviron(cxp)) >= 0) {
 	    if ((rs = kshlib_init()) >= 0) {
-		KSHLIB	*kip = &kshlib_data ;
-		if ((rs = kshlib_sigbegin(kip)) >= 0) {
-		    cchar	**envv = (cchar **) environ ;
-		    if ((rs = kshlib_workcheck(kip,envv)) >= 0) {
-			kip->runmode |= KSHLIB_RMKSH ;
-		    }
-		    if (rs < 0) {
-			kip->runmode &= (~ KSHLIB_RMKSH) ;
-			kshlib_sigend(kip) ;
-		    }
-		} /* end if (kshlib_sigbegin) */
+	        KSHLIB	*kip = &kshlib_data ;
+	        if ((rs = kshlib_sigbegin(kip,catches)) >= 0) {
+	            kip->runmode |= KSHLIB_RMKSH ;
+	        } /* end if (kshlib_sigbegin) */
 	    } /* end if (kshlib_init) */
 	} /* end if (lib_initenviron) */
 	return rs ;
-} 
+}
 /* end subroutine (lib_kshbegin) */
 
 
@@ -666,48 +780,129 @@ int lib_serial(void)
 /* end subroutine (lib_serial) */
 
 
-int lib_sigintr(void)
-{
-	KSHLIB		*kip = &kshlib_data ;
-	return (kip->f_sigintr) ? SR_INTR : SR_OK ;
-}
-/* end subroutine (lib_sigintr) */
-
-
-int lib_sigterm(void)
-{
-	KSHLIB		*kip = &kshlib_data ;
-	return (kip->f_sigterm) ? SR_EXIT : SR_OK ;
-}
-/* end subroutine (lib_sigterm) */
-
-
 int lib_sigreset(int sn)
 {
 	KSHLIB		*kip = &kshlib_data ;
+	int		rs = SR_OK ;
 	switch (sn) {
+	case SIGQUIT:
+	    kip->f_sigquit = 0 ;
+	    break ;
 	case SIGTERM:
 	    kip->f_sigterm = 0 ;
 	    break ;
 	case SIGINT:
 	    kip->f_sigintr = 0 ;
 	    break ;
+	case SIGWINCH:
+	    kip->f_sigwich = 0 ;
+	    break ;
+	case SIGCHLD:
+	    kip->f_sigchild = 0 ;
+	    break ;
+	case SIGTSTP:
+	    kip->f_sigsusp = 0 ;
+	    break ;
+	default:
+	    rs = SR_INVALID ;
+	    break ;
 	} /* end switch */
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (lib_sigreset) */
+
+
+int lib_sigquit(void)
+{
+	KSHLIB		*kip = &kshlib_data ;
+	int		rs = SR_OK ;
+	if (kip->f_sigquit) {
+	    kip->f_sigquit = 0 ;
+	    rs = SR_QUIT ;
+	}
+	return rs ;
+}
+/* end subroutine (lib_sigquit) */
+
+
+int lib_sigterm(void)
+{
+	KSHLIB		*kip = &kshlib_data ;
+	int		rs = SR_OK ;
+	if (kip->f_sigterm) {
+	    kip->f_sigterm = 0 ;
+	    rs = SR_EXIT ;
+	}
+	return rs ;
+}
+/* end subroutine (lib_sigterm) */
+
+
+int lib_sigintr(void)
+{
+	KSHLIB		*kip = &kshlib_data ;
+	int		rs = SR_OK ;
+	if (kip->f_sigintr) {
+	    kip->f_sigintr = 0 ;
+	    rs = SR_INTR ;
+	}
+	return rs ;
+}
+/* end subroutine (lib_sigintr) */
+
+
+int lib_issig(int sn)
+{
+	KSHLIB		*kip = &kshlib_data ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	switch (sn) {
+	case SIGQUIT:
+	    f = kip->f_sigquit ;
+	    if (f) kip->f_sigquit = 0 ;
+	    break ;
+	case SIGTERM:
+	    f = kip->f_sigterm ;
+	    if (f) kip->f_sigterm = 0 ;
+	    break ;
+	case SIGINT:
+	    f = kip->f_sigintr ;
+	    if (f) kip->f_sigintr = 0 ;
+	    break ;
+	case SIGWINCH:
+	    f = kip->f_sigwich ;
+	    if (f) kip->f_sigwich = 0 ;
+	    break ;
+	case SIGCHLD:
+	    f = kip->f_sigchild ;
+	    if (f) kip->f_sigchild = 0 ;
+	    break ;
+	case SIGTSTP:
+	    f = kip->f_sigsusp ;
+	    if (f) kip->f_sigsusp = 0 ;
+	    break ;
+	default:
+	    rs = SR_INVALID ;
+	    break ;
+	} /* end switch */
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (lib_issig) */
 
 
 int lib_initmemalloc(int f)
 {
 	int		rs = SR_OK ;
-	cchar		*sym = "lockmemalloc_set" ;
-	void		*sop = RTLD_SELF ;
-	void		*p ;
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_initmemalloc: ent f=%u\n",f) ;
+#endif
 	if (f) {
+	    cchar	*sym = "lockmemalloc_set" ;
+	    void	*sop = RTLD_SELF ;
+	    void	*p ;
 	    if ((p = dlsym(sop,sym)) != NULL) {
 	        int	(*fun)(int) = (int (*)(int)) p ;
-	        rs = (*fun)(TRUE) ;
+	        rs = (*fun)(lockmemallocset_begin) ;
 #if	CF_DEBUGN
 	        nprintf(NDF,"lib_initmemalloc: LOCKMEMALLOC rs=%d\n",rs) ;
 #endif
@@ -731,18 +926,18 @@ int lib_progaddr(cchar *name,void *app)
 	    const int	symlen = SYMNAMELEN ;
 	    char	symbuf[SYMNAMELEN+1] ;
 	    if ((rs = sncpy2(symbuf,symlen,"p_",name)) >= 0) {
-		void	*sop = KSHLIB_SYMSEARCH ;
-		void	*p ;
+	        void	*sop = KSHLIB_SYMSEARCH ;
+	        void	*p ;
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_progaddr: sym=%s\n",symbuf) ;
+	        nprintf(NDF,"lib_progaddr: sym=%s\n",symbuf) ;
 #endif
 	        if ((p = dlsym(sop,symbuf)) != NULL) {
-		    if (app != NULL) {
-			caddr_t	*sub = (caddr_t *) app ;
-	   	        *sub = (caddr_t) p ;
-		    }
-		} else
-		    rs = SR_NOENT ;
+	            if (app != NULL) {
+	                caddr_t	*sub = (caddr_t *) app ;
+	                *sub = (caddr_t) p ;
+	            }
+	        } else
+	            rs = SR_NOENT ;
 	    } /* end if (sncpy) */
 	} else
 	    rs = SR_NOENT ;
@@ -761,12 +956,8 @@ int lib_proghave(cchar *name)
 /* end subroutine (lib_proghave) */
 
 
-int lib_progcall(name,argc,argv,envv,contextp)
-cchar		name[] ;
-int		argc ;
-cchar		*argv[] ;
-cchar		*envv[] ;
-void		*contextp ;
+/* ARGSUSED */
+int lib_progcall(cchar *name,int argc,cchar **argv,cchar **envv,void *cxp)
 {
 	cmdsub_t	addr ;
 	int		rs ;
@@ -781,16 +972,16 @@ void		*contextp ;
 	    if ((rs = lib_initenviron(NULL)) >= 0) {
 	        if ((rs = kshlib_init()) >= 0) {
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_progcall: call()\n") ;
+	            nprintf(NDF,"lib_progcall: call()\n") ;
 #endif
 	            ex = (*addr)(argc,argv,envv,NULL) ;
 #if	CF_DEBUGN
-	nprintf(NDF,"lib_progcall: call() ex=%u\n",ex) ;
+	            nprintf(NDF,"lib_progcall: call() ex=%u\n",ex) ;
 #endif
 	        } else
 	            ex = EX_OSERR ;
 	    } else
-	       ex = EX_OSERR ;
+	        ex = EX_OSERR ;
 	} else
 	    ex = EX_NOPROG ;
 
@@ -803,32 +994,22 @@ void		*contextp ;
 /* end subroutine (lib_progcall) */
 
 
-int lib_progcalla(func,argc,argv,envv,contextp)
-const void	*func ;
-int		argc ;
-cchar		*argv[] ;
-cchar		*envv[] ;
-void		*contextp ;
+int lib_progcalla(const void *func,int argc,cchar **argv,cchar **envv,void *cxp)
 {
 	subcmd_t	f = (subcmd_t) func ;
-	return lib_callfunc(f,argc,argv,envv,contextp) ;
+	return lib_callfunc(f,argc,argv,envv,cxp) ;
 }
 /* end subroutine (lib_progcalla) */
 
 
 /* ARGSUSED */
-int lib_caller(fa,argc,argv,envv,contextp)
-const void	*fa ;
-int		argc ;
-cchar		*argv[] ;
-cchar		*envv[] ;
-void		*contextp ;
+int lib_caller(const void *fa,int argc,cchar **argv,cchar **envv,void *cxp)
 {
 	func_caller	func = (func_caller) fa ;
 	int		rs ;
 	int		ex = EX_OK ;
 
-#if	CF_DEBUGS
+#if	CF_DEBUGN
 	nprintf(NDF,"lib_caller: &environ=%p\n",&environ) ;
 	nprintf(NDF,"lib_caller: environ=%p\n",environ) ;
 	nprintf(NDF,"lib_caller: envv=%p\n",envv) ;
@@ -839,26 +1020,26 @@ void		*contextp ;
 	    ndebugenv("lib_caller",envv) ;
 #endif
 
-	if ((rs = lib_initenviron(contextp)) >= 0) {
+	if ((rs = lib_initenviron(cxp)) >= 0) {
 
-#if	CF_DEBUGS
-	nprintf(NDF,"lib_caller: func()\n") ;
+#if	CF_DEBUGN
+	    nprintf(NDF,"lib_caller: func()\n") ;
 #endif
 
 	    if (func != NULL) {
-	        ex = (*func)(argc,argv,contextp) ;
+	        ex = (*func)(argc,argv,cxp) ;
 	    } else
-		ex = EX_NOPROG ;
+	        ex = EX_NOPROG ;
 
-#if	CF_DEBUGS
-	nprintf(NDF,"lib_caller: func() ex=%u\n",ex) ;
+#if	CF_DEBUGN
+	    nprintf(NDF,"lib_caller: func() ex=%u\n",ex) ;
 #endif
 
 	} /* end if (lib_initenviron) */
 
 	if ((rs < 0) && (ex == EX_OK)) ex = EX_MUTEX ;
 
-#if	CF_DEBUGS
+#if	CF_DEBUGN
 	nprintf(NDF,"lib_caller: ret ex=%u (%d)\n",ex,rs) ;
 #endif
 
@@ -867,22 +1048,17 @@ void		*contextp ;
 /* end subroutine (lib_caller) */
 
 
-int lib_callfunc(func,argc,argv,envv,contextp)
-subcmd_t	func ;
-int		argc ;
-cchar		*argv[] ;
-cchar		*envv[] ;
-void		*contextp ;
+int lib_callfunc(subcmd_t func,int argc,cchar **argv,cchar **envv,void *cxp)
 {
 	int		rs ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_initenviron(contextp)) >= 0) {
+	if ((rs = lib_initenviron(cxp)) >= 0) {
 	    if ((rs = kshlib_init()) >= 0) {
 	        if (func != NULL) {
-	            ex = (*func)(argc,argv,envv,contextp) ;
+	            ex = (*func)(argc,argv,envv,cxp) ;
 	        } else
-		    ex = EX_NOPROG ;
+	            ex = EX_NOPROG ;
 	    } else
 	        ex = EX_OSERR ;
 	} /* end if (lib_initenviron) */
@@ -893,12 +1069,7 @@ void		*contextp ;
 /* end subroutine (lib_callfunc) */
 
 
-int lib_callcmd(name,argc,argv,envv,contextp)
-cchar		name[] ;
-int		argc ;
-cchar		*argv[] ;
-cchar		*envv[] ;
-void		*contextp ;
+int lib_callcmd(cchar *name,int argc,cchar **argv,cchar **envv,void *cxp)
 {
 	int		rs = SR_OK ;
 	int		ex = EX_OK ;
@@ -908,21 +1079,36 @@ void		*contextp ;
 	nprintf(NDF,"lib_callcmd: from=%s\n",KSHLIB_WHERE) ;
 #endif
 
-	    if ((name != NULL) && (name[0] != '\0')) {
-		char	symname[SYMNAMELEN+1] ;
-	        if ((rs = sncpy2(symname,MAXNAMELEN,"p_",name)) >= 0) {
-		    void	*sop = RTLD_SELF ;
-		    void	*p ;
-	            if ((p = dlsym(sop,symname)) != NULL) {
-			int (*cf)(int,cchar **,cchar **,void *) ;
-			cf = (int (*)(int,cchar **,cchar **,void *)) p ;
-	                ex = (*cf)(argc,argv,envv,contextp) ;
-	            } else
-	                ex = EX_UNAVAILABLE ;
-	        } else
-	            ex = EX_NOPROG ;
-	    } else
+	if ((name != NULL) && (name[0] != '\0')) {
+	    char	symname[SYMNAMELEN+1] ;
+	    if ((rs = sncpy2(symname,MAXNAMELEN,"p_",name)) >= 0) {
+	        void	*sop = RTLD_SELF ;
+	        void	*p ;
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: srch-sym=%s\n",symname) ;
+#endif
+	        if ((p = dlsym(sop,symname)) != NULL) {
+	            int (*cf)(int,cchar **,cchar **,void *) ;
+	            cf = (int (*)(int,cchar **,cchar **,void *)) p ;
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: call-before\n") ;
+#endif
+	            ex = (*cf)(argc,argv,envv,cxp) ;
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: call-after ex=%u\n",ex) ;
+#endif
+	        } else {
+#if	CF_DEBUGN
+		    nprintf(NDF,"lib_callcmd: unavailable\n") ;
+#endif
+	            ex = EX_UNAVAILABLE ;
+		}
+	    } else {
 	        ex = EX_NOPROG ;
+	    }
+	} else {
+	    ex = EX_NOPROG ;
+	}
 	if ((rs < 0) && (ex == EX_OK)) ex = EX_OSERR ;
 
 #if	CF_DEBUGN
@@ -934,34 +1120,100 @@ void		*contextp ;
 /* end subroutine (lib_callcmd) */
 
 
-int lib_noteread(KSHLIB_NOTE *rp,int ni)
+int lib_noteadm(int cmd,...)
+{
+	int		rs ;
+	int		rs1 ;
+	int		rv = 0 ;
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteadm: ent cmd=%u\n",cmd) ;
+#endif
+	if ((rs = kshlib_init()) >= 0) {
+	    KSHLIB	*uip = &kshlib_data ;
+	    if ((rs = kshlib_begin(uip)) >= 0) {
+	        if ((rs = kshlib_capbegin(uip,-1)) >= 0) {
+	            switch (cmd) {
+	            case kshlibcmd_noteoff:
+	                rs = kshlib_notesend(uip) ;
+	                rv = rs ;
+	                break ;
+	            case kshlibcmd_noteon:
+	                rs = kshlib_notesbegin(uip) ;
+	                rv = rs ;
+	                break ;
+	            case kshlibcmd_notecount:
+	                rs = kshlib_notescount(uip) ;
+	                rv = rs ;
+	                break ;
+	            case kshlibcmd_notestate:
+	                rs = kshlib_notesactive(uip) ;
+			rv = rs ;
+	                break ;
+	            } /* end switch */
+	            rs1 = kshlib_capend(uip) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (capture) */
+	    } /* end if (kshlib_begin) */
+	} /* end if (kshlib_init) */
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteadm: ret rs=%d rv=%u\n",rs,rv) ;
+#endif
+	return (rs >= 0) ? rv : rs ;
+}
+/* end subroutine (lib_noteadm) */
+
+
+int lib_noteread(KSHLIB_NOTE *rp,int mi)
 {
 	int		rs ;
 	int		rs1 ;
 	int		rc = 0 ;
 	if (rp == NULL) return SR_FAULT ;
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteread: ent mi=%u\n",mi) ;
+#endif
 	memset(rp,0,sizeof(KSHLIB_NOTE)) ;
-	if (ni < 0) return SR_INVALID ;
+	if (mi < 0) return SR_INVALID ;
 	if ((rs = kshlib_init()) >= 0) {
 	    KSHLIB	*uip = &kshlib_data ;
 	    if ((rs = kshlib_capbegin(uip,-1)) >= 0) {
-	        if ((rs = kshlib_mq(uip)) >= 0) {
-		    STORENOTE	*ep ;
-		    if ((rs = raqhand_acc(&uip->mq,ni,&ep)) >= 0) {
-			if (ep != NULL) {
-			    rp->stime = ep->stime ;
-			    rp->type = ep->type ;
-			    rp->dlen = ep->dlen ;
-			    strwcpy(rp->dbuf,ep->dbuf,SESMSG_NBUFLEN) ;
-			    strwcpy(rp->user,ep->user,SESMSG_USERLEN) ;
-			    rc = 1 ;
-			} /* end if (non-null) */
-		    } /* end if (raqhand_acc) */
-		} /* end if (kshlib_mq) */
+	        if ((rs = kshlib_mqactive(uip)) > 0) {
+	            STORENOTE	*ep ;
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteread: raqhand_acc() mi=%u\n",mi) ;
+#endif
+	            if ((rs = raqhand_acc(&uip->mq,mi,&ep)) >= 0) {
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteread: raqhand_acc() rs=%d ep{%p}\n",rs,ep) ;
+#endif
+	                if (ep != NULL) {
+	                    rp->stime = ep->stime ;
+	                    rp->type = ep->type ;
+	                    rp->nlen = ep->dlen ;
+	                    strwcpy(rp->user,ep->user,SESMSG_USERLEN) ;
+	                    strwcpy(rp->nbuf,ep->dbuf,SESMSG_NBUFLEN) ;
+	                    rc = 1 ;
+	                } /* end if (non-null) */
+	            } else if (rs == SR_NOTFOUND) {
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteread: raqhand_acc() rs=NOTFOUND\n") ;
+#endif
+	                rs = SR_OK ;
+	            } /* end if (raqhand_acc) */
+	        } /* end if (kshlib_mqactive) */
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteread: _mqactive-out rs=%d\n",rs) ;
+#endif
 	        rs1 = kshlib_capend(uip) ;
 	        if (rs >= 0) rs = rs1 ;
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteread: _capend() rs=%d\n",rs) ;
+#endif
 	    } /* end if (capture) */
 	} /* end if (kshlib_init) */
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_noteread: ret rs=%d rc=%u\n",rs,rc) ;
+#endif
 	return (rs >= 0) ? rc : rs ;
 }
 /* end subroutine (lib_noteread) */
@@ -976,10 +1228,10 @@ int lib_notedel(int ni)
 	if ((rs = kshlib_init()) >= 0) {
 	    KSHLIB	*uip = &kshlib_data ;
 	    if ((rs = kshlib_capbegin(uip,-1)) >= 0) {
-	        if ((rs = kshlib_mq(uip)) >= 0) {
-		    rs = raqhand_del(&uip->mq,ni) ;
-		    rc = rs ;
-		} /* end if (kshlib_mq) */
+	        if ((rs = kshlib_mqactive(uip)) > 0) {
+	            rs = raqhand_del(&uip->mq,ni) ;
+	            rc = rs ;
+	        } /* end if (kshlib_mqactive) */
 	        rs1 = kshlib_capend(uip) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (capture) */
@@ -1003,22 +1255,29 @@ ulong plugin_version(void) {
 static int kshlib_init(void)
 {
 	KSHLIB		*uip = &kshlib_data ;
-	int		rs = 1 ;
+	int		rs = SR_OK ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_init: ent f_init=%u\n",uip->f_init) ;
+#endif
 	if (! uip->f_init) {
 	    uip->f_init = TRUE ;
 	    if ((rs = ptm_create(&uip->m,NULL)) >= 0) {
 	        if ((rs = ptc_create(&uip->c,NULL)) >= 0) {
 	            void	(*b)() = kshlib_atforkbefore ;
-	            void	(*a)() = kshlib_atforkafter ;
-	            if ((rs = uc_atfork(b,a,a)) >= 0) {
+	            void	(*ap)() = kshlib_atforkparent ;
+	            void	(*ac)() = kshlib_atforkchild ;
+	            if ((rs = uc_atfork(b,ap,ac)) >= 0) {
 	                if ((rs = uc_atexit(kshlib_fini)) >= 0) {
-			    uip->pid = getpid() ;
-			    uip->sfd = -1 ;
-		            rs = 0 ;
-	    	            uip->f_initdone = TRUE ;
-		        }
-		        if (rs < 0)
-		            uc_atforkrelease(b,a,a) ;
+	                    uip->pid = getpid() ;
+	                    uip->sfd = -1 ;
+	                    rs = 1 ;
+	                    uip->f_initdone = TRUE ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_init: done pid=%d\n",uip->pid) ;
+#endif
+	                }
+	                if (rs < 0)
+	                    uc_atforkrelease(b,ap,ac) ;
 	            } /* end if (uc_atfork) */
 	            if (rs < 0)
 	                ptc_destroy(&uip->c) ;
@@ -1029,6 +1288,9 @@ static int kshlib_init(void)
 	} else {
 	    while (! uip->f_initdone) msleep(1) ;
 	}
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_init: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (kshlib_init) */
@@ -1041,12 +1303,13 @@ static void kshlib_fini(void)
 	    uip->f_initdone = FALSE ;
 	    {
 	        kshlib_runend(uip) ;
-		kshlib_end(uip) ;
+	        kshlib_end(uip) ;
 	    }
 	    {
 	        void	(*b)() = kshlib_atforkbefore ;
-	        void	(*a)() = kshlib_atforkafter ;
-	        uc_atforkrelease(b,a,a) ;
+	        void	(*ap)() = kshlib_atforkparent ;
+	        void	(*ac)() = kshlib_atforkchild ;
+	        uc_atforkrelease(b,ap,ac) ;
 	    }
 	    ptc_destroy(&uip->c) ;
 	    ptm_destroy(&uip->m) ;
@@ -1056,27 +1319,14 @@ static void kshlib_fini(void)
 /* end subroutine (kshlib_fini) */
 
 
-static int kshlib_mq(KSHLIB *uip)
-{
-	int		rs = SR_OK ;
-	if (! uip->f_mq) {
-	    rs = kshlib_begin(uip) ;
-	}
-	return rs ;
-}
-/* end subroutine (kshlib_mq) */
-
-
 static int kshlib_begin(KSHLIB *uip)
 {
-	int		rs = SR_OK ;
-	if (! uip->f_mq) {
-	    const int	n = KSHLIB_NENTS ;
-	    if ((rs = raqhand_start(&uip->mq,n,0)) >= 0) {
-	        uip->f_mq = TRUE ;
-	    }
-	}
-	return rs ;
+	if (uip == NULL) return SR_FAULT ;
+	uip->ti_sescheck = 0 ;
+	uip->intpoll = KSHLIB_INTPOLL ;
+	uip->intsescheck = KSHLIB_INTSESCHECK ;
+	uip->seshour = KSHLIB_SESHOUR ;
+	return SR_OK ;
 }
 /* end subroutine (kshlib_begin) */
 
@@ -1085,68 +1335,167 @@ static int kshlib_end(KSHLIB *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	if (uip->f_mq) {
-	    rs1 = kshlib_entfins(uip) ;
+
+	rs1 = kshlib_notesend(uip) ;
+	if (rs >= 0) rs = rs1 ;
+
+	rs1 = kshlib_mqend(uip) ;
+	if (rs >= 0) rs = rs1 ;
+
+	rs1 = kshlib_sesend(uip) ;
+	if (rs >= 0) rs = rs1 ;
+
+	if (uip->sesdname != NULL) {
+	    rs1 = uc_libfree(uip->sesdname) ;
 	    if (rs >= 0) rs = rs1 ;
-	    uip->f_mq = FALSE ;
-	    rs1 = raqhand_finish(&uip->mq) ;
-	    if (rs >= 0) rs = rs1 ;
+	    uip->sesdname = NULL ;
 	}
+
 	return rs ;
 }
 /* end subroutine (kshlib_end) */
 
 
-static int kshlib_entfins(KSHLIB *uip)
-{
-	RAQHAND		*qlp = &uip->mq ;
-	STORENOTE	*ep ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		i ;
-	for (i = 0 ; raqhand_get(qlp,i,&ep) >= 0 ; i += 1) {
-	    if (ep != NULL) {
-		rs1 = storenote_finish(ep) ;
-		if (rs >= 0) rs = rs1 ;
-		rs1 = uc_libfree(ep) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (non-null) */
-	} /* end for */
-	return rs ;
-}
-/* end subroutine (kshlib_entfins) */
-
-
-static int kshlib_workcheck(KSHLIB *kip,cchar **envv)
+static int kshlib_autorun(KSHLIB *uip,cchar **envv)
 {
 	int		rs = SR_OK ;
-	int		rs1 ;
-	cchar		*vp = getourenv(envv,VARKSHLIBRUN) ;
+	int		c = 0 ;
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_workcheck: ent v=%s\n",vp) ;
+	nprintf(NDF,"kshlib_autorun: ent\n") ;
 #endif
-	        if (vp != NULL) {
-	    	    int	v ;
-	    	    if ((rs1 = cfdeci(vp,-1,&v)) >= 0) {
-			switch (v) {
-			case 1:
-		            rs = kshlib_runbegin(kip) ;
-		            break ;
-		        } /* end switch */
-	            } /* end if (value) */
-	        } /* end if (check run-state) */
+	if (! uip->f_autorun) {
+	    cchar	*vp ;
+	    uip->f_autorun = TRUE ;
+	    if ((vp = getourenv(envv,VARKSHLIBRUN)) != NULL) {
+		cchar	*tp ;
+		while ((tp = strpbrk(vp," ,:")) != NULL) {
+		    if ((tp-vp) > 0) {
+		        rs = kshlib_autorunopt(uip,vp,(tp-vp)) ;
+			c += 1 ;
+		    }
+		    vp = (tp+1) ;
+		    if (rs < 0) break ;
+		} /* end while */
+		if ((rs >= 0) && (vp[0] != '\0')) {
+		    rs = kshlib_autorunopt(uip,vp,-1) ;
+		    c += rs ;
+		}
+	    } /* end if (get-env) */
+	} /* end if (needed auto-run check) */
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_workcheck: ret rs=%d\n",rs) ;
+	nprintf(NDF,"kshlib_autorun: ret rs=%d c=%u\n",rs,c) ;
 #endif
-	return rs ;
+	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (kshlib_workcheck) */
+/* end subroutine (kshlib_autorun) */
+
+
+static int kshlib_autorunopt(KSHLIB *uip,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		si ;
+	int		oi ;
+	int		vl = 0 ;
+	int		c = 0 ;
+	cchar		*vp = NULL ;
+	cchar		*tp ;
+	if ((si = siskipwhite(sp,sl)) > 0) {
+	    sp += si ;
+	    sl -= si ;
+	}
+	if ((tp = strnchr(sp,sl,'=')) != NULL) {
+	    vl = sfshrink((tp+1),((sp+sl)-(tp+1)),&vp) ;
+	    sl = (tp-sp) ;
+	    while (sl && CHAR_ISWHITE(sp[sl-1])) sl -= 1 ;
+	}
+	if ((oi = matostr(runopts,2,sp,sl)) >= 0) {
+	    switch (oi) {
+	    case runopt_notes:
+		rs = kshlib_autorunoptnotes(uip,vp,vl,FALSE) ;
+		c += rs ;
+		break ;
+	    case runopt_lognotes:
+		rs = kshlib_autorunoptnotes(uip,vp,vl,TRUE) ;
+		c += rs ;
+		break ;
+	    } /* end switch */
+	} /* end if (match) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (kshlib_autorunopt) */
+
+
+/* ARGSUSED */
+static int kshlib_autorunoptnotes(KSHLIB *uip,cchar *vp,int vl,int f)
+{
+	int		rs = SR_OK ;
+	int		rv = 0 ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_autorunoptnotes: ent f=%u\n",f) ;
+	nprintutmp("kshlib_autorunoptnotes") ;
+#endif
+	if (! uip->f.initrun) {
+	    int		f_go = TRUE ;
+	    if (f) {
+		if ((rs = kshlib_sid(uip)) >= 0) {
+		    UTMPACC_ENT	ue ;
+		    const pid_t	pid = uip->pid ;
+		    const int	rsn = SR_NOTFOUND ;
+		    const int	ulen = UTMPACC_BUFLEN ;
+		    char	ubuf[UTMPACC_BUFLEN+1] ;
+		    if (uip->sid == pid) {
+		        if ((rs = utmpacc_entsid(&ue,ubuf,ulen,pid)) == rsn) {
+		            rs = SR_OK ;
+		            f_go = FALSE ;
+		        }
+		    } else {
+		        f_go = FALSE ;
+		    }
+		} /* end if (kshlib_sid) */
+	    }
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_autorunoptnotes: mid rs=%d f_go=%u\n",rs,f_go) ;
+#endif
+	    if ((rs >= 0) && f_go) {
+	        uip->f.initrun = TRUE ;
+		rs = kshlib_autorunopter(uip) ;
+		rv = rs ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_autorunoptnotes: _autorunopter() rs=%d\n",
+		rs) ;
+#endif
+	    }
+	} /* end if (need check) */
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_autorunoptnotes: ret rs=%d rv=%u\n",rs,rv) ;
+#endif
+	return (rs >= 0) ? rv : rs ;
+}
+/* end subroutine (kshlib_autorunoptnotes) */
+
+
+static int kshlib_autorunopter(KSHLIB *uip)
+{
+	int		rs ;
+	int		rs1 ;
+	int		rv = 0 ;
+	if ((rs = kshlib_begin(uip)) >= 0) {
+	    if ((rs = kshlib_capbegin(uip,-1)) >= 0) {
+		if ((rs = kshlib_notesbegin(uip)) >= 0) {
+		    rv = TRUE ;
+		}
+	        rs1 = kshlib_capend(uip) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (capture) */
+	} /* end if (kshlib_begin) */
+	return (rs >= 0) ? rv : rs ;
+}
+/* end subroutine (kshlib_autorunopter) */
 
 
 static int kshlib_runbegin(KSHLIB *uip)
 {
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		f = FALSE ;
 
 #if	CF_DEBUGN
@@ -1154,16 +1503,10 @@ static int kshlib_runbegin(KSHLIB *uip)
 #endif
 
 	if (! uip->f_running) {
-	    if ((rs = kshlib_capbegin(uip,-1)) >= 0) {
-		if (! uip->f_running) {
-		    if ((rs = kshlib_reqopen(uip)) >= 0) {
-		        rs = kshlib_runner(uip) ;
-		        f = rs ;
-		    } /* end if (kshlib_reqopen) */
-		} /* end if (not running) */
-		rs1 = kshlib_capend(uip) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (capture) */
+	    if ((rs = kshlib_reqopen(uip)) >= 0) {
+		rs = kshlib_runner(uip) ;
+		f = rs ;
+	    } /* end if (kshlib_reqopen) */
 	} /* end if (not-running) */
 
 #if	CF_DEBUGN
@@ -1182,19 +1525,23 @@ static int kshlib_runner(KSHLIB *uip)
 	int		rs1 ;
 	int		f = FALSE ;
 
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_runner: ent\n") ;
+#endif
+
 	if ((rs = pta_create(&a)) >= 0) {
 	    const int	scope = KSHLIB_SCOPE ;
 	    if ((rs = pta_setscope(&a,scope)) >= 0) {
-		pthread_t	tid ;
-		tworker		wt = (tworker) kshlib_worker ;
-		if ((rs = uptcreate(&tid,NULL,wt,uip)) >= 0) {
-		    uip->f_running = TRUE ;
-		    uip->tid = tid ;
-		    f = TRUE ;
-		} /* end if (pthread-create) */
+	        pthread_t	tid ;
+	        tworker		wt = (tworker) kshlib_worker ;
+	        if ((rs = uptcreate(&tid,NULL,wt,uip)) >= 0) {
+	            uip->f_running = TRUE ;
+	            uip->tid = tid ;
+	            f = TRUE ;
+	        } /* end if (pthread-create) */
 #if	CF_DEBUGN
-		nprintf(NDF,"kshlib_runner: pt-create rs=%d tid=%u\n",
-			rs,tid) ;
+	        nprintf(NDF,"kshlib_runner: pt-create rs=%d tid=%u\n",
+	            rs,tid) ;
 #endif
 	    } /* end if (pta-setscope) */
 	    rs1 = pta_destroy(&a) ;
@@ -1216,25 +1563,47 @@ static int kshlib_runend(KSHLIB *uip)
 	int		rs1 ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_runend: ent run=%u\n",uip->f_running) ;
+	nprintf(NDF,"kshlib_runend: ent running=%u\n",uip->f_running) ;
 #endif
 
 	if (uip->f_running) {
-	    const int	cmd = sesmsgtype_exit ;
-	    if ((rs = kshlib_cmdsend(uip,cmd)) >= 0) {
-	 	pthread_t	tid = uip->tid ;
-		int		trs ;
-		if ((rs = uptjoin(tid,&trs)) >= 0) {
-		    uip->f_running = FALSE ;
-		    rs = trs ;
-		}
+	    const pid_t		pid = getpid() ;
+	    if (pid == uip->pid) {
+	        const int	cmd = sesmsgtype_exit ;
+	        if ((rs = kshlib_cmdsend(uip,cmd)) >= 0) {
+	            pthread_t	tid = uip->tid ;
+	            int		trs ;
 #if	CF_DEBUGN
-		nprintf(NDF,"kshlib_runend: pt-join rs=%d tid=%u\n",
-			rs,tid) ;
+		    nprintpid("kshlib_runend") ;
+		    nprintid("kshlib_runend") ;
+	            nprintf(NDF,"kshlib_runend: pt-join tid=%u\n",tid) ;
 #endif
-	        rs1 = kshlib_reqclose(uip) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (kshlib_cmdsend) */
+	            if ((rs = uptjoin(tid,&trs)) >= 0) {
+	                uip->f_running = FALSE ;
+	                rs = trs ;
+	            } else if (rs == SR_SRCH) { /* should never happen */
+#if	CF_DEBUGN
+		    nprintpid("kshlib_runend") ;
+		    nprintid("kshlib_runend") ;
+	            nprintf(NDF,"kshlib_runend: SRCH uptjoin(%u) rs=%d\n",
+		        tid,rs) ;
+#endif
+	                uip->f_running = FALSE ;
+		        rs = SR_OK ;
+		    }
+#if	CF_DEBUGN
+		    nprintid("kshlib_runend") ;
+	            nprintf(NDF,"kshlib_runend: pt-join tid=%u rs=%d\n",
+	                tid,rs) ;
+#endif
+	            rs1 = kshlib_reqclose(uip) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (kshlib_cmdsend) */
+	    } else {
+		uip->f_running = FALSE ;
+		uip->f_exiting = FALSE ;
+		uip->pid = pid ;
+	    }
 	} /* end if (running) */
 
 #if	CF_DEBUGN
@@ -1249,35 +1618,52 @@ static int kshlib_runend(KSHLIB *uip)
 /* it always takes a good bit of code to make this part look easy! */
 static int kshlib_worker(KSHLIB *uip)
 {
-	MSGINFO		m ;
-	int		rs = SR_OK ;
+	MSGDATA		m ;
+	int		rs ;
+	int		rs1 ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_worker: ent\n") ;
+	{
+	    const uint	tid = uptself(NULL) ;
+	    nprintf(NDF,"kshlib_worker: ent tid=%u\n",tid) ;
+	}
 #endif
 
+	if ((rs = msgdata_init(&m,0)) >= 0) {
 	    while ((rs = kshlib_reqrecv(uip,&m)) > 0) {
+	        int	f_exit = FALSE ;
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_worker: reqrecv mt=%u\n",rs) ;
+	        nprintf(NDF,"kshlib_worker: reqrecv mt=%u\n",rs) ;
 #endif
 	        switch (rs) {
+	        case sesmsgtype_exit:
+	            f_exit = TRUE ;
+	            break ;
+	        case sesmsgtype_noop:
+	            rs = kshlib_worknoop(uip,&m) ;
+	            break ;
 	        case sesmsgtype_echo:
-		    rs = kshlib_workecho(uip,&m) ;
-		    break ;
+	            rs = kshlib_workecho(uip,&m) ;
+	            break ;
 	        case sesmsgtype_gen:
-		    rs = kshlib_workgen(uip,&m) ;
-		    break ;
+	            rs = kshlib_workgen(uip,&m) ;
+	            break ;
 	        case sesmsgtype_biff:
-		    rs = kshlib_workbiff(uip,&m) ;
-		    break ;
-		default:
-		    rs = kshlib_workdef(uip,&m) ;
-		    break ;
+	            rs = kshlib_workbiff(uip,&m) ;
+	            break ;
+	        default:
+	            rs = kshlib_workdef(uip,&m) ;
+	            break ;
 	        } /* end switch */
+	        if (f_exit) break ;
 	        if (rs < 0) break ;
 	    } /* end while (looping on commands) */
+	    rs1 = msgdata_fini(&m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (msgdata) */
 
 #if	CF_DEBUGN
+	nprintid("kshlib_worker") ;
 	nprintf(NDF,"kshlib_worker: ret rs=%d\n",rs) ;
 #endif
 
@@ -1287,18 +1673,29 @@ static int kshlib_worker(KSHLIB *uip)
 /* end subroutine (kshlib_worker) */
 
 
-static int kshlib_workecho(KSHLIB *uip,MSGINFO *mip)
+static int kshlib_worknoop(KSHLIB *uip,MSGDATA *mip)
 {
 	int		rs ;
-	if ((rs = msginfo_conpass(mip,FALSE)) >= 0) {
-	    rs = kshlib_reqsend(uip,mip,0) ;
-	} /* end if (msginfo_conpass) */
+	if ((rs = msgdata_conpass(mip,FALSE)) >= 0) {
+	    rs = kshlib_reqsend(uip,mip,-1,0) ;
+	} /* end if (msgdata_conpass) */
+	return rs ;
+}
+/* end subroutine (kshlib_worknoop) */
+
+
+static int kshlib_workecho(KSHLIB *uip,MSGDATA *mip)
+{
+	int		rs ;
+	if ((rs = msgdata_conpass(mip,FALSE)) >= 0) {
+	    rs = kshlib_reqsend(uip,mip,-1,0) ;
+	} /* end if (msgdata_conpass) */
 	return rs ;
 }
 /* end subroutine (kshlib_workecho) */
 
 
-static int kshlib_workgen(KSHLIB *uip,MSGINFO *mip)
+static int kshlib_workgen(KSHLIB *uip,MSGDATA *mip)
 {
 	int		rs ;
 	int		rs1 ;
@@ -1309,15 +1706,15 @@ static int kshlib_workgen(KSHLIB *uip,MSGINFO *mip)
 	debugprintf("kshlib_workgen: ent\n") ;
 #endif
 #if	CF_DEBUGS && CF_DEBUGHEXB
-	debugprinthexblock("kshlib_workgen: ",80,mip->mbuf,mip->mlen) ;
+	debugprinthexblock("kshlib_workgen: ",80,mip->mbuf,mip->ml) ;
 #endif
 	if ((rs = kshlib_capbegin(uip,-1)) >= 0) {
-	    if ((rs = kshlib_mq(uip)) >= 0) {
-		SESMSG_GEN	m2 ;
-		if ((rs = sesmsg_gen(&m2,1,mip->mbuf,mip->mlen)) >= 0) {
-		    rs = kshlib_workgener(uip,&m2) ;
-		} /* end if (sesmsg_gen) */
-	    } /* end if (kshlib_mq) */
+	    if ((rs = kshlib_notesactive(uip)) > 0) {
+	        SESMSG_GEN	m2 ;
+	        if ((rs = sesmsg_gen(&m2,1,mip->mbuf,mip->ml)) >= 0) {
+	            rs = kshlib_workgener(uip,&m2) ;
+	        } /* end if (sesmsg_gen) */
+	    } /* end if (kshlib_notesactive) */
 	    rs1 = kshlib_capend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (capture) */
@@ -1337,25 +1734,30 @@ static int kshlib_workgener(KSHLIB *uip,SESMSG_GEN *mp)
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_workgener: ent\n") ;
 	nprintf(NDF,"kshlib_workgener: m=>%t<\n",
-		mp->nbuf,strlinelen(mp->nbuf,-1,50)) ;
+	    mp->nbuf,strlinelen(mp->nbuf,-1,50)) ;
 #endif
 	if ((rs = uc_libmalloc(esize,&ep)) >= 0) {
 	    time_t	st = mp->stime ;
 	    const int	mt = mp->msgtype ;
-	    const int	nlen = strlen(mp->nbuf) ;
+	    int		nl = rmeol(mp->nbuf,-1) ;
 	    cchar	*nbuf = mp->nbuf ;
 	    cchar	*un = mp->user ;
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_workgener: m=>%t<\n",
-		nbuf,strlinelen(nbuf,nlen,50)) ;
-#endif
-	    if ((rs = storenote_start(ep,mt,st,un,nbuf,nlen)) >= 0) {
-		rs = kshlib_msgenter(uip,ep) ;
+	    {
+		char	tbuf[TIMEBUFLEN+1] ;
+	        nprintf(NDF,"kshlib_workgener: m=>%t<\n",
+	            nbuf,strlinelen(nbuf,nl,50)) ;
+	        timestr_logz(st,tbuf) ;
+	        nprintf(NDF,"kshlib_workgener: t=%s\n",tbuf) ;
+	    }
+#endif /* CF_DEBUGN */
+	    if ((rs = storenote_start(ep,mt,st,un,nbuf,nl)) >= 0) {
+	        rs = kshlib_msgenter(uip,ep) ;
 	        if (rs < 0)
-		    storenote_finish(ep) ;
+	            storenote_finish(ep) ;
 	    } /* end if (storenote_start) */
 	    if (rs < 0)
-		uc_libfree(ep) ;
+	        uc_libfree(ep) ;
 	} /* end if (m-a) */
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_workgener: ret rs=%d\n",rs) ;
@@ -1365,17 +1767,17 @@ static int kshlib_workgener(KSHLIB *uip,SESMSG_GEN *mp)
 /* end subroutine (kshlib_workgener) */
 
 
-static int kshlib_workbiff(KSHLIB *uip,MSGINFO *mip)
+static int kshlib_workbiff(KSHLIB *uip,MSGDATA *mip)
 {
 	int		rs ;
 	int		rs1 ;
 	if ((rs = kshlib_capbegin(uip,-1)) >= 0) {
-	    if ((rs = kshlib_mq(uip)) >= 0) {
-		SESMSG_BIFF	m3 ;
-		if ((rs = sesmsg_biff(&m3,1,mip->mbuf,mip->mlen)) >= 0) {
-		    rs = kshlib_workbiffer(uip,&m3) ;
-		} /* end if (sesmsg_biff) */
-	    } /* end if (kshlib_mq) */
+	    if ((rs = kshlib_notesactive(uip)) > 0) {
+	        SESMSG_BIFF	m3 ;
+	        if ((rs = sesmsg_biff(&m3,1,mip->mbuf,mip->ml)) >= 0) {
+	            rs = kshlib_workbiffer(uip,&m3) ;
+	        } /* end if (sesmsg_biff) */
+	    } /* end if (kshlib_notesactive) */
 	    rs1 = kshlib_capend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (capture) */
@@ -1391,28 +1793,28 @@ static int kshlib_workbiffer(KSHLIB *uip,SESMSG_BIFF *mp)
 	int		rs ;
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_workbiffer: m=>%t<\n",
-		mp->nbuf,strlinelen(mp->nbuf,-1,50)) ;
+	    mp->nbuf,strlinelen(mp->nbuf,-1,50)) ;
 #endif
 	if ((rs = uc_libmalloc(esize,&ep)) >= 0) {
 	    time_t	st = mp->stime ;
 	    const int	mt = mp->msgtype ;
-	    const int	nlen = strlen(mp->nbuf) ;
+	    int		nl = rmeol(mp->nbuf,-1) ;
 	    cchar	*un = mp->user ;
 	    cchar	*nbuf = mp->nbuf ;
-	    if ((rs = storenote_start(ep,mt,st,un,nbuf,nlen)) >= 0) {
-		rs = kshlib_msgenter(uip,ep) ;
+	    if ((rs = storenote_start(ep,mt,st,un,nbuf,nl)) >= 0) {
+	        rs = kshlib_msgenter(uip,ep) ;
 	        if (rs < 0)
-		    storenote_finish(ep) ;
+	            storenote_finish(ep) ;
 	    } /* end if (storenote_start) */
 	    if (rs < 0)
-		uc_libfree(ep) ;
+	        uc_libfree(ep) ;
 	} /* end if (m-a) */
 	return rs ;
 }
 /* end subroutine (kshlib_workbiffer) */
 
 
-static int kshlib_workdef(KSHLIB *uip,MSGINFO *mip)
+static int kshlib_workdef(KSHLIB *uip,MSGDATA *mip)
 {
 	int		rs ;
 	if (mip == NULL) return SR_FAULT ;
@@ -1428,12 +1830,12 @@ static int kshlib_workdef(KSHLIB *uip,MSGINFO *mip)
 static int kshlib_msgenter(KSHLIB *uip,STORENOTE *ep)
 {
 	RAQHAND		*qlp = &uip->mq ;
-	const int	ors = SR_OVERFLOW ;
+	const int	rso = SR_OVERFLOW ;
 	int		rs ;
-	if ((rs = raqhand_ins(qlp,ep)) == ors) {
+	if ((rs = raqhand_ins(qlp,ep)) == rso) {
 	    void	*dum ;
 	    if ((rs = raqhand_rem(qlp,&dum)) >= 0) {
-		rs = raqhand_ins(qlp,ep) ;
+	        rs = raqhand_ins(qlp,ep) ;
 	    }
 	}
 	return rs ;
@@ -1441,48 +1843,115 @@ static int kshlib_msgenter(KSHLIB *uip,STORENOTE *ep)
 /* end subroutine (kshlib_msgenter) */
 
 
+static int kshlib_sid(KSHLIB *uip)
+{
+	if (uip->sid == 0) uip->sid = getsid(0) ;
+	return SR_OK ;
+}
+/* end subroutine (kshlib_sid) */
+
+
+static int kshlib_sesdname(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	int		pl = 0 ;
+	if (uip->sesdname == NULL) {
+	    cchar	*dname = KSHLIB_SESDNAME ;
+	    if ((rs = sdir(dname,(W_OK|X_OK))) >= 0) {
+		if ((rs = kshlib_sid(uip)) >= 0) {
+	           char		pbuf[MAXPATHLEN+1] ;
+	           if ((rs = mksdname(pbuf,dname,uip->sid)) >= 0) {
+			cchar	*cp ;
+			pl = rs ;
+	                if ((rs = uc_libmallocstrw(pbuf,pl,&cp)) >= 0) {
+			    uip->sesdname = cp ;
+			}
+	    	    } /* end if (mksdname) */
+		} /* end if (kshlib_sid) */
+	    } /* end if (sdir) */
+	} else {
+	    pl = strlen(uip->sesdname) ;
+	} /* end if (needed) */
+	return (rs >= 0) ? pl : rs ;
+}
+/* end subroutine (kshlib_sesdname) */
+
+
+static int kshlib_reqfname(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	int		pl = 0 ;
+	if (uip->reqfname == NULL) {
+	    if ((rs = kshlib_sesdname(uip)) >= 0) {
+	        const uint	uv = (uint) uip->pid ;
+	        const int	dlen = DIGBUFLEN ;
+	        char		dbuf[DIGBUFLEN+1] = { 'p' } ;
+	        if ((rs = ctdecui((dbuf+1),(dlen-1),uv)) >= 0) {
+		    cchar	*sesdname = uip->sesdname ;
+		    char	pbuf[MAXPATHLEN+1] ;
+	            if ((rs = mkpath2(pbuf,sesdname,dbuf)) >= 0) {
+	                cchar	*cp ;
+		        pl = rs ;
+	                if ((rs = uc_libmallocstrw(pbuf,pl,&cp)) >= 0) {
+	                    uip->reqfname = cp ;
+	                }
+	            } /* end if (mkpath) */
+		} /* end if (ctdecui) */
+	    } /* end if (kshlib_sesdname) */
+	} else {
+	    pl = strlen(uip->sesdname) ;
+	}
+
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_reqfname: ret rs=%d\n",rs) ;
+#endif
+	return (rs >= 0) ? pl : rs ;
+}
+/* end subroutine (kshlib_reqfname) */
+
+
 static int kshlib_reqopen(KSHLIB *uip)
 {
 	int		rs ;
-	cchar		*dname = KSHLIB_SESDNAME ;
-
-	if ((rs = sdir(dname,(W_OK|X_OK))) >= 0) {
-	    pid_t	sid = getsid(0) ;
-	    char	sbuf[MAXPATHLEN+1] ;
-	    if ((rs = mksdname(sbuf,dname,sid)) >= 0) {
-		if (uip->reqfname == NULL) {
-		    char	pbuf[MAXPATHLEN+1] ;
-	            if ((rs = kshlib_mkreqfname(uip,pbuf,sbuf)) >= 0) {
-			rs = kshlib_reqopener(uip,pbuf) ;
-		    } /* end if (kshlib_mkreqfname) */
-		} /* end if (reqfname) */
-	    } /* end if (mksdname) */
-	} /* end if (sdir) */
-
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_reqopen: ent\n") ;
+#endif
+	if ((rs = kshlib_reqfname(uip)) >= 0) {
+	    rs = kshlib_reqopener(uip) ;
+	} /* end if (kshlib_reqfname) */
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_reqopen: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (kshlib_reqopen) */
 
 
-static int kshlib_reqopener(KSHLIB *uip,cchar *pbuf)
+static int kshlib_reqopener(KSHLIB *uip)
 {
 	const mode_t	om = 0666 ;
-	const int	lo = 0 ;
+	const int	lo = 0 ; /* listen options */
 	int		rs ;
-	if ((rs = listenusd(pbuf,om,lo)) >= 0) {
-	    int	fd = rs ;
+	cchar		*req = uip->reqfname ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_reqopener: ent req=%s\n",req) ;
+#endif
+	if ((rs = listenusd(req,om,lo)) >= 0) {
+	    const int	fd = rs ;
 	    if ((rs = uc_closeonexec(fd,TRUE)) >= 0) {
-		SOCKADDRESS	*sap = &uip->servaddr ;
-		const int	af = AF_UNIX ;
-		cchar		*rf = pbuf ;
-		if ((rs = sockaddress_start(sap,af,rf,0,0)) >= 0) {
-		    uip->servlen = rs ;
-		    uip->sfd = fd ;
-		}
+	        SOCKADDRESS	*sap = &uip->servaddr ;
+	        const int	af = AF_UNIX ;
+	        if ((rs = sockaddress_start(sap,af,req,0,0)) >= 0) {
+	            uip->servlen = rs ;
+	            uip->sfd = fd ;
+	        }
 	    }
 	    if (rs < 0)
-		u_close(fd) ;
+	        u_close(fd) ;
 	} /* end if (listenusd) */
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_reqopener: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (kshlib_reqopener) */
@@ -1502,21 +1971,21 @@ static int kshlib_reqclose(KSHLIB *uip)
 	    if (rs >= 0) rs = rs1 ;
 	    uip->sfd = -1 ;
 	    {
-		SOCKADDRESS	*sap = &uip->servaddr ;
+	        SOCKADDRESS	*sap = &uip->servaddr ;
 	        rs1 = sockaddress_finish(sap) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    }
 	    if (uip->reqfname != NULL) {
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_reqclose: reqfname{%p}=¿\n",uip->reqfname) ;
-	nprintf(NDF,"kshlib_reqclose: reqfname=%s\n",uip->reqfname) ;
+	        nprintf(NDF,"kshlib_reqclose: reqfname{%p}=¿\n",uip->reqfname) ;
+	        nprintf(NDF,"kshlib_reqclose: reqfname=%s\n",uip->reqfname) ;
 #endif
-		if (uip->reqfname[0] != '\0') {
-		    uc_unlink(uip->reqfname) ;
-		}
-		rs1 = uc_free(uip->reqfname) ;
-		if (rs >= 0) rs = rs1 ;
-		uip->reqfname = NULL ;
+	        if (uip->reqfname[0] != '\0') {
+	            u_unlink(uip->reqfname) ;
+	        }
+	        rs1 = uc_libfree(uip->reqfname) ;
+	        if (rs >= 0) rs = rs1 ;
+	        uip->reqfname = NULL ;
 	    } /* end if (reqfname) */
 	} /* end if (server-open) */
 
@@ -1529,23 +1998,27 @@ static int kshlib_reqclose(KSHLIB *uip)
 /* end subroutine (kshlib_reqclose) */
 
 
-static int kshlib_reqsend(KSHLIB *uip,MSGINFO *mip,int clen)
+static int kshlib_reqsend(KSHLIB *uip,MSGDATA *mip,int dl,int cl)
 {
 	const int	fd = uip->sfd ;
-	return msginfo_sendmsg(mip,fd,clen) ;
+	return msgdata_send(mip,fd,dl,cl) ;
 }
 /* end subroutine (kshlib_reqsend) */
 
 
-static int kshlib_reqrecv(KSHLIB *uip,MSGINFO *mip)
+static int kshlib_reqrecv(KSHLIB *uip,MSGDATA *mip)
 {
 	struct pollfd	fds[1] ;
 	const int	fd = uip->sfd ;
-	const int	mto = (5*POLLINTMULT) ;
+	const int	mto = (uip->intpoll*POLLINTMULT) ;
 	const int	nfds = 1 ;
 	int		size ;
 	int		rs ;
 	int		rc = 0 ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_reqrecv: ent\n") ;
+#endif
 
 	size = (nfds * sizeof(struct pollfd)) ;
 	memset(fds,0,size) ;
@@ -1554,29 +2027,34 @@ static int kshlib_reqrecv(KSHLIB *uip,MSGINFO *mip)
 	fds[0].revents = 0 ;
 
 	while ((rs = u_poll(fds,nfds,mto)) >= 0) {
-	    int	f = FALSE ;
+	    int		f = FALSE ;
 	    if (rs > 0) {
-		const int	re = fds[0].revents ;
-		if (re & (POLLIN|POLLPRI)) {
-		    if ((rs = msginfo_recvmsg(mip,fd)) >= 0) {
-			f = TRUE ;
-	    	        if (rs > 0) {
-	        	    rc = MKCHAR(mip->mbuf[0]) ;
-	    	        } else
-	        	    rc = sesmsgtype_invalid ;
-	            } /* end if (msginfo_recvmsg) */
-		} else if (re & POLLERR) {
-		    rs = SR_IO ;
-		}
+	        const int	re = fds[0].revents ;
+	        if (re & (POLLIN|POLLPRI)) {
+	            if ((rs = msgdata_recv(mip,fd)) >= 0) {
+	                f = TRUE ;
+	                if (rs > 0) {
+	                    rc = MKCHAR(mip->mbuf[0]) ;
+	                } else {
+	                    rc = sesmsgtype_invalid ;
+			}
+	            } /* end if (msgdata_recv) */
+	        } else if (re & POLLERR) {
+	            rs = SR_IO ;
+	        }
 	    } else if (rs == SR_INTR) {
-		rs = SR_OK ;
+	        rs = SR_OK ;
 	    }
 	    if (f) break ;
 	    if (rs >= 0) {
-		rs = kshlib_poll(uip) ;
+	        rs = kshlib_poll(uip) ;
 	    }
 	    if (rs < 0) break ;
 	} /* end while (polling) */
+
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_reqrecv: ret rs=%d rc=%u\n",rs,rc) ;
+#endif
 
 	return (rs >= 0) ? rc : rs ;
 }
@@ -1593,6 +2071,30 @@ static int kshlib_poll(KSHLIB *uip)
 	nprintf(NDF,"kshlib_poll: ent\n") ;
 #endif
 
+	if ((uip->pollcount % 5) == 4) {
+	    const time_t	dt = time(NULL) ;
+	    const int		intsescheck = uip->intsescheck ;
+	    if ((dt - uip->ti_sescheck) >= intsescheck) {
+	        TMTIME		m ;
+	        uip->ti_sescheck = dt ;
+	        if ((rs = tmtime_localtime(&m,dt)) >= 0) {
+		    if (m.hour >= uip->seshour) {
+		        cchar	*sesdname = KSHLIB_SESDNAME ;
+		        rs = rmsesfiles(sesdname) ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_poll: rmsesfiles() rs=%d\n",rs) ;
+#endif
+		    }
+		}
+	    }
+	}
+
+	uip->pollcount += 1 ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_poll: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (kshlib_poll) */
@@ -1601,6 +2103,7 @@ static int kshlib_poll(KSHLIB *uip)
 static int kshlib_cmdsend(KSHLIB *uip,int cmd)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		f = FALSE ;
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_cmdsend: ent cmd=%u\n",cmd) ;
@@ -1610,33 +2113,33 @@ static int kshlib_cmdsend(KSHLIB *uip,int cmd)
 	    f = TRUE ;
 	    switch (cmd) {
 	    case sesmsgtype_exit:
-		{
-	    	    MSGINFO	m ;
-		    if ((rs = msginfo_init(&m)) >= 0) {
-		        SESMSG_EXIT	m0 ;
-			const int	mlen = MSGBUFLEN ;
-			const int	sal = uip->servlen ;
-			const void	*sap = &uip->servaddr ;
-			msginfo_setaddr(&m,sap,sal) ;
-			memset(&m0,0,sizeof(SESMSG_EXIT)) ;
-		        if ((rs = sesmsg_exit(&m0,0,m.mbuf,mlen)) >= 0) {
-			    m.mlen = rs ;
-	    	            rs = kshlib_reqsend(uip,&m,0) ;
+	        {
+	            MSGDATA	m ;
+	            if ((rs = msgdata_init(&m,0)) >= 0) {
+	                SESMSG_EXIT	m0 ;
+	                const int	sal = uip->servlen ;
+	                const void	*sap = &uip->servaddr ;
+	                msgdata_setaddr(&m,sap,sal) ;
+	                memset(&m0,0,sizeof(SESMSG_EXIT)) ;
+	                if ((rs = sesmsg_exit(&m0,0,m.mbuf,m.mlen)) >= 0) {
+	                    rs = kshlib_reqsend(uip,&m,rs,0) ;
 #if	CF_DEBUGN
-			    nprintf(NDF,
-				"kshlib_cmdsend: kshlib_reqsend() rs=%d\n",rs) ;
+	                    nprintf(NDF,
+	                        "kshlib_cmdsend: kshlib_reqsend() rs=%d\n",rs) ;
 #endif
-			} /* end if (sesmsg_exit) */
+	                } /* end if (sesmsg_exit) */
 #if	CF_DEBUGN
-			nprintf(NDF,
-				"kshlib_cmdsend: sesmsg_exit-out rs=%d\n",rs) ;
+	                nprintf(NDF,
+	                    "kshlib_cmdsend: sesmsg_exit-out rs=%d\n",rs) ;
 #endif
-		    } /* end if (init) */
-		}
-		break ;
+	    		rs1 = msgdata_fini(&m) ;
+	    		if (rs >= 0) rs = rs1 ;
+	            } /* end if (msgdata) */
+	        }
+	        break ;
 	    default:
-		rs = SR_INVALID ;
-		break ;
+	        rs = SR_INVALID ;
+	        break ;
 	    } /* end switch */
 	} /* end if (running) */
 #if	CF_DEBUGN
@@ -1655,7 +2158,7 @@ static void kshlib_atforkbefore()
 /* end subroutine (kshlib_atforkbefore) */
 
 
-static void kshlib_atforkafter()
+static void kshlib_atforkparent()
 {
 	KSHLIB		*uip = &kshlib_data ;
 	ptm_unlock(&uip->m) ;
@@ -1663,84 +2166,66 @@ static void kshlib_atforkafter()
 /* end subroutine (kshlib_atforkafter) */
 
 
+static void kshlib_atforkchild()
+{
+	KSHLIB		*uip = &kshlib_data ;
+	uip->f_running = FALSE ;
+	uip->f_exiting = FALSE ;
+	uip->pid = getpid() ;
+	ptm_unlock(&uip->m) ;
+}
+/* end subroutine (kshlib_atforkchild) */
+
+
 static void kshlib_sighand(int sn)
 {
 	KSHLIB		*kip = &kshlib_data ;
 	switch (sn) {
+	case SIGQUIT:
+	    kip->f_sigquit = TRUE ;
+	    break ;
+	case SIGTERM:
+	    kip->f_sigterm = TRUE ;
+	    break ;
 	case SIGINT:
 	    kip->f_sigintr = TRUE ;
 	    break ;
-	case SIGKILL:
-	default:
-	    kip->f_sigterm = TRUE ;
+	case SIGWINCH:
+	    kip->f_sigwich = TRUE ;
+	    break ;
+	case SIGCHLD:
+	    kip->f_sigchild = TRUE ;
+	    break ;
+	case SIGTSTP:
+	    kip->f_sigsusp = TRUE ;
 	    break ;
 	} /* end switch */
 }
 /* end subroutine (kshlib_sighand) */
 
 
-static int kshlib_mkreqfname(KSHLIB *uip,char *sbuf,cchar *dname)
-{
-	const uint	uv = (uint) uip->pid ;
-	const int	dlen = DIGBUFLEN ;
-	int		rs ;
-	char		dbuf[DIGBUFLEN+1] = { 'p' } ;
-
-#if	CF_DEBUGN
-	nprintf(NDF,"kshlib_mkreqfname: ent pid=%u\n",uv) ;
-#endif
-
-	if ((rs = ctdecui((dbuf+1),(dlen-1),uv)) >= 0) {
-#if	CF_DEBUGN
-	nprintf(NDF,"kshlib_mkreqfname: dbuf=%s\n",dbuf) ;
-#endif
-	    if ((rs = mkpath2(sbuf,dname,dbuf)) >= 0) {
-#if	CF_DEBUGN
-		nprintf(NDF,"kshlib_mkreqfname: mkpath2() rs=%d sbuf=%s\n",
-		rs,sbuf) ;
-#endif
-		if (uip->reqfname == NULL) {
-		    cchar	*cp ;
-		    if ((rs = mallocstrw(sbuf,rs,&cp)) >= 0) {
-#if	CF_DEBUGN
-	nprintf(NDF,"kshlib_mkreqfname: reqfname{%p}=¿\n",cp) ;
-	nprintf(NDF,"kshlib_mkreqfname: reqfname{%p}=%s\n",cp,cp) ;
-#endif
-			uip->reqfname = cp ;
-		    }
-		}
-	    } /* end if (mkpath) */
-	} /* end if (ctdecui) */
-
-#if	CF_DEBUGN
-	nprintf(NDF,"kshlib_mkreqfname: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (kshlib_mkreqfname) */
-
-
 static int kshlib_capbegin(KSHLIB *uip,int to)
 {
 	int		rs ;
 	int		rs1 ;
-
+#if	CF_DEBUGN && 0
+	nprintf(NDF,"kshlib_capbegin: ent to=%d\n",to) ;
+#endif
 	if ((rs = ptm_lockto(&uip->m,to)) >= 0) {
 	    uip->waiters += 1 ;
-
 	    while ((rs >= 0) && uip->f_capture) { /* busy */
 	        rs = ptc_waiter(&uip->c,&uip->m,to) ;
 	    } /* end while */
-
 	    if (rs >= 0) {
 	        uip->f_capture = TRUE ;
 	    }
-
 	    uip->waiters -= 1 ;
 	    rs1 = ptm_unlock(&uip->m) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
-
+#if	CF_DEBUGN && 0
+	nprintf(NDF,"kshlib_capbegin: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (kshlib_capbegin) */
@@ -1750,27 +2235,33 @@ static int kshlib_capend(KSHLIB *uip)
 {
 	int		rs ;
 	int		rs1 ;
-
+#if	CF_DEBUGN && 0
+	nprintf(NDF,"kshlib_capend: ent\n") ;
+#endif
 	if ((rs = ptm_lock(&uip->m)) >= 0) {
-
 	    uip->f_capture = FALSE ;
 	    if (uip->waiters > 0) {
 	        rs = ptc_signal(&uip->c) ;
 	    }
-
 	    rs1 = ptm_unlock(&uip->m) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ptm) */
-
+#if	CF_DEBUGN && 0
+	nprintf(NDF,"kshlib_capend: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (kshlib_capend) */
 
 
-static int kshlib_sigbegin(KSHLIB *kip)
+/* ARGSUSED */
+static int kshlib_sigbegin(KSHLIB *kip,const int *catches)
 {
 	int		rs ;
 	void		(*sh)(int) = kshlib_sighand ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_sigbegin: ent\n") ;
+#endif
 	kip->f_sigterm = 0 ;
 	kip->f_sigintr = 0 ;
 	rs = sigman_start(&kip->sm,sigblocks,sigigns,sigints,sh) ;
@@ -1786,6 +2277,9 @@ static int kshlib_sigend(KSHLIB *kip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_sigend: ent\n") ;
+#endif
 	rs1 = sigman_finish(&kip->sm) ;
 	if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUGN
@@ -1794,6 +2288,165 @@ static int kshlib_sigend(KSHLIB *kip)
 	return rs ;
 }
 /* end subroutine (kshlib_sigend) */
+
+
+static int kshlib_notesbegin(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	int		f = TRUE ;
+	if (! uip->open.notes) {
+	    if ((rs = kshlib_mqbegin(uip)) >= 0) {
+	        if ((rs = kshlib_runbegin(uip)) >= 0) {
+	    	    uip->open.notes = TRUE ;
+		    f = FALSE ;
+		}
+	    }
+	}
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_notesbegin: ret rs=%d\n",rs) ;
+#endif
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (kshlib_notesbegin) */
+
+
+static int kshlib_notesend(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		f = FALSE ;
+	if (uip->open.notes) {
+	    rs1 = kshlib_runend(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+	    uip->open.notes = FALSE ;
+	    f = TRUE ;
+	}
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (kshlib_notesend) */
+
+
+static int kshlib_notesactive(KSHLIB *uip)
+{
+	return MKBOOL(uip->open.notes) ;
+}
+/* end subroutine (kshlib_notesactive) */
+
+
+static int kshlib_notescount(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	if (uip->open.notes) {
+	    rs = kshlib_mqcount(uip) ;
+	}
+	return rs ;
+}
+/* end subroutine (kshlib_notescount) */
+
+
+static int kshlib_mqbegin(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	if (! uip->open.mq) {
+	    const int	n = KSHLIB_NENTS ;
+	    if ((rs = raqhand_start(&uip->mq,n,0)) >= 0) {
+	        uip->open.mq = TRUE ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (kshlib_mqbegin) */
+
+
+static int kshlib_mqend(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (uip->open.mq) {
+	    rs1 = kshlib_mqfins(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+	    rs1 = raqhand_finish(&uip->mq) ;
+	    if (rs >= 0) rs = rs1 ;
+	    uip->open.mq = FALSE ;
+	}
+	return rs ;
+}
+/* end subroutine (kshlib_mqend) */
+
+
+static int kshlib_mqfins(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (uip->open.mq) {
+	    RAQHAND	*qlp = &uip->mq ;
+	    STORENOTE	*ep ;
+	    int		i ;
+	    for (i = 0 ; raqhand_get(qlp,i,&ep) >= 0 ; i += 1) {
+	        if (ep != NULL) {
+	            rs1 = storenote_finish(ep) ;
+	            if (rs >= 0) rs = rs1 ;
+	            rs1 = uc_libfree(ep) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (non-null) */
+	    } /* end for */
+	} /* end if (open-mq) */
+	return rs ;
+}
+/* end subroutine (kshlib_mqfins) */
+
+
+static int kshlib_mqcount(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	if (uip->open.mq) {
+	    rs = raqhand_count(&uip->mq) ;
+	}
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_mqcount: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (kshlib_mqcount) */
+
+
+static int kshlib_mqactive(KSHLIB *uip)
+{
+	int		rs = MKBOOL(uip->open.mq) ;
+	return rs ;
+}
+/* end subroutine (kshlib_mqactive) */
+
+
+#if	CF_MQ
+/* ensure message-queue operations are initialized */
+static int kshlib_mq(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	if (! uip->open.mq) {
+	    rs = kshlib_mqbegin(uip) ;
+	}
+	return rs ;
+}
+/* end subroutine (kshlib_mq) */
+#endif /* CF_MQ */
+
+
+static int kshlib_sesend(KSHLIB *uip)
+{
+	int		rs = SR_OK ;
+	if (uip->sesdname != NULL) {
+	    if ((rs = kshlib_sid(uip)) >= 0) {
+		if (uip->sid == uip->pid) {
+		    if ((rs = isdirempty(uip->sesdname)) > 0) {
+			rs = u_rmdir(uip->sesdname) ;
+		    }
+		}
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (kshlib_sesend) */
 
 
 static int storenote_start(ep,mt,st,un,mdp,mdl)
@@ -1814,7 +2467,7 @@ int		mdl ;
 	if (mdl < 0) mdl = strlen(mdp) ;
 	size += (mdl+1) ;
 	size += (strlen(un)+1) ;
-	if ((rs = uc_malloc(size,&bp)) >= 0) {
+	if ((rs = uc_libmalloc(size,&bp)) >= 0) {
 	    ep->a = bp ;
 	    ep->user = bp ;
 	    bp = (strwcpy(bp,un,-1)+1) ;
@@ -1846,6 +2499,7 @@ static int storenote_finish(STORENOTE *ep)
 /* end subroutine (storenote_finish) */
 
 
+#if	CF_LOCMALSTRW
 static int mallocstrw(cchar *sp,int sl,cchar **rpp)
 {
 	int		rs ;
@@ -1859,6 +2513,7 @@ static int mallocstrw(cchar *sp,int sl,cchar **rpp)
 	return rs ;
 }
 /* end subroutine (mallocstrw) */
+#endif /* CF_LOCMALSTRW */
 
 
 static int sdir(cchar *dname,int am)
@@ -1897,6 +2552,7 @@ static int mksdname(char *rbuf,cchar *dname,pid_t sid)
 	const uint	uv = (uint) sid ;
 	const int	dlen = DIGBUFLEN ;
 	int		rs ;
+	int		rl = 0 ;
 	char		dbuf[DIGBUFLEN+1] = { 's' } ;
 
 #if	CF_DEBUGN
@@ -1905,10 +2561,11 @@ static int mksdname(char *rbuf,cchar *dname,pid_t sid)
 
 	if ((rs = ctdecui((dbuf+1),(dlen-1),uv)) >= 0) {
 	    if ((rs = mkpath2(rbuf,dname,dbuf)) >= 0) {
-		const mode_t	dm = 0777 ;
-		if ((rs = mkdirs(rbuf,dm)) >= 0) {
-		    rs = uc_minmod(rbuf,dm) ;
-		}
+	        const mode_t	dm = 0777 ;
+		rl = rs ;
+	        if ((rs = mkdirs(rbuf,dm)) >= 0) {
+	            rs = uc_minmod(rbuf,dm) ;
+	        }
 	    } /* end if (mkpath) */
 	} /* end if (ctdecui) */
 
@@ -1916,7 +2573,7 @@ static int mksdname(char *rbuf,cchar *dname,pid_t sid)
 	nprintf(NDF,"kshlib/mksdname: ret rs=%d\n",rs) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? rl : rs ;
 }
 /* end subroutine (mksdname) */
 
@@ -1929,11 +2586,11 @@ static int ndebugenv(cchar *s,cchar *ev[])
 	if (s != NULL) {
 	    if (ev != NULL) {
 	        int	i ;
-		cchar	*fmt = "%s: e%03u=>%t<\n" ;
+	        cchar	*fmt = "%s: e%03u=>%t<\n" ;
 	        nprintf(dfn,"%s: env¬\n", s) ;
 	        for (i = 0 ; ev[i] != NULL ; i += 1) {
 	            ep = ev[i] ;
-		    nprintf(dfn,fmt,s,i,ep,strlinelen(ep,-1,50)) ;
+	            nprintf(dfn,fmt,s,i,ep,strlinelen(ep,-1,50)) ;
 	        }
 	        nprintf(dfn,"%s: nenv=%u\n", s,i) ;
 	    } else
@@ -1943,5 +2600,45 @@ static int ndebugenv(cchar *s,cchar *ev[])
 }
 /* end subroutine (ndebugenv) */
 #endif /* CF_DEBUGENV */
+
+
+#if	CF_DEBUGN
+
+static int nprintpid(cchar *s)
+{
+	const uint	id = getpid() ;
+	return nprintf(NDF,"%s: ent pid=%u\n",s,id) ;
+}
+
+static int nprintid(cchar *s)
+{
+	const pthread_t	tid = uptself(NULL) ;
+	return nprintf(NDF,"%s: tid=%u\n",s,tid) ;
+}
+/* end subroutine (nprintid) */
+
+static int nprintutmp(char *s)
+{
+	KSHLIB		*uip = &kshlib_data ;
+	int		rs ;
+	nprintf(NDF,"%s: UTMPACC test-begin\n",s) ;
+	{
+		UTMPACC_ENT	ue ;
+		const pid_t	sid = getsid(0) ;
+		const pid_t	pid = uip->pid ;
+		const int	ulen = UTMPACC_BUFLEN ;
+		char		ubuf[UTMPACC_BUFLEN+1] ;
+
+	nprintf(NDF,"%s: sid=%d pid=%u\n",s,sid,pid) ;
+	rs = utmpacc_entsid(&ue,ubuf,ulen,pid) ;
+	nprintf(NDF,"%s: utmpacc() rs=%d\n",s,rs) ;
+
+	}
+	nprintf(NDF,"%s: UTMPACC test-end\n",s) ;
+	return rs ;
+}
+/* end subroutine (nprintutmp) */
+
+#endif /* CF_DEBUGN */
 
 

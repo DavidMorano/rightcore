@@ -7,7 +7,7 @@ Synopsis:
 $ inproject <projectname(s)> [-af <afile>] [-u <username>] [-V]
 
 Arguments:
-<projectname(s)>	project name to check
+<projectname(s)>	project name(s) to check
 -af <afile>		argument-list file
 -u <username>		alternative username to check
 -V			print command version to standard-error and then exit

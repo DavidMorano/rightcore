@@ -226,6 +226,9 @@ whatinfo.o:		whatinfo.c config.h
 bstree.o:		bstree.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) bstree.hh
 
+sethand.o:		sethand.hh
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) sethand.hh
+
 timeval.o:		timeval.c timeval.h
 
 timespec.o:		timespec.c timespec.h
@@ -241,7 +244,7 @@ uc_timeout.o:		uc_timeout.c timeout.h timespec.g sigevent.h
 T01= testsethand
 
 T01OBJa= $(T01).o
-T01OBJb=
+T01OBJb= sethand.o
 T01OBJc=
 T01OBJd=
 
@@ -250,7 +253,7 @@ T01OBJ= $(T01OBJa) $(T01OBJb) $(T01OBJc) $(T01OBJd)
 $(T01).x:		Makefile $(T01OBJ)
 	$(GPP) -o $@ $(T01OBJ) $(TLIBINFO)
 
-$(T01).o:		testsethand.cc sethand.h
+$(T01).o:		testsethand.cc sethand.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) testsethand.cc
 
 

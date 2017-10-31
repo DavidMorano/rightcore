@@ -1,2 +1,2 @@
 const char textset_makedate[] =
-"@(#)textset                 170823_2229:56_USEDT Rightcore Network Services" ;
+"@(#)textset                 171030_1429:57_USEDT Rightcore Network Services" ;

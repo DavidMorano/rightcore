@@ -73,7 +73,7 @@ extern int	sicite(const char *,int,const char *,int) ;
 extern int	silbrace(const char *,int) ;
 
 extern int	bprinter(bfile *,int,const char *,int) ;
-extern int	findbibfile(struct proginfo *,PARAMOPT *,const char *,char *) ;
+extern int	findbibfile(PROGINFO *,PARAMOPT *,const char *,char *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -109,14 +109,14 @@ struct mbdinfo {
 
 /* forward references */
 
-static int procmacro(struct proginfo *,struct procinfo *,
+static int procmacro(PROGINFO *,struct procinfo *,
 		const char *,int,int) ;
-static int procescape(struct proginfo *,struct procinfo *,
+static int procescape(PROGINFO *,struct procinfo *,
 		struct mbdinfo *) ;
 
-static int mbdmacro(struct proginfo *,const char *,int) ;
-static int mbdmacrofiles(struct proginfo *,VECSTR *,const char *,int) ;
-static int mbdescape(struct proginfo *,struct mbdinfo *,uint,const char *,int) ;
+static int mbdmacro(PROGINFO *,const char *,int) ;
+static int mbdmacrofiles(PROGINFO *,VECSTR *,const char *,int) ;
+static int mbdescape(PROGINFO *,struct mbdinfo *,uint,const char *,int) ;
 
 
 /* local variables */
@@ -153,20 +153,17 @@ static const uchar	fterms[] = {
 
 
 int progfile(pip,app,bdbp,cdbp,fname)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 PARAMOPT	*app ;
 BDB		*bdbp ;
 CITEDB		*cdbp ;
 const char	fname[] ;
 {
 	struct procinfo	pc ;
-
-	bfile	infile, *ifp = &infile ;
-	bfile	*tfp = &pip->tf.tfile ;
-
-	int	rs ;
-	int	tlen = 0 ;
-
+	bfile		infile, *ifp = &infile ;
+	bfile		*tfp = &pip->tf.tfile ;
+	int		rs ;
+	int		tlen = 0 ;
 	const char	*cp ;
 
 #if	CF_DEBUG
@@ -274,7 +271,7 @@ ret0:
 
 
 static int procmacro(pip,pcp,lp,ll,li)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct procinfo	*pcp ;
 const char	*lp ;
 int		ll ;
@@ -371,7 +368,7 @@ int		li ;
 
 
 static int procescape(pip,pcp,eip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct procinfo	*pcp ;
 struct mbdinfo	*eip ;
 {
@@ -455,7 +452,7 @@ struct mbdinfo	*eip ;
 
 /* do we have a MBD macro? */
 static int mbdmacro(pip,lp,ll)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 const char	*lp ;
 int		ll ;
 {
@@ -513,7 +510,7 @@ done:
 
 /* extract the RBD file names from an RBD macro invocation */
 static int mbdmacrofiles(pip,flp,lp,ll)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 VECSTR		*flp ;
 const char	*lp ;
 int		ll ;
@@ -578,18 +575,16 @@ done:
 
 
 static int mbdescape(pip,ip,loff,lp,ll)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct mbdinfo	*ip ;
 uint		loff ;
 const char	*lp ;
 int		ll ;
 {
 	const int	el = strlen(BIBESCAPE) ;
-
-	int	sl, cl ;
-	int	si ;
-	int	f = FALSE ;
-
+	int		sl, cl ;
+	int		si ;
+	int		f = FALSE ;
 	const char	*tp ;
 	const char	*sp, *cp ;
 

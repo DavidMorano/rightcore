@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-08-17, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -19,8 +17,7 @@
 
 /*******************************************************************************
 
-	This is a knock-off of the 'fwrite(3)' subroutine, only
-	sensible!
+	This is a knock-off of the 'fwrite(3)' subroutine, only sensible!
 
 
 *******************************************************************************/
@@ -29,6 +26,7 @@
 #include	<envstandards.h>
 
 #include	<sys/types.h>
+#include	<string.h>
 #include	<stdio.h>
 
 #include	<vsystem.h>
@@ -40,10 +38,7 @@
 /* exported subroutines */
 
 
-int fbwrite(fp,bbuf,blen)
-FILE		*fp ;
-const char	bbuf[] ;
-int		blen ;
+int fbwrite(FILE *fp,cchar *bbuf,int blen)
 {
 	int		rs = SR_OK ;
 

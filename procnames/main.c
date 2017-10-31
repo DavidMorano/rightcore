@@ -66,7 +66,7 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 extern int	isdigitlatin(int) ;
 
-extern int	process(struct proginfo *,const char *) ;
+extern int	process(PROGINFO *,const char *) ;
 
 
 /* external variables */
@@ -104,15 +104,12 @@ enum argopts {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo	pi, *pip = &pi ;
-
-	bfile	errfile ;
-	bfile	outfile ;
+	PROGINFO	pi, *pip = &pi ;
+	bfile		errfile ;
+	bfile		outfile ;
 
 	int	argr, argl, aol, akl, avl, npa, maxai, kwi ;
 	int	ai, ai_max, ai_pos ;
@@ -144,7 +141,7 @@ const char	*envv[] ;
 	}
 #endif /* CF_DEBUGS */
 
-	memset(pip,0,sizeof(struct proginfo)) ;
+	memset(pip,0,sizeof(PROGINFO)) ;
 
 	sfshrink(argv[0],-1,&cp) ;
 	pip->progname = cp ;

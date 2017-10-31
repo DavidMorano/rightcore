@@ -23,7 +23,7 @@
 	Synopsis:
 
 	typedef int	(*sortcmp_t)(const void *,const void *) ;
-	void isort(void *base,int nelem,int esize,sortcmp_t *cmp)
+		void isort(void *base,int nelem,int esize,sortcmp_t *cmp)
 
 	Arguments:
 

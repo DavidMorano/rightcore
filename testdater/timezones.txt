@@ -42,7 +42,7 @@
 /*XX*/	"ligt",		TZ,	PACK(600),	/* From Melbourne, Australia */
 	"mdt",		DTZ,	PACK(-360),	/* Mountain DT */
 	"mest",		DTZ,	PACK(120),	/* Middle Europe Summer Time */
-	"mesz",		DTZ,	PACK(120),	/* Mittel-Europaeische Sommerzeit */
+	"mesz",		DTZ,	PACK(120),	/* Mittel-Europaeische Sommer */
 	"met",		TZ,	PACK(60),	/* Middle Europe Time */
 	"metdst",	DTZ,	PACK(120),	/* Middle Europe DT */
 	"mewt",		TZ,	PACK(60),	/* Middle Europe Winter Time */

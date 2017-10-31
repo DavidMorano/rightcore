@@ -1,4 +1,4 @@
-/* config */
+/* config (testmisc) */
 
 
 /* revision history:
@@ -12,10 +12,10 @@
 
 
 #define	VERSION		"0"
-#define	WHATINFO	"@(#)testcplus "
+#define	WHATINFO	"@(#)testvecsorthand "
 
-#define	VARDEBUGFNAME	"TESTANSI_DEBUGFILE"
-#define	VARDEBUGFD1	"TESTANSI_DEBUGFD"
+#define	VARDEBUGFNAME	"TESTVECSORTHAND_DEBUGFILE"
+#define	VARDEBUGFD1	"TESTVECSORTHAND_DEBUGFD"
 #define	VARDEBUGFD2	"DEBUGFD"
 
 

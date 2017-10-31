@@ -200,7 +200,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 	if ((cp = getenv(VARERRORFNAME)) == NULL) cp = BFILE_STDERR ;
 	if ((rs1 = bopen(&errfile,cp,"wca",0666)) >= 0) {
@@ -232,7 +232,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	if (rs >= 0) {
 	    if ((rs = proc_devino(pip)) >= 0) {
-	        ENVHELP	env ;
+	        ENVHELP		env ;
 	        if ((rs = envhelp_start(&env,envbads,pip->envv)) >= 0) {
 	            if ((rs = proc_idsbegin(pip)) >= 0) {
 	                cchar		*en = getexecname() ;
@@ -448,7 +448,7 @@ static int proc_exec(PROGINFO *pip,cchar *rbuf,cchar **argv,cchar **penvv)
 	    }
 	}
 #else /* COMMENT */
-	    rs = uc_isaexecve(rbuf,argv,penvv) ;
+	rs = uc_isaexecve(rbuf,argv,penvv) ;
 #endif /* COMMENT */
 #if	CF_DEBUGS
 	debugprintf("main/proc_exec: ret rs=%d\n",rs) ;
@@ -457,4 +457,4 @@ static int proc_exec(PROGINFO *pip,cchar *rbuf,cchar **argv,cchar **penvv)
 }
 /* end subroutine (proc_exec) */
 
-
+	    

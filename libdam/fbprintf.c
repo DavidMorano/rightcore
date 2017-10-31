@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-08-17, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -19,8 +17,7 @@
 
 /******************************************************************************
 
-	This is a knock-off of the 'fwrite(3)' subroutine, only
-	sensible!
+	This is a knock-off of the 'fwrite(3)' subroutine, only sensible!
 
 
 ******************************************************************************/
@@ -28,6 +25,7 @@
 
 #include	<envstandards.h>
 
+#include	<sys/types.h>
 #include	<stdarg.h>
 #include	<stdio.h>
 
@@ -47,34 +45,33 @@
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	vbufprintf(char *,int,const char *,va_list) ;
 
+extern int	fbwrite(FILE *,cchar *,int) ;
+
 
 /* exported subroutines */
 
 
-int fbprintf(FILE *fp,const char *fmt,...)
+int fbprintf(FILE *fp,cchar *fmt,...)
 {
-	va_list	ap ;
+	const int	llen = LINEBUFLEN ;
+	int		rs ;
+	int		flen ;
+	int		wlen = 0 ;
+	char		lbuf[LINEBUFLEN + 1] ;
 
-	int	rs ;
-	int	flen ;
-	int	wlen = 0 ;
+	if (fp == NULL) return SR_FAULT ;
+	if (fmt == NULL) return SR_FAULT ;
 
-	char	linebuf[LINEBUFLEN + 1] ;
-
-
-	if (fp == NULL)
-	    return SR_FAULT ;
-
-	if (fmt == NULL)
-	    return SR_FAULT ;
-
-	va_begin(ap,fmt) ;
-	rs = vbufprintf(linebuf,LINEBUFLEN,fmt,ap) ;
-	flen = rs ;
-	va_end(ap) ;
+	{
+	    va_list	ap ;
+	    va_begin(ap,fmt) ;
+	    rs = vbufprintf(lbuf,llen,fmt,ap) ;
+	    flen = rs ;
+	    va_end(ap) ;
+	}
 
 	if ((rs >= 0) && (flen > 0)) {
-	    rs = fbwrite(fp,linebuf,flen) ;
+	    rs = fbwrite(fp,lbuf,flen) ;
 	    wlen = rs ;
 	}
 
@@ -86,6 +83,5 @@ int fbprintf(FILE *fp,const char *fmt,...)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (fbprintf) */
-
 
 

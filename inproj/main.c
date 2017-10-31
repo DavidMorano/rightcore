@@ -593,8 +593,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
 	        rs = getpw_name(&pw,pwbuf,pwlen,un) ;
 	        if (rs == SR_NOTFOUND) ex = EX_NOUSER ;
-		uc_free(pwbuf) ;
-	    } /* end if (memory-allocation) */
+		rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a-f) */
 	} /* end if */
 
 	if (rs < 0) {

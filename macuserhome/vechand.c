@@ -150,15 +150,17 @@ int vechand_add(vechand *op,const void *sp)
 	if (f && (op->c < op->i)) {
 
 	    i = op->fi ;
-	    while ((i < op->i) && (op->va[i] != NULL))
+	    while ((i < op->i) && (op->va[i] != NULL)) {
 	        i += 1 ;
+	    }
 
 	    if (i < op->i) {
 	        (op->va)[i] = (void *) sp ;
 	        op->fi = i + 1 ;
 	        f_done = TRUE ;
-	    } else
+	    } else {
 	        op->fi = i ;
+	    }
 
 	} /* end if (possible reuse strategy) */
 

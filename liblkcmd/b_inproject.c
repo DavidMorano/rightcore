@@ -154,7 +154,7 @@ static int	locinfo_finish(LOCINFO *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -370,14 +370,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* program-root */
 	                case argopt_root:
-	                        if (argr > 0) {
-	                    argp = argv[++ai] ;
-	                    argr -= 1 ;
-	                    argl = strlen(argp) ;
-	                    if (argl)
-	                        pr = argp ;
-				} else
-	                            rs = SR_INVALID ;
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            pr = argp ;
+	                    } else
+	                        rs = SR_INVALID ;
 	                    break ;
 
 /* version */
@@ -411,12 +411,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            sn = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sn = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -429,12 +429,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            afname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            afname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -447,12 +447,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            efname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            efname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -465,12 +465,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            ofname = avp ;
 	                    } else {
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ofname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -509,12 +509,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* program-root */
 	                    case 'R':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            pr = argp ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -530,10 +530,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
-				} else
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -543,12 +543,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	                    case 'u':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            rs = locinfo_loadusername(lip,argp,argl) ;
-				} else
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                rs = locinfo_loadusername(lip,argp,argl) ;
+	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
 
@@ -688,7 +688,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        if (! pip->f.quiet) {
 	            shio_printf(pip->efp,"%s: invalid query (%d)\n",
 	                pip->progname,rs) ;
-		}
+	        }
 	        break ;
 	    case SR_NOENT:
 	        ex = EX_CANTCREAT ;
@@ -792,56 +792,54 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
-static int procargs(pip,aip,bop,ofname,afname)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-const char	*ofname ;
-const char	*afname ;
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = STDOUTFNAME ;
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
 
-	if ((rs = locinfo_outbegin(lip,ofname)) >= 0) {
+	if ((rs = locinfo_outbegin(lip,ofn)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    void	*ofp = lip->ofp ;
 
 	    if (rs >= 0) {
 	        int	ai ;
 	        int	f ;
+		cchar	**argv = aip->argv ;
 	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
 	                cp = aip->argv[ai] ;
-			if (cp[0] != '\0') {
+	                if (cp[0] != '\0') {
 	                    pan += 1 ;
 	                    rs = procname(pip,ofp,cp,-1) ;
-		            c += rs ;
-			}
-		    }
+	                    c += rs ;
+	                }
+	            }
 
-		    if (rs >= 0) rs = lib_sigterm() ;
-		    if (rs >= 0) rs = lib_sigintr() ;
+	            if (rs >= 0) rs = lib_sigterm() ;
+	            if (rs >= 0) rs = lib_sigintr() ;
 	            if (rs < 0) break ;
 	        } /* end for (handling positional arguments) */
 	    } /* end if (ok) */
 
-	    if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
+	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
 	        SHIO	afile, *afp = &afile ;
 
-	        if (strcmp(afname,"-") == 0)
-	            afname = STDINFNAME ;
+	        if (strcmp(afn,"-") == 0)
+	            afn = STDINFNAME ;
 
-	        if ((rs = shio_open(afp,afname,"r",0666)) >= 0) {
+	        if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
 	            char	lbuf[LINEBUFLEN + 1] ;
 
@@ -859,19 +857,17 @@ const char	*afname ;
 	                    }
 	                }
 
-		        if (rs >= 0) rs = lib_sigterm() ;
-		        if (rs >= 0) rs = lib_sigintr() ;
+	                if (rs >= 0) rs = lib_sigterm() ;
+	                if (rs >= 0) rs = lib_sigintr() ;
 	                if (rs < 0) break ;
 	            } /* end while (reading lines) */
 
 	            rs1 = shio_close(afp) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } else {
-	                shio_printf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                shio_printf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afname) ;
+		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            shio_printf(pip->efp,fmt,pn,rs) ;
+	            shio_printf(pip->efp,"%s: afile=%s\n",pn,rs) ;
 	        } /* end if */
 
 	    } /* end if (processing argument-list file) */
@@ -963,6 +959,7 @@ static int locinfo_finish(LOCINFO *lip)
 	    rs1 = uc_free(lip->pjbuf) ;
 	    if (rs >= 0) rs = rs1 ;
 	    lip->pjbuf = NULL ;
+	    lip->pjlen = 0 ;
 	}
 
 	return rs ;
@@ -1048,15 +1045,14 @@ static int locinfo_outend(LOCINFO *lip)
 
 static int locinfo_pjbuf(LOCINFO *lip)
 {
+	const int	pjlen = getbufsize(getbufsize_pj) ;
 	int		rs = SR_OK ;
-	int		pjlen = lip->pjlen ; /* not CONST */
 	if (lip->pjbuf == NULL) {
 	    char	*pjbuf ;
-	    pjlen = getbufsize(getbufsize_pj) ; /* not CONST */
 	    if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
-		lip->pjbuf = pjbuf ;
-		lip->pjlen = pjlen ;
-	    }
+	        lip->pjbuf = pjbuf ;
+	        lip->pjlen = pjlen ;
+	    } /* end if (m-a) */
 	}
 	return (rs >= 0) ? pjlen : rs ;
 }
@@ -1068,22 +1064,22 @@ static int locinfo_inproj(LOCINFO *lip,cchar *np,int nl)
 	int		rs ;
 	int		rs1 ;
 	int		f = FALSE ;
-	    if ((rs = locinfo_pjbuf(lip)) >= 0) {
-	        NULSTR		ns ;
-		cchar		*name ;
-		if ((rs = nulstr_start(&ns,np,nl,&name)) >= 0) {
-		    const int	pjlen = lip->pjlen ;
-		    cchar	*un = lip->username ;
-		    char	*pjbuf = lip->pjbuf ;
-	            if ((rs = uc_inproj(un,name,pjbuf,pjlen)) >= 0) {
-	    		f = (rs > 0) ;
-	    	        lip->queries += 1 ;
-			if (! f) lip->f.missed = TRUE ;
-		    }
-		    rs1 = nulstr_finish(&ns) ;
-		    if (rs >= 0) rs = rs1 ;
-		} /* end if (nulstr) */
-	    } /* end if (locinfo_pjbuf) */
+	if ((rs = locinfo_pjbuf(lip)) >= 0) {
+	    NULSTR		ns ;
+	    cchar		*name ;
+	    if ((rs = nulstr_start(&ns,np,nl,&name)) >= 0) {
+	        const int	pjlen = lip->pjlen ;
+	        cchar	*un = lip->username ;
+	        char	*pjbuf = lip->pjbuf ;
+	        if ((rs = uc_inproj(un,name,pjbuf,pjlen)) >= 0) {
+	            f = (rs > 0) ;
+	            lip->queries += 1 ;
+	            if (! f) lip->f.missed = TRUE ;
+	        }
+	        rs1 = nulstr_finish(&ns) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (nulstr) */
+	} /* end if (locinfo_pjbuf) */
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (locinfo_inproj) */
