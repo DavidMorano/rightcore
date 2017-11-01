@@ -4,12 +4,12 @@
 
 
 #define	CF_DEBUGN	0		/* special compile-time debugging */
+#define	CF_DEBUGINIT	0		/* debug initialization section */
 
 
 /* revision history:
 
 	= 2014-05-09, David A­D­ Morano
-
 	This is being written to add an "unregister" feature to the 'atfork'
 	capability that came with POSIX threads.  In the past we always had
 	pure reentrant subroutines without hidden locks associated with them.
@@ -19,25 +19,24 @@
 	The standard 'pthread_atfork(3pthread)' does not have an "unregister"
 	feature associated with it.  This is what we are creating here.
 
-
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	We are attempting to add an "unregister" feature to the
-	'pthread_atfork(3pthread)' facility.  We need to create a whole new
-	interface for this.  This new interface will consist of:
+        We are attempting to add an "unregister" feature to the
+        'pthread_atfork(3pthread)' facility. We need to create a whole new
+        interface for this. This new interface will consist of:
 
 	+ uc_atfork(3uc)
 	+ uc_atforkrelease(3uc)
 
-	We suffered a lot when first learning that
-	'pthread_atfork(3pthread)' did not get its registered subroutines
-	removed at load-module removal time (as though using something
-	like 'dlclose(3dl)').  So we attempt here to provide
-	something that does the un-registering at module un-load time.
+        We suffered a lot when first learning that 'pthread_atfork(3pthread)'
+        did not get its registered subroutines removed at load-module removal
+        time (as though using something like 'dlclose(3dl)'). So we attempt here
+        to provide something that does the un-registering at module un-load
+        time.
 
 	Enjoy.
 
@@ -69,6 +68,19 @@
 #define	UCATFORK_LIST	struct ucatfork_list
 
 #define	NDF		"ucatfork.deb"
+
+
+/* pragmas (these just do not work in shared object libraries) */
+
+#ifdef	COMMENT
+#pragma		init(ucatfork_init)
+#pragma		fini(ucatfork_fini)
+#endif /* COMMENT */
+
+
+/* typedefs */
+
+typedef void	(*atfork_t)(void) ;
 
 
 /* external subroutines */
@@ -104,6 +116,9 @@ struct ucatfork {
 
 /* forward references */
 
+int		ucatfork_init() ;
+void		ucatfork_fini() ;
+
 static int	ucatfork_trackbegin(UCATFORK *) ;
 static void	ucatfork_trackend(UCATFORK *) ;
 
@@ -116,7 +131,7 @@ static int	entry_match(UCATFORK_ENT *,void (*)(),void (*)(),void (*)()) ;
 
 /* local variables */
 
-static struct ucatfork	ucatfork_data ; /* zero-initialized */
+static UCATFORK		ucatfork_data ; /* zero-initialized */
 
 
 /* exported subroutines */
@@ -124,23 +139,40 @@ static struct ucatfork	ucatfork_data ; /* zero-initialized */
 
 int ucatfork_init()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	int		rs = SR_OK ;
 	int		f = FALSE ;
+#if	CF_DEBUGINIT
+	nprintf(NDF,"ucatfork_init: ent\n") ;
+#endif
 	if (! udp->f_init) {
 	    udp->f_init = TRUE ;
 	    if ((rs = ptm_create(&udp->m,NULL)) >= 0) {
-	        udp->f_initdone = TRUE ;
-	        f = TRUE ;
+	        void	(*sb)() = ucatfork_atforkbefore ;
+	        void	(*sp)() = ucatfork_atforkparent ;
+	        void	(*sc)() = ucatfork_atforkchild ;
+	        if ((rs = pt_atfork(sb,sp,sc)) >= 0) {
+	            if ((rs = uc_atexit(ucatfork_fini)) >= 0) {
+	        	udp->f_initdone = TRUE ;
+	        	f = TRUE ;
+	            } /* end if (uc_atexit) */
+	        } /* end if (pt_atfork) */
+#if	CF_DEBUGINIT
+		nprintf(NDF,"ucatfork_init: done\n") ;
+#endif
 	    } /* end if (ptm_create) */
 	    if (rs < 0)
 	        udp->f_init = FALSE ;
 	} else {
 	    while ((rs >= 0) && udp->f_init && (! udp->f_initdone)) {
 		rs = msleep(1) ;
+		if (rs == SR_INTR) break ;
 	    }
 	    if ((rs >= 0) && (! udp->f_init)) rs = SR_LOCKLOST ;
 	}
+#if	CF_DEBUGINIT
+	nprintf(NDF,"ucatfork_init: ret rs=%d f=%u\n",rs,f) ;
+#endif
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (ucatfork_init) */
@@ -148,7 +180,7 @@ int ucatfork_init()
 
 void ucatfork_fini()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	if (udp->f_initdone) {
 	    udp->f_initdone = FALSE ;
 	    if (udp->f_track) {
@@ -161,14 +193,16 @@ void ucatfork_fini()
 /* end subroutine (ucatfork_fini) */
 
 
-int uc_atfork(sb,sp,sc)
-void		(*sb)() ;
-void		(*sp)() ;
-void		(*sc)() ;
+int uc_atfork(atfork_t sb,atfork_t sp,atfork_t sc)
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
 	int		rs ;
+	int		rs1 ;
+
+#if	CF_DEBUGINIT
+	nprintf(NDF,"uc_atfork: ent\n") ;
+#endif
 
 	if ((rs = sigblock_start(&b,NULL)) >= 0) {
 	    if ((rs = ucatfork_init()) >= 0) {
@@ -178,7 +212,7 @@ void		(*sc)() ;
 
 	                if ((rs = ucatfork_trackbegin(udp)) >= 0) {
 	                    UCATFORK_ENT	*ep, *lep ;
-	                    const int	esize = sizeof(UCATFORK_ENT) ;
+	                    const int		esize = sizeof(UCATFORK_ENT) ;
 	                    if ((rs = uc_libmalloc(esize,&ep)) >= 0) {
 	                        ep->sub_before = sb ;
 	                        ep->sub_parent = sp ;
@@ -188,36 +222,43 @@ void		(*sc)() ;
 	                        if (lep != NULL) {
 	                            lep->next = ep ;
 	                            ep->prev = lep ;
-	                        } else
+	                        } else {
 	                            ep->prev = NULL ;
+				}
 	                        udp->list.tail = ep ;
-	                        if (udp->list.head == NULL)
+	                        if (udp->list.head == NULL) {
 	                            udp->list.head = ep ;
+				}
 	                    } /* end if (memory-allocation) */
 	                } /* end if (track-begin) */
 
-	                ptm_unlock(&udp->m) ;
+	                rs1 = ptm_unlock(&udp->m) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (mutex) */
-	            uc_forklockend() ;
+	            rs1 = uc_forklockend() ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (forklock) */
 
 	    } /* end if (init) */
-	    sigblock_finish(&b) ;
+	    rs1 = sigblock_finish(&b) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (sigblock) */
+
+#if	CF_DEBUGINIT
+	nprintf(NDF,"uc_atfork: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
 /* end subroutine (uc_atfork) */
 
 
-int uc_atforkrelease(sb,sp,sc)
-void		(*sb)() ;
-void		(*sp)() ;
-void		(*sc)() ;
+int uc_atforkrelease(atfork_t sb,atfork_t sp,atfork_t sc)
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	SIGBLOCK	b ;
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 #if	CF_DEBUGN
@@ -259,13 +300,16 @@ void		(*sc)() ;
 	                    } /* end while (deleting matches) */
 	                } /* end if (track-begin) */
 
-	                ptm_unlock(&udp->m) ;
+	                rs1 = ptm_unlock(&udp->m) ;
+			if (rs >= 0) rs = rs1 ;
 	            } /* end if (mutex) */
-	            uc_forklockend() ;
+	            rs1 = uc_forklockend() ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (forklock) */
 
 	    } /* end if (init) */
-	    sigblock_finish(&b) ;
+	    rs1 = sigblock_finish(&b) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (sigblock) */
 
 	return (rs >= 0) ? c : rs ;
@@ -278,17 +322,9 @@ void		(*sc)() ;
 
 int ucatfork_trackbegin(UCATFORK *udp)
 {
-	int		rs = 1 ;
+	int		rs = SR_OK ;
 	if (! udp->f_track) {
-	    void	(*sb)() = ucatfork_atforkbefore ;
-	    void	(*sp)() = ucatfork_atforkparent ;
-	    void	(*sc)() = ucatfork_atforkchild ;
-	    if ((rs = pt_atfork(sb,sp,sc)) >= 0) {
-	        if ((rs = uc_atexit(ucatfork_fini)) >= 0) {
-	            udp->f_track = TRUE ;
-	            rs = 0 ;
-	        } /* end if (uc_atexit) */
-	    } /* end if (pt_atfork) */
+	    udp->f_track = TRUE ;
 	} /* end if (tracking-needed) */
 	return rs ;
 }
@@ -315,7 +351,7 @@ void ucatfork_trackend(UCATFORK *udp)
 
 static void ucatfork_atforkbefore()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	if (ptm_lock(&udp->m) >= 0) {
 	    UCATFORK_ENT	*ep = udp->list.tail ;
 	    UCATFORK_ENT	*nep ;
@@ -331,7 +367,7 @@ static void ucatfork_atforkbefore()
 
 static void ucatfork_atforkparent()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	{
 	    UCATFORK_ENT	*ep = udp->list.head ;
 	    UCATFORK_ENT	*nep ;
@@ -348,7 +384,7 @@ static void ucatfork_atforkparent()
 
 static void ucatfork_atforkchild()
 {
-	struct ucatfork	*udp = &ucatfork_data ;
+	UCATFORK	*udp = &ucatfork_data ;
 	{
 	    UCATFORK_ENT	*ep = udp->list.head ;
 	    UCATFORK_ENT	*nep ;
@@ -363,11 +399,7 @@ static void ucatfork_atforkchild()
 /* end subroutine (ucatfork_atforkchild) */
 
 
-static int entry_match(ep,sb,sp,sc)
-UCATFORK_ENT	*ep ;
-void		(*sb)() ;
-void		(*sp)() ;
-void		(*sc)() ;
+static int entry_match(UCATFORK_ENT *ep,atfork_t sb,atfork_t sp,atfork_t sc)
 {
 	int		f = TRUE ;
 	f = f && (ep->sub_before == sb) ;

@@ -1,7 +1,0 @@
-struct arginfo {
-	const char	**argv ;
-	int		argc ;
-	int		ai, ai_max, ai_pos ;
-	int		ai_continue ;
-} ;
-

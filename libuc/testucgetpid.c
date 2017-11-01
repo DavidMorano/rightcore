@@ -1,7 +1,7 @@
 /* testugetpid */
 /* lang=C99 */
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGS	1		/* compile-time debugging */
 #define	CF_DEBUGMALL	1		/* debugging memory-allocations */
 #define	CF_DEBUGN	0		/* special debugging */
 

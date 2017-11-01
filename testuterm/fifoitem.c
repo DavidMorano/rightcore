@@ -24,7 +24,7 @@
 *******************************************************************************/
 
 
-#define	FIFOITEM_MASTER		0
+#define	FIFOITEM_MASTER		1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -40,6 +40,11 @@
 
 
 /* local defines */
+
+
+/* type defs */
+
+typedef int	(*cmpfun_t)(const void *,const void *) ;
 
 
 /* external subroutines */
@@ -292,11 +297,7 @@ FIFOITEM	*fsp ;
 
 
 /* search for an element */
-int fifoitem_finder(fsp,s,cmpfunc,rpp)
-FIFOITEM	*fsp ;
-const char	s[] ;
-int		(*cmpfunc)() ;
-const char	**rpp ;
+int fifoitem_finder(FIFOITEM *fsp,cchar *s,cmpfun_t cmpfunc,cchar **rpp)
 {
 	fifoitem_cur	cur ;
 	int		rs ;
@@ -306,7 +307,7 @@ const char	**rpp ;
 	if (fsp->magic != FIFOITEM_MAGIC) return SR_NOTOPEN ;
 
 	if (cmpfunc == NULL)
-	    cmpfunc = defaultcmp ;
+	    cmpfunc = (cmpfun_t) defaultcmp ;
 
 	if ((rs = fifoitem_curbegin(fsp,&cur)) >= 0) {
 	    FIFOITEM_ENT	*ep ;
@@ -328,9 +329,7 @@ const char	**rpp ;
 /* end subroutine (fifoitem_finder) */
 
 
-int fifoitem_curbegin(fsp,curp)
-FIFOITEM	*fsp ;
-FIFOITEM_CUR	*curp ;
+int fifoitem_curbegin(FIFOITEM *fsp,FIFOITEM_CUR *curp)
 {
 
 	if (fsp == NULL) return SR_FAULT ;
@@ -342,9 +341,7 @@ FIFOITEM_CUR	*curp ;
 /* end subroutine (fifoitem_curbegin) */
 
 
-int fifoitem_curend(fsp,curp)
-FIFOITEM	*fsp ;
-FIFOITEM_CUR	*curp ;
+int fifoitem_curend(FIFOITEM *fsp,FIFOITEM_CUR *curp)
 {
 
 	if (fsp == NULL) return SR_FAULT ;
@@ -359,10 +356,7 @@ FIFOITEM_CUR	*curp ;
 /* private subroutines */
 
 
-static int entry_start(ep,vp,sl)
-FIFOITEM_ENT	*ep ;
-const void	*vp ;
-int		sl ;
+static int entry_start(FIFOITEM_ENT *ep,const void *vp,int sl)
 {
 	int		rs ;
 	const char	*sp = (const char *) vp ;
@@ -382,8 +376,7 @@ int		sl ;
 /* end subroutine (entry_start) */
 
 
-static int entry_finish(ep)
-FIFOITEM_ENT	*ep ;
+static int entry_finish(FIFOITEM_ENT *ep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -400,8 +393,7 @@ FIFOITEM_ENT	*ep ;
 /* end subroutine (entry_finish) */
 
 
-static int defaultcmp(e1pp,e2pp)
-const char	**e1pp, **e2pp ;
+static int defaultcmp(const char **e1pp,const char **e2pp)
 {
 	int		rc = 0 ;
 

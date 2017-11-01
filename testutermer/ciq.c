@@ -26,7 +26,8 @@
 
         Note that we delete all of the entries upon the object itself being
         freed. If the entries are not opaque (as they usually are not), this
-        will result in lost memory (memory leaks).
+        will result in lost memory (memory leaks). It is the responsibility of
+	the caller the delete any non-opaque element objects.
 
 
 *******************************************************************************/
@@ -69,12 +70,12 @@ struct ciq_ent {
 /* forward references */
 
 static int	pq_finishup(PQ *) ;
+static int	ciq_findhand(CIQ *,PQ_ENT **,const void *) ;
 
 
 /* exported subroutines */
 
 
-/* initialize a queue head */
 int ciq_start(CIQ *qhp)
 {
 	int		rs ;
@@ -194,45 +195,12 @@ int ciq_rem(CIQ *qhp,void *vp)
 /* end subroutine (ciq_rem) */
 
 
-/* remove from the TAIL of queue (to get "stack-like" behavior) */
-int ciq_remtail(CIQ *qhp,void *vp)
-{
-	int		rs ;
-	int		rs1 ;
-	int		c = 0 ;
-	void		**vpp = (void **) vp ;
-
-#if	CF_SAFE
-	if (qhp == NULL) return SR_FAULT ;
-	if (qhp->magic != CIQ_MAGIC) return SR_NOTOPEN ;
-#endif
-
-	if ((rs = ptm_lock(&qhp->m)) >= 0) {
-	    PQ_ENT	*pep ;
-	    if ((rs = pq_remtail(&qhp->fifo,&pep)) >= 0) {
-	        c = rs ;
-	        if (vpp != NULL) {
-		    CIQ_ENT	*cep = (CIQ_ENT *) pep ;
-	            *vpp = cep->vp ;
-		    rs1 = pq_ins(&qhp->frees,pep) ;
-		    if (rs1 < 0)
-		        uc_free(pep) ;
-		}
-	    } /* end if (pq_remtail) */
-	    ptm_unlock(&qhp->m) ;
-	} /* end if (mutex) */
-
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (ciq_remtail) */
-
-
 /* get the entry at the TAIL of queue */
 int ciq_gettail(CIQ *qhp,void *vp)
 {
 	int		rs ;
 	int		c = 0 ;
-	void		**vpp = (void **) vp ;
+	void		**rpp = (void **) vp ;
 
 #if	CF_SAFE
 	if (qhp == NULL) return SR_FAULT ;
@@ -243,9 +211,9 @@ int ciq_gettail(CIQ *qhp,void *vp)
 	    PQ_ENT	*pep ;
 	    if ((rs = pq_gettail(&qhp->fifo,&pep)) >= 0) {
 	        c = rs ;
-	        if (vpp != NULL) {
+	        if (rpp != NULL) {
 		    CIQ_ENT	*cep = (CIQ_ENT *) pep ;
-	            *vpp = cep->vp ;
+	            *rpp = cep->vp ;
 	        }
 	    } /* end if (pq_gettail) */
 	    ptm_unlock(&qhp->m) ;
@@ -256,20 +224,94 @@ int ciq_gettail(CIQ *qhp,void *vp)
 /* end subroutine (ciq_gettail) */
 
 
+/* remove from the TAIL of queue (to get "stack-like" behavior) */
+int ciq_remtail(CIQ *qhp,void *vp)
+{
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+	void		**rpp = (void **) vp ;
+
+#if	CF_SAFE
+	if (qhp == NULL) return SR_FAULT ;
+	if (qhp->magic != CIQ_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if ((rs = ptm_lock(&qhp->m)) >= 0) {
+	    PQ_ENT	*pep ;
+	    if ((rs = pq_remtail(&qhp->fifo,&pep)) >= 0) {
+	        c = rs ;
+	        if (rpp != NULL) {
+		    CIQ_ENT	*cep = (CIQ_ENT *) pep ;
+	            *rpp = cep->vp ;
+		}
+		rs = pq_ins(&qhp->frees,pep) ;
+		if (rs < 0)
+		    uc_free(pep) ;
+	    } /* end if (pq_remtail) */
+	    rs1 = ptm_unlock(&qhp->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (mutex) */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (ciq_remtail) */
+
+
+/* remove by handle (pointer address) */
+int ciq_remhand(CIQ *qhp,void *vp)
+{
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+	void		**rpp = (void **) vp ;
+
+#if	CF_SAFE
+	if (qhp == NULL) return SR_FAULT ;
+	if (qhp->magic != CIQ_MAGIC) return SR_NOTOPEN ;
+#endif
+
+	if ((rs = ptm_lock(&qhp->m)) >= 0) {
+	    PQ_ENT	*pep ;
+	    if ((rs = ciq_findhand(qhp,&pep,vp)) > 0) {
+	        if ((rs = pq_unlink(&qhp->fifo,pep)) >= 0) {
+	            c = rs ;
+	            if (rpp != NULL) {
+		        CIQ_ENT	*cep = (CIQ_ENT *) pep ;
+	                *rpp = cep->vp ;
+		    }
+		    rs = pq_ins(&qhp->frees,pep) ;
+		    if (rs < 0)
+			uc_free(pep) ;
+	        } /* end if (pq_remtail) */
+	    } else if (rs == 0) {
+		rs = SR_NOTFOUND ;
+	    }
+	    rs1 = ptm_unlock(&qhp->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (mutex) */
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (ciq_remhand) */
+
+
 int ciq_count(CIQ *qhp)
 {
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 	if (qhp == NULL) return SR_FAULT ;
 	if (qhp->magic != CIQ_MAGIC) return SR_NOTOPEN ;
 
 	if ((rs = ptm_lock(&qhp->m)) >= 0) {
-
-	    rs = pq_count(&qhp->fifo) ;
-	    c = rs ;
-
-	    ptm_unlock(&qhp->m) ;
+	    {
+	        rs = pq_count(&qhp->fifo) ;
+	        c = rs ;
+	    }
+	    rs1 = ptm_unlock(&qhp->m) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (mutex) */
 
 	return (rs >= 0) ? c : rs ;
@@ -300,6 +342,33 @@ int ciq_audit(CIQ *qhp)
 
 
 /* private subroutines */
+
+
+static int ciq_findhand(CIQ *qhp,PQ_ENT **rpp,const void *vp)
+{
+	PQ		*pqp = &qhp->fifo ;
+	PQ_CUR		cur ;
+	int		rs ;
+	int		rs1 ;
+	int		f = FALSE ;
+	if ((rs = pq_curbegin(pqp,&cur)) >= 0) {
+	    PQ_ENT	*pep ;
+	    while ((rs1 = pq_enum(pqp,&cur,&pep)) >= 0) {
+		CIQ_ENT	*cep = (CIQ_ENT *) pep ;
+		f = (cep->vp == vp) ;
+		if (f) break ;
+		if (rs < 0) break ;
+	    } /* end while */
+	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	    if (rpp != NULL) {
+		*rpp = (f) ? pep : NULL ;
+	    }
+	    rs1 = pq_curend(pqp,&cur) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (pq-cur) */
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (ciq_findhand) */
 
 
 static int pq_finishup(PQ *qp)

@@ -48,8 +48,9 @@ extern "C" {
 extern int ciq_start(CIQ *) ;
 extern int ciq_ins(CIQ *,void *) ;
 extern int ciq_rem(CIQ *,void *) ;
-extern int ciq_remtail(CIQ *,void *) ;
 extern int ciq_gettail(CIQ *,void *) ;
+extern int ciq_remtail(CIQ *,void *) ;
+extern int ciq_remhand(CIQ *,void *) ;
 extern int ciq_count(CIQ *) ;
 extern int ciq_audit(CIQ *) ;
 extern int ciq_finish(CIQ *) ;

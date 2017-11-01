@@ -1,4 +1,4 @@
-/* main (miscequ1) */
+/* mainequ1 */
 #include	<stdlib.h>
 #include	<math.h>
 #include	<stdio.h>

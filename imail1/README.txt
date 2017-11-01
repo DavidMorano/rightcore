@@ -16,7 +16,8 @@ Arguments:
 -f <fromaddr>	optional FROM address
 -o <option(s)>	options:
 			addfrom, addsender, log, folder=<dir>, deliver, copy,
-			take, useclen, useclines, to, mailer, org[=<org>]
+			take, useclen, useclines, to, mailer, org[=<org>],
+			subjrequired
 -V		print command version to standard-error and then exit
 
 Example recipients:

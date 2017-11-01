@@ -22,11 +22,11 @@
 
 	Synopsis:
 
-	int timeout_init(TIMEOUT *tsp,time_t sec,long nsec)
+	int timeout_init(TIMEOUT *top,time_t sec,long nsec)
 
 	Arguments:
 
-	tsp		pointer to TIMEOUT
+	top		pointer to TIMEOUT
 	sec		seconds
 	nsec		nanoseconds
 
@@ -66,13 +66,18 @@
 /* exported subroutines */
 
 
-int timeout_init(TIMEOUT *top)
+int timeout_load(TIMEOUT *top,time_t val,void *objp,timeout_met metp,
+	uint tag,int arg)
 {
 	if (top == NULL) return SR_FAULT ;
-	tsp->tv_sec = sec ;
-	tsp->tv_nsec = nsec ;
+	top->id = -1 ;
+	top->val = val ;
+	top->objp = objp ;
+	top->metp = metp ;
+	top->tag = tag ;
+	top->arg = arg ;
 	return SR_OK ;
 }
-/* end subroutine (timeout_init) */
+/* end subroutine (timeout_load) */
 
 

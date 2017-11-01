@@ -186,6 +186,20 @@ int uptcancel(pthread_t tid)
 /* end subroutine (uptcancel) */
 
 
+int uptkill(pthread_t tid,int sig)
+{
+	int		rs ;
+
+	repeat {
+	    rs = pthread_kill(tid,sig) ;
+	    if (rs > 0) rs = (- rs) ;
+	} until (rs != SR_INTR) ;
+
+	return rs ;
+}
+/* end subroutine (uptkill) */
+
+
 int uptsetschedparam(pthread_t tid,int policy,struct sched_param *pp)
 {
 	int		rs ;

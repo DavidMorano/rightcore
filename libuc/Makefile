@@ -77,7 +77,7 @@ SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1=
-SLIB2=
+SLIB2= -ldebug
 SLIB3= -lu
 SLIB4= $(CGS_LIBS)
 SLIB5= $(LF_LIBS) 
@@ -280,7 +280,7 @@ OBJ141= hasuc.o haslc.o haswhite.o hasalldig.o hasallbase.o
 OBJ142= hasprintbad.o
 OBJ143= hasnonpath.o hasvarpathprefix.o hascdpath.o
 
-OBJ144= openshmtmp.o
+OBJ144= 
 OBJ145= ucontext_rtn.o
 OBJ146= dialopts.o
 OBJ147=
@@ -289,8 +289,8 @@ OBJ149= dialtcp.o dialtcpmux.o dialtcpnls.o
 OBJ150= dialudp.o dialusd.o dialpass.o
 OBJ151= dialprog.o dialhttp.o dialfinger.o
 
-OBJ152= bufprintf.o
-OBJ153= debug.o debugprintf.o nprintf.o
+OBJ152= openshmtmp.o
+OBJ153=
 OBJ154=
 OBJ155=
 OBJ156=
@@ -973,8 +973,8 @@ $(X05).x:		$(X05OBJ)
 X06= testugetpid
 
 X06OBJ00= $(X06).o 
-#X06OBJ01= ugetpid.o
-X06OBJ02=
+X06OBJ01= ugetpid.o
+X06OBJ02= uc_atfork.o
 X06OBJ03=
 X06OBJ04=
 X06OBJ05= debug.o

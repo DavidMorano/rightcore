@@ -32,9 +32,11 @@
 #include	<limits.h>
 
 #include	<vsystem.h>
-#include	<vecobj.h>
+#include	<ptm.h>
+#include	<ptc.h>
 #include	<ciq.h>
 #include	<psem.h>
+#include	<vecobj.h>
 #include	<localmisc.h>
 
 

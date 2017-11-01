@@ -229,13 +229,28 @@ bstree.o:		bstree.hh
 sethand.o:		sethand.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) sethand.hh
 
+fifoelem.o:		fifoelem.c fifoelem.h
+
+ciq.o:			ciq.c ciq.h
+
+pq.o:			pq.c pq.h
+
+vecsorthand.o:		vecsorthand.c vecsorthand.h
+
+
+# special
+
 timeval.o:		timeval.c timeval.h
 
 timespec.o:		timespec.c timespec.h
 
+itimerspec.o:		itimerspec.c itimerspec.h
+
 sigevent.o:		sigevent.c sigevent.h
 
-uc_timeout.o:		uc_timeout.c timeout.h timespec.g sigevent.h
+ciq.o:			ciq.c ciq.h
+
+uc_timeout.o:		uc_timeout.cc timeout.h timespec.h sigevent.h
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) uc_timeout.cc
 
 
@@ -521,9 +536,9 @@ main$(T15).o:		main$(T15).cc
 T16= timeout
 
 T16OBJa= main$(T16).o
-T16OBJb= uc_timeout.o
-T16OBJc= timespec.o sigevent.o
-T16OBJd=
+T16OBJb= uc_timeout.o upt.o
+T16OBJc= timeout.o timespec.o itimerspec.o sigevent.o 
+T16OBJd= pq.o ciq.o vecsorthand.o
 
 T16OBJ= $(T16OBJa) $(T16OBJb) $(T16OBJc) $(T16OBJd)
 

@@ -48,7 +48,7 @@ int q_start(Q *qhp,int type)
 	qhp->head = qhp->tail = 0 ;
 	qhp->head = qhp->tail = 0 ;
 	if ((rs = ptma_create(&ma)) >= 0) {
-	    int	matype = PTHREAD_PROCESS_PRIVATE ;
+	    int		matype = PTHREAD_PROCESS_PRIVATE ;
 
 	    if (type > 0) matype = PTHREAD_PROCESS_SHARED ;
 	    ptma_setpshared(&ma,matype) ;
@@ -135,8 +135,9 @@ int q_rem(Q *qhp,Q_ENT **epp)
 	        }
 	        ptm_unlock(&qhp->lock) ;
 	    } /* end if (mutex lock) */
-	} else
+	} else {
 	    rs = SR_NOENT ;
+	}
 
 	return (rs >= 0) ? rc : rs ;
 }

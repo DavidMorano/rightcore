@@ -104,7 +104,7 @@ int dispatcher_start(DISPATCHER *dop,int n,void *callsub,void *callarg)
 	if (callsub == NULL) return SR_FAULT ;
 
 	memset(dop,0,sizeof(DISPATCHER)) ;
-	dop->n = n ;
+	dop->nthr = n ;
 	dop->callsub = callsub ;
 	dop->callarg = callarg ;
 
@@ -123,7 +123,7 @@ int dispatcher_start(DISPATCHER *dop,int n,void *callsub,void *callarg)
 	}
 
 	if (rs >= 0) {
-	    dop->n = n ;
+	    dop->nthr = n ;
 	    if ((rs = ciq_start(&dop->wq)) >= 0) {
 	        if ((rs = psem_create(&dop->ws,FALSE,0)) >= 0) {
 	            const int	size = sizeof(pthread_t) ;
@@ -133,7 +133,7 @@ int dispatcher_start(DISPATCHER *dop,int n,void *callsub,void *callarg)
 	                workthr		w = (workthr) dispatcher_worker ;
 	                int		i ;
 /* create threads to handle it */
-	                for (i = 0 ; (rs >= 0) && (i < dop->n) ; i += 1) {
+	                for (i = 0 ; (rs >= 0) && (i < dop->nthr) ; i += 1) {
 	                    if ((rs = uptcreate(&tid,NULL,w,dop)) >= 0) {
 	                        rs = vecobj_add(&dop->tids,&tid) ;
 	                    }
@@ -141,7 +141,7 @@ int dispatcher_start(DISPATCHER *dop,int n,void *callsub,void *callarg)
 /* all setup: but handle any errors */
 	                if (rs < 0) {
 	                    dop->f_exit = TRUE ;
-	                    for (i = 0 ; i < dop->n ; i += 1) {
+	                    for (i = 0 ; i < dop->nthr ; i += 1) {
 	                        psem_post(&dop->ws) ;
 	                    }
 	                    i = 0 ;
@@ -185,7 +185,7 @@ int dispatcher_finish(DISPATCHER *dop,int f_abort)
 	dop->f_done = TRUE ; /* broadcast that we are "done" */
 	if (f_abort) dop->f_exit = TRUE ;
 
-	for (i = 0 ; i < dop->n ; i += 1) {
+	for (i = 0 ; i < dop->nthr ; i += 1) {
 	    psem_post(&dop->ws) ;
 	}
 

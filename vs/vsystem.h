@@ -1108,6 +1108,7 @@ extern int	uc_nprocs(int) ;
 
 #if	SYSHAS_TIMER && (SYSHAS_TIMER > 0)
 extern int uc_timercreate(clockid_t,struct sigevent *,timer_t *) ;
+extern int uc_timerdestroy(timer_t) ;
 extern int uc_timerdelete(timer_t) ;
 extern int uc_timerset(timer_t,int,struct itimerspec *,struct itimerspec *) ;
 extern int uc_timerget(timer_t,struct itimerspec *) ;

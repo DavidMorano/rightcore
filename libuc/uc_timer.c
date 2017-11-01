@@ -137,6 +137,13 @@ int uc_timerdelete(timer_t tid)
 /* end subroutine (uc_timerdelete) */
 
 
+int uc_timerdestroy(timer_t tid)
+{
+	return uc_timerdelete(tid) ;
+}
+/* end subroutine (uc_timerdestroy) */
+
+
 int uc_timerset(timer_t tid,int tf,ITIMERSPEC *ntvp,ITIMERSPEC *otvp)
 {
 	int		rs ;

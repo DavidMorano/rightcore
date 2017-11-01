@@ -242,6 +242,7 @@ int vechand_getlast(vechand *op,const void *vp)
 /* end subroutine (vechand_getlast) */
 
 
+/* find an entry by its address */
 int vechand_ent(vechand *op,const void *vp)
 {
 	int		rs = SR_OK ;

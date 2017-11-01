@@ -5,6 +5,8 @@
 
 
 #define	CF_DEBUGS	1		/* non-switchable debug print-outs */
+#define	CF_DEBUGMALL	1		/* debugging memory-allocations */
+#define	CF_DEBUGN	1		/* special debugging */
 
 
 /* revision history:
@@ -36,8 +38,10 @@
 #include	<algorithm>
 #include	<set>
 #include	<string>
+#include	<ostream>
 #include	<iostream>
 #include	<vsystem.h>
+#include	<ucmallreg.h>
 #include	<localmisc.h>
 
 #include	"timeout.h"
@@ -45,7 +49,8 @@
 
 /* local defines */
 
-#define		VARDEBUGFNAME	"TESTTIMEOUT_DEBUGFILE"
+#define	VARDEBUGFNAME	"TIMEOUT_DEBUGFILE"
+#define	NDF		"uctimeout.deb"
 
 
 /* default name spaces */
@@ -55,7 +60,7 @@ using namespace		std ;		/* yes, we want punishment! */
 
 /* external subroutines */
 
-extern int	uc_timeout(int,TIMEOUT *) ;
+extern "C" int	uc_timeout(int,TIMEOUT *) ;
 
 #if	CF_DEBUGS
 extern "C" int	debugopen(cchar *) ;
@@ -64,7 +69,13 @@ extern "C" int	debugclose() ;
 extern "C" int	strlinelen(cchar *,int,int) ;
 #endif
 
+#if	CF_DEBUGN
+extern "C" int	nprintf(cchar *,cchar *,...) ;
+#endif
+
 extern "C" cchar	*getourenv(cchar **,cchar *) ;
+
+extern "C" void		uctimeout_fini() ;
 
 
 /* local structures */
@@ -87,6 +98,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	TIMEOUT		to ;
 	time_t		dt = time(NULL) ;
 	time_t		wake ;
+	const int	tval = 6 ;
+#if	CF_DEBUGS && CF_DEBUGMALL
+	uint		mo_start = 0 ;
+#endif
 	int		rs = SR_OK ;
 	int		ex = 0 ;
 
@@ -100,18 +115,45 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 #endif /* CF_DEBUGS */
 
-	wake = (dt+3) ;
-	if ((rs = timeout_init(&to,wake,NULL,ourwake,0,0)) >= 0) {
+#if	CF_DEBUGS && CF_DEBUGMALL
+	uc_mallset(1) ;
+	uc_mallout(&mo_start) ;
+#endif
+
+	wake = (dt+(tval/2)) ;
+	if ((rs = timeout_load(&to,wake,NULL,ourwake,0x5a5a,1)) >= 0) {
 	    const int	cmd = timeoutcmd_set ;
 	    if ((rs = uc_timeout(cmd,&to)) >= 0) {
 	  	const int	id = rs ;
-		printf("id=%d\n",id) ;
 
-	        sleep(10) ;
+#if	CF_DEBUGN
+		nprintf(NDF,"main: uc_timeout() rs=%d\n",rs) ;
+#endif
+
+		printf("id=%d\n",id) ;
+	        sleep(tval) ;
 
 		printf("done\n") ;
 	    } /* end if (uc_timeout) */
-	} /* end if (timeout_init) */
+	} /* end if (timeout_load) */
+
+	uctimeout_fini() ;
+
+#if	CF_DEBUGS && CF_DEBUGMALL
+	{
+	    uint	mo ;
+	    uc_mallout(&mo) ;
+	    debugprintf("b_wn: final mallout=%u\n",(mo-mo_start)) ;
+	    uc_mallset(0) ;
+	}
+#endif /* CF_DEBUGMALL */
+
+#if	CF_DEBUGS
+	debugprintf("main: ret rs=%d\n",rs) ;
+#endif
+#if	CF_DEBUGN
+	nprintf(NDF,"main: ret rs=%d\n",rs) ;
+#endif
 
 #if	CF_DEBUGS
 	debugclose() ;

@@ -116,6 +116,9 @@ struct ucatfork {
 
 /* forward references */
 
+int		ucatfork_init() ;
+void		ucatfork_fini() ;
+
 static int	ucatfork_trackbegin(UCATFORK *) ;
 static void	ucatfork_trackend(UCATFORK *) ;
 
@@ -128,7 +131,7 @@ static int	entry_match(UCATFORK_ENT *,void (*)(),void (*)(),void (*)()) ;
 
 /* local variables */
 
-static UCATFORK	ucatfork_data ; /* zero-initialized */
+static UCATFORK		ucatfork_data ; /* zero-initialized */
 
 
 /* exported subroutines */
@@ -145,8 +148,15 @@ int ucatfork_init()
 	if (! udp->f_init) {
 	    udp->f_init = TRUE ;
 	    if ((rs = ptm_create(&udp->m,NULL)) >= 0) {
-	        udp->f_initdone = TRUE ;
-	        f = TRUE ;
+	        void	(*sb)() = ucatfork_atforkbefore ;
+	        void	(*sp)() = ucatfork_atforkparent ;
+	        void	(*sc)() = ucatfork_atforkchild ;
+	        if ((rs = pt_atfork(sb,sp,sc)) >= 0) {
+	            if ((rs = uc_atexit(ucatfork_fini)) >= 0) {
+	        	udp->f_initdone = TRUE ;
+	        	f = TRUE ;
+	            } /* end if (uc_atexit) */
+	        } /* end if (pt_atfork) */
 #if	CF_DEBUGINIT
 		nprintf(NDF,"ucatfork_init: done\n") ;
 #endif
@@ -312,17 +322,9 @@ int uc_atforkrelease(atfork_t sb,atfork_t sp,atfork_t sc)
 
 int ucatfork_trackbegin(UCATFORK *udp)
 {
-	int		rs = 1 ;
+	int		rs = SR_OK ;
 	if (! udp->f_track) {
-	    void	(*sb)() = ucatfork_atforkbefore ;
-	    void	(*sp)() = ucatfork_atforkparent ;
-	    void	(*sc)() = ucatfork_atforkchild ;
-	    if ((rs = pt_atfork(sb,sp,sc)) >= 0) {
-	        if ((rs = uc_atexit(ucatfork_fini)) >= 0) {
-	            udp->f_track = TRUE ;
-	            rs = 0 ;
-	        } /* end if (uc_atexit) */
-	    } /* end if (pt_atfork) */
+	    udp->f_track = TRUE ;
 	} /* end if (tracking-needed) */
 	return rs ;
 }

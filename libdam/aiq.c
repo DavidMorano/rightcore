@@ -179,8 +179,9 @@ int aiq_rem(AIQ *qhp,AIQ_ENT **epp)
 	            }
 	            qhp->count -= 1 ;
 	            rc = qhp->count ;
-	        } else
+	        } else {
 	            rs = SR_NOENT ;
+		}
 
 	        ptm_unlock(&qhp->lock) ;
 	    } /* end if (mutex lock) */

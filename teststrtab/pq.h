@@ -23,7 +23,12 @@
 
 #define	PQ		struct pq_head
 #define	PQ_ENT		struct pq_ent
+#define	PQ_CUR		struct pq_cur
 
+
+struct pq_cur {
+	struct pq_ent	*entp ;
+} ;
 
 struct pq_ent {
 	struct pq_ent	*next ;
@@ -46,10 +51,13 @@ extern "C" {
 extern int pq_start(PQ *) ;
 extern int pq_ins(PQ *,PQ_ENT *) ;
 extern int pq_insgroup(PQ *,PQ_ENT *,int,int) ;
-extern int pq_unlink(PQ *,PQ_ENT *) ;
+extern int pq_gettail(PQ *,PQ_ENT **) ;
 extern int pq_rem(PQ *,PQ_ENT **) ;
 extern int pq_remtail(PQ *,PQ_ENT **) ;
-extern int pq_gettail(PQ *,PQ_ENT **) ;
+extern int pq_unlink(PQ *,PQ_ENT *) ;
+extern int pq_curbegin(PQ *,PQ_CUR *) ;
+extern int pq_curend(PQ *,PQ_CUR *) ;
+extern int pq_enum(PQ *,PQ_CUR *,PQ_ENT **) ;
 extern int pq_count(PQ *) ;
 extern int pq_audit(PQ *) ;
 extern int pq_finish(PQ *) ;

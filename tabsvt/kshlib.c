@@ -1520,7 +1520,7 @@ static int kshlib_runbegin(KSHLIB *uip)
 
 static int kshlib_runner(KSHLIB *uip)
 {
-	PTA		a ;
+	PTA		ta ;
 	int		rs ;
 	int		rs1 ;
 	int		f = FALSE ;
@@ -1529,12 +1529,12 @@ static int kshlib_runner(KSHLIB *uip)
 	nprintf(NDF,"kshlib_runner: ent\n") ;
 #endif
 
-	if ((rs = pta_create(&a)) >= 0) {
+	if ((rs = pta_create(&ta)) >= 0) {
 	    const int	scope = KSHLIB_SCOPE ;
-	    if ((rs = pta_setscope(&a,scope)) >= 0) {
+	    if ((rs = pta_setscope(&ta,scope)) >= 0) {
 	        pthread_t	tid ;
 	        tworker		wt = (tworker) kshlib_worker ;
-	        if ((rs = uptcreate(&tid,NULL,wt,uip)) >= 0) {
+	        if ((rs = uptcreate(&tid,&ta,wt,uip)) >= 0) {
 	            uip->f_running = TRUE ;
 	            uip->tid = tid ;
 	            f = TRUE ;
@@ -1544,7 +1544,7 @@ static int kshlib_runner(KSHLIB *uip)
 	            rs,tid) ;
 #endif
 	    } /* end if (pta-setscope) */
-	    rs1 = pta_destroy(&a) ;
+	    rs1 = pta_destroy(&ta) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (pta) */
 

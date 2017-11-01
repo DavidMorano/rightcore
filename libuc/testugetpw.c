@@ -28,23 +28,23 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char 	*getourenv(const char **,const char *) ;
+extern cchar 	*getourenv(const char **,const char *) ;
 
 
 int main(int argc,const char **argv,const char **envv)
 {
 
 #if	CF_DEBUGS && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 
 #if	CF_DEBUGS
 	{
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL)
 	        debugopen(cp) ;
 	    debugprintf("main: starting\n") ;

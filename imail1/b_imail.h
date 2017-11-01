@@ -108,6 +108,7 @@
 #define	LOGFNAME	"imail"			/* activity log */
 #define	PIDFNAME	"imail"			/* mutex PID file */
 #define	SERIALFNAME	"serial"
+#define	TSFNAME		".lastmaint"		/* time-stamp filename */
 
 #define	MAILERNAME	"imail (RightCore Network Services)"
 
@@ -122,6 +123,8 @@
 #define	LOGSIZE		(160*1024)
 
 #define	MAXPOSTARGS	4
+
+#define	HOUR_MAINT	18
 
 #define	DEFINTRUN	60
 #define	DEFINTPOLL	8

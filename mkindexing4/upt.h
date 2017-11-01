@@ -39,6 +39,7 @@ extern int uptonce(pthread_once_t *,void (*)()) ;
 extern int uptjoin(pthread_t,int *) ;
 extern int uptdetach(pthread_t) ;
 extern int uptcancel(pthread_t) ;
+extern int uptkill(pthread_t,int) ;
 extern int uptsetschedparam(pthread_t,int,struct sched_param *) ;
 extern int uptgetschedparam(pthread_t,int *,struct sched_param *) ;
 extern int uptgetconcurrency() ;

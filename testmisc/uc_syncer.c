@@ -307,23 +307,23 @@ static int ucsyncer_runcheck(UCSYNCER *uip)
 
 static int ucsyncer_runner(UCSYNCER *uip)
 {
-	PTA		a ;
+	PTA		ta ;
 	int		rs ;
 	int		rs1 ;
 	int		f = FALSE ;
 
-	if ((rs = pta_create(&a)) >= 0) {
+	if ((rs = pta_create(&ta)) >= 0) {
 	    const int	scope = UCSYNCER_SCOPE ;
-	    if ((rs = pta_setscope(&a,scope)) >= 0) {
+	    if ((rs = pta_setscope(&ta,scope)) >= 0) {
 		pthread_t	tid ;
 		tworker		wt = (tworker) ucsyncer_worker ;
-		if ((rs = uptcreate(&tid,NULL,wt,uip)) >= 0) {
+		if ((rs = uptcreate(&tid,&ta,wt,uip)) >= 0) {
 		    uip->f_running = TRUE ;
 		    uip->tid = tid ;
 		    f = TRUE ;
 		} /* end if (pthread-create) */
 	    } /* end if (pta-setscope) */
-	    rs1 = pta_destroy(&a) ;
+	    rs1 = pta_destroy(&ta) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (pta) */
 

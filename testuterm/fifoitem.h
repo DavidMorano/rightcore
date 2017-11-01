@@ -16,24 +16,24 @@
 
 
 struct fifoitem_ent {
-	struct fifoitem_ent	*prev, *next ;
-	int			dl ;
-	const void		*dp ;
+	FIFOITEM_ENT	*prev, *next ;
+	int		dl ;
+	const void	*dp ;
 } ;
 
 struct fifoitem_head {
-	struct fifoitem_ent	*head, *tail ;
-	int			magic ;
-	int			n ;
+	FIFOITEM_ENT	*head, *tail ;
+	int		magic ;
+	int		n ;
 } ;
 
 struct fifoitem_cur {
-	struct fifoitem_ent	*current ;
+	FIFOITEM_ENT	*current ;
 } ;
 
 
 typedef struct fifoitem_head	fifoitem ;
-typedef struct fifoitem_ent	fifoitem_ent ;
+typedef struct fifleitem_ent	fifoitem_ent ;
 typedef struct fifoitem_cur	fifoitem_cur ;
 
 

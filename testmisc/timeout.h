@@ -88,7 +88,7 @@ struct timeout {
 extern "C" {
 #endif
 
-extern int timeout_init(TIMEOUT *,time_t,void *,timeout_met,uint,int) ;
+extern int timeout_load(TIMEOUT *,time_t,void *,timeout_met,uint,int) ;
 
 #ifdef	__cplusplus
 }

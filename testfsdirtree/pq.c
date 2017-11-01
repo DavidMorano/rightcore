@@ -125,38 +125,25 @@ int pq_insgroup(PQ *qhp,PQ_ENT *gp,int size,int n)
 
 	ep = (PQ_ENT *) p ;
 	if (qhp->head != NULL) {
-
 	    pep = qhp->tail ;
-
 	    pep->next = ep ;
-
 	    ep->prev = pep ;
-
 	} else {
-
 	    ep->prev = NULL ;
-
 	    qhp->head = ep ;
-
 	} /* end if */
 
 	pep = ep ;
 	p += size ;
 	for (i = 1 ; i < n ; i += 1) {
-
 	    ep = (PQ_ENT *) p ;
-
 	    pep->next = ep ;
-
 	    ep->prev = pep ;
-
 	    p += size ;
 	    pep = ep ;
-
 	} /* end for */
 
 	pep->next = NULL ;
-
 	qhp->tail = pep ;
 
 	qhp->count += n ;
@@ -165,55 +152,26 @@ int pq_insgroup(PQ *qhp,PQ_ENT *gp,int size,int n)
 /* end subroutine (pq_insgroup) */
 
 
-/* we apply some special care here to make sure we actually were in the Q */
-int pq_unlink(PQ *qhp,PQ_ENT *ep)
+/* get the entry at the TAIL of queue */
+int pq_gettail(PQ *qhp,PQ_ENT **epp)
 {
-	PQ_ENT		*nep, *pep ;
+	PQ_ENT		*ep ;
 	int		rs = SR_OK ;
 
 #if	CF_SAFE
 	if (qhp == NULL) return SR_FAULT ;
 #endif
 
-	if (ep->next != NULL) {
+	if (qhp->head == NULL)
+	    return SR_EMPTY ;
 
-	    if (ep->prev != NULL) {
-	        nep = ep->next ;
-	        nep->prev = ep->prev ;
-		pep = ep->prev ;
-		pep->next = ep->next ;
-	    } else {
-		if (qhp->head == ep) {
-	            nep = ep->next ;
-	            nep->prev = ep->prev ;
-	            qhp->head = nep ;
-		} else
-		    rs = SR_NOANODE ;
-	    }
+	ep = qhp->tail ;
+	if (ep->next != NULL) rs = SR_NOANODE ;
 
-	} else {
-
-	    if (ep->prev != NULL) {
-		if (qhp->tail == ep) {
-		    pep = ep->prev ;
-		    pep->next = NULL ;
-	            qhp->tail =  pep ;
-		} else
-		    rs = SR_NOANODE ;
-	    } else {
-		if ((qhp->head == ep) && (qhp->tail == ep)) {
-	            qhp->head =  NULL ;
-	            qhp->tail =  NULL ;
-		} else
-		    rs = SR_NOANODE ;
-	    }
-
-	} /* end if */
-
-	if (rs >= 0) qhp->count -= 1 ;
+	if (epp != NULL) *epp = (rs >= 0) ? ep : NULL ;
 	return (rs >= 0) ? qhp->count : rs ;
 }
-/* end subroutine (pq_unlink) */
+/* end subroutine (pq_gettail) */
 
 
 /* remove from queue (remove from head) */
@@ -239,11 +197,13 @@ int pq_rem(PQ *qhp,PQ_ENT **epp)
 	        if (qhp->tail == ep) {
 	            qhp->head =  NULL ;
 	            qhp->tail =  NULL ;
-	        } else
+	        } else {
 		    rs = SR_NOANODE ;
+		}
 	    } /* end if */
-	} else
+	} else {
 	    rs = SR_NOANODE ;
+	}
 
 	if (epp != NULL) *epp = (rs >= 0) ? ep : NULL ;
 	if (rs >= 0) qhp->count -= 1 ;
@@ -275,11 +235,13 @@ int pq_remtail(PQ *qhp,PQ_ENT **epp)
 	        if (qhp->head == ep) {
 	            qhp->head = NULL ;
 	            qhp->tail = NULL ;
-	        } else
+	        } else {
 		    rs = SR_NOANODE ;
+		}
 	    } /* end if */
-	} else
+	} else {
 	    rs = SR_NOANODE ;
+	}
 
 	if (epp != NULL) *epp = (rs >= 0) ? ep : NULL ;
 	if (rs >= 0) qhp->count -= 1 ;
@@ -288,26 +250,58 @@ int pq_remtail(PQ *qhp,PQ_ENT **epp)
 /* end subroutine (pq_remtail) */
 
 
-/* get the entry at the TAIL of queue */
-int pq_gettail(PQ *qhp,PQ_ENT **epp)
+/* we apply some special care here to make sure we actually were in the Q */
+int pq_unlink(PQ *qhp,PQ_ENT *ep)
 {
-	PQ_ENT		*ep ;
+	PQ_ENT		*nep, *pep ;
 	int		rs = SR_OK ;
 
 #if	CF_SAFE
 	if (qhp == NULL) return SR_FAULT ;
 #endif
 
-	if (qhp->head == NULL)
-	    return SR_EMPTY ;
+	if (ep->next != NULL) {
 
-	ep = qhp->tail ;
-	if (ep->next != NULL) rs = SR_NOANODE ;
+	    if (ep->prev != NULL) {
+	        nep = ep->next ;
+	        nep->prev = ep->prev ;
+		pep = ep->prev ;
+		pep->next = ep->next ;
+	    } else {
+		if (qhp->head == ep) {
+	            nep = ep->next ;
+	            nep->prev = ep->prev ;
+	            qhp->head = nep ;
+		} else {
+		    rs = SR_NOANODE ;
+		}
+	    }
 
-	if (epp != NULL) *epp = (rs >= 0) ? ep : NULL ;
+	} else {
+
+	    if (ep->prev != NULL) {
+		if (qhp->tail == ep) {
+		    pep = ep->prev ;
+		    pep->next = NULL ;
+	            qhp->tail =  pep ;
+		} else {
+		    rs = SR_NOANODE ;
+		}
+	    } else {
+		if ((qhp->head == ep) && (qhp->tail == ep)) {
+	            qhp->head =  NULL ;
+	            qhp->tail =  NULL ;
+		} else {
+		    rs = SR_NOANODE ;
+		}
+	    }
+
+	} /* end if */
+
+	if (rs >= 0) qhp->count -= 1 ;
 	return (rs >= 0) ? qhp->count : rs ;
 }
-/* end subroutine (pq_gettail) */
+/* end subroutine (pq_unlink) */
 
 
 int pq_count(PQ *qhp)
@@ -350,16 +344,60 @@ int pq_audit(PQ *qhp)
 
 	        } /* end while */
 
-		if ((rs >= 0) && (qhp->tail != pep))
+		if ((rs >= 0) && (qhp->tail != pep)) {
 	            rs = SR_BADFMT ;
+		}
 
-	    } /* end if */
+	    } /* end if (ok) */
 
-	} else if (qhp->tail != NULL)
+	} else if (qhp->tail != NULL) {
 	    rs = SR_BADFMT ;
+	}
 
 	return rs ;
 }
 /* end subroutine (pq_audit) */
+
+
+int pq_curbegin(PQ *qhp,PQ_CUR *curp)
+{
+	if (qhp == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	curp->entp = NULL ;
+	return SR_OK ;
+}
+/* end subroutine (pq_curbegin) */
+
+
+int pq_curend(PQ *qhp,PQ_CUR *curp)
+{
+	if (qhp == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	curp->entp = NULL ;
+	return SR_OK ;
+}
+/* end subroutine (pq_curend) */
+
+
+int pq_enum(PQ *qhp,PQ_CUR *curp,PQ_ENT **rpp)
+{
+	int		rs = SR_NOTFOUND ;
+	if (qhp == NULL) return SR_FAULT ;
+	if (curp == NULL) return SR_FAULT ;
+	if (qhp->head != NULL) {
+	    PQ_ENT	*nep ;
+	    if (curp->entp != NULL) {
+	        PQ_ENT	*ep = curp->entp ;
+		nep = ep->next ;
+	    } else {
+	        nep = qhp->head ;
+	    }
+	    if (nep != NULL) rs = SR_OK ;
+	    if (rpp != NULL) *rpp = nep ;
+	    curp->entp = nep ;
+	}
+	return rs ;
+}
+/* end subroutine (pq_enum) */
 
 
