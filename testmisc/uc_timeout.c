@@ -5,7 +5,6 @@
 
 
 #define	CF_DEBUGN	0		/* special debugging */
-#define	CF_SIGACT	0		/* |uctimeout_sigactxxx()| */
 
 
 /* revision history:
@@ -90,7 +89,6 @@ typedef vecsorthand	prique ;
 
 extern "C" int	uc_timeout(int cmd,TIMEOUT *valp) ;
 
-extern "C" int	sigaction_load(SIGACTION *,sigset_t *,int,siginfohand_t) ;
 extern "C" int	msleep(int) ;
 
 #if	CF_DEBUGN
@@ -122,7 +120,6 @@ struct uctimeout_flags {
 } ;
 
 struct uctimeout {
-	SIGACTION	sa ;
 	PTM		m ;		/* data mutex */
 	PTC		c ;		/* condition variable */
 	vechand		ents ;
@@ -189,8 +186,6 @@ static int	uctimeout_thrsend(UCTIMEOUT *) ;
 
 static int	uctimeout_sigerbegin(UCTIMEOUT *) ;
 static int	uctimeout_sigerend(UCTIMEOUT *) ;
-static int	uctimeout_sigactbegin(UCTIMEOUT *) ;
-static int	uctimeout_sigactend(UCTIMEOUT *) ;
 static int	uctimeout_sigerworker(UCTIMEOUT *) ;
 
 static int	uctimeout_dispbegin(UCTIMEOUT *) ;
@@ -206,7 +201,6 @@ static int	uctimeout_sigerserve(UCTIMEOUT *) ;
 static void	uctimeout_atforkbefore() ;
 static void	uctimeout_atforkparent() ;
 static void	uctimeout_atforkchild() ;
-static void	uctimeout_sighand(int,siginfo_t *,void *) ;
 
 static int	ourcmp(const void *,const void *) ;
 
@@ -773,7 +767,6 @@ static int uctimeout_sigerbegin(UCTIMEOUT *uip)
 	nprintf(NDF,"uctimeout_sigerbegin: ent\n") ;
 #endif
 
-	if ((rs = uctimeout_sigactbegin(uip)) >= 0) {
 	    if ((rs = pta_create(&ta)) >= 0) {
 	        const int	scope = UCTIMEOUT_SCOPE ;
 	        if ((rs = pta_setscope(&ta,scope)) >= 0) {
@@ -788,7 +781,6 @@ static int uctimeout_sigerbegin(UCTIMEOUT *uip)
 	        rs1 = pta_destroy(&ta) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (pta) */
-	} /* end if (uctimeout_sigactbegin) */
 
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_sigerbegin: ret rs=%d f=%u\n",rs,f) ;
@@ -819,9 +811,6 @@ static int uctimeout_sigerend(UCTIMEOUT *uip)
 	        } else if (rs == SR_SRCH) {
 		    rs = SR_OK ;
 	        }
-		if (rs >= 0) {
-		    rs = uctimeout_sigactend(uip) ;
-		}
 	    } /* end if (uptkill) */
 	}
 #if	CF_DEBUGN
@@ -830,51 +819,6 @@ static int uctimeout_sigerend(UCTIMEOUT *uip)
 	return rs ;
 }
 /* end subroutine (uctimeout_sigerend) */
-
-
-static int uctimeout_sigactbegin(UCTIMEOUT *uip)
-{
-	SIGACTION	san ;
-	sigset_t	ss ;
-	siginfohand_t	sh = uctimeout_sighand ;
-	const int	sig = SIGTIMEOUT ;
-	int		rs ;
-#if	CF_DEBUGN
-	nprintf(NDF,"uctimeout_sigactbegin: ent\n") ;
-#endif
-	uc_sigsetempty(&ss) ;
-	uc_sigsetadd(&ss,sig) ;
-	if ((rs = sigaction_load(&san,&ss,SA_SIGINFO,sh)) >= 0) {
-#if	CF_SIGACT
-	    if ((rs = u_sigaction(sig,&san,&uip->sa)) >= 0) {
-#if	CF_DEBUGN
-		nprintf(NDF,"uctimeout_sigactbegin: u_sigaction() rs=%d\n",rs) ;
-#endif
-		uip->f.sigact = TRUE ;
-	    }
-#else
-	    rs = 1 ;
-#endif /* CF_SIGACT */
-	}
-#if	CF_DEBUGN
-	nprintf(NDF,"uctimeout_sigactbegin: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (uctimeout_sigactbegin) */
-
-
-static int uctimeout_sigactend(UCTIMEOUT *uip)
-{
-	int		rs = SR_OK ;
-	if (uip->f.sigact) {
-	    const int	sig = SIGTIMEOUT ;
-	    uip->f.sigact = FALSE ;
-	    rs = u_sigaction(sig,&uip->sa,NULL) ;
-	}
-	return rs ;
-}
-/* end subroutine (uctimeout_sigactend) */
 
 
 /* this is an independent thread of execution */
@@ -1090,6 +1034,8 @@ static int uctimeout_disphandle(UCTIMEOUT *uip)
 	        timeout_met	met = (timeout_met) tep->metp ;
 	        rs = (*met)(tep->objp,tep->tag,tep->arg) ;
 		uc_libfree(tep) ;
+	    } else if (rs == SR_NOTFOUND) {
+		rs = SR_OK ;
 	    }
 	    if (rs < 0) break ;
 	} /* end while */
@@ -1189,18 +1135,6 @@ static void uctimeout_atforkchild()
 	}
 }
 /* end subroutine (uctimeout_atforkchild) */
-
-
-/* ARGSUSED */
-static void uctimeout_sighand(int sn,siginfo_t *sip,void *vcp)
-{
-	UCTIMEOUT	*uip = &uctimeout_data ;
-	uip->f_cmd = TRUE ;
-#if	CF_DEBUGN
-	nprintf(NDF,"uctimeout_sighand: sn=%s(%d)\n",strsigabbr(sn),sn) ;
-#endif
-}
-/* end subroutine (uctimeout_sighand) */
 
 
 static int ourcmp(const void *a1p,const void *a2p)

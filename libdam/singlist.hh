@@ -1,4 +1,4 @@
-/* slist */
+/* singlist */
 /* lang=C++11 */
 
 /* regular (no-frills) pointer queue (not-circular) */
@@ -18,8 +18,8 @@
 
 /* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
-#ifndef	SLIST_INCLUDE
-#define	SLIST_INCLUDE	1
+#ifndef	SINGLIST_INCLUDE
+#define	SINGLIST_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -41,52 +41,52 @@ extern "C" int	strlinelen(cchar *,cchar *,int) ;
 /* local structures */
 
 template <typename T>
-class slist ;
+class singlist ;
 
 template <typename T>
-class slist_iterator ;
+class singlist_iterator ;
 
 template <typename T>
-class slist_node {
-	slist_node<T>	*next = NULL ;
-	slist_node<T>	*prev = NULL ;
-	T		val ;
-	slist_node(T av) : val(av) { 
+class singlist_node {
+	singlist_node<T>	*next = NULL ;
+	singlist_node<T>	*prev = NULL ;
+	T			val ;
+	singlist_node(T av) : val(av) { 
 	} ;
-	~slist_node() {
+	~singlist_node() {
 	} ;
- 	friend slist<T> ;
- 	friend slist_iterator<T> ;
+ 	friend singlist<T> ;
+ 	friend singlist_iterator<T> ;
 } ;
 
 template <typename T>
-class slist_iterator {
-	slist_node<T>	*n = NULL ;
-	mutable T	defval ;
+class singlist_iterator {
+	singlist_node<T>	*n = NULL ;
+	mutable T		defval ;
 public:
-	slist_iterator() { } ;
-	slist_iterator(slist_node<T>* an) : n(an) { } ;
-	slist_iterator &operator = (slist_iterator<T> it) {
+	singlist_iterator() { } ;
+	singlist_iterator(singlist_node<T>* an) : n(an) { } ;
+	singlist_iterator &operator = (singlist_iterator<T> it) {
 	    n = it.n ;
 	    return (*this) ;
 	} ;
-	slist_iterator &operator = (slist_iterator<T> &it) {
+	singlist_iterator &operator = (singlist_iterator<T> &it) {
 	    n = it.n ;
 	    return (*this) ;
 	} ;
-	slist_iterator &operator = (slist_iterator<T> *ip) {
+	singlist_iterator &operator = (singlist_iterator<T> *ip) {
 	    n = ip->n ;
 	    return (*this) ;
 	} ;
-	~slist_iterator() {
+	~singlist_iterator() {
 	    n = NULL ;
 	} ;
-	friend bool operator == (const slist_iterator<T> &i1,
-		const slist_iterator<T> &i2) {
+	friend bool operator == (const singlist_iterator<T> &i1,
+		const singlist_iterator<T> &i2) {
 	    return (i1.n == i2.n) ;
 	} ;
-	friend bool operator != (const slist_iterator<T> &i1,
-		const slist_iterator<T> &i2) {
+	friend bool operator != (const singlist_iterator<T> &i1,
+		const singlist_iterator<T> &i2) {
 	    return (i1.n != i2.n) ;
 	} ;
 	T &operator * () const {
@@ -96,19 +96,19 @@ public:
 	    }
 	    return rv ;
 	} ;
-	slist_iterator &operator ++ () {
+	singlist_iterator &operator ++ () {
 	    if (n != NULL) {
 	        n = n->next ;
 	    }
 	    return (*this) ;
 	} ;
-	slist_iterator &operator ++ (int) {
+	singlist_iterator &operator ++ (int) {
 	    if (n != NULL) {
 	        n = n->next ;
 	    }
 	    return (*this) ;
 	} ;
-	slist_iterator &operator += (int inc) {
+	singlist_iterator &operator += (int inc) {
 	    if (n != NULL) {
 		while ((n != NULL) && (inc-- > 0)) {
 	            n = n->next ;
@@ -125,24 +125,24 @@ public:
 } ;
 
 template <typename T>
-class slist {
-	slist_node<T>	*head = NULL ;
-	slist_node<T>	*tail = NULL ;
-	int		c = 0 ;
+class singlist {
+	singlist_node<T>	*head = NULL ;
+	singlist_node<T>	*tail = NULL ;
+	int			c = 0 ;
 public:
-	typedef		slist_iterator<T> iterator ;
+	typedef		singlist_iterator<T> iterator ;
 	typedef		T value_type ;
-	slist() { 
+	singlist() { 
 	} ;
-	slist(const slist<T> &al) {
-	    slist_node<T>	*an = al.head ;
+	singlist(const singlist<T> &al) {
+	    singlist_node<T>	*an = al.head ;
 	    if (head != NULL) clear() ;
 	    while (an != NULL) {
 		add(an->val) ;
 	        an = an->next ;
 	    }
 	} ;
-	slist(const slist<T> &&al) {
+	singlist(const singlist<T> &&al) {
 	    if (head != NULL) clear() ;
 	    head = al.head ;
 	    tail = al.tail ;
@@ -151,15 +151,15 @@ public:
 	    al.tail = NULL ;
 	    al.c = 0 ;
 	} ;
-	slist &operator = (const slist<T> &al) {
-	    slist_node<T>	*an = al.head ;
+	singlist &operator = (const singlist<T> &al) {
+	    singlist_node<T>	*an = al.head ;
 	    if (head != NULL) clear() ;
 	    while (an != NULL) {
 		add(an->val) ;
 	        an = an->next ;
 	    }
 	} ;
-	slist &operator = (const slist<T> &&al) {
+	singlist &operator = (const singlist<T> &&al) {
 	    if (head != NULL) clear() ;
 	    head = al.head ;
 	    tail = al.tail ;
@@ -168,31 +168,31 @@ public:
 	    al.tail = NULL ;
 	    al.c = 0 ;
 	} ;
-	slist(const std::initializer_list<T> &list) {
+	singlist(const std::initializer_list<T> &list) {
 	    if (head != NULL) clear() ;
 	    for (const T &v : list) {
 		add(v) ;
 	    }
 	} ;
-	slist &operator = (const std::initializer_list<T> &list) {
+	singlist &operator = (const std::initializer_list<T> &list) {
 	    if (head != NULL) clear() ;
 	    for (const T &v : list) {
 		add(v) ;
 	    }
 	    return (*this) ;
 	} ;
-	slist &operator += (const std::initializer_list<T> &list) {
+	singlist &operator += (const std::initializer_list<T> &list) {
 	    for (const T &v : list) {
 		add(v) ;
 	    }
 	    return (*this) ;
 	} ;
-	slist &operator += (const T v) {
+	singlist &operator += (const T v) {
 	    add(v) ;
 	    return (*this) ;
 	} ;
-	~slist() {
-	    slist_node<T>	*nn, *n = head ;
+	~singlist() {
+	    singlist_node<T>	*nn, *n = head ;
 	    while (n != NULL) {
 		nn = n->next ;
 		delete n ;
@@ -203,7 +203,7 @@ public:
 	    c = 0 ;
 	} ;
 	int clear() {
-	    slist_node<T>	*nn, *n = head ;
+	    singlist_node<T>	*nn, *n = head ;
 	    int		rc = c ;
 	    while (n != NULL) {
 		nn = n->next ;
@@ -217,10 +217,10 @@ public:
 	    return rc ;
 	} ;
 	int add(const T v) {
-	    slist_node<T>	*nn = new(std::nothrow) slist_node<T>(v) ;
+	    singlist_node<T>	*nn = new(std::nothrow) singlist_node<T>(v) ;
 	    int			rc = -1 ;
 	    if (nn != NULL) {
-	        slist_node<T>	*n = tail ;
+	        singlist_node<T>	*n = tail ;
 	        if (n != NULL) {
 	            n->next = nn ;
 	        } else {
@@ -231,19 +231,27 @@ public:
 	    }
 	    return rc ;
 	} ;
-	int front(const T **rpp) const {
+	int getfront(const T **rpp) const {
 	    *rpp = (head != NULL) ? &head->val : NULL ;
 	    return c ;
 	} ;
-	int back(const T **rpp) const {
+	int gethead(const T **rpp) const {
+	    *rpp = (head != NULL) ? &head->val : NULL ;
+	    return c ;
+	} ;
+	int getback(const T **rpp) const {
+	    *rpp = (tail != NULL) ? &tail->val : NULL ;
+	    return c ;
+	} ;
+	int gettail(const T **rpp) const {
 	    *rpp = (tail != NULL) ? &tail->val : NULL ;
 	    return c ;
 	} ;
 	int insfront(const T v) {
-	    slist_node<T>	*nn = new(std::nothrow) slist_node<T>(v) ;
+	    singlist_node<T>	*nn = new(std::nothrow) singlist_node<T>(v) ;
 	    int			rc = -1 ;
 	    if (nn != NULL) {
-	        slist_node<T>	*n = head ;
+	        singlist_node<T>	*n = head ;
 	        if (n != NULL) {
 		    nn->next = n->next ;
 	        } else {
@@ -269,11 +277,11 @@ public:
 	operator bool() const {
 	    return (c != 0) ;
 	} ;
-	int remfront(T **rpp) {
+	int rem(T **rpp) {
 	    int	rc = -1 ;
 	    if (head != NULL) {
-		slist_node<T>	*n = head->next ;
-		*rpp = &n->val ;
+		singlist_node<T>	*n = head->next ;
+		if (rpp != NULL) *rpp = &n->val ;
 		head = n->next ;
 		if (n->next == NULL) {
 		    tail = NULL ;
@@ -281,9 +289,12 @@ public:
 		delete n ;
 		rc = --c ;
 	    } else {
-		*rpp = NULL ;
+		if (rpp != NULL) *rpp = NULL ;
 	    }
 	    return rc ;
+	} ;
+	int ins(const T v) {
+	    return add(v) ;
 	} ;
 	iterator begin() const {
 	    iterator it(head) ;
@@ -295,6 +306,6 @@ public:
 	} ;
 } ;
 
-#endif /* SLIST_INCLUDE */
+#endif /* SINGLIST_INCLUDE */
 
 

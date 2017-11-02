@@ -8,6 +8,7 @@
 #define	CF_DEBUGMALL	1		/* debugging memory-allocations */
 #define	CF_DEBUGN	1		/* special debugging */
 #define	CF_SIGHAND	1		/* install signal handlers */
+#define	CF_CALLFINI	0		/* call |uctimeout_fini()| */
 
 
 /* revision history:
@@ -97,7 +98,9 @@ extern "C" cchar	*getourenv(cchar **,cchar *) ;
 extern "C" cchar	*getourenv(const char **,const char *) ;
 extern "C" cchar	*strsigabbr(int) ;
 
+#if	CF_CALLFINI
 extern "C" void		uctimeout_fini() ;
+#endif
 
 
 /* local structures */
@@ -194,27 +197,27 @@ int main(int argc,cchar **argv,cchar **envv)
 	{
 	    MAININFO	mi, *mip = &mi ;
 	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
-	if ((rs = maininfo_sigbegin(mip)) >= 0) {
-	    const time_t	wake = (dt+(tval/2)) ;
-	if ((rs = timeout_load(&to,wake,NULL,ourwake,42,1)) >= 0) {
-	    const int	cmd = timeoutcmd_set ;
-	    if ((rs = uc_timeout(cmd,&to)) >= 0) {
-	  	const int	id = rs ;
+	        if ((rs = maininfo_sigbegin(mip)) >= 0) {
+	            const time_t	wake = (dt+(tval/2)) ;
+	            if ((rs = timeout_load(&to,wake,NULL,ourwake,42,1)) >= 0) {
+	                const int	cmd = timeoutcmd_set ;
+	                if ((rs = uc_timeout(cmd,&to)) >= 0) {
+	                    const int	id = rs ;
 
 #if	CF_DEBUGN
-		nprintf(NDF,"main: uc_timeout() rs=%d\n",rs) ;
+	                    nprintf(NDF,"main: uc_timeout() rs=%d\n",rs) ;
 #endif
 
-		printf("id=%d\n",id) ;
-	        uc_safesleep(tval/2) ;
+	                    printf("id=%d\n",id) ;
+	                    uc_safesleep(tval/2) ;
 
 #if	CF_DEBUGN
-		nprintf(NDF,"main: back rs=%d\n",rs) ;
+	                    nprintf(NDF,"main: back rs=%d\n",rs) ;
 #endif
 
-		printf("done\n") ;
-	    } /* end if (uc_timeout) */
-	} /* end if (timeout_load) */
+	                    printf("done\n") ;
+	                } /* end if (uc_timeout) */
+	            } /* end if (timeout_load) */
 	            rs1 = maininfo_sigend(&mi) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (maininfo-sig) */
@@ -227,7 +230,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	nprintf(NDF,"main: done rs=%d\n",rs) ;
 #endif
 
+#if	CF_CALLFINI
 	uctimeout_fini() ;
+#endif
 
 #if	CF_DEBUGS && CF_DEBUGMALL
 	{
@@ -264,8 +269,8 @@ static int maininfo_sigbegin(MAININFO *mip)
 	int		rs = SR_OK ;
 #if	CF_SIGHAND
 	{
-	void		(*sh)(int,siginfo_t *,void *) = main_sighand ;
-	rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+	    void	(*sh)(int,siginfo_t *,void *) = main_sighand ;
+	    rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
 	}
 #endif
 #if	CF_DEBUGN

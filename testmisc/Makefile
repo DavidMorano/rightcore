@@ -231,7 +231,11 @@ bstree.o:		bstree.hh
 sethand.o:		sethand.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) sethand.hh
 
+fifoitem.o:		fifoitem.c fifoitem.h
+
 fifoelem.o:		fifoelem.c fifoelem.h
+
+vechand.o:		vechand.c vechand.h
 
 vecsorthand.o:		vecsorthand.c vecsorthand.h
 
@@ -248,6 +252,8 @@ sigevent.o:		sigevent.c sigevent.h
 
 ciq.o:			ciq.c ciq.h
 
+pq.o:			pq.c pq.h
+
 uc_timeout.o:		uc_timeout.cc timeout.h timespec.h sigevent.h
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) uc_timeout.cc
 
@@ -255,10 +261,6 @@ uc_sigwaitinfo.o:	uc_sigwaitinfo.c
 
 
 # testing
-ciq.o:			ciq.c ciq.h
-
-pq.o:			pq.c pq.h
-
 
 T01= testsethand
 
@@ -537,12 +539,12 @@ main$(T15).o:		main$(T15).cc
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T15).cc
 
 
-T16= timeout
+T16= two
 
-T16OBJa= main$(T16).o maininfo.o
-T16OBJb= uc_timeout.o uc_sigwaitinfo.o upt.o
-T16OBJc= sigaction.o sigevent.o timeout.o timespec.o itimerspec.o 
-T16OBJd= pq.o ciq.o vecsorthand.o
+T16OBJa= main$(T16).o
+T16OBJb=
+T16OBJc=
+T16OBJd=
 
 T16OBJ= $(T16OBJa) $(T16OBJb) $(T16OBJc) $(T16OBJd)
 
@@ -551,16 +553,16 @@ T16OBJS= $(CRTFRONT) $(T16OBJ) $(CRTBACK)
 $(T16).x:		Makefile $(T16OBJ) 
 	$(LD) -o $@ $(LDFLAGS) -z defs $(T16OBJS) $(TLIBINFO) > $(T16).lm
 
-main$(T16).o:		main$(T16).cc
-	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T16).cc
+main$(T16).o:		main$(T16).c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) main$(T16).c
 
 
-T17= two
+T17= timeout
 
-T17OBJa= main$(T17).o
-T17OBJb=
-T17OBJc=
-T17OBJd=
+T17OBJa= main$(T17).o maininfo.o
+T17OBJb= uc_timeout.o uc_sigwaitinfo.o upt.o
+T17OBJc= sigaction.o sigevent.o timeout.o timespec.o itimerspec.o 
+T17OBJd= pq.o ciq.o vecsorthand.o vechand.o
 
 T17OBJ= $(T17OBJa) $(T17OBJb) $(T17OBJc) $(T17OBJd)
 
@@ -569,8 +571,8 @@ T17OBJS= $(CRTFRONT) $(T17OBJ) $(CRTBACK)
 $(T17).x:		Makefile $(T17OBJ) 
 	$(LD) -o $@ $(LDFLAGS) -z defs $(T17OBJS) $(TLIBINFO) > $(T17).lm
 
-main$(T17).o:		main$(T17).c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) main$(T17).c
+main$(T17).o:		main$(T17).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T17).cc
 
 
 T18= timer
@@ -589,5 +591,23 @@ $(T18).x:		Makefile $(T18OBJ)
 
 main$(T18).o:		main$(T18).cc
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T18).cc
+
+
+T19= callobj
+
+T19OBJa= main$(T19).o maininfo.o
+T19OBJb= uc_timeout.o uc_sigwaitinfo.o upt.o
+T19OBJc= sigaction.o sigevent.o timeout.o timespec.o itimerspec.o 
+T19OBJd= pq.o ciq.o vecsorthand.o vechand.o
+
+T19OBJ= $(T19OBJa) $(T19OBJb) $(T19OBJc) $(T19OBJd)
+
+T19OBJS= $(CRTFRONT) $(T19OBJ) $(CRTBACK)
+
+$(T19).x:		Makefile $(T19OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T19OBJS) $(TLIBINFO) > $(T19).lm
+
+main$(T19).o:		main$(T19).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T19).cc
 
 

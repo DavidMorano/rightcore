@@ -15,6 +15,12 @@
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	We release a signal from the process (or thread) signal mask.
+
+
+*******************************************************************************/
 
 #include	<envstandards.h>
 

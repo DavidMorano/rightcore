@@ -178,12 +178,12 @@ OBJ049= uc_nprocs.o
 OBJ050= uc_strtobase.o uc_strtod.o 
 OBJ051= uc_waitwritable.o
 OBJ052= 
-OBJ053= uc_piper.o uc_thr.o uc_timer.o
+OBJ053= uc_piper.o uc_thr.o uc_timer.o uc_timeout.o
 OBJ054= uc_tcsetattr.o uc_tcgetattr.o uc_tcdrain.o uc_tcflush.o uc_tcflow.o
 OBJ055= uc_tcsetpgrp.o uc_tcgetpgrp.o uc_tcgetsid.o
 OBJ056= uc_libmemalloc.o
 OBJ057= uc_getrandom.o uc_getsocktype.o
-OBJ058= 
+OBJ058=
 OBJ059= pt_sigmask.o pt_atfork.o
 OBJ060=
 OBJ061= getrandom.o
@@ -263,7 +263,7 @@ OBJ126= passwdent.o shadowent.o groupent.o projectent.o userattrent.o
 OBJ127= utmpaccent.o
 
 OBJ128= sigaction.o sigevent.o 
-OBJ129= timeval.o timespec.o 
+OBJ129= timeval.o timespec.o timeout.o
 OBJ130= sigignores.o sigdefaults.o
 OBJ131= isasocket.o isinetaddr.o isindomain.o
 OBJ132= hasNotDots.o
@@ -598,6 +598,9 @@ uc_openinfo.o:		uc_openinfo.c opensysfs.h
 
 uc_openuser.o:		uc_openuser.c opensysfs.h
 
+uc_timeout.o:		uc_timeout.cc timeout.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) uc_timeout.cc
+
 
 fsdir.o:		fsdir.c fsdir.h
 
@@ -763,6 +766,8 @@ timeval.o:		timeval.c timeval.h
 timespec.o:		timespec.c timespec.h
 
 itimerspec.o:		itimerspec.c itimerspec.h
+
+timeout.o:		timeout.c timeout.h
 
 upt.o:			upt.c upt.h
 

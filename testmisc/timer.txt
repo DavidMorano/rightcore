@@ -1,0 +1,4 @@
+TIMER
+
+This C++ object implements a simple call-back timer.
+

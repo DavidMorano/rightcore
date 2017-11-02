@@ -84,7 +84,7 @@ int vechand_start(vechand *op,int n,int opts)
 	if ((rs = vechand_setopts(op,opts)) >= 0) {
 	    const int	size = (n + 1) * sizeof(void **) ;
 	    void	*va ;
-	    if ((rs = uc_malloc(size,&va)) >= 0) {
+	    if ((rs = uc_libmalloc(size,&va)) >= 0) {
 		op->va = va ;
 	        op->va[0] = NULL ;
 	        op->n = n ;
@@ -115,7 +115,7 @@ int vechand_finish(vechand *op)
 	debugprintf("vechand_finish: ent\n") ;
 #endif
 
-	rs1 = uc_free(op->va) ;
+	rs1 = uc_libfree(op->va) ;
 	if (rs >= 0) rs = rs1 ;
 	op->va = NULL ;
 
@@ -575,11 +575,11 @@ static int vechand_extend(VECHAND *op)
 	    if (op->va == NULL) {
 	        nn = VECHAND_DEFENTS ;
 	        size = (nn + 1) * sizeof(void **) ;
-	        rs = uc_malloc(size,&np) ;
+	        rs = uc_libmalloc(size,&np) ;
 	    } else {
 	        nn = (op->n + 1) * 2 ;
 	        size = (nn + 1) * sizeof(void **) ;
-	        rs = uc_realloc(op->va,size,&np) ;
+	        rs = uc_librealloc(op->va,size,&np) ;
 	        op->va = NULL ;
 	    }
 

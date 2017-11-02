@@ -53,6 +53,7 @@ extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath1w(char *,const char *,int) ;
 extern int	matstr(const char **,const char *,int) ;
+extern int	msleep(int) ;
 extern int	haslc(const char *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;

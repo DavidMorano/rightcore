@@ -1,5 +1,7 @@
 /* mainmod */
 
+/* we test (what) modulas operations? */
+
 #define	CF_DEBUGS		0	/* compile-time debugging */
 
 #include	<envstandards.h>
@@ -20,7 +22,7 @@
 
 
 /* ARGSUSED */
-int main(int argc,cchar *argv,cchar *envv)
+int main(int argc,cchar **argv,cchar **envv)
 {
 	const int	n = (10*1024*1024) ;
 	int		rv = 0 ;

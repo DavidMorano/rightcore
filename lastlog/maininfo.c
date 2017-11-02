@@ -106,39 +106,39 @@ int maininfo_start(MAININFO *mip,int argc,cchar **argv)
 #if	defined(OSNAME_SunOS) && (OSNAME_SunOS > 0)
 	if (argz == NULL) argz = getexecname() ;
 #endif
-	
+
 	uc_sigsetempty(&ss) ;
 	uc_sigsetadd(&ss,sig) ;
 	if ((rs = u_sigprocmask(SIG_BLOCK,&ss,&mip->savemask)) >= 0) {
-	if ((rs = vecstr_start(&mip->stores,2,0)) >= 0) {
-	    int		cl ;
-	    cchar	*cp ;
+	    if ((rs = vecstr_start(&mip->stores,2,0)) >= 0) {
+	        int	cl ;
+	        cchar	*cp ;
 
-	    if ((cl = sfbasename(argz,-1,&cp)) > 0) {
-		const char	**vpp = &mip->progname ;
-		if (cp[0] == '-') {
-		    mip->f.progdash = TRUE ;
-		    cp += 1 ;
-		    cl -= 1 ;
-		}
-		if (cl > 0) {
-		    const char	*tp ;
-		    if ((tp = strnrchr(cp,cl,'.')) != NULL) {
-			cl = (tp-cp) ;
-		    }
-		}
-		if (cl > 0) {
-		    rs = maininfo_setentry(mip,vpp,cp,cl) ;
-		} else {
-		    rs = SR_DOM ;
-		}
-	    } else {
-		rs = SR_DOM ;
-	    }
+	        if ((cl = sfbasename(argz,-1,&cp)) > 0) {
+	            const char	**vpp = &mip->progname ;
+	            if (cp[0] == '-') {
+	                mip->f.progdash = TRUE ;
+	                cp += 1 ;
+	                cl -= 1 ;
+	            }
+	            if (cl > 0) {
+	                const char	*tp ;
+	                if ((tp = strnrchr(cp,cl,'.')) != NULL) {
+	                    cl = (tp-cp) ;
+	                }
+	            }
+	            if (cl > 0) {
+	                rs = maininfo_setentry(mip,vpp,cp,cl) ;
+	            } else {
+	                rs = SR_DOM ;
+	            }
+	        } else {
+	            rs = SR_DOM ;
+	        }
 
-	    if (rs < 0) 
-		vecstr_finish(&mip->stores) ;
-	} /* end if (vecstr_start) */
+	        if (rs < 0)
+	            vecstr_finish(&mip->stores) ;
+	    } /* end if (vecstr_start) */
 	} /* end if (u_sigprocmask) */
 
 	return rs ;
@@ -236,7 +236,7 @@ int maininfo_srchname(MAININFO *mip,const char **rpp)
 	    const int	slen = MAXNAMELEN ;
 	    char	sbuf[MAXNAMELEN+1] ;
 	    if ((rs = sncpylc(sbuf,slen,srch)) >= 0) {
-		rs = maininfo_setentry(mip,rpp,sbuf,rs) ;
+	        rs = maininfo_setentry(mip,rpp,sbuf,rs) ;
 	    }
 	} else {
 	    rs = strlen(srch) ;
@@ -262,7 +262,7 @@ static int maininfo_utiler(MAININFO *mip)
 	    const char	*fmt = "hello world!\n" ;
 	    char	wbuf[LINEBUFLEN+1] ;
 	    if ((rs = bufprintf(wbuf,wlen,fmt)) >= 0) {
-		rs = u_write(fd,wbuf,rs) ;
+	        rs = u_write(fd,wbuf,rs) ;
 	    }
 	    rs1 = u_close(fd) ;
 	    if (rs >= 0) rs = rs1 ;

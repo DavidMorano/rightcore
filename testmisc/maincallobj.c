@@ -1,7 +1,7 @@
-/* maintimer (timer) */
+/* maincallobj (calobj) */
 /* lang=C++11 */
 
-/* test the TIMER facility */
+/* test the CALLOBJ facility */
 
 
 #define	CF_DEBUGS	1		/* non-switchable debug print-outs */
@@ -21,7 +21,7 @@
 
 /*******************************************************************************
 
-	We (try to) test the TIMER facility.
+	We (try to) test the CALLOBJ facility.
 
 
 *******************************************************************************/
@@ -46,19 +46,26 @@
 #include	<iostream>
 #include	<vsystem.h>
 #include	<sighand.h>
-#include	<eigevent.h>
+#include	<sigevent.h>
+#include	<timespec.h>
+#include	<itimerspec.h>
+#include	<timeout.h>
 #include	<ucmallreg.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
-#include	"timeout.h"
 #include	"maininfo.h"
 
 
 /* local defines */
 
-#define	VARDEBUGFNAME	"TIMER_DEBUGFILE"
-#define	NDF		"rimter.deb"
+#define	VARDEBUGFNAME	"CALLOBJ_DEBUGFILE"
+#define	NDF		"callobj.deb"
+
+
+/* type-defs */
+
+typedef int (*timeout_met)(void *,uint,int) ;
 
 
 /* default name spaces */
@@ -103,13 +110,100 @@ extern "C" void		uctimeout_fini() ;
 
 /* local structures */
 
+static int	ourobj_hand(void *,uint,int) ;
+
 struct sigcode {
 	int		code ;
 	const char	*name ;
 } ;
 
+struct ourobj {
+	TIMEOUT		to ;
+	int		c = 0 ;
+	bool		f_running = false ;
+public:
+	ourobj() {
+	    timeout_load(&to,0L,NULL,ourobj_hand,0U,0) ;
+#if	CF_DEBUGS
+	    debugprintf("main/ourobj::ctor: ent\n") ;
+#endif
+	} ;
+	~ourobj() {
+#if	CF_DEBUGS
+	    debugprintf("main/ourobj::dtor: ent\n") ;
+#endif
+	    if (f_running) {
+	        const int	cmd = timeoutcmd_cancel ;
+		f_running = false ;
+		uc_timeout(cmd,&to) ;
+	    }
+#if	CF_DEBUGS
+	    debugprintf("main/ourobj::dtor: ret\n") ;
+#endif
+	} ;
+	int	set(int valint,uint tag,int arg) {
+	    int		rs = SR_OK ;
+#if	CF_DEBUGS
+	    debugprintf("main/ourobj::set: val=%d\n",valint) ;
+#endif
+	    if (valint >= 0) {
+	        const time_t	dt = time(NULL) ;
+		time_t		valabs ;
+	        if (f_running) {
+	            const int	cmd = timeoutcmd_cancel ;
+		    f_running = false ;
+		    rs = uc_timeout(cmd,&to) ;
+	        }
+		if (rs >= 0) {
+		    timeout_met	met = ourobj_hand ;
+		    valabs = (dt+valint) ;
+		    if ((rs = timeout_load(&to,valabs,this,met,tag,arg)) >= 0) {
+			const int	cmd = timeoutcmd_set ;
+			rs = uc_timeout(cmd,&to) ;
+#if	CF_DEBUGS
+	    	    debugprintf("main/ourobj::set: uc_timeout() rs=%d\n",rs) ;
+#endif
+		    }
+		}
+	    } else {
+		rs = SR_INVALID ;
+	    }
+	    return rs ;
+	} ;
+	int cancel() {
+	    int		rs = SR_OK ;
+	    if (f_running) {
+	        const int	cmd = timeoutcmd_cancel ;
+		f_running = false ;
+		rs = uc_timeout(cmd,&to) ;
+	    }
+	    return rs ;
+	} ;
+	int timeout(uint tag,int arg) {
+	    int		rs ;
+#if	CF_DEBUGS
+	    debugprintf("main/ourobj::timeout: ent\n") ;
+#endif
+	    cout << "timeout tag=" << tag << " arg=" << arg << endl ;
+	    rs = set(4,0x5a,++c) ;
+#if	CF_DEBUGS
+	    debugprintf("main/ourobj::timeout: ret rs=%d\n",rs) ;
+#endif
+	    return rs ;
+	} ;
+} ; /* end struct (ourobj) */
+
+static int ourobj_hand(void *objp,uint tag,int arg)
+{
+	ourobj		*cop = (ourobj *) objp ;
+	return cop->timeout(tag,arg) ;
+}
+/* end subroutine (ourobj_hand) */
+
 
 /* forward references */
+
+static int	maininfo_time(MAININFO *,time_t,int) ;
 
 static int	maininfo_sigbegin(MAININFO *) ;
 static int	maininfo_sigend(MAININFO *) ;
@@ -118,8 +212,6 @@ static void	main_sighand(int,siginfo_t *,void *) ;
 static int	main_sigdump(siginfo_t *) ;
 
 static cchar	*strsigcode(const struct sigcode *,int) ;
-
-static int	ourwake(void *,uint,int) ;
 
 
 /* local variables */
@@ -167,9 +259,8 @@ static const struct sigcode	sigcode_bus[] = {
 /* ARHSUSED */
 int main(int argc,cchar **argv,cchar **envv)
 {
-	TIMEOUT		to ;
 	time_t		dt = time(NULL) ;
-	const int	tval = 6 ;
+	const int	tval = 20 ;
 #if	CF_DEBUGS && CF_DEBUGMALL
 	uint		mo_start = 0 ;
 #endif
@@ -195,34 +286,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	{
 	    MAININFO	mi, *mip = &mi ;
 	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
-	if ((rs = maininfo_sigbegin(mip)) >= 0) {
-	    const time_t	wake = (dt+(tval/2)) ;
-	if ((rs = timeout_load(&to,wake,NULL,ourwake,0x5a5a,1)) >= 0) {
-	    SIGEVENT	se ;
-	    const int	st = SIGEV_SIGNAL ;
-	    const int	sig = SIGTIMEOUT ;
-	    const int	val = 0 ;
-	    if ((rs = sigevent_load(&se,st,sig,val)) >= 0) {
-	    const int	cid = CLOCK_REALTIME ;
-	    timer_t	tid ;
-	    if ((rs = uc_timercreate(cid,&se,&tid)) >= 0) {
-	  	const int	id = rs ;
-
-#if	CF_DEBUGN
-		nprintf(NDF,"main: uc_timeout() rs=%d\n",rs) ;
-#endif
-
-		printf("id=%d\n",id) ;
-	        uc_safesleep(tval/2) ;
-
-		printf("done\n") ;
-	    rs1 = uc_timerdestroy(tid) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (uc_timer) */
-	} /* end if (sigevent_load) */
-	            rs1 = maininfo_sigend(&mi) ;
+	        if ((rs = maininfo_sigbegin(mip)) >= 0) {
+	            {
+	                rs = maininfo_time(mip,dt,tval) ;
+	            }
+	            rs1 = maininfo_sigend(mip) ;
 	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (maininfo-sig) */
+	        }
 	        rs1 = maininfo_finish(mip) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (maininfo) */
@@ -232,13 +302,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	nprintf(NDF,"main: done rs=%d\n",rs) ;
 #endif
 
-	uctimeout_fini() ;
-
 #if	CF_DEBUGS && CF_DEBUGMALL
 	{
 	    uint	mo ;
 	    uc_mallout(&mo) ;
-	    debugprintf("b_wn: final mallout=%u\n",(mo-mo_start)) ;
+	    debugprintf("main: final mallout=%u\n",(mo-mo_start)) ;
 	    uc_mallset(0) ;
 	}
 #endif /* CF_DEBUGMALL */
@@ -264,13 +332,25 @@ int main(int argc,cchar **argv,cchar **envv)
 /* local subroutines */
 
 
+static int maininfo_time(MAININFO *mip,time_t dt,int tval)
+{
+	ourobj		os ;
+	int		rs ;
+	if ((rs = os.set(4,0xC4,0)) >= 0) {
+	    sleep(tval) ;
+	}
+	return rs ;
+}
+/* end subroutine (maininfo_time) */
+
+
 static int maininfo_sigbegin(MAININFO *mip)
 {
 	int		rs = SR_OK ;
 #if	CF_SIGHAND
 	{
-	void		(*sh)(int,siginfo_t *,void *) = main_sighand ;
-	rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+	    void	(*sh)(int,siginfo_t *,void *) = main_sighand ;
+	    rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
 	}
 #endif
 #if	CF_DEBUGN
@@ -393,13 +473,5 @@ static const char *strsigcode(const struct sigcode *scp,int code)
 	return sn ;
 }
 /* end subroutine (strsigcode) */
-
-
-static int ourwake(void *objp,uint tag,int arg)
-{
-	printf("int objp=%p tag=%u arg=%d\n",objp,tag,arg) ;
-	return 0 ;
-}
-/* end subroutine (ourwake) */
 
 

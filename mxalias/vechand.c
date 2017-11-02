@@ -8,10 +8,8 @@
 
 /* revision history:
 
-	- 1998-12-01, David A­D­ Morano
-
+	= 1998-12-01, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services.
-
 
 */
 
@@ -86,7 +84,7 @@ int vechand_start(vechand *op,int n,int opts)
 	if ((rs = vechand_setopts(op,opts)) >= 0) {
 	    const int	size = (n + 1) * sizeof(void **) ;
 	    void	*va ;
-	    if ((rs = uc_malloc(size,&va)) >= 0) {
+	    if ((rs = uc_libmalloc(size,&va)) >= 0) {
 		op->va = va ;
 	        op->va[0] = NULL ;
 	        op->n = n ;
@@ -117,7 +115,7 @@ int vechand_finish(vechand *op)
 	debugprintf("vechand_finish: ent\n") ;
 #endif
 
-	rs1 = uc_free(op->va) ;
+	rs1 = uc_libfree(op->va) ;
 	if (rs >= 0) rs = rs1 ;
 	op->va = NULL ;
 
@@ -152,15 +150,17 @@ int vechand_add(vechand *op,const void *sp)
 	if (f && (op->c < op->i)) {
 
 	    i = op->fi ;
-	    while ((i < op->i) && (op->va[i] != NULL))
+	    while ((i < op->i) && (op->va[i] != NULL)) {
 	        i += 1 ;
+	    }
 
 	    if (i < op->i) {
 	        (op->va)[i] = (void *) sp ;
 	        op->fi = i + 1 ;
 	        f_done = TRUE ;
-	    } else
+	    } else {
 	        op->fi = i ;
+	    }
 
 	} /* end if (possible reuse strategy) */
 
@@ -197,7 +197,6 @@ int vechand_add(vechand *op,const void *sp)
 int vechand_get(vechand *op,int i,const void *vp)
 {
 	int		rs = SR_OK ;
-	void		**epp = (void **) vp ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -205,8 +204,10 @@ int vechand_get(vechand *op,int i,const void *vp)
 
 	if ((i < 0) || (i >= op->i)) rs = SR_NOTFOUND ;
 
-	if (epp != NULL)
-	    *epp = (rs >= 0) ? ((void *)(op->va)[i]) : NULL ;
+	if (vp != NULL) {
+	    void	**epp = (void **) vp ;
+	    *epp = (rs >= 0) ? ((void *)op->va[i]) : NULL ;
+	}
 
 	return rs ;
 }
@@ -241,6 +242,7 @@ int vechand_getlast(vechand *op,const void *vp)
 /* end subroutine (vechand_getlast) */
 
 
+/* find an entry by its address */
 int vechand_ent(vechand *op,const void *vp)
 {
 	int		rs = SR_OK ;
@@ -252,9 +254,9 @@ int vechand_ent(vechand *op,const void *vp)
 	if (op->va == NULL) return SR_NOTOPEN ;
 
 	for (i = 0 ; i < op->i ; i += 1) {
-	    if (op->va[i] == NULL) continue ;
-	    if (op->va[i] == vp)
-	        break ;
+	    if (op->va[i] != NULL) {
+	        if (op->va[i] == vp) break ;
+	    }
 	} /* end for */
 
 	if (i == op->i)
@@ -335,12 +337,8 @@ int vechand_del(vechand *op,int i)
 	if (op->f.oconserve) {
 
 	    while (op->i > i) {
-
-	        if (op->va[op->i - 1] != NULL)
-	            break ;
-
+	        if (op->va[op->i - 1] != NULL) break ;
 	        op->i -= 1 ;
-
 	    } /* end while */
 
 	} /* end if */
@@ -356,6 +354,17 @@ int vechand_del(vechand *op,int i)
 	return op->c ;
 }
 /* end subroutine (vechand_del) */
+
+
+int vechand_delhand(vechand *op,const void *ep)
+{
+	int		rs ;
+	if ((rs = vechand_ent(op,ep)) >= 0) {
+	    rs = vechand_del(op,rs) ;
+	}
+	return rs ;
+}
+/* end subroutine (vechand_delhand) */
 
 
 int vechand_delall(vechand *op)
@@ -443,11 +452,10 @@ int vechand_search(vechand *op,const void *ep,int (*vcmpfunc)(),void *vp)
 	if (op->va == NULL) return SR_NOTOPEN ;
 
 	if (op->f.osorted && (! op->f.issorted)) {
-
 	    op->f.issorted = TRUE ;
-	    if (op->c > 1)
+	    if (op->c > 1) {
 		qsort(op->va,op->i,esize,vcmpfunc) ;
-
+	    }
 	}
 
 	if (op->f.issorted) {
@@ -567,11 +575,11 @@ static int vechand_extend(VECHAND *op)
 	    if (op->va == NULL) {
 	        nn = VECHAND_DEFENTS ;
 	        size = (nn + 1) * sizeof(void **) ;
-	        rs = uc_malloc(size,&np) ;
+	        rs = uc_libmalloc(size,&np) ;
 	    } else {
 	        nn = (op->n + 1) * 2 ;
 	        size = (nn + 1) * sizeof(void **) ;
-	        rs = uc_realloc(op->va,size,&np) ;
+	        rs = uc_librealloc(op->va,size,&np) ;
 	        op->va = NULL ;
 	    }
 
@@ -580,7 +588,7 @@ static int vechand_extend(VECHAND *op)
 	        op->n = nn ;
 	    }
 
-	} /* end if */
+	} /* end if (extension required) */
 
 	return rs ;
 }

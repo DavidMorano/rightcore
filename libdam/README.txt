@@ -248,3 +248,25 @@ pcsconf		constant database file
 pcspoll		user-mode PCS polling manager
 
 
+= C++ language (up to C++11) subroutines or objects
+
+
+bellmanford1	Bellman-Ford algorithm-1
+bellmanford2	Bellman-Ford algorithm-2
+bfs1		breadth first search
+bstree		Binary-Search-Tree object (slightly more useful than the STL)
+ctwords.hh	Convert-to-Words (also see program NUMCVT)
+dfs1.hh		Depth-First-Search algorithm-1
+dfs2.hh		Depth-First-Search algorithm-2
+dijkstra1.hh	Dijkstra shorted-path-in-graph, algorithm-1
+dijkstra2.hh	Dijkstra shorted-path-in-graph, algorithm-2
+graph.hh	some graph thing?
+minmaxelem.hh	find maximum and minimum in a range over a list-like object
+obuf.hh		ourput-buffer (used interanlly in some point solution things)
+returnstatus.hh	manage return status (I guess for some point soluations0
+singlist.hh	a single-link list (not brain-damaged and better than STL)
+sort_insertion.hh	an insertion sort (for C++)
+sort_merge.hh		a merge sort (for C++)
+willAddOver.hh		??
+
+

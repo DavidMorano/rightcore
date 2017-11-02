@@ -1,4 +1,6 @@
-/* main */
+/* main (testansiANSI) */
+
+/* test something to do with ANSI compliance */
 
 #define	CF_MINUSONE	0
 

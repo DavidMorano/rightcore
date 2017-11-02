@@ -58,14 +58,18 @@
 
 int snwcpyrev(char *dbuf,int dlen,cchar *sp,int sl)
 {
-	int		i ;
 	if (dbuf == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
 	if (sl < 0) sl = strlen(sp) ;
-	if (dlen < sl) return SR_OVERFLOW ;
-	for (i = 0 ; i < sl ; i += 1) {
-	    dbuf[i] = sp[sl-i-1] ;
-	} /* end for */
+	if ((dlen < 0) || (dlen >= sl)) {
+	    int		i ;
+	    for (i = 0 ; i < sl ; i += 1) {
+	        dbuf[i] = sp[sl-i-1] ;
+	    } /* end for */
+	    dbuf[i] = '\0' ;
+	} else {
+	    sl = SR_OVERFLOW ;
+	}
 	return sl ;
 }
 /* end subroutine (snwcpyrev) */
