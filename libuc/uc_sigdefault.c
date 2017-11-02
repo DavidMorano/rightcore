@@ -43,12 +43,10 @@
 /* exported subroutines */
 
 
-int uc_sigdefault(sn)
-int		sn ;
+int uc_sigdefault(int sn)
 {
-	int	rs = SR_OK ;
-
-	void	(*ret)(int) ;
+	int		rs = SR_OK ;
+	void		(*ret)(int) ;
 
 	ret = signal(sn,SIG_DFL) ;
 	if (ret == SIG_ERR) rs = (- errno) ;

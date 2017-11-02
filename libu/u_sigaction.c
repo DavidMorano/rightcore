@@ -19,11 +19,7 @@
 #include	<envstandards.h>
 
 #include	<sys/types.h>
-#include	<sys/utsname.h>
-#include	<sys/wait.h>
 #include	<signal.h>
-#include	<fcntl.h>
-#include	<poll.h>
 #include	<errno.h>
 
 #include	<vsystem.h>
@@ -33,9 +29,7 @@
 /* exported subroutines */
 
 
-int u_sigaction(sn,nsp,osp)
-int			sn ;
-struct sigaction	*nsp, *osp ;
+int u_sigaction(int sn,SIGACTION *nsp,SIGACTION *osp)
 {
 	int		rs ;
 

@@ -83,7 +83,7 @@ typedef int (*thrsub)(void *) ;
 
 /* forward references */
 
-static int maininfo_utiler(MAININFO *) ;
+static int	maininfo_utiler(MAININFO *) ;
 
 
 /* local variables */
@@ -92,8 +92,10 @@ static int maininfo_utiler(MAININFO *) ;
 /* exported subroutines */
 
 
-int maininfo_start(MAININFO *mip,int argc,const char **argv)
+int maininfo_start(MAININFO *mip,int argc,cchar **argv)
 {
+	sigset_t	ss ;
+	const int	sig = SIGTIMEOUT ;
 	int		rs ;
 	const char	*argz = NULL ;
 
@@ -104,10 +106,13 @@ int maininfo_start(MAININFO *mip,int argc,const char **argv)
 #if	defined(OSNAME_SunOS) && (OSNAME_SunOS > 0)
 	if (argz == NULL) argz = getexecname() ;
 #endif
-
+	
+	uc_sigsetempty(&ss) ;
+	uc_sigsetadd(&ss,sig) ;
+	if ((rs = u_sigprocmask(SIG_BLOCK,&ss,&mip->savemask)) >= 0) {
 	if ((rs = vecstr_start(&mip->stores,2,0)) >= 0) {
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if ((cl = sfbasename(argz,-1,&cp)) > 0) {
 		const char	**vpp = &mip->progname ;
@@ -124,14 +129,17 @@ int maininfo_start(MAININFO *mip,int argc,const char **argv)
 		}
 		if (cl > 0) {
 		    rs = maininfo_setentry(mip,vpp,cp,cl) ;
-		} else
+		} else {
 		    rs = SR_DOM ;
-	    } else
+		}
+	    } else {
 		rs = SR_DOM ;
+	    }
 
 	    if (rs < 0) 
 		vecstr_finish(&mip->stores) ;
-	} /* end if */
+	} /* end if (vecstr_start) */
+	} /* end if (u_sigprocmask) */
 
 	return rs ;
 }
@@ -146,6 +154,9 @@ int maininfo_finish(MAININFO *mip)
 	if (mip == NULL) return SR_FAULT ;
 
 	rs1 = vecstr_finish(&mip->stores) ;
+	if (rs >= 0) rs = rs1 ;
+
+	rs1 = u_sigprocmask(SIG_SETMASK,&mip->savemask,NULL) ;
 	if (rs >= 0) rs = rs1 ;
 
 	return rs ;

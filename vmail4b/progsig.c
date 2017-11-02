@@ -683,17 +683,17 @@ static int progsig_runbegin(PROGSIG *uip)
 
 static int progsig_runner(PROGSIG *uip)
 {
-	PTA		a ;
+	PTA		ta ;
 	int		rs ;
 	int		rs1 ;
 	int		f = FALSE ;
 
-	if ((rs = pta_create(&a)) >= 0) {
+	if ((rs = pta_create(&ta)) >= 0) {
 	    const int	scope = PROGSIG_SCOPE ;
-	    if ((rs = pta_setscope(&a,scope)) >= 0) {
+	    if ((rs = pta_setscope(&ta,scope)) >= 0) {
 		pthread_t	tid ;
 		tworker		wt = (tworker) progsig_worker ;
-		if ((rs = uptcreate(&tid,NULL,wt,uip)) >= 0) {
+		if ((rs = uptcreate(&tid,&ta,wt,uip)) >= 0) {
 		    uip->f_running = TRUE ;
 		    uip->tid = tid ;
 		    f = TRUE ;
@@ -703,7 +703,7 @@ static int progsig_runner(PROGSIG *uip)
 			rs,tid) ;
 #endif
 	    } /* end if (pta-setscope) */
-	    rs1 = pta_destroy(&a) ;
+	    rs1 = pta_destroy(&ta) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (pta) */
 

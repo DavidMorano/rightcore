@@ -26,10 +26,7 @@
 /* exported subroutines */
 
 
-int u_sigsend(idtype,id,sig)
-idtype_t	idtype ;
-id_t		id ;
-int		sig ;
+int u_sigsend(idtype_t idtype,id_t id,int sig)
 {
 	int		rs ;
 

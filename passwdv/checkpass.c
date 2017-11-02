@@ -10,23 +10,21 @@
 /* revision history:
 
 	= 1996-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
         This subroutine will take as input a username and a password and it will
         return a boolean about whether or not the password is valid on the
         current system.
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -39,7 +37,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<shadow.h>
 #include	<grp.h>
@@ -75,6 +72,8 @@
 
 #define	TO_READ		5
 
+#define	PASSDATA	struct passdata
+
 
 /* external subroutines */
 
@@ -101,25 +100,25 @@ struct passdata {
 
 /* forward references */
 
-static int	try_init(struct passdata *,char *,const char *) ;
-static int	try_pwd(struct passdata *) ;
-static int	try_spw(struct passdata *) ;
-static int	try_nisplus(struct passdata *) ;
-static int	try_free(struct passdata *) ;
+static int	try_start(PASSDATA *,char *,const char *) ;
+static int	try_pwd(PASSDATA *) ;
+static int	try_spw(PASSDATA *) ;
+static int	try_nisplus(PASSDATA *) ;
+static int	try_finish(PASSDATA *) ;
 
 static int	readpass(int,char *,int) ;
 
 
 /* local variables */
 
-static const char	*badpasswds[] = {
+static cchar	*badpasswds[] = {
 	"x",
 	"*NP*",
 	"NP",
 	NULL
 } ;
 
-static int	(*tries[])(struct passdata *) = {
+static int	(*tries[])(PASSDATA *) = {
 	try_pwd,
 	try_spw,
 	try_nisplus,
@@ -130,13 +129,9 @@ static int	(*tries[])(struct passdata *) = {
 /* exported subroutines */
 
 
-int checkpass(pip,username,password,f_useshadow)
-struct proginfo	*pip ;
-const char	username[] ;
-const char	password[] ;
-int		f_useshadow ;
+int checkpass(PROGINFO *pip,cchar *username,cchar *password,int f_useshadow)
 {
-	struct passdata	pd, *pdp = &pd ;
+	PASSDATA	pd, *pdp = &pd ;
 	int		rs ;
 	int		rs1 = 0 ;
 	int		i ;
@@ -149,11 +144,12 @@ int		f_useshadow ;
 
 	if (username[0] == '\0') return SR_INVALID ;
 
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: f_useshadow=%u\n",
 	        pip->progname,f_useshadow) ;
+	}
 
-	if ((rs = try_init(pdp,passbuf,username)) >= 0) {
+	if ((rs = try_start(pdp,passbuf,username)) >= 0) {
 
 	for (i = 0 ; tries[i] != NULL ; i += 1) {
 
@@ -168,8 +164,7 @@ int		f_useshadow ;
 	if ((rs >= 0) && (rs1 == SR_NOMEM))
 	    rs = SR_NOMEM ;
 
-	try_free(pdp) ;
-
+	try_finish(pdp) ;
 	} /* end if */
 
 	if ((pip->debuglevel > 0) && (rs >= 0))
@@ -199,42 +194,35 @@ ret0:
 /* local subroutines */
 
 
-static int try_init(pdp,passbuf,username)
-struct passdata	*pdp ;
-char		passbuf[] ;
-const char	username[] ;
+static int try_start(PASSDATA *pdp,char *passbuf,cchar *username)
 {
 
 	if (pdp == NULL) return SR_FAULT ;
 	if (username == NULL) return SR_FAULT ;
 
 	passbuf[0] = '\0' ;
-	memset(pdp,0,sizeof(struct passdata)) ;
+	memset(pdp,0,sizeof(PASSDATA)) ;
 
 	pdp->username = username ;
 	pdp->passbuf = passbuf ;
 	return SR_OK ;
 }
-/* end subroutine (try_init) */
+/* end subroutine (try_start) */
 
 
-static int try_free(pdp)
-struct passdata	*pdp ;
+static int try_finish(PASSDATA *pdp)
 {
 
+	if (pdp == NULL) return SR_FAULT ;
 
-	if (pdp == NULL)
-	    return SR_FAULT ;
-
-	memset(pdp,0,sizeof(struct passdata)) ;
+	memset(pdp,0,sizeof(PASSDATA)) ;
 
 	return SR_OK ;
 }
-/* end subroutine (try_free) */
+/* end subroutine (try_finish) */
 
 
-static int try_pwd(pdp)
-struct passdata	*pdp ;
+static int try_pwd(PASSDATA *pdp)
 {
 	struct passwd	pw ;
 	const int	pwlen = getbufsize(getbufsize_pw) ;
@@ -243,7 +231,7 @@ struct passdata	*pdp ;
 
 	pdp->passbuf[0] = '\0' ;
 	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    cchar	*un = pfp->username ;
+	    cchar	*un = pdp->username ;
 	    if ((rs = getpw_name(&pw,pwbuf,pwlen,un)) >= 0) {
 	        rs = SR_NOEXIST ;
 	        if (matstr(badpasswds,pw.pw_passwd,-1) < 0) {
@@ -258,8 +246,7 @@ struct passdata	*pdp ;
 /* end subroutine (try_pwd) */
 
 
-static int try_spw(pdp)
-struct passdata	*pdp ;
+static int try_spw(PASSDATA *pdp)
 {
 	struct spwd	sp ;
 	const int	splen = getbufsize(getbufsize_sp) ;
@@ -268,10 +255,10 @@ struct passdata	*pdp ;
 
 	pdp->passbuf[0] = '\0' ;
 	if ((rs = uc_malloc((splen+1),&spbuf)) >= 0) {
-	    cchar	*un = pfp->username ;
+	    cchar	*un = pdp->username ;
 	    if ((rs = getsp_name(&sp,spbuf,splen,un)) >= 0) {
 	        rs = SR_NOEXIST ;
-	        if (matstr(badpasswds,sp.sp_pwdp,-1) < 0)
+	        if (matstr(badpasswds,sp.sp_pwdp,-1) < 0) {
 	            rs = sncpy1(pdp->passbuf,PASSWDLEN,sp.sp_pwdp) ;
 		}
 	    }
@@ -283,25 +270,19 @@ struct passdata	*pdp ;
 /* end subroutine (try_spw) */
 
 
-static int try_nisplus(pdp)
-struct passdata *pdp ;
+static int try_nisplus(PASSDATA *pdp)
 {
 	SPAWNPROC	ps ;
-
-	vecstr	args ;
-
-	pid_t	cpid ;
-
-	int	rs ;
-	int	len ;
-	int	cstat ;
-
+	vecstr		args ;
+	pid_t		cpid ;
+	int		rs ;
+	int		len ;
+	int		cstat ;
 	const char	*progfname = PROG_NISMATCH ;
 	const char	**av ;
 
-
 #if	CF_DEBUGS
-	debugprintf("checkpass/try_nisplus: entered\n") ;
+	debugprintf("checkpass/try_nisplus: ent\n") ;
 #endif
 
 	rs = havenis() ;
@@ -373,24 +354,17 @@ ret0:
 /* end subroutine (try_nisplus) */
 
 
-static int readpass(fd,outbuf,outlen)
-int	fd ;
-char	outbuf[] ;
-int	outlen ;
+static int readpass(int fd,char *outbuf,int outlen)
 {
-	FILEBUF	b ;
-
-	int	rs ;
-	int	len ;
-	int	cl = -1 ;
-
+	FILEBUF		b ;
+	int		rs ;
+	int		len ;
+	int		cl = -1 ;
 	const char	*tp ;
 	const char	*cp = NULL ;
-	char	rdbuf[RDBUFLEN + 1] ;
+	char		rdbuf[RDBUFLEN + 1] ;
 
-
-	if (outbuf == NULL)
-	    return SR_FAULT ;
+	if (outbuf == NULL) return SR_FAULT ;
 
 	if (fd < 0) {
 	    rs = SR_BADF ;
@@ -412,12 +386,11 @@ int	outlen ;
 	        cp = NULL ;
 	        cl = -1 ;
 	        if ((tp = strchr(rdbuf,':')) != NULL) {
-
 		    cp = (tp + 1) ;
 		    cl = -1 ;
-	            if ((tp = strchr(cp,':')) != NULL)
+	            if ((tp = strchr(cp,':')) != NULL) {
 			cl = (tp - cp) ;
-
+		    }
 		}
 
 	} /* end if (reading line) */

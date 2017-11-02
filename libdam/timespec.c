@@ -1,7 +1,7 @@
 /* timespec */
 /* lang=C99 */
 
-/* UNIX® time specification initialization */
+/* UNIX® TIMESPEC object initialization */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -52,6 +52,10 @@
 
 #ifndef	INTBILLION
 #define	INTBILLION	1000000000
+#endif
+
+#ifndef	TIMESPEC
+#define	TIMESPEC	struct timespec
 #endif
 
 

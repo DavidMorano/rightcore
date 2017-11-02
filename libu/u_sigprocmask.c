@@ -13,12 +13,18 @@
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	Set the process signal mask (to something).
+
+
+*******************************************************************************/
+
 
 #include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<signal.h>
-#include	<unistd.h>
 #include	<errno.h>
 
 #include	<vsystem.h>
@@ -28,9 +34,7 @@
 /* exported subroutines */
 
 
-int u_sigprocmask(how,setp,osetp)
-int		how ;
-sigset_t	*setp, *osetp ;
+int u_sigprocmask(int how,sigset_t *setp,sigset_t *osetp)
 {
 	int		rs ;
 

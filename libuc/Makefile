@@ -209,8 +209,8 @@ OBJ078= pta.o ptm.o ptma.o ptc.o ptca.o psem.o lockrw.o envhelp.o
 OBJ079= storeitem.o storebuf.o buffer.o field.o char.o mkprogenv.o
 
 OBJ080= fsdir.o pmq.o sigblock.o userattr.o filemap.o uname.o 
-OBJ081= vechand.o vecobj.o vecelem.o recarr.o
-OBJ082= envlist.o hdb.o lookaside.o pq.o ids.o linefold.o nulstr.o 
+OBJ081= vechand.o vecsorthand.o vecobj.o vecelem.o recarr.o
+OBJ082= envlist.o hdb.o lookaside.o ciq.o pq.o ids.o linefold.o nulstr.o 
 OBJ083= dirseen.o dirseen_not.o
 OBJ084= strpack.o
 OBJ085= varray.o dirlist.o randomvar.o strmgr.o sigign.o ucsem.o
@@ -262,8 +262,8 @@ OBJ125= getuid_name.o getgid_name.o getpjid_name.o
 OBJ126= passwdent.o shadowent.o groupent.o projectent.o userattrent.o
 OBJ127= utmpaccent.o
 
-OBJ128=
-OBJ129= timeval.o timespec.o sigevent.o 
+OBJ128= sigaction.o sigevent.o 
+OBJ129= timeval.o timespec.o 
 OBJ130= sigignores.o sigdefaults.o
 OBJ131= isasocket.o isinetaddr.o isindomain.o
 OBJ132= hasNotDots.o
@@ -676,6 +676,8 @@ filebuf_writezero.o:	filebuf_writezero.c filebuf.h
 
 recarr.o:		recarr.c recarr.h
 
+vecsorthand.o:		vecsorthand.c vecsorthand.h
+
 vechand.o:		vechand.c vechand.h
 
 vecstr.o:		vecstr.c vecstr.h
@@ -716,6 +718,8 @@ lookaside.o:		lookaside.c lookaside.h
 
 strpack.o:		strpack.c strpack.h
 
+ciq.o:			ciq.c ciq.h
+
 pq.o:			pq.c pq.h
 
 ids.o:			ids.c ids.h
@@ -752,11 +756,13 @@ randomvar.o:		randomvar.c randomvar.h
 strmgr.o:		strmgr.c strmgr.h
 
 
+sigevent.o:		sigevent.c sigevent.h
+
 timeval.o:		timeval.c timeval.h
 
 timespec.o:		timespec.c timespec.h
 
-sigevent.o:		sigevent.c sigevent.h
+itimerspec.o:		itimerspec.c itimerspec.h
 
 upt.o:			upt.c upt.h
 

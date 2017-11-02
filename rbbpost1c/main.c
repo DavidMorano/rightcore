@@ -419,7 +419,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize some stuff before command line argument processing */
 
@@ -430,7 +430,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	pip->f.logzone = TRUE ;
 
 	pip->lip = lip ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -444,7 +444,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	rs = keyopt_start(&akopts) ;
 	pip->open.akopts = (rs >= 0) ;
 
-	ai = 0 ;
 	ai_max = 0 ;
 	ai_pos = 0 ;
 	argr = argc ;

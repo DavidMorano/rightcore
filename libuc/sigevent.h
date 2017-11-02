@@ -56,7 +56,7 @@
 extern "C" {
 #endif
 
-extern int sigevent_init(SIGEVENT *,int,int,int) ;
+extern int sigevent_load(SIGEVENT *,int,int,int) ;
 
 #ifdef	__cplusplus
 }

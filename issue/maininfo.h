@@ -19,6 +19,7 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
+#include	<signal.h>
 #include	<pthread.h>
 
 #include	<vecstr.h>
@@ -48,6 +49,7 @@ struct maininfo {
 	void		*mdata ;
 	MAININFO_FL	have, f, changed, final ;
 	MAININFO_FL	open ;
+	sigset_t	savemask ;
 	pthread_t	tid ;
 	size_t		msize ;
 	volatile int	f_done ;
@@ -58,12 +60,12 @@ struct maininfo {
 extern "C" {
 #endif
 
-extern int maininfo_start(MAININFO *,int,const char **) ;
-extern int maininfo_setentry(MAININFO *,const char **,const char *,int) ;
+extern int maininfo_start(MAININFO *,int,cchar **) ;
+extern int maininfo_setentry(MAININFO *,cchar **,cchar *,int) ;
 extern int maininfo_finish(MAININFO *) ;
 extern int maininfo_utilbegin(MAININFO *,int) ;
 extern int maininfo_utilend(MAININFO *) ;
-extern int maininfo_srchname(MAININFO *,const char **) ;
+extern int maininfo_srchname(MAININFO *,cchar **) ;
 
 #ifdef	__cplusplus
 }

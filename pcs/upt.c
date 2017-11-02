@@ -89,7 +89,7 @@ int uptcreate(pthread_t *rp,pthread_attr_t *ptap,uptsub_t start,void *arg)
 	int		rv = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("uptcreate: ent\n") ;
+	debugprintf("uptcreate: ent start=%p arg=%p\n",start,arg) ;
 #endif
 
 	if (rp == NULL) return SR_FAULT ;
@@ -402,6 +402,9 @@ static void *uptruner(void *vp)
 	    int		(*start)(void *) = oap->start ;
 	    void	*arg = oap->ap ;
 	    uc_libfree(oap) ;
+#if	CF_DEBUGS
+	    debugprintf("uptrunner: start=%p\n",start) ;
+#endif
 	    rs = (*start)(arg) ;
 	} else {
 	    rs = SR_NOEXEC ;

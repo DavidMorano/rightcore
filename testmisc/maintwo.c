@@ -1,4 +1,5 @@
 /* main (two) */
+/* lang=C99 */
 
 
 /* revision history:

@@ -38,8 +38,8 @@
 #include	<limits.h>
 #include	<unistd.h>
 #include	<signal.h>
-#include	<fcntl.h>
 #include	<ucontext.h>
+#include	<fcntl.h>
 #include	<dlfcn.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -66,6 +66,14 @@
 #define	NDF		"main.deb"
 
 
+/* typ-defs */
+
+#ifndef	TYPEDEF_CCHAR
+#define	TYPEDEF_CCHAR	1
+typedef const char	cchar ;
+#endif
+
+
 /* external subroutines */
 
 extern int	snwcpy(char *,int,const char *,int) ;
@@ -73,12 +81,12 @@ extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	sncpy2w(char *,int,const char *,const char *,int) ;
 extern int	sncpylc(char *,int,const char *) ;
 extern int	sncpyuc(char *,int,const char *) ;
-extern int	sfbasename(const char *,int,const char **) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
 extern int	ucontext_rtn(ucontext_t *,long *) ;
-extern int	bufprintf(char *,int,const char *,...) ;
+extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	msleep(int) ;
-extern int	haslc(const char *,int) ;
-extern int	hasuc(const char *,int) ;
+extern int	haslc(cchar *,int) ;
+extern int	hasuc(cchar *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUGN
 extern int	debugopen(cchar *) ;
@@ -99,11 +107,6 @@ extern cchar	*strsigabbr(int) ;
 
 
 /* local structures */
-
-#ifndef	TYPEDEF_CCHAR
-#define	TYPEDEF_CCHAR	1
-typedef const char	cchar ;
-#endif
 
 struct sigcode {
 	int		code ;

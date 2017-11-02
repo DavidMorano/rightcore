@@ -4,7 +4,8 @@
 /* UNIX® time-out management */
 
 
-#define	CF_DEBUGN	1		/* special debugging */
+#define	CF_DEBUGN	0		/* special debugging */
+#define	CF_SIGACT	0		/* |uctimeout_sigactxxx()| */
 
 
 /* revision history:
@@ -44,6 +45,7 @@
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<signal.h>
+#include	<ucontext.h>
 #include	<time.h>
 #include	<string.h>
 #include	<queue>
@@ -59,6 +61,7 @@
 #include	<ciq.h>			/* container-interlocked-queue */
 #include	<timespec.h>
 #include	<itimerspec.h>
+#include	<sigevent.h>
 #include	<localmisc.h>
 
 #include	"timeout.h"
@@ -75,6 +78,11 @@
 
 /* typedefs */
 
+#ifndef	TYPEDEF_SIGINFOHAND
+#define	TYPEDEF_SIGINFOHAND	1
+typedef void (*siginfohand_t)(int,siginfo_t *,void *) ;
+#endif
+
 typedef vecsorthand	prique ;
 
 
@@ -82,6 +90,7 @@ typedef vecsorthand	prique ;
 
 extern "C" int	uc_timeout(int cmd,TIMEOUT *valp) ;
 
+extern "C" int	sigaction_load(SIGACTION *,sigset_t *,int,siginfohand_t) ;
 extern "C" int	msleep(int) ;
 
 #if	CF_DEBUGN
@@ -93,6 +102,8 @@ extern "C" int	strlinelen(cchar *,int,int) ;
 extern "C" int	nprintf(cchar *,cchar *,...) ;
 #endif
 
+extern "C" cchar	*strsigabbr(int) ;
+
 
 /* local structures */
 
@@ -103,18 +114,22 @@ typedef	int	(*tworker)(void *) ;
 
 struct uctimeout_flags {
 	uint		timer:1 ;	/* UNIX-RT timer created */
-	uint		working:1 ;
+	uint		workready:1 ;
+	uint		sigact:1 ;
+	uint		wasblocked:1 ;
 	uint		running_siger:1 ;
 	uint		running_disp:1 ;
 } ;
 
 struct uctimeout {
+	SIGACTION	sa ;
 	PTM		m ;		/* data mutex */
 	PTC		c ;		/* condition variable */
 	vechand		ents ;
 	CIQ		pass ;
 	UCTIMEOUT_FL	open, f ;
 	vecsorthand	*pqp ;
+	sigset_t	savemask ;
 	pid_t		pid ;
 	pthread_t	tid_siger ;
 	pthread_t	tid_disp ;
@@ -123,19 +138,21 @@ struct uctimeout {
 	volatile int	f_init ;	/* race-condition, blah, blah */
 	volatile int	f_initdone ;
 	volatile int	f_capture ;	/* capture flag */
-	volatile int	f_siger ;	/* signal-catching thread */
-	volatile int	f_disp ;	/* signal-handler-calling thread */
+	volatile int	g_thrsiger ;	/* signal-catching thread */
+	volatile int	f_thrdisp ;	/* signal-handler-calling thread */
 	volatile int	f_cmd ;
 	volatile int	f_syncing ;
-	volatile int	f_exiting ;
 	volatile int	f_reqexit ;
+	volatile int	f_exitsiger ;
+	volatile int	f_exitdisp ;
 	int		count ;
 } ;
 
-enum cmds {
-	cmd_exit,
-	cmd_sync,
-	cmd_overlast
+enum dispcmds {
+	dispcmd_exit,
+	dispcmd_timeout,
+	dispcmd_handle,
+	dispcmd_overlast
 } ;
 
 
@@ -161,6 +178,9 @@ static int	uctimeout_workfins(UCTIMEOUT *) ;
 static int	uctimeout_priqbegin(UCTIMEOUT *) ;
 static int	uctimeout_priqend(UCTIMEOUT *) ;
 
+static int	uctimeout_sigbegin(UCTIMEOUT *) ;
+static int	uctimeout_sigend(UCTIMEOUT *) ;
+
 static int	uctimeout_timerbegin(UCTIMEOUT *) ;
 static int	uctimeout_timerend(UCTIMEOUT *) ;
 
@@ -169,6 +189,8 @@ static int	uctimeout_thrsend(UCTIMEOUT *) ;
 
 static int	uctimeout_sigerbegin(UCTIMEOUT *) ;
 static int	uctimeout_sigerend(UCTIMEOUT *) ;
+static int	uctimeout_sigactbegin(UCTIMEOUT *) ;
+static int	uctimeout_sigactend(UCTIMEOUT *) ;
 static int	uctimeout_sigerworker(UCTIMEOUT *) ;
 
 static int	uctimeout_dispbegin(UCTIMEOUT *) ;
@@ -176,7 +198,7 @@ static int	uctimeout_dispend(UCTIMEOUT *) ;
 static int	uctimeout_dispworker(UCTIMEOUT *) ;
 static int	uctimeout_cmdrecv(UCTIMEOUT *) ;
 
-static int	uctimeout_worksync(UCTIMEOUT *) ;
+static int	uctimeout_disphandle(UCTIMEOUT *) ;
 
 static int	uctimeout_sigerwait(UCTIMEOUT *) ;
 static int	uctimeout_sigerserve(UCTIMEOUT *) ;
@@ -184,6 +206,7 @@ static int	uctimeout_sigerserve(UCTIMEOUT *) ;
 static void	uctimeout_atforkbefore() ;
 static void	uctimeout_atforkparent() ;
 static void	uctimeout_atforkchild() ;
+static void	uctimeout_sighand(int,siginfo_t *,void *) ;
 
 static int	ourcmp(const void *,const void *) ;
 
@@ -279,6 +302,8 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 #if	CF_DEBUGN
 	nprintf(NDF,"uc_timeout: ent cmd=%u\n",cmd) ;
 	nprintf(NDF,"uc_timeout: sigtimeout=%u\n",SIGTIMEOUT) ;
+	nprintf(NDF,"uc_timeout: siger=%p\n",uctimeout_sigerworker) ;
+	nprintf(NDF,"uc_timeout: disp=%p\n",uctimeout_dispworker) ;
 #endif
 
 	if (valp == NULL) return SR_FAULT ;
@@ -321,14 +346,14 @@ int uc_timeout(int cmd,TIMEOUT *valp)
 static int uctimeout_cmdset(UCTIMEOUT *uip,TIMEOUT *valp)
 {
 	TIMEOUT		*ep ;
-	const int	esize = sizeof(TIMEVAL) ;
+	const int	esize = sizeof(TIMEOUT) ;
 	int		rs ;
 	int		rs1 ;
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_cmdset: ent val=%u\n",valp->val) ;
 #endif
 	if (valp->metp == NULL) return SR_FAULT ;
-	if ((rs = uc_malloc(esize,&ep)) >= 0) {
+	if ((rs = uc_libmalloc(esize,&ep)) >= 0) {
 	    if ((rs = ptm_lock(&uip->m)) >= 0) {
 		vechand		*elp = &uip->ents ;
 	        if ((rs = vechand_add(elp,ep)) >= 0) {
@@ -345,7 +370,7 @@ static int uctimeout_cmdset(UCTIMEOUT *uip,TIMEOUT *valp)
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (ptm) */
 	    if (rs < 0)
-		uc_free(ep) ;
+		uc_libfree(ep) ;
 	} /* end if (m-a) */
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_cmdset: ret rs=%d\n",rs) ;
@@ -421,14 +446,20 @@ static int uctimeout_timerset(UCTIMEOUT *uip,time_t val)
 {
 	TIMESPEC	ts ;
 	int		rs ;
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_timerset: ent val=%u\n",val) ;
+#endif
 	if ((rs = timespec_load(&ts,val,0)) >= 0) {
 	    ITIMERSPEC	it ;
 	    if ((rs = itimerspec_load(&it,&ts,NULL)) >= 0) {
 		const timer_t	timerid = uip->timerid ;
-		const int	tf = 0 ;
+		const int	tf = TIMER_ABSTIME ;
 	        rs = uc_timerset(timerid,tf,&it,NULL) ;
 	    }
 	}
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_timerset: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (uctimeout_timerset) */
@@ -484,7 +515,7 @@ static int uctimeout_capend(UCTIMEOUT *uip)
 static int uctimeout_workready(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
-	if (! uip->f.working) {
+	if (! uip->open.workready) {
 	    rs = uctimeout_workbegin(uip) ;
 	}
 	return rs ;
@@ -492,58 +523,36 @@ static int uctimeout_workready(UCTIMEOUT *uip)
 /* end subroutine (uctimeout_workready) */
 
 
-#ifdef	COMMENT
-union sigval {
-	int	sival_int;	/* integer value */
-	void	*sival_ptr;	/* pointer value */
-};
-struct sigevent {
-	int		sigev_notify;	/* notification mode */
-	int		sigev_signo;	/* signal number */
-	union sigval	sigev_value;	/* signal value */
-	void		(*sigev_notify_function)(union sigval);
-	pthread_attr_t	*sigev_notify_attributes;
-	int		__sigerev_pad2;
-};
-int sigevent_init(SIGEVENT *sep,int notify,int signo,int val)
-{
-	int		rs = SR_OK ;
-	if (sep == NULL) return SR_FAULT ;
-	memset(sep,0,sizeof(SIGEVENT)) ;
-	sep->sigev_notify = notify ;
-	sep->sigev_signo = signo ;
-	sep->sigev_value.sigval_int = val ;
-	return rs ;
-}
-/* end subroutine (sigevent_init) */
-#endif /* COMMENT */
-
 static int uctimeout_workbegin(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
-	if (! uip->f.working) {
+	if (! uip->open.workready) {
 	    int		vo = 0 ;
 	    vo |= (VECHAND_OSTATIONARY|VECHAND_OREUSE| VECHAND_OCOMPACT) ;
 	    vo |= ( VECHAND_OSWAP| VECHAND_OCONSERVE) ;
 	    if ((rs = vechand_start(&uip->ents,0,vo)) >= 0) {
 		if ((rs = uctimeout_priqbegin(uip)) >= 0) {
-		    if ((rs = uctimeout_timerbegin(uip)) >= 0) {
-			if ((rs = ciq_start(&uip->pass)) >= 0) {
-			    if ((rs = uctimeout_thrsbegin(uip)) >= 0) {
-			        uip->open.working = TRUE ;
+		    if ((rs = uctimeout_sigbegin(uip)) >= 0) {
+		        if ((rs = uctimeout_timerbegin(uip)) >= 0) {
+			    if ((rs = ciq_start(&uip->pass)) >= 0) {
+			        if ((rs = uctimeout_thrsbegin(uip)) >= 0) {
+			            uip->open.workready = TRUE ;
+			        }
+			        if (rs < 0) {
+			            ciq_finish(&uip->pass) ;
+			        }
 			    }
 			    if (rs < 0) {
-			        ciq_finish(&uip->pass) ;
+		    	        uctimeout_timerend(uip) ;
 			    }
-			}
-			if (rs < 0) {
-		    	    uctimeout_timerend(uip) ;
-			}
-		    }
+		        } /* end if (uctimeout_timerbegin) */
+			if (rs < 0)
+			    uctimeout_sigend(uip) ;
+	            } /* end if (uctimeout_sigbegin) */
 		    if (rs < 0) {
 			uctimeout_priqend(uip) ;
 		    }
-	        }
+	        } /* end if (uctimeout_pribegin) */
 		if (rs < 0) {
 		    vechand_finish(&uip->ents) ;
 		}
@@ -561,7 +570,7 @@ static int uctimeout_workend(UCTIMEOUT *uip)
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_workend: ent\n") ;
 #endif
-	if (uip->open.working) {
+	if (uip->open.workready) {
 	    rs1 = uctimeout_thrsend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUGN
@@ -577,6 +586,9 @@ static int uctimeout_workend(UCTIMEOUT *uip)
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_workend: mid3 rs=%d\n",rs) ;
 #endif
+	    rs1 = uctimeout_sigend(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+
 	    rs1 = uctimeout_priqend(uip) ;
 	    if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUGN
@@ -589,7 +601,7 @@ static int uctimeout_workend(UCTIMEOUT *uip)
 #endif
 	    rs1 = vechand_finish(&uip->ents) ;
 	    if (rs >= 0) rs = rs1 ;
-	    uip->open.working = FALSE ;
+	    uip->open.workready = FALSE ;
 	}
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_workend: ret rs=%d\n",rs) ;
@@ -608,7 +620,7 @@ static int uctimeout_workfins(UCTIMEOUT *uip)
 	void		*top ;
 	for (i = 0 ; vechand_get(elp,i,&top) >= 0 ; i += 1) {
 	    if (top != NULL) {
-		rs1 = uc_free(top) ;
+		rs1 = uc_libfree(top) ;
 		if (rs >= 0) rs = rs1 ;
 	    }
 	} /* end for */
@@ -622,12 +634,12 @@ static int uctimeout_priqbegin(UCTIMEOUT *uip)
 	const int	osize = sizeof(vecsorthand) ;
 	int		rs ;
 	void		*p ;
-	if ((rs = uc_malloc(osize,&p)) >= 0) {
+	if ((rs = uc_libmalloc(osize,&p)) >= 0) {
 	    prique	*pqp = (prique *) p ;
 	    uip->pqp = (prique *) p ;
 	    rs = vecsorthand_start(pqp,1,ourcmp) ;
 	    if (rs < 0) {
-		uc_free(uip->pqp) ;
+		uc_libfree(uip->pqp) ;
 		uip->pqp = NULL ;
 	    }
 	} /* end if (m-a) */
@@ -645,7 +657,7 @@ static int uctimeout_priqend(UCTIMEOUT *uip)
 	    if (rs >= 0) rs = rs1 ;
 	}
 	{
-	    rs1 = uc_free(uip->pqp) ;
+	    rs1 = uc_libfree(uip->pqp) ;
 	    if (rs >= 0) rs = rs1 ;
 	    uip->pqp = NULL ;
 	}
@@ -654,14 +666,54 @@ static int uctimeout_priqend(UCTIMEOUT *uip)
 /* end subroutine (uctimeout_priqend) */
 
 
+static int uctimeout_sigbegin(UCTIMEOUT *uip)
+{
+	sigset_t	ss, oss ;
+	const int	sig = SIGTIMEOUT ;
+	const int	scmd = SIG_BLOCK ;
+	int		rs ;
+	uc_sigsetempty(&ss) ;
+	uc_sigsetadd(&ss,sig) ;
+	if ((rs = u_sigprocmask(scmd,&ss,&oss)) >= 0) {
+	    if ((rs = uc_sigsetismem(&ss,sig)) > 0) {
+		uip->f.wasblocked = TRUE ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (uctimeout_sigbegin) */
+
+
+static int uctimeout_sigend(UCTIMEOUT *uip)
+{
+	sigset_t	ss ;
+	int		rs = SR_OK ;
+	if (! uip->f.wasblocked) {
+	    const int	sig = SIGTIMEOUT ;
+	    const int	scmd = SIG_UNBLOCK ;
+	    uc_sigsetempty(&ss) ;
+	    uc_sigsetadd(&ss,sig) ;
+	    rs = u_sigprocmask(scmd,&ss,NULL) ;
+	}
+	return rs ;
+}
+/* end subroutine (uctimeout_sigend) */
+
+
 static int uctimeout_timerbegin(UCTIMEOUT *uip)
 {
-	const int	cid = CLOCK_REALTIME ;
-	timer_t		tid ;
+	SIGEVENT	se ;
+	const int	st = SIGEV_SIGNAL ;
+	const int	sig = SIGTIMEOUT ;
+	const int	val = 0 ; /* we do not (really) care about this */
 	int		rs ;
-	if ((rs = uc_timercreate(cid,NULL,&tid)) >= 0) {
-	    uip->timerid = tid ;
-	    uip->open.timer = TRUE ;
+	if ((rs = sigevent_load(&se,st,sig,val)) >= 0) {
+	    const int	cid = CLOCK_REALTIME ;
+	    timer_t	tid ;
+	    if ((rs = uc_timercreate(cid,&se,&tid)) >= 0) {
+	        uip->timerid = tid ;
+	        uip->open.timer = TRUE ;
+	    }
 	}
 	return rs ;
 }
@@ -700,7 +752,7 @@ static int uctimeout_thrsend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	upt->f.reqexit = TRUE ;
+	uip->f_reqexit = TRUE ;
 	rs1 = uctimeout_dispend(uip) ;
 	if (rs >= 0) rs = rs1 ;
 	rs1 = uctimeout_sigerend(uip) ;
@@ -712,7 +764,7 @@ static int uctimeout_thrsend(UCTIMEOUT *uip)
 
 static int uctimeout_sigerbegin(UCTIMEOUT *uip)
 {
-	PTA		a ;
+	PTA		ta ;
 	int		rs ;
 	int		rs1 ;
 	int		f = FALSE ;
@@ -721,24 +773,22 @@ static int uctimeout_sigerbegin(UCTIMEOUT *uip)
 	nprintf(NDF,"uctimeout_sigerbegin: ent\n") ;
 #endif
 
-	if ((rs = uctimeout_sigtimeout(uip)) >= 0) {
-
-	if ((rs = pta_create(&a)) >= 0) {
-	    const int	scope = UCTIMEOUT_SCOPE ;
-	    if ((rs = pta_setscope(&a,scope)) >= 0) {
-		pthread_t	tid ;
-		tworker		wt = (tworker) uctimeout_sigerworker ;
-		if ((rs = uptcreate(&tid,&a,wt,uip)) >= 0) {
-		    uip->f.running_siger = TRUE ;
-		    uip->tid_siger = tid ;
-		    f = TRUE ;
-		} /* end if (pthread-create) */
-	    } /* end if (pta-setscope) */
-	    rs1 = pta_destroy(&a) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (pta) */
-
-	}
+	if ((rs = uctimeout_sigactbegin(uip)) >= 0) {
+	    if ((rs = pta_create(&ta)) >= 0) {
+	        const int	scope = UCTIMEOUT_SCOPE ;
+	        if ((rs = pta_setscope(&ta,scope)) >= 0) {
+		    pthread_t	tid ;
+		    tworker	wt = (tworker) uctimeout_sigerworker ;
+		    if ((rs = uptcreate(&tid,&ta,wt,uip)) >= 0) {
+		        uip->f.running_siger = TRUE ;
+		        uip->tid_siger = tid ;
+		        f = TRUE ;
+		    } /* end if (pthread-create) */
+	        } /* end if (pta-setscope) */
+	        rs1 = pta_destroy(&ta) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (pta) */
+	} /* end if (uctimeout_sigactbegin) */
 
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_sigerbegin: ret rs=%d f=%u\n",rs,f) ;
@@ -769,6 +819,9 @@ static int uctimeout_sigerend(UCTIMEOUT *uip)
 	        } else if (rs == SR_SRCH) {
 		    rs = SR_OK ;
 	        }
+		if (rs >= 0) {
+		    rs = uctimeout_sigactend(uip) ;
+		}
 	    } /* end if (uptkill) */
 	}
 #if	CF_DEBUGN
@@ -779,6 +832,51 @@ static int uctimeout_sigerend(UCTIMEOUT *uip)
 /* end subroutine (uctimeout_sigerend) */
 
 
+static int uctimeout_sigactbegin(UCTIMEOUT *uip)
+{
+	SIGACTION	san ;
+	sigset_t	ss ;
+	siginfohand_t	sh = uctimeout_sighand ;
+	const int	sig = SIGTIMEOUT ;
+	int		rs ;
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_sigactbegin: ent\n") ;
+#endif
+	uc_sigsetempty(&ss) ;
+	uc_sigsetadd(&ss,sig) ;
+	if ((rs = sigaction_load(&san,&ss,SA_SIGINFO,sh)) >= 0) {
+#if	CF_SIGACT
+	    if ((rs = u_sigaction(sig,&san,&uip->sa)) >= 0) {
+#if	CF_DEBUGN
+		nprintf(NDF,"uctimeout_sigactbegin: u_sigaction() rs=%d\n",rs) ;
+#endif
+		uip->f.sigact = TRUE ;
+	    }
+#else
+	    rs = 1 ;
+#endif /* CF_SIGACT */
+	}
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_sigactbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (uctimeout_sigactbegin) */
+
+
+static int uctimeout_sigactend(UCTIMEOUT *uip)
+{
+	int		rs = SR_OK ;
+	if (uip->f.sigact) {
+	    const int	sig = SIGTIMEOUT ;
+	    uip->f.sigact = FALSE ;
+	    rs = u_sigaction(sig,&uip->sa,NULL) ;
+	}
+	return rs ;
+}
+/* end subroutine (uctimeout_sigactend) */
+
+
 /* this is an independent thread of execution */
 static int uctimeout_sigerworker(UCTIMEOUT *uip)
 {
@@ -787,6 +885,9 @@ static int uctimeout_sigerworker(UCTIMEOUT *uip)
 	nprintf(NDF,"uctimeout_sigerworker: ent\n") ;
 #endif
 	while ((rs = uctimeout_sigerwait(uip)) > 0) {
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_sigerworker: _sigerwait() rs=%d\n",rs) ;
+#endif
 	    if (uip->f_reqexit) break ;
 	    switch (rs) {
 	    case 1:
@@ -798,6 +899,7 @@ static int uctimeout_sigerworker(UCTIMEOUT *uip)
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_sigerworker: ret rs=%d\n",rs) ;
 #endif
+	uip->f_exitsiger = TRUE ;
 	return rs ;
 }
 /* end subroutine (uctimeout_sigerworker) */
@@ -809,17 +911,27 @@ static int uctimeout_sigerwait(UCTIMEOUT *uip)
 	sigset_t	ss ;
 	siginfo_t	si ;
 	const int	sig = SIGTIMEOUT ;
+	const int	to = 5 ;
 	int		rs ;
+	int		cmd = 0 ;
 	int		f_exit = FALSE ;
+	int		f_timedout = FALSE ;
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_sigerwait: ent\n") ;
+#endif
 	uc_sigsetempty(&ss) ;
 	uc_sigsetadd(&ss,sig) ;
-	timespec_load(&ts,10,0) ;
+	uc_sigsetadd(&ss, SIGALRM) ;
+	timespec_load(&ts,to,0) ;
 	repeat {
 	    rs = uc_sigwaitinfoto(&ss,&si,&ts) ;
 	    if (rs < 0) {
 		switch (rs) {
 		case SR_INTR:
+		    break ;
 		case SR_AGAIN:
+		    f_timedout = TRUE ;
+		    rs = SR_OK ; /* will cause exit from loop */
 		    break ;
 		default:
 		    f_exit = TRUE ;
@@ -828,9 +940,18 @@ static int uctimeout_sigerwait(UCTIMEOUT *uip)
 	    } /* end if (error) */
 	} until ((rs >= 0) || f_exit) ;
 	if (rs >= 0) {
-	    rs = (sig == si.si_signo) ; /* logical */
-	}
-	return rs ;
+	    if (! uip->f_reqexit) {
+	        if (f_timedout) {
+		    cmd = 2 ;
+	        } else if (sig == si.si_signo) {
+		    cmd = 1 ;
+	        }
+	    } /* end if (not exiting) */
+	} /* end if (ok) */
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_sigerwait: ret rs=%d cmd=%u\n",rs,cmd) ;
+#endif
+	return (rs >= 0) ? cmd : rs ;
 }
 /* end subroutine (uctimeout_sigerwait) */
 
@@ -867,7 +988,7 @@ static int uctimeout_sigerserve(UCTIMEOUT *uip)
 
 static int uctimeout_dispbegin(UCTIMEOUT *uip)
 {
-	PTA		a ;
+	PTA		ta ;
 	int		rs ;
 	int		rs1 ;
 	int		f = FALSE ;
@@ -876,18 +997,18 @@ static int uctimeout_dispbegin(UCTIMEOUT *uip)
 	nprintf(NDF,"uctimeout_dispbegin: ent\n") ;
 #endif
 
-	if ((rs = pta_create(&a)) >= 0) {
+	if ((rs = pta_create(&ta)) >= 0) {
 	    const int	scope = UCTIMEOUT_SCOPE ;
-	    if ((rs = pta_setscope(&a,scope)) >= 0) {
+	    if ((rs = pta_setscope(&ta,scope)) >= 0) {
 		pthread_t	tid ;
 		tworker		wt = (tworker) uctimeout_dispworker ;
-		if ((rs = uptcreate(&tid,&a,wt,uip)) >= 0) {
+		if ((rs = uptcreate(&tid,&ta,wt,uip)) >= 0) {
 		    uip->f.running_disp = TRUE ;
 		    uip->tid_disp = tid ;
 		    f = TRUE ;
 		} /* end if (uptcreate) */
 	    } /* end if (pta-setscope) */
-	    rs1 = pta_destroy(&a) ;
+	    rs1 = pta_destroy(&ta) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (pta) */
 
@@ -928,9 +1049,17 @@ static int uctimeout_dispworker(UCTIMEOUT *uip)
 #endif
 
 	while ((rs = uctimeout_cmdrecv(uip)) > 0) {
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_dispworker: _cmdrecv() rs=%d\n",rs) ;
+#endif
 	    switch (rs) {
-	    case cmd_sync:
-		rs = uctimeout_worksync(uip) ;
+	    case dispcmd_timeout:
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_dispworker: timeout\n") ;
+#endif
+		break ;
+	    case dispcmd_handle:
+		rs = uctimeout_disphandle(uip) ;
 		break ;
 	    } /* end switch */
 	    if (rs < 0) break ;
@@ -940,18 +1069,47 @@ static int uctimeout_dispworker(UCTIMEOUT *uip)
 	nprintf(NDF,"uctimeout_dispworker: ret rs=%d\n",rs) ;
 #endif
 
-	uip->f_exiting = TRUE ;
+	uip->f_exitdisp = TRUE ;
 	return rs ;
 }
 /* end subroutine (uctimeout_dispworker) */
+
+
+static int uctimeout_disphandle(UCTIMEOUT *uip)
+{
+	TIMEOUT		*tep ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_disphandle: ent\n") ;
+#endif
+
+	while ((rs1 = ciq_rem(&uip->pass,&tep)) >= 0) {
+	    if ((rs = vechand_delhand(&uip->ents,tep)) >= 0) {
+	        timeout_met	met = (timeout_met) tep->metp ;
+	        rs = (*met)(tep->objp,tep->tag,tep->arg) ;
+		uc_libfree(tep) ;
+	    }
+	    if (rs < 0) break ;
+	} /* end while */
+	if ((rs >= 0) && (rs1 != SR_EMPTY)) rs = rs1 ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_disphandle: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (uctimeout_disphandle) */
 
 
 static int uctimeout_cmdrecv(UCTIMEOUT *uip)
 {
 	int		rs ;
 	int		rs1 ;
-	int		to = 1 ;
-	int		cmd = 0 ;
+	int		to = 2 ;
+	int		cmd = dispcmd_exit ;
 
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_cmdrecv: ent\n") ;
@@ -965,12 +1123,12 @@ static int uctimeout_cmdrecv(UCTIMEOUT *uip)
 	    } /* end while */
 
 #if	CF_DEBUGN
-		nprintf(NDF,"uctimeout_cmdrecv: mid2 rs=%d\n",rs) ;
+	    nprintf(NDF,"uctimeout_cmdrecv: mid2 rs=%d\n",rs) ;
 #endif
 
 	    if (rs >= 0) {
 	        uip->f_cmd = FALSE ;
-		cmd = 1 ;
+		if (! uip->f_reqexit) cmd = dispcmd_handle ;
 		if (uip->waiters > 1) {
 	            rs = ptc_signal(&uip->c) ;
 		}
@@ -978,9 +1136,10 @@ static int uctimeout_cmdrecv(UCTIMEOUT *uip)
 #if	CF_DEBUGN
 		nprintf(NDF,"uctimeout_cmdrecv: timeout\n") ;
 #endif
+		if (! uip->f_reqexit) cmd = dispcmd_timeout ;
 		rs = SR_OK ;
 	    } else {
-		cmd = 2 ;
+		cmd = dispcmd_exit ;
 #if	CF_DEBUGN
 		nprintf(NDF,"uctimeout_cmdrecv: err rs=%d\n",rs) ;
 #endif
@@ -998,24 +1157,6 @@ static int uctimeout_cmdrecv(UCTIMEOUT *uip)
 	return (rs >= 0) ? cmd : rs ;
 }
 /* end subroutine (uctimeout_cmdrecv) */
-
-
-static int uctimeout_worksync(UCTIMEOUT *uip)
-{
-	int		rs = SR_OK ;
-
-#if	CF_DEBUGN
-	nprintf(NDF,"uctimeout_dispworker: ent\n") ;
-#endif
-
-
-#if	CF_DEBUGN
-	nprintf(NDF,"uctimeout_dispworker: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (uctimeout_worksync) */
 
 
 static void uctimeout_atforkbefore()
@@ -1037,13 +1178,29 @@ static void uctimeout_atforkparent()
 static void uctimeout_atforkchild()
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
-	uip->f_siger = FALSE ;
-	uip->f_disp = FALSE ;
-	uip->f_exiting = FALSE ;
+	uip->g_thrsiger = FALSE ;
+	uip->f_thrdisp = FALSE ;
+	uip->f_exitsiger = FALSE ;
+	uip->f_exitdisp = FALSE ;
 	uip->pid = getpid() ;
 	ptm_unlock(&uip->m) ;
+	if (uip->open.workready) {
+	    uctimeout_thrsbegin(uip) ;
+	}
 }
 /* end subroutine (uctimeout_atforkchild) */
+
+
+/* ARGSUSED */
+static void uctimeout_sighand(int sn,siginfo_t *sip,void *vcp)
+{
+	UCTIMEOUT	*uip = &uctimeout_data ;
+	uip->f_cmd = TRUE ;
+#if	CF_DEBUGN
+	nprintf(NDF,"uctimeout_sighand: sn=%s(%d)\n",strsigabbr(sn),sn) ;
+#endif
+}
+/* end subroutine (uctimeout_sighand) */
 
 
 static int ourcmp(const void *a1p,const void *a2p)

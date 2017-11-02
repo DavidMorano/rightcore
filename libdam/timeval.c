@@ -1,6 +1,6 @@
 /* timeval */
 
-/* subroutines to manipulate 'timeval' values */
+/* subroutines to manipulate TIMEVAL values */
 
 
 /* revision history:
@@ -13,7 +13,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

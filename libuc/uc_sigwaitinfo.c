@@ -44,6 +44,11 @@
 
 extern int	msleep(int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
 
 /* local variables */
 
@@ -54,26 +59,28 @@ extern int	msleep(int) ;
 int uc_sigwaitinfo(const sigset_t *ssp,siginfo_t *sip)
 {
 	int		rs ;
-	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
 
 	repeat {
 	    if ((rs = sigwaitinfo(ssp,sip)) < 0) rs = (- errno) ;
+#if	CF_DEBUGS
+	debugprintf("uc_sigwaitinfo: back rs=%d\n",rs) ;
+#endif
 	    if (rs < 0) {
 	        switch (rs) {
-	        case SR_AGAIN:
-	            if (to_again-- > 0) {
-	                msleep(1000) ;
-		    } else {
-	                f_exit = TRUE ;
-		    }
+	        case SR_INTR:
 		    break ;
+	        case SR_AGAIN:
 		default:
 		    f_exit = TRUE ;
 		    break ;
 	        } /* end switch */
 	    } /* end if (error) */
 	} until ((rs >= 0) || f_exit) ;
+
+#if	CF_DEBUGS
+	debugprintf("uc_sigwaitinfo: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -84,7 +91,6 @@ int uc_sigtimedwait(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
 {
 	TIMESPEC	ts ;
 	int		rs ;
-	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
 
 	if (tsp == NULL) {
@@ -94,21 +100,24 @@ int uc_sigtimedwait(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
 
 	repeat {
 	    if ((rs = sigtimedwait(ssp,sip,tsp)) < 0) rs = (- errno) ;
+#if	CF_DEBUGS
+	debugprintf("uc_sigtimedwait: back rs=%d\n",rs) ;
+#endif
 	    if (rs < 0) {
 	        switch (rs) {
-	        case SR_AGAIN:
-	            if (to_again-- > 0) {
-	                msleep(1000) ;
-		    } else {
-			f_exit = TRUE ;
-		    }
+	        case SR_INTR:
 		    break ;
+	        case SR_AGAIN:
 		default:
 		    f_exit = TRUE ;
 		    break ;
 	        } /* end switch */
 	    } /* end if (error) */
 	} until ((rs >= 0) || f_exit) ;
+
+#if	CF_DEBUGS
+	debugprintf("uc_sigtimedwait: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

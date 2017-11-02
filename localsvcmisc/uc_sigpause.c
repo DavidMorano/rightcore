@@ -23,6 +23,17 @@
 #include	<errno.h>
 
 #include	<vsystem.h>
+#include	<localmisc.h>
+
+
+/* local defines */
+
+#define	TO_AGAIN	60		/* sixty (60) seconds */
+
+
+/* external subroutines */
+
+extern int	msleep(int) ;
 
 
 /* exported subroutines */
@@ -31,8 +42,21 @@
 int uc_sigpause(int sn)
 {
 	int		rs ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-	if ((rs = sigpause(sn)) < 0) rs = (- errno) ;
+	repeat {
+	    if ((rs = sigpause(sn)) < 0) rs = (- errno) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_INTR:
+	            break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }

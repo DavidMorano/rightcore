@@ -140,7 +140,7 @@ int ciq_ins(CIQ *qhp,void *vp)
 
 	    if ((rs = pq_remtail(&qhp->frees,&pep)) == rse) {
 		const int	esize = sizeof(CIQ_ENT) ;
-	        rs = uc_malloc(esize,&pep) ;
+	        rs = uc_libmalloc(esize,&pep) ;
 	    }
 
 	    if (rs >= 0) {
@@ -181,7 +181,7 @@ int ciq_rem(CIQ *qhp,void *vp)
 	        } /* end if */
 		rs1 = pq_ins(&qhp->frees,pep) ;
 		if (rs1 < 0)
-		    uc_free(pep) ;
+		    uc_libfree(pep) ;
 	    } /* end if (pq_rem) */
 	    ptm_unlock(&qhp->m) ;
 	} /* end if (mutex) */
@@ -247,7 +247,7 @@ int ciq_remtail(CIQ *qhp,void *vp)
 		}
 		rs = pq_ins(&qhp->frees,pep) ;
 		if (rs < 0)
-		    uc_free(pep) ;
+		    uc_libfree(pep) ;
 	    } /* end if (pq_remtail) */
 	    rs1 = ptm_unlock(&qhp->m) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -282,7 +282,7 @@ int ciq_remhand(CIQ *qhp,void *vp)
 		    }
 		    rs = pq_ins(&qhp->frees,pep) ;
 		    if (rs < 0)
-			uc_free(pep) ;
+			uc_libfree(pep) ;
 	        } /* end if (pq_remtail) */
 	    } else if (rs == 0) {
 		rs = SR_NOTFOUND ;
@@ -378,7 +378,7 @@ static int pq_finishup(PQ *qp)
 	int		rs1 ;
 
 	while ((rs1 = pq_rem(qp,&pep)) >= 0) {
-	    rs1 = uc_free(pep) ;
+	    rs1 = uc_libfree(pep) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
 	if ((rs >= 0) && (rs1 != SR_EMPTY)) rs = rs1 ;

@@ -28,6 +28,7 @@
 
 #define	SIGHAND_MAGIC	0x66938271
 #define	SIGHAND		struct sighand_head
+#define	SIGHAND_HANDLE	struct sighand_handle
 
 
 typedef void (*sighand_handler)(int,siginfo_t *,void *) ;
@@ -40,7 +41,7 @@ struct sighand_handle {
 struct sighand_head {
 	uint		magic ;
 	sigset_t	osm ;
-	struct sighand_handle	*handles ;
+	SIGHAND_HANDLE	*handles ;
 	int		nhandles ;
 	int		nblocks ;
 } ;

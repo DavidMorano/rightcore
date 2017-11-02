@@ -83,8 +83,6 @@ extern "C" {
 
 extern int vechand_start(vechand *,int,int) ;
 extern int vechand_add(vechand *,const void *) ;
-extern int vechand_del(vechand *,int) ;
-extern int vechand_delall(vechand *) ;
 extern int vechand_count(vechand *) ;
 extern int vechand_sort(vechand *, int (*)()) ;
 extern int vechand_setsorted(vechand *) ;
@@ -94,6 +92,9 @@ extern int vechand_ent(vechand *,const void *) ;
 extern int vechand_search(vechand *,const void *,
 		int (*)(const void **,const void **), void *) ;
 extern int vechand_issorted(vechand *) ;
+extern int vechand_del(vechand *,int) ;
+extern int vechand_delhand(vechand *,const void *) ;
+extern int vechand_delall(vechand *) ;
 extern int vechand_getvec(vechand *,void *) ;
 extern int vechand_extent(vechand *) ;
 extern int vechand_audit(vechand *) ;

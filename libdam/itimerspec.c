@@ -1,7 +1,7 @@
 /* itimerspec */
 /* lang=C99 */
 
-/* UNIX® time specification initialization */
+/* UNIX® ITIMERSPEC object initialization */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -64,6 +64,10 @@
 #define	INTBILLION	1000000000
 #endif
 
+#ifndef	ITIMERSPEC
+#define	ITIMERSPEC	struct itimerspec
+#endif
+
 
 /* external subroutines */
 
@@ -80,14 +84,14 @@
 /* exported subroutines */
 
 
-int itimerspec_load(ITIMERSPEC *tsp,TIMESPEC *intp,TIMESPEC *valp)
+int itimerspec_load(ITIMERSPEC *tsp,TIMESPEC *valp,TIMESPEC *intp)
 {
 	memset(tsp,0,sizeof(ITIMERSPEC)) ;
-	if (intp != NULL) {
-	    tsp->it_interval = *intp ;
-	}
 	if (valp != NULL) {
 	    tsp->it_value = *valp ;
+	}
+	if (intp != NULL) {
+	    tsp->it_interval = *intp ;
 	}
 	return SR_OK ;
 }

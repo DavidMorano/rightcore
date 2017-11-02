@@ -73,7 +73,7 @@ int vecsorthand_start(vecsorthand *op,int n,vecentcmp_t cmpfunc)
 	op->c = 0 ;
 
 	size += (sizeof(void **) * (n+1)) ;
-	if ((rs = uc_malloc(size,&p)) >= 0) {
+	if ((rs = uc_libmalloc(size,&p)) >= 0) {
 	    op->va = p ;
 	    op->e = n ;
 	    {
@@ -92,7 +92,7 @@ int vecsorthand_finish(vecsorthand *op)
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->va != NULL) {
-	    uc_free(op->va) ;
+	    uc_libfree(op->va) ;
 	    op->va = NULL ;
 	}
 
@@ -317,11 +317,11 @@ static int vecsorthand_extend(vecsorthand *op)
 	    if (op->e == 0) {
 	        ne = ndef ;
 	        size = (ndef*sizeof(char **)) ;
-	        rs = uc_malloc(size,&np) ;
+	        rs = uc_libmalloc(size,&np) ;
 	    } else {
 	        const int	ne = (op->e * 2) ;
 	        size = (ne*sizeof(cchar **)) ;
-	        rs = uc_realloc(op->va,size,&np) ;
+	        rs = uc_librealloc(op->va,size,&np) ;
 	    }
 	    if (rs >= 0) {
 	        op->va = np ;

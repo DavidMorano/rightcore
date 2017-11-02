@@ -1,0 +1,411 @@
+From gmail.com!coldspacemachine+caf_=dam=rightcore.com Thu Nov 02 10:55:57 EDT 2017 -0400
+return-path:  <coldspacemachine+caf_=dam=rightcore.com@gmail.com>
+received: from mail-io0-f171.google.com (mail-io0-f171.google.com 
+	[209.85.223.171])
+ by mail.rightcore.com (RCMAILER) with ESMTP id 727027E3C
+ for <dam@rightcore.com>; Thu,  2 Nov 2017 10:55:57 -0400 (EDT)
+received: by mail-io0-f171.google.com with SMTP id m16so14645712iod.1
+ for <dam@rightcore.com>; Thu, 02 Nov 2017 07:55:57 -0700 (PDT)
+received: by 10.2.136.179 with SMTP id n48csp2242895jaj;
+ Thu, 2 Nov 2017 07:55:55 -0700 (PDT)
+received: from mail-sor-f97.google.com (mail-sor-f97.google.com. 
+	[209.85.220.97])
+ by mx.google.com with SMTPS id v20sor2338376qtg.139.2017.11.02.07.55.54
+ for <coldspacemachine@gmail.com>
+ (Google Transport Security);
+ Thu, 02 Nov 2017 07:55:54 -0700 (PDT)
+received: from cs-listserv.ieee.org (cs-listserv.ieee.org. [54.208.189.96])
+ by smtp-relay.gmail.com with ESMTPS id 
+	u123sm482268qkd.1.2017.11.02.07.55.54
+ for <coldspacemachine@gmail.com>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Thu, 02 Nov 2017 07:55:54 -0700 (PDT)
+received: from spmpdv02.ieee.org (spmpdv02.ieee.org [10.144.194.218])
+ by cs-listserv.ieee.org (8.14.4/8.14.4/) with ESMTP id vA2Etsxa010935
+ for <morano@computer.org>; Thu, 2 Nov 2017 10:55:54 -0400
+received: from mail-qt0-f200.google.com (mail-qt0-f200.google.com 
+	[209.85.216.200])
+ by spmpdv02.ieee.org (8.14.4/8.14.4/Debian-4+deb7u1) with ESMTP id 
+	vA2Etg2f002244
+ (version=TLSv1/SSLv3 cipher=AES128-GCM-SHA256 bits=128 verify=NOT)
+ for <morano@computer.org>; Thu, 2 Nov 2017 10:55:48 -0400
+received: by mail-qt0-f200.google.com with SMTP id z50so4080176qtj.9
+ for <morano@computer.org>; Thu, 02 Nov 2017 07:55:42 -0700 (PDT)
+received: from lists.research.att.com (lists.research.att.com. 
+	[204.178.8.27])
+ by mx.google.com with ESMTP id a9si754256qkh.311.2017.11.02.07.47.59
+ for <morano@computer.org>;
+ Thu, 02 Nov 2017 07:47:59 -0700 (PDT)
+received: from lists.research.att.com (localhost [127.0.0.1])
+ by lists.research.att.com (Postfix) with ESMTP id A66F4E1124;
+ Thu,  2 Nov 2017 11:38:27 -0400 (EDT)
+received: from mail-pink.research.att.com (mail-pink.research.att.com
+ [204.178.8.22])
+ by lists.research.att.com (Postfix) with ESMTP id 30BFBE105F
+ for <ast-developers@lists.research.att.com>;
+ Thu,  2 Nov 2017 11:38:25 -0400 (EDT)
+received: from mail-blue.research.att.com (unknown [135.207.178.11])
+ by mail-pink.research.att.com (Postfix) with ESMTP id AD2AC120022
+ for <ast-developers@lists.research.att.com>;
+ Thu,  2 Nov 2017 11:05:41 -0400 (EDT)
+received: from [135.197.254.161] (sauron.research.att.com [135.197.254.161])
+ by mail-blue.research.att.com (Postfix) with ESMTP id 6C457F05FC;
+ Thu,  2 Nov 2017 10:47:52 -0400 (EDT)
+content-length: 9012                
+message-id: <124c312f-82a8-eb49-f89a-efef5b50d32d@research.att.com>
+x-original-to: dam@rightcore.com
+x-original-to: ast-developers@lists.research.att.com
+delivered-to: dam@rightcore.com
+delivered-to: coldspacemachine@gmail.com
+delivered-to: ast-developers@lists.research.att.com
+x-google-dkim-signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-original-authentication-results:x-gm-message-state:delivered-to
+ :delivered-to:to:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:subject:precedence
+ :list-id:list-unsubscribe:list-archive:list-post:list-help
+ :list-subscribe:sender:errors-to;
+ bh=cV5lNl6RB6Ez9bdOY9XxKOvTK88EkzBoIGjtPTJlTNM=;
+ b=iEYTWqY8fvcBMPKqaWKOGKQhUjTbffXPcF+F0KbUP0V2zPIhSN5L0AC+JpjWdLb6Bn
+ oqj+LA3fxdfRDD7Ge25JSIwYEPn1eiU6g0oNFYzEYifsSeJ52CcfMdzmZo71yvmPn235
+ aWqW84O47W5yvIln5zYkVccg21U22h6BSbv70E0nhecNvYzPRnkfLrAM58vi7R4Atl8X
+ ZTcAzQCBVpfLDziMkHmXhkZCLLopN7OSB3zFcPxjzQ3MS6gFfipMAQHvTkGucwEEgQFM
+ Uprs92gb8S1xs4RTxT7l2i1WbIetbV2mxrIIU/iOdK4gWMvTckcTRRUJiC6SRTs+eMPt
+ TNmA==
+x-original-authentication-results: mx.google.com;       arc=pass (i=1 
+	spf=pass spfdomain=lists.research.att.com);       spf=pass 
+	(google.com: domain of postmaster@ieee.org designates 209.85.220.97 
+	as permitted sender) smtp.mailfrom=postmaster@ieee.org;       
+	dmarc=fail (p=NONE sp=NONE dis=NONE arc=pass) header.from=att.com
+x-gm-message-state: AMCzsaWDVlQ8k7k70gFzD14aLUGVwjyLOuZ63o4jHIudA/LB5A7v81cE
+ jrZJbZ0L8B+eSMGSwVFYK7D3jNVxx+H8pSZIdH8YbIDDrqhEJtk=
+x-received: by 10.36.58.85 with SMTP id m82mr2872760itm.90.1509634556270;
+ Thu, 02 Nov 2017 07:55:56 -0700 (PDT)
+x-received: by 10.200.23.153 with SMTP id o25mr5385431qtj.119.1509634555063;
+ Thu, 02 Nov 2017 07:55:55 -0700 (PDT)
+x-received: by 10.237.53.176 with SMTP id c45mr5509708qte.311.1509634554693;
+ Thu, 02 Nov 2017 07:55:54 -0700 (PDT)
+x-received: by 10.200.53.89 with SMTP id z25mr5553566qtb.58.1509634079737;
+ Thu, 02 Nov 2017 07:47:59 -0700 (PDT)
+x-received: by 10.200.53.89 with SMTP id z25mr5553547qtb.58.1509634079547;
+ Thu, 02 Nov 2017 07:47:59 -0700 (PDT)
+x-forwarded-to: dam@rightcore.com
+x-forwarded-for: coldspacemachine@gmail.com dam@rightcore.com
+arc-seal: i=2; a=rsa-sha256; t=1509634554; cv=pass;
+ d=google.com; s=arc-20160816;
+ b=Rp2VkRyC0JT45ikBajLvoiqrY5UVePrfZLMkVNr8IgNlNqTuMAm0PBk1Qt6u2/90X1
+ kB+5rNYUEda31qf/lfIGef4I62EL1f+3HdVI7o+tGQv7XJ+GKodJXMuorLIb8AJwQHqX
+ mrjK99Tw+448VJHtxwHfb42XoD6FsWfUcXQftQ62asqX+q+2WWBYvn1CIbILYGg7qcFx
+ aksEjNGaqv+XbMXkVoKONzHR8yLzaT/v8sHF4dujWQw3qFUBLpmTypqxCbbUztCy/rbG
+ k9c9krBXL6LvMLK9gsdn+MioUi26Hz+T0eVI74+78sjIOlvoQ7S67QpQsAkkcfhfQlYr
+ cDmA==
+arc-seal: i=1; a=rsa-sha256; t=1509634079; cv=none;
+ d=google.com; s=arc-20160816;
+ b=Gv9i7Wx/zKS6wTT7ZNooJkf9jyAMjTuQKBFZj0NweAqIz37imnJJiAMylniJUcRHjJ
+ u9rQwRkVoGooUHT3etOmhEkOM40r6N/Aw69I0LiECOtyy4gSYD4wjxzX1UtFeCRVp6Bt
+ BHDTuOJCX5GdJyH+QbYvxHYJ7WZWx+Imj546tzcetB+HtV2N5aa0HFruJGJsc8fq9EB+
+ 8sFPrivFipdU9NDCEYohRe+tk7lU6ZbL922vikNXdhZ6qpiDNyaDOZtbCBJIqc56Xau5
+ +5OW/LtntfYXZDH8zTP08CZzSROXRFkOdrwwGLM7/JeAM4LeYFVv8O64PZRqe0zGadxM
+ 55Lw==
+arc-message-signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; 
+	s=arc-20160816;
+ h=errors-to:sender:list-subscribe:list-help:list-post:list-archive
+ :list-unsubscribe:list-id:precedence:subject:content-language
+ :in-reply-to:mime-version:user-agent:date:message-id:from:references
+ :to:delivered-to:arc-authentication-results:arc-message-signature
+ :arc-authentication-results;
+ bh=cV5lNl6RB6Ez9bdOY9XxKOvTK88EkzBoIGjtPTJlTNM=;
+ b=vR/O8Sq/wozqcINvQZW9voAAPwyuea+K0yCh2yaaK5GLEUnjMYIdbG1z03oNGuGQb/
+ Iay8qNW1eh9x4ze/G5RzmVhsxhuhPDu1/o6aA+nfcm1v2TdaswQxsufImMMd2aKnf/Tb
+ 1h3/hw8XX0fQy1rpDFF8SicHo9sVB3bJQCfSaRQ5j0TQcALLY7OpCsRg9EyfudpGvHGl
+ xJicN/p70l3D/DThG0ikqmNTApCQL20MyLMgTwJKJWBppfE/HfrU8p7opS8fHvW7nXBm
+ 4oOGulX3kGjA5wRPD4ZAcA/HaU0DQ1ChhJEJHMiGm/wSejGzg4ql2d8jfTp/waPAXpWV
+ 4P/Q==
+arc-message-signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; 
+	s=arc-20160816;
+ h=errors-to:sender:list-subscribe:list-help:list-post:list-archive
+ :list-unsubscribe:list-id:precedence:subject:content-language
+ :in-reply-to:mime-version:user-agent:date:message-id:from:references
+ :to:delivered-to:arc-authentication-results;
+ bh=cV5lNl6RB6Ez9bdOY9XxKOvTK88EkzBoIGjtPTJlTNM=;
+ b=oHKRZHKp6LJYy1MFsPM/LMttcXgMWCD7Jy/hQ8mHAyleAOaNgSm6E9cSqlCbPd1b2b
+ PC54fJpNJ+6PkzOfYC84Vypp/WgX2QEeSkDiixsdS7lheZc2sSWzRJr0OQCvQ5AARpPS
+ BrosXcZ/bpWqtWgp2ORP0wczu4DD2KZh7fgbyToaSKapn3Mm5ijITJkhc7FQNL4bzBzP
+ RsKw22saiDuOithRs2MRWaBtnp6HhARkl0PUbiVMXWY+OcEfY4Vhj4PIp99nZPoATfQE
+ Wt8gNkMZ4qLC79liMlbRZkPuH8n+Dlb1SodX8tbEDZhzgzZklkt2EJ7zLp9q7KLYqkHw
+ KB2Q==
+arc-authentication-results: i=2; mx.google.com;
+ arc=pass (i=1 spf=pass spfdomain=lists.research.att.com);
+ spf=pass (google.com: domain of postmaster@ieee.org designates 
+	209.85.220.97 as permitted sender) 
+	smtp.mailfrom=postmaster@ieee.org;
+ dmarc=fail (p=NONE sp=NONE dis=NONE arc=pass) header.from=att.com
+arc-authentication-results: i=1; mx.google.com;
+ spf=pass (google.com: best guess record for domain of 
+	ast-developers-bounces@lists.research.att.com designates 
+	204.178.8.27 as permitted sender) 
+	smtp.mailfrom=ast-developers-bounces@lists.research.att.com;
+ dmarc=fail (p=NONE sp=NONE dis=NONE) header.from=att.com
+received-spf: pass (google.com: domain of postmaster@ieee.org designates 
+	209.85.220.97 as permitted sender) client-ip=209.85.220.97;
+received-spf: none (spmpdv02.ieee.org: domain of 
+	ast-developers-bounces@lists.research.att.com
+ does not designate permitted sender hosts)
+ receiver=spmpdv02.ieee.org; client-ip=204.178.8.27;
+ envelope-from=<ast-developers-bounces@lists.research.att.com>; 
+	helo=mail-qt0-f200.google.com;
+ identity=mailfrom
+authentication-results: mx.google.com;
+ arc=pass (i=1 spf=pass spfdomain=lists.research.att.com);
+ spf=pass (google.com: domain of postmaster@ieee.org designates 
+	209.85.220.97 as permitted sender) 
+	smtp.mailfrom=postmaster@ieee.org;
+ dmarc=fail (p=NONE sp=NONE dis=NONE arc=pass) header.from=att.com
+x-google-smtp-source: 
+	ABhQp+TQ3uCRkNsSlWNyrgRcEMR6JWgVl2WY27VhKe8fzX5MtUSFG1VpA89DyiNwOy17+71UEmxCu8uRlSU5
+x-relaying-domain: ieee.org
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.4.0
+mime-version: 1.0
+in-reply-to: 
+	<CABx2=D8f4=YJcOHsos=56PnJMs2JyE17ah2-F7ZD-+0+Rn8OBg@mail.gmail.com>
+content-language: en-US
+x-beenthere: ast-developers@lists.research.att.com
+x-mailman-version: 2.1.12
+precedence: list
+list-id: "AT&amp; amp; T Labs Research AST software developer forum"
+ <ast-developers.lists.research.att.com>
+list-unsubscribe: 
+	<http://lists.research.att.com/mailman/options/ast-developers>,
+ <mailto:ast-developers-request@lists.research.att.com?subject=unsubscribe>
+list-archive: <http://lists.research.att.com/pipermail/ast-developers/>
+list-post: <mailto:ast-developers@lists.research.att.com>
+list-help: 
+	<mailto:ast-developers-request@lists.research.att.com?subject=help>
+list-subscribe: 
+	<http://lists.research.att.com/mailman/listinfo/ast-developers>,
+ <mailto:ast-developers-request@lists.research.att.com?subject=subscribe>
+content-type: multipart/mixed; 
+	boundary="===============1974789089570374097=="
+sender: ast-developers-bounces@lists.research.att.com
+errors-to: ast-developers-bounces@lists.research.att.com
+x-gm-spam: 0
+x-gm-phishy: 0
+x-bayes-prob: 0.0001 (Score 0, tokens from: morano@computer.org, CS_DEFAULT,
+	default, @@RPTN)
+x-spam-score: 0.00 () [Hold at 7.50] 
+	HTML_MESSAGE:0.001,SPF(none:0),DKIM(none:0)
+x-canit-geo: ip=204.178.8.27; country=US; region=New Jersey; 
+	city=Middletown; latitude=40.3965; longitude=-74.1075; 
+	http://maps.google.com/maps?q=40.3965,-74.1075&z=6
+x-canitpro-stream: morano@computer.org (inherits from CS_DEFAULT,default)
+x-canit-stats-id: 02Ut2TGtR - 7311fd44d579
+x-scanned-by: CanIt (cuce . ieee . org ) on 10.144.194.218
+x-bogosity: Unsure, tests=bogofilter, spamicity=0.520000, version=1.1.5
+status:           
+references: 
+	<CABx2=D8f4=YJcOHsos=56PnJMs2JyE17ah2-F7ZD-+0+Rn8OBg@mail.gmail.com>
+From:  Eleftherios Koutsofios <ek@research.att.com>
+To:  ast-developers@lists.research.att.com
+Date: Thu, 2 Nov 2017 10:47:52 -0400
+Subject: Re: [ast-developers] building ksh93 on macOS using clang/LLVM
+
+This is a multi-part message in MIME format.
+--===============1974789089570374097==
+Content-Type: multipart/alternative;
+ boundary="------------CC8C830A2E501965B532C397"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------CC8C830A2E501965B532C397
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+hi,
+
+if the plan is to reduce this repo to just enough to build ksh93,
+I think it should be moved to a separate repo, since this is supposed to 
+be all of AST.
+I don't know if anyone still uses the whole thing but I'd rather keep it 
+whole.
+
+Glenn and Dave used to package up ksh93 and just the libs needed to 
+build it,
+I can put that up as /att/ksh93 if there's interest. it's from 2013, 
+like the master branch of AST.
+
+the biggest issue I have with building AST isn't so much the legacy 
+code, but the header file incompatibilities, and these arise from AST 
+trying to replace system libraries with better versions.
+at some point I had built AST with clang on linux but not on OSX and it 
+had to do
+with the different headers in OSX.
+
+thanks
+
+lefteris
+
+On 10/24/17 00:16, Kurtis Rader wrote:
+> Has anyone else worked on making it possible to build ksh93 on macOS 
+> using clang/LLVM rather than gcc? After many hours of investigation 
+> and experimentation I have a working solution. But it involves hacking 
+> the `./src/cmd/nmake/ppcc.sh` script to special-case clang and remove 
+> the `-I-` flag from the list of arguments. Doing that, plus 
+> eliminating all the AST items not needed to build ksh93, reduces the 
+> build time from 12 minutes to 8 minutes on my server. And that is 
+> without optimizing all the `iffe` invocations.
+>
+> The current build toolchain hasn't been updated in a very long time. A 
+> lot of the logic involves dealing with ancient history such as C 
+> compilers that only recognize K&R syntax, not ANSI C syntax. It is 
+> also incredibly inefficient. For example, man source modules are 
+> compiled twice (e.g., src/lib/libast/disc/sfstrtmp.c). Not to mention 
+> redundant `iffe` invocations to detect various features of the platform.
+>
+> There is an open issue, https://github.com/att/ast/issues/42 
+> <https://urldefense.proofpoint.com/v2/url?u=https-3A__github.com_att_ast_issues_42&d=DwMFaQ&c=LFYZ-o9_HUMeMTSQicvjIg&r=w8fB702vkC3W-R3CrCrZ-z27uWBR8v2uNvO18rq1ia0&m=9ZDeGj9J8zJsJZtwaJZIlwXqG3_aTtX1uOQRouY9sVM&s=8uVh7UbGTIEmgiHrwImr8e0qpbHGiM7qXCCkqsEyHKI&e=>, 
+> discussing replacing the current build system with something based on 
+> autoconf or Cmake. Given what I've observed in the past few days 
+> trying to get ksh93 to build on macOS with clang I feel quite strongly 
+> the current build system needs to be replaced. What do you think?
+>
+> Note that I'm approaching this from the perspective that no one cares 
+> about anything in the AST project other than ksh93. Which is certainly 
+> true for myself. It also appears to be true for everyone else who has 
+> commented on the code for this project hosted on Github: 
+> https://github.com/att/ast/ 
+> <https://urldefense.proofpoint.com/v2/url?u=https-3A__github.com_att_ast_&d=DwMFaQ&c=LFYZ-o9_HUMeMTSQicvjIg&r=w8fB702vkC3W-R3CrCrZ-z27uWBR8v2uNvO18rq1ia0&m=9ZDeGj9J8zJsJZtwaJZIlwXqG3_aTtX1uOQRouY9sVM&s=CotRuyK0MbUsjGmjg-G5TJtSDZGoa4z9f4-ZYPib7Xk&e=>.
+>
+> -- 
+> Kurtis Rader
+> Caretaker of the exceptional canines Junior and Hank
+>
+>
+> _______________________________________________
+> ast-developers mailing list
+> ast-developers@lists.research.att.com
+> http://lists.research.att.com/mailman/listinfo/ast-developers
+
+-- 
+E. Koutsofios
+AT&T Labs - Research
+
+
+--------------CC8C830A2E501965B532C397
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    hi,<br>
+    <br>
+    if the plan is to reduce this repo to just enough to build ksh93,<br>
+    I think it should be moved to a separate repo, since this is
+    supposed to be all of AST.<br>
+    I don't know if anyone still uses the whole thing but I'd rather
+    keep it whole.<br>
+    <br>
+    Glenn and Dave used to package up ksh93 and just the libs needed to
+    build it,<br>
+    I can put that up as /att/ksh93 if there's interest. it's from 2013,
+    like the master branch of AST.<br>
+    <br>
+    the biggest issue I have with building AST isn't so much the legacy
+    code, but the header file incompatibilities, and these arise from
+    AST trying to replace system libraries with better versions.<br>
+    at some point I had built AST with clang on linux but not on OSX and
+    it had to do<br>
+    with the different headers in OSX.<br>
+    <br>
+    thanks<br>
+    <br>
+    lefteris<br>
+    <br>
+    <div class="moz-cite-prefix">On 10/24/17 00:16, Kurtis Rader wrote:<br>
+    </div>
+    <blockquote type="cite"
+cite="mid:%3CCABx2=D8f4=YJcOHsos=56PnJMs2JyE17ah2-F7ZD-+0+Rn8OBg@mail.gmail.com%3E">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <div dir="ltr">Has anyone else worked on making it possible to
+        build ksh93 on macOS using clang/LLVM rather than gcc? After
+        many hours of investigation and experimentation I have a working
+        solution. But it involves hacking the `./src/cmd/nmake/ppcc.sh`
+        script to special-case clang and remove the `-I-` flag from the
+        list of arguments. Doing that, plus eliminating all the AST
+        items not needed to build ksh93, reduces the build time from 12
+        minutes to 8 minutes on my server. And that is without
+        optimizing all the `iffe` invocations.
+        <div><br>
+        </div>
+        <div>The current build toolchain hasn't been updated in a very
+          long time. A lot of the logic involves dealing with ancient
+          history such as C compilers that only recognize K&amp;R
+          syntax, not ANSI C syntax. It is also incredibly inefficient.
+          For example, man source modules are compiled twice
+          (e.g., src/lib/libast/disc/sfstrtmp.c). Not to mention
+          redundant `iffe` invocations to detect various features of the
+          platform.</div>
+        <div><br>
+        </div>
+        <div>There is an open issue, <a
+href="https://urldefense.proofpoint.com/v2/url?u=https-3A__github.com_att_ast_issues_42&amp;d=DwMFaQ&amp;c=LFYZ-o9_HUMeMTSQicvjIg&amp;r=w8fB702vkC3W-R3CrCrZ-z27uWBR8v2uNvO18rq1ia0&amp;m=9ZDeGj9J8zJsJZtwaJZIlwXqG3_aTtX1uOQRouY9sVM&amp;s=8uVh7UbGTIEmgiHrwImr8e0qpbHGiM7qXCCkqsEyHKI&amp;e="
+            moz-do-not-send="true">https://github.com/att/ast/issues/42</a>,
+          discussing replacing the current build system with something
+          based on autoconf or Cmake. Given what I've observed in the
+          past few days trying to get ksh93 to build on macOS with clang
+          I feel quite strongly the current build system needs to be
+          replaced. What do you think?</div>
+        <div><br>
+        </div>
+        <div>Note that I'm approaching this from the perspective that no
+          one cares about anything in the AST project other than ksh93.
+          Which is certainly true for myself. It also appears to be true
+          for everyone else who has commented on the code for this
+          project hosted on Github: <a
+href="https://urldefense.proofpoint.com/v2/url?u=https-3A__github.com_att_ast_&amp;d=DwMFaQ&amp;c=LFYZ-o9_HUMeMTSQicvjIg&amp;r=w8fB702vkC3W-R3CrCrZ-z27uWBR8v2uNvO18rq1ia0&amp;m=9ZDeGj9J8zJsJZtwaJZIlwXqG3_aTtX1uOQRouY9sVM&amp;s=CotRuyK0MbUsjGmjg-G5TJtSDZGoa4z9f4-ZYPib7Xk&amp;e="
+            moz-do-not-send="true">https://github.com/att/ast/</a>.</div>
+        <div>
+          <div><br>
+          </div>
+          -- <br>
+          <div class="gmail_signature">
+            <div dir="ltr">Kurtis Rader
+              <div>Caretaker of the exceptional canines Junior and Hank</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <fieldset class="mimeAttachmentHeader"></fieldset>
+      <br>
+      <pre wrap="">_______________________________________________
+ast-developers mailing list
+<a class="moz-txt-link-abbreviated" href="mailto:ast-developers@lists.research.att.com">ast-developers@lists.research.att.com</a>
+<a class="moz-txt-link-freetext" href="http://lists.research.att.com/mailman/listinfo/ast-developers">http://lists.research.att.com/mailman/listinfo/ast-developers</a>
+</pre>
+    </blockquote>
+    <br>
+    <pre class="moz-signature" cols="72">-- 
+E. Koutsofios
+AT&amp;T Labs - Research
+</pre>
+  </body>
+</html>
+
+--------------CC8C830A2E501965B532C397--
+
+--===============1974789089570374097==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+ast-developers mailing list
+ast-developers@lists.research.att.com
+http://lists.research.att.com/mailman/listinfo/ast-developers
+
+--===============1974789089570374097==--

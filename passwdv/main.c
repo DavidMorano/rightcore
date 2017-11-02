@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -22,8 +20,8 @@
 
 /*******************************************************************************
 
-	This is the front-end subroutine for the PASSWDV (password
-	verification) program.
+        This is the front-end subroutine for the PASSWDV (password verification)
+        program.
 
 
 *******************************************************************************/
@@ -59,6 +57,7 @@
 
 /* external subroutines */
 
+extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
@@ -68,6 +67,7 @@ extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	isinteractive() ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -716,18 +716,18 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	            if (lbuf[len - 1] == '\n') len -= 1 ;
 	            lbuf[len] = '\0' ;
 
-	            cp = strshrink(lbuf) ;
-
-	            if ((cp[0] == '\0') || (cp[0] == '#'))
-	                continue ;
-
-	            pan += 1 ;
-	            rs = process(pip,&aparams,pfp,ofp,cp) ;
-	            f_passed = (rs > 0) ;
-
-	            if ((rs >= 0) && (! pip->f.nooutput)) {
-	                rs = bprintf(ofp,"%svalid\n",(! f_passed) ? "in" : "") ;
-		    }
+		    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+			if (cp[0] != '#') {
+	            	    pan += 1 ;
+	            	    rs = process(pip,&aparams,pfp,ofp,cp) ;
+	            	    f_passed = (rs > 0) ;
+	            	    if ((rs >= 0) && (! pip->f.nooutput)) {
+				    cchar	*fmt = "%svalid\n" ;
+				    cchar	*s = (! f_passed) ? "in" : "" ;
+	                	    rs = bprintf(ofp,fmt,s) ;
+		    	    }
+			}
+		   } /* end if (sfshrink) */
 
 	            if (rs < 0) break ;
 	        } /* end while (reading lines) */

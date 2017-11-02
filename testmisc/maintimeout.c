@@ -1,4 +1,4 @@
-/* main (timeout) */
+/* maintimeout (timeout) */
 /* lang=C++11 */
 
 /* test the TIMEOUT facility */
@@ -7,6 +7,7 @@
 #define	CF_DEBUGS	1		/* non-switchable debug print-outs */
 #define	CF_DEBUGMALL	1		/* debugging memory-allocations */
 #define	CF_DEBUGN	1		/* special debugging */
+#define	CF_SIGHAND	1		/* install signal handlers */
 
 
 /* revision history:
@@ -28,6 +29,9 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
+#include	<signal.h>
+#include	<ucontext.h>
+#include	<dlfcn.h>
 #include	<limits.h>
 #include	<string.h>
 #include	<stdio.h>
@@ -41,10 +45,13 @@
 #include	<ostream>
 #include	<iostream>
 #include	<vsystem.h>
+#include	<sighand.h>
 #include	<ucmallreg.h>
+#include	<exitcodes.h>
 #include	<localmisc.h>
 
 #include	"timeout.h"
+#include	"maininfo.h"
 
 
 /* local defines */
@@ -61,6 +68,19 @@ using namespace		std ;		/* yes, we want punishment! */
 /* external subroutines */
 
 extern "C" int	uc_timeout(int,TIMEOUT *) ;
+extern "C" int	uc_safesleep(int) ;
+
+extern "C" int	snwcpy(char *,int,const char *,int) ;
+extern "C" int	sncpy2(char *,int,const char *,const char *) ;
+extern "C" int	sncpy2w(char *,int,const char *,const char *,int) ;
+extern "C" int	sncpylc(char *,int,const char *) ;
+extern "C" int	sncpyuc(char *,int,const char *) ;
+extern "C" int	sfbasename(cchar *,int,cchar **) ;
+extern "C" int	ucontext_rtn(ucontext_t *,long *) ;
+extern "C" int	bufprintf(char *,int,cchar *,...) ;
+extern "C" int	msleep(int) ;
+extern "C" int	haslc(cchar *,int) ;
+extern "C" int	hasuc(cchar *,int) ;
 
 #if	CF_DEBUGS
 extern "C" int	debugopen(cchar *) ;
@@ -74,19 +94,70 @@ extern "C" int	nprintf(cchar *,cchar *,...) ;
 #endif
 
 extern "C" cchar	*getourenv(cchar **,cchar *) ;
+extern "C" cchar	*getourenv(const char **,const char *) ;
+extern "C" cchar	*strsigabbr(int) ;
 
 extern "C" void		uctimeout_fini() ;
 
 
 /* local structures */
 
+struct sigcode {
+	int		code ;
+	const char	*name ;
+} ;
+
 
 /* forward references */
+
+static int	maininfo_sigbegin(MAININFO *) ;
+static int	maininfo_sigend(MAININFO *) ;
+
+static void	main_sighand(int,siginfo_t *,void *) ;
+static int	main_sigdump(siginfo_t *) ;
+
+static cchar	*strsigcode(const struct sigcode *,int) ;
 
 static int	ourwake(void *,uint,int) ;
 
 
 /* local variables */
+
+static const int	sigcatches[] = {
+	SIGILL, 
+	SIGSEGV,
+	SIGBUS,
+	SIGQUIT,
+	SIGABRT,
+	SIGALRM,
+	SIGTIMEOUT,
+	0
+} ;
+
+static const struct sigcode	sigcode_ill[] = {
+	{ ILL_ILLOPC, "ILLOPC" },
+	{ ILL_ILLOPN, "ILLOPN" },
+	{ ILL_ILLADR, "ILLADR" },
+	{ ILL_ILLTRP, "ILLTRP" },
+	{ ILL_PRVOPC, "PRBOPC" },
+	{ ILL_PRVREG, "PRVREG" },
+	{ ILL_COPROC, "COPROC" },
+	{ ILL_BADSTK, "BADSTK" },
+	{ 0, NULL }
+} ;
+
+static const struct sigcode	sigcode_segv[] = {
+	{ SEGV_MAPERR, "MAPERR" },
+	{ SEGV_ACCERR, "ACCERR" },
+	{ 0, NULL }
+} ;
+
+static const struct sigcode	sigcode_bus[] = {
+	{ BUS_ADRALN, "ADRALN" },
+	{ BUS_ADRERR, "ADRERR" },
+	{ BUS_OBJERR, "OBJERR" },
+	{ 0, NULL }
+} ;
 
 
 /* exported subroutines */
@@ -97,12 +168,12 @@ int main(int argc,cchar **argv,cchar **envv)
 {
 	TIMEOUT		to ;
 	time_t		dt = time(NULL) ;
-	time_t		wake ;
-	const int	tval = 6 ;
+	const int	tval = 20 ;
 #if	CF_DEBUGS && CF_DEBUGMALL
 	uint		mo_start = 0 ;
 #endif
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		ex = 0 ;
 
 #if	CF_DEBUGS
@@ -120,8 +191,12 @@ int main(int argc,cchar **argv,cchar **envv)
 	uc_mallout(&mo_start) ;
 #endif
 
-	wake = (dt+(tval/2)) ;
-	if ((rs = timeout_load(&to,wake,NULL,ourwake,0x5a5a,1)) >= 0) {
+	{
+	    MAININFO	mi, *mip = &mi ;
+	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
+	if ((rs = maininfo_sigbegin(mip)) >= 0) {
+	    const time_t	wake = (dt+(tval/2)) ;
+	if ((rs = timeout_load(&to,wake,NULL,ourwake,42,1)) >= 0) {
 	    const int	cmd = timeoutcmd_set ;
 	    if ((rs = uc_timeout(cmd,&to)) >= 0) {
 	  	const int	id = rs ;
@@ -131,11 +206,26 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 		printf("id=%d\n",id) ;
-	        sleep(tval) ;
+	        uc_safesleep(tval/2) ;
+
+#if	CF_DEBUGN
+		nprintf(NDF,"main: back rs=%d\n",rs) ;
+#endif
 
 		printf("done\n") ;
 	    } /* end if (uc_timeout) */
 	} /* end if (timeout_load) */
+	            rs1 = maininfo_sigend(&mi) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (maininfo-sig) */
+	        rs1 = maininfo_finish(mip) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (maininfo) */
+	} /* end block */
+
+#if	CF_DEBUGN
+	nprintf(NDF,"main: done rs=%d\n",rs) ;
+#endif
 
 	uctimeout_fini() ;
 
@@ -143,7 +233,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	{
 	    uint	mo ;
 	    uc_mallout(&mo) ;
-	    debugprintf("b_wn: final mallout=%u\n",(mo-mo_start)) ;
+	    debugprintf("main: final mallout=%u\n",(mo-mo_start)) ;
 	    uc_mallset(0) ;
 	}
 #endif /* CF_DEBUGMALL */
@@ -151,12 +241,13 @@ int main(int argc,cchar **argv,cchar **envv)
 #if	CF_DEBUGS
 	debugprintf("main: ret rs=%d\n",rs) ;
 #endif
-#if	CF_DEBUGN
-	nprintf(NDF,"main: ret rs=%d\n",rs) ;
-#endif
 
 #if	CF_DEBUGS
 	debugclose() ;
+#endif
+
+#if	CF_DEBUGN
+	nprintf(NDF,"main: ret rs=%d\n",rs) ;
 #endif
 
 	if (rs < 0) ex = 1 ;
@@ -166,6 +257,137 @@ int main(int argc,cchar **argv,cchar **envv)
 
 
 /* local subroutines */
+
+
+static int maininfo_sigbegin(MAININFO *mip)
+{
+	int		rs = SR_OK ;
+#if	CF_SIGHAND
+	{
+	void		(*sh)(int,siginfo_t *,void *) = main_sighand ;
+	rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+	}
+#endif
+#if	CF_DEBUGN
+	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (maininfo_sigbegin) */
+
+
+static int maininfo_sigend(MAININFO *mip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+#if	CF_SIGHAND
+	rs1 = sighand_finish(&mip->sh) ;
+	if (rs >= 0) rs = rs1 ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (maininfo_sigend) */
+
+
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
+{
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: sn=%d(%s)\n",sn,strsigabbr(sn)) ;
+#endif
+
+	if (vcp != NULL) {
+	    Dl_info	dl ;
+	    long	ra ;
+	    ucontext_t	*ucp = (ucontext_t *) vcp ;
+	    void	*rtn ;
+	    const int	wlen = LINEBUFLEN ;
+	    int		wl ;
+	    cchar	*fmt ;
+	    char	wbuf[LINEBUFLEN+1] ;
+	    ucontext_rtn(ucp,&ra) ;
+	    if (ra != 0) {
+	        rtn = (void *) ra ;
+	        dladdr(rtn,&dl) ;
+	        fmt = "rtn=%08lX fn=%s sym=%s\n" ;
+	        wl = bufprintf(wbuf,wlen,fmt,ra,dl.dli_fname,dl.dli_sname) ;
+	        write(2,wbuf,wl) ;
+	    }
+	}
+
+	if (sip != NULL) {
+	    main_sigdump(sip) ;
+	}
+	u_exit(EX_TERM) ;
+}
+/* end subroutine (main_sighand) */
+
+
+static int main_sigdump(siginfo_t *sip)
+{
+	const int	wlen = LINEBUFLEN ;
+	const int	si_signo = sip->si_signo ;
+	const int	si_code = sip->si_code ;
+	int		wl ;
+	const char	*sn = strsigabbr(sip->si_signo) ;
+	const char	*as = "*na*" ;
+	const char	*scs = NULL ;
+	const char	*fmt ;
+	char		wbuf[LINEBUFLEN+1] ;
+	char		abuf[16+1] ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: signo=%d\n",si_signo) ;
+#endif
+	switch (si_signo) {
+	case SIGILL:
+	    scs = strsigcode(sigcode_ill,si_code) ;
+	    break ;
+	case SIGSEGV:
+	    scs = strsigcode(sigcode_segv,si_code) ;
+	    bufprintf(abuf,16,"%p",sip->si_addr) ;
+	    as = abuf ;
+	    break ;
+	case SIGBUS:
+	    scs = strsigcode(sigcode_bus,si_code) ;
+	    bufprintf(abuf,16,"%p",sip->si_addr) ;
+	    as = abuf ;
+	    break ;
+	case SIGQUIT:
+	    scs = "¤na¤" ;
+	    break ;
+	default:
+	    scs = "¤default¤" ;
+	    break ;
+	} /* end switch */
+	fmt = "SIG=%s code=%d(%s) addr=%s\n" ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: sn=%s\n",sn) ;
+#endif
+	wl = bufprintf(wbuf,wlen,fmt,sn,si_code,scs,as) ;
+#if	CF_DEBUGN
+	nprintf(NDF,"main_sighand: bufprintf() rs=%d\n",wl) ;
+#endif
+	write(2,wbuf,wl) ;
+	return 0 ;
+}
+/* end subroutine (main_sigdump) */
+
+
+static const char *strsigcode(const struct sigcode *scp,int code)
+{
+	int		i ;
+	int		f = FALSE ;
+	const char	*sn = "UNKNOWN" ;
+	for (i = 0 ; scp[i].code != 0 ; i += 1) {
+	    f = (scp[i].code == code) ;
+	    if (f) break ;
+	}
+	if (f) sn = scp[i].name ;
+	return sn ;
+}
+/* end subroutine (strsigcode) */
 
 
 static int ourwake(void *objp,uint tag,int arg)

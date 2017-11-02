@@ -1,7 +1,7 @@
 /* sigevent */
 /* lang=C99 */
 
-/* UNIX® signal event initialization */
+/* UNIX® signal-event initialization */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -69,7 +69,7 @@
 /* exported subroutines */
 
 
-int sigevent_init(SIGEVENT *sep,int notify,int signo,int val)
+int sigevent_load(SIGEVENT *sep,int notify,int signo,int val)
 {
 	if (sep == NULL) return SR_FAULT ;
 	memset(sep,0,sizeof(SIGEVENT)) ;

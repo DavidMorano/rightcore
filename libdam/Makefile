@@ -276,12 +276,12 @@ OBJ111= hdrdecode.o qpdecoder.o b64decoder.o hexdecoder.o utf8decoder.o
 
 OBJ112= vecstr_adds.o vecstr_foilcmp.o
 OBJ113= vecpstr_loadgrusers.o vecpstr_loadpjusers.o vecpstr_loaddirs.o
-OBJ114= vechand.o vecitem.o vecint.o veclong.o vecelem.o vecobj.o 
+OBJ114= vecitem.o vecint.o veclong.o vecelem.o vecobj.o 
 OBJ115= filebuf_mailsupport.o filebuf_writefd.o
 OBJ116= setint.o osetint.o setstr.o osetstr.o mapstrs.o
 OBJ117= msfile.o msfilee.o ebuf.o nodedb.o clusterdb.o kinfo.o nulstr.o
 OBJ118= cksum.o sha1.o gecos.o pwfile.o ipasswd.o ema.o fsi.o
-OBJ119= q.o plainq.o pq.o cpq.o cq.o piq.o ciq.o fifostr.o fifoitem.o charq.o 
+OBJ119= q.o plainq.o cpq.o cq.o piq.o fifostr.o fifoitem.o charq.o 
 
 OBJ120= kvsfile.o paramfile.o strtab.o strstore.o svcfile.o querystring.o
 OBJ121= mailmsgmatenv.o mailmsgmathdr.o mailmsgfrom.o mailmsgstage.o

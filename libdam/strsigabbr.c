@@ -114,15 +114,23 @@ static const struct sigabbr	cvts[] = {
 
 const char *strsigabbr(uint n)
 {
-	int		i ;
 	const char	*s = NULL ;
 
-	for (i = 0 ; cvts[i].n >= 0 ; i += 1) {
-	    if (cvts[i].n == n) {
-		s = cvts[i].s ;
-		break ;
-	    }
-	} /* end for */
+#if	defined(_SIGRTMIN) && defined(_SIGRTMAX)
+	if ((n > _SIGRTMIN) && (n < _SIGRTMAX)) {
+	    s = "RTXXX" ;
+	}
+#endif /* SIGRTXXX */
+
+	if (s == NULL) {
+	    int	i ;
+	    for (i = 0 ; cvts[i].n >= 0 ; i += 1) {
+	        if (cvts[i].n == n) {
+		    s = cvts[i].s ;
+		    break ;
+	        }
+	    } /* end for */
+	}
 
 	return s ;
 }

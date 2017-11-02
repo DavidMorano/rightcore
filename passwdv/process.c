@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -26,7 +24,7 @@
 	Synopsis:
 
 	int process(pip,pp,pfp,ofp,name)
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 	PARAMOPT	*pp ;
 	PWFILE		*pfp ;
 	bfile		*ofp ;
@@ -62,20 +60,17 @@
 
 #include	<vsystem.h>
 #include	<bfile.h>
-#include	<baops.h>
 #include	<pwfile.h>
 #include	<getax.h>
 #include	<getxusername.h>
+#include	<paramopt.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
-#include	"paramopt.h"
 #include	"config.h"
 #include	"defs.h"
 
 
-
 /* local defines */
-
 
 
 /* external subroutines */
@@ -84,7 +79,7 @@ extern int	sncpy1(char *,int,const char *) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 
 extern int	getpassword(const char *,char *,int) ;
-extern int	checkpass(struct proginfo *,const char *,const char *,int) ;
+extern int	checkpass(PROGINFO *,const char *,const char *,int) ;
 extern int	passwdok(const char *,const char *) ;
 
 
@@ -96,7 +91,7 @@ extern int	passwdok(const char *,const char *) ;
 
 /* forward references */
 
-static int	userexists(struct proginfo *,PWFILE *,const char *) ;
+static int	userexists(PROGINFO *,PWFILE *,const char *) ;
 
 
 /* local variables */
@@ -106,7 +101,7 @@ static int	userexists(struct proginfo *,PWFILE *,const char *) ;
 
 
 int process(pip,pp,pfp,ofp,name)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 PARAMOPT	*pp ;
 PWFILE		*pfp ;
 bfile		*ofp ;
@@ -262,7 +257,7 @@ ret0:
 
 /* is the username present in the password database ? */
 static int userexists(pip,pfp,name)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 PWFILE		*pfp ;
 const char	name[] ;
 {
@@ -273,16 +268,12 @@ const char	name[] ;
 
 
 	if (pfp != NULL) {
-
 	    PWFILE_ENT	pfe ;
-
 
 	    rs = pwfile_fetchuser(pfp,name,NULL,&pfe,pwbuf,PWFILE_ENTLEN) ;
 
 	} else {
-
 	    struct passwd	spw ;
-
 
 	    rs = getpw_name(&spw,pwbuf,PWFILE_ENTLEN,name) ;
 
@@ -292,6 +283,5 @@ const char	name[] ;
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (userexists) */
-
 
 

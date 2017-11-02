@@ -86,6 +86,6 @@ int uc_sendbuf(int ofd,void *wbuf,int wlen)
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (uc_sendfile) */
+/* end subroutine (uc_sendbuf) */
 
 

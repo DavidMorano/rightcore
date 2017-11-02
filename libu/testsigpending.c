@@ -1,6 +1,10 @@
 /* testsigpending */
 /* lang=C89 */
 
+#define	CF_DEBUGS	1		/* compile-time debugging */
+#define	CF_DEBUGMALL	1		/* debugging memory-allocations */
+#define	CF_SIGPENDING	1		/* showpending */
+
 /* revision history:
 
 	= 2000-05-14, David A­D­ Morano
@@ -10,9 +14,6 @@
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
-#define	CF_DEBUGS	1		/* compile-time debugging */
-#define	CF_DEBUGMALL	1		/* debugging memory-allocations */
-#define	CF_SIGPENDING	1		/* showpending */
 #include	<envstandards.h>
 #include	<sys/types.h>
 #include	<signal.h>
@@ -24,7 +25,7 @@
 #include	<localmisc.h>
 
 #define	VARDEBUGFNAME	"TESTSIGPENDING_DEBUGFILE"
-#define	INT_WAIT		10
+#define	INT_WAIT	10
 
 extern int	msleep(int) ;
 
@@ -36,13 +37,18 @@ extern int	strlinelen(const char *,int,int) ;
 #endif
 
 extern cchar	*strsigabbr(uint) ;
-extern cchar 	*getourenv(const char **,const char *) ;
+extern cchar 	*getourenv(cchar **,cchar *) ;
 
 
 /* forward references */
+
 static int showpending() ;
 
 
+/* exported subroutines */
+
+
+/* ARGSUSED */
 int main(int argc,const char **argv,const char **envv)
 {
 
@@ -80,10 +86,10 @@ int main(int argc,const char **argv,const char **envv)
 			dt = st ;
 			while ((dt-st) < INT_WAIT) {
 
-	                msleep(100) ;
+	                    msleep(100) ;
 
 #if	CF_SIGPENDING
-	                showpending() ;
+	                    showpending() ;
 #endif
 
 			    dt = time(NULL) ;

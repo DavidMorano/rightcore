@@ -222,6 +222,8 @@ main.o:			main.cc $(INCS)
 
 whatinfo.o:		whatinfo.c config.h
 
+maininfo.o:		maininfo.c maininfo.h
+
 
 bstree.o:		bstree.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) bstree.hh
@@ -230,10 +232,6 @@ sethand.o:		sethand.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) sethand.hh
 
 fifoelem.o:		fifoelem.c fifoelem.h
-
-ciq.o:			ciq.c ciq.h
-
-pq.o:			pq.c pq.h
 
 vecsorthand.o:		vecsorthand.c vecsorthand.h
 
@@ -253,8 +251,14 @@ ciq.o:			ciq.c ciq.h
 uc_timeout.o:		uc_timeout.cc timeout.h timespec.h sigevent.h
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) uc_timeout.cc
 
+uc_sigwaitinfo.o:	uc_sigwaitinfo.c
+
 
 # testing
+ciq.o:			ciq.c ciq.h
+
+pq.o:			pq.c pq.h
+
 
 T01= testsethand
 
@@ -535,9 +539,9 @@ main$(T15).o:		main$(T15).cc
 
 T16= timeout
 
-T16OBJa= main$(T16).o
-T16OBJb= uc_timeout.o upt.o
-T16OBJc= timeout.o timespec.o itimerspec.o sigevent.o 
+T16OBJa= main$(T16).o maininfo.o
+T16OBJb= uc_timeout.o uc_sigwaitinfo.o upt.o
+T16OBJc= sigaction.o sigevent.o timeout.o timespec.o itimerspec.o 
 T16OBJd= pq.o ciq.o vecsorthand.o
 
 T16OBJ= $(T16OBJa) $(T16OBJb) $(T16OBJc) $(T16OBJd)
@@ -567,5 +571,23 @@ $(T17).x:		Makefile $(T17OBJ)
 
 main$(T17).o:		main$(T17).c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) main$(T17).c
+
+
+T18= timer
+
+T18OBJa= main$(T18).o maininfo.o
+T18OBJb= uc_timer.o uc_sigwaitinfo.o upt.o
+T18OBJc= sigaction.o sigevent.o timeout.o timespec.o itimerspec.o 
+T18OBJd= pq.o ciq.o vecsorthand.o
+
+T18OBJ= $(T18OBJa) $(T18OBJb) $(T18OBJc) $(T18OBJd)
+
+T18OBJS= $(CRTFRONT) $(T18OBJ) $(CRTBACK)
+
+$(T18).x:		Makefile $(T18OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T18OBJS) $(TLIBINFO) > $(T18).lm
+
+main$(T18).o:		main$(T18).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T18).cc
 
 

@@ -356,6 +356,17 @@ int vechand_del(vechand *op,int i)
 /* end subroutine (vechand_del) */
 
 
+int vechand_delhand(vechand *op,const void *ep)
+{
+	int		rs ;
+	if ((rs = vechand_ent(op,ep)) >= 0) {
+	    rs = vechand_del(op,rs) ;
+	}
+	return rs ;
+}
+/* end subroutine (vechand_delhand) */
+
+
 int vechand_delall(vechand *op)
 {
 
