@@ -120,7 +120,7 @@ struct sigcode {
 	const char	*name ;
 } ;
 
-struct ourobj {
+class ourobj {
 	TIMEOUT		to ;
 	ccmutex		m ;
 	int		c = 0 ;

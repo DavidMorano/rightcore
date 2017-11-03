@@ -74,7 +74,7 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
-#include	<string.h>		/* for 'strftime(3c)' */
+#include	<string.h>
 #include	<time.h>		/* for 'strftime(3c)' */
 
 #include	<vsystem.h>
@@ -633,6 +633,9 @@ static int getdateinfo(PROGINFO *pip,char *abuf,int alen,cchar *ap,int al,
 	            if ((rs = uc_localtime(&mt,&ts)) >= 0) {
 	                len = strftime(abuf,(alen+1),"%R",&ts) ;
 	                if (len == 0) abuf[0] = '\0' ;
+#if	CF_DEBUGS
+	debugprintf("getdateinfo: dl=%d db=>%t<\n",len,abuf,len) ;
+#endif
 	            }
 	        }
 	    } else if (isBadTime(rs)) {
@@ -796,7 +799,7 @@ static int outinfo_cvtfrom(OUTINFO *oip,cchar *sp,int sl)
 	int		rcols = 0 ;
 	wchar_t		*ibuf ;
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ent sl=%d\n",sl) ;
+	debugprintf("progcsmsg/outinfo_cvt: ent sl=%d\n",sl) ;
 #endif
 	if ((rs = uc_malloc(size,&ibuf)) >= 0) {
 	    if ((rs = progcs_trans(pip,ibuf,ilen,sp,sl)) >= 0) {
@@ -809,7 +812,7 @@ static int outinfo_cvtfrom(OUTINFO *oip,cchar *sp,int sl)
 	    }
 	} /* end if (m-a) */
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
+	debugprintf("progcsmsg/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
 #endif
 	return (rs >= 0) ? rcols : rs ;
 }
@@ -864,7 +867,7 @@ static int outinfo_cvtsubj(OUTINFO *oip,cchar *sp,int sl)
 	int		rcols = 0 ;
 	wchar_t		*ibuf ;
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ent sl=%d\n",sl) ;
+	debugprintf("progcsmsg/outinfo_cvt: ent sl=%d\n",sl) ;
 #endif
 	if ((rs = uc_malloc(size,&ibuf)) >= 0) {
 	    if ((rs = progcs_trans(pip,ibuf,ilen,sp,sl)) >= 0) {
@@ -877,7 +880,7 @@ static int outinfo_cvtsubj(OUTINFO *oip,cchar *sp,int sl)
 	    }
 	} /* end if (m-a) */
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
+	debugprintf("progcsmsg/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
 #endif
 	return (rs >= 0) ? rcols : rs ;
 }
@@ -1078,7 +1081,7 @@ static int outinfo_print(OUTINFO *oip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("b_mailnew/outinfo_print: ent olen=%d\n",olen) ;
+	    debugprintf("progcsmsg/outinfo_print: ent olen=%d\n",olen) ;
 #endif
 
 	if ((rs = uc_malloc((olen+1),&obuf)) >= 0) {
@@ -1126,7 +1129,7 @@ static int outinfo_print(OUTINFO *oip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("b_mailnew/outinfo_print: ret rs=%d wlen=%d\n",
+	    debugprintf("progcsmsg/outinfo_print: ret rs=%d wlen=%d\n",
 		rs,wlen) ;
 #endif
 

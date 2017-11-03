@@ -5,6 +5,7 @@
 
 
 #define	CF_DEBUGN	0		/* special debugging */
+#define	CF_CHILDTHRS	0		/* start threads in child process */
 
 
 /* revision history:
@@ -113,7 +114,7 @@ typedef	int	(*tworker)(void *) ;
 struct uctimeout_flags {
 	uint		timer:1 ;	/* UNIX-RT timer created */
 	uint		workready:1 ;
-	uint		sigact:1 ;
+	uint		thrs:1 ;
 	uint		wasblocked:1 ;
 	uint		running_siger:1 ;
 	uint		running_disp:1 ;
@@ -131,18 +132,16 @@ struct uctimeout {
 	pthread_t	tid_siger ;
 	pthread_t	tid_disp ;
 	timer_t		timerid ;
-	volatile int	waiters ;
+	volatile int	waiters ;	/* n-waiters for general capture */
 	volatile int	f_init ;	/* race-condition, blah, blah */
 	volatile int	f_initdone ;
 	volatile int	f_capture ;	/* capture flag */
-	volatile int	g_thrsiger ;	/* signal-catching thread */
-	volatile int	f_thrdisp ;	/* signal-handler-calling thread */
+	volatile int	f_thrsiger ;	/* thread running (siger) */
+	volatile int	f_thrdisp ;	/* thread running (disp) */
 	volatile int	f_cmd ;
-	volatile int	f_syncing ;
-	volatile int	f_reqexit ;
-	volatile int	f_exitsiger ;
-	volatile int	f_exitdisp ;
-	int		count ;
+	volatile int	f_reqexit ;	/* request exit of threads */
+	volatile int	f_exitsiger ;	/* thread is exiting */
+	volatile int	f_exitdisp ;	/* thread is exiting */
 } ;
 
 enum dispcmds {
@@ -514,6 +513,9 @@ static int uctimeout_workready(UCTIMEOUT *uip)
 	if (! uip->open.workready) {
 	    rs = uctimeout_workbegin(uip) ;
 	}
+	if ((rs >= 0) && (! uip->f.thrs)) {
+	    rs = uctimeout_thrsbegin(uip) ;
+	}
 	return rs ;
 }
 /* end subroutine (uctimeout_workready) */
@@ -732,13 +734,17 @@ static int uctimeout_timerend(UCTIMEOUT *uip)
 
 static int uctimeout_thrsbegin(UCTIMEOUT *uip)
 {
-	int		rs ;
-	if ((rs = uctimeout_sigerbegin(uip)) >= 0) {
-	    rs = uctimeout_dispbegin(uip) ;
-	    if (rs < 0) {
-		uctimeout_sigerend(uip) ;
+	int		rs = SR_OK ;
+	if ((! uip->f.thrs) && (! uip->f_reqexit)) {
+	    if ((rs = uctimeout_sigerbegin(uip)) >= 0) {
+	        if ((rs = uctimeout_dispbegin(uip)) >= 0) {
+		    uip->f.thrs = TRUE ;
+	        }
+	        if (rs < 0) {
+		    uctimeout_sigerend(uip) ;
+	        }
 	    }
-	}
+	} /* end if (needed) */
 	return rs ;
 }
 /* end subroutine (uctimeout_thrsbegin) */
@@ -748,11 +754,14 @@ static int uctimeout_thrsend(UCTIMEOUT *uip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	uip->f_reqexit = TRUE ;
-	rs1 = uctimeout_dispend(uip) ;
-	if (rs >= 0) rs = rs1 ;
-	rs1 = uctimeout_sigerend(uip) ;
-	if (rs >= 0) rs = rs1 ;
+	if (uip->f.thrs) {
+	    uip->f.thrs = FALSE ;
+	    uip->f_reqexit = TRUE ;
+	    rs1 = uctimeout_dispend(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+	    rs1 = uctimeout_sigerend(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 	return rs ;
 }
 /* end subroutine (uctimeout_thrsend) */
@@ -1126,15 +1135,19 @@ static void uctimeout_atforkparent()
 static void uctimeout_atforkchild()
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
-	uip->g_thrsiger = FALSE ;
+	uip->f_reqexit = FALSE ;
+	uip->f.thrs = FALSE ;
+	uip->f_thrsiger = FALSE ;
 	uip->f_thrdisp = FALSE ;
 	uip->f_exitsiger = FALSE ;
 	uip->f_exitdisp = FALSE ;
 	uip->pid = getpid() ;
 	ptm_unlock(&uip->m) ;
-	if (uip->open.workready) {
+#if	CF_CHILDTHRS /* optional */
+	if (uip->open.workready) { 
 	    uctimeout_thrsbegin(uip) ;
 	}
+#endif /* CF_CHILDTHRS */
 }
 /* end subroutine (uctimeout_atforkchild) */
 

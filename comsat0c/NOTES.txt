@@ -1,7 +1,0 @@
-COMSAT
-
-= Daemon mode
-
-$ comsat -deamon
-
-

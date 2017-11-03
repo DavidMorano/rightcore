@@ -9,9 +9,7 @@
 /* revision history:
 
 	- 2008-10-01, David A­D­ Morano
-
 	This object module was originally written.
-
 
 */
 
@@ -77,7 +75,15 @@ extern long	altzone ;
 
 /* external subroutines */
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
 extern char	*strwcpy(char *,const char *,int) ;
+
+
+/* local structures */
 
 
 /* forward references */
@@ -172,7 +178,7 @@ int tmtime_insert(TMTIME *op,struct tm *tmp)
 
 	tc = *tmp ;
 	if (tmp->tm_isdst < 0) {
-	    time_t	t ;
+	    time_t	t ; /* dummy */
 	    rs = uc_mktime(&tc,&t) ;
 	} /* end if (need DST indicator) */
 
@@ -256,6 +262,10 @@ int tmtime_mktimer(TMTIME *op,int f_adj,time_t *tp)
 	time_t		t = 0 ;
 	int		rs ;
 
+#if	CF_DEBUGS
+	debugprintf("tmtime_mktime: ent f_adj=%u\n",f_adj) ;
+#endif
+
 	if (op == NULL) return SR_FAULT ;
 
 	tmtime_extract(op,&tms) ;
@@ -279,8 +289,9 @@ int tmtime_mktimer(TMTIME *op,int f_adj,time_t *tp)
 	    }
 	} /* end if (uc_mktime) */
 
-	if (tp != NULL)
+	if (tp != NULL) {
 	    *tp = (rs >= 0) ? t : 0 ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("tmtime_mktime: ret rs=%d\n",rs) ;

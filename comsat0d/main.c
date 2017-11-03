@@ -673,8 +673,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
-	                            rs = optbool(avp,avl) ;
-	                            pip->f.daemon = (rs > 0) ;
+	                                rs = cfdecti(avp,avl,&v) ;
+	                                pip->intrun = v ;
 	                        }
 	                    }
 	                    break ;
@@ -963,8 +963,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        pip->intidle = v ;
 	    } else if ((tolc(ch) == 'i') || (ch == '-')) {
 	        pip->intidle = INT_MAX ;
-	    } else
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	} /* end if (idle-spec processing) */
 
 #ifdef	COMMENT
@@ -1469,6 +1470,11 @@ static int procback(PROGINFO *pip)
 	    cchar	*tp ;
 	    char	pbuf[MAXPATHLEN+1] ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procback: mid2 rs=%d\n",rs) ;
+#endif
+
 	    if ((tp = strnrpbrk(ebuf,el,"/.")) != NULL) {
 	        if (tp[0] == '.') ebuf[tp-ebuf] = '\0' ;
 	    }
@@ -1476,6 +1482,11 @@ static int procback(PROGINFO *pip)
 	    if ((rs = pcsgetprogpath(pip->pr,pbuf,ebuf)) > 0) {
 	        pf = pbuf ;
 	    }
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procback: mid3 rs=%d\n",rs) ;
+#endif
 
 	    if (rs >= 0) {
 	        int	i = 0 ;

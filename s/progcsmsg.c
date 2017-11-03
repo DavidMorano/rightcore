@@ -13,6 +13,16 @@
 	= 1998-03-01, David A­D­ Morano
 	The subroutine was written from scratch.
 
+	= 2017-11-03, David A­D­ Morano
+        I swapped out |strftime(3c)| for |sntmtime(3dam)| but it was, in the
+        end, quite unnecessary. I changed the desired time-string specification
+        on |strftime(3c)| and it failed properly as it was supposed to (due to
+        result buffer overrun), but it took me a while to figure it out. I
+        changed to |sntmtime(3dam)| to get a clear error condition (which I then
+        fixed by increasing the result buffer size). In the end, I left the 
+	desired time-string specifiction the way it was, so this whole foray
+	was not really necessary.
+
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
@@ -72,13 +82,16 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
-#include	<string.h>		/* for 'strftime(3c)' */
+#include	<string.h>
 #include	<time.h>		/* for 'strftime(3c)' */
 
 #include	<vsystem.h>
+#include	<bfile.h>
 #include	<mailmsg.h>
 #include	<mailmsghdrs.h>
 #include	<termnote.h>
+#include	<tmtime.h>
+#include	<sntmtime.h>
 #include	<localmisc.h>
 
 #include	"defs.h"
@@ -96,7 +109,7 @@
 #define	NOTEBUFLEN	COLUMNS
 #endif
 
-#define	DATEBUFLEN	5		/* "HH:MM" */
+#define	DATEBUFLEN	16		/* enough for "dd HH:MM" */
 #define	MAXOVERLEN	22
 #define	MAXFROMLEN	35
 
@@ -423,6 +436,10 @@ static int procmsginfo(PROGINFO *pip,MAILMSG *mmp,cchar *un)
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("progcsmsg/procmsginfo: ent\n") ;
+#endif
 	if ((rs = outinfo_start(&oi,pip,mmp,un)) >= 0) {
 	    if ((rs = outinfo_hdrs(&oi)) >= 0) {
 		if ((rs = outinfo_adjust(&oi)) >= 0) {
@@ -439,6 +456,10 @@ static int procmsginfo(PROGINFO *pip,MAILMSG *mmp,cchar *un)
 	    rs1 = outinfo_finish(&oi) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (outinfo) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("progcsmsg/procmsginfo: ret rs=%d rc=%u\n",rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procmsginfo) */
@@ -616,6 +637,13 @@ static int getdateinfo(PROGINFO *pip,char *abuf,int alen,cchar *ap,int al,
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5)) {
+	debugprintf("progcsmsg/getdateinfo: ent a=>%t<\n",ap,al) ;
+	debugprintf("progcsmsg/getdateinfo: alen=%d\n",alen) ;
+	}
+#endif
+
 	if (abuf == NULL) return SR_FAULT ;
 	if (ap == NULL) return SR_FAULT ;
 
@@ -631,10 +659,14 @@ static int getdateinfo(PROGINFO *pip,char *abuf,int alen,cchar *ap,int al,
 	    if (rs >= 0) {
 	        time_t	mt ;
 	        if ((rs = dater_gettime(&pip->d,&mt)) >= 0) {
-	            struct tm	ts ;
-	            if ((rs = uc_localtime(&mt,&ts)) >= 0) {
-	                len = strftime(abuf,(alen+1),"%R",&ts) ;
-	                if (len == 0) abuf[0] = '\0' ;
+		    TMTIME	tm ;
+		    if ((rs = tmtime_localtime(&tm,mt)) >= 0) {
+			rs = sntmtime(abuf,alen,&tm,"%R") ;
+			len = rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("progcsmsg/getdateinfo: len=%d ab=>%t<\n",len,abuf,len) ;
+#endif
 	            }
 	        }
 	    } else if (isBadTime(rs)) {
@@ -645,8 +677,9 @@ static int getdateinfo(PROGINFO *pip,char *abuf,int alen,cchar *ap,int al,
 	    abuf[0] = '\0' ;
 	} /* end if (non-zero) */
 
-#if	CF_DEBUGS
-	debugprintf("getdateinfo: ret rs=%d\n",rs) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("progcsmsg/getdateinfo: ret rs=%d\n",rs) ;
 #endif
 
 	return (rs >= 0) ? len : rs ;
@@ -711,11 +744,17 @@ static int outinfo_hdrs(OUTINFO *oip)
 
 static int outinfo_mkdate(OUTINFO *oip)
 {
+	PROGINFO	*pip = oip->pip ;
 	MAILMSG		*mmp = oip->mmp ;
 	int		rs ;
 	int		hl = 0 ;
 	int		f_edate = FALSE ;
 	cchar		*hp ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("progcsmsg/outinfo_mkdate: ent\n") ;
+#endif
+	if (pip == NULL) return SR_FAULT ;
 	if ((rs = mailmsg_hdrival(mmp,HN_DATE,0,&hp)) > 0) {
 	    hl = rs ;
 	} else if ((rs == 0) || isNoMsg(rs)) {
@@ -726,12 +765,20 @@ static int outinfo_mkdate(OUTINFO *oip)
 		rs = SR_OK ;
 	    }
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("progcsmsg/outinfo_mkdate: mid3 rs=%d hl=%u\n",rs,hl) ;
+#endif
 	if ((rs >= 0) && (hl > 0)) {
 	    PROGINFO	*pip = oip->pip ;
 	    const int	dlen = oip->dlen ;
 	    char	*dbuf = oip->dbuf ;
 	    rs = getdateinfo(pip,dbuf,dlen,hp,hl,f_edate) ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("progcsmsg/outinfo_mkdate: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (outinfo_mkdate) */
@@ -798,7 +845,7 @@ static int outinfo_cvtfrom(OUTINFO *oip,cchar *sp,int sl)
 	int		rcols = 0 ;
 	wchar_t		*ibuf ;
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ent sl=%d\n",sl) ;
+	debugprintf("progcsmsg/outinfo_cvt: ent sl=%d\n",sl) ;
 #endif
 	if ((rs = uc_malloc(size,&ibuf)) >= 0) {
 	    if ((rs = progcs_trans(pip,ibuf,ilen,sp,sl)) >= 0) {
@@ -811,7 +858,7 @@ static int outinfo_cvtfrom(OUTINFO *oip,cchar *sp,int sl)
 	    }
 	} /* end if (m-a) */
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
+	debugprintf("progcsmsg/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
 #endif
 	return (rs >= 0) ? rcols : rs ;
 }
@@ -866,7 +913,7 @@ static int outinfo_cvtsubj(OUTINFO *oip,cchar *sp,int sl)
 	int		rcols = 0 ;
 	wchar_t		*ibuf ;
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ent sl=%d\n",sl) ;
+	debugprintf("progcsmsg/outinfo_cvt: ent sl=%d\n",sl) ;
 #endif
 	if ((rs = uc_malloc(size,&ibuf)) >= 0) {
 	    if ((rs = progcs_trans(pip,ibuf,ilen,sp,sl)) >= 0) {
@@ -879,7 +926,7 @@ static int outinfo_cvtsubj(OUTINFO *oip,cchar *sp,int sl)
 	    }
 	} /* end if (m-a) */
 #if	CF_DEBUGS
-	debugprintf("b_mailnew/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
+	debugprintf("progcsmsg/outinfo_cvt: ret rs=%d rcols=%d\n",rs,rcols) ;
 #endif
 	return (rs >= 0) ? rcols : rs ;
 }
@@ -1080,7 +1127,7 @@ static int outinfo_print(OUTINFO *oip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("b_mailnew/outinfo_print: ent olen=%d\n",olen) ;
+	    debugprintf("progcsmsg/outinfo_print: ent olen=%d\n",olen) ;
 #endif
 
 	if ((rs = uc_malloc((olen+1),&obuf)) >= 0) {
@@ -1128,7 +1175,7 @@ static int outinfo_print(OUTINFO *oip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("b_mailnew/outinfo_print: ret rs=%d wlen=%d\n",
+	    debugprintf("progcsmsg/outinfo_print: ret rs=%d wlen=%d\n",
 		rs,wlen) ;
 #endif
 
