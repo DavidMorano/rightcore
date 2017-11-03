@@ -37,9 +37,11 @@
 #include	<stdio.h>
 #include	<new>
 #include	<initializer_list>
+#include	<stdexcept>
 #include	<utility>
 #include	<functional>
 #include	<algorithm>
+#include	<thread>
 #include	<set>
 #include	<string>
 #include	<ostream>
@@ -55,6 +57,7 @@
 #include	<localmisc.h>
 
 #include	"maininfo.h"
+#include	"ccmutex.hh"
 
 
 /* local defines */
@@ -119,6 +122,7 @@ struct sigcode {
 
 struct ourobj {
 	TIMEOUT		to ;
+	ccmutex		m ;
 	int		c = 0 ;
 	bool		f_running = false ;
 public:
@@ -141,7 +145,7 @@ public:
 	    debugprintf("main/ourobj::dtor: ret\n") ;
 #endif
 	} ;
-	int	set(int valint,uint tag,int arg) {
+	int set(int valint,uint tag,int arg) {
 	    int		rs = SR_OK ;
 #if	CF_DEBUGS
 	    debugprintf("main/ourobj::set: val=%d\n",valint) ;
@@ -159,7 +163,9 @@ public:
 		    valabs = (dt+valint) ;
 		    if ((rs = timeout_load(&to,valabs,this,met,tag,arg)) >= 0) {
 			const int	cmd = timeoutcmd_set ;
-			rs = uc_timeout(cmd,&to) ;
+			if ((rs = uc_timeout(cmd,&to)) >= 0) {
+			    f_running = true ;
+			}
 #if	CF_DEBUGS
 	    	    debugprintf("main/ourobj::set: uc_timeout() rs=%d\n",rs) ;
 #endif
@@ -180,12 +186,15 @@ public:
 	    return rs ;
 	} ;
 	int timeout(uint tag,int arg) {
-	    int		rs ;
+	    int			rs ;
 #if	CF_DEBUGS
 	    debugprintf("main/ourobj::timeout: ent\n") ;
 #endif
 	    cout << "timeout tag=" << tag << " arg=" << arg << endl ;
+	    m.lock() ;
+	    f_running = false ;
 	    rs = set(4,0x5a,++c) ;
+	    m.unlock() ;
 #if	CF_DEBUGS
 	    debugprintf("main/ourobj::timeout: ret rs=%d\n",rs) ;
 #endif
@@ -193,6 +202,7 @@ public:
 	} ;
 } ; /* end struct (ourobj) */
 
+/* in theory should be marked extern-C to get correct call convention */
 static int ourobj_hand(void *objp,uint tag,int arg)
 {
 	ourobj		*cop = (ourobj *) objp ;

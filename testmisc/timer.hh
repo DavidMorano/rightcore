@@ -4,10 +4,6 @@
 /* TIMER object */
 
 
-#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEL		1		/* delete */
-
-
 /* revision history:
 
 	= 1998-12-01, David A­D­ Morano

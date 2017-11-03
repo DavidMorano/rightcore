@@ -387,11 +387,13 @@ static int uctimeout_cmdcancel(UCTIMEOUT *uip,TIMEOUT *valp)
 		const int	ei = rs ;
 		if ((rs = vecsorthand_delhand(pqp,ep)) >= 0) {
 		    if ((rs = vechand_del(elp,ei)) >= 0) {
-			CIQ		*cqp = &uip->pass ;
-			const int	nrs = SR_NOTFOUND ;
-			if ((rs = ciq_remhand(cqp,ep)) == nrs) {
-			    rs = SR_OK ;
-			}
+			if ((rs = uc_libfree(ep)) >= 0) {
+			    CIQ		*cqp = &uip->pass ;
+			    const int	nrs = SR_NOTFOUND ;
+			    if ((rs = ciq_remhand(cqp,ep)) == nrs) {
+			        rs = SR_OK ;
+			    }
+		 	}
 		    }
 		}
 	    }

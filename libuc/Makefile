@@ -263,7 +263,7 @@ OBJ126= passwdent.o shadowent.o groupent.o projectent.o userattrent.o
 OBJ127= utmpaccent.o
 
 OBJ128= sigaction.o sigevent.o 
-OBJ129= timeval.o timespec.o timeout.o
+OBJ129= timeval.o itimerspec.o timespec.o timeout.o
 OBJ130= sigignores.o sigdefaults.o
 OBJ131= isasocket.o isinetaddr.o isindomain.o
 OBJ132= hasNotDots.o
