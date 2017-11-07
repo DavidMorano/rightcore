@@ -20,6 +20,15 @@
         Note: for a simple non-writable (constant) copy of a string, check out
         the NULSTR object.
 
+	Object:
+
+	DUPSTR
+
+	Methods:
+
+	int dupstr_start(DUPSTR *ssp,cchar *sp,int sl,char **rpp)
+	int dupstr_finish(DUPSTR *ssp)
+
 
 *******************************************************************************/
 
@@ -44,17 +53,13 @@
 
 /* external subroutines */
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* exported subroutines */
 
 
-int dupstr_start(ssp,sp,sl,rpp)
-DUPSTR		*ssp ;
-const char	sp[] ;
-int		sl ;
-char		**rpp ;
+int dupstr_start(DUPSTR *ssp,cchar *sp,int sl,char **rpp)
 {
 	int		rs = SR_OK ;
 	int		cl = 0 ;
@@ -74,7 +79,7 @@ char		**rpp ;
 	        cl = strwcpy(bp,sp,sl) - bp ;
 	        *rpp = bp ;
 	        ssp->as = bp ;
-	    }
+	    } /* end if (m-a) */
 
 	} else {
 
@@ -88,8 +93,7 @@ char		**rpp ;
 /* end subroutine (dupstr_start) */
 
 
-int dupstr_finish(ssp)
-DUPSTR		*ssp ;
+int dupstr_finish(DUPSTR *ssp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -101,8 +105,9 @@ DUPSTR		*ssp ;
 	        ssp->as = NULL ;
 	    }
 	    ssp->buf[0] = '\0' ;
-	} else
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 	return rs ;
 }

@@ -28,6 +28,10 @@
 
 #define	SIGMAN_MAGIC	0x66938271
 #define	SIGMAN		struct sigman_head
+#define	SIGMAN_HANDLE	struct sigman_handle
+
+
+typedef void (*sigmanhand_t)(int) ;
 
 
 struct sigman_handle {
@@ -38,7 +42,7 @@ struct sigman_handle {
 struct sigman_head {
 	uint		magic ;
 	sigset_t	osm ;
-	struct sigman_handle	*handles ;
+	SIGMAN_HANDLE	*handles ;
 	int		nhandles ;
 	int		nblocks ;
 } ;
@@ -51,7 +55,7 @@ extern "C" {
 #endif
 
 extern int	sigman_start(SIGMAN *,
-			const int *,const int *,const int *,void (*)(int)) ;
+			const int *,const int *,const int *,sigmanhand_t) ;
 extern int	sigman_finish(SIGMAN *) ;
 
 #ifdef	__cplusplus

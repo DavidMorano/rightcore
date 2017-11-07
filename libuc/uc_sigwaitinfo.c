@@ -61,6 +61,8 @@ int uc_sigwaitinfo(const sigset_t *ssp,siginfo_t *sip)
 	int		rs ;
 	int		f_exit = FALSE ;
 
+	if (sip == NULL) return SR_FAULT ;
+
 	repeat {
 	    if ((rs = sigwaitinfo(ssp,sip)) < 0) rs = (- errno) ;
 #if	CF_DEBUGS
@@ -78,6 +80,10 @@ int uc_sigwaitinfo(const sigset_t *ssp,siginfo_t *sip)
 	    } /* end if (error) */
 	} until ((rs >= 0) || f_exit) ;
 
+	if (rs >= 0) {
+	    rs = sip->si_signo ;
+	}
+
 #if	CF_DEBUGS
 	debugprintf("uc_sigwaitinfo: ret rs=%d\n",rs) ;
 #endif
@@ -92,6 +98,8 @@ int uc_sigtimedwait(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
 	TIMESPEC	ts ;
 	int		rs ;
 	int		f_exit = FALSE ;
+
+	if (sip == NULL) return SR_FAULT ;
 
 	if (tsp == NULL) {
 	    tsp = &ts ;
@@ -114,6 +122,10 @@ int uc_sigtimedwait(const sigset_t *ssp,siginfo_t *sip,const TIMESPEC *tsp)
 	        } /* end switch */
 	    } /* end if (error) */
 	} until ((rs >= 0) || f_exit) ;
+
+	if (rs >= 0) {
+	    rs = sip->si_signo ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("uc_sigtimedwait: ret rs=%d\n",rs) ;

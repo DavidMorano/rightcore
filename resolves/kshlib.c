@@ -236,7 +236,7 @@
 #include	<upt.h>
 #include	<ptm.h>
 #include	<ptc.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<sockaddress.h>
 #include	<raqhand.h>
 #include	<char.h>
@@ -372,7 +372,7 @@ struct kshlib {
 	PTM		m ;		/* mutex data */
 	PTM		menv ;		/* mutex environment */
 	PTC		c ;		/* condition variable */
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	SOCKADDRESS	servaddr ;	/* server address */
 	RAQHAND		mq ;		/* message queue */
 	KSHLIB_FL	f, open ;
@@ -435,7 +435,7 @@ static void	kshlib_fini(void) ;
 static void	kshlib_atforkbefore() ;
 static void	kshlib_atforkparent() ;
 static void	kshlib_atforkchild() ;
-static void	kshlib_sighand(int) ;
+static void	kshlib_sighand(int,siginfo_t *,void *) ;
 
 static int	kshlib_begin(KSHLIB *) ;
 static int	kshlib_end(KSHLIB *) ;
@@ -756,8 +756,11 @@ int lib_kshend(void)
 	int		rs1 ;
 	kip->serial += 1 ;
 	kip->runmode &= (~ KSHLIB_RMKSH) ;
-	rs1 = sigman_finish(&kip->sm) ;
+	rs1 = sighand_finish(&kip->sm) ;
 	if (rs >= 0) rs = rs1 ;
+#if	CF_DEBUGN
+	nprintf(NDF,"lib_kshbegin: sighand_finish() rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (lib_kshend) */
@@ -936,11 +939,13 @@ int lib_progaddr(cchar *name,void *app)
 	                caddr_t	*sub = (caddr_t *) app ;
 	                *sub = (caddr_t) p ;
 	            }
-	        } else
+	        } else {
 	            rs = SR_NOENT ;
+		}
 	    } /* end if (sncpy) */
-	} else
+	} else {
 	    rs = SR_NOENT ;
+	}
 #if	CF_DEBUGN
 	nprintf(NDF,"lib_progaddr: ret rs=%d\n",rs) ;
 #endif
@@ -978,12 +983,15 @@ int lib_progcall(cchar *name,int argc,cchar **argv,cchar **envv,void *cxp)
 #if	CF_DEBUGN
 	            nprintf(NDF,"lib_progcall: call() ex=%u\n",ex) ;
 #endif
-	        } else
+	        } else {
 	            ex = EX_OSERR ;
-	    } else
+		}
+	    } else {
 	        ex = EX_OSERR ;
-	} else
+	    }
+	} else {
 	    ex = EX_NOPROG ;
+	}
 
 #if	CF_DEBUGN
 	nprintf(NDF,"lib_progcall: ret ex=%u (%d)\n",ex,rs) ;
@@ -1028,8 +1036,9 @@ int lib_caller(const void *fa,int argc,cchar **argv,cchar **envv,void *cxp)
 
 	    if (func != NULL) {
 	        ex = (*func)(argc,argv,cxp) ;
-	    } else
+	    } else {
 	        ex = EX_NOPROG ;
+	    }
 
 #if	CF_DEBUGN
 	    nprintf(NDF,"lib_caller: func() ex=%u\n",ex) ;
@@ -1057,10 +1066,12 @@ int lib_callfunc(subcmd_t func,int argc,cchar **argv,cchar **envv,void *cxp)
 	    if ((rs = kshlib_init()) >= 0) {
 	        if (func != NULL) {
 	            ex = (*func)(argc,argv,envv,cxp) ;
-	        } else
+	        } else {
 	            ex = EX_NOPROG ;
-	    } else
+		}
+	    } else {
 	        ex = EX_OSERR ;
+	    }
 	} /* end if (lib_initenviron) */
 	if ((rs < 0) && (ex == EX_OK)) ex = EX_MUTEX ;
 
@@ -1085,7 +1096,7 @@ int lib_callcmd(cchar *name,int argc,cchar **argv,cchar **envv,void *cxp)
 	        void	*sop = RTLD_SELF ;
 	        void	*p ;
 #if	CF_DEBUGN
-		    nprintf(NDF,"lib_callcmd: srch-sym=%s\n",symname) ;
+		nprintf(NDF,"lib_callcmd: srch-sym=%s\n",symname) ;
 #endif
 	        if ((p = dlsym(sop,symname)) != NULL) {
 	            int (*cf)(int,cchar **,cchar **,void *) ;
@@ -1299,6 +1310,9 @@ static int kshlib_init(void)
 static void kshlib_fini(void)
 {
 	struct kshlib	*uip = &kshlib_data ;
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_fini: ent\n") ;
+#endif
 	if (uip->f_initdone) {
 	    uip->f_initdone = FALSE ;
 	    {
@@ -1315,6 +1329,9 @@ static void kshlib_fini(void)
 	    ptm_destroy(&uip->m) ;
 	    memset(uip,0,sizeof(struct kshlib)) ;
 	} /* end if (atexit registered) */
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_fini: ret\n") ;
+#endif
 }
 /* end subroutine (kshlib_fini) */
 
@@ -1408,6 +1425,9 @@ static int kshlib_autorunopt(KSHLIB *uip,cchar *sp,int sl)
 	    sl = (tp-sp) ;
 	    while (sl && CHAR_ISWHITE(sp[sl-1])) sl -= 1 ;
 	}
+#if	CF_DEBUGN
+	nprintf(NDF,"kshlib_autorunopt: opt=%t\n",sp,sl) ;
+#endif
 	if ((oi = matostr(runopts,2,sp,sl)) >= 0) {
 	    switch (oi) {
 	    case runopt_notes:
@@ -1461,8 +1481,8 @@ static int kshlib_autorunoptnotes(KSHLIB *uip,cchar *vp,int vl,int f)
 		rs = kshlib_autorunopter(uip) ;
 		rv = rs ;
 #if	CF_DEBUGN
-	nprintf(NDF,"kshlib_autorunoptnotes: _autorunopter() rs=%d\n",
-		rs) ;
+		nprintf(NDF,"kshlib_autorunoptnotes: _autorunopter() rs=%d\n",
+			rs) ;
 #endif
 	    }
 	} /* end if (need check) */
@@ -2177,7 +2197,8 @@ static void kshlib_atforkchild()
 /* end subroutine (kshlib_atforkchild) */
 
 
-static void kshlib_sighand(int sn)
+/* ARGSUSED */
+static void kshlib_sighand(int sn,siginfo_t *sip,void *vcp)
 {
 	KSHLIB		*kip = &kshlib_data ;
 	switch (sn) {
@@ -2258,13 +2279,13 @@ static int kshlib_capend(KSHLIB *uip)
 static int kshlib_sigbegin(KSHLIB *kip,const int *catches)
 {
 	int		rs ;
-	void		(*sh)(int) = kshlib_sighand ;
+	sighand_handler	sh = kshlib_sighand ;
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_sigbegin: ent\n") ;
 #endif
 	kip->f_sigterm = 0 ;
 	kip->f_sigintr = 0 ;
-	rs = sigman_start(&kip->sm,sigblocks,sigigns,sigints,sh) ;
+	rs = sighand_start(&kip->sm,sigblocks,sigigns,sigints,sh) ;
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_sigbegin: ret rs=%d\n",rs) ;
 #endif
@@ -2280,7 +2301,7 @@ static int kshlib_sigend(KSHLIB *kip)
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_sigend: ent\n") ;
 #endif
-	rs1 = sigman_finish(&kip->sm) ;
+	rs1 = sighand_finish(&kip->sm) ;
 	if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_sigend: ret rs=%d\n",rs) ;
@@ -2581,11 +2602,11 @@ static int mksdname(char *rbuf,cchar *dname,pid_t sid)
 #if	CF_DEBUGENV && CF_DEBUGN
 static int ndebugenv(cchar *s,cchar *ev[])
 {
-	cchar		*dfn = NDF ;
-	cchar		*ep ;
 	if (s != NULL) {
 	    if (ev != NULL) {
 	        int	i ;
+	        cchar	*dfn = NDF ;
+		cchar	*ep ;
 	        cchar	*fmt = "%s: e%03u=>%t<\n" ;
 	        nprintf(dfn,"%s: env¬\n", s) ;
 	        for (i = 0 ; ev[i] != NULL ; i += 1) {
@@ -2593,8 +2614,9 @@ static int ndebugenv(cchar *s,cchar *ev[])
 	            nprintf(dfn,fmt,s,i,ep,strlinelen(ep,-1,50)) ;
 	        }
 	        nprintf(dfn,"%s: nenv=%u\n", s,i) ;
-	    } else
+	    } else {
 	        nprintf(dfn,"%s: environ=*null*\n",s) ;
+	    }
 	}
 	return 0 ;
 }

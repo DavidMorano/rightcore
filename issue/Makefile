@@ -360,8 +360,6 @@ lfm.o:			lfm.c lfm.h
 
 vechand.o:		vechand.c vechand.h
 
-sigman.o:		sigman.c sigman.h
-
 sysrealname.o:		sysrealname.c sysrealname.h
 
 sysusernames.o:		sysusernames.c sysusernames.h

@@ -1,7 +1,7 @@
 /* maincallobj (calobj) */
 /* lang=C++11 */
 
-/* test the CALLOBJ facility */
+/* this is a test of initiating and receiving time-out call-back calls */
 
 
 #define	CF_DEBUGS	1		/* non-switchable debug print-outs */
@@ -21,7 +21,7 @@
 
 /*******************************************************************************
 
-	We (try to) test the CALLOBJ facility.
+	We (try to) test the idea of receiving time-out call-backs.
 
 
 *******************************************************************************/
@@ -186,21 +186,20 @@ public:
 	    return rs ;
 	} ;
 	int timeout(uint tag,int arg) {
+	    guardmutex		lck(m) ;
 	    int			rs ;
 #if	CF_DEBUGS
 	    debugprintf("main/ourobj::timeout: ent\n") ;
 #endif
 	    cout << "timeout tag=" << tag << " arg=" << arg << endl ;
-	    m.lock() ;
 	    f_running = false ;
 	    rs = set(4,0x5a,++c) ;
-	    m.unlock() ;
 #if	CF_DEBUGS
 	    debugprintf("main/ourobj::timeout: ret rs=%d\n",rs) ;
 #endif
 	    return rs ;
 	} ;
-} ; /* end struct (ourobj) */
+} ; /* end structure (ourobj) */
 
 /* in theory should be marked extern-C to get correct call convention */
 static int ourobj_hand(void *objp,uint tag,int arg)
@@ -214,9 +213,6 @@ static int ourobj_hand(void *objp,uint tag,int arg)
 /* forward references */
 
 static int	maininfo_time(MAININFO *,time_t,int) ;
-
-static int	maininfo_sigbegin(MAININFO *) ;
-static int	maininfo_sigend(MAININFO *) ;
 
 static void	main_sighand(int,siginfo_t *,void *) ;
 static int	main_sigdump(siginfo_t *) ;
@@ -296,13 +292,14 @@ int main(int argc,cchar **argv,cchar **envv)
 	{
 	    MAININFO	mi, *mip = &mi ;
 	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
-	        if ((rs = maininfo_sigbegin(mip)) >= 0) {
+		maininfohand_t	sh = main_sighand ;
+	        if ((rs = maininfo_sigbegin(mip,sh,sigcatches)) >= 0) {
 	            {
 	                rs = maininfo_time(mip,dt,tval) ;
 	            }
 	            rs1 = maininfo_sigend(mip) ;
 	            if (rs >= 0) rs = rs1 ;
-	        }
+	        } /* end if (maininfo-sig) */
 	        rs1 = maininfo_finish(mip) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (maininfo) */
@@ -352,38 +349,6 @@ static int maininfo_time(MAININFO *mip,time_t dt,int tval)
 	return rs ;
 }
 /* end subroutine (maininfo_time) */
-
-
-static int maininfo_sigbegin(MAININFO *mip)
-{
-	int		rs = SR_OK ;
-#if	CF_SIGHAND
-	{
-	    void	(*sh)(int,siginfo_t *,void *) = main_sighand ;
-	    rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
-	}
-#endif
-#if	CF_DEBUGN
-	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (maininfo_sigbegin) */
-
-
-static int maininfo_sigend(MAININFO *mip)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-#if	CF_SIGHAND
-	rs1 = sighand_finish(&mip->sh) ;
-	if (rs >= 0) rs = rs1 ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (maininfo_sigend) */
 
 
 /* ARGSUSED */

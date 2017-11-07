@@ -282,6 +282,7 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"nh",
 	"utf",
 	"db",
@@ -299,6 +300,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_nh,
 	argopt_utf,
 	argopt_db,
@@ -657,6 +659,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* UTMP file */
 	                case argopt_utf:
 	                case argopt_db:
@@ -960,11 +979,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* load up the environment options */
 
-	rs = procopts(pip,&akopts) ;
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 /* argument defaults */
-
-	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (lip->f.fmtshort && lip->f.uniq)
 	    lip->f.users = TRUE ;

@@ -33,13 +33,16 @@ typedef const char	cchar ;
 #define	PROGSIG_RMKSH	(1<<0)
 #define	PROGSIG_RMMAIN	(1<<1)
 
+#define	PROGSIG_NBUFLEN	100
+#define	PROGSIG_USERLEN	100
+
 
 struct progsig_note {
 	time_t		stime ;
 	int		type ;
 	int		dlen ;
-	char		dbuf[SESMSG_NBUFLEN+1] ;
-	char		user[SESMSG_USERLEN+1] ;
+	char		dbuf[PROGSIG_NBUFLEN+1] ;
+	char		user[PROGSIG_USERLEN+1] ;
 } ;
 
 

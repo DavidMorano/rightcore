@@ -11,7 +11,7 @@ Arguments:
 -af <afile>	argument-list file
 -s <val>	sets the PCS-name to <name>
 -a		all-users
--f		operate on the full-name rather than the regular name
+-f		retrieve full-name rather than the regular name
 -o <opt(s)>	options: realname[=<b>]
 -V		print command version to standard-error and then exit
 

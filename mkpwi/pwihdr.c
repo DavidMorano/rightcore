@@ -157,8 +157,9 @@ int pwihdr(PWIHDR *ep,int f,char *hbuf,int hlen)
 	            bp += headsize ;
 	            bl -= headsize ;
 
-	        } else
+	        } else {
 	            rs = SR_ILSEQ ;
+		}
 
 	    } /* end if (item) */
 

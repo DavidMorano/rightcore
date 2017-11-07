@@ -454,6 +454,7 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"pwfile",
 	"pwidb",
 	NULL
@@ -468,6 +469,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_pwfile,
 	argopt_pwidb,
 	argopt_overlast
@@ -1005,6 +1007,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* password file */
 	                case argopt_pwfile:
 	                    if (f_optequal) {
@@ -1171,8 +1190,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1214,12 +1232,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some preliminary initialization */
 
-	if (afname == NULL) getourenv(pip->envv,VARAFNAME) ;
-
 	if ((rs >= 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;
 	    pip->n = rs ;
 	}
+
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 	if (rs >= 0) {
 	    rs = procopts(pip,&akopts) ;
@@ -3376,7 +3396,7 @@ static int datauser_pw(DATAUSER *dup)
 		    f_ent = TRUE ;
 		} else if ((rs == rsn) && hasalldig(un,-1)) {
 	            if ((rs = cfdecui(un,-1,&uiw)) >= 0) {
-	                uid_t	tuid = uiw ;
+	                const uid_t	tuid = uiw ;
 	                if ((rs = getpwentry_uid(pp,pbuf,plen,tuid)) >= 0) {
 			    const int	unlen = USERNAMELEN ;
 			    char	*unbuf = dup->unbuf ;
@@ -3403,7 +3423,7 @@ static int datauser_pw(DATAUSER *dup)
 	            } else if ((rs == rsn) && hasalldig(un,-1)) {
 	                const int	ulen = USERNAMELEN ;
 	                if ((rs = cfdecui(un,-1,&uiw)) >= 0) {
-	                    const uid_t	uid = uiw ;
+	                    const uid_t		uid = uiw ;
 	                    if ((rs = getusername(dup->unbuf,ulen,uid)) >= 0) {
 			        cchar	*un ;
 	                        dup->un = dup->unbuf ;
@@ -4245,6 +4265,7 @@ static int mkgid(char *grbuf,int grlen,cchar *gname)
 /* end subroutine (mkgid) */
 
 
+/* yes, this subroutine degenerates into an existing interface */
 static int getuser(char *ubuf,int ulen,uid_t uid)
 {
 	return getusername(ubuf,ulen,uid) ;

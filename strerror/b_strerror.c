@@ -553,6 +553,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+			    break ;
+
 /* handle all keyword defaults */
 	                default:
 	                    rs = SR_INVALID ;
@@ -704,8 +721,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -753,6 +769,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ex = EX_OK ;
 
 /* some initialization */
+
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
 

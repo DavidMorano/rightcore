@@ -171,11 +171,11 @@ OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
 OBJ10= cachetime.o fsi.o setstr.o
-OBJ11= envhelp.o filebuf.o
+OBJ11=
 OBJ12=
 OBJ13=
-OBJ14= spawnproc.o
-OBJ15= uc_reade.o
+OBJ14=
+OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)

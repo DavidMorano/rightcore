@@ -602,7 +602,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1190,8 +1190,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get our program root */

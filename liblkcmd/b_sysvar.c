@@ -250,6 +250,7 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"gf",
 	"db",
 	"df",
@@ -267,6 +268,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_gf,
 	argopt_db,
 	argopt_df,
@@ -626,6 +628,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* get-file */
 	                case argopt_gf:
 	                    lip->f.query = TRUE ;
@@ -884,8 +903,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -927,9 +945,18 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* load up the environment options */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (dbname == NULL) dbname = getourenv(envv,VARDBNAME) ;
 	if (dbname == NULL) dbname = DBNAME ;

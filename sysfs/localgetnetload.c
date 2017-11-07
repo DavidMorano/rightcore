@@ -10,7 +10,6 @@
 /* revision history:
 
 	= 1998-05-01, David A­D­ Morano
-
 	This subroutine is originally written.
 
 */
@@ -84,7 +83,6 @@
 extern int	sncpy1(char *,int,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	cthexi(char *,int) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	getuserhome(char *,int,const char *) ;
 extern int	localgetorg(const char *,char *,int,const char *) ;

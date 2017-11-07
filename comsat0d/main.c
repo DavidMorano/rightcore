@@ -1208,7 +1208,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_ra:
 	                    if (! pip->final.reuseaddr) {
 	                        pip->have.reuseaddr = TRUE ;
@@ -1220,7 +1219,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_cf:
 	                    if (pip->cfname == NULL) {
 	                        if (vl > 0) {
@@ -1229,7 +1227,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_lf:
 	                    if (pip->lfname == NULL) {
 	                        if (vl > 0) {
@@ -1238,7 +1235,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_daemon:
 	                    if (! pip->final.daemon) {
 	                        pip->have.daemon= TRUE ;
@@ -1250,7 +1246,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_intrun:
 	                    if (! pip->final.intrun) {
 	                        pip->have.intrun = TRUE ;
@@ -1262,7 +1257,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_intidle:
 	                    if (! pip->final.intidle) {
 	                        pip->have.intidle = TRUE ;
@@ -1274,7 +1268,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_hostspec:
 	                    if (pip->hostspec == NULL) {
 	                        if (vl > 0) {
@@ -1283,7 +1276,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_portspec:
 	                    if (pip->portspec == NULL) {
 	                        if (vl > 0) {
@@ -1292,7 +1284,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

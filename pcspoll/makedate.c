@@ -1,2 +1,2 @@
 const char pcspoll_makedate[] =
-"@(#)pcspoll                 170823_1747:40_USEDT Rightcore Network Services" ;
+"@(#)pcspoll                 171103_1936:10_USEDT Rightcore Network Services" ;

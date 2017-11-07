@@ -27,8 +27,10 @@
 #define	USERNAMELEN	32
 #endif
 
+#define	COMSATMSG_MO	struct comsatmsg_mo
 
-struct comsatmsg_mailoff {
+
+struct comsatmsg_mo {
 	ulong		offset ;
 	char		username[USERNAMELEN + 1] ;
 	char		fname[MAXNAMELEN + 1] ;
@@ -37,7 +39,7 @@ struct comsatmsg_mailoff {
 
 /* message types */
 enum comsatmsgtypes {
-	comsatmsgtype_mailoff,
+	comsatmsgtype_mo,
 	comsatmsgtype_overlast
 } ;
 
@@ -48,7 +50,7 @@ enum comsatmsgtypes {
 extern "C" {
 #endif
 
-extern int comsatmsg_mailoff(struct comsatmsg_mailoff *,int,char *,int) ;
+extern int comsatmsg_mo(COMSATMSG_MO *,int,char *,int) ;
 
 #ifdef	__cplusplus
 }

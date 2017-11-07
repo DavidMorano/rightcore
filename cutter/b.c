@@ -1104,7 +1104,6 @@ static int procfile(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar fname[])
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
-	cchar		*varterm = VARTERM ;
 
 	if (lip == NULL) return SR_FAULT ;
 
@@ -1119,9 +1118,17 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 static int locinfo_finish(LOCINFO *lip)
 {
 	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs1 = 0 ; /* lint */
 
 	if (lip == NULL) return SR_FAULT ;
+
+#if	CF_LOCSETENT
+	rs1 = vecstr_finish(&lip->stores) ;
+	if (rs >= 0) rs = rs1 ;
+	lip->open.stores = FALSE ;
+#else
+	if (rs1 < 0) rs = rs1 ; /* lint */
+#endif
 
 	return rs ;
 }

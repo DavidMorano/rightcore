@@ -6,6 +6,8 @@
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUGN	0		/* special debugging */
 #define	CF_PROGINFO	0		/* use 'maininfo_xxx()' */
+#define	CF_SIGHAND	1		/* install signal handlers */
+#define	CF_SIGALTSTACK	0		/* do *not* define */
 
 
 /* revision history:
@@ -109,7 +111,7 @@ int maininfo_start(MAININFO *mip,int argc,cchar **argv)
 
 	uc_sigsetempty(&ss) ;
 	uc_sigsetadd(&ss,sig) ;
-	if ((rs = u_sigprocmask(SIG_BLOCK,&ss,&mip->savemask)) >= 0) {
+	if ((rs = pt_sigmask(SIG_BLOCK,&ss,&mip->savemask)) >= 0) {
 	    if ((rs = vecstr_start(&mip->stores,2,0)) >= 0) {
 	        int	cl ;
 	        cchar	*cp ;
@@ -139,7 +141,7 @@ int maininfo_start(MAININFO *mip,int argc,cchar **argv)
 	        if (rs < 0)
 	            vecstr_finish(&mip->stores) ;
 	    } /* end if (vecstr_start) */
-	} /* end if (u_sigprocmask) */
+	} /* end if (pt_sigmask) */
 
 	return rs ;
 }
@@ -156,7 +158,7 @@ int maininfo_finish(MAININFO *mip)
 	rs1 = vecstr_finish(&mip->stores) ;
 	if (rs >= 0) rs = rs1 ;
 
-	rs1 = u_sigprocmask(SIG_SETMASK,&mip->savemask,NULL) ;
+	rs1 = pt_sigmask(SIG_SETMASK,&mip->savemask,NULL) ;
 	if (rs >= 0) rs = rs1 ;
 
 	return rs ;
@@ -189,6 +191,86 @@ int maininfo_setentry(MAININFO *mip,cchar **epp,cchar *vp,int vl)
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (maininfo_setentry) */
+
+
+#if	CF_SIGALTSTACK
+int maininfo_sigbegin(MAININFO *mip,maininfohand_t sh,const int *sigcatches)
+{
+	size_t		ms ;
+	const int	ps = getpagesize() ;
+	const int	ss = (2*SIGSTKSZ) ;
+	int		rs ;
+	int		mp = (PROT_READ|PROT_WRITE) ;
+	int		mf = (MAP_PRIVATE|MAP_NORESERVE|MAP_ANON) ;
+	int		fd = -1 ;
+	void		*md ;
+	ms = iceil(ss,ps) ;
+	if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
+	    mip->mdata = md ;
+	    mip->msize = ms ;
+	    mip->astack.ss_size = ms ;
+	    mip->astack.ss_sp = md ;
+	    mip->astack.ss_flags = 0 ;
+	    if ((rs = u_sigaltstack(&mip->astack,NULL)) >= 0) {
+	        rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+	        if (rs < 0) {
+	            mip->astack.ss_flags = SS_DISABLE ;
+	            u_sigaltstack(&mip->astack,NULL) ;
+	        }
+	    } /* end if (u_sigaltstack) */
+	    if (rs < 0) {
+	        u_munmap(mip->mdata,mip->msize) ;
+	        mip->mdata = NULL ;
+	    }
+	} /* end if (mmap) */
+#if	CF_DEBUGN
+	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (maininfo_sigbegin) */
+#else /* CF_SIGALTSTACK */
+int maininfo_sigbegin(MAININFO *mip,maininfohand_t sh,const int *sigcatches)
+{
+	int		rs = SR_OK ;
+#if	CF_SIGHAND
+	rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
+#endif
+#if	CF_DEBUGN
+	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (maininfo_sigbegin) */
+#endif /* CF_SIGALTSTACK */
+
+
+int maininfo_sigend(MAININFO *mip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+#if	CF_SIGHAND
+	rs1 = sighand_finish(&mip->sh) ;
+	if (rs >= 0) rs = rs1 ;
+#endif
+
+#if	CF_SIGALTSTACK
+	mip->astack.ss_flags = SS_DISABLE ;
+	rs1 = u_sigaltstack(&mip->astack,NULL) ;
+	if (rs >= 0) rs = rs1 ;
+
+	if (mip->mdata != NULL) {
+	    rs1 = u_munmap(mip->mdata,mip->msize) ;
+	    if (rs >= 0) rs = rs1 ;
+	    mip->mdata = NULL ;
+	    mip->msize = 0 ;
+	}
+#endif /* CF_SIGALTSTACK */
+
+	return rs ;
+}
+/* end subroutine (maininfo_sigend) */
 
 
 int maininfo_utilbegin(MAININFO *op,int f_run)

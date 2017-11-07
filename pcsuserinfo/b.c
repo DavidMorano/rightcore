@@ -1981,6 +1981,7 @@ int locinfo_rnlook(LOCINFO *lip,LOCINFO_RNCUR *curp,cchar *gnp,int gnl)
 
 	if (curp == NULL) return SR_FAULT ;
 	if (gnp == NULL) return SR_FAULT ;
+	if (pip == NULL) return SR_FAULT ;
 
 	if ((rs = sysrealname_look(&lip->rn,&curp->rncur,fo,gnp,gnl)) >= 0) {
 	    rs = 1 ;

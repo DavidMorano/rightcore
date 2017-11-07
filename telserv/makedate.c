@@ -1,2 +1,2 @@
 const char telserv_makedate[] =
-"@(#)telserv                 170630_0030:51_USEDT Rightcore Network Services" ;
+"@(#)telserv                 171103_1929:23_USEDT Rightcore Network Services" ;

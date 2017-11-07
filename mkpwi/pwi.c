@@ -1,6 +1,6 @@
 /* pwi */
 
-/* password index manager */
+/* PassWord Index manager */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -134,8 +134,7 @@
 
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	sncpy4(char *,int, const char *,const char *,
-			const char *,const char *) ;
+extern int	sncpy4(char *,int, cchar *,cchar *,cchar *,cchar *) ;
 extern int	sncpylc(char *,int,const char *) ;
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	mkpath1(char *,const char *) ;
@@ -195,7 +194,7 @@ static int	realname_isextra(REALNAME *,PWDESC *,const char *) ;
 
 /* local variables */
 
-static const char	*exports[] = {
+static cchar	*exports[] = {
 	VARHZ,
 	VARNODE,
 	VARHOMEDNAME,
@@ -207,13 +206,13 @@ static const char	*exports[] = {
 } ;
 
 /* use fixed locations for security reasons (like we care!) */
-static const char	*prbins[] = {
+static cchar	*prbins[] = {
 	"bin",
 	"sbin",
 	NULL
 } ;
 
-static const char	*extras = "¹²³" ;
+static cchar	*extras = "¹²³" ;
 
 
 /* exported subroutines */
@@ -258,20 +257,16 @@ int pwi_open(PWI *op,cchar *pr,cchar *dbname)
 	            ti_pwi = sbp->st_mtime ;
 	            if ((rs1 >= 0) && (ti_pwi == 0)) {
 	                rs1 = SR_NOTFOUND ;
-
 #if	CF_DEBUGS
 	                debugprintf("pwi_open: zero size \n") ;
 #endif
-
 	            }
 
 	            if ((rs1 >= 0) && ((daytime - ti_pwi) >= to)) {
 	                rs1 = SR_NOTFOUND ;
-
 #if	CF_DEBUGS
 	                debugprintf("pwi_open: expiration\n") ;
 #endif
-
 	            }
 
 	            if (rs1 >= 0) {
@@ -280,19 +275,18 @@ int pwi_open(PWI *op,cchar *pr,cchar *dbname)
 
 	                if ((rs1 >= 0) && (sb.st_mtime > ti_pwi)) {
 	                    rs1 = SR_NOTFOUND ;
-
 #if	CF_DEBUGS
 	                    debugprintf("pwi_open: PASSWD file is younger\n") ;
 #endif
-
 	                }
 
 	            } /* end if (checking against system PASSWD file) */
 
 	            if ((rs1 == SR_NOTFOUND) || (rs1 == SR_ACCESS)) {
 	                rs = subinfo_mkpwi(sip) ;
-	            } else
+	            } else {
 	                rs = rs1 ;
+		    }
 
 	        } /* end if (mkfnamesuf) */
 
@@ -453,7 +447,6 @@ int pwi_lookup(PWI *op,char *rbuf,int rlen,cchar *name)
 
 static int subinfo_start(SUBINFO *sip,cchar *pr,cchar *dbname)
 {
-
 
 	memset(sip,0,sizeof(SUBINFO)) ;
 	sip->pr = pr ;
@@ -633,15 +626,11 @@ static int subinfo_mkpwi(SUBINFO *sip)
 	        cstat = 0 ;
 	        rs = 0 ;
 	        while (rs == 0) {
-
 	            rs = u_waitpid(cpid,&cstat,0) ;
-
 #if	CF_DEBUGS
 	            debugprintf("pwi/subinfo_mkpwi: u_waitpid() rs=%d\n",rs) ;
 #endif
-
 	            if (rs == SR_INTR) rs = 0 ;
-
 	        } /* end while */
 
 	        if (rs >= 0) {
@@ -699,7 +688,7 @@ static int realname_isextra(REALNAME *op,PWDESC *pdp,const char *un)
 #endif
 	    if (strnpbrk(ln,ll,extras) == NULL) {
 		if ((rs = GETPW_NAME(pwp,pwbuf,pwlen,un)) > 0) {
-		    const char	*np ;
+		    cchar	*np ;
 		    if ((rs = getgecosname(pwp->pw_gecos,-1,&np)) > 0) {
 			f = (strnpbrk(np,rs,extras) != NULL) ;
 		    }

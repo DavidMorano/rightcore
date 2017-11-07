@@ -112,7 +112,7 @@ public:
 	    }
 	    return rs ;
 	} ;
-} ; /* end struct (ourcon) */
+} ; /* end structure (ourcon) */
 
 struct thingless ;
 
@@ -162,7 +162,7 @@ struct thing {
 	    return (t1.id == t2.id) ;
 	} ;
 	friend thingless ;
-} ; /* end struct (thing) */
+} ; /* end structure (thing) */
 
 struct thingless {
     bool operator () (const thing &t1,const thing &t2) const {

@@ -121,7 +121,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	}
 
 	if (rs >= 0) {
-	    int	oi = -1 ;
+	    int		oi = -1 ;
 	    if (*epp != NULL) {
 		oi = vecstr_findaddr(vsp,*epp) ;
 	    }

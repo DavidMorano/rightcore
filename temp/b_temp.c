@@ -163,7 +163,6 @@ enum units {
 	unit_celsius,
 	unit_kelvin,
 	unit_overlast
-
 } ;
 
 
@@ -199,6 +198,7 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	NULL
 } ;
 
@@ -211,6 +211,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_overlast
 } ;
 
@@ -531,6 +532,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
+
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+			    break ;
 
 /* handle all keyword defaults */
 	                default:

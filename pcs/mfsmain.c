@@ -279,6 +279,7 @@ static cchar *argopts[] = {
 	"req",
 	"pm",
 	"sn",
+	"af",
 	"ef",
 	"of",
 	"cf",
@@ -311,6 +312,7 @@ enum argopts {
 	argopt_req1,
 	argopt_pm,
 	argopt_sn,
+	argopt_af,
 	argopt_ef,
 	argopt_of,
 	argopt_cf,
@@ -340,6 +342,7 @@ static const struct pivars	initvars = {
 } ;
 
 static cchar	*progmodes[] = {
+	"mfserve",
 	"tcpmuxd",
 	"fingers",
 	NULL
@@ -492,6 +495,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*pr = NULL ;
 	cchar		*pm = getourenv(envv,VARPROGMODE) ;
 	cchar		*sn = NULL ;
+	cchar		*afname = NULL ;
 	cchar		*efname = NULL ;
 	cchar		*ofname = NULL ;
 	cchar		*vp ;
@@ -730,6 +734,23 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                sn = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+	                case argopt_af:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            afname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -1214,8 +1235,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1281,6 +1301,10 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    rs = cfdecti(argval,-1,&v) ;
 	    pip->intpoll = v ;
 	}
+
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 /* process program options */
 
@@ -2728,7 +2752,7 @@ static int procservice(PROGINFO *pip)
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt ;
 	    if ((rs = mfswatch_begin(pip)) >= 0) {
-	 	time_t	ti_start = pip->daytime ;
+	 	const time_t	ti_start = pip->daytime ;
 
 		while ((rs = mfswatch_service(pip)) >= 0) {
 
@@ -2765,7 +2789,7 @@ static int procservice(PROGINFO *pip)
 			    timestr_logz(pip->daytime,tbuf) ;
 			    fmt = "%s: %s command resumed\n" ;
 			    shio_printf(pip->efp,fmt,pn,tbuf) ;
-		        }
+		        } /* end if (lib_issig) */
 		    }
 #if	CF_DEBUG
 		    if (DEBUGLEVEL(4)) 

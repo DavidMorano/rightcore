@@ -202,7 +202,7 @@ static const char	*totaluser = TOTALNAME ;
 /* exported subroutines */
 
 
-int useraccdb_open(USERACCDB *op,cchar pr[],cchar dbname[])
+int useraccdb_open(USERACCDB *op,cchar *pr,cchar *dbname)
 {
 	int		rs ;
 	const char	*logdname = USERACCDB_LOGDNAME ;
@@ -275,12 +275,8 @@ int useraccdb_close(USERACCDB *op)
 /* end subroutine (useraccdb_close) */
 
 
-int useraccdb_find(op,ep,ebuf,elen,user)
-USERACCDB	*op ;
-USERACCDB_ENT	*ep ;
-char		ebuf[] ;
-int		elen ;
-const char	*user ;
+int useraccdb_find(USERACCDB *op,USERACCDB_ENT *ep,char *ebuf,int elen,
+		cchar *user)
 {
 	FILEBUF		b ;
 	int		rs ;

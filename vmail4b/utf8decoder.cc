@@ -44,7 +44,6 @@
 #include	<new>
 
 #include	<vsystem.h>
-#include	<char.h>
 #include	<localmisc.h>
 
 #include	"utf8decoder.h"

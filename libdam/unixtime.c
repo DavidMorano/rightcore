@@ -45,14 +45,23 @@
 /* exported subroutines */
 
 
-int64_t unixtime(int64_t *rp)
-{
-	uint64_t	uut ;
-	int64_t		ut ;
-	time_t		dt = time(NULL) ;
+#if	defined(_LP64)
 
-	uut = (uint64_t) dt ;
-	ut = (int64_t) uut ;
+unixtime_t unixtime(unixtime_t *rp)
+{
+	return time(rp) ;
+}
+
+#else /* defined(_LP64) */
+
+unixtime_t unixtime(unixtime_t *rp)
+{
+	const time_t	t = time(NULL) ;
+	uint64_t	uut ;
+	unixtime_t	ut ;
+
+	uut = (uint64_t) t ;
+	ut = (unixtime_t) uut ;
 	if (rp != NULL) {
 	   *rp = ut ;
 	}
@@ -60,5 +69,7 @@ int64_t unixtime(int64_t *rp)
 	return ut ;
 }
 /* end subroutine (unixtime) */
+
+#endif /* defined(_LP64) */
 
 

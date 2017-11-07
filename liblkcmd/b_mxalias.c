@@ -179,6 +179,7 @@ static cchar	*argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"unresolved",
 	"dump",
 	"df",
@@ -194,6 +195,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_unresolved,
 	argopt_dump,
 	argopt_df,
@@ -509,6 +511,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* dump file */
 	                case argopt_dump:
 	                case argopt_df:
@@ -688,11 +707,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_mxalias: debuglevel=%d\n",pip->debuglevel) ;
 #endif
 
-	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: verboselevel=%d\n",
-	        pip->progname,pip->verboselevel) ;
-	}
-
 	if (f_version) {
 	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
@@ -736,10 +750,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* option parsing */
 
+	if (pip->debuglevel > 0) {
+	    shio_printf(pip->efp,"%s: verboselevel=%d\n",
+		pip->progname,pip->verboselevel) ;
+	}
+
 	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;
 	    pip->n = rs ;
 	}
+
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 	if (rs >= 0) {
 	    rs = procopts(pip,&akopts) ;
@@ -749,8 +772,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (DEBUGLEVEL(2))
 	    debugprintf("b_mxalias: done w/ proc options\n") ;
 #endif
-
-	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	pip->username = lip->username ; /* initialized in 'locinfo_start()' */
 
@@ -980,6 +1001,7 @@ static int locinfo_outadd(LOCINFO *lip,cchar *vp,int vl)
 	const int	nrs = SR_NOTFOUND ;
 	int		rs ;
 
+	if (pip == NULL) return SR_FAULT ;
 	if ((rs = hdbstr_fetch(&lip->addrs,vp,vl,NULL,NULL)) == nrs) {
 	    rs = hdbstr_add(&lip->addrs,vp,vl,vp,0) ;
 	}
@@ -993,12 +1015,13 @@ static int locinfo_outprint(LOCINFO *lip,SHIO *ofp)
 {
 	PROGINFO	*pip = lip->pip ;
 	HDBSTR_CUR	cur ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		wlen = 0 ;
 
+	if (pip == NULL) return SR_FAULT ;
 	if ((rs = hdbstr_curbegin(&lip->addrs,&cur)) >= 0) {
 	    int		kl ;
-	    const char	*kp ;
+	    cchar	*kp ;
 
 	    while ((kl = hdbstr_enum(&lip->addrs,&cur,&kp,NULL,NULL)) >= 0) {
 

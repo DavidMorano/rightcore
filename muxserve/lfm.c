@@ -313,92 +313,6 @@ const char	nn[], un[], bn[] ;
 /* end subroutine (lfm_start) */
 
 
-static int lfm_startcheck(LFM *op,time_t dt)
-{
-	USTAT		sb ;
-	const int	type = op->type ;
-	int		rs ;
-	cchar		*lfn = op->lfname ;
-	if ((rs = u_stat(lfn,&sb)) >= 0) {
-	    if (S_ISREG(sb.st_mode)) {
-	        const int	to = op->tolock ;
-	        op->ti_check = dt ;
-	        op->ti_stat = dt ;
-	        if (type >= LFM_TCREATE) {
-	            if ((dt - sb.st_mtime) >= to) {
-	                u_unlink(op->lfname) ;
-	            } else {
-	                rs = SR_LOCKED ;
-	            }
-	        } /* end if (good stat) */
-	    } else {
-	        rs = SR_ISDIR ;
-	    }
-	} else if (isNotPresent(rs)) {
-	    rs = SR_OK ;
-	} /* end if (u_stat) */
-#if	CF_DEBUGS
-	debugprintf("lfm_startcheck: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (lfm_startcheck) */
-
-
-static int lfm_startopen(LFM *op,LFM_LOCKINFO *lip)
-{
-	const int	type = op->type ;
-	int		rs ;
-	int		oflags = (O_RDWR | O_CREAT) ;
-	mode_t		omode = 0664 ;
-
-#if	CF_DEBUGS
-	debugprintf("lfm_startopen: ent lfn=%s\n",op->lfname) ;
-	debugprintf("lfm_startopen: ent type=%u\n",type) ;
-#endif
-
-	if (type >= LFM_TCREATE) omode = 0444 ;
-	if (type >= LFM_TEXCLUSIVE) oflags |= O_EXCL ;
-	if ((rs = u_open(op->lfname,oflags,omode)) >= 0) {
-	    const int	lfd = rs ;
-
-#if	CF_DEBUGS
-	    debugprintf("lfm_startopen: u_open() rs=%d\n",rs) ;
-#endif
-
-	    if ((rs = uc_lockf(lfd,F_TLOCK,0L)) >= 0) {
-	        if ((rs = lfm_lockwrite(op,lip,lfd)) >= 0) {
-	            USTAT	sb ;
-	            if ((rs = u_fstat(lfd,&sb)) >= 0) {
-	                op->lfd = lfd ;
-	                op->magic = LFM_MAGIC ;
-	                op->dev = sb.st_dev ;
-	                op->ino = sb.st_ino ;
-	            }
-	        }
-	    } else if (rs == SR_ACCESS) {
-	        rs = SR_LOCKED ;
-	    } /* end if (uc_lockf) */
-
-	    if (rs < 0) {
-	        switch (rs) {
-	        case SR_EXIST:
-	        case SR_ACCESS:
-	            rs = SR_LOCKED ;
-	            break ;
-	        } /* end switch */
-	    } /* end if */
-	} /* end if (u_open) */
-
-#if	CF_DEBUGS
-	debugprintf("lfm_startopen: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutie (lfm_startopen) */
-
-
 int lfm_finish(LFM *op)
 {
 	int		rs = SR_OK ;
@@ -644,6 +558,92 @@ int lfm_getpid(LFM *op,pid_t *rp)
 
 
 /* private subroutines */
+
+
+static int lfm_startcheck(LFM *op,time_t dt)
+{
+	USTAT		sb ;
+	const int	type = op->type ;
+	int		rs ;
+	cchar		*lfn = op->lfname ;
+	if ((rs = u_stat(lfn,&sb)) >= 0) {
+	    if (S_ISREG(sb.st_mode)) {
+	        const int	to = op->tolock ;
+	        op->ti_check = dt ;
+	        op->ti_stat = dt ;
+	        if (type >= LFM_TCREATE) {
+	            if ((dt - sb.st_mtime) >= to) {
+	                u_unlink(op->lfname) ;
+	            } else {
+	                rs = SR_LOCKED ;
+	            }
+	        } /* end if (good stat) */
+	    } else {
+	        rs = SR_ISDIR ;
+	    }
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	} /* end if (u_stat) */
+#if	CF_DEBUGS
+	debugprintf("lfm_startcheck: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (lfm_startcheck) */
+
+
+static int lfm_startopen(LFM *op,LFM_LOCKINFO *lip)
+{
+	const int	type = op->type ;
+	int		rs ;
+	int		oflags = (O_RDWR | O_CREAT) ;
+	mode_t		omode = 0664 ;
+
+#if	CF_DEBUGS
+	debugprintf("lfm_startopen: ent lfn=%s\n",op->lfname) ;
+	debugprintf("lfm_startopen: ent type=%u\n",type) ;
+#endif
+
+	if (type >= LFM_TCREATE) omode = 0444 ;
+	if (type >= LFM_TEXCLUSIVE) oflags |= O_EXCL ;
+	if ((rs = u_open(op->lfname,oflags,omode)) >= 0) {
+	    const int	lfd = rs ;
+
+#if	CF_DEBUGS
+	    debugprintf("lfm_startopen: u_open() rs=%d\n",rs) ;
+#endif
+
+	    if ((rs = uc_lockf(lfd,F_TLOCK,0L)) >= 0) {
+	        if ((rs = lfm_lockwrite(op,lip,lfd)) >= 0) {
+	            USTAT	sb ;
+	            if ((rs = u_fstat(lfd,&sb)) >= 0) {
+	                op->lfd = lfd ;
+	                op->magic = LFM_MAGIC ;
+	                op->dev = sb.st_dev ;
+	                op->ino = sb.st_ino ;
+	            }
+	        }
+	    } else if (rs == SR_ACCESS) {
+	        rs = SR_LOCKED ;
+	    } /* end if (uc_lockf) */
+
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_EXIST:
+	        case SR_ACCESS:
+	            rs = SR_LOCKED ;
+	            break ;
+	        } /* end switch */
+	    } /* end if */
+	} /* end if (u_open) */
+
+#if	CF_DEBUGS
+	debugprintf("lfm_startopen: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutie (lfm_startopen) */
 
 
 /* try to load up information on the lock (lost) */

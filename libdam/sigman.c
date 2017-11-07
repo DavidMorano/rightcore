@@ -4,7 +4,7 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0		/* compile-time debug print-outs */
+#define	CF_DEBUGN	0		/* compile-time debug print-outs */
 
 
 /* revision history:
@@ -41,13 +41,14 @@
 
 /* local defines */
 
+#define	NDF	"kshlib.deb"
+
 
 /* external subroutines */
 
-#if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	nprintf(const char *,const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+#if	CF_DEBUGN
+extern int	nprintf(cchar *,cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 
@@ -110,14 +111,18 @@ void		(*handle)(int) ;
 	    }
 	}
 
-	size = (nhandles * sizeof(struct sigman_handle)) ;
-	if ((rs >= 0) && (size > 0) && ((rs = uc_malloc(size,&p)) >= 0)) {
-	    struct sigman_handle *hp = p ;
-	    struct sigaction	san, *sap ;
+	size = (nhandles * sizeof(SIGMAN_HANDLE)) ;
+	if ((rs >= 0) && (nhandles > 0) && ((rs = uc_malloc(size,&p)) >= 0)) {
+	    SIGMAN_HANDLE	*hp = p ;
+	    SIGACTION		san, *sap ;
 	    int			hsig ;
 	    int			j = 0 ;
-	    iap->handles = (struct sigman_handle *) p ;
+	    iap->handles = (SIGMAN_HANDLE *) p ;
 	    iap->nhandles = nhandles ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"sigman_start: handles{%p}\n",iap->handles) ;
+#endif
 
 /* ignore these signals */
 
@@ -129,7 +134,7 @@ void		(*handle)(int) ;
 	            hsig = ignores[i] ;
 	            hp[j].sig = hsig ;
 	            sap = &hp[j].action ;
-	            memset(&san,0,sizeof(struct sigaction)) ;
+	            memset(&san,0,sizeof(SIGACTION)) ;
 	            san.sa_handler = SIG_IGN ;
 	            san.sa_mask = nsm ;
 	            san.sa_flags = 0 ;
@@ -148,7 +153,7 @@ void		(*handle)(int) ;
 	            hsig = catches[i] ;
 	            hp[j].sig = hsig ;
 	            sap = &hp[j].action ;
-	            memset(&san,0,sizeof(struct sigaction)) ;
+	            memset(&san,0,sizeof(SIGACTION)) ;
 	            san.sa_handler = handle ;
 	            san.sa_mask = nsm ;
 	            san.sa_flags = 0 ;
@@ -184,26 +189,49 @@ SIGMAN		*iap ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+#if	CF_DEBUGN
+	nprintf(NDF,"sigman_finish: ent\n") ;
+#endif
+
 	if (iap == NULL) return SR_FAULT ;
 	if (iap->magic != SIGMAN_MAGIC) return SR_NOTOPEN ;
 
+#if	CF_DEBUGN
+	nprintf(NDF,"sigman_finish: mid1 rs=%d\n",rs) ;
+#endif
+
 	if (iap->handles != NULL) {
-	    struct sigaction	*sap ;
+	    SIGACTION	*sap ;
 	    int		hsig ;
 	    int		i ;
 	    for (i = (iap->nhandles-1)  ; i >= 0 ; i -= 1) {
 	        hsig = iap->handles[i].sig ;
 	        sap = &iap->handles[i].action ;
 	        rs1 = u_sigaction(hsig,sap,NULL) ;
+#if	CF_DEBUGN
+	        nprintf(NDF,"sigman_finish: u_sigaction() rs=%d\n",rs1) ;
+#endif
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end for */
+#if	CF_DEBUGN
+	nprintf(NDF,"sigman_finish: mid2 rs=%d\n",rs) ;
+	nprintf(NDF,"sigman_finish: handles{%p}\n",iap->handles) ;
+#endif
 	    rs1 = uc_free(iap->handles) ;
 	    if (rs >= 0) rs = rs1 ;
 	    iap->handles = NULL ;
 	} /* end if */
 
+#if	CF_DEBUGN
+	nprintf(NDF,"sigman_finish: mid3 rs=%d\n",rs) ;
+#endif
+
 	if (iap->nblocks > 0) 
 	    pthread_sigmask(SIG_SETMASK,&iap->osm,NULL) ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"sigman_finish: ret rs=%d\n",rs) ;
+#endif
 
 	iap->magic = 0 ;
 	return rs ;

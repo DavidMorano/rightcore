@@ -35,7 +35,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<signal.h>
-#include	<dlfcn.h>
 #include	<poll.h>
 #include	<string.h>
 
@@ -43,7 +42,7 @@
 #include	<upt.h>
 #include	<ptm.h>
 #include	<ptc.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<sockaddress.h>
 #include	<raqhand.h>
 #include	<exitcodes.h>
@@ -160,7 +159,7 @@ struct progsig {
 	PTM		m ;		/* mutex data */
 	PTM		menv ;		/* mutex environment */
 	PTC		c ;		/* condition variable */
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	SOCKADDRESS	servaddr ;	/* server address */
 	RAQHAND		mq ;		/* message queue */
 	PROGSIG_FL	f ;
@@ -214,7 +213,7 @@ void		progsig_fini(void) ;
 
 static void	progsig_atforkbefore() ;
 static void	progsig_atforkafter() ;
-static void	progsig_sighand(int) ;
+static void	progsig_sighand(int,siginfo_t *,void *) ;
 
 static int	progsig_mainstuff(PROGSIG *) ;
 
@@ -1170,7 +1169,8 @@ static void progsig_atforkafter()
 /* end subroutine (progsig_atforkafter) */
 
 
-static void progsig_sighand(int sn)
+/* ARGSUSED */
+static void kshlib_sighand(int sn,siginfo_t *sip,void *vcp)
 {
 	PROGSIG		*kip = &progsig_data ;
 	switch (sn) {
@@ -1291,7 +1291,7 @@ static int progsig_sigbegin(PROGSIG *kip)
 	void		(*sh)(int) = progsig_sighand ;
 	kip->f_sigterm = 0 ;
 	kip->f_sigintr = 0 ;
-	rs = sigman_start(&kip->sm,sigblocks,sigigns,sigints,sh) ;
+	rs = sighand_start(&kip->sm,sigblocks,sigigns,sigints,sh) ;
 #if	CF_DEBUGN
 	nprintf(NDF,"progsig_sigbegin: ret rs=%d\n",rs) ;
 #endif
@@ -1304,7 +1304,7 @@ static int progsig_sigend(PROGSIG *kip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	rs1 = sigman_finish(&kip->sm) ;
+	rs1 = sighand_finish(&kip->sm) ;
 	if (rs >= 0) rs = rs1 ;
 #if	CF_DEBUGN
 	nprintf(NDF,"progsig_sigend: ret rs=%d\n",rs) ;

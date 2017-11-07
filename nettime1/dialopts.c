@@ -98,29 +98,30 @@ int dialopts(int fd,int opts)
 
 	if (fd >= 0) {
 
-	if ((rs >= 0) && (opts & DIALOPT_KEEPALIVE)) {
-	    const int	size = sizeof(int) ;
-	    const int	sol = SOL_SOCKET ;
-	    const int	cmd = SO_KEEPALIVE ;
-	    int		one = 1 ;
-	    int		*onep ;
-	    onep = &one ;
-	    rs = u_setsockopt(fd,sol,cmd,onep,size) ;
-	}
+	    if ((rs >= 0) && (opts & DIALOPT_KEEPALIVE)) {
+	        const int	size = sizeof(int) ;
+	        const int	sol = SOL_SOCKET ;
+	        const int	cmd = SO_KEEPALIVE ;
+	        int		one = 1 ;
+	        int		*onep ;
+	        onep = &one ;
+	        rs = u_setsockopt(fd,sol,cmd,onep,size) ;
+	    }
 
 #if	CF_DEBUGS
-	debugprintf("dialtcp/setopts: mid1 rs=%d\n",rs) ;
+	    debugprintf("dialtcp/setopts: mid1 rs=%d\n",rs) ;
 #endif
 
 #if	CF_LINGER
-	if (rs >= 0) {
-	    const int	to = (opts & DIALOPT_LINGER) ? LINGERTIME : 30 ;
-	    rs = uc_linger(fd,to) ;
-	} /* end if (linger) */
+	    if (rs >= 0) {
+	        const int	to = (opts & DIALOPT_LINGER) ? LINGERTIME : 30 ;
+	        rs = uc_linger(fd,to) ;
+	    } /* end if (linger) */
 #endif /* CF_LINGER */
 
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("dialopts: ret rs=%d\n",rs) ;

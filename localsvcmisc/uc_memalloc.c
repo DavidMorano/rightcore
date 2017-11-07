@@ -880,10 +880,16 @@ static int ucmemalloc_memrel(cvoid *a)
 	    } /* end for */
 
 	    if (i < rtl) {
+
+#if	CF_DEBUGN
+	        nprintf(NDF,"ucmemalloc_memrel: within hi=%u\n",hi) ;
+#endif
+
 	        if (hi > 0) { /* found */
 
 #if	CF_DEBUGN
-	            nprintf(NDF,"ucmemalloc_memrel: found size=%u\n",tab[hi].size) ;
+	            nprintf(NDF,"ucmemalloc_memrel: found size=%u\n",
+			tab[hi].size) ;
 #endif /* CF_DEBUGN */
 
 	            uip->out_num -= 1 ;
@@ -913,7 +919,11 @@ static int ucmemalloc_memrel(cvoid *a)
 
 	        } else { /* not-found */
 
-	            rs = SR_BUGCHECK ;
+#if	CF_DEBUGN
+	            nprintf(NDF,"ucmemalloc_memrel: not found {%p}\n",a) ;
+#endif /* CF_DEBUGN */
+
+	            rs = SR_NOTFOUND ;
 	            uip->err_noalloc += 1 ;
 	            uip->err_rs = rs ;
 

@@ -32,6 +32,8 @@
 #define	VARLOGTAB	"L_LOGTAB"
 #define	VARAFNAME	"L_AF"
 #define	VAREFNAME	"L_EF"
+#define	VAROFNAME	"L_OF"
+#define	VARIFNAME	"L_IF"
 
 #define	VARDEBUGFNAME	"L_DEBUGFILE"
 #define	VARDEBUGFD1	"L_DEBUGFD"

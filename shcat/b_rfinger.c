@@ -7,9 +7,14 @@
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
+#define	CF_DEBUGN	0		/* special debugging */
 #define	CF_MKFINGERARGS	1		/* use 'mkfingerquery()' */
 #define	CF_CLEANLINES	0		/* clean lines */
 #define	CF_LOCSETENT	0		/* |locinfo_setentry()| */
+#define	CF_SPECIAL1	0		/* special-1 */
+#define	CF_SPECIAL2	0		/* special-2 */
+#define	CF_SPECIAL3	0		/* special-3 */
+#define	CF_SPECIAL4	0		/* special-4 */
 
 
 /* revision history:
@@ -94,6 +99,8 @@
 
 #define	LINEBUF		struct linebuf
 
+#define	NDF		"rfinger.deb"
+
 
 /* external subroutines */
 
@@ -140,6 +147,10 @@ extern int	debugprinthex(cchar *,int,cchar *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif /* CF_DEBUG */
+
+#if	CF_DEBUGN
+extern int	nprintf(cchar *,cchar *,...) ;
+#endif
 
 extern cchar	*getourenv(cchar **,cchar *) ;
 
@@ -300,6 +311,7 @@ static const struct pivars	initvars = {
 } ;
 
 static const struct mapex	mapexs[] = {
+	{ SR_CONNREFUSED, EX_UNAVAILABLE },
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -373,6 +385,9 @@ int b_rfinger(int argc,cchar *argv[],void *contextp)
 
 int p_rfinger(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
+#if	CF_DEBUGN
+	nprintf(NDF,"b_rfinger/p_rfinger: ent\n") ;
+#endif
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_rfinger) */
@@ -397,7 +412,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
-	int		rs, rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 	int		v ;
 	int		timeout = -1 ;
 	int		ex = EX_INFO ;
@@ -434,11 +450,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	uc_mallout(&mo_start) ;
 #endif
 
+#if	CF_SPECIAL1
+	if (rs >= 0) goto badprogstart ;
+#endif
+
 	rs = proginfo_start(pip,envv,argv[0],VERSION) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badprogstart ;
 	}
+
+#if	CF_SPECIAL2
+	if (rs >= 0) goto badlocstart ;
+#endif
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
 	rs = proginfo_setbanner(pip,cp) ;
@@ -452,12 +476,20 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	pip->f.logprog = TRUE ;
 
+#if	CF_SPECIAL3
+	if (rs >= 0) goto badlocstart ;
+#endif
+
 	pip->lip = lip ;
 	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
 	}
+
+#if	CF_SPECIAL4
+	if (rs >= 0) goto badpargs ;
+#endif
 
 /* process program arguments */
 
@@ -909,8 +941,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* program root */
@@ -987,6 +1018,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    rs = locinfo_setdialer(lip,dialerspec) ;
 	}
 
+	if (timeout <= 0) timeout = TO_CONNECT ;
+	lip->to = timeout ;
+
 	lip->afspec = afspec ;
 	if ((pip->debuglevel > 0) && (afspec != NULL)) {
 	    shio_printf(pip->efp,"%s: af=%s\n",
@@ -999,14 +1033,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    lip->svcspec = SVCSPEC_RFINGER ;
 
 	if (rs >= 0) {
-	    rs = locinfo_setsvcargs(lip,argspec) ;
-	}
-
-	if (timeout <= 0) timeout = TO_CONNECT ;
-	lip->to = timeout ;
-
-	if (rs >= 0) {
-	    rs = locinfo_deflinelen(lip) ;
+	    if ((rs = locinfo_setsvcargs(lip,argspec)) >= 0) {
+	        rs = locinfo_deflinelen(lip) ;
+	    }
 	}
 
 #if	CF_DEBUG
@@ -1136,6 +1165,7 @@ badprogstart:
 	{
 	    uint	mo_finish ;
 	    uc_mallout(&mo_finish) ;
+	    uc_mallset(0) ;
 	    debugprintf("b_rfinger: final mallout=%u\n",(mo_finish-mo_start)) ;
 	}
 #endif /* CF_DEBUGMALL */
@@ -1468,6 +1498,11 @@ static int procdial(PROGINFO *pip,void *ofp,cchar *ap)
 	    		rs1 = u_close(s) ;
 	    		if (rs >= 0) rs = rs1 ;
 		    } /* end if (opendial) */
+#if	CF_DEBUG
+		    if (DEBUGLEVEL(3))
+	    	        debugprintf("main/procdial: opendial()-out rs=%d\n",
+				rs) ;
+#endif
 		} /* end if (mkfingerquery) */
 		rs1 = linebuf_finish(&b) ;
 		if (rs >= 0) rs = rs1 ;

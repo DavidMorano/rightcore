@@ -137,7 +137,7 @@ static int	locinfo_finish(LOCINFO *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -146,6 +146,7 @@ static const char *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	NULL
 } ;
 
@@ -158,6 +159,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_overlast
 } ;
 
@@ -458,6 +460,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* handle all keyword defaults */
 	                default:
 	                    rs = SR_INVALID ;
@@ -584,8 +603,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -633,6 +651,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 /* process */
 
@@ -764,7 +784,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if (rs >= 0) {
 	        int	ai ;
@@ -883,8 +903,7 @@ static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
 	int		rs ;
 	int		wlen = 0 ;
 
-	if (np == NULL)
-	    return SR_FAULT ;
+	if (np == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -894,9 +913,9 @@ static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
 	if (nl < 0) nl = strlen(np) ;
 
 	if ((rs = cfdecui(np,nl,&v)) >= 0) {
-	    LONG	v ;
-	    if ((v = fibonacci(v)) >= 0) {
-	        rs = shio_printf(ofp,"%lld\n",v) ;
+	    LONG	rv ;
+	    if ((rv = fibonacci(v)) >= 0) {
+	        rs = shio_printf(ofp,"%lld\n",rv) ;
 	        wlen += rs ;
 	    } else {
 	        rs = shio_printf(ofp,"*overflow*\n") ;
@@ -917,8 +936,7 @@ static int procspec(PROGINFO *pip,void *ofp,cchar np[],int nl)
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -931,8 +949,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 static int locinfo_finish(LOCINFO *lip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	return SR_OK ;
 }

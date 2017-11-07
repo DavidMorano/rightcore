@@ -36,8 +36,8 @@ typedef const char	cchar ;
 #define	KSHLIB_SESHOUR		18 /* 6:00pm */
 #define	KSHLIB_SESDNAME		"/var/tmp/sessions"
 
-#define	KSHLIB_RMKSH	(1<<0)
-#define	KSHLIB_RMMAIN	(1<<1)
+#define	KSHLIB_RMKSH	(1<<0)		/* run-mode KSH */
+#define	KSHLIB_RMMAIN	(1<<1)		/* run-mode MAIN */
 
 enum kshlibcmds {
 	kshlibcmd_noteoff,

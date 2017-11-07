@@ -84,36 +84,22 @@ const char	*srvargv[] ;
 int		to ;
 int		opts ;
 {
-	struct sigaction	sigs, osigs ;
-
-	sigset_t	signalmask ;
-
-	BUFFER	srvbuf ;
-
-	int	rs ;
-	int	i ;
-	int	svclen ;
-	int	fd = 0 ;
-
+	BUFFER		srvbuf ;
+	int		rs ;
+	int		rs1 ;
+	int		svclen ;
+	int		fd = 0 ;
 	const char	*bp ;
 
-
 #if	CF_DEBUGS
-	debugprintf("dialussmux: ent to=%d opts=%04x\n",
-	    to,opts) ;
+	debugprintf("dialussmux: ent to=%d opts=%04x\n", to,opts) ;
 #endif
 
-	if (portspec == NULL)
-	    return SR_FAULT ;
+	if (portspec == NULL) return SR_FAULT ;
+	if (svcspec == NULL) return SR_FAULT ;
 
-	if (svcspec == NULL)
-	    return SR_FAULT ;
-
-	if (portspec[0] == '\0')
-	    return SR_INVALID ;
-
-	if (svcspec[0] == '\0')
-	    return SR_INVALID ;
+	if (portspec[0] == '\0') return SR_INVALID ;
+	if (svcspec[0] == '\0') return SR_INVALID ;
 
 	while (CHAR_ISWHITE(*svcspec))
 	    svcspec += 1 ;
@@ -140,7 +126,8 @@ int		opts ;
 
 	    if (srvargv != NULL) {
 	        const int	qlen = QBUFLEN ;
-	        char	qbuf[QBUFLEN+1] ;
+		int		i ;
+	        char		qbuf[QBUFLEN+1] ;
 	        for (i = 0 ; srvargv[i] != NULL ; i += 1) {
 	            rs = mkquoted(qbuf,qlen,srvargv[i],-1) ;
 	            if (rs < 0) break ;
@@ -156,9 +143,11 @@ int		opts ;
 	    if (rs >= 0) {
 	        buffer_char(&srvbuf,'\n') ;
 	        if ((rs = buffer_get(&srvbuf,&bp)) >= 0) {
-	            int	blen = rs ;
+		    SIGACTION	sigs, osigs ;
+		    sigset_t	signalmask ;
+	            int		blen = rs ;
 	            uc_sigsetempty(&signalmask) ;
-	            memset(&sigs,0,sizeof(struct sigaction)) ;
+	            memset(&sigs,0,sizeof(SIGACTION)) ;
 	            sigs.sa_handler = SIG_IGN ;
 	            sigs.sa_mask = signalmask ;
 	            sigs.sa_flags = 0 ;
@@ -186,8 +175,9 @@ int		opts ;
 	                    char	rbuf[RBUFLEN+1] = { 0 } ;
 
 	                    if ((rs = uc_readlinetimed(fd,rbuf,rlen,to)) >= 0) {
-	                        if ((rs == 0) || (rbuf[0] != '+'))
+	                        if ((rs == 0) || (rbuf[0] != '+')) {
 	                            rs = SR_BADREQUEST ;
+				}
 	                    }
 
 	                } /* end if (wrote service code) */
@@ -196,17 +186,29 @@ int		opts ;
 	                debugprintf("dialussmux: response rs=%d\n",rs) ;
 #endif
 
-	                if (rs <= 0)
+	                if (rs < 0) {
 	                    u_close(fd) ;
+			    fd = -1 ;
+			}
 	            } /* end if (dialuss) */
+
+#if	CF_DEBUGS
+	            debugprintf("dialussmux: dialuss()-out rs=%d\n",rs) ;
+#endif
 
 	            u_sigaction(SIGPIPE,&osigs,NULL) ;
 	        } /* end if (sigs) */
 		} /* end if (buffer_get) */
-	    } else
+	    } else {
 	        rs = SR_TOOBIG ;
+	    }
 
-	    buffer_finish(&srvbuf) ;
+	    rs1 = buffer_finish(&srvbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	    if ((rs < 0) && (fd >= 0)) {
+		u_close(fd) ;
+		fd = -1 ;
+	    }
 	} /* end if (buffer) */
 
 #if	CF_DEBUGS

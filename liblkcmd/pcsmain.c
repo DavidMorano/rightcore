@@ -265,7 +265,7 @@ static int	procexecname(PROGINFO *,char *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -447,6 +447,9 @@ int p_pcs(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return pcsmain(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_pcs) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -1175,8 +1178,7 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1230,7 +1232,9 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->intpoll = v ;
 	}
 
-/* process program options */
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 	if (rs >= 0) {
 	    rs = procopts(pip,&akopts) ;
@@ -1408,9 +1412,6 @@ badarg:
 
 }
 /* end subroutine (pcsmain) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)
@@ -1907,7 +1908,7 @@ static int procdefconf(PROGINFO *pip)
 	    }
 	}
 
-	    rs = locinfo_defs(lip) ;
+	rs = locinfo_defs(lip) ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))

@@ -1228,9 +1228,9 @@ static int procspec(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 	    } /* end switch */
 	    if ((rs >= 0) && (v < 0)) rs = SR_RANGE ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    debugprintf("b_numbers/procspec: switch-out rs=%d\n",rs) ;
-	}
+	    if (DEBUGLEVEL(4)) {
+	        debugprintf("b_numbers/procspec: switch-out rs=%d\n",rs) ;
+	    }
 #endif
 	    if (rs >= 0) {
 		cchar	*fmt ;

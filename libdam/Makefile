@@ -173,7 +173,7 @@ OBJ22= strwcpycompact.o strwcpyopaque.o strwcpyblanks.o strwcpywide.o
 OBJ23= strncpyfc.o strncpyuc.o strncpyfc.o strncpyblanks.o
 
 OBJ24= rexecl.o rcmdu.o qualdisplay.o 
-OBJ25= rex.o rfile.o dupup.o lockfile.o lockend.o
+OBJ25= rex.o rfile.o lockfile.o lockend.o
 OBJ26= timestr_date.o timestr_nist.o timestr_elapsed.o timevalstr_ulog.o 
 OBJ27= timestr_scandate.o 
 OBJ28=
@@ -256,14 +256,14 @@ OBJ93= mkfnamesuf.o mkfname.o mksofname.o mkfdfname.o
 OBJ94= mkgecosname.o mkmailname.o mkrealname.o mkuiname.o mkuibang.o 
 OBJ95= mkaddrname.o mkbestaddr.o mkbestfrom.o mkdisphdr.o mkaltext.o
 
-OBJ96= memfile.o linehist.o langstate.o
+OBJ96= memfile.o linehist.o langstate.o sigman.o sighand.o
 OBJ97= comparse.o mhcom.o zos.o tmz.o zdb.o zoffparts.o snflags.o
 OBJ98= openportmsg.o varsub.o mailalias.o userattr.o 
 OBJ99= tmpx.o tmpx_getrunlevel.o tmpx_getuserlines.o tmpx_getsessions.o
 OBJ100= mknoise.o rijndael.o expcook.o schedvar.o
 OBJ101= termnote.o egs.o random.o bits.o 
 OBJ102= loadave.o modload.o userinfo.o pwentry.o 
-OBJ103= dw.o fmq.o sigman.o useraccdb.o logsys.o csem.o
+OBJ103= dw.o fmq.o useraccdb.o logsys.o csem.o
 
 OBJ104= sesmsg.o msgdata.o
 OBJ105= dater.o dater_getdate.o date.o cachetime.o
@@ -866,6 +866,8 @@ fmq.o:			fmq.c fmq.h
 sigblock.o:		sigblock.c sigblock.h
 
 sigman.o:		sigman.c sigman.h
+
+sighand.o:		sighand.c sighand.h
 
 paramfile.o:		paramfile.c paramfile.h
 

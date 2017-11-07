@@ -322,11 +322,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
 	pip->verboselevel = 1 ;
+	pip->daytime = time(NULL) ;
+
 	pip->f.logprog = OPT_LOGPROG ;
 
 /* start parsing the arguments */
@@ -337,7 +339,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	rs = keyopt_start(&akopts) ;
 	pip->open.akopts = (rs >= 0) ;
 
-	ai = 0 ;
 	ai_max = 0 ;
 	ai_pos = 0 ;
 	argr = argc ;
@@ -640,8 +641,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -709,8 +709,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (DEBUGLEVEL(4))
 	    debugprintf("main: runint=%d\n",pip->intrun) ;
 #endif
-
-	pip->daytime = time(NULL) ;
 
 	pip->donetime = (pip->daytime + pip->intrun) ;
 

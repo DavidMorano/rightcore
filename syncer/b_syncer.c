@@ -149,7 +149,6 @@ static cchar	*argopts[] = {
 	"sn",
 	"af",
 	"ef",
-	"of",
 	NULL
 } ;
 
@@ -161,7 +160,6 @@ enum argopts {
 	argopt_sn,
 	argopt_af,
 	argopt_ef,
-	argopt_of,
 	argopt_overlast
 } ;
 
@@ -262,7 +260,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
 	const char	*efname = NULL ;
-	const char	*ofname = NULL ;
 	const char	*cp ;
 
 
@@ -439,24 +436,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        argl = strlen(argp) ;
 	                        if (argl)
 	                            efname = argp ;
-				} else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* output file name */
-	                case argopt_of:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            ofname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            ofname = argp ;
 				} else
 	                            rs = SR_INVALID ;
 	                    }
@@ -642,6 +621,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ex = EX_OK ;
 
 /* OK, we finally do our thing */
+
+	if ((rs >= 0) && ((ai_max < 0) || (ai_pos < 0))) rs = SR_BUGCHECK ;
 
 	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;

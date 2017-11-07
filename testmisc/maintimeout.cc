@@ -113,9 +113,6 @@ struct sigcode {
 
 /* forward references */
 
-static int	maininfo_sigbegin(MAININFO *) ;
-static int	maininfo_sigend(MAININFO *) ;
-
 static void	main_sighand(int,siginfo_t *,void *) ;
 static int	main_sigdump(siginfo_t *) ;
 
@@ -197,7 +194,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	{
 	    MAININFO	mi, *mip = &mi ;
 	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
-	        if ((rs = maininfo_sigbegin(mip)) >= 0) {
+		maininfohand_t	sh = main_sighand ;
+	        if ((rs = maininfo_sigbegin(mip,sh,sigcatches)) >= 0) {
 	            const time_t	wake = (dt+(tval/2)) ;
 	            if ((rs = timeout_load(&to,wake,NULL,ourwake,42,1)) >= 0) {
 	                const int	cmd = timeoutcmd_set ;
@@ -262,38 +260,6 @@ int main(int argc,cchar **argv,cchar **envv)
 
 
 /* local subroutines */
-
-
-static int maininfo_sigbegin(MAININFO *mip)
-{
-	int		rs = SR_OK ;
-#if	CF_SIGHAND
-	{
-	    void	(*sh)(int,siginfo_t *,void *) = main_sighand ;
-	    rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
-	}
-#endif
-#if	CF_DEBUGN
-	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (maininfo_sigbegin) */
-
-
-static int maininfo_sigend(MAININFO *mip)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-#if	CF_SIGHAND
-	rs1 = sighand_finish(&mip->sh) ;
-	if (rs >= 0) rs = rs1 ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (maininfo_sigend) */
 
 
 /* ARGSUSED */

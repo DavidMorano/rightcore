@@ -32,6 +32,9 @@
 #define	MAININFO_FL	struct maininfo_flags
 
 
+typedef void (*maininfohand_t)(int,siginfo_t *,void *) ;
+
+
 struct maininfo_flags {
 	uint		progdash:1 ;	/* leading dash on program-name */
 	uint		utilout:1 ;	/* utility is out running */
@@ -61,8 +64,10 @@ extern "C" {
 #endif
 
 extern int maininfo_start(MAININFO *,int,cchar **) ;
-extern int maininfo_setentry(MAININFO *,cchar **,cchar *,int) ;
 extern int maininfo_finish(MAININFO *) ;
+extern int maininfo_setentry(MAININFO *,cchar **,cchar *,int) ;
+extern int maininfo_sigbegin(MAININFO *,maininfohand_t,const int *) ;
+extern int maininfo_sigend(MAININFO *) ;
 extern int maininfo_utilbegin(MAININFO *,int) ;
 extern int maininfo_utilend(MAININFO *) ;
 extern int maininfo_srchname(MAININFO *,cchar **) ;

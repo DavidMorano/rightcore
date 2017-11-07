@@ -6,12 +6,12 @@
 
 /* revision history:
 
-	= 2017-10-04, David A­D­ Morano
+	= 2014-04-04, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2014 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

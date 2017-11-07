@@ -1264,7 +1264,6 @@ const char	*afn ;
 static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 {
 	LOCINFO		*lip = pip->lip ;
-	volatile int	*intarr[3] ;
 	const int	to_open = pip->to_open ;
 	const int	llen = LINEBUFLEN ;
 	int		rs = SR_OK ;
@@ -1285,11 +1284,6 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 
 	if (fname == NULL) return SR_FAULT ;
 
-	{
-	    int	i = 0 ;
-	    intarr[i] = NULL ;
-	}
-
 	if ((fname[0] == '\0') || (strcmp(fname,"-") == 0)) {
 	    fname = STDINFNAME ;
 	    f_stdin = TRUE ;
@@ -1305,7 +1299,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 	    debugprintf("b_sanity/procfile: f_fifo=%u\n",f_fifo) ;
 #endif
 	if (rs >= 0) {
-	    int	i = 0 ;
+	    int		i = 0 ;
 	    lbuf[i++] = 'r' ;
 	    if (f_fifo) lbuf[i++] = 'n' ;
 	    lbuf[i] = '\0' ;

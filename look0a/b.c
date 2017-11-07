@@ -172,9 +172,9 @@ static const char *argopts[] = {
 	"VERBOSE",
 	"HELP",
 	"sn",
-	"af",
 	"ef",
 	"of",
+	"if",
 	NULL
 } ;
 
@@ -184,9 +184,9 @@ enum argopts {
 	argopt_verbose,
 	argopt_help,
 	argopt_sn,
-	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_overlast
 } ;
 
@@ -294,7 +294,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*argval = NULL ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
-	const char	*afname = NULL ;
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*file ;
@@ -446,24 +445,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
-/* argument-file */
-	                case argopt_af:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            afname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                afname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
 /* error file name */
 	                case argopt_ef:
 	                    if (f_optequal) {
@@ -499,6 +480,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
+
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+			    break ;
 
 /* handle all keyword defaults */
 	                default:
@@ -713,7 +711,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* more initialization */
 
-	if (efname == NULL) afname = getourenv(envv,VARAFNAME) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 /* process */
 

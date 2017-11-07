@@ -99,7 +99,7 @@ function cleanup {
 
 trap 'cleanup' 1 2 3 15 16 17
 
-DS=$( date '+%T %Z' )
+DS=$( date '+%T %e %Z' )
 
 FAC=
 TAR=
@@ -160,7 +160,7 @@ wire|skype|textonly|facetime)
   if [[ -n "${TU}" ]] && username -q ${TU} ; then
     logprint "user=${TU}"
     logprint "from=> ${FRO}<"
-    TXT_LEAD="¥ ${DS} ${FAC} " 
+    TXT_LEAD="¥ ${DS} ${FAC}" 
     if ${RF_DEBUG} ; then
       NOTICE_DEBUGFILE=/tmp/notice.deb
       export NOTICE_DEBUGFILE
@@ -169,7 +169,7 @@ wire|skype|textonly|facetime)
     {
       TXT=${TXT_LEAD}
       if [[ -n "${FRO}" ]] ; then
-        TXT="${TXT} from=> ${FRO} <"
+        TXT="${TXT} > ${FRO} <"
       fi
       print -- "${TXT}"
       if [[ -n "${MSG}" ]] ; then

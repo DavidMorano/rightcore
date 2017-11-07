@@ -926,8 +926,8 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
-	                            rs = optbool(avp,avl) ;
-	                            pip->f.daemon = (rs > 0) ;
+				    rs = cfdecti(avp,avl,&v) ;
+				    pip->intrun = v ;
 	                        }
 	                    }
 	                    break ;
@@ -1206,17 +1206,19 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* continue with prepatory initialization */
 
+	if ((rs >= 0) && ((ai_max < 0) || (ai_pos < 0))) rs = SR_BUGCHECK ;
+
+	if ((rs >= 0) && (pip->intpoll == 0) && (argval != NULL)) {
+	    rs = cfdecti(argval,-1,&v) ;
+	    pip->intpoll = v ;
+	}
+
 #if	CF_DEBUGS
 	debugprintf("msumain: pid=%d\n",pip->pid) ;
 #endif
 
 	rs1 = securefile(pip->pr,pip->euid,pip->egid) ;
 	lip->f.sec_root = (rs1 > 0) ;
-
-	if ((rs >= 0) && (pip->intpoll == 0) && (argval != NULL)) {
-	    rs = cfdecti(argval,-1,&v) ;
-	    pip->intpoll = v ;
-	}
 
 /* process program options */
 

@@ -410,6 +410,7 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"mnt",
 	"pid",
 	"fg",
@@ -428,6 +429,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_mnt,
 	argopt_pid,
 	argopt_fg,
@@ -802,6 +804,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 	                case argopt_fg:
 	                    lip->final.fg = TRUE ;
 	                    lip->have.fg = TRUE ;
@@ -822,8 +841,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
-	                            rs = optbool(avp,avl) ;
-	                            pip->f.daemon = (rs > 0) ;
+	                            rs = cfdecti(avp,avl,&v) ;
+	                            pip->intrun = v ;
 	                        }
 	                    }
 	                    break ;
@@ -1063,8 +1082,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1105,6 +1123,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ex = EX_OK ;
 
 /* check if we should be doing anything based on system "run-level" */
+
+	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 	if ((rs = getrunlevel(NULL)) >= 0) {
 	    switch (rs) {
@@ -1150,8 +1172,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 /* other initilization */
-
-	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
@@ -1451,7 +1471,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 		PARAMOPT *app, cchar *afn)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		cl ;
@@ -1528,7 +1547,6 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 
 static int process(PROGINFO *pip,PARAMOPT *app,cchar *ofn)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
@@ -1568,13 +1586,11 @@ static int procbackinfo(PROGINFO *pip)
 	mntfname = lip->mntfname ;
 	if (pip->debuglevel > 0) {
 
-	    shio_printf(pip->efp,"%s: mntfile=%s\n",
-	        pip->progname,mntfname) ;
+	    shio_printf(pip->efp,"%s: mntfile=%s\n",pn,mntfname) ;
 
 	    fmt = "%s: runint=(inf)\n" ;
 	    if (pip->intrun > 0) fmt = "%s: runint=%u\n",
-	    shio_printf(pip->efp,fmt,
-	        pip->progname,pip->intrun) ;
+	    shio_printf(pip->efp,fmt,pn,pip->intrun) ;
 
 	} /* end if */
 
@@ -2091,8 +2107,8 @@ static int procserve(PROGINFO *pip,LFM *plp,cchar mntfname[])
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
-	if (mntfname[0] == '\0')
-	    return SR_INVALID ;
+	if (lip == NULL) return SR_FAULT ; /* lint */
+	if (mntfname[0] == '\0') return SR_INVALID ;
 
 	if ((rs = u_pipe(pipes)) >= 0) {
 	    const int	sfd = pipes[0] ;		/* server-side */
@@ -2314,6 +2330,7 @@ static int procpidfname(PROGINFO *pip)
 	    debugprintf("b_issue/procpidfname: ent\n") ;
 #endif
 
+	if (lip == NULL) return SR_FAULT ; /* lint */
 	if ((pfn == NULL) || (pfn[0] == '+')) {
 	    cchar	*nn = pip->nodename ;
 	    cchar	*pr = pip->pr ;
@@ -2454,6 +2471,7 @@ static int procregouterfile(PROGINFO *pip,void *ofp,int fd)
 	int		len ;
 	int		wlen = 0 ;
 	char		lbuf[LINEBUFLEN+1] ;
+	if (lip == NULL) return SR_FAULT ; /* lint */
 	while ((rs = uc_reade(fd,lbuf,llen,to,FM_TIMED)) > 0) {
 	    len = rs ;
 	    if (rs >= 0) rs = lib_sigterm() ;
@@ -2525,6 +2543,7 @@ static int procissue(PROGINFO *pip,cchar *groupname,cchar **av,int fd)
 	int		wlen = 0 ;
 
 	if (groupname == NULL) return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ; /* lint */
 
 	if (groupname[0] == '\0') return SR_INVALID ;
 
@@ -2973,6 +2992,7 @@ static int locinfo_loadids(LOCINFO *lip)
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
 
+	if (pip == NULL) return SR_FAULT ; /* lint */
 	if (lip->gnbuf[0] == '\0') {
 	    cchar	*un = lip->un ;
 
@@ -3265,6 +3285,7 @@ static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
 	int		rs ;
 	int		wlen = 0 ;
 
+	if (pip == NULL) return SR_FAULT ;
 	if (llen > 0) {
 	    if ((rs = termout_load(top,lbuf,llen)) >= 0) {
 	        int	ln = rs ;
@@ -3418,6 +3439,7 @@ int locinfo_rnlook(LOCINFO *lip,LOCINFO_RNCUR *curp,cchar *gnp,int gnl)
 
 	if (curp == NULL) return SR_FAULT ;
 	if (gnp == NULL) return SR_FAULT ;
+	if (pip == NULL) return SR_FAULT ;
 
 	if ((rs = sysrealname_look(&lip->rn,&curp->rncur,fo,gnp,gnl)) >= 0) {
 	    rs = 1 ;

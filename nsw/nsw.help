@@ -6,17 +6,15 @@ scheduling class of 'IA' and to run at the specified process nice value (or
 higher).
 
 Synopsis:
-
 $
 $ su root
 blah, blah
 # nsw [<prog(s)>] [-af <afile>] [-p <prio>] [-d <intrun>] [-t <intpoll>] [-V] &
 #
 
-where:
-
-<prog(s)>	program names to process
--af <afile>	file of program names to process
+Arguments:
+<prog(s)>	program names to search for and process
+-af <afile>	file of program names to search for and process
 -p <prio>	new priority to set
 -d <intrun>	run interval
 -t <intpoll>	poll interval

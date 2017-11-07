@@ -33,6 +33,7 @@
 
 typedef void (*sighand_handler)(int,siginfo_t *,void *) ;
 
+
 struct sighand_handle {
 	struct sigaction	action ;
 	int			sig ;

@@ -78,11 +78,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int comsatmsg_mailoff(msp,f_read,mbuf,mlen)
-struct comsatmsg_mailoff	*msp ;
-int		f_read ;
-char		mbuf[] ;
-int		mlen ;
+int comsatmsg_mo(COMSATMSG_MO *msp,int f_read,char *mbuf,int mlen)
 {
 	SBUF		msgbuf ;
 	ulong		ulv ;
@@ -158,11 +154,11 @@ int		mlen ;
 	} /* end if */
 
 #if	CF_DEBUGS
-	debugprintf("comsatmsg_mailoff: ret rs=%d\n",rs) ;
+	debugprintf("comsatmsg_mo: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
 }
-/* end subroutine (comsatmsg_mailoff) */
+/* end subroutine (comsatmsg_mo) */
 
 

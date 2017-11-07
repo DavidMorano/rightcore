@@ -351,7 +351,7 @@ static int	wrfile(cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -361,6 +361,7 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"cpp",
 	"jd",
 	NULL
@@ -376,6 +377,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_cpp,
 	argopt_jd,
 	argopt_overlast
@@ -403,7 +405,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*aknames[] = {
+static cchar	*aknames[] = {
 	"cache",
 	"cpp",
 	"npar",
@@ -423,7 +425,7 @@ enum aknames {
 	akname_overlast
 } ;
 
-static const char	*progcpps[] = {
+static cchar	*progcpps[] = {
 	"/usr/ccs/lib/cpp",
 	"/usr/lib/cpp",
 	"/usr/add-on/ncmp/bin/cpp",
@@ -737,6 +739,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* CPP program */
 	                case argopt_cpp:
 	                    if (f_optequal) {
@@ -948,8 +967,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* program root */
@@ -966,8 +984,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
-	    shio_printf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
+	    shio_printf(pip->efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
+	    shio_printf(pip->efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
 	} /* end if */
 
 	if (f_usage)
@@ -999,6 +1017,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;

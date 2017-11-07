@@ -18,8 +18,9 @@
 
 /*******************************************************************************
 
-        This module is responsible for providing means to store a job and the
-        retrieve it later by its PID.
+        This module is responsible for providing means to store a job and to
+        retrieve it later by its PID.  This is the lower half of a pair.
+	The SREQDB calls on this object for support.
 
 
 *******************************************************************************/

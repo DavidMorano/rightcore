@@ -154,6 +154,18 @@
 #define	SVCNAMELEN	32
 #endif
 
+#ifndef	SIGACTION
+#define	SIGACTION	struct sigaction
+#endif
+
+#ifndef	SIGEVENT
+#define	SIGEVENT	struct sigevent
+#endif
+
+#ifndef	RLIMIT
+#define	RLIMIT		struct rlimit
+#endif
+
 #ifndef	USTAT
 #define	USTAT		struct ustat
 #endif
@@ -196,18 +208,6 @@
 
 #ifndef	TIMEB
 #define	TIMEB		struct timeb
-#endif
-
-#ifndef	SIGACTION
-#define	SIGACTION	struct sigaction
-#endif
-
-#ifndef	SIGEVENT
-#define	SIGEVENT	struct sigevent
-#endif
-
-#ifndef	RLIMIT
-#define	RLIMIT		struct rlimit
 #endif
 
 #ifndef	ADDRINFO
@@ -1095,9 +1095,9 @@ extern int	uc_atfork(void (*)(),void (*)(),void (*)()) ;
 extern int	uc_atforkrelease(void (*)(),void (*)(),void (*)()) ;
 extern int	uc_atexit(void (*)()) ;
 extern int	uc_ftime(struct timeb *) ;
-extern int	uc_clocksettime(clockid_t,const struct timespec *) ;
-extern int	uc_clockgettime(clockid_t,struct timespec *) ;
-extern int	uc_clockgetres(clockid_t,struct timespec *) ;
+extern int	uc_clockset(clockid_t,const struct timespec *) ;
+extern int	uc_clockget(clockid_t,struct timespec *) ;
+extern int	uc_clockres(clockid_t,struct timespec *) ;
 extern int	uc_gethostid(unsigned int *) ;
 extern int	uc_gethostname(char *,int) ;
 extern int	uc_gettimeofday(struct timeval *,void *) ;

@@ -78,8 +78,6 @@
 #endif
 #endif /* LINEBUFLEN */
 
-#define OBUFLEN		10
-
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 
@@ -1257,14 +1255,12 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	SHIO		infile, *ifp = &infile ;
 	const int	to_open = pip->to_open ;
 	const int	to_read = pip->to_read ;
-	const int	olen = OBUFLEN ;
 	volatile int	*intarr[3] ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		wlen = 0 ;
 	int		f_stdin = FALSE ;
 	int		f_fifo = FALSE ;
-	char		obuf[OBUFLEN+1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -1291,14 +1287,17 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	    int	rs1 = u_stat(fname,&sb) ;
 	    if (rs1 >= 0) f_fifo = S_ISFIFO(sb.st_mode) ;
 	}
+#else
+	if (f_stdin) f_stdin = 2 ;
 #endif /* CF_SPECIALFIFO */
 
 	if (rs >= 0) {
-	    int	i = 0 ;
-	    obuf[i++] = 'r' ;
-	    if (f_fifo) obuf[i++] = 'n' ;
-	    obuf[i] = '\0' ;
-	    if ((rs = shio_opene(ifp,fname,obuf,0666,to_open)) >= 0) {
+	    int		i = 0 ;
+	    char	fbuf[USERNAMELEN+1] ; /* flags buffer */
+	    fbuf[i++] = 'r' ;
+	    if (f_fifo) fbuf[i++] = 'n' ;
+	    fbuf[i] = '\0' ;
+	    if ((rs = shio_opene(ifp,fname,fbuf,0666,to_open)) >= 0) {
 	        const int	vlevel = pip->verboselevel ;
 		const int	llen = LINEBUFLEN ;
 		int		len ;

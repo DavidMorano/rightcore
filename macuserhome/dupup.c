@@ -83,8 +83,8 @@ int dupup(int fd,int min)
 	    ufd = rs ;
 	    if (ufd < min) {
 	        rs = uc_moveup(ufd,min) ;
-	        if (rs < 0) u_close(ufd) ;
 	        ufd = rs ;
+	        if (rs < 0) u_close(ufd) ;
 	    } /* end if (move needed) */
 	} /* end if (dup) */
 

@@ -335,15 +335,15 @@ int		to ;
 /* continue */
 
 	if ((rs >= 0) && (ll > 0)) {
-	if ((rs = u_pipe(pipes)) >= 0) {
-	    int	wfd = pipes[1] ;
-	    fd = pipes[0] ;
-
-	    rs = u_write(wfd,lbuf,ll) ;
-
-	    u_close(wfd) ;
-	    if (rs < 0) u_close(fd) ;
-	} /* end if (pipe) */
+	    if ((rs = u_pipe(pipes)) >= 0) {
+	        const int	wfd = pipes[1] ;
+		{
+	            fd = pipes[0] ;
+	            rs = u_write(wfd,lbuf,ll) ;
+		}
+	        u_close(wfd) ;
+	        if (rs < 0) u_close(fd) ;
+	    } /* end if (pipe) */
 	} /* end if (ok) */
 
 ret0:

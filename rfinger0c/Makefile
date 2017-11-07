@@ -140,8 +140,8 @@ OBJ10= termout.o
 OBJ11=
 OBJ12= opendial.o getopendial.o
 OBJ13= 
-OBJ14= sbuf.o sbuf_addquoted.o
-OBJ15= useraccdb.o field_srvarg.o
+OBJ14=
+OBJ15= field_srvarg.o
 
 OBJ16= dialuss.o dialussmux.o dialussnls.o
 OBJ17= dialtcp.o dialtcpmux.o dialtcpnls.o

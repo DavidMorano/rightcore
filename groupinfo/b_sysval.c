@@ -118,7 +118,6 @@
 #include	<tmtime.h>
 #include	<uinfo.h>
 #include	<nulstr.h>
-#include	<uprogdata.h>
 #include	<getbufsize.h>
 #include	<sysmemutil.h>
 #include	<exitcodes.h>
@@ -371,6 +370,7 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"utf",
 	"db",
 	"nocache",
@@ -386,6 +386,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_utf,
 	argopt_db,
 	argopt_nocache,
@@ -918,6 +919,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 /* UTMP file */
 	                case argopt_utf:
 	                case argopt_db:
@@ -1132,8 +1150,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1181,6 +1198,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
 	if (rs >= 0) {
 	    if ((rs = locinfo_utfname(lip,utfname)) >= 0) {

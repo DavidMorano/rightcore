@@ -859,8 +859,6 @@ fmq.o:			fmq.c fmq.h
 
 sigblock.o:		sigblock.c sigblock.h
 
-sigman.o:		sigman.c sigman.h
-
 paramfile.o:		paramfile.c paramfile.h
 
 kvsfile.o:		kvsfile.c kvsfile.h

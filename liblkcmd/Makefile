@@ -325,7 +325,7 @@ OBJ40= vecpstr_loadgrusers.o vecpstr_loadpjusers.o
 OBJ41= hostinfo.o finduid.o pwcache.o spawner.o ema.o ema_first.o
 OBJ42= cm.o cmbuf.o sysdialer.o systems.o
 OBJ43= logfile.o logfile_userinfo.o logfile_printfold.o
-OBJ44= mbcache.o conslog.o sigblock.o sigman.o 
+OBJ44= mbcache.o conslog.o sigblock.o
 OBJ45= aclinfo.o acltypes.o
 OBJ46= pwi.o ipasswd.o 
 OBJ47= lookword.o mxalias.o issue.o motd.o
@@ -885,7 +885,7 @@ b_cksumpass.o:		b_cksumpass.c b_cksumpass.h $(INCS)
 	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_cksumpass.cc
 
 b_hello.o:		b_hello.c b_hello.h $(INCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
 
 # testing
@@ -1367,8 +1367,6 @@ tmpx.o:			tmpx.c tmpx.h
 tmpx_getuserlines.o:	tmpx_getuserlines.c tmpx.h
 
 sigblock.o:		sigblock.c sigblock.h
-
-sigman.o:		sigman.c sigman.h
 
 finduid.o:		finduid.c finduid.h
 

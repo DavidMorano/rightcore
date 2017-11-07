@@ -180,7 +180,7 @@ struct outinfo {
 /* forward references */
 
 static int	progcsmsger(PROGINFO *,int,offset_t,cchar *) ;
-static int	proclogmsg(PROGINFO *,struct comsatmsg_mailoff *) ;
+static int	proclogmsg(PROGINFO *,COMSATMSG_MO *) ;
 static int	procmsginfo(PROGINFO *,MAILMSG *,const char *) ;
 static int	procmsgbad(PROGINFO *,cchar *,offset_t,int) ;
 static int	getdateinfo(PROGINFO *,char *,int,const char *,int,int) ;
@@ -246,7 +246,7 @@ static const int	rsbadtime[] = {
 
 int progcsmsg(PROGINFO *pip,cchar *mbuf,int mlen)
 {
-	struct comsatmsg_mailoff	m0 ;
+	COMSATMSG_MO	m0 ;
 	int		rs ;
 	int		ml = mlen ;
 	int		wlen = 0 ;
@@ -394,7 +394,7 @@ static int progcsmsger(PROGINFO *pip,int mfd,offset_t fo,cchar *un)
 /* end subroutine (progcsmsger) */
 
 
-static int proclogmsg(PROGINFO *pip,struct comsatmsg_mailoff *m0p)
+static int proclogmsg(PROGINFO *pip,COMSATMSG_MO *m0p)
 {
 	int		rs = SR_OK ;
 	const char	*pn = pip->progname ;

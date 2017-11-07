@@ -302,7 +302,7 @@ shio.o:			shio.c shio.h
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $(*).c
 
 
-kshlib.o:		lib_init.c $(INCS)
+kshlib.o:		kshlib.c kshlib.h $(INCS)
 
 
 userinfo.o:		userinfo.c userinfo.h

@@ -4,11 +4,8 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUGN	0		/* special debugging */
 #define	CF_UTIL		0		/* run the utility worker */
-#define	CF_SIGHAND	1		/* install signal handlers */
-#define	CF_SIGALTSTACK	0		/* do *not* define */
 
 
 /* revision history:
@@ -46,7 +43,6 @@
 
 #include	<vsystem.h>
 #include	<intceil.h>
-#include	<vecstr.h>
 #include	<sighand.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
@@ -88,15 +84,9 @@ extern int	msleep(int) ;
 extern int	haslc(cchar *,int) ;
 extern int	hasuc(cchar *,int) ;
 
-#if	CF_DEBUGS || CF_DEBUGN
-extern int	debugopen(cchar *) ;
-extern int	debugprintf(cchar *,...) ;
-extern int	debugclose() ;
-extern int	strlinelen(cchar *,int,int) ;
-#endif
-
 #if	CF_DEBUGN
 extern int	nprintf(const char *,const char *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern cchar	*getourenv(const char **,const char *) ;
@@ -115,9 +105,6 @@ struct sigcode {
 
 
 /* forward references */
-
-static int	maininfo_sigbegin(MAININFO *) ;
-static int	maininfo_sigend(MAININFO *) ;
 
 static void	main_sighand(int,siginfo_t *,void *) ;
 static int	main_sigdump(siginfo_t *) ;
@@ -195,7 +182,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (argv != NULL) {
 	    MAININFO	mi, *mip = &mi ;
 	    if ((rs = maininfo_start(mip,argc,argv)) >= 0) {
-	        if ((rs = maininfo_sigbegin(mip)) >= 0) {
+		maininfohand_t	sh = main_sighand ;
+	        if ((rs = maininfo_sigbegin(mip,sh,sigcatches)) >= 0) {
 #if	CF_DEBUGN
 	            nprintf(NDF,"main: sig-begin\n") ;
 #endif
@@ -259,88 +247,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 
 /* local subroutines */
-
-
-#if	CF_SIGALTSTACK
-static int maininfo_sigbegin(MAININFO *mip)
-{
-	size_t		ms ;
-	const int	ps = getpagesize() ;
-	const int	ss = (2*SIGSTKSZ) ;
-	int		rs ;
-	int		mp = (PROT_READ|PROT_WRITE) ;
-	int		mf = (MAP_PRIVATE|MAP_NORESERVE|MAP_ANON) ;
-	int		fd = -1 ;
-	void		*md ;
-	ms = iceil(ss,ps) ;
-	if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
-	    mip->mdata = md ;
-	    mip->msize = ms ;
-	    mip->astack.ss_size = ms ;
-	    mip->astack.ss_sp = md ;
-	    mip->astack.ss_flags = 0 ;
-	    if ((rs = u_sigaltstack(&mip->astack,NULL)) >= 0) {
-	        void	(*sh)(int,siginfo_t *,void *) = main_sighand ;
-	        rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
-	        if (rs < 0) {
-	            mip->astack.ss_flags = SS_DISABLE ;
-	            u_sigaltstack(&mip->astack,NULL) ;
-	        }
-	    } /* end if (u_sigaltstack) */
-	    if (rs < 0) {
-	        u_munmap(mip->mdata,mip->msize) ;
-	        mip->mdata = NULL ;
-	    }
-	} /* end if (mmap) */
-#if	CF_DEBUGN
-	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (maininfo_sigbegin) */
-#else /* CF_SIGALTSTACK */
-static int maininfo_sigbegin(MAININFO *mip)
-{
-	int		rs = SR_OK ;
-	void		(*sh)(int,siginfo_t *,void *) = main_sighand ;
-#if	CF_SIGHAND
-	rs = sighand_start(&mip->sh,NULL,NULL,sigcatches,sh) ;
-#endif
-#if	CF_DEBUGN
-	nprintf(NDF,"maininfo_sigbegin: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (maininfo_sigbegin) */
-#endif /* CF_SIGALTSTACK */
-
-
-static int maininfo_sigend(MAININFO *mip)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-#if	CF_SIGHAND
-	rs1 = sighand_finish(&mip->sh) ;
-	if (rs >= 0) rs = rs1 ;
-#endif
-
-#if	CF_SIGALTSTACK
-	mip->astack.ss_flags = SS_DISABLE ;
-	rs1 = u_sigaltstack(&mip->astack,NULL) ;
-	if (rs >= 0) rs = rs1 ;
-
-	if (mip->mdata != NULL) {
-	    rs1 = u_munmap(mip->mdata,mip->msize) ;
-	    if (rs >= 0) rs = rs1 ;
-	    mip->mdata = NULL ;
-	    mip->msize = 0 ;
-	}
-#endif /* CF_SIGALTSTACK */
-
-	return rs ;
-}
-/* end subroutine (maininfo_sigend) */
 
 
 /* ARGSUSED */

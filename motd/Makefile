@@ -371,8 +371,6 @@ pwcache.o:		pwcache.c pwcache.h
 termout.o:		termout.cc termout.h ansigr.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
-sigman.o:		sigman.c sigman.h
-
 sysrealname.o:		sysrealname.c sysrealname.h
 
 sysusernames.o:		sysusernames.c sysusernames.h

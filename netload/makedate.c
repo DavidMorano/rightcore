@@ -1,2 +1,2 @@
 const char netload_makedate[] =
-"@(#)netload                 170816_0432:39_USEDT Rightcore Network Services" ;
+"@(#)netload                 171104_0046:02_USEDT Rightcore Network Services" ;

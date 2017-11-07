@@ -8,12 +8,12 @@
 	= 1998-11-01, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services.
 
-	= 2017-10-24, David A­D­ Morano
+	= 2014-03-24, David A­D­ Morano
 	I added the |init()| method.
 
 */
 
-/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2014 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

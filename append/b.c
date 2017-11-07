@@ -656,8 +656,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -706,6 +705,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* check a few more things */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
@@ -727,7 +731,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    } /* end for */
 	} /* end if (getting file to append to) */
 
-	if (ofname == NULL) {
+	if ((rs >= 0) && (ofname == NULL)) {
 	    rs = SR_INVALID ;
 	    ex = EX_USAGE ;
 	    shio_printf(pip->efp,"%s: no append file specified\n",

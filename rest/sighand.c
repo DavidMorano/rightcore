@@ -110,13 +110,13 @@ sighand_handler	handle ;
 	    }
 	}
 
-	size = (nhandles * sizeof(struct sighand_handle)) ;
+	size = (nhandles * sizeof(SIGHAND_HANDLE)) ;
 	if ((rs >= 0) && (size > 0) && ((rs = uc_malloc(size,&p)) >= 0)) {
-	    struct sighand_handle *hp = p ;
-	    struct sigaction	san, *sap ;
-	    int			hsig ;
-	    int			j = 0 ;
-	    iap->handles = (struct sighand_handle *) p ;
+	    SIGHAND_HANDLE *hp = p ;
+	    SIGACTION	san, *sap ;
+	    int		hsig ;
+	    int		j = 0 ;
+	    iap->handles = (SIGHAND_HANDLE *) p ;
 	    iap->nhandles = nhandles ;
 
 /* ignore these signals */
@@ -129,7 +129,7 @@ sighand_handler	handle ;
 	            hsig = ignores[i] ;
 	            hp[j].sig = hsig ;
 	            sap = &hp[j].action ;
-	            memset(&san,0,sizeof(struct sigaction)) ;
+	            memset(&san,0,sizeof(SIGACTION)) ;
 	            san.sa_handler = SIG_IGN ;
 	            san.sa_mask = nsm ;
 	            san.sa_flags = 0 ;
@@ -148,7 +148,7 @@ sighand_handler	handle ;
 	            hsig = catches[i] ;
 	            hp[j].sig = hsig ;
 	            sap = &hp[j].action ;
-	            memset(&san,0,sizeof(struct sigaction)) ;
+	            memset(&san,0,sizeof(SIGACTION)) ;
 	            san.sa_sigaction = (sighand_handler) handle ;
 	            san.sa_mask = nsm ;
 	            san.sa_flags = (SA_SIGINFO) ;
@@ -187,7 +187,7 @@ int sighand_finish(SIGHAND *iap)
 	if (iap->magic != SIGHAND_MAGIC) return SR_NOTOPEN ;
 
 	if (iap->handles != NULL) {
-	    struct sigaction	*sap ;
+	    SIGACTION	*sap ;
 	    int		hsig ;
 	    int		i ;
 	    for (i = (iap->nhandles-1)  ; i >= 0 ; i -= 1) {

@@ -3,7 +3,7 @@
 /* time-value object methods */
 
 
-/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2014 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	TIMEVAL_INCLUDE
 #define	TIMEVAL_INCLUDE	1

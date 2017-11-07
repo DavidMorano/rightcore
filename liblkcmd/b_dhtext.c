@@ -378,7 +378,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
-	const char	*ifname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*efname = NULL ;
 	const char	*tos_open = NULL ;
@@ -626,20 +625,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
-/* input file name */
 	                case argopt_if:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            ifname = avp ;
+	                            cp = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                ifname = argp ;
-	                        } else
+	                                cp = argp ;
+				} else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -819,8 +817,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -862,9 +859,18 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some initialization */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #ifdef	COMMENT
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
@@ -1280,15 +1286,6 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            } /* end if */
 
 	        } /* end if (procesing file argument file list) */
-
-#if	COMMENT
-	        if ((rs >= 0) && (pan == 0)) {
-	            cp = (ifname != NULL) ? ifname : "-" ;
-	            pan += 1 ;
-	            rs = procword(pip,ofp,cp) ;
-	            wlen += rs ;
-	        } /* end if (standard-input) */
-#endif /* COMMENT */
 
 	        rs1 = locinfo_termoutend(lip) ;
 	        if (rs >= 0) rs = rs1 ;

@@ -93,10 +93,6 @@ extern int	opensockaddr(int,int,int,struct sockaddr *,int) ;
 int dialuss(cchar *pathname,int to,int opts)
 {
 	struct ustat	sb ;
-	const int	pf = PF_UNIX ;
-	const int	st = SOCK_STREAM ;
-	const int	proto = 0 ;
-	const int	af = AF_UNIX ;
 	int		rs ;
 	int		rs1 ;
 	int		fd = 0 ;
@@ -112,21 +108,33 @@ int dialuss(cchar *pathname,int to,int opts)
 	if ((rs = u_stat(pathname,&sb)) >= 0) {
 	    if (S_ISSOCK(sb.st_mode)) {
 		SOCKADDRESS	sa ;
+		const int	af = AF_UNIX ;
 	        const void	*vp = (const void *) pathname ;
 	        if ((rs = sockaddress_start(&sa,af,vp,0,0)) >= 0) {
-	            struct sockaddr	*sap = (struct sockaddr *) &sa ;
+	            SOCKADDR	*sap = (struct sockaddr *) &sa ;
+		    const int	pf = PF_UNIX ;
+		    const int	st = SOCK_STREAM ;
+		    const int	proto = 0 ;
 
 		    if ((rs = opensockaddr(pf,st,proto,sap,to)) >= 0) {
 	                fd = rs ;
 			rs = dialopts(fd,opts) ;
 		    }
 
+#if	CF_DEBUGS
+		    debugprintf("dialuss: opensockaddr()-out rs=%d\n",rs) ;
+#endif
+
 	            rs1 = sockaddress_finish(&sa) ;
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (sockaddress) */
-		if ((rs < 0) && (fd >= 0)) u_close(fd) ;
-	    } else
+		if ((rs < 0) && (fd >= 0)) {
+		    u_close(fd) ;
+		    fd = -1 ;
+		}
+	    } else {
 		rs = SR_NOTSOCK ;
+	    } /* end if */
 	} /* end if (stat) */
 
 #if	CF_DEBUGS

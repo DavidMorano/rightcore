@@ -6,11 +6,11 @@ module		description
 
 vecstr		vector strings, stores the data for you
 vecpstr		vector of packed strings
-osetstr		ordered-set-of-strings
 vecitem		variable sized items, stores the data for you
 vecobj		fixed sized objects, stores the data for you
 vechand		you have to store the data yourself 
 vecint		integers, stores data
+recarr		record-aarry (variable vector) of pointer handles
 
 hdb		you have to store the data yourself
 hdbstr		key-value strings, stores data for you

@@ -846,8 +846,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -965,7 +964,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (rs >= 0) {
 	if ((rs = bibleverse_open(&lip->vdb,pip->pr,vdbname)) >= 0) {
-	    int	nverses = rs ;
+	    const int	nverses = rs ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))

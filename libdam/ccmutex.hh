@@ -15,7 +15,12 @@
 
 /*******************************************************************************
 
-        This object implments MUTEX using the POSIX mutex as a base.
+        This object implments a MUTEX using the POSIX mutex as a base.
+
+	Q. Why do we need this?
+	A. Because the (blank...blank) C++ committee did not realize that
+	there already was a 'struct mutex' in standard UNIX® systems (as part
+	of POSIX®) and that it gets in the way of the C++ |mutex| object!
 
 
 *******************************************************************************/
@@ -68,5 +73,23 @@ public:
 	    return ptm_unlock(&m) ;
 	} ;
 } ; /* end class (ccmutex) */
+
+
+class guardmutex {
+	ccmutex		&rm ;
+	int		rs = 0 ;
+public:
+	guardmutex(ccmutex &m) : rm(m) { 
+	    rs = rm.lock() ;
+	} ;
+	~guardmutex() {
+	    if (rs >= 0) {
+	        rm.unlock() ;
+	    }
+	} ;
+	int caputured() {
+	    return rs ;
+	} ;
+} ;
 
 

@@ -61,7 +61,7 @@ static int	convert(cchar *,int,int,int *) ;
 
 int cfdecti(cchar *sbuf,int slen,int *rp)
 {
-	int		rs = 0 ;
+	int		rs = SR_OK ;
 	int		sl ;
 	int		f_negative = FALSE ;
 	cchar		*tp, *sp ;
@@ -92,8 +92,7 @@ int cfdecti(cchar *sbuf,int slen,int *rp)
 	while ((tp = strnpbrk(sp,sl,"YMWDwdhms")) != NULL) {
 
 	    rs = convert(sp,(tp - sp),(int) *tp,rp) ;
-	    if (rs < 0)
-	        break ;
+	    if (rs < 0) break ;
 
 	    sl -= ((tp + 1) - sp) ;
 	    sp = (tp + 1) ;
@@ -120,7 +119,7 @@ int cfdecti(cchar *sbuf,int slen,int *rp)
 
 static int convert(cchar *sp,int sl,int mc,int *rp)
 {
-	int		rs = 0 ;
+	int		rs = SR_OK ;
 	int		cl ;
 	cchar		*cp ;
 

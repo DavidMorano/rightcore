@@ -308,6 +308,4 @@ nodedb.o:		nodedb.c nodedb.h
 
 kvsfile.o:		kvsfile.c kvsfile.h
 
-sigman.o:		sigman.c sigman.h
-
 

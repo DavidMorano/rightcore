@@ -486,8 +486,6 @@ ptrwlock.o:		ptrwlock.c ptrwlock.h
 # POSIX Message Queue
 pmq.o:			pmq.c pmq.h
 
-sigman.o:		sigman.c sigman.h
-
 sigblock.o:		sigblock.c sigblock.h
 
 sigign.o:		sigign.c sigign.h

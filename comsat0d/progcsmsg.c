@@ -191,7 +191,7 @@ struct outinfo {
 /* forward references */
 
 static int	progcsmsger(PROGINFO *,int,offset_t,cchar *) ;
-static int	proclogmsg(PROGINFO *,struct comsatmsg_mailoff *) ;
+static int	proclogmsg(PROGINFO *,COMSATMSG_MO *) ;
 static int	procmsginfo(PROGINFO *,MAILMSG *,const char *) ;
 static int	procmsgbad(PROGINFO *,cchar *,offset_t,int) ;
 static int	getdateinfo(PROGINFO *,char *,int,const char *,int,int) ;
@@ -257,7 +257,7 @@ static const int	rsbadtime[] = {
 
 int progcsmsg(PROGINFO *pip,cchar *mbuf,int mlen)
 {
-	struct comsatmsg_mailoff	m0 ;
+	COMSATMSG_MO	m0 ;
 	int		rs ;
 	int		ml = mlen ;
 	int		wlen = 0 ;
@@ -281,11 +281,11 @@ int progcsmsg(PROGINFO *pip,cchar *mbuf,int mlen)
 	}
 #endif /* COMMENT */
 
-	if ((rs = comsatmsg_mailoff(&m0,1,mp,ml)) >= 0) {
+	if ((rs = comsatmsg_mo(&m0,1,mp,ml)) >= 0) {
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5)) {
-	        debugprintf("progcsmsg: comsatmsg_mailoff() rs=%d\n",rs) ;
+	        debugprintf("progcsmsg: comsatmsg_mo() rs=%d\n",rs) ;
 	        debugprintf("progcsmsg: m0.username=%s\n",m0.username) ;
 	        debugprintf("progcsmsg: m0.fname=%s\n",m0.fname) ;
 	        debugprintf("progcsmsg: m0.offset=%lu\n",m0.offset) ;
@@ -362,7 +362,7 @@ int progcsmsg(PROGINFO *pip,cchar *mbuf,int mlen)
 	        progloglock_printf(pip,"bad-msg (%d)",rs) ;
 	    }
 	    rs = SR_OK ;
-	} /* end if (comsatmsg_mailoff) */
+	} /* end if (comsatmsg_mo) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -409,7 +409,7 @@ static int progcsmsger(PROGINFO *pip,int mfd,offset_t fo,cchar *un)
 /* end subroutine (progcsmsger) */
 
 
-static int proclogmsg(PROGINFO *pip,struct comsatmsg_mailoff *m0p)
+static int proclogmsg(PROGINFO *pip,COMSATMSG_MO *m0p)
 {
 	int		rs = SR_OK ;
 	const char	*pn = pip->progname ;
