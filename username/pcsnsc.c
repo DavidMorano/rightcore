@@ -22,7 +22,8 @@
 
 /*******************************************************************************
 
-	This module mediates the interactions with the PCS server.
+        This module mediates (as a sort of client) the interactions with the PCS
+        server.
 
 
 *******************************************************************************/

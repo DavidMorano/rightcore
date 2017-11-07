@@ -211,7 +211,7 @@ int pcsnsrecs_finish(PCSNSRECS *op)
 int pcsnsrecs_store(PCSNSRECS *op,cchar *vbuf,int vlen,cchar *un,int w,int ttl)
 {
 	RECINFO		ri ;
-	time_t		dt = time(NULL) ;
+	const time_t	dt = time(NULL) ;
 	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -335,8 +335,9 @@ int pcsnsrecs_invalidate(PCSNSRECS *op,cchar un[],int w)
 	    rs1 = uc_libfree(ep) ;
 	    if (rs >= 0) rs = rs1 ;
 
-	} else if (rs == SR_NOTFOUND)
+	} else if (rs == SR_NOTFOUND) {
 	    rs = SR_OK ;
+	}
 
 	return (rs >= 0) ? f_found : rs ;
 }
@@ -459,7 +460,7 @@ static int pcsnsrecs_mkrec(PCSNSRECS *op,time_t dt,RECINFO *rip)
 
 	    } /* end if */
 
-	} /* end if */
+	} /* end if (recarr_count) */
 
 	return (rs >= 0) ? vl : rs ;
 }
@@ -486,7 +487,7 @@ static int pcsnsrecs_newrec(PCSNSRECS *op,time_t dt,
 
 
 static int pcsnsrecs_recstart(PCSNSRECS *op,time_t dt,PCSNSRECS_REC *ep,
-	RECINFO *rip)
+		RECINFO *rip)
 {
 	const int	wc = op->wcount++ ;
 	int		rs ;

@@ -89,7 +89,7 @@ int getgid_group(cchar *np,int nl)
 	if (np == NULL) return SR_FAULT ;
 	if (np[0] == '\0') return SR_INVALID ;
 	if (hasalldig(np,nl)) {
-	    int	v ;
+	    int		v ;
 	    if ((rs = cfdeci(np,nl,&v)) >= 0) {
 		rs = v ;
 	    }

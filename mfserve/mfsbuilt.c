@@ -1,6 +1,6 @@
 /* mfsbuilt */
 
-/* perform various functions on a job */
+/* built-in services */
 /* version %I% last modified %G% */
 
 
@@ -18,8 +18,8 @@
 
 /*******************************************************************************
 
-        This module is responsible for providing means to store a job and the
-        retrieve it later by its PID.
+        This module is responsible for providing some built-in services
+	for the MFSERVE server.
 
 
 *******************************************************************************/
@@ -108,7 +108,7 @@ static int	hasService(cchar *,int) ;
 
 /* local variables */
 
-static const char	*exts[] = {
+static cchar	*exts[] = {
 	"so",
 	"o",
 	NULL

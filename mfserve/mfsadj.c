@@ -181,17 +181,23 @@ int mfsadj_begin(PROGINFO *pip)
 	int		rs = SR_OK ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	    debugprintf("mfsadjunct/procipcbegin: ent f_reuseaddr=%u\n",
-	        lip->f.reuseaddr) ;
+	if (DEBUGLEVEL(5)) {
+	    debugprintf("mfsadj_begin: ent f_reuseaddr=%u\n",lip->f.reuseaddr) ;
+	    debugprintf("mfsadj_begin: f_listen=%u\n",lip->f.adj) ;
+	}
 #endif
 
 	lip->rfd = -1 ;
-	if (lip->f.listen) {
+	if (lip->f.adj) {
 
 	    if (lip->reqfname == NULL) {
 	        rs = locinfo_reqfname(lip) ;
 	    }
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(5))
+	        debugprintf("mfsadj_begin: req=%s\n",lip->reqfname) ;
+#endif
 
 	    if (pip->debuglevel > 0) {
 	        shio_printf(pip->efp,"%s: req=%s\n",
@@ -211,7 +217,7 @@ int mfsadj_begin(PROGINFO *pip)
 	            if ((rs = uc_closeonexec(fd,TRUE)) >= 0) {
 	                if ((rs = mfsadj_allocbegin(pip)) >= 0) {
 	                    lip->rfd = fd ;
-	                    lip->open.listen = TRUE ;
+	                    lip->open.adj = TRUE ;
 	                }
 	            }
 	            if (rs < 0)
@@ -223,7 +229,7 @@ int mfsadj_begin(PROGINFO *pip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("mfsadjunct/procipcbegin: ret rs=%d\n",rs) ;
+	    debugprintf("mfsadj_begin: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -252,7 +258,12 @@ int mfsadj_end(PROGINFO *pip)
 	    }
 	}
 
-	lip->open.listen = FALSE ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfsadj_end: ret rs=%d\n",rs) ;
+#endif
+
+	lip->open.adj = FALSE ;
 	return rs ;
 }
 /* end subroutine (mfsadj_end) */
@@ -263,6 +274,11 @@ int mfsadj_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		f = FALSE ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfsadj_poll: ent fd=%u\n",fd) ;
+#endif
 
 	if (lip->rfd == fd) {
 	    f = TRUE ;
@@ -276,6 +292,11 @@ int mfsadj_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 	        }
 	    } /* end if (had something) */
 	} /* end if (events) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfsadj_poll: ret rs=%d\n",rs) ;
+#endif
 
 	return (rs >= 0) ? f : rs ;
 }

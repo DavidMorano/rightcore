@@ -121,11 +121,11 @@ extern int	isBadMsg(int) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
@@ -180,12 +180,12 @@ int pcsadj_begin(PROGINFO *pip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("pcsadjunct/procipcbegin: ent f_reuseaddr=%u\n",
+	    debugprintf("pcsadj_begin: ent f_reuseaddr=%u\n",
 	        lip->f.reuseaddr) ;
 #endif
 
 	lip->rfd = -1 ;
-	if (lip->f.listen) {
+	if (lip->f.adj) {
 
 	    if (lip->reqfname == NULL) {
 	        rs = locinfo_reqfname(lip) ;
@@ -209,7 +209,7 @@ int pcsadj_begin(PROGINFO *pip)
 	            if ((rs = uc_closeonexec(fd,TRUE)) >= 0) {
 	                if ((rs = pcsadj_allocbegin(pip)) >= 0) {
 	                    lip->rfd = fd ;
-	                    lip->open.listen = TRUE ;
+	                    lip->open.adj = TRUE ;
 	                }
 	            }
 	            if (rs < 0)
@@ -217,11 +217,11 @@ int pcsadj_begin(PROGINFO *pip)
 	        } /* end if (listenusd) */
 	    } /* end if (ok) */
 
-	} /* end if (listen) */
+	} /* end if (adj) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("pcsadjunct/procipcbegin: ret rs=%d\n",rs) ;
+	    debugprintf("pcsadj_begin: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -250,7 +250,7 @@ int pcsadj_end(PROGINFO *pip)
 	    }
 	}
 
-	lip->open.listen = FALSE ;
+	lip->open.adj = FALSE ;
 	return rs ;
 }
 /* end subroutine (pcsadj_end) */
@@ -444,7 +444,7 @@ static int pcsadj_getstatus(PROGINFO *pip,MSGDATA *mdp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("pcsadj_reqmsg_getstatus: ent\n") ;
+	    debugprintf("pcsadj_getstatus: ent\n") ;
 #endif
 
 	if ((rs = pcsmsg_getstatus(&m1,1,mdp->mbuf,mdp->ml)) >= 0) {

@@ -149,7 +149,7 @@ static int	mksrvdname(char *,cchar *,cchar *,cchar *) ;
 /* local variables */
 
 #ifdef	COMMENT
-static const char	*prbins[] = {
+static cchar	*prbins[] = {
 	"bin",
 	"sbin",
 	NULL

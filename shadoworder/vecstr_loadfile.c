@@ -243,7 +243,7 @@ static int vecstr_loadline(VECSTR *vsp,int fu,const char *lbuf,int len)
 	int		c = 0 ;
 	if ((rs = field_start(&fsb,lbuf,len)) >= 0) {
 	    int		fl ;
-	    const char	*fp ;
+	    cchar	*fp ;
 	    while ((fl = field_get(&fsb,fterms,&fp)) >= 0) {
 		if (fl > 0) {
 		    if (fu) {

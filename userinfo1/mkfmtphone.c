@@ -94,22 +94,24 @@ int mkfmtphone(char *dbuf,int dlen,cchar *pp,int pl)
 			    if (tl > 10) {
 				rs = sbuf_strw(&b,tbuf,(tl-10)) ;
 			    }
-		            if (tl >= 10) {
+		            if ((rs >= 0) && (tl >= 10)) {
 				cchar	*tp = (tbuf+tl-10) ;
 				sbuf_char(&b,CH_LPAREN) ;
 				sbuf_strw(&b,tp,3) ;
 				sbuf_char(&b,CH_RPAREN) ;
 			    }
-			    if (tl >= 7) {
+			    if ((rs >= 0) && (tl >= 7)) {
 				cchar	*tp = (tbuf+tl-7) ;
 				sbuf_strw(&b,tp,3) ;
 				sbuf_char(&b,CH_MINUS) ;
 			    }
- 			    if (tl >= 4) {
-				cchar	*tp = (tbuf+tl-4) ;
-				sbuf_strw(&b,tp,4) ;
-			    } else {
-				sbuf_strw(&b,tbuf,tl) ;
+			    if (rs >= 0) {
+ 			        if (tl >= 4) {
+				    cchar	*tp = (tbuf+tl-4) ;
+				    sbuf_strw(&b,tp,4) ;
+			        } else {
+				    sbuf_strw(&b,tbuf,tl) ;
+				}
 			    }
 			    dl = sbuf_finish(&b) ;
 			    if (rs >= 0) rs = dl ;

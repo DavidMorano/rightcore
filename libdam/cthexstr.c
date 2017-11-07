@@ -25,12 +25,13 @@
 
 	Synopsis:
 
-	int cthexstr(char *dbuf,int dlen,cchar *vp,int vl)
+	int cthexstring(char *dbuf,int dlen,int f,cchar *vp,int vl)
 
 	Arguments:
 
 	dbuf		result buffer
 	dlen		length of result buffer
+	f		flags specifying type of outpuy
 	vp		pointer to source buffer (value)
 	sl		length of source in bytes
 
@@ -38,6 +39,13 @@
 
 	<0		error (overflow)
 	>=0		length of result bytes
+
+	Example-output:
+
+	+ for (!f)
+		48656C6C6F20776F726C64210A
+ 	+ for (f)
+		48 65 6C 6C 6F 20 77 6F 72 6C 64 21 0A
 
 
 *******************************************************************************/
@@ -68,7 +76,7 @@
 /* exported subroutines */
 
 
-int cthexstring(char *dbuf,int dlen,cchar *sp,int sl,int f)
+int cthexstring(char *dbuf,int dlen,int f,cchar *sp,int sl)
 {
 	SBUF		b ;
 	int		rs ;
@@ -99,7 +107,7 @@ int cthexstring(char *dbuf,int dlen,cchar *sp,int sl,int f)
 
 int cthexstr(char *dbuf,int dlen,cchar *sp,int sl)
 {
-	return cthexstring(dbuf,dlen,sp,sl,FALSE) ;
+	return cthexstring(dbuf,dlen,FALSE,sp,sl) ;
 }
 /* end subroutine (cthexstr) */
 

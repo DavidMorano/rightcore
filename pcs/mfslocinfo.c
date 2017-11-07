@@ -227,6 +227,7 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	}
 #endif /* COMMENT */
 
+	lip->f.adj = TRUE ;
 	return rs ;
 }
 /* end subroutine (locinfo_start) */

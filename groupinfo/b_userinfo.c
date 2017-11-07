@@ -8,7 +8,6 @@
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_DEFGROUP	0		/* for compatibility w/ 'id(1)' */
-#define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 #define	CF_AUID		0		/* can handle Audit-UID */
 
 
@@ -92,6 +91,7 @@
 #include	<sysproject.h>
 #include	<tmpx.h>
 #include	<pwentry.h>
+#include	<estrings.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -102,14 +102,6 @@
 
 
 /* local defines */
-
-#if	CF_UGETPW
-#define	GETPW_NAME	ugetpw_name
-#define	GETPW_UID	ugetpw_uid
-#else
-#define	GETPW_NAME	getpw_name
-#define	GETPW_UID	getpw_uid
-#endif /* CF_UGETPW */
 
 #ifndef	VARTZ
 #define	VARTZ		"TZ"
@@ -162,18 +154,6 @@
 
 /* external subroutines */
 
-extern int	snsds(char *,int,cchar *,cchar *) ;
-extern int	sncpy1(char *,int,cchar *) ;
-extern int	sncpy2(char *,int,cchar *,cchar *) ;
-extern int	sncpy3(char *,int,cchar *,cchar *,cchar *) ;
-extern int	sncpy4(char *,int,cchar *,cchar *,cchar *,cchar *) ;
-extern int	sncpylc(char *,int,cchar *) ;
-extern int	sncpyuc(char *,int,cchar *) ;
-extern int	snwcpy(char *,int,cchar *,int) ;
-extern int	snfsflags(cchar *,int,ulong) ;
-extern int	mkpath1(char *,cchar *) ;
-extern int	mkpath2(char *,cchar *,cchar *) ;
-extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
 extern int	mkfmtphone(char *,int,cchar *,int) ;
 extern int	pathadd(char *,int,cchar *) ;
 extern int	sfskipwhite(cchar *,int,cchar **) ;
@@ -380,6 +360,7 @@ static int	procqueries(PROGINFO *,PROGDATA *,void *,cchar *,int) ;
 static int	procquery(PROGINFO *,PROGDATA *,void *,cchar *,int) ;
 static int	procquery_name(PROGINFO *,PROGDATA *,char *,int) ;
 static int	procquery_fullname(PROGINFO *,PROGDATA *,char *,int) ;
+static int	procquery_netname(PROGINFO *,PROGDATA *,char *,int) ;
 static int	procquery_projinfo(PROGINFO *,PROGDATA *,char *,int) ;
 static int	procquery_projects(PROGINFO *,PROGDATA *,char *,int) ;
 static int	procout(PROGINFO *,void *,cchar *,int) ;
@@ -445,7 +426,7 @@ static int	getuser(char *,int,uid_t) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -498,7 +479,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *progopts[] = {
+static cchar	*progopts[] = {
 	"phone",
 	NULL
 } ;
@@ -509,7 +490,7 @@ enum progopts {
 } ;
 
 /* define the query keywords */
-static cchar *qopts[] = {
+static cchar	*qopts[] = {
 	"sysname",
 	"nodename",
 	"release",
@@ -1115,9 +1096,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1262,6 +1243,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_userinfo: un=%s\n",un) ;
 #endif
 
+	if (rs >= 0) {
 	if ((un != NULL) && (un[0] != '\0') && (strcmp(un,"-") != 0)) {
 
 	    if (f_name) {
@@ -1281,16 +1263,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	        if ((rs < 0) && (! pip->f.quiet)) {
-		    cchar	*pn = pip->progname ;
-		    cchar	*fmt ;
+	            cchar	*pn = pip->progname ;
+	            cchar	*fmt ;
 	            if (rs == SR_NOTUNIQ) {
-			fmt = "%s: multiple name matches\n" ;
+	                fmt = "%s: multiple name matches\n" ;
 	                shio_printf(pip->efp,fmt,pn) ;
-			ex = EX_TEMPFAIL ;
+	                ex = EX_TEMPFAIL ;
 	            } else {
-			fmt = "%s: name not found (%d)\n" ;
+	                fmt = "%s: name not found (%d)\n" ;
 	                shio_printf(pip->efp,fmt,pn,rs) ;
-			ex = EX_NOUSER ;
+	                ex = EX_NOUSER ;
 	            }
 	        } /* end if */
 
@@ -1308,6 +1290,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    un = unbuf ;
 	    rs = getusername(unbuf,USERNAMELEN,uid) ;
 	}
+	} /* end if (ok) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1334,17 +1317,17 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    void	*p ;
 	    if ((rs = uc_malloc(size,&p)) >= 0) {
 	        PROGDATA	*pdp = p ;
-		cchar		*pfn = pwfname ;
+	        cchar		*pfn = pwfname ;
 	        if ((rs = progdata_start(pdp,pip,un,f_self,pfn)) >= 0) {
-		    ARGINFO	*aip = &ainfo ;
-		    BITS	*bop = &pargs ;
+	            ARGINFO	*aip = &ainfo ;
+	            BITS	*bop = &pargs ;
 	            cchar	*afn = afname ;
 	            cchar	*ofn = ofname ;
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(2))
 	                debugprintf("b_userinfo: un=%s f_name=%u "
-			    "f_self=%u\n", un,f_name,f_self) ;
+	                    "f_self=%u\n", un,f_name,f_self) ;
 #endif
 
 	            if ((rs = procargs(pip,aip,bop,pdp,ofn,afn)) >= 0) {
@@ -1478,7 +1461,7 @@ static int usage(PROGINFO *pip)
 
 	if (rs >= 0) {
 	    fmt = "%s:   possible specifications are: \n",
-	    rs = shio_printf(pip->efp,fmt,pn) ;
+	        rs = shio_printf(pip->efp,fmt,pn) ;
 	    wlen += rs ;
 	}
 
@@ -1517,7 +1500,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	int		rs = SR_OK ;
 	int		c = 0 ;
 	cchar		*cp ;
- 
+
 	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
 	}
@@ -1542,7 +1525,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->final.phone = TRUE ;
 	                        if (vl > 0) {
 	                            rs = locinfo_setphone(lip,vp,vl) ;
-			        }
+	                        }
 	                    }
 	                    break ;
 	                } /* end switch */
@@ -1569,7 +1552,7 @@ ARGINFO		*aip ;
 BITS		*bop ;
 PROGDATA	*pdp ;
 cchar		*ofn ;
-cchar		*afn;
+cchar		*afn ;
 {
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;
@@ -1643,7 +1626,7 @@ cchar		*afn;
 	            rs1 = shio_close(afp) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
-		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            fmt = "%s: inaccessible argument-list (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
@@ -1892,26 +1875,26 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	            sp = pdp->du.pent.shell ;
 	            break ;
 	        case qopt_gecosname:
-		    {
-			cchar	*gecos = pdp->du.pent.gecos ;
+	            {
+	                cchar	*gecos = pdp->du.pent.gecos ;
 	                if ((rs = mkgecosname(cbuf,clen,gecos)) >= 0) {
-	            	    sp = cbuf ;
-			    sl = rs ;
-		        }
-		    }
+	                    sp = cbuf ;
+	                    sl = rs ;
+	                }
+	            }
 	            break ;
 	        case qopt_organization:
 	            if (pdp->f.self) {
 	                sp = getourenv(pip->envv,VARORGANIZATION) ;
-		    }
+	            }
 	            if ((rs >= 0) && (sp == NULL)) {
 	                cchar	*homedname = pdp->du.pent.dir ;
 	                rs = gethomeorg(cbuf,clen,homedname) ;
 	                sl = rs ;
 	                if (rs > 0) sp = cbuf ;
 	                if (isNotAccess(rs)) {
-			    rs = SR_OK ;
-			}
+	                    rs = SR_OK ;
+	                }
 	            }
 	            if ((rs >= 0) && (sp == NULL)) {
 	                cp = pdp->du.pent.organization ;
@@ -1926,8 +1909,8 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	                sl = rs ;
 	                if (rs > 0) sp = cbuf ;
 	                if (isNotAccess(rs)) {
-			    rs = SR_OK ;
-			}
+	                    rs = SR_OK ;
+	                }
 	            }
 	            break ;
 	        case qopt_realname:
@@ -1950,29 +1933,29 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	                sp = cbuf ;
 	            break ;
 	        case qopt_wphone:
-	     	case qopt_hphone:
-		    {
-			switch (qi) {
-	        	case qopt_wphone:
-			    sp = pdp->du.pent.wphone ;
-			    break ;
-	        	case qopt_hphone:
-			    sp = pdp->du.pent.hphone ;
-			    break ;
-			} /* end switch */
-			if (sp != NULL) {
-			    switch (lip->phone) {
-			    case phonetype_fancy:
-			        if ((rs = mkfmtphone(cbuf,clen,sp,sl)) >= 0) {
-				    sp = cbuf ;
-				    sl = rs ;
-			        }
-				break ;
-			    } /* end switch */
-			} else {
-			    sp = cbuf ;
-			}
-		    } /* end block */
+	        case qopt_hphone:
+	            {
+	                switch (qi) {
+	                case qopt_wphone:
+	                    sp = pdp->du.pent.wphone ;
+	                    break ;
+	                case qopt_hphone:
+	                    sp = pdp->du.pent.hphone ;
+	                    break ;
+	                } /* end switch */
+	                if (sp != NULL) {
+	                    switch (lip->phone) {
+	                    case phonetype_fancy:
+	                        if ((rs = mkfmtphone(cbuf,clen,sp,sl)) >= 0) {
+	                            sp = cbuf ;
+	                            sl = rs ;
+	                        }
+	                        break ;
+	                    } /* end switch */
+	                } else {
+	                    sp = cbuf ;
+	                }
+	            } /* end block */
 	            break ;
 	        case qopt_printer:
 	            if (pdp->f.self) sp = getourenv(pip->envv,VARPRINTER) ;
@@ -1984,12 +1967,12 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	            sp = pdp->du.pent.password ;
 	            break ;
 	        case qopt_lstchg:
-		    {
-			const long	lv = pdp->du.pent.lstchg ;
+	            {
+	                const long	lv = pdp->du.pent.lstchg ;
 	                sp = cbuf ;
 	                rs = ctdecl(cbuf,clen,lv) ;
 	                sl = rs ;
-		    }
+	            }
 	            break ;
 	        } /* end switch */
 	    } /* end if (have.pent) */
@@ -2019,14 +2002,14 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
 	        debugprintf("b_userinfo/procquery: "
-		"datauser_pj() rs=%d\n",rs) ;
+	            "datauser_pj() rs=%d\n",rs) ;
 #endif
 	    if ((rs < 0) || (! pdp->du.have.pj)) break ;
 	    switch (qi) {
 	    case qopt_projid:
 	    case qopt_pjid:
 	        if (pdp->du.have.pj) {
-		    const int	v = (int) pdp->du.pj.pj_projid ;
+	            const int	v = (int) pdp->du.pj.pj_projid ;
 	            sp = cbuf ;
 	            rs = ctdeci(cbuf,clen,v) ;
 	            sl = rs ;
@@ -2036,7 +2019,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    case qopt_projname:
 	        if (pdp->du.have.pj) {
 	            sp = pdp->du.pj.pj_name ;
-		}
+	        }
 	        break ;
 	    } /* end switch */
 #if	CF_DEBUG
@@ -2107,7 +2090,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    break ;
 	case qopt_pid:
 	    if (pdp->f.self) {
-	        pid_t	v = ugetpid() ;
+	        const pid_t	v = ugetpid() ;
 	        sp = cbuf ;
 	        rs = ctdecui(cbuf,clen,(uint) v) ;
 	        sl = rs ;
@@ -2115,7 +2098,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    break ;
 	case qopt_ppid:
 	    if (pdp->f.self) {
-	        pid_t	v = getppid() ;
+	        const pid_t	v = getppid() ;
 	        sp = cbuf ;
 	        rs = ctdecui(cbuf,clen,(uint) v) ;
 	        sl = rs ;
@@ -2123,7 +2106,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    break ;
 	case qopt_pgid:
 	    if (pdp->f.self) {
-	        pid_t	v = getpgrp() ;
+	        const pid_t	v = getpgrp() ;
 	        sp = cbuf ;
 	        rs = ctdecui(cbuf,clen,(uint) v) ;
 	        sl = rs ;
@@ -2142,7 +2125,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	case qopt_tid:
 	case qopt_ptid:
 	    if (pdp->f.self) {
-	        taskid_t	v = gettaskid() ;
+	        const taskid_t	v = gettaskid() ;
 	        sp = cbuf ;
 	        rs = ctdecui(cbuf,clen,(uint) v) ;
 	        sl = rs ;
@@ -2150,42 +2133,42 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    break ;
 	case qopt_gids:
 	    if ((rs = datauser_groups(&pdp->du)) >= 0) {
-		DATAUSER	*dup = &pdp->du ;
-		sp = cbuf ;
-		sl = 0 ;
+	        DATAUSER	*dup = &pdp->du ;
+	        sp = cbuf ;
+	        sl = 0 ;
 	        if (dup->have.groups) {
 	            if ((rs = datauser_mkgids(dup,cbuf,clen)) >= 0) {
 	                sp = cbuf ;
 	                sl = rs ;
-		    }
+	            }
 	        } /* end if (have groups) */
 	    } /* end if (datauser_groups) */
 	    break ;
 	case qopt_groups:
 	    if ((rs = datauser_groups(&pdp->du)) >= 0) {
-		DATAUSER	*dup = &pdp->du ;
-		sp = cbuf ;
-		sl = 0 ;
+	        DATAUSER	*dup = &pdp->du ;
+	        sp = cbuf ;
+	        sl = 0 ;
 	        if (dup->have.groups) {
 	            vecstr	*glp = &dup->groups ;
-		    if ((rs = mkstrlist(cbuf,clen,glp)) >= 0) {
+	            if ((rs = mkstrlist(cbuf,clen,glp)) >= 0) {
 	                sp = cbuf ;
-		        sl = rs ;
+	                sl = rs ;
 	            } /* end if (mkstrlist) */
 	        } /* end if (have groups) */
 	    } /* end if (datauser_groups) */
 	    break ;
 	case qopt_projects:
 	    if ((rs = procquery_projects(pip,pdp,cbuf,clen)) >= 0) {
-		sp = cbuf ;
-		sl = rs ;
+	        sp = cbuf ;
+	        sl = rs ;
 	    }
 	    break ;
 	case qopt_projectinfo:
 	case qopt_projinfo:
 	    if ((rs = procquery_projinfo(pip,pdp,cbuf,clen)) >= 0) {
-		sp = cbuf ;
-		sl = rs ;
+	        sp = cbuf ;
+	        sl = rs ;
 	    }
 	    break ;
 	case qopt_logid:
@@ -2197,7 +2180,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    if (pdp->f.self) {
 	        if (! pdp->du.init.utmpent) {
 	            rs = datauser_utmpent(&pdp->du) ;
-		}
+	        }
 	        if ((rs >= 0) && pdp->du.have.utmpent) {
 	            cp = NULL ;
 	            switch (qi) {
@@ -2236,12 +2219,13 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    if (sp == NULL) {
 	        if (! pdp->du.init.tz) {
 	            rs = datauser_tz(&pdp->du) ;
-		}
+	        }
 	        if ((rs >= 0) && pdp->du.have.tz) {
 	            sp = pdp->du.tz ;
-		}
-	        if (sp == NULL)
+	        }
+	        if (sp == NULL) {
 	            sp = cbuf ;
+		}
 	    } /* end if */
 	    break ;
 	case qopt_lastlog:
@@ -2250,8 +2234,8 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    }
 	    if ((rs >= 0) && (pdp->du.have.lastlog)) {
 	        time_t	t = dup->lasttime ;
-		cchar	*lh = dup->lasthost ;
-		cchar	*ll = dup->lastline ;
+	        cchar	*lh = dup->lasthost ;
+	        cchar	*ll = dup->lastline ;
 	        cchar	*fmt ;
 	        char	timebuf1[TIMEBUFLEN + 1] ;
 	        char	timebuf2[TIMEBUFLEN + 1] ;
@@ -2259,7 +2243,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	            fmt = "%-23s %-8s %16s (%17s)" ;
 	        } else {
 	            fmt = "%-23s %-8s %16s" ;
-		}
+	        }
 	        sp = cbuf ;
 	        timestr_logz(t,timebuf1) ;
 	        timestr_elapsed((pip->daytime - t),timebuf2) ;
@@ -2270,63 +2254,36 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	case qopt_name:
 	case qopt_pcsname:
 	    if ((rs = procquery_name(pip,pdp,cbuf,clen)) >= 0) {
-		sp = cbuf ;
-		sl = rs ;
+	        sp = cbuf ;
+	        sl = rs ;
 	    }
 	    break ;
 	case qopt_fullname:
 	case qopt_pcsfullname:
 	    if ((rs = procquery_fullname(pip,pdp,cbuf,clen)) >= 0) {
-		sp = cbuf ;
-		sl = rs ;
+	        sp = cbuf ;
+	        sl = rs ;
 	    }
 	    break ;
 	case qopt_netname:
-	    if (pdp->f.self) {
-		char	nbuf[MAXNETNAMELEN+1] ;
-		if ((rs = uc_getnetname(nbuf)) >= 0) {
-#if	CF_DEBUG
-		if (DEBUGLEVEL(4))
-		debugprintf("main/procquery: netname rs=%d nbuf=%s\n",
-		rs,nbuf) ;
-#endif
-		    sp = cbuf ;
-		    sl = (strdcpy1w(cbuf,clen,nbuf,rs) - cbuf) ;
-		} else if ((rs == SR_NOTFOUND) || (rs == SR_UNAVAIL)) {
-#if	CF_DEBUG
-		if (DEBUGLEVEL(4))
-		debugprintf("main/procquery: netname rs=%d\n",rs) ;
-#endif
-		    rs = SR_OK ;
-		    cbuf[0] = '\0' ;
-		    sp = cbuf ;
-		    sl = 0 ;
-		}
-	    } else {
-		DATASYS		*dsp = &pdp->ds ;
-		if ((rs = datasys_nisdomain(dsp)) >= 0) {
-		    cchar	*nd = dsp->nisdomainname ;
-		    if ((rs = datauser_netname(dup,nd)) >= 0) {
-			cchar	*nn = dup->netname ;
-		        sp = cbuf ;
-		        sl = (strdcpy1w(cbuf,clen,nn,rs) - cbuf) ;
-		    }
-		}
-	    } /* end if (self only) */
+	    if ((rs = procquery_netname(pip,pdp,cbuf,clen)) >= 0) {
+	        sp = cbuf ;
+	        sl = rs ;
+	    }
 	    break ;
 	case qopt_mailname:
 	    if ((sp == NULL) && pdp->f.self) {
 	        sp = getourenv(pip->envv,VARMAILNAME) ;
 	    }
 	    if (sp == NULL) {
-		if ((rs = datauser_pw(&pdp->du)) >= 0) {
+	        if ((rs = datauser_pw(&pdp->du)) >= 0) {
 	            if (pdp->du.have.pent) {
 	                cchar	*rn = pdp->du.pent.realname ;
 	                if ((rs = mkmailname(cbuf,clen,rn,-1)) > 0) {
 	                    sp = cbuf ;
-			    sl = rs ;
-			}
-		    }
+	                    sl = rs ;
+	                }
+	            }
 	        }
 	    } /* end if */
 	    if ((rs >= 0) && (sp == NULL)) {
@@ -2336,19 +2293,19 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    break ;
 	case qopt_eusername:
 	    if (pdp->f.self) {
-	        uid_t	v = geteuid() ;
 	        if (! pdp->du.init.pent) {
 	            rs = datauser_pw(&pdp->du) ;
-		}
+	        }
 	        if ((rs >= 0) && pdp->du.have.pent) {
 	            sp = pdp->du.pent.realname ;
-		}
+	        }
 	        if (rs >= 0) {
-	            if (v == pdp->du.pent.uid) {
+	            const uid_t		uid = geteuid() ;
+	            if (uid == pdp->du.pent.uid) {
 	                sp = pdp->du.pent.username ;
 	            } else {
 	                sp = cbuf ;
-	                rs = getuser(cbuf,clen,v) ;
+	                rs = getuser(cbuf,clen,uid) ;
 	                sl = rs ;
 	            }
 	        }
@@ -2358,9 +2315,9 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    if (pdp->f.self) {
 	        if (! pdp->du.init.gr) {
 	            rs = datauser_gr(&pdp->du) ;
-		}
+	        }
 	        if (rs >= 0) {
-	      	    const gid_t		gid = getgid() ;
+	            const gid_t		gid = getgid() ;
 	            if (gid == pdp->du.gr.gr_gid) {
 	                sp = pdp->du.gr.gr_name ;
 	            } else {
@@ -2375,7 +2332,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    if (pdp->f.self) {
 	        if (! pdp->du.init.gr) {
 	            rs = datauser_gr(&pdp->du) ;
-		}
+	        }
 	        if (rs >= 0) {
 	            const gid_t		gid = getegid() ;
 	            if (gid == pdp->du.gr.gr_gid) {
@@ -2392,19 +2349,19 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    if (pdp->f.self) {
 	        SBUF	b ;
 	        gid_t	egids[NGROUPS_MAX + 1] ;
-		gid_t	v ;
+	        gid_t	v ;
 	        int	n, i ;
 	        char	gnbuf[GROUPNAMELEN + 1] ;
 	        if ((rs = sbuf_start(&b,cbuf,clen)) >= 0) {
 	            if ((rs1 = u_getgroups(NGROUPS_MAX,egids)) >= 0) {
-			const int	gnlen = GROUPNAMELEN ;
+	                const int	gnlen = GROUPNAMELEN ;
 	                n = rs1 ;
 	                for (i = 0 ; i < n ; i += 1) {
 	                    if (i > 0) sbuf_char(&b,' ') ;
 	                    v = egids[i] ;
 	                    if ((rs = getgroupname(gnbuf,gnlen,v)) >= 0) {
 	                        sbuf_strw(&b,gnbuf,rs) ;
-			    }
+	                    }
 	                    if (rs < 0) break ;
 	                } /* end for */
 	            } /* end if (getgroups) */
@@ -2433,8 +2390,8 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    }
 	    if ((rs >= 0) && pdp->du.have.statvfs) {
 	        struct statvfs	*fssp = &pdp->du.fss ;
-	        LONG	vt ;
-	        LONG	v = -1 ;
+	        LONG		vt ;
+	        LONG		v = -1 ;
 	        sp = cbuf ;
 	        switch (qi) {
 	        case qopt_fsbs:
@@ -2463,12 +2420,13 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	            {
 	                LONG f_bused = fssp->f_blocks - fssp->f_bavail ;
 	                if (fssp->f_blocks > 0) {
-	                    int	per ;
+	                    int		per ;
 	                    vt = (f_bused * 100)  ;
-	                    per = vt / fssp->f_blocks ;
+	                    per = (vt / fssp->f_blocks) ;
 	                    rs = bufprintf(cbuf,clen,"%u%%",per) ;
-	                } else
+	                } else {
 	                    rs = sncpy1(cbuf,clen,"na") ;
+			}
 	            }
 	            break ;
 	        case qopt_fstype:
@@ -2486,7 +2444,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	        } /* end switch */
 	        if ((rs >= 0) && (v >= 0)) {
 	            rs = bufprintf(cbuf,clen,"%llu",v) ;
-		}
+	        }
 	    } /* end if (statvfs) */
 	    break ;
 	case qopt_auid:
@@ -2494,16 +2452,11 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 #if	defined(SYSHAS_AUDIT) && (SYSHAS_AUDIT > 0)
 	    if (pdp->f.self) {
 	        const int	v = uc_getauid() ;
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(3))
-	            debugprintf("b_userinfo/procquery: getauid() rs=%d\n",v) ;
-#endif
-	        sp = cbuf ;
 	        if (v >= 0) {
+	            sp = cbuf ;
 	            rs = ctdeci(cbuf,clen,v) ;
 	            sl = rs ;
-	        } else
-	            cbuf[0] = '\0' ;
+	        }
 	    }
 #endif /* SYSHAS_AUDIT */
 #endif /* CF_AUID */
@@ -2536,7 +2489,7 @@ static int procquery(PROGINFO *pip,PROGDATA *pdp,void *ofp,cchar rp[],int rl)
 	    debugprintf("procquery: fin rs=%d sl=%d\n",rs,sl) ;
 	    if (sp != NULL)
 	        debugprintf("procquery: c=>%t<\n",
-			sp,strlinelen(sp,sl,50)) ;
+	            sp,strlinelen(sp,sl,50)) ;
 	}
 #endif /* CF_DEBUG */
 
@@ -2557,62 +2510,62 @@ static int procquery_name(PROGINFO *pip,PROGDATA *pdp,char *cbuf,int clen)
 	int		rs = SR_OK ;
 	int		sl = -1 ;
 	cchar		*sp = NULL ;
-	cchar		*cp ;
 	if ((sp == NULL) && pdp->f.self) {
+	    cchar	*cp ;
 	    cchar	*var = VARNAME ;
 	    if ((cp = getourenv(pip->envv,var)) != NULL) {
-		if (cp[0] != '\0') {
-		    rs = sncpy1(cbuf,clen,cp) ;
-		    sp = cbuf ;
-		}
+	        if (cp[0] != '\0') {
+	            rs = sncpy1(cbuf,clen,cp) ;
+	            sp = cbuf ;
+	        }
 	    } /* end if (VARNAME) */
 	}
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("b_userinfo/procquery: pcsname -> %s\n",sp) ;
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_userinfo/procquery: pcsname -> %s\n",sp) ;
 #endif
 	if ((rs >= 0) && (sp == NULL)) {
-		DATAUSER	*dup = &pdp->du ;
-	        if ((rs = datauser_pw(dup)) >= 0) {
-	            if (dup->have.pent) {
-			const int	w = pcsnsreq_pcsname ;
-	                cchar		*pun = dup->pent.username ;
-		        if ((rs = procgetns(pip,cbuf,clen,pun,w)) > 0) {
-			    sp = cbuf ;
-			    sl = rs ;
-		        } else if (isNotAccess(rs)) {
-			    rs = SR_OK ;
-	                }
-		    } /* end if (have-entry) */
-	        } /* end if (datauser_pw) */
+	    DATAUSER	*dup = &pdp->du ;
+	    if ((rs = datauser_pw(dup)) >= 0) {
+	        if (dup->have.pent) {
+	            const int	w = pcsnsreq_pcsname ;
+	            cchar	*pun = dup->pent.username ;
+	            if ((rs = procgetns(pip,cbuf,clen,pun,w)) > 0) {
+	                sp = cbuf ;
+	                sl = rs ;
+	            } else if (isNotAccess(rs)) {
+	                rs = SR_OK ;
+	            }
+	        } /* end if (have-entry) */
+	    } /* end if (datauser_pw) */
+	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_userinfo/procquery: pcsname -> %s\n",sp) ;
+#endif
+	if ((rs >= 0) && (sp == NULL)) {
+	    DATAUSER	*dup = &pdp->du ;
+	    if ((rs = datauser_realname(dup,cbuf,clen)) > 0) {
+	        sp = cbuf ;
+	        sl = rs ;
 	    }
+	} /* end if (real-name from GECOS) */
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("b_userinfo/procquery: pcsname -> %s\n",sp) ;
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_userinfo/procquery: pcsname -> %s\n",sp) ;
 #endif
-	    if ((rs >= 0) && (sp == NULL)) {
-		DATAUSER	*dup = &pdp->du ;
-		if ((rs = datauser_realname(dup,cbuf,clen)) > 0) {
-	            sp = cbuf ;
-		    sl = rs ;
-	        }
-	    } /* end if (real-name from GECOS) */
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("b_userinfo/procquery: pcsname -> %s\n",sp) ;
-#endif
-	    if ((rs >= 0) && (sp == NULL)) {
-		DATAUSER	*dup = &pdp->du ;
-		if ((rs = datauser_username(dup,cbuf,clen)) > 0) {
-	            sp = cbuf ;
-	            sl = rs ;
-	        }
-	    } /* end if (username) */
+	if ((rs >= 0) && (sp == NULL)) {
+	    DATAUSER	*dup = &pdp->du ;
+	    if ((rs = datauser_username(dup,cbuf,clen)) > 0) {
+	        sp = cbuf ;
+	        sl = rs ;
+	    }
+	} /* end if (username) */
 	if (rs >= 0) { /* finishing */
 	    if (sp != NULL) {
-		if (sl < 0) sl = strlen(sp) ;
+	        if (sl < 0) sl = strlen(sp) ;
 	    } else {
-		sl = 0 ;
+	        sl = 0 ;
 	    }
 	} /* end if (finishing) */
 #if	CF_DEBUG
@@ -2635,51 +2588,51 @@ static int procquery_fullname(PROGINFO *pip,PROGDATA *pdp,char *cbuf,int clen)
 	if ((sp == NULL) && pdp->f.self) {
 	    cchar	*var = VARFULLNAME ;
 	    if ((cp = getourenv(pip->envv,var)) != NULL) {
-		if (cp[0] != '\0') {
-		    rs = sncpy1(cbuf,clen,cp) ;
-		    sp = cbuf ;
-		}
+	        if (cp[0] != '\0') {
+	            rs = sncpy1(cbuf,clen,cp) ;
+	            sp = cbuf ;
+	        }
 	    } /* end if (VARFULLNAME) */
 	}
 	if ((rs >= 0) && (sp == NULL)) {
-		DATAUSER	*dup = &pdp->du ;
-	        if ((rs = datauser_pw(dup)) >= 0) {
-	            if (dup->have.pent) {
-			const int	w = pcsnsreq_fullname ;
-	                cchar		*pun = dup->pent.username ;
-		        if ((rs = procgetns(pip,cbuf,clen,pun,w)) > 0) {
-			    sp = cbuf ;
-			    sl = rs ;
-		        } else if (isNotAccess(rs)) {
-			    rs = SR_OK ;
-	                }
-		    } /* end if (have-entry) */
-	        } /* end if (datauser_pw) */
-	    } /* end if */
-	    if ((rs >= 0) && (sp == NULL) && pdp->f.self) {
-	        if ((cp = getourenv(pip->envv,VARNAME)) != NULL) {
-	            REALNAME	rn ;
-	            if ((rs = realname_startparse(&rn,cp,-1)) >= 0) {
-	                if ((rs = realname_fullname(&rn,cbuf,clen)) > 0) {
-	                    sp = cbuf ;
-			    sl = rs ;
-			}
-	                realname_finish(&rn) ;
-	            } /* end if (realname) */
-		} /* end if (non-null) */
-	    } /* end if */
-	    if ((rs >= 0) && (sp == NULL)) {
-		DATAUSER	*dup = &pdp->du ;
-		if ((rs = datauser_realname(dup,cbuf,clen)) > 0) {
-	            sp = cbuf ;
-		    sl = rs ;
-	        }
+	    DATAUSER	*dup = &pdp->du ;
+	    if ((rs = datauser_pw(dup)) >= 0) {
+	        if (dup->have.pent) {
+	            const int	w = pcsnsreq_fullname ;
+	            cchar		*pun = dup->pent.username ;
+	            if ((rs = procgetns(pip,cbuf,clen,pun,w)) > 0) {
+	                sp = cbuf ;
+	                sl = rs ;
+	            } else if (isNotAccess(rs)) {
+	                rs = SR_OK ;
+	            }
+	        } /* end if (have-entry) */
+	    } /* end if (datauser_pw) */
+	} /* end if */
+	if ((rs >= 0) && (sp == NULL) && pdp->f.self) {
+	    if ((cp = getourenv(pip->envv,VARNAME)) != NULL) {
+	        REALNAME	rn ;
+	        if ((rs = realname_startparse(&rn,cp,-1)) >= 0) {
+	            if ((rs = realname_fullname(&rn,cbuf,clen)) > 0) {
+	                sp = cbuf ;
+	                sl = rs ;
+	            }
+	            realname_finish(&rn) ;
+	        } /* end if (realname) */
+	    } /* end if (non-null) */
+	} /* end if */
+	if ((rs >= 0) && (sp == NULL)) {
+	    DATAUSER	*dup = &pdp->du ;
+	    if ((rs = datauser_realname(dup,cbuf,clen)) > 0) {
+	        sp = cbuf ;
+	        sl = rs ;
 	    }
+	}
 	if (rs >= 0) { /* finishing */
 	    if (sp != NULL) {
-		if (sl < 0) sl = strlen(sp) ;
+	        if (sl < 0) sl = strlen(sp) ;
 	    } else {
-		sl = 0 ;
+	        sl = 0 ;
 	    }
 	} /* end if (finishing) */
 #if	CF_DEBUG
@@ -2693,6 +2646,35 @@ static int procquery_fullname(PROGINFO *pip,PROGDATA *pdp,char *cbuf,int clen)
 /* end subroutine (procquery_fullname) */
 
 
+static int procquery_netname(PROGINFO *pip,PROGDATA *pdp,char *cbuf,int clen)
+{
+	int		rs ;
+	int		sl = 0 ;
+	if (pdp->f.self) {
+	    char	nbuf[MAXNETNAMELEN+1] ;
+	    if ((rs = uc_getnetname(nbuf)) >= 0) {
+	            sl = (strdcpy1w(cbuf,clen,nbuf,rs) - cbuf) ;
+	    } else if ((rs == SR_NOTFOUND) || (rs == SR_UNAVAIL)) {
+	            rs = SR_OK ;
+	            cbuf[0] = '\0' ;
+	    }
+	} /* end if (self) */
+	if ((rs >= 0) && (sl == 0)) {
+	        DATASYS		*dsp = &pdp->ds ;
+	        if ((rs = datasys_nisdomain(dsp)) >= 0) {
+	    	    DATAUSER	*dup = &pdp->du ;
+	            cchar	*nd = dsp->nisdomainname ;
+	            if ((rs = datauser_netname(dup,nd)) >= 0) {
+	                cchar	*nn = dup->netname ;
+	                sl = (strdcpy1w(cbuf,clen,nn,rs) - cbuf) ;
+	            }
+	        }
+	} /* end if */
+	return (rs >= 0) ? sl : rs ;
+}
+/* end subroutine (procquery_netname) */
+
+
 static int procquery_projects(PROGINFO *pip,PROGDATA *pdp,char *cbuf,int clen)
 {
 	DATAUSER	*dup = &pdp->du ;
@@ -2703,7 +2685,7 @@ static int procquery_projects(PROGINFO *pip,PROGDATA *pdp,char *cbuf,int clen)
 	    rs = mkstrlist(cbuf,clen,lp) ;
 	} /* end if (datauser_projects) */
 	return rs ;
-} 
+}
 /* end subroutine (procquery_projects) */
 
 
@@ -2717,9 +2699,9 @@ static int procquery_projinfo(PROGINFO *pip,PROGDATA *pdp,char *cbuf,int clen)
 	    const int	w = pcsnsreq_projinfo ;
 	    cchar	*pun = dup->pent.username ;
 	    if ((rs = procgetns(pip,cbuf,clen,pun,w)) > 0) {
-		    sl = rs ;
+	        sl = rs ;
 	    } else if (isNotAccess(rs)) {
-		    rs = SR_OK ;
+	        rs = SR_OK ;
 	    }
 	} /* end if (datauser_pw) */
 	return (rs >= 0) ? sl : rs ;
@@ -2752,12 +2734,8 @@ static int procgetns(PROGINFO *pip,char *nbuf,int nlen,cchar *un,int w)
 /* end subroutine (procgetns) */
 
 
-static int progdata_start(pdp,pip,un,f_self,pwfname)
-PROGDATA	*pdp ;
-PROGINFO	*pip ;
-cchar		un[] ;
-int		f_self ;
-cchar		pwfname[] ;
+static int progdata_start(PROGDATA *pdp,PROGINFO *pip,cchar *un,int f_self,
+		cchar *pwfname)
 {
 	int		rs ;
 
@@ -3118,12 +3096,12 @@ static int datasys_domain(DATASYS *dsp)
 	        }
 	        if (rs >= 0) {
 	            const int	dlen = NODENAMELEN ;
-		    cchar	*nn = dsp->nodename ;
+	            cchar	*nn = dsp->nodename ;
 	            char	dbuf[NODENAMELEN + 1] ;
 	            if ((rs = getdomainname(dbuf,dlen,nn)) >= 0) {
-			cchar	**vpp = &dsp->domainname ;
+	                cchar	**vpp = &dsp->domainname ;
 	                rs = datasys_setentry(dsp,vpp,dbuf,rs) ;
-		    }
+	            }
 	        }
 	    } /* end if */
 	} /* end if (needed initialization) */
@@ -3147,23 +3125,23 @@ static int datasys_nisdomain(DATASYS *dsp)
 	        cchar	*cp = getourenv(pip->envv,VARNISDOMAIN) ;
 	        if ((cp != NULL) && (cp[0] != '\0')) {
 	            dsp->nisdomainname = cp ;
-		    rs = strlen(cp) ;
-		}
+	            rs = strlen(cp) ;
+	        }
 	    }
 	    ndp = dsp->nisdomainname ;
 	    if ((ndp == NULL) || (ndp[0] == '\0')) {
 	        const int	nlen = NODENAMELEN ;
 	        char		nbuf[NODENAMELEN+1] ;
 	        if ((rs = nisdomainname(nbuf,nlen)) >= 0) {
-		    cchar	**vpp = &dsp->nisdomainname ;
+	            cchar	**vpp = &dsp->nisdomainname ;
 	            rs = datasys_setentry(dsp,vpp,nbuf,rs) ;
 	        } else if (isNotPresent(rs)) {
 	            rs = SR_OK ;
-		}
+	        }
 	    }
 	} else {
 	    if (dsp->nisdomainname == NULL) {
-		rs = strlen(dsp->nisdomainname) ;
+	        rs = strlen(dsp->nisdomainname) ;
 	    }
 	} /* end if (initialization needed) */
 
@@ -3379,7 +3357,7 @@ static int datauser_pw(DATAUSER *dup)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("userinfo/datauser_pw: ent un=%s\n",dup->un) ;
+	    debugprintf("userinfo/datauser_pw: ent un=%s\n",dup->un) ;
 #endif
 
 	if (! dup->init.pent) {
@@ -3392,52 +3370,52 @@ static int datauser_pw(DATAUSER *dup)
 	    dup->init.pent = TRUE ;
 	    if (dup->pwfname == NULL) {
 	        if ((rs = getpwentry_name(pp,pbuf,plen,un)) >= 0) {
-	    	    dup->have.pent = TRUE ;
-		    f_ent = TRUE ;
-		} else if ((rs == rsn) && hasalldig(un,-1)) {
+	            dup->have.pent = TRUE ;
+	            f_ent = TRUE ;
+	        } else if ((rs == rsn) && hasalldig(un,-1)) {
 	            if ((rs = cfdecui(un,-1,&uiw)) >= 0) {
 	                const uid_t	tuid = uiw ;
 	                if ((rs = getpwentry_uid(pp,pbuf,plen,tuid)) >= 0) {
-			    const int	unlen = USERNAMELEN ;
-			    char	*unbuf = dup->unbuf ;
-	    	    	    dup->have.pent = TRUE ;
-		            f_ent = TRUE ;
+	                    const int	unlen = USERNAMELEN ;
+	                    char	*unbuf = dup->unbuf ;
+	                    dup->have.pent = TRUE ;
+	                    f_ent = TRUE ;
 	                    dup->un = dup->unbuf ;
 	                    strdcpy1(unbuf,unlen,pp->username) ;
-			} /* end if (getpwentry_uid) */
+	                } /* end if (getpwentry_uid) */
 	            } /* end if (cfdec) */
 	        } /* end if (hasalldig) */
 	    } else {
 	        PWFILE	pf ;
-		void	*n = NULL ;
+	        void	*n = NULL ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	    debugprintf("datauser_pw: using PWFILE\n") ;
+	        if (DEBUGLEVEL(5))
+	            debugprintf("datauser_pw: using PWFILE\n") ;
 #endif
 
 	        if ((rs = pwfile_open(&pf,dup->pwfname)) >= 0) {
 	            if ((rs = pwfile_fetchuser(&pf,un,n,pp,pbuf,plen)) >= 0) {
-		        dup->have.pent = TRUE ;
-		        f_ent = TRUE ;
+	                dup->have.pent = TRUE ;
+	                f_ent = TRUE ;
 	            } else if ((rs == rsn) && hasalldig(un,-1)) {
 	                const int	ulen = USERNAMELEN ;
 	                if ((rs = cfdecui(un,-1,&uiw)) >= 0) {
 	                    const uid_t		uid = uiw ;
 	                    if ((rs = getusername(dup->unbuf,ulen,uid)) >= 0) {
-			        cchar	*un ;
+	                        cchar	*un ;
 	                        dup->un = dup->unbuf ;
-			        un = dup->un ;
+	                        un = dup->un ;
 	                        rs = pwfile_fetchuser(&pf,un,n,pp,pbuf,plen) ;
-			        if (rs >= 0) {
-		    		    dup->have.pent = TRUE ;
-		    		    f_ent = TRUE ;
-			        }
+	                        if (rs >= 0) {
+	                            dup->have.pent = TRUE ;
+	                            f_ent = TRUE ;
+	                        }
 	                    } /* end if (getusername) */
 	                } /* end if (cfdec) */
-		    } /* end if (digits) */
+	            } /* end if (digits) */
 	            rs1 = pwfile_close(&pf) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (opened PWFILE DB) */
 
 	    } /* end if (system or file) */
@@ -3447,8 +3425,8 @@ static int datauser_pw(DATAUSER *dup)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
-	debugprintf("userinfo/datauser_pw: ret rs=%d f_ent=%u\n",rs,f_ent) ;
-	debugprintf("userinfo/datauser_pw: un=%s\n",dup->un) ;
+	    debugprintf("userinfo/datauser_pw: ret rs=%d f_ent=%u\n",rs,f_ent) ;
+	    debugprintf("userinfo/datauser_pw: un=%s\n",dup->un) ;
 	}
 #endif
 
@@ -3472,20 +3450,20 @@ static int datauser_gr(DATAUSER *dup)
 	    dup->init.gr = TRUE ;
 	    if (! dup->init.pent) rs = datauser_pw(dup) ;
 	    if ((rs >= 0) && dup->have.pent) {
-		struct group	*grp = &dup->gr ;
+	        struct group	*grp = &dup->gr ;
 	        const gid_t	gid = dup->pent.gid ;
-		const int	grlen = dup->grlen ;
-		char		*grbuf = dup->grbuf ;
+	        const int	grlen = dup->grlen ;
+	        char		*grbuf = dup->grbuf ;
 	        if ((rs = getgr_gid(grp,grbuf,grlen,gid)) >= 0) {
 	            dup->have.gr = TRUE ;
-		    f = TRUE ;
-		} else if (isNotPresent(rs)) {
+	            f = TRUE ;
+	        } else if (isNotPresent(rs)) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	    debugprintf("userinfo/datauser_gr: getgr_gid() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(5))
+	                debugprintf("userinfo/datauser_gr: getgr_gid() rs=%d\n",rs) ;
 #endif
-		    rs = SR_OK ;
-		}
+	            rs = SR_OK ;
+	        }
 	    } /* end if */
 	} else {
 	    f = dup->have.gr ;
@@ -3513,8 +3491,8 @@ static int datauser_pj(DATAUSER *dup)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("datauser_pj: f_initpj=%u\n",
-	    dup->init.pj) ;
+	    debugprintf("datauser_pj: f_initpj=%u\n",
+	        dup->init.pj) ;
 #endif
 
 	if (! dup->init.pj) {
@@ -3524,10 +3502,10 @@ static int datauser_pj(DATAUSER *dup)
 	    char		*pjbuf = dup->pjbuf ;
 	    dup->init.pj = TRUE ;
 	    if ((rs = uc_getdefaultproj(un,pjp,pjbuf,pjlen)) >= 0) {
-		dup->have.pj = TRUE ;
-		f = TRUE ;
+	        dup->have.pj = TRUE ;
+	        f = TRUE ;
 	    } else if (isNotPresent(rs)) {
-		rs = SR_OK ;
+	        rs = SR_OK ;
 	    }
 	} else {
 	    f = dup->have.pj ;
@@ -3535,9 +3513,9 @@ static int datauser_pj(DATAUSER *dup)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
-	debugprintf("datauser_pj: have=%u projname=%s\n",
-	    dup->have.pj,dup->pj.pj_name) ;
-	debugprintf("datauser_pj: ret rs=%d f=%u\n",rs,f) ;
+	    debugprintf("datauser_pj: have=%u projname=%s\n",
+	        dup->have.pj,dup->pj.pj_name) ;
+	    debugprintf("datauser_pj: ret rs=%d f=%u\n",rs,f) ;
 	}
 #endif
 
@@ -3575,7 +3553,7 @@ static int datauser_groups(DATAUSER *dup)
 	} else {
 	    if (dup->have.groups) {
 	        rs = vecstr_count(&dup->groups) ;
-		c = rs ;
+	        c = rs ;
 	    }
 	} /* end if (initialization needed) */
 
@@ -3618,12 +3596,12 @@ static int datauser_groupsfind(DATAUSER *dup)
 	if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
 	    SYSGROUP	sgr ;
 	    if ((rs = sysgroup_open(&sgr,NULL)) >= 0) {
-		vecstr		*glp = &dup->groups ;
+	        vecstr		*glp = &dup->groups ;
 	        const int	rsn = SR_NOTFOUND ;
 	        cchar		**groups ;
 	        while ((rs = sysgroup_readent(&sgr,&gr,grbuf,grlen)) > 0) {
 	            if (gr.gr_mem != NULL) {
-			cchar	*un = dup->un ;
+	                cchar	*un = dup->un ;
 	                cchar	*gn = gr.gr_name ;
 	                groups = (cchar **) gr.gr_mem ;
 	                if (matstr(groups,un,-1) >= 0) {
@@ -3660,53 +3638,53 @@ static int datauser_projects(DATAUSER *dup)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
 	    debugprintf("userinfo/datauser_projects: ent init=%u\n",
-		dup->init.projects) ;
+	        dup->init.projects) ;
 	}
 #endif
 
 	if (! dup->init.projects) {
 	    dup->init.projects = TRUE ;
 	    if ((rs = datauser_pw(dup)) >= 0) {
-		if ((rs = datauser_gr(dup)) >= 0) {
-		    if ((rs = datauser_groups(dup)) >= 0) {
-			    vecstr	*pjp = &dup->projects ;
-	                    if ((rs = vecstr_start(pjp,10,0)) >= 0) {
-	    			dup->have.projects = TRUE ;
-				if ((rs = datauser_pj(dup)) >= 0) {
-	        		    cchar	*pn = dup->pj.pj_name ;
-	        		    if (dup->have.pj && (pn[0] != '\0')) {
-	            			const int	rsn = SR_NOTFOUND ;
-	            			if ((rs = vecstr_find(pjp,pn)) == rsn) {
-					    c += 1 ;
-	                		    rs = vecstr_add(pjp,pn,-1) ;
-	            			}
-	        		    }
-	        		    if (rs >= 0) {
-	            			rs = datauser_projectsfind(dup) ;
-	            			c += rs ;
-				    }
-	    			} /* end if (datauser_pj) */
-	    			if (rs < 0) {
-				    dup->have.projects = FALSE ;
-	        		    vecstr_finish(pjp) ;
-	    			}
-			    } /* end if (vecstr_start) */
-		    } /* end if (datauser_groups) */
-		} /* end if (datauser_gr) */
+	        if ((rs = datauser_gr(dup)) >= 0) {
+	            if ((rs = datauser_groups(dup)) >= 0) {
+	                vecstr	*pjp = &dup->projects ;
+	                if ((rs = vecstr_start(pjp,10,0)) >= 0) {
+	                    dup->have.projects = TRUE ;
+	                    if ((rs = datauser_pj(dup)) >= 0) {
+	                        cchar	*pn = dup->pj.pj_name ;
+	                        if (dup->have.pj && (pn[0] != '\0')) {
+	                            const int	rsn = SR_NOTFOUND ;
+	                            if ((rs = vecstr_find(pjp,pn)) == rsn) {
+	                                c += 1 ;
+	                                rs = vecstr_add(pjp,pn,-1) ;
+	                            }
+	                        }
+	                        if (rs >= 0) {
+	                            rs = datauser_projectsfind(dup) ;
+	                            c += rs ;
+	                        }
+	                    } /* end if (datauser_pj) */
+	                    if (rs < 0) {
+	                        dup->have.projects = FALSE ;
+	                        vecstr_finish(pjp) ;
+	                    }
+	                } /* end if (vecstr_start) */
+	            } /* end if (datauser_groups) */
+	        } /* end if (datauser_gr) */
 	    } /* end if (datauser_pw) */
 	} else {
 	    if (dup->have.projects) {
-		vecstr	*pjp = &dup->projects ;
-		rs = vecstr_count(pjp) ;
-		c = rs ;
+	        vecstr	*pjp = &dup->projects ;
+	        rs = vecstr_count(pjp) ;
+	        c = rs ;
 	    }
 	} /* end if (initialization needed) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	debugprintf("userinfo/datauser_projects: ret have-projects=%u\n",
-		dup->have.projects) ;
-	debugprintf("userinfo/datauser_projects: ret rs=%d c=%u\n",rs,c) ;
+	    debugprintf("userinfo/datauser_projects: ret have-projects=%u\n",
+	        dup->have.projects) ;
+	    debugprintf("userinfo/datauser_projects: ret rs=%d c=%u\n",rs,c) ;
 	}
 #endif
 
@@ -3727,9 +3705,9 @@ static int datauser_projectsfind(DATAUSER *dup)
 	if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
 	    SYSPROJECT	spj ;
 	    if ((rs = sysproject_open(&spj,NULL)) >= 0) {
-		vecstr		*glp = &dup->groups ;
-		vecstr		*plp = &dup->projects ;
-		const int	rsn = SR_NOTFOUND ;
+	        vecstr		*glp = &dup->groups ;
+	        vecstr		*plp = &dup->projects ;
+	        const int	rsn = SR_NOTFOUND ;
 	        int		f ;
 	        cchar		*un = dup->un ;
 	        cchar		*gn = dup->gr.gr_name ;
@@ -3740,7 +3718,7 @@ static int datauser_projectsfind(DATAUSER *dup)
 	                f = (matstr(users,un,-1) >= 0) ;
 	            } /* end if */
 	            if ((! f) && (pj.pj_groups != NULL)) {
-			int	i ;
+	                int	i ;
 	                cchar	**groups = (cchar **) pj.pj_groups ;
 	                for (i = 0 ; groups[i] != NULL ; i += 1) {
 	                    if (dup->have.gr) {
@@ -3789,8 +3767,8 @@ static int datauser_tz(DATAUSER *dup)
 	    if ((rs >= 0) && (! dup->have.tz)) {
 	        if ((rs = inittimezone(dup->tz,TZLEN,DEFINITFNAME)) >= 0) {
 	            dup->have.tz = TRUE ;
-		    f = TRUE ;
-		}
+	            f = TRUE ;
+	        }
 	    } /* end if */
 	} else {
 	    f = dup->have.tz ;
@@ -3812,8 +3790,8 @@ static int datauser_lastlog(DATAUSER *dup)
 	    if ((rs >= 0) && (! dup->have.lastlog)) {
 	        if (! dup->init.pent) rs = datauser_pw(dup) ;
 	        if ((rs >= 0) && (dup->have.pent)) {
-		    const uid_t	uid = dup->pent.uid ;
-		    time_t	t ;
+	            const uid_t	uid = dup->pent.uid ;
+	            time_t	t ;
 	            rs = lastlogin(NULL,uid,&t,dup->lasthost,dup->lastline) ;
 	            dup->lasttime = t ;
 	            dup->have.lastlog = (rs >= 0) ;
@@ -3900,8 +3878,9 @@ static int datauser_orgcode(DATAUSER *dup)
 	if (bp[0] == '\0') {
 	    rs = localgetorgcode(pip->pr,bp,bl,dup->un) ;
 	    len = rs ;
-	} else
+	} else {
 	    len = strlen(bp) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -3988,12 +3967,13 @@ static int datauser_lastseener(DATAUSER *dup,char *bp,int bl,vecstr *tlp)
 	                            if (sb.st_mode & S_IWGRP) {
 	                                if (sb.st_mtime > max) {
 	                                    max = sb.st_mtime ;
-	                                    len = strdcpy1(bp,bl,lp) - bp ;
+	                                    len = strdcpy1(bp,bl,lp) - bp
+	                                        ;
 	                                }
 	                            } /* end if (group-writable) */
 	                        } /* end if (stat) */
 	                    } /* end if (pathadd) */
-			}
+	                }
 	                if (rs < 0) break ;
 	            } /* end for (looping over lines) */
 	        } /* end if (mkpath) */
@@ -4040,20 +4020,21 @@ static int datauser_netname(DATAUSER *dup,cchar *nis)
 	if (dup->netname == NULL) {
 	    if ((rs = datauser_pw(dup)) >= 0) {
 	        if (dup->have.pent) {
-		    const int	dlen = DIGBUFLEN ;
-		    int		v = dup->pent.uid ;
-		    char	dbuf[DIGBUFLEN+1] ;
-		    if ((rs = ctdeci(dbuf,dlen,v)) >= 0){
-		        const int	nlen = MAXNETNAMELEN ;
-		        char		nbuf[MAXNETNAMELEN+1] ;
-		        cchar		*u = "unix" ;
-		        if ((rs = sncpy4(nbuf,nlen,u,dbuf,"@",nis)) >= 0) {
-			    cchar	*np ;
-			    if ((rs = uc_mallocstrw(nbuf,rs,&np)) >= 0) {
-			        dup->netname = np ;
-			    }
-		        }
-		    }
+	            const int	dlen = DIGBUFLEN ;
+	            const int	v = dup->pent.uid ;
+	            char	dbuf[DIGBUFLEN+1] ;
+	            if ((rs = ctdeci(dbuf,dlen,v)) >= 0) {
+	                const int	nlen = MAXNETNAMELEN ;
+	                char		nbuf[MAXNETNAMELEN+1] ;
+	                cchar		*u = "unix" ;
+			cchar		*d = "." ;
+	                if ((rs = sncpy5(nbuf,nlen,u,d,dbuf,"@",nis)) >= 0) {
+	                    cchar	*np ;
+	                    if ((rs = uc_mallocstrw(nbuf,rs,&np)) >= 0) {
+	                        dup->netname = np ;
+	                    }
+	                }
+	            }
 	        }
 	    }
 	} else {
@@ -4080,14 +4061,15 @@ static int datauser_mkgids(DATAUSER *dup,char *rbuf,int rlen)
 	        for (i = 0 ; vecstr_get(glp,i,&cp) >= 0 ; i += 1) {
 	            if (cp != NULL) {
 	                if (c++ > 0) sbuf_char(&b,' ') ;
-	                if ((rs1 = mkgid(grbuf,grlen,cp)) >= 0) {
-	                    sbuf_deci(&b,rs1) ;
-	                } else {
-	                    sbuf_strw(&b,"?",1) ;
-			}
-		    }
+	                if ((rs = mkgid(grbuf,grlen,cp)) >= 0) {
+	                    sbuf_deci(&b,rs) ;
+	                } else if (rs == SR_NOTFOUND) {
+	                    rs = sbuf_strw(&b,"?",1) ;
+	                }
+	            }
 	        } /* end for */
-	        uc_free(grbuf) ;
+	        rs1 = uc_free(grbuf) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a) */
 	    rs1 = sbuf_finish(&b) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -4150,7 +4132,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(slp,*epp) ;
+	        oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
@@ -4195,10 +4177,10 @@ static int locinfo_pcsns(LOCINFO *lip)
 	int		rs = SR_OK ;
 	if (! lip->open.ns) {
 	    if ((rs = locinfo_prpcs(lip)) >= 0) {
-		cchar	*pr_pcs = lip->pr_pcs ;
+	        cchar	*pr_pcs = lip->pr_pcs ;
 	        if ((rs = pcsns_open(&lip->ns,pr_pcs)) >= 0) {
-		    lip->open.ns = TRUE ;
-		}
+	            lip->open.ns = TRUE ;
+	        }
 	    }
 	} /* end if (needed initialization) */
 	return rs ;
@@ -4239,11 +4221,11 @@ static int mkstrlist(char *cbuf,int clen,vecstr *lp)
 	    int		c = 0 ;
 	    cchar	*cp ;
 	    for (i = 0 ; vecstr_get(lp,i,&cp) >= 0 ; i += 1) {
-		if (cp != NULL) {
-		    if (c++ > 0) sbuf_char(&b,' ') ;
-		    rs = sbuf_strw(&b,cp,-1) ;
-		}
-		if (rs < 0) break ;
+	        if (cp != NULL) {
+	            if (c++ > 0) sbuf_char(&b,' ') ;
+	            rs = sbuf_strw(&b,cp,-1) ;
+	        }
+	        if (rs < 0) break ;
 	    } /* end for */
 	    len = sbuf_finish(&b) ;
 	    if (rs >= 0) rs = len ;

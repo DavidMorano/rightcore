@@ -17,12 +17,12 @@
 
 /*******************************************************************************
 
-	This little diddy retreives the RPC "netname" of the caller.  We first
+	This little diddy retrieves the RPC "netname" of the caller.  We first
 	check whether the NIS server is running and if so, then perform the
-	retreival.  For extra utility, we will also create an RPC net-name for
-	a user other than ourselves.  In the case of getting an RPC net-name
-	for another user, almost the name is correct, we do not really know if
-	it is registered with the NIS server.
+        retrieval. For extra utility, we will also create an RPC net-name for a
+        user other than ourselves. In the case of getting an RPC net-name for
+        another user, we assume the name is correct. We do not really know if it
+        is registered with the NIS server.
 
 	Synopsis:
 
@@ -158,7 +158,8 @@ static int getothernetname(char *nbuf,int nlen,cchar *un)
 	            const int	v = rs ;
 	            char	dibuf[DIGBUFLEN+1] ;
 	            if ((rs = ctdeci(dibuf,dilen,v)) >= 0) {
-	                rs = sncpy4w(nbuf,nlen,"unix.",dibuf,"@",dbuf,dl) ;
+			cchar	*u = "unix." ;
+	                rs = sncpy4w(nbuf,nlen,u,dibuf,"@",dbuf,dl) ;
 	                len = rs ;
 	            }
 	        } /* end if (getuid_user) */

@@ -149,6 +149,7 @@ extern int	optvalue(cchar *,int) ;
 extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
@@ -554,7 +555,7 @@ int		to ;
 
 #if	CF_ORGLOC
 	if ((rs >= 0) && (prlocal[0] != '\0')) {
-	    int	oll ;
+	    int		oll ;
 	    rs = localgetorgloc(prlocal,olbuf,ollen,un) ;
 	    oll = rs ;
 #if	CF_DEBUGN
@@ -564,7 +565,7 @@ int		to ;
 		    rs,olbuf,strlinelen(olbuf,oll,40)) ;
 	    }
 #endif
-	    if (rs < 0) { /* we don't care too much for these errors */
+	    if (isNotAccess(rs)) { /* we don't care too much for these errors */
 		olbuf[0] = '\0' ;
 		if (isNotPresent(rs)) rs = SR_OK ;
 		else if (rs == SR_OVERFLOW) rs = SR_OK ;
@@ -625,15 +626,15 @@ int		to ;
 /* write it out */
 
 	if (rs >= 0) {
-	if ((rs = u_pipe(pipes)) >= 0) {
-	    int	wfd = pipes[1] ; /* write end */
-	    fd = pipes[0] ; /* read end */
-
-	    rs = u_write(wfd,lbuf,ll) ;
-
-	    u_close(wfd) ;
-	    if (rs < 0) u_close(fd) ;
-	} /* end if (pipe) */
+	    if ((rs = u_pipe(pipes)) >= 0) {
+	        const int	wfd = pipes[1] ; /* write end */
+		{
+	            fd = pipes[0] ; /* read end */
+	            rs = u_write(wfd,lbuf,ll) ;
+		}
+	        u_close(wfd) ;
+	        if (rs < 0) u_close(fd) ;
+	    } /* end if (pipe) */
 	} /* end if (ok) */
 
 badarg:

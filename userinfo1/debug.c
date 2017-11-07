@@ -187,7 +187,6 @@ int d_ispath(cchar *p)
 
 int gdb()
 {
-
 	return 0 ;
 }
 /* end subroutine (gdb) */

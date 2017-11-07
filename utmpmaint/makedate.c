@@ -1,2 +1,2 @@
 const char utmpmaint_makedate[] =
-"@(#)utmpmaint               171021_2321:21_USEDT Rightcore Network Services" ;
+"@(#)utmpmaint               171107_0516:08_USEST Rightcore Network Services" ;

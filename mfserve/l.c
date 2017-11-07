@@ -113,6 +113,10 @@ int mfslisten_begin(PROGINFO *pip)
 	        lip->open.listens = TRUE ;
 	    }
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_begin: rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfslisten_begin) */
@@ -131,6 +135,10 @@ int mfslisten_end(PROGINFO *pip)
 	    rs1 = vecobj_finish(llp) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_and: rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfslisten_end) */
@@ -146,6 +154,10 @@ int mfslisten_acqbegin(PROGINFO *pip,MFSLISTEN_ACQ *acp)
 	    const int	vo = 0 ;
 	    rs = vecobj_start(tlp,esize,n,vo) ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfslisten_acqbegin: rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfslisten_acqbegin) */

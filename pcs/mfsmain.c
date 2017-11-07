@@ -1636,14 +1636,14 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    }
 	                    break ;
 	                case progopt_listen:
-	                    if (! lip->final.listen) {
+	                    if (! lip->final.adj) {
 	                        c += 1 ;
-	                        lip->final.listen = TRUE ;
-	                        lip->have.listen = TRUE ;
-	                        lip->f.listen = TRUE ;
+	                        lip->final.adj = TRUE ;
+	                        lip->have.adj = TRUE ;
+	                        lip->f.adj = TRUE ;
 	                        if (vl > 0) {
 	                            rs = optbool(vp,vl) ;
-	                            lip->f.listen = (rs > 0) ;
+	                            lip->f.adj = (rs > 0) ;
 	                        }
 	                    } /* end if */
 	                    break ;
@@ -2715,14 +2715,14 @@ static int procregular(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
-	int		c = 1 ;
+	int		c = 0 ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfsmain/procregular: ent\n") ;
 #endif
 
 	if ((rs = locinfo_defreg(lip)) >= 0) {
-	    rs = 1 ;
+	    c = 1 ;
 	}
 
 #if	CF_DEBUG
@@ -2740,6 +2740,8 @@ static int procservice(PROGINFO *pip)
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -2748,9 +2750,6 @@ static int procservice(PROGINFO *pip)
 	}
 #endif
 
-	if ((rs = mfsadj_begin(pip)) >= 0) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt ;
 	    if ((rs = mfswatch_begin(pip)) >= 0) {
 	 	const time_t	ti_start = pip->daytime ;
 
@@ -2807,16 +2806,6 @@ static int procservice(PROGINFO *pip)
 		rs1 = mfswatch_end(pip) ;
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (mfswatch) */
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("mfsmain/procservice: for-out rs=%d c=%d\n",
-			rs,c) ;
-#endif /* CF_DEBUG */
-
-	    rs1 = mfsadj_end(pip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (mfsadj) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))

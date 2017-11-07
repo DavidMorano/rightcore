@@ -276,6 +276,7 @@ static cchar	*argopts[] = {
 	"REQ",
 	"req",
 	"sn",
+	"af",
 	"ef",
 	"of",
 	"cf",
@@ -307,6 +308,7 @@ enum argopts {
 	argopt_req0,
 	argopt_req1,
 	argopt_sn,
+	argopt_af,
 	argopt_ef,
 	argopt_of,
 	argopt_cf,
@@ -480,6 +482,7 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*argval = NULL ;
 	cchar		*pr = NULL ;
 	cchar		*sn = NULL ;
+	cchar		*afname = NULL ;
 	cchar		*efname = NULL ;
 	cchar		*ofname = NULL ;
 	cchar		*vp ;
@@ -705,7 +708,24 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
-/* error file name */
+/* argument-list file */
+	                case argopt_af:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            afname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                afname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 	                case argopt_ef:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
@@ -1546,14 +1566,14 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    }
 	                    break ;
 	                case progopt_listen:
-	                    if (! lip->final.listen) {
+	                    if (! lip->final.adj) {
 	                        c += 1 ;
-	                        lip->final.listen = TRUE ;
-	                        lip->have.listen = TRUE ;
-	                        lip->f.listen = TRUE ;
+	                        lip->final.adj = TRUE ;
+	                        lip->have.adj = TRUE ;
+	                        lip->f.adj = TRUE ;
 	                        if (vl > 0) {
 	                            rs = optbool(vp,vl) ;
-	                            lip->f.listen = (rs > 0) ;
+	                            lip->f.adj = (rs > 0) ;
 	                        }
 	                    } /* end if */
 	                    break ;
@@ -2558,14 +2578,14 @@ static int procregular(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
-	int		c = 1 ;
+	int		c = 0 ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("pcsmain/procregular: ent\n") ;
 #endif
 
 	if ((rs = locinfo_defreg(lip)) >= 0) {
-	    rs = 1 ;
+	    c = 1 ;
 	}
 
 #if	CF_DEBUG

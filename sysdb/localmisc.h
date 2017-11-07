@@ -99,10 +99,6 @@
 #define	LXOR(a,b)	(((a) && (! (b))) || ((! (a)) && (b)))
 #endif
 
-#ifndef	LOGICAL
-#define	LOGICAL(a)	((a)?1:0)
-#endif
-
 #ifndef	BCEIL
 #define	BCEIL(v,m)	(((v) + ((m) - 1)) & (~ ((m) - 1)))
 #endif

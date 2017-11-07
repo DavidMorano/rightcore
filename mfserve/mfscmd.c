@@ -1,11 +1,11 @@
 /* mfscmd */
 
-/* handle IPC-related things */
+/* client-side code to initiate commands to the server */
 /* version %I% last modified %G% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUG	0		/* switchable debug print-outs */
+#define	CF_DEBUG	1		/* switchable debug print-outs */
 
 
 /* revision history:
@@ -139,6 +139,7 @@ int mfscmd(PROGINFO *pip,cchar *ofn)
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		rs1 ;
+	int		wlen = 0 ;
 
 	if ((rs = locinfo_cmdscount(lip)) > 0) {
 	    SHIO	ofile, *ofp = &ofile ;
@@ -155,6 +156,7 @@ int mfscmd(PROGINFO *pip,cchar *ofn)
 		if ((rs = mfsc_open(&c,pr,to)) >= 0) {
 		    {
 			rs = mfscmder(pip,&c,ofp) ;
+			wlen += rs ;
 		    }
 	    	    rs1 = mfsc_close(&c) ;
 	    	    if (rs >= 0) rs = rs1 ;
@@ -171,7 +173,7 @@ int mfscmd(PROGINFO *pip,cchar *ofn)
 	   } /* end if (file-output) */
 	} /* end if (positive) */
 
-	return rs ;
+	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (mfscmd) */
 
@@ -214,7 +216,7 @@ static int mfscmder(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	if ((rs = keyopt_curbegin(kop,&kcur)) >= 0) {
 	    int		ci ;
 	    int		kl ;
-	    const char	*kp ;
+	    cchar	*kp ;
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt ;
 
@@ -276,16 +278,16 @@ static int mfscmd_status(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	if ((rs = mfsc_status(pcp,&stat)) >= 0) {
 	    fmt = "server rc=%u pid=%u queries=%u\n" ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("mfscmd_status: mfsc_status() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfscmd_status: mfsc_status() rs=%d\n",rs) ;
 #endif
 	    rs = shio_printf(ofp,fmt,rs,stat.pid,stat.queries) ;
 	    wlen += rs ;
 	} else if (isBadSend(rs)) {
 	    fmt = "server failure (%d)\n" ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("mfscmd_status: mfsc_status() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfscmd_status: mfsc_status() rs=%d\n",rs) ;
 #endif
 	    rs = shio_printf(ofp,fmt,rs) ;
 	    wlen += rs ;

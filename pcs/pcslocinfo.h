@@ -39,7 +39,7 @@ struct locinfo_flags {
 	uint		intconfig:1 ;
 	uint		zerospeed:1 ;
 	uint		quick:1 ;
-	uint		listen:1 ;	/* listen on IPC */
+	uint		adj:1 ;		/* activate adjunct */
 	uint		reuseaddr:1 ;	/* reuse for multiple listeners */
 	uint		tmpfname:1 ;	/* TMP lock-file */
 	uint		reqfname:1 ;
@@ -55,7 +55,6 @@ struct locinfo_flags {
 	uint		speedname:1 ;
 	uint		ns:1 ;
 	uint		cmds:1 ;
-	uint		adj:1 ;
 	uint		reqexit:1 ;
 	uint		runasprn:1 ;
 } ;
