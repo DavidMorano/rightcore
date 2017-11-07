@@ -52,7 +52,7 @@
 #include	<time.h>
 
 #include	<vsystem.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<bfile.h>
@@ -156,7 +156,7 @@ static int	procinfo_end(PROGINFO *) ;
 
 static int	msglogdev(IDS *,const char *) ;
 
-static void	sighand_int(int) ;
+static void	main_sighand(int,siginfo_t *,void *) ;
 
 
 /* local variables */
@@ -325,7 +325,7 @@ int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
 	struct ustat	sb ;
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	IDS		id ;
@@ -361,7 +361,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	if_exit = 0 ;
 	if_int = 0 ;
 
-	rs = sigman_start(&sm, sigblocks,sigignores,sigints,sighand_int) ;
+	rs = sighand_start(&sm, sigblocks,sigignores,sigints,main_sighand) ;
 	if (rs < 0) goto ret0 ;
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -1075,7 +1075,7 @@ badprogstart:
 	debugclose() ;
 #endif
 
-	sigman_finish(&sm) ;
+	sighand_finish(&sm) ;
 
 ret0:
 	return ex ;
@@ -1095,7 +1095,8 @@ badarg:
 /* local subroutines */
 
 
-static void sighand_int(int sn)
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
 {
 	switch (sn) {
 	case SIGINT:

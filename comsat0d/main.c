@@ -52,7 +52,7 @@
 #include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>
@@ -229,9 +229,9 @@ static int proctestot(PROGINFO *) ;
 #endif
 #endif
 
-static void	main_sigman(int) ;
-
 static int	hostinfo_findaf(HOSTINFO *,char *,int,int) ;
+
+static void	main_sighand(int,siginfo_t *,void *) ;
 
 
 /* local variables */
@@ -381,7 +381,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 {
 	PROGINFO	pi, *pip = &pi ;
 	ARGINFO		ainfo ;
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	PARAMOPT	aparams ;
@@ -408,8 +408,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if_int = 0 ;
 	if_exit = 0 ;
 
-	rs = sigman_start(&sm, sigblocks,sigignores,sigints,main_sigman) ;
-	if (rs < 0) goto badsigman ;
+	rs = sighand_start(&sm, sigblocks,sigignores,sigints,main_sighand) ;
+	if (rs < 0) goto badsighand ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getenv(VARDEBUGFNAME)) != NULL) {
@@ -1112,9 +1112,9 @@ badprogstart:
 	debugclose() ;
 #endif
 
-	sigman_finish(&sm) ;
+	sighand_finish(&sm) ;
 
-badsigman:
+badsighand:
 	return ex ;
 
 /* the bad things */
@@ -1146,7 +1146,8 @@ int progexit(PROGINFO *pip)
 /* local subroutines */
 
 
-static void main_sigman(int sn)
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
 {
 	switch (sn) {
 	case SIGINT:
@@ -1157,7 +1158,7 @@ static void main_sigman(int sn)
 	    break ;
 	} /* end switch */
 }
-/* end subroutine (main_sigman) */
+/* end subroutine (main_sighand) */
 
 
 static int usage(PROGINFO *pip)

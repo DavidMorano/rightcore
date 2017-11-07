@@ -8,7 +8,7 @@
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_LOCSETENT	0		/* allow |locinfo_setentry()| */
 #define	CF_LOGID	0		/* |procuserinfo_logid()| */
-#define	CF_SIGMAN	0		/* use |SIGMAN(3dam)| */
+#define	CF_SIGHAND	0		/* use |sighand(3dam)| */
 
 
 /* revision history:
@@ -55,7 +55,7 @@
 #include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<ascii.h>
@@ -214,9 +214,9 @@ static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 static int	anyformat(bfile *,int,int) ;
 static int	isEnd(int) ;
 
-#if	CF_SIGMAN
-static void	sighand_int(int) ;
-#endif /* CF_SIGMAN */
+#if	CF_SIGHAND
+static void	main_sighand(int,siginfo_t *,void *) ;
+#endif /* CF_SIGHAND */
 
 
 /* local variables */
@@ -329,7 +329,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
 	ARGINFO		ainfo ;
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	bfile		errfile ;
@@ -367,10 +367,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if_exit = FALSE ;
 	if_int = FALSE ;
 
-#if	CF_SIGMAN
-	rs = sigman_start(&sm,sigblocks,sigignores,sigints,sighand_int) ;
-	if (rs < 0) goto badsigman ;
-#endif /* CF_SIGMAN */
+#if	CF_SIGHAND
+	rs = sighand_start(&sm,sigblocks,sigignores,sigints,main_sighand) ;
+	if (rs < 0) goto badsighand ;
+#endif /* CF_SIGHAND */
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -1049,10 +1049,10 @@ badprogstart:
 	debugclose() ;
 #endif
 
-#if	CF_SIGMAN
-	sigman_finish(&sm) ;
-badsigman:
-#endif /* CF_SIGMAN */
+#if	CF_SIGHAND
+	sighand_finish(&sm) ;
+badsighand:
+#endif /* CF_SIGHAND */
 
 	return ex ;
 
@@ -1096,8 +1096,9 @@ static int usage(PROGINFO *pip)
 /* end subroutine (usage) */
 
 
-#if	CF_SIGMAN
-void sighand_int(int sn)
+#if	CF_SIGHAND
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
 {
 	switch (sn) {
 	case SIGINT:
@@ -1112,7 +1113,7 @@ void sighand_int(int sn)
 	} /* end switch */
 }
 /* end subroutine (sighand_int) */
-#endif /* CF_SIGMAN */
+#endif /* CF_SIGHAND */
 
 
 /* process the program ako-options */

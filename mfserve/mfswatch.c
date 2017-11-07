@@ -122,6 +122,7 @@
 
 extern int	snddd(char *,int,uint,uint) ;
 extern int	snsdd(char *,int,const char *,uint) ;
+extern int	snpollflags(char *,int,int) ;
 extern int	sncpy1(char *,int,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
@@ -353,8 +354,12 @@ static int mfswatch_poll(PROGINFO *pip,POLLER_SPEC *psp)
 	int		f = FALSE ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_poll: fd=%u re=\\b%08ß\n",fd,re) ;
+	if (DEBUGLEVEL(4)) {
+	    const int	plen = TIMEBUFLEN ;
+	    char	pbuf[TIMEBUFLEN+1] ;
+	    snpollflags(pbuf,plen,re) ;
+	    debugprintf("mfswatch_poll: fd=%u re=%s\n",fd,pbuf) ;
+	}
 #endif
 
 	pmp = &wip->pm ;

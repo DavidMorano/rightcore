@@ -6,7 +6,7 @@
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_SIGMAN	0		/* use "sigmain()| */
+#define	CF_SIGHAND	0		/* use "sigmain()| */
 #define	CF_NETTIME	1		/* go w/ |nettime()| */
 
 
@@ -51,7 +51,7 @@
 
 #include	<vsystem.h>
 #include	<getbufsize.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<field.h>
@@ -115,8 +115,8 @@ extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
-#if	CF_SIGMAN
-static void	sighand_int(int) ;
+#if	CF_SIGHAND
+static void	main_sighand(int,siginfo_t *,void *) ;
 #endif
 
 
@@ -285,7 +285,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 {
 	PROGINFO	pi, *pip = &pi ;
 	ARGINFO		ainfo ;
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	bfile		errfile ;
@@ -324,9 +324,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if_int = 0 ;
 	if_exit = 0 ;
 
-#if	CF_SIGMAN
-	rs = sigman_start(&sm,sigblocks,sigignores,sigints,sighand_int) ;
-	if (rs < 0) goto badsigman ;
+#if	CF_SIGHAND
+	rs = sighand_start(&sm,sigblocks,sigignores,sigints,main_sighand) ;
+	if (rs < 0) goto badsighand ;
 #endif
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -974,9 +974,9 @@ badpargs:
 	proginfo_finish(pip) ;
 
 badprogstart:
-#if	CF_SIGMAN
-	sigman_finish(&sm) ;
-badsigman:
+#if	CF_SIGHAND
+	sighand_finish(&sm) ;
+badsighand:
 #endif
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -1037,8 +1037,9 @@ badarg:
 /* local subroutines */
 
 
-#if	CF_SIGMAN
-static void sighand_int(int sn)
+#if	CF_SIGHAND
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
 {
 	switch (sn) {
 	case SIGINT:
@@ -1049,8 +1050,8 @@ static void sighand_int(int sn)
 	    break ;
 	} /* end switch */
 }
-/* end subroutine (sighand_int) */
-#endif /* CF_SIGMAN */
+/* end subroutine (main_sighand) */
+#endif /* CF_SIGHAND */
 
 
 static int usage(PROGINFO *pip)

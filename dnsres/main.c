@@ -51,7 +51,7 @@
 #include	<time.h>
 
 #include	<vsystem.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<baops.h>
 #include	<keyopt.h>
 #include	<bfile.h>
@@ -152,7 +152,7 @@ static int	procinfo_end(PROGINFO *) ;
 
 static int	msglogdev(IDS *,const char *) ;
 
-static void	sighand_int(int) ;
+static void	main_sighand(int,siginfo_t *,void *) ;
 
 
 /* local variables */
@@ -324,7 +324,7 @@ char	*envv[] ;
 {
 	PROGINFO	pi, *pip = &pi ;
 	struct ustat	sb ;
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	IDS		id ;
 	KEYOPT		akopts ;
 	bfile		errfile ;
@@ -361,7 +361,7 @@ char	*envv[] ;
 	if_int = 0 ;
 	if_exit = 0 ;
 
-	rs = sigman_start(&sm, sigblocks,sigignores,sigints,sighand_int) ;
+	rs = sighand_start(&sm, sigblocks,sigignores,sigints,main_sighand) ;
 	if (rs < 0) goto ret0 ;
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -1070,7 +1070,7 @@ badprogstart:
 	debugclose() ;
 #endif
 
-	sigman_finish(&sm) ;
+	sighand_finish(&sm) ;
 
 ret0:
 	return ex ;
@@ -1080,9 +1080,7 @@ badarg:
 	ex = EX_USAGE ;
 	bprintf(pip->efp,"%s: invalid argument specified (%d)\n",
 	    pip->progname,rs) ;
-
 	usage(pip) ;
-
 	goto retearly ;
 
 }
@@ -1092,24 +1090,19 @@ badarg:
 /* local subroutines */
 
 
-static void sighand_int(sn)
-int	sn ;
+/* ARGSUSED */
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
 {
-
 	switch (sn) {
-
 	case SIGINT:
 	    if_int = TRUE ;
 	    break ;
-
 	default:
 	    if_exit = TRUE ;
 	    break ;
-
 	} /* end switch */
-
 }
-/* end subroutine (sighand_int) */
+/* end subroutine (main_sighand) */
 
 
 static int usage(pip)

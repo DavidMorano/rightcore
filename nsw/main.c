@@ -58,7 +58,7 @@
 #include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<sigman.h>
+#include	<sighand.h>
 #include	<ids.h>
 #include	<keyopt.h>
 #include	<bits.h>
@@ -152,7 +152,7 @@ static int	procsearchsub(PROGINFO *,VECSTR *,const char *,int) ;
 static int	prochandle(PROGINFO *,pid_t) ;
 static int	proclogout(PROGINFO *,int) ;
 
-static void	sighand_int(int) ;
+static void	main_sighand(int,siginfo_t *,void *) ;
 
 
 /* local variables */
@@ -253,7 +253,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 {
 	PROGINFO	pi, *pip = &pi ;
 	ARGINFO		ainfo ;
-	SIGMAN		sm ;
+	SIGHAND		sm ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	USERINFO	u ;
@@ -298,8 +298,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if_exit = 0 ;
 	if_int = 0 ;
 
-	rs = sigman_start(&sm,sigblocks,sigignores,sigints,sighand_int) ;
-	if (rs < 0) goto badsigman ;
+	rs = sighand_start(&sm,sigblocks,sigignores,sigints,main_sighand) ;
+	if (rs < 0) goto badsighand ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -842,9 +842,9 @@ badprogstart:
 	debugclose() ;
 #endif
 
-	sigman_finish(&sm) ;
+	sighand_finish(&sm) ;
 
-badsigman:
+badsighand:
 	return ex ;
 
 /* the bad things */
@@ -862,6 +862,7 @@ badarg:
 /* local subroutines */
 
 
+/* ARGSUSED */
 static void sighand_int(int sn)
 {
 	switch (sn) {
@@ -876,7 +877,7 @@ static void sighand_int(int sn)
 	    break ;
 	} /* end switch */
 }
-/* end subroutine (sighand_int) */
+/* end subroutine (main_sighand) */
 
 
 static int usage(PROGINFO *pip)
