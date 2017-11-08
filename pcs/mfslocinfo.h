@@ -145,6 +145,7 @@ extern int	locinfo_getaccto(LOCINFO *) ;
 extern int	locinfo_newserial(LOCINFO *) ;
 extern int	locinfo_varbegin(LOCINFO *) ;
 extern int	locinfo_varend(LOCINFO *) ;
+extern int	locinfo_varsub(LOCINFO *,char *,int,cchar *,int) ;
 extern int	locinfo_daemonbegin(LOCINFO *) ;
 extern int	locinfo_daemonend(LOCINFO *) ;
 

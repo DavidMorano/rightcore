@@ -296,7 +296,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* continue with initialization */
 
@@ -685,8 +685,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 	if (f_usage)
@@ -745,13 +744,15 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* load up the environment options */
 
+	if (afname == NULL) afname = getenv(VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getenv(VAROFNAME) ;
+
 	if (rs >= 0) {
 	    rs = procopts(pip,&akopts) ;
 	}
 
 /* check the arguments */
-
-	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
@@ -779,9 +780,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	            cl = rs1 ;
 
 	            if (rs1 >= 0) {
-
 	                switch (kwi) {
-
 	                case akoname_badnokey:
 	                    if (cl > 0) {
 	                        rs1 = cfdecui(cp,cl,&v) ;
@@ -790,7 +789,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	                    } else
 	                        sopts.badnokey = TRUE ;
 	                    break ;
-
 	                case akoname_blanks:
 	                    if (cl > 0) {
 	                        rs1 = cfdecui(cp,cl,&v) ;
@@ -799,9 +797,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                    } else
 	                        sopts.blanks = TRUE ;
 	                    break ;
-
 	                } /* end switch */
-
 	            } /* end if (got an option key) */
 
 	        } /* end if (match) */
@@ -1391,7 +1387,6 @@ VECSTR		*substrp ;
 	    vp = NULL ;
 	    vl = 0 ;
 	    if ((tp = strchr(sp,'=')) != NULL) {
-
 	        kl = (tp - sp) ;
 	        vp = (tp + 1) ;
 	        vl = -1 ;

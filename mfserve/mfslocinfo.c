@@ -87,7 +87,7 @@
 #endif
 
 #ifndef	EBUFLEN
-#define	EBUFLEN		(3 * MAXPATHLEN)
+#define	EBUFLEN		(5 * MAXPATHLEN)
 #endif
 
 #ifndef	DIGBUFLEN
@@ -197,7 +197,8 @@ static cchar	*scheds[] = {
 
 int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
-	int		rs = SR_OK ;
+	varsub		*vsp = &lip->subs ;
+	int		rs ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -207,25 +208,19 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->intdirmaint = TO_DIRMAINT ;
 	lip->intclients = TO_DIRCLIENTS ;
 	lip->rfd = -1 ;
-	lip->ti_marklog = pip->daytime ;
-	lip->ti_start = pip->daytime ;
-	lip->ti_dirmaint = pip->daytime ;
 
-#ifdef	COMMENT
-	if (pip->uid != pip->euid)
-	    u_setreuid(pip->uid,-1) ;
-
-	if (pip->gid != pip->egid)
-	    u_setregid(pip->gid,-1) ;
-#endif /* COMMENT */
-
-#ifdef	COMMENT
-	{
-	    time_t	t ;
-	    rs = utmpacc_boottime(&t) ;
-	    lip->ti_boot = t ;
+	if ((rs = varsub_start(vsp,0)) >= 0) {
+	    lip->open.subs = TRUE ;
+	    if ((rs = varsub_addvaquick(vsp,pip->envv)) >= 0) {
+	        lip->ti_marklog = pip->daytime ;
+	        lip->ti_start = pip->daytime ;
+	        lip->ti_dirmaint = pip->daytime ;
+	    }
+	    if (rs < 0) {
+		varsub_finish(vsp) ;
+		lip->open.subs = FALSE ;
+	    }
 	}
-#endif /* COMMENT */
 
 	lip->f.adj = TRUE ;
 	return rs ;
@@ -265,6 +260,13 @@ int locinfo_finish(LOCINFO *lip)
 
 	rs1 = locinfo_cookend(lip) ;
 	if (rs >= 0) rs = rs1 ;
+
+	if (lip->open.subs) {
+	    varsub	*vsp = &lip->subs ;
+	    lip->open.subs = FALSE ;
+	    rs1 = varsub_finish(vsp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
 	return rs ;
 }
@@ -848,6 +850,23 @@ int locinfo_varend(LOCINFO *lip)
 /* end subroutine (locinfo_varend) */
 
 
+int locinfo_varsub(LOCINFO *lip,char *rbuf,int rlen,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		rl = 0 ;
+	if (lip->open.subs) {
+	    varsub	*vsp = &lip->subs ;
+	    const int	vlen = VBUFLEN ;
+	    char	vbuf[VBUFLEN+1] ;
+	    if ((rs = varsub_expand(vsp,vbuf,vlen,sp,sl)) >= 0) {
+		rs = expcook_
+	    }
+	}
+	return (rs >= 0) ? rl : rs ;
+}
+/* end subroutine (locinfo_varsub) */
+
+
 int locinfo_daemonbegin(LOCINFO *lip)
 {
 	VARSUB		*slp = &lip->subs ;
@@ -882,7 +901,7 @@ int locinfo_daemonend(LOCINFO *lip)
 /* private subroutines */
 
 
-int locinfo_cookbegin(LOCINFO *lip)
+static int locinfo_cookbegin(LOCINFO *lip)
 {
 	EXPCOOK		*ecp = &lip->cooks ;
 	int		rs ;
@@ -899,7 +918,7 @@ int locinfo_cookbegin(LOCINFO *lip)
 /* end subroutine (locinfo_cookbegin) */
 
 
-int locinfo_cookend(LOCINFO *lip)
+static int locinfo_cookend(LOCINFO *lip)
 {
 	EXPCOOK		*ecp = &lip->cooks ;
 	int		rs = SR_OK ;

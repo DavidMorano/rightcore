@@ -358,9 +358,9 @@ static int mfswatch_poll(PROGINFO *pip,POLLER_SPEC *psp)
 	    const int	plen = TIMEBUFLEN ;
 	    char	pbuf[TIMEBUFLEN+1] ;
 	    snpollflags(pbuf,plen,re) ;
-	    debugprintf("mfswatch_poll: fd=%u re=%s\n",fd,pbuf) ;
+	    debugprintf("mfswatch_poll: fd=%u re=(%s)\n",fd,pbuf) ;
 	}
-#endif
+#endif /* CF_DEBUG */
 
 	pmp = &wip->pm ;
 	if ((rs = mfsadj_poll(pip,pmp,fd,re)) > 0) {
@@ -658,6 +658,10 @@ static int mfswatch_svcfind(PROGINFO *pip,SREQ *jep)
 	    rs1 = vecstr_finish(&sa) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (vecstr) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcfind: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfswatch_svcfind) */
@@ -668,6 +672,10 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	MFSWATCH	*wip = pip->watch ;
 	int		rs ;
 	cchar		*svc ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcfinder: ent\n") ;
+#endif
 	if ((rs = sreq_getsvc(jep,&svc)) >= 0) {
 	    const int	elen = MAX(SBUFLEN,rs) ;
 	    char	*ebuf ;
@@ -684,6 +692,10 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	        uc_free(ebuf) ;
 	    } /* end if (m-a-f) */
 	} /* end if (sreq_getsvc) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcfinder: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfswatch_svcfinder) */
@@ -693,8 +705,16 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 static int mfswatch_svcexec(PROGINFO *pip,SVCFILE_ENT *ep,vecstr *sap)
 {
 	int		rs = SR_OK ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcexec: ent\n") ;
+#endif
 
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcexec: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfswatch_svcexec) */

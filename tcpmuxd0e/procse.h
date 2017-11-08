@@ -55,8 +55,6 @@ extern int procse_finish(PROCSE *) ;
 
 #endif /* PROCSE_MASTER */
 
-
 #endif /* PROCSE_INCLUDE */
-
 
 

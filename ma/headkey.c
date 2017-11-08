@@ -9,20 +9,19 @@
 /* revision history:
 
 	= 1994-05-01, David A­D­ Morano
-
-	Module was originally written.  This was written as part of
-	the PCS mailer code cleanup !
-
+        Module was originally written. This was written as part of the PCS
+        mailer code cleanup !
 
 */
 
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
-	Given a header key name 'name' such as "Subject", find if it is
-	present in the user supplied string given as 'ts'.  Return 0 if
-	there is no match, else we return the character position of the
-	header value string.  The match is case independent.
+        Given a header key name 'name' such as "Subject", find if it is present
+        in the user supplied string given as 'ts'. Return 0 if there is no
+        match, else we return the character position of the header value string.
+        The match is case independent.
 
 	Synopsis:
 
@@ -56,27 +55,19 @@
 #include	<char.h>
 
 
-
 /* local defines */
-
 
 
 /* external subroutines */
 
 
+/* exported subroutines */
 
 
-
-
-
-int headkey(key,ts,tslen)
-char	key[] ;
-char	ts[] ;
-int	tslen ;
+int headkey(cchar *key,cchar *ts,int tslen)
 {
-	char	*kp = key ;
-	char	*sp = ts ;
-
+	char		*kp = key ;
+	char		*sp = ts ;
 
 	if (tslen < 0) {
 
@@ -106,7 +97,6 @@ int	tslen ;
 	} /* end if */
 
 	while ((tslen > 0) && CHAR_ISWHITE(*sp)) {
-
 	    sp += 1 ;
 	    tslen -= 1 ;
 	}
@@ -116,7 +106,6 @@ int	tslen ;
 
 	tslen -= 1 ;
 	while ((tslen > 0) && CHAR_ISWHITE(*sp)) {
-
 	    sp += 1 ;
 	    tslen -= 1 ;
 	}
@@ -124,6 +113,5 @@ int	tslen ;
 	return (sp - key) ;
 }
 /* end subroutine (headkey) */
-
 
 

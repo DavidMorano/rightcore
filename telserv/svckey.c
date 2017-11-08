@@ -77,9 +77,7 @@ static cchar	*svckeys[] = {
 int svckey_load(SVCKEY *skp,SVCFILE_ENT *sep)
 {
 	int		i ;
-	int		ki ;
 	int		c = 0 ;
-	const char	*kp, *vp ;
 
 	if (skp == NULL) return SR_FAULT ;
 	if (sep == NULL) return SR_FAULT ;
@@ -94,50 +92,47 @@ int svckey_load(SVCKEY *skp,SVCFILE_ENT *sep)
 
 	skp->svc = sep->svc ;
 	for (i = 0 ; sep->keyvals[i][0] != NULL ; i += 1) {
-
-	    kp = sep->keyvals[i][0] ;
-	    vp = sep->keyvals[i][1] ;
-	    ki = matostr(svckeys,1,kp,-1) ;
-
+	    int		ki ;
+	    cchar	*kp = sep->keyvals[i][0] ;
+	    cchar	*vp = sep->keyvals[i][1] ;
+	    if ((ki = matostr(svckeys,1,kp,-1)) >= 0) {
 #if	CF_DEBUGS
-	    debugprintf("svckey_load: ki=%d kp=%s vp=>%s<\n",ki,kp,vp) ;
+	        debugprintf("svckey_load: ki=%d kp=%s vp=>%s<\n",ki,kp,vp) ;
 #endif
-
-	    switch (ki) {
-	    case svckey_pass:
-		skp->pass = vp ;
-		break ;
-	    case svckey_so:
-		skp->so = vp ;
-		break ;
-	    case svckey_p:
-		skp->p = vp ;
-		break ;
-	    case svckey_a:
-		skp->a = vp ;
-		break ;
-	    case svckey_u:
-		skp->u = vp ;
-		break ;
-	    case svckey_g:
-		skp->g = vp ;
-		break ;
-	    case svckey_interval:
-		skp->interval = vp ;
-		break ;
-	    case svckey_acc:
-		skp->acc = vp ;
-		break ;
-	    case svckey_opts:
-		skp->opts = vp ;
-		break ;
-	    case svckey_failcont:
-		skp->failcont = vp ;
-		break ;
-	    } /* end switch */
-
-	    if (ki >= 0) c += 1 ;
-
+	        switch (ki) {
+	        case svckey_pass:
+	            skp->pass = vp ;
+	            break ;
+	        case svckey_so:
+	            skp->so = vp ;
+	            break ;
+	        case svckey_p:
+	            skp->p = vp ;
+	            break ;
+	        case svckey_a:
+	            skp->a = vp ;
+	            break ;
+	        case svckey_u:
+	            skp->u = vp ;
+	            break ;
+	        case svckey_g:
+	            skp->g = vp ;
+	            break ;
+	        case svckey_interval:
+	            skp->interval = vp ;
+	            break ;
+	        case svckey_acc:
+	            skp->acc = vp ;
+	            break ;
+	        case svckey_opts:
+	            skp->opts = vp ;
+	            break ;
+	        case svckey_failcont:
+	            skp->failcont = vp ;
+	            break ;
+	        } /* end switch */
+	        if (ki >= 0) c += 1 ;
+	    } /* end if (matostr) */
 	} /* end for */
 
 	return c ;

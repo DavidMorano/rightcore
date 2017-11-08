@@ -36,7 +36,7 @@
 
 	Returns:
 
-	<		error
+	<0		error
 	>=0		length of result
 
 

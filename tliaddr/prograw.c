@@ -32,14 +32,8 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/socket.h>
-#include	<netinet/in.h>
-#include	<arpa/inet.h>
-#include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<sockaddress.h>
@@ -61,6 +55,8 @@
 
 
 /* external subroutines */
+
+extern int	getdig(int) ;
 
 
 /* external variables */

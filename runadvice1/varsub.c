@@ -153,8 +153,9 @@ int varsub_start(VARSUB *op,int aopts)
 
 	if ((rs = varsub_setopts(op,aopts)) >= 0) {
 	    const int	vopts = VECHAND_OORDERED ;
-	    if ((rs = vechand_start(&op->subs,op->n,vopts)) >= 0)
+	    if ((rs = vechand_start(&op->subs,op->n,vopts)) >= 0) {
 	        op->magic = VARSUB_MAGIC ;
+	    }
 	}
 
 #if	CF_DEBUGS
@@ -220,11 +221,11 @@ int varsub_addva(VARSUB *op,cchar **envv)
 	if (op->magic != VARSUB_MAGIC) return SR_NOTOPEN ;
 
 	for (i = 0 ; envv[i] != NULL ; i += 1) {
-	    const char	*esp = envv[i] ;
-	    const char	*tp ;
+	    cchar	*esp = envv[i] ;
+	    cchar	*tp ;
 	    if ((tp = strchr(esp,'=')) != NULL) {
 	        const int	kch = MKCHAR(esp[0]) ;
-	        const char	*vp = (tp + 1) ;
+	        cchar		*vp = (tp + 1) ;
 	        if (isprintlatin(kch)) {
 	            const int	vch = MKCHAR(vp[0]) ;
 	            if ((vch == '\0') || isprintlatin(vch)) {
@@ -273,11 +274,11 @@ int varsub_addvaquick(VARSUB *op,cchar **envv)
 	if (op->magic != VARSUB_MAGIC) return SR_NOTOPEN ;
 
 	for (i = 0 ; envv[i] != NULL ; i += 1) {
-	    const char	*esp = envv[i] ;
-	    const char	*tp ;
+	    cchar	*esp = envv[i] ;
+	    cchar	*tp ;
 	    if ((tp = strchr(esp,'=')) != NULL) {
 	        const int	kch = MKCHAR(esp[0]) ;
-	        const char	*vp = (tp + 1) ;
+	        cchar		*vp = (tp + 1) ;
 	        if (isprintlatin(kch)) {
 	            const int	vch = MKCHAR(vp[0]) ;
 	            if ((vch == '\0') || isprintlatin(vch)) {
@@ -807,8 +808,9 @@ static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 	            entry_finish(dep) ;
 	            uc_free(dep) ;
 	            rs1 = SR_NOTFOUND ;
-	        } else
+	        } else {
 	            rs = INT_MAX ;
+		}
 	    } /* end if (entry search-by-key) */
 
 #if	CF_DEBUGS
@@ -834,8 +836,9 @@ static int varsub_iadd(VARSUB *op,cchar *k,int klen,cchar *v,int vlen)
 	                uc_free(ep) ;
 	        } /* end if (memory-allocation) */
 
-	    } else
+	    } else {
 	        rs = rs1 ;
+	    }
 
 	} /* end if (entry_tmp) */
 
@@ -1104,7 +1107,7 @@ static int getkey(const char *sp,int sl,int sses[][2])
 	    } /* end for */
 
 	    if (f) {
-	        const char	*tp ;
+	        cchar	*tp ;
 	        tp = strnchr(sp,sl,sses[i][1]) ;
 	        if (tp != NULL) {
 	            kl = (tp - (sp+1)) ;

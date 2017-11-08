@@ -36,7 +36,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<vecstr.h>

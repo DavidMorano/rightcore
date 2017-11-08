@@ -64,10 +64,7 @@
 /* exported subroutines */
 
 
-int headkey(key,ts,tslen)
-char	key[] ;
-char	ts[] ;
-int	tslen ;
+int headkey(cchar *key,cchar *ts,int tslen)
 {
 	char		*kp = key ;
 	char		*sp = ts ;
@@ -100,7 +97,6 @@ int	tslen ;
 	} /* end if */
 
 	while ((tslen > 0) && CHAR_ISWHITE(*sp)) {
-
 	    sp += 1 ;
 	    tslen -= 1 ;
 	}
@@ -110,7 +106,6 @@ int	tslen ;
 
 	tslen -= 1 ;
 	while ((tslen > 0) && CHAR_ISWHITE(*sp)) {
-
 	    sp += 1 ;
 	    tslen -= 1 ;
 	}

@@ -27,29 +27,29 @@
 
 
 struct keyopt_v {
-	struct keyopt_v		*next ;
-	const char		*value ;
+	KEYOPT_VALUE	*next ;
+	const char	*value ;
 } ;
 
 struct keyopt_n {
-	const char		*name ;		/* the key */
-	struct keyopt_n		*next ;
-	struct keyopt_v 	*head ;		/* first */
-	struct keyopt_v 	*tail ;		/* last */
-	struct keyopt_v		*current ;	/* used for interation only */
-	int			count ;		/* count of values */
+	const char	*name ;		/* the key */
+	KEYOPT_NAME	*next ;
+	KEYOPT_VALUE	*head ;		/* first */
+	KEYOPT_VALUE	*tail ;		/* last */
+	KEYOPT_VALUE	*current ;	/* used for interation only */
+	int		count ;		/* count of values */
 } ;
 
 struct keyopt_c {
-	struct keyopt_n		*keyp ;
-	struct keyopt_v		*valuep ;
+	KEYOPT_VALUE	*keyp ;
+	KEYOPT_VALUE	*valuep ;
 } ;
 
 struct keyopt_head {
-	uint			magic ;
-	struct keyopt_n		*head ;
-	struct keyopt_n		*tail ;
-	int			count ;		/* count of keys */
+	uint		magic ;
+	KEYOPT_NAME	*head ;
+	KEYOPT_NAME	*tail ;
+	int		count ;		/* count of keys */
 } ;
 
 

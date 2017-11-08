@@ -336,6 +336,10 @@ int mfslisten_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 	LISTENSPEC	*lsp ;
 	int		rs ;
 	int		f = FALSE ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_poll: ent fd=%u\n",fd) ;
+#endif
 	if ((rs = mfslisten_hit(pip,&lsp,fd,re)) > 0) {
 	    SOCKADDRESS		sa ;
 	    int			salen = sizeof(SOCKADDRESS) ;

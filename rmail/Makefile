@@ -13,19 +13,18 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -33,6 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -67,26 +67,32 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
-LDFLAGS= -R$(LIBDIR)
+
+LDRPATH=
+
+LDFLAGS= -R$(LIBDIR):$(CGS_RPATH)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -lpcs -ldam -lb
 LIB2=
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
+
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -126,7 +132,7 @@ OBJ11= whitelist.o splitaddr.o
 OBJ12= emainfo.o msgid.o msgide.o lkmail.o ema.o
 OBJ13= logzones.o dater.o comparse.o tmz.o
 OBJ14= mailmsgmatenv.o mailmsgmathdr.o mailmsg.o mailmsg_loadfile.o
-OBJ15= ids.o logfile.o keyopt.o mailmsghdrs.o
+OBJ15= ids.o logfile.o mailmsghdrs.o
 OBJ16= field_word.o 
 OBJ17=
 OBJ18= getfname.o getmailgid.o initnow.o getfstype.o
@@ -155,11 +161,11 @@ default:		$(T).x
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -183,7 +189,7 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	rcp -p $(T).x $(T).$(OFF)
@@ -206,10 +212,8 @@ install-ee:		$(ALL)
 	-chmod g+s $(BINDIR)/$(T).$(OFF)
 
 install-raw:		$(T).x
-	rm -f $(T)
-	ln $(T).x $(T)
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r $(T) $(BINDIR)
+	makenewer -r -o rmsuf $(T).x $(BINDIR)
 	-chgrp mail $(BINDIR)/$(T)
 	-chmod g+s $(BINDIR)/$(T)
 
@@ -350,6 +354,5 @@ pcsconf.o:		pcsconf.c pcsconf.h
 pcsuserfile.o:		pcsuserfile.c
 
 pcstrustuser.o:		pcstrustuser.c
-
 
 

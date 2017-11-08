@@ -114,7 +114,6 @@ static int	pcscmd_exit(PROGINFO *,PCSNSC *,SHIO *) ;
 static cchar	*cmds[] = {
 	"status",
 	"help",
-	"getval",
 	"mark",
 	"exit",
 	NULL
@@ -123,7 +122,6 @@ static cchar	*cmds[] = {
 enum cmds {
 	cmd_status,
 	cmd_help,
-	cmd_getval,
 	cmd_mark,
 	cmd_exit,
 	cmd_overlast
@@ -148,26 +146,26 @@ int pcscmd(PROGINFO *pip,cchar *ofn)
 	        ofn = STDOUTFNAME ;
 
 	    if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
-		PCSNSC		c ;
-		const int	to = TO_OPENSERVE ;
-		cchar		*pr = pip->pr ;
-		if ((rs = pcsnsc_open(&c,pr,to)) >= 0) {
-		    {
-			rs = pcscmder(pip,&c,ofp) ;
-		    }
-	    	    rs1 = pcsnsc_close(&c) ;
-	    	    if (rs >= 0) rs = rs1 ;
-		} else if (isNotPresent(rs)) {
-	    	    fmt = "%s: server not available (%d)\n" ;
-	    	    shio_printf(pip->efp,fmt,pn,rs) ;
-		} /* end if (pcsnsc) */
-		rs1 = shio_close(ofp) ;
-		if (rs >= 0) rs = rs1 ;
-	   } else {
-		fmt = "%s: inaccessible output (%d)\n" ;
-		shio_printf(pip->efp,fmt,pn,rs) ;
-		shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
-	   } /* end if (file-output) */
+	        PCSNSC		c ;
+	        const int	to = TO_OPENSERVE ;
+	        cchar		*pr = pip->pr ;
+	        if ((rs = pcsnsc_open(&c,pr,to)) >= 0) {
+	            {
+	                rs = pcscmder(pip,&c,ofp) ;
+	            }
+	            rs1 = pcsnsc_close(&c) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } else if (isNotPresent(rs)) {
+	            fmt = "%s: server not available (%d)\n" ;
+	            shio_printf(pip->efp,fmt,pn,rs) ;
+	        } /* end if (pcsnsc) */
+	        rs1 = shio_close(ofp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        fmt = "%s: inaccessible output (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	        shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
+	    } /* end if (file-output) */
 	} /* end if (positive) */
 
 	return rs ;
@@ -239,14 +237,14 @@ static int pcscmder(PROGINFO *pip,PCSNSC *pcp,SHIO *ofp)
 	                    rs = pcscmd_exit(pip,pcp,ofp) ;
 	                    break ;
 	                } /* end switch */
-		    } else {
-	                    fmt = "%s: unknown cmd=%t\n" ;
-	                    shio_printf(pip->efp,fmt,pn,kp,kl) ;
-			    {
-				char	tbuf[TIMEBUFLEN+1] ;
-				timestr_logz(pip->daytime,tbuf) ;
-				logprintf(pip,"%s unknown cmd=%t",tbuf,kp,kl) ;
-			    }
+	            } else {
+	                fmt = "%s: unknown cmd=%t\n" ;
+	                shio_printf(pip->efp,fmt,pn,kp,kl) ;
+	                {
+	                    char	tbuf[TIMEBUFLEN+1] ;
+	                    timestr_logz(pip->daytime,tbuf) ;
+	                    logprintf(pip,"%s unknown cmd=%t",tbuf,kp,kl) ;
+	                }
 	            } /* end if (valid) */
 	        } /* end if (positive) */
 
@@ -275,16 +273,16 @@ static int pcscmd_status(PROGINFO *pip,PCSNSC *pcp,SHIO *ofp)
 	if ((rs = pcsnsc_status(pcp,&stat)) >= 0) {
 	    fmt = "server rc=%u pid=%u queries=%u\n" ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("pcscmd_status: pcsnsc_status() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("pcscmd_status: pcsnsc_status() rs=%d\n",rs) ;
 #endif
 	    rs = shio_printf(ofp,fmt,rs,stat.pid,stat.queries) ;
 	    wlen += rs ;
 	} else if (isBadSend(rs)) {
 	    fmt = "server failure (%d)\n" ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("pcscmd_status: pcsnsc_status() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("pcscmd_status: pcsnsc_status() rs=%d\n",rs) ;
 #endif
 	    rs = shio_printf(ofp,fmt,rs) ;
 	    wlen += rs ;
@@ -312,10 +310,10 @@ static int pcscmd_help(PROGINFO *pip,PCSNSC *pcp,SHIO *ofp)
 	    int		i ;
 	    for (i = 0 ; rs >= 0 ; i += 1) {
 	        if ((rs = pcsnsc_help(pcp,rbuf,rlen,i)) > 0) {
-		    rs = shio_print(ofp,rbuf,rs) ;
-		    wlen += rs ;
-		}
-		if (rs == 0) break ;
+	            rs = shio_print(ofp,rbuf,rs) ;
+	            wlen += rs ;
+	        }
+	        if (rs == 0) break ;
 	    } /* end for */
 	    rs1 = uc_free(rbuf) ;
 	    if (rs >= 0) rs = rs1 ;

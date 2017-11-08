@@ -35,10 +35,10 @@
 /* initialization options */
 
 #define	VARSUB_OBLANK		0	/* default, substitute blank */
-#define	VARSUB_ONOBLANK		1	/* substitute the key on failure */
-#define	VARSUB_OBADNOKEY	2	/* fail out on failure */
-#define	VARSUB_OBRACE		4	/* substitute on braces */
-#define	VARSUB_OPAREN		8	/* substitute on parentheses */
+#define	VARSUB_ONOBLANK		(1<<0)	/* substitute the key on failure */
+#define	VARSUB_OBADNOKEY	(1<<1)	/* fail out on failure */
+#define	VARSUB_OBRACE		(1<<2)	/* substitute on braces */
+#define	VARSUB_OPAREN		(1<<3)	/* substitute on parentheses */
 
 #define	VARSUB_MBLANK		VARSUB_OBLANK
 #define	VARSUB_MNOBLANK		VARSUB_ONOBLANK

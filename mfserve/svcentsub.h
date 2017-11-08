@@ -1,4 +1,4 @@
-/* procse */
+/* svcentsub */
 
 /* expanded server entry */
 
@@ -6,8 +6,8 @@
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 
-#ifndef	PROCSE_INCLUDE
-#define	PROCSE_INCLUDE	1
+#ifndef	SVCENTSUB_INCLUDE
+#define	SVCENTSUB_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -16,11 +16,11 @@
 #include	<expcook.h>
 
 
-#define	PROCSE		struct procse_head
-#define	PROCSE_ARGS	struct procse_a
+#define	SVCENTSUB		struct svcentsub_head
+#define	SVCENTSUB_ARGS	struct svcentsub_a
 
 
-struct procse_a {
+struct svcentsub_a {
 	const char	*passfile ;		/* pass-file */
 	const char	*sharedobj ;		/* shared-object path */
 	const char	*program ;		/* server program path */
@@ -32,29 +32,29 @@ struct procse_a {
 	const char	*failcont ;
 } ;
 
-struct procse_head {
+struct svcentsub_head {
 	const char	**envv ;
 	varsub		*vsp ;
-	PROCSE_ARGS	a, *ap ;
+	SVCENTSUB_ARGS	a, *ap ;
 } ;
 
 
-#if	(! defined(PROCSE_MASTER)) || (PROCSE_MASTER == 0)
+#if	(! defined(SVCENTSUB_MASTER)) || (SVCENTSUB_MASTER == 0)
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-extern int procse_start(PROCSE *,cchar **,varsub *,PROCSE_ARGS *) ;
-extern int procse_process(PROCSE *,EXPCOOK *) ;
-extern int procse_finish(PROCSE *) ;
+extern int svcentsub_start(SVCENTSUB *,cchar **,varsub *,SVCENTSUB_ARGS *) ;
+extern int svcentsub_process(SVCENTSUB *,EXPCOOK *) ;
+extern int svcentsub_finish(SVCENTSUB *) ;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* PROCSE_MASTER */
+#endif /* SVCENTSUB_MASTER */
 
-#endif /* PROCSE_INCLUDE */
+#endif /* SVCENTSUB_INCLUDE */
 
 

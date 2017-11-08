@@ -195,22 +195,6 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->ti_start = pip->daytime ;
 	lip->ti_dirmaint = pip->daytime ;
 
-#ifdef	COMMENT
-	if (pip->uid != pip->euid)
-	    u_setreuid(pip->uid,-1) ;
-
-	if (pip->gid != pip->egid)
-	    u_setregid(pip->gid,-1) ;
-#endif /* COMMENT */
-
-#ifdef	COMMENT
-	{
-	    time_t	t ;
-	    rs = utmpacc_boottime(&t) ;
-	    lip->ti_boot = t ;
-	}
-#endif /* COMMENT */
-
 	lip->f.adj = TRUE ;
 	return rs ;
 }

@@ -58,8 +58,9 @@
 /* external subroutines */
 
 extern int	snopenflags(char *,int,int) ;
-extern int	bufprintf(char *,int,const char *,...) ;
+extern int	snpollflags(char *,int,int) ;
 extern int	getdig(int) ;
+extern int	bufprintf(char *,int,const char *,...) ;
 extern int	nprintf(const char *,const char *,...) ;
 extern int	debugprintf(const char *,...) ;
 extern int	debugprint(const char *,int) ;
@@ -103,30 +104,10 @@ int debuginit()
 #endif /* CF_DEBUGS */
 
 
-char *d_reventstr(int revents,char *buf,int buflen)
+char *d_reventstr(int revents,char *bp,int bl)
 {
-
-#if	CF_DEBUGS
-	debugprintf("d_reventstr: ent\n") ;
-#endif
-
-	buf[0] = '\0' ;
-	bufprintf(buf,buflen,"%s %s %s %s %s %s %s %s %s",
-	    (revents & POLLIN) ? "I " : "  ",
-	    (revents & POLLRDNORM) ? "IN" : "  ",
-	    (revents & POLLRDBAND) ? "IB" : "  ",
-	    (revents & POLLPRI) ? "PR" : "  ",
-	    (revents & POLLWRNORM) ? "WN" : "  ",
-	    (revents & POLLWRBAND) ? "WB" : "  ",
-	    (revents & POLLERR) ? "ER" : "  ",
-	    (revents & POLLHUP) ? "HU" : "  ",
-	    (revents & POLLNVAL) ? "NV" : "  ") ;
-
-#if	CF_DEBUGS
-	debugprintf("d_reventstr: %s\n",buf) ;
-#endif
-
-	return buf ;
+	snpollflags(bp,bl,revents) ;
+	return bp ;
 }
 /* end subroutine (d_reventstr) */
 

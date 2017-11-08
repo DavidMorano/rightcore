@@ -37,6 +37,11 @@
 #include	<localmisc.h>
 
 
+/* local defines */
+
+#define	PROCNAME	"keyserv"	/* required process */
+
+
 /* external subroutines */
 
 extern int	getnetname(cchar *) ;
@@ -47,9 +52,10 @@ extern int	getnetname(cchar *) ;
 
 int uc_getnetname(char *nbuf)
 {
+	const uid_t	uid = 0 ; /* root user */
 	int		rs ;
 	if (nbuf == NULL) return SR_FAULT ;
-	if ((rs = uc_procpid("rpc.nisd",0)) > 0) {
+	if ((rs = uc_procpid(PROCNAME,uid)) > 0) {
 	    if (getnetname(nbuf) > 0) {
 	        rs = strlen(nbuf) ;
 	    } else {

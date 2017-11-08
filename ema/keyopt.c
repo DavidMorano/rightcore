@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This code module was originally written.
-
 
 */
 
@@ -55,6 +53,7 @@
 
 extern int	sncpy(char *,int,const char *) ;
 extern int	snwcpy(char *,int,const char *,int) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	strkeycmp(const char *,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -239,10 +238,12 @@ int keyopt_loadvalue(KEYOPT *php,cchar *key,cchar *vbuf,int vlen)
 /* do we have one of these named keys already? */
 
 	klen = -1 ;
-	if ((tp = strchr(key,'=')) != NULL)
-	    klen = tp - key ;
+	if ((tp = strchr(key,'=')) != NULL) {
+	    klen = (tp - key) ;
+	}
 
 	if (keyopt_findkey(php,key,klen,&pp) == SR_NOTFOUND) {
+	    const int	nsize = sizeof(KEYOPT_NAME) ;
 
 #if	CF_DEBUGS
 	    debugprintf("keyopt_loadvalue: did not find already\n") ;
@@ -250,7 +251,7 @@ int keyopt_loadvalue(KEYOPT *php,cchar *key,cchar *vbuf,int vlen)
 
 /* make a new parameter header block */
 
-	    if ((rs = uc_malloc(sizeof(KEYOPT_NAME),&pp)) >= 0) {
+	    if ((rs = uc_malloc(nsize,&pp)) >= 0) {
 
 	        pp->count = 0 ;
 	        pp->next = NULL ;
@@ -281,18 +282,18 @@ int keyopt_loadvalue(KEYOPT *php,cchar *key,cchar *vbuf,int vlen)
 
 /* OK, now we have the parameter block that we are looking for in 'pp' */
 
-	if ((rs >= 0) && ((rs = uc_malloc(sizeof(KEYOPT_VALUE),&nvp)) >= 0)) {
+	if (rs >= 0) {
+	    const int	vsize = sizeof(KEYOPT_VALUE) ;
+	    if ((rs = uc_malloc(vsize,&nvp)) >= 0) {
 
 	    nvp->next = NULL ;
 	    nvp->value = NULL ;
 	    if (vbuf != NULL) {
-
-	        rs = uc_mallocstrw(vbuf,vlen,&cp) ;
-	        if (rs >= 0) {
+	        if ((rs = uc_mallocstrw(vbuf,vlen,&cp)) >= 0) {
 	            nvp->value = cp ;
-	        } else
+	        } else {
 	            uc_free(nvp) ;
-
+		}
 	    } /* end if (new value) */
 
 	    if (rs >= 0) {
@@ -309,9 +310,8 @@ int keyopt_loadvalue(KEYOPT *php,cchar *key,cchar *vbuf,int vlen)
 
 	    if (rs >= 0) php->count += 1 ;
 
-	} /* end if */
-
-ret0:
+	    } /* end if */
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("keyopt_loadvalue: ret rs=%d\n",rs) ;
@@ -642,34 +642,21 @@ KEYOPT_NAME	**rpp ;
 static int keyopt_loadpair(KEYOPT *php,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
-	int		klen, vlen ;
-	const char	*keyp, *valuep ;
-	const char	*tp ;
-	char		keybuf[KEYBUFLEN + 1] ;
+	int		klen ;
+	const char	*keyp ;
 
 	if (sp == NULL) return SR_FAULT ;
 
-	if (sl < 0) sl = strlen(sp) ;
-
 #if	CF_DEBUGS
-	debugprintf("keyopt_loadpair: ent >%t<\n",
-	    sp,strnlen(sp,sl)) ;
+	debugprintf("keyopt_loadpair: ent >%t<\n",sp,strnlen(sp,sl)) ;
 #endif
 
-	while ((sl > 0) && CHAR_ISWHITE(*sp)) {
-	    sp += 1 ;
-	    sl -= 1 ;
-	}
+	if ((klen = sfshrink(sp,sl,&keyp)) > 0) {
+	    int		vlen = 0 ;
+	    cchar	*valuep = NULL ;
+	    cchar	*tp ;
+	    char	keybuf[KEYBUFLEN + 1] ;
 
-	while ((sl > 0) && CHAR_ISWHITE(sp[sl-1]))
-	    sl -= 1 ;
-
-	if (sl > 0) {
-
-	    keyp = sp ;
-	    klen = sl ;
-	    valuep = NULL ;
-	    vlen = 0 ;
 	    if ((tp = strnchr(keyp,klen,'=')) != NULL) {
 
 	        valuep = (tp + 1) ;
@@ -680,8 +667,9 @@ static int keyopt_loadpair(KEYOPT *php,cchar *sp,int sl)
 	        debugprintf("keyopt_loadpair: K=V vlen=%d\n",vlen) ;
 #endif
 
-	        while ((klen > 0) && CHAR_ISWHITE(keyp[klen - 1]))
+	        while ((klen > 0) && CHAR_ISWHITE(keyp[klen - 1])) {
 	            klen -= 1 ;
+		}
 
 	        while ((vlen > 0) && CHAR_ISWHITE(*valuep)) {
 	            valuep += 1 ;
@@ -694,16 +682,7 @@ static int keyopt_loadpair(KEYOPT *php,cchar *sp,int sl)
 	    debugprintf("keyopt_loadpair: copying key klen=%d\n",klen) ;
 #endif
 
-#ifdef	COMMENT
-	    snwcpy(keybuf,KEYBUFLEN,keyp,klen) ; /* can fail */
-#else
-	    strwcpy(keybuf,keyp,MIN(klen,MAXPATHLEN)) ; /* cannot fail */
-#endif
-
-#if	CF_DEBUGS
-	    debugprintf("keyopt_loadpair: keyopt() key=%s\n",keybuf) ;
-#endif
-
+	    strwcpy(keybuf,keyp,MIN(klen,KEYBUFLEN)) ; /* cannot fail */
 	    rs = keyopt_loadvalue(php,keybuf,valuep,vlen) ;
 
 	} /* end if (positive) */
@@ -724,8 +703,9 @@ static int keyname_incri(KEYOPT_NAME *pp)
 	KEYOPT_VALUE	*vp ;
 	int		rs = SR_NOTFOUND ;
 
-	if (pp->next != NULL)
+	if (pp->next != NULL) {
 	    rs = keyname_incri(pp->next) ;
+	}
 
 /* increment ourselves if we are at bottom or if previous guy carried */
 
