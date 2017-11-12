@@ -24,6 +24,7 @@
 #include	<vecobj.h>
 #include	<expcook.h>
 #include	<lfm.h>
+#include	<envhelp.h>
 #include	<varsub.h>
 
 #include	"mfsmain.h"
@@ -60,12 +61,13 @@ struct locinfo_flags {
 	uint		secure:1 ;
 	uint		fg:1 ;
 	uint		speedname:1 ;
+	uint		envs:1 ;
+	uint		subs:1 ;
 	uint		ns:1 ;
 	uint		cmds:1 ;
 	uint		reqexit:1 ;
 	uint		listens:1 ;
 	uint		runasprn:1 ;
-	uint		subs:1 ;
 } ;
 
 struct locinfo {
@@ -84,12 +86,13 @@ struct locinfo {
 	LOCINFO_FL	have, f, changed, final ;
 	LOCINFO_FL	open ;
 	LFM		pidlock, tmplock ;
+	ENVHELP		envs ;
+	VARSUB		subs ;
 	EXPCOOK		cooks ;
 	VECSTR		svars ;		/* schedule variables */
 	MFSNS		ns ;		/* name-server object */
 	KEYOPT		cmds ;
 	VECOBJ		listens ;
-	VARSUB		subs ;
 	time_t		ti_lastlock ;
 	time_t		ti_start ;
 	time_t		ti_marklog ;
@@ -148,6 +151,7 @@ extern int	locinfo_varend(LOCINFO *) ;
 extern int	locinfo_varsub(LOCINFO *,char *,int,cchar *,int) ;
 extern int	locinfo_daemonbegin(LOCINFO *) ;
 extern int	locinfo_daemonend(LOCINFO *) ;
+extern int	locinfo_svcload(LOCINFO *,cchar *,int) ;
 
 #ifdef	__cplusplus
 }

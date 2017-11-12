@@ -82,6 +82,7 @@
 #include	"mfslog.h"
 #include	"mfsmsg.h"
 #include	"mfsbuilt.h"
+#include	"svcentsub.h"
 
 
 /* local defines */
@@ -189,7 +190,7 @@ struct mfswatch {
 static int	mfswatch_beginner(PROGINFO *) ;
 static int	mfswatch_ender(PROGINFO *) ;
 static int	mfswatch_polljobs(PROGINFO *,int,int) ;
-static int	mfswatch_getsvc(PROGINFO *,SREQ *,int,int) ;
+static int	mfswatch_svcaccum(PROGINFO *,SREQ *,int,int) ;
 static int	mfswatch_uptimer(PROGINFO *) ;
 static int	mfswatch_poll(PROGINFO *,POLLER_SPEC *) ;
 static int	mfswatch_pollreg(PROGINFO *,int,int) ;
@@ -200,10 +201,14 @@ static int	mfswatch_svcend(PROGINFO *) ;
 #if	CF_SVC
 static int	mfswatch_svcfind(PROGINFO *,SREQ *) ;
 static int	mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
-static int	mfswatch_svcexec(PROGINFO *,SVCFILE_ENT *,vecstr *) ;
+static int	mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,vecstr *) ;
 static int	mfswatch_notfound(PROGINFO *,SREQ *) ;
 static int	mfswatch_jobretire(PROGINFO *,SREQ *) ;
 #endif /* CF_SVC */
+
+#if	CF_SVC && defined(COMMENT)
+static int	mfswatch_islong(PROGINFO *,vecstr *) ;
+#endif
 
 
 /* local variables */
@@ -505,11 +510,11 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 	if ((rs = sreqdb_havefd(srp,fd)) >= 0) {
 	    SREQ	*jep ;
 	    if ((rs = sreqdb_get(srp,rs,&jep)) >= 0) {
-		if ((rs = mfswatch_getsvc(pip,jep,fd,re)) > 0) {
+		if ((rs = mfswatch_svcaccum(pip,jep,fd,re)) > 0) {
 		    f = TRUE ;
 #if	CF_DEBUG
 		    if (DEBUGLEVEL(4))
-		        debugprintf("mfswatch_polljobs: svc=>%s<\n",
+		        debugprintf("mfswatch_polljobs: svcbuf=>%s<\n",
 			jep->svcbuf) ;
 #endif
 		    rs = mfswatch_svcfind(pip,jep) ;
@@ -520,8 +525,8 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 	    } /* end if (sreqdb_get) */
 	} else if (rs == SR_NOTFOUND) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_polljobs: not-found\n") ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfswatch_polljobs: not-found\n") ;
 #endif
 	    rs = SR_OK ;
 	}
@@ -535,7 +540,7 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 
 
 /* ARGSUSED */
-static int mfswatch_getsvc(PROGINFO *pip,SREQ *jep,int fd,int re)
+static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 {
 	MFSWATCH	*wip = pip->watch ;
 	const int	llen = LINEBUFLEN ;
@@ -548,16 +553,16 @@ static int mfswatch_getsvc(PROGINFO *pip,SREQ *jep,int fd,int re)
 	        cchar	*tp ;
 #if	CF_DEBUG
 		if (DEBUGLEVEL(4))
-	    	debugprintf("mfswatch_getsvc: uc_peek() rs=%d\n",rs) ;
+	    	debugprintf("mfswatch_svcaccum: uc_peek() rs=%d\n",rs) ;
 #endif
 		if ((tp = strnchr(lbuf,rs,'\n')) != NULL) {
 		    if ((rs = u_read(fd,lbuf,(tp-lbuf+1))) > 0) {
 			f = TRUE ;
-			rs = sreq_svcadd(jep,lbuf,(rs-1)) ;
+			rs = sreq_addsvc(jep,lbuf,(rs-1)) ;
 		    } /* end if (u_read) */
 		} else {
 		    if ((rs = u_read(fd,lbuf,rs)) > 0) {
-			rs = sreq_svcadd(jep,lbuf,rs) ;
+			rs = sreq_addsvc(jep,lbuf,rs) ;
 		    }
 		}
 	    } /* end if (uc_peek) */
@@ -565,11 +570,11 @@ static int mfswatch_getsvc(PROGINFO *pip,SREQ *jep,int fd,int re)
 	} /* end if (m-a-f) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_getsvc: ret rs=%d f=%u\n",rs,f) ;
+	    debugprintf("mfswatch_svcaccum: ret rs=%d f=%u\n",rs,f) ;
 #endif
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (mfswatch_getsvc) */
+/* end subroutine (mfswatch_svcaccum) */
 
 
 static int mfswatch_pollreg(PROGINFO *pip,int fd,int re)
@@ -651,10 +656,10 @@ static int mfswatch_svcfind(PROGINFO *pip,SREQ *jep)
 	if (wip == NULL) return SR_FAULT ;
 	if ((rs = vecstr_start(&sa,1,0)) >= 0) {
 	    if ((rs = vecstr_svcargs(&sa,jep->svcbuf)) >= 0) {
-		if ((rs = sreq_setsvc(jep,jep->svcbuf,rs)) >= 0) {
+		if ((rs = sreq_setsvc(jep,rs)) >= 0) {
 		    rs = mfswatch_svcfinder(pip,jep,&sa) ;
 		} /* end if (sreq_setlong) */
-	    } /* end if (vecstr_srvargs) */
+	    } /* end if (vecstr_svcargs) */
 	    rs1 = vecstr_finish(&sa) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (vecstr) */
@@ -683,7 +688,7 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	        SVCFILE		*slp = &wip->sdb ;
 	        SVCFILE_ENT	e ;
 	        if ((rs = svcfile_fetch(slp,svc,NULL,&e,ebuf,elen)) >= 0) {
-    		    rs = mfswatch_svcexec(pip,&e,sap) ;
+    		    rs = mfswatch_svcproc(pip,jep,&e,sap) ;
 	        } else if (isNotPresent(rs)) {
 		    if ((rs = mfswatch_notfound(pip,jep)) >= 0) {
 		        rs = mfswatch_jobretire(pip,jep) ;
@@ -702,22 +707,64 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 
 
 /* ARGSUSED */
-static int mfswatch_svcexec(PROGINFO *pip,SVCFILE_ENT *ep,vecstr *sap)
+static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+		vecstr *sap)
 {
-	int		rs = SR_OK ;
+	LOCINFO		*lip = pip->lip ;
+	const int	f_long = jep->f_long ;
+	int		rs ;
+	int		rs1 ;
+	if (sap == NULL) return SR_FAULT ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_svcexec: ent\n") ;
+	    debugprintf("mfswatch_svcproc: ent\n") ;
 #endif
-
-
+	    if ((rs = locinfo_svcload(lip,sep->svc,f_long)) >= 0) {
+		SVCENTSUB	ss ;
+	        if ((rs = svcentsub_start(&ss,lip,sep)) >= 0) {
+#if	CF_DEBUG
+		    if (DEBUGLEVEL(4)) {
+	    	    debugprintf("mfswatch_svcproc: svc=%s\n",sep->svc) ;
+	    	    debugprintf("mfswatch_svcproc: p=%s\n",
+			ss.var[svckey_p]) ;
+	    	    debugprintf("mfswatch_svcproc: a=%s\n",
+			ss.var[svckey_a]) ;
+	    	    debugprintf("mfswatch_svcproc: so=%s\n",
+			ss.var[svckey_so]) ;
+		    }
+#endif
+    
+    
+	            rs1 = svcentsub_finish(&ss) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (svcentsub) */
+	    } /* end if (locinfo_svcload) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_svcexec: ret rs=%d\n",rs) ;
+	    debugprintf("mfswatch_svcproc: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
-/* end subroutine (mfswatch_svcexec) */
+/* end subroutine (mfswatch_svcproc) */
+
+
+#ifdef	COMMENT
+static int mfswatch_islong(PROGINFO *pip,vecstr *sap)
+{
+	int		rs = SR_OK ;
+	int		i ;
+	int		f = FALSE ;
+	cchar		*ap ;
+	for (i = 0 ; vecstr_get(sap,i,&ap) >= 0 ; i += 1) {
+	    if ((ap != NULL) && (ap[0] == '/')) {
+		    f = ((ap[1] == 'w') || (ap[1] == 'W')) ;
+		    if (f) break ;
+	    }
+	} /* end for */
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (mfswatch_islong) */
+#endif /* COMMENT */
 
 
 static int mfswatch_notfound(PROGINFO *pip,SREQ *jep)

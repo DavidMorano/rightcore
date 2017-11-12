@@ -4,9 +4,7 @@
 /* revision history:
 
 	= 2000-05-14, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -34,6 +32,8 @@
 #define	VARLOGTAB	"BIBLESET_LOGTAB"
 #define	VARAFNAME	"BIBLESET_AF"
 #define	VAREFNAME	"BIBLESET_EF"
+#define	VAROFNAME	"BIBLESET_OF"
+#define	VARIFNAME	"BIBLESET_IF"
 #define	VARERRORFNAME	"BIBLESET_ERRORFILE"
 
 #define	VARDEBUGFNAME	"BIBLESET_DEBUGFILE"

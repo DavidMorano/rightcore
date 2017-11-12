@@ -15,10 +15,8 @@
 /* revision history:
 
 	= 2008-03-01, David A­D­ Morano
-
 	This subroutine was originally written (its a fairly straight-forward
 	text processing loop).
-
 
 */
 

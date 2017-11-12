@@ -40,6 +40,7 @@ enum progmodes {
 
 #define	VARBANNER	"MFSERVE_BANNER"
 #define	VARSEARCHNAME	"MFSERVE_NAME"
+#define	VARDEBUGLEVEL	"MFSERVE_DEBUGLEVEL"
 #define	VAROPTS		"MFSERVE_OPTS"
 #define	VARQUIET	"MFSERVE_QUIET"
 #define	VARPROGMODE	"MFSERVE_PM"
@@ -70,6 +71,10 @@ enum progmodes {
 #define	VARSYSTEM	"SYSTEM"
 #define	VARDOMAIN	"DOMAIN"
 #define	VARNISDOMAIN	"NISDOMAIN"
+#define	VARPWD		"PWD"
+#define	VARUSERNAME	"USERNAME"
+#define	VARLOGNAME	"LOGNAME"
+#define	VARHOME		"HOME"
 #define	VARTERM		"TERM"
 #define	VARPRINTER	"PRINTER"
 #define	VARLPDEST	"LPDEST"
@@ -82,8 +87,7 @@ enum progmodes {
 #define	VARFULLNAME	"FULLNAME"
 #define	VARHZ		"HZ"
 #define	VARTZ		"TZ"
-#define	VARUSERNAME	"USERNAME"
-#define	VARLOGNAME	"LOGNAME"
+#define	VARHOST		"HOST"
 
 #define	VARHOMEDNAME	"HOME"
 #define	VARTMPDNAME	"TMPDIR"

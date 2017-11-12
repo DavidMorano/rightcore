@@ -62,6 +62,7 @@
 
 #include	"config.h"
 #include	"defs.h"
+#include	"clientinfo.h"
 #include	"builtin.h"
 #include	"standing.h"
 

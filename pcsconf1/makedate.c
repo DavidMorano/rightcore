@@ -1,2 +1,2 @@
 const char pcsconf_makedate[] =
-"@(#)pcsconf                 171031_1233:44_USEDT Rightcore Network Services" ;
+"@(#)pcsconf                 171111_2123:34_USEST Rightcore Network Services" ;

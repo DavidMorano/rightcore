@@ -62,6 +62,7 @@
 
 #include	"config.h"
 #include	"defs.h"
+#include	"clientinfo.h"
 
 
 /* local defines */

@@ -42,9 +42,9 @@
 #include	<paramfile.h>
 #include	<vecstr.h>
 #include	<expcook.h>
+#include	<listenspec.h>
 #include	<localmisc.h>
 
-#include	"listenspec.h"
 #include	"prsetfname.h"
 #include	"config.h"
 #include	"defs.h"

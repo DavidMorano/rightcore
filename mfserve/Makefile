@@ -190,9 +190,9 @@ OBJ02= mfsmain.o
 OBJ03= mfslocinfo.o mfsconfig.o mfsadj.o mfslog.o mfscmd.o mfsdebug.o
 OBJ04= mfslisten.o mfswatch.o mfsbuilt.o
 OBJ05= mfsns.o mfsc.o mfsmsg.o
-OBJ06= cpuspeed.o securefile.o
+OBJ06= svcentsub.o
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
-OBJ08=
+OBJ08= cpuspeed.o securefile.o
 OBJ09=
 OBJ10= msfile.o msfilee.o 
 OBJ11= ebuf.o
@@ -203,7 +203,7 @@ OBJ15=
 
 OBJ16= msghdr.o cmsghdr.o
 OBJ17= lfm.o vecstr_svcargs.o
-OBJ18=
+OBJ18= varsub.o
 OBJ19=
 OBJ20=
 OBJ21= uc_peek.o
@@ -340,6 +340,8 @@ sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
 
+svcentsub.o:		svcentsub.c svcentsub.h mfslocinfo.h svcfile.h
+
 
 # MFS additional code pieces
 
@@ -373,8 +375,6 @@ sreqdb.o:		sreqdb.c sreqdb.h
 
 
 # other standard pieces (duplicated here)
-
-varsub_extras.o:	varsub_extras.c
 
 getnodedomain.o:	getnodedomain.c filebuf.h
 
@@ -415,8 +415,6 @@ paramfile.o:		paramfile.c paramfile.h
 
 vecobj.o:		vecobj.c vecobj.h
 
-varsub.o:		varsub.c varsub.h
-
 ebuf.o:			ebuf.c ebuf.h
 
 serialbuf.o:		serialbuf.c serialbuf.h
@@ -428,6 +426,10 @@ listenspec.o:		listenspec.c listenspec.h
 poller.o:		poller.c poller.h
 
 envmgr.o:		envmgr.c envmgr.h
+
+varsub.o:		varsub.c varsub.h
+
+varsub_extras.o:	varsub_extras.c
 
 
 # testing

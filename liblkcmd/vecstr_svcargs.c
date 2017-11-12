@@ -43,12 +43,17 @@
 /* external subroutines */
 
 extern int	strwcasecmp(cchar *,cchar *,int) ;
+extern int	tolc(int) ;
+
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* externals variables */
 
 
 /* forward references */
+
+static int	hasLong(cchar *,int) ;
 
 
 /* local structures */
@@ -69,6 +74,7 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 	if ((abuf != NULL) && (abuf[0] != '\0')) {
 	    FIELD	fsb ;
 	    const int	alen = strlen(abuf) ;
+	    int		c = 0 ;
 	    uchar	terms[32] ;
 
 	    fieldterms(terms,0," \t") ;
@@ -79,10 +85,22 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 		if ((rs = uc_malloc((flen+1),&fbuf)) >= 0) {
 	            int		fl ;
 	            while ((fl = field_sharg(&fsb,terms,fbuf,flen)) >= 0) {
-			if (strwcasecmp("/W",fbuf,fl) == 0) {
-			    f = TRUE ;
+			if (c++ == 0) {
+			     cchar	*tp = strnchr(fbuf,fl,'/') ;
+			     if (tp != NULL) {
+				fl = (tp-fbuf) ;
+				if (((fbuf+fl)-tp) >= 2) {
+				    const int	sch = MKCHAR(tp[1]) ;
+				    f = (tolc(sch) == 'w') ;
+				}
+			     }
+	                     rs = vecstr_add(op,fbuf,fl) ;
 			} else {
-	                    rs = vecstr_add(op,fbuf,fl) ;
+			    if ((fbuf[0] == '/') && hasLong(fbuf,fl)) {
+			        f = TRUE ;
+			    } else {
+	                        rs = vecstr_add(op,fbuf,fl) ;
+			    }
 			}
 	                if (rs < 0) break ;
 	            } /* end while */
@@ -96,5 +114,23 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (vecstr_svcargs) */
+
+
+/* local subroutines */
+
+
+static int hasLong(cchar *sp,int sl)
+{
+	int		f = FALSE ;
+	if (sp[0] == '/') {
+	    if (sl < 0) sl = strlen(sp) ;
+	    if (sl >= 2) {
+		const int	sch = MKCHAR(sp[1]) ;
+		f = (tolc(sch) == 'w') ;
+	    }
+	}
+	return f ;
+}
+/* end subroutine (hasLong) */
 
 

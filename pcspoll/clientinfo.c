@@ -49,6 +49,7 @@
 
 #include	"defs.h"
 #include	"config.h"
+#include	"clientinfo.h"
 
 
 /* local defines */
@@ -87,7 +88,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* forward references */
 
-static int	clientinfo_load(struct clientinfo *,const char *,vecstr *) ;
+static int	clientinfo_load(CLIENTINFO *,const char *,vecstr *) ;
 
 
 /* local variables */
@@ -96,14 +97,13 @@ static int	clientinfo_load(struct clientinfo *,const char *,vecstr *) ;
 /* exported subroutines */
 
 
-int clientinfo_start(cip)
-struct clientinfo	*cip ;
+int clientinfo_start(CLIENTINFO *cip)
 {
 	int		rs ;
 
 	if (cip == NULL) return SR_FAULT ;
 
-	memset(cip,0,sizeof(struct clientinfo)) ;
+	memset(cip,0,sizeof(CLIENTINFO)) ;
 	cip->nnames = -1 ;
 
 	rs = vecstr_start(&cip->stores,1,0) ;
@@ -113,8 +113,7 @@ struct clientinfo	*cip ;
 /* end subroutine (clientinfo_start) */
 
 
-int clientinfo_finish(cip)
-struct clientinfo	*cip ;
+int clientinfo_finish(CLIENTINFO *cip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -145,9 +144,7 @@ struct clientinfo	*cip ;
 /* end subroutine (clientinfo_finish) */
 
 
-int clientinfo_loadnames(cip,dname)
-struct clientinfo	*cip ;
-const char		dname[] ;
+int clientinfo_loadnames(CLIENTINFO *cip,cchar *dname)
 {
 	int		rs = SR_OK ;
 	int		opts = VECSTR_OCOMPACT ;
@@ -171,10 +168,7 @@ const char		dname[] ;
 /* local subroutines */
 
 
-static int clientinfo_load(cip,dname,nlp)
-struct clientinfo	*cip ;
-const char		dname[] ;
-vecstr			*nlp ;
+static int clientinfo_load(CLIENTINFO *cip,cchar *dname,vecstr *nlp)
 {
 	CONNECTION	conn, *cnp = &conn ;
 	int		rs ;

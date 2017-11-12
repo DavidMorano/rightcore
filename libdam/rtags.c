@@ -165,8 +165,8 @@ int rtags_finish(RTAGS *op)
 /* add a tag to the DB */
 int rtags_add(RTAGS *op,RTAGS_TAG *tip)
 {
-	struct rtags_te		te ;
-	struct rtags_fname	fe, *fep ;
+	RTAGS_TE	te ;
+	RTAGS_FNAME	fe, *fep ;
 	HDB_DATUM	key, value ;
 	int		rs ;
 	int		fi ;
@@ -321,7 +321,7 @@ int rtags_curend(RTAGS *op,RTAGS_CUR *curp)
 
 int rtags_curdump(RTAGS *op,RTAGS_CUR *curp)
 {
-	struct rtags_fname	*fep ;
+	RTAGS_FNAME	*fep ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
@@ -377,8 +377,8 @@ int rtags_enum(RTAGS *op,RTAGS_CUR *curp,RTAGS_TAG *tip)
 #endif
 
 	if ((rs = ptm_lock(&op->m)) >= 0) {
-	    struct rtags_te	*tep ;
-	    int	i ;
+	    RTAGS_TE	*tep ;
+	    int		i ;
 
 	    i = (curp->i < 0) ? 0 : (curp->i + 1) ;
 
@@ -397,7 +397,7 @@ int rtags_enum(RTAGS *op,RTAGS_CUR *curp,RTAGS_TAG *tip)
 	    } /* end while */
 
 	    if (rs >= 0) {
-	        struct rtags_fname	*fep ;
+	        RTAGS_FNAME	*fep ;
 
 #if	CF_DEBUGS
 	        debugprintf("rtags_enum: fi=%u\n",tep->fi) ;
@@ -406,20 +406,13 @@ int rtags_enum(RTAGS *op,RTAGS_CUR *curp,RTAGS_TAG *tip)
 
 	        tip->recoff = tep->recoff ;
 	        tip->reclen = tep->reclen ;
-	        rs = vecobj_get(&op->fnames,tep->fi,&fep) ;
-
-#if	CF_DEBUGS
-	        debugprintf("rtags_enum: vecobj_get() rs=%d\n",rs) ;
-	        if (rs >= 0)
-	            debugprintf("rtags_enum: fname=%s\n",fep->name) ;
-#endif
-
-	        if (rs >= 0) {
+	        if ((rs = vecobj_get(&op->fnames,tep->fi,&fep)) >= 0) {
 	            if (fep != NULL) {
 	                rs = mkpath1(tip->fname,fep->name) ;
 	                if (rs >= 0) curp->i = i ;
-	            } else
+	            } else {
 	                rs = SR_NOANODE ;
+		    }
 	        }
 	    }
 

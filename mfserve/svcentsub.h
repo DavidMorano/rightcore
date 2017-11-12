@@ -11,31 +11,33 @@
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
+#include	<strpack.h>
 
-#include	<varsub.h>
-#include	<expcook.h>
-
-
-#define	SVCENTSUB		struct svcentsub_head
-#define	SVCENTSUB_ARGS	struct svcentsub_a
+#include	"mfslocinfo.h"
+#include	"svcfile.h"
 
 
-struct svcentsub_a {
-	const char	*passfile ;		/* pass-file */
-	const char	*sharedobj ;		/* shared-object path */
-	const char	*program ;		/* server program path */
-	const char	*srvargs ;		/* server program arguments */
-	const char	*username ;
-	const char	*groupname ;
-	const char	*options ;
-	const char	*access ;
-	const char	*failcont ;
+#define	SVCENTSUB	struct svcentsub_head
+#define	SVCENTSUB_CSIZE	100		/* default string-chunk size */
+
+
+enum svckeys {
+	svckey_so,
+	svckey_p,
+	svckey_pass,
+	svckey_a,
+	svckey_u,
+	svckey_g,
+	svckey_interval,
+	svckey_acc,
+	svckey_opts,
+	svckey_failcont,
+	svckey_overlast
 } ;
 
 struct svcentsub_head {
-	const char	**envv ;
-	varsub		*vsp ;
-	SVCENTSUB_ARGS	a, *ap ;
+	STRPACK		strs ;
+	cchar		*var[svckey_overlast] ;
 } ;
 
 
@@ -45,8 +47,7 @@ struct svcentsub_head {
 extern "C" {
 #endif
 
-extern int svcentsub_start(SVCENTSUB *,cchar **,varsub *,SVCENTSUB_ARGS *) ;
-extern int svcentsub_process(SVCENTSUB *,EXPCOOK *) ;
+extern int svcentsub_start(SVCENTSUB *,LOCINFO *,SVCFILE_ENT *) ;
 extern int svcentsub_finish(SVCENTSUB *) ;
 
 #ifdef	__cplusplus

@@ -158,7 +158,7 @@ public class BattleLines extends Applet implements Runnable {
 
 	    f = new Frame("BattleLines") ;
 
-	    f.setSize(500,500) ;
+	    f.setSize(600,300) ;
 
 	    c = new MovingLines(numlines, speed,linelength,
 		"Computer Science") ;

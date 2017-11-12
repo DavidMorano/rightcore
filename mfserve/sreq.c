@@ -42,7 +42,7 @@
 #include	<time.h>
 
 #include	<vsystem.h>
-#include	<vecitem.h>
+#include	<toxc.h>
 #include	<localmisc.h>
 
 #include	"sreq.h"
@@ -189,7 +189,7 @@ int sreq_havefd(SREQ *op,int fd)
 /* end subroutine (sreq_havefd) */
 
 
-int sreq_svcadd(SREQ *op,cchar *sp,int sl)
+int sreq_addsvc(SREQ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
 	int		f = FALSE ;
@@ -211,20 +211,28 @@ int sreq_svcadd(SREQ *op,cchar *sp,int sl)
 	}
 	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (sreq_svcadd) */
+/* end subroutine (sreq_addsvc) */
 
 
-int sreq_setsvc(SREQ *op,cchar *sbuf,int f)
+int sreq_setsvc(SREQ *op,int f_long)
 {
 	int		rs = SR_OK ;
-	int		sl ;
-	cchar		*sp ;
-	op->f_long = MKBOOL(f) ;
 	if (op->svc == NULL) {
-	    if ((sl = sfnext(sbuf,-1,&sp)) >= 0) {
+	    int		sl ;
+	    cchar	*sp ;
+	    op->f_long = f_long ;
+	    if ((sl = sfnext(op->svcbuf,op->svclen,&sp)) >= 0) {
+		cchar	*tp ;
 	        char	*bp ;
+		if ((tp = strnchr(sp,sl,'/')) != NULL) {
+		    if (! f_long) {
+			if (((sp+sl)-tp) > 1) {
+			    op->f_long = (tolc(tp[1]) == 'w') ;
+			}
+		    }
+		    sl = (tp-sp) ;
+		}
 	        if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
-	            cchar	*tp ;
 	            op->svc = bp ;
 	            op->subsvc = strwcpy(bp,sp,sl) ;
 	            if ((tp = strnchr(sp,sl,'+')) != NULL) {

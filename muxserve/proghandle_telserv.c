@@ -122,6 +122,7 @@
 
 #include	"config.h"
 #include	"defs.h"
+#include	"clientinfo.h"
 #include	"standing.h"
 #include	"builtin.h"
 

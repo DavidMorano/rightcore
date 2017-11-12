@@ -13,9 +13,7 @@
 /* revision history:
 
 	= 2004-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  
-
 
 */
 
@@ -46,6 +44,7 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<limits.h>
+#include	<signal.h>
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<time.h>
@@ -69,6 +68,7 @@
 #include	"b_rest.h"
 #include	"defs.h"
 #include	"proglog.h"
+#include	"proguserlist.h"
 
 
 /* typedefs */
@@ -117,13 +117,11 @@ extern int	mkplogid(char *,int,cchar *,int) ;
 extern int	mksublogid(char *,int,cchar *,int) ;
 extern int	msleep(int) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
-
-extern int	proguserlist_begin(PROGINFO *) ;
-extern int	proguserlist_end(PROGINFO *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
@@ -142,7 +140,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -190,7 +188,7 @@ static int	locinfo_pcspr(LOCINFO * lip) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -240,7 +238,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *progopts[] = {
+static cchar	*progopts[] = {
 	"poll",
 	"pollint",
 	"intpoll",
@@ -277,7 +275,7 @@ int b_rest(int argc,cchar *argv[],void *contextp)
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_kshbegin(contextp)) >= 0) {
+	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
 	    cchar	**envv = (cchar **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
@@ -296,6 +294,9 @@ int p_rest(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_rest) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -351,7 +352,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -361,7 +362,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	pip->f.logprog = TRUE ;
 
 	pip->lip = &li ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -678,8 +679,8 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	    pip->efp = &efile ;
 	    pip->open.errfile = TRUE ;
 	    shio_control(pip->efp,SHIO_CSETBUFLINE,TRUE) ;
-	} else if (! isNotPresent(rs1)) {
-	     if (rs >= 0) rs = rs1 ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -697,10 +698,11 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -733,7 +735,14 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 /* load up program options */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 /* other initialization */
 
@@ -751,9 +760,11 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	if (DEBUGLEVEL(2))
 	    debugprintf("b_rest: PCSPOLL enabled\n") ;
 #endif
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = locinfo_pcspr(lip) ;
+	}
 #endif
+/* CF_PCSPOLL */
 
 /* OK, we finally do our thing */
 
@@ -822,7 +833,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	        ex = EX_NOUSER ;
 	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    } /* end if (userinfo) */
-	} else {
+	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    ex = EX_USAGE ;
@@ -947,9 +958,6 @@ badarg:
 /* end subroutine (mainsub) */
 
 
-/* local subroutines */
-
-
 static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -996,7 +1004,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case progopt_poll:
 	                    lip->f.poll = TRUE ;
 	                    if (vl > 0) {
@@ -1004,7 +1011,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->f.poll = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                case progopt_intpoll:
 	                case progopt_intpoller:
 	                    if (vl > 0) {
@@ -1013,7 +1019,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        pip->intpoll = v ;
 	                    }
 	                    break ;
-
 	                case progopt_logprog:
 	                    if (! pip->final.logprog) {
 	                        pip->have.logprog = TRUE ;
@@ -1025,7 +1030,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1042,149 +1046,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procopts) */
-
-
-static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
-{
-	int		rs = SR_OK ;
-
-	pip->nodename = uip->nodename ;
-	pip->domainname = uip->domainname ;
-	pip->username = uip->username ;
-	pip->gecosname = uip->gecosname ;
-	pip->realname = uip->realname ;
-	pip->name = uip->name ;
-	pip->fullname = uip->fullname ;
-	pip->mailname = uip->mailname ;
-	pip->org = uip->organization ;
-	pip->logid = uip->logid ;
-	pip->pid = uip->pid ;
-	pip->uid = uip->uid ;
-	pip->euid = uip->euid ;
-	pip->gid = uip->gid ;
-	pip->egid = uip->egid ;
-
-	if (rs >= 0) {
-	    const int	hlen = MAXHOSTNAMELEN ;
-	    char	hbuf[MAXHOSTNAMELEN+1] ;
-	    cchar	*nn = pip->nodename ;
-	    cchar	*dn = pip->domainname ;
-	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-	        cchar	**vpp = &pip->hostname ;
-	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
-	    }
-	}
-
-	if (rs >= 0) {
-	    rs = procuserinfo_logid(pip) ;
-	} /* end if (ok) */
-
-	if (rs >= 0) {
-	    LOCINFO	*lip = pip->lip ;
-	    rs = locinfo_pcspr(lip) ;
-	}
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_begin) */
-
-
-static int procuserinfo_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-	if (pip == NULL) return SR_FAULT ;
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_end) */
-
-
-static int procuserinfo_logid(PROGINFO *pip)
-{
-	int		rs ;
-	if ((rs = lib_runmode()) >= 0) {
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
-#endif
-	    if (rs & KSHLIB_RMKSH) {
-	        if ((rs = lib_serial()) >= 0) {
-	            const int	s = rs ;
-	            const int	plen = LOGIDLEN ;
-	            const int	pv = pip->pid ;
-	            cchar	*nn = pip->nodename ;
-	            char	pbuf[LOGIDLEN+1] ;
-	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
-	                const int	slen = LOGIDLEN ;
-	                char		sbuf[LOGIDLEN+1] ;
-	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
-	                    cchar	**vpp = &pip->logid ;
-	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
-	                }
-	            }
-	        } /* end if (lib_serial) */
-	    } /* end if (runmode-KSH) */
-	} /* end if (lib_runmode) */
-	return rs ;
-}
-/* end subroutine (procuserinfo_logid) */
-
-
-static int procpcsconf_begin(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("b_rest/procpcsconf_begin: ent\n") ;
-#endif
-
-	if (pip->open.pcsconf) {
-	    PCSCONF	*pcp = pip->pcsconf ;
-	    if (pcp == NULL) rs = SR_FAULT ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3)) {
-	        PCSCONF_CUR	cur ;
-	        if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
-	            const int	klen = KBUFLEN ;
-	            const int	vlen = VBUFLEN ;
-	            int		vl ;
-	            char	kbuf[KBUFLEN+1] ;
-	            char	vbuf[VBUFLEN+1] ;
-	            while (rs >= 0) {
-	                vl = pcsconf_enum(pcp,&cur,kbuf,klen,vbuf,vlen) ;
-	                if (vl == SR_NOTFOUND) break ;
-	                debugprintf("b_rest/procpcsconf: pair> %s=%t\n",
-	                    kbuf,vbuf,vl) ;
-	            } /* end while */
-	            pcsconf_curend(pcp,&cur) ;
-	        } /* end if (cursor) */
-	    }
-#endif /* CF_DEBUG */
-
-	} /* end if (configured) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("b_rest/procpcsconf_begin: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
-}
-/* end subroutine (procpcsconf_begin) */
-
-
-static int procpcsconf_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-	if (pip == NULL) return SR_FAULT ;
-
-	return rs ;
-}
-/* end subroutine (procpcsconf_end) */
 
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
@@ -1223,8 +1084,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	            if (rs >= 0) rs = lib_sigterm() ;
 	            if (rs >= 0) rs = lib_sigintr() ;
 	            if (rs < 0) break ;
-	        } /* end for */
-	    } /* end if */
+	        } /* end while */
+	    } /* end if (ok) */
 
 	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
 	        SHIO	afile, *afp = &afile ;
@@ -1390,6 +1251,149 @@ static int procsleep(PROGINFO *pip)
 /* end subroutine (procsleep) */
 
 
+static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
+{
+	int		rs = SR_OK ;
+
+	pip->nodename = uip->nodename ;
+	pip->domainname = uip->domainname ;
+	pip->username = uip->username ;
+	pip->gecosname = uip->gecosname ;
+	pip->realname = uip->realname ;
+	pip->name = uip->name ;
+	pip->fullname = uip->fullname ;
+	pip->mailname = uip->mailname ;
+	pip->org = uip->organization ;
+	pip->logid = uip->logid ;
+	pip->pid = uip->pid ;
+	pip->uid = uip->uid ;
+	pip->euid = uip->euid ;
+	pip->gid = uip->gid ;
+	pip->egid = uip->egid ;
+
+	if (rs >= 0) {
+	    const int	hlen = MAXHOSTNAMELEN ;
+	    char	hbuf[MAXHOSTNAMELEN+1] ;
+	    cchar	*nn = pip->nodename ;
+	    cchar	*dn = pip->domainname ;
+	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	        cchar	**vpp = &pip->hostname ;
+	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
+	    }
+	}
+
+	if (rs >= 0) {
+	    rs = procuserinfo_logid(pip) ;
+	} /* end if (ok) */
+
+	if (rs >= 0) {
+	    LOCINFO	*lip = pip->lip ;
+	    rs = locinfo_pcspr(lip) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_begin) */
+
+
+static int procuserinfo_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_end) */
+
+
+static int procuserinfo_logid(PROGINFO *pip)
+{
+	int		rs ;
+	if ((rs = lib_runmode()) >= 0) {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
+#endif
+	    if (rs & KSHLIB_RMKSH) {
+	        if ((rs = lib_serial()) >= 0) {
+	            const int	s = rs ;
+	            const int	plen = LOGIDLEN ;
+	            const int	pv = pip->pid ;
+	            cchar	*nn = pip->nodename ;
+	            char	pbuf[LOGIDLEN+1] ;
+	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
+	                const int	slen = LOGIDLEN ;
+	                char		sbuf[LOGIDLEN+1] ;
+	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
+	                    cchar	**vpp = &pip->logid ;
+	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
+	                }
+	            }
+	        } /* end if (lib_serial) */
+	    } /* end if (runmode-KSH) */
+	} /* end if (lib_runmode) */
+	return rs ;
+}
+/* end subroutine (procuserinfo_logid) */
+
+
+static int procpcsconf_begin(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_rest/procpcsconf_begin: ent\n") ;
+#endif
+
+	if (pip->open.pcsconf) {
+	    PCSCONF	*pcp = pip->pcsconf ;
+	    if (pcp == NULL) rs = SR_FAULT ;
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(3)) {
+	        PCSCONF_CUR	cur ;
+	        if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
+	            const int	klen = KBUFLEN ;
+	            const int	vlen = VBUFLEN ;
+	            int		vl ;
+	            char	kbuf[KBUFLEN+1] ;
+	            char	vbuf[VBUFLEN+1] ;
+	            while (rs >= 0) {
+	                vl = pcsconf_enum(pcp,&cur,kbuf,klen,vbuf,vlen) ;
+	                if (vl == SR_NOTFOUND) break ;
+	                debugprintf("b_rest/procpcsconf: pair> %s=%t\n",
+	                    kbuf,vbuf,vl) ;
+	            } /* end while */
+	            pcsconf_curend(pcp,&cur) ;
+	        } /* end if (cursor) */
+	    }
+#endif /* CF_DEBUG */
+
+	} /* end if (configured) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("b_rest/procpcsconf_begin: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (procpcsconf_begin) */
+
+
+static int procpcsconf_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procpcsconf_end) */
+
+
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1423,32 +1427,34 @@ static int locinfo_finish(LOCINFO *lip)
 
 int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
+	VECSTR		*slp ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
 	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
+	slp = &lip->stores ;
 	if (! lip->open.stores) {
-	    rs = vecstr_start(&lip->stores,4,0) ;
+	    rs = vecstr_start(slp,4,0) ;
 	    lip->open.stores = (rs >= 0) ;
 	}
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(&lip->stores,*epp) ;
+		oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
 	    } else {
 	        *epp = NULL ;
 	    }
 	    if ((rs >= 0) && (oi >= 0)) {
-	        vecstr_del(&lip->stores,oi) ;
+	        vecstr_del(slp,oi) ;
 	    }
-	} /* end if */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }

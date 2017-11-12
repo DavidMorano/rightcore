@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 2009-04-01, David A­D­ Morano
-
 	This subroutine was written as an enhancement for adding back-matter
 	(end pages) to the output document.
-
 
 */
 

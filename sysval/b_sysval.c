@@ -1748,15 +1748,23 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    cbl = 0 ;
 	    break ;
 	case qopt_lax:
-	    {
+	    if ((rs = getla(pip)) >= 0) {
+		int	blen = cvtlen ;
 	        int	i ;
-	        int	ris[3] = { qopt_la1min, qopt_la5min, qopt_la15min } ; 
+		char	*bp = cvtbuf ;
 		for (i = 0 ; (rs >= 0) && (i < 3) ; i += 1) {
-	            rs = procla(pip,ofp,cvtbuf,cvtlen,ris[i]) ;
-	            wlen += rs ;
+	            const double	v = lip->fla[i] ;
+		    if (i > 0) {
+			*bp++ = ' ' ;
+			blen -= 1 ;
+		    }
+	            rs = ctdecf(bp,blen,v,'f',7,3,-1) ;
+		    bp += rs ;
+		    blen -= rs ;
 	        } /* end for */
-	    }
-	    cbl = 0 ;
+		cbp = cvtbuf ;
+		cbl = (bp-cvtbuf) ;
+	    } /* end if (getla) */
 	    break ;
 	case qopt_nusers:
 	    if ((rs = getnusers(pip)) >= 0) {
@@ -2303,13 +2311,13 @@ static int procsystat(PROGINFO *pip,char *cbuf,int clen,cchar *vp,int vl)
 /* end subroutine (procsystat) */
 
 
-static int procla(PROGINFO *pip,SHIO *ofp,char *cvtbuf,int cvtlen,int ri)
+static int procla(PROGINFO *pip,SHIO *ofp,char *rbuf,int rlen,int ri)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		wlen = 0 ;
 
-	cvtbuf[0] = '\0' ;
+	rbuf[0] = '\0' ;
 	if ((rs = getla(pip)) >= 0) {
 	    double	v = -1.0 ;
 
@@ -2326,8 +2334,8 @@ static int procla(PROGINFO *pip,SHIO *ofp,char *cvtbuf,int cvtlen,int ri)
 	    } /* end switch */
 
 	    if (v > -0.5) {
-	        if ((rs = ctdecf(cvtbuf,cvtlen,v,'f',7,3,-1)) >= 0) {
-	            rs = procout(pip,ofp,cvtbuf,rs) ;
+	        if ((rs = ctdecf(rbuf,rlen,v,'f',7,3,-1)) >= 0) {
+	            rs = procout(pip,ofp,rbuf,rs) ;
 	            wlen += rs ;
 		}
 	    } /* end if */

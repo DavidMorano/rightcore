@@ -863,7 +863,7 @@ badarg:
 
 
 /* ARGSUSED */
-static void sighand_int(int sn)
+static void main_sighand(int sn,siginfo_t *sip,void *vcp)
 {
 	switch (sn) {
 	case SIGINT:
@@ -927,10 +927,10 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 	if (rs >= 0) {
 	    const int	hlen = MAXHOSTNAMELEN ;
 	    char	hbuf[MAXHOSTNAMELEN+1] ;
-	    const char	*nn = pip->nodename ;
-	    const char	*dn = pip->domainname ;
+	    cchar	*nn = pip->nodename ;
+	    cchar	*dn = pip->domainname ;
 	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-	        const char	**vpp = &pip->hostname ;
+	        cchar	**vpp = &pip->hostname ;
 	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
 	    }
 	}
@@ -966,17 +966,18 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	if ((rs = vecstr_start(&names,1,0)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt ;
 
 	    if (rs >= 0) {
 	        int	ai ;
 	        int	f ;
+		cchar	**argv = aip->argv ;
 	        for (ai = 1 ; (rs >= 0) && (ai < aip->argc) ; ai += 1) {
 
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
 	                cp = aip->argv[ai] ;
 	                if (cp[0] != '\0') {
@@ -1029,7 +1030,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	    } /* end if (processing file argument file list) */
 
 	    if ((rs >= 0) && (pan == 0)) {
-	        const char	*cp = DEFPROGNAME ;
+	        cchar	*cp = DEFPROGNAME ;
 	        rs = vecstr_adduniq(&names,cp,-1) ;
 	    }
 
@@ -1070,7 +1071,7 @@ static int procnames(PROGINFO *pip,VECSTR *nlp,cchar *lp,int ll)
 	if (pip == NULL) return SR_FAULT ;
 	if ((rs = field_start(&fsb,lp,ll)) >= 0) {
 	    int		fl ;
-	    const char	*fp ;
+	    cchar	*fp ;
 	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
 	        if (fl > 0) {
 	            rs = vecstr_adduniq(nlp,fp,fl) ;
@@ -1099,7 +1100,7 @@ static int procfindps(PROGINFO *pip)
 	        cchar	*pn = PROG_PS ;
 	        char	pbuf[MAXPATHLEN+1] ;
 	        if ((rs = getprogpath(idp,&paths,pbuf,pn,-1)) >= 0) {
-	            const char	**vpp = &pip->pfname ;
+	            cchar	**vpp = &pip->pfname ;
 	            pl = rs ;
 	            rs = proginfo_setentry(pip,vpp,pbuf,pl) ;
 		}
@@ -1250,7 +1251,7 @@ static int procsearchline(PROGINFO *pip,VECSTR *nlp,char lbuf[],int len)
 
 	if ((cl = nextfield(lbuf,len,&cp)) > 0) {
 	    if ((rs = cfdeci(cp,cl,&v)) >= 0) {
-	        pid_t		pid = (pid_t) v ;
+	        const pid_t	pid = (pid_t) v ;
 	        const int	ccl = (len-((cp+cl+1)-lbuf)) ;
 	        const char	*ccp = (cp+cl+1) ;
 	        if ((cmdl = sfshrink(ccp,ccl,&cmdp)) > 0) {
@@ -1330,7 +1331,7 @@ static int prochandle(PROGINFO *pip,pid_t pid)
 #endif /* CF_ARMED */
 
 	    if (pip->debuglevel > 0) {
-	        const char	*pn = pip->progname ;
+	        cchar	*pn = pip->progname ;
 	        if (rs1 >= 0) {
 	            bprintf(pip->efp,"%s: changed pid=%u\n",pn,pid) ;
 	        } else {
@@ -1357,15 +1358,16 @@ static int prochandle(PROGINFO *pip,pid_t pid)
 
 static int proclogout(PROGINFO *pip,int scanned)
 {
-	cchar	*fmt ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	if (pip->debuglevel > 0) {
 	    if (scanned >= 0) {
 		fmt = "%s: total scanned=%u\n" ;
-	        bprintf(pip->efp,fmt,pip->progname,scanned) ;
+	        bprintf(pip->efp,fmt,pn,scanned) ;
 	    } else {
 	        fmt = "%s: error (%d)\n" ;
-	        bprintf(pip->efp,fmt,pip->progname,scanned) ;
+	        bprintf(pip->efp,fmt,pn,scanned) ;
 	    }
 	} /* end if */
 

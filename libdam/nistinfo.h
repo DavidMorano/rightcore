@@ -9,6 +9,7 @@
 #define	NISTINFO_INCLUDE	1
 
 
+#define	NISTINFO		struct nistinfo
 #define	NISTINFO_BUFSIZE	80
 #define	NISTINFO_ORGSIZE	16
 

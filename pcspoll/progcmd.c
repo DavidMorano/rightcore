@@ -50,8 +50,8 @@
 #include	<debug.h>
 #endif
 
-#include	"defs.h"
 #include	"config.h"
+#include	"defs.h"
 #include	"muximsg.h"
 
 

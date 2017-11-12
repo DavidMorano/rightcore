@@ -64,6 +64,7 @@
 #include	"config.h"
 #include	"defs.h"
 #include	"proglog.h"
+#include	"clientinfo.h"
 #include	"builtin.h"
 #include	"standing.h"
 #include	"svckey.h"

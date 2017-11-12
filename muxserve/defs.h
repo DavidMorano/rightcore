@@ -413,27 +413,6 @@ struct arginfo {
 	int		ai_pos ;
 } ;
 
-struct clientinfo {
-	SOCKADDRESS	sa ;			/* peername socket address */
-	vecstr		names ;
-	vecstr		stores ;
-	const char	*peername ;
-	const char	*netuser ;
-	const char	*netpass ;
-	const char	*netident ;
-	const char	*service ;		/* service */
-	const char	*subservice ;		/* subservice */
-	long		mtype ;			/* SYSV-IPC message type */
-	time_t		stime ;			/* start time */
-	pid_t		pid ;
-	int		salen ;			/* socket length */
-	int		nnames ;		/* number of names */
-	int		fd_input ;
-	int		fd_output ;
-	int		f_long ;		/* the "long" switch */
-	int		f_local ;		/* client is local */
-} ;
-
 /* this is similar to old NETBUF structure */
 struct resultbuf {
 	int		maxlen ;

@@ -1,2 +1,2 @@
 const char mkindexing_makedate[] =
-"@(#)/mkindexing             170823_0454:04_USEDT Rightcore Network Services" ;
+"@(#)/mkindexing             171109_0852:06_USEST Rightcore Network Services" ;

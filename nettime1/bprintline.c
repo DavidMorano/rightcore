@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 2004-02-09, David A­D­ Morano
-
 	This subroutine was originally written (due to laziness?).
-
 
 */
 

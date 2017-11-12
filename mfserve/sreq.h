@@ -32,7 +32,7 @@ struct sreq {
 	time_t		stime ;			/* start time */
 	time_t		atime ;			/* arrival? time */
 	pid_t		pid ;			/* child PID */
-	int		salen ;			/* socket length */
+	int		salen ;			/* peername socket length */
 	int		nnames ;		/* number of names */
 	int		ifd ;			/* file-descriptor input */
 	int		ofd ;			/* output */
@@ -56,8 +56,8 @@ extern int sreq_start(SREQ *,cchar *,cchar *,int,int) ;
 extern int sreq_typeset(SREQ *,int,int) ;
 extern int sreq_getfd(SREQ *) ;
 extern int sreq_havefd(SREQ *,int) ;
-extern int sreq_svcadd(SREQ *,cchar *,int) ;
-extern int sreq_setsvc(SREQ *,cchar *,int) ;
+extern int sreq_addsvc(SREQ *,cchar *,int) ;
+extern int sreq_setsvc(SREQ *,int) ;
 extern int sreq_setlong(SREQ *,int) ;
 extern int sreq_getsvc(SREQ *,cchar **) ;
 extern int sreq_getsubsvc(SREQ *,cchar **) ;

@@ -340,7 +340,8 @@ cchar		*fname ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("progkeyer: mid2 rs=%d f_start=%u\n",rs,f_start) ;
+	            debugprintf("progkeyer: mid2 rs=%d f_start=%u\n",
+			rs,f_start) ;
 #endif
 
 	        if ((rs >= 0) && f_start) {
@@ -377,9 +378,9 @@ cchar		*fname ;
 	            (! ignoreline(lp,ll,ignorechars))) {
 
 	            if ((rs = field_start(&fsb,lp,ll)) >= 0) {
-	                int		fl ;
-	                int		f_first = FALSE ;
-	                const char	*fp ;
+	                int	fl ;
+	                int	f_first = FALSE ;
+	                cchar	*fp ;
 
 	                if (pip->f.optbible) {
 

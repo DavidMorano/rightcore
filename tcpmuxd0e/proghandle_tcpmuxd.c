@@ -60,6 +60,7 @@
 
 #include	"config.h"
 #include	"defs.h"
+#include	"clientinfo.h"
 #include	"builtin.h"
 #include	"standing.h"
 
@@ -151,21 +152,21 @@ struct clientinfo	*cip ;
 {
 	vecstr		svcargs ;
 
-	int	rs = SR_OK ;
-	int	ifd = cip->fd_input ;
-	int	ofd = cip->fd_output ;
-	int	len, si ;
-	int	opts ;
-	int	svclen ;
-	int	to ;
-	int	f_socket = FALSE ;
+	int		rs = SR_OK ;
+	int		ifd = cip->fd_input ;
+	int		ofd = cip->fd_output ;
+	int		len, si ;
+	int		opts ;
+	int		svclen ;
+	int		to ;
+	int		f_socket = FALSE ;
 
 	const char	**sav ;
 	const char	*cp ;
 
-	char	timebuf[TIMEBUFLEN + 1] ;
-	char	svcspec[SVCSPECLEN + 1] ;
-	char	svcbuf[SVCSPECLEN + 1] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
+	char		svcspec[SVCSPECLEN + 1] ;
+	char		svcbuf[SVCSPECLEN + 1] ;
 
 
 	to = TO_READSVC ;

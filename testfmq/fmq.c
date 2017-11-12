@@ -142,8 +142,8 @@ static int	fmq_ei(FMQ *,sigset_t *) ;
 static int	fmq_headread(FMQ *) ;
 #endif
 
-static int	filemagic(char *,int,struct fmq_filemagic *) ;
-static int	filehead(char *,int,struct fmq_filehead *) ;
+static int	filemagic(char *,int,FMQ_FM *) ;
+static int	filehead(char *,int,FMQ_FH *) ;
 
 #if	CF_DEBUGS
 static int	debugprintstat(const char *,int) ;
@@ -159,7 +159,7 @@ static int	debugprintstat(const char *,int) ;
 int fmq_open(FMQ *op,cchar *fname,int oflags,mode_t operm,int bufsize)
 {
 	struct ustat	sb ;
-	time_t		daytime = time(NULL) ;
+	time_t		dt = time(NULL) ;
 	int		rs ;
 	int		amode ;
 	int		f_create = FALSE ;
@@ -261,8 +261,8 @@ int fmq_open(FMQ *op,cchar *fname,int oflags,mode_t operm,int bufsize)
 	debugprintf("fmq_open: f_writable=%d\n",op->f.writable) ;
 #endif
 
-	op->opentime = daytime ;
-	op->accesstime = daytime ;
+	op->opentime = dt ;
+	op->accesstime = dt ;
 	rs = u_fstat(op->fd,&sb) ;
 
 #if	CF_DEBUGS
@@ -299,7 +299,7 @@ int fmq_open(FMQ *op,cchar *fname,int oflags,mode_t operm,int bufsize)
 
 /* header processing */
 
-	rs = fmq_fileinit(op,daytime) ;
+	rs = fmq_fileinit(op,dt) ;
 
 #if	CF_DEBUGS
 	debugprintf("fmq_open: fmq_fileinit() rs=%d\n",rs) ;
@@ -370,35 +370,6 @@ int fmq_close(FMQ *op)
 /* end subroutine (fmq_close) */
 
 
-#ifdef	COMMENT
-
-int fmq_notify(FMQ *op,struct sigevent *sep)
-{
-	int		rs ;
-
-	if (op == NULL) return SR_FAULT ;
-
-	if (op ->magic != FMQ_MAGIC) return SR_NOTOPEN ;
-
-again:
-	rs = SR_OK ;
-	if ((rs = mq_notify(op->p,sep)) < -1)
-	    rs = (- errno) ;
-
-	switch (rs) {
-
-	case SR_INTR:
-	    goto again ;
-
-	} /* end switch */
-
-	return rs ;
-}
-/* end subroutine (mq_notify) */
-
-#endif /* COMMENT */
-
-
 /* get a count of the number of entries */
 int fmq_count(FMQ *op)
 {
@@ -456,7 +427,7 @@ int fmq_send(FMQ *op,const void *buf,int buflen)
 /* send a message */
 int fmq_sende(FMQ *op,const void *buf,int buflen,int to,int opts)
 {
-	ulong		starttime, endtime, daytime ;
+	ulong		starttime, endtime, dt ;
 	int		rs ;
 	int		f_infinite = FALSE ;
 	int		tlen = 0 ;
@@ -519,11 +490,9 @@ int fmq_sende(FMQ *op,const void *buf,int buflen,int to,int opts)
 
 	    msleep(1000) ;
 
-	    daytime = time(NULL) ;
+	    dt = time(NULL) ;
 
-	    if (daytime >= endtime)
-	        break ;
-
+	    if (dt >= endtime) break ;
 	} /* end while */
 
 	if ((rs == SR_AGAIN) && op->f.ndelay) {
@@ -658,7 +627,7 @@ ret0:
 
 
 /* do some checking */
-int fmq_check(FMQ *op,time_t daytime)
+int fmq_check(FMQ *op,time_t dt)
 {
 	int		rs = SR_OK ;
 	int		f = FALSE ;
@@ -670,8 +639,8 @@ int fmq_check(FMQ *op,time_t daytime)
 #endif /* CF_SAFE */
 
 	if (op->fd >= 0) {
-	    if ((!op->f.readlocked) && (!op->f.writelocked)) {
-	        if ((daytime - op->accesstime) >= TO_ACCESS) {
+	    if ((! op->f.readlocked) && (! op->f.writelocked)) {
+	        if ((dt - op->accesstime) >= TO_ACCESS) {
 	            f = TRUE ;
 		    rs = fmq_fileclose(op) ;
 		}
@@ -693,7 +662,7 @@ static int fmq_isend(FMQ *op,const void *buf,int buflen,int opts)
 	struct iovec	v[3] ;
 	sigset_t	oldsigmask ;
 	offset_t	uoff ;
-	time_t		daytime = time(NULL) ;
+	time_t		dt = time(NULL) ;
 	uint		eoff ;
 	uint		llen, dlen, len ;
 	int		rs ;
@@ -708,7 +677,7 @@ static int fmq_isend(FMQ *op,const void *buf,int buflen,int opts)
 
 /* do we have proper file access? */
 
-	rs = fmq_filecheck(op,daytime,0,0) ;
+	rs = fmq_filecheck(op,dt,0,0) ;
 	if (rs < 0)
 	    goto ret1 ;
 
@@ -726,10 +695,10 @@ static int fmq_isend(FMQ *op,const void *buf,int buflen,int opts)
 	        goto ret1 ;
 #endif /* CF_SENDCREATE */
 
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
+	    if (dt == 0)
+	        dt = time(NULL) ;
 
-	    rs = fmq_fileinit(op,daytime) ;
+	    rs = fmq_fileinit(op,dt) ;
 	    if (rs < 0)
 	        goto ret1 ;
 
@@ -815,11 +784,11 @@ static int fmq_isend(FMQ *op,const void *buf,int buflen,int opts)
 	    op->h.len += buflen ;
 	    op->h.nmsg += 1 ;
 
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
+	    if (dt == 0)
+	        dt = time(NULL) ;
 
 	    op->h.wcount += 1 ;
-	    op->h.wtime = daytime ;
+	    op->h.wtime = dt ;
 
 	    rs = fmq_headwrite(op) ;
 
@@ -854,7 +823,7 @@ static int fmq_irecv(FMQ *op,void *buf,int buflen,int opts)
 	struct ustat	sb ;
 	sigset_t	oldsigmask ;
 	offset_t	uoff ;
-	time_t		daytime = 0 ;
+	time_t		dt = 0 ;
 	uint		eoff ;
 	uint		llen, dlen, mlen, len ;
 	int		rs = SR_OK ;
@@ -894,10 +863,10 @@ static int fmq_irecv(FMQ *op,void *buf,int buflen,int opts)
 
 /* do we have proper file access? */
 
-	if (daytime == 0)
-	    daytime = time(NULL) ;
+	if (dt == 0)
+	    dt = time(NULL) ;
 
-	rs = fmq_filecheck(op,daytime,0,opts) ;
+	rs = fmq_filecheck(op,dt,0,opts) ;
 	if (rs < 0)
 	    goto ret2 ;
 
@@ -909,10 +878,10 @@ static int fmq_irecv(FMQ *op,void *buf,int buflen,int opts)
 
 	if (! op->f.fileinit) {
 
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
+	    if (dt == 0)
+	        dt = time(NULL) ;
 
-	    rs = fmq_fileinit(op,daytime) ;
+	    rs = fmq_fileinit(op,dt) ;
 	    if (rs < 0)
 	        goto ret2 ;
 
@@ -1025,11 +994,11 @@ static int fmq_irecv(FMQ *op,void *buf,int buflen,int opts)
 	    op->h.len -= mlen ;
 	    op->h.nmsg -= 1 ;
 
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
+	    if (dt == 0)
+	        dt = time(NULL) ;
 
 	    op->h.wcount += 1 ;
-	    op->h.wtime = daytime ;
+	    op->h.wtime = dt ;
 
 	    rs = fmq_headwrite(op) ;
 
@@ -1060,7 +1029,7 @@ ret0:
 
 /* check the file for coherency */
 /* ARGSUSED */
-static int fmq_filecheck(FMQ *op,time_t daytime,int f_read,int opts)
+static int fmq_filecheck(FMQ *op,time_t dt,int f_read,int opts)
 {
 	int		rs = SR_OK ;
 	int		f_changed = FALSE ;
@@ -1069,10 +1038,10 @@ static int fmq_filecheck(FMQ *op,time_t daytime,int f_read,int opts)
 
 	if (op->fd < 0) {
 
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
+	    if (dt == 0)
+	        dt = time(NULL) ;
 
-	    rs = fmq_fileopen(op,daytime) ;
+	    rs = fmq_fileopen(op,dt) ;
 	    if (rs < 0)
 	        goto ret0 ;
 
@@ -1108,10 +1077,10 @@ static int fmq_filecheck(FMQ *op,time_t daytime,int f_read,int opts)
 
 	if ((! op->f.readlocked) && (! op->f.writelocked)) {
 
-	    if (daytime == 0)
-	        daytime = time(NULL) ;
+	    if (dt == 0)
+	        dt = time(NULL) ;
 
-	    rs = fmq_lockget(op,daytime,f_read) ;
+	    rs = fmq_lockget(op,dt,f_read) ;
 	    if (rs < 0)
 	        goto ret0 ;
 
@@ -1180,8 +1149,8 @@ static int fmq_filechanged(FMQ *op)
 /* read the file header for write indications */
 
 	if (op->f.fileinit) {
-	    struct fmq_filehead	h ;
-	    char		hbuf[FMQ_TOPLEN + 1] ;
+	    FMQ_FH	h ;
+	    char	hbuf[FMQ_TOPLEN + 1] ;
 
 #if	CF_DEBUGS
 	    debugprintf("fmq_filechanged: file is inited\n") ;
@@ -1292,11 +1261,9 @@ static int fmq_buffree(FMQ *op)
 
 
 /* initialize the file header (either read it only or write it) */
-static int fmq_fileinit(op,daytime)
-FMQ		*op ;
-time_t		daytime ;
+static int fmq_fileinit(FMQ *op,time_t dt)
 {
-	struct fmq_filemagic	fm ;
+	FMQ_FM	fm ;
 	sigset_t	oldsigmask ;
 	int		rs = SR_OK ;
 	int		bl ;
@@ -1327,7 +1294,7 @@ time_t		daytime ;
 
 	        if (! op->f.writelocked) {
 
-	            rs = fmq_lockget(op,daytime,0) ;
+	            rs = fmq_lockget(op,dt,0) ;
 	            if (rs < 0)
 	                goto ret0 ;
 
@@ -1346,7 +1313,7 @@ time_t		daytime ;
 	        bl = 0 ;
 	        bl += filemagic((fbuf + bl),0,&fm) ;
 
-	        memset(&op->h,0,sizeof(struct fmq_filehead)) ;
+	        memset(&op->h,0,sizeof(FMQ_FH)) ;
 
 	        op->h.size = op->bufsize ;
 
@@ -1364,7 +1331,7 @@ time_t		daytime ;
 
 	        if (rs > 0) {
 	            op->filesize = rs ;
-	            op->mtime = daytime ;
+	            op->mtime = dt ;
 	            if (op->f.remote) {
 	                u_fsync(op->fd) ;
 		    }
@@ -1390,7 +1357,7 @@ time_t		daytime ;
 	        debugprintf("fmq_fileinit: need READ lock\n") ;
 #endif
 
-	        rs = fmq_lockget(op,daytime,0) ;
+	        rs = fmq_lockget(op,dt,0) ;
 	        if (rs < 0)
 	            goto ret0 ;
 
@@ -1472,7 +1439,7 @@ ret0:
 
 
 /* acquire access to the file */
-static int fmq_lockget(FMQ *op,time_t daytime,int f_read)
+static int fmq_lockget(FMQ *op,time_t dt,int f_read)
 {
 	int		rs = SR_OK ;
 	int		lockcmd ;
@@ -1486,7 +1453,7 @@ static int fmq_lockget(FMQ *op,time_t daytime,int f_read)
 
 	if (op->fd < 0) {
 
-	    rs = fmq_fileopen(op,daytime) ;
+	    rs = fmq_fileopen(op,dt) ;
 
 #if	CF_DEBUGS
 	    debugprintf("fmq_lockget: fmq_fileopen() rs=%d fd=%d\n",
@@ -1594,7 +1561,7 @@ static int fmq_lockrelease(FMQ *op)
 /* end subroutine (fmq_lockrelease) */
 
 
-static int fmq_fileopen(FMQ *op,time_t daytime)
+static int fmq_fileopen(FMQ *op,time_t dt)
 {
 	int		rs = SR_OK ;
 
@@ -1606,7 +1573,7 @@ static int fmq_fileopen(FMQ *op,time_t daytime)
 	    if ((rs = u_open(op->fname,op->oflags,op->operm)) >= 0) {
 		op->fd = rs ;
 		uc_closeonexec(op->fd,TRUE) ;
-		op->opentime = daytime ;
+		op->opentime = dt ;
 	    }
 	}
 
@@ -1682,7 +1649,7 @@ static int fmq_ei(FMQ *op,sigset_t *smp)
 static int filemagic(buf,f_read,mp)
 char			*buf ;
 int			f_read ;
-struct fmq_filemagic	*mp ;
+FMQ_FM		*mp ;
 {
 	int		rs = 20 ;
 	char		*bp = buf ;
@@ -1719,10 +1686,7 @@ struct fmq_filemagic	*mp ;
 
 
 /* encode or decode the file header */
-static int filehead(buf,f_read,hp)
-char			*buf ;
-int			f_read ;
-struct fmq_filehead	*hp ;
+static int filehead(char *buf,int f_read,FMQ_FH *hp)
 {
 	uint		*table = (uint *) buf ;
 

@@ -20,21 +20,24 @@
 
 #include	"config.h"
 #include	"defs.h"
+#include	"clientinfo.h"
 #include	"standing.h"
 
 
-#define	BUILTIN			struct builtin
+#define	BUILTIN_MAGIC	0x12345678
+#define	BUILTIN		struct builtin
+#define	BUILTIN_CACHE	struct builtin_cache
 
 
 struct builtin_cache {
-	time_t			boottime ;
+	time_t		boottime ;
 } ;
 
 struct builtin {
-	unsigned long		magic ;
-	struct builtin_cache	c ;
-	SVCFILE			*sfp ;
-	struct proginfo		*pip ;
+	unsigned long	magic ;
+	BUILTIN_CACHE	c ;
+	SVCFILE		*sfp ;
+	PROGINFO	*pip ;
 	uint		providerid ;
 	int		nentries ;
 	int		hostnamelen ;
@@ -43,17 +46,15 @@ struct builtin {
 
 #if	(! defined(BUILTIN_MASTER)) || (BUILTIN_MASTER == 0)
 
-extern int builtin_start(BUILTIN *,struct proginfo *) ;
+extern int builtin_start(BUILTIN *,PROGINFO *) ;
 extern int builtin_finish(BUILTIN *) ;
 extern int builtin_match(BUILTIN *,const char *) ;
 extern int builtin_enum(BUILTIN *,int,const char **) ;
-extern int builtin_execute(BUILTIN *,STANDING *,struct clientinfo *,int,
-				const char **) ;
+extern int builtin_execute(BUILTIN *,STANDING *,CLIENTINFO *,int,cchar **) ;
 
 #endif /* BUILTIN_MASTER */
 
 
 #endif /* BUILTIN_INCLUDE */
-
 
 

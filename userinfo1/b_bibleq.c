@@ -1217,11 +1217,13 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	                if (f) {
 	                    cp = argv[ai] ;
-	                    pan += 1 ;
-	                    if (lip->f.clump) {
-	                        rs = vecstr_adduniqs(&qstr,cp,-1) ;
-	                    } else {
-	                        rs = vecstr_adduniq(&qstr,cp,-1) ;
+			    if (cp[0] != '\0') {
+	                        pan += 1 ;
+	                        if (lip->f.clump) {
+	                            rs = vecstr_adduniqs(&qstr,cp,-1) ;
+	                        } else {
+	                            rs = vecstr_adduniq(&qstr,cp,-1) ;
+				}
 	                    }
 	                } /* end if (non-zero) */
 	                if (rs >= 0) rs = lib_sigterm() ;

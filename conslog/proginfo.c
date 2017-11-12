@@ -367,9 +367,9 @@ int proginfo_setprogname(PROGINFO *pip,cchar *ap)
 	if (rs >= 0) {
 	    if (((en == NULL) || (dn == NULL)) && 
 	        ((dl = sfdirname(ap,al,&dp)) > 0)) {
-	        int		f_parent = FALSE ;
-	        int		f_pwd = FALSE ;
-	        int		f = FALSE ;
+	        int	f_parent = FALSE ;
+	        int	f_pwd = FALSE ;
+	        int	f = FALSE ;
 
 #if	CF_DEBUGN
 	        nprintf(NDF,"proginfo_setprogname: dirname=%t\n",dp,dl) ;

@@ -347,17 +347,17 @@ static int	textlook_dispfinish(TEXTLOOK *) ;
 static int	textlook_indclose(TEXTLOOK *) ;
 static int	textlook_havekeys(TEXTLOOK *,TXTINDEX_TAG *,int,SEARCHKEYS *) ;
 static int	textlook_havekeyer(TEXTLOOK *,TXTINDEX_TAG *,int,
-SEARCHKEYS *,SEARCHKEYS_POP *,cchar *) ;
+			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *) ;
 static int	textlook_havekeyers(TEXTLOOK *,TXTINDEX_TAG *,int,
-SEARCHKEYS *,int,SEARCHKEYS_POP *) ;
+			SEARCHKEYS *,int,SEARCHKEYS_POP *) ;
 static int	textlook_havekeysline(TEXTLOOK *,
-SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
+			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
 static int	textlook_matchkeys(TEXTLOOK *,
-SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
+			SEARCHKEYS *,SEARCHKEYS_POP *,cchar *,int) ;
 static int	textlook_mkhkeys(TEXTLOOK *,vecstr *,SEARCHKEYS *) ;
 
 static int	textlook_lookuper(TEXTLOOK *,TEXTLOOK_CUR *,int,
-SEARCHKEYS *,cchar **) ;
+			SEARCHKEYS *,cchar **) ;
 static int	textlook_checkdisp(TEXTLOOK *,int,SEARCHKEYS *,RTAGS *) ;
 
 static int	subinfo_start(SUBINFO *) ;
@@ -921,7 +921,7 @@ static int textlook_havekeys(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
 
 
 static int textlook_havekeyer(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
-SEARCHKEYS *skp,SEARCHKEYS_POP *pkp,cchar *fn)
+		SEARCHKEYS *skp,SEARCHKEYS_POP *pkp,cchar *fn)
 {
 	const int	of = O_RDONLY ;
 	int		rs ;
@@ -949,7 +949,7 @@ SEARCHKEYS *skp,SEARCHKEYS_POP *pkp,cchar *fn)
 
 /* ARGSUSED */
 static int textlook_havekeyers(TEXTLOOK *op,TXTINDEX_TAG *tagp,int qo,
-SEARCHKEYS *skp,int fd,SEARCHKEYS_POP *pkp)
+		SEARCHKEYS *skp,int fd,SEARCHKEYS_POP *pkp)
 {
 	offset_t	recoff = tagp->recoff ;
 	offset_t	recext ;
@@ -1020,7 +1020,7 @@ int		ll ;
 
 	if ((rs = field_start(&fsb,lp,ll)) >= 0) {
 	    int		fl, sl, kl ;
-	    const char	*fp, *sp, *kp ;
+	    cchar	*fp, *sp, *kp ;
 	    char	keybuf[KEYBUFLEN + 1] ;
 
 	    while ((fl = field_word(&fsb,op->wterms,&fp)) >= 0) {
@@ -1124,12 +1124,10 @@ int		sl ;
 	} /* end if */
 #else /* CF_SINGLEWORD */
 	if ((rs = xwords_start(&xw,sp,sl)) >= 0) {
-	    int		wi ;
+	    int		wi = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
-	    f = FALSE ;
-	    wi = 0 ;
 	    while ((cl = xwords_get(&xw,wi,&cp)) > 0) {
 
 #if	CF_DEBUGS 
@@ -1178,7 +1176,7 @@ static int textlook_mkhkeys(TEXTLOOK *op,vecstr *hkp,SEARCHKEYS *skp)
 
 	if ((rs = searchkeys_curbegin(skp,&cur)) >= 0) {
 	    int		kl ;
-	    const char	*kp ;
+	    cchar	*kp ;
 
 	    while (rs >= 0) {
 
@@ -1710,7 +1708,7 @@ static int disp_worker(DISP *dop)
 	                        rs = SR_BADFMT ;
 #endif
 
-	                    if ((rs = textlook_havekeys(op,&qv,qo,skp)) >= 0) {
+	                    if ((rs = textlook_havekeys(op,&qv,qo,skp)) > 0) {
 	    			RTAGS_TAG	rt ;
 	                        c += 1 ;
 	                        rt.hash = 0 ;

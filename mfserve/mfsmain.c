@@ -192,6 +192,7 @@ extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -267,7 +268,7 @@ static int	procexecname(PROGINFO *,char *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -342,9 +343,9 @@ static const struct pivars	initvars = {
 } ;
 
 static cchar	*progmodes[] = {
-	"mfserve",
 	"tcpmuxd",
 	"fingers",
+	"mfserve",
 	NULL
 } ;
 
@@ -521,9 +522,18 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
+
+	if (rs >= 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if (ok) */
 
 	pip->verboselevel = 1 ;
 	pip->daytime = time(NULL) ;

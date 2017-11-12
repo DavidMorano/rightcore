@@ -952,8 +952,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1004,6 +1003,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->linewidth = v ;
 	}
 
+	if (afname == NULL) afname = getenv(VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getenv(VAROFNAME) ;
+
 /* load up the environment options */
 
 	if (rs >= 0) {
@@ -1045,8 +1048,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 /* other */
-
-	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
@@ -1648,18 +1649,18 @@ static int loadpvs(PROGINFO *pip,cchar *ap,int al)
 
 static int loadvzlw(PROGINFO *pip,cchar *ap,int al)
 {
-	double		percent = 0.0 ;
-	uint		vzlw = 0 ;
-	uint		vzlb = 0 ;
 	int		rs = SR_OK ;
-	int		sl, cl ;
-	const char	*tp ;
-	const char	*sp, *cp ;
+	int		sl ;
+	const char	*sp ;
 
 	if ((sl = sfshrink(ap,al,&sp)) > 0) {
+	    double	percent = 0.0 ;
+	    uint	vzlw = 0 ;
+	    uint	vzlb = 0 ;
+	    int		cl = -1 ;
+	    const char	*tp ;
+	    cchar	*cp = NULL ;
 
-	    cp = NULL ;
-	    cl = -1 ;
 	    if ((tp = strnchr(sp,sl,':')) != NULL) {
 
 	        cp = (tp + 1) ;
@@ -1693,7 +1694,7 @@ static int loadvzlw(PROGINFO *pip,cchar *ap,int al)
 
 	    } /* end if */
 
-	} /* end if */
+	} /* end if (sfshrink) */
 
 	return rs ;
 }

@@ -1,6 +1,6 @@
-/* expandcookie */
+/* expcook */
 
-/* creates the substitution varaiables for cookie escapes */
+/* Expand-Cookie - creates the substitution variables for cookie escapes */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -141,7 +141,7 @@ int expcook_finish(EXPCOOK *ecp)
 int expcook_add(EXPCOOK *ecp,cchar kbuf[],cchar vbuf[],int vlen)
 {
 	HDBSTR		*slp ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		kl ;
 
 	if (ecp == NULL) return SR_FAULT ;
@@ -159,11 +159,13 @@ int expcook_add(EXPCOOK *ecp,cchar kbuf[],cchar vbuf[],int vlen)
 		vbuf,strlinelen(vbuf,vlen,40)) ;
 #endif
 
-	if (hdbstr_fetch(slp,kbuf,kl,NULL,NULL) >= 0) {
-	    hdbstr_delkey(slp,kbuf,kl) ;
+	if ((rs = hdbstr_fetch(slp,kbuf,kl,NULL,NULL)) >= 0) {
+	    rs = hdbstr_delkey(slp,kbuf,kl) ;
+	} else if (rs == SR_NOTFOUND) {
+	    rs = SR_OK ;
 	}
 
-	if (vbuf != NULL) {
+	if ((rs >= 0) && (vbuf != NULL)) {
 	    rs = hdbstr_add(slp,kbuf,kl,vbuf,vlen) ;
 	}
 
