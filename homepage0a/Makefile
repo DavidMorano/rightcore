@@ -158,7 +158,7 @@ OBJ08=
 OBJ09=
 OBJ10= querystring.o
 OBJ11= cgi.o htm.o
-OBJ12= 
+OBJ12= svckv.o svcfileinst.o
 OBJ13= 
 OBJ14= 
 OBJ15= 
@@ -330,6 +330,10 @@ msgdata.o:		msgdata.c msgdata.h
 cgi.o:			cgi.c cgi.h
 
 htm.o:			htm.c htm.h
+
+svckv.o:		svckv.c svckv.h
+
+svcfileinst.o:		svcfileinst.c svcfileinst.h
 
 
 attachso.o:		attachso.c attachso.h

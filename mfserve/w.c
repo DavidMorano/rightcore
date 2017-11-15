@@ -199,11 +199,13 @@ static int	mfswatch_svcbegin(PROGINFO *) ;
 static int	mfswatch_svcend(PROGINFO *) ;
 
 #if	CF_SVC
-static int	mfswatch_svcfind(PROGINFO *,SREQ *) ;
-static int	mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
-static int	mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,vecstr *) ;
-static int	mfswatch_notfound(PROGINFO *,SREQ *) ;
-static int	mfswatch_jobretire(PROGINFO *,SREQ *) ;
+static int mfswatch_svcfind(PROGINFO *,SREQ *) ;
+static int mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
+static int mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,vecstr *) ;
+static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+static int mfswatch_notfound(PROGINFO *,SREQ *) ;
+static int mfswatch_jobretire(PROGINFO *,SREQ *) ;
 #endif /* CF_SVC */
 
 #if	CF_SVC && defined(COMMENT)
@@ -714,14 +716,15 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	const int	f_long = jep->f_long ;
 	int		rs ;
 	int		rs1 ;
+	cchar		*subsvc = jep->subsvc ;
 	if (sap == NULL) return SR_FAULT ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfswatch_svcproc: ent\n") ;
 #endif
-	    if ((rs = locinfo_svcload(lip,sep->svc,f_long)) >= 0) {
-		SVCENTSUB	ss ;
-	        if ((rs = svcentsub_start(&ss,lip,sep)) >= 0) {
+	if ((rs = locinfo_cooksvc(lip,sep->svc,subsvc,sap,f_long)) >= 0) {
+	    SVCENTSUB	ss ;
+	    if ((rs = svcentsub_start(&ss,lip,sep)) >= 0) {
 #if	CF_DEBUG
 		    if (DEBUGLEVEL(4)) {
 	    	    debugprintf("mfswatch_svcproc: svc=%s\n",sep->svc) ;
@@ -733,12 +736,15 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 			ss.var[svckey_so]) ;
 		    }
 #endif
-    
-    
-	            rs1 = svcentsub_finish(&ss) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (svcentsub) */
-	    } /* end if (locinfo_svcload) */
+		if ((rs = mfswatch_svcprocpass(pip,jep,sep,&ss)) == 0) {
+    		    rs = 1 ;
+		} else if ((rs = mfswatch_svcprocprog(pip,jep,sep,&ss)) == 0) {
+		    rs = 1 ;
+		}
+	        rs1 = svcentsub_finish(&ss) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (svcentsub) */
+	} /* end if (locinfo_cooksvc) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfswatch_svcproc: ret rs=%d\n",rs) ;
@@ -746,6 +752,36 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	return rs ;
 }
 /* end subroutine (mfswatch_svcproc) */
+
+
+static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+	    SVCENTSUB *ssp)
+{
+	int		rs = SR_OK ;
+	if (pip == NULL) return SR_FAULT ;
+	if (jep == NULL) return SR_FAULT ;
+	if (sep == NULL) return SR_FAULT ;
+	if (ssp == NULL) return SR_FAULT ;
+
+
+	return rs ;
+}
+/* end subroutine (mfswatch_svcprocpass) */
+
+
+static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+	    SVCENTSUB *ssp)
+{
+	int		rs = SR_OK ;
+	if (pip == NULL) return SR_FAULT ;
+	if (jep == NULL) return SR_FAULT ;
+	if (sep == NULL) return SR_FAULT ;
+	if (ssp == NULL) return SR_FAULT ;
+
+
+	return rs ;
+}
+/* end subroutine (mfswatch_svcprocprog) */
 
 
 #ifdef	COMMENT

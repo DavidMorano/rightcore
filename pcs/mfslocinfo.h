@@ -22,6 +22,7 @@
 #include	<keyopt.h>
 #include	<msfile.h>
 #include	<vecobj.h>
+#include	<vecstr.h>
 #include	<expcook.h>
 #include	<lfm.h>
 #include	<envhelp.h>
@@ -151,7 +152,7 @@ extern int	locinfo_varend(LOCINFO *) ;
 extern int	locinfo_varsub(LOCINFO *,char *,int,cchar *,int) ;
 extern int	locinfo_daemonbegin(LOCINFO *) ;
 extern int	locinfo_daemonend(LOCINFO *) ;
-extern int	locinfo_svcload(LOCINFO *,cchar *,int) ;
+extern int	locinfo_cooksvc(LOCINFO *,cchar *,cchar *,vecstr *,int) ;
 
 #ifdef	__cplusplus
 }

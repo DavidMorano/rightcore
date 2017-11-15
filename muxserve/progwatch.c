@@ -157,11 +157,11 @@ extern int	progtmpdir(PROGINFO *,char *) ;
 extern int	progipcbegin(PROGINFO *) ;
 extern int	progipcend(PROGINFO *) ;
 extern int	proghandle(PROGINFO *,
-			STANDING *,BUILTIN *,struct clientinfo *) ;
+			STANDING *,BUILTIN *,CLIENTINFO *) ;
 extern int	proglogout(PROGINFO *,const char *,const char *) ;
 extern int	progsvccheck(PROGINFO *) ;
 extern int	progacccheck(PROGINFO *) ;
-extern int	progpeername(PROGINFO *,struct clientinfo *,char *) ;
+extern int	progpeername(PROGINFO *,CLIENTINFO *,char *) ;
 
 extern int	progcmdname(PROGINFO *,int,const char **) ;
 
@@ -217,7 +217,7 @@ static int	procwatcher(PROGINFO *,SUBINFO *,vecstr *) ;
 static int	procwatchmark(PROGINFO *,SUBINFO *,int) ;
 static int	procwatchjobs(PROGINFO *,SUBINFO *) ;
 static int	procwatchpoll(PROGINFO *,SUBINFO *) ;
-static int	procwatchnew(PROGINFO *,SUBINFO *,struct clientinfo *) ;
+static int	procwatchnew(PROGINFO *,SUBINFO *,CLIENTINFO *) ;
 static int	procwatchint(PROGINFO *,SUBINFO *) ;
 static int	procwatchpollipc(PROGINFO *,SUBINFO *) ;
 static int	procwatchpolling(PROGINFO *,SUBINFO *,int,int) ;
@@ -560,7 +560,7 @@ static int procwatcher(PROGINFO *pip,SUBINFO *wip,vecstr *nlp)
 /* if we are not in daemon mode, then we have a job waiting on FD_STDIN */
 
 	if (! pip->f.daemon) {
-	    struct clientinfo	ci, *cip = &ci ;
+	    CLIENTINFO	ci, *cip = &ci ;
 
 	    if ((rs = clientinfo_start(cip)) >= 0) {
 
@@ -796,7 +796,7 @@ static int procwatchmark(PROGINFO *pip,SUBINFO *wip,int f_force)
 	    if (lsp != NULL) {
 	        if ((rs = listenspec_info(lsp,&li)) > 0) {
 		    int		ls = li.state ;
-		    const char *sn ;
+		    cchar 	*sn ;
 			    if (ls & LISTENSPEC_MDELPEND) {
 				sn = "D" ;
 			    } else if (ls & LISTENSPEC_MBROKEN) {
@@ -839,13 +839,15 @@ static int procwatchpoll(PROGINFO *pip,SUBINFO *wip)
 	    if (wip->mintpoll < 100)
 	        wip->mintpoll = 100 ;
 	    wip->mintpoll += 100 ;
-	} else
+	} else {
 	    wip->mintpoll += 10 ;
+	}
 
 	if (wip->mintpoll < 10) {
 	    wip->mintpoll = 10 ;
-	} else if (wip->mintpoll > POLLINTMULT)
+	} else if (wip->mintpoll > POLLINTMULT) {
 	    wip->mintpoll = POLLINTMULT ;
+	}
 
 	if (if_child) {
 	    if_child = FALSE ;
@@ -918,7 +920,7 @@ static int procwatchpoll(PROGINFO *pip,SUBINFO *wip)
 	    (re != 0)) {
 
 	    if ((re & POLLIN) || (re & POLLPRI)) {
-	        struct clientinfo	ci, *cip = &ci ;
+	        CLIENTINFO	ci, *cip = &ci ;
 
 	        if ((rs = clientinfo_start(&ci)) >= 0) {
 
@@ -1139,7 +1141,7 @@ static int procwatchpollipc_passfd(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 {
 	struct muximsg_response	m0 ;
 	struct muximsg_passfd	m2 ;
-	struct clientinfo	ci, *cip = &ci ;
+	CLIENTINFO	ci, *cip = &ci ;
 	PROGINFO_IPC	*ipp = &pip->ipc ;
 	uint		rc = 0 ;
 	int		rs = SR_OK ;
@@ -1701,7 +1703,7 @@ static int procwatchjobs(PROGINFO *pip,SUBINFO *wip)
 
 
 /* spawn a job */
-static int procwatchnew(PROGINFO *pip,SUBINFO *wip,struct clientinfo *cip)
+static int procwatchnew(PROGINFO *pip,SUBINFO *wip,CLIENTINFO *cip)
 {
 	JOBDB_ENT	*jep ;
 	pid_t		pid ;
@@ -2199,7 +2201,7 @@ static int procwatchpolling(PROGINFO *pip,SUBINFO *wip,int fd,int re)
 #endif
 
 	        if ((re & POLLIN) || (re & POLLPRI)) {
-	            struct clientinfo	ci, *cip = &ci ;
+	            CLIENTINFO	ci, *cip = &ci ;
 
 	            if ((rs = clientinfo_start(&ci)) >= 0) {
 

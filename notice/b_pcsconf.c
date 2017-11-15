@@ -191,6 +191,7 @@ struct locinfo_flags {
 	uint		stores:1 ;
 	uint		altuser:1 ;
 	uint		squery:1 ;
+	uint		list:1 ;
 	uint		onckey:1 ;
 	uint		prlocal:1 ;
 	uint		clustername:1 ;
@@ -241,7 +242,9 @@ static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procpcsdump(PROGINFO *,cchar *) ;
-static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+static int	proclist(PROGINFO *,SHIO *) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,SHIO *,cchar *) ;
 static int	procqueries(PROGINFO *,void *,cchar *,int) ;
 static int	procquery(PROGINFO *,void *,cchar *,int) ;
 
@@ -278,7 +281,7 @@ static int	mkpresent(char *,int,int,int,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -336,7 +339,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"squery",
 	NULL
 } ;
@@ -347,7 +350,7 @@ enum akonames {
 } ;
 
 /* define the configuration keywords */
-static cchar *qopts[] = {
+static cchar	*qopts[] = {
 	"username",
 	"nodename",
 	"domainname",
@@ -510,6 +513,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* initialize */
 
 	pip->verboselevel = 1 ;
+	if (rs >= 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        rs = optvalue(cp,-1) ;
+	        pip->debuglevel = rs ;
+	    }
+	}
 
 	pip->f.logprog = TRUE ;
 
@@ -822,16 +831,18 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                        break ;
 
-/* log file name */
+/* list mode */
 	                    case 'l':
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                pip->lfname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
+	                        lip->f.list = TRUE ;
+	                        lip->have.list = TRUE ;
+	                        lip->final.list = TRUE ;
+	                        if (f_optequal) {
+	                            f_optequal = FALSE ;
+	                            if (avl) {
+	                                rs = optbool(argp,argl) ;
+	                                lip->f.list = (rs > 0) ;
+	                            }
+	                        }
 	                        break ;
 
 /* options */
@@ -841,9 +852,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -918,6 +929,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	} /* end while (all command line argument processing) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("b_pcsconf: args rs=%d\n",rs) ;
+#endif
+
 	if (efname == NULL) efname = getourenv(envv,VAREFNAME) ;
 	if (efname == NULL) efname = getourenv(envv,VARERRORFNAME) ;
 	if (efname == NULL) efname = STDERRFNAME ;
@@ -926,22 +942,21 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->open.errfile = TRUE ;
 	    shio_control(&errfile,SHIO_CSETBUFLINE,TRUE) ;
 	} else if (! isFailOpen(rs1)) {
-	     if (rs >= 0) rs = rs1 ;
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
 	    goto badarg ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(1)) {
+	if (DEBUGLEVEL(2)) {
 	    debugprintf("b_pcsconf: debuglevel=%u\n",pip->debuglevel) ;
 	    debugprintf("b_pcsconf: sn=%s\n",sn) ;
 	}
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get our program root */
@@ -1038,6 +1053,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* go */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("b_pcsconf: go\n") ;
+#endif
+
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
 	ainfo.argc = argc ;
 	ainfo.ai = ai ;
@@ -1047,26 +1067,26 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (rs >= 0) {
 	    USERINFO	u ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    if ((rs = userinfo_start(&u,un)) >= 0) {
 	        if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
 	            PCSCONF	pc, *pcp = &pc ;
-		    cchar	*pr = pip->pr ;
+	            cchar	*pr = pip->pr ;
 	            if (cfname != NULL) {
 	                if (pip->euid != pip->uid) u_seteuid(pip->uid) ;
 	                if (pip->egid != pip->gid) u_setegid(pip->gid) ;
-	                if (pip->open.logprog)
-	                    logfile_printf(&pip->lh,"conf=%s",cfname) ;
+	                logfile_printf(&pip->lh,"conf=%s",cfname) ;
 	                if (pip->debuglevel > 0) {
-	                    shio_printf(pip->efp,"%s: conf=%s\n",
-	                        pip->progname,cfname) ;
-		        }
+	                    shio_printf(pip->efp,"%s: conf=%s\n",pn,cfname) ;
+	                }
 	            }
 	            if ((rs = pcsconf_start(pcp,pr,envv,cfname)) >= 0) {
 	                pip->pcsconf = pcp ;
 	                pip->open.pcsconf = TRUE ;
 	                if ((rs = procpcsconf_begin(pip,pcp)) >= 0) {
-	                    PCSPOLL		poll ;
-			    cchar		*sn = pip->searchname ;
+	                    PCSPOLL	poll ;
+	                    cchar	*sn = pip->searchname ;
 	                    if ((rs = pcspoll_start(&poll,pcp,sn)) >= 0) {
 	                        if ((rs = proglog_begin(pip,&u)) >= 0) {
 	                            if ((rs = proguserlist_begin(pip)) >= 0) {
@@ -1075,21 +1095,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	                                if (dfname != NULL) {
 	                                    rs = procpcsdump(pip,dfname) ;
-				        }
+	                                }
 
-#if	CF_PROCARGS
 	                                if (rs >= 0) {
-					    ARGINFO		*aip = &ainfo ;
-					    BITS		*bop = &pargs ;
-	                                    rs = procargs(pip,aip,bop,ofn,afn) ;
-				        }
+	                                    ARGINFO	*aip = &ainfo ;
+	                                    BITS	*bop = &pargs ;
+	                                    rs = process(pip,aip,bop,ofn,afn) ;
+	                                }
 
 #if	CF_DEBUG
 	                                if (DEBUGLEVEL(2))
 	                                    debugprintf("b_pcsconf: "
 	                                        "procargs() rs=%d\n", rs) ;
 #endif
-#endif /* CF_PROCARGS */
 
 	                                rs1 = proguserlist_end(pip) ;
 	                                if (rs >= 0) rs = rs1 ;
@@ -1120,8 +1138,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        rs1 = userinfo_finish(&u) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } else {
-		cchar	*pn = pip->progname ;
-		cchar	*fmt = "%s: userinfo failure (%d)\n" ;
+	        fmt = "%s: userinfo failure (%d)\n" ;
 	        ex = EX_NOUSER ;
 	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    } /* end if */
@@ -1301,7 +1318,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_squery:
 	                    if (! lip->final.squery) {
 	                        lip->have.squery = TRUE ;
@@ -1313,11 +1329,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1334,6 +1348,441 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procopts) */
+
+
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
+{
+	LOCINFO		*lip = pip->lip ;
+	SHIO		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("main/process: ent ofn=%s\n",ofn) ;
+	    debugprintf("main/process: f_list=%u\n",lip->f.list) ;
+	}
+#endif
+
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
+
+	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
+	    if (lip->f.list) {
+	        rs = proclist(pip,ofp) ;
+	    } else {
+	        rs = procargs(pip,aip,bop,ofp,afn) ;
+	    }
+	    rs1 = shio_close(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else {
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/process: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (process) */
+
+
+static int proclist(PROGINFO *pip,SHIO *ofp)
+{
+	PCSCONF		*pcp = pip->pcsconf ;
+	PCSCONF_CUR	cur ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/proclist: ent\n") ;
+#endif
+
+	if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
+	    const int	klen = KBUFLEN ;
+	    const int	vlen = VBUFLEN ;
+	    int		vl ;
+	    int		nfs ;
+	    char	kbuf[KBUFLEN+1] ;
+	    char	vbuf[VBUFLEN+1] ;
+	    while (rs >= 0) {
+	        vl = pcsconf_enum(pcp,&cur,kbuf,klen,vbuf,vlen) ;
+	        if (vl == SR_NOTFOUND) break ;
+	        if ((nfs = nchr(vbuf,vl,CH_FS)) > 0) {
+	            rs = mkpresent(vbuf,vlen,vl,CH_FS,nfs) ;
+	            vl = rs ;
+	        }
+		if (rs >= 0) {
+	            rs = shio_printf(ofp,"%s=%t\n",kbuf,vbuf,vl) ;
+	            wlen += rs ;
+	        }
+	    } /* end while */
+	    rs1 = pcsconf_curend(pcp,&cur) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (pcsconf-cursor) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/proclist: ret rs=%d\n",rs) ;
+#endif
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (proclist) */
+
+
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,SHIO *ofp,cchar *afn)
+{
+	int		pan = 0 ;
+	int		cl ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
+	cchar		*cp ;
+
+	if (rs >= 0) {
+	    int		ai ;
+	    int		f ;
+	    cchar	**argv = aip->argv ;
+	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
+
+	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	        f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	        if (f) {
+	            cp = aip->argv[ai] ;
+	            if (cp[0] != '\0') {
+	                pan += 1 ;
+	                rs = procquery(pip,ofp,cp,-1) ;
+	            }
+	        }
+
+	        if (rs < 0) break ;
+	    } /* end for (loading positional arguments) */
+	} /* end if */
+
+	if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	    SHIO	afile, *afp = &afile ;
+
+	    if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
+
+	    if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        int		len ;
+	        char		lbuf[LINEBUFLEN + 1] ;
+
+	        while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
+	            len = rs ;
+
+	            if (lbuf[len - 1] == '\n') len -= 1 ;
+	            lbuf[len] = '\0' ;
+
+	            if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
+	                if (cp[0] != '#') {
+	                    pan += 1 ;
+	                    rs = procqueries(pip,ofp,cp,cl) ;
+	                }
+	            } /* end if (sfskipwhite) */
+
+	            if (rs < 0) break ;
+	        } /* end while (reading lines) */
+
+	        rs1 = shio_close(afp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        fmt = "%s: inaccessible argument-list (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	        shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	    } /* end if */
+
+	} /* end if (processing file argument file list) */
+
+	return rs ;
+}
+/* end subroutine (proargs) */
+
+
+static int procqueries(PROGINFO *pip,void *ofp,cchar *ap,int al)
+{
+	FIELD		fsb ;
+	int		rs ;
+	int		c = 0 ;
+	if ((rs = field_start(&fsb,ap,al)) >= 0) {
+	    int		fl ;
+	    cchar	*fp ;
+	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
+	        if (fl > 0) {
+	            rs = procquery(pip,ofp,fp,fl) ;
+	            c += rs ;
+	        }
+	        if (fsb.term == '#') break ;
+	        if (rs < 0) break ;
+	    } /* end while */
+	    field_finish(&fsb) ;
+	} /* end if (field) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procqueries) */
+
+
+static int procquery(PROGINFO *pip,void *ofp,cchar *qp,int ql)
+{
+	LOCINFO		*lip = pip->lip ;
+	PCSCONF		*pcp = pip->pcsconf ;
+	const int	vlen = VBUFLEN ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		vl = -1 ;
+	int		qi ;
+	int		c = 0 ;
+	int		wlen = 0 ;
+	char		vbuf[VBUFLEN + 1] ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/procquery: query=%t\n",qp,ql) ;
+#endif
+
+	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: query=%t\n" ;
+	    shio_printf(pip->efp,fmt,pn,qp,ql) ;
+	}
+
+	if (! lip->f.squery) {
+	    PCSCONF_CUR	cur ;
+	    int		nfs ;
+	    if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
+	        while ((vl = pcsconf_fetch(pcp,qp,ql,&cur,vbuf,vlen)) >= 0) {
+	            c += 1 ;
+	            if ((nfs = nchr(vbuf,vl,CH_FS)) > 0) {
+	                rs = mkpresent(vbuf,vlen,vl,CH_FS,nfs) ;
+	                vl = rs ;
+	            }
+	            if (rs >= 0) {
+	                rs = shio_print(ofp,vbuf,vl) ;
+	                wlen += rs ;
+	            } /* end if */
+	            if (rs < 0) break ;
+	        } /* end while (PCS-conf fetch) */
+	        rs1 = pcsconf_curend(pcp,&cur) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (cursor) */
+	} /* end if (special-only query) */
+
+	if ((rs >= 0) && (c == 0)) {
+	    if ((qi = matstr(qopts,qp,ql)) >= 0) {
+	        cchar	*vp = NULL ;
+	        int	vl = -1 ;
+	        int	v ;
+
+	        switch (qi) {
+	        case qopt_nisdomain:
+	            if ((rs = locinfo_nisdomain(lip)) >= 0) {
+	                vp = lip->nisdomain ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_systemname:
+	            if ((rs = locinfo_systemname(lip)) >= 0) {
+	                vp = lip->systemname ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_clustername:
+	            if ((rs = locinfo_clustername(lip)) >= 0) {
+	                vp = lip->clustername ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_pcsuid:
+	        case qopt_pcsgid:
+	            if ((rs = locinfo_pcsids(lip)) >= 0) {
+	                switch (qi) {
+	                case qopt_pcsuid:
+	                    v = lip->uid_pcs ;
+	                    break ;
+	                case qopt_pcsgid:
+	                    v = lip->gid_pcs ;
+	                    break ;
+	                }
+	                rs = ctdeci(vbuf,vlen,v) ;
+			vl = rs ;
+	                vp = vbuf ;
+	            } /* end if (locinfo-pcsids) */
+	            break ;
+	        case qopt_pcsusername:
+	            if ((rs = locinfo_pcsusername(lip)) >= 0) {
+	                vp = lip->pcsusername ;
+	                vl = rs ;
+	            } /* end if (locinfo-pcsusername) */
+	            break ;
+	        case qopt_pcsdeforg:
+	            if ((rs = locinfo_pcsdeforg(lip)) >= 0) {
+	                vp = lip->pcsdeforg ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_pcsorg:
+	            if ((rs = locinfo_pcsorg(lip)) >= 0) {
+	                vp = lip->pcsorg ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_username:
+	            vp = pip->username ;
+	            break ;
+	        case qopt_nodename:
+	            vp = pip->nodename ;
+	            break ;
+	        case qopt_domainname:
+	            vp = pip->domainname ;
+	            break ;
+	        case qopt_gecosname:
+	            vp = pip->gecosname ;
+	            break ;
+	        case qopt_realname:
+	            vp = pip->realname ;
+	            break ;
+	        case qopt_name:
+	        case qopt_pcsname:
+	            if ((rs = locinfo_name(lip)) >= 0) {
+	                vp = lip->name ;
+			vl = rs ;
+	            }
+	            break ;
+	        case qopt_fullname:
+	        case qopt_pcsfullname:
+	            if ((rs = locinfo_fullname(lip)) >= 0) {
+	                vp = lip->fullname ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_mailname:
+	            vp = pip->mailname ;
+	            break ;
+	        case qopt_org:
+	            if ((rs = locinfo_org(lip)) >= 0) {
+	                vp = lip->org ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_logname:
+	            if ((rs = getlogname(vbuf,vlen)) >= 0) {
+	                vp = vbuf ;
+			vl = rs ;
+	            } else if (isNotPresent(rs)) {
+	                rs = SR_OK ;
+	            }
+	            break ;
+	        case qopt_hostname:
+	            if (pip->nodename) {
+	                cchar	*nn = pip->nodename ;
+	                cchar	*dn = pip->domainname ;
+	                if (dn != NULL) {
+	                    rs = snsds(vbuf,vlen,nn,dn) ;
+			    vl = rs ;
+	                    vp = vbuf ;
+	                }
+	            } /* end if (nodename) */
+	            break ;
+	        case qopt_ema:
+	            if (lip->ema == NULL) rs = locinfo_ema(lip) ;
+	            vp = lip->ema ;
+	            break ;
+	        case qopt_facility:
+	            if ((rs = locinfo_facility(lip)) >= 0) {
+	                vp = lip->facility ;
+	                vl = rs ;
+	            }
+	            break ;
+	        case qopt_pr:
+	            vp = pip->pr ;
+	            break ;
+	        } /* end switch */
+
+	        if ((rs >= 0) && (vp != NULL)) {
+	            c += 1 ;
+	            rs = shio_print(ofp,vp,vl) ;
+	            wlen += rs ;
+	        }
+
+	    } /* end if */
+	} /* end if (not found yet) */
+
+	if ((rs >= 0) && (c == 0)) {
+	    rs = shio_print(ofp,"*",1) ;
+	    wlen += rs ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/procquery: ret rs=%d c=%u\n",rs,c) ;
+#endif
+
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procquery) */
+
+
+static int procpcsdump(PROGINFO *pip,cchar *dfname)
+{
+	SHIO		dfile, *dfp = &dfile ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		wlen = 0 ;
+
+	if ((dfname != NULL) && ((dfname[0] == '\0') || (dfname[0] == '-')))
+	    dfname = STDOUTFNAME ;
+
+	if (pip->open.pcsconf && (dfname != NULL)) {
+	    PCSCONF	*pcp = pip->pcsconf ;
+	    if ((rs = shio_open(dfp,dfname,"wct",0666)) >= 0) {
+	        PCSCONF_CUR	cur ;
+	        if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
+	            const int	klen = KBUFLEN ;
+	            const int	vlen = VBUFLEN ;
+	            int		vl ;
+	            int		nfs ;
+	            char	kbuf[KBUFLEN+1] ;
+	            char	vbuf[VBUFLEN+1] ;
+	            while (rs >= 0) {
+	                vl = pcsconf_enum(pcp,&cur,kbuf,klen,vbuf,vlen) ;
+	                if (vl == SR_NOTFOUND) break ;
+	                if ((nfs = nchr(vbuf,vl,CH_FS)) > 0) {
+	                    rs = mkpresent(vbuf,vlen,vl,CH_FS,nfs) ;
+	                    vl = rs ;
+	                }
+			if (rs >= 0) {
+	                    rs = shio_printf(dfp,"%s=%t\n",kbuf,vbuf,vl) ;
+	                    wlen += rs ;
+			}
+	            } /* end while */
+	            rs1 = pcsconf_curend(pcp,&cur) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (cursor) */
+	        rs1 = shio_close(dfp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } else {
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt ;
+	        fmt = "%s: inaccessible dump-file (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	        shio_printf(pip->efp,"%s: dfile=%s\n",pn,dfname) ;
+	    } /* end if (opened-file) */
+	} /* end if (PCSCONF opened) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procpcsdump) */
 
 
 static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
@@ -1465,358 +1914,6 @@ static int procpcsconf_end(PROGINFO *pip)
 /* end subroutine (procpcsconf_end) */
 
 
-static int procpcsdump(PROGINFO *pip,cchar *dfname)
-{
-	SHIO		dfile, *dfp = &dfile ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		wlen = 0 ;
-
-	if ((dfname != NULL) && ((dfname[0] == '\0') || (dfname[0] == '-')))
-	    dfname = STDOUTFNAME ;
-
-	if (pip->open.pcsconf && (dfname != NULL)) {
-	    PCSCONF	*pcp = pip->pcsconf ;
-	    if ((rs = shio_open(dfp,dfname,"wct",0666)) >= 0) {
-	        PCSCONF_CUR	cur ;
-	        if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
-	            const int	klen = KBUFLEN ;
-	            const int	vlen = VBUFLEN ;
-	            int		vl ;
-	            int		nfs ;
-	            char	kbuf[KBUFLEN+1] ;
-	            char	vbuf[VBUFLEN+1] ;
-	            while (rs >= 0) {
-	                vl = pcsconf_enum(pcp,&cur,kbuf,klen,vbuf,vlen) ;
-	                if (vl == SR_NOTFOUND) break ;
-	                if ((nfs = nchr(vbuf,vl,CH_FS)) > 0) {
-	                    rs = mkpresent(vbuf,vlen,vl,CH_FS,nfs) ;
-	                    vl = rs ;
-	                }
-	                rs = shio_printf(dfp,"%s=%t\n",kbuf,vbuf,vl) ;
-	                wlen += rs ;
-	            } /* end while */
-	            pcsconf_curend(pcp,&cur) ;
-	        } /* end if (cursor) */
-	        rs1 = shio_close(dfp) ;
-		if (rs >= 0) rs = rs1 ;
-	    } else {
-		cchar	*pn = pip->progname ;
-		cchar	*fmt ;
-		fmt = "%s: inaccessible dump-file (%d)\n" ;
-	        shio_printf(pip->efp,fmt,pn,rs) ;
-	        shio_printf(pip->efp,"%s: dfile=%s\n",pn,dfname) ;
-	    } /* end if (opened-file) */
-	} /* end if (PCSCONF opened) */
-
-	return (rs >= 0) ? wlen : rs ;
-}
-/* end subroutine (procpcsdump) */
-
-
-static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
-{
-	SHIO		ofile, *ofp = &ofile ;
-	int		rs ;
-	int		rs1 ;
-	cchar		*pn = pip->progname ;
-	cchar		*fmt ;
-
-	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
-	    ofn = STDOUTFNAME ;
-
-	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
-	    int		pan = 0 ;
-	    int		cl ;
-	    cchar	*cp ;
-
-	    if (rs >= 0) {
-	        int	ai ;
-	        int	f ;
-	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
-
-	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
-	            if (f) {
-	                cp = aip->argv[ai] ;
-	                if (cp[0] != '\0') {
-	                    pan += 1 ;
-	                    rs = procquery(pip,ofp,cp,-1) ;
-	                }
-	            }
-
-	            if (rs < 0) break ;
-	        } /* end for (loading positional arguments) */
-	    } /* end if */
-
-	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	        SHIO	afile, *afp = &afile ;
-
-	        if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
-
-	        if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
-	            const int	llen = LINEBUFLEN ;
-	            int		len ;
-	            char	lbuf[LINEBUFLEN + 1] ;
-
-	            while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
-	                len = rs ;
-
-	                if (lbuf[len - 1] == '\n') len -= 1 ;
-	                lbuf[len] = '\0' ;
-
-	                if ((cl = sfskipwhite(lbuf,len,&cp)) > 0) {
-	                    if (cp[0] != '#') {
-	                        pan += 1 ;
-	                        rs = procqueries(pip,ofp,cp,cl) ;
-	                    }
-	                } /* end if (sfskipwhite) */
-
-	                if (rs < 0) break ;
-	            } /* end while (reading lines) */
-
-	            rs1 = shio_close(afp) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } else {
-		    fmt = "%s: inaccessible argument-list (%d)\n" ;
-	            shio_printf(pip->efp,fmt,pn,rs) ;
-	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
-	        } /* end if */
-
-	    } /* end if (processing file argument file list) */
-
-	    rs1 = shio_close(ofp) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    fmt = "%s: inaccessible output (%d)\n" ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
-	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
-	}
-
-	return rs ;
-}
-/* end subroutine (procargs) */
-
-
-static int procqueries(PROGINFO *pip,void *ofp,cchar *ap,int al)
-{
-	FIELD		fsb ;
-	int		rs ;
-	int		c = 0 ;
-	if ((rs = field_start(&fsb,ap,al)) >= 0) {
-	    int		fl ;
-	    cchar	*fp ;
-	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
-	        if (fl > 0) {
-	            rs = procquery(pip,ofp,fp,fl) ;
-	            c += rs ;
-	        }
-	        if (fsb.term == '#') break ;
-	        if (rs < 0) break ;
-	    } /* end while */
-	    field_finish(&fsb) ;
-	} /* end if (field) */
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (procqueries) */
-
-
-static int procquery(PROGINFO *pip,void *ofp,cchar *qp,int ql)
-{
-	LOCINFO		*lip = pip->lip ;
-	PCSCONF		*pcp = pip->pcsconf ;
-	const int	vlen = VBUFLEN ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		vl = -1 ;
-	int		qi ;
-	int		c = 0 ;
-	int		wlen = 0 ;
-	char		vbuf[VBUFLEN + 1] ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procquery: query=%t\n",qp,ql) ;
-#endif
-
-	if (pip->debuglevel > 0) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt = "%s: query=%t\n" ;
-	    shio_printf(pip->efp,fmt,pn,qp,ql) ;
-	}
-
-	if (! lip->f.squery) {
-	    PCSCONF_CUR	cur ;
-	    int		nfs ;
-	    if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
-	        while ((vl = pcsconf_fetch(pcp,qp,ql,&cur,vbuf,vlen)) >= 0) {
-	            c += 1 ;
-	            if ((nfs = nchr(vbuf,vl,CH_FS)) > 0) {
-	                rs = mkpresent(vbuf,vlen,vl,CH_FS,nfs) ;
-	                vl = rs ;
-	            }
-	            if (rs >= 0) {
-	                rs = shio_print(ofp,vbuf,vl) ;
-	                wlen += rs ;
-	            } /* end if */
-	            if (rs < 0) break ;
-	        } /* end while (PCS-conf fetch) */
-	        rs1 = pcsconf_curend(pcp,&cur) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (cursor) */
-	} /* end if */
-
-	if ((rs >= 0) && (c == 0)) {
-	    if ((qi = matstr(qopts,qp,ql)) >= 0) {
-	        cchar	*vp = NULL ;
-	        int	vl = -1 ;
-	        int	v ;
-
-	        switch (qi) {
-	        case qopt_nisdomain:
-		    if ((rs = locinfo_nisdomain(lip)) >= 0) {
-			vl = rs ;
-	                vp = lip->nisdomain ;
-		    }
-	            break ;
-	        case qopt_systemname:
-	            if ((rs = locinfo_systemname(lip)) >= 0) {
-			vl = rs ;
-	                vp = lip->systemname ;
-		    }
-	            break ;
-	        case qopt_clustername:
-	            if ((rs = locinfo_clustername(lip)) >= 0) {
-			vl = rs ;
-	                vp = lip->clustername ;
-		    }
-	            break ;
-	        case qopt_pcsuid:
-	        case qopt_pcsgid:
-	            if ((rs = locinfo_pcsids(lip)) >= 0) {
-	                switch (qi) {
-	                case qopt_pcsuid:
-	                    v = lip->uid_pcs ;
-	                    break ;
-	                case qopt_pcsgid:
-	                    v = lip->gid_pcs ;
-	                    break ;
-	                }
-	                rs = ctdeci(vbuf,vlen,v) ;
-	                vp = vbuf ;
-	            } /* end if (locinfo-pcsids) */
-	            break ;
-	        case qopt_pcsusername:
-	            if ((rs = locinfo_pcsusername(lip)) >= 0) {
-	                vp = lip->pcsusername ;
-	            } /* end if (locinfo-pcsusername) */
-	            break ;
-	        case qopt_pcsdeforg:
-	            if ((rs = locinfo_pcsdeforg(lip)) >= 0) {
-	                vp = lip->pcsdeforg ;
-			vl = rs ;
-		    }
-	            break ;
-	        case qopt_pcsorg:
-	            if ((rs = locinfo_pcsorg(lip)) >= 0) {
-	                vp = lip->pcsorg ;
-			vl = rs ;
-		    }
-	            break ;
-	        case qopt_username:
-	            vp = pip->username ;
-	            break ;
-	        case qopt_nodename:
-	            vp = pip->nodename ;
-	            break ;
-	        case qopt_domainname:
-	            vp = pip->domainname ;
-	            break ;
-	        case qopt_gecosname:
-	            vp = pip->gecosname ;
-	            break ;
-	        case qopt_realname:
-	            vp = pip->realname ;
-	            break ;
-	        case qopt_name:
-	        case qopt_pcsname:
-	            if (lip->name == NULL) {
-	                rs = locinfo_name(lip) ;
-		    }
-	            vp = lip->name ;
-	            break ;
-	        case qopt_fullname:
-	        case qopt_pcsfullname:
-	            if ((rs = locinfo_fullname(lip)) >= 0) {
-	                vp = lip->fullname ;
-			vl = rs ;
-		    }
-	            break ;
-	        case qopt_mailname:
-	            vp = pip->mailname ;
-	            break ;
-	        case qopt_org:
-	            if ((rs = locinfo_org(lip)) >= 0) {
-	                vp = lip->org ;
-	                vl = rs ;
-	            }
-	            break ;
-	        case qopt_logname:
-	            if ((rs = getlogname(vbuf,vlen)) >= 0) {
-	                vp = vbuf ;
-		    } else if (isNotPresent(rs)) {
-			rs = SR_OK ;
-		    }
-	            break ;
-	        case qopt_hostname:
-	            if (pip->nodename) {
-	                cchar	*nn = pip->nodename ;
-	                cchar	*dn = pip->domainname ;
-	                if (dn != NULL) {
-	                    rs = snsds(vbuf,vlen,nn,dn) ;
-	                    vp = vbuf ;
-	                }
-	            } /* end if (nodename) */
-	            break ;
-	        case qopt_ema:
-	            if (lip->ema == NULL) rs = locinfo_ema(lip) ;
-	            vp = lip->ema ;
-	            break ;
-	        case qopt_facility:
-	            if ((rs = locinfo_facility(lip)) >= 0) {
-	                vl = rs ;
-	                vp = lip->facility ;
-	            }
-	            break ;
-	        case qopt_pr:
-	            vp = pip->pr ;
-	            break ;
-	        } /* end switch */
-
-	        if ((rs >= 0) && (vp != NULL)) {
-	            c += 1 ;
-	            rs = shio_print(ofp,vp,vl) ;
-	            wlen += rs ;
-	        }
-
-	    } /* end if */
-	} /* end if (not found yet) */
-
-	if ((rs >= 0) && (c == 0)) {
-	    rs = shio_print(ofp,"*",1) ;
-	    wlen += rs ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/procquery: ret rs=%d c=%u\n",rs,c) ;
-#endif
-
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (procquery) */
-
-
 static int mkpresent(char *vbuf,int vlen,int vl,int sch,int sn)
 {
 	const int	tlen = (vlen+(3*sn)) ;
@@ -1875,8 +1972,7 @@ static int locinfo_finish(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	if (lip->open.ns) {
 	    lip->open.ns = FALSE ;
@@ -1913,7 +2009,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(slp,*epp) ;
+	        oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
@@ -1964,7 +2060,7 @@ static int locinfo_nisdomain(LOCINFO *lip)
 	    const int	dlen = MAXHOSTNAMELEN ;
 	    int		dl = -1 ;
 	    cchar	*dp = NULL ;
-	    char	dbuf[MAXHOSTNAMELEN+ 1] ;
+	    char	dbuf[MAXHOSTNAMELEN+ 1] = { 0 } ;
 	    lip->f.nisdomain = TRUE ;
 
 	    if (! lip->f.altuser) {
@@ -2008,26 +2104,27 @@ static int locinfo_systemname(LOCINFO *lip)
 	            char	cbuf[NODENAMELEN+1] ;
 	            char	sbuf[NODENAMELEN+1] ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-		debugprintf("pcsconf/locinfo_systemname: "
-		"prlocal=%s nn=%s\n",prlocal,nn) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("pcsconf/locinfo_systemname: "
+	                    "prlocal=%s nn=%s\n",prlocal,nn) ;
 #endif
-	        if ((rs = getnodeinfo(prlocal,cbuf,sbuf,NULL,nn)) >= 0) {
-	            cchar	**vpp = &lip->systemname ;
-	            if ((rs = locinfo_setentry(lip,vpp,sbuf,-1)) >= 0) {
-	                len = rs ;
-	                if ((lip->clustername == NULL) && (cbuf[0] != '\0')) {
-	                    cchar	**vpp = &lip->clustername ;
-	                    rs = locinfo_setentry(lip,vpp,cbuf,-1) ;
+	            if ((rs = getnodeinfo(prlocal,cbuf,sbuf,NULL,nn)) >= 0) {
+	                cchar	**vpp = &lip->systemname ;
+	                if ((rs = locinfo_setentry(lip,vpp,sbuf,-1)) >= 0) {
+			    cchar	*cn = lip->clustername ;
+	                    len = rs ;
+	                    if (( cn == NULL) && (cbuf[0] != '\0')) {
+	                        cchar	**vpp = &lip->clustername ;
+	                        rs = locinfo_setentry(lip,vpp,cbuf,-1) ;
+	                    }
 	                }
-	            }
-	        } /* end if (getnodeinfo) */
+	            } /* end if (getnodeinfo) */
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	   	 debugprintf("pcsconf/locinfo_systemname: "
-		"getnodeindo-out rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("pcsconf/locinfo_systemname: "
+	                    "getnodeindo-out rs=%d\n",rs) ;
 #endif
-		} /* end if (locinfo_prlocal) */
+	        } /* end if (locinfo_prlocal) */
 	    } /* end if (locinfo_nodename) */
 	} else {
 	    len = strlen(lip->systemname) ;
@@ -2036,7 +2133,7 @@ static int locinfo_systemname(LOCINFO *lip)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("pcsconf/locinfo_systemname: ret rs=%d len=%u\n",
-		rs,len) ;
+	        rs,len) ;
 #endif
 
 	return (rs >= 0) ? len : rs ;
@@ -2054,7 +2151,7 @@ static int locinfo_clustername(LOCINFO *lip)
 	    const int	nlen = NODENAMELEN ;
 	    int		nl = -1 ;
 	    cchar	*np = NULL ;
-	    char	nbuf[NODENAMELEN+ 1] ;
+	    char	nbuf[NODENAMELEN+ 1] = { 0 } ;
 	    lip->f.clustername = TRUE ;
 
 	    if (! lip->f.altuser) {
@@ -2122,25 +2219,25 @@ static int locinfo_org(LOCINFO *lip)
 	    const int	rlen = ORGLEN ;
 	    int		rl = -1 ;
 	    cchar	*rp = pip->org ;
-	    char	rbuf[ORGLEN+ 1] ;
+	    char	rbuf[ORGLEN+ 1] = { 0 } ;
 	    lip->f.org = TRUE ;
 
 	    if ((rp == NULL) || (rp[0] == '\0')) {
 	        const int	w = pcsnsreq_pcsorg ;
 	        cchar		*un = pip->username ;
-		if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
+	        if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
 	            rl = rs ;
 	            rp = rbuf ;
 	        } else {
-		    if (pip->open.logprog) {
+	            if (pip->open.logprog) {
 	                logfile_printf(&pip->lh,"no ORG (%d)",rs) ;
-		    }
-		    if (isNotPresent(rs)) rs = SR_OK ;
+	            }
+	            if (isNotPresent(rs)) rs = SR_OK ;
 	        }
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(5)) {
 	            debugprintf("b_pcsconf/locinfo_org: pcsnsget() rs=%d\n",
-			rs) ;
+	                rs) ;
 	            debugprintf("b_pcsconf/locinfo_org: r=>%t<\n",rp,rl) ;
 	        }
 #endif /* CF_DEBUG */
@@ -2176,7 +2273,7 @@ static int locinfo_pcsorg(LOCINFO *lip)
 	    const int	rlen = ORGLEN ;
 	    int		rl = -1 ;
 	    cchar	*rp = NULL ;
-	    char	rbuf[ORGLEN+ 1] ;
+	    char	rbuf[ORGLEN+ 1] = { 0 } ;
 	    lip->f.pcsorg = TRUE ;
 
 	    if (! lip->f.altuser) {
@@ -2186,14 +2283,14 @@ static int locinfo_pcsorg(LOCINFO *lip)
 	    if (rp == NULL) {
 	        const int	w = pcsnsreq_pcsorg ;
 	        cchar		*un = pip->username ;
-		if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
+	        if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
 	            rl = rs ;
 	            rp = rbuf ;
 	        } else {
-		    if (pip->open.logprog) {
+	            if (pip->open.logprog) {
 	                logfile_printf(&pip->lh,"no PCSORG (%d)",rs) ;
-		    }
-		    if (isNotPresent(rs)) rs = SR_OK ;
+	            }
+	            if (isNotPresent(rs)) rs = SR_OK ;
 	        }
 	    }
 
@@ -2227,11 +2324,6 @@ static int locinfo_pcsdeforg(LOCINFO *lip)
 	        cchar	*un = pip->username ;
 	        cchar	*pr = pip->pr ;
 	        if ((rs = pcsgetorg(pr,rbuf,rlen,un)) >= 0) {
-#if	CF_DEBUG
-		    if (DEBUGLEVEL(4))
-			debugprintf("pcsconf/locinfo_pcsdeforg: "
-				"pcsgetorg() rs=%d\n",rs) ;
-#endif
 	            rl = rs ;
 	            rp = rbuf ;
 	        } else if (isNotPresent(rs)) {
@@ -2246,9 +2338,9 @@ static int locinfo_pcsdeforg(LOCINFO *lip)
 	        cchar	**vpp = &lip->pcsdeforg ;
 	        rs = locinfo_setentry(lip,vpp,rp,rl) ;
 #if	CF_DEBUG
-		if (DEBUGLEVEL(4))
-		debugprintf("pcsconf/locinfo_pcsdeforg: "
-		"locinfo_setentry() rs=%d\n", rs) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("pcsconf/locinfo_pcsdeforg: "
+	                "locinfo_setentry() rs=%d\n",rs) ;
 #endif
 	    }
 
@@ -2258,7 +2350,7 @@ static int locinfo_pcsdeforg(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("pcsconf/locinfo_pcsdeforg: ret rs=%d\n",rs) ;
+	    debugprintf("pcsconf/locinfo_pcsdeforg: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -2279,9 +2371,9 @@ static int locinfo_name(LOCINFO *lip)
 	    lip->f.name = TRUE ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("pcsconf/locinfo_name: un=%s alt=%u\n",
-		pip->username,lip->f.altuser) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("pcsconf/locinfo_name: un=%s alt=%u\n",
+	            pip->username,lip->f.altuser) ;
 #endif
 
 	    if (! lip->f.altuser) {
@@ -2291,14 +2383,14 @@ static int locinfo_name(LOCINFO *lip)
 	    if (rp == NULL) {
 	        const int	w = pcsnsreq_pcsname ;
 	        cchar		*un = pip->username ;
-		if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
+	        if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
 	            rl = rs ;
 	            rp = rbuf ;
 	        } else {
-		    if (pip->open.logprog) {
+	            if (pip->open.logprog) {
 	                logfile_printf(&pip->lh,"no PCS-name (%d)",rs) ;
-		    }
-		    if (isNotPresent(rs)) rs = SR_OK ;
+	            }
+	            if (isNotPresent(rs)) rs = SR_OK ;
 	        }
 	    }
 
@@ -2335,14 +2427,14 @@ static int locinfo_fullname(LOCINFO *lip)
 	    if (rp == NULL) {
 	        const int	w = pcsnsreq_fullname ;
 	        cchar		*un = pip->username ;
-		if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
+	        if ((rs = locinfo_pcsnsget(lip,rbuf,rlen,un,w)) > 0) {
 	            rl = rs ;
 	            rp = rbuf ;
 	        } else {
-		    if (pip->open.logprog) {
+	            if (pip->open.logprog) {
 	                logfile_printf(&pip->lh,"no PCS-fullname (%d)",rs) ;
-		    }
-		    if (isNotPresent(rs)) rs = SR_OK ;
+	            }
+	            if (isNotPresent(rs)) rs = SR_OK ;
 	        }
 	    }
 
@@ -2373,13 +2465,14 @@ static int locinfo_ema(LOCINFO *lip)
 	    lip->f.ema = TRUE ;
 
 	    if (dp == NULL) {
-	        rs = locinfo_clustername(lip) ;
-	        if ((rs >= 0) && (lip->clustername != NULL)) {
-	            cchar	*cn = lip->clustername ;
-	            cchar	*un = pip->username ;
-	            rs = sncpy3(dbuf,dlen,cn,"!",un) ;
-	            dl = rs ;
-	            dp = dbuf ;
+	        if ((rs = locinfo_clustername(lip)) >= 0) {
+		    if (lip->clustername != NULL) {
+	                cchar	*cn = lip->clustername ;
+	                cchar	*un = pip->username ;
+	                rs = sncpy3(dbuf,dlen,cn,"!",un) ;
+	                dl = rs ;
+	                dp = dbuf ;
+		    }
 	        }
 	    }
 
@@ -2497,10 +2590,10 @@ static int locinfo_pcsns(LOCINFO *lip)
 	int		rs = SR_OK ;
 	if (! lip->open.ns) {
 	    if ((rs = locinfo_prpcs(lip)) >= 0) {
-		cchar	*pr_pcs = lip->pr_pcs ;
+	        cchar	*pr_pcs = lip->pr_pcs ;
 	        if ((rs = pcsns_open(&lip->ns,pr_pcs)) >= 0) {
-		    lip->open.ns = TRUE ;
-		}
+	            lip->open.ns = TRUE ;
+	        }
 	    }
 	} /* end if (needed PCSNS open) */
 	return rs ;

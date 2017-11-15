@@ -39,8 +39,7 @@
 
 
 /* initialize the queue */
-int cpq_start(qhp)
-CPQ		*qhp ;
+int cpq_start(CPQ *qhp)
 {
 
 	if (qhp == NULL) return SR_FAULT ;
@@ -54,8 +53,7 @@ CPQ		*qhp ;
 
 
 /* free up a queue (destroy it) */
-int cpq_finish(qhp)
-CPQ		*qhp ;
+int cpq_finish(CPQ *qhp)
 {
 
 	if (qhp == NULL) return SR_FAULT ;
@@ -69,9 +67,7 @@ CPQ		*qhp ;
 
 
 /* insert into queue (at the tail) */
-int cpq_ins(qhp,ep)
-CPQ		*qhp ;
-CPQ_ENT		*ep ;
+int cpq_ins(CPQ *qhp,CPQ_ENT *ep)
 {
 	CPQ_ENT		*hp = (CPQ_ENT *) qhp ;
 	CPQ_ENT		*ep2 ;
@@ -90,10 +86,7 @@ CPQ_ENT		*ep ;
 
 
 /* insert a group into queue (at the tail) */
-int cpq_insgroup(qhp,gp,size,n)
-CPQ		*qhp ;
-CPQ_ENT		*gp ;
-int		size, n ;
+int cpq_insgroup(CPQ *qhp,CPQ_ENT *gp,int esize,int n)
 {
 
 	if (qhp == NULL) return SR_FAULT ;
@@ -109,7 +102,7 @@ int		size, n ;
 	        pep->next = ep ;
 	        ep->prev = pep ;
 	        pep = ep ;
-	        p += size ;
+	        p += esize ;
 	    } /* end for */
 	    pep->next = hp ;
 	    qhp->prev = pep ;
@@ -121,9 +114,7 @@ int		size, n ;
 
 
 /* remove from queue (remove from head) */
-int cpq_rem(qhp,epp)
-CPQ		*qhp ;
-CPQ_ENT		**epp ;
+int cpq_rem(CPQ *qhp,CPQ_ENT **epp)
 {
 	CPQ_ENT		*hp = (CPQ_ENT *) qhp ;
 	CPQ_ENT		*ep, *ep2 ;
@@ -144,9 +135,7 @@ CPQ_ENT		**epp ;
 
 
 /* remove from the TAIL of queue (to get "stack-like" behavior) */
-int cpq_remtail(qhp,epp)
-CPQ		*qhp ;
-CPQ_ENT		**epp ;
+int cpq_remtail(CPQ *qhp,CPQ_ENT **epp)
 {
 	CPQ_ENT		*hp = (CPQ_ENT *) qhp ;
 	CPQ_ENT		*ep, *ep2 ;
@@ -167,9 +156,7 @@ CPQ_ENT		**epp ;
 
 
 /* get the pointer of the entry at the TAIL of queue */
-int cpq_gettail(qhp,epp)
-CPQ		*qhp ;
-CPQ_ENT		**epp ;
+int cpq_gettail(CPQ *qhp,CPQ_ENT **epp)
 {
 	CPQ_ENT		*hp = (CPQ_ENT *) qhp ;
 	CPQ_ENT		*ep, *ep2 ;
@@ -185,8 +172,7 @@ CPQ_ENT		**epp ;
 
 
 /* perform an audit */
-int cpq_audit(qhp)
-CPQ		*qhp ;
+int cpq_audit(CPQ *qhp)
 {
 	CPQ_ENT		*hp = (CPQ_ENT *) qhp ;
 	CPQ_ENT		*ep, *ep2 ;
@@ -204,13 +190,15 @@ CPQ		*qhp ;
 	    if (ep->prev == ep2) {
 	        ep2 = ep ;
 	        ep = ep->next ;
-	    } else
+	    } else {
 		rs = SR_BADFMT ;
+	    }
 
 	} /* end while */
 
-	if ((rs >= 0) && (ep->prev != ep2))
+	if ((rs >= 0) && (ep->prev != ep2)) {
 	    rs = SR_BADFMT ;
+	}
 
 	return rs ;
 }

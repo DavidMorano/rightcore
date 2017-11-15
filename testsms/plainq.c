@@ -107,8 +107,7 @@ int plainq_ins(PLAINQ *qhp,PLAINQ_ENT *ep)
 #endif /* CF_SAFE */
 
 #if	CF_SAFE2
-	if (ep == NULL)
-	    return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
 #endif /* CF_SAFE2 */
 
 	if (qhp->head == 0) {
@@ -150,12 +149,9 @@ int plainq_insgroup(PLAINQ *qhp,PLAINQ_ENT *gp,int esize,int n)
 
 	p = (caddr_t) gp ;
 	for (i = 0 ; i < n ; i += 1) {
-
 	    ep = (PLAINQ_ENT *) p ;
 	    plainq_ins(qhp,ep) ;
-
 	    p += esize ;
-
 	} /* end for */
 
 	return qhp->count ;
@@ -190,8 +186,9 @@ int plainq_unlink(PLAINQ *qhp,PLAINQ_ENT *ep)
 		if (qhp->head == eo) {
 	            nep->prev = ep->prev ;
 	            qhp->head = nep - ((PLAINQ_ENT *) qhp) ;
-		} else
+		} else {
 		    rs = SR_NOANODE ;
+		}
 	    }
 
 	} else {
@@ -202,14 +199,16 @@ int plainq_unlink(PLAINQ *qhp,PLAINQ_ENT *ep)
 		if (qhp->tail == eo) {
 		    pep->next = 0 ;
 	            qhp->tail =  pep - ((PLAINQ_ENT *) qhp) ;
-		} else
+		} else {
 		    rs = SR_NOANODE ;
+		}
 	    } else {
 		if ((qhp->head == eo) && (qhp->tail == eo)) {
 	            qhp->head =  0 ;
 	            qhp->tail =  0 ;
-		} else
+		} else {
 		    rs = SR_NOANODE ;
+		}
 	    }
 
 	} /* end if */
@@ -228,7 +227,6 @@ int plainq_unlink(PLAINQ *qhp,PLAINQ_ENT *ep)
 /* remove from queue (remove from head) */
 int plainq_rem(PLAINQ *qhp,PLAINQ_ENT **epp)
 {
-	PLAINQ_ENT	*ep ;
 	int		rs = SR_OK ;
 
 #if	CF_SAFE
@@ -240,18 +238,20 @@ int plainq_rem(PLAINQ *qhp,PLAINQ_ENT **epp)
 	if (epp == NULL) return SR_FAULT ;
 #endif /* CF_SAFE2 */
 
-	if (qhp->head == 0)
-	    return SR_NOENT ;
-
-	ep = (PLAINQ_ENT *) (qhp->head + ((long) qhp)) ;
-	if (ep->prev == 0) {
-	    *epp = ep ;
-	    qhp->head = (*epp)->next ;
-	    if (qhp->head == 0) qhp->tail = 0 ;
-	    ep->next = 0 ;
-	    qhp->count -= 1 ;
-	} else
-	    rs = SR_NOANODE ;
+	if (qhp->head != 0) {
+	    PLAINQ_ENT	*ep = (PLAINQ_ENT *) (qhp->head + ((long) qhp)) ;
+	    if (ep->prev == 0) {
+	        *epp = ep ;
+	        qhp->head = (*epp)->next ;
+	        if (qhp->head == 0) qhp->tail = 0 ;
+	        ep->next = 0 ;
+	        qhp->count -= 1 ;
+	    } else {
+	        rs = SR_NOANODE ;
+	    }
+	} else {
+	    rs = SR_NOENT ;
+	}
 
 	return (rs >= 0) ? qhp->count : rs ;
 }
@@ -261,7 +261,6 @@ int plainq_rem(PLAINQ *qhp,PLAINQ_ENT **epp)
 /* get the pointer to the head entry */
 int plainq_gethead(PLAINQ *qhp,PLAINQ_ENT **epp)
 {
-	PLAINQ_ENT	*ep ;
 	int		rs = SR_OK ;
 
 #if	CF_SAFE
@@ -273,13 +272,18 @@ int plainq_gethead(PLAINQ *qhp,PLAINQ_ENT **epp)
 	if (epp == NULL) return SR_FAULT ;
 #endif /* CF_SAFE2 */
 
-	if (qhp->head == 0)
-	    return SR_NOENT ;
+	*epp = NULL ;
+	if (qhp->head != 0) {
+	    PLAINQ_ENT	*ep = (PLAINQ_ENT *) (qhp->head + ((long) qhp)) ;
+	    if (ep->prev == 0) {
+	        *epp = ep ;
+	    } else {
+		rs = SR_NOANODE ;
+	    }
+	} else {
+	    rs = SR_NOENT ;
+	}
 
-	ep = (PLAINQ_ENT *) (qhp->head + ((long) qhp)) ;
-	if (ep->prev != 0) rs = SR_NOANODE ;
-
-	*epp = (rs >= 0) ? ep : NULL ;
 	return (rs >= 0) ? qhp->count : rs ;
 }
 /* end subroutine (plainq_gethead) */
@@ -288,7 +292,6 @@ int plainq_gethead(PLAINQ *qhp,PLAINQ_ENT **epp)
 /* remove from queue (remove from tail) */
 int plainq_remtail(PLAINQ *qhp,PLAINQ_ENT **epp)
 {
-	PLAINQ_ENT	*ep ;
 	int		rs = SR_OK ;
 
 #if	CF_SAFE
@@ -300,18 +303,21 @@ int plainq_remtail(PLAINQ *qhp,PLAINQ_ENT **epp)
 	if (epp == NULL) return SR_FAULT ;
 #endif /* CF_SAFE2 */
 
-	if (qhp->head == 0)
-	    return SR_NOENT ;
-
-	ep = (PLAINQ_ENT *) (qhp->tail + ((long) qhp)) ;
-	if (ep->next == 0) {
-	    *epp = ep ;
-	    qhp->tail = (*epp)->prev ;
-	    if (qhp->tail == 0) qhp->head = 0 ;
-	    ep->prev = 0 ;
-	    qhp->count -= 1 ;
-	} else
-	    rs = SR_NOANODE ;
+	*epp = NULL ;
+	if (qhp->head != 0) {
+	    PLAINQ_ENT	*ep = (PLAINQ_ENT *) (qhp->tail + ((long) qhp)) ;
+	    if (ep->next == 0) {
+	        *epp = ep ;
+	        qhp->tail = (*epp)->prev ;
+	        if (qhp->tail == 0) qhp->head = 0 ;
+	        ep->prev = 0 ;
+	        qhp->count -= 1 ;
+	    } else {
+	        rs = SR_NOANODE ;
+	    }
+	} else {
+	    rs = SR_NOENT ;
+	}
 
 	return (rs >= 0) ? qhp->count : rs ;
 }
@@ -321,7 +327,6 @@ int plainq_remtail(PLAINQ *qhp,PLAINQ_ENT **epp)
 /* get the pointer to the tail entry */
 int plainq_gettail(PLAINQ *qhp,PLAINQ_ENT **epp)
 {
-	PLAINQ_ENT	*ep ;
 	int		rs = SR_OK ;
 
 #if	CF_SAFE
@@ -333,13 +338,18 @@ int plainq_gettail(PLAINQ *qhp,PLAINQ_ENT **epp)
 	if (epp == NULL) return SR_FAULT ;
 #endif /* CF_SAFE2 */
 
-	if (qhp->head == 0)
-	    return SR_NOENT ;
+	*epp = NULL ;
+	if (qhp->head != 0) {
+	    PLAINQ_ENT	*ep = (PLAINQ_ENT *) (qhp->tail + ((long) qhp)) ;
+	    if (ep->next == 0) {
+		*epp = ep ;
+	    } else {
+		rs = SR_NOANODE ;
+	    }
+	} else {
+	    rs = SR_NOENT ;
+	}
 
-	ep = (PLAINQ_ENT *) (qhp->tail + ((long) qhp)) ;
-	if (ep->next != 0) rs = SR_NOANODE ;
-
-	*epp = (rs >= 0) ? ep : NULL ;
 	return (rs >= 0) ? qhp->count : rs ;
 }
 /* end subroutine (plainq_gettail) */
@@ -390,13 +400,15 @@ int plainq_audit(PLAINQ *qhp)
 
 	    } /* end while */
 
-	    if (qhp->count != c)
+	    if (qhp->count != c) {
 	        rs = SR_BADFMT ;
+	    }
 
 #endif /* CF_AUDIT */
 
-	} else if (qhp->count != 0)
+	} else if (qhp->count != 0) {
 	    rs = SR_BADFMT ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("plainq_audit: rs=%d c=%u\n",

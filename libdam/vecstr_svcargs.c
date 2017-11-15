@@ -111,6 +111,10 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 
 	} /* end if (non-null non-zero) */
 
+#if	CF_DEBUGS
+	debugprintf("vecstr_svcargs: ret rs=%d f=%u\n",rs,f) ;
+#endif
+
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (vecstr_svcargs) */

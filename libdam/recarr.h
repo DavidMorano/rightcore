@@ -82,8 +82,6 @@ extern "C" {
 
 extern int recarr_start(RECARR *,int,int) ;
 extern int recarr_add(RECARR *,const void *) ;
-extern int recarr_del(RECARR *,int) ;
-extern int recarr_delall(RECARR *) ;
 extern int recarr_count(RECARR *) ;
 extern int recarr_sort(RECARR *, int (*)()) ;
 extern int recarr_setsorted(RECARR *) ;
@@ -92,6 +90,9 @@ extern int recarr_getlast(RECARR *,const void *) ;
 extern int recarr_ent(RECARR *,const void *) ;
 extern int recarr_search(RECARR *,const void *,
 		int (*)(const void **,const void **), void *) ;
+extern int recarr_del(RECARR *,int) ;
+extern int recarr_delhand(RECARR *,const void *) ;
+extern int recarr_delall(RECARR *) ;
 extern int recarr_getvec(RECARR *,void *) ;
 extern int recarr_extent(RECARR *) ;
 extern int recarr_audit(RECARR *) ;

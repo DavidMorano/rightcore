@@ -98,34 +98,29 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int getlogname(logname,lognamelen)
-char		logname[] ;
-int		lognamelen ;
+int getlogname(char *rbuf,int rlen)
 {
 	int		rs = SR_NOTFOUND ;
 
-	if (logname == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
 
-	logname[0] = '\0' ;
-	if (lognamelen < 0)
-	    lognamelen = LOGNAMELEN ;
+	rbuf[0] = '\0' ;
+	if (rlen < 0) rlen = LOGNAMELEN ;
 
 /* check the 'LOGNAME' environment variable */
 
 #if	CF_ENV
 	if (rs == SR_NOTFOUND) {
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if ((cp = getenv(VARLOGNAME)) != NULL) {
-
-	        if (cp[0] != '\0')
-	            rs = sncpy1(logname,lognamelen,cp) ;
-
+	        if (cp[0] != '\0') {
+	            rs = sncpy1(rbuf,rlen,cp) ;
+		}
 	    }
 
 #if	CF_DEBUGS
-		debugprintf("getlogname: var rs=%d logname=%s\n",
-			rs,logname) ;
+		debugprintf("getlogname: var rs=%d logname=%s\n",rs,logname) ;
 #endif
 
 	} /* end if (LOGNAME environment) */
@@ -138,39 +133,19 @@ int		lognamelen ;
 #if	CF_GETUTMPENT
 	    {
 	        GETUTMPENT	e ;
-
-
-	        rs = getutmpent(&e,0) ;
-
-	        if (rs >= 0)
-	            rs = sncpy1(logname,lognamelen,e.user) ;
-
-#if	CF_DEBUGS
-		debugprintf("getlogname: getutmpent rs=%d logname=%s\n",
-			rs,logname) ;
-#endif
-
+	        if ((rs = getutmpent(&e,0)) >= 0) {
+	            rs = sncpy1(rbuf,rlen,e.user) ;
+		}
 	    }
 #else /* CF_GETUTMPENT */
 
+	    if (rs >= 0) {
 #if	CF_GETUTMPNAME
-	    rs = getutmpname(logname,lognamelen,0) ;
-
-#if	CF_DEBUGS
-		debugprintf("getlogname: getutmpname rs=%d logname=%s\n",
-			rs,logname) ;
-#endif
-
+	        rs = getutmpname(rbuf,rlen,0) ;
 #else /* CF_GETUTMPNAME */
-
-	    rs = uc_getlogin(logname,lognamelen) ;
-
-#if	CF_DEBUGS
-		debugprintf("getlogname: getlogin rs=%d logname=%s\n",
-			rs,logname) ;
-#endif
-
+	        rs = uc_getlogin(rbuf,rlen) ;
 #endif /* CF_GETUTMPNAME */
+	    }
 
 #endif /* CF_GETUTMPENT */
 
@@ -179,8 +154,7 @@ int		lognamelen ;
 /* get out */
 
 #if	CF_DEBUGS
-	debugprintf("getlogname: ret rs=%d logname=%s\n",
-		rs,logname) ;
+	debugprintf("getlogname: ret rs=%d logname=%s\n",rs,logname) ;
 #endif
 
 	return rs ;

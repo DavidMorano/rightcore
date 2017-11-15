@@ -23,9 +23,9 @@
         address.
 
 	progpeername(pip,cip,peername)
-	PROGINFO		*pip ;
-	struct clientinfo	*cip ;
-	char			peername[] ;
+	PROGINFO	*pip ;
+	CLIENTINFO	*cip ;
+	char		peername[] ;
 
 	Arguments:
 
@@ -48,9 +48,8 @@
 #include	<sys/stat.h>
 #include	<sys/socket.h>
 #include	<netinet/in.h>
-#include	<unistd.h>
-#include	<fcntl.h>
 #include	<limits.h>
+#include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -108,7 +107,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* forward references */
 
-static int	procsocket(PROGINFO *,struct clientinfo *,char *) ;
+static int	procsocket(PROGINFO *,CLIENTINFO *,char *) ;
 
 
 /* local variables */
@@ -118,9 +117,9 @@ static int	procsocket(PROGINFO *,struct clientinfo *,char *) ;
 
 
 int progpeername(pip,cip,peername)
-PROGINFO		*pip ;
-struct clientinfo	*cip ;
-char			peername[] ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+char		peername[] ;
 {
 	struct ustat	sb ;
 	int		rs = SR_OK ;
@@ -184,9 +183,9 @@ char			peername[] ;
 
 /* use 'connection(3dam)' */
 static int procsocket(pip,cip,peername)
-PROGINFO		*pip ;
-struct clientinfo	*cip ;
-char			peername[] ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+char		peername[] ;
 {
 	CONNECTION	conn, *cnp = &conn ;
 	int		rs ;

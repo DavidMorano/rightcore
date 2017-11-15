@@ -1,0 +1,206 @@
+/* svckv */
+
+/* key-value type functions */
+
+
+#define	CF_DEBUGS	0		/* compile-time debugging */
+
+
+/* revision history:
+
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
+
+	We perform some light key-valye type management.
+
+
+*******************************************************************************/
+
+
+#include	<envstandards.h>	/* MUST be first to configure */
+
+#include	<sys/types.h>
+#include	<stdlib.h>
+#include	<string.h>
+
+#include	<vsystem.h>
+#include	<estrings.h>
+#include	<localmisc.h>
+
+#include	"svckv.h"
+
+
+/* local defines */
+
+
+/* typedefs */
+
+#ifndef	TYPEDEF_CCHAR
+#define	TYPEDEF_CCHAR	1
+typedef const char	cchar ;
+#endif
+
+
+/* external subroutines */
+
+extern int	sfskipwhite(cchar *,int,cchar **) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	sfdequote(cchar *,int,cchar **) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	sfdirname(cchar *,int,cchar **) ;
+extern int	nextfieldterm(cchar *,int,cchar *,cchar **) ;
+extern int	nchr(cchar *,int,int) ;
+extern int	matstr(cchar **,cchar *,int) ;
+extern int	matostr(cchar **,int,cchar *,int) ;
+extern int	cfdeci(cchar *,int,int *) ;
+extern int	cfdecti(cchar *,int,int *) ;
+extern int	cfdecmfi(cchar *,int,int *) ;
+extern int	cfdecmful(cchar *,int,ulong *) ;
+extern int	ctdeci(char *,int,int) ;
+extern int	msleep(int) ;
+extern int	tolc(int) ;
+extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
+extern int	isNotPresent(int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
+
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnchr(cchar *,int,int) ;
+extern char	*strnpbrk(cchar *,int,cchar *) ;
+extern char	*strnrpbrk(cchar *,int,cchar *) ;
+
+
+/* external variables */
+
+
+/* local structures */
+
+
+/* forward references */
+
+
+/* local variables */
+
+static char	*isexecs[] = {
+	"so",
+	"p",
+	"a",
+	NULL
+} ;
+
+static cchar	*svcopts[] = {
+	"termout",
+	NULL
+} ;
+
+enum svcopts {
+	svcopt_termout,
+	svcopt_overlast
+} ;
+
+
+/* exported subroutines */
+
+
+int svckv_val(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
+{
+	int		i ;
+	int		vl = 0 ;
+	if (vpp != NULL) *vpp = NULL ;
+	for (i = 0 ; i < n ; i += 1) {
+	    if (strcmp(kv[i][0],np) == 0) {
+	        if (vpp != NULL) *vpp = kv[i][1] ;
+	        vl = strlen(kv[i][1]) ;
+	        break ;
+	    }
+	} /* end for */
+	return vl ;
+}
+/* end subroutine (svckv) */
+
+
+int svckv_dequote(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
+{
+	int		vl ;
+	int		cl = 0 ;
+	cchar		*vp ;
+	cchar		*cp = NULL ;
+	if ((vl = svckv_val(kv,n,np,&vp)) > 0) {
+	    cl = sfdequote(vp,vl,&cp) ;
+	}
+	if (vpp != NULL) *vpp = cp ;
+	return cl ;
+}
+/* end subroutine (svckv_dequote) */
+
+
+int svckv_isfile(cchar *(*kv)[2],int n,cchar **vpp)
+{
+	int		vl ;
+	cchar		*sp = "file" ;
+	vl = svckv_val(kv,n,sp,vpp) ;
+	return vl ;
+}
+/* end subroutine (svckv_isfile) */
+
+
+int svckv_isexec(cchar *(*kv)[2],int n,cchar **vpp)
+{
+	int		rs = SR_OK ;
+	int		i ;
+	int		vl = 0 ;
+	for (i = 0 ; isexecs[i] != NULL ; i += 1) {
+	    vl = svckv_val(kv,n,isexecs[i],vpp) ;
+	    if (vl > 0) break ;
+	}
+	return (rs >= 0) ? vl : rs ;
+}
+/* end subroutine (svckv_isexec) */
+
+
+int svckv_svcopts(cchar *(*kv)[2],int n)
+{
+	int		vl ;
+	int		ow = 0 ;
+	cchar		*k = "opts" ;
+	cchar		*vp ;
+	if ((vl = svckv_val(kv,n,k,&vp)) > 0) {
+	    int		i ;
+	    int		cl ;
+	    cchar	*cp ;
+	    cchar	*tp ;
+	    while ((tp = strnpbrk(vp,vl," ,")) != NULL) {
+	        if ((cl = sfshrink(vp,(tp-vp),&cp)) > 0) {
+	            if ((i = matstr(svcopts,cp,cl)) >= 0) {
+	                ow |= (1<<i) ;
+	            }
+	        }
+	        vl -= ((tp+1)-vp) ;
+	        vp = (tp+1) ;
+	    } /* end while */
+	    if (vl > 0) {
+	        if ((cl = sfshrink(vp,vl,&cp)) > 0) {
+	            if ((i = matstr(svcopts,cp,cl)) >= 0) {
+	                ow |= (1<<i) ;
+	            }
+	        }
+	    }
+	} /* end if (svckv) */
+	return ow ;
+}
+/* end subroutine (svckv_svcopts) */
+
+

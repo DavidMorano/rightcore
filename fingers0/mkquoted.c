@@ -62,16 +62,16 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	fieldterms(uchar *,int,const char *) ;
-extern int	haswhite(const char *,int) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	fieldterms(uchar *,int,cchar *) ;
+extern int	haswhite(cchar *,int) ;
 
 extern char	*strnpbrk(const char *,int,const char *) ;
 
 
 /* forward references */
 
-static int	mkquoted_quote(const uchar *,int,char *,int,const char *,int) ;
+static int	mkquoted_quote(cuchar *,int,char *,int,cchar *,int) ;
 static int	siterms(const uchar *,const char *,int) ;
 
 
@@ -128,7 +128,7 @@ const uchar	qterms[] ;
 int		f_allquote ;
 char		qbuf[] ;
 const char	abuf[] ;
-int		qlen, alen  ;
+int		qlen, alen ;
 {
 	SBUF		b ;
 	int		rs ;
@@ -153,18 +153,20 @@ int		qlen, alen  ;
 	        sbuf_strw(&b,ap,i) ;
 	        sbuf_char(&b,CH_BSLASH) ;
 	        rs = sbuf_char(&b,ap[i]) ;
-	        if (rs < 0) break ;
 
 	        ap += (i+1) ;
 	        al -= (i+1) ;
 
+	        if (rs < 0) break ;
 	    } /* end while */
 
-	    if ((rs >= 0) && (al > 0))
+	    if ((rs >= 0) && (al > 0)) {
 	        rs = sbuf_strw(&b,ap,al) ;
+	    }
 
-	    if ((rs >= 0) && f_allquote)
+	    if ((rs >= 0) && f_allquote) {
 	        rs = sbuf_char(&b,CH_DQUOTE) ;
+	    }
 
 	    len = sbuf_finish(&b) ;
 	    if (rs >= 0) rs = len ;

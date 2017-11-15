@@ -174,7 +174,6 @@ static int clientinfo_load(CLIENTINFO *cip,cchar *dname,vecstr *nlp)
 	int		rs ;
 	int		rs1 = 0 ;
 	int		c = 0 ;
-	char		hostname[MAXHOSTNAMELEN + 1] ;
 
 	if (cip == NULL) return SR_FAULT ;
 	if (nlp == NULL) return SR_FAULT ;
@@ -182,8 +181,8 @@ static int clientinfo_load(CLIENTINFO *cip,cchar *dname,vecstr *nlp)
 /* use 'connection(3dam)' */
 
 	if ((rs = connection_start(cnp,dname)) >= 0) {
+	   char		hostname[MAXHOSTNAMELEN + 1] ;
  
-	    rs1 = 0 ;
 	    if (cip->salen > 0) {
 	        SOCKADDRESS	*sap = &cip->sa ;
 	        int		sal = cip->salen ;
@@ -205,8 +204,9 @@ static int clientinfo_load(CLIENTINFO *cip,cchar *dname,vecstr *nlp)
 		    c += 1 ;
 	    }
 
-	    connection_finish(&conn) ;
-	} /* end if */
+	    rs1 = connection_finish(&conn) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (connection_start) */
 
 	return (rs >= 0) ? c : rs ;
 }

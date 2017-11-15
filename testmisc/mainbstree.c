@@ -3,7 +3,7 @@
 
 
 #define	CF_DEBUGS	1		/* compile-time debugging */
-#define	CF_DEBUGPRINTLIST	0
+#define	CF_DEBUGPL	0
 #define	CF_DEBUGMALL	1		/* debug memory allocations */
 #define	CF_DEBUGADD	1		/* debug adding */
 #define	CF_DEBUGONE	1		/* debug one */
@@ -109,7 +109,7 @@ static bool intless(const int &v1,const int &v2) {
 
 typedef bstree<int,intless>	ourlist ;
 
-#if	CF_DEBUGS && CF_DEBUGPRINTLIST
+#if	CF_DEBUGS && CF_DEBUGPL
 static int	debugprintlist(ourlist &,cchar *) ;
 #endif
 
@@ -152,7 +152,7 @@ int main(int argc,const char **argv,const char **envv)
 	    ourlist 	listsrc = { 4, 2, 6, 1, 7, 3 } ;
 	    ourlist 	lr ;
 
-#if	CF_DEBUGS && CF_DEBUGPRINTLIST
+#if	CF_DEBUGS && CF_DEBUGPL
 	debugprintlist(listsrc,"main-listsrc") ;
 #endif
 
@@ -334,7 +334,7 @@ static int printlist(ourlist &l,cchar *s)
 #endif /* CF_PRINTLIST */
 
 
-#if	CF_DEBUGS && CF_DEBUGPRINTLIST
+#if	CF_DEBUGS && CF_DEBUGPL
 static int debugprintlist(ourlist &l,cchar *s)
 {
 	const int	plen = LINEBUFLEN ;

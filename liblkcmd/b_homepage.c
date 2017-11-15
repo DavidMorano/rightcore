@@ -108,6 +108,8 @@
 #include	"proglog.h"
 #include	"cgi.h"
 #include	"htm.h"
+#include	"svckv.h"
+#include	"svcfileinst.h"
 
 
 /* local defines */
@@ -465,15 +467,6 @@ static int	procpage_make(PROGINFO *,char *) ;
 
 static int	mkourname(PROGINFO *,char *,cchar *,cchar *,int) ;
 static int	mkincfname(PROGINFO *,char *,cchar *,int) ;
-
-static int	svcfileent_val(SVCFILE_ENT *,cchar *,cchar **) ;
-static int	svcfileent_deval(SVCFILE_ENT *,cchar *,cchar **) ;
-
-static int	svckv(cchar *(*)[2],int,cchar *,cchar **) ;
-static int	svckv_dequote(cchar *(*)[2],int,cchar *,cchar **) ;
-static int	svckv_isfile(cchar *(*)[2],int,cchar **) ;
-static int	svckv_isexec(cchar *(*)[2],int,cchar **) ;
-static int	svckv_svcopts(cchar *(*)[2],int) ;
 
 static int gather_start(GATHER *,PROGINFO *,cchar *,int) ;
 static int gather_finish(GATHER *) ;
@@ -3671,18 +3664,18 @@ static int procdocbodymain_svcer(PROGINFO *pip,HTM *hdp,GATHER *glp,
 	    const int	n = sep->nkeys ;
 	    int		hl ;
 	    debugprintf("procdocbodymain_svcer: svc=%s\n",sep->svc) ;
-	    if ((hl = svckv(sep->keyvals,n,"h",&hp)) > 0) {
+	    if ((hl = svckv_val(sep->keyvals,n,"h",&hp)) > 0) {
 	        debugprintf("procdocbodymain_svcer: h=>%t<\n",hp,hl) ;
 	    }
 	}
 #endif /* CF_DEBUG */
 
-	if ((rs = svcfileent_val(sep,"h",&hp)) > 0) {
+	if ((rs = svcfileinst_val(sep,"h",&hp)) > 0) {
 	    const int	n = sep->nkeys ;
 	    cchar	*(*kv)[2] = sep->keyvals ;
 	    cchar	*k = "include" ;
 	    cchar	*vp ;
-	    if ((rs = svcfileent_val(sep,k,&vp)) > 0) {
+	    if ((rs = svcfileinst_val(sep,k,&vp)) > 0) {
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
 	                debugprintf("procdocbodymain_svcer: include\n") ;
@@ -3716,7 +3709,7 @@ static int procdocbodymain_svcerhdr(PROGINFO *pip,HTM *hdp,
 	int		vl ;
 	cchar		*vp ;
 	if (pip == NULL) return SR_FAULT ;
-	if ((rs = svcfileent_deval(sep,"h",&vp)) > 0) {
+	if ((rs = svcfileinst_deval(sep,"h",&vp)) > 0) {
 	    vl = rs ;
 	    if ((rs = htm_tagbegin(hdp,"h3",NULL,NULL,NULL)) >= 0) {
 		{
@@ -3725,7 +3718,7 @@ static int procdocbodymain_svcerhdr(PROGINFO *pip,HTM *hdp,
 		rs1 = htm_tagend(hdp,"h3") ;
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (htm-h3) */
-	} /* end if (svcfileent_deval) */
+	} /* end if (svcfileinst_deval) */
 	return rs ;
 }
 /* end subroutine (procdocbodymain_svcerhdr) */
@@ -3737,12 +3730,12 @@ static int procdocbodymain_svcerinc(PROGINFO *pip,HTM *hdp,
 	int		rs ;
 	cchar		*k = "include" ;
 	cchar		*vp ;
-	if ((rs = svcfileent_val(sep,k,&vp)) > 0) {
+	if ((rs = svcfileinst_val(sep,k,&vp)) > 0) {
 	    char	ibuf[MAXPATHLEN+1] ;
 	    if ((rs = mkincfname(pip,ibuf,vp,rs)) >= 0) {
 	        rs = procdocbodymain_svcerincer(pip,hdp,sep,ibuf) ;
 	    } /* end if (mkincfname) */
-	} /* end if (svcfileent_val) */
+	} /* end if (svcfileinst_val) */
 	return rs ;
 }
 /* end subroutine (procdocbodymain_svcerinc) */
@@ -4038,95 +4031,6 @@ static int proclocklog(PROGINFO *pip,cchar *lfname,LFM_CHECK *lcp,cchar *np)
 	return rs ;
 }
 /* end subroutine (proclocklog) */
-
-
-static int svckv(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
-{
-	int		i ;
-	int		vl = 0 ;
-	if (vpp != NULL) *vpp = NULL ;
-	for (i = 0 ; i < n ; i += 1) {
-	    if (strcmp(kv[i][0],np) == 0) {
-	        if (vpp != NULL) *vpp = kv[i][1] ;
-	        vl = strlen(kv[i][1]) ;
-	        break ;
-	    }
-	} /* end for */
-	return vl ;
-}
-/* end subroutine (svckv) */
-
-
-static int svckv_dequote(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
-{
-	int		vl ;
-	int		cl = 0 ;
-	cchar		*vp ;
-	cchar		*cp = NULL ;
-	if ((vl = svckv(kv,n,np,&vp)) > 0) {
-	    cl = sfdequote(vp,vl,&cp) ;
-	}
-	if (vpp != NULL) *vpp = cp ;
-	return cl ;
-}
-/* end subroutine (svckv_dequote) */
-
-
-static int svckv_isfile(cchar *(*kv)[2],int n,cchar **vpp)
-{
-	int		vl ;
-	cchar		*sp = "file" ;
-	vl = svckv(kv,n,sp,vpp) ;
-	return vl ;
-}
-/* end subroutine (svckv_isfile) */
-
-
-static int svckv_isexec(cchar *(*kv)[2],int n,cchar **vpp)
-{
-	int		rs = SR_OK ;
-	int		i ;
-	int		vl = 0 ;
-	for (i = 0 ; isexecs[i] != NULL ; i += 1) {
-	    vl = svckv(kv,n,isexecs[i],vpp) ;
-	    if (vl > 0) break ;
-	}
-	return (rs >= 0) ? vl : rs ;
-}
-/* end subroutine (svckv_isexec) */
-
-
-static int svckv_svcopts(cchar *(*kv)[2],int n)
-{
-	int		vl ;
-	int		ow = 0 ;
-	cchar		*k = "opts" ;
-	cchar		*vp ;
-	if ((vl = svckv(kv,n,k,&vp)) > 0) {
-	    int		i ;
-	    int		cl ;
-	    cchar	*cp ;
-	    cchar	*tp ;
-	    while ((tp = strnpbrk(vp,vl," ,")) != NULL) {
-	        if ((cl = sfshrink(vp,(tp-vp),&cp)) > 0) {
-	            if ((i = matstr(svcopts,cp,cl)) >= 0) {
-	                ow |= (1<<i) ;
-	            }
-	        }
-	        vl -= ((tp+1)-vp) ;
-	        vp = (tp+1) ;
-	    } /* end while */
-	    if (vl > 0) {
-	        if ((cl = sfshrink(vp,vl,&cp)) > 0) {
-	            if ((i = matstr(svcopts,cp,cl)) >= 0) {
-	                ow |= (1<<i) ;
-	            }
-	        }
-	    }
-	} /* end if (svckv) */
-	return ow ;
-}
-/* end subroutine (svckv_svcopts) */
 
 
 static int gather_start(GATHER *glp,PROGINFO *pip,cchar *termtype,int cols)
@@ -6624,24 +6528,6 @@ static int config_reader(CONFIG *csp,PARAMFILE *pfp)
 	return rs ;
 }
 /* end subroutine (config_reader) */
-
-
-static int svcfileent_val(SVCFILE_ENT *sep,cchar *k,cchar **rpp)
-{
-	const int	n = sep->nkeys ;
-	cchar		*(*kv)[2] = sep->keyvals ;
-	return svckv(kv,n,k,rpp) ;
-}
-/* end subroutine (svcfileent_val) */
-
-
-static int svcfileent_deval(SVCFILE_ENT *sep,cchar *k,cchar **rpp)
-{
-	const int	n = sep->nkeys ;
-	cchar		*(*kv)[2] = sep->keyvals ;
-	return svckv_dequote(kv,n,k,rpp) ;
-}
-/* end subroutine (svcfileent_deval) */
 
 
 static int mkourname(PROGINFO *pip,char *rbuf,cchar *inter,cchar *sp,int sl)

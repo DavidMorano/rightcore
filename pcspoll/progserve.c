@@ -37,7 +37,6 @@
 #include	<unistd.h>
 #include	<stropts.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<time.h>
@@ -146,7 +145,7 @@ extern int	vstrkeycmp(const char **,const char **) ;
 extern int	nlspeername(const char *,const char *,char *) ;
 extern int	getprogpath(IDS *,vecstr *,char *,const char *,int) ;
 extern int	netgroupcheck(const char *,vecstr *,vecstr *) ;
-extern int	mkquoted(char *,int,const char *,int) ;
+extern int	mkquoted(char *,int,cchar *,int) ;
 extern int	optbool(const char *,int) ;
 extern int	isasocket(int) ;
 extern int	uc_waitwritable(int,int) ;
@@ -157,8 +156,7 @@ extern int	progexec(PROGINFO *,cchar *,cchar *,vecstr *) ;
 
 #if	defined(P_FINGERS) && (P_FINGERS > 0)
 extern int	proguseracctmat(PROGINFO *,struct passwd *,char *,int,cchar *) ;
-extern int	proguseracctexec(PROGINFO *,struct clientinfo *,
-			struct passwd *) ;
+extern int	proguseracctexec(PROGINFO *,CLIENTINFO *,struct passwd *) ;
 #endif /* P_FINGERS */
 
 extern int	xfile(IDS *,const char *) ;
@@ -181,27 +179,27 @@ extern char	*strbasename(char *) ;
 
 /* forward references */
 
-static int	procserver(PROGINFO *,struct clientinfo *,
+static int	procserver(PROGINFO *,CLIENTINFO *,
 			SVCFILE_ENT *,const char **) ;
-static int	procserverpass(PROGINFO *,struct clientinfo *,
+static int	procserverpass(PROGINFO *,CLIENTINFO *,
 			PROCSE *, VECSTR *,const char *) ;
-static int	procserverlib(PROGINFO *,struct clientinfo *,
+static int	procserverlib(PROGINFO *,CLIENTINFO *,
 			PROCSE *, VECSTR *,const char *) ;
-static int	procserverexec(PROGINFO *,struct clientinfo *,
+static int	procserverexec(PROGINFO *,CLIENTINFO *,
 			PROCSE *, VECSTR *,const char *) ;
 static int	procfindprog(PROGINFO *,vecstr *,const char **,
 			char *,const char *,int) ;
 
 #if	CF_CHECKACCESS
-static int	procaccperm(PROGINFO *,struct clientinfo *,PROCSE *) ;
+static int	procaccperm(PROGINFO *,CLIENTINFO *,PROCSE *) ;
 #endif
 
 #ifdef	COMMENT
-static int	procusersetup(PROGINFO *,struct clientinfo *,SVCFILE_ENT *) ;
+static int	procusersetup(PROGINFO *,CLIENTINFO *,SVCFILE_ENT *) ;
 #endif
 
-static int	loadcooks(PROGINFO *,struct clientinfo *,const char **) ;
-static int	loadpeernames(PROGINFO *,struct clientinfo *,vecstr *) ;
+static int	loadcooks(PROGINFO *,CLIENTINFO *,const char **) ;
+static int	loadpeernames(PROGINFO *,CLIENTINFO *,vecstr *) ;
 static int	loadaccgroups(PROGINFO *,vecstr *,const char *,int) ;
 
 static int	mkbasename(char *,const char *,int) ;
@@ -238,13 +236,13 @@ static const char	*prlibs[] = {
 
 
 int progserve(pip,sop,bop,cip,nelp,svcspec,sav)
-PROGINFO		*pip ;
-STANDING		*sop ;
-BUILTIN			*bop ;
-struct clientinfo	*cip ;
-vecstr			*nelp ;
-const char		svcspec[] ;
-const char		*sav[] ;
+PROGINFO	*pip ;
+STANDING	*sop ;
+BUILTIN		*bop ;
+CLIENTINFO	*cip ;
+vecstr		*nelp ;
+const char	svcspec[] ;
+const char	*sav[] ;
 {
 	SVCFILE_ENT	ste ;
 	int		rs = SR_OK ;
@@ -382,25 +380,25 @@ const char		*sav[] ;
 	if ((rs >= 0) && (! f_served) && pip->f.loginsvc) {
 	    if (pip->f.useracct && (strcmp(cip->service,"help") != 0)) {
 	        struct passwd	pw ;
-		const int	pwlen = getbufsize(getbufsize_pw) ;
+	        const int	pwlen = getbufsize(getbufsize_pw) ;
 	        char		*pwbuf ;
-		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-		    cchar	*svc = cip->service ;
+	        if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	            cchar	*svc = cip->service ;
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(5))
-	        	debugprintf("progserve: user? svc=%s\n",svc) ;
+	                debugprintf("progserve: user? svc=%s\n",svc) ;
 #endif
 
-	    	    if ((rs1 = proguseracctmat(pip,&pw,pwbuf,pwlen,svc)) >= 0) {
+	            if ((rs1 = proguseracctmat(pip,&pw,pwbuf,pwlen,svc)) >= 0) {
 
-	        	rs = proguseracctexec(pip,cip,&pw) ;
-	        	f_served = (rs > 0) ;
+	                rs = proguseracctexec(pip,cip,&pw) ;
+	                f_served = (rs > 0) ;
 
-	    	    } /* end if (matched) */
+	            } /* end if (matched) */
 
-		    uc_free(pwbuf) ;
-		} /* end if (m-a) */
+	            uc_free(pwbuf) ;
+	        } /* end if (m-a) */
 	    } /* end if */
 	} /* end if (loginsvc) */
 #endif /* P_FINGERS */
@@ -496,10 +494,10 @@ ret0:
 
 
 static int procserver(pip,cip,step,sav)
-PROGINFO		*pip ;
-struct clientinfo	*cip ;
-SVCFILE_ENT		*step ;
-const char		*sav[] ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+SVCFILE_ENT	*step ;
+const char	*sav[] ;
 {
 	PROCSE		se ;
 	PROCSE_ARGS	sea ;
@@ -711,7 +709,7 @@ ret0:
 
 static int procserverpass(pip,cip,sep,alp,argz)
 PROGINFO	*pip ;
-struct clientinfo	*cip ;
+CLIENTINFO	*cip ;
 PROCSE		*sep ;
 VECSTR		*alp ;
 const char	*argz ;
@@ -768,7 +766,7 @@ const char	*argz ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
 	        debugprintf("progserve/procserverpass: "
-			"uc_waitwritable() rs=%d\n",
+	            "uc_waitwritable() rs=%d\n",
 	            rs) ;
 #endif
 
@@ -802,7 +800,7 @@ ret0:
 
 static int procserverlib(pip,cip,sep,alp,argz)
 PROGINFO	*pip ;
-struct clientinfo	*cip ;
+CLIENTINFO	*cip ;
 PROCSE		*sep ;
 VECSTR		*alp ;
 const char	*argz ;
@@ -1041,7 +1039,7 @@ ret0:
 
 static int procserverexec(pip,cip,sep,alp,argz)
 PROGINFO	*pip ;
-struct clientinfo	*cip ;
+CLIENTINFO	*cip ;
 PROCSE		*sep ;
 VECSTR		*alp ;
 const char	*argz ;
@@ -1307,9 +1305,9 @@ int		pnl ;
 #if	CF_CHECKACCESS
 
 static int procaccperm(pip,cip,sep)
-PROGINFO		*pip ;
-struct clientinfo	*cip ;
-PROCSE			*sep ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+PROCSE		*sep ;
 {
 	vecstr		netgroups, names ;
 	int		rs = SR_OK ;
@@ -1439,9 +1437,9 @@ ret0:
 
 
 static int loadcooks(pip,cip,sav)
-PROGINFO		*pip ;
-struct clientinfo	*cip ;
-const char		*sav[] ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+const char	*sav[] ;
 {
 	EXPCOOK		*ecp = &pip->cooks ;
 	int		rs = SR_OK ;
@@ -1459,13 +1457,13 @@ const char		*sav[] ;
 	    case AF_UNIX:
 	    case AF_INET4:
 	    case AF_INET6:
-		rs = sockaddress_getaddr(sap,abuf,alen) ;
-		if (rs >= 0) {
-		    rs1 = sninetaddr(vbuf,vlen,af,abuf) ;
-		    if (rs1 >= 0)
-	    		rs = expcook_add(ecp,name,vbuf,rs1) ;
-		}
-		break ;
+	        rs = sockaddress_getaddr(sap,abuf,alen) ;
+	        if (rs >= 0) {
+	            rs1 = sninetaddr(vbuf,vlen,af,abuf) ;
+	            if (rs1 >= 0)
+	                rs = expcook_add(ecp,name,vbuf,rs1) ;
+	        }
+	        break ;
 	    } /* end switch */
 	}
 
@@ -1502,15 +1500,14 @@ const char		*sav[] ;
 	        cr = (size - 1) ;
 	        for (i = 0 ; (rs >= 0) && (sav[i] != NULL) ; i += 1) {
 	            if (i > 0) *cp++ = ' ' ;
-	            rs = mkquoted(cp,cr,sav[i],-1) ;
-	            if (rs >= 0) {
+	            if ((rs = mkquoted(cp,cr,sav[i],-1)) >= 0) {
 	                cp += rs ;
 	                *cp = '\0' ;
 	            }
 	        } /* end for */
 	        if (rs >= 0) {
 	            rs = expcook_add(&pip->cooks,"a",svcargs,-1) ;
-		}
+	        }
 	        uc_free(svcargs) ;
 	    } /* end if (memory-allocation) */
 
@@ -1536,9 +1533,9 @@ const char		*sav[] ;
 
 
 static int loadpeernames(pip,cip,nlp)
-PROGINFO		*pip ;
-struct clientinfo	*cip ;
-vecstr			*nlp ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+vecstr		*nlp ;
 {
 	CONNECTION	conn ;
 	int		rs ;
@@ -1562,7 +1559,7 @@ vecstr			*nlp ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(5))
 	            debugprintf("loadpeernames: connection_peername() rs=%d\n",
-			rs1) ;
+	                rs1) ;
 
 #endif
 	    }
@@ -1572,7 +1569,7 @@ vecstr			*nlp ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(5))
 	            debugprintf("loadpeernames: connection_mknames() rs=%d\n",
-			rs1) ;
+	                rs1) ;
 #endif
 	        if (rs1 > 0) n += rs1 ;
 	    }
@@ -1620,38 +1617,38 @@ int		acclen ;
 	    FIELD	af ;
 
 	    if ((rs = field_start(&af,accbuf,acclen)) >= 0) {
-		int		fl, cl ;
-		const char	*fp, *cp ;
+	        int		fl, cl ;
+	        const char	*fp, *cp ;
 
-	    while ((fl = field_get(&af,gterms,&fp)) >= 0) {
-	        int		bl ;
-	        const char	*bp ;
+	        while ((fl = field_get(&af,gterms,&fp)) >= 0) {
+	            int		bl ;
+	            const char	*bp ;
 
-	        if (fl == 0) continue ;
+	            if (fl == 0) continue ;
 
-	        bl = fl ;
-	        bp = fp ;
-	        while ((cl = nextfield(bp,bl,&cp)) > 0) {
+	            bl = fl ;
+	            bp = fp ;
+	            while ((cl = nextfield(bp,bl,&cp)) > 0) {
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(5))
-	                debugprintf("loadaccgroups: accgroup=>%s<\n",cp) ;
+	                if (DEBUGLEVEL(5))
+	                    debugprintf("loadaccgroups: accgroup=>%s<\n",cp) ;
 #endif
 
-	            rs = vecstr_adduniq(glp,cp,cl) ;
-	            if (rs < INT_MAX) c += 1 ;
+	                rs = vecstr_adduniq(glp,cp,cl) ;
+	                if (rs < INT_MAX) c += 1 ;
 
-	            bl -= ((cp + cl) - bp) ;
-	            bp = (cp + cl) ;
+	                bl -= ((cp + cl) - bp) ;
+	                bp = (cp + cl) ;
+
+	                if (rs < 0) break ;
+	            } /* end while */
 
 	            if (rs < 0) break ;
-	        } /* end while */
+	        } /* end while (fielding) */
 
-	        if (rs < 0) break ;
-	    } /* end while (fielding) */
-
-	    field_finish(&af) ;
-	} /* end if (field) */
+	        field_finish(&af) ;
+	    } /* end if (field) */
 
 	} /* end if (ok) */
 

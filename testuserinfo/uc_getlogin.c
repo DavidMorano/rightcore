@@ -49,18 +49,13 @@ extern int	sncpy1(char *,int,const char *) ;
 /* exported subroutines */
 
 
-int uc_getlogin(rbuf,rlen)
-char		rbuf[] ;
-int		rlen ;
+int uc_getlogin(char *rbuf,int rlen)
 {
-	int	rs ;
+	int		rs ;
 
+	if (rbuf == NULL) return SR_FAULT ;
 
-	if (rbuf == NULL)
-	    return SR_FAULT ;
-
-	if (rlen < 0)
-	    rlen = BUFLEN ;
+	if (rlen < 0) rlen = BUFLEN ;
 
 	if ((rlen >= 0) && (rlen < BUFLEN))
 	    return SR_OVERFLOW ;
@@ -71,26 +66,20 @@ int		rlen ;
 	debugprintf("uc_getlogin: POSIX buflen=%d\n",buflen) ;
 #endif
 
-	    if ((rs = getlogin_r(rbuf,rlen)) != 0)
-	        rs = (- errno) ;
-
-	    if (rs >= 0)
-	        rs = strlen(rbuf) ;
+	    if ((rs = getlogin_r(rbuf,rlen)) != 0) rs = (- errno) ;
+	    if (rs >= 0) rs = strlen(rbuf) ;
 
 #else /* _POSIX_PTHREAD_SEMANTICS */
 	{
-	const char	*rp ;
+	    cchar	*rp ;
 
 #if	CF_DEBUGS
 	debugprintf("uc_getlogin: not POSIX\n") ;
 #endif
 
-	rp = getlogin() ;
-	rs = (rp != NULL) ? 0 : (- errno) ;
-
-	if (rs >= 0)
-	    rs = sncpy1(rbuf,rlen,rp) ;
-
+	    rp = getlogin() ;
+	    rs = (rp != NULL) ? 0 : (- errno) ;
+	    if (rs >= 0) rs = sncpy1(rbuf,rlen,rp) ;
 	}
 #endif /* _POSIX_PTHREAD_SEMANTICS */
 

@@ -380,6 +380,17 @@ int recarr_del(RECARR *op,int i)
 /* end subroutine (recarr_del) */
 
 
+int recarr_delhand(RECARR *op,const void *ep)
+{
+	int		rs ;
+	if ((rs = recarr_ent(op,ep)) >= 0) {
+	    rs = recarr_del(op,rs) ;
+	}
+	return rs ;
+}
+/* end subroutine (recarr_delhand) */
+
+
 int recarr_delall(RECARR *op)
 {
 

@@ -42,13 +42,13 @@
 
         If we find that there is no right-child (from our current node), we
         traverse back up to our parent, checking (at each step) if we (the
-        current node) is equal the right-child node. If we arrive at our parent
-        from its left-child, then our parent becomes the next current node. If
-        we arrive at our parent from its right-child node, then we continue to
-        go up in the tree until we either arrive at our parent from a left-child
-        or we reach the top of the tree (the parent itself has no parent). At
-        any node, we try to go down a right-child (if it exists) and then its
-        left-child, if it exists.
+        current node) is equal to the right-child node of our parent. If we
+        arrive at our parent from its left-child, then our parent becomes the
+        next current node. If we arrive at our parent from its right-child node,
+        then we continue to go up in the tree until we either arrive at our
+        parent from a left-child or we reach the top of the tree (the parent
+        itself has no parent). At any node, we try to go down a right-child (if
+        it exists) and then its left-child, if it exists.
 
         This, so-called, "parent" scheme uses up an extra pointer-amount of
         space in each node, O(n) more space, but even though the "stack" scheme
@@ -550,13 +550,13 @@ public:
 	    return it ;
 	} ;
 	int depth(bstree_depth *resp) {
-	    int	d = 0 ;
+	    int		d = 0 ;
 	    if (resp != NULL) resp->clear() ;
 	    d = depthrecurse(resp,0,root) ;
  	    return d ;
         } ; /* end method (depth) */
 	int depthrecurse(bstree_depth *resp,int i,bstree_node<T,Comp> *rp) {
-	    int	d = 0 ;
+	    int		d = 0 ;
 #if	CF_DEBUGS
 	    debugprintf("bstree::depthrecurse: ent i=%u\n",i) ;
 #endif

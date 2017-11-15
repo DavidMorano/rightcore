@@ -202,10 +202,10 @@ OBJ14= sreqdb.o sreq.o
 OBJ15=
 
 OBJ16= msghdr.o cmsghdr.o
-OBJ17= lfm.o vecstr_svcargs.o
+OBJ17= vecstr_svcargs.o
 OBJ18= varsub.o
 OBJ19=
-OBJ20=
+OBJ20= svckv.o svcfileinst.o
 OBJ21= uc_peek.o
 OBJ22= isBadSend.o isBadRecv.o
 OBJ23= isBadMsg.o
@@ -381,6 +381,10 @@ getnodedomain.o:	getnodedomain.c filebuf.h
 getutmpent.o:		getutmpent.c getutmpent.h
 
 getutmpterm.o:		getutmpterm.c getutmpent.h
+
+svckv.o:		svckv.c svckv.h
+
+svcfileinst.o:		svcfileinst.c svcfileinst.h
 
 
 # standard objects duplicated here

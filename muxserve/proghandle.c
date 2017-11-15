@@ -109,8 +109,8 @@ extern int	sisub(const char *,int,const char *) ;
 extern int	field_svcargs(FIELD *,VECSTR *) ;
 extern int	isasocket(int) ;
 
-extern int	progserve(struct proginfo *,STANDING *,BUILTIN *,
-			struct clientinfo *,vecstr *,
+extern int	progserve(PROGINFO *,STANDING *,BUILTIN *,
+			CLIENTINFO *,vecstr *,
 			const char *,const char **) ;
 
 extern int	proglog_printf(PROGINFO *,cchar *,...) ;
@@ -132,7 +132,7 @@ extern char	*timestr_logz(time_t,char *) ;
 
 /* forward references */
 
-static int	procsvcspec(struct proginfo *,struct clientinfo *,
+static int	procsvcspec(PROGINFO *,CLIENTINFO *,
 			char *,int,vecstr *,const char *,int) ;
 
 
@@ -155,10 +155,10 @@ static const uchar	sterms[] = {
 
 
 int proghandle(pip,sop,bop,cip)
-struct proginfo		*pip ;
-STANDING		*sop ;
-BUILTIN			*bop ;
-struct clientinfo	*cip ;
+PROGINFO	*pip ;
+STANDING	*sop ;
+BUILTIN		*bop ;
+CLIENTINFO	*cip ;
 {
 	vecstr		sargs ;
 	const int	svclen = SVCBUFLEN ;
@@ -247,13 +247,13 @@ struct clientinfo	*cip ;
 
 
 static int procsvcspec(pip,cip,snbuf,snlen,sap,svcbuf,svclen)
-struct proginfo		*pip ;
-struct clientinfo	*cip ;
-char			snbuf[] ;
-int			snlen ;
-vecstr			*sap ;
-const char		svcbuf[] ;
-int			svclen ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+char		snbuf[] ;
+int		snlen ;
+vecstr		*sap ;
+const char	svcbuf[] ;
+int		svclen ;
 {
 	FIELD		fsb ;
 	int		rs ;
@@ -264,17 +264,18 @@ int			svclen ;
 	snbuf[0] = '\0' ;
 	if ((rs = field_start(&fsb,svcbuf,svclen)) >= 0) {
 	    int		fl ;
-	    const char	*fp ;
+	    cchar	*fp ;
 	    char	fbuf[SVCSPECLEN + 1] ;
 	    if ((fl = field_get(&fsb,sterms,&fp)) > 0) {
-	        int		si ;
-	        const char	*ols = "/w" ;
+	        int	si ;
+	        cchar	*ols = "/w" ;
 
 	        if ((fl == 2) && (strncasecmp(fp,ols,2) == 0)) {
 
 	            cip->f_long = TRUE ;
-	            if ((fl = field_get(&fsb,sterms,&fp)) > 0)
+	            if ((fl = field_get(&fsb,sterms,&fp)) > 0) {
 	                len = strdcpy1w(snbuf,snlen,fp,fl) - snbuf ;
+		    }
 
 	        } else {
 
@@ -290,18 +291,18 @@ int			svclen ;
 	            fl = field_sharg(&fsb,sterms,fbuf,SVCSPECLEN) ;
 
 	            if ((fl == 2) && (strncasecmp(fp,ols,2) == 0)) {
-
 	                cip->f_long = TRUE ;
-
-	            } else if (fl > 0)
+	            } else if (fl > 0) {
 	                rs = vecstr_add(sap,fp,fl) ;
+		    }
 
 	        } /* end if */
 
 /* put the rest of the arguments into a string list */
 
-	        if ((rs >= 0) && (len > 0))
+	        if ((rs >= 0) && (len > 0)) {
 	            rs = field_svcargs(&fsb,sap) ;
+		}
 
 	    } /* end if (field_get) */
 	    field_finish(&fsb) ;

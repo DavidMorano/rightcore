@@ -528,8 +528,9 @@ int pcsconf_curend(PCSCONF *op,PCSCONF_CUR *curp)
 		rs1 = ptm_unlock(&op->m) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (mutex) */
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	curp->magic = 0 ;
 

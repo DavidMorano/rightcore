@@ -307,7 +307,7 @@ OBJ24= sfreadline.o sfisterm.o
 OBJ25= printhelp.o
 OBJ26= shio.o shio_printdline.o shio_writeblanks.o
 OBJ27= cgi.o htm.o
-OBJ28=
+OBJ28= svckv.o svcfileinst.o
 OBJ29= 
 OBJ30= 
 OBJ31= 
@@ -970,6 +970,7 @@ cgi.o:			cgi.c cgi.h
 htm.o:			htm.c htm.h
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $(*).c
 
+
 # AST library compile end
 
 
@@ -1064,6 +1065,10 @@ snmkuuid.o:		snmkuuid.c snmkuuid.h mkuuid.h
 maintqotd.o:		maintqotd.c maintqotd.h
 
 maintqotd_prog.o:	maintqotd_prog.c maintqotd.h
+
+svckv.o:		svckv.c svckv.h
+
+svcfileinst.o:		svcfileinst.c svcfileinst.h
 
 
 # objects

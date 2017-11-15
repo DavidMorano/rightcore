@@ -60,7 +60,6 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<limits.h>
-#include	<fcntl.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -161,19 +160,19 @@ int fsdirtree_open(FSDIRTREE *op,cchar dname[],int opts)
 	op->opts = opts ;
 
 	if ((rs = fifostr_start(&op->dirq)) >= 0) {
-	    const char	*bdp = dname ;
+	    cchar	*bdp = dname ;
 	    if ((bdp == NULL) || (strcmp(bdp,".") == 0)) bdp = "" ;
 	    if (bdp[0] != '/') {
 	        if ((rs = uc_getcwd(op->basedname,MAXPATHLEN)) >= 0) {
 	            op->bdnlen = rs ;
 	            if (bdp[0] != '\0') {
 	                op->basedname[op->bdnlen++] = '/' ;
-		    }
+	            }
 	        }
 	    }
 	    if (rs >= 0) {
 	        if (bdp[0] != '\0') {
-	            int	cl = MAXPATHLEN - op->bdnlen ;
+	            int		cl = (MAXPATHLEN - op->bdnlen) ;
 	            rs = sncpy1((op->basedname + op->bdnlen),cl,bdp) ;
 	            op->bdnlen += rs ;
 	        }
@@ -182,7 +181,7 @@ int fsdirtree_open(FSDIRTREE *op,cchar dname[],int opts)
 	                op->f.dir = TRUE ;
 	                if (op->basedname[op->bdnlen - 1] != '/') {
 	                    op->basedname[op->bdnlen++] = '/' ;
-			}
+	                }
 	                if (opts & FSDIRTREE_MUNIQ) {
 	                    if ((rs = fsdirtree_dirbegin(op)) >= 0) {
 	                        struct ustat	sb ;
@@ -202,8 +201,8 @@ int fsdirtree_open(FSDIRTREE *op,cchar dname[],int opts)
 	                if (rs < 0)
 	                    fsdir_close(&op->dir) ;
 	            } /* end if (fsdir) */
-	        }
-	    }
+	        } /* end if (ok) */
+	    } /* end if (ok) */
 	    if (rs < 0)
 	        fifostr_finish(&op->dirq) ;
 	} /* end if (fifostr) */
@@ -277,73 +276,70 @@ int fsdirtree_read(FSDIRTREE *op,FSDIRTREE_STAT *sbp,char *rbuf,int rlen)
 	    if ((rs = fsdir_read(&op->dir,&de)) > 0) {
 	        int	enl = rs ;
 	        int	f_proc = TRUE ;
-	        enp = de.name ;
-
-#if	CF_DEBUGS
-	        debugprintf("fsdirtree_read: ename=%s\n",enp) ;
-#endif
 
 /* do not play with the "special" entries! (this is a fast way of deciding) */
 
+	        enp = de.name ;
 	        if (hasNotDots(enp,enl)) {
 
 #if	CF_DEBUGS
 	            debugprintf("fsdirtree_read: non-trivial\n") ;
 #endif
 
-		    if (op->prune != NULL) {
-			f_proc = (matstr(op->prune,enp,enl) < 0) ;
-		    }
+	            if (op->prune != NULL) {
+	                f_proc = (matstr(op->prune,enp,enl) < 0) ;
+	            }
 
-		    if (f_proc) {
+	            if (f_proc) {
 
 /* form the full filepath */
 
-	            if ((op->cdnlen > 0) && 
-	                (op->basedname[op->cdnlen - 1] != '/')) {
-	                op->basedname[op->cdnlen++] = '/' ;
-		    }
+	                if ((op->cdnlen > 0) && 
+	                    (op->basedname[op->cdnlen - 1] != '/')) {
+	                    op->basedname[op->cdnlen++] = '/' ;
+	                }
 
-	            fnp = op->basedname + op->cdnlen ;
-	            mlen = MAXPATHLEN - op->cdnlen ;
-	            flen = strwcpy(fnp,enp,mlen) - fnp ;
+	                fnp = op->basedname + op->cdnlen ;
+	                mlen = MAXPATHLEN - op->cdnlen ;
+	                flen = strwcpy(fnp,enp,mlen) - fnp ;
 
 #if	CF_DEBUGS
-	            debugprintf("fsdirtree_read: bpath=%s\n",
-			op->basedname) ;
+	                debugprintf("fsdirtree_read: bpath=%s\n",
+	                    op->basedname) ;
 #endif
 
 /* if we cannot 'stat' it, then it cannot be too important to us! */
 
-	            if ((rs = u_lstat(op->basedname,sbp)) >= 0) {
-	                if (S_ISLNK(sbp->st_mode)) {
+	                if ((rs = u_lstat(op->basedname,sbp)) >= 0) {
+	                    if (S_ISLNK(sbp->st_mode)) {
 
 #if	CF_DEBUGS
-	                    debugprintf("fsdirtree_read: ISLNK\n") ;
+	                        debugprintf("fsdirtree_read: ISLNK\n") ;
 #endif
 
-	                    if (op->opts & FSDIRTREE_MFOLLOW) {
-	                        const int	llen = MAXLINKLEN ;
-	                        const char	*fn = op->basedname ;
-	                        char		lbuf[MAXLINKLEN+1] ;
+	                        if (op->opts & FSDIRTREE_MFOLLOW) {
+	                            const int	llen = MAXLINKLEN ;
+	                            cchar	*fn = op->basedname ;
+	                            char	lbuf[MAXLINKLEN+1] ;
 	                            if ((rs = uc_readlink(fn,lbuf,llen)) >= 0) {
-				    if (! isDotDir(lbuf)) {
-	                                if ((rs = uc_stat(fn,&se)) >= 0) {
-	                                    sbp = &se ;
-	                                } else if (rs == SR_NOENT) {
-	                                    rs = SR_OK ;
-	                                }
-				    } /* end if (not-dots) */
-	                        }
-	                    } /* end if (follow-option specified) */
+	                                if (! isDotDir(lbuf)) {
+	                                    if ((rs = uc_stat(fn,&se)) >= 0) {
+	                                        sbp = &se ;
+	                                    } else if (rs == SR_NOENT) {
+	                                        rs = SR_OK ;
+	                                    }
+	                                } /* end if (not-dots) */
+	                            } /* end if (uc_readlink) */
+	                        } /* end if (follow-option specified) */
 
-	                } /* end if (is-link) */
-	            } /* end if (u_lstat) */
+	                    } /* end if (is-link) */
+	                } /* end if (u_lstat) */
 
-		    } /* end if (not pruned) */
+	            } /* end if (not pruned) */
 
-	        } else
+	        } else {
 	            f_proc = FALSE ;
+	        }
 
 #if	CF_DEBUGS
 	        debugprintf("fsdirtree_read: read-mid rs=%d\n",rs) ;
@@ -352,7 +348,8 @@ int fsdirtree_read(FSDIRTREE *op,FSDIRTREE_STAT *sbp,char *rbuf,int rlen)
 /* directory-uniqueness check */
 
 	        if ((rs >= 0) && f_proc) {
-	            if (S_ISDIR(sbp->st_mode) && (op->opts & FSDIRTREE_MUNIQ)) {
+		    const int	m = FSDIRTREE_MUNIQ ;
+	            if (S_ISDIR(sbp->st_mode) && (op->opts & m)) {
 	                dev_t	dev = sbp->st_dev ;
 	                uino_t	ino = sbp->st_ino ;
 	                int	rs1 = fsdirtree_dirhave(op,dev,ino,NULL) ;
@@ -360,8 +357,9 @@ int fsdirtree_read(FSDIRTREE *op,FSDIRTREE_STAT *sbp,char *rbuf,int rlen)
 	                    f_proc = FALSE ;
 	                } else if (rs1 == SR_NOTFOUND) {
 	                    rs = fsdirtree_diradd(op,dev,ino) ;
-	                } else
+	                } else {
 	                    rs = rs1 ;
+	                }
 	            } /* end if (directory-uniqueness check) */
 	        } /* end if (directory-uniqueness check) */
 
@@ -398,7 +396,7 @@ int fsdirtree_read(FSDIRTREE *op,FSDIRTREE_STAT *sbp,char *rbuf,int rlen)
 
 #if	CF_DEBUGS
 	                debugprintf("fsdirtree_read: fifostr_add() rs=%d\n",
-				rs) ;
+	                    rs) ;
 #endif
 
 	                if (rs < 0)
@@ -406,8 +404,7 @@ int fsdirtree_read(FSDIRTREE *op,FSDIRTREE_STAT *sbp,char *rbuf,int rlen)
 
 #if	CF_DEBUGS && CF_DEBUGAUDIT
 	                {
-	                    int	rs1 ;
-	                    rs1 = fsdir_audit(&op->dir) ;
+	                    int	rs1 = fsdir_audit(&op->dir) ;
 	                    debugprintf("fsdirtree_read: fsdir_audit() rs=%d\n",
 	                        rs1) ;
 	                }
@@ -555,8 +552,8 @@ static int fsdirtree_dirend(FSDIRTREE *pip)
 	    HDB		*dbp = &pip->dirids ;
 	    HDB_CUR	cur ;
 	    HDB_DATUM	key, val ;
-	    pip->f.dirids = FALSE ;
 
+	    pip->f.dirids = FALSE ;
 	    if ((rs1 = hdb_curbegin(dbp,&cur)) >= 0) {
 	        DIRID	*dip ;
 

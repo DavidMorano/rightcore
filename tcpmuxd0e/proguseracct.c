@@ -118,7 +118,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 /* forward references */
 
-static int	proguseracct_usersrv(PROGINFO *,struct clientinfo *,
+static int	proguseracct_usersrv(PROGINFO *,CLIENTINFO *,
 			struct passwd *) ;
 static int	proguseracct_pop(PROGINFO *,int,struct passwd *,
 			const char *,const char *) ;
@@ -182,7 +182,7 @@ const char	svcname[] ;
 
 int proguseracctexec(pip,cip,pep)
 PROGINFO		*pip ;
-struct clientinfo	*cip ;
+CLIENTINFO	*cip ;
 struct passwd		*pep ;
 {
 	int		rs = SR_OK ;
@@ -242,9 +242,9 @@ struct passwd		*pep ;
 
 
 static int proguseracct_usersrv(pip,cip,pep)
-PROGINFO		*pip ;
-struct clientinfo	*cip ;
-struct passwd		*pep ;
+PROGINFO	*pip ;
+CLIENTINFO	*cip ;
+struct passwd	*pep ;
 {
 	const int	ofd = cip->fd_output ;
 	int		rs = SR_OK ;
@@ -313,11 +313,11 @@ struct passwd		*pep ;
 
 
 static int proguseracct_pop(pip,ofd,pep,fname,desc)
-PROGINFO		*pip ;
-int			ofd ;
-struct passwd		*pep ;
-const char		fname[] ;
-const char		desc[] ;
+PROGINFO	*pip ;
+int		ofd ;
+struct passwd	*pep ;
+const char	fname[] ;
+const char	desc[] ;
 {
 	int		rs = SR_OK ;
 	int		rs1 ;

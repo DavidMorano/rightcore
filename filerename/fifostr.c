@@ -184,8 +184,9 @@ int fifostr_headread(FIFOSTR *op,char *rbuf,int rlen)
 	        sp += sizeof(FIFOSTR_ENT) ;
 	        rs = snwcpy(rbuf,rlen,sp,sl) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? sl : rs ;
 }
@@ -208,8 +209,9 @@ int fifostr_headlen(FIFOSTR *op)
 	if (op->head != NULL) {
 	    FIFOSTR_ENT	*ep = op->head ;
 	    sl = ep->slen ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? sl : rs ;
 }
@@ -251,8 +253,9 @@ int fifostr_entread(FIFOSTR *op,char *rbuf,int rlen,int n)
 	        sp += sizeof(FIFOSTR_ENT) ;
 	        rs = snwcpy(rbuf,rlen,sp,sl) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? sl : rs ;
 }
@@ -289,8 +292,9 @@ int fifostr_entlen(FIFOSTR *op,int n)
 
 	if (ep != NULL) {
 	    sl = ep->slen ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? sl : rs ;
 }
@@ -330,8 +334,9 @@ int fifostr_remove(FIFOSTR *op,char *rbuf,int rlen)
 	        op->ic -= 1 ;
 	        op->cc -= sl ;
 	    } /* end if (successful removal) */
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? sl : rs ;
 }
@@ -408,9 +413,10 @@ int fifostr_enum(FIFOSTR *op,FIFOSTR_CUR *curp,char *rbuf,int rlen)
 	            sp += sizeof(FIFOSTR_ENT) ;
 	            rs = snwcpy(rbuf,rlen,sp,sl) ;
 	        }
-	    } else
+	    } else {
 	        rs = SR_NOTFOUND ;
-	} /* end if */
+	    }
+	} /* end if (ok) */
 
 	return (rs >= 0) ? sl : rs ;
 }
@@ -474,8 +480,9 @@ int fifostr_del(FIFOSTR *op,FIFOSTR_CUR *curp)
 	    op->ic -= 1 ;
 	    op->cc -= sl ;
 
-	} else 
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? op->ic : rs ;
 }
