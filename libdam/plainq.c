@@ -136,7 +136,7 @@ int plainq_insgroup(PLAINQ *qhp,PLAINQ_ENT *gp,int esize,int n)
 {
 	PLAINQ_ENT	*ep ;
 	int		i ;
-	caddr_t		p ;
+	caddr_t		p = (caddr_t) gp ; /* convert for addition */
 
 #if	CF_SAFE
 	if (qhp == NULL) return SR_FAULT ;
@@ -147,7 +147,6 @@ int plainq_insgroup(PLAINQ *qhp,PLAINQ_ENT *gp,int esize,int n)
 	if (gp == NULL) return SR_FAULT ;
 #endif /* CF_SAFE2 */
 
-	p = (caddr_t) gp ;
 	for (i = 0 ; i < n ; i += 1) {
 	    ep = (PLAINQ_ENT *) p ;
 	    plainq_ins(qhp,ep) ;
@@ -411,8 +410,7 @@ int plainq_audit(PLAINQ *qhp)
 	}
 
 #if	CF_DEBUGS
-	debugprintf("plainq_audit: rs=%d c=%u\n",
-		rs,qhp->count) ;
+	debugprintf("plainq_audit: rs=%d c=%u\n",rs,qhp->count) ;
 #endif
 
 	return (rs >= 0) ? qhp->count : rs ;

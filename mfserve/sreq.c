@@ -191,8 +191,7 @@ int sreq_havefd(SREQ *op,int fd)
 
 int sreq_addsvc(SREQ *op,cchar *sp,int sl)
 {
-	int		rs = SR_OK ;
-	int		f = FALSE ;
+	int		rs ;
 	char		*bp ;
 	if (sl < 0) sl = strlen(sp) ;
 	if (op->svclen == 0) {
@@ -209,25 +208,26 @@ int sreq_addsvc(SREQ *op,cchar *sp,int sl)
 		op->svclen = nlen ;
 	    }
 	}
-	return (rs >= 0) ? f : rs ;
+	return rs ;
 }
 /* end subroutine (sreq_addsvc) */
 
 
+/* extract the service from the "service-buffer" and alloc-store in 'svc' */
 int sreq_setsvc(SREQ *op,int f_long)
 {
 	int		rs = SR_OK ;
 	if (op->svc == NULL) {
 	    int		sl ;
 	    cchar	*sp ;
-	    op->f_long = f_long ;
+	    op->f.longopt = f_long ;
 	    if ((sl = sfnext(op->svcbuf,op->svclen,&sp)) >= 0) {
 		cchar	*tp ;
 	        char	*bp ;
 		if ((tp = strnchr(sp,sl,'/')) != NULL) {
 		    if (! f_long) {
 			if (((sp+sl)-tp) > 1) {
-			    op->f_long = (tolc(tp[1]) == 'w') ;
+			    op->f.longopt = (tolc(tp[1]) == 'w') ;
 			}
 		    }
 		    sl = (tp-sp) ;
@@ -251,7 +251,7 @@ int sreq_setsvc(SREQ *op,int f_long)
 
 int sreq_setlong(SREQ *op,int f)
 {
-	op->f_long = MKBOOL(f) ;
+	op->f.longopt = MKBOOL(f) ;
 	return SR_OK ;
 }
 /* end subroutine (sreq_setlong) */
@@ -275,6 +275,13 @@ int sreq_getsubsvc(SREQ *op,cchar **rpp)
 	return sl ;
 }
 /* end subroutine (sreq_getsubsvc) */
+
+
+int sreq_getsrate(SREQ *op)
+{
+	return op->state ;
+}
+/* end subroutine (sreq_getstate) */
 
 
 /* private subroutines */

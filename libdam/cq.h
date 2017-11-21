@@ -9,9 +9,12 @@
 	= 1998-07-17, David A­D­ Morano
 	Oh what a cheap Q!  I do not know why I am doing this!
 
+	= 2017-11-21, David A­D­ Morano
+	Added new method |cq_unlink()|.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	CQ_INCLUDE
 #define	CQ_INCLUDE	1
@@ -51,6 +54,7 @@ extern int cq_start(CQ *) ;
 extern int cq_finish(CQ *) ;
 extern int cq_ins(CQ *,void *) ;
 extern int cq_rem(CQ *,void *) ;
+extern int cq_unlink(CQ *,void *) ;
 extern int cq_count(CQ *) ;
 extern int cq_curbegin(CQ *,CQ_CUR *) ;
 extern int cq_curend(CQ *,CQ_CUR *) ;

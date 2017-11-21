@@ -160,7 +160,7 @@ int vecsorthand_add(vecsorthand *op,const void *buf)
 	            i += 1 ;
 	        }
 
-/* move all entries from "i" through "op->i - 1" down one */
+/* move all entries from "i" through "op->i - 1" up one */
 
 	        for (j = (op->i - 1) ; j >= i ; j -= 1) {
 	            (op->va)[j + 1] = (op->va)[j] ;

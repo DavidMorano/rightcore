@@ -730,6 +730,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
 	        ex = EX_INTR ;
+	    } else if (lip->f.missed) {
+		ex = EX_NOTFOUND ;
 	    }
 	} /* end if */
 
@@ -913,7 +915,7 @@ static int procspecs(PROGINFO *pip,void *ofp,const char *lbuf,int llen)
 	int		c = 0 ;
 	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
 	    int		fl ;
-	    const char	*fp ;
+	    cchar	*fp ;
 	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
 	        if (fl > 0) {
 	            rs = procname(pip,ofp,fp,fl) ;
@@ -1090,12 +1092,12 @@ static int locinfo_inproj(LOCINFO *lip,cchar *np,int nl)
 	int		rs1 ;
 	int		f = FALSE ;
 	if ((rs = locinfo_pjbuf(lip)) >= 0) {
-	    NULSTR		ns ;
-	    cchar		*name ;
+	    NULSTR	ns ;
+	    cchar	*name ;
 	    if ((rs = nulstr_start(&ns,np,nl,&name)) >= 0) {
 	        const int	pjlen = lip->pjlen ;
-	        cchar	*un = lip->username ;
-	        char	*pjbuf = lip->pjbuf ;
+	        cchar		*un = lip->username ;
+	        char		*pjbuf = lip->pjbuf ;
 	        if ((rs = uc_inproj(un,name,pjbuf,pjlen)) >= 0) {
 	            f = (rs > 0) ;
 	            lip->queries += 1 ;

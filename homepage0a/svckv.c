@@ -8,12 +8,13 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-	Originally written for Rightcore Network Services.
+	= 2017-10-13, David A­D­ Morano
+	This was split out of the HOMEPAGE program (where it was originally
+	local).
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -58,11 +59,6 @@ extern int	nextfieldterm(cchar *,int,cchar *,cchar **) ;
 extern int	nchr(cchar *,int,int) ;
 extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
-extern int	cfdeci(cchar *,int,int *) ;
-extern int	cfdecti(cchar *,int,int *) ;
-extern int	cfdecmfi(cchar *,int,int *) ;
-extern int	cfdecmful(cchar *,int,ulong *) ;
-extern int	ctdeci(char *,int,int) ;
 extern int	msleep(int) ;
 extern int	tolc(int) ;
 extern int	isdigitlatin(int) ;
@@ -129,7 +125,7 @@ int svckv_val(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
 	} /* end for */
 	return vl ;
 }
-/* end subroutine (svckv) */
+/* end subroutine (svckv_val) */
 
 
 int svckv_dequote(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
@@ -157,16 +153,25 @@ int svckv_isfile(cchar *(*kv)[2],int n,cchar **vpp)
 /* end subroutine (svckv_isfile) */
 
 
-int svckv_isexec(cchar *(*kv)[2],int n,cchar **vpp)
+int svckv_ispass(cchar *(*kv)[2],int n,cchar **vpp)
 {
-	int		rs = SR_OK ;
+	int		vl ;
+	cchar		*sp = "pass" ;
+	vl = svckv_val(kv,n,sp,vpp) ;
+	return vl ;
+}
+/* end subroutine (svckv_ispass) */
+
+
+int svckv_isprog(cchar *(*kv)[2],int n,cchar **vpp)
+{
 	int		i ;
 	int		vl = 0 ;
 	for (i = 0 ; isexecs[i] != NULL ; i += 1) {
 	    vl = svckv_val(kv,n,isexecs[i],vpp) ;
 	    if (vl > 0) break ;
 	}
-	return (rs >= 0) ? vl : rs ;
+	return vl ;
 }
 /* end subroutine (svckv_isexec) */
 

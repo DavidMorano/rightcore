@@ -1,31 +1,30 @@
-/* main */
+/* main (testcq) */
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<randomvar.h>
+#include	<localmisc.h>
 
 #include	"cq.h"
 
 
-
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	bfile	outfile ;
-
+	bfile		outfile ;
 	RANDOMVAR	rv ;
-
 	CQ		cq ;
-
-	void	*ep, *endp ;
-
-	uint	uiw ;
-
-	int	rs, i ;
-	int	j, k, n ;
-
+	void		*ep, *endp ;
+	uint		uiw ;
+	int		rs ;
+	int		rs1 ;
+	int		i ;
+	int		j, k ;
 
 	rs = bopen(&outfile,BFILE_STDOUT,"wct",0666) ;
 
@@ -69,34 +68,36 @@ int main()
 	            rs = cq_rem(&cq,&ep) ;
 
 	            if (rs < 0) {
-
 	                bprintf(&outfile,"cq_rem() rs=%d\n",rs) ;
-
 	            }
 
 	            if (ep == NULL) {
-
 	                bprintf(&outfile,"NULL entry \n") ;
-
 	            }
 
-	            if (ep != NULL)
-	                free(ep) ;
+	            if (ep != NULL) {
+	                uc_free(ep) ;
+			ep = NULL ;
+		    }
 
 	        } /* end for */
 
-	        rs = cq_rem(&cq,&ep) ;
+		if (rs >= 0) {
+	            rs = cq_rem(&cq,&ep) ;
+		}
 
+		if (rs < 0) break ;
 	    } /* end for */
 
 	    u_sbrk(0,&endp) ;
 
 	    bprintf(&outfile,"endp=%08lx\n",endp) ;
 
+	    if (rs < 0) break ;
 	} /* end for */
 
-ret3:
-	cq_finish(&cq) ;
+	rs1 = cq_finish(&cq) ;
+	if (rs >= 0) rs = rs1 ;
 
 ret2:
 	randomvar_finish(&rv) ;
@@ -108,7 +109,5 @@ ret0:
 	return 0 ;
 }
 /* end subroutine (main) */
-
-
 
 

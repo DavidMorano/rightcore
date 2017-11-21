@@ -20,6 +20,9 @@
 	pointers back to the queue-header, so therefore the object (header) CAN
 	be moved without problems.
 
+	+ self-relative
+	+ relocatable head
+
 
 *******************************************************************************/
 
@@ -49,12 +52,10 @@ int q_start(Q *qhp,int type)
 	qhp->head = qhp->tail = 0 ;
 	if ((rs = ptma_create(&ma)) >= 0) {
 	    int		matype = PTHREAD_PROCESS_PRIVATE ;
-
 	    if (type > 0) matype = PTHREAD_PROCESS_SHARED ;
-	    ptma_setpshared(&ma,matype) ;
-
-	    rs = ptm_create(&qhp->lock,&ma) ;
-
+	    if ((rs = ptma_setpshared(&ma,matype)) >= 0) {
+	        rs = ptm_create(&qhp->lock,&ma) ;
+	    }
 	    ptma_destroy(&ma) ;
 	} /* end if (mutex-attributes) */
 

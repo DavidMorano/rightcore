@@ -916,6 +916,9 @@ extern "C" {
 
 extern LONG	unixtime(LONG *) ;
 
+extern int	u_brk(const void *) ;
+extern int	u_sbrk(int,void **) ;
+
 extern int	u_uname(struct utsname *) ;
 extern int	u_unixtime(LONG *) ;
 extern int	u_getloadavg(unsigned int *,int) ;

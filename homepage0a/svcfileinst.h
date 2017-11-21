@@ -5,12 +5,13 @@
 
 /* revision history:
 
-	= 1998-06-16, David A­D­ Morano
-	This subroutine was originally written.
+	= 2017-10-13, David A­D­ Morano
+	This was split out of the HOMEPAGE program (where it was originally
+	local).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	SVCFILEINST_INCLUDE
 #define	SVCFILEINST_INCLUDE	1

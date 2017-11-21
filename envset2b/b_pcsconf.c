@@ -8,7 +8,6 @@
 #define	CF_DEBUG	0		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_CHECKONC	0		/* check ONC */
-#define	CF_PROCARGS	1		/* run 'procargs()' */
 
 
 /* revision history:
@@ -1441,10 +1440,10 @@ static int proclist(PROGINFO *pip,SHIO *ofp)
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,SHIO *ofp,cchar *afn)
 {
-	int		pan = 0 ;
-	int		cl ;
 	int		rs = SR_OK ;
 	int		rs1 ;
+	int		cl ;
+	int		pan = 0 ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 	cchar		*cp ;
@@ -1715,7 +1714,7 @@ static int procquery(PROGINFO *pip,void *ofp,cchar *qp,int ql)
 	            wlen += rs ;
 	        }
 
-	    } /* end if */
+	    } /* end if (matstr) */
 	} /* end if (not found yet) */
 
 	if ((rs >= 0) && (c == 0)) {
@@ -2030,7 +2029,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 static int locinfo_prlocal(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (! lip->f.prlocal) {
 	    cchar	*var = VARPRLOCAL ;
@@ -2060,7 +2059,7 @@ static int locinfo_nisdomain(LOCINFO *lip)
 	    const int	dlen = MAXHOSTNAMELEN ;
 	    int		dl = -1 ;
 	    cchar	*dp = NULL ;
-	    char	dbuf[MAXHOSTNAMELEN+ 1] = { 0 } ;
+	    char	dbuf[MAXHOSTNAMELEN+ 1] ;
 	    lip->f.nisdomain = TRUE ;
 
 	    if (! lip->f.altuser) {
@@ -2151,7 +2150,7 @@ static int locinfo_clustername(LOCINFO *lip)
 	    const int	nlen = NODENAMELEN ;
 	    int		nl = -1 ;
 	    cchar	*np = NULL ;
-	    char	nbuf[NODENAMELEN+ 1] = { 0 } ;
+	    char	nbuf[NODENAMELEN+ 1] ;
 	    lip->f.clustername = TRUE ;
 
 	    if (! lip->f.altuser) {
@@ -2169,8 +2168,8 @@ static int locinfo_clustername(LOCINFO *lip)
 	                    nl = rs1 ;
 	                    np = nbuf ;
 	                } else if (pip->open.logprog) {
-	                    logfile_printf(&pip->lh,"no cluster-name (%d)",
-	                        rs1) ;
+			    cchar	*fmt = "no cluster-name (%d)" ;
+	                    logfile_printf(&pip->lh,fmt,rs1) ;
 	                }
 	            }
 	        }
@@ -2219,7 +2218,7 @@ static int locinfo_org(LOCINFO *lip)
 	    const int	rlen = ORGLEN ;
 	    int		rl = -1 ;
 	    cchar	*rp = pip->org ;
-	    char	rbuf[ORGLEN+ 1] = { 0 } ;
+	    char	rbuf[ORGLEN+ 1] ;
 	    lip->f.org = TRUE ;
 
 	    if ((rp == NULL) || (rp[0] == '\0')) {
@@ -2273,7 +2272,7 @@ static int locinfo_pcsorg(LOCINFO *lip)
 	    const int	rlen = ORGLEN ;
 	    int		rl = -1 ;
 	    cchar	*rp = NULL ;
-	    char	rbuf[ORGLEN+ 1] = { 0 } ;
+	    char	rbuf[ORGLEN+ 1] ;
 	    lip->f.pcsorg = TRUE ;
 
 	    if (! lip->f.altuser) {
@@ -2317,7 +2316,7 @@ static int locinfo_pcsdeforg(LOCINFO *lip)
 	    const int	rlen = ORGLEN ;
 	    int		rl = -1 ;
 	    cchar	*rp = NULL ;
-	    char	rbuf[ORGLEN+ 1] = { 0 } ;
+	    char	rbuf[ORGLEN+ 1] ;
 	    lip->f.pcsdeforg = TRUE ;
 
 	    if (rp == NULL) {
@@ -2367,7 +2366,7 @@ static int locinfo_name(LOCINFO *lip)
 	    const int	rlen = REALNAMELEN ;
 	    int		rl = -1 ;
 	    cchar	*rp = NULL ;
-	    char	rbuf[REALNAMELEN+1] = { 0 } ;
+	    char	rbuf[REALNAMELEN+1] ;
 	    lip->f.name = TRUE ;
 
 #if	CF_DEBUG
@@ -2521,7 +2520,7 @@ static int locinfo_pcsids(LOCINFO *lip)
 static int locinfo_pcsusername(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (! lip->f.pcsusername) {
 	    PCSCONF	*pcp = pip->pcsconf ;
@@ -2543,7 +2542,7 @@ static int locinfo_pcsusername(LOCINFO *lip)
 
 static int locinfo_facility(LOCINFO *lip)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (! lip->f.facility) {
 	    PROGINFO	*pip = lip->pip ;

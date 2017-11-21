@@ -43,7 +43,7 @@
 
 /* number of polls per second */
 #undef	NLPS
-#define	NLPS		5
+#define	NLPS		5		/* every 200 milliseconds */
 
 
 /* external subroutines */

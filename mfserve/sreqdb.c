@@ -67,6 +67,11 @@ extern int	mkdirs(const char *,mode_t) ;
 extern int	chmods(const char *,mode_t) ;
 extern int	isNotPresent(int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
 extern char	*strwcpy(char *,const char *,int) ;
 
 
@@ -331,6 +336,7 @@ int sreqdb_count(SREQDB *jlp)
 /* end subroutine (sreqdb_count) */
 
 
+/* do we have the given FD in the DB, if so return index */
 int sreqdb_havefd(SREQDB *op,int fd)
 {
 	SREQ		*jep ;

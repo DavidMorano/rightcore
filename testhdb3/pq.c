@@ -270,7 +270,7 @@ int pq_unlink(PQ *qhp,PQ_ENT *ep)
 	    } else {
 		if (qhp->head == ep) {
 	            nep = ep->next ;
-	            nep->prev = ep->prev ;
+	            nep->prev = NULL ;
 	            qhp->head = nep ;
 		} else {
 		    rs = SR_NOANODE ;

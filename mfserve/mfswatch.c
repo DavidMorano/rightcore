@@ -83,6 +83,7 @@
 #include	"mfsmsg.h"
 #include	"mfsbuilt.h"
 #include	"svcentsub.h"
+#include	"svckv.h"
 
 
 /* local defines */
@@ -90,9 +91,7 @@
 #define	MFSWATCH	struct mfswatch
 #define	MFSWATCH_FL	struct mfswatch_flags
 
-#ifndef	IPCDIRMODE
-#define	IPCDIRMODE	0777
-#endif
+#define	SVCPROCARGS	struct svcprocargs
 
 #define	W_OPTIONS	(WNOHANG)
 
@@ -117,6 +116,12 @@
 #ifndef	TO_LOGFLUSH
 #define	TO_LOGFLUSH	10
 #endif
+
+
+/* typedefs */
+
+typedef int (*svcprocer_t)(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+		SVCENTSUB *ssp) ;
 
 
 /* external subroutines */
@@ -184,6 +189,14 @@ struct mfswatch {
 	int		minpoll ;	/* poll interval in milliseconds */
 } ;
 
+struct svcprocargs {
+	PROGINFO	*pip ;
+	SREQ		*jep ;
+	SVCFILE_ENT	*sep ;
+	SVCENTSUB	*ssp ;
+	svcprocer_t	w ;
+} ;
+
 
 /* forward references */
 
@@ -202,6 +215,7 @@ static int	mfswatch_svcend(PROGINFO *) ;
 static int mfswatch_svcfind(PROGINFO *,SREQ *) ;
 static int mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
 static int mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,vecstr *) ;
+static int mfswatch_svcprocfile(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
 static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
 static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
 static int mfswatch_notfound(PROGINFO *,SREQ *) ;
@@ -512,18 +526,20 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 	if ((rs = sreqdb_havefd(srp,fd)) >= 0) {
 	    SREQ	*jep ;
 	    if ((rs = sreqdb_get(srp,rs,&jep)) >= 0) {
-		if ((rs = mfswatch_svcaccum(pip,jep,fd,re)) > 0) {
-		    f = TRUE ;
+		if ((rs = sreq_getstate(jep)) == sreqstate_acquire) {
+		    if ((rs = mfswatch_svcaccum(pip,jep,fd,re)) > 0) {
+		        f = TRUE ;
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(4))
-		        debugprintf("mfswatch_polljobs: svcbuf=>%s<\n",
-			jep->svcbuf) ;
+		        if (DEBUGLEVEL(4))
+		            debugprintf("mfswatch_polljobs: svcbuf=>%s<\n",
+			    jep->svcbuf) ;
 #endif
-		    rs = mfswatch_svcfind(pip,jep) ;
-		} else if (rs == 0) {
-		    re = (POLLIN | POLLPRI) ;
-		    rs = mfswatch_pollreg(pip,fd,re) ;
-		}
+		        rs = mfswatch_svcfind(pip,jep) ;
+		    } else if (rs == 0) {
+		        re = (POLLIN | POLLPRI) ;
+		        rs = mfswatch_pollreg(pip,fd,re) ;
+		    }
+		} /* end if (in acquire state */
 	    } /* end if (sreqdb_get) */
 	} else if (rs == SR_NOTFOUND) {
 #if	CF_DEBUG
@@ -559,8 +575,10 @@ static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 #endif
 		if ((tp = strnchr(lbuf,rs,'\n')) != NULL) {
 		    if ((rs = u_read(fd,lbuf,(tp-lbuf+1))) > 0) {
-			f = TRUE ;
-			rs = sreq_addsvc(jep,lbuf,(rs-1)) ;
+			if ((rs = sreq_addsvc(jep,lbuf,(rs-1))) >= 0) {
+			    f = TRUE ;
+			    rs = sreq_setstate(jep,sreqstate_svc) ;
+			}
 		    } /* end if (u_read) */
 		} else {
 		    if ((rs = u_read(fd,lbuf,rs)) > 0) {
@@ -579,6 +597,7 @@ static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 /* end subroutine (mfswatch_svcaccum) */
 
 
+/* register this FD w/ the poller object */
 static int mfswatch_pollreg(PROGINFO *pip,int fd,int re)
 {
 	MFSWATCH	*wip = pip->watch ;
@@ -713,7 +732,7 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 		vecstr *sap)
 {
 	LOCINFO		*lip = pip->lip ;
-	const int	f_long = jep->f_long ;
+	const int	f_long = jep->f.longopt ;
 	int		rs ;
 	int		rs1 ;
 	cchar		*subsvc = jep->subsvc ;
@@ -736,7 +755,9 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 			ss.var[svckey_so]) ;
 		    }
 #endif
-		if ((rs = mfswatch_svcprocpass(pip,jep,sep,&ss)) == 0) {
+		if ((rs = mfswatch_svcprocfile(pip,jep,sep,&ss)) == 0) {
+    		    rs = 1 ;
+		} else if ((rs = mfswatch_svcprocpass(pip,jep,sep,&ss)) == 0) {
     		    rs = 1 ;
 		} else if ((rs = mfswatch_svcprocprog(pip,jep,sep,&ss)) == 0) {
 		    rs = 1 ;
@@ -754,17 +775,94 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 /* end subroutine (mfswatch_svcproc) */
 
 
-static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+static int mfswatch_svcprocfile(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	    SVCENTSUB *ssp)
 {
+	const int	n = sep->nkeys ;
 	int		rs = SR_OK ;
+	int		f = FALSE ;
+	cchar		*(*kv)[2] = sep->keyvals ;
+	cchar		*vp ;
 	if (pip == NULL) return SR_FAULT ;
 	if (jep == NULL) return SR_FAULT ;
 	if (sep == NULL) return SR_FAULT ;
 	if (ssp == NULL) return SR_FAULT ;
+	if ((rs = svckv_isfile(kv,n,&vp)) > 0) {
+	    workthr	w = (workthr) mfswatch_svcprocfiler ;
+	    if ((rs = mfswatch_svcprocer(pip,jep,sep,ssp,w)) >= 0) {
+	         rs = 1 ;
+
+	    }
+	}
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (mfswatch_svcprocfile) */
+
+
+static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+	    SVCENTSUB *ssp,svcprocer_t w)
+{
+	SVCPROCARGS	*sap ;
+	const int	size = sizeof(SVCPROCARGS) ;
+	if ((rs = uc_malloc(size,&sap)) >= 0) {
+	    workthr	helper = (workthr) mfswatch_svcprocers ;
+	    thread_t	tid ;
+	    sap->pip = pip ;
+	    sap->jep = jep ;
+	    sap->sep = sep ;
+	    sap->ssp = ssp ;
+	    if ((rs = uptcreate(&tid,NULL,helper,sap)) >= 0) {
+	         rs = 1 ;
+
+
+	    }
+	} /* end if (m-a) */
+	return rs ;
+}
+/* end subroutine (mfswatch_svcprocer) */
+
+
+static int mfswatch_svcprocers(SVCPROCSRGS *sap)
+{
+	SVCPROCARGS	sa = *sap ;
+	int		rs ;
+	if ((rs = uc_free(sap)) >= 0) {
+	    rs = (*sa.w)(sa.pip,sa.jep,sa.sep,sa,ssp) ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_svcprocers) */
+
+
+static int mfswatch_svcprocfiler(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+	    SVCENTSUB *ssp,svcprocer_t w)
+{
+	int		rs = SR_OK ;
+
 
 
 	return rs ;
+}
+/* end subroutine (mfswatch_svcprocfiler) */
+
+
+static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
+	    SVCENTSUB *ssp)
+{
+	const int	n = sep->nkeys ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	cchar		*(*kv)[2] = sep->keyvals ;
+	cchar		*vp ;
+	if (pip == NULL) return SR_FAULT ;
+	if (jep == NULL) return SR_FAULT ;
+	if (sep == NULL) return SR_FAULT ;
+	if (ssp == NULL) return SR_FAULT ;
+	if ((rs = svckv_ispass(kv,n,&vp)) > 0) {
+	    rs = 1 ;
+
+	}
+	return (rs >= 0) ?  f : rs ;
 }
 /* end subroutine (mfswatch_svcprocpass) */
 
@@ -772,14 +870,20 @@ static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	    SVCENTSUB *ssp)
 {
+	const int	n = sep->nkeys ;
 	int		rs = SR_OK ;
+	int		f = FALSE ;
+	cchar		*(*kv)[2] = sep->keyvals ;
+	cchar		*vp ;
 	if (pip == NULL) return SR_FAULT ;
 	if (jep == NULL) return SR_FAULT ;
 	if (sep == NULL) return SR_FAULT ;
 	if (ssp == NULL) return SR_FAULT ;
+	if ((rs = svckv_isprog(kv,n,&vp)) > 0) {
+	    rs = 1 ;
 
-
-	return rs ;
+	}
+	return (rs >= 0) ?  f : rs ;
 }
 /* end subroutine (mfswatch_svcprocprog) */
 

@@ -12,3 +12,8 @@ Arguments:
 -u <username>		alternative username to check
 -V			print command version to standard-error and then exit
 
+Returns:
+0			YES, user is in the given projects
+1			NO
+X			other (some kind of error)
+

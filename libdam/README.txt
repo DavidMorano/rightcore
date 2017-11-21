@@ -48,18 +48,18 @@ stdorder	non-object specialized for individual standard-order items
 
 raqhand		Random-Access-Queue handler (see the code)
 fifostr		FIFO object for strings, stores data
-fsi		FIFO object for strings, stores data, interlocked
+fsi		FIFO object for strings, stores data, thread-safe
 fifoitem	FIFO object for variable sized items
-q		interlocked self-relative Q, sharable
-piq		pointer Q, relocatable-head, count, magic, interlocked
-aiq		interlocked self-relative Q, sharable, async, magic, count
+q		self-relative Q, relocatable-head, thread-safe
+piq		pointer Q, relocatable-head, count, magic, thread-safe
+aiq		self-relative Q, thread-safe, async, magic, count
 plainq		plain self-relative Q, count, and magic
 cpq		circular pointer Q (huge in the old days w/ OS stuff!)
-pq		plain pointer Q, relocatable-head, not-circular, count
+pq		pointer Q, relocatable-head, not-circular, count
 cq		container Q, relocatable-head, count, magic
-ciq		container Q, relocatable-head, count, magic, interlocked 
+ciq		container Q, relocatable-head, count, magic, thread-safe
 charq		character Q, relocatable-head, count
-chariq		character Q, relocatable-head, count, interlocked
+chariq		character Q, relocatable-head, count, thread-safe
 
 fmq		file-message queue
 pmq		POSIX message queue

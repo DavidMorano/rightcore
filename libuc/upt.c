@@ -401,11 +401,9 @@ static void *uptruner(void *vp)
 	if (oap != NULL) {
 	    int		(*start)(void *) = oap->start ;
 	    void	*arg = oap->ap ;
-	    uc_libfree(oap) ;
-#if	CF_DEBUGS
-	    debugprintf("uptrunner: start=%p\n",start) ;
-#endif
-	    rs = (*start)(arg) ;
+	    if ((rs = uc_libfree(oap)) >= 0) {
+	        rs = (*start)(arg) ;
+	    }
 	} else {
 	    rs = SR_NOEXEC ;
 	}

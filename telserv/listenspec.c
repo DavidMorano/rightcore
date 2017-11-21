@@ -507,8 +507,9 @@ int listenspec_accept(LISTENSPEC *op,void *fromp,int *fromlenp,int to)
 	        rs = SR_DOM ;
 	        break ;
 	    } /* end switch */
-	} else
+	} else {
 	    rs = SR_BADFD ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("listenspec_accept: ret rs=%d\n",rs) ;

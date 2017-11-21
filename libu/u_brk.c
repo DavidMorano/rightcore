@@ -42,15 +42,16 @@ extern int	msleep(int) ;
 /* exported subroutines */
 
 
-int u_brk(void *endp)
+int u_brk(const void *endp)
 {
 	int		rs ;
 	int		to_nomem = TO_NOMEM ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
+	void		*e = (void *) endp ;
 
 	repeat {
-	    if ((rs = brk(endp)) == -1) rs = (- errno) ;
+	    if ((rs = brk(e)) == -1) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_NOMEM:

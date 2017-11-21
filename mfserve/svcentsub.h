@@ -13,7 +13,7 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<strpack.h>
 
-#include	"mfslocinfo.h"
+#include	"mfslocinfo.h"		/* for |locinfo()| */
 #include	"svcfile.h"
 
 

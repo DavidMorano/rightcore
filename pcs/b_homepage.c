@@ -185,7 +185,7 @@ extern int	mktmpfile(char *,mode_t,cchar *) ;
 extern int	prmktmpdir(cchar *,char *,cchar *,cchar *,mode_t) ;
 extern int	prgetprogpath(cchar *,char *,cchar *,int) ;
 extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
-extern int	sperm(IDS *,struct ustat *,int) ;
+extern int	sperm(IDS *,USTAT *,int) ;
 extern int	perm(cchar *,uid_t,gid_t,gid_t *,int) ;
 extern int	permsched(cchar **,vecstr *,char *,int,cchar *,int) ;
 extern int	rmdirfiles(cchar *,cchar *,int) ;
@@ -195,6 +195,7 @@ extern int	tolc(int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isNotAccess(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -987,6 +988,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+#ifdef	COMMENT
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            ifname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                ifname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+#endif /* COMMENT */
+
 /* configuration file-name */
 	                case argopt_cf:
 	                    if (f_optequal) {
@@ -1202,16 +1222,18 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        }
 	                        break ;
 
-/* take input file arguments from STDIN */
-	                    case 'f':
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            afname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                        break ;
+			    case 'f':
+	                        lip->final.force = TRUE ;
+	                        lip->have.force = TRUE ;
+	                        lip->f.force = TRUE ;
+	                        if (f_optequal) {
+	                            f_optequal = FALSE ;
+	                            if (avl) {
+	                                rs = optbool(avp,avl) ;
+	                                lip->f.force = (rs > 0) ;
+	                            }
+	                        }
+				break ;
 
 /* options */
 	                    case 'o':
@@ -2244,7 +2266,7 @@ static int procpidfname(PROGINFO *pip)
 
 	    f_changed = TRUE ;
 	    if ((rs = mkpath2(rundname,pip->pr,RUNDNAME)) >= 0) {
-	        struct ustat	sb ;
+	        USTAT	sb ;
 	        if ((rs = uc_stat(rundname,&sb)) >= 0) {
 	            if (! S_ISDIR(sb.st_mode)) {
 			rs = SR_NOTDIR ;
@@ -3687,7 +3709,7 @@ static int procdocbodymain_svcer(PROGINFO *pip,HTM *hdp,GATHER *glp,
 	                debugprintf("procdocbodymain_svcer: isfile\n") ;
 #endif
 	            rs = procdocbodymain_svcerfile(pip,hdp,glp,sep) ;
-	        } else if ((rs = svckv_isexec(kv,n,&vp)) > 0) {
+	        } else if ((rs = svckv_isprog(kv,n,&vp)) > 0) {
 	            rs = 2 ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
@@ -4473,6 +4495,7 @@ static int filer_finish(FILER *fep)
 /* end subroutine (filer_finish) */
 
 
+/* this is an independent thread */
 static int filer_worker(FILER *fep)
 {
 	int		rs ;
@@ -5207,9 +5230,11 @@ static int locinfo_defsvc(LOCINFO *lip)
 	    cchar	*fn = SVCFNAME ;
 	    if ((rs = mkourname(pip,tbuf,inter,fn,-1)) >= 0) {
 	        const int	tl = rs ;
-	        if (perm(tbuf,-1,-1,NULL,R_OK) >= 0) {
+	        if ((rs = perm(tbuf,-1,-1,NULL,R_OK)) >= 0) {
 	            cchar	**vpp = &lip->sfname ;
 	            rs = locinfo_setentry(lip,vpp,tbuf,tl) ;
+		} else if (isNotAccess(rs)) {
+		    rs = SR_OK ;
 	        }
 	    }
 	}
@@ -5558,7 +5583,7 @@ static int locinfo_lockbeginone(LOCINFO *lip,LFM *lfp,cchar *lockfname)
 
 	    cl = sfdirname(lockfname,-1,&cp) ;
 	    if ((rs = mkpath1w(tmpfname,cp,cl)) >= 0) {
-	        struct ustat	usb ;
+	        USTAT	usb ;
 	        if ((rs = u_stat(tmpfname,&usb)) >= 0) {
 	            if (! S_ISDIR(usb.st_mode)) {
 			rs = SR_NOTDIR ;
@@ -5626,7 +5651,7 @@ int locinfo_tmpourdname(LOCINFO *lip)
 	        if (! f_runasprn) dm = 0777 ;
 	        rs1 = SR_OK ;
 	        if ((rs = mkpath3(tmpourdname,tn,rn,sn)) >= 0) {
-	    	    struct ustat	usb ;
+	    	    USTAT	usb ;
 	            pl = rs ;
 	            if ((rs1 = u_stat(tmpourdname,&usb)) >= 0) {
 	                if (S_ISDIR(usb.st_mode)) {
@@ -5818,7 +5843,7 @@ int locinfo_gidrootname(LOCINFO *lip,struct passwd *pwp,char *pwbuf,int pwlen)
 	            cchar	*rn = pip->rootname ;
 	            char	dname[MAXPATHLEN+1] ;
 	            if ((rs = mkpath2(dname,tmpdname,rn)) >= 0) {
-	                struct ustat	sb ;
+	                USTAT	sb ;
 	                if ((rs = u_stat(dname,&sb)) >= 0) {
 	                    if (S_ISDIR(sb.st_mode)) {
 	                        lip->gid_rootname = sb.st_gid ;
@@ -6084,7 +6109,7 @@ static int config_finish(CONFIG *csp)
 
 static int config_addfile(CONFIG *csp,cchar *cfn)
 {
-	struct ustat	sb ;
+	USTAT		sb ;
 	int		rs ;
 	if ((rs = u_stat(cfn,&sb)) >= 0) {
 	    cchar	*cp ;

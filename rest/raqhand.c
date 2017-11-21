@@ -144,8 +144,9 @@ int raqhand_ins(raqhand *op,const void *ep)
 	    op->va[i] = ep ;
 	    op->ti = ((op->ti+1)%op->n) ;
 	    op->c += 1 ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -241,8 +242,9 @@ int raqhand_rem(raqhand *op,void *vp)
 	    if (rs >= 0) {
 	        *epp = ((void *)(op->va)[i]) ;
 	        op->va[i] = NULL ;
-	    } else
+	    } else {
 	        *epp = NULL ;
+	    }
 	} /* end if (non-null) */
 
 	return (rs >= 0) ? i : rs ;
@@ -272,8 +274,9 @@ int raqhand_ent(raqhand *op,void *vp)
 		i = ((i+1)%op->n) ;
 	    } /* end for */
 	    if (! f) rs = SR_NOTFOUND ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -355,8 +358,7 @@ static int raqhand_valid(raqhand *op,int i)
 
 
 #ifdef	COMMENT
-static int raqhand_extend(op)
-RAQHAND		*op ;
+static int raqhand_extend(RAQHAND *op)
 {
 	int		rs = SR_OK ;
 

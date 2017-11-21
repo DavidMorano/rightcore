@@ -19,9 +19,7 @@
 #include	<envstandards.h>
 
 #include	<sys/types.h>
-#include	<sys/wait.h>
 #include	<unistd.h>
-#include	<poll.h>
 #include	<errno.h>
 
 #include	<vsystem.h>

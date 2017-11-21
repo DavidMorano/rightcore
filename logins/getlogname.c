@@ -48,12 +48,10 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<getax.h>
 #include	<getutmpent.h>
 #include	<localmisc.h>
 

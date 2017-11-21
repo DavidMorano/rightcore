@@ -12,9 +12,12 @@
 	= 1998-07-17, David A­D­ Morano
 	Oh what a cheap Q!  I do not know why I am doing this!
 
+	= 2017-11-21, David A­D­ Morano
+	Added new method |cq_unlink()|.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -79,6 +82,7 @@ int cq_finish(CQ *cqp)
 /* end subroutine (cq_finish) */
 
 
+/* insert at tail */
 int cq_ins(CQ *cqp,void *ep)
 {
 	int		rs ;
@@ -93,7 +97,8 @@ int cq_ins(CQ *cqp,void *ep)
 /* end subroutine (cq_ins) */
 
 
-int cq_rem(CQ *cqp,void	 *vp)
+/* remove from head */
+int cq_rem(CQ *cqp,void *vp)
 {
 	int		rs ;
 	int		count = 0 ;
@@ -110,6 +115,26 @@ int cq_rem(CQ *cqp,void	 *vp)
 	return (rs >= 0) ? count : rs ;
 }
 /* end subroutine (cq_rem) */
+
+
+/* unlink entry from where ever it is (if it is) */
+int cq_unlink(CQ *cqp,void *vp)
+{
+	int		rs ;
+	int		count = 0 ;
+
+	if (cqp == NULL) return SR_FAULT ;
+	if (vp == NULL) return SR_FAULT ;
+	if (cqp->magic != CQ_MAGIC) return SR_NOTOPEN ;
+
+	if ((rs = vechand_ent(&cqp->q,vp)) >= 0) {
+	    vechand_del(&cqp->q,0) ;
+	    count = vechand_count(&cqp->q) ;
+	}
+
+	return (rs >= 0) ? count : rs ;
+}
+/* end subroutine (cq_unlink) */
 
 
 int cq_count(CQ *cqp)

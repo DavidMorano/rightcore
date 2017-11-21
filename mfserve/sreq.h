@@ -16,10 +16,28 @@
 
 
 #define	SREQ		struct sreq
+#define	SREQ_FL		struct sreq_flags
 #define	SREQ_JOBIDLEN	15			/* same as LOGIDLEN? */
 
 
+enum sreqstates {
+	sreqstate_acquire,		/* acquire service string */
+	sreqstate_svc,			/* have service string */
+	sreqstate_prog,			/* spawned program (process) */
+	sreqstate_thread,		/* spawned thread */
+	sreqstate_done,			/* job finished */
+	sreqstate_overlast
+} ;
+
+struct sreq_flags {
+	uint		process:1 ;
+	uint		thread:1 ;
+	uint		local:1 ;		/* client is local */
+	uint		longopt:1 ;		/* the "long" switch */
+} ;
+
 struct sreq {
+	SREQ_FL		f ;
 	SOCKADDRESS	sa ;			/* peername socket address */
 	const char	*peername ;
 	const char	*netuser ;
@@ -32,6 +50,7 @@ struct sreq {
 	time_t		stime ;			/* start time */
 	time_t		atime ;			/* arrival? time */
 	pid_t		pid ;			/* child PID */
+	pthread_t	tid ;			/* child thread ID */
 	int		salen ;			/* peername socket length */
 	int		nnames ;		/* number of names */
 	int		ifd ;			/* file-descriptor input */
@@ -39,9 +58,8 @@ struct sreq {
 	int		efd ;			/* error */
 	int		jtype ;			/* job-type */
 	int		stype ;			/* sub-type */
+	int		state ;			/* job state (see above) */
 	int		svclen ;		/* service-length */
-	int		f_long ;		/* the "long" switch */
-	int		f_local ;		/* client is local */
 	char		jobid[SREQ_JOBIDLEN+1] ;
 } ;
 
@@ -59,8 +77,10 @@ extern int sreq_havefd(SREQ *,int) ;
 extern int sreq_addsvc(SREQ *,cchar *,int) ;
 extern int sreq_setsvc(SREQ *,int) ;
 extern int sreq_setlong(SREQ *,int) ;
+extern int sreq_setstate(SREQ *,int) ;
 extern int sreq_getsvc(SREQ *,cchar **) ;
 extern int sreq_getsubsvc(SREQ *,cchar **) ;
+extern int sreq_getstate(SREQ *) ;
 extern int sreq_finish(SREQ *) ;
 
 #ifdef	__cplusplus

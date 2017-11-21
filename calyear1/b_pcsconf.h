@@ -5,12 +5,12 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-	Originally written for Rightcore Network Services.
+	= 1998-11-01, David A­D­ Morano
+	This subroutine was written for Rightcore Network Services (RNS).
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 
 #define	VERSION		"0d"
@@ -29,6 +29,7 @@
 
 #define	VARBANNER	"PCSCONF_BANNER"
 #define	VARSEARCHNAME	"PCSCONF_NAME"
+#define	VARDEBUGLEVEL	"PCSCONF_DEBUGLEVEL"
 #define	VAROPTS		"PCSCONF_OPTS"
 #define	VARCFNAME	"PCSCONF_CF"
 #define	VARAFNAME	"PCSCONF_AF"
@@ -86,5 +87,7 @@
 #define	USERFSUF	"user"
 
 #define	USAGECOLS	4
+
+#define	LOGSIZE		(80*1024)
 
 

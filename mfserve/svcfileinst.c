@@ -8,12 +8,13 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-	Originally written for Rightcore Network Services.
+	= 2017-10-13, David A­D­ Morano
+	This was split out of the HOMEPAGE program (where it was originally
+	local).
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
