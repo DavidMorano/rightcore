@@ -6,6 +6,7 @@
 
 #define	CF_DEBUGS	0		/* non-switchable debugging */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
+#define	CF_GETUSER	0		/* |getuser_uid()| */
 
 
 /* revision history:
@@ -127,9 +128,11 @@ int getuid_user(cchar *np,int nl)
 /* end subroutine (getuid_user) */
 
 
+#if	CF_GETUSER
 int getuser_uid(cchar *np,int nl)
 {
 	return getuid_user(np,nl) ;
 }
+#endif /* CF_GETUSER */
 
 

@@ -84,7 +84,7 @@ int getpjid_name(cchar *np,int nl)
 /* end subroutine (getpjid_name) */
 
 
-int getphid_proj(cchar *np,int nl)
+int getpjid_proj(cchar *np,int nl)
 {
 	int		rs ;
 	if (np == NULL) return SR_FAULT ;

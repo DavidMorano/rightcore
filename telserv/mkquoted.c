@@ -132,7 +132,6 @@ int		qlen, alen ;
 {
 	SBUF		b ;
 	int		rs ;
-	int		i ;
 	int		al ;
 	int		len = 0 ;
 	const char	*ap ;
@@ -140,6 +139,7 @@ int		qlen, alen ;
 	ap = abuf ;
 	al = alen ;
 	if ((rs = sbuf_start(&b,qbuf,qlen)) >= 0) {
+	    int		i ;
 
 	    if (f_allquote)
 	        sbuf_char(&b,CH_DQUOTE) ;

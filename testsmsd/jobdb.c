@@ -201,7 +201,7 @@ int jobdb_newjob(JOBDB *jlp,cchar *jobid,int f_so)
 /* search the job table for a PID match */
 int jobdb_findpid(JOBDB *jlp,pid_t pid,JOBDB_ENT **jepp)
 {
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -220,12 +220,9 @@ int jobdb_findpid(JOBDB *jlp,pid_t pid,JOBDB_ENT **jepp)
 
 
 /* search for a job in the job table via its filename */
-int jobdb_search(jlp,fname,jepp)
-JOBDB		*jlp ;
-char		fname[] ;
-JOBDB_ENT	**jepp ;
+int jobdb_search(JOBDB *jlp,cchar *fname,JOBDB_ENT **jepp)
 {
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -244,10 +241,7 @@ JOBDB_ENT	**jepp ;
 
 
 /* enumerate all of the jobs */
-int jobdb_get(jlp,i,jepp)
-JOBDB		*jlp ;
-int		i ;
-JOBDB_ENT	**jepp ;
+int jobdb_get(JOBDB *jlp,int i,JOBDB_ENT **jepp)
 {
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -258,12 +252,10 @@ JOBDB_ENT	**jepp ;
 
 
 /* get a job by its structure pointer */
-int jobdb_getp(jlp,jep)
-JOBDB		*jlp ;
-JOBDB_ENT	*jep ;
+int jobdb_getp(JOBDB *jlp,JOBDB_ENT *jep)
 {
 	JOBDB_ENT	*jep2 ;
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -315,7 +307,7 @@ int jobdb_del(JOBDB *jlp,int i)
 int jobdb_delp(JOBDB *jlp,JOBDB_ENT *jep)
 {
 	JOBDB_ENT	*jep2 ;
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 #if	CF_DEBUGS

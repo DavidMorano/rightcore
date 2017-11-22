@@ -205,7 +205,7 @@ int sreqdb_typeset(SREQDB *op,int ji,int jt,int st)
 /* search the job table for a PID match */
 int sreqdb_findpid(SREQDB *jlp,pid_t pid,SREQ **jepp)
 {
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -226,7 +226,7 @@ int sreqdb_findpid(SREQDB *jlp,pid_t pid,SREQ **jepp)
 /* search for a job in the job table via its (error) filename */
 int sreqdb_search(SREQDB *jlp,cchar *fname,SREQ **jepp)
 {
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -259,7 +259,7 @@ int sreqdb_get(SREQDB *jlp,int i,SREQ **jepp)
 int sreqdb_getp(SREQDB *jlp,SREQ *jep)
 {
 	SREQ		*jep2 ;
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -307,7 +307,7 @@ int sreqdb_del(SREQDB *jlp,int i)
 int sreqdb_delp(SREQDB *jlp,SREQ *jep)
 {
 	SREQ		*jep2 ;
-	int		rs = SR_NOTFOUND ;
+	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;

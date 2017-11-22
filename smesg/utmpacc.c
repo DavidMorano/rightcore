@@ -124,7 +124,7 @@ struct utmpacc_head {
 	UTMPACC_ITEM	ent ;
 	int		max ;
 	int		ttl ;
-	volatile	waiters ;
+	volatile int	waiters ;
 	volatile int	f_init ; 	/* race-condition, blah, blah */
 	volatile int	f_initdone ;
 	volatile int	f_capture ;

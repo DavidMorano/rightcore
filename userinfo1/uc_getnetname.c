@@ -44,7 +44,7 @@
 
 /* external subroutines */
 
-extern int	getnetname(cchar *) ;
+extern int	getnetname(cchar *) ;	/* UNXI® ONC interface */
 
 
 /* exported subroutines */

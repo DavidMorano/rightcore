@@ -67,6 +67,7 @@
 #include	<connection.h>
 #include	<poller.h>
 #include	<svcfile.h>
+#include	<upt.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -215,9 +216,18 @@ static int	mfswatch_svcend(PROGINFO *) ;
 static int mfswatch_svcfind(PROGINFO *,SREQ *) ;
 static int mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
 static int mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,vecstr *) ;
+
+static int mfswatch_svcprocer(PROGINFO *,SREQ *,SVCFILE_ENT *,
+	    SVCENTSUB *,svcprocer_t) ;
+static int mfswatch_svcprocers(SVCPROCARGS *) ;
+
 static int mfswatch_svcprocfile(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+static int mfswatch_svcprocfiler(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+
 static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+
 static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+
 static int mfswatch_notfound(PROGINFO *,SREQ *) ;
 static int mfswatch_jobretire(PROGINFO *,SREQ *) ;
 #endif /* CF_SVC */
@@ -788,7 +798,7 @@ static int mfswatch_svcprocfile(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	if (sep == NULL) return SR_FAULT ;
 	if (ssp == NULL) return SR_FAULT ;
 	if ((rs = svckv_isfile(kv,n,&vp)) > 0) {
-	    workthr	w = (workthr) mfswatch_svcprocfiler ;
+	    svcprocer_t		w = (svcprocer_t) mfswatch_svcprocfiler ;
 	    if ((rs = mfswatch_svcprocer(pip,jep,sep,ssp,w)) >= 0) {
 	         rs = 1 ;
 
@@ -804,13 +814,15 @@ static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 {
 	SVCPROCARGS	*sap ;
 	const int	size = sizeof(SVCPROCARGS) ;
+	int		rs ;
 	if ((rs = uc_malloc(size,&sap)) >= 0) {
-	    workthr	helper = (workthr) mfswatch_svcprocers ;
+	    uptsub_t	helper = (uptsub_t) mfswatch_svcprocers ;
 	    thread_t	tid ;
 	    sap->pip = pip ;
 	    sap->jep = jep ;
 	    sap->sep = sep ;
 	    sap->ssp = ssp ;
+	    sap->w = w ;
 	    if ((rs = uptcreate(&tid,NULL,helper,sap)) >= 0) {
 	         rs = 1 ;
 
@@ -822,12 +834,12 @@ static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 /* end subroutine (mfswatch_svcprocer) */
 
 
-static int mfswatch_svcprocers(SVCPROCSRGS *sap)
+static int mfswatch_svcprocers(SVCPROCARGS *sap)
 {
 	SVCPROCARGS	sa = *sap ;
 	int		rs ;
 	if ((rs = uc_free(sap)) >= 0) {
-	    rs = (*sa.w)(sa.pip,sa.jep,sa.sep,sa,ssp) ;
+	    rs = (*sa.w)(sa.pip,sa.jep,sa.sep,sa.ssp) ;
 	}
 	return rs ;
 }
@@ -835,7 +847,7 @@ static int mfswatch_svcprocers(SVCPROCSRGS *sap)
 
 
 static int mfswatch_svcprocfiler(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-	    SVCENTSUB *ssp,svcprocer_t w)
+	    SVCENTSUB *ssp)
 {
 	int		rs = SR_OK ;
 

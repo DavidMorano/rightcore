@@ -3,6 +3,9 @@
 /* get the GID for a given group-name */
 
 
+#define	CF_GETGROUP	0		/* |getgroup_gid()| */
+
+
 /* revision history:
 
 	= 1998-08-20, David A­D­ Morano
@@ -18,11 +21,12 @@
 
 	Synopsis:
 
-	int getgid_name(cchar *gname)
+	int getgid_name(cchar *np,int nl)
 
 	Arguments:
 
-	gname		name of group to look up 
+	np		name of group to look up 
+	nl		length of given string
 
 	Returns:
 
@@ -101,9 +105,11 @@ int getgid_group(cchar *np,int nl)
 /* end subroutine (getgid_group) */
 
 
+#if	CF_GETGROUP
 int getgroup_gid(cchar *np,int nl)
 {
 	return getgid_group(np,nl) ;
 }
+#endif /* CF_GETGROUP */
 
 

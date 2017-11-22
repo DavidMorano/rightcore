@@ -257,6 +257,14 @@ int sreq_setlong(SREQ *op,int f)
 /* end subroutine (sreq_setlong) */
 
 
+int sreq_setstate(SREQ *op,int state)
+{
+	op->state = state ;
+	return SR_OK ;
+}
+/* end subroutine (sreq_setstate) */
+
+
 int sreq_getsvc(SREQ *op,cchar **rpp)
 {
 	int		sl ;
@@ -277,7 +285,7 @@ int sreq_getsubsvc(SREQ *op,cchar **rpp)
 /* end subroutine (sreq_getsubsvc) */
 
 
-int sreq_getsrate(SREQ *op)
+int sreq_getstate(SREQ *op)
 {
 	return op->state ;
 }

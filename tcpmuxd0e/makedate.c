@@ -1,2 +1,2 @@
 const char tcpmuxd_makedate[] =
-"@(#)tcpmuxd                 171112_1658:18_USEST Rightcore Network Services" ;
+"@(#)tcpmuxd                 171121_1955:17_USEST Rightcore Network Services" ;

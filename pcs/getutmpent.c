@@ -26,6 +26,8 @@
 
 	Synopsis:
 
+	int getutmpent(GETUTMPENT *ep,pid_t sid)
+
 	int getutmpname(rbuf,rlen,sid)
 	char	rbuf[] ;
 	int	rlen ;
@@ -43,6 +45,7 @@
 
 	Arguments:
 
+	ep		pointer to GETUTMPENT object
 	rbuf		buffer to hold result
 	rlen		length of user supplied buffer
 	sid		session ID to lookup
@@ -167,8 +170,9 @@ int getutmpname(char *rbuf,int rlen,pid_t sid)
 	if (rlen < 0) rlen = GETUTMPENT_LUSER ;
 
 	rbuf[0] = '\0' ;
-	if ((rs = getutmpent(&e,sid)) >= 0)
+	if ((rs = getutmpent(&e,sid)) >= 0) {
 	    rs = sncpy1(rbuf,rlen,e.user) ;
+	}
 
 	return rs ;
 }
@@ -185,8 +189,9 @@ int getutmphost(char *rbuf,int rlen,pid_t sid)
 	if (rlen < 0) rlen = GETUTMPENT_LHOST ;
 
 	rbuf[0] = '\0' ;
-	if ((rs = getutmpent(&e,sid)) >= 0)
+	if ((rs = getutmpent(&e,sid)) >= 0) {
 	    rs = sncpy1(rbuf,rlen,e.host) ;
+	}
 
 	return rs ;
 }
@@ -203,8 +208,9 @@ int getutmpline(char *rbuf,int rlen,pid_t sid)
 	if (rlen < 0) rlen = GETUTMPENT_LLINE ;
 
 	rbuf[0] = '\0' ;
-	if ((rs = getutmpent(&e,sid)) >= 0)
+	if ((rs = getutmpent(&e,sid)) >= 0) {
 	    rs = sncpy1(rbuf,rlen,e.line) ;
+	}
 
 	return rs ;
 }
