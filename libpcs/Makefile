@@ -8,7 +8,6 @@ TPPS= pcspolls
 
 PCSNSO= pcsnso
 
-#ALLSO= $(T).a $(T).so
 ALLSO= $(T).so $(TPCS).so $(TPPS).so $(PCSNSO).so
 ALL= $(T).a $(ALLSO)
 
@@ -176,24 +175,24 @@ SOBJ37=
 SOBJ38=
 SOBJ39=
 
-SOBJAa= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03)
-SOBJAb= $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
-SOBJA= $(SOBJa) $(SOBJb)
+SOBJAa= $(SOBJ00) $(SOBJ01) $(SOBJ02) $(SOBJ03)
+SOBJAb= $(SOBJ04) $(SOBJ05) $(SOBJ06) $(SOBJ07)
+SOBJA= $(SOBJAa) $(SOBJAb)
 
-SOBJBa= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11)
-SOBJBb= $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
-SOBJB= $(SOBJBa) $(SOBJb)
+SOBJBa= $(SOBJ08) $(SOBJ09) $(SOBJ10) $(SOBJ11)
+SOBJBb= $(SOBJ12) $(SOBJ13) $(SOBJ14) $(SOBJ15)
+SOBJB= $(SOBJBa) $(SOBJBb)
 
-SOBJCa= $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19)
-SOBJCb= $(OBJ20) $(OBJ21) $(OBJ22) $(OBJ23) 
-SOBJC= $(SOBJa) $(SOBJb)
+SOBJCa= $(SOBJ16) $(SOBJ17) $(SOBJ18) $(SOBJ19)
+SOBJCb= $(SOBJ20) $(SOBJ21) $(SOBJ22) $(SOBJ23) 
+SOBJC= $(SOBJCa) $(SOBJCb)
 
-SOBJDa= $(OBJ24) $(OBJ25) $(OBJ26) $(OBJ27)
-SOBJDb= $(OBJ28) $(OBJ29) $(OBJ30) $(OBJ31) 
-SOBJD= $(SOBJa) $(SOBJb)
+SOBJDa= $(SOBJ24) $(SOBJ25) $(SOBJ26) $(SOBJ27)
+SOBJDb= $(SOBJ28) $(SOBJ29) $(SOBJ30) $(SOBJ31) 
+SOBJD= $(SOBJDa) $(SOBJDb)
 
-SOBJEa= $(OBJ32) $(OBJ33) $(OBJ34) $(OBJ35)
-SOBJEb= $(OBJ36) $(OBJ37) $(OBJ38) $(OBJ39)
+SOBJEa= $(SOBJ32) $(SOBJ33) $(SOBJ34) $(SOBJ35)
+SOBJEb= $(SOBJ36) $(SOBJ37) $(SOBJ38) $(SOBJ39)
 SOBJE= $(SOBJEa) $(SOBJEb)
 
 SOBJ= $(SOBJA) $(SOBJB) $(SOBJC) $(SOBJD) $(SOBJE)
@@ -246,13 +245,13 @@ all:			$(ALL)
 	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
 
 
-so:			$(TPCS).so $(TPPS).so $(PCSNSO).so
+so:			$(T).so $(TPCS).so $(TPPS).so $(PCSNSO).so
 
 $(TPCS).so:		$(TPCSOBJ) Makefile $(TPCS).map
 	$(LD) -G -o $@ -M $(TPCS).map $(SLDFLAGS) $(TPCSOBJ) $(SLIBINFO)
 
 $(TPPS).so:		$(TPPSOBJ) Makefile $(TPPS).map
-	$(LD) -G -o $@ -M $(TPPS).map $(SLDFLAGS) $(TPPSOBJ) $(SLIBINDO)
+	$(LD) -G -o $@ -M $(TPPS).map $(SLDFLAGS) $(TPPSOBJ) $(SLININFO)
 
 $(PCSNSO).so:		$(PCSNSOBJ) Makefile $(PCSNSO).map
 	$(LD) -G -o $@ -M $(PCSNSO).map $(SLDFLAGS) $(PCSNSOBJ) $(SLIBINFO)

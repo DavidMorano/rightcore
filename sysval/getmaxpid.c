@@ -65,7 +65,7 @@
 /* local structures */
 
 struct getmaxpid {
-	pid_t		pid ;
+	pid_t		pid ;		/* assume this is atomic */
 } ;
 
 

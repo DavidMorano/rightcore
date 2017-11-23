@@ -3,7 +3,7 @@
 /* get the GID for a given group-name */
 
 
-#define	CF_GETGROUP	0		/* |getgroup_gid()| */
+#define	CF_GETGROUP	0		/* compile in |getgroup_gid()| */
 
 
 /* revision history:

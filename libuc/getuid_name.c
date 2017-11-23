@@ -6,13 +6,17 @@
 
 #define	CF_DEBUGS	0		/* non-switchable debugging */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
-#define	CF_GETUSER	0		/* |getuser_uid()| */
+#define	CF_GETUSER	0		/* compile in |getuser_uid()| */
 
 
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
 	This program was originally written.
+
+	= 2017-11-22, David A­D­ Morano
+	I finally (finally) removed (compiled out) the global function symbol
+	|getuser_uid()|.  Good riddance.
 
 */
 

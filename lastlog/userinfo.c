@@ -242,7 +242,7 @@
 #define	UA_WS		"ws"		/* weather station */
 #endif
 
-#define	NFNAME		"/tmp/userinfo.nd"
+#define	NDF		"/tmp/userinfo.nd"
 
 
 /* external subroutines */
@@ -353,7 +353,7 @@ struct procinfo {
 
 /* forward references */
 
-static int	userinfo_process(USERINFO *,STRSTORE *,int *,const char *) ;
+static int	userinfo_process(USERINFO *,STRSTORE *,int *,cchar *) ;
 static int	userinfo_id(USERINFO *uip) ;
 static int	userinfo_load(USERINFO *,STRSTORE *,int *) ;
 
@@ -469,10 +469,8 @@ int userinfo_start(USERINFO *uip,cchar *username)
 	        if ((rs = strstore_start(&st,10,startsize)) >= 0) {
 
 	            if ((rs = userinfo_process(uip,&st,sis,username)) >= 0) {
-
 	                rs = userinfo_load(uip,&st,sis) ;
 	                len = rs ;
-
 	            } /* end if */
 
 	            rs1 = strstore_finish(&st) ;
@@ -533,9 +531,9 @@ static int userinfo_process(USERINFO *uip,STRSTORE *stp,int *sis,cchar *un)
 	int		rs1 ;
 
 	if ((rs = procinfo_start(&pi,uip,stp,sis)) >= 0) {
-
-	    rs = procinfo_find(&pi,un) ;
-
+	    {
+	        rs = procinfo_find(&pi,un) ;
+	    }
 	    rs1 = procinfo_finish(&pi) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (procinfo) */

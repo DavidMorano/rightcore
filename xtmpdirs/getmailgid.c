@@ -36,8 +36,6 @@
 #include	<sys/types.h>
 
 #include	<vsystem.h>
-#include	<getbufsize.h>
-#include	<getax.h>
 #include	<localmisc.h>
 
 
@@ -54,10 +52,10 @@ extern int	getgid_group(cchar *,int) ;
 
 int getmailgid(cchar *gname,gid_t gid)
 {
-	const int	nrs = SR_NOTFOUND ;
+	const int	rsn = SR_NOTFOUND ;
 	int		rs ;
 	if (gname == NULL) return SR_FAULT ;
-	if ((rs = getgid_group(gname,-1)) == nrs) {
+	if ((rs = getgid_group(gname,-1)) == rsn) {
 	    if (gid >= 0) {
 	        gid = rs ;
 	    } else {

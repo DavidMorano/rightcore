@@ -18,11 +18,16 @@
 
 /*******************************************************************************
 
+	Return the current Thread-ID (TID).
+
+
 	Synopsis:
 
 	int gettid()
 
 	Arguments:
+
+	-		N/A
 
 	Returns:
 
