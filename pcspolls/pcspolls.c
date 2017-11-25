@@ -112,7 +112,6 @@ extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
-extern char	*timestr_log(time_t,char *) ;
 #endif
 
 #if	CF_DEUGN

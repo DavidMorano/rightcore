@@ -725,9 +725,11 @@ buffer_strquote.o:	buffer_strquote.c buffer.h
 
 sbuf.o:			sbuf.c sbuf.h
 
-sbuf_termconseq.o:	sbuf_termconseq.c sbuf.h
+sbuf_loadstrs.o:	sbuf_loadstrs.c sbuf.h
 
 sbuf_addquoted.o:	sbuf_addquoted.c sbuf.h
+
+sbuf_termconseq.o:	sbuf_termconseq.c sbuf.h
 
 sbuf_blanks.o:		sbuf_blanks.c sbuf.h
 

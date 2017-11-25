@@ -319,7 +319,8 @@ int useraccdb_find(USERACCDB *op,USERACCDB_ENT *ep,char *ebuf,int elen,
 	            rs = (rs1 < 0) ? rs1 : SR_NOTFOUND ;
 	        }
 
-	        filebuf_finish(&b) ;
+	        rs1 = filebuf_finish(&b) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (filebuf) */
 
 	    rs1 = useraccdb_lock(op,FALSE) ;
@@ -512,13 +513,14 @@ int		elen ;
 		ll = rs ;
 	        if (ll > 0) {
 	            USERACCDB_REC	rec ;
-	             rs = useraccdb_recparse(op,&rec,lbuf,ll) ;
-	             if (rs >= 0)
-	                 rs = useraccdb_recproc(op,&rec) ;
-	             if (rs >= 0)
-	                 rs = entry_load(ep,ebuf,elen,&rec) ;
-	        } else 
+	            if ((rs = useraccdb_recparse(op,&rec,lbuf,ll)) >= 0) {
+	                if ((rs = useraccdb_recproc(op,&rec)) >= 0) {
+	                    rs = entry_load(ep,ebuf,elen,&rec) ;
+			}
+		    }
+	        } else {
 	            rs = SR_NOTFOUND ;
+		}
 	        if (rs >= 0)
 	            curp->eo = (eo + ll) ;
 	    } /* end if (filebuf_readline) */
@@ -742,8 +744,9 @@ static int useraccdb_recproc(USERACCDB *op,USERACCDB_REC *recp)
 	    sp = recp->datestr.sp ;
 	    if (sp != NULL) {
 	        rs = useraccdb_datethis(op,&recp->atime,sp,sl) ;
-	    } else
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -751,8 +754,9 @@ static int useraccdb_recproc(USERACCDB *op,USERACCDB_REC *recp)
 	    sp = recp->countstr.sp ;
 	    if (sp != NULL) {
 	        rs = cfdecui(sp,sl,&recp->count) ;
-	    } else
+	    } else {
 	        rs = SR_INVALID ;
+	    }
 	}
 
 	return rs ;
@@ -996,11 +1000,7 @@ int		type ;
 /* end subroutine (upinfo_mkrec) */
 
 
-static int entry_load(ep,ebuf,elen,recp)
-USERACCDB_ENT	*ep ;
-char		ebuf[] ;
-int		elen ;
-USERACCDB_REC	*recp ;
+static int entry_load(USERACCDB_ENT *ep,char *ebuf,int elen,USERACCDB_REC *recp)
 {
 	STOREITEM	s ;
 	int		rs ;
@@ -1034,7 +1034,7 @@ USERACCDB_REC	*recp ;
 /* end subroutine (entry_load) */
 
 
-static int mkts(char tbuf[],int tlen,time_t t)
+static int mkts(char *tbuf,int tlen,time_t t)
 {
 	int		tl = 0 ;
 

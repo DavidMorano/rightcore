@@ -7,7 +7,6 @@
 #define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_DEBUGMOUT	0		/* debug memory-allocations */
-#define	CF_DEBUGLEVEL	0		/* default debug-level */
 #define	CF_PROCARGS	0		/* |procargs()| */
 #define	CF_STACKCHECK	1		/* check stacks afterwards */
 #define	CF_UCREADE	1		/* use |uc_reade(3uc)| */
@@ -196,6 +195,7 @@ extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -1344,8 +1344,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
+
+	if (pip->debuglevel == 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1353,8 +1361,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1362,13 +1369,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (rs >= 0) {
 	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
 	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
-	    }
-	}
-
-	if (pip->debuglevel == 0) {
-	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        rs = optvalue(cp,-1) ;
-	        pip->debuglevel = rs ;
 	    }
 	}
 

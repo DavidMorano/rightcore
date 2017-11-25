@@ -105,7 +105,6 @@ extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*timestr_log(time_t,char *) ;
 
 
 /* external variables */

@@ -1751,8 +1751,7 @@ static int procgetns(PROGINFO *pip,char *nbuf,int nlen,cchar *un,int w)
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 
-	if (lip == NULL)
-	    return SR_FAULT ;
+	if (lip == NULL) return SR_FAULT ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
@@ -1879,8 +1878,9 @@ int locinfo_gmcurbegin(LOCINFO *lip,LOCINFO_GMCUR *curp)
 	    lip->open.gm = (rs >= 0) ;
 	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = grmems_curbegin(&lip->gm,&curp->gmcur) ;
+	}
 
 	return rs ;
 }

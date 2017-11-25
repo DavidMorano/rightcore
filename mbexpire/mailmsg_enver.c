@@ -87,9 +87,6 @@ extern int	strlinelen(const char *,int,int) ;
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*timestr_edate(time_t,char *) ;
-extern char	*timestr_hdate(time_t,char *) ;
-extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */

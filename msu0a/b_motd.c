@@ -263,6 +263,7 @@ extern int	hasMeAlone(cchar *,int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 extern int	isIOError(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -1107,10 +1108,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        rs = optvalue(cp,-1) ;
-	        pip->debuglevel = rs ;
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
 	    }
-	}
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))

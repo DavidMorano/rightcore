@@ -724,6 +724,16 @@ int sbuf_getlen(SBUF *sbp)
 /* end subroutine (sbuf_getlen) */
 
 
+/* get the length filled so far */
+int sbuf_getbuf(SBUF *sbp,cchar **rpp)
+{
+	if (sbp == NULL) return SR_FAULT ;
+	if (rpp != NULL) *rpp = sbp->rbuf ;
+	return SBUF_INDEX ;
+}
+/* end subroutine (sbuf_getbuf) */
+
+
 /* get the pointer in the buffer to the next character */
 int sbuf_getpoint(SBUF *sbp,cchar **rpp)
 {

@@ -61,8 +61,7 @@ INCDIRS= -I$(INCDIR)
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
-CCFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS) 
-GPPFLAGS= $(CCOPTS_GCCOPTSGPP) $(CCOPTS) 
+CCFLAGS= $(GPPFLAGS) $(CFLAGS) 
 
 #LD= $(CC)
 #LD= cc
@@ -609,5 +608,23 @@ $(T19).x:		Makefile $(T19OBJ)
 
 main$(T19).o:		main$(T19).cc
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T19).cc
+
+
+T20= testinit
+
+T20OBJa= main$(T20).o
+T20OBJb=
+T20OBJc=
+T20OBJd=
+
+T20OBJ= $(T20OBJa) $(T20OBJb) $(T20OBJc) $(T20OBJd)
+
+T20OBJS= $(CRTFRONT) $(T20OBJ) $(CRTBACK)
+
+$(T20).x:		Makefile $(T20OBJ) 
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T20OBJS) $(TLIBINFO) > $(T20).lm
+
+main$(T20).o:		main$(T20).cc
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T20).cc
 
 

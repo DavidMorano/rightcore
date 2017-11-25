@@ -131,7 +131,6 @@ extern int	isdigitlatin(int) ;
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpyuc(char *,const char *,int) ;
 extern char	*strnwcpy(char *,int,const char *,int) ;
-extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */

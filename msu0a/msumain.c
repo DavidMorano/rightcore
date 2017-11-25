@@ -216,6 +216,7 @@ extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -1154,8 +1155,16 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
+
+	if (pip->debuglevel == 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1250,7 +1259,6 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (rs >= 0) {
 	    if ((rs = procdefargs(pip)) >= 0) {
 	        if ((rs = procextras(pip)) >= 0) {
-	            if ((rs = procfindconf(pip)) >= 0) {
 	                if ((rs = procourconf_begin(pip)) >= 0) {
 	                    if ((rs = procdefconf(pip)) >= 0) {
 	                        if ((rs = logbegin(pip)) >= 0) {
@@ -1264,7 +1272,6 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    rs1 = procourconf_end(pip) ;
 	                    if (rs >= 0) rs = rs1 ;
 	                } /* end if (procourconf) */
-	            } /* end if (procfindconf) */
 	        } /* end if (procextras) */
 	    } /* end if (procdefargs) */
 	} else if (ex == EX_OK) {
@@ -1789,8 +1796,8 @@ static int procfindconf(PROGINFO *pip)
 	} /* end if (specified) */
 
 	if ((pip->debuglevel > 0) && (pip->cfname != NULL)) {
-	    shio_printf(pip->efp,"%s: conf=%s\n",
-	        pip->progname,pip->cfname) ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: conf=%s\n",pn,pip->cfname) ;
 	}
 
 	return (rs >= 0) ? rl : rs ;
@@ -1808,7 +1815,7 @@ static int procourconf_begin(PROGINFO *pip)
 	    debugprintf("msumain/procourconf_begin: ent\n") ;
 #endif
 
-	if (pip->cfname != NULL) {
+	if ((rs = procfindconf(pip)) > 0) {
 	    const int	size = sizeof(CONFIG) ;
 	    void	*p ;
 	    if ((rs = uc_malloc(size,&p)) >= 0) {
@@ -1823,7 +1830,7 @@ static int procourconf_begin(PROGINFO *pip)
 	            pip->config = NULL ;
 	        }
 	    } /* end if (m-a) */
-	} /* end if (non-null) */
+	} /* end if (procfindconf) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))

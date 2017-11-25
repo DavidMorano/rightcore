@@ -251,6 +251,7 @@ static int ictdec(char *dbuf,int dlen,ulonglong v)
 		v = lv ;
 	    }
 #endif /* _ILP32 */
+
 	    {
 		ulonglong	nv ;
 	        while (v != 0) {
@@ -260,8 +261,9 @@ static int ictdec(char *dbuf,int dlen,ulonglong v)
 	        } /* end while */
 	    }
 
-	} else
+	} else {
 	    *--rp = '0' ;
+	}
 
 #if	CF_DEBUGS
 	{

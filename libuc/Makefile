@@ -214,7 +214,7 @@ OBJ082= envlist.o hdb.o lookaside.o ciq.o pq.o ids.o linefold.o nulstr.o
 OBJ083= dirseen.o dirseen_not.o
 OBJ084= strpack.o
 OBJ085= varray.o dirlist.o randomvar.o strmgr.o sigign.o ucsem.o
-OBJ086= sbuf.o sbuf_addquoted.o 
+OBJ086= sbuf.o sbuf_loadstrs.o sbuf_addquoted.o 
 OBJ087= hostinfo.o hostaddr.o hostent.o inetaddr.o sockaddress.o upwcache.o
 
 OBJ088= strnstr.o strncasestr.o strnsub.o strncasesub.o 
@@ -657,7 +657,13 @@ storebuf.o:		storebuf.c storebuf.h
 
 sbuf.o:			sbuf.c sbuf.h
 
+sbuf_loadstrs.o:	sbuf_loadstrs.c sbuf.h
+
 sbuf_addquoted.o:	sbuf_addquoted.c sbuf.h
+
+sbuf_termconseq.o:	sbuf_termconseq.c sbuf.h
+
+sbuf_blanks.o:		sbuf_blanks.c sbuf.h
 
 buffer.o:		buffer.c buffer.h
 

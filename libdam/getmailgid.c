@@ -57,9 +57,9 @@ int getmailgid(cchar *gname,gid_t gid)
 	if (gname == NULL) return SR_FAULT ;
 	if ((rs = getgid_group(gname,-1)) == rsn) {
 	    if (gid >= 0) {
-	        gid = rs ;
+	        rs = gid ;
 	    } else {
-	        gid = getgid() ;
+	        rs = getgid() ;
 	    }
 	}
 	return rs ;

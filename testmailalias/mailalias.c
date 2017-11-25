@@ -178,8 +178,6 @@ extern "C" int	strlinelen(const char *,int,int) ;
 extern "C" char	*strwcpy(char *,const char *,int) ;
 extern "C" char	*strwcpylc(char *,const char *,int) ;
 extern "C" char	*strwcpyuc(char *,const char *,int) ;
-extern "C" char	*timestr_log(time_t,char *) ;
-extern "C" char	*timestr_logz(time_t,char *) ;
 
 
 /* local structures */

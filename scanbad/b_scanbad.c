@@ -98,6 +98,7 @@ extern int	iceil(int,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -339,14 +340,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
 	rs = proginfo_setbanner(pip,cp) ;
 
-/* initialize */
-
-	if (rs >= 0) {
-	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        rs = optvalue(cp,-1) ;
-		pip->debuglevel = rs ;
-	    }
-	}
+/* early things to initialize */
 
 	pip->verboselevel = 1 ;
 
@@ -722,8 +716,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
+
+	if (pip->debuglevel == 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -731,8 +733,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */

@@ -421,8 +421,7 @@ static int config_reader(CONFIG *cfp)
 	        case param_intmark:
 	        case param_intlock:
 	        case param_intspeed:
-	            rs1 = cfdecti(ebuf,el,&v) ;
-	            if ((rs1 >= 0) && (v >= 0)) {
+	            if ((rs = cfdecti(ebuf,el,&v)) >= 0) {
 	                switch (pi) {
 	                case param_intrun:
 	                    if (! pip->final.intrun)
@@ -446,7 +445,7 @@ static int config_reader(CONFIG *cfp)
 	                        lip->intspeed = v ;
 	                    break ;
 	                } /* end switch */
-	            } /* end if (valid number) */
+	            } /* end if (cfdecti) */
 	            break ;
 	        case param_pidfile:
 	            if (! pip->final.pidfname) {

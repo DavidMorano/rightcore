@@ -17,16 +17,14 @@
 
 /*******************************************************************************
 
-	We return a HEX digit given a value.
+	We return a digit (anything from base-2 up to base-36) given a value.
 
 
 *******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
-
 #include	<sys/types.h>
-
 #include	<localmisc.h>
 
 
@@ -47,7 +45,7 @@
 
 /* local variables */
 
-static cchar	*digtab = "0123456789ABCDEFghijklmnopqrstuvwxyz" ;
+static cchar	digtab[] = "0123456789ABCDEFghijklmnopqrstuvwxyz" ;
 
 
 /* exported subroutines */
@@ -55,7 +53,7 @@ static cchar	*digtab = "0123456789ABCDEFghijklmnopqrstuvwxyz" ;
 
 int getdig(int v)
 {
-	const int	n = sizeof(digtab) ;
+	const int	n = nelem(digtab) ;
 	int		dig = -1 ;
 	if ((v >= 0) && (v < n)) {
 	    dig = digtab[v] ;

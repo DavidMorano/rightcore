@@ -1,4 +1,4 @@
-/* hasdupai */
+/* hasdupai (Has-Duplicate-Array-Integers) */
 /* lang=C99 */
 
 /* does the given array of integers have duplicate entries */
@@ -61,6 +61,7 @@ int hasdupai(const int *sp,int sl)
 	const int	esize = sizeof(int) ;
 	const int	size = ((sl+1)*sizeof(int)) ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		f = FALSE ;
 	if (sl > 1) {
 	    int		*aa ;
@@ -72,7 +73,8 @@ int hasdupai(const int *sp,int sl)
 		    f = (aa[i] == aa[i-1]) ;
 		    if (f) break ;
 		} /* end for */
-	        uc_free(aa) ;
+	        rs1 = uc_free(aa) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a) */
 	} /* end if (needed more work) */
 	return (rs >= 0) ? f : rs ;

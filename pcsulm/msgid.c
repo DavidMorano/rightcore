@@ -115,7 +115,10 @@ extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
+
+#if	CF_DEBUGS
 extern char	*timestr_log(time_t,char *) ;
+#endif
 
 
 /* external variables */
@@ -152,8 +155,8 @@ static int	msgid_searchemptyrange(MSGID *,int,int,
 			struct oldentry *,char **) ;
 static int	msgid_buf(MSGID *,int,int,char **) ;
 static int	msgid_bufupdate(MSGID *,int,int,const char *) ;
-static int	msgid_bufstart(MSGID *) ;
-static int	msgid_buffinish(MSGID *) ;
+static int	msgid_bufbegin(MSGID *) ;
+static int	msgid_bufend(MSGID *) ;
 static int	msgid_writehead(MSGID *) ;
 
 static int	filemagic(char *,int,MSGID_FM *) ;
@@ -212,7 +215,7 @@ int msgid_open(MSGID *op,cchar *fname,int of,mode_t om,int maxentry)
 
 /* initialize the buffer structure */
 
-	if ((rs = msgid_bufstart(op)) >= 0) {
+	if ((rs = msgid_bufbegin(op)) >= 0) {
 	    const time_t	dt = time(NULL) ;
 	    char		tbuf[MAXPATHLEN+1] ;
 	    if ((rs = msgid_opener(op,tbuf,fname,of,om)) >= 0) {
@@ -221,8 +224,8 @@ int msgid_open(MSGID *op,cchar *fname,int of,mode_t om,int maxentry)
 	        op->opentime = dt ;
 	        op->accesstime = dt ;
 	        if ((rs = uc_mallocstrw(tbuf,-1,&fn)) >= 0) {
-	            struct ustat	sb ;
-	            const int		am = (of & O_ACCMODE) ;
+	            USTAT	sb ;
+	            const int	am = (of & O_ACCMODE) ;
 	            op->fname = fn ;
 	            op->f.writable = ((am == O_WRONLY) || (am == O_RDWR)) ;
 	            if ((rs = u_fstat(op->fd,&sb)) >= 0) {
@@ -251,7 +254,7 @@ int msgid_open(MSGID *op,cchar *fname,int of,mode_t om,int maxentry)
 	        }
 	    } /* end if (open) */
 	    if (rs < 0) {
-	        msgid_buffinish(op) ;
+	        msgid_bufend(op) ;
 	    }
 	} /* end if (buffer-start) */
 
@@ -279,7 +282,7 @@ int msgid_close(MSGID *op)
 	if (op->magic != MSGID_MAGIC) return SR_NOTOPEN ;
 #endif /* CF_SAFE */
 
-	rs1 = msgid_buffinish(op) ;
+	rs1 = msgid_bufend(op) ;
 	if (rs >= 0) rs = rs1 ;
 
 	if (op->fd >= 0) {
@@ -508,12 +511,14 @@ int msgid_enum(MSGID *op,MSGID_CUR *curp,MSGID_ENT *ep)
 
 	                    op->f.cursoracc = TRUE ;
 
-	                } else
+	                } else {
 	                    rs = SR_EOF ;
+			}
 	            } /* end if (msgid_buf) */
 
-	        } else
+	        } else {
 	            rs = SR_NOTFOUND ;
+		}
 
 	    } else {
 	        rs = SR_EOF ;
@@ -703,216 +708,201 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	    if (op->f.fileinit) {
 
 #if	CF_DEBUGS && (CF_DEBUGSLEEP > 0)
-	debugprintf("msgid_update: sleeping\n") ;
-	sleep(CF_DEBUGSLEEP) ;
-	debugprintf("msgid_update: waking\n") ;
+	        debugprintf("msgid_update: sleeping\n") ;
+	        sleep(CF_DEBUGSLEEP) ;
+	        debugprintf("msgid_update: waking\n") ;
 #endif
 
 /* continue with the search */
 
-#if	CF_DEBUGS
-	debugprintf("msgid_update: msgid_search() recip=%s\n", kp->recip) ;
-	debugprintf("msgid_update: mid=%s\n", kp->mid) ;
-#endif
+	        midlen = strnlen(kp->mid,MSGIDE_LMESSAGEID) ;
 
-	midlen = strnlen(kp->mid,MSGIDE_LMESSAGEID) ;
+	        khash = recipidhash(kp,-1,midlen) ;
 
-	khash = recipidhash(kp,-1,midlen) ;
-
-	if ((rs = msgid_search(op,kp,khash,&bep)) >= 0) {
-	    MSGIDE_UPDATE	m1 ;
-	    ei = rs ;
+	        if ((rs = msgid_search(op,kp,khash,&bep)) >= 0) {
+	            MSGIDE_UPDATE	m1 ;
+	            ei = rs ;
 
 #if	CF_DEBUGS
-	    debugprintf("msgid_update: entry found, ei=%d\n",ei) ;
+	            debugprintf("msgid_update: entry found, ei=%d\n",ei) ;
 #endif
 
-	    if (ep != NULL) {
-	        msgide_all(ep,1,bep,MSGIDE_SIZE) ;
-	    }
+	            if (ep != NULL) {
+	                msgide_all(ep,1,bep,MSGIDE_SIZE) ;
+	            }
 
 /* update the file buffer */
 
-	    msgide_update(&m1,1,bep,MSGIDE_SIZE) ;
+	            msgide_update(&m1,1,bep,MSGIDE_SIZE) ;
 
-	    m1.count += 1 ;
-	    m1.utime = dt ;
-	    wlen = msgide_update(&m1,0,bep,MSGIDE_SIZE) ;
-
-#if	CF_DEBUGS
-	    if (ep != NULL) {
-	        debugprintf("msgid_update: mid=%s\n",ep->messageid) ;
-	        debugprintf("msgid_update: count=%u\n",ep->count) ;
-	    }
-#endif
-
-	} else if (rs == SR_NOTFOUND) {
-	    struct oldentry	old ;
-	    MSGIDE_ALL		m0 ;
-	    MSGIDE_UPDATE	m1 ;
+	            m1.count += 1 ;
+	            m1.utime = dt ;
+	            wlen = msgide_update(&m1,0,bep,MSGIDE_SIZE) ;
 
 #if	CF_DEBUGS
-	    debugprintf("msgid_update: entry not found \n") ;
+	            if (ep != NULL) {
+	                debugprintf("msgid_update: mid=%s\n",ep->messageid) ;
+	                debugprintf("msgid_update: count=%u\n",ep->count) ;
+	            }
 #endif
 
-	    memset(&m0,0,sizeof(MSGIDE_ALL)) ;
-	    m0.count = 0 ;
-	    m0.utime = dt ;
-	    m0.mtime = kp->mtime ;
-	    m0.ctime = dt ;
-	    m0.hash = khash ;
+	        } else if (rs == SR_NOTFOUND) {
+	            struct oldentry	old ;
+	            MSGIDE_ALL		m0 ;
+	            MSGIDE_UPDATE	m1 ;
 
-	    if (kp->from != NULL) {
-	        strwcpy(m0.from,kp->from, MSGIDE_LFROM) ;
-	    }
+#if	CF_DEBUGS
+	            debugprintf("msgid_update: entry not found \n") ;
+#endif
 
-	    strwcpy(m0.messageid,kp->mid, MSGIDE_LMESSAGEID) ;
+	            memset(&m0,0,sizeof(MSGIDE_ALL)) ;
+	            m0.count = 0 ;
+	            m0.utime = dt ;
+	            m0.mtime = kp->mtime ;
+	            m0.ctime = dt ;
+	            m0.hash = khash ;
 
-	    strwcpy(m0.recipient,kp->recip, MSGIDE_LRECIPIENT) ;
+	            if (kp->from != NULL) {
+	                strwcpy(m0.from,kp->from, MSGIDE_LFROM) ;
+	            }
+
+	            strwcpy(m0.messageid,kp->mid, MSGIDE_LMESSAGEID) ;
+
+	            strwcpy(m0.recipient,kp->recip, MSGIDE_LRECIPIENT) ;
 
 /* find an empty slot if there is one */
 
-	    rs = msgid_searchempty(op,&old,&bep) ;
-	    ei = rs ;
+	            rs = msgid_searchempty(op,&old,&bep) ;
+	            ei = rs ;
 
 #if	CF_DEBUGS
-	    {
-	        char	*s ;
-	        debugprintf("msgid_update: msgid_searchempty() "
-	            "rs=%d old.ei=%u\n",
-	            rs,old.ei) ;
-	        if (rs >= 0) {
-	            s = "found" ;
-	        } else if (rs == SR_NOTFOUND) {
-	            s = "notfound" ;
-	        } else
-	            s = "error" ;
-	        debugprintf("msgid_update: empty %s\n",s) ;
-	    }
+	            {
+			cchar	*fmt = "msgid_update: msgid_searchempty() "
+	                    		"rs=%d old.ei=%u\n" ;
+	                char	*s ;
+	                debugprintf(fmt,rs,old.ei) ;
+	                if (rs >= 0) {
+	                    s = "found" ;
+	                } else if (rs == SR_NOTFOUND) {
+	                    s = "notfound" ;
+	                } else {
+	                    s = "error" ;
+			}
+	                debugprintf("msgid_update: empty %s\n",s) ;
+	            }
 #endif /* CF_DEBUGS */
 
-	    if (rs == SR_NOTFOUND) {
+	            if (rs == SR_NOTFOUND) {
+	                rs = SR_OK ;
 
-	        bep = ebuf ;
-	        f_bufupdate = TRUE ;
-	        rs = SR_OK ;
+	                bep = ebuf ;
+	                f_bufupdate = TRUE ;
 
-#if	CF_DEBUGS
-	        debugprintf("msgid_update: maxentry=%u ne=%u old.ei=%u\n",
-	            op->maxentry,op->h.nentries,old.ei) ;
-#endif
+	                if (op->h.nentries < op->maxentry) {
+	                    f_addition = TRUE ;
+	                    ei = op->h.nentries ;
+	                } else {
+	                    ei = old.ei ;
+	                }
 
-	        if (op->h.nentries < op->maxentry) {
-	            f_addition = TRUE ;
-	            ei = op->h.nentries ;
-	        } else {
-	            ei = old.ei ;
-		}
-
-	    } /* end if (entry not found) */
+	            } /* end if (entry not found) */
 
 /* write to the buffer we have (either the file buffer or our own) */
 
-	    wlen = msgide_all(&m0,0,bep,MSGIDE_SIZE) ;
+	            wlen = msgide_all(&m0,0,bep,MSGIDE_SIZE) ;
 
-	    if (ep != NULL) {
-	        msgide_all(ep,1,bep,MSGIDE_SIZE) ;
-	    }
+	            if (ep != NULL) {
+	                msgide_all(ep,1,bep,MSGIDE_SIZE) ;
+	            }
 
-	    m0.count += 1 ;
+	            m0.count += 1 ;
 
 /* also update the entry */
 
-	    m1.count = 1 ;
-	    m1.utime = m0.utime ;
-	    msgide_update(&m1,0,bep,MSGIDE_SIZE) ;
+	            m1.count = 1 ;
+	            m1.utime = m0.utime ;
+	            msgide_update(&m1,0,bep,MSGIDE_SIZE) ;
 
 /* update the in-core file buffer as needed or as appropriate */
 
-	    if ((rs >= 0) && f_bufupdate && op->f.writable) {
+	            if ((rs >= 0) && f_bufupdate && op->f.writable) {
+	                eoff = MSGID_FOTAB + (ei * op->ebs) ;
+	                msgid_bufupdate(op,eoff,wlen,ebuf) ;
+	            }
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_update: need bufupdate ebuf(%p) wlen=%u\n",
-	            ebuf,wlen) ;
-	        debugprintf("msgid_update: bep(%p)\n",bep) ;
-#endif
-
-	        eoff = MSGID_FOTAB + (ei * op->ebs) ;
-	        msgid_bufupdate(op,eoff,wlen,ebuf) ;
-
-	    }
-
-#if	CF_DEBUGS
-	    {
-	        MSGIDE_ALL	m0 ;
-	        char		timebuf[TIMEBUFLEN + 1] ;
-	        msgide_all(&m0,1,bep,op->ebs) ;
-	        debugprintf("msgid_update: writing count=%u utime=%s\n",
-	            m0.count,timestr_log(m0.utime,timebuf)) ;
-	    }
+	            {
+	                MSGIDE_ALL	m0 ;
+	                char		timebuf[TIMEBUFLEN + 1] ;
+	                msgide_all(&m0,1,bep,op->ebs) ;
+	                debugprintf("msgid_update: writing count=%u utime=%s\n",
+	                    m0.count,timestr_log(m0.utime,timebuf)) ;
+	            }
 #endif /* CF_DEBUGS */
 
-	} /* end if (match or not) */
+	        } /* end if (match or not) */
 
 #if	CF_DEBUGS
-	debugprintf("msgid_update: mid-point rs=%d\n",rs) ;
+	        debugprintf("msgid_update: mid-point rs=%d\n",rs) ;
 #endif
 
-	if ((rs >= 0) && op->f.writable) {
+	        if ((rs >= 0) && op->f.writable) {
 
 /* write back this entry */
 
-	    eoff = MSGID_FOTAB + (ei * op->ebs) ;
+	            eoff = MSGID_FOTAB + (ei * op->ebs) ;
 
 #if	CF_DEBUGS
-	    {
-	        MSGIDE_ALL	m0 ;
-	        char		timebuf[TIMEBUFLEN + 1] ;
-	        msgide_all(&m0,1,bep,op->ebs) ;
-	        debugprintf("msgid_update: writing at ei=%u foff=%u wlen=%u\n",
-	            ei,eoff,wlen) ;
-	        debugprintf("msgid_update: writing count=%u utime=%s\n",
-	            m0.count,timestr_log(m0.utime,timebuf)) ;
-	    }
+	            {
+	                MSGIDE_ALL	m0 ;
+	                char		timebuf[TIMEBUFLEN + 1] ;
+	                msgide_all(&m0,1,bep,op->ebs) ;
+	                debugprintf("msgid_update: writing at "
+				"ei=%u foff=%u wlen=%u\n", ei,eoff,wlen) ;
+	                debugprintf("msgid_update: writing count=%u utime=%s\n",
+	                    m0.count,timestr_log(m0.utime,timebuf)) ;
+	            }
 #endif /* CF_DEBUGS */
 
-	    uoff = eoff ;
-	    if ((rs = u_pwrite(op->fd,bep,wlen,uoff)) >= wlen) {
+	            uoff = eoff ;
+	            if ((rs = u_pwrite(op->fd,bep,wlen,uoff)) >= wlen) {
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_update: writing back header\n") ;
+	                debugprintf("msgid_update: writing back header\n") ;
 #endif
 
-	        if (dt == 0) dt = time(NULL) ;
+	                if (dt == 0) dt = time(NULL) ;
 
-	        op->h.wcount += 1 ;
-	        op->h.wtime = dt ;
-	        if (f_addition) {
-	            op->h.nentries += 1 ;
-	            op->filesize += wlen ;
-	        }
+	                op->h.wcount += 1 ;
+	                op->h.wtime = dt ;
+	                if (f_addition) {
+	                    op->h.nentries += 1 ;
+	                    op->filesize += wlen ;
+	                }
 
-	        rs = msgid_writehead(op) ;
+	                rs = msgid_writehead(op) ;
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_update: msgid_writehead() rs=%d\n",rs) ;
+	                debugprintf("msgid_update: msgid_writehead() "
+				"rs=%d\n",rs) ;
 #endif
 
-	        if ((rs >= 0) && op->f.remote) {
-	            u_fsync(op->fd) ;
-	        }
+	                if ((rs >= 0) && op->f.remote) {
+	                    u_fsync(op->fd) ;
+	                }
 
-	    } /* end if (data write was successful) */
+	            } /* end if (data write was successful) */
 
-	} /* end if (writing updated entry to file) */
+	        } /* end if (writing updated entry to file) */
 
 /* update access time as appropriate */
 
-	if (dt == 0) dt = time(NULL) ;
-	op->accesstime = dt ;
+	        if (dt == 0) dt = time(NULL) ;
+	        op->accesstime = dt ;
 
-	} else
-	    rs = SR_NOTOPEN ;
+	    } else {
+	        rs = SR_NOTOPEN ;
+	    }
 	} /* end if */
 
 #if	CF_DEBUGS
@@ -995,7 +985,7 @@ static int msgid_opener(MSGID *op,char *tbuf,cchar *fn,int of,mode_t om)
 
 
 static int msgid_openone(MSGID *op,char *tbuf,cchar *fn,cchar *ext,
-int of,mode_t om)
+		int of,mode_t om)
 {
 	int		rs ;
 	int		pl = 0 ;
@@ -1071,7 +1061,7 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 	        if (! op->f.writelocked) {
 	            if ((rs = msgid_lockget(op,dt,0)) >= 0) {
 	                f_locked = TRUE ;
-		    }
+	            }
 	        }
 
 /* write the file magic and header stuff */
@@ -1082,110 +1072,111 @@ static int msgid_fileinit(MSGID *op,time_t dt)
 
 /* file magic */
 
-		if (rs >= 0) {
+	        if (rs >= 0) {
 
-	        strwcpy(fm.magic,MSGID_FMB,14) ;
-	        fm.vetu[0] = MSGID_FILEVERSION ;
-	        fm.vetu[1] = MSGID_ENDIAN ;
-	        fm.vetu[2] = 0 ;
-	        fm.vetu[3] = 0 ;
+	            strwcpy(fm.magic,MSGID_FMB,14) ;
+	            fm.vetu[0] = MSGID_FILEVERSION ;
+	            fm.vetu[1] = MSGID_ENDIAN ;
+	            fm.vetu[2] = 0 ;
+	            fm.vetu[3] = 0 ;
 
-	        bl = 0 ;
-	        bl += filemagic((fbuf + bl),0,&fm) ;
+	            bl = 0 ;
+	            bl += filemagic((fbuf + bl),0,&fm) ;
 
 /* file header */
 
-	        memset(&op->h,0,sizeof(MSGID_FH)) ;
+	            memset(&op->h,0,sizeof(MSGID_FH)) ;
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_fileinit: filehead() bl=%d\n",bl) ;
+	            debugprintf("msgid_fileinit: filehead() bl=%d\n",bl) ;
 #endif
 
-	        bl += filehead((fbuf + bl),0,&op->h) ;
+	            bl += filehead((fbuf + bl),0,&op->h) ;
 
 /* write them to the file */
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_fileinit: u_pwrite() wlen=%d\n",bl) ;
+	            debugprintf("msgid_fileinit: u_pwrite() wlen=%d\n",bl) ;
 #endif
 
-	        if ((rs = u_pwrite(op->fd,fbuf,bl,0L)) > 0) {
-	            op->filesize = rs ;
-	            op->mtime = dt ;
-	            if (op->f.remote) u_fsync(op->fd) ;
-	            rs = msgid_bufupdate(op,0,bl,fbuf) ;
-	        }
-	        op->f.fileinit = (rs >= 0) ;
+	            if ((rs = u_pwrite(op->fd,fbuf,bl,0L)) > 0) {
+	                op->filesize = rs ;
+	                op->mtime = dt ;
+	                if (op->f.remote) u_fsync(op->fd) ;
+	                rs = msgid_bufupdate(op,0,bl,fbuf) ;
+	            }
+	            op->f.fileinit = (rs >= 0) ;
 
-		} /* end if (ok) */
+	        } /* end if (ok) */
 
 	    } /* end if (writing) */
 
 	} else if (op->filesize >= MSGID_FOTAB) {
-	    int	f ;
 
 /* read the file header */
 
 	    if (! op->f.readlocked) {
 	        if ((rs = msgid_lockget(op,dt,1)) >= 0) {
 	            f_locked = TRUE ;
-		}
+	        }
 	    }
 
 	    if (rs >= 0) {
-		const int	fltop = MSGID_FLTOP ;
+	        const int	fltop = MSGID_FLTOP ;
 	        if ((rs = u_pread(op->fd,fbuf,MSGID_FBUFLEN,0L)) >= fltop) {
+		    int	f ;
 
-	        bl = 0 ;
-	        bl += filemagic((fbuf + bl),1,&fm) ;
+	            bl = 0 ;
+	            bl += filemagic((fbuf + bl),1,&fm) ;
 
-	        filehead((fbuf + bl),1,&op->h) ;
-
-#if	CF_DEBUGS
-	        debugprintf("msgid_fileinit: f_wtime=%08x\n",
-	            op->h.wtime) ;
-	        debugprintf("msgid_fileinit: f_wcount=%08x\n",
-	            op->h.wcount) ;
-	        debugprintf("msgid_fileinit: f_nentries=%08x\n",
-	            op->h.nentries) ;
-#endif
-
-	        f = (strcmp(fm.magic,MSGID_FMB) == 0) ;
+	            filehead((fbuf + bl),1,&op->h) ;
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_fileinit: fm.magic=%s\n",fm.magic) ;
-	        debugprintf("msgid_fileinit: magic cmp f=%d\n",f) ;
+	            debugprintf("msgid_fileinit: f_wtime=%08x\n",
+	                op->h.wtime) ;
+	            debugprintf("msgid_fileinit: f_wcount=%08x\n",
+	                op->h.wcount) ;
+	            debugprintf("msgid_fileinit: f_nentries=%08x\n",
+	                op->h.nentries) ;
 #endif
 
-	        {
-	            const int	v = MSGID_FILEVERSION ;
-	            f = f && (fm.vetu[0] <= v) ;
-	        }
+	            f = (strcmp(fm.magic,MSGID_FMB) == 0) ;
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_fileinit: version cmp f=%d\n",f) ;
+	            debugprintf("msgid_fileinit: fm.magic=%s\n",fm.magic) ;
+	            debugprintf("msgid_fileinit: magic cmp f=%d\n",f) ;
 #endif
 
-	        f = f && (fm.vetu[1] == MSGID_ENDIAN) ;
+	            {
+	                const int	v = MSGID_FILEVERSION ;
+	                f = f && (fm.vetu[0] <= v) ;
+	            }
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_fileinit: endian cmp f=%d\n",f) ;
+	            debugprintf("msgid_fileinit: version cmp f=%d\n",f) ;
 #endif
 
-	        if (! f)
-	            rs = SR_BADFMT ;
+	            f = f && (fm.vetu[1] == MSGID_ENDIAN) ;
 
-	        op->f.fileinit = f ;
+#if	CF_DEBUGS
+	            debugprintf("msgid_fileinit: endian cmp f=%d\n",f) ;
+#endif
 
-	    } /* end if (u_pread) */
+	            if (! f)
+	                rs = SR_BADFMT ;
+
+	            op->f.fileinit = f ;
+
+	        } /* end if (u_pread) */
 	    } /* end if (ok) */
 
 	} /* end if */
 
 /* if we locked, we unlock it, otherwise leave it! */
 
-	if (f_locked)
+	if (f_locked) {
 	    msgid_lockrelease(op) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("msgid_fileinit: ret rs=%d fileinit=%u\n",
@@ -1209,81 +1200,84 @@ static int msgid_filechanged(MSGID *op)
 	if ((rs = u_fstat(op->fd,&sb)) >= 0) {
 
 #if	CF_DEBUGS
-	debugprintf("msgid_filechanged: u_fstat() rs=%d filesize=%u\n",
-	    rs,sb.st_size) ;
+	    debugprintf("msgid_filechanged: u_fstat() rs=%d filesize=%u\n",
+	        rs,sb.st_size) ;
 #endif
 
-	if (sb.st_size < MSGID_FOTAB)
-	    op->f.fileinit = FALSE ;
+	    if (sb.st_size < MSGID_FOTAB)
+	        op->f.fileinit = FALSE ;
 
-	f_changed = (! op->f.fileinit) ||
-	    (sb.st_size != op->filesize) ||
-	    (sb.st_mtime != op->mtime) ;
+	    f_changed = (! op->f.fileinit) ||
+	        (sb.st_size != op->filesize) ||
+	        (sb.st_mtime != op->mtime) ;
 
 #if	CF_DEBUGS
-	debugprintf("msgid_filechanged: fileinit=%u\n",op->f.fileinit) ;
-	debugprintf("msgid_filechanged: sb_size=%08x o_size=%08x\n",
-	    sb.st_size,op->filesize) ;
-	debugprintf("msgid_filechanged: sb_mtime=%08x o_mtime=%08x\n",
-	    sb.st_mtime,op->mtime) ;
-	debugprintf("msgid_filechanged: fstat f_changed=%u\n",f_changed) ;
+	    debugprintf("msgid_filechanged: fileinit=%u\n",op->f.fileinit) ;
+	    debugprintf("msgid_filechanged: sb_size=%08x o_size=%08x\n",
+	        sb.st_size,op->filesize) ;
+	    debugprintf("msgid_filechanged: sb_mtime=%08x o_mtime=%08x\n",
+	        sb.st_mtime,op->mtime) ;
+	    debugprintf("msgid_filechanged: fstat f_changed=%u\n",f_changed) ;
 #endif /* CF_DEBUGS */
 
 /* if it has NOT changed, read the file header for write indications */
 
-	if ((! f_changed) && op->f.fileinit) {
-	    MSGID_FH	h ;
-	    char	hbuf[MSGID_FLTOP + 1] ;
+	    if ((! f_changed) && op->f.fileinit) {
+	        MSGID_FH	h ;
+	        char		hbuf[MSGID_FLTOP + 1] ;
 
-	    if ((rs = u_pread(op->fd,hbuf,MSGID_FLTOP,0L)) >= 0) {
+	        if ((rs = u_pread(op->fd,hbuf,MSGID_FLTOP,0L)) >= 0) {
 
 #if	CF_DEBUGS
-	    debugprintf("msgid_filechanged: u_pread() rs=%d\n",rs) ;
+	            debugprintf("msgid_filechanged: u_pread() rs=%d\n",rs) ;
 #endif
 
-	    if (rs < MSGID_FLTOP)
-	        op->f.fileinit = FALSE ;
+	            if (rs < MSGID_FLTOP)
+	                op->f.fileinit = FALSE ;
 
 #if	CF_DEBUGS
-	    debugprintf("msgid_filechanged: fileinit=%u\n",op->f.fileinit) ;
+	            debugprintf("msgid_filechanged: fileinit=%u\n",
+			op->f.fileinit) ;
 #endif
 
-	    if (rs > 0) {
+	            if (rs > 0) {
 
-	        filehead((hbuf + MSGID_FOHEAD),1,&h) ;
+	                filehead((hbuf + MSGID_FOHEAD),1,&h) ;
 
-	        f_changed = (op->h.wtime != h.wtime) ||
-	            (op->h.wcount != h.wcount) ||
-	            (op->h.nentries != h.nentries) ;
+	                f_changed = (op->h.wtime != h.wtime) ||
+	                    (op->h.wcount != h.wcount) ||
+	                    (op->h.nentries != h.nentries) ;
 
 #if	CF_DEBUGS
-	        debugprintf("msgid_filechanged: o_wtime=%08x fh_wtime=%08x\n",
-	            op->h.wtime,h.wtime) ;
-	        debugprintf("msgid_filechanged: o_wcount=%08x fh_wcount=%08x\n",
-	            op->h.wcount,h.wcount) ;
-	        debugprintf("msgid_filechanged: "
-	            "o_nentries=%08x fh_nentries=%08x\n",
-	            op->h.nentries,h.nentries) ;
-	        debugprintf("msgid_filechanged: header f_changed=%u\n",
-	            f_changed) ;
+	                debugprintf("msgid_filechanged: o_wtime=%08x "
+			    "fh_wtime=%08x\n",
+	                    op->h.wtime,h.wtime) ;
+	                debugprintf("msgid_filechanged: o_wcount=%08x "
+			    "fh_wcount=%08x\n",
+	                    op->h.wcount,h.wcount) ;
+	                debugprintf("msgid_filechanged: "
+	                    "o_nentries=%08x fh_nentries=%08x\n",
+	                    op->h.nentries,h.nentries) ;
+	                debugprintf("msgid_filechanged: header f_changed=%u\n",
+	                    f_changed) ;
 #endif /* CF_DEBUGS */
 
-	        if (f_changed)
-	            op->h = h ;
+	                if (f_changed)
+	                    op->h = h ;
 
-	    } /* end if */
+	            } /* end if */
 
-	    } /* end if (u_pread) */
+	        } /* end if (u_pread) */
 
-	} /* end if (reading file header) */
+	    } /* end if (reading file header) */
 
 /* OK, we're done */
 
-	if ((rs >= 0) && f_changed) {
-	    op->b.len = 0 ;
-	    op->filesize = sb.st_size ;
-	    op->mtime = sb.st_mtime ;
-	}
+	    if ((rs >= 0) && f_changed) {
+	        op->b.len = 0 ;
+	        op->filesize = sb.st_size ;
+	        op->mtime = sb.st_mtime ;
+	    }
 
 	} /* end if (stat) */
 
@@ -1389,8 +1383,9 @@ static int msgid_fileopen(MSGID *op,time_t dt)
 	            op->fd = -1 ;
 	        }
 	    }
-	} else
+	} else {
 	    rs = op->fd ;
+	}
 
 	return rs ;
 }
@@ -1444,8 +1439,9 @@ static int msgid_searchid(MSGID *op,cchar *midp,int midl,char **bepp)
 
 	} /* end while */
 
-	if ((rs >= 0) && f)
+	if ((rs >= 0) && f) {
 	    *bepp = bep ;
+	}
 
 	if ((rs >= 0) && (! f)) {
 	    rs = SR_NOTFOUND ;
@@ -1559,8 +1555,9 @@ static int msgid_searchempty(MSGID *op,struct oldentry *oep,char **bepp)
 {
 	uint		ra, rb ;
 	int		rs = SR_NOTFOUND ;
-	int		ei_start, ei_mark ;
-	int		n ;
+	int		ei_start = 0 ;
+	int		ei_mark ;
+	int		n = 0 ;
 	int		ei = 0 ;
 
 #if	CF_DEBUGS
@@ -1571,8 +1568,6 @@ static int msgid_searchempty(MSGID *op,struct oldentry *oep,char **bepp)
 	oep->utime = INT_MAX ;
 	oep->ei = 0 ;
 
-	ei_start = 0 ;
-	n = 0 ;
 	if (op->b.off >= MSGID_FLTOP) {
 
 	    ra = uceil((op->b.off - MSGID_FLTOP),op->ebs) ;
@@ -1644,7 +1639,7 @@ static int msgid_searchempty(MSGID *op,struct oldentry *oep,char **bepp)
 
 /* search for an empty slot in a specified range of entries */
 static int msgid_searchemptyrange(MSGID *op,int ei,int nmax,
-struct oldentry *oep,char **bepp)
+		struct oldentry *oep,char **bepp)
 {
 	time_t		t ;
 	int		rs = SR_OK ;
@@ -1692,7 +1687,7 @@ struct oldentry *oep,char **bepp)
 
 
 /* buffer mangement stuff */
-static int msgid_bufstart(MSGID *op)
+static int msgid_bufbegin(MSGID *op)
 {
 	const int	size =  MSGID_BUFSIZE ;
 	int		rs ;
@@ -1709,10 +1704,10 @@ static int msgid_bufstart(MSGID *op)
 
 	return rs ;
 }
-/* end subroutine (msgid_bufstart) */
+/* end subroutine (msgid_bufbegin) */
 
 
-static int msgid_buffinish(MSGID *op)
+static int msgid_bufend(MSGID *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1727,7 +1722,7 @@ static int msgid_buffinish(MSGID *op)
 	op->b.len = 0 ;
 	return rs ;
 }
-/* end subroutine (msgid_buffinish) */
+/* end subroutine (msgid_bufend) */
 
 
 /* try to buffer up some of the file */
@@ -1848,8 +1843,9 @@ static int msgid_buf(MSGID *op,int roff,int rlen,char **rpp)
 static int msgid_bufupdate(MSGID *op,int roff,int rbuflen,cchar *rbuf)
 {
 	int		boff, bext ;
-	int		rext = roff + rbuflen ;
+	int		rext = (roff + rbuflen) ;
 	int		buflen, bdiff ;
+	int		f_done = FALSE ;
 
 	buflen = op->b.len ;
 	boff = op->b.off ;
@@ -1857,26 +1853,30 @@ static int msgid_bufupdate(MSGID *op,int roff,int rbuflen,cchar *rbuf)
 
 	if (roff < boff) {
 
-	    if (rext <= boff)
-	        return 0 ;
-
-	    rbuf += (boff - roff) ;
-	    rbuflen -= (boff - roff) ;
-	    roff = boff ;
-
-	} /* end if */
-
-	if (rext > bext) {
-
-	    if (roff >= bext)
-	        return 0 ;
-
-	    rbuflen -= (rext - bext) ;
-	    rext = bext ;
+	    if (rext > boff) {
+	        rbuf += (boff - roff) ;
+	        rbuflen -= (boff - roff) ;
+	        roff = boff ;
+	    } else {
+		rbuflen = 0 ;
+		f_done = TRUE ;
+	    }
 
 	} /* end if */
 
-	if (rbuflen > 0) {
+	if ((! f_done) && (rext > bext)) {
+
+	    if (roff < bext) {
+	        rbuflen -= (rext - bext) ;
+	        rext = bext ;
+	    } else {
+		rbuflen = 0 ;
+		f_done = TRUE ;
+	    }
+
+	} /* end if */
+
+	if ((! f_done) && (rbuflen > 0)) {
 	    bdiff = roff - boff ;
 	    memcpy((op->b.buf + bdiff),rbuf,rbuflen) ;
 	}
@@ -1889,14 +1889,12 @@ static int msgid_bufupdate(MSGID *op,int roff,int rbuflen,cchar *rbuf)
 /* write out the file header */
 static int msgid_writehead(MSGID *op)
 {
-	offset_t	uoff ;
+	offset_t	uoff = MSGID_FOHEAD ;
 	int		rs ;
 	int		bl ;
 	char		fbuf[MSGID_FBUFLEN + 1] ;
 
 	bl = filehead(fbuf,0,&op->h) ;
-
-	uoff = MSGID_FOHEAD ;
 	rs = u_pwrite(op->fd,fbuf,bl,uoff) ;
 
 	return rs ;
@@ -1904,10 +1902,7 @@ static int msgid_writehead(MSGID *op)
 /* end subroutine (msgid_writehead) */
 
 
-static int filemagic(buf,f_read,mp)
-char		*buf ;
-int		f_read ;
-MSGID_FM	*mp ;
+static int filemagic(char *buf,int f_read,MSGID_FM *mp)
 {
 	int		rs = 20 ;
 	char		*bp = buf ;
@@ -1937,10 +1932,7 @@ MSGID_FM	*mp ;
 
 
 /* encode or decode the file header */
-static int filehead(mbuf,f_read,hp)
-char		*mbuf ;
-int		f_read ;
-MSGID_FH	*hp ;
+static int filehead(char *mbuf,int f_read,MSGID_FH *hp)
 {
 	SERIALBUF	msgbuf ;
 	const int	mlen = sizeof(MSGID_FH) ;
@@ -1968,12 +1960,10 @@ MSGID_FH	*hp ;
 /* end subroutine (filehead) */
 
 
-static int emat_recipid(ep,kp)
-const char	*ep ;
-MSGID_KEY	*kp ;
+static int emat_recipid(cchar *ep,MSGID_KEY *kp)
 {
 	int		f ;
-	const char	*fp ;
+	cchar		*fp ;
 
 	fp = ep + MSGIDE_OMESSAGEID ;
 	f = matfield(kp->mid,-1,fp,MSGIDE_LMESSAGEID) ;
@@ -1988,11 +1978,7 @@ MSGID_KEY	*kp ;
 /* end subroutine (emat_recipid) */
 
 
-static int matfield(mp,ml,ep,el)
-const char	*mp ;
-int		ml ;
-const char	*ep ;
-int		el ;
+static int matfield(cchar *mp,int ml,cchar *ep,int el)
 {
 	int		f ;
 

@@ -1,13 +1,12 @@
-/* b_s (loadable command) */
-
-/* language C89 */
+/* b_s (s) */
+/* language=C89 */
 
 /* KSH built-in version of 's(1d)' */
 /* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUG	1		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_DEBUGN	0		/* special debugging */
 #define	CF_DEBUGSD	0		/* debug status-display */
@@ -183,6 +182,7 @@ extern int	termconseq(char *,int,int,int,int,int,int) ;
 extern int	mkpr(char *,int,cchar *,cchar *) ;
 extern int	pcsmailcheck(cchar *,char *,int,cchar *) ;
 extern int	nusers(cchar *) ;
+extern int	sbuf_loadstrs(SBUF *,cchar **) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -279,8 +279,6 @@ static int	locinfo_prpcs(LOCINFO *,cchar *) ;
 static int	locinfo_utfname(LOCINFO *,cchar *) ;
 static int	locinfo_termlines(LOCINFO *,SHIO *) ;
 static int	locinfo_termflags(LOCINFO *) ;
-
-static int	sbuf_loadstrs(SBUF *,cchar **) ;
 
 
 /* local variables */
@@ -1156,8 +1154,8 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 retearly:
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
-	        pip->progname,ex,rs) ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",pn,ex,rs) ;
 	}
 
 #if	CF_DEBUG
@@ -1496,6 +1494,7 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1503,8 +1502,8 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 #endif
 
 	if ((rs = locinfo_termflags(lip)) >= 0) {
+	    const int	blen = BUFLEN ;
 	    int		tf = lip->termflags ;
-	    int		bl ;
 	    int		colx ;
 	    char	buf[BUFLEN + 1] ;
 
@@ -1519,8 +1518,8 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 	}
 #endif
 
-	if ((rs >= 0) && lip->f.mailcheck && lip->f.sd &&
-	    (tf & TCF_MSD)) {
+	if ((rs >= 0) && lip->f.mailcheck && lip->f.sd) {
+	    if (tf & TCF_MSD) {
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
@@ -1535,11 +1534,11 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 #endif
 
 	    if (pip->debuglevel > 0) {
-	        shio_printf(pip->efp,"%s: mailusers len=%d\n",
-	            pip->progname,rs) ;
+	        shio_printf(pip->efp,"%s: mailusers len=%d\n",pn,rs) ;
 	    }
 
-	} /* end if (mailinformation) */
+	    }
+	} /* end if (mail-information) */
 
 /* start in */
 
@@ -1549,18 +1548,9 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 #endif
 
 	if ((rs >= 0) && lip->f.init) {
-
-	    rs = terminit(pip,ofp,buf,BUFLEN) ;
-	    bl = rs ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("b_s/process: terminit() rs=%d\n",rs) ;
-#endif
-
-	    if (rs >= 0)
-	        rs = shio_write(ofp,buf,bl) ;
-
+	    if ((rs = terminit(pip,ofp,buf,blen)) >= 0) {
+	        rs = shio_write(ofp,buf,rs) ;
+	    }
 	} /* end if (terminit) */
 
 #if	CF_DEBUG
@@ -1569,18 +1559,9 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 #endif
 
 	if ((rs >= 0) && (lip->f.home || lip->f.clear)) {
-
-	    rs = termclear(pip,buf,BUFLEN) ;
-	    bl = rs ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("b_s/process: termclear() rs=%d\n",rs) ;
-#endif
-
-	    if (rs >= 0)
-	        rs = shio_write(ofp,buf,bl) ;
-
+	    if ((rs = termclear(pip,buf,blen)) >= 0) {
+	        rs = shio_write(ofp,buf,rs) ;
+	    }
 	} /* end if (termclear) */
 
 #if	CF_DEBUG
@@ -1604,9 +1585,8 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 
 		if ((rs = sntmtime(tbuf,tlen,&tm,ts)) >= 0) {
 	            if (lip->f.sd) {
-	                if ((rs = termdate(pip,buf,BUFLEN,tbuf)) >= 0) {
-	                    bl = rs ;
-	                    rs = shio_write(ofp,buf,bl) ;
+	                if ((rs = termdate(pip,buf,blen,tbuf)) >= 0) {
+	                    rs = shio_write(ofp,buf,rs) ;
 	                }
 	            } else {
 	                rs = shio_printf(ofp,"%t\n",tbuf,tl) ;
@@ -1618,15 +1598,13 @@ static int processer(PROGINFO *pip,SHIO *ofp)
 	} /* end if (date) */
 
 #if	CF_TERMMAILNAME
-	if ((rs >= 0) && lip->f.mailcheck && lip->f.sd &&
-	    (lip->termflags & TCF_MSD)) {
-
-	    colx = 0 ;
-	    rs = termmailname(pip,buf,BUFLEN,colx) ;
-	    bl = rs ;
-	    if (rs >= 0)
-	        rs = shio_write(ofp,buf,bl) ;
-
+	if ((rs >= 0) && lip->f.mailcheck && lip->f.sd) {
+	    if (lip->termflags & TCF_MSD) {
+	        colx = 0 ;
+	        if ((rs = termmailname(pip,buf,blen,colx)) >= 0) {
+	            rs = shio_write(ofp,buf,rs) ;
+	        }
+	    }
 	} /* end if (mailcheck) */
 #endif /* CF_TERMMAILNAME */
 
@@ -1736,8 +1714,8 @@ static int procmailuser(PROGINFO *pip,cchar *sp,int sl)
 	    char	fbuf[FROMBUFLEN + 1] ;
 	    ul = strwcpy(ubuf,cp,MIN(cl,ulen)) - ubuf ;
 	    if ((rs = pcsmailcheck(lip->prpcs,fbuf,flen,ubuf)) > 0) {
-	        int	maxlen = MIN(FROMBUFLEN,(lip->mnlen-2)) ;
-	        int	f_us = (strcmp(pip->username,ubuf) == 0) ;
+	        const int	maxlen = MIN(FROMBUFLEN,(lip->mnlen-2)) ;
+	        const int	f_us = (strcmp(pip->username,ubuf) == 0) ;
 	        lip->nmsgs = rs ;
 
 #if	CF_DEBUG
@@ -1952,12 +1930,12 @@ static int termclear(PROGINFO *pip,char *rbuf,int rlen)
 {
 	LOCINFO		*lip = pip->lip ;
 	SBUF		b ;
-	const int	clen = CODEBUFLEN ;
 	int		rs ;
 	int		bl = 0 ;
-	char		cbuf[CODEBUFLEN + 1] ;
 
 	if ((rs = sbuf_start(&b,rbuf,rlen)) >= 0) {
+	    const int	clen = CODEBUFLEN ;
+	    char	cbuf[CODEBUFLEN + 1] ;
 
 /* clear the main screen */
 
@@ -1992,7 +1970,7 @@ static int termclear(PROGINFO *pip,char *rbuf,int rlen)
 /* end subroutine (termclear) */
 
 
-static int termdate(PROGINFO *pip,char rbuf[],int rlen,cchar *timebuf)
+static int termdate(PROGINFO *pip,char *rbuf,int rlen,cchar *timebuf)
 {
 	LOCINFO		*lip = pip->lip ;
 	SBUF		b ;
@@ -2040,7 +2018,7 @@ static int termdate(PROGINFO *pip,char rbuf[],int rlen,cchar *timebuf)
 /* end subroutine (termdate) */
 
 
-static int termdatesd(PROGINFO *pip,SBUF *bufp,cchar timebuf[])
+static int termdatesd(PROGINFO *pip,SBUF *bufp,cchar *timebuf)
 {
 	LOCINFO		*lip = pip->lip ;
 	SBUF		lb ;
@@ -2146,7 +2124,7 @@ static int termdatesd(PROGINFO *pip,SBUF *bufp,cchar timebuf[])
 	            debugprintf("b_s/termdatesd: labuf=>%t<\n",pbp,nfcols) ;
 #endif
 
-	    } /* end if (4-column field) */
+	    } /* end if (5-column field) */
 
 /* number of mail messages (4-column field) */
 
@@ -2236,7 +2214,7 @@ static int termdatesd(PROGINFO *pip,SBUF *bufp,cchar timebuf[])
 /* end subroutine (termdatesd) */
 
 
-static int termmailname(PROGINFO *pip,char tbuf[],int tlen,int colx)
+static int termmailname(PROGINFO *pip,char *tbuf,int tlen,int colx)
 {
 	LOCINFO		*lip = pip->lip ;
 	SBUF		b ;
@@ -2306,9 +2284,7 @@ cchar		sp[] ;
 int		sl ;
 {
 	int		rs ;
-	int		len_s, len_e ;
 	int		len = 0 ;
-	int		cf_adv = FALSE ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -2317,10 +2293,10 @@ int		sl ;
 
 	if (x < 0) x = 0 ;
 
-	rs = sbuf_getlen(bufp) ;
-	len_s = rs ;
-	if (rs < 0)
-	    goto ret0 ;
+	if ((rs = sbuf_getlen(bufp)) >= 0) {
+	    const int	len_s = rs ;
+	    int		len_e ;
+	    int		cf_adv = FALSE ;
 
 /* status line */
 
@@ -2337,8 +2313,9 @@ int		sl ;
 
 	if (termflags & TCF_MVCV) {
 	    sbuf_strw(bufp,TERMSTR_R_VCUR,-1) ;
-	} else if (cf_adv && (termflags & TCF_MACV))
+	} else if (cf_adv && (termflags & TCF_MACV)) {
 	    sbuf_strw(bufp,TERMSTR_R_ACUR,-1) ;
+	}
 
 	sbuf_strw(bufp,TERMSTR_VCURS,-1) ; /* save cursor */
 
@@ -2365,8 +2342,9 @@ int		sl ;
 
 	if (termflags & TCF_MVCV) {
 	    sbuf_strw(bufp,TERMSTR_S_VCUR,-1) ;
-	} else if (cf_adv && (termflags & TCF_MACV))
+	} else if (cf_adv && (termflags & TCF_MACV)) {
 	    sbuf_strw(bufp,TERMSTR_S_ACUR,-1) ;
+	}
 
 /* finish */
 
@@ -2378,13 +2356,15 @@ int		sl ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
 	    const int	cols = COLUMNS ;
-	    cchar	*bp = (bufp->dbuf+len_s) ;
-	    const int	bl = (len_e-len_s) ;
-	    debugprinthexblock("bufsd",cols,bp,bl) ;
+	    cchar	*bp ;
+	    if ((rs = sbuf_getbuf(bufp,&bp)) >= 0) {
+	        debugprintf("b_s/bufsd: buf bl=%u\n",rs) ;
+	        debugprinthexblock("bufsd",cols,bp,rs) ;
+	    }
 	}
 #endif /* CF_DEBUG */
 
-ret0:
+	} /* end if (sbuf_getlen) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -2430,16 +2410,16 @@ int		sl ;
 
 	    if (termflags & TCF_MVCV) {
 	        sbuf_strw(bufp,TERMSTR_R_VCUR,-1) ;
-
-	    } else if (cf_adv && (termflags & TCF_MACV))
+	    } else if (cf_adv && (termflags & TCF_MACV)) {
 	        sbuf_strw(bufp,TERMSTR_R_ACUR,-1) ;
+	    }
 
 	    sbuf_strw(bufp,TERMSTR_VCURS,-1) ;
 
 	    {
 	        const int	clen = CODEBUFLEN ;
 	        int		cl ;
-	        char	cbuf[CODEBUFLEN + 1] ;
+	        char		cbuf[CODEBUFLEN + 1] ;
 
 	        cl = termconseq(cbuf,clen,'H',(y+1),(x+1),-1,-1) ;
 
@@ -2485,7 +2465,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->f.mailcheck = TRUE ;
 	lip->f.nusers = TRUE ;
 	lip->f.sd = TRUE ;
-	if ((rs = uc_malloc(mnlen,&bp)) >= 0) {
+	if ((rs = uc_malloc((mnlen+1),&bp)) >= 0) {
 	    lip->mnbuf = bp ;
 	    lip->mnlen = mnlen ;
 	}
@@ -2659,25 +2639,5 @@ static int locinfo_termflags(LOCINFO *lip)
 	return rs ;
 }
 /* end subroutine (locinfo_termflags) */
-
-
-/* load a set of strings into the buffer */
-static int sbuf_loadstrs(SBUF *sbp,cchar **spp)
-{
-	int		rs = SR_OK ;
-	int		c = 0 ;
-
-	if (spp != NULL) {
-	    while (*spp != NULL) {
-	        c += 1 ;
-	        rs = sbuf_strw(sbp,*spp,-1) ;
-	        spp += 1 ;
-	        if (rs < 0) break ;
-	    } /* end while */
-	} /* end if */
-
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (sbuf_loadstrs) */
 
 

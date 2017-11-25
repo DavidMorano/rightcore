@@ -194,6 +194,7 @@ extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -508,7 +509,7 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -1189,8 +1190,16 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
+
+	if (pip->debuglevel == 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1276,7 +1285,6 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		USERINFO	u ;
 		if ((rs = userinfo_start(&u,NULL)) >= 0) {
 	            if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-	                if ((rs = procfindconf(pip)) >= 0) {
 	                    if ((rs = procourconf_begin(pip)) >= 0) {
 	                        if ((rs = procdefconf(pip)) >= 0) {
 	                            if ((rs = logbegin(pip,&u)) >= 0) {
@@ -1291,7 +1299,6 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        rs1 = procourconf_end(pip) ;
 	                        if (rs >= 0) rs = rs1 ;
 	                    } /* end if (procourconf) */
-	                } /* end if (procfindconf) */
 	                rs1 = procuserinfo_end(pip) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (procuserinfo) */
@@ -1745,8 +1752,8 @@ static int procfindconf(PROGINFO *pip)
 	} /* end if (specified) */
 
 	if ((pip->debuglevel > 0) && (pip->cfname != NULL)) {
-	    shio_printf(pip->efp,"%s: conf=%s\n",
-	        pip->progname,pip->cfname) ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: conf=%s\n",pn,pip->cfname) ;
 	}
 
 #if	CF_DEBUG
@@ -1858,7 +1865,7 @@ static int procourconf_begin(PROGINFO *pip)
 	    debugprintf("pcsmain/procourconf_begin: ent\n") ;
 #endif
 
-	if (pip->cfname != NULL) {
+	if ((rs = procfindconf(pip)) > 0) {
 	    const int	size = sizeof(CONFIG) ;
 	    void	*p ;
 	    if ((rs = uc_malloc(size,&p)) >= 0) {
@@ -1873,7 +1880,7 @@ static int procourconf_begin(PROGINFO *pip)
 	            pip->config = NULL ;
 	        }
 	    } /* end if (m-a) */
-	} /* end if (non-null) */
+	} /* end if (procfindconf) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1905,8 +1912,8 @@ static int procourconf_end(PROGINFO *pip)
 	if (DEBUGLEVEL(3))
 	    debugprintf("pcsmain/procourconf_end: ret rs=%d\n",rs) ;
 #endif
-	return rs ;
 
+	return rs ;
 }
 /* end subroutine (procourconf_end) */
 

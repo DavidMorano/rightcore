@@ -68,7 +68,6 @@ extern int	debugprintf(cchar *,...) ;
 
 extern char	*strnchr(cchar *,int,int) ;
 extern char	*strnpbrk(cchar *,int,cchar *) ;
-extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */

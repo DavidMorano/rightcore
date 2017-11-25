@@ -121,7 +121,7 @@ extern int	isNotPresent(int) ;
 extern int	sntmtime(char *,int,TMTIME *,cchar *) ;
 #endif
 
-#if	CF_DEBUGS || CF_DEBUG
+#if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
@@ -137,10 +137,12 @@ extern char	*strnwcpy(char *,int,cchar *,int) ;
 extern char	*strnpbrk(cchar *,int,cchar *) ;
 extern char	*strdcpy1w(char *,int,cchar *,int) ;
 
+#if	CF_DEBUGS
 extern char	*timestr_gmlog(time_t,char *) ;
 extern char	*timestr_gmlogz(time_t,char *) ;
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
+#endif
 
 
 /* external variables */

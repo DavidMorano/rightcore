@@ -330,7 +330,7 @@ vsnprintf.o:		vsnprintf.obj
 	cp -p vsnprintf.obj $@
 
 
-main.o:			main.c $(INCS) keyopt.h
+main.o:			main.c $(INCS)
 
 whatinfo.o:		whatinfo.c config.h
 
@@ -340,7 +340,7 @@ proginfo_setpiv.o:	proginfo_setpiv.c defs.h
 
 proginfo_rootname.o:	proginfo_rootname.c defs.h
 
-progopts.o:		progopts.c $(INCS) keyopt.h
+progopts.o:		progopts.c $(INCS)
 
 progconfig.o:		progconfig.c $(INCS)
 

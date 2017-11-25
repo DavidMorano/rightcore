@@ -5,7 +5,7 @@
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
 #define	CF_DEFPCS	1		/* try a default PCS program-root */
-#define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
+#define	CF_UGETPW	1		/* use |ugetpw_xxx(3uc)| */
 
 
 /* revision history:

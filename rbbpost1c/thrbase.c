@@ -77,7 +77,6 @@ extern int	cfdecui(const char *,int,uint *) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
-extern char	*timestr_log(time_t,char *) ;
 #endif
 
 extern char	*strnchr(const char *,int,int) ;

@@ -526,15 +526,6 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialize */
 
-	if (rs >= 0) {
-	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        if (! isStrEmpty(cp,-1)) {
-		    rs = optvalue(cp,-1) ;
-		    pip->debuglevel = rs ;
-	        }
-	    }
-	} /* end if (ok) */
-
 	pip->verboselevel = 1 ;
 	pip->daytime = time(NULL) ;
 
@@ -1236,8 +1227,16 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
+
+	if (pip->debuglevel == 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if (ok) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))

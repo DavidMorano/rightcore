@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	0		/* run-time debug print-outs */
+#define	CF_DEBUG	1		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_CHECKONC	0		/* check ONC */
 
@@ -149,14 +149,13 @@ extern int	nisdomainname(char *,int) ;
 extern int	checkonc(cchar *,cchar *,cchar *,cchar *) ;
 #endif
 extern int	bufprintf(char *,int,cchar *,...) ;
-extern int	pcsname(cchar *,char *,int,cchar *) ;
 extern int	pcsgetorg(cchar *,char *,int,cchar *) ;
 extern int	pcsgetfacility(cchar *,char *,int) ;
 extern int	nchr(cchar *,int,int) ;
-extern int	isasocket(int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -512,13 +511,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* initialize */
 
 	pip->verboselevel = 1 ;
-	if (rs >= 0) {
-	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        rs = optvalue(cp,-1) ;
-	        pip->debuglevel = rs ;
-	    }
-	}
-
 	pip->f.logprog = TRUE ;
 
 	pip->lip = lip ;
@@ -944,8 +936,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
+
+	if (pip->debuglevel == 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -2029,7 +2029,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 static int locinfo_prlocal(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	int		rs ;
+	int		rs = SR_OK ;
 
 	if (! lip->f.prlocal) {
 	    cchar	*var = VARPRLOCAL ;
@@ -2520,7 +2520,7 @@ static int locinfo_pcsids(LOCINFO *lip)
 static int locinfo_pcsusername(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	int		rs ;
+	int		rs = SR_OK ;
 
 	if (! lip->f.pcsusername) {
 	    PCSCONF	*pcp = pip->pcsconf ;
@@ -2542,7 +2542,7 @@ static int locinfo_pcsusername(LOCINFO *lip)
 
 static int locinfo_facility(LOCINFO *lip)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 
 	if (! lip->f.facility) {
 	    PROGINFO	*pip = lip->pip ;

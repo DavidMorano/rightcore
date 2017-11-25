@@ -345,7 +345,7 @@ OBJ58= sesmsg.o msgdata.o
 OBJ59= msfile.o msfile_best.o msfilee.o ebuf.o
 OBJ60= sysvar.o var.o varmk.o
 OBJ61= namecache.o gncache.o msumsg.o termout.o linehist.o langstate.o
-OBJ62= sbuf.o
+OBJ62= sbuf.o sbuf_loadstrs.o
 OBJ63=
 
 OBJ64= initnow.o inittimezone.o spawnproc.o logout.o 
@@ -376,7 +376,7 @@ OBJ86=
 #OBJ87= debug.o debugprintf.o nprintf.o strlinelen.o
 
 OBJ88= pcsmailcheck.o pcsinfoset.o
-OBJ89= pcsgetorg.o
+OBJ89=
 OBJ90= localgetorg.o localgetorgcode.o localgetorgloc.o
 OBJ91= localgetnetload.o localgetsystat.o
 OBJ92= prmktmpdir.o
@@ -988,6 +988,9 @@ pcsinfoset.o:		pcsinfoset.c
 pcsgetorg.o:		pcsgetorg.c
 	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
 
+pcsgetfacility.o:	pcsgetfacility.c
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+
 # PCS objects
 
 pcsns.o:		pcsns.c pcsns.h
@@ -1132,6 +1135,14 @@ buffer_strquote.o:	buffer_strquote.c buffer.h
 bufstr.o:		bufstr.c bufstr.h
 
 sbuf.o:			sbuf.c sbuf.h
+
+sbuf_loadstrs.o:	sbuf_loadstrs.c sbuf.h
+
+sbuf_addquoted.o:	sbuf_addquoted.c sbuf.h
+
+sbuf_termconseq.o:	sbuf_termconseq.c sbuf.h
+
+sbuf_blanks.o:		sbuf_blanks.c sbuf.h
 
 lookaside.o:		lookaside.c lookaside.h
 

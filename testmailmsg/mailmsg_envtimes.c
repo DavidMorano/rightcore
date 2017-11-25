@@ -61,7 +61,7 @@
 /* external subroutines */
 
 #if	CF_DEBUGS
-extern int	debugprintf(char *,int,const char *,...) ;
+extern int	debugprintf(cchar *,...) ;
 #endif
 
 #if	CF_DEBUGS

@@ -66,6 +66,7 @@ extern int	sbuf_blanks(SBUF *,int) ;
 extern int	sbuf_adv(SBUF *,int,char **) ;
 extern int	sbuf_rem(SBUF *) ;
 extern int	sbuf_getlen(SBUF *) ;
+extern int	sbuf_getbuf(SBUF *,cchar **) ;
 extern int	sbuf_getpoint(SBUF *,const char **) ;
 extern int	sbuf_getprev(SBUF *) ;
 extern int	sbuf_printf(SBUF *,const char *,...) ;

@@ -97,8 +97,6 @@ extern int	isNotPresent(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*timestr_log(time_t,char *) ;
-extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */

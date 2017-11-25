@@ -38,7 +38,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -85,9 +85,9 @@ LIBDIRS= -L$(LIBDIR) -L$(LOCAL)/lib -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -lpcs -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
-LIB4= $(CGS_LIBS)
+LIB4= -liconv $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
@@ -169,7 +169,7 @@ OBJ14= nchr.o sfcookkey.o hasfext.o
 OBJ16= getlogname.o
 OBJ17=
 OBJ18= localgetorg.o
-OBJ19=
+OBJ19= pcsgetfacility.o
 OBJ20=
 OBJ21= 
 OBJ22=

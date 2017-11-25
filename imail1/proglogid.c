@@ -91,9 +91,6 @@ extern int	mklogid(char *,int,const char *,int,int) ;
 extern int	getserial(const char *) ;
 extern int	isprintlatin(int) ;
 
-extern char	*timestr_logz(time_t,char *) ;
-extern char	*timestr_elapsed(time_t,char *) ;
-
 
 /* externals variables */
 

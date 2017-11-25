@@ -133,7 +133,6 @@ extern char	*strwcpylc(char *,const char *,int) ;
 extern char	*strwcpyuc(char *,const char *,int) ;
 extern char	*strcpylc(char *,const char *) ;
 extern char	*strcpyuc(char *,const char *) ;
-extern char	*timestr_log(time_t,char *) ;
 
 
 /* external variables */

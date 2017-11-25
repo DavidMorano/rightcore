@@ -32,7 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -93,7 +93,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -lpcs -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -161,7 +161,7 @@ OBJ10= mailbox.o mailbox_getfrom.o mailbox_fromaddr.o
 OBJ11= mailmsg.o mailmsg_loadfile.o
 OBJ12= 
 OBJ13= 
-OBJ14=
+OBJ14= sbuf.o sbuf_loadstrs.o
 OBJ15= termstr.o
 
 OBJ16= pcsmailcheck.o
@@ -171,7 +171,7 @@ OBJ19= nusers.o
 OBJ20=
 OBJ21= tcgetlines.o 
 OBJ22= mailmsgfrom.o
-OBJ23=
+OBJ23= debug.o getdig.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -337,6 +337,8 @@ clusterdb.o:		clusterdb.c clusterdb.h
 kvsfile.o:		kvsfile.c kvsfile.h
 
 sbuf.o:			sbuf.c sbuf.h
+
+sbuf_loadstrs.o:	sbuf_loadstrs.c sbuf.h
 
 keyopt.o:		keyopt.c keyopt.h
 

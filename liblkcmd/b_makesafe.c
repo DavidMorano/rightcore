@@ -148,6 +148,7 @@ extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
 extern int	isFailOpen(int) ;
+extern int	isStrEmpty(cchar *,int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -538,12 +539,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* early things to initialize */
 
 	pip->verboselevel = 1 ;
-	if (rs >= 0) {
-	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        rs = optvalue(cp,-1) ;
-	        pip->debuglevel = rs ;
-	    }
-	}
 
 	pip->lip = &li ;
 	if (rs >= 0) rs = locinfo_start(lip,pip) ;
@@ -953,8 +948,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
+
+	if (pip->debuglevel == 0) {
+	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
+	        if (! isStrEmpty(cp,-1)) {
+		    rs = optvalue(cp,-1) ;
+		    pip->debuglevel = rs ;
+	        }
+	    }
+	} /* end if */
 
 /* check arguments */
 

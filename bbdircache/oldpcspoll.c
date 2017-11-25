@@ -135,7 +135,10 @@ extern int	strlinelen(const char *,int,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strbasename(char *) ;
+
+#if	CF_DEBUGS
 extern char	*timestr_log(time_t,char *) ;
+#endif
 
 
 /* external variables */
@@ -476,8 +479,9 @@ vecstr		*setp ;
 
 		if (f_searchname) {
 	            argz = (char *) searchname ;
-		} else
+		} else {
 	            argz = strbasename(execfname) ;
+	        }
 
 #if	CF_DEBUGS
 	        debugprintf("pcspoll: argz=%s\n",argz) ;

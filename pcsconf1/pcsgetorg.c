@@ -46,11 +46,6 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<sys/stat.h>
-#include	<unistd.h>
-#include	<stdlib.h>
-#include	<string.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -61,10 +56,6 @@
 
 /* external subroutines */
 
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	getnodedomain(char *,char *) ;
-extern int	pcsgetserial(const char *) ;
-extern int	getserial(const char *) ;
 extern int	localgetorg(const char *,char *,int,const char *) ;
 
 

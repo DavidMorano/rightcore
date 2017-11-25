@@ -11,6 +11,10 @@
 	= 1998-06-01, David A­D­ Morano
 	This subroutine was originally written.
 
+	= 2017-11-22, David A­D­ Morano
+        I changed this to use the PCSNS (PCS Name-Server) object. This allows
+        for both system-wide and local process caching.
+
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
@@ -37,6 +41,15 @@
 	>=0		OK
 	<0		some error
 
+	Notes:
+
+	Q. What is a "facility string"?
+	A. It is an identifying string to represent the PCS facility.
+
+	Q. Where do we get such a "string"?
+	A. We simply use the "fullname" of the user 'pcs' (or whatever the
+	   PCS username is) as the "facility string."
+
 
 *******************************************************************************/
 
@@ -46,19 +59,11 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<pwd.h>
-#include	<project.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<char.h>
-#include	<getax.h>
-#include	<ugetpw.h>
-#include	<getxusername.h>
-#include	<pcsgetnames.h>
+#include	<pcsns.h>
 #include	<localmisc.h>
 
 
@@ -132,23 +137,38 @@ static const int	nots[] = {
 
 int pcsgetfacility(cchar *pr,char *rbuf,int rlen)
 {
-	const int	nt = pcsnametype_fullname ;
+	PCSNS		ns ;
 	const int	ulen = USERNAMELEN ;
 	int		rs ;
-	const char	*un = VARPRPCS ;
+	int		rs1 ;
+	int		rl = 0 ;
+	cchar		*prname = VARPRPCS ;
 	char		ubuf[USERNAMELEN+1] ;
 
 	rbuf[0] = '\0' ;
-	strwcpylc(ubuf,un,ulen) ; /* get lower-case */
+	strwcpylc(ubuf,prname,ulen) ; /* get lower-case */
 
-	if ((rs = pcsgetnames(pr,rbuf,rlen,ubuf,nt)) >= 0) {
-	    if (rs == 0) rs = strlen(rbuf) ;
-	} else if (isOneOf(nots,rs)) {
-	    const char	*facility = PCSFACILITY ;
-	    rs = (strdcpy1(rbuf,rlen,facility) - rbuf) ;
-	}
+	if ((rs = pcsns_open(&ns,pr)) >= 0) {
+	    const int	w = pcsnsreq_fullname ;
+	    if ((rs = pcsns_get(&ns,rbuf,rlen,ubuf,w)) >= 0) {
+		rl = rs ;
+#if	CF_DEBUGS
+		debugprintf("pcsgetfacility: pcsns_get() rs=%d\n",rs) ;
+#endif
+	    } else if (isOneOf(nots,rs)) {
+		cchar	*facility = PCSFACILITY ;
+		rs = (strdcpy1(rbuf,rlen,facility) - rbuf) ;
+		rl = rs ;
+	    }
+	    rs1 = pcsns_close(&ns) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (pcsns) */
 
-	return rs ;
+#if	CF_DEBUGS
+	debugprintf("pcsgetfacility: ret rs=%d rl=%u\n",rs,rl) ;
+#endif
+
+	return (rs >= 0) ? rl : rs ;
 }
 /* end subroutine (pcsgetfacility) */
 

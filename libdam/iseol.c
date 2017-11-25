@@ -1,6 +1,6 @@
 /* iseol */
 
-/* is the character an EOL character? */
+/* is the character an EOL (End-Of-Line) character? */
 
 
 /* revision history:
@@ -14,7 +14,8 @@
 
 /*******************************************************************************
 
-	Return whether the given character is part of the EOL sequence.
+	Return whether the given character constitutes an EOL (End-Of-Line)
+	character.
 
 
 *******************************************************************************/
@@ -33,10 +34,7 @@
 
 int iseol(int ch)
 {
-	int		f = FALSE ;
-	f = f || (ch == '\n') ;
-	f = f || (ch == '\r') ;
-	return f ;
+	return ((ch == '\n') || (ch == '\r')) ;
 }
 /* end subroutine (iseol) */
 

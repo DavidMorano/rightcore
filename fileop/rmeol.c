@@ -1,6 +1,6 @@
 /* rmeol */
 
-/* remove EOL characters from the given string */
+/* remove EOL (End-Of-Line) characters from the given string */
 
 
 /* revision history:
@@ -14,9 +14,9 @@
 
 /*******************************************************************************
 
-        Return a length of the given string without any EOLs characters
-        included. Any EOL characters are only counted from the end of the
-        counted string.
+        Return the length of the given string without any EOL (End-Of-Line)
+        characters included. Any EOL characters are only considered starting
+        from the end of the counted string.
 
 
 *******************************************************************************/

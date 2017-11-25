@@ -108,7 +108,7 @@ static int	isrequired(int) ;
 
 /* local variables */
 
-static const char	*subs[] = {
+static cchar	*subs[] = {
 	"start",
 	"info",
 	"cmd",

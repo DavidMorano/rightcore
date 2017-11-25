@@ -70,8 +70,16 @@
 extern int	getgecosname(const char *,int,const char **) ;
 extern int	mkgecosname(char *,int,const char *) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+#endif
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strdcpy1(char *,int,const char *) ;
+
+#if	CF_DEBUGS
+extern char	*timestr_log(time_t,char *) ;
+#endif
 
 
 /* local structures */

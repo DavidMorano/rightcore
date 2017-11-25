@@ -98,14 +98,17 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	getpwd(char *,int) ;
 extern int	hasuc(const char *,int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+#endif
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpylc(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	timestr_log(time_t,char *) ;
+extern char	*timestr_log(time_t,char *) ;
 #endif
 
 

@@ -88,7 +88,7 @@ SLIB1= -ldam -lb
 SLIB2=
 SLIB3= -luc -lu
 SLIB4= $(CGS_LIBS)
-SLIB5= $(LF_LIBS) 
+SLIB5= -liconv $(LF_LIBS) 
 SLIB6= -lsecdb -lproject -lpthread -lthread -lrt -lxnet -lsocket -lnsl
 SLIB7=
 
