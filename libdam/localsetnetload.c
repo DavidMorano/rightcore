@@ -122,7 +122,7 @@ int localsetnetload(cchar *pr,cchar *sbuf,int slen)
 	    bfile		dfile, *dfp = &dfile ;
 	    const mode_t	om = 0664 ;
 	    if ((rs = bopen(dfp,tfname,"wct",om)) >= 0) {
-		const char	*fmt = "# NETLOAD (Machine Network-Load)" ;
+		cchar	*fmt = "# NETLOAD (Machine Network-Load)" ;
 		if ((rs = bprintline(dfp,fmt,-1)) >= 0) {
 	            if ((rs = bprintline(dfp,sbuf,slen)) >= 0) {
 		        rs = uprogdata_set(di,sbuf,slen,ttl) ;

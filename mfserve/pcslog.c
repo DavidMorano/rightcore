@@ -31,19 +31,13 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<sys/stat.h>
-#include	<sys/socket.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<stdarg.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<sockaddress.h>
 #include	<localmisc.h>
 
 #include	"proglog.h"
@@ -54,14 +48,6 @@
 
 
 /* local defines */
-
-#ifndef	PROGINFO
-#define	PROGINFO	PROGINFO
-#endif
-
-#ifndef	TO_POLLMULT
-#define	TO_POLLMULT	1000
-#endif
 
 #ifndef	PBUFLEN
 #define	PBUFLEN		(4 * MAXPATHLEN)
@@ -78,12 +64,6 @@
 #ifndef	DIGBUFLEN
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
-
-#ifndef	IPCBUFLEN
-#define	IPCBUFLEN	MSGBUFLEN
-#endif
-
-#define	DEBUGFNAME	"/tmp/pcs.deb"
 
 
 /* external subroutines */
@@ -313,7 +293,7 @@ int logreport(PROGINFO *pip)
 /* end subroutine (logreport) */
 
 
-int loginvalidcmd(PROGINFO *pip,cchar cmd[])
+int loginvalidcmd(PROGINFO *pip,cchar *cmd)
 {
 	int		rs = SR_OK ;
 
@@ -372,7 +352,7 @@ int loginfo(PROGINFO *pip)
 /* end subroutine (loginfo) */
 
 
-int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar np[])
+int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar *np)
 {
 	char		timebuf[TIMEBUFLEN + 1] ;
 

@@ -31,19 +31,13 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<sys/stat.h>
-#include	<unistd.h>
-#include	<fcntl.h>
 #include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<stdarg.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<logfile.h>
-#include	<sockaddress.h>
 #include	<localmisc.h>
 
 #include	"msumain.h"
@@ -357,7 +351,7 @@ int logreport(PROGINFO *pip)
 /* end subroutine (logreport) */
 
 
-int loginvalidcmd(PROGINFO *pip,cchar cmd[])
+int loginvalidcmd(PROGINFO *pip,cchar *cmd)
 {
 	int		rs = SR_OK ;
 
@@ -413,7 +407,7 @@ int loginfo(PROGINFO *pip)
 /* end subroutine (loginfo) */
 
 
-int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar np[])
+int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar *np)
 {
 	char		timebuf[TIMEBUFLEN + 1] ;
 

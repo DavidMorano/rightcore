@@ -386,7 +386,7 @@ ts.x:			$(TWOBJ)
 
 
 ST1OBJ00=
-ST1OBJ01= pollprog.o pollprogcheck.o 
+ST1OBJ01= pollproger.o pollprogcheck.o 
 ST1OBJ02= thrbase.o spawner.o envhelp.o
 ST1OBJ03=
 
@@ -402,7 +402,7 @@ $(ST1).so:		$(ST1OBJ) Makefile $(ST1).map
 	$(LD) -G -o $@ -M $(ST1).map $(LDFLAGS_SO) \
 		$(ST1OBJ) $(SLIBDIRS) $(SLIBS) > $(ST1).lm
 
-pollprog.o:		pollprog.c pcspolls.h
+pollproger.o:		pollproger.c pcspolls.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 pollprogcheck.o:	pollprogcheck.c pcspolls.h

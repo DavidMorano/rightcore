@@ -130,8 +130,8 @@ int svckv_val(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
 
 int svckv_dequote(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
 {
-	int		vl ;
 	int		cl = 0 ;
+	int		vl ;
 	cchar		*vp ;
 	cchar		*cp = NULL ;
 	if ((vl = svckv_val(kv,n,np,&vp)) > 0) {
@@ -176,6 +176,7 @@ int svckv_isprog(cchar *(*kv)[2],int n,cchar **vpp)
 /* end subroutine (svckv_isexec) */
 
 
+/* return (as the integer return value) a bit-set of options from the SVCENT */
 int svckv_svcopts(cchar *(*kv)[2],int n)
 {
 	int		vl ;

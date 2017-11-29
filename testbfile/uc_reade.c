@@ -266,12 +266,7 @@ int uc_reade(int fd,void *vbuf,int ulen,int to,int opts)
 /* local subroutines */
 
 
-static int subinfo_start(sip,fd,ubuf,ulen,to,opts)
-SUBINFO		*sip ;
-char		*ubuf ;
-int		ulen ;
-int		fd ;
-int		opts ;
+static int subinfo_start(SUBINFO *sip,int fd,char *ubuf,int ulen,int to,int ro)
 {
 	struct ustat	sb ;
 	int		rs ;
@@ -284,17 +279,17 @@ int		opts ;
 	sip->ulen = ulen ;
 	sip->uto = to ;
 	sip->to = to ;
-	sip->opts = opts ;
+	sip->opts = ro ;
 
-	sip->f.again = MKBOOL(opts & FM_AGAIN) ;
-	sip->f.timed = MKBOOL(opts & FM_TIMED) ;
-	sip->f.timeint = MKBOOL(opts & FM_TIMEINT) ;
-	sip->f.exact = MKBOOL(opts & FM_EXACT) ;
+	sip->f.again = MKBOOL(ro & FM_AGAIN) ;
+	sip->f.timed = MKBOOL(ro & FM_TIMED) ;
+	sip->f.timeint = MKBOOL(ro & FM_TIMEINT) ;
+	sip->f.exact = MKBOOL(ro & FM_EXACT) ;
 
 #if	CF_DEBUGS
-	debugprintf("uc_reade/subinfo_start: again=%u timed=%u \n",
+	debugprintf("uc_reade/subinfo_start: again=%u timed=%u\n",
 	    sip->f.again,sip->f.timed) ;
-	debugprintf("uc_reade/subinfo_start: timeint=%u exact=%u \n",
+	debugprintf("uc_reade/subinfo_start: timeint=%u exact=%u\n",
 	    sip->f.timeint,sip->f.exact) ;
 #endif
 
@@ -309,17 +304,18 @@ int		opts ;
 	    if ((rs = subinfo_setmode(sip,sb.st_mode)) >= 0) {
 
 #if	CF_DEBUGS
-	    {
-	        const char *filetype ;
-	        if (sip->f.isfifo) filetype = "pipe" ;
-	        else if (sip->f.ischar) filetype = "char" ;
-	        else if (sip->f.isdir) filetype = "dir" ;
-	        else if (sip->f.isblock) filetype = "block" ;
-	        else if (sip->f.isreg) filetype = "reg" ;
-	        else if (sip->f.issocket) filetype = "socket" ;
-	        else filetype = "other" ;
-	        debugprintf("uc_reade/subinfo_start: filetype=%s\n",filetype) ;
-	    }
+	        {
+	            cchar	*filetype ;
+	            if (sip->f.isfifo) filetype = "pipe" ;
+	            else if (sip->f.ischar) filetype = "char" ;
+	            else if (sip->f.isdir) filetype = "dir" ;
+	            else if (sip->f.isblock) filetype = "block" ;
+	            else if (sip->f.isreg) filetype = "reg" ;
+	            else if (sip->f.issocket) filetype = "socket" ;
+	            else filetype = "other" ;
+	            debugprintf("uc_reade/subinfo_start: filetype=%s\n",
+		        filetype) ;
+	        }
 #endif /* CF_DEBUGS */
 
 		if (sip->f.isother) {

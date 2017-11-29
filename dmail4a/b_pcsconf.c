@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	1		/* run-time debug print-outs */
+#define	CF_DEBUG	0		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_CHECKONC	0		/* check ONC */
 

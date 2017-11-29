@@ -75,7 +75,6 @@ using namespace		std ;		/* yes, we want punishment! */
 
 /* external subroutines */
 
-extern "C" int	uc_timeout(int,TIMEOUT *) ;
 extern "C" int	uc_safesleep(int) ;
 
 extern "C" int	snwcpy(char *,int,const char *,int) ;

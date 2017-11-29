@@ -38,14 +38,11 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<bfile.h>
-#include	<realname.h>
-#include	<mallocstuff.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -209,7 +206,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -521,8 +518,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */

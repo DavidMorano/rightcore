@@ -1145,6 +1145,7 @@ extern int	uc_openex(const char *,int,mode_t,int,int) ;
 extern int	uc_openenv(const char *,int,mode_t,const char **,int) ;
 extern int	uc_openinfo(struct ucopeninfo *) ;
 extern int	uc_create(cchar *,mode_t) ;
+extern int	uc_fpassfd(int,int) ;
 extern int	uc_ftruncate(int,offset_t) ;
 extern int	uc_ftat(int,struct ustat *) ;
 extern int	uc_stat(const char *,struct ustat *) ;

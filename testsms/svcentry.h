@@ -14,6 +14,7 @@
 #include	<sys/types.h>
 #include	<time.h>
 
+#include	<vecstr.h>
 #include	<varsub.h>
 #include	<svcfile.h>
 
@@ -22,6 +23,7 @@
 
 #define	SVCENTRY		struct svcentry_head
 #define	SVCENTRY_ARGS		struct svcentry_a
+#define	SVCENTRY_FL		struct svcentry_flags
 
 #define	SVCENTRY_TMPDIR		"/tmp"
 #define	SVCENTRY_IDLEN		14
@@ -48,7 +50,7 @@ struct svcentry_flags {
 
 struct svcentry_head {
 	uint		magic ;
-	struct svcentry_flags	f ;
+	SVCENTRY_FL	f ;
 	vecstr		srvargs ;	/* server program arguments */
 	varsub		*ssp ;		/* string substitutions */
 	const char	*program ;	/* server program path */

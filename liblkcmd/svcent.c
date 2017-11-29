@@ -1,6 +1,6 @@
-/* svcfileinst */
+/* svcent */
 
-/* service file entry (SVCFILEINST) */
+/* service file entry (SVCENT) */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -18,7 +18,7 @@
 
 /*******************************************************************************
 
-	We perform some slight management on SVCFILEINST objects.
+	We perform some slight management on SVCENT objects.
 
 
 *******************************************************************************/
@@ -34,7 +34,7 @@
 #include	<estrings.h>
 #include	<localmisc.h>
 
-#include	"svcfileinst.h"
+#include	"svcent.h"
 #include	"svckv.h"
 
 
@@ -73,7 +73,6 @@ extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
-extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
 
@@ -100,21 +99,21 @@ extern char	*strnrpbrk(cchar *,int,cchar *) ;
 /* exported subroutines */
 
 
-int svcfileinst_val(SVCFILEINST *sep,cchar *k,cchar **rpp)
+int svcent_getval(SVCENT *sep,cchar *k,cchar **rpp)
 {
 	const int	n = sep->nkeys ;
 	cchar		*(*kv)[2] = sep->keyvals ;
 	return svckv_val(kv,n,k,rpp) ;
 }
-/* end subroutine (svcfileinst_val) */
+/* end subroutine (svcent_getval) */
 
 
-int svcfileinst_deval(SVCFILEINST *sep,cchar *k,cchar **rpp)
+int svcent_getdeval(SVCENT *sep,cchar *k,cchar **rpp)
 {
 	const int	n = sep->nkeys ;
 	cchar		*(*kv)[2] = sep->keyvals ;
 	return svckv_dequote(kv,n,k,rpp) ;
 }
-/* end subroutine (svcfileinst_deval) */
+/* end subroutine (svcent_getdeval) */
 
 

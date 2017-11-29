@@ -86,7 +86,7 @@ int uptcreate(pthread_t *rp,pthread_attr_t *ptap,uptsub_t start,void *arg)
 	const int	osize = sizeof(struct ourarg) ;
 	int		rs ;
 	int		rs1 ;
-	int		rv = 0 ;
+	int		tid = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("uptcreate: ent start=%p arg=%p\n",start,arg) ;
@@ -99,19 +99,17 @@ int uptcreate(pthread_t *rp,pthread_attr_t *ptap,uptsub_t start,void *arg)
 	    sigset_t	nsm, osm ;
 	    uc_sigsetfill(&nsm) ;
 	    if ((rs = pt_sigmask(SIG_BLOCK,&nsm,&osm)) >= 0) {
-		{
-	            oap->ap = arg ;
-	            oap->start = start ;
-		    if ((rs = uptcreator(rp,ptap,oap)) >= 0) {
-		        rv = (*rp & INT_MAX) ;
-		    }
+	        oap->ap = arg ;
+	        oap->start = start ;
+		if ((rs = uptcreator(rp,ptap,oap)) >= 0) {
+		    tid = (*rp & INT_MAX) ;
 		}
 		rs1 = pt_sigmask(SIG_SETMASK,&osm,NULL) ;
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (sigblock) */
 	} /* end if (memory-allocation) */
 
-	return (rs >= 0) ? rv : rs ;
+	return (rs >= 0) ? tid : rs ;
 }
 /* end subroutine (uptcreate) */
 

@@ -75,13 +75,6 @@
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
-#define MAXDECDIG_I	10		/* decimal digits in 'int' */
-#define MAXDECDIG_UI	10		/* decimal digits in 'uint' */
-#define MAXDECDIG_L	10		/* decimal digits in 'long' */
-#define MAXDECDIG_UL	10		/* decimal digits in 'ulong' */
-#define MAXDECDIG_L64	19		/* decimal digits in 'long64' */
-#define MAXDECDIG_UL64	20		/* decimal digits in 'ulong64' */
-
 
 /* external subroutines */
 

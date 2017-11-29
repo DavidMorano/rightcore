@@ -307,7 +307,7 @@ OBJ24= sfreadline.o sfisterm.o
 OBJ25= printhelp.o
 OBJ26= shio.o shio_printdline.o shio_writeblanks.o
 OBJ27= cgi.o htm.o
-OBJ28= svckv.o svcfileinst.o
+OBJ28= svckv.o svcent.o
 OBJ29= 
 OBJ30= 
 OBJ31= 
@@ -385,7 +385,7 @@ OBJ94=
 OBJ95= maintqotd.o maintqotd_prog.o 
 
 OBJ096= proginfo.o proginfo_setpiv.o proginfo_rootname.o 
-OBJ097= progdebugout.o proglogout.o proglog.o proguserlist.o
+OBJ097= progdebugout.o proglog.o proglogout.o proguserlist.o
 OBJ098= maininfo.o sysmemutil.o
 OBJ099= 
 OBJ100= msghdr.o cmsghdr.o
@@ -1071,7 +1071,7 @@ maintqotd_prog.o:	maintqotd_prog.c maintqotd.h
 
 svckv.o:		svckv.c svckv.h
 
-svcfileinst.o:		svcfileinst.c svcfileinst.h
+svcent.o:		svcent.c svcent.h
 
 
 # objects

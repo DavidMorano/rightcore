@@ -1973,16 +1973,19 @@ static int procourconf_find(PROGINFO *pip)
 	        if ((rs = permsched(sched1,svp,tbuf,tlen,cfn,R_OK)) >= 0) {
 		    cchar	**vpp = &pip->cfname ;
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(3))
-		    debugprintf("mfsmain/procourconf_find: "
+		    if (DEBUGLEVEL(3)) {
+		        debugprintf("mfsmain/procourconf_find: "
 			    "permsched() rs=%d\n",rs) ;
+		        debugprintf("mfsmain/procourconf_find: "
+			    "cf=%s\n",tbuf) ;
+		    }
 #endif
 		    rl = rs ;
 		    rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
 	        } else if (isNotPresent(rs)) {
 #if	CF_DEBUG
 		    if (DEBUGLEVEL(3))
-		    debugprintf("mfsmain/procourconf_find: "
+		        debugprintf("mfsmain/procourconf_find: "
 			    "permsched() rs=%d\n",rs) ;
 #endif
 		    rs = SR_OK ;
@@ -2763,6 +2766,7 @@ static int procservice(PROGINFO *pip)
 	 	const time_t	ti_start = pip->daytime ;
 
 		while ((rs = mfswatch_service(pip)) >= 0) {
+		    c += rs ;
 
 	            if ((rs >= 0) && (lip->cmd[0] != '\0')) {
 	                rs = procfcmd(pip) ;

@@ -20,9 +20,9 @@
 
 
 struct charq_head {
-	char	*buf ;
-	int	ri, wi ;
-	int	size, count ;
+	char		*buf ;
+	int		ri, wi ;
+	int		size, count ;
 } ;
 
 

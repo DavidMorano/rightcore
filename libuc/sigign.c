@@ -44,7 +44,7 @@
 
 #define	SIGIGN_HANDLE	struct sigign_handle
 
-#define	NDF	"sigign.deb"
+#define	NDF		"sigign.deb"
 
 
 /* external subroutines */
@@ -87,7 +87,7 @@ int sigign_start(SIGIGN *iap,const int *ignores)
 	memset(iap,0,sizeof(SIGIGN)) ;
 
 	if (ignores != NULL) {
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; ignores[i] != 0 ; i += 1) nhandles += 1 ;
 	    nhandles = i ;
 	    if (nhandles > 0) {
@@ -95,8 +95,8 @@ int sigign_start(SIGIGN *iap,const int *ignores)
 	        void		*p ;
 	        iap->nhandles = nhandles ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
-	            struct sigaction	san, *sap ;
-	            sigset_t		nsm ;
+	            SIGACTION	san, *sap ;
+	            sigset_t	nsm ;
 	            iap->handles = (SIGIGN_HANDLE *) p ;
 
 /* ignore these signals */
@@ -111,7 +111,7 @@ int sigign_start(SIGIGN *iap,const int *ignores)
 	                    hsig = ignores[i] ;
 	                    hp[i].sig = hsig ;
 	                    sap = &hp[i].action ;
-	                    memset(&san,0,sizeof(struct sigaction)) ;
+	                    memset(&san,0,sizeof(SIGACTION)) ;
 	                    san.sa_handler = SIG_IGN ;
 	                    san.sa_mask = nsm ;
 	                    san.sa_flags = 0 ;
@@ -119,7 +119,7 @@ int sigign_start(SIGIGN *iap,const int *ignores)
 	                } /* end for */
 
 	                if (rs < 0) {
-	                    int	j ;
+	                    int		j ;
 	                    for (j = (i-1) ; j >= 0 ; j -= 1) {
 	                        hsig = hp[j].sig ;
 	                        sap = &hp[j].action ;
@@ -128,10 +128,10 @@ int sigign_start(SIGIGN *iap,const int *ignores)
 			}
 	            } /* end if (ignores) */
 
-			if (rs < 0) {
-	                    uc_free(iap->handles) ;
-	                    iap->handles = NULL ;
-	                }
+		    if (rs < 0) {
+	      		uc_free(iap->handles) ;
+			iap->handles = NULL ;
+	 	     }
 	        } /* end if (memory allocations) */
 	    } /* end if (handles) */
 	} /* end if (ignores) */
@@ -140,8 +140,9 @@ int sigign_start(SIGIGN *iap,const int *ignores)
 	nprintf(NDF,"sigign_start: after-allocations rs=%d\n",rs) ;
 #endif
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    iap->magic = SIGIGN_MAGIC ;
+	}
 
 #if	CF_DEBUGN
 	nprintf(NDF,"sigign_start: ret rs=%d nhandles=%u\n",
@@ -162,7 +163,7 @@ int sigign_finish(SIGIGN *iap)
 	if (iap->magic != SIGIGN_MAGIC) return SR_NOTOPEN ;
 
 	if (iap->handles != NULL) {
-	    struct sigaction	*sap ;
+	    SIGACTION	*sap ;
 	    int		hsig ;
 	    int		j ;
 	    for (j = (iap->nhandles-1)  ; j >= 0 ; j -= 1) {

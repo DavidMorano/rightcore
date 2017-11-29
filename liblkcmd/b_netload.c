@@ -164,7 +164,7 @@ static int	locinfo_finish(LOCINFO *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -212,7 +212,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"utf",
 	"db",
 	NULL
@@ -225,7 +225,7 @@ enum akonames {
 } ;
 
 /* define the configuration keywords */
-static cchar *qopts[] = {
+static cchar	*qopts[] = {
 	"netload",
 	NULL
 } ;
@@ -1191,7 +1191,7 @@ static int procset(PROGINFO *pip,cchar *vp,int vl)
 /* end subroutine (procset) */
 
 
-static int procget(PROGINFO *pip,SHIO *ofp,char cbuf[],int clen,int ri)
+static int procget(PROGINFO *pip,SHIO *ofp,char *cbuf,int clen,int ri)
 {
 	int		rs ;
 	int		len = 0 ;
@@ -1199,11 +1199,10 @@ static int procget(PROGINFO *pip,SHIO *ofp,char cbuf[],int clen,int ri)
 	if (ofp == NULL) return SR_FAULT ;
 	if (ri < 0) return SR_INVALID ;
 
-	if ((rs = localgetnetload(pip->pr,cbuf,clen)) >= 0) {
+	cbuf[0] = '\0' ;
+	if ((rs = localgetnetload(pip->pr,cbuf,clen)) > 0) {
 	    len = rs ;
-	    if (len > 0) {
-	        if (cbuf[len-1] == '\n') cbuf[--len] = '\0' ;
-	    }
+	    if (cbuf[len-1] == '\n') cbuf[--len] = '\0' ;
 	}
 
 	return (rs >= 0) ? len : rs ;

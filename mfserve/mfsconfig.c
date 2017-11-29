@@ -135,7 +135,7 @@ static int	config_reader(CONFIG *,MFSLISTEN_ACQ *,char *,char *,char *) ;
 
 /* local variables */
 
-static const char	*params[] = {
+static cchar	*params[] = {
 	"cmd",
 	"logsize",
 	"msfile",

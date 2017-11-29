@@ -69,18 +69,16 @@
 int sbuf_loadstrs(SBUF *sbp,cchar **spp)
 {
 	int		rs = SR_OK ;
-	int		c = 0 ;
+	int		len = 0 ;
 
 	if (spp != NULL) {
-	    while (*spp != NULL) {
-	        c += 1 ;
-	        rs = sbuf_strw(sbp,*spp,-1) ;
-	        spp += 1 ;
-	        if (rs < 0) break ;
+	    while ((rs >= 0) && (*spp != NULL)) {
+	        rs = sbuf_strw(sbp,*spp++,-1) ;
+		len += rs ;
 	    } /* end while */
 	} /* end if */
 
-	return (rs >= 0) ? c : rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (sbuf_loadstrs) */
 

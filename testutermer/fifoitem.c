@@ -52,6 +52,9 @@ typedef int	(*cmpfun_t)(const void *,const void *) ;
 
 /* forward referecens */
 
+int		fifoitem_del(FIFOITEM *,FIFOITEM_CUR *) ;
+int		fifoitem_curbegin(FIFOITEM *,FIFOITEM_CUR *) ;
+int		fifoitem_curend(FIFOITEM *,FIFOITEM_CUR *) ;
 int		fifoitem_fetch(FIFOITEM *,FIFOITEM_CUR *,FIFOITEM_ENT **) ;
 
 static int	entry_start(FIFOITEM_ENT *,const void *,int) ;
@@ -59,11 +62,13 @@ static int	entry_finish(FIFOITEM_ENT *) ;
 static int	defaultcmp(cchar **,cchar **) ;
 
 
+/* local variables */
+
+
 /* exported subroutines */
 
 
-int fifoitem_start(fsp)
-FIFOITEM	*fsp ;
+int fifoitem_start(FIFOITEM *fsp)
 {
 
 	fsp->head = fsp->tail = NULL ;
@@ -75,8 +80,7 @@ FIFOITEM	*fsp ;
 
 
 /* free up the entire vector string data structure object */
-int fifoitem_finish(fsp)
-FIFOITEM	*fsp ;
+int fifoitem_finish(FIFOITEM *fsp)
 {
 	int		rs = SR_OK ;
 
@@ -93,10 +97,7 @@ FIFOITEM	*fsp ;
 
 
 /* add an element (to the tail) */
-int fifoitem_add(fsp,sp,sl)
-FIFOITEM	*fsp ;
-const void	*sp ;
-int		sl ;
+int fifoitem_ins(FIFOITEM *fsp,const void *sp,int sl)
 {
 	const int	esize = sizeof(FIFOITEM_ENT) ;
 	int		rs ;
@@ -129,19 +130,16 @@ int		sl ;
 	        fsp->n += 1 ;
 	    } /* end if (entry_start) */
 	    if (rs < 0)
-		uc_free(np) ;
+	        uc_free(np) ;
 	} /* end if (m-a) */
 
 	return (rs >= 0) ? fsp->n : rs ;
 }
-/* end subroutine (fifoitem_add) */
+/* end subroutine (fifoitem_ins) */
 
 
 /* remove from the head */
-int fifoitem_remove(fsp,vbuf,vlen)
-FIFOITEM	*fsp ;
-void		*vbuf ;
-int		vlen ;
+int fifoitem_rem(FIFOITEM *fsp,void *vbuf,int vlen)
 {
 	FIFOITEM_ENT	*ep ;
 	int		rs = SR_OK ;
@@ -171,8 +169,9 @@ int		vlen ;
 	fsp->head = ep->next ;
 	if (fsp->head == NULL) {
 	    fsp->tail = NULL ;
-	} else
+	} else {
 	    (fsp->head)->prev = NULL ;
+	}
 
 	rs1 = entry_finish(ep) ;
 	if (rs >= 0) rs = rs1 ;
@@ -183,14 +182,11 @@ int		vlen ;
 	fsp->n -= 1 ;
 	return (rs >= 0) ? dl : rs ;
 }
-/* end subroutine (fifoitem_remove) */
+/* end subroutine (fifoitem_rem) */
 
 
 /* fetch the next entry from the one under the cursor (or at the head) */
-int fifoitem_fetch(fsp,curp,epp)
-FIFOITEM	*fsp ;
-FIFOITEM_CUR	*curp ;
-FIFOITEM_ENT	**epp ;
+int fifoitem_fetch(FIFOITEM *fsp,FIFOITEM_CUR *curp,FIFOITEM_ENT **epp)
 {
 	FIFOITEM_ENT	*ep ;
 	int		rs ;
@@ -220,9 +216,7 @@ FIFOITEM_ENT	**epp ;
 
 
 /* delete the element that is under the cursor (or at the head) */
-int fifoitem_del(fsp,curp)
-FIFOITEM	*fsp ;
-FIFOITEM_CUR	*curp ;
+int fifoitem_del(FIFOITEM *fsp,FIFOITEM_CUR *curp)
 {
 	FIFOITEM_ENT	*ep ;
 	int		rs = SR_OK ;
@@ -241,42 +235,44 @@ FIFOITEM_CUR	*curp ;
 
 	if (ep != NULL) {
 
-	if (curp != NULL) {
+	    if (curp != NULL) {
 
-	    if (ep->prev == NULL) {
+	        if (ep->prev == NULL) {
+	            fsp->head = ep->next ;
+	        } else {
+	            (ep->prev)->next = ep->next ;
+	        }
+
+	        if (ep->next == NULL) {
+	            fsp->tail = ep->prev ;
+	        } else {
+	            (ep->next)->prev = ep->prev ;
+	        }
+
+	        curp->current = ep->prev ;
+
+	    } else {
+
 	        fsp->head = ep->next ;
-	    } else {
-	        (ep->prev)->next = ep->next ;
-	    }
+	        if (fsp->head == NULL) {
+	            fsp->tail = NULL ;
+	        } else {
+	            (fsp->head)->prev = NULL ;
+	        }
 
-	    if (ep->next == NULL) {
-	        fsp->tail = ep->prev ;
-	    } else {
-	        (ep->next)->prev = ep->prev ;
-	    }
+	    } /* end if */
 
-	    curp->current = ep->prev ;
+	    rs1 = entry_finish(ep) ;
+	    if (rs >= 0) rs = rs1 ;
+
+	    rs1 = uc_free(ep) ;
+	    if (rs >= 0) rs = rs1 ;
+
+	    fsp->n -= 1 ;
 
 	} else {
-
-	    fsp->head = ep->next ;
-	    if (fsp->head == NULL) {
-	        fsp->tail = NULL ;
-	    } else
-	        (fsp->head)->prev = NULL ;
-
-	} /* end if */
-
-	rs1 = entry_finish(ep) ;
-	if (rs >= 0) rs = rs1 ;
-
-	rs1 = uc_free(ep) ;
-	if (rs >= 0) rs = rs1 ;
-
-	fsp->n -= 1 ;
-
-	} else
 	    rs = SR_NOTFOUND ;
+	}
 
 	return (rs >= 0) ? fsp->n : rs ;
 }
@@ -284,8 +280,7 @@ FIFOITEM_CUR	*curp ;
 
 
 /* return the count of the number of items */
-int fifoitem_count(fsp)
-FIFOITEM	*fsp ;
+int fifoitem_count(FIFOITEM *fsp)
 {
 
 	if (fsp == NULL) return SR_FAULT ;
@@ -313,13 +308,13 @@ int fifoitem_finder(FIFOITEM *fsp,cchar *s,cmpfun_t cmpfunc,cchar **rpp)
 	    FIFOITEM_ENT	*ep ;
 	    while ((rs = fifoitem_fetch(fsp,&cur,&ep)) >= 0) {
 	        if ((*cmpfunc)(s,ep->dp) == 0) {
-		    dl = ep->dl ;
-		    if (rpp != NULL) {
-	    	        const char	*rp = (const char *) ep->dp ;
-	    	        *rpp = (rs >= 0) ? rp : NULL ;
-		    }
-		    break ;
-		}
+	            dl = ep->dl ;
+	            if (rpp != NULL) {
+	                cchar	*rp = (cchar *) ep->dp ;
+	                *rpp = (rs >= 0) ? rp : NULL ;
+	            }
+	            break ;
+	        }
 	    } /* end while */
 	    fifoitem_curend(fsp,&cur) ;
 	} /* end if (cursor) */
@@ -393,17 +388,17 @@ static int entry_finish(FIFOITEM_ENT *ep)
 /* end subroutine (entry_finish) */
 
 
-static int defaultcmp(const char **e1pp,const char **e2pp)
+static int defaultcmp(cchar **e1pp,cchar **e2pp)
 {
 	int		rc = 0 ;
 
 	if ((*e1pp != NULL) || (*e2pp != NULL)) {
 	    if (*e1pp == NULL) {
-		rc = 1 ;
+	        rc = 1 ;
 	    } else if (*e2pp == NULL) {
-		rc = -1 ;
+	        rc = -1 ;
 	    } else {
-		rc = strcmp(*e1pp,*e2pp) ;
+	        rc = strcmp(*e1pp,*e2pp) ;
 	    }
 	}
 

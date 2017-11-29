@@ -190,23 +190,23 @@ OBJ02= mfsmain.o
 OBJ03= mfslocinfo.o mfsconfig.o mfsadj.o mfslog.o mfscmd.o mfsdebug.o
 OBJ04= mfslisten.o mfswatch.o mfsbuilt.o
 OBJ05= mfsns.o mfsc.o mfsmsg.o
-OBJ06= svcentsub.o
+OBJ06= sreqdb.o sreq.o svcentsub.o
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08= cpuspeed.o securefile.o
-OBJ09=
-OBJ10= msfile.o msfilee.o 
-OBJ11= ebuf.o
-OBJ12= spawner.o
-OBJ13= listenspec.o poller.o
-OBJ14= sreqdb.o sreq.o
-OBJ15=
+OBJ09= 
+OBJ10= 
+OBJ11= 
+OBJ12=
+OBJ13= 
+OBJ14= listenspec.o poller.o
+OBJ15= msfile.o msfilee.o ebuf.o
 
 OBJ16= msghdr.o cmsghdr.o
 OBJ17= vecstr_svcargs.o
-OBJ18= varsub.o
+OBJ18= varsub.o intiq.o
 OBJ19=
-OBJ20= svckv.o svcfileinst.o
-OBJ21= uc_peek.o
+OBJ20= svckv.o svcent.o
+OBJ21= uc_peek.o passfd.o
 OBJ22= isBadSend.o isBadRecv.o
 OBJ23= isBadMsg.o
 
@@ -384,7 +384,7 @@ getutmpterm.o:		getutmpterm.c getutmpent.h
 
 svckv.o:		svckv.c svckv.h
 
-svcfileinst.o:		svcfileinst.c svcfileinst.h
+svcent.o:		svcent.c svcent.h
 
 
 # standard objects duplicated here
@@ -434,6 +434,8 @@ envmgr.o:		envmgr.c envmgr.h
 varsub.o:		varsub.c varsub.h
 
 varsub_extras.o:	varsub_extras.c
+
+intiq.o:		intiq.c intiq.h
 
 
 # testing

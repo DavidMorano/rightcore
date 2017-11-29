@@ -12,11 +12,14 @@
 
 /*******************************************************************************
 
-	Ths subroutine is similar to 'strncpy(3c)' but it takes a counted
-	string for the source rather than only a NUL-terminated string.  The
-	arguments to this are also different than from 'strncpy(3c)'.  It also
-	returns a pointer to the end of the filled in (non-NUL) part of the
-	destination string (created) rather than to the beginning of it.
+        Ths subroutine is similar to 'strncpy(3c)' (in that it zero-fills out
+        any remainder of the destiation string buffer which is not otherwise
+        filled up by characters from the source string) but it takes a counted
+        string for the source rather than only a NUL-terminated string. The
+        arguments to this are also different than from 'strncpy(3c)'. It also
+        returns a pointer to the end of the filled in (non-NUL) part of the
+        destination string (created) rather than to the beginning of it. No NUL
+        character is placed at the end (overlast-end) of the destination string.
 
 	Synopsis:
 
@@ -63,7 +66,7 @@ char *strnwcpy(char *dp,int dl,cchar *sp,int sl)
 
 	if (dl >= 0) {
 	    if (sl >= 0) {
-		int	ml = MIN(sl,dl) ;
+		const int	ml = MIN(sl,dl) ;
 	        strncpy(dp,sp,ml) ;
 		dp += ml  ;
 		dl -= ml ;

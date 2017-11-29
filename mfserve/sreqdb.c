@@ -85,6 +85,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 static int	sreqdb_delit(SREQDB *,int,SREQ *) ;
 static int	sreqdb_entfins(SREQDB *) ;
+static int	sreqdb_thrdone(SREQDB *,SREQ **) ;
 
 #if	CF_CHECKDIR
 static int	sreqdb_checkdir(SREQDB *) ;
@@ -110,9 +111,16 @@ int sreqdb_start(SREQDB *jlp,cchar *tmpdname,int n)
 	if (tmpdname == NULL) tmpdname = TMPDNAME ;
 
 	if ((rs = uc_mallocstrw(tmpdname,-1,&cp)) >= 0) {
-	    const int	vo = (VECHAND_OREUSE | VECHAND_OCONSERVE) ;
+	    int	vo = 0 ;
+	    vo |= VECHAND_OREUSE ;
+	    vo |= VECHAND_OCONSERVE ;
+	    vo |= VECHAND_OSTATIONARY ;
 	    jlp->tmpdname = cp ;
-	    rs = vechand_start(&jlp->db,n,vo) ;
+	    if ((rs = vechand_start(&jlp->db,n,vo)) >= 0) {
+		rs = intiq_start(&jlp->exits) ;
+		if (rs < 0)
+		    vechand_finish(&jlp->db) ;
+	    }
 	    if (rs < 0) {
 	        uc_free(jlp->tmpdname) ;
 	        jlp->tmpdname = NULL ;
@@ -132,6 +140,9 @@ int sreqdb_finish(SREQDB *jlp)
 
 	if (jlp == NULL) return SR_FAULT ;
 
+	rs1 = intiq_finish(&jlp->exits) ;
+	if (rs >= 0) rs = rs1 ;
+
 	rs1 = sreqdb_entfins(jlp) ;
 	if (rs >= 0) rs = rs1 ;
 
@@ -150,7 +161,7 @@ int sreqdb_finish(SREQDB *jlp)
 
 
 /* add a new job */
-int sreqdb_newjob(SREQDB *jlp,cchar *jobid,int ifd,int ofd)
+int sreqdb_newjob(SREQDB *jlp,int jsn,cchar *jobid,int ifd,int ofd)
 {
 	int		rs ;
 	int		ji = 0 ;
@@ -169,8 +180,11 @@ int sreqdb_newjob(SREQDB *jlp,cchar *jobid,int ifd,int ofd)
 	    const int	jsize = sizeof(SREQ) ;
 	    if ((rs = uc_malloc(jsize,&jep)) >= 0) {
 	        if ((rs = sreq_start(jep,template,jobid,ifd,ofd)) >= 0) {
-	            rs = vechand_add(&jlp->db,jep) ;
-		    ji = rs ;
+	            if ((rs = vechand_add(&jlp->db,jep)) >= 0) {
+		        ji = rs ;
+			jep->ji = rs ;
+			jep->jsn = jsn ;
+		    }
 		    if (rs < 0)
 		        sreq_finish(jep) ;
 		} /* end if (sreq_start) */
@@ -355,7 +369,58 @@ int sreqdb_havefd(SREQDB *op,int fd)
 /* end subroutine (sreqdb_havefd) */
 
 
+/* thread calls this to signal that it is exiting */
+int sreqdb_exiting(SREQDB *op,int ji)
+{
+	SREQ		*jep ;
+	int		rs ;
+	if ((rs = vechand_get(&op->db,ji,&jep)) >= 0) {
+	    const int	st = sreqstate_done ;
+	    if ((rs = sreq_setstate(jep,st)) >= 0) {
+	        if ((rs = intiq_ins(&op->exits,ji)) >= 0) {
+		    op->f_exiting = TRUE ;
+		}
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (sreqdb_exiting) */
+
+
+int sreqdb_thrsdone(SREQDB *op,SREQ **rpp)
+{
+	int		rs = SR_NOTFOUND ;
+	if (op->f_exiting) {
+	    const int	rsn = SR_NOTFOUND ;
+	    if ((rs = sreqdb_thrdone(op,rpp)) == rsn) {
+	        op->f_exiting = FALSE ;
+	        rs = sreqdb_thrdone(op,rpp) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (sreqdb_thrsdone) */
+
+
 /* private subroutines */
+
+
+static int sreqdb_thrdone(SREQDB *op,SREQ **rpp)
+{
+	INTIQ		*iqp = &op->exits ;
+	int		jid ;
+	int		rs ;
+	if ((rs = intiq_rem(iqp,&jid)) >= 0) {
+	    SREQ	*jep ;
+	    vechand	*dbp = &op->db ;
+	    if ((rs = vechand_get(dbp,jid,&jep)) >= 0) {
+		*rpp = jep ;
+		rs = jid ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (sreqdb_thrdone) */
 
 
 /* delete stuff associated with this job */

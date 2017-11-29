@@ -38,6 +38,7 @@
 #include	<bfile.h>
 #include	<userinfo.h>
 #include	<format.h>
+#include	<nulstr.h>
 #include	<localmisc.h>
 
 #include	"config.h"
@@ -225,6 +226,40 @@ int proglog_check(PROGINFO *pip)
 /* end subroutine (proglog_check) */
 
 
+int proglog_getid(PROGINFO *pip,char *rbuf,int rlen)
+{
+	if (pip == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
+	return sncpy1(rbuf,rlen,pip->logid) ;
+}
+/* end subroutine (proglog_getid) */
+
+
+int proglog_setid(PROGINFO *pip,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		c = 0 ;
+	if (pip == NULL) return SR_FAULT ;
+	if (sp == NULL) return SR_FAULT ;
+	if (pip->open.logprog) {
+	    NULSTR	ns ;
+	    cchar	*logid ;
+	    if ((rs = nulstr_start(&ns,sp,sl,&logid)) >= 0) {
+		{
+	            LOGFILE	*lhp = &pip->lh ;
+	            rs = logfile_setid(lhp,logid) ;
+		    c = rs ;
+		}
+		rs1 = nulstr_finish(&ns) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (nulstr) */
+	} /* end if (log-open) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (proglog_setid) */
+
+
 int proglog_print(PROGINFO *pip,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
@@ -298,6 +333,62 @@ int proglog_printfold(PROGINFO *pip,cchar *pre,cchar *sp,int sl)
 /* end subroutine (proglog_printfold) */
 
 
+int proglog_ssprint(PROGINFO *pip,cchar *id,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	if (pip == NULL) return SR_FAULT ;
+	if (sp == NULL) return SR_FAULT ;
+	if (pip->open.logprog) {
+	    LOGFILE	*lhp = &pip->lh ;
+	    if ((rs = logfile_setid(lhp,id)) >= 0) {
+	        if ((rs = logfile_print(lhp,sp,sl)) >= 0) {
+	    	    rs = logfile_setid(lhp,pip->logid) ;
+		}
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (proglog_ssprint) */
+
+
+/* vprintf-like thing */
+int proglog_ssvprintf(PROGINFO *pip,cchar *id,cchar *fmt,va_list ap)
+{
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
+
+	if (pip == NULL) return SR_FAULT ;
+	if (fmt == NULL) return SR_FAULT ;
+
+	if (pip->open.logprog) {
+	    const int	flen = LINEBUFLEN ;
+	    char	fbuf[LINEBUFLEN+1] ;
+	    if ((rs = format(fbuf,flen,0x01,fmt,ap)) >= 0) {
+	        rs = proglog_ssprint(pip,id,fbuf,rs) ;
+	        wlen = rs ;
+	    }
+	}
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (proglog_ssvprintf) */
+
+
+/* PRINTFLIKE2 */
+int proglog_ssprintf(PROGINFO *pip,cchar *id,cchar *fmt,...)
+{
+	int		rs = SR_OK ;
+	if (pip->open.logprog) {
+	    va_list	ap ;
+	    va_begin(ap,fmt) ;
+	    rs = proglog_ssvprintf(pip,id,fmt,ap) ;
+	    va_end(ap) ;
+	}
+	return rs ;
+}
+/* end subroutine (proglog_ssprintf) */
+
+
 int proglog_flush(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -309,19 +400,6 @@ int proglog_flush(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (proglog_flush) */
-
-
-int proglog_setid(PROGINFO *pip,cchar *id)
-{
-	int		rs = SR_OK ;
-	if (pip == NULL) return SR_FAULT ;
-	if (pip->open.logprog) {
-	    LOGFILE	*lhp = &pip->lh ;
-	    rs = logfile_setid(lhp,id) ;
-	}
-	return rs ;
-}
-/* end subroutine (proglog_setid) */
 
 
 /* local subroutines */

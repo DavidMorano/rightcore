@@ -78,7 +78,7 @@ extern int	isprintlatin(int) ;
 extern int	proglog_printf(PROGINFO *,cchar *,...) ;
 extern int	proglog_flush(PROGINFO *) ;
 
-#if	CF_DEBUG || CF_DEBUGS
+#if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
@@ -212,11 +212,11 @@ static int procline(PROGINFO *pip,int columns,cchar *lp,int ll)
 	if (textlen > 0) {
 	    LINEFOLD	lfd, *lfdp = &lfd ;
 	    if ((rs = linefold_start(lfdp,textlen,indent,lp,ll)) >= 0) {
-	        int		i ;
-	        int		cl ;
-	        int		ind = 0 ;
-		const char	*fmt = "| %t%t\n" ;
-	        const char	*cp ;
+	        int	i ;
+	        int	cl ;
+	        int	ind = 0 ;
+		cchar	*fmt = "| %t%t\n" ;
+	        cchar	*cp ;
 	        for (i = 0 ; (cl = linefold_get(lfdp,i,&cp)) >= 0 ; i += 1) {
 		    wlen += cl ;
 	            rs1 = proglog_printf(pip,fmt,blanks,ind,cp,cl) ;

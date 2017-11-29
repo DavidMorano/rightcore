@@ -108,7 +108,7 @@
 #include	"cgi.h"
 #include	"htm.h"
 #include	"svckv.h"
-#include	"svcfileinst.h"
+#include	"svcent.h"
 
 
 /* local defines */
@@ -2091,21 +2091,25 @@ static int procourconf_begin(PROGINFO *pip,PARAMOPT *app,cchar *cfname)
 	if ((rs = uc_malloc(csize,&p)) >= 0) {
 	    CONFIG	*csp = p ;
 	    pip->config = csp ;
-	    rs = config_start(csp,pip,app,cfname) ;
+	    if ((rs = config_start(csp,pip,app,cfname)) >= 0) {
+	        LOCINFO	*lip = pip->lip ;
+	        if (lip->copyright == NULL) {
+		    cchar	*c = COPYRIGHT ;
+		    if ((rs = locinfo_copyright(lip,c,-1)) >= 0) {
+		        if (lip->webmaster == NULL) {
+			    lip->webmaster = WEBMASTER ;
+		        }
+		    }
+	        }
+		if (rs < 0) {
+		    config_finish(csp) ;
+		}
+	    } /* end if (config_start) */
 	    if (rs < 0) {
 	        uc_free(p) ;
 	        pip->config = NULL ;
 	    }
 	} /* end if (memory-allocation) */
-
-	if (rs >= 0) {
-	    LOCINFO	*lip = pip->lip ;
-	    if (lip->copyright == NULL) {
-		if ((rs = locinfo_copyright(lip,COPYRIGHT,-1)) >= 0) {
-		    if (lip->webmaster == NULL) lip->webmaster = WEBMASTER ;
-		}
-	    }
-	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -3692,12 +3696,12 @@ static int procdocbodymain_svcer(PROGINFO *pip,HTM *hdp,GATHER *glp,
 	}
 #endif /* CF_DEBUG */
 
-	if ((rs = svcfileinst_val(sep,"h",&hp)) > 0) {
+	if ((rs = svcent_getval(sep,"h",&hp)) > 0) {
 	    const int	n = sep->nkeys ;
 	    cchar	*(*kv)[2] = sep->keyvals ;
 	    cchar	*k = "include" ;
 	    cchar	*vp ;
-	    if ((rs = svcfileinst_val(sep,k,&vp)) > 0) {
+	    if ((rs = svcent_getval(sep,k,&vp)) > 0) {
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
 	                debugprintf("procdocbodymain_svcer: include\n") ;
@@ -3731,7 +3735,7 @@ static int procdocbodymain_svcerhdr(PROGINFO *pip,HTM *hdp,
 	int		vl ;
 	cchar		*vp ;
 	if (pip == NULL) return SR_FAULT ;
-	if ((rs = svcfileinst_deval(sep,"h",&vp)) > 0) {
+	if ((rs = svcent_getdeval(sep,"h",&vp)) > 0) {
 	    vl = rs ;
 	    if ((rs = htm_tagbegin(hdp,"h3",NULL,NULL,NULL)) >= 0) {
 		{
@@ -3740,7 +3744,7 @@ static int procdocbodymain_svcerhdr(PROGINFO *pip,HTM *hdp,
 		rs1 = htm_tagend(hdp,"h3") ;
 		if (rs >= 0) rs = rs1 ;
 	    } /* end if (htm-h3) */
-	} /* end if (svcfileinst_deval) */
+	} /* end if (svcent_getdeval) */
 	return rs ;
 }
 /* end subroutine (procdocbodymain_svcerhdr) */
@@ -3752,12 +3756,12 @@ static int procdocbodymain_svcerinc(PROGINFO *pip,HTM *hdp,
 	int		rs ;
 	cchar		*k = "include" ;
 	cchar		*vp ;
-	if ((rs = svcfileinst_val(sep,k,&vp)) > 0) {
+	if ((rs = svcent_getval(sep,k,&vp)) > 0) {
 	    char	ibuf[MAXPATHLEN+1] ;
 	    if ((rs = mkincfname(pip,ibuf,vp,rs)) >= 0) {
 	        rs = procdocbodymain_svcerincer(pip,hdp,sep,ibuf) ;
 	    } /* end if (mkincfname) */
-	} /* end if (svcfileinst_val) */
+	} /* end if (svcent_getval) */
 	return rs ;
 }
 /* end subroutine (procdocbodymain_svcerinc) */

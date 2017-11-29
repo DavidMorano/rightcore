@@ -6,7 +6,6 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	1		/* switchable debug print-outs */
-#define	CF_SVC		1		/* code the service DB stuff */
 
 
 /* revision history:
@@ -121,8 +120,7 @@
 
 /* typedefs */
 
-typedef int (*svcprocer_t)(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-		SVCENTSUB *ssp) ;
+typedef int (*svcprocer_t)(PROGINFO *pip,SREQ *jep) ;
 
 
 /* external subroutines */
@@ -139,8 +137,9 @@ extern int	sfdirname(const char *,int,const char **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	bufprintf(const char *,int,...) ;
-extern int	dupup(int,int) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
+extern int	dupup(int,int) ;
+extern int	passfd(cchar *,int) ;
 extern int	nlspeername(const char *,const char *,char *) ;
 extern int	mksublogid(char *,int,cchar *,int) ;
 extern int	acceptpass(int,struct strrecvfd *,int) ;
@@ -193,8 +192,6 @@ struct mfswatch {
 struct svcprocargs {
 	PROGINFO	*pip ;
 	SREQ		*jep ;
-	SVCFILE_ENT	*sep ;
-	SVCENTSUB	*ssp ;
 	svcprocer_t	w ;
 } ;
 
@@ -203,38 +200,40 @@ struct svcprocargs {
 
 static int	mfswatch_beginner(PROGINFO *) ;
 static int	mfswatch_ender(PROGINFO *) ;
-static int	mfswatch_polljobs(PROGINFO *,int,int) ;
 static int	mfswatch_svcaccum(PROGINFO *,SREQ *,int,int) ;
 static int	mfswatch_uptimer(PROGINFO *) ;
 static int	mfswatch_poll(PROGINFO *,POLLER_SPEC *) ;
 static int	mfswatch_pollreg(PROGINFO *,int,int) ;
+static int	mfswatch_polljobs(PROGINFO *,int,int) ;
 
 static int	mfswatch_svcbegin(PROGINFO *) ;
 static int	mfswatch_svcend(PROGINFO *) ;
 
-#if	CF_SVC
 static int mfswatch_svcfind(PROGINFO *,SREQ *) ;
 static int mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
 static int mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,vecstr *) ;
 
-static int mfswatch_svcprocer(PROGINFO *,SREQ *,SVCFILE_ENT *,
-	    SVCENTSUB *,svcprocer_t) ;
-static int mfswatch_svcprocers(SVCPROCARGS *) ;
+static int mfswatch_svcprocer(PROGINFO *,SREQ *,svcprocer_t) ;
 
-static int mfswatch_svcprocfile(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
-static int mfswatch_svcprocfiler(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+static int mfswatch_svcprocfile(PROGINFO *,SREQ *,SVCENT *) ;
+static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCENT *) ;
+static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCENT *) ;
 
-static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
+static int mfswatch_svcprocfiler(PROGINFO *,SREQ *) ;
 
-static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCFILE_ENT *,SVCENTSUB *) ;
-
-static int mfswatch_notfound(PROGINFO *,SREQ *) ;
+static int mfswatch_svcretstat(PROGINFO *,SREQ *,int) ;
 static int mfswatch_jobretire(PROGINFO *,SREQ *) ;
-#endif /* CF_SVC */
+static int mfswatch_thrscheck(PROGINFO *) ;
 
-#if	CF_SVC && defined(COMMENT)
+static int mfswatch_thrdone(PROGINFO *,SREQ *) ;
+static int mfswatch_logconn(PROGINFO *,int,int,int,cchar *) ;
+static int mfswatch_logsvc(PROGINFO *,SREQ *) ;
+
+#if	defined(COMMENT)
 static int	mfswatch_islong(PROGINFO *,vecstr *) ;
 #endif
+
+static int	svcprocers(SVCPROCARGS *) ;
 
 
 /* local variables */
@@ -319,6 +318,10 @@ int mfswatch_service(PROGINFO *pip)
 	    } /* end if */
 
 	    if (rs >= 0) {
+		rs = mfswatch_thrscheck(pip) ;
+	    } /* end if (ok) */
+
+	    if (rs >= 0) {
 	       const int	to = TO_MAINT ;
 	       if ((pip->daytime-wip->ti_lastmaint) >= to) {
 		    wip->ti_lastmaint = pip->daytime ;
@@ -350,6 +353,7 @@ int mfswatch_service(PROGINFO *pip)
 /* local subroutines */
 
 
+/* update our poll time-out value */
 static int mfswatch_uptimer(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
@@ -437,18 +441,21 @@ int mfswatch_newjob(PROGINFO *pip,int jtype,int stype,int ifd,int ofd)
 #endif
 
 	if ((rs = locinfo_newserial(lip)) >= 0) {
+	    const int	jsn = rs ;
 	    const int	llen = LOGIDLEN ;
 	    char	lbuf[LOGIDLEN+1] ;
-	    if ((rs = mksublogid(lbuf,llen,pip->logid,rs)) >= 0) {
+	    if ((rs = mksublogid(lbuf,llen,pip->logid,jsn)) >= 0) {
 	        SREQDB	*slp = &wip->reqs ;
-	        if ((rs = sreqdb_newjob(slp,lbuf,ifd,ofd)) >= 0) {
+	        if ((rs = sreqdb_newjob(slp,jsn,lbuf,ifd,ofd)) >= 0) {
 		    if ((rs = sreqdb_typeset(slp,rs,jtype,stype)) >= 0) {
 			const int	re = (POLLIN | POLLPRI) ;
-			rs = mfswatch_pollreg(pip,ifd,re) ;
+			if ((rs = mfswatch_pollreg(pip,ifd,re)) >= 0) {
+			    rs = mfswatch_logconn(pip,jsn,jtype,stype,lbuf) ;
+			}
 		    }
 	        } /* end if (sreqdb_newjob) */
 	    }
-	}
+	} /* end if (locinfo_newserial) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -544,7 +551,7 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 		            debugprintf("mfswatch_polljobs: svcbuf=>%s<\n",
 			    jep->svcbuf) ;
 #endif
-		        rs = mfswatch_svcfind(pip,jep) ;
+		            rs = mfswatch_svcfind(pip,jep) ;
 		    } else if (rs == 0) {
 		        re = (POLLIN | POLLPRI) ;
 		        rs = mfswatch_pollreg(pip,fd,re) ;
@@ -565,6 +572,23 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (mfswatch_polljobs) */
+
+
+/* register this FD w/ the poller object */
+static int mfswatch_pollreg(PROGINFO *pip,int fd,int re)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs ;
+	{
+	    POLLER	*pmp = &wip->pm ;
+	    POLLER_SPEC	ps ;
+	    ps.fd = fd ;
+	    ps.events = re ;
+	    rs = poller_reg(pmp,&ps) ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_pollreg) */
 
 
 /* ARGSUSED */
@@ -607,29 +631,11 @@ static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 /* end subroutine (mfswatch_svcaccum) */
 
 
-/* register this FD w/ the poller object */
-static int mfswatch_pollreg(PROGINFO *pip,int fd,int re)
-{
-	MFSWATCH	*wip = pip->watch ;
-	int		rs ;
-	{
-	    POLLER	*pmp = &wip->pm ;
-	    POLLER_SPEC	ps ;
-	    ps.fd = fd ;
-	    ps.events = re ;
-	    rs = poller_reg(pmp,&ps) ;
-	}
-	return rs ;
-}
-/* end subroutine (mfswatch_pollreg) */
-
-
 static int mfswatch_svcbegin(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
 	LOCINFO		*lip ;
 	int		rs = SR_OK ;
-#if	CF_SVC
 	lip = pip->lip ;
 	if ((lip->svcfname != NULL) && (lip->svcfname[0] != '\0')) {
 	    SVCFILE	*sfp = &wip->sdb ;
@@ -642,7 +648,6 @@ static int mfswatch_svcbegin(PROGINFO *pip)
 		wip->open.sdb = TRUE ;
 	    }
 	} /* end if */
-#endif /* CF_SVC */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfswatch_svcbegin: ret rs=%d open.sdb=%u\n",
@@ -688,7 +693,9 @@ static int mfswatch_svcfind(PROGINFO *pip,SREQ *jep)
 	if ((rs = vecstr_start(&sa,1,0)) >= 0) {
 	    if ((rs = vecstr_svcargs(&sa,jep->svcbuf)) >= 0) {
 		if ((rs = sreq_setsvc(jep,rs)) >= 0) {
-		    rs = mfswatch_svcfinder(pip,jep,&sa) ;
+		    if ((rs = mfswatch_logsvc(pip,jep)) >= 0) {
+		        rs = mfswatch_svcfinder(pip,jep,&sa) ;
+		    }
 		} /* end if (sreq_setlong) */
 	    } /* end if (vecstr_svcargs) */
 	    rs1 = vecstr_finish(&sa) ;
@@ -719,9 +726,12 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	        SVCFILE		*slp = &wip->sdb ;
 	        SVCFILE_ENT	e ;
 	        if ((rs = svcfile_fetch(slp,svc,NULL,&e,ebuf,elen)) >= 0) {
-    		    rs = mfswatch_svcproc(pip,jep,&e,sap) ;
+	            if ((rs = mfswatch_svcretstat(pip,jep,TRUE)) >= 0) {
+    		        rs = mfswatch_svcproc(pip,jep,&e,sap) ;
+		    }
 	        } else if (isNotPresent(rs)) {
-		    if ((rs = mfswatch_notfound(pip,jep)) >= 0) {
+		    const int	f = FALSE ;
+		    if ((rs = mfswatch_svcretstat(pip,jep,f)) >= 0) {
 		        rs = mfswatch_jobretire(pip,jep) ;
 		    }
 	        }
@@ -744,7 +754,6 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	LOCINFO		*lip = pip->lip ;
 	const int	f_long = jep->f.longopt ;
 	int		rs ;
-	int		rs1 ;
 	cchar		*subsvc = jep->subsvc ;
 	if (sap == NULL) return SR_FAULT ;
 #if	CF_DEBUG
@@ -752,29 +761,28 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	    debugprintf("mfswatch_svcproc: ent\n") ;
 #endif
 	if ((rs = locinfo_cooksvc(lip,sep->svc,subsvc,sap,f_long)) >= 0) {
-	    SVCENTSUB	ss ;
-	    if ((rs = svcentsub_start(&ss,lip,sep)) >= 0) {
+	    if ((rs = sreq_svcentbegin(jep,lip,sep)) >= 0) {
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(4)) {
+		if (DEBUGLEVEL(4)) {
 	    	    debugprintf("mfswatch_svcproc: svc=%s\n",sep->svc) ;
+	    	    debugprintf("mfswatch_svcproc: file=%s\n",
+			jep->ss.var[svckey_file]) ;
 	    	    debugprintf("mfswatch_svcproc: p=%s\n",
-			ss.var[svckey_p]) ;
+			jep->ss.var[svckey_p]) ;
 	    	    debugprintf("mfswatch_svcproc: a=%s\n",
-			ss.var[svckey_a]) ;
+			jep->ss.var[svckey_a]) ;
 	    	    debugprintf("mfswatch_svcproc: so=%s\n",
-			ss.var[svckey_so]) ;
-		    }
-#endif
-		if ((rs = mfswatch_svcprocfile(pip,jep,sep,&ss)) == 0) {
-    		    rs = 1 ;
-		} else if ((rs = mfswatch_svcprocpass(pip,jep,sep,&ss)) == 0) {
-    		    rs = 1 ;
-		} else if ((rs = mfswatch_svcprocprog(pip,jep,sep,&ss)) == 0) {
-		    rs = 1 ;
+			jep->ss.var[svckey_so]) ;
 		}
-	        rs1 = svcentsub_finish(&ss) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (svcentsub) */
+#endif /* CF_DEBUG */
+		    if ((rs = mfswatch_svcprocfile(pip,jep,sep)) == 0) {
+		        if ((rs = mfswatch_svcprocpass(pip,jep,sep)) == 0) {
+			    if ((rs = mfswatch_svcprocprog(pip,jep,sep)) == 0) {
+		     	        rs = mfswatch_jobretire(pip,jep) ;
+			    }
+		        }
+		    }
+	    } /* end if (sreq_svcentbegin) */
 	} /* end if (locinfo_cooksvc) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -785,8 +793,7 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 /* end subroutine (mfswatch_svcproc) */
 
 
-static int mfswatch_svcprocfile(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-	    SVCENTSUB *ssp)
+static int mfswatch_svcprocfile(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 {
 	const int	n = sep->nkeys ;
 	int		rs = SR_OK ;
@@ -795,92 +802,128 @@ static int mfswatch_svcprocfile(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	cchar		*vp ;
 	if (pip == NULL) return SR_FAULT ;
 	if (jep == NULL) return SR_FAULT ;
-	if (sep == NULL) return SR_FAULT ;
-	if (ssp == NULL) return SR_FAULT ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_svcprocfile: ent\n") ;
+#endif
 	if ((rs = svckv_isfile(kv,n,&vp)) > 0) {
 	    svcprocer_t		w = (svcprocer_t) mfswatch_svcprocfiler ;
-	    if ((rs = mfswatch_svcprocer(pip,jep,sep,ssp,w)) >= 0) {
-	         rs = 1 ;
-
+	    if ((rs = mfswatch_svcprocer(pip,jep,w)) >= 0) {
+		f = TRUE ;
 	    }
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_svcprocfile: ret rs=%d f=%u\n",rs,f) ;
+#endif
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (mfswatch_svcprocfile) */
 
 
-static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-	    SVCENTSUB *ssp,svcprocer_t w)
-{
-	SVCPROCARGS	*sap ;
-	const int	size = sizeof(SVCPROCARGS) ;
-	int		rs ;
-	if ((rs = uc_malloc(size,&sap)) >= 0) {
-	    uptsub_t	helper = (uptsub_t) mfswatch_svcprocers ;
-	    thread_t	tid ;
-	    sap->pip = pip ;
-	    sap->jep = jep ;
-	    sap->sep = sep ;
-	    sap->ssp = ssp ;
-	    sap->w = w ;
-	    if ((rs = uptcreate(&tid,NULL,helper,sap)) >= 0) {
-	         rs = 1 ;
-
-
-	    }
-	} /* end if (m-a) */
-	return rs ;
-}
-/* end subroutine (mfswatch_svcprocer) */
-
-
-static int mfswatch_svcprocers(SVCPROCARGS *sap)
-{
-	SVCPROCARGS	sa = *sap ;
-	int		rs ;
-	if ((rs = uc_free(sap)) >= 0) {
-	    rs = (*sa.w)(sa.pip,sa.jep,sa.sep,sa.ssp) ;
-	}
-	return rs ;
-}
-/* end subroutine (mfswatch_svcprocers) */
-
-
-static int mfswatch_svcprocfiler(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-	    SVCENTSUB *ssp)
+/* this runs as an independent thread */
+static int mfswatch_svcprocfiler(PROGINFO *pip,SREQ *jep)
 {
 	int		rs = SR_OK ;
-
-
-
-	return rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	cchar		*fn = jep->ss.var[svckey_file] ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcprocfiler: ent fn=%s\n",fn) ;
+#endif
+	if ((fn != NULL) && (fn[0] != '\0')) {
+	    const int	llen = LINEBUFLEN ;
+	    char	*lbuf ;
+	    if ((rs = uc_malloc((llen+1),&lbuf)) >= 0) {
+		if ((rs = sreq_ofd(jep)) >= 0) {
+	            const mode_t	om = 0666 ;
+		    const int		ofd = rs ;
+	            const int		of = O_RDONLY ;
+	            if ((rs = uc_open(fn,of,om)) >= 0) {
+		        const int	fd = rs ;
+		        const int	to = TO_READ ;
+		        const int	ro = FM_TIMED ;
+		        while ((rs = uc_reade(fd,lbuf,llen,to,ro)) > 0) {
+			    rs = uc_writen(ofd,lbuf,rs) ;
+			    wlen += rs ;
+			    if (rs < 0) break ;
+		        } /* end while */
+		        rs1 = u_close(fd) ;
+		        if (rs >= 0) rs = rs1 ;
+	            } /* end if (file) */
+		} /* end if (sreq_ofd) */
+		rs1 = uc_free(lbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a-f) */
+	} /* end if (non-null) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcprocfiler: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
+	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (mfswatch_svcprocfiler) */
 
 
-static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-	    SVCENTSUB *ssp)
+static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 {
 	const int	n = sep->nkeys ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		f = FALSE ;
 	cchar		*(*kv)[2] = sep->keyvals ;
 	cchar		*vp ;
 	if (pip == NULL) return SR_FAULT ;
 	if (jep == NULL) return SR_FAULT ;
 	if (sep == NULL) return SR_FAULT ;
-	if (ssp == NULL) return SR_FAULT ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_svcprocpass: ent\n") ;
+#endif
 	if ((rs = svckv_ispass(kv,n,&vp)) > 0) {
-	    rs = 1 ;
-
+	    cchar	*lid = jep->logid ;
+	    cchar	*fmt ;
+	    cchar	*fn = jep->ss.var[svckey_pass] ;
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfswatch_svcprocpass: fn=%s\n",fn) ;
+#endif
+	    if (fn[0] != '\0') {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfswatch_svcprocpass: passfd() \n") ;
+#endif
+		if ((rs = passfd(fn,jep->ifd)) >= 0) {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("mfswatch_svcprocpass: passfd() rs=%d\n",rs) ;
+#endif
+		    f = TRUE ;
+	            fmt = "pass=%s" ;
+		    logssprintf(pip,lid,fmt,fn) ;
+		    rs = mfswatch_jobretire(pip,jep) ;
+		} else if (isNotPresent(rs)) {
+#if	CF_DEBUG
+		    if (DEBUGLEVEL(4))
+		    debugprintf("mfswatch_svcprocpass: pass-failed rs=%d\n",
+			rs) ;
+#endif
+	            fmt = "pass=%s failed (%d)" ;
+		    logssprintf(pip,lid,fmt,fn,rs) ;
+		    rs = mfswatch_jobretire(pip,jep) ;
+		} /* end if (file) */
+	    } /* end if (non-empty) */
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_svcprocpass: ret rs=%d f=%u\n",rs,f) ;
+#endif
 	return (rs >= 0) ?  f : rs ;
 }
 /* end subroutine (mfswatch_svcprocpass) */
 
 
-static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-	    SVCENTSUB *ssp)
+static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 {
 	const int	n = sep->nkeys ;
 	int		rs = SR_OK ;
@@ -890,14 +933,53 @@ static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 	if (pip == NULL) return SR_FAULT ;
 	if (jep == NULL) return SR_FAULT ;
 	if (sep == NULL) return SR_FAULT ;
-	if (ssp == NULL) return SR_FAULT ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_svcprocprog: ent\n") ;
+#endif
 	if ((rs = svckv_isprog(kv,n,&vp)) > 0) {
 	    rs = 1 ;
 
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_svcprocprog: ret rs=%d f=%u\n",rs,f) ;
+#endif
 	return (rs >= 0) ?  f : rs ;
 }
 /* end subroutine (mfswatch_svcprocprog) */
+
+
+/* this spawns a thread with the required arguments */
+static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,svcprocer_t w)
+{
+	const int	ss = sreqstate_thread ;
+	int		rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcprocer: ent\n") ;
+#endif
+	if ((rs = sreq_setstate(jep,ss)) >= 0) {
+	    const int	size = sizeof(SVCPROCARGS) ;
+	    SVCPROCARGS	*sap ;
+	    if ((rs = uc_malloc(size,&sap)) >= 0) {
+	        uptsub_t	helper = (uptsub_t) svcprocers ;
+	        thread_t	tid ;
+	        sap->pip = pip ;
+	        sap->jep = jep ;
+	        sap->w = w ;
+	        if ((rs = uptcreate(&tid,NULL,helper,sap)) >= 0) {
+	             jep->tid = tid ;
+	        }
+	    } /* end if (m-a) */
+	} /* end if (sreq_setstate) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcprocer: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (mfswatch_svcprocer) */
 
 
 #ifdef	COMMENT
@@ -919,43 +1001,154 @@ static int mfswatch_islong(PROGINFO *pip,vecstr *sap)
 #endif /* COMMENT */
 
 
-static int mfswatch_notfound(PROGINFO *pip,SREQ *jep)
+static int mfswatch_svcretstat(PROGINFO *pip,SREQ *jep,int f)
 {
 	MFSWATCH	*wip = pip->watch ;
 	int		rs = SR_OK ;
 	int		fd = jep->ofd ;
-	int		sl = -1 ;
 	int		len = 0 ;
-	cchar		*sp = NULL ;
+	cchar		*fmt = NULL ;
 	if (wip == NULL) return SR_FAULT ;
 	if (fd < 0) fd = jep->ifd ;
 	switch (pip->progmode) {
 	case progmode_tcpmuxd:
-	    sp = "- service not found\n" ;
+	    if (f > 0) {
+		fmt = "+ (%u)\n" ;
+	    } else {
+	        fmt = "- service not found (%d)\n" ;
+	    }
 	    break ;
 	} /* end switch */
-	if (sp != NULL) {
-	    if (sl < 0) sl = strlen(sp) ;
-	    if ((rs = uc_writen(fd,sp,sl)) >= 0) {
-	        len = rs ;
-	    } else if (isBadSend(rs)) {
-	        rs = SR_OK ;
-	    }
+	if (fmt != NULL) {
+	    const int	rlen = TIMEBUFLEN ;
+	    char	rbuf[TIMEBUFLEN+1] ;
+	    if ((rs = bufprintf(rbuf,rlen,fmt,f)) >= 0) {
+	        if ((rs = uc_writen(fd,rbuf,rs)) >= 0) {
+	            len = rs ;
+	        } else if (isBadSend(rs)) {
+	            rs = SR_OK ;
+	        }
+	    } /* end if (bufprintf) */
+	} /* end if (response required) */
+	if ((rs >= 0) && (f <= 0)) {
+	    cchar	*fmt = "service not found" ;
+	    logssprintf(pip,jep->logid,fmt) ;
 	}
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (mfswatch_notfound) */
+/* end subroutine (mfswatch_svcretstat) */
 
 
 static int mfswatch_jobretire(PROGINFO *pip,SREQ *jep)
 {
 	MFSWATCH	*wip = pip->watch ;
-	SREQDB		*dbp ;
 	int		rs ;
-	dbp = &wip->reqs ;
-	rs = sreqdb_delp(dbp,jep) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	   debugprintf("mfswatch_jobretire: ent\n") ;
+#endif
+	if ((rs = sreq_svcentend(jep)) >= 0) {
+	    SREQDB	*dbp = &wip->reqs ;
+	    cchar	*fmt = "%s done" ;
+	    char	tbuf[TIMEBUFLEN+1] ;
+	    timestr_logz(pip->daytime,tbuf) ;
+	    logssprintf(pip,jep->logid,fmt,tbuf) ;
+	    rs = sreqdb_delp(dbp,jep) ;
+	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_jobretire: ret rs=%d \n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfswatch_jobretire) */
+
+
+static int mfswatch_thrscheck(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs ;
+	int		c = 0 ;
+	{
+		SREQDB		*sdp = &wip->reqs ;
+		SREQ		*jep ;
+		const int	rsn = SR_NOTFOUND ;
+		int		f_loop = TRUE ;
+		while ((rs >= 0) && f_loop) {
+		    if ((rs = sreqdb_thrsdone(sdp,&jep)) >= 0) {
+			c += 1 ;
+		        rs = mfswatch_thrdone(pip,jep) ;
+		    } else if (rs == rsn) {
+			f_loop = FALSE ;
+		        rs = SR_OK ;
+		    }
+		} /* end while */
+	}
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (mfswatch_thrscheck) */
+
+
+/* ARGSUSED */
+static int mfswatch_thrdone(PROGINFO *pip,SREQ *jep)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	if (wip == NULL) return SR_FAULT ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_thrdone: ent\n") ;
+#endif
+	if ((rs = sreq_thrdone(jep)) >= 0) {
+	    rs = mfswatch_jobretire(pip,jep) ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_thrdone) */
+
+
+static int mfswatch_logconn(PROGINFO *pip,int jsn,int jt,int st,cchar *lid)
+{
+	int		rs = SR_OK ;
+	cchar		*fmt ;
+	char		tbuf[TIMEBUFLEN+1] ;
+	fmt = "%s connect jtype=%u stype=%u" ;
+	timestr_logz(pip->daytime,tbuf) ;
+	logssprintf(pip,lid,fmt,tbuf,jt,st) ;
+	return rs ;
+}
+/* end subroutine (mfswatch_logconn) */
+
+
+static int mfswatch_logsvc(PROGINFO *pip,SREQ *jep)
+{
+	int		rs ;
+	cchar		*svc ;
+	if ((rs = sreq_getsvc(jep,&svc)) >= 0) {
+	    cchar	*fmt = "svc=%s ss=%s\n" ;
+	    logssprintf(pip,jep->logid,fmt,jep->svc,jep->subsvc) ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_logconn) */
+
+
+static int svcprocers(SVCPROCARGS *sap)
+{
+	PROGINFO	*pip = sap->pip ;
+	SREQ		*jep = sap->jep ;
+	SVCPROCARGS	sa = *sap ;
+	int		rs ;
+	{
+	    MFSWATCH	*wip = pip->watch ;
+	    if ((rs = uc_free(sap)) >= 0) {
+	        SREQDB	*srp = &wip->reqs ;
+	        sa.jep->trs = (*sa.w)(sa.pip,sa.jep) ;
+	        rs = sreqdb_exiting(srp,jep->ji) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (svcprocers) */
 
 

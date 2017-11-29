@@ -57,6 +57,7 @@ extern int	matpstr(const char **,int,const char *,int) ;
 /* local variables */
 
 static cchar	*svckeys[] = {
+	"file",
 	"so",
 	"program",
 	"passfile",
@@ -67,6 +68,7 @@ static cchar	*svckeys[] = {
 	"access",
 	"opts",
 	"failcont",
+	"include",
 	NULL
 } ;
 
@@ -100,6 +102,9 @@ int svckey_load(SVCKEY *skp,SVCFILE_ENT *sep)
 	        debugprintf("svckey_load: ki=%d kp=%s vp=>%s<\n",ki,kp,vp) ;
 #endif
 	        switch (ki) {
+	        case svckey_file:
+	            skp->file = vp ;
+	            break ;
 	        case svckey_pass:
 	            skp->pass = vp ;
 	            break ;
@@ -129,6 +134,9 @@ int svckey_load(SVCKEY *skp,SVCFILE_ENT *sep)
 	            break ;
 	        case svckey_failcont:
 	            skp->failcont = vp ;
+	            break ;
+	        case svckey_include:
+	            skp->include = vp ;
 	            break ;
 	        } /* end switch */
 	        if (ki >= 0) c += 1 ;

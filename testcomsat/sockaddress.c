@@ -51,12 +51,12 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	sncpy1(char *,int,const char *) ;
+extern int	snwcpy(char *,int,cchar *,int) ;
+extern int	sncpy1(char *,int,cchar *) ;
 extern int	getdig(int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnwcpy(char *,int,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
+extern char	*strnwcpy(char *,int,cchar *,int) ;
 
 
 /* local structures */
@@ -116,6 +116,7 @@ uint		flow ;
 	        x_sap = (struct sockaddr *) sap ;
 	        sap->a_unspec.sa_family = (ushort) htons(af) ;
 	        bp = strnwcpy(x_sap->sa_data,plen,addr,alen) ;
+		*bp = '\0' ;
 	        salen = (sizeof(ushort) + (bp - x_sap->sa_data)) ;
 	    }
 	    break ;
@@ -270,16 +271,18 @@ int sockaddress_getaddr(SOCKADDRESS *sap,char *abuf,int alen)
 	    if (alen >= INET4ADDRLEN) {
 	        rs = INET4ADDRLEN ;
 	        memcpy(abuf,&inet4_sap->sin_addr,INET4ADDRLEN) ;
-	    } else
+	    } else {
 	        rs = SR_TOOBIG ;
+	    }
 	    break ;
 	case AF_INET6:
 	    inet6_sap = (struct sockaddr_in6 *) sap ;
 	    if (alen >= INET6ADDRLEN) {
 	        rs = INET6ADDRLEN ;
 	        memcpy(abuf,&inet6_sap->sin6_addr,INET6ADDRLEN) ;
-	    } else
+	    } else {
 	        rs = SR_TOOBIG ;
+	    }
 	    break ;
 	default:
 	    rs = SR_INVALID ;
@@ -364,7 +367,6 @@ int sockaddress_getextra(SOCKADDRESS *sap,uint *rp)
 int sockaddress_gethex(SOCKADDRESS *sap,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
-	int		i ;
 	int		v ;
 	int		af ;
 	int		salen = 0 ;
@@ -402,13 +404,14 @@ int sockaddress_gethex(SOCKADDRESS *sap,char *rbuf,int rlen)
 #endif
 
 	if (rs >= 0) {
+	    int	i ;
 	    for (i = 0 ; i < salen ; i += 1) {
 	        v = MKCHAR(sap->str[i]) ;
 	        rbuf[j++] = getdig((v >> 4) & 15) ;
 	        rbuf[j++] = getdig((v >> 0) & 15) ;
 	    } /* end for */
 	    rbuf[j++] = '\0' ;
-	} /* end if */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? j : rs ;
 }
@@ -536,7 +539,7 @@ int sockaddress_putaddr(SOCKADDRESS *sap,const void *vaddr)
 	struct sockaddr_in6	*inet6_sap ;
 	int		rs = SR_OK ;
 	uint		af ;
-	const char	*addr = (const char *) vaddr ;
+	cchar		*addr = (cchar *) vaddr ;
 
 	if (sap == NULL) return SR_FAULT ;
 	if (vaddr == NULL) return SR_FAULT ;
@@ -546,15 +549,23 @@ int sockaddress_putaddr(SOCKADDRESS *sap,const void *vaddr)
 	switch (af) {
 	case AF_UNIX:
 	    x_sap = (struct sockaddr *) sap ;
-	    strncpy(x_sap->sa_data,addr,MAXPATHLEN) ;
+	    {
+	        const int	plen = MAXPATHLEN ;
+		char		*bp ;
+	        bp = strnwcpy(x_sap->sa_data,plen,addr,-1) ;
+		*bp = '\0' ;
+		rs = (bp - x_sap->sa_data) ;
+	    }
 	    break ;
 	case AF_INET4:
 	    inet4_sap = (struct sockaddr_in *) sap ;
-	    memcpy(&inet4_sap->sin_addr,addr,sizeof(struct in_addr)) ;
+	    rs = INET4ADDRLEN ;
+	    memcpy(&inet4_sap->sin_addr,addr,rs) ;
 	    break ;
 	case AF_INET6:
 	    inet6_sap = (struct sockaddr_in6 *) sap ;
-	    memcpy(&inet6_sap->sin6_addr,addr,INET6ADDRLEN) ;
+	    rs = INET6ADDRLEN ;
+	    memcpy(&inet6_sap->sin6_addr,addr,rs) ;
 	    break ;
 	default:
 	    rs = SR_NOTFOUND ;

@@ -114,10 +114,11 @@ int aiq_ins(AIQ *qhp,AIQ_ENT *ep)
 	AIQ_ENT		*ep2 ;
 	SIGBLOCK	blocker ;
 	int		rs ;
+	int		rs1 ;
 	int		rc = 0 ;
 
 	if (qhp == NULL) return SR_FAULT ;
-	if (qp == NULL) return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
 	if (qhp->magic != AIQ_MAGIC) return SR_NOTOPEN ;
 
 	if ((rs = sigblock_start(&blocker,NULL)) >= 0) {
@@ -145,11 +146,13 @@ int aiq_ins(AIQ *qhp,AIQ_ENT *ep)
 	        qhp->count += 1 ;
 	        rc = qhp->count ;
 
-	        ptm_unlock(&qhp->lock) ;
-	    } /* end if (mutex lock) */
+	        rs1 = ptm_unlock(&qhp->lock) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (ptm) */
 
-	    sigblock_finish(&blocker) ;
-	} /* end if (signal-block) */
+	    rs1 = sigblock_finish(&blocker) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (sigblock) */
 
 	return (rs >= 0) ? rc : rs ;
 }
@@ -161,6 +164,7 @@ int aiq_rem(AIQ *qhp,AIQ_ENT **epp)
 {
 	SIGBLOCK	blocker ;
 	int		rs ;
+	int		rs1 ;
 	int		rc = 0 ;
 
 	if (qhp == NULL) return SR_FAULT ;
@@ -183,11 +187,13 @@ int aiq_rem(AIQ *qhp,AIQ_ENT **epp)
 	            rs = SR_NOENT ;
 		}
 
-	        ptm_unlock(&qhp->lock) ;
-	    } /* end if (mutex lock) */
+	        rs1 = ptm_unlock(&qhp->lock) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (ptm) */
 
-	    sigblock_finish(&blocker) ;
-	} /* end if (signal-block) */
+	    rs1 = sigblock_finish(&blocker) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (sigblock) */
 
 	return (rs >= 0) ? rc : rs ;
 }

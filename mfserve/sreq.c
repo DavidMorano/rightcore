@@ -43,9 +43,11 @@
 
 #include	<vsystem.h>
 #include	<toxc.h>
+#include	<upt.h>
 #include	<localmisc.h>
 
 #include	"sreq.h"
+#include	"mfslocinfo.h"
 
 
 /* local defines */
@@ -112,10 +114,9 @@ int sreq_start(SREQ *jep,cchar *template,cchar *jobid,int ifd,int ofd)
 	jep->ofd = ofd ;
 	jep->efd = -1 ;
 	jep->pid = -1 ;
-	jep->atime = dt ;
 	jep->stime = dt ;
 
-	strwcpy(jep->jobid,jobid,SREQ_JOBIDLEN) ;
+	strwcpy(jep->logid,jobid,SREQ_JOBIDLEN) ;
 
 	if ((rs = mkfile(template,&cp)) >= 0) {
 	    jep->efname = (char *) cp ;
@@ -130,6 +131,9 @@ int sreq_finish(SREQ *jep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
+
+	rs1 = sreq_thrdone(jep) ;
+	if (rs >= 0) rs = rs1 ;
 
 	if (jep->svcbuf != NULL) {
 	    rs1 = uc_free(jep->svcbuf) ;
@@ -157,7 +161,7 @@ int sreq_finish(SREQ *jep)
 	}
 
 	jep->pid = -1 ;
-	jep->jobid[0] = '\0' ;
+	jep->logid[0] = '\0' ;
 	return rs ;
 }
 /* end subroutine (sreq_finish) */
@@ -260,6 +264,10 @@ int sreq_setlong(SREQ *op,int f)
 int sreq_setstate(SREQ *op,int state)
 {
 	op->state = state ;
+	if (state == sreqstate_done) {
+	    op->etime = time(NULL) ;
+	    op->f_exiting = TRUE ;
+	}
 	return SR_OK ;
 }
 /* end subroutine (sreq_setstate) */
@@ -292,6 +300,56 @@ int sreq_getstate(SREQ *op)
 /* end subroutine (sreq_getstate) */
 
 
+int sreq_ofd(SREQ *op)
+{
+	if (op->ofd < 0) op->ofd = op->ifd ;
+	return op->ofd ;
+}
+/* end subroutine (sreq_ofd) */
+
+
+int sreq_svcentbegin(SREQ *jep,LOCINFO *lip,SVCENT *sep)
+{
+	int		rs ;
+	if ((rs = svcentsub_start(&jep->ss,lip,sep)) >= 0) {
+	    jep->f.ss = TRUE ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_evcentbegin) */
+
+
+int sreq_svcentend(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (jep->f.ss) {
+	    jep->f.ss = FALSE ;
+	    rs1 = svcentsub_finish(&jep->ss) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_svcentend) */
+
+
+int sreq_thrdone(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (jep->f.thread) {
+	    pthread_t	tid = jep->tid ;
+	    int		trs ;
+	    jep->f.thread = FALSE ;
+	    rs1 = uptjoin(tid,&trs) ;
+	    if (rs >= 0) rs = rs1 ;
+	    if (rs >= 0) rs = trs ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_svcentend) */
+
+
 /* private subroutines */
 
 
@@ -299,16 +357,16 @@ static int sreq_fdfins(SREQ *jep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	if (jep->ifd >= 0) {
-	    rs1 = u_close(jep->ifd) ;
-	    if (rs >= 0) rs = rs1 ;
-	}
 	if ((jep->ofd >= 0) && (jep->ifd != jep->ofd)) {
 	    rs1 = u_close(jep->ofd) ;
 	    if (rs >= 0) rs = rs1 ;
 	    jep->ofd = -1 ;
 	}
-	jep->ifd = -1 ;
+	if (jep->ifd >= 0) {
+	    rs1 = u_close(jep->ifd) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->ifd = -1 ;
+	}
 	if (jep->efd >= 0) {
 	    rs1 = u_close(jep->efd) ;
 	    if (rs >= 0) rs = rs1 ;

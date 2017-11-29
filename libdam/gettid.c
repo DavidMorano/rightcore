@@ -23,7 +23,7 @@
 
 	Synopsis:
 
-	int gettid()
+	int gettid(void)
 
 	Arguments:
 

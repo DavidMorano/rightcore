@@ -138,7 +138,7 @@ int expcook_finish(EXPCOOK *ecp)
 /* end subroutine (expcook_finish) */
 
 
-int expcook_add(EXPCOOK *ecp,cchar kbuf[],cchar vbuf[],int vlen)
+int expcook_add(EXPCOOK *ecp,cchar *kbuf,cchar *vbuf,int vlen)
 {
 	HDBSTR		*slp ;
 	int		rs ;
@@ -155,8 +155,7 @@ int expcook_add(EXPCOOK *ecp,cchar kbuf[],cchar vbuf[],int vlen)
 #if	CF_DEBUGS
 	debugprintf("expcook_add: k=%s\n",kbuf) ;
 	if (vbuf != NULL)
-	    debugprintf("expcook_add: v=>%t<\n",
-		vbuf,strlinelen(vbuf,vlen,40)) ;
+	    debugprintf("expcook_add: v=>%t<\n",vbuf,strlinelen(vbuf,vlen,40)) ;
 #endif
 
 	if ((rs = hdbstr_fetch(slp,kbuf,kl,NULL,NULL)) >= 0) {
@@ -505,7 +504,7 @@ static int mkcomposite(char rbuf[],int rlen,cchar *kp,int kl,cchar *vp,int vl)
 
 
 #if	CF_DEBUGS && CF_DEBUGBUF
-static int	debugdump(HDBSTR *slp)
+static int debugdump(HDBSTR *slp)
 {
 	HDBSTR_CUR	cur ;
 	int		rs ;
@@ -526,6 +525,7 @@ static int	debugdump(HDBSTR *slp)
 	debugprintf("debugdump: ret rs=%d c=%u\n",rs,c) ;
 	return rs ;
 }
+/* end subroutine (debugdump) */
 #endif /* CF_DEBUGS && CF_DEBUGBUF */
 
 

@@ -73,7 +73,7 @@ struct locinfo_flags {
 
 struct locinfo {
 	vecstr		stores ;
-	cchar		*msnode ;
+	cchar		*msnode ;	/* machine-status node */
 	cchar		*tmpourdname ;
 	cchar		*tmpfname ;	/* TMP lock-file */
 	cchar		*reqfname ;

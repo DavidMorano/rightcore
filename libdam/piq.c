@@ -103,7 +103,6 @@ int piq_finish(PIQ *qhp)
 /* insert into queue (at the tail) */
 int piq_ins(PIQ *qhp,void *vp)
 {
-	PQ_ENT		*pep ;
 	int		rs ;
 	int		c = 0 ;
 
@@ -113,11 +112,11 @@ int piq_ins(PIQ *qhp,void *vp)
 #endif
 
 	if ((rs = ptm_lock(&qhp->m)) >= 0) {
-
-	    pep = (PQ_ENT *) vp ;
-	    rs = pq_ins(&qhp->frees,pep) ;
-	    c = rs ;
-
+	    {
+		PQ_ENT	*pep = (PQ_ENT *) vp ;
+	        rs = pq_ins(&qhp->frees,pep) ;
+	        c = rs ;
+	    }
 	    ptm_unlock(&qhp->m) ;
 	} /* end if (mutex) */
 
@@ -140,12 +139,10 @@ int piq_rem(PIQ *qhp,void *vp)
 #endif
 
 	if ((rs = ptm_lock(&qhp->m)) >= 0) {
-
 	    if ((rs = pq_remtail(&qhp->frees,&pep)) >= 0) {
 	        c = rs ;
 	        if (vpp != NULL) *vpp = pep ;
 	    }
-
 	    ptm_unlock(&qhp->m) ;
 	} /* end if (mutex) */
 
@@ -165,10 +162,10 @@ int piq_count(PIQ *qhp)
 #endif
 
 	if ((rs = ptm_lock(&qhp->m)) >= 0) {
-
-	    rs = pq_count(&qhp->frees) ;
-	    c = rs ;
-
+	    {
+	        rs = pq_count(&qhp->frees) ;
+	        c = rs ;
+	    }
 	    ptm_unlock(&qhp->m) ;
 	} /* end if (mutex) */
 
@@ -181,18 +178,20 @@ int piq_count(PIQ *qhp)
 int piq_audit(PIQ *qhp)
 {
 	int		rs ;
+	int		c = 0 ;
 
 	if (qhp == NULL) return SR_FAULT ;
 	if (qhp->magic != PIQ_MAGIC) return SR_NOTOPEN ;
 
 	if ((rs = ptm_lock(&qhp->m)) >= 0) {
-
-	    rs = pq_audit(&qhp->frees) ;
-
+	    {
+	        rs = pq_audit(&qhp->frees) ;
+		c = rs ;
+    	    }
 	    ptm_unlock(&qhp->m) ;
 	} /* end if (mutex) */
 
-	return rs ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (piq_audit) */
 

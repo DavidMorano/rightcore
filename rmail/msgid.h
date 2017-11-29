@@ -15,12 +15,7 @@
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
-
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<netdb.h>
-#include	<time.h>
-
 #include	<localmisc.h>
 
 #include	"msgide.h"

@@ -55,22 +55,17 @@
 /* exported subroutines */
 
 
-char *strnncpy(d,sp,sl,size)
-char		*d ;
-const char	*sp ;
-int		sl ;
-int		size ;
+char *strnncpy(char *d,cchar *sp,int sl,int size)
 {
-	int	ml ;
-
 	if (sl >= 0) {
-	    ml = MIN(sl,size) ;
+	    const int	ml = MIN(sl,size) ;
 	    strncpy(d,sp,ml) ;
-	    if (ml < size)
+	    if (ml < size) {
 	        memset((d + ml),0,(size - ml)) ;
-	} else
+	    }
+	} else {
 	    strncpy(d,sp,size) ;
-
+	}
 	return (d + size) ;
 }
 /* end subroutine (strnncpy) */

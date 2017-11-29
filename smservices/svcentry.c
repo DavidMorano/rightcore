@@ -114,24 +114,17 @@ SVCFILE_ENT	*sep ;
 SVCENTRY_ARGS	*esap ;
 {
 	struct svckey	sk ;
-
 	const int	outlen = OUTBUFLEN ;
-
-	int	rs = SR_OK ;
-	int	sl ;
-
-	char	outbuf[OUTBUFLEN + 1] ;
-
+	int		rs = SR_OK ;
+	int		sl ;
+	char		outbuf[OUTBUFLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("svcentry_start: ent OUTBUFLEN=%d\n",outlen) ;
 #endif
 
-	if (pep == NULL)
-	    return SR_FAULT ;
-
-	if (sep == NULL)
-	    return SR_FAULT ;
+	if (pep == NULL) return SR_FAULT ;
+	if (sep == NULL) return SR_FAULT ;
 
 #ifdef	OPTIONAL
 	memset(pep,0,sizeof(SVCENTRY)) ;
@@ -202,10 +195,12 @@ SVCENTRY_ARGS	*esap ;
 	    pep->interval = (rs >= 0) ? pep->interval : -1 ;
 	    rs = SR_OK ;
 
-	} else
+	} else {
 	    pep->interval = -1 ;
+	}
 
-	pep->magic = SVCENTRY_MAGIC ;
+	if (rs >= 0)
+	    pep->magic = SVCENTRY_MAGIC ;
 
 ret0:
 	return rs ;
@@ -229,15 +224,11 @@ SVCENTRY	*pep ;
 const char	**rpp ;
 {
 
+	if (pep == NULL) return SR_FAULT ;
 
-	if (pep == NULL)
-	    return SR_FAULT ;
+	if (pep->magic != SVCENTRY_MAGIC) return SR_NOTOPEN ;
 
-	if (pep->magic != SVCENTRY_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (rpp != NULL)
-	    *rpp = pep->access ;
+	if (rpp != NULL) *rpp = pep->access ;
 
 	return (pep->access != NULL) ? SR_OK : SR_EMPTY ;
 }
@@ -250,15 +241,11 @@ SVCENTRY	*pep ;
 int		*rp ;
 {
 
+	if (pep == NULL) return SR_FAULT ;
 
-	if (pep == NULL)
-	    return SR_FAULT ;
+	if (pep->magic != SVCENTRY_MAGIC) return SR_NOTOPEN ;
 
-	if (pep->magic != SVCENTRY_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (rp != NULL)
-	    *rp = pep->interval ;
+	if (rp != NULL) *rp = pep->interval ;
 
 	return SR_OK ;
 }
@@ -269,10 +256,11 @@ int svcentry_getargs(pep,avp)
 SVCENTRY	*pep ;
 const char	***avp ;
 {
-	int	rs ;
+	int		rs ;
 
 	if (pep == NULL) return SR_FAULT ;
 	if (avp == NULL) return SR_FAULT ;
+
 	if (pep->magic != SVCENTRY_MAGIC) return SR_NOTOPEN ;
 
 	rs = vecstr_getvec(&pep->srvargs,avp) ;
@@ -294,6 +282,7 @@ SVCENTRY	*pep ;
 #endif
 
 	if (pep == NULL) return SR_FAULT ;
+
 	if (pep->magic != SVCENTRY_MAGIC) return SR_NOTOPEN ;
 
 	if (pep->ofname != NULL) {
@@ -360,30 +349,25 @@ SVCFILE_ENT	*sep ;
 SVCENTRY_ARGS	*esap ;
 {
 	struct svckey	sk ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	sl, cl ;
-	int	opts ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		sl, cl ;
+	int		opts ;
 	const char	*oldservice, *oldinterval ;
 	const char	*argz ;
 	const char	*tmpdname ;
 	const char	*ccp ;
 	const char	*cp ;
-
-	char	outbuf[OUTBUFLEN + 1] ;
+	char		outbuf[OUTBUFLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("svcentry_expand: ent\n") ;
 	debugprintf("svcentry_expand: tmpdname=%s\n",esap->tmpdname) ;
 #endif
 
-	if (pep == NULL)
-	    return SR_FAULT ;
+	if (pep == NULL) return SR_FAULT ;
 
-	if (pep->magic != SVCENTRY_MAGIC)
-	    return SR_NOTOPEN ;
+	if (pep->magic != SVCENTRY_MAGIC) return SR_NOTOPEN ;
 
 	oldservice = esap->service ;
 	oldinterval = esap->interval ;
@@ -431,8 +415,9 @@ SVCENTRY_ARGS	*esap ;
 	        if ((rs = uc_mallocstrw(cp,cl,&ccp)) >= 0) {
 		    pep->program = ccp ;
 		}
-	    } else
+	    } else {
 		rs = SR_INVALID ;
+	    }
 	    if (rs < 0) goto bad2 ;
 
 	} /* end if (program path) */
@@ -542,8 +527,9 @@ SVCENTRY_ARGS	*esap ;
 /* set at least one program argument if we have none so far */
 
 	rs = SR_OK ;
-	if (pep->f.srvargs)
+	if (pep->f.srvargs) {
 	    rs = vecstr_count(&pep->srvargs) ;
+	}
 
 	if ((rs == 0) && (pep->program != NULL)) {
 
@@ -620,14 +606,11 @@ time_t		*tp ;
 	int	rs = SR_OK ;
 
 
-	if (pep == NULL)
-	    return SR_FAULT ;
+	if (pep == NULL) return SR_FAULT ;
 
-	if (pep->magic != SVCENTRY_MAGIC)
-	    return SR_NOTOPEN ;
+	if (pep->magic != SVCENTRY_MAGIC) return SR_NOTOPEN ;
 
-	if (tp != NULL)
-	    *tp = pep->atime ;
+	if (tp != NULL) *tp = pep->atime ;
 
 	return rs ;
 }
@@ -638,14 +621,11 @@ int svcentry_stime(pep,daytime)
 SVCENTRY	*pep ;
 time_t		daytime ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if (pep == NULL) return SR_FAULT ;
 
-	if (pep == NULL)
-	    return SR_FAULT ;
-
-	if (pep->magic != SVCENTRY_MAGIC)
-	    return SR_NOTOPEN ;
+	if (pep->magic != SVCENTRY_MAGIC) return SR_NOTOPEN ;
 
 	pep->stime = daytime ;
 	return rs ;
@@ -664,22 +644,18 @@ SVCENTRY_ARGS	*esap ;			/* key-type arguments */
 char		outbuf[] ;		/* output buffer */
 int		outlen ;		/* output buffer length */
 {
-	int	rs = SR_OK ;
-	int	vlen ;
-	int	elen = 0 ;
-
+	int		rs = SR_OK ;
+	int		vlen ;
+	int		elen = 0 ;
 	const char	*ibp ;
-
-	char	vbuf[OUTBUFLEN + 1] ;
-
+	char		vbuf[OUTBUFLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("svcentry_process: ent, outlen=%d\n",outlen) ;
 	debugprintf("svcentry_process: inbuf=>%s<\n",inbuf) ;
 #endif
 
-	if (inbuf == NULL)
-	    return SR_FAULT ;
+	if (inbuf == NULL) return SR_FAULT ;
 
 	ibp = inbuf ;
 	if (pep->ssp != NULL) {
@@ -689,8 +665,9 @@ int		outlen ;		/* output buffer length */
 	    if (rs >= 0)
 	        ibp = vbuf ;
 
-	} else
+	} else {
 	    vlen = strlen(ibp) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("svcentry_process: vlen=%d\n",vlen) ;
@@ -713,8 +690,8 @@ int		outlen ;		/* output buffer length */
 
 static int svcentry_mkfile(SVCENTRY *pep,const char *tmpdname,int type)
 {
-	int	rs ;
-	char	tfname[MAXPATHLEN+1] ;
+	int		rs ;
+	char		tfname[MAXPATHLEN+1] ;
 
 	if ((rs = mkfile(tfname,tmpdname,type)) >= 0) {
 	    int	fl = rs ;
@@ -799,7 +776,7 @@ int		rlen ;
 	    debugprintf("svcentry/expand: switching on >%c<\n",*bp) ;
 #endif
 
-	    ch = (*bp & 0xff) ;
+	    ch = MKCHAR(*bp) ;
 	    switch (ch) {
 
 	    case '%':
@@ -811,55 +788,48 @@ int		rlen ;
 	        sl = 0 ;
 		ch = (*bp & 0xff) ;
 	        switch (ch) {
-
 	        case 'V':
 	            cp = esap->version ;
 	            sl = strlen(cp) ;
 	            break ;
-
 	        case 'R':
 	            cp = esap->programroot ;
 	            sl = strlen(cp) ;
 	            break ;
-
 	        case 'N':
 	            cp = esap->nodename ;
 	            sl = strlen(cp) ;
 	            break ;
-
 	        case 'D':
 	            cp = esap->domainname ;
 	            sl = strlen(cp) ;
 	            break ;
-
 	        case 'H':
 	            sl = -1 ;
 	            if (esap->hostname == NULL) {
+			const int	hlen = MAXHOSTNAMELEN ;
+			cchar		*nn = esap->nodename ;
+			cchar		*dn = esap->domainname ;
 	                cp = hostbuf ;
-	                sl = snsds(hostbuf,MAXHOSTNAMELEN,
-	                    esap->nodename,esap->domainname) ;
-	            } else
+	                sl = snsds(hostbuf,hlen,nn,dn) ;
+	            } else {
 	                cp = esap->hostname ;
-	            if (sl < 0)
-	                sl = strlen(cp) ;
+		    }
+	            if (sl < 0) sl = strlen(cp) ;
 	            break ;
-
 	        case 'U':
 	            cp = esap->username ;
 	            sl = strlen(cp) ;
 	            break ;
-
 	        case 'G':
 	            cp = esap->groupname ;
 	            sl = strlen(cp) ;
 	            break ;
-
 	        case 's':
 	            cp = esap->service ;
 	            if (cp != NULL)
 	                sl = strlen(cp) ;
 	            break ;
-
 	        case 'i':
 	            if (esap->interval != NULL) {
 	                cp = esap->interval ;
@@ -870,17 +840,16 @@ int		rlen ;
 	                sl = 1 ;
 	            }
 	            break ;
-
 	        default:
 	            cp = bp ;
 	            sl = 1 ;
 		    break ;
-
 	        } /* end switch */
 	        bp += 1 ;
 	        len -= 1 ;
 	        if ((elen + sl) > rlen)
 	            return BAD ;
+
 	        strncpy(rbp,cp,sl) ;
 	        rbp += sl ;
 	        elen += sl ;
@@ -910,8 +879,7 @@ int		rlen ;
 /* end subroutine (expand) */
 
 
-static void freeit(pp)
-const char	**pp ;
+static void freeit(cchar **pp)
 {
 	if (*pp != NULL) {
 	    uc_free(*pp) ;

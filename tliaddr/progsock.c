@@ -248,7 +248,7 @@ static int procsocker(PROGINFO *pip,int af,cchar *netaddr,int port)
 
 	        for (i = 0 ; i < hl ; i += 1) {
 	            if (CHAR_ISUC(hbuf[i])) {
-	                hbuf[i] = tolower(hbuf[i]) ;
+	                hbuf[i] = CHAR_TOLC(hbuf[i]) ;
 		    }
 	        } /* end for */
 

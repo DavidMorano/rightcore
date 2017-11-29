@@ -14,6 +14,7 @@
 #include	<sys/param.h>
 
 #include	<vechand.h>
+#include	<intiq.h>
 #include	<localmisc.h>
 
 #include	"sreq.h"
@@ -28,6 +29,8 @@ struct sreqdb_head {
 	uint		magic ;
 	cchar		*tmpdname ;
 	vechand		db ;
+	INTIQ		exits ;
+	volatile int	f_exiting ;
 } ;
 
 
@@ -38,7 +41,7 @@ extern "C" {
 #endif
 
 extern int sreqdb_start(SREQDB *,cchar *,int) ;
-extern int sreqdb_newjob(SREQDB *,cchar *,int,int) ;
+extern int sreqdb_newjob(SREQDB *,int,cchar *,int,int) ;
 extern int sreqdb_typeset(SREQDB *,int,int,int) ;
 extern int sreqdb_get(SREQDB *,int,SREQ **) ;
 extern int sreqdb_findpid(SREQDB *,pid_t,SREQ **) ;
@@ -46,6 +49,8 @@ extern int sreqdb_del(SREQDB *,int) ;
 extern int sreqdb_delp(SREQDB *,SREQ *) ;
 extern int sreqdb_count(SREQDB *) ;
 extern int sreqdb_havefd(SREQDB *,int) ;
+extern int sreqdb_exiting(SREQDB *,int) ;
+extern int sreqdb_thrsdone(SREQDB *,SREQ **) ;
 extern int sreqdb_finish(SREQDB *) ;
 
 #ifdef	__cplusplus

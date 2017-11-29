@@ -127,6 +127,7 @@ int ciq_finish(CIQ *qhp)
 int ciq_ins(CIQ *qhp,void *vp)
 {
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 
 #if	CF_SAFE
@@ -150,8 +151,9 @@ int ciq_ins(CIQ *qhp,void *vp)
 	        c = rs ;
 	    } /* end if */
 
-	    ptm_unlock(&qhp->m) ;
-	} /* end if (mutex) */
+	    rs1 = ptm_unlock(&qhp->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -183,8 +185,9 @@ int ciq_rem(CIQ *qhp,void *vp)
 		if (rs1 < 0)
 		    uc_libfree(pep) ;
 	    } /* end if (pq_rem) */
-	    ptm_unlock(&qhp->m) ;
-	} /* end if (mutex) */
+	    rs1 = ptm_unlock(&qhp->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
 
 #if	CF_DEBUGS
 	debugprintf("ciq_rem: ret rs=%d c=%u\n",rs,c) ;
@@ -199,6 +202,7 @@ int ciq_rem(CIQ *qhp,void *vp)
 int ciq_gettail(CIQ *qhp,void *vp)
 {
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
 	void		**rpp = (void **) vp ;
 
@@ -216,8 +220,9 @@ int ciq_gettail(CIQ *qhp,void *vp)
 	            *rpp = cep->vp ;
 	        }
 	    } /* end if (pq_gettail) */
-	    ptm_unlock(&qhp->m) ;
-	} /* end if (mutex) */
+	    rs1 = ptm_unlock(&qhp->m) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ptm) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -251,7 +256,7 @@ int ciq_remtail(CIQ *qhp,void *vp)
 	    } /* end if (pq_remtail) */
 	    rs1 = ptm_unlock(&qhp->m) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (mutex) */
+	} /* end if (ptm) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -289,7 +294,7 @@ int ciq_remhand(CIQ *qhp,void *vp)
 	    }
 	    rs1 = ptm_unlock(&qhp->m) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (mutex) */
+	} /* end if (ptm) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -312,7 +317,7 @@ int ciq_count(CIQ *qhp)
 	    }
 	    rs1 = ptm_unlock(&qhp->m) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (mutex) */
+	} /* end if (ptm) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -334,7 +339,7 @@ int ciq_audit(CIQ *qhp)
 	    }
 	    rs1 = ptm_unlock(&qhp->m) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (mutex) */
+	} /* end if (ptm) */
 
 	return rs ;
 }

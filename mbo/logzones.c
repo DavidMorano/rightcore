@@ -390,7 +390,7 @@ int logzones_match(LOGZONES *op,cchar *znb,int znl,int off,LOGZONES_ENT *ep)
 	LOGZONES_ENT	e ;
 	const time_t	dt = time(NULL) ;
 	const int	ebl = LOGZONES_ENTLEN ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		ei ;
 	char		ebp[LOGZONES_ENTLEN + 1] ;
 	char		*bp ;
@@ -463,7 +463,7 @@ int logzones_update(LOGZONES *op,cchar *znb,int znl,int off,cchar *st)
 	LOGZONES_ENT	e ;
 	const time_t	dt = time(NULL) ;
 	const int	ebl = LOGZONES_ENTLEN ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		ei ;
 	char		ebp[LOGZONES_ENTLEN + 1] ;
 	char		*bp ;
@@ -708,6 +708,7 @@ static int logzones_lockget(LOGZONES *op,time_t dt,int f_read)
 	            op->f.lockedwrite = FALSE ;
 	        }
 	    } /* end if (lockfile) */
+
 	} /* end if (ok) */
 
 #if	CF_DEBUGS
@@ -749,7 +750,7 @@ static int logzones_search(LOGZONES *op,char *ebp,int ebl,int soff,char **rpp)
 	    int		i = 1 ;
 	    char	*bp ;
 	    while ((rs = u_read(op->fd,op->buf,op->bufsize)) > 0) {
-	        int	len = rs ;
+	        const int	len = rs ;
 	        ne = (len / ebl) ;
 	        for (i = 0 ; i < ne ; i += 1) {
 

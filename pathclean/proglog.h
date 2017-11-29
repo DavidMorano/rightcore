@@ -45,11 +45,15 @@ extern int proglog_intro(PROGINFO *,USERINFO *) ;
 extern int proglog_checksize(PROGINFO *) ;
 extern int proglog_check(PROGINFO *) ;
 extern int proglog_print(PROGINFO *,cchar *,int) ;
-extern int proglog_vprintf(PROGINFO *,cchar *,va_list) ;
 extern int proglog_printf(PROGINFO *,cchar *,...) ;
+extern int proglog_vprintf(PROGINFO *,cchar *,va_list) ;
 extern int proglog_printfold(PROGINFO *,cchar *,cchar *,int) ;
+extern int proglog_getid(PROGINFO *,char *,int) ;
+extern int proglog_setid(PROGINFO *,cchar *,int) ;
+extern int proglog_ssprint(PROGINFO *,cchar *,cchar *,int) ;
+extern int proglog_ssprintf(PROGINFO *,cchar *,cchar *,...) ;
+extern int proglog_ssvprintf(PROGINFO *,cchar *,cchar *,va_list) ;
 extern int proglog_flush(PROGINFO *) ;
-extern int proglog_setid(PROGINFO *,cchar *) ;
  
 #ifdef	__cplusplus
 }

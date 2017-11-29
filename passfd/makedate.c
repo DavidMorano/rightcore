@@ -1,2 +1,2 @@
 const char passfd_makedate[] =
-"@(#)passfd                  170304_2145:55_USEST Rightcore Network Services¹" ;
+"@(#)passfd                  171128_1255:27_USEST Rightcore Network Services" ;

@@ -31,9 +31,9 @@
 
 	dbuf		result buffer
 	dlen		length of result buffer
-	f		flags specifying type of outpuy
+	f		flag specifying type of output
 	vp		pointer to source buffer (value)
-	sl		length of source in bytes
+	vl		length of source in bytes
 
 	Returns:
 

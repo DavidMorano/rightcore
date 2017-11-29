@@ -60,6 +60,7 @@ cq		container Q, relocatable-head, count, magic
 ciq		container Q, relocatable-head, count, magic, thread-safe
 charq		character Q, relocatable-head, count
 chariq		character Q, relocatable-head, count, thread-safe
+intiq		integer Q, relocatable-head, count, thread-safe
 
 fmq		file-message queue
 pmq		POSIX message queue

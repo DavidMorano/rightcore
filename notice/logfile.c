@@ -150,6 +150,7 @@ struct colstate {
 int		logfile_write(LOGFILE *,const char *,int) ;
 int		logfile_vprintf(LOGFILE *,const char *,va_list) ;
 
+static int	logfile_loadid(LOGFILE *,cchar *) ;
 static int	logfile_mklogid(LOGFILE *) ;
 static int	logfile_fixlogid(LOGFILE *,int) ;
 static int	logfile_fileopen(LOGFILE *) ;
@@ -162,7 +163,6 @@ static int	logfile_mkline(LOGFILE *,const char *,int) ;
 static int	colstate_load(COLSTATE *,int,int) ;
 static int	colstate_linecols(COLSTATE *,const char *,int) ;
 
-static int	loadlogid(char *,int,const char *) ;
 static int	mkclean(char *,int,const char *,int) ;
 static int	hasourbad(const char *,int) ;
 static int	isourbad(int) ;
@@ -188,8 +188,7 @@ static const int	sigblocks[] = {
 int logfile_open(LOGFILE *op,cchar *lfname,int of,mode_t operm,cchar *logid)
 {
 	int		rs ;
-	int		cl ;
-	const char	*cp ;
+	cchar		*cp ;
 
 #if	CF_DEBUGS
 	debugprintf("logfile_open: ent lfname=%s\n", lfname) ;
@@ -219,14 +218,12 @@ int logfile_open(LOGFILE *op,cchar *lfname,int of,mode_t operm,cchar *logid)
 	            if (pip->operm >= 0)
 	                u_fchmod(op->lfd,pip->operm) ;
 #endif
-	            if ((logid == NULL) || (logid[0] == '\0')) {
-	                rs = logfile_mklogid(op) ;
-	                cl = rs ;
+	            if ((logid != NULL) && (logid[0] != '\0')) {
+	                rs = logfile_loadid(op,logid) ;
 	            } else {
-	                cl = loadlogid(op->logid,LOGFILE_LOGIDLEN,logid) ;
+	                rs = logfile_mklogid(op) ;
 		    }
 	            if (rs >= 0) {
-	                logfile_fixlogid(op,cl) ;
 	                op->percent = LOGFILE_PERCENT ;
 		        op->magic = LOGFILE_MAGIC ;
 	            }
@@ -351,22 +348,18 @@ int logfile_vprintf(LOGFILE *op,cchar *fmt,va_list ap)
 /* set (or reset) the log ID */
 int logfile_setid(LOGFILE *op,cchar *logid)
 {
-	int		rs = SR_OK ;
-	int		cl ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->magic != LOGFILE_MAGIC) return SR_NOTOPEN ;
 
-	if (logid == NULL)
-	    logid = "*null*" ;
+	if (logid == NULL) logid = "*null*" ;
 
-	cl = loadlogid(op->logid,LOGFILE_LOGIDLEN,logid) ;
-
-	rs = logfile_fixlogid(op,cl) ;
+	rs = logfile_loadid(op,logid) ;
 
 #if	CF_DEBUGS
-	debugprintf("logfile_setid: ret\n") ;
+	debugprintf("logfile_setid: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -594,6 +587,27 @@ int logfile_print(LOGFILE *op,cchar *sbuf,int slen)
 /* private subroutines */
 
 
+static int logfile_loadid(LOGFILE *op,cchar *logstr)
+{
+	const int	outlen = LOGFILE_LOGIDLEN ;
+	int		rs ;
+	int		i ;
+	int		len = 0 ;
+
+	for (i = 0 ; (i < outlen) && logstr[i] ; i += 1) {
+	    if (isprintlatin(logstr[i])) {
+	        op->logid[len++] = logstr[i] ;
+	    }
+	} /* end for */
+	op->logid[len] = '\0' ;
+
+	rs = logfile_fixlogid(op,len) ;
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (logfile_loadid) */
+
+
 static int logfile_mklogid(LOGFILE *op)
 {
 	const pid_t	pid = ugetpid() ;
@@ -606,9 +620,10 @@ static int logfile_mklogid(LOGFILE *op)
 	    const int	llen = LOGFILE_LOGIDLEN ;
 	    int		v = pid ;
 	    char	*lbuf = op->logid ;
-	    rs = mklogid(lbuf,llen,nbuf,rs,v) ;
-	    ll = rs ;
-	    op->logidlen = ll ;
+	    if ((rs = mklogid(lbuf,llen,nbuf,rs,v)) >= 0) {
+	        ll = rs ;
+		rs = logfile_fixlogid(op,rs) ;
+	    }
 	} /* end if (getnodename) */
 
 	return (rs >= 0) ? ll : rs ;
@@ -868,22 +883,6 @@ static int colstate_linecols(COLSTATE *csp,cchar *sbuf,int slen)
 	return i ;
 }
 /* end subroutine (colstate_linecols) */
-
-
-static int loadlogid(char *outbuf,int outlen,cchar *logstr)
-{
-	int		i ;
-	int		len = 0 ;
-
-	for (i = 0 ; (i < outlen) && logstr[i] ; i += 1) {
-	    if (isprintlatin(logstr[i])) {
-	        outbuf[len++] = logstr[i] ;
-	    }
-	} /* end for */
-
-	return len ;
-}
-/* end subroutine (loadlogid) */
 
 
 static int mkclean(char *outbuf,int outlen,cchar *sbuf,int slen)

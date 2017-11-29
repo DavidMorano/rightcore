@@ -136,6 +136,7 @@ enum progmodes {
 #define	TO_SPEED	(24 * 3600)
 #define	TO_DIRMAINT	(4*3600)
 #define	TO_DIRCLIENTS	(24*3600)
+#define	TO_READ		(5*60) ;
 #define	TO_POLL		7
 #define	TO_IDLE		5
 #define	TO_LOCK		4

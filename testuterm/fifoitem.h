@@ -45,15 +45,15 @@ extern "C" {
 
 extern int fifoitem_start(fifoitem *) ;
 extern int fifoitem_finish(fifoitem *) ;
-extern int fifoitem_add(fifoitem *,const void *,int) ;
-extern int fifoitem_remove(fifoitem *,void *,int) ;
+extern int fifoitem_ins(fifoitem *,const void *,int) ;
+extern int fifoitem_rem(fifoitem *,void *,int) ;
 extern int fifoitem_count(fifoitem *) ;
 extern int fifoitem_enum(fifoitem *,fifoitem_cur *,const void **) ;
 extern int fifoitem_curbegin(fifoitem *,fifoitem_cur *) ;
 extern int fifoitem_curend(fifoitem *,fifoitem_cur *) ;
 extern int fifoitem_del(fifoitem *,fifoitem_cur *) ;
 extern int fifoitem_fetch(fifoitem *,fifoitem_cur *,fifoitem_ent **) ;
-extern int fifoitem_finder(fifoitem *,const char *,int (*)(),const char **) ;
+extern int fifoitem_finder(fifoitem *,const void *,int (*)(),const void **) ;
 
 #ifdef	__cplusplus
 }

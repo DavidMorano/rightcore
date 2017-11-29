@@ -14,6 +14,9 @@
 #include	<sockaddress.h>
 #include	<localmisc.h>
 
+#include	"mfslocinfo.h"
+#include	"svcentsub.h"
+
 
 #define	SREQ		struct sreq
 #define	SREQ_FL		struct sreq_flags
@@ -34,11 +37,13 @@ struct sreq_flags {
 	uint		thread:1 ;
 	uint		local:1 ;		/* client is local */
 	uint		longopt:1 ;		/* the "long" switch */
+	uint		ss:1 ;
 } ;
 
 struct sreq {
 	SREQ_FL		f ;
 	SOCKADDRESS	sa ;			/* peername socket address */
+	SVCENTSUB	ss ;
 	const char	*peername ;
 	const char	*netuser ;
 	const char	*netpass ;
@@ -47,10 +52,13 @@ struct sreq {
 	const char	*svc ;			/* allocated */
 	const char	*subsvc ;
 	char		*efname ;		/* Error-File-Name */
-	time_t		stime ;			/* start time */
-	time_t		atime ;			/* arrival? time */
+	time_t		stime ;			/* time-start */
+	time_t		etime ;			/* time-end */
 	pid_t		pid ;			/* child PID */
 	pthread_t	tid ;			/* child thread ID */
+	volatile int	f_exiting ;
+	int		ji ;			/* job number in DB */
+	int		jsn ;			/* job serial number */
 	int		salen ;			/* peername socket length */
 	int		nnames ;		/* number of names */
 	int		ifd ;			/* file-descriptor input */
@@ -60,7 +68,8 @@ struct sreq {
 	int		stype ;			/* sub-type */
 	int		state ;			/* job state (see above) */
 	int		svclen ;		/* service-length */
-	char		jobid[SREQ_JOBIDLEN+1] ;
+	int		trs ;			/* thread return-status */
+	char		logid[SREQ_JOBIDLEN+1] ;
 } ;
 
 
@@ -81,6 +90,10 @@ extern int sreq_setstate(SREQ *,int) ;
 extern int sreq_getsvc(SREQ *,cchar **) ;
 extern int sreq_getsubsvc(SREQ *,cchar **) ;
 extern int sreq_getstate(SREQ *) ;
+extern int sreq_ofd(SREQ *) ;
+extern int sreq_svcentbegin(SREQ *,LOCINFO *,SVCENT *) ;
+extern int sreq_svcentend(SREQ *) ;
+extern int sreq_thrdone(SREQ *) ;
 extern int sreq_finish(SREQ *) ;
 
 #ifdef	__cplusplus

@@ -175,7 +175,7 @@
 #define	TO_SPEED	(24*3600)	/* interval between updates */
 #define	TO_MARKTIME	(12*3600)	/* mark-time interval */
 #define	TO_BROKEN	(1*3600)	/* broken listener re-activation */
-#define	TO_RECVFD	10		/* receiving a file-desriptor */
-#define	TO_SENDFD	10		/* sending a file-desriptor */
+#define	TO_RECVFD	30		/* receiving a file-desriptor */
+#define	TO_SENDFD	30		/* sending a file-desriptor */
 
 

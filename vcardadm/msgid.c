@@ -37,10 +37,7 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/mman.h>
 #include	<sys/stat.h>
-#include	<netinet/in.h>
-#include	<arpa/inet.h>
 #include	<inttypes.h>
 #include	<limits.h>
 #include	<unistd.h>
@@ -48,7 +45,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<endian.h>
@@ -65,32 +61,32 @@
 #define	MSGID_FMA	"MSGIDA"
 #define	MSGID_FMB	"MSGIDB"
 
-#define	MSGID_FS		"msgid"
-#define	MSGID_FSA		"msgida"
-#define	MSGID_FSB		"msgidb"
+#define	MSGID_FS	"msgid"
+#define	MSGID_FSA	"msgida"
+#define	MSGID_FSB	"msgidb"
 
-#define	MSGID_FLID		(16 + 4)
-#define	MSGID_FLHEAD		(3 * 4)
-#define	MSGID_FLTOP		(MSGID_FLID + MSGID_FLHEAD)
+#define	MSGID_FLID	(16 + 4)
+#define	MSGID_FLHEAD	(3 * 4)
+#define	MSGID_FLTOP	(MSGID_FLID + MSGID_FLHEAD)
 
-#define	MSGID_FOID		0
-#define	MSGID_FOHEAD		(MSGID_FOID + MSGID_FLID)
-#define	MSGID_FOTAB		(MSGID_FOHEAD + MSGID_FLHEAD)
+#define	MSGID_FOID	0
+#define	MSGID_FOHEAD	(MSGID_FOID + MSGID_FLID)
+#define	MSGID_FOTAB	(MSGID_FOHEAD + MSGID_FLHEAD)
 
-#define	MSGID_ENTSIZE		MSGIDE_SIZE
-#define	MSGID_EBS		((MSGIDE_SIZE + 3) & (~ 3))
+#define	MSGID_ENTSIZE	MSGIDE_SIZE
+#define	MSGID_EBS	((MSGIDE_SIZE + 3) & (~ 3))
 
-#define	MSGID_BUFSIZE		(64 * 1024)
-#define	MSGID_READSIZE		(16 * 1024)
+#define	MSGID_BUFSIZE	(64 * 1024)
+#define	MSGID_READSIZE	(16 * 1024)
 
-#define	MSGID_FBUFLEN		(MSGID_FLTOP + 9)
+#define	MSGID_FBUFLEN	(MSGID_FLTOP + 9)
+
+#define	MSGID_LWRITE	0
+#define	MSGID_LREAD	1
 
 #define	TO_OPEN		(60 * 60)	/* maximum file-open time */
 #define	TO_ACCESS	(2 * 60)	/* maximum access idle time */
 #define	TO_LOCK		60		/* seconds */
-
-#define	LOCK_WRITE	0
-#define	LOCK_READ	1
 
 #ifndef	TIMEBUFLEN
 #define	TIMEBUFLEN	80
@@ -469,7 +465,7 @@ int msgid_enum(MSGID *op,MSGID_CUR *curp,MSGID_ENT *ep)
 
 /* do we have proper file access? */
 
-	if ((rs = msgid_filecheck(op,dt,LOCK_READ)) >= 0) {
+	if ((rs = msgid_filecheck(op,dt,MSGID_LREAD)) >= 0) {
 	    if (op->f.fileinit) {
 
 #if	CF_DEBUGS
@@ -560,7 +556,7 @@ int msgid_matchid(MSGID *op,time_t dt,cchar *midp,int midl,MSGID_ENT *ep)
 /* do we have proper file access? */
 
 	if (dt == 0) dt = time(NULL) ;
-	if ((rs = msgid_filecheck(op,dt,LOCK_READ)) >= 0) {
+	if ((rs = msgid_filecheck(op,dt,MSGID_LREAD)) >= 0) {
 	    if (op->f.fileinit) {
 
 /* continue with the search */
@@ -623,7 +619,7 @@ int msgid_match(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 /* do we have proper file access? */
 
 	if (dt == 0) dt = time(NULL) ;
-	if ((rs = msgid_filecheck(op,dt,LOCK_READ)) >= 0) {
+	if ((rs = msgid_filecheck(op,dt,MSGID_LREAD)) >= 0) {
 	    if (op->f.fileinit) {
 
 /* continue with the search */
@@ -704,7 +700,7 @@ int msgid_update(MSGID *op,time_t dt,MSGID_KEY *kp,MSGID_ENT *ep)
 	debugprintf("msgid_update: msgid_filecheck()\n") ;
 #endif
 
-	if ((rs = msgid_filecheck(op,dt,LOCK_WRITE)) >= 0) {
+	if ((rs = msgid_filecheck(op,dt,MSGID_LWRITE)) >= 0) {
 	    if (op->f.fileinit) {
 
 #if	CF_DEBUGS && (CF_DEBUGSLEEP > 0)
@@ -1265,7 +1261,7 @@ static int msgid_filechanged(MSGID *op)
 	                if (f_changed)
 	                    op->h = h ;
 
-	            } /* end if */
+	            } /* end if (positive) */
 
 	        } /* end if (u_pread) */
 
@@ -1480,8 +1476,7 @@ static int msgid_search(MSGID *op,MSGID_KEY *kp,uint khash,char **bepp)
 	    debugprintf("msgid_search: msgid_buf() rs=%d ei=%u\n",rs,ei) ;
 #endif
 
-	    if (rs < op->ebs)
-	        break ;
+	    if (rs < op->ebs) break ;
 
 	    bep = bp ;
 	    n = rs / op->ebs ;
@@ -1657,11 +1652,9 @@ static int msgid_searchemptyrange(MSGID *op,int ei,int nmax,
 	    eoff = MSGID_FOTAB + (ei * op->ebs) ;
 	    len = ne * op->ebs ;
 	    rs = msgid_buf(op,eoff,len,&bp) ;
+	    if (rs < op->ebs) break ;
 
-	    if (rs < op->ebs)
-	        break ;
-
-	    n = rs / op->ebs ;
+	    n = (rs / op->ebs) ;
 	    for (i = 0 ; i < n ; i += 1) {
 	        bep = bp + (i * op->ebs) ;
 	        eidp = bep + MSGIDE_OMESSAGEID ;

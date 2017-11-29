@@ -1,4 +1,4 @@
-/* svcfileinst INCLUDE */
+/* svcent INCLUDE */
 
 /* subroutines for simple SVCFILE_ENT object management */
 
@@ -13,8 +13,8 @@
 
 /* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
 
-#ifndef	SVCFILEINST_INCLUDE
-#define	SVCFILEINST_INCLUDE	1
+#ifndef	SVCENT_INCLUDE
+#define	SVCENT_INCLUDE	1
 
 
 #include	<envstandards.h>
@@ -22,20 +22,20 @@
 #include	<localmisc.h>
 
 
-#define	SVCFILEINST	SVCFILE_ENT
+#define	SVCENT	SVCFILE_ENT
 
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-extern int	svcfileinst_val(SVCFILE_ENT *,cchar *,cchar **) ;
-extern int	svcfileinst_deval(SVCFILE_ENT *,cchar *,cchar **) ;
+extern int	svcent_getval(SVCENT *,cchar *,cchar **) ;
+extern int	svcent_getdeval(SVCENT *,cchar *,cchar **) ;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* SVCFILEINST_INCLUDE */
+#endif /* SVCENT_INCLUDE */
 
 

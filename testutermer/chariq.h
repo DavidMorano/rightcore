@@ -27,13 +27,10 @@
 #include	<envstandards.h>	/* must be before others */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<limits.h>
 
 #include	<vsystem.h>
 #include	<charq.h>
 #include	<ptm.h>
-
 #include	<localmisc.h>
 
 

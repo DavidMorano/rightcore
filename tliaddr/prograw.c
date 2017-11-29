@@ -45,10 +45,6 @@
 
 /* local defines */
 
-#ifndef	HOSTBUFLEN
-#define	HOSTBUFLEN		(8 * MAXHOSTNAMELEN)
-#endif
-
 #ifndef	HEXBUFLEN
 #define	HEXBUFLEN		(4 * MAXHOSTNAMELEN)
 #endif
@@ -67,7 +63,7 @@ extern int	getdig(int) ;
 int		progout_open(PROGINFO *) ;
 int		progout_close(PROGINFO *) ;
 
-static int	makehex(char *,const char *,int) ;
+static int	makehex(char *,int,cchar *,int) ;
 
 
 /* local structures */
@@ -86,8 +82,9 @@ int prograw(PROGINFO *pip,cchar *familyname,cchar *netaddr1,cchar *netaddr2)
 
 	if ((netaddr1 != NULL) && (netaddr1[0] != '\0')) {
 	    if ((rs = progout_open(pip)) >= 0) {
-	        char	hexbuf[HEXBUFLEN + 1] ;
-	        if ((rs = makehex(hexbuf,netaddr1,-1)) >= 0) {
+		const int	hexlen = HEXBUFLEN ;
+	        char		hexbuf[HEXBUFLEN + 1] ;
+	        if ((rs = makehex(hexbuf,hexlen,netaddr1,-1)) >= 0) {
 		    rs = progout_printf(pip,"%t\n",hexbuf,rs) ;
 		}
 	        rs1 = progout_close(pip) ;
@@ -107,25 +104,31 @@ int prograw(PROGINFO *pip,cchar *familyname,cchar *netaddr1,cchar *netaddr2)
 /* local subroutines */
 
 
-static int makehex(char *hexbuf,cchar *addr,int alen)
+static int makehex(char *hexbuf,int hexlen,cchar *addr,int alen)
 {
-	int		v ;
-	int		i ;
+	int		ndig ;
+	int		rs = SR_OK ;
 	int		j = 0 ;
 
-	if (alen < 0)
-	    alen = strlen(addr) ;
+	if (alen < 0) alen = strlen(addr) ;
 
-	hexbuf[j++] = '\\' ;
-	hexbuf[j++] = 'x' ;
-	for (i = 0 ; i < alen ; i += 1) {
-	    v = MKCHAR(addr[i]) ;
-	    hexbuf[j++] = getdig((v >> 4) & 15) ;
-	    hexbuf[j++] = getdig((v >> 0) & 15) ;
+	ndig = (2*(alen*2)) ;
+	if (hexlen >= ndig) {
+	    int		v ;
+	    int		i ;
+	    hexbuf[j++] = '\\' ;
+	    hexbuf[j++] = 'x' ;
+	    for (i = 0 ; i < alen ; i += 1) {
+	        v = MKCHAR(addr[i]) ;
+	        hexbuf[j++] = getdig((v >> 4) & 15) ;
+	        hexbuf[j++] = getdig((v >> 0) & 15) ;
+	    }
+	    hexbuf[j] = '\0' ;
+	} else {
+	    rs = SR_OVERFLOW ;
 	}
 
-	hexbuf[j] = '\0' ;
-	return j ;
+	return (rs >= 0) ? j : rs ;
 }
 /* end subroutine (makehex) */
 

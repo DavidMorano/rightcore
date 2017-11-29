@@ -201,7 +201,7 @@ OBJ47= openusd.o
 
 OBJ48= wdt.o base64.o netorder.o stdorder.o getserial.o 
 OBJ49=
-OBJ50= readn.o writen.o writeto.o acceptpass.o
+OBJ50= readn.o writen.o writeto.o acceptpass.o passfd.o
 OBJ51=
 OBJ52= mailaddrquote.o compactstr.o
 OBJ53= randmwc.o
@@ -281,7 +281,7 @@ OBJ115= filebuf_mailsupport.o filebuf_writefd.o
 OBJ116= setint.o osetint.o setstr.o osetstr.o mapstrs.o
 OBJ117= msfile.o msfilee.o ebuf.o nodedb.o clusterdb.o kinfo.o nulstr.o
 OBJ118= cksum.o sha1.o gecos.o pwfile.o ipasswd.o ema.o fsi.o
-OBJ119= q.o plainq.o cpq.o cq.o piq.o fifostr.o fifoitem.o charq.o 
+OBJ119= q.o plainq.o cpq.o cq.o aiq.o piq.o fifostr.o fifoitem.o charq.o intiq.o
 
 OBJ120= kvsfile.o paramfile.o strtab.o strstore.o svcfile.o querystring.o
 OBJ121= mailmsgmatenv.o mailmsgmathdr.o mailmsgfrom.o mailmsgstage.o
@@ -752,6 +752,8 @@ pq.o:			pq.c pq.h
 cpq.o:			cpq.c cpq.h
 
 charq.o:		charq.c charq.h
+
+intiq.o:		intiq.c intiq.h
 
 aiq.o:			aiq.c aiq.h
 

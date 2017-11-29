@@ -46,10 +46,6 @@
 #include	<envstandards.h>	/* must be before others */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<limits.h>
-#include	<unistd.h>
-#include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
@@ -60,10 +56,6 @@
 
 
 /* local defines */
-
-#ifndef	ITEMLEN
-#define	ITEMLEN		100
-#endif
 
 
 /* external subroutines */
@@ -119,9 +111,7 @@ int varhdr(VARHDR *ep,int f,char hbuf[],int hlen)
 	const int	magicsize = VARHDR_MAGICSIZE ;
 	int		rs = SR_OK ;
 	int		bl = hlen ;
-	int		cl ;
-	const char	*magicstr = VARHDR_MAGICSTR ;
-	const char	*tp, *cp ;
+	cchar		*magicstr = VARHDR_MAGICSTR ;
 	char		*bp = hbuf ;
 
 	if (ep == NULL) return SR_FAULT ;

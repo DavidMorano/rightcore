@@ -66,7 +66,6 @@
 #include	<localmisc.h>
 
 #include	"pcspolls.h"
-#include	"thrbase.h"
 
 
 /* local defines */
@@ -75,9 +74,10 @@
 #define	POLLPROG_FL	struct pollprog_flags
 #define	POLLPROG_MAGIC	0x88773422
 
-#define	WORK		struct work_head
-#define	WORK_FL		struct work_flags
-#define	WORKARGS	struct work_args
+
+/* typedefs */
+
+typedef int	(*thrsub_t)(void *) ;
 
 
 /* external subroutines */
@@ -94,7 +94,7 @@ extern int	nleadstr(const char *,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 
-extern int pollprogcheck(const char *,const char *,const char **,PCSCONF *) ;
+extern int	pollprogcheck(cchar *,cchar *,cchar **,PCSCONF *) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -103,11 +103,15 @@ extern int	strlinelen(const char *,int,int) ;
 
 extern cchar	*getourenv(const char **,const char *) ;
 
+extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
+extern char	*timestr_log(time_t,char *) ;
 
 
 /* external variables */
+
+extern cchar	**environ ;
 
 
 /* local structures */
@@ -118,30 +122,15 @@ struct pollprog_flags {
 
 struct pollprog_head {
 	uint		magic ;
-	THRBASE		t ;
 	POLLPROG_FL	f ;
-	WORKARGS	*wap ;
-	int		dummy ;
-} ;
-
-struct work_args {
-	POLLPROG	*op ;
+	pid_t		pid ;
+	pthread_t	tid ;
+	const char	*a ;		/* memory allocation */
 	const char	*pr ;
 	const char	*sn ;
 	const char	**envv ;
 	PCSCONF		*pcp ;
-} ;
-
-struct work_flags {
-	uint		dummy:1 ;
-} ;
-
-struct work_head {
-	uint		magic ;
-	THRBASE		*tip ;
-	WORKARGS	*wap ;
-	WORK_FL		f ;
-	volatile int	f_term ;
+	volatile int	f_exiting ;
 } ;
 
 enum cmds {
@@ -153,14 +142,9 @@ enum cmds {
 
 /* forward references */
 
-static int workargs_load(WORKARGS *,POLLPROG *,cchar *,cchar *,
-		cchar **,PCSCONF *) ;
-
-static int	worker(THRBASE *,WORKARGS *) ;
-
-static int work_start(WORK *,THRBASE *,WORKARGS *) ;
-static int work_term(WORK *) ;
-static int work_finish(WORK *) ;
+static int	pollprog_argsbegin(POLLPROG *,cchar *,cchar *) ;
+static int	pollprog_argsend(POLLPROG *) ;
+static int	pollprog_worker(POLLPROG *) ;
 
 
 /* local variables */
@@ -178,15 +162,8 @@ PCSPOLLS_NAME	pollprog = {
 /* exported subroutines */
 
 
-int pollprog_start(op,pr,sn,envv,pcp)
-POLLPROG	*op ;
-const char	*pr ;
-const char	*sn ;
-const char	**envv ;
-PCSCONF		*pcp ;
+int pollprog_start(POLLPROG *op,cchar *pr,cchar *sn,cchar **envv,PCSCONF *pcp)
 {
-	WORKARGS	*wap ;
-	const int	wsize = sizeof(WORKARGS) ;
 	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -198,21 +175,28 @@ PCSCONF		*pcp ;
 	debugprintf("pollprog_start: pcp={%p}\n",pcp) ;
 #endif
 
-	memset(op,0,sizeof(POLLPROG)) ;
+	if (envv == NULL) envv = environ ;
 
-	if ((rs = uc_malloc(wsize,&wap)) >= 0) {
-	    int	(*thr)(THRBASE *,void *) = (int (*)(THRBASE *,void *)) worker ;
-	    workargs_load(wap,op,pr,sn,envv,pcp) ;
-	    if ((rs = thrbase_start(&op->t,thr,wap)) >= 0) {
-		op->f.working = TRUE ;
-	        op->wap = wap ;
-		op->magic = POLLPROG_MAGIC ;
+	memset(op,0,sizeof(POLLPROG)) ;
+	op->envv = envv ;
+	op->pcp = pcp ;
+	op->pid = getpid() ;
+
+	if ((rs = pollprog_argsbegin(op,pr,sn)) >= 0) {
+	    if ((pr != NULL) && (sn != NULL)) {
+	        pthread_t	tid ;
+	        thrsub_t	thr = (thrsub_t) pollprog_worker ;
+	        if ((rs = uptcreate(&tid,NULL,thr,op)) >= 0) {
+	            op->f.working = TRUE ;
+		    op->tid = tid ;
+	        }
+	    } /* end if (non-null) */
+	    if (rs >= 0) {
+	        op->magic = POLLPROG_MAGIC ;
 	    }
-	    if (rs < 0) {
-		uc_free(wap) ;
-		op->wap = NULL ;
-	    }
-	} /* end if (memory-allocation) */
+	    if (rs < 0)
+		pollprog_argsend(op) ;
+	} /* end if (pollprog_argsbegin) */
 
 #if	CF_DEBUGS
 	debugprintf("pollprog_start: ret rs=%d\n",rs) ;
@@ -223,13 +207,13 @@ PCSCONF		*pcp ;
 /* end subroutine (pollprog_start) */
 
 
-int pollprog_finish(op)
-POLLPROG	*op ;
+int pollprog_finish(POLLPROG *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
+
 	if (op->magic != POLLPROG_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
@@ -237,16 +221,21 @@ POLLPROG	*op ;
 #endif
 
 	if (op->f.working) {
-	    op->f.working = FALSE ;
-	    rs1 = thrbase_finish(&op->t) ;
-	    if (rs >= 0) rs = rs1 ;
+	    const pid_t	pid = getpid() ;
+	    if (pid == op->pid) {
+	        int	trs = 0 ;
+	        op->f.working = FALSE ;
+	        rs1 = uptjoin(op->tid,&trs) ;
+	        if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = trs ;
+	    } else {
+		op->f.working = FALSE ;
+		op->tid = 0 ;
+	    }
 	}
 
-	if (op->wap != NULL) {
-	    rs1 = uc_free(op->wap) ;
-	    if (rs >= 0) rs = rs1 ;
-	    op->wap = NULL ;
-	}
+	rs1 = pollprog_argsend(op) ;
+	if (rs >= 0) rs = rs1 ;
 
 #if	CF_DEBUGS
 	debugprintf("pollprog_finish: ret rs=%d\n",rs) ;
@@ -258,169 +247,98 @@ POLLPROG	*op ;
 /* end subroutine (pollprog_finish) */
 
 
-#ifdef	COMMENT
-
-int pollprog_info(op,ip)
-POLLPROG	*op ;
-POLLPROG_INFO	*ip ;
+int pollprog_check(POLLPROG *op)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
+	int		f = FALSE ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->magic != POLLPROG_MAGIC) return SR_NOTOPEN ;
 
-	if (ip != NULL) {
-	    memset(ip,0,sizeof(POLLPROG_INFO)) ;
-	    ip->dummy = 1 ;
+	if (op->f.working) {
+	    const pid_t	pid = getpid() ;
+	    if (pid == op->pid) {
+	        if (op->f_exiting) {
+	            int		trs = 0 ;
+	            op->f.working = FALSE ;
+	            rs1 = uptjoin(op->tid,&trs) ;
+	            if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = trs ;
+	            f = TRUE ;
+		}
+	    } else {
+		op->f.working = FALSE ;
+	    }
 	}
 
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
-/* end subroutine (pollprog_info) */
-
-
-int pollprog_cmd(op,cmd)
-POLLPROG	*op ;
-int		cmd ;
-{
-	int		rs = SR_OK ;
-
-	if (op == NULL) return SR_FAULT ;
-	if (op->magic != POLLPROG_MAGIC) return SR_NOTOPEN ;
-
-	return (rs >= 0) ? cmd : rs ;
-}
-/* end subroutine (pollprog_cmd) */
-
-#endif /* COMMENT */
+/* end subroutine (pollprog_check) */
 
 
 /* private subroutines */
 
 
-static int workargs_load(wap,op,pr,sn,envv,pcp)
-WORKARGS	*wap ;
-POLLPROG	*op ;
-const char	*pr ;
-const char	*sn ;
-const char	**envv ;
-PCSCONF		*pcp ;
+static int pollprog_argsbegin(POLLPROG *op,cchar *pr,cchar *sn)
 {
-	memset(wap,0,sizeof(WORKARGS)) ;
-	wap->op = op ;
-	wap->pr = pr ;
-	wap->sn = sn ;
-	wap->envv = envv ;
-	wap->pcp = pcp ;
-	return SR_OK ;
-}
-/* end subroutine (workargs_load) */
-
-
-static int worker(THRBASE *tip,WORKARGS *wap)
-{
-	WORK		w ;
-	const int	to = 1 ;
 	int		rs ;
-	int		rs1 ;
-	int		ctime = 0 ;
-
-#if	CF_DEBUGS
-	debugprintf("pollprog/worker: started\n") ;
-#endif
-
-	if ((rs = work_start(&w,tip,wap)) >= 0) {
-	    int		f_exit = FALSE ;
-	    while ((rs = thrbase_cmdrecv(tip,to)) >= 0) {
-		const int	cmd = rs ;
-	        switch (cmd) {
-		case cmd_noop:
-		    ctime += 1 ;
-		    break ;
-	        case cmd_exit:
-		    f_exit = TRUE ;
-		    rs = work_term(&w) ;
-		    break ;
-	        } /* end switch */
-		if (f_exit) break ;
-		if (rs < 0) break ;
-	    } /* end while */
-	    rs1 = work_finish(&w) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (work) */
-
-#if	CF_DEBUGS
-	debugprintf("pollprog/worker: ret rs=%d ctime=%u\n",rs,ctime) ;
-#endif
-
-	return (rs >= 0) ? ctime : rs ;
-}
-/* end subroutine (worker) */
-
-
-static int work_start(WORK *wp,THRBASE *tip,WORKARGS *wap)
-{
-	int		rs = SR_OK ;
-	int		c = 0 ;
-	const char	*pr, *sn ;
-
-	if (wp == NULL) return SR_FAULT ;
-
-	memset(wp,0,sizeof(WORK)) ;
-	wp->tip = tip ;
-	wp->wap = wap ;
-
-	pr = wap->pr ;
-	sn = wap->sn ;
-
-#if	CF_DEBUGS
-	debugprintf("pollprog/work_start: pr=%s\n",pr) ;
-	debugprintf("pollprog/work_start: sn=%s\n",sn) ;
-#endif
-
-	if (pr != NULL) {
-	    PCSCONF	*pcp = wap->pcp ;
-	    const char	**envv = wap->envv ;
-#if	CF_DEBUGS
-	debugprintf("pollprog/work_start: pcp={%p}\n",pcp) ;
-#endif
-	    rs = pollprogcheck(pr,sn,envv,pcp) ;
-	    c = rs ;
-	}
-
-#if	CF_DEBUGS
-	debugprintf("pollprog/work_start: ret rs=%d c=%u\n",rs,c) ;
-#endif
-
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (work_start) */
-
-
-static int work_finish(WORK *wp)
-{
-	int		rs = SR_OK ;
-
-	if (wp == NULL) return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("pollprog/work_finish: ret rs=%d\n",rs) ;
-#endif
-
+	int		size = 0 ;
+	char		*bp ;
+	size += (((pr !=NULL)?strlen(pr):0)+1) ;
+	size += (((sn !=NULL)?strlen(sn):0)+1) ;
+	if ((rs = uc_malloc(size,&bp)) >= 0) {
+	    op->a = bp ;
+	    if (pr != NULL) {
+	        op->pr = bp ;
+	        bp = (strwcpy(bp,pr,-1)+1) ;
+	    }
+	    if (sn != NULL) {
+	        op->sn = bp ;
+	        bp = (strwcpy(bp,sn,-1)+1) ;
+	    }
+	} /* end if (m-a) */
 	return rs ;
 }
-/* end subroutine (work_finish) */
+/* end subroutine (pollprog_argsbegin) */
 
 
-static int work_term(WORK *wp)
+static int pollprog_argsend(POLLPROG *op)
 {
-	if (wp == NULL) return SR_FAULT ;
-#if	CF_DEBUGS
-	debugprintf("pollprog/work_term: ent\n") ;
-#endif
-	return SR_OK ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (op->a != NULL) {
+	    rs1 = uc_free(op->a) ;
+	    if (rs >= 0) rs = rs1 ;
+	    op->a = NULL ;
+	}
+	return rs ;
 }
-/* end subroutine (work_term) */
+/* end subroutine (pollprog_argsend) */
+
+
+static int pollprog_worker(POLLPROG *op)
+{
+	PCSCONF		*pcp = op->pcp ;
+	int		rs ;
+	const char	**envv = op->envv ;
+	const char	*pr = op->pr ;
+	const char	*sn = op->sn ;
+
+#if	CF_DEBUGS
+	debugprintf("pollprog_worker: ent\n") ;
+#endif
+
+	    rs = pollprogcheck(pr,sn,envv,pcp) ;
+
+#if	CF_DEBUGS
+	debugprintf("pollprog/work_start: ret rs=%d\n",rs) ;
+#endif
+
+	op->f_exiting = TRUE ;
+	return rs ;
+}
+/* end subroutine (pollprog_worker) */
 
 
