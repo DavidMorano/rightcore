@@ -234,19 +234,12 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 	        sl -= ti ;
 	        sp += ti ;
 
-#ifdef	COMMENT
-	        if ((sl > 0) && (! isalnumlatin(sp[0]))) {
-	            sl -= 1 ;
-	            sp += 1 ;
-	        }
-#else
 		if (sl > 0) {
 		    if ((si = sialnum(sp,sl)) > 0) {
 			sp += si ;
 			sl -= si ;
 		    }
 		}
-#endif /* COMMENT */
 
 		f_dig = FALSE ;
 		if (sl > 0) {
@@ -261,19 +254,12 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 	            dp = (sp+ti) ;
 	            dl = (sl-ti) ;
 
-#ifdef	COMMENT
-	            if ((dl > 0) && (! isalnumlatin(dp[0]))) {
-	                dl -= 1 ;
-	                dp += 1 ;
-	            }
-#else
 		if (sl > 0) {
 		    if ((si = sialnum(dp,dl)) > 0) {
 			dp += si ;
 			dl -= si ;
 		    }
 		}
-#endif /* COMMENT */
 
 	        } else {
 

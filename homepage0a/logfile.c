@@ -595,7 +595,8 @@ static int logfile_loadid(LOGFILE *op,cchar *logstr)
 	int		len = 0 ;
 
 	for (i = 0 ; (i < outlen) && logstr[i] ; i += 1) {
-	    if (isprintlatin(logstr[i])) {
+	    const int	ch = MKCHAR(logstr[i]) ;
+	    if (isprintlatin(ch)) {
 	        op->logid[len++] = logstr[i] ;
 	    }
 	} /* end for */

@@ -1370,6 +1370,7 @@ static int procmxdump(PROGINFO *pip,cchar dfname[])
 /* print out a "dump" mail-alias entry */
 static int procmxprint(PROGINFO *pip,SHIO *dfp,cchar *kbuf,cchar *vbuf)
 {
+	const int	ch = MKCHAR(vbuf[0]) ;
 	int		rs ;
 	int		klen ;
 	int		blen ;
@@ -1377,7 +1378,7 @@ static int procmxprint(PROGINFO *pip,SHIO *dfp,cchar *kbuf,cchar *vbuf)
 
 	klen = strlen(kbuf) ;
 
-	f = ((! isalphalatin(vbuf[0])) && (vbuf[0] != ':')) ;
+	f = ((! isalphalatin(ch)) && (vbuf[0] != ':')) ;
 
 	f = f || haswhite(vbuf,-1) ;
 

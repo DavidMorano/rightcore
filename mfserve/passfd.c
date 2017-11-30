@@ -18,9 +18,9 @@
 
 /*******************************************************************************
 
-	= Pass a file-descritpr to a file.
+	= Pass a file-descritpr to a file in the file-system.
 
-        This subroutine pass the given file-descriptor to a file (specified
+        This subroutine passes the given file-descriptor to a file (specified
 	by its file-path).
 
 	Synopsis:
@@ -29,7 +29,7 @@
 
 	Arguments:
 
-	fname		path to UNIX® domain socket to dial to
+	fname		path to UNIX® file (pipe-FIFO) to pass FD to
 	fd		file-descriptor to pass
 
 	Returns:

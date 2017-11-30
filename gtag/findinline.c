@@ -149,13 +149,18 @@ static int getdash(FINDINLINE *fip,const char *sp,int sl)
 	sp += 1 ;
 	sl -= 1 ;
 	if (sl > 0) {
-	    int	vl = 0 ;
+	    int		vl = 0 ;
+	    int		ch ;
+	    int		f ;
 	    fip->vp = sp ;
-	    while (sl && isalphalatin(MKCHAR(sp[0]))) {
+	    while (sl) {
+		const int	ch = MKCHAR(sp[0]) ;
+		f = isalphalatin(ch) ;
+		if (!f) break ;
 		sp += 1 ;
 		sl -= 1 ;
 		vl += 1 ;
-	    }
+	    } /* end while */
 	    if (vl > 0) {
 		fip->vl = vl ;
 		skiplen = (sp-start) ;

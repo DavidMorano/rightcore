@@ -235,19 +235,12 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 
 	        sl -= ti ;
 	        sp += ti ;
-#ifdef	COMMENT
-	        if ((sl > 0) && (! isalnumlatin(sp[0]))) {
-	            sl -= 1 ;
-	            sp += 1 ;
-	        }
-#else
 		if (sl > 0) {
 		    if ((si = sialnum(sp,sl)) > 0) {
 			sp += si ;
 			sl -= si ;
 		    }
 		}
-#endif /* COMMENT */
 
 		f_dig = FALSE ;
 		if (sl > 0) {
@@ -261,19 +254,12 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 
 	            dp = (sp+ti) ;
 	            dl = (sl-ti) ;
-#ifdef	COMMENT
-	            if ((dl > 0) && (! isalnumlatin(dp[0]))) {
-	                dl -= 1 ;
-	                dp += 1 ;
-	            }
-#else
 		if (sl > 0) {
 		    if ((si = sialnum(dp,dl)) > 0) {
 			dp += si ;
 			dl -= si ;
 		    }
 		}
-#endif /* COMMENT */
 
 	        } else {
 
@@ -342,10 +328,10 @@ static int parsemonth(cchar *mp,int ml)
 	int		rs = SR_OK ;
 	int		cl ;
 	int		mi = -1 ;
-	const char	*cp ;
+	cchar		*cp ;
 
 	if ((cl = sfshrink(mp,ml,&cp)) > 0) {
-	    int	ch = (cp[0] & 0xff) ;
+	    const int	ch = MKCHAR(cp[0]) ;
 	    if (isalphalatin(ch)) {
 	        mi = matpcasestr(months,2,cp,cl) ;
 	        rs = (mi >= 0) ? mi : SR_INVALID ;
@@ -353,8 +339,9 @@ static int parsemonth(cchar *mp,int ml)
 	        rs = cfdeci(cp,cl,&mi) ;
 	        mi -= 1 ;
 	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? mi : rs ;
 }
@@ -368,7 +355,7 @@ static int siourbrk(cchar *sp,int sl,int f_dig)
 	register int	f = FALSE ;
 
 	for (i = 0 ; i < sl ; i += 1) {
-	    ch = (sp[i] & 0xff) ;
+	    ch = MKCHAR(sp[i]) ;
 	    if (f_dig) {
 		f = isdigitlatin(ch) ;
 	    } else {

@@ -2103,7 +2103,8 @@ int		buflen ;
 const char	s[] ;
 int		slen ;
 {
-	int		n, i ;
+	int		n = 0 ;
+	int		i ;
 
 	if (buf == NULL) return SR_FAULT ;
 	if (s == NULL) return SR_FAULT ;
@@ -2115,18 +2116,12 @@ int		slen ;
 	if (buflen < 0)
 	    buflen = INT_MAX ;
 
-	n = 0 ;
 	for (i = 0 ; (i < slen) && s[i] ; i += 1) {
-
-	    if (n >= buflen)
-	        break ;
-
+	    const int	ch = MKCHAR(s[i]) ;
+	    if (n >= buflen) break ;
 	    buf[n] = ('?' + 128) ;
-	    if (isprintlatin(s[i]))
-	        buf[n] = s[i] ;
-
+	    if (isprintlatin(ch)) buf[n] = ch ;
 	    n += 1 ;
-
 	} /* end for */
 
 	buf[n] = '\0' ;
@@ -2144,7 +2139,8 @@ int		slen ;
 	int		f = FALSE ;
 
 	for (i = 0 ; (i < slen) && s[i] ; i += 1) {
-	    f = (! isprintlatin(s[i])) ;
+	    const int	ch = MKCHAR(s[i]) ;
+	    f = (! isprintlatin(ch) ;
 	    if (f) break ;
 	} /* end for */
 

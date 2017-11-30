@@ -240,7 +240,7 @@ static int	hasweird(cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -296,7 +296,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"set",
 	"list",
 	"dump",
@@ -2110,10 +2110,9 @@ static int hasweird(cchar *sp,int sl)
 	int		f = FALSE ;
 
 	for (i = 0 ; (i != sl) && (sp[i] != '\0') ; i += 1) {
-	    if ((! isalnumlatin(sp[i])) && (sp[i] != '_')) {
-	        f = TRUE ;
-	        break ;
-	    }
+	    const int	ch = MKCHAR(sp[i]) ;
+	    f = ((! isalnumlatin(ch)) && (ch != '_')) ;
+	    if (f) break ;
 	} /* end if */
 
 	return f ;

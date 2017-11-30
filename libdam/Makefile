@@ -215,7 +215,7 @@ OBJ58= islowerlatin.o isupperlatin.o isprintterm.o iswhite.o iseol.o rmeol.o
 OBJ59= isinetaddr.o isindomain.o issamehostname.o isleapyear.o isfnamespecial.o
 # this next one is in LIBUC
 #OBJ60= hasuc.o haslc.o haswhite.o 
-OBJ60= hasalpha.o hasnum.o
+OBJ60= hasalpha.o hasnum.o hasStrContent.o
 OBJ61= hasalllc.o hasalluc.o hasallalnum.o hasallalpha.o
 OBJ62= hasalldig.o hasallbase.o hasprintbad.o 
 OBJ63= hasdoublewhite.o hasallwhite.o hasfext.o hasallof.o hasourmjd.o

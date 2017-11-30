@@ -55,7 +55,7 @@ struct msuclients_head {
 	const char	*reqfname ;
 	MSUCLIENTS_FL	f ;
 	SOCKADDRESS	srv ;		/* server address */
-	time_t		daytime ;
+	time_t		dt ;
 	int		srvlen ;	/* server address length */
 	int		fd ;
 	int		to ;
@@ -68,7 +68,7 @@ struct msuclients_head {
 extern "C" {
 #endif
 
-extern int	msuclients_open(MSUCLIENTS *,const char *,const char *,int) ;
+extern int	msuclients_open(MSUCLIENTS *,cchar *,cchar *,int) ;
 extern int	msuclients_status(MSUCLIENTS *) ;
 extern int	msuclients_get(MSUCLIENTS *,time_t,MSUCLIENTS_DATA *) ;
 extern int	msuclients_close(MSUCLIENTS *) ;

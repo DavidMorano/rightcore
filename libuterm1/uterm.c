@@ -1013,9 +1013,10 @@ static int tty_loadchar(UTERM *op,cchar *pbuf,int pbuflen)
 	int		c = 0 ;
 
 	for (i = 0 ; (rs >= 0) && (i < pbuflen) ; i += 1) {
-	    if (isprintlatin(pbuf[i])) {
+	    const int	ch = MKCHAR(pbuf[i]) ;
+	    if (isprintlatin(ch)) {
 	        c += 1 ;
-	        rs = charq_ins(&op->taq,pbuf[i]) ;
+	        rs = charq_ins(&op->taq,ch) ;
 	    }
 	} /* end for */
 

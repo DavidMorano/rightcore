@@ -1,4 +1,4 @@
-/* msuclient */
+/* msuclient (Memory-Status-Update client) */
 
 /* manage the SYSMISC shared-memory region */
 
@@ -75,6 +75,7 @@
 #include	<vsystem.h>
 #include	<getbufsize.h>
 #include	<estrings.h>
+#include	<endian.h>
 #include	<endianstr.h>
 #include	<nulstr.h>
 #include	<filebuf.h>
@@ -213,7 +214,7 @@ static int	getcookname(const char *,const char **) ;
 
 /* local variables */
 
-static const char	*shmnames[] = {
+static cchar	*shmnames[] = {
 	"/sys$%n",
 	"/%{RN}$%n",
 	"/%U¥%n",
@@ -228,7 +229,7 @@ enum shmnames {
 	shmname_overlast
 } ;
 
-static const char	*cookies[] = {
+static cchar	*cookies[] = {
 	"n",
 	"RN",
 	"U",
@@ -335,8 +336,9 @@ int msuclient_get(MSUCLIENT *op,time_t dt,int to,MSUCLIENT_DATA *dp)
 	ti_update = shmtable[sysmiscfv_utime] ;
 
 	op->ti_lastcheck = dt ;
-	if ((dt - ti_update) >= to)
+	if ((dt - ti_update) >= to) {
 	    rs = msuclient_shmupdate(op) ;
+	}
 
 	n = shmtable[sysmiscfv_ncpu] ;
 	if (dp != NULL) {
@@ -345,10 +347,12 @@ int msuclient_get(MSUCLIENT *op,time_t dt,int to,MSUCLIENT_DATA *dp)
 	        dp->btime = shmtable[sysmiscfv_btime] ;
 	        dp->ncpu = shmtable[sysmiscfv_ncpu] ;
 	        dp->nproc = shmtable[sysmiscfv_nproc] ;
-		for (i = 0 ; i < 3 ; i += 1)
+		for (i = 0 ; i < 3 ; i += 1) {
 	            dp->la[i] = shmtable[sysmiscfv_la + i] ;
-	    } else
+		}
+	    } else {
 	        memset(dp,0,sizeof(MSUCLIENT_DATA)) ;
+	    }
 	} /* end if */
 
 #if	CF_DEBUGS
@@ -560,11 +564,13 @@ static int msuclient_shmcreater(MSUCLIENT *op,LOADINFO *lip,int shmi,
 
 	} /* end if */
 
-	if ((rs >= 0) && f_needchmod)
+	if ((rs >= 0) && f_needchmod) {
 	    u_fchmod(fd,om) ;
+	}
 
-	if ((rs >= 0) && f_created)
+	if ((rs >= 0) && f_created) {
 	    rs = loadinfo_chown(lip,fd,shmi) ;
+	}
 
 ret2:
 	if (rs >= 0) {
@@ -792,8 +798,9 @@ static int msuclient_shmproc(MSUCLIENT *op)
 	if (! f_stale) {
 	    f_stale = ((dtime - utime) >= TO_UPDATE) ;
 	}
-	} else
+	} else {
 	    rs = SR_BADFMT ;
+	}
 
 	} /* end if (msuclient_shmverify) */
 
@@ -853,31 +860,21 @@ static int msuclient_shmupdate(MSUCLIENT *op)
 
 static int loadinfo_start(LOADINFO *lip,cchar *pr,cchar *dbname,mode_t om)
 {
-	int		rs = SR_OK ;
-	const char	*cn ;
+	int		rs ;
 
 	memset(lip,0,sizeof(LOADINFO)) ;
-
 	lip->pr = pr ;
 	lip->dbname = dbname ;
 	lip->om = om ;
-	rs = expcook_start(&lip->cooks) ;
-	if (rs < 0)
-	    goto bad0 ;
 
-	cn = cookies[cookie_n] ;
-	rs = expcook_add(&lip->cooks,cn,dbname,-1) ;
-	if (rs < 0)
-	    goto bad1 ;
+	if ((rs = expcook_start(&lip->cooks)) >= 0) {
+	    cchar	*cn = cookies[cookie_n] ;
+	    rs = expcook_add(&lip->cooks,cn,dbname,-1) ;
+	    if (rs < 0)
+		expcook_finish(&lip->cooks) ;
+	}
 
-ret0:
 	return rs ;
-
-bad1:
-	expcook_finish(&lip->cooks) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (loadinfo_start) */
 

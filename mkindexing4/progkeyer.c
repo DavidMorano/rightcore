@@ -379,6 +379,7 @@ cchar		*fname ;
 
 	            if ((rs = field_start(&fsb,lp,ll)) >= 0) {
 	                int	fl ;
+			int	ch ;
 	                int	f_first = FALSE ;
 	                cchar	*fp ;
 
@@ -417,7 +418,8 @@ cchar		*fname ;
 			    }
 
 			    if (fl == 0) continue ;
-	                    if (! isalnumlatin(fp[0])) continue ;
+			    ch = MKCHAR(fp[0]) ;
+	                    if (! isalnumlatin(ch)) continue ;
 	                    if (fl > NATURALWORDLEN) continue ;
 
 #if	CF_DEBUG

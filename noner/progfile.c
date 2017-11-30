@@ -282,7 +282,8 @@ const char	fname[] ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(2)) {
-	            uint ch = (isprintlatin(linebuf[i])) ? linebuf[i] : ' ' ;
+		    int		ch, sch = MKCHAR(linebuf[i]) ;
+	            ch = (isprintlatin(sch) ? linebuf[i] : ' ' ;
 	            debugprintf("progfile/proccheck: NONE i=%u ch=>%c< %02X\n",
 	                i,ch,linebuf[i]) ;
 	        }
@@ -313,34 +314,27 @@ ret0:
 /* end subroutine (proccheck) */
 
 
-static int isourprint(ec,c)
-struct echars	ec ;
-int	c ;
+static int isourprint(struct echars ec,int ch)
 {
-	int	f ;
+	int		f ;
 
-
-	f = (ec.latin) ? isprintlatin(c) : isprintreg(c) ;
-	f = f || (ec.ff && (c == CH_FF)) ;
-	f = f || (ec.cr && (c == CH_CR)) ;
-	f = f || (ec.bell && (c == CH_BELL)) ;
-	f = f || (ec.bs && (c == CH_BS)) ;
+	f = (ec.latin) ? isprintlatin(ch) : isprintreg(ch) ;
+	f = f || (ec.ff && (ch == CH_FF)) ;
+	f = f || (ec.cr && (ch == CH_CR)) ;
+	f = f || (ec.bell && (ch == CH_BELL)) ;
+	f = f || (ec.bs && (ch == CH_BS)) ;
 	return f ;
 }
 /* end subroutines (isourprint) */
 
 
-static int isprintreg(c)
-int		c ;
+static int isprintreg(int ch)
 {
-	int	f ;
-
-
-	f = isprint(c) ;
-	f = f || (c == '\t') ;
+	int		f ;
+	f = isprint(ch) ;
+	f = f || (ch == '\t') ;
 	return f ;
 }
 /* end subroutine (isprintreg) */
-
 
 

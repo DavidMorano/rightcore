@@ -327,7 +327,7 @@ int pcsclient_get(PCSCLIENT *op,time_t dt,int to,PCSCLIENT_DATA *dp)
 	if (op->magic != PCSCLIENT_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("pcsclient_get: entered \n") ;
+	debugprintf("pcsclient_get: ent \n") ;
 #endif
 
 	if (to <= 0) to = 1 ;
@@ -719,7 +719,7 @@ static int pcsclient_shmloadbegin(PCSCLIENT *op,int fd)
 	msize = op->shmsize ;
 	mprot = PROT_READ | PROT_WRITE ;
 	mflags = MAP_SHARED ;
-	if ((rs = u_mmap(NULL,msize,mprot,mflags, fd,0L,&mp)) >= 0) {
+	if ((rs = u_mmap(NULL,msize,mprot,mflags,fd,0L,&mp)) >= 0) {
 	    op->mapdata = mp ;
 	    op->mapsize = msize ;
 	    op->ti_map = op->dt ;
@@ -759,7 +759,7 @@ static int pcsclient_shmproc(PCSCLIENT *op)
 	int		f_stale = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("pcsclient_shmproc: entered\n") ;
+	debugprintf("pcsclient_shmproc: ent\n") ;
 #endif
 
 	if ((rs = sysmiscfh(&hdr,1,op->mapdata,op->mapsize)) >= 0) {
@@ -780,21 +780,22 @@ static int pcsclient_shmproc(PCSCLIENT *op)
 	debugprintf("pcsclient_shmproc: _shmverify() rs=%d\n",rs) ;
 #endif
 
-	shmtable = (uint *) (op->mapdata + SYSMISCFH_IDLEN) ;
-	op->shmtable = shmtable ;
+	    shmtable = (uint *) (op->mapdata + SYSMISCFH_IDLEN) ;
+	    op->shmtable = shmtable ;
 
-	utime = shmtable[sysmiscfv_utime] ;
-	shmsize = shmtable[sysmiscfv_shmsize] ;
-	intstale = shmtable[sysmiscfv_intstale] ;
-	if (shmsize == op->shmsize) {
-	if ((! f_stale) && (intstale > 0)) {
-	    f_stale = ((dtime - utime) >= intstale) ;
-	}
-	if (! f_stale) {
-	    f_stale = ((dtime - utime) >= TO_UPDATE) ;
-	}
-	} else
-	    rs = SR_BADFMT ;
+	    utime = shmtable[sysmiscfv_utime] ;
+	    shmsize = shmtable[sysmiscfv_shmsize] ;
+	    intstale = shmtable[sysmiscfv_intstale] ;
+	    if (shmsize == op->shmsize) {
+	        if ((! f_stale) && (intstale > 0)) {
+	            f_stale = ((dtime - utime) >= intstale) ;
+	        }
+	        if (! f_stale) {
+	            f_stale = ((dtime - utime) >= TO_UPDATE) ;
+	        }
+	    } else {
+	        rs = SR_BADFMT ;
+	    }
 
 	} /* end if (pcsclient_shmverify) */
 

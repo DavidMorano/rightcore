@@ -152,8 +152,9 @@ int zos_get(cchar *sp,int sl,int *zop)
 	        (i < cl) && cp[i] && 
 	        (! CHAR_ISWHITE(cp[i])) && (cp[i] != ',') ; 
 	        i += 1) {
+		const int	ch = MKCHAR(cp[i]) ;
 
-	        if (! isdigitlatin(MKCHAR(cp[i]))) {
+	        if (! isdigitlatin(ch)) {
 	            rs = SR_INVALID ;
 		    break ;
 	        }

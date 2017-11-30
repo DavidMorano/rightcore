@@ -1,2 +1,2 @@
 const char msinfo_makedate[] =
-"@(#)msinfo                  171030_1108:15_USEDT Rightcore Network Services" ;
+"@(#)msinfo                  171129_1925:27_USEST Rightcore Network Services" ;

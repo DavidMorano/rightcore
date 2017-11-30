@@ -52,8 +52,6 @@
 
 /* external subroutines */
 
-extern int	isprintlatin(int) ;
-
 
 /* exported subroutines */
 
@@ -94,10 +92,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 #if	CF_DEBUGS
 	debugprintf("main: uterm_reade() rs=%d\n",rs) ;
-	if ((rs >= 0) && (len > 0)) {
-	debugprintf("main: buf=>%t<\n",
-		lbuf,((isprintlatin(lbuf[len - 1])) ? len : (len - 1))) ;
-	}
 #endif
 
 	if (len > 0) {

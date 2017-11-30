@@ -36,7 +36,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<sockaddress.h>
 #include	<localmisc.h>
 
 #include	"config.h"

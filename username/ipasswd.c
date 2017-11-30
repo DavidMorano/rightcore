@@ -1696,9 +1696,10 @@ static int mkprstr(char *rbuf,int rlen,cchar *sp,int sl)
 	if (sl < 0) sl = strlen(sp) ;
 	if (rlen < 0) rlen = INT_MAX ;
 	for (i = 0 ; (i < sl) && sp[i] ; i += 1) {
+	    const int	ch = MKCHAR(sp[i]) ;
 	    if (n >= rlen) break ;
 	    rbuf[n] = (char) ('?' + 128) ;
-	    if (isprintlatin(MKCHAR(sp[i]))) rbuf[n] = sp[i] ;
+	    if (isprintlatin(ch)) rbuf[n] = ch ;
 	    n += 1 ;
 	} /* end for */
 	rbuf[n] = '\0' ;

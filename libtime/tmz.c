@@ -590,8 +590,9 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	        if (isalphalatin(MKCHAR(*cp))) {
 		    rs = strnwcpy(op->zname,TMZ_ZNAMESIZE,cp,cl) - op->zname ;
 		    zlen = rs ;
-	        } else
+	        } else {
 	            rs = SR_INVALID ;
+	 	}
 	    }
 	    sl = (tp-sp) ;
 	} /* end if (tried for ZOFF and ZNAME) */
@@ -693,18 +694,16 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 	struct tm	*stp ;
 	const int	zsize = TMZ_ZNAMESIZE ;
 	int		rs = SR_OK ;
+	int		ch ;
 	int		i ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
 #if	CF_SAFE
-	if (sp == NULL)
-	    return SR_FAULT ;
+	if (sp == NULL) return SR_FAULT ;
 #endif
 
-	if (sl < 0)
-	    sl = strlen(sp) ;
+	if (sl < 0) sl = strlen(sp) ;
 
 	stp = &op->st ;
 	memset(op,0,sizeof(TMZ)) ;
@@ -808,7 +807,8 @@ int tmz_logz(TMZ *op,cchar *sp,int sl)
 
 /* skip a possible underscore character */
 
-	if (sl && (! isalphalatin(MKCHAR(*sp)))) {
+	ch = MKCHAR(*sp) ;
+	if (sl && (! isalphalatin(ch))) {
 	    sp += 1 ;
 	    sl -= 1 ;
 	}
@@ -979,28 +979,36 @@ static int tmz_getmonth(TMZ *op,cchar *sp,int sl)
 	int		cl ;
 	cchar		*cp ;
 
-	if (((cl = nextfield(sp,sl,&cp)) > 0) && isalphalatin(MKCHAR(*cp))) {
-	    int		ml = cl ;
-	    cchar	*mp = cp ;
-	    si += ((cp+cl)-sp) ;
-	    sp += si ;
-	    sl -= si ;
-	    if (((cl = nextfield(sp,sl,&cp)) > 0) && 
-			isalphalatin(MKCHAR(*cp))) {
-	        rs = tmstrsday(mp,ml) ;
-	        op->st.tm_wday = rs ;
-	        mp = cp ;
-	        ml = cl ;
+	if ((cl = nextfield(sp,sl,&cp)) > 0) {
+	    int		ch = MKCHAR(*cp) ;
+	    if isalphalatin(ch)) {
+	        int	ml = cl ;
+	        cchar	*mp = cp ;
 	        si += ((cp+cl)-sp) ;
 	        sp += si ;
 	        sl -= si ;
+	        if (((cl = nextfield(sp,sl,&cp)) > 0) {
+	            ch = MKCHAR(*cp) ;
+		    if (isalphalatin(ch)) {
+	                rs = tmstrsday(mp,ml) ;
+	                op->st.tm_wday = rs ;
+	                mp = cp ;
+	                ml = cl ;
+	                si += ((cp+cl)-sp) ;
+	                sp += si ;
+	                sl -= si ;
+		    }
+	        }
+	        if (rs >= 0) {
+	            rs = tmstrsmonth(mp,ml) ;
+	            op->st.tm_mon = rs ;
+	        }
+	    } else {
+	        rs = SR_INVALID ;
 	    }
-	    if (rs >= 0) {
-	        rs = tmstrsmonth(mp,ml) ;
-	        op->st.tm_mon = rs ;
-	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? si : rs ;
 }
@@ -1011,19 +1019,26 @@ static int tmz_getmonth(TMZ *op,cchar *sp,int sl)
 static int tmz_getday(TMZ *op,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
+	int		ch ;
 	int		si = 0 ;
 	int		cl ;
 	cchar		*cp ;
 
-	if (((cl = nextfield(sp,sl,&cp)) > 0) && isdigitlatin(MKCHAR(*cp))) {
-	    int		v ;
-	    rs = cfdeci(cp,cl,&v) ;
-	    op->st.tm_mday = v ;
-	    si += ((cp+cl)-sp) ;
-	    sp += si ;
-	    sl -= si ;
-	} else
+	if (((cl = nextfield(sp,sl,&cp)) > 0) {
+	    ch = MKCHAR(*cp) ;
+	    if (isdigitlatin(ch)) {
+	        int		v ;
+	        rs = cfdeci(cp,cl,&v) ;
+	        op->st.tm_mday = v ;
+	        si += ((cp+cl)-sp) ;
+	        sp += si ;
+	        sl -= si ;
+	    } else {
+	        rs = SR_INVALID ;
+	    }
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? si : rs ;
 }
@@ -1102,8 +1117,9 @@ static int tmz_stdtrailing(TMZ *op,cchar *sp,int sl)
 	            rs = tmz_getyear(op,sp,sl) ;
 	        } else if (isplusminus(ch) || isdigitlatin(ch)) {
 	            rs = tmz_getzoff(op,sp,sl) ;
-	        } else
+	        } else {
 	            rs = SR_INVALID ;
+		}
 	        si += rs ;
 	        sp += si ;
 	        sl -= si ;
@@ -1128,9 +1144,8 @@ static int tmz_getzname(TMZ *op,cchar *sp,int sl)
 	cchar		*cp ;
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    int	f = FALSE ;
-	    f = f || isalphalatin(MKCHAR(*cp)) ;
-	    if (f) {
+	    int		ch = MKCHAR(*cp) ;
+	    if (isalphalatin(ch)) {
 	        rs = strnwcpy(op->zname,znl,cp,cl)  - op->zname ;
 	        si += ((cp+cl)-sp) ;
 	        sp += si ;

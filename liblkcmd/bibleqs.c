@@ -2216,10 +2216,6 @@ int		ll ;
 
 	        if (fl < kap->minwlen) continue ;
 
-#ifdef	OPTIONAL
-	        if (! isalnumlatin(hp[0])) continue ;
-#endif
-
 /* remove possible trailing apostrophe (single-quote) */
 
 	        sl = sfword(fp,fl,&sp) ;
@@ -2441,7 +2437,7 @@ static int isstart(cchar *lp,int ll,BIBLEQS_Q *qp,int *sip)
 	if ((sl >= 5) && isdigitlatin(ch)) {
 	    int		i, v ;
 	    int		cl ;
-	    const char	*tp, *cp ;
+	    cchar	*tp, *cp ;
 
 	    for (i = 0 ; i < 3 ; i += 1) {
 

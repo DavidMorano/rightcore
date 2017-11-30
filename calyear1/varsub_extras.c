@@ -113,9 +113,10 @@ int varsub_addvec(varsub *op,VECSTR *vsp)
 
 	    kp = sp ;
 	    if ((tp = strchr(sp,'=')) != NULL) {
-		int	ch ;
-		int	f = isprintlatin(MKCHAR(kp[0])) ;
+		int	ch = MKCHAR(kp[0]) ;
+		int	f ;
 
+		f = isprintlatin(ch) ;
 	        vp = (tp + 1) ;
 	        if (f) {
 		    ch = MKCHAR(vp[0]) ;

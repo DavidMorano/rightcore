@@ -323,18 +323,15 @@ const char	fname[] ;
 /* end subroutine (procvarfile) */
 
 
-static int hasweird(sp,sl)
-const char	*sp ;
-int		sl ;
+static int hasweird(cchar *sp,int sl)
 {
-	int	i ;
-	int	f = FALSE ;
+	int		i ;
+	int		f = FALSE ;
 
 	for (i = 0 ; (i != sl) && (sp[i] != '\0') ; i += 1) {
-	    if ((! isalnumlatin(sp[i])) && (sp[i] != '_')) {
-	        f = TRUE ;
-	        break ;
-	    }
+	    const int	ch = MKCHAR(sp[i]) ;
+	    f = ((! isalnumlatin(ch)) && (ch != '_')) ;
+	    if (f) break ;
 	} /* end if */
 
 	return f ;

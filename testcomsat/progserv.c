@@ -226,26 +226,21 @@ int	sn ;
 #endif /* COMMENT */
 
 
-static int isprintable(buf,buflen)
-const char	buf[] ;
-int		buflen ;
+static int isprintable(cchar *buf,int buflen)
 {
-	int	i ;
+	int		i ;
+	int		f = TRUE ;
 
-
-	if (buflen < 0)
-		buflen = strlen(buf) ;
+	if (buflen < 0) buflen = strlen(buf) ;
 
 	for (i = 0 ; i < buflen ; i += 1) {
-
-		if (! isprintlatin(buf[i]))
-			return FALSE ;
-
+	    const int	ch = MKCHAR(buf[i]) ;
+	    f = isprintlatin(ch) ;
+	    if (!f) break ;
 	} /* end for */
 
-	return TRUE ;
+	return f ;
 }
 /* end subroutine (isprintable) */
-
 
 

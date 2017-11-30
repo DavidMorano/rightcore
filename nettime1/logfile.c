@@ -872,8 +872,9 @@ static int loadlogid(char *outbuf,int outlen,cchar *logstr)
 	int		len = 0 ;
 
 	for (i = 0 ; (i < outlen) && logstr[i] ; i += 1) {
-	    if (isprintlatin(logstr[i])) {
-	        outbuf[len++] = logstr[i] ;
+	    const int	ch = MKCHAR(logstr[i]) ;
+	    if (isprintlatin(ch)) {
+	        outbuf[len++] = ch ;
 	    }
 	} /* end for */
 

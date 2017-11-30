@@ -2274,17 +2274,13 @@ static int hasweird(sp,sl)
 const char	*sp ;
 int		sl ;
 {
-	int	i ;
-	int	f = FALSE ;
-
+	int		i ;
+	int		f = FALSE ;
 
 	for (i = 0 ; (i != sl) && (sp[i] != '\0') ; i += 1) {
-
-	    if ((! isalnumlatin(sp[i])) && (sp[i] != '_')) {
-	        f = TRUE ;
-	        break ;
-	    }
-
+	    const int	ch = MKCHAR(sp[i]) ;
+	    f = ((! isalnumlatin(ch)) && (ch != '_')) ;
+	    if (f) break ;
 	} /* end if */
 
 	return f ;
@@ -2295,7 +2291,6 @@ int		sl ;
 static int filemap_free(fmp)
 struct filemap	*fmp ;
 {
-
 
 	if (fmp->fmap != NULL) {
 	    u_munmap(fmp->fmap,fmp->fsize) ;

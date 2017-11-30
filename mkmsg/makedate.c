@@ -1,2 +1,2 @@
 const char mkmsg_makedate[] =
-"@(#)mkmsg                   171123_0050:33_USEST Rightcore Network Services" ;
+"@(#)mkmsg                   171129_1603:20_USEST Rightcore Network Services" ;

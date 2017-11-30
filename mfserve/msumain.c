@@ -107,7 +107,6 @@
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<vecstr.h>
-#include	<logfile.h>
 #include	<msfile.h>
 #include	<lfm.h>
 #include	<getax.h>
@@ -292,7 +291,7 @@ static int	entry_mem(MSFILE_ENT *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -2139,8 +2138,8 @@ static int procback(PROGINFO *pip)
 	int		rs ;
 
 	if (pip->open.logprog) {
-	    logfile_printf(&pip->lh,"mode=background") ;
-	    logfile_flush(&pip->lh) ;
+	    logprintf(pip,"mode=background") ;
+	    logflush(pip) ;
 	}
 
 	if (pip->debuglevel > 0) {
@@ -2306,20 +2305,21 @@ static int procbacker(PROGINFO *pip,cchar *pf,cchar **av)
 	            spawner_sigignore(&s,sigignores[i]) ;
 	        }
 	        spawner_setsid(&s) ;
-	        if (pip->uid != pip->euid)
+	        if (pip->uid != pip->euid) {
 	            spawner_seteuid(&s,pip->uid) ;
-	        if (pip->gid != pip->egid)
+		}
+	        if (pip->gid != pip->egid) {
 	            spawner_setegid(&s,pip->gid) ;
+		}
 	        for (i = 0 ; i < 2 ; i += 1) {
 	            spawner_fdclose(&s,i) ;
 	        }
 	        if ((rs = spawner_run(&s)) >= 0) {
-	            LOGFILE	*lfp = &pip->lh ;
 	            cchar	*fmt ;
 	            pid = rs ;
 	            if (pip->open.logprog) {
 	                fmt = "backgrounded (%u)" ;
-	                logfile_printf(lfp,fmt,pid) ;
+	                logprintf(pip,fmt,pid) ;
 	            }
 	        }
 	    } /* end if (procbackenv) */
@@ -2460,7 +2460,7 @@ static int procdaemon(PROGINFO *pip)
 #endif
 
 	if (pip->open.logprog) {
-	    logfile_printf(&pip->lh,"mode=daemon") ;
+	    logprintf(pip,"mode=daemon") ;
 	}
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: mode=daemon\n",pip->progname) ;
@@ -2490,7 +2490,7 @@ static int procdaemon(PROGINFO *pip)
 	    char	tbuf[TIMEBUFLEN+1] ;
 	    fmt = "%s exiting c=%u (%d)" ;
 	    timestr_logz(pip->daytime,tbuf) ;
-	    logfile_printf(&pip->lh,tbuf,c,rs) ;
+	    logprintf(pip,tbuf,c,rs) ;
 	}
 
 	return (rs >= 0) ? c : rs ;
@@ -2555,9 +2555,8 @@ static int procupdate(PROGINFO *pip)
 	char		timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
+	if (DEBUGLEVEL(4))
 	    debugprintf("msumain/procupdate: ent msfname=%s\n",lip->msfname) ;
-	}
 #endif
 
 	ppm = ((1024 * 1024) / pagesize) ;
@@ -2734,7 +2733,6 @@ static int procupdate(PROGINFO *pip)
 
 	    nsecs = pip->intpoll ;
 	    for (secs = 0 ; (rs >= 0) && (secs < nsecs) ; secs += 1) {
-
 	        if ((rs = u_poll(fds,nfds,POLLMULT)) > 0) {
 	            pip->daytime = time(NULL) ;
 	            for (i = 0 ; (rs >= 0) && (i < nfds) ; i += 1) {
@@ -2764,8 +2762,8 @@ static int procupdate(PROGINFO *pip)
 	    if ((rs >= 0) && pip->open.config && ((c & 3) == 0)) {
 	        rs = config_check(cop) ;
 	        if ((rs > 0) && pip->open.logprog) {
-	            logfile_printf(&pip->lh,"%s re-configuration",
-	                timestr_logz(pip->daytime,timebuf)) ;
+	            timestr_logz(pip->daytime,timebuf) ;
+	            logprintf(pip,"%s re-configuration",timebuf) ;
 	        }
 	    }
 
@@ -2775,7 +2773,7 @@ static int procupdate(PROGINFO *pip)
 
 	    if ((rs >= 0) && pip->open.logprog && ((c & 7) == 1)) {
 	        if ((pip->daytime - lip->ti_marklog) >= pip->intmark) {
-	            int	rem = 0 ;
+	            int		rem = 0 ;
 	            lip->ti_marklog = pip->daytime ;
 		    if (pip->intrun > 0) {
 			rem = (pip->intrun - (pip->daytime-lip->ti_start)) ;
@@ -2806,12 +2804,12 @@ static int procupdate(PROGINFO *pip)
 	    }
 
 	    if (pip->open.logprog) {
-	        logfile_flush(&pip->lh) ;
+	        logflush(pip) ;
 	    }
 
-		if (rs >= 0) rs = lib_sigquit() ;
-		if (rs >= 0) rs = lib_sigterm() ;
-		if (rs >= 0) rs = lib_sigintr() ;
+	    if (rs >= 0) rs = lib_sigquit() ;
+	    if (rs >= 0) rs = lib_sigterm() ;
+	    if (rs >= 0) rs = lib_sigintr() ;
 	} /* end for (daemon-loop) */
 
 #if	CF_DEBUG
@@ -2858,6 +2856,7 @@ static int procupspeed(PROGINFO *pip,MSFILE_ENT *ep)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		f = FALSE ;
+	cchar		*pn = pip->progname ;
 
 #if	CF_CPUSPEED
 	f = (ep->btime == 0) || (ep->speed == 0) || lip->f.speedname ;
@@ -2876,8 +2875,7 @@ static int procupspeed(PROGINFO *pip,MSFILE_ENT *ep)
 
 	    if (pip->debuglevel > 0) {
 	        shio_printf(pip->efp,
-	            "%s: speed recalculation is indicated\n",
-	            pip->progname) ;
+	            "%s: speed recalculation is indicated\n",pn) ;
 	    }
 
 	    shio_flush(pip->efp) ;
@@ -2886,16 +2884,14 @@ static int procupspeed(PROGINFO *pip,MSFILE_ENT *ep)
 	    pip->daytime = time(NULL) ;
 
 	    if (rs1 < 0) {
-
 	        if ((! pip->f.quiet) && (pip->efp != NULL)) {
 	            shio_printf(pip->efp,
 	                "%s: speed name=%s\n",
-	                pip->progname,lip->speedname) ;
+	                pn,lip->speedname) ;
 	            shio_printf(pip->efp,
 	                "%s: speed subsystem is not available (%d)\n",
-	                pip->progname,rs1) ;
+	                pn,rs1) ;
 	        }
-
 	    } else {
 	        ep->speed = rs1 ;
 	        ep->stime = pip->daytime ;
@@ -2976,8 +2972,9 @@ static int entry_mem(MSFILE_ENT *ep,int ppm)
 	        ep->pmavail = 0 ;
 	        rs = SR_OK ;
 	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? mu : rs ;
 }

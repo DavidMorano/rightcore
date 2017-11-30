@@ -225,7 +225,7 @@ static int	debugmse(MSFILE_ENT *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -313,7 +313,7 @@ enum progopts {
 	progopt_overlast
 } ;
 
-static cchar *sortkeys[] = {
+static cchar	*sortkeys[] = {
 	"none",
 	"utime",
 	"stime",
@@ -345,7 +345,7 @@ enum sortkeys {
 	sortkey_overlast
 } ;
 
-static cchar *prognames[] = {
+static cchar	*prognames[] = {
 	"msinfo",
 	"msage",
 	NULL
@@ -983,8 +983,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->intpoll = 2 ;
 
 	if ((rs >= 0) && (lip->ndisplay <= 0) && (argval != NULL)) {
-	    rs = cfdeci(argval,-1,&v) ;
-	    lip->ndisplay = v ;
+	    rs = optvalue(argval,-1) ;
+	    lip->ndisplay = rs ;
 	}
 
 /* sort key */
@@ -1069,8 +1069,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* try to find a MS file */
 
 	if (msfname == NULL) {
-	    if ((cp = getourenv(envv,VARMSFNAME)) != NULL)
+	    if ((cp = getourenv(envv,VARMSFNAME)) != NULL) {
 	        msfname = cp ;
+	    }
 	}
 
 	if ((rs >= 0) && (msfname == NULL)) {
@@ -1252,7 +1253,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case progopt_quiet:
 	                    if (! pip->final.quiet) {
 	                        pip->have.quiet = TRUE ;
@@ -1264,7 +1264,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case progopt_speedname:
 	                    if (! lip->final.speedname) {
 	                        lip->have.speedname = TRUE ;
@@ -1275,7 +1274,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case progopt_speedint:
 	                    if (! lip->final.speedint) {
 	                        lip->have.speedint = TRUE ;
@@ -1286,7 +1284,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case progopt_age:
 	                    if (! lip->final.age) {
 	                        lip->have.age = TRUE ;
@@ -1298,7 +1295,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    } /* end if */
 	                    break ;
-
 	                case progopt_all:
 	                    if (! lip->final.all) {
 	                        lip->have.all = TRUE ;
@@ -1310,7 +1306,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    } /* end if */
 	                    break ;
-
 	                case progopt_geekout:
 	                    if (! lip->final.geekout) {
 	                        lip->have.geekout = TRUE ;
@@ -1322,7 +1317,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    } /* end if */
 	                    break ;
-
 	                } /* end switch */
 
 			c += 1 ;
@@ -1605,15 +1599,14 @@ int		oflags ;
 #endif
 
 	                rs = vecobj_add(elp,&e) ;
-
 	                i += 1 ;
-	                if (i >= MAXNODES)
-	                    break ;
+	                if (i >= MAXNODES) break ;
 
 	                if (rs < 0) break ;
 	            } /* end while */
 
-	            msfile_curend(&ms,&cur) ;
+	            rs1 = msfile_curend(&ms,&cur) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (cursor) */
 
 	    } /* end if (all nodes) */
@@ -1628,8 +1621,9 @@ int		oflags ;
 	            debugprintf("b_msinfo: zeroing speed\n") ;
 #endif
 
-	        if (lip->f.zeroentry)
+	        if (lip->f.zeroentry) {
 	            memset(&ez,0,sizeof(MSFILE_ENT)) ;
+		}
 
 	        for (i = 0 ; vecobj_get(elp,i,&ep) >= 0 ; i += 1) {
 	            if (ep == NULL) continue ;
@@ -1639,17 +1633,19 @@ int		oflags ;
 	            if (lip->f.zerospeed) {
 	                rs = msfile_update(&ms,pip->daytime,&e) ;
 
-	            } else if (lip->f.zeroentry)
+	            } else if (lip->f.zeroentry) {
 	                rs = msfile_write(&ms,pip->daytime,
 	                    e.nodename,-1,&ez) ;
+		    }
 
 	            if (rs < 0) break ;
 	        } /* end for */
 
 	    } /* end if (zeroing speed element) */
 
-	    msfile_close(&ms) ;
-	} /* end if (opened the MS file) */
+	    rs1 = msfile_close(&ms) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (msfile) */
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -1669,20 +1665,11 @@ cchar		name[] ;
 	int		rs ;
 
 	if (strcmp(name,"-") == 0) {
-
-	    rs = msfile_match(msp,pip->daytime,
-	        pip->nodename,-1,&e) ;
-
+	    rs = msfile_match(msp,pip->daytime, pip->nodename,-1,&e) ;
 	} else if (strcmp(name,"+") == 0) {
-
-	    rs = msfile_best(msp,pip->daytime,
-	        msflags,&e) ;
-
+	    rs = msfile_best(msp,pip->daytime, msflags,&e) ;
 	} else {
-
-	    rs = msfile_match(msp,pip->daytime,
-	        name,-1,&e) ;
-
+	    rs = msfile_match(msp,pip->daytime, name,-1,&e) ;
 	}
 
 	if (rs >= 0) {
@@ -1731,17 +1718,17 @@ VECOBJ		*elp ;
 
 	j = 0 ;
 	for (i = 0 ; vecobj_get(elp,i,&ep) >= 0 ; i += 1) {
-	    if (ep == NULL) continue ;
+	    if (ep != NULL) {
 
-	    if (lip->f.age) {
-	        rs = printnodeage(pip,ofp,ep) ;
+	        if (lip->f.age) {
+	            rs = printnodeage(pip,ofp,ep) ;
+	        } else {
+	            rs = printnode(pip,ofp,ep) ;
+	        }
 
-	    } else
-	        rs = printnode(pip,ofp,ep) ;
+	        if ((lip->ndisplay > 0) && (++j >= lip->ndisplay)) break ;
 
-	    if ((lip->ndisplay > 0) && (++j >= lip->ndisplay))
-	        break ;
-
+	    }
 	    if (rs < 0) break ;
 	} /* end for */
 
@@ -1759,8 +1746,7 @@ MSFILE_ENT	*ep ;
 	int		rs ;
 	int		wl = 0 ;
 
-	if (ep == NULL)
-	    return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
 
 	age = pip->daytime - ep->utime ;
 	rs = shio_printf(ofp, "%lu\n",age) ;
@@ -1781,11 +1767,11 @@ MSFILE_ENT	*ep ;
 	int		rs = SR_OK ;
 	int		mu ;
 	int		wl = 0 ;
+	cchar		*fmt ;
 	char		nodebuf[NODENAMELEN + 1] ;
 	char		timebuf[TIMEBUFLEN + 1] ;
 
-	if (ep == NULL)
-	    return SR_FAULT ;
+	if (ep == NULL) return SR_FAULT ;
 
 	if (lip->f.geekout > 0) {
 
@@ -1834,8 +1820,8 @@ MSFILE_ENT	*ep ;
 
 	    MAXOUT(f15) ;
 
-	    wl += shio_printf(ofp,
-	        "%-14s %5u %4u %4.1f %4.1f %4.1f %4u %6u %6u %2u%% %s\n",
+	    fmt = "%-14s %5u %4u %4.1f %4.1f %4.1f %4u %6u %6u %2u%% %s\n" ;
+	    wl += shio_printf(ofp,fmt,
 	        nodebuf,
 	        MIN(ep->speed,99999),
 	        MIN(ep->ncpu,9999),
@@ -1850,16 +1836,15 @@ MSFILE_ENT	*ep ;
 	    {
 	        struct lav	la1, la5, la15 ;
 
-
 	        mklav(&la1,ep->la[0]) ;
 
 	        mklav(&la5,ep->la[1]) ;
 
 	        mklav(&la15,ep->la[2]) ;
 
-	        wl += shio_printf(ofp,
-	            "%-14s %5u %4u %2u.%1u %2u.%1u %2u.%1u %4u "
-	            "%6u %6u %2u%% %s\n",
+		fmt = "%-14s %5u %4u %2u.%1u %2u.%1u %2u.%1u %4u "
+			"%6u %6u %2u%% %s\n" ;
+	        wl += shio_printf(ofp,fmt,
 	            nodebuf,
 	            MIN(ep->speed,99999),
 	            MIN(ep->ncpu,9999),
@@ -1951,14 +1936,11 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 /* calculate memory usage */
 int calcmu(uint t,uint a)
 {
-	uint		n100 ;
 	int		mu = 0 ;
-
 	if (t > 0) {
-	    n100 = (t - a) * 100 ;
+	    uint	n100 = ((t - a) * 100) ;
 	    mu = (n100 / t) ;
 	}
-
 	return mu ;
 }
 /* end subroutine (calcmu) */

@@ -1151,11 +1151,12 @@ static int procspec(PROGINFO *pip,cchar *sp,int sl)
 
 	if (lip->nitems > 0) {
 	    const int	blen = BIBLEBOOK_LEN ;
+	    const int	ch = MKCHAR(sp[0]) ;
 	    int		i ;
 	    int		bl ;
 	    char	bbuf[BIBLEBOOK_LEN+ 1] ;
 
-	    if (isdigitlatin(sp[0])) {
+	    if (isdigitlatin(ch)) {
 
 	    if ((rs = cfdeci(sp,sl,&i)) >= 0) {
 

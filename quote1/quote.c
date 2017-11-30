@@ -2950,13 +2950,12 @@ QUOTE_CITE	*qp ;
 const char	*lp ;
 int		ll ;
 {
-	int	rs1 = SR_OK ;
-	int	cl ;
-	int	si = 0 ;
-	int	f ;
-
-	const char	*tp, *cp ;
-
+	int		rs1 = SR_OK ;
+	int		ch ;
+	int		cl ;
+	int		si = 0 ;
+	int		f ;
+	cchar		*tp, *cp ;
 
 #if	CF_DEBUGS
 	debugprintf("quote/subinfo_havestart: >%t<\n",
@@ -2972,7 +2971,8 @@ int		ll ;
 	    goto ret1 ;
 	}
 
-	if (isdigitlatin(lp[0])) {
+	ch = MKCHAR(lp[0]) ;
+	if (isdigitlatin(ch)) {
 
 #if	CF_DEBUGS
 	debugprintf("quote/subinfo_havestart: digitlatin\n") ;

@@ -2542,6 +2542,7 @@ static int subinfo_loadnames(SUBINFO *sip,vecstr *nlp,cchar dirname[])
 static int subinfo_havestart(SUBINFO *sip,CALYEARS_CITE *qp,cchar *lp,int ll)
 {
 	int		rs1 = SR_OK ;
+	int		ch ;
 	int		cl ;
 	int		si = 0 ;
 	int		f ;
@@ -2561,7 +2562,8 @@ static int subinfo_havestart(SUBINFO *sip,CALYEARS_CITE *qp,cchar *lp,int ll)
 	    goto ret1 ;
 	}
 
-	if (isdigitlatin(lp[0])) {
+	ch = MKCHAR(lp[0]) ;
+	if (isdigitlatin(ch)) {
 
 #if	CF_DEBUGS
 	    debugprintf("calyears/subinfo_havestart: digitlatin\n") ;
@@ -3286,8 +3288,7 @@ static int dayofmonth_mkday(DAYOFMONTH *dmp,uint m,cchar *cp,int cl)
 	debugprintf("calyears/dayofmonth_mkday: m=%u >%t<\n",m,cp,cl) ;
 #endif
 
-	ch = (cp[0] & 0xff) ;
-
+	ch = MKCHAR(cp[0]) ;
 	if (isdigitlatin(ch)) {
 	    rs = cfdeci(cp,cl,&mday) ;
 #if	CF_DEBUGS

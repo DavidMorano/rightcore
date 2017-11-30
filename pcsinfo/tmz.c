@@ -574,7 +574,7 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	if ((tp = strnzone(sp,sl)) != NULL) {
 	    cchar	*cp = tp ;
 	    int		cl = (sl-(tp-sp)) ;
-	    if ((cl >= 1) && isplusminus(*cp)) {
+	    if ((cl >= 1) && isplusminus(*cp)) { /* ok */
 	        int	zol = cl ;
 	        int	zo ;
 	        int	si ;
@@ -590,7 +590,7 @@ int tmz_strdig(TMZ *op,cchar *sp,int sl)
 	        }
 	    }
 	    if ((rs >= 0) && (cl > 0)) {
-	        int	ch = MKCHAR(*cp) ;
+	        const int	ch = MKCHAR(*cp) ;
 	        if (isalphalatin(ch)) {
 		    const int	zlen = TMZ_ZNAMESIZE ;
 	            rs = strnwcpy(op->zname,zlen,cp,cl) - op->zname ;
@@ -1055,7 +1055,7 @@ static int tmz_stdtrailing(TMZ *op,cchar *sp,int sl)
 	    debugprintf("tmz_stdtrailing: wi=%u s=>%t<\n",wi,sp,sl) ;
 #endif
 	    if (sl > 0) {
-	        int	ch = MKCHAR(*sp) ;
+	        const int	ch = MKCHAR(*sp) ;
 	        if (isalphalatin(ch)) {
 	            rs = tmz_proczname(op,sp,sl) ;
 	        } else if (isdigitlatin(ch) && (! op->f.year)) {
@@ -1118,7 +1118,7 @@ static int tmz_procmonth(TMZ *op,cchar *sp,int sl)
 	cchar		*cp ;
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    int	ch = MKCHAR(*cp) ;
+	    int		ch = MKCHAR(*cp) ;
 	    if (isalphalatin(ch)) {
 	        int	ml = cl ;
 	        cchar	*mp = cp ;
@@ -1161,9 +1161,8 @@ static int tmz_procyear(TMZ *op,cchar *sp,int sl)
 	cchar		*cp ;
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    int	f = FALSE ;
-	    f = f || isdigitlatin(MKCHAR(*cp)) ;
-	    if (f) {
+	    const int	ch = MKCHAR(*cp) ;
+	    if (isdigitlatin(ch)) {
 	        rs = tmstrsyear(cp,cl) ;
 	        op->st.tm_year = rs ;
 	        op->f.year = TRUE ;
@@ -1228,10 +1227,8 @@ static int tmz_proczname(TMZ *op,cchar *sp,int sl)
 #endif
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    int		ch = MKCHAR(*cp) ;
-	    int		f = FALSE ;
-	    f = f || isalphalatin(ch) ;
-	    if (f) {
+	    const int	ch = MKCHAR(*cp) ;
+	    if (isalphalatin(ch)) {
 	        const int	znl = TMZ_ZNAMESIZE ;
 	        rs = strnwcpy(op->zname,znl,cp,cl)  - op->zname ;
 	        si += ((cp+cl)-sp) ;
@@ -1287,7 +1284,7 @@ static int isgoodname(cchar *sp,int sl)
 	int		f = FALSE ;
 
 	while ((sl != 0) && (sp[0] != '\0')) {
-	    ch = (*sp & 0xff) ;
+	    ch = MKCHAR(*sp) ;
 	    f = isalnumlatin(ch) ;
 	    if (! f) break ;
 	    sp += 1 ;
@@ -1307,17 +1304,19 @@ static int getzoff(int *zop,cchar *sp,int sl)
 	int		rs = SR_INVALID ;
 	int		cl ;
 	int		zoff ;
+	int		ch = MKCHAR(*sp) ;
 	int		f = FALSE ;
 	cchar		*cp ;
 
-	f = f || isplusminus(MKCHAR(*sp)) ;
-	f = f || isdigitlatin(MKCHAR(*sp)) ;
+	f = f || isplusminus(ch) ;
+	f = f || isdigitlatin(ch) ;
 	if ((sl >= 2) && f) {
 	    int		i, sign ;
 	    int		hours, mins ;
 
 	    rs = SR_OK ;
-	    sign = ((*sp == '+') || isdigitlatin(MKCHAR(*sp))) ? -1 : 1 ;
+	    ch = MKCHAR(*sp) ;
+	    sign = ((*sp == '+') || isdigitlatin(ch)) ? -1 : 1 ;
 
 	    cp = sp ;
 	    cl = sl ;
@@ -1330,12 +1329,11 @@ static int getzoff(int *zop,cchar *sp,int sl)
 	        (i < cl) && cp[i] && 
 	        (! CHAR_ISWHITE(cp[i])) && (cp[i] != ',') ; 
 	        i += 1) {
-
-	        if (! isdigitlatin(MKCHAR(cp[i]))) {
+		ch = MKCHAR(cp[i]) ;
+	        if (! isdigitlatin(ch)) {
 	            rs = SR_INVALID ;
 	            break ;
 	        }
-
 	    } /* end for (extra sanity check) */
 
 /* skip over extra leading digits (usually '0' but whatever) */
@@ -1425,8 +1423,8 @@ static int isplusminus(int ch)
 static cchar *strnzone(cchar *sp,int sl)
 {
 	int		f = FALSE ;
-	while (sl && sp[0]) {
-	    cchar	ch = MKCHAR(*sp) ;
+	while (sl && *sp) {
+	    const int	ch = MKCHAR(*sp) ;
 	    f = f || (ch == '+') ;
 	    f = f || (ch == '-') ;
 	    f = f || isalphalatin(ch) ;

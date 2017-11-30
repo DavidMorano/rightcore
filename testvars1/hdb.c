@@ -1948,13 +1948,10 @@ HDB_DATUM	**rpp ;
 
 #if	CF_DEBUGS
 
-static int mkprstr(buf,buflen,s,slen)
-char		buf[] ;
-int		buflen ;
-const char	s[] ;
-int		slen ;
+static int mkprstr(char *buf,int buflen,cchar *s,int slen)
 {
-	int		n, i ;
+	int		n = 0 ;
+	int		i ;
 
 	if (buf == NULL) return SR_FAULT ;
 	if (s == NULL) return SR_FAULT ;
@@ -1966,12 +1963,12 @@ int		slen ;
 	if (buflen < 0)
 	    buflen = INT_MAX ;
 
-	n = 0 ;
 	for (i = 0 ; (i < slen) && s[i] ; i += 1) {
+	    const int	ch = MKCHAR(s[i]) ;
 	    if (n >= buflen) break ;
 	    buf[n] = ('?' + 128) ;
-	    if (isprintlatin(s[i])) {
-	        buf[n] = s[i] ;
+	    if (isprintlatin(ch)) {
+	        buf[n] = ch ;
 	    }
 	    n += 1 ;
 	} /* end for */

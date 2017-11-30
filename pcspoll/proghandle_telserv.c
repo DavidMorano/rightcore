@@ -1446,14 +1446,11 @@ int			master ;
 	ptyflush();
 
 	for (;;) {
+		fd_set		ibits, obits, xbits;
+		register int	c;
+		int		f = TRUE ;
 
-		fd_set ibits, obits, xbits;
-		register int c;
-		    int	f = TRUE ;
-
-
-		if (ncc < 0)
-			break;
+		if (ncc < 0) break;
 
 		FD_ZERO(&ibits);
 		FD_ZERO(&obits);
@@ -1586,9 +1583,7 @@ int			master ;
 		f_isproc = TRUE ;
 		nmax = (max(net,master) + 1) ;
 		while (c == 0) {
-
-		    fd_set sibits, sobits, sxbits;
-
+		    fd_set	sibits, sobits, sxbits;
 
 		    memcpy(&sibits,&ibits,sizeof(fd_set)) ;
 		    memcpy(&sobits,&obits,sizeof(fd_set)) ;

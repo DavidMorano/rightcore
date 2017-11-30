@@ -30,7 +30,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/stat.h>
 #include	<unistd.h>
 #include	<limits.h>
 #include	<stdlib.h>
@@ -40,7 +39,6 @@
 #include	<vecstr.h>
 #include	<paramfile.h>
 #include	<expcook.h>
-#include	<logfile.h>
 #include	<prsetfname.h>
 #include	<localmisc.h>
 
@@ -75,8 +73,6 @@ typedef const char	cchar ;
 #ifndef	DIGBUFLEN
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
-
-#define	DEBUGFNAME	"/tmp/msu.deb"
 
 
 /* external subroutines */
@@ -133,7 +129,7 @@ static int	config_addcooks(CONFIG *) ;
 
 /* local variables */
 
-static const char	*params[] = {
+static cchar	*params[] = {
 	"cmd",
 	"logsize",
 	"msfile",
@@ -176,7 +172,7 @@ enum params {
 int config_start(CONFIG *cfp,PROGINFO *pip,cchar *cfname,int intcheck)
 {
 	EXPCOOK		*ckp ;
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (cfp == NULL) return SR_FAULT ;
 	if (pip == NULL) return SR_FAULT ;
@@ -225,9 +221,7 @@ int config_start(CONFIG *cfp,PROGINFO *pip,cchar *cfname,int intcheck)
 	    }
 	    if (rs < 0)
 	        expcook_finish(ckp) ;
-	}
-	if (rs < 0)
-	    expcook_finish(ckp) ;
+	} /* end if (paramfile_open) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -273,8 +267,9 @@ int config_finish(CONFIG *cfp)
 	    rs1 = paramfile_close(&cfp->p) ;
 	    if (rs >= 0) rs = rs1 ;
 
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -292,8 +287,7 @@ int config_check(CONFIG *cfp)
 	int		rs = SR_OK ;
 	int		f_changed = FALSE ;
 
-	if (cfp == NULL)
-	    return SR_FAULT ;
+	if (cfp == NULL) return SR_FAULT ;
 
 	pip = cfp->pip ;
 	if (cfp->f.p) {
@@ -324,8 +318,9 @@ int config_check(CONFIG *cfp)
 	        } /* end if (parameter file changed) */
 	    } /* end if (needed a check) */
 
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 	return (rs >= 0) ? f_changed : rs ;
 }
@@ -353,7 +348,7 @@ static int config_reader(CONFIG *cfp)
 	PARAMFILE	*pfp = &cfp->p ;
 	PARAMFILE_CUR	cur ;
 	PARAMFILE_ENT	pe ;
-	int		rs = SR_OK ;
+	int		rs ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -509,8 +504,9 @@ static int config_reader(CONFIG *cfp)
 	            break ;
 	        case param_cmd:
 	            ml = MIN(LOGIDLEN,el) ;
-	            if (ml && (lip->cmd[0] == '\0'))
+	            if (ml && (lip->cmd[0] == '\0')) {
 	                strwcpy(lip->cmd,ebuf,ml) ;
+		    }
 	            break ;
 	        case param_speedname:
 	            if (! lip->final.speedname) {
@@ -522,7 +518,6 @@ static int config_reader(CONFIG *cfp)
 	                    lip->changed.speedname = TRUE ;
 	                    rs = locinfo_setentry(lip,vpp,ebuf,el) ;
 	                }
-
 	            } /* end if */
 	            break ;
 	        } /* end switch */

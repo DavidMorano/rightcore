@@ -14,9 +14,7 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	This module was originally written.
-
 
 */
 
@@ -869,15 +867,15 @@ UTERM		*op ;
 const char	pbuf[] ;
 int		pbuflen ;
 {
-	int	rs = SR_OK ;
-	int	i ;
-	int	c = 0 ;
-
+	int		rs = SR_OK ;
+	int		i ;
+	int		c = 0 ;
 
 	for (i = 0 ; (rs >= 0) && (i < pbuflen) ; i += 1) {
-	    if (isprintlatin(pbuf[i])) {
+	    const int	ch = MKCHAR(pbuf[i]) ;
+	    if (isprintlatin(ch)) {
 	        c += 1 ;
-	        rs = charq_ins(&op->taq,pbuf[i]) ;
+	        rs = charq_ins(&op->taq,ch) ;
 	    }
 	} /* end for */
 
@@ -1180,24 +1178,18 @@ static int sinotprint(buf,buflen)
 const char	buf[] ;
 int		buflen ;
 {
-	int	c ;
-	int	i ;
-	int	f = FALSE ;
-
+	int		ch ;
+	int		i ;
+	int		f = FALSE ;
 
 	for (i = 0 ; i < buflen ; i += 1) {
-
-	    c = (buf[i] & 0xff) ;
-	    f = isprintlatin(c) ;
-	    f = f || (c == CH_SI) || (c == CH_SO) ;
-	    if (! f)
-	        break ;
-
+	    ch = MKCHAR(buf[i]) ;
+	    f = isprintlatin(ch) ;
+	    f = f || (ch == CH_SI) || (ch == CH_SO) ; if (! f) break ;
 	} /* end for */
 
 	return (f) ? -1 : i ;
 }
 /* end subroutine (sinotprint) */
-
 
 

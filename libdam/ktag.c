@@ -217,10 +217,6 @@ int ktag_procline(KTAG *kop,cchar *lp,int ll)
 
 	        if (fl < kap->minwlen) continue ;
 
-#ifdef	OPTIONAL
-	        if (! isalnumlatin(hp[0])) continue ;
-#endif
-
 /* remove possible trailing apostrophe (single-quote) */
 
 	        sl = sfword(fp,fl,&sp) ;

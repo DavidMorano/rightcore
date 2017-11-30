@@ -9,29 +9,23 @@
 /* revision history:
 
 	= 1998-12-12, David A­D­ Morano
-
-	This subroutine was written to replace some older variable
-	substitution stuff from the old Automation Rsearch days with
-	the old SAT tool stuff.
-
+        This subroutine was written to replace some older variable substitution
+        stuff from the old Automation Rsearch days with the old SAT tool stuff.
 
 	= 2001-09-11, David A­D­ Morano
-
-	This junk is not aging well!  And it was really rewritten from
-	essentially scratch in 1997 (only a few years ago)!  This code
-	has many qualities that are common with crap code.  When a new
-	variable was "exported" from a configuration file and it didn't
-	have any value part specified, and when the same variable was
-	not in the existing environment (like if a daemon is executed
-	directly from 'init(1m)' or something similar), then the variable
-	name would end up in the exported environment variables list as
-	just a variable key with no value!  I fixed this by not putting
-	anything into the exported environment if it doesn't have a value
-	(at least a value of zero length).  I *think* that a NULL value
-	and and a zero-length value distinquish the case of the variable
-	having an empty value string from one where it did not have any
-	value specified at all.
-
+        This junk is not aging well! And it was really rewritten from
+        essentially scratch in 1997 (only a few years ago)! This code has many
+        qualities that are common with crap code. When a new variable was
+        "exported" from a configuration file and it didn't have any value part
+        specified, and when the same variable was not in the existing
+        environment (like if a daemon is executed directly from 'init(1m)' or
+        something similar), then the variable name would end up in the exported
+        environment variables list as just a variable key with no value! I fixed
+        this by not putting anything into the exported environment if it doesn't
+        have a value (at least a value of zero length). I *think* that a NULL
+        value and and a zero-length value distinquish the case of the variable
+        having an empty value string from one where it did not have any value
+        specified at all.
 
 */
 
@@ -102,56 +96,8 @@ static int	cmpvalue(const char *,const char *,int) ;
 
 
 /* load from vector strings */
-int varsub_loadvec(op,vsp)
-varsub		*op ;
-VECSTR		*vsp ;
-{
-	int		rs = SR_OK ;
-	int		i ;
-	int		c = 0 ;
-	const char	*tp, *kp, *vp ;
-	const char	*sp ;
-
-#if	CF_DEBUGS
-	debugprintf("varsub_loadvec: ent\n") ;
-#endif
-
-	for (i = 0 ; vecstr_get(vsp,i,&sp) >= 0 ; i += 1) {
-	    if (sp == NULL) continue ;
-
-	    kp = sp ;
-	    if ((tp = strchr(sp,'=')) != NULL) {
-		int	ch ;
-		int	f = isprintlatin(MKCHAR(kp[0])) ;
-
-	        vp = (tp + 1) ;
-	        if (f) {
-		    ch = MKCHAR(vp[0]) ;
-		    f = ((ch == '\0') || isprintlatin(ch)) ;
-	        }
-	        if (f) {
-	            rs = varsub_add(op,kp,(tp - kp),vp,-1) ;
-		    if (rs < INT_MAX) c += 1 ;
-	        } /* end if */
-
-	    } /* end if */
-
-	    if (rs < 0) break ;
-	} /* end for */
-
-#if	CF_DEBUGS
-	debugprintf("varsub_loadvec: ret rs=%d c=%u\n",rs,c) ;
-#endif
-
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (varsub_loadvec) */
-
-
-int varsub_subbuf(var1p,var2p,s1,s1len,s2,s2len)
-varsub	*var1p, *var2p ;
-char	*s1, *s2 ;
-int	s1len, s2len ;
+int varsub_subbuf(varsub *var1p,varsub *var2p,char *s1,int s1len,
+		char *s2,int s2len)
 {
 	int		rs ;
 	int		rl = 0 ;
@@ -178,11 +124,7 @@ int	s1len, s2len ;
 
 
 /* merge variables that are the same into just one (and update all DBs) */
-int varsub_merge(varp,vsp,buf,buflen)
-varsub		*varp ;
-vecstr		*vsp ;
-char		buf[] ;
-int		buflen ;
+int varsub_merge(varsub *varp,vecstr *vsp,char *buf,int buflen)
 {
 	int		rs = 0 ;
 	int		size ;

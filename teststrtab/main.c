@@ -2008,17 +2008,16 @@ static int isweirdo(s,slen)
 const char	s[] ;
 int		slen ;
 {
-	int	i ;
-
+	int		i ;
+	int		f = TRUE ;
 
 	for (i = 0 ; (i < slen) && s[i] ; i += 1) {
-
-	    if (! isprintlatin(s[i]))
-	        return TRUE ;
-
+	    const int	ch = MKCHAR(s[i]) ;
+	    f = isprintlatin(ch) ;
+	    if (!f) break ;
 	} /* end for */
 
-	return FALSE ;
+	return f ;
 }
 /* end subroutine (isweirdo) */
 
@@ -2155,6 +2154,5 @@ const char		name[] ;
 	return 0 ;
 }
 /* end subroutine (debugmallstat) */
-
 
 

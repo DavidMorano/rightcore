@@ -107,6 +107,8 @@ LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 LIBINFO= $(LIBDIRS) $(LIBS)
 
 
+SLDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
+
 SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
@@ -291,7 +293,7 @@ $(T).cxref:
 	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
 
 $(ST).so:		$(SOBJ) Makefile $(ST).map
-	$(LD) -G -o $@ -M $(ST).map $(LDFLAGS_SO) $(SOBJ) $(SLIBDIRS) 
+	$(LD) -G -o $@ -M $(ST).map $(SLDFLAGS) $(SOBJ) $(SLIBDIRS) 
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ) $(SOBJ)

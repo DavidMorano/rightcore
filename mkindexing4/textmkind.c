@@ -1221,12 +1221,10 @@ char		fname[] ;
 	        (! ignoreline(lp,ll,ignorechars))) {
 
 	        if ((rs = field_start(&fsb,lp,ll)) >= 0) {
-
+		    int		ch ;
 	            int		fl ;
 	            int		f_first = FALSE ;
-
-	            const char	*fp ;
-
+	            cchar	*fp ;
 
 	            if (pip->f.optbible) {
 
@@ -1265,10 +1263,9 @@ char		fname[] ;
 
 /* abandon stuff that starts with weirdo characters (if any) */
 
-	                if (! isalnumlatin(fp[0])) continue ;
-
-	                if (fl > NATURALWORDLEN)
-	                    continue ;
+			ch = MKCHAR(fp[0]) ;
+	                if (! isalnumlatin(ch)) continue ;
+	                if (fl > NATURALWORDLEN) continue ;
 
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))

@@ -182,22 +182,6 @@ static const char	*prbins[] = {
 	"sbin",
 } ;
 
-static const int	termrs[] = {
-	SR_FAULT,
-	SR_INVALID,
-	SR_NOMEM,
-	SR_NOANODE,
-	SR_BADFMT,
-	SR_NOSPC,
-	SR_NOSR,
-	SR_NOBUFS,
-	SR_BADF,
-	SR_OVERFLOW,
-	SR_RANGE,
-	SR_NOTDIR,
-	0
-} ;
-
 
 /* exported variables */
 
@@ -218,38 +202,26 @@ int		to ;
 {
 	int		rs ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	memset(op,0,sizeof(MSUCLIENTS)) ;
+	if (op == NULL) return SR_FAULT ;
 
 	if (to < 1) to = 1 ;
 
+	memset(op,0,sizeof(MSUCLIENTS)) ;
 	op->to = to ;
-	rs = msuclients_setbegin(op,pr,reqfname) ;
-	if (rs < 0)
-	   goto bad0 ;
 
-	rs = msuclients_connect(op) ;
-	if (rs < 0)
-	    goto bad1 ;
-
-	op->magic = MSUCLIENTS_MAGIC ;
-
-ret0:
+	if ((rs = msuclients_setbegin(op,pr,reqfname)) >= 0) {
+	    if ((rs = msuclients_connect(op)) >= 0) {
+		op->magic = MSUCLIENTS_MAGIC ;
+	    }
+	    if (rs < 0)
+		msuclients_setend(op) ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("msuclients_open: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
-
-/* bad stuff */
-bad1:
-	msuclients_setend(op) ;
-
-bad0:
-	goto ret0 ;
 }
 /* end subroutine (msuclients_open) */
 
@@ -260,11 +232,9 @@ MSUCLIENTS	*op ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != MSUCLIENTS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != MSUCLIENTS_MAGIC) return SR_NOTOPEN ;
 
 	rs1 = msuclients_disconnect(op) ;
 	if (rs >= 0) rs = rs1 ;
@@ -286,11 +256,9 @@ MSUCLIENTS	*op ;
 {
 	int		rs = SR_OK ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
-	if (op->magic != MSUCLIENTS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != MSUCLIENTS_MAGIC) return SR_NOTOPEN ;
 
 	rs = msuclients_istatus(op) ;
 
@@ -299,52 +267,25 @@ MSUCLIENTS	*op ;
 /* end subroutine (msuclients_status) */
 
 
-#ifdef	COMMENT
-
-int msuclients_get(op,daytime,dp)
-MSUCLIENTS	*op ;
-time_t		daytime ;
-MSUCLIENTS_DATA	*dp ;
+int msuclients_get(MSUCLIENTS *op,time_t dt,MSUCLIENTS_DATA *dp)
 {
-	uint		*shmtable ;
-	time_t		ti_update ;
 	int		rs = SR_OK ;
-	int		i ;
 	int		n = 0 ;
 
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
+	if (dp == NULL) return SR_FAULT ;
 
-	if (op->magic != MSUCLIENTS_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != MSUCLIENTS_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("msuclients_get: entered \n") ;
+	debugprintf("msuclients_get: ent\n") ;
 #endif
 
-	if (daytime == 0) daytime = time(NULL) ;
+	if (dt == 0) dt = time(NULL) ;
 
-	if (daytime > op->daytime) op->daytime = daytime ;
+	if (dt > op->dt) op->dt = dt ;
 
-	shmtable = (uint *) (op->mapdata + SYSMISCFH_IDLEN) ;
-	ti_update = shmtable[sysmiscfv_utime] ;
-
-	op->ti_lastcheck = daytime ;
-	if ((daytime - ti_update) >= to)
-	    rs = msuclients_shmupdate(op) ;
-
-	n = shmtable[sysmiscfv_ncpu] ;
-	if (dp != NULL) {
-	    if (rs >= 0) {
-	        dp->utime = shmtable[sysmiscfv_utime] ;
-	        dp->btime = shmtable[sysmiscfv_btime] ;
-	        dp->ncpu = shmtable[sysmiscfv_ncpu] ;
-	        dp->nproc = shmtable[sysmiscfv_nproc] ;
-		for (i = 0 ; i < 3 ; i += 1)
-	            dp->la[i] = shmtable[sysmiscfv_la + i] ;
-	    } else
-	        memset(dp,0,sizeof(MSUCLIENTS_DATA)) ;
-	} /* end if */
+	memset(dp,0,sizeof(MSUCLIENTS_DATA)) ;
 
 #if	CF_DEBUGS
 	debugprintf("msuclients_get: ret rs=%d n=%u\n",rs,n) ;
@@ -354,24 +295,19 @@ MSUCLIENTS_DATA	*dp ;
 }
 /* end subroutine (msuclients_get) */
 
-#endif /* COMMENT */
-
 
 /* local subroutines */
 
 
-static int msuclients_setbegin(op,pr,reqfname)
-MSUCLIENTS	*op ;
-const char	*pr ;
-const char	*reqfname ;
+static int msuclients_setbegin(MSUCLIENTS *op,cchar *pr,cchar *reqfname)
 {
 	int		rs ;
 
 #if	CF_DEBUGS
-	debugprintf("msuclients_setbegin: entered\n") ;
+	debugprintf("msuclients_setbegin: ent\n") ;
 #endif
 
-	op->daytime = time(NULL) ;
+	op->dt = time(NULL) ;
 
 	rs = msuclients_pr(op,pr) ;
 
@@ -389,8 +325,7 @@ const char	*reqfname ;
 /* end subroutine (msuclients_setbegin) */
 
 
-static int msuclients_setend(op)
-MSUCLIENTS	*op ;
+static int msuclients_setend(MSUCLIENTS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -416,40 +351,29 @@ MSUCLIENTS	*op ;
 /* end subroutine (msuclients_setend) */
 
 
-static int msuclients_pr(op,pr)
-MSUCLIENTS	*op ;
-const char	*pr ;
+static int msuclients_pr(MSUCLIENTS *op,cchar *pr)
 {
+	const int	prlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		prl = -1 ;
-	cchar		*varpr = MSUCLIENTS_VARPR ;
-	cchar		*cp ;
-	char		domainname[MAXHOSTNAMELEN + 1] ;
 	char		prbuf[MAXPATHLEN + 1] ;
 
 	if (pr != NULL) {
-
+	    char	dbuf[MAXHOSTNAMELEN + 1] ;
 	    pr = prbuf ;
-	    rs1 = getnodedomain(NULL,domainname) ;
-	    if (rs1 < 0)
-	        domainname[0] = '\0' ;
-
-	    rs1 = mkpr(prbuf,MAXPATHLEN,varpr,domainname) ;
-	    prl = rs1 ;
-	    if (rs1 <= 0) {
-	        prbuf[0] = '\0' ;
-	        pr = VARPREXTRA ;
-		prl = -1 ;
+	    if ((rs = getnodedomain(NULL,dbuf)) >= 0) {
+	        cchar	*varpr = MSUCLIENTS_VARPR ;
+	        rs = mkpr(prbuf,prlen,varpr,dbuf) ;
+	        prl = rs ;
 	    }
-
 	} /* end if */
 
-	if ((rs = uc_mallocstrw(pr,prl,&cp)) >= 0) {
-	    op->pr = cp ;
+	if (rs >= 0) {
+	    cchar	*cp ;
+	    if ((rs = uc_mallocstrw(pr,prl,&cp)) >= 0) {
+	        op->pr = cp ;
+	    }
 	}
-
-ret0:
 
 #if	CF_DEBUGS
 	debugprintf("msuclients_pr: rs=%d pr=%s\n",rs,op->pr) ;
@@ -460,13 +384,10 @@ ret0:
 /* end subroutine (msuclients_pr) */
 
 
-static int msuclients_reqfname(op,reqfname)
-MSUCLIENTS	*op ;
-const char	*reqfname ;
+static int msuclients_reqfname(MSUCLIENTS *op,cchar *reqfname)
 {
 	int		rs = SR_OK ;
 	int		pl = -1 ;
-	int		f_reqfname = FALSE ;
 	const char	*tmpdname = TMPDNAME ;
 	const char	*facname = MSUCLIENTS_FACNAME ;
 	const char	*reqname = MSUCLIENTS_REQNAME ;
@@ -500,8 +421,9 @@ const char	*reqfname ;
 	        if ((rs = uc_mallocstrw(reqfname,pl,&cp)) >= 0) {
 	            op->reqfname = cp ;
 		}
-	    } else
+	    } else {
 		rs = SR_INVALID ;
+	    }
 	}
 
 	return rs ;
@@ -509,8 +431,7 @@ const char	*reqfname ;
 /* end subroutine (msuclients_reqfname) */
 
 
-static int msuclients_tmpourdname(op)
-MSUCLIENTS	*op ;
+static int msuclients_tmpourdname(MSUCLIENTS *op)
 {
 	const int	pathlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
@@ -560,20 +481,9 @@ MSUCLIENTS	*op ;
 
 	if (rs >= 0) {
 	    mode_t	dmode = MSUCLIENTS_DMODE ;
-	    rs = mkdirs(tmpourdname,dmode) ;
-
-#if	CF_DEBUGS
-	debugprintf("msuclients_tmpourdname: mkdirs() rs=%d\n",rs) ;
-#endif
-
-	    if (rs >= 0) {
+	    if ((rs = mkdirs(tmpourdname,dmode)) >= 0) {
 	        rs = uc_minmod(tmpourdname,dmode) ;
-
-#if	CF_DEBUGS
-	debugprintf("msuclients_tmpourdname: uc_minmod() rs=%d\n",rs) ;
-#endif
 	    }
-
 	}
 
 	if (rs >= 0) {
@@ -595,9 +505,7 @@ ret0:
 /* end subroutine (msuclients_tmpourdname) */
 
 
-static int msuclients_bind(op,f)
-MSUCLIENTS	*op ;
-int		f ;
+static int msuclients_bind(MSUCLIENTS *op,int f)
 {
 	int		rs = SR_OK ;
 	int		f_err = FALSE ;
@@ -642,8 +550,9 @@ int		f ;
 		op->fd = -1 ;
 	    }
 	    if (op->clientfname != NULL) {
-		if (op->clientfname[0] != '\0')
+		if (op->clientfname[0] != '\0') {
 		    u_unlink(op->clientfname) ;
+		}
 		uc_free(op->clientfname) ;
 		op->clientfname = NULL ;
 	    }
@@ -659,8 +568,7 @@ int		f ;
 /* end subroutine (msuclients_bind) */
 
 
-static int msuclients_connect(op)
-MSUCLIENTS	*op ;
+static int msuclients_connect(MSUCLIENTS *op)
 {
 	struct ustat	sb ;
 	int		rs = SR_OK ;
@@ -704,7 +612,7 @@ MSUCLIENTS	*op ;
 	}
 
 	if (rs >= 0) {
-	    op->daytime = time(NULL) ;
+	    op->dt = time(NULL) ;
 	    rs = msuclients_istatus(op) ;
 	}
 
@@ -727,8 +635,7 @@ bad0:
 /* end subroutine (msuclients_connect) */
 
 
-static int msuclients_disconnect(op)
-MSUCLIENTS	*op ;
+static int msuclients_disconnect(MSUCLIENTS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -744,22 +651,19 @@ MSUCLIENTS	*op ;
 /* end subroutine (msuclients_disconnect) */
 
 
-static int msuclients_istatus(op)
-MSUCLIENTS	*op ;
+static int msuclients_istatus(MSUCLIENTS *op)
 {
 	struct msumsg_status	m0 ;
 	struct msumsg_getstatus	m1 ;
 	struct ipcmsginfo	mi, *mip = &mi ;
 	struct sockaddr		*sap ;
-	struct msghdr	*mp ;
-	int		rs = SR_OK ;
-	int		len ;
-	int		blen ;
+	const int	ipclen = IPCBUFLEN ;
+	int		rs ;
 	int		to = op->to ;
 	int		pid = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("msuclients_istatus: entered srvlen=%u\n",op->srvlen) ;
+	debugprintf("msuclients_istatus: ent srvlen=%u\n",op->srvlen) ;
 #endif
 
 	sap = (struct sockaddr *) &op->srv ;
@@ -768,44 +672,29 @@ MSUCLIENTS	*op ;
 	memset(&m1,0,sizeof(struct msumsg_getstatus)) ;
 	m1.tag = 0 ;
 
-	rs = msumsg_getstatus(&m1,0,mip->ipcbuf,IPCBUFLEN) ;
-	blen = rs ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	mip->ipcmsg.msg_control = NULL ;
-	mip->ipcmsg.msg_controllen = 0 ;
-	mip->vecs[0].iov_len = blen ;
-
-	rs = u_sendmsg(op->fd,&mip->ipcmsg,0) ;
-
-#if	CF_DEBUGS
-	debugprintf("msuclients_istatus: u_sendmsg() rs=%d\n",rs) ;
-#endif
-
-	if (rs >= 0) {
-
-	    ipcmsginfo_init(mip,NULL,0) ;
+	if ((rs = msumsg_getstatus(&m1,0,mip->ipcbuf,ipclen)) >= 0) {
+	    const int	blen = rs ;
 
 	    mip->ipcmsg.msg_control = NULL ;
 	    mip->ipcmsg.msg_controllen = 0 ;
-	    mip->vecs[0].iov_len = IPCBUFLEN ;
+	    mip->vecs[0].iov_len = blen ;
 
-	    rs = uc_recvmsge(op->fd,&mip->ipcmsg,0,to,0) ;
-	    len = rs ;
+	    if ((rs = u_sendmsg(op->fd,&mip->ipcmsg,0)) >= 0) {
 
-#if	CF_DEBUGS
-	debugprintf("msuclients_istatus: u_recvmsge() rs=%d\n",rs) ;
-#endif
+	        ipcmsginfo_init(mip,NULL,0) ;
 
-	    if (rs >= 0) {
-	        rs = msumsg_status(&m0,1,mip->ipcbuf,IPCBUFLEN) ;
-		pid = m0.pid ;
-	    }
+	        mip->ipcmsg.msg_control = NULL ;
+	        mip->ipcmsg.msg_controllen = 0 ;
+	        mip->vecs[0].iov_len = IPCBUFLEN ;
 
-	} /* end if */
+	        if ((rs = uc_recvmsge(op->fd,&mip->ipcmsg,0,to,0)) >= 0) {
+	            rs = msumsg_status(&m0,1,mip->ipcbuf,IPCBUFLEN) ;
+		    pid = m0.pid ;
+	        }
 
-ret0:
+	    } /* end if (u_sendmsg) */
+
+	} /* end if (msumsg_getstatus) */
 
 #if	CF_DEBUGS
 	debugprintf("msuclients_istatus: ret rs=%d pid=%d\n",rs,pid) ;
@@ -816,14 +705,11 @@ ret0:
 /* end subroutine (msuclients_istatus) */
 
 
-static int msuclients_spawn(op)
-MSUCLIENTS	*op ;
+static int msuclients_spawn(MSUCLIENTS *op)
 {
-	struct ustat	sb ;
 	SPAWNPROC	ps ;
 	ENVMGR		em ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		cs ;
 	int		i ;
 	int		to_run = TO_RUN ;
@@ -882,9 +768,7 @@ MSUCLIENTS	*op ;
 	    ps.disp[2] = SPAWNPROC_DCLOSE ;
 	    if ((rs = spawnproc(&ps,progfname,av,ev)) >= 0) {
 	    	pid_t	pid = rs ;
-
-	        rs1 = u_waitpid(pid,&cs,0) ;
-
+	        rs = u_waitpid(pid,&cs,0) ;
 	    } /* end if */
 
 ret1:
@@ -950,7 +834,6 @@ static int envmgr_set(ENVMGR *emp,const char *kp,const char *vp,int vl)
 	vecstr		*esp = &emp->envstrs ;
 	vechand		*elp = &emp->envlist ;
 	int		rs ;
-	int		i ;
 	if ((rs = vecstr_envset(esp,kp,vp,vl)) >= 0) {
 	    const int	i = rs ;
 	    cchar	*ep ;
@@ -1007,8 +890,9 @@ static int ipcmsginfo_init(IPCMSGINFO *mip,SOCKADDR *sap,int sal)
 
 	if (sap != NULL) {
 	    mip->ipcmsg.msg_name = sap ;
-	} else
+	} else {
 	    mip->ipcmsg.msg_name = (struct sockaddr *) &mip->ipcfrom ;
+	}
 
 	mip->ipcmsg.msg_namelen = (sal > 0) ? sal : sizeof(SOCKADDRESS) ;
 
