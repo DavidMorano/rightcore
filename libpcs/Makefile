@@ -167,7 +167,7 @@ SOBJ30=
 SOBJ31=
 
 SOBJ32= mkbestfrom.o
-SOBJ33= hasalldig.o hasfext.o
+SOBJ33= hasfext.o
 SOBJ34=
 SOBJ35=
 SOBJ36=

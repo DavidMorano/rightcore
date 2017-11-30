@@ -186,6 +186,8 @@ struct mfswatch {
 	time_t		ti_lastmaint ;
 	time_t		ti_lastconfig ;
 	int		njobs ;
+	int		nprocs ;
+	int		nthrs ;
 	int		minpoll ;	/* poll interval in milliseconds */
 } ;
 
@@ -223,7 +225,8 @@ static int mfswatch_svcprocfiler(PROGINFO *,SREQ *) ;
 
 static int mfswatch_svcretstat(PROGINFO *,SREQ *,int) ;
 static int mfswatch_jobretire(PROGINFO *,SREQ *) ;
-static int mfswatch_thrscheck(PROGINFO *) ;
+static int mfswatch_checkthrs(PROGINFO *) ;
+static int mfswatch_checkproc(PROGINFO *) ;
 
 static int mfswatch_thrdone(PROGINFO *,SREQ *) ;
 static int mfswatch_logconn(PROGINFO *,int,int,int,cchar *) ;
@@ -318,7 +321,9 @@ int mfswatch_service(PROGINFO *pip)
 	    } /* end if */
 
 	    if (rs >= 0) {
-		rs = mfswatch_thrscheck(pip) ;
+		if ((rs = mfswatch_checkthrs(pip)) >= 0) {
+		    rs = mfswatch_checkproc(pip) ;
+		}
 	    } /* end if (ok) */
 
 	    if (rs >= 0) {
@@ -926,7 +931,7 @@ static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 {
 	const int	n = sep->nkeys ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		f = FALSE ;
 	cchar		*(*kv)[2] = sep->keyvals ;
 	cchar		*vp ;
@@ -938,7 +943,7 @@ static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 	debugprintf("mfswatch_svcprocprog: ent\n") ;
 #endif
 	if ((rs = svckv_isprog(kv,n,&vp)) > 0) {
-	    rs = 1 ;
+	    f = TRUE ;
 
 	}
 #if	CF_DEBUG
@@ -953,6 +958,7 @@ static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 /* this spawns a thread with the required arguments */
 static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,svcprocer_t w)
 {
+	MFSWATCH	*wip = pip->watch ;
 	const int	ss = sreqstate_thread ;
 	int		rs ;
 #if	CF_DEBUG
@@ -969,7 +975,8 @@ static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,svcprocer_t w)
 	        sap->jep = jep ;
 	        sap->w = w ;
 	        if ((rs = uptcreate(&tid,NULL,helper,sap)) >= 0) {
-	             jep->tid = tid ;
+	            jep->tid = tid ;
+		    wip->nthrs += 1 ;
 	        }
 	    } /* end if (m-a) */
 	} /* end if (sreq_setstate) */
@@ -1064,12 +1071,12 @@ static int mfswatch_jobretire(PROGINFO *pip,SREQ *jep)
 /* end subroutine (mfswatch_jobretire) */
 
 
-static int mfswatch_thrscheck(PROGINFO *pip)
+static int mfswatch_checkthrs(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
-	int		rs ;
+	int		rs = SR_OK ;
 	int		c = 0 ;
-	{
+	if (wip->nthrs > 0) {
 		SREQDB		*sdp = &wip->reqs ;
 		SREQ		*jep ;
 		const int	rsn = SR_NOTFOUND ;
@@ -1086,25 +1093,49 @@ static int mfswatch_thrscheck(PROGINFO *pip)
 	}
 	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (mfswatch_thrscheck) */
+/* end subroutine (mfswatch_checkthrs) */
 
 
 /* ARGSUSED */
 static int mfswatch_thrdone(PROGINFO *pip,SREQ *jep)
 {
 	MFSWATCH	*wip = pip->watch ;
-	int		rs = SR_OK ;
+	int		rs ;
 	if (wip == NULL) return SR_FAULT ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	debugprintf("mfswatch_thrdone: ent\n") ;
 #endif
 	if ((rs = sreq_thrdone(jep)) >= 0) {
+	    if (wip->nthrs) wip->nthrs -= 1 ;
 	    rs = mfswatch_jobretire(pip,jep) ;
 	}
 	return rs ;
 }
 /* end subroutine (mfswatch_thrdone) */
+
+
+static int mfswatch_checkproc(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	int		cs ;
+	if (wip->nprocs > 0) {
+	    if ((rs = u_waitpid(-1,&cs,W_OPTIONS)) > 0) {
+	        SREQDB	*slp = &wip->reqs ;
+	        SREQ	*jep ;
+	        pid_t	pid = rs ;
+	        if ((rs = sreqdb_findpid(slp,pid,&jep)) >= 0) {
+		    if (wip->nprocs) wip->nprocs -= 1 ;
+	    	    rs = mfswatch_jobretire(pip,jep) ;
+	        }
+	    } else if ((rs == SR_CHILD) || (rs == SR_INTR)) {
+	        rs = SR_OK ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_checkproc) */
 
 
 static int mfswatch_logconn(PROGINFO *pip,int jsn,int jt,int st,cchar *lid)

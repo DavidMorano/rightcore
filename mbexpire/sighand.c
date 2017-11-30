@@ -151,7 +151,7 @@ sighand_handler	handle ;
 	            memset(&san,0,sizeof(SIGACTION)) ;
 	            san.sa_sigaction = (sighand_handler) handle ;
 	            san.sa_mask = nsm ;
-	            san.sa_flags = (SA_SIGINFO) ;
+	            san.sa_flags = (SA_SIGINFO | SA_RESTART) ;
 	            rs = u_sigaction(hsig,&san,sap) ;
 	            if (rs < 0) break ;
 	            j += 1 ;

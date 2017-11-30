@@ -135,8 +135,8 @@ int zos_get(cchar *sp,int sl,int *zop)
 
 	if (sl) ch = MKCHAR(*sp) ;
 	if ((sl >= 2) && ((ch == '-') || (ch == '+') || isdigitlatin(ch))) {
-	    int	i, sign ;
-	    int	hours, mins ;
+	    int		i, sign ;
+	    int		hours, mins ;
 
 	    rs = SR_OK ;
 	    sign = ((ch == '+') || isdigitlatin(ch)) ? -1 : 1 ;

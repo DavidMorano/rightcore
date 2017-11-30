@@ -2427,7 +2427,6 @@ static int process(PROGINFO *pip,ARGINFO *aip,PARAMOPT *pop,
 static int processor(PROGINFO *pip,ARGINFO *aip,cchar *prog)
 {
 	int		rs ;
-	cchar		*progfname ;
 	char		pbuf[MAXPATHLEN+1] ;
 	if ((prog != NULL) && hasallplusminus(prog,-1)) {
 	    if ((! pip->f.progdash) && (hasallminus(prog,-1))) {
@@ -2435,9 +2434,13 @@ static int processor(PROGINFO *pip,ARGINFO *aip,cchar *prog)
 	    }
 	    prog = NULL ;
 	}
-	progfname = prog ;
 	if ((rs = progfindprog(pip,pbuf,prog)) >= 0) {
+	    cchar	*progfname = prog ;
 	    if (rs > 0) progfname = pbuf ;
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+		debugprintf("main/processor: pf=%s\n",progfname) ;
+#endif
 	    if ((rs = procnopreload(pip)) >= 0) {
 	        if (pip->efp != NULL) {
 		    rs = bflush(pip->efp) ;

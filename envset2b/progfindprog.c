@@ -6,7 +6,6 @@
 
 #define	CF_DEBUGS	0		/* debug print-outs (non-switchable) */
 #define	CF_DEBUG	0		/* debug print-outs switchable */
-#define	CF_DEBUGN	0		/* special debugging */
 
 
 /* revision history:
@@ -113,10 +112,11 @@ extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	getprogpath(IDS *,VECSTR *,char *,const char *,int) ;
 extern int	xfile(IDS *,cchar *) ;
 
-extern int	progdefprog(struct proginfo *,const char **) ;
+extern int	progdefprog(PROGINFO *,const char **) ;
 
-#if	CF_DEBUGN
-extern int	nprintf(const char *,const char *,...) ;
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(cchar *,...) ;
+extern int	strnnlen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -130,10 +130,10 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
-static int	procsearch(struct proginfo *,VECSTR *,char *,const char *) ;
+static int	procsearch(PROGINFO *,VECSTR *,char *,const char *) ;
 
-static int	loadpathlist(struct proginfo *,VECSTR *,VECSTR *) ;
-static int	loadpathcomp(struct proginfo *,VECSTR *,const char *) ;
+static int	loadpathlist(PROGINFO *,VECSTR *,VECSTR *) ;
+static int	loadpathcomp(PROGINFO *,VECSTR *,const char *) ;
 
 
 /* local variables */
@@ -145,25 +145,22 @@ static int	loadpathcomp(struct proginfo *,VECSTR *,const char *) ;
 int progfindprog(PROGINFO *pip,char *rbuf,cchar *pn)
 {
 	int		rs = SR_OK ;
+	int		pl = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
 	    debugprintf("progfindprog: pn=>%s<\n",pn) ;
 #endif
 
-#if	CF_DEBUGN
-	nprintf(DEBUGFNAME,"progfindprog: pn=%s\n",pn) ;
-#endif
-
 	if ((pn == NULL) || (pn[0] != '/')) {
 	    vecstr	*elp ;
-	    int		f ;
-	    const char	*pnp = pn ;
+	    cchar	*pnp = pn ;
 
 	    rbuf[0] = '\0' ;
 	    elp = &pip->exports ;
 	    if (pn == NULL) {
 	        rs = progdefprog(pip,&pnp) ;
+		pl = rs ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3))
 	            debugprintf("progfindprog: progdefprog() rs=%d\n",rs) ;
@@ -177,20 +174,23 @@ int progfindprog(PROGINFO *pip,char *rbuf,cchar *pn)
 
 	    if ((rs >= 0) && (pnp != NULL) && (pnp[0] != '\0')) {
 	        if (strchr(pnp,'/') == NULL) {
-	            rs = procsearch(pip,elp,rbuf,pnp) ;
-	            if ((rs == SR_NOTFOUND) && (pn == NULL)) {
-	                f = FALSE ;
-	                f = f || (rs == SR_NOENT) ;
-	                if (f) {
-	                    pnp = DEFPROGFNAME ;
-	                    rs = mkpath1(rbuf,pnp) ;
-	                }
+		    const int	rsn = SR_NOTFOUND ;
+	            if ((rs = procsearch(pip,elp,rbuf,pnp)) == rsn) {
+	                if (pn == NULL) {
+	                        pnp = DEFPROGFNAME ;
+	                        rs = mkpath1(rbuf,pnp) ;
+			        pl = rs ;
+			}
+		    } else {
+		        pl = rs ;
 	            }
 	        } else {
 	            rs = mkpath1(rbuf,pnp) ;
+		    pl = rs ;
 	        }
-	    } else
+	    } else {
 	        rs = SR_NOENT ;
+	    }
 
 	} /* end if (requested) */
 
@@ -199,7 +199,7 @@ int progfindprog(PROGINFO *pip,char *rbuf,cchar *pn)
 	    debugprintf("progfindprog: ret rs=%d\n",rs) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? pl : rs ;
 }
 /* end subroutine (progfindprog) */
 
@@ -211,9 +211,11 @@ static int procsearch(PROGINFO *pip,vecstr *elp,char *rbuf,cchar *pn)
 {
 	VECSTR		pathlist ;
 	int		rs ;
+	int		rs1 ;
+	int		pl = 0 ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
+	if (DEBUGLEVEL(4))
 	    debugprintf("progfindprog/procsearch: pn=>%s<\n",pn) ;
 #endif
 
@@ -222,40 +224,53 @@ static int procsearch(PROGINFO *pip,vecstr *elp,char *rbuf,cchar *pn)
 	        const int	nrs = SR_NOENT ;
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(2)) {
-	            int	i ;
-	            char	*cp ;
-	            for (i = 0 ; vecstr_get(&pathlist,i,&cp) >= 0 ; i += 1)
+	        if (DEBUGLEVEL(4)) {
+	            int		i ;
+	            cchar	*cp ;
+	            for (i = 0 ; vecstr_get(&pathlist,i,&cp) >= 0 ; i += 1) {
 	                debugprintf("progfindprog/procsearch: pc=%s\n",cp) ;
+		    }
 	        }
 #endif
 
 	        if ((rs = getprogpath(&pip->id,&pathlist,rbuf,pn,-1)) == nrs) {
+#if	CF_DEBUG
+		    if (DEBUGLEVEL(4))
+	    	   	     debugprintf("progfindprog/procsearch: NF\n") ;
+#endif
 	            if ((rs = xfile(&pip->id,pn)) >= 0) {
 	                rs = mkpath1(rbuf,pn) ;
+			pl = rs ;
 	            }
+	        } else {
+		    pl = rs ;
 	        }
 
 	    } /* end if (loadpathlist) */
-	    vecstr_finish(&pathlist) ;
+	    rs1 = vecstr_finish(&pathlist) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (vecstr) */
 
-	return rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5)) {
+	    debugprintf("progfindprog/procsearch: ret rs=%d pl=%u\n",rs,pl) ;
+	    debugprintf("progfindprog/procsearch: rbuf=%s\n",rbuf) ;
+	}
+#endif
+
+	return (rs >= 0) ? pl : rs ;
 }
 /* end subroutine (procsearch) */
 
 
-static int loadpathlist(pip,plp,elp)
-struct proginfo	*pip ;
-VECSTR		*plp ;
-VECSTR		*elp ;
+static int loadpathlist(PROGINFO *pip,VECSTR *plp,VECSTR *elp)
 {
 	int		rs ;
 	const char	*varpath = VARPATH ;
 	const char	*pp ;
 
 	if ((rs = vecstr_search(elp,varpath,vstrkeycmp,&pp)) >= 0) {
-	    const char	*tp ;
+	    cchar	*tp ;
 	    rs = SR_NOENT ;
 	    if ((tp = strchr(pp,'=')) != NULL) {
 	        rs = loadpathcomp(pip,plp,(tp + 1)) ;
@@ -267,38 +282,36 @@ VECSTR		*elp ;
 /* end subroutine (loadpathlist) */
 
 
-static int loadpathcomp(pip,lp,pp)
-struct proginfo	*pip ;
-vecstr		*lp ;
-const char	*pp ;
+static int loadpathcomp(PROGINFO *pip,vecstr *lp,cchar *pp)
 {
-	int		rs = SR_OK, rs1 ;
-	int		cl ;
+	const int	rsn = SR_NOTFOUND ;
+	int		rs = SR_OK ;
+	int		pl ;
 	int		c = 0 ;
-	const char	*cp ;
-	char		tmpfname[MAXPATHLEN + 1] ;
+	cchar		*tp ;
+	char		pbuf[MAXPATHLEN + 1] ;
 
 	if (pip == NULL) return SR_FAULT ; /* LINT */
 
-	while ((cp = strpbrk(pp,":;")) != NULL) {
-	    if ((cl = pathclean(tmpfname,pp,(cp - pp))) >= 0) {
-	    rs1 = vecstr_findn(lp,tmpfname,cl) ;
-	    if (rs1 == SR_NOTFOUND) {
-	        c += 1 ;
-	        rs = vecstr_add(lp,tmpfname,cl) ;
+	while ((tp = strpbrk(pp,":;")) != NULL) {
+	    if ((rs = pathclean(pbuf,pp,(tp - pp))) >= 0) {
+		pl = rs ;
+	        if ((rs = vecstr_findn(lp,pbuf,pl)) == rsn) {
+	            c += 1 ;
+	            rs = vecstr_add(lp,pbuf,pl) ;
+	        }
 	    }
-	    }
-	    pp = (cp + 1) ;
+	    pp = (tp + 1) ;
 	    if (rs < 0) break ;
 	} /* end while */
 
 	if ((rs >= 0) && (pp[0] != '\0')) {
-	    if ((cl = pathclean(tmpfname,pp,-1)) >= 0) {
-	    rs1 = vecstr_findn(lp,tmpfname,cl) ;
-	    if (rs1 == SR_NOTFOUND) {
-	        c += 1 ;
-	        rs = vecstr_add(lp,tmpfname,cl) ;
-	    }
+	    if ((rs = pathclean(pbuf,pp,-1)) >= 0) {
+		pl = rs ;
+	        if ((rs = vecstr_findn(lp,pbuf,pl)) == rsn) {
+	            c += 1 ;
+	            rs = vecstr_add(lp,pbuf,pl) ;
+	        }
 	    }
 	} /* end if (trailing one) */
 

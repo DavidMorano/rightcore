@@ -1,23 +1,16 @@
 TELSERV
 
-This program is a Telnet server program.  It is hacked from the Sun
-Microsystems version (which has the 'telmod' hack in it).  This one is
-used to get a freebee login (no login or password sequence) to the user
-'guest'.  This is useful for allowing a special service to run as
-user guest in a sandbox type of environment (on the server side).
+This program is a Telnet server that can be configured to provide a variety of
+services. Generally, LOGIN should not be provided through this server as only
+STDIN and STDOUT are mapped to the network Telnet connection.
 
-Is this a security hole?  Probably but life is hard enough already
-without looking for trouble where there probably isn't much to be
-found.  The security part is how safe the login profile for user guest
-is and whether a malicious user can break out of it and get a login
-shell prompt!!??
+Synopsis:
+$ telserv [-R <pr>] [-d=<n>] [-pass[=<n>]] [<svc>] [-V]
 
-Client-side FD passing is also possible with:
-
-$ telserv -pass[=<fd>] <svc>
-
-An optional service can be passed, overriding any service that
-may be acquired from the normal means.
-
-
+Arguments:
+-R <pr>		use this specified program-root
+-d[=<n>]	enter daemon-mode for the optionally specified period <n>
+-pass[=<n>]	client-side FD (<n>) pass is requested (daemon-mode is ignored)
+<svc>		optional service (daemon-mode is ignored)
+-V		print the program version to standard-error and then exit
 

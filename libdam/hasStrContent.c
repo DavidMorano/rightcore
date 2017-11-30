@@ -10,7 +10,8 @@
 /* revision history:
 
 	= 1998-07-01, David A­D­ Morano
-	This subroutine was originally written.
+	This subroutine was originally written. This is sort of experiemental
+	(so far). We are struggling a little bit over its name.
 
 */
 
@@ -75,5 +76,19 @@ int hasStrContent(cchar *sp,int sl)
 	return f ;
 }
 /* end subroutine (hasStrContent) */
+
+
+int hasNotEmptry(cchar *sp,int sl)
+{
+	return hasStrContent(sp,sl) ;
+}
+/* end subroutine (hasNotEmpty) */
+
+
+int hascontent(cchar *sp,int sl)
+{
+	return hasStrContent(sp,sl) ;
+}
+/* end subroutine (hascontent) */
 
 

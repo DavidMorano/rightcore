@@ -576,7 +576,7 @@ const char	*av[] ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		opts = 0 ;
-	const char	*progfname = NULL ;
+	cchar		*progfname = NULL ;
 	char		progfnamebuf[MAXPATHLEN + 1] ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -1510,7 +1510,7 @@ static int subinfo_procopts(SUBINFO *sip,KEYOPT *kop)
 
 	    if ((oi = matostr(procopts,2,kp,kl)) >= 0) {
 
-	    vl = keyopt_fetch(kop,kp,NULL,&vp) ;
+	        vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	        switch (oi) {
 	        case procopt_log:
@@ -1585,12 +1585,10 @@ static int subinfo_setentry(SUBINFO *sip,cchar **epp,cchar v[],int vlen)
 
 static int subinfo_defaults(SUBINFO *sip)
 {
-	SYSDIALER_ARGS	*ap ;
+	SYSDIALER_ARGS	*ap = sip->ap ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	const char	*vp ;
-
-	ap = sip->ap ;
 
 /* program-root */
 
@@ -1640,10 +1638,9 @@ static int subinfo_defaults(SUBINFO *sip)
 /* program root-name */
 
 	if ((rs >= 0) && (sip->prn == NULL) && (sip->pr != NULL)) {
-		const char	*cp, **epp ;
+		cchar	*cp, **epp ;
 		int	cl ;
-		cl = sfbasename(sip->pr,-1,&cp) ;
-		if (cl > 0) {
+		if ((cl = sfbasename(sip->pr,-1,&cp)) > 0) {
 			epp = &sip->prn ;
 			rs = subinfo_setentry(sip,epp,cp,cl) ;
 		}

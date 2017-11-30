@@ -178,7 +178,7 @@ OBJ17= sysvar.o dirseen.o linefold.o poller.o listenspec.o
 OBJ18= openportmsg.o
 OBJ19= 
 OBJ20= sfthing.o getfname.o securefile.o nlspeername.o 
-OBJ21= strdomain.o mkutmpid.o hasalldig.o
+OBJ21= strdomain.o mkutmpid.o
 OBJ22= strnnlen.o strlinelen.o snabbr.o
 OBJ23= listenuss.o listentcp.o listenpass.o
 

@@ -111,29 +111,23 @@ int	ofd ;
 int	code ;
 char	*msg ;
 {
-	char	backbuf[BACKBUFLEN + 1] ;
-
-	int	blen ;
-
+	char		backbuf[BACKBUFLEN + 1] ;
+	int		blen ;
 
 	if (msg == NULL) {
-
-	    if ((code >= 0) && (code < badmsg_overlast))
+	    if ((code >= 0) && (code < badmsg_overlast)) {
 		msg = badmsg[code] ;
-
+	    }
 	}
 
-	if (msg != NULL)
-	    blen = bufprintf(backbuf,100,"-%d %s\r\n",
-		code,msg) ;
-
-	else
-	    blen = bufprintf(backbuf,100,"-%d\r\n",
-		code) ;
+	if (msg != NULL) {
+	    blen = bufprintf(backbuf,100,"-%d %s\r\n", code,msg) ;
+	} else {
+	    blen = bufprintf(backbuf,100,"-%d\r\n", code) ;
+	}
 
 	return uc_writen(ofd,backbuf,blen) ;
 } 
 /* end subroutine (badback) */
-
 
 

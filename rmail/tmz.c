@@ -1190,8 +1190,8 @@ static int tmz_proczoff(TMZ *op,cchar *sp,int sl)
 	cchar		*cp ;
 
 	if ((cl = nextfield(sp,sl,&cp)) > 0) {
-	    int	ch = MKCHAR(*cp) ;
-	    int	f = FALSE ;
+	    const int	ch = MKCHAR(*cp) ;
+	    int		f = FALSE ;
 	    f = f || isplusminus(ch) ;
 	    f = f || isdigitlatin(ch) ;
 	    if (f) {
@@ -1400,7 +1400,7 @@ static int silogend(cchar *sp,int sl)
 	debugprintf("tmz/silogend: ent s=>%t<\n",sp,sl) ;
 #endif
 	for (i = 0 ; sl-- && *sp ; i += 1) {
-	    int	ch = MKCHAR(sp[i]) ;
+	    const int	ch = MKCHAR(sp[i]) ;
 	    f = f || (ch == '_') ;
 	    f = f || isalphalatin(ch) ;
 	    if (f) break ;

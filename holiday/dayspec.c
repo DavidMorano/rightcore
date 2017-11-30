@@ -331,7 +331,7 @@ static int parsemonth(cchar *mp,int ml)
 	const char	*cp ;
 
 	if ((cl = sfshrink(mp,ml,&cp)) > 0) {
-	    int	ch = (cp[0] & 0xff) ;
+	    const int	ch = MKCHAR(cp[0]) ;
 	    if (isalphalatin(ch)) {
 	        mi = matpcasestr(months,2,cp,cl) ;
 	        rs = (mi >= 0) ? mi : SR_INVALID ;
@@ -355,7 +355,7 @@ static int siourbrk(cchar *sp,int sl,int f_dig)
 	int		f = FALSE ;
 
 	for (i = 0 ; i < sl ; i += 1) {
-	    ch = (sp[i] & 0xff) ;
+	    ch = MKCHAR(sp[i]) ;
 	    if (f_dig) {
 		f = isdigitlatin(ch) ;
 	    } else {

@@ -14,18 +14,18 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man7
 INSDIR= $(SRCROOT)/lib/sysdialers
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -68,16 +68,17 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR)
+
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 
 
-SLIBDIRS= -L$(LIBDIR)
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1= -ldam -lb
 SLIB2=
 SLIB3= -luc -lu
-SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB4= $(CGS_LIBS)
 SLIB5= 
 SLIB6=
 SLIB7=
@@ -87,13 +88,13 @@ SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
 SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
 
-XLIBDIRS= -L$(LIBDIR)
+XLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 XLIB0=
 XLIB1= -ldam -lb
 XLIB2=
 XLIB3= -luc -lu
-XLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+XLIB4= $(CGS_LIBS)
 XLIB5= 
 XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 XLIB7= -ldl -lc
@@ -103,9 +104,10 @@ XLIBS= $(XLIB0) $(XLIB1) $(XLIB2) $(XLIB3) $(XLIB4) $(XLIB5) $(XLIB6) $(XLIB7)
 XLIBINFO= $(XLIBDIRS) $(XLIBS)
 
 
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -144,7 +146,7 @@ SOBJ10= sysvar.o dirseen.o
 SOBJ11= 
 SOBJ12=
 SOBJ13=
-SOBJ14= hasalldig.o sfthing.o strnnlen.o
+SOBJ14= sfthing.o strnnlen.o
 SOBJ15= findfile.o procxpath.o
 
 SOBJAa= $(SOBJ00) $(SOBJ01) $(SOBJ02) $(SOBJ03) 
@@ -177,11 +179,11 @@ default:		$(T).so $(TT).x
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<

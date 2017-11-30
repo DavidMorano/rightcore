@@ -97,8 +97,7 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	isdigitlatin(int) ;
 
 extern int	printhelp(bfile *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(PROGINFO *,const char *,
-			const struct pivars *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -120,7 +119,7 @@ extern char	makedate[] ;
 /* local structures */
 
 struct errormap {
-	int	rs, ex ;
+	int		rs, ex ;
 } ;
 
 
@@ -128,8 +127,7 @@ struct errormap {
 
 static int	usage(PROGINFO *) ;
 
-static int	process(PROGINFO *,bfile *,const char *,
-			const char *,int, VECSTR *) ;
+static int	process(PROGINFO *,bfile *,cchar *,cchar *,int, VECSTR *) ;
 
 static void	int_all() ;
 
@@ -141,7 +139,7 @@ static volatile int	if_int ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"DEBUG",
 	"VERSION",
@@ -189,7 +187,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*sysfiles[] = {
+static cchar	*sysfiles[] = {
 	"%p/etc/%n/%n.%f",
 	"%p/etc/%n/%f",
 	"%p/etc/%n.%f",

@@ -473,11 +473,13 @@ UTERM_LOAD	*llp ;
 
 /* top of further access */
 top:
-	if ((rs >= 0) && (lpp != NULL) && (lpp->plen > 0))
+	if ((rs >= 0) && (lpp != NULL) && (lpp->plen > 0)) {
 	    rs = tty_wps(op,lpp->pbuf,lpp->plen) ;
+	}
 
-	if ((rs >= 0) && (llp != NULL) && (llp->llen > 0))
+	if ((rs >= 0) && (llp != NULL) && (llp->llen > 0)) {
 	    rs = tty_loadchar(op,llp->lbuf,llp->llen) ;
+	}
 
 	count = 0 ;
 
@@ -530,16 +532,18 @@ next:
 	            ch = -1 ;
 	            break ;
 	        case CH_NAK:
-	            if (! (fc & fm_noecho))
+	            if (! (fc & fm_noecho)) {
 	                rs = tty_echo(op," ^U\r\n",5) ;
+		    }
 	            ch = -1 ;
 	            break ;
 	        case CH_DEL:
 	        case CH_BS:
 	            if (count > 0) {
 	                count -= 1 ;
-	                if (! (fc & fm_noecho))
+	                if (! (fc & fm_noecho)) {
 	                    rs = tty_echo(op,"\b \b",3) ;
+			}
 	            }
 	            ch = -1 ;
 	            break ;
@@ -547,16 +551,19 @@ next:
 	            if (! (fc & fm_noecho)) {
 	                rs = tty_echo(op," ^R\r\n",5) ;
 	                if ((rs >= 0) && (lpp != NULL) && 
-	                    (lpp->pbuf != NULL) && (lpp->plen > 0))
+	                    (lpp->pbuf != NULL) && (lpp->plen > 0)) {
 	                    rs = tty_wps(op,lpp->pbuf,lpp->plen) ;
-	                if ((rs >= 0) && (count > 0))
+			}
+	                if ((rs >= 0) && (count > 0)) {
 	                    rs = tty_echo(op,rbuf,count) ;
+			}
 	            }
 	            ch = -1 ;
 	            break ;
 	        case CH_CAN:
-	            if (! (fc & fm_noecho))
+	            if (! (fc & fm_noecho)) {
 	                rs = tty_echo(op," ^X\r\n",5) ;
+		    }
 	            ch = -1 ;
 	            break ;
 	        } /* end switch */
@@ -585,15 +592,18 @@ next:
 	    switch (ch) {
 	    case CH_CR:
 	    case CH_LF:
-	        if (! ((fc & fm_notecho) || (fc & fm_noecho)))
+	        if (! ((fc & fm_notecho) || (fc & fm_noecho))) {
 	            rs = tty_echo(op,"\r\n",2) ;
-	        if (! (fc & fm_nofilter))
+		}
+	        if (! (fc & fm_nofilter)) {
 	            rbuf[count] = CH_LF ;
+		}
 	        break ;
 	    case CH_ESC:
 	    case CH_CSI:
-	        if (! ((fc & fm_notecho) || (fc & fm_noecho)))
+	        if (! ((fc & fm_notecho) || (fc & fm_noecho))) {
 	            rs = tty_echo(op,"$",1) ;
+		}
 	        break ;
 	    } /* end switch */
 	    count += 1 ;
@@ -641,19 +651,14 @@ int uterm_write(UTERM *op,cchar *wbuf,int wlen)
 	    {
 	        int	blen = wlen ;
 	        int	mlen ;
-
 	        char	*bp = wbuf ;
 
-
 	        while ((rs >= 0) && (blen > 0) && (! op->f.co)) {
-
 	            mlen = MIN(blen,WBUFLEN) ;
 	            rs = u_write(op->fd,bp,mlen) ;
-
 	            blen -= mlen ;
 	            tlen += mlen ;
 	            bp += mlen ;
-
 	        } /* end while */
 
 	    }
@@ -964,10 +969,10 @@ static int tty_wps(UTERM *op,cchar *buf,int buflen)
 	    BUFFER	pb ;
 
 	    if ((rs = buffer_start(&pb,buflen)) >= 0) {
-	        int		bl = buflen ;
-	        int		sl = -1 ;
-	        const char	*sp ;
-	        const char	*bp = buf ;
+	        int	bl = buflen ;
+	        int	sl = -1 ;
+	        cchar	*sp ;
+	        cchar	*bp = buf ;
 
 	        if (ci > 0)
 	            buffer_buf(&pb,bp,ci) ;
@@ -975,15 +980,10 @@ static int tty_wps(UTERM *op,cchar *buf,int buflen)
 	        bp += (ci + 1) ;
 	        bl -= (ci + 1) ;
 
-	        while ((bl > 0) && 
-	            ((ci = sinotprint(bp,bl)) >= 0)) {
-
-	            if (ci > 0)
-	                buffer_buf(&pb,bp,ci) ;
-
+	        while ((bl > 0) && ((ci = sinotprint(bp,bl)) >= 0)) {
+	            if (ci > 0) buffer_buf(&pb,bp,ci) ;
 	            bp += (ci + 1) ;
 	            bl -= (ci + 1) ;
-
 	        } /* end while */
 
 	        if (bl > 0)
@@ -997,8 +997,9 @@ static int tty_wps(UTERM *op,cchar *buf,int buflen)
 	        buffer_finish(&pb) ;
 	    } /* end if (initialize buffer) */
 
-	} else
+	} else {
 	    rs = u_write(op->fd,buf,buflen) ;
+	}
 
 ret0:
 	return (rs >= 0) ? buflen : rs ;
@@ -1108,14 +1109,8 @@ loop:
 /* do the system-call read */
 
 	if ((rs >= 0) && (fds[0].revents & POLLIN)) {
-
 	    rs = u_read(op->fd,cbuf,TTY_READCHARS) ;
 	    len = rs ;
-
-#if	CF_DEBUGS
-	    debugprintf("tty_wait: u_read() rs=%d\n",rs) ;
-#endif
-
 	}  /* end if */
 
 #if	CF_DEBUGS
@@ -1131,7 +1126,6 @@ enter:
 	    goto ret0 ;
 
 	if (len == 0) {
-
 	    daytime = time(NULL) ;
 
 	    if (op->timeout >= 0) {
@@ -1184,8 +1178,9 @@ enter:
 
 /* call the Receive-Interrupt-Service-Routine with what we do have */
 
-	    if ((len - i) > 0)
+	    if ((len - i) > 0) {
 	        rs = tty_risr(op,(cbuf + i),(len - i)) ;
+	   }
 
 	} /* end if */
 
@@ -1213,7 +1208,7 @@ static int tty_risr(UTERM *op,cchar *sp,int sl)
 	for (i = 0 ; i < sl ; i += 1) {
 	    int	ch = MKCHAR(sp[i]) ;
 #if	CF_DEBUGS
-	debugprintf("uterm/tty_risr: ch=%02X\n",ch) ;
+	    debugprintf("uterm/tty_risr: ch=%02X\n",ch) ;
 #endif
 	    if (op->f.nosig) {
 	        rs = charq_ins(&op->taq,ch) ;

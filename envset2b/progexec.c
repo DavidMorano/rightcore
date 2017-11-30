@@ -159,129 +159,129 @@ int progexec(PROGINFO *pip,cchar *progfname,cchar **argv,int argr)
 #endif /* CF_FANCYSHUN */
 
 	if (rs >= 0) {
-	size = (argr + 2) * sizeof(const char *) ;
-	if ((rs = uc_malloc(size,&av)) >= 0) {
+	    size = (argr + 2) * sizeof(const char *) ;
+	    if ((rs = uc_malloc(size,&av)) >= 0) {
 
 /* should we prefix the minus thing? */
 
-	    f_m = FALSE ;
-	    f_m = f_m || pip->f.progdash ;
+	        f_m = FALSE ;
+	        f_m = f_m || pip->f.progdash ;
 
 /* setup the zeroth argument */
 
-	    si = 0 ;
-	    cp = NULL ;
-	    cl = -1 ;
-	    if (f_shell) {
-	        f_sa = TRUE ;
-	    } else {
-	        if (argr > 0) {
-	            cp = argv[0] ;
-	            cl = -1 ;
-	            si = 1 ;
-	            argr -= 1 ;
-	            if (cp[0] != '\0') {
-	                if (hasallplusminus(cp,-1)) {
+	        si = 0 ;
+	        cp = NULL ;
+	        cl = -1 ;
+	        if (f_shell) {
+	            f_sa = TRUE ;
+	        } else {
+	            if (argr > 0) {
+	                cp = argv[0] ;
+	                cl = -1 ;
+	                si = 1 ;
+	                argr -= 1 ;
+	                if (cp[0] != '\0') {
+	                    if (hasallplusminus(cp,-1)) {
+	                        f_sa = TRUE ;
+	                        f_m = f_m || hasallminus(cp,cl) ;
+	                    }
+	                } else
 	                    f_sa = TRUE ;
-	                    f_m = f_m || hasallminus(cp,cl) ;
-	                }
 	            } else
 	                f_sa = TRUE ;
-	        } else
-	            f_sa = TRUE ;
-	    } /* end if */
-
-	    if (f_sa) {
-	        cl = sfbasename(progfname,-1,&cp) ;
-	        start = (cl+2) ;
-	    }
-
-	    if ((rs = buffer_start(&b,start)) >= 0) {
-
-	        if (f_sa || f_m) {
-	            if (f_m)
-	                rs = buffer_char(&b,'-') ;
-	            if (rs >= 0)
-	                rs = buffer_strw(&b,cp,cl) ;
-	            if (rs >= 0) {
-	                buffer_get(&b,&abuf) ;
-	                av[ai++] = abuf ;
-	            } /* end if */
-	        } else if (cp != NULL) {
-	            av[ai++] = cp ;
 	        } /* end if */
+
+	        if (f_sa) {
+	            cl = sfbasename(progfname,-1,&cp) ;
+	            start = (cl+2) ;
+	        }
+
+	        if ((rs = buffer_start(&b,start)) >= 0) {
+
+	            if (f_sa || f_m) {
+	                if (f_m)
+	                    rs = buffer_char(&b,'-') ;
+	                if (rs >= 0)
+	                    rs = buffer_strw(&b,cp,cl) ;
+	                if (rs >= 0) {
+	                    buffer_get(&b,&abuf) ;
+	                    av[ai++] = abuf ;
+	                } /* end if */
+	            } else if (cp != NULL) {
+	                av[ai++] = cp ;
+	            } /* end if */
 
 /* setup all remaining arguments */
 
-	        if (rs >= 0) {
-	            for (i = si ; argr > 0 ; i += 1) {
-			if (argv[i] == NULL) break ;
+	            if (rs >= 0) {
+	                for (i = si ; argr > 0 ; i += 1) {
+	                    if (argv[i] == NULL) break ;
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(3))
-	                    debugprintf("progexec: arg[%u]=>%s<\n",
-				i,argv[i]) ;
+	                    if (DEBUGLEVEL(3))
+	                        debugprintf("progexec: arg[%u]=>%s<\n",
+	                            i,argv[i]) ;
 #endif
-	                argr -= 1 ;
-	                av[ai++] = argv[i] ;
-	            } /* end for */
-	            av[ai] = NULL ;
-	        } /* end if (ok) */
+	                    argr -= 1 ;
+	                    av[ai++] = argv[i] ;
+	                } /* end for */
+	                av[ai] = NULL ;
+	            } /* end if (ok) */
 
-	        if (rs >= 0) {
-	            const char	*pfn = progfname ;
-	            char	tmpfname[MAXPATHLEN + 1] ;
-	            if (progfname[0] != '/') {
-	                if ((rs = proginfo_pwd(pip)) >= 0) {
-	                    pfn = tmpfname ;
-	                    rs = mkpath2(tmpfname,pip->pwd,progfname) ;
+	            if (rs >= 0) {
+	                const char	*pfn = progfname ;
+	                char	tmpfname[MAXPATHLEN + 1] ;
+	                if (progfname[0] != '/') {
+	                    if ((rs = proginfo_pwd(pip)) >= 0) {
+	                        pfn = tmpfname ;
+	                        rs = mkpath2(tmpfname,pip->pwd,progfname) ;
+	                    }
+	                }
+	                if (rs >= 0) {
+	                    rs = vecstr_envadd(elp,"_EF",pfn,-1) ;
 	                }
 	            }
+
 	            if (rs >= 0) {
-	                rs = vecstr_envadd(elp,"_EF",pfn,-1) ;
-		    }
-	        }
+	                rs = vecstr_envadd(elp,"_A0",av[0],-1) ;
+	            }
 
-	        if (rs >= 0) {
-	            rs = vecstr_envadd(elp,"_A0",av[0],-1) ;
-		}
-
-	        if (rs >= 0) {
+	            if (rs >= 0) {
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(3)) {
-	                int	i ;
-	                for (i = 0 ; av[i] != NULL ; i += 1) {
-	                    debugprintf("progexec: av[%u]=>%s<\n",
-				i,av[i]) ;
-			}
-	            }
+	                if (DEBUGLEVEL(3)) {
+	                    int	i ;
+	                    for (i = 0 ; av[i] != NULL ; i += 1) {
+	                        debugprintf("progexec: av[%u]=>%s<\n",
+	                            i,av[i]) ;
+	                    }
+	                }
 #endif
 
-	            if ((rs = vecstr_getvec(elp,&ev)) >= 0) {
+	                if ((rs = vecstr_getvec(elp,&ev)) >= 0) {
 
 #if	CF_DEBUGE
 #else
-	                {
-	                    const char **eav = (const char **) av ;
-	                    const char **eev = (const char **) ev ;
-	                    rs = u_execve(progfname,eav,eev) ;
-	                }
+	                    {
+	                        const char **eav = (const char **) av ;
+	                        const char **eev = (const char **) ev ;
+	                        rs = u_execve(progfname,eav,eev) ;
+	                    }
 #endif /* CF_DEBUGE */
 
-	            } /* end if */
+	                } /* end if */
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(3))
-	                debugprintf("progexec: u_execve() rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(3))
+	                    debugprintf("progexec: u_execve() rs=%d\n",rs) ;
 #endif
 
-	        } /* end if (get-buffer) */
+	            } /* end if (get-buffer) */
 
-	        buffer_finish(&b) ;
-	    } /* end if (buffer) */
+	            buffer_finish(&b) ;
+	        } /* end if (buffer) */
 
-	    uc_free(av) ;
-	} /* end if (memory-allocation) */
+	        uc_free(av) ;
+	    } /* end if (memory-allocation) */
 	} /* end if (ok) */
 
 	return rs ;
