@@ -1,14 +1,19 @@
 /* mfsns */
 
+/* last modified %G% version %I% */
+
 
 /* revision history:
 
 	= 2008-10-01, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008,2017 David A­D­ Morano.  All rights reserved. */
 
 
 #ifndef	MFSNS_INCLUDE

@@ -1,6 +1,7 @@
 /* listenspec */
 
 /* this object holds a "listen" specification */
+/* last modified %G% version %I% */
 
 
 /* revision history:

@@ -191,6 +191,7 @@ extern int	prgetprogpath(cchar *,char *,cchar *,int) ;
 extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	vecstr_envadd(vecstr *,cchar *,cchar *,int) ;
 extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -1194,7 +1195,7 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        if (! isStrEmpty(cp,-1)) {
+	        if (hasnonwhite(cp,-1)) {
 		    rs = optvalue(cp,-1) ;
 		    pip->debuglevel = rs ;
 	        }
@@ -1350,13 +1351,15 @@ static int pcsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* early return thing */
 retearly:
 	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    if (pip->f.background || pip->f.daemon) {
 	        cchar	*w = ((pip->f.daemon) ? "child" : "parent") ;
-	        shio_printf(pip->efp,"%s: (%s) exiting ex=%u (%d)\n",
-	            pip->progname,w,ex,rs) ;
+		fmt = "%s: (%s) exiting ex=%u (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,w,ex,rs) ;
 	    } else {
-	        shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
-	            pip->progname,ex,rs) ;
+		fmt = "%s: exiting ex=%u (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,ex,rs) ;
 	    }
 	} /* end if */
 

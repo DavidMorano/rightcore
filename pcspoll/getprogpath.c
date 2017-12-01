@@ -1,10 +1,10 @@
 /* getprogpath */
 
 /* get the path to a program that is used within the PCS system */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUGN	0		/* special debugging */
 
 
 /* revision history:
@@ -59,7 +59,6 @@
 #include	<vsystem.h>
 #include	<ids.h>
 #include	<vecstr.h>
-#include	<storebuf.h>
 #include	<localmisc.h>
 
 
@@ -76,13 +75,12 @@ extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	mkpath1w(char *,const char *,int) ;
 extern int	mkpath2w(char *,const char *,const char *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
-extern int	xfile(IDS *,const char *) ;
+extern int	xfile(IDS *,cchar *) ;
 extern int	getpwd(char *,int) ;
 extern int	isNotPresent(int) ;
 
-#if	CF_DEBUGS || CF_DEBUGN
+#if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
-extern int	nprintf(const char *,const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
@@ -113,9 +111,6 @@ int getprogpath(IDS *idp,vecstr *plp,char *rbuf,cchar *pnp,int pnl)
 #if	CF_DEBUGS
 	debugprintf("getprogpath: ent name=%t\n",pnp,pnl) ;
 #endif
-#if	CF_DEBUGN
-	nprintf(NDF,"getprogpath: ent name=%t\n",pnp,pnl) ;
-#endif
 
 	if ((idp == NULL) || (plp == NULL)) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
@@ -126,7 +121,7 @@ int getprogpath(IDS *idp,vecstr *plp,char *rbuf,cchar *pnp,int pnl)
 	if (pnl < 0) pnl = strlen(pnp) ;
 
 	while ((pnl > 0) && (pnp[pnl-1] == '/')) {
-	    pnl -=1 ;
+	    pnl -= 1 ;
 	}
 
 	rbuf[0] = '\0' ;
@@ -134,49 +129,44 @@ int getprogpath(IDS *idp,vecstr *plp,char *rbuf,cchar *pnp,int pnl)
 	    int		rs1 ;
 	    int		i ;
 	    int		f = FALSE ;
-	    const char	*pp ;
+	    cchar	*pp ;
 	    char	pwd[MAXPATHLEN + 1] = { 0 } ;
 
 	    for (i = 0 ; vecstr_get(plp,i,&pp) >= 0 ; i += 1) {
 	        if (pp != NULL) {
 
 #if	CF_DEBUGS
-		debugprintf("getprogpath: p=>%s<\n",pp) ;
-#endif
-#if	CF_DEBUGN
-		nprintf(NDF,"getprogpath: p=>%s<\n",pp) ;
+	            debugprintf("getprogpath: p=>%s<\n",pp) ;
 #endif
 
-	        if (pp[0] == '\0') {
-	            if (pwd[0] == '\0') rs = getpwd(pwd,MAXPATHLEN) ;
-		    if (rs >= 0) {
-	                rs1 = mkpath2w(rbuf,pwd,pnp,pnl) ;
-	        	rl = rs1 ;
-		    }
-	        } else {
-	            rs1 = mkpath2w(rbuf,pp,pnp,pnl) ;
-	            rl = rs1 ;
-		}
+	            if (pp[0] == '\0') {
+	                if (pwd[0] == '\0') rs = getpwd(pwd,MAXPATHLEN) ;
+	                if (rs >= 0) {
+	                    rs1 = mkpath2w(rbuf,pwd,pnp,pnl) ;
+	                    rl = rs1 ;
+	                }
+	            } else {
+	                rs1 = mkpath2w(rbuf,pp,pnp,pnl) ;
+	                rl = rs1 ;
+	            }
 
 #if	CF_DEBUGS
-	debugprintf("getprogpath: mid rs=%d\n",rs) ;
-	debugprintf("getprogpath: rbuf=%s\n",rbuf) ;
+	            debugprintf("getprogpath: mid rs=%d\n",rs) ;
+	            debugprintf("getprogpath: rbuf=%s\n",rbuf) ;
 #endif
 
-	        if ((rs >= 0) && (rs1 > 0)) {
+	            if ((rs >= 0) && (rs1 > 0)) {
+	                if ((rs = xfile(idp,rbuf)) >= 0) {
+	                    f = TRUE ;
+	                } else if (isNotPresent(rs)) {
+	                    rl = 0 ;
+	                    rs = SR_OK ;
+	                }
+	            } /* end if */
 
-	            if ((rs = xfile(idp,rbuf)) >= 0) {
-			f = TRUE ;
-		    } else if (isNotPresent(rs)) {
-			rl = 0 ;
-			rs = SR_OK ;
-		    }
-
-	        } /* end if */
-
-		}
-		if (f) break ;
-		if (rs < 0) break ;
+	        }
+	        if (f) break ;
+	        if (rs < 0) break ;
 	    } /* end for */
 
 	    if ((rs >= 0) && (!f)) rs = SR_NOENT ;
@@ -184,7 +174,7 @@ int getprogpath(IDS *idp,vecstr *plp,char *rbuf,cchar *pnp,int pnl)
 	} else {
 
 	    if ((rs = mkpath1w(rbuf,pnp,pnl)) >= 0) {
-		rl = rs ;
+	        rl = rs ;
 	        rs = xfile(idp,rbuf) ;
 	    }
 
@@ -192,11 +182,6 @@ int getprogpath(IDS *idp,vecstr *plp,char *rbuf,cchar *pnp,int pnl)
 
 	if (rs < 0)
 	    rbuf[0] = '\0' ;
-
-#if	CF_DEBUGN
-	nprintf(NDF,"getprogpath: ret rs=%d rl=%d\n",rs,rl) ;
-	nprintf(NDF,"getprogpath: ret rbuf=%s\n",rbuf) ;
-#endif
 
 #if	CF_DEBUGS
 	debugprintf("getprogpath: ret rs=%d rl=%d\n",rs,rl) ;

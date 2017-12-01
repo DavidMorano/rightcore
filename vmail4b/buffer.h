@@ -1,6 +1,7 @@
 /* buffer */
 
 /* variable-length buffer management */
+/* last modified %G% version %I% */
 
 
 /* revision history:

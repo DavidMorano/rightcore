@@ -1,6 +1,7 @@
 /* hdrdecode */
 
 /* mail-header value string decoder */
+/* last modified %G% version %I% */
 
 
 /* revision history:

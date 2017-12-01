@@ -1,6 +1,7 @@
 /* hdb */
 
 /* general-purpose in-core hashing */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* debugging print-outs */

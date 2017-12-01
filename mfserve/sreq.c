@@ -4,7 +4,7 @@
 /* version %I% last modified %G% */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
 /* revision history:
@@ -132,6 +132,15 @@ int sreq_finish(SREQ *jep)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+#if	CF_DEBUGS
+	debugprintf("sreq_finish: ent ji=%d {%p}\n",jep->ji,jep) ;
+#endif
+
+	if (jep->f.ss) {
+	    rs1 = sreq_svcentend(jep) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
 	rs1 = sreq_thrdone(jep) ;
 	if (rs >= 0) rs = rs1 ;
 
@@ -162,6 +171,11 @@ int sreq_finish(SREQ *jep)
 
 	jep->pid = -1 ;
 	jep->logid[0] = '\0' ;
+
+#if	CF_DEBUGS
+	debugprintf("sreq_finish: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (sreq_finish) */
@@ -275,9 +289,8 @@ int sreq_setstate(SREQ *op,int state)
 
 int sreq_getsvc(SREQ *op,cchar **rpp)
 {
-	int		sl ;
+	int		sl = strlen(op->svc) ;
 	if (rpp != NULL) *rpp = op->svc ;
-	sl = strlen(op->svc) ;
 	return sl ;
 }
 /* end subroutine (sreq_getsvc) */
@@ -323,20 +336,45 @@ int sreq_svcentend(SREQ *jep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
+#if	CF_DEBUGS
+	debugprintf("sreq_svcentend: ent ji=%d {%p}\n",jep->ji,jep) ;
+#endif
 	if (jep->f.ss) {
 	    jep->f.ss = FALSE ;
 	    rs1 = svcentsub_finish(&jep->ss) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
+#if	CF_DEBUGS
+	debugprintf("sreq_svcentend: ret rs=%d \n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (sreq_svcentend) */
+
+
+int sreq_exiting(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	rs1 = sreq_fdfins(jep) ;
+	if (rs >= 0) rs = rs1 ;
+
+	jep->f_exiting = TRUE ;
+
+	return rs ;
+}
+/* end subroutine (sreq_exiting) */
 
 
 int sreq_thrdone(SREQ *jep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
+#if	CF_DEBUGS
+	debugprintf("sreq_thrdone: ent ji=%d {%p}\n",jep->ji,jep) ;
+	debugprintf("sreq_thrdone: f_thread=%u\n",jep->f.thread) ;
+#endif
 	if (jep->f.thread) {
 	    pthread_t	tid = jep->tid ;
 	    int		trs ;
@@ -345,9 +383,12 @@ int sreq_thrdone(SREQ *jep)
 	    if (rs >= 0) rs = rs1 ;
 	    if (rs >= 0) rs = trs ;
 	}
+#if	CF_DEBUGS
+	debugprintf("sreq_thrdone: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
-/* end subroutine (sreq_svcentend) */
+/* end subroutine (sreq_thrdone) */
 
 
 /* private subroutines */
@@ -357,21 +398,35 @@ static int sreq_fdfins(SREQ *jep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	if ((jep->ofd >= 0) && (jep->ifd != jep->ofd)) {
-	    rs1 = u_close(jep->ofd) ;
-	    if (rs >= 0) rs = rs1 ;
+#if	CF_DEBUGS
+	debugprintf("sreqdb_fdfins: ent ofd=%d ifd=%d\n",jep->ofd,jep->ifd) ;
+#endif
+	if (jep->ofd >= 0) {
+	    if (jep->ofd != jep->ifd) {
+	        rs1 = u_close(jep->ofd) ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
 	    jep->ofd = -1 ;
 	}
+#if	CF_DEBUGS
+	debugprintf("sreqdb_fdfins: mid1 rs=%d\n",rs) ;
+#endif
 	if (jep->ifd >= 0) {
 	    rs1 = u_close(jep->ifd) ;
 	    if (rs >= 0) rs = rs1 ;
 	    jep->ifd = -1 ;
 	}
+#if	CF_DEBUGS
+	debugprintf("sreqdb_fdfins: mid2 rs=%d\n",rs) ;
+#endif
 	if (jep->efd >= 0) {
 	    rs1 = u_close(jep->efd) ;
 	    if (rs >= 0) rs = rs1 ;
 	    jep->efd = -1 ;
 	}
+#if	CF_DEBUGS
+	debugprintf("sreqdb_fdfins: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (sreq_fdfins) */

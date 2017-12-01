@@ -1,6 +1,7 @@
 /* expcook */
 
 /* Expand-Cookie - creates the substitution variables for cookie escapes */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */

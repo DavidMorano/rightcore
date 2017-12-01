@@ -1,6 +1,7 @@
 /* mapstrs */
 
 /* environment variable management */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */

@@ -1,6 +1,7 @@
 /* charq */
 
 /* character queue */
+/* last modified %G% version %I% */
 
 
 /* revision history:

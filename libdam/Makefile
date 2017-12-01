@@ -215,8 +215,8 @@ OBJ58= islowerlatin.o isupperlatin.o isprintterm.o iswhite.o iseol.o rmeol.o
 OBJ59= isinetaddr.o isindomain.o issamehostname.o isleapyear.o isfnamespecial.o
 # this next one is in LIBUC
 #OBJ60= hasuc.o haslc.o haswhite.o 
-OBJ60= hasalpha.o hasnum.o hasStrContent.o
-OBJ61= hasalllc.o hasalluc.o hasallalnum.o hasallalpha.o
+OBJ60= hasalpha.o hasnum.o
+OBJ61= hasalllc.o hasalluc.o hasallalnum.o hasallalpha.o hasnonwhite.o
 OBJ62= hasalldig.o hasallbase.o hasprintbad.o hasallminus.o hasallplusminus.o
 OBJ63= hasdoublewhite.o hasallwhite.o hasfext.o hasallof.o hasourmjd.o
 
@@ -274,8 +274,8 @@ OBJ109= thrbase.o thrcomm.o
 OBJ110= strmgr.o dayspec.o bcspec.o termtrans.o uiconv.o chartrans.o obuf.o
 OBJ111= hdrdecode.o qpdecoder.o b64decoder.o hexdecoder.o utf8decoder.o
 
-OBJ112= vecstr_adds.o vecstr_foilcmp.o
-OBJ113= vecpstr_loadgrusers.o vecpstr_loadpjusers.o vecpstr_loaddirs.o
+OBJ112= vecstr_adds.o vecstr_foilcmp.o vecstr_svcargs.o vecstr_srvargs.o
+OBJ113= vecpstr_loadgrusers.o vecpstr_loadpjusers.o vecpstr_addsubdirs.o
 OBJ114= vecitem.o vecint.o veclong.o vecelem.o vecobj.o 
 OBJ115= filebuf_mailsupport.o filebuf_writefd.o
 OBJ116= setint.o osetint.o setstr.o osetstr.o mapstrs.o
@@ -666,6 +666,10 @@ vecstr_foilcmp.o:	vecstr_foilcmp.c vecstr.h
 vecstr_env.o:		vecstr_env.c vecstr.h
 
 vecstr_envfile.o:	vecstr_envfile.c vecstr.h
+
+vecstr_svcargs.o:	vecstr_svcargs.c vecstr.h
+
+vecstr_srvargs.o:	vecstr_srvargs.c vecstr.h
 
 vecpstr.o:		vecpstr.c vecpstr.h
 

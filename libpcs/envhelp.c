@@ -5,6 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_SETEXECS	0		/* compile |setexecs| */
 
 
 /* revision history:
@@ -222,6 +223,18 @@ int envhelp_envset(ENVHELP *op,cchar *kp,cchar *vp,int vl)
 	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (envhelp_envset) */
+
+
+#if	CF_SETEXECS
+int envhelp_setexecs(ENVHELP *op,cchar *pfn,cchar *argz)
+{
+	int		rs ;
+
+
+	return rs ;
+}
+/* end subroutine (envhelp_setexecs) */
+#endif /* CF_SETEXECS */
 
 
 /* search for an entry in the list */

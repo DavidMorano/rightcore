@@ -1,5 +1,7 @@
 /* jobdb */
 
+/* last modified %G% version %I% */
+
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 

@@ -2,6 +2,7 @@
 /* lang=C++98 */
 
 /* mail-header weirdo-string decoding */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */

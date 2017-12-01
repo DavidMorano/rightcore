@@ -1,6 +1,7 @@
 /* mfsc */
 
 /* PCS Name-Server-Client */
+/* last modified %G% version %I% */
 
 
 /* revision history:
@@ -8,9 +9,12 @@
 	= 2000-12-18, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	MFSC_INCLUDE
 #define	MFSC_INCLUDE	1

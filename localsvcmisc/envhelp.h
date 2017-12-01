@@ -1,6 +1,7 @@
 /* envhelp */
 
 /* help w/ handling environment */
+/* last modified %G% version %I% */
 
 
 /* revision history:
@@ -43,6 +44,7 @@ extern "C" {
 extern int envhelp_start(ENVHELP *,cchar **,cchar **) ;
 extern int envhelp_present(ENVHELP *,cchar *,int,cchar **) ;
 extern int envhelp_envset(ENVHELP *,cchar *,cchar *,int) ;
+extern int envhelp_setexecs(ENVHELP *,cchar *,cchar *) ;
 extern int envhelp_sort(ENVHELP *) ;
 extern int envhelp_getvec(ENVHELP *,cchar ***) ;
 extern int envhelp_finish(ENVHELP *) ;

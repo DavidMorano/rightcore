@@ -1,6 +1,7 @@
 /* chownsame */
 
 /* make all directories in a directory path */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */

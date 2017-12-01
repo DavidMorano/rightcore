@@ -1,5 +1,7 @@
 /* msu-log */
 
+/* last modified %G% version %I% */
+
 
 /* revision history:
 

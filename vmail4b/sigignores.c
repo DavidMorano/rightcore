@@ -14,8 +14,9 @@
 
 /*******************************************************************************
 
-        This subroutine signores a group of specified process signals as given
-        in an array of signal numbers.
+        This subroutine sets the disposition of the specified set of signals
+	(given as an array of integers containing the desired signal numbers)
+	such that those signals will be ignored.
 
 
 *******************************************************************************/
@@ -53,12 +54,14 @@ int sigignores(int *sigs)
 	    for (i = 0 ; (rs >= 0) && (sigs[i] > 0) ; i += 1) {
 		rs = uc_sigignore(sigs[i]) ;
 	    }
-	} else
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 	return rs ;
 }
 /* end subroutine (sigignores) */
+
 
 int ignoresigs(int *sigs)
 {

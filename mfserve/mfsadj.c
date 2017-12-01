@@ -18,9 +18,12 @@
 	conflicts over including different versions of the system socket
 	structures.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2004,2005 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2005,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

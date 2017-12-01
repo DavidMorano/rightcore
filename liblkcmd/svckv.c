@@ -91,7 +91,6 @@ extern char	*strnrpbrk(cchar *,int,cchar *) ;
 /* local variables */
 
 static char	*isexecs[] = {
-	"so",
 	"p",
 	"a",
 	NULL

@@ -318,26 +318,30 @@ int sreqdb_del(SREQDB *jlp,int i)
 
 
 /* delete a job by pointer */
-int sreqdb_delp(SREQDB *jlp,SREQ *jep)
+int sreqdb_delobj(SREQDB *jlp,SREQ *jep)
 {
-	SREQ		*jep2 ;
+	SREQ		*ep ;
 	int		rs ;
 	int		i ;
 
 	if (jlp == NULL) return SR_FAULT ;
+	if (jep == NULL) return SR_FAULT ;
 
-	for (i = 0 ; (rs = vechand_get(&jlp->db,i,&jep2)) >= 0 ; i += 1) {
-	    if (jep2 != NULL) {
-	        if (jep2 == jep) {
-	            rs = sreqdb_delit(jlp,i,jep) ;
-		    break ;
-	        }
-	    }
+	for (i = 0 ; (rs = vechand_get(&jlp->db,i,&ep)) >= 0 ; i += 1) {
+	    if (ep == jep) break ;
 	} /* end for */
+
+	if (rs >= 0) {
+	    rs = sreqdb_delit(jlp,i,jep) ;
+	}
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_delobj: ret rs=%d i=%u\n",rs,i) ;
+#endif
 
 	return (rs >= 0) ? i : rs ;
 }
-/* end subroutine (sreqdb_delp) */
+/* end subroutine (sreqdb_delobj) */
 
 
 int sreqdb_count(SREQDB *jlp)
@@ -377,8 +381,10 @@ int sreqdb_exiting(SREQDB *op,int ji)
 	if ((rs = vechand_get(&op->db,ji,&jep)) >= 0) {
 	    const int	st = sreqstate_done ;
 	    if ((rs = sreq_setstate(jep,st)) >= 0) {
-	        if ((rs = intiq_ins(&op->exits,ji)) >= 0) {
-		    op->f_exiting = TRUE ;
+		if ((rs = sreq_exiting(jep)) >= 0) {
+		    if (jep->f.thread) {
+	                rs = intiq_ins(&op->exits,ji) ;
+		    }
 		}
 	    }
 	}
@@ -431,6 +437,10 @@ static int sreqdb_delit(SREQDB *jlp,int i,SREQ *jep)
 
 	rs1 = sreq_finish(jep) ;
 	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_delit: sreq_finish() rs=%d\n",rs) ;
+#endif
 
 	rs1 = vechand_del(&jlp->db,i) ;
 	if (rs >= 0) rs = rs1 ;

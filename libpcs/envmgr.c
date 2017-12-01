@@ -88,7 +88,7 @@ int envmgr_start(ENVMGR *emp)
 	    }
 	    if (rs < 0)
 	        vechand_finish(&emp->envlist) ;
-	}
+	} /* end if (vechand_start) */
 
 	return rs ;
 }
@@ -121,7 +121,7 @@ int envmgr_set(ENVMGR *emp,cchar *kp,cchar *vp,int vl)
 	    cchar	*ep ;
 	    if ((rs = vecstr_get(esp,i,&ep)) >= 0) {
 		const int	nrs = SR_NOTFOUND ;
-	        int (*venvcmp)(const void **,const void **) ;
+	        int		(*venvcmp)(const void **,const void **) ;
 	        venvcmp = (int (*)(const void **,const void **)) vstrkeycmp ;
 	        if ((rs = vechand_search(elp,kp,venvcmp,NULL)) >= 0) {
 	            vechand_del(elp,rs) ;

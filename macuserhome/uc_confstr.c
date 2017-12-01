@@ -64,34 +64,23 @@
 /* exported subroutines */
 
 
-int uc_confstr(request,ubuf,ulen)
-int	request ;
-char	ubuf[] ;
-int	ulen ;
+int uc_confstr(int request,char *ubuf,int ulen)
 {
-	size_t	result ;
-	size_t	llen = (ulen+1) ;
+	int		rs = SR_OVERFLOW ;
+	int		len = 0 ;
 
-	int	rs = SR_OK ;
-	int	len ;
+	if (ubuf == NULL) ulen = 0 ; /* indicate return length only */
 
-
-	if (ubuf == NULL)
-	    return SR_FAULT ;
-
-	if (ulen < 1)
-	    return SR_OVERFLOW ;
-
-	errno = 0 ;
-	result = confstr(request,ubuf,llen) ;
-	if ((result == 0) && (errno != 0)) rs = (- errno) ;
-	len = (result-1) ;
-
-#if	CF_DEBUGS
-	debugprintf("uc_confstr: result=%08lx rs=%d\n",result,rs) ;
-#endif
-
-	if ((rs >= 0) && (result > llen)) rs = SR_OVERFLOW ;
+	if ((ubuf == NULL) || (ulen >= 1)) {
+	    size_t	result ;
+	    size_t	llen = (ulen+1) ;
+	    rs = SR_OK ;
+	    errno = 0 ;
+	    result = confstr(request,ubuf,llen) ;
+	    if ((result == 0) && (errno != 0)) rs = (- errno) ;
+	    len = (result-1) ;
+	    if ((rs >= 0) && (result > llen)) rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }

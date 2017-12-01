@@ -197,7 +197,7 @@ OBJ11= pcsconf.o pcspoll.o var.o varmk.o
 OBJ12=
 OBJ13=
 OBJ14=
-OBJ15= vecpstr_loaddirs.o
+OBJ15= vecpstr_addsubdirs.o
 
 #OBJ16= expcook.o sfcookkey.o
 #OBJ17= pcsconfs.o

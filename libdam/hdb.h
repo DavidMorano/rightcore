@@ -1,6 +1,7 @@
 /* hdb */
 
 /* general-purpose in-core hashing, DBM-like interface */
+/* last modified %G% version %I% */
 
 
 /* revision history:

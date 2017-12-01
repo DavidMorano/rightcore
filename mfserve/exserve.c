@@ -180,15 +180,15 @@ extern char	*strbasename(char *) ;
 /* forward references */
 
 static int	procserver(PROGINFO *,CLIENTINFO *,
-			SVCFILE_ENT *,const char **) ;
+			SVCFILE_ENT *,cchar **) ;
 static int	procserverpass(PROGINFO *,CLIENTINFO *,
-			PROCSE *, VECSTR *,const char *) ;
+			PROCSE *, VECSTR *,cchar *) ;
 static int	procserverlib(PROGINFO *,CLIENTINFO *,
-			PROCSE *, VECSTR *,const char *) ;
+			PROCSE *, VECSTR *,cchar *) ;
 static int	procserverexec(PROGINFO *,CLIENTINFO *,
-			PROCSE *, VECSTR *,const char *) ;
-static int	procfindprog(PROGINFO *,vecstr *,const char **,
-			char *,const char *,int) ;
+			PROCSE *, VECSTR *,cchar *) ;
+static int	procfindprog(PROGINFO *,vecstr *,cchar **,
+			char *,cchar *,int) ;
 
 #if	CF_CHECKACCESS
 static int	procaccperm(PROGINFO *,CLIENTINFO *,PROCSE *) ;
@@ -220,13 +220,13 @@ static const uchar	gterms[] = {
 	0x00, 0x00, 0x00, 0x00
 } ;
 
-static const char	*prbins[] = {
+static cchar	*prbins[] = {
 	"bin",
 	"sbin",
 	NULL
 } ;
 
-static const char	*prlibs[] = {
+static cchar	*prlibs[] = {
 	"lib",
 	NULL
 } ;
@@ -576,10 +576,8 @@ const char	*sav[] ;
 	        debugprintf("procserver: procaccperm() rs=%d\n",rs) ;
 #endif
 
-	    if (rs < 0)
-	        goto badprocacc ;
-	    if (rs == 0)
-	        goto badnoperm ;
+	    if (rs < 0) goto badprocacc ;
+	    if (rs == 0) goto badnoperm ;
 	}
 #endif /* CF_CHECKACCESS */
 
@@ -624,7 +622,7 @@ const char	*sav[] ;
 /* get fail-cont indicator */
 
 	if (se.a.failcont != NULL) {
-	    const char	*tp ;
+	    cchar	*tp ;
 	    f_failcont = TRUE ;
 	    if ((tp = strchr(se.a.failcont,'=')) != NULL) {
 	        rs1 = optbool((tp+1),-1) ;
@@ -894,8 +892,9 @@ const char	*argz ;
 	    pnp = shlibname ;
 	}
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = procfindprog(pip,&pip->pathlib,prlibs,progfname,pnp,pnl) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -1125,10 +1124,12 @@ const char	*argz ;
 
 	if (rs < 0) {
 	    cp = "EXEC server not found" ;
-	    if (pip->open.logprog)
+	    if (pip->open.logprog) {
 	        proglog_printf(pip,cp) ;
-	    if (pip->debuglevel > 0)
+	    }
+	    if (pip->debuglevel > 0) {
 	        bprintf(pip->efp,"%s: %s\n",pip->progname,cp) ;
+	    }
 	    goto badnoprog ;
 	} /* end if (could not find program) */
 
@@ -1145,14 +1146,16 @@ const char	*argz ;
 	    if ((argz[0] == '+') && (argz[1] == '\0')) {
 	        argz = argzbuf ;
 	        cl = mkbasename(argzbuf,pnp,pnl) ;
-	        if ((rs = vecstr_del(alp,0)) >= 0)
+	        if ((rs = vecstr_del(alp,0)) >= 0) {
 	            rs = vecstr_insert(alp,0,argz,cl) ;
+		}
 	    }
 	} else {
 	    argz = argzbuf ;
 	    cl = mkbasename(argzbuf,pnp,pnl) ;
-	    if (vecstr_count(alp) < 1)
+	    if (vecstr_count(alp) < 1) {
 	        rs = vecstr_add(alp,argz,cl) ;
+	    }
 	}
 
 #if	CF_DEBUG
@@ -1274,15 +1277,12 @@ int		pnl ;
 	} else {
 
 	    for (i = 0 ; prdirs[i] != NULL ; i += 1) {
-
-	        rs = mkpath3w(progfname,pip->pr,prdirs[i],pnp,pnl) ;
-	        rlen = rs ;
-	        if (rs >= 0)
+		cchar	*dir = prdirs[i] ;
+	        if ((rs = mkpath3w(progfname,pip->pr,dir,pnp,pnl)) >= 0) {
+	            rlen = rs ;
 	            rs = xfile(&pip->id,progfname) ;
-
-	        if (rs >= 0)
-	            break ;
-
+		}
+	        if (rs >= 0) break ;
 	    } /* end for */
 
 #if	CF_DEBUG

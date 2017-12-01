@@ -195,20 +195,20 @@ OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08= cpuspeed.o securefile.o
 OBJ09= 
 OBJ10= 
-OBJ11= 
-OBJ12=
-OBJ13= 
-OBJ14= listenspec.o poller.o
-OBJ15= msfile.o msfilee.o ebuf.o
+OBJ11= vecstr_svcargs.o vecstr_srvargs.o
+OBJ12= varsub.o intiq.o
+OBJ13= vecpstr_addpath.o
+OBJ14= listenspec.o poller.o spawnproc.o
+OBJ15= msfile.o msfilee.o ebuf.o msghdr.o cmsghdr.o
 
-OBJ16= msghdr.o cmsghdr.o
-OBJ17= vecstr_svcargs.o
-OBJ18= varsub.o intiq.o
+OBJ16=
+OBJ17=
+OBJ18=
 OBJ19=
 OBJ20= svckv.o svcent.o
 OBJ21= uc_peek.o passfd.o
-OBJ22= isBadSend.o isBadRecv.o
-OBJ23= isBadMsg.o
+OBJ22= isBadSend.o isBadRecv.o isBadMsg.o
+OBJ23= debug.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -393,9 +393,15 @@ shio.o:			shio.c shio.h
 
 userinfo.o:		userinfo.c userinfo.h
 
-vecstr_loadfile.o:	vecstr_loadfile.c
+vecstr.o:		vecstr.c vecstr.h
 
-vecstr_env.o:		vecstr_env.c
+vecstr_loadfile.o:	vecstr_loadfile.c vecstr.h
+
+vecstr_env.o:		vecstr_env.c vecstr.h
+
+vecstr_svcargs.o:	vecstr_svcargs.c vecstr.h
+
+vecstr_srvargs.o:	vecstr_srvargs.c vecstr.h
 
 filemap.o:		filemap.c filemap.h
 
@@ -436,6 +442,8 @@ varsub.o:		varsub.c varsub.h
 varsub_extras.o:	varsub_extras.c
 
 intiq.o:		intiq.c intiq.h
+
+spawnproc.o:		spawnproc.c spawnproc.h
 
 
 # testing

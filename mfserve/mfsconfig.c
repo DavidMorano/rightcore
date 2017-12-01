@@ -13,9 +13,12 @@
 	= 2004-03-01, David A­D­ Morano
 	This subroutine was originally written.  
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2004,2005,2011 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

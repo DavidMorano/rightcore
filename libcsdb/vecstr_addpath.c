@@ -167,7 +167,7 @@ int vecstr_addpathclean(vecstr *vlp,cchar *lp,int ll)
 	if (ll < 0) ll = strlen(lp) ;
 
 	if (ll > 0) {
-	    const char	*tp ;
+	    cchar	*tp ;
 	    char	dname[MAXPATHLEN + 1] ;
 	    while ((tp = strnpbrk(lp,ll,":;")) != NULL) {
 		if ((tp-lp) >= 0) {
@@ -204,7 +204,7 @@ int vecstr_addpath(vecstr *vlp,cchar *lp,int ll)
 	if (ll < 0) ll = strlen(lp) ;
 
 	if (ll > 0) {
-	    const char	*tp ;
+	    cchar	*tp ;
 	    while ((tp = strnpbrk(lp,ll,":;")) != NULL) {
 		if ((tp-lp) >= 0) {
 		    rs = vecstr_adduniq(vlp,lp,(tp-lp)) ;

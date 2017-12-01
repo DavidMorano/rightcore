@@ -334,6 +334,7 @@ static int spawnproc_pipes(SPAWNPROC *psap,cchar *fname,
 	        for (i = 0 ; (rs >= 0) && (i < 3) ; i += 1) {
 #if	CF_DEBUGS
 	            debugprintf("spawnproc: checking fd=%u\n",i) ;
+	            debugprintf("spawnproc: disp=%d\n",psap->disp[i]) ;
 #endif
 	            switch (psap->disp[i]) {
 	            case SPAWNPROC_DINHERIT:
@@ -442,17 +443,19 @@ static void spawnproc_child(SPAWNPROC *psap,cchar *fname,
 	    opens[i] = -1 ;
 	}
 
-	if (psap->opts & SPAWNPROC_OIGNINTR) {
+	if ((rs >= 0) && (psap->opts & SPAWNPROC_OIGNINTR)) {
 	    sigignores(sigigns) ;
 	}
 
-	if (psap->opts & SPAWNPROC_OSETSID) {
-	    setsid() ;
-	} else if (psap->opts & SPAWNPROC_OSETPGRP) {
-	    setpgid(0,psap->pgrp) ;
+	if (rs >= 0) {
+	    if (psap->opts & SPAWNPROC_OSETSID) {
+	        setsid() ;
+	    } else if (psap->opts & SPAWNPROC_OSETPGRP) {
+	        rs = u_setpgid(0,psap->pgrp) ;
+	    }
 	}
 
-	if (psap->opts & SPAWNPROC_OSETCTTY) {
+	if ((rs >= 0) && (psap->opts & SPAWNPROC_OSETCTTY)) {
 	    SIGIGN	si ;
 	    pid_t	pgrp = getpgrp() ;
 	    if ((rs = sigign_start(&si,sigouts)) >= 0) {
@@ -461,7 +464,7 @@ static void spawnproc_child(SPAWNPROC *psap,cchar *fname,
 	    } /* end if (sigign) */
 	} /* end if (set PGID for controlling terminal) */
 
-	if (psap->opts & SPAWNPROC_OSIGDEFS) {
+	if ((rs >= 0) && (psap->opts & SPAWNPROC_OSIGDEFS)) {
 	    sigdefaults(sigdefs) ;
 	}
 
@@ -743,10 +746,11 @@ static int ourfork()
 static int opendevnull(int *opens,int i)
 {
 	struct ustat	sb ;
-	const mode_t	om = 0666 ;
-	const int	of = (i == 0) ? O_RDONLY : O_WRONLY ;
-	int		rs = SR_OK ;
-	if (u_fstat(i,&sb) < 0) {
+	const int	rsbad = SR_BADF ;
+	int		rs ;
+	if ((rs = u_fstat(i,&sb)) == rsbad) {
+	    const mode_t	om = 0666 ;
+	    const int		of = (i == 0) ? O_RDONLY : O_WRONLY ;
 	    if ((rs = u_open(NULLFNAME,of,om)) >= 0) {
 	        const int	fd = rs ;
 	        if (fd != i) {

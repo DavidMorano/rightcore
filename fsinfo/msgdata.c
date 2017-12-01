@@ -1,6 +1,7 @@
 /* msgdata */
 
 /* library initialization for KSH built-in command libraries */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time */

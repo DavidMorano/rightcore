@@ -93,6 +93,7 @@ extern int sreq_getstate(SREQ *) ;
 extern int sreq_ofd(SREQ *) ;
 extern int sreq_svcentbegin(SREQ *,LOCINFO *,SVCENT *) ;
 extern int sreq_svcentend(SREQ *) ;
+extern int sreq_exiting(SREQ *) ;
 extern int sreq_thrdone(SREQ *) ;
 extern int sreq_finish(SREQ *) ;
 

@@ -16,9 +16,12 @@
         whole new daemon program just to poll for machine status. I hope this
         works out! :-)
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -59,14 +62,18 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<bfile.h>
 #include	<varsub.h>
 #include	<vecstr.h>
+#include	<vecpstr.h>
 #include	<sockaddress.h>
 #include	<connection.h>
 #include	<poller.h>
 #include	<svcfile.h>
 #include	<upt.h>
+#include	<envhelp.h>
+#include	<spawnproc.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -125,16 +132,8 @@ typedef int (*svcprocer_t)(PROGINFO *pip,SREQ *jep) ;
 
 /* external subroutines */
 
-extern int	snddd(char *,int,uint,uint) ;
-extern int	snsdd(char *,int,const char *,uint) ;
-extern int	snpollflags(char *,int,int) ;
-extern int	sncpy1(char *,int,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	sfdirname(const char *,int,const char **) ;
-extern int	matstr(const char **,const char *,int) ;
+extern int	pathadd(char *,int,cchar *) ;
+extern int	pathaddw(char *,int,cchar *,int) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	bufprintf(const char *,int,...) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
@@ -143,8 +142,12 @@ extern int	passfd(cchar *,int) ;
 extern int	nlspeername(const char *,const char *,char *) ;
 extern int	mksublogid(char *,int,cchar *,int) ;
 extern int	acceptpass(int,struct strrecvfd *,int) ;
+extern int	xfile(IDS *,cchar *) ;
 extern int	varsub_addvec(VARSUB *,VECSTR *) ;
 extern int	vecstr_svcargs(vecstr *,cchar *) ;
+extern int	vecstr_srvargs(vecstr *,cchar *) ;
+extern int	vecpstr_addpath(vecpstr *,cchar *) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isasocket(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
@@ -157,6 +160,7 @@ extern int	strlinelen(const char *,int,int) ;
 extern int	progexports(PROGINFO *,const char *) ;
 #endif /* CF_DEBUGS */
 
+extern cchar	*getourenv(cchar **,cchar *) ;
 extern cchar	*strsigabbr(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -174,18 +178,23 @@ extern char	*timestr_elapsed(time_t,char *) ;
 struct mfswatch_flags {
 	uint		done:1 ;	/* exit ASAP */
 	uint		sdb:1 ;
+	uint		eh:1 ;		/* environment-mangement helper */
+	uint		bindirs:1 ;	/* path-executable */
+	uint		libdirs:1 ;	/* path-library */
 } ;
 
 struct mfswatch {
 	MFSWATCH_FL	f, open ;
 	SREQDB		reqs ;		/* service requests */
 	POLLER		pm ;		/* Poll-Manager */
-	MFSBUILT	built ;		/* service lookup database */
+	MFSBUILT	built ;		/* builtin lookup database */
 	SVCFILE		sdb ;		/* service lookup database */
+	ENVHELP		eh ;		/* environment-management helper */
+	vecpstr		bindirs ;	/* path-executable */
+	vecpstr		libdirs ;	/* path-library */
 	time_t		ti_lastmark ;
 	time_t		ti_lastmaint ;
 	time_t		ti_lastconfig ;
-	int		njobs ;
 	int		nprocs ;
 	int		nthrs ;
 	int		minpoll ;	/* poll interval in milliseconds */
@@ -202,11 +211,20 @@ struct svcprocargs {
 
 static int	mfswatch_beginner(PROGINFO *) ;
 static int	mfswatch_ender(PROGINFO *) ;
+static int	mfswatch_envbegin(PROGINFO *) ;
+static int	mfswatch_envend(PROGINFO *) ;
 static int	mfswatch_svcaccum(PROGINFO *,SREQ *,int,int) ;
 static int	mfswatch_uptimer(PROGINFO *) ;
 static int	mfswatch_poll(PROGINFO *,POLLER_SPEC *) ;
 static int	mfswatch_pollreg(PROGINFO *,int,int) ;
 static int	mfswatch_polljobs(PROGINFO *,int,int) ;
+
+static int	mfswatch_pathbegin(PROGINFO *) ;
+static int	mfswatch_pathend(PROGINFO *) ;
+static int	mfswatch_pathload(PROGINFO *,vecpstr *,cchar *) ;
+static int	mfswatch_pathfindbin(PROGINFO *,char *,cchar *,int) ;
+static int	mfswatch_pathfindbinpr(PROGINFO *,char *,cchar *,int) ;
+static int	mfswatch_pathfindbinlist(PROGINFO *,char *,cchar *,int) ;
 
 static int	mfswatch_svcbegin(PROGINFO *) ;
 static int	mfswatch_svcend(PROGINFO *) ;
@@ -220,13 +238,15 @@ static int mfswatch_svcprocer(PROGINFO *,SREQ *,svcprocer_t) ;
 static int mfswatch_svcprocfile(PROGINFO *,SREQ *,SVCENT *) ;
 static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCENT *) ;
 static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCENT *) ;
+static int mfswatch_svcprocproger(PROGINFO *,SREQ *,cchar *,vecstr *) ;
+static int mfswatch_progspawn(PROGINFO *,SREQ *,cchar *,vecstr *) ;
 
 static int mfswatch_svcprocfiler(PROGINFO *,SREQ *) ;
 
 static int mfswatch_svcretstat(PROGINFO *,SREQ *,int) ;
 static int mfswatch_jobretire(PROGINFO *,SREQ *) ;
 static int mfswatch_checkthrs(PROGINFO *) ;
-static int mfswatch_checkproc(PROGINFO *) ;
+static int mfswatch_checkprogs(PROGINFO *) ;
 
 static int mfswatch_thrdone(PROGINFO *,SREQ *) ;
 static int mfswatch_logconn(PROGINFO *,int,int,int,cchar *) ;
@@ -240,6 +260,22 @@ static int	svcprocers(SVCPROCARGS *) ;
 
 
 /* local variables */
+
+static cchar	*envbads[] = {
+	"_",
+	"_A0",
+	"_EF",
+	"A__z",
+	"RANDOM",
+	"SECONDS",
+	NULL
+} ;
+
+static cchar	*prbins[] = {
+	"bin",
+	"sbin",
+	NULL
+} ;
 
 
 /* exported subroutines */
@@ -322,7 +358,7 @@ int mfswatch_service(PROGINFO *pip)
 
 	    if (rs >= 0) {
 		if ((rs = mfswatch_checkthrs(pip)) >= 0) {
-		    rs = mfswatch_checkproc(pip) ;
+		    rs = mfswatch_checkprogs(pip) ;
 		}
 	    } /* end if (ok) */
 
@@ -362,8 +398,11 @@ int mfswatch_service(PROGINFO *pip)
 static int mfswatch_uptimer(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
+	int		njobs ;
 
-	if (wip->njobs <= 0) {
+	njobs = (wip->nprocs + wip->nthrs) ;
+
+	if (njobs <= 0) {
 	    if (wip->minpoll < 100) {
 		wip->minpoll = 100 ;
 	    }
@@ -480,27 +519,35 @@ static int mfswatch_beginner(PROGINFO *pip)
 	MFSWATCH	*wip = pip->watch ;
 	int		rs ;
 	cchar		*td = pip->tmpdname ;
-	if ((rs = sreqdb_start(&wip->reqs,td,0)) >= 0) {
-	    if ((rs = mfswatch_svcbegin(pip)) >= 0) {
-	        POLLER	*pmp = &wip->pm ;
-	        if ((rs = poller_start(pmp)) >= 0) {
-		    if ((rs = mfsadj_begin(pip)) >= 0) {
-		        if ((rs = mfsadj_register(pip,pmp)) >= 0) {
-			    rs = mfslisten_maint(pip,pmp) ;
-		        }
-		        if (rs < 0)
-			    mfsadj_end(pip) ;
+	if ((rs = mfswatch_envbegin(pip)) >= 0) {
+	    if ((rs = mfswatch_pathbegin(pip)) >= 0) {
+	        if ((rs = sreqdb_start(&wip->reqs,td,0)) >= 0) {
+	            if ((rs = mfswatch_svcbegin(pip)) >= 0) {
+	                POLLER	*pmp = &wip->pm ;
+	                if ((rs = poller_start(pmp)) >= 0) {
+		            if ((rs = mfsadj_begin(pip)) >= 0) {
+		                if ((rs = mfsadj_register(pip,pmp)) >= 0) {
+			            rs = mfslisten_maint(pip,pmp) ;
+		                }
+		                if (rs < 0)
+			            mfsadj_end(pip) ;
+		            }
+	                    if (rs < 0)
+		                poller_finish(pmp) ;
+	                } /* end if (poller_start) */
+		        if (rs < 0) {
+		            mfswatch_svcend(pip) ;
 		    }
-	            if (rs < 0)
-		        poller_finish(pmp) ;
-	        } /* end if (poller_start) */
-		if (rs < 0) {
-		    mfswatch_svcend(pip) ;
-		}
-	    } /* end if (mfswatch-svc) */
+	        } /* end if (mfswatch-svc) */
+	        if (rs < 0)
+		    sreqdb_finish(&wip->reqs) ;
+	    } /* end if (sreqdb_start) */
 	    if (rs < 0)
-		sreqdb_finish(&wip->reqs) ;
-	} /* end if (sreqdb_start) */
+		mfswatch_pathend(pip) ;
+	} /* end if (mfswatch_pathbegin) */
+	    if (rs < 0)
+		mfswatch_envend(pip) ;
+	} /* end if (mfswatch_envbegin) */
 	return rs ;
 }
 /* end subroutine (mfswatch_beginner) */
@@ -524,6 +571,12 @@ static int mfswatch_ender(PROGINFO *pip)
 	rs1 = sreqdb_finish(&wip->reqs) ;
 	if (rs >= 0) rs = rs1 ;
 
+	rs1 = mfswatch_pathend(pip) ;
+	if (rs >= 0) rs = rs1 ;
+
+	rs1 = mfswatch_envend(pip) ;
+	if (rs >= 0) rs = rs1 ;
+
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfswatch_ender: ret rs=%d\n",rs) ;
@@ -532,6 +585,193 @@ static int mfswatch_ender(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (mfswatch_ender) */
+
+
+static int mfswatch_envbegin(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	ENVHELP		*ehp ;
+	int		rs ;
+	ehp = &wip->eh ;
+	if ((rs = envhelp_start(ehp,envbads,pip->envv)) >= 0) {
+	    wip->open.eh = TRUE ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_envbegin) */
+
+
+static int mfswatch_envend(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (wip->open.eh) {
+	    ENVHELP	*ehp = &wip->eh ;
+	    wip->open.eh = FALSE ;
+	    rs1 = envhelp_finish(ehp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	return rs ;
+}
+/* end subroutine (mfswatch_envend) */
+
+
+static int mfswatch_pathbegin(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs ;
+	cchar		*var = VARBINPATH ;
+	if ((rs = mfswatch_pathload(pip,&wip->bindirs,var)) >= 0) {
+	    var = VARLIBPATH ;
+	    wip->open.bindirs = TRUE ;
+	    if ((rs = mfswatch_pathload(pip,&wip->libdirs,var)) >= 0) {
+	        wip->open.libdirs = TRUE ;
+	    }
+	    if (rs < 0) {
+		wip->open.bindirs = FALSE ;
+		vecpstr_finish(&wip->bindirs) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_pathbegin) */
+
+
+static int mfswatch_pathend(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (wip->open.bindirs) {
+	    wip->open.bindirs = FALSE ;
+	    rs1 = vecpstr_finish(&wip->bindirs) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	if (wip->open.libdirs) {
+	    wip->open.libdirs = FALSE ;
+	    rs1 = vecpstr_finish(&wip->libdirs) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+
+	return rs ;
+}
+/* end subroutine (mfswatch_pathend) */
+
+
+static int mfswatch_pathload(PROGINFO *pip,vecpstr *plp,cchar *var)
+{
+	const int	n = 40 ;
+	const int	cs = 1024 ;
+	int		rs ;
+	if ((rs = vecpstr_start(plp,n,cs,0)) >= 0) {
+	    cchar	*cp = getourenv(pip->envv,var) ;
+	    if (hasnonwhite(cp,-1)) {
+	        rs = vecpstr_addpath(plp,cp) ;
+	    }
+	    if (rs < 0)
+		vecpstr_finish(plp) ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_pathload) */
+
+
+static int mfswatch_pathfindbin(PROGINFO *pip,char *rbuf,cchar *np,int nl)
+{
+	int		rs ;
+	if (nl < 0) nl = strlen(np) ;
+	if (strnchr(np,nl,'/') == NULL) {
+	    if ((rs = mfswatch_pathfindbinpr(pip,rbuf,np,nl)) == 0) {
+	        rs = mfswatch_pathfindbinlist(pip,rbuf,np,nl) ;
+	    }
+	} else {
+	    if (np[0] != '/') {
+	        rs = mkpath2w(rbuf,pip->pr,np,nl) ;
+	    } else {
+	        rs = mkpath1w(rbuf,np,nl) ;
+	    }
+	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("mfswatch_pathfindbin: ret rs=%d\n",rs) ;
+	    debugprintf("mfswatch_pathfindbin: rbuf=%s\n",rbuf) ;
+	}
+#endif
+	return rs ;
+}
+/* end subroutine (mfswatch_pathfindbin) */
+
+
+static int mfswatch_pathfindbinpr(PROGINFO *pip,char *rbuf,cchar *np,int nl)
+{
+	IDS		*idp = &pip->id ;
+	int		rs ;
+	int		pl = 0 ;
+	cchar		*pr = pip->pr ;
+	if ((rs = mkpath1(rbuf,pr)) >= 0) {
+	    const int	rlen = rs ;
+	    int		i ;
+	    for (i = 0 ; prbins[i] != NULL ; i += 1) {
+	        cchar	*bin = prbins[i] ;
+	        if ((rs = pathadd(rbuf,rlen,bin)) >= 0) {
+		    if ((rs = pathaddw(rbuf,rs,np,nl)) >= 0) {
+			pl = rs ;
+#if	CF_DEBUG
+			if (DEBUGLEVEL(4))
+	    		    debugprintf("mfswatch_pathfindbinpr: rbuf=%s\n",
+				rbuf) ;
+#endif
+	    	        if (((rs = xfile(idp,rbuf)) < 0) && isNotAccess(rs)) {
+			    rs = SR_OK ;
+			    pl = 0 ;
+	    	        }
+		    }
+		}
+	        if (pl > 0) break ;
+		if (rs < 0) break ;
+	    } /* end for */
+	} /* end if (mkpath) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("mfswatch_pathfindbinpr: ret rs=%d pl=%u\n",rs,pl) ;
+	    debugprintf("mfswatch_pathfindbinpr: rbuf=%s\n",rbuf) ;
+	}
+#endif
+	return (rs >= 0) ? pl : rs ;
+}
+/* end subroutine (mfswatch_pathfindbinpr) */
+
+
+static int mfswatch_pathfindbinlist(PROGINFO *pip,char *rbuf,cchar *np,int nl)
+{
+	MFSWATCH	*wip = pip->watch ;
+	IDS		*idp = &pip->id ;
+	vecpstr		*plp ;
+	int		rs = SR_OK ;
+	int		pl = 0 ;
+	int		i ;
+	cchar		*pp ;
+	plp = &wip->bindirs ;
+	for (i = 0 ; vecpstr_get(plp,i,&pp) >= 0 ; i += 1) {
+	    if (pp != NULL) {
+		if ((rs = mkpath2w(rbuf,pp,np,nl)) >= 0) {
+		    pl = rs ;
+	            if (((rs = xfile(idp,rbuf)) < 0) && isNotPresent(rs)) {
+			rs = SR_OK ;
+			pl = 0 ;
+	            }
+		}
+	    }
+	    if (rs < 0) break ;
+	} /* end for */
+	return (rs >= 0) ? pl : rs ;
+}
+/* end subroutine (mfswatch_pathfindbinlist) */
 
 
 static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
@@ -774,19 +1014,23 @@ static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
 			jep->ss.var[svckey_file]) ;
 	    	    debugprintf("mfswatch_svcproc: p=%s\n",
 			jep->ss.var[svckey_p]) ;
-	    	    debugprintf("mfswatch_svcproc: a=%s\n",
+	    	    debugprintf("mfswatch_svcproc: a=»%s«\n",
 			jep->ss.var[svckey_a]) ;
 	    	    debugprintf("mfswatch_svcproc: so=%s\n",
 			jep->ss.var[svckey_so]) ;
 		}
 #endif /* CF_DEBUG */
-		    if ((rs = mfswatch_svcprocfile(pip,jep,sep)) == 0) {
-		        if ((rs = mfswatch_svcprocpass(pip,jep,sep)) == 0) {
-			    if ((rs = mfswatch_svcprocprog(pip,jep,sep)) == 0) {
-		     	        rs = mfswatch_jobretire(pip,jep) ;
-			    }
-		        }
+		if ((rs = mfswatch_svcprocfile(pip,jep,sep)) == 0) {
+		    if ((rs = mfswatch_svcprocpass(pip,jep,sep)) == 0) {
+			if ((rs = mfswatch_svcprocprog(pip,jep,sep)) == 0) {
+			    cchar	*fmt = "no service handler" ;
+			    logssprintf(pip,jep->logid,fmt) ;
+		     	    rs = mfswatch_jobretire(pip,jep) ;
+			}
 		    }
+		}
+		if (rs < 0)
+	    	    sreq_svcentend(jep) ;
 	    } /* end if (sreq_svcentbegin) */
 	} /* end if (locinfo_cooksvc) */
 #if	CF_DEBUG
@@ -932,6 +1176,7 @@ static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 {
 	const int	n = sep->nkeys ;
 	int		rs ;
+	int		rs1 ;
 	int		f = FALSE ;
 	cchar		*(*kv)[2] = sep->keyvals ;
 	cchar		*vp ;
@@ -943,8 +1188,25 @@ static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 	debugprintf("mfswatch_svcprocprog: ent\n") ;
 #endif
 	if ((rs = svckv_isprog(kv,n,&vp)) > 0) {
-	    f = TRUE ;
-
+	    cchar	*pfn = jep->ss.var[svckey_p] ;
+	    cchar	*astr = jep->ss.var[svckey_a] ;
+	    if (hasnonwhite(pfn,-1) || hasnonwhite(astr,-1)) {
+		vecstr	args ;
+		if ((rs = vecstr_start(&args,1,0)) >= 0) {
+		    if ((rs = vecstr_srvargs(&args,astr)) >= 0) {
+	                f = TRUE ;
+		        if ((pfn == NULL) || (pfn[0] == '\0')) {
+			    rs = vecstr_get(&args,0,&pfn) ;
+		        }
+		        if (rs >= 0) {
+			    vecstr	*alp = &args ;
+			    rs = mfswatch_svcprocproger(pip,jep,pfn,alp) ;
+		        } /* end if (ok) */
+		    } /* end if (vecstr_srvargs) */
+		    rs1 = vecstr_finish(&args) ;
+		    if (rs >= 0) rs = rs1 ;
+		} /* end if (vecstr) */
+	    } /* end if (non-white) */
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -953,6 +1215,80 @@ static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 	return (rs >= 0) ?  f : rs ;
 }
 /* end subroutine (mfswatch_svcprocprog) */
+
+
+static int mfswatch_svcprocproger(PROGINFO *pip,SREQ *jep,
+		cchar *pfn,vecstr *alp)
+{
+	int		rs ;
+	char		pbuf[MAXPATHLEN+1] ;
+	if ((rs = mfswatch_pathfindbin(pip,pbuf,pfn,-1)) >= 0) {
+	    if ((rs = mfswatch_progspawn(pip,jep,pbuf,alp)) >= 0) {
+		rs = sreq_exiting(jep) ;
+	    }
+	} else if (isNotPresent(rs)) {
+	    cchar	*fmt = "program file not found (%d)" ;
+	    logssprintf(pip,jep->logid,fmt,rs) ;
+	    rs = SR_OK ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_svcprocproger) */
+
+
+static int mfswatch_progspawn(PROGINFO *pip,SREQ *jep,cchar *pbuf,vecstr *alp)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs ;
+	cchar		**av ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("mfswatch_progspawn: ent\n") ;
+	    debugprintf("mfswatch_progspawn: pbuf=%s\n",pbuf) ;
+	}
+#endif
+	if ((rs = sreq_ofd(jep)) >= 0) {
+	    const int	ofd = rs ;
+	if ((rs = vecstr_getvec(alp,&av)) >= 0) {
+	    ENVHELP	*ehp = &wip->eh ;
+	    cchar	**ev ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_progspawn: mid1 rs=%d\n",rs) ;
+#endif
+	    if ((rs = envhelp_getvec(ehp,&ev)) >= 0) {
+		SPAWNPROC	ps ;
+		memset(&ps,0,sizeof(SPAWNPROC)) ;
+		ps.opts = 0 ;
+		ps.opts |= SPAWNPROC_OSETSID ;
+		ps.opts |= SPAWNPROC_OIGNINTR ;
+		ps.fd[0] = jep->ifd ;
+		ps.fd[1] = ofd ;
+		ps.disp[0] = SPAWNPROC_DDUP ;
+		ps.disp[1] = SPAWNPROC_DDUP ;
+		ps.disp[2] = SPAWNPROC_DCLOSE ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_progspawn: mid2 rs=%d\n",rs) ;
+#endif
+		if ((rs = spawnproc(&ps,pbuf,av,ev)) >= 0) {
+		    jep->f.process = TRUE ;
+	    	    jep->pid = rs ;
+		}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_progspawn: mid3 rs=%d\n",rs) ;
+#endif
+	    } /* end if (envhelp_getvec) */
+	} /* end if (vecstr_getvec) */
+	} /* end if (sreq_ofd) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_progspawn: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (mfswatch_progspawn) */
 
 
 /* this spawns a thread with the required arguments */
@@ -976,6 +1312,7 @@ static int mfswatch_svcprocer(PROGINFO *pip,SREQ *jep,svcprocer_t w)
 	        sap->w = w ;
 	        if ((rs = uptcreate(&tid,NULL,helper,sap)) >= 0) {
 	            jep->tid = tid ;
+		    jep->f.thread = TRUE ;
 		    wip->nthrs += 1 ;
 	        }
 	    } /* end if (m-a) */
@@ -1012,11 +1349,11 @@ static int mfswatch_svcretstat(PROGINFO *pip,SREQ *jep,int f)
 {
 	MFSWATCH	*wip = pip->watch ;
 	int		rs = SR_OK ;
-	int		fd = jep->ofd ;
+	int		ofd = jep->ofd ;
 	int		len = 0 ;
 	cchar		*fmt = NULL ;
 	if (wip == NULL) return SR_FAULT ;
-	if (fd < 0) fd = jep->ifd ;
+	if (ofd < 0) ofd = jep->ifd ;
 	switch (pip->progmode) {
 	case progmode_tcpmuxd:
 	    if (f > 0) {
@@ -1030,7 +1367,7 @@ static int mfswatch_svcretstat(PROGINFO *pip,SREQ *jep,int f)
 	    const int	rlen = TIMEBUFLEN ;
 	    char	rbuf[TIMEBUFLEN+1] ;
 	    if ((rs = bufprintf(rbuf,rlen,fmt,f)) >= 0) {
-	        if ((rs = uc_writen(fd,rbuf,rs)) >= 0) {
+	        if ((rs = uc_writen(ofd,rbuf,rs)) >= 0) {
 	            len = rs ;
 	        } else if (isBadSend(rs)) {
 	            rs = SR_OK ;
@@ -1060,7 +1397,7 @@ static int mfswatch_jobretire(PROGINFO *pip,SREQ *jep)
 	    char	tbuf[TIMEBUFLEN+1] ;
 	    timestr_logz(pip->daytime,tbuf) ;
 	    logssprintf(pip,jep->logid,fmt,tbuf) ;
-	    rs = sreqdb_delp(dbp,jep) ;
+	    rs = sreqdb_delobj(dbp,jep) ;
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1115,27 +1452,31 @@ static int mfswatch_thrdone(PROGINFO *pip,SREQ *jep)
 /* end subroutine (mfswatch_thrdone) */
 
 
-static int mfswatch_checkproc(PROGINFO *pip)
+static int mfswatch_checkprogs(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
 	int		rs = SR_OK ;
-	int		cs ;
+	int		c = 0 ;
 	if (wip->nprocs > 0) {
+	    int		cs ;
 	    if ((rs = u_waitpid(-1,&cs,W_OPTIONS)) > 0) {
-	        SREQDB	*slp = &wip->reqs ;
-	        SREQ	*jep ;
-	        pid_t	pid = rs ;
+	        SREQDB		*slp = &wip->reqs ;
+	        SREQ		*jep ;
+	        const pid_t	pid = rs ;
 	        if ((rs = sreqdb_findpid(slp,pid,&jep)) >= 0) {
 		    if (wip->nprocs) wip->nprocs -= 1 ;
+		    c = 1 ;
 	    	    rs = mfswatch_jobretire(pip,jep) ;
-	        }
+	        } else if (rs == SR_NOTFOUND) {
+		    rs = SR_OK ;
+		}
 	    } else if ((rs == SR_CHILD) || (rs == SR_INTR)) {
 	        rs = SR_OK ;
 	    }
 	}
-	return rs ;
+	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (mfswatch_checkproc) */
+/* end subroutine (mfswatch_checkprogs) */
 
 
 static int mfswatch_logconn(PROGINFO *pip,int jsn,int jt,int st,cchar *lid)

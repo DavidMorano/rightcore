@@ -32,7 +32,6 @@
 #include	<sys/param.h>
 #include	<sys/resource.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -43,10 +42,10 @@
 /* local defines */
 
 #ifndef	NOFILE
-#define	NOFILE	20
+#define	NOFILE		20
 #endif
 
-#define	GETNFILE_MAXFD		512	/* our fake maximum limit */
+#define	GETNFILE_MAXFD	2048	/* our fake maximum limit */
 
 
 /* external subroutines */
@@ -72,18 +71,35 @@ extern int	strlinelen(const char *,int,int) ;
 /* exported subroutines */
 
 
-int getnfile()
+int getnfile(int w)
 {
 	struct rlimit	limit ;
-	int		nf = NOFILE ;
-	if (u_getrlimit(RLIMIT_NOFILE,&limit) >= 0) {
-	    nf = (int) limit.rlim_cur ;
-  	    if (nf == RLIM_INFINITY) {
-		nf = GETNFILE_MAXFD ;
-	    } else if (nf < 0)
+	int		nf = 0 ;
+	int		rs ;
+	if ((rs = u_getrlimit(RLIMIT_NOFILE,&limit)) >= 0) {
+	    switch (w) {
+	    case 0:
+	        nf = (int) limit.rlim_cur ;
+		break ;
+	    case 1:
+	        nf = (int) limit.rlim_max ;
+		break ;
+	    case 2:
 		nf = NOFILE ;
+		break ;
+	    default:
+		rs = SR_INVALID ;
+		break ;
+	    } /* end switch */
+	    if (rs >= 0) {
+  	        if (nf == RLIM_INFINITY) {
+		    nf = GETNFILE_MAXFD ;
+	        } else if (nf < 0) {
+		    nf = NOFILE ;
+	        }
+	    }
 	}
-	return nf ;
+	return (rs >= 0) ? nf : rs ;
 }
 /* end subroutine (getnfile) */
 

@@ -213,6 +213,7 @@ extern int	prgetprogpath(cchar *,char *,cchar *,int) ;
 extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	hasMeAlone(cchar *,int) ;
 extern int	hasalldig(cchar *,int) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isIOError(int) ;
 extern int	isFailOpen(int) ;
@@ -1072,7 +1073,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        if (! isStrEmpty(cp,-1)) {
+	        if (hasnonwhite(cp,-1)) {
 		    rs = optvalue(cp,-1) ;
 		    pip->debuglevel = rs ;
 	        }

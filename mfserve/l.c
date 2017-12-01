@@ -13,9 +13,12 @@
 	= 2008-10-10, David A­D­ Morano
 	This was adapted from the BACKGROUND program.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -115,7 +118,7 @@ int mfslisten_begin(PROGINFO *pip)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfslisten_begin: rs=%d\n",rs) ;
+	    debugprintf("mfslisten_begin: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -137,7 +140,7 @@ int mfslisten_end(PROGINFO *pip)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfslisten_and: rs=%d\n",rs) ;
+	    debugprintf("mfslisten_end: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -357,8 +360,10 @@ int mfslisten_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 		            rs = poller_reg(pmp,&ps) ;
 			} /* end if (mfslisten_new) */
 		    } /* end if (listenspec_gettype) */
-		}
-	    }
+		    if (rs < 0)
+			u_close(cfd) ;
+		} /* end if (listenspec_accept) */
+	    } /* end if (locinfo_getaccto) */
 	} /* end if (mfslisten_hit) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))

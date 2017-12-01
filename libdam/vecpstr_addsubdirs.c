@@ -1,4 +1,4 @@
-/* vecpstr_loaddirs */
+/* vecpstr_addsubdirs */
 
 /* find and load UNIX® directories under a given root */
 
@@ -67,7 +67,7 @@ extern char	*strnwcpy(char *,int,const char *,int) ;
 /* exported subroutines */
 
 
-int vecpstr_loaddirs(VECPSTR *op,cchar *newsdname)
+int vecpstr_addsubdirs(VECPSTR *op,cchar *newsdname)
 {
 	FSDIRTREE	dir ;
 	int		rs ;
@@ -105,6 +105,13 @@ int vecpstr_loaddirs(VECPSTR *op,cchar *newsdname)
 	}
 
 	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (vecpstr_addsubdirs) */
+
+
+int vecpstr_loaddirs(VECPSTR *op,cchar *newsdname)
+{
+	return vecpstr_addsubdirs(op,newsdname) ;
 }
 /* end subroutine (vecpstr_loaddirs) */
 

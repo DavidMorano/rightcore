@@ -14,9 +14,12 @@
         This subroutine was adopted from the DWD program. I may not have changed
         all of the comments correctly though!
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

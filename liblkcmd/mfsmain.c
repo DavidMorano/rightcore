@@ -19,9 +19,12 @@
 	= 2014-09-25, David A­D­ Morano
 	Some sort of enhancement.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2011,2014 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2011,2014,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -189,6 +192,7 @@ extern int	prgetprogpath(cchar *,char *,cchar *,int) ;
 extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	vecstr_envadd(vecstr *,cchar *,cchar *,int) ;
 extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -1231,7 +1235,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        if (! isStrEmpty(cp,-1)) {
+	        if (hasnonwhite(cp,-1)) {
 		    rs = optvalue(cp,-1) ;
 		    pip->debuglevel = rs ;
 	        }
@@ -1259,6 +1263,13 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    ex = EX_OSERR ;
 	    goto retearly ;
 	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2)) {
+	    debugprintf("mfsmain: pr=%s\n",pip->pr) ;
+	    debugprintf("mfsmain: sn=%s\n",pip->searchname) ;
+	}
+#endif
 
 	if (pip->debuglevel > 0) {
 	    shio_printf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
@@ -1419,13 +1430,15 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* early return thing */
 retearly:
 	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    if (pip->f.background || pip->f.daemon) {
 	        cchar	*w = ((pip->f.daemon) ? "child" : "parent") ;
-	        shio_printf(pip->efp,"%s: (%s) exiting ex=%u (%d)\n",
-	            pip->progname,w,ex,rs) ;
+		fmt = "%s: (%s) exiting ex=%u (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,w,ex,rs) ;
 	    } else {
-	        shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
-	            pip->progname,ex,rs) ;
+		fmt = "%s: exiting ex=%u (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,ex,rs) ;
 	    }
 	} /* end if */
 
@@ -2265,21 +2278,14 @@ static int procbackinfo(PROGINFO *pip)
 	        shio_printf(pip->efp,"%s: pid=%s\n",pn,pip->pidfname) ;
 	    }
 
-	    shio_printf(pip->efp,"%s: intpoll=%u\n",
-	        pn,
-	        pip->intpoll) ;
+	    shio_printf(pip->efp,"%s: intpoll=%u\n", pn, pip->intpoll) ;
+	    shio_printf(pip->efp,"%s: intmark=%u\n", pn, pip->intmark) ;
+	    shio_printf(pip->efp,"%s: intrun=%u\n", pn, pip->intrun) ;
 
-	    shio_printf(pip->efp,"%s: intmark=%u\n",
-	        pn,
-	        pip->intmark) ;
-
-	    shio_printf(pip->efp,"%s: intrun=%u\n",
-	        pn,
-	        pip->intrun) ;
-
-	    if (mntfname != NULL)
+	    if (mntfname != NULL) {
 	        shio_printf(pip->efp,"%s: mntfile=%s\n",
 	            pip->progname,mntfname) ;
+	    }
 
 	    shio_flush(pip->efp) ;
 	} /* end if (debugging information) */

@@ -1,5 +1,7 @@
 /* pcs-adj(unct) */
 
+/* last modified %G% version %I% */
+
 
 /* revision history:
 

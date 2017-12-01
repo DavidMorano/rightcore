@@ -125,6 +125,7 @@ extern int	optvalue(const char *,int) ;
 extern int	ndigits(int) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	vecstr_adds(vecstr *,const char *,int) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isalphalatin(int) ;
 extern int	isFailOpen(int) ;
@@ -2060,7 +2061,7 @@ static int locinfo_deflinelen(LOCINFO *lip)
 	    if (isStrEmpty(cp,-1)) {
 		cp = getourenv(pip->envv,VARCOLUMNS) ;
 	    }
-	    if (! isStrEmpty(cp,-1)) {
+	    if (hasnonwhite(cp,-1)) {
 	        if ((rs = optvalue(cp,-1)) >= 0) {
 		    if (rs >= def) {
 	                lip->have.linelen = TRUE ;

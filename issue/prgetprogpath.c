@@ -294,7 +294,7 @@ static int subinfo_tryfull(SUBINFO *sip,char *rbuf,cchar *np,int nl)
 /* end subroutine (subinbfo_tryfull) */
 
 
-static int subinfo_tryroot(SUBINFO *sip,char rbuf[],cchar *np,int nl)
+static int subinfo_tryroot(SUBINFO *sip,char *rbuf,cchar *np,int nl)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -338,7 +338,7 @@ static int subinfo_tryroot(SUBINFO *sip,char rbuf[],cchar *np,int nl)
 /* end subroutine (subinfo_tryroot) */
 
 
-static int subinfo_tryother(SUBINFO *sip,char rbuf[],cchar np[],int nl)
+static int subinfo_tryother(SUBINFO *sip,char *rbuf,cchar *np,int nl)
 {
 	int		rs = SR_OK ;
 	int		rl = 0 ;

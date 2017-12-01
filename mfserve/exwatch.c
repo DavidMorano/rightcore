@@ -1605,7 +1605,7 @@ static int procwatchjobs(PROGINFO *pip,SUBINFO *wip)
 
 	        if (pip->open.logprog) {
 		    f = TRUE ;
-	            proglog_setid(pip,jep->jobid) ;
+	            proglog_setid(pip,jep->jobid,-1) ;
 		}
 
 	    if (WIFEXITED(cs)) {
@@ -1672,7 +1672,7 @@ static int procwatchjobs(PROGINFO *pip,SUBINFO *wip)
 	            proglog_printf(pip,"elapsed time %s\n",
 	                timestr_elapsed((pip->daytime - jep->stime),
 	                timebuf)) ;
-	            proglog_setid(pip,pip->logid) ;
+	            proglog_setid(pip,pip->logid,-1) ;
 	        } /* end if (have logging) */
 
 		wip->njobs -= 1 ;
@@ -1738,8 +1738,9 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,CLIENTINFO *cip)
 	if (rs < 0)
 	    goto ret0 ;
 
-	if (pip->open.logprog)
-	    proglog_setid(pip,logid) ;
+	if (pip->open.logprog) {
+	    proglog_setid(pip,logid,-1) ;
+	}
 
 /* can we get the peername of the other end of this socket, if a socket? */
 
@@ -1994,8 +1995,9 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,CLIENTINFO *cip)
 	    cip->fd_output = -1 ;
 	}
 
-	if (pip->open.logprog)
-	    proglog_setid(pip,pip->logid) ;
+	if (pip->open.logprog) {
+	    proglog_setid(pip,pip->logid,-1) ;
+	}
 
 ret0:
 

@@ -60,10 +60,7 @@
 /* exported subroutines */
 
 
-int progsrvargs(pip,alp,abuf)
-struct proginfo	*pip ;
-vecstr		*alp ;
-const char	abuf[] ;
+int progsrvargs(PROGINFO *pip,vecstr *alp,cchar *abuf)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;

@@ -32,13 +32,9 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<unistd.h>
-#include	<stdlib.h>
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<varsub.h>
-#include	<expcook.h>
 #include	<localmisc.h>
 
 #include	"svcentsub.h"

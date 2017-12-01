@@ -174,6 +174,7 @@ extern int	gethz(int) ;
 extern int	getngroups(void) ;
 extern int	getmaxpid(int) ;
 extern int	getsysdomain(char *,int) ;
+extern int	getnfile(int) ;
 extern int	localsetsystat(cchar *,cchar *,int) ;
 extern int	localsetnetload(cchar *,cchar *,int) ;
 extern int	localgetorg(cchar *,char *,int,cchar *) ;
@@ -311,6 +312,7 @@ static int	procfs(PROGINFO *,char *,int,int,cchar *,int) ;
 static int	procacc(PROGINFO *,char *,int,cchar *,int) ;
 static int	procsystat(PROGINFO *,char *,int,cchar *,int) ;
 static int	procla(PROGINFO *,SHIO *,char *,int,int) ;
+static int	procnfile(PROGINFO *,cchar *,int) ;
 static int	procout(PROGINFO *,SHIO *,cchar *,int) ;
 
 static int	getla(PROGINFO *) ;
@@ -361,7 +363,7 @@ static int	getam(cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -415,7 +417,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"utf",
 	"db",
 	"ttl",
@@ -450,7 +452,7 @@ enum timeforms {
 } ;
 
 /* define the configuration keywords */
-static cchar *qopts[] = {
+static cchar	*qopts[] = {
 	"sysname",
 	"nodename",
 	"release",
@@ -533,6 +535,7 @@ static cchar *qopts[] = {
 	"maxpid",
 	"maxtzname",
 	"kserial",
+	"nofiles",
 	NULL
 } ;
 
@@ -619,6 +622,7 @@ enum qopts {
 	qopt_maxpid,
 	qopt_maxtzname,
 	qopt_kserial,
+	qopt_nofiles,
 	qopt_overlast
 } ;
 
@@ -2139,6 +2143,13 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	        cbl = rs ;
 	    }
 	    break ;
+	case qopt_nofiles:
+	    if ((rs = procnfile(pip,vp,vl)) >= 0) {
+	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
+	        cbp = cvtbuf ;
+	        cbl = rs ;
+	    }
+	    break ;
 	default:
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
@@ -2345,6 +2356,23 @@ static int procla(PROGINFO *pip,SHIO *ofp,char *rbuf,int rlen,int ri)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procla) */
+
+
+static int procnfile(PROGINFO *pip,cchar *vp,int vl) 
+{
+	int		rs = SR_OK ;
+	int		w = 0 ;
+	if ((vp != NULL) && (vl != 0)) {
+	    if (vp[0] != '\0') {
+	        rs = cfdeci(vp,vl,&w) ;
+	    }
+	}
+	if (rs >= 0) {
+	    rs = getnfile(w) ;
+	}
+	return rs ;
+}
+/* end subroutine (procnfile) */
 
 
 static int procout(PROGINFO *pip,SHIO *ofp,cchar *sp,int sl)

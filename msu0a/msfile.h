@@ -1,6 +1,8 @@
 /* msfile */
 /* machine status file */
 
+/* last modified %G% version %I% */
+
 
 /* revision history:
 

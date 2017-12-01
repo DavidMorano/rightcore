@@ -1,6 +1,7 @@
 /* intiq */
 
 /* Integer-Interlocked Queue */
+/* last modified %G% version %I% */
 
 
 /* revision history:

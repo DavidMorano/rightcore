@@ -1,5 +1,7 @@
 /* lfm */
 
+/* last modified %G% version %I% */
+
 
 /* revision history:
 

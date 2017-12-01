@@ -1,6 +1,7 @@
 /* nextfieldterm */
 
 /* get the next field in a white-space dilineated record */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time */

@@ -262,8 +262,8 @@ int progexec(PROGINFO *pip,cchar *progfname,cchar **argv,int argr)
 #if	CF_DEBUGE
 #else
 	                    {
-	                        const char **eav = (const char **) av ;
-	                        const char **eev = (const char **) ev ;
+	                        cchar **eav = (cchar **) av ;
+	                        cchar **eev = (cchar **) ev ;
 	                        rs = u_execve(progfname,eav,eev) ;
 	                    }
 #endif /* CF_DEBUGE */

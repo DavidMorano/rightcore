@@ -144,6 +144,7 @@ extern int	getnprocessors(cchar **,int) ;
 extern int	opentmpfile(cchar *,int,mode_t,char *) ;
 extern int	opentmp(cchar *,int,mode_t) ;
 extern int	rmdirfiles(cchar *,cchar *,int) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
@@ -952,7 +953,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        if (! isStrEmpty(cp,-1)) {
+	        if (hasnonwhite(cp,-1)) {
 		    rs = optvalue(cp,-1) ;
 		    pip->debuglevel = rs ;
 	        }

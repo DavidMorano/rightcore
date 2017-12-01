@@ -18,9 +18,12 @@
         I had to separate this code due to AST-code conflicts over the system
         socket structure definitions.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2011 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2011,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

@@ -1,6 +1,7 @@
 /* mfs-msg */
 
 /* messages for MFS requests-responses */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,12 +9,15 @@
 
 /* revision history:
 
-	= 1999-07-21, David A­D­ Morano
+	= 2004-07-21, David A­D­ Morano
 	This module was originally written.
+
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
 
 */
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

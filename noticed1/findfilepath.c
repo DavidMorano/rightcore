@@ -147,8 +147,9 @@ int		am ;
 	        if ((rs = fileperm(&ids,fname,am)) >= 0) {
 	            if (f_fpath) {
 	                len = mkpath1(fpath,fname) ;
-	            } else
+	            } else {
 	                len = strlen(fname) ;
+		    }
 	        }
 
 	    } else {

@@ -16,9 +16,12 @@
 	I added the capability to also send the 'mark', 'report', and 'exit'
 	commands to the server.  Previously these were not implemented here.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2000,2011 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2011,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -847,8 +850,9 @@ static int mfsc_spawn(MFSC *op)
 	    ENVMGR	em ;
 	    if ((rs = envmgr_start(&em)) >= 0) {
 	        if ((rs = mfsc_envload(op,&em)) >= 0) {
+		    const int	dlen = DIGBUFLEN ;
 	            char	dbuf[DIGBUFLEN + 1] ;
-	            if ((rs = ctdeci(dbuf,DIGBUFLEN,to_run)) >= 0) {
+	            if ((rs = ctdeci(dbuf,dlen,to_run)) >= 0) {
 	                char	optbuf[OPTBUFLEN + 1] ;
 	                if ((rs = sncpy2(optbuf,OPTBUFLEN,"-d=",dbuf)) >= 0) {
 	                    int		i = 0 ;
@@ -862,6 +866,9 @@ static int mfsc_spawn(MFSC *op)
 	                    if ((rs = envmgr_getvec(&em,&ev)) >= 0) {
 	                        SPAWNPROC	ps ;
 	                        memset(&ps,0,sizeof(SPAWNPROC)) ;
+				ps.opts = 0 ;
+				ps.opts |= SPAWNPROC_OSETSID ;
+				ps.opts |= SPAWNPROC_OSIGDEFS ;
 	                        ps.disp[0] = SPAWNPROC_DCLOSE ;
 	                        ps.disp[1] = SPAWNPROC_DCLOSE ;
 	                        ps.disp[2] = SPAWNPROC_DCLOSE ;

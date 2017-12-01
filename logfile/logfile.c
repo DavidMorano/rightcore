@@ -1,6 +1,7 @@
 /* logfile */
 
 /* perform logging operations on a file */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */

@@ -1,6 +1,7 @@
 /* paramfile */
 
 /* object to handle parameter files */
+/* last modified %G% version %I% */
 
 
 /* revision history:

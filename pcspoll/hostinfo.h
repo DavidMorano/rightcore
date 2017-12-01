@@ -1,5 +1,7 @@
 /* hostinfo */
 
+/* last modified %G% version %I% */
+
 
 /* Copyright © 2005 David A­D­ Morano.  All rights reserved. */
 

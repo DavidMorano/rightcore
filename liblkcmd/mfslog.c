@@ -15,9 +15,12 @@
         needed to fix the AST-code sockets library definition problems (see
         notes elsewhere).
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2011 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2011,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

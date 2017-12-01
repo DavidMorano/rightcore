@@ -1,6 +1,7 @@
 /* cpuspeed */
 
 /* subroutine to load a CPUSPEED module */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */

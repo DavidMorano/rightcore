@@ -1,5 +1,7 @@
 /* msfilee */
+
 /* machine status entry */
+/* last modified %G% version %I% */
 
 
 /* revision history:

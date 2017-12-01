@@ -1,6 +1,6 @@
 /* sigdefaults */
 
-/* ignores a group of signals */
+/* set a given set of signals to their default disposition */
 
 
 /* revision history:
@@ -14,8 +14,9 @@
 
 /*******************************************************************************
 
-        This subroutine signores a group of specified process signals as given
-        in an array of signal numbers.
+        This subroutine sets the disposition of the specified set of signals
+	(given as an array of integers containing the desired signal numbers)
+	to their default condition.
 
 
 *******************************************************************************/
@@ -53,8 +54,9 @@ int sigdefaults(int *sigs)
 	    for (i = 0 ; (rs >= 0) && (sigs[i] > 0) ; i += 1) {
 		rs = uc_sigdefault(sigs[i]) ;
 	    }
-	} else
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 	return rs ;
 }

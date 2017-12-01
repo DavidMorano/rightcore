@@ -847,8 +847,9 @@ static int pcsnsc_spawn(PCSNSC *op)
 	    ENVMGR	em ;
 	    if ((rs = envmgr_start(&em)) >= 0) {
 	        if ((rs = pcsnsc_envload(op,&em)) >= 0) {
+		    const int	dlen = DIGBUFLEN ;
 	            char	dbuf[DIGBUFLEN + 1] ;
-	            if ((rs = ctdeci(dbuf,DIGBUFLEN,to_run)) >= 0) {
+	            if ((rs = ctdeci(dbuf,dlen,to_run)) >= 0) {
 	                char	optbuf[OPTBUFLEN + 1] ;
 	                if ((rs = sncpy2(optbuf,OPTBUFLEN,"-d=",dbuf)) >= 0) {
 	                    int		i = 0 ;
@@ -862,6 +863,7 @@ static int pcsnsc_spawn(PCSNSC *op)
 	                    if ((rs = envmgr_getvec(&em,&ev)) >= 0) {
 	                        SPAWNPROC	ps ;
 	                        memset(&ps,0,sizeof(SPAWNPROC)) ;
+				ps.opts = SPAWNPROC_OSETSID ;
 	                        ps.disp[0] = SPAWNPROC_DCLOSE ;
 	                        ps.disp[1] = SPAWNPROC_DCLOSE ;
 	                        ps.disp[2] = SPAWNPROC_DCLOSE ;

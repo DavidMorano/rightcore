@@ -1,6 +1,7 @@
 /* debug */
 
 /* debugging stubs */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */

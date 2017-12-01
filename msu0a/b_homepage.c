@@ -1,6 +1,7 @@
 /* b_homepage (HOMEPAGE) */
 
 /* this is a generic "main" module */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -191,6 +192,7 @@ extern int	rmdirfiles(cchar *,cchar *,int) ;
 extern int prsetfname(cchar *,char *,cchar *,int,int,cchar *,cchar *,cchar *) ;
 extern int	msleep(int) ;
 extern int	tolc(int) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -1348,7 +1350,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
-	        if (! isStrEmpty(cp,-1)) {
+	        if (hasnonwhite(cp,-1)) {
 		    rs = optvalue(cp,-1) ;
 		    pip->debuglevel = rs ;
 	        }

@@ -1,5 +1,7 @@
 /* config */
 
+/* last modified %G% version %I% */
+
 
 /* revision history:
 
@@ -9,9 +11,12 @@
 	= 2014-09-25, David A­D­ Morano
 	Some sort of enhancement.
 
+	= 2017-08-10, David A­D­ Morano
+	This subroutine was borrowed to code MFSERVE.
+
 */
 
-/* Copyright © 2011,2014 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2011,2014,2017 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	MFSMAIN_INCLUDE
 #define	MFSMAIN_INCLUDE	1
@@ -89,6 +94,8 @@ enum progmodes {
 #define	VARHZ		"HZ"
 #define	VARTZ		"TZ"
 #define	VARHOST		"HOST"
+#define	VARBINPATH	"PATH"
+#define	VARLIBPATH	"LD_LIBRARY_PATH"
 
 #define	VARHOMEDNAME	"HOME"
 #define	VARTMPDNAME	"TMPDIR"

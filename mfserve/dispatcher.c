@@ -1,6 +1,7 @@
 /* dispatcher */
 
 /* object to dispatch jobs to threads */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable */

@@ -126,6 +126,7 @@ extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	vecstr_adds(vecstr *,const char *,int) ;
 extern int	field_wordphrase(FIELD *,const uchar *,char *,int) ;
+extern int	hasnonwhite(cchar *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
@@ -1274,7 +1275,7 @@ static int locinfo_deflinelen(LOCINFO *lip)
 	    if (isStrEmpty(cp,-1)) {
 		cp = getourenv(pip->envv,VARCOLUMNS) ;
 	    }
-	    if (! isStrEmpty(cp,-1)) {
+	    if (hasnonwhite(cp,-1)) {
 	        if ((rs = optvalue(cp,-1)) >= 0) {
 		    if (rs >= def) {
 	                lip->have.linelen = TRUE ;
