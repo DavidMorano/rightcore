@@ -46,6 +46,7 @@
 #include	"proglog.h"
 #include	"mfsmain.h"
 #include	"mfslocinfo.h"
+#include	"mfslisten.h"
 #include	"mfslog.h"
 #include	"defs.h"
 
@@ -89,6 +90,8 @@ extern int	cfdecmfi(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	optbool(const char *,int) ;
 extern int	isNotPresent(int) ;
+
+extern int	proglogout(PROGINFO *,cchar *,cchar *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -292,6 +295,44 @@ int logmark(PROGINFO *pip,int rem)
 /* end subroutine (logmark) */
 
 
+int loglisteners(PROGINFO *pip)
+{
+	MFSLISTEN_INST	inst ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		wlen = 0 ;
+	for (i = 0 ; mfslisten_getinst(pip,&inst,i) >= 0 ; i += 1) {
+	    MFSLISTEN_INST	*lp = &inst ;
+	    cchar		*fmt ;
+	    if (lp->type[0] != '\0') {
+	        const int	ls = lp->state ;
+	        cchar		*sn ;
+	        if (ls & LISTENSPEC_MDELPEND) {
+	            sn = "D" ;
+	        } else if (ls & LISTENSPEC_MBROKEN) {
+	            sn = "B" ;
+	        } else if (ls & LISTENSPEC_MACTIVE) {
+	            sn = "A" ;
+	        } else if (ls == 0) {
+	            sn = "C" ;
+	        } else {
+	            sn = "U" ;
+	        }
+	        fmt = "i=%u %s type=%s addr=%s (%d)\n" ;
+	        rs = logprintf(pip,fmt,i,sn,lp->type,lp->addr,ls) ;
+	        wlen += rs ;
+	    } else {
+	        fmt = "i=%u no-name\n" ;
+	        rs = logprintf(pip,fmt,i) ;
+	        wlen += rs ;
+	    } /* end if (name) */
+	    if (rs < 0) break ;
+	} /* end for */
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (loglisteners) */
+
+
 int logreport(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
@@ -376,6 +417,21 @@ int loginfo(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (loginfo) */
+
+
+int logoutfile(PROGINFO *pip,cchar *lid,cchar *ms,cchar *fn)
+{
+	int		rs = SR_OK ;
+	if (pip->open.logprog) {
+	    if ((rs = proglog_setid(pip,lid,-1)) >= 0) {
+		if ((rs = proglogout(pip,ms,fn)) >= 0) {
+		    rs = proglog_setid(pip,pip->logid,-1) ;
+		}
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (logoutfile) */
 
 
 int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar *np)

@@ -166,14 +166,12 @@ static int	listenspec_passinfo(LISTENSPEC *,LISTENSPEC_INFO *) ;
 static int	listenspec_procargs(LISTENSPEC *,ARGINFO *,int,cchar **) ;
 
 #if	CF_OPENPORT
-static int	listenspec_openport(LISTENSPEC *,int,
-			const char *,const char *,int) ;
-static int	listenspec_openporter(LISTENSPEC *,const char *,int,
-			const char *,int,int) ;
-static int	listenspec_openportaddr(LISTENSPEC *,const char *,
-			struct addrinfo *,char *,int,const char *) ;
-static int	listenspec_openportaddrone(LISTENSPEC *,
-			char *,int,const char *) ;
+static int	listenspec_openport(LISTENSPEC *,int,cchar *,cchar *,int) ;
+static int	listenspec_openporter(LISTENSPEC *,cchar *,int,
+			cchar *,int,int) ;
+static int	listenspec_openportaddr(LISTENSPEC *,cchar *,
+			struct addrinfo *,char *,int,cchar *) ;
+static int	listenspec_openportaddrone(LISTENSPEC *,char *,int,cchar *) ;
 #endif /* CF_OPENPORT */
 
 static int	listenspec_prlocal(LISTENSPEC *) ;
@@ -192,7 +190,7 @@ static int	arginfo_finish(ARGINFO *) ;
 
 /* local variables */
 
-static const char	*ltypes[] = {
+static cchar	*ltypes[] = {
 	"none",
 	"tcp",
 	"uss",
@@ -208,7 +206,7 @@ enum ltypes {
 	ltype_overlast
 } ;
 
-static const char	*lopts[] = {
+static cchar	*lopts[] = {
 	"here",
 	"reuse",
 	"ra",
@@ -354,11 +352,11 @@ int listenspec_issame(LISTENSPEC *op,LISTENSPEC *otherp)
 /* end subroutine (listenspec_issame) */
 
 
+/* set the "active" status (either active or non-active) */
 int listenspec_active(LISTENSPEC *op,int opts,int f)
 {
 	int		rs = SR_OK ;
 	int		f_previous ;
-
 
 #if	CF_SAFE
 	if (op == NULL) return SR_FAULT ;
@@ -367,6 +365,8 @@ int listenspec_active(LISTENSPEC *op,int opts,int f)
 
 #if	CF_DEBUGS
 	debugprintf("listenspec_active: ent f=%u\n",f) ;
+	debugprintf("listenspec_active: previous f_act=%u\n",op->f.active) ;
+	debugprintf("listenspec_active: ltype=%d\n",op->ltype) ;
 #endif
 
 	f_previous = op->f.active ;
@@ -387,6 +387,10 @@ int listenspec_active(LISTENSPEC *op,int opts,int f)
 
 /* if we just activated (rs > 0), then set Close-On-Exec */
 
+#if	CF_DEBUGS
+	debugprintf("listenspec_active: mid2 rs=%d fd=%d\n",rs,op->fd) ;
+#endif
+
 	if ((rs > 0) && (op->fd >= 0) && op->f.active) {
 	    rs = uc_closeonexec(op->fd,TRUE) ;
 #if	CF_NONBLOCK
@@ -397,7 +401,6 @@ int listenspec_active(LISTENSPEC *op,int opts,int f)
 	        listenspec_active(op,opts,FALSE) ;
 	    }
 	} /* end if (just activated) */
-
 
 #if	CF_DEBUGS
 	debugprintf("listenspec_active: ret rs=%d f_prev=%u fd=%d\n",
@@ -1182,6 +1185,10 @@ static int listenspec_passactive(LISTENSPEC *op,int opts,int f)
 	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
 	int		rs = SR_OK ;
 	int		f_a = FALSE ;
+
+#if	CF_DEBUGS
+	debugprintf("listenspec_passactive: ent fn=%s\n",ip->fname) ;
+#endif
 
 	if (f && (! op->f.active)) {
 	    if ((rs = listenpass(ip->fname,ip->mode,opts)) >= 0) {

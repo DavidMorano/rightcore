@@ -494,3 +494,113 @@ int mfsmsg_ack(struct mfsmsg_ack *sp,int f,char *mbuf,int mlen)
 /* end subroutine (mfsmsg_ack) */
 
 
+int mfsmsg_getlistener(struct mfsmsg_getlistener *sp,int f,char *mbuf,int mlen)
+{
+	SERIALBUF	msgbuf ;
+	int		rs ;
+	int		rs1 ;
+
+	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
+	    uint	hdr ;
+
+	    if (f) { /* read */
+
+	        serialbuf_ruint(&msgbuf,&hdr) ;
+	        sp->msgtype = (hdr & 0xff) ;
+	        sp->msglen = (hdr >> 8) ;
+
+	        serialbuf_ruint(&msgbuf,&sp->tag) ;
+
+	        serialbuf_ruint(&msgbuf,&sp->idx) ;
+
+	    } else { /* write */
+
+	        sp->msgtype = mfsmsgtype_getlistener ;
+	        hdr = sp->msgtype ;
+	        serialbuf_wuint(&msgbuf,hdr) ;
+
+	        serialbuf_wuint(&msgbuf,sp->tag) ;
+
+	        serialbuf_wuint(&msgbuf,sp->idx) ;
+
+	        if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
+	            hdr |= (sp->msglen << 8) ;
+	            stdorder_wuint(mbuf,hdr) ;
+	        }
+
+	    } /* end if */
+
+	    rs1 = serialbuf_finish(&msgbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (serialbuf) */
+
+	return rs ;
+}
+/* end subroutine (mfsmsg_getlistener) */
+
+
+int mfsmsg_listener(
+struct mfsmsg_listener *sp,int f,char *mbuf,int mlen)
+{
+	SERIALBUF	msgbuf ;
+	int		rs ;
+	int		rs1 ;
+
+	if ((rs = serialbuf_start(&msgbuf,mbuf,mlen)) >= 0) {
+	    uint	hdr ;
+
+	    if (f) { /* read */
+
+	        serialbuf_ruint(&msgbuf,&hdr) ;
+	        sp->msgtype = (hdr & 0xff) ;
+	        sp->msglen = (hdr >> 8) ;
+
+	        serialbuf_ruint(&msgbuf,&sp->tag) ;
+
+	        serialbuf_ruint(&msgbuf,&sp->idx) ;
+
+	        serialbuf_ruint(&msgbuf,&sp->pid) ;
+
+	        serialbuf_ruchar(&msgbuf,&sp->rc) ;
+
+	        serialbuf_ruchar(&msgbuf,&sp->ls) ;
+
+	        serialbuf_rstrw(&msgbuf,sp->name,MFSMSG_LNAMELEN) ;
+
+	        serialbuf_rstrw(&msgbuf,sp->addr,MFSMSG_LADDRLEN) ;
+
+	    } else { /* write */
+
+	        sp->msgtype = mfsmsgtype_listener ;
+	        hdr = sp->msgtype ;
+	        serialbuf_wuint(&msgbuf,hdr) ;
+
+	        serialbuf_wuint(&msgbuf,sp->tag) ;
+
+	        serialbuf_wuint(&msgbuf,sp->idx) ;
+
+	        serialbuf_wuint(&msgbuf,sp->pid) ;
+
+	        serialbuf_wuchar(&msgbuf,sp->rc) ;
+
+	        serialbuf_wuchar(&msgbuf,sp->ls) ;
+
+	        serialbuf_wstrw(&msgbuf,sp->name,MFSMSG_LNAMELEN) ;
+
+	        serialbuf_wstrw(&msgbuf,sp->addr,MFSMSG_LADDRLEN) ;
+
+	        if ((sp->msglen = serialbuf_getlen(&msgbuf)) > 0) {
+	            hdr |= (sp->msglen << 8) ;
+	            stdorder_wuint(mbuf,hdr) ;
+	        }
+
+	    } /* end if */
+
+	    rs1 = serialbuf_finish(&msgbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (serialbuf) */
+
+	return rs ;
+}
+/* end subroutine (mfsmsg_listener) */
+

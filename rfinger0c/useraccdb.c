@@ -297,7 +297,7 @@ int useraccdb_find(USERACCDB *op,USERACCDB_ENT *ep,char *ebuf,int elen,
 	        USERACCDB_REC	rec ;
 	        const int	llen = LINEBUFLEN ;
 	        int		ll, sl ;
-	        const char	*sp ;
+	        cchar		*sp ;
 	        char		lbuf[LINEBUFLEN+1] ;
 
 	        while ((rs1 = filebuf_readline(&b,lbuf,llen,-1)) > 0) {
@@ -586,7 +586,7 @@ static int useraccdb_fileopen(USERACCDB *op)
 	debugprintf("useraccdb_fileopen: open() rs=%d\n",rs) ;
 #endif
 	        if ((rs = uc_closeonexec(op->fd,TRUE)) >= 0) {
-		    struct ustat	sb ;
+		    USTAT	sb ;
 		    if ((rs = u_fstat(op->fd,&sb)) >= 0) {
 		        op->dev = sb.st_dev ;
 		        op->ino = sb.st_ino ;

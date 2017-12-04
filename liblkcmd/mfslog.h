@@ -45,9 +45,11 @@ extern int	logssprint(PROGINFO *,cchar *,cchar *,int) ;
 extern int	logssprintf(PROGINFO *,cchar *,cchar *,...) ;
 extern int	logprogname(PROGINFO *) ;
 extern int	logmark(PROGINFO *,int) ;
+extern int	logmarklisteners(PROGINFO *) ;
 extern int	logreport(PROGINFO *) ;
 extern int	loginvalidcmd(PROGINFO *,cchar *) ;
 extern int	loginfo(PROGINFO *) ;
+extern int	logoutfile(PROGINFO *,cchar *,cchar *,cchar *) ;
 extern int	loglock(PROGINFO *,LFM_CHECK *,cchar *,cchar *) ;
 
 #ifdef	__cplusplus

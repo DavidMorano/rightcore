@@ -35,8 +35,17 @@
 struct locinfo_flags {
 	uint		stores:1 ;
 	uint		lockinfo:1 ;
+	uint		intrun:1 ;
+	uint		intidle:1 ;
+	uint		intpoll:1 ;
+	uint		intconf:1 ;
+	uint		intsvcs:1 ;
+	uint		intwait:1 ;
+	uint		intcache:1 ;
+	uint		intmaint:1 ;
 	uint		intspeed:1 ;
-	uint		intconfig:1 ;
+	uint		intdirmaint:1 ;
+	uint		intclient:1 ;
 	uint		zerospeed:1 ;
 	uint		quick:1 ;
 	uint		adj:1 ;		/* activate adjunct */
@@ -57,6 +66,7 @@ struct locinfo_flags {
 	uint		cmds:1 ;
 	uint		reqexit:1 ;
 	uint		runasprn:1 ;
+	uint		maint:1 ;
 } ;
 
 struct locinfo {
@@ -87,10 +97,17 @@ struct locinfo {
 	int		serial ;
 	int		nu ;		/* n-updates */
 	int		rfd ;		/* request file-descriptor */
-	int		intconfig ;	/* interval configuration changed */
-	int		intspeed ;	/* interval speed update */
+	int		intrun ;
+	int		intidle ;
+	int		intpoll ;
+	int		intconf ;
+	int		intsvcs ;
+	int		intwait ;
+	int		intcache ;
+	int		intmaint ;
+	int		intspeed ;
 	int		intdirmaint ;	/* interval dir-maintenance */
-	int		intclients ;	/* interval client sockets */
+	int		intclient ;	/* interval client sockets */
 	int		to_cache ;
 	int		to_lock ;
 	int		reqs ;		/* count of requests */

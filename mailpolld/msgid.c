@@ -196,14 +196,14 @@ int msgid_open(MSGID *op,cchar *fname,int of,mode_t om,int maxentry)
 	}
 #endif
 
-	memset(op,0,sizeof(MSGID)) ;
-
 #if	CF_CREAT
 	of |= O_CREAT ;
 #endif
 
 	of &= (~ O_TRUNC) ;
 
+	memset(op,0,sizeof(MSGID)) ;
+	op->fd = -1 ;
 	op->oflags = of ;
 	op->operm = om ;
 	op->maxentry = maxentry ;

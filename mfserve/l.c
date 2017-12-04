@@ -314,9 +314,16 @@ int mfslisten_maint(PROGINFO *pip,POLLER *pmp)
 	            		    rs = poller_reg(pmp,&ps) ;
 				}
 	        	    } /* end if (successful activation) */
-
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_maint: listenspec_active out rs=%d\n",rs) ;
+#endif
 	                } /* end if (need activation) */
 	            } /* end if (listenspec_info) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfslisten_maint: listenspec_info out rs=%d\n",rs) ;
+#endif
 	        } /* end if (non-null) */
 		if (rs < 0) break ;
 	    } /* end for */
@@ -372,6 +379,21 @@ int mfslisten_poll(PROGINFO *pip,POLLER *pmp,int fd,int re)
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (mfslisten_poll) */
+
+
+int mfslisten_getinst(PROGINFO *pip,MFSLISTEN_INST *ip,int idx)
+{
+	LOCINFO		*lip = pip->lip ;
+	LISTENSPEC	*lsp ;
+	VECOBJ		*tlp ;
+	int		rs ;
+	tlp = &lip->listens ;
+	if ((rs = vecobj_get(tlp,idx,&lsp)) >= 0) {
+	    rs = listenspec_info(lsp,ip) ;
+	}
+	return rs ;
+}
+/* end subroutine (mfslisten_inst) */
 
 
 /* local subroutines */
@@ -536,14 +558,14 @@ static int mfslisten_delmarked(PROGINFO *pip,POLLER *pmp)
 	for (i = 0 ; vecobj_get(llp,i,&lsp) >= 0 ; i += 1) {
 	    if (lsp != NULL) {
 	        if ((rs = listenspec_delmarked(lsp)) > 0) {
-		    int	fd ;
-	            if ((fd = listenspec_getfd(lsp)) >= 0) {
-	                poller_cancelfd(pmp,fd) ;
+	            if ((rs = listenspec_getfd(lsp)) >= 0) {
+	                poller_cancelfd(pmp,rs) ;
 		    }
 		    listenspec_finish(lsp) ;
 		    vecobj_del(llp,i--) ;
 	        } /* end if (marked for deletion) */
 	    } /* end if */
+	    if (rs < 0) break ;
 	} /* end for */
 
 #if	CF_DEBUG

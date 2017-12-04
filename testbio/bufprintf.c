@@ -55,37 +55,26 @@
 /* exported subroutines */
 
 
-int bufprintf(char dbuf[],int dlen,const char fmt[],...)
+int bufprintf(char *dbuf,int dlen,cchar *fmt,...)
 {
 	const int	m = 0 ;
 	int		rs ;
-
 	if (dbuf == NULL) return SR_FAULT ;
-
 	{
 	    va_list	ap ;
 	    va_begin(ap,fmt) ;
 	    rs = format(dbuf,dlen,m,fmt,ap) ;
 	    va_end(ap) ;
 	}
-
 	return rs ;
 }
 /* end subroutine (bufprintf) */
 
 
-int vbufprintf(dbuf,dlen,fmt,ap)
-char		dbuf[] ;
-int		dlen ;
-const char	fmt[] ;
-va_list		ap ;
+int vbufprintf(char *dbuf,int dlen,cchar *fmt,va_list ap)
 {
 	const int	m = 0 ;
-	int		rs ;
-
-	rs = format(dbuf,dlen,m,fmt,ap) ;
-
-	return rs ;
+	return format(dbuf,dlen,m,fmt,ap) ;
 }
 /* end subroutine (vbufprintf) */
 

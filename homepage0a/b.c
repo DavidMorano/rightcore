@@ -1818,7 +1818,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->f.maint = TRUE ;
 	                        if (vl > 0) {
 	                            lip->final.maint = TRUE ;
-	                            lip->have.maint = TRUE ;
 	                            rs = optbool(vp,vl) ;
 	                            lip->f.maint = (rs > 0) ;
 	                        }
@@ -2519,8 +2518,8 @@ static int procback(PROGINFO *pip)
 	}
 
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: mode=background\n",pip->progname) ;
-	    bflush(pip->efp) ;
+	    shio_printf(pip->efp,"%s: mode=background\n",pip->progname) ;
+	    shio_flush(pip->efp) ;
 	}
 
 	if ((rs = procbackcheck(pip)) >= 0) {
@@ -2891,7 +2890,7 @@ static int procdaemon(PROGINFO *pip)
 	if (pip->debuglevel > 0) {
 	    pid_t	pid = pip->pid ;
 	    cchar	*pn = pip->progname ;
-	    bprintf(pip->efp,"%s: mode=daemon pid=%d\n",pn,pid) ;
+	    shio_printf(pip->efp,"%s: mode=daemon pid=%d\n",pn,pid) ;
 	}
 
 	if ((rs = procdaemondefs(pip)) >= 0) {

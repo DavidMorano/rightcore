@@ -60,6 +60,7 @@
 #include	"msgdata.h"
 #include	"mfsmain.h"
 #include	"mfslocinfo.h"
+#include	"mfslisten.h"
 #include	"mfslog.h"
 #include	"mfscmd.h"
 #include	"mfsadj.h"
@@ -164,6 +165,7 @@ static int	mfsadj_reqmsg(PROGINFO *,int) ;
 
 static int	mfsadj_getstatus(PROGINFO *,MSGDATA *) ;
 static int	mfsadj_gethelp(PROGINFO *,MSGDATA *) ;
+static int	mfsadj_getlistener(PROGINFO *,MSGDATA *) ;
 static int	mfsadj_getval(PROGINFO *,MSGDATA *) ;
 static int	mfsadj_mark(PROGINFO *,MSGDATA *) ;
 static int	mfsadj_exit(PROGINFO *,MSGDATA *) ;
@@ -448,6 +450,9 @@ static int mfsadj_reqmsg(PROGINFO *pip,int re)
 	            case mfsmsgtype_gethelp:
 	                rs = mfsadj_gethelp(pip,mdp) ;
 	                break ;
+	            case mfsmsgtype_getlistener:
+	                rs = mfsadj_getlistener(pip,mdp) ;
+	                break ;
 	            case mfsmsgtype_getval:
 	                rs = mfsadj_getval(pip,mdp) ;
 	                break ;
@@ -534,12 +539,13 @@ static int mfsadj_gethelp(PROGINFO *pip,MSGDATA *mdp)
 	    cchar	*np ;
 	    memset(&mres,0,sizeof(struct mfsmsg_help)) ;
 	    mres.tag = mreq.tag ;
-	    if ((rs = mfscmd_name(pip,idx,&np)) >= 0) {
+	    if ((rs = mfscmd_svcname(pip,idx,&np)) >= 0) {
 	        mres.rc = mfsmsgrc_ok ;
 	        mres.vl = (uchar) rs ;
 	        strwcpy(mres.val,np,rs) ;
 	    } else if (rs == rsn) {
 	        mres.rc = mfsmsgrc_notfound ;
+		rs = SR_OK ;
 	    }
 	    if (rs >= 0) {
 	        const int	mlen = mdp->mlen ;
@@ -560,6 +566,57 @@ static int mfsadj_gethelp(PROGINFO *pip,MSGDATA *mdp)
 	return rs ;
 }
 /* end subroutine (mfsadj_gethelp) */
+
+
+static int mfsadj_getlistener(PROGINFO *pip,MSGDATA *mdp)
+{
+	MFSMSG_GETLISTENER	mreq ;
+	MFSMSG_LISTENER		mres ;
+	int			rs ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfsadj_getlistener: ent\n") ;
+#endif
+
+	if ((rs = mfsmsg_getlistener(&mreq,1,mdp->mbuf,mdp->ml)) >= 0) {
+	    MFSLISTEN_INST	inst ;
+	    const int		rsn = SR_NOTFOUND ;
+	    const int		idx = mreq.idx ;
+	    memset(&mres,0,sizeof(struct mfsmsg_listener)) ;
+	    mres.pid = pip->pid ;
+	    mres.tag = mreq.tag ;
+	    mres.idx = mreq.idx ;
+	    mres.name[0] = '\0' ;
+	    mres.addr[0] = '\0' ;
+	    if ((rs = mfslisten_getinst(pip,&inst,idx)) >= 0) {
+		strwcpy(mres.name,inst.type,MFSMSG_LNAMELEN) ;
+		strwcpy(mres.addr,inst.addr,MFSMSG_LADDRLEN) ;
+		mres.ls = (inst.state & 0xff) ;
+		mres.rc = mfsmsgrc_ok ;
+	    } else if (rs == rsn) {
+		mres.rc = mfsmsgrc_notfound ;
+		rs = SR_OK ;
+	    }
+	    if (rs >= 0) {
+	        const int	mlen = mdp->mlen ;
+	        char		*mbuf = mdp->mbuf ;
+	        if ((rs = mfsmsg_listener(&mres,0,mbuf,mlen)) >= 0) {
+	            rs = mfsadj_send(pip,mdp,mreq.tag) ;
+	        } /* end if */
+	    } /* end if (ok) */
+	} else if (isBadMsg(rs)) {
+	    rs = mfsadj_invalid(pip,mdp,rs,TRUE) ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfsadj_getlistener: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (mfsadj_getlistener) */
 
 
 static int mfsadj_getval(PROGINFO *pip,MSGDATA *mdp)
@@ -656,7 +713,9 @@ static int mfsadj_mark(PROGINFO *pip,MSGDATA *mdp)
 	            if (pip->intrun > (dt-lip->ti_start)) {
 	                lw = (pip->intrun - (dt-lip->ti_start)) ;
 	            }
-	            logmark(pip,lw) ;
+	            if ((rs = logmark(pip,lw)) >= 0) {
+			rs = loglisteners(pip) ;
+		    }
 	        }
 	    } /* end if */
 	} else if (isBadMsg(rs)) {

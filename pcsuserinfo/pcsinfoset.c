@@ -203,11 +203,10 @@ static int setnames(cchar *pr,cchar *nfname,cchar *nbuf,int nlen)
 	    if ((rs = sncpy2(bp,(size-1),nbuf,"\n")) >= 0) {
 	        int	nl = rs ;
 	        if ((rs = uc_opene(nfname,of,om,to)) >= 0) {
-	            int	fd = rs ;
-
-	            if ((rs = u_write(fd,np,nl)) >= 0)
+	            const int	fd = rs ;
+	            if ((rs = u_write(fd,np,nl)) >= 0) {
 	                rs = uc_fminmod(fd,0644) ;
-
+		    }
 	            u_close(fd) ;
 	        } /* end if (opened) */
 	    } /* end if */

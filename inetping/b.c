@@ -152,7 +152,7 @@ static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 
 /* local variables */
 
-static const char	*progmodes[] = {
+static cchar	*progmodes[] = {
 	"inetping",
 	NULL
 } ;
@@ -162,7 +162,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -214,7 +214,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"nooutput",
 	"scan",
 	NULL
@@ -297,9 +297,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
+	const char	*pm = NULL ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
-	const char	*pmspec = NULL ;
 	const char	*efname = NULL ;
 	const char	*afname = NULL ;
 	const char	*ofname = NULL ;
@@ -415,14 +415,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            pmspec = avp ;
+	                            pm = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                pmspec = argp ;
+	                                pm = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -711,8 +711,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
+	}
+
+/* get our program mode */
+
+	if (pm == NULL) pm = pip->progname ;
+
+	if ((pip->progmode = matstr(progmodes,pm,-1)) >= 0) {
+	    if (pip->debuglevel > 0) {
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: pm=%s (%u)\n" ;
+	        shio_printf(pip->efp,fmt,pn,pm,pip->progmode) ;
+	    }
+	} else {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid program-mode (%s)\n" ;
+	    shio_printf(pip->efp,fmt,pn,pm) ;
+	    ex = EX_USAGE ;
+	    rs = SR_INVALID ;
 	}
 
 /* get the program root */
@@ -737,26 +754,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    shio_printf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
 	    shio_printf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
 	} /* end if */
-
-/* get our program mode */
-
-	if (pmspec == NULL)
-	    pmspec = pip->searchname ;
-
-	pip->progmode = matstr(progmodes,pmspec,-1) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    if (pip->progmode >= 0) {
-	        debugprintf("main: progmode=%s(%u)\n",
-	            progmodes[pip->progmode],pip->progmode) ;
-	    } else
-	        debugprintf("main: progmode=NONE\n") ;
-	}
-#endif /* CF_DEBUG */
-
-	if (pip->progmode < 0)
-	    pip->progmode = progmode_inetping ;
 
 	if (f_usage)
 	    usage(pip) ;

@@ -74,6 +74,8 @@
 *******************************************************************************/
 
 
+#include	<envstandards.h>	/* MUST be first to configure */
+
 #if	defined(SFIO) && (SFIO > 0)
 #define	CF_SFIO	1
 #else
@@ -83,8 +85,6 @@
 #if	(defined(KSHBUILTIN) && (KSHBUILTIN > 0))
 #include	<shell.h>
 #endif
-
-#include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -125,7 +125,7 @@
 #include	"msumain.h"
 #include	"msuconfig.h"
 #include	"msulocinfo.h"
-#include	"msuadjunct.h"
+#include	"msuadj.h"
 #include	"msulog.h"
 #include	"defs.h"
 #include	"msflag.h"
@@ -2146,7 +2146,7 @@ static int procback(PROGINFO *pip)
 	}
 
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: mode=background\n",pip->progname) ;
+	    shio_printf(pip->efp,"%s: mode=background\n",pip->progname) ;
 	    bflush(pip->efp) ;
 	}
 
@@ -2466,7 +2466,7 @@ static int procdaemon(PROGINFO *pip)
 	    logprintf(pip,"mode=daemon") ;
 	}
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: mode=daemon\n",pip->progname) ;
+	    shio_printf(pip->efp,"%s: mode=daemon\n",pip->progname) ;
 	}
 
 	if ((rs = procdaemondefs(pip)) >= 0) {

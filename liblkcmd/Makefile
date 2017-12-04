@@ -264,13 +264,13 @@ INCF= $(I20) $(I21) $(I22) $(I32)
 INCS= $(INCA) $(INCB) $(INCC) $(INCD) $(INCE) $(INCF)
 
 
-MSUINC0= msumain.h msumainer.h msulocinfo.h msuconfig.h msuadjunct.h 
+MSUINC0= msumain.h msumainer.h msulocinfo.h msuconfig.h msuadj.h 
 MSUINC1= msulog.h msumsg.h
 
 MSUINCS= $(MSUINC0) $(MSUINC1)
 
 
-PCSINC0= pcsmain.h pcslocinfo.h pcsconfig.h pcsadjunct.h 
+PCSINC0= pcsmain.h pcslocinfo.h pcsconfig.h pcsadj.h 
 PCSINC1= pcslog.h pcsmsg.h
 
 PCSINCS= $(PCSINC0) $(PCSINC1)
@@ -355,11 +355,11 @@ OBJ67= mkquoted.o mkfingerquery.o mkcleanline.o mkuuid.o
 OBJ68= mailmsgmatenv.o mailmsgmathdr.o
 OBJ69= getopendial.o getfstype.o getuserorg.o getrealname.o
 OBJ70=
-OBJ71= isOneOf.o isIOError.o
+OBJ71= isOneOf.o isIOError.o isValidMagic.o iseol.o
 
 OBJ72= mkdisplayable.o compactstr.o
 OBJ73= mkmid.o
-OBJ74= fileobject.o filebinary.o isValidMagic.o
+OBJ74= fileobject.o filebinary.o 
 OBJ75= 
 OBJ76=
 OBJ77=
@@ -423,7 +423,7 @@ OBJS= $(OBJSa) $(OBJSb)
 
 ASTOBJS= $(OBJA) $(OBJB) $(OBJC) $(OBJD)
 
-MSUOBJS= msumain.o msulocinfo.o msuconfig.o msuadjunct.o msulog.o msudebug.o
+MSUOBJS= msumain.o msulocinfo.o msuconfig.o msuadj.o msulog.o msudebug.o
 
 PCSOBJS= pcsmain.o pcslocinfo.o pcsconfig.o pscadjunct.o pcslog.o pcsdebug.o
 
@@ -822,6 +822,9 @@ b_webcounter.o:		b_webcounter.c b_webcounter.h $(INCS)
 b_makesafe.o:		b_makesafe.c b_makesafe.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
+b_summer.o:		b_summer.c b_summer.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
 
 # special PCS (or pseudo PCS)
 
@@ -846,30 +849,32 @@ b_pcs.o:		b_pcs.c b_pcs.h $(INCS)
 b_rest.o:		b_rest.c b_rest.h $(INCS)
 	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
-b_summer.o:		b_summer.c b_summer.h $(INCS)
+
+# PCS extra code
+pcs:			b_pcs.o
+pcsconfig.o:		pcsconfig.c pcslocinfo.h $(INCS) $(PCSINCS)
+pcslog.o:		pcslog.c pcslog.h $(INCS) $(PCSINCS)
+pcsdebug.o:		pcsdebug.c pcslog.h $(INCS) $(PCSINCS)
+# special since it needs AST
+pcsmain.o:		pcsmain.c $(INCS) msfile.h $(PCSINCS)
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
+pcslocinfo.o:		pcslocinfo.c pcslocinfo.h $(INCS) $(PCSINCS)
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
+pcsadj.o:		pcsadj.c pcsadj.h $(INCS) $(PCSINCS)
 	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
 
 # MSU extra code
 msu:			b_msu.o
-msulocinfo.o:		msulocinfo.c msulocinfo.h $(INCS) $(MSUINCS)
-msuconfi.o:		msuconfig.c msulocinfo.h $(INCS) $(MSUINCS)
-msuadjunct.o:		msuadjunct.c msuadjunct.h $(INCS) $(MSUINCS)
+msuconfig.o:		msuconfig.c msulocinfo.h $(INCS) $(MSUINCS)
 msulog.o:		msulog.c msulog.h $(INCS) $(MSUINCS)
 msudebug.o:		msudebug.c msulog.h $(INCS) $(MSUINCS)
 # special since it needs AST
 msumain.o:		msumain.c $(INCS) msfile.h $(MSUINCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
-
-# PCS extra code
-pcs:			b_pcs.o
-pcslocinfo.o:		pcslocinfo.c pcslocinfo.h $(INCS) $(PCSINCS)
-pcsconfi.o:		pcsconfig.c pcslocinfo.h $(INCS) $(PCSINCS)
-pcsadjunct.o:		pcsadjunct.c pcsadjunct.h $(INCS) $(PCSINCS)
-pcslog.o:		pcslog.c pcslog.h $(INCS) $(PCSINCS)
-pcsdebug.o:		pcsdebug.c pcslog.h $(INCS) $(PCSINCS)
-# special since it needs AST
-pcsmain.o:		pcsmain.c $(INCS) msfile.h $(PCSINCS)
+msulocinfo.o:		msulocinfo.c msulocinfo.h $(INCS) $(MSUINCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+msuadj.o:		msuadj.c msuadj.h $(INCS) $(MSUINCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
 

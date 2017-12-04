@@ -73,6 +73,7 @@ extern int mfsc_getval(MFSC *,char *,int,cchar *,int) ;
 extern int mfsc_getname(MFSC *,char *,int,cchar *) ;
 extern int mfsc_mark(MFSC *) ;
 extern int mfsc_exit(MFSC *,cchar *) ;
+extern int mfsc_listener(MFSC *,char *,int,int) ;
 extern int mfsc_close(MFSC *) ;
 
 #ifdef	__cplusplus

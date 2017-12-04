@@ -258,7 +258,6 @@ int mailbox_open(MAILBOX *mbp,cchar *mbfname,int mflags)
 	if (mbfname[0] == '\0') return SR_INVALID ;
 
 	memset(mbp,0,sizeof(MAILBOX)) ;
-
 	mbp->mfd = -1 ;
 	mbp->msgs_total = 0 ;
 	mbp->to_lock = TO_LOCK ;

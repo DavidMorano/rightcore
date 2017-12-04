@@ -26,7 +26,7 @@
 enum sreqstates {
 	sreqstate_acquire,		/* acquire service string */
 	sreqstate_svc,			/* have service string */
-	sreqstate_prog,			/* spawned program (process) */
+	sreqstate_program,		/* spawned program (process) */
 	sreqstate_thread,		/* spawned thread */
 	sreqstate_done,			/* job finished */
 	sreqstate_overlast

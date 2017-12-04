@@ -281,7 +281,7 @@ int uinfo_aux(UINFO_AUX *uxp)
 	    if ((rs = uinfo_init()) >= 0) {
 	        UINFO_ALLOC	*uap = &uip->a ;
 
-	        if (uap->aux == NULL) {
+	        if (uap->aux == NULL) { /* allow race here */
 	            UINFO_AUX	aux ;
 	            const int	size = sizeof(UINFO_TMPAUX) ;
 	            const char	*nauxp = NULL ;
@@ -313,7 +313,7 @@ int uinfo_aux(UINFO_AUX *uxp)
 	                    } /* end if (memory-allocation) */
 	                } /* end if (uaux) */
 
-	                if (rs >= 0) {
+	                if (rs >= 0) { /* resolve possible race conditions */
 	                    if ((rs = uc_forklockbegin(-1)) >= 0) {
 	                        if ((rs = ptm_lock(&uip->m)) >= 0) {
 

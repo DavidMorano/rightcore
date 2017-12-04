@@ -484,7 +484,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            }
 
 #if	CF_DEBUGS
-	    	debugprintf("b_progcheck: ak=>%t<\n",akp,akl) ;
+	            debugprintf("b_progcheck: ak=>%t<\n",akp,akl) ;
 #endif
 
 	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
@@ -709,7 +709,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
 	                            }
 	                        } else
@@ -937,9 +937,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            cchar	*fmt = "%s: could not process (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	        }
-		break ;
+	        break ;
 	    case SR_PIPE:
-		break ;
+	        break ;
 	    } /* end switch */
 	    ex = mapex(mapexs,rs) ;
 	} else if (rs >= 0) {
@@ -948,7 +948,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    } else if ((rs = lib_sigintr()) < 0) {
 	        ex = EX_INTR ;
 	    } else if (lip->f.dirty) {
-		ex = EX_DATAERR ;
+	        ex = EX_DATAERR ;
 	    }
 	} /* end if */
 
@@ -1148,66 +1148,66 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    cchar	*cp ;
 
 	    if (rs >= 0) {
-	 	int	ai ;
-		int	f ;
-		cchar	**argv = aip->argv ;
-	            for (ai = 1 ; ai < aip->argc ; ai += 1) {
+	        int	ai ;
+	        int	f ;
+	        cchar	**argv = aip->argv ;
+	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
-	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
-	                if (f) {
-	                    cp = aip->argv[ai] ;
-	                    if (cp[0] != '\0') {
+	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
+	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
+	            if (f) {
+	                cp = aip->argv[ai] ;
+	                if (cp[0] != '\0') {
+	                    pan += 1 ;
+	                    rs = procfile(pip,ofp,cp) ;
+	                }
+	            }
+
+	            if (rs >= 0) rs = lib_sigterm() ;
+	            if (rs >= 0) rs = lib_sigintr() ;
+	            if (rs < 0) break ;
+	        } /* end for */
+	    } /* end if (ok) */
+
+	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
+	        SHIO	afile, *afp = &afile ;
+
+	        if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
+
+	        if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
+	            const int	llen = LINEBUFLEN ;
+	            char	lbuf[LINEBUFLEN + 1] ;
+
+	            while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
+	                int	len = rs ;
+
+	                if (lbuf[len - 1] == '\n') len -= 1 ;
+	                lbuf[len] = '\0' ;
+
+	                if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+	                    if (cp[0] != '#') {
+	                        lbuf[(cp+cl)-lbuf] = '\0' ;
 	                        pan += 1 ;
-	                        rs = procfile(pip,ofp,cp) ;
+	                        rs = procfile(pip,ofp,lbuf) ;
 	                    }
 	                }
 
 	                if (rs >= 0) rs = lib_sigterm() ;
 	                if (rs >= 0) rs = lib_sigintr() ;
 	                if (rs < 0) break ;
-	            } /* end for */
-	        } /* end if (ok) */
+	            } /* end while (reading lines) */
 
-	        if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
-	            SHIO	afile, *afp = &afile ;
+	            rs1 = shio_close(afp) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } else {
+	            if (! pip->f.quiet) {
+	                fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
+	                shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	            }
+	        } /* end if */
 
-	            if (strcmp(afn,"-") == 0) afn = STDINFNAME ;
-
-	            if ((rs = shio_open(afp,afn,"r",0666)) >= 0) {
-	                const int	llen = LINEBUFLEN ;
-	                char		lbuf[LINEBUFLEN + 1] ;
-
-	                while ((rs = shio_readline(afp,lbuf,llen)) > 0) {
-	                    int	len = rs ;
-
-	                    if (lbuf[len - 1] == '\n') len -= 1 ;
-	                    lbuf[len] = '\0' ;
-
-			    if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
-				if (cp[0] != '#') {
-				    lbuf[(cp+cl)-lbuf] = '\0' ;
-	                            pan += 1 ;
-	                            rs = procfile(pip,ofp,lbuf) ;
-				}
-	                    }
-
-	                    if (rs >= 0) rs = lib_sigterm() ;
-	                    if (rs >= 0) rs = lib_sigintr() ;
-	                    if (rs < 0) break ;
-	                } /* end while (reading lines) */
-
-	                rs1 = shio_close(afp) ;
-	                if (rs >= 0) rs = rs1 ;
-	            } else {
-	                if (! pip->f.quiet) {
-			    fmt = "%s: inaccessible argument-list (%d)\n" ;
-	                    shio_printf(pip->efp,fmt,pn,rs) ;
-	                    shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
-	                }
-	            } /* end if */
-
-	        } /* end if (procesing file argument file list) */
+	    } /* end if (procesing file argument file list) */
 
 	    rs1 = shio_close(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -1231,7 +1231,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
 	cchar		*fmt ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("progcheck/procfile: ent fn=%s\n",fn) ;
+	    debugprintf("progcheck/procfile: ent fn=%s\n",fn) ;
 #endif
 	if ((rs = hist_start(&h)) >= 0) {
 	    LANGSTATE	ls ;
@@ -1248,25 +1248,25 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
 	            while ((rs = shio_readline(cfp,lbuf,llen)) > 0) {
 	                len = rs ;
 
-		        if (lbuf[len-1] == '\n') len -= 1 ;
+	                if (lbuf[len-1] == '\n') len -= 1 ;
 
-		        if (len > 0) {
+	                if (len > 0) {
 	                    FUNCOUNT	*c = counts ;
-		            if ((rs = procline(pip,&ls,c,ln,lbuf,len)) >= 0) {
-			        rs = hist_proc(&h,ln,lbuf,len) ;
-		            }
-		        }
+	                    if ((rs = procline(pip,&ls,c,ln,lbuf,len)) >= 0) {
+	                        rs = hist_proc(&h,ln,lbuf,len) ;
+	                    }
+	                }
 
-		        ln += 1 ;
-		        if (rs < 0) break ;
+	                ln += 1 ;
+	                if (rs < 0) break ;
 	            } /* end while (reading lines) */
-    
+
 	            if (rs >= 0) {
-		        if ((rs = procout(pip,ofp,fn,counts)) >= 0) {
-		            if ((rs = procouthist(pip,ofp,&h)) >= 0) {
-				rs = procoutlang(pip,ofp,&ls) ;
-			    }
-		        }
+	                if ((rs = procout(pip,ofp,fn,counts)) >= 0) {
+	                    if ((rs = procouthist(pip,ofp,&h)) >= 0) {
+	                        rs = procoutlang(pip,ofp,&ls) ;
+	                    }
+	                }
 	            } /* end if (ok) */
 
 	            rs1 = shio_close(cfp) ;
@@ -1276,15 +1276,15 @@ static int procfile(PROGINFO *pip,void *ofp,cchar *fn)
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	            shio_printf(pip->efp,"%s: file=%s\n",pn,fn) ;
 	        } /* end if */
-		rs1 = langstate_finish(&ls) ;
-		if (rs >= 0) rs = rs1 ;
+	        rs1 = langstate_finish(&ls) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (langstate) */
 	    rs1 = hist_finish(&h) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (hist) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("progcheck/procfile: ret rs=%d\n",rs) ;
+	    debugprintf("progcheck/procfile: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -1308,11 +1308,11 @@ static int procline(PROGINFO *pip,LANGSTATE *lsp,FUNCOUNT *counts,
 	    if ((rs = langstate_proc(lsp,ln,ch)) > 0) {
 	        int	k ;
 	        for (k = 0 ; k < ncca ; k += 1) {
-		    if (ch == cca[k].c_open) {
-		        counts[k].c_open += 1 ;
-		    } else if (ch == cca[k].c_close) {
-		        counts[k].c_close += 1 ;
-		    }
+	            if (ch == cca[k].c_open) {
+	                counts[k].c_open += 1 ;
+	            } else if (ch == cca[k].c_close) {
+	                counts[k].c_close += 1 ;
+	            }
 	        } /* end for */
 	    } /* end if (langstate_proc) */
 	} /* end for */
@@ -1333,24 +1333,24 @@ static int procout(PROGINFO *pip,void *ofp,cchar *fn,FUNCOUNT *counts)
 	    cchar	*fmt ;
 	    for (k = 0 ; k < ncca ; k += 1) {
 	        if (counts[k].c_open != counts[k].c_close) {
-		    fmt = "file \"%s\" %s> open=%-3d close=%-3d\n" ;
+	            fmt = "file \"%s\" %s> open=%-3d close=%-3d\n" ;
 
-		    lip->f.dirty = TRUE ;
+	            lip->f.dirty = TRUE ;
 	            shio_printf(ofp,fmt,
 	                fn,cca[k].funcname,
 	                counts[k].c_open,counts[k].c_close) ;
 
 	        } else {
 
-		    if (pip->verboselevel > 0) {
-		        fmt = "file \"%s\" %s> is clean\n" ;
+	            if (pip->verboselevel > 0) {
+	                fmt = "file \"%s\" %s> is clean\n" ;
 	                shio_printf(ofp,fmt, fn,cca[k].funcname) ;
-		    }
+	            }
 
-		    if (pip->debuglevel > 0) {
-		        fmt = "%s: file \"%s\" %s> is clean\n" ;
-		        shio_printf(pip->efp,fmt,pn,fn,cca[k].funcname) ;
-		    }
+	            if (pip->debuglevel > 0) {
+	                fmt = "%s: file \"%s\" %s> is clean\n" ;
+	                shio_printf(pip->efp,fmt,pn,fn,cca[k].funcname) ;
+	            }
 
 	        } /* end if */
 	    } /* end for */
@@ -1367,32 +1367,33 @@ static int procouthist(PROGINFO *pip,void *ofp,HIST *hlp)
 	int		w ;
 	for (w = 0 ; w < ncca ; w += 1) {
 	    if ((rs = hist_count(hlp,w)) > 0) {
-		LOCINFO	*lip = pip->lip ;
-		int	i ;
-		int	ln ;
-		int	t ;
-		cchar	*fmt = NULL ;
-		lip->f.dirty = TRUE ;
-		switch (w) {
-		case 0:
-		    fmt = "parentheses¬\n" ;
-		    break ;
-		case 1:
-		    fmt = "braces¬\n" ;
-		    break ;
-		case 2:
-		    fmt = "brackets¬\n" ;
-		    break ;
-		} /* end switch */
-		if (fmt != NULL) {
-		    shio_printf(ofp,fmt) ;
-		}
+	        LOCINFO	*lip = pip->lip ;
+	        int	i ;
+	        int	ln ;
+	        int	t ;
+	        cchar	*fmt = NULL ;
+	        lip->f.dirty = TRUE ;
+	        switch (w) {
+	        case 0:
+	            fmt = "parentheses¬\n" ;
+	            break ;
+	        case 1:
+	            fmt = "braces¬\n" ;
+	            break ;
+	        case 2:
+	            fmt = "brackets¬\n" ;
+	            break ;
+	        } /* end switch */
+	        if (fmt != NULL) {
+	            shio_printf(ofp,fmt) ;
+	        }
 	        for (i = 0 ; (t = hist_get(hlp,w,i,&ln)) > 0 ; i += 1) {
-		    cchar	*ts = chartype(t) ;
-		    rs = shio_printf(ofp,"%s %u\n",ts,ln) ;
-		    if (rs < 0) break ;
-		} /* end for */
+	            cchar	*ts = chartype(t) ;
+	            rs = shio_printf(ofp,"%s %u\n",ts,ln) ;
+	            if (rs < 0) break ;
+	        } /* end for */
 	    } /* end if (positive) */
+	    if (rs < 0) break ;
 	} /* end for */
 	return rs ;
 }
@@ -1413,7 +1414,7 @@ static int procoutlang(PROGINFO *pip,void *ofp,LANGSTATE *lsp)
 	    cchar	*fmt = "unbalanced »%s« at line=%u\n" ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-		debugprintf("progcheck/procoutlang: type=%u\n",stat.type) ;
+	        debugprintf("progcheck/procoutlang: type=%u\n",stat.type) ;
 #endif
 	    lip->f.dirty = TRUE ;
 	    rs = shio_printf(ofp,fmt,cp,stat.line) ;
@@ -1475,7 +1476,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(slp,*epp) ;
+	        oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
@@ -1510,7 +1511,7 @@ static int hist_start(HIST *hlp)
 	    int	j ;
 	    for (j = 0 ; j < i ; j += 1) {
 	        LINEHIST	*lhp = (hlp->types+j) ;
-		linehist_finish(lhp) ;
+	        linehist_finish(lhp) ;
 	    }
 	}
 

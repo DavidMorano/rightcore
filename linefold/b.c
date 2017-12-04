@@ -765,8 +765,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	debugprintf("b_linefold: args-out rs=%d\n",rs) ;
 #endif
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -774,23 +773,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
-/* figure out a program mode */
+/* get our program mode */
 
 	if (pm == NULL) pm = pip->progname ;
 
-	{
-	    int	progmode = matostr(progmodes,1,pm,-1) ;
-	    if (progmode < 0) progmode = 0 ;
-	    if (sn == NULL) sn = progmodes[progmode] ;
-	    pip->progmode = progmode ;
+	if ((pip->progmode = matstr(progmodes,pm,-1)) >= 0) {
 	    if (pip->debuglevel > 0) {
-	        shio_printf(pip->efp,"%s: pm=%s(%u)\n",
-	            pip->progname,progmodes[progmode],progmode) ;
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: pm=%s (%u)\n" ;
+	        shio_printf(pip->efp,fmt,pn,pm,pip->progmode) ;
 	    }
+	} else {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid program-mode (%s)\n" ;
+	    shio_printf(pip->efp,fmt,pn,pm) ;
+	    ex = EX_USAGE ;
+	    rs = SR_INVALID ;
 	}
 
 /* get the program root */

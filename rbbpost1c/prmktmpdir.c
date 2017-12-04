@@ -410,7 +410,7 @@ static int ensureattr(cchar *tmpdname,mode_t nm,uid_t puid,gid_t pgid)
 	    } /* end if (stat) */
 
 	    u_close(fd) ;
-	} /* end if */
+	} /* end if (file) */
 
 	return (rs >= 0) ? f : rs ;
 }

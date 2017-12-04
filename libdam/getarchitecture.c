@@ -57,7 +57,7 @@
 
 extern int	sncpy1(char *,int,cchar *) ;
 extern int	sncpy1w(char *,int,cchar *,int) ;
-extern int	shsjrink(cchar *,int,cchar **) ;
+extern int	shshrink(cchar *,int,cchar **) ;
 
 
 /* local structures */

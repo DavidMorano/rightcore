@@ -59,7 +59,7 @@ int strlinelen(cchar *sp,int sl,int mlen)
 	if (mlen < 0) mlen = 0 ;
 
 	if ((sp != NULL) && (sl != 0) && (mlen > 0)) {
-	    const char	*tp ;
+	    cchar	*tp ;
 	    if (sl < 0) sl = strlen(sp) ;
 	    len = MIN(sl,mlen) ;
 	    if ((tp = strnchr(sp,len,'\n')) != NULL) {

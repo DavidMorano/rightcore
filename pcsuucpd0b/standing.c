@@ -325,8 +325,8 @@ char		resbuf[] ;
 	int		len = 0 ;
 
 	if (sop == NULL) return SR_FAULT ;
-
 	pip = sop->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)

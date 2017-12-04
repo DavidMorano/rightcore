@@ -279,13 +279,11 @@ int builtin_match(bip,service)
 BUILTIN		*bip ;
 const char	service[] ;
 {
-	PROGINFO	*pip ;
+	PROGINFO	*pip = bip->pip ;
 	int		rs = SR_NOTFOUND ;
 	int		i ;
 
-	if (bip == NULL) return SR_FAULT ;
-
-	pip = bip->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 	for (i = 0 ; bisvcs[i] != NULL ; i += 1) {
 	    if (strcasecmp(service,bisvcs[i]) == 0) {
@@ -307,12 +305,11 @@ CLIENTINFO	*cip ;
 int		si ;			/* service index */
 const char	*sargv[] ;
 {
-	PROGINFO	*pip ;
+	PROGINFO	*pip = bip->pip ;
 	int		rs = SR_OK ;
 
-	if (bip == NULL) return SR_FAULT ;
+	if (pip == NULL) return SR_FAULT ;
 
-	pip = bip->pip ;
 	switch (si) {
 	case bisvc_help:
 	    rs = builtin_help(bip,ourp,cip,sargv) ;
@@ -358,70 +355,63 @@ STANDING	*ourp ;
 CLIENTINFO	*cip ;
 const char	*sargv[] ;
 {
-	PROGINFO	*pip ;
-	SVCFILE_CUR	cur ;
+	PROGINFO	*pip = bip->pip ;
 	BUFFER		bo ;
 	int		rs ;
-	int		i ;
+	int		rs1 ;
 	int		blen = 0 ;
-	const char	*bp ;
-	char		svcname[SVCNAMELEN + 1] ;
 
-	pip = bip->pip ;
-	rs = buffer_start(&bo,200) ;
-	if (rs < 0)
-	    goto ret0 ;
+	if (pip == NULL) return SR_FAULT ;
+
+	if ((rs = buffer_start(&bo,200)) >= 0) {
+	    SVCFILE_CUR	cur ;
+	    const int	svclen = SVCNAMELEN ;
+	    int		i ;
+	    cchar	*bp ;
+	    char	svcbuf[SVCNAMELEN + 1] ;
 
 /* list out the builtin servers */
 
 	for (i = 0 ; bisvcs[i] != NULL ; i += 1) {
-
 	    if (svcfile_match(bip->sfp,bisvcs[i]) < 0) {
-
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(5))
 	            debugprintf("builtin_help: bisvc=%s\n",bisvcs[i]) ;
 #endif
-
 	        buffer_buf(&bo,bisvcs[i],-1) ;
-
 	        buffer_char(&bo,'\n') ;
-
 	    } /* end if */
-
 	} /* end for */
 
 /* list out the servers in the current server table file */
 
 	svcfile_curbegin(bip->sfp,&cur) ;
 
-	while ((i = svcfile_enumsvc(bip->sfp,&cur,svcname,SVCNAMELEN)) >= 0) {
+	while ((i = svcfile_enumsvc(bip->sfp,&cur,svcbuf,svclen)) >= 0) {
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
-	        debugprintf("builtin_help: svclen=%u svc=%s\n",i,svcname) ;
+	        debugprintf("builtin_help: svclen=%u svc=%s\n",i,svcbuf) ;
 #endif
 
-	    if (matstr(bisvcs,svcname,-1) < 0) {
-
-	        buffer_buf(&bo,svcname,-1) ;
-
+	    if (matstr(bisvcs,svcbuf,-1) < 0) {
+	        buffer_buf(&bo,svcbuf,-1) ;
 	        buffer_char(&bo,'\n') ;
-
 	    } /* end if (not already listed) */
 
 	} /* end while */
 
 	svcfile_curend(bip->sfp,&cur) ;
 
-	rs = buffer_get(&bo,&bp) ;
-	blen = rs ;
-	if (rs >= 0)
+	if ((rs = buffer_get(&bo,&bp)) >= 0) {
+	    blen = rs ;
 	    rs = uc_writen(cip->fd_output,bp,blen) ;
+	}
 
-	buffer_finish(&bo) ;
+	    rs1 = buffer_finish(&bo) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (buffer) */
 
-ret0:
 	return (rs >= 0) ? blen : rs ;
 }
 /* end subroutine (builtin_help) */
@@ -1454,18 +1444,17 @@ bad1:
 
 	u_unlink(ip->sfname) ;
 	ip->sfname[0] = '\0' ;
-
 bad0:
 	goto ret0 ;
 }
 /* end subroutine (ipc_open) */
 
 
-static int ipc_close(ip)
-struct ipc	*ip ;
+static int ipc_close(struct ipc *ip)
 {
 	PROGINFO	*pip = ip->pip ;
 
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("builtin/ipc_close: not NULL\n") ;
@@ -1541,6 +1530,8 @@ STANDING_SYSMISC	*dp ;
 	int		rc ;
 	int		blen ;
 	char		buf[MSGBUFLEN + 1] ;
+
+	if (pip == NULL) return SR_FAULT ;
 
 	m1.tag = 0 ;
 	blen = muximsg_getsysmisc(&m1,0,buf,MSGBUFLEN) ;

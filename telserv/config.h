@@ -17,7 +17,7 @@
 
 #define	P_TELSERV	1
 
-#define	VERSION		"0"
+#define	VERSION		"0b"
 #define	WHATINFO	"@(#)telserv "
 #define	BANNER		"Telnet Server"
 #define	SEARCHNAME	"telserv"

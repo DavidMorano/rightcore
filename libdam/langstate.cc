@@ -4,7 +4,7 @@
 /* Language (parse) State (object) */
 
 
-#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
+#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 
 
 /* revision history:

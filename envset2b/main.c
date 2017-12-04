@@ -470,6 +470,7 @@ static cchar	*cooks[] = {
 	"OSTYPE",	/* OS-type */
 	"OSNUM",	/* OS-name */
 	"S",		/* search-name */
+	"V",		/* program version */
 	NULL
 } ;
 
@@ -504,6 +505,7 @@ enum cooks {
 	cook_ostype,
 	cook_osnum,
 	cook_s,
+	cook_v,
 	cook_overlast
 } ;
 
@@ -2949,113 +2951,112 @@ static int loadorganization(PROGINFO *pip)
 static int loadcooks(PROGINFO *pip)
 {
 	EXPCOOK		*ckp = &pip->cooks ;
+	const int	dlen = DIGBUFLEN ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		ci ;
-	int		cl ;
-	cchar		*cp ;
-	char		tbuf[USERNAMELEN+1] = { 0 	} ;
-	char		nbuf[USERNAMELEN+1] = { 0 	} ;
+	char		tbuf[USERNAMELEN+1] = { 0 } ;
+	char		nbuf[USERNAMELEN+1] = { 0 } ;
+	char		dbuf[DIGBUFLEN + 1] ;
 
 	for (ci = 0 ; cooks[ci] != NULL ; ci += 1) {
-	    cp = NULL ;
-	    cl = -1 ;
+	    cchar	*vp = NULL ;
+	    int		vl = -1 ;
 	    switch (ci) {
 	    case cook_sysname:
-	        cp = pip->usysname ;
+	        vp = pip->usysname ;
 	        break ;
 	    case cook_release:
-	        cp = pip->urelease ;
+	        vp = pip->urelease ;
 	        break ;
 	    case cook_version:
-	        cp = pip->uversion ;
+	        vp = pip->uversion ;
 	        break ;
 	    case cook_machine:
-	        cp = pip->umachine ;
+	        vp = pip->umachine ;
 	        break ;
 	    case cook_architecture:
-	        cp = pip->architecture ;
+	        vp = pip->architecture ;
 	        break ;
 	    case cook_platform:
-	        cp = pip->platform ;
+	        vp = pip->platform ;
 	        break ;
 	    case cook_provider:
-	        cp = pip->provider ;
+	        vp = pip->provider ;
 	        break ;
 	    case cook_hwserial:
-	        cp = pip->hwserial ;
+	        vp = pip->hwserial ;
 	        break ;
 	    case cook_nisdomain:
-	        cp = pip->nisdomainname ;
+	        vp = pip->nisdomainname ;
 	        break ;
 	    case cook_ncpu:
-	        {
-	            char	digbuf[DIGBUFLEN + 1] ;
+			vp = dbuf ;
 	            if (pip->ncpu >= 0) {
-	                rs1 = ctdeci(digbuf,DIGBUFLEN,pip->ncpu) ;
+	                rs = ctdeci(dbuf,dlen,pip->ncpu) ;
+			vl = rs ;
 	            } else {
-	                strcpy(digbuf,"1") ;
-	                rs1 = 1 ;
+	                strcpy(dbuf,"1") ;
+	                vl = 1 ;
 	            }
-	            rs = expcook_add(ckp,cooks[ci],digbuf,rs1) ;
-	        } /* end block */
 	        break ;
 	    case cook_hz:
-	        cp = pip->hz ;
+	        vp = pip->hz ;
 	        break ;
 	    case cook_cluster:
-	        cp = pip->clustername ;
+	        vp = pip->clustername ;
 	        break ;
 	    case cook_system:
-	        cp = pip->systemname ;
+	        vp = pip->systemname ;
 	        break ;
 	    case cook_u:
-	        cp = pip->username ;
+	        vp = pip->username ;
 	        break ;
 	    case cook_g:
-	        cp = pip->groupname ;
+	        vp = pip->groupname ;
 	        break ;
 	    case cook_home:
-	        cp = pip->homedname ;
+	        vp = pip->homedname ;
 	        break ;
 	    case cook_shell:
-	        cp = pip->shell ;
+	        vp = pip->shell ;
 	        break ;
 	    case cook_organization:
-	        cp = pip->org ;
+	        vp = pip->org ;
 	        break ;
 	    case cook_gecosname:
-	        cp = pip->gecosname ;
+	        vp = pip->gecosname ;
 	        break ;
 	    case cook_realname:
-	        cp = pip->realname ;
+	        vp = pip->realname ;
 	        break ;
 	    case cook_name:
-	        cp = pip->name ;
+	        vp = pip->name ;
 	        break ;
 	    case cook_tz:
-	        cp = pip->tz ;
+	        vp = pip->tz ;
 	        break ;
 	    case cook_n:
-	        cp = pip->nodename ;
+	        vp = pip->nodename ;
 	        break ;
 	    case cook_d:
-	        cp = pip->domainname ;
+	        vp = pip->domainname ;
 	        break ;
 	    case cook_h:
 	        {
+		    const int	hlen = MAXHOSTNAMELEN ;
 	            cchar	*nn = pip->nodename ;
 	            cchar	*dn = pip->domainname ;
-	            char	hnbuf[MAXHOSTNAMELEN + 1] ;
-	            if ((rs = snsds(hnbuf,MAXHOSTNAMELEN,nn,dn)) >= 0)
-	                rs = expcook_add(ckp,cooks[ci],hnbuf,rs) ;
+	            char	hbuf[MAXHOSTNAMELEN + 1] ;
+	            if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0)
+	                rs = expcook_add(ckp,cooks[ci],hbuf,rs) ;
 	        } /* end block */
 	        break ;
 	    case cook_r:
-	        cp = pip->pr ;
+	        vp = pip->pr ;
 	        break ;
 	    case cook_rn:
-	        cp = pip->rootname ;
+	        vp = pip->rootname ;
 	        break ;
 	    case cook_ostype:
 	    case cook_osnum:
@@ -3067,20 +3068,23 @@ static int loadcooks(PROGINFO *pip)
 	        if (rs >= 0) {
 	            switch (ci) {
 	            case cook_ostype:
-	                cp = tbuf ;
+	                vp = tbuf ;
 	                break ;
 	            case cook_osnum:
-	                cp = nbuf ;
+	                vp = nbuf ;
 	                break ;
 	            } /* end switch */
 	        } /* end if (ok) */
 	        break ;
 	    case cook_s:
-	        cp = pip->searchname ;
+	        vp = pip->searchname ;
+	        break ;
+	    case cook_v:
+	        vp = pip->version ;
 	        break ;
 	    } /* end switch */
-	    if ((rs >= 0) && (cp != NULL)) {
-	        rs = expcook_add(ckp,cooks[ci],cp,cl) ;
+	    if ((rs >= 0) && (vp != NULL)) {
+	        rs = expcook_add(ckp,cooks[ci],vp,vl) ;
 	    }
 	    if (rs < 0) break ;
 	} /* end for */

@@ -401,7 +401,7 @@ static int	locinfo_groupname(LOCINFO *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -462,7 +462,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"quiet",
 	"intrun",
 	"termout",
@@ -1359,7 +1359,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_quiet:
 	                    if (! pip->final.quiet) {
 	                        pip->have.quiet = TRUE ;
@@ -1371,7 +1370,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_termout:
 	                    if (! lip->final.termout) {
 	                        lip->have.termout = TRUE ;
@@ -1383,7 +1381,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_maint:
 	                    if (! lip->final.maint) {
 	                        lip->have.maint = TRUE ;
@@ -1395,7 +1392,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_daemon:
 	                    if (! pip->final.daemon) {
 	                        pip->have.daemon = TRUE ;
@@ -1407,7 +1403,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_pidfile:
 	                    if (! pip->final.pidfname) {
 	                        if (vl > 0) {
@@ -1418,7 +1413,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_mntfile:
 	                    if (! lip->final.mntfname) {
 	                        lip->have.mntfname = TRUE ;
@@ -1429,7 +1423,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_reuseaddr:
 	                    if (! pip->final.reuseaddr) {
 	                        pip->have.reuseaddr = TRUE ;
@@ -1441,7 +1434,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_intrun:
 	                    if (! pip->final.intrun) {
 	                        pip->have.intrun = TRUE ;
@@ -1453,7 +1445,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -3051,7 +3042,7 @@ static int locinfo_tmpcheck(LOCINFO *lip)
 	if (lip->jobdname != NULL) {
 	    TMTIME	t ;
 	    if ((rs = tmtime_localtime(&t,pip->daytime)) >= 0) {
-	        if ((t.hour >= HOUR_MAINT) && lip->f.maint) {
+	        if ((t.hour >= HOUR_MAINT) || lip->f.maint) {
 		    uptsub_t	thr = (uptsub_t) locinfo_tmpmaint ;
 	            pthread_t	tid ;
 	            if ((rs = uptcreate(&tid,NULL,thr,lip)) >= 0) {

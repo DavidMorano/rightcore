@@ -60,6 +60,7 @@ extern int snpollflags(char *,int,int) ;
 extern int snxtilook(char *,int,int) ;
 extern int sninetaddr(char *,int,int,const char *) ;
 extern int snsigabbr(char *,int,uint) ;
+extern int snabbr(char *,int,cchar *,int) ;
 
 #ifdef	__cplusplus
 }

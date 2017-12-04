@@ -98,6 +98,10 @@ int getsystypenum(char *tbuf,char *nbuf,cchar *sysname,cchar *release)
 	int		rs = SR_OK ;
 	int		si ;
 
+#if	CF_DEBUGS
+	debugprintf("getsystypenum: ent\n") ;
+#endif
+
 	if (tbuf == NULL) return SR_FAULT ;
 	if (nbuf == NULL) return SR_FAULT ;
 	if (sysname == NULL) return SR_FAULT ;
@@ -105,6 +109,10 @@ int getsystypenum(char *tbuf,char *nbuf,cchar *sysname,cchar *release)
 
 	if (sysname[0] == '\0') return SR_INVALID ;
 	if (release[0] == '\0') return SR_INVALID ;
+
+#if	CF_DEBUGS
+	debugprintf("getsystypenum: con\n") ;
+#endif
 
 	tbuf[0] = '\0' ;
 	nbuf[0] = '\0' ;

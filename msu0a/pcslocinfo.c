@@ -32,6 +32,16 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
+#if	defined(SFIO) && (SFIO > 0)
+#define	CF_SFIO	1
+#else
+#define	CF_SFIO	0
+#endif
+
+#if	(defined(KSHBUILTIN) && (KSHBUILTIN > 0))
+#include	<shell.h>
+#endif
+
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
@@ -185,15 +195,14 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->pip = pip ;
 	lip->uid_rootname = -1 ;
 	lip->gid_rootname = -1 ;
-	lip->intconfig = TO_CONFIG ;
+	lip->intconf = TO_CONFIG ;
 	lip->intdirmaint = TO_DIRMAINT ;
-	lip->intclients = TO_DIRCLIENTS ;
+	lip->intclient = TO_DIRCLIENT ;
 	lip->rfd = -1 ;
 	lip->to_cache = -1 ;
 	lip->to_lock = -1 ;
 	lip->ti_marklog = pip->daytime ;
 	lip->ti_start = pip->daytime ;
-	lip->ti_dirmaint = pip->daytime ;
 
 	lip->f.adj = TRUE ;
 	return rs ;
@@ -385,8 +394,10 @@ int locinfo_lockend(LOCINFO *lip)
 
 int locinfo_tmpourdir(LOCINFO *lip)
 {
+	PROGINFO	*pip = lip->pip ;
 	int		rs ;
 	int		pl = 0 ;
+	if (pip == NULL) return SR_FAULT ;
 	if ((rs = locinfo_tmpourdname(lip)) >= 0) {
 	    pl = rs ;
 	    if ((rs = locinfo_runas(lip)) >= 0) {
@@ -409,6 +420,10 @@ int locinfo_tmpourdir(LOCINFO *lip)
 		    }
 	    } /* end if (locinfo_runas) */
 	} /* end if (locinfo_tmpourdname) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("pcslocinfo_tmpourdir: ret rs=%d pl=%u\n",rs,pl) ;
+#endif
 	return (rs >= 0) ? pl : rs ;
 }
 /* end subroutine (locinfo_tmpourdir) */
@@ -652,17 +667,32 @@ int locinfo_dirmaint(LOCINFO *lip)
 	PROGINFO	*pip = lip->pip ;
 	const int	to = lip->intdirmaint ;
 	int		rs = SR_OK ;
-	if ((to > 0) && ((pip->daytime - lip->ti_dirmaint) >= to)) {
+	int		f ;
+	f = ((to > 0) && ((pip->daytime - lip->ti_dirmaint) >= to)) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5)) {
+	debugprintf("pcslocinfo_dirmaint: ent f=%u f_maint=%u\n",
+		f,lip->f.maint) ;
+	debugprintf("pcslocinfo_dirmaint: intclient=%u\n",lip->intclient) ;
+	debugprintf("pcslocinfo_dirmaint: tmpourdname=%s\n",lip->tmpourdname) ;
+	}
+#endif
+	if (f || lip->f.maint) {
 	    lip->ti_dirmaint = pip->daytime ;
 	    if (lip->tmpourdname != NULL) {
-		const int	to_clients = lip->intclients ;
-		if (to_clients > 0) {
+		const int	to_client = lip->intclient ;
+		if (to_client > 0) {
 		    cchar	*dir = lip->tmpourdname ;
 		    cchar	*pat = "client" ;
-	            if ((rs = rmdirfiles(dir,pat,to_clients)) >= 0) {
+	            if ((rs = rmdirfiles(dir,pat,to_client)) >= 0) {
 		        char	tbuf[TIMEBUFLEN+1] ;
 		        timestr_logz(pip->daytime,tbuf) ;
 		        logprintf(pip,"%s dirmaint (%d)",tbuf,rs) ;
+			if (pip->debuglevel > 0) {
+			    cchar	*pn = pip->progname ;
+			    cchar	*fmt = "%s: dirmaint (%d)\n" ;
+			    shio_printf(pip->efp,fmt,pn,rs) ;
+			}
 		    }
 		} /* end if (positive) */
 	    } /* end if (directory exists?) */
@@ -809,9 +839,9 @@ static int locinfo_tmplockbegin(LOCINFO *lip)
 	    }
 	} /* end if (null) */
 	if (rs >= 0) {
-	    LFM	*lfp = &lip->tmplock ;
 	    lfn = lip->tmpfname ;
 	    if ((lfn != NULL) && (lfn[0] != '-')) {
+	        LFM	*lfp = &lip->tmplock ;
 	        if (pip->debuglevel > 0) {
 		    cchar	*pn = pip->progname ;
 	            cchar	*fmt = "%s: tmplock=%s\n" ;
@@ -979,6 +1009,13 @@ static int locinfo_tmpourdname(LOCINFO *lip)
 	} else {
 	    pl = strlen(lip->tmpourdname) ;
 	} /* end if (needed) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5)) {
+	    debugprintf("pcslocinfo_tmpourdname: tmpourdiname=%s\n",
+		lip->tmpourdname) ;
+	    debugprintf("pcslocinfo_tmpourdname: ret rs=%d pl=%u\n",rs,pl) ;
+	}
+#endif
 	return (rs >= 0) ? pl : rs ;
 }
 /* end subroutine (locinfo_tmpourdname) */

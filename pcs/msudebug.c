@@ -52,7 +52,6 @@
 #include	"msulog.h"
 #include	"defs.h"
 #include	"msflag.h"
-#include	"shio.h"
 
 
 /* local typedefs */

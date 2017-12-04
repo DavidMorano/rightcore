@@ -42,13 +42,29 @@
 #define	LOCINFO_FL	struct locinfo_flags
 
 
+enum svctypes {
+	svctype_mfserve,
+	svctype_tcpmuxd,
+	svctype_fingers,
+	svvtype_overlast
+} ;
+
 struct locinfo_flags {
 	uint		stores:1 ;
 	uint		cooks:1 ;
 	uint		svars:1 ;
 	uint		lockinfo:1 ;
+	uint		intrun:1 ;
+	uint		intidle:1 ;
+	uint		intpoll:1 ;
+	uint		intconf:1 ;
+	uint		intsvcs:1 ;
+	uint		intwait:1 ;
+	uint		intcache:1 ;
+	uint		intmaint:1 ;
 	uint		intspeed:1 ;
-	uint		intconfig:1 ;
+	uint		intdirmaint:1 ;
+	uint		intclient:1 ;
 	uint		zerospeed:1 ;
 	uint		quick:1 ;
 	uint		adj:1 ;		/* activate adjunct */
@@ -74,6 +90,8 @@ struct locinfo_flags {
 	uint		reqexit:1 ;
 	uint		listens:1 ;
 	uint		runasprn:1 ;
+	uint		svctype:1 ;
+	uint		maint:1 ;
 } ;
 
 struct locinfo {
@@ -107,15 +125,23 @@ struct locinfo {
 	time_t		ti_dirmaint ;
 	uid_t		uid_rootname ;
 	gid_t		gid_rootname ;
+	int		svctype ;	/* service (handling) type */
 	int		kserial ;
 	int		serial ;
 	int		nu ;		/* n-updates */
 	int		rfd ;		/* request file-descriptor */
 	int		reqs ;		/* count of requests */
-	int		intconfig ;	/* interval configuration changed */
-	int		intspeed ;	/* interval speed update */
+	int		intrun ;
+	int		intidle ;
+	int		intpoll ;
+	int		intconf ;
+	int		intsvcs ;
+	int		intwait ;
+	int		intcache ;
+	int		intmaint ;
+	int		intspeed ;
 	int		intdirmaint ;	/* interval dir-maintenance */
-	int		intclients ;	/* interval client sockets */
+	int		intclient ;	/* interval client sockets */
 	int		to_cache ;
 	int		to_lock ;
 	int		to_accept ;
@@ -158,6 +184,7 @@ extern int	locinfo_varsub(LOCINFO *,char *,int,cchar *,int) ;
 extern int	locinfo_daemonbegin(LOCINFO *) ;
 extern int	locinfo_daemonend(LOCINFO *) ;
 extern int	locinfo_cooksvc(LOCINFO *,cchar *,cchar *,vecstr *,int) ;
+extern int	locinfo_svctype(LOCINFO *,cchar *,int) ;
 
 #ifdef	__cplusplus
 }

@@ -114,7 +114,7 @@ static int	progcmder_help(PROGINFO *,ARGINFO *,bfile *,
 
 /* local variables */
 
-static const char	*cmds[] = {
+static cchar	*cmds[] = {
 	"help",
 	"status",
 	"listeners",
@@ -141,7 +141,7 @@ int progcmd(PROGINFO *pip,ARGINFO *aip)
 
 	if ((rs = keyopt_count(&pip->cmds)) > 0) {
 	    bfile	ofile, *ofp = &ofile ;
-	    const char	*fn = pip->outfname ;
+	    cchar	*fn = pip->outfname ;
 
 	    if ((fn == NULL) || (fn[0] == '\0'))
 	        fn = STDOUTFNAME ;
@@ -227,11 +227,13 @@ int progcmdname(PROGINFO *pip,int idx,cchar **rpp)
 
 	if ((idx >= 0) && (idx < nidx)) {
 	    len = (cmds[idx] != NULL) ? strlen(cmds[idx]) : 0 ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? cmds[idx] : NULL ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -258,7 +260,7 @@ int		sal ;
 	if ((rs = keyopt_curbegin(&pip->cmds,&kcur)) >= 0) {
 	    int		ci ;
 	    int		kl ;
-	    const char	*kp ;
+	    cchar	*kp ;
 
 	    while (rs >= 0) {
 	        kl = keyopt_enumkeys(&pip->cmds,&kcur,&kp) ;

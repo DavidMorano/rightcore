@@ -92,7 +92,7 @@ LIB0= -lpcs
 LIB1= -ldam -lb
 LIB2=
 LIB3= -luc -lu
-LIB4= $(CGS_LIBS)
+LIB4= -liconv $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
@@ -321,5 +321,7 @@ osetstr.o:		osetstr.c osetstr.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) osetstr.cc
 
 pcsns.o:		pcsns.c pcsns.h
+
+pcsnsc.o:		pcsnsc.c pcsnsc.h
 
 

@@ -115,8 +115,8 @@
 #define	TO_RUN		(5 * 60)
 #define	TO_MARK		(8 * 3600)
 #define	TO_SPEED	(24 * 3600)
-#define	TO_DIRMAINT	(4*3600)
-#define	TO_DIRCLIENTS	(24*3600)
+#define	TO_DIRMAINT	(1*3600)	/* interval between maintenance */
+#define	TO_DIRCLIENT	(12*3600)	/* age of client files */
 #define	TO_POLL		7
 #define	TO_IDLE		5
 #define	TO_LOCK		4

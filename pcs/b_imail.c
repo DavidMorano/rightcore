@@ -813,7 +813,7 @@ static int	debugfilebuf_printoff(FILEBUF *,cchar *,cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -902,7 +902,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"log",
 	"folder",
 	"deliver",
@@ -1831,8 +1831,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1840,23 +1839,26 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,pip->version) ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: version %s\n",pn,pip->version) ;
 	}
 
-/* figure out a program mode */
+/* get our program mode */
 
 	if (pm == NULL) pm = pip->progname ;
 
-	{
-	    int		progmode = matostr(progmodes,1,pm,-1) ;
-	    if (progmode < 0) progmode = 0 ;
-	    pip->progmode = progmode ;
+	if ((pip->progmode = matstr(progmodes,pm,-1)) >= 0) {
 	    if (pip->debuglevel > 0) {
 	        cchar	*pn = pip->progname ;
-	        cchar	*fmt = "%s: pm=%s(%u)\n" ;
-	        shio_printf(pip->efp,fmt,pn,progmodes[progmode],progmode) ;
+	        cchar	*fmt = "%s: pm=%s (%u)\n" ;
+	        shio_printf(pip->efp,fmt,pn,pm,pip->progmode) ;
 	    }
+	} else {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid program-mode (%s)\n" ;
+	    shio_printf(pip->efp,fmt,pn,pm) ;
+	    ex = EX_USAGE ;
+	    rs = SR_INVALID ;
 	}
 
 /* get the program root */

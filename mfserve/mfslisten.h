@@ -29,6 +29,9 @@
 
 
 #define	MFSLISTEN_ACQ		struct mfslisten_acq
+#define	MFSLISTEN_INST		LISTENSPEC_INFO
+#define	MFSLISTEN_TYPELEN	LISTENSPEC_TYPELEN
+#define	MFSLISTEN_ADDRLEN	LISTENSPEC_ADDRLEN
 
 
 struct mfslisten_acq {
@@ -46,6 +49,7 @@ extern int	mfslisten_acqadd(PROGINFO *,MFSLISTEN_ACQ *,cchar *,int) ;
 extern int	mfslisten_acqend(PROGINFO *,MFSLISTEN_ACQ *) ;
 extern int	mfslisten_maint(PROGINFO *,POLLER *) ;
 extern int	mfslisten_poll(PROGINFO *,POLLER *,int,int) ;
+extern int	mfslisten_getinst(PROGINFO *,MFSLISTEN_INST *,int) ;
 extern int	mfslisten_end(PROGINFO *) ;
 
 #ifdef	__cplusplus

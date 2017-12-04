@@ -40,6 +40,7 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
+#include	<sys/param.h>
 #include	<string.h>
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -47,6 +48,7 @@
 
 /* external subroutines */
 
+extern int	getprovider(char *,int) ;
 extern int	nleadstr(const char *,const char *,int) ;
 
 
@@ -54,15 +56,15 @@ extern int	nleadstr(const char *,const char *,int) ;
 
 struct provider {
 	uint		providerid ;
-	char		*name ;
-	char		*fullname ;
+	char		*codename ;
+	char		*realname ;
 } ;
 
 
 /* local variables */
 
 const struct provider	providers[] = {
-	{ 0, "unknown", "Unknown Provider" }, 
+	{ 0, "unknown", "Unknown" }, 
 	{ 1, "Sun_Microsystems", "Sun Microsystems" },
 	{ 2, "Compaq Computer Corporation", NULL },
 	{ 3, "sgi", "Silicon Graphics" },
@@ -79,18 +81,15 @@ int getproviderid(cchar *np,int nl)
 	int		m ;
 	int		id = 0 ;
 	int		f = FALSE ;
-	const char	*bs ;
+	cchar		*bs ;
 
 	if (nl < 0) nl = strlen(np) ;
 
-	for (i = 0 ; providers[i].name != NULL ; i += 1) {
-
-	    bs = providers[i].name ;
+	for (i = 0 ; providers[i].codename != NULL ; i += 1) {
+	    bs = providers[i].codename ;
 	    m = nleadstr(bs,np,nl) ;
-
 	    f = ((m == nl) && (bs[m] == '\0')) ;
 	    if (f) break ;
-
 	} /* end for */
 
 	if (f) id = providers[i].providerid ;
@@ -98,5 +97,31 @@ int getproviderid(cchar *np,int nl)
 	return id ;
 }
 /* end subroutine (getproviderid) */
+
+
+int getvendor(char *rbuf,int rlen)
+{
+	const int	plen = MAXNAMELEN ;
+	int		rs ;
+	char		pbuf[MAXNAMELEN+1] ;
+	rbuf[0] = '\0' ;
+	if ((rs = getprovider(pbuf,plen)) >= 0) {
+	    const int	pl = rs ;
+	    int		m, i ;
+	    int		f = FALSE ;
+	    rs = SR_NOTFOUND ;
+	    for (i = 0 ; providers[i].codename != NULL ; i += 1) {
+	        cchar	*pn = providers[i].codename ;
+	        m = nleadstr(pn,pbuf,pl) ;
+	        f = ((m == pl) && (pn[m] == '\0')) ;
+	        if (f) break ;
+	    } /* end for */
+	    if (f) {
+		rs = sncpy1(rbuf,rlen,providers[i].realname) ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (getvendor) */
 
 

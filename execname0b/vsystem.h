@@ -230,6 +230,10 @@
 #define	POLLFD		struct pollfd
 #endif
 
+#ifndef	IOVCEC
+#define	IOVCEC		struct iovec
+#endif
+
 
 /* for missing MAXNAMELEN */
 

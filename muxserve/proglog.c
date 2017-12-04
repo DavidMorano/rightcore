@@ -340,10 +340,14 @@ int proglog_ssprint(PROGINFO *pip,cchar *id,cchar *sp,int sl)
 	if (sp == NULL) return SR_FAULT ;
 	if (pip->open.logprog) {
 	    LOGFILE	*lhp = &pip->lh ;
-	    if ((rs = logfile_setid(lhp,id)) >= 0) {
-	        if ((rs = logfile_print(lhp,sp,sl)) >= 0) {
-	    	    rs = logfile_setid(lhp,pip->logid) ;
-		}
+	    if (id != NULL) {
+	        if ((rs = logfile_setid(lhp,id)) >= 0) {
+	            if ((rs = logfile_print(lhp,sp,sl)) >= 0) {
+	    	        rs = logfile_setid(lhp,pip->logid) ;
+		    }
+	        }
+	    } else {
+	        rs = logfile_print(lhp,sp,sl) ;
 	    }
 	}
 	return rs ;

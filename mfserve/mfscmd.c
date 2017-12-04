@@ -111,6 +111,7 @@ static int	mfscmd_status(PROGINFO *,MFSC *,SHIO *) ;
 static int	mfscmd_help(PROGINFO *,MFSC *,SHIO *) ;
 static int	mfscmd_mark(PROGINFO *,MFSC *,SHIO *) ;
 static int	mfscmd_exit(PROGINFO *,MFSC *,SHIO *) ;
+static int	mfscmd_listeners(PROGINFO *,MFSC *,SHIO *) ;
 
 
 /* local variables */
@@ -121,6 +122,7 @@ static cchar	*cmds[] = {
 	"getval",
 	"mark",
 	"exit",
+	"listeners",
 	NULL
 } ;
 
@@ -130,6 +132,7 @@ enum cmds {
 	cmd_getval,
 	cmd_mark,
 	cmd_exit,
+	cmd_listeners,
 	cmd_overlast
 } ;
 
@@ -181,11 +184,13 @@ int mfscmd(PROGINFO *pip,cchar *ofn)
 /* end subroutine (mfscmd) */
 
 
-int mfscmd_name(PROGINFO *pip,int idx,cchar **rpp)
+int mfscmd_svcname(PROGINFO *pip,int idx,cchar **rpp)
 {
 	const int	nidx = nelem(cmds) ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
+
+	if (pip == NULL) return SR_FAULT ;
 
 	if ((idx >= 0) && (idx < nidx)) {
 	    if (cmds[idx] != NULL) {
@@ -201,7 +206,7 @@ int mfscmd_name(PROGINFO *pip,int idx,cchar **rpp)
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (mfscmdname) */
+/* end subroutine (mfscmd_svcname) */
 
 
 /* local subroutines */
@@ -244,6 +249,9 @@ static int mfscmder(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	                case cmd_exit:
 	                    rs = mfscmd_exit(pip,pcp,ofp) ;
 	                    break ;
+	                case cmd_listeners:
+	                    rs = mfscmd_listeners(pip,pcp,ofp) ;
+	                    break ;
 	                } /* end switch */
 		    } else {
 	                    fmt = "%s: unknown cmd=%t\n" ;
@@ -277,6 +285,8 @@ static int mfscmd_status(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfscmd_status: ent\n") ;
 #endif
+
+	if (pip == NULL) return SR_FAULT ;
 
 	if ((rs = mfsc_status(pcp,&stat)) >= 0) {
 	    fmt = "server rc=%u pid=%u queries=%u\n" ;
@@ -314,6 +324,8 @@ static int mfscmd_help(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	int		wlen = 0 ;
 	char		*rbuf ;
 
+	if (pip == NULL) return SR_FAULT ;
+
 	if ((rs = uc_malloc((rlen+1),&rbuf)) >= 0) {
 	    int		i ;
 	    for (i = 0 ; rs >= 0 ; i += 1) {
@@ -338,6 +350,8 @@ static int mfscmd_mark(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	int		wlen = 0 ;
 	cchar		*fmt ;
 
+	if (pip == NULL) return SR_FAULT ;
+
 	if ((rs = mfsc_mark(pcp)) >= 0) {
 	    fmt = "marking (%d)\n" ;
 	    rs = shio_printf(ofp,fmt,rs) ;
@@ -359,6 +373,8 @@ static int mfscmd_exit(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	int		wlen = 0 ;
 	cchar		*fmt ;
 
+	if (pip == NULL) return SR_FAULT ;
+
 	if ((rs = mfsc_exit(pcp,"extern")) >= 0) {
 	    fmt = "exiting (%d)\n" ;
 	    rs = shio_printf(ofp,fmt,rs) ;
@@ -372,5 +388,33 @@ static int mfscmd_exit(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (mfscmd_exit) */
+
+
+static int mfscmd_listeners(PROGINFO *pip,MFSC *pcp,SHIO *ofp)
+{
+	const int	rlen = (2*MAXPATHLEN) ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	char		*rbuf ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	if ((rs = uc_malloc((rlen+1),&rbuf)) >= 0) {
+	    int		i ;
+	    for (i = 0 ; rs >= 0 ; i += 1) {
+	        if ((rs = mfsc_listener(pcp,rbuf,rlen,i)) > 0) {
+		    rs = shio_print(ofp,rbuf,rs) ;
+		    wlen += rs ;
+		}
+		if (rs == 0) break ;
+	    } /* end for */
+	    rs1 = uc_free(rbuf) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (m-a-f) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (mfscmd_listeners) */
 
 

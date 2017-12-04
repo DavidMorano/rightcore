@@ -603,8 +603,8 @@ static int vars_filemapcreate(VARS *op,VARS_FM *fip,cchar *fname,time_t dt)
 	if (op == NULL) return SR_FAULT ;
 
 	if ((rs = u_open(fname,O_RDONLY,0666)) >= 0) {
-	    struct ustat	sb ;
-	    int			fd = rs ;
+	    USTAT	sb ;
+	    const int	fd = rs ;
 	    if ((rs = u_fstat(fd,&sb)) >= 0) {
 	  	if (sb.st_size <= MAXMAPSIZE) {
 	            size_t	ms = (size_t) sb.st_size ;

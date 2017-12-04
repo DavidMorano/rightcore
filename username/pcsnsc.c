@@ -179,15 +179,16 @@ int pcsnsc_open(PCSNSC *op,cchar *pr,int to)
 	if (to < 1) to = 1 ;
 
 #if	CF_DEBUGS
-	debugprintf("pcsnsc_open: ent pr=%s\n",pr) ;
+	debugprintf("pcsnsc_open: ent pr=%s to=%d\n",pr,to) ;
 #endif
 
 	memset(op,0,sizeof(PCSNSC)) ;
 	op->to = to ;
+	op->fd = -1 ;
 	op->pid = getpid() ;
 
-	if ((rs = pcsnsc_setbegin(op,pr)) >= 0) {
-	    if ((rs = pcsnsc_connect(op)) >= 0) {
+	if ((rs = pcsnsc_setbegin(op,pr)) > 0) {
+	    if ((rs = pcsnsc_connect(op)) > 0) {
 	        if ((rs = pcsnsc_bufbegin(op)) >= 0) {
 	            op->f.srv = TRUE ;
 		    rs = 1 ;
@@ -348,6 +349,9 @@ int pcsnsc_getval(PCSNSC *op,char *rbuf,int rlen,cchar *un,int w)
 	    strwcpy(mreq.key,un,PCSMSG_KEYLEN) ;
 	    if ((rs = pcsmsg_getval(&mreq,0,mbuf,mlen)) >= 0) {
 	        const int	fd = op->fd ;
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_getval: fd=%d\n",fd) ;
+#endif
 	        if ((rs = u_send(fd,mbuf,rs,0)) >= 0) {
 	            const int	mf = 0 ;
 	            const int	ro = FM_TIMED ;
@@ -364,14 +368,23 @@ int pcsnsc_getval(PCSNSC *op,char *rbuf,int rlen,cchar *un,int w)
 	                    }
 	                }
 		    } else if (isBadRecv(rs)) {
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_getval: uc_recve() out rs=%d\n",rs) ;
+#endif
 		        op->f.srv = FALSE ;
 		        rs = SR_OK ;
 	            } /* end if (uc_recve) */
 		} else if (isBadSend(rs)) {
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_getval: u_send() out rs=%d\n",rs) ;
+#endif
 		    op->f.srv = FALSE ;
 		    rs = SR_OK ;
 	        } /* end if (u_send) */
 	    } /* end if (pcsmsg_getval) */
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_getval: pcsmsg_getval() out rs=%d\n",rs) ;
+#endif
 	    if (rs < 0) op->f.srv = FALSE ;
 	} /* end if (servicing) */
 
@@ -577,6 +590,10 @@ static int pcsnsc_srvdname(PCSNSC *op,char *rbuf)
 	cchar		*td = TMPDNAME ;
 	cchar		*fn = PCSNSC_FACNAME ;
 
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_srvdname: ent\n") ;
+#endif
+
 	if ((rs = mksrvdname(rbuf,td,op->pr,fn)) >= 0) {
 	    USTAT	sb ;
 	    if ((rs = u_stat(rbuf,&sb)) >= 0) {
@@ -592,6 +609,11 @@ static int pcsnsc_srvdname(PCSNSC *op,char *rbuf)
 	        rs = SR_OK ;
 	    }
 	}
+
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_srvdname: ret rs=%d rl=%u\n",rs,rl) ;
+#endif
+
 	return (rs >= 0) ? rl : rs ;
 }
 /* end subroutine (pcsnsc_srvdname) */
@@ -601,12 +623,19 @@ static int pcsnsc_srvfname(PCSNSC *op,cchar *srvdname)
 {
 	int		rs ;
 	int		rl = 0 ;
-	const char	*reqname = PCSNSC_REQNAME ;
+	cchar		*reqname = PCSNSC_REQNAME ;
 	char		srvfname[MAXPATHLEN + 1] ;
+
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_srvfname: ent\n") ;
+#endif
 
 	if ((rs = mkpath2(srvfname,srvdname,reqname)) >= 0) {
 	    USTAT	sb ;
 	    rl = rs ;
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_srvfname: srvfname=%s\n",srvfname) ;
+#endif
 	    if ((rs = u_stat(srvfname,&sb)) >= 0) {
 	        if (S_ISSOCK(sb.st_mode)) {
 	            const int	am = (R_OK|W_OK) ;
@@ -623,10 +652,18 @@ static int pcsnsc_srvfname(PCSNSC *op,cchar *srvdname)
 	            rl = 0 ;
 	        }
 	    } else if (isNotPresent(rs)) {
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_srvfname: not-present rs=%d\n",rs) ;
+#endif
 	        rl = 0 ;
 	        rs = SR_OK ;
 	    }
 	} /* end if (srvfname) */
+
+#if	CF_DEBUGS
+	debugprintf("pcsnsc_srvfname: ret rs=%d rl=%u\n",rs,rl) ;
+#endif
+
 	return (rs >= 0) ? rl : rs ;
 }
 /* end subroutine (pcsnsc_srvfname) */
@@ -651,6 +688,9 @@ static int pcsnsc_bind(PCSNSC *op,int f,cchar *srvdname)
 	        char		fname[MAXPATHLEN + 1] ;
 	        if ((rs = opentmpusd(template,of,om,fname)) >= 0) {
 	            cchar	*cp ;
+#if	CF_DEBUGS
+			debugprintf("pcsnsc_bind: opentmpusd() rs=%d\n",rs) ;
+#endif
 	            op->fd = rs ;
 	            u_chmod(fname,om) ;
 	            uc_closeonexec(op->fd,TRUE) ;
@@ -725,7 +765,7 @@ static int pcsnsc_connect(PCSNSC *op)
 	int		f = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("pcsnsc_connect: srvfname=%s\n",op->srvfname) ;
+	debugprintf("pcsnsc_connect: ent srvfname=%s\n",op->srvfname) ;
 #endif
 
 	if (op->srvfname != NULL) {

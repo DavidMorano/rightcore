@@ -307,10 +307,12 @@ int debugvprintf(cchar *fmt,va_list ap)
 	    if ((len = format(lbuf,llen,fm,fmt,ap)) >= 0) {
 	        rs = debugprint(lbuf,len) ;
 	        wlen += rs ;
-	    } else
+	    } else {
 	        rs = SR_TOOBIG ;
-	} else
+	    }
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -326,7 +328,7 @@ int debugprintdeci(cchar *s,int v)
 	const int	dlen = DIGBUFLEN ;
 	int		ll = LINEBUFLEN ;
 	int		sl ;
-	const char	*sp ;
+	cchar		*sp ;
 	char		*lp = lbuf ;
 	char		dbuf[DIGBUFLEN + 1] ;
 
@@ -336,8 +338,9 @@ int debugprintdeci(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -346,8 +349,9 @@ int debugprintdeci(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -356,8 +360,9 @@ int debugprintdeci(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -390,8 +395,9 @@ int debugprinthexi(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -401,8 +407,9 @@ int debugprinthexi(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -411,8 +418,9 @@ int debugprinthexi(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -499,12 +507,13 @@ int debugopen(cchar *fname)
 
 int debugclose()
 {
+	int		rs = SR_OK ;
 	if (ef.fd > 0) {
-	    u_close(ef.fd) ;
+	    rs = u_close(ef.fd) ;
 	    ef.fd = 0 ;
 	}
 	ef.size = 0 ;
-	return 0 ;
+	return rs ;
 }
 /* end subroutine (debugclose) */
 

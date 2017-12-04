@@ -173,7 +173,7 @@ int pcscmd(PROGINFO *pip,cchar *ofn)
 /* end subroutine (pcscmd) */
 
 
-int pcscmd_name(PROGINFO *pip,int idx,cchar **rpp)
+int pcscmd_svcname(PROGINFO *pip,int idx,cchar **rpp)
 {
 	const int	nidx = nelem(cmds) ;
 	int		rs = SR_OK ;
@@ -193,7 +193,7 @@ int pcscmd_name(PROGINFO *pip,int idx,cchar **rpp)
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (pcscmdname) */
+/* end subroutine (pcscmd_svcname) */
 
 
 /* local subroutines */

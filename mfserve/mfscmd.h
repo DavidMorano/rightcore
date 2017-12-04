@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 extern int	mfscmd(PROGINFO *,cchar *) ;
-extern int	mfscmd_name(PROGINFO *,int,cchar **) ;
+extern int	mfscmd_svcname(PROGINFO *,int,cchar **) ;
 
 #ifdef	__cplusplus
 }

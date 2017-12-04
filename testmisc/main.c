@@ -4,11 +4,13 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_HELLO	0		/* hello */
+#define	CF_FILEHELLO	0		/* file-hello */
 #define	CF_TESTCON	0		/* test-con */
+#define	CF_TESTIO	1
 #define	CF_DYMARRAY	0		/* dynamic arrays */
 #define	CF_SIGNED	0		/* signed numbers */
 #define	CF_COPY		0		
-#define	CF_OP		0		/* operator */
+#define	CF_OP		1		/* operator */
 #define	CF_INIT		1		
 #define	CF_LAMBDA	0		/* test Lambda Functions */
 #define	CF_VECTUP	0		
@@ -217,7 +219,9 @@ struct tupler {
 static int testlambda(void) ;
 #endif /* CF_LAMBDA */
 
+#if	CF_TESTIO
 static int testio() ;
+#endif
 
 static int readline(ifstream &,char *,int) ;
 
@@ -251,7 +255,7 @@ int main(int argc,const char **argv,const char **envv)
 #endif	/* CF_TESTCON */
 
 #if	CF_OP
-	fprintf(stderr,"main: a=%d b=%d c=%d\n",*a,*b,*c) ;
+	fprintf(stderr,"main: OP a=%d b=%d c=%d\n",*a,*b,*c) ;
 #endif /* CF_OP */
 
 #if	CF_INIT
@@ -341,7 +345,7 @@ int main(int argc,const char **argv,const char **envv)
 	}
 #endif /* CF_HASDUP */
 
-#ifdef	COMMENT
+#if	CF_FILEHELLO
 	{
 	    ofstream	*osp ;
 	    cchar	*fn = "ourout.txt" ;
@@ -351,9 +355,11 @@ int main(int argc,const char **argv,const char **envv)
 	        delete osp ;
 	    } /* end if (file) */
 	}
-#else /* COMMENT */
+#endif /* CF_FILEHELLO */
+
+#if	CF_TESTIO
 	testio() ;
-#endif /* COMMENT */
+#endif /* CF_TESTIO */
 
 	return 0 ;
 }
@@ -369,6 +375,7 @@ auto special(int a, int b) -> int
 /* local subroutines */
 
 
+#if	CF_TESTIO
 static int testio()
 {
 	int		rs = SR_OK ;
@@ -403,6 +410,7 @@ static int testio()
 	return rs ;
 }
 /* end subroutine (testio) */
+#endif /* CF_TESTIO */
 
 
 #if	CF_LAMBDA

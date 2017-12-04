@@ -159,6 +159,8 @@ extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	statvfsdir(cchar *,struct statvfs *) ;
+extern int	getproviderid(cchar *,int) ;
+extern int	getvendor(char *,int) ;
 extern int	getnprocessors(cchar **,int) ;
 extern int	getrunlevel(cchar *) ;
 extern int	getmjd(int,int,int) ;
@@ -536,6 +538,8 @@ static cchar	*qopts[] = {
 	"maxtzname",
 	"kserial",
 	"nofiles",
+	"providerid",
+	"vendor",
 	NULL
 } ;
 
@@ -623,6 +627,8 @@ enum qopts {
 	qopt_maxtzname,
 	qopt_kserial,
 	qopt_nofiles,
+	qopt_providerid,
+	qopt_vendor,
 	qopt_overlast
 } ;
 
@@ -2150,11 +2156,28 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	        cbl = rs ;
 	    }
 	    break ;
+	case qopt_providerid:
+	    if ((rs = locinfo_uaux(lip)) >= 0) {
+		cchar	*s = lip->uaux.provider ;
+		if ((rs = getproviderid(s,-1)) >= 0) {
+		    const int	id = rs ;
+		    const int	vlen = MAXNAMELEN ;
+		    char	vbuf[MAXNAMELEN+1] ;
+		    if ((rs = getvendor(vbuf,vlen)) >= 0) {
+		        rs = bufprintf(cvtbuf,cvtlen,"%2u %t",id,vbuf,rs) ;
+	                cbp = cvtbuf ;
+	                cbl = rs ;
+		    }
+		}
+	    }
+	    break ;
+	case qopt_vendor:
+	    if ((rs = getvendor(cvtbuf,cvtlen)) >= 0) {
+	            cbp = cvtbuf ;
+	            cbl = rs ;
+	    }
+	    break ;
 	default:
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("b_sysval/procqueryer: default ri=%d\n",ri) ;
-#endif
 	    rs = SR_INVALID ;
 	    break ;
 	} /* end switch */

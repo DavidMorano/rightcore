@@ -185,7 +185,7 @@ MFSINCS= $(MFSINC0) $(MFSINC1)
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o proginfo_rootname.o
-OBJ01= proglog.o proguserlist.o
+OBJ01= proglog.o proglogout.o proguserlist.o
 OBJ02= mfsmain.o
 OBJ03= mfslocinfo.o mfsconfig.o mfsadj.o mfslog.o mfscmd.o mfsdebug.o
 OBJ04= mfslisten.o mfswatch.o mfsbuilt.o
@@ -206,7 +206,7 @@ OBJ17=
 OBJ18=
 OBJ19=
 OBJ20= svckv.o svcent.o
-OBJ21= uc_peek.o passfd.o
+OBJ21= uc_peek.o passfd.o getsystypenum.o
 OBJ22= isBadSend.o isBadRecv.o isBadMsg.o
 OBJ23= debug.o
 
@@ -327,6 +327,8 @@ proginfo_setpiv_o:	proginfo_setpiv.c defs.h
 proginfo_rootname.o:	proginfo_rootname.c defs.h
 
 proglog.o:		proglog.c proglog.h $(INCS)
+
+proglogout.o:		proglogout.c proglog.h $(INCS)
 
 proguserlist.o:		proguserlist.c proguserlist.h $(INCS)
 

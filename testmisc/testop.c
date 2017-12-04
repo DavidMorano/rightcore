@@ -176,7 +176,7 @@ int thing::init(int a)
 	return 0 ;
 }
 
-/* this IS is a MEMBER function */
+/* this IS a MEMBER function */
 thing &thing::operator += (const thing &b)
 {
 	fprintf(stderr,"main: operator C\n") ;

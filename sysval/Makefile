@@ -162,7 +162,7 @@ OBJ14=
 OBJ15=
 
 OBJ16= getmaxpid.o
-OBJ17=
+OBJ17= getprovider.o getproviderid.o
 OBJ18=
 OBJ19=
 OBJ20=

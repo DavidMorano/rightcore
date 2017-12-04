@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_TMPGROUP	1		/* change-group on TMP directory */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 #define	CF_DEBUGDUMP	0		/* debug-dump */
@@ -36,6 +36,16 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
+#if	defined(SFIO) && (SFIO > 0)
+#define	CF_SFIO	1
+#else
+#define	CF_SFIO	0
+#endif
+
+#if	(defined(KSHBUILTIN) && (KSHBUILTIN > 0))
+#include	<shell.h>
+#endif
+
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
@@ -58,6 +68,7 @@
 #include	<utmpacc.h>
 #include	<ugetpw.h>
 #include	<getax.h>
+#include	<char.h>
 #include	<localmisc.h>
 
 #include	"shio.h"
@@ -131,6 +142,7 @@ extern int	rmdirfiles(cchar *,cchar *,int) ;
 extern int	permsched(cchar **,vecstr *,char *,int,cchar *,int) ;
 extern int	perm(cchar *,uid_t,gid_t,gid_t *,int) ;
 extern int	chownsame(cchar *,cchar *) ;
+extern int	getsystypenum(char *,char *,cchar *,cchar *) ;
 extern int	vecstr_envadd(vecstr *,cchar *,cchar *,int) ;
 extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
 extern int	isNotPresent(int) ;
@@ -217,6 +229,83 @@ static cchar	*envbads[] = {
 	NULL
 } ;
 
+static cchar	*svctypes[] = {
+	"mfserve",
+	"tcpmux",
+	"finger",
+	NULL
+} ;
+
+static cchar	*cooks[] = {
+	"SYSNAME",	/* OS system-name */
+	"RELEASE",	/* OS system-release */
+	"VERSION",	/* OS system-version */
+	"MACHINE",	/* machine-name */
+	"PLATFORM",	/* pathform */
+	"ARCHITECTURE",	/* machine-architecture */
+	"NCPU",		/* number of machine CPUs */
+	"HZ",		/* OS clock tics */
+	"U",		/* current user username */
+	"G",		/* current user groupname */
+	"HOME",		/* current user home directory */
+	"SHELL",	/* current user shell */
+	"ORGANIZATION",	/* current user organization name */
+	"GECOSNAME",	/* current user gecos-name */
+	"REALNAME",	/* current user real-name */
+	"NAME",		/* current user name */
+	"TZ",		/* current user time-zone */
+	"N",		/* nodename */
+	"D",		/* INET domainname (for current user) */
+	"H",		/* INET hostname */
+	"R",		/* program-root */
+	"RN",		/* program-root-name */
+	"PRN",		/* program-root name */
+	"OSTYPE",
+	"OSNUM",
+	"S",		/* searchname */
+	"O",		/* organization */
+	"OO",		/* organization w/ hyphens */
+	"OC",		/* org-code */
+	"V",
+	"tmpdname",
+	NULL
+} ;
+
+enum cooks {
+	cook_sysname,
+	cook_release,
+	cook_version,
+	cook_machine,
+	cook_platform,
+	cook_architecture,
+	cook_ncpu,
+	cook_hz,
+	cook_u,
+	cook_g,
+	cook_home,
+	cook_shell,
+	cook_organization,
+	cook_gecosname,
+	cook_realname,
+	cook_name,
+	cook_tz,
+	cook_n,
+	cook_d,
+	cook_h,
+	cook_r,
+	cook_rn,
+	cook_prn,
+	cook_ostype,
+	cook_osnum,
+	cook_s,
+	cook_o,
+	cook_oo,
+	cook_oc,
+	cook_v,
+	cook_tmpdname,
+	cook_overlast
+} ;
+
 
 /* exported subroutines */
 
@@ -229,14 +318,13 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->pip = pip ;
 	lip->uid_rootname = -1 ;
 	lip->gid_rootname = -1 ;
-	lip->intconfig = TO_CONFIG ;
+	lip->intconf = TO_CONFIG ;
 	lip->intdirmaint = TO_DIRMAINT ;
-	lip->intclients = TO_DIRCLIENTS ;
+	lip->intclient = TO_DIRCLIENT ;
 	lip->rfd = -1 ;
 
 	        lip->ti_marklog = pip->daytime ;
 	        lip->ti_start = pip->daytime ;
-	        lip->ti_dirmaint = pip->daytime ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
@@ -277,9 +365,6 @@ int locinfo_finish(LOCINFO *lip)
 	    rs1 = vecstr_finish(&lip->stores) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
-
-	rs1 = mfslisten_end(pip) ;
-	if (rs >= 0) rs = rs1 ;
 
 	rs1 = locinfo_cookend(lip) ;
 	if (rs >= 0) rs = rs1 ;
@@ -631,14 +716,14 @@ int locinfo_rootids(LOCINFO *lip)
 	            cchar	*rn = pip->rootname ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
-	                debugprintf("mfslocinfo_rootids: rn=%s\n",rn) ;
+	                debugprintf("locinfo_rootids: rn=%s\n",rn) ;
 #endif
 	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
 	                lip->uid_rootname = pw.pw_uid ;
 	                lip->gid_rootname = pw.pw_gid ;
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
-	                    debugprintf("mfslocinfo_rootids: u=%d g=%d\n",
+	                    debugprintf("locinfo_rootids: u=%d g=%d\n",
 	                        pw.pw_uid,pw.pw_gid) ;
 #endif
 	            } /* end if (getpw_name) */
@@ -650,7 +735,7 @@ int locinfo_rootids(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfslocinfo_rootids: ret rs=%d gid=%d\n",
+	    debugprintf("locinfo_rootids: ret rs=%d gid=%d\n",
 	        rs,lip->gid_rootname) ;
 #endif
 
@@ -747,17 +832,24 @@ int locinfo_dirmaint(LOCINFO *lip)
 	PROGINFO	*pip = lip->pip ;
 	const int	to = lip->intdirmaint ;
 	int		rs = SR_OK ;
-	if ((to > 0) && ((pip->daytime - lip->ti_dirmaint) >= to)) {
+	int		f ;
+	f = ((to > 0) && ((pip->daytime - lip->ti_dirmaint) >= to)) ;
+	if (f || lip->f.maint) {
 	    lip->ti_dirmaint = pip->daytime ;
 	    if (lip->tmpourdname != NULL) {
-	        const int	to_clients = lip->intclients ;
-	        if (to_clients > 0) {
+	        const int	to_client = lip->intclient ;
+	        if (to_client > 0) {
 	            cchar	*dir = lip->tmpourdname ;
 	            cchar	*pat = "client" ;
-	            if ((rs = rmdirfiles(dir,pat,to_clients)) >= 0) {
+	            if ((rs = rmdirfiles(dir,pat,to_client)) >= 0) {
 	                char	tbuf[TIMEBUFLEN+1] ;
 	                timestr_logz(pip->daytime,tbuf) ;
 	                logprintf(pip,"%s dirmaint (%d)",tbuf,rs) ;
+			if (pip->debuglevel > 0) {
+			    cchar	*pn = pip->progname ;
+			    cchar	*fmt = "%s: dirmaint (%d)\n" ;
+			    shio_printf(pip->efp,fmt,pn,rs) ;
+			}
 	            }
 	        } /* end if (positive) */
 	    } /* end if (directory exists?) */
@@ -973,6 +1065,22 @@ int locinfo_cooksvc(LOCINFO *lip,cchar *svc,cchar *ss,vecstr *sap,int f_long)
 /* end subroutine (locinfo_cooksvc) */
 
 
+int locinfo_svctype(LOCINFO *lip,cchar *ebuf,int el)
+{
+	int		rs = SR_OK ;
+	    if (lip->svctype < 0) {
+		int	i ;
+		if ((i = matostr(svctypes,1,ebuf,el)) >= 0) {
+	    	    lip->svctype = i ;
+		} else {
+	    	    rs = SR_INVALID ;
+		}
+	    }
+	return rs ;
+}
+/* end subroutine (locinfo_svctype) */
+
+
 /* private subroutines */
 
 
@@ -1070,54 +1178,182 @@ static int locinfo_cookend(LOCINFO *lip)
 static int locinfo_cookload(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
-	EXPCOOK		*ecp = &lip->cooks ;
+	EXPCOOK		*cop = &lip->cooks ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		kch ;
+	int		rs1 ;
+	int		ci ;
 	int		vl ;
-	cchar		*tmpdname = getenv(VARTMPDNAME) ;
-	cchar		*ks = "RSTpnf" ;
 	cchar		*vp ;
-	char		kbuf[2] ;
+	char		tbuf[USERNAMELEN+1] = { 0 } ;
+	char		nbuf[USERNAMELEN+1] = { 0 } ;
 
-	if (tmpdname == NULL) tmpdname = TMPDNAME ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("locinfo_cookload: ent\n") ;
+#endif
 
-	kbuf[1] = '\0' ;
-	for (i = 0 ; (rs >= 0) && (ks[i] != '\0') ; i += 1) {
-	    kch = MKCHAR(ks[i]) ;
+	for (ci = 0 ; cooks[ci] != NULL ; ci += 1) {
+	    cchar	*k = cooks[ci] ;
 	    vp = NULL ;
 	    vl = -1 ;
-	    switch (kch) {
-	    case 'R':
-	    case 'p':
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("locinfo_cookload: k=%s\n",k) ;
+#endif
+	    switch (ci) {
+	    case cook_sysname:
+	        vp = pip->usysname ;
+	        break ;
+	    case cook_release:
+	        vp = pip->urelease ;
+	        break ;
+	    case cook_version:
+	        vp = pip->uversion ;
+	        break ;
+	    case cook_machine:
+	        vp = pip->umachine ;
+	        break ;
+	    case cook_platform:
+	        vp = pip->platform ;
+	        break ;
+	    case cook_architecture:
+	        vp = pip->architecture ;
+	        break ;
+	    case cook_ncpu:
+	        {
+		    const int	dlen = DIGBUFLEN ;
+	            char	dbuf[DIGBUFLEN + 1] ;
+	            if (pip->ncpu >= 0) {
+	                rs = ctdeci(dbuf,dlen,pip->ncpu) ;
+	            } else {
+	                strcpy(dbuf,"1") ;
+	                rs1 = 1 ;
+	            }
+		    if (rs >= 0) {
+	                rs = expcook_add(cop,k,dbuf,rs1) ;
+		    }
+	        } /* end block */
+	        break ;
+	    case cook_hz:
+	        vp = pip->hz ;
+	        break ;
+	    case cook_u:
+	        vp = pip->username ;
+	        break ;
+	    case cook_g:
+	        vp = pip->groupname ;
+	        break ;
+	    case cook_home:
+	        vp = pip->homedname ;
+	        break ;
+	    case cook_shell:
+	        vp = pip->shell ;
+	        break ;
+	    case cook_organization:
+	    case cook_o:
+	        vp = pip->org ;
+	        break ;
+	    case cook_gecosname:
+	        vp = pip->gecosname ;
+	        break ;
+	    case cook_realname:
+	        vp = pip->realname ;
+	        break ;
+	    case cook_name:
+	        vp = pip->name ;
+	        break ;
+	    case cook_tz:
+	        vp = pip->tz ;
+	        break ;
+	    case cook_n:
+	        vp = pip->nodename ;
+	        break ;
+	    case cook_d:
+	        vp = pip->domainname ;
+	        break ;
+	    case cook_h:
+	        {
+		    const int	hnlen = MAXHOSTNAMELEN ;
+	            cchar	*nn = pip->nodename ;
+	            cchar	*dn = pip->domainname ;
+	            char	hnbuf[MAXHOSTNAMELEN + 1] ;
+	            if ((rs = snsds(hnbuf,hnlen,nn,dn)) >= 0) {
+	                rs = expcook_add(cop,k,hnbuf,rs1) ;
+		    }
+	        } /* end block */
+	        break ;
+	    case cook_r:
 	        vp = pip->pr ;
 	        break ;
-	    case 'T':
-	        vp = tmpdname ;
+	    case cook_rn:
+	    case cook_prn:
+	        vp = pip->rootname ;
 	        break ;
-	    case 'f':
-	        vp = SVCCNAME ;
+	    case cook_ostype:
+	    case cook_osnum:
+	        if (tbuf[0] == '\0') {
+	            cchar	*sysname = pip->usysname ;
+	            cchar	*release = pip->urelease ;
+	            rs = getsystypenum(tbuf,nbuf,sysname,release) ;
+#if	CF_DEBUG
+		    if (DEBUGLEVEL(4))
+		    debugprintf("locinfo_cookload: getsystypenum() rs=%d\n",
+			rs) ;
+#endif
+	        }
+	        if (rs >= 0) {
+	            switch (ci) {
+	            case cook_ostype:
+	                vp = tbuf ;
+	                break ;
+	            case cook_osnum:
+	                vp = nbuf ;
+	                break ;
+	            } /* end switch */
+	        } /* end if */
 	        break ;
-	    case 'S':
-	    case 'n':
+	    case cook_s:
 	        vp = pip->searchname ;
+	        break ;
+	    case cook_oo:
+	        {
+	            const int	oolen = ORGLEN ;
+	            int		i ;
+	            int		ch ;
+	            cchar	*o = pip->org ;
+	            char	oobuf[ORGLEN + 1] ;
+	            for (i = 0 ; (i < oolen) && *o ; i += 1) {
+	                ch = MKCHAR(o[i]) ;
+	                oobuf[i] = (char) ((CHAR_ISWHITE(ch)) ? '-' : ch) ;
+	            }
+	            oobuf[i] = '\0' ;
+	            rs = expcook_add(cop,k,oobuf,i) ;
+	        } /* end block */
+	        break ;
+	    case cook_oc:
+	        vp = pip->orgcode ;
+	        break ;
+	    case cook_v:
+	        vp = pip->version ;
+	        break ;
+	    case cook_tmpdname:
+	        vp = pip->tmpdname ;
 	        break ;
 	    } /* end switch */
 	    if ((rs >= 0) && (vp != NULL)) {
-	        kbuf[0] = kch ;
-	        rs = expcook_add(ecp,kbuf,vp,vl) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("locinfo_cookload: v=%t\n",vp,vl) ;
+#endif
+	        rs = expcook_add(cop,k,vp,vl) ;
 	    }
+	    if (rs < 0) break ;
 	} /* end for */
 
-	if (rs >= 0) {
-	    cchar	*prname ;
-	    if ((rs = sfbasename(pip->pr,-1,&prname)) >= 0) {
-	        rs = SR_NOENT ;
-	        if (prname != NULL) {
-	            rs = expcook_add(ecp,"PRN",prname,-1) ;
-	        }
-	    }
-	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("locinfo_cookload: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -1253,7 +1489,7 @@ static int locinfo_pidlockend(LOCINFO *lip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	if (lip->open.pidlock) {
-	    LFM	*lfp = &lip->pidlock ;
+	    LFM		*lfp = &lip->pidlock ;
 	    lip->open.pidlock = FALSE ;
 	    rs1 = locinfo_genlockend(lip,lfp) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -1286,9 +1522,9 @@ static int locinfo_tmplockbegin(LOCINFO *lip)
 	    debugprintf("locinfo_tmplockbegin: mid2 rs=%d\n",rs) ;
 #endif
 	if (rs >= 0) {
-	    LFM		*lfp = &lip->tmplock ;
 	    lfn = lip->tmpfname ;
 	    if ((lfn != NULL) && (lfn[0] != '-')) {
+	        LFM	*lfp = &lip->tmplock ;
 	        if (pip->debuglevel > 0) {
 	            cchar	*pn = pip->progname ;
 	            cchar	*fmt = "%s: tmplock=%s\n" ;
@@ -1474,7 +1710,7 @@ static int locinfo_tmpourdname(LOCINFO *lip)
 	} /* end if (needed) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("locinfo_tmpourdname: ret rs=%d\n",rs) ;
+	    debugprintf("locinfo_tmpourdname: ret rs=%d pl=%u\n",rs,pl) ;
 #endif
 	return (rs >= 0) ? pl : rs ;
 }

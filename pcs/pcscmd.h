@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 extern int	pcscmd(PROGINFO *,cchar *) ;
-extern int	pcscmd_name(PROGINFO *,int,cchar **) ;
+extern int	pcscmd_svcname(PROGINFO *,int,cchar **) ;
 
 #ifdef	__cplusplus
 }

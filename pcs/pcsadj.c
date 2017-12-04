@@ -32,6 +32,16 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
+#if	defined(SFIO) && (SFIO > 0)
+#define	CF_SFIO	1
+#else
+#define	CF_SFIO	0
+#endif
+
+#if	(defined(KSHBUILTIN) && (KSHBUILTIN > 0))
+#include	<shell.h>
+#endif
+
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
@@ -493,12 +503,13 @@ static int pcsadj_gethelp(PROGINFO *pip,MSGDATA *mdp)
 	    cchar	*np ;
 	    memset(&mres,0,sizeof(struct pcsmsg_help)) ;
 	    mres.tag = mreq.tag ;
-	    if ((rs = pcscmd_name(pip,idx,&np)) >= 0) {
+	    if ((rs = pcscmd_svcname(pip,idx,&np)) >= 0) {
 	        mres.rc = pcsmsgrc_ok ;
 	        mres.vl = rs ;
 	        strwcpy(mres.val,np,rs) ;
 	    } else if (rs == rsn) {
 	        mres.rc = pcsmsgrc_notfound ;
+		rs = SR_OK ;
 	    }
 	    if (rs >= 0) {
 	        const int	mlen = mdp->mlen ;

@@ -231,8 +231,10 @@ int		*fd2p ;
 
 /* close some pipe ends */
 
-	if (fd2p != NULL)
+	if (fd2p != NULL) {
 	    u_close(pipes[2][1]) ;
+	    pipes[2][1] = -1 ;
+	}
 
 /* open the pipe file */
 
@@ -297,11 +299,8 @@ baddst:
 
 badpipemk:
 	if (fd2p != NULL) {
-
 	    u_close(pipes[2][0]) ;
-
 	    u_close(pipes[2][1]) ;
-
 	}
 
 badpipes:
@@ -320,18 +319,13 @@ const char	queue_machine[] ;
 	bfile		file0, file2 ;
 	bfile		procfile, *pfp = &procfile ;
 	bfile		*fpa[3] ;
-
-	pid_t	pid ;
-
-	int	rs = SR_OK ;
-	int	child_stat ;
-	int	i, j, l ;
-
+	pid_t		pid ;
+	int		rs = SR_OK ;
+	int		child_stat ;
+	int		i, j, l ;
 	const char	*cmd_uuname = PROG_UUNAME ;
-
-	char	buf[NODENAMELEN + 1] ;
-	char	*cp ;
-
+	char		buf[NODENAMELEN + 1] ;
+	char		*cp ;
 
 #if	CF_DEBUGS
 	debugprintf("testuucp: ent\n") ;

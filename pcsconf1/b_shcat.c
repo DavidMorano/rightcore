@@ -155,6 +155,8 @@ static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procsetcase(PROGINFO *,cchar *,int) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,cchar *) ;
 static int	procfile(PROGINFO *,void *,cchar *) ;
+static int	procfile_outer(PROGINFO *,SHIO *,char *,int,SHIO *) ;
+static int	procfile_reg(PROGINFO *,SHIO *,char *,int,SHIO *) ;
 static int	procdata(PROGINFO *,char *,int) ;
 static int	proclinebuf(PROGINFO *,SHIO *,cchar *,int) ;
 
@@ -1249,13 +1251,11 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 
 
 /* process a file */
-static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
+static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		infile, *ifp = &infile ;
 	const int	to_open = pip->to_open ;
-	const int	to_read = pip->to_read ;
-	volatile int	*intarr[3] ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		wlen = 0 ;
@@ -1270,11 +1270,6 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 #endif
 
 	if (fname == NULL) return SR_FAULT ;
-
-	{
-	    int	i = 0 ;
-	    intarr[i] = NULL ;
-	}
 
 	if ((fname[0] == '\0') || (strcmp(fname,"-") == 0)) {
 	    fname = STDINFNAME ;
@@ -1298,9 +1293,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	    if (f_fifo) fbuf[i++] = 'n' ;
 	    fbuf[i] = '\0' ;
 	    if ((rs = shio_opene(ifp,fname,fbuf,0666,to_open)) >= 0) {
-	        const int	vlevel = pip->verboselevel ;
 		const int	llen = LINEBUFLEN ;
-		int		len ;
 		char		lbuf[LINEBUFLEN + 1] ;
 
 	        if ((rs >= 0) && f_fifo)
@@ -1315,6 +1308,52 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 #endif
 
 	        if (lip->open.outer) {
+		    rs = procfile_outer(pip,ofp,lbuf,llen,ifp) ;
+		    wlen += rs ;
+	        } else {
+		    rs = procfile_reg(pip,ofp,lbuf,llen,ifp) ;
+		    wlen += rs ;
+		}
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("b_shcat/procfile: after rs=%d\n",rs) ;
+#endif
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("b_shcat/procfile: shio_close()\n") ;
+#endif
+
+	        rs1 = shio_close(ifp) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (file-output) */
+	} /* end if (ok) */
+
+	if (pip->debuglevel > 0) {
+	    const int	v = ((rs >= 0) ? wlen : rs) ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: file=%s (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,fname,v) ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_shcat/procfile: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procfile) */
+
+
+static int procfile_outer(PROGINFO *pip,SHIO *ofp,char *lbuf,int llen,SHIO *ifp)
+{
+	LOCINFO		*lip = pip->lip ;
+	const int	vlevel = pip->verboselevel ;
+	int		rs = SR_OK ;
+	int		len ;
+	int		wlen = 0 ;
 
 	            while (rs >= 0) {
 	                rs = shio_readlines(ifp,lbuf,llen,NULL) ;
@@ -1323,8 +1362,9 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
 	                    debugprintf("b_shcat/procfile: "
-	                        "shio_readlines() rs=%d\n",
-	                        rs) ;
+	                        "shio_readlines() rs=%d\n", rs) ;
+	                    debugprintf("b_shcat/procfile: "
+	                        "l=>%t<\n",lbuf,strlinelen(lbuf,len,60)) ;
 #if	CF_DEBUGHEX
 	                if (rs >= 0)
 	                    debugprinthex("b_shcat/procfile: d=",
@@ -1343,9 +1383,37 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	                if (rs >= 0) rs = lib_sigintr() ;
 	            } /* end while */
 
-	        } else {
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end if (procfile_outer) */
+
+
+static int procfile_reg(PROGINFO *pip,SHIO *ofp,char *lbuf,int llen,SHIO *ifp)
+{
+	LOCINFO		*lip = pip->lip ;
+	const int	vlevel = pip->verboselevel ;
+	const int	to_read = pip->to_read ;
+	volatile int	*intarr[3] ;
+	int		rs = SR_OK ;
+	int		len ;
+	int		wlen = 0 ;
+
+	{
+	    int	i = 0 ;
+	    intarr[i] = NULL ;
+	}
 
 	            while (rs >= 0) {
+	                rs = shio_readlines(ifp,lbuf,llen,NULL) ;
+	                len = rs ;
+
+#if	CF_DEBUG
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("b_shcat/procfile: "
+	                        "shio_readlines() rs=%d\n", rs) ;
+	                    debugprintf("b_shcat/procfile: "
+	                        "l=>%t<\n",lbuf,strlinelen(lbuf,len,60)) ;
+#endif
 
 #if	CF_READINTR
 	                rs = shio_readintr(ifp,lbuf,llen,to_read,intarr) ;
@@ -1410,39 +1478,12 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	                if (rs >= 0) rs = lib_sigintr() ;
 	            } /* end while (reading lines) */
 
-	        } /* end if (outer) */
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("b_shcat/procfile: after rs=%d\n",rs) ;
-#endif
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("b_shcat/procfile: shio_close()\n") ;
-#endif
-
-	        rs1 = shio_close(ifp) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (file-output) */
-	} /* end if (ok) */
-
-	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: file=%s (%d)\n",
-	        pip->progname,fname,((rs >= 0) ? wlen : rs)) ;
-	}
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("b_shcat/procfile: ret rs=%d wlen=%u\n",rs,wlen) ;
-#endif
-
 	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (procfile) */
+/* end subroutine (procfile_reg) */
 
 
-static int procdata(PROGINFO *pip,char lbuf[],int llen)
+static int procdata(PROGINFO *pip,char *lbuf,int llen)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -1476,13 +1517,20 @@ static int procdata(PROGINFO *pip,char lbuf[],int llen)
 /* end subroutine (procdata) */
 
 
-static int proclinebuf(PROGINFO *pip,SHIO *ofp,cchar sbuf[],int slen)
+static int proclinebuf(PROGINFO *pip,SHIO *ofp,cchar *sbuf,int slen)
 {
 	int		rs = SR_OK ;
 	int		sl = slen ;
 	int		mlen = 0 ;
 	int		wlen = 0 ;
 	cchar		*sp = sbuf ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	debugprintf("shcat/proclinebuf: ent\n") ;
+	debugprintf("shcat/proclinebuf: s=>%t<\n",sp,sl) ;
+	}
+#endif
 
 	if (pip == NULL) return SR_FAULT ;
 	while ((rs >= 0) && (sl > 0)) {
@@ -1636,7 +1684,7 @@ static int locinfo_termoutend(LOCINFO *lip)
 /* end subroutine (locinfo_termoutend) */
 
 
-static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
+static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar *lbuf,int llen)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs ;

@@ -1404,9 +1404,7 @@ static int procwatchpollipc_gethelp(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 	int		blen ;
 	const char	*cnp = NULL ;	/* command name-pointer */
 
-	rs1 = muximsg_gethelp(&i13,1,mip->ipcbuf,IPCBUFLEN) ;
-	if (rs1 < 0)
-	    goto ret0 ;
+	if ((rs1 = muximsg_gethelp(&i13,1,mip->ipcbuf,IPCBUFLEN)) >= 0) {
 
 	memset(&i14,0,sizeof(struct muximsg_help)) ;
 	i14.pid = pip->spid ;
@@ -1422,8 +1420,9 @@ static int procwatchpollipc_gethelp(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 	    rs1 = sncpy1(i14.name,MUXIMSG_LNAMELEN,cnp) ;
 	    if (rs1 < 0)
 		i14.rc = muximsgrc_overflow ;
-	} else
+	} else {
 	    i14.rc = muximsgrc_notavail ;
+	}
 
 	rs1 = muximsg_help(&i14,0,mip->ipcbuf,IPCBUFLEN) ;
 	blen = rs1 ;
@@ -1448,7 +1447,8 @@ static int procwatchpollipc_gethelp(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 
 	} /* end if */
 
-ret0:
+	} /* end if */
+
 	return rs ;
 }
 /* end subroutine (procwatchpollipc_gethelp) */
@@ -1500,9 +1500,7 @@ static int procwatchpollipc_cmd(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 	int		rs1 ;
 	int		blen ;
 
-	rs1 = muximsg_cmd(&m15,1,mip->ipcbuf,IPCBUFLEN) ;
-	if (rs1 < 0)
-	    goto ret0 ;
+	if ((rs1 = muximsg_cmd(&m15,1,mip->ipcbuf,IPCBUFLEN)) >= 0) {
 
 	m0.pid = pip->spid ;
 	m0.tag = m15.tag ;
@@ -1535,7 +1533,8 @@ static int procwatchpollipc_cmd(PROGINFO *pip,SUBINFO *wip,IPCMSGINFO *mip)
 
 	} /* end if */
 
-ret0:
+	} /* end if */
+
 	return rs ;
 }
 /* end subroutine (procwatchpollipc_cmd) */

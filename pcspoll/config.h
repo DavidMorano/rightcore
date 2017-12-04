@@ -15,7 +15,7 @@
 
 #define	P_PCSPOLL	1
 
-#define	VERSION		"0a"
+#define	VERSION		"0b"
 #define	WHATINFO	"@(#)PCSPOLL "
 #define	BANNER		"PCS Poll"
 #define	SEARCHNAME	"pcspoll"

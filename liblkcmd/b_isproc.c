@@ -724,8 +724,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -740,22 +739,25 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    shio_printf(pip->efp,"%s: version %s\n",pn,VERSION) ;
 	}
 
-/* figure out a program mode */
+/* get our program mode */
 
 	if (pm == NULL) pm = pip->progname ;
 
-	{
-	    int		progmode = matostr(progmodes,3,pm,-1) ;
-	    if (progmode < 0) progmode = 0 ;
-	    pip->progmode = progmode ;
+	if ((pip->progmode = matstr(progmodes,pm,-1)) >= 0) {
 	    if (pip->debuglevel > 0) {
-		cchar	*pn = pip->progname ;
-		cchar	*fmt = "%s: pm=%s(%u)\n" ;
-	        shio_printf(pip->efp,fmt,pn,progmodes[progmode],progmode) ;
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt = "%s: pm=%s (%u)\n" ;
+	        shio_printf(pip->efp,fmt,pn,pm,pip->progmode) ;
 	    }
-	} /* end block */
+	} else {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid program-mode (%s)\n" ;
+	    shio_printf(pip->efp,fmt,pn,pm) ;
+	    ex = EX_USAGE ;
+	    rs = SR_INVALID ;
+	}
 
-/* get the program root */
+/* set the program root and search-name */
 
 	if (rs >= 0) {
 	    PIVARS	vars = initvars ;

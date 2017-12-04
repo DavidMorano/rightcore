@@ -182,7 +182,7 @@ RM= rm -f
 
 INCS= msumain.h defs.h
 
-MSUINC0= msumain.h msulocinfo.h msuconfig.h msuadjunct.h 
+MSUINC0= msumain.h msulocinfo.h msuconfig.h msuadj.h 
 MSUINC1= msulog.h msumsg.h
 
 MSUINCS= $(MSUINC0) $(MSUINC1)
@@ -191,7 +191,7 @@ MSUINCS= $(MSUINC0) $(MSUINC1)
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o proginfo_rootname.o
 OBJ01= proglog.o
 OBJ02= msumain.o
-OBJ03= msulocinfo.o msuconfig.o msuadjunct.o msulog.o msudebug.o
+OBJ03= msulocinfo.o msuconfig.o msuadj.o msulog.o msudebug.o
 OBJ04= msumsg.o 
 OBJ05= cpuspeed.o securefile.o
 OBJ06= 
@@ -355,7 +355,7 @@ msgdata.o:		msgdata.c msgdata.h
 
 msulocinfo.o:		msulocinfo.c msulocinfo.h $(INCS) msulog.h
 
-msuadjunct.o:		msuadjunct.c msuadjunct.h $(INCS) msulocinfo.h msulog.h
+msuadj.o:		msuadj.c msuadj.h $(INCS) msulocinfo.h msulog.h
 
 msuconfig.o:		msuconfig.c msuconfig.h $(INCS) msulocinfo.h
 

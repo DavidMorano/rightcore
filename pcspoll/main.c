@@ -148,11 +148,10 @@ extern int	gethz(int) ;
 extern int	getarchitecture(char *,int) ;
 extern int	getnprocessors(const char **,int) ;
 extern int	getproviderid(const char *,int) ;
-extern int	getsystypenum(char *,char *,const char *,const char *) ;
+extern int	getsystypenum(char *,char *,cchar *,cchar *) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	getgroupname(char *,int,gid_t) ;
 extern int	getserial(const char *) ;
-extern int	getfname(const char *,const char *,int,char *) ;
 extern int	mkuiname(char *,int,USERINFO *) ;
 extern int	localgetorg(const char *,char *,int,const char *) ;
 extern int	isasocket(int) ;
@@ -266,7 +265,7 @@ static int	debugcooks(PROGINFO *,const char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"TMPDIR",
 	"VERSION",
@@ -338,7 +337,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char	*akonames[] = {
+static cchar	*akonames[] = {
 	"cf",
 	"lf",
 	"log",
@@ -368,7 +367,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	*cooks[] = {
+static cchar	*cooks[] = {
 	"SYSNAME",	/* OS system-name */
 	"RELEASE",	/* OS system-release */
 	"VERSION",	/* OS system-version */
@@ -397,6 +396,7 @@ static const char	*cooks[] = {
 	"O",		/* organization */
 	"OO",		/* organization w/ hyphens */
 	"OC",		/* org-code */
+	"V",		/* program version */
 	NULL
 } ;
 
@@ -429,17 +429,18 @@ enum cooks {
 	cook_o,
 	cook_oo,
 	cook_oc,
+	cook_v,
 	cook_overlast
 } ;
 
-static const char	*schedpconf[] = {
+static cchar	*schedpconf[] = {
 	"%p/etc/%n/%n.%f",
 	"%p/etc/%n/%f",
 	"%p/etc/%n.%f",
 	NULL
 } ;
 
-static const char	*schedpfile[] = {
+static cchar	*schedpfile[] = {
 	"%p/etc/%n/%n.%f",
 	"%p/etc/%n/%f",
 	"%p/etc/%n.%f",
@@ -448,7 +449,7 @@ static const char	*schedpfile[] = {
 	NULL
 } ;
 
-static const char	*schedhfile[] = {
+static cchar	*schedhfile[] = {
 	"%h/etc/%n/%n.%f",
 	"%h/etc/%n/%f",
 	"%h/etc/%n.%f",
@@ -457,7 +458,7 @@ static const char	*schedhfile[] = {
 	NULL
 } ;
 
-static const char	*pathvars[] = {
+static cchar	*pathvars[] = {
 	"PATH",
 	"LD_LIBRARY_PATH",
 	"MANPATH",
@@ -470,7 +471,7 @@ static const char	*pathvars[] = {
 	NULL
 } ;
 
-static const char	*envbads[] = {
+static cchar	*envbads[] = {
 	"_",
 	"_A0",
 	"_EF",
@@ -480,7 +481,7 @@ static const char	*envbads[] = {
 	NULL
 } ;
 
-static const char	*envdefs[] = {
+static cchar	*envdefs[] = {
 	"PLATFORM",
 	"ARCHITECTURE",
 	"SYSNAME",
@@ -502,7 +503,7 @@ enum envdefs {
 	envdef_overlast
 } ;
 
-static const char	*tmptypes[] = {
+static cchar	*tmptypes[] = {
 	"system",
 	"user",
 	NULL
@@ -1339,6 +1340,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	pip->gid = u.gid ;
 	pip->egid = u.egid ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	    debugprintf("main: version=%s\n",pip->uversion) ;
+#endif
 
 	if (rs >= 0) {
 	    rs = loadsysinfo(pip) ;
@@ -2455,63 +2460,66 @@ static int procenvextra(PROGINFO *pip)
 static int procenvdef(PROGINFO *pip)
 {
 	vecstr		*elp = &pip->exports ;
+	const int	rsn = SR_NOTFOUND ;
+	const int	dlen = DIGBUFLEN ;
 	int		rs = SR_OK ;
 	int		i ;
-	int		n = 0 ;
-	const char	*ename ;
-	const char	*tp ;
+	int		c = 0 ;
+	char		dbuf[DIGBUFLEN + 1] ;
 
 	for (i = 0 ; envdefs[i] != NULL ; i += 1) {
-	    ename = envdefs[i] ;
-	    if (vecstr_search(elp,ename,vstrkeycmp,NULL) == SR_NOTFOUND) {
-	        const int	sc = (ename[0] & 0xff) ;
-	        tp = NULL ;
+	    cchar	*ename = envdefs[i] ;
+	    if ((rs = vecstr_search(elp,ename,vstrkeycmp,NULL)) == rsn) {
+	        const int	sc = MKCHAR(ename[0]) ;
+		int		vl = -1 ;
+		cchar		*vp = NULL ;
 	        switch (sc) {
 	        case 'S':
-	            tp = pip->usysname ;
+	            vp = pip->usysname ;
 	            break ;
 	        case 'R':
-	            tp = pip->urelease ;
+	            vp = pip->urelease ;
 	            break ;
 	        case 'V':
-	            tp = pip->uversion ;
+	            vp = pip->uversion ;
 	            break ;
 	        case 'M':
-	            tp = pip->umachine ;
+	            vp = pip->umachine ;
 	            break ;
 	        case 'N':
 	            if (ename[1] == 'C') {
-	                char	digbuf[DIGBUFLEN + 1] ;
-	                rs = ctdeci(digbuf,DIGBUFLEN,pip->ncpu) ;
-	                tp = digbuf ;
-	            } else
-	                tp = pip->nodename ;
+	                rs = ctdeci(dbuf,dlen,pip->ncpu) ;
+	                vp = dbuf ;
+			vl = rs ;
+	            } else {
+	                vp = pip->nodename ;
+		    }
 	            break ;
 	        case 'A':
-	            tp = pip->architecture ;
+	            vp = pip->architecture ;
 	            break ;
 	        case 'H':
-	            tp = pip->hz ;
+	            vp = pip->hz ;
 	            break ;
 	        case 'U':
-	            tp = pip->username ;
+	            vp = pip->username ;
 	            break ;
 	        case 'G':
-	            tp = pip->groupname ;
+	            vp = pip->groupname ;
 	            break ;
 	        case 'D':
-	            tp = pip->domainname ;
+	            vp = pip->domainname ;
 	            break ;
 	        } /* end switch */
-	        if ((rs >= 0) && (tp != NULL)) {
-	            rs = vecstr_envadd(elp,ename,tp,-1) ;
-	            if (rs < INT_MAX) n += 1 ;
+	        if ((rs >= 0) && (vp != NULL)) {
+	            rs = vecstr_envadd(elp,ename,vp,vl) ;
+	            if (rs < INT_MAX) c += 1 ;
 	        }
 	    } /* end if (environment variable was not already present) */
 	    if (rs < 0) break ;
 	} /* end for */
 
-	return (rs >= 0) ? n : rs ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procenvdef) */
 
@@ -2722,14 +2730,15 @@ static int loadhz(PROGINFO *pip)
 	const int	dlen = DIGBUFLEN ;
 	int		rs = SR_OK ;
 	int		cl = -1 ;
-	const char	*cp ;
+	cchar		*cp ;
 	char		dbuf[DIGBUFLEN + 1] ;
 
 	if ((cp = getenv(VARHZ)) != NULL) {
 	    if (hasalldig(cp,-1)) {
 	        rs = SR_OK ;
-	    } else
+	    } else {
 	        cp = NULL ;
+	    }
 	}
 
 	if (cp == NULL) {
@@ -2746,8 +2755,9 @@ static int loadhz(PROGINFO *pip)
 	    if (cp != NULL) {
 		cchar	**vpp = &pip->hz ;
 	        rs = proginfo_setentry(pip,vpp,cp,cl) ;
-	    } else
+	    } else {
 	        rs = SR_NOSYS ;
+	    }
 	}
 
 #if	CF_DEBUG
@@ -2838,130 +2848,126 @@ static int loadprovider(PROGINFO *pip)
 static int loadcooks(PROGINFO *pip)
 {
 	EXPCOOK		*cop = &pip->cooks ;
+	const int	dlen = DIGBUFLEN ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		ci ;
-	int		cl ;
-	const char	*cp ;
-	char		tbuf[USERNAMELEN+1] = { 0 	} ;
-	char		nbuf[USERNAMELEN+1] = { 0 	} ;
+	char		tbuf[USERNAMELEN+1] = { 0 } ;
+	char		nbuf[USERNAMELEN+1] = { 0 } ;
+	char		dbuf[DIGBUFLEN + 1] ;
 
 	for (ci = 0 ; cooks[ci] != NULL ; ci += 1) {
-	    cp = NULL ;
-	    cl = -1 ;
+	    cchar	*vp = NULL ;
+	    int		vl = -1 ;
 	    switch (ci) {
 	    case cook_sysname:
-	        cp = pip->usysname ;
+	        vp = pip->usysname ;
 	        break ;
 	    case cook_release:
-	        cp = pip->urelease ;
+	        vp = pip->urelease ;
 	        break ;
 	    case cook_version:
-	        cp = pip->uversion ;
+	        vp = pip->uversion ;
 	        break ;
 	    case cook_machine:
-	        cp = pip->umachine ;
+	        vp = pip->umachine ;
 	        break ;
 	    case cook_platform:
-	        cp = pip->platform ;
+	        vp = pip->platform ;
 	        break ;
 	    case cook_architecture:
-	        cp = pip->architecture ;
+	        vp = pip->architecture ;
 	        break ;
 	    case cook_ncpu:
-	        {
-	            char	digbuf[DIGBUFLEN + 1] ;
+			vp = dbuf ;
 	            if (pip->ncpu >= 0) {
-	                rs = ctdeci(digbuf,DIGBUFLEN,pip->ncpu) ;
+	                rs = ctdeci(dbuf,dlen,pip->ncpu) ;
+			vl = rs ;
 	            } else {
-	                strcpy(digbuf,"1") ;
-	                rs1 = 1 ;
+	                strcpy(dbuf,"1") ;
+	                vl = 1 ;
 	            }
-		    if (rs >= 0) {
-	                rs = expcook_add(cop,cooks[ci],digbuf,rs1) ;
-		    }
-	        } /* end block */
 	        break ;
 	    case cook_hz:
-	        cp = pip->hz ;
+	        vp = pip->hz ;
 	        break ;
 	    case cook_u:
-	        cp = pip->username ;
+	        vp = pip->username ;
 	        break ;
 	    case cook_g:
-	        cp = pip->groupname ;
+	        vp = pip->groupname ;
 	        break ;
 	    case cook_home:
-	        cp = pip->homedname ;
+	        vp = pip->homedname ;
 	        break ;
 	    case cook_shell:
-	        cp = pip->shell ;
+	        vp = pip->shell ;
 	        break ;
 	    case cook_organization:
 	    case cook_o:
-	        cp = pip->org ;
+	        vp = pip->org ;
 	        break ;
 	    case cook_gecosname:
-	        cp = pip->gecosname ;
+	        vp = pip->gecosname ;
 	        break ;
 	    case cook_realname:
-	        cp = pip->realname ;
+	        vp = pip->realname ;
 	        break ;
 	    case cook_name:
-	        cp = pip->name ;
+	        vp = pip->name ;
 	        break ;
 	    case cook_tz:
-	        cp = pip->tz ;
+	        vp = pip->tz ;
 	        break ;
 	    case cook_n:
-	        cp = pip->nodename ;
+	        vp = pip->nodename ;
 	        break ;
 	    case cook_d:
-	        cp = pip->domainname ;
+	        vp = pip->domainname ;
 	        break ;
 	    case cook_h:
 	        {
-	            const char	*nn = pip->nodename ;
-	            const char	*dn = pip->domainname ;
-	            char	hnbuf[MAXHOSTNAMELEN + 1] ;
-	            if ((rs = snsds(hnbuf,MAXHOSTNAMELEN,nn,dn)) >= 0) {
-	                rs = expcook_add(cop,cooks[ci],hnbuf,rs1) ;
+		    const int	hlen = MAXHOSTNAMELEN ;
+	            cchar	*nn = pip->nodename ;
+	            cchar	*dn = pip->domainname ;
+	            char	hbuf[MAXHOSTNAMELEN + 1] ;
+	            if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	                rs = expcook_add(cop,cooks[ci],hbuf,rs) ;
 		    }
 	        } /* end block */
 	        break ;
 	    case cook_r:
-	        cp = pip->pr ;
+	        vp = pip->pr ;
 	        break ;
 	    case cook_rn:
-	        cp = pip->rootname ;
+	        vp = pip->rootname ;
 	        break ;
 	    case cook_ostype:
 	    case cook_osnum:
 	        if (tbuf[0] == '\0') {
-	            const char	*sysname = pip->usysname ;
-	            const char	*release = pip->urelease ;
+	            cchar	*sysname = pip->usysname ;
+	            cchar	*release = pip->urelease ;
 	            rs = getsystypenum(tbuf,nbuf,sysname,release) ;
 	        }
 	        if (rs >= 0) {
 	            switch (ci) {
 	            case cook_ostype:
-	                cp = tbuf ;
+	                vp = tbuf ;
 	                break ;
 	            case cook_osnum:
-	                cp = nbuf ;
+	                vp = nbuf ;
 	                break ;
 	            } /* end switch */
 	        } /* end if */
 	        break ;
 	    case cook_s:
-	        cp = pip->searchname ;
+	        vp = pip->searchname ;
 	        break ;
 	    case cook_oo:
 	        {
 	            const int	oolen = ORGLEN ;
 	            int		i ;
 	            int		ch ;
-	            const char	*o = pip->org ;
+	            cchar	*o = pip->org ;
 	            char	oobuf[ORGLEN + 1] ;
 	            for (i = 0 ; (i < oolen) && *o ; i += 1) {
 	                ch = (o[i] & 0xff) ;
@@ -2972,11 +2978,18 @@ static int loadcooks(PROGINFO *pip)
 	        } /* end block */
 	        break ;
 	    case cook_oc:
-	        cp = pip->orgcode ;
+	        vp = pip->orgcode ;
 	        break ;
+	    case cook_v:
+		vp = pip->version ;
+		break ;
 	    } /* end switch */
-	    if ((rs >= 0) && (cp != NULL)) {
-	        rs = expcook_add(cop,cooks[ci],cp,cl) ;
+	    if ((rs >= 0) && (vp != NULL)) {
+#if	CF_DEBUG
+		if (DEBUGLEVEL(3))
+		debugprintf("main/loadcooks: k=%s v=>%t<\n",cooks[ci],vp,vl) ;
+#endif
+	        rs = expcook_add(cop,cooks[ci],vp,vl) ;
 	    }
 	    if (rs < 0) break ;
 	} /* end for */

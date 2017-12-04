@@ -52,6 +52,7 @@
 #include	<envmgr.h>
 #include	<spawnproc.h>
 #include	<ctdec.h>
+#include	<listenspec.h>
 #include	<localmisc.h>
 
 #include	"mfsc.h"
@@ -109,6 +110,7 @@ extern int	mkdirs(const char *,mode_t) ;
 extern int	opentmpusd(const char *,int,mode_t,char *) ;
 extern int	perm(cchar *,uid_t,gid_t,gid_t *,int) ;
 extern int	vstrkeycmp(const char **,const char **) ;
+extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
 extern int	isFailConn(int) ;
@@ -140,6 +142,7 @@ static int	mfsc_bufbegin(MFSC *) ;
 static int	mfsc_bufend(MFSC *) ;
 static int	mfsc_connect(MFSC *) ;
 static int	mfsc_istatus(MFSC *,MFSC_STATUS *) ;
+static int	mfsc_listenerfmt(MFSC *,char *,int,int,MFSMSG_LISTENER *) ;
 
 #ifdef	COMMENT
 static int	mfsc_spawn(MFSC *) ;
@@ -186,6 +189,7 @@ int mfsc_open(MFSC *op,cchar *pr,int to)
 #endif
 
 	memset(op,0,sizeof(MFSC)) ;
+	op->fd = -1 ;
 	op->to = to ;
 	op->pid = getpid() ;
 
@@ -193,7 +197,7 @@ int mfsc_open(MFSC *op,cchar *pr,int to)
 	    if ((rs = mfsc_connect(op)) >= 0) {
 	        if ((rs = mfsc_bufbegin(op)) >= 0) {
 	            op->f.srv = TRUE ;
-		    rs = 1 ;
+	            rs = 1 ;
 	            op->magic = MFSC_MAGIC ;
 	        }
 	    }
@@ -302,13 +306,13 @@ int mfsc_help(MFSC *op,char *rbuf,int rlen,int idx)
 	                        rs = SR_BADMSG ;
 	                    }
 	                }
-		    } else if (isBadRecv(rs)) {
-		        op->f.srv = FALSE ;
-		        rs = SR_OK ;
+	            } else if (isBadRecv(rs)) {
+	                op->f.srv = FALSE ;
+	                rs = SR_OK ;
 	            } /* end if (uc_recve) */
-		} else if (isBadSend(rs)) {
-		    op->f.srv = FALSE ;
-		    rs = SR_OK ;
+	        } else if (isBadSend(rs)) {
+	            op->f.srv = FALSE ;
+	            rs = SR_OK ;
 	        } /* end if (u_send) */
 	    } /* end if (mfsmsg_gethelp) */
 	    if (rs < 0) op->f.srv = FALSE ;
@@ -366,13 +370,13 @@ int mfsc_getval(MFSC *op,char *rbuf,int rlen,cchar *un,int w)
 	                        rs = SR_BADMSG ;
 	                    }
 	                }
-		    } else if (isBadRecv(rs)) {
-		        op->f.srv = FALSE ;
-		        rs = SR_OK ;
+	            } else if (isBadRecv(rs)) {
+	                op->f.srv = FALSE ;
+	                rs = SR_OK ;
 	            } /* end if (uc_recve) */
-		} else if (isBadSend(rs)) {
-		    op->f.srv = FALSE ;
-		    rs = SR_OK ;
+	        } else if (isBadSend(rs)) {
+	            op->f.srv = FALSE ;
+	            rs = SR_OK ;
 	        } /* end if (u_send) */
 	    } /* end if (mfsmsg_getval) */
 	    if (rs < 0) op->f.srv = FALSE ;
@@ -420,13 +424,13 @@ int mfsc_mark(MFSC *op)
 	                        rs = SR_BADMSG ;
 	                    }
 	                }
-		    } else if (isBadRecv(rs)) {
-		        op->f.srv = FALSE ;
-		        rs = SR_OK ;
+	            } else if (isBadRecv(rs)) {
+	                op->f.srv = FALSE ;
+	                rs = SR_OK ;
 	            } /* end if (uc_recve) */
-		} else if (isBadSend(rs)) {
-		    op->f.srv = FALSE ;
-		    rs = SR_OK ;
+	        } else if (isBadSend(rs)) {
+	            op->f.srv = FALSE ;
+	            rs = SR_OK ;
 	        } /* end if (u_send) */
 	    } /* end if (mfsmsg_mark) */
 	    if (rs < 0) op->f.srv = FALSE ;
@@ -478,13 +482,13 @@ int mfsc_exit(MFSC *op,cchar *reason)
 	                        rs = SR_BADMSG ;
 	                    }
 	                }
-		    } else if (isBadRecv(rs)) {
-		        op->f.srv = FALSE ;
-		        rs = SR_OK ;
+	            } else if (isBadRecv(rs)) {
+	                op->f.srv = FALSE ;
+	                rs = SR_OK ;
 	            } /* end if (uc_recve) */
-		} else if (isBadSend(rs)) {
-		    op->f.srv = FALSE ;
-		    rs = SR_OK ;
+	        } else if (isBadSend(rs)) {
+	            op->f.srv = FALSE ;
+	            rs = SR_OK ;
 	        } /* end if (u_send) */
 	    } /* end if (mfsmsg_exit) */
 	    if (rs < 0) op->f.srv = FALSE ;
@@ -497,6 +501,65 @@ int mfsc_exit(MFSC *op,cchar *reason)
 	return (rs >= 0) ? rl : rs ;
 }
 /* end subroutine (mfsc_exit) */
+
+
+int mfsc_listener(MFSC *op,char *rbuf,int rlen,int idx)
+{
+	int		rs = SR_OK ;
+	int		rl = 0 ;
+
+#if	CF_DEBUGS
+	debugprintf("mfsc_listener: ent\n") ;
+#endif
+
+	if (op == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
+
+	if (op->magic != MFSC_MAGIC) return SR_NOTOPEN ;
+
+	if (op->f.srv) {
+	    struct mfsmsg_getlistener	mreq ;
+	    struct mfsmsg_listener	mres ;
+	    const int		to = op->to ;
+	    const int		mlen = op->mlen ;
+	    char		*mbuf = op->mbuf ;
+	    mreq.tag = op->pid ;
+	    mreq.idx = (uchar) idx ;
+	    if ((rs = mfsmsg_getlistener(&mreq,0,mbuf,mlen)) >= 0) {
+	        const int	fd = op->fd ;
+	        if ((rs = u_send(fd,mbuf,rs,0)) >= 0) {
+	            const int	mf = 0 ;
+	            const int	ro = FM_TIMED ;
+	            if ((rs = uc_recve(fd,mbuf,mlen,mf,to,ro)) >= 0) {
+	                if ((rs = mfsmsg_listener(&mres,1,mbuf,rs)) >= 0) {
+	                    if (mres.rc == mfsmsgrc_ok) {
+	                        rs = mfsc_listenerfmt(op,rbuf,rlen,idx,&mres) ;
+	                        rl = rs ;
+	                    } else if (mres.rc == mfsmsgrc_notfound) {
+	                        rl = 0 ;
+	                    } else {
+	                        rs = SR_BADMSG ;
+	                    }
+	                }
+	            } else if (isBadRecv(rs)) {
+	                op->f.srv = FALSE ;
+	                rs = SR_OK ;
+	            } /* end if (uc_recve) */
+	        } else if (isBadSend(rs)) {
+	            op->f.srv = FALSE ;
+	            rs = SR_OK ;
+	        } /* end if (u_send) */
+	    } /* end if (mfsmsg_gethelp) */
+	    if (rs < 0) op->f.srv = FALSE ;
+	} /* end if (servicing) */
+
+#if	CF_DEBUGS
+	debugprintf("mfsc_listener: ret rs=%d rl=%u\n",rs,rl) ;
+#endif
+
+	return (rs >= 0) ? rl : rs ;
+}
+/* end subroutine (mfsc_listener) */
 
 
 int mfsc_getname(MFSC *op,char *rbuf,int rlen,cchar *un)
@@ -790,30 +853,30 @@ static int mfsc_istatus(MFSC *op,MFSC_STATUS *statp)
 	                        "mfsmsg_status() rs=%d rc=%u\n",rs,mres.rc) ;
 #endif
 	                    if (mres.rc == mfsmsgrc_ok) {
-				rc = 1 ;
-				if (statp != NULL) {
+	                        rc = 1 ;
+	                        if (statp != NULL) {
 	                            statp->pid = mres.pid ;
-				    statp->queries = mres.queries ;
-				}
+	                            statp->queries = mres.queries ;
+	                        }
 	                    } else if (mres.rc == mfsmsgrc_notavail) {
 	                        rc = 0 ;
 	                    } else {
 	                        rs = SR_BADMSG ;
 	                    }
 	                }
-		    } else if (isBadRecv(rs)) {
-		        op->f.srv = FALSE ;
-		        rs = SR_OK ;
+	            } else if (isBadRecv(rs)) {
+	                op->f.srv = FALSE ;
+	                rs = SR_OK ;
 	            } /* end if (uc_recve) */
 #if	CF_DEBUGS
-		debugprintf("mfsc_istatus: recv-out rs=%d\n",rs) ;
+	            debugprintf("mfsc_istatus: recv-out rs=%d\n",rs) ;
 #endif
-		} else if (isBadSend(rs)) {
-		    op->f.srv = FALSE ;
-		    rs = SR_OK ;
+	        } else if (isBadSend(rs)) {
+	            op->f.srv = FALSE ;
+	            rs = SR_OK ;
 	        } /* end if (u_send) */
 #if	CF_DEBUGS
-		debugprintf("mfsc_istatus: send-out rs=%d\n",rs) ;
+	        debugprintf("mfsc_istatus: send-out rs=%d\n",rs) ;
 #endif
 	    } /* end if (mfsmsg_getstatus) */
 	    if (rs < 0) op->f.srv = FALSE ;
@@ -826,6 +889,41 @@ static int mfsc_istatus(MFSC *op,MFSC_STATUS *statp)
 	return (rs >= 0) ? rc : rs ;
 }
 /* end subroutine (mfsc_istatus) */
+
+
+static int mfsc_listenerfmt(MFSC *op,char *rbuf,int rlen,int idx,
+		MFSMSG_LISTENER *lp)
+{
+	uint		rc = lp->rc ;
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
+	cchar		*fmt ;
+	if (op == NULL) return SR_FAULT ;
+	if (lp->name[0] != '\0') {
+	    const int	ls = lp->ls ;
+	    cchar	*sn ;
+	    if (ls & LISTENSPEC_MDELPEND) {
+	        sn = "D" ;
+	    } else if (ls & LISTENSPEC_MBROKEN) {
+	        sn = "B" ;
+	    } else if (ls & LISTENSPEC_MACTIVE) {
+	        sn = "A" ;
+	    } else if (ls == 0) {
+	        sn = "C" ;
+	    } else {
+	        sn = "U" ;
+	    }
+	    fmt = "i=%u %s type=%s addr=%s (%d)\n" ;
+	    rs = bufprintf(rbuf,rlen,fmt,idx,sn,lp->name,lp->addr,ls) ;
+	    wlen += rs ;
+	} else {
+	    fmt = "i=%u no-name rc=%d\n" ;
+	    rs = bufprintf(rbuf,rlen,fmt,idx,rc) ;
+	    wlen += rs ;
+	} /* end if (name) */
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (mfsc_listenerfmt) */
 
 
 #ifdef	COMMENT
@@ -850,7 +948,7 @@ static int mfsc_spawn(MFSC *op)
 	    ENVMGR	em ;
 	    if ((rs = envmgr_start(&em)) >= 0) {
 	        if ((rs = mfsc_envload(op,&em)) >= 0) {
-		    const int	dlen = DIGBUFLEN ;
+	            const int	dlen = DIGBUFLEN ;
 	            char	dbuf[DIGBUFLEN + 1] ;
 	            if ((rs = ctdeci(dbuf,dlen,to_run)) >= 0) {
 	                char	optbuf[OPTBUFLEN + 1] ;
@@ -866,9 +964,9 @@ static int mfsc_spawn(MFSC *op)
 	                    if ((rs = envmgr_getvec(&em,&ev)) >= 0) {
 	                        SPAWNPROC	ps ;
 	                        memset(&ps,0,sizeof(SPAWNPROC)) ;
-				ps.opts = 0 ;
-				ps.opts |= SPAWNPROC_OSETSID ;
-				ps.opts |= SPAWNPROC_OSIGDEFS ;
+	                        ps.opts = 0 ;
+	                        ps.opts |= SPAWNPROC_OSETSID ;
+	                        ps.opts |= SPAWNPROC_OSIGDEFS ;
 	                        ps.disp[0] = SPAWNPROC_DCLOSE ;
 	                        ps.disp[1] = SPAWNPROC_DCLOSE ;
 	                        ps.disp[2] = SPAWNPROC_DCLOSE ;

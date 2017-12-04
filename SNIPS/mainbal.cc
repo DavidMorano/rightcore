@@ -1,4 +1,5 @@
 /* main (bal) */
+/* lang=C++11 */
 
 
 /* revision history:
