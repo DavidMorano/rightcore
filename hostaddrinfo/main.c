@@ -7,6 +7,9 @@
 #define	CF_DEBUG	0		/* run-time debug switch */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_LOCSETET	0		/* |locinfo_setentry()| */
+#define	CF_EFFECTIVE	1		/* effective-name */
+#define	CF_CANONICAL	1		/* canonical-name */
+#define	CF_ALIASES	1		/* alias-names */
 
 
 /* revision history:
@@ -990,8 +993,7 @@ static int procname(PROGINFO *pip,bfile *ofp,cchar *np)
 	    while (name[nl-1] == '.') nl -= 1 ;
 
 	    if (pip->debuglevel > 0) {
-	        bprintf(pip->efp,"%s: query=%t\n",
-	            pip->progname,name,nl) ;
+	        bprintf(pip->efp,"%s: query=%t\n", pip->progname,name,nl) ;
 	    }
 
 	    if ((rs = procspecial(pip,ofp,name,nl)) == 0) {
@@ -1060,6 +1062,11 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 	int		rs ;
 	int		rs1 ;
 
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(3))
+	        debugprintf("procinfo: ent n=%t\n",np,nl) ;
+#endif
+
 	if (pip->verboselevel >= 2) {
 	    bprintf(ofp,"cname=%s\n",cname) ;
 	}
@@ -1080,27 +1087,30 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 	    }
 
 	    if ((rs1 = hostinfo_start(&hi,pip->af,hn)) >= 0) {
-	        int		nl ;
-	        int		al ;
-	        const uchar	*ap ;
-	        const char	*indent = "    " ;
-	        const char	*np ;
+	        int	al ;
+	        cuchar	*ap ;
+	        cchar	*indent = "    " ;
+	        cchar	*np ;
 
 /* effective */
 
+#if	CF_EFFECTIVE
 	        if (f_all) {
 	            rs1 = hostinfo_geteffective(&hi,&np) ;
 	            if (rs1 < 0) np = "" ;
 	            bprintf(ofp,"%sename=%s\n",indent,np) ;
 	        }
+#endif
 
 /* canonical */
 
+#if	CF_CANONICAL
 	        if (f_all) {
 	            rs1 = hostinfo_getcanonical(&hi,&np) ;
 	            if (rs1 < 0) np = "" ;
 	            bprintf(ofp,"%scname=%s\n",indent,np) ;
 	        }
+#endif
 
 /* names */
 
@@ -1109,7 +1119,9 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 	            debugprintf("procinfo: names\n") ;
 #endif
 
+#if	CF_ALIASES
 	        if (f_all) {
+		    int	nl ;
 	            if ((rs = hostinfo_curbegin(&hi,&cur)) >= 0) {
 
 	                while ((nl = hostinfo_enumname(&hi,&cur,&np)) >= 0) {
@@ -1122,6 +1134,7 @@ static int procinfo(PROGINFO *pip,bfile *ofp,char *cname,cchar *np,int nl)
 	                hostinfo_curend(&hi,&cur) ;
 	            } /* end if (cursor) */
 	        } /* end if (print all) */
+#endif /* CF_ALIASES */
 
 /* addresses */
 

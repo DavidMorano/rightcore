@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable print-outs */
-#define	CF_DEBUG	0		/* switchable print-outs */
+#define	CF_DEBUG	1		/* switchable print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_DEBUGMAX	0		/* debug at maximum */
 #define	CF_DEBUGARGZ	0		/* ? */

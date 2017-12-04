@@ -183,7 +183,7 @@ extern int	locinfo_varend(LOCINFO *) ;
 extern int	locinfo_varsub(LOCINFO *,char *,int,cchar *,int) ;
 extern int	locinfo_daemonbegin(LOCINFO *) ;
 extern int	locinfo_daemonend(LOCINFO *) ;
-extern int	locinfo_cooksvc(LOCINFO *,cchar *,cchar *,vecstr *,int) ;
+extern int	locinfo_cooksvc(LOCINFO *,cchar *,cchar *,cchar **,int) ;
 extern int	locinfo_svctype(LOCINFO *,cchar *,int) ;
 
 #ifdef	__cplusplus

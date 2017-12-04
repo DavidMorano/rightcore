@@ -385,8 +385,9 @@ int		(*cmpfunc)() ;
 void		*rp ;
 {
 	vecitem_cur	cur ;
-	int		rs ;
-	int		i, j ;
+	int		rs = SR_OK ;
+	int		i = 0 ;
+	int		j ;
 	void		**rpp = (void **) rp ;
 	void		*ep2 ;
 
@@ -445,12 +446,13 @@ void		*rp ;
 
 	            } /* end for */
 
-	            cp->i = j + 1 ;
+	            cp->i = (j + 1) ;
 	            rs = cp->i ;
 	            *rpp = last ;
 
-	        } else
+	        } else {
 	            cp->i = rs ;
+		}
 
 #if	CF_DEBUGS
 	        debugprintf("vecitem_fetch: search final i=%d\n",cp->i) ;
@@ -504,7 +506,7 @@ void		*rp ;
 
 	                    } /* end for */
 
-	                    i = j + 1 ;
+	                    i = (j + 1) ;
 	                    *rpp = last ;
 
 #if	CF_DEBUGS
@@ -519,14 +521,15 @@ void		*rp ;
 	                i += (cp->c - 1) ;
 	                cp->i = i ;
 
-	            } else
+	            } else {
 	                cp->i = op->i ;
+		    }
 
 	        } /* end if (it was out-of-order) */
 
 /* return the next one */
 
-	        i = cp->i + 1 ;
+	        i = (cp->i + 1) ;
 	        if ((rs = vecitem_iget(op,i,&ep2)) >= 0) {
 	            if ((*cmpfunc)(&ep,&ep2) != 0) {
 	                rs = SR_NOTFOUND ;
@@ -549,27 +552,20 @@ void		*rp ;
 	    } /* end if (sorted policy or not) */
 
 	    if (rs >= 0) {
-
-	        rs = cp->i = i ;
+	        rs = (cp->i = i) ;
 	        cp->c += 1 ;
 	        if (rpp != NULL)
 	            *rpp = ep2 ;
-
 	    }
 
 	} /* end if (first or subsequent fetch) */
 
-	if (rs < 0) {
-
-	    rs = SR_NOTFOUND ;
-	    if (rpp != NULL)
-	        *rpp = NULL ;
-
-	}
+	    if (rpp != NULL) {
+	        if (rs < 0) *rpp = NULL ;
+	    }
 
 #if	CF_DEBUGS
-	debugprintf("vecitem_fetch: ret rs=%d ci=%d\n",
-	    rs,cp->i) ;
+	debugprintf("vecitem_fetch: ret rs=%d ci=%d\n",rs,cp->i) ;
 #endif
 
 	return (rs >= 0) ? i : rs ;
@@ -584,8 +580,8 @@ void		*ep ;
 int		(*cmpfunc)() ;
 void		*rp ;
 {
-	int		rs ;
-	int		i ;
+	int		rs = SR_OK ;
+	int		i = 0 ;
 	void		**rpp = (void **) rp, **rpp2 ;
 
 	if (op == NULL) return SR_FAULT ;
@@ -626,6 +622,10 @@ void		*rp ;
 	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? op->va[i] : NULL ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("vecitem_search: ret rs=%d i=%d\n",rs,i) ;
+#endif
 
 	return (rs >= 0) ? i : rs ;
 }

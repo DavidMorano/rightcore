@@ -166,9 +166,10 @@ extern int	progpeername(PROGINFO *,CLIENTINFO *,char *) ;
 extern int	progcmdname(PROGINFO *,int,const char **) ;
 
 #if	CF_DEBUGS || CF_DEBUG 
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
-extern int	progexports(PROGINFO *,const char *) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthexblock(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+extern int	progexports(PROGINFO *,cchar *) ;
 #endif /* CF_DEBUGS */
 
 extern cchar	*strsigabbr(int) ;
@@ -926,18 +927,18 @@ static int procwatchpoll(PROGINFO *pip,SUBINFO *wip)
 
 		    ns = -1 ;
 	            if (fd == pip->fd_listentcp) {
+			const int	lfd = pip->fd_listentcp ;
 
 	                salen = sizeof(SOCKADDRESS) ;
-	                rs1 = u_accept(pip->fd_listentcp,&cip->sa,&salen) ;
-	                ns = rs1 ;
-	                if (rs1 >= 0) {
+	                if ((rs1 = u_accept(lfd,&cip->sa,&salen)) >= 0) {
+	                    ns = rs1 ;
 	                    cip->salen = salen ;
 	                    cip->fd_input = u_dup(ns) ;
 	                    cip->fd_output = u_dup(ns) ;
 	                }
 
 	            } else if (fd == pip->fd_listenpass) {
-	                struct strrecvfd	passer ;
+	                STRRECVFD	passer ;
 			const int	lfd = pip->fd_listenpass ;
 			int		size = sizeof(struct strrecvfd) ;
 			int		to = pip->to_recvfd ;
@@ -1744,8 +1745,9 @@ static int procwatchnew(PROGINFO *pip,SUBINFO *wip,CLIENTINFO *cip)
 /* can we get the peername of the other end of this socket, if a socket? */
 
 	peername[0] = '\0' ;
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = progpeername(pip,cip,peername) ;
+	}
 
 	if (rs < 0)
 	    goto ret0 ;
@@ -2193,8 +2195,7 @@ static int procwatchpolling(PROGINFO *pip,SUBINFO *wip,int fd,int re)
 	for (i = 0 ; vecobj_get(llp,i,&lsp) >= 0 ; i += 1) {
 	    if (lsp == NULL) continue ;
 
-	    lfd = listenspec_getfd(lsp) ;
-	    if (lfd == fd) {
+	    if ((lfd = listenspec_getfd(lsp)) == fd) {
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -2211,9 +2212,12 @@ static int procwatchpolling(PROGINFO *pip,SUBINFO *wip,int fd,int re)
 	                ns = rs1 ;
 
 #if	CF_DEBUG
-			if (DEBUGLEVEL(5))
+			if (DEBUGLEVEL(5)) {
 			debugprintf("progwatch/procwatchpolling: "
 				"listenspec_accept() rs=%d\n", rs1) ;
+			debugprintf("progwatch/procwatchpolling: "
+				"salen=%u\n",salen) ;
+			}
 #endif
 
 	                if (rs1 >= 0) {
@@ -2221,11 +2225,27 @@ static int procwatchpolling(PROGINFO *pip,SUBINFO *wip,int fd,int re)
 	                    cip->fd_input = u_dup(ns) ;
 	                    cip->fd_output = u_dup(ns) ;
 
-			    if (salen == 0) {
+			    if (salen > 0) {
 	                        salen = sizeof(SOCKADDRESS) ;
 	                        rs1 = u_getpeername(ns,&cip->sa,&salen) ;
-	                        if (rs1 >= 0)
+	                        if (rs1 >= 0) {
+
+#if	CF_DEBUG
+			if (DEBUGLEVEL(5)) {
+			const int	alen = MAXPATHLEN ;
+			int		al ;
+			char		abuf[MAXPATHLEN+1] ;
+			rs1 = sockaddress_getaf(&cip->sa) ;
+			debugprintf("progwatch/procwatchpolling: af=%u\n",rs1) ;
+			al = sockaddress_getaddr(&cip->sa,abuf,alen) ;
+			rs1 = debugprinthexblock("progwatch/procwatchpolling",
+				80,abuf,al) ;
+			debugprintf("progwatch/procwatchpolling: drs=%d\n",
+				rs1) ;
+			}
+#endif
 	                            cip->salen = salen ;
+				}
 			    }
 
 	                    u_close(ns) ;

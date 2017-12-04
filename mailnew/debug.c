@@ -4,7 +4,7 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
 /* revision history:
@@ -63,8 +63,8 @@ extern int	snpollflags(char *,int,int) ;
 extern int	getdig(int) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	nprintf(const char *,const char *,...) ;
-extern int	debugprintf(const char *,...) ;
-extern int	debugprint(const char *,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprint(cchar *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -242,16 +242,10 @@ int debugprinthexblock(cchar *ids,int maxcols,const void *vp,int vl)
 {
 	int		rs = SR_OK ;
 	int		idlen = 0 ;
-	int		n, i ;
-	int		pbl ;
-	int		cslen ;
-	int		cols ;
-	int		len ;
 	int		sl = vl ;
 	int		wlen = 0 ;
-	const char	*sp = (const char *) vp ;
+	cchar		*sp = (cchar *) vp ;
 	char		printbuf[PRINTBUFLEN + 1] ;
-	char		*pbp ;
 
 	if (ids != NULL) idlen = strlen(ids) ;
 
@@ -259,16 +253,14 @@ int debugprinthexblock(cchar *ids,int maxcols,const void *vp,int vl)
 
 	if (sl < 0) sl = strlen(sp) ;
 
-	i = 0 ;
 	while ((rs >= 0) && (sl > 0)) {
-
-	    pbp = printbuf ;
-	    pbl = PRINTBUFLEN ;
-	    cols = maxcols ;
+	    char	*pbp = printbuf ;
+	    int		pbl = PRINTBUFLEN ;
+	    int		cols = maxcols ;
 
 	    if (ids != NULL) {
 	        if ((idlen+2) < pbl) {
-	            i = strwcpy(pbp,ids,idlen) - pbp ;
+		    int	i = strwcpy(pbp,ids,idlen) - pbp ;
 	            pbp[i++] = ':' ;
 	            pbp[i++] = ' ' ;
 	            pbp += i ;
@@ -280,16 +272,15 @@ int debugprinthexblock(cchar *ids,int maxcols,const void *vp,int vl)
 	    }
 
 	    if (rs >= 0) {
-	        n = (cols / 3) ;
+	        const int	n = (cols / 3) ;
+		int		cslen ;
 	        cslen = MIN(n,sl) ;
-	        rs = mkhexstr(pbp,pbl,sp,cslen) ;
-	        sp += cslen ;
-	        sl -= cslen ;
-	    }
-
-	    if (rs >= 0) {
-	        len = debugprint(printbuf,-1) ;
-	        wlen += len ;
+	        if ((rs = mkhexstr(pbp,pbl,sp,cslen)) >= 0) {
+	            sp += cslen ;
+	            sl -= cslen ;
+	            rs = debugprint(printbuf,-1) ;
+	            wlen += rs ;
+		}
 	    }
 
 	} /* end while */

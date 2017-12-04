@@ -83,6 +83,14 @@ extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy1w(char *,int,const char *,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	isindomain(const char *,const char *) ;
+extern int	isNotPresent(int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -110,7 +118,7 @@ static int	isin6loopback(ushort *) ;
 /* exported subroutines */
 
 
-int connection_start(CONNECTION *cnp,cchar domainname[])
+int connection_start(CONNECTION *cnp,cchar *domainname)
 {
 
 	if (cnp == NULL) return SR_FAULT ;
@@ -150,7 +158,7 @@ int connection_finish(CONNECTION *cnp)
 /* end subroutine (connection_finish) */
 
 
-int connection_socksrcname(CONNECTION *cnp,char peerbuf[],int s)
+int connection_socksrcname(CONNECTION *cnp,char *peerbuf,int s)
 {
 	struct ustat	sb ;
 	SOCKADDRESS	*sap ;
@@ -194,7 +202,7 @@ int connection_socksrcname(CONNECTION *cnp,char peerbuf[],int s)
 
 
 /* get the peername from the socket */
-int connection_sockpeername(CONNECTION *cnp,char peerbuf[],int s)
+int connection_sockpeername(CONNECTION *cnp,char *peerbuf,int s)
 {
 	struct ustat	sb ;
 	SOCKADDRESS	*sap ;
@@ -239,7 +247,7 @@ int connection_sockpeername(CONNECTION *cnp,char peerbuf[],int s)
 
 /* get the peername from the peer address */
 int connection_peername(CONNECTION *cnp,SOCKADDRESS *sap,int sal,
-	char peerbuf[])
+	char *peerbuf)
 {
 	const int	peerlen = CONNECTION_PEERNAMELEN ;
 	int		rs = SR_OK ;
@@ -249,6 +257,10 @@ int connection_peername(CONNECTION *cnp,SOCKADDRESS *sap,int sal,
 	char		tmpnamebuf[HOSTBUFLEN + 1] ;
 	char		namebuf[HOSTBUFLEN + 1] ;
 	char		svcname[NI_MAXSERV + 1] ;
+
+#if	CF_DEBUGS
+	debugprintf("connection_peername: ent\n") ;
+#endif
 
 	if (cnp == NULL) return SR_FAULT ;
 	if (sap == NULL) return SR_FAULT ;
@@ -275,6 +287,7 @@ int connection_peername(CONNECTION *cnp,SOCKADDRESS *sap,int sal,
 #endif
 
 	if (rs >= 0) {
+	    int		alen = 0 ;
 	    cnp->f.sa = TRUE ;
 	    cnp->f.addr = FALSE ;
 	    memcpy(&cnp->sa,sap,sizeof(SOCKADDRESS)) ;
@@ -287,18 +300,20 @@ int connection_peername(CONNECTION *cnp,SOCKADDRESS *sap,int sal,
 
 	    switch (af) {
 	    case AF_UNIX:
-	        rs = sockaddress_getaddr(sap,peerbuf,MAXPATHLEN) ;
-	        len = rs ;
-	        if ((rs >= 0) && (len == 0)) {
-	            rs = sncpy1(peerbuf,peerlen,lh) ;
+		alen = MAXPATHLEN ;
+	        if ((rs = sockaddress_getaddr(sap,peerbuf,alen)) >= 0) {
 	            len = rs ;
+	            if (len == 0) {
+	                rs = sncpy1(peerbuf,peerlen,lh) ;
+	                len = rs ;
+		    }
 	        }
 	        break ;
 	    case AF_INET4:
+		alen = INET4ADDRLEN ;
 	        cnp->f.inet = TRUE ;
 	        cnp->f.addr = TRUE ;
-	        rs = sockaddress_getaddr(sap,&cnp->netipaddr,INET4ADDRLEN) ;
-	        if (rs >= 0) {
+	        if ((rs = sockaddress_getaddr(sap,&cnp->netipaddr,alen)) >= 0) {
 	            rs = connection_ip4lookup(cnp,peerbuf,peerlen) ;
 	            len = rs ;
 	        }
@@ -307,21 +322,20 @@ int connection_peername(CONNECTION *cnp,SOCKADDRESS *sap,int sal,
 	        cnp->f.inet = TRUE ;
 	        {
 	            const struct sockaddr	*ssap ;
-	            int		rs1 ;
 	            int		flags = NI_NOFQDN ;
 	            ushort	in6addr[8] ;
 	            ssap = (struct sockaddr *) sap ;
-	            rs1 = uc_getnameinfo(ssap,sal,tmpnamebuf,NI_MAXHOST,
+	            rs = uc_getnameinfo(ssap,sal,tmpnamebuf,NI_MAXHOST,
 	                svcname,NI_MAXSERV,flags) ;
-
-	            if (rs1 >= 0) {
+	            if (rs >= 0) {
 	                rs = sncpy1(peerbuf,MAXHOSTNAMELEN,tmpnamebuf) ;
 	                len = rs ;
-	            } else {
+	            } else if (isNotPresent(rs)) {
 	                sockaddress_getaddr(sap,in6addr,16) ;
 	                if (isin4mapped(in6addr)) {
+			    alen = INET6ADDRLEN ;
 	                    cnp->f.addr = TRUE ;
-	                    memcpy(&cnp->netipaddr,(in6addr + 6),INET4ADDRLEN) ;
+	                    memcpy(&cnp->netipaddr,(in6addr + 6),alen) ;
 	                    rs = connection_ip4lookup(cnp,peerbuf,peerlen) ;
 	                    len = rs ;
 	                } else if (isin6loopback(in6addr)) {
@@ -329,7 +343,6 @@ int connection_peername(CONNECTION *cnp,SOCKADDRESS *sap,int sal,
 	                    len = rs ;
 	                }
 	            } /* end if (getnameinfo) */
-
 	        } /* end if (AF_INET6) */
 	        break ;
 	    default:
@@ -342,15 +355,12 @@ int connection_peername(CONNECTION *cnp,SOCKADDRESS *sap,int sal,
 
 	    if (rs >= 0) {
 	        if (peerbuf[0] != '\0') {
-
 	            if (cnp->peername != NULL) {
 	                uc_free(cnp->peername) ;
 	                cnp->peername = NULL ;
 	            }
-
 	            cnp->peername = mallocstrw(peerbuf,len) ;
 	            if (cnp->peername == NULL) rs = SR_NOMEM ;
-
 	        } else if (af != AF_UNIX) {
 	            rs = SR_NOTFOUND ;
 		}
@@ -386,8 +396,7 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 	if (nlp == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("connection_mknames: peername=%s\n",
-	    cnp->peername) ;
+	debugprintf("connection_mknames: ent peername=%s\n", cnp->peername) ;
 #endif
 
 	if ((cnp->peername != NULL) && (cnp->peername[0] != '\0')) {
@@ -399,6 +408,9 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 
 	    rs = connection_addname(cnp,nlp,cnp->peername,namebuf,NULL) ;
 	    n += rs ;
+#if	CF_DEBUGS
+	    debugprintf("connection_mknames: _addname() rs=%d\n",rs) ;
+#endif
 	}
 
 	if (rs < 0)
@@ -408,6 +420,10 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 	    rs = SR_DESTADDRREQ ;
 	    goto ret0 ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: mid0 rs=%d n=%u\n",rs,n) ;
+#endif
 
 	rs = sockaddress_getaf(&cnp->sa) ;
 	af = rs ;
@@ -431,6 +447,10 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 	    goto ret0 ;
 	}
 
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: mid1 rs=%d n=%u\n",rs,n) ;
+#endif
+
 /* prepare for INET hostname lookups */
 
 	if (cnp->peername == NULL)
@@ -440,6 +460,10 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 	    goto ret0 ;
 
 /* INET families? */
+
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: mid2 rs=%d n=%u\n",rs,n) ;
+#endif
 
 	if ((rs = hostinfo_start(&hi,af,cnp->peername)) >= 0) {
 
@@ -451,13 +475,29 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 	        }
 	    }
 
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: mid3 rs=%d n=%u\n",rs,n) ;
+#endif
+
 	    if (rs >= 0) {
-	        rs = hostinfo_getcanonical(&hi,&hp) ;
-	        if (rs >= 0) {
+	        if ((rs = hostinfo_getcanonical(&hi,&hp)) >= 0) {
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: addname\n") ;
+#endif
 	            rs = connection_addname(cnp,nlp,hp,namebuf,NULL) ;
 	            n += rs ;
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: out1 rs=%d n=%u\n",rs,n) ;
+#endif
 	        }
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: out2 rs=%d n=%u\n",rs,n) ;
+#endif
 	    }
+
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: mid4 rs=%d n=%u\n",rs,n) ;
+#endif
 
 /* all other names */
 
@@ -476,6 +516,10 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 	            hostinfo_curend(&hi,&hicur) ;
 	        } /* end if (hostinfo-cur) */
 	    } /* end if (names) */
+
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: mid5 rs=%d n=%u\n",rs,n) ;
+#endif
 
 /* addresses as names */
 
@@ -507,6 +551,10 @@ int connection_mknames(CONNECTION *cnp,vecstr *nlp)
 	    rs1 = hostinfo_finish(&hi) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (hostinfo) */
+
+#if	CF_DEBUGS
+	debugprintf("connection_mknames: mid6 rs=%d n=%u\n",rs,n) ;
+#endif
 
 /* store the INET "dot" address also! */
 

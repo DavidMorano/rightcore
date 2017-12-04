@@ -123,7 +123,7 @@ extern char	*strnchr(cchar *,int,int) ;
 /* local structures */
 
 struct hostinfo_n {
-	const char	*name ;
+	cchar		*name ;
 	int		namelen ;
 	int		af ;
 } ;
@@ -135,7 +135,7 @@ struct hostinfo_a {
 } ;
 
 struct known {
-	const char	*name ;
+	cchar		*name ;
 	uint		a ;
 } ;
 
@@ -269,7 +269,7 @@ int hostinfo_finish(HOSTINFO *op)
 	if (op->magic != HOSTINFO_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("hostinfo_finish: hostname=%s\n",
+	debugprintf("hostinfo_finish: ent hostname=%s\n",
 	    op->arg.hostname) ;
 #endif
 
@@ -293,6 +293,10 @@ int hostinfo_finish(HOSTINFO *op)
 
 	rs1 = hostinfo_argsend(op) ;
 	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("hostinfo_finish: ret rs=%d\n",rs) ;
+#endif
 
 	op->magic = 0 ;
 	return rs ;
@@ -376,17 +380,27 @@ int hostinfo_getcanonical(HOSTINFO *op,cchar **rpp)
 	    rs = hostinfo_findcanonical(op) ;
 	}
 
+#if	CF_DEBUGS
+	debugprintf("hostinfo_getcannonical: ernest\n") ;
+	debugprintf("hostinfo_getcannonical: ch=%s\n",op->chostname) ;
+#endif
+
 	if (rs >= 0) {
 	    if (op->chostname[0] != '\0') {
 	        nlen = strlen(op->chostname) ;
 	        if (rpp != NULL) *rpp = op->chostname ;
-	    } else
+	    } else {
 	        rs = SR_NOTFOUND ;
+	    }
 	} /* end if */
 
 	if ((rs < 0) && (rpp != NULL)) {
 	    *rpp = NULL ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("hostinfo_getcannonical: ret rs=%d nlen=%u\n",rs,nlen) ;
+#endif
 
 	return (rs >= 0) ? nlen : rs ;
 }
@@ -706,6 +720,10 @@ static int hostinfo_findcanonical(HOSTINFO *op)
 	    int		si = 0 ;
 	    int		f_continue = TRUE ;
 
+#if	CF_DEBUGS
+	        debugprintf("hostinfo_findcannonical: searching\n") ;
+#endif
+
 	    while ((rs >= 0) && f_continue) {
 	        int	i ;
 #if	CF_DEBUGS
@@ -713,6 +731,10 @@ static int hostinfo_findcanonical(HOSTINFO *op)
 #endif
 	        for (i = si ; (rs = vecobj_get(nlp,i,&nep)) >= 0 ; i += 1) {
 	            if (nep != NULL) {
+#if	CF_DEBUGS
+	        	debugprintf("hostinfo_findcannonical: name=%s\n",
+			nep->name) ;
+#endif
 	                if (strchr(nep->name,'.') != NULL) {
 	                    rs = sncpy1(op->chostname,hlen,nep->name) ;
 	                    break ;
@@ -753,7 +775,15 @@ static int hostinfo_findcanonical(HOSTINFO *op)
 
 #if	CF_DEBUGS
 	    debugprintf("hostinfo_findcannonical: mid1 rs=%d\n",rs) ;
+	    debugprintf("hostinfo_findcannonical: eh=%s\n",op->ehostname) ;
 #endif
+
+	    if ((rs == 0) && (matknown(op->ehostname,-1) >= 0)) {
+#if	CF_DEBUGS
+	    debugprintf("hostinfo_findcannonical: known rs=%d\n",rs) ;
+#endif
+	        rs = vecobj_count(&op->addrs) ;
+	    }
 
 	    if (rs > 0) { /* found */
 	        rs = 0 ;
@@ -1256,18 +1286,14 @@ static int getinet(HOSTINFO *op,int af)
 #endif
 
 	        for (i = 0 ; getinets[i] != NULL ; i += 1) {
-
 #if	CF_DEBUGS
 	            debugprintf("hostinfo/getinet: i=%u\n",i) ;
 #endif
-
 	            rs = (*getinets[i])(op,af) ;
 	            c = rs ;
-
 #if	CF_DEBUGS
 	            debugprintf("hostinfo/getinet: i=%u rs=%d\n",i,rs) ;
 #endif
-
 	            if (rs != 0) break ;
 	        } /* end for */
 

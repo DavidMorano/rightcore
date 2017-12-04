@@ -124,7 +124,7 @@ OBJ09=
 OBJ10=
 OBJ11=
 OBJ12= hasINET4AddrStr.o
-OBJ13=
+OBJ13= getaf.o
 OBJ14=
 OBJ15=
 

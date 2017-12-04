@@ -169,7 +169,7 @@
 #define	TO_STANDCHECK	5		/* default standing-server check */
 #define	TO_MAINT	5		/* general maintenance */
 #define	TO_RECVMSG	3		/* receiving a message */
-#define	TO_READSVC	3		/* reading a service-code */
+#define	TO_READSVC	30		/* reading a service-code */
 #define	TO_READ		3		/* reading data */
 #define	TO_SVC		60		/* service acquire timeout */
 #define	TO_SPEED	(24*3600)	/* interval between updates */

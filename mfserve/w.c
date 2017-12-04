@@ -243,7 +243,7 @@ static int	mfswatch_svcend(PROGINFO *) ;
 
 static int mfswatch_svcfind(PROGINFO *,SREQ *) ;
 static int mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
-static int mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,vecstr *) ;
+static int mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,cchar **) ;
 
 static int mfswatch_svcprocer(PROGINFO *,SREQ *,svcprocer_t) ;
 
@@ -1021,7 +1021,10 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	        SVCFILE_ENT	e ;
 	        if ((rs = svcfile_fetch(slp,svc,NULL,&e,ebuf,elen)) >= 0) {
 	            if ((rs = mfswatch_svcretstat(pip,jep,TRUE)) >= 0) {
-    		        rs = mfswatch_svcproc(pip,jep,&e,sap) ;
+			cchar	**sav ;
+			if ((rs = vecstr_getvec(sap,&sav)) >= 0) {
+    		            rs = mfswatch_svcproc(pip,jep,&e,sav) ;
+			}
 		    }
 	        } else if (isNotPresent(rs)) {
 		    const int	f = FALSE ;
@@ -1043,18 +1046,17 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 
 /* ARGSUSED */
 static int mfswatch_svcproc(PROGINFO *pip,SREQ *jep,SVCFILE_ENT *sep,
-		vecstr *sap)
+		cchar **sav)
 {
 	LOCINFO		*lip = pip->lip ;
 	const int	f_long = jep->f.longopt ;
 	int		rs ;
 	cchar		*subsvc = jep->subsvc ;
-	if (sap == NULL) return SR_FAULT ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfswatch_svcproc: ent\n") ;
 #endif
-	if ((rs = locinfo_cooksvc(lip,sep->svc,subsvc,sap,f_long)) >= 0) {
+	if ((rs = locinfo_cooksvc(lip,sep->svc,subsvc,sav,f_long)) >= 0) {
 	    if ((rs = sreq_svcentbegin(jep,lip,sep)) >= 0) {
 #if	CF_DEBUG
 		if (DEBUGLEVEL(4)) {

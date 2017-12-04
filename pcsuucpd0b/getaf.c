@@ -74,9 +74,11 @@
 
 /* external subroutines */
 
-extern int	nleadstr(const char *,const char *,int) ;
+extern int	cfdeci(cchar *,int,int *) ;
+extern int	nleadstr(cchar *,cchar *,int) ;
+extern int	hasalldig(cchar *,int) ;
 
-extern char	*strwcpylc(char *,const char *,int) ;
+extern char	*strwcpylc(char *,cchar *,int) ;
 extern char	*strdcpy1w(char *,int,cchar *,int) ;
 
 
@@ -193,31 +195,38 @@ static const struct addrfam	addrfamilies[] = {
 /* exported subroutines */
 
 
-int getaf(const char *np,int nl)
+int getaf(cchar *np,int nl)
 {
-	const int	alen = AFNAMELEN ;
 	int		rs ;
-	int		al ;
-	char		abuf[AFNAMELEN + 1] ;
 
 	if (np == NULL) return SR_FAULT ;
 	if ((nl == 0) || (np[0] == '\0')) return SR_INVALID ;
 
-	if ((al = (strdcpy1w(abuf,alen,np,nl)-abuf)) > 0) {
-	    const ADDRFAM	*afs = addrfamilies ;
-	    const int		n = 2 ;
-	    int			i ;
-	    int			m ;
-	    cchar		*anp ;
-	    for (i = 0 ; afs[i].name != NULL ; i += 1) {
-	        anp = afs[i].name ;
-	        m = nleadstr(anp,abuf,al) ;
-	        if ((m == al) && ((m >= n) || (anp[m] == '\0'))) break ;
-	    } /* end for */
-	    rs = (afs[i].name != NULL) ? afs[i].af : SR_AFNOSUPPORT ;
+	if (hasalldig(np,nl)) {
+	    int	v ;
+	    if ((rs = cfdeci(np,nl,&v)) >= 0) {
+		rs = v ;
+	    }
 	} else {
-	    rs = SR_INVALID ;
-	}
+	    const int	alen = AFNAMELEN ;
+	    int		al ;
+	    char	abuf[AFNAMELEN + 1] ;
+	    if ((al = (strdcpy1w(abuf,alen,np,nl)-abuf)) > 0) {
+	        const ADDRFAM	*afs = addrfamilies ;
+	        const int	n = 2 ;
+	        int		i ;
+	        int		m ;
+	        cchar		*anp ;
+	        for (i = 0 ; afs[i].name != NULL ; i += 1) {
+	            anp = afs[i].name ;
+	            m = nleadstr(anp,abuf,al) ;
+	            if ((m == al) && ((m >= n) || (anp[m] == '\0'))) break ;
+	        } /* end for */
+	        rs = (afs[i].name != NULL) ? afs[i].af : SR_AFNOSUPPORT ;
+	    } else {
+	        rs = SR_INVALID ;
+	    }
+	} /* end if (digit or string) */
 
 	return rs ;
 }

@@ -110,8 +110,7 @@ extern int	field_svcargs(FIELD *,VECSTR *) ;
 extern int	isasocket(int) ;
 
 extern int	progserve(PROGINFO *,STANDING *,BUILTIN *,
-			CLIENTINFO *,vecstr *,
-			const char *,const char **) ;
+			CLIENTINFO *,vecstr *,cchar *,cchar **) ;
 
 extern int	proglog_printf(PROGINFO *,cchar *,...) ;
 extern int	proglog_flush(PROGINFO *) ;
@@ -133,7 +132,7 @@ extern char	*timestr_logz(time_t,char *) ;
 /* forward references */
 
 static int	procsvcspec(PROGINFO *,CLIENTINFO *,
-			char *,int,vecstr *,const char *,int) ;
+			char *,int,vecstr *,cchar *,int) ;
 
 
 /* local variables */
@@ -180,56 +179,56 @@ CLIENTINFO	*cip ;
 	if (ofd < 0) return SR_INVALID ;
 
 	if ((rs = uc_readlinetimed(ifd,svcbuf,svclen,to)) >= 0) {
-	len = rs ;
+	    len = rs ;
 
-	if ((len > 0) && ISEOL(svcbuf[len - 1])) len -= 1 ;
-	svcbuf[len] = '\0' ;
+	    if ((len > 0) && ISEOL(svcbuf[len - 1])) len -= 1 ;
+	    svcbuf[len] = '\0' ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("proghandle: svcbuf=>%t<\n",svcbuf,len) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("proghandle: svcbuf=>%t<\n",svcbuf,len) ;
 #endif
 
 /* we have our input data => make sure we don't get any more! :-) */
 
 #if	defined(P_FINGERS)
-	if (f_socket)
-	    u_shutdown(ifd,SHUT_RD) ;
+	    if (f_socket)
+	        u_shutdown(ifd,SHUT_RD) ;
 #endif
 
 /* OK, parse the stuff to get 1) service 2) the '/W' thing */
 
-	cip->f_long = FALSE ;
-	opts = (VECSTR_OCOMPACT) ;
-	if ((rs = vecstr_start(&sargs,6,opts)) >= 0) {
+	    cip->f_long = FALSE ;
+	    opts = (VECSTR_OCOMPACT) ;
+	    if ((rs = vecstr_start(&sargs,6,opts)) >= 0) {
 
-	    rs = procsvcspec(pip,cip,svcspec,SVCSPECLEN,&sargs,
-		svcbuf,len) ;
+	        rs = procsvcspec(pip,cip,svcspec,SVCSPECLEN,&sargs,
+	            svcbuf,len) ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4)) {
-	        int 	i ;
-		cchar	*cp ;
-	        debugprintf("proghandle: svcspec=>%s<\n",svcspec) ;
-	        for (i = 0 ; vecstr_get(&sargs,i,&cp) >= 0 ; i += 1) {
-	            if (cp == NULL) continue ;
-	            debugprintf("proghandle: svcarg%u=>%s<\n",i,cp) ;
+	        if (DEBUGLEVEL(4)) {
+	            int 	i ;
+	            cchar	*cp ;
+	            debugprintf("proghandle: svcspec=>%s<\n",svcspec) ;
+	            for (i = 0 ; vecstr_get(&sargs,i,&cp) >= 0 ; i += 1) {
+	                if (cp == NULL) continue ;
+	                debugprintf("proghandle: svcarg%u=>%s<\n",i,cp) ;
+	            }
 	        }
-	    }
 #endif /* CF_DEBUG */
 
-	    if (rs >= 0) {
-	        cchar	**sav ;
-	        if ((rs = vecstr_getvec(&sargs,&sav)) >= 0) {
-	            rs = progserve(pip,sop,bop,cip,NULL,svcspec,sav) ;
-		}
-	    } /* end if (ok) */
+	        if (rs >= 0) {
+	            cchar	**sav ;
+	            if ((rs = vecstr_getvec(&sargs,&sav)) >= 0) {
+	                rs = progserve(pip,sop,bop,cip,NULL,svcspec,sav) ;
+	            }
+	        } /* end if (ok) */
 
-	    vecstr_finish(&sargs) ;
-	} /* end if (sargs) */
+	        vecstr_finish(&sargs) ;
+	    } /* end if (sargs) */
 
-	if (pip->open.logprog)
-	    proglog_flush(pip) ;
+	    if (pip->open.logprog)
+	        proglog_flush(pip) ;
 
 	} /* end if (uc_readlinetimed) */
 
@@ -275,7 +274,7 @@ int		svclen ;
 	            cip->f_long = TRUE ;
 	            if ((fl = field_get(&fsb,sterms,&fp)) > 0) {
 	                len = strdcpy1w(snbuf,snlen,fp,fl) - snbuf ;
-		    }
+	            }
 
 	        } else {
 
@@ -294,7 +293,7 @@ int		svclen ;
 	                cip->f_long = TRUE ;
 	            } else if (fl > 0) {
 	                rs = vecstr_add(sap,fp,fl) ;
-		    }
+	            }
 
 	        } /* end if */
 
@@ -302,7 +301,7 @@ int		svclen ;
 
 	        if ((rs >= 0) && (len > 0)) {
 	            rs = field_svcargs(&fsb,sap) ;
-		}
+	        }
 
 	    } /* end if (field_get) */
 	    field_finish(&fsb) ;

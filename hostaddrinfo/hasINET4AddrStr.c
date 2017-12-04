@@ -83,7 +83,7 @@ int hasINET4AddrStr(cchar *sp,int sl)
 	int		f = TRUE ;
 	int		c = 0 ;
 	cchar		*tp ;
-	if (sl < 0) strlen(sp) ;
+	if (sl < 0) sl = strlen(sp) ;
 	while ((tp = strnchr(sp,sl,'.')) != NULL) {
 	    f = hasINET4Num(sp,(tp-sp)) ;
 	    if (! f) break ;

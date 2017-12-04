@@ -83,7 +83,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -lpcs -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -173,10 +173,10 @@ OBJ13=
 OBJ14= envs.o envs_procxe.o envs_subs.o
 OBJ15= lfm.o svcfile.o acctab.o logfile.o
 
-OBJ16= jobdb.o svckey.o connection.o
+OBJ16= jobdb.o svckey.o connection.o hostinfo.o
 OBJ17= sysvar.o dirseen.o linefold.o poller.o listenspec.o
 OBJ18= openportmsg.o
-OBJ19= 
+OBJ19= vecitem.o
 OBJ20= sfthing.o getfname.o securefile.o nlspeername.o 
 OBJ21= strdomain.o mkutmpid.o
 OBJ22= strnnlen.o strlinelen.o snabbr.o
@@ -217,7 +217,7 @@ OBJ51=
 OBJ52=
 OBJ53=
 OBJ54=
-#OBJ55= debug.o debugprintf.o nprintf.o
+OBJ55= debug.o debugprintf.o nprintf.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)

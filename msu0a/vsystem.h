@@ -230,6 +230,10 @@
 #define	POLLFD		struct pollfd
 #endif
 
+#ifndef	STRRECVFD
+#define	STRRECVFD	struct strrecvfd
+#endif
+
 #ifndef	IOVCEC
 #define	IOVCEC		struct iovec
 #endif

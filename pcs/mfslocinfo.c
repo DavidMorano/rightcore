@@ -194,7 +194,7 @@ static int	locinfo_genlockprint(LOCINFO *,cchar *,LFM_CHECK *) ;
 static int	locinfo_tmpourdname(LOCINFO *) ;
 static int	locinfo_runas(LOCINFO *) ;
 static int	locinfo_chids(LOCINFO *,cchar *) ;
-static int	locinfo_argsload(LOCINFO *,vecstr *) ;
+static int	locinfo_cookargsload(LOCINFO *,cchar **) ;
 
 #if	CF_DEBUGS && CF_DEBUGDUMP
 static int	vecstr_dump(vecstr *,cchar *) ;
@@ -1045,7 +1045,7 @@ int locinfo_daemonend(LOCINFO *lip)
 
 
 /* load some dynamic service values into cookie keys */
-int locinfo_cooksvc(LOCINFO *lip,cchar *svc,cchar *ss,vecstr *sap,int f_long)
+int locinfo_cooksvc(LOCINFO *lip,cchar *svc,cchar *ss,cchar **sav,int f_long)
 {
 	EXPCOOK		*ecp = &lip->cooks ;
 	int		rs ;
@@ -1055,7 +1055,7 @@ int locinfo_cooksvc(LOCINFO *lip,cchar *svc,cchar *ss,vecstr *sap,int f_long)
 	        if ((rs = expcook_add(ecp,"w",v,1)) >= 0) {
 	            v = (f_long) ? "2" : "1" ;
 	            if ((rs = expcook_add(ecp,"ww",v,1)) >= 0) {
-			rs = locinfo_argsload(lip,sap) ;
+			rs = locinfo_cookargsload(lip,sav) ;
 		    }
 	        }
 	    }
@@ -1753,12 +1753,10 @@ static int locinfo_chids(LOCINFO *lip,cchar *dname)
 /* end subrutine (locinfo_chids) */
 
 
-static int locinfo_argsload(LOCINFO *lip,vecstr *sap)
+static int locinfo_cookargsload(LOCINFO *lip,cchar **sav)
 {
-	int		rs ;
-	cchar		**sav ;
-	if ((rs = vecstr_getvec(sap,&sav)) >= 0) {
 	    EXPCOOK	*ecp = &lip->cooks ;
+	int		rs ;
 	    int		blen = 0 ;
 	    int		i ;
 	    char	*argsbuf ;
@@ -1786,7 +1784,6 @@ static int locinfo_argsload(LOCINFO *lip,vecstr *sap)
 	        uc_free(argsbuf) ;
 	    } /* end if (memory-allocation) */
 
-	} /* end if (vecstr_getvec) */
 	return rs ;
 }
 /* end subrutine (locinfo_argsload) */

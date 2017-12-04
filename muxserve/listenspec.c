@@ -834,9 +834,9 @@ static int listenspec_tcpactive(LISTENSPEC *op,int opts,int f)
 	if (f && (! op->f.active)) {
 	    LISTENSPEC_TCP *ip = (LISTENSPEC_TCP *) op->info ;
 	    int		af ;
-	    const char	*cp ;
-	    const char	*hostspec ;
-	    const char	*portspec ;
+	    cchar	*cp ;
+	    cchar	*hostspec ;
+	    cchar	*portspec ;
 
 /* address family */
 

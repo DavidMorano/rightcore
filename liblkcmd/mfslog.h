@@ -45,7 +45,7 @@ extern int	logssprint(PROGINFO *,cchar *,cchar *,int) ;
 extern int	logssprintf(PROGINFO *,cchar *,cchar *,...) ;
 extern int	logprogname(PROGINFO *) ;
 extern int	logmark(PROGINFO *,int) ;
-extern int	logmarklisteners(PROGINFO *) ;
+extern int	loglisteners(PROGINFO *) ;
 extern int	logreport(PROGINFO *) ;
 extern int	loginvalidcmd(PROGINFO *,cchar *) ;
 extern int	loginfo(PROGINFO *) ;

@@ -198,9 +198,9 @@ static int	procaccperm(PROGINFO *,CLIENTINFO *,PROCSE *) ;
 static int	procusersetup(PROGINFO *,CLIENTINFO *,SVCFILE_ENT *) ;
 #endif
 
-static int	loadcooks(PROGINFO *,CLIENTINFO *,const char **) ;
+static int	loadcooks(PROGINFO *,CLIENTINFO *,cchar **) ;
 static int	loadpeernames(PROGINFO *,CLIENTINFO *,vecstr *) ;
-static int	loadaccgroups(PROGINFO *,vecstr *,const char *,int) ;
+static int	loadaccgroups(PROGINFO *,vecstr *,cchar *,int) ;
 
 static int	mkbasename(char *,const char *,int) ;
 static int	mkshlibname(char *,const char *,int) ;
@@ -559,7 +559,7 @@ const char	*sav[] ;
 
 	rs = procse_start(&se,pip->envv,&pip->subs,&sea) ;
 	if (rs < 0)
-	    goto badseinit ;
+	    goto badsestart ;
 
 	rs = procse_process(&se,&pip->cooks) ;
 	if (rs < 0)
@@ -597,7 +597,7 @@ const char	*sav[] ;
 	opts = VECSTR_OSTATIONARY ;
 	rs = vecstr_start(&alist,10,opts) ;
 	if (rs < 0)
-	    goto badarginit ;
+	    goto badargstart ;
 
 	argz = NULL ;
 	if (se.a.srvargs != NULL) {
@@ -688,11 +688,11 @@ badnoprog:
 	if (rs >= 0) rs = rs1 ;
 
 badseproc:
-badarginit:
+badargstart:
 	rs1 = procse_finish(&se) ;
 	if (rs >= 0) rs = rs1 ;
 
-badseinit:
+badsestart:
 	if (pip->open.logprog) {
 	    proglog_flush(pip) ;
 	}
@@ -1304,16 +1304,13 @@ int		pnl ;
 
 #if	CF_CHECKACCESS
 
-static int procaccperm(pip,cip,sep)
-PROGINFO	*pip ;
-CLIENTINFO	*cip ;
-PROCSE		*sep ;
+static int procaccperm(PROGINFO *pip,CLIENTINFO *cip,PROCSE *sep)
 {
 	vecstr		netgroups, names ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		f = TRUE ;
-	const char	*acc ;
+	cchar		*acc ;
 
 	if ((sep->a.access == NULL) && (pip->defacc == NULL))
 	    goto ret0 ;
@@ -1339,10 +1336,8 @@ PROCSE		*sep ;
 
 /* process the server access list */
 
-	rs = loadaccgroups(pip,&netgroups,acc,-1) ;
-
-	if (rs >= 0) {
-	    const char	*defacc = "DEFAULT" ;
+	if ((rs = loadaccgroups(pip,&netgroups,acc,-1)) >= 0) {
+	    cchar	*defacc = "DEFAULT" ;
 
 #if	CF_ALLDEF
 	    if (vecstr_find(&netgroups,defacc) < 0)
@@ -1356,45 +1351,54 @@ PROCSE		*sep ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    int	i ;
-	    const char	*cp ;
+	    int		i ;
+	    cchar	*cp ;
 	    debugprintf("progserve/procaccperm: netgroups:\n") ;
-	    for (i = 0 ; vecstr_get(&netgroups,i,&cp) >= 0 ; i+= 1)
+	    for (i = 0 ; vecstr_get(&netgroups,i,&cp) >= 0 ; i+= 1) {
 	        debugprintf("progserve/procaccperm: ng=>%s<\n",cp) ;
+	    }
 	}
 #endif /* CF_DEBUG */
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = loadpeernames(pip,cip,&names) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
 	    int	i ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    debugprintf("progserve/procaccperm: loadpeernames() rs=%d\n",
 	        rs) ;
-	    for (i = 0 ; vecstr_get(&names,i,&cp) >= 0 ; i += 1)
+	    for (i = 0 ; vecstr_get(&names,i,&cp) >= 0 ; i += 1) {
 	        debugprintf("progserve/procaccperm: mname=>%s<\n",cp) ;
+	    }
 	}
 #endif /* CF_DEBUG */
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("progserve/procaccperm: open.accfname=%u\n",
+		pip->open.accfname) ;
+#endif
 
 /* try our own netgroups */
 
 	if ((rs >= 0) && pip->open.accfname) {
-	    rs1 = acctab_anyallowed(&pip->atab,&netgroups,&names,NULL,NULL) ;
-	    f = (rs1 > 0) ;
+	    rs = acctab_anyallowed(&pip->atab,&netgroups,&names,NULL,NULL) ;
+	    f = (rs > 0) ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
 	        debugprintf("progserve/procaccperm: "
-	            "acctab_anyallowed() rs=%d\n", rs1) ;
+	            "acctab_anyallowed() rs=%d\n", rs) ;
 #endif
 
 	} /* end if */
 
 /* try the system netgroups (UNIX does not have one simple call as above!) */
 
-	if ((! pip->open.accfname) || (! f)) {
+	if ((rs >= 0) && ((! pip->open.accfname) || (! f))) {
 	    rs1 = netgroupcheck(pip->domainname,&netgroups,&names) ;
 	    f = (rs1 > 0) ;
 	}
@@ -1436,10 +1440,7 @@ ret0:
 #endif /* CF_CHECKACCESS */
 
 
-static int loadcooks(pip,cip,sav)
-PROGINFO	*pip ;
-CLIENTINFO	*cip ;
-const char	*sav[] ;
+static int loadcooks(PROGINFO *pip,CLIENTINFO *cip,cchar **sav)
 {
 	EXPCOOK		*ecp = &pip->cooks ;
 	int		rs = SR_OK ;
@@ -1532,20 +1533,22 @@ const char	*sav[] ;
 /* end subroutine (loadcooks) */
 
 
-static int loadpeernames(pip,cip,nlp)
-PROGINFO	*pip ;
-CLIENTINFO	*cip ;
-vecstr		*nlp ;
+static int loadpeernames(PROGINFO *pip,CLIENTINFO *cip,vecstr *nlp)
 {
 	CONNECTION	conn ;
 	int		rs ;
 	int		rs1 = 0 ;
 	int		n = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 	char		peername[MAXHOSTNAMELEN + 1] ;
 
 	if (cip == NULL) return SR_FAULT ;
 	if (nlp == NULL) return SR_FAULT ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("loadpeernames: ent\n") ;
+#endif
 
 	peername[0] = '\0' ;
 
@@ -1560,7 +1563,6 @@ vecstr		*nlp ;
 	        if (DEBUGLEVEL(5))
 	            debugprintf("loadpeernames: connection_peername() rs=%d\n",
 	                rs1) ;
-
 #endif
 	    }
 
@@ -1596,16 +1598,17 @@ vecstr		*nlp ;
 	    }
 	} /* end if */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("loadpeernames: ret rs=%d n=%u\n",rs,n) ;
+#endif
+
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutines (loadpeernames) */
 
 
-static int loadaccgroups(pip,glp,accbuf,acclen)
-PROGINFO	*pip ;
-vecstr		*glp ;
-const char	accbuf[] ;
-int		acclen ;
+static int loadaccgroups(PROGINFO *pip,vecstr *glp,cchar *accbuf,int acclen)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
@@ -1613,37 +1616,33 @@ int		acclen ;
 	if (glp == NULL) return SR_FAULT ;
 	if (accbuf == NULL) return SR_FAULT ;
 
+	if (acclen < 0) acclen = strlen(accbuf) ;
+
 	if ((acclen > 0) && (accbuf[0] != '\0')) {
 	    FIELD	af ;
 
 	    if ((rs = field_start(&af,accbuf,acclen)) >= 0) {
-	        int		fl, cl ;
-	        const char	*fp, *cp ;
+	        int	fl, cl ;
+	        cchar	*fp, *cp ;
 
 	        while ((fl = field_get(&af,gterms,&fp)) >= 0) {
-	            int		bl ;
-	            const char	*bp ;
-
-	            if (fl == 0) continue ;
-
-	            bl = fl ;
-	            bp = fp ;
-	            while ((cl = nextfield(bp,bl,&cp)) > 0) {
-
+		    if (fl > 0) {
+	                int	bl = fl ;
+	                cchar	*bp = fp ;
+	                while ((cl = nextfield(bp,bl,&cp)) > 0) {
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(5))
-	                    debugprintf("loadaccgroups: accgroup=>%s<\n",cp) ;
+	                    if (DEBUGLEVEL(5))
+	                        debugprintf("loadaccgroups: accgroup=>%s<\n",
+					cp) ;
 #endif
-
-	                rs = vecstr_adduniq(glp,cp,cl) ;
-	                if (rs < INT_MAX) c += 1 ;
-
-	                bl -= ((cp + cl) - bp) ;
-	                bp = (cp + cl) ;
-
-	                if (rs < 0) break ;
-	            } /* end while */
-
+	                    rs = vecstr_adduniq(glp,cp,cl) ;
+	                    if (rs < INT_MAX) c += 1 ;
+	                    bl -= ((cp + cl) - bp) ;
+	                    bp = (cp + cl) ;
+	                    if (rs < 0) break ;
+	                } /* end while */
+		    } /* end if (positive) */
+		    if (af.term == '#') break ;
 	            if (rs < 0) break ;
 	        } /* end while (fielding) */
 
