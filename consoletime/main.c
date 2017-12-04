@@ -12,7 +12,7 @@
 /* revision history:
 
 	= 1989-03-01, David A­D­ Morano
-	This was written for some program (deleted the particulars).
+	This was written for some program.
 
 	= 1998-06-01, David A­D­ Morano
 	This was enhanced from the original version.
@@ -25,7 +25,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1989,1998,1999,2006 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -1310,9 +1310,6 @@ static int procserve(PROGINFO *pip,cchar *mntfname)
 	struct pollfd	fds[2] ;
 	time_t		ti_run = pip->daytime ;
 	time_t		ti_check = pip->daytime ;
-#ifdef	COMMENT
-	time_t		ti_wait = pip->daytime ;
-#endif
 	int		rs ;
 	int		to = pip->intpoll ;
 	int		to_check = TO_CHECK ;
@@ -1414,8 +1411,9 @@ static int procserve(PROGINFO *pip,cchar *mntfname)
 
 	        } /* end for */
 
-	    } else if (rs == SR_INTR)
+	    } else if (rs == SR_INTR) {
 	        rs = SR_OK ;
+	    }
 
 #ifdef	COMMENT
 	    if ((rs >= 0) && (if_exit || if_int))
@@ -1429,19 +1427,13 @@ static int procserve(PROGINFO *pip,cchar *mntfname)
 	        }
 	    }
 
-#ifdef	COMMENT
-	    if ((rs >= 0) && ((pip->daytime - ti_wait) >= (to*4))) {
-	        ti_wait = pip->daytime ;
-	        rs1 = u_waitpid(-1,NULL,WNOHANG) ;
-	    }
-#endif /* COMMENT */
-
 	    if ((rs >= 0) && (pip->intrun > 0) &&
 	        ((pip->daytime - ti_run) >= pip->intrun)) {
 
-	        if (pip->efp != NULL)
+	        if (pip->efp != NULL) {
 	            bprintf(pip->efp,"%s: exiting on run-int timeout\n",
 	                pip->progname) ;
+		}
 
 	        break ;
 	    }

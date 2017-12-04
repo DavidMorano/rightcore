@@ -120,7 +120,9 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* external variables */
 
+#if	CF_MAKEDATE
 extern cchar	chunk_makedate[] ;
+#endif
 
 extern char	**environ ;		/* definition required by AT&T AST */
 
@@ -156,7 +158,10 @@ struct procout {
 static int	mainsub(int,cchar **,cchar **,void *) ;
 
 static int	usage(PROGINFO *) ;
+
+#if	CF_MAKEDATE
 static int	makedate_get(const char *,const char **) ;
+#endif /* CF_MAKEDATE */
 
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *) ;
 static int	procfile(PROGINFO *,PROCOUT *,cchar *) ;
@@ -679,15 +684,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version + f_makedate) {
-	    shio_printf(efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
+#if	CF_MAKEDATE
 	if (f_makedate) {
 	    makedate_get(chunk_makedate,&cp) ;
-	    shio_printf(efp,"%s: makedate %s\n",
-	        pip->progname,cp) ;
+	    shio_printf(efp,"%s: makedate %s\n",pip->progname,cp) ;
 	}
+#endif /* CF_MAKEDATE */
 
 /* program search name */
 

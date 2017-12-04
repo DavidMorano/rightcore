@@ -1974,8 +1974,9 @@ static int locinfo_sysdomain(LOCINFO *lip)
 	            len = (rs-1) ;
 	        }
 	    } /* end if (getsysdomain) */
-	} else
+	} else {
 	    len = strlen(lip->sysdomain) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
@@ -2003,8 +2004,9 @@ static int locinfo_fsdir(LOCINFO *lip)
 	            lip->f.allocfname = TRUE ;
 	        }
 	    }
-	} else
+	} else {
 	    rs = strlen(lip->fname) ;
+	}
 
 	return rs ;
 }

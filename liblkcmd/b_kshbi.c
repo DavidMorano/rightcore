@@ -219,7 +219,6 @@ static int	locinfo_libopen(LOCINFO *) ;
 static int	locinfo_libopenfind(LOCINFO *,int) ;
 static int	locinfo_libclose(LOCINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
-static int	locinfo_prdir(LOCINFO *) ;
 static int	locinfo_storedir(LOCINFO *) ;
 static int	locinfo_dircheck(LOCINFO *,cchar *) ;
 static int	locinfo_minmod(LOCINFO *,cchar *,mode_t) ;
@@ -791,8 +790,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -800,8 +798,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n", pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1686,8 +1683,8 @@ static int locinfo_libdirfind(LOCINFO *lip,char *rbuf)
 	if ((rs = locinfo_libdirinit(lip)) >= 0) {
 	    cchar	*name = lip->libfname ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("b_kshbi/locinfo_libdirfind: name=%s\n",name) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("b_kshbi/locinfo_libdirfind: name=%s\n",name) ;
 #endif
 	    if (name != NULL) {
 	        if (strchr(name,'/') == NULL) {
@@ -2058,20 +2055,22 @@ static int locinfo_libopenfind(LOCINFO *lip,int dlflags)
 	            if (np != NULL) {
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("b_kshbi/locinfo_libopenfind: n=%s\n",np) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("b_kshbi/locinfo_libopenfind: n=%s\n",
+				np) ;
 #endif
 
-	            lip->dhp = dlopen(np,dlflags) ;
+	                lip->dhp = dlopen(np,dlflags) ;
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4)) {
-	                debugprintf("b_kshbi/locinfo_libopenfind: dhp=%p\n",
+	                if (DEBUGLEVEL(4)) {
+	                    debugprintf("b_kshbi/locinfo_libopenfind: dhp=%p\n",
 	                    lip->dhp) ;
-	                if (lip->dhp == NULL)
-	                    debugprintf("b_kshbi/locinfo_libopenfind: "
-	                        "dlerr=%s\n", dlerror()) ;
-	            }
+	                    if (lip->dhp == NULL) {
+	                        debugprintf("b_kshbi/locinfo_libopenfind: "
+	                            "dlerr=%s\n", dlerror()) ;
+			    }
+	                }
 #endif /* CF_DEBUG */
 
 		    }
@@ -2095,26 +2094,10 @@ static int locinfo_libopenfind(LOCINFO *lip,int dlflags)
 /* end subroutine (locinfo_libopenfind) */
 
 
-static int locinfo_prdir(LOCINFO *lip)
-{
-	PROGINFO	*pip = lip->pip ;
-	int		rs = SR_OK ;
-	if (lip->uid_pr < 0) {
-	    struct ustat	sb ;
-	    if ((rs = uc_stat(pip->pr,&sb)) >= 0) {
-	        lip->uid_pr = sb.st_uid ;
-	        lip->gid_pr = sb.st_gid ;
-	    } /* end if (us_stat) */
-	} /* end if (needed) */
-	return rs ;
-}
-/* end subroutine (locinfo_prdir) */
-
-
 static int locinfo_storedir(LOCINFO *lip)
 {
 	int		rs ;
-	if ((rs = locinfo_prdir(lip)) >= 0) {
+	if ((rs = locinfo_loadprids(lip)) >= 0) {
 	    PROGINFO	*pip = lip->pip ;
 	    char	tbuf[MAXPATHLEN+1] ;
 	    if ((rs = mkpath2(tbuf,pip->pr,VDNAME)) >= 0) {
@@ -2130,7 +2113,7 @@ static int locinfo_storedir(LOCINFO *lip)
 	            }
 	        } /* end if (locinfo_dircheck) */
 	    } /* end if (mkpath) */
-	} /* end if (locinfo_prdir) */
+	} /* end if (locinfo_loadprids) */
 	return rs ;
 }
 /* end subroutine (locinfo_storedir) */
@@ -2177,7 +2160,7 @@ static int locinfo_minmod(LOCINFO *lip,cchar *dname,mode_t dm)
 	PROGINFO	*pip = lip->pip ;
 	int		rs ;
 	if ((rs = uc_minmod(dname,dm)) >= 0) {
-	    const uid_t	euid = pip->euid ;
+	    const uid_t		euid = pip->euid ;
 	    if (lip->uid_pr != euid) {
 	        u_chown(dname,lip->uid_pr,lip->gid_pr) ;
 	    }
@@ -2278,9 +2261,9 @@ static int locinfo_chown(LOCINFO *lip,cchar *fname)
 	int		rs ;
 	int		f = FALSE ;
 	if ((rs = locinfo_loadprids(lip)) >= 0) {
-	    const uid_t	uid_pr = lip->uid_pr ;
-	    const gid_t	gid_pr = lip->gid_pr ;
-	    const int	n = _PC_CHOWN_RESTRICTED ;
+	    const uid_t		uid_pr = lip->uid_pr ;
+	    const gid_t		gid_pr = lip->gid_pr ;
+	    const int		n = _PC_CHOWN_RESTRICTED ;
 	    if ((rs = u_pathconf(fname,n,NULL)) == 0) {
 	        f = TRUE ;
 	        u_chown(fname,uid_pr,gid_pr) ; /* may fail */

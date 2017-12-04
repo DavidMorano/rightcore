@@ -4,11 +4,11 @@ This is a KSH shell built-in command.  It prints out who is logged into the
 current node with their usernames and their real names.
 
 Synopsis:
-$ wn [-h[=<b>]] [-s|-l] [-u] [<logname(s) ...>] [<groupspec(s)>]
+$ wn [-h[=<b>]] [-s|-l] [-u] [<username(s) ...>] [<groupspec(s)>]
 	[-o <opt(s)>] [-db <utmpx>] [-V]
 
 Arguments:
-<logname(s)>	restrict records to these login names
+<username(s)>	restrict records to these usernames
 <groupspec(s)>	group specifications: in the form of ¡<groupname>
 -l		instead of printing real names, print the login ID and host
 -s		print only login names (takes precendece over "long" option)

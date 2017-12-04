@@ -174,7 +174,7 @@
 
 #define	VRBUF		struct vrbuf
 
-#define	NDFNAME		"bibleverse.nd"
+#define	NDF		"bibleverse.nd"
 
 
 /* external subroutines */

@@ -115,6 +115,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
+extern char	*strval(char *,int) ;
 
 
 /* external variables */
@@ -126,8 +127,6 @@ extern char	*timestr_elapsed(time_t,char *) ;
 /* forward references */
 
 static int	logfind(PROGINFO *) ;
-
-static char	*strval(char *,int) ;
 
 
 /* local variables */
@@ -158,7 +157,7 @@ int logbegin(PROGINFO *pip)
 
 	return rs ;
 }
-/* end subroutine (logstart) */
+/* end subroutine (logbegin) */
 
 
 int logend(PROGINFO *pip)
@@ -224,12 +223,12 @@ int logprogname(PROGINFO *pip)
 	int		rs = SR_OK ;
 
 	if (pip->open.logprog) {
-	    const char	*a = getourenv(pip->envv,VARARCHITECTURE) ;
-	    const char	*s = getourenv(pip->envv,VARSYSNAME) ;
-	    const char	*r = getourenv(pip->envv,VARRELEASE) ;
-	    const char	*n = pip->name ;
-	    const char	*pn = pip->progname ;
-	    const char	*fmt ;
+	    cchar	*a = getourenv(pip->envv,VARARCHITECTURE) ;
+	    cchar	*s = getourenv(pip->envv,VARSYSNAME) ;
+	    cchar	*r = getourenv(pip->envv,VARRELEASE) ;
+	    cchar	*n = pip->name ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    char	timebuf[TIMEBUFLEN + 1] ;
 
 	    if (pip->logsize > 0) {
@@ -325,23 +324,20 @@ int logmark(PROGINFO *pip,int rem)
 
 int logreport(PROGINFO *pip)
 {
-	LOCINFO	*lip = pip->lip ;
+	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
+	char		timebuf[TIMEBUFLEN + 1] ;
 
 	if (pip->open.logprog) {
-	    char	timebuf[TIMEBUFLEN + 1] ;
 
-	    rs = logfile_printf(&pip->lh,
-	        "%s report",
-	        timestr_logz(pip->daytime,timebuf)) ;
-
-	    if (rs >= 0)
+	    timestr_logz(pip->daytime,timebuf) ;
+	    if ((rs = logfile_printf(&pip->lh, "%s report",timebuf)) >= 0) {
 	        rs = logfile_printf(&pip->lh, "narkint=%u",pip->intmark) ;
+	    }
 
 	    if (rs >= 0) {
-	        rs = logfile_printf(&pip->lh,
-	            "marktime=%s",
-	            timestr_logz(lip->ti_marklog,timebuf)) ;
+	        timestr_logz(lip->ti_marklog,timebuf) ;
+	        rs = logfile_printf(&pip->lh, "marktime=%s",timebuf) ;
 	    }
 
 	} /* end if (logprog) */
@@ -374,21 +370,18 @@ int loginfo(PROGINFO *pip)
 
 	if (pip->open.logprog) {
 	    long		lw ;
-	    char		digbuf[DIGBUFLEN + 1] ;
+	    char		dbuf[DIGBUFLEN + 1] ;
 	    char		timebuf[TIMEBUFLEN + 1] ;
 
 	    if (pip->pidfname != NULL) {
 	        logfile_printf(&pip->lh,"pid=%s",pip->pidfname) ;
 	    }
 
-	    logfile_printf(&pip->lh,
-	        "daemon pid=%u",((uint) pip->pid)) ;
+	    logfile_printf(&pip->lh, "daemon pid=%u",((uint) pip->pid)) ;
 
-	    logfile_printf(&pip->lh,
-	        "intpoll=%s", strval(digbuf,pip->intpoll)) ;
+	    logfile_printf(&pip->lh, "intpoll=%s", strval(dbuf,pip->intpoll)) ;
 
-	    logfile_printf(&pip->lh,
-	        "intmark=%s", strval(digbuf,pip->intmark)) ;
+	    logfile_printf(&pip->lh, "intmark=%s", strval(dbuf,pip->intmark)) ;
 
 	    lw = pip->intrun ;
 	    if ((lw >= 0) && (lw < INT_MAX)) {
@@ -409,35 +402,29 @@ int loginfo(PROGINFO *pip)
 
 int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar *np)
 {
+	int		rs = SR_OK ;
 	char		timebuf[TIMEBUFLEN + 1] ;
 
-	logfile_printf(&pip->lh,
-	    "%s lock %s\n",
-	    timestr_logz(pip->daytime,timebuf),
-	    np) ;
+	timestr_logz(pip->daytime,timebuf) ;
+	logfile_printf(&pip->lh, "%s lock %s\n",timebuf, np) ;
 
 	logfile_printf(&pip->lh,"lf=%s",lfname) ;
 
-	logfile_printf(&pip->lh,
-	    "other_pid=%d\n",
-	    lcp->pid) ;
+	logfile_printf(&pip->lh, "other_pid=%d\n", lcp->pid) ;
 
-	if (lcp->nodename != NULL)
-	    logfile_printf(&pip->lh,
-	        "other_node=%s\n",
-	        lcp->nodename) ;
+	if (lcp->nodename != NULL) {
+	    logfile_printf(&pip->lh, "other_node=%s\n", lcp->nodename) ;
+	}
 
-	if (lcp->username != NULL)
-	    logfile_printf(&pip->lh,
-	        "other_user=%s\n",
-	        lcp->username) ;
+	if (lcp->username != NULL) {
+	    logfile_printf(&pip->lh, "other_user=%s\n", lcp->username) ;
+	}
 
-	if (lcp->banner != NULL)
-	    logfile_printf(&pip->lh,
-	        "other_banner=>%s<\n",
-	        lcp->banner) ;
+	if (lcp->banner != NULL) {
+	    logfile_printf(&pip->lh, "other_banner=>%s<\n", lcp->banner) ;
+	}
 
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (loglock) */
 
@@ -449,31 +436,15 @@ static int logfind(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	if (pip->lfname == NULL) {
-	    const char	*sn = pip->searchname ;
+	    cchar	*sn = pip->searchname ;
 	    char	tbuf[MAXPATHLEN+1] ;
 	    if ((rs = mkpath3(tbuf,pip->pr,LOGDNAME,sn)) >= 0) {
-	        const char	**vpp = &pip->lfname ;
+	        cchar	**vpp = &pip->lfname ;
 	        rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
 	    } /* end if (mkpath) */
 	}
 	return rs ;
 }
 /* end subroutine (logfind) */
-
-
-static char *strval(char *rbuf,int val)
-{
-	const int	rlen = DIGBUFLEN ;
-	int		rs1 ;
-	if ((val >= 0) && (val < INT_MAX)) {
-	    rs1 = ctdeci(rbuf,rlen,val) ;
-	    if (rs1 < 0)
-	        sncpy1(rbuf,rlen,"bad") ;
-	} else {
-	    sncpy1(rbuf,rlen,"max") ;
-	}
-	return rbuf ;
-}
-/* end subroutine (strval) */
 
 

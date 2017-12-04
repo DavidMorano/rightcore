@@ -14,7 +14,7 @@
 
 	= 2000-09-10, David A­D­ Morano
         This subroutine was originally written but it was probably started from
-        any one of the numerous subroutine which perform a similar
+        any one of the numerous subroutines which perform a similar
         "file-processing" fron end.
 
 	= 2017-09-14, David A­D­ Morano
@@ -695,23 +695,21 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
 
 #if	CF_DEBUGS
 	debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: debuglevel=%u\n",
-	        pip->progname,pip->debuglevel) ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: debuglevel=%u\n",pn,pip->debuglevel) ;
 	}
 
 /* continue w/ the trivia argument processing stuff */
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -827,10 +825,9 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 /* let's get out of here! */
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: files processed - %d\n",
-	        pip->progname,lip->nfiles) ;
-	    shio_printf(pip->efp,"%s: pages processed - %d\n",
-	        pip->progname,lip->npages) ;
+	    cchar	*pn = pip->progname ;
+	    shio_printf(pip->efp,"%s: files processed - %d\n",pn,lip->nfiles) ;
+	    shio_printf(pip->efp,"%s: pages processed - %d\n",pn,lip->npages) ;
 	}
 
 /* close off and get out! */
@@ -929,11 +926,11 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,SHIO *ofp,cchar *afn)
 	int		wlen = 0 ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
-	cchar	*cp ;
+	cchar		*cp ;
 
 	if (rs >= 0) {
-	    int	ai ;
-	    int	f ;
+	    int		ai ;
+	    int		f ;
 	    cchar	**argv = aip->argv ;
 	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
@@ -1143,8 +1140,8 @@ static int procfile(PROGINFO *pip,SHIO *ofp,cchar *fname,int fn,int f_eject)
 
 #if	CF_DEBUG
 	                        if (DEBUGLEVEL(2))
-	                            debugprintf("procfile: rest A line=>%t<\n",cp,
-	                                cl) ;
+	                            debugprintf("procfile: rest A line=>%t<\n",
+					cp, cl) ;
 #endif
 
 	                        if ((tp = strnchr(cp,cl,CH_RPAREN)) != NULL) {
@@ -1155,7 +1152,10 @@ static int procfile(PROGINFO *pip,SHIO *ofp,cchar *fname,int fn,int f_eject)
 
 /* read lines until something makes us break out */
 
-	                        while ((rs = shio_readline(ifp,lbuf,llen)) > 0) {
+	                        while (rs >= 0) {
+				    const int	rch = CH_RPAREN ;
+				    rs = shio_readline(ifp,lbuf,llen) ;
+				    if (rs <= 0) break ;
 	                            len = rs ;
 
 	                            sl = sfshrink(lbuf,len,&sp) ;
@@ -1163,7 +1163,7 @@ static int procfile(PROGINFO *pip,SHIO *ofp,cchar *fname,int fn,int f_eject)
 	                            if ((sl == 0) || (sp[0] == '%'))
 	                                break ;
 
-	                            if ((tp = strnchr(sp,sl,CH_RPAREN)) != NULL) {
+	                            if ((tp = strnchr(sp,sl,rch)) != NULL) {
 	                                sl = tp - sp ;
 	                            }
 
@@ -1264,8 +1264,8 @@ static int procout_end(PROGINFO *pip,SHIO *ofp)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
-
-
+	if (pip == NULL) return SR_FAULT ;
+	if (ofp == NULL) return SR_FAULT ;
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procout_end) */
@@ -1411,6 +1411,7 @@ static int locinfo_defs(LOCINFO *lip)
 
 static int locinfo_blanks(LOCINFO *lip)
 {
+	const int	max = MAXBLANKLINES ;
 	int		rs = SR_OK ;
 	int		i ;
 	char		*bp = lip->blankstring ;
@@ -1419,7 +1420,7 @@ static int locinfo_blanks(LOCINFO *lip)
 	    lip->blanks[i] = ' ' ;
 	}
 
-	for (i = 0 ; (i < lip->blanklines) && (i < MAXBLANKLINES) ; i += 1) {
+	for (i = 0 ; (i < lip->blanklines) && (i < max) ; i += 1) {
 	    *bp++ = '\n' ;
 	}
 	*bp = '\0' ;

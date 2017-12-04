@@ -1,4 +1,5 @@
 /* b_cksumpass (KSH built-in) */
+/* lang=C++11 */
 
 /* main subroutine for CKSUMPASS */
 
@@ -112,8 +113,8 @@ extern "C" int	strlinelen(cchar *,int,int) ;
 
 extern "C" cchar	*getourenv(const char **,const char *) ;
 
-extern "C" char	*strwcpy(char *,const char *,int) ;
-extern "C" char	*strnchr(const char *,int,int) ;
+extern "C" char		*strwcpy(char *,const char *,int) ;
+extern "C" char		*strnchr(const char *,int,int) ;
 
 extern "C" double	fsum(double *,int) ;
 extern "C" double	fam(double *,int) ;

@@ -319,7 +319,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	const char	*pmspec = NULL ;
+	const char	*pm = NULL ;
 	const char	*sn = NULL ;
 	const char	*pr = NULL ;
 	const char	*afname = NULL ;
@@ -434,14 +434,14 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            pmspec = avp ;
+	                            pm = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                pmspec = argp ;
+	                                pm = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }

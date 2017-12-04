@@ -1,2 +1,2 @@
 const char mfserve_makedate[] =
-"@(#)mfserve                 171203_2041:41_USEST Rightcore Network Services" ;
+"@(#)mfserve                 171204_0100:59_USEST Rightcore Network Services" ;

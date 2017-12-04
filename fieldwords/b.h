@@ -1,4 +1,4 @@
-/* config (testvotdc) */
+/* config */
 
 
 /* revision history:
@@ -12,40 +12,39 @@
 
 
 #define	VERSION		"0"
-#define	WHATINFO	"@(#)testvotdc "
-#define	BANNER		"Test VOTDC"
-#define	SEARCHNAME	"testvotdc"
+#define	WHATINFO	"@(#)fieldwords "
+#define	BANNER		"Field Words"
+#define	SEARCHNAME	"fieldwords"
 #define	VARPRNAME	"LOCAL"
 
 #ifndef	PROGRAMROOT
 #define	PROGRAMROOT	"/usr/add-on/local"
 #endif
 
-#define	VARPROGRAMROOT1	"TESTVOTDC_PROGRAMROOT"
+#define	VARPROGRAMROOT1	"FIELDWORDS_PROGRAMROOT"
 #define	VARPROGRAMROOT2	VARPRNAME
 #define	VARPROGRAMROOT3	"PROGRAMROOT"
 
-#define	VARBANNER	"TESTVOTDC_BANNER"
-#define	VARSEARCHNAME	"TESTVOTDC_NAME"
-#define	VAROPTS		"TESTVOTDC_OPTS"
-#define	VARFILEROOT	"TESTVOTDC_FILEROOT"
-#define	VARLOGTAB	"TESTVOTDC_LOGTAB"
-#define	VARMSFNAME	"TESTVOTDC_MSFILE"
-#define	VARUTFNAME	"TESTVOTDC_UTFILE"
-#define	VARERRORFNAME	"TESTVOTDC_ERRORFILE"
+#define	VARBANNER	"FIELDWORDS_BANNER"
+#define	VARSEARCHNAME	"FIELDWORDS_NAME"
+#define	VAROPTS		"FIELDWORDS_OPTS"
+#define	VARERRFILE	"FIELDWORDS_ERRFILE"
+#define	VARFILEROOT	"FIELDWORDS_FILEROOT"
+#define	VARLOGTAB	"FIELDWORDS_LOGTAB"
+#define	VARAFNAME	"FIELDWORDS_AF"
+#define	VAREFNAME	"FIELDWORDS_EF"
 
-#define	VARDEBUGFNAME	"TESTVOTDC_DEBUGFILE"
-#define	VARDEBUGFD1	"TESTVOTDC_DEBUGFD"
+#define	VARDEBUGFNAME	"FIELDWORDS_DEBUGFILE"
+#define	VARDEBUGFD1	"FIELDWORDS_DEBUGFD"
 #define	VARDEBUGFD2	"DEBUGFD"
 
+#define	VARNODE		"NODE"
 #define	VARSYSNAME	"SYSNAME"
 #define	VARRELEASE	"RELEASE"
 #define	VARMACHINE	"MACHINE"
 #define	VARARCHITECTURE	"ARCHITECTURE"
-#define	VARNODE		"NODE"
 #define	VARCLUSTER	"CLUSTER"
 #define	VARSYSTEM	"SYSTEM"
-#define	VARDOMAIN	"DOMAIN"
 #define	VARNISDOMAIN	"NISDOMAIN"
 #define	VARTERM		"TERM"
 #define	VARPRINTER	"PRINTER"
@@ -55,12 +54,6 @@
 #define	VARORGANIZATION	"ORGANIZATION"
 #define	VARLINES	"LINES"
 #define	VARCOLUMNS	"COLUMNS"
-#define	VARNAME		"NAME"
-#define	VARFULLNAME	"FULLNAME"
-#define	VARHZ		"HZ"
-#define	VARTZ		"TZ"
-#define	VARUSERNAME	"USERNAME"
-#define	VARLOGNAME	"LOGNAME"
 
 #define	VARHOMEDNAME	"HOME"
 #define	VARTMPDNAME	"TMPDIR"
@@ -82,14 +75,13 @@
 #define	ENVFNAME	"environ"
 #define	PATHSFNAME	"paths"
 #define	HELPFNAME	"help"
+#define	IPASSWDFNAME	"ipasswd"
+#define	FULLFNAME	".fullname"
+
+#define	PIDFNAME	"run/fieldwords"		/* mutex PID file */
+#define	LOGFNAME	"var/log/fieldwords"	/* activity log */
+#define	LOCKFNAME	"spool/locks/fieldwords"	/* lock mutex file */
 
 #define	LOGSIZE		(80*1024)
-
-#define	DEFRUNINT	60
-#define	DEFPOLLINT	8
-#define	DEFNODES	50
-
-#define	TO_CACHE	2
-#define	TO_LOADAVG	1
 
 

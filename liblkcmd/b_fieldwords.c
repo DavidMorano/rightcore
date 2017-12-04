@@ -668,9 +668,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (rs < 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument specified (%d)\n" ;
 	    ex = EX_USAGE ;
-	    shio_printf(pip->efp,"%s: invalid argument specified (%d)\n",
-	        pip->progname,rs) ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
 	    usage(pip) ;
 	    goto retearly ;
 	}
@@ -681,8 +682,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -699,8 +699,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
-	    shio_printf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
+	    shio_printf(pip->efp,"%s: pr=%s\n",pip->progname,pip->pr) ;
+	    shio_printf(pip->efp,"%s: sn=%s\n",pip->progname,pip->searchname) ;
 	} /* end if */
 
 /* help file */
@@ -857,7 +857,8 @@ const char	*afn ;
 	    ofn = STDOUTFNAME ;
 
 	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
-	    const char	*cp ;
+	    int		cl ;
+	    cchar	*cp ;
 
 	    if (rs >= 0) {
 		int	ai ;
@@ -869,9 +870,11 @@ const char	*afn ;
 	    	    f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	    	    if (f) {
 	    	        cp = argv[ai] ;
-	    	        pan += 1 ;
-	    	        rs = procwords(pip,sip,ofp,cp) ;
-	    	        lip->nwords += rs ;
+			if (cp[0] != '\0') {
+	    	            pan += 1 ;
+	    	            rs = procwords(pip,sip,ofp,cp) ;
+	    	            lip->nwords += rs ;
+			}
 		    }
 
 	    	    if (rs < 0) break ;
@@ -895,8 +898,8 @@ const char	*afn ;
 	                if (lbuf[len - 1] == '\n') len -= 1 ;
 	                lbuf[len] = '\0' ;
 
-	                cp = lbuf ;
-	                if (cp[0] != '\0') {
+			if ((cl = sfshrink(lbuf,len,&cp)) > 0) {
+			    lbuf[(cp+cl)-lbuf] = '\0' ;
 	                    pan += 1 ;
 	                    rs = procwords(pip,sip,ofp,cp) ;
 	    	            lip->nwords += rs ;
@@ -948,23 +951,19 @@ static int procwords(PROGINFO *pip,SEARCHINFO *sip,void *ofp,cchar *words)
 
 	sp = words ;
 	while ((tp = strpbrk(sp," \t,:")) != NULL) {
-
-	    c += 1 ;
-	    if ((cl = sfshrink(sp,(tp - sp),&cp)) >= 0) {
-	        rs = shio_printf(ofp,"%t\n",cp,cl) ;
+	    if ((cl = sfshrink(sp,(tp - sp),&cp)) > 0) {
+	        c += 1 ;
+	        rs = shio_print(ofp,cp,cl) ;
 	    }
-
 	    sp = (tp + 1) ;
 	    if (rs < 0) break ;
 	} /* end while */
 
 	if ((rs >= 0) && (sp[0] != '\0')) {
-
-	    c += 1 ;
-	    if ((cl = sfshrink(sp,-1,&cp)) >= 0) {
-	        rs = shio_printf(ofp,"%t\n",cp,cl) ;
+	    if ((cl = sfshrink(sp,-1,&cp)) > 0) {
+	        c += 1 ;
+	        rs = shio_print(ofp,cp,cl) ;
 	    }
-
 	} /* end if */
 
 	return (rs >= 0) ? c : rs ;

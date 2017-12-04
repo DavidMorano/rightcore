@@ -5,12 +5,12 @@
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
+	= 2000-02-01, David A­D­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 
 #ifndef	UINFO_INCLUDE

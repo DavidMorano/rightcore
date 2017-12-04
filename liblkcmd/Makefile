@@ -276,8 +276,8 @@ PCSINC1= pcslog.h pcsmsg.h
 PCSINCS= $(PCSINC0) $(PCSINC1)
 
 
-OBJ00= b_la.o b_msu.o b_msinfo.o b_wn.o b_touch.o b_rename.o 
-OBJ01= b_l.o b_shcat.o b_imail.o b_holiday.o b_numcvt.o b_fsinfo.o
+OBJ00= b_la.o b_msu.o b_msinfo.o b_wn.o b_touch.o b_rename.o b_mkincfile.o
+OBJ01= b_l.o b_shcat.o b_imail.o b_holiday.o b_numcvt.o b_fsinfo.o b_chunk.o
 OBJ02= b_commandment.o b_biblebook.o b_bibleverse.o b_bibleq.o b_logadm.o
 OBJ03= b_clustername.o b_s.o b_kshbi.o b_chacl.o b_smesg.o b_syncer.o 
 OBJ04= b_fileolder.o b_pathenum.o b_userinfo.o b_groupinfo.o b_projectinfo.o
@@ -287,15 +287,15 @@ OBJ07= b_sysvar.o b_mxalias.o b_issue.o b_motd.o b_logfile.o b_username.o
 
 OBJ08= b_querystring.o b_loginblurb.o b_isfile.o b_cal.o b_mkwords.o
 OBJ09= b_fibonacci.o b_factorial.o b_makenewer.o b_sysval.o b_temp.o b_lastlog.o
-OBJ10= b_netload.o b_dhtext.o b_logsys.o b_termadm.o b_mailnew.o
+OBJ10= b_netload.o b_dhtext.o b_logsys.o b_termadm.o b_mailnew.o b_cookieset.o
 OBJ11= b_pcsconf.o b_pcsuserinfo.o b_inetping.o b_linefold.o b_summer.o
-OBJ12= b_conslog.o b_termnote.o b_uuidgen.o b_strerror.o b_sysdb.o
+OBJ12= b_conslog.o b_termnote.o b_uuidgen.o b_strerror.o b_sysdb.o 
 OBJ13= b_rest.o b_qotd.o b_mjd.o b_look.o b_append.o b_rfinger.o b_shells.o
 OBJ14= b_mbproc.o b_mbexpire.o b_homepage.o b_progcheck.o b_calyear.o b_hello.o
 OBJ15= b_isproc.o b_webcounter.o b_makesafe.o b_numbers.o b_cksumpass.o
 
-OBJ16= 
-OBJ17= kshlib.o lockmemalloc.o 
+OBJ16= b_fieldwords.o b_prtdb.o
+OBJ17= 
 OBJ18= 
 OBJ19= 
 OBJ20= 
@@ -310,14 +310,14 @@ OBJ27= cgi.o htm.o
 OBJ28= svckv.o svcent.o
 OBJ29= 
 OBJ30= 
-OBJ31= 
+OBJ31= kshlib.o lockmemalloc.o 
 
 OBJ32= mailbox.o mailbox_getfrom.o mailbox_fromaddr.o mailmsgstage.o
 OBJ33= mailmsg.o mailmsg_loadmb.o mailmsg_enver.o
 OBJ34= mailmsghdrval.o mailmsghdrfold.o 
 OBJ35= mailmsghdrs.o
 OBJ36= mailalias.o lastlogfile.o 
-OBJ37= cachetime.o
+OBJ37= cachetime.o pdb.o
 OBJ38= vecstr_avmkstr.o
 OBJ39= field_word.o field_wordphrase.o 
 
@@ -372,7 +372,7 @@ OBJ82= sfword.o
 OBJ83=
 OBJ84=
 OBJ85= ctdecp.o
-OBJ86=
+OBJ86= strval.o
 #OBJ87= debug.o debugprintf.o nprintf.o strlinelen.o
 
 OBJ88= pcsmailcheck.o pcsinfoset.o
@@ -825,6 +825,24 @@ b_makesafe.o:		b_makesafe.c b_makesafe.h $(INCS)
 b_summer.o:		b_summer.c b_summer.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
+b_mkincfile.o:		b_mkincfile.c b_mkincfile.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_cookieset.o:		b_cookieset.c b_cookieset.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_chunk.o:		b_chunk.c b_chunk.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_fieldwords.o:		b_fieldwords.c b_fieldwords.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_prtdb.o:		b_prtdb.c b_prtdb.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+b_hello.o:		b_hello.c b_hello.h $(INCS)
+	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
 
 # special PCS (or pseudo PCS)
 
@@ -888,9 +906,6 @@ b_numcvt.o:		b_numcvt.c b_numcvt.h $(INCS)
 
 b_cksumpass.o:		b_cksumpass.c b_cksumpass.h $(INCS)
 	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_cksumpass.cc
-
-b_hello.o:		b_hello.c b_hello.h $(INCS)
-	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
 
 # testing
@@ -1484,6 +1499,8 @@ uiconv.o:		uiconv.c uiconv.h
 varsub.o:		varsub.c varsub.h
 
 cachetime.o:		cachetime.c cachetime.h
+
+pdb.o:			pdb.c pdb.h
 
 
 # testing

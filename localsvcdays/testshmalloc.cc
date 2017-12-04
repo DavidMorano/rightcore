@@ -299,7 +299,7 @@ static int subinfo_populate(SUBINFO *sip)
 	        if ((rs = shmalloc_alloc(shp,asize)) >= 0) {
 	            REQUESTS_ITEM	ai ;
 	            tsize += asize ;
-		    c += 1 ;
+	            c += 1 ;
 #if	CF_DEBUGS
 	            debugprintf("subinfo_populate: shmalloc_alloc() rs=%d\n",
 	                rs) ;
@@ -333,7 +333,7 @@ static int subinfo_allfree(SUBINFO *sip)
 	REQUESTS	*asp = &sip->as ;
 	int		rs ;
 #if	CF_DEBUGS
-	    debugprintf("subinfo_allfree: ent\n") ;
+	debugprintf("subinfo_allfree: ent\n") ;
 #endif
 	if ((rs = requests_count(asp)) >= 0) {
 	    REQUESTS_ITEM	ai ;
@@ -341,26 +341,26 @@ static int subinfo_allfree(SUBINFO *sip)
 #if	CF_DEBUGS
 	    debugprintf("subinfo_allfree: c=%u\n",rs) ;
 #endif
-	for (i = 0 ; requests_get(asp,i,&ai) >= 0 ; i += 1) {
-	    if (ai.ro >= 0) {
+	    for (i = 0 ; requests_get(asp,i,&ai) >= 0 ; i += 1) {
+	        if (ai.ro >= 0) {
 #if	CF_DEBUGS
-	        debugprintf("subinfo_allfree: bi=%u r=%d:%d\n",
-		i,ai.ro,ai.rs) ;
+	            debugprintf("subinfo_allfree: bi=%u r=%d:%d\n",
+	                i,ai.ro,ai.rs) ;
 #endif
-	        fprintf(ofp,"free ro=%d\n",ai.ro) ;
-	        if ((rs = shmalloc_free(shp,ai.ro)) >= 0) {
-	            if ((rs = subinfo_check(sip)) >= 0) {
+	            fprintf(ofp,"free ro=%d\n",ai.ro) ;
+	            if ((rs = shmalloc_free(shp,ai.ro)) >= 0) {
+	                if ((rs = subinfo_check(sip)) >= 0) {
 #if	CF_DEBUGS
-	                if (rs < 0)
-	                    debugprintf("subinfo_allfree: "
-	                        "shmalloc_check() rs=%d\n",rs) ;
+	                    if (rs < 0)
+	                        debugprintf("subinfo_allfree: "
+	                            "shmalloc_check() rs=%d\n",rs) ;
 #endif
-	                rs = requests_del(asp,i--) ;
+	                    rs = requests_del(asp,i--) ;
+	                }
 	            }
 	        }
-	    }
-	    if (rs < 0) break ;
-	} /* end for */
+	        if (rs < 0) break ;
+	    } /* end for */
 	} /* end if (requests_count) */
 #if	CF_DEBUGS
 	debugprintf("subinfo_allfree: ret rs=%d\n",rs) ;
@@ -435,7 +435,7 @@ static int subinfo_phase3(SUBINFO *sip)
 	                debugprintf("subinfo_phase3: bo=%u\n",bi) ;
 #endif
 
-			if (rs > 0) {
+	                if (rs > 0) {
 #if	CF_DEBUGS
 	                    debugprintf("subinfo_phase3: "
 	                        "subinfo_del() rs=%d\n", rs) ;
@@ -445,7 +445,7 @@ static int subinfo_phase3(SUBINFO *sip)
 
 	                if (rs < 0) break ;
 	            } /* end for */
-		    if (rs == SR_NOTFOUND) rs = SR_OK ;
+	            if (rs == SR_NOTFOUND) rs = SR_OK ;
 	            if (rs >= 0) {
 	                rs = subinfo_allfree(sip) ;
 	            }

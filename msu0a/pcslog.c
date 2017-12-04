@@ -98,6 +98,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
+extern char	*strval(char *,int) ;
 
 
 /* external variables */
@@ -107,8 +108,6 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 
 /* forward references */
-
-static char	*strval(char *,int) ;
 
 
 /* local variables */
@@ -137,7 +136,7 @@ int logbegin(PROGINFO *pip,USERINFO *uip)
 
 	return rs ;
 }
-/* end subroutine (logstart) */
+/* end subroutine (logbegin) */
 
 
 int logend(PROGINFO *pip)
@@ -275,9 +274,7 @@ int logreport(PROGINFO *pip)
 	    char	timebuf[TIMEBUFLEN + 1] ;
 
 	    timestr_logz(pip->daytime,timebuf) ;
-	    rs = proglog_printf(pip,"%s report",timebuf) ;
-
-	    if (rs >= 0) {
+	    if ((rs = proglog_printf(pip,"%s report",timebuf)) >= 0) {
 	        rs = proglog_printf(pip,"narkint=%u",pip->intmark) ;
 	    }
 
@@ -316,7 +313,7 @@ int loginfo(PROGINFO *pip)
 
 	if (pip->open.logprog) {
 	    long	lw ;
-	    char	digbuf[DIGBUFLEN + 1] ;
+	    char	dbuf[DIGBUFLEN + 1] ;
 	    char	timebuf[TIMEBUFLEN + 1] ;
 
 	    if (pip->pidfname != NULL) {
@@ -328,11 +325,9 @@ int loginfo(PROGINFO *pip)
 	        proglog_printf(pip,"daemon pid=%u",v) ;
 	    }
 
-	    proglog_printf(pip,
-	        "intpoll=%s",strval(digbuf,pip->intpoll)) ;
+	    proglog_printf(pip, "intpoll=%s",strval(dbuf,pip->intpoll)) ;
 
-	    proglog_printf(pip,
-	        "intmark=%s",strval(digbuf,pip->intmark)) ;
+	    proglog_printf(pip, "intmark=%s",strval(dbuf,pip->intmark)) ;
 
 	    lw = pip->intrun ;
 	    if ((lw >= 0) && (lw < INT_MAX)) {
@@ -354,6 +349,7 @@ int loginfo(PROGINFO *pip)
 
 int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar *np)
 {
+	int		rs = SR_OK ;
 	char		timebuf[TIMEBUFLEN + 1] ;
 
 	timestr_logz(pip->daytime,timebuf) ;
@@ -364,44 +360,22 @@ int loglock(PROGINFO *pip,LFM_CHECK *lcp,cchar *lfname,cchar *np)
 	proglog_printf(pip, "other_pid=%d\n", lcp->pid) ;
 
 	if (lcp->nodename != NULL) {
-	    proglog_printf(pip,
-	        "other_node=%s\n",
-	        lcp->nodename) ;
+	    proglog_printf(pip, "other_node=%s\n", lcp->nodename) ;
 	}
 
 	if (lcp->username != NULL) {
-	    proglog_printf(pip,
-	        "other_user=%s\n",
-	        lcp->username) ;
+	    proglog_printf(pip, "other_user=%s\n", lcp->username) ;
 	}
 
 	if (lcp->banner != NULL) {
-	    proglog_printf(pip,
-	        "other_banner=>%s<\n",
-	        lcp->banner) ;
+	    proglog_printf(pip, "other_banner=>%s<\n", lcp->banner) ;
 	}
 
-	return SR_OK ;
+	return rs ;
 }
 /* end subroutine (loglock) */
 
 
 /* local subroutines */
-
-
-static char *strval(char *rbuf,int val)
-{
-	const int	rlen = DIGBUFLEN ;
-	int		rs1 ;
-	if ((val >= 0) && (val < INT_MAX)) {
-	    rs1 = ctdeci(rbuf,rlen,val) ;
-	    if (rs1 < 0)
-	        sncpy1(rbuf,rlen,"bad") ;
-	} else {
-	    sncpy1(rbuf,rlen,"max") ;
-	}
-	return rbuf ;
-}
-/* end subroutine (strval) */
 
 

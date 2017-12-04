@@ -19,4 +19,5 @@ pjid		return the project ID
 projectname	return the project name
 users		return users within the project
 groups		return groups within the project
+comment		project comment (alternate query 'description')
 

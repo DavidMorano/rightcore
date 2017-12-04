@@ -1,6 +1,6 @@
 FIELDWORDS
 
-This small program parses out words from a comma-separated list of words.
+This small command parses out words from a comma-separated list of words.
 
 Synopsis:
 $ fieldwords [<word>,<word>, ...] [-af {<argfile>|-}] [-V]

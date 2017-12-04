@@ -1154,7 +1154,7 @@ static int usage(PROGINFO *pip)
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
-	fmt = "%s: USAGE> %s [-h[=<b>]] [-s|-l] [-u] [<logname(s)> ...]\n" ;
+	fmt = "%s: USAGE> %s [-h[=<b>]] [-s|-l] [-u] [<username(s)> ...]\n" ;
 	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
