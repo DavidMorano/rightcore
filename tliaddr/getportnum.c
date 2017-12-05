@@ -99,11 +99,10 @@ int getportnum(cchar *pn,cchar *ps)
 	pl = strlen(ps) ;
 
 	if (hasalldig(ps,pl)) {
-	    rs1 = cfdeci(ps,pl,&port) ;
-	    if (rs1 < 0) port = -1 ;
+	    rs = cfdeci(ps,pl,&port) ;
 	} /* end if */
 
-	if ((port < 0) && (pn != NULL)) {
+	if ((rs >= 0) && (port < 0) && (pn != NULL)) {
 	    if ((rs = getserv_name(pn,ps)) >= 0) {
 	        port = rs ;
 	    } /* end if (getserv_name) */

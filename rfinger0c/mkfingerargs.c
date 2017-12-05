@@ -51,7 +51,6 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
 #include	<string.h>
 
 #include	<vsystem.h>
@@ -79,12 +78,7 @@ extern int	strlinelen(const char *,int,int) ;
 /* exported subroutines */
 
 
-int mkfingerquery(qbuf,qlen,f_long,up,av)
-char		qbuf[] ;
-int		qlen ;
-int		f_long ;
-const char	*up ;
-const char	**av ;
+int mkfingerquery(char *qbuf,int qlen,int f_long,cchar *up,cchar **av)
 {
 	SBUF		b ;
 	int		rs = SR_OK ;
@@ -108,10 +102,9 @@ const char	**av ;
 	        int	i ;
 	        for (i = 0 ; (rs >= 0) && (av[i] != NULL) ; i += 1) {
 #if	CF_DEBUGS
-	debugprintf("mkfingerquery: a[%u]=>%s<\n",av[i]) ;
+			debugprintf("mkfingerquery: a[%u]=>%s<\n",av[i]) ;
 #endif
-	            rs = sbuf_char(&b,' ') ;
-	            if (rs >= 0) {
+	            if ((rs = sbuf_char(&b,' ')) >= 0) {
 			rs = sbuf_addquoted(&b,av[i],-1) ;
 		    }
 	        } /* end for */

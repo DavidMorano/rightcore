@@ -47,9 +47,6 @@
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<field.h>
-#include	<vecobj.h>
-#include	<hdb.h>
-#include	<storeitem.h>
 #include	<char.h>
 #include	<localmisc.h>
 
@@ -846,7 +843,7 @@ static int svcfile_fileparser(SVCFILE *op,int fi,cchar *fname)
 	    int		f_ent = FALSE ;
 	    int		f_bol = TRUE ;
 	    int		f_eol ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    char	lbuf[LINEBUFLEN + 1] ;
 	    char	abuf[ABUFLEN + 1] ;
 	    char	svcname[SVCNAMELEN + 1] ;
@@ -1000,7 +997,7 @@ static int svcfile_fileparser(SVCFILE *op,int fi,cchar *fname)
 
 	    rs1 = bclose(lfp) ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (file) */
+	} /* end if (bfile) */
 
 	if (rs < 0) {
 	    svcfile_filedump(op,fi) ;
@@ -1053,7 +1050,7 @@ static int svcfile_addentry(SVCFILE *op,int fi,SVCENTRY *nep)
 	    size = sizeof(SVCFILE_IENT) ;
 	    if ((rs = uc_malloc(size,&iep)) >= 0) {
 	        const int	n = svcentry_nkeys(nep) ;
-	        void	*p ;
+	        void		*p ;
 	        iep->fi = fi ;
 	        size = (n+1) * 2 * sizeof(char *) ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
@@ -1660,8 +1657,9 @@ static int entry_load(SVCFILE_ENT *ep,char *ebuf,int elen,SVCFILE_IENT *iep)
 	        if (vp != NULL) {
 	            keyvals[i][1] = bp ;
 	            bp = strwcpy(bp,vp,-1) + 1 ;
-	        } else
+	        } else {
 	            keyvals[i][1] = NULL ;
+		}
 
 	    } /* end for */
 
@@ -1677,8 +1675,9 @@ static int entry_load(SVCFILE_ENT *ep,char *ebuf,int elen,SVCFILE_IENT *iep)
 	    ep->nkeys = iep->nkeys ;
 	    ep->size = iep->size ;
 
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("entry_load: ret rs=%d rlen=%u\n",rs,rlen) ;

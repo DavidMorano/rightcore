@@ -153,79 +153,64 @@ int		to ;
 #endif
 
 	switch (dialer) {
-
 	case opendialer_udp:
 	    cp = portspec ;
 	    if ((cp == NULL) || (cp[0] == '\0')) cp = svc ;
 	    rs = dialudp(hostspec,cp,af,to,opts) ;
 	    break ;
-
 	case opendialer_tcp:
 	    cp = portspec ;
 	    if ((cp == NULL) || (cp[0] == '\0')) cp = svc ;
 	    rs = dialtcp(hostspec,cp,af,to,opts) ;
 	    break ;
-
 	case opendialer_tcpmux:
 	    rs = dialtcpmux(hostspec,portspec,af,svc,av,to,opts) ;
 	    break ;
-
 	case opendialer_tcpnls:
 	    rs = dialtcpnls(hostspec,portspec,af,svc,to,opts) ;
 	    break ;
-
 	case opendialer_uss:
 	    cp = portspec ;
 	    if ((cp == NULL) || (cp[0] == '\0')) cp = svc ;
 	    rs = dialuss(cp,to,opts) ;
 	    break ;
-
 	case opendialer_ussmux:
 	    rs = dialussmux(portspec,svc,av,to,opts) ;
 	    break ;
-
 	case opendialer_ussnls:
 	    rs = dialussnls(portspec,svc,to,opts) ;
 	    break ;
-
 	case opendialer_ticotsord:
 	    cp = portspec ;
 	    if ((cp == NULL) || (cp[0] == '\0')) cp = svc ;
 	    rs = dialticotsord(cp,-1,to,opts) ;
 	    break ;
-
 	case opendialer_ticotsordnls:
 	    rs = dialticotsordnls(portspec,-1,svc, to,opts) ;
 	    break ;
-
 	case opendialer_pass:
 	    cp = portspec ;
 	    if ((cp == NULL) || (cp[0] == '\0')) cp = svc ;
 	    rs = dialpass(cp,to,opts) ;
 	    break ;
-
 	case opendialer_open:
 	    cp = portspec ;
 	    if ((cp == NULL) || (cp[0] == '\0')) cp = svc ;
 	    oflags = O_RDWR ;
 	    rs = uc_openenv(cp,oflags,0666,ev,to) ;
 	    break ;
-
 	case opendialer_prog:
 	    cp = portspec ;
 	    if ((cp == NULL) || (cp[0] == '\0')) cp = svc ;
 	    oflags = O_RDWR ;
 	    rs = dialprog(cp,oflags,av,ev,NULL) ;
 	    break ;
-
 	case opendialer_finger:
 	    rs = dialfinger(hostspec,portspec,af,svc,av,to,opts) ;
 	    break ;
-
 	default:
 	    rs = SR_INVALID ;
 	    break ;
-
 	} /* end switch */
 
 #if	CF_DEBUGS

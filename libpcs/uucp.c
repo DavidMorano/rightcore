@@ -108,22 +108,16 @@ static void	bdump(bfile *,bfile *) ;
 /* exported subroutines */
 
 
-int uucp(rhost,filename,fd2p)
-const char	rhost[] ;
-const char	filename[] ;
-int		*fd2p ;
+int uucp(cchar *rhost,cchar *filename,int *fd2p)
 {
 	const mode_t	omode = (0600 | S_IFIFO) ;
-
-	int	rs = SR_OK ;
-	int	i ;
-	int	pipes[3][2] ;
-	int	pfd ;
-
+	int		rs = SR_OK ;
+	int		i ;
+	int		pipes[3][2] ;
+	int		pfd ;
 	const char	*cmd_uucp = PROG_UUCP ;
-
-	char	pfname[MAXPATHLEN + 1] ;
-	char	dst[DSTLEN + 1] ;
+	char		pfname[MAXPATHLEN + 1] ;
+	char		dst[DSTLEN + 1] ;
 
 
 #if	CF_DEBUGS
@@ -185,11 +179,8 @@ int		*fd2p ;
 	debugprintf("uucp: about to fork\n") ;
 #endif
 
-	rs = uc_fork() ;
-
-	if (rs == 0) {
-	    int	fd ;
-
+	if ((rs = uc_fork()) == 0) { /* child */
+	    int		fd ;
 
 #if	CF_DEBUGS
 	    debugprintf("uucp: inside fork\n") ;

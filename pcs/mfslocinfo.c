@@ -841,6 +841,10 @@ int locinfo_dirmaint(LOCINFO *lip)
 	        if (to_client > 0) {
 	            cchar	*dir = lip->tmpourdname ;
 	            cchar	*pat = "client" ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_dirmaint: dir=%s\n",dir) ;
+#endif
 	            if ((rs = rmdirfiles(dir,pat,to_client)) >= 0) {
 	                char	tbuf[TIMEBUFLEN+1] ;
 	                timestr_logz(pip->daytime,tbuf) ;
@@ -1047,19 +1051,31 @@ int locinfo_daemonend(LOCINFO *lip)
 /* load some dynamic service values into cookie keys */
 int locinfo_cooksvc(LOCINFO *lip,cchar *svc,cchar *ss,cchar **sav,int f_long)
 {
+	PROGINFO	*pip = lip->pip ;
 	EXPCOOK		*ecp = &lip->cooks ;
 	int		rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5)) {
+	    debugprintf("locinfo_cooksvc: ent\n") ;
+	    debugprintf("locinfo_cooksvc: s=%s ss=%s\n",svc,ss) ;
+	}
+#endif
+	if (pip == NULL) return SR_FAULT ;
 	if ((rs = expcook_add(ecp,"s",svc,-1)) >= 0) {
 	    if ((rs = expcook_add(ecp,"ss",ss,-1)) >= 0) {
-	        cchar	*v = (f_long) ? "1" : "0" ;
-	        if ((rs = expcook_add(ecp,"w",v,1)) >= 0) {
-	            v = (f_long) ? "2" : "1" ;
-	            if ((rs = expcook_add(ecp,"ww",v,1)) >= 0) {
+	        cchar	*vp = (f_long) ? "1" : "0" ;
+	        if ((rs = expcook_add(ecp,"w",vp,1)) >= 0) {
+	            vp = (f_long) ? "2" : "1" ;
+	            if ((rs = expcook_add(ecp,"ww",vp,1)) >= 0) {
 			rs = locinfo_cookargsload(lip,sav) ;
 		    }
 	        }
 	    }
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("locinfo_cooksvc: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (locinfo_cooksvc) */

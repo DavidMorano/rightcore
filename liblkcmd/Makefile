@@ -92,22 +92,35 @@ DEFC= $(DEF16) $(DEF17) $(DEF18) $(DEF19) $(DEF20) $(DEF21) $(DEF22) $(DEF23)
 
 DEFS= $(DEFA) $(DEFB)
 
-PCSDEFS= $(DEFA) $(DEFB)
-
+# special for AST dependent softare
 ASTDEFS= $(DEFA) $(DEFC)
 
+# special for PCS dependent softare
+PCSDEFS= $(DEFA) $(DEFB)
+
+# special for MFS dependent softare
+MFSDEFS= $(DEFA) $(DEFB)
+
+# special for AST+PCS dependent softare
 ASTPCSDEFS= $(DEFA) $(DEFC)
+
+# special for AST+MFS dependent softare
+ASTMFSDEFS= $(DEFA) $(DEFC)
 
 
 GNUINCDIRS= -I$(GNU)/include
 
 INCDIRS= -I$(INCDIR)
 
-PCSINCDIRS= -I$(PCS)/include -I$(INCDIR)
-
 ASTINCDIRS= -I$(AINCDIR) -I$(INCDIR) 
 
+PCSINCDIRS= -I$(PCS)/include -I$(INCDIR)
+
+MFSINCDIRS= -I$(PCS)/include -I$(INCDIR)
+
 ASTPCSINCDIRS= -I$(AINCDIR) -I$(PCS)/include -I$(INCDIR) 
+
+ASTMFSINCDIRS= -I$(AINCDIR) -I$(PCS)/include -I$(INCDIR) 
 
 
 CPPFLAGS= $(DEFS) $(INCDIRS)
@@ -118,8 +131,14 @@ ASTCPPFLAGS= $(ASTDEFS) $(ASTINCDIRS)
 # PCS
 PCSCPPFLAGS= $(PCSDEFS) $(PCSINCDIRS)
 
+# MFS
+MFSCPPFLAGS= $(MFSDEFS) $(MFSINCDIRS)
+
 # AST-PCS
 ASTPCSCPPFLAGS= $(ASTPCSDEFS) $(ASTPCSINCDIRS)
+
+# AST-MFS
+ASTMFSCPPFLAGS= $(ASTMFSDEFS) $(ASTMFSINCDIRS)
 
 
 CFLAGS= $(CCOPTS) 
@@ -129,7 +148,11 @@ ASTCFLAGS= $(CCOPTS)
 
 PCSCFLAGS= $(CCOPTS)
 
+MFSCFLAGS= $(CCOPTS)
+
 ASTPCSCFLAGS= $(CCOPTS)
+
+ASTMFSCFLAGS= $(CCOPTS)
 
 #LD= $(CC)
 #LD= ld
@@ -270,10 +293,18 @@ MSUINC1= msulog.h msumsg.h
 MSUINCS= $(MSUINC0) $(MSUINC1)
 
 
-PCSINC0= pcsmain.h pcslocinfo.h pcsconfig.h pcsadj.h 
+PCSINC0= pcsmain.h pcslocinfo.h pcsconfig.h pcsadj.h
 PCSINC1= pcslog.h pcsmsg.h
 
 PCSINCS= $(PCSINC0) $(PCSINC1)
+
+
+MFSINC0= mfsmain.h mfslocinfo.h mfsconfig.h mfsadj.h
+MFSINC1= mfswatch.o mfslog.h mfsmsg.h
+MFSINC2= sreqdb.h sreq.h svcentsub.h
+MFSINC3=
+
+MFSINCS= $(MFSINC0) $(MFSINC1) $(MSGINC2) $(MFSINC3)
 
 
 OBJ00= b_la.o b_msu.o b_msinfo.o b_wn.o b_touch.o b_rename.o b_mkincfile.o
@@ -421,11 +452,22 @@ OBJSb= obji.o objj.o objk.o objl.o objm.o
 
 OBJS= $(OBJSa) $(OBJSb)
 
+
 ASTOBJS= $(OBJA) $(OBJB) $(OBJC) $(OBJD)
+
 
 MSUOBJS= msumain.o msulocinfo.o msuconfig.o msuadj.o msulog.o msudebug.o
 
-PCSOBJS= pcsmain.o pcslocinfo.o pcsconfig.o pscadjunct.o pcslog.o pcsdebug.o
+
+PCSOBJS= pcsmain.o pcslocinfo.o pcsconfig.o pcsadj.o pcslog.o pcsdebug.o
+
+
+MFSOBJ00= mfsmain.o mfslocinfo.o mfsconfig.o mfsadj.o mfslog.o mfsdebug.o
+MFSOBJ02=
+MFSOBJ03= sreqdb.o sreq.o svcentsub.o
+MFSOBJ04=
+
+MFSOBJS= $(MFSOBJ00) $(MFSOBJ01) $(MFSOBJ02) $(MFSOBJ03)
 
 
 XOBJ= main.o maininfo.o sighand.o ucontext_rtn.o
@@ -582,8 +624,19 @@ objm.o:			$(OBJM) Makefile
 	$(LD) -r -o $@ $(LDFLAGS_R) $(OBJM)
 
 
-b_msu.o:		$(MSUOBJS)
+# special partial links
+
+b_msu.o:		$(MSUOBJS) Makefile
 	$(LD) -r -o $@ -M msu.map -B reduce $(LDFLAGS_R) $(MSUOBJS)
+
+b_pcs.o:		$(PCSOBJS) Makefile
+	$(LD) -r -o $@ -M pcs.map -B reduce $(LDFLAGS_R) $(PCSOBJS)
+
+b_mfserve.o:		$(MFSOBJS) Makefile
+	$(LD) -r -o $@ -M mfs.map -B reduce $(LDFLAGS_R) $(MFSOBJS)
+
+
+# regular compiles
 
 b_la.o:			b_la.c b_la.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
@@ -861,28 +914,11 @@ b_pcsconf.o:		b_pcsconf.c b_pcsconf.h $(INCS)
 b_pcsuserinfo.o:	b_pcsuserinfo.c b_pcsuserinfo.h $(INCS)
 	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
-b_pcs.o:		b_pcs.c b_pcs.h $(INCS)
-	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
-
 b_rest.o:		b_rest.c b_rest.h $(INCS)
 	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
 
-# PCS extra code
-pcs:			b_pcs.o
-pcsconfig.o:		pcsconfig.c pcslocinfo.h $(INCS) $(PCSINCS)
-pcslog.o:		pcslog.c pcslog.h $(INCS) $(PCSINCS)
-pcsdebug.o:		pcsdebug.c pcslog.h $(INCS) $(PCSINCS)
-# special since it needs AST
-pcsmain.o:		pcsmain.c $(INCS) msfile.h $(PCSINCS)
-	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
-pcslocinfo.o:		pcslocinfo.c pcslocinfo.h $(INCS) $(PCSINCS)
-	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
-pcsadj.o:		pcsadj.c pcsadj.h $(INCS) $(PCSINCS)
-	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
-
-
-# MSU extra code
+# MSU code
 msu:			b_msu.o
 msuconfig.o:		msuconfig.c msulocinfo.h $(INCS) $(MSUINCS)
 msulog.o:		msulog.c msulog.h $(INCS) $(MSUINCS)
@@ -894,6 +930,46 @@ msulocinfo.o:		msulocinfo.c msulocinfo.h $(INCS) $(MSUINCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 msuadj.o:		msuadj.c msuadj.h $(INCS) $(MSUINCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
+
+
+# PCS code
+pcs:			b_pcs.o
+pcsconfig.o:		pcsconfig.c pcslocinfo.h $(INCS) $(PCSINCS)
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+pcslog.o:		pcslog.c pcslog.h $(INCS) $(PCSINCS)
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+pcsdebug.o:		pcsdebug.c pcslog.h $(INCS) $(PCSINCS)
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+# special since it needs AST
+pcsmain.o:		pcsmain.c $(INCS) msfile.h $(PCSINCS)
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
+pcslocinfo.o:		pcslocinfo.c pcslocinfo.h $(INCS) $(PCSINCS)
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
+pcsadj.o:		pcsadj.c pcsadj.h $(INCS) $(PCSINCS)
+	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
+
+
+# MFS code
+mfs:			b_mfserve.o
+mfsconfig.o:		mfsconfig.c mfslocinfo.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
+mfslog.o:		mfslog.c mfslog.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
+mfsdebug.o:		mfsdebug.c mfslog.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
+sreqdb.o:		sreqdb.c sreqdb.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
+sreq.o:			sreq.c sreq.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
+svcentsub.o:		svcentsub.c svcentsub.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
+# special since it needs AST
+mfsmain.o:		mfsmain.c mfsmain.h $(INCS) $(MFSINCS)
+	$(CC) -c $(ASTMFSCFLAGS) $(ASTMFSCPPFLAGS) $<
+mfslocinfo.o:		mfslocinfo.c mfslocinfo.h $(INCS) $(MFSINCS)
+	$(CC) -c $(ASTMFSCFLAGS) $(ASTMFSCPPFLAGS) $<
+mfsadj.o:		mfsadj.c mfsadj.h $(INCS) $(MFSINCS)
+	$(CC) -c $(ASTMFSCFLAGS) $(ASTMFSCPPFLAGS) $<
 
 
 # put the C++ bullt-ins here

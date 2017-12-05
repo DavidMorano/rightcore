@@ -775,8 +775,9 @@ static int vecitem_iget(VECITEM *op,int i,void **spp)
 	*spp = NULL ;
 	if ((i >= 0) && (i < op->i)) {
 	    *spp = (op->va)[i] ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	return rs ;
 }

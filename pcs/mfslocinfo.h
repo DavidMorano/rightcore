@@ -44,8 +44,8 @@
 
 enum svctypes {
 	svctype_mfserve,
-	svctype_tcpmuxd,
-	svctype_fingers,
+	svctype_tcpmux,
+	svctype_finger,
 	svvtype_overlast
 } ;
 

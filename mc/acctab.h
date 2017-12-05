@@ -16,6 +16,7 @@
 #include	<vecobj.h>
 #include	<vecitem.h>
 #include	<vecstr.h>
+#include	<localmisc.h>
 
 
 #define	ACCTAB_MAGIC		0x31415926
@@ -70,16 +71,14 @@ typedef struct acctab_errline	acctab_err ;
 extern "C" {
 #endif
 
-extern int acctab_open(ACCTAB *,const char *,VECITEM *) ;
-extern int acctab_fileadd(ACCTAB *,const char *,VECITEM *) ;
+extern int acctab_open(ACCTAB *,cchar *) ;
+extern int acctab_fileadd(ACCTAB *,cchar *) ;
 extern int acctab_enum(ACCTAB *,ACCTAB_CUR *,ACCTAB_ENT **) ;
-extern int acctab_check(ACCTAB *,VECITEM *) ;
+extern int acctab_check(ACCTAB *) ;
 extern int acctab_curbegin(ACCTAB *,ACCTAB_CUR *) ;
 extern int acctab_curend(ACCTAB *,ACCTAB_CUR *) ;
-extern int acctab_allowed(ACCTAB *,
-		const char *,const char *,const char *,const char *) ;
-extern int acctab_anyallowed(ACCTAB *,vecstr *,vecstr *,
-		const char *,const char *) ;
+extern int acctab_allowed(ACCTAB *,cchar *,cchar *,cchar *,cchar *) ;
+extern int acctab_anyallowed(ACCTAB *,vecstr *,vecstr *,cchar *,cchar *) ;
 extern int acctab_close(ACCTAB *) ;
 
 #ifdef	COMMENT

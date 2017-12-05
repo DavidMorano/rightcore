@@ -425,7 +425,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -864,10 +864,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
-	if (rs < 0)
-	    goto badarg ;
+	if (rs < 0) goto badarg ;
 
 #if	CF_DEBUGS
 	debugprintf("main: apr=%s\n",pr) ;
@@ -875,22 +876,21 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(1)) {
-	    debugprintf("main: debuglevel=%u\n",
-	        pip->debuglevel) ;
+	    debugprintf("main: debuglevel=%u\n", pip->debuglevel) ;
 	}
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n", pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -933,7 +933,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (pip->hostspec == NULL) pip->hostspec = getenv(VARHOSTSPEC) ;
 	if (pip->portspec == NULL) pip->portspec = getenv(VARPORTSPEC) ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -955,7 +957,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* any idle specification? */
 
 	if ((rs >= 0) && (idlespec != NULL)) {
-	    int	ch = MKCHAR(*idlespec) ;
+	    int		ch = MKCHAR(*idlespec) ;
 	    cp = idlespec ;
 	    cl = -1 ;
 	    if (isdigitlatin(ch)) {
@@ -1012,8 +1014,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    bprintf(pip->efp,"%s: daemon mode=%u\n",
-	        pip->progname,pip->f.daemon) ;
+	    cchar	*pn = pip->progname ;
+	    bprintf(pip->efp,"%s: daemon mode=%u\n",pn,pip->f.daemon) ;
 	}
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -1070,8 +1072,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    } /* end switch */
 	} else if (if_exit) {
 	    ex = EX_TERM ;
-	} else if (if_int)
+	} else if (if_int) {
 	    ex = EX_INTR ;
+	}
 
 /* early return thing */
 retearly:

@@ -366,10 +366,8 @@ const char	*sav[] ;
 #endif
 
 	    if (rs1 >= 0) {
-
 	        rs = procserver(pip,cip,&ste,sav) ;
 	        f_served = (rs > 0) ;
-
 	    } /* end if (matched) */
 
 	} /* end if (svcfile) */

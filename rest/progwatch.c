@@ -500,7 +500,7 @@ static int procwatcher(PROGINFO *pip,SUBINFO *wip,vecstr *nlp)
 {
 	PROGINFO_IPC	*ipp = &pip->ipc ;
 	POLLER_SPEC	ps ;
-	time_t		ti_start ;
+	time_t		ti_start = pip->daytime ;
 	int		rs = SR_OK ;
 	int		rs1 = 0 ;
 	int		to_standcheck = TO_STANDCHECK ;
@@ -524,11 +524,6 @@ static int procwatcher(PROGINFO *pip,SUBINFO *wip,vecstr *nlp)
 	if_int = FALSE ;
 	if_child = FALSE ;
 
-	pip->subserial = 0 ;
-
-	ti_start = pip->daytime ;
-	loopcount = 0 ;
-
 /* let's go! */
 
 	if (pip->f.daemon) {
@@ -540,11 +535,9 @@ static int procwatcher(PROGINFO *pip,SUBINFO *wip,vecstr *nlp)
 	    }
 
 	    if (pip->fd_listenpass >= 0) {
-
 #if	SYSHAS_STREAMS
 		u_ioctl(pip->fd_listenpass,I_SRDOPT,RMSGD) ;
 #endif
-
 	        ps.fd = pip->fd_listenpass ;
 	        ps.events = (POLLIN | POLLPRI) ;
 	        poller_reg(&wip->pm,&ps) ;

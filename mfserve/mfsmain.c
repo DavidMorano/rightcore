@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 
 
@@ -467,7 +467,7 @@ static const int	sigignores[] = {
 /* exported subroutines */
 
 
-int m_mfserve(int argc,cchar *argv[],void *contextp)
+int b_mfserve(int argc,cchar *argv[],void *contextp)
 {
 	int		rs ;
 	int		rs1 ;
@@ -3062,6 +3062,7 @@ static int procservice(PROGINFO *pip)
 	    if ((rs = mfswatch_begin(pip)) >= 0) {
 	 	const time_t	ti_start = pip->daytime ;
 
+		loglisteners(pip) ;
 		while ((rs = mfswatch_service(pip)) >= 0) {
 		    c += rs ;
 

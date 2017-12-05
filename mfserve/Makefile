@@ -35,7 +35,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O2 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -93,7 +93,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -176,7 +176,7 @@ TSORT= tsort
 RM= rm -f
 
 
-INCS= mfsmain.h defs.h
+INCS= mfsmain.h defs.h sreqdb.h
 
 MFSINC0= mfsmain.h mfslocinfo.h mfsconfig.h mfslisten.h mfsadj.h 
 MFSINC1= mfslog.h mfsmsg.h
@@ -208,7 +208,7 @@ OBJ19=
 OBJ20= svckv.o svcent.o
 OBJ21= uc_peek.o passfd.o getsystypenum.o
 OBJ22= isBadSend.o isBadRecv.o isBadMsg.o
-OBJ23= debug.o
+OBJ23=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -373,7 +373,7 @@ mfsc.o:			mfsc.c mfsc.c mfsmsg.o
 
 sreq.o:			sreq.c sreq.h
 
-sreqdb.o:		sreqdb.c sreqdb.h
+sreqdb.o:		sreqdb.c sreqdb.h sreq.o
 
 
 # other standard pieces (duplicated here)

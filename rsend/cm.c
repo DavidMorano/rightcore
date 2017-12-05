@@ -78,6 +78,11 @@ extern int	ctdecui(char *,int,uint) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	snsds(char *,int,const char *,const char *) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif /* CF_DEBUG */
+
 extern char	*strwcpy(char *,const char *,int) ;
 
 
@@ -173,6 +178,7 @@ const char	*av[] ;
 	    while ((rs = systems_fetch(ap->sp,hn,&cur,&sep)) >= 0) {
 
 #if	CF_DEBUGS
+	        debugprintf("cm_open: systems_fetch() rs=%d\n",rs) ;
 	        debugprintf("cm_open: systems_fetch() sysname=%s\n",
 		    sep->sysname) ;
 #endif
@@ -186,11 +192,22 @@ const char	*av[] ;
 	        if (rs >= 0) break ;
 	    } /* end while */
 
+#if	CF_DEBUGS
+	        debugprintf("cm_open: while-out rs=%d\n",rs) ;
+#endif
+
 	    systems_curend(ap->sp,&cur) ;
 	} /* end if (cursor) */
 
 #if	CF_DEBUGS
-	debugprintf("cm_open: search-end rs=%d\n",rs) ;
+	{
+	debugprintf("cm_open: mid3 rs=%d\n",rs) ;
+	if (rs >= 0) {
+	    int		nl = sep->dialernamelen ;
+	    cchar	*np = sep->dialername ;
+	debugprintf("cm_open: n=>%t<\n",np,nl) ;
+	}
+	}
 #endif
 
 /* save the dialer name */
@@ -210,6 +227,10 @@ const char	*av[] ;
             if (rs >= 0) rs = rs1 ;
 	} /* end if (expcook) */
 
+#if	CF_DEBUGS
+	debugprintf("cm_open: mid6 rs=%d\n",rs) ;
+#endif
+
 	if (rs < 0) {
 	    if (op->dobj != NULL) {
 	        if (op->c.close != NULL) {
@@ -218,9 +239,15 @@ const char	*av[] ;
 	        uc_free(op->dobj) ;
 	        op->dobj = NULL ;
 	    }
+#ifdef	COMMENT
 	    sysdialer_loadout(ap->dp,sep->dialername) ;
+#endif
 	    op->magic = 0 ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("cm_open: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

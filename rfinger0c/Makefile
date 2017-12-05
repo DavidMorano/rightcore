@@ -346,6 +346,8 @@ inetaddr.o:		inetaddr.c inetaddr.h
 
 linefold.o:		linefold.c linefold.h
 
+hostinfo.o:		hostinfo.c hostinfo.h
+
 termout.o:		termout.cc termout.h ansigr.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 

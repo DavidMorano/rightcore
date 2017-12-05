@@ -98,7 +98,9 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 			    if ((fbuf[0] == '/') && hasLong(fbuf,fl)) {
 			        f = TRUE ;
 			    } else {
-	                        rs = vecstr_add(op,fbuf,fl) ;
+				if (c > 1) {
+	                            rs = vecstr_add(op,fbuf,fl) ;
+				}
 			    }
 			}
 	                if (rs < 0) break ;

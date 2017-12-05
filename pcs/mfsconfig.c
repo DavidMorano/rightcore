@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 
 
 /* revision history:

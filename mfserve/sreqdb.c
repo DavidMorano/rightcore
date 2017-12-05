@@ -4,7 +4,7 @@
 /* version %I% last modified %G% */
 
 
-#define	CF_DEBUGS	1		/* compile-time debugging */
+#define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_CHECKDIR	0		/* using |sreqdb_checkdir()| */
 
 

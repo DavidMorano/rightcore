@@ -269,7 +269,7 @@ static int	query_parse(struct query *,cchar *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"DEBUG",
 	"VERSION",
@@ -326,7 +326,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"quiet",
 	"termout",
 	"shutdown",
@@ -1473,16 +1473,8 @@ static int procdial(PROGINFO *pip,void *ofp,cchar *ap)
 		    cchar	*ps = lip->portspec ;
 		    cchar	*ss = lip->svcspec ;
 		    cchar	*qp = lbuf ;
-#if	CF_DEBUG
-		if (DEBUGLEVEL(3))
-	    	debugprintf("main/procdial: mkfingerquery\n") ;
-#endif
 		    if ((rs = opendial(di,af,hn,ps,ss,NULL,ev,to,oo)) >= 0) {
 	    		const int	s = rs ;
-#if	CF_DEBUG
-		if (DEBUGLEVEL(3))
-	    	debugprintf("main/procdial: write=>%t<\n",qp,ql) ;
-#endif
 	    		if ((rs = uc_writen(s,qp,ql)) >= 0) {
 	    		    if (lip->f.shutdown && isasocket(s)) {
 	        		rs = u_shutdown(s,SHUT_WR) ;
@@ -1490,20 +1482,11 @@ static int procdial(PROGINFO *pip,void *ofp,cchar *ap)
 			    if (rs >= 0) {
 			        rs = procdialread(pip,ofp,s,&b) ;
 				wlen = rs ;
-#if	CF_DEBUG
-		if (DEBUGLEVEL(3))
-	    	debugprintf("main/procdial: procdialread() rs=%d\n",rs) ;
-#endif
 			    }
 			} /* end if (uc_writen) */
 	    		rs1 = u_close(s) ;
 	    		if (rs >= 0) rs = rs1 ;
 		    } /* end if (opendial) */
-#if	CF_DEBUG
-		    if (DEBUGLEVEL(3))
-	    	        debugprintf("main/procdial: opendial()-out rs=%d\n",
-				rs) ;
-#endif
 		} /* end if (mkfingerquery) */
 		rs1 = linebuf_finish(&b) ;
 		if (rs >= 0) rs = rs1 ;
@@ -1519,7 +1502,7 @@ static int procdialread(PROGINFO *pip,void *ofp,int s,LINEBUF *lbp)
 {
 	LOCINFO		*lip = pip->lip ;
 	FILEBUF		b ;
-	const int	opts = FILEBUF_ONET ;
+	const int	opts = (FILEBUF_ONET&0) ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
@@ -1535,7 +1518,7 @@ static int procdialread(PROGINFO *pip,void *ofp,int s,LINEBUF *lbp)
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3))
-	            debugprintf("main/procsystem: ll=%d l=>%t<\n",ll,lp,ll) ;
+	            debugprintf("main/procdialread: ll=%d l=>%t<\n",ll,lp,ll) ;
 #endif
 
 		if (rs >= 0) rs = lib_sigterm() ;
@@ -1558,7 +1541,7 @@ static int procdialread(PROGINFO *pip,void *ofp,int s,LINEBUF *lbp)
 		    } /* end if (snwcpyclean) */
 #if	CF_DEBUG
 		    if (DEBUGLEVEL(3))
-	    	        debugprintf("main/procsystem: out4 rs=%d\n",rs) ;
+	    	        debugprintf("main/procdialread: out4 rs=%d\n",rs) ;
 #endif
 		} /* end if (ok) */
 
@@ -1608,18 +1591,11 @@ static int procsystems(PROGINFO *pip,void *ofp,cchar *sfname)
 
 	        if (sfname == NULL) {
 	            rs = loadsysfiles(pip,&sysdb) ;
-
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(5))
-	                debugprintf("b_rfinger: loadsysfiles() rs=%d\n",
-	                    rs) ;
-#endif
-
 	        } /* end if (loadfiles) */
 
 #if	CF_DEBUG && 0
 	        if (DEBUGLEVEL(5)) {
-	            SYSTEMS_CUR		cur ;
+	            SYSTEMS_CUR	cur ;
 	            SYSTEMS_ENT	*sep ;
 	            debugprintf("b_rfinger: sysnames: \n") ;
 	            systems_curbegin(&sysdb,&cur) ;
@@ -1713,6 +1689,10 @@ static int procsystemcm(PROGINFO *pip,void *ofp,CM_ARGS *cap,cchar *hn,
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procsystemcm: ent\n") ;
+#endif
 	if ((rs = cm_open(&con,cap,hn,lip->svcspec,NULL)) >= 0) {
 	    if ((rs = procsysteminfo(pip,&con)) >= 0) {
 		const int	ql = lbp->ll ;
@@ -1730,6 +1710,10 @@ static int procsystemcm(PROGINFO *pip,void *ofp,CM_ARGS *cap,cchar *hn,
 	    rs1 = cm_close(&con) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (cm) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	    debugprintf("main/procsystemcm: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procsystemcm) */
@@ -2010,7 +1994,7 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->dialer = -1 ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 	lip->f.shutdown = TRUE ;
-	lip->f.termout = FALSE ;
+	lip->f.termout = OPT_TERMOUT ;
 
 	if ((rs = strpack_start(&lip->strs,0)) >= 0) {
 	    rs = vechand_start(&lip->args,0,0) ;
@@ -2473,27 +2457,15 @@ static int query_parse(struct query *qp,cchar *query)
 	qp->upart[0] = '\0' ;
 	if ((tp = strchr(query,'@')) != NULL) {
 	    ql = (tp-query) ;
-#if	CF_DEBUGS
-	    debugprintf("query_part: hraw=>%s<\n",(tp+1)) ;
-#endif
-	    cl = sfshrink((tp + 1),-1,&cp) ;
-	    if (cl > 0)
+	    if ((cl = sfshrink((tp + 1),-1,&cp)) > 0) {
 	        rs = snwcpy(qp->hpart,hlen,cp,cl) ;
+	    }
 	}
 
 	if (rs >= 0) {
-#if	CF_DEBUGS
-	    debugprintf("query_part: uraw=>%t<\n",query,ql) ;
-#endif
 	    if ((cl = sfshrink(query,ql,&cp)) > 0) {
-#if	CF_DEBUGS
-	        debugprintf("query_part: ucooked=>%t<\n",cp,cl) ;
-#endif
 	        rs = snwcpy(qp->upart,ulen,cp,cl) ;
 	        ul = rs ;
-#if	CF_DEBUGS
-	        debugprintf("query_part: ul=%d ucpy=>%s<\n",ul,qp->upart) ;
-#endif
 	    }
 	} /* end if */
 
@@ -2502,9 +2474,9 @@ static int query_parse(struct query *qp,cchar *query)
 	}
 
 #if	CF_DEBUGS
-	debugprintf("query_part: ret rs=%d ul=%u\n",rs,ul) ;
 	debugprintf("query_part: hpart=>%s<\n",qp->hpart) ;
 	debugprintf("query_part: upart=>%s<\n",qp->upart) ;
+	debugprintf("query_part: ret rs=%d ul=%u\n",rs,ul) ;
 #endif
 
 	return (rs >= 0) ? ul : rs ;

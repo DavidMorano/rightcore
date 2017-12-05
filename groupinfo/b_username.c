@@ -188,8 +188,10 @@ struct locinfo_flags {
 	uint		linebuf:1 ;
 	uint		all:1 ;
 	uint		realname:1 ;
-	uint		name:1 ;
-	uint		fullname:1 ;
+	uint		name:1 ;		/* mode */
+	uint		fullname:1 ;		/* mode */
+	uint		org:1 ;			/* mode */
+	uint		projinfo:1 ;		/* mode */
 	uint		gm:1 ;
 	uint		rn:1 ;
 	uint		sysuser:1 ;
@@ -324,6 +326,8 @@ static cchar *akonames[] = {
 	"pcsname",
 	"name",
 	"fullname",
+	"org",
+	"projinfo",
 	"sysuser",
 	"reguser",
 	"speuser",
@@ -337,6 +341,8 @@ enum akonames {
 	akoname_pcsname,
 	akoname_name,
 	akoname_fullname,
+	akoname_org,
+	akoname_projinfo,
 	akoname_sysuser,
 	akoname_reguser,
 	akoname_speuser,
@@ -1166,6 +1172,28 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
+	                case akoname_org:
+	                    if (! lip->final.org) {
+	                        lip->have.org = TRUE ;
+	                        lip->final.org = TRUE ;
+	                        lip->f.org = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.org = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_projinfo:
+	                    if (! lip->final.projinfo) {
+	                        lip->have.projinfo = TRUE ;
+	                        lip->final.projinfo = TRUE ;
+	                        lip->f.projinfo = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.projinfo = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
 	                case akoname_sysuser:
 	                    if (! lip->final.sysuser) {
 	                        lip->have.sysuser = TRUE ;
@@ -1621,6 +1649,21 @@ static int procout(PROGINFO *pip,SHIO *ofp,struct passwd *pwp,cchar *pp)
 	    if (rs >= 0) {
 	        rs = shio_printf(ofp,fmt,un,nbuf,nl) ;
 	        wlen += rs ;
+	    }
+	} else if (lip->f.org || lip->f.projinfo) {
+	    const int	nlen = REALNAMELEN ;
+	    int		nl = 0 ;
+	    cchar	*un = pwp->pw_name ;
+	    char	nbuf[REALNAMELEN+1] ;
+	    fmt = "%-16s %s\n" ;
+	    int 	w = pcsnsreq_pcsorg ;
+	    if (lip->f.projinfo) w = pcsnsreq_projinfo ;
+	    if ((rs = locinfo_prpcs(lip)) >= 0) {
+	        if ((rs = procgetns(pip,nbuf,nlen,un,w)) >= 0) {
+	            nl = rs ;
+	            rs = shio_printf(ofp,fmt,un,nbuf,nl) ;
+	            wlen += rs ;
+		}
 	    }
 	} else {
 	    cchar	*un = ((pp != NULL) ? pp : "") ;

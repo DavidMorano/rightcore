@@ -1,11 +1,11 @@
-/* mfslisten */
+/* mfs-listen */
 
 /* MFSERVE Listen */
 /* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 
 
 /* revision history:
@@ -159,7 +159,7 @@ int mfslisten_acqbegin(PROGINFO *pip,MFSLISTEN_ACQ *acp)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfslisten_acqbegin: rs=%d\n",rs) ;
+	    debugprintf("mfslisten_acqbegin: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -181,7 +181,7 @@ int mfslisten_acqend(PROGINFO *pip,MFSLISTEN_ACQ *acp)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfslisten_acqend: rs=%d\n",rs) ;
+	    debugprintf("mfslisten_acqend: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }

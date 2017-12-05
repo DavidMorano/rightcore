@@ -146,18 +146,16 @@ static const char	*sched3[] = {
 /* exported subroutines */
 
 
-int progaccopen(pip)
-struct proginfo	*pip ;
+int progaccopen(PROGINFO *pip)
 {
-	int	rs = SR_OK ;
-	int	rs1 = 0 ;
-	int	cl ;
-	int	f_secreq = FALSE ;
-	int	f_open = FALSE ;
+	int		rs = SR_OK ;
+	int		rs1 = 0 ;
+	int		cl ;
+	int		f_secreq = FALSE ;
+	int		f_open = FALSE ;
 
-	char	tmpfname[MAXPATHLEN + 1] ;
-	const char	*cp ;
-
+	char		tmpfname[MAXPATHLEN + 1] ;
+	cchar		*cp ;
 
 	rs1 = SR_NOENT ;
 	f_secreq = (! pip->f.proglocal) ;
@@ -257,14 +255,7 @@ struct proginfo	*pip ;
 #endif
 
 	if (rs1 >= 0) {
-
-	    rs1 = acctab_open(&pip->atab,pip->accfname,NULL) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("progaccopen: acctab_open() rs=%d\n",rs1) ;
-#endif
-
+	    rs1 = acctab_open(&pip->atab,pip->accfname) ;
 	}
 
 	if (rs1 >= 0) {
@@ -306,11 +297,9 @@ ret0:
 /* end subroutine (progaccopen) */
 
 
-int progaccclose(pip)
-struct proginfo	*pip ;
+int progaccclose(PROGINFO *pip)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 	if (pip->open.accfname) {
 	    pip->open.accfname = FALSE ;
@@ -322,29 +311,23 @@ struct proginfo	*pip ;
 /* end subroutine (progaccclose) */
 
 
-int progacccheck(pip)
-struct proginfo	*pip ;
+int progacccheck(PROGINFO *pip)
 {
 	int	rs = SR_OK ;
 	int	f_changed = FALSE ;
-
 	char	timebuf[TIMEBUFLEN + 1] ;
 
-
-	if (! pip->open.accfname)
-	    goto ret0 ;
-
-	rs = acctab_check(&pip->atab,NULL) ;
-	f_changed = (rs > 0) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	if (pip->open.logprog && f_changed) {
-	        proglog_printf(pip,"%s access-permissions changed\n",
-	            timestr_logz(pip->daytime,timebuf)) ;
+	if (pip->open.accfname) {
+	    if ((rs = acctab_check(&pip->atab)) > 0) {
+	        f_changed = TRUE ;
+	        if (pip->open.logprog && f_changed) {
+		    cchar	*fmt = "%s access-permissions changed\n" ;
+	            timestr_logz(pip->daytime,timebuf) ;
+	            proglog_printf(pip,fmt,timebuf) ;
+	        }
+	    }
 	}
 
-ret0:
 	return (rs >= 0) ? f_changed : rs ;
 }
 /* end subroutine (progacccheck) */
