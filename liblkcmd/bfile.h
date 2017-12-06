@@ -1,5 +1,4 @@
-/* bfile */
-
+/* bfile (include) */
 /* header file for the Basic I/O library package */
 
 
@@ -33,12 +32,13 @@
 #define	BFILE_BDFLAGS	struct bfile_bdflags
 #define	BFILE_MAP	struct bfile_map
 #define	BFILE_FLAGS	struct bfile_flags
+#define	BFILE_MAPFLAGS	struct bfile_mapflags
 
 #define	BFILE_MAGIC	0x20052615
 #define	BFILE_BUFPAGES	16
 #define	BFILE_FDCH	'*'
 #define	BFILE_FDNAMELEN	22
-#define	BFILE_MAXNEOF	2		/* maximum EOFs on networks */
+#define	BFILE_MAXNEOF	3		/* maximum EOFs on networks */
 #define	BFILE_NMAPS	32		/* number of pages mapped at a time */
 
 #define	BFILE_IDXSTDIN		0
@@ -79,7 +79,7 @@ struct bfile_mapflags {
 struct bfile_map {
 	BFILE_OFF	offset ;	/* file offset for page */
 	char		*buf ;
-	struct bfile_mapflags	f ;
+	BFILE_MAPFLAGS	f ;
 } ;
 
 struct bfile_bdflags {
@@ -100,7 +100,7 @@ struct bfile_flags {
 	uint		notseek:1 ;
 	uint		terminal:1 ;
 	uint		network:1 ;
-	uint		linein:1 ;
+	uint		inpartline:1 ;	/* weirdo mode (should not be used?) */
 	uint		cancelled:1 ;
 	uint		mappable:1 ;
 	uint		mapinit:1 ;
@@ -130,8 +130,8 @@ struct bfile_head {
 } ;
 
 
-typedef struct bfile_head		bfile ;
-typedef BFILE_STAT			bfile_stat ;
+typedef struct bfile_head	bfile ;
+typedef BFILE_STAT		bfile_stat ;
 
 
 /* user commands to 'bcontrol' */
@@ -154,7 +154,7 @@ typedef BFILE_STAT			bfile_stat ;
 #define	BC_LOCKREAD	13		/* lock whole file for reads */
 #define	BC_LOCKWRITE	14		/* lock whole file for writes */
 #define	BC_LOCK		BC_LOCKWRITE
-#define	BC_LINEIN	15		/* force input as lines only */
+#define	BC_INPARTLINE	15		/* allow partial input on lines */
 #define	BC_GETFL	16		/* get file flags */
 #define	BC_SETFL	17		/* set file flags */
 #define	BC_GETFDFL	18		/* get file descriptor flags */
@@ -168,24 +168,24 @@ typedef BFILE_STAT			bfile_stat ;
 #define	BC_ISLINEBUF	24		/* get line-buffer status */
 #define	BC_ISTERMINAL	25		/* get terminal status */
 #define	BC_MINMOD	26		/* ensure minimum file mode */
-#define	BC_SETBUFALL	27
-#define	BC_SETBUFWHOLE	28
-#define	BC_SETBUFLINE	29
-#define	BC_SETBUFNONE	30
-#define	BC_SETBUFDEF	31
-#define	BC_GETBUFFLAGS	32
-#define	BC_SETBUFFLAGS	33
+#define	BC_SETBUFALL	27		/* output buffering */
+#define	BC_SETBUFWHOLE	28		/* output buffering */
+#define	BC_SETBUFLINE	29		/* output buffering */
+#define	BC_SETBUFNONE	30		/* output buffering */
+#define	BC_SETBUFDEF	31		/* output buffering */
+#define	BC_GETBUFFLAGS	32		/* output buffering */
+#define	BC_SETBUFFLAGS	33		/* output buffering */
 #define	BC_NONBLOCK	34
 
 
 /* flags */
 
-#define	BFILE_FLINEIN	(1<<0)
-#define	BFILE_FTERMINAL (1<<1)
-#define	BFILE_FBUFWHOLE	(1<<2)
-#define	BFILE_FBUFLINE	(1<<3)
-#define	BFILE_FBUFNONE	(1<<4)
-#define	BFILE_FBUFDEF	(1<<5)
+#define	BFILE_FINPARTLINE	(1<<0)
+#define	BFILE_FTERMINAL 	(1<<1)
+#define	BFILE_FBUFWHOLE		(1<<2)
+#define	BFILE_FBUFLINE		(1<<3)
+#define	BFILE_FBUFNONE		(1<<4)
+#define	BFILE_FBUFDEF		(1<<5)
 
 
 #if	(! defined(BFILE_MASTER)) || (BFILE_MASTER == 0)
@@ -233,15 +233,14 @@ extern int	bclose(bfile *) ;
 
 extern int	bfile_flush(bfile *) ;
 extern int	bfile_flushn(bfile *,int) ;
-extern int	bfile_mktmpfile() ;
-extern int	bfile_pagein() ;
+extern int	bfile_pagein(bfile *,offset_t,int) ;
 
 extern int	bfilestat(const char *,int,BFILE_STAT *) ;
 extern int	bfilefstat(int,BFILE_STAT *) ;
 
 extern int	mkfdfname(char *,int) ;
 
-extern const char	*bfile_fnames[] ;
+extern cchar	*bfile_fnames[] ;
 
 #ifdef	__cplusplus
 }

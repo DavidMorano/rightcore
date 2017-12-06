@@ -5430,7 +5430,7 @@ static int inter_mbviewopen(INTER *iap)
 {
 	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))

@@ -4,19 +4,17 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0
+#define	CF_DEBUGS	0		/* run-time debugging */
 
 
-/* revision history :
+/* revision history:
 
 	= 1986-07-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1986 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -357,11 +355,7 @@ char	queue_machine[] ;
 	        i = cp - queue_machine ;
 
 	    rs = BAD ;
-	    while ((l = bgetline(pfp,buf,NODENAMELEN)) > 0) {
-
-#if	CF_DEBUGS && 0
-	        eprintf("testuucp: got a line\n") ;
-#endif
+	    while ((l = breadline(pfp,buf,NODENAMELEN)) > 0) {
 
 	        buf[l] = '\0' ;
 	        cp = strshrink(buf) ;

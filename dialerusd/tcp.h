@@ -38,8 +38,7 @@ struct tcp_head {
 extern "C" {
 #endif
 
-extern int tcp_open(TCP *,SYSDIALER_ARGS *,
-		const char *,const char *,const char **) ;
+extern int tcp_open(TCP *,SYSDIALER_ARGS *,cchar *,cchar *,cchar **) ;
 extern int tcp_reade(TCP *,char *,int,int,int) ;
 extern int tcp_recve(TCP *,char *,int,int,int,int) ;
 extern int tcp_recvfrome(TCP *,char *,int,int,void *,int *,int,int) ;

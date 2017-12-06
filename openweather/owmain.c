@@ -144,17 +144,13 @@ const char	*ws ;
 int		of ;
 int		to ;
 {
-	OW	si, *sip = &si ;
-
-	time_t	ti_now = time(NULL) ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	fd = 0 ;
-
+	OW		si, *sip = &si ;
+	time_t		ti_now = time(NULL) ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		fd = -1 ;
 	const char	*sn = OW_SEARCHNAME ;
 	const char	*vd = OW_VDNAME ;
-
 
 	if (pr == NULL) return SR_FAULT ;
 	if (ws == NULL) return SR_FAULT ;
@@ -237,18 +233,14 @@ static int ow_avail(sip)
 OW		*sip ;
 {
 	struct ustat	sb ;
-
-	int	rs = SR_OK ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		fd = -1 ;
 	const char	*pr = sip->pr ;
 	const char	*sn = sip->sn ;
 	const char	*vd = sip->vd ;
 	const char	*ws = sip->ws ;
 	const char	*mdname = OW_METARDNAME ;
-
-	char	wsfname[MAXPATHLEN+1] ;
-
+	char		wsfname[MAXPATHLEN+1] ;
 
 	if (ws == NULL) {
 	    rs = SR_NOENT ;
@@ -382,21 +374,17 @@ OW		*sip ;
 {
 	const int	af = AF_UNSPEC ;
 	const int	opts = 0 ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	to = sip->to ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		to = sip->to ;
+	int		fd = -1 ;
 	const char	*wh = sip->whost ;
 	const char	*wps = OW_WEBPORT ;
 	const char	*wprefix = sip->wprefix ;
 	const char	*ws = sip->ws ;
 	const char	**wsvcargs = NULL ;
-
-	char	wsbuf[WSBUFLEN+1], *wp = wsbuf ;
-	char	svc[MAXNAMELEN+1] ;
-
+	char		wsbuf[WSBUFLEN+1], *wp = wsbuf ;
+	char		svc[MAXNAMELEN+1] ;
 
 	if (ws == NULL) return SR_FAULT ;
 

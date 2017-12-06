@@ -217,7 +217,7 @@ static int opendev_inet(int fi,cchar *fname,int of,int to,int no)
 {
 	INETARGS	ia ;
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if ((rs = inetargs_start(&ia,fname,-1)) >= 0) {
 	    const char	*a = ia.ia[da_af].p ;

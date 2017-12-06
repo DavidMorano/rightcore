@@ -365,7 +365,7 @@ OBJ48= osetstr.o vecint.o raqhand.o
 OBJ49= sysusernames.o sysrealname.o
 OBJ50= sysusers.o sysgroups.o sysprojects.o sysusershells.o
 OBJ51= sysuserattr.o sysgroup.o sysproject.o
-OBJ52= bibleverse.o
+OBJ52= serialbuf.o
 OBJ53=
 OBJ54= hdrdecode.o qpdecoder.o b64decoder.o hexdecoder.o obuf.o 
 OBJ55= chartrans.o utf8decoder.o
@@ -394,7 +394,7 @@ OBJ74= fileobject.o filebinary.o
 OBJ75= 
 OBJ76=
 OBJ77=
-OBJ78= 
+OBJ78= bopen.o breadline.o
 OBJ79= percache.o perdata.o
 
 OBJ80= snwcpyopaque.o snwcpycompact.o snwcpyclean.o snmkuuid.o
@@ -1577,6 +1577,14 @@ varsub.o:		varsub.c varsub.h
 cachetime.o:		cachetime.c cachetime.h
 
 pdb.o:			pdb.c pdb.h
+
+
+# BFILE
+
+bopen.o:		bopen.c bfile.h
+
+breadline.o:		breadline.cc bfile.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 
 # testing

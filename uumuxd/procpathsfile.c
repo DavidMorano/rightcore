@@ -4,34 +4,32 @@
 /* version %I% last modified %G% */
 
 
-#define	F_DEBUGS	0
+#define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history :
 
-	= 94/09/10, David A­D­ Morano
-
+	= 1994-09-10, David A­D­ Morano
 	This program was originally written.
-
 
 */
 
-
+/* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
 
 /*****************************************************************************
 
-	This subroutine will read (process) a file that has
-	directory paths in it.
+        This subroutine will read (process) a file that has directory paths in
+        it.
 
-	This reads the directory paths in the file and creates
-	a new single environment variable named 'PATH'.
-	That environment variable is then added to the specified list.
-
+        This reads the directory paths in the file and creates a new single
+        environment variable named 'PATH'. That environment variable is then
+        added to the specified list.
 
 
 *****************************************************************************/
 
 
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -39,24 +37,26 @@
 #include	<stdlib.h>
 #include	<string.h>
 
+#include	<vsystem.h>
 #include	<bfile.h>
 #include	<field.h>
 #include	<vecstr.h>
 #include	<storebuf.h>
 #include	<char.h>
-
-#include	"misc.h"
-
+#include	<localmisc.g>
 
 
 /* local defines */
 
-#undef	BUFLEN
+#ifndef	BUFLEN
 #define	BUFLEN		(4 * MAXPATHLEN)
-#undef	LINELEN
-#define	LINELEN		(2 * MAXPATHLEN)
-#define	PATHBUFLEN	(30 * MAXPATHLEN)
+#endif
 
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
+
+#define	PATHBUFLEN	(30 * MAXPATHLEN)
 
 
 /* external subroutines */
@@ -91,8 +91,7 @@ static const uchar	fterms[32] = {
 } ;
 
 
-
-
+/* exported subroutines */
 
 
 int procfilepaths(programroot,fname,lp)
@@ -100,30 +99,25 @@ char	programroot[] ;
 char	fname[] ;
 VECSTR	*lp ;
 {
-	bfile	file, *fp = &file ;
+	FIELD		fsb ;
+	bfile		file, *fp = &file ;
+	int		rs = SR_OK ;
+	int		len, i,
+	int		pathbuflen, psi, pbi ;
+	cchar		*cp ;
+	char		linebuf[LINEBUFLEN + 1] ;
+	char		buf[BUFLEN + 1] ;
+	char		pathbuf[PATHBUFLEN + 1], *pp ;
 
-	FIELD	fsb ;
-
-	int	len, i, rs ;
-	int	pathbuflen, psi, pbi ;
-
-	char	linebuf[LINELEN + 1] ;
-	char	buf[BUFLEN + 1] ;
-	char	pathbuf[PATHBUFLEN + 1], *pp ;
-	char	*cp ;
-
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	char	outname[MAXPATHLEN + 1] ;
 #endif
 
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("procfilepaths: entered=%s\n",fname) ;
-
 	if ((rs = bopenroot(fp,programroot,fname,outname,"r",0666)) < 0) {
-
 	    eprintf("procfilepaths: bopen rs=%d\n",rs) ;
-
 	    return rs ;
 	}
 
@@ -133,7 +127,7 @@ VECSTR	*lp ;
 	    return rs ;
 #endif
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("procfilepaths: opened\n") ;
 #endif
 
@@ -147,7 +141,7 @@ VECSTR	*lp ;
 	    psi = rs ;
 	    pbi += storebuf_buf(pathbuf,PATHBUFLEN,pbi,pp,-1) ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	    eprintf("procfilepaths: existing %s\n",
 	        pathbuf) ;
 #endif
@@ -158,9 +152,9 @@ VECSTR	*lp ;
 /* read the file and process any paths that we find */
 
 	i = 0 ;
-	while ((len = bgetline(fp,linebuf,LINELEN)) > 0) {
+	while ((len = breadline(fp,linebuf,LINEBUFLEN)) > 0) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	    eprintf("procfilepaths: line> %W\n",linebuf,len - 1) ;
 #endif
 
@@ -172,11 +166,11 @@ VECSTR	*lp ;
 
 	    if ((fsb.flen == 0) && (fsb.term == '#')) continue ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	    eprintf("procfilepaths: flen=%d\n",fsb.flen) ;
 #endif
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	    eprintf("procfilepaths: 1 field> %W\n",fsb.fp,fsb.flen) ;
 #endif
 
@@ -188,7 +182,7 @@ VECSTR	*lp ;
 
 	        if (strnvaluecmp(pathbuf,fsb.fp,fsb.flen) != 0) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("procfilepaths: adding %W\n",
 	                fsb.fp,fsb.flen) ;
 #endif
@@ -238,7 +232,7 @@ VECSTR	*lp ;
 
 	bclose(fp) ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("procfilepaths: exiting rs=%d\n",
 	    ((len < 0) ? len : i)) ;
 #endif
@@ -246,6 +240,5 @@ VECSTR	*lp ;
 	return ((len < 0) ? len : i) ;
 }
 /* end subroutine (procfilepaths) */
-
 
 

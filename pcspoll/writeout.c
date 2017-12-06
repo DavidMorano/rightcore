@@ -30,7 +30,7 @@ char	s[] ;
 	    lines = 0 ;
 	    if (bopen(fp,(char *) fd,"dr",0666) >= 0) {
 
-	        while ((len = bgetline(fp,linebuf,MAXOUTLEN)) > 0) {
+	        while ((len = breadline(fp,linebuf,MAXOUTLEN)) > 0) {
 
 	            tlen += len ;
 	            if (linebuf[len - 1] == '\n')
@@ -54,6 +54,5 @@ char	s[] ;
 	return tlen ;
 }
 /* end subroutine (writeout) */
-
 
 

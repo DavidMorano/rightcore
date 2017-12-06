@@ -1133,16 +1133,12 @@ struct locinfo	*lip ;
 struct addrinfo	*aip ;
 {
 	PROGINFO	*pip = lip->pip ;
-
 	struct sockaddr	*sap ;
-
 	const int	to = lip->to ;
-
-	int	rs ;
-	int	flags = 0 ;
-	int	sal ;
-	int	fd = 0 ;
-
+	int		rs ;
+	int		flags = 0 ;
+	int		sal ;
+	int		fd = -1 ;
 
 	sap = aip->ai_addr ;
 	sal = aip->ai_addrlen ;

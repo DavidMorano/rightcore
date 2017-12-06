@@ -1,10 +1,21 @@
 /* main (ematest) */
 
 
-#define	CF_?gDEBUGS	0
-#define	CF_?gPARTS		0
+#define	CF_DEBUGS	0		/* run-time debugging */
+#define	CF_PARTS	0
 
 
+/* revision history:
+
+	= 2000-09-07, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 2017 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -14,7 +25,6 @@
 #include	<signal.h>
 #include	<time.h>
 #include	<ftw.h>
-#include	<errno.h>
 #include	<dirent.h>
 #include	<string.h>
 
@@ -28,16 +38,17 @@
 #include	<baops.h>
 #include	<char.h>
 #include	<ema.h>
-
-#include	"misc.h"
-
+#include	<localmisc.h>
 
 
 /* local defines */
 
-#define	LINELEN	200
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
 
 
+/* exported subroutines */
 
 
 int main()
@@ -51,7 +62,7 @@ int main()
 
 	int	i, len ;
 
-	char	linebuf[LINELEN + 1] ;
+	char	linebuf[LINEBUFLEN + 1] ;
 
 
 	bopen(ifp,BIO_STDIN,"dr",0666) ;
@@ -59,7 +70,7 @@ int main()
 	bopen(ofp,BIO_STDOUT,"dwct",0666) ;
 
 
-#if	CF_?gDEBUGS
+#if	CF_DEBUGS
 	eprintf("main: entered\n") ;
 #endif
 
@@ -67,14 +78,10 @@ int main()
 	ema_init(emap) ;
 
 
-	while ((len = bgetline(ifp,linebuf,LINELEN)) > 0) {
-
+	while ((len = bgetline(ifp,linebuf,LINEBUFLEN)) > 0) {
 		if (linebuf[len - 1] == '\n') len -= 1 ;
-
 		linebuf[len] = '\0' ;
-
-	ema_parse(emap,linebuf,len) ;
-
+		ema_parse(emap,linebuf,len) ;
 	}
 
 
@@ -83,7 +90,7 @@ int main()
 
 		bprintf(ofp,"%s\n",ep->original) ;
 
-#if	CF_?gPARTS
+#if	CF_PARTS
 		if (ep->address != NULL)
 	    bprintf(ofp,"a=%s\n",ep->address) ;
 
@@ -92,7 +99,7 @@ int main()
 
 		if (ep->comment != NULL)
 	    bprintf(ofp,"c=%s\n",ep->comment) ;
-#endif /* CF_?gPARTS */
+#endif /* CF_PARTS */
 
 	}
 
@@ -107,6 +114,5 @@ int main()
 	return OK ;
 }
 /* end subroutine (main) */
-
 
 

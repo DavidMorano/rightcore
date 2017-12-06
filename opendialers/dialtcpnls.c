@@ -136,7 +136,7 @@ int		to, opts ;
 	const int	nlslen = NLSBUFLEN ;
 	int		rs ;
 	int		svclen ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	char		*nlsbuf ;
 
 	if (hostname == NULL) return SR_FAULT ;

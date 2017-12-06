@@ -157,7 +157,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	int	f_initlist = FALSE ;
 	int	f_in0, f_out1, f_out2, f_in3, f_out3, f_in4 ;
 	int	f_final0, f_final1, f_final2, f_final3, f_final4 ;
-	int	ifd = 0, ofd = 1, efd = 2 ;
+	int		ifd = FD_STDIN ;
+	int		ofd = FD_STDOUT ;
+	int		efd = FD_STDER ;
 	int	f_eof0, f_eof3, f_eof4 ;
 	int	f_exit ;
 	int	f_euid ;
@@ -1155,17 +1157,17 @@ int main(int argc,cchar **argv,cchar **envv)
 	if (! f_noinput) {
 
 	    if (infname != NULL) {
-	        close(0) ;
-	        if ((ifd = open(infname,O_RDONLY,0666)) < 0) {
-	            rs = (- errno) ;
-	            goto badinfile ;
-	        }
+	        u_close(0) ;
+	        rs = uc_open(infname,O_RDONLY,0666) ;
+		ifd = rs ;
 	    } else 
-	        ifd = 0 ;
-
-	    if ((rs = fstat(ifd,&isb)) < 0) f_noinput = TRUE ;
-
+	        ifd = FD_STDIN ;
+	    }	
+	    if (rs >= 0) {
+	        if ((rs = fstat(ifd,&isb)) < 0) f_noinput = TRUE ;
+	    }
 	} /* end if (we have input) */
+		if (rs < 0) goto badinfile ;
 
 /* create the remote command */
 

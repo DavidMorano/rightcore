@@ -10,15 +10,11 @@
 /* revision history:
 
 	- 1993-10-01, David A­D­ Morano
-
 	This program was originally written.
 
-
 	- 1996-02-01, David A­D­ Morano
-
-	This program was pretty extensively modified to take
-	much more flexible combinations of user supplied paramters.
-
+        This program was pretty extensively modified to take much more flexible
+        combinations of user supplied paramters.
 
 */
 
@@ -26,9 +22,9 @@
 
 /*******************************************************************************
 
-	This program will run the SysCAD Advice program under
-	controlled substitution of various parameters in the
-	ADVICE input and circuit files.
+        This program will run the SysCAD Advice program under controlled
+        substitution of various parameters in the ADVICE input and circuit
+        files.
 
 	Synopsis:
 
@@ -68,7 +64,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<bfile.h>
 #include	<baops.h>
@@ -89,10 +84,16 @@
 
 /* local defines */
 
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
+
+#ifndef	BUFLEN
+#define	BUFLEN		((2*LINEBUFLEN)+MAXPATHLEN)
+#endif
+
 #define	MAXARGINDEX	100
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
-#define	LINELEN		200
-#define	BUFLEN		(MAXPATHLEN + (LINELEN * 2))
 
 
 /* external subroutines */
@@ -218,6 +219,8 @@ const char	*envv[] ;
 	double		dvalue ;
 	long		loadaverage, loadspare ;
 
+	const int	llen = LINEBUFLEN ;
+
 	int	argr, argl, aol, akl, avl ;
 	int	maxai, pan, npa, kwi, i, j ;
 	int	rs = SR_OK ;
@@ -237,8 +240,9 @@ const char	*envv[] ;
 	int	f_interactive = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
+	const char	*configfname = NULL ;
+	const char	*cp, *sp ;
 	char	argpresent[MAXARGGROUPS] ;
-	char	linebuf[LINELEN + 1], *lbp ;
 	char	buf[BUFLEN + 1] ;
 	char	userbuf[USERINFO_LEN + 1] ;
 	char	tmpfname[MAXNAMELEN + 1] ;
@@ -248,9 +252,6 @@ const char	*envv[] ;
 	char	tmpmaifname[MAXPATHLEN + 1] ;
 	char	tmpofname[MAXPATHLEN + 1] ;
 	char	cmd[(MAXPATHLEN * 2) + 1] ;
-	const char	*configfname = NULL ;
-	const char	*cp, *sp ;
-
 
 	memset(&g,0,sizeof(struct global)) ;
 

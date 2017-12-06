@@ -10,7 +10,7 @@
 	This subroutine was originally written.
 
 	= 2017-08-10, David A­D­ Morano
-	This subroutine was borrowed to code MFSERVE.
+	This subroutine was borrowed to insert into MFSERVE.
 
 */
 
@@ -18,7 +18,7 @@
 
 
 #ifndef	MFSBUILT_INCLUDE
-#define	MFSBUILT_INCLUDE		1
+#define	MFSBUILT_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */

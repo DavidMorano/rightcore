@@ -89,7 +89,7 @@ int openaddrinfo(ADDRINFO *aip,int to)
 	const int	st = aip->ai_socktype ;
 	const int	pt = aip->ai_protocol ;
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if ((rs = u_socket(pf,st,pt)) >= 0) {
 	    struct sockaddr	*sap = aip->ai_addr ;

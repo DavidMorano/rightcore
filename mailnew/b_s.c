@@ -6,7 +6,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory allocation */
 #define	CF_DEBUGN	0		/* special debugging */
 #define	CF_DEBUGSD	0		/* debug status-display */

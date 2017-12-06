@@ -65,6 +65,17 @@ CCFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 #LD= $(CC)
 
+NM= nm
+NMFLAGS= -sx -v
+
+CPP= cpp
+
+LORDER= lorder
+TSORT= ${CCS}/bin/tsort
+
+RM= rm -f
+TOUCH= /bin/touch
+
 
 LDRPATH= $(EXTRA)/lib
 
@@ -77,7 +88,7 @@ SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1=
-SLIB2= -ldebug
+SLIB2=
 SLIB3= -lu
 SLIB4= $(CGS_LIBS)
 SLIB5= $(LF_LIBS) 
@@ -109,17 +120,6 @@ XLIBINFO= $(XLIBDIRS) $(XLIBS)
 
 LINT= lint
 LINTFLAGS= $(LF_LINTFLAGS) -uxn -Dlint
-
-NM= nm
-NMFLAGS= -sx -v
-
-CPP= cpp
-
-LORDER= lorder
-TSORT= ${CCS}/bin/tsort
-
-RM= rm -f
-TOUCH= /bin/touch
 
 
 INCS= vsystem.h localmisc.h
@@ -922,7 +922,7 @@ $(X02).x:		$(X02OBJ)
 	$(CC) -o $@ $(XLDFLAGS) $(X02OBJ) $(XLIBINFO)
 
 
-XDIAL0= dialticotsordnls.o dialticotsordmux.o dialticotsord.o 
+#XDIAL0= dialticotsordnls.o dialticotsordmux.o dialticotsord.o 
 XDIAL1= filebuf.o opensysfs.o
 XDIAL2= nlsdialassist.o strnwcpy.o
 XDIAL3= snopenflags.o

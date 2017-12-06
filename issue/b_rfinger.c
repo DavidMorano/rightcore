@@ -2296,8 +2296,6 @@ static int locinfo_setsvcarger(LOCINFO *lip,vecstr *alp,cchar *argspec)
 	            c += 1 ;
 	            rs = vecstr_add(alp,fbuf,fl) ;
 	            if (fsb.term == '#') break ;
-	            if (rs >= 0) rs = lib_sigterm() ;
-	            if (rs >= 0) rs = lib_sigintr() ;
 	            if (rs < 0) break ;
 	        } /* end while */
 	        uc_free(fbuf) ;
@@ -2316,10 +2314,10 @@ static int locinfo_termoutbegin(LOCINFO *lip,void *ofp)
 	int		rs1 ;
 	int		f_termout = FALSE ;
 	cchar		*tstr = lip->termtype ;
-	cchar		*vp ;
 
 	if (lip->f.termout || ((rs = shio_isterm(ofp)) > 0)) {
-	    int	ncols = COLUMNS ;
+	    int		ncols = COLUMNS ;
+	    cchar	*vp ;
 	    if ((vp = getourenv(pip->envv,VARCOLUMNS)) != NULL) {
 	        int	v ;
 	        rs1 = cfdeci(vp,-1,&v) ;

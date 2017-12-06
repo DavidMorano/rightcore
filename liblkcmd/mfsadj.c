@@ -448,7 +448,7 @@ static int mfsadj_reqmsg(PROGINFO *pip,int re)
 	if ((rs = msgdata_getbuf(mdp,&mbuf)) >= 0) {
 	    if ((rs = msgdata_recv(mdp,lip->rfd)) > 0) {
 	        if ((rs = msgdata_conpass(mdp,FALSE)) >= 0) {
-	            int	mtype = MKCHAR(mbuf[0]) ;
+	            int		mtype = MKCHAR(mbuf[0]) ;
 	            lip->ti_lastreq = pip->daytime ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))

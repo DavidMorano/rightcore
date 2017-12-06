@@ -55,20 +55,17 @@ int	argc ;
 char	*argv[] ;
 char	*envv[] ;
 {
-	bfile	input, *ifp = &input ;
-	bfile	output, *ofp = &output ;
-	bfile	error, *efp = &error ;
-
-	long	lw ;
-
-	int	len, llen ;
-	int	i, j ;
-	int	tfd = 0 ;
-	int	f_exit, f_timeout ;
-
-	uchar	c ;
-	uchar	*bp, buf[LINEBUFLEN + 1] ;
-	uchar	bits[32], buf2[32] ;
+	bfile		input, *ifp = &input ;
+	bfile		output, *ofp = &output ;
+	bfile		error, *efp = &error ;
+	long		lw ;
+	int		len, llen ;
+	int		i, j ;
+	int		tfd = -1 ;
+	int		f_exit, f_timeout ;
+	uchar		c ;
+	uchar		*bp, buf[LINEBUFLEN + 1] ;
+	uchar		bits[32], buf2[32] ;
 
 
 	if (bopen(efp,BFILE_STDERR,"dwca",0664) < 0) return BAD ;

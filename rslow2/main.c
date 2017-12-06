@@ -173,7 +173,7 @@ char	*argv[] ;
 	int	argr, argl, aol, akl, avl ;
 	int	kwi, npa, ai, i, j ;
 	int	rs, len, l, uulen ;
-	int	ifd = 0 ;
+	int	ifd = FD_STDIN ;
 	int	argnum = 0 ;
 	int	jlen ;
 	int	transport = 0 ;
@@ -1265,19 +1265,17 @@ char	*argv[] ;
 	if (! f_noinput) {
 
 	    if (ifname != NULL) {
-
 	        close(0) ;
-
 	        if ((ifd = open(ifname,O_RDONLY,0666)) < 0)
 	            goto badinfile ;
 
-	    } else 
-	        ifd = 0 ;
+	    } else  {
+	        ifd = FD_STDIN ;
+	    }
 
 	    if ((rs = fstat(ifd,&sb)) < 0) goto badstat ;
 
 	    if (S_ISREG(sb.st_mode)) {
-
 	        clen = sb.st_size ;
 	        f_clen = TRUE ;
 	    }

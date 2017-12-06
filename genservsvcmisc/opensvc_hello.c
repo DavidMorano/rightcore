@@ -105,7 +105,7 @@ int		to ;
 {
 	int		rs = SR_OK ;
 	int		pipes[2] ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		sl = -1 ;
 	const char	*sp = "hello world!\n" ;
 

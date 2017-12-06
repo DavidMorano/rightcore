@@ -8066,7 +8066,7 @@ static int locinfo_mkhdraddrfrom(LOCINFO *lip)
 static int locinfo_opentmpfile(LOCINFO *lip,char *tbuf,int of,cchar *prefix)
 {
 	int		rs = SR_OK ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if ((rs = locinfo_jobdname(lip)) >= 0) {
 	    const mode_t	om = 0660 ;
@@ -8669,7 +8669,7 @@ static int locinfo_isnotdisabled(LOCINFO *lip,int w)
 static int mailfile_open(MAILFILE *mfp,PROGINFO *pip,cchar *ifname)
 {
 	int		rs = SR_OK ;
-	int		mfd = 0 ;
+	int		mfd = -1 ;
 
 	if ((ifname == NULL) || (ifname[0] == '\0') || (ifname[0] == '-'))
 	    ifname = STDINFNAME ;

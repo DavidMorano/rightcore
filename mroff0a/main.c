@@ -10,18 +10,17 @@
 
 	= 1987-09-10, David A­D­ Morano
 
-
 */
 
 /* Copyright © 1987 David A­D­ Morano.  All rights reserved. */
 
-/*******************************************************************
+/*******************************************************************************
 
-	This program will read the input file and format it into
-	TROFF constant width font style input.
+        This program will read the input file and format it into TROFF constant
+        width font style input.
 
 
-*********************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -40,6 +39,10 @@
 
 /* defines */
 
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
+
 #define	VERSION		"0a"
 #define	NPARG		2	/* number of positional arguments */
 
@@ -48,7 +51,6 @@
 
 #define	NTOPLINES	3
 #define	MAXLINES	130
-#define	LINELEN		100
 #define	MAXBS		20
 
 
@@ -57,7 +59,7 @@
 
 /* local variables */
 
-static char	lbuf[MAXLINES][LINELEN + MAXBS + 3] ;
+static char	lbuf[MAXLINES][LINEBUFLEN + MAXBS + 3] ;
 
 static int	llen[MAXLINES] ;
 
@@ -81,7 +83,7 @@ char	*envv[] ;
 	int	f_version = FALSE ;
 
 	char	*progname, *argp, *aop ;
-	char	tbuf[LINELEN + 1] ;
+	char	tbuf[LINEBUFLEN + 1] ;
 	char	*tbp ;
 
 	char	f_refpage = FALSE ;
@@ -255,7 +257,7 @@ char	*envv[] ;
 /* top of page processing */
 next_page:
 	l = 0 ;
-	len = bgetline(ifp,tbuf,LINELEN) ;
+	len = breadline(ifp,tbuf,LINEBUFLEN) ;
 
 	if (len > 0) {
 
@@ -270,9 +272,7 @@ next_page:
 #endif
 
 	        for (i = 0 ; i < lines ; i += 1) {
-
 	            bwrite(ofp,lbuf[i],llen[i]) ;
-
 	        }
 
 	        if (f_refpage) {
@@ -325,7 +325,7 @@ next_page:
 
 	    tbp = lbuf[l] ;
 	    tbl = 0 ;
-	    for (i = 0 ; (i < len) && (tbl <= (LINELEN + MAXBS)) ; i += 1) {
+	    for (i = 0 ; (i < len) && (tbl <= (LINEBUFLEN + MAXBS)) ; i += 1) {
 
 	        if (tbuf[i] != '\\') {
 
@@ -381,11 +381,11 @@ next_page:
 
 /* read the rest of this page into local store */
 
-	while ((len = bgetline(ifp,tbuf,LINELEN)) > 0) {
+	while ((len = breadline(ifp,tbuf,LINEBUFLEN)) > 0) {
 
 	    tbp = lbuf[l] ;
 	    tbl = 0 ;
-	    for (i = 0 ; (i < len) && (tbl <= (LINELEN + MAXBS)) ; i += 1) {
+	    for (i = 0 ; (i < len) && (tbl <= (LINEBUFLEN + MAXBS)) ; i += 1) {
 
 	        if (tbuf[i] != '\\') {
 
@@ -404,7 +404,6 @@ next_page:
 	    llen[l] = tbl ;
 
 	    if (scanc(lbuf[l],'\014',tbl) >= 0) {
-
 	        break ;
 	    }
 

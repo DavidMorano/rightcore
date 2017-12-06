@@ -4,30 +4,28 @@
 /* last modified %G% version %I% */
 
 
-#define	F_DEBUG		0
+#define	CF_DEBUG	0		/* run-time debugging */
 
 
 /* revision history :
 
-	= July 1986, David A­D­ Morano
-
+	= 1986-07-01, David A­D­ Morano
 
 */
 
+/* Copyright © 1996 David A­D­ Morano.  All rights reserved. */
 
 /**************************************************************************
 
-	Provide the 'more' program function, only do it correctly
-	and probably much more simply.
-
+        Provide the 'more' program function, only do it correctly and probably
+        much more simply.
 
 
 ***************************************************************************/
 
 
-#define		VERSION		"1"
 
-
+#include	<envstandards.h>
 
 #include	<fcntl.h>
 
@@ -38,31 +36,40 @@
 #include	"misc.h"
 
 
+/* local defines */
 
-#define		LINELEN		100
-#define		DEFMAXLINES	21
-#define		NPARG		1
+#define	VERSION		"1"
+
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
+
+#define	DEFMAXLINES	21
+#define	NPARG		1
 
 
+/* exported subroutiens */
 
 extern int	cfdeci(const char *,int,int *) ;
 
 
+/* exported subroutines */
 
 
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile		errfile, *efp = &errfile ;
 	bfile		infile, *ifp = &infile ;
 	bfile		outfile, *ofp = &outfile ;
 
+	const int	llen = LINEBUFLEN ;
+	int		rs = SR_OK ;
 	int	argl, aol ;
 	int	temp ;
 
 	int	pan, i ;
-	int	len, line, rs ;
+	int	len, line ;
 	int	tfd ;
 	int	maxlines = DEFMAXLINES ;
 	int	nblanks ;
@@ -71,10 +78,11 @@ char	*argv[] ;
 	int	f_squeeze = FALSE ;
 	int	f_usage = FALSE ;
 
-	char	*argp, *aop ;
-	char	*progname ;
-	char	*infname ;
-	char	*bp, buf[LINELEN] ;
+	cchar		*argp, *aop ;
+	cchar		*progname ;
+	cchar		*infname ;
+	char		*bp, 
+	char		lbuf[LINEBUFLEN+1] ;
 
 
 	progname = argv[0] ;
@@ -140,34 +148,23 @@ char	*argv[] ;
 	            }
 
 	        } else {
-
 	            f_dash = TRUE ;
 	            pan += 1 ;		/* increment position count */
-
 	        } /* end if */
 
 	    } else {
 
 	        if (pan < NPARG) {
-
 	            switch (pan) {
-
 	            case 0:
 	                infname = argp ;
-
 	                break ;
-
 	            default:
 	                break ;
-
 	            }
-
 	            pan += 1 ;
-
 	        } else {
-
 	            bprintf(efp,"%s: extra arguments ignored\n",progname) ;
-
 	        }
 
 	    } /* end if */
@@ -204,23 +201,26 @@ char	*argv[] ;
 
 	line = 0 ;
 	nblanks = 0 ;
-	while ((len = bgetline(ifp,buf,LINELEN)) > 0) {
+	while ((len = breadline(ifp,lbuf,llen)) > 0) {
 
 	    if (f_ttyout) {
 
 		if (f_squeeze) {
 
- 		    if ((len == 1) && (buf[0] == '\n')) nblanks += 1 ;
-
-		    else nblanks = 0 ;
+ 		    if ((len == 1) && (lbuf[0] == '\n')) {
+			nblanks += 1 ;
+		    } else {
+			nblanks = 0 ;
+		    }
 
 		    if (nblanks < 2)
 	            	tty_write(tfd,buf,len) ;
 
-		} else
+		} else {
 	            tty_write(tfd,buf,len) ;
+		}
 
-#if	F_DEBUG
+#if	CF_DEBUG
 	        bwrite(efp,buf,len) ; 
 	        bflush(efp) ;
 #endif
@@ -228,13 +228,13 @@ char	*argv[] ;
 	        line += 1 ;
 	        if (line >= maxlines) {
 
-	            bp = buf ;
+	            bp = lbuf ;
 	            bp += sprintf(bp,"%smore : %s",
 			TERMSTR_REVERSE,TERMSTR_NORM) ;
 
-	            tty_write(tfd,buf,(int) (bp - buf)) ;
+	            tty_write(tfd,lbuf,(int) (bp - lbuf)) ;
 
-	            len = tty_read(tfd,buf,1) ;
+	            len = tty_read(tfd,lbuf,1) ;
 
 	            if (len < 0) goto badret ;
 
@@ -249,7 +249,7 @@ char	*argv[] ;
 	                line = maxlines ;
 	                tty_write(tfd,"\r\033[K",4) ;
 
-	            } else if ((len > 0) && (buf[0] == 'q')) {
+	            } else if ((len > 0) && (lbuf[0] == 'q')) {
 
 	                tty_write(tfd,"\r\033[K",4) ;
 
@@ -264,7 +264,7 @@ char	*argv[] ;
 
 	        }
 
-	    } else bwrite(ofp,buf,len) ;
+	    } else bwrite(ofp,lbuf,len) ;
 
 	}
 

@@ -181,7 +181,7 @@ OBJ25=
 OBJ26=
 OBJ27=
 OBJ28=
-OBJ29= 
+OBJ29=
 OBJ30=
 #OBJ31= sfreadline.o sfisterm.o
 
@@ -392,24 +392,18 @@ termout.o:		termout.cc termout.h ansigr.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) termout.cc
 
 
+# BFILE
+
 bopen.o:		bopen.c bfile.h
-
 bread.o:		bread.c bfile.h
-
-breadline.o:		breadline.c bfile.h
-
+breadline.o:		breadline.cc bfile.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 breadlines.o:		breadlines.c bfile.h
-
 bwrite.o:		bwrite.c bfile.h
-
 bprintf.o:		bprintf.c bfile.h
-
 bflush.o:		bflush.c bfile.h
-
 bcontrol.o:		bcontrol.c bfile.h
-
 bclose.o:		bclose.c bfile.h
-
 bfile_flush.o:		bfile_flush.c bfile.h
 
 

@@ -295,9 +295,10 @@ bprintf.o:		bprintf.c bfile.h
 bprintline.o:		bprintline.c bfile.h
 bputc.o:		bputc.c bfile.h
 bread.o:		bread.c bfile.h
-breadline.o:		breadline.c bfile.h
+breadline.o:		breadline.cc bfile.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) breadline.cc
+breadline.o:		breadline.cc bfile.h
 breadlines.o:		breadlines.c bfile.h
-breadlinetimed.o:	breadlinetimed.c bfile.h
 bseek.o:		bseek.c bfile.h
 btell.o:		btell.c bfile.h
 btruncate.o:		btruncate.c bfile.h

@@ -123,7 +123,7 @@ SYSDIALER_INFO	tcp = {
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"af",
 	NULL
@@ -151,13 +151,11 @@ static const struct afamily	afs[] = {
 int tcp_open(TCP *op,SYSDIALER_ARGS *ap,cchar hn[],cchar svc[],cchar *av[])
 {
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		to = -1 ;
 	int		af = AF_UNSPEC ;
 	int		opts = 0 ;
-	const char	*pr = NULL ;
+	cchar		*pr = NULL ;
 	char		hnbuf[MAXHOSTNAMELEN + 1] ;
-	char		svcbuf[SVCNAMELEN + 1] ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -169,12 +167,11 @@ int tcp_open(TCP *op,SYSDIALER_ARGS *ap,cchar hn[],cchar svc[],cchar *av[])
 #endif
 
 	if (ap != NULL) {
-	    int	argr, argl, aol, avl ;
+	    int	argl, aol, avl ;
 	    int	maxai, pan, npa, kwi, i ;
 	    int	argnum ;
 	    int	cl ;
 	    int	f_optminus, f_optplus, f_optequal ;
-	    int	f_extra = FALSE ;
 	    int	f_bad = FALSE ;
 
 	    const char	**argv, *argp, *aop, *avp ;
@@ -189,13 +186,11 @@ int tcp_open(TCP *op,SYSDIALER_ARGS *ap,cchar hn[],cchar svc[],cchar *av[])
 #endif
 
 	    hnbuf[0] = '\0' ;
-	    svcbuf[0] = '\0' ;
 
 	    to = ap->timeout ;
 	    opts = ap->options ;
 	    argv = ap->argv ;
-	    if (ap->pr != NULL)
-	        pr = (char *) ap->pr ;
+	    pr = ap->pr ;
 
 /* process program arguments */
 
@@ -302,8 +297,8 @@ int tcp_open(TCP *op,SYSDIALER_ARGS *ap,cchar hn[],cchar svc[],cchar *av[])
 	                    } else {
 
 	                        while (aol--) {
+				    const int	kc = MKCHAR(*aop) ;
 
-				    int	kc = (*aop & 0xff) ;
 	                            switch (kc) {
 
 	                            case 'f':
@@ -350,15 +345,13 @@ int tcp_open(TCP *op,SYSDIALER_ARGS *ap,cchar hn[],cchar svc[],cchar *av[])
 	                                break ;
 
 	                            default:
-	                                f_extra = TRUE ;
 	                                f_bad = TRUE ;
+					break ;
 
 	                            } /* end switch */
 
 	                            aop += 1 ;
-				    if (rs < 0)
-					break ;
-
+				    if (rs < 0) break ;
 	                        } /* end while */
 
 	                    } /* end if (individual option key letters) */
@@ -368,11 +361,9 @@ int tcp_open(TCP *op,SYSDIALER_ARGS *ap,cchar hn[],cchar svc[],cchar *av[])
 	            } else {
 
 	                if (i < MAXARGINDEX) {
-
 	                    BASET(argpresent,i) ;
 	                    maxai = i ;
 	                    npa += 1 ;	/* increment position count */
-
 	                }
 
 	            } /* end if */
@@ -380,60 +371,35 @@ int tcp_open(TCP *op,SYSDIALER_ARGS *ap,cchar hn[],cchar svc[],cchar *av[])
 	        } else {
 
 	            if (i < MAXARGINDEX) {
-
 	                BASET(argpresent,i) ;
 	                maxai = i ;
 	                npa += 1 ;
-
 	            } else {
-
-	                f_extra = TRUE ;
 	                f_bad = TRUE ;
 	            }
 
 	        } /* end if (key letter/word or positional) */
 
-	        if (f_bad)
-	            break ;
-
+	        if (f_bad) break ;
 	    } /* end while (all command line argument processing) */
 
 	    if (f_bad)
 	        goto badarg ;
 
 	    if (npa > 0) {
-
 	        pan = 0 ;
 	        for (i = 0 ; i <= maxai ; i += 1) {
-
 	            if (BATST(argpresent,i)) {
-
 	                switch (pan) {
-
 	                case 0:
 	                    hostsvc = argv[i] ;
-
-#if	CF_DEBUGS
-	                    debugprintf("tcp_open: pan=%d hostsvc=%s\n",
-				pan,hostsvc) ;
-#endif
-
 	                    break ;
-
 	                case 1:
 	                    break ;
-
-	                default:
-	                     ;
-
 	                } /* end switch */
-
 	                pan += 1 ;
-
 	            } /* end if (argument present) */
-
 	        } /* end for */
-
 	    } /* end if (positional arguments) */
 
 	    if ((hostsvc != NULL) && (hostsvc[0] != '\0')) {
@@ -515,7 +481,7 @@ badarg:
 /* end subroutine (tcp_open) */
 
 
-int tcp_reade(TCP *op,char buf[],int blen,int to,int opts)
+int tcp_reade(TCP *op,char *buf,int blen,int to,int opts)
 {
 	int		rs ;
 
@@ -529,7 +495,7 @@ int tcp_reade(TCP *op,char buf[],int blen,int to,int opts)
 }
 
 
-int tcp_recve(TCP *op,char buf[],int blen,int flags,int to,int opts)
+int tcp_recve(TCP *op,char *buf,int blen,int flags,int to,int opts)
 {
 	int		rs ;
 
@@ -564,11 +530,7 @@ int		to, opts ;
 }
 
 
-int tcp_recvmsge(op,msgp,flags,to,opts)
-TCP		*op ;
-struct msghdr	*msgp ;
-int		flags ;
-int		to, opts ;
+int tcp_recvmsge(TCP *op,MSGHDR *msgp,int flags,int to,int opts)
 {
 	int		rs ;
 
@@ -582,10 +544,7 @@ int		to, opts ;
 }
 
 
-int tcp_write(op,buf,blen)
-TCP		*op ;
-const char	buf[] ;
-int		blen ;
+int tcp_write(TCP *op,cchar *buf,int blen)
 {
 	int		rs ;
 
@@ -599,11 +558,7 @@ int		blen ;
 }
 
 
-int tcp_send(op,buf,blen,flags)
-TCP		*op ;
-const char	buf[] ;
-int		blen ;
-int		flags ;
+int tcp_send(TCP *op,cchar *buf,int blen,int flags)
 {
 	int		rs ;
 
@@ -617,13 +572,7 @@ int		flags ;
 }
 
 
-int tcp_sendto(op,buf,blen,flags,sap,salen)
-TCP		*op ;
-const char	buf[] ;
-int		blen ;
-int		flags ;
-void		*sap ;
-int		salen ;
+int tcp_sendto(TCP *op,cchar *buf,int blen,int flags,void *sap,int salen)
 {
 	int		rs ;
 
@@ -637,10 +586,7 @@ int		salen ;
 }
 
 
-int tcp_sendmsg(op,msgp,flags)
-TCP		*op ;
-struct msghdr	*msgp ;
-int		flags ;
+int tcp_sendmsg(TCP *op,MSGHDR *msgp,int flags)
 {
 	int		rs ;
 
@@ -655,9 +601,7 @@ int		flags ;
 
 
 /* shutdown */
-int tcp_shutdown(op,cmd)
-TCP		*op ;
-int		cmd ;
+int tcp_shutdown(TCP *op,int cmd)
 {
 	int		rs ;
 
@@ -673,8 +617,7 @@ int		cmd ;
 
 
 /* close the connection */
-int tcp_close(op)
-TCP		*op ;
+int tcp_close(TCP *op)
 {
 	int		rs ;
 

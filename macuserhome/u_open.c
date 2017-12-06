@@ -52,7 +52,7 @@ int u_open(cchar *fname,int of,mode_t m)
 	int		rs ;
 	int		to_nomem = TO_NOMEM ;
 	int		to_nosr = TO_NOSR ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		f_exit = FALSE ;
 
 	of &= (~ OM_SPECIAL) ;

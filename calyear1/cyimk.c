@@ -905,7 +905,7 @@ static int cyimk_nidxopen(CYIMK *op)
 {
 	const mode_t	om = op->om ;
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		of = (O_CREAT|O_WRONLY) ;
 #if	CF_DEBUGS
 	debugprintf("cyimk_nidxopen: ent\n") ;

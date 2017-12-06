@@ -158,14 +158,11 @@ const char	**envv ;
 int		to ;
 {
 	ARGPARSE	ai ;
-
 	const int	opts = 0 ;
-
-	int	rs = SR_OK ;
-	int	argc = 0 ;
-	int	af = AF_UNSPEC ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		argc = 0 ;
+	int		af = AF_UNSPEC ;
+	int		fd = -1 ;
 	const char	*argz = NULL ;
 	const char	*hostname = NULL ;
 	const char	*portspec = NULL ;

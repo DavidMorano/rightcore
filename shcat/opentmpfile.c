@@ -208,7 +208,7 @@ static int opentmpxer(cchar *inname,int of,mode_t om,int opt,char *obuf)
 	int		rs = SR_OK ;
 	int		stype = 0 ;
 	int		loop = 0 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		f_exit = FALSE ;
 	int		f_abuf = FALSE ;
 	int		f ;

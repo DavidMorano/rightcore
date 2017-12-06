@@ -173,7 +173,7 @@ char	*argv[] ;
 	int	f_initlist = FALSE ;
 	int	f_in0, f_out1, f_out2, f_in3, f_out3, f_in4 ;
 	int	f_final0, f_final1, f_final2, f_final3, f_final4 ;
-	int	ifd = 0, ofd = 1, efd = 2 ;
+	int	ifd = FD_STDIN, ofd = 1, efd = 2 ;
 	int	f_eof0, f_eof3, f_eof4 ;
 	int	f_exit ;
 	int	f_euid ;
@@ -1231,8 +1231,9 @@ char	*argv[] ;
 	            goto badinfile ;
 	        }
 
-	    } else 
-	        ifd = 0 ;
+	    } else {
+	        ifd = FD_STDIN ;
+	    }
 
 	    if ((rs = fstat(ifd,&isb)) < 0) f_noinput = TRUE ;
 

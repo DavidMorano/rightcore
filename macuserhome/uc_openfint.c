@@ -233,7 +233,7 @@ int		to ;
 	SUBINFO		si ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 #if	CF_DEBUGS
 	debugprintf("uc_openfint: pr=%s\n",pr) ;

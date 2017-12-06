@@ -510,8 +510,6 @@ const char	*envv[] ;
 	if ((rs = bopen(ifp,(char *) 0,"wct",0644)) < 0)
 	    goto badinopen ;
 
-	bcontrol(ifp,BC_LINEIN,0) ;
-
 	if ((rs = bopen(ofp,(char *) 1,"wct",0644)) < 0)
 	    goto badoutopen ;
 

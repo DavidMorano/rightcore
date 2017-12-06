@@ -162,7 +162,7 @@ int		to ;
 	int		argc = 0 ;
 	int		af = AF_UNSPEC ;
 	int		opts = 0 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*argz = NULL ;
 	const char	*hostname = NULL ;
 	const char	*portspec = NULL ;

@@ -280,7 +280,7 @@ int opensysfs(int w,int of,int ttl)
 static int opencfile(int w,int of,int ttl)
 {
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*sdname = OPENSYSFS_SYSDNAME ;
 	const char	*gcname = cfnames[w] ;
 	char		gfname[MAXPATHLEN+1] ;

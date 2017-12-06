@@ -236,7 +236,7 @@ int		opts ;
 	int		i ;
 	int		oflags ;
 	int		prlen = 0 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*varpruux = VARPRUUX ;
 	char		progfname[MAXPATHLEN + 1] ;
 	const char	*pn = PROG_UUX ;

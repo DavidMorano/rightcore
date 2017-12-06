@@ -1,0 +1,8 @@
+PROGCHECK
+
+Dirty! Yes, it (currently) is, but this is extremely useful to sanity-check tons
+of files very (very) quickly. This runs very quickly (even though it is coded to
+run much slower than it could be) when used in scripts (given it is a built-in
+command) or on its own. Someday, if someone is interest, I could clean this
+up substantially (given a bit of time to look through this).
+

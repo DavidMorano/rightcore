@@ -59,23 +59,19 @@ char	*envv[] ;
 {
 	bfile		errfile, *efp = &errfile ;
 	bfile		outfile, *ofp = &outfile ;
-8
 	pid_t		pid ;
-
 	int		rs = SR_OK ;
 	int		i, len ;
 	int		rs_child ;
-	int		ifd = 0 ;
+	int		ifd = -1 ;
 	int		inpipe[2] ;
 	int		t0fd, t1fd ;
 	int		pi ;
 	int		f_path = FALSE ;
-
 	char		envbuf[ENVBUFLEN + 1], *ebp = envbuf ;
 	char		t0name[TIMEBUFLEN + 1], t1name[TIMEBUFLEN + 1] ;
 	char		buf[BUFLEN + 1] ;
 	char		*progname, *cp, *sp ;
-
 
 	progname = TITLE ;
 	if (bopen(efp,MAILERRFILE,"wca",0666) < 0) return BAD ;

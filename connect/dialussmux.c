@@ -88,7 +88,7 @@ int		opts ;
 	int		rs ;
 	int		rs1 ;
 	int		svclen ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*bp ;
 
 #if	CF_DEBUGS

@@ -3,36 +3,32 @@
 /* parse a configuration file */
 
 
-#define	F_DEBUGS	0
-#define	F_DEBUGSFIELD	0
+#define	CF_DEBUGS	0
+#define	CF_DEBUGSFIELD	0
 
 
 /* revision history :
 
-	= 91/06/01, David A­D­ Morano
-
+	= 1991-06-01, David A­D­ Morano
 	This subroutine was originally written.
 
-
-	= 00/01/21, David A­D­ Morano
-
+	= 2000-01-21, David A­D­ Morano
 	This subroutine was enhanced for use by LevoSim.
-
 
 */
 
+/* Copyright © 1991,2000 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
-	This is the old configuration file reader object.  It is cheap,
-	it is ill-conceived, it is a mess, it works well enough to be
-	used for cheap code.  I didn't want to use this junk for the
-	Levo machine simulator but time pressure decided for us !
+        This is the old configuration file reader object. It is cheap, it is
+        ill-conceived, it is a mess, it works well enough to be used for cheap
+        code. I didn't want to use this junk for the Levo machine simulator but
+        time pressure decided for us !
 
-	Although this whole configuration scheme is messy, it gives
-	us enough of what we need to get some configuration information
-	into the Levo machine simulator and to get a parameter file
-	name.  This is good enough for now.
+        Although this whole configuration scheme is messy, it gives us enough of
+        what we need to get some configuration information into the Levo machine
+        simulator and to get a parameter file name. This is good enough for now.
 
 
 ******************************************************************************/
@@ -41,41 +37,43 @@
 #define	CONFIGFILE_MASTER	1
 
 
+#include	<envstandards.h>
+
 #include	<sys/types.h>
-#include	<sys/stat.h>
 #include	<sys/param.h>
+#include	<sys/stat.h>
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<field.h>
 #include	<buffer.h>
 #include	<mallocstuff.h>
+#include	<localmisc.h>
 
-#include	"misc.h"
 #include	"configfile.h"
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 #include	"config.h"
 #include	"defs.h"
 #endif
-
 
 
 /* local defines */
 
 #define	CONFIGFILE_MAGIC	0x04311633
 
-#undef	LINELEN
-#define	LINELEN		128
-#undef	BUFLEN
-#define	BUFLEN		(LINELEN * 2)
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
 
+#ifndef	BUFLEN
+#define	BUFLEN		(2*LINEBUFLEN)
+#endif
 
 
 /* external subroutines */
@@ -123,7 +121,7 @@ static const unsigned char 	oterms[32] = {
 	    0x00, 0x00, 0x00, 0x00
 } ;
 
-static char	*const configkeys[] = {
+static cchar	configkeys[] = {
 	"define",
 	"export",
 	"tmpdir",
@@ -214,35 +212,33 @@ static char	*const configkeys[] = {
 #define	CONFIGKEY_PASSFILE	41
 
 
-
-
+/* exported subroutines */
 
 
 int configfile_init(csp,configfname)
 CONFIGFILE	*csp ;
 char		configfname[] ;
 {
-	bfile	configfile, *cfp = &configfile ;
+	BUFFER		options ;
+	FIELD		fsb ;
+	bfile		configfile, *cfp = &configfile ;
+	vecstr		*vsp ;
+	const int	llen = LINEBUFLEN ;
+	int		rs = SR_OK ;
+	int		srs ;
+	int		i ;
+	int		c, len1, len ;
+	int		line = 0 ;
+	int		noptions = 0 ;
 
-	BUFFER	options ;
+	cchar		*cp ;
+	char		lbuf[LINEBUFLEN + 1] ;
+	char		buf[BUFLEN + 1] ;
+	char		buf2[BUFLEN + 1] ;
+	char		*bp ;
 
-	FIELD	fsb ;
-
-	vecstr	*vsp ;
-
-	int	srs, rs = SR_OK ;
-	int	i ;
-	int	c, len1, len, line = 0 ;
-	int	noptions = 0 ;
-
-	char	linebuf[LINELEN + 1] ;
-	char	buf[BUFLEN + 1] ;
-	char	buf2[BUFLEN + 1] ;
-	char	*bp, *cp ;
-
-
-#if	F_DEBUGS
-	eprintf("configfile_init: entered filename=%s\n",configfname) ;
+#if	CF_DEBUGS
+	eprintf("configfile_init: ent filename=%s\n",configfname) ;
 #endif
 
 	if (csp == NULL)
@@ -256,7 +252,7 @@ char		configfname[] ;
 
 /* open configuration file */
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("configfile_init: opened file\n") ;
 #endif
 
@@ -267,7 +263,7 @@ char		configfname[] ;
 
 /* initialize */
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("configfile_init: initializing\n") ;
 #endif
 
@@ -322,16 +318,16 @@ char		configfname[] ;
 
 /* start processing the configuration file */
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("configfile_init: reading lines\n") ;
 #endif
 
-	while ((len = bgetline(cfp,linebuf,LINELEN)) > 0) {
+	while ((len = bgetline(cfp,lbuf,llen)) > 0) {
 
 	    line += 1 ;
 	    if (len == 1) continue ;	/* blank line */
 
-	    if (linebuf[len - 1] != '\n') {
+	    if (lbuf[len - 1] != '\n') {
 
 #ifdef	COMMENT
 	        f_trunc = TRUE ;
@@ -342,16 +338,16 @@ char		configfname[] ;
 	        continue ;
 	    }
 
-	    fsb.lp = linebuf ;
+	    fsb.lp = lbuf ;
 	    fsb.rlen = len - 1 ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	    eprintf("configfile_init: line> %W\n",fsb.lp,fsb.rlen) ;
 #endif
 
 	    field_get(&fsb,fterms) ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	    {
 	        if (fsb.flen >= 0) {
 	            eprintf("configfile_init: field> %W\n",
@@ -359,7 +355,7 @@ char		configfname[] ;
 	        } else
 	            eprintf("configfile_init: field> *none*\n") ;
 	    }
-#endif /* F_DEBUGSFIELD */
+#endif /* CF_DEBUGSFIELD */
 
 /* empty or comment only line */
 
@@ -377,7 +373,7 @@ char		configfname[] ;
 
 	    if (i >= 0) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	        eprintf("configfile_init: i=%d keyword=%s\n",
 	            i,configkeys[i]) ;
 #endif
@@ -427,7 +423,7 @@ char		configfname[] ;
 	            else 
 	                bp = mallocstrn(buf,0) ;
 
-#if	F_DEBUGSFIELD
+#if	CF_DEBUGSFIELD
 	            eprintf("configfile_init: bp=%s\n",bp) ;
 #endif
 
@@ -480,7 +476,7 @@ char		configfname[] ;
 	                    free(csp->pidfname) ;
 
 	                csp->pidfname = bp ;
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                eprintf("configfile_init: pidfname=%s\n",bp) ;
 #endif
 
@@ -685,7 +681,7 @@ char		configfname[] ;
 /* options */
 	        case CONFIGKEY_OPTION:
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("configfile_init: option=>%W<\n",
 	                fsb.fp,fsb.flen) ;
 #endif
@@ -727,13 +723,13 @@ char		configfname[] ;
 
 /* get first part */
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("configfile_init: D/E first part\n") ;
 #endif
 
 	            field_get(&fsb,fterms) ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("configfile_init: D/E first part flen=%d\n",
 	                fsb.flen) ;
 #endif
@@ -756,7 +752,7 @@ char		configfname[] ;
 
 	            if (fsb.flen >= 0) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                eprintf("configfile_init: D/E field >%W<\n",
 	                    fsb.fp,fsb.flen) ;
 #endif
@@ -778,14 +774,14 @@ char		configfname[] ;
 	            else
 	                vsp = &csp->defines ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("configfile_init: about to add >%s<\n",buf2) ;
 #endif
 
 	            if ((rs = vecstr_add(vsp,buf2,-1)) < 0)
 	                goto badalloc ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("configfile_init: added, rs=%d\n",
 	                rs) ;
 #endif
@@ -799,7 +795,7 @@ char		configfname[] ;
 
 	                index = rs ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                eprintf("configfile_init: export=>%s< i=%d\n", 
 	                    buf2,index) ;
 #endif
@@ -808,7 +804,7 @@ char		configfname[] ;
 
 	                if (strncmp(buf2,"TMPDIR",len1) == 0) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                    eprintf("configfile_init: TMPDIR=>%s< i=%d\n", 
 	                        buf2,index) ;
 #endif
@@ -847,7 +843,7 @@ char		configfname[] ;
 
 	} /* end while (reading lines) */
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("configfile_init: done reading lines\n") ;
 #endif
 
@@ -867,7 +863,7 @@ char		configfname[] ;
 
 	    len = buffer_get(&options,&cp) ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	    eprintf("configfile_init: final options=>%W<\n",cp,len) ;
 #endif
 
@@ -881,7 +877,7 @@ char		configfname[] ;
 
 	buffer_free(&options) ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("configfile_init: exiting OK\n") ;
 #endif
 
@@ -909,7 +905,7 @@ baddefines:
 
 badopen:
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("configfile_init: exiting bad rs=%d\n",rs) ;
 #endif
 

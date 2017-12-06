@@ -892,9 +892,9 @@ static int varmks_mkstrtab(VARMKS *op,VARHDR *hdrp,FILEBUF *hfp,int off)
 static int varmks_nidxopen(VARMKS *op)
 {
 	const mode_t	om = op->om ;
-	int		rs ;
-	int		fd = 0 ;
 	int		of = (O_CREAT|O_WRONLY) ;
+	int		rs ;
+	int		fd = -1 ;
 #if	CF_DEBUGS
 	debugprintf("varmks_nidxopen: ent nidxfname=%s\n",op->nidxfname) ;
 #endif

@@ -382,7 +382,7 @@ static int subinfo_tryone(SUBINFO *sip)
 	int		rs = SR_HOSTUNREACH ;
 	int		rs1 ;
 	int		af = sip->af ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 #if	CF_DEBUGS
 	debugprintf("dialtcp/_tryone: ent\n") ;
@@ -610,7 +610,7 @@ static int try_inet6(SUBINFO *sip)
 static int try_addr(SUBINFO *sip)
 {
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 #if	CF_DEBUGS
 	debugprintf("dialtcp/try_addr: ADDR\n") ;

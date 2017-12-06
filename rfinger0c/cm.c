@@ -104,7 +104,7 @@ static int cm_trysys(CM *,SUBINFO *,SYSDIALER *,SYSDIALER_ARGS *,
 			EXPCOOK *,
 			SYSTEMS_ENT *,
 			const char *,const char *,const char **) ;
-static int cm_trysysargs(CM *,SUBINFO *,vecstr *,const char *,int) ;
+static int cm_trysysargs(CM *,SUBINFO *,vecstr *,cchar *,int) ;
 
 
 /* local variables */
@@ -307,12 +307,7 @@ int cm_info(CM *op,CM_INFO *ip)
 /* end subroutine (cm_info) */
 
 
-int cm_reade(op,buf,buflen,timeout,opts)
-CM		*op ;
-char		buf[] ;
-int		buflen ;
-int		timeout ;
-int		opts ;
+int cm_reade(CM *op,char *buf,int buflen,int timeout,int opts)
 {
 	int		rs = SR_NOTSUP ;
 
@@ -333,13 +328,7 @@ int		opts ;
 /* end subroutine (cm_reade) */
 
 
-int cm_recve(op,buf,buflen,flags,timeout,opts)
-CM		*op ;
-char		buf[] ;
-int		buflen ;
-int		flags ;
-int		timeout ;
-int		opts ;
+int cm_recve(CM *op,char *buf,int buflen,int flags,int timeout,int opts)
 {
 	int		rs = SR_NOTSUP ;
 
@@ -356,10 +345,7 @@ int		opts ;
 /* end subroutine (cm_recve) */
 
 
-int cm_write(op,buf,buflen)
-CM		*op ;
-const char	buf[] ;
-int		buflen ;
+int cm_write(CM *op,cchar *buf,int buflen)
 {
 	int		rs = SR_NOTSUP ;
 
@@ -615,21 +601,21 @@ const char	*av[] ;
 		rs = cm_trysysargs(op,sip,&args,abuf,alen) ;
 	    }
 
-	    if (rs >= 0) {
- 	        const char	**tav ;
-	        vecstr_getvec(&args,&tav) ;
-	        dap->argv = tav ;
-	    }
-
 #if	CF_DEBUGS
-	    debugprintf("cm_trysys: calling dialobj_open(%p)\n",op->c.open) ;
+	    debugprintf("cm_trysys: calling dialobj_open(%p)\n",
+		op->c.open) ;
 #endif
 
-	    if (op->c.open == NULL)
-	        rs = SR_LIBACC ;
-
 	    if (rs >= 0) {
-	        rs = (op->c.open)(op->dobj,dap,sysname,svcname,av) ;
+		if (op->c.open != NULL) {
+ 	            cchar	**tav ;
+	            if ((rs = vecstr_getvec(&args,&tav)) >= 0) {
+	                dap->argv = tav ;
+	                rs = (op->c.open)(op->dobj,dap,sysname,svcname,av) ;
+		    }
+		} else {
+	            rs = SR_LIBACC ;
+		}
 	    }
 
 #if	CF_DEBUGS

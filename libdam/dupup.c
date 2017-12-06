@@ -75,7 +75,7 @@
 int dupup(int fd,int min)
 {
 	int		rs ;
-	int		ufd = 0 ;
+	int		ufd = -1 ;
 
 	if (fd < 0) return SR_INVALID ;
 

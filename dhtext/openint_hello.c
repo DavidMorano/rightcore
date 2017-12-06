@@ -110,18 +110,15 @@ const char	**argv ;
 const char	**envv ;
 int		to ;
 {
-	int	rs = SR_OK ;
-	int	pipes[2] ;
-	int	fd = 0 ;
-	int	sl = -1 ;
-
+	int		rs = SR_OK ;
+	int		pipes[2] ;
+	int		fd = -1 ;
+	int		sl = -1 ;
 	const char	*sp = "hello world!\n" ;
 
-
-	rs = u_pipe(pipes) ;
-	fd = pipes[0] ;
-	if (rs >= 0) {
-	    int	wfd = pipes[1] ;
+	if ((rs = u_pipe(pipes)) >= 0) {
+	    const int	wfd = pipes[1] ;
+	    fd = pipes[0] ;
 
 	    if (sl < 0) sl = strlen(sp) ;
 
@@ -134,6 +131,5 @@ int		to ;
 	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (openint_hello) */
-
 
 

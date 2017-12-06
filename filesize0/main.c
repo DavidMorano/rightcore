@@ -3,47 +3,49 @@
 /* part of the 'filesize' program */
 
 
-#define	F_DEBUG		1
-#define	F_DEBUGS	0
+#define	CF_DEBUG	1		/* compile-time debugging */
+#define	CF_DEBUGS	0		/* run-time debugging */
 
 
 /* revision history :
 
-	= Dave Morano, March 1996
-	The program was written from scratch to do what
-	the previous program by the same name did.
+	= 1996-02-10, Dave Morano
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
+/* Copyright © 1996 David A­D­ Morano.  All rights reserved. */
 
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<termios.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<time.h>
-#include	<errno.h>
 
 #include	<bfile.h>
 #include	<baops.h>
 #include	<field.h>
 #include	<wdt.h>
+#include	<localmisc.h>
 
-#include	"misc.h"
 #include	"config.h"
 #include	"defs.h"
 
 
-
 /* local defines */
 
-#define		MAXARGINDEX	600
-#define		MAXARGGROUPS	(MAXARGINDEX/8 + 1)
+#ifndef	BUFLEN
+#define	BUFLEN		2048
+#endif
 
+#define	MAXARGINDEX	600
+#define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
 
 
 /* external subroutines */
@@ -68,7 +70,7 @@ struct global		g ;
 
 /* local variables */
 
-static char *argopts[] = {
+static cchar	*argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	"TMPDIR",
@@ -80,11 +82,11 @@ static char *argopts[] = {
 #define	ARGOPT_TMPDIR		2
 
 
+/* exported subroutines */
 
 
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile	errfile, *efp = &errfile ;
 	bfile	outfile, *ofp = &outfile ;
@@ -92,17 +94,18 @@ char	*argv[] ;
 
 	int	argr, argl, aol, akl, avl, npa, maxai, kwi ;
 	int	i ;
-	int	rs, pan ;
+	int	rs = SR_OK ;
+	int	pan ;
 	int	f_optminus, f_optplus, f_optequal ;
 	int	f_extra = FALSE ;
 	int	f_usage = FALSE ;
 	int	f_version = FALSE ;
 	int	err_fd ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*afname = NULL ;
+	cchar	*cp ;
 	char	argpresent[MAXARGGROUPS] ;
-	char	*afname = NULL ;
-	char	*cp ;
 
 
 	if (((cp = getenv("ERROR_FD")) != NULL) &&
@@ -154,7 +157,7 @@ char	*argv[] ;
 
 	        if (argl > 1) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("main: got an option\n") ;
 #endif
 
@@ -164,7 +167,7 @@ char	*argv[] ;
 	            f_optequal = FALSE ;
 	            if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                eprintf("main: got an option key w/ a value\n") ;
 #endif
 
@@ -183,13 +186,13 @@ char	*argv[] ;
 
 /* do we have a keyword match or should we assume only key letters ? */
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("main: about to check for a key word match\n") ;
 #endif
 
 	            if ((kwi = optmatch(argopts,aop,aol)) >= 0) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                eprintf("main: got an option keyword, kwi=%d\n",
 	                    kwi) ;
 #endif
@@ -198,7 +201,7 @@ char	*argv[] ;
 
 /* version */
 	                case ARGOPT_VERSION:
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                    eprintf("main: version key-word\n") ;
 #endif
 	                    f_version = TRUE ;
@@ -208,7 +211,7 @@ char	*argv[] ;
 
 /* verbose */
 	                case ARGOPT_VERBOSE:
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                    eprintf("main: version key-word\n") ;
 #endif
 	                    g.f.verbose = TRUE ;
@@ -246,13 +249,13 @@ char	*argv[] ;
 
 	            } else {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                eprintf("main: got an option key letter\n") ;
 #endif
 
 	                while (aol--) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                    eprintf("main: option key letters\n") ;
 #endif
 
@@ -260,7 +263,7 @@ char	*argv[] ;
 
 	                    case 'V':
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                        eprintf("main: version key-letter\n") ;
 #endif
 	                        f_version = TRUE ;
@@ -270,7 +273,7 @@ char	*argv[] ;
 	                        g.debuglevel = 1 ;
 	                        if (f_optequal) {
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                            eprintf("main: debugequal avl=%d avp=%s\n",
 	                                avl,avp) ;
 #endif
@@ -279,7 +282,7 @@ char	*argv[] ;
 	                            if (cfdec(avp,avl, &g.debuglevel) < 0)
 	                                goto badargvalue ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                            eprintf("main: debuglevel=%d\n",
 	                                g.debuglevel) ;
 #endif
@@ -412,7 +415,7 @@ char	*argv[] ;
 
 /* check arguments */
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("main: finished parsing command line arguments\n") ;
 #endif
 
@@ -468,7 +471,7 @@ char	*argv[] ;
 	        if ((! BATST(argpresent,i)) &&
 	            (argv[i][0] != '\0')) continue ;
 
-#if	F_DEBUG
+#if	CF_DEBUG
 	        if (g.debuglevel > 1)
 	            eprintf("main: calling process name=\"%s\"\n",argv[i]) ;
 #endif
@@ -487,30 +490,27 @@ char	*argv[] ;
 
 	if (afname != NULL) {
 
-#if	F_DEBUG
+#if	CF_DEBUG
 	    if (g.debuglevel > 1)
 	        eprintf("main: we have an argument file list\n") ;
 #endif
 
-	    if ((strcmp(afname,"-") == 0) || (afname[0] == '\0'))
+	    if ((strcmp(afname,"-") == 0) || (afname[0] == '\0')) {
 	        rs = bopen(afp,BIO_STDIN,"dr",0666) ;
-
-	    else
+	    } else {
 	        rs = bopen(afp,afname,"r",0666) ;
+	    }
 
 	    if (rs >= 0) {
-
 	        int	len ;
-
 	        char	buf[BUFLEN + 1] ;
 
-
-#if	F_DEBUG
+#if	CF_DEBUG
 	        if (g.debuglevel > 1)
 	            eprintf("main: processing the argument file list\n") ;
 #endif
 
-	        while ((len = bgetline(afp,buf,BUFLEN)) > 0) {
+	        while ((len = breadline(afp,buf,BUFLEN)) > 0) {
 
 	            if (buf[len - 1] == '\n') len -= 1 ;
 
@@ -529,7 +529,7 @@ char	*argv[] ;
 
 	        bclose(afp) ;
 
-#if	F_DEBUG
+#if	CF_DEBUG
 	        if (g.debuglevel > 1)
 	            eprintf("main: done processing the argument file list\n") ;
 #endif
@@ -577,7 +577,7 @@ char	*argv[] ;
 	bclose(ofp) ;
 
 
-#if	F_DEBUG
+#if	CF_DEBUG
 	if (g.debuglevel > 1)
 	    eprintf("main: exiting\n") ;
 #endif
@@ -586,7 +586,7 @@ char	*argv[] ;
 /* good return from program */
 goodret:
 
-#if	F_DEBUG
+#if	CF_DEBUG
 	if (g.debuglevel > 1)
 	    bprintf(g.efp,"%s: program exiting\n",
 	        g.progname) ;
@@ -602,7 +602,7 @@ done:
 /* come here for a bad return from the program */
 badret:
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	eprintf("main: exiting program BAD\n") ;
 #endif
 

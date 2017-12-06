@@ -95,7 +95,7 @@ char	*envv[] ;
 	int	rs ;
 	int	len ;
 	int	i, j ;
-	int	tfd = 0 ;
+	int	tfd = -1 ;
 	int	f_reveal = FALSE ;
 
 	uchar	c ;

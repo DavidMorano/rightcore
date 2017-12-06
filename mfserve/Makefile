@@ -2,6 +2,8 @@
 
 T= mfserve
 
+TL= svcs
+
 TUSERNAME= local
 TGROUPNAME= tools
 
@@ -223,7 +225,8 @@ MOBJS= $(MCRT0) $(OBJ) $(CRTC)
 # for 'gprof(1)'
 GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
-SOBJ= mfsmsg.o
+
+LOBJ= daytime.o
 
 
 SRC= $(OBJ:.c=.o)
@@ -258,6 +261,8 @@ all:			$(ALL)
 	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
 
 
+$(TL):			$(TL).so
+
 $(T):			$(T).x
 	rm -f $(T)
 	ln -f $(T).x $(T)
@@ -286,8 +291,11 @@ $(T).nm nm:		$(T).x
 $(T).cxref:
 	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
 
+$(TL).so:		$(LOBJ) Makefile
+	$(LD) -G -o $@ -m $(LDFLAGS) svcs.map $(LOBJ) $(SLIBINFO) > $(T).lm
+
 safe:
-	makesafe -v=3 -I $(INCDIR) $(OBJ) $(SOBJ)
+	makesafe -v=3 -I $(INCDIR) $(OBJ) $(LOBJ)
 
 strip:			$(T).x
 	strip $(T).x
@@ -363,6 +371,8 @@ mfslisten.o:		mfslisten.c mfslisten.h $(INCS) mfslocinfo.h mfslog.h
 
 mfswatch.o:		mfswatch.c mfswatch.h $(INCS) mfslocinfo.h mfslog.h
 
+mfsbuilt.o:		mfsbuilt.c mfsbuilt.h $(INCS)
+
 mfsdebug.o:		mfsdebug.c $(INCS)
 
 mfsc.o:			mfsc.c mfsc.h
@@ -373,7 +383,7 @@ mfsc.o:			mfsc.c mfsc.c mfsmsg.o
 
 sreq.o:			sreq.c sreq.h
 
-sreqdb.o:		sreqdb.c sreqdb.h sreq.o
+sreqdb.o:		sreqdb.c sreqdb.h sreq.h
 
 
 # other standard pieces (duplicated here)

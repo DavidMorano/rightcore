@@ -140,13 +140,6 @@ int		*lcp ;
 
 	} /* end while */
 
-#ifdef	COMMENT
-	if ((rs >= 0) && (lbuf[i - 1] == '\\'))
-	    i -= 1 ;
-#endif
-
-ret0:
-
 #if	CF_DEBUGS
 	debugprintf("breadlines: ret i=%d\n",i) ;
 #endif

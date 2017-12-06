@@ -119,13 +119,10 @@ const char	**argv ;
 const char	**envv ;
 int		to ;
 {
-	int	rs = SR_OK ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		fd = -1 ;
 	const char	*inter = "copyout" ;
-
-	char	fname[MAXPATHLEN+1] ;
-
+	char		fname[MAXPATHLEN+1] ;
 
 #if	CF_DEBUGS
 	debugprintf("openint_copyout: pr=%s\n",pr) ;
@@ -133,13 +130,11 @@ int		to ;
 	debugprintf("openint_copyout: prn=%s\n",prn) ;
 #endif
 
-	rs = mkpath2(fname,dn,bn) ;
-	if (rs < 0) goto ret0 ;
+	if ((rs = mkpath2(fname,dn,bn)) >= 0) {
+	    rs = u_open(fname,of,om) ;
+	    fd = rs ;
+	}
 
-	rs = u_open(fname,of,om) ;
-	fd = rs ;
-
-ret0:
 	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (openint_copyout) */

@@ -74,6 +74,8 @@ extern char	*strwcpy(char *,cchar *,int) ;
 
 /* external variables */
 
+extern char	*environ[] ;
+
 
 /* forward references */
 
@@ -87,7 +89,6 @@ const char	cmd[] ;
 {
 	pid_t		pid_child ;
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		cmdlen ;
 	int		i, j, k ;
 	int		fd ;
@@ -256,14 +257,21 @@ const char	cmd[] ;
 #endif
 
 		if (rs >= 0) {
-	    	    execlp(sp,"shcmd","-c",cmdp,NULL) ;
-		} else
+		    int		i = 0 ;
+		    cchar	**ev = (cchar **) environ ;
+		    cchar	*av[5] ;
+		    av[i++] = "shcmd" ;
+		    av[i++] = "-c" ;
+		    av[i++] = cmdp ;
+		    av[i] = NULL ;
+	    	    uc_execve(sp,av,ev) ;
+		} else {
 	            uc_exit(EX_UNAVAILABLE) ;
+		}
 
 		} /* end block */
 
 	    uc_exit(EX_NOEXEC) ;
-
 	} /* end if (child process) */
 
 #if	CF_DEBUGS
@@ -326,8 +334,6 @@ done:
 	} /* end for */
 #endif /* CF_BFD */
 
-ret0:
-
 #if	CF_DEBUGS
 	debugprintf("bopencmd: ret rs=%d pid=%u\n",rs,pid_child) ;
 #endif
@@ -362,18 +368,17 @@ badbopen:
 
 	goto err3 ;
 
-badwrite:
-
 badfork:
 
 err3:
 
 /* close all of the pipe FDs below the one that bombed */
 badpipe:
-err4:
-	for (j = 0 ; j < i ; j += 1)
-	    for (k = 0 ; k < 2 ; k += 1)
+	for (j = 0 ; j < i ; j += 1) {
+	    for (k = 0 ; k < 2 ; k += 1) {
 	        u_close(pipes[j][k]) ;
+	    }
+	}
 
 	goto done ;
 }

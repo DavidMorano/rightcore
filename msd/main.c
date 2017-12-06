@@ -115,7 +115,7 @@ const char	*envv[] ;
 	int	i, j ;
 	int	sl ;
 	int	s ;
-	int	fd = 0 ;
+	int	fd = -1 ;
 	int	err_fd = -1 ;
 
 	const char	*progname ;

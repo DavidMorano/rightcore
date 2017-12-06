@@ -97,8 +97,9 @@ int main(int argc,cchar *argv,cchar *envv)
 	int		ex ;
 	int		maxmsglen, trylen, len, conlen, rs ;
 	int		i, j ;
-	int		s, fd = 0 ;
-	int		fd_debug ;
+	int		s ;
+	int		fd = -1 ;
+	int		fd_debug = -1 ;
 
 	const char	*progname ;
 	const char	*rhost = NULL ;

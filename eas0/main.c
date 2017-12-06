@@ -4,18 +4,19 @@
 /* flatten and possibly extract an ADVICE subcircuit */
 
 
-#define	DEBUGS		0
-#define	DEBUG		1
+#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUG	1		/* run-time debugging */
 
 
-/*
+/* revision history:
+
 	= 1994, Dave Morano
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1994 David A­D­ Morano.  All rights reserved. */
 
-/****************************************************************************
+/*******************************************************************************
 
 	* said above *
 
@@ -31,7 +32,7 @@
 	-c	printout only table of circuits that would have been extracted
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -41,7 +42,6 @@
 #include	<sys/stat.h>
 #include	<sys/param.h>
 #include	<unistd.h>
-#include	<errno.h>
 #include	<time.h>
 #include	<pwd.h>
 #include	<grp.h>
@@ -97,7 +97,7 @@ struct global		g ;
 
 /* local statics */
 
-static const char	*keywords[] = {
+static cchar	*keywords[] = {
 	NULL,
 	".main",
 	".subckt",
@@ -109,7 +109,7 @@ static const char	*keywords[] = {
 
 /* define command option words */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	    "version",		/* 0 */
 	    NULL,
 } ;
@@ -119,7 +119,7 @@ static const char *argopts[] = {
 
 /* circuit types */
 
-const char	*cirtypes[] = {
+const cchar	*cirtypes[] = {
 	"envelope",
 	"main",
 	"subckt",
@@ -135,9 +135,8 @@ const char	*cirtypes[] = {
 /* exported subroutines */
 
 
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile	infile, *ifp = &infile ;
 	bfile	tmpfile, *tfp = &tmpfile ;
@@ -152,9 +151,10 @@ char	*argv[] ;
 
 	offset_t	blockstart, offset ;
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	npa, i, ai ;
-	int	len, rs ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		rs = SR_OK ;
+	int		npa, i, ai ;
+	int		len ;
 	int	maxai ;
 	int	l, pn ;
 	int	blen ;
@@ -169,14 +169,14 @@ char	*argv[] ;
 	int	line ;
 
 	const char	*argp, *aop, *akp, *avp ;
+	const char	*ifname = NULL ;
+	const char	*ofname = NULL ;
+	const char	*cp, *subname ;
 	char	argpresent[MAXARGGROUPS] ;
 	char	buf[BUFLEN + 1], *bp ;
 	char	cirtype[4] ;
 	char	tmpfname[MAXPATHLEN + 1] ;
 	char	subfname[MAXPATHLEN + 1] ;
-	const char	*ifname = NULL ;
-	const char	*ofname = NULL ;
-	const char	*cp, *subname ;
 
 
 	g.progname = strbasename(argv[0]) ;
@@ -202,7 +202,7 @@ char	*argv[] ;
 
 /* process program arguments */
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	eprintf("main: before loop ct=%02X\n",
 	    (cirtype[0] & 255)) ;
 #endif
@@ -213,7 +213,7 @@ char	*argv[] ;
 	argr = argc - 1 ;
 	while (argr > 0) {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	    eprintf("main: top of loop ct=%02X\n",
 	        (cirtype[0] & 255)) ;
 #endif
@@ -226,18 +226,18 @@ char	*argv[] ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 0) && (f_optminus || f_optplus)) {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	        eprintf("main: inside loop ct=%02X\n",
 	            (cirtype[0] & 255)) ;
 #endif
 
 	        if (argl > 1) {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	            eprintf("main: got an option\n") ;
 #endif
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	            eprintf("main: more inside ct=%02X\n",
 	                (cirtype[0] & 255)) ;
 #endif
@@ -248,7 +248,7 @@ char	*argv[] ;
 	            f_optequal = FALSE ;
 	            if ((avp = strchr(aop,'=')) != NULL) {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	                eprintf("main: got an option key w/ a value\n") ;
 #endif
 
@@ -267,13 +267,13 @@ char	*argv[] ;
 
 /* do we have a keyword match or should we assume only key letters ? */
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	            eprintf("main: about to check for a key word match\n") ;
 #endif
 
 	            if ((kwi = opt_nmatch(argopts,aop,aol)) >= 0) {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	                eprintf("main: got an option keyword, kwi=%d\n",
 	                    kwi) ;
 #endif
@@ -295,13 +295,13 @@ char	*argv[] ;
 
 	            } else {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	                eprintf("main: got an option key letter\n") ;
 #endif
 
 	                while (aol--) {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	                    eprintf("main: option key letters\n") ;
 #endif
 
@@ -507,7 +507,7 @@ char	*argv[] ;
 
 /* circuit types */
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 0)
 	    bprintf(gdp->efp,"%s: circuit types A %02X\n",
 	        gdp->progname,(int) cirtype[0]) ;
@@ -515,7 +515,7 @@ char	*argv[] ;
 
 	for (tp = headp ; tp != NULL ; tp = tp->next) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 0) eprintf(gdp->efp,
 	        "testing one \"%s\"\n",
 	        tp->type) ;
@@ -523,7 +523,7 @@ char	*argv[] ;
 
 	    if ((i = opt_nmatch(cirtypes,tp->type,-1)) >= 0) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	        if (gdp->debuglevel > 1) eprintf(
 	            "main: got a circuit type \"%s\"\n",
 	            tp->type) ;
@@ -531,7 +531,7 @@ char	*argv[] ;
 
 	        BASET(cirtype,i) ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	        if (gdp->debuglevel > 0)
 	            bprintf(gdp->efp,"%s: circuit types B (%d) %02X\n",
 	                gdp->progname,i,(int) cirtype[0]) ;
@@ -544,7 +544,7 @@ char	*argv[] ;
 
 	} /* end for */
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 0)
 	    bprintf(gdp->efp,"%s: circuit types B (final) %02X\n",
 	        gdp->progname,(int) cirtype[0]) ;
@@ -552,7 +552,7 @@ char	*argv[] ;
 
 /* initialize some basic stuff */
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 0) eprintf(
 	    "main: about to decide input\n") ;
 #endif
@@ -561,7 +561,7 @@ char	*argv[] ;
 
 	if ((rs = bopen(ifp,ifname,"r",0666)) < 0) goto badopenin ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 0) eprintf(
 	    "main: about to check for copy of input\n") ;
 #endif
@@ -570,7 +570,7 @@ char	*argv[] ;
 
 	if ((rs = bseek(ifp,0L,SEEK_CUR)) < 0) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 0) 
 		eprintf("main: about to 'mktmpfile'\n") ;
 #endif
@@ -579,7 +579,7 @@ char	*argv[] ;
 	    if (rs < 0)
 	        goto badtmpmake ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 0) eprintf(
 	        "main: about to 'bopen'\n") ;
 #endif
@@ -587,7 +587,7 @@ char	*argv[] ;
 	    if ((rs = bopen(tfp,tmpfname,"wct",0644)) < 0)
 	        goto badtmpopen ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 0) bprintf(gdp->efp,
 	        "%s: made a temporay file \"%s\"\n",
 	        gdp->progname,tmpfname) ;
@@ -597,7 +597,7 @@ char	*argv[] ;
 
 /* copy input file to our temporary file */
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 0) eprintf(
 	        "main: about to do the copy \n") ;
 #endif
@@ -618,7 +618,7 @@ char	*argv[] ;
 
 	gdp->ifp = ifp ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 0) eprintf(
 	    "main: got input, about to separate\n") ;
 #endif
@@ -634,7 +634,7 @@ char	*argv[] ;
 
 	}
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	bprintf(gdp->ofp,"* got stuff in output\n\n") ;
 
 	bflush(gdp->ofp) ;
@@ -648,7 +648,7 @@ char	*argv[] ;
 	gdp->top = e_cirp ;
 	gdp->bottom = e_cirp ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("main: made envelope circuit %08lX\n",e_cirp) ;
 #endif
@@ -660,24 +660,19 @@ char	*argv[] ;
 	offset = 0 ;
 	blen = 0 ;
 	blockstart = 0 ;
-	while ((len = bgetline(gdp->ifp,gdp->buf,BUFLEN)) > 0) {
+	while ((len = breadline(gdp->ifp,gdp->buf,BUFLEN)) > 0) {
 
 	    l = len ;
 	    f_eol = FALSE ;
-	    if (gdp->buf[l - 1] == '\n')
-	        ((l -= 1), (f_eol = TRUE)) ;
-
+	    if (gdp->buf[l - 1] == '\n') ((l -= 1), (f_eol = TRUE)) ;
 	    gdp->buf[l] = '\0' ;
 
 	    if (f_bol) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	        if (gdp->debuglevel > 1) {
-
 	            eprintf("main: beginning of line\n") ;
-
 	            eprintf("main: >%s<\n", gdp->buf) ;
-
 	        }
 #endif
 
@@ -708,7 +703,7 @@ char	*argv[] ;
 	            if (addblock(e_cirp,blockstart,blen) < 0)
 	                goto badalloc ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	            if (gdp->debuglevel > 1)
 	                eprintf("main: closed off block s=%ld bl=%d\n",
 	                    blockstart,blen) ;
@@ -732,14 +727,14 @@ char	*argv[] ;
 
 	        } /* end if (a new subcircuit) */
 
-#if	DEBUG
+#if	CF_DEBUG
 	        if (gdp->debuglevel > 1)
 	            eprintf("main: bottom of BOL o=%ld\n",offset) ;
 #endif
 
 	    } /* end if (BOL) */
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 1)
 	        eprintf("main: bottom of while loop o=%ld\n",
 	            offset) ;
@@ -762,7 +757,7 @@ char	*argv[] ;
 
 /* end of looping through (cataloging) the stuff */
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 0) bprintf(gdp->efp,
 	    "%s: finished scanning circuits, input file len=%ld\n",
 	    gdp->progname,offset) ;
@@ -1004,7 +999,7 @@ int	sl ;
 	char	*cp ;
 
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: entered sl=%d o=%ld linelen=%d\n",
 	        sl,offset,linelen) ;
@@ -1012,7 +1007,7 @@ int	sl ;
 
 	linebuf[linelen] = '\0' ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: line end zapped\n") ;
 #endif
@@ -1021,7 +1016,7 @@ int	sl ;
 
 	cp = linebuf + index ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: starting point calculated\n") ;
 #endif
@@ -1030,7 +1025,7 @@ int	sl ;
 
 	while (ISWHITE(*cp)) cp += 1 ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: white space\n") ;
 #endif
@@ -1039,7 +1034,7 @@ int	sl ;
 
 	while (*cp && (! ISWHITE(*cp))) cp += 1 ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: non-white space\n") ;
 #endif
@@ -1052,7 +1047,7 @@ int	sl ;
 
 	strcpy(subname,cp) ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: copied circuit name\n") ;
 #endif
@@ -1060,7 +1055,7 @@ int	sl ;
 	if ((cp = strpbrk(subname,". \t(")) != NULL)
 	    *cp = '\0' ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: subname=%s\n",subname) ;
 #endif
@@ -1074,7 +1069,7 @@ int	sl ;
 	if ((cirp = mkcircuit(subname,-1,type,sl)) == NULL)
 	    goto bad ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("gotcircuit: made a circuit sl=%d %08lX %08lX\n",
 	        sl,cirp,gdp->bottom) ;
@@ -1095,7 +1090,7 @@ int	sl ;
 	f_eol = FALSE ;
 	f_exit = FALSE ;
 	while ((! (f_exit && f_eol)) &&
-	    ((len = bgetline(gdp->ifp,gdp->buf,BUFLEN)) > 0)) {
+	    ((len = breadline(gdp->ifp,gdp->buf,BUFLEN)) > 0)) {
 
 	    l = len ;
 	    f_eol = FALSE ;
@@ -1104,7 +1099,7 @@ int	sl ;
 
 	    gdp->buf[l] = '\0' ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 1) {
 
 	        eprintf("gotcircuit: looping\n") ;
@@ -1116,7 +1111,7 @@ int	sl ;
 
 	    if (f_bol) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	        if (gdp->debuglevel > 1)
 	            eprintf("gotcircuit: top of BOL sl=%d\n",sl) ;
 #endif
@@ -1130,7 +1125,7 @@ int	sl ;
 	        if (! f_cktmain)
 	            f_cktsub = (strncasecmp(cp,".subckt",7) == 0) ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	        if (gdp->debuglevel > 1)
 	            eprintf("gotcircuit: about to decide new circuit sl=%d\n",
 	                sl) ;
@@ -1140,7 +1135,7 @@ int	sl ;
 
 	        if (f_cktmain || f_cktsub) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	            if (gdp->debuglevel > 1) {
 
 	                eprintf("gotcircuit: new circuit again\n") ;
@@ -1158,7 +1153,7 @@ int	sl ;
 	            if (addblock(cirp,blockstart,blen) < 0)
 	                goto bad ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	            if (gdp->debuglevel > 1) eprintf(
 	                "gotcircuit: closed off this block o=%ld bl=%d\n",
 	                blockstart,blen) ;
@@ -1171,7 +1166,7 @@ int	sl ;
 	                l,type,sl + 1)) < 0)
 	                return BAD ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	            if (gdp->debuglevel > 1) eprintf(
 	                "gotcircuit: returned from 'gotcircuit' o=%ld\n",
 	                offset) ;
@@ -1190,7 +1185,7 @@ int	sl ;
 	        } else if ((strncasecmp(cp,".finis",6) == 0) ||
 	            (strncasecmp(cp,".end",4) == 0)) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	            if (gdp->debuglevel > 1)
 	                eprintf("gotcircuit: end of circuit sl=%d\n",
 	                    sl) ;
@@ -1201,7 +1196,7 @@ int	sl ;
 
 	        } /* end if (what type of action) */
 
-#if	DEBUG
+#if	CF_DEBUG
 	        if (gdp->debuglevel > 1)
 	            eprintf("gotcircuit: end of BOL sl=%d\n",
 	                sl) ;
@@ -1209,7 +1204,7 @@ int	sl ;
 
 	    } /* end if (BOL) */
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 1)
 	        eprintf("gotcircuit: bottom of while sl=%d\n",sl) ;
 #endif
@@ -1351,7 +1346,7 @@ struct circuit	*cirp ;
 	char		namebuf[MAXPATHLEN + 1] ;
 
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("writecir: entered cir=%s\n",cirp->name) ;
 #endif
@@ -1360,7 +1355,7 @@ struct circuit	*cirp ;
 
 	if (gdp->f.separate) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 1)
 	        eprintf("writecir: separated\n") ;
 #endif
@@ -1391,7 +1386,7 @@ struct circuit	*cirp ;
 
 	} else {
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 1)
 	        eprintf("writecir: not separated\n") ;
 #endif
@@ -1417,13 +1412,13 @@ struct circuit	*cirp ;
 	bp = cirp->bp ;
 	while (bp != NULL) {
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 1)
 	        eprintf("writecir: got a block start=%ld len=%d\n",
 	            bp->start,bp->len) ;
 #endif
 
-#if	DEBUG
+#if	CF_DEBUG
 	    if (gdp->debuglevel > 2) {
 
 	        eprintf(
@@ -1434,7 +1429,7 @@ struct circuit	*cirp ;
 	            eprintf("writecir: error from seek (rs %d)\n",
 	                rs) ;
 
-	        while ((len = bgetline(gdp->ifp,namebuf,MAXPATHLEN)) > 0) {
+	        while ((len = breadline(gdp->ifp,namebuf,MAXPATHLEN)) > 0) {
 
 	            if (namebuf[len - 1] == '\n') len -= 1 ;
 
@@ -1467,7 +1462,7 @@ struct circuit	*cirp ;
 
 	rs = OK ;
 
-#if	DEBUG
+#if	CF_DEBUG
 	if (gdp->debuglevel > 1)
 	    eprintf("writecir: exiting normally\n") ;
 #endif
@@ -1502,14 +1497,14 @@ int	l ;
 
 	if (l <= 0) return -1 ;
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	eprintf("opt_nmatch: searching on \"%W\"\n",
 	    s,l) ;
 #endif
 
 	while ((os[i] != NULL) && (os[i][0] != '\0')) {
 
-#if	DEBUGS
+#if	CF_DEBUGS
 	    eprintf("opt_nmatch: checking \"%s\"\n",
 	        os[i]) ;
 #endif
@@ -1531,9 +1526,7 @@ struct type	**headp ;
 char		*s ;
 {
 	struct type	*tp ;
-
 	char		*cp ;
-
 
 	while ((cp = strpbrk(s," \t,")) != NULL) {
 
@@ -1559,9 +1552,7 @@ struct type	**headp ;
 char		*s ;
 {
 	struct type	*tp2, *tp ;
-
 	char		*cp ;
-
 
 	if (((int) strlen(s)) <= 0) return OK ;
 
@@ -1570,16 +1561,11 @@ char		*s ;
 
 	tp->next = NULL ;
 	if (*headp == NULL) {
-
 	    *headp = tp ;
-
 	} else {
-
 	    tp2 = *headp ;
 	    while (tp2->next != NULL) tp2 = tp2->next ;
-
 	    tp2->next = tp ;
-
 	}
 
 	if ((tp->type = putheap(s)) == NULL) return BAD ;
@@ -1593,7 +1579,6 @@ int cirtypematch(cirtype,cirp)
 char		cirtype[] ;
 struct circuit	*cirp ;
 {
-
 
 	if (cirtype[0] == 0) return TRUE ;
 

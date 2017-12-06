@@ -44,6 +44,11 @@
 extern int	strwcasecmp(cchar *,cchar *,int) ;
 extern int	tolc(int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
 extern char	*strnchr(cchar *,int,int) ;
 
 
@@ -93,14 +98,11 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 				    f = (tolc(sch) == 'w') ;
 				}
 			     }
-	                     rs = vecstr_add(op,fbuf,fl) ;
 			} else {
 			    if ((fbuf[0] == '/') && hasLong(fbuf,fl)) {
 			        f = TRUE ;
 			    } else {
-				if (c > 1) {
 	                            rs = vecstr_add(op,fbuf,fl) ;
-				}
 			    }
 			}
 	                if (rs < 0) break ;

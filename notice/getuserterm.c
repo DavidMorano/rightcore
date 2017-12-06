@@ -225,10 +225,8 @@ time_t	current ;
 time_t	*tp ;
 {
 	struct ustat	sb ;
-
-	int	rs ;
-	int	fd = 0 ;
-
+	int		rs ;
+	int		fd = -1 ;
 
 	rs = u_open(termdev,O_WRONLY,0666) ;
 	fd = rs ;

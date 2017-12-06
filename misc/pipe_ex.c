@@ -62,7 +62,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	int	rs = SR_OK ;
 	int	i, len ;
 	int	rs_child ;
-	int	ifd = 0 ;
+	int	ifd = -1 ;
 	int	inpipe[2] ;
 	int	t0fd, t1fd ;
 	int	pi ;

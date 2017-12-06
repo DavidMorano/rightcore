@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1983-03-07, David A­D­ Morano
-
 	This subroutine was written for PPI development.
-
 
 */
 
@@ -227,7 +225,7 @@ void debugprint_fini()
 	    uip->f_initdone = FALSE ;
 	    if (uip->fd > 0) {
 	        u_close(uip->fd) ;
-	        uip->fd = 0 ;
+	        uip->fd = 0 ; /* special case (use zero) */
 	    }
 	    {
 	        void	(*b)() = debugprint_atforkbefore ;
@@ -428,7 +426,7 @@ int debugsetfd(int fd)
 {
 	int		rs = SR_NOTOPEN ;
 
-	ef.fd = -1 ;
+	ef.fd = 0 ; /* special case (use zero) */
 	if (fd >= 0) {
 	    struct ustat	sb ;
 	    if ((fd < FD_MAX) && ((rs = u_fstat(fd,&sb)) >= 0)) {
@@ -491,7 +489,7 @@ int debugclose()
 {
 	if (ef.fd > 0) {
 	    u_close(ef.fd) ;
-	    ef.fd = 0 ;
+	    ef.fd = 0 ; /* special case (use zero) */
 	}
 	ef.size = 0 ;
 	return 0 ;

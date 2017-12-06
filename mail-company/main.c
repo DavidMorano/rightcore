@@ -141,7 +141,7 @@ char	*argv[] ;
 	int	argr, argl, aol, akl, avl ;
 	int	kwi, npa, ai, i ;
 	int	rs, len, l ;
-	int	ifd = 0 ;
+	int	ifd = -1 ;
 	int	argnum = 0 ;
 	int	jlen ;
 	int	transport = 0 ;
@@ -999,25 +999,21 @@ char	*argv[] ;
 	        close(0) ;
 
 	        if ((ifd = open(ifname,O_RDONLY,0666)) < 0)
-	            goto badinfile ;
 
-	    } else 
-	        ifd = 0 ;
+	    } else {
+	        ifd = -1 ;
+	    }
 
-	    if ((rs = fstat(ifd,&sb)) < 0) goto badstat ;
+	    rs = fstat(ifd,&sb) ;
 
 	    if (S_ISREG(sb.st_mode)) f_clen = TRUE ;
 
 	} else {
-
 	    clen = 0 ;
 	    f_clen = TRUE ;
-
 	}
 
-
-
-
+	if (rs < 0) goto badinfile ;
 
 
 /* write out the job file header */

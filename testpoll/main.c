@@ -82,21 +82,16 @@ int main(argc,argv)
 int	argc ;
 char	*argv[] ;
 {
-	bfile	input, *ifp = &input ;
-	bfile	output, *ofp = &output ;
-	bfile	error, *efp = &error ;
-
-	sigset_t		signalmask ;
-
 	struct termios		ots, nts ;
-
 	struct sigaction	sigs ;
-
+	sigset_t	signalmask ;
+	bfile		input, *ifp = &input ;
+	bfile		output, *ofp = &output ;
+	bfile		error, *efp = &error ;
 	int		len ;
 	int		i, j ;
-	int		tfd = 0 ;
+	int		tfd = -1 ;
 	int		f_reveal = FALSE ;
-
 	uchar		c ;
 	uchar		*bp, buf[LINELEN] ;
 

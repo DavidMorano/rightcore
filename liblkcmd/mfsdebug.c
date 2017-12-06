@@ -60,17 +60,8 @@
 
 /* local typedefs */
 
-#ifndef	TYPEDEF_CCHAR
-#define	TYPEDEF_CCHAR	1
-typedef const char	cchar ;
-#endif
-
 
 /* local defines */
-
-#ifndef	PROGINFO
-#define	PROGINFO	struct proginfo
-#endif
 
 #ifndef	TO_POLLMULT
 #define	TO_POLLMULT	1000
@@ -96,11 +87,7 @@ typedef const char	cchar ;
 #define	IPCBUFLEN	MSGBUFLEN
 #endif
 
-#define	DEBUGFNAME	"/tmp/mfs.deb"
-
-#ifndef	TTYFNAME
-#define	TTYFNAME	"/dev/tty"
-#endif
+#define	NDF		"/tmp/mfs.deb"
 
 
 /* external subroutines */
@@ -122,7 +109,8 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdecmfi(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
-extern int	optbool(const char *,int) ;
+extern int	optbool(cchar *,int) ;
+extern int	optvalue(cchar *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;

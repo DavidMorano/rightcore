@@ -167,7 +167,7 @@ int		to ;
 	int		rs1 ;
 	int		argc = 0 ;
 	int		opts = 0 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*argz = NULL ;
 
 #if	CF_DEBUGS
@@ -236,7 +236,7 @@ int		to ;
 	int		rs1 ;
 	int		argc = 0 ;
 	int		opts = 0 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*argz = NULL ;
 
 #if	CF_DEBUGS
@@ -305,7 +305,7 @@ int		to ;
 	int		rs1 ;
 	int		argc = 0 ;
 	int		opts = 0 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*argz = NULL ;
 
 #if	CF_DEBUGS

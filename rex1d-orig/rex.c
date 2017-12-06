@@ -142,7 +142,7 @@ NETFILE_ENT	**mpp ;
 	int		i, j ;
 	int		len, l ;
 	int		childstat ;
-	int		rfd = 0 ;
+	int		rfd = -1 ;
 	int		port = -1 ;
 	const char	*args[2] ;
 	const char	*username = NULL ;

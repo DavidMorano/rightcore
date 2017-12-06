@@ -68,25 +68,21 @@ char	*envv[] ;
 	bfile	input, *ifp = &input ;
 	bfile	output, *ofp = &output ;
 	bfile	error, *efp = &error ;
-
 	struct termios	saved ;
-
-	long	lw ;
-
-	int	rs ;
-	int	i, j ;
-	int	len, llen ;
-	int	ttfd, tfd = 0 ;
-	int	fd_debug ;
-	int	ex = EX_INFO ;
-	int	f_exit ;
-
-	uchar	c ;
-	uchar	buf[BUFLEN + 1] ;
-	uchar	*bp ;
-
-	char	*progname ;
-	char	*cp ;
+	long		lw ;
+	int		rs = SR_OK ;
+	int		i, j ;
+	int		len, llen ;
+	int		ttfd = -1 ;
+	int		tfd = -1 ;
+	int		fd_debug = -1 ;
+	int		ex = EX_INFO ;
+	int		f_exit ;
+	uchar		c = 0 ;
+	uchar		buf[BUFLEN + 1] ;
+	uchar		*bp ;
+	cchar		*progname ;
+	cchar		*cp ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {

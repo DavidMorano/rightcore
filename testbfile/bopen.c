@@ -966,7 +966,7 @@ char	name[] ;
 static int extfd(const char *s) 
 {
 	int		rs = SR_INVALID ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	if (*s++ == BFILE_FDCH) {
 	   const int	ch = MKCHAR(s[0]) ;
 	   if (isdigit(ch)) rs = cfdeci(s,-1,&fd) ;

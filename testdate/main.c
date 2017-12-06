@@ -3,12 +3,23 @@
 /* test the DATE object */
 
 
-#define	F_DEBUGS	0
-#define	F_TZSET		1
-#define	F_LOCALTIME	1
-#define	F_MKTIME	1
+#define	CF_DEBUGS	0		/* run-time debugging */
+#define	CF_TZSET	1
+#define	CF_LOCALTIME	1
+#define	CF_MKTIME	1
 
 
+/* revision history:
+
+	= 2000-09-07, David A­D­ Morano
+	Originally written for Rightcore Network Services.
+
+*/
+
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -25,18 +36,18 @@
 #include	<field.h>
 #include	<char.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"misc.h"
 #include	"config.h"
 #include	"defs.h"
 #include	"date.h"
 
 
-
 /* local defines */
 
-#define	LINELEN		100
-
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
 
 
 /* external subroutines */
@@ -80,6 +91,7 @@ static unsigned char	dterms[] = {
 } ;
 
 
+/* exported subroutines */
 
 
 int main()
@@ -93,13 +105,14 @@ int main()
 
 	time_t	daytime ;
 
-	int	rs, i, n ;
+	int		rs = SR_OK ;
+	int		i, n ;
 	int	len, sl ;
 	int	itype, otype ;
 	int	fd_debug ;
 
-	char	linebuf[LINELEN + 1] ;
-	char	lineout[LINELEN + 1] ;
+	char	linebuf[LINEBUFLEN + 1] ;
+	char	lineout[LINEBUFLEN + 1] ;
 	char	timebuf[50] ;
 	char	cname[DATE_ZNAMESIZE] ;
 	char	*cp ;
@@ -134,16 +147,16 @@ int main()
 	bprintf(ofp,"daylight=%d timezone=%d altzone=%d\n",
 	    daylight,timezone,altzone) ;
 
-#if	F_TZSET
+#if	CF_TZSET
 	bprintf(ofp,"tzset()\n") ;
 
 	tzset() ;
 
 	bprintf(ofp,"daylight=%d timezone=%d altzone=%d\n",
 	    daylight,timezone,altzone) ;
-#endif /* F_TZSET */
+#endif /* CF_TZSET */
 
-#if	F_LOCALTIME
+#if	CF_LOCALTIME
 	bprintf(ofp,"localtime()\n") ;
 
 	localtime(&daytime) ;
@@ -152,7 +165,7 @@ int main()
 	    daylight,timezone,altzone) ;
 #endif
 
-#if	F_MKTIME
+#if	CF_MKTIME
 	{
 	    struct tm	*tsp, ts ;
 
@@ -180,7 +193,7 @@ int main()
 	        daylight,timezone,altzone) ;
 
 	} /* end block */
-#endif /* F_MKTIME */
+#endif /* CF_MKTIME */
 
 
 /* loop stuff */
@@ -220,10 +233,10 @@ int main()
 	    bprintf(ofp,
 	        "enter type and date_string> ") ;
 
-	    if ((len = bgetline(ifp,linebuf,LINELEN)) <= 0)
+	    if ((len = breadline(ifp,linebuf,LINEBUFLEN)) <= 0)
 	        break ;
 
-	    field_init(&f,linebuf,len) ;
+	    field_start(&f,linebuf,len) ;
 
 /* get the type */
 
@@ -232,11 +245,8 @@ int main()
 	    itype = f.fp[0] - '0' ;
 
 	    if (f.term == ',') {
-
 	        field_get(&f,tterms) ;
-
 	        otype = f.fp[0] - '0' ;
-
 	    } /* end if (getting output type) */
 
 /* get the date_string */
@@ -247,10 +257,7 @@ int main()
 	    dp = f.lp ;
 	    dlen = f.rlen ;
 	    if (dlen > 0) {
-
-	        while (CHAR_ISWHITE(dp[dlen - 1]))
-	            dlen -= 1 ;
-
+	        while (CHAR_ISWHITE(dp[dlen - 1])) dlen -= 1 ;
 	    }
 #endif
 
@@ -263,31 +270,25 @@ int main()
 
 	        case 0:
 	            rs = date_setstd(&d,dp,dlen) ;
-
 	            break ;
 
 	        case 1:
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	            eprintf("main: str=>%W<\n",dp,dlen) ;
 #endif
 
 	            rs = date_setmsg(&d,dp,dlen) ;
-
-#if	F_DEBUGS
-	            eprintf("main: after rs=%d\n",rs) ;
-#endif
-
 	            break ;
 
 	        case 2:
 	            rs = date_setlogz(&d,dp,dlen) ;
-
 	            break ;
 
 	        default:
 	            rs = SR_NOTSUP ;
 	            bprintf(ofp,"unknown input type\n") ;
+		    break ;
 
 	        } /* end switch */
 
@@ -309,9 +310,9 @@ int main()
 
 	            for (i = 0 ; i < DATE_DTSEND ; i += 1) {
 
-	                sl = date_mkdatestr(&d,i,lineout,LINELEN) ;
+	                sl = date_mkdatestr(&d,i,lineout,LINEBUFLEN) ;
 
-#if	F_DEBUGS
+#if	CF_DEBUGS
 	                eprintf("main: daylight=%d timezone=%d altzone=%d\n",
 	                    daylight,timezone,altzone) ;
 #endif
@@ -327,8 +328,7 @@ int main()
 	    } else
 	        bprintf(ofp,"no string given to convert\n") ;
 
-	    field_free(&f) ;
-
+	    field_finish(&f) ;
 	} /* end while */
 
 	bprintf(ofp,"\n") ;

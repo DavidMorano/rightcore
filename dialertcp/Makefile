@@ -13,18 +13,18 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man7
 INSDIR= $(SRCROOT)/lib/sysdialers
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -32,6 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -65,16 +66,19 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
-LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR) -B direct
+
+LDRPATH=
+
+LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_LRPATH) -B direct
 
 
-SLIBDIRS= -L$(LIBDIR)
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1= -ldam -lb
 SLIB2=
 SLIB3= -luc -lu
-SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB4= $(CGS_LIBS)
 SLIB5= 
 SLIB6=
 SLIB7=
@@ -82,9 +86,10 @@ SLIB7=
 SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
 
 
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -144,11 +149,11 @@ default:		$(T).so
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -172,7 +177,7 @@ $(T):			$(T).ee
 $(T).so:		$(SOBJ) Makefile
 	makedate > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -G -o $@ -m $(LDFLAGS) $(SOBJ) $(SLIBDIRS) $(SLIBS) > $(T).lm
+	$(LD) -G -o $@ -m $(LDFLAGS) $(SOBJ) $(SLIBINFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)

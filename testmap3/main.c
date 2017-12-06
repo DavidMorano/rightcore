@@ -144,7 +144,7 @@ char	*argv[] ;
 	int	len, sl ;
 	int	ex = EX_USAGE ;
 	int	i, j ;
-	int	fd = 0 ;
+	int	fd = -1 ;
 	int	f_msync ;
 	int	fd_debug ;
 

@@ -1105,23 +1105,18 @@ BABYCALCS	*op ;
 const char	shmname[] ;
 {
 	const int	operms = BABYCALCS_PERMS ;
-
-	int	rs = SR_OK ;
-	int	oflags = O_RDWR ;
-	int	to = TO_WAITSHM ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		oflags = O_RDWR ;
+	int		to = TO_WAITSHM ;
+	int		fd = -1 ;
 
 	while (to-- > 0) {
 
 	    rs = uc_openshm(shmname,oflags,operms) ;
 	    fd = rs ;
-	    if (rs >= 0)
-	        break ;
+	    if (rs >= 0) break ;
 
-	    if (rs != SR_ACCESS)
-	        break ;
-
+	    if (rs != SR_ACCESS) break ;
 	} /* end while */
 
 	if ((rs < 0) && (to == 0))

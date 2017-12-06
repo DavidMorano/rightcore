@@ -1,44 +1,37 @@
 /* main (testput) */
 
 
-#define	F_DEBUG		0
-#define	F_WRITE		1
-#define	F_ERROUT	0
+#define	CF_DEBUG	0		/* run-time debugging */
+#define	CF_WRITE	1
+#define	CF_ERROUT	0
 
 
 /* revision history :
 
-	= February 88, David A­D­ Morano
-
+	= 1988-02-01, David A­D­ Morano
 	This is something from way back !  (near the beginning maybe)
-
 
 */
 
-
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /************************************************************************
 
 	This is a test program for the BIO package.
 
 
-
 *************************************************************************/
 
 
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<time.h>
 #include	<stdlib.h>
-#include	<ctype.h>
 
 #include	<bfile.h>
-
-#include	"misc.h"
-
-
+#include	<localmisc.h>
 
 
 /* local defines */
@@ -49,14 +42,13 @@
 #define	OUTPUT		"/home/dam/src/rmailerd/testput.out"
 
 
-
 /* external subroutines */
 
 
 /* external variables */
 
 
-
+/* exported subroutines */
 
 
 int main(argc,argv)
@@ -67,17 +59,17 @@ char	*argv[] ;
 	bfile	infile, *ifp = &infile ;
 	bfile	outfile, *ofp = &outfile ;
 
+	int	rs ;
 	int	len ;
 	int	pan, i ;
 	int	argl, aol ;
-	int	rs ;
 	int	lines ;
 	int	err_fd ;
 	int	f_usage = FALSE ;
 
-	char	*progname, *argp, *aop ;
+	cchar	*progname, *argp, *aop ;
+	cchar	*cp ;
 	char	buf[BUFLEN + 1] ;
-	char	*cp ;
 
 
 	if (((cp = getenv("ERROR_FD")) != NULL) &&
@@ -85,7 +77,7 @@ char	*argv[] ;
 	    esetfd(err_fd) ;
 
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: about to open error\n") ;
 #endif
 
@@ -94,13 +86,13 @@ char	*argv[] ;
 		bcontrol(efp,BC_LINEBUF,0) ;
 
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: about to open input\n") ;
 #endif
 
 	if ((rs = bopen(ifp,BIO_STDIN,"dr",0666)) < 0) {
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: no open input, rs=%d\n",rs) ;
 #endif
 
@@ -108,13 +100,13 @@ char	*argv[] ;
 	}
 
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: about to open output\n") ;
 #endif
 
 	if ((rs = bopen(ofp,OUTPUT,"wca",0666)) < 0) {
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: no open output, rs=%d\n",rs) ;
 #endif
 
@@ -124,38 +116,38 @@ char	*argv[] ;
 
 /* OK, go into infinite loop mode */
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: before loop\n",rs) ;
 #endif
 
 	lines = 0 ;
 	while (TRUE) {
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: before read\n",rs) ;
 #endif
 
-	if ((len = bgetline(ifp,buf,BUFLEN)) <= 0) break ;
+	if ((len = breadline(ifp,buf,BUFLEN)) <= 0) break ;
 
 		lines += 1 ;
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: before write\n",rs) ;
 #endif
 
-#if	F_WRITE
+#if	CF_WRITE
 		if ((rs = bwrite(ofp,buf,len)) < 0)
 			break ;
-#endif /* F_WRITE */
+#endif /* CF_WRITE */
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: bottom loop \n",rs) ;
 #endif
 
 	} /* end while */
 
-#if	F_DEBUG
-		eprintf("main: after loop\n") ;
+#if	CF_DEBUG
+	eprintf("main: after loop\n") ;
 #endif
 
 	bclose(ifp) ;
@@ -165,7 +157,7 @@ char	*argv[] ;
 
 	if (len < 0) {
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: bad read, len=%d\n",len) ;
 #endif
 
@@ -174,7 +166,7 @@ char	*argv[] ;
 
 	if (rs < 0) {
 
-#if	F_DEBUG
+#if	CF_DEBUG
 		eprintf("main: bad write, rs=%d\n",rs) ;
 #endif
 
@@ -182,7 +174,7 @@ char	*argv[] ;
 	}
 
 
-#if	F_ERROUT
+#if	CF_ERROUT
 	bprintf(efp,"%s: lines=%d\n",progname,lines) ;
 #endif
 

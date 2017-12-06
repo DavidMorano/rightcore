@@ -98,7 +98,7 @@ extern int	debugprintf(const char *,...) ;
 int opensockaddr(int pf,int st,int proto,struct sockaddr *sap,int to)
 {
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 #if	CF_DEBUGS
 	debugprintf("opensockaddr: pf=%u type=%u proto=%u\n",

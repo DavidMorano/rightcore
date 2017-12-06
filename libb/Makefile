@@ -21,11 +21,11 @@ GPP= $(CGS_GPP)
 
 
 GPPFLAGS= $(CGS_CCFLAGS)
-
 CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -33,10 +33,30 @@ CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
 #CCOPTS= $(CCOPTS_CCALL) -g -xs
+
+
+RANLIB= ranlib
+
+LINT= lint
+LINTFLAGS= -uxn -Dlint
+
+NM= nm
+NMFLAGS= -xs -v
+
+CXREF= cxref
+CXREFFLAGS= -R -s
+
+CPP= cpp
+
+LORDER= lorder
+TSORT= tsort
+
+RM= rm -f
 
 
 DEF0=
@@ -63,6 +83,8 @@ CFLAGS= $(CCOPTS) $(LF_CFLAGS)
 LDRPATH=
 
 LDFLAGS= $(LF_LDFLAGS) -L$(LIBDIR):$(CGS_RPATH)
+
+SLDFLAGS= $(LDFLAGS) -B reduce
 
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
@@ -95,25 +117,6 @@ XLIB7= -ldl
 XLIBS= $(XLIB0) $(XLIB1) $(XLIB2) $(XLIB3) $(XLIB4) $(XLIB5) $(XLIB6) $(XLIB7)
 
 XLIBINFO= $(XLIBDIRS) $(XLIBS)
-
-
-RANLIB= ranlib
-
-LINT= lint
-LINTFLAGS= -uxn -Dlint
-
-NM= nm
-NMFLAGS= -xs -v
-
-CXREF= cxref
-CXREFFLAGS= -R -s
-
-CPP= cpp
-
-LORDER= lorder
-TSORT= tsort
-
-RM= rm -f
 
 
 INCS= bfile.h
@@ -188,9 +191,6 @@ all:			$(ALL) $(T).a(bprintf.o)
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
 
-.cc.o:
-	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
-
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
 
@@ -212,8 +212,7 @@ $(T).a:			$(OBJ)
 	ranlib $@
 
 $(T).so:		$(OBJS) $(T).map Makefile $(T).a
-	$(LD) -o $@ -G -B reduce -M $(T).map \
-		$(LDFLAGS) $(OBJS) $(LIBINFO)
+	$(LD) -G -o $@ $(SLDFLAGS) -M $(T).map $(OBJS) $(LIBINFO)
 
 $(T).nm:		$(T).so
 	$(NM) $(NMFLAGS) $(T).so > $(T).nm
@@ -311,9 +310,9 @@ bprintf.o:		bprintf.c bfile.h
 bprintline.o:		bprintline.c bfile.h
 bputc.o:		bputc.c bfile.h
 bread.o:		bread.c bfile.h
-breadline.o:		breadline.c bfile.h
+breadline.o:		breadline.cc bfile.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) breadline.cc
 breadlines.o:		breadlines.c bfile.h
-breadlinetimed.o:	breadlinetimed.c bfile.h
 bseek.o:		bseek.c bfile.h
 btell.o:		btell.c bfile.h
 btruncate.o:		btruncate.c bfile.h

@@ -101,8 +101,6 @@ extern int	pcspolls_finish(PCSPOLLS *) ;
 
 #endif /* PCSPOLLS_MASTER */
 
-
 #endif /* PCSPOLLS_INCLUDE */
-
 
 

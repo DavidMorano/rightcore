@@ -944,7 +944,7 @@ static int babycalcs_openshmwait(BABYCALCS *op,cchar *shmname)
 	int		rs = SR_OK ;
 	int		oflags = O_RDWR ;
 	int		to = TO_WAITSHM ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if (op == NULL) return SR_FAULT ;
 

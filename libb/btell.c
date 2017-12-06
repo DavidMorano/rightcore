@@ -53,9 +53,7 @@ extern int	bfile_flush(bfile *) ;
 /* exported subroutines */
 
 
-int btell(fp,rp)
-bfile		*fp ;
-offset_t	*rp ;
+int btell(bfile *fp,offset_t *rp)
 {
 	offset_t	telloff = 0 ;
 	int		rs = SR_OK ;
@@ -64,20 +62,13 @@ offset_t	*rp ;
 
 	if (fp->magic != BFILE_MAGIC) return SR_NOTOPEN ;
 
-	if (fp->f.notseek)
-	    return SR_NOTSEEK ;
+	if (! fp->f.nullfile) {
+	    telloff = fp->offset ;
+	    if (! fp->f.notseek) rs = SR_NOTSEEK ;
+	}
 
-	if (fp->f.nullfile) goto ret2 ;
-
-	telloff = fp->offset ;
-
-ret2:
 	if (rp != NULL) *rp = telloff ;
-
-ret1:
 	rs = (telloff & UINT_MAX) ;
-
-ret0:
 	return rs ;
 }
 /* end subroutine (btell) */

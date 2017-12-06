@@ -171,7 +171,7 @@ OBJ19= nusers.o
 OBJ20=
 OBJ21= tcgetlines.o 
 OBJ22= mailmsgfrom.o
-OBJ23= debug.o getdig.o
+OBJ23=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)

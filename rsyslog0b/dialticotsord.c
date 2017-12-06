@@ -122,7 +122,7 @@ int dialticotsord(cchar abuf[],int alen,int to,int opts)
 {
 	SUBINFO		g ;
 	int		rs = SR_OK ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	char		addrbuf[ADDRBUFLEN + 1] ;
 
 #if	CF_DEBUGS
@@ -190,7 +190,7 @@ static int makeconn(SUBINFO *gp,cchar addr[],int alen,int to)
 {
 	struct t_info	info ;
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 #if	CF_DEBUGS
 	debugprintf("dialticotsord/makeconn: ent to=%d\n",to) ;

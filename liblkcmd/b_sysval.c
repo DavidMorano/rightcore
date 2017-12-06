@@ -1785,32 +1785,31 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    break ;
 	case qopt_nprocs:
 	case qopt_naprocs:
-	    if ((rs = getnprocs(pip,0)) >= 0) {
-	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
-	        cbp = cvtbuf ;
-	        cbl = rs ;
-	    }
-	    break ;
 	case qopt_nsprocs:
-	    if ((rs = getnprocs(pip,1)) >= 0) {
-	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
-	        cbp = cvtbuf ;
-	        cbl = rs ;
-	    }
-	    break ;
 	case qopt_nuprocs:
-	    if ((rs = getnprocs(pip,2)) >= 0) {
-	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
-	        cbp = cvtbuf ;
-	        cbl = rs ;
-	    }
-	    break ;
 	case qopt_ntprocs:
-	    if ((rs = getnprocs(pip,3)) >= 0) {
-	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
-	        cbp = cvtbuf ;
-	        cbl = rs ;
-	    }
+	    {
+		int	w = 0 ;
+		switch (ri) {
+		case qopt_nprocs:
+		case qopt_naprocs: /* all */
+		    break ;
+		case qopt_nsprocs: /* system */
+		    w = 1 ;
+		    break ;
+		case qopt_nuprocs: /* user */
+		    w = 2 ;
+		    break ;
+		case qopt_ntprocs: /* session */
+		    w = 3 ;
+		    break ;
+		} /* end switch */
+	        if ((rs = getnprocs(pip,w)) >= 0) {
+	            rs = ctdeci(cvtbuf,cvtlen,rs) ;
+	            cbp = cvtbuf ;
+	            cbl = rs ;
+	        }
+	    } /* end block */
 	    break ;
 	case qopt_ncpus:
 	    if ((rs = getncpus(pip)) >= 0) {
@@ -2334,11 +2333,24 @@ static int procacc(PROGINFO *pip,char *cbuf,int clen,cchar *vp,int vl)
 static int procsystat(PROGINFO *pip,char *cbuf,int clen,cchar *vp,int vl)
 {
 	LOCINFO		*lip = pip->lip ;
-	int		rs ;
+	int		rs = SR_OK ;
 	if (lip->f.set) {
 	    rs = localsetsystat(pip->pr,vp,vl) ;
 	} else {
-	    rs = localgetsystat(pip->pr,cbuf,clen) ;
+	    cbuf[0] = '\0' ;
+#if	CF_PERCACHE
+	    if (lip->f.percache) {
+		const time_t	dt = pip->daytime ;
+		cchar		*pr = pip->pr ;
+		cchar		*cp ;
+		if ((rs = percache_systat(&pc,dt,pr,&cp)) > 0) {
+	            rs = sncpy1(cbuf,clen,cp) ;
+	        }
+	    }
+#endif /* CF_PERCACHE */
+	    if ((rs >= 0) && (cbuf[0] == '\0')) {
+	        rs = localgetsystat(pip->pr,cbuf,clen) ;
+	    }
 	}
 	return rs ;
 }
@@ -2993,11 +3005,24 @@ static int locinfo_fsdir(LOCINFO *lip)
 static int locinfo_netload(LOCINFO *lip,char *cbuf,int clen,cchar *vp,int vl)
 {
 	PROGINFO	*pip = lip->pip ;
-	int		rs ;
+	int		rs = SR_OK ;
 	if (lip->f.set) {
 	    rs = localsetnetload(pip->pr,vp,vl) ;
 	} else {
-	    rs = localgetnetload(pip->pr,cbuf,clen) ;
+	    cbuf[0] = '\0' ;
+#if	CF_PERCACHE
+	    if (lip->f.percache) {
+		const time_t	dt = pip->daytime ;
+		cchar		*pr = pip->pr ;
+		cchar		*cp ;
+		if ((rs = percache_netload(&pc,dt,pr,&cp)) > 0) {
+	            rs = sncpy1(cbuf,clen,cp) ;
+	        }
+	    }
+#endif /* CF_PERCACHE */
+	    if ((rs >= 0) && (cbuf[0] == '\0')) {
+	        rs = localgetnetload(pip->pr,cbuf,clen) ;
+	    }
 	}
 	return rs ;
 }

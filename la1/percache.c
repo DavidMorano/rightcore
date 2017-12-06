@@ -254,8 +254,8 @@ int percache_gethostid(PERCACHE *pcp,time_t dt,uint *hip)
 	if (pcp == NULL) return SR_FAULT ;
 
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t		vt ;
-	    int	to ;
+	    time_t	vt ;
+	    int		to ;
 	    vt = pcp->items[pt].t ;
 	    to = timeouts[pt] ;
 	    if ((dt - vt) > to) {
@@ -469,7 +469,7 @@ int percache_netload(PERCACHE *pcp,time_t dt,const char *pr,const char **rpp)
 /* end subroutine (percache_netload) */
 
 
-int percache_systat(PERCACHE *pcp,time_t dt,const char *pr,const char **rpp)
+int percache_systat(PERCACHE *pcp,time_t dt,cchar *pr,cchar **rpp)
 {
 	const int	pt = pertype_systat ;
 	int		rs ;

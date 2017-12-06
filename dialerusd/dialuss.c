@@ -95,7 +95,7 @@ int dialuss(cchar *pathname,int to,int opts)
 	struct ustat	sb ;
 	int		rs ;
 	int		rs1 ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if (pathname == NULL) return SR_FAULT ;
 

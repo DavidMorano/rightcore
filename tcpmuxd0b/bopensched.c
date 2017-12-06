@@ -120,7 +120,6 @@ int		permission ;
 	int		imode ;
 	int		f_create = FALSE ;
 	const char	*mp ;
-	const char	*onp = NULL ;
 	char		openmode[MODELEN + 1], *omp = openmode ;
 	char		*tmpfname ;
 
@@ -240,7 +239,6 @@ int		buflen ;
 	const char	*fp ;
 	const char	*tp, *cp ;
 	char		keybuf[2] ;
-	char		*bp = buf ;
 
 #if	CF_DEBUGS
 	debugprintf("bopensched/expand: ent fname=%s\n",fname) ;

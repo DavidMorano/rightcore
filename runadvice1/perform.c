@@ -3,7 +3,7 @@
 /* perform an actual ADVICE program execution */
 
 
-#define	CF_DEBUG	0
+#define	CF_DEBUG	0		/* run-time debugging */
 
 
 /* revision history:
@@ -15,12 +15,13 @@
 	This program was pretty extensively modified to take
 	much more flexible combinations of user supplied paramters.
 
-
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
+
+	We execute the ADVICE program as appropriate.
 
 
 *******************************************************************************/
@@ -30,13 +31,11 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/wait.h>
 #include	<rpc/rpc.h>
 #include	<unistd.h>
 #include	<signal.h>
 #include	<fcntl.h>
 #include	<time.h>
-#include	<ctype.h>
 #include	<string.h>
 #include	<stdlib.h>
 
@@ -56,8 +55,9 @@
 
 /* local defines */
 
-#define	LINELEN		200
-#define	BUFLEN		(MAXPATHLEN + (LINELEN * 2))
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
 
 
 /* external subroutines */
@@ -111,7 +111,6 @@ pid_t		pid ;
 	char	tmpmainfname[MAXPATHLEN + 1] ;
 	char	tmpoutfname[MAXPATHLEN + 1] ;
 	char		cmd[(MAXPATHLEN * 2) + 1] ;
-	char		linebuf[(MAXPATHLEN * 2) + 1] ;
 	char		buf[(MAXPATHLEN * 2) + 1] ;
 	char		*cp ;
 	char		slavestring[10] ;
@@ -188,11 +187,11 @@ pid_t		pid ;
 
 	varsub_add(vshp,"CONTROLCKT",-1,tmpconfname,-1) ;
 
-	if (tmpparamfname[0] == '\0')
+	if (tmpparamfname[0] == '\0') {
 	    varsub_add(vshp,"PARAMS",-1,"/dev/null",-1) ;
-
-	else
+	} else {
 	    varsub_add(vshp,"PARAMS",-1,tmpparamfname,-1) ;
+	}
 
 	rs = varsub_add(vshp,"MAINCKT",-1,tmpmainfname,-1) ;
 
@@ -273,25 +272,25 @@ pid_t		pid ;
 	if ((rs = bopencmd(fpa,cmd)) < 0) goto badspawn ;
 
 	if (g.f.machines) {
-
-	    bcontrol(fpa[1],BC_LINEIN,0) ;
+	    const int	LINEBUFLEN ;
+	    char	lbuf[LINEBUFLEN+1] ;
 
 /* funnel the output from ADVICE back to the main parent */
 
 	    f_bol = TRUE ;
-	    while ((len = breadline(fpa[1],linebuf,LINELEN)) > 0) {
+	    while ((len = breadline(fpa[1],lbuf,llen)) > 0) {
 
 #if	CF_DEBUG
 	if (g.debuglevel > 1) debugprintf(
-	    "perform: breadline=%W\n",linebuf,len) ;
+	    "perform: breadline=%W\n",lbuf,len) ;
 #endif
 
 	        f_eol = FALSE ;
-	        if (linebuf[len - 1] == '\n') f_eol = TRUE ;
+	        if (lbuf[len - 1] == '\n') f_eol = TRUE ;
 
 	        if (f_bol) bprintf(g.ofp,"%s: ",slavestring) ;
 
-	        if ((rs = bwrite(g.ofp, linebuf,len)) < 0)
+	        if ((rs = bwrite(g.ofp, lbuf,len)) < 0)
 	            break ;
 
 	        if (f_eol) bflush(g.ofp) ;
@@ -299,7 +298,6 @@ pid_t		pid ;
 	        if (g.f_signal) goto signaled ;
 
 	        f_bol = f_eol ;
-
 	    } /* end while */
 
 	    if (rs < 0)
@@ -324,7 +322,7 @@ pid_t		pid ;
 #endif
 
 	rs = OK ;
-	if (bopen(tfp,tmpoutfname,"r",0666) >= 0) {
+	if ((rs = bopen(tfp,tmpoutfname,"r",0666)) >= 0) {
 
 #if	CF_DEBUG
 	    if (g.debuglevel > 1) debugprintf(
@@ -388,11 +386,9 @@ pid_t		pid ;
 #endif
 
 	        if ((rs = bcontrol(dofp,BC_LOCK,120)) < 0) {
-
 	            bprintf(g.efp,
 	                "%s: could not get output file lock (inner) (rs %d)\n",
 	                g.progname,rs) ;
-
 	        }
 
 /* copy it all over */
@@ -429,7 +425,6 @@ pid_t		pid ;
 #endif
 
 	        bclose(dofp) ;
-
 	    } /* end if (opening data output file */
 
 #if	CF_DEBUG
@@ -438,7 +433,6 @@ pid_t		pid ;
 #endif
 
 	    bclose(tfp) ;
-
 	} /* end if (updating output file) */
 
 #if	CF_DEBUG

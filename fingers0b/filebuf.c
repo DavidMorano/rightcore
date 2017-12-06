@@ -331,7 +331,7 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 	        break ;
 
 #if	CF_DEBUGS
-	    debugprintf("filebuf_readline: bottom while\n") ;
+	    debugprintf("filebuf_readline: while-bot\n") ;
 #endif
 
 	} /* end while (trying to satisfy request) */
@@ -355,12 +355,12 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 /* end subroutine (filebuf_readline) */
 
 
-int filebuf_readlines(FILEBUF *fp,char lbuf[],int llen,int to,int *lcp)
+int filebuf_readlines(FILEBUF *fp,char *lbuf,int llen,int to,int *lcp)
 {
 	int		rs = SR_OK ;
-	int		alen ;			/* "add" length */
+	int		alen ;		/* "add" length */
 	int		i = 0 ;
-	int		f_first = TRUE ;
+	int		lines = 0 ;
 	int		f_cont = FALSE ;
 
 	if (fp == NULL) return SR_FAULT ;
@@ -369,21 +369,18 @@ int filebuf_readlines(FILEBUF *fp,char lbuf[],int llen,int to,int *lcp)
 	if (lcp != NULL) *lcp = 0 ;
 
 	lbuf[0] = '\0' ;
-	while (f_first || (f_cont = ISCONT(lbuf,i))) {
+	while ((lines == 0) || (f_cont = ISCONT(lbuf,i))) {
 
-	    f_first = FALSE ;
-	    if (f_cont)
-	        i -= 2 ;
+	    if (f_cont) i -= 2 ;
 
 	    alen = (llen - i) ;
 	    rs = filebuf_readline(fp,(lbuf + i),alen,to) ;
 	    if (rs <= 0) break ;
 	    i += rs ;
 
-	    if (lcp != NULL)
-	        *lcp += 1 ;
-
 	} /* end while */
+
+	if (lcp != NULL) *lcp = lines ;
 
 	return (rs >= 0) ? i : rs ;
 }

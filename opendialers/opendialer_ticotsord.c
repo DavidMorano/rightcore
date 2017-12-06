@@ -157,14 +157,11 @@ const char	**envv ;
 int		to ;
 {
 	ARGPARSE	ai ;
-
-	int	rs = SR_OK ;
-	int	argc = 0 ;
-	int	opts = 0 ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		argc = 0 ;
+	int		opts = 0 ;
+	int		fd = -1 ;
 	const char	*argz = NULL ;
-
 
 #if	CF_DEBUGS
 	{

@@ -4,7 +4,7 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0
+#define	CF_DEBUGS	0		/* run-time debuging */
 
 
 /* revision history :
@@ -22,6 +22,7 @@
 
 
 *******************************************************************************/
+
 
 #include	<envstandards.h>
 
@@ -74,7 +75,7 @@ static int	testuucp() ;
 static void	bdump() ;
 
 
-
+/* exported subroutines */
 
 
 int uucp(rhost,filename,fd2p)
@@ -82,9 +83,9 @@ char	rhost[] ;
 char	filename[] ;
 int	*fd2p ;
 {
-	pid_t	child_pid ;
-
-	int	rs, i ;
+	pid_t		child_pid ;
+	int		rs = S_ROK ;
+	int		;
 	int	srs ;
 	int	pipes[3][2] ;
 	int	pfd ;
@@ -97,7 +98,7 @@ int	*fd2p ;
 
 
 #if	CF_DEBUGS
-	eprintf("uucp: entered\n") ;
+	eprintf("uucp: ent\n") ;
 #endif
 
 /* check for bad input */
@@ -306,8 +307,9 @@ char	queue_machine[] ;
 
 	pid_t		pid ;
 
-	int	child_stat ;
-	int	rs, i, si, ri ;
+	int		rs = SR_OK ;
+	int		child_stat ;
+	int		i, si, ri ;
 	int	len, sl ;
 	int	nlen ;
 	int	f_found ;
@@ -318,7 +320,7 @@ char	queue_machine[] ;
 
 
 #if	CF_DEBUGS
-	eprintf("testuucp: entered\n") ;
+	eprintf("testuucp: ent\n") ;
 #endif
 
 	if ((queue_machine == NULL) || (queue_machine[0] == '\0'))
@@ -341,28 +343,27 @@ char	queue_machine[] ;
 #endif
 
 	if ((rs = bopencmd(fpa,cmd_uuname)) >= 0) {
+	    pid = rs ;
 
 #if	CF_DEBUGS
 	    eprintf("testuucp: opened command OK\n") ;
 #endif
 
-	    pid = rs ;
-
 	    bclose(fpa[0]) ;
 
 /* find the part of the machine name that we like */
 
-	    if ((cp = strchr(queue_machine,'.')) != NULL)
+	    if ((cp = strchr(queue_machine,'.')) != NULL) {
 	        nlen = cp - queue_machine ;
-
-	else
+	} else {
 	    nlen = strlen(queue_machine) ;
+	}
 
 /* loop through */
 
 	f_found = FALSE ;
 	    rs = BAD ;
-	    while ((len = bgetline(pfp,linebuf,LINELEN)) > 0) {
+	    while ((len = breadline(pfp,linebuf,LINELEN)) > 0) {
 
 		sl = sfshrink(linebuf,len,&sp) ;
 

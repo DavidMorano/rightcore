@@ -161,7 +161,7 @@ char	**argv ;
 	int	f_initlist = FALSE ;
 	int	f_in0, f_out1, f_out2, f_in3, f_out3, f_in4 ;
 	int	f_final0, f_final1, f_final2, f_final3, f_final4 ;
-	int	ifd = 0, ofd = 1, efd ;
+	int	ifd = -1, ofd = 1, efd = -1 ;
 	int	f_eof0, f_eof3, f_eof4 ;
 	int	f_exit ;
 	int	f_euid ;
@@ -955,11 +955,11 @@ char	**argv ;
 
 	    }
 
-	    if (sp != NULL)
+	    if (sp != NULL) {
 	        port = (int) ntohs(sp->s_port) ;
-
-	    else
+	    } else {
 	        port = DEFEXECSERVICE ;
+	    }
 
 	} /* end if (default port) */
 
@@ -971,22 +971,16 @@ char	**argv ;
 #endif
 
 	if (! f_noinput) {
-
 	    if (infname != NULL) {
-
-	        close(0) ;
-
-	        if ((ifd = open(infname,O_RDONLY,0666)) < 0) {
-
-	            rs = (- errno) ;
-	            goto badinfile ;
-	        }
-
-	    } else 
-	        ifd = 0 ;
-
-	    if ((rs = fstat(ifd,&isb)) < 0) f_noinput = TRUE ;
-
+	        u_close(0) ;
+	        rs = uc_open(infname,O_RDONLY,0666) ;
+		ifd = rs ;
+	    } else {
+	        ifd = FD_STDIN ;
+ 	    }
+	    if (rs >= 0) {
+	        if ((rs = fstat(ifd,&isb)) < 0) f_noinput = TRUE ;
+	    }
 	} /* end if (we have input) */
 
 /* create the remote command */

@@ -11,21 +11,19 @@
 /* revision history: 
 
 	= 1986-07-01, David A­D­ Morano
-
 	This subroiutine was originally written.
-
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1986 David A­D­ Morano.  All rights reserved. */
 
-/**************************************************************************
+/*******************************************************************************
 
 	This program will act like a filter and remove the mail message
 	body and instead write out all of the mail headers only.
 
 
-***************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>
@@ -41,8 +39,11 @@
 
 /* local defines */
 
-#define		LINELEN		256
-#define		NPARG		1
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
+
+#define	NPARG		1
 
 
 /* external subroutines */
@@ -60,24 +61,25 @@ char	*envv[] ;
 	bfile		infile, *ifp = &infile ;
 	bfile		outfile, *ofp = &outfile ;
 
+	int		rs = SR_OK ;
 	int	argl, aol ;
 	int	pan, i ;
-	int	len, line, rs ;
+	int	len, line ;
 	int	f_header ;
 	int	f_dash = FALSE ;
 	int	f_usage = FALSE ;
 
-	char	*argp, *aop ;
-	char	*progname ;
-	char	*ifname, *ofname ;
-	char	*bp, buf[LINELEN] ;
+	cchar		*argp, *aop ;
+	cchar		*progname ;
+	cchar		*ifname, *ofname ;
+	char		*bp
+	char		buf[LINEBUFLEN] ;
 
 
 	progname = argv[0] ;
 
 	if (bopen(efp,BIO_STDERR,"dwca",0666) >= 0)
 		bcontrol(efp,BC_LINEBUF,0) ;
-
 
 	ifname = BIO_STDIN ;
 	ofname = BIO_STDOUT ;
@@ -180,13 +182,9 @@ char	*envv[] ;
 
 /* do program */
 
-	while ((len = bgetline(ifp,buf,LINELEN)) > 0) {
-
-	        if (buf[0] == '\n')
-			break ;
-
+	while ((len = breadline(ifp,buf,LINEBUFLEN)) > 0) {
+	        if (buf[0] == '\n') break ;
 		bwrite(ofp,buf,len) ;
-
 	} /* end while */
 
 

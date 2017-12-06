@@ -4,15 +4,13 @@
 /* version %I% last modified %G% */
 
 
-#define	CF_DEBUG	1		/* run-time debugging */
+#define	CF_DEBUG	0		/* run-time debugging */
 
 
 /* revision history :
 
 	= 1991-09-10, David Morano
-
 	This program was originally written.
-
 
 */
 
@@ -20,8 +18,8 @@
 
 /*****************************************************************************
 
-	This subroutine is responsible for processing a job that
-	we have received in full.
+        This subroutine is responsible for processing a job that we have
+        received in full.
 
 
 *****************************************************************************/
@@ -38,7 +36,6 @@
 #include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 
@@ -103,7 +100,7 @@ struct argparams {
 int job_start(jhp,jep,pip,sbp,sfp)
 vecelem		*jhp ;
 struct jobentry	*jep ;
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct ustat	*sbp ;
 SRVTAB		*sfp ;
 {
@@ -140,7 +137,7 @@ SRVTAB		*sfp ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 2)
-	    eprintf("job_start: entered\n") ;
+	    eprintf("job_start: ent\n") ;
 #endif
 
 	if ((rs = vecstr_start(&args,10,0)) < 0)
@@ -533,23 +530,20 @@ badret:
 int job_end(jhp,jep,pip,child_stat)
 vecelem		*jhp ;
 struct jobentry	*jep ;
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 int		child_stat ;
 {
-	bfile		file, *fp = &file ;
-
 	struct ustat	sb ;
-
+	bfile		file, *fp = &file ;
+	const int	llen = LINEBUFLEN ;
 	int		len ;
 	int		lines ;
-
-	char		linebuf[LINELEN + 1] ;
+	char		lbuf[LINEBUFLEN + 1] ;
 	char		tmpfname[MAXPATHLEN + 1] ;
-
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    eprintf("job_end: entered !, file=%s\n",jep->filename) ;
+	    eprintf("job_end: ent file=%s\n",jep->filename) ;
 #endif
 
 #ifdef	COMMENT
@@ -579,19 +573,13 @@ int		child_stat ;
 	    lines = 0 ;
 	    if (bopen(fp,tmpfname,"r",0666) >= 0) {
 
-	        while ((len = bgetline(fp,linebuf,MAXOUTLEN)) > 0) {
-
-	            if (linebuf[len - 1] == '\n')
-	                linebuf[--len] = '\0' ;
-
-	            logfile_printf(&pip->lh,"| %W\n",linebuf,len) ;
-
+	        while ((len = breadline(fp,lbuf,llen)) > 0) {
+	            if (lbuf[len - 1] == '\n') lbuf[--len] = '\0' ;
+	            logfile_printf(&pip->lh,"| %W\n",lbuf,len) ;
 	            lines += 1 ;
-
 	        }
 
 	        bclose(fp) ;
-
 	    } /* end if (opened file) */
 
 	    logfile_printf(&pip->lh,"lines=%d\n",lines) ;
@@ -628,13 +616,10 @@ int		child_stat ;
 	    lines = 0 ;
 	    if (bopen(fp,tmpfname,"r",0666) >= 0) {
 
-	        while ((len = bgetline(fp,linebuf,MAXOUTLEN)) > 0) {
+	        while ((len = breadline(fp,lbuf,llen)) > 0) {
 
-	            if (linebuf[len - 1] == '\n')
-	                linebuf[--len] = '\0' ;
-
-	            logfile_printf(&pip->lh,"| %W\n",linebuf,len) ;
-
+	            if (lbuf[len - 1] == '\n') lbuf[--len] = '\0' ;
+	            logfile_printf(&pip->lh,"| %W\n",lbuf,len) ;
 	            lines += 1 ;
 
 	        }
@@ -662,7 +647,7 @@ int		child_stat ;
 /* search the job table for a PID match */
 int job_findpid(jlp,pip,pid,jepp)
 vecelem		*jlp ;
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 pid_t		pid ;
 struct jobentry	**jepp ;
 {
@@ -670,7 +655,6 @@ struct jobentry	**jepp ;
 
 
 	for (i = 0 ; vecelem_get(jlp,i,jepp) >= 0 ; i += 1) {
-
 	    if ((*jepp) == NULL) continue ;
 
 	    if (((*jepp)->state == STATE_STARTED) && ((*jepp)->pid == pid))
@@ -687,7 +671,7 @@ struct jobentry	**jepp ;
 /* search for a job in the job table via its filename */
 int job_search(jsp,pip,filename,jepp)
 vecelem		*jsp ;
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 char		filename[] ;
 struct jobentry	**jepp ;
 {
@@ -712,7 +696,7 @@ struct jobentry	**jepp ;
 /* enumerate all of the jobs */
 int job_get(jsp,pip,i,jepp)
 vecelem		*jsp ;
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 int		i ;
 struct jobentry	**jepp ;
 {
@@ -730,7 +714,7 @@ struct jobentry	**jepp ;
 
 /* process an argument list */
 static int processargs(pip,alp,command,sp)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 vecstr		*alp ;
 char			command[] ;
 struct argparams	*sp ;
@@ -747,7 +731,7 @@ struct argparams	*sp ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    eprintf("processargs: entered> %s\n",command) ;
+	    eprintf("processargs: ent> %s\n",command) ;
 #endif
 
 	if ((command == NULL) || (command[0] == '\0'))
@@ -815,7 +799,7 @@ struct argparams	*sp ;
 */
 
 static int expand(pip,buf,len,sep,rbuf,rlen)
-struct proginfo		*pip ;
+PROGINFO		*pip ;
 char			rbuf[], buf[] ;
 int			rlen, len ;
 struct argparams	*sep ;
@@ -830,7 +814,7 @@ struct argparams	*sep ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 2)
-	    eprintf("job/expand: entered\n") ;
+	    eprintf("job/expand: ent\n") ;
 #endif
 
 #if	CF_DEBUG
@@ -844,6 +828,7 @@ struct argparams	*sep ;
 
 	}
 #endif
+
 	rbuf[0] = '\0' ;
 	if (len == 0)
 	    return 0 ;
@@ -872,73 +857,50 @@ struct argparams	*sep ;
 	        if (len == 0) return elen ;
 
 	        switch ((int) *bp) {
-
 	        case 'f':
 	            cp = sep->filename ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'r':
 	            cp = sep->rootname ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'u':
 	            cp = sep->username ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'g':
 	            cp = sep->groupname ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'l':
 	            cp = sep->length ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'm':
 	            cp = sep->mtime ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'd':
 	            cp = sep->directory ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'V':
 	            cp = sep->version ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'R':
 	            cp = pip->programroot ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'N':
 	            cp = pip->nodename ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'D':
 	            cp = pip->domainname ;
 	            sl = strlen(cp) ;
-
 	            break ;
-
 	        case 'H':
 		    {
 			const char	*nn = pip->nodename ;
@@ -952,11 +914,9 @@ struct argparams	*sep ;
 	                if (sl < 0) sl = strlen(cp) ;
 		    }
 	            break ;
-
 	        default:
 	            cp = bp ;
 	            sl = 1 ;
-
 	        } /* end switch */
 
 	        bp += 1 ;
@@ -994,6 +954,5 @@ struct argparams	*sep ;
 	return elen ;
 }
 /* end subroutine (expand) */
-
 
 

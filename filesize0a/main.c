@@ -9,24 +9,23 @@
 
 /* revision history :
 
-	= 96/02/01, David A­D­ Morano
-
-	The program was written from scratch to do what
-	the previous program by the same name did.
-
+	= 1996-02-01, David A­D­ Morano
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
+/* Copyright © 1996 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
 	This is a fairly generic front-end subroutine for a program.
 
 
+*******************************************************************************/
 
-******************************************************************************/
 
-
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -41,20 +40,18 @@
 #include	<bfile.h>
 #include	<baops.h>
 #include	<field.h>
+#include	<paramopt.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"misc.h"
-#include	"paramopt.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
 
 #define	MAXARGINDEX	600
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
-
 
 
 /* external subroutines */
@@ -76,7 +73,7 @@ extern char	*strbasename(char *), *strshrink(char *) ;
 
 /* local variables */
 
-static char *const argopts[] = {
+static cchar	*argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	"TMPDIR",
@@ -98,7 +95,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static char	*const options[] = {
+static cchar	*options[] = {
 	"follow",
 	"nofollow",
 	NULL
@@ -111,21 +108,17 @@ enum options {
 } ;
 
 
+/* exported subroutines */
 
 
-
-
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	bfile	errfile, *efp = &errfile ;
-	bfile	outfile, *ofp = &outfile ;
-	bfile	argfile, *afp = &argfile ;
-
-	struct proginfo	pi, *pip = &pi ;
-
+	PROGINFO	pi, *pip = &pi ;
 	PARAMOPT	param ;
+	bfile		errfile, *efp = &errfile ;
+	bfile		outfile, *ofp = &outfile ;
+	bfile		argfile, *afp = &argfile ;
 
 	int	argr, argl, aol, akl, avl, npa, maxai, kwi ;
 	int	ex = EX_INFO ;
@@ -150,7 +143,7 @@ char	*argv[] ;
 	    esetfd(fd_debug) ;
 
 
-	memset(pip,0,sizeof(struct proginfo)) ;
+	memset(pip,0,sizeof(PROGINFO)) ;
 
 	pip->progname = strbasename(argv[0]) ;
 
@@ -170,7 +163,7 @@ char	*argv[] ;
 	pip->bytes = 0 ;
 	pip->megabytes = 0 ;
 
-	(void) memset(&pip->f,0,sizeof(struct proginfo_flags)) ;
+	(void) memset(&pip->f,0,sizeof(PROGINFO_flags)) ;
 
 	pip->f.nochange = FALSE ;
 	pip->f.quiet = FALSE ;
@@ -667,22 +660,19 @@ char	*argv[] ;
 	        rs = bopen(afp,afname,"r",0666) ;
 
 	    if (rs >= 0) {
-
 	        int	len ;
-
 	        char	buf[BUFLEN + 1] ;
-
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
 	            eprintf("main: processing the argument file list\n") ;
 #endif
 
-	        while ((len = bgetline(afp,buf,BUFLEN)) > 0) {
+	        while ((len = breadline(afp,buf,BUFLEN)) > 0) {
 
 	            if (buf[len - 1] == '\n') len -= 1 ;
-
 	            buf[len] = '\0' ;
+
 	            cp = strshrink(buf) ;
 
 	            if ((cp[0] == '\0') || (cp[0] == '#'))
@@ -708,17 +698,12 @@ char	*argv[] ;
 #endif
 
 	    } else {
-
 	        if (! pip->f.quiet) {
-
 	            bprintf(efp,
 	                "%s: could not open the argument list file\n",
 	                pip->progname) ;
-
 	            bprintf(efp,"\trs=%d argfile=%s\n",rs,afname) ;
-
 	        }
-
 	    }
 
 	} /* end if (processing file argument file list */
@@ -740,7 +725,6 @@ char	*argv[] ;
 	    {
 	        long	blocks, blockbytes ;
 
-
 	        blocks = pip->megabytes * 1024 * 2 ;
 	        blocks += (pip->bytes / UNIXBLOCK) ;
 	        blockbytes = (pip->bytes % UNIXBLOCK) ;
@@ -751,7 +735,6 @@ char	*argv[] ;
 	    } /* end block */
 
 	    bclose(ofp) ;
-
 	} else
 	    goto badoutopen ;
 
@@ -769,7 +752,6 @@ char	*argv[] ;
 	    bprintf(pip->efp,"%s: program exiting\n",
 	        pip->progname) ;
 #endif
-
 
 /* we are out of here */
 done:

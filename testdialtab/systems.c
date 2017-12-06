@@ -448,7 +448,7 @@ static int systems_fileparse(SYSTEMS *op,int fi,SYSTEMS_FILE *fep)
 		        FIELD	fsb ;
 		        int	len ;
 		        fep->mtime = sb.st_mtime ;
-		        fep->fsize = sb.st_size ;
+		        fep->fsize = (size_t) (sb.st_size & UINT_MAX) ;
 		        fep->dev = sb.st_dev ;
 		        fep->ino = sb.st_ino ;
 		        while ((rs = breadlines(sfp,lbuf,llen,NULL)) > 0) {
@@ -471,7 +471,8 @@ static int systems_fileparse(SYSTEMS *op,int fi,SYSTEMS_FILE *fep)
 	        	    fl = field_get(&fsb,fterms,&fp) ;
 
 #if	CF_DEBUGS && CF_DEBUGSFIELD
-	    	   	     debugprintf("systems_fp: field> %t\n",fp,fl) ;
+	    	   	     debugprintf("systems_fp: field> %t\n",
+				fp,fl) ;
 #endif
 
 	        	    if ((fl > 0) && (fsb.term != '#')) {

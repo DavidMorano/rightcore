@@ -103,38 +103,28 @@ const char	*argv[] ;
 const char	*envv[] ;
 {
 	struct sigaction	sigs ;
-
-	bfile	input, *ifp = &input ;
-	bfile	output, *ofp = &output ;
-	bfile	error, *efp = &error ;
-
 	LOADAVE			la ;
 	LOADAVE_VALUES		lav ;
 	LOADAVE_MID		mid ;
-
-	sigset_t		signalmask ;
-
+	bfile		input, *ifp = &input ;
+	bfile		output, *ofp = &output ;
+	bfile		error, *efp = &error ;
+	sigset_t	signalmask ;
 	kstat_ctl_t	*kcp ;
-
 	kstat_t		*ksp = NULL ;
-
 	kid_t		kid ;
-
 	ulong		hostid = gethostid() ;
-
-	int	rs = SR_OK ;
-	int	maxmsglen, trylen, len, conlen ;
-	int	i, j ;
-	int	sl ;
-	int	s ;
-	int	fd = 0 ;
-	int	err_fd = -1 ;
-
+	int		rs = SR_OK ;
+	int		maxmsglen, trylen, len, conlen ;
+	int		i, j ;
+	int		sl ;
+	int		s ;
+	int		fd = -1 ;
+	int		err_fd = -1 ;
 	const char	*progname ;
-
-	char	buf[BUFLEN + 1], buf2[BUFLEN + 1], *bp ;
-	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*cp ;
+	cchar		*cp ;
+	char		buf[BUFLEN + 1], buf2[BUFLEN + 1], *bp ;
+	char		timebuf[TIMEBUFLEN + 1] ;
 
 
 	if (((cp = getenv("ERROR_FD")) != NULL) &&

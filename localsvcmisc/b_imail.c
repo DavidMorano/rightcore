@@ -7925,7 +7925,7 @@ static int locinfo_opentmpfile(LOCINFO *lip,char *tbuf,int of,cchar *prefix)
 	const mode_t	om = 0660 ;
 	int		rs = SR_OK ;
 	int		fl ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	char		cname[JOBCLEN + 1] ;
 	char		template[MAXPATHLEN + 1] ;
 	char		*bp ;
@@ -8433,7 +8433,7 @@ static int locinfo_groupname(LOCINFO *lip)
 static int mailfile_open(MAILFILE *mfp,PROGINFO *pip,cchar *ifname)
 {
 	int		rs = SR_OK ;
-	int		mfd = 0 ;
+	int		mfd = -1 ;
 
 	if ((ifname == NULL) || (ifname[0] == '\0') || (ifname[0] == '-'))
 	    ifname = STDINFNAME ;

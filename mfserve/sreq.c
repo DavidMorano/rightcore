@@ -264,8 +264,8 @@ int sreq_svcparse(SREQ *op,int f_long)
 	            op->svc = bp ;
 	            op->subsvc = strwcpy(bp,sp,sl) ;
 	            if ((tp = strnchr(sp,sl,'+')) != NULL) {
-		        op->subsvc = (tp+1) ;
 		        bp[tp-sp] = '\0' ;
+		        op->subsvc = bp+((tp+1)-sp) ;
 	            }
 	        } /* end if (m-a) */
 #if	CF_DEBUGS

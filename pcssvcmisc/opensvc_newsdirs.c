@@ -200,7 +200,7 @@ int		to ;
 	int		argc = 0 ;
 	int		pan = 0 ;
 	int		cols = COLUMNS ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		ll = -1 ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_akopts = FALSE ;

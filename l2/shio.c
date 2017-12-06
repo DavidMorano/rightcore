@@ -628,7 +628,7 @@ int shio_readlinetimed(SHIO *op,char *lbuf,int llen,int to)
 	int		rl = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("shio_readlinetimed: ent\n") ;
+	debugprintf("shio_readlinetimed: ent llen=%d to=%d\n",llen,to) ;
 #endif
 
 	if (op == NULL) return SR_FAULT ;
@@ -673,36 +673,30 @@ int shio_readline(SHIO *op,char *lbuf,int llen)
 int shio_readlines(SHIO *fp,char *lbuf,int llen,int *lcp)
 {
 	int		rs = SR_OK ;
-	int		alen ;			/* "add" length */
 	int		i = 0 ;
-	int		f_first = TRUE ;
+	int		lines = 0 ;
 	int		f_cont = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("shio_readlines: ent\n") ;
+	debugprintf("shio_readlines: ent llen=%d\n",llen) ;
 #endif
 
 	if (fp == NULL) return SR_FAULT ;
 	if (lbuf == NULL) return SR_FAULT ;
 
-	if (lcp != NULL) *lcp = 0 ;
-
 	lbuf[0] = '\0' ;
-	while (f_first || (f_cont = ISCONT(lbuf,i))) {
+	while ((lines == 0) || (f_cont = ISCONT(lbuf,i))) {
 
-	    f_first = FALSE ;
-	    if (f_cont)
-	        i -= 2 ;
+	    if (f_cont) i -= 2 ;
 
-	    alen = (llen - i) ;
-	    rs = shio_readline(fp,(lbuf + i),alen) ;
+	    rs = shio_readline(fp,(lbuf + i),(llen-i)) ;
 	    if (rs <= 0) break ;
 	    i += rs ;
 
-	    if (lcp != NULL)
-	        *lcp += 1 ;
-
+	    lines += 1 ;
 	} /* end while */
+
+	if (lcp != NULL) *lcp = lines ;
 
 #if	CF_DEBUGS
 	debugprintf("shio_readlines: ret rs=%d len=%u\n",rs,i) ;
@@ -1171,7 +1165,7 @@ int shio_control(SHIO *op,int cmd,...)
 int shio_getfd(SHIO *op)
 {
 	int		rs = SR_OK ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if (op == NULL) return SR_FAULT ;
 

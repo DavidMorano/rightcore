@@ -1162,7 +1162,7 @@ int shio_control(SHIO *op,int cmd,...)
 int shio_getfd(SHIO *op)
 {
 	int		rs = SR_OK ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if (op == NULL) return SR_FAULT ;
 

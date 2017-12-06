@@ -787,7 +787,7 @@ static int bvimk_nidxopen(BVIMK *op)
 {
 	const mode_t	om = op->om ;
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		of = (O_CREAT|O_WRONLY) ;
 #if	CF_DEBUGS
 	debugprintf("bvimk_nidxopen: ent nidxfname=%s\n",op->nidxfname) ;

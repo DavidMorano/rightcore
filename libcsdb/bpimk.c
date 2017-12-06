@@ -672,7 +672,7 @@ static int bpimk_nidxopen(BPIMK *op)
 {
 	const mode_t	om = op->om ;
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	int		of = (O_CREAT|O_WRONLY) ;
 	if (op->nidxfname == NULL) {
 	    const int	type = (op->f.ofcreat && (! op->f.ofexcl)) ;

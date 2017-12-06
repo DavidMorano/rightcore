@@ -2,7 +2,7 @@
 
 T= libut
 
-ALL= $(T).a
+ALL= $(T).a $(T).so
 
 SRCROOT= $(LOCAL)
 
@@ -12,12 +12,16 @@ INCDIR= $(SRCROOT)/include
 LIBDIR= $(SRCROOT)/lib
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
-CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCLIB)
-#CCOPTS= $(CCOPTS_GCCLIB)
-#CCOPTS= -g $(CCOPTS_GCCLIB)
+GPPFLAGS= $(CGS_CCFLAGS)
+
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
+CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
+#CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
+#CCOPTS= -g -Wstrict-aliasing $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
+#CCOPTS= -g -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
 
 
 DEF0=
@@ -40,12 +44,6 @@ CFLAGS= $(CCOPTS) $(LF_CFLAGS)
 
 #LD= $(CC)
 
-LDFLAGS= $(LF_LDFLAGS)
-
-LIBDIRS=
-
-LIBS= $(LF_LIBS) -L$(GNU)/lib -lgcc
-
 LINT= lint
 LINTFLAGS= $(LF_LINTFLAGS) -uxn -Dlint
 
@@ -59,6 +57,31 @@ TSORT= tsort
 
 RM= rm -f
 TOUCH= /usr/bin/touch
+
+
+LDFLAGS= $(LF_LDFLAGS)
+
+LDRPATH= $(EXTRA)/lib
+
+RLDFLAGS= $(LF_LDFLAGS)
+
+
+SLDFLAGS= $(LF_LDFLAGS) -m $(LDA) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
+
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
+
+SLIB0=
+SLIB1=
+SLIB2=
+SLIB3= -lu
+SLIB4= $(CGS_LIBS)
+SLIB5= $(LF_LIBS) 
+SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+SLIB7= -ldl
+
+SLIBS= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
+
+SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
 
 INCS=
@@ -116,11 +139,11 @@ default:		all
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -136,7 +159,7 @@ $(T).a:			$(OBJ)
 	$(AR) -rc $(T).a $?
 
 $(T).so:		$(OBJS) Makefile localmisc.h $(T).a
-	$(LD) -o $@ -G $(LDFLAGS) $(OBJS)
+	$(LD) -o $@ -G $(LDFLAGS) $(OBJS) $(SLIBINFO)
 
 install:		$(ALL) Makefile
 	ranlib $(T).a
@@ -156,18 +179,18 @@ control:
 
 
 obja.o:			$(OBJA)
-	$(LD) -o $@ -r $(LDFLAGS) $(OBJA)
+	$(LD) -o $@ -r $(RLDFLAGS) $(OBJA)
 
 objb.o:			$(OBJB)
-	$(LD) -o $@ -r $(LDFLAGS) $(OBJB)
+	$(LD) -o $@ -r $(RLDFLAGS) $(OBJB)
 
 objc.o:			$(OBJC)
-	$(LD) -o $@ -r $(LDFLAGS) $(OBJC)
+	$(LD) -o $@ -r $(RLDFLAGS) $(OBJB)
 
 objd.o:			$(OBJD)
-	$(LD) -o $@ -r $(LDFLAGS) $(OBJD)
+	$(LD) -o $@ -r $(RLDFLAGS) $(OBJB)
 
 obje.o:			$(OBJE)
-	$(LD) -o $@ -r $(LDFLAGS) $(OBJE)
+	$(LD) -o $@ -r $(RLDFLAGS) $(OBJB)
 
 

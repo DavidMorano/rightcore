@@ -95,6 +95,8 @@ extern char	*strdcpy2(char *,int,const char *,const char *) ;
 
 /* external variables */
 
+extern char	*environ[] ;
+
 
 /* forward references */
 
@@ -102,14 +104,13 @@ extern char	*strdcpy2(char *,int,const char *,const char *) ;
 /* exported subroutines */
 
 
-int bopenshell(fpa,cmd)
-bfile		*fpa[3] ;
-const char	cmd[] ;
+int bopenshell(bfile **fpa,cchar *cmd)
 {
-	pid_t		child_pid ;
+	pid_t		child_pid = 0 ;
 	int		rs = SR_OK ;
 	int		i, j, k ;
-	int		wfd, fd ;
+	int		wfd = -1 ;
+	int		fd = -1 ;
 	int		cmdlen ;
 	int		pipes[3][2] ;
 	char		cmdbuf[CMDBUFLEN + 1] ;
@@ -297,16 +298,20 @@ const char	cmd[] ;
 	    debugprintf("bopenshell: about to exec SHELL=%s\n",sp) ;
 #endif
 
-	    rs = execlp(sp,"shcmd",tmpfname,NULL) ;
-
-#if	CF_DEBUGS
-	    debugprintf("bopenshell: exec rs=%d\n",rs) ;
-#endif
+		if (rs >= 0) {
+		    int		i = 0 ;
+		    cchar	**ev = (cchar **) environ ;
+		    cchar	*av[5] ;
+		    av[i++] = "shcmd" ;
+		    av[i++] = tmpfname ;
+		    av[i] = NULL ;
+	    	    uc_execve(sp,av,ev) ;
+		}
 
 	    uc_exit(EX_NOEXEC) ;
-
-	} else if (rs < 0)
+	} else if (rs < 0) {
 	    goto badfork ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("bopenshell: main line continue\n") ;

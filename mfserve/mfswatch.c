@@ -382,7 +382,9 @@ int mfswatch_service(PROGINFO *pip)
 	       const int	to = TO_MAINT ;
 	       if ((pip->daytime-wip->ti_maint) >= to) {
 		    wip->ti_maint = pip->daytime ;
-		    rs = mfslisten_maint(pip,pmp) ;
+		    if ((rs = mfslisten_maint(pip,pmp)) >= 0) {
+		        rs = mfswatch_svcmaint(pip) ;
+		    }
 	       }
 	    }
 
@@ -449,9 +451,7 @@ static int mfswatch_configmaint(PROGINFO *pip)
 	       if ((pip->daytime - wip->ti_config) >= to) {
 		    CONFIG	*cfp = pip->config ;
 		    wip->ti_config = pip->daytime ;
-		    if ((rs = config_check(cfp)) >= 0) {
-			rs = mfswatch_svcmaint(pip) ;
-		    }
+		    rs = config_check(cfp) ;
 	       }
 	}
 	return rs ;

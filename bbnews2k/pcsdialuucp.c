@@ -150,26 +150,21 @@ const char	pr[] ;
 const char	uuhost[] ;
 const char	filename[] ;
 {
-	pid_t	pid ;
-
-	mode_t	mkmode ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-	int	child_stat = 0 ;
-	int	pfd = 0 ;
-
+	pid_t		pid ;
+	mode_t		mkmode ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	int		child_stat = 0 ;
+	int		pfd = -1 ;
 	const char	*varpcs = VARPRPCS ;
 	const char	*proguucp = PROG_UUCP ;
-
-	char	progfname[MAXPATHLEN + 2] ;
-	char	pfname[MAXPATHLEN + 2] ;
-	char	dst[DSTLEN + 2] ;
-
+	char		progfname[MAXPATHLEN + 2] ;
+	char		pfname[MAXPATHLEN + 2] ;
+	char		dst[DSTLEN + 2] ;
 
 #if	CF_DEBUGS
-	debugprintf("uucp: entered\n") ;
+	debugprintf("uucp: ent\n") ;
 #endif
 
 /* check for bad input */
@@ -423,7 +418,7 @@ const char	uunode[] ;
 
 
 #if	CF_DEBUGS
-	debugprintf("testuucp: entered\n") ;
+	debugprintf("testuucp: ent\n") ;
 #endif
 
 	if ((uunode == NULL) || (uunode[0] == '\0'))

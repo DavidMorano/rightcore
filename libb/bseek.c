@@ -95,12 +95,9 @@ static struct trans	t[] = {
 /* exported subroutines */
 
 
-int bseek(fp,wo,whence)
-bfile		*fp ;
-offset_t	wo ;
-int		whence ;
+int bseek(bfile *fp,offset_t wo,int whence)
 {
-	offset_t	final, co ;
+	offset_t	co ;
 	offset_t	soff, ao ;
 	int		rs = SR_OK ;
 
@@ -143,15 +140,13 @@ int		whence ;
 
 	ao = 0 ;
 	if (fp->f.write) {
-
-	    if (fp->len > 0)
+	    if (fp->len > 0) {
 	        rs = bfile_flush(fp) ;
-
+	    }
 	} else {
-
-	    if (whence == SEEK_CUR)
+	    if (whence == SEEK_CUR) {
 	        ao = (- fp->len) ;
-
+	    }
 	} /* end if */
 
 	if (rs >= 0) {

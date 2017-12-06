@@ -736,13 +736,11 @@ static int ncpu_shmopenwait(sip,operms)
 struct subinfo	*sip ;
 mode_t		operms ;
 {
-	int	rs = SR_OK ;
-	int	oflags = O_RDWR ;
-	int	to = TO_SHMWAIT ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		oflags = O_RDWR ;
+	int		to = TO_SHMWAIT ;
+	int		fd = -1 ;
 	const char	*shmname = sip->shmname ;
-
 
 	while (to-- > 0) {
 

@@ -5,42 +5,39 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG		1		/* switchable debug print-outs */
+#define	CF_DEBUG	1		/* switchable debug print-outs */
 
 
 /* revision history :
 
 	= 1991-09-10, David Morano
-
 	This program was originally written.
-
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1991 David A­D­ Morano.  All rights reserved. */
 
 /*****************************************************************************
 
-	This program will watch a directory for new entries
-	and will wait until a new entry stops increasing in size.
-	After a new entry stops increasing in size, this program
-	will look it up in the service table and will pass the
-	file to a another program specified by the service table
-	entry that matches the file name.
+        This program will watch a directory for new entries and will wait until
+        a new entry stops increasing in size. After a new entry stops increasing
+        in size, this program will look it up in the service table and will pass
+        the file to a another program specified by the service table entry that
+        matches the file name.
 
-	Environment variables :
+	Environment variables:
 
 		PROGRAMROOT	root of program files
 
-	Synopsis :
+	Synopsis:
 
 	$ dwd [-C conf] [-polltime] [directory_path] [srvtab] [-V?]
-
 
 
 *****************************************************************************/
 
 
+#nclude		<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -76,6 +73,10 @@
 
 
 /* local defines */
+
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
 
 #define	MAXARGINDEX	100
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
@@ -132,16 +133,12 @@ enum argopts {
 /* exported subroutines */
 
 
-int main(argc,argv)
-int	argc ;
-char	*argv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct ustat		sb ;
-
-	struct proginfo		g, *pip = &g ;
-
-	struct userinfo		u ;
-
+	PROGINFO	g, *pip = &g ;
+	struct ustat	sb ;
+	struct userinfo	u ;
 	bfile		errfile, *efp = &errfile ;
 	bfile		logfile ;
 	bfile		lockfile ;
@@ -156,30 +153,31 @@ char	*argv[] ;
 
 	time_t	daytime ;
 
-	int	argr, argl, aol, akl, avl ;
-	int	maxai, pan, npa, kwi, i, j, k, l ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_extra = FALSE ;
-	int	ex = EX_INFO ;
-	int	rs, srs ;
-	int	len, sl, iw ;
-	int	f_version = FALSE ;
-	int	f_usage = FALSE ;
-	int	maxjobs = 0 ;
-	int	filetime = JOBIDLETIME ;
-	int	fd_debug ;
+	const int	llen = LINEBUFLEN ;
+	int		argr, argl, aol, akl, avl ;
+	int		maxai, pan, npa, kwi, i, j, k, l ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_extra = FALSE ;
+	int		ex = EX_INFO ;
+	int		rs, srs ;
+	int		len, sl, iw ;
+	int		f_version = FALSE ;
+	int		f_usage = FALSE ;
+	int		maxjobs = 0 ;
+	int		filetime = JOBIDLETIME ;
+	int		fd_debug = -1 ;
 
-	char	*argp, *aop, *akp, *avp ;
+	cchar	*argp, *aop, *akp, *avp ;
+	cchar	*configfname = NULL ;
+	cchar	*logfname = NULL ;
+	cchar	*cp ;
+	cchar	*sp ;
 	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
+	char	lbuf[LINEBUFLEN+ 1], *bp ;
 	char	userbuf[USERINFO_LEN + 1] ;
 	char	timebuf[32] ;
-	char	*cp ;
-	char	*sp ;
 	char	tmpfname[MAXPATHLEN + 1] ;
 	char	pwd[MAXPATHLEN + 1] ;
-	char	*configfname = NULL ;
-	char	*logfname = NULL ;
 
 
 	if ((cp = getenv(DEBUGFDVAR1)) == NULL)
@@ -192,7 +190,7 @@ char	*argv[] ;
 
 /* early initialize */
 
-	memset(pip,0,sizeof(struct proginfo)) ;
+	memset(pip,0,sizeof(PROGINFO)) ;
 
 	pip->progname = strbasename(argv[0]) ;
 
@@ -472,7 +470,7 @@ char	*argv[] ;
 
 #if	CF_DEBUGS
 	                                eprintf(
-	                                    "main: debug flag, avp=\"%W\"\n",
+	                                    "main: debug flag, avp=\"%t\"\n",
 	                                    avp,avl) ;
 #endif
 
@@ -712,7 +710,7 @@ char	*argv[] ;
 	    eprintf("main: programroot\n") ;
 #endif
 
-	buf[0] = '\0' ;
+	lbuf[0] = '\0' ;
 	if (pip->programroot == NULL) {
 
 	    pip->programroot = getenv(PROGRAMROOTVAR1) ;
@@ -733,8 +731,8 @@ char	*argv[] ;
 /* for a last resort, we use our PWD for the program root */
 
 	    if ((pip->programroot == NULL) &&
-	        ((rs = getpwd(buf,BUFLEN)) > 0))
-	        pip->programroot = mallocstrn(buf,rs) ;
+	        ((rs = getpwd(lbuf,llen)) > 0))
+	        pip->programroot = mallocstrn(bbuf,rs) ;
 
 	} /* end if (getting a program root from environment) */
 
@@ -754,11 +752,11 @@ char	*argv[] ;
 	    bprintf(efp,"%s: programroot=%s\n",
 	        pip->progname,pip->programroot) ;
 
-	    if (buf[0] == '\0')
-	        rs = getpwd(buf,BUFLEN) ;
+	    if (lbuf[0] == '\0')
+	        rs = getpwd(lbuf,LINEBUFLEN) ;
 
 	    bprintf(efp,"%s: pwd=%s\n",
-	        pip->progname,buf) ;
+	        pip->progname,lbuf) ;
 
 	} /* end if (some prints) */
 
@@ -818,10 +816,8 @@ char	*argv[] ;
 #ifdef	COMMENT
 	    if ((cf.programroot != NULL) && (pip->programroot == NULL)) {
 
-	        if ((l = expander(pip,cf.programroot,-1,buf,BUFLEN)) >= 0) {
-
+	        if ((l = expander(pip,cf.programroot,-1,lbuf,llen)) >= 0) {
 	            pip->programroot = mallocstrn(buf,l) ;
-
 	        }
 
 	    } /* end if (programroot) */
@@ -834,8 +830,8 @@ char	*argv[] ;
 	            eprintf("main: expander 1\n") ;
 #endif
 
-	        if ((l = expander(pip,cf.directory,-1,buf,BUFLEN)) >= 0)
-	            pip->directory = mallocstrn(buf,l) ;
+	        if ((l = expander(pip,cf.directory,-1,lbuf,llen)) >= 0)
+	            pip->directory = mallocstrn(lbuf,l) ;
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
@@ -846,22 +842,22 @@ char	*argv[] ;
 
 	    if ((cf.interrupt != NULL) && (pip->interrupt == NULL)) {
 
-	        if ((l = expander(pip,cf.interrupt,-1,buf,BUFLEN)) >= 0)
-	            pip->interrupt = mallocstrn(buf,l) ;
+	        if ((l = expander(pip,cf.interrupt,-1,lbuf,llen)) >= 0)
+	            pip->interrupt = mallocstrn(lbuf,l) ;
 
 	    }
 
 	    if ((cf.workdir != NULL) && (pip->workdir == NULL)) {
 
-	        if ((l = expander(pip,cf.workdir,-1,buf,BUFLEN)) >= 0)
-	            pip->workdir = mallocstrn(buf,l) ;
+	        if ((l = expander(pip,cf.workdir,-1,lbuf,llen)) >= 0)
+	            pip->workdir = mallocstrn(lbuf,l) ;
 
 	    }
 
 	    if ((cf.srvtab != NULL) && (pip->srvtab == NULL)) {
 
-	        if ((l = expander(pip,cf.srvtab,-1,buf,BUFLEN)) >= 0)
-	            pip->srvtab = mallocstrn(buf,l) ;
+	        if ((l = expander(pip,cf.srvtab,-1,lbuf,llen)) >= 0)
+	            pip->srvtab = mallocstrn(lbuf,l) ;
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
@@ -872,8 +868,8 @@ char	*argv[] ;
 
 	    if ((cf.pidfname != NULL) && (pip->pidfname == NULL)) {
 
-	        if ((l = expander(pip,cf.pidfname ,-1,buf,BUFLEN)) >= 0)
-	            pip->pidfname = mallocstrn(buf,l) ;
+	        if ((l = expander(pip,cf.pidfname ,-1,lbuf,llen)) >= 0)
+	            pip->pidfname = mallocstrn(lbuf,l) ;
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
@@ -885,8 +881,8 @@ char	*argv[] ;
 
 	    if ((cf.lockfname != NULL) && (pip->lockfname == NULL)) {
 
-	        if ((l = expander(pip,cf.lockfname,-1,buf,BUFLEN)) >= 0)
-	            pip->lockfname = mallocstrn(buf,l) ;
+	        if ((l = expander(pip,cf.lockfname,-1,lbuf,llen)) >= 0)
+	            pip->lockfname = mallocstrn(lbuf,l) ;
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
@@ -905,8 +901,8 @@ char	*argv[] ;
 
 	    if ((cf.logfname != NULL) && (logfname == NULL)) {
 
-	        if ((l = expander(pip,cf.logfname,-1,buf,BUFLEN)) >= 0)
-	            logfname = mallocstrn(buf,l) ;
+	        if ((l = expander(pip,cf.logfname,-1,lbuf,llen)) >= 0)
+	            logfname = mallocstrn(lbuf,l) ;
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
@@ -917,9 +913,9 @@ char	*argv[] ;
 
 	    if ((cf.polltime != NULL) && (pip->polltime < 1)) {
 
-	        if ((sl = expander(pip,cf.polltime,-1,buf,BUFLEN)) >= 0) {
+	        if ((sl = expander(pip,cf.polltime,-1,lbuf,llen)) >= 0) {
 
-			if (cfdeci(buf,sl,&iw) >= 0)
+			if (cfdeci(lbuf,sl,&iw) >= 0)
 	            		pip->polltime = iw ;
 
 		}
@@ -927,9 +923,9 @@ char	*argv[] ;
 
 	    if ((cf.filetime != NULL) && (filetime < 1)) {
 
-	        if ((sl = expander(pip,cf.filetime,-1,buf,BUFLEN)) >= 0) {
+	        if ((sl = expander(pip,cf.filetime,-1,lbuf,llen)) >= 0) {
 
-			if ((cfdeci(buf,sl,&iw) >= 0) && (iw > 1))
+			if ((cfdeci(lbuf,sl,&iw) >= 0) && (iw > 1))
 	            		filetime = iw ;
 
 		}
@@ -937,9 +933,9 @@ char	*argv[] ;
 
 	    if ((cf.maxjobs != NULL) && (maxjobs < 1)) {
 
-	        if ((sl = expander(pip,cf.maxjobs,-1,buf,BUFLEN)) >= 0) {
+	        if ((sl = expander(pip,cf.maxjobs,-1,lbuf,llen)) >= 0) {
 
-			if (cfdeci(buf,sl,&iw) >= 0)
+			if (cfdeci(lbuf,sl,&iw) >= 0)
 	            		maxjobs = iw ;
 
 		}
@@ -1424,9 +1420,9 @@ char	*argv[] ;
 
 /* create a log ID */
 
-	bufprintf(buf,BUFLEN,"%d.%s",pip->pid,LOGID) ;
+	bufprintf(lbuf,llen,"%d.%s",pip->pid,LOGID) ;
 
-	pip->logid = mallocstr(buf) ;
+	pip->logid = mallocstr(lbuf) ;
 
 
 
@@ -1574,21 +1570,19 @@ char	*argv[] ;
 /* make some last log entries before we get into bad boogying ! */
 
 	if (userbuf[0] != '\0') {
-
 		struct utsname	un ;
-
 
 	    u_time(&daytime) ;
 
-	    buf[0] = '\0' ;
+	    lbuf[0] = '\0' ;
 	    if ((u.name != NULL) && (u.name[0] != '\0'))
-	        sprintf(buf,"(%s)",u.name) ;
+	        bufprintf(lbuf,llen,"(%s)",u.name) ;
 
 	    else if ((u.gecosname != NULL) && (u.gecosname[0] != '\0'))
-	        sprintf(buf,"(%s)",u.gecosname) ;
+	        bufprintf(lbuf,llen,"(%s)",u.gecosname) ;
 
 	    else if ((u.fullname != NULL) && (u.fullname[0] != '\0'))
-	        sprintf(buf,"(%s)",u.fullname) ;
+	        bufprintf(lbuf,llen,"(%s)",u.fullname) ;
 
 		(void) u_uname(&un) ;
 
@@ -1598,7 +1592,7 @@ char	*argv[] ;
 		pip->pid) ;
 
 	    logfile_printf(&pip->lh,"%s!%s %s\n",
-	        u.nodename,u.username,buf) ;
+	        u.nodename,u.username,lbuf) ;
 
 	    logfile_printf(&pip->lh,"dir=%s\n",pip->directory) ;
 
@@ -1775,11 +1769,11 @@ badlock:
 
 	    if (bopen(&lockfile,pip->lockfname,"r",0666) >= 0) {
 
-	        while ((len = bgetline(&lockfile,buf,BUFLEN)) > 0) {
+	        while ((len = breadline(&lockfile,lbuf,llen)) > 0) {
 
-	            bprintf(efp,"%s: pidfile> %W",
+	            bprintf(efp,"%s: pidfile> %t",
 	                pip->progname,
-	                buf,len) ;
+	                lbuf,len) ;
 
 	        }
 
@@ -1841,10 +1835,8 @@ badlock2:
 
 	if (bopen(&lockfile,pip->lockfname,"r",0666) >= 0) {
 
-	    while ((len = bgetline(&lockfile,buf,BUFLEN)) > 0) {
-
-	        logfile_printf(&pip->lh,"lockfile> %W",buf,len) ;
-
+	    while ((len = breadline(&lockfile,lbuf,llen)) > 0) {
+	        logfile_printf(&pip->lh,"lockfile> %t",buf,len) ;
 	    } /* end while */
 
 	    bclose(&lockfile) ;
@@ -1864,6 +1856,5 @@ badpidfile2:
 
 }
 /* end subroutine (main) */
-
 
 

@@ -917,7 +917,7 @@ static int listenspec_tcpactive(LISTENSPEC *op,int opts,int f)
 static int listenspec_tcpaccept(LISTENSPEC *op,void *fp,int *flp,int to)
 {
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	rs = uc_accepte(op->fd,fp,flp,to) ;
 	fd = rs ;
@@ -1062,7 +1062,7 @@ static int listenspec_ussactive(LISTENSPEC *op,int opts,int f)
 static int listenspec_ussaccept(LISTENSPEC *op,void *fp,int *flp,int to)
 {
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	rs = uc_accepte(op->fd,fp,flp,to) ;
 	fd = rs ;
@@ -1219,7 +1219,7 @@ static int listenspec_passactive(LISTENSPEC *op,int opts,int f)
 static int listenspec_passaccept(LISTENSPEC *op,void *fp,int *flp,int to)
 {
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if (fp != NULL) {
 	    *flp = sizeof(long) ;
@@ -1450,7 +1450,7 @@ const char	portspec[] ;
 int		opts ;
 {
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*protoname = PROTONAME_TCP ;
 	const char	*hp = hostspec ;
 
@@ -1477,8 +1477,9 @@ int		opts ;
 		     fd = rs ;
 		} /* end if (listenspec_prlocal) */
 	    } /* end if (getportnum) */
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("listenspec_openport: ret rs=%d fd=%u\n",rs,fd) ;
@@ -1495,7 +1496,7 @@ static int listenspec_openporter(LISTENSPEC *op,cchar *pr,int af,cchar *hp,
 {
 	struct addrinfo	ai ;
 	int		rs ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	char		addr[INETXADDRLEN + 1] ;
 
 #if	CF_DEBUGS

@@ -62,6 +62,8 @@ extern int	debugprintf(const char *,...) ;
 
 /* external variables */
 
+extern char	*environ[] ;
+
 
 /* forward reference */
 
@@ -69,18 +71,15 @@ extern int	debugprintf(const char *,...) ;
 /* exported subroutines */
 
 
-int bopenrcmd(fpa,remotehost,cmd)
-bfile	*fpa[3] ;
-char	remotehost[] ;
-char	cmd[] ;
+int bopenrcmd(bfile **fpa,cchar *remotehost,cchar *cmd)
 {
-	pid_t		child_pid ;
+	pid_t		child_pid = 0 ;
 	int		rs ;
-	int		fd ;
+	int		fd = -1 ;
 	int		i, j, k ;
 	int		pipes[3][2] ;
+	cchar		*cmd_rsh ;
 	char		pfname[MAXPATHLEN + 1] ;
-	char		*cmd_rsh ;
 
 #if	CF_DEBUGS
 	debugprintf("bopencmd: entered\n") ;
@@ -107,16 +106,15 @@ char	cmd[] ;
 
 	cmd_rsh = "/bin/rsh" ;
 	if (u_access(cmd_rsh,X_OK) != 0) {
-
 	    cmd_rsh = "/usr/ucb/rsh" ;
-	    if (u_access(cmd_rsh,X_OK) != 0)
+	    if (u_access(cmd_rsh,X_OK) != 0) {
 	        return SR_BAD ;
-
+	    }
 	} /* end if */
 
 /* open up the necessary pipes */
 
-	for (i = 0 ; i < 3 ; i += 1)
+	for (i = 0 ; i < 3 ; i += 1) {
 	    if (fpa[i] != NULL) {
 
 /* file pointer already used? (yes this is a dangerous hack) */
@@ -140,6 +138,8 @@ char	cmd[] ;
 #endif
 
 	    } /* end if */
+	    if (rs < 0) break ;
+	} /* end for */
 
 /* we fork RSH */
 
@@ -147,6 +147,7 @@ char	cmd[] ;
 	debugprintf("bopencmd: about to fork\n") ;
 #endif
 
+	if (rs >= 0) {
 	if ((child_pid = uc_fork()) == 0) {
 
 #if	CF_DEBUGS
@@ -172,16 +173,23 @@ char	cmd[] ;
 
 /* do the exec */
 
-	    execlp(cmd_rsh,"rsh",remotehost,cmd,NULL) ;
+	    if (rs >= 0) {
+		    int		i = 0 ;
+		    cchar	**ev = (cchar **) environ ;
+		    cchar	*av[5] ;
+		    av[i++] = "rsh" ;
+		    av[i++] = remotehost ;
+		    av[i++] = cmd ;
+		    av[i] = NULL ;
+	    	    uc_execve(cmd_rsh,av,ev) ;
+	    }
 
 	    uc_exit(BAD) ;
-
 	} else if (child_pid < 0) {
-
 	    rs = child_pid ;
 	    goto badfork ;
-
 	}
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("bopencmd: main line continue\n") ;
@@ -189,9 +197,11 @@ char	cmd[] ;
 
 /* close some pipe ends */
 
-	for (i = 0 ; i < 3 ; i += 1)
-	    if (fpa[i] != NULL)
+	for (i = 0 ; i < 3 ; i += 1) {
+	    if (fpa[i] != NULL) {
 	        u_close(pipes[i][(i == 0) ? 0 : 1]) ;
+	    }
+	}
 
 /* open the parent side "basic" files */
 
@@ -256,10 +266,11 @@ err3:
 	u_unlink(pfname) ;
 
 badpipe:
-err4:
-	for (j = 0 ; j < i ; j += 1)
-	    for (k = 0 ; k < 2 ; k += 1)
+	for (j = 0 ; j < i ; j += 1) {
+	    for (k = 0 ; k < 2 ; k += 1) {
 	        u_close(pipes[j][k]) ;
+	    }
+	}
 
 	return rs ;
 }

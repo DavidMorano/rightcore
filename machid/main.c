@@ -85,7 +85,7 @@ int main(int argc,char **aargv,char **aenvv)
 	int	i, j ;
 	int	bl, sl ;
 	int	s ;
-	int	fd = 0 ;
+	int	fd = -1 ;
 
 	cchar	*pr = NULL ;
 	cchar	*progname ;

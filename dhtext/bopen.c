@@ -15,9 +15,9 @@
 	This subroutine was originally written.
 
 	= 1999-01-10, David A­D­ Morano
-	I added the little extra code to allow for memory mapped I/O.
-	It is all a waste because it is way slower than without it!
-	This should teach me to leave old programs alone!!!
+        I added the little extra code to allow for memory mapped I/O. It is all
+        a waste because it is way slower than without it! This should teach me
+        to leave old programs alone!!!
 
 */
 
@@ -46,7 +46,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/resource.h>
 #include	<limits.h>
 #include	<unistd.h>
 #include	<fcntl.h>
@@ -120,12 +119,7 @@ static int	extfd(const char *) ;
 /* exported subroutines */
 
 
-int bopene(fp,name,os,perm,timeout)
-bfile		*fp ;
-const char	name[] ;
-const char	os[] ;
-mode_t		perm ;
-int		timeout ;
+int bopene(bfile *fp,cchar *name,cchar *os,mode_t perm,int timeout)
 {
 	BFILE_STAT	sb ;
 	offset_t	soff ;
@@ -138,7 +132,6 @@ int		timeout ;
 	int		bsize = 0 ;
 	int		f_readonly = FALSE ;
 	int		f_lessthan ;
-	int		f_mappable ;
 	int		f_notseek ;
 	int		f_created = FALSE ;
 	int		f ;
@@ -434,7 +427,7 @@ int		timeout ;
 	        LONG	cs ;
 		if (fs == 0) fs = 1 ;
 	        cs = llceil(fs,512) ;
-		bsize = MIN(fs,ps) & INT_MAX ;
+		bsize = MIN(cs,ps) & INT_MAX ;
 #if	CF_DEBUGS
 	    debugprintf("bopen: RDONLY fs=%lld ps=%llu bsize=%u\n",
 		fs,ps,bsize) ;
@@ -467,7 +460,6 @@ int		timeout ;
 	    fp->offset = 0 ;
 	}
 
-	fp->len = 0 ;
 	if ((oflags & O_APPEND) && (! fp->f.notseek)) {
 	    rs = u_seeko(fp->fd,0L,SEEK_END,&soff) ;
 	    fp->offset = (BFILE_OFF) soff ;
@@ -480,14 +472,16 @@ int		timeout ;
 #endif
 
 #if	CF_MAPABLE
-	f_mappable = (! fp->f.notseek) && (! fp->f.terminal) ;
-	if (f_mappable) {
-	    fp->f.mappable = TRUE ;
+	{
+	    int		f_mapable = (! fp->f.notseek) && (! fp->f.terminal) ;
+	    if (f_mapable) {
+	        fp->f.mappable = TRUE ;
+	    }
+	    if (f_mapable && (! (oflags & O_WRONLY))) {
+	        rs = bfile_mapbegin(fp) ;
+	        if (rs < 0) goto bad1 ;
+	    } /* end if (file object is mappable) */
 	}
-	if (f_mappable && (! (oflags & O_WRONLY))) {
-	    rs = bfile_mapbegin(fp) ;
-	    if (rs < 0) goto bad1 ;
-	} /* end if (file object is mappable) */
 #else /* CF_MAPABLE */
 #if	CF_DEBUGS
 	debugprintf("bopen: buffable bsize=%u\n",bsize) ;
@@ -528,24 +522,14 @@ bad0:
 /* end subroutine (bopene) */
 
 
-int bopen(fp,fname,os,perm)
-bfile		*fp ;
-const char	fname[] ;
-const char	os[] ;
-mode_t		perm ;
+int bopen(bfile *fp,cchar *fname,cchar *os,mode_t perm)
 {
-
 	return bopene(fp,fname,os,perm,-1) ;
 }
 /* end subroutine (bopen) */
 
 
-int bopenprog(fp,progname,os,argv,envv)
-bfile		*fp ;
-const char	*progname ;
-const char	*os ;
-const char	**argv ;
-const char	**envv ;
+int bopenprog(bfile *fp,cchar *progname,cchar *os,cchar **argv,cchar **envv)
 {
 	int		rs = SR_OK ;
 	int		oflags = 0 ;
@@ -620,8 +604,7 @@ const char	**envv ;
 /* end subroutine (bopenprog) */
 
 
-int bclose(fp)
-bfile	*fp ;
+int bclose(bfile *fp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -674,8 +657,6 @@ bfile	*fp ;
 
 ret1:
 	fp->magic = 0 ;
-
-ret0:
 
 #if	CF_DEBUGS
 	debugprintf("bclose: ret rs=%d\n",rs) ;
@@ -748,8 +729,7 @@ static int bfile_opts(bfile *fp,int oflags,mode_t om)
 
 #if	CF_MAPABLE
 
-static int bfile_mapbegin(fp)
-bfile	*fp ;
+static int bfile_mapbegin(bfile *fp)
 {
 	int		rs ;
 	int		i ;
@@ -758,9 +738,7 @@ bfile	*fp ;
 /* allocate the map structures */
 
 	size = BFILE_NMAPS * sizeof(struct bfile_map) ;
-	rs = uc_malloc(size,&fp->maps) ;
-	if (rs < 0)
-	    goto ret0 ;
+	if ((rs = uc_malloc(size,&fp->maps)) >= 0) {
 
 #ifdef	MALLOCLOG
 	malloclog_alloc(fp->maps,size,"bopen/bfile_mapbegin:maps") ;
@@ -769,23 +747,21 @@ bfile	*fp ;
 /* initialize the maps, let them get paged in as needed! */
 
 	for (i = 0 ; i < BFILE_NMAPS ; i += 1) {
-
 	    fp->maps[i].f.valid = FALSE ;
 	    fp->maps[i].buf = NULL ;
-
 	} /* end for */
 
 	fp->bp = NULL ;
 	fp->f.mapinit = TRUE ;
 
-ret0:
+	} /* end if (m-a) */
+
 	return rs ;
 }
 /* end subroutine (bfile_mapbegin) */
 
 
-static int bfile_mapend(fp)
-bfile	*fp ;
+static int bfile_mapend(bfile *fp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -826,61 +802,47 @@ static int mkoflags(const char *os,int *bfp)
 #endif
 
 	    switch (sc) {
-
 	    case 'd':
 	        bflags |= BO_FILEDESC ;
 	        break ;
-
 	    case 'r':
 	        bflags |= BO_READ ;
 	        break ;
-
 	    case 'w':
 		bflags |= BO_WRITE ;
 	        break ;
-
 	    case 'm':
 	    case '+':
 	        bflags |= (BO_READ | BO_WRITE) ;
 	        break ;
-
 	    case 'a':
 	        oflags |= O_APPEND ;
 	        bflags |= BO_APPEND ;
 	        break ;
-
 	    case 'c':
 	        oflags |= O_CREAT ;
 	        break ;
-
 	    case 'e':
 	        oflags |= (O_CREAT | O_EXCL) ;
 	        break ;
-
 	    case 't':
 	        oflags |= (O_CREAT | O_TRUNC) ;
 	        break ;
-
 	    case 'n':
 	        oflags |= O_NDELAY ;
 	        break ;
-
 /* POSIX "binary" mode -- does nothing on real UNIXes® */
 	    case 'b':
 	        break ;
-
 	    case 'x':
 	        oflags |= O_EXCL ;
 		break ;
-
 	    case 'N':
 	        oflags |= O_NETWORK ;
 		break ;
-
 	    case 'M':
 	        oflags |= O_MINMODE ;
 		break ;
-
 	    } /* end switch */
 
 	} /* end while (open flags) */
@@ -908,23 +870,21 @@ static int mkoflags(const char *os,int *bfp)
 
 
 #if	CF_DEBUGS
-int bfile_amodes(fp,name)
-bfile	*fp ;
-char	name[] ;
+int bfile_amodes(bfile *fp,char *name)
 {
-	int		oflags ;
+	int		oflags = u_fcntl(fp->fd,F_GETFL,0) ;
 	char		amodes[100] ;
 	amodes[0] = '\0' ;
-	oflags = u_fcntl(fp->fd,F_GETFL,0) ;
 	if ((oflags & O_CREAT) == O_CREAT)
 	    strcat(amodes," APPEND") ;
 	if ((oflags & O_TRUNC) == O_TRUNC)
 	    strcat(amodes," TRUNC") ;
 	if ((oflags & O_APPEND) == O_APPEND)
 	    strcat(amodes," APPEND") ;
-	if (amodes[0] != '\0')
+	if (amodes[0] != '\0') {
 	    debugprintf("%s: FD=%d offset=%08lx amodes=%s\n",
 	        name,fp->fd,fp->offset,amodes) ;
+	}
 	return oflags ;
 }
 /* end subroutine (bfile_amodes) */
@@ -933,7 +893,7 @@ char	name[] ;
 
 static int extfd(const char *s) {
 	int	rs = SR_INVALID ;
-	int	fd = 0 ;
+	int	fd = -1 ;
 	if (*s++ == BFILE_FDCH) {
 	   const int	ch = MKCHAR(s[0]) ;
 	   if (isdigitlatin(ch)) rs = cfdeci(s,-1,&fd) ;

@@ -108,7 +108,7 @@ char	*envv[] ;
 	int	rs, len ;
 	int	i, j ;
 	int	mapsize, pagesize, prot ;
-	int	fd = 0 ;
+	int	fd = -1 ;
 	int	fd_debug ;
 	int	*buf1, *buf2 ;
 

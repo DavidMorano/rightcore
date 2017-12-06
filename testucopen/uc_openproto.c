@@ -191,10 +191,9 @@ extern int	sbuf_addquoted(SBUF *,const char *,int) ;
 extern int	getaf(cchar *) ;
 
 #if	CF_TICOTSORD
-extern int	dialticotsord(const char *,int,int,int) ;
-extern int	dialticotsordnls(const char *,int,const char *,int,int) ;
-extern int	dialticotsordmux(const char *,int,const char *,const char **,
-			int,int) ;
+extern int	dialticotsord(cchar *,int,int,int) ;
+extern int	dialticotsordnls(cchar *,int,cchar *,int,int) ;
+extern int	dialticotsordmux(cchar *,int,cchar *,cchar **,int,int) ;
 #endif /* CF_TICOTSORD */
 
 extern int	dialuss(const char *,int,int) ;
@@ -298,9 +297,9 @@ static int	fingerclean(int) ;
 #if	CF_FINERBACK
 static int	fingerworker(FINGERARGS *) ;
 static int	fingerworker_loop(FINGERARGS *,FILEBUF *,FILEBUF *,
-			int,int,int) ;
+int,int,int) ;
 static int	fingerworker_liner(FINGERARGS *,FILEBUF *,
-			int,int,int,cchar *,int) ;
+int,int,int,cchar *,int) ;
 #endif /* CF_FINERBACK */
 #endif /* CF_FINGERCLEAN */
 
@@ -323,7 +322,7 @@ static int makeint(const void *) ;
 
 /* local variables */
 
-static const char *protonames[] = {
+static cchar	*protonames[] = {
 	"ticotsord",
 	"ticotsordnls",
 	"ticotsordmux",
@@ -393,109 +392,110 @@ int uc_openproto(cchar *fname,int of,int to,int opts)
 
 	if ((tp = strchr(pnp,'/')) != NULL) {
 
-	path = tp ;
-	sp = (tp + 1) ;
+	    path = tp ;
+	    sp = (tp + 1) ;
 
 /* is there a protocol argument? */
 
-	pal = 0 ;
-	if ((pap = strnchr(pnp,(tp - pnp),':')) != NULL) {
-	    pnl = (pap - pnp) ;
-	    pap += 1 ;
-	    pal = (tp - pap) ;
-	} else {
-	    pnl = (tp - pnp) ;
-	}
+	    pal = 0 ;
+	    if ((pap = strnchr(pnp,(tp - pnp),':')) != NULL) {
+	        pnl = (pap - pnp) ;
+	        pap += 1 ;
+	        pal = (tp - pap) ;
+	    } else {
+	        pnl = (tp - pnp) ;
+	    }
 
 #if	CF_DEBUGS
-	debugprintf("uc_openproto: path=%s\n",path) ;
-	debugprintf("uc_openproto: protocol=%t\n",pnp,pnl) ;
-	if (pal >= 0)
-	    debugprintf("uc_openproto: protocol arg=%t\n",pap,pal) ;
+	    debugprintf("uc_openproto: path=%s\n",path) ;
+	    debugprintf("uc_openproto: protocol=%t\n",pnp,pnl) ;
+	    if (pal >= 0)
+	        debugprintf("uc_openproto: protocol arg=%t\n",pap,pal) ;
 #endif
 
-	memset(&si,0,sizeof(SUBINFO)) ;
-	si.path = path ;
-	si.pnp = pnp ;
-	si.pnl = pnl ;
-	si.pap = pap ;
-	si.pal = pal ;
+	    memset(&si,0,sizeof(SUBINFO)) ;
+	    si.path = path ;
+	    si.pnp = pnp ;
+	    si.pnl = pnl ;
+	    si.pap = pap ;
+	    si.pal = pal ;
 
 /* lookup the protocol name */
 
-	pni = matcasestr(protonames,pnp,pnl) ;
+	    pni = matcasestr(protonames,pnp,pnl) ;
 
 #if	CF_DEBUGS
-	debugprintf("uc_openproto: protocol=%t(%u)\n",pnp,pnl,pni) ;
+	    debugprintf("uc_openproto: protocol=%t(%u)\n",pnp,pnl,pni) ;
 #endif
 
-	switch (pni) {
-	case protoname_ticotsord:
-	case protoname_ticotsordnls:
-	case protoname_ticotsordmux:
-	    rs = openproto_ticotsord(&si,pni,of,to,opts) ;
-	    fd = rs ;
-	    break ;
-	case protoname_tcp:
-	case protoname_tcpnls:
-	case protoname_tcpmux:
-	case protoname_udp:
-	    if ((rs = openproto_inet(&si,pni,sp,to,opts)) >= 0) {
+	    switch (pni) {
+	    case protoname_ticotsord:
+	    case protoname_ticotsordnls:
+	    case protoname_ticotsordmux:
+	        rs = openproto_ticotsord(&si,pni,of,to,opts) ;
 	        fd = rs ;
-	        rs = sockshut(fd,of) ;
-	    }
-	    break ;
-	case protoname_usd:
-	    if ((rs = dialusd(path,to,opts)) >= 0) {
-	        fd = rs ;
-	        rs = sockshut(fd,of) ;
-	    }
-	    break ;
-	case protoname_uss:
-	    if ((rs = dialuss(path,to,opts)) >= 0) {
-	        fd = rs ;
-	        rs = sockshut(fd,of) ;
-	    }
-	    break ;
-	case protoname_ussnls:
-	case protoname_ussmux:
-	    {
-	        char	svcspec[SVCLEN + 1] ;
-	        if (pap != NULL) {
-	            strdcpy1w(svcspec,SVCLEN,pap,pal) ;
+	        break ;
+	    case protoname_tcp:
+	    case protoname_tcpnls:
+	    case protoname_tcpmux:
+	    case protoname_udp:
+	        if ((rs = openproto_inet(&si,pni,sp,to,opts)) >= 0) {
+	            fd = rs ;
+	            rs = sockshut(fd,of) ;
+	        }
+	        break ;
+	    case protoname_usd:
+	        if ((rs = dialusd(path,to,opts)) >= 0) {
+	            fd = rs ;
+	            rs = sockshut(fd,of) ;
+	        }
+	        break ;
+	    case protoname_uss:
+	        if ((rs = dialuss(path,to,opts)) >= 0) {
+	            fd = rs ;
+	            rs = sockshut(fd,of) ;
+	        }
+	        break ;
+	    case protoname_ussnls:
+	    case protoname_ussmux:
+	        {
+	            char	svcspec[SVCLEN + 1] ;
+	            if (pap != NULL) {
+	                strdcpy1w(svcspec,SVCLEN,pap,pal) ;
 #if	CF_DEBUGS
-	            debugprintf("uc_openproto: USS path=%s\n",path) ;
-	            debugprintf("uc_openproto: USS svc=%s\n",svcspec) ;
+	                debugprintf("uc_openproto: USS path=%s\n",path) ;
+	                debugprintf("uc_openproto: USS svc=%s\n",svcspec) ;
 #endif
-	            if (pni == protoname_ussmux) {
-	                rs = openproto_ussmux(&si,path,svcspec,to,opts) ;
-	            } else {
-	                rs = dialussnls(path,svcspec,to,opts) ;
-	            }
-	            if (rs >= 0) {
-	                fd = rs ;
-	                rs = sockshut(fd,of) ;
-	            }
-	        } else
-	            rs = SR_DESTADDRREQ ;
-	    } /* end block */
-	    break ;
-	case protoname_finger:
-	    rs = openproto_finger(&si,sp,of,to) ;
-	    fd = rs ;
-	    break ;
-	case protoname_http:
-	    rs = openproto_http(&si,sp,of,to) ;
-	    fd = rs ;
-	    break ;
-	default:
-	    rs = SR_PROTONOSUPPORT ;
-	    break ;
-	} /* end switch (protocol name) */
-	if ((rs < 0) && (fd >= 0)) u_close(fd) ;
+	                if (pni == protoname_ussmux) {
+	                    rs = openproto_ussmux(&si,path,svcspec,to,opts) ;
+	                } else {
+	                    rs = dialussnls(path,svcspec,to,opts) ;
+	                }
+	                if (rs >= 0) {
+	                    fd = rs ;
+	                    rs = sockshut(fd,of) ;
+	                }
+	            } else
+	                rs = SR_DESTADDRREQ ;
+	        } /* end block */
+	        break ;
+	    case protoname_finger:
+	        rs = openproto_finger(&si,sp,of,to) ;
+	        fd = rs ;
+	        break ;
+	    case protoname_http:
+	        rs = openproto_http(&si,sp,of,to) ;
+	        fd = rs ;
+	        break ;
+	    default:
+	        rs = SR_PROTONOSUPPORT ;
+	        break ;
+	    } /* end switch (protocol name) */
+	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("uc_openproto: ret rs=%d fd=%u\n",rs,fd) ;
@@ -759,7 +759,7 @@ static int openproto_finger(SUBINFO *sip,cchar *sp,int of,int to)
 #if	CF_FINGERCLEAN
 	if (rs >= 0) {
 	    if ((rs = fingerclean(fd)) >= 0) {
-		u_close(fd) ;
+	        u_close(fd) ;
 	        fd = rs ;
 	    }
 	}
@@ -827,8 +827,8 @@ static int inetargs_start(INETARGS *iap,cchar *args)
 	            iap->hostl = (tp - sp) ;
 	            if (iap->hostl > 0) {
 	                cchar	*pp ;
-			cchar	*hp = iap->hostp ;
-			cchar	hl = iap->hostl ;
+	                cchar	*hp = iap->hostp ;
+	                cchar	hl = iap->hostl ;
 	                iap->portp = NULL ;
 	                iap->portl = 0 ;
 	                sp = (tp + 1) ;
@@ -879,7 +879,7 @@ static int inetargs_starter(INETARGS *iap,cchar *sp)
 	        rs = loadargs(&iap->args,(tp+1)) ;
 #if	CF_DEBUGS
 	        debugprintf("uc_openproto/inetargs_start: "
-			"loadargs() rs=%d\n",rs) ;
+	            "loadargs() rs=%d\n",rs) ;
 #endif
 	    } /* end if (had dialer arguments) */
 	    if (rs >= 0) {
@@ -887,7 +887,7 @@ static int inetargs_starter(INETARGS *iap,cchar *sp)
 	            rs = inetargs_alloc(iap) ;
 	        } else {
 	            rs = SR_INVALID ;
-	  	}
+	        }
 	    }
 	    if (rs < 0) {
 	        if (iap->f_args) {
@@ -992,7 +992,7 @@ static int inetargs_alloc(INETARGS *iap)
 #if	CF_TICOTSORD
 
 static int ticotsordargs_start(TICOTSORDARGS *tap,char *abuf,int alen,
-		cchar *pp,int pl)
+cchar *pp,int pl)
 {
 	int		rs ;
 	memset(tap,0,sizeof(TICOTSORDARGS)) ;
@@ -1050,7 +1050,7 @@ static int dialfinger(INETARGS *iap,cchar *psp,int af,int to,int of)
 {
 	const int	reqlen = REQBUFLEN ;
 	int		rs = SR_OK ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	const char	*portspec = NULL ;
 	char		reqbuf[REQBUFLEN + 1], *rp = reqbuf ;
 
@@ -1098,13 +1098,13 @@ static int dialfinger(INETARGS *iap,cchar *psp,int af,int to,int of)
 	                    if (ap != NULL) {
 	                        rs = sbuf_char(&b,' ') ;
 	                        if (rs >= 0) rs = sbuf_addquoted(&b,ap,-1) ;
-			    }
+	                    }
 	                    if (rs < 0) break ;
 	                } /* end for */
 	            } /* end if (args) */
 	            if (rs >= 0) {
 	                sbuf_strw(&b,"\n\r",2) ;
-		    }
+	            }
 	            rl = sbuf_finish(&b) ;
 	            if (rs >= 0) rs = rl ;
 	        } /* end if (sbuf) */
@@ -1181,10 +1181,10 @@ static int fingerworker(FINGERARGS *fap)
 	    FILEBUF	fb ;
 	    const int	fbo = FILEBUF_ONET ;
 	    if ((rs = filebuf_start(&fb,nfd,0L,0,fbo)) >= 0) {
-		{
-		    rs = fingerworker_loop(fap,ofp,&fb,cols,ind,to) ;
-		    wlen = rs ;
-		}
+	        {
+	            rs = fingerworker_loop(fap,ofp,&fb,cols,ind,to) ;
+	            wlen = rs ;
+	        }
 	        rs1 = filebuf_finish(&fb) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (filebuf) */
@@ -1202,7 +1202,7 @@ static int fingerworker(FINGERARGS *fap)
 
 
 static int fingerworker_loop(FINGERARGS *fap,FILEBUF *ofp,FILEBUF *ifp,
-	int cols,int ind,int to)
+int cols,int ind,int to)
 {
 	const int	llen = LINEBUFLEN ;
 	int		rs ;
@@ -1238,7 +1238,7 @@ static int fingerworker_loop(FINGERARGS *fap,FILEBUF *ofp,FILEBUF *ifp,
 	                        char *cp = colbuf ;
 	                        if (sl > 0) {
 	                            cp = strdcpy1w(colbuf,collen,sp,sl) ;
-				}
+	                        }
 	                        *cp++ = '\n' ;
 	                        *cp = '\0' ;
 	                        sp = colbuf ;
@@ -1383,41 +1383,41 @@ static int fingerclean(const int fd)
 	    FILEBUF	b ;
 	    nfd = rs ;
 	    if ((rs = filebuf_start(&b,fd,0L,0,fo)) >= 0) {
-		const int	to = (1*60) ;
-		const int	llen = LINEBUFLEN ;
-		const int	clen = LINEBUFLEN ;
-		int		size = 0 ;
-		char		*bp ;
-		char		*lbuf ;
-		char		*cbuf ;
-		size += (llen+1) ;
-		size += (clen+1) ;
-		if ((rs = uc_libmalloc(size,&bp)) >= 0) {
-		    lbuf = bp ;
-		    cbuf = (bp+(llen+1)) ;
-		    while ((rs = filebuf_readline(&b,lbuf,llen,to)) > 0) {
-			int	len = rs ;
-			if (hasmseol(lbuf,len)) {
-			    len -= 1 ;
-			    lbuf[len-1] = CH_NL ;
-			}
-			if (hasdirty(lbuf,len)) {
-			    const int	cl = clen ;
-			    char	*cp = cbuf ;
-			    if ((rs = snwcpyclean(cp,cl,'¿',lbuf,len)) >= 0) {
-				len = rs ;
-				lbuf = cbuf ;
-			    }
-			}
-			if ((rs >= 0) && (len > 0)) {
-			    rs = u_write(nfd,lbuf,len) ;
-			}
-			if (rs < 0) break ;
-		    } /* end while */
-		    uc_libfree(bp) ;
-		} /* end if (m-a) */
-		rs1 = filebuf_finish(&b) ;
-		if (rs >= 0) rs = rs1 ;
+	        const int	to = (1*60) ;
+	        const int	llen = LINEBUFLEN ;
+	        const int	clen = LINEBUFLEN ;
+	        int		size = 0 ;
+	        char		*bp ;
+	        char		*lbuf ;
+	        char		*cbuf ;
+	        size += (llen+1) ;
+	        size += (clen+1) ;
+	        if ((rs = uc_libmalloc(size,&bp)) >= 0) {
+	            lbuf = bp ;
+	            cbuf = (bp+(llen+1)) ;
+	            while ((rs = filebuf_readline(&b,lbuf,llen,to)) > 0) {
+	                int	len = rs ;
+	                if (hasmseol(lbuf,len)) {
+	                    len -= 1 ;
+	                    lbuf[len-1] = CH_NL ;
+	                }
+	                if (hasdirty(lbuf,len)) {
+	                    const int	cl = clen ;
+	                    char	*cp = cbuf ;
+	                    if ((rs = snwcpyclean(cp,cl,'¿',lbuf,len)) >= 0) {
+	                        len = rs ;
+	                        lbuf = cbuf ;
+	                    }
+	                }
+	                if ((rs >= 0) && (len > 0)) {
+	                    rs = u_write(nfd,lbuf,len) ;
+	                }
+	                if (rs < 0) break ;
+	            } /* end while */
+	            uc_libfree(bp) ;
+	        } /* end if (m-a) */
+	        rs1 = filebuf_finish(&b) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (filebuf) */
 	    if (rs >= 0) rs = u_rewind(nfd) ;
 	    if (rs < 0) u_close(nfd) ;
@@ -1538,7 +1538,7 @@ static int hasmseol(cchar *lp,int ll)
 {
 	int	f = FALSE ;
 	if (ll >= 2) {
-	   f = ((lp[ll-2] == CH_CR) && (lp[ll-1] == CH_NL)) ;
+	    f = ((lp[ll-2] == CH_CR) && (lp[ll-1] == CH_NL)) ;
 	}
 	return f ;
 }

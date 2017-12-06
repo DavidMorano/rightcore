@@ -848,11 +848,10 @@ SYSMISCEMS	*op ;
 const char	shmname[] ;
 int		operms ;
 {
-	int	rs = SR_OK ;
-	int	oflags = O_RDWR ;
-	int	to = TO_SHMWAIT ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		oflags = O_RDWR ;
+	int		to = TO_SHMWAIT ;
+	int		fd = -1 ;
 
 	while (to-- > 0) {
 
@@ -861,13 +860,12 @@ int		operms ;
 	    if (rs >= 0)
 	        break ;
 
-	    if (rs != SR_ACCESS)
-	        break ;
-
+	    if (rs != SR_ACCESS) break ;
 	} /* end while */
 
-	if ((rs < 0) && (to == 0))
+	if ((rs < 0) && (to == 0)) {
 	    rs = SR_TIMEDOUT ;
+	}
 
 	return (rs >= 0) ? fd : rs ;
 }

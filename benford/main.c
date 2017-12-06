@@ -13,7 +13,6 @@ int main()
 	int		p[10] ;
 	int		sum ;
 	int		size, iw ;
-	int		ifd = 0 ;
 	short		sw ;
 	char		digbuf[24] ;
 	char		*cp ;

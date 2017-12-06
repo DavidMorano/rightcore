@@ -100,7 +100,7 @@ char	*argv[] ;
 	int	len, rs ;
 	int	ex = EX_USAGE ;
 	int	i, j ;
-	int	fd = 0 ;
+	int	fd = -1 ;
 	int	f_msync ;
 	int	fd_debug ;
 

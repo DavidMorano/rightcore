@@ -200,7 +200,7 @@ int rmsesfiles(cchar *dname)
 static int lockbegin(char *pbuf,int plen)
 {
 	int		rs ;
-	int		lfd = 0 ;
+	int		lfd = -1 ;
 	cchar		*lfn = RMSESFILES_LOCKFILE ;
 	if ((rs = pathadd(pbuf,plen,lfn)) >= 0) {
 	    OPENSTATE		ols ;

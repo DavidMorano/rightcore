@@ -32,7 +32,7 @@
 *******************************************************************************/
 
 
-#define	BFILE_MASTER	1
+#define	BFILE_MASTER	0		/* do not claim */
 
 
 #include	<envstandards.h>
@@ -108,7 +108,7 @@ int bcontrol(bfile *fp,int cmd,...)
 {
 	struct flock	fl, *fsp ;
 	int		rs = SR_OK ;
-	int		i, fcmd ;
+	int		fcmd ;
 	int		f_timedcmd = FALSE ;
 
 	if (fp == NULL) return SR_FAULT ;
@@ -120,34 +120,30 @@ int bcontrol(bfile *fp,int cmd,...)
 	    goto ret0 ;
 	}
 
-	if ((rs = bflush(fp)) >= 0) {
-	va_list		ap ;
+	if ((rs = bfile_flush(fp)) >= 0) {
+	    va_list	ap ;
 	va_begin(ap,cmd) ;
 	switch (cmd) {
-
 	case BC_TELL:
 	    {
 		BFILE_OFF	*bop ;
 	        bop = (BFILE_OFF *) va_arg(ap,void *) ;
 		if (bop != NULL) {
 	            *bop = fp->offset ;
-		} else
+		} else {
 		    rs = SR_FAULT ;
+		}
 	    }
 	    break ;
-
 	case BC_BUF:
 	    fp->bm = bfile_bmall ;
 	    break ;
-
 	case BC_LINEBUF:
 	    fp->bm = bfile_bmline ;
 	    break ;
-
 	case BC_UNBUF:
 	    fp->bm = bfile_bmnone ;
 	    break ;
-
 	case BC_FD:
 	    {
 	        int *rip = (int *) va_arg(ap,int *) ;
@@ -155,7 +151,6 @@ int bcontrol(bfile *fp,int cmd,...)
 		if (rip != NULL) *rip = fp->fd ;
 	    }
 	    break ;
-
 	case BC_STAT:
 	    {
 	    	struct ustat *ssp = (struct ustat *) va_arg(ap,void *) ;
@@ -188,97 +183,79 @@ int bcontrol(bfile *fp,int cmd,...)
 		    rs = SR_FAULT ;
 	    }
 	    break ;
-
 	case BC_TRUNCATE:
 	    {
 	        offset_t toff = (offset_t) va_arg(ap,offset_t) ;
 	        rs = uc_ftruncate(fp->fd,toff) ;
 	    }
 	    break ;
-
 	case BC_CHMOD:
 	    {
 		mode_t fm = (mode_t) va_arg(ap,mode_t) ;
 	        rs = u_fchmod(fp->fd,fm) ;
 	    }
 	    break ;
-
 	case BC_MINMOD:
 	    {
 		mode_t fm = (mode_t) va_arg(ap,mode_t) ;
 	        rs = uc_fminmod(fp->fd,fm) ;
 	    }
 	    break ;
-
 /* file record locking functions */
 	case BC_UNLOCK:
 	case BC_LOCKREAD:
 	case BC_LOCKWRITE:
 	    fsp = &fl ;
 	    switch (cmd) {
-
 	    case BC_LOCKREAD:
 	        fsp->l_type = F_RDLCK ;
 	        f_timedcmd = TRUE ;
 	        break ;
-
 	    case BC_LOCKWRITE:
 	        fsp->l_type = F_WRLCK ;
 	        f_timedcmd = TRUE ;
 	        break ;
-
 	    case BC_UNLOCK:
 	    default:
 	        fsp->l_type = F_UNLCK ;
 	        break ;
-
 	    } /* end switch */
-
 	    fsp->l_whence = SEEK_SET ;
 	    fsp->l_start = 0L ;
 	    fsp->l_len = 0L ;
-
 /* fall through to next case */
 /* FALLTHROUGH */
 /* enter here for a lock (or unlock) of a requested area of the file */
 	case BC_SETLK:
 	case BC_SETLKW:
-	    if (fp->f.write && (fp->len > 0))
+	    if (fp->f.write && (fp->len > 0)) {
 	        rs = bfile_flush(fp) ;
-
+	    }
 #if	CF_DEBUGS
 	    debugprintf("bcontrol: about to set file lock %d %d %ld %ld\n",
 	        fsp->l_type,fsp->l_whence,fsp->l_start, fsp->l_len) ;
 #endif
-
 /* fall through to next case */
-
+/* FALLTHROUGH */
 	case BC_GETLK:
 	    switch (cmd) {
-
 	    case BC_LOCKWRITE:
-
 #if	CF_DEBUGS
 	        debugprintf("bcontrol: WRITE lock set fcmd to F_SETLK\n") ;
 #endif
-
 	    case BC_LOCKREAD:
 	    case BC_SETLK:
 	        fcmd = F_SETLK ;
 	        break ;
-
 	    case BC_UNLOCK:
 	    case BC_SETLKW:
 	        fcmd = F_SETLKW ;
 	        break ;
-
 	    case BC_GETLK:
 	    default:
 	        fcmd = F_GETLK ;
 	        break ;
-
 	    } /* end switch */
-
 	    {
 		int	to = 0 ;
 	        if (f_timedcmd) {
@@ -288,47 +265,45 @@ int bcontrol(bfile *fp,int cmd,...)
 	                fcmd = F_SETLKW ;
 	            }
 	        }
-
 #if	CF_DEBUGS
 	    debugprintf("bcontrol: locking fcmd=%s(%u) f_timed=%u to=%d\n",
 	        fcmdname(fcmd),fcmd,f_timedcmd,to) ;
 #endif
-
 	        rs = bcontrol_lock(fp,fsp,fcmd,f_timedcmd,to) ;
 #if	CF_DEBUGS
 	    debugprintf("bcontrol: bcontrol_lock() rs=%d\n",rs) ;
 #endif
-
 	    }
 	    break ;
-
 /* buffer input lines (in spite of what is read off of the FD) */
-	case BC_LINEIN:
-	    fp->f.linein = TRUE ;
+	case BC_INPARTLINE:
+	    {
+	        int	f = (int) va_arg(ap,int) ;
+	        fp->f.inpartline = MKBOOL(f) ;
+	    }
 	    break ;
-
 	case BC_GETFL:
 	    {
 		int	oflags ;
 		int *rip = (int *) va_arg(ap,int *) ;
 	        rs = u_fcntl(fp->fd,F_GETFL,0) ;
 	        oflags = rs ;
-	        if (rip != NULL)
+	        if (rip != NULL) {
 	            *rip = (rs >= 0) ? oflags : 0 ;
+		}
 	    }
 	    break ;
-
 	case BC_SETFL:
 	    {
 		int *rip = (int *) va_arg(ap,int *) ;
 		if (rip != NULL) {
 		    int	v = *rip ;
 	            rs = u_fcntl(fp->fd,F_SETFL,v) ;
-	 	} else
+	 	} else {
 		    rs = SR_FAULT ;
+		}
 	    }
 	    break ;
-
 	case BC_GETFDFL:
 	    {
 		int *rip = (int *) va_arg(ap,int *) ;
@@ -337,29 +312,28 @@ int bcontrol(bfile *fp,int cmd,...)
 	            rs = u_fcntl(fp->fd,F_GETFD,0) ;
 		    v = rs ;
 		    *rip = (rs >= 0) ? v : 0 ;
-	 	} else
+	 	} else {
 		    rs = SR_FAULT ;
+		}
 	    }
 	    break ;
-
 	case BC_SETFDFL:
 	    {
 		int *rip = (int *) va_arg(ap,int *) ;
 		if (rip != NULL) {
 		    int v = *rip ;
 	            rs = u_fcntl(fp->fd,F_SETFD,v) ;
-		} else
+		} else {
 		    rs = SR_FAULT ;
+		}
 	    }
 	    break ;
-
 	case BC_CLOSEONEXEC:
 	    {
 		int v = (int) va_arg(ap,int) ;
 	        rs = uc_closeonexec(fp->fd,v) ;
 	    }
 	    break ;
-
 	case BC_BUFSIZE:
 	    if ((rs = bfile_flush(fp)) >= 0) {
 	 	int	bsize = (int) va_arg(ap,int) ;
@@ -369,8 +343,9 @@ int bcontrol(bfile *fp,int cmd,...)
 		    bsize = fp->pagesize ;
 		}
 	        if ((rs = uc_valloc(bsize,&bdata)) >= 0) {
-	            if (fp->bdata != NULL)
+	            if (fp->bdata != NULL) {
 	                uc_free(fp->bdata) ;
+		    }
 	            fp->bsize = bsize ;
 	            fp->bdata = bdata ;
 		    fp->bbp = fp->bdata ;
@@ -378,27 +353,22 @@ int bcontrol(bfile *fp,int cmd,...)
 	        } /* end if (successful) */
 	    } /* end if (was able to flush) */
 	    break ;
-
 	case BC_DSYNC:
 	    if ((rs = bfile_flush(fp)) >= 0) {
 	        rs = uc_fdatasync(fp->fd) ;
 	    } /* end if (was able to flush) */
 	    break ;
-
 	case BC_SYNC:
 	    if ((rs = bfile_flush(fp)) >= 0) {
 	        rs = uc_fsync(fp->fd) ;
 	    } /* end if (was able to flush) */
 	    break ;
-
 	case BC_ISLINEBUF:
 	    rs = (fp->bm == bfile_bmline) ;
 	    break ;
-
 	case BC_ISTERMINAL:
 	    rs = fp->f.terminal ;
 	    break ;
-
 	case BC_SETBUFWHOLE:
 	    {
 		int f = (int) va_arg(ap,int) ;
@@ -406,14 +376,12 @@ int bcontrol(bfile *fp,int cmd,...)
 		if (f) fp->bm = bfile_bmwhole ;
 	    }
 	    break ;
-
 	case BC_SETBUFLINE:
 	    {
 		int f = (int) va_arg(ap,int) ;
 		fp->bm = (f) ? bfile_bmline : bfile_bmall ;
 	    }
 	    break ;
-
 	case BC_SETBUFNONE:
 	    {
 		int f = (int) va_arg(ap,int) ;
@@ -421,7 +389,6 @@ int bcontrol(bfile *fp,int cmd,...)
 		if (f) fp->bm = bfile_bmnone ;
 	    }
 	    break ;
-
 	case BC_SETBUFDEF:
 	    {
 		int f = (int) va_arg(ap,int) ;
@@ -429,13 +396,12 @@ int bcontrol(bfile *fp,int cmd,...)
 		if (f && fp->f.terminal) fp->bm = bfile_bmline ;
 	    }
 	    break ;
-
 	case BC_GETBUFFLAGS:
 	    {
 		int *rip = (int *) va_arg(ap,int *) ;
 		if (rip != NULL) {
 		    int v = 0 ;
-		    if (fp->f.linein) v |= BFILE_FLINEIN ;
+		    if (fp->f.inpartline) v |= BFILE_FINPARTLINE ;
 		    if (fp->f.terminal) v |= BFILE_FTERMINAL ;
 		    switch (fp->bm) {
 		    case bfile_bmwhole:
@@ -448,11 +414,11 @@ int bcontrol(bfile *fp,int cmd,...)
 		        v |= BFILE_FBUFNONE ;
 			break ;
 		    } /* end switch */
-		} else
+		} else {
 		    rs = SR_FAULT ;
+		}
 	    }
 	    break ;
-
 	case BC_SETBUFFLAGS:
 	    {
 		int v = (int) va_arg(ap,int) ;
@@ -462,15 +428,14 @@ int bcontrol(bfile *fp,int cmd,...)
 		    fp->bm = bfile_bmline ;
 		} else if (v & BFILE_FBUFWHOLE) {
 		    fp->bm = bfile_bmwhole ;
-		}
-		if (v & BFILE_FLINEIN) fp->f.linein = TRUE ;
-		if (v & BFILE_FBUFDEF) {
-		    int	bm = bfile_bmall ;
+		} else if (v & BFILE_FBUFDEF) {
+		    int		bm = bfile_bmall ;
 		    if (fp->f.terminal) bm = bfile_bmline ;
+		    fp->bm = bm ;
 		}
+		fp->f.inpartline = MKBOOL(v & BFILE_FINPARTLINE) ;
 	    }
 	    break ;
-
 	case BC_NONBLOCK:
 	    {
 		int v = (int) va_arg(ap,int) ;
@@ -479,12 +444,10 @@ int bcontrol(bfile *fp,int cmd,...)
 		rs = uc_nonblock(fp->fd,f) ;
 	    }
 	    break ;
-
 /* handle all other commands */
 	default:
 	    rs = SR_INVALID ;
 	    break ;
-
 	} /* end switch (handling different "cmd"s) */
 	va_end(ap) ;
 	} /* end if (bflush) */

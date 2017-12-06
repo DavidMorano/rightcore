@@ -86,7 +86,7 @@ int dialussnls(cchar *portspec,cchar *svcbuf,int to,int aopts)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		svclen ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 	char		*nlsbuf ;
 
 #if	CF_DEBUGS

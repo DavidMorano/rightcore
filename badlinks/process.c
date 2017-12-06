@@ -10,13 +10,11 @@
 /* revision history :
 
 	= 1996-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1996 David A­D­ Morano.  All rights reserved. */
 
 /***********************************************************************
 
@@ -179,11 +177,11 @@ char		basedir[] ;
 /* go through the loops */
 
 	len = 0 ;
-	while (f_seed || ((len = bgetline(nfp,linebuf,LINELEN)) > 0)) {
+	while (f_seed || ((len = breadline(nfp,linebuf,LINELEN)) > 0)) {
 
 	    if (len && (linebuf[len - 1] == '\n')) len -= 1 ;
-
 	    linebuf[len] = '\0' ;
+
 	    f_seed = FALSE ;
 
 #if	F_DEBUG

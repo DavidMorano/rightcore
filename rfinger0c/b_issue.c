@@ -2154,9 +2154,9 @@ static int procserver(PROGINFO *pip,LFM *plp,int sfd)
 	cchar		*fmt ;
 
 	if ((rs = issue_open(&m,pip->pr)) >= 0) {
-	    struct pollfd	fds[2] ;
-	    int			pto ;
-	    int			i = 0 ;
+	    POLLFD	fds[2] ;
+	    int		pto ;
+	    int		i = 0 ;
 
 	    fds[i].fd = sfd ;
 	    fds[i].events = (POLLIN | POLLPRI) ;
@@ -2173,14 +2173,12 @@ static int procserver(PROGINFO *pip,LFM *plp,int sfd)
 
 	            if ((re & POLLIN) || (re & POLLPRI)) {
 	                struct strrecvfd	passer ;
-
 	                if ((rs = acceptpass(sfd,&passer,-1)) >= 0) {
 	                    const int	pfd = rs ;
 	                    nhandle += 1 ;
 	                    rs = prochandle(pip,&m,lip->keyname,pfd) ;
 	                    u_close(pfd) ;
 	                } /* end if */
-
 	            } else if (re & POLLHUP) {
 	                rs = SR_HANGUP ;
 	            } else if (re & POLLERR) {

@@ -215,14 +215,14 @@ static int isrequired(int) ;
 
 /* local variables */
 
-static const char	*exts[] = {
+static cchar	*exts[] = {
 	"so",
 	"o",
 	"",
 	NULL
 } ;
 
-static const char	*subs[] = {
+static cchar	*subs[] = {
 	"start",
 	"check",
 	"info",
@@ -606,8 +606,8 @@ static int work_start(WORK *wp,THREAD *tip)
 #endif
 
 	if ((rs = vechand_start(&wp->polls,2,0)) >= 0) {
-	    const char	*ld = LIBCNAME ;
-	    const char	*pd = POLLCNAME ;
+	    cchar	*ld = LIBCNAME ;
+	    cchar	*pd = POLLCNAME ;
 	    char	pdname[MAXPATHLEN+1] ;
 
 	    if ((rs = mkpath3(pdname,pr,ld,pd)) >= 0) {
@@ -705,7 +705,7 @@ static int work_objloads(WORK *wp,THREAD *tip,char *dbuf,int dlen)
 #endif
 	if ((rs = fsdir_open(&d,dbuf)) >= 0) {
 	    int		nl ;
-	    const char	*np ;
+	    cchar	*np ;
 #if	CF_DEBUGS
 	debugprintf("pcspolls/work_objloads: fsdir_open() rs=%d\n",rs) ;
 #endif

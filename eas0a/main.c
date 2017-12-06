@@ -14,13 +14,12 @@
 	Program was originally written.
 
 	= 1993-10-01, Dave Morano
-	The program was slightly modified to use TMPDIR as
-	the directory for temporary files.
-
+        The program was slightly modified to use TMPDIR as the directory for
+        temporary files.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1993,1994 David A­D­ Morano.  All rights reserved. */
 
 /****************************************************************************
 
@@ -704,7 +703,7 @@ char	*argv[] ;
 	offset = 0 ;
 	blen = 0 ;
 	blockstart = 0 ;
-	while ((len = bgetline(gdp->ifp,gdp->buf,BUFLEN)) > 0) {
+	while ((len = breadline(gdp->ifp,gdp->buf,BUFLEN)) > 0) {
 
 	    l = len ;
 	    f_eol = FALSE ;
@@ -1034,16 +1033,14 @@ badwritecir:
 offset_t gotcircuit(gdp,blockstart,linebuf,linelen,index,type,sl)
 struct global	*gdp ;
 char		linebuf[] ;
-int	linelen ;
-int	index ;
+int		linelen ;
+int		index ;
 offset_t	blockstart ;
-int	type ;
-int	sl ;
+int		type ;
+int		sl ;
 {
-	bfile		outfile, *ofp = &outfile ;
-
 	struct circuit	*cirp ;
-
+	bfile		outfile, *ofp = &outfile ;
 	offset_t		offset = blockstart ;
 
 	int	l, len, blen = linelen ;
@@ -1060,7 +1057,7 @@ int	sl ;
 
 #if	CF_DEBUG
 	if (gdp->debuglevel > 1)
-	    eprintf("gotcircuit: entered sl=%d o=%ld linelen=%d\n",
+	    eprintf("gotcircuit: ent sl=%d o=%ld linelen=%d\n",
 	        sl,offset,linelen) ;
 #endif
 
@@ -1161,7 +1158,7 @@ int	sl ;
 	f_eol = FALSE ;
 	f_exit = FALSE ;
 	while ((! (f_exit && f_eol)) &&
-	    ((len = bgetline(gdp->ifp,gdp->buf,BUFLEN)) > 0)) {
+	    ((len = breadline(gdp->ifp,gdp->buf,BUFLEN)) > 0)) {
 
 	    l = len ;
 	    f_eol = FALSE ;
@@ -1412,19 +1409,15 @@ int writecir(gdp,cirp)
 struct global	*gdp ;
 struct circuit	*cirp ;
 {
-	bfile		subfile, *sfp ;
-
 	struct block	*bp ;
-
+	bfile		subfile, *sfp ;
 	int		i, len, sl = cirp->sl, rs ;
-
 	char		subfname[MAXPATHLEN + 1] ;
 	char		namebuf[MAXPATHLEN + 1] ;
 
-
 #if	CF_DEBUG
 	if (gdp->debuglevel > 1)
-	    eprintf("writecir: entered cir=%s\n",cirp->name) ;
+	    eprintf("writecir: ent cir=%s\n",cirp->name) ;
 #endif
 
 /* if we are in "separate" mode, then create the new file */
@@ -1496,25 +1489,19 @@ struct circuit	*cirp ;
 
 #if	CF_DEBUG
 	    if (gdp->debuglevel > 2) {
-
 	        eprintf(
 	            "writecir: writing circuit \"%s\" block s=%ld l=%d\n",
 	            cirp->name,bp->start,bp->len) ;
-
 	        if ((rs = bseek(gdp->ifp,bp->start,SEEK_SET)) < 0)
 	            eprintf("writecir: error from seek (rs %d)\n",
 	                rs) ;
-
-	        while ((len = bgetline(gdp->ifp,namebuf,MAXPATHLEN)) > 0) {
-
+	        while ((len = breadline(gdp->ifp,namebuf,MAXPATHLEN)) > 0) {
 	            if (namebuf[len - 1] == '\n') len -= 1 ;
-
 	            namebuf[len] = '\0' ;
 	            eprintf("writecir: >%s<\n",namebuf) ;
-
 	        }
 	    }
-#endif
+#endif /* CF_DEBUG */
 
 	    bseek(gdp->ifp,bp->start,SEEK_SET) ;
 
@@ -1527,20 +1514,20 @@ struct circuit	*cirp ;
 
 /* write out the trailer commnets */
 
-	if (strcasecmp(cirp->name,"envelope") == 0)
+	if (strcasecmp(cirp->name,"envelope") == 0) {
 	    bprintf(sfp,
 	        "\n* end circuit \"envelope\"\n\n\n") ;
-
-	else
+	} else {
 	    bprintf(sfp,
 	        "\n* end circuit \"%s\" (level=%d)\n\n\n",
 	        cirp->name,sl) ;
+	}
 
 	rs = OK ;
 
 #if	CF_DEBUG
 	if (gdp->debuglevel > 1)
-	    eprintf("writecir: exiting normally\n") ;
+	    eprintf("writecir: ret normally\n") ;
 #endif
 
 done:

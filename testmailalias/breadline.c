@@ -1,4 +1,5 @@
 /* breadline */
+/* lang=C++11 */
 
 /* "Basic I/O" package similiar to "stdio" */
 /* last modifed %G% version %I% */
@@ -52,15 +53,13 @@
 
 /* local defines */
 
-#define	BRELOAD		struct bfile_reload
+#define	RELOAD		struct bfile_reload
 
 
 /* external subroutines */
 
-extern int	bfile_pagein(bfile *,offset_t,int) ;
-
 #if	CF_DEBUGS
-extern int	debugprintf(cchar *,...) ;
+extern "C" int	debugprintf(cchar *,...) ;
 #endif
 
 /* external variables */
@@ -69,7 +68,10 @@ extern int	debugprintf(cchar *,...) ;
 /* local structures */
 
 struct bfile_reload {
-	uint	f_already:1 ;
+	uint		f_partial:1 ;
+	bfile_reload() {
+	    f_partial = FALSE ;
+	} ;
 } ;
 
 
@@ -77,9 +79,9 @@ struct bfile_reload {
 
 static int	breadlinemap(bfile *,char *,int) ;
 static int	breadlinereg(bfile *,char *,int,int) ;
-static int	breload(bfile *,BRELOAD *,int,int) ;
+static int	breload(bfile *,RELOAD *,int,int) ;
 
-static int	iseol(int) ;
+static int	isoureol(int) ;
 
 
 /* local variables */
@@ -97,7 +99,8 @@ int breadlinetimed(bfile *fp,char *ubuf,int ulen,int to)
 	if (fp->magic != BFILE_MAGIC) return SR_NOTOPEN ;
 
 #if	CF_DEBUGS
-	debugprintf("breadlinetimed: ent fd=%u to=%d\n",fp->fd,to) ;
+	debugprintf("breadlinetimed: ent fd=%u llen=%d to=%d\n",
+	    fp->fd,ulen,to) ;
 #endif
 
 	if (fp->f.nullfile) goto ret0 ;
@@ -109,8 +112,7 @@ int breadlinetimed(bfile *fp,char *ubuf,int ulen,int to)
 
 	if (fp->f.write) {
 	    fp->f.write = FALSE ;
-	    if (fp->len > 0)
-	        rs = bfile_flush(fp) ;
+	    if (fp->len > 0) rs = bfile_flush(fp) ;
 	} /* end if (switching from writing to reading) */
 
 /* decide how we want to transfer the data */
@@ -154,18 +156,18 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	int		i ;
 	int		pagemask = (fp->pagesize - 1) ;
 	int		tlen = 0 ;
-	int		f_already = FALSE ;
+	int		f_partial = FALSE ;
 	char		*dbp = ubuf ;
 
 #if	CF_DEBUGS
-	debugprintf("breadlinetimed: mapped ulen=%d\n",ulen) ;
+	debugprintf("breadlinemap: ent ulen=%d\n",ulen) ;
 #endif
 
 	runoff = fp->offset ;
 	while ((rs >= 0) && (tlen < ulen)) {
 
 #if	CF_DEBUGS
-	    debugprintf("breadlinetimed: tlen=%d\n",tlen) ;
+	    debugprintf("breadlinemap: tlen=%d\n",tlen) ;
 #endif
 
 /* is there more data in the file and are we at a map page boundary? */
@@ -173,14 +175,14 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	    mlen = fp->size - runoff ;
 
 #if	CF_DEBUGS
-	    debugprintf("breadlinetimed: more mlen=%d\n",mlen) ;
+	    debugprintf("breadlinemap: more mlen=%d\n",mlen) ;
 #endif
 
 	    if ((mlen > 0) &&
 	        ((fp->bp == NULL) || (fp->len == fp->pagesize))) {
 
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: check on page mapping\n") ;
+	        debugprintf("breadlinemap: check on page mapping\n") ;
 #endif
 
 	        i = (runoff / fp->pagesize) & (BFILE_NMAPS - 1) ;
@@ -189,12 +191,11 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	            || (fp->maps[i].offset != baseoff)) {
 
 #if	CF_DEBUGS
-	            debugprintf("breadlinetimed: mapping offset=%llu\n",
+	            debugprintf("breadlinemap: mapping offset=%llu\n",
 	                runoff) ;
 #endif
 
 	            bfile_pagein(fp,runoff,i) ;
-
 	        }
 
 	        fp->len = runoff & pagemask ;
@@ -205,7 +206,7 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 /* prepare to move data */
 
 #if	CF_DEBUGS
-	    debugprintf("breadlinetimed: preparing to move data\n") ;
+	    debugprintf("breadlinemap: preparing to move data\n") ;
 #endif
 
 	    if ((fp->pagesize - fp->len) < mlen)
@@ -219,13 +220,13 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	        char	*lastp ;
 
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: moving data\n") ;
+	        debugprintf("breadlinemap: moving data\n") ;
 #endif
 
 #if	CF_MEMCCPY
 	        if ((lastp = memccpy(dbp,fp->bp,'\n',mlen)) == NULL) {
 	            lastp = dbp + mlen ;
-		}
+	        }
 	        i = lastp - dbp ;
 	        dbp += i ;
 	        fp->bp += i ;
@@ -233,7 +234,7 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	        bp = fp->bp ;
 	        lastp = fp->bp + mlen ;
 	        while (bp < lastp) {
-	            if (iseol(*dbp++ = *bp++)) break ;
+	            if (isoureol(*dbp++ = *bp++)) break ;
 	        }
 	        i = bp - fp->bp ;
 	        fp->bp += i ;
@@ -242,39 +243,38 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	        fp->len += i ;
 	        runoff += i ;
 	        tlen += i ;
-	        if ((i > 0) && iseol(dbp[-1])) break ;
+	        if ((i > 0) && isoureol(dbp[-1])) break ;
 
 	    } /* end if (move it) */
 
 /* if we were file size limited */
 
-	    if (runoff >= fp->size) {
+	    if ((rs >= 0) && (runoff >= fp->size)) {
 
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: offset at end\n") ;
+	        debugprintf("breadlinemap: offset at end\n") ;
 #endif
 
-	        if (f_already) break ;
+	        if (f_partial) break ;
 
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: re-statting\n") ;
+	        debugprintf("breadlinemap: re-statting\n") ;
 #endif
 
 	        rs = bfilefstat(fp->fd,&sb) ;
 
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: u_fstat() rs=%d\n", rs) ;
+	        debugprintf("breadlinemap: u_fstat() rs=%d\n", rs) ;
 #endif
 
 	        fp->size = sb.st_size ;
-	        f_already = TRUE ;
+	        f_partial = TRUE ;
 	    } /* end if (file size limited) */
 
 #if	CF_DEBUGS
-	    debugprintf("breadlinetimed: bottom loop\n") ;
+	    debugprintf("breadlinemap: bottom loop\n") ;
 #endif
 
-	    if (rs < 0) break ;
 	} /* end while (reading) */
 
 	if (rs >= 0) {
@@ -288,49 +288,51 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 
 static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 {
-	BRELOAD		s ;
+	RELOAD		s ;
 	const int	opts = FM_TIMED ;
 	int		rs = SR_OK ;
 	int		mlen ;
 	int		i ;
 	int		tlen = 0 ;
-	int		f_already = FALSE ;
+	int		f_partial = FALSE ;
 	char		*dbp = ubuf ;
 
 #if	CF_DEBUGS
-	debugprintf("breadlinetimed: normal unmapped ulen=%u to=%d\n",
-	    ulen,to) ;
-	debugprintf("breadlinetimed: f_linein=%u\n",fp->f.linein) ;
+	debugprintf("breadlinereg: ent ulen=%u to=%d\n",ulen,to) ;
+	debugprintf("breadlinereg: f_inpartline=%u\n",fp->f.inpartline) ;
 #endif
 
-	memset(&s,0,sizeof(struct bfile_reload)) ;
+	while ((rs >= 0) && (ulen > 0)) {
 
-	while (ulen > 0) {
+#if	CF_DEBUGS
+	    debugprintf("breadlinereg: f_partial=%u f_inpartline=%u\n",
+	        f_partial,fp->f.inpartline) ;
+#endif
 
-	    if (fp->len <= 0) {
-	        if (f_already && (! fp->f.linein)) break ;
+	    if (fp->len == 0) {
+	        if (f_partial && fp->f.inpartline) break ;
 	        rs = breload(fp,&s,to,opts) ;
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: breload() rs=%d\n",rs) ;
+	        debugprintf("breadlinereg: breload() rs=%d\n",rs) ;
 #endif
 	        if (rs <= 0) break ;
-	        if (fp->len < fp->bsize) f_already = TRUE ;
+	        if (fp->len < fp->bsize) f_partial = TRUE ;
 	    } /* end if (refilling up buffer) */
 
 	    mlen = (fp->len < ulen) ? fp->len : ulen ;
 
 #if	CF_DEBUGS
-	    debugprintf("breadlinetimed: mlen=%d\n",mlen) ;
+	    debugprintf("breadlinereg: mlen=%d\n",mlen) ;
 #endif
 
-	    if (mlen > 0) {
-	        register char	*bp ;
-	        register char	*lastp ;
+	    if ((rs >= 0) && (mlen > 0)) {
+	        char	*bp ;
+	        char	*lastp ;
 
 #if	CF_MEMCCPY
-	        if ((lastp = memccpy(dbp,fp->bp,'\n',mlen)) == NULL)
+	        if ((lastp = memccpy(dbp,fp->bp,'\n',mlen)) == NULL) {
 	            lastp = dbp + mlen ;
-
+	        }
 	        i = lastp - dbp ;
 	        dbp += i ;
 	        fp->bp += i ;
@@ -338,26 +340,32 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 	        bp = fp->bp ;
 	        lastp = fp->bp + mlen ;
 	        while (bp < lastp) {
-	            if (iseol(*dbp++ = *bp++)) break ;
+	            if (isoureol(*dbp++ = *bp++)) break ;
 	        } /* end while */
 	        i = bp - fp->bp ;
 	        fp->bp += i ;
 #endif /* CF_MEMCCPY */
 
 #if	CF_DEBUGS
-	        debugprintf("breadlinetimed: i=%d\n",i) ;
-#endif
+	        {
+	            debugprintf("breadlinereg: i=%d\n",i) ;
+	            if (i > 0) {
+	                debugprintf("breadlinereg: ieol=%u\n",
+				isoureol(dbp[-1])) ;
+		    }
+	        }
+#endif /* CF_DEBUGS */
 
 	        fp->len -= i ;
 	        tlen += i ;
-	        if ((i > 0) && iseol(dbp[-1])) break ;
+	        if ((i > 0) && isoureol(dbp[-1])) break ;
 
 	        ulen -= mlen ;
 
 	    } /* end if (move it) */
 
 #if	CF_DEBUGS
-	    debugprintf("breadlinetimed: bottom while\n") ;
+	    debugprintf("breadlinereg: while-bot rs=%d ulen=%u\n",rs,ulen) ;
 #endif
 
 	} /* end while (trying to satisfy request) */
@@ -367,7 +375,7 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 	}
 
 #if	CF_DEBUGS
-	debugprintf("breadlinetimed: ret rs=%d tlen=%u\n",rs,tlen) ;
+	debugprintf("breadlinereg: ret rs=%d tlen=%u\n",rs,tlen) ;
 #endif
 
 	return (rs >= 0) ? tlen : rs ;
@@ -376,7 +384,7 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 
 
 /* ARGSUSED */
-static int breload(bfile *fp,BRELOAD *sp,int to,int opts)
+static int breload(bfile *fp,RELOAD *sp,int to,int opts)
 {
 	int		rs = SR_OK ;
 	int		maxeof ;
@@ -404,11 +412,7 @@ static int breload(bfile *fp,BRELOAD *sp,int to,int opts)
 	    }
 
 	    if (rs >= 0) {
-	        if (len == 0) {
-	            neof += 1 ;
-	        } else {
-	            neof = 0 ;
-		}
+	        neof = (len == 0) ? (neof+1) : 0 ;
 	    }
 
 	} /* end while */
@@ -427,10 +431,10 @@ static int breload(bfile *fp,BRELOAD *sp,int to,int opts)
 /* end subroutine (breload) */
 
 
-static int iseol(int ch)
+static int isoureol(int ch)
 {
 	return (ch == '\n') ;
 }
-/* end subroutine (iseol) */
+/* end subroutine (isoureol) */
 
 

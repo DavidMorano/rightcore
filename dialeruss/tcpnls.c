@@ -85,10 +85,13 @@
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	matostr(const char **,int,const char *,int) ;
+extern int	cfdeci(cchar *,int,int *) ;
 extern int	getpwd(char *,int) ;
 extern int	dialtcpnls(const char *,const char *,int,const char *,int,int) ;
 extern int	dialtcpmux(cchar *,cchar *,int,cchar *,cchar **,int,int) ;
 extern int	isdigitlatin(int) ;
+
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */
@@ -150,27 +153,21 @@ const char	hostname[] ;
 const char	svcname[] ;
 const char	*av[] ;
 {
-	int	rs = SR_OK, fd ;
-	int	to = -1 ;
-	int	af = 0 ;
-	int	opts = 0 ;
-
+	int		rs = SR_OK ;
+	int		to = -1 ;
+	int		af = 0 ;
+	int		opts = 0 ;
 	const char	*portname = TCPNLS_PORTNAME ;
 	const char	*pr = NULL ;
 	const char	*tp ;
+	char		hostnamebuf[MAXHOSTNAMELEN + 1] ;
 
-	char	hostnamebuf[MAXHOSTNAMELEN + 1] ;
-	char	svcnamebuf[SVCNAMELEN + 1] ;
+	if (op == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic == TCPNLS_MAGIC)
-	    return SR_INUSE ;
+	if (op->magic == TCPNLS_MAGIC) return SR_INUSE ;
 
 #if	CF_DEBUGS
-	debugprintf("tcpnls_open: entered hostname=%s svcname=%s\n",
+	debugprintf("tcpnls_open: ent hostname=%s svcname=%s\n",
 	    hostname,svcname) ;
 #endif
 
@@ -179,7 +176,6 @@ const char	*av[] ;
 	    int	maxai, pan, npa, kwi, ai, i ;
 	    int	cl, ml ;
 	    int	f_optminus, f_optplus, f_optequal ;
-	    int	f_extra = FALSE ;
 	    int	f_bad = FALSE ;
 
 	    const char	**argv, *argp, *aop, *avp ;
@@ -187,15 +183,12 @@ const char	*av[] ;
 	    char	argpresent[NARGPRESENT] ;
 	    const char	*afspec = NULL ;
 	    const char	*hostspec = NULL ;
-	    const char	*cp ;
-
 
 #if	CF_DEBUGS
 	    debugprintf("tcpnls_open: arguments\n") ;
 #endif
 
 	    hostnamebuf[0] = '\0' ;
-	    svcnamebuf[0] = '\0' ;
 
 	    to = ap->timeout ;
 	    opts = ap->options ;
@@ -358,15 +351,13 @@ const char	*av[] ;
 	                                break ;
 
 	                            default:
-	                                f_extra = TRUE ;
 	                                f_bad = TRUE ;
-
-	                            } /* end switch */
-
-	                            aop += 1 ;
-				    if (rs < 0)
 					break ;
 
+	                            } /* end switch */
+	                            aop += 1 ;
+
+				    if (rs < 0) break ;
 	                        } /* end while */
 
 	                    } /* end if (individual option key letters) */
@@ -388,22 +379,16 @@ const char	*av[] ;
 	        } else {
 
 	            if (i < MAXARGINDEX) {
-
 	                BASET(argpresent,i) ;
 	                maxai = i ;
 	                npa += 1 ;
-
 	            } else {
-
-	                f_extra = TRUE ;
 	                f_bad = TRUE ;
 	            }
 
 	        } /* end if (key letter/word or positional) */
 
-	        if (f_bad)
-	            break ;
-
+	        if (f_bad) break ;
 	    } /* end while (all command line argument processing) */
 
 	    if (f_bad)

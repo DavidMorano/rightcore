@@ -101,31 +101,24 @@ const char	*argv[] ;
 const char	*envv[] ;
 {
 	struct proginfo	pi, *pip = &pi ;
-
-	bfile	ofile, *ofp = &ofile ;
-	bfile	efile ;
-
 	struct termios	saved ;
-
-	UTERM	u ;
-
-	long	lw ;
-
-	uint	mo_start = 0 ;
-
-	int	pan = 0 ;
-	int	rs, rs1 ;
-	int	i, j ;
-	int	len, llen ;
-	int	ttfd, tfd = 0 ;
-	int	fd_debug ;
-	int	ex = EX_INFO ;
-	int	f_exit = FALSE ;
-
-	uchar	c ;
-	uchar	buf[BUFLEN + 1] ;
-	uchar	*bp ;
-
+	bfile		ofile, *ofp = &ofile ;
+	bfile		efile ;
+	UTERM		u ;
+	long		lw ;
+	uint		mo_start = 0 ;
+	int		pan = 0 ;
+	int		rs, rs1 ;
+	int		i, j ;
+	int		len, llen ;
+	int		ttfd ;
+	int		tfd = -1 ;
+	int		fd_debug = -1 ;
+	int		ex = EX_INFO ;
+	int		f_exit = FALSE ;
+	uchar		c ;
+	uchar		buf[BUFLEN + 1] ;
+	uchar		*bp ;
 	const char	*progname ;
 	const char	*argval = NULL ;
 	const char	*ofname = NULL ;

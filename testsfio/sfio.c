@@ -514,17 +514,13 @@ int sfio_control(Sfio_t *op,int cmd,...)
 int sfio_getfd(op)
 Sfio_t		*op ;
 {
-	int	rs = SR_OK ;
-	int	fd = 0 ;
-
+	int		rs = SR_OK ;
+	int		fd = -1 ;
 
 	if (op == NULL) return SR_FAULT ;
-
 	    rs = sffileno(op) ;
 	    fd = rs ;
-	    if (rs < 0)
-	        rs = SR_NOTOPEN ;
-
+	    if (rs < 0) rs = SR_NOTOPEN ;
 	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (sfio_getfd) */

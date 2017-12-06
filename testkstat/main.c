@@ -91,37 +91,27 @@ int		argc ;
 const char	*argv[] ;
 const char	*envv[] ;
 {
-	bfile	input, *ifp = &input ;
-	bfile	output, *ofp = &output ;
-	bfile	error, *efp = &error ;
-
-	sigset_t		signalmask ;
-
 	struct sigaction	sigs ;
-
+	bfile		input, *ifp = &input ;
+	bfile		output, *ofp = &output ;
+	bfile		error, *efp = &error ;
+	sigset_t	signalmask ;
 	kstat_ctl_t	*kcp ;
-
 	kstat_t		*ksp = NULL ;
-
 	kid_t		kid ;
-
 	long		lw ;
-
 	const uint	hostid = gethostid() ;
-
-	int	rs = SR_OK ;
-	int	maxmsglen, trylen, len, conlen ;
-	int	pagesize, ppm ;
-	int	i, j ;
-	int	sl ;
-	int	s ;
-	int	fd = 0 ;
-	int	fd_debug = -1 ;
-
+	int		rs = SR_OK ;
+	int		maxmsglen, trylen, len, conlen ;
+	int		pagesize, ppm ;
+	int		i, j ;
+	int		sl ;
+	int		s ;
+	int		fd = -1 ;
+	int		fd_debug = -1 ;
 	const char	*progname ;
-
-	char	buf[BUFLEN + 1], buf2[BUFLEN + 1], *bp ;
-	char	*cp ;
+	cchar		*cp ;
+	char		buf[BUFLEN + 1], buf2[BUFLEN + 1], *bp ;
 
 
 	if ((cp = getenv(VARDEBUGFD1)) == NULL)

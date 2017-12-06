@@ -686,7 +686,7 @@ static int msuclient_shmopenwait(MSUCLIENT *op,cchar *shmname,mode_t om)
 	int		rs = SR_OK ;
 	int		oflags = O_RDWR ;
 	int		to = TO_SHMWAIT ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if (op == NULL) return SR_FAULT ;
 

@@ -373,7 +373,7 @@ static int subinfo_tryone(SUBINFO *sip)
 	int		rs = SR_HOSTUNREACH ;
 	int		rs1 ;
 	int		af = sip->af ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 #if	CF_DEBUGS
 	debugprintf("dialtcp/_tryone: ent\n") ;

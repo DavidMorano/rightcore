@@ -3,8 +3,8 @@
 /* program to deliver company email */
 
 
-#define	CF_DEBUGS	0
-#define	CF_DEBUG	0
+#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_REXECTEST	0
 
 
@@ -33,13 +33,11 @@
 #include	<envstandards.h>
 
 #include	<sys/types.h>
+#include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<sys/wait.h>
-#include	<sys/param.h>
-#include	<sys/utsname.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<strings.h>		/* for |strcasecmp(3c)| */
@@ -55,12 +53,20 @@
 
 /* local defines */
 
-#define		NPARG		200
+#define	NPARG		200
+
+#ifndef	LINEBUFLEN
+#define	LINEBUFLEN	2048
+#endif
+
+#ifndef	BUFLEN
+#define	BUFLEN		(3*MAXPATHLEN)
+#endif
 
 
 /* define command option words */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"TMPDIR",
 	"VERSION",
 	"VERBOSE",
@@ -115,28 +121,23 @@ struct global	g ;
 
 int main(int argc,cchar **argv,cchar **envv)
 {
+	struct ustat	sb ;
+	struct tm	*timep ;
+	struct passwd	*pp ;
+	struct group	*gp ;
+	offset_t	clen ;
 	bfile		errfile, *efp = &errfile ;
 	bfile		outfile, *ofp = &outfile ;
 	bfile		jobfile, *jfp = &jobfile ;
 	bfile		tmpfile, *tfp = &tmpfile ;
 	bfile		*fpa[3], file0, file1, file2  ;
+	pid_t		cpid ;
 
-	struct ustat	sb ;
-
-	struct tm	*timep ;
-
-	struct passwd	*pp ;
-
-	struct group	*gp ;
-
-	offset_t	clen ;
-
-	pid_t	cpid ;
-
-	int	argr, argl, aol, akl, avl ;
-	int	kwi, npa, ai, i ;
-	int	rs, len, l ;
-	int	ifd = 0 ;
+	int		argr, argl, aol, akl, avl ;
+	int		kwi, npa, ai, i ;
+	int		rs ;
+	int		len, l ;
+	int		ifd = -1 ;
 	int	argnum = 0 ;
 	int	jlen ;
 	int	transport = 0 ;
@@ -164,11 +165,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*ifname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*jobfname = NULL ;
-	char	nodename[1024], domainname[1024] ;
 	const char	*jobid ;
-	const char	*cmd_uucico ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	buf[BUFLEN + 1] ;
 	const char	*address_errors = NULL ;
 	const char	*address_sender = NULL ;
 	const char	*address_from = NULL ;
@@ -185,9 +182,13 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*local_path = DEFQUEUEPATH ;
 	const char	*copy_path = NULL ;
 	const char	*cp, *cp1, *cp2 ;
-	char	cmdbuf[(2 * MAXPATHLEN) + 1] ;
-	char	ahostname[2048 + 1] ;
-	char	*ahost = ahostname ;
+	char		nodename[1024], domainname[1024] ;
+	const char	*cmd_uucico ;
+	char		buf[BUFLEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
+	char		cmdbuf[(2 * MAXPATHLEN) + 1] ;
+	char		ahostname[2048 + 1] ;
+	char		*ahost = ahostname ;
 
 
 	progname = strbasename(argv[0]) ;
@@ -1453,18 +1454,16 @@ char	queue_machine[] ;
 {
 	bfile		procfile, *pfp = &procfile ;
 	bfile		*fpa[3] ;
-
 	pid_t		pid ;
-
-	int	child_stat ;
-	int	rs, i, l ;
-
-	char	buf[MAXPATHLEN + 1] ;
-	char	*cp ;
-
+	const int	blen = BUFLEN ;
+	int		rs ;
+	int		child_stat ;
+	int		i, l ;
+	cchar		*cp ;
+	char		bbuf[BUFLEN+ 1] ;
 
 #if	CF_DEBUGS
-	eprintf("avail_uucp: entered\n") ;
+	eprintf("avail_uucp: ent\n") ;
 #endif
 
 	if ((queue_machine == NULL) || (queue_machine[0] == '\0'))
@@ -1476,7 +1475,7 @@ char	queue_machine[] ;
 	eprintf("avail_uucp: got in\n") ;
 #endif
 
-	sprintf(buf, "uuname 2> /dev/null <&2") ;
+	sprintf(bbuf, "uuname 2> /dev/null <&2") ;
 
 	fpa[1] = pfp ;		/* capture the standard output ! */
 
@@ -1484,7 +1483,7 @@ char	queue_machine[] ;
 	eprintf("avail_uucp: about to open command - FPA[1]=%08X\n",fpa[1]) ;
 #endif
 
-	if ((rs = bopencmd(fpa,buf)) >= 0) {
+	if ((rs = bopencmd(fpa,bbuf)) >= 0) {
 
 #if	CF_DEBUGS
 	    eprintf("avail_uucp: opened command OK\n") ;
@@ -1492,14 +1491,14 @@ char	queue_machine[] ;
 
 	    pid = rs ;
 	    rs = BAD ;
-	    while ((l = bgetline(pfp,buf,BUFLEN)) > 0) {
+	    while ((l = breadline(pfp,bbuf,blen)) > 0) {
 
 #if	CF_DEBUGS
 	        eprintf("avail_uucp: got a line\n") ;
 #endif
 
-	        buf[l] = '\0' ;
-	        cp = strshrink(buf) ;
+	        bbuf[l] = '\0' ;
+	        cp = strshrink(bbuf) ;
 
 	        if (strcasecmp(cp,queue_machine) == 0) {
 
@@ -1509,9 +1508,7 @@ char	queue_machine[] ;
 	    }
 
 	    bclose(pfp) ;
-
-	    waitpid(pid,&child_stat,WUNTRACED) ;
-
+	    u_waitpid(pid,&child_stat,WUNTRACED) ;
 	} /* end if (program spawned) */
 
 #if	CF_DEBUGS
@@ -1531,16 +1528,14 @@ char	jobid[] ;
 {
 	bfile		procfile, *pfp = &procfile ;
 	bfile		*fpa[3] ;
-
 	pid_t		pid ;
-
-	int	child_stat ;
-	int	rs, i, l ;
-
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	buf[MAXPATHLEN + 1] ;
-	char	*cp ;
-
+	const int	blen = BUFLEN ;
+	int		rs ;
+	int		i, l ;
+	int		child_stat ;
+	cchar		*cp ;
+	char		tmpfname[MAXPATHLEN + 1] ;
+	char		bbuf[BUFLEN+1] ;
 
 	if ((queue_machine == NULL) || (*queue_machine == '\0'))
 	    return BAD ;
@@ -1565,7 +1560,7 @@ char	jobid[] ;
 
 	    pid = rs ;
 	    rs = BAD ;
-	    if ((l = bgetline(pfp,buf,BUFLEN)) > 0) {
+	    if ((l = breadline(pfp,bbuf,blen)) > 0) {
 
 	        buf[l] = '\0' ;
 	        cp = strshrink(buf) ;
@@ -1577,8 +1572,7 @@ char	jobid[] ;
 
 	    bclose(pfp) ;
 
-	    waitpid(pid,&child_stat,WUNTRACED) ;
-
+	    u_waitpid(pid,&child_stat,WUNTRACED) ;
 	} /* end if (program spawned) */
 
 	return rs ;
@@ -1725,16 +1719,14 @@ static int checkuucppublic(gp)
 struct global	*gp ;
 {
 	bfile		file0, file1, file2, *fpa[3] ;
-
 	struct passwd	*pp ;
-
 	pid_t		cpid ;
-
-	int		rs, srs ;
+	const int	llen = LINEBUFLEN ;
+	int		rs ;
+	int		srs ;
 	int		len ;
 	int		childstat ;
-
-	char		linebuf[LINELEN + 1] ;
+	char		lbuf[LINEBUFLEN + 1] ;
 	char		*dirp ;
 
 
@@ -1747,7 +1739,7 @@ struct global	*gp ;
 
 	bclose(fpa[0]) ;
 
-	len = bgetline(fpa[1],linebuf,LINELEN) ;
+	len = breadline(fpa[1],lbuf,llen) ;
 
 	dump(&file1,&file2) ;
 
@@ -1755,7 +1747,7 @@ struct global	*gp ;
 
 	bclose(fpa[2]) ;
 
-	waitpid(cpid,&childstat,0) ;
+	u_waitpid(cpid,&childstat,0) ;
 
 	if (len <= 0) return BAD ;
 
@@ -1846,11 +1838,10 @@ baduucp:
 
 	bclose(fpa[2]) ;
 
-	waitpid(cpid,&childstat,0) ;
+	u_waitpid(cpid,&childstat,0) ;
 
 	return BAD ;
 }
 /* end subroutine (checkuucppublic) */
-
 
 

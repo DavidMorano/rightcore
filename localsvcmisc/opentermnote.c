@@ -156,7 +156,7 @@ int opentermnote(cchar *pr,cchar **recips,int max,int opts)
 {
 	int		rs ;
 	int		pipes[2] ;
-	int		fd = 0 ;
+	int		fd = -1 ;
 
 	if (pr == NULL) return SR_FAULT ;
 	if (recips == NULL) return SR_FAULT ;

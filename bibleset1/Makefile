@@ -165,8 +165,8 @@ OBJ10=
 OBJ11= biblebook.o biblemeta.o
 OBJ12= wordfill.o
 OBJ13= 
-OBJ14= breadline.o
-OBJ15= bprintlines.o
+OBJ14=
+OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -335,5 +335,13 @@ wordfill.o:		wordfill.c wordfill.h
 fifostr.o:		fifostr.c fifostr.h
 
 storebuf.o:		storebuf.c storebuf.h
+
+
+# BFILE
+
+breadline.o:		breadline.o bfile.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) breadline.cc
+
+bprintlines.o:		bprintlines.o bfile.h
 
 
