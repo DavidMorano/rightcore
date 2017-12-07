@@ -2988,8 +2988,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->to_lock = -1 ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 
-	lip->f.termout = FALSE ;
-
 	{
 	    PROGINFO	*pip = lip->pip ;
 	    pip->uid = lip->uid ;

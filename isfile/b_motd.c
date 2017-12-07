@@ -2983,8 +2983,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->to_lock = -1 ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 
-	lip->f.termout = FALSE ;
-
 	{
 	    PROGINFO	*pip = lip->pip ;
 	    pip->uid = lip->uid ;
@@ -3364,14 +3362,15 @@ static int locinfo_chgrp(LOCINFO *lip,cchar fname[])
 	if (fname[0] == '\0') return SR_INVALID ;
 
 	if ((rs = locinfo_getgid(lip)) >= 0) {
-	    struct ustat	usb ;
-	    uid_t		cuid = -1 ;
+	    USTAT	usb ;
+	    uid_t	cuid = -1 ;
 	    if (lip->euid != lip->uid_prog) {
 	        cuid = lip->uid_prog ;
 	    }
 	    if ((rs = u_stat(fname,&usb)) >= 0) {
-	        if (usb.st_gid != lip->gid_prog)
+	        if (usb.st_gid != lip->gid_prog) {
 	            u_chown(fname,cuid,lip->gid_prog) ;
+		}
 	    }
 	}
 

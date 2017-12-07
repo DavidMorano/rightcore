@@ -44,7 +44,6 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<sys/param.h>
 #include	<string.h>
 
 #include	<vsystem.h>
@@ -52,10 +51,6 @@
 
 
 /* local defines */
-
-#ifndef	DIGBUFLEN
-#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
-#endif
 
 
 /* external subroutines */
@@ -65,7 +60,7 @@ extern int	ctdeci(char *,int,int) ;
 extern int	ctdecpui(char *,int,int,uint) ;
 extern int	ctdecui(char *,int,uint) ;
 
-extern cchar	*strsigabbr(int) ;
+extern cchar	*strerrabbr(int) ;
 
 
 /* external variables */
@@ -83,7 +78,7 @@ extern cchar	*strsigabbr(int) ;
 /* exported subroutines */
 
 
-int snerrabbr(char *dbuf,int dlen,uint n)
+int snerrabbr(char *dbuf,int dlen,int n)
 {
 	int		rs ;
 	const char	*s ;
@@ -91,10 +86,10 @@ int snerrabbr(char *dbuf,int dlen,uint n)
 	if (dbuf == NULL)
 	    return SR_FAULT ;
 
-	if ((s = strsigabbr(n)) != NULL) {
+	if ((s = strerrabbr(n)) != NULL) {
 	    rs = sncpy1(dbuf,dlen,s) ;
 	} else {
-	    rs = ctdecui(dbuf,dlen,n) ;
+	    rs = ctdeci(dbuf,dlen,n) ;
 	}
 
 	return rs ;

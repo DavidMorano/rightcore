@@ -18,8 +18,10 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
+#include	<pthread.h>
 #include	<ptm.h>
 #include	<ptc.h>
+#include	<vecpstr.h>
 #include	<localmisc.h>
 
 
@@ -27,19 +29,12 @@
 
 #define	DAYTIME			struct daytime_head
 #define	DAYTIME_FL		struct daytime_flags
-#define	DAYTIME_OBJ		struct daytime_obj
 #define	DAYTIME_MAGIC		0x88773424
-#define	DAYTIME_DEFENTS		5
 
-
-struct daytime_obj {
-	cchar		*objname ;
-	int		objsize ;
-	int		end ;
-} ;
 
 struct daytime_flags {
-	uint		dummy:1 ;
+	uint		args:1 ;
+	uint		working:1 ;
 } ;
 
 struct daytime_head {
@@ -47,8 +42,15 @@ struct daytime_head {
 	PTM		m ;		/* mutex */
 	PTC		c ;		/* condition variable */
 	DAYTIME_FL	f ;
+	VECPSTR		args ;
 	volatile int	f_abort ;	/* command from parent thread */
-	int		dummy ;
+	volatile int	f_exiting ;	/* thread is exiting */
+	pid_t		pid ;
+	pthread_t	tid ;
+	int		ifd, ofd ;
+	cchar		*pr ;
+	cchar		**argv ;
+	cchar		**envv ;
 } ;
 
 
@@ -58,7 +60,8 @@ struct daytime_head {
 extern "C" {
 #endif
 
-extern int daytime_start(DAYTIME *,cchar *,cchar *,cchar **,cchar **) ;
+extern int daytime_start(DAYTIME *,cchar *,cchar **,cchar **,int,int) ;
+extern int daytime_check(DAYTIME *) ;
 extern int daytime_abort(DAYTIME *) ;
 extern int daytime_finish(DAYTIME *) ;
 

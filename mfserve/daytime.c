@@ -58,12 +58,25 @@
 
 #include	<vsystem.h>
 #include	<estrings.h>
+#include	<upt.h>
+#include	<nistinfo.h>
 #include	<localmisc.h>
 
+#include	"mfserve.h"
 #include	"daytime.h"
 
 
 /* local defines */
+
+#ifndef	ORGCODELEN
+#define	ORGCODELEN	MAXNAMELEN
+#endif
+
+#ifndef	ORGCODELEN
+#define	ORGCODELEN	USERNAMELEN
+#endif
+
+#define	DAYTIME_CSIZE	100 	/* default arg-chuck size */
 
 
 /* typedefs */
@@ -73,15 +86,18 @@ typedef int	(*thrsub_t)(void *) ;
 
 /* external subroutines */
 
-extern int	nleadstr(const char *,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-extern int	hasNotDots(const char *,int) ;
+extern int	nleadstr(cchar *,cchar *,int) ;
+extern int	cfdeci(cchar *,int,int *) ;
+extern int	cfdecui(cchar *,int,uint *) ;
+extern int	getusername(char *,int,uid_t) ;
+extern int	localgetorg(cchar *,char *,int,cchar *) ;
+extern int	localgetorgcode(cchar *,char *,int,cchar *) ;
+extern int	hasNotDots(cchar *,int) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern cchar	*getourenv(const char **,const char *) ;
@@ -89,6 +105,7 @@ extern cchar	*getourenv(const char **,const char *) ;
 extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
+extern char	*timestr_nist(time_t,NISTINFO *,char *) ;
 
 
 /* external variables */
@@ -99,11 +116,9 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 /* forward references */
 
-static int daytime_argsbegin(DAYTIME *,cchar *,cchar *) ;
+static int daytime_argsbegin(DAYTIME *,cchar **) ;
 static int daytime_argsend(DAYTIME *) ;
 static int daytime_worker(DAYTIME *) ;
-
-static int mklogentry(cchar *,cchar *,cchar **,PCSCONF *) ;
 
 
 /* local variables */
@@ -111,7 +126,7 @@ static int mklogentry(cchar *,cchar *,cchar **,PCSCONF *) ;
 
 /* exported variables */
 
-DAYTIME_OBJ	daytime = {
+MFSERVE_MOD	daytime = {
 	"daytime",
 	sizeof(DAYTIME),
 	0
@@ -121,7 +136,8 @@ DAYTIME_OBJ	daytime = {
 /* exported subroutines */
 
 
-int daytime_start(DAYTIME *op,cchar *pr,cchar *sn,cchar **argv,cchar **envv)
+int daytime_start(DAYTIME *op,cchar *pr,cchar **argv,cchar **envv,
+		int ifd,int ofd)
 {
 	int		rs = SR_OK ;
 
@@ -133,28 +149,24 @@ int daytime_start(DAYTIME *op,cchar *pr,cchar *sn,cchar **argv,cchar **envv)
 	debugprintf("daytime_start: sn=%s\n",sn) ;
 #endif
 
-	if (pr == NULL) envv = environ ;
-	if (sn == NULL) envv = environ ;
-	if (argv == NULL) envv = environ ;
-	if (envv == NULL) envv = environ ;
+	if (pr == NULL) return SR_FAULT ;
+	if (argv == NULL) return SR_FAULT ;
+	if (envv == NULL) return SR_FAULT ;
 
 	memset(op,0,sizeof(DAYTIME)) ;
+	op->pr = pr ;
 	op->envv = envv ;
-	op->pcp = pcp ;
-	op->pid = getpid() ;
+	op->ifd = ifd ;
+	op->ofd = ofd ;
 
-	if ((rs = daytime_argsbegin(op,pr,sn)) >= 0) {
-	    if ((pr != NULL) && (sn != NULL)) {
+	if ((rs = daytime_argsbegin(op,argv)) >= 0) {
 	        pthread_t	tid ;
 	        thrsub_t	thr = (thrsub_t) daytime_worker ;
 	        if ((rs = uptcreate(&tid,NULL,thr,op)) >= 0) {
 	            op->f.working = TRUE ;
 		    op->tid = tid ;
+	      	    op->magic = DAYTIME_MAGIC ;
 	        }
-	    } /* end if (non-null) */
-	    if (rs >= 0) {
-	        op->magic = DAYTIME_MAGIC ;
-	    }
 	    if (rs < 0)
 		daytime_argsend(op) ;
 	} /* end if (daytime_argsbegin) */
@@ -166,37 +178,6 @@ int daytime_start(DAYTIME *op,cchar *pr,cchar *sn,cchar **argv,cchar **envv)
 	return rs ;
 }
 /* end subroutine (daytime_start) */
-
-
-int daytime_check(DAYTIME *op)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		f = FALSE ;
-
-	if (op == NULL) return SR_FAULT ;
-
-	if (op->magic != DAYTIME_MAGIC) return SR_NOTOPEN ;
-
-	if (op->f.working) {
-	    const pid_t	pid = getpid() ;
-	    if (pid == op->pid) {
-	        if (op->f_exiting) {
-	            int		trs = 0 ;
-	            op->f.working = FALSE ;
-	            rs1 = uptjoin(op->tid,&trs) ;
-	            if (rs >= 0) rs = rs1 ;
-	            if (rs >= 0) rs = trs ;
-	            f = TRUE ;
-		}
-	    } else {
-		op->f.working = FALSE ;
-	    }
-	}
-
-	return (rs >= 0) ? f : rs ;
-}
-/* end subroutine (daytime_check) */
 
 
 int daytime_finish(DAYTIME *op)
@@ -239,25 +220,63 @@ int daytime_finish(DAYTIME *op)
 /* end subroutine (daytime_finish) */
 
 
+int daytime_check(DAYTIME *op)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		f = FALSE ;
+
+	if (op == NULL) return SR_FAULT ;
+
+	if (op->magic != DAYTIME_MAGIC) return SR_NOTOPEN ;
+
+	if (op->f.working) {
+	    const pid_t		pid = getpid() ;
+	    if (pid == op->pid) {
+	        if (op->f_exiting) {
+	            int		trs = 0 ;
+	            op->f.working = FALSE ;
+	            rs1 = uptjoin(op->tid,&trs) ;
+	            if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = trs ;
+	            f = TRUE ;
+		}
+	    } else {
+		op->f.working = FALSE ;
+	    }
+	} /* end if (working) */
+
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (daytime_check) */
+
+
+int daytime_abort(DAYTIME *op)
+{
+	const int	f = op->f_exiting ;
+	op->f_abort = TRUE ;
+	return f ;
+}
+/* end subroutine (daytime_abort) */
+
+
 /* provate subroutines */
 
 
-static int daytime_argsbegin(DAYTIME *op,cchar *pr,cchar *sn)
+static int daytime_argsbegin(DAYTIME *op,cchar **argv)
 {
+	VECPSTR		*alp = &op->args ;
+	const int	ss = DAYTIME_CSIZE ;
 	int		rs ;
-	int		size = 0 ;
-	char		*bp ;
-	size += (((pr !=NULL)?strlen(pr):0)+1) ;
-	size += (((sn !=NULL)?strlen(sn):0)+1) ;
-	if ((rs = uc_malloc(size,&bp)) >= 0) {
-	    op->a = bp ;
-	    if (pr != NULL) {
-	        op->pr = bp ;
-	        bp = (strwcpy(bp,pr,-1)+1) ;
+	if ((rs = vecpstr_start(alp,5,0,ss)) >= 0) {
+	    int		i ;
+	    op->f.args = TRUE ;
+	    for (i = 0 ; (rs >= 0) && (argv[i] != NULL) ; i += 1) {
+		rs = vecpstr_add(alp,argv[i],-1) ;
 	    }
-	    if (sn != NULL) {
-	        op->sn = bp ;
-	        bp = (strwcpy(bp,sn,-1)+1) ;
+	    if (rs < 0) {
+		op->f.args = FALSE ;
+		vecpstr_finish(alp) ;
 	    }
 	} /* end if (m-a) */
 	return rs ;
@@ -269,74 +288,61 @@ static int daytime_argsend(DAYTIME *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	if (op->a != NULL) {
-	    rs1 = uc_free(op->a) ;
+	if (op->f.args) {
+	    VECPSTR	*alp = &op->args ;
+	    rs1 = vecpstr_finish(alp) ;
 	    if (rs >= 0) rs = rs1 ;
-	    op->a = NULL ;
 	}
 	return rs ;
 }
 /* end subroutine (daytime_argsend) */
 
 
+/* independent thread */
 static int daytime_worker(DAYTIME *op)
 {
-	PCSCONF		*pcp = op->pcp ;
+	USTAT		sb ;
 	int		rs ;
-	cchar		*pr = op->pr ;
-	cchar		*sn = op->sn ;
-	cchar		**envv = op->envv ;
+	int		wlen = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("daytime_worker: ent\n") ;
 #endif
 
-	rs = mklogentry(pr,sn,envv,pcp) ;
+	if (! op->f_abort) {
+	    cchar	*pr = op->pr ;
+	    if ((rs = uc_stat(pr,&sb)) >= 0) {
+	        const uid_t	uid = sb.st_uid ;
+	        const int	ulen = USERNAMELEN ;
+	        char		ubuf[USERNAMELEN+1] ;
+	        if ((rs = getusername(ubuf,ulen,uid)) >= 0) {
+		    const int	olen = ORGCODELEN ;
+		    char	obuf[ORGCODELEN+1] ;
+		    if ((rs = localgetorgcode(pr,obuf,olen,ubuf)) >= 0) {
+		        NISTINFO	ni ;
+		        const time_t	dt = time(NULL) ;
+		        const int	tlen = NISTINFO_ORGSIZE ;
+		        char		tbuf[NISTINFO_ORGSIZE+1] ;
+	    	        memset(&ni,0,sizeof(NISTINFO)) ;
+		        strdcpy1(ni.org,tlen,obuf) ;
+	                timestr_nist(dt,&ni,tbuf) ;
+			{
+		            const int	tl = strlen(tbuf) ;
+		            rs = uc_writen(op->ofd,tbuf,tl) ;
+		            wlen += rs ;
+			}
+		    } /* end if (localgetorg) */
+	        } /* end if (getusername) */
+	    } /* end if (uc_stat) */
+	} /* end if (not aborting) */
 
 #if	CF_DEBUGS
 	debugprintf("daytime/work_start: ret rs=%d\n",rs) ;
 #endif
 
 	op->f_exiting = TRUE ;
-	return rs ;
+	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (work_start) */
-
-
-/* ARGSUSED */
-static int mklogentry(cchar *pr,cchar *sn,cchar **envv,PCSCONF *pcp)
-{
-	int		rs ;
-	int		rs1 ;
-	const char	*lcname = DAYTIME_LCNAME ;
-	const char	*lbname = DAYTIME_LBNAME ;
-	char		lfname[MAXPATHLEN+1] ;
-
-	if ((rs = mkpath3(lfname,pr,lcname,lbname)) >= 0) {
-	    struct ustat	sb ;
-	    if ((rs = u_stat(lfname,&sb)) >= 0) {
-		USERINFO	u ;
-		if ((rs = userinfo_start(&u,NULL)) >= 0) {
-		    LOGFILE	lh, *lhp = &lh ;
-		    const char	*logid = u.logid ;
-		    if ((rs1 = logfile_open(lhp,lfname,0,0666,logid)) >= 0) {
-		        time_t	daytime = time(NULL) ;
-			const char	*pv = "¥" ;
-	                logfile_userinfo(lhp,&u,daytime,sn,pv) ;
-		        logfile_close(lhp) ;
-		    } else if (! isNotPresent(rs1)) {
-		        rs = rs1 ;
-		    }
-		    rs1 = userinfo_finish(&u) ;
-		    if (rs >= 0) rs = rs1 ;
-		} /* end if (userinfo) */
-	    } else if (isNotPresent(rs)) {
-		rs = SR_OK ;
-	    } /* end if (stat) */
-	} /* end if (mkpath) */
-
-	return rs ;
-}
-/* end subroutine (mklogentry) */
+/* end subroutine (daytime_worker) */
 
 

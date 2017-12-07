@@ -94,8 +94,6 @@
 
 #define	LOGSIZE		(80*1024)
 
-#define	OPT_TERMOUT	FALSE		/* default is to not force TERMOUT */
-
 #define	TO_CONNECT	30
 #define	TO_READ		30
 

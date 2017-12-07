@@ -59,6 +59,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<pcsconf.h>
 #include	<storebuf.h>
 #include	<upt.h>
@@ -73,42 +74,35 @@
 /* local defines */
 
 #define	TESTCRASH		struct testcrash_head
+#define	TESTCRASH_FL		struct testcrash_flags
 #define	TESTCRASH_MAGIC		0x88773424
 #define	TESTCRASH_LCNAME	"log"
 #define	TESTCRASH_LBNAME	"pcspolls"
 
 #define	WORK		struct work_head
+#define	WORK_FL		struct work_flags
 #define	WORKARGS	struct work_args
 
 
 /* external subroutines */
 
-extern int	sncpy1(char *,int,const char *) ;
-extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
-extern int	sncpy4(char *,int,const char *,const char *,const char *,
-			const char *) ;
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	pathadd(char *,int,const char *) ;
-extern int	nleadstr(const char *,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
-			const char *,const char *) ;
-extern int	hasNotDots(const char *,int) ;
+extern int	pathadd(char *,int,cchar *) ;
+extern int	nleadstr(cchar *,cchar *,int) ;
+extern int	cfdeci(cchar *,int,int *) ;
+extern int	cfdecui(cchar *,int,uint *) ;
+extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,cchar *,cchar *) ;
+extern int	hasNotDots(cchar *,int) ;
 extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
-extern char	*strnchr(const char *,int,int) ;
-extern char	*strnpbrk(const char *,int,const char *) ;
+extern char	*strnchr(cchar *,int,int) ;
+extern char	*strnpbrk(cchar *,int,cchar *) ;
 extern char	*timestr_log(time_t,char *) ;
 
 
@@ -124,7 +118,7 @@ struct testcrash_flags {
 struct testcrash_head {
 	uint		magic ;
 	THRBASE		t ;
-	struct testcrash_flags	f ;
+	TESTCRASH_FL	f ;
 	WORKARGS	*wap ;
 	int		dummy ;
 } ;
@@ -146,7 +140,7 @@ struct work_head {
 	THRBASE		*tip ;
 	WORKARGS	*wap ;
 	volatile int	f_term ;
-	struct work_flags	f ;
+	WORK_FL		f ;
 } ;
 
 enum cmds {
@@ -159,7 +153,7 @@ enum cmds {
 /* forward references */
 
 static int workargs_load(WORKARGS *,TESTCRASH *,
-		const char *,const char *,const char **,PCSCONF *) ;
+		cchar *,cchar *,cchar **,PCSCONF *) ;
 
 static int	worker(THRBASE *,WORKARGS *) ;
 
@@ -167,7 +161,7 @@ static int work_start(WORK *,THRBASE *,WORKARGS *) ;
 static int work_term(WORK *) ;
 static int work_finish(WORK *) ;
 
-static int mklogentry(const char *,const char *,const char **,PCSCONF *) ;
+static int mklogentry(cchar *,cchar *,cchar **,PCSCONF *) ;
 
 
 /* local variables */
@@ -185,22 +179,14 @@ PCSPOLLS_NAME	testcrash = {
 /* exported subroutines */
 
 
-int testcrash_start(op,pr,sn,envv,pcp)
-TESTCRASH	*op ;
-const char	*pr ;
-const char	*sn ;
-const char	**envv ;
-PCSCONF		*pcp ;
+int testcrash_start(TESTCRASH *op,cchar *pr,cchar *sn,cchar **envv,
+		PCSCONF *pcp)
 {
 	WORKARGS	*wap ;
-
 	const int	wsize = sizeof(WORKARGS) ;
+	int		rs ;
 
-	int	rs ;
-
-
-	if (op == NULL)
-	    return SR_FAULT ;
+	if (op == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
 	debugprintf("testcrash_start: entered\n") ;
@@ -233,12 +219,10 @@ PCSCONF		*pcp ;
 /* end subroutine (testcrash_start) */
 
 
-int testcrash_finish(op)
-TESTCRASH	*op ;
+int testcrash_finish(TESTCRASH *op)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (op->magic != TESTCRASH_MAGIC) return SR_NOTOPEN ;
@@ -269,58 +253,11 @@ TESTCRASH	*op ;
 /* end subroutine (testcrash_finish) */
 
 
-#ifdef	COMMENT
-
-int testcrash_info(op,ip)
-TESTCRASH	*op ;
-TESTCRASH_INFO	*ip ;
-{
-	int	rs = SR_OK ;
-
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != TESTCRASH_MAGIC)
-	    return SR_NOTOPEN ;
-
-	if (ip != NULL) {
-	    memset(ip,0,sizeof(TESTCRASH_INFO)) ;
-	    ip->dummy = 1 ;
-	}
-
-	return rs ;
-}
-/* end subroutine (testcrash_info) */
-
-
-int testcrash_cmd(op,cmd)
-TESTCRASH	*op ;
-int		cmd ;
-{
-	int	rs = SR_OK ;
-
-
-	if (op == NULL) return SR_FAULT ;
-	if (op->magic != TESTCRASH_MAGIC) return SR_NOTOPEN ;
-
-	return (rs >= 0) ? cmd : rs ;
-}
-/* end subroutine (testcrash_cmd) */
-
-#endif /* COMMENT */
-
-
 /* private subroutines */
 
 
-static int workargs_load(wap,op,pr,sn,envv,pcp)
-WORKARGS	*wap ;
-TESTCRASH	*op ;
-const char	*pr ;
-const char	*sn ;
-const char	**envv ;
-PCSCONF		*pcp ;
+static int workargs_load(WORKARGS *wap,TESTCRASH *op,cchar *pr,cchar *sn,
+		cchar **envv,PCSCONF *pcp)
 {
 	memset(wap,0,sizeof(WORKARGS)) ;
 	wap->op = op ;
@@ -336,12 +273,10 @@ PCSCONF		*pcp ;
 static int worker(THRBASE *tip,WORKARGS *wap)
 {
 	WORK		w ;
-
 	const int	to = 1 ;
-
-	int	rs ;
-	int	ctime = 0 ;
-	int	f_exit = FALSE ;
+	int		rs ;
+	int		ctime = 0 ;
+	int		f_exit = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("testcrash/worker: started\n") ;
@@ -389,7 +324,8 @@ static int work_start(WORK *wp,THRBASE *tip,WORKARGS *wap)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
-	const char	*pr, *sn ;
+	cchar		*pr ;
+	cchar		*sn ;
 
 	if (wp == NULL) return SR_FAULT ;
 
@@ -449,34 +385,29 @@ static int work_term(WORK *wp)
 /* end subroutine (work_term) */
 
 
-static int mklogentry(pr,sn,envv,pcp)
-const char	*pr ;
-const char	*sn ;
-const char	**envv ;
-PCSCONF		*pcp ;
+static int mklogentry(cchar *pr,cchar *sn,cchar **envv,PCSCONF *pcp)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
-
-	char	lfname[MAXPATHLEN+1] ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 	const char	*lcname = TESTCRASH_LCNAME ;
 	const char	*lbname = TESTCRASH_LBNAME ;
+	char		lfname[MAXPATHLEN+1] ;
 
 	if ((rs = mkpath3(lfname,pr,lcname,lbname)) >= 0) {
-	    struct ustat	sb ;
+	    USTAT	sb ;
 	    if (u_stat(lfname,&sb) >= 0) {
 		USERINFO	u ;
 		if ((rs = userinfo_start(&u,NULL)) >= 0) {
 		    LOGFILE	lh, *lhp = &lh ;
-		    const char	*logid = u.logid ;
+		    cchar	*logid = u.logid ;
 		    if ((rs1 = logfile_open(lhp,lfname,0,0666,logid)) >= 0) {
 		        time_t	daytime = time(NULL) ;
-			const char	*pv = "¥" ;
+			cchar	*pv = "¥" ;
 	                logfile_userinfo(lhp,&u,daytime,sn,pv) ;
 		        logfile_close(lhp) ;
-		    } else if (! isNotPresent(rs1))
+		    } else if (! isNotPresent(rs1)) {
 		        rs = rs1 ;
+		    }
 		    userinfo_finish(&u) ;
 		} /* end if (userinfo) */
 	    } /* end if (stat) */
@@ -485,6 +416,5 @@ PCSCONF		*pcp ;
 	return rs ;
 }
 /* end subroutine (mklogentry) */
-
 
 

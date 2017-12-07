@@ -7,7 +7,7 @@ TL= svcs
 TUSERNAME= local
 TGROUPNAME= tools
 
-ALL= $(T)
+ALL= $(T) $(TL)
 
 SRCROOT= $(LOCAL)
 
@@ -87,8 +87,8 @@ LDRPATH= $(EXTRA)/lib
 
 # regular
 LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
-# for profiling
-LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
+# shared-object
+SLDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
@@ -261,6 +261,11 @@ all:			$(ALL)
 	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
 
 
+so:			$(TL).so
+
+x:			$(T).x
+
+
 $(TL):			$(TL).so
 
 $(T):			$(T).x
@@ -292,7 +297,7 @@ $(T).cxref:
 	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
 
 $(TL).so:		$(LOBJ) Makefile
-	$(LD) -G -o $@ -m $(LDFLAGS) svcs.map $(LOBJ) $(SLIBINFO) > $(T).lm
+	$(LD) -G -o $@ $(SLDFLAGS) -M svcs.map $(LOBJ) $(SLIBINFO) > $(T).lm
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ) $(LOBJ)

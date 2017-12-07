@@ -333,7 +333,7 @@ static int loguser_worker(LOGUSER *op)
 	op->f_exiting = TRUE ;
 	return rs ;
 }
-/* end subroutine (work_start) */
+/* end subroutine (loguser_worker) */
 
 
 /* ARGSUSED */

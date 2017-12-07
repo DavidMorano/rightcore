@@ -209,11 +209,13 @@ static int breadlinemap(bfile *fp,char *ubuf,int ulen)
 	    debugprintf("breadlinemap: preparing to move data\n") ;
 #endif
 
-	    if ((fp->pagesize - fp->len) < mlen)
+	    if ((fp->pagesize - fp->len) < mlen) {
 	        mlen = (fp->pagesize - fp->len) ;
+	    }
 
-	    if ((ulen - tlen) < mlen)
+	    if ((ulen - tlen) < mlen) {
 	        mlen = (ulen - tlen) ;
+	    }
 
 	    if (mlen > 0) {
 	        char	*bp ;
@@ -304,17 +306,9 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 
 	while ((rs >= 0) && (ulen > 0)) {
 
-#if	CF_DEBUGS
-	    debugprintf("breadlinereg: f_partial=%u f_inpartline=%u\n",
-	        f_partial,fp->f.inpartline) ;
-#endif
-
 	    if (fp->len == 0) {
 	        if (f_partial && fp->f.inpartline) break ;
 	        rs = breload(fp,&s,to,opts) ;
-#if	CF_DEBUGS
-	        debugprintf("breadlinereg: breload() rs=%d\n",rs) ;
-#endif
 	        if (rs <= 0) break ;
 	        if (fp->len < fp->bsize) f_partial = TRUE ;
 	    } /* end if (refilling up buffer) */
@@ -364,10 +358,6 @@ static int breadlinereg(bfile *fp,char *ubuf,int ulen,int to)
 
 	    } /* end if (move it) */
 
-#if	CF_DEBUGS
-	    debugprintf("breadlinereg: while-bot rs=%d ulen=%u\n",rs,ulen) ;
-#endif
-
 	} /* end while (trying to satisfy request) */
 
 	if (rs >= 0) {
@@ -400,15 +390,9 @@ static int breload(bfile *fp,RELOAD *sp,int to,int opts)
 	    if (to >= 0) {
 	        rs = uc_reade(fp->fd,fp->bdata,fp->bsize,to,opts) ;
 	        len = rs ;
-#if	CF_DEBUGS
-	        debugprintf("breadline/breload: uc_reade() rs=%d\n",rs) ;
-#endif
 	    } else {
 	        rs = u_read(fp->fd,fp->bdata,fp->bsize) ;
 	        len = rs ;
-#if	CF_DEBUGS
-	        debugprintf("breadline/breload: u_read() rs=%d\n",rs) ;
-#endif
 	    }
 
 	    if (rs >= 0) {

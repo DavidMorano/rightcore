@@ -1960,7 +1960,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->pip = pip ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 
-	lip->f.termout = FALSE ; /* default is no-force */
 	lip->f.separate = TRUE ;
 
 	return rs ;

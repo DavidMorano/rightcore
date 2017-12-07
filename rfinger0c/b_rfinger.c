@@ -1994,7 +1994,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->dialer = -1 ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 	lip->f.shutdown = TRUE ;
-	lip->f.termout = OPT_TERMOUT ;
 
 	if ((rs = strpack_start(&lip->strs,0)) >= 0) {
 	    rs = vechand_start(&lip->args,0,0) ;

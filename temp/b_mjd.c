@@ -1396,8 +1396,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->intrun = -1 ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 
-	lip->f.termout = FALSE ; /* default is no-force */
-
 	return rs ;
 }
 /* end subroutine (locinfo_start) */

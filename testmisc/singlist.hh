@@ -5,7 +5,7 @@
 
 
 #ifndef	CF_DEBUGS
-#define	CF_DEBUGS	1		/* compile-time debugging */
+#define	CF_DEBUGS	0		/* compile-time debugging */
 #endif
 
 
@@ -132,8 +132,7 @@ class singlist {
 public:
 	typedef		singlist_iterator<T> iterator ;
 	typedef		T value_type ;
-	singlist() { 
-	} ;
+	singlist() = default ;
 	singlist(const singlist<T> &al) {
 	    singlist_node<T>	*an = al.head ;
 	    if (head != NULL) clear() ;

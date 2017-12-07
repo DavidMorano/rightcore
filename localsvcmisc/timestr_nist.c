@@ -84,7 +84,7 @@ char *timestr_nist(time_t t,struct nistinfo *nip,char *tbuf)
 	int		tt ;
 	int		adv_int, adv_fra ;
 	int		ocl = -1 ;
-	const char	*ocp = "DAM" ;
+	const char	*ocp = "RNS" ;
 	const char	*fmt ;
 
 	if (nip == NULL) rs = SR_FAULT ;

@@ -97,11 +97,11 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	pollprogcheck(cchar *,cchar *,cchar **,PCSCONF *) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern cchar	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(const char *,int,int) ;

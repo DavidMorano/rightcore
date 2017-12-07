@@ -219,7 +219,7 @@ const char *strerrabbr(int rs)
 	int		f = FALSE ;
 	const char	*s ;
 
-	for (i = 0 ; cvts[i].s != NULL ; i += 1) {
+	for (i = 0 ; cvts[i].s != 0 ; i += 1) {
 	    f = (cvts[i].n == rs) ;
 	    if (f) break ;
 	} /* end for */
