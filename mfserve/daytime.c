@@ -23,12 +23,13 @@
 
 	Synopsis:
 
-	int daytime_start(op,pr,sn,argv,envv)
+	int daytime_start(op,pr,argv,envv,ifd,ofd)
 	DAYTIME		*op ;
 	const char	*pr ;
-	const char	*sn ;
 	const char	**argv ;
 	const char	**envv ;
+	int		ifd ;
+	int		ofd ;
 
 	Arguments:
 
@@ -144,9 +145,8 @@ int daytime_start(DAYTIME *op,cchar *pr,cchar **argv,cchar **envv,
 	if (op == NULL) return SR_FAULT ;
 
 #if	CF_DEBUGS
-	debugprintf("daytime_start: ent\n") ;
+	debugprintf("daytime_start: ent {%p}\n",op) ;
 	debugprintf("daytime_start: pr=%s\n",pr) ;
-	debugprintf("daytime_start: sn=%s\n",sn) ;
 #endif
 
 	if (pr == NULL) return SR_FAULT ;
@@ -166,6 +166,9 @@ int daytime_start(DAYTIME *op,cchar *pr,cchar **argv,cchar **envv,
 	            op->f.working = TRUE ;
 		    op->tid = tid ;
 	      	    op->magic = DAYTIME_MAGIC ;
+#if	CF_DEBUGS
+		    debugprintf("daytime_start: magic=%08x\n",op->magic) ;
+#endif
 	        }
 	    if (rs < 0)
 		daytime_argsend(op) ;
@@ -184,6 +187,10 @@ int daytime_finish(DAYTIME *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("daytime_finish: ent {%p}\n",op) ;
+#endif
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -226,6 +233,10 @@ int daytime_check(DAYTIME *op)
 	int		rs1 ;
 	int		f = FALSE ;
 
+#if	CF_DEBUGS
+	debugprintf("daytime_check: ent {%p}\n",op) ;
+#endif
+
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->magic != DAYTIME_MAGIC) return SR_NOTOPEN ;
@@ -244,7 +255,13 @@ int daytime_check(DAYTIME *op)
 	    } else {
 		op->f.working = FALSE ;
 	    }
+	} else {
+	    f = TRUE ;
 	} /* end if (working) */
+
+#if	CF_DEBUGS
+	debugprintf("daytime_check: ret rs=%d f=%u\n",rs,f) ;
+#endif
 
 	return (rs >= 0) ? f : rs ;
 }
@@ -254,6 +271,14 @@ int daytime_check(DAYTIME *op)
 int daytime_abort(DAYTIME *op)
 {
 	const int	f = op->f_exiting ;
+#if	CF_DEBUGS
+	debugprintf("daytime_abort: ent {%p}\n",op) ;
+#endif
+	if (op == NULL) return SR_FAULT ;
+	if (op->magic != DAYTIME_MAGIC) return SR_NOTOPEN ;
+#if	CF_DEBUGS
+	debugprintf("daytime_abort: cont f=%u\n",f) ;
+#endif
 	op->f_abort = TRUE ;
 	return f ;
 }

@@ -344,14 +344,14 @@ static int bibleq_objloadbegin(BIBLEQ *op,cchar *pr,cchar *objname)
 	    } /* end for */
 
 	    if (rs >= 0) {
-		const char	**sv ;
+		cchar	**sv ;
 	        if ((rs = vecstr_getvec(&syms,&sv)) >= 0) {
-	            const char	*modbname = BIBLEQ_MODBNAME ;
 #if	CF_LOOKOTHER
 	            const int	mo = (MODLOAD_OLIBVAR | MODLOAD_OSDIRS) ;
 #else
 	            const int	mo = 0 ;
 #endif
+	            cchar	*modbname = BIBLEQ_MODBNAME ;
 	            rs = modload_open(lp,pr,modbname,objname,mo,sv) ;
 		    f_modload = (rs >= 0)  ;
 		}

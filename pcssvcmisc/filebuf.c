@@ -306,7 +306,7 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 		rs,op->len,f_timedout) ;
 #endif
 
-	    if (rs < 0) break ;
+	    if (rs >= 0) {
 
 	    if ((op->len == 0) || f_timedout) break ;
 
@@ -327,8 +327,9 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 	    op->bp += i ;
 	    tlen += i ;
 	    op->len -= i ;
-	    if ((i > 0) && (rbp[-1] == '\n'))
-	        break ;
+	    if ((i > 0) && (rbp[-1] == '\n')) break ;
+
+	    } /* end if (ok) */
 
 #if	CF_DEBUGS
 	    debugprintf("filebuf_readline: while-bot\n") ;
@@ -344,10 +345,10 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 	}
 
 #if	CF_DEBUGS
-	debugprintf("filebuf_readline: ret rs=%d tlen=%u\n",rs,tlen) ;
 	debugprintf("filebuf_readline: ret roff=%llu\n",op->off) ;
 	debugprintf("filebuf_readline: ret rbuf=>%t<\n",
 		rbuf,strlinelen(rbuf,tlen,40)) ;
+	debugprintf("filebuf_readline: ret rs=%d tlen=%u\n",rs,tlen) ;
 #endif
 
 	return (rs >= 0) ? tlen : rs ;
@@ -358,7 +359,6 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 int filebuf_readlines(FILEBUF *fp,char *lbuf,int llen,int to,int *lcp)
 {
 	int		rs = SR_OK ;
-	int		alen ;		/* "add" length */
 	int		i = 0 ;
 	int		lines = 0 ;
 	int		f_cont = FALSE ;
@@ -366,21 +366,29 @@ int filebuf_readlines(FILEBUF *fp,char *lbuf,int llen,int to,int *lcp)
 	if (fp == NULL) return SR_FAULT ;
 	if (lbuf == NULL) return SR_FAULT ;
 
-	if (lcp != NULL) *lcp = 0 ;
+#if	CF_DEBUGS
+	debugprintf("filebuf_readlines: ent tlen=%u\n",llen) ;
+#endif
 
 	lbuf[0] = '\0' ;
 	while ((lines == 0) || (f_cont = ISCONT(lbuf,i))) {
 
 	    if (f_cont) i -= 2 ;
 
-	    alen = (llen - i) ;
-	    rs = filebuf_readline(fp,(lbuf + i),alen,to) ;
+	    rs = filebuf_readline(fp,(lbuf + i),(llen - i),to) ;
 	    if (rs <= 0) break ;
 	    i += rs ;
+	    lines += 1 ;
 
 	} /* end while */
 
 	if (lcp != NULL) *lcp = lines ;
+
+#if	CF_DEBUGS
+	debugprintf("filebuf_readlines: rbud=>%t<\n",lbuf,
+		strlinelen(lbuf,i,60)) ;
+	debugprintf("filebuf_readlines: ret rs=%d i=%u\n",rs,i) ;
+#endif
 
 	return (rs >= 0) ? i : rs ;
 }

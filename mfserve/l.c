@@ -551,7 +551,7 @@ static int mfslisten_delmarked(PROGINFO *pip,POLLER *pmp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("mfswatch_delmarked: ent\n") ;
+	    debugprintf("mfslisten_delmarked: ent\n") ;
 #endif
 
 	llp = &lip->listens ;

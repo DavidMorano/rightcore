@@ -508,10 +508,10 @@ static int commandment_objloadbeginer(COMMANDMENT *op,cchar *pr,cchar *objname)
 	    } /* end for */
 
 	    if (rs >= 0) {
-		const char	**sv ;
+		cchar	**sv ;
 	        if ((rs = vecstr_getvec(&syms,&sv)) >= 0) {
-	            const char	*modbname = COMMANDMENT_MODBNAME ;
 	            const int	mo = (MODLOAD_OLIBVAR | MODLOAD_OSDIRS) ;
+	            cchar	*modbname = COMMANDMENT_MODBNAME ;
 	            rs = modload_open(lp,pr,modbname,objname,mo,sv) ;
 		    f_modload = (rs >= 0)  ;
 		}

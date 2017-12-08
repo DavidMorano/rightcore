@@ -72,7 +72,8 @@ struct locinfo_flags {
 	uint		tmpfname:1 ;	/* TMP lock-file */
 	uint		reqfname:1 ;
 	uint		mntfname:1 ;
-	uint		svcfname:1 ;
+	uint		builtdname:1 ;	/* built-svc directory name */
+	uint		svcfname:1 ;	/* tabs-svc file name */
 	uint		accfname:1 ;
 	uint		msfname:1 ;
 	uint		locking:1 ;
@@ -101,6 +102,7 @@ struct locinfo {
 	cchar		*tmpfname ;	/* TMP lock-file */
 	cchar		*reqfname ;
 	cchar		*mntfname ;
+	cchar		*builtdname ;
 	cchar		*svcfname ;
 	cchar		*accfname ;
 	cchar		*msfname ;
@@ -164,6 +166,7 @@ extern int	locinfo_lockend(LOCINFO *) ;
 extern int	locinfo_defreg(LOCINFO *) ;
 extern int	locinfo_defdaemon(LOCINFO *) ;
 extern int	locinfo_tmpourdir(LOCINFO *) ;
+extern int	locinfo_builtdname(LOCINFO *) ;
 extern int	locinfo_msfile(LOCINFO *) ;
 extern int	locinfo_reqfname(LOCINFO *) ;
 extern int	locinfo_ipcpid(LOCINFO *,int) ;
@@ -171,7 +174,7 @@ extern int	locinfo_rootids(LOCINFO *) ;
 extern int	locinfo_nsbegin(LOCINFO *) ;
 extern int	locinfo_nsend(LOCINFO *) ;
 extern int	locinfo_nslook(LOCINFO *,char *,int,cchar *,int) ;
-extern int	locinfo_dirmaint(LOCINFO *) ;
+extern int	locinfo_maintourtmp(LOCINFO *) ;
 extern int	locinfo_cmdsload(LOCINFO *,cchar *,int) ;
 extern int	locinfo_cmdscount(LOCINFO *) ;
 extern int	locinfo_reqexit(LOCINFO *,cchar *) ;

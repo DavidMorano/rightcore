@@ -155,7 +155,7 @@ static int	subinfo_checksyms(SUBINFO *) ;
 
 /* local variables */
 
-static const char	*prnames[] = {
+static cchar	*prnames[] = {
 	"LOCAL",
 	"NCMP",
 	"PCS",
@@ -164,20 +164,20 @@ static const char	*prnames[] = {
 	NULL
 } ;
 
-static const char	*sysprs[] = {
+static cchar	*sysprs[] = {
 	"/usr/extra",
 	"/usr/preroot",
 	NULL
 } ;
 
-static const char	*exts[] = {
+static cchar	*exts[] = {
 	"so",
 	"o",
 	"",
 	NULL
 } ;
 
-static const char	*extdirs[] = {
+static cchar	*extdirs[] = {
 	"sparcv9",
 	"sparcv8",
 	"sparcv7",

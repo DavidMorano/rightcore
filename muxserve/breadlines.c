@@ -81,17 +81,12 @@
 /* exported subroutines */
 
 
-int breadlines(fp,lbuf,llen,lcp)
-bfile		*fp ;
-char		lbuf[] ;
-int		llen ;
-int		*lcp ;
+int breadlines(bfile *fp,char *lbuf,int llen,int *lcp)
 {
 	const int	to = TO_READ ;
 	int		rs = SR_OK ;
-	int		alen ;			/* "add" length */
 	int		i = 0 ;
-	int		f_first = TRUE ;
+	int		lines = 0 ;
 	int		f_cont = FALSE ;
 
 #if	CF_DEBUGS
@@ -100,48 +95,22 @@ int		*lcp ;
 
 	if (lbuf == NULL) return SR_FAULT ;
 
-	if (lcp != NULL) *lcp = 0 ;
-
 	lbuf[0] = '\0' ;
-	while (f_first || (f_cont = ISCONT(lbuf,i))) {
+	while ((lines == 0) || (f_cont = ISCONT(lbuf,i))) {
 
-#if	CF_DEBUGS
-	    debugprintf("breadlines: f_first=%d f_cont=%d\n",f_first,f_cont) ;
-	    debugprintf("breadlines: i=%d\n",i) ;
-#endif
+	    if (f_cont) i -= 2 ;
 
-	    f_first = FALSE ;
-	    if (f_cont)
-	        i -= 2 ;
-
-	    alen = llen - i ;
-
-#if	CF_DEBUGS
-	    debugprintf("breadlines: i=%d alen=%d\n",i,alen) ;
-#endif
-
-	    rs = breadlinetimed(fp,(lbuf + i),alen,to) ;
-
-#if	CF_DEBUGS
-	    debugprintf("breadlines: breadline() rs=%d\n",rs) ;
-#endif
-
-	    if (rs <= 0)
-	        break ;
-
+	    rs = breadlinetimed(fp,(lbuf + i),(llen - i),to) ;
+	    if (rs <= 0) break ;
 	    i += rs ;
-	    if (lcp != NULL)
-	        *lcp += 1 ;
-
-#if	CF_DEBUGS
-	    debugprintf("breadlines: i=%d next-f_cont=%d\n",
-	        i, ISCONT(lbuf,i)) ;
-#endif
+	    lines += 1 ;
 
 	} /* end while */
 
+	if (lcp != NULL) *lcp  = lines ;
+
 #if	CF_DEBUGS
-	debugprintf("breadlines: ret i=%d\n",i) ;
+	debugprintf("breadlines: ret rs=%d i=%d\n",rs,i) ;
 #endif
 
 	return (rs >= 0) ? i : rs ;

@@ -18,6 +18,8 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
+SVCSDIR= $(LIBDIR)/$(T)/svcs
+
 LDCRTDIR= $(CGS_CRTDIR)
 VALDIR= ${CGS_VALDIR}
 
@@ -296,8 +298,8 @@ $(T).nm nm:		$(T).x
 $(T).cxref:
 	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
 
-$(TL).so:		$(LOBJ) Makefile
-	$(LD) -G -o $@ $(SLDFLAGS) -M svcs.map $(LOBJ) $(SLIBINFO) > $(T).lm
+$(TL).so:		$(LOBJ) Makefile $(TL).map
+	$(LD) -G -o $@ $(SLDFLAGS) -M $(TL).map $(LOBJ) $(SLIBINFO) > $(T).lm
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ) $(LOBJ)
@@ -307,6 +309,10 @@ strip:			$(T).x
 	rm -f $(T).$(OFF) $(T)
 
 install:		install-raw install-help
+
+install-so:		$(TL).so
+	-mkdir -p $(SVCSDIR) 2> /dev/null
+	makenewer -s so=sx $(TL).so -d $(SVCSDIR)
 
 install-ee:		$(ALL)
 	makenewer -r $(ALL) $(BINDIR)
@@ -389,6 +395,11 @@ mfsc.o:			mfsc.c mfsc.c mfsmsg.o
 sreq.o:			sreq.c sreq.h
 
 sreqdb.o:		sreqdb.c sreqdb.h sreq.h
+
+
+# modules
+
+daytime.o:		daytime.c daytime.h mfserve.h
 
 
 # other standard pieces (duplicated here)

@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
 	Written a new out of frustration of previous hacks.
-
 
 */
 
@@ -19,8 +17,8 @@
 
 /*******************************************************************************
 
-	This is a BFILE subroutine that reads line that may be continued
-	onto the next real line using the back-slash character.
+        This is a BFILE subroutine that reads line that may be continued onto
+        the next real line using the back-slash character.
 
 	Synopsis:
 
@@ -59,6 +57,8 @@
 
 /* local defines */
 
+#define	TO_READ		(5*60)
+
 #define	ISCONT(b,bl)	\
 	(((bl) >= 2) && ((b)[(bl) - 1] == '\n') && ((b)[(bl) - 2] == '\\'))
 
@@ -81,18 +81,13 @@
 /* exported subroutines */
 
 
-int breadlines(fp,lbuf,llen,lcp)
-bfile		*fp ;
-char		lbuf[] ;
-int		llen ;
-int		*lcp ;
+int breadlines(bfile *fp,char *lbuf,int llen,int *lcp)
 {
-	int	rs = SR_OK ;
-	int	alen ;			/* "add" length */
-	int	i = 0 ;
-	int	f_first = TRUE ;
-	int	f_cont = FALSE ;
-
+	const int	to = TO_READ ;
+	int		rs = SR_OK ;
+	int		i = 0 ;
+	int		lines = 0 ;
+	int		f_cont = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("breadlines: llen=%d\n",llen) ;
@@ -100,60 +95,26 @@ int		*lcp ;
 
 	if (lbuf == NULL) return SR_FAULT ;
 
-	if (lcp != NULL) *lcp = 0 ;
-
 	lbuf[0] = '\0' ;
-	while (f_first || (f_cont = ISCONT(lbuf,i))) {
+	while ((lines == 0) || (f_cont = ISCONT(lbuf,i))) {
 
-#if	CF_DEBUGS
-	    debugprintf("breadlines: f_first=%d f_cont=%d\n",f_first,f_cont) ;
-	    debugprintf("breadlines: i=%d\n",i) ;
-#endif
+	    if (f_cont) i -= 2 ;
 
-	    f_first = FALSE ;
-	    if (f_cont)
-	        i -= 2 ;
-
-	    alen = llen - i ;
-
-#if	CF_DEBUGS
-	    debugprintf("breadlines: i=%d alen=%d\n",i,alen) ;
-#endif
-
-	    rs = breadline(fp,lbuf + i,alen) ;
-
-#if	CF_DEBUGS
-	    debugprintf("breadlines: breadline() rs=%d\n",rs) ;
-#endif
-
-	    if (rs <= 0)
-	        break ;
-
+	    rs = breadlinetimed(fp,(lbuf + i),(llen - i),to) ;
+	    if (rs <= 0) break ;
 	    i += rs ;
-	    if (lcp != NULL)
-	        *lcp += 1 ;
-
-#if	CF_DEBUGS
-	    debugprintf("breadlines: i=%d next-f_cont=%d\n",
-	        i, ISCONT(lbuf,i)) ;
-#endif
+	    lines += 1 ;
 
 	} /* end while */
 
-#ifdef	COMMENT
-	if ((rs >= 0) && (lbuf[i - 1] == '\\'))
-	    i -= 1 ;
-#endif
-
-ret0:
+	if (lcp != NULL) *lcp  = lines ;
 
 #if	CF_DEBUGS
-	debugprintf("breadlines: ret i=%d\n",i) ;
+	debugprintf("breadlines: ret rs=%d i=%d\n",rs,i) ;
 #endif
 
 	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (breadlines) */
-
 
 

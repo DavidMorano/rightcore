@@ -519,6 +519,9 @@ int hdb_delkey(HDB *op,HDB_DATUM key)
 	The cursor is set so that further fetches from the same cursor
 	will work properly (the cursor is moved back)!
 
+	f_adv=0		cursor backs up
+	f_adv=1		cursor advances to net entry
+
 ****/
 
 int hdb_delcur(HDB *op,HDB_CUR *curp,int f_adv)
@@ -562,8 +565,7 @@ int hdb_delcur(HDB *op,HDB_CUR *curp,int f_adv)
 	            if (ep->next == NULL) {
 	                ncur.j = 0 ;
 	                for (i = (ncur.i + 1) ; i < op->htlen ; i += 1) {
-	                    if (hepp[i] != NULL)
-	                        break ;
+	                    if (hepp[i] != NULL) break ;
 	                }
 	                ncur.i = i ;
 	            } else {
@@ -577,8 +579,7 @@ int hdb_delcur(HDB *op,HDB_CUR *curp,int f_adv)
 	                ncur.j = 0 ;
 	                ncur.k = 0 ;
 	                for (i = (curp->i - 1) ; i >= 0 ; i -= 1) {
-	                    if (hepp[i] != NULL)
-	                        break ;
+	                    if (hepp[i] != NULL) break ;
 	                }
 	                if (i >= 0) {
 	                    pep = hepp[i] ;

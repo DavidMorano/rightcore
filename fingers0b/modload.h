@@ -50,11 +50,10 @@ struct modload_head {
 extern "C" {
 #endif
 
-extern int	modload_open(MODLOAD *,const char *,const char *,
-			const char *,int,const char **) ;
+extern int	modload_open(MODLOAD *,cchar *,cchar *,cchar *,int,cchar **) ;
 extern int	modload_getmv(MODLOAD *,int) ;
 extern int	modload_getmva(MODLOAD *,int *,int) ;
-extern int	modload_getsym(MODLOAD *,const char *,const void **) ;
+extern int	modload_getsym(MODLOAD *,cchar *,const void **) ;
 extern int	modload_close(MODLOAD *) ;
 
 #ifdef	__cplusplus

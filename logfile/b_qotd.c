@@ -2043,10 +2043,10 @@ static int locinfo_termoutbegin(LOCINFO *lip,void *ofp)
 	int		rs1 ;
 	int		f_termout = FALSE ;
 	cchar		*tstr = lip->termtype ;
-	cchar		*vp ;
 
 	if (lip->f.termout || ((rs = shio_isterm(ofp)) > 0)) {
-	    int	ncols = COLUMNS ;
+	    int		ncols = COLUMNS ;
+	    cchar	*vp ;
 	    if ((vp = getourenv(pip->envv,VARCOLUMNS)) != NULL) {
 	        int	v ;
 	        rs1 = cfdeci(vp,-1,&v) ;

@@ -481,7 +481,7 @@ static int bibleverse_objloadbeginer(BIBLEVERSE *op,cchar *pr,cchar *objname)
 	    if (rs >= 0) {
 		const char	**sv ;
 	        if ((rs = vecstr_getvec(&syms,&sv)) >= 0) {
-	            const char	*modbname = BIBLEVERSE_MODBNAME ;
+	            cchar	*modbname = BIBLEVERSE_MODBNAME ;
 	            opts = (MODLOAD_OLIBVAR | MODLOAD_OSDIRS) ;
 	            rs = modload_open(lp,pr,modbname,objname,opts,sv) ;
 		    f_modload = (rs >= 0)  ;

@@ -213,8 +213,6 @@ typedef const char	cchar ;
 #define	LOCINFO_GMCUR	struct locinfo_gmcur
 #define	LOCINFO_RNCUR	struct locinfo_rncur
 
-#define	NDF		"motd.deb"
-
 
 /* external subroutines */
 
@@ -273,11 +271,9 @@ extern int	proginfo_rootname(PROGINFO *) ;
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
 extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(cchar *,int,int) ;
-#endif
-#if	CF_DEBUGN
-extern int	nprintf(cchar *,...) ;
 #endif
 
 extern cchar	*getourenv(cchar **,cchar *) ;
@@ -608,8 +604,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*afname = NULL ;
 	cchar		*ofname = NULL ;
 	cchar		*efname = NULL ;
-	cchar		*cp ;
-
+	cchar		*cp = NULL ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -2510,10 +2505,7 @@ static int procpidfname(PROGINFO *pip)
 /* end subroutine (procpidfname) */
 
 
-static int procregout(pip,app,ofp)
-PROGINFO	*pip ;
-PARAMOPT	*app ;
-SHIO		*ofp ;
+static int procregout(PROGINFO	*pip,PARAMOPT *app,SHIO *ofp)
 {
 	vecpstr		admins ;
 	int		rs ;
@@ -2618,6 +2610,16 @@ static int procregouterterm(PROGINFO *pip,void *ofp,int fd)
 	    char	lbuf[LINEBUFLEN+1] ;
 	    while ((rs = filebuf_readlines(&b,lbuf,llen,to,NULL)) > 0) {
 	        len = rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("b_motd/procregouterterm: l=>%t<\n",
+		lbuf,strlinelen(lbuf,len,40)) ;
+#endif
+		if (pip->debuglevel > 0) {
+		    cchar	*pn = pip->progname ;
+		    cchar	*fmt = "%s: term l=>%t<\n" ;
+		    shio_printf(pip->efp,fmt,pn,lbuf,strlinelen(lbuf,len,60)) ;
+		}
 	        if (rs >= 0) rs = lib_sigterm() ;
 	        if (rs >= 0) rs = lib_sigintr() ;
 	        if (rs >= 0) {
@@ -2644,6 +2646,11 @@ static int procregouterfile(PROGINFO *pip,void *ofp,int fd)
 	char		lbuf[LINEBUFLEN+1] ;
 	while ((rs = uc_reade(fd,lbuf,llen,to,FM_TIMED)) > 0) {
 	    len = rs ;
+		if (pip->debuglevel > 0) {
+		    cchar	*pn = pip->progname ;
+		    cchar	*fmt = "%s: file l=>%t<\n" ;
+		    shio_printf(pip->efp,fmt,pn,lbuf,strlinelen(lbuf,len,60)) ;
+		}
 	    if (rs >= 0) rs = lib_sigterm() ;
 	    if (rs >= 0) rs = lib_sigintr() ;
 	    if (rs >= 0) {

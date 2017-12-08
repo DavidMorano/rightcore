@@ -136,6 +136,7 @@ extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
@@ -1626,10 +1627,10 @@ static int locinfo_termoutbegin(LOCINFO *lip,void *ofp)
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
+	cchar		*tstr = lip->termtype ;
 
 	if (lip->f.termout || ((rs = shio_isterm(ofp)) > 0)) {
 	    int		ncols = COLUMNS ;
-	    cchar	*tstr = lip->termtype ;
 	    cchar	*vp ;
 	    if ((vp = getourenv(pip->envv,VARCOLUMNS)) != NULL) {
 	        int	v ;

@@ -29,10 +29,19 @@
 
 #define	MFSBUILT		struct mfsbuilt
 #define	MFSBUILT_CUR		struct mfsbuilt_c
+#define	MFSBUILT_INFO		struct mfsbuilt_info
 #define	MFSBUILT_MAGIC		0x75428311
 #define	MFSBUILT_NENTS		5
 #define	MFSBUILT_INTCHECK	(3*60)
 
+
+struct mfsbuilt_info {
+	int		objsize ;
+	int		(*start)(void *,cchar *,cchar **,cchar **,int,int) ;
+	int		(*check)(void *) ;
+	int		(*abort)(void *) ;
+	int		(*finish)(void *) ;
+} ;
 
 struct mfsbuilt_c {
 	uint		magic ;
@@ -55,8 +64,8 @@ extern "C" {
 
 extern int mfsbuilt_start(MFSBUILT *,cchar *) ;
 extern int mfsbuilt_have(MFSBUILT *,cchar *,int) ;
-extern int mfsbuilt_load(MFSBUILT *,cchar *,int,void *) ;
-extern int mfsbuilt_release(MFSBUILT *,cchar *,int) ;
+extern int mfsbuilt_loadbegin(MFSBUILT *,MFSBUILT_INFO *,cchar *,int) ;
+extern int mfsbuilt_loadend(MFSBUILT *,cchar *,int) ;
 extern int mfsbuilt_count(MFSBUILT *) ;
 extern int mfsbuilt_curbegin(MFSBUILT *,MFSBUILT_CUR *) ;
 extern int mfsbuilt_curend(MFSBUILT *,MFSBUILT_CUR *) ;

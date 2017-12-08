@@ -690,7 +690,7 @@ int locinfo_dirmaint(LOCINFO *lip)
 		        logprintf(pip,"%s dirmaint (%d)",tbuf,rs) ;
 			if (pip->debuglevel > 0) {
 			    cchar	*pn = pip->progname ;
-			    cchar	*fmt = "%s: dirmaint (%d)\n" ;
+			    cchar	*fmt = "%s: maint-tmp (%d)\n" ;
 			    shio_printf(pip->efp,fmt,pn,rs) ;
 			}
 		    }

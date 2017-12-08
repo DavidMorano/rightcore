@@ -465,9 +465,9 @@ static int biblebook_objloadbegin(BIBLEBOOK *op,cchar *pr,cchar *objname)
 	    } /* end for */
 
 	    if (rs >= 0) {
-		const char	**sv ;
+		cchar	**sv ;
 	        if ((rs = vecstr_getvec(&syms,&sv)) >= 0) {
-	            const char	*modbname = BIBLEBOOK_MODBNAME ;
+	            cchar	*modbname = BIBLEBOOK_MODBNAME ;
 	            opts = (MODLOAD_OLIBVAR | MODLOAD_OSDIRS) ;
 	            rs = modload_open(lp,pr,modbname,objname,opts,sv) ;
 		    f_modload = (rs >= 0)  ;

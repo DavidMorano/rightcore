@@ -209,7 +209,9 @@ int sreqdb_typeset(SREQDB *op,int ji,int jt,int st)
 	vechand		*jlp = &op->db ;
 	int		rs ;
 	if ((rs = vechand_get(jlp,ji,&jep)) >= 0) {
-	    rs = sreq_typeset(jep,jt,st) ;
+	    if (jep != NULL) {
+	        rs = sreq_typeset(jep,jt,st) ;
+	    }
 	}
 	return rs ;
 }
@@ -237,6 +239,8 @@ int sreqdb_findpid(SREQDB *jlp,pid_t pid,SREQ **jepp)
 /* end subroutine (sreqdb_findpid) */
 
 
+#ifdef	COMMENT
+
 /* search for a job in the job table via its (error) filename */
 int sreqdb_search(SREQDB *jlp,cchar *fname,SREQ **jepp)
 {
@@ -251,20 +255,33 @@ int sreqdb_search(SREQDB *jlp,cchar *fname,SREQ **jepp)
 	    }
 	} /* end for */
 
-	if (rs < 0) (*jepp) = NULL ;
+	if (rs < 0) *jepp = NULL ;
 
 	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (sreqdb_search) */
 
+#endif /* COMMENT */
+
 
 /* enumerate all of the jobs */
 int sreqdb_get(SREQDB *jlp,int i,SREQ **jepp)
 {
+	int		rs ;
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_get: ent i=%u\n",i) ;
+#endif /* CF_DEBUGS */
 
 	if (jlp == NULL) return SR_FAULT ;
 
-	return vechand_get(&jlp->db,i,jepp) ;
+	rs = vechand_get(&jlp->db,i,jepp) ;
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_get: ret rs=%d\n",rs) ;
+#endif /* CF_DEBUGS */
+
+	return rs ;
 }
 /* end subroutine (sreqdb_get) */
 
@@ -324,12 +341,20 @@ int sreqdb_delobj(SREQDB *jlp,SREQ *jep)
 	int		rs ;
 	int		i ;
 
+#if	CF_DEBUGS
+	debugprintf("sreqdb_delobj: ent {%p}\n",jep) ;
+#endif
+
 	if (jlp == NULL) return SR_FAULT ;
 	if (jep == NULL) return SR_FAULT ;
 
 	for (i = 0 ; (rs = vechand_get(&jlp->db,i,&ep)) >= 0 ; i += 1) {
 	    if (ep == jep) break ;
 	} /* end for */
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_delobj: mid2 rs=%d i=%u\n",rs,i) ;
+#endif
 
 	if (rs >= 0) {
 	    rs = sreqdb_delit(jlp,i,jep) ;
@@ -362,18 +387,28 @@ int sreqdb_havefd(SREQDB *op,int fd)
 	int		rs ;
 	int		i ;
 
+#if	CF_DEBUGS
+	debugprintf("sreqdb_havefd: ent fd=%d\n",fd) ;
+#endif
+
 	if (jlp == NULL) return SR_FAULT ;
 
 	for (i = 0 ; (rs = vechand_get(jlp,i,&jep)) >= 0 ; i += 1) {
-	    if ((rs = sreq_havefd(jep,fd)) > 0) break ;
+	    if (jep != NULL) {
+	        if ((rs = sreq_havefd(jep,fd)) > 0) break ;
+	    }
 	} /* end for */
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_havefd: ret rs=%d i=%u\n",rs,i) ;
+#endif
 
 	return (rs >= 0) ? i : rs ;
 }
 /* end subroutine (sreqdb_havefd) */
 
 
-/* thread calls this to signal that it is exiting */
+/* child thread calls this to signal that it is exiting */
 int sreqdb_exiting(SREQDB *op,int ji)
 {
 	SREQ		*jep ;
@@ -383,7 +418,9 @@ int sreqdb_exiting(SREQDB *op,int ji)
 	    if ((rs = sreq_setstate(jep,st)) >= 0) {
 		if ((rs = sreq_exiting(jep)) >= 0) {
 		    if (jep->f.thread) {
-	                rs = intiq_ins(&op->exits,ji) ;
+	                if ((rs = intiq_ins(&op->exits,ji)) >= 0) {
+	        	    op->f_exiting = TRUE ;
+			}
 		    }
 		}
 	    }
@@ -430,10 +467,14 @@ static int sreqdb_thrdone(SREQDB *op,SREQ **rpp)
 
 
 /* delete stuff associated with this job */
-static int sreqdb_delit(SREQDB *jlp,int i,SREQ *jep)
+static int sreqdb_delit(SREQDB *jlp,int ji,SREQ *jep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_delit: ent ji=%u {%p}\n",ji,jep) ;
+#endif
 
 	rs1 = sreq_finish(jep) ;
 	if (rs >= 0) rs = rs1 ;
@@ -442,11 +483,15 @@ static int sreqdb_delit(SREQDB *jlp,int i,SREQ *jep)
 	debugprintf("sreqdb_delit: sreq_finish() rs=%d\n",rs) ;
 #endif
 
-	rs1 = vechand_del(&jlp->db,i) ;
+	rs1 = vechand_del(&jlp->db,ji) ;
 	if (rs >= 0) rs = rs1 ;
 
 	rs1 = uc_free(jep) ;
 	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_delit: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }

@@ -12,14 +12,18 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
 #include	<sockaddress.h>
+#include	<osetstr.h>
 #include	<localmisc.h>
 
 #include	"mfslocinfo.h"
+#include	"mfsbuilt.h"
 #include	"svcentsub.h"
 
 
 #define	SREQ		struct sreq
 #define	SREQ_FL		struct sreq_flags
+#define	SREQ_SNCUR	struct sreq_sncur
+#define	SREQ_MAGIC	0x65918233
 #define	SREQ_JOBIDLEN	15			/* same as LOGIDLEN? */
 
 
@@ -32,18 +36,29 @@ enum sreqstates {
 	sreqstate_overlast
 } ;
 
+struct sreq_sncur {
+	OSETSTR_CUR	cur ;
+} ;
+
 struct sreq_flags {
 	uint		process:1 ;
 	uint		thread:1 ;
 	uint		local:1 ;		/* client is local */
 	uint		longopt:1 ;		/* the "long" switch */
 	uint		ss:1 ;
+	uint		builtout:1 ;
+	uint		builtdone:1 ;
+	uint		namesvcs:1 ;
 } ;
 
 struct sreq {
-	SREQ_FL		f ;
+	uint		magic ;
+	SREQ_FL		open, f ;
 	SOCKADDRESS	sa ;			/* peername socket address */
 	SVCENTSUB	ss ;
+	OSETSTR		namesvcs ;		/* service names (for 'help') */
+	MFSBUILT_INFO	binfo ;			/* buuilt-info info */
+	void		*objp ;			/* object pointer */
 	const char	*peername ;
 	const char	*netuser ;
 	const char	*netpass ;
@@ -95,6 +110,17 @@ extern int sreq_svcentbegin(SREQ *,LOCINFO *,SVCENT *) ;
 extern int sreq_svcentend(SREQ *) ;
 extern int sreq_exiting(SREQ *) ;
 extern int sreq_thrdone(SREQ *) ;
+extern int sreq_sncreate(SREQ *) ;
+extern int sreq_snadd(SREQ *,cchar *,int) ;
+extern int sreq_snbegin(SREQ *,SREQ_SNCUR *) ;
+extern int sreq_snenum(SREQ *,SREQ_SNCUR *,cchar **) ;
+extern int sreq_snend(SREQ *,SREQ_SNCUR *) ;
+extern int sreq_sndestroy(SREQ *) ;
+extern int sreq_loadbuilt(SREQ *,MFSBUILT_INFO *) ;
+extern int sreq_objstart(SREQ *,cchar *,cchar **,cchar **) ;
+extern int sreq_objcheck(SREQ *) ;
+extern int sreq_objabort(SREQ *) ;
+extern int sreq_objfinish(SREQ *) ;
 extern int sreq_finish(SREQ *) ;
 
 #ifdef	__cplusplus

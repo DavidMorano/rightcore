@@ -61,6 +61,14 @@
 #endif
 
 
+/* type-defs */
+
+typedef int	(*objstart_t)(void *,cchar *,cchar **,cchar **,int,int) ;
+typedef int	(*objcheck_t)(void *) ;
+typedef int	(*objabort_t)(void *) ;
+typedef int	(*objfinish_t)(void *) ;
+
+
 /* external subroutines */
 
 extern int	mkpath2(char *,const char *,const char *) ;
@@ -89,6 +97,7 @@ extern char	*strnchr(cchar *,int,int) ;
 /* forward references */
 
 static int	sreq_fdfins(SREQ *) ;
+static int	sreq_builtdone(SREQ *) ;
 
 static int	mkfile(cchar *,cchar **) ;
 
@@ -105,6 +114,10 @@ int sreq_start(SREQ *jep,cchar *template,cchar *jobid,int ifd,int ofd)
 	int		rs ;
 	cchar		*cp ;
 
+#if	CF_DEBUGS
+	debugprintf("sreq_start: ent {%p}\n",jep) ;
+#endif
+
 	if (jep == NULL) return SR_FAULT ;
 	if (template == NULL) return SR_FAULT ;
 	if (jobid == NULL) return SR_FAULT ;
@@ -120,6 +133,7 @@ int sreq_start(SREQ *jep,cchar *template,cchar *jobid,int ifd,int ofd)
 
 	if ((rs = mkfile(template,&cp)) >= 0) {
 	    jep->efname = (char *) cp ;
+	    jep->magic = SREQ_MAGIC ;
 	} /* end if */
 
 #if	CF_DEBUGS
@@ -136,26 +150,45 @@ int sreq_finish(SREQ *jep)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+	if (jep == NULL) return SR_FAULT ;
+	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
+
 #if	CF_DEBUGS
 	debugprintf("sreq_finish: ent ji=%d {%p}\n",jep->ji,jep) ;
 #endif
+
+	rs1 = sreq_builtdone(jep) ;
+	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("sreq_finish: mid2 rs=%d\n",rs) ;
+#endif
+
+	rs1 = sreq_thrdone(jep) ;
+	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("sreq_finish: mid3 rs=%d\n",rs) ;
+#endif
+
+	rs1 = sreq_fdfins(jep) ;
+	if (rs >= 0) rs = rs1 ;
+
+	if (jep->open.namesvcs) {
+	    rs1 = sreq_sndestroy(jep) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
 
 	if (jep->f.ss) {
 	    rs1 = sreq_svcentend(jep) ;
 	    if (rs >= 0) rs = rs1 ;
 	}
 
-	rs1 = sreq_thrdone(jep) ;
-	if (rs >= 0) rs = rs1 ;
-
 	if (jep->svcbuf != NULL) {
 	    rs1 = uc_free(jep->svcbuf) ;
 	    if (rs >= 0) rs = rs1 ;
 	    jep->svcbuf = NULL ;
 	}
-
-	rs1 = sreq_fdfins(jep) ;
-	if (rs >= 0) rs = rs1 ;
 
 	if (jep->efname != NULL) {
 	    if (jep->efname[0] != '\0') {
@@ -180,6 +213,7 @@ int sreq_finish(SREQ *jep)
 	debugprintf("sreq_finish: ret rs=%d\n",rs) ;
 #endif
 
+	jep->magic = 0 ;
 	return rs ;
 }
 /* end subroutine (sreq_finish) */
@@ -240,7 +274,7 @@ int sreq_svcparse(SREQ *op,int f_long)
 {
 	int		rs = SR_OK ;
 #if	CF_DEBUGS
-		debugprintf("sreq_svcparse: svcbuf=>%s<\n",op->svcbuf) ;
+	debugprintf("sreq_svcparse: svcbuf=>%s<\n",op->svcbuf) ;
 #endif
 	if (op->svc == NULL) {
 	    int		sl ;
@@ -366,6 +400,7 @@ int sreq_svcentend(SREQ *jep)
 /* end subroutine (sreq_svcentend) */
 
 
+/* spawned thread calls this from its exit-handler */
 int sreq_exiting(SREQ *jep)
 {
 	int		rs = SR_OK ;
@@ -405,7 +440,241 @@ int sreq_thrdone(SREQ *jep)
 /* end subroutine (sreq_thrdone) */
 
 
+int sreq_sncreate(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	if (! jep->open.namesvcs) {
+	    OSETSTR	*ssp = &jep->namesvcs ;
+	    const int	ne = 50 ;
+	    if ((rs = osetstr_start(ssp,ne)) >= 0) {
+		jep->open.namesvcs = TRUE ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (sreq_sncreate) */
+
+
+int sreq_sndestroy(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (jep->open.namesvcs) {
+	    OSETSTR	*ssp = &jep->namesvcs ;
+	    jep->open.namesvcs = FALSE ;
+	    rs1 = osetstr_finish(ssp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_sndestroy) */
+
+
+int sreq_snadd(SREQ *jep,cchar *sp,int sl)
+{
+	int		rs = SR_OK ;
+	if (jep->open.namesvcs) {
+	    OSETSTR	*ssp = &jep->namesvcs ;
+	    rs = osetstr_add(ssp,sp,sl) ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_snadd) */
+
+
+int sreq_snbegin(SREQ *jep,SREQ_SNCUR *scp)
+{
+	int		rs = SR_OK ;
+	if (jep->open.namesvcs) {
+	    OSETSTR	*ssp = &jep->namesvcs ;
+	    OSETSTR_CUR	*curp = &scp->cur ;
+	    rs = osetstr_curbegin(ssp,curp) ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_snbegin) */
+
+
+int sreq_snend(SREQ *jep,SREQ_SNCUR *scp)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (jep->open.namesvcs) {
+	    OSETSTR	*ssp = &jep->namesvcs ;
+	    OSETSTR_CUR	*curp = &scp->cur ;
+	    rs1 = osetstr_curend(ssp,curp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_snend) */
+
+
+int sreq_snenum(SREQ *jep,SREQ_SNCUR *scp,cchar **rpp)
+{
+	int		rs = SR_OK ;
+	if (jep->open.namesvcs) {
+	    OSETSTR	*ssp = &jep->namesvcs ;
+	    OSETSTR_CUR	*curp = &scp->cur ;
+	    rs = osetstr_enum(ssp,curp,rpp) ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_snenum) */
+
+
+int sreq_loadbuilt(SREQ *jep,MFSBUILT_INFO *ip)
+{
+	const int	osize = ip->objsize ;
+	int		rs ;
+	void		*p ;
+	if (jep == NULL) return SR_FAULT ;
+	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
+	if ((rs = uc_malloc(osize,&p)) >= 0) {
+	    jep->binfo = *ip ;
+	    jep->objp = p ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_loadbuilt) */
+
+
+int sreq_objstart(SREQ *jep,cchar *pr,cchar **sav,cchar **envv)
+{
+	int		rs = SR_OK ;
+	if (jep == NULL) return SR_FAULT ;
+	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
+	if (jep->objp != NULL) {
+	    if (! jep->f.builtout) {
+	        if ((rs = sreq_ofd(jep)) >= 0) {
+	    	    objstart_t	m = (objstart_t) jep->binfo.start ;
+		    const int	ifd = jep->ifd ;
+		    const int	ofd = rs ;
+	            if ((rs = (*m)(jep->objp,pr,sav,envv,ifd,ofd)) >= 0) {
+		        jep->f.builtout = TRUE ;
+		    }
+	        }
+	    } else {
+	        rs = SR_NOANODE ;
+	    }
+	} else {
+	    rs = SR_NOANODE ;
+	}
+#if	CF_DEBUGS
+	debugprintf("sreq_objstart: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (sreq_objstart) */
+
+
+int sreq_objcheck(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	if (jep == NULL) return SR_FAULT ;
+	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
+	if (jep->objp != NULL) {
+	    if (jep->f.builtout) {
+		if (! jep->f.builtdone) {
+	            objcheck_t	m = (objcheck_t) jep->binfo.check ;
+	            if ((rs = (*m)(jep->objp)) > 0) {
+		        jep->f.builtdone = TRUE ;
+		    }
+		} else {
+		    rs = TRUE ;
+		}
+	    }
+	} else {
+	    rs = SR_NOANODE ;
+	}
+#if	CF_DEBUGS
+	debugprintf("sreq_objcheck: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (sreq_objcheck) */
+
+
+int sreq_objabort(SREQ *jep)
+{
+	int		rs = SR_OK ;
+#if	CF_DEBUGS
+	debugprintf("sreq_objabort: ent {%p}\n",jep) ;
+#endif
+	if (jep == NULL) return SR_FAULT ;
+	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
+	if (jep->objp != NULL) {
+	    if (jep->f.builtout) {
+		if (! jep->f.builtdone) {
+	            objabort_t	m = (objabort_t) jep->binfo.abort ;
+#if	CF_DEBUGS
+	            debugprintf("sreq_objabort: objp{%p} m{%p}\n",jep->objp,m) ;
+#endif
+	            rs = (*m)(jep->objp) ;
+		} else {
+		    rs = TRUE ;
+		}
+	    }
+	} else {
+	    rs = SR_NOANODE ;
+	}
+#if	CF_DEBUGS
+	debugprintf("sreq_objabort: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (sreq_objstart) */
+
+
+int sreq_objfinish(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	if (jep == NULL) return SR_FAULT ;
+	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
+	if (jep->objp != NULL) {
+	    if (jep->f.builtout) {
+	        objfinish_t	m = (objfinish_t) jep->binfo.finish ;
+	        if ((rs = (*m)(jep->objp)) >= 0) {
+		    jep->f.builtdone = FALSE ;
+		    jep->f.builtout = FALSE ;
+		}
+	    }
+	} else {
+	    rs = SR_NOANODE ;
+	}
+#if	CF_DEBUGS
+	debugprintf("sreq_objfinish: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (sreq_objfinish) */
+
+
 /* private subroutines */
+
+
+static int sreq_builtdone(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+#if	C_FDEBUGS
+	debugprintf("sreq_builtdone: ent {%p}\n",jep) ;
+#endif
+	if (jep->objp != NULL) {
+	    if ((rs = sreq_objabort(jep)) >= 0) {
+		if ((rs = sreq_objfinish(jep)) >= 0) {
+	    	    rs1 = uc_free(jep->objp) ;
+	    	    if (rs >= 0) rs = rs1 ;
+	    	    jep->objp = NULL ;
+		}
+	    }
+	}
+#if	C_FDEBUGS
+	debugprintf("sreq_builtdone: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (sreq_builtdone) */
 
 
 static int sreq_fdfins(SREQ *jep)

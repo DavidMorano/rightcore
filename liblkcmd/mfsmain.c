@@ -151,8 +151,6 @@
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
-#define	DEBUGFNAME	"/tmp/mfs.deb"
-
 #ifndef	REQCNAME
 #define	REQCNAME	"req"
 #endif
@@ -1392,6 +1390,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* go */
 
 	if (rs >= 0) {
+	    int		c = 0 ;
 	    if ((rs = procdefargs(pip)) >= 0) {
 		USERINFO	u ;
 		if ((rs = userinfo_start(&u,NULL)) >= 0) {
@@ -1404,6 +1403,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                                    {
 					        cchar	*ofn = ofname ;
 	                                        rs = process(pip,ofn) ;
+						c = rs ;
 	                                    }
 	                                    rs1 = logend(pip) ;
 	                                    if (rs >= 0) rs = rs1 ;
@@ -1425,6 +1425,13 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (userinfo) */
 	    } /* end if (procdefargs) */
+	    if ((rs >= 0) && (pip->debuglevel > 0)) {
+	        if (pip->f.daemon) {
+	            cchar	*pn = pip->progname ;
+	            cchar	*fmt = "%s: requests=%d\n" ;
+	            shio_printf(pip->efp,fmt,pn,c) ;
+		}
+	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    ex = EX_USAGE ;
@@ -1472,7 +1479,7 @@ retearly:
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt ;
 	    if (pip->f.background || pip->f.daemon) {
-	        cchar	*w = ((pip->f.daemon) ? "child" : "parent") ;
+	        cchar	*w = ((pip->f.daemon) ? "daemon" : "background") ;
 		fmt = "%s: (%s) exiting ex=%u (%d)\n" ;
 	        shio_printf(pip->efp,fmt,pn,w,ex,rs) ;
 	    } else {
@@ -2494,6 +2501,7 @@ static int process(PROGINFO *pip,cchar *ofn)
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		rs1 ;
+	int		c = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -2511,6 +2519,7 @@ static int process(PROGINFO *pip,cchar *ofn)
 	                                rs = procback(pip) ;
 	                            } else if (pip->f.daemon) {
 	                                rs = procdaemon(pip) ;
+					c = rs ;
 	                            }
 	                            rs1 = ids_release(&pip->id) ;
 	                            if (rs >= 0) rs = rs1 ;
@@ -2530,10 +2539,10 @@ static int process(PROGINFO *pip,cchar *ofn)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfsmain/process: ret rs=%d\n",rs) ;
+	    debugprintf("mfsmain/process: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (process) */
 
@@ -2976,7 +2985,7 @@ static int procdaemon(PROGINFO *pip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("main/procdaemon: ret rs=%d\n",rs) ;
+	    debugprintf("main/procdaemon: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
 	return (rs >= 0) ? c : rs ;
@@ -3029,7 +3038,7 @@ static int procregular(PROGINFO *pip)
 
 	if ((rs = locinfo_defreg(lip)) >= 0) {
 	    if ((rs = locinfo_tmpourdir(lip)) >= 0) {
-	        rs = locinfo_dirmaint(lip) ;
+	        rs = locinfo_maintourtmp(lip) ;
 	        c = 1 ;
 	    }
 	}
@@ -3080,7 +3089,7 @@ static int procservice(PROGINFO *pip)
 		    }
 
 		    if (rs >= 0) {
-		        rs = locinfo_dirmaint(lip) ;
+		        rs = locinfo_maintourtmp(lip) ;
 		    }
 
 	            if (rs >= 0) {

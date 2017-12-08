@@ -49,7 +49,6 @@ struct daytime_head {
 	pthread_t	tid ;
 	int		ifd, ofd ;
 	cchar		*pr ;
-	cchar		**argv ;
 	cchar		**envv ;
 } ;
 

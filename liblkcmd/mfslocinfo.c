@@ -108,16 +108,6 @@
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
-#ifndef	IPCBUFLEN
-#define	IPCBUFLEN	MSGBUFLEN
-#endif
-
-#define	DEBUGFNAME	"/tmp/mfs.deb"
-
-#ifndef	TTYFNAME
-#define	TTYFNAME	"/dev/tty"
-#endif
-
 
 /* external subroutines */
 
@@ -594,6 +584,44 @@ int locinfo_tmpourdir(LOCINFO *lip)
 /* end subroutine (locinfo_tmpourdir) */
 
 
+int locinfo_builtdname(LOCINFO *lip)
+{
+	PROGINFO	*pip = lip->pip ;
+	int		rs = SR_OK ;
+	int		pl = 0 ;
+	if (lip->builtdname == NULL) {
+	    cchar	*pr = pip->pr ;
+	    cchar	*sn = pip->searchname ;
+	    char	tbuf[MAXPATHLEN+1] ;
+	    if ((rs = mkpath4(tbuf,pr,"lib",sn,"svcs")) >= 0) {
+		const int	am = (R_OK|X_OK) ;
+		pl = rs ;
+#if	CF_DEBUG
+		if (DEBUGLEVEL(4))
+	    	debugprintf("mfslocinfo_builtdname: tb=%s\n",tbuf) ;
+#endif
+		if ((rs = uc_access(tbuf,am)) >= 0) {
+		    cchar	**vpp = &lip->builtdname ;
+		    rs = locinfo_setentry(lip,vpp,tbuf,pl) ;
+		} else if (isNotPresent(rs)) {
+		    pl = 0 ;
+		    rs = SR_OK ;
+		}
+	    }
+	} else {
+	    pl = strlen(lip->builtdname) ;
+	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("mfslocinfo_builtdname: dn=%s\n",lip->builtdname) ;
+	    debugprintf("mfslocinfo_builtdname: ret rs=%d pl=%u\n",rs,pl) ;
+	}
+#endif
+	return (rs >= 0) ? pl : rs ;
+}
+/* end subroutine (locinfo_builtdname) */
+
+
 int locinfo_msfile(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
@@ -691,8 +719,8 @@ int locinfo_reqfname(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    debugprintf("locinfo_reqfname: ret rs=%d pl=%u\n",rs,pl) ;
 	    debugprintf("locinfo_reqfname: ret req=%s\n",lip->reqfname) ;
+	    debugprintf("locinfo_reqfname: ret rs=%d pl=%u\n",rs,pl) ;
 	}
 #endif
 
@@ -827,7 +855,7 @@ int locinfo_nslook(LOCINFO *lip,char *rbuf,int rlen,cchar *un,int w)
 /* end subroutine (locinfo_nslook) */
 
 
-int locinfo_dirmaint(LOCINFO *lip)
+int locinfo_maintourtmp(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	const int	to = lip->intdirmaint ;
@@ -842,16 +870,16 @@ int locinfo_dirmaint(LOCINFO *lip)
 	            cchar	*dir = lip->tmpourdname ;
 	            cchar	*pat = "client" ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("locinfo_dirmaint: dir=%s\n",dir) ;
+		    if (DEBUGLEVEL(4))
+	    		debugprintf("locinfo_maintourtmp: dir=%s\n",dir) ;
 #endif
 	            if ((rs = rmdirfiles(dir,pat,to_client)) >= 0) {
 	                char	tbuf[TIMEBUFLEN+1] ;
 	                timestr_logz(pip->daytime,tbuf) ;
-	                logprintf(pip,"%s dirmaint (%d)",tbuf,rs) ;
+	                logprintf(pip,"%s maint-tmp (%d)",tbuf,rs) ;
 			if (pip->debuglevel > 0) {
 			    cchar	*pn = pip->progname ;
-			    cchar	*fmt = "%s: dirmaint (%d)\n" ;
+			    cchar	*fmt = "%s: maint-tmp (%d)\n" ;
 			    shio_printf(pip->efp,fmt,pn,rs) ;
 			}
 	            }
@@ -860,7 +888,7 @@ int locinfo_dirmaint(LOCINFO *lip)
 	} /* end if (tmp-dir maintenance needed) */
 	return rs ;
 }
-/* end subroutine (locinfo_dirmaint) */
+/* end subroutine (locinfo_maintourtmp) */
 
 
 int locinfo_cmdsload(LOCINFO *lip,cchar *sp,int sl)
