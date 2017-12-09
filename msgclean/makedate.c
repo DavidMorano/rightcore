@@ -1,2 +1,2 @@
 const char msgclean_makedate[] =
-"@(#)msgclean                170124_2351:06_USEST Rightcore Network Services¹" ;
+"@(#)msgclean                171208_1533:24_USEST Rightcore Network Services" ;

@@ -63,7 +63,7 @@
 
 /* type-defs */
 
-typedef int	(*objstart_t)(void *,cchar *,cchar **,cchar **,int,int) ;
+typedef int	(*objstart_t)(void *,cchar *,SREQ *,cchar **,cchar **) ;
 typedef int	(*objcheck_t)(void *) ;
 typedef int	(*objabort_t)(void *) ;
 typedef int	(*objfinish_t)(void *) ;
@@ -369,6 +369,28 @@ int sreq_ofd(SREQ *op)
 /* end subroutine (sreq_ofd) */
 
 
+int sreq_getstdin(SREQ *jep)
+{
+	return jep->ifd ;
+}
+/* end subroutine (sreq_getstdin) */
+
+
+int sreq_getstdout(SREQ *op)
+{
+	if (op->ofd < 0) op->ofd = op->ifd ;
+	return op->ofd ;
+}
+/* end subroutine (sreq_getstdout) */
+
+
+int sreq_closefds(SREQ *jep)
+{
+	return sreq_fdfins(jep) ;
+}
+/* end subroutine (sreq_closefds) */
+
+
 int sreq_svcentbegin(SREQ *jep,LOCINFO *lip,SVCENT *sep)
 {
 	int		rs ;
@@ -523,7 +545,7 @@ int sreq_snenum(SREQ *jep,SREQ_SNCUR *scp,cchar **rpp)
 /* end subroutine (sreq_snenum) */
 
 
-int sreq_loadbuilt(SREQ *jep,MFSBUILT_INFO *ip)
+int sreq_builtload(SREQ *jep,MFSERVE_INFO *ip)
 {
 	const int	osize = ip->objsize ;
 	int		rs ;
@@ -536,7 +558,26 @@ int sreq_loadbuilt(SREQ *jep,MFSBUILT_INFO *ip)
 	}
 	return rs ;
 }
-/* end subroutine (sreq_loadbuilt) */
+/* end subroutine (sreq_builtload) */
+
+
+int sreq_builtrelease(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	if (jep == NULL) return SR_FAULT ;
+	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
+	if (jep->objp != NULL) {
+	    if ((rs = uc_free(jep->objp)) >= 0) {
+	        jep->objp = NULL ;
+	        jep->binfo.objsize = 0 ;
+		jep->f.builtout = FALSE ;
+		jep->f.builtdone = FALSE ;
+		rs = 1 ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (sreq_builtrelease) */
 
 
 int sreq_objstart(SREQ *jep,cchar *pr,cchar **sav,cchar **envv)
@@ -546,14 +587,10 @@ int sreq_objstart(SREQ *jep,cchar *pr,cchar **sav,cchar **envv)
 	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
 	if (jep->objp != NULL) {
 	    if (! jep->f.builtout) {
-	        if ((rs = sreq_ofd(jep)) >= 0) {
 	    	    objstart_t	m = (objstart_t) jep->binfo.start ;
-		    const int	ifd = jep->ifd ;
-		    const int	ofd = rs ;
-	            if ((rs = (*m)(jep->objp,pr,sav,envv,ifd,ofd)) >= 0) {
+	            if ((rs = (*m)(jep->objp,pr,jep,sav,envv)) >= 0) {
 		        jep->f.builtout = TRUE ;
 		    }
-	        }
 	    } else {
 	        rs = SR_NOANODE ;
 	    }
@@ -682,7 +719,7 @@ static int sreq_fdfins(SREQ *jep)
 	int		rs = SR_OK ;
 	int		rs1 ;
 #if	CF_DEBUGS
-	debugprintf("sreqdb_fdfins: ent ofd=%d ifd=%d\n",jep->ofd,jep->ifd) ;
+	debugprintf("sreq_fdfins: ent ofd=%d ifd=%d\n",jep->ofd,jep->ifd) ;
 #endif
 	if (jep->ofd >= 0) {
 	    if (jep->ofd != jep->ifd) {
@@ -692,7 +729,7 @@ static int sreq_fdfins(SREQ *jep)
 	    jep->ofd = -1 ;
 	}
 #if	CF_DEBUGS
-	debugprintf("sreqdb_fdfins: mid1 rs=%d\n",rs) ;
+	debugprintf("sreq_fdfins: mid1 rs=%d\n",rs) ;
 #endif
 	if (jep->ifd >= 0) {
 	    rs1 = u_close(jep->ifd) ;
@@ -700,7 +737,7 @@ static int sreq_fdfins(SREQ *jep)
 	    jep->ifd = -1 ;
 	}
 #if	CF_DEBUGS
-	debugprintf("sreqdb_fdfins: mid2 rs=%d\n",rs) ;
+	debugprintf("sreq_fdfins: mid2 rs=%d\n",rs) ;
 #endif
 	if (jep->efd >= 0) {
 	    rs1 = u_close(jep->efd) ;
@@ -708,7 +745,7 @@ static int sreq_fdfins(SREQ *jep)
 	    jep->efd = -1 ;
 	}
 #if	CF_DEBUGS
-	debugprintf("sreqdb_fdfins: ret rs=%d\n",rs) ;
+	debugprintf("sreq_fdfins: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }

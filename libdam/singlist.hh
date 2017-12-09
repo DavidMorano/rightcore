@@ -141,7 +141,7 @@ public:
 	        an = an->next ;
 	    }
 	} ;
-	singlist(const singlist<T> &&al) {
+	singlist(singlist<T> &&al) {
 	    if (head != NULL) clear() ;
 	    head = al.head ;
 	    tail = al.tail ;
@@ -158,7 +158,7 @@ public:
 	        an = an->next ;
 	    }
 	} ;
-	singlist &operator = (const singlist<T> &&al) {
+	singlist &operator = (singlist<T> &&al) {
 	    if (head != NULL) clear() ;
 	    head = al.head ;
 	    tail = al.tail ;

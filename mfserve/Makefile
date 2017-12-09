@@ -39,7 +39,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O2 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -97,7 +97,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -228,7 +228,7 @@ MOBJS= $(MCRT0) $(OBJ) $(CRTC)
 GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
 
-LOBJ= daytime.o
+LOBJ= daytime.o hello.o
 
 
 SRC= $(OBJ:.c=.o)
@@ -299,7 +299,7 @@ $(T).cxref:
 	$(CXREF) -c $(CXREFFLAGS) $(SRC) > $(T).cxref
 
 $(TL).so:		$(LOBJ) Makefile $(TL).map
-	$(LD) -G -o $@ $(SLDFLAGS) -M $(TL).map $(LOBJ) $(SLIBINFO) > $(T).lm
+	$(LD) -G -o $@ $(SLDFLAGS) $(LOBJ) $(SLIBINFO) > $(T).lm
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ) $(LOBJ)
@@ -400,6 +400,8 @@ sreqdb.o:		sreqdb.c sreqdb.h sreq.h
 # modules
 
 daytime.o:		daytime.c daytime.h mfserve.h
+
+hello.o:		hello.c hello.h mfserve.h
 
 
 # other standard pieces (duplicated here)

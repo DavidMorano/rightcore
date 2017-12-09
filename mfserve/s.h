@@ -45,12 +45,13 @@ extern int sreqdb_newjob(SREQDB *,int,cchar *,int,int) ;
 extern int sreqdb_typeset(SREQDB *,int,int,int) ;
 extern int sreqdb_get(SREQDB *,int,SREQ **) ;
 extern int sreqdb_findpid(SREQDB *,pid_t,SREQ **) ;
+extern int sreqdb_thrsdone(SREQDB *,SREQ **) ;
 extern int sreqdb_del(SREQDB *,int) ;
 extern int sreqdb_delobj(SREQDB *,SREQ *) ;
-extern int sreqdb_count(SREQDB *) ;
 extern int sreqdb_havefd(SREQDB *,int) ;
 extern int sreqdb_exiting(SREQDB *,int) ;
-extern int sreqdb_thrsdone(SREQDB *,SREQ **) ;
+extern int sreqdb_count(SREQDB *) ;
+extern int sreqdb_builtrelease(SREQDB *) ;
 extern int sreqdb_finish(SREQDB *) ;
 
 #ifdef	__cplusplus

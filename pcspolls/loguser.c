@@ -351,10 +351,10 @@ static int mklogentry(cchar *pr,cchar *sn,cchar **envv,PCSCONF *pcp)
 		USERINFO	u ;
 		if ((rs = userinfo_start(&u,NULL)) >= 0) {
 		    LOGFILE	lh, *lhp = &lh ;
-		    const char	*logid = u.logid ;
+		    cchar	*logid = u.logid ;
 		    if ((rs1 = logfile_open(lhp,lfname,0,0666,logid)) >= 0) {
 		        time_t	daytime = time(NULL) ;
-			const char	*pv = "¥" ;
+			cchar	*pv = "¥" ;
 	                logfile_userinfo(lhp,&u,daytime,sn,pv) ;
 		        logfile_close(lhp) ;
 		    } else if (! isNotPresent(rs1)) {

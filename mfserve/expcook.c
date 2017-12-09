@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUGBUF	1		/* debug 'expcook_expbuf()' */
+#define	CF_DEBUGBUF	0		/* debug 'expcook_expbuf()' */
 
 
 /* revision history:

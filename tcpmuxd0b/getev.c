@@ -81,8 +81,9 @@ int getev(cchar **envv,cchar *np,int nl,cchar **rpp)
 	        vp += 1 ;
 	        vl = strlen(vp) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 	if (rpp != NULL) {
 	    *rpp = (rs >= 0) ? vp : NULL ;

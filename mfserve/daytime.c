@@ -23,13 +23,12 @@
 
 	Synopsis:
 
-	int daytime_start(op,pr,argv,envv,ifd,ofd)
+	int daytime_start(op,pr,jep,argv,envv)
 	DAYTIME		*op ;
 	const char	*pr ;
+	SREQ		*jep ;
 	const char	**argv ;
 	const char	**envv ;
-	int		ifd ;
-	int		ofd ;
 
 	Arguments:
 
@@ -137,8 +136,7 @@ MFSERVE_MOD	daytime = {
 /* exported subroutines */
 
 
-int daytime_start(DAYTIME *op,cchar *pr,cchar **argv,cchar **envv,
-		int ifd,int ofd)
+int daytime_start(DAYTIME *op,cchar *pr,SREQ *jep,cchar **argv,cchar **envv)
 {
 	int		rs = SR_OK ;
 
@@ -155,24 +153,26 @@ int daytime_start(DAYTIME *op,cchar *pr,cchar **argv,cchar **envv,
 
 	memset(op,0,sizeof(DAYTIME)) ;
 	op->pr = pr ;
+	op->jep = jep ;
 	op->envv = envv ;
-	op->ifd = ifd ;
-	op->ofd = ofd ;
 
-	if ((rs = daytime_argsbegin(op,argv)) >= 0) {
+	if ((rs = sreq_getstdout(jep)) >= 0) {
+	    op->ofd = rs ;
+	    if ((rs = daytime_argsbegin(op,argv)) >= 0) {
 	        pthread_t	tid ;
 	        thrsub_t	thr = (thrsub_t) daytime_worker ;
 	        if ((rs = uptcreate(&tid,NULL,thr,op)) >= 0) {
 	            op->f.working = TRUE ;
-		    op->tid = tid ;
-	      	    op->magic = DAYTIME_MAGIC ;
+	            op->tid = tid ;
+	            op->magic = DAYTIME_MAGIC ;
 #if	CF_DEBUGS
-		    debugprintf("daytime_start: magic=%08x\n",op->magic) ;
+	            debugprintf("daytime_start: magic=%08x\n",op->magic) ;
 #endif
 	        }
-	    if (rs < 0)
-		daytime_argsend(op) ;
-	} /* end if (daytime_argsbegin) */
+	        if (rs < 0)
+	            daytime_argsend(op) ;
+	    } /* end if (daytime_argsbegin) */
+	} /* end if (sreq_getstdout) */
 
 #if	CF_DEBUGS
 	debugprintf("daytime_start: ret rs=%d\n",rs) ;
@@ -209,8 +209,8 @@ int daytime_finish(DAYTIME *op)
 	        if (rs >= 0) rs = rs1 ;
 	        if (rs >= 0) rs = trs ;
 	    } else {
-		op->f.working = FALSE ;
-		op->tid = 0 ;
+	        op->f.working = FALSE ;
+	        op->tid = 0 ;
 	    }
 	}
 
@@ -251,9 +251,9 @@ int daytime_check(DAYTIME *op)
 	            if (rs >= 0) rs = rs1 ;
 	            if (rs >= 0) rs = trs ;
 	            f = TRUE ;
-		}
+	        }
 	    } else {
-		op->f.working = FALSE ;
+	        op->f.working = FALSE ;
 	    }
 	} else {
 	    f = TRUE ;
@@ -297,11 +297,11 @@ static int daytime_argsbegin(DAYTIME *op,cchar **argv)
 	    int		i ;
 	    op->f.args = TRUE ;
 	    for (i = 0 ; (rs >= 0) && (argv[i] != NULL) ; i += 1) {
-		rs = vecpstr_add(alp,argv[i],-1) ;
+	        rs = vecpstr_add(alp,argv[i],-1) ;
 	    }
 	    if (rs < 0) {
-		op->f.args = FALSE ;
-		vecpstr_finish(alp) ;
+	        op->f.args = FALSE ;
+	        vecpstr_finish(alp) ;
 	    }
 	} /* end if (m-a) */
 	return rs ;
@@ -341,22 +341,24 @@ static int daytime_worker(DAYTIME *op)
 	        const int	ulen = USERNAMELEN ;
 	        char		ubuf[USERNAMELEN+1] ;
 	        if ((rs = getusername(ubuf,ulen,uid)) >= 0) {
-		    const int	olen = ORGCODELEN ;
-		    char	obuf[ORGCODELEN+1] ;
-		    if ((rs = localgetorgcode(pr,obuf,olen,ubuf)) >= 0) {
-		        NISTINFO	ni ;
-		        const time_t	dt = time(NULL) ;
-		        const int	tlen = NISTINFO_ORGSIZE ;
-		        char		tbuf[NISTINFO_ORGSIZE+1] ;
-	    	        memset(&ni,0,sizeof(NISTINFO)) ;
-		        strdcpy1(ni.org,tlen,obuf) ;
+	            const int	olen = ORGCODELEN ;
+	            char	obuf[ORGCODELEN+1] ;
+	            if ((rs = localgetorgcode(pr,obuf,olen,ubuf)) >= 0) {
+	                NISTINFO	ni ;
+	                const time_t	dt = time(NULL) ;
+	                const int	tlen = NISTINFO_ORGSIZE ;
+	                char		tbuf[NISTINFO_ORGSIZE+1] ;
+	                memset(&ni,0,sizeof(NISTINFO)) ;
+	                strdcpy1(ni.org,tlen,obuf) ;
 	                timestr_nist(dt,&ni,tbuf) ;
-			{
-		            const int	tl = strlen(tbuf) ;
-		            rs = uc_writen(op->ofd,tbuf,tl) ;
-		            wlen += rs ;
-			}
-		    } /* end if (localgetorg) */
+	                {
+	                    const int	tl = strlen(tbuf) ;
+	                    if ((rs = uc_writen(op->ofd,tbuf,tl)) >= 0) {
+	                        wlen += rs ;
+				rs = sreq_closefds(op->jep) ;
+			    }
+	                }
+	            } /* end if (localgetorg) */
 	        } /* end if (getusername) */
 	    } /* end if (uc_stat) */
 	} /* end if (not aborting) */

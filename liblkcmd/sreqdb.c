@@ -138,22 +138,42 @@ int sreqdb_finish(SREQDB *jlp)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+#if	CF_DEBUGS
+	debugprintf("sreqdb_finish: ent\n") ;
+#endif /* CF_DEBUGS */
+
 	if (jlp == NULL) return SR_FAULT ;
 
 	rs1 = intiq_finish(&jlp->exits) ;
 	if (rs >= 0) rs = rs1 ;
 
+#if	CF_DEBUGS
+	debugprintf("sreqdb_finish: mid1\n") ;
+#endif /* CF_DEBUGS */
+
 	rs1 = sreqdb_entfins(jlp) ;
 	if (rs >= 0) rs = rs1 ;
 
+#if	CF_DEBUGS
+	debugprintf("sreqdb_finish: mid2\n") ;
+#endif /* CF_DEBUGS */
+
 	rs1 = vechand_finish(&jlp->db) ;
 	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_finish: mid3\n") ;
+#endif /* CF_DEBUGS */
 
 	if (jlp->tmpdname != NULL) {
 	    rs1 = uc_free(jlp->tmpdname) ;
 	    if (rs >= 0) rs = rs1 ;
 	    jlp->tmpdname = NULL ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("sreqdb_finish: ret rs=%d\n",rs) ;
+#endif /* CF_DEBUGS */
 
 	return rs ;
 }
@@ -377,6 +397,29 @@ int sreqdb_count(SREQDB *jlp)
 	return vechand_count(&jlp->db) ;
 }
 /* end subroutine (sreqdb_count) */
+
+
+int sreqdb_builtrelease(SREQDB *op)
+{
+	SREQ		*jep ;
+	vechand		*jlp = &op->db ;
+	const int	rsn = SR_NOTFOUND ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	int		c = 0 ;
+	if (jlp == NULL) return SR_FAULT ;
+	for (i = 0 ; (rs1 = vechand_get(jlp,i,&jep)) >= 0 ; i += 1) {
+	    if (jep != NULL) {
+	        rs = sreq_builtrelease(jep) ;
+		c += rs ;
+	    }
+	    if (rs < 0) break ;
+	} /* end for */
+	if ((rs >= 0) && (rs1 != rsn)) rs = rs1 ;
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (sreqdb_builtrelease) */
 
 
 /* do we have the given FD in the DB, if so return index */

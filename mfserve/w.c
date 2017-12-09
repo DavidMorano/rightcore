@@ -637,11 +637,26 @@ static int mfswatch_ender(PROGINFO *pip)
 	rs1 = mfswatch_svcsend(pip) ;
 	if (rs >= 0) rs = rs1 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_ender: mid3 rs=%d\n",rs) ;
+#endif
+
 	rs1 = sreqdb_finish(&wip->reqs) ;
 	if (rs >= 0) rs = rs1 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_ender: mid4 rs=%d\n",rs) ;
+#endif
+
 	rs1 = mfswatch_pathend(pip) ;
 	if (rs >= 0) rs = rs1 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_ender: mid5 rs=%d\n",rs) ;
+#endif
 
 	rs1 = mfswatch_envend(pip) ;
 	if (rs >= 0) rs = rs1 ;
@@ -994,6 +1009,11 @@ static int mfswatch_svcsend(PROGINFO *pip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcsend: ent\n") ;
+#endif
+
 	rs1 = mfswatch_tabsend(pip) ;
 	if (rs >= 0) rs = rs1 ;
 
@@ -1121,11 +1141,18 @@ static int mfswatch_builtend(PROGINFO *pip)
 	MFSWATCH	*wip = pip->watch ;
 	int		rs = SR_OK ;
 	int		rs1 ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_builtend: ent\n") ;
+#endif
 	if (wip->open.built) {
-	    MFSBUILT	*blp = &wip->built ;
-	    wip->open.built = FALSE ;
-	    rs1 = mfsbuilt_finish(blp) ;
-	    if (rs >= 0) rs = rs1 ;
+	    SREQDB	*slp = &wip->reqs ;
+	    if ((rs = sreqdb_builtrelease(slp)) >= 0) {
+	        MFSBUILT	*blp = &wip->built ;
+	        wip->open.built = FALSE ;
+	        rs1 = mfsbuilt_finish(blp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
 	} /* end if (is-open) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1559,7 +1586,7 @@ static int mfswatch_builthave(PROGINFO *pip,cchar *svc)
 	int		rs = SR_OK ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_buulthave: ent svc=%s\n",svc) ;
+	    debugprintf("mfswatch_builthave: ent svc=%s\n",svc) ;
 #endif
 	if (wip->open.built) {
 	    MFSBUILT	*blp = &wip->built ;
@@ -1567,7 +1594,7 @@ static int mfswatch_builthave(PROGINFO *pip,cchar *svc)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_buulthave: ret rs=%d\n",rs) ;
+	    debugprintf("mfswatch_builthave: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -1580,14 +1607,14 @@ static int mfswatch_builthandle(PROGINFO *pip,SREQ *jep,cchar **sav)
 	int		rs = SR_OK ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_buulhandle: ent\n") ;
+	    debugprintf("mfswatch_builthandle: ent\n") ;
 #endif
 	if (wip->open.built) {
 	    MFSBUILT		*blp = &wip->built ;
-	    MFSBUILT_INFO	info ;
+	    MFSERVE_INFO	info ;
 	    cchar		*svc = jep->svc ;
 	    if ((rs = mfsbuilt_loadbegin(blp,&info,svc,-1)) >= 0) {
-	        if ((rs = sreq_loadbuilt(jep,&info)) >= 0) {
+	        if ((rs = sreq_builtload(jep,&info)) >= 0) {
 	            cchar	*pr = pip->pr ;
 	            cchar	**envv = pip->envv ;
 		    wip->nbuilts += 1 ;
@@ -1597,7 +1624,7 @@ static int mfswatch_builthandle(PROGINFO *pip,SREQ *jep,cchar **sav)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_buulhandle: ret rs=%d\n",rs) ;
+	    debugprintf("mfswatch_builthandle: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }

@@ -24,12 +24,21 @@
 /* object defines */
 
 #define	MFSERVE_MOD		struct mfserve_mod
+#define	MFSERVE_INFO		struct mfserve_info
 
 
 struct mfserve_mod {
 	cchar		*objname ;
 	int		objsize ;
 	int		endmark ;
+} ;
+
+struct mfserve_info {
+	int		objsize ;
+	int		(*start)(void *,cchar *,void *,cchar **,cchar **) ;
+	int		(*check)(void *) ;
+	int		(*abort)(void *) ;
+	int		(*finish)(void *) ;
 } ;
 
 

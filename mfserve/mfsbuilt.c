@@ -63,7 +63,7 @@
 
 /* type-defs */
 
-typedef int	(*objstart_t)(void *,cchar *,cchar **,cchar **,int,int) ;
+typedef int	(*objstart_t)(void *,cchar *,void *,cchar **,cchar **) ;
 typedef int	(*objcheck_t)(void *) ;
 typedef int	(*objabort_t)(void *) ;
 typedef int	(*objfinish_t)(void *) ;
@@ -102,7 +102,7 @@ struct mfsbuilt_ent {
 	cchar		*svc ;		/* service name */
 	cchar		*fname ;	/* file (component) name */
 	void		*sop ;		/* shared object pointer (handle) */
-	MFSBUILT_INFO	info ;
+	MFSERVE_INFO	info ;
 	int		rcount ;	/* reference count */
 	int		objsize ;	/* size of object */
 } ;
@@ -117,10 +117,11 @@ static int	mfsbuilt_fins(MFSBUILT *) ;
 
 static int	ent_start(ENT *,cchar *,int,cchar *,int) ;
 static int	ent_getsvc(ENT *,cchar **) ;
-static int	ent_loadbegin(ENT *,MFSBUILT_INFO *) ;
+static int	ent_loadbegin(ENT *,MFSERVE_INFO *) ;
 static int	ent_loadend(ENT *) ;
 static int	ent_loadinfo(ENT *) ;
-static int	ent_getinfo(ENT *,MFSBUILT_INFO *) ;
+static int	ent_getinfo(ENT *,MFSERVE_INFO *) ;
+static int	ent_isnotloaded(ENT *) ;
 static int	ent_finish(ENT *) ;
 
 #ifdef	COMMENT
@@ -202,6 +203,10 @@ int mfsbuilt_finish(MFSBUILT *op)
 	int		rs = SR_OK ;
 	int		rs1 ;
 
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_finish: ent\n") ;
+#endif
+
 	if (op == NULL) return SR_FAULT ;
 	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
 
@@ -259,7 +264,7 @@ int mfsbuilt_have(MFSBUILT *op,cchar *sp,int sl)
 
 
 /* 0=no, 1=yes */
-int mfsbuilt_loadbegin(MFSBUILT *op,MFSBUILT_INFO *ip,cchar *sp,int sl)
+int mfsbuilt_loadbegin(MFSBUILT *op,MFSERVE_INFO *ip,cchar *sp,int sl)
 {
 	HDB		*dbp ;
 	HDB_DATUM	k, v ;
@@ -458,11 +463,9 @@ int mfsbuilt_check(MFSBUILT *op,time_t dt)
 	if ((dt - op->ti_check) >= to) {
 	    op->ti_check = dt ;
 	    f = TRUE ;
-#ifdef	COMMENT
 	    if ((rs = mfsbuilt_entprune(op)) >= 0) {
 		rs = mfsbuilt_entload(op) ;
 	    }
-#endif /* COMMENT */
 	}
 	return (rs >= 0) ? f : rs ;
 }
@@ -474,11 +477,43 @@ int mfsbuilt_check(MFSBUILT *op,time_t dt)
 
 static int mfsbuilt_entprune(MFSBUILT *op)
 {
+	HDB		*dbp = &op->db ;
+	HDB_DATUM	k, v ;
+	HDB_CUR		c ;
 	int		rs ;
-	if ((rs = mfsbuilt_fins(op)) >= 0) {
-	    HDB		*elp = &op->db ;
-	    rs = hdb_delall(elp) ;
-	}
+	int		rs1 ;
+	int		rs2 ;
+
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_entprune: ent\n") ;
+#endif
+
+	if ((rs = hdb_curbegin(dbp,&c)) >= 0) {
+	    ENT		*ep ;
+	    const int	rsn = SR_NOTFOUND ;
+	    int		i ;
+	    for (i = 0 ; (rs2 = hdb_enum(dbp,&c,&k,&v)) >= 0 ; i += 1) {
+		ep = (ENT *) v.buf ;
+		if (ep != NULL) {
+		    if ((rs = ent_isnotloaded(ep)) > 0) {
+		        rs1 = hdb_delcur(dbp,&c,0) ;
+		        if (rs >= 0) rs = rs1 ;
+		        rs1 = ent_finish(ep) ;
+		        if (rs >= 0) rs = rs1 ;
+		        rs1 = uc_free(ep) ;
+		        if (rs >= 0) rs = rs1 ;
+		    }
+		}
+	    } /* end for */
+	    if ((rs >= 0) && (rs2 != rsn)) rs = rs2 ;
+	    rs1 = hdb_curend(dbp,&c) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (hdb-cur) */
+
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_entprunce: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (mfsbuilt_entprune) */
@@ -581,6 +616,10 @@ static int mfsbuilt_fins(MFSBUILT *op)
 	int		rs1 ;
 	int		rs2 ;
 
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_fins: ent\n") ;
+#endif
+
 	if ((rs = hdb_curbegin(dbp,&c)) >= 0) {
 	    ENT		*ep ;
 	    const int	rsn = SR_NOTFOUND ;
@@ -674,7 +713,7 @@ static int ent_getsvc(ENT *ep,cchar **rpp)
 
 
 /* ARGSUSED */
-static int ent_loadbegin(ENT *ep,MFSBUILT_INFO *ip)
+static int ent_loadbegin(ENT *ep,MFSERVE_INFO *ip)
 {
 	int		rs = SR_OK ;
 #if	CF_DEBUGS
@@ -786,12 +825,25 @@ static int ent_loadinfo(ENT *ep)
 /* end subroutine (ent_loadinfo) */
 
 
-static int ent_getinfo(ENT *ep,MFSBUILT_INFO *ip)
+static int ent_getinfo(ENT *ep,MFSERVE_INFO *ip)
 {
-	*ip = ep->info ;
-	return SR_OK ;
+	int		rs = SR_OK ;
+	if (ep->info.objsize != 0) {
+	    *ip = ep->info ;
+	    rs = 1 ;
+	} else {
+	    memset(ip,0,sizeof(MFSERVE_INFO)) ;
+	}
+	return rs ;
 }
 /* end subroutine (ent_getinfo) */
+
+
+static int ent_isnotloaded(ENT *ep)
+{
+	return (ep->info.objsize == 0) ;
+}
+/* end subrouine (ent_isnotloaded) */
 
 
 #ifdef	COMMENT

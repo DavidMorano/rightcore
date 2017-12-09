@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -71,6 +69,7 @@ extern int	cfdecti(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -124,7 +123,7 @@ static int	procargs(PROGINFO *,ARGINFO *,BITS *,
 
 /* local variables */
 
-static const char	*argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -160,7 +159,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const char	*progmodes[] = {
+static cchar	*progmodes[] = {
 	"msgclean",
 	NULL
 } ;
@@ -170,7 +169,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"ageint"
 	"nice",
 	"header",
@@ -192,7 +191,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const char	*progopts[] = {
+static cchar	*progopts[] = {
 	"follow",
 	"nofollow",
 	"nostop",
@@ -276,7 +275,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
@@ -762,6 +761,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -773,16 +774,16 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n", pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;

@@ -16,7 +16,7 @@
 #include	<localmisc.h>
 
 #include	"mfslocinfo.h"
-#include	"mfsbuilt.h"
+#include	"mfserve.h"
 #include	"svcentsub.h"
 
 
@@ -57,7 +57,7 @@ struct sreq {
 	SOCKADDRESS	sa ;			/* peername socket address */
 	SVCENTSUB	ss ;
 	OSETSTR		namesvcs ;		/* service names (for 'help') */
-	MFSBUILT_INFO	binfo ;			/* buuilt-info info */
+	MFSERVE_INFO	binfo ;			/* buuilt-info info */
 	void		*objp ;			/* object pointer */
 	const char	*peername ;
 	const char	*netuser ;
@@ -106,6 +106,11 @@ extern int sreq_getsvc(SREQ *,cchar **) ;
 extern int sreq_getsubsvc(SREQ *,cchar **) ;
 extern int sreq_getstate(SREQ *) ;
 extern int sreq_ofd(SREQ *) ;
+extern int sreq_getstdin(SREQ *) ;
+extern int sreq_getstdout(SREQ *) ;
+extern int sreq_closestdin(SREQ *) ;
+extern int sreq_closestdout(SREQ *) ;
+extern int sreq_closefds(SREQ *) ;
 extern int sreq_svcentbegin(SREQ *,LOCINFO *,SVCENT *) ;
 extern int sreq_svcentend(SREQ *) ;
 extern int sreq_exiting(SREQ *) ;
@@ -116,7 +121,8 @@ extern int sreq_snbegin(SREQ *,SREQ_SNCUR *) ;
 extern int sreq_snenum(SREQ *,SREQ_SNCUR *,cchar **) ;
 extern int sreq_snend(SREQ *,SREQ_SNCUR *) ;
 extern int sreq_sndestroy(SREQ *) ;
-extern int sreq_loadbuilt(SREQ *,MFSBUILT_INFO *) ;
+extern int sreq_builtload(SREQ *,MFSERVE_INFO *) ;
+extern int sreq_builtrelease(SREQ *) ;
 extern int sreq_objstart(SREQ *,cchar *,cchar **,cchar **) ;
 extern int sreq_objcheck(SREQ *) ;
 extern int sreq_objabort(SREQ *) ;

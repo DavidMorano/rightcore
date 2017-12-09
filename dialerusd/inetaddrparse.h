@@ -15,6 +15,7 @@
 /* local object defines */
 
 #define	INETADDRPARSE		struct inetaddrparse
+#define	INETADDRPARSE_SS	struct inetaddrparse_ss
 
 
 struct inetaddrparse_ss {
@@ -23,7 +24,7 @@ struct inetaddrparse_ss {
 } ;
 
 struct inetaddrparse {
-	struct inetaddrparse_ss	af, host, port ;
+	INETADDRPARSE_SS	af, host, port ;
 } ;
 
 
