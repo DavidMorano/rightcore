@@ -336,15 +336,20 @@ int mfsbuilt_curbegin(MFSBUILT *op,MFSBUILT_CUR *curp)
 	HDB		*dbp ;
 	HDB_CUR		*hcp ;
 	int		rs ;
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_curbegin: ent\n") ;
+#endif
 	if (op == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
 	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
-	if (curp->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
 	dbp = &op->db ;
 	hcp = &curp->hcur ;
 	if ((rs = hdb_curbegin(dbp,hcp)) >= 0) {
 	    curp->magic = MFSBUILT_MAGIC ;
 	}
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_curbegin: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfsbuilt_curbegin) */
@@ -356,6 +361,9 @@ int mfsbuilt_curend(MFSBUILT *op,MFSBUILT_CUR *curp)
 	HDB_CUR		*hcp ;
 	int		rs = SR_OK ;
 	int		rs1 ;
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_curend: ent\n") ;
+#endif
 	if (op == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
 	if (op->magic != MFSBUILT_MAGIC) return SR_NOTOPEN ;
@@ -365,6 +373,9 @@ int mfsbuilt_curend(MFSBUILT *op,MFSBUILT_CUR *curp)
 	rs1 = hdb_curend(dbp,hcp) ;
 	if (rs >= 0) rs = rs1 ;
 	curp->magic = 0 ;
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_curend: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfsbuilt_curend) */
@@ -383,11 +394,15 @@ int mfsbuilt_enum(MFSBUILT *op,MFSBUILT_CUR *curp,char *rbuf,int rlen)
 	dbp = &op->db ;
 	hcp = &curp->hcur ;
 	if ((rs = hdb_enum(dbp,hcp,&k,&v)) >= 0) {
+	    const int	sl = k.len ;
 	    cchar	*sp = (cchar *) k.buf ;
-	    rs = snwcpy(rbuf,rlen,sp,k.len) ;
+	    rs = snwcpy(rbuf,rlen,sp,sl) ;
 	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
 	}
+#if	CF_DEBUGS
+	debugprintf("mfsbuilt_enum: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (mfsbuilt_enum) */

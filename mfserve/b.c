@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 
 
@@ -3110,6 +3110,7 @@ static int procservice(PROGINFO *pip)
 			    shio_printf(pip->efp,fmt,pn,tbuf) ;
 		        } /* end if (lib_issig) */
 		    }
+
 #if	CF_DEBUG
 		    if (DEBUGLEVEL(4)) 
 	    	        debugprintf("pcsmain/procservice: while-bot rs=%d\n",

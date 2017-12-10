@@ -49,21 +49,14 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/socket.h>
-#include	<sys/uio.h>
-#include	<sys/msg.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<stropts.h>
-#include	<poll.h>
 #include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<msfile.h>
-#include	<sockaddress.h>
 #include	<poller.h>
 #include	<localmisc.h>
 
@@ -108,8 +101,6 @@
 #ifndef	DIGBUFLEN
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
-
-#define	DEBUGFNAME	"/tmp/mfs.deb"
 
 
 /* external subroutines */

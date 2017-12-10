@@ -1634,7 +1634,7 @@ static int mfswatch_builthandle(PROGINFO *pip,SREQ *jep,cchar **sav)
 static int mfswatch_svchelp(PROGINFO *pip,SREQ *jep)
 {
 	svcprocer_t	w = (svcprocer_t) mfswatch_svchelper ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		f = FALSE ;
 	if (pip == NULL) return SR_FAULT ;
 	if (jep == NULL) return SR_FAULT ;
@@ -1702,24 +1702,79 @@ static int mfswatch_loadsvcs(PROGINFO *pip,SREQ *jep)
 	int		rs1 ;
 	int		c = 0 ;
 	char		*ebuf ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5)) {
+	    debugprintf("mfswatch_loadsvcs: ent\n") ;
+	    debugprintf("mfswatch_loadsvcs: f_svcfile=%u\n",
+		wip->open.svcfile) ;
+	    debugprintf("mfswatch_loadsvcs: f_built=%u\n",
+		wip->open.built) ;
+	}
+#endif
 	if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
-	    SVCFILE	*sfp = &wip->tabs ;
-	    SVCFILE_CUR	cur ;
-	    if ((rs = svcfile_curbegin(sfp,&cur)) >= 0) {
-	        SVCFILE_ENT 	e ;
-	        const int	rsn = SR_NOTFOUND ;
-	        while ((rs1 = svcfile_enum(sfp,&cur,&e,ebuf,elen)) >= 0) {
-	            rs = sreq_snadd(jep,e.svc,-1) ;
-	            c += rs ;
-	            if (rs < 0) break ;
-	        } /* end while */
-	        if ((rs >= 0) && (rs1 != rsn)) rs = rs1 ;
-	        rs1 = svcfile_curend(sfp,&cur) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (svcfile-cur) */
+	    const int	rsn = SR_NOTFOUND ;
+	    if ((rs >= 0) && wip->open.svcfile) {
+	        SVCFILE		*sfp = &wip->tabs ;
+	        SVCFILE_CUR	cur ;
+	        if ((rs = svcfile_curbegin(sfp,&cur)) >= 0) {
+	            SVCFILE_ENT 	e ;
+	            while ((rs1 = svcfile_enum(sfp,&cur,&e,ebuf,elen)) >= 0) {
+#if	CF_DEBUG
+		if (DEBUGLEVEL(5))
+		debugprintf("mfswatch_loadsvcs: svc=%s\n",e.svc) ;
+#endif
+	                rs = sreq_snadd(jep,e.svc,-1) ;
+	                c += 1 ;
+	                if (rs < 0) break ;
+	            } /* end while */
+	            if ((rs >= 0) && (rs1 != rsn)) rs = rs1 ;
+	            rs1 = svcfile_curend(sfp,&cur) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (svcfile-cur) */
+	    } /* end if (f_svcfile) */
+#if	CF_DEBUG
+		if (DEBUGLEVEL(5))
+		debugprintf("mfswatch_loadsvcs: mid1 rs=%d\n",rs) ;
+#endif
+	    if ((rs >= 0) && wip->open.built) {
+		MFSBUILT	*blp = &wip->built ;
+		MFSBUILT_CUR	cur ;
+		if ((rs = mfsbuilt_curbegin(blp,&cur)) >= 0) {
+		    while ((rs = mfsbuilt_enum(blp,&cur,ebuf,elen)) > 0) {
+#if	CF_DEBUG
+		if (DEBUGLEVEL(5))
+		debugprintf("mfswatch_loadsvcs: el=%u ebuf=%s\n",rs,ebuf) ;
+#endif
+	            	rs = sreq_snadd(jep,ebuf,rs) ;
+	                c += 1 ;
+			if (rs < 0) break ;
+		    } /* end while */
+#if	CF_DEBUG
+		if (DEBUGLEVEL(5))
+		debugprintf("mfswatch_loadsvcs: "
+			"mfsbuilt_curbegin while-out rs=%d\n",rs) ;
+#endif
+		    rs1 = mfsbuilt_curend(blp,&cur) ;
+	    	    if (rs >= 0) rs = rs1 ;
+#if	CF_DEBUG
+		if (DEBUGLEVEL(5))
+		debugprintf("mfswatch_loadsvcs: "
+			"mfsbuilt_curbegin mfsbuilt_curend() rs=%d\n",rs) ;
+#endif
+		} /* end if (mfsbuilt-cur) */
+#if	CF_DEBUG
+		if (DEBUGLEVEL(5))
+		debugprintf("mfswatch_loadsvcs: "
+			"mfsbuilt_curbegin out rs=%d\n",rs) ;
+#endif
+	    } /* end if (f_built) */
 	    rs1 = uc_free(ebuf) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (m-a) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("mfswatch_loadsvcs: ret rs=%d c=%u\n",rs,c) ;
+#endif
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (mfswatch_loadsvcs) */
