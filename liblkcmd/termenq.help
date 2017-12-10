@@ -1,6 +1,6 @@
 TERMENQ
 
-This little program queries (enquires to) a terminal for its answerback message
+This little command queries (enquires to) a terminal for its answerback message
 and then just prints it out.
 
 Synosps:

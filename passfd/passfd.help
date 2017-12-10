@@ -1,6 +1,6 @@
 PASSFD
 
-This program passing a file-descriptor given as its standard-input to the
+This program passes a file-descriptor given as its standard-input to the
 specified pass-file given as an invocation argument.
 
 Synopsis:

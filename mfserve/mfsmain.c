@@ -2963,9 +2963,13 @@ static int procdaemon(PROGINFO *pip)
 	                    if ((rs = procservice(pip)) >= 0) {
 	                        c = rs ;
 			    }
+			    if (rs < 0) {
+				cchar	*fmt = "failed (%d)" ;
+				logprintf(pip,fmt,rs) ;
+			    }
 			    rs1 = locinfo_daemonend(lip) ;
 			    if (rs >= 0) rs = rs1 ;
-	                }
+	                } /* end if (locinfo-daemon) */
 	                rs1 = locinfo_lockend(lip) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (lock) */
