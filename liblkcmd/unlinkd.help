@@ -8,3 +8,8 @@ specified by the second argument.
 It also can work in "input" mode.  Without arguments, it will read its standard
 input for filename-delay_time pairs, one per line.
 
+Synopsis:
+$ unlinkd
+
+Arguments:
+

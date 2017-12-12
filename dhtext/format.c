@@ -5,7 +5,6 @@
 
 
 #define	CF_DEBUGS	0	/* turn on debugging */
-#define	CF_DEBUGN	0	/* debug w/ 'nprintf(3b)' */
 #define	CF_FLOAT	1	/* do you want floating output conversions? */
 #define	CF_LIMITS	1	/* do you have a 'limits.h' include? */
 #define	CF_LPRINT	0	/* the local-print subroutines */
@@ -152,7 +151,7 @@
 
 #define	MAXLEN		(MAXPATHLEN + 40)
 
-#define	NDF		"format.np"
+#define	NDF		"format.nd"
 
 #define MAXDECDIG_I	10		/* decimal digits in 'int' */
 #define MAXDECDIG_UI	10		/* decimal digits in 'uint' */
@@ -222,10 +221,9 @@ extern int	hasprintbad(const char *,int) ;
 extern int	isprintbad(int) ;
 extern int	isprintlatin(int) ;
 
-#if	CF_DEBUGS || CF_DEBUGN
+#if	CF_DEBUGS
 extern int	mkhexstr(char *,int,void *,int) ;
 extern int	hexblock(const char *,void *,int) ;
-extern int	nprintf(cchar *,cchar *,...) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -679,11 +677,6 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	                    fprintf(stderr,"format: s sl=%d sp{%p}=>%s<\n",
 	                        sd.sl,sd.sp,dbuf) ;
 	                }
-#endif
-
-#if	CF_DEBUGN
-	                nprintf(NDF,"format: s sl=%d sp{%p}\n",
-	                    sd.sl,sd.sp) ;
 #endif
 
 	                rs = subinfo_fmtstr(sip,fsp,&sd) ;

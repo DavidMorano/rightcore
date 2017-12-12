@@ -159,15 +159,26 @@ int mfscmd(PROGINFO *pip,cchar *ofn)
 		MFSC		c ;
 		const int	to = TO_OPENSERVE ;
 		cchar		*pr = pip->pr ;
-		if ((rs = mfsc_open(&c,pr,to)) >= 0) {
+		if ((rs = mfsc_open(&c,pr,to)) > 0) {
 		    {
 			rs = mfscmder(pip,&c,ofp) ;
 			wlen += rs ;
 		    }
 	    	    rs1 = mfsc_close(&c) ;
 	    	    if (rs >= 0) rs = rs1 ;
-		} else if (isNotPresent(rs)) {
+		} else if (rs == 0) {
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfscmd: SN rs=%d\n",rs) ;
+#endif
 	    	    fmt = "%s: server not available (%d)\n" ;
+	    	    shio_printf(pip->efp,fmt,pn,rs) ;
+		} else if (isNotPresent(rs)) {
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfscmd: SF rs=%d\n",rs) ;
+#endif
+	    	    fmt = "%s: server failure (%d)\n" ;
 	    	    shio_printf(pip->efp,fmt,pn,rs) ;
 		} /* end if (mfsc) */
 		rs1 = shio_close(ofp) ;
@@ -178,6 +189,11 @@ int mfscmd(PROGINFO *pip,cchar *ofn)
 		shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	   } /* end if (file-output) */
 	} /* end if (positive) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	debugprintf("mfscmd: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 
 	return (rs >= 0) ? wlen : rs ;
 }

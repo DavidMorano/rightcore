@@ -64,7 +64,7 @@ static int	procline(struct proginfo *,int,const char *,int) ;
 
 /* local variables */
 
-static const char	blanks[] = "        " ;
+static cchar	blanks[] = "        " ;
 
 
 /* exported subroutines */
@@ -111,10 +111,10 @@ static int procdebugouter(PROGINFO *pip,int cols,cchar *s,cchar *fn)
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
-	int		f_title = FALSE ;
 	cchar		*pn = pip->progname ;
 	if ((rs = bopen(ofp,fn,"r",0666)) >= 0) {
 	    const int	llen = LINEBUFLEN ;
+	    int		f_title = FALSE ;
 	    char	lbuf[LINEBUFLEN + 1] ;
 
 	    while ((rs = breadline(ofp,lbuf,llen)) > 0) {
@@ -122,10 +122,12 @@ static int procdebugouter(PROGINFO *pip,int cols,cchar *s,cchar *fn)
 
 	        if (lbuf[len - 1] == '\n') lbuf[--len] = '\0' ;
 
-	        if ((! f_title) && (len > 0) && (s != NULL) && (s[0] != '\0')) {
-	            f_title = TRUE ;
-	            rs = shio_printf(pip->efp,"%s: %s>\n",pn,s) ;
-	            wlen += rs ;
+	        if ((! f_title) && (len > 0)) {
+		    if ((s != NULL) && (s[0] != '\0')) {
+	                f_title = TRUE ;
+	                rs = shio_printf(pip->efp,"%s: %s>\n",pn,s) ;
+	                wlen += rs ;
+		    }
 	        }
 
 	        if (rs >= 0) {
@@ -154,18 +156,18 @@ static int procline(PROGINFO *pip,int columns,cchar *lp,int ll)
 	int		leadlen ;
 	int		textlen ;
 	int		wlen = 0 ;
-	const char	*pn = pip->progname ;
+	cchar		*pn = pip->progname ;
 
 	leadlen = (strlen(pn) + 4) ;
 	textlen = (columns - leadlen) ;
 	if (textlen > 1) {
 	    LINEFOLD	lf ;
 	    if ((rs = linefold_start(&lf,textlen,indent,lp,ll)) >= 0) {
-	        int		ind = 0 ;
-	        int		i ;
-	        int		cl ;
-		const char	*fmt = "%s: | %t%t\n" ;
-	        const char	*cp ;
+	        int	ind = 0 ;
+	        int	i ;
+	        int	cl ;
+		cchar	*fmt = "%s: | %t%t\n" ;
+	        cchar	*cp ;
 	        for (i = 0 ; (cl = linefold_get(&lf,i,&cp)) >= 0 ; i += 1) {
 	            rs1 = shio_printf(efp,fmt,pn,blanks,ind,cp,cl) ;
 	            wlen += rs1 ;

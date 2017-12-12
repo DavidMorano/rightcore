@@ -102,12 +102,13 @@ extern int sreq_svcaccum(SREQ *,cchar *,int) ;
 extern int sreq_svcparse(SREQ *,int) ;
 extern int sreq_setlong(SREQ *,int) ;
 extern int sreq_setstate(SREQ *,int) ;
+extern int sreq_getjsn(SREQ *) ;
 extern int sreq_getsvc(SREQ *,cchar **) ;
 extern int sreq_getsubsvc(SREQ *,cchar **) ;
 extern int sreq_getstate(SREQ *) ;
-extern int sreq_ofd(SREQ *) ;
 extern int sreq_getstdin(SREQ *) ;
 extern int sreq_getstdout(SREQ *) ;
+extern int sreq_ofd(SREQ *) ;
 extern int sreq_closestdin(SREQ *) ;
 extern int sreq_closestdout(SREQ *) ;
 extern int sreq_closefds(SREQ *) ;
@@ -127,6 +128,8 @@ extern int sreq_objstart(SREQ *,cchar *,cchar **,cchar **) ;
 extern int sreq_objcheck(SREQ *) ;
 extern int sreq_objabort(SREQ *) ;
 extern int sreq_objfinish(SREQ *) ;
+extern int sreq_openstderr(SREQ *,cchar *) ;
+extern int sreq_closestderr(SREQ *) ;
 extern int sreq_finish(SREQ *) ;
 
 #ifdef	__cplusplus

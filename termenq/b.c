@@ -1,6 +1,6 @@
 /* b_termenq */
 
-/* SHELL built-in to return file-system information */
+/* SHELL built-in to enquire about terminal information */
 /* last modified %G% version %I% */
 
 
@@ -8,7 +8,6 @@
 #define	CF_DEBUG	1		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_STDIN	0		/* use standard-input */
-#define	CF_SETLINES	0		/* try to set the lines */
 #define	CF_UTERM	1		/* call UTERM */
 #define	CF_SEC		1		/* call secondary */
 #define	CF_ID		1		/* call ID */
@@ -68,9 +67,9 @@
 
 #include	"shio.h"
 #include	"kshlib.h"
-#include	"proglog.h"
 #include	"b_termenq.h"
 #include	"defs.h"
+#include	"proglog.h"
 
 
 /* local defines */
@@ -155,7 +154,6 @@ struct locinfo_flags {
 	uint		ws:1 ;			/* retrieved */
 	uint		opened:1 ;		/* terminal was opened */
 	uint		poll:1 ;
-	uint		enquire:1 ;
 	uint		ansi:1 ;		/* ANSI confirmance mode */
 	uint		latin1:1 ;		/* set ISO-Latin-1 in GR */
 } ;
@@ -188,7 +186,6 @@ static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procspecs(PROGINFO *,void *,cchar *,int) ;
 static int	procspec(PROGINFO *,void *, cchar *,int) ;
 static int	procget(PROGINFO *,void *,int) ;
-static int	procset(PROGINFO *,void *,int,cchar *,int) ;
 static int	procout(PROGINFO *,SHIO *,cchar *) ;
 static int	procsetlatin1(PROGINFO *) ;
 static int	procsetansi(PROGINFO *) ;
@@ -209,13 +206,12 @@ static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
 static int	locinfo_termbegin(LOCINFO *) ;
 static int	locinfo_termend(LOCINFO *) ;
-static int	locinfo_ws(LOCINFO *) ;
 static int	locinfo_setline(LOCINFO *,cchar *,int) ;
 
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -273,7 +269,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *progopts[] = {
+static cchar	*progopts[] = {
 	"poll",
 	"pollint",
 	"intpoll",
@@ -298,23 +294,15 @@ enum progopts {
 } ;
 
 /* define the configuration keywords */
-static cchar *qopts[] = {
-	"rows",
-	"lines",
-	"cols",
-	"xpixel",
-	"ypixel",
-	"pgrp",
+static cchar	*qopts[] = {
+	"answerback",
+	"type",
 	NULL
 } ;
 
 enum qopts {
-	qopt_rows,
-	qopt_lines,
-	qopt_cols,
-	qopt_xpixel,
-	qopt_ypixel,
-	qopt_pgrp,
+	qopt_answerback,
+	qopt_type,
 	qopt_overlast
 } ;
 
@@ -396,6 +384,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*afname = NULL ;
 	cchar		*efname = NULL ;
 	cchar		*ofname = NULL ;
+	cchar		*termline = NULL ;
 	cchar		*cp ;
 
 
@@ -602,13 +591,31 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
+	                case argopt_tf:
+			case argopt_dev:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            lip->termfname = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                lip->termfname = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
 			case argopt_line:
 	                    if (argr > 0) {
 	                        argp = argv[++ai] ;
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl) {
-				    rs = locinfo_setline(lip,argp,argl) ;
+				    termline = argp ;
 				}
 			    } else
 	              		rs = SR_INVALID ;
@@ -726,20 +733,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                        break ;
 
-/* query terminal-device */
-	                    case 'e':
-				lip->final.enquire = TRUE ;
-				lip->have.enquire = TRUE ;
-				lip->f.enquire = TRUE ;
-	                        if (f_optequal) {
-	                            f_optequal = FALSE ;
-	                            if (avl) {
-					rs = optbool(avp,avl) ;
-	                                lip->f.enquire = (rs > 0) ;
-				    }
-				}
-	                        break ;
-
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
@@ -831,8 +824,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    goto badarg ;
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -881,8 +873,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
-	if (lip->termline == NULL) {
-	    lip->termline = getourenv(envv,VARTERMLINE) ;
+	if (termline == NULL) {
+	    termline = getourenv(envv,VARTERMLINE) ;
 	}
 
 	if (lip->db == NULL) {
@@ -894,26 +886,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    debugprintf("b_termenq: termline=%s\n",lip->termline) ;
 #endif
 
-	if (rs >= 0) {
+	if ((rs = locinfo_setline(lip,termline,-1)) >= 0) {
 	     KEYOPT	*kop = &akopts ;
 	     rs = procopts(pip,kop) ;
 	}
-
-#ifdef	COMMENT
-	if ((rs >= 0) && (termfname == NULL)) {
-	    for (ai = ai_continue ; ai < argc ; ai += 1) {
-	        f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	        f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	        if (f) {
-	            termfname = argv[ai] ;
-		    if (termfname[0] != '\0') {
-	                ai_continue = (ai + 1) ;
-	                break ;
-		    }
-	        }
-	    } /* end for */
-	} /* end if (getting file to append to) */
-#endif /* COMMENT */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1189,11 +1165,9 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 
-	if (lip->f.enquire) {
+	if (lip->f.set) {
 	    if ((rs = procsetansi(pip)) >= 0) {
-		if ((rs = procsetlatin1(pip)) >= 0) {
-	            rs = procenq(pip) ;
-		}
+		rs = procsetlatin1(pip) ;
 	    }
 	} else {
 	    rs = procargs(pip,aip,bop,ofn,afn) ;
@@ -1202,88 +1176,6 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	return rs ;
 }
 /* end subroutine (process) */
-
-
-static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
-{
-	int		rs = SR_OK ;
-
-	pip->nodename = uip->nodename ;
-	pip->domainname = uip->domainname ;
-	pip->username = uip->username ;
-	pip->gecosname = uip->gecosname ;
-	pip->realname = uip->realname ;
-	pip->name = uip->name ;
-	pip->fullname = uip->fullname ;
-	pip->mailname = uip->mailname ;
-	pip->org = uip->organization ;
-	pip->logid = uip->logid ;
-	pip->pid = uip->pid ;
-	pip->uid = uip->uid ;
-	pip->euid = uip->euid ;
-	pip->gid = uip->gid ;
-	pip->egid = uip->egid ;
-
-	if (rs >= 0) {
-	    const int	hlen = MAXHOSTNAMELEN ;
-	    char	hbuf[MAXHOSTNAMELEN+1] ;
-	    cchar	*nn = pip->nodename ;
-	    cchar	*dn = pip->domainname ;
-	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-	        cchar	**vpp = &pip->hostname ;
-	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
-	    }
-	}
-
-	if (rs >= 0) {
-	    rs = procuserinfo_logid(pip) ;
-	} /* end if (ok) */
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_begin) */
-
-
-static int procuserinfo_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-	if (pip == NULL) return SR_FAULT ;
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_end) */
-
-
-static int procuserinfo_logid(PROGINFO *pip)
-{
-	int		rs ;
-	if ((rs = lib_runmode()) >= 0) {
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
-#endif
-	    if (rs & KSHLIB_RMKSH) {
-	        if ((rs = lib_serial()) >= 0) {
-	            const int	s = rs ;
-	            const int	plen = LOGIDLEN ;
-	            const int	pv = pip->pid ;
-	            cchar	*nn = pip->nodename ;
-	            char	pbuf[LOGIDLEN+1] ;
-	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
-	                const int	slen = LOGIDLEN ;
-	                char		sbuf[LOGIDLEN+1] ;
-	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
-	                    cchar	**vpp = &pip->logid ;
-	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
-	                }
-	            }
-	        } /* end if (lib_serial) */
-	    } /* end if (runmode-KSH) */
-	} /* end if (lib_runmode) */
-	return rs ;
-}
-/* end subroutine (procuserinfo_logid) */
 
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
@@ -1410,53 +1302,46 @@ static int procspecs(PROGINFO *pip,void *ofp,cchar *sp,int sl)
 
 
 /* process a specification name */
-static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
+static int procspec(PROGINFO *pip,void *ofp,cchar *rp,int rl)
 {
-	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	int		ri ;
-	int		vl ;
+	int		vl = 0 ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 	cchar		*tp ;
-	cchar		*vp ;
+	cchar		*vp = rp ;
 
-	if (rp == NULL)
-	    return SR_FAULT ;
+	if (rp == NULL) return SR_FAULT ;
 
 	if (rl < 0) rl = strlen(rp) ;
 
-	vp = NULL ;
-	vl = 0 ;
 	if ((tp = strnchr(rp,rl,'=')) != NULL) {
 	    vp = (tp+1) ;
 	    vl = ((rp+rl) - (tp+1)) ;
 	    rl = (tp-rp) ;
 	}
 
-	ri = matocasestr(qopts,2,rp,rl) ;
-
-	if (pip->debuglevel > 0) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt ;
-	    if (ri >= 0) {
-		fmt = "%s: spec=%t (%d)\n" ;
-	        shio_printf(pip->efp,fmt, pn,rp,rl,ri) ;
-	    } else {
-		fmt = "%s: spec=%t notfound\n" ;
-	        shio_printf(pip->efp,fmt, pn,rp,rl) ;
-	    }
+	if ((pip->debuglevel > 0) && (vp != NULL)) {
+		fmt = "%s: v=%t\n" ;
+	        shio_printf(pip->efp,fmt,pn,vp,vl) ;
 	}
 
-	if (ri >= 0) {
-	    if (lip->f.set) {
-	        rs = procset(pip,ofp,ri,vp,vl) ;
-	        wlen += rs ;
-	    } else {
+	if ((ri = matocasestr(qopts,2,rp,rl)) >= 0) {
+	if (pip->debuglevel > 0) {
+		fmt = "%s: spec=%t (%d)\n" ;
+	        shio_printf(pip->efp,fmt, pn,rp,rl,ri) ;
+	}
 	        rs = procget(pip,ofp,ri) ;
 	        wlen += rs ;
-	    }
-	} else
+	} else {
+	if (pip->debuglevel > 0) {
+		fmt = "%s: spec=%t notfound\n" ;
+	        shio_printf(pip->efp,fmt, pn,rp,rl) ;
+	}
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -1466,12 +1351,11 @@ static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 /* process a specification name */
 static int procget(PROGINFO *pip,void *ofp,int ri)
 {
-	LOCINFO		*lip = pip->lip ;
-	uint		uv ;
+	uint		uv = 0 ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		wlen = 0 ;
-	char		cvtbuf[CVTBUFLEN + 1] ;
+	char		cvtbuf[CVTBUFLEN + 1] = { 0 } ;
 	char		*cbp = NULL ;
 
 #if	CF_DEBUG && 0
@@ -1484,41 +1368,15 @@ static int procget(PROGINFO *pip,void *ofp,int ri)
 	}
 #endif
 
-	cvtbuf[0] = '\0' ;
 	cbp = cvtbuf ;
 
 	switch (ri) {
-	case qopt_rows:
-	case qopt_lines:
-	case qopt_cols:
-	case qopt_xpixel:
-	case qopt_ypixel:
-	    if (! lip->init.ws) rs = locinfo_ws(lip) ;
-	    if (rs >= 0) {
-	        switch (ri) {
-	        case qopt_rows:
-	        case qopt_lines:
-	            uv = lip->ws.ws_row ;
-	            break ;
-	        case qopt_cols:
-	            uv = lip->ws.ws_col ;
-	            break ;
-	        case qopt_xpixel:
-	            uv = lip->ws.ws_xpixel ;
-	            break ;
-	        case qopt_ypixel:
-	            uv = lip->ws.ws_ypixel ;
-	            break ;
-	        } /* end switch */
-	    } /* end if */
-	    break ;
-	case qopt_pgrp:
-	    if ((rs = uc_tcgetpgrp(lip->tfd)) >= 0) {
-	        uv = rs ;
-	    }
+	case qopt_answerback:
+	case qopt_type:
+	            rs = procenq(pip) ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
-	        debugprintf("b_termenq/procget: uc_tcgetpgrp() rs=%d \n",rs) ;
+	        debugprintf("b_termenq/procget: procenq() rs=%d \n",rs) ;
 #endif
 	    break ;
 	default:
@@ -1544,69 +1402,6 @@ static int procget(PROGINFO *pip,void *ofp,int ri)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procget) */
-
-
-static int procset(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
-{
-	LOCINFO		*lip = pip->lip ;
-	uint		uv ;
-	int		rs = SR_OK ;
-
-	switch (ri) {
-	case qopt_rows:
-	case qopt_lines:
-	case qopt_cols:
-	case qopt_xpixel:
-	case qopt_ypixel:
-	    if ((vl > 0) && ((rs = cfdecui(vp,vl,&uv)) >= 0)) {
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(2))
-	            debugprintf("b_termenq/procget: new v=%u\n",uv) ;
-#endif
-	        if ((rs >= 0) && (! lip->init.ws)) rs = locinfo_ws(lip) ;
-	        if (rs >= 0) {
-	            switch (ri) {
-	            case qopt_rows:
-	            case qopt_lines:
-	                if (lip->ws.ws_row != uv) {
-	                    lip->ws.ws_row = uv ;
-	                    lip->changed.ws = TRUE ;
-	                }
-	                break ;
-	            case qopt_cols:
-	                if (lip->ws.ws_col != uv) {
-	                    lip->ws.ws_col = uv ;
-	                    lip->changed.ws = TRUE ;
-	                }
-	                break ;
-	            case qopt_xpixel:
-	                if (lip->ws.ws_xpixel != uv) {
-	                    lip->ws.ws_xpixel = uv ;
-	                    lip->changed.ws = TRUE ;
-	                }
-	                break ;
-	            case qopt_ypixel:
-	                if (lip->ws.ws_ypixel != uv) {
-	                    lip->ws.ws_ypixel = uv ;
-	                    lip->changed.ws = TRUE ;
-	                }
-	                break ;
-	            } /* end switch */
-	        } /* end if */
-	    } /* end if */
-	    break ;
-	default:
-	    rs = SR_INVALID ;
-	    break ;
-	} /* end switch */
-
-	if ((rs >= 0) && (pip->verboselevel > 1)) {
-	    shio_printf(ofp,"%s: successfully set\n",pip->progname) ;
-	}
-
-	return rs ;
-}
-/* end subroutine (procset) */
 
 
 static int procout(PROGINFO *pip,SHIO *ofp,cchar *buf)
@@ -1690,8 +1485,10 @@ int procenq(PROGINFO *pip)
 	int		tfd ;
 	tfd = lip->tfd ;
 
-
-
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("termenq/procenq: ent\n") ;
+#endif
 
 #if	CF_UTERM
 	if (rs >= 0) {
@@ -1716,42 +1513,14 @@ int procenq(PROGINFO *pip)
 	} /* end if (ok) */
 #endif /* CF_UTERM */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("termenq/procenq: ret rs=%d\n",rs) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (procenq) */
-
-
-#if	CF_ID
-static int procenq_id(PROGINFO *pip,UTERM *utp,char *cbuf,int clen)
-{
-	int		rs ;
-	if ((rs = sncpy1(cbuf,clen,"\033Z")) >= 0) {
-	if ((rs = uterm_write(utp,cbuf,rs)) >= 0) {
-	    TERMCMD	c ;
-	    const int	to = pip->to_read ;
-	    if ((rs = uterm_readcmd(utp,&c,to,0)) >= 0) {
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    TERMCMD	*cmdp = &c ;
-	    int	i ;
-	    debugprintf("termenq/procenq_proc: type=%u\n",cmdp->type) ;
-	    debugprintf("termenq/procenq_proc: name=%04x\n",cmdp->name) ;
-	    debugprintf("termenq/procenq_proc: parameters¬\n") ;
-	    for (i = 0 ; i < TERMCMD_NP ; i += 1) {
-		int	param = (cmdp->p[i] & USHORT_MAX) ;
-		if (param == TERMCMD_PEOL) break ;
-	        debugprintf("termenq/procenq_proc: p[%2u]=%04x(%u)\n",
-			i,cmdp->p[i],cmdp->p[i]) ;
-	    } /* end for */
-	}
-#endif /* CF_DEBUG */
-	    } /* end if (uterm_readcmd) */
-	} /* end if (uterm_write) */
-	} /* end if (termconseq) */
-	return rs ;
-}
-/* end subroutine (procenq_id) */
-#endif /* CF_ID */
 
 
 static int procenq_primary(PROGINFO *pip,UTERM *utp,char *cbuf,int clen)
@@ -1759,27 +1528,29 @@ static int procenq_primary(PROGINFO *pip,UTERM *utp,char *cbuf,int clen)
 	const int	name = 'c' ;
 	int		rs ;
 	if ((rs = termconseq(cbuf,clen,name,-1,-1,-1,-1)) >= 0) {
-	if ((rs = uterm_write(utp,cbuf,rs)) >= 0) {
-	    TERMCMD	c ;
-	    const int	to = pip->to_read ;
-	    if ((rs = uterm_readcmd(utp,&c,to,0)) >= 0) {
+	    if ((rs = uterm_write(utp,cbuf,rs)) >= 0) {
+	        TERMCMD		c ;
+	        const int	to = pip->to_read ;
+	        if ((rs = uterm_readcmd(utp,&c,to,0)) >= 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    TERMCMD	*cmdp = &c ;
-	    int	i ;
-	    debugprintf("termenq/procenq_proc: type=%u\n",cmdp->type) ;
-	    debugprintf("termenq/procenq_proc: name=%04x\n",cmdp->name) ;
-	    debugprintf("termenq/procenq_proc: parameters¬\n") ;
-	    for (i = 0 ; i < TERMCMD_NP ; i += 1) {
-		int	param = (cmdp->p[i] & USHORT_MAX) ;
-		if (param == TERMCMD_PEOL) break ;
-	        debugprintf("termenq/procenq_proc: p[%2u]=%04x(%u)\n",
-			i,cmdp->p[i],cmdp->p[i]) ;
-	    } /* end for */
-	}
+	            if (DEBUGLEVEL(4)) {
+	                TERMCMD	*cmdp = &c ;
+	                int	i ;
+	                debugprintf("termenq/procenq_pri: type=%u\n",
+				cmdp->type) ;
+	                debugprintf("termenq/procenq_pri: name=%04x\n",
+				cmdp->name) ;
+	                debugprintf("termenq/procenq_pri: parameters¬\n") ;
+	    		for (i = 0 ; i < TERMCMD_NP ; i += 1) {
+			    int	param = (cmdp->p[i] & USHORT_MAX) ;
+			    if (param == TERMCMD_PEOL) break ;
+	        	    debugprintf("termenq/procenq_pri: "
+			        "p[%2u]=%04x(%u)\n", i,cmdp->p[i],cmdp->p[i]) ;
+	    	        } /* end for */
+		    }
 #endif /* CF_DEBUG */
-	    } /* end if (uterm_readcmd) */
-	} /* end if (uterm_write) */
+	        } /* end if (uterm_readcmd) */
+	    } /* end if (uterm_write) */
 	} /* end if (termconseq) */
 	return rs ;
 }
@@ -1793,30 +1564,149 @@ static int procenq_secondary(PROGINFO *pip,UTERM *utp,char *cbuf,int clen)
 	cchar		*is = ">" ;
 	if ((rs = termconseqi(cbuf,clen,name,is,-1,-1,-1,-1)) >= 0) {
 	    if ((rs = uterm_write(utp,cbuf,rs)) >= 0) {
-	    TERMCMD	c ;
-	    const int	to = pip->to_read ;
-	    if ((rs = uterm_readcmd(utp,&c,to,0)) >= 0) {
+	        TERMCMD		c ;
+	        const int	to = pip->to_read ;
+	        if ((rs = uterm_readcmd(utp,&c,to,0)) >= 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    TERMCMD	*cmdp = &c ;
-	    int	i ;
-	    debugprintf("termenq/procenq_proc: type=%u\n",cmdp->type) ;
-	    debugprintf("termenq/procenq_proc: name=%04x\n",cmdp->name) ;
-	    debugprintf("termenq/procenq_proc: parameters¬\n") ;
-	    for (i = 0 ; i < TERMCMD_NP ; i += 1) {
-		int	param = (cmdp->p[i] & USHORT_MAX) ;
-		if (param == TERMCMD_PEOL) break ;
-	        debugprintf("termenq/procenq_proc: p[%2u]=%04x(%u)\n",
-			i,cmdp->p[i],cmdp->p[i]) ;
-	    } /* end for */
-	}
+	            if (DEBUGLEVEL(4)) {
+	                TERMCMD	*cmdp = &c ;
+	                int	i ;
+	                debugprintf("termenq/procenq_sec: type=%u\n",
+				cmdp->type) ;
+	    		debugprintf("termenq/procenq_sec: name=%04x\n",
+				cmdp->name) ;
+	    		debugprintf("termenq/procenq_sec: parameters¬\n") ;
+	    		for (i = 0 ; i < TERMCMD_NP ; i += 1) {
+			    int	param = (cmdp->p[i] & USHORT_MAX) ;
+			    if (param == TERMCMD_PEOL) break ;
+	        	    debugprintf("termenq/procenq_sec: "
+				"p[%2u]=%04x(%u)\n", i,cmdp->p[i],cmdp->p[i]) ;
+	    	        } /* end for */
+		    }
 #endif /* CF_DEBUG */
-	    } /* end if (uterm_readcmd) */
+	        } /* end if (uterm_readcmd) */
 	    } /* end if (uterm_write) */
 	} /* end if (termconseqi) */
 	return rs ;
 }
 /* end subroutine (procenq_secondary) */
+
+
+#if	CF_ID
+static int procenq_id(PROGINFO *pip,UTERM *utp,char *cbuf,int clen)
+{
+	int		rs ;
+	if ((rs = sncpy1(cbuf,clen,"\033Z")) >= 0) {
+	    if ((rs = uterm_write(utp,cbuf,rs)) >= 0) {
+	        TERMCMD		c ;
+	        const int	to = pip->to_read ;
+	        if ((rs = uterm_readcmd(utp,&c,to,0)) >= 0) {
+#if	CF_DEBUG
+		    if (DEBUGLEVEL(4)) {
+	    	        TERMCMD	*cmdp = &c ;
+	    	        int	i ;
+	    	        debugprintf("termenq/procenq_proc: type=%u\n",
+			    cmdp->type) ;
+	    	        debugprintf("termenq/procenq_proc: name=%04x\n",
+			    cmdp->name) ;
+	    	        debugprintf("termenq/procenq_proc: parameters¬\n") ;
+	    	        for (i = 0 ; i < TERMCMD_NP ; i += 1) {
+			    int	param = (cmdp->p[i] & USHORT_MAX) ;
+			    if (param == TERMCMD_PEOL) break ;
+	        	    debugprintf("termenq/procenq_proc: "
+				"p[%2u]=%04x(%u)\n", i,cmdp->p[i],cmdp->p[i]) ;
+	    	        } /* end for */
+		    }
+#endif /* CF_DEBUG */
+	        } /* end if (uterm_readcmd) */
+	    } /* end if (uterm_write) */
+	} /* end if (termconseq) */
+	return rs ;
+}
+/* end subroutine (procenq_id) */
+#endif /* CF_ID */
+
+
+static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
+{
+	int		rs = SR_OK ;
+
+	pip->nodename = uip->nodename ;
+	pip->domainname = uip->domainname ;
+	pip->username = uip->username ;
+	pip->gecosname = uip->gecosname ;
+	pip->realname = uip->realname ;
+	pip->name = uip->name ;
+	pip->fullname = uip->fullname ;
+	pip->mailname = uip->mailname ;
+	pip->org = uip->organization ;
+	pip->logid = uip->logid ;
+	pip->pid = uip->pid ;
+	pip->uid = uip->uid ;
+	pip->euid = uip->euid ;
+	pip->gid = uip->gid ;
+	pip->egid = uip->egid ;
+
+	if (rs >= 0) {
+	    const int	hlen = MAXHOSTNAMELEN ;
+	    char	hbuf[MAXHOSTNAMELEN+1] ;
+	    cchar	*nn = pip->nodename ;
+	    cchar	*dn = pip->domainname ;
+	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	        cchar	**vpp = &pip->hostname ;
+	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
+	    }
+	}
+
+	if (rs >= 0) {
+	    rs = procuserinfo_logid(pip) ;
+	} /* end if (ok) */
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_begin) */
+
+
+static int procuserinfo_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_end) */
+
+
+static int procuserinfo_logid(PROGINFO *pip)
+{
+	int		rs ;
+	if ((rs = lib_runmode()) >= 0) {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
+#endif
+	    if (rs & KSHLIB_RMKSH) {
+	        if ((rs = lib_serial()) >= 0) {
+	            const int	s = rs ;
+	            const int	plen = LOGIDLEN ;
+	            const int	pv = pip->pid ;
+	            cchar	*nn = pip->nodename ;
+	            char	pbuf[LOGIDLEN+1] ;
+	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
+	                const int	slen = LOGIDLEN ;
+	                char		sbuf[LOGIDLEN+1] ;
+	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
+	                    cchar	**vpp = &pip->logid ;
+	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
+	                }
+	            }
+	        } /* end if (lib_serial) */
+	    } /* end if (runmode-KSH) */
+	} /* end if (lib_runmode) */
+	return rs ;
+}
+/* end subroutine (procuserinfo_logid) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
@@ -1941,60 +1831,29 @@ static int locinfo_termend(LOCINFO *lip)
 /* end subroutine (locinfo_termend) */
 
 
-static int locinfo_ws(LOCINFO *lip)
-{
-	PROGINFO	*pip = lip->pip ;
-	int		rs = SR_OK ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("b_termenq/locinfo_ws: tfd=%d\n",lip->tfd) ;
-#endif
-
-	if (! lip->init.ws) {
-	    lip->init.ws = TRUE ;
-	    if ((rs = tcgetws(lip->tfd,&lip->ws)) >= 0) {
-	        lip->f.ws = TRUE ;
-	    } else {
-		cchar	*pn = pip->progname ;
-		cchar	*fmt = "%s: terminal information inaccessible (%d)\n" ;
-	        shio_printf(pip->efp,fmt,pn,rs) ;
-	    }
-	} /* end if (needed init) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("b_termenq/locinfo_ws: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (locinfo_ws) */
-
-
 static int locinfo_setline(LOCINFO *lip,cchar *argp,int argl)
 {
 	int		rs = SR_OK ;
-	int		m ;
-	cchar		*dev = "/dev/" ;
-	cchar		**vpp ;
-	if ((m = nleadstr(dev,argp,argl)) >= 6) {
-	    vpp = &lip->termfname ;
-	    rs = locinfo_setentry(lip,vpp,argp,argl) ;
-	    argp += m ;
-	    argl -= m ;
-	}
-	if (rs >= 0) {
-	    cchar	**vpp = &lip->termline ;
-	    if ((rs = locinfo_setentry(lip,vpp,argp,argl)) >= 0) {
-		if (lip->termfname == NULL) {
+	if (argp != NULL) {
+	    if (lip->termfname == NULL) {
+	        int	m ;
+	        cchar	*dev = "/dev/" ;
+	        cchar	**vpp ;
+	        if ((m = nleadstr(dev,argp,argl)) >= 6) {
+	            vpp = &lip->termfname ;
+	            rs = locinfo_setentry(lip,vpp,argp,argl) ;
+	            argp += m ;
+	            argl -= m ;
+	        }
+	        if (rs >= 0) {
 		    char	tbuf[MAXNAMELEN+1] ;
 		    if ((rs = mkpath2w(tbuf,dev,argp,argl)) >= 0) {
-	    		cchar	**vpp = &lip->termfname ;
-			rs = locinfo_setentry(lip,vpp,tbuf,rs) ;
+		        cchar	**vpp = &lip->termfname ;
+		        rs = locinfo_setentry(lip,vpp,tbuf,rs) ;
 		    }
-		}
-	    }
-	}
+	        }
+	    } /* end if */
+	} /* end if */
 	return rs ;
 }
 /* end subroutine (locinfo_setline) */

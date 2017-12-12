@@ -4,6 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGN	0		/* special debugging */
 #define	CF_DEBUGTT	0		/* debug-test 'tt' */
 
 
@@ -47,18 +48,33 @@
 /* local defines */
 
 #ifndef	NYEARS_CENTURY
-#define	NYEARS_CENTURY		100
+#define	NYEARS_CENTURY	100
 #endif
 
 #ifndef	TIMEBUFLEN
-#define	TIMEBUFLEN		80
+#define	TIMEBUFLEN	80
 #endif
+
+#ifndef	ORG
+#define	ORG		"RNS" ;
+#endif
+
+#define	NDF		"timestr.nd"
 
 
 /* external subroutines */
 
-extern int	bufprintf(char *,int,const char *,...) ;
+extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	getmjd(int,int,int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+#if	CF_DEBUGN
+extern int	nprintf(cchar *,cchar *,...) ;
+#endif
 
 
 /* local structures */
@@ -78,75 +94,87 @@ char *timestr_nist(time_t t,struct nistinfo *nip,char *tbuf)
 	struct tm	tsz, *tszp = &tsz ;
 	struct tm	tsl, *tslp = &tsl ;
 	const int	tlen = TIMEBUFLEN ;
-	int		rs = SR_OK ;
-	int		cl ;
-	int		mjd ;
-	int		tt ;
-	int		adv_int, adv_fra ;
-	int		ocl = -1 ;
-	const char	*ocp = "RNS" ;
-	const char	*fmt ;
+	int		rs ;
+
+#if	CF_DEBUGN
+	nprintf(NDF,"timestr_nist: ent\n") ;
+#endif
 
 	if (nip == NULL) rs = SR_FAULT ;
 	if (tbuf == NULL) rs = SR_FAULT ;
 
 	if (t == 0) t = time(NULL) ;
 
-	if (rs >= 0) rs = uc_gmtime(&t,tszp) ;
-
-	if (rs >= 0) rs = uc_localtime(&t,tslp) ;
-
-	if (rs >= 0) {
-
-#if	CF_DEBUGS
-	debugprintf("timestr_nist: y=%u m=%u d=%u\n",
-		tszp->tm_year,tszp->tm_mon,tszp->tm_mday) ;
-#endif
-
-	mjd = getmjd(tszp->tm_year,tszp->tm_mon,tszp->tm_mday) ;
+	tbuf[0] = '\0' ;
+	if ((rs = uc_gmtime(&t,tszp)) >= 0) {
+	    if ((rs = uc_localtime(&t,tslp)) >= 0) {
+	        const int	y = tszp->tm_year ;
+	        const int	m = tszp->tm_mon ;
+	        const int	d = tszp->tm_mday ;
 
 #if	CF_DEBUGS
-	debugprintf("timestr_nist: getmjd() rs=%d\n",mjd) ;
+	        debugprintf("timestr_nist: y=%u m=%u d=%u\n",y,m,d) ;
 #endif
 
-	adv_int = (nip->adv / 10) ;
-	adv_fra = (nip->adv % 10) ;
-
-#if	CF_DEBUGTT
-	tt = 1 ;
-#else
-	tt = nip->tt ;
-	if (tt == 0) {
-	    if (tslp->tm_isdst) tt = 50 ;
-	}
-#endif
+	        if ((rs = getmjd(y,m,d)) >= 0) {
+	            const int	mjd = rs ;
+	            const int	adv_int = (nip->adv / 10) ;
+	            const int	adv_fra = (nip->adv % 10) ;
+	            int		tt = nip->tt ;
+	            int		ocl = -1 ;
+	            cchar	*ocp = ORG ;
+	            cchar	*fmt ;
 
 #if	CF_DEBUGS
-	debugprintf("timestr_nist: tt=%d\n",tt) ;
+	            debugprintf("timestr_nist: getmjd() rs=%d\n",mjd) ;
 #endif
 
-	if (nip->org[0] != '\0') {
-	    ocp = nip->org ;
-	    ocl = strnlen(nip->org,NISTINFO_ORGSIZE) ;
-	}
+	            if (tt == 0) {
+	                if (tslp->tm_isdst) tt = 50 ;
+	            }
 
-	fmt = "%05u %02u-%02u-%02u %02u:%02u:%02u" 
-		" %02u %u %1u %03u.%01u UTC(%t) *",
-	rs = bufprintf(tbuf,tlen,fmt,
-	    mjd,
-	    (tszp->tm_year % NYEARS_CENTURY),
-	    (tszp->tm_mon + 1),
-	    tszp->tm_mday,
-	    tszp->tm_hour,
-	    tszp->tm_min,
-	    tszp->tm_sec,
-	    tt,
-	    nip->l,
-	    nip->h,
-	    adv_int,adv_fra,
-	    ocp,ocl) ;
+#if	CF_DEBUGS
+	            debugprintf("timestr_nist: tt=%d\n",tt) ;
+#endif
 
-	} /* end if (ok) */
+#if	CF_DEBUGN
+	            nprintf(NDF,"timestr_nist: org=%s\n",nip->org) ;
+#endif
+
+	            if (nip->org[0] != '\0') {
+	                ocp = nip->org ;
+	                ocl = strnlen(nip->org,NISTINFO_ORGSIZE) ;
+	            }
+
+#if	CF_DEBUGN
+	            nprintf(NDF,"timestr_nist: org=%t\n",ocp,ocl) ;
+#endif
+
+	            fmt = "%05u %02u-%02u-%02u %02u:%02u:%02u"
+	                " %02u %u %1u %03u.%01u UTC(%t) *" ;
+
+	            rs = bufprintf(tbuf,tlen,fmt,
+	                mjd,
+	                (tszp->tm_year % NYEARS_CENTURY),
+	                (tszp->tm_mon + 1),
+	                tszp->tm_mday,
+	                tszp->tm_hour,
+	                tszp->tm_min,
+	                tszp->tm_sec,
+	                tt,
+	                nip->l,
+	                nip->h,
+	                adv_int,adv_fra,
+	                ocp,ocl) ;
+
+#if	CF_DEBUGN
+	            nprintf(NDF,"timestr_nist: tbuf=>%s<\n",tbuf) ;
+#endif
+
+	        } /* end if (getmjd) */
+
+	    } /* end if (uc_getlocaltime) */
+	} /* end if (uc_gmtime) */
 
 	return (rs >= 0) ? tbuf : NULL ;
 }

@@ -4,6 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGN	0		/* special debugging */
 
 
 /* revision history:
@@ -78,6 +79,8 @@
 
 #define	DAYTIME_CSIZE	100 	/* default arg-chuck size */
 
+#define	NDF		"daytime.nd"
+
 
 /* typedefs */
 
@@ -98,6 +101,10 @@ extern int	isNotPresent(int) ;
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
 extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+#if	CF_DEBUGN
+extern int	nprintf(cchar *,cchar *,...) ;
 #endif
 
 extern cchar	*getourenv(const char **,const char *) ;
@@ -326,8 +333,7 @@ static int daytime_argsend(DAYTIME *op)
 /* independent thread */
 static int daytime_worker(DAYTIME *op)
 {
-	USTAT		sb ;
-	int		rs ;
+	int		rs = SR_OK ;
 	int		wlen = 0 ;
 
 #if	CF_DEBUGS
@@ -335,6 +341,7 @@ static int daytime_worker(DAYTIME *op)
 #endif
 
 	if (! op->f_abort) {
+	    USTAT	sb ;
 	    cchar	*pr = op->pr ;
 	    if ((rs = uc_stat(pr,&sb)) >= 0) {
 	        const uid_t	uid = sb.st_uid ;
@@ -348,8 +355,17 @@ static int daytime_worker(DAYTIME *op)
 	                const time_t	dt = time(NULL) ;
 	                const int	tlen = NISTINFO_ORGSIZE ;
 	                char		tbuf[NISTINFO_ORGSIZE+1] ;
+#if	CF_DEBUGS
+			debugprintf("daytime: obuf=%s\n",obuf) ;
+#endif
+#if	CF_DEBUGN
+			nprintf(NDF,"daytime: obuf=%s\n",obuf) ;
+#endif
 	                memset(&ni,0,sizeof(NISTINFO)) ;
 	                strdcpy1(ni.org,tlen,obuf) ;
+#if	CF_DEBUGN
+			nprintf(NDF,"daytime: timestr_nist()\n") ;
+#endif
 	                timestr_nist(dt,&ni,tbuf) ;
 	                {
 	                    const int	tl = strlen(tbuf) ;

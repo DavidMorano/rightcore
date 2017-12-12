@@ -404,40 +404,42 @@ static int pcsadj_reqmsg(PROGINFO *pip,int re)
 	if ((rs = msgdata_getbuf(mdp,&mbuf)) >= 0) {
 	    if ((rs = msgdata_recv(mdp,lip->rfd)) > 0) {
 	        if ((rs = msgdata_conpass(mdp,FALSE)) >= 0) {
-	            int	mtype = MKCHAR(mbuf[0]) ;
-	            lip->ti_lastreq = pip->daytime ;
+		    if ((rs = locinfo_newreq(lip,1)) >= 0) {
+			const int	nreqs = rs ;
+	                int		mtype = MKCHAR(mbuf[0]) ;
+	                lip->ti_lastreq = pip->daytime ;
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("pcsadj_reqmsg: mtype=%u\n",mtype) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("pcsadj_reqmsg: mtype=%u\n",mtype) ;
 #endif
-	            switch (mtype) {
-	            case pcsmsgtype_getstatus:
-	                rs = pcsadj_getstatus(pip,mdp) ;
-	                break ;
-	            case pcsmsgtype_gethelp:
-	                rs = pcsadj_gethelp(pip,mdp) ;
-	                break ;
-	            case pcsmsgtype_getval:
-	                rs = pcsadj_getval(pip,mdp) ;
-	                break ;
-	            case pcsmsgtype_mark:
-	                f_logged = TRUE ;
-	                rs = pcsadj_mark(pip,mdp) ;
-	                break ;
-	            case pcsmsgtype_exit:
-	                rs = pcsadj_exit(pip,mdp) ;
-	                break ;
-	            default:
-	                f_logged = TRUE ;
-	                rs = pcsadj_invalid(pip,mdp,SR_INVALID,FALSE) ;
-	                break ;
-	            } /* end switch */
-	            if (mdp->ns >= 0) {
-	                u_close(mdp->ns) ;
-	                mdp->ns = -1 ;
-	            }
+	                switch (mtype) {
+	                case pcsmsgtype_getstatus:
+	                    rs = pcsadj_getstatus(pip,mdp) ;
+	                    break ;
+	                case pcsmsgtype_gethelp:
+	                    rs = pcsadj_gethelp(pip,mdp) ;
+	                    break ;
+	                case pcsmsgtype_getval:
+	                    rs = pcsadj_getval(pip,mdp) ;
+	                    break ;
+	                case pcsmsgtype_mark:
+	                    f_logged = TRUE ;
+	                    rs = pcsadj_mark(pip,mdp) ;
+	                    break ;
+	                case pcsmsgtype_exit:
+	                    rs = pcsadj_exit(pip,mdp) ;
+	                    break ;
+	                default:
+	                    f_logged = TRUE ;
+	                    rs = pcsadj_invalid(pip,mdp,SR_INVALID,FALSE) ;
+	                    break ;
+	                } /* end switch */
+	                if (mdp->ns >= 0) {
+	                    u_close(mdp->ns) ;
+	                    mdp->ns = -1 ;
+	                }
+		    } /* end if (locinfo_newreq) */
 	        } /* end if (msgdata_conpass) */
-	        lip->reqs += 1 ;
 	    } /* end if (msgdata_recv) */
 	} /* end if (msgdata_recv) */
 
@@ -459,19 +461,19 @@ static int pcsadj_getstatus(PROGINFO *pip,MSGDATA *mdp)
 
 	if ((rs = pcsmsg_getstatus(&m1,1,mdp->mbuf,mdp->ml)) >= 0) {
 	    LOCINFO	*lip = pip->lip ;
-
+	    if ((rs = locinfo_getreqs(lip)) >= 0) {
+		const int	nreqs = rs ;
 #ifdef	OPTIONAL
-	    memset(&m0,0,sizeof(struct pcsmsg_status)) ;
+	        memset(&m0,0,sizeof(struct pcsmsg_status)) ;
 #endif
-
-	    m0.tag = m1.tag ;
-	    m0.pid = pip->pid ;
-	    m0.queries = lip->reqs ;
-	    m0.rc = pcsmsgrc_ok ;
-	    if ((rs = pcsmsg_status(&m0,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	        rs = pcsadj_send(pip,mdp,m0.tag) ;
-	    } /* end if */
-
+	        m0.tag = m1.tag ;
+	        m0.pid = pip->pid ;
+	        m0.queries = nreqs ;
+	        m0.rc = pcsmsgrc_ok ;
+	        if ((rs = pcsmsg_status(&m0,0,mdp->mbuf,mdp->mlen)) >= 0) {
+	            rs = pcsadj_send(pip,mdp,m0.tag) ;
+	        } /* end if */
+	    } /* end if (locinfo_getreqs) */
 	} else if (isBadMsg(rs)) {
 	    rs = pcsadj_invalid(pip,mdp,rs,TRUE) ;
 	}

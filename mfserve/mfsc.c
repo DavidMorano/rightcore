@@ -194,13 +194,13 @@ int mfsc_open(MFSC *op,cchar *pr,int to)
 	op->pid = getpid() ;
 
 	if ((rs = mfsc_setbegin(op,pr)) >= 0) {
-	    if ((rs = mfsc_connect(op)) >= 0) {
+	    if ((rs = mfsc_connect(op)) > 0) {
 	        if ((rs = mfsc_bufbegin(op)) >= 0) {
 	            op->f.srv = TRUE ;
 	            rs = 1 ;
 	            op->magic = MFSC_MAGIC ;
 	        }
-	    }
+	    } /* end if (mfsc_connect) */
 	    if ((rs < 0) || (! op->f.srv)) {
 	        mfsc_setend(op) ;
 	    }

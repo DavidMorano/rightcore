@@ -132,7 +132,7 @@ struct locinfo {
 	int		serial ;
 	int		nu ;		/* n-updates */
 	int		rfd ;		/* request file-descriptor */
-	int		reqs ;		/* count of requests */
+	int		nreqs ;		/* count of requests */
 	int		intrun ;
 	int		intidle ;
 	int		intpoll ;
@@ -180,6 +180,7 @@ extern int	locinfo_cmdscount(LOCINFO *) ;
 extern int	locinfo_reqexit(LOCINFO *,cchar *) ;
 extern int	locinfo_isreqexit(LOCINFO *) ;
 extern int	locinfo_getaccto(LOCINFO *) ;
+extern int	locinfo_getreqs(LOCINFO *) ;
 extern int	locinfo_newserial(LOCINFO *) ;
 extern int	locinfo_varbegin(LOCINFO *) ;
 extern int	locinfo_varend(LOCINFO *) ;
@@ -188,6 +189,7 @@ extern int	locinfo_daemonbegin(LOCINFO *) ;
 extern int	locinfo_daemonend(LOCINFO *) ;
 extern int	locinfo_cooksvc(LOCINFO *,cchar *,cchar *,cchar **,int) ;
 extern int	locinfo_svctype(LOCINFO *,cchar *,int) ;
+extern int	locinfo_newreq(LOCINFO *,int) ;
 
 #ifdef	__cplusplus
 }

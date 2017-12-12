@@ -42,6 +42,8 @@
 #include	<time.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
+#include	<ctdec.h>
 #include	<toxc.h>
 #include	<upt.h>
 #include	<localmisc.h>
@@ -71,11 +73,12 @@ typedef int	(*objfinish_t)(void *) ;
 
 /* external subroutines */
 
-extern int	mkpath2(char *,const char *,const char *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
 extern int	sfnext(cchar *,int,cchar **) ;
-extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	mkdirs(const char *,mode_t) ;
-extern int	chmods(const char *,mode_t) ;
+extern int	mktmpfile(char *,mode_t,cchar *) ;
+extern int	opentmpfile(cchar *,int,mode_t,char *) ;
+extern int	chmods(cchar *,mode_t) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
@@ -335,6 +338,13 @@ int sreq_setstate(SREQ *op,int state)
 /* end subroutine (sreq_setstate) */
 
 
+int sreq_getjsn(SREQ *jep)
+{
+	return jep->jsn ;
+}
+/* end subroutine (sreq_getjsn) */
+
+
 int sreq_getsvc(SREQ *op,cchar **rpp)
 {
 	int		sl = strlen(op->svc) ;
@@ -588,6 +598,10 @@ int sreq_objstart(SREQ *jep,cchar *pr,cchar **sav,cchar **envv)
 	if (jep->objp != NULL) {
 	    if (! jep->f.builtout) {
 	    	    objstart_t	m = (objstart_t) jep->binfo.start ;
+#if	CF_DEBUGS
+		    debugprintf("sreq_objstart: obj{&p} m{%p}\n",
+				jep->objp,m) ;
+#endif
 	            if ((rs = (*m)(jep->objp,pr,jep,sav,envv)) >= 0) {
 		        jep->f.builtout = TRUE ;
 		    }
@@ -685,6 +699,69 @@ int sreq_objfinish(SREQ *jep)
 	return rs ;
 }
 /* end subroutine (sreq_objfinish) */
+
+
+int sreq_openstderr(SREQ *jep,cchar *edname)
+{
+	const int	elen = MAXPATHLEN ;
+	int		rs ;
+	int		fd = -1 ;
+	cchar		*lead = "err" ;
+	char		*ebuf ;
+	if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
+	    const int	dlen = DIGBUFLEN ;
+	    char	dbuf[DIGBUFLEN+1] ;
+	    jep->efname = ebuf ; /* load address */
+	    if ((rs = ctdeci(dbuf,dlen,jep->jsn)) >= 0) {
+	        const int	clen = MAXNAMELEN ;
+		cchar		*x = "XXXXXX" ;
+	        char		cbuf[MAXNAMELEN+1] ;
+	        if ((rs = sncpy4(cbuf,clen,lead,dbuf,".",x)) >= 0) {
+	            char	tbuf[MAXPATHLEN+1] ;
+		    if ((rs = mkpath2(tbuf,edname,cbuf)) >= 0) {
+		        const mode_t	om = 0664 ;
+		        const int	of = (O_CREAT|O_WRONLY|O_TRUNC) ;
+		        char		*ebuf = jep->efname ;
+	                if ((rs = opentmpfile(tbuf,of,om,ebuf)) >= 0) {
+	                    jep->efd = rs ;
+			    fd = rs ;
+		        } /* end if (uc_open) */
+		    } /* end if (mkpath) */
+	        } /* end if (sncpy) */
+	    } /* end if (cfdeci) */
+	    if (rs < 0) {
+		uc_free(jep->efname) ;
+	 	jep->efname = NULL ;
+	    }
+	} /* end if (m-a) */
+	return (rs >= 0) ? fd : rs ;
+}
+/* end subroutine (sreq_openstderr) */
+
+
+int sreq_closestderr(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (jep->efd >= 0) {
+	    rs1 = u_close(jep->efd) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->efd = -1 ;
+	}
+	if (jep->efname != NULL) {
+	    if (jep->efname[0] != '\0') {
+	        const int	rsn = SR_NOTFOUND ;
+	        rs1 = uc_unlink(jep->efname) ;
+	        if (rs1 == SR_NOTFOUND) rs1 = SR_OK ;
+	        if (rs >= 0) rs = rs1 ;
+	    }
+	    rs1 = uc_free(jep->efname) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->efname = NULL ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_closestderr) */
 
 
 /* private subroutines */

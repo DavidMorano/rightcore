@@ -1,6 +1,6 @@
 /* termconseqi */
 
-/* Terminal Control Sequence (make them) */
+/* Terminal Control Sequence w/ intermediate character-string */
 
 
 #define	CF_DEBUGS	0		/* compile-time */
@@ -18,14 +18,16 @@
 /*******************************************************************************
 
         This subroutine formulates a simple string that constitutes a terminal
-        command sequence (of characters).
+        command sequence (of characters), but we accommodate an intermediate
+	character-string.
 
 	Synopsis:
 
-	int termconseqi(dp,dl,name,a1,a2,a3,a4)
+	int termconseqii(dp,dl,name,is,a1,a2,a3,a4)
 	char		*dp ;
 	int		dl ;
 	int		name ;
+	cchar		*is ;
 	int		a1 ;
 	int		a2 ;
 	int		a3 ;
@@ -36,6 +38,7 @@
 	dp		result buffer
 	dl		result buffer length
 	name		control sequence name
+	is		intermediate character-string
 	a[1-4]		control sequence arguments
 
 	Returns:

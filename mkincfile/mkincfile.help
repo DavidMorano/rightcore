@@ -3,7 +3,7 @@ MKINCFILE
 This command converts an arbitrary file into a form that can be used from within
 a C language program by "including" the "include" file produced by this program.
 
-Synospsis:
+Synopsis:
 $ mkincfile <filename(s)> [-V]
 
 Arguments:

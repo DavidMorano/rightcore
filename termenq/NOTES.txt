@@ -16,7 +16,7 @@ dev		device file-path
 multiplexor	is the name of the multiplexor through which this
 		terminal's connection was made
 port		is the name of the port on the multiplexor that the
-		physical termal is connected to
+		physical terminal is connected to
 code		is the code returned from the terminal enquiry
 termtype	if found from "code"
 location	is an ASCII human readable representation of the terminal
@@ -26,14 +26,14 @@ The "line" of the terminal is determined in the usual way (by searching
 '/dev/' for matching criteria as given by the terminal file descriptor
 (presummably in hand).
 
-Once the location of the terminal is found from the above database, it
-should be made available to subsequent programs by placing it in the
-execution environment.  The multiplexor and port can optionally also
-be placed into the environment.  The location value should be concise
-enough so that it can be conveneiently used as a key in other operations.
+Once the location of the terminal is found from the above database, it should be
+made available to subsequent programs by placing it in the execution
+environment. The multiplexor and port can optionally also be placed into the
+environment. The location value should be concise enough so that it can be
+conveneiently used as a key in other operations.
 
-After login is essentially completed by the login-system, an entry
-should be made in the PCS user-location database consisting of:
+After login is essentially completed by the login-system, an entry should be
+made in the PCS user-location database consisting of:
 
 username
 node

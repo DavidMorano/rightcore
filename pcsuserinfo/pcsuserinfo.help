@@ -1,7 +1,7 @@
 PCSUSERINFO
 
-This command prints out or sets the current PCS-name for a specified user.  The
-command can also set the PCS-name for the current user.
+This command prints out or sets the PCS-name for a specified user (default is
+the current user).
 
 Synopsis:
 $ pcsuserinfo [<username(s)>] [-af <afile>] [-s <val>] [-a] [-f] [-V]

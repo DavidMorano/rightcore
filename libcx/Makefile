@@ -53,9 +53,9 @@ LDFLAGS= $(LF_LDFLAGS) -R$(CGS_RPATH):$(LDRPATH)
 SLIBDIRS= -L$(CGS_LIBDIR)
 
 SLIB0=
-SLIB1=
+SLIB1= -ldam
 SLIB2=
-SLIB3=
+SLIB3= -luc -lu
 SLIB4= $(CGS_LIBS)
 SLIB5= $(LF_LIBS) 
 SLIB6=
@@ -121,7 +121,7 @@ INCS= localmisc.h syshas.h vsystem.h
 
 
 OBJ00= strtoimax.o strtoumax.o
-OBJ01=
+OBJ01= eaccess.o
 OBJ02=
 OBJ03=
 OBJ04=

@@ -751,6 +751,21 @@ int locinfo_isreqexit(LOCINFO *lip)
 /* end subroutine (locinfo_isreqexit) */
 
 
+int locinfo_newreq(LOCINFO *lip,int n)
+{
+	lip->nreqs += n ;
+	return SR_OK ;
+}
+/* end subroutine (locinfo_newreq) */
+
+
+int locinfo_getreqs(LOCINFO *lip)
+{
+	return lip->nreqs ;
+}
+/* end subroutine (locinfo_getreqs) */
+
+
 /* private subroutines */
 
 

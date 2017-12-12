@@ -110,7 +110,7 @@ struct locinfo {
 	int		intclient ;	/* interval client sockets */
 	int		to_cache ;
 	int		to_lock ;
-	int		reqs ;		/* count of requests */
+	int		nreqs ;		/* count of requests */
 	char		cmd[LOGIDLEN + 1] ;	/* for PCS */
 } ;
 
@@ -142,6 +142,8 @@ extern int	locinfo_cmdsload(LOCINFO *,cchar *,int) ;
 extern int	locinfo_cmdscount(LOCINFO *) ;
 extern int	locinfo_reqexit(LOCINFO *,cchar *) ;
 extern int	locinfo_isreqexit(LOCINFO *) ;
+extern int	locinfo_newreq(LOCINFO *,int) ;
+extern int	locinfo_getreqs(LOCINFO *) ;
 
 #ifdef	__cplusplus
 }

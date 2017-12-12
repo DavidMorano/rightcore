@@ -1,4 +1,4 @@
-/* vt620 */
+/* vtxx0 */
 
 /* discriminate among VT52x models */
 
@@ -17,7 +17,7 @@
 
 /*******************************************************************************
 
-	Discrminate among VT52X models.
+	Discrminate among VTxx0 models.
 
 
 *******************************************************************************/
@@ -51,7 +51,7 @@ extern char	*strnwcpy(char *,int,cchar *,int) ;
 
 /* local variables */
 
-static cchar *names[] = {
+static cchar	*names[] = {
 	"vt100",
 	"vt101",
 	"vt102",
@@ -114,7 +114,7 @@ int vt100(char *rbuf,int rlen,ushort *pp, int pl)
 /* ARGSUSED */
 int vt102(char *rbuf,int rlen,ushort *pp, int pl)
 {
-	int	si = name_vt102 ;
+	int		si = name_vt102 ;
 	return sncpy1(rbuf,rlen,names[si]) ;
 }
 /* end subroutine (vt102) */
@@ -164,7 +164,7 @@ int vt320(char *rbuf,int rlen,uint *pp, int pl)
 /* I am not aware of a way to discriminate out a vt420int from a vt420 */
 int vt420(char *rbuf,int rlen,ushort *pp, int pl)
 {
-	int	si = name_vt420 ;
+	int		si = name_vt420 ;
 	return sncpy1(rbuf,rlen,names[si]) ;
 }
 /* end subroutine (vt102) */

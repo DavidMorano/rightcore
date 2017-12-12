@@ -7,11 +7,9 @@ YACC, and header files. If any dependent files , eithr directly or indirectly,
 dependent are newer than the given object file, the object file gets deleted.
 
 Synopsis:
-
 $ makesafe [-I <incdir(s)>] [-t <target>] [<objfile(s)>] [-v[=<n>]] [-z] [-V]
 
-where:
-
+Arguments;
 <objfile(s)>	file to check for safety
 -af <argfile>	argument list file
 -I <incdir(s)>	directories to search for "include" files

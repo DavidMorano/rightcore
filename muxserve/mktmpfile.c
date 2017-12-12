@@ -39,6 +39,12 @@
 	<0	failure w/ error number
 
 
+	Notes:
+	Q. What is with |uc_forklock(3uc)|?
+	A. We try to minimize child processes getting an extra (unknown to it)
+	   file-descriptor.
+
+
 *******************************************************************************/
 
 
@@ -79,11 +85,16 @@ int mktmpfile(char *rbuf,mode_t om,cchar *inname)
 {
 	const int	of = (O_WRONLY|O_CLOEXEC) ;
 	int		rs ;
+	int		rs1 ;
 	int		len = 0 ;
-	if ((rs = opentmpfile(inname,of,om,rbuf)) >= 0) {
-	    u_close(rs) ;
-	    len = strlen(rbuf) ;
-	} /* end if (opentmpfile) */
+	if ((rs = uc_forklock(-1)) >= 0) {
+	    if ((rs = opentmpfile(inname,of,om,rbuf)) >= 0) {
+	        u_close(rs) ;
+	        len = strlen(rbuf) ;
+	    } /* end if (opentmpfile) */
+	    rs1 = uc_forklockrelease() ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (forklock) */
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (mktmpfile) */

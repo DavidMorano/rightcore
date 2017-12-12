@@ -1,6 +1,6 @@
 /* b_termadm */
 
-/* SHELL built-in to return file-system information */
+/* SHELL built-in to enquire about terminal device values */
 /* last modified %G% version %I% */
 
 
@@ -8,7 +8,6 @@
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_STDIN	0		/* use standard-input */
-#define	CF_SETLINES	0		/* try to set the lines */
 
 
 /* revision history:
@@ -152,7 +151,6 @@ struct locinfo {
 	LOCINFO_FL	f, init, changed ;
 	LOCINFO_FL	open ;
 	PROGINFO	*pip ;
-	cchar		*termline ;		/* terminal "line" */
 	cchar		*termfname ;		/* terminal file-name */
 	cchar		*db ;
 	struct winsize	ws ;
@@ -193,7 +191,7 @@ static int	locinfo_setline(LOCINFO *,cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -202,7 +200,6 @@ static cchar *argopts[] = {
 	"af",
 	"ef",
 	"of",
-	"if",
 	"tf",
 	"dev",
 	"line",
@@ -220,7 +217,6 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
-	argopt_if,
 	argopt_tf,
 	argopt_dev,
 	argopt_line,
@@ -251,7 +247,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *progopts[] = {
+static cchar	*progopts[] = {
 	"poll",
 	"pollint",
 	"intpoll",
@@ -268,12 +264,12 @@ enum progopts {
 } ;
 
 /* define the configuration keywords */
-static cchar *qopts[] = {
+static cchar	*qopts[] = {
 	"rows",
 	"lines",
 	"cols",
 	"xpixel",
-	"ypixel",
+	"wpixel",
 	"pgrp",
 	NULL
 } ;
@@ -366,6 +362,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*afname = NULL ;
 	cchar		*efname = NULL ;
 	cchar		*ofname = NULL ;
+	cchar		*termline = NULL ;
 	cchar		*cp ;
 
 
@@ -567,18 +564,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    }
 	                    break ;
 
-	                case argopt_if:
+	                case argopt_tf:
+			case argopt_dev:
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
-	                            cp = avp ;
+	                            lip->termfname = avp ;
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl)
-	                                cp = argp ;
+	                                lip->termfname = argp ;
 				} else
 	                            rs = SR_INVALID ;
 	                    }
@@ -590,7 +588,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl) {
-				    rs = locinfo_setline(lip,argp,argl) ;
+				    termline = argp ;
 				}
 			    } else
 	              		rs = SR_INVALID ;
@@ -834,8 +832,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
 
-	if (lip->termline == NULL) {
-	    lip->termline = getourenv(envv,VARTERMLINE) ;
+	if (termline == NULL) {
+	    termline = getourenv(envv,VARTERMLINE) ;
 	}
 
 	if (lip->db == NULL) {
@@ -844,29 +842,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("b_termadm: termline=%s\n",lip->termline) ;
+	    debugprintf("b_termadm: termline=%s\n",termline) ;
 #endif
 
-	if (rs >= 0) {
+	if ((rs = locinfo_setline(lip,termline,-1)) >= 0) {
 	     KEYOPT	*kop = &akopts ;
 	     rs = procopts(pip,kop) ;
 	}
-
-#ifdef	COMMENT
-	if ((rs >= 0) && (termfname == NULL)) {
-	    for (ai = ai_continue ; ai < argc ; ai += 1) {
-	        f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	        f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	        if (f) {
-	            termfname = argv[ai] ;
-		    if (termfname[0] != '\0') {
-	                ai_continue = (ai + 1) ;
-	                break ;
-		    }
-	        }
-	    } /* end for */
-	} /* end if (getting file to append to) */
-#endif /* COMMENT */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1113,88 +1095,6 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 /* end subroutine (process) */
 
 
-static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
-{
-	int		rs = SR_OK ;
-
-	pip->nodename = uip->nodename ;
-	pip->domainname = uip->domainname ;
-	pip->username = uip->username ;
-	pip->gecosname = uip->gecosname ;
-	pip->realname = uip->realname ;
-	pip->name = uip->name ;
-	pip->fullname = uip->fullname ;
-	pip->mailname = uip->mailname ;
-	pip->org = uip->organization ;
-	pip->logid = uip->logid ;
-	pip->pid = uip->pid ;
-	pip->uid = uip->uid ;
-	pip->euid = uip->euid ;
-	pip->gid = uip->gid ;
-	pip->egid = uip->egid ;
-
-	if (rs >= 0) {
-	    const int	hlen = MAXHOSTNAMELEN ;
-	    char	hbuf[MAXHOSTNAMELEN+1] ;
-	    cchar	*nn = pip->nodename ;
-	    cchar	*dn = pip->domainname ;
-	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-	        cchar	**vpp = &pip->hostname ;
-	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
-	    }
-	}
-
-	if (rs >= 0) {
-	    rs = procuserinfo_logid(pip) ;
-	} /* end if (ok) */
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_begin) */
-
-
-static int procuserinfo_end(PROGINFO *pip)
-{
-	int		rs = SR_OK ;
-
-	if (pip == NULL) return SR_FAULT ;
-
-	return rs ;
-}
-/* end subroutine (procuserinfo_end) */
-
-
-static int procuserinfo_logid(PROGINFO *pip)
-{
-	int		rs ;
-	if ((rs = lib_runmode()) >= 0) {
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
-#endif
-	    if (rs & KSHLIB_RMKSH) {
-	        if ((rs = lib_serial()) >= 0) {
-	            const int	s = rs ;
-	            const int	plen = LOGIDLEN ;
-	            const int	pv = pip->pid ;
-	            cchar	*nn = pip->nodename ;
-	            char	pbuf[LOGIDLEN+1] ;
-	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
-	                const int	slen = LOGIDLEN ;
-	                char		sbuf[LOGIDLEN+1] ;
-	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
-	                    cchar	**vpp = &pip->logid ;
-	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
-	                }
-	            }
-	        } /* end if (lib_serial) */
-	    } /* end if (runmode-KSH) */
-	} /* end if (lib_runmode) */
-	return rs ;
-}
-/* end subroutine (procuserinfo_logid) */
-
-
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
 	SHIO		ofile, *ofp = &ofile ;
@@ -1319,7 +1219,7 @@ static int procspecs(PROGINFO *pip,void *ofp,cchar *sp,int sl)
 
 
 /* process a specification name */
-static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
+static int procspec(PROGINFO *pip,void *ofp,cchar *rp,int rl)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -1364,8 +1264,9 @@ static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 	        rs = procget(pip,ofp,ri) ;
 	        wlen += rs ;
 	    }
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -1534,6 +1435,88 @@ static int procout(PROGINFO *pip,SHIO *ofp,cchar *buf)
 /* end subroutine (procout) */
 
 
+static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
+{
+	int		rs = SR_OK ;
+
+	pip->nodename = uip->nodename ;
+	pip->domainname = uip->domainname ;
+	pip->username = uip->username ;
+	pip->gecosname = uip->gecosname ;
+	pip->realname = uip->realname ;
+	pip->name = uip->name ;
+	pip->fullname = uip->fullname ;
+	pip->mailname = uip->mailname ;
+	pip->org = uip->organization ;
+	pip->logid = uip->logid ;
+	pip->pid = uip->pid ;
+	pip->uid = uip->uid ;
+	pip->euid = uip->euid ;
+	pip->gid = uip->gid ;
+	pip->egid = uip->egid ;
+
+	if (rs >= 0) {
+	    const int	hlen = MAXHOSTNAMELEN ;
+	    char	hbuf[MAXHOSTNAMELEN+1] ;
+	    cchar	*nn = pip->nodename ;
+	    cchar	*dn = pip->domainname ;
+	    if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	        cchar	**vpp = &pip->hostname ;
+	        rs = proginfo_setentry(pip,vpp,hbuf,rs) ;
+	    }
+	}
+
+	if (rs >= 0) {
+	    rs = procuserinfo_logid(pip) ;
+	} /* end if (ok) */
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_begin) */
+
+
+static int procuserinfo_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip == NULL) return SR_FAULT ;
+
+	return rs ;
+}
+/* end subroutine (procuserinfo_end) */
+
+
+static int procuserinfo_logid(PROGINFO *pip)
+{
+	int		rs ;
+	if ((rs = lib_runmode()) >= 0) {
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4))
+	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
+#endif
+	    if (rs & KSHLIB_RMKSH) {
+	        if ((rs = lib_serial()) >= 0) {
+	            const int	s = rs ;
+	            const int	plen = LOGIDLEN ;
+	            const int	pv = pip->pid ;
+	            cchar	*nn = pip->nodename ;
+	            char	pbuf[LOGIDLEN+1] ;
+	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
+	                const int	slen = LOGIDLEN ;
+	                char		sbuf[LOGIDLEN+1] ;
+	                if ((rs = mksublogid(sbuf,slen,pbuf,s)) >= 0) {
+	                    cchar	**vpp = &pip->logid ;
+	                    rs = proginfo_setentry(pip,vpp,sbuf,rs) ;
+	                }
+	            }
+	        } /* end if (lib_serial) */
+	    } /* end if (runmode-KSH) */
+	} /* end if (lib_runmode) */
+	return rs ;
+}
+/* end subroutine (procuserinfo_logid) */
+
+
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
 
@@ -1683,27 +1666,26 @@ static int locinfo_ws(LOCINFO *lip)
 static int locinfo_setline(LOCINFO *lip,cchar *argp,int argl)
 {
 	int		rs = SR_OK ;
-	int		m ;
-	cchar		*dev = "/dev/" ;
-	cchar		**vpp ;
-	if ((m = nleadstr(dev,argp,argl)) >= 6) {
-	    vpp = &lip->termfname ;
-	    rs = locinfo_setentry(lip,vpp,argp,argl) ;
-	    argp += m ;
-	    argl -= m ;
-	}
-	if (rs >= 0) {
-	    cchar	**vpp = &lip->termline ;
-	    if ((rs = locinfo_setentry(lip,vpp,argp,argl)) >= 0) {
-		if (lip->termfname == NULL) {
+	if (argp != NULL) {
+	    if (lip->termfname == NULL) {
+	        int	m ;
+	        cchar	*dev = "/dev/" ;
+	        cchar	**vpp ;
+	        if ((m = nleadstr(dev,argp,argl)) >= 6) {
+	            vpp = &lip->termfname ;
+	            rs = locinfo_setentry(lip,vpp,argp,argl) ;
+	            argp += m ;
+	            argl -= m ;
+	        }
+	        if (rs >= 0) {
 		    char	tbuf[MAXNAMELEN+1] ;
 		    if ((rs = mkpath2w(tbuf,dev,argp,argl)) >= 0) {
-	    		cchar	**vpp = &lip->termfname ;
-			rs = locinfo_setentry(lip,vpp,tbuf,rs) ;
+		        cchar	**vpp = &lip->termfname ;
+		        rs = locinfo_setentry(lip,vpp,tbuf,rs) ;
 		    }
-		}
-	    }
-	}
+	        }
+	    } /* end if */
+	} /* end if */
 	return rs ;
 }
 /* end subroutine (locinfo_setline) */

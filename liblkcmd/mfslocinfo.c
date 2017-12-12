@@ -185,6 +185,7 @@ static int	locinfo_tmpourdname(LOCINFO *) ;
 static int	locinfo_runas(LOCINFO *) ;
 static int	locinfo_chids(LOCINFO *,cchar *) ;
 static int	locinfo_cookargsload(LOCINFO *,cchar **) ;
+static int	locinfo_maintourtmper(LOCINFO *,int) ;
 
 #if	CF_DEBUGS && CF_DEBUGDUMP
 static int	vecstr_dump(vecstr *,cchar *) ;
@@ -294,6 +295,13 @@ enum cooks {
 	cook_v,
 	cook_tmpdname,
 	cook_overlast
+} ;
+
+static cchar	*tmpleads[] = {
+	"client",
+	"sreqdb",
+	"err",
+	NULL
 } ;
 
 
@@ -867,22 +875,16 @@ int locinfo_maintourtmp(LOCINFO *lip)
 	    if (lip->tmpourdname != NULL) {
 	        const int	to_client = lip->intclient ;
 	        if (to_client > 0) {
-	            cchar	*dir = lip->tmpourdname ;
-	            cchar	*pat = "client" ;
-#if	CF_DEBUG
-		    if (DEBUGLEVEL(4))
-	    		debugprintf("locinfo_maintourtmp: dir=%s\n",dir) ;
-#endif
-	            if ((rs = rmdirfiles(dir,pat,to_client)) >= 0) {
-	                char	tbuf[TIMEBUFLEN+1] ;
-	                timestr_logz(pip->daytime,tbuf) ;
-	                logprintf(pip,"%s maint-tmp (%d)",tbuf,rs) ;
-			if (pip->debuglevel > 0) {
-			    cchar	*pn = pip->progname ;
-			    cchar	*fmt = "%s: maint-tmp (%d)\n" ;
-			    shio_printf(pip->efp,fmt,pn,rs) ;
-			}
-	            }
+		    if ((rs = locinfo_maintourtmper(lip,to_client)) >= 0) {
+	                    char	tbuf[TIMEBUFLEN+1] ;
+	                    timestr_logz(pip->daytime,tbuf) ;
+	                    logprintf(pip,"%s maint-tmp",tbuf) ;
+			    if (pip->debuglevel > 0) {
+			        cchar	*pn = pip->progname ;
+			        cchar	*fmt = "%s: maint-tmp (%d)\n" ;
+			        shio_printf(pip->efp,fmt,pn,rs) ;
+			    }
+	            } /* end if (locinfo_maintourtmper) */
 	        } /* end if (positive) */
 	    } /* end if (directory exists?) */
 	} /* end if (tmp-dir maintenance needed) */
@@ -1123,6 +1125,21 @@ int locinfo_svctype(LOCINFO *lip,cchar *ebuf,int el)
 	return rs ;
 }
 /* end subroutine (locinfo_svctype) */
+
+
+int locinfo_newreq(LOCINFO *lip,int n)
+{
+	lip->nreqs += n ;
+	return SR_OK ;
+}
+/* end subroutine (locinfo_newreq) */
+
+
+int locinfo_getreqs(LOCINFO *lip)
+{
+	return lip->nreqs ;
+}
+/* end subroutine (locinfo_getreqs) */
 
 
 /* private subroutines */
@@ -1831,6 +1848,24 @@ static int locinfo_cookargsload(LOCINFO *lip,cchar **sav)
 	return rs ;
 }
 /* end subrutine (locinfo_argsload) */
+
+
+static int locinfo_maintourtmper(LOCINFO *lip,int to_client)
+{
+	int		rs = SR_OK ;
+	int		i ;
+	cchar		*dir = lip->tmpourdname ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("locinfo_maintourtmp: dir=%s\n",dir) ;
+#endif
+	for (i = 0 ; (rs >= 0) && (tmpleads[i] != NULL) ; i += 1) {
+	    cchar	*pat = tmpleads[i] ;
+	    rs = rmdirfiles(dir,pat,to_client) ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_maintourtmper) */
 
 
 #if	CF_DEBUGS && CF_DEBUGDUMP

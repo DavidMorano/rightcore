@@ -90,6 +90,7 @@ LDRPATH= $(EXTRA)/lib
 # regular
 LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 # shared-object
+SLDFLAGS_E= -B symbolic -z nodefs
 SLDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 
 
@@ -113,7 +114,7 @@ SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1= -ldam -lb
-SLIB2=
+SLIB2= -ldebug
 SLIB3= -luc -lu
 SLIB4= $(CGS_LIBS)
 SLIB5= 
@@ -228,7 +229,12 @@ MOBJS= $(MCRT0) $(OBJ) $(CRTC)
 GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
 
-LOBJ= daytime.o hello.o
+LOBJ00= daytime.o hello.o
+LOBJ01=
+LOBJ02=
+LOBJ03=
+
+LOBJ= $(LOBJ00) $(LOBJ01) $(LBOBJ02) $(LOBJ03) 
 
 
 SRC= $(OBJ:.c=.o)

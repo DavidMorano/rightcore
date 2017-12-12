@@ -607,10 +607,12 @@ static int getxusername_utmp(GETXUSERNAME *xup)
 	    np = xup->ubuf ;
 	    if (*np != '\0') {
 	        rs = getxusername_lookup(xup,np) ;
-	    } else
+	    } else {
 	        rs = SR_OK ;
-	} else if (isNotPresent(rs))
+	    }
+	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("getxusername_utmp: ret rs=%d\n",rs) ;
@@ -652,10 +654,12 @@ static int getxusername_uid(GETXUSERNAME *xup)
 	if ((rs = GETPW_UID(xup->pwp,xup->pwbuf,xup->pwlen,xup->uid)) >= 0) {
 	    if (xup->pwp->pw_name[0] != '\0') {
 		xup->pwl = rs ;
-	    } else
+	    } else {
 		rs = SR_OK ;
-	} else if (isNotPresent(rs))
+	    }
+	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
+	}
 
 	return rs ;
 }
@@ -684,7 +688,7 @@ static int getxusername_varbase(GETXUSERNAME *xup,cchar varname[])
 
 	if (vp != NULL) {
 	    int		nl ;
-	    const char	*np ;
+	    cchar	*np ;
 	    if ((nl = sfbasename(vp,-1,&np)) > 0) {
 	        while ((nl > 0) && (np[nl - 1] == '/')) {
 	            nl -= 1 ;
@@ -720,8 +724,9 @@ static int getxusername_lookup(GETXUSERNAME *xup,cchar *np)
 	        if (xup->pwp->pw_uid == xup->uid) {
 		    xup->pwl = rs ;
 	            pwl = rs ;
-		} else
+		} else {
 		    rs = SR_NOTFOUND ;
+		}
 	    } /* end if (GETPW_NAME) */
 	    if (rs == SR_NOTFOUND) {
 	        rs = vecstr_add(&xup->names,np,-1) ;

@@ -1132,7 +1132,7 @@ static int procsetcase(PROGINFO *pip,cchar *vp,int vl)
 
 
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
-cchar *ofn,cchar *ifn,cchar *afn)
+		cchar *ofn,cchar *ifn,cchar *afn)
 {
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;

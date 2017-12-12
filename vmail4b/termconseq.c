@@ -1,6 +1,6 @@
 /* termconseq */
 
-/* Terminal Control Sequence (make them) */
+/* Terminal Control Sequence */
 
 
 #define	CF_DEBUGS	0		/* compile-time */

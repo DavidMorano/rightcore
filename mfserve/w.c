@@ -383,6 +383,7 @@ int mfswatch_service(PROGINFO *pip)
 	    POLLER_SPEC	ps ;
 
 	    if ((rs = poller_wait(pmp,&ps,wip->pollto)) > 0) {
+		LOCINFO		*lip = pip->lip ;
 	        pip->daytime = time(NULL) ;
 	        if ((rs = mfswatch_poll(pip,&ps)) >= 0) {
 	            c += rs ;
@@ -392,6 +393,9 @@ int mfswatch_service(PROGINFO *pip)
 	                if (rs < 0) break ;
 	            } /* end while */
 	        } /* end if */
+		if (rs >= 0) {
+		    rs = locinfo_newreq(lip,c) ;
+		}
 	    } else if (rs == 0) {
 	        pip->daytime = time(NULL) ;
 	    } else if (rs == SR_INTR) {
@@ -1510,67 +1514,72 @@ static int mfswatch_svcprocproger(PROGINFO *pip,SREQ *jep,
 static int mfswatch_progspawn(PROGINFO *pip,SREQ *jep,cchar *pbuf,vecstr *alp)
 {
 	MFSWATCH	*wip = pip->watch ;
+	LOCINFO		*lip = pip->lip ;
 	int		rs ;
-	cchar		**av ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
 	    debugprintf("mfswatch_progspawn: ent\n") ;
 	    debugprintf("mfswatch_progspawn: pbuf=%s\n",pbuf) ;
 	}
 #endif
-	if ((rs = sreq_ofd(jep)) >= 0) {
-	    const int	ofd = rs ;
-	    if ((rs = vecstr_getvec(alp,&av)) >= 0) {
-	        ENVHELP	*ehp = &wip->eh ;
-	        cchar	**ev ;
+	if ((rs = locinfo_tmpourdir(lip)) >= 0) {
+	    cchar	*dname = lip->tmpourdname ;
+	    if ((rs = sreq_openstderr(jep,dname)) >= 0) {
+	        const int	efd = rs ;
+	        if ((rs = sreq_ofd(jep)) >= 0) {
+	            const int	ofd = rs ;
+		    cchar	**av ;
+	            if ((rs = vecstr_getvec(alp,&av)) >= 0) {
+	                ENVHELP	*ehp = &wip->eh ;
+	                cchar	**ev ;
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("mfswatch_progspawn: mid1 rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("mfswatch_progspawn: mid1 rs=%d\n",rs) ;
 #endif
-	        if ((rs = envhelp_getvec(ehp,&ev)) >= 0) {
-	            SPAWNPROC	ps ;
-	            memset(&ps,0,sizeof(SPAWNPROC)) ;
-	            ps.opts = 0 ;
-	            ps.opts |= SPAWNPROC_OSETSID ;
-	            ps.opts |= SPAWNPROC_OIGNINTR ;
-	            ps.fd[0] = jep->ifd ;
-	            ps.fd[1] = ofd ;
-	            ps.disp[0] = SPAWNPROC_DDUP ;
-	            ps.disp[1] = SPAWNPROC_DDUP ;
-	            ps.disp[2] = SPAWNPROC_DCLOSE ;
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("mfswatch_progspawn: mid2 rs=%d\n",rs) ;
+	                if ((rs = envhelp_getvec(ehp,&ev)) >= 0) {
+	                    SPAWNPROC	ps ;
+	                    memset(&ps,0,sizeof(SPAWNPROC)) ;
+	                    ps.opts = 0 ;
+	                    ps.opts |= SPAWNPROC_OSETSID ;
+	                    ps.opts |= SPAWNPROC_OIGNINTR ;
+	                    ps.fd[0] = jep->ifd ;
+	                    ps.fd[1] = ofd ;
+	                    ps.fd[2] = efd ;
+	                    ps.disp[0] = SPAWNPROC_DDUP ;
+	                    ps.disp[1] = SPAWNPROC_DDUP ;
+	                    ps.disp[2] = SPAWNPROC_DDUP ;
+	                    if ((rs = spawnproc(&ps,pbuf,av,ev)) >= 0) {
+	                        cchar	*pn = pip->progname ;
+	                        cchar	*fmt = "spawned pid=%u" ;
+	                        cchar	*lid = jep->logid ;
+	                        jep->f.process = TRUE ;
+	                        jep->pid = rs ;
+	                        wip->nprocs += 1 ;
+	                        logssprintf(pip,lid,fmt,rs) ;
+	                        fmt = "pf=%s" ;
+	                        logssprintf(pip,lid,fmt,pbuf) ;
+	                        if (pip->debuglevel > 0) {
+	                            const int	jsn = jep->jsn ;
+	                            fmt = "%s: jsn=%u spawned pid=%u\n" ;
+	                            shio_printf(pip->efp,fmt,pn,jsn,rs) ;
+	                            fmt = "%s: jsn=%u pf=%s" ;
+	                            shio_printf(pip->efp,fmt,pn,jsn,pbuf) ;
+	                        }
+	                    } else if (isNotPresent(rs)) {
+	                        cchar	*fmt = "spawn failure (%d)" ;
+	                        cchar	*lid = jep->logid ;
+	                        rs = logssprintf(pip,lid,fmt,rs) ;
+	                    }
+    #if	CF_DEBUG
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("mfswatch_progspawn: mid3 rs=%d\n",
+				    rs) ;
 #endif
-	            if ((rs = spawnproc(&ps,pbuf,av,ev)) >= 0) {
-	                cchar	*pn = pip->progname ;
-	                cchar	*fmt = "process spawned pid=%u" ;
-	                cchar	*lid = jep->logid ;
-	                jep->f.process = TRUE ;
-	                jep->pid = rs ;
-	                wip->nprocs += 1 ;
-	                logssprintf(pip,lid,fmt,rs) ;
-	                fmt = "pf=%s" ;
-	                logssprintf(pip,lid,fmt,pbuf) ;
-	                if (pip->debuglevel > 0) {
-	                    const int	jsn = jep->jsn ;
-	                    fmt = "%s: jsn=%u process spawned pid=%u\n" ;
-	                    shio_printf(pip->efp,fmt,pn,jsn,rs) ;
-	                    fmt = "%s: jsn=%u pf=%s" ;
-	                    shio_printf(pip->efp,fmt,pn,jsn,pbuf) ;
-	                }
-	            } else if (isNotPresent(rs)) {
-	                cchar	*fmt = "spawn failure (%d)" ;
-	                cchar	*lid = jep->logid ;
-	                rs = logssprintf(pip,lid,fmt,rs) ;
-	            }
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("mfswatch_progspawn: mid3 rs=%d\n",rs) ;
-#endif
-	        } /* end if (envhelp_getvec) */
-	    } /* end if (vecstr_getvec) */
-	} /* end if (sreq_ofd) */
+	                } /* end if (envhelp_getvec) */
+	            } /* end if (vecstr_getvec) */
+	        } /* end if (sreq_ofd) */
+	    } /* end if (sreq_openstderr) */
+	} /* end if (locinfo_tmpourdir) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfswatch_progspawn: ret rs=%d\n",rs) ;

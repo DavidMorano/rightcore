@@ -774,14 +774,11 @@ static int procserve(PROGINFO *pip,cchar *pfname,cchar *sfname,mode_t om)
 
 	        if ((re & POLLIN) || (re & POLLPRI)) {
 	            struct strrecvfd	passer ;
-
-	            rs = acceptpass(sfd,&passer,-1) ;
-	            pfd = rs ;
-	            if (rs >= 0) {
+	            if ((rs = acceptpass(sfd,&passer,-1)) >= 0) {
+	                pfd = rs ;
 	                rs = procpassfd(pip,pfname,pfd) ;
 	                u_close(pfd) ;
 	            } /* end if */
-
 	        } else if (re & POLLHUP) {
 	            rs = SR_HANGUP ;
 	        } else if (re & POLLERR) {
@@ -790,8 +787,9 @@ static int procserve(PROGINFO *pip,cchar *pfname,cchar *sfname,mode_t om)
 	            rs = SR_NOTOPEN ;
 	        } /* end if (poll returned) */
 
-	    } else if (rs == SR_INTR)
+	    } else if (rs == SR_INTR) {
 	        rs = SR_OK ;
+	    }
 
 	    if ((rs >= 0) && if_exit) {
 	        rs = SR_INTR ;
