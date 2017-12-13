@@ -88,7 +88,6 @@ extern int	isNotPresent(int) ;
 extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
-extern char	*timestr_nist(time_t,struct nistinfo *,char *) ;
 
 
 /* local structures */

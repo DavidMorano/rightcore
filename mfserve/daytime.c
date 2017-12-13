@@ -353,8 +353,7 @@ static int daytime_worker(DAYTIME *op)
 	            if ((rs = localgetorgcode(pr,obuf,olen,ubuf)) >= 0) {
 	                NISTINFO	ni ;
 	                const time_t	dt = time(NULL) ;
-	                const int	tlen = NISTINFO_ORGSIZE ;
-	                char		tbuf[NISTINFO_ORGSIZE+1] ;
+	                char		ntbuf[NISTINFO_BUFLEN+1+1] ;
 #if	CF_DEBUGS
 			debugprintf("daytime: obuf=%s\n",obuf) ;
 #endif
@@ -362,14 +361,19 @@ static int daytime_worker(DAYTIME *op)
 			nprintf(NDF,"daytime: obuf=%s\n",obuf) ;
 #endif
 	                memset(&ni,0,sizeof(NISTINFO)) ;
-	                strdcpy1(ni.org,tlen,obuf) ;
+	                strdcpy1(ni.org,NISTINFO_ORGLEN,obuf) ;
 #if	CF_DEBUGN
 			nprintf(NDF,"daytime: timestr_nist()\n") ;
 #endif
-	                timestr_nist(dt,&ni,tbuf) ;
+	                timestr_nist(dt,&ni,ntbuf) ;
+#if	CF_DEBUGN
+			nprintf(NDF,"daytime: t=>%s<\n",ntbuf) ;
+#endif
 	                {
-	                    const int	tl = strlen(tbuf) ;
-	                    if ((rs = uc_writen(op->ofd,tbuf,tl)) >= 0) {
+	                    int	tl = strlen(ntbuf) ;
+			    ntbuf[tl++] = '\n' ;
+			    ntbuf[tl] = '\0' ;
+	                    if ((rs = uc_writen(op->ofd,ntbuf,tl)) >= 0) {
 	                        wlen += rs ;
 				rs = sreq_closefds(op->jep) ;
 			    }

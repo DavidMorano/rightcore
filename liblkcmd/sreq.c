@@ -177,6 +177,9 @@ int sreq_finish(SREQ *jep)
 	rs1 = sreq_fdfins(jep) ;
 	if (rs >= 0) rs = rs1 ;
 
+	rs1 = sreq_closestderr(jep) ;
+	if (rs >= 0) rs = rs1 ;
+
 	if (jep->open.namesvcs) {
 	    rs1 = sreq_sndestroy(jep) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -805,21 +808,10 @@ static int sreq_fdfins(SREQ *jep)
 	    }
 	    jep->ofd = -1 ;
 	}
-#if	CF_DEBUGS
-	debugprintf("sreq_fdfins: mid1 rs=%d\n",rs) ;
-#endif
 	if (jep->ifd >= 0) {
 	    rs1 = u_close(jep->ifd) ;
 	    if (rs >= 0) rs = rs1 ;
 	    jep->ifd = -1 ;
-	}
-#if	CF_DEBUGS
-	debugprintf("sreq_fdfins: mid2 rs=%d\n",rs) ;
-#endif
-	if (jep->efd >= 0) {
-	    rs1 = u_close(jep->efd) ;
-	    if (rs >= 0) rs = rs1 ;
-	    jep->efd = -1 ;
 	}
 #if	CF_DEBUGS
 	debugprintf("sreq_fdfins: ret rs=%d\n",rs) ;

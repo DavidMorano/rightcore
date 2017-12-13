@@ -87,10 +87,6 @@
 #define	ORGLEN		MAXNAMELEN
 #endif
 
-#ifndef	ORGCODELEN
-#define	ORGCODELEN	80
-#endif
-
 #ifndef	DBUFLEN
 #define	DBUFLEN		MAXNAMELEN /* dialer-buffer length */
 #endif
@@ -1482,17 +1478,17 @@ const char	svc[] ;
 /* perform the server function */
 static int server(PROGINFO *pip)
 {
-	const int	olen = ORGCODELEN ;
+	const int	olen = NISTINFO_ORGLEN ;
 	int		rs ;
 	cchar		*un = pip->username ;
-	char		obuf[ORGCODELEN+1] ;
+	char		obuf[NISTINFO_ORGLEN+1] ;
 
 	if ((rs = localgetorgcode(pip->pr,obuf,olen,un)) >= 0) {
 	    struct nistinfo	nist ;
 	    int			fd_portal = FD_STDOUT ;
 	    int			cl ;
 	    const char		*cp ;
-	    char		timebuf[TIMEBUFLEN + 1] ;
+	    char		ntbuf[NISTINFO_BUFLEN+1 + 1] ;
 
 /* handle case of data-gram transports */
 
@@ -1513,8 +1509,8 @@ static int server(PROGINFO *pip)
 	            } /* end if (get socket option) */
 
 	            memset(&vecs,0,size) ;
-	            vecs[0].iov_base = timebuf ;
-	            vecs[0].iov_len = TIMEBUFLEN ;
+	            vecs[0].iov_base = ntbuf ;
+	            vecs[0].iov_len = NISTINFO_BUFLEN+1 ;
 
 	            memset(&msg,0,sizeof(struct msghdr)) ;
 	            msg.msg_name = &from ;
@@ -1525,7 +1521,7 @@ static int server(PROGINFO *pip)
 	            if (lip->f.dgram) {
 	                fd_portal = FD_STDIN ;
 	                msg.msg_namelen = sizeof(SOCKADDRESS) ;
-	                vecs[0].iov_len = TIMEBUFLEN ;
+	                vecs[0].iov_len = (NISTINFO_BUFLEN+1) ;
 	                rs = u_recvmsg(fd_portal,&msg,0) ;
 	            } /* end if (read the data-gram off of the socket) */
 
@@ -1533,10 +1529,10 @@ static int server(PROGINFO *pip)
 
 	            if (rs >= 0) {
 	                memset(&nist,0,sizeof(struct nistinfo)) ;
-	                sncpy1(nist.org,NISTINFO_ORGSIZE,obuf) ;
-	                cp = timestr_nist(pip->daytime,&nist,timebuf) ;
-	                cl = strlen(timebuf) ;
-	                timebuf[cl++] = '\n' ;
+	                sncpy1(nist.org,NISTINFO_ORGLEN,obuf) ;
+	                cp = timestr_nist(pip->daytime,&nist,ntbuf) ;
+	                cl = strlen(ntbuf) ;
+	                ntbuf[cl++] = '\n' ;
 	                if (lip->f.dgram) {
 	                    vecs[0].iov_len = cl ;
 	                    rs = u_sendmsg(fd_portal,&msg,0) ;
@@ -1548,11 +1544,11 @@ static int server(PROGINFO *pip)
 	        } /* end if (u_getsockopt) */
 	    } else {
 	        memset(&nist,0,sizeof(struct nistinfo)) ;
-	        sncpy1(nist.org,NISTINFO_ORGSIZE,obuf) ;
-	        cp = timestr_nist(pip->daytime,&nist,timebuf) ;
-	        cl = strlen(timebuf) ;
-	        timebuf[cl++] = '\n' ;
-	        rs = uc_writen(fd_portal,timebuf,cl) ;
+	        sncpy1(nist.org,NISTINFO_ORGLEN,obuf) ;
+	        cp = timestr_nist(pip->daytime,&nist,ntbuf) ;
+	        cl = strlen(ntbuf) ;
+	        ntbuf[cl++] = '\n' ;
+	        rs = uc_writen(fd_portal,ntbuf,cl) ;
 	    } /* end if (socket or other) */
 
 	} /* end if (localgetorgcode) */

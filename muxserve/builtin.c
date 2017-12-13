@@ -427,20 +427,20 @@ const char	*sargv[] ;
 	struct nistinfo	ni ;
 	int		rs = SR_OK ;
 	int		bl ;
-	char		buf[BUFLEN + 1] ;
+	char		tbuf[NISTINFO_BUFLEN+1+1] ;
 
 	memset(&ni,0,sizeof(struct nistinfo)) ;
 
-	strncpy(ni.org,pip->orgcode,NISTINFO_ORGSIZE) ;
+	strncpy(ni.org,pip->orgcode,NISTINFO_ORGLEN) ;
 
 	pip->daytime = time(NULL) ;
 
-	timestr_nist(pip->daytime,&ni,buf) ;
+	timestr_nist(pip->daytime,&ni,tbuf) ;
 
-	bl = strlen(buf) ;
+	bl = strlen(tbuf) ;
 	buf[bl++] = '\n' ;
 
-	rs = uc_writen(cip->fd_output,buf,bl) ;
+	rs = uc_writen(cip->fd_output,tbuf,bl) ;
 
 	return rs ;
 }

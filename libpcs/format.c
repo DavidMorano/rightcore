@@ -4,7 +4,8 @@
 /* last modified %G% version %I% */
 
 
-#define	CF_DEBUGS	0	/* turn on debugging */
+#define	CF_DEBUGZ	0	/* turn on debugging */
+#define	CF_DEBUGZZ	0	/* extra */
 #define	CF_FLOAT	1	/* do you want floating output conversions? */
 #define	CF_LIMITS	1	/* do you have a 'limits.h' include? */
 #define	CF_LPRINT	0	/* the local-print subroutines */
@@ -15,7 +16,7 @@
 #define	CF_SUNCC	0	/* using Sun CC -- complains on 'lsprintf()' */
 #define	CF_SPECIALHEX	1	/* perform special HEX function */
 #define	CF_RESERVE	0	/* compile in 'subinfo_reserve()' */
-#define	CF_CLEANSTR	1	/* clean strings */
+#define	CF_CLEANSTR	0	/* clean strings */
 #define	CF_BINARYMIN	1	/* perform binary conversion minimally */
 #define	CF_BINCHAR	0	/* compile in 'binchar()' */
 
@@ -221,7 +222,9 @@ extern int	hasprintbad(const char *,int) ;
 extern int	isprintbad(int) ;
 extern int	isprintlatin(int) ;
 
-#if	CF_DEBUGS
+#if	CF_DEBUGZ
+extern int	zprint(cchar *,cchar *,int) ;
+extern int	zprintf(cchar *,cchar *,...) ;
 extern int	mkhexstr(char *,int,void *,int) ;
 extern int	hexblock(const char *,void *,int) ;
 #endif
@@ -315,7 +318,10 @@ static int	binchar(ULONG,int) ;
 static int	subinfo_float(SUBINFO *,int,double,int,int,int,char *) ;
 #endif
 
+#if	CF_CLEANSTR
 static int	hasourbad(cchar *sp,int sl) ;
+#endif /* CF_CLEANSTR */
+
 static int	isourbad(int ch) ;
 
 #if	CF_LPRINT
@@ -346,21 +352,23 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	int		rs = SR_OK ;
 	int		fmtlen = 0 ;
 	const char	*tp ;
-#if	CF_DEBUGS
+#if	CF_DEBUGZ
 	const int	dlen = DEBUGBUFLEN ;
 	char		dbuf[DEBUGBUFLEN+1] ;
 #endif
 	char		tbuf[BUFLEN+1] ;	/* must be > MAXDECDIG */
 
-#if	CF_DEBUGS
+#if	CF_DEBUGZ
 	if (fmt != NULL) {
-	    int dl = strlinelen(fmt,-1,40) ;
+	    int dl = strlinelen(fmt,-1,70) ;
 	    strdcpy1(dbuf,dlen,fmt) ;
 	    dbuf[dl] = '\0' ;
-	    fprintf(stderr,"format: enter fmt=>%s<\n", dbuf) ;
-	} else
-	    fprintf(stderr,"format: enter fmt=>%s<\n",nullpointer) ;
-#endif /* CF_DEBUGS */
+	    zprintf(NDF,"format: ent dl=%d\n",dl) ;
+	    zprintf(NDF,"format: fmt=>%s<\n",dbuf) ;
+	} else {
+	    zprintf(NDF,"format: ent fmt=>%s<\n",nullpointer) ;
+	}
+#endif /* CF_DEBUGZ */
 
 	if (ubuf == NULL) return SR_FAULT ;
 	if (fmt == NULL) return SR_FAULT ;
@@ -372,9 +380,9 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 /* go through the loops */
 
 	    while ((rs >= 0) && *fmt && ((tp = strchr(fmt,'%')) != NULL)) {
-	        int		bl = 0 ;
-	        int		nfmt ;
-	        int		fcode ;
+	        int	bl = 0 ;
+	        int	nfmt ;
+	        int	fcode ;
 	        char	*bp = tbuf ;
 
 	        if ((tp-fmt) > 0) {
@@ -389,11 +397,11 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 	        {
 	            int	f_continue = FALSE ;
-#if	CF_DEBUGS
+#if	CF_DEBUGZ && CF_DEBUGZZ
 	            int	f_special = FALSE ;
 #endif
 
-	            const char	*fp = fmt ;
+	            cchar	*fp = fmt ;
 
 	            memset(fsp,0,sizeof(FMTSPEC)) ;
 	            fsp->width = -1 ;
@@ -426,26 +434,26 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	                    break ;
 	                } /* end switch */
 	                if (f_continue) {
-#if	CF_DEBUGS
+#if	CF_DEBUGZ && CF_DEBUGZZ
 	                    f_special = TRUE ;
 #endif
 	                    fp += 1 ;
 	                }
 	            } /* end while */
 
-#if	CF_DEBUGS && 0
+#if	CF_DEBUGZ && CF_DEBUGZZ
 	            if (f_special) {
-	                fprintf(stderr,"format: f_left=%u\n",fsp->f.left) ;
-	                fprintf(stderr,"format: f_plus=%u\n",fsp->f.plus) ;
-	                fprintf(stderr,"format: f_thousands=%u\n",
+	                zprintf(NDF,"format: f_left=%u\n",fsp->f.left) ;
+	                zprintf(NDF,"format: f_plus=%u\n",fsp->f.plus) ;
+	                zprintf(NDF,"format: f_thousands=%u\n",
 	                    fsp->f.thousands) ;
-	                fprintf(stderr,"format: f_zerofill=%u\n",
+	                zprintf(NDF,"format: f_zerofill=%u\n",
 	                    fsp->f.zerofill) ;
-	                fprintf(stderr,"format: f_alternate=%u\n",
+	                zprintf(NDF,"format: f_alternate=%u\n",
 	                    fsp->f.alternate) ;
-	                fprintf(stderr,"format: f_space=%u\n",fsp->f.space) ;
+	                zprintf(NDF,"format: f_space=%u\n",fsp->f.space) ;
 	            }
-#endif /* CF_DEBUGS */
+#endif /* CF_DEBUGZ */
 
 /* now comes a digit string which may be a '*' */
 
@@ -537,13 +545,13 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	        fmt += nfmt ;
 	        fcode = fsp->fcode ;
 
-#if	CF_DEBUGS
+#if	CF_DEBUGZ
 	        {
 	            int	fc = (isprintlatin(fcode) ? fcode : '¿') ;
-	            fprintf(stderr,"format: switch fcode=%c (\\x%04X)\n",
+	            zprintf(NDF,"format: switch fcode=%c (\\x%04X)\n",
 	                fc,fcode) ;
 	        }
-#endif /* CF_DEBUGS */
+#endif /* CF_DEBUGZ */
 
 	        switch (fcode) {
 
@@ -570,8 +578,8 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	                int	f_wchar = FALSE ;
 	                int	f_wint = FALSE ;
 
-#if	CF_DEBUGS
-	                fprintf(stderr,"format: got a character\n") ;
+#if	CF_DEBUGZ
+	                zprintf(NDF,"format: got a character\n") ;
 #endif
 
 	                if (fsp->fcode != 'C') {
@@ -669,15 +677,18 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	                } /* end block */
 #endif /* COMMENT */
 
-#if	CF_DEBUGS
+#if	CF_DEBUGZ
 	                {
-	                    int	dl = strlinelen(sd.sp,sd.sl,40) ;
+	                    int	dl ;
+			    if (sd.sp == NULL) sd.sp = "*NULL*" ;
+	                    dl = strlinelen(sd.sp,sd.sl,40) ;
 	                    strdcpy1(dbuf,dlen,sd.sp) ;
 	                    dbuf[dl] = '\0' ;
-	                    fprintf(stderr,"format: s sl=%d sp{%p}=>%s<\n",
+	                    zprintf(NDF,"format: s sp{%p}\n",sd.sp) ;
+	                    zprintf(NDF,"format: s sl=%d sp{%p}=>%s<\n",
 	                        sd.sl,sd.sp,dbuf) ;
 	                }
-#endif
+#endif /* CF_DEBUGZ */
 
 	                rs = subinfo_fmtstr(sip,fsp,&sd) ;
 	                fcode = 0 ;
@@ -721,8 +732,9 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	                } /* end for (making the digits) */
 	                if (i == 0) *--bp = '0' ;
 
-#if	CF_DEBUGS
-	                fprintf(stderr,"format: nd=%u b=%s\n",nd,bp) ;
+#if	CF_DEBUGZ
+			if (bp == NULL) bp = "*NULL*" ;
+	                zprintf(NDF,"format: nd=%u b=%s\n",nd,bp) ;
 #endif
 
 	                bl = ((tbuf+tlen) - bp) ;
@@ -783,8 +795,9 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 	                } /* end for (making the digits) */
 
-#if	CF_DEBUGS
-	                fprintf(stderr,"format: ndigits=%u b=%s\n",ndigits,bp) ;
+#if	CF_DEBUGZ
+			if (bp == NULL) bp = "*NULL*" ;
+	                zprintf(NDF,"format: ndigits=%u b=%s\n",ndigits,bp) ;
 #endif
 
 	                bl = (bp-(tbuf+tlen)) ;
@@ -882,8 +895,8 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	                    break ;
 	                } /* end switch */
 
-#if	CF_DEBUGS
-	                fprintf(stderr,"format: binary ndigits=%u\n",ndigits) ;
+#if	CF_DEBUGZ
+	                zprintf(NDF,"format: binary ndigits=%u\n",ndigits) ;
 #endif
 
 #if	CF_BINARYMIN
@@ -924,8 +937,8 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 	                    *bp = '\0' ;
 
-#if	CF_DEBUGS
-	                    fprintf(stderr,"format: tbuf=>%s<\n",tbuf) ;
+#if	CF_DEBUGZ
+	                    zprintf(NDF,"format: tbuf=>%s<\n",tbuf) ;
 #endif
 
 	                    bl = (bp - tbuf) ;
@@ -944,8 +957,9 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	                        if ((! f_special) && (unum == 0)) break ;
 	                    } /* end for (making the digits) */
 
-#if	CF_DEBUGS
-	                    fprintf(stderr,"format: ndigits=%u b=%s\n",
+#if	CF_DEBUGZ
+			    if (bp == NULL) bp = "*NULL*" ;
+	                    zprintf(NDF,"format: ndigits=%u b=%s\n",
 				ndigits,bp) ;
 #endif
 
@@ -963,8 +977,8 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	            {
 	                double	dv ;
 
-#if	CF_DEBUGS
-	                fprintf(stderr,"format: float fcode=%c\n",fcode) ;
+#if	CF_DEBUGZ
+	                zprintf(NDF,"format: float fcode=%c\n",fcode) ;
 #endif
 
 	                dv = (double) va_arg(ap,double) ;
@@ -1077,24 +1091,24 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 /* determine if there are characters to output based on 'fcode' variable */
 
-#if	CF_DEBUGS
-	        fprintf(stderr,"format: switch rs=%d fcode=%c (\\x%04X)\n",
+#if	CF_DEBUGZ
+	        zprintf(NDF,"format: switch-out rs=%d fcode=%c (\\x%04X)\n",
 	            rs,(isprintlatin(fcode) ? fcode : '°'),fcode) ;
 #endif
 
 	        if ((rs >= 0) && (fcode != '\0') && (bp != NULL)) {
 	            rs = subinfo_emit(sip,fsp,bp,bl) ;
 
-#if	CF_DEBUGS
-	            fprintf(stderr,"format: subinfo_emit() rs=%d\n",rs) ;
+#if	CF_DEBUGZ
+	            zprintf(NDF,"format: subinfo_emit() rs=%d\n",rs) ;
 #endif
 
 	        }
 
 	    } /* end while (infinite loop) */
 
-#if	CF_DEBUGS
-	    fprintf(stderr,"format: while-out rs=%d\n",rs) ;
+#if	CF_DEBUGZ
+	    zprintf(NDF,"format: while-out rs=%d\n",rs) ;
 #endif
 
 	    if ((rs >= 0) && (*fmt != '\0')) {
@@ -1105,21 +1119,21 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	    if (rs >= 0) rs = fmtlen ;
 	} /* end if (subinfo) */
 
-#if	CF_DEBUGS
-	fprintf(stderr,"format: subinfo_finish() rs=%d\n",rs) ;
+#if	CF_DEBUGZ
+	zprintf(NDF,"format: subinfo_finish() rs=%d\n",rs) ;
 #endif
 
 /* we are out of here! */
 
-#if	CF_DEBUGS
+#if	CF_DEBUGZ
 	{
 	    int dl = strlinelen(ubuf,fmtlen,40) ;
-	    fprintf(stderr,"format: ret rs=%d fmtlen=%u\n",rs,fmtlen) ;
 	    strdcpy1(dbuf,dlen,ubuf) ;
 	    dbuf[dl] = '\0' ;
-	    fprintf(stderr,"format: ubuf=>%s<\n",dbuf) ;
+	    zprintf(NDF,"format: ubuf=>%s<\n",dbuf) ;
+	    zprintf(NDF,"format: ret rs=%d fmtlen=%u\n",rs,fmtlen) ;
 	}
-#endif /* CF_DEBUGS */
+#endif /* CF_DEBUGZ */
 
 	return (rs >= 0) ? fmtlen : rs ;
 }
@@ -1187,6 +1201,11 @@ static int subinfo_strw(SUBINFO *sip,cchar *sp,int sl)
 	int		rs = SR_OK ;
 	int		ml = 0 ;
 
+#if	CF_DEBUGZ
+	if (sp == NULL) sp = "*NULL*" ;
+	zprintf(NDF,"format/subinfo_strw: ent sl=%d s=>%*s<\n",sl,sl,sp) ;
+#endif
+
 	if (! sip->f.ov) {
 	    int		rlen ;
 	    if (sl < 0) sl = strlen(sp) ;
@@ -1195,15 +1214,19 @@ static int subinfo_strw(SUBINFO *sip,cchar *sp,int sl)
 	    ml = MIN(sl,rlen) ;
 	    if (ml > 0) {
 	        char	*bp = (sip->ubuf + sip->len) ;
+#if	CF_DEBUGZ
+	zprintf(NDF,"format/subinfo_strw: wri ml=%d s=>%*s<\n",ml,ml,sp) ;
+#endif
 	        memcpy(bp,sp,ml) ;
 	        sip->len += ml ;
 	    }
 	    if (sip->f.ov) rs = SR_OVERFLOW ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
-#if	CF_DEBUGS
-	fprintf(stderr,"format/subinfo_strw: ret rs=%d ml=%u\n",rs,ml) ;
+#if	CF_DEBUGZ
+	zprintf(NDF,"format/subinfo_strw: ret rs=%d ml=%u\n",rs,ml) ;
 #endif
 
 	return (rs >= 0) ? ml : rs ;
@@ -1259,9 +1282,9 @@ static int subinfo_cleanstrw(SUBINFO *sip,cchar *sp,int sl)
 	        f_eol = TRUE ;
 	    }
 	    if (hasourbad(sp,hl)) {
-	        int size = (sl+1) ;
+	        int	size = (sl+1) ;
 	        if ((rs = uc_malloc(size,&abuf)) >= 0) {
-	            int	i, ch ;
+	            int		i, ch ;
 	            for (i = 0 ; (i < hl) && *sp ; i += 1) {
 	                ch = MKCHAR(sp[i]) ;
 	                if (isourbad(ch)) ch = CH_BADSUB ;
@@ -1297,7 +1320,11 @@ static int subinfo_fmtstr(SUBINFO *sip,FMTSPEC *fsp,STRDATA *sdp)
 	int		f_wchar = sdp->f_wchar ;
 	int		f_memalloc = FALSE ;
 	int		fcode = 0 ;
-	const char	*sp = sdp->sp ;
+	cchar		*sp = sdp->sp ;
+
+#if	CF_DEBUGZ
+	zprintf(NDF,"format/_fmtstr: ent\n") ;
+#endif
 
 /* possible necessary (at this time) conversion to regular characters */
 
@@ -1402,6 +1429,10 @@ static int subinfo_fmtstr(SUBINFO *sip,FMTSPEC *fsp,STRDATA *sdp)
 
 	if (f_memalloc && (sp != NULL)) uc_free(sp) ;
 
+#if	CF_DEBUGZ
+	zprintf(NDF,"format/_fmtstr: ret rs=%d fcode=\\x%04x\n",rs,fcode) ;
+#endif
+
 	return (rs >= 0) ? fcode : rs ;
 }
 /* end subroutine (subinfo_fmtstr) */
@@ -1430,19 +1461,19 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 	if (sl < 0) sl = strlen(sp) ;
 #endif
 
-#if	CF_DEBUGS 
+#if	CF_DEBUGZ 
 	{
 	    int 	dl = strlinelen(sp,sl,40) ;
 	    char	dbuf[DEBUGBUFLEN + 1] ;
 	    strdcpy1w(dbuf,DEBUGBUFLEN,sp,dl) ;
-	    fprintf(stderr,"format/subinfo_emit: fcode=%c (\\x%04X)\n",
+	    zprintf(NDF,"format/subinfo_emit: fcode=%c (\\x%04X)\n",
 	        fcode,fcode) ;
-	    fprintf(stderr,"format/subinfo_emit: sl=%d sp=>%s<\n",sl,dbuf) ;
-	    fprintf(stderr,"format/subinfo_emit: width=%d prec=%d\n",
+	    zprintf(NDF,"format/subinfo_emit: sl=%d sp=>%s<\n",sl,dbuf) ;
+	    zprintf(NDF,"format/subinfo_emit: width=%d prec=%d\n",
 	        width,prec) ;
-	    fprintf(stderr,"format/subinfo_emit: f_zerofill=%u\n",f_zerofill) ;
+	    zprintf(NDF,"format/subinfo_emit: f_zerofill=%u\n",f_zerofill) ;
 	}
-#endif /* CF_DEBUGS */
+#endif /* CF_DEBUGZ */
 
 /* evaluate and setup */
 
@@ -1533,9 +1564,9 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 	        if (width > ml) npad = (width - ml) ;
 	    } /* end block */
 
-#if	CF_DEBUGS 
-	    fprintf(stderr,"format/subinfo_emit: npad=%d\n",npad) ;
-	    fprintf(stderr,"format/subinfo_emit: f_zerofill=%u\n",f_zerofill) ;
+#if	CF_DEBUGZ 
+	    zprintf(NDF,"format/subinfo_emit: npad=%d\n",npad) ;
+	    zprintf(NDF,"format/subinfo_emit: f_zerofill=%u\n",f_zerofill) ;
 #endif
 
 /* print out any leading padding (field width) */
@@ -1643,8 +1674,8 @@ char		buf[] ;
 	int		f_varwidth ;
 	char		stage[DOFLOAT_STAGELEN + 1] ;
 
-#if	CF_DEBUGS
-	fprintf(stderr,"format/subinfo_float: fcode=%c width=%d prec=%d\n",
+#if	CF_DEBUGZ
+	zprintf(NDF,"format/subinfo_float: fcode=%c width=%d prec=%d\n",
 	    fcode,width,prec) ;
 #endif
 
@@ -1688,8 +1719,8 @@ char		buf[] ;
 	        break ;
 	    } /* end switch */
 
-#if	CF_DEBUGS
-	    fprintf(stderr,"format/subinfo_float: xconvert() b=>%s<\n",buf) ;
+#if	CF_DEBUGZ
+	    zprintf(NDF,"format/subinfo_float: xconvert() b=>%s<\n",buf) ;
 #endif
 
 	    remlen = width ;
@@ -1779,8 +1810,8 @@ char		buf[] ;
 
 /* copy the stage buffer to the output buffer */
 
-#if	CF_DEBUGS
-	    fprintf(stderr,"format/subinfo_float: stage=>%s<\n",(stage+i)) ;
+#if	CF_DEBUGZ
+	    zprintf(NDF,"format/subinfo_float: stage=>%s<\n",(stage+i)) ;
 #endif
 
 	    while ((rs >= 0) && (i < DOFLOAT_STAGELEN)) {
@@ -1882,6 +1913,7 @@ static ULONG rshiftul(ULONG v,int n)
 #endif /* CF_BINCHAR */
 
 
+#if	CF_CLEANSTR
 static int hasourbad(cchar *sp,int sl)
 {
 	int		f = FALSE ;
@@ -1895,11 +1927,12 @@ static int hasourbad(cchar *sp,int sl)
 	return f ;
 }
 /* end subroutine (hasourbad) */
+#endif /* CF_CLEANSTR */
 
 
 int isourbad(int ch)
 {
-	int	f = FALSE ;
+	int		f = FALSE ;
 	f = f || isprintlatin(ch) ;
 	f = f || (ch == '\r') || (ch == '\n') ;
 	f = f || (ch == CH_BS) ;
@@ -1910,7 +1943,5 @@ int isourbad(int ch)
 	return (! f) ;
 }
 /* end subroutine (isourbad) */
-
-
 
 

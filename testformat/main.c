@@ -40,6 +40,7 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
+#include	<stdarg.h>
 #include	<stdio.h>
 
 #include	<vsystem.h>
@@ -47,6 +48,7 @@
 #include	<baops.h>
 #include	<vecstr.h>
 #include	<paramopt.h>
+#include	<format.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -75,21 +77,23 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
+extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	debugclose() ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern cchar	*getourenv(cchar **,cchar *) ;
 
-extern char	*strdcpy1(char *,int,const char *) ;
+extern char	*strdcpy1(char *,int,cchar *) ;
 extern char	*timestr_logz(time_t,char *) ;
 extern char	*timestr_elapsed(time_t,char *) ;
 
@@ -105,12 +109,12 @@ extern char	*timestr_elapsed(time_t,char *) ;
 static int	usage(PROGINFO *) ;
 static int	process(PROGINFO *,bfile *) ;
 
-static char	*remeol(char *,const char *) ;
+static char	*remeol(char *,cchar *) ;
 
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -158,42 +162,30 @@ static const struct mapex	mapexs[] = {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
-
 	PARAMOPT	aparams ;
-
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
-
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	pan ;
-	int	rs, rs1 ;
-	int	len, v ;
-	int	i, j, k ;
-	int	sl, ci ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_version = FALSE ;
-	int	f_usage = FALSE ;
-	int	f_help = FALSE ;
-	int	f ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		rs, rs1 ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_version = FALSE ;
+	int		f_usage = FALSE ;
+	int		f_help = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	const char	*searchname = NULL ;
+	const char	*sn = NULL ;
 	const char	*pr = NULL ;
 	const char	*afname = NULL ;
+	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
-	const char	*cp, *cp2 ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	tmpfname[MAXPATHLEN + 1] ;
+	const char	*cp ;
+	char		argpresent[MAXARGGROUPS] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -210,18 +202,6 @@ const char	*envv[] ;
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
 	rs = proginfo_setbanner(pip,cp) ;
-
-#if	CF_BFILE
-	cp = getenv(VARERRFILE) ;
-	if (cp != NULL) {
-	    rs1 = bopen(&errfile,cp, "wca", 0666) ;
-	} else
-	    rs1 = bopen(&errfile, BFILE_STDERR, "dwca", 0666) ;
-	if (rs1 >= 0) {
-	    pip->efp = &errfile ;
-	    bcontrol(&errfile,BC_LINEBUF,0) ;
-	}
-#endif /* CF_BFILE */
 
 /* early things to initialize */
 
@@ -248,11 +228,11 @@ const char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
-		    argval = (argp+1) ;
+	            argval = (argp+1) ;
 
 	        } else if (ach == '-') {
 
@@ -272,7 +252,7 @@ const char	*envv[] ;
 	                avl = aop + argl - 1 - avp ;
 	                aol = akl ;
 	            } else {
-			avp = NULL ;
+	                avp = NULL ;
 	                avl = 0 ;
 	                akl = aol ;
 	            }
@@ -315,9 +295,9 @@ const char	*envv[] ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
-	                                rs = optvalue(avp,avl) ;
-	                                pip->verboselevel = rs ;
-				}
+	                            rs = optvalue(avp,avl) ;
+	                            pip->verboselevel = rs ;
+	                        }
 	                    }
 	                    break ;
 
@@ -404,24 +384,24 @@ const char	*envv[] ;
 	            } else {
 
 	                while (akl--) {
-			    const int	kc = MKCHAR(*akp) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
 	                    case 'V':
 	                        f_version = TRUE ;
-	                    if (f_optequal)
-	                        rs = SR_INVALID ;
+	                        if (f_optequal)
+	                            rs = SR_INVALID ;
 	                        break ;
 
 	                    case 'D':
 	                        pip->debuglevel = 1 ;
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
-				    if (avl) {
-	                                    rs = optvalue(avp,avl) ;
-	                                    pip->debuglevel = rs ;
-				    }
+	                            if (avl) {
+	                                rs = optvalue(avp,avl) ;
+	                                pip->debuglevel = rs ;
+	                            }
 	                        }
 	                        break ;
 
@@ -438,7 +418,7 @@ const char	*envv[] ;
 	                            if (avl) {
 	                                rs = optvalue(avp,avl) ;
 	                                pip->verboselevel = rs ;
-				    }
+	                            }
 
 	                        }
 	                        break ;
@@ -449,15 +429,12 @@ const char	*envv[] ;
 
 	                    default:
 	                        rs = SR_INVALID ;
-	                        bprintf(pip->efp,"%s: unknown option - %c\n",
-	                            pip->progname,*aop) ;
+				break ;
 
 	                    } /* end switch */
-
 	                    akp += 1 ;
-	                    if (rs < 0)
-	                        break ;
 
+	                    if (rs < 0) break ;
 	                } /* end while */
 
 	            } /* end if (individual option key letters) */
@@ -478,12 +455,22 @@ const char	*envv[] ;
 
 	} /* end while (all command line argument processing) */
 
+	if (efname == NULL) efname = getenv(VAREFNAME) ;
+	if (efname == NULL) efname = BFILE_STDERR ;
+	if ((rs1 = bopen(&errfile,efname,"wca",0666)) >= 0) {
+	    pip->efp = &errfile ;
+	    pip->open.errfile = TRUE ;
+	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
+	}
+
 	if (rs < 0)
 	    goto badarg ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	debugprintf("main: d_ debuglevel=%u\n",pip->debuglevel) ;
+	    debugprintf("main: d_ debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
 #if	CF_DEBUGS
@@ -493,30 +480,25 @@ const char	*envv[] ;
 /* check arguments */
 
 	if (pip->debuglevel > 0) {
-
 	    bprintf(pip->efp,
 	        "%s: debuglevel=%u\n",
 	        pip->progname,pip->debuglevel) ;
-
 	    bcontrol(pip->efp,BC_LINEBUF,0) ;
-
 	    bflush(pip->efp) ;
-
 	}
 
-	if (f_version)
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	if (f_version) {
+	    bprintf(pip->efp,"%s: version %s\n", pip->progname,VERSION) ;
+	}
 
 	if (f_usage)
 	    usage(pip) ;
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-/* program search name */
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,searchname) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -548,63 +530,64 @@ const char	*envv[] ;
 
 /* check a few more things */
 
-	if (pip->tmpdname == NULL)
-	    pip->tmpdname = getenv(VARTMPDNAME) ;
+	if ((rs >= 0) && ((ai_max < 0) || (ai_pos < 0))) rs = SR_BUGCHECK ;
 
-	if (pip->tmpdname == NULL)
-	    pip->tmpdname = TMPDNAME ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (afname == NULL) afname = getenv(VARAFNAME) ;
+
+	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
+	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
+
+	if ((afname != NULL) && (afname[0] == '-')) rs = 1 ;
 
 /* start processing */
 
-	if ((ofname != NULL) && (ofname[0] != '\0')) {
-	    rs = bopen(ofp,ofname,"wct",0644) ;
+	if ((ofname == NULL) || (ofname[0] == '\0')) ofname = BFILE_STDOUT ;
 
-	} else
-	    rs = bopen(ofp,BFILE_STDOUT,"dwct",0644) ;
+	if (rs >= 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    if ((rs = bopen(ofp,ofname,"wct",0644)) >= 0) {
+	        rs = process(pip,ofp) ;
+	        bclose(ofp) ;
+	    } else {
+	        ex = EX_CANTCREAT ;
+	        fmt = "%s: output inaccessible (%d)\n" ;
+	        bprintf(pip->efp,fmt,pn,rs) ;
+	    }
+	} /* end if */
 
-#if	CF_STDERR
-	fprintf(stderr,"main: bopen() rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0) {
-		ex = EX_CANTCREAT ;
-		bprintf(pip->efp,"%s: output inaccessible (%d)\n",
-	    	pip->progname,rs) ;
-		goto badoutopen ;
-	}
-
-/* OK, we do it */
-
-	rs = process(pip,ofp) ;
-
-	bclose(ofp) ;
-
-badoutopen:
-done:
 	ex = (rs >= 0) ? EX_OK : EX_DATAERR ;
 
 retearly:
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
 	        pip->progname,ex,rs) ;
+	}
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(2))
+	if (DEBUGLEVEL(2))
 	    debugprintf("main: exiting ex=%u (%d)\n",ex,rs) ;
 #endif
 
 /* we are out of here */
 
-	if (pip->open.aparams)
+	if (pip->open.aparams) {
+	    pip->open.aparams = FALSE ;
 	    paramopt_finish(&aparams) ;
+	}
 
-	if (pip->efp != NULL)
+	if (pip->efp != NULL) {
 	    bclose(pip->efp) ;
+	    pip->efp = NULL ;
+	}
 
-ret1:
 	proginfo_finish(pip) ;
 
-ret0:
 badprogstart:
 
 #if	(CF_DEBUGS || CF_DEBUG)
@@ -618,9 +601,7 @@ badarg:
 	ex = EX_USAGE ;
 	bprintf(pip->efp,"%s: invalid argument specified (%d)\n",
 	    pip->progname,rs) ;
-
 	usage(pip) ;
-
 	goto retearly ;
 
 }
@@ -630,8 +611,7 @@ badarg:
 /* local subroutines */
 
 
-static int usage(pip)
-PROGINFO	*pip ;
+static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -644,10 +624,9 @@ PROGINFO	*pip ;
 /* end subroutine (usage) */
 
 
-static int process(pip,ofp)
-PROGINFO	*pip ;
-bfile		*ofp ;
+static int process(PROGINFO *pip,bfile *ofp)
 {
+	const int	flen = BUFLEN ;
 	int		rs = SR_OK ;
 	int		i ;
 	int		num ;
@@ -656,131 +635,131 @@ bfile		*ofp ;
 	char		lbuf[BUFLEN + 1] ;
 
 	if (rs >= 0) {
-	    const char	*s = "hello world!" ;
-		i = 1 ;
-	rs = bufprintf(fbuf,BUFLEN,"%s\n",s) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
+	    cchar	*s = "hello world!" ;
+	    i = 1 ;
+	    rs = bufprintf(fbuf,flen,"%s\n",s) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
 	    const char	*s = "hello world!" ;
-		i = 2 ;
-	rs = bufprintf(fbuf,BUFLEN,"%t\n",s,-1) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
+	    i = 2 ;
+	    rs = bufprintf(fbuf,BUFLEN,"%t\n",s,-1) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
-	i = 3 ;
-	num = 17 ;
-	rs = bufprintf(fbuf,BUFLEN,"num=%hx\n",num) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
+	    i = 3 ;
+	    num = 17 ;
+	    rs = bufprintf(fbuf,BUFLEN,"num=%hx\n",num) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
-		i = 4 ;
-	num = -128 ;
-	rs = bufprintf(fbuf,BUFLEN,"num=%08x\n",num) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
+	    i = 4 ;
+	    num = -128 ;
+	    rs = bufprintf(fbuf,BUFLEN,"num=%08x\n",num) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
-	num = 2 ;
-	rs = ctdeci(fbuf,BUFLEN,num) ;
-	fprintf(stderr,"main: 5 ctdeci() rs=%d b=%s\n",rs,fbuf) ;
+	    num = 2 ;
+	    rs = ctdeci(fbuf,BUFLEN,num) ;
+	    fprintf(stderr,"main: 5 ctdeci() rs=%d b=%s\n",rs,fbuf) ;
 	}
 
 	if (rs >= 0) {
-	num = 17 ;
-	rs = bufprintf(fbuf,BUFLEN,"num=%o\n",num) ;
-	fprintf(stderr,"main: 6 bufprintf() rs=%d\n",rs) ;
+	    num = 17 ;
+	    rs = bufprintf(fbuf,BUFLEN,"num=%o\n",num) ;
+	    fprintf(stderr,"main: 6 bufprintf() rs=%d\n",rs) ;
 	}
 
 	if (rs >= 0) {
-	num = 17 ;
-	rs = bufprintf(fbuf,BUFLEN,"num=%.7o\n",num) ;
-	fprintf(stderr,"main: 7 bufprintf() rs=%d\n",rs) ;
+	    num = 17 ;
+	    rs = bufprintf(fbuf,BUFLEN,"num=%.7o\n",num) ;
+	    fprintf(stderr,"main: 7 bufprintf() rs=%d\n",rs) ;
 	}
 
 	if (rs >= 0) {
-	num = 17 ;
-	rs = bufprintf(fbuf,BUFLEN,"num=%11.7o\n",num) ;
-	fprintf(stderr,"main: 8 stdio num=%11.7o\n",num) ;
-	fprintf(stderr,"main: 8 bufprintf() rs=%d\n",rs) ;
+	    num = 17 ;
+	    rs = bufprintf(fbuf,BUFLEN,"num=%11.7o\n",num) ;
+	    fprintf(stderr,"main: 8 stdio num=%11.7o\n",num) ;
+	    fprintf(stderr,"main: 8 bufprintf() rs=%d\n",rs) ;
 	}
 
 	if (rs >= 0) {
-	num = 2 ;
-	rs = bufprintf(fbuf,BUFLEN,"num=%u\n",num) ;
-	fprintf(stderr,"main: 9 bufprintf() rs=%d\n",rs) ;
+	    num = 2 ;
+	    rs = bufprintf(fbuf,BUFLEN,"num=%u\n",num) ;
+	    fprintf(stderr,"main: 9 bufprintf() rs=%d\n",rs) ;
 	}
 
 	if (rs >= 0) {
-	i = 10 ;
-	num = -2 ;
-	fmt = "num=%d\n" ;
-	fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
-	rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
-	snprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u stdio            b=>%s<\n",
-		i,remeol(lbuf,fbuf));
+	    i = 10 ;
+	    num = -2 ;
+	    fmt = "num=%d\n" ;
+	    fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
+	    rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
+	    snprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u stdio            b=>%s<\n",
+	        i,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
-	i = 11 ;
-	num = -2 ;
-	fmt = "num=%.3d\n" ;
-	fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
-	rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
-	snprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u stdio            b=>%s<\n",
-		i,remeol(lbuf,fbuf));
+	    i = 11 ;
+	    num = -2 ;
+	    fmt = "num=%.3d\n" ;
+	    fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
+	    rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
+	    snprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u stdio            b=>%s<\n",
+	        i,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
-	i = 12 ;
-	num = -2 ;
-	fmt = "num=%3d\n" ;
-	fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
-	rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
-	snprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u stdio            b=>%s<\n",
-		i,remeol(lbuf,fbuf));
+	    i = 12 ;
+	    num = -2 ;
+	    fmt = "num=%3d\n" ;
+	    fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
+	    rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
+	    snprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u stdio            b=>%s<\n",
+	        i,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
-	i = 13 ;
-	num = -2 ;
-	fmt = "num=%03d\n" ;
-	fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
-	rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
-	snprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u stdio            b=>%s<\n",
-		i,remeol(lbuf,fbuf));
+	    i = 13 ;
+	    num = -2 ;
+	    fmt = "num=%03d\n" ;
+	    fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
+	    rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
+	    snprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u stdio            b=>%s<\n",
+	        i,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
-	i = 14 ;
-	num = 2 ;
-	fmt = "num=%04x\n" ;
-	fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
-	rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		i,rs,remeol(lbuf,fbuf)) ;
-	snprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u stdio            b=>%s<\n",
-		i,remeol(lbuf,fbuf));
+	    i = 14 ;
+	    num = 2 ;
+	    fmt = "num=%04x\n" ;
+	    fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
+	    rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
+	    snprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u stdio            b=>%s<\n",
+	        i,remeol(lbuf,fbuf)) ;
 	}
 
 	if (rs >= 0) {
@@ -791,21 +770,28 @@ bfile		*ofp ;
 	        fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
 	        rs = bufprintf(fbuf,BUFLEN,fmt,num) ;
 	        fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		        i,rs,remeol(lbuf,fbuf)) ;
+	            i,rs,remeol(lbuf,fbuf)) ;
 	    }
 	    {
-		int	v = 0 ;
+	        int	v = 0 ;
 	        fmt = "num=%4ß\n" ;
 	        fprintf(stderr,"main: %u fmt=>%s<\n",i,remeol(lbuf,fmt)) ;
 	        rs = bufprintf(fbuf,BUFLEN,fmt,v) ;
 	        fprintf(stderr,"main: %u bufprintf() rs=%d b=>%s<\n",
-		        i,rs,remeol(lbuf,fbuf)) ;
+	            i,rs,remeol(lbuf,fbuf)) ;
 	    }
 #ifdef	COMMENT /* unknown format specifier to STDIO */
-	snprintf(fbuf,BUFLEN,fmt,num) ;
-	fprintf(stderr,"main: %u stdio            b=>%s<\n",
-		i,remeol(lbuf,fbuf));
+	    snprintf(fbuf,BUFLEN,fmt,num) ;
+	    fprintf(stderr,"main: %u stdio            b=>%s<\n",
+	        i,remeol(lbuf,fbuf)) ;
 #endif /* COMMENT */
+	}
+/* over flow test */
+	if (rs >= 0) {
+	    i = 16 ;
+	    rs = bufprintf(fbuf,10,"here is something\n") ;
+	    fprintf(stderr,"main: %u rs=%d b=>%s<\n",
+	        i,rs,remeol(lbuf,fbuf)) ;
 	}
 
 	return rs ;
@@ -813,7 +799,7 @@ bfile		*ofp ;
 /* end subroutine (process) */
 
 
-static char *remeol(char *lbuf,const char *s)
+static char *remeol(char *lbuf,cchar *s)
 {
 	char	*lbp ;
 	lbp = strdcpy1(lbuf,BUFLEN,s) ;
@@ -821,6 +807,5 @@ static char *remeol(char *lbuf,const char *s)
 	return lbuf ;
 }
 /* end subroutine (remeol) */
-
 
 

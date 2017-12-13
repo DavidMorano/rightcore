@@ -230,7 +230,7 @@ GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
 
 LOBJ00= daytime.o hello.o
-LOBJ01=
+LOBJ01= timestr_nist.o
 LOBJ02=
 LOBJ03=
 
@@ -421,6 +421,8 @@ getutmpterm.o:		getutmpterm.c getutmpent.h
 svckv.o:		svckv.c svckv.h
 
 svcent.o:		svcent.c svcent.h
+
+format.o:		format.c format.h
 
 
 # standard objects duplicated here

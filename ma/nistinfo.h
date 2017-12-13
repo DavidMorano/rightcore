@@ -10,8 +10,8 @@
 
 
 #define	NISTINFO		struct nistinfo
-#define	NISTINFO_BUFSIZE	80
-#define	NISTINFO_ORGSIZE	16
+#define	NISTINFO_BUFLEN		80
+#define	NISTINFO_ORGLEN		16
 
 
 struct nistinfo {
@@ -19,7 +19,7 @@ struct nistinfo {
 	int		l ;
 	int		h ;
 	int		adv ;
-	char		org[NISTINFO_ORGSIZE + 1] ;
+	char		org[NISTINFO_ORGLEN+1] ;
 } ;
 
 

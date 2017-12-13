@@ -377,13 +377,13 @@ char *stroflags(char *buf,int oflags)
 static int checkbasebounds(cchar *bbuf,int blen,void *vp)
 {
 	int		rs = SR_OK ;
-	const char	*tp = (const char *) vp ;
+	cchar		*tp = (cchar *) vp ;
 
-	if ((rs >= 0) && (tp < bbuf))
+	if (tp >= bbuf) {
+	    if (tp >= (bbuf + blen)) rs = SR_BADFMT ;
+	} else {
 	    rs = SR_BADFMT ;
-
-	if ((rs >= 0) && (tp >= (bbuf + blen)))
-	    rs = SR_BADFMT ;
+	}
 
 	return rs ;
 }

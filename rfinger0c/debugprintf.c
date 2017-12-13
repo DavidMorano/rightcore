@@ -130,10 +130,10 @@ extern int	strlinelen(const char *,int,int) ;
 extern int	msleep(int) ;
 
 #if	CF_DEBUGN
-extern int	nprintf(const char *,const char *,...) ;
+extern int	nprintf(cchar *,cchar *,...) ;
 #endif
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */
@@ -261,12 +261,14 @@ int debugprintf(const char fmt[],...)
 	        if ((len = format(lbuf,llen,fm,fmt,ap)) >= 0) {
 	            rs = debugprint(lbuf,len) ;
 	            wlen += rs ;
-	        } else
+	        } else {
 	            rs = SR_TOOBIG ;
+		}
 	        va_end(ap) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 #if	CF_DEBUGN
 	nprintf(NDF,"debugprintf: ret rs=%d wlen=%u\n",rs,wlen) ;
@@ -292,10 +294,12 @@ int debugvprintf(const char fmt[],va_list ap)
 	    if ((len = format(lbuf,llen,fm,fmt,ap)) >= 0) {
 	        rs = debugprint(lbuf,len) ;
 	        wlen += rs ;
-	    } else
+	    } else {
 	        rs = SR_TOOBIG ;
-	} else
+	    }
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
 
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -304,19 +308,17 @@ int debugvprintf(const char fmt[],va_list ap)
 
 int debugprintdeci(cchar *s,int v)
 {
-	const int	diglen = DIGBUFLEN ;
 	int		rs = SR_OK ;
-	int		ll ;
-	int		sl ;
-	const char	*sp ;
-	char		digbuf[DIGBUFLEN + 1] ;
+	int		llen = LINEBUFLEN ;
 	char		lbuf[LINEBUFLEN + 1] ;
-	char		*lp ;
 
-	if (s == NULL) goto ret0 ;
-
-	ll = LINEBUFLEN ;
-	lp = lbuf ;
+	if (s != NULL) {
+	    const int	diglen = DIGBUFLEN ;
+	    int		ll = llen ;
+	    int		sl ;
+	    cchar	*sp ;
+	    char	*lp = lbuf ;
+	    char	digbuf[DIGBUFLEN + 1] ;
 
 	if (rs >= 0) {
 	    sp = s ;
@@ -324,8 +326,9 @@ int debugprintdeci(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -334,8 +337,9 @@ int debugprintdeci(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
@@ -344,15 +348,17 @@ int debugprintdeci(cchar *s,int v)
 	    if (sl <= ll) {
 	        lp = strwcpy(lp,sp,sl) ;
 	        ll -= sl ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	}
 
 	if (rs >= 0) {
 	    rs = debugprint(lbuf,(lp - lbuf)) ;
 	}
 
-ret0:
+	} /* end if (non-null) */
+
 	return rs ;
 }
 /* end subroutine (debugprintdeci) */
@@ -511,7 +517,7 @@ int debugprint(cchar *sbuf,int slen)
 	int		rs ;
 	if (sbuf == NULL) return SR_FAULT ;
 	if (ef.fd <= 0) return SR_NOTOPEN ;
-	    rs = debugprinter(sbuf,slen) ;
+	rs = debugprinter(sbuf,slen) ;
 	return rs ;
 }
 /* end subroutine (debugprint) */
@@ -686,19 +692,19 @@ static int debugprinters(cchar *sbuf,int slen)
 	    if ((rs = ptm_lock(&uip->m)) >= 0) { /* single */
 		int	cmd = F_LOCK ;
 		if ((rs = uc_lockf(ef.fd,cmd,0L)) >= 0) {
-		    struct ustat	sb ;
+		    USTAT	sb ;
 		    if ((rs = u_fstat(ef.fd,&sb)) >= 0) {
 
-	        if (S_ISREG(sb.st_mode) && (sb.st_size != ef.size)) {
-	            offset_t	uoff = sb.st_size ;
-	            ef.size = sb.st_size ;
-	            u_seek(ef.fd,uoff,SEEK_SET) ;
-	        }
+	                if (S_ISREG(sb.st_mode) && (sb.st_size != ef.size)) {
+	                    offset_t	uoff = sb.st_size ;
+	                    ef.size = sb.st_size ;
+	                    u_seek(ef.fd,uoff,SEEK_SET) ;
+	                }
 
-	        if ((rs = u_write(ef.fd,sbuf,slen)) >= 0) {
-	            wlen = rs ;
-	            ef.size += wlen ;
-	        }
+	                if ((rs = u_write(ef.fd,sbuf,slen)) >= 0) {
+	                    wlen = rs ;
+	                    ef.size += wlen ;
+	                }
 
 		    } /* end if (u_fstat) */
 		    cmd = F_UNLOCK ;

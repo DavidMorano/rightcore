@@ -1,6 +1,7 @@
 /* main (daytimed) */
 
 
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<time.h>
@@ -35,14 +36,10 @@ char	*argv[] ;
 char	*envv[] ;
 {
 	struct nistinfo	ni ;
-
-	time_t	t = time(NULL) ;
-
-	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*orgp ;
-	char	*cp ;
-
-
+	const time_t	dt = time(NULL) ;
+	cchar		*orgp ;
+	cchar		*cp ;
+	char		ntbuf[NISTINFO_BUFLEN+ 1] ;
 
 	if ((orgp = getenv(VARORGANIZATION)) == NULL)
 		orgp = ORGANIZATION ;
@@ -51,16 +48,12 @@ char	*envv[] ;
 
 	sncpy1(ni.org,NISTINFO_ORGSIZE,orgp) ;
 
-	cp = timestr_nist(t,&ni,timebuf) ;
-
-	if (cp != NULL)
-	fprintf(stdout,"%s\n",timebuf) ;
-
-	fclose(stdout) ;
+	if ((cp = timestr_nist(dt,&ni,ntbuf)) != NULL) {
+	    fprintf(stdout,"%s\n",ntbuf) ;
+	}
 
 	return 0 ;
 }
 /* end subroutine (main) */
-
 
 

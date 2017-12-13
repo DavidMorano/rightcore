@@ -7,6 +7,7 @@
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
+#define	CF_DEBUGZ	0		/* special extra debug print-outs */
 
 
 /* revision history:
@@ -155,6 +156,8 @@
 #define	REQCNAME	"req"
 #endif
 
+#define	NDF		"mfsmain.nd"
+
 
 /* external subroutines */
 
@@ -203,6 +206,10 @@ extern int	debugclose() ;
 extern int	strlinelen(cchar *,int,int) ;
 extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	mfsdebug_lockprint(PROGINFO *,cchar *) ;
+#endif
+
+#if	CF_DEBUGZ
+extern int	zprintf(cchar *,cchar *,...) ;
 #endif
 
 extern cchar	*getourenv(cchar **,cchar *) ;
@@ -527,6 +534,9 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*vp ;
 	cchar		*cp ;
 
+#if	CF_DEBUGZ
+	zprintf(NDF,"mfsmain: hello world!\n") ;
+#endif
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {

@@ -38,8 +38,10 @@
 
 #include	<sys/types.h>
 #include	<time.h>
+#include	<string.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<localmisc.h>
 
 #include	"nistinfo.h"
@@ -93,7 +95,7 @@ char *timestr_nist(time_t t,struct nistinfo *nip,char *tbuf)
 {
 	struct tm	tsz, *tszp = &tsz ;
 	struct tm	tsl, *tslp = &tsl ;
-	const int	tlen = TIMEBUFLEN ;
+	const int	tlen = NISTINFO_BUFLEN ;
 	int		rs ;
 
 #if	CF_DEBUGN
@@ -120,9 +122,9 @@ char *timestr_nist(time_t t,struct nistinfo *nip,char *tbuf)
 	            const int	mjd = rs ;
 	            const int	adv_int = (nip->adv / 10) ;
 	            const int	adv_fra = (nip->adv % 10) ;
+		    const int	olen = NISTINFO_ORGLEN ;
 	            int		tt = nip->tt ;
-	            int		ocl = -1 ;
-	            cchar	*ocp = ORG ;
+	            cchar	*deforg = ORG ;
 	            cchar	*fmt ;
 
 #if	CF_DEBUGS
@@ -142,16 +144,21 @@ char *timestr_nist(time_t t,struct nistinfo *nip,char *tbuf)
 #endif
 
 	            if (nip->org[0] != '\0') {
-	                ocp = nip->org ;
-	                ocl = strnlen(nip->org,NISTINFO_ORGSIZE) ;
+			const int	ol = strlen(nip->org) ;
+			if (ol > olen) {
+			    nip->org[olen] = '\0' ;
+			}
+		    } else {
+			strdcpy1(nip->org,olen,deforg) ;
 	            }
 
 #if	CF_DEBUGN
-	            nprintf(NDF,"timestr_nist: org=%t\n",ocp,ocl) ;
+	            nprintf(NDF,"timestr_nist: org{%p}=%s\n",
+			nip->org,nip->org) ;
 #endif
 
 	            fmt = "%05u %02u-%02u-%02u %02u:%02u:%02u"
-	                " %02u %u %1u %03u.%01u UTC(%t) *" ;
+	                " %02u %u %1u %03u.%01u UTC(%s) *" ;
 
 	            rs = bufprintf(tbuf,tlen,fmt,
 	                mjd,
@@ -165,9 +172,10 @@ char *timestr_nist(time_t t,struct nistinfo *nip,char *tbuf)
 	                nip->l,
 	                nip->h,
 	                adv_int,adv_fra,
-	                ocp,ocl) ;
+	                nip->org) ;
 
 #if	CF_DEBUGN
+	            nprintf(NDF,"timestr_nist: org=>%s<\n",nip->org) ;
 	            nprintf(NDF,"timestr_nist: tbuf=>%s<\n",tbuf) ;
 #endif
 

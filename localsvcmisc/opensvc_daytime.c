@@ -131,7 +131,7 @@ int		to ;
 	int		sl ;
 	const char	*sp = NULL ;
 	const char	*orgcode = NULL ;
-	char		timebuf[NISTINFO_BUFSIZE+2] ;
+	char		ntbuf[NISTINFO_BUFLEN+2] ;
 	char		ocbuf[OCBUFLEN+1] ;
 	char		*bp ;
 
@@ -176,10 +176,10 @@ int		to ;
 	    memset(&ni,0,sizeof(struct nistinfo)) ;
 
 	    if (orgcode != NULL) {
-	        strwcpy(ni.org,orgcode,NISTINFO_ORGSIZE) ;
+	        strwcpy(ni.org,orgcode,NISTINFO_ORGLEN) ;
 	    }
-	    bp = timebuf ;
-	    sp = timestr_nist(daytime,&ni,timebuf) ;
+	    bp = ntbuf ;
+	    sp = timestr_nist(daytime,&ni,ntbuf) ;
 
 	    sl = strlen(sp) ;
 
@@ -190,15 +190,15 @@ int		to ;
 /* write everything out */
 
 	if (rs >= 0) {
-	if ((rs = u_pipe(pipes)) >= 0) {
-	    int	wfd = pipes[1] ;
-	    fd = pipes[0] ;
+	    if ((rs = u_pipe(pipes)) >= 0) {
+	        const int	wfd = pipes[1] ;
+	        fd = pipes[0] ;
 
-	    rs = u_write(wfd,sp,sl) ;
+	        rs = u_write(wfd,sp,sl) ;
 
-	    u_close(wfd) ;
-	    if (rs < 0) u_close(fd) ;
-	} /* end if (u_pipe) */
+	        u_close(wfd) ;
+	        if (rs < 0) u_close(fd) ;
+	    } /* end if (u_pipe) */
 	} /* end if (ok) */
 
 	return (rs >= 0) ? fd : rs ;

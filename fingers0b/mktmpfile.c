@@ -87,14 +87,14 @@ int mktmpfile(char *rbuf,mode_t om,cchar *inname)
 	int		rs ;
 	int		rs1 ;
 	int		len = 0 ;
-	if ((rs = uc_forklock(-1)) >= 0) {
+	if ((rs = uc_forklockbegin(-1)) >= 0) {
 	    if ((rs = opentmpfile(inname,of,om,rbuf)) >= 0) {
 	        u_close(rs) ;
 	        len = strlen(rbuf) ;
 	    } /* end if (opentmpfile) */
-	    rs1 = uc_forklockrelease() ;
+	    rs1 = uc_forklockend() ;
 	    if (rs >= 0) rs = rs1 ;
-	} /* end if (forklock) */
+	} /* end if (uc_forklock) */
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (mktmpfile) */

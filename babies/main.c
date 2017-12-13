@@ -238,7 +238,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 #if	CF_DEBUGN
-	nprintf(NDF,"main: exiting ex=%u (%d)\n",ex,rs) ;
+	nprintf(NDF,"main: ret rs=%d ex=%u\n",rs,ex) ;
 #endif
 
 	return ex ;
