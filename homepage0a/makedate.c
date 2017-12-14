@@ -1,2 +1,2 @@
 const char homepage_makedate[] =
-"@(#)homepage                171128_2044:00_USEST Rightcore Network Services" ;
+"@(#)homepage                171214_0230:04_USEST Rightcore Network Services" ;

@@ -320,9 +320,10 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->intdirmaint = TO_DIRMAINT ;
 	lip->intclient = TO_DIRCLIENT ;
 	lip->rfd = -1 ;
-
-	        lip->ti_marklog = pip->daytime ;
-	        lip->ti_start = pip->daytime ;
+	lip->svctype = -1 ;
+	lip->ti_tmpmaint = pip->daytime ;
+	lip->ti_marklog = pip->daytime ;
+	lip->ti_start = pip->daytime ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
@@ -869,9 +870,9 @@ int locinfo_maintourtmp(LOCINFO *lip)
 	const int	to = lip->intdirmaint ;
 	int		rs = SR_OK ;
 	int		f ;
-	f = ((to > 0) && ((pip->daytime - lip->ti_dirmaint) >= to)) ;
+	f = ((to > 0) && ((pip->daytime - lip->ti_tmpmaint) >= to)) ;
 	if (f || lip->f.maint) {
-	    lip->ti_dirmaint = pip->daytime ;
+	    lip->ti_tmpmaint = pip->daytime ;
 	    if (lip->tmpourdname != NULL) {
 	        const int	to_client = lip->intclient ;
 	        if (to_client > 0) {
@@ -1113,15 +1114,27 @@ int locinfo_cooksvc(LOCINFO *lip,cchar *svc,cchar *ss,cchar **sav,int f_long)
 
 int locinfo_svctype(LOCINFO *lip,cchar *ebuf,int el)
 {
+	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
-	    if (lip->svctype < 0) {
-		int	i ;
-		if ((i = matostr(svctypes,1,ebuf,el)) >= 0) {
-	    	    lip->svctype = i ;
-		} else {
-	    	    rs = SR_INVALID ;
-		}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5)) {
+	    debugprintf("locinfo_svctype: ent w=>%t<\n",ebuf,el) ;
+	    debugprintf("locinfo_svctype: svctype=%d\n",lip->svctype) ;
+	}
+#endif
+	if (pip == NULL) return SR_FAULT ;
+	if (lip->svctype < 0) {
+	    int		i ;
+	    if ((i = matostr(svctypes,1,ebuf,el)) >= 0) {
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	    debugprintf("locinfo_svctype: i=%u\n",i) ;
+#endif
+		lip->svctype = i ;
+	    } else {
+		rs = SR_INVALID ;
 	    }
+	}
 	return rs ;
 }
 /* end subroutine (locinfo_svctype) */
@@ -1852,6 +1865,7 @@ static int locinfo_cookargsload(LOCINFO *lip,cchar **sav)
 
 static int locinfo_maintourtmper(LOCINFO *lip,int to_client)
 {
+	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
 	int		i ;
 	cchar		*dir = lip->tmpourdname ;
@@ -1859,6 +1873,7 @@ static int locinfo_maintourtmper(LOCINFO *lip,int to_client)
 	if (DEBUGLEVEL(4))
 	    debugprintf("locinfo_maintourtmp: dir=%s\n",dir) ;
 #endif
+	if (pip == NULL) return SR_FAULT ;
 	for (i = 0 ; (rs >= 0) && (tmpleads[i] != NULL) ; i += 1) {
 	    cchar	*pat = tmpleads[i] ;
 	    rs = rmdirfiles(dir,pat,to_client) ;

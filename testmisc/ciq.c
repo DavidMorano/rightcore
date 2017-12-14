@@ -362,7 +362,6 @@ static int ciq_findhand(CIQ *qhp,PQ_ENT **rpp,const void *vp)
 		CIQ_ENT	*cep = (CIQ_ENT *) pep ;
 		f = (cep->vp == vp) ;
 		if (f) break ;
-		if (rs < 0) break ;
 	    } /* end while */
 	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
 	    if (rpp != NULL) {

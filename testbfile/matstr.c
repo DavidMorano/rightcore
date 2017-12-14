@@ -76,7 +76,7 @@ int matstr(cchar **a,cchar *sp,int sl)
 	int		i ;
 
 	if (sl >= 0) {
-	    register int	m ;
+	    int		m ;
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
 		m = ((sl > 0) && (lc == a[i][0])) ;
 		if (m > 0) m = nleadstr(a[i],sp,sl) ;

@@ -438,7 +438,7 @@ const char	*sargv[] ;
 	timestr_nist(pip->daytime,&ni,tbuf) ;
 
 	bl = strlen(tbuf) ;
-	buf[bl++] = '\n' ;
+	tbuf[bl++] = '\n' ;
 
 	rs = uc_writen(cip->fd_output,tbuf,bl) ;
 

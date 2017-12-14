@@ -1041,9 +1041,9 @@ int display_cmddig(DISPLAY *op,int pos,int dig)
 	x = pos ;
 	y = op->rl_input ;
 	if (dig == CH_DEL) {
-	    rs = ds_move(&op->ds,w,y,x) ;
-	    if (rs >= 0)
+	    if ((rs = ds_move(&op->ds,w,y,x)) >= 0) {
 	        rs = ds_ec(&op->ds,w,1) ;
+	    }
 	} else if (isdigitlatin(dig)) {
 	    buf[0] = dig ;
 	    buf[1] = '\0' ;

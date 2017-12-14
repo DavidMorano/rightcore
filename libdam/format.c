@@ -16,7 +16,7 @@
 #define	CF_SUNCC	0	/* using Sun CC -- complains on 'lsprintf()' */
 #define	CF_SPECIALHEX	1	/* perform special HEX function */
 #define	CF_RESERVE	0	/* compile in 'subinfo_reserve()' */
-#define	CF_CLEANSTR	0	/* clean strings */
+#define	CF_CLEANSTR	1	/* clean strings */
 #define	CF_BINARYMIN	1	/* perform binary conversion minimally */
 #define	CF_BINCHAR	0	/* compile in 'binchar()' */
 

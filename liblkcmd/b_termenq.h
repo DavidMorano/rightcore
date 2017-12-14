@@ -76,12 +76,9 @@
 
 #define	LOGSIZE		(80*1024)
 
-#define	DEFRUNINT	60
-#define	DEFPOLLINT	8
-#define	DEFNODES	50
+#define	TO_OPEN		2
+#define	TO_READ		2
 
-#define	OPT_LOGPROG	TRUE ;
-
-#define	USAGECOLS	4
+#define	OPT_LOGPROG	TRUE
 
 

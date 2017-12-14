@@ -762,9 +762,9 @@ static int cthexi(char *buf,int val)
 
 static int snwcpyprintclean(char *dbuf,int dlen,cchar *sp,int sl)
 {
-	register int	ch ;
-	register int	dl = 0 ;
 	int		rs = SR_OK ;
+	int		ch ;
+	int		dl = 0 ;
 	while (dlen-- && sl && *sp) {
 	    ch = MKCHAR(*sp) ;
 	    if (isprintbad(ch)) {

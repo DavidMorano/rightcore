@@ -187,9 +187,18 @@ int filebuf_read(FILEBUF *op,void *rbuf,int rlen,int to)
 	if (op == NULL) return SR_FAULT ;
 
 	rc = (op->f.net) ? FILEBUF_RCNET : 1 ;
+
+#if	CF_DEBUGS
+	debugprintf("filebuf_read: int rc=%u\n") ;
+#endif
+
 	while (tlen < rlen) {
 
-	    while ((op->len <= 0) && (rc-- > 0)) {
+	    while ((op->len == 0) && (rc-- > 0)) {
+
+#if	CF_DEBUGS
+	debugprintf("filebuf_read: loop rc=%u\n") ;
+#endif
 
 	        op->bp = op->buf ;
 		if (to >= 0) {
@@ -228,6 +237,10 @@ int filebuf_read(FILEBUF *op,void *rbuf,int rlen,int to)
 
 	if (rs >= 0)
 	    op->off += tlen ;
+
+#if	CF_DEBUGS
+	debugprintf("filebuf_read: ret rs=%d tlen=%u\n",rs,tlen) ;
+#endif
 
 	return (rs >= 0) ? tlen : rs ;
 }
@@ -272,7 +285,7 @@ int filebuf_readline(FILEBUF *op,char *rbuf,int rlen,int to)
 #endif
 
 	rc = (op->f.net) ? FILEBUF_RCNET : 1 ;
-	while (tlen < rlen) {
+	while ((rs >= 0) && (tlen < rlen)) {
 
 	    while ((op->len == 0) && (rc-- > 0)) {
 

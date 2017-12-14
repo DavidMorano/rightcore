@@ -124,7 +124,7 @@ struct locinfo {
 	time_t		ti_marklog ;
 	time_t		ti_boot ;
 	time_t		ti_lastreq ;
-	time_t		ti_dirmaint ;
+	time_t		ti_tmpmaint ;
 	uid_t		uid_rootname ;
 	gid_t		gid_rootname ;
 	int		svctype ;	/* service (handling) type */

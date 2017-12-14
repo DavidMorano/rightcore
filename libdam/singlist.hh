@@ -18,6 +18,27 @@
 
 /* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+        This is a conainer object (elements are stored within it). This also is
+        implemented as a single-linked list of nodes. This object is very useful
+        for normal queue operations (insert at tail, remove at head). The follow
+        operations are supported:
+
+	+ instail		inserr at tail
+	+ inshead		insert at head
+	+ remhead		remove from head
+
+	The only major operation (for relatively normal queues) which is *not*
+	supported is:
+
+	+ remtail		remove from tail
+
+	Enjoy.
+
+
+*******************************************************************************/
+
 #ifndef	SINGLIST_INCLUDE
 #define	SINGLIST_INCLUDE	1
 
@@ -27,6 +48,7 @@
 #include	<limits.h>
 #include	<new>
 #include	<initializer_list>
+#include	<vsystem.h>
 #include	<localmisc.h>
 
 
@@ -137,7 +159,7 @@ public:
 	    singlist_node<T>	*an = al.head ;
 	    if (head != NULL) clear() ;
 	    while (an != NULL) {
-		add(an->val) ;
+		instail(an->val) ;
 	        an = an->next ;
 	    }
 	} ;
@@ -154,7 +176,7 @@ public:
 	    singlist_node<T>	*an = al.head ;
 	    if (head != NULL) clear() ;
 	    while (an != NULL) {
-		add(an->val) ;
+		instail(an->val) ;
 	        an = an->next ;
 	    }
 	} ;
@@ -170,24 +192,24 @@ public:
 	singlist(const std::initializer_list<T> &list) {
 	    if (head != NULL) clear() ;
 	    for (const T &v : list) {
-		add(v) ;
+		instail(v) ;
 	    }
 	} ;
 	singlist &operator = (const std::initializer_list<T> &list) {
 	    if (head != NULL) clear() ;
 	    for (const T &v : list) {
-		add(v) ;
+		instail(v) ;
 	    }
 	    return (*this) ;
 	} ;
 	singlist &operator += (const std::initializer_list<T> &list) {
 	    for (const T &v : list) {
-		add(v) ;
+		instail(v) ;
 	    }
 	    return (*this) ;
 	} ;
 	singlist &operator += (const T v) {
-	    add(v) ;
+	    instail(v) ;
 	    return (*this) ;
 	} ;
 	~singlist() {
@@ -200,6 +222,18 @@ public:
 	    head = NULL ;
 	    tail = NULL ;
 	    c = 0 ;
+	} ;
+	int count() const {
+	    return c ;
+	} ;
+	int empty() const {
+	    return (c == 0) ;
+	} ;
+	operator int() const {
+	    return (c != 0) ;
+	} ;
+	operator bool() const {
+	    return (c != 0) ;
 	} ;
 	int clear() {
 	    singlist_node<T>	*nn, *n = head ;
@@ -215,9 +249,9 @@ public:
 	    c = 0 ;
 	    return rc ;
 	} ;
-	int add(const T v) {
+	int instail(const T v) {
 	    singlist_node<T>	*nn = new(std::nothrow) singlist_node<T>(v) ;
-	    int			rc = -1 ;
+	    int			rc = SR_NOMEM ; /* error indication */
 	    if (nn != NULL) {
 	        singlist_node<T>	*n = tail ;
 	        if (n != NULL) {
@@ -227,26 +261,10 @@ public:
 	        }
 	        tail = nn ;
 	        rc = c++ ;		/* return previous value */
-	    }
+	    } /* end if (allocation sycceeded) */
 	    return rc ;
 	} ;
-	int getfront(const T **rpp) const {
-	    *rpp = (head != NULL) ? &head->val : NULL ;
-	    return c ;
-	} ;
-	int gethead(const T **rpp) const {
-	    *rpp = (head != NULL) ? &head->val : NULL ;
-	    return c ;
-	} ;
-	int getback(const T **rpp) const {
-	    *rpp = (tail != NULL) ? &tail->val : NULL ;
-	    return c ;
-	} ;
-	int gettail(const T **rpp) const {
-	    *rpp = (tail != NULL) ? &tail->val : NULL ;
-	    return c ;
-	} ;
-	int insfront(const T v) {
+	int inshead(const T &v) {
 	    singlist_node<T>	*nn = new(std::nothrow) singlist_node<T>(v) ;
 	    int			rc = -1 ;
 	    if (nn != NULL) {
@@ -261,22 +279,32 @@ public:
 	    }
 	    return rc ;
 	} ;
-	int insback(const T v) {
-	    return add(v) ;
+	int insfront(const T &v) {
+	    return inshead(v) ;
 	}
-	int count() const {
+	int insback(const T v) {
+	    return instail(v) ;
+	}
+	int ins(const T v) {
+	    return instail(v) ;
+	} ;
+	int gethead(const T **rpp) const {
+	    *rpp = (head != NULL) ? &head->val : NULL ;
 	    return c ;
 	} ;
-	int empty() const {
-	    return (c == 0) ;
+	int gettail(const T **rpp) const {
+	    *rpp = (tail != NULL) ? &tail->val : NULL ;
+	    return c ;
 	} ;
-	operator int() const {
-	    return (c != 0) ;
+	int getfront(const T **rpp) const {
+	    *rpp = (head != NULL) ? &head->val : NULL ;
+	    return c ;
 	} ;
-	operator bool() const {
-	    return (c != 0) ;
+	int getback(const T **rpp) const {
+	    *rpp = (tail != NULL) ? &tail->val : NULL ;
+	    return c ;
 	} ;
-	int rem(T **rpp) {
+	int remhead(T **rpp) {
 	    int	rc = -1 ;
 	    if (head != NULL) {
 		singlist_node<T>	*n = head->next ;
@@ -292,8 +320,8 @@ public:
 	    }
 	    return rc ;
 	} ;
-	int ins(const T v) {
-	    return add(v) ;
+	int rem(const T v) {
+	    return remhead(v) ;
 	} ;
 	iterator begin() const {
 	    iterator it(head) ;

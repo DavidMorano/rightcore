@@ -237,8 +237,8 @@ int		to ;
 	int	tlen = 0 ;
 	int	f_timedout = FALSE ;
 
-	register char	*dbp = (char *) rbuf ;
-	register char	*bp, *lastp ;
+	char	*dbp = (char *) rbuf ;
+	char	*bp, *lastp ;
 
 	if (op == NULL) return SR_FAULT ;
 

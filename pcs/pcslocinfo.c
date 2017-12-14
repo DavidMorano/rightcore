@@ -668,7 +668,7 @@ int locinfo_dirmaint(LOCINFO *lip)
 	const int	to = lip->intdirmaint ;
 	int		rs = SR_OK ;
 	int		f ;
-	f = ((to > 0) && ((pip->daytime - lip->ti_dirmaint) >= to)) ;
+	f = ((to > 0) && ((pip->daytime - lip->ti_tmpmaint) >= to)) ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
 	debugprintf("pcslocinfo_dirmaint: ent f=%u f_maint=%u\n",
@@ -678,7 +678,7 @@ int locinfo_dirmaint(LOCINFO *lip)
 	}
 #endif
 	if (f || lip->f.maint) {
-	    lip->ti_dirmaint = pip->daytime ;
+	    lip->ti_tmpmaint = pip->daytime ;
 	    if (lip->tmpourdname != NULL) {
 		const int	to_client = lip->intclient ;
 		if (to_client > 0) {

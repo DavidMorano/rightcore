@@ -1244,7 +1244,7 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
 	                        rs = mfswatch_svchelp(pip,jep) ;
 	                    }
-	                } else if (isNotPresent(rs)) {
+	                } else if (rs == 0) {
 	                    const int	f = FALSE ;
 	                    if ((rs = mfswatch_svcretstat(pip,jep,f)) >= 0) {
 	                        rs = mfswatch_jobretire(pip,jep) ;

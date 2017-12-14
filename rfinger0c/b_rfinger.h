@@ -94,7 +94,7 @@
 
 #define	LOGSIZE		(80*1024)
 
-#define	TO_CONNECT	30
-#define	TO_READ		30
+#define	TO_OPEN		10
+#define	TO_READ		5
 
 

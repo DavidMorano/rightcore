@@ -166,7 +166,7 @@ int uterm_readcmd(UTERM *utp,TERMCMD *ckp,int to,int ich)
 	        rs = 0 ;
 	        while (rs == 0) {
 	            if ((rs = sub_readch(&si)) >= 0) {
-	                int	ch = rs ;
+	                const int	ch = rs ;
 	                switch (ch) {
 	                case CH_ESC:
 	                    rs = sub_proc_esc(&si) ;

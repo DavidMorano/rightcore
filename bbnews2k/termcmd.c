@@ -74,10 +74,11 @@ int termcmd_clear(TERMCMD *ckp)
 
 #ifdef	COMMENT
 	memset(ckp,0,sizeof(TERMCMD)) ;
+	ckp->p[0] = TERMCMD_PEOL ;
 #else /* COMMENT */
 	ckp->type = 0 ;
 	ckp->name = 0 ;
-	ckp->p[0] = -1 ;
+	ckp->p[0] = TERMCMD_PEOL ;
 	ckp->istr[0] = '\0' ;
 	ckp->dstr[0] = '\0' ;
 	ckp->f.private = FALSE ;

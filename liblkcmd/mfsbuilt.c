@@ -172,11 +172,11 @@ int mfsbuilt_start(MFSBUILT *op,cchar *dname)
 	    const int	at = FALSE ;
 	    op->dname = cp ;
 	    if ((rs = hdb_start(dbp,n,at,NULL,NULL)) >= 0) {
-		    if ((rs = mfsbuilt_entload(op)) >= 0) {
-			c = rs ;
-			op->ti_check = time(NULL) ;
-		        op->magic = MFSBUILT_MAGIC ;
-		    }
+		if ((rs = mfsbuilt_entload(op)) >= 0) {
+		    c = rs ;
+		    op->ti_check = time(NULL) ;
+		    op->magic = MFSBUILT_MAGIC ;
+		}
 		if (rs < 0) {
 		    mfsbuilt_fins(op) ;
 		    hdb_finish(dbp) ;
@@ -477,7 +477,6 @@ int mfsbuilt_check(MFSBUILT *op,time_t dt)
 	if (dt == 0) dt = time(NULL) ;
 	if ((dt - op->ti_check) >= to) {
 	    op->ti_check = dt ;
-	    f = TRUE ;
 	    if ((rs = mfsbuilt_entprune(op)) >= 0) {
 		rs = mfsbuilt_entload(op) ;
 	    }

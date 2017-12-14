@@ -175,9 +175,9 @@ OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08= uterm.o uterm_readcmd.o
 OBJ09= terment.o termcmd.o
 OBJ10=
-OBJ11= tcgetlines.o tcsetlines.o
-OBJ12= uc_tcgetpgrp.o
-OBJ13= termconseqi.o
+OBJ11=
+OBJ12=
+OBJ13= termconseqi.o iscmdstart.o
 OBJ14=
 OBJ15=
 

@@ -1,2 +1,2 @@
 const char vmail_makedate[] =
-"@(#)vmail                   171129_2223:11_USEST Rightcore Network Services" ;
+"@(#)vmail                   171213_1917:29_USEST Rightcore Network Services" ;

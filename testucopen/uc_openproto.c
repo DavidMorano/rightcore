@@ -1546,7 +1546,7 @@ static int hasmseol(cchar *lp,int ll)
 
 static int hasdirty(cchar *lp,int ll)
 {
-	register int	ch ;
+	int		ch ;
 	int		f = FALSE ;
 	int		i ;
 	for (i = 0 ; (i < ll) && (lp[i] != '\0')  ; i += 1) {

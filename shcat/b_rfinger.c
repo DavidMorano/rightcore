@@ -200,7 +200,6 @@ struct locinfo {
 	cchar		**av ;		/* service-arguments */
 	cchar		*argstab ;
 	cchar		*termtype ;
-	int		to ;		/* time-out */
 	int		linelen ;
 	int		dialer ;	/* open-dial dial-code */
 	int		af ;		/* socket address-family */
@@ -226,6 +225,7 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 static int	usage(PROGINFO *) ;
 
 static int	procopts(PROGINFO *,KEYOPT *) ;
+static int	procdefs(PROGINFO *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,cchar *) ;
 
 static int	procuserinfo_begin(PROGINFO *,USERINFO *) ;
@@ -330,6 +330,8 @@ static cchar	*akonames[] = {
 	"quiet",
 	"termout",
 	"shutdown",
+	"intopen",
+	"intread",
 	NULL
 } ;
 
@@ -337,6 +339,8 @@ enum akonames {
 	akoname_quiet,
 	akoname_termout,
 	akoname_shutdown,
+	akoname_intopen,
+	akoname_intread,
 	akoname_overlast
 } ;
 
@@ -416,7 +420,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		v ;
-	int		timeout = -1 ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
@@ -473,6 +476,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	pip->verboselevel = 1 ;
 	pip->to_open = -1 ;
 	pip->to_read = -1 ;
+	pip->to = -1 ;
 	pip->daytime = time(NULL) ;
 
 	pip->f.logprog = TRUE ;
@@ -711,7 +715,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        argl = strlen(argp) ;
 	                        if (argl) {
 	                            rs = cfdecti(argp,argl,&v) ;
-	                            timeout = v ;
+	                            pip->to = v ;
 	                        }
 	                    } else
 	                        rs = SR_INVALID ;
@@ -860,7 +864,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                rs = cfdecti(argp,argl,&v) ;
-	                                timeout = v ;
+	                                pip->to = v ;
 	                            }
 	                        } else
 	                            rs = SR_INVALID ;
@@ -986,7 +990,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* load up the argument and environment options */
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_rootname(pip)) >= 0) {
+	        if ((rs = procopts(pip,&akopts)) >= 0) {
+		    rs = procdefs(pip) ;
+		}
+	    }
+	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
@@ -994,10 +1004,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
 /* argument processing */
-
-	if (rs >= 0) {
-	    rs = proginfo_rootname(pip) ;
-	}
 
 	rs1 = (DEFPRECISION + 2) ;
 	if ((rs >= 0) && (lip->linelen < rs1) && (argval != NULL)) {
@@ -1019,19 +1025,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    rs = locinfo_setdialer(lip,dialerspec) ;
 	}
 
-	if (timeout <= 0) timeout = TO_CONNECT ;
-	lip->to = timeout ;
-
 	lip->afspec = afspec ;
 	if ((pip->debuglevel > 0) && (afspec != NULL)) {
-	    shio_printf(pip->efp,"%s: af=%s\n",
-	        pip->progname,afspec) ;
+	    shio_printf(pip->efp,"%s: af=%s\n", pip->progname,afspec) ;
 	}
 
 	if (portspec != NULL) lip->portspec = portspec ;
 
-	if ((lip->svcspec == NULL) || (lip->svcspec[0] == '\0'))
+	if ((lip->svcspec == NULL) || (lip->svcspec[0] == '\0')) {
 	    lip->svcspec = SVCSPEC_RFINGER ;
+	}
 
 	if (rs >= 0) {
 	    if ((rs = locinfo_setsvcargs(lip,argspec)) >= 0) {
@@ -1272,6 +1275,24 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
+	                case akoname_intopen:
+	                    if (pip->to_open < 0) {
+	                        if (vl > 0) {
+				    int	v ;
+	                            rs = cfdecti(vp,vl,&v) ;
+	                            pip->to_open = v ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_intread:
+	                    if (pip->to_read < 0) {
+	                        if (vl > 0) {
+				    int	v ;
+	                            rs = cfdecti(vp,vl,&v) ;
+	                            pip->to_read = v ;
+	                        }
+	                    }
+	                    break ;
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1290,13 +1311,25 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 /* end subroutine (procopts) */
 
 
-static int procargs(pip,aip,bop,sfn,ofn,afn)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-cchar		*sfn ;
-cchar		*ofn ;
-cchar		*afn ;
+static int procdefs(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+
+	if (pip->to_open < 0) {
+	    pip->to_open = (pip->to >= 0) ? pip->to : TO_OPEN ;
+	}
+
+	if (pip->to_read < 0) {
+	    pip->to_read = (pip->to >= 0) ? pip->to : TO_READ ;
+	}
+
+	return rs ;
+}
+/* end subroutine (procdefs) */
+
+
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *sfn,
+		cchar *ofn,cchar *afn)
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		ofile, *ofp = &ofile ;
@@ -1466,7 +1499,7 @@ static int procdial(PROGINFO *pip,void *ofp,cchar *ap)
 		    const int	ql = rs ;
 		    const int	di = lip->dialer ;
 		    const int	af = lip->af ;
-		    const int	to = lip->to ;
+		    const int	to = pip->to_open ;
 		    const int	oo = 0 ;
 		    cchar	**ev = pip->envv ;
 		    cchar	*hn = q.hpart ;
@@ -1507,7 +1540,7 @@ static int procdialread(PROGINFO *pip,void *ofp,int s,LINEBUF *lbp)
 	int		rs1 ;
 	int		wlen = 0 ;
 	if ((rs = filebuf_start(&b,s,0L,512,opts)) >= 0) {
-	    const int	to = lip->to ;
+	    const int	to = pip->to_read ;
 	    const int	llen = lbp->llen ;
 	    char	*lbuf = lbp->lbuf ;
 	    while ((rs = filebuf_readlines(&b,lbuf,llen,to,NULL)) > 0) {
@@ -1577,7 +1610,7 @@ static int procsystems(PROGINFO *pip,void *ofp,cchar *sfname)
 	    ca.username = pip->username ;
 	    ca.sp = &sysdb ;
 	    ca.dp = &d ;
-	    ca.timeout = lip->to ;
+	    ca.timeout = pip->to_open ;
 	    ca.options = (SYSDIALER_MFULL | SYSDIALER_MCO) ;
 
 /* do it */
@@ -1753,7 +1786,6 @@ static int procsysteminfo(PROGINFO *pip,CM *conp)
 
 static int procsystemread(PROGINFO *pip,void *ofp,CM *conp,LINEBUF *lbp)
 {
-	LOCINFO		*lip = pip->lip ;
 	const mode_t	om = 0664 ;
 	int		rs ;
 	int		rs1 ;
@@ -1762,7 +1794,7 @@ static int procsystemread(PROGINFO *pip,void *ofp,CM *conp,LINEBUF *lbp)
 	    const int	ropts = 0 ;
 	    const int	llen = lbp->llen ;
 	    const int	fd = rs ;
-	    const int	to = lip->to ;
+	    const int	to = pip->to_read ;
 	    char	*lbuf = lbp->lbuf ;
 
 	    while ((rs = cm_reade(conp,lbuf,llen,to,ropts)) > 0) {
@@ -1795,7 +1827,7 @@ static int procsystemout(PROGINFO *pip,void *ofp,int fd,LINEBUF *lbp)
 	int		wlen = 0 ;
 	if ((rs = filebuf_start(&b,fd,0L,512,opts)) >= 0) {
 	    const int	llen = lbp->llen ;
-	    const int	to = lip->to ;
+	    const int	to = pip->to_read ;
 	    char	*lbuf = lbp->lbuf ;
 	    while ((rs = filebuf_readlines(&b,lbuf,llen,to,NULL)) > 0) {
 	        cchar	*lp = lbuf ;
@@ -1990,7 +2022,6 @@ static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
-	lip->to = -1 ;
 	lip->dialer = -1 ;
 	lip->termtype = getourenv(pip->envv,varterm) ;
 	lip->f.shutdown = TRUE ;

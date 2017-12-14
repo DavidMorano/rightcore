@@ -129,11 +129,11 @@ int termenq_open(TERMENQ *op,cchar *dbfname,int oflags)
 	}
 
 	if (rs >= 0) {
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((rs = uc_mallocstrw(dbfname,-1,&cp)) >= 0) {
 	        op->fname = cp ;
 	        if ((rs = termenq_fileopen(op,dt)) >= 0) {
-		    struct ustat	sb ;
+		    USTAT	sb ;
 		    op->ti_check = dt ;
 		    if ((rs = u_fstat(op->fd,&sb)) >= 0) {
 	    	        op->fsize = (size_t) (sb.st_size & INT_MAX) ;
@@ -207,16 +207,18 @@ int termenq_write(TERMENQ *op,int ei,TERMENT *ep)
 
 	am = (op->oflags & O_ACCMODE) ;
 	if ((am == SR_WRONLY) || (am == O_RDWR)) {
-	    if (op->fd < 0)
+	    if (op->fd < 0) {
 	        rs = termenq_fileopen(op,0L) ;
+	    }
 	    if (rs >= 0) {
 	        offset_t	poff ;
 	        const int	esize = sizeof(TERMENT) ;
 	        poff = (offset_t) (ei * esize) ;
 	        rs = u_pwrite(op->fd,ep,esize,poff) ;
 	    }
-	} else
+	} else {
 	    rs = SR_BADF ;
+	}
 
 	return rs ;
 }
@@ -357,8 +359,9 @@ int termenq_enum(TERMENQ *op,TERMENQ_CUR *curp,TERMENT *ep)
 	        memcpy(ep,bp,sizeof(TERMENT)) ;
 	    }
 	    curp->i = ei ;
-	} else
+	} else {
 	    rs = SR_EOF ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("termenq_enum: ret rs=%d ei=%u\n",rs,ei) ;
@@ -707,8 +710,9 @@ static int termenq_mapents(TERMENQ *op,int ei,TERMENT **rpp)
 	                n = rs ;
 	            } /* end if */
 
-	        } else
+	        } else {
 	            n = 0 ;
+		}
 
 	    } /* end if (need a map) */
 
