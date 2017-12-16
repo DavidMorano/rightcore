@@ -17,9 +17,14 @@
 	= 2004-03-01, David A­D­ Morano
 	This subroutine was originally written.  
 
+	= 2017-12-16, David A­D­ Morano
+        Update puts terminal-type 'screen' ahead of 'vt100'. This still uses an
+        internal database for the various terminal attributes. A reasonable
+        future enhancement would be to read this database in from a file.
+
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
