@@ -1,4 +1,4 @@
-/* main (testansiANSI) */
+/* main (testansi) */
 
 /* test something to do with ANSI compliance */
 
@@ -22,19 +22,20 @@ static int printsub(bfile *,uint) ;
 /* exported subroutines */
 
 
-int main()
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	bfile		ofile, *ofp = &ofile ;
-	unsigned int	ui, uv ;
+	int		rs ;
+	int		ex = 0 ;
+
+	if ((rs = bopen(ofp,BFILE_STDOUT,"wct",0666)) >= 0) {
+	unsigned int	ui = 26U ;
+	unsigned int	uv ;
 	unsigned short	us ;
 	unsigned char	uc ;
 	int		v, i ;
 	char		ch ;
-
-
-	ui = 26U ;
-
-	(void) bopen(ofp,BFILE_STDOUT,"wct",0666) ;
 
 #if	CF_MINUSONE
 	v = minus_one(1) ;
@@ -46,7 +47,6 @@ int main()
 	us = 0xFFFF ;
 	ui = us ;
 	i = us ;
-
 
 	if (us < v) {
 		bprintf(ofp,"less (K&R)\n") ;
@@ -60,8 +60,7 @@ int main()
 		uc,us,ui,i) ;
 
 	uv = v ;
-	bprintf(ofp,"v=%08X uv=%08X\n",
-		v,uv) ;
+	bprintf(ofp,"v=%08X uv=%08X\n", v,uv) ;
 
 
 /* second experiment */
@@ -92,8 +91,10 @@ int main()
 /* out of here */
 
 	bclose(ofp) ;
+	} /* end if (bfile) */
 
-	return 0 ;
+	if (rs < 0) ex = 1 ;
+	return ex ;
 }
 /* end subroutine (main) */
 

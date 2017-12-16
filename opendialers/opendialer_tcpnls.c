@@ -9,12 +9,9 @@
 /* revision history:
 
 	= 2003-11-04, David A­D­ Morano
-
-	This code was started by taking the corresponding code from the
-	TCP-family module.  In retrospect, that was a mistake.  Rather
-	I should have started this code by using the corresponding UUX
-	dialer module.
-
+        This code was started by taking the corresponding code from the
+        TCP-family module. In retrospect, that was a mistake. Rather I should
+        have started this code by using the corresponding UUX dialer module.
 
 */
 
@@ -72,7 +69,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -98,8 +94,7 @@ extern int	getpwd(char *,int) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	opentmp(const char *,int,mode_t) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
-extern int	dialtcpnls(const char *,const char *,int,const char *,
-			int,int) ;
+extern int	dialtcpnls(cchar *,cchar *,int,cchar *, int,int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;

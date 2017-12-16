@@ -74,8 +74,8 @@
 #define	GETPW_NAME	getpw_name
 #endif /* CF_UGETPW */
 
-#ifndef	TO_POLLMULT
-#define	TO_POLLMULT	1000
+#ifndef	POLLINTMULT
+#define	POLLINTMULT	1000
 #endif
 
 #ifndef	PBUFLEN

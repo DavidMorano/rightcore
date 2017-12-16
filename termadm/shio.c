@@ -775,10 +775,7 @@ int shio_print(SHIO *op,cchar *lbuf,int llen)
 
 	if (op->magic != SHIO_MAGIC) return SR_NOTOPEN ;
 
-	if (op->f.nullfile) {
-	    wlen = llen ;
-	    goto ret0 ;
-	}
+	if (! op->f.nullfile) {
 
 #if	CF_SFIO
 	if (op->f.sfio) {
@@ -794,7 +791,10 @@ int shio_print(SHIO *op,cchar *lbuf,int llen)
 	wlen += rs ;
 #endif /* CF_SFIO */
 
-ret0:
+	} else {
+	    wlen = llen ;
+	}
+
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (shio_print) */

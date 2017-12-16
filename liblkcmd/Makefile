@@ -920,21 +920,23 @@ b_rest.o:		b_rest.c b_rest.h $(INCS)
 
 # MSU code
 msu:			b_msu.o
+msulocinfo.o:		msulocinfo.c msulocinfo.h $(INCS) $(MSUINCS)
 msuconfig.o:		msuconfig.c msulocinfo.h $(INCS) $(MSUINCS)
+msuadj.o:		msuadj.c msuadj.h $(INCS) $(MSUINCS)
 msulog.o:		msulog.c msulog.h $(INCS) $(MSUINCS)
 msudebug.o:		msudebug.c msulog.h $(INCS) $(MSUINCS)
 # special since it needs AST
 msumain.o:		msumain.c $(INCS) msfile.h $(MSUINCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
-msulocinfo.o:		msulocinfo.c msulocinfo.h $(INCS) $(MSUINCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
-msuadj.o:		msuadj.c msuadj.h $(INCS) $(MSUINCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
 
 # PCS code
 pcs:			b_pcs.o
+pcslocinfo.o:		pcslocinfo.c pcslocinfo.h $(INCS) $(PCSINCS)
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
 pcsconfig.o:		pcsconfig.c pcslocinfo.h $(INCS) $(PCSINCS)
+	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
+pcsadj.o:		pcsadj.c pcsadj.h $(INCS) $(PCSINCS)
 	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
 pcslog.o:		pcslog.c pcslog.h $(INCS) $(PCSINCS)
 	$(CC) -c $(PCSCFLAGS) $(PCSCPPFLAGS) $<
@@ -943,15 +945,15 @@ pcsdebug.o:		pcsdebug.c pcslog.h $(INCS) $(PCSINCS)
 # special since it needs AST
 pcsmain.o:		pcsmain.c $(INCS) msfile.h $(PCSINCS)
 	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
-pcslocinfo.o:		pcslocinfo.c pcslocinfo.h $(INCS) $(PCSINCS)
-	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
-pcsadj.o:		pcsadj.c pcsadj.h $(INCS) $(PCSINCS)
-	$(CC) -c $(ASTPCSCFLAGS) $(ASTPCSCPPFLAGS) $<
 
 
 # MFS code
 mfs:			b_mfserve.o
+mfslocinfo.o:		mfslocinfo.c mfslocinfo.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
 mfsconfig.o:		mfsconfig.c mfslocinfo.h $(INCS) $(MFSINCS)
+	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
+mfsadj.o:		mfsadj.c mfsadj.h $(INCS) $(MFSINCS)
 	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
 mfslog.o:		mfslog.c mfslog.h $(INCS) $(MFSINCS)
 	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
@@ -965,10 +967,6 @@ svcentsub.o:		svcentsub.c svcentsub.h $(INCS) $(MFSINCS)
 	$(CC) -c $(MFSCFLAGS) $(MFSCPPFLAGS) $<
 # special since it needs AST
 mfsmain.o:		mfsmain.c mfsmain.h $(INCS) $(MFSINCS)
-	$(CC) -c $(ASTMFSCFLAGS) $(ASTMFSCPPFLAGS) $<
-mfslocinfo.o:		mfslocinfo.c mfslocinfo.h $(INCS) $(MFSINCS)
-	$(CC) -c $(ASTMFSCFLAGS) $(ASTMFSCPPFLAGS) $<
-mfsadj.o:		mfsadj.c mfsadj.h $(INCS) $(MFSINCS)
 	$(CC) -c $(ASTMFSCFLAGS) $(ASTMFSCPPFLAGS) $<
 
 

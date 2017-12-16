@@ -100,6 +100,10 @@
 #endif
 #endif
 
+#ifndef	NYEARS_CENTURY
+#define	NYEARS_CENTURY	100
+#endif
+
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 
@@ -157,6 +161,7 @@ struct locinfo_flags {
 	uint		termout:1 ;
 	uint		outer:1 ;
 	uint		curdate:1 ;
+	uint		curspec:1 ;
 	uint		mjd:1 ;
 	uint		gmt:1 ;
 	uint		year:1 ;
@@ -170,7 +175,8 @@ struct locinfo_flags {
 struct locinfo {
 	LOCINFO_FL	have, f, changed, final ;
 	LOCINFO_FL	open ;
-	DAYSPEC		ds ;
+	TMTIME		curdate ;
+	DAYSPEC		curspec ;
 	vecstr		stores ;
 	PROGINFO	*pip ;
 	const char	*termtype ;
@@ -194,15 +200,18 @@ static int	procquery(PROGINFO *,void *,const char *,int) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
-static int	locinfo_qfname(LOCINFO *,const char *) ;
+static int	locinfo_setentry(LOCINFO *,cchar **,cchar *,int) ;
+static int	locinfo_getdefyear(LOCINFO *) ;
+static int	locinfo_qfname(LOCINFO *,cchar *) ;
 static int	locinfo_defspec(LOCINFO *,DAYSPEC *) ;
+static int	locinfo_curspec(LOCINFO *) ;
+static int	locinfo_getcentury(LOCINFO *) ;
 static int	locinfo_curdate(LOCINFO *) ;
-static int	locinfo_setentry(LOCINFO *,const char **,cchar *,int) ;
 
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -256,7 +265,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static const char *akonames[] = {
+static cchar	*akonames[] = {
 	"bufwhole",
 	"bufline",
 	"bufnone",
@@ -785,8 +794,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-	                                rs = optvalue(argp,argl) ;
-	                                lip->year = rs ;
+				        rs = optvalue(argp,argl) ;
+	    				lip->year = rs ;
 	                            }
 	                        } else
 	                            rs = SR_INVALID ;
@@ -951,8 +960,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->to_read == 0)
 	    pip->to_read = 1 ;
 
-	if (rs < 0) goto badarg ;
-
 /* go */
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -963,8 +970,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	    const char	*ofn = ofname ;
-	    const char	*afn = afname ;
+	    cchar	*ofn = ofname ;
+	    cchar	*afn = afname ;
 	    rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
 	    wlen = rs ;
 	} else if (ex == EX_OK) {
@@ -976,8 +983,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((pip->debuglevel > 0) && (rs >= 0)) {
-	    shio_printf(pip->efp,"%s: bytes=%u\n",
-	        pip->progname,wlen) ;
+	    shio_printf(pip->efp,"%s: bytes=%u\n", pip->progname,wlen) ;
 	}
 
 /* done */
@@ -1110,7 +1116,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_bufwhole:
 	                case akoname_whole:
 	                    if (! pip->final.bufwhole) {
@@ -1123,7 +1128,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufline:
 	                case akoname_line:
 	                    if (! pip->final.bufline) {
@@ -1136,7 +1140,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufnone:
 	                case akoname_none:
 	                case akoname_un:
@@ -1150,7 +1153,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_termout:
 	                    if (! lip->final.termout) {
 	                        lip->have.termout = TRUE ;
@@ -1162,7 +1164,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_gmt:
 	                    if (! lip->final.gmt) {
 	                        lip->have.gmt = TRUE ;
@@ -1174,7 +1175,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_ttl:
 	                    if (lip->ttl < 0) {
 	                        if (vl > 0) {
@@ -1183,7 +1183,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_intrun:
 	                    if (lip->intrun < 0) {
 	                        if (vl > 0) {
@@ -1193,14 +1192,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_empty:
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1361,10 +1357,14 @@ static int procquery(PROGINFO *pip,void *ofp,cchar qp[],int ql)
 	    }
 	    if (rs >= 0) {
 	        if ((rs = locinfo_defspec(lip,&ds)) >= 0) {
-	            rs = getmjd(ds.y,ds.m,ds.d) ;
-	            mjd = rs ;
-	        }
-	    }
+		    if (ds.y >= TM_YEAR_BASE) {
+	                rs = getmjd(ds.y,ds.m,ds.d) ;
+	                mjd = rs ;
+		    } else {
+			rs = SR_DOM ;
+		    }
+	        } /* end if (locinfo_defspec) */
+	    } /* end if (ok) */
 	} /* end if */
 
 #if	CF_DEBUG
@@ -1455,13 +1455,32 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 /* end subroutine (locinfo_setentry) */
 
 
+static int locinfo_getdefyear(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	if (lip->f.year) {
+	    lip->f.year = TRUE ;
+	    if (lip->year > 0) {
+	        if (lip->year < NYEARS_CENTURY) {
+	            if ((rs = locinfo_getcentury(lip)) >= 0) {
+		        lip->year += (rs*NYEARS_CENTURY) ;
+	            }
+		}
+	    }
+	} else {
+	    rs = (lip->year >= 0) ? lip->year : SR_OK ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_getdefyear) */
+
+
 static int locinfo_qfname(LOCINFO *lip,const char *qfname)
 {
 	int		rs = SR_OK ;
-	const char	**vpp ;
 
 	if (qfname != NULL) {
-	    vpp = &lip->qfname ;
+	    cchar	**vpp = &lip->qfname ;
 	    rs = locinfo_setentry(lip,vpp,qfname,-1) ;
 	}
 
@@ -1475,41 +1494,72 @@ static int locinfo_defspec(LOCINFO *lip,DAYSPEC *dsp)
 	int		rs = SR_OK ;
 	int		f = FALSE ;
 
-	f = f || (dsp->y < 0) ;
-	f = f || (dsp->m < 0)  ;
+	f = f || (dsp->y < 0) || (dsp->y < NYEARS_CENTURY) ;
+	f = f || (dsp->m < 0) ;
 	f = f || (dsp->d < 0) ;
 	if (f) {
-	    if (! lip->f.curdate) rs = locinfo_curdate(lip) ;
-	    if (dsp->y < 0) dsp->y = lip->ds.y ;
-	    if (dsp->m < 0) dsp->m = lip->ds.m ;
-	    if (dsp->d < 0) dsp->d = lip->ds.d ;
-	}
+	    if ((rs = locinfo_curspec(lip)) >= 0) {
+	        if (dsp->y < 0) {
+		    if ((rs = locinfo_getdefyear(lip)) > 0) {
+			dsp->y = lip->year ;
+		    } else {
+			dsp->y = lip->curspec.y ;
+		    }
+		} else if (dsp->y < NYEARS_CENTURY) {
+		    if ((rs = locinfo_getcentury(lip)) >= 0) {
+		        dsp->y += (rs*NYEARS_CENTURY) ;
+		    }
+		}
+	        if (dsp->m < 0) dsp->m = lip->curspec.m ;
+	        if (dsp->d < 0) dsp->d = lip->curspec.d ;
+	    } /* end if (locinfo_curspec) */
+	} /* end if (needed) */
 
 	return rs ;
 }
 /* end subroutine (locinfo_defspec) */
 
 
+static int locinfo_curspec(LOCINFO *lip)
+{
+	int		rs = SR_OK ;
+	if (! lip->f.curspec) {
+	    lip->f.curspec = TRUE ;
+	    if ((rs = locinfo_curdate(lip)) >= 0) {
+	        lip->curspec.y = (lip->curdate.year + TM_YEAR_BASE) ;
+	        lip->curspec.m = lip->curdate.mon ;
+	        lip->curspec.d = lip->curdate.mday ;
+	    }
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_curspec) */
+
+
+static int locinfo_getcentury(LOCINFO *lip)
+{
+	int		rs ;
+	if ((rs = locinfo_curdate(lip)) >= 0) {
+	    rs = ((lip->curdate.year + TM_YEAR_BASE) / NYEARS_CENTURY) ;
+	}
+	return rs ;
+}
+/* end subroutine (locinfo_getcentury) */
+
+
 static int locinfo_curdate(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
-
 	if (! lip->f.curdate) {
-	    TMTIME	ct ;
+	    TMTIME	*ctp = &lip->curdate ;
 	    lip->f.curdate = TRUE ;
-
 	    if (lip->f.gmt) {
-	        rs = tmtime_gmtime(&ct,pip->daytime) ;
+	        rs = tmtime_gmtime(ctp,pip->daytime) ;
 	    } else {
-	        rs = tmtime_localtime(&ct,pip->daytime) ;
+	        rs = tmtime_localtime(ctp,pip->daytime) ;
 	    }
-	    lip->ds.y = (lip->year > 0) ? lip->year : (ct.year + TM_YEAR_BASE) ;
-	    lip->ds.m = ct.mon ;
-	    lip->ds.d = ct.mday ;
-
 	} /* end if */
-
 	return rs ;
 }
 /* end subroutine (locinfo_curdate) */

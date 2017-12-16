@@ -264,7 +264,7 @@ static int	procfindconf(PROGINFO *) ;
 static int	procourconf_begin(PROGINFO *) ;
 static int	procourconf_end(PROGINFO *) ;
 
-static int	procdefconf(PROGINFO *) ;
+static int	procourdefs(PROGINFO *) ;
 static int	proclogid(PROGINFO *) ;
 
 static int	process(PROGINFO *) ;
@@ -1260,7 +1260,7 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if ((rs = procdefargs(pip)) >= 0) {
 	        if ((rs = procextras(pip)) >= 0) {
 	                if ((rs = procourconf_begin(pip)) >= 0) {
-	                    if ((rs = procdefconf(pip)) >= 0) {
+	                    if ((rs = procourdefs(pip)) >= 0) {
 	                        if ((rs = logbegin(pip)) >= 0) {
 	                            {
 	                                rs = process(pip) ;
@@ -1268,7 +1268,7 @@ static int msumain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs1 = logend(pip) ;
 	                            if (rs >= 0) rs = rs1 ;
 	                        } /* end if (log) */
-	                    } /* end if (procdefconf) */
+	                    } /* end if (procourdefs) */
 	                    rs1 = procourconf_end(pip) ;
 	                    if (rs >= 0) rs = rs1 ;
 	                } /* end if (procourconf) */
@@ -1868,13 +1868,15 @@ static int procourconf_end(PROGINFO *pip)
 /* end subroutine (procourconf_end) */
 
 
-static int procdefconf(PROGINFO *pip)
+static int procourdefs(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	cchar		**envv = pip->envv ;
 
 	if (pip->logsize == 0) pip->logsize = LOGSIZE ;
+
+	if (pip->intpoll == 0) pip->intpoll = TO_POLL ;
 
 	if (lip->msfname == NULL) {
 	    cchar	*cp ;
@@ -1891,7 +1893,7 @@ static int procdefconf(PROGINFO *pip)
 
 	return rs ;
 }
-/* end subroutine (procdefconf) */
+/* end subroutine (procourdefs) */
 
 
 static int procbackdefs(PROGINFO *pip)

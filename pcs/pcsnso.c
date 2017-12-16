@@ -826,7 +826,7 @@ static int getname_daemon(SUBINFO *sip)
 #if	CF_PCSNSC
 	if ((op->opts & PCSNSO_ONOSERV) == 0) {
 #if	CF_DEBUGS
-	debugprintf("pcsnso/getname_daemon: ent serv\n") ;
+	    debugprintf("pcsnso/getname_daemon: ent serv\n") ;
 #endif
 	    if ((rs = pcsnso_client(op)) > 0) {
 	        PCSNSC		*pcp = &op->client ;
@@ -837,18 +837,19 @@ static int getname_daemon(SUBINFO *sip)
 	        if ((rs = pcsnsc_getval(pcp,rbuf,rlen,un,w)) > 0) {
 		    rl = rs ;
 #if	CF_DEBUGS
-		debugprintf("pcsnso/getname_daemon: pcsnsc_getval() rs=%d\n",
-		rs) ;
+		    debugprintf("pcsnso/getname_daemon: "
+			"pcsnsc_getval() rs=%d\n", rs) ;
 #endif
 		} else if (isBadSend(rs)) {
 		    rs = SR_OK ;
 		}
 #if	CF_DEBUGS
-	debugprintf("pcsnso/getname_daemon: pcsnsc_open-out rs=%d\n",rs) ;
+		debugprintf("pcsnso/getname_daemon: pcsnsc_open-out rs=%d\n",
+			rs) ;
 #endif
 	    } /* end if (pcsnso_client) */
 #if	CF_DEBUGS
-	debugprintf("pcsnso/getname_daemon: leaving rs=%d\n",rs) ;
+	    debugprintf("pcsnso/getname_daemon: leaving rs=%d\n",rs) ;
 #endif
 	} /* end if (ok to call server) */
 #endif /* CF_PCSNSC */

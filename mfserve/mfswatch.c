@@ -444,6 +444,7 @@ int mfswatch_service(PROGINFO *pip)
 static int mfswatch_uptimer(PROGINFO *pip)
 {
 	MFSWATCH	*wip = pip->watch ;
+	const int	max = (pip->intpoll * POLLINTMULT) ;
 	int		njobs ;
 
 	njobs = (wip->nprocs + wip->nthrs + wip->nbuilts) ;
@@ -459,8 +460,8 @@ static int mfswatch_uptimer(PROGINFO *pip)
 
 	if (wip->pollto < 10) {
 	    wip->pollto = 10 ;
-	} else if (wip->pollto > POLLINTMULT) {
-	    wip->pollto = POLLINTMULT ;
+	} else if (wip->pollto > max) {
+	    wip->pollto = max ;
 	}
 
 #if	CF_DEBUG
@@ -2112,8 +2113,8 @@ static int mfswatch_logprogres(PROGINFO *pip,int jsn,cchar *lid,
 
 	} else if (WIFSIGNALED(cs)) {
 	    const int	sig = WTERMSIG(cs) ;
-	    cchar		*ss ;
-	    char		sigbuf[20+1] ;
+	    cchar	*ss ;
+	    char	sigbuf[20+1] ;
 
 	    if ((ss = strsigabbr(sig)) == NULL) {
 	        ctdeci(sigbuf,20,sig) ;

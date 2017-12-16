@@ -191,37 +191,37 @@ int		opts ;
 
 	if ((rs = uc_malloc((mlen+1),&mbuf)) >= 0) {
 	    if ((rs = mkmuxreq(mbuf,mlen,svc,svclen,sargs,opts)) >= 0) {
-		struct sigaction	sighand, osighand ;
-		sigset_t		sigmask ;
-	    	int			ml = rs ;
+	        struct sigaction	sighand, osighand ;
+	        sigset_t		sigmask ;
+	        int			ml = rs ;
 
-	    uc_sigsetempty(&sigmask) ;
+	        uc_sigsetempty(&sigmask) ;
 
-	    memset(&sighand,0,sizeof(struct sigaction)) ;
-	    sighand.sa_handler = SIG_IGN ;
-	    sighand.sa_mask = sigmask ;
-	    sighand.sa_flags = 0 ;
+	        memset(&sighand,0,sizeof(struct sigaction)) ;
+	        sighand.sa_handler = SIG_IGN ;
+	        sighand.sa_mask = sigmask ;
+	        sighand.sa_flags = 0 ;
 
-	    if ((rs = u_sigaction(SIGPIPE,&sighand,&osighand)) >= 0) {
+	        if ((rs = u_sigaction(SIGPIPE,&sighand,&osighand)) >= 0) {
 
 #if	CF_DEBUGS
-	        debugprintf("dialfinger: service buffer ml=%d\n",ml) ;
-	        debugprintf("dialfinger: mbuf=>%t<\n",
-	            mbuf,strlinelen(mbuf,ml,40)) ;
-	        debugprintf("dialfinger: about to portspec=%s\n",
-	            portspec) ;
+	            debugprintf("dialfinger: service buffer ml=%d\n",ml) ;
+	            debugprintf("dialfinger: mbuf=>%t<\n",
+	                mbuf,strlinelen(mbuf,ml,40)) ;
+	            debugprintf("dialfinger: about to portspec=%s\n",
+	                portspec) ;
 #endif
 
-	        if ((rs = dialourtcp(hostname,portspec,af,to,opts)) >= 0) {
-		    fd = rs ;
-	            if ((rs = uc_writen(fd,mbuf,ml)) >= 0) {
-			rs = u_shutdown(fd,SHUT_WR) ;
-		    }
-	            if (rs < 0) u_close(fd) ;
-	        } /* end if (opened) */
+	            if ((rs = dialourtcp(hostname,portspec,af,to,opts)) >= 0) {
+	                fd = rs ;
+	                if ((rs = uc_writen(fd,mbuf,ml)) >= 0) {
+	                    rs = u_shutdown(fd,SHUT_WR) ;
+	                }
+	                if (rs < 0) u_close(fd) ;
+	            } /* end if (opened) */
 
-	        u_sigaction(SIGPIPE,&osighand,NULL) ;
-	    } /* end if (signal) */
+	            u_sigaction(SIGPIPE,&osighand,NULL) ;
+	        } /* end if (signal) */
 
 	    } else {
 	        rs = SR_TOOBIG ;
@@ -256,9 +256,9 @@ static int getmlen(int svclen,cchar **sargs)
 {
 	int		ml = (svclen+4) ;
 	if (sargs != NULL) {
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; sargs[i] != NULL ; i += 1) {
-		ml += (strlen(sargs[i])+3) ;
+	        ml += (strlen(sargs[i])+3) ;
 	    } /* end for */
 	} /* end if */
 	return ml ;
@@ -274,25 +274,25 @@ static int dialourtcp(cchar *hs,cchar *ps,int af,int to,int opt)
 	debugprintf("dialourtcp: ent hs=%s\n",hs) ;
 	debugprintf("dialourtcp: ps=%s\n",ps) ;
 #endif
-	        if ((ps == NULL) || (ps[0] == '\0')) {
-	            ps = PORTSPEC_FINGER ;
-	            rs = dialtcp(hs,ps,af,to,opt) ;
-	            fd = rs ;
+	if ((ps == NULL) || (ps[0] == '\0')) {
+	    ps = PORTSPEC_FINGER ;
+	    rs = dialtcp(hs,ps,af,to,opt) ;
+	    fd = rs ;
 #if	CF_DEBUGS
-	debugprintf("dialourtcp: 1 dialtcp() rs=%d\n",rs) ;
+	    debugprintf("dialourtcp: 1 dialtcp() rs=%d\n",rs) ;
 #endif
-	            if ((rs < 0) && (rs != SR_NOMEM)) {
-	                ps = PORTSPEC_FINGERALT ;
-	                rs = dialtcp(hs,ps,af,to,opt) ;
-	                fd = rs ;
-	            } /* end if */
-	        } else {
-	            rs = dialtcp(hs,ps,af,to,opt) ;
-	            fd = rs ;
+	    if ((rs < 0) && (rs != SR_NOMEM)) {
+	        ps = PORTSPEC_FINGERALT ;
+	        rs = dialtcp(hs,ps,af,to,opt) ;
+	        fd = rs ;
+	    } /* end if */
+	} else {
+	    rs = dialtcp(hs,ps,af,to,opt) ;
+	    fd = rs ;
 #if	CF_DEBUGS
-	debugprintf("dialourtcp: 2 dialtcp() rs=%d\n",rs) ;
+	    debugprintf("dialourtcp: 2 dialtcp() rs=%d\n",rs) ;
 #endif
-	        }
+	}
 #if	CF_DEBUGS
 	debugprintf("dialourtcp: ret rs=%d fd=%u\n",rs,fd) ;
 #endif
@@ -318,19 +318,19 @@ int		opts ;
 	    if ((rs = sbuf_strw(&b,svc,svclen)) >= 0) {
 
 	        if (opts & DIALOPT_LONG) {
-		    rs = sbuf_strw(&b," /W",3) ;
+	            rs = sbuf_strw(&b," /W",3) ;
 	        }
 
 	        if ((rs >= 0) && (sargs != NULL)) {
-		    const int	qlen = QBUFLEN ;
-		    char	qbuf[QBUFLEN+1] ;
+	            const int	qlen = QBUFLEN ;
+	            char	qbuf[QBUFLEN+1] ;
 	            int		i ;
 	            for (i = 0 ; (rs >= 0) && (sargs[i] != NULL) ; i += 1) {
 	                sbuf_char(&b,' ') ;
 	                if ((rs = mkquoted(qbuf,qlen,sargs[i],-1)) >= 0) {
 	                    int	ql = rs ;
 	                    sbuf_buf(&b,qbuf,ql) ;
-		        }
+	                }
 	            } /* end for */
 	        } /* end if */
 

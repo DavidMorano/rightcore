@@ -136,9 +136,12 @@ extern int	mkpath2w(char *,const char *,const char *,int) ;
 extern int	mkpath3w(char *,const char *,const char *,const char *,int) ;
 extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	nextfield(const char *,int,const char **) ;
+extern int	mkbasename(char *,const char *,int) ;
+extern int	mkshlibname(char *,cchar *,int) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	sfbaselib(cchar *,int,cchar **) ;
+extern int	nextfield(cchar *,int,cchar **) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vstrkeycmp(const char **,const char **) ;
@@ -164,6 +167,8 @@ extern int	xfile(IDS *,const char *) ;
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpylc(char *,const char *,int) ;
@@ -201,10 +206,6 @@ static int	procusersetup(PROGINFO *,CLIENTINFO *,SVCFILE_ENT *) ;
 static int	loadcooks(PROGINFO *,CLIENTINFO *,cchar **) ;
 static int	loadpeernames(PROGINFO *,CLIENTINFO *,vecstr *) ;
 static int	loadaccgroups(PROGINFO *,vecstr *,cchar *,int) ;
-
-static int	mkbasename(char *,const char *,int) ;
-static int	mkshlibname(char *,const char *,int) ;
-static int	sfbaselib(const char *,int,const char **) ;
 
 
 /* local variables */
@@ -837,8 +838,9 @@ const char	*argz ;
 
 	enp = NULL ;
 	enl = 0 ;
-	if ((tp = strnchr(pnp,pnl,':')) == NULL)
+	if ((tp = strnchr(pnp,pnl,':')) == NULL) {
 	    tp = strnpbrk(pnp,pnl," \t") ;
+	}
 
 	if (tp != NULL) {
 	    enl = sfshrink((tp+1),((pnp+pnl)-(tp+1)),&enp) ;
@@ -877,10 +879,12 @@ const char	*argz ;
 	}
 #endif
 
-	if (pip->open.logprog)
+	if (pip->open.logprog) {
 	    proglog_printf(pip,"server=%t",enp,enl) ;
-	if (pip->debuglevel > 0)
+	}
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: server=%t\n",pip->progname,enp,enl) ;
+	}
 
 /* can we execute this service daemon? */
 
@@ -905,8 +909,9 @@ const char	*argz ;
 
 	if (rs == 0) {
 	    if (pnp[0] != '/') {
-	        mkpath2w(progfname,pip->pwd,pnp,pnl) ;
-	        rs = xfile(&pip->id,progfname) ;
+	        if ((rs = mkpath2w(progfname,pip->pwd,pnp,pnl)) >= 0) {
+	            rs = xfile(&pip->id,progfname) ;
+		}
 	    } else {
 	        rs = mkpath1w(progfname,pnp,pnl) ;
 	    }
@@ -934,14 +939,16 @@ const char	*argz ;
 	    if ((argz[0] == '+') && (argz[1] == '\0')) {
 	        argz = argzbuf ;
 	        strwcpy(argzbuf,enp,enl) ;
-	        if ((rs = vecstr_del(alp,0)) >= 0)
+	        if ((rs = vecstr_del(alp,0)) >= 0) {
 	            rs = vecstr_insert(alp,0,argz,-1) ;
+		}
 	    }
 	} else {
 	    argz = argzbuf ;
 	    strwcpy(argzbuf,enp,enl) ;
-	    if (vecstr_count(alp) < 1)
+	    if (vecstr_count(alp) < 1) {
 	        rs = vecstr_add(alp,argz,-1) ;
+	    }
 	}
 
 #if	CF_DEBUG
@@ -1586,7 +1593,7 @@ static int loadpeernames(PROGINFO *pip,CLIENTINFO *cip,vecstr *nlp)
 /* use 'nlspeername(3dam)' */
 
 	if ((rs >= 0) && (rs1 < 0) && (! pip->f.daemon)) {
-	    if ((cp = getenv(VARNLSADDR)) != NULL) {
+	    if ((cp = getourenv(pip->envv,VARNLSADDR)) != NULL) {
 	        rs1 = nlspeername(cp,pip->domainname,peername) ;
 	        if (rs1 >= 0) {
 	            rs = vecstr_adduniq(nlp,peername,-1) ;
@@ -1652,92 +1659,5 @@ static int loadaccgroups(PROGINFO *pip,vecstr *glp,cchar *accbuf,int acclen)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (loadaccgroups) */
-
-
-static int mkshlibname(shlibname,pnp,pnl)
-char		shlibname[] ;
-const char	*pnp ;
-int		pnl ;
-{
-	const int	shliblen = MAXNAMELEN ;
-	int		rs = SR_OK ;
-	int		i = 0 ;
-	int		f ;
-	const char	*lc = "lib" ;
-
-	f = ((pnl >= 3) && (strncmp(pnp,lc,3) == 0)) ;
-	if (! f) {
-	    rs = storebuf_strw(shlibname,shliblen,i,lc,3) ;
-	    i += rs ;
-	}
-
-	if (rs >= 0) {
-	    rs = storebuf_strw(shlibname,shliblen,i,pnp,pnl) ;
-	    i += rs ;
-	}
-
-	if (rs >= 0) {
-	    rs = storebuf_char(shlibname,shliblen,i,'.') ;
-	    i += rs ;
-	}
-
-	if (rs >= 0) {
-	    rs = storebuf_strw(shlibname,shliblen,i,"so",2) ;
-	    i += rs ;
-	}
-
-	return (rs >= 0) ? i : rs ;
-}
-/* end subroutine (mkshlibname) */
-
-
-static int mkbasename(rbuf,pnp,pnl)
-char		rbuf[] ;
-const char	*pnp ;
-int		pnl ;
-{
-	int		cl ;
-	int		len ;
-	const char	*cp ;
-
-	if ((cl = sfbasename(pnp,pnl,&cp)) > 0) {
-	    pnp = cp ;
-	    pnl = cl ;
-	}
-	len = strwcpy(rbuf,pnp,MIN(MAXNAMELEN,pnl)) - rbuf ;
-
-	return len ;
-}
-/* end subroutine (mkbasename) */
-
-
-static int sfbaselib(pnp,pnl,rpp)
-const char	*pnp ;
-int		pnl ;
-const char	**rpp ;
-{
-	int		cl ;
-	const char	*tp ;
-	const char	*cp ;
-
-	if ((cl = sfbasename(pnp,pnl,&cp)) > 0) {
-	    pnp = cp ;
-	    pnl = cl ;
-	}
-
-	if ((tp = strnrchr(pnp,pnl,'.')) != NULL) {
-	    pnl = (tp-pnp) ;
-	}
-
-	if ((pnl > 3) && (strncmp(pnp,"lib",3) == 0)) {
-	    pnp += 3 ;
-	    pnl -= 3 ;
-	}
-
-	if (rpp != NULL) *rpp = (char *) pnp ;
-
-	return pnl ;
-}
-/* end subroutine (sfbaselib) */
 
 

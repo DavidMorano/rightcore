@@ -18,7 +18,7 @@
 
 /*******************************************************************************
 
-	We perform some light key-valye type management.
+	We perform some light key-value type management.
 
 
 *******************************************************************************/
@@ -67,11 +67,8 @@ extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
-extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
-
-extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,cchar *,int) ;
 extern char	*strnchr(cchar *,int,int) ;

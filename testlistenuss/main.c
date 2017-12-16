@@ -3,27 +3,28 @@
 /* test listening on a USS portal */
 
 
-#define	CF_DEBUGS	1
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
 /* revision history:
 
-	= 92/03/01, David A­D­ Morano
-
+	= 1992-03-01, David A­D­ Morano
 	This program was originally written.
-
 
 */
 
+/* Copyright © 1992 David A­D­ Morano.  All rights reserved. */
 
-/**********************************************************************
+/*******************************************************************************
 
-	This subroutine forms a program that sends data to a remote
-	INET host to its 'echo' service.
+        This subroutine forms a program that sends data to a remote INET host to
+        its 'echo' service.
 
 
-***********************************************************************/
+*******************************************************************************/
 
+
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/socket.h>
@@ -31,19 +32,17 @@
 #include	<netinet/in.h>
 #include	<time.h>
 #include	<signal.h>
-#include	<netdb.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
+#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
 #include	<exitcodes.h>
+#include	<localmisc.h>
 
-#include	"localmisc.h"
 #include	"config.h"
 #include	"defs.h"
-
 
 
 /* local defines */
@@ -55,10 +54,7 @@
 #define	BUFLEN		((10 * 1024) + MAXHOSTNAMELEN)
 
 
-
 /* external variables */
-
-extern struct tm	*localtime() ;
 
 extern int	cfdeci(const char *,int,int *) ;
 extern int	matstr(char * const *,const char *,int) ;
@@ -81,9 +77,9 @@ extern char	*strbasename(char *) ;
 /* forward references */
 
 
-/* local data */
+/* local variables */
 
-static char	*const dialers[] = {
+static cchar	*dialers[] = {
 	"tcp",
 	"tcpmux",
 	"tcpnls",
@@ -104,10 +100,7 @@ static char	*const dialers[] = {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	struct sockaddr_in	server ;
 	struct sockaddr_in	from ;
@@ -139,25 +132,23 @@ char	*envv[] ;
 	int	f_ignore = FALSE ;
 	int	f_log = FALSE ;
 
-	char	*progname, *argp, *aop ;
+	cchar	*progname, *argp, *aop ;
+	cchar	*logfname = NULL ;
+	cchar	*dialspec = NULL ;
+	cchar	*hostname = NULL ;
+	cchar	*portspec = NULL ;
+	cchar	*svcspec = NULL ;
+	cchar	*cp ;
 	char	buf[BUFLEN + 1] ;
 	char	hostnamebuf[MAXHOSTNAMELEN + 1] ;
 	char	dialspecbuf[MAXHOSTNAMELEN + 1] ;
-	char	*logfname = NULL ;
-	char	*dialspec = NULL ;
-	char	*hostname = NULL ;
-	char	*portspec = NULL ;
-	char	*svcspec = NULL ;
-	char	*cp ;
 
 
-	if (((cp = getenv("ERROR_FD")) != NULL) &&
-	    (cfdeci(cp,-1,&err_fd) >= 0))
-	    debugsetfd(err_fd) ;
-
-
-#if	CF_DEBUGS
-	debugprintf("main: started\n") ;
+#if	CF_DEBUGS || CF_DEBUG
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
+	}
 #endif
 
 	progname = strbasename(argv[0]) ;
@@ -656,6 +647,5 @@ badconnect:
 
 }
 /* end subroutine (main) */
-
 
 

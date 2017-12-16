@@ -5,10 +5,9 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 #define	CF_STDIN	0		/* use standard-input */
-#define	CF_UTERM	1		/* call UTERM */
 #define	CF_SEC		1		/* call secondary */
 #define	CF_ID		0		/* call ID */
 
@@ -82,6 +81,8 @@
 
 #define	CONBUFLEN	100
 
+#define	TBUFLEN		CONBUFLEN
+
 #ifndef	DEVDNAME
 #define	DEVDNAME	"/dev"
 #endif
@@ -128,6 +129,8 @@ extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
+
+extern int	termtype_vt(char *,int,const short *,const short *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
@@ -199,8 +202,8 @@ static int	procsetlatin1(PROGINFO *) ;
 static int	procsetansi(PROGINFO *) ;
 static int	procenq(PROGINFO *,SHIO *) ;
 static int	procdevattr(PROGINFO *,SHIO *) ;
-static int	procdevattr_pri(PROGINFO *,SHIO *,char *,int) ;
-static int	procdevattr_sec(PROGINFO *,SHIO *,char *,int) ;
+static int	procdevattr_pri(PROGINFO *,SHIO *,TERMCMD *,char *,int) ;
+static int	procdevattr_sec(PROGINFO *,SHIO *,TERMCMD *,char *,int) ;
 
 #if	CF_ID
 static int	procdevattr_id(PROGINFO *,SHIO *,char *,int) ;
@@ -1385,10 +1388,6 @@ static int procget(PROGINFO *pip,SHIO *ofp,int ri)
 	case qopt_type:
 	    rs = procdevattr(pip,ofp) ;
 	    wlen = rs ;
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("b_termenq/procget: procdevattr() rs=%d \n",rs) ;
-#endif
 	    break ;
 	default:
 	    rs = SR_INVALID ;
@@ -1485,15 +1484,14 @@ static int procenq(PROGINFO *pip,SHIO *ofp)
 		    debugprinthexblock(ids,max,cbuf,cl) ;
 	            debugprintf("termenq/procenq: type=%u\n",
 				cmdp->type) ;
-	                debugprintf("termenq/procenq: name=%04x\n",
+	            debugprintf("termenq/procenq: name=%04x\n",
 				cmdp->name) ;
-	                debugprintf("termenq/procenq: parameters¬\n") ;
-	    		for (i = 0 ; i < TERMCMD_NP ; i += 1) {
-			    int	param = (cmdp->p[i] & USHORT_MAX) ;
-			    if (param == TERMCMD_PEOL) break ;
+	            debugprintf("termenq/procenq: parameters¬\n") ;
+	   	    for (i = 0 ; i < TERMCMD_NP ; i += 1) {
+			    if (cmdp->p[i] == TERMCMD_PEOL) break ;
 	        	    debugprintf("termenq/procenq: "
-			        "p[%2u]=%04x(%u)\n", i,cmdp->p[i],cmdp->p[i]) ;
-	    	        } /* end for */
+			        "p[%2u]=%04x(%u)\n",i,cmdp->p[i],cmdp->p[i]) ;
+		    } /* end for */
 		}
 #endif /* CF_DEBUG */
 		if (rs > 0) {
@@ -1509,56 +1507,61 @@ static int procenq(PROGINFO *pip,SHIO *ofp)
 int procdevattr(PROGINFO *pip,SHIO *ofp)
 {
 	int		rs = SR_OK ;
+	int		wlen = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("termenq/procdevattr: ent\n") ;
 #endif
 
-#if	CF_UTERM
 	if (rs >= 0) {
-	    const int	clen = CONBUFLEN ;
-	    char	cbuf[CONBUFLEN+1] ;
-	    if ((rs = procdevattr_pri(pip,ofp,cbuf,clen)) >= 0) {
-#if	CF_SEC
-		        if ((rs = procdevattr_sec(pip,ofp,cbuf,clen)) >= 0) {
-			    rs = 1 ;
-		        }
-#else
-			rs = 2 ;
-#endif /* CF_SEC */
-		    } else if (rs == SR_TIMEDOUT) {
-#if	CF_ID
-			rs = procdevattr_id(pip,ofp,cbuf,clen) ;
-#else /* CF_ID */
-			rs = 0 ;
-#endif /* CF_ID */
+	    TERMCMD	pcmd ;
+	    const int	plen = CONBUFLEN ;
+	    char	pbuf[CONBUFLEN+1] ;
+	    if ((rs = procdevattr_pri(pip,ofp,&pcmd,pbuf,plen)) >= 0) {
+	        TERMCMD		scmd ;
+	        const int	slen = CONBUFLEN ;
+	        char		sbuf[CONBUFLEN+1] ;
+	        if ((rs = procdevattr_sec(pip,ofp,&scmd,sbuf,slen)) >= 0) {
+		    const int	tlen = TBUFLEN ;
+		    char	tbuf[TBUFLEN+1] ;
+		    if ((rs = termtype_vt(tbuf,tlen,pcmd.p,scmd.p)) > 0) {
+			rs = shio_printline(ofp,tbuf,rs) ;
+			wlen += rs ;
 		    }
+	        }
+	    } else if (rs == SR_TIMEDOUT) {
+#if	CF_ID
+		rs = procdevattr_id(pip,ofp,cbuf,clen) ;
+#else /* CF_ID */
+		rs = 0 ;
+#endif /* CF_ID */
+	    }
 	} /* end if (ok) */
-#endif /* CF_UTERM */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("termenq/procdevattr: ret rs=%d\n",rs) ;
+	    debugprintf("termenq/procdevattr: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procdevattr) */
 
 
-static int procdevattr_pri(PROGINFO *pip,SHIO *ofp,char *cbuf,int clen)
+static int procdevattr_pri(PROGINFO *pip,SHIO *ofp,TERMCMD *cmdp,
+		char *cbuf,int clen)
 {
 	LOCINFO		*lip = pip->lip ;
 	const int	name = 'c' ;
 	int		rs ;
+	int		len = 0 ;
 	if ((rs = termconseq(cbuf,clen,name,-1,-1,-1,-1)) >= 0) {
 	    if ((rs = locinfo_utermwrite(lip,cbuf,rs)) >= 0) {
-	        TERMCMD		c ;
-	        if ((rs = locinfo_utermread(lip,&c,cbuf,clen)) >= 0) {
+	        if ((rs = locinfo_utermread(lip,cmdp,cbuf,clen)) >= 0) {
+		    len = rs ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4)) {
-	                TERMCMD	*cmdp = &c ;
 	                int	i ;
 	                debugprintf("termenq/procdevattr_pri: type=%u\n",
 				cmdp->type) ;
@@ -1566,34 +1569,34 @@ static int procdevattr_pri(PROGINFO *pip,SHIO *ofp,char *cbuf,int clen)
 				cmdp->name) ;
 	                debugprintf("termenq/procdevattr_pri: parameters¬\n") ;
 	    		for (i = 0 ; i < TERMCMD_NP ; i += 1) {
-			    int	param = (cmdp->p[i] & USHORT_MAX) ;
-			    if (param == TERMCMD_PEOL) break ;
+			    if (cmdp->p[i] == TERMCMD_PEOL) break ;
 	        	    debugprintf("termenq/procdevattr_pri: "
-			        "p[%2u]=%04x(%u)\n", i,cmdp->p[i],cmdp->p[i]) ;
+			        "p[%2u]=%04x(%u)\n",i,cmdp->p[i],cmdp->p[i]) ;
 	    	        } /* end for */
 		    }
 #endif /* CF_DEBUG */
 	        } /* end if (lockinfo_utermread) */
 	    } /* end if (lockinfo_utermwrite) */
 	} /* end if (termconseq) */
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (procdevattr_pri) */
 
 
-static int procdevattr_sec(PROGINFO *pip,SHIO *ofp,char *cbuf,int clen)
+static int procdevattr_sec(PROGINFO *pip,SHIO *ofp,TERMCMD *cmdp,
+		char *cbuf,int clen)
 {
 	LOCINFO		*lip = pip->lip ;
-	int		rs ;
 	const int	name = 'c' ;
+	int		rs ;
+	int		len = 0 ;
 	cchar		*is = ">" ;
 	if ((rs = termconseqi(cbuf,clen,name,is,-1,-1,-1,-1)) >= 0) {
 	    if ((rs = locinfo_utermwrite(lip,cbuf,rs)) >= 0) {
-	        TERMCMD		c ;
-	        if ((rs = locinfo_utermread(lip,&c,cbuf,clen)) >= 0) {
+	        if ((rs = locinfo_utermread(lip,cmdp,cbuf,clen)) >= 0) {
+		    len = rs ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4)) {
-	                TERMCMD	*cmdp = &c ;
 	                int	i ;
 	                debugprintf("termenq/procdevattr_sec: type=%u\n",
 				cmdp->type) ;
@@ -1601,17 +1604,16 @@ static int procdevattr_sec(PROGINFO *pip,SHIO *ofp,char *cbuf,int clen)
 				cmdp->name) ;
 	    		debugprintf("termenq/procdevattr_sec: parameters¬\n") ;
 	    		for (i = 0 ; i < TERMCMD_NP ; i += 1) {
-			    int	param = (cmdp->p[i] & USHORT_MAX) ;
-			    if (param == TERMCMD_PEOL) break ;
+			    if (cmdp->p[i] == TERMCMD_PEOL) break ;
 	        	    debugprintf("termenq/procdevattr_sec: "
-				"p[%2u]=%04x(%u)\n", i,cmdp->p[i],cmdp->p[i]) ;
+				"p[%2u]=%04x(%u)\n",i,cmdp->p[i],cmdp->p[i]) ;
 	    	        } /* end for */
 		    }
 #endif /* CF_DEBUG */
 	        } /* end if (locinfo_utermread) */
 	    } /* end if (locinfo_utermwrite) */
 	} /* end if (termconseqi) */
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (procdevattr_sec) */
 
@@ -1620,10 +1622,12 @@ static int procdevattr_sec(PROGINFO *pip,SHIO *ofp,char *cbuf,int clen)
 static int procdevattr_id(PROGINFO *pip,SSHIO *ofp,char *cbuf,int clen)
 {
 	int		rs ;
+	int		len = 0 ;
 	if ((rs = sncpy1(cbuf,clen,"\033Z")) >= 0) {
 	    if ((rs = locinfo_utermwrite(lip,cbuf,rs)) >= 0) {
 	        TERMCMD		c ;
 	        if ((rs = locinfo_utermread(lip,&c,cbuf,clen)) >= 0) {
+		    len = rs ;
 #if	CF_DEBUG
 		    if (DEBUGLEVEL(4)) {
 	    	        TERMCMD	*cmdp = &c ;
@@ -1634,17 +1638,16 @@ static int procdevattr_id(PROGINFO *pip,SSHIO *ofp,char *cbuf,int clen)
 			    cmdp->name) ;
 	    	        debugprintf("termenq/procdevattr_proc: parameters¬\n") ;
 	    	        for (i = 0 ; i < TERMCMD_NP ; i += 1) {
-			    int	param = (cmdp->p[i] & USHORT_MAX) ;
-			    if (param == TERMCMD_PEOL) break ;
+			    if (cmdp->p[i] == TERMCMD_PEOL) break ;
 	        	    debugprintf("termenq/procdevattr_proc: "
-				"p[%2u]=%04x(%u)\n", i,cmdp->p[i],cmdp->p[i]) ;
+				"p[%2u]=%04x(%u)\n",i,cmdp->p[i],cmdp->p[i]) ;
 	    	        } /* end for */
 		    }
 #endif /* CF_DEBUG */
 	        } /* end if (locinfo_utermread) */
 	    } /* end if (locinfo_utermwrite) */
 	} /* end if (termconseq) */
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (procdevattr_id) */
 #endif /* CF_ID */

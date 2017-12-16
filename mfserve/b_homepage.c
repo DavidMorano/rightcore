@@ -4323,11 +4323,11 @@ static int filer_start(FILER *fep,PROGINFO *pip,cchar *tt,int cols,cchar *svc,
 	        bp[0] = '\0' ;
 	        if ((rs = filer_stackbegin(fep)) >= 0) {
 	            PTA		ta ;
-	            tworker	tw = (tworker) filer_worker ;
 	            if ((rs = pta_create(&ta)) >= 0) {
 	                const caddr_t	saddr = fep->saddr ;
 	                int		ssize = fep->ssize ;
 	                if ((rs = pta_setstack(&ta,saddr,ssize)) >= 0) {
+	                    tworker	tw = (tworker) filer_worker ;
 	                    pthread_t	tid ;
 	                    if ((rs = uptcreate(&tid,&ta,tw,fep)) >= 0) {
 	                        fep->tid = tid ;

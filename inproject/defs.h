@@ -232,10 +232,10 @@ struct proginfo_flags {
 	uint		bufnone:1 ;
 	uint		intrun:1 ;
 	uint		intidle:1 ;
-	uint		intdis:1 ;
 	uint		intpoll:1 ;
-	uint		intlock:1 ;
 	uint		intmark:1 ;
+	uint		intlock:1 ;
+	uint		intdis:1 ;
 	uint		reuseaddr:1 ;
 	uint		to:1 ;
 } ;

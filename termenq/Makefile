@@ -36,7 +36,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -94,7 +94,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0= -luterm
 LIB1= -ldam -lb
-LIB2= -ldebug
+LIB2=
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -178,7 +178,7 @@ OBJ10=
 OBJ11=
 OBJ12=
 OBJ13= termconseqi.o iscmdstart.o
-OBJ14=
+OBJ14= termtype_vt.o termtype.o hasParam.o
 OBJ15=
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
@@ -324,6 +324,8 @@ sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
 
+
+termtype_vt.o:		termtype_vt.c
 
 getutmpent.o:		getutmpent.c getutmpent.h
 

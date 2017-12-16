@@ -162,8 +162,8 @@ OBJ29= uuname.o
 OBJ31= getprogroot.o
 
 OBJ32= snwcpyclean.o
-OBJ33= opensockaddr.o filebuf.o
-OBJ34= uc_connecte.o
+OBJ33=
+OBJ34=
 OBJ35=
 OBJ36=
 OBJ37=

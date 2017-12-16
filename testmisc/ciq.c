@@ -10,7 +10,7 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-27, David A­D­ Morano
 	This module was adapted from the PPI/LPPI OS code.
 
 */

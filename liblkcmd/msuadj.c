@@ -30,16 +30,6 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
-#if	defined(SFIO) && (SFIO > 0)
-#define	CF_SFIO	1
-#else
-#define	CF_SFIO	0
-#endif
-
-#if	(defined(KSHBUILTIN) && (KSHBUILTIN > 0))
-#include	<shell.h>
-#endif
-
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
@@ -77,8 +67,8 @@
 
 #define	IPCMSGINFO	struct ipcmsginfo
 
-#ifndef	TO_POLLMULT
-#define	TO_POLLMULT	1000
+#ifndef	POLLINTMULT
+#define	POLLINTMULT	1000
 #endif
 
 #ifndef	PBUFLEN

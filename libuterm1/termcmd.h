@@ -22,10 +22,10 @@
 #define	TERMCMD		struct termcmd
 #define	TERMCMD_FL	struct termcmd_flags
 #define	TERMCMD_NP	16	/* number of paramters (as per ANSI) */
-#define	TERMCMD_PEOL	0xffff	/* parameter End-Of-Line (EOL) */
+#define	TERMCMD_PEOL	SHORT_MIN	/* parameter End-Of-Line (EOL) */
 #define	TERMCMD_MAXPVAL	9999	/* as per ANSI */
-#define	TERMCMD_ISIZE	40	/* intermedicate-characters size */
-#define	TERMCMD_DSIZE	140	/* DCS size */
+#define	TERMCMD_ISIZE	40	/* size intermedicate-characters */
+#define	TERMCMD_DSIZE	140	/* size DCS */
 
 
 enum termcmdtypes {

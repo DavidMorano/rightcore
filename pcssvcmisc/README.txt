@@ -1,8 +1,7 @@
 PCSSVCMISC
 
-This directory comtains the source-code subroutines to implement some
-of the loadable PCS facility-open-services.  Services implemented
-in this directory are:
+This directory comtains the source-code subroutines to implement some of the
+loadable PCS facility-open-services. Services implemented in this directory are:
 
 service			description
 -------------------------------------------------------------------------------

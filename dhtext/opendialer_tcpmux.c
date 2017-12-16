@@ -69,7 +69,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -95,8 +94,7 @@ extern int	getpwd(char *,int) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	opentmp(const char *,int,mode_t) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
-extern int	dialtcpmux(const char *,const char *,int,const char *,
-			const char **,int,int) ;
+extern int	dialtcpmux(cchar *,cchar *,int,cchar *,cchar **,int,int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;

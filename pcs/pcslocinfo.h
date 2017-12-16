@@ -35,9 +35,6 @@
 struct locinfo_flags {
 	uint		stores:1 ;
 	uint		lockinfo:1 ;
-	uint		intrun:1 ;
-	uint		intidle:1 ;
-	uint		intpoll:1 ;
 	uint		intconf:1 ;
 	uint		intsvcs:1 ;
 	uint		intwait:1 ;
@@ -97,9 +94,6 @@ struct locinfo {
 	int		serial ;
 	int		nu ;		/* n-updates */
 	int		rfd ;		/* request file-descriptor */
-	int		intrun ;
-	int		intidle ;
-	int		intpoll ;
 	int		intconf ;
 	int		intsvcs ;
 	int		intwait ;

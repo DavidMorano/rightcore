@@ -256,7 +256,7 @@ static int	procourconf_begin(PROGINFO *) ;
 static int	procourconf_find(PROGINFO *) ;
 static int	procourconf_end(PROGINFO *) ;
 
-static int	procourdef(PROGINFO *) ;
+static int	procourdefs(PROGINFO *) ;
 
 static int	process(PROGINFO *,cchar *) ;
 static int	procourcmds(PROGINFO *,cchar *) ;
@@ -593,7 +593,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    argl = strlen(argp) ;
 
 #if	CF_DEBUGS
-	debugprintf("mfsmain: a[%u]=%s\n",ai,argp) ;
+	    debugprintf("mfsmain: a[%u]=%s\n",ai,argp) ;
 #endif
 
 	    f_optminus = (*argp == '-') ;
@@ -690,12 +690,12 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* PID file */
 	                case argopt_pid0:
 	                case argopt_pid1:
-			    vp = NULL ;
+	                    vp = NULL ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
 	                            vp = avp ;
-				}
+	                        }
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
@@ -703,7 +703,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argl = strlen(argp) ;
 	                            if (argl) {
 	                                vp = argp ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -717,7 +717,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* REQ file */
 	                case argopt_req0:
 	                case argopt_req1:
-			    vp = NULL ;
+	                    vp = NULL ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
@@ -836,7 +836,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            pip->final.cfname = TRUE ;
 	                            pip->have.cfname = TRUE ;
 	                            pip->cfname = avp ;
-				}
+	                        }
 	                    } else {
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
@@ -846,7 +846,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                                pip->final.cfname = TRUE ;
 	                                pip->have.cfname = TRUE ;
 	                                pip->cfname = argp ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -879,7 +879,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* MS poll interval */
 	                case argopt_mspoll:
-			    vp = NULL ;
+	                    vp = NULL ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
@@ -916,7 +916,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	                case argopt_speedint:
 	                case argopt_intspeed:
-			    vp = NULL ;
+	                    vp = NULL ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
@@ -943,7 +943,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    break ;
 
 	                case argopt_intconf:
-			    vp = NULL ;
+	                    vp = NULL ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
@@ -1029,16 +1029,16 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    break ;
 
 	                case argopt_cmd:
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl) {
-	                                rs = locinfo_cmdsload(lip,argp,argl) ;
-	                            }
-	                        } else
-	                            rs = SR_INVALID ;
-	                        break ;
+	                    if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl) {
+	                            rs = locinfo_cmdsload(lip,argp,argl) ;
+	                        }
+	                    } else
+	                        rs = SR_INVALID ;
+	                    break ;
 
 /* handle all keyword defaults */
 	                default:
@@ -1160,10 +1160,10 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        }
 	                        break ;
 
-			    case 'm':
-				lip->final.maint = TRUE ;
-				lip->f.maint = TRUE ;
-				break ;
+	                    case 'm':
+	                        lip->final.maint = TRUE ;
+	                        lip->f.maint = TRUE ;
+	                        break ;
 
 /* MS-node */
 	                    case 'n':
@@ -1272,8 +1272,8 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
 	        if (hasnonwhite(cp,-1)) {
-		    rs = optvalue(cp,-1) ;
-		    pip->debuglevel = rs ;
+	            rs = optvalue(cp,-1) ;
+	            pip->debuglevel = rs ;
 	        }
 	    }
 	} /* end if (ok) */
@@ -1402,37 +1402,37 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (rs >= 0) {
 	    int		c = 0 ;
 	    if ((rs = procdefargs(pip)) >= 0) {
-		USERINFO	u ;
-		if ((rs = userinfo_start(&u,NULL)) >= 0) {
+	        USERINFO	u ;
+	        if ((rs = userinfo_start(&u,NULL)) >= 0) {
 	            if ((rs = procuserinfo_begin(pip,&u)) >= 0) {
-		        if ((rs = locinfo_varbegin(lip)) >= 0) {
-			    if ((rs = proclisten_begin(pip)) >= 0) {
+	                if ((rs = locinfo_varbegin(lip)) >= 0) {
+	                    if ((rs = proclisten_begin(pip)) >= 0) {
 	                        if ((rs = procourconf_begin(pip)) >= 0) {
-	                            if ((rs = procourdef(pip)) >= 0) {
+	                            if ((rs = procourdefs(pip)) >= 0) {
 	                                if ((rs = logbegin(pip,&u)) >= 0) {
 	                                    {
-					        cchar	*ofn = ofname ;
+	                                        cchar	*ofn = ofname ;
 	                                        rs = process(pip,ofn) ;
-						c = rs ;
+	                                        c = rs ;
 	                                    }
 	                                    rs1 = logend(pip) ;
 	                                    if (rs >= 0) rs = rs1 ;
 	                                } /* end if (log) */
-	                            } /* end if (procourdef) */
+	                            } /* end if (procourdefs) */
 	                            rs1 = procourconf_end(pip) ;
 	                            if (rs >= 0) rs = rs1 ;
 	                        } /* end if (procourconf) */
-			        rs1 = proclisten_end(pip) ;
+	                        rs1 = proclisten_end(pip) ;
 	                        if (rs >= 0) rs = rs1 ;
-			    } /* end if (proclistten) */
-		            rs1 = locinfo_varend(lip) ;
+	                    } /* end if (proclistten) */
+	                    rs1 = locinfo_varend(lip) ;
 	                    if (rs >= 0) rs = rs1 ;
-			} /* end if (locinfo-var) */
+	                } /* end if (locinfo-var) */
 	                rs1 = procuserinfo_end(pip) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (procuserinfo) */
-		    rs1 = userinfo_finish(&u) ;
-		    if (rs >= 0) rs = rs1 ;
+	            rs1 = userinfo_finish(&u) ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (userinfo) */
 	    } /* end if (procdefargs) */
 	    if ((rs >= 0) && (pip->debuglevel > 0)) {
@@ -1440,7 +1440,7 @@ static int mfsmain(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            cchar	*pn = pip->progname ;
 	            cchar	*fmt = "%s: requests=%d\n" ;
 	            shio_printf(pip->efp,fmt,pn,c) ;
-		}
+	        }
 	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
@@ -1490,10 +1490,10 @@ retearly:
 	    cchar	*fmt ;
 	    if (pip->f.background || pip->f.daemon) {
 	        cchar	*w = ((pip->f.daemon) ? "daemon" : "background") ;
-		fmt = "%s: (%s) exiting ex=%u (%d)\n" ;
+	        fmt = "%s: (%s) exiting ex=%u (%d)\n" ;
 	        shio_printf(pip->efp,fmt,pn,w,ex,rs) ;
 	    } else {
-		fmt = "%s: exiting ex=%u (%d)\n" ;
+	        fmt = "%s: exiting ex=%u (%d)\n" ;
 	        shio_printf(pip->efp,fmt,pn,ex,rs) ;
 	    }
 	} /* end if */
@@ -1623,8 +1623,8 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
 #if	CF_DEBUG
-		if (DEBUGLEVEL(3))
-			debugprintf("mfsmain/procopt: k=%t\n",kp,kl) ;
+	            if (DEBUGLEVEL(3))
+	                debugprintf("mfsmain/procopt: k=%t\n",kp,kl) ;
 #endif
 
 	            if ((oi = matostr(progopts,2,kp,kl)) >= 0) {
@@ -1726,14 +1726,14 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                                    lip->intmaint = v ;
 	                                }
 	                                break ;
-	                case progopt_intspeed:
-	                    if (! lip->final.intspeed) {
-	                        c += 1 ;
-	                        lip->final.intspeed = TRUE ;
-	                        lip->have.intspeed = TRUE ;
-	                        lip->intspeed = v ;
-	                    }
-	                    break ;
+	                            case progopt_intspeed:
+	                                if (! lip->final.intspeed) {
+	                                    c += 1 ;
+	                                    lip->final.intspeed = TRUE ;
+	                                    lip->have.intspeed = TRUE ;
+	                                    lip->intspeed = v ;
+	                                }
+	                                break ;
 	                            } /* end switch */
 	                        } /* end if (have) */
 	                    } /* end block */
@@ -1865,25 +1865,25 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                case progopt_svctype:
 	                    if ((lip->svctype < 0) && (! lip->final.svctype)) {
 	                        if (vl > 0) {
-				    lip->final.svctype = TRUE ;
+	                            lip->final.svctype = TRUE ;
 	                            rs = locinfo_svctype(lip,vp,vl) ;
 	                        }
 	                    }
 	                    break ;
 	                case progopt_maint:
 	                    if (! lip->final.maint) {
-	                            lip->final.maint = TRUE ;
-	                            lip->f.maint = TRUE ;
+	                        lip->final.maint = TRUE ;
+	                        lip->f.maint = TRUE ;
 	                        if ((vl > 0) && (lip->intclient == 0)) {
 	                            rs = cfdecti(vp,vl,&v) ;
-				    lip->intclient = v ;
+	                            lip->intclient = v ;
 	                        }
 	                    }
 	                    break ;
 	                } /* end switch */
 
 	            } else
-			rs = SR_INVALID ;
+	                rs = SR_INVALID ;
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1894,8 +1894,8 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
-	debugprintf("mfsmain/procopt: ret intrun=%u\n",pip->intrun) ;
-	debugprintf("mfsmain/procopt: ret rs=%d c=%u\n",rs,c) ;
+	    debugprintf("mfsmain/procopt: ret intrun=%u\n",pip->intrun) ;
+	    debugprintf("mfsmain/procopt: ret rs=%d c=%u\n",rs,c) ;
 	}
 #endif
 
@@ -1959,9 +1959,9 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 
 	if ((rs = proginfo_rootname(pip)) >= 0) {
 	    if ((rs = procuserinfo_hostname(pip)) >= 0) {
-		if ((rs = procuserinfo_other(pip)) >= 0) {
-	    	    rs = procuserinfo_logid(pip) ;
-		}
+	        if ((rs = procuserinfo_other(pip)) >= 0) {
+	            rs = procuserinfo_logid(pip) ;
+	        }
 	    }
 	}
 
@@ -2009,14 +2009,14 @@ static int procuserinfo_other(PROGINFO *pip)
 	int		rs ;
 	if ((rs = procuserinfo_aux(pip)) >= 0) {
 	    if ((rs = procuserinfo_hz(pip)) >= 0) {
-		if ((rs = procuserinfo_groupname(pip)) >= 0) {
-		    if ((rs = getnprocessors(pip->envv,0)) >= 0) {
-			pip->ncpu = rs ;
-			if ((rs = procuserinfo_org(pip)) >= 0) {
-			    rs = procuserinfo_orgcode(pip) ;
-			}
-		    }
-		}
+	        if ((rs = procuserinfo_groupname(pip)) >= 0) {
+	            if ((rs = getnprocessors(pip->envv,0)) >= 0) {
+	                pip->ncpu = rs ;
+	                if ((rs = procuserinfo_org(pip)) >= 0) {
+	                    rs = procuserinfo_orgcode(pip) ;
+	                }
+	            }
+	        }
 	    }
 	}
 	return rs ;
@@ -2068,7 +2068,7 @@ static int procuserinfo_hz(PROGINFO *pip)
 
 	if (rs >= 0) {
 	    if (cp != NULL) {
-		cchar	**vpp = &pip->hz ;
+	        cchar	**vpp = &pip->hz ;
 	        rs = proginfo_setentry(pip,vpp,cp,cl) ;
 	    } else {
 	        rs = SR_NOSYS ;
@@ -2119,7 +2119,7 @@ static int procuserinfo_org(PROGINFO *pip)
 	        }
 	    }
 	    if ((rs >= 0) && (cl > 0)) {
-		cchar	**vpp = &pip->org ;
+	        cchar	**vpp = &pip->org ;
 	        rs = proginfo_setentry(pip,vpp,cp,cl) ;
 	    }
 	} /* end if (organization) */
@@ -2138,11 +2138,11 @@ static int procuserinfo_orgcode(PROGINFO *pip)
 	    char	obuf[ORGCODELEN+1] ;
 	    if ((org != NULL) && (org[0] != '\0')) {
 	        rs = snabbr(obuf,olen,org,-1) ;
-		ol = rs ;
+	        ol = rs ;
 	    }
-	    if (rs >= 0) {	
-		cchar	**vpp = &pip->orgcode ;
-		rs = proginfo_setentry(pip,vpp,obuf,ol) ;
+	    if (rs >= 0) {
+	        cchar	**vpp = &pip->orgcode ;
+	        rs = proginfo_setentry(pip,vpp,obuf,ol) ;
 	    }
 	} else {
 	    rs = strlen(pip->orgcode) ;
@@ -2162,12 +2162,12 @@ static int procuserinfo_logid(PROGINFO *pip)
 #endif
 	    if (rs & KSHLIB_RMKSH) {
 	        if ((rs = lib_serial()) >= 0) {
-		    LOCINFO	*lip = pip->lip ;
+	            LOCINFO	*lip = pip->lip ;
 	            const int	plen = LOGIDLEN ;
 	            const int	pv = pip->pid ;
 	            cchar	*nn = pip->nodename ;
 	            char	pbuf[LOGIDLEN+1] ;
-		    lip->kserial = rs ;
+	            lip->kserial = rs ;
 	            if ((rs = mkplogid(pbuf,plen,nn,pv)) >= 0) {
 	                const int	s = lip->kserial ;
 	                const int	slen = LOGIDLEN ;
@@ -2226,9 +2226,9 @@ static int procourconf_begin(PROGINFO *pip)
 	        void		*p ;
 	        if ((rs = uc_malloc(size,&p)) >= 0) {
 	            const int	ic = lip->intconf ;
-	            cchar	*cfname = pip->cfname ;
+	            cchar	*cfn = pip->cfname ;
 	            pip->config = p ;
-	            if ((rs = config_start(pip->config,pip,cfname,ic)) >= 0) {
+	            if ((rs = config_start(pip->config,pip,cfn,ic)) >= 0) {
 	                pip->open.config = TRUE ;
 	            } /* end if (config_start) */
 	            if (rs < 0) {
@@ -2260,9 +2260,9 @@ static int procourconf_find(PROGINFO *pip)
 	    LOCINFO	*lip = pip->lip ;
 	    debugprintf("mfsmain/procourconf_find: ent\n") ;
 	    debugprintf("mfsmain/procourconf_find: cf=%s\n",
-		pip->cfname) ;
+	        pip->cfname) ;
 	    debugprintf("mfsmain/procourconf_find: open-svars=%u\n",
-		lip->open.svars) ;
+	        lip->open.svars) ;
 	}
 #endif /* CF_DEBUG */
 
@@ -2274,27 +2274,27 @@ static int procourconf_find(PROGINFO *pip)
 	        cchar		*cfn = CONFIGFNAME ;
 	        char		tbuf[MAXPATHLEN+1] ;
 	        if ((rs = permsched(sched1,svp,tbuf,tlen,cfn,R_OK)) >= 0) {
-		    cchar	**vpp = &pip->cfname ;
+	            cchar	**vpp = &pip->cfname ;
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(3)) {
-		        debugprintf("mfsmain/procourconf_find: "
-			    "permsched() rs=%d\n",rs) ;
-		        debugprintf("mfsmain/procourconf_find: "
-			    "cf=%s\n",tbuf) ;
-		    }
+	            if (DEBUGLEVEL(3)) {
+	                debugprintf("mfsmain/procourconf_find: "
+	                    "permsched() rs=%d\n",rs) ;
+	                debugprintf("mfsmain/procourconf_find: "
+	                    "cf=%s\n",tbuf) ;
+	            }
 #endif
-		    rl = rs ;
-		    rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
+	            rl = rs ;
+	            rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
 	        } else if (isNotPresent(rs)) {
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(3))
-		        debugprintf("mfsmain/procourconf_find: "
-			    "permsched() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(3))
+	                debugprintf("mfsmain/procourconf_find: "
+	                    "permsched() rs=%d\n",rs) ;
 #endif
-		    rs = SR_OK ;
+	            rs = SR_OK ;
 	        }
 	    } else {
-		rs = SR_BUGCHECK ;
+	        rs = SR_BUGCHECK ;
 	    }
 	} /* end if (specified) */
 
@@ -2340,13 +2340,15 @@ static int procourconf_end(PROGINFO *pip)
 /* end subroutine (procourconf_end) */
 
 
-static int procourdef(PROGINFO *pip)
+static int procourdefs(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
 	cchar		**envv = pip->envv ;
 
 	if (pip->logsize == 0) pip->logsize = LOGSIZE ;
+
+	if (pip->intpoll == 0) pip->intpoll = TO_POLL ;
 
 	if (lip->msfname == NULL) {
 	    cchar	*cp ;
@@ -2363,12 +2365,12 @@ static int procourdef(PROGINFO *pip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("mfsmain/procourdef: ret rs=%d\n",rs) ;
+	    debugprintf("mfsmain/procourdefs: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
 }
-/* end subroutine (procourdef) */
+/* end subroutine (procourdefs) */
 
 
 static int procbackdefs(PROGINFO *pip)
@@ -2446,12 +2448,13 @@ static int procdaemondefs(PROGINFO *pip)
 
 static int procpidfname(PROGINFO *pip)
 {
+	const int	clen = MAXNAMELEN ;
 	int		rs = SR_OK ;
 	int		pfl = -1 ;
 	int		f_changed = FALSE ;
 	cchar		*pfp = pip->pidfname ;
 	char		rundname[MAXPATHLEN+1] ;
-	char		cname[MAXNAMELEN + 1] ;
+	char		cbuf[MAXNAMELEN + 1] ;
 	char		tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUG
@@ -2475,9 +2478,9 @@ static int procpidfname(PROGINFO *pip)
 
 	    if (rs >= 0) {
 	        cchar	*nn = pip->nodename ;
-	        if ((rs = snsds(cname,MAXNAMELEN,nn,sn)) >= 0) {
+	        if ((rs = snsds(cbuf,clen,nn,sn)) >= 0) {
 	            pfp = tmpfname ;
-	            rs = mkpath2(tmpfname,rundname,cname) ;
+	            rs = mkpath2(tmpfname,rundname,cbuf) ;
 	            pfl = rs ;
 	        }
 	    }
@@ -2529,7 +2532,7 @@ static int process(PROGINFO *pip,cchar *ofn)
 	                                rs = procback(pip) ;
 	                            } else if (pip->f.daemon) {
 	                                rs = procdaemon(pip) ;
-					c = rs ;
+	                                c = rs ;
 	                            }
 	                            rs1 = ids_release(&pip->id) ;
 	                            if (rs >= 0) rs = rs1 ;
@@ -2537,8 +2540,8 @@ static int process(PROGINFO *pip,cchar *ofn)
 	                    } /* end if (procbackinfo) */
 	                } /* end if (procpidfname) */
 	            } /* end if (procbackdefs) */
-		} else if (lip->f.cmds) {
-		    rs = procourcmds(pip,ofn) ;
+	        } else if (lip->f.cmds) {
+	            rs = procourcmds(pip,ofn) ;
 	        } else {
 	            rs = procregular(pip) ;
 	        }
@@ -2885,7 +2888,7 @@ static int procbackenv(PROGINFO *pip,SPAWNER *srp)
 	                    vp = pip->pidfname ;
 	                }
 	                break ;
-		    case 1:
+	            case 1:
 	                if (lip->reqfname != NULL) {
 	                    np = "reqfile" ;
 	                    vp = lip->reqfname ;
@@ -2897,7 +2900,7 @@ static int procbackenv(PROGINFO *pip,SPAWNER *srp)
 	                    vp = lip->mntfname ;
 	                }
 	                break ;
-		    case 3:
+	            case 3:
 	                if ((pip->lfname != NULL) && pip->final.lfname) {
 	                    np = "logfile" ;
 	                    vp = pip->lfname ;
@@ -2969,16 +2972,16 @@ static int procdaemon(PROGINFO *pip)
 	        LOCINFO		*lip = pip->lip ;
 	        if ((rs = locinfo_defdaemon(lip)) >= 0) {
 	            if ((rs = locinfo_lockbegin(lip)) >= 0) {
-			if ((rs = locinfo_daemonbegin(lip)) >= 0) {
+	                if ((rs = locinfo_daemonbegin(lip)) >= 0) {
 	                    if ((rs = procservice(pip)) >= 0) {
 	                        c = rs ;
-			    }
-			    if (rs < 0) {
-				cchar	*fmt = "failed (%d)" ;
-				logprintf(pip,fmt,rs) ;
-			    }
-			    rs1 = locinfo_daemonend(lip) ;
-			    if (rs >= 0) rs = rs1 ;
+	                    }
+	                    if (rs < 0) {
+	                        cchar	*fmt = "failed (%d)" ;
+	                        logprintf(pip,fmt,rs) ;
+	                    }
+	                    rs1 = locinfo_daemonend(lip) ;
+	                    if (rs >= 0) rs = rs1 ;
 	                } /* end if (locinfo-daemon) */
 	                rs1 = locinfo_lockend(lip) ;
 	                if (rs >= 0) rs = rs1 ;
@@ -3082,65 +3085,65 @@ static int procservice(PROGINFO *pip)
 	}
 #endif
 
-	    if ((rs = mfswatch_begin(pip)) >= 0) {
-	 	const time_t	ti_start = pip->daytime ;
+	if ((rs = mfswatch_begin(pip)) >= 0) {
+	    const time_t	ti_start = pip->daytime ;
 
-		loglisteners(pip) ;
-		while ((rs = mfswatch_service(pip)) >= 0) {
-		    c += rs ;
+	    loglisteners(pip) ;
+	    while ((rs = mfswatch_service(pip)) >= 0) {
+	        c += rs ;
 
-	            if ((rs >= 0) && (lip->cmd[0] != '\0')) {
-	                rs = procfcmd(pip) ;
-	                if (rs > 0) break ;
-	            }
+	        if ((rs >= 0) && (lip->cmd[0] != '\0')) {
+	            rs = procfcmd(pip) ;
+	            if (rs > 0) break ;
+	        }
 
-		    if (rs >= 0) {
-		        if ((rs = locinfo_isreqexit(lip)) > 0) break ;
-		    }
+	        if (rs >= 0) {
+	            if ((rs = locinfo_isreqexit(lip)) > 0) break ;
+	        }
 
-		    if (pip->intrun > 0) {
-		        if ((pip->daytime - ti_start) >= pip->intrun) break ;
-		    }
+	        if (pip->intrun > 0) {
+	            if ((pip->daytime - ti_start) >= pip->intrun) break ;
+	        }
 
-		    if (rs >= 0) {
-		        rs = locinfo_maintourtmp(lip) ;
-		    }
+	        if (rs >= 0) {
+	            rs = locinfo_maintourtmp(lip) ;
+	        }
 
-	            if (rs >= 0) {
-	                logflush(pip) ;
-	            }
+	        if (rs >= 0) {
+	            logflush(pip) ;
+	        }
 
-		    if (rs >= 0) {
-		        if ((rs = lib_issig(SIGTSTP)) > 0) {
-			    char	tbuf[TIMEBUFLEN+1] ;
-			    timestr_logz(pip->daytime,tbuf) ;
-			    fmt = "%s: %s command suspended\n" ;
-			    shio_printf(pip->efp,fmt,pn,tbuf) ;
-			    shio_flush(pip->efp) ;
-	                    rs = uc_raise(SIGSTOP) ;
-			    pip->daytime = time(NULL) ;
-			    timestr_logz(pip->daytime,tbuf) ;
-			    fmt = "%s: %s command resumed\n" ;
-			    shio_printf(pip->efp,fmt,pn,tbuf) ;
-		        } /* end if (lib_issig) */
-		    }
+	        if (rs >= 0) {
+	            if ((rs = lib_issig(SIGTSTP)) > 0) {
+	                char	tbuf[TIMEBUFLEN+1] ;
+	                timestr_logz(pip->daytime,tbuf) ;
+	                fmt = "%s: %s command suspended\n" ;
+	                shio_printf(pip->efp,fmt,pn,tbuf) ;
+	                shio_flush(pip->efp) ;
+	                rs = uc_raise(SIGSTOP) ;
+	                pip->daytime = time(NULL) ;
+	                timestr_logz(pip->daytime,tbuf) ;
+	                fmt = "%s: %s command resumed\n" ;
+	                shio_printf(pip->efp,fmt,pn,tbuf) ;
+	            } /* end if (lib_issig) */
+	        }
 
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(4)) 
-	    	        debugprintf("pcsmain/procservice: while-bot rs=%d\n",
-			rs) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("pcsmain/procservice: while-bot rs=%d\n",
+	                rs) ;
 #endif
 
-		    if (rs >= 0) rs = lib_sigquit() ;
-		    if (rs >= 0) rs = lib_sigterm() ;
-		    if (rs >= 0) rs = lib_sigintr() ;
+	        if (rs >= 0) rs = lib_sigquit() ;
+	        if (rs >= 0) rs = lib_sigterm() ;
+	        if (rs >= 0) rs = lib_sigintr() ;
 
-		    if (rs < 0) break ;
-		} /* end while */
+	        if (rs < 0) break ;
+	    } /* end while */
 
-		rs1 = mfswatch_end(pip) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (mfswatch) */
+	    rs1 = mfswatch_end(pip) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (mfswatch) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))

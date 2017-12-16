@@ -140,12 +140,12 @@ enum progmodes {
 #define	LOGSIZE		(80*1024)
 
 #define	TO_RUN		(5 * 60)
+#define	TO_POLL		7
 #define	TO_MARK		(8 * 3600)
 #define	TO_SPEED	(24 * 3600)
 #define	TO_DIRMAINT	(4*3600)
 #define	TO_DIRCLIENT	(24*3600)
 #define	TO_READ		(5*60) ;
-#define	TO_POLL		7
 #define	TO_IDLE		5
 #define	TO_LOCK		4
 #define	TO_CONFIG	5		/* configuration changed */

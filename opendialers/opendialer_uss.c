@@ -10,11 +10,9 @@
 /* revision history:
 
 	= 2003-11-04, David A­D­ Morano
-
-	This code was started by taking the corresponding code from the
-	TCP-family module.  In retrospect, that was a mistake.  Rather I should
-	have started this code by using the corresponding UUX dialer module.
-
+        This code was started by taking the corresponding code from the
+        TCP-family module. In retrospect, that was a mistake. Rather I should
+        have started this code by using the corresponding UUX dialer module.
 
 */
 
@@ -73,7 +71,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -86,7 +83,7 @@
 
 #define	ARGPARSE	struct argparse
 
-#define	NDF		"opendialer_uss.deb"
+#define	NDF		"opendialer_uss.nd"
 
 
 /* external subroutines */

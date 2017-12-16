@@ -74,10 +74,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 /* exported subroutines */
 
 
-int mkshlibname(shlibname,pnp,pnl)
-char		shlibname[] ;
-const char	*pnp ;
-int		pnl ;
+int mkshlibname(char *shlibname,cchar *pnp,int pnl)
 {
 	const int	shliblen = MAXNAMELEN ;
 	int		rs = SR_OK ;

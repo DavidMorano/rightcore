@@ -1,5 +1,5 @@
 TESTANSI
 
-We test features of the ANSI C language compiler.
+We test some features of the ANSI C language compiler.
 
 

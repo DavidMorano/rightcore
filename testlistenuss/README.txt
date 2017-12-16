@@ -1,9 +1,6 @@
 TESTLISTENUSS
 
-
 This programs tests the 'listenuss()' subroutine.
-
-* NOT CODED UP *
-
+This is the client side of the test.
 
 

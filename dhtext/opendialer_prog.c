@@ -67,7 +67,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<ids.h>
@@ -86,7 +85,7 @@
 
 #define	EXTRABIN	"/usr/extra/bin"
 
-#define	NDF		"opendialer_prog.deb"
+#define	NDF		"opendialer_prog.nd"
 
 
 /* external subroutines */

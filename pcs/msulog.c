@@ -52,8 +52,8 @@
 #define	PROGINFO	PROGINFO
 #endif
 
-#ifndef	TO_POLLMULT
-#define	TO_POLLMULT	1000
+#ifndef	POLLINTMULT
+#define	POLLINTMULT	1000
 #endif
 
 #ifndef	PBUFLEN

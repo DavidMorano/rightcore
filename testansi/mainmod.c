@@ -1,4 +1,4 @@
-/* mainmod */
+/* main (mainmod) */
 
 /* we test (what) modulas operations? */
 

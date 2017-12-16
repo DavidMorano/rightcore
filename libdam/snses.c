@@ -61,7 +61,7 @@
 
 /* external subroutines */
 
-extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
+extern int	sncpy3(char *,int,cchar *,cchar *,cchar *) ;
 
 
 /* exported subroutines */

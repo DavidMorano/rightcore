@@ -211,7 +211,7 @@ OBJ17=
 OBJ18=
 OBJ19=
 OBJ20= svckv.o svcent.o
-OBJ21= uc_peek.o passfd.o getsystypenum.o
+OBJ21=
 OBJ22= isBadSend.o isBadRecv.o isBadMsg.o
 OBJ23=
 

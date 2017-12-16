@@ -48,6 +48,7 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
+#include	<limits.h>
 #include	<string.h>
 
 #include	<vsystem.h>
@@ -55,6 +56,7 @@
 #include	<cfdec.h>
 #include	<uterm.h>
 #include	<termcmd.h>
+#include	<sbuf.h>
 #include	<localmisc.h>
 
 
@@ -65,8 +67,6 @@
 #endif
 
 #define	SUB		struct sub
-
-#define	CMD		TERMCMD
 
 #ifndef	UC
 #define	UC(ch)		((uchar)(ch))
@@ -81,17 +81,18 @@ extern int	ndigits(int,int) ;
 extern int	isdigitlatin(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprint(cchar *,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern char	*strnchr(const char *,int,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* local structures */
 
 struct sub {
-	CMD		*ckp ;
+	TERMCMD		*ckp ;
 	UTERM		*utp ;
 	int		to ;		/* time-out */
 	int		pi ;		/* number-prameters envountered */
@@ -106,7 +107,7 @@ struct sub {
 
 /* forward subroutines */
 
-static int sub_start(SUB *,CMD *,UTERM *,int,int) ;
+static int sub_start(SUB *,TERMCMD *,UTERM *,int,int) ;
 static int sub_readch(SUB *) ;
 static int sub_proc_esc(SUB *) ;
 static int sub_proc_csi(SUB *) ;
@@ -114,7 +115,7 @@ static int sub_proc_dcs(SUB *) ;
 static int sub_proc_pf(SUB *) ;
 static int sub_proc_reg(SUB *,int) ;
 static int sub_proc_escmore(SUB *,int) ;
-static int sub_loadparam(SUB *,const char *,int) ;
+static int sub_loadparam(SUB *,cchar *,int) ;
 static int sub_finish(SUB *) ;
 
 static int isinter(int) ;
@@ -122,6 +123,10 @@ static int isfinalesc(int) ;
 static int isfinalcsi(int) ;
 static int isparam(int) ;
 static int iscancel(int) ;
+
+#if	CF_DEBUGS
+static int	debugprintlist(cchar *,const short *) ;
+#endif
 
 
 /* local variables */
@@ -199,7 +204,7 @@ int uterm_readcmd(UTERM *utp,TERMCMD *ckp,int to,int ich)
 /* local subroutines */
 
 
-static int sub_start(SUB *sip,CMD *ckp,UTERM *utp,int to,int ich)
+static int sub_start(SUB *sip,TERMCMD *ckp,UTERM *utp,int to,int ich)
 {
 	int		rs = SR_OK ;
 	memset(sip,0,sizeof(SUB)) ;
@@ -208,10 +213,6 @@ static int sub_start(SUB *sip,CMD *ckp,UTERM *utp,int to,int ich)
 	sip->utp = utp ;
 	sip->to = to ;
 	sip->ich = ich ;
-	{
-	    int	i ;
-	    for (i = 0 ; i < TERMCMD_NP ; i += 1) ckp->p[i] = -1 ;
-	}
 	return rs ;
 }
 /* end subroutine (sub_start) */
@@ -250,13 +251,13 @@ static int sub_readch(SUB *sip)
 
 static int sub_proc_esc(SUB *sip)
 {
-	CMD		*ckp = sip->ckp ;
+	TERMCMD		*ckp = sip->ckp ;
 	int		rs ;
 
 	ckp->name = termcmdtype_esc ;
 
 	if ((rs = sub_readch(sip)) >= 0) {
-	    int	ch = rs ;
+	    const int	ch = rs ;
 	    switch (ch) {
 	    case '[':
 	        rs = sub_proc_csi(sip) ;
@@ -286,7 +287,7 @@ static int sub_proc_esc(SUB *sip)
 
 static int sub_proc_escmore(SUB *sip,int ch)
 {
-	CMD		*ckp = sip->ckp ;
+	TERMCMD		*ckp = sip->ckp ;
 	const int	ilen = TERMCMD_ISIZE ;
 	int		rs = SR_OK ;
 
@@ -331,7 +332,7 @@ static int sub_proc_escmore(SUB *sip,int ch)
 
 static int sub_proc_csi(SUB *sip)
 {
-	CMD		*ckp = sip->ckp ;
+	TERMCMD		*ckp = sip->ckp ;
 	int		rs ;
 
 	ckp->type = termcmdtype_csi ;
@@ -419,11 +420,13 @@ static int sub_proc_csi(SUB *sip)
 	        }
 	    } /* end if */
 
+#ifdef	COMMENT
 	    if ((rs >= 0) && (sip->pi > 0)) {
 	        if (sip->pi < TERMCMD_NP) {
-	            ckp->p[sip->pi] = -1 ;
+	            ckp->p[sip->pi] = TERMCMD_PEOL ;
 	        }
 	    }
+#endif /* COMMENT */
 
 	} /* end if (sub_readch) */
 
@@ -434,7 +437,7 @@ static int sub_proc_csi(SUB *sip)
 
 static int sub_proc_dcs(SUB *sip)
 {
-	CMD		*ckp = sip->ckp ;
+	TERMCMD		*ckp = sip->ckp ;
 	int		rs ;
 
 	ckp->type = termcmdtype_dcs ;
@@ -548,11 +551,13 @@ static int sub_proc_dcs(SUB *sip)
 	        } /* end while */
 	    } /* end if */
 
+#ifdef	COMMENT
 	    if ((rs >= 0) && (sip->pi > 0)) {
 	        if (sip->pi < TERMCMD_NP) {
-	            ckp->p[sip->pi] = -1 ;
+	            ckp->p[sip->pi] = TERMCMD_PEOL ;
 	        }
 	    }
+#endif /* COMMENT */
 
 	} /* end if (sub_readch) */
 
@@ -563,7 +568,7 @@ static int sub_proc_dcs(SUB *sip)
 
 static int sub_proc_pf(SUB *sip)
 {
-	CMD		*ckp = sip->ckp ;
+	TERMCMD		*ckp = sip->ckp ;
 	int		rs ;
 
 	ckp->type = termcmdtype_pf ;
@@ -597,7 +602,7 @@ static int sub_proc_pf(SUB *sip)
 
 static int sub_proc_reg(SUB *sip,int ich)
 {
-	CMD		*ckp = sip->ckp ;
+	TERMCMD		*ckp = sip->ckp ;
 	int		rs = 1 ;		/* signal DONE */
 
 	ckp->type = termcmdtype_reg ;
@@ -610,7 +615,7 @@ static int sub_proc_reg(SUB *sip,int ich)
 
 static int sub_loadparam(SUB *sip,const char *dbuf,int dl)
 {
-	CMD		*ckp = sip->ckp ;
+	TERMCMD		*ckp = sip->ckp ;
 	const int	nparams = TERMCMD_NP ;
 	int		rs = SR_OK ;
 	int		rs1 = SR_OK ;
@@ -625,18 +630,22 @@ static int sub_loadparam(SUB *sip,const char *dbuf,int dl)
 	}
 	if (rs1 >= 0) {
 	    if (v > TERMCMD_MAXPVAL) v = TERMCMD_MAXPVAL ;
-	    if (sip->pi >= nparams) {
+	    if (sip->pi == nparams) {
 	        int	i ;
 	        for (i = 1 ; i < nparams ; i += 1) {
 	            ckp->p[i-1] = ckp->p[i] ;
 	        }
-	        ckp->p[i] = -1 ;
 	        sip->pi -= 1 ;
 	    }
 	    ckp->p[sip->pi++] = v ;
 	} else {
 	    sip->f_error = TRUE ;
 	}
+
+#if	CF_DEBUGS
+	debugprintlist("uc_readcmd/sub_loadparam:",ckp->p) ;
+	debugprintf("uc_readcmd/sub_loadparam: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -682,5 +691,32 @@ static int iscancel(int ch)
 	return f ;
 }
 /* end subroutines (iscancel) */
+
+
+#if	CF_DEBUGS
+static int debugprintlist(cchar *ids,const short *pp)
+{
+	SBUF		b ;
+	const int	dlen = MAXNAMELEN ;
+	int		rs ;
+	int		len = 0 ;
+	char		dbuf[MAXNAMELEN+1] ;
+	if ((rs = sbuf_start(&b,dbuf,dlen)) >= 0) {
+	    int		i ;
+	    sbuf_strw(&b,ids,-1) ;
+	    for (i = 0 ; (i < 16) && (pp[i] != SHORT_MIN) ; i += 1) {
+	        sbuf_char(&b,' ') ;
+		sbuf_deci(&b,pp[i]) ;
+	    }
+	    sbuf_char(&b,'\n') ;
+	    len = sbuf_finish(&b) ;
+	    if (rs >= 0) rs = len ;
+	} /* end if (sbuf) */
+	if (rs >= 0) {
+	    debugprint(dbuf,len) ;
+	}
+	return (rs >= 0) ? len : rs ;
+}
+#endif /* CF_DEBUGS */
 
 

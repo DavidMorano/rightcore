@@ -1,9 +1,8 @@
 PCSUNODES
 
-The PCS User-Nodes (PCSUNODES) database contains the names of machine
-nodes (and NET domain names) that share the same user space (like a
-cluster for example). This database is used to determine the domain
-names for machines where a mail-address of the form 'user@doammin' or
-'node!yuser' is the final destination for.
+The PCS User-Nodes (PCSUNODES) database contains the names of machine nodes (and
+NET domain names) that share the same user space (like a cluster for example).
+This database is used to determine the domain names for machines where a
+mail-address of the form 'user@doammin' or 'node!user' is the final destination.
 
 

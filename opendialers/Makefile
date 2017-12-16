@@ -18,17 +18,17 @@ DIALERDIR= $(SRCROOT)/lib/$(LIBENT)
 PREROOTLIBDIR= $(PREROOT)/lib
 PREROOTDIALERDIR= $(PREROOT)/lib/$(LIBENT)
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -71,19 +71,20 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
 LDRPATH= $(PREROOTLIBDIR)
 
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(LDRPATH)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(LDRPATH):$(CGS_RPATH)
 SLDFLAGS= $(LDFLAGS) -M $(T).map
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
 LIB2=
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
@@ -93,13 +94,13 @@ LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 LIBINFO= $(LIBDIRS) $(LIBS)
 
 
-SLIBDIRS= -L$(LIBDIR)
+SLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 SLIB0=
 SLIB1= -ldam -lb
 SLIB2=
 SLIB3= -luc -lu
-SLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+SLIB4= $(CGS_LIBS)
 SLIB5=
 SLIB6= -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 SLIB7=
@@ -112,13 +113,13 @@ SLIBS= $(SLIBA) $(SLIBB)
 SLIBINFO= $(SLIBDIRS) $(SLIBS)
 
 
-XLIBDIRS= -L$(LIBDIR)
+XLIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 XLIB0=
 XLIB1= -ldam -lb
 XLIB2= -ldebug
 XLIB3= -luc -lut -lu
-XLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+XLIB4= $(CGS_LIBS)
 XLIB5= 
 XLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 XLIB7= -ldl
@@ -128,9 +129,10 @@ XLIBS= $(XLIB0) $(XLIB1) $(XLIB2) $(XLIB3) $(XLIB4) $(XLIB5) $(XLIB6) $(XLIB7)
 XLIBINFO= $(XLIBDIRS) $(XLIBS)
 
 
+VALUES= $(VALDIR)/$(CGS_VALUES)
+
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -215,7 +217,7 @@ all:			$(ALL)
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 .cc.o:
-	$(GPP) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -236,7 +238,7 @@ all:			$(ALL)
 test:			$(TT).x
 
 $(TT).x:		main.c $(AOBJ) Makefile
-	$(CC) -o $@ $(LDFLAGS) $(AOBJS) $(XLIBDIRS) $(XLIBS) > $(TT).lm
+	$(CC) -o $@ $(LDFLAGS) $(AOBJS) $(XLIBINFO) > $(TT).lm
 
 $(T):			$(T).ee
 	cp -p $(T).ee $(T)
@@ -244,7 +246,7 @@ $(T):			$(T).ee
 $(T).so:		$(SOBJ) Makefile $(T).map
 	makedate > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -G -o $@ $(SLDFLAGS) $(SOBJS) $(SLIBDIRS) $(SLIBS) > $(T).lm
+	$(LD) -G -o $@ $(SLDFLAGS) $(SOBJS) $(SLIBINFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)

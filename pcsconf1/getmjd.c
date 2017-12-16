@@ -156,7 +156,7 @@ static const int doy[12] = { 0,31,59,90,120,151,181,212,243,273,304,334 } ;
 
 int getmjd(int yr,int mo,int day)
 {
-	const int	yrbase = TM_YEAR_BASE ;
+	const int	yrbase = TM_YEAR_BASE ; /* TZFILE 1900 */
 	int		mjd = 15020 ;	/* MJD of 1900-01-01 */
 	int		nlyears ;	/* leap years from 1900 */
 	int		myr ;		/* modified-year (years since 1900) */
@@ -170,9 +170,11 @@ int getmjd(int yr,int mo,int day)
 	if ((day < 1) || (day > 31))
 	    return SR_DOM ;
 
-/* calculate */
+/* adjust year as needed (for convenience to caller) */
 
 	if (yr < yrbase) yr += yrbase ;
+
+/* continue to calculate MHD */
 
 	myr = (yr - yrbase) ;		/* get modified year */
 

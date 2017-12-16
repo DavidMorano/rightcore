@@ -70,23 +70,20 @@
 
 int termcmd_clear(TERMCMD *ckp)
 {
-	int		rs = SR_OK ;
-
-#ifdef	COMMENT
-	memset(ckp,0,sizeof(TERMCMD)) ;
-	ckp->p[0] = TERMCMD_PEOL ;
-#else /* COMMENT */
 	ckp->type = 0 ;
 	ckp->name = 0 ;
-	ckp->p[0] = TERMCMD_PEOL ;
 	ckp->istr[0] = '\0' ;
 	ckp->dstr[0] = '\0' ;
 	ckp->f.private = FALSE ;
 	ckp->f.iover = FALSE ;
 	ckp->f.dover = FALSE ;
-#endif /* COMMENT */
-
-	return rs ;
+	{
+	    int		i ;
+	    for (i = 0 ; i < TERMCMD_NP ; i += 1) {
+	        ckp->p[i] = TERMCMD_PEOL ;
+	    }
+	}
+	return SR_OK ;
 }
 /* end subroutine (termcmd_clear) */
 

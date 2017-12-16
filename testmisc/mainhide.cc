@@ -76,7 +76,7 @@ public:
 	    v = av ;
 	    return (*this) ;
 	} ;
-	operator int() {
+	operator int() { /* C-style cast */
 	    cout << "junker::converting_to_int\n" ;
 	    return v ;
 	} ;

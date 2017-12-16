@@ -1,13 +1,13 @@
 BIBLEQ
 
 This program provides a concordance function.  It takes a query (invocation
-argument or on standard input) and prints the corresponding Bible verse.  A
+argument or on standard input) and prints the corresponding Bible verses.  A
 query takes the form:
 
 	<word(s)>
 
 Words with embedded single quotes (indicating possessive tense) should be
-quited from any shell interpretation.
+quoted from any shell interpretation.
 
 Synopsis:
 $ bibleq [<word(s)> ...] [-af <afile>] [-w <cols>]
