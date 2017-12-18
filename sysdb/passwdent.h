@@ -20,10 +20,10 @@
 extern "C" {
 #endif
 
-extern int passwdent_load(struct passwd *,char *,int,const struct passwd *) ;
-extern int passwdent_parse(struct passwd *,char *,int,const char *,int) ;
-extern int passwdent_size(const struct passwd *) ;
-extern int passwdent_format(const struct passwd *,char *,int) ;
+extern int passwdent_load(PASSWDENT *,char *,int,const PASSWDENT *) ;
+extern int passwdent_parse(PASSWDENT *,char *,int,cchar *,int) ;
+extern int passwdent_size(const PASSWDENT *) ;
+extern int passwdent_format(const PASSWDENT *,char *,int) ;
 
 #ifdef	__cplusplus
 }

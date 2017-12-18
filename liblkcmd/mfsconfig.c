@@ -107,8 +107,8 @@ extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdecmfi(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	optbool(const char *,int) ;
-extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
-extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
+extern int	vecstr_envadd(vecstr *,cchar *,cchar *,int) ;
+extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
 extern int	strwcmp(const char *,const char *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -158,6 +158,7 @@ static cchar	*params[] = {
 	"speedname",
 	"listen",
 	"svctype",
+	"users",
 	NULL
 } ;
 
@@ -181,6 +182,7 @@ enum params {
 	param_speedname,
 	param_listen,
 	param_svctype,
+	param_users,
 	param_overlast
 } ;
 
@@ -406,8 +408,8 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	    int		ml, vl, el ;
 	    int		v ;
 	    cchar	*pr = pip->pr ;
-	    const char	*ccp ;
-	    const char	*kp, *vp ;
+	    cchar	*ccp ;
+	    cchar	*kp, *vp ;
 
 	    while (rs >= 0) {
 	        kl = paramfile_enum(pfp,&cur,&pe,pbuf,plen) ;
@@ -425,10 +427,11 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	        ebuf[0] = '\0' ;
 	        el = 0 ;
 	        if (vl > 0) {
-	            el = expcook_exp(ecp,0,ebuf,elen,vp,vl) ;
-	            if (el >= 0)
+	            if ((el = expcook_exp(ecp,0,ebuf,elen,vp,vl)) >= 0) {
 	                ebuf[el] = '\0' ;
+		    }
 	        } /* end if */
+	        if (el < 0) continue ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4)) {
@@ -438,8 +441,6 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	        }
 #endif
 
-	        if (el < 0)
-	            continue ;
 
 	        switch (pi) {
 	        case param_logsize:
@@ -457,25 +458,20 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	            if ((rs = cfdecti(ebuf,el,&v)) >= 0) {
 	                switch (pi) {
 	                case param_intrun:
-	                    if (! pip->final.intrun)
-	                        pip->intrun = v ;
+	                    if (! pip->final.intrun) pip->intrun = v ;
 	                    break ;
 	                case param_mspoll:
 	                case param_intpoll:
-	                    if (! pip->final.intpoll)
-	                        pip->intpoll = v ;
+	                    if (! pip->final.intpoll) pip->intpoll = v ;
 	                    break ;
 	                case param_intmark:
-	                    if (! pip->final.intmark)
-	                        pip->intmark = v ;
+	                    if (! pip->final.intmark) pip->intmark = v ;
 	                    break ;
 	                case param_intlock:
-	                    if (! pip->final.intlock)
-	                        pip->intlock = v ;
+	                    if (! pip->final.intlock) pip->intlock = v ;
 	                    break ;
 	                case param_intspeed:
-			    if (! lip->final.intspeed)
-	                        lip->intspeed = v ;
+			    if (! lip->final.intspeed) lip->intspeed = v ;
 	                    break ;
 	                } /* end switch */
 	            } /* end if (cfdectinumber) */
@@ -581,6 +577,16 @@ int config_reader(CONFIG *cfp,MFSLISTEN_ACQ *acp,
 	            if (pip->f.daemon && (el > 0)) {
 			if (! lip->final.svctype) {
 	                    rs = locinfo_svctype(lip,ebuf,el) ;
+			}
+		    }
+		    break ;
+	       case param_users:
+	            if (! lip->final.users) {
+			lip->final.users = TRUE ;
+			lip->f.users = TRUE ;
+			if (el > 0) {
+	                    rs = optbool(ebuf,el) ;
+			    lip->f.users = (rs > 0) ;
 			}
 		    }
 		    break ;

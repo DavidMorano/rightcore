@@ -35,6 +35,8 @@
 #include	<sbuf.h>
 #include	<localmisc.h>
 
+#include	"passwdent.h"
+
 
 /* local defines */
 
@@ -56,9 +58,9 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* forward references */
 
-static int	passwdent_parseone(struct passwd *,STOREITEM *,int,
-			const char *,int) ;
-static int	passwdent_parsedefs(struct passwd *,STOREITEM *,int) ;
+static int	passwdent_parseone(PASSWDENT *,STOREITEM *,int,
+			cchar *,int) ;
+static int	passwdent_parsedefs(PASSWDENT *,STOREITEM *,int) ;
 
 static int	si_copystr(STOREITEM *,char **,const char *) ;
 
@@ -69,12 +71,7 @@ static int	si_copystr(STOREITEM *,char **,const char *) ;
 /* exported subroutines */
 
 
-int passwdent_parse(pwp,pwbuf,pwlen,sp,sl)
-struct passwd	*pwp ;
-char		pwbuf[] ;
-int		pwlen ;
-const char	*sp ;
-int		sl ;
+int passwdent_parse(PASSWDENT *pwp,char *pwbuf,int pwlen,cchar *sp,int sl)
 {
 	STOREITEM	ib, *ibp = &ib ;
 	int		rs ;
@@ -86,7 +83,7 @@ int		sl ;
 
 	if (sl < 0) sl = strlen(sp) ;
 
-	memset(pwp,0,sizeof(struct passwd)) ;
+	memset(pwp,0,sizeof(PASSWDENT)) ;
 	if ((rs = storeitem_start(ibp,pwbuf,pwlen)) >= 0) {
 	    int		fi = 0 ;
 	    int		si ;
@@ -113,11 +110,7 @@ int		sl ;
 /* end subroutine (passwdent_parse) */
 
 
-int passwdent_load(pwp,pwbuf,pwlen,spwp)
-struct passwd	*pwp ;
-char		pwbuf[] ;
-int		pwlen ;
-const struct passwd	*spwp ;
+int passwdent_load(PASSWDENT *pwp,char *pwbuf,int pwlen,const PASSWDENT *spwp)
 {
 	STOREITEM	ib ;
 	int		rs ;
@@ -131,7 +124,7 @@ const struct passwd	*spwp ;
 	debugprintf("passwdent_load: ent\n") ;
 #endif
 
-	memcpy(pwp,spwp,sizeof(struct passwd)) ;
+	memcpy(pwp,spwp,sizeof(PASSWDENT)) ;
 
 	if ((rs = storeitem_start(&ib,pwbuf,pwlen)) >= 0) {
 
@@ -181,10 +174,7 @@ const struct passwd	*spwp ;
 /* end subroutine (passwdent_load) */
 
 
-int passwdent_format(pwp,rbuf,rlen)
-struct passwd	*pwp ;
-char		rbuf[] ;
-int		rlen ;
+int passwdent_format(const PASSWDENT *pwp,char *rbuf,int rlen)
 {
 	SBUF		b ;
 	int		rs ;
@@ -236,7 +226,7 @@ int		rlen ;
 /* end subroutine (passwdent_format) */
 
 
-int passwdent_size(const struct passwd *pp)
+int passwdent_size(const PASSWDENT *pp)
 {
 	int		size = 1 ;
 	if (pp->pw_name != NULL) {
@@ -270,16 +260,12 @@ int passwdent_size(const struct passwd *pp)
 /* local subroutines */
 
 
-static int passwdent_parseone(pwp,ibp,fi,vp,vl)
-struct passwd	*pwp ;
-STOREITEM	*ibp ;
-int		fi ;
-const char	*vp ;
-int		vl ;
+static int passwdent_parseone(PASSWDENT	*pwp,STOREITEM *ibp,int fi,
+		cchar *vp,int vl)
 {
 	int		rs = SR_OK ;
 	int		v ;
-	const char	**vpp = NULL ;
+	cchar		**vpp = NULL ;
 
 	switch (fi) {
 	case 0:
@@ -320,10 +306,7 @@ int		vl ;
 
 
 /* ARGSUSED */
-static int passwdent_parsedefs(pwp,ibp,sfi)
-struct passwd	*pwp ;
-STOREITEM	*ibp ;
-int		sfi ;
+static int passwdent_parsedefs(PASSWDENT *pwp,STOREITEM *ibp,int sfi)
 {
 	int		rs = SR_OK ;
 	if (sfi == 6) {
@@ -339,17 +322,15 @@ int		sfi ;
 /* end subroutine (passwdent_parsedefs) */
 
 
-static int si_copystr(ibp,pp,p1)
-STOREITEM	*ibp ;
-char		**pp ;
-const char	*p1 ;
+static int si_copystr(STOREITEM *ibp,char **pp,cchar *p1)
 {
 	int		rs = SR_OK ;
-	const char	**cpp = (const char **) pp ;
+	cchar		**cpp = (const char **) pp ;
 
 	*cpp = NULL ;
-	if (p1 != NULL)
+	if (p1 != NULL) {
 	    rs = storeitem_strw(ibp,p1,-1,cpp) ;
+	}
 
 	return rs ;
 }

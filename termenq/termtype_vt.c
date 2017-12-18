@@ -11,9 +11,12 @@
 	= 2000-07-19, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
+	= 2017-12-16, David A­D­ Morano
+	Updated.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -65,8 +68,7 @@ extern char	*strnwcpy(char *,int,cchar *,int) ;
 /* local variables */
 
 static const struct termtype	types[] = {
-	{ "screen",	{ 1, 2, U, U },		{ 83, 9999, 0, U } },
-	{ "vt100",	{ 1, 2, U, U },		{ U, U, U, U } },
+	{ "vt100",	{ 1, 2, U, U },		{ -83, U, U, U } },
 	{ "vt101",	{ 1, 0, U, U },		{ U, U, U, U } },
 	{ "vt102",	{ 6, U, U, U },		{ U, U, U, U } },
 	{ "vt220",	{ 62, -9, U, U },	{ U, U, U, U } },
@@ -74,8 +76,11 @@ static const struct termtype	types[] = {
 	{ "vt320",	{ 63, -9, U, U },	{ U, U, U, U } },
 	{ "vt320int",	{ 63, 9, U, U },	{ U, U, U, U } },
 	{ "vt420",	{ 64, U, U, U },	{ U, U, U, U } },
-	{ "vt520",	{ 65, -22, U, U },	{ U, U, U, U } },
-	{ "vt525",	{ 65, 22, U, U },	{ 64, U, U, U } },
+	{ "vt520",	{ 65, -22, U, U },	{ 64, 0, U, U } },
+	{ "vt520pc",	{ 65, -22, U, U },	{ 64, 1, U, U } },
+	{ "vt525",	{ 65, 22, U, U },	{ 65, 0, U, U } },
+	{ "vt525pc",	{ 65, 22, U, U },	{ 65, 1, U, U } },
+	{ "screen",	{ 1, 2, U, U },		{ 83, 9999, 0, U } },
 	{ NULL,		{ 0, 0, 0, 0 },		{ 0, 0, 0, 0 } }
 } ;
 

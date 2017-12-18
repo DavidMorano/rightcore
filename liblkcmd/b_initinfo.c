@@ -764,7 +764,7 @@ done:
 	        ex = EX_DATAERR ;
 	        break ;
 	    } /* end switch */
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {

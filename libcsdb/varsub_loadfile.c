@@ -128,8 +128,8 @@ int varsub_loadfile(VARSUB *vsp,cchar *fname)
 	    const int	llen = LINEBUFLEN ;
 	    int		kl ;
 	    int		bl, cl ;
-	    const char	*cp ;
-	    const char	*kp ;
+	    cchar	*cp ;
+	    cchar	*kp ;
 	    char	lbuf[LINEBUFLEN + 1] ;
 	    char	buf[BUFLEN + 1] ;
 	    char	*bp ;

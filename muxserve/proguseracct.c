@@ -58,6 +58,7 @@
 #include	<ascii.h>
 #include	<linefold.h>
 #include	<getax.h>
+#include	<passwdent.h>
 #include	<localmisc.h>
 
 #include	"config.h"
@@ -119,16 +120,16 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 /* forward references */
 
 static int	proguseracct_usersrv(PROGINFO *,CLIENTINFO *,
-			struct passwd *) ;
-static int	proguseracct_pop(PROGINFO *,int,struct passwd *,
-			const char *,const char *) ;
+PASSWDENT *) ;
+static int	proguseracct_pop(PROGINFO *,int,PASSWDENT *,
+const char *,const char *) ;
 static int	proguseracct_projinfo(PROGINFO *,int,
-			struct passwd *) ;
+PASSWDENT *) ;
 static int	proguseracct_copyover(PROGINFO *,int,int) ;
 static int	proguseracct_prints(PROGINFO *,FILEBUF *,
-			char *,int, const char *,int) ;
+char *,int, const char *,int) ;
 static int	proguseracct_print(PROGINFO *,FILEBUF *,int,int,
-			const char *,int) ;
+const char *,int) ;
 
 static int	filebuf_writeblanks(FILEBUF *,int) ;
 
@@ -149,18 +150,14 @@ static int	isend(int) ;
 
 /* local variables */
 
-static const char	blanks[NBLANKS] = "        " ;
+static cchar	blanks[NBLANKS] = "        " ;
 
 
 /* exported subroutines */
 
 
-int proguseracctmat(pip,pep,pwbuf,pwlen,svcname)
-PROGINFO 	*pip ;
-struct passwd	*pep ;
-char		pwbuf[] ;
-int		pwlen ;
-const char	svcname[] ;
+int proguseracctmat(PROGINFO *pip,PASSWDENT *pep,char *pwbuf,int pwlen,
+		cchar *svcname)
 {
 	int		rs ;
 
@@ -180,10 +177,7 @@ const char	svcname[] ;
 /* end subroutine (proguseracctmat) */
 
 
-int proguseracctexec(pip,cip,pep)
-PROGINFO		*pip ;
-CLIENTINFO	*cip ;
-struct passwd		*pep ;
+int proguseracctexec(PROGINFO *pip,CLIENTINFO *cip,PASSWDENT *pep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -241,16 +235,12 @@ struct passwd		*pep ;
 /* local subroutines */
 
 
-static int proguseracct_usersrv(pip,cip,pep)
-PROGINFO	*pip ;
-CLIENTINFO	*cip ;
-struct passwd	*pep ;
+static int proguseracct_usersrv(PROGINFO *pip,CLIENTINFO *cip,PASSWDENT *pep)
 {
 	const int	ofd = cip->fd_output ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		oflags ;
-	int		fd ;
+	int		fd = -1 ;
 	int		to = TO_OPEN ;
 	int		wlen = 0 ;
 	int		f_served = FALSE ;
@@ -260,16 +250,9 @@ struct passwd	*pep ;
 	if ((usersrv == NULL) || (usersrv[0] == '\0'))
 	    usersrv = USERSRV ;
 
-	rs1 = mkpath2(tmpfname,pep->pw_dir,usersrv) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("proguseracct_usersrv: ufname=%s\n",tmpfname) ;
-#endif
-
-	oflags = (O_RDWR | O_NDELAY | O_NOCTTY) ;
-	if (rs1 >= 0) {
-	    rs1 = uc_opene(tmpfname,oflags,0666,to) ;
+	if ((rs1 = mkpath2(tmpfname,pep->pw_dir,usersrv)) >= 0) {
+	    const int	of = (O_RDWR | O_NDELAY | O_NOCTTY) ;
+	    rs1 = uc_opene(tmpfname,of,0666,to) ;
 	    fd = rs1 ;
 	}
 
@@ -312,12 +295,8 @@ struct passwd	*pep ;
 /* end subroutine (proguseracct_usersrv) */
 
 
-static int proguseracct_pop(pip,ofd,pep,fname,desc)
-PROGINFO	*pip ;
-int		ofd ;
-struct passwd	*pep ;
-const char	fname[] ;
-const char	desc[] ;
+static int proguseracct_pop(PROGINFO *pip,int ofd,PASSWDENT *pep,
+		cchar *fname,cchar *desc)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -327,29 +306,27 @@ const char	desc[] ;
 
 	if (fname[0] != '\0') {
 	    const int	to = TO_OPEN ;
-	    int		fd ;
-	    int		oflags ;
+	    int		fd = -1 ;
 	    char	tmpfname[MAXPATHLEN + 1] ;
 
-	rs1 = mkpath2(tmpfname,pep->pw_dir,fname) ;
+	    if ((rs1 = mkpath2(tmpfname,pep->pw_dir,fname)) >= 0) {
+	        const int	of = (O_RDONLY | O_NDELAY | O_NOCTTY) ;
+	        rs1 = uc_opene(tmpfname,of,0666,to) ;
+	        fd = rs1 ;
+	    }
 
-	oflags = (O_RDONLY | O_NDELAY | O_NOCTTY) ;
-	if (rs1 >= 0) {
-	    rs1 = uc_opene(tmpfname,oflags,0666,to) ;
-	    fd = rs1 ;
-	}
+	    if (rs1 >= 0) {
 
-	if (rs1 >= 0) {
+	        c = 1 ;
+	        rs = proguseracct_copyover(pip,ofd,fd) ;
 
-	    c = 1 ;
-	    rs = proguseracct_copyover(pip,ofd,fd) ;
+	        u_close(fd) ;
 
-	    u_close(fd) ;
+	        if ((rs >= 0) && pip->open.logprog && (desc != NULL)) {
+	            proglog_printf(pip,"%s=%u",desc,rs) ;
+		}
 
-	    if ((rs >= 0) && pip->open.logprog && (desc != NULL))
-	        proglog_printf(pip,"%s=%u",desc,rs) ;
-
-	} /* end if (opened source file) */
+	    } /* end if (opened source file) */
 
 	} /* end if (non-empty file-name) */
 
@@ -358,7 +335,7 @@ const char	desc[] ;
 /* end subroutine (proguseracct_pop) */
 
 
-static int proguseracct_projinfo(PROGINFO *pip,int ofd,struct passwd *pep)
+static int proguseracct_projinfo(PROGINFO *pip,int ofd,PASSWDENT *pep)
 {
 	struct project	pj ;
 	const int	pjlen = getbufsize(getbufsize_pj) ;
@@ -369,21 +346,21 @@ static int proguseracct_projinfo(PROGINFO *pip,int ofd,struct passwd *pep)
 	if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
 	    cchar	*n = pep->pw_name ;
 	    if ((rs = uc_getdefaultproj(n,&pj,pjbuf,pjlen)) >= 0) {
-		const int	outlen = (pjlen*2) ;
-		if (pj.pj_comment != NULL) {
-		    int		ol ;
-	    	    char	outbuf[outlen+1] ;
+	        const int	outlen = (pjlen*2) ;
+	        if (pj.pj_comment != NULL) {
+	            int		ol ;
+	            char	outbuf[outlen+1] ;
 
-	    	    ol = sncpy1(outbuf,outlen,pj.pj_comment) ;
-	    	    if ((ol > 0) && (ol < outlen)) {
-	        	c = 1 ;
-	        	outbuf[ol++] = '\n' ;
-	        	rs = uc_writen(ofd,outbuf,ol) ;
-	    	    }
+	            ol = sncpy1(outbuf,outlen,pj.pj_comment) ;
+	            if ((ol > 0) && (ol < outlen)) {
+	                c = 1 ;
+	                outbuf[ol++] = '\n' ;
+	                rs = uc_writen(ofd,outbuf,ol) ;
+	            }
 
-		} /* end if (non-null) */
+	        } /* end if (non-null) */
 	    } else if (isNotPresent(rs)) {
-		rs = SR_OK ;
+	        rs = SR_OK ;
 	    }
 	    uc_free(pjbuf) ;
 	} /* end if (memory-allocation) */
@@ -396,18 +373,13 @@ static int proguseracct_projinfo(PROGINFO *pip,int ofd,struct passwd *pep)
 static int proguseracct_copyover(PROGINFO *pip,int ofd,int fd)
 {
 	FILEBUF		local, net ;
-	const int	llen = LINEBUFLEN ;
 	const int	clen = LINEBUFLEN ;
 	const int	to = TO_READ ;
 	int		rs = SR_OK ;
 	int		rs1 = 0 ;
 	int		size ;
-	int		len ;
 	int		cbl ;
-	int		cll ;
 	int		wlen = 0 ;
-	const char	*clp ;
-	char		lbuf[LINEBUFLEN + 2] ;
 	char		*cbuf = NULL ;
 
 	cbl = ((pip->linelen >= 5) ? pip->linelen : COLUMNS) ;
@@ -423,9 +395,14 @@ static int proguseracct_copyover(PROGINFO *pip,int ofd,int fd)
 	    if ((rs = filebuf_start(&net,ofd,0L,0,0)) >= 0) {
 
 	        if ((rs = filebuf_start(&local,fd,0L,0,0)) >= 0) {
+	            const int	llen = LINEBUFLEN ;
+	            int		len ;
+	            char	lbuf[LINEBUFLEN + 2] ;
 
 	            while ((rs = filebuf_readline(&local,lbuf,llen,to)) > 0) {
-	                len = rs ;
+	                int	len = rs ;
+	                int	cll ;
+	                cchar	*clp ;
 
 #if	CF_CLEAN
 #if	CF_CLEANBEFORE
@@ -469,12 +446,16 @@ static int proguseracct_copyover(PROGINFO *pip,int ofd,int fd)
 	} /* end if (memory-allocation) */
 
 	if (rs1 < 0) {
-	    if (pip->debuglevel > 0)
-	        bprintf(pip->efp,"%s: error on network write (%d)\n",
-	            pip->progname,rs1) ;
-	    if (pip->open.logprog)
-	        proglog_printf(pip,"error on network write (%d)",
-	            rs1) ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
+	    if (pip->debuglevel > 0) {
+	        fmt = "%s: error on network write (%d)\n" ;
+	        bprintf(pip->efp,fmt,pn,rs1) ;
+	    }
+	    if (pip->open.logprog) {
+	        fmt = "error on network write (%d)" ;
+	        proglog_printf(pip,fmt,rs1) ;
+	    }
 	} /* end if */
 
 	return (rs >= 0) ? wlen : rs ;
@@ -482,13 +463,8 @@ static int proguseracct_copyover(PROGINFO *pip,int ofd,int fd)
 /* end subroutine (proguseracct_copyover) */
 
 
-static int proguseracct_prints(pip,fbp,cbuf,cbl,lbuf,llen)
-PROGINFO	*pip ;
-FILEBUF		*fbp ;
-char		cbuf[] ;
-int		cbl ;
-const char	lbuf[] ;
-int		llen ;
+static int proguseracct_prints(PROGINFO *pip,FILEBUF *fbp,char *cbuf,int cbl,
+		cchar *lbuf,int llen)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -523,9 +499,8 @@ int		llen ;
 
 	            rs1 = proguseracct_print(pip,fbp,ind,ln++,lp,ll) ;
 	            wlen += rs1 ;
-	            if (rs1 < 0)
-	                break ;
 
+	            if (rs1 < 0) break ;
 	        } /* end while */
 
 	        linefold_finish(&liner) ;
@@ -534,15 +509,12 @@ int		llen ;
 	} /* end block */
 #else /* CF_LINEFOLD */
 	{
-	    int		sl ;
+	    int		sl = llen ;
 	    int		cll ;
 	    int		i = 0 ;
-	    const char	*sp ;
-	    const char	*clp ;
+	    cchar	*sp = lbuf ;
+	    cchar	*clp ;
 
-
-	    sp = lbuf ;
-	    sl = llen ;
 	    while ((ll = getline(ncols,sp,sl)) >= 0) {
 	        if ((ll == 0) && (i > 0)) break ;
 	        lp = sp ;
@@ -557,8 +529,8 @@ int		llen ;
 	        cll = mkclean(cbuf,lp,ll) ;
 	        clp = cbuf ;
 #else
-		cll = ll ;
-		clp = lp ;
+	        cll = ll ;
+	        clp = lp ;
 #endif /* CF_CLEAN */
 
 
@@ -570,8 +542,7 @@ int		llen ;
 
 	        rs1 = proguseracct_print(pip,fbp,ind,ln++,clp,cll) ;
 	        wlen += rs1 ;
-	        if (rs1 < 0)
-	            break ;
+	        if (rs1 < 0) break ;
 
 	        sl -= ((lp + ll) - sp) ;
 	        sp = (lp + ll) ;
@@ -588,37 +559,32 @@ int		llen ;
 /* end subroutine (proguseracct_prints) */
 
 
-static int proguseracct_print(pip,fbp,indent,ln,lp,ll)
-PROGINFO	*pip ;
-FILEBUF		*fbp ;
-int		indent ;
-int		ln ; /* line-number */
-const char	*lp ;
-int		ll ;
+static int proguseracct_print(PROGINFO *pip,FILEBUF *fbp,int indent,
+		int ln,cchar *lp,int ll)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	int		f_eol ;
 
 	if (ll > 0) {
-	if (indent < 0) indent = 0 ;
+	    if (indent < 0) indent = 0 ;
 
-	f_eol = ((ll > 0) && (lp[ll-1] == '\n')) ;
+	    f_eol = ((ll > 0) && (lp[ll-1] == '\n')) ;
 
-	if ((ln > 0) && (indent > 0)) {
-	    rs = filebuf_writeblanks(fbp,indent) ;
-	    wlen += rs ;
-	}
+	    if ((ln > 0) && (indent > 0)) {
+	        rs = filebuf_writeblanks(fbp,indent) ;
+	        wlen += rs ;
+	    }
 
-	if (rs >= 0) {
-	    rs = filebuf_write(fbp,lp,ll) ;
-	    wlen += rs ;
-	}
+	    if (rs >= 0) {
+	        rs = filebuf_write(fbp,lp,ll) ;
+	        wlen += rs ;
+	    }
 
-	if ((rs >= 0) && (! f_eol)) {
-	    rs = filebuf_write(fbp,"\n",1) ;
-	    wlen += 1 ;
-	}
+	    if ((rs >= 0) && (! f_eol)) {
+	        rs = filebuf_write(fbp,"\n",1) ;
+	        wlen += 1 ;
+	    }
 
 	} /* end if (positive) */
 
@@ -650,20 +616,20 @@ static int filebuf_writeblanks(FILEBUF *fbp,int indent)
 static int getline(int llen,cchar *sp,int sl)
 {
 	int		len = 0 ;
-	const char	*tp ;
+	cchar		*tp ;
 
 	if (sl > 0) {
 
-	len = MIN(sl,llen) ;
-	if ((tp = strnpbrk(sp,len,"\r\n")) != NULL) {
-	    len = ((tp + 1) - sp) ;
-	}
+	    len = MIN(sl,llen) ;
+	    if ((tp = strnpbrk(sp,len,"\r\n")) != NULL) {
+	        len = ((tp + 1) - sp) ;
+	    }
 
-	if ((len > 0) && (len < sl) && CHAR_ISEND(sp[len])) {
-	    len += 1 ;
-	    if ((len < sl) && (sp[len-1] == '\r') && (sp[len] == '\n'))
+	    if ((len > 0) && (len < sl) && CHAR_ISEND(sp[len])) {
 	        len += 1 ;
-	}
+	        if ((len < sl) && (sp[len-1] == '\r') && (sp[len] == '\n'))
+	            len += 1 ;
+	    }
 
 	} /* end if (positive) */
 
@@ -688,11 +654,13 @@ static int mkclean(char *cbuf,cchar *lbuf,int llen)
 	    }
 	} /* end for */
 
-	if ((i > 0) && (lbuf[i-1] == '\n'))
+	if ((i > 0) && (lbuf[i-1] == '\n')) {
 	    f_eol = TRUE ;
+	}
 
-	if ((! f_eol) && (lbuf[i] != '\n'))
+	if ((! f_eol) && (lbuf[i] != '\n')) {
 	    cbuf[i++] = '\n' ;
+	}
 
 	return i ;
 }

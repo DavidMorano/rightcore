@@ -124,7 +124,7 @@ int mailmsg_loadfile(MAILMSG *msgp,bfile *fp)
 	if ((rs = uc_malloc((llen+1),&lbuf)) >= 0) {
 	    int		ll ;
 	    int		line = 0 ;
-	    const char	*lp = lbuf ;
+	    cchar	*lp = lbuf ;
 
 	    while ((rs = breadline(fp,lbuf,llen)) > 0) {
 	        ll = rs ;

@@ -217,8 +217,9 @@ static int vecpstr_loadfd(vecpstr *vsp,int fu,int fd)
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (filebuf) */
 
-	    } else
+	    } else {
 	        rs = SR_ISDIR ;
+	    }
 	} /* end if (stat) */
 
 	return (rs >= 0) ? c : rs ;
@@ -233,7 +234,7 @@ static int vecpstr_loadline(VECPSTR *vsp,int fu,const char *lbuf,int len)
 	int		c = 0 ;
 	if ((rs = field_start(&fsb,lbuf,len)) >= 0) {
 	    int		fl ;
-	    const char	*fp ;
+	    cchar	*fp ;
 	    while ((fl = field_get(&fsb,fterms,&fp)) >= 0) {
 		if (fl > 0) {
 		    if (fu) {

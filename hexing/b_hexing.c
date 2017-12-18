@@ -806,7 +806,7 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	    cchar	*ofn = ofname ;
 	    cchar	*afn = afname ;
 	    rs = process(pip,&ainfo,&pargs,ofn,afn) ;
-	} else if (ex == EX_OK) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    ex = EX_USAGE ;

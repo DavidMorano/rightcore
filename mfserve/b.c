@@ -404,6 +404,7 @@ static cchar	*progopts[] = {
 	"msfile",
 	"conf",
 	"svctype",
+	"users",
 	"maint",
 	NULL
 } ;
@@ -434,6 +435,7 @@ enum progopts {
 	progopt_msfile,
 	progopt_conf,
 	progopt_svctype,
+	progopt_users,
 	progopt_maint,
 	progopt_overlast
 } ;
@@ -1867,6 +1869,16 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        if (vl > 0) {
 	                            lip->final.svctype = TRUE ;
 	                            rs = locinfo_svctype(lip,vp,vl) ;
+	                        }
+	                    }
+	                    break ;
+	                case progopt_users:
+	                    if (! lip->final.users) {
+	                        lip->final.users = TRUE ;
+	                        lip->f.users = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            lip->f.users = (rs > 0) ;
 	                        }
 	                    }
 	                    break ;

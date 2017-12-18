@@ -136,8 +136,11 @@ enum progmodes {
 #define	ACCFNAME	"acc"		/* acctab file */
 #define	LOCKFNAME	"%N.%S"		/* lock mutex file */
 #define	SERIALFNAME	"serial"
+#define	PROJFNAME	".project"
+#define	PLANFNAME	".plan"
 
 #define	LOGSIZE		(80*1024)
+#define	DEFNUSERS	100
 
 #define	TO_RUN		(5 * 60)
 #define	TO_POLL		7
@@ -145,12 +148,15 @@ enum progmodes {
 #define	TO_SPEED	(24 * 3600)
 #define	TO_DIRMAINT	(4*3600)
 #define	TO_DIRCLIENT	(24*3600)
+#define	TO_USERSMAINT	(1*3600)
 #define	TO_READ		(5*60) ;
 #define	TO_IDLE		5
 #define	TO_LOCK		4
 #define	TO_CONFIG	5		/* configuration changed */
 #define	TO_MAINT	10		/* maintenance */
 #define	TO_OPENSERVE	5		/* time-out to connect to server */
+#define	TO_OPEN		5		/* opening other files (like user) */
+#define	TO_BROKEN	10
 
 #define	OPT_LOGPROG	TRUE
 

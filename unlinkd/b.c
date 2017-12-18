@@ -1301,7 +1301,7 @@ done:
 		}
 	        break ;
 	    } /* end switch */
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
@@ -1330,9 +1330,10 @@ retearly:
 	    if (pip->f.daemon) {
 	        shio_printf(pip->efp,"%s: (%s) exiting ex=%u (%d)\n",
 	            pip->progname,((f_child) ? "child" : "parent"),ex,rs) ;
-	    } else
+	    } else {
 	        shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
 	            pip->progname,ex,rs) ;
+	    }
 	} /* end if */
 
 	if (pip->efp != NULL) {

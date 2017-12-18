@@ -199,7 +199,7 @@ OBJ06= sreqdb.o sreq.o svcentsub.o
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08= cpuspeed.o securefile.o strval.o
 OBJ09= 
-OBJ10= 
+OBJ10= osetstr_loadfile.o
 OBJ11= vecstr_svcargs.o vecstr_srvargs.o
 OBJ12= varsub.o intiq.o
 OBJ13= vecpstr_addpath.o
@@ -440,6 +440,10 @@ vecstr_env.o:		vecstr_env.c vecstr.h
 vecstr_svcargs.o:	vecstr_svcargs.c vecstr.h
 
 vecstr_srvargs.o:	vecstr_srvargs.c vecstr.h
+
+osetstr.o:		osetstr.c osetstr.h
+
+osetstr_loadfile.o:	osetstr_loadfile.c osetstr.h
 
 filemap.o:		filemap.c filemap.h
 

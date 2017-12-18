@@ -1159,6 +1159,7 @@ extern int	uc_ftat(int,struct ustat *) ;
 extern int	uc_stat(const char *,struct ustat *) ;
 extern int	uc_lstat(const char *,struct ustat *) ;
 extern int	uc_readlink(const char *,char *,int) ;
+extern int	uc_pipe2(int *,int) ;
 extern int	uc_chmod(cchar *,mode_t) ;
 extern int	uc_chown(cchar *,uid_t,gid_t) ;
 extern int	uc_rename(cchar *,cchar *) ;

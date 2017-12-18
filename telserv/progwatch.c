@@ -614,19 +614,17 @@ static int procwatcher(PROGINFO *pip,SUBINFO *wip,vecstr *nlp)
 /* broken */
 
 	    if ((rs >= 0) && pip->f.daemon && (to_broken-- == 0)) {
-		int	c ;
-
 	        to_broken = TO_BROKEN ;
 		to_maint = 0 ;
-		rs = procwatchsubcmd_clear(pip) ;
-		c = rs ;
-		if ((rs >= 0) && (c > 0) && pip->open.logprog) {
-			    f_logged = TRUE ;
-	    		    proglog_printf(pip,
-				"%s broken re-activation (%u)",
-				timestr_logz(pip->daytime,timebuf),c) ;
+		if ((rs = procwatchsubcmd_clear(pip)) > 0) {
+		    const int	c = rs ;
+		    if (pip->open.logprog) {
+			cchar	*fmt = "%s broken re-activation (%u)" ;
+			f_logged = TRUE ;
+			timestr_logz(pip->daytime,timebuf) ;
+	    		proglog_printf(pip,fmt,timebuf,c) ;
+		    }
 		}
-
 	    } /* end if (broken listner re-activation poll) */
 
 /* maintenance */

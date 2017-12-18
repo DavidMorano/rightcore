@@ -6,6 +6,7 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* switchable debug print-outs */
+#define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 
 
 /* revision history:
@@ -77,6 +78,7 @@
 #include	<varsub.h>
 #include	<vecstr.h>
 #include	<vecpstr.h>
+#include	<osetstr.h>
 #include	<sockaddress.h>
 #include	<connection.h>
 #include	<poller.h>
@@ -106,6 +108,12 @@
 
 
 /* local defines */
+
+#if	CF_UGETPW
+#define	GETPW_NAME	ugetpw_name
+#else
+#define	GETPW_NAME	getpw_name
+#endif /* CF_UGETPW */
 
 #ifndef	SVCNAMELEN
 #define	SVCNAMELEN	MAXNAMELEN
@@ -199,6 +207,7 @@ struct mfswatch_flags {
 	uint		eh:1 ;		/* environment-mangement helper */
 	uint		bindirs:1 ;	/* path-executable */
 	uint		libdirs:1 ;	/* path-library */
+	uint		users:1 ;
 } ;
 
 struct mfswatch {
@@ -210,9 +219,11 @@ struct mfswatch {
 	ENVHELP		eh ;		/* environment-management helper */
 	vecpstr		bindirs ;	/* path-executable */
 	vecpstr		libdirs ;	/* path-library */
+	osetstr		users ;
 	time_t		ti_mark ;
 	time_t		ti_maint ;
 	time_t		ti_config ;
+	time_t		ti_users ;
 	int		nprocs ;
 	int		nthrs ;
 	int		nbuilts ;
@@ -250,13 +261,24 @@ static int	mfswatch_svcsbegin(PROGINFO *) ;
 static int	mfswatch_svcsend(PROGINFO *) ;
 static int	mfswatch_svcsmaint(PROGINFO *) ;
 
-static int	mfswatch_builtbegin(PROGINFO *) ;
-static int	mfswatch_builtend(PROGINFO *) ;
-static int	mfswatch_builtmaint(PROGINFO *) ;
-
 static int	mfswatch_tabsbegin(PROGINFO *) ;
 static int	mfswatch_tabsend(PROGINFO *) ;
 static int	mfswatch_tabsmaint(PROGINFO *) ;
+
+static int	mfswatch_usersbegin(PROGINFO *) ;
+static int	mfswatch_usersend(PROGINFO *) ;
+static int	mfswatch_usersload(PROGINFO *,osetstr *) ;
+static int	mfswatch_usersmaint(PROGINFO *) ;
+static int	mfswatch_usershave(PROGINFO *,cchar *) ;
+static int	mfswatch_usershandle(PROGINFO *,SREQ *,cchar **) ;
+static int	mfswatch_usershandler(PROGINFO *,SREQ *) ;
+static int	mfswatch_usersproj(PROGINFO *,int,char *,int,cchar *) ;
+static int	mfswatch_usersplan(PROGINFO *,int,char *,int,cchar *) ;
+static int	mfswatch_usersfile(PROGINFO *,int,char *,int,cchar *) ;
+
+static int	mfswatch_builtbegin(PROGINFO *) ;
+static int	mfswatch_builtend(PROGINFO *) ;
+static int	mfswatch_builtmaint(PROGINFO *) ;
 
 static int mfswatch_svcfind(PROGINFO *,SREQ *) ;
 static int mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
@@ -1000,7 +1022,11 @@ static int mfswatch_svcsbegin(PROGINFO *pip)
 {
 	int		rs ;
 	if ((rs = mfswatch_builtbegin(pip)) >= 0) {
-	    rs = mfswatch_tabsbegin(pip) ;
+	    if ((rs = mfswatch_usersbegin(pip)) >= 0) {
+	        rs = mfswatch_tabsbegin(pip) ;
+	        if (rs < 0)
+	            mfswatch_usersend(pip) ;
+	    }
 	    if (rs < 0)
 	        mfswatch_builtend(pip) ;
 	}
@@ -1020,6 +1046,9 @@ static int mfswatch_svcsend(PROGINFO *pip)
 #endif
 
 	rs1 = mfswatch_tabsend(pip) ;
+	if (rs >= 0) rs = rs1 ;
+
+	rs1 = mfswatch_usersend(pip) ;
 	if (rs >= 0) rs = rs1 ;
 
 	rs1 = mfswatch_builtend(pip) ;
@@ -1114,6 +1143,207 @@ static int mfswatch_tabsmaint(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (mfswatch_tabsmaint) */
+
+
+static int mfswatch_usersbegin(PROGINFO *pip)
+{
+	LOCINFO		*lip = pip->lip ;
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	if (lip->f.users) {
+	    if (! wip->open.users) {
+		OSETSTR		*ulp = &wip->users ;
+		const int	n = DEFNUSERS ;
+		if ((rs = osetstr_start(ulp,n)) >= 0) {
+		    wip->open.users = TRUE ;
+		    rs = mfswatch_usersload(pip,ulp) ;
+		    if (rs < 0) {
+		        wip->open.users = FALSE ;
+			osetstr_finish(ulp) ;
+		    }
+		} /* end if (osetstr_start) */
+	    }
+	}
+#if	CF_DEBUGS
+	if (DEBUGLEVEL(4))
+	debugprintf("mfswatch_usersbegin: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (mfswatch_usersbegin) */
+
+
+static int mfswatch_usersend(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (wip->open.users) {
+	    OSETSTR	*ulp = &wip->users ;
+	    wip->open.users = FALSE ;
+	    rs1 = osetstr_finish(ulp) ;
+	    if (rs >= 0) rs = rs1 ;
+	}
+	return rs ;
+}
+/* end subroutine (mfswatch_usersend) */
+
+
+static int mfswatch_usersload(PROGINFO *pip,osetstr *ulp)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	if (wip->open.users) {
+	    OSETSTR	*ulp = &wip->users ;
+	    cchar	*ufn = "/sys/users" ;
+	    if ((rs = osetstr_loadfile(ulp,0,ufn)) >= 0) {
+		wip->ti_users = time(NULL) ;
+	    }
+	}
+	return rs ;
+}
+/* end subrlutine (mfswatch_usersload) */
+
+
+static int mfswatch_usersmaint(PROGINFO *pip)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	if (wip->open.users) {
+	    const time_t	dt = pip->daytime ;
+	    const int		to = TO_USERSMAINT ;
+	    if ((dt - wip->ti_users) >= to) {
+	        OSETSTR	*ulp = &wip->users ;
+		if ((rs = osetstr_delall(ulp)) >= 0) {
+		    rs = mfswatch_usersload(pip,ulp) ;
+		}
+	    }
+	}
+	return rs ;
+}
+/* end subrlutine (mfswatch_usersmaint) */
+
+
+static int mfswatch_usershave(PROGINFO *pip,cchar *sp)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	if (wip->open.users) {
+	    OSETSTR	*ulp = &wip->users ;
+	    rs = osetstr_already(ulp,sp,-1) ;
+	}
+	return rs ;
+}
+/* end subrlutine (mfswatch_usershave) */
+
+
+/* ARGSUSED */
+static int mfswatch_usershandle(PROGINFO *pip,SREQ *jep,cchar **sav)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs = SR_OK ;
+	int		f = FALSE ;
+	if (wip->open.users) {
+	    svcprocer_t		w = (svcprocer_t) mfswatch_usershandler ;
+	    if ((rs = mfswatch_svcprocer(pip,jep,w)) >= 0) {
+	        f = TRUE ;
+	    }
+	}
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (mfswatch_usershandle) */
+
+
+/* this is an independent thread */
+static int mfswatch_usershandler(PROGINFO *pip,SREQ *jep)
+{
+	const int	hlen = MAXPATHLEN ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	char		hbuf[MAXPATHLEN+1] ;
+	if ((rs = getuserhome(hbuf,hlen,jep->svc)) > 0) {
+	    const int	llen = LINEBUFLEN ;
+	    char	*lbuf ;
+	    if ((rs = uc_malloc((llen+1),&lbuf)) >= 0) {
+	    if ((rs = sreq_getstdout(jep)) >= 0) {
+		const int	ofd = rs ;
+		if ((rs = mfswatch_usersproj(pip,ofd,lbuf,llen,hbuf)) >= 0) {
+		    wlen += rs ;
+		    rs = mfswatch_usersplan(pip,ofd,lbuf,llen,hbuf) ;
+		    wlen += rs ;
+		}
+	    } /* end if (sreq_getstdout) */
+	        rs1 = uc_free(lbuf) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a-f) */
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	}
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (mfswatch_usershandler) */
+
+
+static int mfswatch_usersproj(PROGINFO *pip,int ofd,char *lbuf,int llen,
+		cchar *hbuf)
+{
+	int		rs ;
+	int		wlen = 0 ;
+	cchar		*fn = PROJFNAME ;
+	char		tbuf[MAXPATHLEN+1] ;
+	if ((rs = mkpath2(tbuf,hbuf,fn)) >= 0) {
+	    rs = mfswatch_usersfile(pip,ofd,lbuf,llen,tbuf) ;
+	    wlen += rs ;
+	}
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (mfswatch_usersproj) */
+
+
+static int mfswatch_usersplan(PROGINFO *pip,int ofd,char *lbuf,int llen,
+		cchar *hbuf)
+{
+	int		rs ;
+	int		wlen = 0 ;
+	cchar		*fn = PLANFNAME ;
+	char		tbuf[MAXPATHLEN+1] ;
+	if ((rs = mkpath2(tbuf,hbuf,fn)) >= 0) {
+	    rs = mfswatch_usersfile(pip,ofd,lbuf,llen,tbuf) ;
+	    wlen += rs ;
+	}
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (mfswatch_usersplan) */
+
+
+static int mfswatch_usersfile(PROGINFO *pip,int ofd,char *lbuf,int llen,
+		cchar *fn)
+{
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
+	const mode_t	om = 0666 ;
+	const int	of = O_RDONLY ;
+	const int	to = TO_OPEN ;
+	if ((rs = uc_opene(fn,of,om,to)) >= 0) {
+	    const int	fd = rs ;
+	    const int	ro = 0 ;
+	    while ((rs = uc_reade(fd,lbuf,llen,to,ro)) > 0) {
+		rs = uc_writen(ofd,lbuf,rs) ;
+		wlen += rs ;
+		if (rs < 0) break ;
+	    } /* end while */
+	    rs1 = u_close(fd) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else if (rs == SR_TIMEDOUT) {
+	    rs = SR_OK ;
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	}
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (mfswatch_usersfile) */
 
 
 static int mfswatch_builtbegin(PROGINFO *pip)
@@ -1237,7 +1467,11 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	                    rs = mfswatch_svcproc(pip,jep,&e,sav) ;
 	                }
 	            } else if (rs == rsn) {
-	                if ((rs = mfswatch_builthave(pip,svc)) > 0) {
+	                if ((rs = mfswatch_usershave(pip,svc)) > 0) {
+	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
+	                        rs = mfswatch_usershandle(pip,jep,sav) ;
+	                    }
+	                } else if ((rs = mfswatch_builthave(pip,svc)) > 0) {
 	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
 	                        rs = mfswatch_builthandle(pip,jep,sav) ;
 	                    }

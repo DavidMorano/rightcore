@@ -165,12 +165,14 @@ int osetstr_del(osetstr *op,cchar *sp,int sl)
 	if (op == NULL) return SR_FAULT ;
 	if (sl < 0) sl = strlen(sp) ;
 	if (op->setp != NULL) {
-	    set<string>			*setp  = (set<string> *) op->setp ;
-	    set<string>::iterator	it, end = setp->end() ;
-	    string			v(sp,sl) ;
-	    if ((it = setp->find(v)) != end) {
-		f = TRUE ;
-		setp->erase(it) ;
+	    set<string>		*setp  = (set<string> *) op->setp ;
+	    {
+	        set<string>::iterator	it, end = setp->end() ;
+	        string			v(sp,sl) ;
+	        if ((it = setp->find(v)) != end) {
+		    f = TRUE ;
+		    setp->erase(it) ;
+	        }
 	    }
 	} else {
 	    rs = SR_NOTOPEN ;
@@ -180,6 +182,27 @@ int osetstr_del(osetstr *op,cchar *sp,int sl)
 /* end subroutine (osetstr_del) */
 
 
+int osetstr_delall(osetstr *op)
+{
+	int		rs = SR_OK ;
+	if (op == NULL) return SR_FAULT ;
+	if (op->setp != NULL) {
+	    set<string>		*setp  = (set<string> *) op->setp ;
+ 	    {
+	        set<string>::iterator it = setp->begin() ;
+	        set<string>::iterator itend = setp->end() ;
+	        if (it != itend) {
+		    setp->erase(it,itend) ;
+	        }
+	    }
+	} else {
+	    rs = SR_BUGCHECK ;
+	}
+	return rs ;
+}
+/* end subroutine (osetstr_delall) */
+
+
 /* return the count of the number of items in this list */
 int osetstr_count(osetstr *op)
 {
@@ -187,7 +210,7 @@ int osetstr_count(osetstr *op)
 	int		c = 0 ;
 	if (op == NULL) return SR_FAULT ;
 	if (op->setp != NULL) {
-	    set<string>	*setp  = (set<string> *) op->setp ;
+	    set<string>		*setp = (set<string> *) op->setp ;
 	    c = setp->size() ;
 	} else {
 	    rs = SR_NOTOPEN ;
@@ -239,18 +262,22 @@ int osetstr_enum(osetstr *op,osetstr_cur *curp,cchar **rpp)
 	if (op == NULL) return SR_FAULT ;
 	if (curp == NULL) return SR_FAULT ;
 	if (rpp == NULL) return SR_FAULT ;
-	if (curp->interp != NULL) {
-	    set<string>		*setp  = (set<string> *) op->setp ;
-	    set<string>::iterator it_end ;
-	    set<string>::iterator *interp = 
-			(set<string>::iterator *) curp->interp ;
-	    it_end = setp->end() ;
-	    if (*interp != it_end) {
-		*rpp = (*(*interp)).c_str() ;
-		rs = (*(*interp)).length() ;
-	        (*interp)++ ;
+	if (op->setp != NULL) {
+	    if (curp->interp != NULL) {
+	        set<string>	*setp  = (set<string> *) op->setp ;
+	        set<string>::iterator it_end ;
+	        set<string>::iterator *interp = 
+			    (set<string>::iterator *) curp->interp ;
+	        it_end = setp->end() ;
+	        if (*interp != it_end) {
+		    *rpp = (*(*interp)).c_str() ;
+		    rs = (*(*interp)).length() ;
+	            (*interp)++ ;
+	        } else {
+		    rs = SR_NOTFOUND ;
+	        }
 	    } else {
-		rs = SR_NOTFOUND ;
+	        rs = SR_BUGCHECK ;
 	    }
 	} else {
 	    rs = SR_BUGCHECK ;

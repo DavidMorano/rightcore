@@ -187,15 +187,15 @@ int		ifd, ofd ;
 
 	msgtime = time(NULL) ;
 
-	md.mp = emp->buf ;
-	md.rlen = emp->buflen ;
+	md.mp = emp->ebuf ;
+	md.rlen = emp->elen ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
-	    debugprintf("encode: buf(%p) buflen=%d\n", emp->buf,emp->buflen) ;
-		if (emp->buf != NULL)
+	    debugprintf("encode: buf(%p) buflen=%d\n", emp->ebuf,emp->elen) ;
+		if (emp->ebuf != NULL)
 	    debugprintf("encode: extra=>%t<\n", 
-		emp->buf,strnlen(emp->buf,emp->buflen)) ;
+		emp->ebuf,strnlen(emp->ebuf,emp->elen)) ;
 	}
 #endif
 
@@ -205,11 +205,11 @@ int		ifd, ofd ;
 
 /* checksum the extra message */
 
-	cksum_accum(&msgsum,emp->buf,emp->buflen) ;
+	cksum_accum(&msgsum,emp->ebuf,emp->elen) ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("encode: msglen=%u \n", emp->buflen) ;
+	    debugprintf("encode: msglen=%u \n", emp->elen) ;
 #endif
 
 /* make the first output block */
@@ -347,7 +347,7 @@ int		ifd, ofd ;
 		m0.filesum = val ;
 		m0.filetime = filetime ;
 
-		m0.msglen = emp->buflen ;
+		m0.msglen = emp->elen ;
 		m0.msgsum = msg_cksum ;
 		m0.msgtime = msgtime ;
 

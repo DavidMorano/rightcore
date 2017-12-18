@@ -1217,7 +1217,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        shio_printf(pip->efp,fmt,pip->progname,rs) ;
 	    }
 	    ex = mapex(mapexs,rs) ;
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {

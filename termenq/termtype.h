@@ -6,9 +6,12 @@
 	= 2000-07-19, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
+	= 2017-12-16, David A­D­ Morano
+	Updated.
+
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
 
 
 #ifndef	TERMTYPE_INCLUDE

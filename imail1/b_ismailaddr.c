@@ -871,7 +871,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ex = mapex(mapexs,rs) ;
 	        break ;
 	    } /* end switch */
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if (lip->c_total != lip->c_local) {
 	        ex = EX_NOTFOUND ;
 	    } else if ((rs = lib_sigterm()) < 0) {

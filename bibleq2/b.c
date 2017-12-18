@@ -941,7 +941,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		cchar	*fmt = "%s: could not perform function (%d)\n" ;
 	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    }
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {

@@ -267,11 +267,12 @@ decode.o:		decode.c $(INCS)
 
 munge.o:		munge.c $(INCS)
 
+ecinfo.o:		ecinfo.c ecinfo.h
+
 
 ecmsg.o:		ecmsg.c ecmsg.h
 
-ecinfo.o:		ecinfo.c ecinfo.h
-
+ecmsg_loadfile.o:	ecmsg_loadfile.c ecmsg.h
 
 vecstr_loadfile.o:	vecstr_loadfile.c
 

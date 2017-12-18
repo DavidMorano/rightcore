@@ -122,7 +122,7 @@ INCS= localmisc.h syshas.h vsystem.h
 
 OBJ00= strtoimax.o strtoumax.o
 OBJ01= eaccess.o
-OBJ02=
+OBJ02= pipe2.o
 OBJ03=
 OBJ04=
 OBJ05=

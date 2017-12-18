@@ -394,6 +394,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		rs, rs1 ;
 	int		cl ;
 	int		v ;
+	int		wlen = 0 ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
@@ -939,6 +940,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	         	        cchar	*afn = afname ;
 	     		        cchar	*ofn = ofname ;
 	 		        rs = process(pip,aip,bop,ofn,afn) ;
+				wlen = rs ;
 			    }
 			    rs1 = locinfo_termend(lip) ;
 			    if (rs >= 0) rs = rs1 ;
@@ -986,12 +988,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ex = mapex(mapexs,rs) ;
 	        break ;
 	    } /* end switch */
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
 	        ex = EX_INTR ;
 	    }
+	} else if ((rs >= 0) && (ex == EX_OK)) {
+	    if (wlen == 0) ex = 1 ; /* "no-term" failure indication */
 	} /* end if */
 
 /* early return thing */
@@ -1188,6 +1192,7 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		rs1 ;
+	int		wlen = 0 ;
 
 	if ((rs = locinfo_utermbegin(lip)) >= 0) {
 	    if (lip->f.set) {
@@ -1196,12 +1201,13 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	        }
 	    } else {
 	        rs = procargs(pip,aip,bop,ofn,afn) ;
+		wlen = rs ;
 	    }
 	    rs1 = locinfo_utermend(lip) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (locinfo-uterm) */
 
-	return rs ;
+	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (process) */
 
@@ -1409,30 +1415,6 @@ static int procget(PROGINFO *pip,SHIO *ofp,int ri)
 /* end subroutine (procget) */
 
 
-static int procsetlatin1(PROGINFO *pip)
-{
-	LOCINFO		*lip = pip->lip ;
-	int		rs = SR_OK ;
-	if ((rs >= 0) && lip->f.latin1) {
-	    SBUF	b ;
-	    const int	clen = CONBUFLEN ;
-	    int		sl = 0 ;
-	    char	cbuf[CONBUFLEN+1] ;
-	    if ((rs = sbuf_start(&b,cbuf,clen)) >= 0) {
-		sbuf_strw(&b,"\033-A",-1) ; /* ISO-Latin-1 to G1 */
-		sbuf_strw(&b,"\033~",-1) ; /* G1 lock to GR */
-		sl = sbuf_finish(&b) ;
-	        if (rs >= 0) rs = sl ;
-	    } /* end if (sbuf) */
-	    if (rs >= 0) {
-		rs = uc_write(lip->tfd,cbuf,sl,-1) ;
-	    }
-	} /* end if (ANSI confirmance level) */
-	return rs ;
-}
-/* end subroutine (procsetlatin1) */
-
-
 /* set ANSI confirmance level */
 static int procsetansi(PROGINFO *pip)
 {
@@ -1464,6 +1446,30 @@ static int procsetansi(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (procsetansi) */
+
+
+static int procsetlatin1(PROGINFO *pip)
+{
+	LOCINFO		*lip = pip->lip ;
+	int		rs = SR_OK ;
+	if ((rs >= 0) && lip->f.latin1) {
+	    SBUF	b ;
+	    const int	clen = CONBUFLEN ;
+	    int		sl = 0 ;
+	    char	cbuf[CONBUFLEN+1] ;
+	    if ((rs = sbuf_start(&b,cbuf,clen)) >= 0) {
+		sbuf_strw(&b,"\033-A",-1) ; /* ISO-Latin-1 to G1 */
+		sbuf_strw(&b,"\033~",-1) ; /* G1 lock to GR */
+		sl = sbuf_finish(&b) ;
+	        if (rs >= 0) rs = sl ;
+	    } /* end if (sbuf) */
+	    if (rs >= 0) {
+		rs = uc_write(lip->tfd,cbuf,sl,-1) ;
+	    }
+	} /* end if (ANSI confirmance level) */
+	return rs ;
+}
+/* end subroutine (procsetlatin1) */
 
 
 static int procenq(PROGINFO *pip,SHIO *ofp)

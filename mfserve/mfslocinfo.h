@@ -89,6 +89,7 @@ struct locinfo_flags {
 	uint		listens:1 ;
 	uint		runasprn:1 ;
 	uint		svctype:1 ;
+	uint		users:1 ;	/* usernames are last servives */
 	uint		maint:1 ;
 } ;
 

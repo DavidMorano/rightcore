@@ -173,7 +173,7 @@ OBJ05=
 OBJ06= 
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08= uterm.o uterm_readcmd.o
-OBJ09= terment.o termcmd.o
+OBJ09= termcmd.o
 OBJ10=
 OBJ11=
 OBJ12=
@@ -324,8 +324,10 @@ sesmsg.o:		sesmsg.c sesmsg.h
 
 msgdata.o:		msgdata.c msgdata.h
 
+termtype.o:		termtype.c termtype.h
 
-termtype_vt.o:		termtype_vt.c
+
+termtype_vt.o:		termtype_vt.c termtype.h
 
 getutmpent.o:		getutmpent.c getutmpent.h
 
