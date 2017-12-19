@@ -5,8 +5,9 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUG	0		/* switchable debug print-outs */
+#define	CF_DEBUG	1		/* switchable debug print-outs */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
+#define	CF_SHLIB	0		/* shared-object library loading */
 
 
 /* revision history:
@@ -166,12 +167,13 @@ extern int	passfd(cchar *,int) ;
 extern int	nlspeername(const char *,const char *,char *) ;
 extern int	mksublogid(char *,int,cchar *,int) ;
 extern int	acceptpass(int,struct strrecvfd *,int) ;
+extern int	getuserhome(char *,int,cchar *) ;
 extern int	xfile(IDS *,cchar *) ;
 extern int	varsub_addvec(VARSUB *,VECSTR *) ;
-extern int	vecstr_svcargs(vecstr *,cchar *) ;
 extern int	vecstr_srvargs(vecstr *,cchar *) ;
 extern int	vecpstr_addpath(vecpstr *,cchar *) ;
 extern int	vecpstr_addcspath(vecpstr *) ;
+extern int	osetstr_loadfile(osetstr *,int,cchar *) ;
 extern int	hasnonwhite(cchar *,int) ;
 extern int	isasocket(int) ;
 extern int	isNotPresent(int) ;
@@ -281,7 +283,7 @@ static int	mfswatch_builtend(PROGINFO *) ;
 static int	mfswatch_builtmaint(PROGINFO *) ;
 
 static int mfswatch_svcfind(PROGINFO *,SREQ *) ;
-static int mfswatch_svcfinder(PROGINFO *,SREQ *,vecstr *) ;
+static int mfswatch_svcfinder(PROGINFO *,SREQ *) ;
 static int mfswatch_svcproc(PROGINFO *,SREQ *,SVCFILE_ENT *,cchar **) ;
 
 static int mfswatch_svcprocer(PROGINFO *,SREQ *,svcprocer_t) ;
@@ -291,6 +293,10 @@ static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCENT *) ;
 static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCENT *) ;
 static int mfswatch_svcprocproger(PROGINFO *,SREQ *,cchar *,vecstr *) ;
 static int mfswatch_progspawn(PROGINFO *,SREQ *,cchar *,vecstr *) ;
+
+#if	CF_SHLIB
+static int mfswatch_tabsprocshlib(PROGINFO *,SREQ *,SVCENT *) ;
+#endif
 
 static int mfswatch_builthave(PROGINFO *,cchar *) ;
 static int mfswatch_builthandle(PROGINFO *,SREQ *,cchar **) ;
@@ -994,11 +1000,19 @@ static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 	            debugprintf("mfswatch_svcaccum: uc_peek() rs=%d\n",rs) ;
 #endif
 	        if ((tp = strnchr(lbuf,rs,'\n')) != NULL) {
-	            if ((rs = u_read(fd,lbuf,(tp-lbuf+1))) > 0) {
+		    const int	ll = (tp-lbuf+1) ;
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("mfswatch_svcaccum: l=>%t<\n",
+			lbuf,strlinelen(lbuf,ll,50)) ;
+#endif
+	            if ((rs = u_read(fd,lbuf,ll)) > 0) {
 	                if ((rs = sreq_svcaccum(jep,lbuf,(rs-1))) >= 0) {
-	                    const int	js = sreqstate_svc ;
 	                    f = TRUE ;
-	                    rs = sreq_setstate(jep,js) ;
+			    if ((rs = sreq_svcmunge(jep)) >= 0) {
+	                        const int	js = sreqstate_svc ;
+	                        rs = sreq_setstate(jep,js) ;
+			    }
 	                }
 	            } /* end if (u_read) */
 	        } else {
@@ -1021,21 +1035,11 @@ static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 static int mfswatch_svcfind(PROGINFO *pip,SREQ *jep)
 {
 	MFSWATCH	*wip = pip->watch ;
-	vecstr		sa ; /* server arguments */
 	int		rs ;
-	int		rs1 ;
 	if (wip == NULL) return SR_FAULT ;
-	if ((rs = vecstr_start(&sa,1,0)) >= 0) {
-	    if ((rs = vecstr_svcargs(&sa,jep->svcbuf)) >= 0) {
-	        if ((rs = sreq_svcparse(jep,rs)) >= 0) {
-	            if ((rs = mfswatch_logsvc(pip,jep)) >= 0) {
-	                rs = mfswatch_svcfinder(pip,jep,&sa) ;
-	            }
-	        } /* end if (sreq_setlong) */
-	    } /* end if (vecstr_svcargs) */
-	    rs1 = vecstr_finish(&sa) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (vecstr) */
+	if ((rs = mfswatch_logsvc(pip,jep)) >= 0) {
+	                rs = mfswatch_svcfinder(pip,jep) ;
+	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("mfswatch_svcfind: ret rs=%d\n",rs) ;
@@ -1045,7 +1049,7 @@ static int mfswatch_svcfind(PROGINFO *pip,SREQ *jep)
 /* end subroutine (mfswatch_svcfind) */
 
 
-static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
+static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep)
 {
 	MFSWATCH	*wip = pip->watch ;
 	int		rs ;
@@ -1061,7 +1065,7 @@ static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
 	        SVCFILE		*slp = &wip->tabs ;
 	        SVCFILE_ENT	e ;
 	        cchar		**sav ;
-	        if ((rs = vecstr_getvec(sap,&sav)) >= 0) {
+	        if ((rs = sreq_getav(jep,&sav)) >= 0) {
 	            const int	rsn = SR_NOTFOUND ;
 		    const int	t = TRUE ;
 	            if ((rs = svcfile_fetch(slp,svc,NULL,&e,ebuf,elen)) >= 0) {
@@ -1712,6 +1716,23 @@ static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 	return (rs >= 0) ?  f : rs ;
 }
 /* end subroutine (mfswatch_svcprocpass) */
+
+
+#if	CF_SHLIB
+static int mfswatch_tabsprocshlib(PROGINFO *pip,SREQ *jep,SVCENT *sep)
+{
+	int		rs = SR_OK ;
+	int		vl ;
+	int		f = FALSE ;
+	cchar		*vp ;
+	if ((vl = svcent_islib(sep,&vp)) > 0) {
+	    f = TRUE ;
+
+	}
+	return (rs >= 0) ?  f : rs ;
+}
+/* end subroutine (mfswatch_tabsprocshlib) */
+#endif /* CF_SHLIB */
 
 
 static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)

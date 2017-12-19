@@ -653,7 +653,6 @@ int vecpstr_search(VECPSTR *op,cchar sp[],int (*vcmpfunc)(),cchar **rpp)
 	            if ((*vcmpfunc)(&sp,rpp2) == 0) break ;
 		}
 	    } /* end for */
-
 	    rs = (i < op->i) ? SR_OK : SR_NOTFOUND ;
 
 	} /* end if (sorted or not) */
@@ -805,6 +804,17 @@ int vecpstr_strsize(VECPSTR *op)
 	if (op->magic != VECPSTR_MAGIC) return SR_NOTOPEN ;
 #endif
 
+	if (! op->f.stsize) {
+	    int		i ;
+	    for (i = 0 ; op->va[i] != NULL ; i += 1) {
+	        if (op->va[i] != NULL) {
+	            size += (strlen(op->va[i]) + 1) ;
+		}
+	    } /* end for */
+	    op->stsize = size ;
+	    op->f.stsize = TRUE ;
+	} /* end if (calculating size) */
+
 	size = uceil(op->stsize,sizeof(int)) ;
 
 	return size ;
@@ -813,7 +823,7 @@ int vecpstr_strsize(VECPSTR *op)
 
 
 /* make the string table */
-int vecpstr_strmk(VECPSTR *op,char tab[],int tabsize)
+int vecpstr_strmk(VECPSTR *op,char *tab,int tabsize)
 {
 	int		rs = SR_OK ;
 	int		size ;
@@ -847,8 +857,9 @@ int vecpstr_strmk(VECPSTR *op,char tab[],int tabsize)
 	    while (bp < (tab + tabsize)) {
 	        *bp++ = '\0' ;
 	    }
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -905,10 +916,12 @@ int vecpstr_recmkstr(VECPSTR *op,int *rec,int recsize,char *tab,int tabsize)
 		    }
 	        } /* end for */
 	        rec[c] = -1 ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
-	} else
+	    }
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -931,8 +944,8 @@ int vecpstr_recmk(VECPSTR *op,int rec[],int recsize)
 	size = (op->i + 2) * sizeof(int) ;
 
 	if (recsize >= size) {
-	    int	i ;
-	    int	si = 0 ;
+	    int		i ;
+	    int		si = 0 ;
 	    rec[c++] = si ;
 	    si += 1 ;
 	    for (i = 0 ; op->va[i] != NULL ; i += 1) {
@@ -942,8 +955,9 @@ int vecpstr_recmk(VECPSTR *op,int rec[],int recsize)
 		}
 	    } /* end for */
 	    rec[c] = -1 ;
-	} else
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -1271,8 +1285,9 @@ static int chunk_add(VECPSTR_CHUNK *ccp,cchar *sp,int sl,cchar **rpp)
 	    ccp->tablen += amount ;
 	    ccp->count += 1 ;
 	    *rpp = bp ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return rs ;
 }
@@ -1297,8 +1312,9 @@ static int chunk_addkeyval(VECPSTR_CHUNK *ccp,cchar *kp,int kl,
 	    ccp->tablen += amount ;
 	    ccp->count += 1 ;
 	    *rpp = bp ;
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 	return rs ;
 }

@@ -39,7 +39,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O2 $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -98,7 +98,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -200,7 +200,7 @@ OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08= 
 OBJ09= 
 OBJ10= osetstr.o osetstr_loadfile.o
-OBJ11= vecstr_svcargs.o vecstr_srvargs.o
+OBJ11= vecstr_svcargs.o vecstr_srvargs.o vecstr_avmkstr.o
 OBJ12= intiq.o
 OBJ13=
 OBJ14= listenspec.o poller.o
@@ -440,6 +440,8 @@ vecstr_env.o:		vecstr_env.c vecstr.h
 vecstr_svcargs.o:	vecstr_svcargs.c vecstr.h
 
 vecstr_srvargs.o:	vecstr_srvargs.c vecstr.h
+
+vecstr_avmkstr.o:	vecstr_avmkstr.c vecstr.h
 
 osetstr.o:		osetstr.cc osetstr.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) osetstr.cc

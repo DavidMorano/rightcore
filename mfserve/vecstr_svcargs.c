@@ -66,10 +66,10 @@ static int	hasLong(cchar *,int) ;
 /* exported subroutines */
 
 
-int vecstr_svcargs(vecstr *op,cchar *abuf)
+int vecstr_svcargs(vecstr *op,int *fp,cchar *abuf)
 {
 	int		rs = SR_OK ;
-	int		f = 0 ;
+	int		c = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("vecstr_svcargs: ent a=>%s<\n",abuf) ;
@@ -78,7 +78,7 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 	if ((abuf != NULL) && (abuf[0] != '\0')) {
 	    FIELD	fsb ;
 	    const int	alen = strlen(abuf) ;
-	    int		c = 0 ;
+	    int		f = FALSE ;
 	    uchar	terms[32] ;
 
 	    fieldterms(terms,0," \t") ;
@@ -89,36 +89,46 @@ int vecstr_svcargs(vecstr *op,cchar *abuf)
 		if ((rs = uc_malloc((flen+1),&fbuf)) >= 0) {
 	            int		fl ;
 	            while ((fl = field_sharg(&fsb,terms,fbuf,flen)) >= 0) {
-			if (c++ == 0) {
-			     cchar	*tp = strnchr(fbuf,fl,'/') ;
-			     if (tp != NULL) {
+			if (c == 0) {
+			     cchar	*tp ;
+			     if ((tp = strnchr(fbuf,fl,'/')) != NULL) {
 				fl = (tp-fbuf) ;
 				if (((fbuf+fl)-tp) >= 2) {
 				    const int	sch = MKCHAR(tp[1]) ;
 				    f = (tolc(sch) == 'w') ;
 				}
 			     }
+#if	CF_DEBUGS
+	debugprintf("vecstr_svcargs: s a=>%t<\n",fbuf,fl) ;
+#endif
+	                     rs = vecstr_add(op,fbuf,fl) ;
+			     c += 1 ;
 			} else {
 			    if ((fbuf[0] == '/') && hasLong(fbuf,fl)) {
 			        f = TRUE ;
 			    } else {
-	                            rs = vecstr_add(op,fbuf,fl) ;
+#if	CF_DEBUGS
+	debugprintf("vecstr_svcargs: r a=>%t<\n",fbuf,fl) ;
+#endif
+	                        rs = vecstr_add(op,fbuf,fl) ;
+			        c += 1 ;
 			    }
 			}
 	                if (rs < 0) break ;
 	            } /* end while */
 		    uc_free(fbuf) ;
 		} /* end if (m-a) */
+		if (fp != NULL) *fp = f ;
 	        field_finish(&fsb) ;
 	    } /* end if (field) */
 
 	} /* end if (non-null non-zero) */
 
 #if	CF_DEBUGS
-	debugprintf("vecstr_svcargs: ret rs=%d f=%u\n",rs,f) ;
+	debugprintf("vecstr_svcargs: ret rs=%d c=%u\n",rs,c) ;
 #endif
 
-	return (rs >= 0) ? f : rs ;
+	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (vecstr_svcargs) */
 

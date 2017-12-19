@@ -8,13 +8,12 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
-        The subroutine was adapted from others programs that did similar types
-        of functions.
+	= 2017-12-08, David A­D­ Morano
+        The subroutine was extracted from where it was first developed.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 

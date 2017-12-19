@@ -11,9 +11,13 @@
 	= 1998-03-01, David A­D­ Morano
         The subroutine was written from scratch but based on previous versions.
 
+	= 2017-12-29, David A­D­ Morano
+        No big deal, but I now capture any unexpected bad return from
+        |u_stat(3u)| using |isNotPresent(3dam)|.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -62,6 +66,7 @@ extern int	mkpath1(char *,const char *) ;
 extern int	pathadd(char *,int,const char *) ;
 extern int	nleadstr(cchar *,cchar *,int) ;
 extern int	hasNotDots(const char *,int) ;
+extern int	isNotPresent(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -141,12 +146,14 @@ static int vecstr_dirfilesload(vecstr *flp,cchar *dname,cchar *prefix,int to)
 	                if (premat(prefix,prelen,np,nl)) {
 	                    if ((rs = pathadd(rbuf,rlen,np)) >= 0) {
 	                        const int	rl = rs ;
-	                        if (u_stat(rbuf,&usb) >= 0) {
+	                        if ((rs = u_stat(rbuf,&usb)) >= 0) {
 	                            int	ft = usb.st_mtime ;
 	                            if ((dt-ft) >= to) {
 	                                c += 1 ;
 	                                rs = vecstr_add(flp,rbuf,rl) ;
 	                            }
+				} else if (isNotPresent(rs)) {
+				    rs = SR_OK ;
 	                        } /* end if (stat) */
 	                    } /* end if (pathadd) */
 	                } /* end if (premat) */

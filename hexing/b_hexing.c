@@ -753,8 +753,11 @@ static int mainsub(int argc,cchar **argv,cchar **envv,void *contextp)
 	if (f_usage)
 	    usage(pip) ;
 
-	if (f_help)
+#if	CF_SFIO
+	    printhelp(sfstdout,pip->pr,pip->searchname,HELPFNAME) ;
+#else
 	    printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
+#endif
 
 	if (f_version || f_help || f_usage)
 	    goto retearly ;

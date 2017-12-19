@@ -279,16 +279,16 @@ public:
 	    }
 	    return rc ;
 	} ;
-	int insfront(const T v) {
+	int insfront(const T &v) {
 	    return inshead(v) ;
 	} ;
-	int insback(const T v) {
+	int insback(const T &v) {
 	    return instail(v) ;
 	} ;
-	int ins(const T v) {
+	int ins(const T &v) {
 	    return instail(v) ;
 	} ;
-	int add(const T v) {
+	int add(const T &v) {
 	    return instail(v) ;
 	} ;
 	int gethead(const T **rpp) const {

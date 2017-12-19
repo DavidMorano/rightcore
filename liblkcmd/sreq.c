@@ -4,7 +4,7 @@
 /* version %I% last modified %G% */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
 
 /* revision history:
@@ -79,6 +79,8 @@ extern int	mkdirs(const char *,mode_t) ;
 extern int	mktmpfile(char *,mode_t,cchar *) ;
 extern int	opentmpfile(cchar *,int,mode_t,char *) ;
 extern int	chmods(cchar *,mode_t) ;
+extern int	vecstr_svcargs(vecstr *,int *,cchar *) ;
+extern int	vecstr_avmkstr(vecstr *,cchar **,int,char *,int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
@@ -180,6 +182,18 @@ int sreq_finish(SREQ *jep)
 	rs1 = sreq_closestderr(jep) ;
 	if (rs >= 0) rs = rs1 ;
 
+	if (jep->av != NULL) {
+	    rs1 = uc_free(jep->av) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->av = NULL ;
+	}
+
+	if (jep->argstab != NULL) {
+	    rs1 = uc_free(jep->argstab) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->argstab = NULL ;
+	}
+
 	if (jep->open.namesvcs) {
 	    rs1 = sreq_sndestroy(jep) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -275,10 +289,92 @@ int sreq_svcaccum(SREQ *op,cchar *sp,int sl)
 /* end subroutine (sreq_svcaccun) */
 
 
+int sreq_svcmunge(SREQ *jep)
+{
+	vecstr		sa ; /* server arguments */
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+#if	CF_DEBUGS
+	debugprintf("sreq_svcmunge: ent\n") ;
+#endif
+	if ((rs = vecstr_start(&sa,1,0)) >= 0) {
+	    int	f_long = FALSE ;
+	    if ((rs = vecstr_svcargs(&sa,&f_long,jep->svcbuf)) >= 0) {
+	        c = rs ;
+#if	CF_DEBUGS
+		debugprintf("sreq_svcmunge: vecstr_svcargs() rs=%d\n",rs) ;
+#endif
+	        if ((rs = sreq_svcparse(jep,f_long)) >= 0) {
+	            const int	ts = vecstr_strsize(&sa) ;
+	            int		as ;
+	            cchar	**av = NULL ;
+
+#if	CF_DEBUGS
+		    debugprintf("sreq_svcmunge: mid2 c=%u\n",c) ;
+		    debugprintf("sreq_svcmunge: mid2 ts=%d\n",ts) ;
+#endif
+
+	            as = ((c + 2) * sizeof(cchar *)) ;
+	            if ((rs = uc_malloc(as,&av)) >= 0) {
+	                char	*at = NULL ;
+	                if ((rs = uc_malloc(ts,&at)) >= 0) {
+
+	                    if ((rs = vecstr_avmkstr(&sa,av,as,at,ts)) >= 0) {
+	                        jep->nav = (c+1) ;
+	                        jep->av = av ;
+	                        jep->argstab = at ;
+#if	CF_DEBUGS
+			{
+				int	i ;
+				debugprintf("sreq_svcmunge: args¬\n") ;
+				for (i = 0 ; 
+				(i < jep->nav) && (av[i] != NULL) ; i += 1) {
+				    debugprintf("sreq_svcmunge: a[%u]=%s\n",
+					i,av[i]) ;
+				}
+			}
+#endif
+	                    }
+
+#if	CF_DEBUGS
+		    debugprintf("sreq_svcmunge: vecstr_avmkstr-out rs=%d\n",
+			rs) ;
+#endif
+
+	                    if (rs < 0) uc_free(at) ;
+	                } /* end if (memory-allocation) */
+
+#if	CF_DEBUGS
+		    debugprintf("sreq_svcmunge: m2-out rs=%d\n",rs) ;
+#endif
+
+	                if (rs < 0)
+	                    uc_free(av) ;
+	            } /* end if (memory-allocation) */
+
+#if	CF_DEBUGS
+		    debugprintf("sreq_svcmunge: m1-out rs=%d\n",rs) ;
+#endif
+
+	        } /* end if (sreq_argparse) */
+	    } /* end if (vecstr_svcargs) */
+	    rs1 = vecstr_finish(&sa) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (vecstr) */
+#if	CF_DEBUGS
+	debugprintf("sreq_svcmunge: ret rs=%d c=%d\n",rs,c) ;
+#endif
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (sreq_svcmunge) */
+
+
 /* extract the service from the "service-buffer" and alloc-store in 'svc' */
 int sreq_svcparse(SREQ *op,int f_long)
 {
 	int		rs = SR_OK ;
+	int		len = 0 ;
 #if	CF_DEBUGS
 	debugprintf("sreq_svcparse: svcbuf=>%s<\n",op->svcbuf) ;
 #endif
@@ -301,9 +397,11 @@ int sreq_svcparse(SREQ *op,int f_long)
 		debugprintf("sreq_svcparse: s=>%t<\n",sp,sl) ;
 #endif
 	        if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
+		    len = sl ;
 	            op->svc = bp ;
 	            op->subsvc = strwcpy(bp,sp,sl) ;
 	            if ((tp = strnchr(sp,sl,'+')) != NULL) {
+			len = (tp-sp) ;
 		        bp[tp-sp] = '\0' ;
 		        op->subsvc = bp+((tp+1)-sp) ;
 	            }
@@ -316,7 +414,7 @@ int sreq_svcparse(SREQ *op,int f_long)
 	} else {
 	    rs = SR_BUGCHECK ;
 	}
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (sreq_svcparse) */
 
@@ -372,6 +470,15 @@ int sreq_getstate(SREQ *op)
 	return op->state ;
 }
 /* end subroutine (sreq_getstate) */
+
+
+int sreq_getav(SREQ *jep,cchar ***avp)
+{
+	const int	nav = jep->nav ;
+	if (avp != NULL) *avp = jep->av ;
+	return  nav ;
+}
+/* end subroutine (sreq_getav) */
 
 
 int sreq_ofd(SREQ *op)
@@ -755,7 +862,7 @@ int sreq_closestderr(SREQ *jep)
 	    if (jep->efname[0] != '\0') {
 	        const int	rsn = SR_NOTFOUND ;
 	        rs1 = uc_unlink(jep->efname) ;
-	        if (rs1 == SR_NOTFOUND) rs1 = SR_OK ;
+	        if (rs1 == rsn) rs1 = SR_OK ;
 	        if (rs >= 0) rs = rs1 ;
 	    }
 	    rs1 = uc_free(jep->efname) ;

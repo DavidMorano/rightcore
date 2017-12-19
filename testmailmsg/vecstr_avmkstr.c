@@ -3,7 +3,7 @@
 /* make the Array-Vector and the String-table */
 
 
-#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
+#define	CF_DEBUGS	1		/* non-switchable debug print-outs */
 
 
 /* revision history:
@@ -62,12 +62,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int vecstr_avmkstr(op,av,avsize,tab,tabsize)
-VECSTR		*op ;
-const char	*av[] ;
-int		avsize ;
-char		tab[] ;
-int		tabsize ;
+int vecstr_avmkstr(vecstr *op,cchar **av,int avsize,char *tab,int tabsize)
 {
 	int		rs = SR_OK ;
 	int		size ;
@@ -81,18 +76,17 @@ int		tabsize ;
 
 /* check supplied tabsize */
 
-	if (! op->stsize) {
+	if (op->stsize == 0) {
 	    vecstr_strsize(op) ;
 	}
 
 	size = iceil(op->stsize,sizeof(int)) ;
 
 	if (tabsize >= size) {
-	    size = (op->c + 2) * sizeof(int) ;
+	    size = (op->c + 1) * sizeof(int) ;
 	    if (avsize >= size) {
 		int	i ;
 		char	*bp = tab ;
-	        c = 0 ;
 	        *bp++ = '\0' ;
 	        for (i = 0 ; op->va[i] != NULL ; i += 1) {
 	            if (op->va[i] != NULL) {
@@ -101,10 +95,12 @@ int		tabsize ;
 		    }
 	        } /* end for */
 	        av[c] = NULL ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
-	} else
+	    }
+	} else {
 	    rs = SR_OVERFLOW ;
+	}
 
 	return (rs >= 0) ? c : rs ;
 }

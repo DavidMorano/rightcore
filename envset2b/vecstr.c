@@ -352,8 +352,9 @@ int vecstr_del(vecstr *op,int i)
 	if ((op->va)[i] != NULL) {
 
 	    op->c -= 1 ;		/* decrement list count */
-	    if (op->f.stsize)
+	    if (op->f.stsize) {
 	        op->stsize -= (strlen((op->va)[i]) + 1) ;
+	    }
 
 	    uc_free((op->va)[i]) ;
 
@@ -716,7 +717,7 @@ int vecstr_strsize(vecstr *op)
 	if (op->va == NULL) return SR_NOTOPEN ;
 
 	if (! op->f.stsize) {
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; op->va[i] != NULL ; i += 1) {
 	        if (op->va[i] != NULL) {
 	            size += (strlen(op->va[i]) + 1) ;
@@ -786,7 +787,7 @@ int vecstr_recmkstr(vecstr *op,int *rec,int recsize,char *tab,int tabsize)
 
 /* check supplied tabsize */
 
-	if (! op->stsize) {
+	if (op->stsize == 0) {
 	    vecstr_strsize(op) ;
 	}
 
@@ -806,8 +807,9 @@ int vecstr_recmkstr(vecstr *op,int *rec,int recsize,char *tab,int tabsize)
 		    }
 	        } /* end for */
 	        rec[c] = -1 ;
-	    } else
+	    } else {
 	        rs = SR_OVERFLOW ;
+	    }
 	} else {
 	    rs = SR_OVERFLOW ;
 	}

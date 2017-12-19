@@ -60,6 +60,8 @@ struct sreq {
 	MFSERVE_INFO	binfo ;			/* buuilt-info info */
 	void		*sop ;			/* shared-object handle */
 	void		*objp ;			/* object pointer */
+	cchar		**av ;			/* argument vector */
+	cchar		*argstab ;		/* argument strings */
 	const char	*peername ;
 	const char	*netuser ;
 	const char	*netpass ;
@@ -75,6 +77,7 @@ struct sreq {
 	volatile int	f_exiting ;
 	int		ji ;			/* job number in DB */
 	int		jsn ;			/* job serial number */
+	int		nav ;			/* number arguments */
 	int		salen ;			/* peername socket length */
 	int		nnames ;		/* number of names */
 	int		ifd ;			/* file-descriptor input */
@@ -100,12 +103,14 @@ extern int sreq_typeset(SREQ *,int,int) ;
 extern int sreq_getfd(SREQ *) ;
 extern int sreq_havefd(SREQ *,int) ;
 extern int sreq_svcaccum(SREQ *,cchar *,int) ;
+extern int sreq_svcmunge(SREQ *) ;
 extern int sreq_svcparse(SREQ *,int) ;
 extern int sreq_setlong(SREQ *,int) ;
 extern int sreq_setstate(SREQ *,int) ;
 extern int sreq_getjsn(SREQ *) ;
 extern int sreq_getsvc(SREQ *,cchar **) ;
 extern int sreq_getsubsvc(SREQ *,cchar **) ;
+extern int sreq_getav(SREQ *,cchar ***) ;
 extern int sreq_getstate(SREQ *) ;
 extern int sreq_getstdin(SREQ *) ;
 extern int sreq_getstdout(SREQ *) ;

@@ -993,7 +993,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if ((hfname == NULL) || (hfname[0] == '\0')) {
 	        hfname = HELPFNAME ;
 	    }
-	    rs = printhelp(NULL,pip->pr,pip->searchname,hfname) ;
+#if	CF_SFIO
+	    printhelp(sfstdout,pip->pr,pip->searchname,hfname) ;
+#else
+	    printhelp(NULL,pip->pr,pip->searchname,hfname) ;
+#endif
 	} /* end if (help file) */
 
 	if (f_version || f_help || f_usage)

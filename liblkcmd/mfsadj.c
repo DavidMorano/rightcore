@@ -485,7 +485,6 @@ static int mfsadj_getstatus(PROGINFO *pip,MSGDATA *mdp)
 #endif
 
 	if ((rs = locinfo_getreqs(lip)) >= 0) {
-	    const int	nreqs = rs ;
 	    if ((rs = mfsmsg_getstatus(&m1,1,mdp->mbuf,mdp->ml)) >= 0) {
 		if ((rs = locinfo_getreqs(lip)) >= 0) {
 		    const int	nreqs = rs ;

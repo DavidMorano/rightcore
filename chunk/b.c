@@ -724,8 +724,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* help file */
 
-	if (f_help)
+#if	CF_SFIO
+	    printhelp(sfstdout,pip->pr,pip->searchname,HELPFNAME) ;
+#else
 	    printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
+#endif
 
 	if (f_usage || f_help || f_version || f_makedate)
 	    goto retearly ;

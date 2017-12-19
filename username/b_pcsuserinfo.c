@@ -926,10 +926,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (f_help) {
 #if	CF_SFIO
-#if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	debugprintf("b_pcsuserinfo: sfstdout{%p}\n",sfstdout) ;
-#endif
 	    rs = printhelp(sfstdout,pip->pr,pip->searchname,HELPFNAME) ;
 #else
 	    rs = printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
