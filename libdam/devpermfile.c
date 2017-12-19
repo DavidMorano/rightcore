@@ -536,17 +536,13 @@ DEVPERMFILE	*op ;
 time_t		daytime ;
 {
 	struct ustat	sb ;
+	int		rs = SR_OK ;
+	int		f_changed = FALSE ;
+	int		f = FALSE ;
 
-	int	rs = SR_OK ;
-	int	f_changed = FALSE ;
-	int	f = FALSE ;
+	if (op == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (op->magic != DEVPERMFILE_MAGIC)
-	    return SR_NOTOPEN ;
+	if (op->magic != DEVPERMFILE_MAGIC) return SR_NOTOPEN ;
 
 	if (daytime == 0)
 	    daytime = time(NULL) ;

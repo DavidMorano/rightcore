@@ -29,6 +29,7 @@
 extern "C" {
 #endif
 
+extern int	svcent_islib(SVCENT *,cchar **) ;
 extern int	svcent_getval(SVCENT *,cchar *,cchar **) ;
 extern int	svcent_getdeval(SVCENT *,cchar *,cchar **) ;
 

@@ -2376,8 +2376,10 @@ static int procourdefs(PROGINFO *pip)
 	}
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
+	if (DEBUGLEVEL(3)) {
+	    debugprintf("mfsmain/procourdefs: f_users=%u\n",lip->f.users) ;
 	    debugprintf("mfsmain/procourdefs: ret rs=%d\n",rs) ;
+	}
 #endif
 
 	return rs ;

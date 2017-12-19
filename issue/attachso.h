@@ -28,8 +28,7 @@
 extern "C" {
 #endif
 
-extern int attachso(const char **,const char *,const char **,const char **,
-		int,void **) ;
+extern int attachso(cchar **,cchar *,cchar **,cchar **,int,void **) ;
 
 #ifdef	__cplusplus
 }

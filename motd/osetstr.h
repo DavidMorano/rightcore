@@ -47,6 +47,7 @@ extern int osetstr_start(osetstr *,int) ;
 extern int osetstr_already(osetstr *,cchar *,int) ;
 extern int osetstr_add(osetstr *,cchar *,int) ;
 extern int osetstr_del(osetstr *,cchar *,int) ;
+extern int osetstr_delall(osetstr *) ;
 extern int osetstr_count(osetstr *) ;
 extern int osetstr_curbegin(osetstr *,osetstr_cur *) ;
 extern int osetstr_enum(osetstr *,osetstr_cur *,cchar **) ;

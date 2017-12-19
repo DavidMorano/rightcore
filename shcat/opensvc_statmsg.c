@@ -149,7 +149,6 @@ extern int	opentmp(cchar *,int,mode_t) ;
 extern int	getnodename(char *,int) ;
 extern int	getusername(char *,int,uid_t) ;
 extern int	getgroupname(char *,int,gid_t) ;
-extern int	attachso(cchar **,cchar *,cchar **,cchar **,int,void **) ;
 extern int	nusers(const char *) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	isdigitlatin(int) ;
@@ -179,7 +178,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"sn",
 	"ru",
@@ -462,10 +461,12 @@ int		to ;
 
 	if ((pru == NULL) || (pru[0] == '\0') || (pru[0] == '-')) {
 	    pru = getourenv(envv,VARMOTDADMIN) ;
-	    if ((pru == NULL) || (pru[0] == '\0'))
+	    if ((pru == NULL) || (pru[0] == '\0')) {
 	        pru = getourenv(envv,VARISSUEADMIN) ;
-	    if ((pru == NULL) || (pru[0] == '\0'))
+	    }
+	    if ((pru == NULL) || (pru[0] == '\0')) {
 		pru = prn ;
+	    }
 	} /* end if (pr-username) */
 	if (rs < 0) goto ret0 ;
 
@@ -474,7 +475,7 @@ int		to ;
 	if ((rs >= 0) && ((un == NULL) || (un[0] == '\0'))) {
 	    un = getourenv(envv,VARMOTDUSER) ;
 	    if ((un == NULL) || (un[0] == '\0')) {
-	        const char	*uidp = getourenv(envv,VARMOTDUID) ;
+	        cchar	*uidp = getourenv(envv,VARMOTDUID) ;
 	        if ((uidp != NULL) && (uidp[0] != '\0')) {
 	            int		v ;
 	            if ((rs = cfdeci(uidp,-1,&v)) >= 0) {
@@ -494,13 +495,14 @@ int		to ;
 	if ((rs >= 0) && ((gn == NULL) || (gn[0] == '\0') || (gn[0] == '-'))) {
 	    gn = getourenv(envv,VARMOTDGROUP) ;
 	    if ((gn == NULL) || (gn[0] == '\0')) {
-		const char	*gidp = getourenv(envv,VARMOTDGID) ;
+		cchar	*gidp = getourenv(envv,VARMOTDGID) ;
 		if ((gidp != NULL) && (gidp[0] != '\0')) {
 		    int		v ;
 		    rs = cfdeci(gidp,-1,&v) ;
 		    gid = v ;
-		} else
+		} else {
 		    gid = getgid() ;
+		}
 		if (rs >= 0) {
 		    gn = gbuf ;
 		    rs = getgroupname(gbuf,GROUPNAMELEN,gid) ;
@@ -516,8 +518,9 @@ int		to ;
 	if ((rs >= 0) && (kn != NULL)) {
 	    if (strcmp(kn,"%g") == 0) {
 	        kn = gn ;
-	    } else if (strcmp(kn,"%u") == 0)
+	    } else if (strcmp(kn,"%u") == 0) {
 	        kn = un ;
+	    }
 	}
 
 	if ((rs >= 0) && ((kn == NULL) || (kn[0] == '\0') || (kn[0] == '-'))) {
@@ -566,7 +569,7 @@ int		to ;
 	    } /* end for */
 
 	    if (rs >= 0) {
-	        const char	**av = NULL ;
+	        cchar	**av = NULL ;
 	        if ((rs = vechand_getvec(&adms,&av)) >= 0) {
 
 	            if ((rs = opentmp(NULL,0,0664)) >= 0) {
@@ -574,9 +577,9 @@ int		to ;
 	                fd = rs ;
 
 	                if ((rs = statmsg_open(&m,pru)) >= 0) {
-
-	                    rs = statmsg_processid(&m,&mid,av,kn,fd) ;
-
+			    {
+	                        rs = statmsg_processid(&m,&mid,av,kn,fd) ;
+			    }
 		            statmsg_close(&m) ;
 	                } /* end if (statmsg) */
 

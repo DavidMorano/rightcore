@@ -628,3 +628,21 @@ main$(T20).o:		main$(T20).cc
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T20).cc
 
 
+T21= sing
+
+T21OBJa= main$(T21).o
+T21OBJb=
+T21OBJc=
+T21OBJd=
+
+T21OBJ= $(T21OBJa) $(T21OBJb) $(T21OBJc) $(T21OBJd)
+
+T21OBJS= $(CRTFRONT) $(T21OBJ) $(CRTC) $(CRTBACK)
+
+$(T21).x:		Makefile $(T21OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T21OBJS) -lm $(TLIBINFO) > $(T21).lm
+
+main$(T21).o:		main$(T21).cc singlist.hh
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T21).cc
+
+

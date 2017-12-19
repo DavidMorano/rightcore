@@ -291,21 +291,21 @@ int config_check(CONFIG *cfp)
 
 	pip = cfp->pip ;
 	if (cfp->f.p) {
-	    time_t	daytime = pip->daytime ;
-	    int		intcheck = cfp->intcheck ;
-	    int		f_check = FALSE ;
+	    const time_t	dt = pip->daytime ;
+	    const int		intcheck = cfp->intcheck ;
+	    int			f_check = TRUE ;
 
-	    f_check = f_check && (intcheck >= 0) ;
-	    f_check = f_check && ((daytime - cfp->ti_lastcheck) >= intcheck) ;
+	    f_check = f_check && (intcheck > 0) ;
+	    f_check = f_check && ((dt - cfp->ti_lastcheck) >= intcheck) ;
 	    if (f_check) {
-	        cfp->ti_lastcheck = daytime ;
+	        cfp->ti_lastcheck = dt ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
 	            debugprintf("msumain/config_check: paramfile_check()\n") ;
 #endif
 
-	        if ((rs = paramfile_check(&cfp->p,daytime)) > 0) {
+	        if ((rs = paramfile_check(&cfp->p,dt)) > 0) {
 	            f_changed = TRUE ;
 	            rs = config_read(cfp) ;
 

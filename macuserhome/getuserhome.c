@@ -204,7 +204,7 @@ int getuserhome(char *rbuf,int rlen,cchar *un)
 
 	rbuf[0] = '\0' ;
 	if ((rs = subinfo_start(&si,un)) >= 0) {
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; gethomes[i] != NULL ; i += 1) {
 	        rs = (*gethomes[i])(&si,rbuf,rlen) ;
 	        rl = rs ;
@@ -340,9 +340,9 @@ static int subinfo_getdirsearch(SUBINFO *sip,char *rbuf,int rlen)
 	const char	*un = sip->un ;
 
 	if (un[0] != '-') {
-	    struct ustat	sb ;
-	    int			i ;
-	    const char		*hdn ;
+	    USTAT	sb ;
+	    int		i ;
+	    cchar	*hdn ;
 	    for (i = 0 ; homednames[i] != NULL ; i += 1) {
 	        hdn = homednames[i] ;
 	        if ((rs = uc_stat(hdn,&sb)) >= 0) {
@@ -404,7 +404,7 @@ static int dirsearch(cchar *basedname,cchar *un)
 	int		f_found = FALSE ;
 
 	if ((rs = fsdir_open(&dir,basedname)) >= 0) {
-	    const char	*fnp ;
+	    cchar	*fnp ;
 	    while ((rs = fsdir_read(&dir,&ds)) > 0) {
 	        fnp = ds.name ;
 

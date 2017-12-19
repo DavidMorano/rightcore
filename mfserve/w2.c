@@ -7,6 +7,7 @@
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* switchable debug print-outs */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
+#define	CF_SHLIB	0		/* shared-object library loading */
 
 
 /* revision history:
@@ -291,6 +292,10 @@ static int mfswatch_svcprocpass(PROGINFO *,SREQ *,SVCENT *) ;
 static int mfswatch_svcprocprog(PROGINFO *,SREQ *,SVCENT *) ;
 static int mfswatch_svcprocproger(PROGINFO *,SREQ *,cchar *,vecstr *) ;
 static int mfswatch_progspawn(PROGINFO *,SREQ *,cchar *,vecstr *) ;
+
+#if	CF_SHLIB
+static int mfswatch_tabsprocshlib(PROGINFO *,SREQ *,SVCENT *) ;
+#endif
 
 static int mfswatch_builthave(PROGINFO *,cchar *) ;
 static int mfswatch_builthandle(PROGINFO *,SREQ *,cchar **) ;
@@ -1712,6 +1717,23 @@ static int mfswatch_svcprocpass(PROGINFO *pip,SREQ *jep,SVCENT *sep)
 	return (rs >= 0) ?  f : rs ;
 }
 /* end subroutine (mfswatch_svcprocpass) */
+
+
+#if	CF_SHLIB
+static int mfswatch_tabsprocshlib(PROGINFO *pip,SREQ *jep,SVCENT *sep)
+{
+	int		rs = SR_OK ;
+	int		vl ;
+	int		f = FALSE ;
+	cchar		*vp ;
+	if ((vl = svcent_islib(sep,&vp)) > 0) {
+	    f = TRUE ;
+
+	}
+	return (rs >= 0) ?  f : rs ;
+}
+/* end subroutine (mfswatch_tabsprocshlib) */
+#endif /* CF_SHLIB */
 
 
 static int mfswatch_svcprocprog(PROGINFO *pip,SREQ *jep,SVCENT *sep)

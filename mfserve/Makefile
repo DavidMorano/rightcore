@@ -197,16 +197,16 @@ OBJ04= mfslisten.o mfswatch.o mfsbuilt.o
 OBJ05= mfsns.o mfsc.o mfsmsg.o
 OBJ06= sreqdb.o sreq.o svcentsub.o
 OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
-OBJ08= cpuspeed.o securefile.o strval.o
+OBJ08= 
 OBJ09= 
-OBJ10= osetstr_loadfile.o
+OBJ10= osetstr.o osetstr_loadfile.o
 OBJ11= vecstr_svcargs.o vecstr_srvargs.o
-OBJ12= varsub.o intiq.o
-OBJ13= vecpstr_addpath.o
-OBJ14= listenspec.o poller.o spawnproc.o
+OBJ12= intiq.o
+OBJ13=
+OBJ14= listenspec.o poller.o
 OBJ15= msfile.o msfilee.o ebuf.o msghdr.o cmsghdr.o
 
-OBJ16=
+OBJ16= spawnproc.o cpuspeed.o securefile.o strval.o
 OBJ17=
 OBJ18=
 OBJ19=
@@ -441,7 +441,8 @@ vecstr_svcargs.o:	vecstr_svcargs.c vecstr.h
 
 vecstr_srvargs.o:	vecstr_srvargs.c vecstr.h
 
-osetstr.o:		osetstr.c osetstr.h
+osetstr.o:		osetstr.cc osetstr.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) osetstr.cc
 
 osetstr_loadfile.o:	osetstr_loadfile.c osetstr.h
 

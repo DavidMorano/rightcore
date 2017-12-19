@@ -18,7 +18,7 @@
         works out! :-)
 
 	= 2017-08-10, David A­D­ Morano
-	This subroutine was borrowed to code MFSERVE.
+	This subroutine was borrowed to code the MFSERVE program.
 
 */
 
@@ -1018,9 +1018,96 @@ static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 /* end subroutine (mfswatch_svcaccum) */
 
 
+static int mfswatch_svcfind(PROGINFO *pip,SREQ *jep)
+{
+	MFSWATCH	*wip = pip->watch ;
+	vecstr		sa ; /* server arguments */
+	int		rs ;
+	int		rs1 ;
+	if (wip == NULL) return SR_FAULT ;
+	if ((rs = vecstr_start(&sa,1,0)) >= 0) {
+	    if ((rs = vecstr_svcargs(&sa,jep->svcbuf)) >= 0) {
+	        if ((rs = sreq_svcparse(jep,rs)) >= 0) {
+	            if ((rs = mfswatch_logsvc(pip,jep)) >= 0) {
+	                rs = mfswatch_svcfinder(pip,jep,&sa) ;
+	            }
+	        } /* end if (sreq_setlong) */
+	    } /* end if (vecstr_svcargs) */
+	    rs1 = vecstr_finish(&sa) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (vecstr) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcfind: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (mfswatch_svcfind) */
+
+
+static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
+{
+	MFSWATCH	*wip = pip->watch ;
+	int		rs ;
+	cchar		*svc ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcfinder: ent\n") ;
+#endif
+	if ((rs = sreq_getsvc(jep,&svc)) >= 0) {
+	    const int	elen = MAX(SBUFLEN,rs) ;
+	    char	*ebuf ;
+	    if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
+	        SVCFILE		*slp = &wip->tabs ;
+	        SVCFILE_ENT	e ;
+	        cchar		**sav ;
+	        if ((rs = vecstr_getvec(sap,&sav)) >= 0) {
+	            const int	rsn = SR_NOTFOUND ;
+		    const int	t = TRUE ;
+	            if ((rs = svcfile_fetch(slp,svc,NULL,&e,ebuf,elen)) >= 0) {
+	                if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
+	                    rs = mfswatch_svcproc(pip,jep,&e,sav) ;
+	                }
+	            } else if (rs == rsn) {
+	                if ((rs = mfswatch_usershave(pip,svc)) > 0) {
+	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
+	                        rs = mfswatch_usershandle(pip,jep,sav) ;
+	                    }
+	                } else if ((rs = mfswatch_builthave(pip,svc)) > 0) {
+	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
+	                        rs = mfswatch_builthandle(pip,jep,sav) ;
+	                    }
+	                } else if (strcmp(svc,"help") == 0) {
+	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
+	                        rs = mfswatch_svchelp(pip,jep) ;
+	                    }
+	                } else if (rs == 0) {
+	                    const int	f = FALSE ;
+	                    if ((rs = mfswatch_svcretstat(pip,jep,f)) >= 0) {
+	                        rs = mfswatch_jobretire(pip,jep) ;
+	                    }
+	                }
+	            } /* end if */
+	        } /* end if (vecstr_getvec) */
+	        uc_free(ebuf) ;
+	    } /* end if (m-a-f) */
+	} /* end if (sreq_getsvc) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcfinder: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (mfswatch_svcfinder) */
+
+
 static int mfswatch_svcsbegin(PROGINFO *pip)
 {
 	int		rs ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_svcsbegin: ent\n") ;
+#endif
 	if ((rs = mfswatch_builtbegin(pip)) >= 0) {
 	    if ((rs = mfswatch_usersbegin(pip)) >= 0) {
 	        rs = mfswatch_tabsbegin(pip) ;
@@ -1068,7 +1155,9 @@ static int mfswatch_svcsmaint(PROGINFO *pip)
 {
 	int		rs ;
 	if ((rs = mfswatch_builtmaint(pip)) >= 0) {
-	    rs = mfswatch_tabsmaint(pip) ;
+	    if ((rs = mfswatch_usersmaint(pip)) >= 0) {
+	        rs = mfswatch_tabsmaint(pip) ;
+	    }
 	}
 	return rs ;
 }
@@ -1164,9 +1253,9 @@ static int mfswatch_usersbegin(PROGINFO *pip)
 		} /* end if (osetstr_start) */
 	    }
 	}
-#if	CF_DEBUGS
+#if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("mfswatch_usersbegin: ret rs=%d\n",rs) ;
+	    debugprintf("mfswatch_usersbegin: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }
@@ -1232,6 +1321,10 @@ static int mfswatch_usershave(PROGINFO *pip,cchar *sp)
 	    OSETSTR	*ulp = &wip->users ;
 	    rs = osetstr_already(ulp,sp,-1) ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_usershave: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subrlutine (mfswatch_usershave) */
@@ -1243,6 +1336,10 @@ static int mfswatch_usershandle(PROGINFO *pip,SREQ *jep,cchar **sav)
 	MFSWATCH	*wip = pip->watch ;
 	int		rs = SR_OK ;
 	int		f = FALSE ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_usershandle: ent\n") ;
+#endif
 	if (wip->open.users) {
 	    svcprocer_t		w = (svcprocer_t) mfswatch_usershandler ;
 	    if ((rs = mfswatch_svcprocer(pip,jep,w)) >= 0) {
@@ -1262,6 +1359,10 @@ static int mfswatch_usershandler(PROGINFO *pip,SREQ *jep)
 	int		rs1 ;
 	int		wlen = 0 ;
 	char		hbuf[MAXPATHLEN+1] ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_usershandler: ent\n") ;
+#endif
 	if ((rs = getuserhome(hbuf,hlen,jep->svc)) > 0) {
 	    const int	llen = LINEBUFLEN ;
 	    char	*lbuf ;
@@ -1280,6 +1381,10 @@ static int mfswatch_usershandler(PROGINFO *pip,SREQ *jep)
 	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_usershandler: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (mfswatch_usershandler) */
@@ -1326,10 +1431,19 @@ static int mfswatch_usersfile(PROGINFO *pip,int ofd,char *lbuf,int llen,
 	const mode_t	om = 0666 ;
 	const int	of = O_RDONLY ;
 	const int	to = TO_OPEN ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_usersfile: ent\n") ;
+#endif
 	if ((rs = uc_opene(fn,of,om,to)) >= 0) {
 	    const int	fd = rs ;
 	    const int	ro = 0 ;
 	    while ((rs = uc_reade(fd,lbuf,llen,to,ro)) > 0) {
+#if	CF_DEBUG
+		if (DEBUGLEVEL(4))
+		    debugprintf("mfswatch_usersfile: l=>%t<\n",
+		        lbuf,strlinelen(lbuf,rs,50)) ;
+#endif
 		rs = uc_writen(ofd,lbuf,rs) ;
 		wlen += rs ;
 		if (rs < 0) break ;
@@ -1341,6 +1455,10 @@ static int mfswatch_usersfile(PROGINFO *pip,int ofd,char *lbuf,int llen,
 	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfswatch_usersfile: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (mfswatch_usersfile) */
@@ -1414,89 +1532,6 @@ static int mfswatch_builtmaint(PROGINFO *pip)
 	return rs ;
 }
 /* end subroutine (mfswatch_builtmaint) */
-
-
-static int mfswatch_svcfind(PROGINFO *pip,SREQ *jep)
-{
-	MFSWATCH	*wip = pip->watch ;
-	vecstr		sa ; /* server arguments */
-	int		rs ;
-	int		rs1 ;
-	if (wip == NULL) return SR_FAULT ;
-	if ((rs = vecstr_start(&sa,1,0)) >= 0) {
-	    if ((rs = vecstr_svcargs(&sa,jep->svcbuf)) >= 0) {
-	        if ((rs = sreq_svcparse(jep,rs)) >= 0) {
-	            if ((rs = mfswatch_logsvc(pip,jep)) >= 0) {
-	                rs = mfswatch_svcfinder(pip,jep,&sa) ;
-	            }
-	        } /* end if (sreq_setlong) */
-	    } /* end if (vecstr_svcargs) */
-	    rs1 = vecstr_finish(&sa) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (vecstr) */
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_svcfind: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (mfswatch_svcfind) */
-
-
-static int mfswatch_svcfinder(PROGINFO *pip,SREQ *jep,vecstr *sap)
-{
-	MFSWATCH	*wip = pip->watch ;
-	int		rs ;
-	cchar		*svc ;
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_svcfinder: ent\n") ;
-#endif
-	if ((rs = sreq_getsvc(jep,&svc)) >= 0) {
-	    const int	elen = MAX(SBUFLEN,rs) ;
-	    char	*ebuf ;
-	    if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
-	        SVCFILE		*slp = &wip->tabs ;
-	        SVCFILE_ENT	e ;
-	        cchar		**sav ;
-	        if ((rs = vecstr_getvec(sap,&sav)) >= 0) {
-	            const int	rsn = SR_NOTFOUND ;
-		    const int	t = TRUE ;
-	            if ((rs = svcfile_fetch(slp,svc,NULL,&e,ebuf,elen)) >= 0) {
-	                if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
-	                    rs = mfswatch_svcproc(pip,jep,&e,sav) ;
-	                }
-	            } else if (rs == rsn) {
-	                if ((rs = mfswatch_usershave(pip,svc)) > 0) {
-	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
-	                        rs = mfswatch_usershandle(pip,jep,sav) ;
-	                    }
-	                } else if ((rs = mfswatch_builthave(pip,svc)) > 0) {
-	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
-	                        rs = mfswatch_builthandle(pip,jep,sav) ;
-	                    }
-	                } else if (strcmp(svc,"help") == 0) {
-	                    if ((rs = mfswatch_svcretstat(pip,jep,t)) >= 0) {
-	                        rs = mfswatch_svchelp(pip,jep) ;
-	                    }
-	                } else if (rs == 0) {
-	                    const int	f = FALSE ;
-	                    if ((rs = mfswatch_svcretstat(pip,jep,f)) >= 0) {
-	                        rs = mfswatch_jobretire(pip,jep) ;
-	                    }
-	                }
-	            } /* end if */
-	        } /* end if (vecstr_getvec) */
-	        uc_free(ebuf) ;
-	    } /* end if (m-a-f) */
-	} /* end if (sreq_getsvc) */
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("mfswatch_svcfinder: ret rs=%d\n",rs) ;
-#endif
-	return rs ;
-}
-/* end subroutine (mfswatch_svcfinder) */
 
 
 /* ARGSUSED */

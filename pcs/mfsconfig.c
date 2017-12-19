@@ -197,7 +197,8 @@ int config_start(CONFIG *cfp,PROGINFO *pip,cchar *cfname,int intcheck)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("config_start: ent cfname=%s\n",cfname) ;
+	    debugprintf("config_start: ent cfname=%s intcheck=%d\n",
+			cfname,intcheck) ;
 #endif
 
 	if (cfp == NULL) return SR_FAULT ;
@@ -301,24 +302,29 @@ int config_check(CONFIG *cfp)
 	int		f_changed = FALSE ;
 
 	if (cfp == NULL) return SR_FAULT ;
-
 	pip = cfp->pip ;
-	if (cfp->f.p) {
-	    time_t	daytime = pip->daytime ;
-	    int		intcheck = cfp->intcheck ;
-	    int		f_check = FALSE ;
 
-	    f_check = f_check && (intcheck >= 0) ;
-	    f_check = f_check && ((daytime - cfp->ti_lastcheck) >= intcheck) ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfsmain/config_check: ent f_p=%u\n",cfp->f.p) ;
+#endif
+
+	if (cfp->f.p) {
+	    const time_t	dt = pip->daytime ;
+	    const int		intcheck = cfp->intcheck ;
+	    int			f_check = TRUE ;
+
+	    f_check = f_check && (intcheck > 0) ;
+	    f_check = f_check && ((dt - cfp->ti_lastcheck) >= intcheck) ;
 	    if (f_check) {
-	        cfp->ti_lastcheck = daytime ;
+	        cfp->ti_lastcheck = dt ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
 	            debugprintf("mfsmain/config_check: paramfile_check()\n") ;
 #endif
 
-	        if ((rs = paramfile_check(&cfp->p,daytime)) > 0) {
+	        if ((rs = paramfile_check(&cfp->p,dt)) > 0) {
 	            f_changed = TRUE ;
 	            rs = config_read(cfp) ;
 
@@ -331,8 +337,15 @@ int config_check(CONFIG *cfp)
 	        } /* end if (parameter file changed) */
 	    } /* end if (needed a check) */
 
-	} else
+	} else {
 	    rs = SR_NOTOPEN ;
+	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("mfsmain/config_check: ret rs=%d f=%u\n",
+		rs,f_changed) ;
+#endif
 
 	return (rs >= 0) ? f_changed : rs ;
 }

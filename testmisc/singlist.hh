@@ -73,7 +73,7 @@ class singlist_node {
 	singlist_node<T>	*next = NULL ;
 	singlist_node<T>	*prev = NULL ;
 	T			val ;
-	singlist_node(T av) : val(av) { 
+	singlist_node(const T &av) : val(av) { 
 	} ;
 	~singlist_node() {
 	} ;
@@ -118,13 +118,13 @@ public:
 	    }
 	    return rv ;
 	} ;
-	singlist_iterator &operator ++ () {
+	singlist_iterator &operator ++ () { /* pre */
 	    if (n != NULL) {
 	        n = n->next ;
 	    }
 	    return (*this) ;
 	} ;
-	singlist_iterator &operator ++ (int) {
+	singlist_iterator &operator ++ (int) { /* post */
 	    if (n != NULL) {
 	        n = n->next ;
 	    }
@@ -249,7 +249,7 @@ public:
 	    c = 0 ;
 	    return rc ;
 	} ;
-	int instail(const T v) {
+	int instail(const T &v) {
 	    singlist_node<T>	*nn = new(std::nothrow) singlist_node<T>(v) ;
 	    int			rc = SR_NOMEM ; /* error indication */
 	    if (nn != NULL) {
@@ -279,13 +279,16 @@ public:
 	    }
 	    return rc ;
 	} ;
-	int insfront(const T &v) {
+	int insfront(const T v) {
 	    return inshead(v) ;
-	}
+	} ;
 	int insback(const T v) {
 	    return instail(v) ;
-	}
+	} ;
 	int ins(const T v) {
+	    return instail(v) ;
+	} ;
+	int add(const T v) {
 	    return instail(v) ;
 	} ;
 	int gethead(const T **rpp) const {
@@ -304,24 +307,20 @@ public:
 	    *rpp = (tail != NULL) ? &tail->val : NULL ;
 	    return c ;
 	} ;
-	int remhead(T **rpp) {
-	    int	rc = -1 ;
+	int remhead(T *vp) {
+	    int		rs = SR_EMPTY ;
 	    if (head != NULL) {
-		singlist_node<T>	*n = head->next ;
-		if (rpp != NULL) *rpp = &n->val ;
+		singlist_node<T>	*n = head ;
+		if (vp != NULL) *vp = n->val ;
 		head = n->next ;
-		if (n->next == NULL) {
-		    tail = NULL ;
-		}
+		if (head == NULL) tail = NULL ;
 		delete n ;
-		rc = --c ;
-	    } else {
-		if (rpp != NULL) *rpp = NULL ;
+		rs = --c ;
 	    }
-	    return rc ;
+	    return rs ;
 	} ;
-	int rem(const T v) {
-	    return remhead(v) ;
+	int rem(T *vp) {
+	    return remhead(vp) ;
 	} ;
 	iterator begin() const {
 	    iterator it(head) ;

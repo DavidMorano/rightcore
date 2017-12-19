@@ -297,9 +297,11 @@ SUBINFO		*sip ;
 			rs = subinfo_checksyms(sip) ;
 		    } else {
 		        struct ustat	sb ;
-	                rs = u_stat(dname,&sb) ;
-	                if ((rs >= 0) && (! S_ISDIR(sb.st_mode))) 
-			    rs = SR_NOTDIR ;
+	                if ((rs = u_stat(dname,&sb)) >= 0) {
+	                    if (! S_ISDIR(sb.st_mode)) {
+			        rs = SR_NOTDIR ;
+			    }
+			}
 	                if (rs >= 0) rs = sperm(&id,&sb,soperm) ;
 	                if (rs >= 0) rs = subinfo_socheck(sip,&id,dname) ;
 		    } /* end if */
@@ -347,8 +349,9 @@ const char	dname[] ;
 	    if ((rs1 = mksofname(sofname,dname,sip->oname,ext)) >= 0) {
 
 	        rs1 = u_stat(sofname,&sb) ;
-	        if ((rs1 >= 0) && (! S_ISREG(sb.st_mode)))
+	        if ((rs1 >= 0) && (! S_ISREG(sb.st_mode))) {
 	            rs1 = SR_ISDIR ;
+		}
 
 	        if (rs1 >= 0)
 	            rs1 = sperm(idp,&sb,soperm) ;
@@ -373,24 +376,19 @@ const char	dname[] ;
 
 	            if (rs1 >= 0) {
 
-	                rs1 = subinfo_checksyms(sip) ;
-
-#if	CF_DEBUGS
-	                debugprintf("attachso/socheck: "
-	                    "subinfo_sotest() rs=%d\n",rs1) ;
-#endif
-
-	                if (rs1 < 0) {
+	                if ((rs1 = subinfo_checksyms(sip)) >= 0) {
+			    f = TRUE ;
+	                } else {
 	                    if (sip->sop != NULL) {
-	    		        if (! isSpecialObject(sip->sop))
+	    		        if (! isSpecialObject(sip->sop)) {
 	                            dlclose(sip->sop) ;
+				}
 	                        sip->sop = NULL ;
 	                    }
 	                    if (isOneOf(termrs,rs1)) rs = rs1 ;
-	                } else
-	                    f = TRUE ;
+			}
 
-	            } /* end if */
+	            } /* end if (ok) */
 	        } /* end if (file and perms) */
 
 	    } /* end if (filename formed) */
@@ -401,8 +399,9 @@ const char	dname[] ;
 
 	if (rs >= 0) {
 	    if (sip->sop == NULL) rs = rs1 ;
-	} else
+	} else {
 	    sip->sop = NULL ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("attachso/socheck: ret rs=%d\n",rs) ;
@@ -417,7 +416,7 @@ static int subinfo_checksyms(sip)
 SUBINFO		*sip ;
 {
 	int		rs = SR_OK ;
-	const char	**syms = sip->syms ;
+	cchar		**syms = sip->syms ;
 
 #if	CF_DEBUGS
 	debugprintf("attachso/checksyms: ent\n") ;

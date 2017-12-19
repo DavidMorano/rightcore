@@ -159,6 +159,18 @@ int svckv_ispass(cchar *(*kv)[2],int n,cchar **vpp)
 /* end subroutine (svckv_ispass) */
 
 
+#ifdef	COMMENT
+int svckv_islib(cchar *(*kv)[2],int n,cchar **vpp)
+{
+	int		vl ;
+	cchar		*sp = "so" ;
+	vl = svckv_val(kv,n,sp,vpp) ;
+	return vl ;
+}
+/* end subroutine (svckv_islib) */
+#endif /* COMMENT */
+
+
 int svckv_isprog(cchar *(*kv)[2],int n,cchar **vpp)
 {
 	int		i ;
@@ -169,7 +181,7 @@ int svckv_isprog(cchar *(*kv)[2],int n,cchar **vpp)
 	}
 	return vl ;
 }
-/* end subroutine (svckv_isexec) */
+/* end subroutine (svckv_isprog) */
 
 
 /* return (as the integer return value) a bit-set of options from the SVCENT */

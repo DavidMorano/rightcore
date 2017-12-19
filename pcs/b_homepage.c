@@ -452,11 +452,11 @@ static int	procdocbodymain_svcer(PROGINFO *,HTM *,GATHER *,SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerhdr(PROGINFO *,HTM *,SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerinc(PROGINFO *,HTM *,SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerincer(PROGINFO *,HTM *,
-			SVCFILE_ENT *,cchar *) ;
+SVCFILE_ENT *,cchar *) ;
 static int	procdocbodymain_svcerfile(PROGINFO *,HTM *,GATHER *,
-			SVCFILE_ENT *) ;
+SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerfiler(PROGINFO *,HTM *,GATHER *,
-			SVCFILE_ENT *,int) ;
+SVCFILE_ENT *,int) ;
 static int	proclockcheck(PROGINFO *) ;
 static int	proclockprint(PROGINFO *,cchar *,LFM_CHECK *) ;
 static int	proclocklog(PROGINFO *,cchar *,LFM_CHECK *,cchar *) ;
@@ -1114,8 +1114,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
-				    rs = cfdecti(avp,avl,&v) ;
-				    pip->intrun = v ;
+	                            rs = cfdecti(avp,avl,&v) ;
+	                            pip->intrun = v ;
 	                        }
 	                    }
 	                    break ;
@@ -1128,7 +1128,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        argl = strlen(argp) ;
 	                        if (argl) {
 	                            rs = locinfo_svclistadds(lip,argp,argl) ;
-				}
+	                        }
 	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
@@ -1224,7 +1224,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        }
 	                        break ;
 
-			    case 'f':
+	                    case 'f':
 	                        lip->final.force = TRUE ;
 	                        lip->have.force = TRUE ;
 	                        lip->f.force = TRUE ;
@@ -1235,7 +1235,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                                lip->f.force = (rs > 0) ;
 	                            }
 	                        }
-				break ;
+	                        break ;
 
 /* options */
 	                    case 'o':
@@ -1244,9 +1244,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
-				    }
+	                            }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -1351,8 +1351,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (pip->debuglevel == 0) {
 	    if ((cp = getourenv(envv,VARDEBUGLEVEL)) != NULL) {
 	        if (hasnonwhite(cp,-1)) {
-		    rs = optvalue(cp,-1) ;
-		    pip->debuglevel = rs ;
+	            rs = optvalue(cp,-1) ;
+	            pip->debuglevel = rs ;
 	        }
 	    }
 	} /* end if */
@@ -1425,14 +1425,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if (rs >= 0) {
 	    if ((rs = locinfo_dbinfo(lip,NULL,dbfname)) >= 0) {
 	        if ((rs = locinfo_finalize(lip)) >= 0) {
-		    if ((rs = locinfo_qs(lip,qs)) >= 0) {
-			if ((rs = locinfo_finalize(lip)) >= 0) {
+	            if ((rs = locinfo_qs(lip,qs)) >= 0) {
+	                if ((rs = locinfo_finalize(lip)) >= 0) {
 	                    if ((rs = procopts(pip,&akopts)) >= 0) {
-			        rs = locinfo_finalize(lip) ;
-		            }
-			}
-		    }
-		}
+	                        rs = locinfo_finalize(lip) ;
+	                    }
+	                }
+	            }
+	        }
 	    }
 	}
 
@@ -1525,7 +1525,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        if (rs >= 0) rs = rs1 ;
 	    } else {
 	        cchar	*pn = pip->progname ;
-		cchar	*fmt = "%s: userinfo failure (%d)\n" ;
+	        cchar	*fmt = "%s: userinfo failure (%d)\n" ;
 	        ex = EX_NOUSER ;
 	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    }
@@ -1714,8 +1714,8 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	    if ((rs = keyopt_curbegin(kop,&kcur)) >= 0) {
 	        int	oi ;
 	        int	kl, vl ;
-		cchar	*pr = pip->progname ;
-		cchar	*sn = pip->searchname ;
+	        cchar	*pr = pip->progname ;
+	        cchar	*sn = pip->searchname ;
 	        cchar	*kp, *vp ;
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
@@ -1736,38 +1736,38 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    }
 	                    break ;
 	                case akoname_cf:
-			    if ((pip->cfname == NULL) && (vl > 0)) {
-				cchar	*lc = LOGCNAME ;
-				char	tbuf[MAXPATHLEN+1] ;
+	                    if ((pip->cfname == NULL) && (vl > 0)) {
+	                        cchar	*lc = LOGCNAME ;
+	                        char	tbuf[MAXPATHLEN+1] ;
 	                        rs = prsetfname(pr,tbuf,vp,vl,TRUE,lc,sn,"") ;
-				if (rs >= 0) {
+	                        if (rs >= 0) {
 	                            cchar	**vpp = &pip->cfname ;
 	                            rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
-				}
-			    }
-			    break ;
+	                        }
+	                    }
+	                    break ;
 	                case akoname_lf:
-			    if ((pip->lfname == NULL) && (vl > 0)) {
-				cchar	*lc = LOGCNAME ;
-				char	tbuf[MAXPATHLEN+1] ;
+	                    if ((pip->lfname == NULL) && (vl > 0)) {
+	                        cchar	*lc = LOGCNAME ;
+	                        char	tbuf[MAXPATHLEN+1] ;
 	                        rs = prsetfname(pr,tbuf,vp,vl,TRUE,lc,sn,"") ;
-				if (rs >= 0) {
+	                        if (rs >= 0) {
 	                            cchar	**vpp = &pip->lfname ;
 	                            rs = proginfo_setentry(pip,vpp,tbuf,rs) ;
-				}
-			    }
-			    break ;
+	                        }
+	                    }
+	                    break ;
 	                case akoname_wf:
-			    if ((lip->wfname == NULL) && (vl > 0)) {
-				cchar	*lc = LOGCNAME ;
-				char	tbuf[MAXPATHLEN+1] ;
+	                    if ((lip->wfname == NULL) && (vl > 0)) {
+	                        cchar	*lc = LOGCNAME ;
+	                        char	tbuf[MAXPATHLEN+1] ;
 	                        rs = prsetfname(pr,tbuf,vp,vl,TRUE,lc,sn,"") ;
-				if (rs >= 0) {
+	                        if (rs >= 0) {
 	                            cchar	**vpp = &lip->wfname ;
 	                            rs = locinfo_setentry(lip,vpp,tbuf,rs) ;
-				}
-			    }
-			    break ;
+	                        }
+	                    }
+	                    break ;
 	                case akoname_log:
 	                    if (! pip->final.logprog) {
 	                        pip->f.logprog = TRUE ;
@@ -1838,7 +1838,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                            lip->have.svcs = TRUE ;
 	                            rs = locinfo_svclistadds(lip,vp,vl) ;
 	                        }
-			    }
+	                    }
 	                    break ;
 	                case akoname_daemon:
 	                    if (! pip->final.daemon) {
@@ -1857,14 +1857,14 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                    break ;
 	                case akoname_pidfile:
 	                    if (! pip->final.pidfname) {
-				if (vl > 0) {
-				    cchar	**vpp = &pip->pidfname ;
-				    pip->final.pidfname = TRUE ;
-				    pip->have.pidfname = TRUE ;
-				    rs = proginfo_setentry(pip,vpp,vp,vl) ;
-				}
-			    }
-			    break ;
+	                        if (vl > 0) {
+	                            cchar	**vpp = &pip->pidfname ;
+	                            pip->final.pidfname = TRUE ;
+	                            pip->have.pidfname = TRUE ;
+	                            rs = proginfo_setentry(pip,vpp,vp,vl) ;
+	                        }
+	                    }
+	                    break ;
 	                case akoname_to:
 	                case akoname_intrun:
 	                case akoname_intidle:
@@ -1960,11 +1960,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 
 	                c += 1 ;
 	            } else {
-			cchar	*pn = pip->progname ;
-			cchar	*fmt = "%s: invalid key=>%t<\n" ;
-			shio_printf(pip->efp,fmt,pn,kp,kl) ;
-			rs = SR_INVALID ;
-		    }
+	                cchar	*pn = pip->progname ;
+	                cchar	*fmt = "%s: invalid key=>%t<\n" ;
+	                shio_printf(pip->efp,fmt,pn,kp,kl) ;
+	                rs = SR_INVALID ;
+	            }
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -2018,7 +2018,7 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 	    LOCINFO	*lip = pip->lip ;
 	    TMTIME	t ;
 	    if ((rs = tmtime_gmtime(&t,pip->daytime)) >= 0) {
-		lip->year = (t.year + TM_YEAR_BASE) ;
+	        lip->year = (t.year + TM_YEAR_BASE) ;
 	        rs = locinfo_cookbegin(lip) ;
 	    }
 	}
@@ -2095,16 +2095,16 @@ static int procourconf_begin(PROGINFO *pip,PARAMOPT *app,cchar *cfname)
 	    if ((rs = config_start(csp,pip,app,cfname)) >= 0) {
 	        LOCINFO	*lip = pip->lip ;
 	        if (lip->copyright == NULL) {
-		    cchar	*c = COPYRIGHT ;
-		    if ((rs = locinfo_copyright(lip,c,-1)) >= 0) {
-		        if (lip->webmaster == NULL) {
-			    lip->webmaster = WEBMASTER ;
-		        }
-		    }
+	            cchar	*c = COPYRIGHT ;
+	            if ((rs = locinfo_copyright(lip,c,-1)) >= 0) {
+	                if (lip->webmaster == NULL) {
+	                    lip->webmaster = WEBMASTER ;
+	                }
+	            }
 	        }
-		if (rs < 0) {
-		    config_finish(csp) ;
-		}
+	        if (rs < 0) {
+	            config_finish(csp) ;
+	        }
 	    } /* end if (config_start) */
 	    if (rs < 0) {
 	        uc_free(p) ;
@@ -2274,8 +2274,8 @@ static int procpidfname(PROGINFO *pip)
 	        USTAT	sb ;
 	        if ((rs = uc_stat(rundname,&sb)) >= 0) {
 	            if (! S_ISDIR(sb.st_mode)) {
-			rs = SR_NOTDIR ;
-		    }
+	                rs = SR_NOTDIR ;
+	            }
 	        } else if (rs == SR_NOENT) {
 	            rs = mkdirs(rundname,0777) ;
 	        }
@@ -2286,7 +2286,7 @@ static int procpidfname(PROGINFO *pip)
 	            pfp = tmpfname ;
 	            rs = mkpath2(tmpfname,rundname,cname) ;
 	            pfl = rs ;
-		}
+	        }
 	    }
 
 	} /* end if (creating a default PID file-name) */
@@ -2406,7 +2406,7 @@ cchar		*afn ;
 	            rs = shio_seek(ofp,o,SEEK_SET) ;
 	        } else {
 	            rs = shio_seek(ofp,0L,SEEK_END) ;
-		}
+	        }
 	    } /* end if (stat) */
 
 #ifdef	COMMENT
@@ -2429,13 +2429,13 @@ cchar		*afn ;
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
 	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
-	            cp = aip->argv[ai] ;
-			if (cp[0] != '\0') {
-	            	    pan += 1 ;
-	            	    rs = procfile(pip,ofp,cp) ;
-	            	    wlen += rs ;
-			}
-		    }
+	                cp = aip->argv[ai] ;
+	                if (cp[0] != '\0') {
+	                    pan += 1 ;
+	                    rs = procfile(pip,ofp,cp) ;
+	                    wlen += rs ;
+	                }
+	            }
 
 	            if (rs >= 0) rs = lib_sigterm() ;
 	            if (rs >= 0) rs = lib_sigintr() ;
@@ -2461,11 +2461,11 @@ cchar		*afn ;
 	                cp = lbuf ;
 	                cl = len ;
 
-			if (cl > 0) {
+	                if (cl > 0) {
 	                    pan += 1 ;
 	                    rs = procfile(pip,ofp,cp) ;
 	                    wlen += rs ;
-			}
+	                }
 
 	                if (rs >= 0) rs = lib_sigterm() ;
 	                if (rs >= 0) rs = lib_sigintr() ;
@@ -2474,7 +2474,7 @@ cchar		*afn ;
 
 	            shio_close(afp) ;
 	        } else {
-		    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	            fmt = "%s: inaccessible argument-list (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
@@ -2612,7 +2612,7 @@ static int procmntcheck(PROGINFO *pip)
 	            rs = sperm(&pip->id,&usb,W_OK) ;
 	        } else {
 	            rs = SR_BUSY ;
-		}
+	        }
 	        if (rs < 0) {
 	            if (! pip->f.quiet) {
 	                fmt = "%s: inaccessible mount point (%d)\n" ;
@@ -2659,8 +2659,8 @@ static int procbacks(PROGINFO *pip)
 	    }
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("b_homepage/procbacks: ebuf=%t\n",ebuf,el) ;
+	    if (DEBUGLEVEL(3))
+	        debugprintf("b_homepage/procbacks: ebuf=%t\n",ebuf,el) ;
 #endif
 
 	    if ((rs = prgetprogpath(pip->pr,pbuf,ebuf,el)) > 0) {
@@ -2691,8 +2691,8 @@ static int procbacks(PROGINFO *pip)
 	        av[i++] = NULL ;
 	        rs = procbacker(pip,pf,av) ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("b_homepage/procbacks: procbacker() rs=%d\n",rs) ;
+	        if (DEBUGLEVEL(3))
+	            debugprintf("b_homepage/procbacks: procbacker() rs=%d\n",rs) ;
 #endif
 	    } /* end if (ok) */
 	} /* end if (procexecname) */
@@ -2727,10 +2727,10 @@ static int procbacker(PROGINFO *pip,cchar *pf,cchar **av)
 	        spawner_setsid(&s) ;
 	        if (pip->uid != pip->euid) {
 	            spawner_seteuid(&s,pip->uid) ;
-		}
+	        }
 	        if (pip->gid != pip->egid) {
 	            spawner_setegid(&s,pip->gid) ;
-		}
+	        }
 	        for (i = 0 ; i < 2 ; i += 1) {
 	            spawner_fdclose(&s,i) ;
 	        }
@@ -3052,9 +3052,9 @@ static int procdaemoner(PROGINFO *pip)
 	    if ((rs = procpage_make(pip,tbuf)) >= 0) {
 	        clen = rs ;
 	        rs = u_rename(tbuf,dbuf) ;
-		if (rs < 0) {
-		    uc_unlink(tbuf) ;
-		}
+	        if (rs < 0) {
+	            uc_unlink(tbuf) ;
+	        }
 	    } /* end if (procpage_make) */
 	} /* end if (mkpath) */
 	return (rs >= 0) ? clen : rs ;
@@ -3221,7 +3221,7 @@ static int procpage_begin(PROGINFO *pip,char *dbuf)
 #if	CF_DEBUG
 	                    if (DEBUGLEVEL(4)) {
 	                        debugprintf("procpage_begin: "
-					"procpage_make() rs=%d\n", rs) ;
+	                            "procpage_make() rs=%d\n", rs) ;
 	                        debugprintf("procpage_begin: o=%s\n",tbuf) ;
 	                        debugprintf("procpage_begin: n=%s\n",dbuf) ;
 	                    }
@@ -3231,7 +3231,7 @@ static int procpage_begin(PROGINFO *pip,char *dbuf)
 #if	CF_DEBUG
 	                    if (DEBUGLEVEL(4))
 	                        debugprintf("procpage_begin: "
-					"u_rename() rs=%d\n",rs) ;
+	                            "u_rename() rs=%d\n",rs) ;
 #endif
 	                }
 	            } else if ((rs = sperm(&pip->id,&sb,am)) == SR_ACCESS) {
@@ -3306,10 +3306,10 @@ static int procpage_make(PROGINFO *pip,char *tbuf)
 	        if ((rs = mktmpfile(tbuf,om,template)) >= 0) {
 	            rs = procdoc(pip,tbuf) ;
 	            clen = rs ;
-		    if (rs < 0) {
-			uc_unlink(tbuf) ;
-			tbuf[0] = '\0' ;
-		    }
+	            if (rs < 0) {
+	                uc_unlink(tbuf) ;
+	                tbuf[0] = '\0' ;
+	            }
 	        } /* end if (mktmpfile) */
 	    } /* end if (mkpath) */
 	    rs1 = locinfo_gatherend(lip) ;
@@ -3361,9 +3361,9 @@ static int procdoc(PROGINFO *pip,cchar *ofn)
 	        } /* end if (htm-head) */
 	        if (rs >= 0) {
 	            if ((rs = htm_bodybegin(&h,NULL)) >= 0) {
-			{
+	                {
 	                    rs = procdocbody(pip,&h) ;
-			}
+	                }
 	                rs1 = htm_bodyend(&h) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (htm-body) */
@@ -3476,7 +3476,7 @@ static int procdocbodyhdrfile(PROGINFO *pip,char *hbuf,int hlen,cchar *fn)
 	            len = cl ;
 	        } else {
 	            len = 0 ;
-		}
+	        }
 	        if (len > 0) break ;
 	    } /* end while */
 	    rs1 = bclose(hfp) ;
@@ -3567,33 +3567,33 @@ static int procdocbodyfooterleft(PROGINFO *pip,HTM *hdp)
 	if ((rs = htm_tagbegin(hdp,"div","left",NULL,NULL)) >= 0) {
 	    LOCINFO	*lip = pip->lip ;
 	    if ((rs = htm_tagbegin(hdp,"p","center",NULL,NULL)) >= 0) {
-		const int	hlen = (strlen(lip->webmaster)+10) ;
+	        const int	hlen = (strlen(lip->webmaster)+10) ;
 	        cchar		*n = NULL ;
 	        cchar		*class = "center" ;
 	        cchar		*title = lip->webmaster ;
-		char		*hbuf ;
-		if ((rs = uc_malloc((hlen+1),&hbuf)) >= 0) {
+	        char		*hbuf ;
+	        if ((rs = uc_malloc((hlen+1),&hbuf)) >= 0) {
 	            cchar	*href = hbuf ;
-		    strdcpy2(hbuf,hlen,"mailto:",title) ;
+	            strdcpy2(hbuf,hlen,"mailto:",title) ;
 	            if ((rs = htm_abegin(hdp,class,n,href,title)) >= 0) {
-		        {
+	                {
 	                    rs = htm_printline(hdp,"webmaster",-1) ;
-		        }
+	                }
 	                rs1 = htm_aend(hdp) ;
 	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (htm-a) */
-		    uc_free(hbuf) ;
-		} /* end if (m-a-f) */
+	            uc_free(hbuf) ;
+	        } /* end if (m-a-f) */
 	        rs1 = htm_tagend(hdp,"p") ;
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (htm-p) */
 	    if (rs >= 0) {
 	        if ((rs = htm_tagbegin(hdp,"p","center",NULL,NULL)) >= 0) {
-		    LOCINFO	*lip = pip->lip ;
-		    {
+	            LOCINFO	*lip = pip->lip ;
+	            {
 	                cchar	*c = lip->copyright ;
 	                rs = htm_printline(hdp,c,-1) ;
-		    }
+	            }
 	            rs1 = htm_tagend(hdp,"p") ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (htm-tag) */
@@ -3634,7 +3634,7 @@ static int procdocbodymain_svcs(PROGINFO *pip,HTM *hdp)
 {
 	int		rs ;
 
-	    rs = procdocbodymain_svcprint(pip,hdp) ;
+	rs = procdocbodymain_svcprint(pip,hdp) ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -3681,7 +3681,7 @@ static int procdocbodymain_svcprint(PROGINFO *pip,HTM *hdp)
 
 
 static int procdocbodymain_svcer(PROGINFO *pip,HTM *hdp,GATHER *glp,
-		SVCFILE_ENT *sep)
+SVCFILE_ENT *sep)
 {
 	int		rs ;
 	cchar		*hp ;
@@ -3704,23 +3704,23 @@ static int procdocbodymain_svcer(PROGINFO *pip,HTM *hdp,GATHER *glp,
 	    cchar	*vp ;
 	    if ((rs = svcent_getval(sep,k,&vp)) > 0) {
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("procdocbodymain_svcer: include\n") ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("procdocbodymain_svcer: include\n") ;
 #endif
-	            rs = procdocbodymain_svcerinc(pip,hdp,sep) ;
-	        } else if ((rs = svckv_isfile(kv,n,&vp)) > 0) {
+	        rs = procdocbodymain_svcerinc(pip,hdp,sep) ;
+	    } else if ((rs = svckv_isfile(kv,n,&vp)) > 0) {
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("procdocbodymain_svcer: isfile\n") ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("procdocbodymain_svcer: isfile\n") ;
 #endif
-	            rs = procdocbodymain_svcerfile(pip,hdp,glp,sep) ;
-	        } else if ((rs = svckv_isprog(kv,n,&vp)) > 0) {
-	            rs = 2 ;
+	        rs = procdocbodymain_svcerfile(pip,hdp,glp,sep) ;
+	    } else if ((rs = svckv_isprog(kv,n,&vp)) > 0) {
+	        rs = 2 ;
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("procdocbodymain_svcer: isexec\n") ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("procdocbodymain_svcer: isexec\n") ;
 #endif
-	        } /* end if (alternatives) */
+	    } /* end if (alternatives) */
 	} /* end if (svckv) */
 
 	return rs ;
@@ -3729,7 +3729,7 @@ static int procdocbodymain_svcer(PROGINFO *pip,HTM *hdp,GATHER *glp,
 
 
 static int procdocbodymain_svcerhdr(PROGINFO *pip,HTM *hdp,
-		SVCFILE_ENT *sep)
+SVCFILE_ENT *sep)
 {
 	int		rs ;
 	int		rs1 ;
@@ -3739,11 +3739,11 @@ static int procdocbodymain_svcerhdr(PROGINFO *pip,HTM *hdp,
 	if ((rs = svcent_getdeval(sep,"h",&vp)) > 0) {
 	    vl = rs ;
 	    if ((rs = htm_tagbegin(hdp,"h3",NULL,NULL,NULL)) >= 0) {
-		{
-		    rs = htm_printline(hdp,vp,vl) ;
-		}
-		rs1 = htm_tagend(hdp,"h3") ;
-		if (rs >= 0) rs = rs1 ;
+	        {
+	            rs = htm_printline(hdp,vp,vl) ;
+	        }
+	        rs1 = htm_tagend(hdp,"h3") ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (htm-h3) */
 	} /* end if (svcent_getdeval) */
 	return rs ;
@@ -3752,7 +3752,7 @@ static int procdocbodymain_svcerhdr(PROGINFO *pip,HTM *hdp,
 
 
 static int procdocbodymain_svcerinc(PROGINFO *pip,HTM *hdp,
-		SVCFILE_ENT *sep)
+SVCFILE_ENT *sep)
 {
 	int		rs ;
 	cchar		*k = "include" ;
@@ -3769,34 +3769,34 @@ static int procdocbodymain_svcerinc(PROGINFO *pip,HTM *hdp,
 
 
 static int procdocbodymain_svcerincer(PROGINFO *pip,HTM *hdp,
-		SVCFILE_ENT *sep,cchar *ibuf)
+SVCFILE_ENT *sep,cchar *ibuf)
 {
 	bfile		ifile, *ifp = &ifile ;
 	int		rs ;
 	int		rs1 ;
-	    if ((rs = bopen(ifp,ibuf,"r",0666)) >= 0) {
-		if ((rs = bsize(ifp)) > 0) {
-	            if ((rs = procdocbodymain_svcerhdr(pip,hdp,sep)) >= 0) {
-	        	const int	llen = LINEBUFLEN ;
-	        	char		lbuf[LINEBUFLEN+1] ;
-	        	while ((rs = breadline(ifp,lbuf,llen)) > 0) {
-	            	    rs = htm_write(hdp,lbuf,rs) ;
-	            	    if (rs < 0) break ;
-	        	} /* end while */
-		    } /* end if (procdocbodymain_svcerhdr) */
-		} /* end if (bsize) */
-	        rs1 = bclose(ifp) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } else if (isNotPresent(rs)) {
-	        rs = SR_OK ;
-	    }
+	if ((rs = bopen(ifp,ibuf,"r",0666)) >= 0) {
+	    if ((rs = bsize(ifp)) > 0) {
+	        if ((rs = procdocbodymain_svcerhdr(pip,hdp,sep)) >= 0) {
+	            const int	llen = LINEBUFLEN ;
+	            char		lbuf[LINEBUFLEN+1] ;
+	            while ((rs = breadline(ifp,lbuf,llen)) > 0) {
+	                rs = htm_write(hdp,lbuf,rs) ;
+	                if (rs < 0) break ;
+	            } /* end while */
+	        } /* end if (procdocbodymain_svcerhdr) */
+	    } /* end if (bsize) */
+	    rs1 = bclose(ifp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	}
 	return rs ;
 }
 /* end subroutine (procdocbodymain_svcerincer) */
 
 
 static int procdocbodymain_svcerfile(PROGINFO *pip,HTM *hdp,GATHER *glp,
-		SVCFILE_ENT *sep)
+SVCFILE_ENT *sep)
 {
 	int		rs ;
 	cchar		*svc = sep->svc ;
@@ -3809,11 +3809,11 @@ static int procdocbodymain_svcerfile(PROGINFO *pip,HTM *hdp,GATHER *glp,
 	if ((rs = gather_getlines(glp,svc)) > 0) {
 	    const int	nl = rs ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	    debugprintf("procdocbodymain_svcerfile: nl=%u\n",nl) ;
+	    if (DEBUGLEVEL(5))
+	        debugprintf("procdocbodymain_svcerfile: nl=%u\n",nl) ;
 #endif
 	    if ((rs = procdocbodymain_svcerhdr(pip,hdp,sep)) >= 0) {
-		    rs = procdocbodymain_svcerfiler(pip,hdp,glp,sep,nl) ;
+	        rs = procdocbodymain_svcerfiler(pip,hdp,glp,sep,nl) ;
 	    }
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(5))
@@ -3839,7 +3839,7 @@ static int procdocbodymain_svcerfile(PROGINFO *pip,HTM *hdp,GATHER *glp,
 
 
 static int procdocbodymain_svcerfiler(PROGINFO *pip,HTM *hdp,GATHER *glp,
-		SVCFILE_ENT *sep,int nl)
+SVCFILE_ENT *sep,int nl)
 {
 	const int	n = sep->nkeys ;
 	int		rs = SR_OK ;
@@ -3847,73 +3847,73 @@ static int procdocbodymain_svcerfiler(PROGINFO *pip,HTM *hdp,GATHER *glp,
 	int		vl ;
 	cchar	*vp ;
 	if (pip == NULL) return SR_FAULT ;
-	    if ((vl = svckv_dequote(sep->keyvals,n,"h",&vp)) > 0) {
-	        NULSTR	ts ;
-	        cchar	*t ;
+	if ((vl = svckv_dequote(sep->keyvals,n,"h",&vp)) > 0) {
+	    NULSTR	ts ;
+	    cchar	*t ;
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(5))
-	            debugprintf("procdocbodymain_svcerfile: t=>%t<\n",vp,vl) ;
+	    if (DEBUGLEVEL(5))
+	        debugprintf("procdocbodymain_svcerfile: t=>%t<\n",vp,vl) ;
 #endif
-	        if ((rs = nulstr_start(&ts,vp,vl,&t)) >= 0) {
-	            cchar	*svc = sep->svc ;
-	            cchar	*dp ;
-	            if ((rs = gather_getbuf(glp,svc,&dp)) >= 0) {
-	                const int	dl = rs ;
-	                const int	r = (nl+1) ;
-	                const int	c = COLUMNS ;
-	                int		i = 0 ;
-	                cchar		*class = NULL ;
-	                cchar		*id = NULL ;
-	                cchar		*kv[2][2] ;
-	                kv[i][0] = "readonly" ;
-	                kv[i][1] = NULL ;
-	                i += 1 ;
-	                kv[i][0] = NULL ;
-	                kv[i][1] = NULL ;
-	                if ((rs = htm_textbegin(hdp,class,id,t,r,c,kv)) >= 0) {
+	    if ((rs = nulstr_start(&ts,vp,vl,&t)) >= 0) {
+	        cchar	*svc = sep->svc ;
+	        cchar	*dp ;
+	        if ((rs = gather_getbuf(glp,svc,&dp)) >= 0) {
+	            const int	dl = rs ;
+	            const int	r = (nl+1) ;
+	            const int	c = COLUMNS ;
+	            int		i = 0 ;
+	            cchar		*class = NULL ;
+	            cchar		*id = NULL ;
+	            cchar		*kv[2][2] ;
+	            kv[i][0] = "readonly" ;
+	            kv[i][1] = NULL ;
+	            i += 1 ;
+	            kv[i][0] = NULL ;
+	            kv[i][1] = NULL ;
+	            if ((rs = htm_textbegin(hdp,class,id,t,r,c,kv)) >= 0) {
 
-#if	CF_DEBUG
-	                    if (DEBUGLEVEL(5))
-	                        debugprintf("procdocbodymain_svcerfile: "
-	                            "htm_write()\n") ;
-#endif
-
-	                    if (dl > 0) {
-	                        if ((rs = htm_write(hdp,dp,dl)) >= 0) {
-	                            if (dp[dl-1] != '\n') {
-	                                rs = htm_putc(hdp,CH_NL) ;
-	                            }
-	                        }
-	                    } /* end if (positive) */
-
-#if	CF_DEBUG
-	                    if (DEBUGLEVEL(5))
-	                        debugprintf("procdocbodymain_svcerfile: "
-	                            "htm_write() rs=%d\n",rs) ;
-#endif
-	                    rs1 = htm_textend(hdp) ;
-	                    if (rs >= 0) rs = rs1 ;
-	                } /* end if (htm-text) */
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(5))
 	                    debugprintf("procdocbodymain_svcerfile: "
-	                        "htm-out rs=%d\n",rs) ;
+	                        "htm_write()\n") ;
 #endif
-	            } /* end if (gather_getbuf) */
+
+	                if (dl > 0) {
+	                    if ((rs = htm_write(hdp,dp,dl)) >= 0) {
+	                        if (dp[dl-1] != '\n') {
+	                            rs = htm_putc(hdp,CH_NL) ;
+	                        }
+	                    }
+	                } /* end if (positive) */
+
+#if	CF_DEBUG
+	                if (DEBUGLEVEL(5))
+	                    debugprintf("procdocbodymain_svcerfile: "
+	                        "htm_write() rs=%d\n",rs) ;
+#endif
+	                rs1 = htm_textend(hdp) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (htm-text) */
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(5))
 	                debugprintf("procdocbodymain_svcerfile: "
-	                    "gather rs=%d\n",rs) ;
+	                    "htm-out rs=%d\n",rs) ;
 #endif
-	            rs1 = nulstr_finish(&ts) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (nulstr) */
+	        } /* end if (gather_getbuf) */
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(5))
 	            debugprintf("procdocbodymain_svcerfile: "
-	                "nulstr-out rs=%d\n",rs) ;
+	                "gather rs=%d\n",rs) ;
 #endif
-	    } /* end if (svckv) */
+	        rs1 = nulstr_finish(&ts) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (nulstr) */
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(5))
+	        debugprintf("procdocbodymain_svcerfile: "
+	            "nulstr-out rs=%d\n",rs) ;
+#endif
+	} /* end if (svckv) */
 	return rs ;
 }
 /* end subroutine (procdocbodymain_svcerfiler) */
@@ -4000,7 +4000,7 @@ static int proclockprint(PROGINFO *pip,cchar *lfname,LFM_CHECK *lcp)
 
 	if (! lip->f.quietlock) {
 	    if ((pip->debuglevel > 0) && (pip->efp != NULL)) {
-		cchar	*pn = pip->progname ;
+	        cchar	*pn = pip->progname ;
 	        char	tbuf[TIMEBUFLEN + 1] ;
 
 	        timestr_logz(pip->daytime,tbuf) ;
@@ -4009,17 +4009,17 @@ static int proclockprint(PROGINFO *pip,cchar *lfname,LFM_CHECK *lcp)
 	        shio_printf(pip->efp,"%s: other_pid=%d\n",pn,lcp->pid) ;
 
 	        if (lcp->nodename != NULL) {
-		    cchar	*nn = lcp->nodename ;
+	            cchar	*nn = lcp->nodename ;
 	            shio_printf(pip->efp,"%s: other_node=%s\n",pn,nn) ;
 	        }
 
 	        if (lcp->username != NULL) {
-		    cchar	*un = lcp->username ;
+	            cchar	*un = lcp->username ;
 	            rs = shio_printf(pip->efp,"%s: other_user=%s\n",pn,un) ;
 	        }
 
 	        if (lcp->banner != NULL) {
-		    cchar	*bn = lcp->banner ;
+	            cchar	*bn = lcp->banner ;
 	            shio_printf(pip->efp,"%s: other_banner=>%s<\n",pn,bn) ;
 	        }
 
@@ -4282,7 +4282,7 @@ static int gather_getbuf(GATHER *glp,cchar *svc,cchar **rpp)
 
 
 static int filer_start(FILER *fep,PROGINFO *pip,cchar *tt,int cols,cchar *svc,
-		cchar *fp,int fl)
+cchar *fp,int fl)
 {
 	const int	to = 30 ;
 	int		rs ;
@@ -4425,7 +4425,7 @@ static int filer_stackfill(FILER *fep)
 	    int		i ;
 	    il = (fep->ssize >> shift) ;
 	    for (i = 0 ; i < il ; i += 1) {
-		*ip++ = pattern ;
+	        *ip++ = pattern ;
 	    }
 	} /* end if (stackcheck) */
 	return rs ;
@@ -4658,7 +4658,7 @@ static int filer_workreadterm(FILER *fep,int fd)
 
 
 static int filer_workreadtermline(FILER *fep,TERMOUT *top,char *rp,
-		cchar *lbuf,int len)
+cchar *lbuf,int len)
 {
 	int		rlen = (fep->dsize-1) ;
 	int		rs ;
@@ -4725,12 +4725,12 @@ static int filer_getlines(FILER *fep)
 	            rs = fep->lines ;
 	        } else {
 	            rs = trs ;
-		    fmt = "%s: worker failure svc=%s (%d)\n" ;
-		    shio_printf(pip->efp,fmt,pn,fep->svc,rs) ;
-		}
+	            fmt = "%s: worker failure svc=%s (%d)\n" ;
+	            shio_printf(pip->efp,fmt,pn,fep->svc,rs) ;
+	        }
 	    } else {
-		fmt = "%s: join failure svc=%s (%d)\n" ;
-		shio_printf(pip->efp,fmt,pn,fep->svc,rs) ;
+	        fmt = "%s: join failure svc=%s (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,fep->svc,rs) ;
 	    } /* end if (pthead-join) */
 #if	CF_DEBUGS
 	    debugprintf("b_homepage/filer_getlines: uptjoin-out rs=%d\n",rs) ;
@@ -4834,7 +4834,7 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(slp,*epp) ;
+	        oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
@@ -5014,13 +5014,13 @@ static int locinfo_svclistadds(LOCINFO *lip,cchar *sp,int sl)
 	if (pip == NULL) return SR_FAULT ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("b_homepage/locinfo_svclistadds: s=>%t<\n",sp,sl) ;
+	    debugprintf("b_homepage/locinfo_svclistadds: s=>%t<\n",sp,sl) ;
 #endif
 	while ((tp = strnchr(sp,sl,',')) != NULL) {
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
 	        debugprintf("b_homepage/locinfo_svclistadds: svc=>%t<\n",
-		    sp,(tp-sp)) ;
+	            sp,(tp-sp)) ;
 #endif
 	    if ((cl = sfshrink(sp,(tp-sp),&cp)) > 0) {
 	        rs = locinfo_svclistadd(lip,cp,cl) ;
@@ -5038,7 +5038,7 @@ static int locinfo_svclistadds(LOCINFO *lip,cchar *sp,int sl)
 	}
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("b_homepage/locinfo_svclistadds: ret rs=%d c=%u\n",rs,c) ;
+	    debugprintf("b_homepage/locinfo_svclistadds: ret rs=%d c=%u\n",rs,c) ;
 #endif
 	return (rs >= 0) ? c : rs ;
 }
@@ -5065,7 +5065,8 @@ static int locinfo_svclistadd(LOCINFO *lip,cchar *vp,int vl)
 	if (rs >= 0) {
 	    VECPSTR	*slp = lip->svcs ;
 	    int		sl ;
-	    cchar	st[] = { CH_FS, 0 } ;
+	    cchar	st[] = { 
+	        CH_FS, 0 		} ;
 	    cchar	*sp ;
 	    if (vl < 0) vl = strlen(vp) ;
 	    while (vl > 0) {
@@ -5075,7 +5076,7 @@ static int locinfo_svclistadd(LOCINFO *lip,cchar *vp,int vl)
 	            debugprintf("main/locinfo_svclistadd: s=>%t<\n",sp,sl) ;
 #endif
 	        if (sl > 0) {
-	   	    lip->have.svcs = TRUE ;
+	            lip->have.svcs = TRUE ;
 	            rs = vecpstr_adduniq(slp,sp,sl) ;
 	            if (rs < INT_MAX) c += 1 ;
 	        }
@@ -5162,12 +5163,12 @@ static int locinfo_copyright(LOCINFO *lip,cchar *vp,int vl)
 	    const int	elen = (vl+MAXNAMELEN) ;
 	    char	*ebuf ;
 	    if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
-		const int	w = FALSE ;
-		if ((rs = locinfo_cookexp(lip,w,ebuf,elen,vp,vl)) >= 0) {
-		    cchar	**vpp = &lip->copyright ;
-		    rs = locinfo_setentry(lip,vpp,ebuf,rs) ;
-		}
-		uc_free(ebuf) ;
+	        const int	w = FALSE ;
+	        if ((rs = locinfo_cookexp(lip,w,ebuf,elen,vp,vl)) >= 0) {
+	            cchar	**vpp = &lip->copyright ;
+	            rs = locinfo_setentry(lip,vpp,ebuf,rs) ;
+	        }
+	        uc_free(ebuf) ;
 	    } /* end if (m-a-f) */
 	} /* end if (needed) */
 
@@ -5192,7 +5193,7 @@ static int locinfo_defs(LOCINFO *lip)
 	            rs = locinfo_setentry(lip,vpp,tbuf,tl) ;
 	        } else if (isNotPresent(rs)) {
 	            rs = SR_OK ;
-		}
+	        }
 	    } /* end if (mkourname) */
 	}
 
@@ -5238,8 +5239,8 @@ static int locinfo_defsvc(LOCINFO *lip)
 	        if ((rs = perm(tbuf,-1,-1,NULL,R_OK)) >= 0) {
 	            cchar	**vpp = &lip->sfname ;
 	            rs = locinfo_setentry(lip,vpp,tbuf,tl) ;
-		} else if (isNotAccess(rs)) {
-		    rs = SR_OK ;
+	        } else if (isNotAccess(rs)) {
+	            rs = SR_OK ;
 	        }
 	    }
 	}
@@ -5591,8 +5592,8 @@ static int locinfo_lockbeginone(LOCINFO *lip,LFM *lfp,cchar *lockfname)
 	        USTAT	usb ;
 	        if ((rs = u_stat(tmpfname,&usb)) >= 0) {
 	            if (! S_ISDIR(usb.st_mode)) {
-			rs = SR_NOTDIR ;
-		    }
+	                rs = SR_NOTDIR ;
+	            }
 	        } else if (rs == SR_NOENT) {
 	            rs = mkdirs(tmpfname,dmode) ;
 	        }
@@ -5651,12 +5652,13 @@ int locinfo_tmpourdname(LOCINFO *lip)
 	        cchar	*sn = pip->searchname ;
 	        cchar	*un = pip->username ;
 	        cchar	*rn = pip->rootname ;
-	        char	tmpourdname[MAXPATHLEN + 1] = { 0 } ;
+	        char	tmpourdname[MAXPATHLEN + 1] = { 
+	            0 			} ;
 	        f_runasprn = (strcmp(un,rn) == 0) ;
 	        if (! f_runasprn) dm = 0777 ;
 	        rs1 = SR_OK ;
 	        if ((rs = mkpath3(tmpourdname,tn,rn,sn)) >= 0) {
-	    	    USTAT	usb ;
+	            USTAT	usb ;
 	            pl = rs ;
 	            if ((rs1 = u_stat(tmpourdname,&usb)) >= 0) {
 	                if (S_ISDIR(usb.st_mode)) {
@@ -5665,7 +5667,7 @@ int locinfo_tmpourdname(LOCINFO *lip)
 	                    rs = u_access(tmpourdname,am) ;
 	                } else {
 	                    rs = SR_NOTDIR ;
-			}
+	                }
 	            }
 	            if (rs >= 0) {
 	                if (rs1 == SR_NOENT) {
@@ -5675,12 +5677,12 @@ int locinfo_tmpourdname(LOCINFO *lip)
 	                }
 	                if ((rs >= 0) && f_needmode) {
 	                    rs = uc_minmod(tmpourdname,dm) ;
-			}
+	                }
 
 #if	CF_TMPGROUP
 	                if ((rs >= 0) && f_created) {
-			    rs = locinfo_tmpgroup(lip,tmpourdname) ;
-			}
+	                    rs = locinfo_tmpgroup(lip,tmpourdname) ;
+	                }
 #endif /* CF_TMPGROUP */
 
 	                if (rs >= 0) {
@@ -5691,11 +5693,11 @@ int locinfo_tmpourdname(LOCINFO *lip)
 	            } /* end if (ok) */
 	        } /* end if (mkpath) */
 	    } else {
-		cchar	*pn = pip->progname ;
-		cchar	*fmt ;
-		fmt = "%s: TMPDIR access problem (%d)\n" ;
+	        cchar	*pn = pip->progname ;
+	        cchar	*fmt ;
+	        fmt = "%s: TMPDIR access problem (%d)\n" ;
 	        shio_printf(pip->efp,fmt,pn,rs) ;
-		fmt = "%s: tmpdir=%s\n" ;
+	        fmt = "%s: tmpdir=%s\n" ;
 	        shio_printf(pip->efp,fmt,pn,lip->tmpourdname) ;
 	        if (pip->open.logprog) {
 	            proglog_printf(pip,"TMPDIR access problem (%d)\n",rs) ;
@@ -5723,21 +5725,21 @@ static int locinfo_tmpgroup(LOCINFO *lip,cchar *tmpourdname)
 	    cchar	*rn = pip->rootname ;
 	    cchar	*un = pip->username ;
 	    if ((rs = locinfo_gidrootname(lip,&pw,pwbuf,pwlen)) >= 0) {
-		const gid_t	gid_prn = lip->gid_rootname ;
+	        const gid_t	gid_prn = lip->gid_rootname ;
 	        const int	f_runasprn = (strcmp(un,rn) == 0) ;
-		if (! f_runasprn) {
-		    uid_t	uid_prn = pip->euid ;
-	   	    if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
-			uid_prn = pw.pw_uid ;
-		    } else if (isNotPresent(rs)) {
-			rs = SR_OK ;
-		    }
-		    if (rs >= 0) {
-	  	        rs = u_chown(tmpourdname,uid_prn,gid_prn) ;
-		    }
-		} else {
-		    rs = u_chown(tmpourdname,-1,gid_prn) ;
-		}
+	        if (! f_runasprn) {
+	            uid_t	uid_prn = pip->euid ;
+	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
+	                uid_prn = pw.pw_uid ;
+	            } else if (isNotPresent(rs)) {
+	                rs = SR_OK ;
+	            }
+	            if (rs >= 0) {
+	                rs = u_chown(tmpourdname,uid_prn,gid_prn) ;
+	            }
+	        } else {
+	            rs = u_chown(tmpourdname,-1,gid_prn) ;
+	        }
 	    } /* end if (locinfo_gidrootname) */
 	    uc_free(pwbuf) ;
 	} /* end if (m-a-f) */
@@ -5898,18 +5900,18 @@ static int locinfo_qs(LOCINFO *lip,cchar *qs)
 	    QUERYSTRING		ps ;
 	    QUERYSTRING_CUR	cur ;
 	    if ((rs = querystring_start(&ps,qs,-1)) >= 0) {
-		if ((rs = querystring_curbegin(&ps,&cur)) >= 0) {
-		    cchar	*kp, *vp ;
-	  	    while ((rs1 = querystring_enum(&ps,&cur,&kp,&vp)) >= 0) {
-			if (vp == NULL) break ; /* lint */
+	        if ((rs = querystring_curbegin(&ps,&cur)) >= 0) {
+	            cchar	*kp, *vp ;
+	            while ((rs1 = querystring_enum(&ps,&cur,&kp,&vp)) >= 0) {
+	                if (vp == NULL) break ; /* lint */
 	                rs = locinfo_svclistadd(lip,kp,-1) ;
-		        c += rs ;
+	                c += rs ;
 	                if (rs < 0) break ;
-		    } /* end while */
-		    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
-		} /* end if (querystring-cur) */
-		rs1 = querystring_finish(&ps) ;
-		if (rs >= 0) rs = rs1 ;
+	            } /* end while */
+	            if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	        } /* end if (querystring-cur) */
+	        rs1 = querystring_finish(&ps) ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (querystring) */
 	    lip->final.svcs = (c > 0) ;
 	} /* end if (allowed) */
@@ -5979,15 +5981,15 @@ static int locinfo_cookbegin(LOCINFO *lip)
 	        case 'U':
 	            vp = pip->username ;
 	            break ;
-		case 'Y':
+	        case 'Y':
 	            {
-			const int	ylen = USERNAMELEN ;
+	                const int	ylen = USERNAMELEN ;
 	                char		ybuf[USERNAMELEN+1] ;
 	                rs = ctdeci(ybuf,ylen,lip->year) ;
 	                vl = rs ;
 	                vp = ybuf ;
 	            }
-		    break ;
+	            break ;
 	        } /* end switch */
 	        if ((rs >= 0) && (vp != NULL)) {
 	            kbuf[0] = kch ;
@@ -6025,11 +6027,11 @@ static int locinfo_cookend(LOCINFO *lip)
 
 
 static int locinfo_cookexp(LOCINFO *lip,int w,char *ebuf,int elen,
-		cchar *vbuf,int vl)
+cchar *vbuf,int vl)
 {
 	EXPCOOK		*clp = &lip->cooks ;
 	int		rs ;
-	
+
 	rs = expcook_exp(clp,w,ebuf,elen,vbuf,vl) ;
 
 	return rs ;
@@ -6063,22 +6065,22 @@ static int config_start(CONFIG *csp,PROGINFO *pip,PARAMOPT *app,cchar *cfname)
 #endif /* COMMENT */
 
 	if ((rs = vecobj_start(&csp->files,esize,2,0)) >= 0) {
-	        if ((cfname != NULL) && (cfname[0] != '\0')) {
-	            if ((rs = config_addfile(csp,cfname)) >= 0) {
-	                rs = config_read(csp,cfname) ;
-	            }
-	        } else {
-	            cfname = CONFIGFNAME ;
-	            rs = config_load(csp,cfname) ;
+	    if ((cfname != NULL) && (cfname[0] != '\0')) {
+	        if ((rs = config_addfile(csp,cfname)) >= 0) {
+	            rs = config_read(csp,cfname) ;
 	        }
+	    } else {
+	        cfname = CONFIGFNAME ;
+	        rs = config_load(csp,cfname) ;
+	    }
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4))
-	            debugprintf("config_start: mid rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("config_start: mid rs=%d\n",rs) ;
 #endif
-	        if (rs >= 0) {
-	            csp->f_p = TRUE ;
-	            csp->magic = CONFIG_MAGIC ;
-	        }
+	    if (rs >= 0) {
+	        csp->f_p = TRUE ;
+	        csp->magic = CONFIG_MAGIC ;
+	    }
 	    if (rs < 0)
 	        vecobj_finish(&csp->files) ;
 	} /* end if (vecobj_start) */
@@ -6167,47 +6169,47 @@ static int config_check(CONFIG *csp)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("config_check: ent intconf=%u\n",lip->intconf) ;
+	    debugprintf("config_check: ent intconf=%u\n",lip->intconf) ;
 #endif
 
 	if (csp->f_p) {
-	        USTAT		sb ;
-	        VECOBJ		*flp = &csp->files ;
-	        CONFIG_FILE	*ep ;
-	        int		i ;
-		int		f = FALSE ;
-	        for (i = 0 ; vecobj_get(flp,i,&ep) >= 0 ; i += 1) {
-	            if (ep != NULL) {
-	                if ((rs = u_stat(ep->fname,&sb)) >= 0) {
-	                    if (sb.st_mtime > ep->mtime) {
-	                        ep->mtime = sb.st_mtime ;
-				f = TRUE ;
-			    }
+	    USTAT		sb ;
+	    VECOBJ		*flp = &csp->files ;
+	    CONFIG_FILE	*ep ;
+	    int		i ;
+	    int		f = FALSE ;
+	    for (i = 0 ; vecobj_get(flp,i,&ep) >= 0 ; i += 1) {
+	        if (ep != NULL) {
+	            if ((rs = u_stat(ep->fname,&sb)) >= 0) {
+	                if (sb.st_mtime > ep->mtime) {
+	                    ep->mtime = sb.st_mtime ;
+	                    f = TRUE ;
+	                }
+	            } else if (isNotPresent(rs)) {
+	                rs = SR_OK ;
+	            }
+	        } /* end if */
+	        if (f) break ;
+	        if (rs < 0) break ;
+	    } /* end for */
+	    if ((rs >= 0) && f) {
+	        if ((rs = locinfo_svclistdelall(lip)) >= 0) {
+	            cchar	*fn = ep->fname ;
+	            for (i = 0 ; vecobj_get(flp,i,&ep) >= 0 ; i += 1) {
+	                if ((rs = u_stat(fn,&sb)) >= 0) {
+	                    rs = config_read(csp,fn) ;
 	                } else if (isNotPresent(rs)) {
 	                    rs = SR_OK ;
-		        }
-	 	    } /* end if */
-		    if (f) break ;
-		    if (rs < 0) break ;
-	        } /* end for */
-	        if ((rs >= 0) && f) {
-		    if ((rs = locinfo_svclistdelall(lip)) >= 0) {
-			cchar	*fn = ep->fname ;
-		        for (i = 0 ; vecobj_get(flp,i,&ep) >= 0 ; i += 1) {
-	                    if ((rs = u_stat(fn,&sb)) >= 0) {
-	                        rs = config_read(csp,fn) ;
-	                    } else if (isNotPresent(rs)) {
-	                        rs = SR_OK ;
-		            }
-			    if (rs < 0) break ;
-		        } /* end for */
-		    } /* end if (locinfo_svclistdelall) */
-	        } /* end if */
+	                }
+	                if (rs < 0) break ;
+	            } /* end for */
+	        } /* end if (locinfo_svclistdelall) */
+	    } /* end if */
 	} /* end if (active) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("config_check: ret rs=%d\n",rs) ;
+	    debugprintf("config_check: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -6273,7 +6275,7 @@ static int config_load(CONFIG *csp,cchar *cfn)
 
 
 static int config_havefile(CONFIG *csp,vecstr *svp,char cbuf[],cchar *pr,
-		cchar *cfname)
+cchar *cfname)
 {
 	const int	clen = MAXPATHLEN ;
 	int		rs ;
@@ -6416,7 +6418,7 @@ static int config_reader(CONFIG *csp,PARAMFILE *pfp)
 	                    break ;
 	                case cparam_logfile:
 	                    if (! pip->final.lfname) {
-				cchar	*lc = LOGCNAME ;
+	                        cchar	*lc = LOGCNAME ;
 	                        cchar	*lfn = pip->lfname ;
 	                        cchar	*tfn = tbuf ;
 	                        pip->final.lfname = TRUE ;
@@ -6447,19 +6449,19 @@ static int config_reader(CONFIG *csp,PARAMFILE *pfp)
 	                    }
 	                    break ;
 	                case cparam_copyright:
-			    if (lip->copyright == NULL) {
+	                    if (lip->copyright == NULL) {
 	                        if (el > 0) {
 	                            rs = locinfo_copyright(lip,ebuf,el) ;
 	                        }
-			    }
+	                    }
 	                    break ;
 	                case cparam_webmaster:
-			    if (lip->webmaster == NULL) {
+	                    if (lip->webmaster == NULL) {
 	                        if (el > 0) {
-				    cchar	**vpp = &lip->webmaster ;
+	                            cchar	**vpp = &lip->webmaster ;
 	                            rs = locinfo_setentry(lip,vpp,ebuf,el) ;
 	                        }
-			    }
+	                    }
 	                    break ;
 	                case cparam_intrun:
 	                    if (! pip->final.intrun) {

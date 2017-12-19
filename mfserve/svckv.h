@@ -29,6 +29,7 @@ extern int	svckv_val(cchar *(*)[2],int,cchar *,cchar **) ;
 extern int	svckv_dequote(cchar *(*)[2],int,cchar *,cchar **) ;
 extern int	svckv_isfile(cchar *(*)[2],int,cchar **) ;
 extern int	svckv_ispass(cchar *(*)[2],int,cchar **) ;
+extern int	svckv_islib(cchar *(*)[2],int,cchar **) ;
 extern int	svckv_isprog(cchar *(*)[2],int,cchar **) ;
 extern int	svckv_svcopts(cchar *(*)[2],int) ;
 

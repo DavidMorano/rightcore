@@ -117,3 +117,20 @@ int svcent_getdeval(SVCENT *sep,cchar *k,cchar **rpp)
 /* end subroutine (svcent_getdeval) */
 
 
+int svcent_islib(SVCENT *sep,cchar **rpp)
+{
+	const int	n = sep->nkeys ;
+	int		vl ;
+	cchar		*(*kv)[2] = sep->keyvals ;
+	cchar		*k1 = "so" ;
+	if ((vl = svcent_getval(sep,k1,rpp)) > 0) {
+	    cchar	*dummy ;
+	    if (svckv_isprog(kv,n,&dummy) == 0) {
+		vl = 0 ;
+	    }
+	}
+	return vl ;
+}
+/* end subroutine (svcent_islib) */
+
+

@@ -83,9 +83,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* exported subroutines */
 
 
-int deffile_open(op,fname)
-DEFFILE		*op ;
-const char	fname[] ;
+int deffile_open(DEFFILE *op,cchar *fname)
 {
 	int		rs = SR_OK ;
 	int		opts ;
@@ -128,8 +126,7 @@ const char	fname[] ;
 
 
 /* free up the resources occupied by a DEFFILE list object */
-int deffile_close(op)
-DEFFILE		*op ;
+int deffile_close(DEFFILE *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -158,9 +155,7 @@ DEFFILE		*op ;
 
 
 /* cursor manipulations */
-int deffile_curbegin(op,cp)
-DEFFILE		*op ;
-DEFFILE_CUR	*cp ;
+int deffile_curbegin(DEFFILE *op,DEFFILE_CUR *cp)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -173,9 +168,7 @@ DEFFILE_CUR	*cp ;
 /* end subroutine (deffile_curbegin) */
 
 
-int deffile_curend(op,cp)
-DEFFILE		*op ;
-DEFFILE_CUR	*cp ;
+int deffile_curend(DEFFILE *op,DEFFILE_CUR *cp)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -189,10 +182,7 @@ DEFFILE_CUR	*cp ;
 
 
 /* search the parameters for a match */
-int deffile_fetch(op,key,rpp)
-DEFFILE		*op ;
-const char	key[] ;
-const char	**rpp ;
+int deffile_fetch(DEFFILE *op,cchar *key,cchar **rpp)
 {
 	int		rs ;
 	int		vl = 0 ;
@@ -221,12 +211,7 @@ const char	**rpp ;
 
 
 /* enumerate the entries */
-int deffile_enum(op,curp,kbuf,klen,rpp)
-DEFFILE		*op ;
-DEFFILE_CUR	*curp ;
-char		kbuf[] ;
-int		klen ;
-const char	**rpp ;
+int deffile_enum(DEFFILE *op,DEFFILE_CUR *curp,char *kbuf,int klen,cchar **rpp)
 {
 	int		rs ;
 	int		i ;
@@ -274,9 +259,7 @@ const char	**rpp ;
 /* end subroutine (deffile_enum) */
 
 
-int deffile_checkint(op,intcheck)
-DEFFILE		*op ;
-int		intcheck ;
+int deffile_checkint(DEFFILE *op,int intcheck)
 {
 
 	if (op == NULL) return SR_FAULT ;
@@ -291,9 +274,7 @@ int		intcheck ;
 
 
 /* check if the parameter file has changed */
-int deffile_check(op,daytime)
-DEFFILE		*op ;
-time_t		daytime ;
+int deffile_check(DEFFILE *op,time_t daytime)
 {
 	struct ustat	sb ;
 	int		rs = SR_OK ;

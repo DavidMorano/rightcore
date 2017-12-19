@@ -564,42 +564,44 @@ int paramfile_check(PARAMFILE *op,time_t dt)
 /* should we even check? */
 
 	if ((dt - op->ti_check) > op->intcheck) {
-	struct ustat	sb ;
-	PARAMFILE_FILE	*fep ;
-	int		i ;
+	    struct ustat	sb ;
+	    VECOBJ		*flp = &op->files ;
+	    PARAMFILE_FILE	*fep ;
+	    int			i ;
 
 /* check the files */
 
-	op->ti_check = dt ;
-	for (i = 0 ; vecobj_get(&op->files,i,&fep) >= 0 ; i += 1) {
-	    if (fep == NULL) continue ;
+	    op->ti_check = dt ;
+	    for (i = 0 ; vecobj_get(flp,i,&fep) >= 0 ; i += 1) {
+	        if (fep != NULL) {
 
-	    rs1 = u_stat(fep->fname,&sb) ;
-	    if ((rs1 >= 0) &&
-	        (sb.st_mtime > fep->mtime) &&
-	        ((dt - sb.st_mtime) >= to)) {
+	        rs1 = u_stat(fep->fname,&sb) ;
+	        if ((rs1 >= 0) &&
+	            (sb.st_mtime > fep->mtime) &&
+	            ((dt - sb.st_mtime) >= to)) {
 
 #if	CF_DEBUGS
-	        debugprintf("paramfile_check: file=%d changed\n",i) ;
-	        debugprintf("paramfile_check: freeing file entries\n") ;
+	            debugprintf("paramfile_check: file=%d changed\n",i) ;
+	            debugprintf("paramfile_check: freeing file entries\n") ;
 #endif
 
-	        paramfile_filedump(op,i) ;
+	            paramfile_filedump(op,i) ;
 
 #if	CF_DEBUGS
-	        debugprintf("paramfile_check: parsing the file again\n") ;
+	            debugprintf("paramfile_check: parsing the file again\n") ;
 #endif
 
-	        c_changed += 1 ;
-	        rs = paramfile_fileparse(op,i) ;
+	            c_changed += 1 ;
+	            rs = paramfile_fileparse(op,i) ;
 
 #if	CF_DEBUGS
-	        debugprintf("paramfile_check: "
+	            debugprintf("paramfile_check: "
 			"paramfile_fileparse() rs=%d\n", rs) ;
 #endif
 
-	    } /* end if */
+	        } /* end if */
 
+	    }
 	    if (rs < 0) break ;
 	} /* end for */
 

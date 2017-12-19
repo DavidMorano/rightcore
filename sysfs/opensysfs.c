@@ -157,7 +157,7 @@ static int	runsysfs(int) ;
 
 /* local variables */
 
-static const char	*dbfnames[] = { /* source database files */
+static cchar	*dbfnames[] = { /* source database files */
 	PASSWDFNAME,
 	PASSWDFNAME,
 	GROUPFNAME,
@@ -172,7 +172,7 @@ static const char	*dbfnames[] = { /* source database files */
 	NULL
 } ;
 
-static const char	*cfnames[] = {
+static cchar	*cfnames[] = {
 	OPENSYSFS_FUSERHOMES,
 	OPENSYSFS_FUSERNAMES,
 	OPENSYSFS_FGROUPNAMES,
@@ -187,25 +187,25 @@ static const char	*cfnames[] = {
 	NULL
 } ;
 
-static const char	*prvars[] = {
+static cchar	*prvars[] = {
 	"EXTRA",
 	"PREROOT",
 	NULL
 } ;
 
-static const char	*prdirs[] = {
+static cchar	*prdirs[] = {
 	"/usr/extra",
 	"/usr/preroot",
 	NULL
 } ;
 
-static const char	*prbins[] = {
+static cchar	*prbins[] = {
 	"sbin",
 	"bin",
 	NULL
 } ;
 
-static const char	*envbads[] = {
+static cchar	*envbads[] = {
 	"_",
 	"_A0",
 	"_EF",
@@ -262,8 +262,9 @@ int opensysfs(int w,int of,int ttl)
 	        rs = SR_INVALID ;
 	        break ;
 	    } /* end switch */
-	} else
+	} else {
 	    rs = SR_BADF ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("opensysfs: ret rs=%d \n",rs) ;
@@ -281,8 +282,8 @@ static int opencfile(int w,int of,int ttl)
 {
 	int		rs ;
 	int		fd = -1 ;
-	const char	*sdname = OPENSYSFS_SYSDNAME ;
-	const char	*gcname = cfnames[w] ;
+	cchar		*sdname = OPENSYSFS_SYSDNAME ;
+	cchar		*gcname = cfnames[w] ;
 	char		gfname[MAXPATHLEN+1] ;
 
 #if	CF_DEBUGS
@@ -649,12 +650,7 @@ static int findprog(IDS *idp,char *pfname,cchar *pn)
 /* end subroutine (findprog) */
 
 
-static int findprogbin(idp,dsp,pfname,pr,pn)
-IDS		*idp ;
-DIRSEEN		*dsp ;
-char		pfname[] ;
-const char	pr[] ;
-const char	pn[] ;
+static int findprogbin(IDS *idp,DIRSEEN *dsp,char *pfname,cchar *pr,cchar *pn)
 {
 	struct ustat	sb ;
 	int		rs ;
