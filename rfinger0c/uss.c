@@ -106,19 +106,22 @@ extern int	dialussnls(const char *,const char *,int,int) ;
 extern int	dialussmux(const char *,const char *,const char **,int,int) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
 extern int	dialtcpnls(const char *,const char *,int,const char *,int,int) ;
-extern int	dialtcpmux(const char *,const char *,int,const char *,
-			const char **,int,int) ;
+extern int	dialtcpmux(cchar *,cchar *,int,cchar *,cchar **,int,int) ;
 extern int	vecstr_adduniq(vecstr *,const char *,int) ;
 extern int	vecstr_loadfile(vecstr *,int,const char *) ;
 extern int	vecstr_envadd(VECSTR *,const char *,const char *,int) ;
 extern int	vecstr_envadds(VECSTR *,const char *,int) ;
-extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
-			const char *,const char *) ;
+extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,cchar *,cchar *) ;
 extern int	hasleadcolon(const char *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */
@@ -217,22 +220,21 @@ static int	uss_logbegin(USS *op,const char *,const char *) ;
 static int	uss_logend(USS *) ;
 static int	uss_logstuff(USS *,SUBINFO *) ;
 
-static int	subinfo_start(struct subinfo *,USS *,
+static int	subinfo_start(SUBINFO *,USS *,
 			SYSDIALER_INFO *,
 			SYSDIALER_ARGS *,
-			const char *,const char *) ;
-static int	subinfo_procargs(struct subinfo *) ;
-static int	subinfo_procopts(struct subinfo *,KEYOPT *) ;
-static int	subinfo_defaults(struct subinfo *) ;
-static int	subinfo_userinfo(struct subinfo *) ;
-static int	subinfo_logfile(struct subinfo *) ;
-static int	subinfo_addrparse(struct subinfo *) ;
-static int	subinfo_addrparseunix(struct subinfo *,int) ;
-static int	subinfo_addrparseinet(struct subinfo *) ;
-static int	subinfo_dirok(struct subinfo *,const char *,int) ;
-static int	subinfo_setentry(struct subinfo *,const char **,
-			const char *,int) ;
-static int	subinfo_finish(struct subinfo *) ;
+			cchar *,cchar *) ;
+static int	subinfo_procargs(SUBINFO *) ;
+static int	subinfo_procopts(SUBINFO *,KEYOPT *) ;
+static int	subinfo_defaults(SUBINFO *) ;
+static int	subinfo_userinfo(SUBINFO *) ;
+static int	subinfo_logfile(SUBINFO *) ;
+static int	subinfo_addrparse(SUBINFO *) ;
+static int	subinfo_addrparseunix(SUBINFO *,int) ;
+static int	subinfo_addrparseinet(SUBINFO *) ;
+static int	subinfo_dirok(SUBINFO *,const char *,int) ;
+static int	subinfo_setentry(SUBINFO *,cchar **,cchar *,int) ;
+static int	subinfo_finish(SUBINFO *) ;
 
 
 /* global variables (module information) */
@@ -248,7 +250,7 @@ SYSDIALER_INFO	uss = {
 
 /* local variables */
 
-static const char *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"RN",
 	"sn",
@@ -276,7 +278,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const char *procopts[] = {
+static cchar	*procopts[] = {
 	"log",
 	NULL
 } ;
@@ -298,21 +300,15 @@ const char	hostname[] ;
 const char	svcname[] ;
 const char	*av[] ;
 {
-	struct subinfo	si, *sip = &si ;
+	SUBINFO		si, *sip = &si ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		opts = 0 ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	opts = 0 ;
+	if (op == NULL) return SR_FAULT ;
+	if (hostname == NULL) return SR_FAULT ;
 
-
-	if (op == NULL)
-	    return SR_FAULT ;
-
-	if (hostname == NULL)
-	    return SR_FAULT ;
-
-	if (hostname[0] == '\0')
-	    return SR_INVALID ;
+	if (hostname[0] == '\0') return SR_INVALID ;
 
 	memset(op,0,sizeof(USS)) ;
 
@@ -323,7 +319,7 @@ const char	*av[] ;
 	        hostname,svcname) ;
 	    if (ap->argv != NULL) {
 	        for (i = 0 ; ap->argv[i] != NULL ; i += 1) {
-		    debugprintf("uss_open: a%u=>%s<\n",i,ap->argv[i]) ;
+	            debugprintf("uss_open: a%u=>%s<\n",i,ap->argv[i]) ;
 	        }
 	    }
 	}
@@ -334,44 +330,44 @@ const char	*av[] ;
 	    rs = subinfo_defaults(sip) ;
 
 #if	CF_DEBUGS
-	debugprintf("uss_open: subinfo_logstuff()\n") ;
-	debugprintf("uss_open: f_log=%u\n",op->open.log) ;
+	    debugprintf("uss_open: subinfo_logstuff()\n") ;
+	    debugprintf("uss_open: f_log=%u\n",op->open.log) ;
 #endif
 
-	if ((rs >= 0) && sip->f.log)
-	    rs = uss_logstuff(op,sip) ;
+	    if ((rs >= 0) && sip->f.log)
+	        rs = uss_logstuff(op,sip) ;
 
 /* parse the port-specification if we have one */
 
-	if (rs >= 0)
-	    rs = subinfo_addrparse(sip) ;
+	    if (rs >= 0)
+	        rs = subinfo_addrparse(sip) ;
 
 #if	CF_DEBUGS
-	debugprintf("uss_open: af=%u\n",sip->af) ;
-	debugprintf("uss_open: hostname=%s\n",hostname) ;
-	debugprintf("uss_open: portspec=%s\n",sip->portspec) ;
-	debugprintf("uss_open: svcname=%s\n",svcname) ;
+	    debugprintf("uss_open: af=%u\n",sip->af) ;
+	    debugprintf("uss_open: hostname=%s\n",hostname) ;
+	    debugprintf("uss_open: portspec=%s\n",sip->portspec) ;
+	    debugprintf("uss_open: svcname=%s\n",svcname) ;
 #endif
 
 /* OK, do the dial */
 
-	if (rs >= 0) {
-	    switch (sip->af) {
-	    case AF_UNSPEC:
-	    case AF_UNIX:
-		if (sip->portspec != NULL) {
-	        	rs = dialuss(sip->portspec,sip->to,opts) ;
-		} else
-	     		rs = SR_NOENT ;
-		break ;
-	    } /* end switch */
-	} /* end if */
-	op->fd = rs ;
+	    if (rs >= 0) {
+	        switch (sip->af) {
+	        case AF_UNSPEC:
+	        case AF_UNIX:
+	            if (sip->portspec != NULL) {
+	                rs = dialuss(sip->portspec,sip->to,opts) ;
+	            } else
+	                rs = SR_NOENT ;
+	            break ;
+	        } /* end switch */
+	    } /* end if */
+	    op->fd = rs ;
 
-	if (rs >= 0) {
-	    op->magic = USS_MAGIC ;
-	    uc_closeonexec(op->fd,TRUE) ;
-	}
+	    if (rs >= 0) {
+	        op->magic = USS_MAGIC ;
+	        uc_closeonexec(op->fd,TRUE) ;
+	    }
 
 	    rs1 = subinfo_finish(sip) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -660,7 +656,7 @@ static int uss_logbegin(USS *op,const char *lfname,const char *logid)
 	if (! op->open.log) {
 	    if ((rs = logfile_open(&op->lh,lfname,0,0666,logid)) >= 0) {
 	        op->open.log = TRUE ;
-		f = TRUE ;
+	        f = TRUE ;
 	    } else if (isNotPresent(rs))
 	        rs = SR_OK ;
 	} /* end if (needed opening) */
@@ -688,26 +684,26 @@ static int uss_logend(USS *op)
 
 static int uss_logstuff(USS *op,SUBINFO *sip)
 {
-	int	rs ;
-	int	f = FALSE ;
+	int		rs ;
+	int		f = FALSE ;
 
 	if ((rs = subinfo_logfile(sip)) > 0) {
 	    const char	*lfname = sip->lfname ;
 	    const char	*logid = sip->logid ;
 	    if ((rs = uss_logbegin(op,lfname,logid)) > 0) {
-		USERINFO	*uip = &sip->u ;
-		f = TRUE ;
+	        USERINFO	*uip = &sip->u ;
+	        f = TRUE ;
 
-	                    logfile_userinfo(&op->lh,uip,0L,
-	                        sip->searchname,sip->version) ;
+	        logfile_userinfo(&op->lh,uip,0L,
+	            sip->searchname,sip->version) ;
 
-	                    logfile_printf(&op->lh,"pid=%d",uip->pid) ;
+	        logfile_printf(&op->lh,"pid=%d",uip->pid) ;
 
-	                    logfile_printf(&op->lh,"pr=%s",sip->pr) ;
+	        logfile_printf(&op->lh,"pr=%s",sip->pr) ;
 
-	                    logfile_printf(&op->lh,"host=%s",sip->hostname) ;
+	        logfile_printf(&op->lh,"host=%s",sip->hostname) ;
 
-	                    logfile_printf(&op->lh,"svc=%s",sip->svcname) ;
+	        logfile_printf(&op->lh,"svc=%s",sip->svcname) ;
 
 	    } /* end if (ussmux-logbegin) */
 	} /* end if (subinfo-logfile) */
@@ -718,17 +714,16 @@ static int uss_logstuff(USS *op,SUBINFO *sip)
 
 
 static int subinfo_start(sip,op,dip,ap,hostname,svcname)
-struct subinfo	*sip ;
+SUBINFO		*sip ;
 USS		*op ;
 SYSDIALER_INFO	*dip ;
 SYSDIALER_ARGS	*ap ;
 const char	hostname[] ;
 const char	svcname[] ;
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
-
-	memset(sip,0,sizeof(struct subinfo)) ;
+	memset(sip,0,sizeof(SUBINFO)) ;
 
 	sip->envv = (const char **) environ ;
 	sip->op = op ;
@@ -744,10 +739,10 @@ const char	svcname[] ;
 	    sip->open.stores = TRUE ;
 	    if ((rs = vecstr_start(&sip->aenvs,3,0)) >= 0) {
 	        if (ap != NULL) {
-	    	    rs = subinfo_procargs(sip) ;
-		}
-		if (rs < 0)
-		    vecstr_finish(&sip->aenvs) ;
+	            rs = subinfo_procargs(sip) ;
+	        }
+	        if (rs < 0)
+	            vecstr_finish(&sip->aenvs) ;
 	    } /* end if (vecstr-aenvs) */
 	    if (rs < 0)
 	        vecstr_finish(&sip->stores) ;
@@ -762,11 +757,10 @@ const char	svcname[] ;
 /* end subroutine (subinfo_start) */
 
 
-static int subinfo_finish(sip)
-struct subinfo	*sip ;
+static int subinfo_finish(SUBINFO *sip)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (sip->open.userinfo) {
 	    sip->open.userinfo = FALSE ;
@@ -817,29 +811,24 @@ struct subinfo	*sip ;
 /* end subroutine (subinfo_finish) */
 
 
-static int subinfo_procargs(sip)
-struct subinfo	*sip ;
+static int subinfo_procargs(SUBINFO *sip)
 {
 	KEYOPT		akopts ;
-
 	SYSDIALER_ARGS	*ap = sip->ap ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	argc ;
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	pan = 0 ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_doubledash = FALSE ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		argc ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		pan = 0 ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_dash = FALSE ;
 	const char	**argv ;
 	const char	*argval = NULL ;
 	const char	*argp, *aop, *akp, *avp ;
 
-
 #if	CF_DEBUGS
-	debugprintf("uss/subinfo_procargs: arguments\n") ;
+	debugprintf("uss/subinfo_procargs: ent arguments\n") ;
 #endif
 
 	argv = (const char **) ap->argv ;
@@ -851,7 +840,7 @@ struct subinfo	*sip ;
 	    debugprintf("uss/subinfo_procargs: argc=%u\n",argc) ;
 	    for (ai = 0 ; argv[ai] != NULL ; ai += 1)
 	        debugprintf("uss/subinfo_procargs: argv[%u]=%s\n",
-		ai,argv[ai]) ;
+	            ai,argv[ai]) ;
 	}
 #endif /* CF_DEBUGS */
 
@@ -876,7 +865,7 @@ struct subinfo	*sip ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int	ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -884,16 +873,16 @@ struct subinfo	*sip ;
 
 	        } else if ((argl == 2) && (ach == '-')) {
 
-	            f_doubledash = TRUE ;
+	            f_dash = TRUE ;
 	            ai += 1 ;
 	            argr -= 1 ;
 
 	        } else {
-		    int	v ;
+	            int		v ;
 
 #if	CF_DEBUGS
 	            debugprintf("uss/subinfo_procargs: option? ao=>%t<\n",
-			argp,argl) ;
+	                argp,argl) ;
 #endif
 
 	            aop = argp + 1 ;
@@ -927,15 +916,14 @@ struct subinfo	*sip ;
 	                        if (avl)
 	                            sip->pr = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->pr = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->pr = argp ;
 	                    }
 	                    break ;
 
@@ -946,15 +934,14 @@ struct subinfo	*sip ;
 	                        if (avl)
 	                            sip->prn = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->prn = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->prn = argp ;
 	                    }
 	                    break ;
 
@@ -965,35 +952,33 @@ struct subinfo	*sip ;
 	                        if (avl)
 	                            sip->searchname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->searchname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->searchname = argp ;
 	                    }
 	                    break ;
 
 /* logfile */
 	                case argopt_lf:
-			    sip->f.log = TRUE ;
+	                    sip->f.log = TRUE ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl)
 	                            sip->lfname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->lfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->lfname = argp ;
 	                    }
 	                    break ;
 
@@ -1005,15 +990,14 @@ struct subinfo	*sip ;
 	                        if (avl)
 	                            sip->pvfname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->pvfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->pvfname = argp ;
 	                    }
 	                    break ;
 
@@ -1023,15 +1007,14 @@ struct subinfo	*sip ;
 	                        if (avl)
 	                            sip->dfname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->dfname = avp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->dfname = avp ;
 	                    }
 	                    break ;
 
@@ -1041,17 +1024,16 @@ struct subinfo	*sip ;
 	                        if (avl)
 	                            sip->xfname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->xfname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->xfname = argp ;
 	                    }
-			    break ;
+	                    break ;
 
 	                case argopt_ef:
 	                    if (f_optequal) {
@@ -1059,15 +1041,14 @@ struct subinfo	*sip ;
 	                        if (avl)
 	                            sip->efname = avp ;
 	                    } else {
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->efname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->efname = argp ;
 	                    }
 	                    break ;
 
@@ -1076,21 +1057,20 @@ struct subinfo	*sip ;
 	            } else {
 
 	                while (akl--) {
-			    int	kc = (*akp & 0xff) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
 /* address-family */
 	                    case 'f':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->afspec = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->afspec = argp ;
 	                        break ;
 
 	                    case 'i':
@@ -1099,62 +1079,60 @@ struct subinfo	*sip ;
 
 /* options */
 	                    case 'o':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            rs = keyopt_loads(&akopts,argp,argl) ;
 	                        break ;
 
 /* service */
 	                    case 's':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                sip->svcname = argp ;
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            sip->svcname = argp ;
 	                        break ;
 /* timeout */
 	                    case 't':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                rs = cfdecti(argp,argl,&v) ;
+	                                sip->to = v ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-	                            rs = cfdecti(argp,argl,&v) ;
-				    sip->to = v ;
-				}
 	                        break ;
 
 /* eXported environment */
 	                    case 'x':
-	                        if (argr <= 0) {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+	                                vecstr	*vlp = &sip->aenvs ;
+	                                rs = vecstr_envadds(vlp,argp,argl) ;
+	                            }
+	                        } else
 	                            rs = SR_INVALID ;
-	                            break ;
-	                        }
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl) {
-				    vecstr	*vlp = &sip->aenvs ;
-	                            rs = vecstr_envadds(vlp,argp,argl) ;
-			        }
 	                        break ;
 
 	                    default:
 	                        rs = SR_INVALID ;
-				break ;
+	                        break ;
 
 	                    } /* end switch */
 	                    akp += 1 ;
@@ -1168,15 +1146,15 @@ struct subinfo	*sip ;
 
 	    } else {
 
-		switch (pan) {
-		case 0:
+	        switch (pan) {
+	        case 0:
 	            sip->portspec = (const char *) argp ;
-		    break ;
-		case 1:
+	            break ;
+	        case 1:
 	            sip->svcname = (const char *) argp ;
-		    break ;
-		} /* end switch */
-		pan += 1 ;
+	            break ;
+	        } /* end switch */
+	        pan += 1 ;
 
 	    } /* end if (key letter-word or positional) */
 
@@ -1191,35 +1169,45 @@ struct subinfo	*sip ;
 	debugprintf("uss/subinfo_procargs: argi=%u\n",sip->argi) ;
 #endif
 
-	if (rs >= 0)
+	if ((rs >= 0) && ((ai_max < 0) || (ai_pos < 0))) rs = SR_BUGCHECK ;
+
+	if ((rs >= 0) && (argval != NULL)) {
+	    rs = 1 ;
+	}
+
+	if ((rs >= 0) && f_dash) {
+	    rs = 1 ;
+	}
+
+	if (rs >= 0) {
 	    rs = subinfo_procopts(sip,&akopts) ;
+	}
 
 /* process any address-family specification */
 
 #if	CF_DEBUGS
 	debugprintf("uss/subinfo_procargs: af=%d afspec=%s\n",
-		sip->af, sip->afspec) ;
+	    sip->af, sip->afspec) ;
 #endif
 
 	if ((rs >= 0) && (sip->af < 0) && 
-		(sip->afspec != NULL) && (sip->afspec[0] != '\0')) {
+	    (sip->afspec != NULL) && (sip->afspec[0] != '\0')) {
 
 #if	CF_DEBUGS
-	debugprintf("uss/subinfo_procargs: afspec=%s\n",sip->afspec) ;
+	    debugprintf("uss/subinfo_procargs: afspec=%s\n",sip->afspec) ;
 #endif
 
 	    rs1 = getaf(sip->afspec,-1) ;
 	    if (rs1 >= 0)
-		sip->af = rs1 ;
+	        sip->af = rs1 ;
 
 #if	CF_DEBUGS
-	debugprintf("uss/subinfo_procargs: getaf() rs=%d\n",rs1) ;
+	    debugprintf("uss/subinfo_procargs: getaf() rs=%d\n",rs1) ;
 #endif
 
 	} /* end if */
 
-/* done and out */
-done:
+/* done */
 	keyopt_finish(&akopts) ;
 
 badkopts:
@@ -1233,43 +1221,38 @@ badkopts:
 /* end subroutine (subinfo_procargs) */
 
 
-static int subinfo_procopts(sip,kop)
-struct subinfo	*sip ;
-KEYOPT		*kop ;
+static int subinfo_procopts(SUBINFO *sip,KEYOPT *kop)
 {
 	KEYOPT_CUR	kcur ;
-
-	int	rs = SR_OK ;
-	int	c = 0 ;
+	int		rs = SR_OK ;
+	int		c = 0 ;
 
 	if ((rs = keyopt_curbegin(kop,&kcur)) >= 0) {
 	    int		oi ;
 	    int		kl, vl ;
-	    const char	*kp, *vp ;
+	    cchar	*kp, *vp ;
 
-	while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
+	    while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
-	    vl = keyopt_fetch(kop,kp,NULL,&vp) ;
+	        if ((oi = matostr(procopts,2,kp,kl)) >= 0) {
 
-	    if ((oi = matostr(procopts,2,kp,kl)) >= 0) {
+	            vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
-	        switch (oi) {
-
-	        case procopt_log:
+	            switch (oi) {
+	            case procopt_log:
 	                sip->f.log = TRUE ;
 	                if ((vl > 0) && ((rs = optbool(vp,vl)) >= 0))
 	                    sip->f.log = (rs > 0) ;
-	            break ;
+	                break ;
+	            } /* end switch */
+	            c += 1 ;
 
-	        } /* end switch */
-	        c += 1 ;
+	        } /* end if (valid option) */
 
-	    } /* end if (valid option) */
+	        if (rs < 0) break ;
+	    } /* end while (looping through key options) */
 
-	    if (rs < 0) break ;
-	} /* end while (looping through key options) */
-
-	keyopt_curend(kop,&kcur) ;
+	    keyopt_curend(kop,&kcur) ;
 	} /* end if (keyopt-cur) */
 
 	return (rs >= 0) ? c : rs ;
@@ -1277,15 +1260,10 @@ KEYOPT		*kop ;
 /* end subroutine (subinfo_procopts) */
 
 
-static int subinfo_setentry(sip,epp,sp,sl)
-struct subinfo	*sip ;
-const char	**epp ;
-const char	sp[] ;
-int		sl ;
+static int subinfo_setentry(SUBINFO *sip,cchar **epp,cchar *sp,int sl)
 {
-	int	rs = SR_OK ;
-	int	len = 0 ;
-
+	int		rs = SR_OK ;
+	int		len = 0 ;
 
 	if (sip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
@@ -1300,16 +1278,17 @@ int		sl ;
 
 	    if (*epp != NULL) oi = vecstr_findaddr(&sip->stores,*epp) ;
 
-	    if (sp != NULL) { 
-		len = strnlen(sp,sl) ;
+	    if (sp != NULL) {
+	        len = strnlen(sp,sl) ;
 	        if ((rs = vecstr_add(&sip->stores,sp,len)) >= 0) {
 	            rs = vecstr_get(&sip->stores,rs,epp) ;
 	        } /* end if (added new entry) */
-	    } else
-		*epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
+	    } else {
+	        *epp = NULL ;
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
 	        vecstr_del(&sip->stores,oi) ;
+	    }
 
 	} /* end if */
 
@@ -1318,18 +1297,12 @@ int		sl ;
 /* end subroutine (subinfo_setentry) */
 
 
-static int subinfo_defaults(sip)
-struct subinfo	*sip ;
+static int subinfo_defaults(SUBINFO *sip)
 {
-	SYSDIALER_ARGS	*ap ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	SYSDIALER_ARGS	*ap = sip->ap ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 	const char	*vp ;
-
-
-	ap = sip->ap ;
 
 #if	CF_DEBUGS
 	debugprintf("uss/subinfo_defaults: ent af=%d\n",sip->af) ;
@@ -1354,7 +1327,7 @@ struct subinfo	*sip ;
 	            rs = uc_mallocstrw(pr,rs1,&sip->a.pr) ;
 	            if (rs > 0)
 	                sip->pr = sip->a.pr ;
-		}
+	        }
 
 	    } /* end if */
 
@@ -1417,10 +1390,9 @@ struct subinfo	*sip ;
 /* end subroutine (subinfo_defaults) */
 
 
-static int subinfo_userinfo(sip)
-struct subinfo	*sip ;
+static int subinfo_userinfo(SUBINFO *sip)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
 	if (! sip->open.userinfo) {
 	    USERINFO	*uip = &sip->u ;
@@ -1451,28 +1423,27 @@ struct subinfo	*sip ;
 /* end subroutine (subinfo_userinfo) */
 
 
-static int subinfo_logfile(sip)
-struct subinfo	*sip ;
+static int subinfo_logfile(SUBINFO *sip)
 {
-	int	rs = SR_OK ;
-	int	f = sip->init.log ;
+	int		rs = SR_OK ;
+	int		f = sip->init.log ;
 
 	if (sip->f.log && (! sip->init.log)) {
-	    const char	*lfname = sip->lfname ;
+	    cchar	*lfname = sip->lfname ;
 	    sip->init.log = TRUE ;
 	    f = TRUE ;
 
 	    if (lfname[0] != '/') {
-		const char	*logdname = USS_LOGDNAME ;
-	        char		tbuf[MAXPATHLEN + 1] ;
+	        cchar	*logdname = USS_LOGDNAME ;
+	        char	tbuf[MAXPATHLEN + 1] ;
 	        if ((rs = mkpath3(tbuf,sip->pr,logdname,lfname)) >= 0) {
-		    const char	**vpp = &sip->lfname ;
-		    rs = subinfo_setentry(sip,vpp,tbuf,rs) ;
-		}
+	            cchar	**vpp = &sip->lfname ;
+	            rs = subinfo_setentry(sip,vpp,tbuf,rs) ;
+	        }
 	    }
 
 #if	CF_DEBUGS
-	debugprintf("subinfo/subinfo_logfile: lnp=%s\n",lnp) ;
+	    debugprintf("subinfo/subinfo_logfile: lfname=%s\n",lfname) ;
 #endif
 
 	    if (rs >= 0) {
@@ -1486,21 +1457,14 @@ struct subinfo	*sip ;
 /* end subroutine (subinfo_logfile) */
 
 
-static int subinfo_dirok(sip,d,dlen)
-struct subinfo	*sip ;
-const char	d[] ;
-int		dlen ;
+static int subinfo_dirok(SUBINFO *sip,cchar *d,int dlen)
 {
 	struct ustat	sb ;
-
-	NULSTR	ss ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	f = FALSE ;
-
+	NULSTR		ss ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		f = FALSE ;
 	const char	*dnp ;
-
 
 	if (! sip->open.ids) {
 	    sip->open.ids = TRUE ;
@@ -1511,11 +1475,11 @@ int		dlen ;
 	    if ((rs = nulstr_start(&ss,d,dlen,&dnp)) >= 0) {
 	        if ((rs1 = u_stat(dnp,&sb)) >= 0) {
 	            if (S_ISDIR(sb.st_mode)) {
-	    	        rs1 = sperm(&sip->id,&sb,(R_OK | X_OK)) ;
-	    	        f = (rs1 >= 0) ;
-		    }
+	                rs1 = sperm(&sip->id,&sb,(R_OK | X_OK)) ;
+	                f = (rs1 >= 0) ;
+	            }
 	        }
-		nulstr_finish(&ss) ;
+	        nulstr_finish(&ss) ;
 	    } /* end if (nulstr) */
 	} /* end if (ok) */
 
@@ -1524,59 +1488,50 @@ int		dlen ;
 /* end subroutine (subinfo_dirok) */
 
 
-static int subinfo_addrparse(sip)
-struct subinfo	*sip ;
+static int subinfo_addrparse(SUBINFO *sip)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
+	if ((sip->portspec != NULL) && (sip->portspec[0] != '\0')) {
 
-	if ((sip->portspec == NULL) || (sip->portspec[0] == '\0'))
-	    goto ret0 ;
+	    if (hasleadcolon(sip->portspec,-1)) {
+	        if (strncasecmp("unix:",sip->portspec,5) == 0) {
+	            rs = subinfo_addrparseunix(sip,1) ;
+	        } else {
+	            rs = subinfo_addrparseinet(sip) ;
+	        }
+	    } else if (strchr(sip->portspec,'/') != NULL) {
+	        rs = subinfo_addrparseunix(sip,0) ;
+	    } else {
+	        if ((sip->af == 0) || 
+	            ((sip->af >= 0) && (sip->af != AF_UNIX))) {
+	            rs = subinfo_addrparseinet(sip) ;
+	        } else {
+	            rs = subinfo_addrparseunix(sip,0) ;
+	        }
+	    }
 
-	if (hasleadcolon(sip->portspec,-1)) {
+	} /* end if */
 
-		if (strncasecmp("unix:",sip->portspec,5) == 0) {
-			rs = subinfo_addrparseunix(sip,1) ;
-		} else {
-			rs = subinfo_addrparseinet(sip) ;
-		}
-
-	} else if (strchr(sip->portspec,'/') != NULL) {
-			rs = subinfo_addrparseunix(sip,0) ;
-	} else {
-		if ((sip->af == 0) || 
-			((sip->af >= 0) && (sip->af != AF_UNIX))) {
-			rs = subinfo_addrparseinet(sip) ;
-		} else {
-			rs = subinfo_addrparseunix(sip,0) ;
-		}
-	}
-
-ret0:
 	return rs ;
 }
 /* end subroutine (subinfo_addrparse) */
 
 
-static int subinfo_addrparseunix(sip,f)
-struct subinfo	*sip ;
-int		f ;
+static int subinfo_addrparseunix(SUBINFO *sip,int f)
 {
-	int	rs = SR_OK ;
-	int	pslen = -1 ;
-
+	int		rs = SR_OK ;
+	int		pslen = -1 ;
 	const char	*ps = sip->portspec ;
-
-	char	tmpfname[MAXPATHLEN + 1] ;
-
+	char		tmpfname[MAXPATHLEN + 1] ;
 
 	if (f)
 	    ps += 5 ;
 
 	if (ps[0] != '/') {
-		f = TRUE ;
-		pslen = mkpath2(tmpfname,sip->pr,ps) ;
-		ps = tmpfname ;
+	    f = TRUE ;
+	    pslen = mkpath2(tmpfname,sip->pr,ps) ;
+	    ps = tmpfname ;
 	}
 
 	if (f) {
@@ -1589,45 +1544,41 @@ int		f ;
 	if (rs >= 0)
 	    sip->af = AF_UNIX ;
 
-ret0:
 	return rs ;
 }
 /* end subroutine (subinfo_addrparseunix) */
 
 
-static int subinfo_addrparseinet(sip)
-struct subinfo	*sip ;
+static int subinfo_addrparseinet(SUBINFO *sip)
 {
 	INETADDRPARSE	a ;
-
-	int	rs ;
-	int	rs1 ;
-
+	int		rs ;
+	int		rs1 ;
 
 	if ((rs = inetaddrparse_load(&a,sip->portspec,-1)) >= 0) {
 
 	    if ((rs >= 0) && (a.af.sp != NULL) && a.af.sl) {
-	        const char	**vpp = &sip->afspec ;
+	        cchar	**vpp = &sip->afspec ;
 
 	        if ((rs = subinfo_setentry(sip,vpp,a.af.sp,a.af.sl)) >= 0) {
-		    if (strcasecmp(sip->afspec,"inet") == 0) {
-		        sip->af = AF_UNSPEC ;
-		    } else {
-		        rs1 = getaf(sip->afspec,-1) ;
-		        if (rs1 >= 0)
-		            sip->af = rs1 ;
-		    }
+	            if (strcasecmp(sip->afspec,"inet") == 0) {
+	                sip->af = AF_UNSPEC ;
+	            } else {
+	                rs1 = getaf(sip->afspec,-1) ;
+	                if (rs1 >= 0)
+	                    sip->af = rs1 ;
+	            }
 	        }
 
 	    } /* end if */
 
 	    if ((rs >= 0) && (a.host.sp != NULL) && a.host.sl) {
-		const char	**vpp = &sip->hostname ;
+	        cchar	**vpp = &sip->hostname ;
 	        rs = subinfo_setentry(sip,vpp,a.host.sp,a.host.sl) ;
 	    }
 
 	    if ((rs >= 0) && (a.port.sp != NULL) && a.port.sl) {
-		const char	**vpp = &sip->portspec ;
+	        cchar	**vpp = &sip->portspec ;
 	        rs = subinfo_setentry(sip,vpp,a.port.sp,a.port.sl) ;
 	    }
 

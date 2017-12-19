@@ -180,7 +180,7 @@ $(T):			$(T).ee
 $(T).so:		$(SOBJ) Makefile
 	makedate > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -G -o $@ -m $(LDFLAGS) $(SLIBINFO) > $(T).lm
+	$(LD) -G -o $@ -m $(LDFLAGS) $(SOBJ) $(SLIBINFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)

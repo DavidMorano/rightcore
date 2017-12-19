@@ -38,10 +38,6 @@
 	>=0	length of result
 	<0	error
 
-	Note: Integer promotion of characters is not a problem since:
-	a. we do not use the <ctype.h> functions
-	b. we do not try to compare with 8-bit characters
-
 
 *******************************************************************************/
 

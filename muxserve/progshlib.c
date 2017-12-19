@@ -57,17 +57,16 @@
 
 /* external subroutines */
 
-extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
+extern int	vecstr_envset(vecstr *,cchar *,cchar *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugprintf(const char *,...) ;
-extern int	strnnlen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strnnlen(cchar *,int,int) ;
 #endif
 
 extern char	*strdcpy1w(char *,int,const char *,int) ;
 extern char	*strdcpy2w(char *,int,const char *,const char *,int) ;
-extern char	*strdcpy3w(char *,int,const char *,const char *,
-			const char *,int) ;
+extern char	*strdcpy3w(char *,int,cchar *,cchar *,cchar *,int) ;
 
 
 /* external variables */
@@ -77,8 +76,8 @@ extern char	**environ ;
 
 /* local structures */
 
-typedef int (*libent)(int,const char **,const char **,void *) ;
-typedef int (*libcaller)(libent,int,const char **,const char **,void *) ;
+typedef int (*libent)(int,cchar **,cchar **,void *) ;
+typedef int (*libcaller)(libent,int,cchar **,cchar **,void *) ;
 
 
 /* forward references */
@@ -91,7 +90,7 @@ typedef int (*libcaller)(libent,int,const char **,const char **,void *) ;
 
 
 int progshlib(pip,shlibfname,argz,alp,enp,enl)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 const char	shlibfname[] ;
 const char	argz[] ;
 VECSTR		*alp ;
@@ -107,9 +106,8 @@ int		enl ;
 	int		entrylen ;
 	int		nargs ;
 	int		ex ;
-	int		(*soentry)(int,const char **,const char **,void *) ;
-	int		(*socaller)(libent,int,const char **,const char **,
-				void *) ;
+	int		(*soentry)(int,cchar **,cchar **,void *) ;
+	int		(*socaller)(libent,int,cchar **,cchar **,void *) ;
 	const char	*callername = LIBCALLFUNC ;
 	char		*entrybuf = NULL ;
 	char		*p ;
@@ -117,18 +115,20 @@ int		enl ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
-	    int	i ;
-	    const char	*cp ;
+	    int		i ;
+	    cchar	*cp ;
 	    debugprintf("progshlib: shlibfname=%s\n",shlibfname) ;
 	    debugprintf("progshlib: en=>%t<\n",enp,enl) ;
 	    debugprintf("progshlib: argz=%s\n",argz) ;
 	    debugprintf("progshlib: &environ=%p\n",&environ) ;
-	    for (i = 0 ; vecstr_get(alp,i,&cp) >= 0 ; i += 1)
+	    for (i = 0 ; vecstr_get(alp,i,&cp) >= 0 ; i += 1) {
 	        debugprintf("progshlib: arg%u=>%t<\n",i,
 			cp,strnnlen(cp,-1,40)) ;
-	    for (i = 0 ; vecstr_get(elp,i,&cp) >= 0 ; i += 1)
+	    }
+	    for (i = 0 ; vecstr_get(elp,i,&cp) >= 0 ; i += 1) {
 	        debugprintf("progshlib: env%u=>%t<\n",i,
 			cp,strnnlen(cp,-1,40)) ;
+	    }
 	}
 #endif /* CF_DEBUG */
 
@@ -222,7 +222,7 @@ int		enl ;
 #if	CF_DEBUG && 0
 	if (DEBUGLEVEL(5)) {
 	    int		i ;
-	    const char	*ep ;
+	    cchar	*ep ;
 	    debugprintf("progshlib: env¬\n") ;
 	    for (i = 0 ; ev[i] != NULL ; i += 1) {
 	      ep = ev[i] ;
@@ -276,8 +276,9 @@ badnoexec:
 	    debugprintf("progshlib: badnoexec rs=%d\n",rs) ;
 #endif /* CF_DEBUG */
 
-	if (entrybuf != NULL)
+	if (entrybuf != NULL) {
 	    uc_free(entrybuf) ;
+	}
 
 badalloc:
 
@@ -291,8 +292,9 @@ badalloc:
 	    debugprintf("progshlib: sop=%p\n",sop) ;
 #endif
 
-	if (sop != NULL)
+	if (sop != NULL) {
 	    dlclose(sop) ;
+	}
 
 badnoprog:
 ret0:

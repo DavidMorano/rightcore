@@ -38,7 +38,6 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<ctype.h>
 
 
 /* support tables; not accessed directly by callers  */

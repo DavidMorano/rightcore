@@ -64,7 +64,7 @@ extern int	isdigitlatin(int) ;
 
 /* local variables */
 
-static const char	*hits[] = {
+static cchar	*hits[] = {
 	"0",
 	"1",
 	"no",

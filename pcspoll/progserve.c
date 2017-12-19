@@ -170,6 +170,7 @@ extern int	debugprintf(const char *,...) ;
 
 extern cchar	*getourenv(cchar **,cchar *) ;
 
+extern char	*strdcpy1(char *,int,cchar *,int) ;
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpylc(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -780,8 +781,9 @@ const char	*argz ;
 	if (rs >= 0) f_served = TRUE ;
 
 ret1:
-	if (pfd >= 0)
+	if (pfd >= 0) {
 	    u_close(pfd) ;
+	}
 
 ret0:
 
@@ -802,10 +804,11 @@ PROCSE		*sep ;
 VECSTR		*alp ;
 const char	*argz ;
 {
+	const int	nlen = MAXNAMELEN ;
 	int		rs = SR_OK ;
 	int		pnl ;
 	int		enl ;
-	const char	*program ;
+	const char	*program = sep->a.sharedobj ;
 	const char	*pnp ;
 	const char	*tp ;
 	const char	*enp ;		/* shlib entry-point */
@@ -816,13 +819,11 @@ const char	*argz ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("procserver/procserverlib: ent argz=%s\n",
-	        argz) ;
+	    debugprintf("procserver/procserverlib: ent argz=%s\n",argz) ;
 #endif
 
 /* get a program if we do not have one already */
 
-	program = sep->a.sharedobj ;
 	if ((program == NULL) || (program[0] == '\0'))
 	    goto ret0 ;
 
@@ -862,7 +863,7 @@ const char	*argz ;
 
 	if ((enp == NULL) || (enl == 0)) {
 	    if ((argz != NULL) && (argz[0] != '\0')) {
-	        enp = (char *) argz ;
+	        enp = argz ;
 	        enl = strlen(argz) ;
 	    } else {
 	        enl = sfbaselib(pnp,pnl,&enp) ;
@@ -919,10 +920,12 @@ const char	*argz ;
 
 	if (rs < 0) {
 	    cp = "SHLIB server not found" ;
-	    if (pip->open.logprog)
+	    if (pip->open.logprog) {
 	        proglog_printf(pip,cp) ;
-	    if (pip->debuglevel > 0)
+	    }
+	    if (pip->debuglevel > 0) {
 	        bprintf(pip->efp,"%s: %s\n",pip->progname,cp) ;
+	    }
 	    goto badnoprog ;
 	} /* end if (could not find program) */
 
@@ -938,6 +941,7 @@ const char	*argz ;
 	if (argz != NULL) {
 	    if ((argz[0] == '+') && (argz[1] == '\0')) {
 	        argz = argzbuf ;
+		if (enl > nlen) enl = nlen ; /* prevent buffer overflow */
 	        strwcpy(argzbuf,enp,enl) ;
 	        if ((rs = vecstr_del(alp,0)) >= 0) {
 	            rs = vecstr_insert(alp,0,argz,-1) ;
@@ -945,6 +949,7 @@ const char	*argz ;
 	    }
 	} else {
 	    argz = argzbuf ;
+	    if (enl > nlen) enl = nlen ; /* prevent buffer overflow */
 	    strwcpy(argzbuf,enp,enl) ;
 	    if (vecstr_count(alp) < 1) {
 	        rs = vecstr_add(alp,argz,-1) ;
@@ -989,8 +994,9 @@ const char	*argz ;
 
 	pip->daytime = time(NULL) ;
 
-	if (pip->open.logprog)
+	if (pip->open.logprog) {
 	    proglog_end(pip) ;
+	}
 
 	{
 	    PROGINFO_IPC	*ipp = &pip->ipc ;
@@ -1274,10 +1280,10 @@ int		pnl ;
 
 	if (pnp[0] == '/') {
 
-	    rs = mkpath1w(progfname,pnp,pnl) ;
-	    rlen = rs ;
-	    if (rs >= 0)
+	    if ((rs = mkpath1w(progfname,pnp,pnl)) >= 0) {
+	        rlen = rs ;
 	        rs = xfile(&pip->id,progfname) ;
+	    }
 
 	} else {
 

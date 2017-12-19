@@ -1,2 +1,2 @@
 const char numwords_makedate[] =
-"@(#)numwords                171018_2114:51_USEDT Rightcore Network Services" ;
+"@(#)numwords                171219_0021:37_USEST Rightcore Network Services" ;

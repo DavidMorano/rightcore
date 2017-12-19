@@ -58,6 +58,7 @@ struct sreq {
 	SVCENTSUB	ss ;
 	OSETSTR		namesvcs ;		/* service names (for 'help') */
 	MFSERVE_INFO	binfo ;			/* buuilt-info info */
+	void		*sop ;			/* shared-object handle */
 	void		*objp ;			/* object pointer */
 	const char	*peername ;
 	const char	*netuser ;

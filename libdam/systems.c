@@ -251,7 +251,7 @@ int systems_fileadd(SYSTEMS *op,cchar sysfname[])
 	    SYSTEMS_FILE	fe, *fep ;
 	    if ((rs = file_start(&fe,np)) >= 0) {
 	        if ((rs = vecobj_add(&op->files,&fe)) >= 0) {
-	            int	fi = rs ;
+	            int		fi = rs ;
 	            if ((rs = vecobj_get(&op->files,fi,&fep)) >= 0) {
 	                rs = systems_fileparse(op,fi,fep) ;
 	                if ((rs < 0) && (rs != SR_EXIST)) {
@@ -437,10 +437,14 @@ static int systems_fileparse(SYSTEMS *op,int fi,SYSTEMS_FILE *fep)
 	int		c = 0 ;
 
 	if ((rs = bopen(sfp,fep->fname,"r",0664)) >= 0) {
-	    struct ustat	sb ;
+	    USTAT	sb ;
 	    if ((rs = bcontrol(sfp,BC_STAT,&sb)) >= 0) {
 		const dev_t	dev = sb.st_dev ;
 		const uino_t	ino = sb.st_ino ;
+#if	CF_DEBUGS
+		debugprintf("systems_fileparse: dev=\\x%08x ino=%llu\n",
+			dev,ino) ;
+#endif
 		if ((rs = systems_filealready(op,dev,ino)) == 0) {
 		    const int	llen = SYSLINELEN ;
 		    char	*lbuf ;
@@ -507,7 +511,7 @@ static int systems_filealready(SYSTEMS *op,dev_t dev,uino_t ino)
 	int		f = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("systems_filealready: searching dev=%u ino=%llu\n",
+	debugprintf("systems_filealready: searching dev=\\x%08x ino=%llu\n",
 		dev,ino) ;
 #endif
 

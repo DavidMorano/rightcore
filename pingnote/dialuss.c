@@ -20,8 +20,7 @@
 
 	Dial UNIX® Socket Stream (dialuss)
 
-        This subroutine will dial out to an UNIX® domain socket stream
-        address.
+        This subroutine will dial out to an UNIX® domain socket stream address.
 
 	Synopsis:
 
@@ -55,7 +54,6 @@
 #include	<arpa/inet.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<netdb.h>
@@ -73,6 +71,11 @@
 /* external subroutines */
 
 extern int	opensockaddr(int,int,int,struct sockaddr *,int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
 
 
 /* external variables */
@@ -102,16 +105,16 @@ int dialuss(cchar *pathname,int to,int opts)
 	if (pathname[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
-	debugprintf("dialuss: pathname=%s\n",pathname) ;
+	debugprintf("dialuss: ent pathname=%s\n",pathname) ;
 #endif
 
-	if ((rs = u_stat(pathname,&sb)) >= 0) {
+	if ((rs = uc_stat(pathname,&sb)) >= 0) {
 	    if (S_ISSOCK(sb.st_mode)) {
 		SOCKADDRESS	sa ;
 		const int	af = AF_UNIX ;
 	        const void	*vp = (const void *) pathname ;
 	        if ((rs = sockaddress_start(&sa,af,vp,0,0)) >= 0) {
-	            SOCKADDR	*sap = (struct sockaddr *) &sa ;
+	            SOCKADDR	*sap = (SOCKADDR *) &sa ;
 		    const int	pf = PF_UNIX ;
 		    const int	st = SOCK_STREAM ;
 		    const int	proto = 0 ;

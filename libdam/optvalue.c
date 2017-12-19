@@ -42,7 +42,6 @@
 #include	<sys/types.h>
 #include	<limits.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>
@@ -64,7 +63,7 @@ extern int	tolc(int) ;
 
 /* local variables */
 
-static const char	*resps[] = {
+static cchar	*resps[] = {
 	"no",
 	"yes",
 	"false",
