@@ -252,7 +252,7 @@ const char	*sav[] ;
 	int		si ;
 	int		svcspeclen ;
 	int		f_served = FALSE ;
-	const char	*svcspecp ;
+	const char	*svcspecp = svcspec ;
 	const char	*tp, *cp ;
 	char		svcbuf[SVCSPECLEN + 1] ;
 	char		stebuf[STEBUFLEN + 1] ;
@@ -266,7 +266,6 @@ const char	*sav[] ;
 
 /* has a service been passed to us (overrides normal service) */
 
-	svcspecp = svcspec ;
 	if ((pip->svcpass != NULL) && (pip->svcpass[0] != '\0'))
 	    svcspecp = pip->svcpass ;
 
@@ -807,11 +806,11 @@ const char	*argz ;
 	const int	nlen = MAXNAMELEN ;
 	int		rs = SR_OK ;
 	int		pnl ;
-	int		enl ;
+	int		enl = 0 ;
 	const char	*program = sep->a.sharedobj ;
 	const char	*pnp ;
 	const char	*tp ;
-	const char	*enp ;		/* shlib entry-point */
+	const char	*enp = NULL ;	/* shlib entry-point */
 	const char	*cp ;
 	char		progfname[MAXPATHLEN + 1] ;
 	char		shlibname[MAXNAMELEN + 1] ;
@@ -837,8 +836,6 @@ const char	*argz ;
 
 	pnl = sfshrink(program,-1,&pnp) ;
 
-	enp = NULL ;
-	enl = 0 ;
 	if ((tp = strnchr(pnp,pnl,':')) == NULL) {
 	    tp = strnpbrk(pnp,pnl," \t") ;
 	}
@@ -869,8 +866,8 @@ const char	*argz ;
 	        enl = sfbaselib(pnp,pnl,&enp) ;
 	    }
 	    if ((enp == NULL) || (enl == 0)) {
-	        pnp = SHLIBENTRY ;
-	        pnl = -1 ;
+	        enp = SHLIBENTRY ;
+	        enl = -1 ;
 	    }
 	}
 

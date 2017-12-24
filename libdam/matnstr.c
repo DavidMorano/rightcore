@@ -1,6 +1,6 @@
 /* matnstr */
 
-/* matnstr (match a string) */
+/* match a counted string */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */

@@ -84,7 +84,7 @@ int matpstr(cchar **a,int n,cchar *sp,int sl)
 	if (sl < 0) sl = strlen(sp) ;
 
 	if (n >= 0) {
-	    const int	lc = sp[0] ; /* exveryting promotes */
+	    const int	lc = sp[0] ; /* everything promotes */
 	    int		i ;
 	    int		m_max = 0 ;
 	    int		m ;
@@ -93,7 +93,7 @@ int matpstr(cchar **a,int n,cchar *sp,int sl)
 		if ((m = (lc == a[i][0])) > 0) {
 		    m = nleadstr(a[i],sp,sl) ;
 		}
-		if (((m >= n) && (m == sl)) || (a[i][m] == '\0')) {
+		if ((m == sl) && ((m >= n) || (a[i][m] == '\0'))) {
 		    if (m > m_max) {
 			m_max = m ;
 			si = i ;

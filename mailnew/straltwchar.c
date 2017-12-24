@@ -74,7 +74,125 @@ struct special {
 
 /* local variables */
 
-struct special	specials[] = {
+static const struct special	specials[] = {
+	{ 0x041C, "C" },
+	{ 0x041D, "T" },
+	{ 0x041E, "y" },
+	{ 0x0430, "a" },
+	{ 0x0433, "r" },
+	{ 0x0435, "e" },
+	{ 0x0437, "3" },
+	{ 0x043C, "M" },
+	{ 0x043D, "H" },
+	{ 0x043E, "o" },
+	{ 0x043F, "n" },
+	{ 0x0440, "p" },
+	{ 0x0441, "c" },
+	{ 0x0443, "y" },
+	{ 0x0445, "x" },
+	{ 0x044A, "b" },
+	{ 0x044C, "b" },
+	{ 0x0455, "s" },
+	{ 0x0456, "i" },
+	{ 0x0456, "ï" },
+	{ 0x0456, "j" },
+	{ 0x0474, "V" },
+	{ 0x0475, "v" },
+	{ 0x047A, "Ø" },
+	{ 0x047B, "ø" },
+	{ 0x0480, "Ç" },
+	{ 0x0481, "ç" },
+	{ 0x0484, "^" },
+	{ 0x0487, "~" },
+	{ 0x0493, "f" },
+	{ 0x049A, "K" },
+	{ 0x049B, "k" },
+	{ 0x049C, "K" },
+	{ 0x049D, "k" },
+	{ 0x049E, "K" },
+	{ 0x049F, "k" },
+	{ 0x04A0, "K" },
+	{ 0x04A1, "k" },
+	{ 0x04A2, "H" },
+	{ 0x04A3, "h" },
+	{ 0x04A4, "H" },
+	{ 0x04A5, "h" },
+	{ 0x04AA, "Ç" },
+	{ 0x04AB, "ç" },
+	{ 0x04AC, "T" },
+	{ 0x04AD, "t" },
+	{ 0x04AE, "Y" },
+	{ 0x04AF, "y" },
+	{ 0x04B0, "¥" },
+	{ 0x04B1, "y" },
+	{ 0x04B2, "X" },
+	{ 0x04B3, "x" },
+	{ 0x04BA, "h" },
+	{ 0x04BB, "h" },
+	{ 0x04C0, "|" },
+	{ 0x04C1, "X" },
+	{ 0x04C2, "x" },
+	{ 0x04C7, "H" },
+	{ 0x04C8, "h" },
+	{ 0x04C9, "H" },
+	{ 0x04CA, "h" },
+	{ 0x04CB, "Y" },
+	{ 0x04CC, "y" },
+	{ 0x04CD, "M" },
+	{ 0x04CE, "m" },
+	{ 0x04CF, "l" },
+	{ 0x04D0, "Ã" },
+	{ 0x04D1, "ã" },
+	{ 0x04D2, "Ä" },
+	{ 0x04D3, "ä" },
+	{ 0x04D4, "Æ" },
+	{ 0x04D5, "æ" },
+	{ 0x04D6, "Ê" },
+	{ 0x04D7, "ê" },
+	{ 0x04DC, "X" },
+	{ 0x04DD, "x" },
+	{ 0x04DE, "3" },
+	{ 0x04DF, "3" },
+	{ 0x04E0, "3" },
+	{ 0x04E1, "3" },
+	{ 0x04E2, "Ñ" },
+	{ 0x04E3, "ñ" },
+	{ 0x04E4, "Ñ" },
+	{ 0x04E5, "ñ" },
+	{ 0x04E6, "Ö" },
+	{ 0x04E7, "ö" },
+	{ 0x04EE, "Y" },
+	{ 0x04EF, "y" },
+	{ 0x04F0, "Y" },
+	{ 0x04F1, "y" },
+	{ 0x04F2, "Y" },
+	{ 0x04F3, "y" },
+	{ 0x04FA, "F" },
+	{ 0x04FB, "f" },
+	{ 0x04FC, "X" },
+	{ 0x04FD, "x" },
+	{ 0x04FE, "X" },
+	{ 0x04FF, "x" },
+	{ 0x0500, "d" },
+	{ 0x0501, "d" },
+	{ 0x050C, "G" },
+	{ 0x050D, "g" },
+	{ 0x050E, "V" },
+	{ 0x050F, "v" },
+	{ 0x0512, "N" },
+	{ 0x0513, "n" },
+	{ 0x0514, "X" },
+	{ 0x0515, "x" },
+	{ 0x0516, "P" },
+	{ 0x0517, "p" },
+	{ 0x0518, "Æ" },
+	{ 0x0519, "æ" },
+	{ 0x051A, "Q" },
+	{ 0x051B, "q" },
+	{ 0x051C, "W" },
+	{ 0x051D, "w" },
+	{ 0x051E, "K" },
+	{ 0x051F, "k" },
 	{ 0x2010, "­" },
 	{ 0x2011, "­" },
 	{ 0x2012, "-" },
@@ -148,16 +266,27 @@ struct special	specials[] = {
 /* exported subroutines */
 
 
-cchar *straltwchar(uint wch)
+cchar *straltwchar(uint sch)
 {
+	uint		ch ;
+	int		front = 0 ;
+	int		back = (nelem(specials)-1) ;
 	int		i ;
 	int		f = FALSE ;
 	cchar		*ss = NULL ;
-	for (i = 0 ; specials[i].code > 0 ; i += 1) {
-	    f = (specials[i].code == wch) ;
-	    if (f) break ;
-	} /* end for */
-	if (f) {
+	i = (front + ((back-front)/2)) ;
+	while ((i < back) && (front < back)) {
+	    ch = specials[i].code ;
+	    if (sch > ch) {
+		front = (i+1) ;
+	    } else if (sch < ch) {
+		back = i ;
+	    } else {
+		break ;
+	    }
+	    i = (front + ((back-front)/2)) ;
+	} /* end while */
+	if (front < back) {
 	   ss = specials[i].ss ;
 	}
 	return ss ;

@@ -157,7 +157,7 @@ int pwcache_finish(PWCACHE *op)
 	rs1 = pwcache_recfins(op) ;
 	if (rs >= 0) rs = rs1 ;
 
-/* free up everyting else */
+/* free up everything else */
 
 	rs1 = hdb_finish(&op->db) ;
 	if (rs >= 0) rs = rs1 ;

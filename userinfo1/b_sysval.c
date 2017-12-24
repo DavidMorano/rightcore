@@ -2172,8 +2172,8 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    break ;
 	case qopt_vendor:
 	    if ((rs = getvendor(cvtbuf,cvtlen)) >= 0) {
-	            cbp = cvtbuf ;
-	            cbl = rs ;
+	        cbp = cvtbuf ;
+	        cbl = rs ;
 	    }
 	    break ;
 	default:

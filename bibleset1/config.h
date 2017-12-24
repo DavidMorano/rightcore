@@ -93,7 +93,7 @@
 
 #define	LOGSIZE		(80*1024)
 
-#define	PUBLISHER	"PB"			/* abbreviation */
+#define	PUBLISHER	"BB"			/* abbreviation */
 
 #define	NDBNAME		"english"		/* DB for bible book-names */
 #define	WDBNAME		"english"		/* DB for bible meta-words */

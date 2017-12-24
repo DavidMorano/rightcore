@@ -199,48 +199,48 @@ int uc_getnetent(struct netent *nep,char *rbuf,int rlen)
 	repeat {
 
 #if	defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0)
-	{
-	    errno = 0 ;
-	    rp = getnetent_r(nep,rbuf,rlen) ;
-	    if (rp != NULL) {
+	    {
+	        errno = 0 ;
+	        rp = getnetent_r(nep,rbuf,rlen) ;
+	        if (rp != NULL) {
 #if	CF_DEBUGS
-		netdebug(nep,rbuf) ;
+	            netdebug(nep,rbuf) ;
 #endif
-	        rs = netsize(nep) ;
-	    } else {
-	        rs = (- errno) ;
+	            rs = netsize(nep) ;
+	        } else {
+	            rs = (- errno) ;
+	        }
+#if	CF_DEBUGS
+	        debugprintf("uc_getnetent: rp=%p rs=%d\n",rp,rs) ;
+#endif
 	    }
-#if	CF_DEBUGS
-	debugprintf("uc_getnetent: rp=%p rs=%d\n",rp,rs) ;
-#endif
-	}
 #else /* defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0) */
-	{
-	    errno = 0 ;
-	    rp = getnetent() ;
-	    if (rp != NULL) {
-	        rs = netcopy(nep,rbuf,rlen,rp) ;
-	    } else {
-	        rs = (- errno) ;
+	    {
+	        errno = 0 ;
+	        rp = getnetent() ;
+	        if (rp != NULL) {
+	            rs = netcopy(nep,rbuf,rlen,rp) ;
+	        } else {
+	            rs = (- errno) ;
+	        }
 	    }
-	}
 #endif /* defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0) */
 
 	    if (rs < 0) {
 	        switch (rs) {
 	        case SR_AGAIN:
 	            if (to_again-- > 0) {
-	                 msleep(1000) ;
-		    } else {
+	                msleep(1000) ;
+	            } else {
 	                rs = SR_TIMEDOUT ;
 	                f_exit = TRUE ;
 	            }
 	            break ;
 	        case SR_INTR:
 	            break ;
-		default:
-		    f_exit = TRUE ;
-		    break ;
+	        default:
+	            f_exit = TRUE ;
+	            break ;
 	        } /* end switch */
 	    } /* end if (error) */
 	} until ((rs >= 0) || f_exit) ;
@@ -250,11 +250,7 @@ int uc_getnetent(struct netent *nep,char *rbuf,int rlen)
 /* end subroutine (uc_getnetent) */
 
 
-int uc_getnetbyname(name,nep,rbuf,rlen)
-const char	name[] ;
-struct netent	*nep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getnetbyname(cchar *name,struct netent *nep,char *rbuf,int rlen)
 {
 	struct netent	*rp ;
 	int		rs = SR_OK ;
@@ -274,25 +270,25 @@ int		rlen ;
 	repeat {
 
 #if	defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0)
-	{
-	    errno = 0 ;
-	    rp = getnetbyname_r(name,nep,rbuf,rlen) ;
-	    if (rp != NULL) {
-	        rs = netsize(nep) ;
-	    } else {
-	        rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	    {
+	        errno = 0 ;
+	        rp = getnetbyname_r(name,nep,rbuf,rlen) ;
+	        if (rp != NULL) {
+	            rs = netsize(nep) ;
+	        } else {
+	            rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	        }
 	    }
-	}
 #else /* defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0) */
-	{
-	    errno = 0 ;
-	    rp = getnetbyname(name) ;
-	    if (rp != NULL) {
-	        rs = netcopy(nep,rbuf,rlen,rp) ;
-	    } else {
-	        rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	    {
+	        errno = 0 ;
+	        rp = getnetbyname(name) ;
+	        if (rp != NULL) {
+	            rs = netcopy(nep,rbuf,rlen,rp) ;
+	        } else {
+	            rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	        }
 	    }
-	}
 #endif /* defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0) */
 
 	    if (rs < 0) {
@@ -300,16 +296,16 @@ int		rlen ;
 	        case SR_AGAIN:
 	            if (to_again-- > 0) {
 	                msleep(1000) ;
-		    } else {
+	            } else {
 	                rs = SR_TIMEDOUT ;
 	                f_exit = TRUE ;
 	            }
 	            break ;
 	        case SR_INTR:
 	            break ;
-		default:
-		    f_exit = TRUE ;
-		    break ;
+	        default:
+	            f_exit = TRUE ;
+	            break ;
 	        } /* end switch */
 	    } /* end if */
 	} until ((rs >= 0) || f_exit) ;
@@ -323,12 +319,7 @@ int		rlen ;
 /* end subroutine (uc_getnetbyname) */
 
 
-int uc_getnetbyaddr(addr,type,nep,rbuf,rlen)
-long		addr ;
-int		type ;
-struct netent	*nep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getnetbyaddr(long addr,int type,struct netent *nep,char *rbuf,int rlen)
 {
 	struct netent	*rp ;
 	int		rs = SR_OK ;
@@ -347,25 +338,25 @@ int		rlen ;
 	repeat {
 
 #if	defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0)
-	{
-	    errno = 0 ;
-	    rp = getnetbyaddr_r(addr,type,nep,rbuf,rlen) ;
-	    if (rp != NULL) {
-	        rs = netsize(nep) ;
-	    } else {
-	        rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	    {
+	        errno = 0 ;
+	        rp = getnetbyaddr_r(addr,type,nep,rbuf,rlen) ;
+	        if (rp != NULL) {
+	            rs = netsize(nep) ;
+	        } else {
+	            rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	        }
 	    }
-	}
 #else /* defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0) */
-	{
-	    errno = 0 ;
-	    rp = getnetbyaddr(addr,type) ;
-	    if (rp != NULL) {
-	        rs = netcopy(nep,rbuf,rlen,rp) ;
-	    } else {
-	        rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	    {
+	        errno = 0 ;
+	        rp = getnetbyaddr(addr,type) ;
+	        if (rp != NULL) {
+	            rs = netcopy(nep,rbuf,rlen,rp) ;
+	        } else {
+	            rs = (errno == 0) ? SR_NOTFOUND : (- errno) ;
+	        }
 	    }
-	}
 #endif /* defined(SYSHAS_GETNETXXXR) && (SYSHAS_GETNETXXXR > 0) */
 
 	    if (rs < 0) {
@@ -373,16 +364,16 @@ int		rlen ;
 	        case SR_AGAIN:
 	            if (to_again-- > 0) {
 	                msleep(1000) ;
-		    } else {
+	            } else {
 	                rs = SR_TIMEDOUT ;
 	                f_exit = TRUE ;
 	            }
 	            break ;
 	        case SR_INTR:
 	            break ;
-		default:
-		    f_exit = TRUE ;
-		    break ;
+	        default:
+	            f_exit = TRUE ;
+	            break ;
 	        } /* end switch */
 	    } /* end if */
 	} until ((rs >= 0) || f_exit) ;
@@ -399,8 +390,7 @@ int		rlen ;
 /* local subroutines */
 
 
-static int netsize(nep)
-struct netent	*nep ;
+static int netsize(struct netent *nep)
 {
 	int		size = 0 ;
 	if (nep->n_name != NULL) {
@@ -440,8 +430,8 @@ int		rlen ;
 	        for (n = 0 ; rp->n_aliases[n] != NULL ; n += 1) ;
 
 	        if ((rs = storeitem_ptab(&ib,n,&tab)) >= 0) {
-		    int		i ;
-		    const char	**aliases = rp->n_aliases ;
+	            int		i ;
+	            const char	**aliases = rp->n_aliases ;
 
 	            nep->n_aliases = (char **) tab ;
 	            for (i = 0 ; rp->n_aliases[i] != NULL ; i += 1) {
@@ -492,8 +482,8 @@ static int netdebug(struct netent *nep,char *rbuf)
 	if (nep->n_aliases != NULL) {
 	    int	i ;
 	    for (i = 0 ; nep->n_aliases[i] != NULL ; i += 1) {
-		const char	*a = nep->n_aliases[i] ;
-		debugprintf("uc_getnet/netdebug: alias=%s\n",a) ;
+	        const char	*a = nep->n_aliases[i] ;
+	        debugprintf("uc_getnet/netdebug: alias=%s\n",a) ;
 	    } /* end for */
 	} /* end if (group members) */
 	return 0 ;

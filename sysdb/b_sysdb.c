@@ -54,6 +54,7 @@
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<vecstr.h>
+#include	<setstr.h>
 #include	<field.h>
 #include	<nulstr.h>
 #include	<getax.h>
@@ -113,6 +114,7 @@ extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
 extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
@@ -1076,8 +1078,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                } /* end switch */
 
 	                c += 1 ;
-	            } else
+	            } else {
 	                rs = SR_INVALID ;
+		    }
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1270,8 +1273,8 @@ static int procsome(PROGINFO *pip,int w,void *ofp,ARGINFO *aip,BITS *bop,
 	cchar		*cp ;
 
 	if (rs >= 0) {
-	    int	ai ;
-	    int	f ;
+	    int		ai ;
+	    int		f ;
 	    for (ai = aip->ai_continue ; ai < aip->argc ; ai += 1) {
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
@@ -1462,16 +1465,27 @@ static int procprotos_all(PROGINFO *pip,int w,void *ofp)
 	struct protoent	pe ;
 	const int	pelen = getbufsize(getbufsize_pe) ;
 	int		rs ;
+	int		rs1 ;
 	char		*pebuf ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
 	    debugprintf("b_sysdb/procprotos_all: ent pelen=%d\n",pelen) ;
 #endif
 	if ((rs = uc_malloc((pelen+1),&pebuf)) >= 0) {
-	    while ((rs = getpe_ent(&pe,pebuf,pelen)) > 0) {
-	        rs = shio_print(ofp,pe.p_name,-1) ;
-	        if (rs < 0) break ;
-	    } /* end while */
+	    SETSTR	ss ;
+	    const int	n = 20 ;
+	    if ((rs = setstr_start(&ss,n)) >= 0) {
+		cchar	*np ;
+	        while ((rs = getpe_ent(&pe,pebuf,pelen)) > 0) {
+		    np = pe.p_name ;
+		    if ((rs = setstr_add(&ss,np,-1)) > 0) {
+	        	rs = shio_print(ofp,np,-1) ;
+		    }
+		    if (rs < 0) break ;
+	        } /* end while */
+		rs1 = setstr_finish(&ss) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (setstr) */
 	    uc_free(pebuf) ;
 	} /* end if (m-a) */
 #if	CF_DEBUG
@@ -1522,12 +1536,23 @@ static int procnets_all(PROGINFO *pip,int w,void *ofp)
 	struct netent	ne ;
 	const int	nelen = getbufsize(getbufsize_ne) ;
 	int		rs ;
+	int		rs1 ;
 	char		*nebuf ;
 	if ((rs = uc_malloc((nelen+1),&nebuf)) >= 0) {
-	    while ((rs = getne_ent(&ne,nebuf,nelen)) > 0) {
-	        rs = shio_print(ofp,ne.n_name,-1) ;
-	        if (rs < 0) break ;
-	    } /* end while */
+	    SETSTR	ss ;
+	    const int	n = 20 ;
+	    if ((rs = setstr_start(&ss,n)) >= 0) {
+		cchar	*np ;
+	        while ((rs = getne_ent(&ne,nebuf,nelen)) > 0) {
+		    np = ne.n_name ;
+		    if ((rs = setstr_add(&ss,np,-1)) > 0) {
+	                rs = shio_print(ofp,np,-1) ;
+		    }
+	            if (rs < 0) break ;
+	        } /* end while */
+		rs1 = setstr_finish(&ss) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (setstr) */
 	    uc_free(nebuf) ;
 	} /* end if (m-a) */
 	return rs ;
@@ -1574,12 +1599,23 @@ static int prochosts_all(PROGINFO *pip,int w,void *ofp)
 	struct hostent	he ;
 	const int	helen = getbufsize(getbufsize_he) ;
 	int		rs ;
+	int		rs1 ;
 	char		*hebuf ;
 	if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
-	    while ((rs = gethe_ent(&he,hebuf,helen)) > 0) {
-	        rs = shio_print(ofp,he.h_name,-1) ;
-	        if (rs < 0) break ;
-	    } /* end while */
+	    SETSTR	ss ;
+	    const int	n = 20 ;
+	    if ((rs = setstr_start(&ss,n)) >= 0) {
+		cchar	*np ;
+	        while ((rs = gethe_ent(&he,hebuf,helen)) > 0) {
+		    np = he.h_name ;
+		    if ((rs = setstr_add(&ss,np,-1)) > 0) {
+	                rs = shio_print(ofp,np,-1) ;
+		    }
+	            if (rs < 0) break ;
+	        } /* end while */
+		rs1 = setstr_finish(&ss) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (setstr) */
 	    uc_free(hebuf) ;
 	} /* end if (m-a) */
 	return rs ;
@@ -1626,12 +1662,23 @@ static int procsvcs_all(PROGINFO *pip,int w,void *ofp)
 	struct servent	se ;
 	const int	selen = getbufsize(getbufsize_se) ;
 	int		rs ;
+	int		rs1 ;
 	char		*sebuf ;
 	if ((rs = uc_malloc((selen+1),&sebuf)) >= 0) {
-	    while ((rs = getse_ent(&se,sebuf,selen)) > 0) {
-	        rs = shio_print(ofp,se.s_name,-1) ;
-	        if (rs < 0) break ;
-	    } /* end while */
+	    SETSTR	ss ;
+	    const int	n = 20 ;
+	    if ((rs = setstr_start(&ss,n)) >= 0) {
+		cchar	*np ;
+	        while ((rs = getse_ent(&se,sebuf,selen)) > 0) {
+		    np = se.s_name ;
+		    if ((rs = setstr_add(&ss,np,-1)) > 0) {
+	                rs = shio_print(ofp,np,-1) ;
+		    }
+	            if (rs < 0) break ;
+	        } /* end while */
+		rs1 = setstr_finish(&ss) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (setstr) */
 	    uc_free(sebuf) ;
 	} /* end if (m-a) */
 	return rs ;
@@ -1680,13 +1727,26 @@ static int procuas_all(PROGINFO *pip,int w,void *ofp)
 	userattr_t	ua ;
 	const int	ualen = getbufsize(getbufsize_ua) ;
 	int		rs ;
+	int		rs1 ;
 	char		*uabuf ;
 	if ((rs = uc_malloc((ualen+1),&uabuf)) >= 0) {
-	    while ((rs = getua_ent(&ua,uabuf,ualen)) > 0) {
+	    SETSTR	ss ;
+	    const int	n = 20 ;
+	    if ((rs = setstr_start(&ss,n)) >= 0) {
+		int	nl ;
 	        cchar	*fmt = "%s %d\n" ;
-	        rs = shio_printf(ofp,fmt,ua.name,ua.attr->length) ;
-	        if (rs < 0) break ;
-	    } /* end while */
+		cchar	*np ;
+	        while ((rs = getua_ent(&ua,uabuf,ualen)) > 0) {
+		    nl = ua.attr->length ;
+		    np = ua.name ;
+		    if ((rs = setstr_add(&ss,np,nl)) > 0) {
+	        	rs = shio_printf(ofp,fmt,np,nl) ;
+		     }
+	            if (rs < 0) break ;
+	        } /* end while */
+		rs1 = setstr_finish(&ss) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (setstr) */
 	    uc_free(uabuf) ;
 	} /* end if (m-a) */
 	return rs ;

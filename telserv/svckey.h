@@ -19,9 +19,9 @@
 
 enum svckeys {
 	svckey_file,
+	svckey_pass,
 	svckey_so,
 	svckey_p,
-	svckey_pass,
 	svckey_a,
 	svckey_u,
 	svckey_g,
@@ -30,23 +30,24 @@ enum svckeys {
 	svckey_opts,
 	svckey_failcont,
 	svckey_include,
+	svckey_svc,
 	svckey_overlast
 } ;
 
 struct svckey {
 	const char	*file ;
 	const char	*pass ;		/* pass-file (pipe) */
-	const char	*svc ;		/* service */
 	const char	*so ;		/* shared object */
 	const char	*p ;		/* program (execfname) */
 	const char	*a ;		/* arguments */
 	const char	*u ;		/* username */
 	const char	*g ;		/* group */
-	const char	*acc ;		/* access */
 	const char	*interval ;	/* interval */
+	const char	*acc ;		/* access */
 	const char	*opts ;		/* options */
 	const char	*failcont ;	/* fail-continue */
 	const char	*include ;
+	const char	*svc ;		/* service */
 } ;
 
 

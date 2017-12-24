@@ -107,7 +107,7 @@ static int	sreq_builtdone(SREQ *) ;
 static int	mkfile(cchar *,cchar **) ;
 
 
-/* global variables */
+/* local variables */
 
 
 /* exported subroutines */
@@ -179,7 +179,7 @@ int sreq_finish(SREQ *jep)
 	rs1 = sreq_fdfins(jep) ;
 	if (rs >= 0) rs = rs1 ;
 
-	rs1 = sreq_closestderr(jep) ;
+	rs1 = sreq_stderrend(jep) ;
 	if (rs >= 0) rs = rs1 ;
 
 	if (jep->av != NULL) {
@@ -212,8 +212,8 @@ int sreq_finish(SREQ *jep)
 
 	if (jep->efname != NULL) {
 	    if (jep->efname[0] != '\0') {
-		u_unlink(jep->efname) ;
-		jep->efname[0] = '\0' ;
+	        u_unlink(jep->efname) ;
+	        jep->efname[0] = '\0' ;
 	    }
 	    rs1 = uc_free(jep->efname) ;
 	    if (rs >= 0) rs = rs1 ;
@@ -272,16 +272,16 @@ int sreq_svcaccum(SREQ *op,cchar *sp,int sl)
 	if (sl < 0) sl = strlen(sp) ;
 	if (op->svclen == 0) {
 	    if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
-		strwcpy(bp,sp,sl) ;
-		op->svcbuf = bp ;
-		op->svclen = sl ;
+	        strwcpy(bp,sp,sl) ;
+	        op->svcbuf = bp ;
+	        op->svclen = sl ;
 	    }
 	} else {
 	    const int	nlen = (op->svclen+sl) ;
 	    if ((rs = uc_realloc(op->svcbuf,(nlen+1),&bp)) >= 0) {
-		strwcpy((bp+op->svclen),sp,sl) ;
-		op->svcbuf = bp ;
-		op->svclen = nlen ;
+	        strwcpy((bp+op->svclen),sp,sl) ;
+	        op->svcbuf = bp ;
+	        op->svclen = nlen ;
 	    }
 	}
 	return rs ;
@@ -303,7 +303,7 @@ int sreq_svcmunge(SREQ *jep)
 	    if ((rs = vecstr_svcargs(&sa,&f_long,jep->svcbuf)) >= 0) {
 	        c = rs ;
 #if	CF_DEBUGS
-		debugprintf("sreq_svcmunge: vecstr_svcargs() rs=%d\n",rs) ;
+	        debugprintf("sreq_svcmunge: vecstr_svcargs() rs=%d\n",rs) ;
 #endif
 	        if ((rs = sreq_svcparse(jep,f_long)) >= 0) {
 	            const int	ts = vecstr_strsize(&sa) ;
@@ -311,8 +311,8 @@ int sreq_svcmunge(SREQ *jep)
 	            cchar	**av = NULL ;
 
 #if	CF_DEBUGS
-		    debugprintf("sreq_svcmunge: mid2 c=%u\n",c) ;
-		    debugprintf("sreq_svcmunge: mid2 ts=%d\n",ts) ;
+	            debugprintf("sreq_svcmunge: mid2 c=%u\n",c) ;
+	            debugprintf("sreq_svcmunge: mid2 ts=%d\n",ts) ;
 #endif
 
 	            as = ((c + 2) * sizeof(cchar *)) ;
@@ -325,28 +325,28 @@ int sreq_svcmunge(SREQ *jep)
 	                        jep->av = av ;
 	                        jep->argstab = at ;
 #if	CF_DEBUGS
-			{
-				int	i ;
-				debugprintf("sreq_svcmunge: args¬\n") ;
-				for (i = 0 ; 
-				(i < jep->nav) && (av[i] != NULL) ; i += 1) {
-				    debugprintf("sreq_svcmunge: a[%u]=%s\n",
-					i,av[i]) ;
-				}
-			}
+	                        {
+	                            int	i ;
+	                            debugprintf("sreq_svcmunge: args¬\n") ;
+	                            for (i = 0 ; 
+	                                (i < jep->nav) && (av[i] != NULL) ; i += 1) {
+	                                debugprintf("sreq_svcmunge: a[%u]=%s\n",
+	                                    i,av[i]) ;
+	                            }
+	                        }
 #endif
 	                    }
 
 #if	CF_DEBUGS
-		    debugprintf("sreq_svcmunge: vecstr_avmkstr-out rs=%d\n",
-			rs) ;
+	                    debugprintf("sreq_svcmunge: vecstr_avmkstr-out rs=%d\n",
+	                        rs) ;
 #endif
 
 	                    if (rs < 0) uc_free(at) ;
 	                } /* end if (memory-allocation) */
 
 #if	CF_DEBUGS
-		    debugprintf("sreq_svcmunge: m2-out rs=%d\n",rs) ;
+	                debugprintf("sreq_svcmunge: m2-out rs=%d\n",rs) ;
 #endif
 
 	                if (rs < 0)
@@ -354,7 +354,7 @@ int sreq_svcmunge(SREQ *jep)
 	            } /* end if (memory-allocation) */
 
 #if	CF_DEBUGS
-		    debugprintf("sreq_svcmunge: m1-out rs=%d\n",rs) ;
+	            debugprintf("sreq_svcmunge: m1-out rs=%d\n",rs) ;
 #endif
 
 	        } /* end if (sreq_argparse) */
@@ -383,32 +383,32 @@ int sreq_svcparse(SREQ *op,int f_long)
 	    cchar	*sp ;
 	    op->f.longopt = f_long ;
 	    if ((sl = sfnext(op->svcbuf,op->svclen,&sp)) >= 0) {
-		cchar	*tp ;
+	        cchar	*tp ;
 	        char	*bp ;
-		if ((tp = strnchr(sp,sl,'/')) != NULL) {
-		    if (! f_long) {
-			if (((sp+sl)-tp) > 1) {
-			    op->f.longopt = (tolc(tp[1]) == 'w') ;
-			}
-		    }
-		    sl = (tp-sp) ;
-		}
+	        if ((tp = strnchr(sp,sl,'/')) != NULL) {
+	            if (! f_long) {
+	                if (((sp+sl)-tp) > 1) {
+	                    op->f.longopt = (tolc(tp[1]) == 'w') ;
+	                }
+	            }
+	            sl = (tp-sp) ;
+	        }
 #if	CF_DEBUGS
-		debugprintf("sreq_svcparse: s=>%t<\n",sp,sl) ;
+	        debugprintf("sreq_svcparse: s=>%t<\n",sp,sl) ;
 #endif
 	        if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
-		    len = sl ;
+	            len = sl ;
 	            op->svc = bp ;
 	            op->subsvc = strwcpy(bp,sp,sl) ;
 	            if ((tp = strnchr(sp,sl,'+')) != NULL) {
-			len = (tp-sp) ;
-		        bp[tp-sp] = '\0' ;
-		        op->subsvc = bp+((tp+1)-sp) ;
+	                len = (tp-sp) ;
+	                bp[tp-sp] = '\0' ;
+	                op->subsvc = bp+((tp+1)-sp) ;
 	            }
 	        } /* end if (m-a) */
 #if	CF_DEBUGS
-		debugprintf("sreq_svcparse: svc=%s\n",op->svc) ;
-		debugprintf("sreq_svcparse: subsvc=>%s<\n",op->subsvc) ;
+	        debugprintf("sreq_svcparse: svc=%s\n",op->svc) ;
+	        debugprintf("sreq_svcparse: subsvc=>%s<\n",op->subsvc) ;
 #endif
 	    } /* end if (sfnext) */
 	} else {
@@ -582,6 +582,7 @@ int sreq_thrdone(SREQ *jep)
 /* end subroutine (sreq_thrdone) */
 
 
+/* services-name - |help| service helper - create new instance */
 int sreq_sncreate(SREQ *jep)
 {
 	int		rs = SR_OK ;
@@ -589,7 +590,7 @@ int sreq_sncreate(SREQ *jep)
 	    OSETSTR	*ssp = &jep->namesvcs ;
 	    const int	ne = 50 ;
 	    if ((rs = osetstr_start(ssp,ne)) >= 0) {
-		jep->open.namesvcs = TRUE ;
+	        jep->open.namesvcs = TRUE ;
 	    }
 	}
 	return rs ;
@@ -597,6 +598,7 @@ int sreq_sncreate(SREQ *jep)
 /* end subroutine (sreq_sncreate) */
 
 
+/* services-name - |help| service helper - destroy existing instance */
 int sreq_sndestroy(SREQ *jep)
 {
 	int		rs = SR_OK ;
@@ -612,6 +614,7 @@ int sreq_sndestroy(SREQ *jep)
 /* end subroutine (sreq_sndestroy) */
 
 
+/* services-name - |help| service helper - add a service name */
 int sreq_snadd(SREQ *jep,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
@@ -624,6 +627,7 @@ int sreq_snadd(SREQ *jep,cchar *sp,int sl)
 /* end subroutine (sreq_snadd) */
 
 
+/* services-name - |help| service helper - begin enumerate */
 int sreq_snbegin(SREQ *jep,SREQ_SNCUR *scp)
 {
 	int		rs = SR_OK ;
@@ -637,6 +641,7 @@ int sreq_snbegin(SREQ *jep,SREQ_SNCUR *scp)
 /* end subroutine (sreq_snbegin) */
 
 
+/* services-name - |help| service helper - end enumerate */
 int sreq_snend(SREQ *jep,SREQ_SNCUR *scp)
 {
 	int		rs = SR_OK ;
@@ -652,6 +657,7 @@ int sreq_snend(SREQ *jep,SREQ_SNCUR *scp)
 /* end subroutine (sreq_snend) */
 
 
+/* services-name - |help| service helper - execute enumerate */
 int sreq_snenum(SREQ *jep,SREQ_SNCUR *scp,cchar **rpp)
 {
 	int		rs = SR_OK ;
@@ -665,6 +671,7 @@ int sreq_snenum(SREQ *jep,SREQ_SNCUR *scp,cchar **rpp)
 /* end subroutine (sreq_snenum) */
 
 
+/* biltin operation */
 int sreq_builtload(SREQ *jep,MFSERVE_INFO *ip)
 {
 	const int	osize = ip->objsize ;
@@ -681,6 +688,7 @@ int sreq_builtload(SREQ *jep,MFSERVE_INFO *ip)
 /* end subroutine (sreq_builtload) */
 
 
+/* biltin operation */
 int sreq_builtrelease(SREQ *jep)
 {
 	int		rs = SR_OK ;
@@ -690,9 +698,9 @@ int sreq_builtrelease(SREQ *jep)
 	    if ((rs = uc_free(jep->objp)) >= 0) {
 	        jep->objp = NULL ;
 	        jep->binfo.objsize = 0 ;
-		jep->f.builtout = FALSE ;
-		jep->f.builtdone = FALSE ;
-		rs = 1 ;
+	        jep->f.builtout = FALSE ;
+	        jep->f.builtdone = FALSE ;
+	        rs = 1 ;
 	    }
 	}
 	return rs ;
@@ -700,21 +708,23 @@ int sreq_builtrelease(SREQ *jep)
 /* end subroutine (sreq_builtrelease) */
 
 
-int sreq_objstart(SREQ *jep,cchar *pr,cchar **sav,cchar **envv)
+/* biltin operation */
+int sreq_objstart(SREQ *jep,cchar *pr,cchar **envv)
 {
 	int		rs = SR_OK ;
 	if (jep == NULL) return SR_FAULT ;
 	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
 	if (jep->objp != NULL) {
 	    if (! jep->f.builtout) {
-	    	    objstart_t	m = (objstart_t) jep->binfo.start ;
+	        objstart_t	m = (objstart_t) jep->binfo.start ;
+	        cchar	**av = jep->av ;
 #if	CF_DEBUGS
-		    debugprintf("sreq_objstart: obj{&p} m{%p}\n",
-				jep->objp,m) ;
+	        debugprintf("sreq_objstart: obj{&p} m{%p}\n",
+	            jep->objp,m) ;
 #endif
-	            if ((rs = (*m)(jep->objp,pr,jep,sav,envv)) >= 0) {
-		        jep->f.builtout = TRUE ;
-		    }
+	        if ((rs = (*m)(jep->objp,pr,jep,av,envv)) >= 0) {
+	            jep->f.builtout = TRUE ;
+	        }
 	    } else {
 	        rs = SR_NOANODE ;
 	    }
@@ -729,6 +739,7 @@ int sreq_objstart(SREQ *jep,cchar *pr,cchar **sav,cchar **envv)
 /* end subroutine (sreq_objstart) */
 
 
+/* biltin operation, returns 0=not_done, (!0)=done */
 int sreq_objcheck(SREQ *jep)
 {
 	int		rs = SR_OK ;
@@ -736,14 +747,14 @@ int sreq_objcheck(SREQ *jep)
 	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
 	if (jep->objp != NULL) {
 	    if (jep->f.builtout) {
-		if (! jep->f.builtdone) {
+	        if (! jep->f.builtdone) {
 	            objcheck_t	m = (objcheck_t) jep->binfo.check ;
 	            if ((rs = (*m)(jep->objp)) > 0) {
-		        jep->f.builtdone = TRUE ;
-		    }
-		} else {
-		    rs = TRUE ;
-		}
+	                jep->f.builtdone = TRUE ;
+	            }
+	        } else {
+	            rs = TRUE ;
+	        }
 	    }
 	} else {
 	    rs = SR_NOANODE ;
@@ -756,6 +767,7 @@ int sreq_objcheck(SREQ *jep)
 /* end subroutine (sreq_objcheck) */
 
 
+/* biltin operation */
 int sreq_objabort(SREQ *jep)
 {
 	int		rs = SR_OK ;
@@ -766,15 +778,15 @@ int sreq_objabort(SREQ *jep)
 	if (jep->magic != SREQ_MAGIC) return SR_NOTFOUND ;
 	if (jep->objp != NULL) {
 	    if (jep->f.builtout) {
-		if (! jep->f.builtdone) {
+	        if (! jep->f.builtdone) {
 	            objabort_t	m = (objabort_t) jep->binfo.abort ;
 #if	CF_DEBUGS
 	            debugprintf("sreq_objabort: objp{%p} m{%p}\n",jep->objp,m) ;
 #endif
 	            rs = (*m)(jep->objp) ;
-		} else {
-		    rs = TRUE ;
-		}
+	        } else {
+	            rs = TRUE ;
+	        }
 	    }
 	} else {
 	    rs = SR_NOANODE ;
@@ -787,6 +799,7 @@ int sreq_objabort(SREQ *jep)
 /* end subroutine (sreq_objstart) */
 
 
+/* biltin operation */
 int sreq_objfinish(SREQ *jep)
 {
 	int		rs = SR_OK ;
@@ -796,9 +809,9 @@ int sreq_objfinish(SREQ *jep)
 	    if (jep->f.builtout) {
 	        objfinish_t	m = (objfinish_t) jep->binfo.finish ;
 	        if ((rs = (*m)(jep->objp)) >= 0) {
-		    jep->f.builtdone = FALSE ;
-		    jep->f.builtout = FALSE ;
-		}
+	            jep->f.builtdone = FALSE ;
+	            jep->f.builtout = FALSE ;
+	        }
 	    }
 	} else {
 	    rs = SR_NOANODE ;
@@ -811,7 +824,7 @@ int sreq_objfinish(SREQ *jep)
 /* end subroutine (sreq_objfinish) */
 
 
-int sreq_openstderr(SREQ *jep,cchar *edname)
+int sreq_stderrbegin(SREQ *jep,cchar *edname)
 {
 	const int	elen = MAXPATHLEN ;
 	int		rs ;
@@ -824,32 +837,46 @@ int sreq_openstderr(SREQ *jep,cchar *edname)
 	    jep->efname = ebuf ; /* load address */
 	    if ((rs = ctdeci(dbuf,dlen,jep->jsn)) >= 0) {
 	        const int	clen = MAXNAMELEN ;
-		cchar		*x = "XXXXXX" ;
+	        cchar		*x = "XXXXXX" ;
 	        char		cbuf[MAXNAMELEN+1] ;
 	        if ((rs = sncpy4(cbuf,clen,lead,dbuf,".",x)) >= 0) {
 	            char	tbuf[MAXPATHLEN+1] ;
-		    if ((rs = mkpath2(tbuf,edname,cbuf)) >= 0) {
-		        const mode_t	om = 0664 ;
-		        const int	of = (O_CREAT|O_WRONLY|O_TRUNC) ;
-		        char		*ebuf = jep->efname ;
+	            if ((rs = mkpath2(tbuf,edname,cbuf)) >= 0) {
+	                const mode_t	om = 0664 ;
+	                const int	of = (O_CREAT|O_WRONLY|O_TRUNC) ;
+	                char		*ebuf = jep->efname ;
 	                if ((rs = opentmpfile(tbuf,of,om,ebuf)) >= 0) {
 	                    jep->efd = rs ;
-			    fd = rs ;
-		        } /* end if (uc_open) */
-		    } /* end if (mkpath) */
+	                    fd = rs ;
+	                } /* end if (uc_open) */
+	            } /* end if (mkpath) */
 	        } /* end if (sncpy) */
 	    } /* end if (cfdeci) */
 	    if (rs < 0) {
-		uc_free(jep->efname) ;
-	 	jep->efname = NULL ;
+	        uc_free(jep->efname) ;
+	        jep->efname = NULL ;
 	    }
 	} /* end if (m-a) */
 	return (rs >= 0) ? fd : rs ;
 }
-/* end subroutine (sreq_openstderr) */
+/* end subroutine (sreq_stderrbegin) */
 
 
-int sreq_closestderr(SREQ *jep)
+int sreq_stderrclose(SREQ *jep)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (jep->efd >= 0) {
+	    rs1 = u_close(jep->efd) ;
+	    if (rs >= 0) rs = rs1 ;
+	    jep->efd = -1 ;
+	}
+	return rs ;
+}
+/* end subroutine (sreq_stderrclose) */
+
+
+int sreq_stderrend(SREQ *jep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -871,7 +898,7 @@ int sreq_closestderr(SREQ *jep)
 	}
 	return rs ;
 }
-/* end subroutine (sreq_closestderr) */
+/* end subroutine (sreq_stderrend) */
 
 
 /* private subroutines */
@@ -886,11 +913,11 @@ static int sreq_builtdone(SREQ *jep)
 #endif
 	if (jep->objp != NULL) {
 	    if ((rs = sreq_objabort(jep)) >= 0) {
-		if ((rs = sreq_objfinish(jep)) >= 0) {
-	    	    rs1 = uc_free(jep->objp) ;
-	    	    if (rs >= 0) rs = rs1 ;
-	    	    jep->objp = NULL ;
-		}
+	        if ((rs = sreq_objfinish(jep)) >= 0) {
+	            rs1 = uc_free(jep->objp) ;
+	            if (rs >= 0) rs = rs1 ;
+	            jep->objp = NULL ;
+	        }
 	    }
 	}
 #if	C_FDEBUGS
@@ -908,6 +935,10 @@ static int sreq_fdfins(SREQ *jep)
 #if	CF_DEBUGS
 	debugprintf("sreq_fdfins: ent ofd=%d ifd=%d\n",jep->ofd,jep->ifd) ;
 #endif
+
+	rs1 = sreq_stderrclose(jep) ;
+	if (rs >= 0) rs = rs1 ;
+
 	if (jep->ofd >= 0) {
 	    if (jep->ofd != jep->ifd) {
 	        rs1 = u_close(jep->ofd) ;
@@ -915,11 +946,13 @@ static int sreq_fdfins(SREQ *jep)
 	    }
 	    jep->ofd = -1 ;
 	}
+
 	if (jep->ifd >= 0) {
 	    rs1 = u_close(jep->ifd) ;
 	    if (rs >= 0) rs = rs1 ;
 	    jep->ifd = -1 ;
 	}
+
 #if	CF_DEBUGS
 	debugprintf("sreq_fdfins: ret rs=%d\n",rs) ;
 #endif
@@ -940,7 +973,7 @@ static int mkfile(cchar *template,cchar **rpp)
 	    rs = uc_mallocstrw(tbuf,tl,rpp) ;
 	    if (rs < 0) {
 	        u_unlink(tbuf) ;
-		*rpp = NULL ;
+	        *rpp = NULL ;
 	    } /* end if (error-recovery) */
 	} /* end if (mktmpfile) */
 

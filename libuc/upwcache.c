@@ -173,7 +173,7 @@ int upwcache_finish(UPWCACHE *op)
 	rs1 = upwcache_recfins(op) ;
 	if (rs >= 0) rs = rs1 ;
 
-/* free up everyting else */
+/* free up everything else */
 
 	rs1 = recarr_finish(op->recs) ;
 	if (rs >= 0) rs = rs1 ;

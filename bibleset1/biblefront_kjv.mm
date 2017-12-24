@@ -24,7 +24,7 @@
 .\"_ .PI biblecover.eps 9i,6i,-1.24i,-0.75i s
 .\"_
 .\"_ pagesize 8.5x11
-.PI biblecover_kjv.eps 11i,8.5i,-1.24i,-0.75i s
+.PI biblecover_av.eps 11i,8.5i,-1.24i,-0.75i s
 .\"_
 .\"_
 .\"_ skip to the even page
@@ -41,16 +41,16 @@
 .\"_
 .SP 2
 .DS C
-\s-2the\s0
-.DE
-.DS C
-\fB\s+2Print Bibles\s0\fP
+\s-2from\s0
+\(<- Bespoke Bibles \(->
 
-an Authorized Version translation of the Bible
+\s-2the\s0
+\fB\s+2 Authorized Version translation of the Bible \s0\fP
 .DE
+.SP 1
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2about\s0
 .DE
@@ -70,11 +70,11 @@ Some variations in the typesetting of this Bible are also available.
 At present, variations can include different fonts or font sizes.
 Custom typeset renditions of this Bible should be specifically
 requested.  
-Contact Print Bibles with any request.
+Contact Bespoke Bibles with any request.
 .QE
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2usage\s0
 .DE
@@ -94,7 +94,7 @@ key, the viewer program will display the page you specified.
 .QE
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2copyright restrictions\s0
 .DE
@@ -113,12 +113,12 @@ restrictions.
 .QE
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2acknowledgments\s0
 .DE
 .QS
-Print Bibles would like to gratefully thank the
+Bespoke Bibles would like to gratefully thank the
 Crown of the United Kingdom of Great Britain and Northern Ireland
 (presently Her Majesty Queen Elizabeth II)
 for the generous work of their 
@@ -135,20 +135,19 @@ for unrestricted and free use throughout the world.
 .QE
 .\"_
 .\"_
-.SP 2
-.ne 9
+.SP 1
 .DS C
 \s-2publisher\s0
 .DE
 .DS C
-Print Bibles
+Bespoke Bibles
 New Jersey, USA
 
 \s-2web\s0
-\f(CWhttp://www.newcenturybibles.org/\fP
+\f(CWhttp://www.bespokebibles.com/\fP
 
 \s-2email\s0
-\f(CWinfo@newcenturybibles.org\fP
+\f(CWinfo@bespokebibles.com\fP
 .DE
 .\"_
 .\"_

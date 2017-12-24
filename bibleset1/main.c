@@ -241,6 +241,7 @@ static cchar	*akonames[] = {
 	"tc",
 	"pt",
 	"title",
+	"pub",
 	NULL
 } ;
 
@@ -257,6 +258,7 @@ enum akonames {
 	akoname_tc,
 	akoname_pt,
 	akoname_title,
+	akoname_pub,
 	akoname_overlast
 } ;
 
@@ -1015,6 +1017,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* more initialization */
 
+	if (pip->pub == NULL) pip->pub = PUBLISHER ;
+
 	if (pip->linewidth == 0)
 	    pip->linewidth = LINEWIDTH ;
 
@@ -1352,13 +1356,22 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        pip->final.pagetitle = TRUE ;
 	                        pip->f.pagetitle = TRUE ;
 	                        if (vl > 0) {
-	                            const char	**vpp = &pip->pagetitle ;
+	                            cchar	**vpp = &pip->pagetitle ;
 	                            rs = proginfo_setentry(pip,vpp,vp,vl) ;
 	                            pip->f.pagetitle = (rs > 0) ;
 	                        }
 	                    }
 	                    break ;
-
+	                case akoname_pub:
+	                    if (! pip->have.pub) {
+	                        pip->have.pub = TRUE ;
+	                        pip->final.pub = TRUE ;
+	                        if (vl > 0) {
+	                            cchar	**vpp = &pip->pub ;
+	                            rs = proginfo_setentry(pip,vpp,vp,vl) ;
+	                        }
+	                    }
+	                    break ;
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1388,6 +1401,8 @@ cchar		*afn ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 	if ((rs = biblebook_open(&pip->bb,pip->pr,ndb)) >= 0) {
 	    pip->open.biblebook = TRUE ;
 
@@ -1409,16 +1424,16 @@ cchar		*afn ;
 	        rs1 = biblemeta_close(&pip->bm) ;
 	        if (rs >= 0) rs = rs1 ;
 	    } else {
-	        bprintf(pip->efp,"%s: bible meta-word DB unavailable (%d)\n",
-	            pip->progname,rs) ;
+	        fmt = "%s: bible meta-word DB unavailable (%d)\n" ;
+	        bprintf(pip->efp,fmt,pn,rs) ;
 	    }
 
 	    pip->open.biblebook = FALSE ;
 	    rs1 = biblebook_close(&pip->bb) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
-	    bprintf(pip->efp,"%s: bible book-name DB unavailable (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: bible book-name DB unavailable (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1468,8 +1483,8 @@ static int procout(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	}
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
-	    bprintf(pip->efp,"%s: output bytes=%u\n",
-	        pip->progname,wlen) ;
+	    fmt = "%s: output bytes=%u\n" ;
+	    bprintf(pip->efp,fmt,pn,wlen) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1484,13 +1499,13 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,void *ofp,cchar *afn)
 	int		cl ;
 	int		pan = 0 ;
 	int		wlen = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 
 	if (rs >= 0) {
-	    int	ai ;
-	    int	f ;
+	    int		ai ;
+	    int		f ;
 	    for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	        f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
@@ -1566,13 +1581,13 @@ static int procpagetitle(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	if ((pip->pagetitle == NULL) && (! pip->final.pagetitle)) {
-	                const int	blen = BIBLEBOOK_LEN ;
-	                char		bbuf[BIBLEBOOK_LEN + 1] ;
-	                if ((rs = biblebook_get(&pip->bb,0,bbuf,blen)) >= 0) {
-	                    const char	**vpp = &pip->pagetitle ;
-	                    rs = proginfo_setentry(pip,vpp,bbuf,rs) ;
-	                    pip->have.pagetitle = (rs >= 0) ;
-	                }
+	    const int	blen = BIBLEBOOK_LEN ;
+	    char	bbuf[BIBLEBOOK_LEN + 1] ;
+	    if ((rs = biblebook_get(&pip->bb,0,bbuf,blen)) >= 0) {
+		cchar	**vpp = &pip->pagetitle ;
+		rs = proginfo_setentry(pip,vpp,bbuf,rs) ;
+		pip->have.pagetitle = (rs >= 0) ;
+	    }
 	} /* end if */
 	if (pip->pagetitle == NULL) pip->pagetitle = DEFTITLE ;
 	return rs ;
@@ -1613,8 +1628,9 @@ static int loadpvs(PROGINFO *pip,cchar *ap,int al)
 
 	        cp = (tp + 1) ;
 	        cl = ((sp + sl) - (tp + 1)) ;
-	        if (cl > 0)
+	        if (cl > 0) {
 	            rs = cfdecui(cp,cl,&vs) ;
+		}
 
 	        sl = (tp - sp) ;
 
@@ -1630,8 +1646,9 @@ static int loadpvs(PROGINFO *pip,cchar *ap,int al)
 	            pip->ps = ps ;
 	        }
 	        if (! pip->final.vs) {
-	            if ((vs == 0) && (ps > 0))
+	            if ((vs == 0) && (ps > 0)) {
 	                vs = (ps + 2) ;
+		    }
 	            if (vs > 0) {
 	                pip->final.vs = TRUE ;
 	                pip->have.vs = TRUE ;
@@ -1651,29 +1668,31 @@ static int loadvzlw(PROGINFO *pip,cchar *ap,int al)
 {
 	int		rs = SR_OK ;
 	int		sl ;
-	const char	*sp ;
+	cchar		*sp ;
 
 	if ((sl = sfshrink(ap,al,&sp)) > 0) {
 	    double	percent = 0.0 ;
 	    uint	vzlw = 0 ;
 	    uint	vzlb = 0 ;
 	    int		cl = -1 ;
-	    const char	*tp ;
+	    cchar	*tp ;
 	    cchar	*cp = NULL ;
 
 	    if ((tp = strnchr(sp,sl,':')) != NULL) {
 
 	        cp = (tp + 1) ;
 	        cl = ((sp + sl) - (tp + 1)) ;
-	        if (cl > 0)
+	        if (cl > 0) {
 	            rs = cfdecf(cp,cl,&percent) ;
+		}
 
 	        sl = (tp - sp) ;
 
 	    } /* end if */
 
-	    if ((rs >= 0) && (sl > 0))
+	    if ((rs >= 0) && (sl > 0)) {
 	        rs = cfdecui(sp,sl,&vzlw) ;
+	    }
 
 	    if (rs >= 0) {
 
@@ -1707,7 +1726,7 @@ static int metawordsbegin(PROGINFO *pip)
 	int		rs = SR_OK ;
 	int		mi ;
 	int		len ;
-	const char	*cp ;
+	cchar		*cp ;
 	char		wordbuf[BIBLEMETA_LEN + 1] ;
 	char		*wp ;
 

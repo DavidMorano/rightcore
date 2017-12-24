@@ -316,7 +316,7 @@ int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 	lip->ti_start = pip->daytime ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
+	if (DEBUGLEVEL(4))
 	    debugprintf("locinfo_start: ret rs=%d\n",rs) ;
 #endif
 
@@ -359,7 +359,7 @@ int locinfo_finish(LOCINFO *lip)
 	if (rs >= 0) rs = rs1 ;
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
+	if (DEBUGLEVEL(4))
 	    debugprintf("locinfo_finish: ret rs=%d\n",rs) ;
 #endif
 
@@ -494,7 +494,7 @@ int locinfo_lockbegin(LOCINFO *lip)
 	{
 	    PROGINFO	*pip = lip->pip ;
 	    if (DEBUGLEVEL(4))
-	    debugprintf("locinfo_lockbegin: ret rs=%d\n",rs) ;
+	        debugprintf("locinfo_lockbegin: ret rs=%d\n",rs) ;
 	}
 #endif
 	return rs ;
@@ -561,21 +561,21 @@ int locinfo_tmpourdir(LOCINFO *lip)
 	    if ((rs = locinfo_runas(lip)) >= 0) {
 	        USTAT		usb ;
 	        const mode_t	dm = (lip->f.runasprn) ? 0775 : 0777 ;
-		cchar		*ourtmp = lip->tmpourdname ;
-	            if ((rs = u_stat(ourtmp,&usb)) >= 0) {
-	                if (S_ISDIR(usb.st_mode)) {
-	                    const int	am = (R_OK|W_OK|X_OK) ;
-	                    rs = u_access(ourtmp,am) ;
-	                } else {
-	                    rs = SR_NOTDIR ;
-			}
-	            } else if (isNotPresent(rs)) {
-	                if ((rs = mkdirs(ourtmp,dm)) >= 0) {
-			    if ((rs = uc_minmod(ourtmp,dm)) >= 0) {
-				rs = locinfo_chids(lip,ourtmp) ;
-			    }
-			}
-		    }
+	        cchar		*ourtmp = lip->tmpourdname ;
+	        if ((rs = u_stat(ourtmp,&usb)) >= 0) {
+	            if (S_ISDIR(usb.st_mode)) {
+	                const int	am = (R_OK|W_OK|X_OK) ;
+	                rs = u_access(ourtmp,am) ;
+	            } else {
+	                rs = SR_NOTDIR ;
+	            }
+	        } else if (isNotPresent(rs)) {
+	            if ((rs = mkdirs(ourtmp,dm)) >= 0) {
+	                if ((rs = uc_minmod(ourtmp,dm)) >= 0) {
+	                    rs = locinfo_chids(lip,ourtmp) ;
+	                }
+	            }
+	        }
 	    } /* end if (locinfo_runas) */
 	} /* end if (locinfo_tmpourdname) */
 	return (rs >= 0) ? pl : rs ;
@@ -593,19 +593,19 @@ int locinfo_builtdname(LOCINFO *lip)
 	    cchar	*sn = pip->searchname ;
 	    char	tbuf[MAXPATHLEN+1] ;
 	    if ((rs = mkpath4(tbuf,pr,"lib",sn,"svcs")) >= 0) {
-		const int	am = (R_OK|X_OK) ;
-		pl = rs ;
+	        const int	am = (R_OK|X_OK) ;
+	        pl = rs ;
 #if	CF_DEBUG
-		if (DEBUGLEVEL(4))
-	    	debugprintf("mfslocinfo_builtdname: tb=%s\n",tbuf) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("mfslocinfo_builtdname: tb=%s\n",tbuf) ;
 #endif
-		if ((rs = uc_access(tbuf,am)) >= 0) {
-		    cchar	**vpp = &lip->builtdname ;
-		    rs = locinfo_setentry(lip,vpp,tbuf,pl) ;
-		} else if (isNotPresent(rs)) {
-		    pl = 0 ;
-		    rs = SR_OK ;
-		}
+	        if ((rs = uc_access(tbuf,am)) >= 0) {
+	            cchar	**vpp = &lip->builtdname ;
+	            rs = locinfo_setentry(lip,vpp,tbuf,pl) ;
+	        } else if (isNotPresent(rs)) {
+	            pl = 0 ;
+	            rs = SR_OK ;
+	        }
 	    }
 	} else {
 	    pl = strlen(lip->builtdname) ;
@@ -866,15 +866,15 @@ int locinfo_maintourtmp(LOCINFO *lip)
 	    if (lip->tmpourdname != NULL) {
 	        const int	to_client = lip->intclient ;
 	        if (to_client > 0) {
-		    if ((rs = locinfo_maintourtmper(lip,to_client)) >= 0) {
-	                    char	tbuf[TIMEBUFLEN+1] ;
-	                    timestr_logz(pip->daytime,tbuf) ;
-	                    logprintf(pip,"%s maint-tmp",tbuf) ;
-			    if (pip->debuglevel > 0) {
-			        cchar	*pn = pip->progname ;
-			        cchar	*fmt = "%s: maint-tmp (%d)\n" ;
-			        shio_printf(pip->efp,fmt,pn,rs) ;
-			    }
+	            if ((rs = locinfo_maintourtmper(lip,to_client)) >= 0) {
+	                char	tbuf[TIMEBUFLEN+1] ;
+	                timestr_logz(pip->daytime,tbuf) ;
+	                logprintf(pip,"%s maint-tmp",tbuf) ;
+	                if (pip->debuglevel > 0) {
+	                    cchar	*pn = pip->progname ;
+	                    cchar	*fmt = "%s: maint-tmp (%d)\n" ;
+	                    shio_printf(pip->efp,fmt,pn,rs) ;
+	                }
 	            } /* end if (locinfo_maintourtmper) */
 	        } /* end if (positive) */
 	    } /* end if (directory exists?) */
@@ -997,9 +997,9 @@ int locinfo_varsub(LOCINFO *lip,char *rbuf,int rlen,cchar *sp,int sl)
 	    const int	vlen = VBUFLEN ;
 	    char	vbuf[VBUFLEN+1] ;
 	    if ((rs = varsub_expand(vsp,vbuf,vlen,sp,sl)) >= 0) {
-		EXPCOOK	*ecp = &lip->cooks ;
+	        EXPCOOK	*ecp = &lip->cooks ;
 	        rs = expcook_exp(ecp,0,rbuf,rlen,vbuf,rs) ;
-		rl = rs ;
+	        rl = rs ;
 	    }
 	}
 	return (rs >= 0) ? rl : rs ;
@@ -1019,20 +1019,20 @@ int locinfo_daemonbegin(LOCINFO *lip)
 	        const int	n = 250 ;
 	        lip->open.envs = TRUE ;
 	        if ((rs = varsub_start(slp,n)) >= 0) {
-		    cchar	**ev ;
-		    if ((rs = envhelp_getvec(ehp,&ev)) >= 0) {
-	    	        if ((rs = varsub_addvaquick(slp,ev)) >= 0) {
-			    lip->open.subs = TRUE ;
-			}
-	    	    }
+	            cchar	**ev ;
+	            if ((rs = envhelp_getvec(ehp,&ev)) >= 0) {
+	                if ((rs = varsub_addvaquick(slp,ev)) >= 0) {
+	                    lip->open.subs = TRUE ;
+	                }
+	            }
 	            if (rs < 0) {
-		        varsub_finish(slp) ;
+	                varsub_finish(slp) ;
 	            }
 	        } /* end if (varsub_start) */
 	    } /* end if (locinfo_envdefs) */
 	    if (rs < 0) {
-		lip->open.envs = FALSE ;
-		envhelp_finish(ehp) ;
+	        lip->open.envs = FALSE ;
+	        envhelp_finish(ehp) ;
 	    }
 	} /* end if (envhelp_start) */
 #if	CF_DEBUG
@@ -1088,8 +1088,8 @@ int locinfo_cooksvc(LOCINFO *lip,cchar *svc,cchar *ss,cchar **sav,int f_long)
 	        if ((rs = expcook_add(ecp,"w",vp,1)) >= 0) {
 	            vp = (f_long) ? "2" : "1" ;
 	            if ((rs = expcook_add(ecp,"ww",vp,1)) >= 0) {
-			rs = locinfo_cookargsload(lip,sav) ;
-		    }
+	                rs = locinfo_cookargsload(lip,sav) ;
+	            }
 	        }
 	    }
 	}
@@ -1117,12 +1117,12 @@ int locinfo_svctype(LOCINFO *lip,cchar *ebuf,int el)
 	    int		i ;
 	    if ((i = matostr(svctypes,1,ebuf,el)) >= 0) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	    debugprintf("locinfo_svctype: i=%u\n",i) ;
+	        if (DEBUGLEVEL(5))
+	            debugprintf("locinfo_svctype: i=%u\n",i) ;
 #endif
-		lip->svctype = i ;
+	        lip->svctype = i ;
 	    } else {
-		rs = SR_INVALID ;
+	        rs = SR_INVALID ;
 	    }
 	}
 	return rs ;
@@ -1158,44 +1158,44 @@ static int locinfo_envdefs(LOCINFO *lip)
 	for (i = 0 ; envdefs[i] != NULL ; i += 1) {
 	    cchar	*var = envdefs[i] ;
 	    if ((rs = envhelp_present(ehp,var,-1,NULL)) == rsn) {
-		const int	kc = MKCHAR(var[0]) ;
-		int		vl = -1 ;
-		cchar		*vp = NULL ;
-		switch (kc) {
-		case 'U':
-		    vp = pip->username ;
-		    break ;
-		case 'H':
-		    if (strcmp(var,VARHOME) == 0) {
-			vp = pip->homedname ;
-		    } else { /* HOST */
-			const int	hlen = MAXHOSTNAMELEN ;
-			cchar		*nn = pip->nodename ;
-			cchar		*dn = pip->domainname ;
-			char		hbuf[MAXHOSTNAMELEN+1] ;
-			if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
-	            	    rs = envhelp_envset(ehp,var,hbuf,rs) ;
-			}
-		    }
-		    break ;
-		case 'P':
-		    if (var[1] == 'A') { /* PATH */
-	        	const int	plen = (2*MAXPATHLEN) ;
-	        	char		*pbuf ;
-	        	if ((rs = uc_malloc((plen+1),&pbuf)) >= 0) {
-	            	    if ((rs = uc_confstr(_CS_PATH,pbuf,plen)) >= 0) {
-		        	rs = envhelp_envset(ehp,var,pbuf,rs) ;
-	            	    } /* end if */
-	            	    uc_free(pbuf) ;
-	        	} /* end if (m-a-f) */
-		    } else { /* PWD */
-			if ((rs = proginfo_pwd(pip)) >= 0) {
-			    vp = pip->pwd ;
-			    vl = rs ;
-			}
-		    }
-		    break ;
-		} /* end switch */
+	        const int	kc = MKCHAR(var[0]) ;
+	        int		vl = -1 ;
+	        cchar		*vp = NULL ;
+	        switch (kc) {
+	        case 'U':
+	            vp = pip->username ;
+	            break ;
+	        case 'H':
+	            if (strcmp(var,VARHOME) == 0) {
+	                vp = pip->homedname ;
+	            } else { /* HOST */
+	                const int	hlen = MAXHOSTNAMELEN ;
+	                cchar		*nn = pip->nodename ;
+	                cchar		*dn = pip->domainname ;
+	                char		hbuf[MAXHOSTNAMELEN+1] ;
+	                if ((rs = snsds(hbuf,hlen,nn,dn)) >= 0) {
+	                    rs = envhelp_envset(ehp,var,hbuf,rs) ;
+	                }
+	            }
+	            break ;
+	        case 'P':
+	            if (var[1] == 'A') { /* PATH */
+	                const int	plen = (2*MAXPATHLEN) ;
+	                char		*pbuf ;
+	                if ((rs = uc_malloc((plen+1),&pbuf)) >= 0) {
+	                    if ((rs = uc_confstr(_CS_PATH,pbuf,plen)) >= 0) {
+	                        rs = envhelp_envset(ehp,var,pbuf,rs) ;
+	                    } /* end if */
+	                    uc_free(pbuf) ;
+	                } /* end if (m-a-f) */
+	            } else { /* PWD */
+	                if ((rs = proginfo_pwd(pip)) >= 0) {
+	                    vp = pip->pwd ;
+	                    vl = rs ;
+	                }
+	            }
+	            break ;
+	        } /* end switch */
 	        if ((rs >= 0) && (vp != NULL)) {
 	            rs = envhelp_envset(ehp,var,vp,vl) ;
 	        }
@@ -1248,12 +1248,14 @@ static int locinfo_cookload(LOCINFO *lip)
 	int		ci ;
 	int		vl ;
 	cchar		*vp ;
-	char		tbuf[USERNAMELEN+1] = { 0 } ;
-	char		nbuf[USERNAMELEN+1] = { 0 } ;
+	char		tbuf[USERNAMELEN+1] = { 
+	    0 	} ;
+	char		nbuf[USERNAMELEN+1] = { 
+	    0 	} ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("locinfo_cookload: ent\n") ;
+	    debugprintf("locinfo_cookload: ent\n") ;
 #endif
 
 	for (ci = 0 ; cooks[ci] != NULL ; ci += 1) {
@@ -1261,8 +1263,8 @@ static int locinfo_cookload(LOCINFO *lip)
 	    vp = NULL ;
 	    vl = -1 ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("locinfo_cookload: k=%s\n",k) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("locinfo_cookload: k=%s\n",k) ;
 #endif
 	    switch (ci) {
 	    case cook_sysname:
@@ -1285,7 +1287,7 @@ static int locinfo_cookload(LOCINFO *lip)
 	        break ;
 	    case cook_ncpu:
 	        {
-		    const int	dlen = DIGBUFLEN ;
+	            const int	dlen = DIGBUFLEN ;
 	            char	dbuf[DIGBUFLEN + 1] ;
 	            if (pip->ncpu >= 0) {
 	                rs = ctdeci(dbuf,dlen,pip->ncpu) ;
@@ -1293,9 +1295,9 @@ static int locinfo_cookload(LOCINFO *lip)
 	                strcpy(dbuf,"1") ;
 	                rs1 = 1 ;
 	            }
-		    if (rs >= 0) {
+	            if (rs >= 0) {
 	                rs = expcook_add(cop,k,dbuf,rs1) ;
-		    }
+	            }
 	        } /* end block */
 	        break ;
 	    case cook_hz:
@@ -1337,13 +1339,13 @@ static int locinfo_cookload(LOCINFO *lip)
 	        break ;
 	    case cook_h:
 	        {
-		    const int	hnlen = MAXHOSTNAMELEN ;
+	            const int	hnlen = MAXHOSTNAMELEN ;
 	            cchar	*nn = pip->nodename ;
 	            cchar	*dn = pip->domainname ;
 	            char	hnbuf[MAXHOSTNAMELEN + 1] ;
 	            if ((rs = snsds(hnbuf,hnlen,nn,dn)) >= 0) {
 	                rs = expcook_add(cop,k,hnbuf,rs1) ;
-		    }
+	            }
 	        } /* end block */
 	        break ;
 	    case cook_r:
@@ -1360,9 +1362,9 @@ static int locinfo_cookload(LOCINFO *lip)
 	            cchar	*release = pip->urelease ;
 	            rs = getsystypenum(tbuf,nbuf,sysname,release) ;
 #if	CF_DEBUG
-		    if (DEBUGLEVEL(4))
-		    debugprintf("locinfo_cookload: getsystypenum() rs=%d\n",
-			rs) ;
+	            if (DEBUGLEVEL(4))
+	                debugprintf("locinfo_cookload: getsystypenum() rs=%d\n",
+	                    rs) ;
 #endif
 	        }
 	        if (rs >= 0) {
@@ -1406,8 +1408,8 @@ static int locinfo_cookload(LOCINFO *lip)
 	    } /* end switch */
 	    if ((rs >= 0) && (vp != NULL)) {
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("locinfo_cookload: v=%t\n",vp,vl) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("locinfo_cookload: v=%t\n",vp,vl) ;
 #endif
 	        rs = expcook_add(cop,k,vp,vl) ;
 	    }
@@ -1416,7 +1418,7 @@ static int locinfo_cookload(LOCINFO *lip)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	debugprintf("locinfo_cookload: ret rs=%d\n",rs) ;
+	    debugprintf("locinfo_cookload: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -1466,7 +1468,8 @@ static int locinfo_svload(LOCINFO *lip)
 	int		vl ;
 	cchar		keys[] = "pen" ;
 	cchar		*vp ;
-	char		ks[2] = { 0, 0 } ;
+	char		ks[2] = { 
+	    0, 0 	} ;
 	for (i = 0 ; keys[i] != '\0' ; i += 1) {
 	    const int	kch = MKCHAR(keys[i]) ;
 	    vp = NULL ;
@@ -1636,8 +1639,8 @@ static int locinfo_genlockbegin(LOCINFO *lip,LFM *lfp,cchar *lfn)
 	    cchar	*un = pip->username ;
 	    cchar	*bn = pip->banner ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("locinfo_genlockbegin: lfn=%s\n",lfn) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("locinfo_genlockbegin: lfn=%s\n",lfn) ;
 #endif
 	    if ((rs = lfm_start(lfp,lfn,ltype,to_lock,&lc,nn,un,bn)) >= 0) {
 	        f = TRUE ;
@@ -1762,10 +1765,10 @@ static int locinfo_tmpourdname(LOCINFO *lip)
 	        cchar	*tn = pip->tmpdname ;
 	        cchar	*rn = pip->rootname ;
 	        cchar	*sn = pip->searchname ;
-		char	tbuf[MAXPATHLEN+1] ;
+	        char	tbuf[MAXPATHLEN+1] ;
 	        if ((rs = mkpath3(tbuf,tn,rn,sn)) >= 0) {
 	            cchar	**vpp = &lip->tmpourdname ;
-		    pl = rs ;
+	            pl = rs ;
 	            rs = locinfo_setentry(lip,vpp,tbuf,rs) ;
 	        } /* end if (mkpath) */
 	    } /* end if (proginfo_rootname) */
@@ -1789,10 +1792,10 @@ static int locinfo_runas(LOCINFO *lip)
 	    PROGINFO	*pip = lip->pip ;
 	    lip->have.runasprn = TRUE ;
 	    if ((rs = proginfo_rootname(pip)) >= 0) {
-		cchar	*rn = pip->rootname ;
-		cchar	*un = pip->username ;
-		f = (strcmp(un,rn) == 0) ;
-		lip->f.runasprn = f ;
+	        cchar	*rn = pip->rootname ;
+	        cchar	*un = pip->username ;
+	        f = (strcmp(un,rn) == 0) ;
+	        lip->f.runasprn = f ;
 	    } /* end if (procinfo_rootname) */
 	} /* end if (needed) */
 	return (rs >= 0) ? f : rs ;
@@ -1807,9 +1810,9 @@ static int locinfo_chids(LOCINFO *lip,cchar *dname)
 	    const uid_t	uid = lip->uid_rootname ;
 	    const gid_t	gid = lip->gid_rootname ;
 	    if ((rs = locinfo_runas(lip)) > 0) {
-		rs = u_chown(dname,-1,gid) ;
+	        rs = u_chown(dname,-1,gid) ;
 	    } else if (rs == 0) {
-		rs = u_chown(dname,uid,gid) ;
+	        rs = u_chown(dname,uid,gid) ;
 	    }
 	} /* end if (locinfo_rootids) */
 	return rs ;
@@ -1819,34 +1822,34 @@ static int locinfo_chids(LOCINFO *lip,cchar *dname)
 
 static int locinfo_cookargsload(LOCINFO *lip,cchar **sav)
 {
-	    EXPCOOK	*ecp = &lip->cooks ;
+	EXPCOOK		*ecp = &lip->cooks ;
 	int		rs ;
-	    int		blen = 0 ;
-	    int		i ;
-	    char	*argsbuf ;
-	    char	*bp ;
+	int		blen = 0 ;
+	int		i ;
+	char		*bbuf ;
+	char		*bp ;
 
-	    for (i = 0 ; sav[i] != NULL ; i += 1) {
-	        blen += ((2 * strlen(sav[i])) + 2 + 1) ;
-	    }
+	for (i = 0 ; sav[i] != NULL ; i += 1) {
+	    blen += ((2 * strlen(sav[i])) + 2 + 1) ;
+	}
 
-	    if ((rs = uc_malloc((blen+1),&argsbuf)) >= 0) {
-	        argsbuf[0] = '\0' ;
-	        bp = argsbuf ;
-	        for (i = 0 ; (rs >= 0) && (sav[i] != NULL) ; i += 1) {
-	            if (i > 0) {
-			*bp++ = ' ' ;
-			blen -= 1 ;
-		    }
-	            rs = mkquoted(bp,blen,sav[i],-1) ;
-	            bp += rs ;
-		    blen -= rs ;
-	        } /* end for */
-	        if (rs >= 0) {
-	            rs = expcook_add(ecp,"a",argsbuf,(bp-argsbuf)) ;
+	if ((rs = uc_malloc((blen+1),&bbuf)) >= 0) {
+	    bbuf[0] = '\0' ;
+	    bp = bbuf ;
+	    for (i = 0 ; (rs >= 0) && (sav[i] != NULL) ; i += 1) {
+	        if (i > 0) {
+	            *bp++ = ' ' ;
+	            blen -= 1 ;
 	        }
-	        uc_free(argsbuf) ;
-	    } /* end if (memory-allocation) */
+	        rs = mkquoted(bp,blen,sav[i],-1) ;
+	        bp += rs ;
+	        blen -= rs ;
+	    } /* end for */
+	    if (rs >= 0) {
+	        rs = expcook_add(ecp,"a",bbuf,(bp-bbuf)) ;
+	    }
+	    uc_free(bbuf) ;
+	} /* end if (memory-allocation) */
 
 	return rs ;
 }

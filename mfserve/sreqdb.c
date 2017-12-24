@@ -423,7 +423,7 @@ int sreqdb_builtrelease(SREQDB *op)
 
 
 /* do we have the given FD in the DB, if so return index */
-int sreqdb_havefd(SREQDB *op,int fd)
+int sreqdb_findfd(SREQDB *op,int fd)
 {
 	SREQ		*jep ;
 	vechand		*jlp = &op->db ;
@@ -431,7 +431,7 @@ int sreqdb_havefd(SREQDB *op,int fd)
 	int		i ;
 
 #if	CF_DEBUGS
-	debugprintf("sreqdb_havefd: ent fd=%d\n",fd) ;
+	debugprintf("sreqdb_findfd: ent fd=%d\n",fd) ;
 #endif
 
 	if (jlp == NULL) return SR_FAULT ;
@@ -440,15 +440,16 @@ int sreqdb_havefd(SREQDB *op,int fd)
 	    if (jep != NULL) {
 	        if ((rs = sreq_havefd(jep,fd)) > 0) break ;
 	    }
+	    if (rs < 0) break ;
 	} /* end for */
 
 #if	CF_DEBUGS
-	debugprintf("sreqdb_havefd: ret rs=%d i=%u\n",rs,i) ;
+	debugprintf("sreqdb_findfd: ret rs=%d i=%u\n",rs,i) ;
 #endif
 
 	return (rs >= 0) ? i : rs ;
 }
-/* end subroutine (sreqdb_havefd) */
+/* end subroutine (sreqdb_findfd) */
 
 
 /* child thread calls this to signal that it is exiting */
@@ -462,7 +463,7 @@ int sreqdb_exiting(SREQDB *op,int ji)
 		if ((rs = sreq_exiting(jep)) >= 0) {
 		    if (jep->f.thread) {
 	                if ((rs = intiq_ins(&op->exits,ji)) >= 0) {
-	        	    op->f_exiting = TRUE ;
+	        	    op->f_threxiting = TRUE ;
 			}
 		    }
 		}
@@ -476,10 +477,10 @@ int sreqdb_exiting(SREQDB *op,int ji)
 int sreqdb_thrsdone(SREQDB *op,SREQ **rpp)
 {
 	int		rs = SR_NOTFOUND ;
-	if (op->f_exiting) {
+	if (op->f_threxiting) {
 	    const int	rsn = SR_NOTFOUND ;
 	    if ((rs = sreqdb_thrdone(op,rpp)) == rsn) {
-	        op->f_exiting = FALSE ;
+	        op->f_threxiting = FALSE ;
 	        rs = sreqdb_thrdone(op,rpp) ;
 	    }
 	}

@@ -46,8 +46,8 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"msuconfig.h"
 #include	"msumain.h"
+#include	"msuconfig.h"
 #include	"msulocinfo.h"
 #include	"msulog.h"
 #include	"defs.h"
@@ -88,15 +88,7 @@ typedef const char	cchar ;
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
-#ifndef	IPCBUFLEN
-#define	IPCBUFLEN	MSGBUFLEN
-#endif
-
-#define	DEBUGFNAME	"/tmp/msu.deb"
-
-#ifndef	TTYFNAME
-#define	TTYFNAME	"/dev/tty"
-#endif
+#define	NDF		"/tmp/msu.deb"
 
 
 /* external subroutines */
@@ -118,7 +110,6 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdecmfi(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
-extern int	optbool(const char *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;

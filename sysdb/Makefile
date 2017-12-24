@@ -155,13 +155,13 @@ OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
 OBJ08=
 OBJ09=
 OBJ10=
-OBJ11=
+OBJ11= getne.o
 OBJ12= 
 OBJ13=
 OBJ14=
 OBJ15=
 
-OBJ16=
+OBJ16= 
 OBJ17= passwdent.o groupent.o projectent.o shadowent.o userattrent.o
 OBJ18= uc_getproto.o uc_getnet.o uc_gethost.o uc_getserv.o uc_getuserattr.o
 OBJ19=

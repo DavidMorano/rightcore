@@ -81,7 +81,7 @@ int getne_end()
 /* end subroutine (getne_end) */
 
 
-int getne_ent(struct netent *pp,char rbuf[],int rlen)
+int getne_ent(struct netent *pp,char *rbuf,int rlen)
 {
 	int		rs ;
 	if ((rs = uc_getnetent(pp,rbuf,rlen)) == SR_NOTFOUND) rs = SR_OK ;
@@ -90,14 +90,14 @@ int getne_ent(struct netent *pp,char rbuf[],int rlen)
 /* end subroutine (getne_ent) */
 
 
-int getne_name(struct netent *pp,char rbuf[],int rlen,cchar name[])
+int getne_name(struct netent *pp,char *rbuf,int rlen,cchar *name)
 {
 	return uc_getnetbyname(name,pp,rbuf,rlen) ;
 }
 /* end subroutine (getne_name) */
 
 
-int getne_addr(struct netent *pp,char rbuf[],int rlen,int type,int num)
+int getne_addr(struct netent *pp,char *rbuf,int rlen,int type,int num)
 {
 	return uc_getnetbyaddr(num,type,pp,rbuf,rlen) ;
 }

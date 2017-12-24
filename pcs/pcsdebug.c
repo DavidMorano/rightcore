@@ -46,13 +46,11 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"shio.h"
-#include	"pcsconfig.h"
 #include	"pcsmain.h"
+#include	"pcsconfig.h"
 #include	"pcslocinfo.h"
 #include	"pcslog.h"
 #include	"defs.h"
-#include	"msflag.h"
 
 
 /* local typedefs */
@@ -89,15 +87,7 @@ typedef const char	cchar ;
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
-#ifndef	IPCBUFLEN
-#define	IPCBUFLEN	MSGBUFLEN
-#endif
-
-#define	DEBUGFNAME	"/tmp/pcs.deb"
-
-#ifndef	TTYFNAME
-#define	TTYFNAME	"/dev/tty"
-#endif
+#define	NDF		"/tmp/pcs.deb"
 
 
 /* external subroutines */
@@ -119,7 +109,6 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdecmfi(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
-extern int	optbool(const char *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;

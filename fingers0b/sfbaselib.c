@@ -17,7 +17,7 @@
 
 /*******************************************************************************
 
-	This subroutine finds a the base-library name (part) from a gieven 
+	This subroutine finds a the base-library name (part) from a given 
 	string.
 
 	Synopsis:

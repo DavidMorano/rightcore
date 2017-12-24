@@ -211,7 +211,7 @@ int grmems_finish(GRMEMS *op)
 	rs1 = grmems_recfins(op) ;
 	if (rs >= 0) rs = rs1 ;
 
-/* free up everyting else */
+/* free up everything else */
 
 	if (op->recs != NULL) {
 	    rs1 = recarr_finish(op->recs) ;

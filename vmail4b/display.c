@@ -482,7 +482,6 @@ int display_vinfo(DISPLAY *op,const char *fmt,va_list ap)
 /* display in the input area */
 int display_input(DISPLAY *op,const char *fmt,...)
 {
-	PROGINFO	*pip ;
 	int		rs = SR_OK ;
 	int		x, y ;
 	int		w ;
@@ -495,7 +494,6 @@ int display_input(DISPLAY *op,const char *fmt,...)
 
 	if (fmt[0] == '\0') return SR_INVALID ;
 
-	pip = op->pip ;
 	w = 0 ;
 	x = 0 ;
 	y = op->rl_input ;
@@ -521,7 +519,6 @@ int display_input(DISPLAY *op,const char *fmt,...)
 /* display in the input area */
 int display_vinput(DISPLAY *op,const char *fmt,va_list ap)
 {
-	PROGINFO	*pip ;
 	int		rs ;
 	int		x, y ;
 	int		w = 0 ;
@@ -534,7 +531,6 @@ int display_vinput(DISPLAY *op,const char *fmt,va_list ap)
 
 	if (fmt[0] == '\0') return SR_INVALID ;
 
-	pip = op->pip ;
 	w = 0 ;
 	x = 0 ;
 	y = op->rl_input ;
@@ -762,7 +758,6 @@ int display_setdate(DISPLAY *op,int f_end)
 /* load up the new mailbox name */
 int display_setmbname(DISPLAY *op,cchar *mbname,int mblen)
 {
-	PROGINFO	*pip ;
 	int		rs = SR_OK ;
 	int		cl ;
 	int		fl ;
@@ -778,8 +773,6 @@ int display_setmbname(DISPLAY *op,cchar *mbname,int mblen)
 	if (mbname == NULL) return SR_FAULT ;
 
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
-
-	pip = op->pip ;
 
 	fp = op->mbstr ;
 	fl = DISPLAY_LMBSTR ;
@@ -823,7 +816,6 @@ int display_setmbname(DISPLAY *op,cchar *mbname,int mblen)
 /* update the new-mail indicator on the display */
 int display_setnewmail(DISPLAY *op,int nmsgs)
 {
-	PROGINFO	*pip ;
 	int		rs = SR_OK ;
 	int		w, x, y ;
 	int		f_newmail ;
@@ -834,7 +826,6 @@ int display_setnewmail(DISPLAY *op,int nmsgs)
 
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
-	pip = op->pip ;
 	f_newmail = (nmsgs > 0) ;
 	f_change = (! LEQUIV(op->f.newmail,f_newmail)) ;
 	if (f_newmail) {
@@ -879,7 +870,6 @@ int display_setscanlines(DISPLAY *op,int slines)
 
 int display_beep(DISPLAY *op)
 {
-	PROGINFO	*pip ;
 	int		rs ;
 	int		w ;
 	char		buf[10] ;
@@ -888,7 +878,6 @@ int display_beep(DISPLAY *op)
 
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
-	pip = op->pip ;
 	buf[0] = CH_BEL ;
 	buf[1] = '\0' ;
 
@@ -902,7 +891,6 @@ int display_beep(DISPLAY *op)
 
 int display_scanclear(DISPLAY *op)
 {
-	PROGINFO	*pip ;
 	int		rs ;
 	int		w ;
 
@@ -910,7 +898,6 @@ int display_scanclear(DISPLAY *op)
 
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
-	pip = op->pip ;
 	w = op->wscan ;
 	if ((rs = ds_move(&op->ds,w,0,0)) >= 0) {
 	    int		i ;
@@ -926,7 +913,6 @@ int display_scanclear(DISPLAY *op)
 
 int display_viewclear(DISPLAY *op)
 {
-	PROGINFO	*pip ;
 	int		rs = SR_OK ;
 	int		w ;
 
@@ -934,7 +920,6 @@ int display_viewclear(DISPLAY *op)
 
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
-	pip = op->pip ;
 	w = op->wview ;
 	if ((rs = ds_move(&op->ds,w,0,0)) >= 0) {
 	    int		i ;
@@ -1343,6 +1328,7 @@ int display_scanblank(DISPLAY *op,int si)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -1450,6 +1436,7 @@ int display_scandel(DISPLAY *op,int si)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1531,6 +1518,7 @@ int display_scanpoint(DISPLAY *op,int nsi)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
@@ -1582,6 +1570,7 @@ int display_scancheck(DISPLAY *op,int si)
 	if (si < 0) return SR_INVALID ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1619,6 +1608,7 @@ int display_scandisplay(DISPLAY *op,int sitopnext)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
@@ -1710,6 +1700,7 @@ int display_midmsgs(DISPLAY *op,int total,int current)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -1771,6 +1762,8 @@ int display_botclear(DISPLAY *op)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
+
 	dvp = &op->v ;
 	if (dvp->fbuf[0] != '\0') {
 	    f_change = TRUE ;
@@ -1817,6 +1810,7 @@ int display_botinfo(DISPLAY *op,DISPLAY_BOTINFO *mip)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -1855,14 +1849,12 @@ int display_botinfo(DISPLAY *op,DISPLAY_BOTINFO *mip)
 /* refresh the line number at the bottom of the display */
 int display_botline(DISPLAY *op,int msgline)
 {
-	PROGINFO	*pip ;
 	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
-	pip = op->pip ;
 	if ((rs = display_botloadline(op,msgline)) > 0) {
 	    int		fi ;
 	    int		fl ;
@@ -1892,15 +1884,12 @@ int display_botline(DISPLAY *op,int msgline)
 
 int display_allclear(DISPLAY *op)
 {
-	PROGINFO	*pip ;
-	int		rs = SR_OK ;
-	int		w ;
+	int		rs ;
+	int		w = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
-
-	pip = op->pip ;
 
 	w = 0 ;
 	rs = ds_clear(&op->ds,w) ;
@@ -1921,6 +1910,7 @@ int display_winadj(DISPLAY *op,int dlines,int slines)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -1972,6 +1962,7 @@ int display_refresh(DISPLAY *op)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -2006,6 +1997,7 @@ int display_rframe(DISPLAY *op)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -2053,6 +2045,7 @@ int display_rtop(DISPLAY *op)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -2121,6 +2114,7 @@ int display_rmid(DISPLAY *op)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -2174,6 +2168,7 @@ int display_rbot(DISPLAY *op)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -2224,6 +2219,7 @@ int display_rscantitle(DISPLAY *op)
 	if (op->magic != DISPLAY_MAGIC) return SR_NOTOPEN ;
 
 	pip = op->pip ;
+	if (pip == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -3164,7 +3160,7 @@ static int scanline_fill(SCANLINE *slp,DISPLAY_SDATA *ddp)
 
 	if (ddp != NULL) {
 	    SBUF	b ;
-	    int		cl, fl ;
+	    int		cl ;
 	    int		icols ;
 	    int		nblank ;
 	    int		nncol ;
@@ -3187,7 +3183,6 @@ static int scanline_fill(SCANLINE *slp,DISPLAY_SDATA *ddp)
 	            f_check = TRUE ;
 	            dp = NULL ;
 	            dl = -1 ;
-		    fcol = -1 ;
 
 	            nncol = scantitles[fi].col ;
 	            nblank = (nncol - ncol) ;
@@ -3205,15 +3200,11 @@ static int scanline_fill(SCANLINE *slp,DISPLAY_SDATA *ddp)
 	            case scantitle_from:
 	                dp = ddp->fbuf ;
 	                dl = ddp->flen ;
-			fcol = ddp->fcol ;
-			fl = DISPLAY_LFROM ;
 	                break ;
 
 	            case scantitle_subject:
 	                dp = ddp->sbuf ;
 	                dl = ddp->slen ;
-			fcol = ddp->scol ;
-			fl = DISPLAY_LSUBJ ;
 			if (dp != NULL) {
 			    if (dl < 0) dl = strlen(dp) ;
 			    if ((rs = uc_malloc((dl+1),&abuf)) >= 0) {
@@ -3232,21 +3223,19 @@ static int scanline_fill(SCANLINE *slp,DISPLAY_SDATA *ddp)
 	            case scantitle_date:
 	                f_check = FALSE ;
 	                dp = ddp->date ;
-	                fl = DISPLAY_LDATE ;
+	                dl = DISPLAY_LDATE ;
 	                break ;
 
 	            case scantitle_lines:
 	                f_check = FALSE ;
+	                dl = DISPLAY_LLINES ;
 	                if (ddp->lines >= 0) {
-	                    fl = DISPLAY_LLINES ;
 	                    rs1 = digit3(linesbuf,ddp->lines) ;
 	                    if (rs1 >= 0)
 	                        dp = linesbuf ;
 	                } else {
 	                    dp = blanks ;
-	                    dl = DISPLAY_LLINES ;
 	                }
-	                fl = DISPLAY_LLINES ;
 	                break ;
 
 	            } /* end switch */
@@ -3274,11 +3263,11 @@ static int scanline_fill(SCANLINE *slp,DISPLAY_SDATA *ddp)
 
 	                if ((rs >= 0) && (cp != NULL) && (cl > 0)) {
 	                    rs = sbuf_strw(&b,cp,cl) ;
-	                        icols = nstrcols(NTABCOLS,ncol,cp,cl) ;
+	                    icols = nstrcols(NTABCOLS,ncol,cp,cl) ;
 #if	CF_DEBUGS
 	                debugprintf("scanline_fill: icols=%u\n",icols) ;
 #endif
-	                        ncol += icols ;
+	                    ncol += icols ;
 	                }
 	            } /* end if (non-empty field) */
 
@@ -3442,10 +3431,10 @@ static int nstrcols(int ntabcols,int nc,const char *sp,int sl)
 	int		n = 0 ;
 
 	if (sp != NULL) {
-	    int	icols ;
-	    int	scols ;
-	    int	i ;
-	    if (sl < 0) strlen(sp) ;
+	    int		icols ;
+	    int		scols ;
+	    int		i ;
+	    if (sl < 0) sl = strlen(sp) ;
 	    scols = nc ;
 	    for (i = 0 ; i < sl ; i += 1) {
 	        icols = charcols(ntabcols,nc,sp[i]) ;

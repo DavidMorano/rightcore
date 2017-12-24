@@ -578,7 +578,7 @@ const char	*string, *front, *back ;
 
  ****/
 
-static const char *linear_search(op,front,back,string)
+static cchar *linear_search(op,front,back,string)
 LOOKWORD	*op ;
 const char	*string, *front, *back ;
 {
@@ -609,10 +609,7 @@ const char	*string, *front, *back ;
  * "back" terminated).
  */
 
-static int compare(op,s2,back,s1,np)
-LOOKWORD	*op ;
-const char	*s1, *s2, *back ;
-int		*np ;
+static int compare(LOOKWORD *op,cchar *s2,cchar *back,cchar *s1,int *np)
 {
 	int		ch1, ch2 ;
 	int		fch1, fch2 ;
@@ -685,8 +682,9 @@ int		*np ;
 	        rc = ((s1[i]) ? 1 : 0) ;
 	}
 #else /* COMMENT */
-	if ((! f) && (rc == 0))
+	if ((! f) && (rc == 0)) {
 	    rc = ((s1[i]) ? 1 : 0) ;
+	}
 #endif /* COMMENT */
 
 	if (np != NULL) *np = j ;

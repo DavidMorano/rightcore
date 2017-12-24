@@ -59,6 +59,7 @@ extern int	sncpy1(char *,int,const char *) ;
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	sfshrink(const char *,int,const char **) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
+extern int	matpstr(cchar **,int,cchar *,int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(cchar *,...) ;
@@ -74,11 +75,11 @@ extern int	strlinelen(cchar *,int,int) ;
 
 /* local variables */
 
-static cchar	*svckeys[] = {
+static cchar	*svckeys[] = { /* KEEP IN SYNC W/ HEADER */
 	"file",
+	"passfile",
 	"so",
 	"program",
-	"passfile",
 	"args",
 	"username",
 	"groupname",

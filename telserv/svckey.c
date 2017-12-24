@@ -58,9 +58,9 @@ extern int	matpstr(const char **,int,const char *,int) ;
 
 static cchar	*svckeys[] = {
 	"file",
+	"passfile",
 	"so",
 	"program",
-	"passfile",
 	"args",
 	"username",
 	"groupname",

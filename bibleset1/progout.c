@@ -88,9 +88,7 @@ static int	progouttc(PROGINFO *,bfile *,int) ;
 /* exported subroutines */
 
 
-int progoutmtheader(pip,ofp)
-PROGINFO	*pip ;
-bfile		*ofp ;
+int progoutmtheader(PROGINFO *pip,bfile *ofp)
 {
 	PROGINFO_POUT	*pop = &pip->pout ;
 	int		rs = SR_OK ;
@@ -123,9 +121,7 @@ bfile		*ofp ;
 /* end subroutine (progoutmtheader) */
 
 
-int progoutmtfooter(pip,ofp)
-PROGINFO	*pip ;
-bfile		*ofp ;
+int progoutmtfooter(PROGINFO *pip,bfile *ofp)
 {
 	PROGINFO_POUT	*pop = &pip->pout ;
 	int		rs = SR_OK ;
@@ -153,13 +149,11 @@ bfile		*ofp ;
 /* end subroutine (progoutmtfooter) */
 
 
-int progoutbegin(pip,ofp)
-PROGINFO	*pip ;
-bfile		*ofp ;
+int progoutbegin(PROGINFO *pip,bfile *ofp)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
-	const char	*fmt ;
+	cchar		*fmt ;
 
 	if ((rs >= 0) && (pip->pout.pageinfo[0] == '\0')) {
 	    rs = procoutbeginer(pip,ofp) ;
@@ -273,9 +267,7 @@ bfile		*ofp ;
 /* end subroutine (progoutbegin) */
 
 
-int progoutend(pip,ofp)
-PROGINFO	*pip ;
-bfile		*ofp ;
+int progoutend(PROGINFO *pip,bfile *ofp)
 {
 	int		rs = SR_OK ;
 	int		ncols ;
@@ -366,9 +358,7 @@ bfile		*ofp ;
 /* local subroutines */
 
 
-int procoutbeginer(pip,ofp)
-PROGINFO	*pip ;
-bfile		*ofp ;
+int procoutbeginer(PROGINFO *pip,bfile *ofp)
 {
 	PROGINFO_POUT	*pop = &pip->pout ;
 	int		rs = SR_OK ;
@@ -377,9 +367,9 @@ bfile		*ofp ;
 
 	if (pop->pageinfo[0] == '\0') {
 	    if (pip->ff != NULL) {
-	        TMTIME		tmt ;
-	        const char	*ff ;
-	        char		tmpbuf[TIMEBUFLEN + 1] ;
+	        TMTIME	tmt ;
+	        cchar	*ff ;
+	        char	tmpbuf[TIMEBUFLEN + 1] ;
 
 	        ff = ((pip->ff != NULL) ? pip->ff : "D") ;
 	        strwcpyuc(tmpbuf,ff,MIN(2,TIMEBUFLEN)) ;
@@ -390,7 +380,7 @@ bfile		*ofp ;
 
 	        bufprintf(pop->pageinfo,TIMEBUFLEN,
 	            "%s %02u%02u%02u %s %02u:%02u",
-	            PUBLISHER,
+	            pip->pub,
 	            (tmt.year % NYEARS_CENTURY),
 	            (tmt.mon + 1),
 	            tmt.mday,
@@ -421,8 +411,9 @@ bfile		*ofp ;
 	            "%s\\nP",
 	            pip->troff.slash3) ;
 
-	    } else
+	    } else {
 	        rs = SR_NOANODE ;
+	    }
 	} /* end if (needed) */
 
 	return rs ;
@@ -430,10 +421,7 @@ bfile		*ofp ;
 /* end subroutine (procoutbeginer) */
 
 
-static int progouttc(pip,ofp,ncols)
-PROGINFO	*pip ;
-bfile		*ofp ;
-int		ncols ;
+static int progouttc(PROGINFO *pip,bfile *ofp,int ncols)
 {
 	struct troffstrs	*tsp = &pip->troff ;
 	MULTIOUT	mo ;
@@ -455,14 +443,13 @@ int		ncols ;
 
 	if (rs >= 0) {
 	    if ((rs = mo_start(&mo,ofp)) >= 0) {
+		cchar	*fmt ;
 
 	        mo_printf(&mo,".OP\n") ;
 	        mo_printf(&mo,".1C\n") ;
 	        mo_printf(&mo,".ce 1\n") ;
-	        mo_printf(&mo,"\\s+2%s%s%s\\s0\n",
-	            tsp->infont_b,
-	            lbuf,
-	            tsp->infont_p) ;
+		fmt = "\\s+2%s%s%s\\s0\n" ;
+	        mo_printf(&mo,fmt, tsp->infont_b, lbuf, tsp->infont_p) ;
 	        mo_printf(&mo,".SP 2\n") ;
 	        mo_printf(&mo,".2C\n") ;
 

@@ -6,7 +6,7 @@
 
 
 #ifndef	SREQ_INCLUDE
-#define	SREQ_INCLUDE		1
+#define	SREQ_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -41,14 +41,14 @@ struct sreq_sncur {
 } ;
 
 struct sreq_flags {
+	uint		longopt:1 ;		/* the "long" switch */
 	uint		process:1 ;
 	uint		thread:1 ;
-	uint		local:1 ;		/* client is local */
-	uint		longopt:1 ;		/* the "long" switch */
+	uint		shlib:1 ;
 	uint		ss:1 ;
 	uint		builtout:1 ;
 	uint		builtdone:1 ;
-	uint		namesvcs:1 ;
+	uint		namesvcs:1 ;		/* service names (for 'help') */
 } ;
 
 struct sreq {
@@ -130,12 +130,13 @@ extern int sreq_snend(SREQ *,SREQ_SNCUR *) ;
 extern int sreq_sndestroy(SREQ *) ;
 extern int sreq_builtload(SREQ *,MFSERVE_INFO *) ;
 extern int sreq_builtrelease(SREQ *) ;
-extern int sreq_objstart(SREQ *,cchar *,cchar **,cchar **) ;
+extern int sreq_objstart(SREQ *,cchar *,cchar **) ;
 extern int sreq_objcheck(SREQ *) ;
 extern int sreq_objabort(SREQ *) ;
 extern int sreq_objfinish(SREQ *) ;
-extern int sreq_openstderr(SREQ *,cchar *) ;
-extern int sreq_closestderr(SREQ *) ;
+extern int sreq_stderrbegin(SREQ *,cchar *) ;
+extern int sreq_stderrclose(SREQ *) ;
+extern int sreq_stderrend(SREQ *) ;
 extern int sreq_finish(SREQ *) ;
 
 #ifdef	__cplusplus

@@ -5,7 +5,7 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_DEBUG	0		/* switchable at invocation */
+#define	CF_DEBUG	1		/* switchable at invocation */
 
 
 /* revision history:
@@ -417,13 +417,25 @@ int loginfo(PROGINFO *pip)
 int logoutfile(PROGINFO *pip,cchar *lid,cchar *ms,cchar *fn)
 {
 	int		rs = SR_OK ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("logoutfile: ent ms=%s fn=%s\n",ms,fn) ;
+#endif
 	if ((pip->open.logprog) && (fn != NULL)) {
 	    if ((rs = proglog_setid(pip,lid,-1)) >= 0) {
 		if ((rs = proglogout(pip,ms,fn)) >= 0) {
+#if	CF_DEBUG
+		    if (DEBUGLEVEL(5))
+		    debugprintf("logoutfile: proglogout() rs=%d\n",rs) ;
+#endif
 		    rs = proglog_setid(pip,pip->logid,-1) ;
 		}
 	    }
 	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("logoutfile: ret rs=%d\n",rs) ;
+#endif
 	return rs ;
 }
 /* end subroutine (logoutfile) */

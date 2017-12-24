@@ -41,14 +41,17 @@
 .\"_
 .SP 2
 .DS C
-\fB\s+2New Century Bible\s0\fP
+\s-2from\s0
+\(<- Bespoke Bibles \(->
 
-Reina-Valera, versión de 1909 en PDF
+\s-2la\s0
+\s+2\fB Reina-Valera, versión de 1909 en PDF \fP\s-2
 .DE
+.SP 1
 .\"_
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2aviso\s0
 .DE
@@ -64,7 +67,7 @@ Bible) de 1611.
 .\"_
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2uso\s0
 .DE
@@ -78,7 +81,7 @@ se exhibirá la página que usted especificó.
 .\"_
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2restricciones de los derechos reservados\0
 .DE
@@ -89,7 +92,7 @@ dondequiera en el mundo.
 .\"_
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2si usted desea de imprimir esta biblia\s0
 .DE
@@ -102,7 +105,7 @@ esta biblia deben ser pedidas específicamente.
 .\"_
 .\"_
 .\"_
-.SP 2
+.SP 1
 .DS C
 \s-2agradecimientos\s0
 .DE
@@ -116,22 +119,21 @@ Esta biblia en PDF es gratis para el uso de todos los seres del mundo.
 .\"_
 .\"_
 .\"_
-.SP 2
-.ne 9
+.SP 1
 .DS C
 \s-2editor\s0
 .DE
 .DS C
 Le invitamos a escríbirnos con sus preguntas.
 
-New Century Bibles
+Bespoke Bibles
 New Jersey, USA
 
 \s-2sitio web\s0
-\f(CWhttp://www.newcenturybibles.org/\fP
+\f(CWhttp://www.bespokebibles.com/\fP
 
 \s-2email\s0
-\f(CWinfo@newcenturybibles.org\fP
+\f(CWinfo@bespokebibles.com\fP
 .DE
 .\"_
 .\"_

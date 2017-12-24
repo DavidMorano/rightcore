@@ -5,7 +5,7 @@
 
 
 #ifndef	SREQDB_INCLUDE
-#define	SREQDB_INCLUDE		1
+#define	SREQDB_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -29,8 +29,8 @@ struct sreqdb_head {
 	uint		magic ;
 	cchar		*tmpdname ;
 	vechand		db ;
-	INTIQ		exits ;
-	volatile int	f_exiting ;
+	INTIQ		exits ;		/* thread-exits by job-ID (jsn) */
+	volatile int	f_threxiting ;	/* a child thread is exiting */
 } ;
 
 
@@ -48,7 +48,7 @@ extern int sreqdb_findpid(SREQDB *,pid_t,SREQ **) ;
 extern int sreqdb_thrsdone(SREQDB *,SREQ **) ;
 extern int sreqdb_del(SREQDB *,int) ;
 extern int sreqdb_delobj(SREQDB *,SREQ *) ;
-extern int sreqdb_havefd(SREQDB *,int) ;
+extern int sreqdb_findfd(SREQDB *,int) ;
 extern int sreqdb_exiting(SREQDB *,int) ;
 extern int sreqdb_count(SREQDB *) ;
 extern int sreqdb_builtrelease(SREQDB *) ;

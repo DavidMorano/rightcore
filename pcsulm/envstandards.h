@@ -17,12 +17,12 @@
 #define	ENVSTANDARDS_INCLUDE	1
 
 
-#ifndef	OSNAME_SunOS
-#define	OSNAME_SunOS			8
-#endif
-
 #ifndef	OSNAME
 #define	OSNAME				SunOS
+#endif
+
+#ifndef	OSNAME_SunOS
+#define	OSNAME_SunOS			8
 #endif
 
 #ifndef	OSNUM
@@ -64,11 +64,6 @@
 
 #ifndef	_FILE_OFFSET_BITS /* 64-bit sized file-offsets ('offset_t' ?) */
 #define	_FILE_OFFSET_BITS		64
-#endif
-
-
-#ifndef	PTHREAD
-#define	PTHREAD				1 /* pthreads are the default */
 #endif
 
 

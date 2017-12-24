@@ -220,7 +220,7 @@ static int	locinfo_finish(LOCINFO *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static cchar	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -268,7 +268,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static cchar	*akonames[] = {
 	"utf",
 	"db",
 	NULL
@@ -281,7 +281,7 @@ enum akonames {
 } ;
 
 /* define the configuration keywords */
-static cchar *wopts[] = {
+static cchar	*wopts[] = {
 	"userhomes",
 	"usernames",
 	"groupnames",
@@ -745,8 +745,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -806,38 +805,39 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* process */
 
 	if (rs >= 0) {
-	if ((rs = procsysdir(pip)) >= 0) {
-	    int	w = wopt_userhomes ;
+	    if ((rs = procsysdir(pip)) >= 0) {
+	        int	w = wopt_userhomes ;
 
-	    for (ai = 1 ; ai < argc ; ai += 1) {
+	        for (ai = 1 ; ai < argc ; ai += 1) {
 
-	        f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	        f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	        if (f) {
-	            wspec = argv[ai] ;
-	            if (wspec != NULL) {
-	                int	wch = MKCHAR(wspec[0]) ;
-	                pan += 1 ;
-	                if (isdigitlatin(wch)) {
-	                    rs = optvalue(wspec,-1) ;
-	                    w = rs ;
-	                } else {
-	                    if ((w = matostr(wopts,1,wspec,-1)) < 0)
-	                        rs = SR_INVALID ;
-	                }
-	                if (rs >= 0)
-	                    rs = process(pip,w) ;
-	            } /* end if (non-NULL w-spec) */
-	        } /* end if */
+	            f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
+	            f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
+	            if (f) {
+	                wspec = argv[ai] ;
+	                if (wspec != NULL) {
+	                    int	wch = MKCHAR(wspec[0]) ;
+	                    pan += 1 ;
+	                    if (isdigitlatin(wch)) {
+	                        rs = optvalue(wspec,-1) ;
+	                        w = rs ;
+	                    } else {
+	                        if ((w = matostr(wopts,1,wspec,-1)) < 0) {
+	                            rs = SR_INVALID ;
+				}
+	                    }
+	                    if (rs >= 0)
+	                        rs = process(pip,w) ;
+	                } /* end if (non-NULL w-spec) */
+	            } /* end if */
 
-	        if (rs < 0) break ;
-	    } /* end for (arguments) */
+	            if (rs < 0) break ;
+	        } /* end for (arguments) */
 
-	    if ((rs >= 0) && (pan == 0)) {
-	        rs = process(pip,w) ;
-	    }
+	        if ((rs >= 0) && (pan == 0)) {
+	            rs = process(pip,w) ;
+	        }
 
-	} /* end if (procsysdir) */
+	    } /* end if (procsysdir) */
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -990,8 +990,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                } /* end switch */
 
 	                c += 1 ;
-	            } else
+	            } else {
 	                rs = SR_INVALID ;
+		    }
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */

@@ -167,7 +167,7 @@ int namecache_finish(NAMECACHE *op)
 	rs1 = namecache_entfins(op) ;
 	if (rs >= 0) rs = rs1 ;
 
-/* free up everyting else */
+/* free up everything else */
 
 	rs1 = hdb_finish(&op->db) ;
 	if (rs >= 0) rs = rs1 ;

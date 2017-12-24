@@ -49,13 +49,11 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"shio.h"
-#include	"mfsconfig.h"
 #include	"mfsmain.h"
+#include	"mfsconfig.h"
 #include	"mfslocinfo.h"
 #include	"mfslog.h"
 #include	"defs.h"
-#include	"msflag.h"
 
 
 /* local typedefs */
@@ -83,10 +81,6 @@
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
-#ifndef	IPCBUFLEN
-#define	IPCBUFLEN	MSGBUFLEN
-#endif
-
 #define	NDF		"/tmp/mfs.deb"
 
 
@@ -109,8 +103,6 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdecmfi(const char *,int,int *) ;
 extern int	ctdeci(char *,int,int) ;
-extern int	optbool(cchar *,int) ;
-extern int	optvalue(cchar *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;

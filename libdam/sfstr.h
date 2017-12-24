@@ -31,6 +31,7 @@ extern int sfsub(const char *,int,const char *,const char **) ;
 extern int sfthing(const char *,int,const char *,const char **) ;
 extern int sfwhitedot(const char *,int,const char **) ;
 extern int sfword(const char *,int,const char **) ;
+extern int sfnext(const char *,int,const char **) ;
 
 extern int nextfield(const char *,int,const char **) ;
 

@@ -57,6 +57,7 @@ extern int	sfbasename(cchar *,int,cchar **) ;
 extern int	sfdirname(cchar *,int,cchar **) ;
 extern int	nextfieldterm(cchar *,int,cchar *,cchar **) ;
 extern int	nchr(cchar *,int,int) ;
+extern int	nleadstr(cchar *,cchar *,int) ;
 extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
 extern int	msleep(int) ;
@@ -84,12 +85,14 @@ extern char	*strnrpbrk(cchar *,int,cchar *) ;
 
 /* forward references */
 
+static int	ourmat(cchar *,cchar *,int) ;
+
 
 /* local variables */
 
 static char	*isexecs[] = {
-	"p",
-	"a",
+	"program",
+	"args",
 	NULL
 } ;
 
@@ -113,7 +116,9 @@ int svckv_val(cchar *(*kv)[2],int n,cchar *np,cchar **vpp)
 	int		vl = 0 ;
 	if (vpp != NULL) *vpp = NULL ;
 	for (i = 0 ; i < n ; i += 1) {
-	    if (strcmp(kv[i][0],np) == 0) {
+	    const int	kl = strlen(kv[i][0]) ;
+	    cchar	*kp = kv[i][0] ;
+	    if (ourmat(np,kp,kl)) {
 	        if (vpp != NULL) *vpp = kv[i][1] ;
 	        vl = strlen(kv[i][1]) ;
 	        break ;
@@ -152,7 +157,7 @@ int svckv_isfile(cchar *(*kv)[2],int n,cchar **vpp)
 int svckv_ispass(cchar *(*kv)[2],int n,cchar **vpp)
 {
 	int		vl ;
-	cchar		*sp = "pass" ;
+	cchar		*sp = "passfile" ;
 	vl = svckv_val(kv,n,sp,vpp) ;
 	return vl ;
 }
@@ -216,5 +221,20 @@ int svckv_svcopts(cchar *(*kv)[2],int n)
 	return ow ;
 }
 /* end subroutine (svckv_svcopts) */
+
+
+/* local subrouties */
+
+
+static int ourmat(cchar *sk,cchar *np,int nl)
+{
+	int		m ;
+	int		f = FALSE ;
+	if ((m = nleadstr(sk,np,nl)) >= 1) {
+	    f = (m == nl) ;
+	}
+	return f ;
+}
+/* end subroutine (ourmat) */
 
 

@@ -3,7 +3,14 @@
 /* expanded server entry */
 
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* revision history:
+
+	= 2017-10-13, David A­D­ Morano
+	This subroutine was originally written.
+
+*/
+
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
 
 
 #ifndef	SVCENTSUB_INCLUDE
@@ -25,11 +32,11 @@
 #endif
 
 
-enum svckeys {
+enum svckeys { /* KEEP IN SYNC W/ CODE-FILE */
 	svckey_file,
+	svckey_pass,
 	svckey_so,
 	svckey_p,
-	svckey_pass,
 	svckey_a,
 	svckey_u,
 	svckey_g,

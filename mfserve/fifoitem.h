@@ -12,11 +12,11 @@
 
 #define	FIFOITEM_MAGIC	0x12345678
 #define	FIFOITEM	struct fifoitem_head
-#define	FIFOITEM_ENT	struct fifoitem_ent
-#define	FIFOITEM_CUR	struct fifoitem_cur
+#define	FIFOITEM_ENT	struct fifoitem_e
+#define	FIFOITEM_CUR	struct fifoitem_c
 
 
-struct fifoitem_ent {
+struct fifoitem_e {
 	FIFOITEM_ENT	*prev, *next ;
 	int		dl ;
 	const void	*dp ;
@@ -28,14 +28,14 @@ struct fifoitem_head {
 	int		n ;
 } ;
 
-struct fifoitem_cur {
+struct fifoitem_c {
 	FIFOITEM_ENT	*current ;
 } ;
 
 
-typedef struct fifoitem_head	fifoitem ;
-typedef struct fifleitem_ent	fifoitem_ent ;
-typedef struct fifoitem_cur	fifoitem_cur ;
+typedef FIFOITEM	fifoitem ;
+typedef FIFOITEM_ENT	fifoitem_ent ;
+typedef FIFOITEM_CUR	fifoitem_cur ;
 
 
 #if	(! defined(FIFOITEM_MASTER)) || (FIFOITEM_MASTER == 0)

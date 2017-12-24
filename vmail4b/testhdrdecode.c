@@ -15,6 +15,15 @@
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	Synopsis:
+
+	$ testhdrdecode.x < <testfile>
+
+
+*******************************************************************************/
+
 
 #include	<envstandards.h>
 
@@ -81,6 +90,8 @@ static int debugprintchars(cchar *,const wchar_t *,int) ;
 #endif
 
 
+/* local variables */
+
 
 /* exported subroutines */
 
@@ -95,6 +106,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	int		rs = SR_OK ;
+	int		ex = 0 ;
 	int		rs1 ;
 	const char	*pr = PCS ;
 	const char	*cp ;
@@ -121,7 +133,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	        if (argv != NULL) {
 	            bfile	of ;
-	            const char	*ofname = BFILE_STDOUT ;
+	            cchar	*ofname = BFILE_STDOUT ;
 	            if ((rs = bopen(&of,ofname,"wct",0666)) >= 0) {
 	                int	ai ;
 	                cchar	*ifname ;
@@ -158,7 +170,8 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	debugclose() ;
 #endif
 
-	return 0 ;
+	if (rs < 0) ex = 1 ;
+	return ex ;
 }
 /* end subroutine (main) */
 

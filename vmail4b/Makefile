@@ -67,6 +67,7 @@ INCDIRS= -I$(INCDIR) -I$(LOCAL)/include
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 CFLAGS= $(CCOPTS)
+CCFLAGS= $(GPPFLAGS) $(CFLAGS)
 
 #LD= $(CC)
 #LD= cc
@@ -198,7 +199,7 @@ OBJ40= initnow.o getmailgid.o
 OBJ41= wsncols.o
 OBJ42= iscmdstart.o
 OBJ43= strdcpycompact.o
-OBJ44=
+OBJ44= straltwchar.o
 OBJ45=
 OBJ46=
 OBJ47=
@@ -594,7 +595,7 @@ T05OBJb= qpdecoder.o b64decoder.o uiconv.o chartrans.o
 T05OBJc= utf8decoder.o
 T05OBJd= obuf.o
 T05OBJe= snwcpywidehdr.o
-T05OBJf= 
+T05OBJf= straltwchar.o
 T05OBJg=
 T05OBJh=
 
@@ -605,5 +606,28 @@ T05OBJ= $(T05OBJ0) $(T05OBJ1)
 
 $(T05).x:		Makefile $(T05OBJ)
 	$(GPP) -o $@ $(T05OBJ) $(TLIBINFO)
+
+
+T06= testbins
+
+T06OBJa= $(T06).o
+T06OBJb=
+T06OBJc=
+T06OBJd=
+T06OBJe=
+T06OBJf=
+T06OBJg=
+T06OBJh=
+
+T06OBJ0= $(T06OBJa) $(T06OBJb) $(T06OBJc) $(T06OBJd)
+T06OBJ1= $(T06OBJe) $(T06OBJf) $(T06OBJg) $(T06OBJh)
+
+T06OBJ= $(T06OBJ0) $(T06OBJ1)
+
+$(T06).o:		$(T06).cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $(T06).cc
+
+$(T06).x:		Makefile $(T06OBJ)
+	$(GPP) -o $@ $(T06OBJ) $(TLIBINFO)
 
 

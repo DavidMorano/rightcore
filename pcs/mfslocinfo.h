@@ -97,14 +97,14 @@ struct locinfo {
 	vecstr		stores ;
 	cchar		*msnode ;	/* machine-status node */
 	cchar		*tmpourdname ;
+	cchar		*builtdname ;
+	cchar		*speedname ;
 	cchar		*tmpfname ;	/* TMP lock-file */
 	cchar		*reqfname ;
 	cchar		*mntfname ;
-	cchar		*builtdname ;
 	cchar		*svcfname ;
 	cchar		*accfname ;
 	cchar		*msfname ;
-	cchar		*speedname ;
 	PROGINFO	*pip ;
 	void		*adj ;		/* adjunct local data */
 	LOCINFO_FL	have, f, changed, final ;
