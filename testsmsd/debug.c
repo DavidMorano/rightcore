@@ -31,9 +31,6 @@
 #include	<sys/stat.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
-#include	<stropts.h>
-#include	<poll.h>
 #include	<stdlib.h>
 #include	<string.h>
 

@@ -31,17 +31,10 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/socket.h>
-#include	<sys/uio.h>
-#include	<sys/msg.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<stropts.h>
-#include	<poll.h>
-#include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<netdb.h>
 
 #include	<vsystem.h>
 #include	<localmisc.h>

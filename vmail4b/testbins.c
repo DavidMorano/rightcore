@@ -164,7 +164,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 		    debugprintf("main: sch=%d\n",sch) ;
 		}
 #endif
-	        while ((i < back) && (front < back)) {
+	        while (front < back) {
 		    ch = values[i] ;
 #if	CF_DEBUGS
 		    debugprintf("main: top i=%u ch=%u\n",i,ch) ;

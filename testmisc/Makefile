@@ -646,3 +646,21 @@ main$(T21).o:		main$(T21).cc singlist.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T21).cc
 
 
+T22= log
+
+T22OBJa= main$(T22).o
+T22OBJb=
+T22OBJc=
+T22OBJd=
+
+T22OBJ= $(T22OBJa) $(T22OBJb) $(T22OBJc) $(T22OBJd)
+
+T22OBJS= $(CRTFRONT) $(T22OBJ) $(CRTC) $(CRTBACK)
+
+$(T22).x:		Makefile $(T22OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T22OBJS) -lm $(TLIBINFO) > $(T22).lm
+
+main$(T22).o:		main$(T22).cc singlist.hh
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T22).cc
+
+

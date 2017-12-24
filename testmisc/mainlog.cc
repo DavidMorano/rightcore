@@ -1,4 +1,4 @@
-/* mainsing */
+/* mainlog */
 /* lang=C++11 */
 
 
@@ -16,6 +16,7 @@
 
 #include	<envstandards.h>
 #include	<sys/types.h>
+#include	<cmath>
 #include	<cstdlib>
 #include	<cinttypes>
 #include	<cstring>
@@ -38,7 +39,7 @@
 
 /* local defines */
 
-#define	VARDEBUGFNAME	"SING_DEBUGFILE"
+#define	VARDEBUGFNAME	"LOG_DEBUGFILE"
 
 
 /* name-spaces */
@@ -47,6 +48,8 @@ using namespace std ;
 
 
 /* external subroutines */
+
+extern "C" double	log2(double) ;
 
 extern "C" int	sisub(cchar *,int,cchar *) ;
 extern "C" int	mkrevstr(char *,int) ;
@@ -68,8 +71,6 @@ extern "C" char	*strwcpy(char *,cchar *,int) ;
 
 /* local structures (and methods) */
 
-static int	printlist(singlist<int> &,cchar *) ;
-
 
 /* forward references */
 
@@ -84,51 +85,21 @@ int main(int argc,cchar **argv,cchar **envv)
 {
 	int		rs = SR_OK ;
 	int		ex = 0 ;
+	cchar		*cp ;
 #if	CF_DEBUGS
-	{
-	    cchar	*cp ;
-	    if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
-	        rs = debugopen(cp) ;
-	        debugprintf("main: starting DFD=%d\n",rs) ;
-	    }
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
 #endif /* CF_DEBUGS */
 	{
-	    singlist<int>	srclist = { 2, 4, 8, 1, 0 } ;
-
-	    cout << "= zero\n" ;
-	    printlist(srclist,"zero") ;
-
-	    cout << "= one\n" ;
-	    for (auto v : srclist) {
-		cout << "v=" << v << endl ;
+	    const int	vals[] = { 1024, 100, 184 } ;
+	    double	d, r ;
+	    for (auto v : vals) {
+	        d = v ;
+		r = log2(d) ;
+		cout << r << endl ;
 	    }
-
-	    cout << "= two\n" ;
-	    {
-	        if ((rs = srclist.inshead(5)) >= 0) {
-		    printlist(srclist,"added") ;
-		}
-	    }
-
-	    cout << "= three\n" ;
-	    if (rs >= 0) {
-	        int		v ;
-	        while ((rs = srclist.rem(&v)) >= 0) {
-#if	CF_DEBUGS
-	debugprintf("main: srclist.rem() rs=%d\n",rs) ;
-#endif
-		    cout << "v=" << v << endl ;
-	        }
-#if	CF_DEBUGS
-	debugprintf("main: while-out rs=%d\n",rs) ;
-#endif
-		if (rs == SR_EMPTY) {
-		    cout << "eol rs=" << rs << endl ;
-		    rs = SR_OK ;
-		}
-	    }
-
 	} /* end block */
 
 #if	CF_DEBUGS
@@ -145,19 +116,5 @@ int main(int argc,cchar **argv,cchar **envv)
 
 
 /* local subroutines */
-
-
-static int printlist(singlist<int> &l,cchar *s)
-{
-	int		c = 0 ;
-	cout << s ;
-	for (auto v : l) {
-	    c += 1 ;
-	    cout << " " << v ;
-	}
-	cout << endl ;
-	return c ;
-}
-/* end subroutine (printlist) */
 
 

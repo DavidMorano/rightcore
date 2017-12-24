@@ -8,8 +8,13 @@
 
 /* revision history:
 
-	= 1998-01-10 David A.D. Morano
+	= 1998-01-10, David A.D. Morano
 	This was written from scratch.
+
+	= 2017-12-23, David A.D. Morano
+        I added some additional characters to the database. I also sped up the
+        search for possible replacement characters by implementing a binary
+        search.
 
 */
 
@@ -21,7 +26,7 @@
 
 	Synopsis:
 
-	cchar *straltwchar(int wch) ;
+	cchar *straltwchar(int wch)
 
 	Arguments:
 
@@ -272,10 +277,9 @@ cchar *straltwchar(uint sch)
 	int		front = 0 ;
 	int		back = (nelem(specials)-1) ;
 	int		i ;
-	int		f = FALSE ;
 	cchar		*ss = NULL ;
 	i = (front + ((back-front)/2)) ;
-	while ((i < back) && (front < back)) {
+	while (front < back) {
 	    ch = specials[i].code ;
 	    if (sch > ch) {
 		front = (i+1) ;

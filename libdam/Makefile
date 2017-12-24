@@ -199,7 +199,7 @@ OBJ45=
 OBJ46= opentermnote.o openport.o opendefstds.o
 OBJ47= openusd.o
 
-OBJ48= wdt.o base64.o netorder.o stdorder.o getserial.o 
+OBJ48= wdt.o base64.o netorder.o stdorder.o getserial.o log2.o logbase.o
 OBJ49=
 OBJ50= readn.o writen.o writeto.o acceptpass.o passfd.o
 OBJ51=
