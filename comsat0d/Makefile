@@ -145,7 +145,7 @@ OBJ15= dispatcher.o
 
 OBJ16= pcsgetprogpath.o prgetprogpath.o
 OBJ17=
-OBJ18=
+OBJ18= straltwchar.o
 OBJ19= mkaddrname.o
 OBJ20= initnow.o inet4int.o
 OBJ21= wsnwcpynarrow.o

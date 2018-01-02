@@ -4,6 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_UCGETOPID	1		/* compile in |ungetpid(3uc)| */
 
 
 /* revision history:
@@ -169,11 +170,13 @@ int ugetpid(void)
 /* end subroutine (ugetpid) */
 
 
+#if	CF_UCGETPID
 int ucgetpid(void)
 {
 	return ugetpid() ;
 }
 /* end subroutine (ucgetpid) */
+#endif /* CF_UCGETPID */
 
 
 void usetpid(pid_t pid)

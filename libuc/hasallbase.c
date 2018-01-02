@@ -21,7 +21,7 @@
 	Description:
 
 	We test if a counted strin contains all of the proper digits consistent
-	with the numberic base supplied.
+	with the numeric base supplied.
 
 	Synopsis:
 

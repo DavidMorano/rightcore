@@ -566,6 +566,10 @@ typedef long long		unixtime_t ;
 #ifndef	STRUCT_MAPEX
 #define	STRUCT_MAPEX	1
 
+#ifndef	MAPEX
+#define	MAPEX		struct mapex
+#endif
+
 struct mapex {
 	int	rs, ex ;
 } ;

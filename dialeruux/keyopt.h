@@ -41,7 +41,7 @@ struct keyopt_n {
 } ;
 
 struct keyopt_c {
-	KEYOPT_VALUE	*keyp ;
+	KEYOPT_NAME	*keyp ;
 	KEYOPT_VALUE	*valuep ;
 } ;
 

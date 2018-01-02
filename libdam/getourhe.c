@@ -165,7 +165,7 @@ int		hostlen ;
 
 	} /* end if (stuff on the end) */
 
-/* is it a numberic address? */
+/* is it a numeric address? */
 
 	if ((addr = inet_addr(np)) != (~ 0)) {
 

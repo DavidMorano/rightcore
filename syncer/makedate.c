@@ -1,2 +1,2 @@
 const char syncer_makedate[] =
-"@(#)syncer                  171018_1810:40_USEDT Rightcore Network Services" ;
+"@(#)syncer                  171229_0248:43_USEST Rightcore Network Services" ;

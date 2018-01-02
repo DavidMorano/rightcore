@@ -225,10 +225,10 @@ int libinfo::libent(const SREQ *jep)
 
 int libinfo::libentsvc(const SREQ *jep)
 {
-		if (enl == 0) {
-		    enp = jep->svc ;
-		    enl = strlen(enp) ;
-		}
+	if (enl == 0) {
+	    enp = jep->svc ;
+	    enl = strlen(enp) ;
+	}
 	return enl ;
 }
 /* end method (lib::libentsvc) */

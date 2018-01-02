@@ -405,8 +405,9 @@ int keyopt_fetch(KEYOPT *php,cchar *kname,KEYOPT_CUR *curp,cchar **rpp)
 /* do we have this key? */
 
 	    klen = -1 ;
-	    if ((tp = strchr(kname,'=')) != NULL)
+	    if ((tp = strchr(kname,'=')) != NULL) {
 	        klen = (tp - kname) ;
+	    }
 
 	    if ((rs = keyopt_findkey(php,kname,klen,&kp)) >= 0) {
 	        curp->keyp = kp ;
@@ -426,8 +427,9 @@ int keyopt_fetch(KEYOPT *php,cchar *kname,KEYOPT_CUR *curp,cchar **rpp)
 #endif
 
 	    vp = NULL ;
-	    if (curp->valuep != NULL)
+	    if (curp->valuep != NULL) {
 	        vp = (curp->valuep)->next ;
+	    }
 
 	} /* end if */
 
@@ -440,8 +442,9 @@ int keyopt_fetch(KEYOPT *php,cchar *kname,KEYOPT_CUR *curp,cchar **rpp)
 
 	if (rs >= 0) {
 
-	    if ((kp == NULL) || (vp == NULL))
+	    if ((kp == NULL) || (vp == NULL)) {
 	        rs = SR_NOENT ;
+	    }
 
 	    if (rs >= 0) {
 

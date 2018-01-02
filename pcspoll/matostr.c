@@ -59,6 +59,11 @@
 extern int	nleadstr(const char *,const char *,int) ;
 extern int	nleadcasestr(const char *,const char *,int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
 
 /* external variables */
 

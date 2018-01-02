@@ -29,7 +29,8 @@ CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) -Wall
 CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
 #CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
-#CCOPTS= -g -Wstrict-aliasing -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
+#CCOPTS= -g -Wstrict-aliasing $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
+#CCOPTS= -g -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
 
 
 DEF0=
@@ -187,7 +188,7 @@ OBJ34=
 OBJ35= sfsub.o sfcasesub.o sfkey.o sfbreak.o sfskipwhite.o sfshrink.o sfword.o
 OBJ36= sfdirname.o sfbasename.o sfwhitedot.o sfprogroot.o sfdequote.o
 OBJ37= sfcookkey.o sfsubstance.o sfthing.o sfcenter.o sfrootname.o sfnamecomp.o
-OBJ38= sialpha.o sialnum.o sidquote.o sichr.o sicasechr.o sinext.o
+OBJ38= sichr.o sicasechr.o sialpha.o sidigit.o sialnum.o sidquote.o sinext.o
 OBJ39= sisub.o sicasesub.o sibreak.o siskipwhite.o sibasename.o sispan.o 
 
 OBJ40= getenv3.o delenv.o env.o

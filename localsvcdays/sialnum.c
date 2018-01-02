@@ -1,6 +1,6 @@
 /* sialnum */
 
-/* subroutine to find the index of an alpha-numberic character */
+/* subroutine to find the index of an alpha-numeric character */
 
 
 /* revision history:
@@ -14,7 +14,7 @@
 
 /*******************************************************************************
 
-	This subroutine searchs for an alpha-numberic character within a given
+	This subroutine searchs for an alpha-numeric character within a given
 	string and returns the index to that character (if it is found).  It
 	returns -1 if the character does not exist within the given string.
 
