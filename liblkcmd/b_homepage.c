@@ -452,11 +452,11 @@ static int	procdocbodymain_svcer(PROGINFO *,HTM *,GATHER *,SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerhdr(PROGINFO *,HTM *,SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerinc(PROGINFO *,HTM *,SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerincer(PROGINFO *,HTM *,
-SVCFILE_ENT *,cchar *) ;
+			SVCFILE_ENT *,cchar *) ;
 static int	procdocbodymain_svcerfile(PROGINFO *,HTM *,GATHER *,
-SVCFILE_ENT *) ;
+			SVCFILE_ENT *) ;
 static int	procdocbodymain_svcerfiler(PROGINFO *,HTM *,GATHER *,
-SVCFILE_ENT *,int) ;
+			SVCFILE_ENT *,int) ;
 static int	proclockcheck(PROGINFO *) ;
 static int	proclockprint(PROGINFO *,cchar *,LFM_CHECK *) ;
 static int	proclocklog(PROGINFO *,cchar *,LFM_CHECK *,cchar *) ;
@@ -538,7 +538,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -546,7 +546,7 @@ static const struct pivars	initvars = {
 	VARPRLOCAL
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -989,25 +989,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
-
-#ifdef	COMMENT
-	                case argopt_if:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            ifname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                ifname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-#endif /* COMMENT */
 
 /* configuration file-name */
 	                case argopt_cf:
@@ -1683,7 +1664,7 @@ static int usage(PROGINFO *pip)
 	rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
-	fmt = "%s:  [-af <afile>]\n" ;
+	fmt = "%s:  [-af <afile>] [-svcs <svc(s)>]\n" ;
 	rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 

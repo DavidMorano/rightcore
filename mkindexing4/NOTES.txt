@@ -7,8 +7,22 @@ instead of filtering out useful words like the original 'mkey' program did!
 	-- Dave Morano
 
 
-Invocation Synopsis
--------------------------------------------------------------------------------
+= Building
+
+$ ma
+
+
+= Installing application code
+
+$ ma install
+
+
+= Installing shared-objects code
+
+$ ma install-so
+
+
+= Invocation Synopsis
 
 + separate entries by BLANK lines (default):
 

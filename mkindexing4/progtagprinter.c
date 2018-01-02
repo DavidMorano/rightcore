@@ -131,26 +131,20 @@ bfile		*ofp ;
 const char	tag[] ;
 {
 	SFILL		fillout ;
-
 	BIBLECITE	bc ;
-
 	TAGINFO		ti ;
-
 	bfile		itagfile, *tfp = &itagfile ;
-
 	offset_t	boff ;
-
-	int	rs = SR_OK ;
-	int	len ;
-	int	ki, li ;
-	int	ll ;
-	int	tlen ;
-	int	wlen = 0 ;
-
-	char	tagfname[MAXPATHLEN + 1] ;
-	char	linebuf[LINEBUFLEN + 1] ;
-	char	*lp ;
-
+	const int	llen = LINEBUFLEN ;
+	int		rs = SR_OK ;
+	int		len ;
+	int		ki, li ;
+	int		ll ;
+	int		tlen ;
+	int		wlen = 0 ;
+	char		tagfname[MAXPATHLEN + 1] ;
+	char		lbuf[LINEBUFLEN + 1] ;
+	char		*lp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -234,17 +228,17 @@ const char	tag[] ;
 
 	tlen = 0 ;
 	while ((tlen < ti.reclen) &&
-	    ((rs = breadline(tfp,linebuf,LINEBUFLEN)) > 0)) {
+	    ((rs = breadline(tfp,lbuf,llen)) > 0)) {
 
 	    len = rs ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
 		debugprintf("progtagprinter: >%t<\n",
-			linebuf,strlinelen(linebuf,len,60)) ;
+			lbuf,strlinelen(lbuf,len,60)) ;
 #endif
 
-	    lp = linebuf ;
+	    lp = lbuf ;
 	    ll = len ;
 	    switch (ofi) {
 

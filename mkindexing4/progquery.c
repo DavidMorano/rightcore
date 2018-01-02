@@ -141,11 +141,13 @@ static const uchar	aterms[] = {
 
 
 int progquery(PROGINFO *pip,ARGINFO *aip,const uchar *terms,
-cchar *dbname,cchar *ofname)
+		cchar *dbname,cchar *ofname)
 {
 	bfile		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -155,10 +157,18 @@ cchar *dbname,cchar *ofname)
 #endif /* CF_DEBUG */
 
 	if (terms == NULL) return SR_FAULT ;
-	if (dbname == NULL) return SR_FAULT ;
 
-	if (dbname[0] == '\0')
-	    return SR_INVALID ;
+	if (dbname == NULL) {
+	    rs = SR_FAULT ;
+	    fmt = "%s: no database specified (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	}
+
+	if ((rs >= 0) && (dbname[0] == '\0')) {
+	    rs = SR_INVALID ;
+	    fmt = "%s: no database specified (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	}
 
 /* open the output file */
 

@@ -11,7 +11,7 @@
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
 
-#define	VERSION		"0"
+#define	VERSION		"1"
 #define	WHATINFO	"@(#)bibleset "
 #define	BANNER		"Bible Set "
 #define	SEARCHNAME	"bibleset"

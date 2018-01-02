@@ -1394,7 +1394,6 @@ static int disp_start(DISP *dop,DISP_ARGS *dap)
 
 	if ((rs = ptm_create(&dop->m,NULL)) >= 0) {
 	    if ((rs = ptc_create(&dop->cond,NULL)) >= 0) {
-	        if ((rs = ptm_create(&dop->m,NULL)) >= 0) {
 	            const int	f_sh = FALSE ;
 	            if ((rs = psem_create(&dop->sem_wq,f_sh,0)) >= 0) {
 	                PSEM	*ws = &dop->sem_done ;
@@ -1413,9 +1412,6 @@ static int disp_start(DISP *dop,DISP_ARGS *dap)
 	                if (rs < 0)
 	                    psem_destroy(&dop->sem_wq) ;
 	            }
-	            if (rs < 0)
-	                ptm_destroy(&dop->m) ;
-	        } /* end if */
 	        if (rs < 0)
 	            ptc_destroy(&dop->cond) ;
 	    } /* end if (ptc-create) */
