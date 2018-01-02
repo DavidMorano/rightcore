@@ -1,7 +1,7 @@
 /* b_pt */
 /* lang=C++11 */
 
-/* front-end subroutine */
+/* SHELL built-in to find an item */
 /* last modified %G% version %I% */
 
 
@@ -1477,7 +1477,7 @@ static int procpathtry_func(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 	    } else if (isNotPresent(rs)) {
 		rs = SR_OK ;
 	    }
-	} /* end if (pathtry::mk) */
+	} /* end if (pathtry::mkdef) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -1493,11 +1493,7 @@ static int procpathtry_lib(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		nl = ptp->namelen ;
 	int		c = 0 ;
-	const char	*tp ;
-	const char	*np = ptp->name ;
-	const char	*prelib = "lib" ;
 
 
 /* straight up */
@@ -1509,16 +1505,21 @@ static int procpathtry_lib(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 
 /* simple extensions */
 
-	if (((tp = strnrchr(np,nl,'.')) == NULL) ||
-	    (matstr(libexts,(tp+1),((np+nl)-tp)) < 0)) {
-	    int		i ;
-	    cchar	*pre, *suf ;
+	if (rs >= 0) {
+	    int		nl = ptp->namelen ;
+	    cchar	*np = ptp->name ;
+	    cchar	*tp ;
+	    cchar	*prelib = "lib" ;
+	    if (((tp = strnrchr(np,nl,'.')) == NULL) ||
+	        (matstr(libexts,(tp+1),((np+nl)-tp)) < 0)) {
+	        int	i ;
+	        cchar	*pre, *suf ;
 
 	    for (i = 0 ; (rs >= 0) && (libexts[i] != NULL) ; i += 1) {
 
 	        pre = NULL ;
 	        suf = libexts[i] ;
-	        if ((rs1 = ptp->mklib(pre,ptp->name,ptp->namelen,suf)) > 0) {
+	        if ((rs1 = ptp->mklib(pre,np,nl,suf)) > 0) {
 	            rs = procpathtry_liber(pip,ofp,ptp) ;
 	            c += rs ;
 	        }
@@ -1529,8 +1530,7 @@ static int procpathtry_lib(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 	                (strcmp(ptp->name,prelib) != 0)) {
 
 	                pre = prelib ;
-	                rs1 = ptp->mklib(pre,ptp->name,ptp->namelen,suf) ;
-	                if (rs1 > 0) {
+	                if ((rs1 = ptp->mklib(pre,np,nl,suf)) > 0) {
 	                    rs = procpathtry_liber(pip,ofp,ptp) ;
 	                    c += rs ;
 	                }
@@ -1541,7 +1541,8 @@ static int procpathtry_lib(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 
 	    } /* end for (extensions) */
 
-	} /* end if (simple extensions) */
+	    } /* end if (simple extensions) */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? c : rs ;
 }
