@@ -273,6 +273,7 @@ proginfo.o:		proginfo.c defs.h
 proginfo_setpiv_o:	proginfo_setpiv.c defs.h
 
 b_$(T).o:		b_$(T).c $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) b_$(T).cc
 
 maininfo.o:		maininfo.c maininfo.h kshlib.h
 

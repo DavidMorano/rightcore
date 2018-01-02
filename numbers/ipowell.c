@@ -1,4 +1,4 @@
-/* ipow */
+/* ipowell */
 
 /* return integer-power */
 /* last modified %G% version %I% */
@@ -6,7 +6,6 @@
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
 #define	CF_DYNAMIC	1		/* dynamic programming */
-
 
 /* revision history:
 
@@ -24,7 +23,7 @@
 
 	Synopsis:
 
-	int ipow(b,p)
+	LONG ipowell(b,p)
 	int	b, p ;
 
 	Arguments:
@@ -72,15 +71,15 @@
 
 #if	CF_DYNAMIC
 
-int ipow(int b,int n)
+LONG ipowell(int b,int n)
 {
-	int		r = 1 ;
+	LONG		r = 1 ;
 	if (n == 1) {
 	    r = b ;
 	} else if (n == 2) { /* common case */
 	    r = b*b ;
 	} else if (n > 2) {
-	    int	t = ipow(b,(n/2)) ;
+	    LONG	t = ipowell(b,(n/2)) ;
 	    if ((n&1) == 0) {
 		r = (t*t) ;
 	    } else {
@@ -93,16 +92,16 @@ int ipow(int b,int n)
 
 #else /* CF_DYNAMIC */
 
-int ipow(int b,int n)
+LONG ipowell(int b,int p)
 {
-	int		r = 1 ;
+	LONG		r = 1 ;
 	int		i ;
-	for (i = 0 ; i < n ; i += 1) {
+	for (i = 0 ; i < p ; i += 1) {
 	    r *= b ;
 	}
 	return r ;
 }
-/* end subroutine (ipow) */
+/* end subroutine (ipowell) */
 
 #endif /* CF_DYNAMIC */
 

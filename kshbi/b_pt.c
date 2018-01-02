@@ -1,4 +1,5 @@
 /* b_pt */
+/* lang=C++11 */
 
 /* front-end subroutine */
 /* last modified %G% version %I% */
@@ -7,6 +8,7 @@
 #define	CF_DEBUGS	0		/* debug print-outs (non-switchable) */
 #define	CF_DEBUG	0		/* debug print-outs switchable */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
+#define	CF_DEBUGN	0		/* special debugging */
 #define	CF_DEFSECTION	0		/* use default MAN section? */
 
 
@@ -58,6 +60,8 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
+#include	<cfdec.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>
@@ -80,8 +84,6 @@
 #define	LOCINFO_FL	struct locinfo_flags
 #define	LOCINFO_PT	struct locinfo_ptypes
 
-#define	PATHTRY		struct pathtry
-
 #define	PO_PATHNAMES	"pathnames"
 #define	PO_SECTIONS	"sections"
 
@@ -101,48 +103,47 @@
 #define	VARLIBPATH	"LD_LIBRARY_PATH"
 #endif
 
+#define	NDF		"pt.deb"
+
 
 /* external subroutines */
 
-extern int	sncpy2(char *,int,const char *,const char *) ;
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	mkpath1(char *,cchar *) ;
-extern int	mkpath2(char *,cchar *,cchar *) ;
-extern int	mkpath1w(char *,cchar *,int) ;
-extern int	mkpath2w(char *,cchar *,cchar *,int) ;
-extern int	sfskipwhite(cchar *,int,cchar **) ;
-extern int	sidigit(cchar *,int) ;
-extern int	matstr(cchar **,cchar *,int) ;
-extern int	matnstr(cchar **,cchar *,int) ;
-extern int	matostr(cchar **,int,cchar *,int) ;
-extern int	matpstr(cchar **,int,cchar *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	cfdecui(const char *,int,uint *) ;
-extern int	optbool(cchar *,int) ;
-extern int	optvalue(cchar *,int) ;
-extern int	sperm(IDS *,struct ustat *,int) ;
-extern int	isprintlatin(int) ;
-extern int	isdigitlatin(int) ;
-extern int	isFailOpen(int) ;
-extern int	isNotPresent(int) ;
-extern int	isNotAcces(int) ;
+extern "C" int	b_pt(int,cchar **,void *) ;
+extern "C" int	p_pt(int,cchar **,cchar **,void *) ;
 
-extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
-extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
+extern "C" int	matstr(cchar **,cchar *,int) ;
+extern "C" int	matnstr(cchar **,cchar *,int) ;
+extern "C" int	matostr(cchar **,int,cchar *,int) ;
+extern "C" int	matpstr(cchar **,int,cchar *,int) ;
+extern "C" int	optbool(cchar *,int) ;
+extern "C" int	optvalue(cchar *,int) ;
+extern "C" int	sperm(IDS *,struct ustat *,int) ;
+extern "C" int	isprintlatin(int) ;
+extern "C" int	isdigitlatin(int) ;
+extern "C" int	isFailOpen(int) ;
+extern "C" int	isNotPresent(int) ;
+extern "C" int	isNotAccess(int) ;
+
+extern "C" int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern "C" int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
-extern int	debugclose() ;
-extern int	strlinelen(const char *,int,int) ;
+extern "C" int	debugopen(cchar *) ;
+extern "C" int	debugprintf(cchar *,...) ;
+extern "C" int	debugclose() ;
+extern "C" int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern cchar	*getourenv(cchar **,cchar *) ;
+#if	CF_DEBUGN
+extern "C" int	nprintf(cchar *,cchar *,...) ;
+#endif
 
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*strnchr(const char *,int,int) ;
-extern char	*strnrchr(const char *,int,int) ;
+extern "C" cchar	*getourenv(cchar **,cchar *) ;
+
+extern "C" char	*strwcpy(char *,const char *,int) ;
+extern "C" char	*strnpbrk(const char *,int,const char *) ;
+extern "C" char	*strnchr(const char *,int,int) ;
+extern "C" char	*strnrchr(const char *,int,int) ;
 
 
 /* external variables */
@@ -178,13 +179,21 @@ struct locinfo {
 } ;
 
 struct pathtry {
-	LOCINFO		*lip ;
-	struct ustat	*sbp ;
-	SHIO		*ofp ;
-	char		*fname ;
+	USTAT		*sbp ;
 	const char	*name ;
-	int		pathlen ;
+	char		*fname ;
 	int		namelen ;
+	int		pathlen ;
+public:
+	pathtry() = delete ;
+	pathtry(USTAT *asbp,cchar *np,int nl,char *fnp,int pl) 
+	    : sbp(asbp), name(np), fname(fnp), namelen(nl), pathlen(pl) {
+	} ;
+	int		mkdef() ;
+	int		mkreg(cchar *,int) ;
+	int		mkman(cchar *,cchar *) ;
+	int		mkinc(cchar *,int) ;
+	int		mklib(cchar *,cchar *,int,cchar *) ;
 } ;
 
 
@@ -199,16 +208,18 @@ static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procname(PROGINFO *,SHIO *,const char *) ;
 static int	procpathname(PROGINFO *,SHIO *,cchar *,cchar *,int) ;
 static int	procpathtry(PROGINFO *,SHIO *,int,cchar *,int,cchar *,int) ;
-static int	procpathtry_cd(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_exec(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_func(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_lib(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_man(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_manany(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_inc(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_liber(PROGINFO *,PATHTRY *) ;
-static int	procpathtry_xfile(PROGINFO *,PATHTRY *) ;
-static int	procqualname(PROGINFO *,SHIO *,const char *) ;
+static int	procpathtry_cd(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_exec(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_func(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_lib(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_man(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_manany(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_maner(PROGINFO *,SHIO *,pathtry *,
+			cchar *,int,int,cchar *) ;
+static int	procpathtry_inc(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_liber(PROGINFO *,SHIO *,pathtry *) ;
+static int	procpathtry_xfile(PROGINFO *,SHIO *,pathtry *) ;
+static int	procqualname(PROGINFO *,SHIO *,cchar *) ;
 static int	printit(PROGINFO *,SHIO *,cchar *) ;
 
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
@@ -219,11 +230,6 @@ static int	locinfo_idbegin(LOCINFO *) ;
 static int	locinfo_idend(LOCINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_notdone(LOCINFO *,int) ;
-
-static int	pathtry_mkreg(PATHTRY *,cchar *,int) ;
-static int	pathtry_mkman(PATHTRY *,cchar *,cchar *) ;
-static int	pathtry_mkinc(PATHTRY *,cchar *,int) ;
-static int	pathtry_mklib(PATHTRY *,cchar *,cchar *,int,cchar *) ;
 
 static int	matmandir(cchar *,int,cchar **) ;
 static int	isenvok(const char *) ;
@@ -393,7 +399,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	const char	*efname = NULL ;
 	const char	*cp ;
 
-
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
@@ -448,7 +453,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optplus || f_optminus)) {
-	        const int ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -789,13 +794,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: verboselevel=%d\n",
-	        pip->progname,pip->verboselevel) ;
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: verboselevel=%d\n" ;
+	    shio_printf(efp,fmt,pn,pip->verboselevel) ;
 	}
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    shio_printf(efp,"%s: version %s\n", pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -812,8 +819,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
-	    shio_printf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    shio_printf(efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
+	    shio_printf(efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
 	} /* end if */
 
 	if (f_usage)
@@ -911,10 +919,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (ids) */
 	} else if (ex == EX_OK) {
+	    SHIO	*efp = (SHIO *) pip->efp ;
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    ex = EX_USAGE ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    shio_printf(efp,fmt,pn,rs) ;
 	    usage(pip) ;
 	}
 
@@ -933,13 +942,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 retearly:
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: exiting ex=%u (%d)\n",
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    shio_printf(efp,"%s: exiting ex=%u (%d)\n",
 	        pip->progname,ex,rs) ;
 	}
 
 	if (pip->efp != NULL) {
+	    SHIO	*efp = (SHIO *) pip->efp ;
 	    pip->open.errfile = FALSE ;
-	    shio_close(pip->efp) ;
+	    shio_close(efp) ;
 	    pip->efp = NULL ;
 	}
 
@@ -976,10 +987,12 @@ badprogstart:
 /* bad stuff */
 badarg:
 	ex = EX_USAGE ;
-	if (pip->efp != NULL)
-	    shio_printf(pip->efp,
-	        "%s: invalid argument specified (%d)\n",
-	        pip->progname,rs) ;
+	if (pip->efp != NULL) {
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument specified (%d)\n" ;
+	    shio_printf(efp,fmt,pn,rs) ;
+	}
 	usage(pip) ;
 	goto retearly ;
 
@@ -992,23 +1005,24 @@ static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
-	const char	*pn = pip->progname ;
-	const char	*fmt ;
 
 	if (pip->efp != NULL) {
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 
 	    fmt = "%s: USAGE> %s "
 	        "[-e] [-f] [-l] [-i] [-m] [-x] [-xu] [-c] [-a] "
 	        "<name(s)>\n" ;
-	    if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
+	    if (rs >= 0) rs = shio_printf(efp,fmt,pn,pn) ;
 	    wlen += rs ;
 
 	    fmt = "%s:  [-q] [-p <varname(s)>] [-s <section(s)>] \n" ;
-	    if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
+	    if (rs >= 0) rs = shio_printf(efp,fmt,pn) ;
 	    wlen += rs ;
 
 	    fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
-	    if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
+	    if (rs >= 0) rs = shio_printf(efp,fmt,pn) ;
 	    wlen += rs ;
 
 	} /* end if (error-output enabled) */
@@ -1072,6 +1086,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
+	SHIO		*efp = (SHIO *) pip->efp ;
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
@@ -1106,12 +1121,12 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 	            if (rs < 0) {
 	                if (rs == SR_NOENT) {
 	                    fmt = "%s: variable not present (%d)\n" ;
-	                    shio_printf(pip->efp,fmt,pn,rs) ;
+	                    shio_printf(efp,fmt,pn,rs) ;
 	                } else {
 	                    fmt = "%s: error processing variable (%d)\n" ;
-	                    shio_printf(pip->efp,fmt,pn,rs) ;
+	                    shio_printf(efp,fmt,pn,rs) ;
 	                }
-	                shio_printf(pip->efp,"%s: var=%s\n",pn,cp) ;
+	                shio_printf(efp,"%s: var=%s\n",pn,cp) ;
 	                break ;
 	            }
 
@@ -1150,12 +1165,12 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 	                if (rs < 0) {
 	                    if (rs == SR_NOENT) {
 	                        fmt = "%s: variable not present (%d)\n" ;
-	                        shio_printf(pip->efp,fmt,pn,rs) ;
+	                        shio_printf(efp,fmt,pn,rs) ;
 	                    } else {
 	                        fmt = "%s: error processing variable (%d)\n" ;
-	                        shio_printf(pip->efp,fmt,pn,rs) ;
+	                        shio_printf(efp,fmt,pn,rs) ;
 	                    }
-	                    shio_printf(pip->efp,"%s: var=%s\n",pn,cp) ;
+	                    shio_printf(efp,"%s: var=%s\n",pn,cp) ;
 	                }
 
 	                if (rs >= 0) rs = lib_sigterm() ;
@@ -1167,8 +1182,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
 	            fmt = "%s: inaccessible argument-list (%d)\n" ;
-	            shio_printf(pip->efp,fmt,pn,rs) ;
-	            shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
+	            shio_printf(efp,fmt,pn,rs) ;
+	            shio_printf(efp,"%s: afile=%s\n",pn,afn) ;
 	        } /* end if */
 
 	    } /* end if (processing file argument file list) */
@@ -1177,8 +1192,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 	    if (rs >= 0) rs = rs1 ;
 	} else {
 	    fmt = "%s: inaccessible output (%d)\n" ;
-	    shio_printf(pip->efp,fmt,pn,rs) ;
-	    shio_printf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
+	    shio_printf(efp,fmt,pn,rs) ;
+	    shio_printf(efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
 	lip->na = na ; /* supports the 'nargs' feature */
@@ -1205,7 +1220,8 @@ static int procname(PROGINFO *pip,SHIO *ofp,cchar *np)
 	if (np[0] == '\0') return SR_INVALID ;
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: query=%s\n", pip->progname,np) ;
+	    SHIO	*efp = (SHIO *) pip->efp ;
+	    shio_printf(efp,"%s: query=%s\n", pip->progname,np) ;
 	}
 
 #if	CF_DEBUG
@@ -1259,16 +1275,17 @@ static int procpathname(PROGINFO *pip,SHIO *ofp,cchar *pname,cchar *np,int nl)
 #endif
 
 	if (isenvok(pname)) {
-	    LOCINFO	*lip = pip->lip ;
+	    LOCINFO	*lip = (LOCINFO *) pip->lip ;
+	    SHIO	*efp = (SHIO *) pip->efp ;
 	    int		pni ;
 	    cchar	*tp, *sp ;
 	    if (pip->debuglevel > 0) {
-	        shio_printf(pip->efp,"%s: pathname=%s\n", pip->progname,pname) ;
+	        shio_printf(efp,"%s: pathname=%s\n", pip->progname,pname) ;
 	    }
 	    if ((sp = getourenv(pip->envv,pname)) != NULL) {
 	        pni = matstr(pathnames,pname,-1) ;
 	        if (pip->debuglevel > 0) {
-	            shio_printf(pip->efp,"%s: pni=%d\n", pip->progname,pni) ;
+	            shio_printf(efp,"%s: pni=%d\n", pip->progname,pni) ;
 	        }
 	        while ((tp = strpbrk(sp,":;")) != NULL) {
 		    if ((rs = locinfo_notdone(lip,0)) > 0) {
@@ -1303,8 +1320,7 @@ static int procpathname(PROGINFO *pip,SHIO *ofp,cchar *pname,cchar *np,int nl)
 static int procpathtry(PROGINFO *pip,SHIO *ofp,int pni,cchar *np,int nl,
 		cchar *pp,int pl)
 {
-	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	struct ustat	sb ;
+	USTAT		sb ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		c = 0 ;
@@ -1340,38 +1356,30 @@ static int procpathtry(PROGINFO *pip,SHIO *ofp,int pni,cchar *np,int nl,
 /* switch on individual path type */
 
 	if (f) {
-	    PATHTRY	pt ;
-	    memset(&pt,0,sizeof(PATHTRY)) ;
-	    pt.lip = lip ;
-	    pt.ofp = ofp ;
-	    pt.sbp = &sb ;
-	    pt.name = np ;
-	    pt.namelen = nl ;
-	    pt.fname = fname ;
-	    pt.pathlen = pl ;
+	    pathtry	pt(&sb,np,nl,fname,pl) ;
 	    switch (pni) {
 	    case pathname_cdpath:
-	        rs = procpathtry_cd(pip,&pt) ;
+	        rs = procpathtry_cd(pip,ofp,&pt) ;
 	        break ;
 	    default:
 	    case pathname_execpath:
-	        rs = procpathtry_exec(pip,&pt) ;
+	        rs = procpathtry_exec(pip,ofp,&pt) ;
 	        break ;
 	    case pathname_funcpath:
-	        rs = procpathtry_func(pip,&pt) ;
+	        rs = procpathtry_func(pip,ofp,&pt) ;
 	        break ;
 	    case pathname_libpath:
-	        rs = procpathtry_lib(pip,&pt) ;
+	        rs = procpathtry_lib(pip,ofp,&pt) ;
 	        break ;
 	    case pathname_manpath:
-	        rs = procpathtry_man(pip,&pt) ;
+	        rs = procpathtry_man(pip,ofp,&pt) ;
 	        break ;
 	    case pathname_incpath:
-	        rs = procpathtry_inc(pip,&pt) ;
+	        rs = procpathtry_inc(pip,ofp,&pt) ;
 	        break ;
 	    case pathname_xpath:
 	    case pathname_xupath:
-	        rs = procpathtry_xfile(pip,&pt) ;
+	        rs = procpathtry_xfile(pip,ofp,&pt) ;
 	        break ;
 	    } /* end switch */
 	    c += rs ;
@@ -1387,19 +1395,19 @@ static int procpathtry(PROGINFO *pip,SHIO *ofp,int pni,cchar *np,int nl,
 /* end subroutine (procpathtry) */
 
 
-static int procpathtry_cd(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_cd(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	USTAT		*sbp = ptp->sbp ;
 	int		rs ;
 	int		c = 0 ;
 
-	if ((rs = pathtry_mkreg(ptp,ptp->name,ptp->namelen)) >= 0) {
-	    if ((rs = uc_stat(ptp->fname,sbp)) >= 0) {
-	        if (S_ISDIR(sbp->st_mode)) {
+	if ((rs = ptp->mkdef()) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+	        if (S_ISDIR(sb.st_mode)) {
 		    const int	am = (X_OK | R_OK) ;
-	            if ((rs = sperm(&lip->id,sbp,am)) >= 0) {
-	    		rs = printit(pip,ptp->ofp,ptp->fname) ;
+	            if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	    		rs = printit(pip,ofp,ptp->fname) ;
 	    		c += 1 ;
 		    } else if (isNotAccess(rs)) {
 			rs = SR_OK ;
@@ -1415,19 +1423,19 @@ static int procpathtry_cd(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_cd) */
 
 
-static int procpathtry_exec(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_exec(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	USTAT		*sbp = ptp->sbp ;
 	int		rs ;
 	int		c = 0 ;
 
-	if ((rs = pathtry_mkreg(ptp,ptp->name,ptp->namelen)) >= 0) {
-	    if ((rs = uc_stat(ptp->fname,sbp)) >= 0) {
-	        if (S_ISREG(sbp->st_mode)) {
+	if ((rs = ptp->mkdef()) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+	        if (S_ISREG(sb.st_mode)) {
 		    const int	am = X_OK ;
-		    if ((rs = sperm(&lip->id,sbp,am)) >= 0) {
-	                rs = printit(pip,ptp->ofp,ptp->fname) ;
+		    if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	                rs = printit(pip,ofp,ptp->fname) ;
 	                c += 1 ;
 		    } else if (isNotAccess(rs)) {
 			rs = SR_OK ;
@@ -1448,19 +1456,19 @@ static int procpathtry_exec(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_exec) */
 
 
-static int procpathtry_func(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_func(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	USTAT		*sbp = ptp->sbp ;
 	int		rs ;
 	int		c = 0 ;
 
-	if ((rs = pathtry_mkreg(ptp,ptp->name,ptp->namelen)) >= 0) {
-	    if ((rs = uc_stat(ptp->fname,sbp)) >= 0) {
-	        if (S_ISREG(sbp->st_mode)) {
+	if ((rs = ptp->mkdef()) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+	        if (S_ISREG(sb.st_mode)) {
 		    const int	am = R_OK ;
-	            if ((rs = sperm(&lip->id,sbp,am)) >= 0) {
-	                rs = printit(pip,ptp->ofp,ptp->fname) ;
+	            if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	                rs = printit(pip,ofp,ptp->fname) ;
 	                c += 1 ;
 		    } else if (isNotAccess(rs)) {
 			rs = SR_OK ;
@@ -1469,7 +1477,7 @@ static int procpathtry_func(PROGINFO *pip,PATHTRY *ptp)
 	    } else if (isNotPresent(rs)) {
 		rs = SR_OK ;
 	    }
-	} /* end if (pathtry_mk) */
+	} /* end if (pathtry::mk) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -1481,7 +1489,7 @@ static int procpathtry_func(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_func) */
 
 
-static int procpathtry_lib(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_lib(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -1494,10 +1502,10 @@ static int procpathtry_lib(PROGINFO *pip,PATHTRY *ptp)
 
 /* straight up */
 
-	rs1 = pathtry_mkreg(ptp,ptp->name,ptp->namelen) ;
+	rs1 = ptp->mkdef() ;
 
 	if (rs1 > 0)
-	    rs = procpathtry_liber(pip,ptp) ;
+	    rs = procpathtry_liber(pip,ofp,ptp) ;
 
 /* simple extensions */
 
@@ -1510,9 +1518,8 @@ static int procpathtry_lib(PROGINFO *pip,PATHTRY *ptp)
 
 	        pre = NULL ;
 	        suf = libexts[i] ;
-	        rs1 = pathtry_mklib(ptp,pre,ptp->name,ptp->namelen,suf) ;
-	        if (rs1 > 0) {
-	            rs = procpathtry_liber(pip,ptp) ;
+	        if ((rs1 = ptp->mklib(pre,ptp->name,ptp->namelen,suf)) > 0) {
+	            rs = procpathtry_liber(pip,ofp,ptp) ;
 	            c += rs ;
 	        }
 
@@ -1522,9 +1529,9 @@ static int procpathtry_lib(PROGINFO *pip,PATHTRY *ptp)
 	                (strcmp(ptp->name,prelib) != 0)) {
 
 	                pre = prelib ;
-	                rs1 = pathtry_mklib(ptp,pre,ptp->name,ptp->namelen,suf) ;
+	                rs1 = ptp->mklib(pre,ptp->name,ptp->namelen,suf) ;
 	                if (rs1 > 0) {
-	                    rs = procpathtry_liber(pip,ptp) ;
+	                    rs = procpathtry_liber(pip,ofp,ptp) ;
 	                    c += rs ;
 	                }
 
@@ -1541,22 +1548,25 @@ static int procpathtry_lib(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_lib) */
 
 
-static int procpathtry_liber(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_liber(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	struct ustat	*usbp ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	USTAT		sb ;
+	int		rs ;
 	int		c = 0 ;
 
-	usbp = (struct ustat *) ptp->sbp ;
-	rs1 = uc_stat(ptp->fname,ptp->sbp) ;
-
-	if ((rs1 >= 0) && S_ISREG(usbp->st_mode)) {
-	    if ((rs1 = sperm(&lip->id,ptp->sbp,R_OK)) >= 0) {
-	        rs = printit(pip,ptp->ofp,ptp->fname) ;
-	        c += 1 ;
+	if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+	    if (S_ISREG(sb.st_mode)) {
+		const int	am = R_OK ;
+	        if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	            rs = printit(pip,ofp,ptp->fname) ;
+	            c += 1 ;
+		} else if (isNotAccess(rs)) {
+		    rs = SR_OK ;
+		}
 	    }
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
 	} /* end if */
 
 	return (rs >= 0) ? c : rs ;
@@ -1564,28 +1574,25 @@ static int procpathtry_liber(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_liber) */
 
 
-static int procpathtry_man(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_man(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	struct ustat	*usbp ;
-	struct ustat	*sbp = ptp->sbp ;
 	PARAMOPT	*plp ;
 	PARAMOPT_CUR	cur ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		vl ;
 	int		i ;
 	int		c = 0 ;
 	int		f = FALSE ;
-	const char	*kn = PO_SECTIONS ;
-	const char	*vp ;
+	cchar		*kn = PO_SECTIONS ;
+	cchar		*vp ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
 	    debugprintf("procpathtry_man: ent\n") ;
 #endif
 
-	usbp = (struct ustat *) sbp ;
 	plp = &lip->lists ;
 
 	if ((rs = paramopt_curbegin(plp,&cur)) >= 0) {
@@ -1599,28 +1606,21 @@ static int procpathtry_man(PROGINFO *pip,PATHTRY *ptp)
 	        f = TRUE ;
 	        for (i = 0 ; (rs >= 0) && (mannames[i] != NULL) ; i += 1) {
 
-	            rs1 = pathtry_mkman(ptp,mannames[i],vp) ;
-
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(5))
-	                debugprintf("procpathtry_man: pathtry_mkman() rs=%d\n",
-				rs1) ;
-#endif
-
-	            if (rs1 > 0) {
-	                rs1 = uc_stat(ptp->fname,sbp) ;
-		    }
-
-	            if (rs1 >= 0) {
-	                rs1 = SR_ACCESS ;
-	                if (S_ISREG(usbp->st_mode)) {
-	                    rs1 = sperm(&lip->id,sbp,R_OK) ;
-	                }
-	            }
-
-	            if (rs1 >= 0) {
-	                rs = printit(pip,ptp->ofp,ptp->fname) ;
-	                c += 1 ;
+	            if ((rs = ptp->mkman(mannames[i],vp)) >= 0) {
+			USTAT	sb ;
+	                if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+	                    if (S_ISREG(sb.st_mode)) {
+				const int	am = R_OK ;
+	                        if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	                	    rs = printit(pip,ofp,ptp->fname) ;
+	                	    c += 1 ;
+				} else if (isNotAccess(rs)) {
+				    rs = SR_OK ;
+				}
+			    }
+			} else if (isNotPresent(rs)) {
+			    rs = SR_OK ;
+			}
 	            }
 
 	        } /* end for */
@@ -1633,7 +1633,7 @@ static int procpathtry_man(PROGINFO *pip,PATHTRY *ptp)
 
 	if ((rs >= 0) && (! f)) {
 	    ptp->fname[ptp->pathlen] = '\0' ;
-	    rs = procpathtry_manany(pip,ptp) ;
+	    rs = procpathtry_manany(pip,ofp,ptp) ;
 	    c += rs ;
 	}
 
@@ -1647,10 +1647,8 @@ static int procpathtry_man(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_man) */
 
 
-static int procpathtry_manany(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_manany(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
-	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	USTAT		*sbp = ptp->sbp ;
 	FSDIR		d ;
 	FSDIR_ENT	ds ;
 	int		rs ;
@@ -1677,59 +1675,10 @@ static int procpathtry_manany(PROGINFO *pip,PATHTRY *ptp)
 	            debugprintf("procpathtry_manany: de=%t\n",dnp,dnl) ;
 #endif
 
-		if ((mni = matmandir(dnp,dnl,&tp)) < 0) continue ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(5))
-	            debugprintf("procpathtry_manany: matostr() rs=%d\n",mni) ;
-#endif
-
-	        if (mni < 0) continue ;
-
-/* optional test */
-
-	        rs1 = pathtry_mkreg(ptp,dnp,dnl) ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(5))
-	            debugprintf("procpathtry_manany: pathtry_mkret() rs=%d\n",
-			rs1) ;
-#endif
-
-	        if (rs1 < 0) continue ;
-
-	        rs1 = uc_stat(ptp->fname,sbp) ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(5)) {
-	            debugprintf("procpathtry_manany: mandir=%s\n",ptp->fname) ;
-	            debugprintf("procpathtry_manany: uc_stat() rs=%d\n",rs1) ;
-	        }
-#endif
-
-	        if ((rs1 < 0) || (! S_ISDIR(sbp->st_mode))) continue ;
-
-/* required test */
-
-	        rs1 = pathtry_mkman(ptp,mannames[mni],tp) ;
-
-	        if (rs1 > 0) {
-	            rs1 = uc_stat(ptp->fname,sbp) ;
+		if ((mni = matmandir(dnp,dnl,&tp)) >= 0) {
+		    rs = procpathtry_maner(pip,ofp,ptp,dnp,dnl,mni,tp) ;
+		    c += rs ;
 		}
-
-	        if (rs1 >= 0) {
-	            rs1 = SR_ACCESS ;
-	            if (S_ISREG(sbp->st_mode)) {
-	                rs1 = sperm(&lip->id,sbp,R_OK) ;
-		    }
-	        }
-
-/* print anything found out */
-
-	        if (rs1 >= 0) {
-	            rs = printit(pip,ptp->ofp,ptp->fname) ;
-	            c += 1 ;
-	        }
 
 	        if (rs < 0) break ;
 	    } /* end while */
@@ -1751,22 +1700,62 @@ static int procpathtry_manany(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_manany) */
 
 
-static int procpathtry_inc(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_maner(PROGINFO *pip,SHIO *ofp,pathtry *ptp,
+		cchar *dnp,int dnl,int mni,cchar *tp)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	struct ustat	*usbp = ptp->sbp ;
-	int		rs = SR_OK ;
-	int		rs1 ;
+	int		rs ;
+	int		c = 0 ;
+	if ((rs = ptp->mkreg(dnp,dnl)) >= 0) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+		if (S_ISDIR(sb.st_mode)) {
+		    cchar	*mn = mannames[mni] ;
+		    if ((rs = ptp->mkman(mn,tp)) >= 0) {
+			if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+			    if (S_ISREG(sb.st_mode)) {
+				const int	am = R_OK ;
+				if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	            		    rs = printit(pip,ofp,ptp->fname) ;
+	            		    c += 1 ;
+				} else if (isNotAccess(rs)) {
+				    rs = SR_OK ;
+				}
+			    }
+			} else if (isNotPresent(rs)) {
+			    rs = SR_OK ;
+			}
+		    }
+	        }
+	    } else if (isNotPresent(rs)) {
+		rs = SR_OK ;
+	    }
+	}
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procpathtry_maner) */
+
+
+static int procpathtry_inc(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
+{
+	LOCINFO		*lip = (LOCINFO *) pip->lip ;
+	int		rs ;
 	int		c = 0 ;
 
-	if ((rs1 = pathtry_mkinc(ptp,ptp->name,ptp->namelen)) > 0) {
-	    if ((rs1 = uc_stat(ptp->fname,usbp)) >= 0) {
-	        if S_ISREG(usbp->st_mode) {
-	            if ((rs1 = sperm(&lip->id,usbp,R_OK)) >= 0) {
-	                rs = printit(pip,ptp->ofp,ptp->fname) ;
+	if ((rs = ptp->mkinc(ptp->name,ptp->namelen)) > 0) {
+	    USTAT	sb ;
+	    if ((rs = uc_stat(ptp->fname,&sb)) >= 0) {
+	        if (S_ISREG(sb.st_mode)) {
+		    const int	am = R_OK ;
+	            if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	                rs = printit(pip,ofp,ptp->fname) ;
 	                c += 1 ;
+		    } else if (isNotAccess(rs)) {
+			rs = SR_OK ;
 	            }
 	        }
+	    } else if (isNotPresent(rs)) {
+		rs = SR_OK ;
 	    }
 	}
 
@@ -1780,7 +1769,7 @@ static int procpathtry_inc(PROGINFO *pip,PATHTRY *ptp)
 /* end subroutine (procpathtry_inc) */
 
 
-static int procpathtry_xfile(PROGINFO *pip,PATHTRY *ptp)
+static int procpathtry_xfile(PROGINFO *pip,SHIO *ofp,pathtry *ptp)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
@@ -1795,11 +1784,11 @@ static int procpathtry_xfile(PROGINFO *pip,PATHTRY *ptp)
 static int procqualname(PROGINFO *pip,SHIO *ofp,cchar *fname)
 {
 	LOCINFO		*lip = (LOCINFO *) pip->lip ;
-	struct ustat	sb ;
-	int		rs = SR_OK ;
+	USTAT		sb ;
+	int		rs ;
 	int		c = 0 ;
 
-	if (uc_stat(fname,&sb) >= 0) {
+	if ((rs = uc_stat(fname,&sb)) >= 0) {
 
 	    if ((rs >= 0) && lip->pt.c) {
 	        if (S_ISDIR(sb.st_mode)) {
@@ -1809,10 +1798,14 @@ static int procqualname(PROGINFO *pip,SHIO *ofp,cchar *fname)
 	    } /* end if */
 
 	    if ((rs >= 0) && lip->pt.e) {
-	        if (S_ISREG(sb.st_mode) &&
-	            (sperm(&lip->id,&sb,X_OK) >= 0)) {
-	            rs = printit(pip,ofp,fname) ;
-	            c += 1 ;
+	        if (S_ISREG(sb.st_mode)) {
+		    const int	am = X_OK ;
+	            if ((rs = sperm(&lip->id,&sb,am)) >= 0) {
+	                rs = printit(pip,ofp,fname) ;
+	                c += 1 ;
+		    } else if (isNotAccess(rs)) {
+			rs = SR_OK ;
+		    }
 	        }
 	    } /* end if */
 
@@ -1823,6 +1816,8 @@ static int procqualname(PROGINFO *pip,SHIO *ofp,cchar *fname)
 	        }
 	    } /* end if */
 
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
 	} /* end if (stat) */
 
 	return (rs >= 0) ? c : rs ;
@@ -2060,17 +2055,24 @@ static int locinfo_idend(LOCINFO *lip)
 /* end subroutine (locinfo_idend) */
 
 
-static int pathtry_mkreg(PATHTRY *ptp,cchar *np,int nl)
+int pathtry::mkdef()
+{
+	return mkreg(this->name,this->namelen) ;
+}
+/* end subroutine (pathtry::mkdef) */
+
+
+int pathtry::mkreg(cchar *np,int nl)
 {
 	SBUF		b ;
 	int		rs ;
 	int		len = 0 ;
-	int		lr = (MAXPATHLEN - ptp->pathlen) ;
-	char		*fp = (ptp->fname + ptp->pathlen) ;
+	int		bl = (MAXPATHLEN - this->pathlen) ;
+	char		*bp = (this->fname + this->pathlen) ;
 
-	if ((rs = sbuf_start(&b,fp,lr)) >= 0) {
+	if ((rs = sbuf_start(&b,bp,bl)) >= 0) {
 
-	    if (ptp->fname[0] != '\0')
+	    if (this->fname[0] != '\0')
 	        sbuf_char(&b,'/') ;
 
 	    sbuf_strw(&b,np,nl) ;
@@ -2081,20 +2083,20 @@ static int pathtry_mkreg(PATHTRY *ptp,cchar *np,int nl)
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (pathtry_mkreg) */
+/* end subroutine (pathtry::mkreg) */
 
 
-static int pathtry_mkman(PATHTRY *ptp,cchar *mname,cchar *sname)
+int pathtry::mkman(cchar *mname,cchar *sname)
 {
 	SBUF		b ;
 	int		rs ;
 	int		len = 0 ;
-	int		lr = (MAXPATHLEN - ptp->pathlen) ;
-	char		*fp = (ptp->fname + ptp->pathlen) ;
+	int		bl = (MAXPATHLEN - this->pathlen) ;
+	char		*bp = (this->fname + this->pathlen) ;
 
-	if ((rs = sbuf_start(&b,fp,lr)) >= 0) {
+	if ((rs = sbuf_start(&b,bp,bl)) >= 0) {
 
-	    if (ptp->fname[0] != '\0')
+	    if (this->fname[0] != '\0')
 	        sbuf_char(&b,'/') ;
 
 	    sbuf_strw(&b,mname,-1) ;
@@ -2103,7 +2105,7 @@ static int pathtry_mkman(PATHTRY *ptp,cchar *mname,cchar *sname)
 
 	    sbuf_char(&b,'/') ;
 
-	    sbuf_strw(&b,ptp->name,ptp->namelen) ;
+	    sbuf_strw(&b,this->name,this->namelen) ;
 
 	    if (sname[0] != '\0')
 	        sbuf_char(&b,'.') ;
@@ -2116,20 +2118,20 @@ static int pathtry_mkman(PATHTRY *ptp,cchar *mname,cchar *sname)
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (pathtry_mkman) */
+/* end subroutine (pathtry::mkman) */
 
 
-static int pathtry_mkinc(PATHTRY *ptp,cchar *np,int nl)
+int pathtry::mkinc(cchar *np,int nl)
 {
 	SBUF		b ;
 	int		rs ;
 	int		len = 0 ;
-	int		lr = (MAXPATHLEN - ptp->pathlen) ;
-	char		*fp = (ptp->fname + ptp->pathlen) ;
+	int		bl = (MAXPATHLEN - this->pathlen) ;
+	char		*bp = (this->fname + this->pathlen) ;
 
-	if ((rs = sbuf_start(&b,fp,lr)) >= 0) {
+	if ((rs = sbuf_start(&b,bp,bl)) >= 0) {
 
-	    if (ptp->fname[0] != '\0')
+	    if (this->fname[0] != '\0')
 	        sbuf_char(&b,'/') ;
 
 	    sbuf_strw(&b,np,nl) ;
@@ -2142,20 +2144,20 @@ static int pathtry_mkinc(PATHTRY *ptp,cchar *np,int nl)
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (pathtry_mkinc) */
+/* end subroutine (pathtry::mkinc) */
 
 
-static int pathtry_mklib(PATHTRY *ptp,cchar *pre,cchar *np,int nl,cchar *suf)
+int pathtry::mklib(cchar *pre,cchar *np,int nl,cchar *suf)
 {
 	SBUF		b ;
 	int		rs ;
 	int		len = 0 ;
-	int		lr = (MAXPATHLEN - ptp->pathlen) ;
-	char		*fp = (ptp->fname + ptp->pathlen) ;
+	int		bl = (MAXPATHLEN - this->pathlen) ;
+	char		*bp = (this->fname + this->pathlen) ;
 
-	if ((rs = sbuf_start(&b,fp,lr)) >= 0) {
+	if ((rs = sbuf_start(&b,bp,bl)) >= 0) {
 
-	    if (ptp->fname[0] != '\0')
+	    if (this->fname[0] != '\0')
 	        sbuf_char(&b,'/') ;
 
 	    if (pre != NULL)
@@ -2174,7 +2176,7 @@ static int pathtry_mklib(PATHTRY *ptp,cchar *pre,cchar *np,int nl,cchar *suf)
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (pathtry_mklib) */
+/* end subroutine (pathtry::mklib) */
 
 
 /* match a manual directory name */

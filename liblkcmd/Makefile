@@ -710,9 +710,6 @@ b_scanbad.o:		b_scanbad.c b_scanbad.h $(INCS)
 b_loghist.o:		b_loghist.c b_loghist.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
-b_pt.o:			b_pt.c b_pt.h $(INCS)
-	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
-
 b_pathclean.o:		b_pathclean.c b_pathclean.h $(INCS)
 	$(CC) -c $(ASTCFLAGS) $(ASTCPPFLAGS) $<
 
@@ -980,6 +977,9 @@ b_numcvt.o:		b_numcvt.c b_numcvt.h $(INCS)
 
 b_cksumpass.o:		b_cksumpass.c b_cksumpass.h $(INCS)
 	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_cksumpass.cc
+
+b_pt.o:			b_pt.cc b_pt.h $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(ASTCFLAGS) $(ASTCPPFLAGS) b_pt.cc
 
 
 # testing
