@@ -105,90 +105,6 @@
 #define	TEXTLOOK_QLEN		16
 #define	TEXTLOOK_MAXRECLEN	(10*1024*1024)
 
-#ifndef	VARSYSNAME
-#define	VARSYSNAME	"SYSNAME"
-#endif
-
-#ifndef	VARRELEASE
-#define	VARRELEASE	"RELEASE"
-#endif
-
-#ifndef	VARVERSION
-#define	VARVERSION	"VERSION"
-#endif
-
-#ifndef	VARMACHINE
-#define	VARMACHINE	"MACHINE"
-#endif
-
-#ifndef	VARARCHITECTURE
-#define	VARARCHITECTURE	"ARCHITECTURE"
-#endif
-
-#ifndef	VARHZ
-#define	VARHZ		"HZ"
-#endif
-
-#ifndef	VARDOMAIN
-#define	VARDOMAIN	"DOMAIN"
-#endif
-
-#ifndef	VARNODE
-#define	VARNODE		"NODE"
-#endif
-
-#ifndef	VARHOMEDNAME
-#define	VARHOMEDNAME	"HOME"
-#endif
-
-#ifndef	VARUSERNAME
-#define	VARUSERNAME	"USERNAME"
-#endif
-
-#ifndef	VARLOGNAME
-#define	VARLOGNAME	"LOGNAME"
-#endif
-
-#ifndef	VARTZ
-#define	VARTZ		"TZ"
-#endif
-
-#ifndef	VARPWD
-#define	VARPWD		"PWD"
-#endif
-
-#ifndef	VARTMPDNAME
-#define	VARTMPDNAME	"TMPDIR"
-#endif
-
-#ifndef	VARPRLOCAL
-#define	VARPRLOCAL	"LOCAL"
-#endif
-
-#undef	VARDBNAME
-#define	VARDBNAME	"MKTEXTLOOKI_DBNAME"
-
-#undef	VARPRTEXTLOOK
-#define	VARPRTEXTLOOK	"MKTEXTLOOKI_PROGRAMROOT"
-
-#ifndef	TMPDNAME
-#define	TMPDNAME	"/tmp"
-#endif
-
-#ifndef	TMPVARDNAME
-#define	TMPVARDNAME	"/var/tmp"
-#endif
-
-#ifndef	NCPUMAX
-#define	NCPUMAX		256
-#endif
-
-#define	INDDNAME	"textlook"
-
-#define	DBSUF		"txt"
-#define	INDSUF		"hash"
-#define	TAGSUF		"tag"
-
 #ifndef	KEYBUFLEN
 #define	KEYBUFLEN	NATURALWORDLEN
 #endif
@@ -196,25 +112,17 @@
 #define	TO_FILEMOD	(60 * 24 * 3600)
 #define	TO_MKWAIT	(5 * 50)
 
-#ifndef	TAGBUFLEN
-#define	TAGBUFLEN	MAX((MAXPATHLEN + 40),(2 * 1024))
-#endif
-
-#ifndef	LOWBUFLEN
-#define	LOWBUFLEN	NATURALWORDLEN
-#endif
-
 #define	SUBINFO		struct subinfo
 #define	SUBINFO_FL	struct subinfo_flags
 
-#define	DISP_ARGS	struct disp_args
 #define	DISP		struct disp_head
+#define	DISP_ARGS	struct disp_args
 #define	DISP_THR	struct disp_thr
 
 #define	TAGQ		struct tagq 
 #define	TAGQ_THING	struct tagq_thing
 
-#define	NDEBFNAME	"textlook.deb"
+#define	NDF		"textlook.deb"
 
 
 /* external subroutines */
@@ -271,8 +179,8 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 TEXTLOOK_OBJ	textlook = {
 	"textlook",
-	    sizeof(TEXTLOOK),
-	    sizeof(TEXTLOOK_CUR)
+	sizeof(TEXTLOOK),
+	sizeof(TEXTLOOK_CUR)
 } ;
 
 
@@ -456,7 +364,7 @@ int textlook_close(TEXTLOOK *op)
 	if (rs >= 0) rs = rs1 ;
 
 #if	CF_DEBUGN
-	nprintf(NDEBFNAME,"textlook_close: _dispfinish() rs=%d\n",rs) ;
+	nprintf(NDF,"textlook_close: _dispfinish() rs=%d\n",rs) ;
 #endif
 
 	rs1 = textlook_snend(op) ;
@@ -469,7 +377,7 @@ int textlook_close(TEXTLOOK *op)
 	if (rs >= 0) rs = rs1 ;
 
 #if	CF_DEBUGN
-	nprintf(NDEBFNAME,"textlook_close: ret rs=%d\n",rs) ;
+	nprintf(NDF,"textlook_close: ret rs=%d\n",rs) ;
 #endif
 
 	op->magic = 0 ;
@@ -1341,7 +1249,7 @@ static int textlook_dispfinish(TEXTLOOK *op)
 	}
 
 #if	CF_DEBUGN
-	nprintf(NDEBFNAME,"textlook_dispfinish: ret rs=%d\n",rs) ;
+	nprintf(NDF,"textlook_dispfinish: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -1394,24 +1302,24 @@ static int disp_start(DISP *dop,DISP_ARGS *dap)
 
 	if ((rs = ptm_create(&dop->m,NULL)) >= 0) {
 	    if ((rs = ptc_create(&dop->cond,NULL)) >= 0) {
-	            const int	f_sh = FALSE ;
-	            if ((rs = psem_create(&dop->sem_wq,f_sh,0)) >= 0) {
-	                PSEM	*ws = &dop->sem_done ;
-	                if ((rs = psem_create(ws,f_sh,0)) >= 0) {
-	                    dop->qlen = (dop->a.npar + qlen) ;
-	                    if ((rs = tagq_start(&dop->wq,dop->qlen)) >= 0) {
-	                        {
-	                            rs = disp_starter(dop) ;
-	                        }
-	                        if (rs < 0)
-	                            tagq_finish(&dop->wq) ;
-	                    } /* end if (tagq_start) */
+	        const int	f_sh = FALSE ;
+	        if ((rs = psem_create(&dop->sem_wq,f_sh,0)) >= 0) {
+	            PSEM	*ws = &dop->sem_done ;
+	            if ((rs = psem_create(ws,f_sh,0)) >= 0) {
+	                dop->qlen = (dop->a.npar + qlen) ;
+	                if ((rs = tagq_start(&dop->wq,dop->qlen)) >= 0) {
+	                    {
+	                        rs = disp_starter(dop) ;
+	                    }
 	                    if (rs < 0)
-	                        psem_destroy(&dop->sem_done) ;
-	                }
+	                        tagq_finish(&dop->wq) ;
+	                } /* end if (tagq_start) */
 	                if (rs < 0)
-	                    psem_destroy(&dop->sem_wq) ;
+	                    psem_destroy(&dop->sem_done) ;
 	            }
+	            if (rs < 0)
+	                psem_destroy(&dop->sem_wq) ;
+	        }
 	        if (rs < 0)
 	            ptc_destroy(&dop->cond) ;
 	    } /* end if (ptc-create) */
@@ -1424,7 +1332,7 @@ static int disp_start(DISP *dop,DISP_ARGS *dap)
 /* end subroutine (disp_start) */
 
 
-/* ARGSUSED */
+/* start-up helper */
 static int disp_starter(DISP *dop)
 {
 	const int	size = (dop->nthr*sizeof(DISP_THR)) ;
@@ -1745,7 +1653,7 @@ static int disp_worker(DISP *dop)
 #if	CF_DEBUGN
 	{
 	    pthread_t	tid = pthread_self() ;
-	    nprintf(NDEBFNAME,"textlook/worker: ret tid=%u rs=%d c=%u\n",
+	    nprintf(NDF,"textlook/worker: ret tid=%u rs=%d c=%u\n",
 		tid,rs,c) ;
 	}
 #endif
@@ -1754,6 +1662,7 @@ static int disp_worker(DISP *dop)
 /* end subroutine (disp_worker) */
 
 
+/* child thread calls this to get its own local-data pointer */
 static int disp_getourthr(DISP *dop,DISP_THR **rpp)
 {
 	int		rs ;
