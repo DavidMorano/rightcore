@@ -445,7 +445,7 @@ static int	locinfo_jobdname(LOCINFO *) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -483,7 +483,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -491,7 +491,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -506,7 +506,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"quiet",
 	"intrun",
 	"termout",

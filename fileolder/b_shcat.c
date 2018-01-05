@@ -179,7 +179,7 @@ static int	findnl(cchar *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -231,7 +231,7 @@ static const MAPEX	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"cvtcase",
 	"cc",
 	"casecvt",
@@ -263,7 +263,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static cchar	*cases[] = {
+static const char	*cases[] = {
 	"upper",
 	"lower",
 	"fold",

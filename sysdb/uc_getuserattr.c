@@ -141,8 +141,9 @@ int uc_getusernam(cchar *username,userattr_t **rpp)
 	    uap = getusernam(username) ;
 	    if (uap != NULL) {
 		rs = userattrent_size(uap) ;
-	    } else
+	    } else {
 	        rs = SR_NOTFOUND ;
+	    }
 	}
 #else /* defined(SYSHAS_USERATTR) && (SYSHAS_USERATTR > 0) */
 	{
@@ -174,8 +175,9 @@ int uc_getuseruid(uid_t uid,userattr_t **rpp)
 	    uap = getuseruid(uid) ;
 	    if (uap != NULL) {
 		rs = userattrent_size(uap) ;
-	    } else 
+	    } else {
 	        rs = SR_NOTFOUND ;
+	    }
 	}
 #else /* defined(SYSHAS_USERATTR) && (SYSHAS_USERATTR > 0) */
 	{

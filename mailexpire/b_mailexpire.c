@@ -256,7 +256,7 @@ static int	config_check(CONFIG *) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static const char	*argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	"HELP",
@@ -286,7 +286,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -294,7 +294,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -308,7 +308,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static const char	*akonames[] = {
 	"md",
 	"sort",
 	"nshow",
@@ -328,7 +328,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static cchar	*sched1[] = {
+static const char	*sched1[] = {
 	"%p/%e/%n/%n.%f",
 	"%p/%e/%n/%f",
 	"%p/%e/%n.%f",
@@ -336,7 +336,7 @@ static cchar	*sched1[] = {
 	NULL
 } ;
 
-static cchar	*cparams[] = {
+static const char	*cparams[] = {
 	"maildir",
 	"logsize",
 	"logfile",
@@ -350,7 +350,7 @@ enum cparams {
 	cparam_overlast
 } ;
 
-static cchar	*varmailusers[] = {
+static const char	*varmailusers[] = {
 	VARMAILUSERSP,
 	VARMAILUSERS,
 	NULL

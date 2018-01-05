@@ -25,7 +25,7 @@
 
 	Arguments:
 
-	v		number to take the log of
+	v		number to take the log-base-2 of
 
 	Returns:
 

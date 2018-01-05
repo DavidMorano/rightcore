@@ -234,7 +234,7 @@ static int	sicmdstart(cchar *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -278,7 +278,7 @@ static const PIVARS	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -292,7 +292,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*progopts[] = {
+static const char	*progopts[] = {
 	"poll",
 	"pollint",
 	"intpoll",
@@ -317,7 +317,7 @@ enum progopts {
 } ;
 
 /* define the configuration keywords */
-static cchar	*qopts[] = {
+static const char	*qopts[] = {
 	"answerback",
 	"type",
 	NULL

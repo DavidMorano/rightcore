@@ -150,7 +150,7 @@ static int	locinfo_finish(LOCINFO *) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -179,7 +179,7 @@ enum argopts {
 } ;
 
 /* define the configuration keywords */
-static cchar	*reqopts[] = {
+static const char	*reqopts[] = {
 	"btime",
 	"path",
 	"supath",
@@ -199,7 +199,7 @@ enum reqopts {
 	qopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,

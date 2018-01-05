@@ -26,7 +26,7 @@
 	Arguments:
 
 	b		base
-	v		number to take the log of
+	v		number to take the log-base-(b) of
 
 	Returns:
 

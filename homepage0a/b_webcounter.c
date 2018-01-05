@@ -231,7 +231,7 @@ static int	mkourname(char *,const char *,const char *,const char *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -265,7 +265,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -273,7 +273,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -287,7 +287,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"print",
 	"add",
 	"inc",
@@ -305,14 +305,14 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static cchar	*csched[] = {
+static const char	*csched[] = {
 	"%p/etc/%n/%n.%f",
 	"%p/etc/%n/%f",
 	"%p/etc/%n.%f",
 	NULL
 } ;
 
-static cchar	*cparams[] = {
+static const char	*cparams[] = {
 	"basedir",
 	"basedb",
 	"logfile",
@@ -328,7 +328,7 @@ enum cparams {
 	cparam_overlast
 } ;
 
-static cchar	*qkeys[] = {
+static const char	*qkeys[] = {
 	"db",
 	"n",
 	"c",

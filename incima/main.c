@@ -148,57 +148,53 @@ static const char	*psdir[] = {
 } ;
 
 
+/* exported subroutines */
 
 
-
-
-
-int main(argc,argv,envv)
-int	argc ;
-char	*argv[] ;
-char	*envv[] ;
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
 {
 	struct ustat	sa, sb ;
 	struct utimbuf	ft ;
 	PROGINFO	pi, *pip = &pi ;
 
-	bfile	errfile ;
-	bfile	infile, *ifp = &infile ;
-	bfile	outfile, *ofp = &outfile ;
-	bfile	*fpa[3] ;
+	bfile		errfile ;
+	bfile		infile, *ifp = &infile ;
+	bfile		outfile, *ofp = &outfile ;
+	bfile		*fpa[3] ;
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	argvalue = -1 ;
-	int	pan ;
-	int	rs, rs1 ;
-	int	len, i, j, k ;
-	int	ifd, line ;
-	int	macrolen ;
-	int	macrolen1 = strlen(MACRONAME1) ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		argvalue = -1 ;
+	int		pan ;
+	int		rs, rs1 ;
+	int		len, i, j, k ;
+	int		ifd, line ;
+	int		macrolen ;
+	int		macrolen1 = strlen(MACRONAME1) ;
 #ifdef	MACRONAME2
-	int	macrolen2 = strlen(MACRONAME2) ;
+	int		macrolen2 = strlen(MACRONAME2) ;
 #endif
 #ifdef	MACRONAME3
-	int	macrolen3 = strlen(MACRONAME3) ;
+	int		macrolen3 = strlen(MACRONAME3) ;
 #endif
-	int	bo ;
-	int	rlen ;
-	int	ii ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_usage = FALSE ;
-	int	f_version = FALSE ;
-	int	f_dash = FALSE ;
-	int	f_verbose = FALSE ;
-	int	f_help = FALSE ;
-	int	f_bol = TRUE ;
-	int	f_eol ;
-	int	f_dirpresent = FALSE ;
-	int	f_noexist = FALSE ;
-	int	f_noread = FALSE ;
-	int	f_unknown = FALSE ;
-	int	f ;
+	int		bo ;
+	int		rlen ;
+	int		ii ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_usage = FALSE ;
+	int		f_version = FALSE ;
+	int		f_dash = FALSE ;
+	int		f_verbose = FALSE ;
+	int		f_help = FALSE ;
+	int		f_bol = TRUE ;
+	int		f_eol ;
+	int		f_dirpresent = FALSE ;
+	int		f_noexist = FALSE ;
+	int		f_noread = FALSE ;
+	int		f_unknown = FALSE ;
+	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*pr = NULL ;
@@ -209,15 +205,15 @@ char	*envv[] ;
 	const char	*ofname = NULL ;
 	const char	*imafname = NULL ;
 	const char	*cp, *cp2 ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	linebuf[LINELEN + 1] ;
-	char	buf[CMDBUFLEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	rootfname[MAXPATHLEN + 1] ;
-	char	psfname[MAXPATHLEN + 1] ;
-	char	ps_noexist[MAXPATHLEN + 1] ;
-	char	ps_noread[MAXPATHLEN + 1] ;
-	char	ps_unknown[MAXPATHLEN + 1] ;
+	char		argpresent[MAXARGGROUPS] ;
+	char		linebuf[LINELEN + 1] ;
+	char		buf[CMDBUFLEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
+	char		rootfname[MAXPATHLEN + 1] ;
+	char		psfname[MAXPATHLEN + 1] ;
+	char		ps_noexist[MAXPATHLEN + 1] ;
+	char		ps_noread[MAXPATHLEN + 1] ;
+	char		ps_unknown[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -233,8 +229,9 @@ char	*envv[] ;
 	
 	if ((cp = getenv(VARERRORFNAME)) != NULL) {
 	    rs = bopen(&errfile,cp,"wca",0666) ;
-	} else
+	} else {
 	    rs = bopen(&errfile,BFILE_STDERR,"dwca",0666) ;
+	}
 	if (rs >= 0) {
 	    pip->efp = &errfile ;
 	    bcontrol(pip->efp,BC_LINEBUF) ;
@@ -462,25 +459,26 @@ char	*envv[] ;
 	    debugprintf("main: debuelevel=%u\n",pip->debuglevel) ;
 #endif
 
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: debuglevel=%u\n",
 	        pip->progname,pip->debuglevel) ;
+	}
 
-	if (f_version)
+	if (f_version) {
 	    bprintf(pip->efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
 	if (f_usage)
 	    usage(pip) ;
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-/* program search name */
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,NULL) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,NULL) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -488,13 +486,8 @@ char	*envv[] ;
 	}
 
 	if (pip->debuglevel > 0) {
-
-	    bprintf(pip->efp,"%s: pr=%s\n",
-	        pip->progname,pip->pr) ;
-
-	    bprintf(pip->efp,"%s: sn=%s\n",
-	        pip->progname,pip->searchname) ;
-
+	    bprintf(pip->efp,"%s: pr=%s\n", pip->progname,pip->pr) ;
+	    bprintf(pip->efp,"%s: sn=%s\n", pip->progname,pip->searchname) ;
 	}
 
 /* help file */
@@ -523,11 +516,9 @@ char	*envv[] ;
 
 	    cp = argv[ai] ;
 			switch (pan) {
-
 			case 0:
 				ifname = cp ;
 				break ;
-
 			} /* end switch */
 
 			pan += 1 ;
@@ -553,11 +544,11 @@ char	*envv[] ;
 
 /* other initializations */
 
-	if ((ifname != NULL) && (ifname[0] != '\0'))
-	rs = bopen(ifp,ifname,"r",0666) ;
-
-	else
-	rs = bopen(ifp,BFILE_STDIN,"dr",0666) ;
+	if ((ifname != NULL) && (ifname[0] != '\0')) {
+	    rs = bopen(ifp,ifname,"r",0666) ;
+	} else {
+	    rs = bopen(ifp,BFILE_STDIN,"dr",0666) ;
+	}
 
 	if (rs < 0)
 	    goto badinfile ;
@@ -572,8 +563,8 @@ char	*envv[] ;
 	line = 1 ;
 	f_bol = TRUE ;
 	while ((rs = breadline(ifp,linebuf,LINELEN)) > 0) {
-
 	    len = rs ;
+
 	    f_eol = (linebuf[len - 1] == '\n') ;
 	    linebuf[len] = '\0' ;
 
@@ -610,10 +601,11 @@ char	*envv[] ;
 
 	        if (len > (macrolen + 1)) {
 
-	if (DEBUGLEVEL(5))
+	if (pip->debuglevel > 0) {
 			bprintf(pip->efp,
 	                "%s: got an image include request - line=%d\n",
 	                pip->progname,line) ;
+	}
 
 /* get the image type */
 
@@ -658,10 +650,8 @@ char	*envv[] ;
 /* check if the PostScript directory exists and is writable */
 
 	                if (! f_dirpresent) {
-
 	                    f_dirpresent = TRUE ;
 	                    mkimadir(IMADIR) ;
-
 	                }
 
 /* get file root name */
@@ -674,12 +664,11 @@ char	*envv[] ;
 	                    *cp++ = '\0' ;
 
 	                if (*imatype == '-') {
-
 	                    if (*cp != '\0') {
 	                        imatype = cp ;
-	                    } else
+	                    } else {
 	                        imatype = "unk" ;
-
+			    }
 	                }
 
 /* make the PS file name for this image */
@@ -709,9 +698,10 @@ char	*envv[] ;
 				"incima-cvt %s %s > %s",
 	                        imatype,imafname,psfname) ;
 
-		if (DEBUGLEVEL(5))
+		if (pip->debuglevel > 0) {
 				bprintf(pip->efp,
 	                        "%s: executing $ %s\n",pip->progname,buf) ;
+		}
 
 	                    system(buf) ;
 
@@ -742,15 +732,14 @@ char	*envv[] ;
 	                        utime(psfname,&ft) ;
 #endif
 	                        if (! f_unknown) {
-
 	                            f_unknown = TRUE ;
 	                            ps_getfile(cp,PS_UNKNOWN,ps_unknown) ;
-
 	                        }
 
 	                        if ((ps_unknown != NULL) && 
-	                            (ps_unknown[0] != '\0'))
+	                            (ps_unknown[0] != '\0')) {
 	                            strwcpy(psfname,ps_unknown,MAXPATHLEN) ;
+				}
 
 	                    } /* end if (zero length size) */
 
@@ -768,19 +757,17 @@ char	*envv[] ;
 	                    (u_access(imafname,F_OK) >= 0)) {
 
 	                    if (! f_noread) {
-
 	                        f_noread = TRUE ;
 	                        ps_getfile(cp,PS_NOREAD,ps_noread) ;
-
 	                    }
 
-	                    if ((ps_noread != NULL) && (ps_noread[0] != '\0'))
+	                    if ((ps_noread != NULL) && (ps_noread[0] != '\0')) {
 	                        bprintf(ofp,".BP %s %t\n",
 	                            ps_noread,rline,rlen) ;
-
-	                    else
+	                    } else {
 	                        bprintf(ofp,".\\\"_ .BG %s %s %t\n",
 	                            imatype, imafname,rline,rlen) ;
+			    }
 
 	                    bprintf(pip->efp,
 	                        "%s: file \"%s\" is unreadable\n",
@@ -789,10 +776,8 @@ char	*envv[] ;
 	                } else {
 
 	                    if (! f_noexist) {
-
 	                        f_noexist = TRUE ;
 	                        ps_getfile(cp,PS_NOEXIST,ps_noexist) ;
-
 	                    }
 
 	                    if ((ps_noexist != NULL) && (ps_noexist[0] != '\0'))
@@ -825,10 +810,11 @@ char	*envv[] ;
 
 /* whew, done with this reference */
 
-	if (DEBUGLEVEL(5))
+	if (pip->debuglevel > 0) {
 			bprintf(pip->efp,
 	            "%s: done with this image include macro - line=%d\n",
 	            pip->progname,line) ;
+	}
 
 	    } else if ((rs = bwrite(ofp,linebuf,len)) < 0)
 	        goto badwrite ;
@@ -856,9 +842,10 @@ done:
 badoutopen:
 	ex = (rs >= 0) ? EX_OK : EX_DATAERR ;
 
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: existing ex=%u (%d)\n",
 		pip->progname,ex,rs) ;
+	}
 
 retearly:
 ret2:
@@ -942,7 +929,7 @@ char	*buf ;
 	char	*rname ;
 	char	*fname ;
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	debugprintf("ps_getfile: entered \n") ;
 #endif
 
@@ -951,7 +938,7 @@ char	*buf ;
 	fname = filename ;
 	for (i = 0 ; (rname == NULL) && (i < 2) ; i += 1) {
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	    debugprintf("ps_getfile: top of loop %d\n",i) ;
 #endif
 
@@ -959,7 +946,7 @@ char	*buf ;
 
 /* check current directory */
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	    debugprintf("ps_getfile: check current \n") ;
 #endif
 
@@ -970,7 +957,7 @@ char	*buf ;
 
 	    }
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	    debugprintf("ps_getfile: more current \n") ;
 #endif
 
@@ -985,7 +972,7 @@ char	*buf ;
 
 /* check HOME directory */
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	    debugprintf("ps_getfile: home \n") ;
 #endif
 
@@ -999,7 +986,7 @@ char	*buf ;
 
 	    }
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	    debugprintf("ps_getfile: more home \n") ;
 #endif
 
@@ -1015,21 +1002,20 @@ char	*buf ;
 
 /* check other places */
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	    debugprintf("ps_getfile: other places \n") ;
 #endif
 
 	    for (j = 0 ; ((rname == NULL) && (psdir[j] != NULL)) ; j += 1) {
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	        debugprintf("ps_getfile: other loop %d\n",j) ;
-
 	        debugprintf("trying directory > %s\n",psdir[j]) ;
 #endif
 
 	        mkpath2(buf,psdir[j],fname) ;
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	        debugprintf("trying file > %s\n",buf) ;
 #endif
 
@@ -1038,7 +1024,7 @@ char	*buf ;
 
 	    } /* end for */
 
-#if	CF_DEBUG
+#if	CF_DEBUGS
 	    debugprintf("ps_getfile: bottom of outer loop\n") ;
 #endif
 
@@ -1046,13 +1032,14 @@ char	*buf ;
 
 /* return with what we have */
 
-	if (rname == NULL) 
+	if (rname == NULL) {
 		buf[0] = '\0' ;
-
-	else if (rname != buf) 
+	} else if (rname != buf) {
 		strwcpy(buf,rname,MAXPATHLEN) ;
+	}
 
 #if	CF_DEBUG
+	if (DEBUGLEVEL(3))
 	debugprintf("ps_getfile: ret w/ > %s\n",buf) ;
 #endif
 
@@ -1065,10 +1052,8 @@ char	*buf ;
 static int mkimadir(dir)
 const char	dir[] ;
 {
-	int	f_make = FALSE ;
-
-	char	buf[CMDBUFLEN + 1] ;
-
+	int		f_make = FALSE ;
+	char		buf[CMDBUFLEN + 1] ;
 
 	if (u_access(dir,F_OK) < 0) 
 		f_make = TRUE ;
@@ -1109,6 +1094,5 @@ const char	dir[] ;
 	return 0 ;
 }
 /* end subroutine (mkimadir) */
-
 
 

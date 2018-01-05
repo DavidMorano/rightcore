@@ -813,7 +813,7 @@ static int	debugfilebuf_printoff(FILEBUF *,cchar *,cchar *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -875,7 +875,7 @@ static const PIVARS	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -890,7 +890,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*progmodes[] = {
+static const char	*progmodes[] = {
 	"imail",
 	"rmailnote",
 	NULL
@@ -902,7 +902,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"log",
 	"folder",
 	"deliver",
@@ -973,7 +973,7 @@ static const uchar	aterms[] = {
 	0x00, 0x00, 0x00, 0x00
 } ;
 
-static cchar	*schedconf[] = {
+static const char	*schedconf[] = {
 	"%r/etc/%n/%n.%f",
 	"%r/etc/%n/%f",
 	"%r/etc/%n.%f",
@@ -981,7 +981,7 @@ static cchar	*schedconf[] = {
 	NULL
 } ;
 
-static cchar	*params[] = {
+static const char	*params[] = {
 	"postmail",
 	"sendmail",
 	"folder",
@@ -1019,7 +1019,7 @@ enum params {
 	param_overlast
 } ;
 
-static cchar	*skiphdrs[] = {
+static const char	*skiphdrs[] = {
 	"message-id",
 	"return-path",
 	"received",
@@ -1062,7 +1062,7 @@ static cchar	*skiphdrs[] = {
 	NULL
 } ;
 
-static cchar	*chewhdrs[] = {
+static const char	*chewhdrs[] = {
 	"references",
 	"in-reply-to",
 	"content-type",
@@ -1077,13 +1077,13 @@ static const int	msghdrsingles[] = {
 	-1
 } ;
 
-static cchar	*prbins[] = {
+static const char	*prbins[] = {
 	"bin",
 	"sbin",
 	NULL
 } ;
 
-static cchar	*ematypes[] = {
+static const char	*ematypes[] = {
 	"",
 	"­£p",
 	"­£a",
@@ -1102,7 +1102,7 @@ enum msgpris {
 	msgpri_overlast
 } ;
 
-static cchar	*msgpris[] = {
+static const char	*msgpris[] = {
 	"none",
 	"high",
 	"moderate",

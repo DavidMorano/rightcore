@@ -224,7 +224,7 @@ static int	loadstrs(SBUF *,const char **) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -252,7 +252,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -260,7 +260,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -274,7 +274,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"init",
 	"all",
 	"sd",
@@ -321,45 +321,45 @@ static const struct termtype	terms[] = {
 	{ NULL, 0 }
 } ;
 
-static cchar	*s_basic[] = {
+static const char	*s_basic[] = {
 	"\017",				/* shift-in */
 	"\033>",			/* numeric keypad mode */
 	"\033[?1l",			/* regular cursor keys */
 	NULL
 } ;
 
-static cchar	*s_scroll[] = {
+static const char	*s_scroll[] = {
 	"\033[1;24r",
 	NULL
 } ;
 
-static cchar	*s_ec[] = {
+static const char	*s_ec[] = {
 	"\033[m",			/* all character attributes off */
 	"\033[4l",			/* insert-mode off */
 	NULL
 } ;
 
-static cchar	*s_vcv[] = {
+static const char	*s_vcv[] = {
 	TERMSTR_S_VCUR,			/* VT set cursor ON */
 	NULL
 } ;
 
-static cchar	*s_acv[] = {
+static const char	*s_acv[] = {
 	TERMSTR_S_ACUR,			/* ANSI set cursor ON */
 	NULL
 } ;
 
-static cchar	*s_scv[] = {
+static const char	*s_scv[] = {
 	TERMSTR_S_SCUR,			/* SCREEN set cursor ON */
 	NULL
 } ;
 
-static cchar	*s_psf[] = {
+static const char	*s_psf[] = {
 	"\033P1!uA\033\\",	/* designate ISO Latin-1 as supplimental */
 	NULL
 } ;
 
-static cchar	*s_scs94[] = {
+static const char	*s_scs94[] = {
 	"\033(B",		/* map ASCII (94) to G0 */
 	"\033)0",		/* DEC Special Graphic (94) as G1 */
 	"\033+>",		/* map DEC Technical (94) to G3 */
@@ -368,24 +368,24 @@ static cchar	*s_scs94[] = {
 } ;
 
 /* this is the holding place for the failings of the SCREEN program! */
-static cchar	*s_scs94a[] = {
+static const char	*s_scs94a[] = {
 	"\033*A",		/* map ISO Latin-1 (96) as G2 */
 	"\033\175",		/* lock shift G2 into GR */
 	NULL
 } ;
 
-static cchar	*s_scs96[] = {
+static const char	*s_scs96[] = {
 	"\033.A",		/* map ISO Latin-1 (96) as G2 */
 	"\033\175",		/* lock shift G2 into GR */
 	NULL
 } ;
 
-static cchar	*s_clear[] = {
+static const char	*s_clear[] = {
 	"\033[H\033[J",			/* clear screen */
 	NULL
 } ;
 
-static cchar	blanks[] = "        " ;
+static const char	blanks[] = "        " ;
 
 
 /* exported subroutines */

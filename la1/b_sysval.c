@@ -365,7 +365,7 @@ static int	getam(cchar *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -397,7 +397,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -405,7 +405,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -419,7 +419,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"utf",
 	"db",
 	"ttl",
@@ -439,7 +439,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static cchar	*timeforms[] = {
+static const char	*timeforms[] = {
 	"decimal",
 	"hexadecimal",
 	"wall",
@@ -454,7 +454,7 @@ enum timeforms {
 } ;
 
 /* define the configuration keywords */
-static cchar	*qopts[] = {
+static const char	*qopts[] = {
 	"sysname",
 	"nodename",
 	"release",
@@ -644,7 +644,7 @@ static const uchar	aterms[] = {
 } ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_UTYPES
-static cchar	*utypes[] = {
+static const char	*utypes[] = {
 	"empty",
 	"runlevel",
 	"boottime",

@@ -57,34 +57,40 @@
 
 #define	BUFLEN		100
 
+#define	PROGINFO	struct proginfo
+#define	PROGINFO_FL	struct proginfo_flags
+
+#define	PIVARS		struct pivars
+
+#define	ARGINFO		struct arginfo
 
 
 struct proginfo_flags {
-	uint	progdash : 1 ;
-	uint	akopts : 1 ;
-	uint	aparams : 1 ;
-	uint	quiet : 1 ;
-	uint	outfile : 1 ;
-	uint	errfile : 1 ;
+	uint		progdash : 1 ;
+	uint		akopts : 1 ;
+	uint		aparams : 1 ;
+	uint		quiet : 1 ;
+	uint		outfile : 1 ;
+	uint		errfile : 1 ;
 } ;
 
 struct proginfo {
 	vecstr		stores ;
-	char		**envv ;
-	char		*pwd ;
-	char		*progename ;
-	char		*progdname ;
-	char		*progname ;
-	char		*pr ;
-	char		*searchname ;
-	char		*version ;
-	char		*banner ;
-	char		*nodename ;
-	char		*domainname ;
-	char		*username ;
-	char		*groupname ;
-	char		*tmpdname ;
-	char		*helpfname ;
+	cchar		**envv ;
+	cchar		*pwd ;
+	cchar		*progename ;
+	cchar		*progdname ;
+	cchar		*progname ;
+	cchar		*pr ;
+	cchar		*searchname ;
+	cchar		*version ;
+	cchar		*banner ;
+	cchar		*nodename ;
+	cchar		*domainname ;
+	cchar		*username ;
+	cchar		*groupname ;
+	cchar		*tmpdname ;
+	cchar		*helpfname ;
 	void		*efp ;
 	struct proginfo_flags	have, f, changed, final ;
 	time_t		daytime ;
@@ -94,11 +100,11 @@ struct proginfo {
 } ;
 
 struct pivars {
-	char	*vpr1 ;
-	char	*vpr2 ;
-	char	*vpr3 ;
-	char	*pr ;
-	char	*vprname ;
+	const char	*vpr1 ;
+	const char	*vpr2 ;
+	const char	*vpr3 ;
+	const char	*pr ;
+	const char	*vprname ;
 } ;
 
 
@@ -106,18 +112,23 @@ struct pivars {
 extern "C" {
 #endif
 
-extern int proginfo_start(struct proginfo *,char **,const char *,const char *) ;
-extern int proginfo_setprogroot(struct proginfo *,const char *,int) ;
-extern int proginfo_rootprogdname(struct proginfo *) ;
-extern int proginfo_rootexecname(struct proginfo *,const char *) ;
-extern int proginfo_setentry(struct proginfo *,const char **,const char *,int) ;
-extern int proginfo_setversion(struct proginfo *,const char *) ;
-extern int proginfo_setbanner(struct proginfo *,const char *) ;
-extern int proginfo_setsearchname(struct proginfo *,const char *,const char *) ;
-extern int proginfo_setprogname(struct proginfo *,const char *) ;
-extern int proginfo_getpwd(struct proginfo *,char *,int) ;
-extern int proginfo_pwd(struct proginfo *) ;
-extern int proginfo_finish(struct proginfo *) ;
+extern int proginfo_start(PROGINFO *,cchar **,cchar *,cchar *) ;
+extern int proginfo_setentry(PROGINFO *,const char **,const char *,int) ;
+extern int proginfo_setversion(PROGINFO *,const char *) ;
+extern int proginfo_setbanner(PROGINFO *,const char *) ;
+extern int proginfo_setsearchname(PROGINFO *,const char *,const char *) ;
+extern int proginfo_setprogname(PROGINFO *,const char *) ;
+extern int proginfo_setexecname(PROGINFO *,const char *) ;
+extern int proginfo_setprogroot(PROGINFO *,const char *,int) ;
+extern int proginfo_pwd(PROGINFO *) ;
+extern int proginfo_rootname(PROGINFO *) ;
+extern int proginfo_progdname(PROGINFO *) ;
+extern int proginfo_progename(PROGINFO *) ;
+extern int proginfo_nodename(PROGINFO *) ;
+extern int proginfo_getpwd(PROGINFO *,char *,int) ;
+extern int proginfo_getename(PROGINFO *,char *,int) ;
+extern int proginfo_getenv(PROGINFO *,const char *,int,const char **) ;
+extern int proginfo_finish(PROGINFO *) ;
 
 #ifdef	__cplusplus
 }

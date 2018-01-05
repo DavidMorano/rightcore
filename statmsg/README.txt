@@ -1,4 +1,5 @@
 STATMSG
 
-These routines (programs, et cetera) manage status-messages.
+These functions (for KSH) manage status-messages (used in the STATMSG
+facility).
 

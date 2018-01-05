@@ -496,7 +496,7 @@ static int filer_stackused(FILER *) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"VERSION",
 	"VERBOSE",
 	"TMPDIR",
@@ -558,7 +558,7 @@ static const MAPEX	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"print",
 	"add",
 	"inc",
@@ -622,14 +622,14 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static cchar	*csched[] = {
+static const char	*csched[] = {
 	"%p/etc/%n/%n.%f",
 	"%p/etc/%n/%f",
 	"%p/etc/%n.%f",
 	NULL
 } ;
 
-static cchar	*cparams[] = {
+static const char	*cparams[] = {
 	"workdir",
 	"basedir",
 	"basedb",
@@ -673,14 +673,14 @@ enum cparams {
 	cparam_overlast
 } ;
 
-static char	*isexecs[] = {
+static const char	*isexecs[] = {
 	"so",
 	"p",
 	"a",
 	NULL
 } ;
 
-static cchar	*svcopts[] = {
+static const char	*svcopts[] = {
 	"termout",
 	NULL
 } ;

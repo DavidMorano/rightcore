@@ -1,6 +1,8 @@
 #!/usr/bin/ksh
 # AS
+
 : ${CCS:=/usr/ccs}
+
 POPTS=
 RF_XARCH=false
 for A in "${@}" ; do

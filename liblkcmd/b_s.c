@@ -158,6 +158,8 @@
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
 
+#define	TERMTYPE	struct termtype
+
 #define	NDF		"s.deb"
 
 
@@ -283,7 +285,7 @@ static int	locinfo_termflags(LOCINFO *) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -313,7 +315,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -321,7 +323,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -335,7 +337,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"init",
 	"all",
 	"sd",
@@ -369,7 +371,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static const struct termtype	terms[] = {
+static const TERMTYPE	terms[] = {
 	{ "sun", 0 },
 	{ "vt100", (TCF_MVT) },
 	{ "ansi", (TCF_MSR | TCF_MEC | TCF_MACV | TCF_MACSR | TCF_MACSRS) },
@@ -391,12 +393,12 @@ static const struct termtype	terms[] = {
 	{ NULL, 0 }
 } ;
 
-static cchar	*s_ansiconform[] = {
+static const char	*s_ansiconform[] = {
 	"\033 L",			/* ANSI conformance level 1 */
 	NULL
 } ;
 
-static cchar	*s_basic[] = {
+static const char	*s_basic[] = {
 	"\017",				/* shift-in (G0 to GL)*/
 	"\033>",			/* numeric keypad mode */
 	"\033[?1l",			/* regular cursor keys */
@@ -404,40 +406,40 @@ static cchar	*s_basic[] = {
 } ;
 
 #ifdef	COMMENT
-static cchar	*s_scroll[] = {
+static const char	*s_scroll[] = {
 	"\033[1;24r",
 	NULL
 } ;
 #endif /* COMMENT */
 
-static cchar	*s_ec[] = {
+static const char	*s_ec[] = {
 	"\033[m",			/* all character attributes off */
 	"\033[4l",			/* insert-mode off */
 	NULL
 } ;
 
-static cchar	*s_vcv[] = {
+static const char	*s_vcv[] = {
 	TERMSTR_S_VCUR,			/* VT set cursor ON */
 	NULL
 } ;
 
-static cchar	*s_acv[] = {
+static const char	*s_acv[] = {
 	TERMSTR_S_ACUR,			/* ANSI set cursor ON */
 	NULL
 } ;
 
-static cchar	*s_scv[] = {
+static const char	*s_scv[] = {
 	TERMSTR_S_SCUR,			/* SCREEN set cursor ON */
 	NULL
 } ;
 
-static cchar	*s_psf[] = {
+static const char	*s_psf[] = {
 	"\033P1!uA\033\\",	/* designate ISO Latin-1 as supplimental */
 	NULL
 } ;
 
 #if	CF_ANSICSM
-static cchar	*s_scs94[] = {
+static const char	*s_scs94[] = {
 	"\033\050B",		/* ASCII (94) to G0 */
 	"\033*0",		/* DEC Special Graphic (94) as G2 */
 	"\033+>",		/* map DEC Technical (94) to G3 */
@@ -445,7 +447,7 @@ static cchar	*s_scs94[] = {
 	NULL
 } ;
 #else /* CF_ANSICSM */
-static cchar	*s_scs94[] = {
+static const char	*s_scs94[] = {
 	"\033\050B",		/* ASCII (94) to G0 */
 	"\033\0510",		/* DEC Special Graphic (94) as G1 */
 	"\033+>",		/* map DEC Technical (94) to G3 */
@@ -457,13 +459,13 @@ static cchar	*s_scs94[] = {
 /* this is the holding place for the failings of the SCREEN program! */
 /* the SCREEN program thinks that the ISO-Latin-1 set is a 94-char set! */
 #if	CF_ANSICSM
-static cchar	*s_scs94a[] = {
+static const char	*s_scs94a[] = {
 	"\033\051A",		/* map ISO Latin-1 (96) as G1 */
 	"\033~",		/* lock shift G1 into GR */
 	NULL
 } ;
 #else
-static cchar	*s_scs94a[] = {
+static const char	*s_scs94a[] = {
 	"\033*A",		/* map ISO Latin-1 (96) as G2 */
 	"\033\175",		/* lock shift G2 into GR */
 	NULL
@@ -471,30 +473,30 @@ static cchar	*s_scs94a[] = {
 #endif /* CF_ANSICSM */
 
 #if	CF_ANSICSM
-static cchar	*s_scs96[] = {
+static const char	*s_scs96[] = {
 	"\033-A",		/* map ISO Latin-1 (96) as G1 */
 	"\033~",		/* lock shift G1 into GR */
 	NULL
 } ;
 #else
-static cchar	*s_scs96[] = {
+static const char	*s_scs96[] = {
 	"\033.A",		/* map ISO Latin-1 (96) as G2 */
 	"\033\175",		/* lock shift G2 into GR */
 	NULL
 } ;
 #endif /* CF_ANSICSM */
 
-static cchar	*s_home[] = {
+static const char	*s_home[] = {
 	"\033[H",			/* home screen */
 	NULL
 } ;
 
-static cchar	*s_clear[] = {
+static const char	*s_clear[] = {
 	"\033[J",			/* clear screen */
 	NULL
 } ;
 
-static cchar	blanks[] = "        " ;
+static const char	blanks[] = "        " ;
 
 
 /* exported subroutines */

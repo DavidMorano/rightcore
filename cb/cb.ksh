@@ -27,19 +27,19 @@ A=${0##*/}
 PN=${A%.*}
 
 CB=${LOCAL}/bin/ncb.s5
-if [ -x $CB ] ; then
-  ${CB} -l $MAXLINELEN "${@}"
+if [[ -x ${CB} ]] ; then
+  ${CB} -l ${MAXLINELEN} "${@}"
 else
   CB=${SUNWSPRO}/bin/cb
-  if [ -x $CB ] ; then
-    ${CB} -l $MAXLINELEN "${@}"
+  if [[ -x ${CB} ]] ; then
+    ${CB} -l ${MAXLINELEN} "${@}"
   else
     CB=${LOCAL}/lib/cb/cb.aout
-    if [ -x $CB ] ; then
-      ${CB} -l $MAXLINELEN "${@}"
+    if [[ -x ${CB} ]] ; then
+      ${CB} -l ${MAXLINELEN} "${@}"
     else
       CB=${NCMP}/bin/cb
-      if [ -x $CB ] ; then
+      if [[ -x ${CB} ]] ; then
         ${CB} -l ${MAXLINELEN} "${@}"
       else
         print -u2 -- "${PN}: could not find software component"
