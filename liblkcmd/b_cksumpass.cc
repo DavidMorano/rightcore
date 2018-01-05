@@ -51,7 +51,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<limits.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -60,7 +59,6 @@
 #include	<vsystem.h>
 #include	<bits.h>
 #include	<keyopt.h>
-#include	<shio.h>
 #include	<cksum.h>
 #include	<nulstr.h>
 #include	<exitcodes.h>

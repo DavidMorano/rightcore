@@ -724,8 +724,9 @@ int spawner_wait(SPAWNER *op,int *csp,int opts)
 
 	if (op->pid >= 0) {
 	    rs = u_waitpid(op->pid,csp,opts) ;
-	} else
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return rs ;
 }

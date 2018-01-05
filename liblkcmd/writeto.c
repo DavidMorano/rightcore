@@ -37,7 +37,6 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<poll.h>
-#include	<signal.h>
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -73,23 +72,18 @@
 /* exported subroutines */
 
 
-int writeto(wfd,wbuf,wlen,wto)
-int		wfd ;
-const char	wbuf[] ;
-int		wlen ;
-int		wto ;
+int writeto(int wfd,cchar *wbuf,int wlen,int wto)
 {
 	struct pollfd	fds[2] ;
 
-	time_t	daytime = time(NULL) ;
-	time_t	ti_write ;
+	time_t		daytime = time(NULL) ;
+	time_t		ti_write ;
 
-	int	rs = SR_OK ;
-	int	i ;
-	int	pt = TO_POLL ;
-	int	pto ;
-	int	tlen = 0 ;
-
+	int		rs = SR_OK ;
+	int		i ;
+	int		pt = TO_POLL ;
+	int		pto ;
+	int		tlen = 0 ;
 
 	if (wfd < 0)
 	    return SR_BADF ;
@@ -118,15 +112,12 @@ int		wto ;
 
 	    daytime = time(NULL) ;
 	    if (rs > 0) {
-	        int	re = fds[0].revents ;
-
+	        const int	re = fds[0].revents ;
 
 	        if (re & POLLOUT) {
-
 	            rs = u_write(wfd,(wbuf+tlen),(wlen-tlen)) ;
 	            tlen += rs ;
 	            ti_write = daytime ;
-
 	        } else if (re & POLLHUP) {
 	            rs = SR_HANGUP ;
 	        } else if (re & POLLERR) {
@@ -148,6 +139,5 @@ int		wto ;
 	return (rs >= 0) ? tlen : rs ;
 }
 /* end subroutine (writeto) */
-
 
 

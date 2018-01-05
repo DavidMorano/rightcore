@@ -51,7 +51,6 @@
 #include	<sys/stat.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -167,7 +166,7 @@ static int mailboxappender(cchar *mbfname,int sfd,int slen,int to)
 	int		rs1 ;
 	int		wlen = 0 ;
 	if ((rs = uc_open(mbfname,of,om)) >= 0) {
-	    int		tfd = rs ;
+	    const int	tfd = rs ;
 	    if ((rs = mblock(tfd,TRUE,to)) >= 0) {
 		SIGBLOCK	blocker ;
 		offset_t	offend = 0 ;
@@ -192,7 +191,8 @@ static int mailboxappender(cchar *mbfname,int sfd,int slen,int to)
 	            if (rs < 0)
 	                uc_ftruncate(tfd,offend) ;
 
-	            sigblock_finish(&blocker) ;
+	            rs1 = sigblock_finish(&blocker) ;
+		    if (rs >= 0) rs = rs1 ;
 	        } /* end block (sigblock) */
 
 	        cmd = F_UNLOCK ;

@@ -53,7 +53,6 @@
 #include	<sys/time.h>		/* for |gethetime(3c)| */
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<netdb.h>
 #include	<time.h>

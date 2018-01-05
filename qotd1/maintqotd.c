@@ -62,7 +62,6 @@
 #include	<sys/param.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<netdb.h>

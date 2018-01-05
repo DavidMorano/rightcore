@@ -42,7 +42,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -51,7 +50,6 @@
 #include	<vsystem.h>
 #include	<keyopt.h>
 #include	<bits.h>
-#include	<shio.h>
 #include	<vecobj.h>
 #include	<field.h>
 #include	<exitcodes.h>

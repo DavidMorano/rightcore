@@ -80,6 +80,7 @@
 #include	<sys/uio.h>
 #include	<sys/msg.h>
 #include	<unistd.h>
+#include	<signal.h>
 #include	<fcntl.h>
 #include	<stropts.h>
 #include	<poll.h>
@@ -281,7 +282,7 @@ static int	procexecname(PROGINFO *,char *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -347,7 +348,15 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+/* these have to be in sync w/ the enums in 'config.h' */
+static const char	*progmodes[] = {
+	"mfserve",
+	"tcpmuxd",
+	"fingers",
+	NULL
+} ;
+
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -355,15 +364,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-/* these have to be in sync w/ the enums in 'config.h' */
-static cchar	*progmodes[] = {
-	"mfserve",
-	"tcpmuxd",
-	"fingers",
-	NULL
-} ;
-
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOMEM, EX_OSERR },
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
@@ -378,7 +379,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*progopts[] = {
+static const char	*progopts[] = {
 	"lockinfo",
 	"quiet",
 	"intrun",
@@ -440,7 +441,7 @@ enum progopts {
 	progopt_overlast
 } ;
 
-static cchar	*sched1[] = {
+static const char	*sched1[] = {
 	"%p/%e/%n/%n.%f",
 	"%p/%e/%n/%f",
 	"%p/%e/%n.%f",
@@ -448,7 +449,7 @@ static cchar	*sched1[] = {
 	NULL
 } ;
 
-static cchar	*cmds[] = {
+static const char	*cmds[] = {
 	"exit",
 	"mark",
 	"report",

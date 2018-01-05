@@ -57,7 +57,6 @@
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>
-#include	<shio.h>
 #include	<vecstr.h>
 #include	<osetstr.h>
 #include	<field.h>

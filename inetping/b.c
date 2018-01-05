@@ -43,7 +43,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
@@ -54,7 +53,6 @@
 #include	<bits.h>
 #include	<nulstr.h>
 #include	<field.h>
-#include	<shio.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 

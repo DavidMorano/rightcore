@@ -44,7 +44,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<limits.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<time.h>

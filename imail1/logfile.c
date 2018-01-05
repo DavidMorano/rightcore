@@ -712,24 +712,24 @@ static int logfile_iflush(LOGFILE *op)
 	    if ((rs = logfile_fileopen(op)) >= 0) {
 	        if ((rs = sigblock_start(&blocker,sigblocks)) >= 0) {
 
-	    rs1 = lockfile(op->lfd,F_WLOCK,0L,0L,TO_LOCK) ;
-	    f_havelock = (rs1 >= 0) ;
+	            rs1 = lockfile(op->lfd,F_WLOCK,0L,0L,TO_LOCK) ;
+	            f_havelock = (rs1 >= 0) ;
 
 #if	CF_DEBUGS
-	    debugprintf("logfile_iflush: lockfile() rs=%d\n",rs) ;
+	            debugprintf("logfile_iflush: lockfile() rs=%d\n",rs) ;
 #endif
 
 /* write it, lock or no lock */
 
-	    u_seek(op->lfd,0L,SEEK_END) ;
+	            u_seek(op->lfd,0L,SEEK_END) ;
 
-	    rs = uc_writen(op->lfd,op->buf,op->len) ;
-	    len = rs ;
-	    op->len = 0 ;
+	            rs = uc_writen(op->lfd,op->buf,op->len) ;
+	            len = rs ;
+	            op->len = 0 ;
 
 /* do we have a lock? -- unlock if we do */
 
-	    if (f_havelock) lockfile(op->lfd,F_ULOCK,0L,0L,0) ;
+	            if (f_havelock) lockfile(op->lfd,F_ULOCK,0L,0L,0) ;
 
 	    	    sigblock_finish(&blocker) ;
 	        } /* end if (sigblock) */
