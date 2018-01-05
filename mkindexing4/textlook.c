@@ -1607,11 +1607,6 @@ static int disp_worker(DISP *dop)
 			    }
 #endif
 
-#if	CF_TESTERROR && CF_DEBUGS
-	                    if (strstr(qv.fname,"belgium") != NULL)
-	                        rs = SR_BADFMT ;
-#endif
-
 	                    if ((rs = textlook_havekeys(op,&qv,qo,skp)) > 0) {
 	    			RTAGS_TAG	rt ;
 	                        c += 1 ;
@@ -1625,6 +1620,7 @@ static int disp_worker(DISP *dop)
 	                        rs = rtags_add(rtp,&rt) ;
 	                    } /* end if (found a key) */
 
+	            	    if (dop->f_exit) break ;
 	                } /* end while (work) */
 
 	                rs1 = disp_setstate(dop,dtp,FALSE) ;
@@ -1635,15 +1631,11 @@ static int disp_worker(DISP *dop)
 	        if (dop->f_done) break ;
 	    } /* end while (waiting) */
 
-	    if (rs >= 0) {
-	        disp_setstate(dop,dtp,FALSE) ;
-	    }
-
 #if	CF_DEBUGS
 	    {
-	    pthread_t	tid = pthread_self() ;
-	    debugprintf("procquery/worker: tid=%u ret rs=%d c=%u\n",
-	        tid,rs,c) ;
+	        pthread_t	tid = pthread_self() ;
+	        debugprintf("procquery/worker: tid=%u ret rs=%d c=%u\n",
+	            tid,rs,c) ;
 	    }
 #endif
 
@@ -1749,12 +1741,14 @@ static int tagq_finish(TAGQ *tqp)
 	CIQ		*cqp = &tqp->q ;
 	int		rs = SR_OK ;
 	int		rs1 ;
+	int		rs2 ;
 	char		*p ;
 
-	while (ciq_rem(cqp,&p) >= 0) {
+	while ((rs2 = ciq_rem(cqp,&p)) >= 0) {
 	    rs1 = uc_free(p) ; /* these things are opaque */
 	    if (rs >= 0) rs = rs1 ;
 	}
+	if ((rs >= 0) && (rs2 != SR_NOTFOUND)) rs = rs2 ;
 
 	rs1 = ciq_finish(cqp) ;
 	if (rs >= 0) rs = rs1 ;
