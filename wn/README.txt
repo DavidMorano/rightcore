@@ -16,7 +16,7 @@ Arguments:
 -v[=<n>]	verbosity level
 -h[=<b>]	print a header b={0|1}
 -nh		force no header if printing it is otherwise the default
--o <opt(s)>	sort type: hdr, line, sort=for, sort=rev, msg, biff
+-o <opt(s)>	options: hdr, line, sort=for, sort=rev, msg, biff
 -db <utmpx>	optional UTMPX database (file)
 -V		print command version to standard-error and then exit
 

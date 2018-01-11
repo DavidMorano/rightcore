@@ -1197,7 +1197,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_header:
 	                case akoname_hdr:
 	                    if (! lip->final.hdr) {
@@ -1209,7 +1208,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_long:
 	                    if (! lip->final.fmtlong) {
 	                        lip->have.fmtlong = TRUE ;
@@ -1221,7 +1219,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_short:
 	                    if (! lip->final.fmtshort) {
 	                        lip->have.fmtshort = TRUE ;
@@ -1233,7 +1230,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_uniq:
 	                    if (! lip->final.uniq) {
 	                        lip->have.uniq = TRUE ;
@@ -1245,7 +1241,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_users:
 	                    if (! lip->final.users) {
 	                        lip->have.users = TRUE ;
@@ -1257,7 +1252,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_all:
 	                    if (! lip->final.all) {
 	                        lip->have.all = TRUE ;
@@ -1269,7 +1263,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_line:
 	                    if (! lip->final.fmtline) {
 	                        lip->have.fmtline = TRUE ;
@@ -1281,7 +1274,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_msg:
 	                case akoname_mesg:
 	                    if (! lip->final.msg) {
@@ -1294,7 +1286,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_biff:
 	                    if (! lip->final.biff) {
 	                        lip->have.biff = TRUE ;
@@ -1306,7 +1297,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_sort:
 	                    if (! lip->final.typesort) {
 	                        lip->have.typesort = TRUE ;
@@ -1317,7 +1307,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

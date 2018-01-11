@@ -17,7 +17,6 @@
 #include	<envstandards.h>	/* MUST be first to configure */
 
 #include	<sys/types.h>
-#include	<pwd.h>
 
 #include	<pq.h>
 #include	<localmisc.h>		/* extra types */

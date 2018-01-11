@@ -47,7 +47,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<pwd.h>
 #include	<grp.h>
 
 #include	<vsystem.h>
