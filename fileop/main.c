@@ -126,10 +126,6 @@ extern "C" char	*strnrchr(cchar *,int,int) ;
 extern "C" char	*strnchr(cchar *,int,int) ;
 extern "C" char	*timestr_log(time_t,char *) ;
 
-#if	CF_DEBUG
-static "C" cchar	*strfiletype(USTAT *) ;
-#endif
-
 
 /* local structures */
 
@@ -273,6 +269,10 @@ static int	fileidcmp(struct fileid *,struct fileid *,int) ;
 static int	vcmprstr(cchar **e1pp,cchar **e2pp) ;
 
 static int	isNotStat(int) ;
+
+#if	CF_DEBUG
+static cchar	*strfiletype(USTAT *) ;
+#endif
 
 static void	main_sighand(int,siginfo_t *,void *) ;
 
@@ -2824,6 +2824,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	if (DEBUGLEVEL(4)) {
 	    cchar	*cp = strfiletype(sbp) ;
 	    debugprintf("main/procother: ent name=%s ft=%s\n",name,cp) ;
+	    debugprintf("main/procother: f_prog=%u\n",pip->f.f_prog) ;
 	}
 #endif /* CF_DEBUG */
 
@@ -3040,7 +3041,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	            rs = SR_OK ;
 	        }
 	    }
-	} /* end if */
+	} /* end if (readable) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -3073,12 +3074,21 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 /* check if it is a program (and required) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("main/procother: mid3b rs=%d f_process=%u\n",
+	        rs,f_process) ;
+#endif
+
 	if ((rs >= 0) && f_continue && f_process) {
-	    if (pip->f.f_prog && (! f_accept)) {
+	    if (pip->f.f_prog) {
 	        if (S_ISREG(sbp->st_mode)) {
 	            rs = fileobject(name) ;
 	            f_process = (rs > 0) ;
-	        }
+	        } else {
+		    f_process = FALSE ;
+		    f_continue = FALSE ;
+		}
 	    }
 	} /* end if (no-program) */
 
@@ -4902,7 +4912,7 @@ static int procsyncer(PROGINFO *pip,cchar *name,USTAT *sbp)
 static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 {
 	USTAT		dsb ;
-	size_t		dfsize = 0 ;
+	offset_t	dfsize = 0 ;
 	const mode_t	dm = DMODE ;
 	const mode_t	nm = (sbp->st_mode & (~ S_IFMT)) | 0600 ;
 	uid_t		duid = -1 ;
@@ -4940,10 +4950,10 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 	    if (S_ISREG(dsb.st_mode)) {
 	        int	f = FALSE ;
 	        duid = dsb.st_uid ;
-	        dfsize = (size_t) dsb.st_size ;
+	        dfsize = (offset_t) dsb.st_size ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("main/procsyncer_reg: dfsize=%u\n",dfsize) ;
+	    debugprintf("main/procsyncer_reg: dfsize=%ull\n",dfsize) ;
 #endif
 	        f = f || (sbp->st_size != dsb.st_size) ;
 	        f = f || (sbp->st_mtime > dsb.st_mtime) ;
@@ -5129,7 +5139,7 @@ static int procsyncer_reg(PROGINFO *pip,cchar *name,USTAT *sbp)
 	        	    debugprintf("main/procsyncer_reg: "
 				"sfsize=%lu\n",sfsize) ;
 	        	    debugprintf("main/procsyncer_reg: "
-				"dfsize=%lu\n",dfsize) ;
+				"dfsize=%llu\n",dfsize) ;
 		        }
 #endif
 	                if (len < dfsize) {
@@ -5712,18 +5722,19 @@ static int linkcmp(LINKINFO *e1p,LINKINFO *e2p,int len)
 
 static uint diridhash(const void *vp,int vl)
 {
+	const uint	uvl = (uint) vl ;
 	uint		h = 0 ;
 	ushort		*sa = (ushort *) vp ;
 
 	h = h ^ ((sa[1] << 16) | sa[0]) ;
 	h = h ^ ((sa[0] << 16) | sa[1]) ;
-	if (vl > sizeof(uint)) {
+	if (uvl > sizeof(uint)) {
 	    h = h ^ ((sa[3] << 16) | sa[2]) ;
 	    h = h ^ ((sa[2] << 16) | sa[3]) ;
-	    if (vl > sizeof(ULONG)) {
+	    if (uvl > sizeof(ULONG)) {
 	        h = h ^ ((sa[5] << 16) | sa[4]) ;
 	        h = h ^ ((sa[4] << 16) | sa[5]) ;
-	        if (vl > (4*3)) {
+	        if (uvl > (4*3)) {
 	            h = h ^ ((sa[7] << 16) | sa[6]) ;
 	            h = h ^ ((sa[6] << 16) | sa[7]) ;
 	        }
@@ -5737,18 +5748,19 @@ static uint diridhash(const void *vp,int vl)
 
 static uint fileidhash(const void *vp,int vl)
 {
+	const uint	uvl = (uint) vl ;
 	uint		h = 0 ;
 	ushort		*sa = (ushort *) vp ;
 
 	h = h ^ ((sa[1] << 16) | sa[0]) ;
 	h = h ^ ((sa[0] << 16) | sa[1]) ;
-	if (vl > sizeof(uint)) {
+	if (uvl > sizeof(uint)) {
 	    h = h ^ ((sa[3] << 16) | sa[2]) ;
 	    h = h ^ ((sa[2] << 16) | sa[3]) ;
-	    if (vl > sizeof(ULONG)) {
+	    if (uvl > sizeof(ULONG)) {
 	        h = h ^ ((sa[5] << 16) | sa[4]) ;
 	        h = h ^ ((sa[4] << 16) | sa[5]) ;
-	        if (vl > (4*3)) {
+	        if (uvl > (4*3)) {
 	            h = h ^ ((sa[7] << 16) | sa[6]) ;
 	            h = h ^ ((sa[6] << 16) | sa[7]) ;
 	        }
