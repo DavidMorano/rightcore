@@ -14,7 +14,7 @@
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	HDB_INCLUDE
-#define	HDB_INCLUDE		1
+#define	HDB_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -68,6 +68,9 @@ typedef struct hdb_d		hdb_datum ;
 typedef struct hdb_e		hdb_ent ;
 typedef struct hdb_c		hdb_cur ;
 
+typedef unsigned int	(*hdbhashfunc_t)(const void *,int) ;
+typedef int		(*hdbcmpfunc_t)(const void *,const void *,int) ;
+
 
 #if	(! defined(HDB_MASTER)) || (HDB_MASTER == 0)
 
@@ -75,7 +78,7 @@ typedef struct hdb_c		hdb_cur ;
 extern "C" {
 #endif
 
-extern int hdb_start(HDB *,int,int,unsigned int (*)(),int (*)()) ;
+extern int hdb_start(HDB *,int,int,hdbhashfunc_t,hdbcmpfunc_t) ;
 extern int hdb_store(HDB *,HDB_DATUM,HDB_DATUM) ;
 extern int hdb_curbegin(HDB *,HDB_CUR *) ;
 extern int hdb_curend(HDB *,HDB_CUR *) ;

@@ -105,7 +105,6 @@ extern "C" int	nprintf(cchar *,cchar *,...) ;
 #endif
 
 extern "C" cchar	*getourenv(cchar **,cchar *) ;
-extern "C" cchar	*getourenv(const char **,const char *) ;
 extern "C" cchar	*strsigabbr(int) ;
 
 extern "C" void		uctimeout_fini() ;

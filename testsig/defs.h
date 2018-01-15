@@ -155,6 +155,7 @@ struct proginfo_flags {
 	uint		igncomm:1 ;	/* ignore comments w/ character */
 	uint		f_uniq:1 ;
 	uint		f_name:1 ;
+	uint		f_prog:1 ;
 	uint		f_noprog:1 ;
 	uint		f_nopipe:1 ;
 	uint		f_nodev:1 ;

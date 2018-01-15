@@ -1,8 +1,10 @@
-# MAKEFILE
+# MAKEFILE (testucwritedesc)
 
-T= fileop
+T= testucwritedesc
 
 ALL= $(T)
+
+HELPFILE= $(T).help
 
 SRCROOT= $(LOCAL)
 
@@ -28,31 +30,21 @@ CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
-CCOPTS= $(CCOPTS_GCCALL) -O3 $(CCOPTS_GCCOPTSPARC)
+CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
 #CCOPTS= $(CCOPTS_CCALL) -g -xs
 
 # HyperSPARC
-# regular
-#CCOPTS= -xO5 -xtarget=ss20/hs22 -xdepend
-# profiling 'prof(1)'
-#CCOPTS= -p -xO5 -xtarget=ss20/hs22 -xdepend
-# profiling 'gprof(1)' 
-#CCOPTS= -xpg -xO5 -xtarget=ss20/hs22 -xdepend
+#CCOPTS= -xO5 -xtarget=ss20/hs22 -dalign -xdepend
 
 # UltraSPARC
-# regular
-#CCOPTS= -xO5 -xtarget=ultra -xsafe=mem -xdepend
-# profiling 'prof(1)'
-#CCOPTS= -p -xO5 -xtarget=ultra -xsafe=mem -xdepend
-# profiling 'gprof(1)' 
-#CCOPTS= -xpg -xO5 -xtarget=ultra -xsafe=mem -xdepend
+#CCOPTS= -xO5 -xtarget=ultra -xsafe=mem -dalign -xdepend
 
 
 DEF0=
@@ -78,19 +70,16 @@ CFLAGS= $(CCOPTS)
 LD= ld
 
 
-LDRPATH= $(EXTRA)/lib
+LDRPATH=
 
-# regular
-LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
-# for profiling
-LDFLAGS_P= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -115,13 +104,7 @@ CRTN= $(LDCRTDIR)/crtn.o
 CRTFRONT= $(CRT1) $(CRTI) $(VALUES) $(CRTBEGIN)
 CRTBACK= $(CRTEND) $(CRTN)
 
-# for regular (no profiling)
 CRT0= $(CRT1) $(CRTI) $(VALUES)
-# for 'prof(1)'
-MCRT0= $(CRTI) $(MCRT1) $(VALUES)
-# for 'gprof(1)'
-GCRT0= $(CRTI) $(GCRT1) $(VALUES)
-
 CRTC= makedate.o
 
 LINT= lint
@@ -144,34 +127,30 @@ RM= rm -f
 INCS= config.h defs.h
 
 
-OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
+OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
 OBJ01= 
 OBJ02=
 OBJ03=
-OBJ04=
-OBJ05=
+OBJ04= 
+OBJ05= 
 OBJ06= 
 OBJ07= printhelp.o
-OBJ08= fileobject.o filelines.o
+OBJ08=
 OBJ09=
 OBJ10=
-OBJ11= hdb.o
+OBJ11= 
 OBJ12=
-OBJ13=
-OBJ14=
-OBJ15=
+OBJ13= 
+OBJ14= 
+OBJ15= uc_writedesc.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
 
 OBJ= $(OBJA) $(OBJB)
 
-# for regular (no profiling)
 OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
-# for 'prof(1)'
-MOBJS= $(MCRT0) $(OBJ) $(CRTC)
-# for 'gprof(1)'
-GOBJS= $(GCRT0) $(OBJ) $(CRTC)
+
 
 SRC= $(OBJ:.c=.o)
 
@@ -211,17 +190,7 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO)
-
-$(T).prof:		$(OBJ) Makefile
-	makedate -m $(T) > makedate.c
-	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(MOBJS) $(LIBDIRS) $(LIBS)
-
-$(T).gprof:		$(OBJ) Makefile
-	makedate -m $(T) > makedate.c
-	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS_P) $(GOBJS) $(LIBDIRS) $(LIBS)
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)
@@ -239,22 +208,15 @@ strip:			$(T).x
 	strip $(T).x
 	rm -f $(T).$(OFF) $(T)
 
-aliases:		$(T).x
-	makealiases $(T).x
-
 install:		install-raw install-help
 
-install-ee:		$(ALL)
-	makenewer -r $(ALL) $(BINDIR)
-
 install-raw:		$(T).x
-	rm -f $(T)
-	ln -f $(T).x $(T)
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makeinstall
+	makenewer -r -o rmsuf $(T).c $(BINDIR)
 
-install-help:
-	makeinstall-help $(HELPDIR)
+install-help:		$(T).help
+	-mkdir -p $(HELPDIR) 2> /dev/null
+	makenewer -o rmsuf $(T).help $(HELPDI)
 
 again:
 	rm -f $(ALL) $(T).x
@@ -267,8 +229,7 @@ control:
 	date >> Control
 
 
-main.o:			main.cc $(INCS)
-	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) main.cc
+main.o:			main.c $(INCS)
 
 whatinfo.o:		whatinfo.c config.h
 
@@ -277,17 +238,20 @@ proginfo.o:		proginfo.c defs.h
 proginfo_setpiv.o:	proginfo_setpiv.c defs.h
 
 
+# miscellaneous
+
+format.o:		format.c format.h
+
+
+# objects
+
 userinfo.o:		userinfo.c userinfo.h
 
 vecstr_loadfile.o:	vecstr_loadfile.c
 
 vecstr_env.o:		vecstr_env.c
 
-vecpstr.o:		vecpstr.c vecpstr.h
-
 filemap.o:		filemap.c filemap.h
-
-filebuf.o:		filebuf.c filebuf.h
 
 realname.o:		realname.c realname.h
 
@@ -295,20 +259,13 @@ ipasswd.o:		ipasswd.c ipasswd.h
 
 lastlogfile.o:		lastlogfile.c lastlogfile.h
 
-tmpx.o:			tmpx.c tmpx.h
 
-fsdirtree.o:		fsdirtree.c fsdirtree.h
+bopen.o:		bopen.c bfile.h
 
-fsdir.o:		fsdir.c fsdir.h
+bwrite.o:		bwrite.c bfile.h
 
-fifostr.o:		fifostr.c fifostr.h
+bprintf.o:		bprintf.c bfile.h
 
-hdb.o:			hdb.c hdb.h
-
-bits.o:			bits.c bits.h baops.h
-
-baops.o:		baops.c baops.h
-
-hdb.o:			hdb.c hdb.h
+bfile_flush.o:		bfile_flush.c bfile.h
 
 

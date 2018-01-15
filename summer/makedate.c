@@ -1,2 +1,2 @@
 const char summer_makedate[] =
-"@(#)summer                  171017_0531:20_USEDT Rightcore Network Services" ;
+"@(#)summer                  180115_0058:43_USEST Rightcore Network Services" ;

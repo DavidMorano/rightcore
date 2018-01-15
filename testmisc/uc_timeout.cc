@@ -884,7 +884,7 @@ static int uctimeout_sigerwait(UCTIMEOUT *uip)
 #endif
 	uc_sigsetempty(&ss) ;
 	uc_sigsetadd(&ss,sig) ;
-	uc_sigsetadd(&ss, SIGALRM) ;
+	uc_sigsetadd(&ss,SIGALRM) ;
 	timespec_load(&ts,to,0) ;
 	repeat {
 	    rs = uc_sigwaitinfoto(&ss,&si,&ts) ;
@@ -1073,11 +1073,11 @@ static int uctimeout_dispjobdel(UCTIMEOUT *uip,TIMEOUT *tep)
 	int		rs1 ;
 	int		f = FALSE ;
 	if ((rs = ptm_lockto(&uip->m,-1)) >= 0) {
-	        if ((rs = vechand_delhand(&uip->ents,tep)) >= 0) {
-		    f = TRUE ;
-		} else if (rs == SR_NOTFOUND) {
-		    rs = SR_OK ;
-		}
+	    if ((rs = vechand_delhand(&uip->ents,tep)) >= 0) {
+		f = TRUE ;
+	    } else if (rs == SR_NOTFOUND) {
+		rs = SR_OK ;
+	    }
 	    rs1 = ptm_unlock(&uip->m) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (mutex-section) */
