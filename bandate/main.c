@@ -86,9 +86,9 @@ extern char	*strnprbrk(const char *,int,const char *) ;
 
 /* forward references */
 
-static int process(cchar *,cchar *,cchar *,int) ;
-static int trailprint(bfile *,cchar *,cchar *,int) ;
-static int subprint(bfile *,cchar *,cchar *,int) ;
+static int	process(cchar *,cchar *,cchar *,int) ;
+static int	trailprint(bfile *,cchar *,cchar *,int) ;
+static int	subprint(bfile *,cchar *,cchar *,int) ;
 
 
 /* local variables */
@@ -230,7 +230,7 @@ static int process(cchar *ofn,cchar *ifn,cchar *dstr,int f_top)
 	                rs = subprint(ofp,dstr,lbuf,len) ;
 	                wlen += rs ;
 	            } else {
-	                rs = bprintline(ofp,lbuf,len) ;
+	                rs = bprintln(ofp,lbuf,len) ;
 	                wlen += rs ;
 	            }
 

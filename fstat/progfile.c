@@ -196,19 +196,19 @@ PARAMOPT	*pp ;
 		case OTYPE_LOG:
 	    	    rs = sntmtime(dbuf,dlen,&ts,"%y%m%d_%H%M:%S") ;
 		    if (rs >= 0)
-	        	rs = bprintline(ofp,dbuf,rs) ;
+	        	rs = bprintln(ofp,dbuf,rs) ;
 		    break ;
 
 		case OTYPE_LOGZ:
 	    	    rs = sntmtime(dbuf,dlen,&ts,"%y%m%d_%H%M:%S_%Z") ;
 		    if (rs >= 0)
-	        	rs = bprintline(ofp,dbuf,rs) ;
+	        	rs = bprintln(ofp,dbuf,rs) ;
 		    break ;
 
 		case OTYPE_STD:
 	    	    rs = sntmtime(dbuf,dlen,&ts,"%a %b %d %T %Z %Y %O") ;
 		    if (rs >= 0)
-	        	rs = bprintline(ofp,dbuf,rs) ;
+	        	rs = bprintln(ofp,dbuf,rs) ;
 		    break ;
 
 	    default:

@@ -86,8 +86,8 @@ extern int	isprintlatin(int) ;
 extern int	isalphalatin(int) ;
 extern int	isalnumlatin(int) ;
 extern int	isdigitlatin(int) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
-extern int	bprintline(bfile *,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
+extern int	bprintln(bfile *,const char *,int) ;
 
 extern int	progoutmtheader(struct proginfo *,bfile *) ;
 extern int	progoutmtfooter(struct proginfo *,bfile *) ;
@@ -1054,7 +1054,7 @@ int		sl ;
 	        if (cl > 0) {
 	            cbl = outcols_get(pip,linewidth) ;
 	            outcols_normal(pip) ;
-	            rs = bprintlines(ofp,cbl,cp,cl) ;
+	            rs = bprintlns(ofp,cbl,cp,cl) ;
 	            wlen += rs ;
 	        }
 
@@ -1083,7 +1083,7 @@ int		sl ;
 	                    break ;
 
 	                outcols_normal(pip) ;
-	                rs = bprintline(ofp,colbuf,len) ;
+	                rs = bprintln(ofp,colbuf,len) ;
 	                wlen += rs ;
 
 	            } /* end while (full lines) */
@@ -1103,7 +1103,7 @@ int		sl ;
 	                break ;
 
 	            outcols_normal(pip) ;
-	            rs = bprintline(ofp,colbuf,len) ;
+	            rs = bprintln(ofp,colbuf,len) ;
 	            wlen += rs ;
 
 	        } /* end while (partial line) */
@@ -1115,7 +1115,7 @@ int		sl ;
 	} else {
 	    cbl = outcols_get(pip,linewidth) ;
 	    outcols_normal(pip) ;
-	    rs = bprintlines(ofp,cbl,sp,sl) ;
+	    rs = bprintlns(ofp,cbl,sp,sl) ;
 	    wlen += rs ;
 	}
 
@@ -1137,7 +1137,7 @@ bfile		*ofp ;
 	if ((rs = mkfixbufend(pip,fbuf,flen)) >= 0) {
 	    fbl = rs ;
 	    if (fbl > 0) {
-	        rs = bprintline(ofp,fbuf,fbl) ;
+	        rs = bprintln(ofp,fbuf,fbl) ;
 	        wlen += rs ;
 	    }
 	}
@@ -1178,7 +1178,7 @@ bfile		*ofp ;
 	    rs = linecenter_getline(&pip->cv,i,&lp) ;
 	    ll = rs ;
 	    if ((rs >= 0) && (ll > 0)) {
-	        rs = bprintline(ofp,lp,ll) ;
+	        rs = bprintln(ofp,lp,ll) ;
 	        wlen += rs ;
 	    }
 

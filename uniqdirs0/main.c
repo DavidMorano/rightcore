@@ -915,7 +915,7 @@ static int procout(PROGINFO *pip,cchar *ofn)
 	        while (dirdb_enum(dirp,&cur,&ep) >= 0) {
 	            if (ep != NULL) {
 	                c += 1 ;
-	                rs = bprintline(ofp,ep->name,-1) ;
+	                rs = bprintln(ofp,ep->name,-1) ;
 		    }
 	            if (rs < 0) break ;
 	        } /* end while */

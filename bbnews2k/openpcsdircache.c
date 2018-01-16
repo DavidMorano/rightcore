@@ -345,7 +345,7 @@ static int procdircacher(vecpstr *dlp,cchar *fn)
 	int		rs1 ;
 	int		c = 0 ;
 	if ((rs = bopen(dcfp,fn,"wct",0664)) >= 0) {
-	    if ((rs = bprintline(dcfp,DIRCACHE_MAGIC,-1)) >= 0) {
+	    if ((rs = bprintln(dcfp,DIRCACHE_MAGIC,-1)) >= 0) {
 	        int	i ;
 	        int	dl ;
 	        cchar	*dp ;
@@ -353,7 +353,7 @@ static int procdircacher(vecpstr *dlp,cchar *fn)
 	            if (dp != NULL) {
 	                dl = strlen(dp) ;
 	                c += 1 ;
-	                rs = bprintline(dcfp,dp,dl) ;
+	                rs = bprintln(dcfp,dp,dl) ;
 	            }
 	            if (rs < 0) break ;
 	        } /* end for */

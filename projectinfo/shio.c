@@ -175,7 +175,7 @@ static int	shio_bclose(SHIO *) ;
 static int	shio_outside() ;
 static int	shio_sfiscook(SHIO *) ;
 static int	shio_sfflush(SHIO *) ;
-static int	shio_sfprintline(SHIO *,cchar *,int) ;
+static int	shio_shprintln(SHIO *,cchar *,int) ;
 static int	shio_sfwrite(SHIO *,cchar *,int) ;
 static int	shio_sfcookline(SHIO *op,int f) ;
 static int	shio_sfcookbegin(SHIO *) ;
@@ -765,7 +765,7 @@ ret0:
 /* end subroutine (shio_write) */
 
 
-int shio_print(SHIO *op,cchar *lbuf,int llen)
+int shio_println(SHIO *op,cchar *lbuf,int llen)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -780,14 +780,14 @@ int shio_print(SHIO *op,cchar *lbuf,int llen)
 #if	CF_SFIO
 	if (op->f.sfio) {
 	    if (llen < 0) llen = strlen(lbuf) ;
-	    rs = shio_sfprintline(op,lbuf,llen) ;
+	    rs = shio_shprintln(op,lbuf,llen) ;
 	    wlen += rs ;
 	} else {
-	    rs = bprintline(op->fp,lbuf,llen) ;
+	    rs = bprintln(op->fp,lbuf,llen) ;
 	    wlen += rs ;
 	}
 #else /* CF_SFIO */
-	rs = bprintline(op->fp,lbuf,llen) ;
+	rs = bprintln(op->fp,lbuf,llen) ;
 	wlen += rs ;
 #endif /* CF_SFIO */
 
@@ -797,17 +797,24 @@ int shio_print(SHIO *op,cchar *lbuf,int llen)
 
 	return (rs >= 0) ? wlen : rs ;
 }
+/* end subroutine (shio_println) */
+
+
+int shio_print(SHIO *op,cchar *lbuf,int llen)
+{
+	return shio_println(op,lbuf,llen) ;
+}
 /* end subroutine (shio_print) */
 
 
 int shio_printline(SHIO *op,cchar *lbuf,int llen)
 {
-	return shio_print(op,lbuf,llen) ;
+	return shio_println(op,lbuf,llen) ;
 }
 /* end subroutine (shio_printline) */
 
 
-int shio_printf(SHIO *op,const char fmt[],...)
+int shio_printf(SHIO *op,cchar *fmt,...)
 {
 	int		rs ;
 	{
@@ -1473,7 +1480,7 @@ static int shio_bclose(SHIO *op)
 
 
 #if	CF_SFIO
-static int shio_sfprintline(SHIO *op,cchar *lbuf,int llen)
+static int shio_shprintln(SHIO *op,cchar *lbuf,int llen)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -1501,7 +1508,7 @@ static int shio_sfprintline(SHIO *op,cchar *lbuf,int llen)
 	}
 	return (rs >= 0) ? wlen : rs ;
 }
-/* end subroutine (shio_sfprintline) */
+/* end subroutine (shio_shprintln) */
 #endif /* CF_SFIO */
 
 

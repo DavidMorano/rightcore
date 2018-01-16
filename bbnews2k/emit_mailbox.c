@@ -241,7 +241,7 @@ bfile		*afp ;
 		    const char	*fmt = "From %s %s" ;
 		    char	ebuf[MSGENVLEN+1] ;
 		    if ((rs = bufprintf(ebuf,elen,fmt,ubuf,dbuf)) >= 0) {
-			rs = bprintline(ofp,ebuf,rs) ;
+			rs = bprintln(ofp,ebuf,rs) ;
 			wlen += rs ;
 		    }
 		}

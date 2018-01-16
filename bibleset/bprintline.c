@@ -57,7 +57,7 @@
 /* exported subroutines */
 
 
-int bprintline(bfile *fp,cchar *lbuf,int llen)
+int bprintln(bfile *fp,cchar *lbuf,int llen)
 {
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
@@ -88,6 +88,20 @@ int bprintline(bfile *fp,cchar *lbuf,int llen)
 	} /* end if (not nullfile) */
 
 	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (bprintln) */
+
+
+int bprint(bfile *fp,cchar *lbuf,int llen)
+{
+	return bprintln(fp,lbuf,llen) ;
+}
+/* end subroutine (bprint) */
+
+
+int bprintline(bfile *fp,cchar *lbuf,int llen)
+{
+	return bprintln(fp,lbuf,llen) ;
 }
 /* end subroutine (bprintline) */
 

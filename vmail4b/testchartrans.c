@@ -336,7 +336,7 @@ int		ll ;
 	    int		cl ;
 	    const char	*cp ;
 	    for (j = 0 ; (cl = linefold_get(&lf,j,&cp)) >= 0 ; j += 1) {
-	        rs = bprintline(ofp,cp,cl) ;
+	        rs = bprintln(ofp,cp,cl) ;
 		wlen += rs ;
 		if (rs < 0) break ;
 	    } /* end for */

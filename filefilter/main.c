@@ -1428,7 +1428,7 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar fname[])
 	    } /* end if (unique processing) */
 
 	    if (rs >= 0) {
-	        rs = bprintline(ofp,fname,-1) ;
+	        rs = bprintln(ofp,fname,-1) ;
 	        wlen += rs ;
 	    }
 

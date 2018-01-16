@@ -790,11 +790,11 @@ int shio_printline(SHIO *op,cchar *lbuf,int llen)
 	    rs = shio_sfprintline(op,lbuf,llen) ;
 	    wlen += rs ;
 	} else {
-	    rs = bprintline(op->fp,lbuf,llen) ;
+	    rs = bprintln(op->fp,lbuf,llen) ;
 	    wlen += rs ;
 	}
 #else /* CF_SFIO */
-	rs = bprintline(op->fp,lbuf,llen) ;
+	rs = bprintln(op->fp,lbuf,llen) ;
 	wlen += rs ;
 #endif /* CF_SFIO */
 

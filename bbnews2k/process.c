@@ -268,7 +268,7 @@ static int procqueryout(PROGINFO *pip,bfile *ofp,int tc)
 	                    if ((rs = expcook_expbuf(&ec,0,&b,qt,-1)) >= 0) {
 	                        cchar	*sp ;
 	                        if ((rs = buffer_get(&b,&sp)) >= 0)
-	                            rs = bprintline(ofp,sp,rs) ;
+	                            rs = bprintln(ofp,sp,rs) ;
 	                    } /* end if (buf-exp) */
 	                } /* end if (prep) */
 	                rs1 = expcook_finish(&ec) ;
@@ -278,7 +278,7 @@ static int procqueryout(PROGINFO *pip,bfile *ofp,int tc)
 		    if (rs >= 0) rs = rs1 ;
 	        } /* end if (buffer) */
 	    } else
-	        rs = bprintline(ofp,qt,-1) ;
+	        rs = bprintln(ofp,qt,-1) ;
 	} /* end if */
 
 	return rs ;

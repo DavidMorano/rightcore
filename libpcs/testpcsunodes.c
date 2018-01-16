@@ -80,7 +80,7 @@ int main(int argc,const char **argv,const char **envv)
 	    if ((rs = pcsunodes_start(&un,pr)) >= 0) {
 		int	i ;
 		for (i = 0 ; pcsunodes_get(&un,i,&cp) >= 0 ; i += 1) {
-		    rs = bprintline(ofp,cp,-1) ;
+		    rs = bprintln(ofp,cp,-1) ;
 		    if (rs < 0) break ;
 		} /* end for */
 		rs1 = pcsunodes_finish(&un) ;

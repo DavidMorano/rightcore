@@ -1386,7 +1386,7 @@ VECOBJ		*sfp ;
 	    f = (rs >= 0) ;
 
 	    if ((rs >= 0) && pip->f.print) {
-	        rs = bprintline(ofp,wsp->up,-1) ;
+	        rs = bprintln(ofp,wsp->up,-1) ;
 	        wlen += rs ;
 	    }
 

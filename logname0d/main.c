@@ -751,7 +751,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	            case qopt_gecosname:
 	                if (f_entok) {
 	                    rs1 = mkgecosname(buf,BUFLEN,entry.gecos) ;
-	                    bprintline(ofp,buf,rs1) ;
+	                    bprintln(ofp,buf,rs1) ;
 	                } else
 	                    bprintf(ofp,"\n") ;
 
@@ -934,7 +934,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                while ((sl > 0) && (cp[sl - 1] == '.'))
 	                    sl -= 1 ;
 
-	                bprintline(ofp,cp,sl) ;
+	                bprintln(ofp,cp,sl) ;
 
 	                break ;
 

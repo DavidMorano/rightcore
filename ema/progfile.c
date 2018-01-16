@@ -73,7 +73,7 @@
 
 extern int	matcasestr(const char **,const char *,int) ;
 extern int	mailmsg_loadfile(MAILMSG *,bfile *) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 
 extern int	progentryinfo(PROGINFO *,bfile *,EMA_ENT *,int) ;
 extern int	progentryaddr(PROGINFO *,bfile *,EMA_ENT *,int) ;
@@ -268,7 +268,7 @@ static int procinfiler(PROGINFO *pip,bfile *ofp, EMA *emap, MAILMSG *mmp,
 	                                rs = ema_parse(emap,vp,vl) ;
 				        c += rs ;
 				    } else {
-				        rs = bprintlines(ofp,linelen,vp,vl) ;
+				        rs = bprintlns(ofp,linelen,vp,vl) ;
 				    }
 
 	    } /* end if (mailmsg_hdrval) */

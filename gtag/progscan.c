@@ -200,7 +200,7 @@ const char	fname[] ;
 	debugprintf("progscan: got a macro li=%d\n",rs) ;
 #endif
 
-	                rs = bprintline(tfp,".\\\" TAG\n",-1) ;
+	                rs = bprintln(tfp,".\\\" TAG\n",-1) ;
 		        tlen += rs ;
 		    } else if (rs == SR_INVALID) {
 			const char	*pn = pip->progname ;

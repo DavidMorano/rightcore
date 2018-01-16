@@ -151,7 +151,7 @@ int progerr_print(PROGINFO *pip,cchar *sp,int sl)
 	if (pip == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
 	if ((rs = ptm_lock(&pip->efm)) >= 0) {
-	    rs = bprintline(pip->efp,sp,sl) ;
+	    rs = bprintln(pip->efp,sp,sl) ;
 	    len = rs ;
 	    rs1 = ptm_unlock(&pip->efm) ;
 	    if (rs >= 0) rs = rs1 ;

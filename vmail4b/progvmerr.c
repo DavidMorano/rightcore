@@ -129,7 +129,7 @@ int progvmerr_print(PROGINFO *pip,cchar *sp,int sl)
 	if (pip == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
 	if (pip->efp != NULL) {
-	    rs = bprintline(pip->efp,sp,sl) ;
+	    rs = bprintln(pip->efp,sp,sl) ;
 	}
 	return rs ;
 }

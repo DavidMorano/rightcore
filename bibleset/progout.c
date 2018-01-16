@@ -55,8 +55,8 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	ctdecui(char *,int,uint) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
-extern int	bprintline(bfile *,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
+extern int	bprintln(bfile *,const char *,int) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 
 #if	CF_DEBUGS || CF_DEBUG

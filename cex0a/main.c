@@ -1267,7 +1267,7 @@ static int procprintnoding(PROGINFO *pip,bfile *ofp)
 	                cchar	*cp ;
 	                for (i = 0 ; vecstr_get(&nodes,i,&cp) >= 0 ; i += 1) {
 	                    if (cp != NULL) {
-	                        rs = bprintline(ofp,cp,-1) ;
+	                        rs = bprintln(ofp,cp,-1) ;
 	                        wlen += rs ;
 	                    }
 	                    if (rs < 0) break ;

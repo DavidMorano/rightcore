@@ -71,7 +71,7 @@ extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
 
 extern int	proginfo_setpiv(struct proginfo *,const char *,
@@ -784,7 +784,7 @@ const char	query[] ;
 	                len -= 1 ;
 
 	            linebuf[len] = '\0' ;
-	            rs = bprintlines(ofp,pip->linelen,linebuf,len) ;
+	            rs = bprintlns(ofp,pip->linelen,linebuf,len) ;
 		    wlen += rs ;
 		    if (rs < 0)
 			break ;

@@ -1378,12 +1378,12 @@ static int procusers_ent(PROGINFO *pip,PROCUSERS *pup,struct passwd *pwp)
 
 	if ((rs = setstr_add(usp,unp,unl)) > 0) {
 	    c = 1 ;
-	    if ((rs = bprintline(ufp,unp,unl)) >= 0) {
+	    if ((rs = bprintln(ufp,unp,unl)) >= 0) {
 	        const int	llen = pup->llen ;
 	        char		*lbuf = pup->lbuf ;
 	        if ((rs = passwdent_format(pwp,lbuf,llen)) >= 0) {
 	            const int	ll = rs ;
-	            if ((rs = bprintline(pfp,lbuf,ll)) >= 0) {
+	            if ((rs = bprintln(pfp,lbuf,ll)) >= 0) {
 	                const int	uhl = pup->uhl ;
 	                char		*uhbuf = pup->uhbuf ;
 	                rs = procuserlink(pip,uhbuf,uhl,pwp) ;
@@ -1563,10 +1563,10 @@ static int procgroups_ent(PROGINFO *pip,bfile *gsfp,bfile *grfp,
 	int		c = 0 ;
 	cchar		*gn = grp->gr_name ;
 	if (pip == NULL) return SR_FAULT ;
-	if ((rs = bprintline(gsfp,gn,-1)) >= 0) {
+	if ((rs = bprintln(gsfp,gn,-1)) >= 0) {
 	    if ((rs = groupent_format(grp,lbuf,llen)) >= 0) {
 		c = 1 ;
-		rs = bprintline(grfp,lbuf,rs) ;
+		rs = bprintln(grfp,lbuf,rs) ;
 	    }
 	}
 	return (rs >= 0) ? c : rs ;
@@ -1654,9 +1654,9 @@ static int procprojects_load(PROGINFO *pip,bfile *pnfp,bfile *pjfp)
 	        while ((rs = getpj_ent(&pj,pjbuf,pjlen)) > 0) {
 	            cchar	*pn = pj.pj_name ;
 	            c += 1 ;
-	            if ((rs = bprintline(pnfp,pn,-1)) >= 0) {
+	            if ((rs = bprintln(pnfp,pn,-1)) >= 0) {
 	                if ((rs = projectent_format(&pj,lbuf,llen)) >= 0) {
-	                    rs = bprintline(pjfp,lbuf,rs) ;
+	                    rs = bprintln(pjfp,lbuf,rs) ;
 	                }
 	            }
 	            if (rs < 0) break ;
@@ -1687,7 +1687,7 @@ static int procshells(PROGINFO *pip,int w)
 	        if ((rs = getus_begin()) >= 0) {
 	            while ((rs = getus_ent(rbuf,rlen)) > 0) {
 	                c += 1 ;
-	                rs = bprintline(usfp,rbuf,rs) ;
+	                rs = bprintln(usfp,rbuf,rs) ;
 	                if (rs < 0) break ;
 	            } /* end while */
 	            rs1 = getus_end() ;
@@ -1748,7 +1748,7 @@ static int procshadow(PROGINFO *pip,int w)
 	                    char	lbuf[LINEBUFLEN+1] ;
 	                    if ((rs = shadowent_format(&sp,lbuf,llen)) >= 0) {
 	                        c += 1 ;
-	                        rs = bprintline(sfp,lbuf,rs) ;
+	                        rs = bprintln(sfp,lbuf,rs) ;
 	                    }
 	                    if (rs < 0) break ;
 	                } /* end while */
@@ -1812,7 +1812,7 @@ static int procuserattr(PROGINFO *pip,int w)
 	                    char	lbuf[LINEBUFLEN+1] ;
 	                    if ((rs = userattrent_format(&ua,lbuf,llen)) > 0) {
 	                        c += 1 ;
-	                        rs = bprintline(sfp,lbuf,rs) ;
+	                        rs = bprintln(sfp,lbuf,rs) ;
 	                    }
 	                    if (rs < 0) break ;
 	                } /* end while */

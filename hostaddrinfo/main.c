@@ -1048,7 +1048,7 @@ static int procspecial(PROGINFO *pip,bfile *ofp,cchar *np,int nl)
 #endif
 	}
 	if (f) {
-	    rs = bprintline(ofp,np,nl) ;
+	    rs = bprintln(ofp,np,nl) ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
@@ -1206,7 +1206,7 @@ static int procprint4(PROGINFO *pip,bfile *ofp,cchar *indent,
 		    fmt = "%saddr=%s (\\x%08X)\n" ;
 	            rs = bprintf(ofp,fmt,indent,astr4,v) ;
 	        } else {
-	            rs = bprintline(ofp,astr4,-1) ;
+	            rs = bprintln(ofp,astr4,-1) ;
 	        }
 	    } else if (f_all) {
 	        rs = bprintf(ofp,"%saddr=*\n",indent) ;
@@ -1249,7 +1249,7 @@ static int procprint6(PROGINFO *pip,bfile *ofp,cchar *indent,
 	if (f_all) {
 	    rs = bprintf(ofp,"%saddr=%s\n", indent,astr6) ;
 	} else {
-	    rs = bprintline(ofp,astr6,-1) ;
+	    rs = bprintln(ofp,astr6,-1) ;
 	}
 
 	return rs ;

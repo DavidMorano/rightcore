@@ -78,7 +78,7 @@ extern int	cfdecti(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isFailOpen(int) ;

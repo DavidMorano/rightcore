@@ -130,7 +130,7 @@ int progout_printline(PROGINFO *pip,cchar *sp,int sl)
 
 	if (pip->verboselevel > 0) {
 	    if ((rs = progout_check(pip)) >= 0) {
-	        rs = bprintline(pip->outfile,sp,sl) ;
+	        rs = bprintln(pip->outfile,sp,sl) ;
 	        wlen = rs ;
 	    }
 	} /* end if (verboselevel) */

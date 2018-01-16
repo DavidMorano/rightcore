@@ -99,7 +99,7 @@ extern int	mkfnamesuf1(char *,const char *,const char *) ;
 extern int	matcasestr(const char **,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
@@ -324,7 +324,7 @@ const char	fname[] ;
 	debugprintf("procfile: title=>%t<\n",buf,bl) ;
 #endif
 
-	                bprintlines(&ofile,LINEFOLDLEN,buf,bl) ;
+	                bprintlns(&ofile,LINEFOLDLEN,buf,bl) ;
 
 	                bprintf(&ofile,"</h1>\n") ;
 
@@ -390,7 +390,7 @@ const char	fname[] ;
 	                if (! pfp->f.noauthor)
 	                    bprintf(&ofile,"by ") ;
 
-	                bprintlines(&ofile,LINEFOLDLEN,cp,cl) ;
+	                bprintlns(&ofile,LINEFOLDLEN,cp,cl) ;
 
 	            }
 
@@ -500,7 +500,7 @@ const char	fname[] ;
 
 	                bprintf(&ofile,"<br>\n") ;
 
-	                bprintlines(&ofile,LINEFOLDLEN,buf,bl) ;
+	                bprintlns(&ofile,LINEFOLDLEN,buf,bl) ;
 
 	                f_artinfo = FALSE ;
 	                bprintf(&ofile,"</p>\n") ;

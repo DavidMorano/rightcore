@@ -55,8 +55,8 @@ extern int	cfdecui(const char *,int,uint *) ;
 extern int	ctdeci(char *,int,int) ;
 extern int	ctdecui(char *,int,uint) ;
 extern int	hasalluc(const char *,int) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
-extern int	bprintline(bfile *,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
+extern int	bprintln(bfile *,const char *,int) ;
 
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;

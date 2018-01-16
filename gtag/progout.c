@@ -65,7 +65,7 @@ extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 
 extern int	progoutbib(PROGINFO *,bfile *,BDB_ENT *) ;
 

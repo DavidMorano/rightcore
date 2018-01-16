@@ -1,4 +1,4 @@
-/* bprintlines */
+/* bprintlns */
 
 /* print out lines but filled to the margin */
 
@@ -22,7 +22,7 @@
 
 	Synopsis:
 
-	int bprintlines(fp,flen,sp,sl)
+	int bprintlns(fp,flen,sp,sl)
 	bfile		*fp ;
 	int		flen ;
 	const char	sp[] ;
@@ -76,7 +76,7 @@
 
 /* external subroutines */
 
-extern int	bprintline(bfile *,const char *,int) ;
+extern int	bprintln(bfile *,const char *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
@@ -98,7 +98,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 /* exported subroutines */
 
 
-int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
+int bprintlns(bfile *fp,int flen,cchar *lbuf,int llen)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -121,7 +121,7 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 	    llen = strlen(lbuf) ;
 
 #if	CF_DEBUGS
-	debugprintf("bprintlines: flen=%u\n",flen) ;
+	debugprintf("bprintlns: flen=%u\n",flen) ;
 #endif
 
 	if ((rs = uc_malloc((flen+1),&fbuf)) >= 0) {
@@ -135,7 +135,7 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 	    const char	*cp ;
 
 #if	CF_DEBUGS
-	    debugprintf("bprintlines: buf=>%t<\n",
+	    debugprintf("bprintlns: buf=>%t<\n",
 	        lbuf,
 	        MIN(60,((lbuf[llen - 1] == '\n') ? (llen - 1) : llen))) ;
 #endif
@@ -152,20 +152,20 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 	        while ((rs >= 0) && ((cl = nextfield(sp,sl,&cp)) > 0)) {
 
 #if	CF_DEBUGS
-	            debugprintf("bprintlines: field=>%t<\n",cp,cl) ;
+	            debugprintf("bprintlns: field=>%t<\n",cp,cl) ;
 #endif
 
 	            if ((len + (cl + 1)) > flen) {
 
 #if	CF_DEBUGS
-	                debugprintf("bprintlines: line-overflow len=%u\n",
+	                debugprintf("bprintlns: line-overflow len=%u\n",
 	                    len) ;
 #endif
 
 	                f_sbuf = FALSE ;
 	                sbuf_finish(&b) ;
 
-	                if ((rs = bprintline(fp,fbuf,len)) >= 0) {
+	                if ((rs = bprintln(fp,fbuf,len)) >= 0) {
 	                    wlen += rs ;
 	                    wc = 0 ;
 	                    len = 0 ;
@@ -183,7 +183,7 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 	                }
 
 #if	CF_DEBUGS
-	                debugprintf("bprintlines: storing=>%t<\n",
+	                debugprintf("bprintlns: storing=>%t<\n",
 				cp,cl) ;
 #endif
 
@@ -191,7 +191,7 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 	                rs = sbuf_strw(&b,cp,cl) ;
 
 #if	CF_DEBUGS
-	                debugprintf("bprintlines: sbuf_strw() rs=%d\n",
+	                debugprintf("bprintlns: sbuf_strw() rs=%d\n",
 				rs) ;
 #endif
 
@@ -208,7 +208,7 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 	        }
 
 	        if ((rs >= 0) && (len > 0)) {
-	            rs = bprintline(fp,fbuf,len) ;
+	            rs = bprintln(fp,fbuf,len) ;
 	            wlen += rs ;
 	        }
 
@@ -220,7 +220,7 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 	        lp = (tp + 1) ;
 
 #if	CF_DEBUGS
-	        debugprintf("bprintlines: bottom rs=%d\n",rs) ;
+	        debugprintf("bprintlns: bottom rs=%d\n",rs) ;
 #endif
 
 	    } /* end while (outer) */
@@ -237,10 +237,17 @@ int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
 ret0:
 
 #if	CF_DEBUGS
-	debugprintf("bprintlines: ret rs=%d wlen=%u\n",rs,wlen) ;
+	debugprintf("bprintlns: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
 	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (bprintlns) */
+
+
+int bprintlines(bfile *fp,int flen,cchar *lbuf,int llen)
+{
+	return bprintlns(fp,flen,lbuf,llen) ;
 }
 /* end subroutine (bprintlines) */
 

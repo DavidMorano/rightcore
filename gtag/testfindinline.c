@@ -86,7 +86,7 @@ int main(int argc,const char **argv,const char **envv)
 	    while ((rs = breadline(ifp,lbuf,llen)) > 0) {
 		len = rs ;
 
-		bprintline(ofp,lbuf,len) ;
+		bprintln(ofp,lbuf,len) ;
 
 		if ((sl = findinline(&fi,lbuf,len)) > 0) {
 		    fmt = "» sl=%u k=%t v=>%t<\n" ;

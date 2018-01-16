@@ -86,7 +86,7 @@ extern int	ctdeci(char *,int,int) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	dialtcp(const char *,const char *,int,int,int) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
@@ -942,7 +942,7 @@ const char	query[] ;
 			}
 
 	                lbuf[len] = '\0' ;
-	                rs = bprintlines(ofp,cols,lbuf,len) ;
+	                rs = bprintlns(ofp,cols,lbuf,len) ;
 	                wlen += rs ;
 
 			if (rs < 0) break ;

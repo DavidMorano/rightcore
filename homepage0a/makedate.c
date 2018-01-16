@@ -1,2 +1,2 @@
-const char homepage_makedate[] =
-"@(#)homepage                171229_0232:28_USEST Rightcore Network Services" ;
+const char mkhtmarticles_makedate[] =
+"@(#)mkhtmarticles           180116_0059:32_EST Rightcore Network Services" ;

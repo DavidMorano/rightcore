@@ -80,7 +80,7 @@ extern int	sfshrink(const char *,int,const char **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
@@ -164,48 +164,46 @@ static const char	*months[] = {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
 	PROGINFO	pi, *pip = &pi ;
 	struct ustat	sb ;
 
-	VECSTR	names ;
+	VECSTR		names ;
 
-	bfile	errfile ;
-	bfile	outfile, *ofp = &outfile ;
-	bfile	tmpfile ;
+	bfile		errfile ;
+	bfile		outfile, *ofp = &outfile ;
+	bfile		tmpfile ;
 
 	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	argvalue = -1 ;
-	int	pan = 0 ;
-	int	rs, rs1 ;
-	int	len, i, j, k ;
-	int	sl, cl, ci ;
-	int	c_files = 0 ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_extra = FALSE ;
-	int	f_version = FALSE ;
-	int	f_usage = FALSE ;
-	int	f_help = FALSE ;
-	int	f_reverse = FALSE ;
-	int	f ;
+	int		ai, ai_max, ai_pos ;
+	int		argvalue = -1 ;
+	int		pan = 0 ;
+	int		rs, rs1 ;
+	int		len ;
+	int		i, j, k ;
+	int		sl, cl, ci ;
+	int		c_files = 0 ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_extra = FALSE ;
+	int		f_version = FALSE ;
+	int		f_usage = FALSE ;
+	int		f_help = FALSE ;
+	int		f_reverse = FALSE ;
+	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	nodename[NODENAMELEN + 1] ;
-	char	domainname[MAXHOSTNAMELEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*sp, *cp ;
+	char		argpresent[MAXARGGROUPS] ;
+	char		buf[BUFLEN + 1], *bp ;
+	char		nodename[NODENAMELEN + 1] ;
+	char		domainname[MAXHOSTNAMELEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -771,11 +769,11 @@ const char	*envv[] ;
 	            debugprintf("main: loop title=>%s<\n",fi.title) ;
 #endif
 
-	        rs1 = bprintlines(ofp,LINEFOLDLEN,fi.title,-1) ;
+	        rs1 = bprintlns(ofp,LINEFOLDLEN,fi.title,-1) ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
-	            debugprintf("main: bprintlines() rs=%d\n",rs1) ;
+	            debugprintf("main: bprintlns() rs=%d\n",rs1) ;
 #endif
 
 	        bprintf(ofp,"</a>\n") ;

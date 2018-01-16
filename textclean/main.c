@@ -1559,12 +1559,12 @@ static int procline(PROGINFO *pip,bfile *ofp,STATE *fsp,cchar *lbuf,int ll)
 #endif
 
 	if (f_print) {
-	    rs = bprintline(ofp,obuf,ol) ;
+	    rs = bprintln(ofp,obuf,ol) ;
 	    wlen += rs ;
 	}
 
 	if ((rs >= 0) && opp->f.doublespace) {
-	    rs = bprintline(ofp,obuf,0) ;
+	    rs = bprintln(ofp,obuf,0) ;
 	    wlen += rs ;
 	}
 

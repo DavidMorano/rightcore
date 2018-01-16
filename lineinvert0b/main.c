@@ -67,7 +67,7 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
-extern int	bprintlines(bfile *,int,const char *,int) ;
+extern int	bprintlns(bfile *,int,const char *,int) ;
 extern int	isdigitlatin(int) ;
 
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;

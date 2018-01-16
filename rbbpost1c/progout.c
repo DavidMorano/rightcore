@@ -894,7 +894,7 @@ static int outbase64(PROGINFO *pip,bfile *ofp,cchar *sbuf,int slen)
 	while ((rs >= 0) && (rlen > 0)) {
 	    const int	mlen = MIN(BASE64BUFLEN,rlen) ;
 	    len = base64_e((sbuf + i),mlen,outbuf) ;
-	    rs = bprintline(ofp,outbuf,len) ;
+	    rs = bprintln(ofp,outbuf,len) ;
 	    wlen += rs ;
 	    rlen -= mlen ;
 	    i += mlen ;

@@ -3109,7 +3109,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	    case progmode_filefind:
 	        if (! pip->f.quiet) {
 		    bfile	*ofp = (bfile *) pip->ofp ;
-	            rs = bprintf(ofp,"%s\n",name) ;
+	            rs = bprintln(ofp,name,-1) ;
 	        }
 	        break ;
 	    case progmode_filelinker:

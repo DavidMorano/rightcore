@@ -123,8 +123,8 @@ int localsetsystat(cchar *pr,cchar *sbuf,int slen)
 	    const mode_t	om = 0664 ;
 	    if ((rs = bopen(dfp,tfname,"wct",om)) >= 0) {
 		cchar	*fmt = "# SYSTAT (Machine System-Status)" ;
-		if ((rs = bprintline(dfp,fmt,-1)) >= 0) {
-	            if ((rs = bprintline(dfp,sbuf,slen)) >= 0) {
+		if ((rs = bprintln(dfp,fmt,-1)) >= 0) {
+	            if ((rs = bprintln(dfp,sbuf,slen)) >= 0) {
 		        rs = uprogdata_set(di,sbuf,slen,ttl) ;
 			rc = rs ;
 		    }

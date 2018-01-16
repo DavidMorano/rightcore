@@ -243,7 +243,7 @@ static int procline(PROGINFO *pip,bfile *ofp,HDRDECODE *qp,cchar *sp,int sl)
 	            debugprintchars("procline",wbuf,wl) ;
 #endif
 	        if ((rs = snwcpywidehdr(obuf,olen,wbuf,wl)) >= 0) {
-		    rs = bprintline(ofp,obuf,rs) ;
+		    rs = bprintln(ofp,obuf,rs) ;
 	            tlen += rs ;
 	        }
 	    } /* end if (hdrdecode_proc) */

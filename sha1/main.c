@@ -1185,7 +1185,7 @@ static int procout(PROGINFO *pip,bfile *ofp,SHA1 *sop)
 		if ((obuf = new(nothrow) char[(olen+1)]) != NULL) {
 		    cchar	*mp = (cchar *) digest ;
 		    if ((rs = cthexstr(obuf,olen,mp,m)) >= 0) {
-		        rs = bprintline(ofp,obuf,rs) ;
+		        rs = bprintln(ofp,obuf,rs) ;
 			wlen += rs ;
 		    }
 		    delete [] obuf ;
