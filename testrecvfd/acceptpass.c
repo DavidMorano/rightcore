@@ -159,8 +159,9 @@ static int acceptpass_poll(int fd_pass,STRRECVFD *sp,int to)
 			} /* end if (event) */
 		    } /* end if (ours) */
 		} /* end for */
-	    } else if (rs == SR_INTR)
+	    } else if (rs == SR_INTR) {
 		rs = SR_OK ;
+	    }
 
 	    if ((rs >= 0) && (pfd >= 0)) break ;
 	    if ((rs >= 0) && f_timed && ((daytime - ti_start) >= to)) {

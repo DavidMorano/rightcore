@@ -42,12 +42,6 @@
 
 /* local defines */
 
-#define	VERSION		"0"
-#define	NTRIES		1
-#define	CONNTIMEOUT	120		/* seconds */
-#define	BUFLEN		(8 * 1024)
-#define	LINGERTIME	(3 * 6)		/* seconds */
-#define	POLLTIMEOUT	200		/* milliseconds */
 #define	O_FLAGS1	(O_RDWR | O_NONBLOCK)
 
 
@@ -78,7 +72,6 @@ extern int	isNotPresent(int) ;
 /* ARGSUSED */
 int listenpass(cchar *passfname,mode_t om,int opts)
 {
-	struct ustat	sb ;
 	int		rs ;
 	int		fd = -1 ;
 
@@ -87,13 +80,15 @@ int listenpass(cchar *passfname,mode_t om,int opts)
 	if (passfname[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
-	debugprintf("listenpass: fname=%s\n",passfname) ;
+	debugprintf("listenconn: ent fname=%s\n",passfname) ;
+	debugprintf("listenconn: opts=%08ß\n",otps) ;
 #endif
 
 	if ((rs = uc_open(passfname,O_FLAGS1,om)) >= 0) {
+	    USTAT	sb ;
 	    fd = rs ;
 	    if ((rs = u_fstat(fd,&sb)) >= 0) {
-	        if ((sb.st_mode & 002) == 0) {
+	        if ((sb.st_mode & S_IWOTH) == 0) {
 	            u_fchmod(fd,om) ;
 		}
 	    } else {

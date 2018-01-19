@@ -29,8 +29,11 @@
 #define	LISTENSPEC_PASS		struct listenspec_pass
 #define	LISTENSPEC_USS		struct listenspec_uss
 #define	LISTENSPEC_TCP		struct listenspec_tcp
+#define	LISTENSPEC_CONN		struct listenspec_conn
 
+/* options */
 #define	LISTENSPEC_MREUSE	(1<<0)	/* reuse address */
+/* states */
 #define	LISTENSPEC_MACTIVE	(1<<0)	/* is active */
 #define	LISTENSPEC_MDELPEND	(1<<1)	/* delete is pending */
 #define	LISTENSPEC_MBROKEN	(1<<2)	/* activate failed (broken) */
@@ -62,6 +65,11 @@ struct listenspec_tcp {
 	const char	*host ;
 	const char	*port ;
 	SOCKADDRESS	sa ;
+} ;
+
+struct listenspec_conn {
+	const char	*fname ;	/* dynamic allocation */
+	int		mode ;
 } ;
 
 struct listenspec_flags {

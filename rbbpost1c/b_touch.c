@@ -46,9 +46,9 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/time.h>		/* for 'utime(2)' */
+#include	<sys/time.h>		/* for |utimes(2)| */
 #include	<limits.h>
-#include	<utime.h>
+#include	<utime.h>		/* for |utime(2)| */
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>

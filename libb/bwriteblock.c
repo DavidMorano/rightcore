@@ -17,8 +17,8 @@
 
 /*******************************************************************************
 
-	This subroutine copies the remainder of the input file
-	to the output file.
+        This subroutine copies the remainder of the input file to the output
+        file.
 
 	Synospsis:
 
@@ -86,8 +86,9 @@ int bwriteblock(bfile *ofp,bfile *ifp,int ulen)
 	    char	*buf ;
 	    if (ulen >= 0) {
 		if (ulen < bsize) bsize = ulen ;
-	    } else
+	    } else {
 	        ulen = INT_MAX ;
+	    }
 	    if ((rs = uc_valloc(bsize,&buf)) >= 0) {
 	        int	bl, len ;
 	        int	mlen ;

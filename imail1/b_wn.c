@@ -109,18 +109,6 @@
 #define	USERNAMELEN	32
 #endif
 
-#ifndef	GNAMELEN
-#define	GNAMELEN	80		/* GECOS name length */
-#endif
-
-#ifndef	REALNAMELEN
-#define	REALNAMELEN	100		/* real name length */
-#endif
-
-#ifndef	DEFNUSERS
-#define	DEFNUSERS	20		/* default number of users expected */
-#endif
-
 #define	COLS_USERNAME	8
 #define	COLS_REALNAME	39
 

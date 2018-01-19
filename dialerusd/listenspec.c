@@ -95,6 +95,7 @@ extern int	getaf(const char *,int) ;
 extern int	listentcp(int,const char *,const char *,int) ;
 extern int	listenuss(const char *,int,int) ;
 extern int	listenpass(const char *,int,int) ;
+extern int	listenconn(const char *,int,int) ;
 extern int	acceptpass(int,struct strrecvfd *,int) ;
 extern int	getportnum(const char *,const char *) ;
 extern int	getprotofamily(int) ;
@@ -140,28 +141,36 @@ struct tcpaddr {
 /* forward references */
 
 int		listenspec_active(LISTENSPEC *,int,int) ;
-
 static int	listenspec_parse(LISTENSPEC *,int,const char **) ;
+
 static int	listenspec_tcpbegin(LISTENSPEC *,int,const char **) ;
 static int	listenspec_tcpaddrload(LISTENSPEC *,TCPADDR *,int) ;
 static int	listenspec_tcpend(LISTENSPEC *) ;
 static int	listenspec_tcpsame(LISTENSPEC *,LISTENSPEC *) ;
 static int	listenspec_tcpactive(LISTENSPEC *,int,int) ;
 static int	listenspec_tcpaccept(LISTENSPEC *,void *,int *,int) ;
+static int	listenspec_tcpinfo(LISTENSPEC *,LISTENSPEC_INFO *) ;
+
 static int	listenspec_ussbegin(LISTENSPEC *,int,const char **) ;
 static int	listenspec_ussend(LISTENSPEC *) ;
 static int	listenspec_usssame(LISTENSPEC *,LISTENSPEC *) ;
 static int	listenspec_ussactive(LISTENSPEC *,int,int) ;
 static int	listenspec_ussaccept(LISTENSPEC *,void *,int *,int) ;
+static int	listenspec_ussinfo(LISTENSPEC *,LISTENSPEC_INFO *) ;
+
 static int	listenspec_passbegin(LISTENSPEC *,int,const char **) ;
 static int	listenspec_passend(LISTENSPEC *) ;
 static int	listenspec_passsame(LISTENSPEC *,LISTENSPEC *) ;
 static int	listenspec_passactive(LISTENSPEC *,int,int) ;
 static int	listenspec_passaccept(LISTENSPEC *,void *,int *,int) ;
-
-static int	listenspec_tcpinfo(LISTENSPEC *,LISTENSPEC_INFO *) ;
-static int	listenspec_ussinfo(LISTENSPEC *,LISTENSPEC_INFO *) ;
 static int	listenspec_passinfo(LISTENSPEC *,LISTENSPEC_INFO *) ;
+
+static int	listenspec_connbegin(LISTENSPEC *,int,const char **) ;
+static int	listenspec_connend(LISTENSPEC *) ;
+static int	listenspec_connsame(LISTENSPEC *,LISTENSPEC *) ;
+static int	listenspec_connactive(LISTENSPEC *,int,int) ;
+static int	listenspec_connaccept(LISTENSPEC *,void *,int *,int) ;
+static int	listenspec_conninfo(LISTENSPEC *,LISTENSPEC_INFO *) ;
 
 static int	listenspec_procargs(LISTENSPEC *,ARGINFO *,int,cchar **) ;
 
@@ -195,6 +204,7 @@ static cchar	*ltypes[] = {
 	"tcp",
 	"uss",
 	"pass",
+	"conn",
 	NULL
 } ;
 
@@ -203,6 +213,7 @@ enum ltypes {
 	ltype_tcp,
 	ltype_uss,
 	ltype_pass,
+	ltype_conn,
 	ltype_overlast
 } ;
 
@@ -289,6 +300,9 @@ int listenspec_finish(LISTENSPEC *op)
 	    case ltype_pass:
 	        rs1 = listenspec_passend(op) ;
 	        break ;
+	    case ltype_conn:
+	        rs1 = listenspec_connend(op) ;
+	        break ;
 	    } /* end switch */
 	    if (rs >= 0) rs = rs1 ;
 	    rs1 = uc_free(op->info) ;
@@ -299,6 +313,7 @@ int listenspec_finish(LISTENSPEC *op)
 	if (op->prlocal != NULL) {
 	    rs1 = uc_free(op->prlocal) ;
 	    if (rs >= 0) rs = rs1 ;
+	    op->prlocal = NULL ;
 	}
 
 	op->ltype = 0 ;
@@ -342,8 +357,13 @@ int listenspec_issame(LISTENSPEC *op,LISTENSPEC *otherp)
 	        rs = listenspec_passsame(op,otherp) ;
 	        f = (rs > 0) ;
 	        break ;
+	    case ltype_conn:
+	        rs = listenspec_connsame(op,otherp) ;
+	        f = (rs > 0) ;
+	        break ;
 	    default:
 	        rs = SR_DOM ;
+		break ;
 	    } /* end switch */
 	}
 
@@ -379,6 +399,9 @@ int listenspec_active(LISTENSPEC *op,int opts,int f)
 	    break ;
 	case ltype_pass:
 	    rs = listenspec_passactive(op,opts,f) ;
+	    break ;
+	case ltype_conn:
+	    rs = listenspec_connactive(op,opts,f) ;
 	    break ;
 	default:
 	    rs = SR_DOM ;
@@ -507,6 +530,9 @@ int listenspec_accept(LISTENSPEC *op,void *fromp,int *fromlenp,int to)
 	    case ltype_pass:
 	        rs = listenspec_passaccept(op,fromp,fromlenp,to) ;
 	        break ;
+	    case ltype_conn:
+	        rs = listenspec_connaccept(op,fromp,fromlenp,to) ;
+	        break ;
 	    default:
 	        rs = SR_DOM ;
 	        break ;
@@ -552,6 +578,9 @@ int listenspec_info(LISTENSPEC *op,LISTENSPEC_INFO *lip)
 	    break ;
 	case ltype_pass:
 	    rs = listenspec_passinfo(op,lip) ;
+	    break ;
+	case ltype_conn:
+	    rs = listenspec_conninfo(op,lip) ;
 	    break ;
 	default:
 	    rs = SR_INVALID ;
@@ -641,6 +670,9 @@ static int listenspec_parse(LISTENSPEC *op,int ac,cchar **av)
 	case ltype_pass:
 	    size = sizeof(LISTENSPEC_PASS) ;
 	    break ;
+	case ltype_conn:
+	    size = sizeof(LISTENSPEC_CONN) ;
+	    break ;
 	} /* end switch */
 
 	if (size > 0) {
@@ -661,6 +693,10 @@ static int listenspec_parse(LISTENSPEC *op,int ac,cchar **av)
 	            rs = listenspec_passbegin(op,ac,(av+1)) ;
 	            n = rs ;
 	            break ;
+	        case ltype_conn:
+	            rs = listenspec_connbegin(op,ac,(av+1)) ;
+	            n = rs ;
+	            break ;
 	        default:
 	            rs = SR_BUGCHECK ;
 	            break ;
@@ -670,8 +706,9 @@ static int listenspec_parse(LISTENSPEC *op,int ac,cchar **av)
 	            op->info = NULL ;
 	        }
 	    } /* end if (memory-allocation) */
-	} else
+	} else {
 	    rs = SR_PROTONOSUPPORT ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("listenspec_parse: ret rs=%d n=%u\n",rs,n) ;
@@ -684,21 +721,22 @@ static int listenspec_parse(LISTENSPEC *op,int ac,cchar **av)
 
 static int listenspec_tcpbegin(LISTENSPEC *op,int ac,cchar **av)
 {
-	TCPADDR	a ;
+	TCPADDR		a ;
 	ARGINFO		ai, *aip = &ai ;
 	int		rs ;
-	int		pan = 0 ;
-	int		al, cl ;
-	int		size = 0 ;
+	int		rs1 ;
 	int		n = 0 ;
-	const char	*ap ;
-	const char	*cp ;
 
 	tcpaddr_load(&a,NULL,0) ;
 
 	if ((rs = arginfo_start(aip)) >= 0) {
 
 	    if ((rs = listenspec_procargs(op,aip,ac,av)) >= 0) {
+		int	pan = 0 ;
+		int	al, cl ;
+		int	size = 0 ;
+		cchar	*ap ;
+		cchar	*cp ;
 
 	        while ((al = arginfo_get(aip,pan,&ap)) >= 0) {
 
@@ -734,7 +772,8 @@ static int listenspec_tcpbegin(LISTENSPEC *op,int ac,cchar **av)
 
 	    } /* end if (procargs) */
 
-	    arginfo_finish(aip) ;
+	    rs1 = arginfo_finish(aip) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (arginfo) */
 
 #if	CF_DEBUGS
@@ -787,8 +826,8 @@ static int listenspec_tcpend(LISTENSPEC *op)
 
 	if (ip->a != NULL) {
 	    rs1 = uc_free(ip->a) ;
-	    ip->a = NULL ;
 	    if (rs >= 0) rs = rs1 ;
+	    ip->a = NULL ;
 	}
 
 	return rs ;
@@ -927,16 +966,55 @@ static int listenspec_tcpaccept(LISTENSPEC *op,void *fp,int *flp,int to)
 /* end subroutine (listenspec_tcpaccept) */
 
 
+static int listenspec_tcpinfo(LISTENSPEC *op,LISTENSPEC_INFO *lip)
+{
+	LISTENSPEC_TCP	*ip = (LISTENSPEC_TCP *) op->info ;
+	int		rs = SR_OK ;
+	int		sl = LISTENSPEC_ADDRLEN ;
+	int		i = 0 ;
+	char		*sp = lip->addr ;
+
+#if	CF_DEBUGS
+	debugprintf("listenspec_tcpinfo: af=%s\n",ip->af) ;
+	debugprintf("listenspec_tcpinfo: host=%s\n",ip->host) ;
+	debugprintf("listenspec_tcpinfo: port=%s\n",ip->port) ;
+#endif
+
+	if ((rs >= 0) && (ip->af != NULL)) {
+	    rs = storebuf_strw(sp,sl,i,ip->af,-1) ;
+	    i += rs ;
+	    if (rs >= 0) {
+	        rs = storebuf_char(sp,sl,i,':') ;
+	        i += rs ;
+	    }
+	}
+
+	if ((rs >= 0) && (ip->host != NULL)) {
+	    rs = storebuf_strw(sp,sl,i,ip->host,-1) ;
+	    i += rs ;
+	    if (rs >= 0) {
+	        rs = storebuf_char(sp,sl,i,':') ;
+	        i += rs ;
+	    }
+	}
+
+	if ((rs >= 0) && (ip->port != NULL)) {
+	    rs = storebuf_strw(sp,sl,i,ip->port,-1) ;
+	    i += rs ;
+	}
+
+	return (rs >= 0) ? i : rs ;
+}
+/* end subroutine (listenspec_tcpinfo) */
+
+
 static int listenspec_ussbegin(LISTENSPEC *op,int ac,cchar *av[])
 {
 	LISTENSPEC_USS	*ip = (LISTENSPEC_USS *) op->info ;
 	ARGINFO		ai, *aip = &ai ;
-	int		rs = SR_OK ;
-	int		pan = 0 ;
-	int		al ;
+	int		rs ;
+	int		rs1 ;
 	int		n = 0 ;
-	const char	*ap ;
-	const char	*cp ;
 
 /* initialize */
 
@@ -945,6 +1023,10 @@ static int listenspec_ussbegin(LISTENSPEC *op,int ac,cchar *av[])
 	if ((rs = arginfo_start(aip)) >= 0) {
 
 	    if ((rs = listenspec_procargs(op,aip,ac,av)) >= 0) {
+		int	pan = 0 ;
+		int	al ;
+		cchar	*ap ;
+		cchar	*cp ;
 
 	        if (aip->mode >= 0)
 	            ip->mode = aip->mode ;
@@ -977,7 +1059,8 @@ static int listenspec_ussbegin(LISTENSPEC *op,int ac,cchar *av[])
 
 	    } /* end if (procargs) */
 
-	    arginfo_finish(aip) ;
+	    rs1 = arginfo_finish(aip) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (arginfo) */
 
 	return (rs >= 0) ? n : rs ;
@@ -993,8 +1076,8 @@ static int listenspec_ussend(LISTENSPEC *op)
 
 	if (ip->fname != NULL) {
 	    rs1 = uc_free(ip->fname) ;
-	    ip->fname = NULL ;
 	    if (rs >= 0) rs = rs1 ;
+	    ip->fname = NULL ;
 	}
 
 	return rs ;
@@ -1072,16 +1155,32 @@ static int listenspec_ussaccept(LISTENSPEC *op,void *fp,int *flp,int to)
 /* end subroutine (listenspec_ussaccept) */
 
 
+static int listenspec_ussinfo(LISTENSPEC *op,LISTENSPEC_INFO *lip)
+{
+	LISTENSPEC_USS	*ip = (LISTENSPEC_USS *) op->info ;
+	int		rs = SR_OK ;
+	int		sl = LISTENSPEC_ADDRLEN ;
+	int		len = 0 ;
+	char		*sp = lip->addr ;
+
+	if (ip->fname == NULL) rs = SR_NOENT ;
+
+	if (rs >= 0) {
+	    len = strwcpy(sp,ip->fname,sl) - sp ;
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (listenspec_ussinfo) */
+
+
 static int listenspec_passbegin(LISTENSPEC *op,int ac,cchar *av[])
 {
 	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
 	ARGINFO		ai, *aip = &ai ;
-	int		rs = SR_OK ;
-	int		pan ;
-	int		al ;
+	int		rs ;
+	int		rs1 ;
 	int		n = 0 ;
-	const char	*ap ;
-	const char	*cp ;
 
 /* initialize */
 
@@ -1092,6 +1191,10 @@ static int listenspec_passbegin(LISTENSPEC *op,int ac,cchar *av[])
 /* process */
 
 	    if ((rs = listenspec_procargs(op,aip,ac,av)) >= 0) {
+		int	pan = 0 ;
+		int	al ;
+		cchar	*ap ;
+		cchar	*cp ;
 
 /* option arguments */
 
@@ -1129,7 +1232,8 @@ static int listenspec_passbegin(LISTENSPEC *op,int ac,cchar *av[])
 
 	    } /* end if (procargs) */
 
-	    arginfo_finish(aip) ;
+	    rs1 = arginfo_finish(aip) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (arginfo) */
 
 	return (rs >= 0) ? n : rs ;
@@ -1149,8 +1253,8 @@ static int listenspec_passend(LISTENSPEC *op)
 
 	if (ip->fname != NULL) {
 	    rs1 = uc_free(ip->fname) ;
-	    ip->fname = NULL ;
 	    if (rs >= 0) rs = rs1 ;
+	    ip->fname = NULL ;
 	}
 
 #if	CF_DEBUGS
@@ -1232,6 +1336,212 @@ static int listenspec_passaccept(LISTENSPEC *op,void *fp,int *flp,int to)
 	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (listenspec_passaccept) */
+
+
+static int listenspec_passinfo(LISTENSPEC *op,LISTENSPEC_INFO *lip)
+{
+	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
+	int		rs = SR_OK ;
+	int		sl = LISTENSPEC_ADDRLEN ;
+	int		len = 0 ;
+	char		*sp = lip->addr ;
+
+	if (ip->fname == NULL) rs = SR_NOENT ;
+
+	if (rs >= 0) {
+	    len = strwcpy(sp,ip->fname,sl) - sp ;
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (listenspec_passinfo) */
+
+
+static int listenspec_connbegin(LISTENSPEC *op,int ac,cchar *av[])
+{
+	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
+	ARGINFO		ai, *aip = &ai ;
+	int		rs ;
+	int		rs1 ;
+	int		n = 0 ;
+
+/* initialize */
+
+	ip->mode = -1 ;
+
+	if ((rs = arginfo_start(aip)) >= 0) {
+
+/* process */
+
+	    if ((rs = listenspec_procargs(op,aip,ac,av)) >= 0) {
+		int	pan = 0 ;
+		int	al ;
+		cchar	*ap ;
+		cchar	*cp ;
+
+/* option arguments */
+
+	        if (aip->mode >= 0)
+	            ip->mode = aip->mode ;
+
+/* positional arguments */
+
+	        while ((al = arginfo_get(aip,pan,&ap)) >= 0) {
+
+	            switch (pan) {
+	            case 0:
+	                if (al > 0) {
+	                    n = 1 ;
+	                    rs = uc_mallocstrw(ap,al,&cp) ;
+	                    if (rs >= 0) ip->fname = cp ;
+	                }
+	                break ;
+	            } /* end switch */
+	            pan += 1 ;
+
+	            if (rs < 0) break ;
+	        } /* end while (positional arguments) */
+
+/* default arguments */
+
+#if	CF_DEBUGS
+	        debugprintf("listenspec_connbegin: arg mode=%06o\n",
+	            (ip->mode & 0777)) ;
+#endif
+
+	        if (ip->mode < 0)
+	            ip->mode = 0666 ;
+
+	    } /* end if (procargs) */
+
+	    rs1 = arginfo_finish(aip) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (arginfo) */
+
+	return (rs >= 0) ? n : rs ;
+}
+/* end subroutine (listenspec_connbegin) */
+
+
+static int listenspec_connend(LISTENSPEC *op)
+{
+	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+#if	CF_DEBUGS
+	debugprintf("listenspec_connend: ent\n") ;
+#endif
+
+	if (ip->fname != NULL) {
+	    rs1 = uc_free(ip->fname) ;
+	    if (rs >= 0) rs = rs1 ;
+	    ip->fname = NULL ;
+	}
+
+#if	CF_DEBUGS
+	debugprintf("listenspec_connend: ret rs=%d\n",rs) ;
+#endif
+
+	return rs ;
+}
+/* end subroutine (listenspec_connend) */
+
+
+static int listenspec_connsame(LISTENSPEC *op,LISTENSPEC *otherp)
+{
+	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
+	LISTENSPEC_PASS	*oip ;
+	int		rs = SR_OK ;
+	int		f = TRUE ;
+
+	oip = (LISTENSPEC_PASS *) otherp->info ;
+	f = f && LEQUIV((ip->fname != NULL),(oip->fname != NULL)) ;
+	if (f && (ip->fname != NULL)) {
+	    f = (strcmp(ip->fname,oip->fname) == 0) ;
+	}
+
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (listenspec_connsame) */
+
+
+static int listenspec_connactive(LISTENSPEC *op,int opts,int f)
+{
+	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		f_a = FALSE ;
+
+#if	CF_DEBUGS
+	debugprintf("listenspec_connactive: ent fn=%s\n",ip->fname) ;
+#endif
+
+	if (f && (! op->f.active)) {
+	    if ((rs = listenconn(ip->fname,ip->mode,opts)) >= 0) {
+	        op->fd = rs ;
+	        op->f.active = TRUE ;
+	        op->f.broken = FALSE ;
+		f_a = TRUE ;
+#if	SYSHAS_STREAMS
+	        u_ioctl(op->fd,I_SRDOPT,RMSGD) ;
+#endif
+	    } else {
+		op->rs_error = rs ;
+	        op->f.broken = TRUE ;
+	    }
+	} else if ((! f) && op->f.active) {
+	    if (ip->fname[0] != '\0') {
+	        rs1 = uc_fdetach(ip->fname) ;
+		if (rs >= 0) rs = rs1 ;
+	    }
+	    if (op->fd >= 0) {
+	        u_close(op->fd) ;
+	        op->fd = -1 ;
+	    }
+	    op->f.active = FALSE ;
+	} /* end if */
+
+	return (rs >= 0) ? f_a : rs ;
+}
+/* end subroutine (listenspec_connactive) */
+
+
+static int listenspec_connaccept(LISTENSPEC *op,void *fp,int *flp,int to)
+{
+	int		rs ;
+	int		fd = -1 ;
+
+	if (fp != NULL) {
+	    *flp = sizeof(long) ;
+	    memset(fp,0,*flp) ;
+	}
+
+	rs = acceptpass(op->fd,NULL,to) ;
+	fd = rs ;
+
+	return (rs >= 0) ? fd : rs ;
+}
+/* end subroutine (listenspec_connaccept) */
+
+
+static int listenspec_conninfo(LISTENSPEC *op,LISTENSPEC_INFO *lip)
+{
+	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
+	int		rs = SR_OK ;
+	int		sl = LISTENSPEC_ADDRLEN ;
+	int		len = 0 ;
+	char		*sp = lip->addr ;
+
+	if (ip->fname == NULL) rs = SR_NOENT ;
+
+	if (rs >= 0) {
+	    len = strwcpy(sp,ip->fname,sl) - sp ;
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (listenspec_conninfo) */
 
 
 static int listenspec_procargs(LISTENSPEC *op,ARGINFO *aip,int ac,cchar *av[])
@@ -1357,86 +1667,6 @@ static int listenspec_procargs(LISTENSPEC *op,ARGINFO *aip,int ac,cchar *av[])
 	return rs ;
 }
 /* end subroutine (listenspec_procargs) */
-
-
-static int listenspec_tcpinfo(LISTENSPEC *op,LISTENSPEC_INFO *lip)
-{
-	LISTENSPEC_TCP	*ip = (LISTENSPEC_TCP *) op->info ;
-	int		rs = SR_OK ;
-	int		sl = LISTENSPEC_ADDRLEN ;
-	int		i = 0 ;
-	char		*sp = lip->addr ;
-
-#if	CF_DEBUGS
-	debugprintf("listenspec_tcpinfo: af=%s\n",ip->af) ;
-	debugprintf("listenspec_tcpinfo: host=%s\n",ip->host) ;
-	debugprintf("listenspec_tcpinfo: port=%s\n",ip->port) ;
-#endif
-
-	if ((rs >= 0) && (ip->af != NULL)) {
-	    rs = storebuf_strw(sp,sl,i,ip->af,-1) ;
-	    i += rs ;
-	    if (rs >= 0) {
-	        rs = storebuf_char(sp,sl,i,':') ;
-	        i += rs ;
-	    }
-	}
-
-	if ((rs >= 0) && (ip->host != NULL)) {
-	    rs = storebuf_strw(sp,sl,i,ip->host,-1) ;
-	    i += rs ;
-	    if (rs >= 0) {
-	        rs = storebuf_char(sp,sl,i,':') ;
-	        i += rs ;
-	    }
-	}
-
-	if ((rs >= 0) && (ip->port != NULL)) {
-	    rs = storebuf_strw(sp,sl,i,ip->port,-1) ;
-	    i += rs ;
-	}
-
-	return (rs >= 0) ? i : rs ;
-}
-/* end subroutine (listenspec_tcpinfo) */
-
-
-static int listenspec_ussinfo(LISTENSPEC *op,LISTENSPEC_INFO *lip)
-{
-	LISTENSPEC_USS	*ip = (LISTENSPEC_USS *) op->info ;
-	int		rs = SR_OK ;
-	int		sl = LISTENSPEC_ADDRLEN ;
-	int		len = 0 ;
-	char		*sp = lip->addr ;
-
-	if (ip->fname == NULL) rs = SR_NOENT ;
-
-	if (rs >= 0) {
-	    len = strwcpy(sp,ip->fname,sl) - sp ;
-	}
-
-	return (rs >= 0) ? len : rs ;
-}
-/* end subroutine (listenspec_ussinfo) */
-
-
-static int listenspec_passinfo(LISTENSPEC *op,LISTENSPEC_INFO *lip)
-{
-	LISTENSPEC_PASS	*ip = (LISTENSPEC_PASS *) op->info ;
-	int		rs = SR_OK ;
-	int		sl = LISTENSPEC_ADDRLEN ;
-	int		len = 0 ;
-	char		*sp = lip->addr ;
-
-	if (ip->fname == NULL) rs = SR_NOENT ;
-
-	if (rs >= 0) {
-	    len = strwcpy(sp,ip->fname,sl) - sp ;
-	}
-
-	return (rs >= 0) ? len : rs ;
-}
-/* end subroutine (listenspec_passinfo) */
 
 
 #if	CF_OPENPORT

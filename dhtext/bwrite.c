@@ -91,10 +91,7 @@ static int	bfile_bufcpy(bfile *,const char *,int) ;
 /* exported subroutines */
 
 
-int bwrite(fp,abuf,alen)
-bfile		*fp ;
-const void	*abuf ;
-int		alen ;
+int bwrite(bfile *fp,const void *abuf,int alen)
 {
 	int		rs = SR_OK ;
 	int		f_bufnone ;
@@ -168,10 +165,7 @@ ret0:
 /* local subroutines */
 
 
-static int bwrite_big(fp,abuf,alen)
-bfile		*fp ;
-const void	*abuf ;
-int		alen ;
+static int bwrite_big(bfile *fp,const void *abuf,int alen)
 {
 	int		rs = SR_OK ;
 	int		alenr = alen ;
@@ -199,10 +193,7 @@ int		alen ;
 /* end subroutine (bwrite_big) */
 
 
-static int bwrite_reg(fp,abuf,alen)
-bfile		*fp ;
-const void	*abuf ;
-int		alen ;
+static int bwrite_reg(bfile *fp,const void *abuf,int alen)
 {
 	int		rs = SR_OK ;
 	int		alenr = alen ;
@@ -267,10 +258,7 @@ int		alen ;
 /* end subroutine (bwrite_reg) */
 
 
-static int bfile_bufcpy(fp,abp,mlen)
-bfile		*fp ;
-const char	*abp ;
-int		mlen ;
+static int bfile_bufcpy(bfile *fp,cchar *abp,int mlen)
 {
 
 	if (mlen > MEMCPYLEN) {

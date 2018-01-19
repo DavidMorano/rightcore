@@ -19,6 +19,10 @@
 
 	This module does some bit-array type stuff.
 
+	Notes:
+
+	a) we dynamically create a look-up table using | banum_prepare()|
+
 
 *******************************************************************************/
 
@@ -26,7 +30,7 @@
 #define	BA_MASTER	1
 
 
-#include	<envstandard.h>
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<limits.h>
@@ -34,7 +38,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<baops.h>
 #include	<localmisc.h>
 
 #include	"ba.h"
@@ -68,18 +71,19 @@ static int	numbits(int) ;
 
 int ba_start(BA *cp,BA_NUM *cnp,int n)
 {
+	const int	nw = ((n / BA_BITSPERWORD) + 1) ;
 	int		rs ;
-	int		i, nw ;
 	int		size ;
+	void		*p ;
 
 	if (cp == NULL) return SR_FAULT ;
-
-	nw = ((n / BA_BITSPERWORD) + 1) ;
 
 	cp->cnp = NULL ;
 
 	size = nw * sizeof(ULONG) ;
-	if ((rs = uc_malloc(size,&cp->a)) >= 0) {
+	if ((rs = uc_malloc(size,&p)) >= 0) {
+	    int		i ;
+	    cp->a = p ;
 	    for (i = 0 ; i < nw ; i += 1) cp->a[i] = 0 ;
 	    cp->cnp = cnp ;
 	    cp->nbits = n ;
@@ -139,7 +143,7 @@ int ba_countdown(BA *cp)
 /* end subroutine (ba_countdown) */
 
 
-int ba_and(BA *cp1,BA *cp2) ;
+int ba_and(BA *cp1,BA *cp2)
 {
 	int		i, nw ;
 
@@ -161,8 +165,11 @@ int ba_numones(BA *cp)
 	int		*na = (cp->cnp)->num ;
 
 	for (i = 0 ; i < cp->nwords ; i += 1) {
-	    sum += na[(cp->a[i] >> 00) & (BA_MAX16 - 1)] ;
-	    sum += na[(cp->a[i] >> 16) & (BA_MAX16 - 1)] ;
+	    ULONG	v = cp->a[i] ;
+	    sum += na[v & (BA_MAX16 - 1)] ; v >>= 16 ;
+	    sum += na[v & (BA_MAX16 - 1)] ; v >>= 16 ;
+	    sum += na[v & (BA_MAX16 - 1)] ; v >>= 16 ;
+	    sum += na[v & (BA_MAX16 - 1)] ; v >>= 16 ;
 	} /* end for */
 
 	return sum ;
@@ -194,13 +201,13 @@ int ba_finish(BA *cp)
 /* other interfaces */
 
 
-int banum_numprepare(BA_NUM *cnp)
+int banum_prepare(BA_NUM *cnp)
 {
 	const int	size = (BA_MAX16 * sizeof(int)) ;
 	int		rs ;
 
 	if ((rs = uc_malloc(size,&cnp->num)) >= 0) {
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; i < BA_MAX16 ; i += 1) {
 	        cnp->num[i] = numbits(i) ;
 	    }
@@ -208,10 +215,10 @@ int banum_numprepare(BA_NUM *cnp)
 
 	return rs ;
 }
-/* end subroutine (banum_numprepare) */
+/* end subroutine (banum_prepare) */
 
 
-int banum_numforsake(BA_NUM *cnp)
+int banum_forsake(BA_NUM *cnp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -224,7 +231,7 @@ int banum_numforsake(BA_NUM *cnp)
 
 	return rs ;
 }
-/* end subroutine (banum_numforsake) */
+/* end subroutine (banum_forsake) */
 
 
 /* private subroutines */

@@ -1096,7 +1096,7 @@ static int procencode(PROGINFO *pip,SHIO *ofp,cchar *fn)
 		cbuf = (abuf+(ilen+1)) ;
 	        while ((rs = shio_read(ifp,ibuf,ilen)) > 0) {
 		    if ((rs = cthexstr(cbuf,clen,ibuf,rs)) >= 0) {
-		        rs = shio_printline(ofp,cbuf,rs) ;
+		        rs = shio_println(ofp,cbuf,rs) ;
 		        wlen += rs ;
 		    } /* end if (cthexstr) */
 		    if (rs < 0) break ;

@@ -2811,10 +2811,9 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		bnl = 0 ;
-	int		f_process = TRUE ;
+	int		f_process = (sbp->st_ctime > 0) ;
 	int		f_accept = FALSE ;
 	int		f_islink = FALSE ;
-	int		f_continue = (sbp->st_ctime > 0) ;
 	int		f_suf ;
 	cchar		*bnp ;
 
@@ -2832,7 +2831,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 /* fill in some information */
 
-	if (f_continue) {
+	if (f_process) {
 	    fileinfo_loadfts(ckp,sbp) ;
 	}
 
@@ -2848,30 +2847,30 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 /* check age */
 
-	if (f_continue && (pip->younger > 0)) {
+	if (f_process && (pip->younger > 0)) {
 	    if ((pip->daytime - sbp->st_mtime) >= pip->younger) {
-	        f_continue = FALSE ;
+	        f_process = FALSE ;
 	    }
 	}
 
-	if (f_continue && (pip->older > 0)) {
+	if (f_process && (pip->older > 0)) {
 	    if ((pip->daytime - sbp->st_mtime) < pip->older) {
-	        f_continue = FALSE ;
+	        f_process = FALSE ;
 	    }
 	}
 
-	if (f_continue && (pip->accessed > 0)) {
+	if (f_process && (pip->accessed > 0)) {
 	    if ((pip->daytime - sbp->st_atime) < pip->accessed) {
-	        f_continue = FALSE ;
+	        f_process = FALSE ;
 	    }
 	}
 
-	if (f_continue && (pip->fts > 0) && ((ckp->fts & pip->fts) == 0)) {
-	    f_continue = FALSE ;
+	if (f_process && (pip->fts > 0) && ((ckp->fts & pip->fts) == 0)) {
+	    f_process = FALSE ;
 	}
 
-	if (f_continue && (pip->fnos > 0) && ((ckp->fts & pip->fnos) != 0)) {
-	    f_continue = FALSE ;
+	if (f_process && (pip->fnos > 0) && ((ckp->fts & pip->fnos) != 0)) {
+	    f_process = FALSE ;
 	}
 
 /* if this is a file link, see if it is a directory */
@@ -2881,11 +2880,11 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	    debugprintf("main/procother: symbolic link check?\n") ;
 #endif
 
-	if (f_continue && S_ISLNK(sbp->st_mode) && pip->f.f_nolink) {
-	    f_continue = FALSE ;
+	if (f_process && S_ISLNK(sbp->st_mode) && pip->f.f_nolink) {
+	    f_process = FALSE ;
 	}
 
-	if ((rs >= 0) && f_continue && S_ISLNK(sbp->st_mode)) {
+	if ((rs >= 0) && f_process && S_ISLNK(sbp->st_mode)) {
 	    f_islink = TRUE ;
 
 #if	CF_DEBUG
@@ -2907,23 +2906,23 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	            if (DEBUGLEVEL(4))
 	                debugprintf("main/procother: symlink DANGLING\n") ;
 #endif
-	            if (! pip->f.nostop) f_continue = FALSE ;
+	            if (! pip->f.nostop) f_process = FALSE ;
 	            rs = SR_OK ;
 	        }
 	    } /* end if (follow link) */
 #endif /* CF_FOLLOWFILES */
 	} /* end if (symbolic-link-file) */
 
-	if ((rs >= 0) && f_continue && pip->f.f_uniq) {
+	if ((rs >= 0) && f_process && pip->f.f_uniq) {
 	    dev_t	dev = sbp->st_dev ;
 	    uino_t	ino = sbp->st_ino ;
 	    if ((rs = procuniq_have(pip,dev,ino)) > 0) {
-	        f_continue = FALSE ;
+	        f_process = FALSE ;
 	    }
 	}
 
 #if	CF_DIRS
-	if ((rs >= 0) && f_continue && (pip->f.follow || pip->f.f_uniq)) {
+	if ((rs >= 0) && f_process && (pip->f.follow || pip->f.f_uniq)) {
 	    const int	nl = strlen(name) ;
 	    int		f = TRUE ;
 	    if ((rs = procdir_haveprefix(pip,name,nl)) >= 0) {
@@ -2939,7 +2938,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	            rs = procdir_addprefix(pip,name,nl) ;
 	        }
 	    } /* end if (does not have disallowed prefix) */
-	    f_continue = (!f) ;
+	    f_process = (!f) ;
 	} /* end if (uniqueness check) */
 #endif /* CF_DIRS */
 
@@ -2956,18 +2955,18 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	    bnl = sfbasename(name,-1,&bnp) ;
 	}
 
-	if (f_continue && f_suf) {
+	if (f_process && f_suf) {
 	    if (bnl <= 0) f_suf = FALSE ;
 	    if (f_suf && (bnl > 0) && (bnp[0] == '.')) {
 	        if ((bnl == 1) || ((bnl == 2) && (bnp[1] == '.'))) {
-	            f_continue = FALSE ;
+	            f_process = FALSE ;
 	        }
 	    } /* end if */
 	} /* end if (funny name check) */
 
 /* check if it has a suffix already */
 
-	if ((rs >= 0) && f_continue && f_suf) {
+	if ((rs >= 0) && f_process && f_suf) {
 	    VECPSTR	*slp ;
 	    int		sl ;
 	    cchar	*tp, *sp ;
@@ -2992,25 +2991,29 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 /* check against the suffix-acceptance list */
 
-	        if ((rs >= 0) && f_process && pip->f.sufacc && (! f_accept)) {
-	            slp = (pip->sufs + suf_acc) ;
-	            if ((rs = vecpstr_findn(slp,sp,sl)) >= 0) {
-	                f_accept = TRUE ;
-	            } else if (rs == SR_NOTFOUND) {
-	                rs = SR_OK ;
-	            }
-	        } /* end if */
+	            if ((rs >= 0) && f_process) {
+		        if (pip->f.sufacc && (! f_accept)) {
+	                    slp = (pip->sufs + suf_acc) ;
+	                    if ((rs = vecpstr_findn(slp,sp,sl)) >= 0) {
+	                        f_accept = TRUE ;
+	                    } else if (rs == SR_NOTFOUND) {
+	                        rs = SR_OK ;
+	                    }
+		        }
+	            } /* end if */
 
 /* check against the suffix-rejectance list */
 
-	        if ((rs >= 0) && f_process && pip->f.sufrej && (! f_accept)) {
-	            slp = (pip->sufs + suf_rej) ;
-	            if ((rs1 = vecpstr_findn(slp,sp,sl)) >= 0) {
-	                f_process = FALSE ;
-	            } else if (rs == SR_NOTFOUND) {
-	                rs = SR_OK ;
-	            }
-	        } /* end if */
+	            if ((rs >= 0) && f_process) {
+		        if (pip->f.sufrej && (! f_accept)) {
+	                    slp = (pip->sufs + suf_rej) ;
+	                    if ((rs1 = vecpstr_findn(slp,sp,sl)) >= 0) {
+	                        f_process = FALSE ;
+	                    } else if (rs == SR_NOTFOUND) {
+	                        rs = SR_OK ;
+		            }
+	                }
+	            } /* end if */
 
 		} /* end if (suffix required or not) */
 
@@ -3029,12 +3032,12 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
 	    debugprintf("main/procother: mid1 rs=%d f_suf=%u f_c=%u f_p=%u\n",
-	        rs,f_suf,f_continue,f_process) ;
+	        rs,f_suf,f_process,f_process) ;
 #endif
 
 /* readable */
 
-	if ((rs >= 0) && f_continue && f_process) {
+	if ((rs >= 0) && f_process) {
 	    if (pip->f.readable && (! f_islink)) {
 	        if ((rs = uc_access(name,R_OK)), isNotAccess(rs)) {
 	            f_process = FALSE ;
@@ -3051,7 +3054,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 
 /* check if it is a program (and disallowed) */
 
-	if ((rs >= 0) && f_continue && f_process) {
+	if ((rs >= 0) && f_process) {
 	    if (pip->f.f_noprog && (! f_accept)) {
 	        if (S_ISREG(sbp->st_mode)) {
 	            rs = fileobject(name) ;
@@ -3066,7 +3069,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	        rs,f_process) ;
 #endif
 
-	if ((rs >= 0) && f_continue && f_process) {
+	if ((rs >= 0) && f_process) {
 	    if (pip->f.cores && (! f_accept)) {
 	        f_process = (strwcmp("core",bnp,bnl) == 0) ;
 	    }
@@ -3080,14 +3083,13 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	        rs,f_process) ;
 #endif
 
-	if ((rs >= 0) && f_continue && f_process) {
+	if ((rs >= 0) && f_process) {
 	    if (pip->f.f_prog) {
 	        if (S_ISREG(sbp->st_mode)) {
 	            rs = fileobject(name) ;
 	            f_process = (rs > 0) ;
 	        } else {
 		    f_process = FALSE ;
-		    f_continue = FALSE ;
 		}
 	    }
 	} /* end if (no-program) */
@@ -3100,7 +3102,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 	        rs,f_process) ;
 #endif
 
-	if ((rs >= 0) && f_continue && f_process) {
+	if ((rs >= 0) && f_process) {
 	    pip->c_processed += 1 ;
 	    switch (pip->progmode) {
 	    case progmode_filesize:
@@ -3566,7 +3568,7 @@ static int proctars_checkerr(PROGINFO *pip,cchar *td,int rs)
 	    } /* end switch */
 	    if (fmt != NULL) {
 	        bprintf(efp,fmt,pn,rs) ;
-	        bprintf(efp,"%s: tar=%s",pn,td) ;
+	        bprintf(efp,"%s: tar=%s\n",pn,td) ;
 	    }
 	return rs ;
 }

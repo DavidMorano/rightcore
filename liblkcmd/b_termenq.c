@@ -1506,7 +1506,7 @@ static int procenq(PROGINFO *pip,SHIO *ofp)
 		}
 #endif /* CF_DEBUG */
 		if (rs > 0) {
-		    rs = shio_printline(ofp,cbuf,cl) ;
+		    rs = shio_println(ofp,cbuf,cl) ;
 		}
 	     } /* end if (locinfo_utermread) */
 	} /* end if (locinfo_utermwrite) */
@@ -1537,7 +1537,7 @@ int procdevattr(PROGINFO *pip,SHIO *ofp)
 		    const int	tlen = TBUFLEN ;
 		    char	tbuf[TBUFLEN+1] ;
 		    if ((rs = termtype_vt(tbuf,tlen,pcmd.p,scmd.p)) > 0) {
-			rs = shio_printline(ofp,tbuf,rs) ;
+			rs = shio_println(ofp,tbuf,rs) ;
 			wlen += rs ;
 		    }
 	        }

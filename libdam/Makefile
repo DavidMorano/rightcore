@@ -336,7 +336,7 @@ OBJ163= cvttemperature.o dictdiff.o bufprintf.o xfile.o
 OBJ164= mapex.o strsigabbr.o strerrabbr.o strlocktype.o straltwchar.o
 OBJ165= ncolchar.o ncolstr.o emainfo.o getdig.o
 OBJ166= listentcp.o listenudp.o listenuss.o listenusd.o 
-OBJ167= listenfifo.o listenpass.o 
+OBJ167= listenpass.o listenconn.o
 
 OBJ168= getprogexec.o getnodedomain.o getmailgid.o getmaxpid.o getrand.o
 OBJ169= getehostname.o getchostname.o getcanonical.o getourhe.o

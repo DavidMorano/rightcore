@@ -94,8 +94,8 @@
 #define	LIBCNAME	"lib"
 #endif
 
-#ifndef	DEBUGFNAME
-#define	DEBUGFNAME	"printhelp.deb"
+#ifndef	NDF
+#define	NDF		"printhelp.deb"
 #endif
 
 

@@ -22,10 +22,10 @@
 #include	<localmisc.h>
 
 
-/* local object defines */
-
 #define	BA		struct ba_bitarray
 #define	BA_NUM		struct ba_num
+
+#define	BANUM		BA_NUM
 
 
 struct ba_num {
@@ -47,16 +47,16 @@ extern "C" {
 #endif
 
 extern int	ba_start(BA *,BA_NUM *,int) ;
-extern void	ba_setones(BA *) ;
-extern void	ba_zero(BA *) ;
-extern void	ba_countdown(BA *) ;
-extern void	ba_and(BA *,BA *) ;
-extern void	ba_finish(BA *) ;
+extern int	ba_setones(BA *) ;
+extern int	ba_zero(BA *) ;
+extern int	ba_countdown(BA *) ;
+extern int	ba_and(BA *,BA *) ;
+extern int	ba_finish(BA *) ;
 
 /* helpers functions */
 
-extern int	banum_numprepare(BA_NUM *) ;
-extern void	banum_numforsake(BA_NUM *) ;
+extern int	banum_prepare(BA_NUM *) ;
+extern int	banum_forsake(BA_NUM *) ;
 
 #ifdef	__cplusplus
 }

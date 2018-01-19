@@ -911,7 +911,7 @@ static int procname(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 		np = "hello world!" ;
 	    }
 	    if (pip->verboselevel > 0) {
-	        rs = shio_printline(ofp,np,nl) ;
+	        rs = shio_println(ofp,np,nl) ;
 	        wlen += rs ;
 	    } /* end if (printing) */
 	} /* end if */
