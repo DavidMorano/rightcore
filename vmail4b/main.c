@@ -105,7 +105,7 @@ extern int	pcsgetorg(const char *,char *,int,const char *) ;
 extern int	initnow(struct timeb *,char *,int) ;
 extern int	gethz(int) ;
 extern int	getarchitecture(char *,int) ;
-extern int	getmailgid(const char *,gid_t) ;
+extern int	getgid_def(const char *,gid_t) ;
 extern int	getsystypenum(char *,char *,const char *,const char *) ;
 extern int	getnprocessors(const char **,int) ;
 extern int	getgroupname(char *,int,gid_t) ;
@@ -1613,7 +1613,7 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 	if (rs >= 0) {
 	    if ((rs = procuserinfo_org(pip)) >= 0) {
 	        if ((rs = ids_load(&pip->id)) >= 0) {
-		    if ((rs = getmailgid(MAILGNAME,MAILGID)) >= 0) {
+		    if ((rs = getgid_def(MAILGNAME,MAILGID)) >= 0) {
 		        pip->gid_mail = rs ;
 		    }
 		    if (rs < 0) {

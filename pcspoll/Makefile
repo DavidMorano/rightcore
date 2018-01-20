@@ -146,7 +146,7 @@ INCS= config.h defs.h
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o proginfo_rootname.o
 OBJ01= proginfo_nameid.o proguserlist.o
 OBJ02= progwatch.o progexec.o proglog.o progsvc.o progacc.o
-OBJ03= proglogout.o progpass.o progtmpdir.o progreqfile.o progcheckdir.o
+OBJ03= proglogout.o progpass.o progjobdir.o progreqfile.o progcheckdir.o
 OBJ04= progcmd.o progprocess.o 
 OBJ05= muximsg.o svckey.o svcentry.o
 OBJ06= progconfig.o progpcsconfig.o progpid.o progstampcheck.o 
@@ -325,7 +325,7 @@ progexec.o:		progexec.c $(INCS)
 
 progcmd.o:		progcmd.c $(INCS)
 
-progtmpdir.o:		progtmpdir.c $(INCS)
+progjobdir.o:		progjobdir.c $(INCS)
 
 progcheckdir.o:		progcheckdir.c $(INCS)
 

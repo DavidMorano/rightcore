@@ -88,7 +88,7 @@ extern int	optvalue(const char *,int) ;
 extern int	mklogid(char *,int,const char *,int,int) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
-extern int	getmailgid(const char *,gid_t) ;
+extern int	getgid_def(const char *,gid_t) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isFailOpen(int) ;
@@ -630,7 +630,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* get the group information that we need */
 
-	pip->gid_tmp = getmailgid(TMPGNAME,TMPGID) ;
+	pip->gid_tmp = getgid_def(TMPGNAME,TMPGID) ;
 
 	if (rs >= 0) {
 	    USERINFO	u ;

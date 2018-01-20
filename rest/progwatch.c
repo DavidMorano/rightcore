@@ -154,7 +154,7 @@ extern int	progpidcheck(PROGINFO *) ;
 extern int	progpidend(PROGINFO *) ;
 
 extern int	progconfigcheck(PROGINFO *) ;
-extern int	progtmpdir(PROGINFO *,char *) ;
+extern int	progjobdir(PROGINFO *,char *) ;
 extern int	progipcbegin(PROGINFO *) ;
 extern int	progipcend(PROGINFO *) ;
 extern int	proghandle(PROGINFO *,
@@ -367,7 +367,7 @@ int progwatch(PROGINFO *pip,vecstr *nlp)
 /* more initialization */
 
 	jobdname[0] = '\0' ;
-	rs = progtmpdir(pip,jobdname) ;
+	rs = progjobdir(pip,jobdname) ;
 	if (rs < 0)
 	    goto ret2 ;
 

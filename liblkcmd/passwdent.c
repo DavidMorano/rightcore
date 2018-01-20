@@ -43,11 +43,11 @@
 
 /* external subroutines */
 
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sichr(const char *,int,int) ;
-extern int	cfdeci(const char *,int,int *) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	sichr(cchar *,int,int) ;
+extern int	cfdeci(cchar *,int,int *) ;
 
-extern char	*strnchr(const char *,int,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* external variables */
@@ -58,11 +58,10 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* forward references */
 
-static int	passwdent_parseone(PASSWDENT *,STOREITEM *,int,
-			cchar *,int) ;
+static int	passwdent_parseone(PASSWDENT *,STOREITEM *,int,cchar *,int) ;
 static int	passwdent_parsedefs(PASSWDENT *,STOREITEM *,int) ;
 
-static int	si_copystr(STOREITEM *,char **,const char *) ;
+static int	si_copystr(STOREITEM *,char **,cchar *) ;
 
 
 /* local variables */

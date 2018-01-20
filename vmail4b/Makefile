@@ -195,7 +195,7 @@ OBJ37= nlinecols.o
 OBJ38= spawnproc.o spawncmdproc.o getprogpath.o
 OBJ39= pcsgetorg.o pcsgetprog.o pcsmailcheck.o
 
-OBJ40= initnow.o getmailgid.o
+OBJ40= initnow.o
 OBJ41= wsncols.o
 OBJ42= iscmdstart.o
 OBJ43= strdcpycompact.o

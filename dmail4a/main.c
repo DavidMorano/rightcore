@@ -147,7 +147,7 @@ extern int	getnodename(char *,int) ;
 extern int	getusername(char *,int,uid_t) ;
 extern int	getserial(cchar *) ;
 extern int	getportnum(cchar *,cchar *) ;
-extern int	getmailgid(cchar *,gid_t) ;
+extern int	getgid_def(cchar *,gid_t) ;
 extern int	getuid_name(cchar *,int) ;
 extern int	getuid_user(cchar *,int) ;
 extern int	initnow(struct timeb *,cchar *,int) ;
@@ -1243,7 +1243,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (rs >= 0) {
-	    rs = getmailgid(MAILGNAME,MAILGID) ;
+	    rs = getgid_def(MAILGNAME,MAILGID) ;
 	    pip->gid_mail = rs ;
 	}
 

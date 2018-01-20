@@ -76,21 +76,20 @@
 
 extern int	snsds(char *,int,const char *,const char *) ;
 extern int	snddd(char *,int,uint,uint) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	mkpath4(char *,const char *,const char *,const char *,
-			const char *) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	sfdirname(const char *,int,const char **) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
+extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
+extern int	mkpath4(char *,cchar *,cchar *,cchar *,cchar *) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	sfdirname(cchar *,int,cchar **) ;
 extern int	dupup(int,int) ;
-extern int	opentmpfile(const char *,int,mode_t,char *) ;
-extern int	opentmpusd(const char *,int,mode_t,char *) ;
+extern int	opentmpfile(cchar *,int,mode_t,char *) ;
+extern int	opentmpusd(cchar *,int,mode_t,char *) ;
 
-extern int	progtmpdir(struct proginfo *,char *) ;
-extern int	progcheckdir(struct proginfo *,const char *,int,int) ;
-extern int	progreqfile(struct proginfo *) ;
+extern int	progjobdir(PROGINFO *,char *) ;
+extern int	progcheckdir(PROGINFO *,cchar *,int,int) ;
+extern int	progreqfile(PROGINFO *) ;
 
 extern int	proglog_printf(PROGINFO *,cchar *,...) ;
 extern int	proglog_flush(PROGINFO *) ;
@@ -106,8 +105,8 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
-static int	progipcbeginshared(struct proginfo *,mode_t,char *) ;
-static int	progipcbeginprivate(struct proginfo *,mode_t,char *) ;
+static int	progipcbeginshared(PROGINFO *,mode_t,char *) ;
+static int	progipcbeginprivate(PROGINFO *,mode_t,char *) ;
 
 
 /* local variables */
@@ -116,27 +115,22 @@ static int	progipcbeginprivate(struct proginfo *,mode_t,char *) ;
 /* exported subroutines */
 
 
-int progipcbegin(pip)
-struct proginfo	*pip ;
+int progipcbegin(PROGINFO *pip)
 {
-	struct proginfo_ipc	*ipp = &pip->ipc ;
-
+	PROGINFO_IPC	*ipp = &pip->ipc ;
 	const mode_t	om = 0666 ;
-
-	int	rs = SR_OK ;
-	int	fl = 0 ;
-	int	f ;
-
-	char	fname[MAXPATHLEN + 1] = { 0 } ;
-
+	int		rs = SR_OK ;
+	int		fl = 0 ;
+	int		f ;
+	char		fname[MAXPATHLEN + 1] = { 0 } ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progipc/open: reqfname=%s\n",pip->reqfname) ;
+	    debugprintf("progipc/open: ent reqfname=%s\n",pip->reqfname) ;
 #endif
 
 	ipp = &pip->ipc ;
-	memset(ipp,0,sizeof(struct proginfo_ipc)) ;
+	memset(ipp,0,sizeof(PROGINFO_IPC)) ;
 	ipp->fd_req = -1 ;
 
 	f = (pip->reqfname != NULL) && (pip->reqfname[0] == '-') ;
@@ -212,14 +206,11 @@ struct proginfo	*pip ;
 /* end subroutine (progipcbegin) */
 
 
-int progipcend(pip)
-struct proginfo	*pip ;
+int progipcend(PROGINFO *pip)
 {
-	struct proginfo_ipc	*ipp = &pip->ipc ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	PROGINFO_IPC	*ipp = &pip->ipc ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	rs1 = sockaddress_finish(&ipp->sa) ;
 	if (rs >= 0) rs = rs1 ;
@@ -248,22 +239,15 @@ struct proginfo	*pip ;
 /* local subroutines */
 
 
-static int progipcbeginshared(pip,om,fname)
-struct proginfo	*pip ;
-mode_t		om ;
-char		fname[] ;
+static int progipcbeginshared(PROGINFO *pip,mode_t om,char *fname)
 {
-	struct proginfo_ipc	*ipp = &pip->ipc ;
-
-	struct sockaddr		*sap ;
-
-	int	rs = SR_OK ;
-	int	cl ;
-	int	salen ;
-	int	fl = 0 ;
-
+	PROGINFO_IPC	*ipp = &pip->ipc ;
+	SOCKADDR	*sap ;
+	int		rs = SR_OK ;
+	int		cl ;
+	int		salen ;
+	int		fl = 0 ;
 	const char	*cp ;
-
 
 	fname[0] = '\0' ;
 	ipp = &pip->ipc ;
@@ -364,34 +348,24 @@ ret0:
 /* end subroutine (progipcbeginshared) */
 
 
-static int progipcbeginprivate(pip,om,fname)
-struct proginfo	*pip ;
-mode_t		om ;
-char		fname[] ;
+static int progipcbeginprivate(PROGINFO *pip,mode_t om,char *fname)
 {
-	struct proginfo_ipc	*ipp = &pip->ipc ;
-
-	int	rs = SR_OK ;
-	int	oflags ;
-	int	salen ;
-	int	fl = 0 ;
-
-	char	ourdname[MAXPATHLEN + 1] ;
-	char	template[MAXPATHLEN + 1] ;
-
+	PROGINFO_IPC	*ipp = &pip->ipc ;
+	int		rs = SR_OK ;
+	int		oflags ;
+	int		salen ;
+	int		fl = 0 ;
+	char		ourdname[MAXPATHLEN + 1] ;
+	char		template[MAXPATHLEN + 1] ;
 
 	fname[0] = '\0' ;
 	ipp = &pip->ipc ;
 
-	rs = progtmpdir(pip,ourdname) ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	pip->f.reqfnametmp = TRUE ;		/* mark as temporary */
-
-/* create our socket template */
-
-	mkpath2(template,ourdname,"reqXXXXXXXXXXX") ;
+	if ((rs = progjobdir(pip,ourdname)) >= 0) {
+	    pip->f.reqfnametmp = TRUE ;		/* mark as temporary */
+	    rs = mkpath2(template,ourdname,"reqXXXXXXXXXXX") ;
+	}
+	if (rs < 0) goto ret0 ;
 
 /* create our socket there */
 
@@ -402,8 +376,7 @@ char		fname[] ;
 
 	rs = opentmpusd(template,oflags,om,fname) ;
 	ipp->fd_req = rs ;
-	if (rs < 0)
-	    goto ret0 ;
+	if (rs < 0) goto ret0 ;
 
 /* create its socket-address (SA) for use later in connecting to it */
 

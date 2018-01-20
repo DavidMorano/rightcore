@@ -122,7 +122,7 @@ INCS= config.h defs.h listenspec.h
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o proginfo_rootname.o
 OBJ01= proginfo_nameid.o proguserlist.o proglog.o
-OBJ02= progtmpdir.o proglogout.o progcheckstamp.o
+OBJ02= progjobdir.o proglogout.o progcheckstamp.o
 OBJ03= progwatch.o progcheckdir.o proghandle.o progserve.o 
 OBJ04= progsrvargs.o progreqfile.o progpeername.o progexec.o progshlib.o
 OBJ05= progcmd.o progpass.o progprocess.o 

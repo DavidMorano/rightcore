@@ -85,11 +85,10 @@ extern int	isBadSend(int) ;
 extern int	isBadRecv(int) ;
 extern int	isBadMsg(int) ;
 
-extern int	progtmpdir(PROGINFO *,char *) ;
-extern int	progcheckdir(PROGINFO *,char *,int,int) ;
+extern int	progjobdir(PROGINFO *,char *) ;
 extern int	progreqfile(PROGINFO *) ;
 
-extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strwcpy(char *,cchar *,int) ;
 
 
 /* external variables */
@@ -163,7 +162,7 @@ int progcmd(PROGINFO *pip,ARGINFO *aip)
 
 /* ensure our directory for our socket */
 
-	            rs = progtmpdir(pip,ourdname) ;
+	            rs = progjobdir(pip,ourdname) ;
 
 	            if (rs >= 0)
 	                rs = mkpath2(template,ourdname,"callXXXXXXXXXX") ;

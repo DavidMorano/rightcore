@@ -96,7 +96,7 @@ extern int	optvalue(const char *,int) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	mkuibang(char *,int,USERINFO *) ;
 extern int	mkuiname(char *,int,USERINFO *) ;
-extern int	getmailgid(const char *,gid_t) ;
+extern int	getgid_def(const char *,gid_t) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
@@ -1098,7 +1098,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* the MAILGROUP is really only valid on SYSV systems! */
 
-	pip->gid_mail = getmailgid(MAILGNAME,MAILGID) ;
+	pip->gid_mail = getgid_def(MAILGNAME,MAILGID) ;
 
 /* continue */
 

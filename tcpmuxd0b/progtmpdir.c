@@ -1,4 +1,4 @@
-/* progtmpdir */
+/* progjobdir */
 
 /* make the program-specific temporary directory */
 /* version %I% last modified %G% */
@@ -34,10 +34,10 @@
 #include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<time.h>
 #include	<grp.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<getax.h>
 #include	<localmisc.h>
 
@@ -54,7 +54,6 @@
 
 /* external subroutines */
 
-extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkdirs(cchar *,mode_t) ;
 extern int	getgid_group(cchar *,int) ;
 extern int	isNotPresent(int) ;
@@ -73,7 +72,7 @@ static int	procdirgroup(PROGINFO *) ;
 /* exported subroutines */
 
 
-int progtmpdir(PROGINFO *pip,char *jobdname)
+int progjobdir(PROGINFO *pip,char *jobdname)
 {
 	const mode_t	cmode = (IPCDIRMODE | S_ISVTX) ;
 	int		rs ;
@@ -82,7 +81,7 @@ int progtmpdir(PROGINFO *pip,char *jobdname)
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progtmpdir: ent\n") ;
+	    debugprintf("progjobdir: ent\n") ;
 #endif
 
 	if (jobdname == NULL) return SR_FAULT ;
@@ -103,17 +102,18 @@ int progtmpdir(PROGINFO *pip,char *jobdname)
 	        }
 	    }
 	} else {
-	    len = strlen(pip->jobdname) ;
+	    rs = mkpath1(jobdname,pip->jobdname) ;
+	    len = rs ;
 	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progtmpdir: ret rs=%d len=%d\n",rs,len) ;
+	    debugprintf("progjobdir: ret rs=%d len=%d\n",rs,len) ;
 #endif
 
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (progtmpdir) */
+/* end subroutine (progjobdir) */
 
 
 /* local subroutines */

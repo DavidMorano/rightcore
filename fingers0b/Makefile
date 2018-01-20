@@ -157,7 +157,7 @@ INCS= config.h defs.h jobdb.h
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o proginfo_rootname.o
 OBJ01= proginfo_nameid.o proguserlist.o
-OBJ02= progtmpdir.o proglogout.o progcheckstamp.o
+OBJ02= progjobdir.o proglogout.o progcheckstamp.o
 OBJ03= progprocess.o progwatch.o progcheckdir.o proghandle.o progreqfile.o 
 OBJ04= progserve.o progsrvargs.o progpeername.o
 OBJ05= progcmd.o progpass.o proguseracct.o progexec.o progshlib.o

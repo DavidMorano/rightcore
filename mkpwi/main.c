@@ -101,7 +101,7 @@ extern int	pcsuserfile(cchar *,cchar *,cchar *,cchar *,cchar *) ;
 extern int	getfname(cchar *,cchar *,int,char *) ;
 extern int	getclustername(cchar *,char *,int,cchar *) ;
 extern int	getgroupname(char *,int,gid_t) ;
-extern int	getmailgid(cchar *,gid_t) ;
+extern int	getgid_def(cchar *,gid_t) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 
@@ -1086,7 +1086,7 @@ static int procuserinfo_begin(PROGINFO *pip,USERINFO *uip)
 
 	if (rs >= 0) {
 	    cchar	*gn = GROUPNAME_TOOLS ;
-	    if ((rs = getmailgid(gn,GID_TOOLS)) >= 0) {
+	    if ((rs = getgid_def(gn,GID_TOOLS)) >= 0) {
 		pip->gid_tools = rs ;
 	    }
 	}

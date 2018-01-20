@@ -84,9 +84,8 @@ extern int	dupup(int,int) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	opentmpusd(const char *,int,mode_t,char *) ;
 
-extern int	progtmpdir(struct proginfo *,char *) ;
-extern int	progcheckdir(struct proginfo *,char *,int,int) ;
-extern int	progreqfile(struct proginfo *) ;
+extern int	progjobdir(PROGINFO *,char *) ;
+extern int	progreqfile(PROGINFO *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -113,41 +112,31 @@ static int	cmsg_passfd(struct cmsghdr *,int) ;
 /* exported subroutines */
 
 
-int progpass(pip,aip)
-struct proginfo	*pip ;
-struct arginfo	*aip ;
+int progpass(PROGINFO *pip,ARGINFO *aip)
 {
 	struct muximsg_response	m0 ;
-
 	struct muximsg_passfd	m2 ;
-
 	struct msghdr	ipcmsg ;
-
 	union conmsg	conbuf ;	/* aligned for bad architectures */
-
 	struct cmsghdr	*cmp ;
-
 	struct iovec	vecs[NIOVECS + 1] ;
-
 	SOCKADDRESS	sa ;
+	mode_t		operms ;
 
-	mode_t	operms ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		len ;
+	int		oflags ;
+	int		fdlen ;
+	int		size ;
+	int		cmsize ;
+	int		conbufsize = 0 ;
+	int		salen = 0 ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	len ;
-	int	oflags ;
-	int	fdlen ;
-	int	size ;
-	int	cmsize ;
-	int	conbufsize = 0 ;
-	int	salen = 0 ;
-
-	char	template[MAXPATHLEN + 1] ;
-	char	ourdname[MAXPATHLEN + 1] ;
-	char	fname[MAXPATHLEN + 1] ;
-	char	ipcbuf[IPCBUFLEN + 1] ;
-
+	char		template[MAXPATHLEN + 1] ;
+	char		ourdname[MAXPATHLEN + 1] ;
+	char		fname[MAXPATHLEN + 1] ;
+	char		ipcbuf[IPCBUFLEN + 1] ;
 
 /* some initialization (there is a good bit to setup for this operation) */
 
@@ -170,17 +159,13 @@ struct arginfo	*aip ;
 
 /* create (or divine) the "request" filename as needed */
 
-	rs = progreqfile(pip) ;
-	if (rs < 0)
-	     goto ret0 ;
+	if ((rs = progreqfile(pip)) >= 0) {
+	    if ((rs = progjobdir(pip,ourdname)) >= 0) {
+		rs = mkpath2(template,ourdname,"callXXXXXXXXXX") ;
+	    }
+	}
 
-/* ensure our directory for our socket */
-
-	rs = progtmpdir(pip,ourdname) ;
-	if (rs >= 0)
-	rs = mkpath2(template,ourdname,"callXXXXXXXXXX") ;
-	if (rs < 0)
-	    goto ret0 ;
+	if (rs < 0) goto ret0 ;
 
 /* create our socket */
 
