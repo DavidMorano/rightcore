@@ -23,6 +23,8 @@
 #define	JOBDB_ENT	struct jobdb_ent
 
 #define	JOBDB_JOBIDLEN	15			/* same as LOGIDLEN? */
+#define	JOBDB_JOBPREFIX	"jobdb"			/* job-file prefix */
+#define	JOBDB_JOBFILETO	(5*3600)		/* job-file time-out */
 
 
 struct jobdb_ent {
@@ -38,6 +40,7 @@ struct jobdb_ent {
 struct jobdb_head {
 	const char	*tmpdname ;
 	VECITEM		db ;
+	time_t		ti_jobdir ;
 } ;
 
 
@@ -47,13 +50,14 @@ struct jobdb_head {
 extern "C" {
 #endif
 
-extern int jobdb_start(JOBDB *,int,const char *) ;
-extern int jobdb_newjob(JOBDB *,const char *,int) ;
+extern int jobdb_start(JOBDB *,int,cchar *) ;
+extern int jobdb_newjob(JOBDB *,cchar *,int) ;
 extern int jobdb_get(JOBDB *,int,JOBDB_ENT **) ;
 extern int jobdb_findpid(JOBDB *,pid_t,JOBDB_ENT **) ;
 extern int jobdb_del(JOBDB *,int) ;
 extern int jobdb_delp(JOBDB *,JOBDB_ENT *) ;
 extern int jobdb_count(JOBDB *) ;
+extern int jobdb_check(JOBDB *,time_t,int) ;
 extern int jobdb_finish(JOBDB *) ;
 
 #ifdef	__cplusplus

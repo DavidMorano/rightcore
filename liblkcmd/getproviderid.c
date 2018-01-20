@@ -43,6 +43,7 @@
 #include	<sys/param.h>
 #include	<string.h>
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<localmisc.h>
 
 

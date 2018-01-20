@@ -143,6 +143,7 @@ extern int	dupup(int,int) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
 extern int	nlspeername(const char *,const char *,char *) ;
 extern int	mksublogid(char *,int,const char *,int) ;
+extern int	rmdirfiles(cchar *,cchar *,int) ;
 extern int	acceptpass(int,struct strrecvfd *,int) ;
 extern int	varsub_addvec(VARSUB *,VECSTR *) ;
 extern int	isasocket(int) ;
@@ -163,7 +164,7 @@ extern int	progsvccheck(PROGINFO *) ;
 extern int	progacccheck(PROGINFO *) ;
 extern int	progpeername(PROGINFO *,CLIENTINFO *,char *) ;
 
-extern int	progcmdname(PROGINFO *,int,const char **) ;
+extern int	progcmdname(PROGINFO *,int,cchar **) ;
 
 #if	CF_DEBUGS || CF_DEBUG 
 extern int	debugprintf(cchar *,...) ;
@@ -191,6 +192,7 @@ struct subinfo {
 	JOBDB		ourjobs ;
 	POLLER		pm ;
 	time_t		ti_lastmark ;
+	time_t		ti_jobdir ;
 	int		njobs ;
 	int		mintpoll ;	/* poll interval in milliseconds */
 	int		f_exit ;
@@ -519,6 +521,7 @@ static int procwatcher(PROGINFO *pip,SUBINFO *wip,vecstr *nlp)
 #endif
 
 	wip->ti_lastmark = pip->daytime ;
+	wip->ti_jobdir = pip->daytime ;
 
 	if_exit = FALSE ;
 	if_int = FALSE ;
@@ -580,11 +583,13 @@ static int procwatcher(PROGINFO *pip,SUBINFO *wip,vecstr *nlp)
 	    debugprintf("procwatcher: loop-top rs=%d\n",rs) ;
 #endif
 
-	if ((rs >= 0) && pip->changed.pc && pip->f.daemon)
+	if ((rs >= 0) && pip->changed.pc && pip->f.daemon) {
 	    rs = procwatchmaint(pip,wip) ;
+	}
 
-	if (pip->open.logprog)
+	if (pip->open.logprog) {
 	    proglog_flush(pip) ;
+	}
 
 	while ((rs >= 0) && (! wip->f_exit) && (! if_exit)) {
 
@@ -2157,6 +2162,11 @@ static int procwatchmaint(PROGINFO *pip,SUBINFO	 *wip)
 	    } /* end if (need activation) */
 
 	} /* end for */
+
+	if (rs >= 0) {
+	    JOBDB	*jdp = &wip->ourjobs ;
+	    rs = jobdb_check(jdp,pip->daytime,TO_JOBDIR) ;
+	}
 
 	return (rs >= 0) ? f_logged : rs ;
 }

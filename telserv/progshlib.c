@@ -246,7 +246,6 @@ int		enl ;
 	u_chdir(pip->pwd) ;
 #endif
 
-done:
 	if (ex != EX_OK) {
 	    switch (ex) {
 	    case EX_NOPROG:
@@ -297,7 +296,6 @@ badalloc:
 	}
 
 badnoprog:
-ret0:
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))

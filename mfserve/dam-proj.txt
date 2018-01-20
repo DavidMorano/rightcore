@@ -1,0 +1,50 @@
+== Sample project highlights
+
+Described here are projects that I have worked on as part of software
+business exploration (Rightcore Network Services).
+
+
+= Network de-multiplexing server family
+
+This project consists of a family of server programs that feature a
+de-multiplexing front-end and which dispatches a resulting named service
+using a service-dispatch database. These servers act as super-servers
+for sub-servers selected based on an acquired service name. These
+servers can be configured to listen on a variety of network sources such
+as:
+
++ UNIX domain sockets
++ UNIX named pipes (accepting connections)
++ UNIX named pipes (being passed connections)
++ TCP stream sockets
+
+Services names are acquired based on server types.  Current server types 
+de-multiplex incoming connections in the following ways:
++ TCPMUX service name
++ login-name
++ login-name along with a TELNET daemon service
++ finger-name
+
+Access control is also implemented based on the incoming connection IP 
+address. Both a custom access database can be used along with any NIS NETGROUP
+data which may be present.  Incomming connections which fail authentication
+are denied.
+
+Dispatched sub-servers can be of serveral varieties:
++ an independent program (typical)
++ a dynamically loaded shared object command, otherwise looking like an
+  indepdent program
++ an already running program which accepts a passed file descriptor
+
+
+= File backup utilities
+
+
+= UNIX account management
+
+
+= UNIX utilities
+
+
+
+

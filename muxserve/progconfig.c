@@ -293,8 +293,6 @@ ret0:
 
 /* bad stuff */
 bad4:
-bad3:
-bad2:
 	if (pip->open.params) {
 	    pip->open.params = FALSE ;
 	    paramfile_close(&pip->params) ;
@@ -304,7 +302,6 @@ bad1:
 	pip->f.pc = FALSE ;
 	pip->open.params = FALSE ;
 
-bad0:
 	goto ret0 ;
 }
 /* end subroutine (progconfigstart) */

@@ -459,7 +459,7 @@ badnosvc:
 	} /* end if (no service match) */
 
 /* we are out of here */
-ret2:
+
 	if (cip->fd_input >= 3) {
 	    u_close(cip->fd_input) ;
 	    cip->fd_input = -1 ;
@@ -471,12 +471,9 @@ ret2:
 	}
 
 ret1:
-bad1:
-	if (pip->open.logprog)
+	if (pip->open.logprog) {
 	    proglog_flush(pip) ;
-
-bad0:
-ret0:
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
@@ -1034,7 +1031,6 @@ const char	*argz ;
 	}
 
 /* we are out of here */
-done:
 badadd2:
 badadd1:
 badnoprog:
@@ -1244,7 +1240,6 @@ const char	*argz ;
 	}
 
 /* we are out of here */
-done:
 badadd2:
 badadd1:
 badnoprog:
@@ -1411,8 +1406,6 @@ static int procaccperm(PROGINFO *pip,CLIENTINFO *cip,PROCSE *sep)
 	    f = (rs1 > 0) ;
 	}
 
-ret4:
-ret3:
 	vecstr_finish(&names) ;
 
 ret2:

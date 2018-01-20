@@ -185,7 +185,7 @@ int		to ;
 	    rs = dialticotsord(cp,-1,to,opts) ;
 	    break ;
 	case opendialer_ticotsordnls:
-	    rs = dialticotsordnls(portspec,-1,svc, to,opts) ;
+	    rs = dialticotsordnls(portspec,-1,svc,to,opts) ;
 	    break ;
 	case opendialer_pass:
 	    cp = portspec ;

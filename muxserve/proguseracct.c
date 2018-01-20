@@ -396,7 +396,6 @@ static int proguseracct_copyover(PROGINFO *pip,int ofd,int fd)
 
 	        if ((rs = filebuf_start(&local,fd,0L,0,0)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
-	            int		len ;
 	            char	lbuf[LINEBUFLEN + 2] ;
 
 	            while ((rs = filebuf_readline(&local,lbuf,llen,to)) > 0) {

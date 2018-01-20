@@ -48,6 +48,7 @@
 #include	<sys/param.h>		/* for MAXNAMELEN */
 #include	<string.h>
 
+#include	<estrings.h>
 #include	<localmisc.h>
 
 

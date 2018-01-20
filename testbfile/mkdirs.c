@@ -50,7 +50,6 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<string.h>
 
 #include	<vsystem.h>

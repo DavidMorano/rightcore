@@ -183,7 +183,7 @@ OBJ22= strnnlen.o strlinelen.o snabbr.o
 OBJ23= listenuss.o listentcp.o listenpass.o
 
 OBJ24= mkplogid.o mksublogid.o permsched.o
-OBJ25= mktmpfile.o opentmpfile.o openport.o
+OBJ25=
 OBJ26= mkquoted.o netgroupcheck.o getprogpath.o
 OBJ27= mkbasename.o mkshlibname.o sfbaselib.o
 OBJ28= 
@@ -217,7 +217,7 @@ OBJ51=
 OBJ52=
 OBJ53=
 OBJ54=
-OBJ55= debug.o debugprintf.o nprintf.o
+#OBJ55= debug.o debugprintf.o nprintf.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)

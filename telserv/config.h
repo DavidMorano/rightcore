@@ -169,5 +169,7 @@
 #define	TO_BROKEN	(1*3600)	/* broken listener re-activation */
 #define	TO_RECVFD	30		/* receiving a file-desriptor */
 #define	TO_SENDFD	30		/* sending a file-desriptor */
+#define	TO_JOBDIR	(3*3600)	/* job-dir check */
+#define	TO_JOBFILE	(8*3600)	/* job-file age */
 
 

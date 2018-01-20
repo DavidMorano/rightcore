@@ -16,7 +16,7 @@
 
 
 /* options */
-#define	OPENDIAL_OLONG		(1<<0)
+#define	OPENDIAL_OLONG		(1<<0)		/* FINGER "long" option */
 
 
 /* dialers (by the number) */

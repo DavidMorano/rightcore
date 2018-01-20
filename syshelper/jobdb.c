@@ -41,6 +41,7 @@
 #include	<time.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<vecitem.h>
 #include	<localmisc.h>
 
@@ -68,6 +69,7 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	mkdirs(const char *,mode_t) ;
 extern int	chmods(const char *,mode_t) ;
+extern int	rmdirfiles(cchar *,cchar *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -176,17 +178,22 @@ int jobdb_newjob(JOBDB *jlp,cchar *jobid,int f_so)
 #endif
 
 	if ((rs = jobdb_checkdir(jlp)) >= 0) {
-	    cchar	*try = "jobdbXXXXXXXXX" ;
-	    char	template[MAXPATHLEN + 1] ;
-	    if ((rs = mkpath2(template,jlp->tmpdname,try)) >= 0) {
-	        JOBDB_ENT	je ;
-	        if ((rs = entry_start(&je,template,jobid,f_so)) >= 0) {
-	            const int	esize = sizeof(JOBDB_ENT) ;
-	            rs = vecitem_add(&jlp->db,&je,esize) ;
-	            if (rs < 0)
-		        entry_finish(&je) ;
-		} /* end if (entry_start) */
-	    } /* end if (mkpath) */
+	    const int	clen = MAXNAMELEN ;
+	    cchar	*pre = JOBDB_JOBPREFIX ;
+	    cchar	*x = "XXXXXXXXX" ;
+	    char	cbuf[MAXNAMELEN+1] ;
+	    if ((rs = sncpy2(cbuf,clen,pre,x)) >= 0) {
+	        char	template[MAXPATHLEN + 1] ;
+	        if ((rs = mkpath2(template,jlp->tmpdname,cbuf)) >= 0) {
+	            JOBDB_ENT	je ;
+	            if ((rs = entry_start(&je,template,jobid,f_so)) >= 0) {
+	                const int	esize = sizeof(JOBDB_ENT) ;
+	                rs = vecitem_add(&jlp->db,&je,esize) ;
+	                if (rs < 0)
+		            entry_finish(&je) ;
+		    } /* end if (entry_start) */
+	        } /* end if (mkpath) */
+	    } /* end if (sncpy2) */
 	} /* end if (jobdb_checkdir) */
 
 #if	CF_DEBUGS
@@ -342,6 +349,24 @@ int jobdb_count(JOBDB *jlp)
 	return vecitem_count(&jlp->db) ;
 }
 /* end subroutine (jobdb_count) */
+
+
+int jobdb_check(JOBDB *jlp,time_t dt,int to)
+{
+	int		rs = SR_OK ;
+	if (jlp == NULL) return SR_FAULT ;
+	if ((dt - jlp->ti_jobdir) >= to) {
+	    const int	jto = JOBDB_JOBFILETO ;
+	    cchar	*pref = JOBDB_JOBPREFIX ;
+	    jlp->ti_jobdir = dt ;
+	    rs = rmdirfiles(jlp->tmpdname,pref,jto) ;
+	}
+	return rs ;
+}
+/* end subroutine (jobdb_check) */
+
+
+/* private subroutines */
 
 
 /* private subroutines */

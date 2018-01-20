@@ -257,7 +257,6 @@ struct arginfo	*aip ;
 	    fname[0] = '\0' ;
 	}
 
-bad0:
 ret0:
 	return rs ;
 }

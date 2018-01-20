@@ -1,5 +1,5 @@
 MA
 
-This is the mail-action program.
+This is the Mail-Action (MA) program.
 
 

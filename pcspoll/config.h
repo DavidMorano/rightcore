@@ -134,6 +134,11 @@
 #define	DEFNDEFS	20
 #define	DEFNXENVS	200
 
+#define	ORGCODE		"RC"
+#define	DEFSVC		"default"
+
+#define	PROG_SENDMAIL	"/usr/lib/sendmail"
+
 #define	TO_PIDLOCK	0		/* PID lock */
 #define	TO_LOCK		4		/* lock acquisition */
 #define	TO_POLL		5		/* maximum polling interval */
@@ -154,10 +159,7 @@
 #define	TO_BROKEN	(1*3600)	/* broken listener re-activation */
 #define	TO_RECVFD	10		/* receiving a file-desriptor */
 #define	TO_SENDFD	10		/* sending a file-desriptor */
-
-#define	ORGCODE		"RC"
-#define	DEFSVC		"default"
-
-#define	PROG_SENDMAIL	"/usr/lib/sendmail"
+#define	TO_JOBDIR	(3*3600)	/* job-dir check */
+#define	TO_JOBFILE	(8*3600)	/* job-file age */
 
 
