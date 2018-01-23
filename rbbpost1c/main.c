@@ -391,8 +391,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	cchar		*ifname = NULL ;
 	cchar		*cfname = NULL ;
 	cchar		*ndname = NULL ;
-	cchar		*remote_machine = NULL ;
-	cchar		*remote_transport = NULL ;
 	cchar		*cp ;
 
 

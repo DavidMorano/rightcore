@@ -394,7 +394,7 @@ OBJ74= fileobject.o filebinary.o
 OBJ75= 
 OBJ76=
 OBJ77=
-OBJ78= bopen.o breadline.o
+OBJ78=
 OBJ79= percache.o perdata.o
 
 OBJ80= snwcpyopaque.o snwcpycompact.o snwcpyclean.o snmkuuid.o

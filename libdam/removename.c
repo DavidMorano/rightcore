@@ -66,6 +66,9 @@
 
 /* local defines */
 
+#define	REMOVEINFO	struct removeinfo
+#define	REMOVEINFO_FL	struct removeinfo_flags
+
 
 /* external subroutines */
 
@@ -86,18 +89,18 @@ struct removeinfo_flags {
 } ;
 
 struct removeinfo {
-	randomvar		*rvp ;
-	struct removeinfo_flags	f ;
-	VECPSTR			dirs ;
-	uint			c_removed ;
-	int			bcount ;
+	randomvar	*rvp ;
+	REMOVEINFO_FL	f ;
+	VECPSTR		dirs ;
+	uint		c_removed ;
+	int		bcount ;
 } ;
 
 
 /* forward references */
 
-static int	removeit(const char *,struct ustat *,struct removeinfo *) ;
-static int	rmdirs(struct removeinfo *) ;
+static int	removeit(cchar *,USTAT *,REMOVEINFO *) ;
+static int	rmdirs(REMOVEINFO *) ;
 
 
 /* local variables */
@@ -112,17 +115,13 @@ int		bcount ;
 int		opts ;
 const char	name[] ;
 {
-	struct ustat	sb, sb2 ;
-
-	struct removeinfo	ri ;
-
+	USTAT		sb, sb2 ;
+	REMOVEINFO	ri ;
 	randomvar	x ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	wopts = 0 ;
-	int	f_rv = FALSE ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		wopts = 0 ;
+	int		f_rv = FALSE ;
 
 #if	CF_DEBUGS
 	debugprintf("removename: opts=%04x bcount=%d\n",opts,bcount) ;
@@ -243,10 +242,8 @@ const char		name[] ;
 struct ustat		*sbp ;
 struct removeinfo	*rip ;
 {
-	struct ustat	sb2 ;
-
-	int	rs = SR_OK ;
-
+	USTAT		sb2 ;
+	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
 	debugprintf("removeit: name=%s\n",name) ;
@@ -300,16 +297,12 @@ struct removeinfo	*rip ;
 /* end subroutine (removeit) */
 
 
-static int rmdirs(rip)
-struct removeinfo	*rip ;
+static int rmdirs(REMOVEINFO *rip)
 {
-	VECPSTR	*dlp = &rip->dirs ;
-
-	int	rs ;
-	int	n = 0 ;
-
+	VECPSTR		*dlp = &rip->dirs ;
+	int		rs ;
+	int		n = 0 ;
 	const char	*cp ;
-
 
 	if ((rs = vecpstr_count(dlp)) > 0) {
 	    n = rs ;
@@ -330,6 +323,5 @@ struct removeinfo	*rip ;
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutine (rmdirs) */
-
 
 
