@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 2008-09-01, David A­D­ Morano
-
-	This subroutine was borrowed and modified from previous generic
-	front-end 'main' subroutines.
-
+        This subroutine was borrowed and modified from previous generic
+        front-end 'main' subroutines.
 
 */
 

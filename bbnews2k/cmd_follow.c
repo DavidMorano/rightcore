@@ -36,6 +36,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<bfile.h>
 #include	<vecstr.h>
 #include	<char.h>
@@ -57,6 +58,8 @@ extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	getfiledirs(char *,const char *,const char *,vecstr *) ;
 extern int	bbcpy(char *,const char *) ;
 
+extern int	uc_system(cchar *) ;
+
 
 /* external variables */
 
@@ -71,21 +74,17 @@ const char	ngdir[] ;
 const char	afname[] ;
 const char	hv_subject[] ;
 {
-	bfile	afile, *afp = &afile ;
-	bfile	tmpfile, *tfp = &tmpfile ;
-
-	int	rs = SR_OK ;
-	int	len ;
-
+	bfile		afile, *afp = &afile ;
+	bfile		tmpfile, *tfp = &tmpfile ;
+	const int	llen = LINEBUFLEN ;
+	int		rs = SR_OK ;
+	int		len ;
 	const char	*tp ;
-	const char	*cp ;
-
-	char	linebuf[LINEBUFLEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	cmdbuf[(2*MAXPATHLEN) + 1], *cbp ;
-	char	newsgroup[MAXPATHLEN + 1] ;
-	char	tngdname[MAXPATHLEN+1] ;
-
+	char		lbuf[LINEBUFLEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
+	char		cmdbuf[(2*MAXPATHLEN) + 1], *cbp ;
+	char		newsgroup[MAXPATHLEN + 1] ;
+	char		tngdname[MAXPATHLEN+1] ;
 
 /* can we do this? */
 
@@ -111,7 +110,7 @@ const char	hv_subject[] ;
 /* use only the first ngdir if there are multiple ones specified */
 
 	if ((tp = strchr(ngdir,',')) != NULL) {
-	    mkpath1(tngdname,ngdir,(tp-ngdir)) ;
+	    mkpath1w(tngdname,ngdir,(tp-ngdir)) ;
 	    ngdir = tngdname ;
 	}
 
@@ -137,12 +136,12 @@ const char	hv_subject[] ;
 
 	    bprintf(tfp,"previous article was ...\n") ;
 
-	    while ((len = breadline(afp,linebuf,LINEBUFLEN)) > 0) {
+	    while ((len = breadline(afp,lbuf,llen)) > 0) {
 
-	        if (linebuf[len - 1] == '\n') 
+	        if (lbuf[len - 1] == '\n') 
 			len -= 1 ;
 
-	        if ((rs = bprintf(tfp,"> %W\n",linebuf,len)) < (len + 2))
+	        if ((rs = bprintf(tfp,"> %W\n",lbuf,len)) < (len + 2))
 	            goto bad3 ;
 
 	    } /* end while */
@@ -177,7 +176,7 @@ const char	hv_subject[] ;
 	    debugprintf("follow: CMD> %s\n",cmdbuf) ;
 #endif
 
-	system(cmdbuf) ;
+	uc_system(cmdbuf) ;
 
 	if (tmpfname[0] != '\0') 
 		u_unlink(tmpfname) ;

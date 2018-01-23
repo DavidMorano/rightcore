@@ -10,8 +10,8 @@
 
 /* Copyright © 2002 David A­D­ Morano.  All rights reserved. */
 
-#ifndef	MSGHEADSERS_INCLUDE
-#define	MSGHEADSERS_INCLUDE
+#ifndef	MAILMSGHDRS_INCLUDE
+#define	MAILMSGHDRS_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -22,7 +22,7 @@
 /* object defines */
 
 #define	MAILMSGHDRS_MAGIC	0x87987598
-#define	MAILMSGHDRS		struct mailmsghdrss_head
+#define	MAILMSGHDRS		struct mailmsghdrs_head
 
 #ifndef	NULL
 #define	NULL		0
@@ -216,14 +216,18 @@
 #define	HN_XFORWARDEDTO	mailmsghdrs_names[HI_XFORWARDEDTO]
 #define	HL_XFORWARDEDTO	14
 
+#define	HI_SUBJ		47
+#define	HN_SUBJ		mailmsghdrs_names[HI_SUBJ]
+#define	HL_SUBJ		4
+
 /* put all new entries before this last (fake) one */
 
-#define	HI_NULL		46
+#define	HI_NULL		48
 #define	HN_NULL		NULL
 #define	HL_NULL		-1
 
 
-struct mailmsghdrss_head {
+struct mailmsghdrs_head {
 	uint		magic ;
 	const char	**v ;
 } ;
@@ -255,6 +259,6 @@ extern int mailmsghdrss_finish(MAILMSGHDRS *) ;
 
 #endif /* (! defined(MAILMSGHDRS_MASTER)) || (MAILMSGHDRS_MASTER == 0) */
 
-#endif /* MSGHEADSERS_INCLUDE */
+#endif /* MAILMSGHDRS_INCLUDE */
 
 

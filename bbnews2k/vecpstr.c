@@ -12,10 +12,8 @@
 /* revision history:
 
 	= 1998-03-24, David A­D­ Morano
-
-	This object module was morphed from some previous one.
-	I do not remember what the previous one was.
-
+        This object module was morphed from some previous one. I do not remember
+        what the previous one was.
 
 */
 

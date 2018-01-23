@@ -14,7 +14,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -107,7 +107,7 @@ int proghdr_trans(PROGINFO *pip,char *rbuf,int rlen,cchar *sp,int sl,int c)
 	if (sl < 0) sl = strlen(sp) ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("proghdr_trans: ent sl=%d c=%u\n",sl,c) ;
+	    debugprintf("proghdr_trans: ent sl=%d c=%u\n",sl,c) ;
 #endif
 	if ((rs = proghdr_startup(pip)) >= 0) {
 	    HDRDECODE	*hdp = (HDRDECODE *) pip->hdr ;
@@ -133,7 +133,7 @@ int proghdr_trans(PROGINFO *pip,char *rbuf,int rlen,cchar *sp,int sl,int c)
 	} /* end if (proghdr_startup) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("proghdr_trans: ret rs=%d rl=%d\n",rs,rl) ;
+	    debugprintf("proghdr_trans: ret rs=%d rl=%d\n",rs,rl) ;
 #endif
 	return (rs >= 0) ? rl : rs ;
 }
@@ -148,7 +148,7 @@ static int proghdr_startup(PROGINFO *pip)
 	int		rs = SR_OK ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("proghdr_startup: ent\n") ;
+	    debugprintf("proghdr_startup: ent\n") ;
 #endif
 	if (pip->hdr == NULL) {
 	    HDRDECODE	*hdrp ;
@@ -156,10 +156,6 @@ static int proghdr_startup(PROGINFO *pip)
 	    if ((rs = uc_malloc(osize,&hdrp)) >= 0) {
 		cchar	*pr = pip->pr ;
 	        if ((rs = hdrdecode_start(hdrp,pr)) >= 0) {
-#if	CF_DEBUG
-	if (DEBUGLEVEL(5))
-	debugprintf("proghdr_startup: hdrdecode_startup() rs=%d\n",rs) ;
-#endif
 		    pip->hdr = hdrp ;
 		}
 		if (rs < 0) {
@@ -169,7 +165,7 @@ static int proghdr_startup(PROGINFO *pip)
 	} /* end if (needed) */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	debugprintf("proghdr_startup: ret rs=%d\n",rs) ;
+	    debugprintf("proghdr_startup: ret rs=%d\n",rs) ;
 #endif
 	return rs ;
 }

@@ -25,7 +25,7 @@
 	Synopsis:
 
 	int emit_header(pip,dsp,ai,ap,ngdir,af)
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 	MKDIRLIST_ENT	*dsp ;
 	int		ai ;
 	ARTLIST_ENT	*ap ;
@@ -72,7 +72,7 @@
 
 
 int emit_count(pip,dsp,ai,ap,ngdir,af)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 MKDIRLIST_ENT	*dsp ;
 int		ai ;
 ARTLIST_ENT	*ap ;
@@ -97,6 +97,5 @@ const char	af[] ;
 	return rs ;
 
 } /* end subroutine (emit_count) */
-
 
 

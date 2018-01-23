@@ -28,6 +28,8 @@
 #include	<stdlib.h>
 #include	<errno.h>
 
+#include	<vsystem.h>
+#include	<bfile.h>
 #include	<localmisc.h>
 
 #include	"artlist.h"
@@ -44,12 +46,12 @@
 
 /* external subroutines */
 
+extern int	bufprintf(char *,int,cchar *,...) ;
+
 extern int	getfiledirs() ;
 
 
 /* external variables */
-
-extern struct proginfo	g ;
 
 
 /* exported subroutines */
@@ -62,21 +64,18 @@ const char	ngdir[] ;
 const char	afname[] ;
 const char	options[] ;
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 	const char	*cp ;
-
-	char	cmdbuf[CMDBUFLEN + 1] ;
-
+	char		cmdbuf[CMDBUFLEN + 1] ;
 
 	if ((cp = getenv("BBPRTCMD")) == NULL)
-	    cp = g.prog_print ;
+	    cp = pip->prog_print ;
 
 	if (getfiledirs(NULL,cp,"x",NULL) <= 0) {
 
-	    bprintf(g.efp,
+	    bprintf(pip->efp,
 	        "%s: couldn't find the print program \"%s\"\n",
-	        g.progname,cp) ;
+	        pip->progname,cp) ;
 
 	    goto ret0 ;
 	}

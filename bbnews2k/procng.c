@@ -24,7 +24,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1994,1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -92,6 +92,7 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	sfbasename(const char *,int,const char **) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	pathadd(char *,int,const char *) ;
+extern int	isNotPresent(int) ;
 
 extern int	bbcpy(char *,const char *) ;
 
@@ -156,8 +157,9 @@ int progng(PROGINFO *pip,DIRSHOWN *sdp,MKDIRLIST_ENT *dsp,emit_t emit)
 	            cchar	*np ;
 	            time_t	a ;
 	            debugprintf("progng: artlist so far¬\n") ;
-	            for (i = 0 ; artlist_get(&al,i,NULL,&np,&a) >= 0 ; i += 1)
+	            for (i = 0 ; artlist_get(&al,i,NULL,&np,&a) >= 0 ; i += 1) {
 	                debugprintf("progng: i=%d name=%s\n",i,np) ;
+		    }
 	        }
 #endif /* CF_DEBUG */
 
@@ -207,14 +209,14 @@ static int procartload(PROGINFO *pip,DIRSHOWN *sdp,ARTLIST *alp,
 		MKDIRLIST_ENT *dsp)
 {
 	MKDIRLIST_ENT	*dsp2 ;
+	const int	rsn = SR_NOTFOUND ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
 	while ((rs >= 0) && (dsp != NULL)) {
 
 #if	CF_DIRSHOWN
-	    rs1 = dirshown_already(sdp,dsp,&dsp2) ;
-	    if (rs1 == SR_NOTFOUND) {
+	    if ((rs = dirshown_already(sdp,dsp,&dsp2)) == rsn) {
 	        if ((rs = procartdir(pip,alp,dsp->name)) >= 0) {
 	            rs = dirshown_set(sdp,dsp) ;
 		}
@@ -259,13 +261,20 @@ static int procartdir(PROGINFO *pip,ARTLIST *alp,cchar *ngd)
 	    const int	alen = rs ;
 
 	    if ((rs = fsdir_open(&dir,apath)) >= 0) {
+		USTAT	sb ;
 
 	        while ((rs = fsdir_read(&dir,&ds)) > 0) {
 	            if (ds.name[0] != '.') {
 	                if (matstr(ignorefiles,ds.name,-1) < 0) {
 		            if ((rs = pathadd(apath,alen,ds.name)) >= 0) {
-	                        c += 1 ;
-	        	        rs = artlist_add(alp,ngd,apath) ;
+				if ((rs = uc_stat(apath,&sb)) >= 0) {
+				    if (S_ISREG(sb.st_mode)) {
+	                                c += 1 ;
+	        	                rs = artlist_add(alp,ngd,apath) ;
+				    }
+				} else if (isNotPresent(rs)) {
+				    rs = SR_OK ;
+				}
 		            }
 			}
 		    }
@@ -334,10 +343,10 @@ static int procartlook(PROGINFO *pip,ARTLIST *alp,MKDIRLIST_ENT *dsp,
 
 /* look at articles with the correct currency */
 
-	    f = (cmode == CM_ALL) ;
-	    f = f || f_previous ;
-	    f = f || ((cmode == CM_NEW) && (amt > dsp->utime)) ;
-	    f = f || ((cmode == CM_OLD) && (amt <= dsp->utime)) ;
+	        f = (cmode == CM_ALL) ;
+	        f = f || f_previous ;
+	        f = f || ((cmode == CM_NEW) && (amt > dsp->utime)) ;
+	        f = f || ((cmode == CM_OLD) && (amt <= dsp->utime)) ;
 
 	        if (f && ((rs = artlist_getentry(alp,ai,&aep)) >= 0)) {
 

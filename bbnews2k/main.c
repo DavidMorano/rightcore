@@ -22,7 +22,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1995,1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -1108,7 +1108,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        f_version = TRUE ;
 	                        break ;
 
-/* all */
+/* all articles (old and new) */
 	                    case 'a':
 	                        pip->f.all = TRUE ;
 	                        break ;
@@ -1118,7 +1118,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        pip->f.every = TRUE ;
 	                        break ;
 
-/* every */
+/* every newsgroup */
 	                    case 'e':
 	                        pip->f.every = TRUE ;
 	                        break ;

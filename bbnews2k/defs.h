@@ -97,6 +97,10 @@
 #endif
 #endif
 
+#ifndef	COLUMNS
+#define	COLUMNS		80
+#endif
+
 
 /* this was used in the old days (so we continue to supply it) */
 #ifndef	HI_MSGID
@@ -121,7 +125,7 @@
 
 /* miscellaneous */
 
-#define COLS		80
+#define COLS		COLUMNS
 #define	DATE1970	(24 * 3600)
 
 #ifndef	NYEARS_CENTURY

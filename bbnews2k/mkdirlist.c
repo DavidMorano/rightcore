@@ -711,14 +711,14 @@ static int entry_show(MKDIRLIST_ENT *ep,const char *ng,int order)
 
 static int ordercmp(MKDIRLIST_ENT **e1pp,MKDIRLIST_ENT **e2pp)
 {
-	MKDIRLIST_ENT	*e1p ;
-	MKDIRLIST_ENT	*e2p ;
+	MKDIRLIST_ENT	*e1p = *e1pp ;
+	MKDIRLIST_ENT	*e2p = *e2pp ;
 	int		rc = 0 ;
 
-	if ((*e1pp != NULL) || (*e2pp != NULL)) {
-	    if (*e1pp != NULL) {
-	        if (*e2pp != NULL) {
-		    rc = ((*e1pp)->order - (*e2pp)->order) ;
+	if ((e1p != NULL) || (e2p != NULL)) {
+	    if (e1p != NULL) {
+	        if (e2p != NULL) {
+		    rc = (e1p->order - e2p->order) ;
 		} else
 		    rc = -1 ;
 	    } else

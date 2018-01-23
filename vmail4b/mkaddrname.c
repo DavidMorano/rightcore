@@ -224,7 +224,7 @@ static int emaentry_addrname(EMA_ENT *ep,char *fbuf,int flen)
 #if	CF_MASSAGE
 	if ((np != NULL) && (nl > 0)) {
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    switch (atype) {
 	    case atype_comment:
 	        if ((cl = sfsubstance(np,nl,&cp)) > 0) {

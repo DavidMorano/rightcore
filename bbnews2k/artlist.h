@@ -34,11 +34,12 @@ struct artlist_e {
 	uint		magic ;
 	const char	*ngdir ;	/* newsgroup directory */
 	const char	*name ;		/* filename (overlaps w/ 'ngdir') */
-	const char	*subject ;	/* header value */
-	const char	*from ;		/* header value */
-	const char	*newsgroups ;	/* header value */
-	const char	*messageid ;	/* header value */
-	const char	*articleid ;	/* header value */
+	const char	*subject ;	/* header SUBJECT */
+	const char	*replyto ;	/* header REPLYTO */
+	const char	*from ;		/* header FEOM */
+	const char	*newsgroups ;	/* header NEWSGROUPS */
+	const char	*messageid ;	/* header MESSAGEID */
+	const char	*articleid ;	/* header ARTICLEID */
 	time_t		mtime ;		/* modification time (always has one) */
 	time_t		atime ;		/* arrival time (envelope if any) */
 	time_t		ptime ;		/* posting time (if any) */

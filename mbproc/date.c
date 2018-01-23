@@ -12,7 +12,6 @@
         Originally created due to frustration with various other "fuzzy" date
         conversion subroutines.
 
-
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */

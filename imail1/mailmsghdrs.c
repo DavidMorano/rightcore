@@ -119,7 +119,8 @@ const char *mailmsghdrs_names[] = {
 	"x-mail-created-date",
 	"x-mailer",		/* 45 */
 	"x-forwarded-to",	/* 46 */
-	NULL			/* 47 */
+	"subj",			/* 47 */
+	NULL			/* 48 */
 } ;
 
 

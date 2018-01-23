@@ -144,6 +144,18 @@ int breadline(bfile *fp,char *ubuf,int ulen)
 /* end subroutine (breadline) */
 
 
+int breadln(bfile *fp,char *ubuf,int ulen)
+{
+	return breadlinetimed(fp,ubuf,ulen,-1) ;
+}
+
+
+int breadlntimed(bfile *fp,char *ubuf,int ulen,int to)
+{
+	return breadlinetimed(fp,ubuf,ulen,to) ;
+}
+
+
 /* local subroutines */
 
 

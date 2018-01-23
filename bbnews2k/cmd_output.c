@@ -46,6 +46,12 @@
 #endif
 
 
+/* external subroutines */
+
+extern int	bufprintf(char *,int,cchar *,...) ;
+extern int	uc_system(cchar *) ;
+
+
 /* exported subroutines */
 
 

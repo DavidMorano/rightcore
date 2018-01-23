@@ -44,6 +44,7 @@
 #include	<vechand.h>
 #include	<bfile.h>
 #include	<mailmsg.h>
+#include	<mailmsghdrs.h>
 #include	<char.h>
 #include	<dater.h>
 #include	<localmisc.h>
@@ -62,10 +63,15 @@
 #endif
 
 
+/* typedefs */
+
+typedef int	(*sortcmp_t)(const void *,const void *) ;
+
+
 /* external subroutines */
 
-extern int	snwcpycompact(char *,int,const char *,int) ;
-extern int	sfbracketval(const char *,int,const char **) ;
+extern int	snwcpycompact(char *,int,cchar *,int) ;
+extern int	sfbracketval(cchar *,int,cchar **) ;
 extern int	cfdeci(const char *,int,int *) ;
 
 extern int	mailmsg_loadfile(MAILMSG *,bfile *) ;
@@ -117,10 +123,10 @@ int artlist_start(ARTLIST *alp,struct timeb *nowp,cchar *zname)
 	if ((rs = dater_start(&alp->mdate,nowp,zname,-1)) >= 0) {
 	    const int	vo = VECHAND_PSORTED ;
 	    if ((rs = vechand_start(&alp->arts,100,vo)) >= 0) {
-		alp->magic = ARTLIST_MAGIC ;
+	        alp->magic = ARTLIST_MAGIC ;
 	    }
 	    if (rs < 0)
-		dater_finish(&alp->mdate) ;
+	        dater_finish(&alp->mdate) ;
 	} /* end if */
 
 	return rs ;
@@ -183,12 +189,12 @@ int artlist_add(ARTLIST *alp,cchar *ngdir,cchar *name)
 	if ((rs = uc_malloc(size,&aep)) >= 0) {
 	    if ((rs = entry_start(aep,&alp->mdate,ngdir,name)) >= 0) {
 	        rs = vechand_add(&alp->arts,aep) ;
-		if (rs < 0)
-		    entry_finish(aep) ;
+	        if (rs < 0)
+	            entry_finish(aep) ;
 	    }
 	    if (rs < 0)
 	        uc_free(aep) ;
-	} /* end if (malloc) */
+	} /* end if (m-a) */
 
 	return rs ;
 }
@@ -341,18 +347,18 @@ static int entry_start(ARTLIST_ENT *ep,DATER *dp,cchar *ngdir,cchar *name)
 
 	if ((rs = u_stat(name,&sb)) >= 0) {
 	    if (S_ISREG(sb.st_mode)) {
-		ep->mtime = sb.st_mtime ;
-		ep->ngdir = ngdir ;
-		if ((rs = uc_mallocstrw(name,-1,&cp)) >= 0) {
-		    ep->name = cp ;
-		    if ((rs = entry_load(ep,dp,name)) >= 0) {
-			ep->magic = ARTLIST_CURMAGIC ;
-		    }
-		    if (rs < 0) {
-			uc_free(ep->name) ;
-			ep->name = NULL ;
-		    }
-		} /* end if (memory-allocation) */
+	        ep->mtime = sb.st_mtime ;
+	        ep->ngdir = ngdir ;
+	        if ((rs = uc_mallocstrw(name,-1,&cp)) >= 0) {
+	            ep->name = cp ;
+	            if ((rs = entry_load(ep,dp,name)) >= 0) {
+	                ep->magic = ARTLIST_CURMAGIC ;
+	            }
+	            if (rs < 0) {
+	                uc_free(ep->name) ;
+	                ep->name = NULL ;
+	            }
+	        } /* end if (memory-allocation) */
 	    } else {
 	        rs = SR_ISDIR ;
 	    }
@@ -378,6 +384,12 @@ static int entry_finish(ARTLIST_ENT *ep)
 	    rs1 = uc_free(ep->subject) ;
 	    if (rs >= 0) rs = rs1 ;
 	    ep->subject = NULL ;
+	}
+
+	if (ep->replyto != NULL) {
+	    rs1 = uc_free(ep->replyto) ;
+	    if (rs >= 0) rs = rs1 ;
+	    ep->replyto = NULL ;
 	}
 
 	if (ep->from != NULL) {
@@ -423,149 +435,183 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 #endif
 
 	    if ((rs = mailmsg_start(&am)) >= 0) {
-		if ((rs = mailmsg_loadfile(&am,&afile)) >= 0) {
+	        if ((rs = mailmsg_loadfile(&am,&afile)) >= 0) {
 	            time_t	ta[ARTLIST_NET] ;
-	            int		rs1 ;
+	            int		hl ;
+	            int		cl ;
 	            int		n ;
-		    int		v ;
-		    cchar	*cp ;
+	            int		v ;
+	            cchar	*hn ;
+	            cchar	*hp ;
+	            cchar	*cp ;
 
 /* get the envelope times (post & arrive) if there are any */
 
 #if	CF_DEBUGS
-	        debugprintf("artlist/entry_start: mailmsg_envtimes()\n") ;
+	            debugprintf("artlist/entry_start: mailmsg_envtimes()\n") ;
 #endif
 
-	        ep->ptime = ep->atime = 0 ;
-	        n = mailmsg_envtimes(&am,dp,ta,ARTLIST_NET) ;
+	            ep->ptime = ep->atime = 0 ;
+	            n = mailmsg_envtimes(&am,dp,ta,ARTLIST_NET) ;
 
 #if	CF_DEBUGS
-	        debugprintf("artlist/entry_start: "
-			"mailmsg_envtimes() n=%d\n",n) ;
+	            debugprintf("artlist/entry_start: "
+	                "mailmsg_envtimes() n=%d\n",n) ;
 #endif
 
-	        if (n > 1) {
+	            if (n > 1) {
+	                sortcmp_t	scmp = (sortcmp_t) timecmp ;
+	                size_t		sz = n ;
+	                const int	esize = sizeof(time_t) ;
 
-	            qsort(ta,(size_t) n,sizeof(time_t),
-	                (int (*)(const void *,const void *)) timecmp) ;
+	                qsort(ta,sz,esize,scmp) ;
+	                ep->ptime = ta[0] ;
+	                ep->atime = ta[n - 1] ;
 
-	            ep->ptime = ta[0] ;
-	            ep->atime = ta[n - 1] ;
+	            } else if (n == 1) {
+	                ep->ptime = ep->atime = ta[0] ;
 
-	        } else if (n == 1) {
-	            ep->ptime = ep->atime = ta[0] ;
-
-	        } else if (n == 0) {
-	            ep->ptime = ep->atime = ep->mtime ;
-		}
+	            } else if (n == 0) {
+	                ep->ptime = ep->atime = ep->mtime ;
+	            }
 
 /* get the message (composition) time (if there is one) */
 
-	        if ((rs1 = mailmsg_hdrival(&am,"date",0,&cp)) >= 0) {
-
-	            rs1 = dater_setmsg(dp,cp,rs1) ;
-
-	            if (rs1 >= 0) {
-			time_t	t ;
-	                dater_gettime(dp,&t) ;
-			ep->ctime = t ;
-		    }
-
-	        } /* end if (message date) */
+	            if (rs >= 0) {
+	                hn = HN_DATE ;
+	                if ((hl = mailmsg_hdrival(&am,hn,0,&hp)) >= 0) {
+	                    if ((rs = dater_setmsg(dp,hp,hl)) >= 0) {
+	                        time_t	t ;
+	                        dater_gettime(dp,&t) ;
+	                        ep->ctime = t ;
+	                    }
+	                } /* end if (message date) */
+	            }
 
 /* get the message id */
 
-	        if ((rs1 = mailmsg_hdrival(&am,"message-id",0,&cp)) >= 0) {
-
-	            rs1 = sfbracketval(cp,rs1,&cp) ;
-
-	            if (rs1 > 0) {
-			cchar	*ccp ;
-	                uc_mallocstrw(cp,rs1,&ccp) ;
-		        ep->messageid = ccp ;
-		    }
-
-	        } /* end if (message-id) */
+	            if (rs >= 0) {
+	                hn = HN_MESSAGEID ;
+	                if ((hl = mailmsg_hdrival(&am,hn,0,&hp)) >= 0) {
+	                    if ((cl = sfbracketval(hp,hl,&cp)) > 0) {
+	                        cchar	*ccp ;
+	                        if ((rs = uc_mallocstrw(cp,cl,&ccp)) >= 0) {
+	                            ep->messageid = ccp ;
+	                        }
+	                    }
+	                } /* end if (message-id) */
+	            }
 
 /* get the article id */
 
-	        if ((rs1 = mailmsg_hdrival(&am,"article-id",0,&cp)) >= 0) {
-
-	            rs1 = sfbracketval(cp,rs1,&cp) ;
-
-	            if (rs1 > 0) {
-			cchar	*ccp ;
-	                uc_mallocstrw(cp,rs1,&ccp) ;
-		        ep->articleid = ccp ;
-		    }
-
-	        } /* end if (article-id) */
+	            if (rs >= 0) {
+	                hn = HN_ARTICLEID ;
+	                if ((hl = mailmsg_hdrival(&am,hn,0,&hp)) >= 0) {
+	                    if ((cl = sfbracketval(hp,hl,&cp)) > 0) {
+	                        cchar	*ccp ;
+	                        if ((rs = uc_mallocstrw(cp,cl,&ccp)) >= 0) {
+	                            ep->articleid = ccp ;
+	                        }
+	                    }
+	                } /* end if (article-id) */
+	            }
 
 /* get the content length if it is specified */
 
-	        if ((rs1 = mailmsg_hdrival(&am,"content-length",0,&cp)) > 0) {
-	            rs1 = cfdeci(cp,rs1,&v) ;
-		    ep->clen = v ;
-	        } /* end if (article content length) */
+	            if (rs >= 0) {
+	                hn = HN_CLEN ;
+	                if ((hl = mailmsg_hdrival(&am,hn,0,&hp)) > 0) {
+	                    rs1 = cfdeci(hp,hl,&v) ;
+	                    ep->clen = v ;
+	                } /* end if (article content length) */
+	            }
 
 /* get the number of lines in the article body (if present) */
 
-	        rs1 = mailmsg_hdrival(&am,"content-lines",0,&cp) ;
+	            if (rs >= 0) {
+	                hn = HN_CLINES ;
+	                hl = mailmsg_hdrival(&am,hn,0,&hp) ;
+	                if (hl <= 0) {
+	                    hn = HN_LINES ;
+	                    hl = mailmsg_hdrival(&am,hn,0,&hp) ;
+	                }
+	                if (hl <= 0) {
+	                    hn = HN_XLINES ;
+	                    hl = mailmsg_hdrival(&am,hn,0,&hp) ;
+	                }
+	                if (hl > 0) {
+	                    rs1 = cfdeci(hp,hl,&v) ;
+	                    ep->lines = v ;
+	                }
+	            }
 
-		if (rs1 <= 0)
-	            rs1 = mailmsg_hdrival(&am,"lines",0,&cp) ;
+/* get the REPLYTO information */
 
-		if (rs1 <= 0)
-		    rs1 = mailmsg_hdrival(&am,"x-lines",0,&cp) ;
-
-	        if (rs1 > 0) {
-	            rs1 = cfdeci(cp,rs1,&v) ;
-		    ep->lines = v ;
-		}
+	            if (rs >= 0) {
+	                hn = HN_REPLYTO ;
+	                if ((hl = mailmsg_hdrval(&am,hn,&hp)) >= 0) {
+	                    cchar	*ccp ;
+	                    if ((rs = uc_mallocstrw(hp,hl,&ccp)) >= 0) {
+	                        ep->replyto = ccp ;
+	                    }
+	                } /* end if (from) */
+	            }
 
 /* get the FROM information */
 
-	        if ((rs1 = mailmsg_hdrval(&am,"from",&cp)) >= 0) {
-		    cchar	*ccp ;
-	            uc_mallocstrw(cp,rs1,&ccp) ;
-		    ep->from = ccp ;
-	        } /* end if (from) */
+	            if (rs >= 0) {
+	                hn = HN_FROM ;
+	                if ((hl = mailmsg_hdrval(&am,hn,&hp)) >= 0) {
+	                    cchar	*ccp ;
+	                    if ((rs = uc_mallocstrw(hp,hl,&ccp)) >= 0) {
+	                        ep->from = ccp ;
+	                    }
+	                } /* end if (from) */
+	            }
 
 /* get the newsgroups */
 
-	        if ((rs1 = mailmsg_hdrval(&am,"newsgroups",&cp)) >= 0) {
-		    cchar	*cpp ;
-	            uc_mallocstrw(cp,rs1,&cpp) ;
-		    ep->newsgroups = cpp ;
-	        } /* end if (newsgroups) */
+	            if (rs >= 0) {
+	                hn = HN_NEWSGROUPS ;
+	                if ((hl = mailmsg_hdrval(&am,hn,&hp)) >= 0) {
+	                    cchar	*cpp ;
+	                    if ((rs = uc_mallocstrw(hp,hl,&cpp)) >= 0) {
+	                        ep->newsgroups = cpp ;
+	                    }
+	                } /* end if (newsgroups) */
+	            }
 
 /* get the subject */
 
-	        rs1 = mailmsg_hdrval(&am,"subject",&cp) ;
-
-		if (rs1 <= 0)
-	            rs1 = mailmsg_hdrval(&am,"title",&cp) ;
-
-		if (rs1 <= 0)
-		     rs1 = mailmsg_hdrval(&am,"subj",&cp) ;
-
-	        if (rs1 >= 0) {
-		    int		cl = strnlen(cp,rs1) ;
-		    char	*bp ;
-		    if ((rs = uc_malloc((cl+1),&bp)) >= 0) {
-			if ((rs = snwcpycompact(bp,cl,cp,rs1)) >= 0) {
-			    ep->subject = bp ;
-			}
-			if (rs < 0)
-			    uc_free(bp) ;
-		    } /* end if (memory-allocation) */
-		} /* end if */
+	            if (rs >= 0) {
+	                hn = HN_SUBJECT ;
+	                hl = mailmsg_hdrval(&am,"subject",&hp) ;
+	                if (hl <= 0) {
+	                    hn = HN_TITLE ;
+	                    hl = mailmsg_hdrval(&am,hn,&hp) ;
+	                }
+	                if (hl <= 0) {
+	                    hn = HN_SUBJ ;
+	                    hl = mailmsg_hdrval(&am,hn,&hp) ;
+	                }
+	                if (hl >= 0) {
+	                    int		bl = strnlen(hp,hl) ;
+	                    char	*bp ;
+	                    if ((rs = uc_malloc((bl+1),&bp)) >= 0) {
+	                        if ((rs = snwcpycompact(bp,bl,hp,hl)) >= 0) {
+	                            ep->subject = bp ;
+	                        }
+	                        if (rs < 0)
+	                            uc_free(bp) ;
+	                    } /* end if (memory-allocation) */
+	                } /* end if */
+	            }
 
 /* done with extracting header values with this article */
 
-		} /* end if (loadfile) */
+	        } /* end if (loadfile) */
 	        rs1 = mailmsg_finish(&am) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (opened MAILMSG object) */
 
 	    rs1 = bclose(&afile) ;
@@ -573,7 +619,7 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 	} /* end if (open-file) */
 
 	return rs ;
-} 
+}
 /* end subroutine (entry_load) */
 
 
@@ -786,7 +832,7 @@ static int cmpcf(ARTLIST_ENT **e1pp,ARTLIST_ENT **e2pp)
 	    if ((e1t = e1p->ptime) == 0) {
 	        if ((e1t = e1p->atime) == 0) {
 	            e1t = e1p->mtime ;
-		}
+	        }
 	    }
 	}
 
@@ -794,7 +840,7 @@ static int cmpcf(ARTLIST_ENT **e1pp,ARTLIST_ENT **e2pp)
 	    if ((e2t = e2p->ptime) == 0) {
 	        if ((e2t = e2p->atime) == 0) {
 	            e2t = e2p->mtime ;
-		}
+	        }
 	    }
 	}
 
@@ -825,7 +871,7 @@ static int cmpcr(ARTLIST_ENT **e1pp,ARTLIST_ENT **e2pp)
 	    if ((e1t = e1p->ptime) == 0) {
 	        if ((e1t = e1p->atime) == 0) {
 	            e1t = e1p->mtime ;
-		}
+	        }
 	    }
 	}
 
@@ -833,7 +879,7 @@ static int cmpcr(ARTLIST_ENT **e1pp,ARTLIST_ENT **e2pp)
 	    if ((e2t = e2p->ptime) == 0) {
 	        if ((e2t = e2p->atime) == 0) {
 	            e2t = e2p->mtime ;
-		}
+	        }
 	    }
 	}
 

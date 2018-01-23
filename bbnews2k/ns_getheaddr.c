@@ -18,13 +18,12 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1995,1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine is a platform independent subroutine to
-	get an INET host entry by its INET address, 
-	but does it dumbly on purpose.
+        This subroutine is a platform independent subroutine to get an INET host
+        entry by its INET address, but does it dumbly on purpose.
 
 	Synopsis:
 

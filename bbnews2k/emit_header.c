@@ -18,7 +18,6 @@
 	= 2018-01-22, David A­D­ Morano
         I updated this to decode coded (mail-message) header values.
 
-
 */
 
 /* Copyright © 1994,1998 David A­D­ Morano.  All rights reserved. */
@@ -70,6 +69,7 @@
 
 #include	<vsystem.h>
 #include	<getbufsize.h>
+#include	<estrings.h>
 #include	<ugetpw.h>
 #include	<getax.h>
 #include	<bfile.h>
@@ -97,7 +97,7 @@
 #endif
 
 #ifndef	MAXFIELDLEN
-#define	MAXFIELDLEN	77
+#define	MAXFIELDLEN	(COLUMNS-2)
 #endif
 
 #if	CF_UGETPW
@@ -112,8 +112,9 @@
 /* external subroutines */
 
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	mkmailname(char *,int,const char *,int) ;
 extern int	sfcenter(const char *,int,const char *,const char **) ;
+extern int	mkmailname(char *,int,cchar *,int) ;
+extern int	mkbestfrom(char *,int,cchar *,int) ;
 extern int	hdrextid(char *,int,const char *,int) ;
 
 extern int	bbcpy(char *,const char *) ;
@@ -137,6 +138,7 @@ extern char	*timestr_edate(time_t,char *) ;
 /* forward references */
 
 static int	emit_headersubj(PROGINFO *,ARTLIST_ENT *) ;
+static int	emit_headerfrom(PROGINFO *,ARTLIST_ENT *) ;
 
 
 /* local variables */
@@ -160,15 +162,10 @@ const char	af[] ;
 	int		rs1 ;
 	int		sl ;
 	int		cl ;
-	int		f_messageid ;
 	const char	*nd = pip->newsdname ;
-	const char	*idp ;
-	const char	*nbp ;
 	const char	*cp ;
-	cchar		*fmt ;
 	char		hbuf[HEADBUFLEN + 1] ;
 	char		fname[MAXPATHLEN + 1] ;
-	char		buf1[BUFLEN + 1] ;
 
 	if ((ngdir == NULL) || (*ngdir == '\0'))
 	    return EMIT_OK ;
@@ -215,58 +212,8 @@ const char	af[] ;
 
 /* try to read out a "from" header from the posted article */
 	            case HI_FROM:
-			hk = HK_FROM ;
-	                sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen) ;
-	                if (sl > 0) {
-	                    if (sl > MAXFIELDLEN) sl = MAXFIELDLEN ;
-	                    bprintf(pip->ofp,"  %t\n",hbuf,sl) ;
-	                } else {
-	                    struct passwd	pw ;
-	                    const int	pwlen = getbufsize(getbufsize_pw) ;
-	                    uid_t		uid = mmsb.st_uid ;
-	                    cchar		*hk = HK_MESSAGEID ;
-	                    cchar		*sp ;
-	                    char		*pwbuf ;
-	                    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	                        if ((rs1 = GETPW_UID(&pw,pwbuf,pwlen,uid)) >= 0) {
-	                            nbp = buf1 ;
-	                            rs1 = mkmailname(buf1,BUFLEN,pw.pw_gecos,-1) ;
-	                            if (rs1 < 0)
-	                                nbp = pw.pw_name ;
-	                        } else {
-	                            nbp = "*unknown*" ;
-	                        }
-	                        uc_free(pwbuf) ;
-	                    } /* end if (memory-allocation) */
-	                    if (rs >= 0) {
-	                        sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen) ;
-	                        f_messageid = FALSE ;
-	                        if (sl > 0) {
-	                            if (sl > 57) {
-	                                sl = 57 ;
-	                                hbuf[sl] = '\0' ;
-	                                f_messageid = TRUE ;
-	                            }
-	                        } else {
-	                            hk = HK_ARTICLEID ;
-	                            sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,
-	                                hlen) ;
-	                            if (sl > 0) {
-	                                if (sl > 57) sl = 57 ;
-	                                hbuf[sl] = '\0' ;
-	                            }
-	                        } /* end if */
-	                        if (f_messageid) {
-	                            idp = hbuf ;
-	                        } else {
-	                            idp = (sl > 0) ? hbuf : af ;
-	                        }
-	                        fmt = "  ** posting user on %s ID \"%s\" was '%s'\n" ;
-	                        sp = ((f_messageid) ? "message" : "article") ;
-	                        bprintf(pip->ofp,fmt,sp,idp,nbp) ;
-	                    }
-	                } /* end if (no "from" header) */
-	                break ;
+			rs = emit_headerfrom(pip,ap) ;
+			break ;
 
 /* try to get the date out of the article */
 	            case HI_DATE:
@@ -375,7 +322,7 @@ static int emit_headersubj(PROGINFO *pip,ARTLIST_ENT *ap)
 	if (sp != NULL) {
 	    const int	c = strnlen(ap->subject,MAXFIELDLEN) ;
 	    const int	rlen = MAXFIELDLEN ;
-	    char		rbuf[MAXFIELDLEN+1] ;
+	    char	rbuf[MAXFIELDLEN+1] ;
 	    if ((rs = proghdr_trans(pip,rbuf,rlen,sp,-1,c)) >= 0) {
 	        rs = bprintf(pip->ofp,"  %t\n",rbuf,rs) ;
 	    }
@@ -387,5 +334,42 @@ static int emit_headersubj(PROGINFO *pip,ARTLIST_ENT *ap)
 	return rs ;
 }
 /* end subroutine (emit_headersubj) */
+
+
+static int emit_headerfrom(PROGINFO *pip,ARTLIST_ENT *ap)
+{
+	int		rs = SR_OK ;
+	int		hl ;
+	cchar		*hp ;
+	cchar		*hk = HK_FROM ;
+	if (ap->from != NULL) {
+	    const int	flen = strlen(ap->from) ;
+	    char	*fbuf ;
+	    if ((rs = uc_malloc((flen+1),&fbuf)) >= 0) {
+		int	c = flen ;
+		if (c > MAXFIELDLEN) c = MAXFIELDLEN ;
+		if ((rs = mkbestfrom(fbuf,flen,ap->from,-1)) >= 0) {
+		    rs = bprintf(pip->ofp,"  %t\n",fbuf,rs) ;
+		}
+		uc_free(fbuf) ;
+	    } /* end if (m-a-f) */
+	} else {
+	    char	fname[MAXNAMELEN+1] ;
+	    if ((rs = mkpath2(fname,ap->ngdir,ap->name)) >= 0) {
+	        USTAT	sb ;
+	        if ((rs = uc_stat(fname,&sb)) >= 0) {
+		    const int	ulen = USERNAMELEN ;
+		    char	ubuf[USERNAMELEN+1] ;
+		    if ((rs = getusername(ubuf,ulen,sb.st_uid)) >= 0) {
+		        rs = bprintf(pip->ofp,"  %t\n",ubuf,rs) ;
+		    }
+		} else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
+		} /* end if (uc_stat) */
+	    } /* end if (mkpath) */
+	}
+	return rs ;
+}
+/* end subroutine (emit_headerfrom) */
 
 
