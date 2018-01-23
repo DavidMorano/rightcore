@@ -161,8 +161,7 @@ char	hostname[] ;
 
 
 #if	CF_DEBUGS
-	debugprintf("ns_getcname: entered name=\"%s\"\n",
-	    name) ;
+	debugprintf("ns_getcname: ent name=\"%s\"\n",name) ;
 #endif
 
 #if	CF_LOG
@@ -390,16 +389,13 @@ char		buf[] ;
 int		buflen ;
 {
 	struct hostent	*lp ;
-
 	unsigned long	addr ;
-
-	int		rs, i ;
-
+	int		rs ;
+	int		i ;
 	char		*cp ;
 
-
 #if	CF_DEBUGS
-	debugprintf("nsi_getthing2: entered name=%s\n",name) ;
+	debugprintf("nsi_getthing2: ent name=%s\n",name) ;
 #endif
 
 	if (hostname != NULL)

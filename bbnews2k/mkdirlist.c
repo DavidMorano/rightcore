@@ -276,18 +276,19 @@ int mkdirlist_link(MKDIRLIST *op)
 int mkdirlist_showdef(MKDIRLIST *op)
 {
 	MKDIRLIST_ENT	*ep ;
-	int	rs = SR_OK ;
-	int	i ;
-	int	c = 0 ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		c = 0 ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->magic != MKDIRLIST_MAGIC) return SR_NOTOPEN ;
 
 	for (i = 0 ; vechand_get(&op->dirs,i,&ep) >= 0 ; i += 1) {
-	    if (ep == NULL) continue ;
-	    rs = entry_showdef(ep) ;
-	    c += rs ;
+	    if (ep != NULL) {
+	        rs = entry_showdef(ep) ;
+	        c += rs ;
+	    }
 	    if (rs < 0) break ;
 	} /* end for */
 
@@ -299,9 +300,9 @@ int mkdirlist_showdef(MKDIRLIST *op)
 int mkdirlist_show(MKDIRLIST *op,const char *ng,int order)
 {
 	MKDIRLIST_ENT	*ep ;
-	int	rs = SR_OK ;
-	int	i ;
-	int	c = 0 ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		c = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("mkdirlist_show: ng=%s\n",ng) ;
@@ -341,12 +342,12 @@ int		order ;
 {
 	MKDIRLIST_ENT	*ep ;
 	VECHAND		*dlp ;
-	int	rs = SR_OK ;
-	int	i ;
-	int	c = 0 ;
+	int		rs = SR_OK ;
+	int		i ;
+	int		c = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("mkdirlist_ung: entered ung=%s\n",ung) ;
+	debugprintf("mkdirlist_ung: ent ung=%s\n",ung) ;
 	debugprintf("mkdirlist_ung: f_sub=%u\n",f_sub) ;
 #endif
 
@@ -401,10 +402,10 @@ int mkdirlist_audit(op)
 MKDIRLIST	*op ;
 {
 	VECHAND		*dlp ;
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
 #if	CF_DEBUGS
-	debugprintf("mkdirlist_audit: entered\n") ;
+	debugprintf("mkdirlist_audit: ent\n") ;
 #endif
 
 	if (op == NULL) return SR_FAULT ;

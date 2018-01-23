@@ -15,6 +15,10 @@
 	= 1998-11-22, David A­D­ Morano
         I did some clean-up.
 
+	= 2018-01-22, David A­D­ Morano
+        I updated this to decode coded (mail-message) header values.
+
+
 */
 
 /* Copyright © 1994,1998 David A­D­ Morano.  All rights reserved. */
@@ -30,7 +34,7 @@
 	Synopsis:
 
 	int emit_header(pip,dsp,ai,ap,ngdir,af)
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 	MKDIRLIST_ENT	*dsp ;
 	int		ai ;
 	ARTLIST_ENT	*ap ;
@@ -66,28 +70,35 @@
 
 #include	<vsystem.h>
 #include	<getbufsize.h>
+#include	<ugetpw.h>
+#include	<getax.h>
 #include	<bfile.h>
 #include	<dater.h>
 #include	<mailmsghdrs.h>
-#include	<getax.h>
+#include	<hdrdecode.h>
 #include	<localmisc.h>
 
 #include	"headerkeys.h"
 #include	"config.h"
 #include	"defs.h"
+#include	"proghdr.h"
 #include	"mkdirlist.h"
 #include	"artlist.h"
 
 
 /* local defines */
 
+#ifndef	HEADBUFLEN
 #define	HEADBUFLEN	2048
+#endif
 
 #ifndef	BUFLEN
 #define	BUFLEN		MAXPATHLEN
 #endif
 
+#ifndef	MAXFIELDLEN
 #define	MAXFIELDLEN	77
+#endif
 
 #if	CF_UGETPW
 #define	GETPW_NAME	ugetpw_name
@@ -108,17 +119,34 @@ extern int	hdrextid(char *,int,const char *,int) ;
 extern int	bbcpy(char *,const char *) ;
 extern int	mm_getfield() ;
 
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
 extern char	*strnchr(const char *,int,int) ;
+extern char	*timestr_edate(time_t,char *) ;
 
 
 /* external variables */
+
+
+/* local structures */
+
+
+/* forward references */
+
+static int	emit_headersubj(PROGINFO *,ARTLIST_ENT *) ;
+
+
+/* local variables */
 
 
 /* exported subroutines */
 
 
 int emit_header(pip,dsp,ai,ap,ngdir,af)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 MKDIRLIST_ENT	*dsp ;
 int		ai ;
 ARTLIST_ENT	*ap ;
@@ -126,25 +154,21 @@ const char	ngdir[] ;
 const char	af[] ;
 {
 	struct ustat	mmsb ;
-	struct passwd	ps, *pp ;
 	bfile		afile, *afp = &afile ;
 	const int	hlen = HEADBUFLEN ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		i, j ;
-	int		sl, len ;
+	int		sl ;
 	int		cl ;
 	int		f_messageid ;
 	const char	*nd = pip->newsdname ;
 	const char	*idp ;
 	const char	*nbp ;
-	const char	*hk ;
 	const char	*cp ;
+	cchar		*fmt ;
 	char		hbuf[HEADBUFLEN + 1] ;
 	char		fname[MAXPATHLEN + 1] ;
-	char		buf[BUFLEN + 1] ;
 	char		buf1[BUFLEN + 1] ;
-	char		buf2[BUFLEN + 1] ;
 
 	if ((ngdir == NULL) || (*ngdir == '\0'))
 	    return EMIT_OK ;
@@ -154,7 +178,7 @@ const char	af[] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("emit_header: entered\n") ;
+	    debugprintf("emit_header: ent\n") ;
 #endif
 
 /* create the full path to this article file */
@@ -171,187 +195,197 @@ const char	af[] ;
 
 /* open the article file and get its status */
 
-	if ((rs = bopen(afp,fname, "r",0666)) < 0)
-	    goto done1 ;
-
-	if ((rs = bcontrol(afp,BC_STAT,&mmsb)) < 0)
-	    goto done2 ;
+	if ((rs = bopen(afp,fname, "r",0666)) >= 0) {
+	    if ((rs = bcontrol(afp,BC_STAT,&mmsb)) >= 0) {
+		    cchar	*hk ;
 
 /* do whatever! */
 
-	switch (pip->header) {
+	            switch (pip->header) {
 
-	case HI_ARTICLEID:
-	    bprintf(pip->ofp,"  %s\n",af) ;
-	    break ;
+	            case HI_ARTICLEID:
+	                bprintf(pip->ofp,"  %s\n",af) ;
+	                break ;
 
-	case HI_SUBJECT:
-#ifdef	COMMENT
-	    sl = mm_getfield(afp,0L,mmsb.st_size,HK_SUBJECT, hbuf,hlen) ;
-	    if (sl <= 0)
-	        sl = mm_getfield(afp,0L,mmsb.st_size,HK_TITLE,hbuf,hlen) ;
-	    if (sl > 0) {
-	        if (sl > MAXFIELDLEN) sl = MAXFIELDLEN ;
-	        bprintf(pip->ofp,"  %t\n",hbuf,sl) ;
-	    } else {
-		hk = HK_MESSAGEID ;
-	        if ((sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen)) > 0) {
-	            if (sl > 37) sl = 37 ;
-	            bprintf(pip->ofp,
-	                "  ** no subject on message ID \"%s\"\n",hbuf) ;
-	        } else {
-		    hk = HK_ARTICLEID ;
-	            sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen) ;
-	            if (sl > 37) sl = 37 ;
-	            bprintf(pip->ofp,
-	                "  ** no subject on article ID \"%s\"\n",
-	                (sl > 0) ? hbuf : af) ;
-	        }
-	    }
-#else /* COMMENT */
-		if (ap->subject != NULL) {
-		    sl = strnlen(ap->subject,MAXFIELDLEN) ;
-	            bprintf(pip->ofp,"  %t\n",ap->subject,sl) ;
-		}
-#endif /* COMMENT */
-	    break ;
+	            case HI_SUBJECT:
+	                if (ap->subject != NULL) {
+			    rs = emit_headersubj(pip,ap) ;
+	                }
+	                break ;
 
 /* try to read out a "from" header from the posted article */
-	case HI_FROM:
-	    sl = mm_getfield(afp,0L,mmsb.st_size,HK_FROM,hbuf,hlen) ;
-	    if (sl > 0) {
-	        if (sl > MAXFIELDLEN) sl = MAXFIELDLEN ;
-	        bprintf(pip->ofp,"  %t\n",hbuf,sl) ;
-	    } else {
-		const int	pwlen = getbufsize(getbufsize_pw) ;
-		struct passwd	pw ;
-		uid_t		uid = mmsb.st_uid ;
-		char		*pwbuf ;
-		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-		    if ((rs1 = GETPW_UID(&pw,pwbuf,pwlen,uid)) >= 0) {
-		        nbp = buf1 ;
-		        rs1 = mkmailname(buf1,BUFLEN,pw.pw_gecos,-1) ;
-		        if (rs1 < 0)
-			    nbp = pw.pw_name ;
-	            } else {
-	                nbp = "*unknown*" ;
-		    }
-		    uc_free(pwbuf) ;
-		} /* end if (memory-allocation) */
-	        sl = mm_getfield(afp,0L,mmsb.st_size,HK_MESSAGEID,hbuf,hlen) ;
-	        f_messageid = FALSE ;
-	        if (sl > 0) {
-	            if (sl > 57) {
-	                sl = 57 ;
-	                hbuf[sl] = '\0' ;
-	                f_messageid = TRUE ;
-	            }
-	        } else {
-	            sl = mm_getfield(afp,0L,mmsb.st_size,HK_ARTICLEID,
-	                hbuf,hlen) ;
-	            if (sl > 0) {
-	                if (sl > 57) sl = 57 ;
-	                hbuf[sl] = '\0' ;
-	            }
-	        } /* end if */
-	        if (f_messageid) {
-	            idp = hbuf ;
-	        } else {
-	            idp = (sl > 0) ? hbuf : af ;
-		}
-	        bprintf(pip->ofp,
-	            "  ** posting user on %s ID \"%s\" was '%s'\n",
-	            (f_messageid) ? "message" : "article",
-	            idp,
-	            nbp) ;
-	    } /* end if (no "from" header) */
-	    break ;
+	            case HI_FROM:
+			hk = HK_FROM ;
+	                sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen) ;
+	                if (sl > 0) {
+	                    if (sl > MAXFIELDLEN) sl = MAXFIELDLEN ;
+	                    bprintf(pip->ofp,"  %t\n",hbuf,sl) ;
+	                } else {
+	                    struct passwd	pw ;
+	                    const int	pwlen = getbufsize(getbufsize_pw) ;
+	                    uid_t		uid = mmsb.st_uid ;
+	                    cchar		*hk = HK_MESSAGEID ;
+	                    cchar		*sp ;
+	                    char		*pwbuf ;
+	                    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	                        if ((rs1 = GETPW_UID(&pw,pwbuf,pwlen,uid)) >= 0) {
+	                            nbp = buf1 ;
+	                            rs1 = mkmailname(buf1,BUFLEN,pw.pw_gecos,-1) ;
+	                            if (rs1 < 0)
+	                                nbp = pw.pw_name ;
+	                        } else {
+	                            nbp = "*unknown*" ;
+	                        }
+	                        uc_free(pwbuf) ;
+	                    } /* end if (memory-allocation) */
+	                    if (rs >= 0) {
+	                        sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen) ;
+	                        f_messageid = FALSE ;
+	                        if (sl > 0) {
+	                            if (sl > 57) {
+	                                sl = 57 ;
+	                                hbuf[sl] = '\0' ;
+	                                f_messageid = TRUE ;
+	                            }
+	                        } else {
+	                            hk = HK_ARTICLEID ;
+	                            sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,
+	                                hlen) ;
+	                            if (sl > 0) {
+	                                if (sl > 57) sl = 57 ;
+	                                hbuf[sl] = '\0' ;
+	                            }
+	                        } /* end if */
+	                        if (f_messageid) {
+	                            idp = hbuf ;
+	                        } else {
+	                            idp = (sl > 0) ? hbuf : af ;
+	                        }
+	                        fmt = "  ** posting user on %s ID \"%s\" was '%s'\n" ;
+	                        sp = ((f_messageid) ? "message" : "article") ;
+	                        bprintf(pip->ofp,fmt,sp,idp,nbp) ;
+	                    }
+	                } /* end if (no "from" header) */
+	                break ;
 
 /* try to get the date out of the article */
-	case HI_DATE:
-	    {
-	        time_t	t ;
-	        char	timebuf[TIMEBUFLEN + 1] ;
-	        sl = mm_getfield(afp,0L,mmsb.st_size,HK_DATE,hbuf,hlen) ;
+	            case HI_DATE:
+	                {
+	                    time_t	t ;
+	                    char	timebuf[TIMEBUFLEN + 1] ;
+		 	    hk = HK_DATE ;
+	                    sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen) ;
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	            debugprintf("emit_header: hdate=>%t<\n",
-	                hbuf,sl) ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("emit_header: hdate=>%t<\n",
+	                            hbuf,sl) ;
 #endif
-	        if (sl > 0) {
-	            rs = dater_setmsg(&pip->tmpdate,hbuf,sl) ;
+	                    if (sl > 0) {
+	                        rs = dater_setmsg(&pip->tmpdate,hbuf,sl) ;
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("emit_header: dater_setmsg() rs=%d\n", rs) ;
+	                        if (DEBUGLEVEL(4))
+	                            debugprintf("emit_header: "
+					"dater_setmsg() rs=%d\n", rs) ;
 #endif
-	            if (rs >= 0) {
-	                dater_gettime(&pip->tmpdate,&t) ;
-	                bprintf(pip->ofp,"  %s\n",
-	                    timestr_edate(t,timebuf)) ;
-	            } else {
-	                bprintf(pip->ofp, "  %s (arrival)\n",
-	                    timestr_edate(mmsb.st_mtime,timebuf)) ;
-		    }
-	        } else {
-	            bprintf(pip->ofp, "  %s (arrival)\n",
-	                timestr_edate(mmsb.st_mtime,timebuf)) ;
-	        }
-	    } /* end block */
-	    break ;
+	                        if (rs >= 0) {
+	                            dater_gettime(&pip->tmpdate,&t) ;
+	                            bprintf(pip->ofp,"  %s\n",
+	                                timestr_edate(t,timebuf)) ;
+	                        } else {
+	                            bprintf(pip->ofp, "  %s (arrival)\n",
+	                                timestr_edate(mmsb.st_mtime,timebuf)) ;
+	                        }
+	                    } else {
+	                        bprintf(pip->ofp, "  %s (arrival)\n",
+	                            timestr_edate(mmsb.st_mtime,timebuf)) ;
+	                    }
+	                } /* end block */
+	                break ;
 
 /* message-ID */
-	case HI_MSGID:
-	    sl = mm_getfield(afp,0L,mmsb.st_size,HK_MESSAGEID,
-	        hbuf,hlen) ;
+	            case HI_MSGID:
+			hk = HK_MESSAGEID ;
+	                sl = mm_getfield(afp,0L,mmsb.st_size,hk,hbuf,hlen) ;
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-		debugprintf("emit_header: hl=%d hb=%s\n",sl,hbuf) ;
+	                if (DEBUGLEVEL(4))
+	                    debugprintf("emit_header: hl=%d hb=%s\n",sl,hbuf) ;
 #endif
-	    if (sl > 0) {
-		const int	ilen = MAXNAMELEN ;
-		char		ibuf[MAXNAMELEN+1] ;
-		cp = ibuf ;
-		if ((rs = hdrextid(ibuf,ilen,hbuf,sl)) == 0) {
-		    const char	*tp ;
-		    const char	*sp = hbuf ;
-		    int		sl = hlen ;
-		    if ((tp = strnchr(sp,sl,',')) != NULL) sl = (tp-hbuf) ;
-		    if ((cl = sfcenter(sp,sl,"<>",&cp)) <= 0) {
-			cp = sp ;
-			cl = sl ;
-		    }
-		}
+	                if (sl > 0) {
+	                    const int	ilen = MAXNAMELEN ;
+	                    char	ibuf[MAXNAMELEN+1] ;
+	                    cp = ibuf ;
+	                    if ((rs = hdrextid(ibuf,ilen,hbuf,sl)) == 0) {
+	                        const char	*tp ;
+	                        const char	*sp = hbuf ;
+	                        int		sl = hlen ;
+	                        if ((tp = strnchr(sp,sl,',')) != NULL) {
+				    sl = (tp-hbuf) ;
+				}
+	                        if ((cl = sfcenter(sp,sl,"<>",&cp)) <= 0) {
+	                            cp = sp ;
+	                            cl = sl ;
+	                        }
+	                    }
 #ifdef	COMMENT
-	        if ((cp = strchr(hbuf,'<')) != NULL) {
-	            char	*cp2 ;
-	            cp += 1 ;
-	            if ((cp2 = strchr(cp,'>')) != NULL)
-	                *cp2 = '\0' ;
-	        } else
-	            cp = hbuf ;
-	        cp[MAXFIELDLEN] = '\0' ;
+	                    if ((cp = strchr(hbuf,'<')) != NULL) {
+	                        char	*cp2 ;
+	                        cp += 1 ;
+	                        if ((cp2 = strchr(cp,'>')) != NULL) {
+	                            *cp2 = '\0' ;
+				}
+	                    } else {
+	                        cp = hbuf ;
+	                    }
+	                    cp[MAXFIELDLEN] = '\0' ;
 #endif /* COMMENT */
-	        if (cl > MAXFIELDLEN) cl = MAXFIELDLEN ;
+	                    if (cl > MAXFIELDLEN) cl = MAXFIELDLEN ;
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(4))
-		debugprintf("emit_header: mid=%t\n",cp,cl) ;
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("emit_header: mid=%t\n",cp,cl) ;
 #endif
-	        bprintf(pip->ofp,"  %t\n",cp,cl) ;
-	    } else {
-	        bprintf(pip->ofp,
-	            "  ** article ID - %s\n",af) ;
-	    }
-	    break ;
+	                    bprintf(pip->ofp,"  %t\n",cp,cl) ;
+	                } else {
+	                    bprintf(pip->ofp,"  ** article ID - %s\n",af) ;
+	                }
+	                break ;
 
-	} /* end switch */
+	            } /* end switch */
 
-/* we are done, let's get out of here */
-done2:
-	bclose(afp) ;
+	    } /* end if (bcontrol) */
+	    rs1 = bclose(afp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (bfile) */
 
-done1:
 	return (rs >= 0) ? EMIT_DONE : rs ;
 }
 /* end subroutine (emit_header) */
+
+
+/* local subroutines */
+
+
+static int emit_headersubj(PROGINFO *pip,ARTLIST_ENT *ap)
+{
+	int		rs ;
+	cchar		*sp = ap->subject ;
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("emit_headersubj: ent\n") ;
+#endif
+	if (sp != NULL) {
+	    const int	c = strnlen(ap->subject,MAXFIELDLEN) ;
+	    const int	rlen = MAXFIELDLEN ;
+	    char		rbuf[MAXFIELDLEN+1] ;
+	    if ((rs = proghdr_trans(pip,rbuf,rlen,sp,-1,c)) >= 0) {
+	        rs = bprintf(pip->ofp,"  %t\n",rbuf,rs) ;
+	    }
+	}
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("emit_headersubj: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (emit_headersubj) */
 
 

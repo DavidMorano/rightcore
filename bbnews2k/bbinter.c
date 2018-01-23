@@ -471,7 +471,7 @@ static const CMDMAP_E	defcmds[] = {
 
 int bbinter_start(iap,pip)
 BBINTER		*iap ;
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	struct ustat	sb ;
 
@@ -781,7 +781,7 @@ bad0:
 int bbinter_finish(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
@@ -864,7 +864,7 @@ BBINTER		*iap ;
 int bbinter_cmd(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -883,7 +883,7 @@ BBINTER		*iap ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	    debugprintf("bbinter_cmd: entered\n") ;
+	    debugprintf("bbinter_cmd: ent\n") ;
 #endif
 
 #if	CF_WELCOME
@@ -982,7 +982,7 @@ BBINTER		*iap ;
 static int bbinter_calclines(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	double	percent = 0.0 ;
 
@@ -1178,7 +1178,7 @@ BBINTER		*iap ;
 
 static int bbinter_utermbegin(BBINTER *iap)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 	int	rs ;
 
 	if ((rs = uterm_start(&iap->ut,iap->tfd)) >= 0) {
@@ -1196,7 +1196,7 @@ static int bbinter_utermbegin(BBINTER *iap)
 
 static int bbinter_utermend(BBINTER *iap)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
@@ -1213,7 +1213,7 @@ static int bbinter_utermend(BBINTER *iap)
 
 static int bbinter_loadcmdmap(BBINTER *iap)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	VECSTR	sc ;
 
@@ -1279,7 +1279,7 @@ static int bbinter_loadcmdmap(BBINTER *iap)
 
 static int bbinter_loadcmdmapsc(BBINTER *iap,vecstr *scp)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	i ;
@@ -1314,7 +1314,7 @@ static int bbinter_loadcmdmapsc(BBINTER *iap,vecstr *scp)
 
 static int bbinter_loadcmdmapfile(BBINTER *iap,const char *fname)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	bfile	cfile, *cfp = &cfile ;
 
@@ -1384,7 +1384,7 @@ BBINTER		*iap ;
 const char	sp[] ;
 int		sl ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	struct bbinter_fieldstr	fs[4] ;
 
@@ -1449,7 +1449,7 @@ static int bbinter_loadcmdkeyone(iap,fs)
 BBINTER		*iap ;
 struct bbinter_fieldstr	*fs ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1 = 0 ;
@@ -1539,7 +1539,7 @@ ret0:
 static int bbinter_test(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	w = 0 ;
@@ -1565,7 +1565,7 @@ BBINTER		*iap ;
 static int bbinter_refresh(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs ;
 
@@ -1587,7 +1587,7 @@ BBINTER		*iap ;
 static int bbinter_cmdin(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs ;
 	int	to ;
@@ -1632,7 +1632,7 @@ static int bbinter_cmdinesc(iap,ch)
 BBINTER		*iap ;
 int		ch ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	TERMCMD	ck ;
 
@@ -1687,7 +1687,7 @@ static int bbinter_cmddig(iap,cmd)
 BBINTER		*iap ;
 int		cmd ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	pl = (iap->plen + 1) ;
@@ -1723,7 +1723,7 @@ static int bbinter_cmdhandle(iap,key)
 BBINTER		*iap ;
 int		key ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -2052,7 +2052,7 @@ int		key ;
 
 static int bbinter_info(BBINTER *iap,int f_err,const char *fmt,...)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	va_list	ap ;
 
@@ -2076,7 +2076,7 @@ static int bbinter_info(BBINTER *iap,int f_err,const char *fmt,...)
 static int bbinter_done(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs ;
 
@@ -2091,7 +2091,7 @@ BBINTER		*iap ;
 static int bbinter_welcome(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 
@@ -2114,7 +2114,7 @@ ret0:
 static int bbinter_version(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 
@@ -2133,7 +2133,7 @@ BBINTER		*iap ;
 static int bbinter_user(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 	SBUF		b ;
 	int		rs ;
 	int		rs1 ;
@@ -2175,7 +2175,7 @@ BBINTER		*iap ;
 static int bbinter_poll(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
 	int		c = 0 ;
 
@@ -2229,7 +2229,7 @@ BBINTER		*iap ;
 static int bbinter_checkclock(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	f = FALSE ;
@@ -2257,7 +2257,7 @@ BBINTER		*iap ;
 static int bbinter_checkmail(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -2305,7 +2305,7 @@ static int bbinter_checkmailinfo(iap,buf)
 BBINTER		*iap ;
 const char	buf[] ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	f ;
@@ -2347,7 +2347,7 @@ BBINTER		*iap ;
 const char	mbname[] ;
 int		mblen ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	struct ustat	sb ;
 
@@ -2500,7 +2500,7 @@ ret0:
 static int bbinter_mailscan(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	si ;
@@ -2546,7 +2546,7 @@ static int bbinter_mailend(iap,f_quick)
 BBINTER		*iap ;
 int		f_quick ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rl, cl ;
@@ -2649,7 +2649,7 @@ ret0:
 
 int bbinter_charin(BBINTER *iap,const char *fmt,...)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	va_list	ap ;
 
@@ -2698,7 +2698,7 @@ int		f_ro ;
 {
 	MBCACHE_INFO	mcinfo ;
 
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -2772,7 +2772,7 @@ bad0:
 static int bbinter_mbclose(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 
@@ -2799,7 +2799,7 @@ BBINTER		*iap ;
 static int bbinter_msgnum(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs ;
 
@@ -2822,7 +2822,7 @@ static int bbinter_msgpoint(iap,sipointnext)
 BBINTER		*iap ;
 int		sipointnext ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	nmsgs = iap->nmsgs ;
@@ -2986,7 +2986,7 @@ BBINTER		*iap ;
 int		f_whole ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	MBCACHE_SCAN	*msp ;
 
@@ -3056,7 +3056,7 @@ BBINTER		*iap ;
 int		f_whole ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	MBCACHE_SCAN	*msp ;
 
@@ -3124,7 +3124,7 @@ static int bbinter_cmdpage(iap,argnum)
 BBINTER		*iap ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	MBCACHE_SCAN	*msp ;
 
@@ -3234,7 +3234,7 @@ static int bbinter_cmdbody(iap,argnum)
 BBINTER		*iap ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	MBCACHE_SCAN	*msp ;
 
@@ -3353,7 +3353,7 @@ static int bbinter_cmdmove(iap,argnum)
 BBINTER		*iap ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	MBCACHE_SCAN	*msp ;
 
@@ -3487,7 +3487,7 @@ BBINTER		*iap ;
 int		f_del ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	mi ;
@@ -3533,7 +3533,7 @@ BBINTER		*iap ;
 int		f_del ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	mi ;
@@ -3576,7 +3576,7 @@ static int bbinter_cmdsubject(iap,argnum)
 BBINTER		*iap ;
 int		argnum ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	MBCACHE_SCAN	*msp ;
 
@@ -3631,7 +3631,7 @@ int		cl ;
 offset_t	moff ;
 int		mlen ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	const mode_t	operms = 0666 ;
 
@@ -3700,7 +3700,7 @@ const char	cmd[] ;
 offset_t		outoff ;
 int		outlen ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1, rs2 ;
@@ -3837,7 +3837,7 @@ BBINTER		*iap ;
 const char	cmd[] ;
 const char	vfname[] ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1, rs2 ;
@@ -3945,7 +3945,7 @@ const char	mbname[] ;
 offset_t	moff ;
 int		mlen ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -3987,7 +3987,7 @@ BBINTER		*iap ;
 int		mi ;
 int		delcmd ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	mark ;
@@ -4029,7 +4029,7 @@ int		mi ;
 int		num ;
 int		delcmd ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	i ;
@@ -4094,7 +4094,7 @@ BBINTER		*iap ;
 int		si ;
 int		n ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	MBCACHE_SCAN	*msp ;
 
@@ -4223,7 +4223,7 @@ ret0:
 /* get input */
 int bbinter_input(BBINTER *iap,char *linebuf,int linelen,const char *fmt,...)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	DISPLAY		*dip = &iap->di ;
 
@@ -4279,7 +4279,7 @@ int bbinter_input(BBINTER *iap,char *linebuf,int linelen,const char *fmt,...)
 /* get input */
 int bbinter_response(BBINTER *iap,char *linebuf,int linelen,const char *fmt,...)
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	DISPLAY		*dip = &iap->di ;
 
@@ -4342,7 +4342,7 @@ ret0:
 static int bbinter_change(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rl ;
@@ -4449,7 +4449,7 @@ BBINTER		*iap ;
 const char	mbname[] ;
 int		mblen ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	struct ustat	sb ;
 
@@ -4529,7 +4529,7 @@ ret0:
 static int bbinter_cmdpathprefix(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	const int	rlen = LINEBUFLEN ;
 
@@ -4587,7 +4587,7 @@ BBINTER		*iap ;
 static int bbinter_cmdshell(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	rs1 ;
@@ -4662,7 +4662,7 @@ static int bbinter_pathprefix(iap,pathprefix)
 BBINTER		*iap ;
 const char	pathprefix[] ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	struct ustat	sb ;
 
@@ -4747,7 +4747,7 @@ static int bbinter_viewtop(iap,vln)
 BBINTER		*iap ;
 int		vln ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	f ;
@@ -4793,7 +4793,7 @@ static int bbinter_viewnext(iap,inc)
 BBINTER		*iap ;
 int		inc ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
 	int	rs = SR_OK ;
 	int	f ;
@@ -4882,22 +4882,17 @@ ret0:
 static int bbinter_msgviewopen(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
-
+	PROGINFO	*pip = iap->pip ;
 	MBCACHE_SCAN	*msp ;
-
-	int	rs = SR_OK ;
-	int	rs1 = SR_OK ;
-	int	nlines ;
-	int	vlines = -1 ;
-	int	mt ;
-	int	mi = iap->miscanpoint ;
-
+	int		rs = SR_OK ;
+	int		rs1 = SR_OK ;
+	int		nlines ;
+	int		vlines = -1 ;
+	int		mt ;
+	int		mi = iap->miscanpoint ;
 	const char	*midp ;
 	const char	*mfp = NULL ;
-
-	char	msgid[MAILADDRLEN + 1] ;
-
+	char		msgid[MAILADDRLEN + 1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -5123,14 +5118,12 @@ bad0:
 static int bbinter_msgviewclose(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
-
-	int	rs = SR_OK ;
-
+	PROGINFO	*pip = iap->pip ;
+	int		rs = SR_OK ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	debugprintf("bbinter_msgviewclose: entered\n") ;
+	debugprintf("bbinter_msgviewclose: ent\n") ;
 #endif
 
 	if (! iap->f.mvinit) {
@@ -5155,13 +5148,11 @@ static int bbinter_msgviewsetlines(iap,nlines)
 BBINTER		*iap ;
 int		nlines ;
 {
-	struct proginfo	*pip = iap->pip ;
-
-	int	rs = SR_OK ;
-	int	mi ;
-	int	vlines ;
-	int	f = FALSE ;
-
+	PROGINFO	*pip = iap->pip ;
+	int		rs = SR_OK ;
+	int		mi ;
+	int		vlines ;
+	int		f = FALSE ;
 
 #ifdef	COMMENT
 	if (! iap->f.mvinit) {
@@ -5207,15 +5198,13 @@ static int bbinter_msgviewtop(iap,lntop)
 BBINTER		*iap ;
 int		lntop ;
 {
-	struct proginfo	*pip = iap->pip ;
-
-	int	rs = SR_OK ;
-	int	c = 0 ;
-
+	PROGINFO	*pip = iap->pip ;
+	int		rs = SR_OK ;
+	int		c = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	debugprintf("bbinter_msgviewtop: entered lnviewtop=%d lntop=%d\n",
+	debugprintf("bbinter_msgviewtop: ent lnviewtop=%d lntop=%d\n",
 		iap->lnviewtop,lntop) ;
 #endif
 
@@ -5260,21 +5249,20 @@ static int bbinter_msgviewadj(iap,lntop)
 BBINTER		*iap ;
 int		lntop ;
 {
-	struct proginfo	*pip = iap->pip ;
+	PROGINFO	*pip = iap->pip ;
 
-	int	rs = SR_OK ;
-	int	mi ;
-	int	vi = 0 ;
-	int	ln = 0 ;
-	int	ndiff, nadiff ;
-	int	lines ;
-	int	n ;
-	int	c = 0 ;
-
+	int		rs = SR_OK ;
+	int		mi ;
+	int		vi = 0 ;
+	int		ln = 0 ;
+	int		ndiff, nadiff ;
+	int		lines ;
+	int		n ;
+	int		c = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
-	debugprintf("bbinter_msgviewadj: entered lnviewtop=%d lntop=%d\n",
+	debugprintf("bbinter_msgviewadj: ent lnviewtop=%d lntop=%d\n",
 		iap->lnviewtop,lntop) ;
 #endif
 
@@ -5374,12 +5362,10 @@ static int bbinter_msgviewnext(iap,inc)
 BBINTER		*iap ;
 int		inc ;
 {
-	struct proginfo	*pip = iap->pip ;
-
-	int	rs = SR_OK ;
-	int	lntop ;
-	int	c = 0 ;
-
+	PROGINFO	*pip = iap->pip ;
+	int		rs = SR_OK ;
+	int		lntop ;
+	int		c = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -5405,10 +5391,8 @@ ret0:
 static int bbinter_msgviewrefresh(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
-
-	int	rs ;
-
+	PROGINFO	*pip = iap->pip ;
+	int		rs ;
 
 	rs = bbinter_msgviewload(iap,0,iap->viewlines,iap->lnviewtop) ;
 
@@ -5423,17 +5407,13 @@ int		vi ;
 int		vn ;
 int		ln ;
 {
-	struct proginfo	*pip = iap->pip ;
-
-	int	rs = SR_OK ;
-	int	ll = -1 ;
-	int	i ;
-	int	c = 0 ;
-
+	PROGINFO	*pip = iap->pip ;
+	int		rs = SR_OK ;
+	int		ll = -1 ;
+	int		i ;
+	int		c = 0 ;
 	const char	*lp = NULL ;
-
-	char	dum[2] ;
-
+	char		dum[2] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -5535,16 +5515,11 @@ ret0:
 static int bbinter_mbviewopen(iap)
 BBINTER		*iap ;
 {
-	struct proginfo	*pip = iap->pip ;
-
+	PROGINFO	*pip = iap->pip ;
 	const mode_t	operms = 0666 ;
-
 	const int	oflags = O_RDONLY ;
-
-	int	rs = SR_OK ;
-
-	char	mbfname[MAXPATHLEN + 1] ;
-
+	int		rs = SR_OK ;
+	char		mbfname[MAXPATHLEN + 1] ;
 
 	if (iap->mfd >= 0)
 	    goto ret0 ;

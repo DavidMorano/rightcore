@@ -153,7 +153,6 @@ static int	isus(bfile *,const char *) ;
 static int	hastabs(const char *) ;
 
 static void	rslowit() ;
-static void	onintr() ;
 
 
 /* local variables */
@@ -1482,7 +1481,7 @@ char		afname[] ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    debugprintf("delremote: entered afname=%s\n",afname) ;
+	    debugprintf("delremote: ent afname=%s\n",afname) ;
 #endif
 
 	if ((rs = bopen(hfp,bbhostsfname,"r",0666)) >= 0) {
@@ -1603,10 +1602,8 @@ static void rslowit(hostname,cmd)
 char	hostname[] ;
 char	cmd[] ;
 {
-	int	rs1 ;
-
-	char	buf[CMDBUFLEN + 1] ;
-
+	int		rs1 ;
+	char		buf[CMDBUFLEN + 1] ;
 
 	rs1 = bufprintf(buf,CMDBUFLEN,
 	    "rslow > /dev/null 2>&1 -Un %s!/usr/spool/uucppublic/rslow %s",

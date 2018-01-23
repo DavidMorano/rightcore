@@ -35,12 +35,11 @@
 
  	Synopsis:
 
-	int progng(pip,sdp,dsp,emit,cmode)
-	struct proginfo	*pip ;
+	int progng(pip,sdp,dsp,emit)
+	PROGINFO	*pip ;
 	DIRSHOWN	*sdp ;
 	MKDIRLIST_ENT	*dsp ;
 	int		(*emit)() ;
-	int		cmode ;
 
  	Arguments:
 
@@ -50,10 +49,6 @@
 			be processed
  	emit		bulletin processing function
  			typically print bulletin or report title
-	cmode		currency mode 
-			CM_NEW -> new articles only
-			CM_ALL -> all articles
-			CM_OLD -> old articles only
  
 	Returns:
 
@@ -83,6 +78,10 @@
 #include	"artlist.h"
 
 
+/* typedefs */
+
+typedef int	(*emit_t)(PROGINFO *,...) ;
+
 /* external subroutines */
 
 extern int	sncpy1(char *,int,const char *) ;
@@ -96,6 +95,11 @@ extern int	pathadd(char *,int,const char *) ;
 
 extern int	bbcpy(char *,const char *) ;
 
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*timestr_log(time_t,char *) ;
 
@@ -105,11 +109,9 @@ extern char	*timestr_log(time_t,char *) ;
 
 /* forward references */
 
-static int procartload(struct proginfo *,DIRSHOWN *,ARTLIST *,
-		MKDIRLIST_ENT *) ;
-static int procartdir(struct proginfo *,ARTLIST *,const char *) ;
-static int procartlook(struct proginfo *,ARTLIST *,MKDIRLIST_ENT *,
-		int (*)(struct proginfo *,...),int) ;
+static int procartload(PROGINFO *,DIRSHOWN *,ARTLIST *,MKDIRLIST_ENT *) ;
+static int procartdir(PROGINFO *,ARTLIST *,const char *) ;
+static int procartlook(PROGINFO *,ARTLIST *,MKDIRLIST_ENT *,emit_t) ;
 
 
 /* local (static) variables */
@@ -123,30 +125,20 @@ static const char	*ignorefiles[] = {
 /* exported subroutines */
 
 
-int progng(pip,sdp,dsp,emit,cmode)
-struct proginfo	*pip ;
-DIRSHOWN	*sdp ;
-MKDIRLIST_ENT	*dsp ;
-int		(*emit)(struct proginfo *,...) ;
-int		cmode ;
+int progng(PROGINFO *pip,DIRSHOWN *sdp,MKDIRLIST_ENT *dsp,emit_t emit)
 {
 	struct timeb	now = pip->now ;
-
 	ARTLIST		al ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	retval = EMIT_DONE ;
-
-	char	timebuf1[TIMEBUFLEN + 1] ;
-	char	timebuf2[TIMEBUFLEN + 1] ;
-	char	*timebuf = timebuf1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		retval = EMIT_DONE ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("progng: entered w/ umt=%s cmode=%d\n",
-	        timestr_log(dsp->mtime,timebuf1),cmode) ;
+	if (DEBUGLEVEL(4)) {
+	    char	timebuf[TIMEBUFLEN+1] ;
+	    timestr_log(dsp->mtime,timebuf),
+	    debugprintf("progng: ent umt=%s \n",timebuf) ;
+	    }
 #endif
 
 	if (sdp == NULL) return SR_FAULT ;
@@ -160,8 +152,8 @@ int		cmode ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4)) {
-		    int	i ;
-	            const char	*np ;
+		    int		i ;
+	            cchar	*np ;
 	            time_t	a ;
 	            debugprintf("progng: artlist so far¬\n") ;
 	            for (i = 0 ; artlist_get(&al,i,NULL,&np,&a) >= 0 ; i += 1)
@@ -188,13 +180,14 @@ int		cmode ;
 /* look at articles as appropriate given the currency mode */
 
 #if	CF_DEBUGLOOK
-	        rs = procartlook(pip,&al,dsp,emit,cmode) ;
+	        rs = procartlook(pip,&al,dsp,emit) ;
 	        retval = rs ;
 #endif
 
 	    } /* end if (proc-load-arts) */
 #endif /* CF_ARTLOAD */
-	    artlist_finish(&al) ;
+	    rs1 = artlist_finish(&al) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (artlist) */
 
 #if	CF_DEBUG
@@ -210,23 +203,21 @@ int		cmode ;
 /* local subroutines */
 
 
-static int procartload(pip,sdp,alp,dsp)
-struct proginfo	*pip ;
-DIRSHOWN	*sdp ;
-ARTLIST		*alp ;
-MKDIRLIST_ENT	*dsp ;
+static int procartload(PROGINFO *pip,DIRSHOWN *sdp,ARTLIST *alp,
+		MKDIRLIST_ENT *dsp)
 {
 	MKDIRLIST_ENT	*dsp2 ;
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 	while ((rs >= 0) && (dsp != NULL)) {
 
 #if	CF_DIRSHOWN
 	    rs1 = dirshown_already(sdp,dsp,&dsp2) ;
 	    if (rs1 == SR_NOTFOUND) {
-	        if ((rs = procartdir(pip,alp,dsp->name)) >= 0)
+	        if ((rs = procartdir(pip,alp,dsp->name)) >= 0) {
 	            rs = dirshown_set(sdp,dsp) ;
+		}
 	    } /* end if (checking if directory was shown before) */
 #else /* CF_DIRSHOWN */
 	        rs = procartdir(pip,alp,dsp->name) ;
@@ -246,46 +237,43 @@ MKDIRLIST_ENT	*dsp ;
 /* end subroutine (procartload) */
 
 
-static int procartdir(pip,alp,ngd)
-struct proginfo	*pip ;
-ARTLIST		*alp ;
-const char	ngd[] ;
+static int procartdir(PROGINFO *pip,ARTLIST *alp,cchar *ngd)
 {
-	fsdir		dir ;
-	fsdir_ent	ds ;
-
 	int		rs ;
+	int		rs1 ;
 	int		c = 0 ;
-
 	const char	*nd = pip->newsdname ;
-
-	char	apath[MAXPATHLEN + 2] ;
-
+	char		apath[MAXPATHLEN + 2] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("procartdir: entered ngd=%s\n",ngd) ;
+	    debugprintf("procartdir: ent ngd=%s\n",ngd) ;
 #endif
 
 	if (ngd == NULL)
 	    return SR_FAULT ;
 
 	if ((rs = mkpath2(apath,nd,ngd)) >= 0) {
-	    int	alen = rs ;
+	    fsdir	dir ;
+	    fsdir_ent	ds ;
+	    const int	alen = rs ;
 
 	    if ((rs = fsdir_open(&dir,apath)) >= 0) {
 
 	        while ((rs = fsdir_read(&dir,&ds)) > 0) {
-	            if (ds.name[0] == '.') continue ;
-	            if (matstr(ignorefiles,ds.name,-1) < 0) {
-		        if ((rs = pathadd(apath,alen,ds.name)) >= 0) {
-	                    c += 1 ;
-	        	    rs = artlist_add(alp,ngd,apath) ;
-		        }
+	            if (ds.name[0] != '.') {
+	                if (matstr(ignorefiles,ds.name,-1) < 0) {
+		            if ((rs = pathadd(apath,alen,ds.name)) >= 0) {
+	                        c += 1 ;
+	        	        rs = artlist_add(alp,ngd,apath) ;
+		            }
+			}
 		    }
+		    if (rs < 0) break ;
 	        } /* end while (reading directory entries) */
 
-	        fsdir_close(&dir) ;
+	        rs1 = fsdir_close(&dir) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (opened directory) */
 
 	} /* end if */
@@ -300,40 +288,35 @@ const char	ngd[] ;
 /* end subroutine (procartdir) */
 
 
-static int procartlook(pip,alp,dsp,emit,cmode)
-struct proginfo	*pip ;
-ARTLIST		*alp ;
-MKDIRLIST_ENT	*dsp ;
-int		(*emit)(struct proginfo *,...) ;
-int		cmode ;
+static int procartlook(PROGINFO *pip,ARTLIST *alp,MKDIRLIST_ENT *dsp,
+		emit_t emit)
 {
-	struct timeb	now = pip->now ;
-
 	ARTLIST_ENT	*aep ;
-
-	time_t	mtime_seen = DATE1970 ;
-	time_t	amt ;
-
-	int	rs = SR_OK ;
-	int	ai ;
-	int	retval = EMIT_OK ;
-	int	c = 0 ;
-	int	f_previous = FALSE ;
-	int	f_exit = FALSE ;
-	int	f ;
-
+	time_t		mtime_seen = DATE1970 ;
+	time_t		amt ;
+	int		rs = SR_OK ;
+	int		cmode ;
+	int		ai ;
+	int		retval = EMIT_OK ;
+	int		c = 0 ;
+	int		f_previous = FALSE ;
+	int		f_exit = FALSE ;
+	int		f ;
 	const char	*fmt ;
 	const char	*fname ;
 	const char	*ngd ;
 
-
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
-	    debugprintf("progng/procartlook: looping through articles\n") ;
+	    debugprintf("progng/procartlook: ent\n") ;
 #endif /* CF_DEBUG */
 
+	cmode = CM_NEW ;
+	if (pip->f.old) cmode = CM_OLD ;
+	if (pip->f.all) cmode = CM_ALL ;
+
 	for (ai = 0 ; artlist_get(alp,ai,&ngd,&fname,&amt) >= 0 ; ai += 1) {
-	    if (fname == NULL) continue ;
+	    if (fname != NULL) {
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
@@ -356,7 +339,7 @@ int		cmode ;
 	    f = f || ((cmode == CM_NEW) && (amt > dsp->utime)) ;
 	    f = f || ((cmode == CM_OLD) && (amt <= dsp->utime)) ;
 
-	    if (f && ((rs = artlist_getentry(alp,ai,&aep)) >= 0)) {
+	        if (f && ((rs = artlist_getentry(alp,ai,&aep)) >= 0)) {
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -374,23 +357,26 @@ int		cmode ;
 	        {
 	            const int	blen = MAXNAMELEN ;
 	            int		bl ;
-	            const char	*bp ;
+	            cchar	*bp ;
 	            char	bname[MAXNAMELEN+1] ;
 	            if ((bl = sfbasename(fname,-1,&bp)) > 0) {
 	                if ((rs = sncpy1w(bname,blen,bp,bl)) > 0) {
 
 #if	CF_DEBUGEMIT
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(4)) {
-	            debugprintf("progng/procartlook: emit ai=%d\n",ai) ;
-	            debugprintf("progng/procartlook: ngd=%s\n",ngd) ;
-	            debugprintf("progng/procartlook: bname=%s\n",bname) ;
-	        }
-#endif
+	                    if (DEBUGLEVEL(4)) {
+	                        debugprintf("progng/procartlook: emit ai=%d\n",
+				    ai) ;
+	                        debugprintf("progng/procartlook: ngd=%s\n",
+				    ngd) ;
+	                        debugprintf("progng/procartlook: bname=%s\n",
+				    bname) ;
+	                    }
+#endif /* CF_DEBUG */
 #else
 	                    rs = (*emit)(pip,dsp,ai,aep,ngd,bname) ;
 	                    retval = rs ;
-#endif
+#endif /* CF_DEBUGEMIT */
 
 
 			}
@@ -402,7 +388,8 @@ int		cmode ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4)) {
 		    char	timebuf[TIMEBUFLEN+1] ;
-	            debugprintf("progng/procartlook: emit() rv=%d\n",retval) ;
+	            debugprintf("progng/procartlook: emit() rv=%d\n",
+			retval) ;
 	            debugprintf("progng/procartlook: mtime_seen=%s\n",
 	                timestr_log(mtime_seen,timebuf)) ;
 	            debugprintf("progng/procartlook: amt=%s\n",
@@ -413,43 +400,39 @@ int		cmode ;
 /* handle things (like a user specified "quit") */
 
 		if (rs >= 0) {
-	        switch (retval) {
+	            switch (retval) {
+	            case EMIT_OK:
+	            case EMIT_NEXT:
+	                f_previous = FALSE ;
+	                mtime_seen = MAX(mtime_seen,amt) ;
+	                c += 1 ;
+	                break ;
+	            case EMIT_SKIP:
+	            case EMIT_QUIT:
+	                f_exit = TRUE ;
+	                mtime_seen = MAX(mtime_seen,amt) ;
+	                break ;
+	            case EMIT_PREVIOUS:
+	                if (ai <= 0) {
+	                    fmt = "no previous articles are available\n" ;
+	                    ai -= 1 ;
+	                    bprintf(pip->ofp,fmt) ;
+	                } else {
+	                    f_previous = TRUE ;
+	                    ai -= 2 ;
+	                    c -= 2 ;
+	                }
+	                break ;
+	            case EMIT_DONE:
+	            case EMIT_SAVE:
+	                mtime_seen = MAX(mtime_seen,amt) ;
+	                break ;
+	            } /* end switch */
+		} /* end if (ok) */
 
-	        case EMIT_OK:
-	        case EMIT_NEXT:
-	            f_previous = FALSE ;
-	            mtime_seen = MAX(mtime_seen,amt) ;
-	            c += 1 ;
-	            break ;
+	        } /* end if (of looking at this article) */
 
-	        case EMIT_SKIP:
-	        case EMIT_QUIT:
-	            f_exit = TRUE ;
-	            mtime_seen = MAX(mtime_seen,amt) ;
-	            break ;
-
-	        case EMIT_PREVIOUS:
-	            if (ai <= 0) {
-	                fmt = "no previous articles are available\n" ;
-	                ai -= 1 ;
-	                bprintf(pip->ofp,fmt) ;
-	            } else {
-	                f_previous = TRUE ;
-	                ai -= 2 ;
-	                c -= 2 ;
-	            }
-	            break ;
-
-	        case EMIT_DONE:
-	        case EMIT_SAVE:
-	            mtime_seen = MAX(mtime_seen,amt) ;
-	            break ;
-
-	        } /* end switch */
-		} /* end if */
-
-	    } /* end if (of looking at this article) */
-
+	    }
 	    if (f_exit || (retval == EMIT_QUIT)) break ;
 	    if (rs < 0) break ;
 	} /* end for (looping through articles) */

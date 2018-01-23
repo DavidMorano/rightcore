@@ -181,49 +181,46 @@ const char	af[] ;
 
 	struct ustat	sb ;
 
-	bfile	afile, *afp = &afile ;
-	bfile	helpfname, *hfp = &helpfname ;
-	bfile	savefile, *sfp = &savefile ;
+	bfile		afile, *afp = &afile ;
+	bfile		helpfname, *hfp = &helpfname ;
+	bfile		savefile, *sfp = &savefile ;
 
-	int	rs = SR_OK ;
-	int	args, i, j, sl, len ;
-	int	lines, showlines ;
-	int	c, badreads ;
-	int	ip, op ;
-	int	indent = INDENT ;
-	int	f_continue ;
-	int	f_text = TRUE ;
-	int	f_header ;
-	int	f_a, f_b, f_c, f_d, f_e, f_f ;
-	int	f_board ;
-	int	f_newsgroups ;
-	int	f_date = FALSE ;
-	int	f_from = FALSE ;
-	int	f_articleid = FALSE ;
-	int	f_shown = FALSE ;
-
+	int		rs = SR_OK ;
+	int		args, i, j, sl, len ;
+	int		lines, showlines ;
+	int		c, badreads ;
+	int		ip, op ;
+	int		indent = INDENT ;
+	int		f_continue ;
+	int		f_text = TRUE ;
+	int		f_header ;
+	int		f_a, f_b, f_c, f_d, f_e, f_f ;
+	int		f_board ;
+	int		f_newsgroups ;
+	int		f_date = FALSE ;
+	int		f_from = FALSE ;
+	int		f_articleid = FALSE ;
+	int		f_shown = FALSE ;
 	const char	*cp, *cp2 ;
 	const char	*sp, *fmt ;
 	const char	*oflags ;
-
-	char	linebuf[LINEBUFLEN + 1], *lbp ;
-	char	outbuf[(2*LINEBUFLEN) + 1], *obp ;
-	char	hv_date[LINEBUFLEN + 1] ;
-	char	hv_articleid[LINEBUFLEN + 1] ;
-	char	hv_newsgroups[MAXPATHLEN + 1] ;
-	char	buf[BUFLEN + 1] ;
-	char	s[BUFSIZE + 1] ;
-	char	toks[10][COLS] ;
-	char	afname[MAXPATHLEN + 1] ;
-	char	response[ANSLEN + 1] ;
-	char	indent_string[INDENTLEN + 1] ;
-	char	hv_subject[LINEBUFLEN + 1] ;
-	char	*ofname ;
-
+	char		linebuf[LINEBUFLEN + 1], *lbp ;
+	char		outbuf[(2*LINEBUFLEN) + 1], *obp ;
+	char		hv_subject[LINEBUFLEN + 1] ;
+	char		hv_date[LINEBUFLEN + 1] ;
+	char		hv_articleid[LINEBUFLEN + 1] ;
+	char		hv_newsgroups[MAXPATHLEN + 1] ;
+	char		buf[BUFLEN + 1] ;
+	char		s[BUFSIZE + 1] ;
+	char		toks[10][COLS] ;
+	char		afname[MAXPATHLEN + 1] ;
+	char		response[ANSLEN + 1] ;
+	char		indent_string[INDENTLEN + 1] ;
+	char		*ofname ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    debugprintf("emit_article: entered\n") ;
+	    debugprintf("emit_article: ent\n") ;
 #endif
 
 	if (ngdir == NULL)
@@ -1464,12 +1461,11 @@ struct proginfo	*gp ;
 char		*deleteusers[] ;
 char		username[] ;
 {
-	int	i ;
-
+	int		i ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    debugprintf("emit_article/deluser: entered\n") ;
+	    debugprintf("emit_article/deluser: ent\n") ;
 #endif
 
 	for (i = 0 ; deleteusers[i] != NULL ; i += 1) {
@@ -1527,7 +1523,7 @@ char		afname[] ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    debugprintf("delremote: entered afname=%s\n",afname) ;
+	    debugprintf("delremote: ent afname=%s\n",afname) ;
 #endif
 
 	if ((rs = bopen(hfp,bbhostsfname,"r",0666)) >= 0) {

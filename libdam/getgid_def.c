@@ -1,6 +1,6 @@
 /* getgid_def */
 
-/* get the GID for the group 'mail' or the mail-spool area */
+/* get the GID for a named group or default to a specified value on failure */
 
 
 /* revision history:

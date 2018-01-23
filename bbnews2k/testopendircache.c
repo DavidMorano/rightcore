@@ -67,12 +67,11 @@ int main(int argc,const char **argv,const char **envv)
 	const char	*pr = getourenv(envv,VARPRPCS) ;
 
 #if	CF_DEBUGS && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 #if	CF_DEBUGS
 	{
@@ -155,11 +154,11 @@ int main(int argc,const char **argv,const char **envv)
 
 static int dumpfile(int fd,int of)
 {
-	FILEBUF	b ;
+	FILEBUF		b ;
 	const int	fo = (of | O_NETWORK) ;
-	int	rs ;
+	int		rs ;
 #if	CF_DEBUGS
-	debugprintf("main/dumpfile: entered\n") ;
+	debugprintf("main/dumpfile: ent\n") ;
 #endif
 	if ((rs = filebuf_start(&b,fd,0L,0,fo)) >= 0) {
 	    const int	to = 0 ;
@@ -193,12 +192,11 @@ static int dumpdir(int fd,int of)
 	FSDIR		d ;
 	FSDIR_ENT	de ;
 	const int	dlen = MAXPATHLEN ;
-	int	rs ;
-
-	char	dbuf[USERNAMELEN+1] ;
+	int		rs ;
+	char		dbuf[USERNAMELEN+1] ;
 
 #if	CF_DEBUGS
-	debugprintf("main/dumpdir: entered\n") ;
+	debugprintf("main/dumpdir: ent\n") ;
 #endif
 	if ((rs = bufprintf(dbuf,dlen,"/dev/fd/%u",fd)) >= 0) {
 	    if ((rs = fsdir_open(&d,dbuf)) >= 0) {

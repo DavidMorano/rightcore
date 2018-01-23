@@ -315,6 +315,7 @@ static int	procacc(PROGINFO *,char *,int,cchar *,int) ;
 static int	procsystat(PROGINFO *,char *,int,cchar *,int) ;
 static int	procla(PROGINFO *,SHIO *,char *,int,int) ;
 static int	procnfile(PROGINFO *,cchar *,int) ;
+static int	procmaxpid(PROGINFO *,cchar *,int) ;
 static int	procout(PROGINFO *,SHIO *,cchar *,int) ;
 
 static int	getla(PROGINFO *) ;
@@ -2121,7 +2122,7 @@ static int procqueryer(PROGINFO *pip,void *ofp,int ri,cchar *vp,int vl)
 	    }
 	    break ;
 	case qopt_maxpid:
-	    if ((rs = getmaxpid(0)) >= 0) {
+	    if ((rs = procmaxpid(pip,vp,vl)) >= 0) {
 	        rs = ctdeci(cvtbuf,cvtlen,rs) ;
 	        cbp = cvtbuf ;
 	        cbl = rs ;
@@ -2408,6 +2409,22 @@ static int procnfile(PROGINFO *pip,cchar *vp,int vl)
 	return rs ;
 }
 /* end subroutine (procnfile) */
+
+
+static int procmaxpid(PROGINFO *pip,cchar *vp,int vl)
+{
+	int		rs = SR_OK ;
+	int		w = 0 ;
+	if ((vp != NULL) && (vl != 0)) {
+	    rs = optbool(vp,vl) ;
+	    w = rs ;
+	}
+	if (rs >= 0) {
+	    rs = getmaxpid(w) ;
+	}
+	return rs ;
+}
+/* end subroutine (procmaxpid) */
 
 
 static int procout(PROGINFO *pip,SHIO *ofp,cchar *sp,int sl)

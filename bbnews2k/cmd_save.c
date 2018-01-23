@@ -608,14 +608,12 @@ const char	linebuf[] ;
 char		env_from[] ;
 char		env_date[] ;
 {
-	int	f_colon ;
-
+	int		f_colon ;
 	const char	*cp, *cp2 ;
-
 
 #if	CF_DEBUG
 	if (g.debuglevel > 2)
-	    debugprintf("envelope: entered\n") ;
+	    debugprintf("envelope: ent\n") ;
 #endif
 
 	if (strncmp(linebuf,"From",4) != 0)

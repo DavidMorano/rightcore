@@ -9,7 +9,6 @@
 #define	CF_TMPGROUP	1		/* change-group on TMP directory */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 #define	CF_DEBUGDUMP	0		/* debug-dump */
-#define	CF_TMPOURDNAME	1		/* new |tmpourdname()| */
 
 
 /* revision history:
@@ -1784,6 +1783,7 @@ static int locinfo_tmpourdname(LOCINFO *lip)
 /* end subroutine (locinfo_tmpourdname) */
 
 
+/* are we running with our username the same as our root name? */
 static int locinfo_runas(LOCINFO *lip)
 {
 	int		rs = SR_OK ;

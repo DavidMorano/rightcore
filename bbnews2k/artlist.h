@@ -1,6 +1,8 @@
 /* artlist */
 
 
+/* Copyright © 1995,1998,2017 David A­D­ Morano.  All rights reserved. */
+
 #ifndef	ARTLIST_INCLUDE
 #define	ARTLIST_INCLUDE		1
 
@@ -56,8 +58,7 @@ extern int	artlist_start(ARTLIST *,struct timeb *,const char *) ;
 extern int	artlist_finish(ARTLIST *) ;
 extern int	artlist_add(ARTLIST *,const char *,const char *) ;
 extern int	artlist_sort(ARTLIST *,int,int) ;
-extern int	artlist_get(ARTLIST *,int,const char **,const char **,
-			time_t *) ;
+extern int	artlist_get(ARTLIST *,int,cchar **,cchar **,time_t *) ;
 extern int	artlist_getentry(ARTLIST *,int,ARTLIST_ENT **) ;
 
 #ifdef	__cplusplus

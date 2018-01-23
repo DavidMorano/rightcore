@@ -163,7 +163,7 @@ INCS= config.h defs.h mkdirlist.h dirshown.h artlist.h
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
 OBJ01= proguserlist.o proglogid.o proglog.o
 OBJ02= progconf.o prognewsrc.o progufname.o
-OBJ03= progmoder.o progng.o progmsgenv.o
+OBJ03= progmode.o progng.o progmsgenv.o proghdr.o
 OBJ04= mkdirlist.o dirshown.o
 OBJ05= cmd_save.o cmd_output.o cmd_printout.o cmd_reply.o cmd_follow.o
 OBJ06= emit_count.o emit_header.o emit_article.o emit_mailbox.o emit_test.o
@@ -327,7 +327,9 @@ progconfig.o:		progconfig.c $(INCS)
 
 prognewsrc.o:		prognewsrc.c $(INCS) mkdirlist.h bbnewsrc.h
 
-progmoder.o:		progmoder.c $(INCS) mkdirlist.h bbnewsrc.h
+progmode.o:		progmode.c $(INCS) mkdirlist.h bbnewsrc.h
+
+proghdr.o:		proghdr.c $(INCS) proghdr.h
 
 progng.o:		progng.c $(INCS) mkdirlist.h bbnewsrc.h
 

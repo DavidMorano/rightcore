@@ -1,10 +1,10 @@
 /* progjobdir */
 
-/* make the program-specific temporary directory */
+/* make the program-specific job directory */
 /* version %I% last modified %G% */
 
 
-#define	CF_DEBUG	0		/* switchable debug print-outs */
+#define	CF_DEBUG	0		/* run-time debug print-outs */
 
 
 /* revision history:
@@ -12,13 +12,17 @@
 	= 2008-09-01, David A­D­ Morano
 	This subroutine was adopted from the DWD program.
 
+	= 2018-01-20, David A­D­ Morano
+	I changed the name of this subroutine (and the file it is in) from
+	|progtmpdir()| to |progjobdir()|.
+
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2008,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This subroutine checks/makes the program-specific temporary directory.
+        This subroutine checks/makes the program-specific job directory.
 
 
 *******************************************************************************/
@@ -30,15 +34,12 @@
 #include	<sys/param.h>
 #include	<sys/stat.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<limits.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<grp.h>
 
 #include	<vsystem.h>
 #include	<estrings.h>
-#include	<getax.h>
 #include	<localmisc.h>
 
 #include	"config.h"

@@ -113,7 +113,7 @@ extern int	progmsgenv_end(PROGINFO *) ;
 
 extern int	progufname(PROGINFO *,cchar *) ;
 extern int	prognewsrc(PROGINFO *,MKDIRLIST *,cchar *) ;
-extern int	progmoder(PROGINFO *,MKDIRLIST *,cchar *) ;
+extern int	progmode(PROGINFO *,MKDIRLIST *,cchar *) ;
 
 #ifdef	COMMENT
 extern int	process(PROGINFO *,MKDIRLIST *) ;
@@ -421,7 +421,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	cchar		*afname = NULL ;
 	cchar		*efname = NULL ;
 	cchar		*ofname = NULL ;
-	cchar		*ifname = NULL ;
 	cchar		*cfname = NULL ;
 	cchar		*ufname = NULL ;
 	cchar		*sortmode = NULL ;
@@ -680,24 +679,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                ofname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
-/* input-file */
-	                case argopt_if:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            ifname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                ifname = argp ;
 	                        } else
 	                            rs = SR_INVALID ;
 	                    }
@@ -1430,17 +1411,22 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* done */
 	if ((rs < 0) && (ex == EX_OK)) {
-	    if (! pip->f.quiet) {
-	        bprintf(pip->efp,"%s: could not process (%d)\n",
-	            pip->progname,rs) ;
-	    }
+	    cchar	*pn = pip->progname ;
+	    switch (rs) {
+	    case SR_PIPE:
+		break ;
+	    default:
+	        if (! pip->f.quiet) {
+	            bprintf(pip->efp,"%s: could not process (%d)\n",pn,rs) ;
+	        }
+		break ;
+	    } /* end switch */
 	    ex = mapex(mapexs,rs) ;
 	} /* end if */
 
 retearly:
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
-	        pip->progname,ex,rs) ;
+	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",pip->progname,ex,rs) ;
 	}
 
 #if	CF_DEBUG
@@ -2000,7 +1986,7 @@ static int procnewsdname(PROGINFO *pip)
 	        cchar		*k = "bb:newsdir" ;
 	        char		vbuf[VBUFLEN+1] ;
 	        if ((rs1 = pcsconf_fetch(pcp,k,-1,&cur,vbuf,vlen)) >= 0) {
-	            int	vl = rs1 ;
+	            int		vl = rs1 ;
 	            if (vl > 0) {
 	                cchar	**vpp = &pip->newsdname ;
 #if	CF_DEBUG
@@ -2011,6 +1997,7 @@ static int procnewsdname(PROGINFO *pip)
 	                rs = proginfo_setentry(pip,vpp,vbuf,vl) ;
 	            }
 	        } /* end if */
+		if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3))
 	            debugprintf("main/procnewsdname: pcsconf_fetch() rs=%d\n",
@@ -2151,9 +2138,9 @@ static int procuserboards(PROGINFO *pip,vecpstr *asp,cchar *ofn)
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(3))
 	                    debugprintf("main/procuserboards: "
-	                        "progmoder() rs=%d\n",rs) ;
+	                        "procboards() rs=%d\n",rs) ;
 #endif
-	            }
+	            } /* end if (ok) */
 	        } /* end if (prognewsrc) */
 
 	        rs1 = mkdirlist_finish(&dl) ;
@@ -2179,9 +2166,9 @@ static int procboards(PROGINFO *pip,MKDIRLIST *dlp,cchar *ofn)
 
 	if ((rs = ids_load(&pip->id)) >= 0) {
 	    pip->open.id = TRUE ;
-
-	    rs = progmoder(pip,dlp,ofn) ;
-
+	    {
+	        rs = progmode(pip,dlp,ofn) ;
+	    }
 	    pip->open.id = FALSE ;
 	    rs1 = ids_release(&pip->id) ;
 	    if (rs >= 0) rs = rs1 ;

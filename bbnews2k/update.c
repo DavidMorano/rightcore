@@ -78,22 +78,17 @@ struct userstat	*user_bds ;
 int		nuboards ;
 {
 	struct tm	*timep ;
-
 	MKDIRLIST	*dsp ;
-
 	BBNEWSRC	ung ;
-
-	int	rs = SR_OK ;
-	int	i ;
-	int	f_subscribe ;
-
-	char	ngname[MAXPATHLEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
-
+	int		rs = SR_OK ;
+	int		i ;
+	int		f_subscribe ;
+	char		ngname[MAXPATHLEN + 1] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
 
 #if	CF_DEBUG
 	if (gp->debuglevel > 1)
-	    debugprintf("update: entered\n") ;
+	    debugprintf("update: ent\n") ;
 #endif
 
 	gp->now.time = time(NULL) ;

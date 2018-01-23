@@ -1,2 +1,2 @@
 const char mkpwi_makedate[] =
-"@(#)mkpwi                   171204_1526:26_EST Rightcore Network Services" ;
+"@(#)mkpwi                   180120_0318:20_USEST Rightcore Network Services" ;

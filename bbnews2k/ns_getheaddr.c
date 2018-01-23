@@ -158,7 +158,7 @@ int		buflen ;
 
 
 #if	CF_DEBUGS
-	debugprintf("ns_gethe1: entered '%s'\n",
+	debugprintf("ns_gethe1: ent '%s'\n",
 	    name) ;
 #endif
 
@@ -167,7 +167,6 @@ int		buflen ;
 #if	CF_LOG
 	{
 	    char	addrbuf[INET4DOTDECLEN+1] ;
-
 
 	pid = getpid() ;
 

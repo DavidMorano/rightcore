@@ -24,12 +24,12 @@
 	These are subroutines to aid in handling parts of a message.
 
 	IMPORTANT NOTE:
-	This subroutine is NOT RFC-822 compliant !!
+	This subroutine is NOT RFC-822 compliant!
 
-	This routine searches a mail message (MM) for a given header
-	and returns the value of the header to the caller.
-	If the header appears in the message more than once, all found
-	header value strings are returned separated by a comma.
+        This routine searches a mail message (MM) for a given header and returns
+        the value of the header to the caller. If the header appears in the
+        message more than once, all found header value strings are returned
+        separated by a comma.
 
 
 	Arguments:
@@ -61,7 +61,6 @@
 #include	<sys/stat.h>
 #include	<unistd.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -94,24 +93,19 @@ extern struct proginfo	g ;
 /* exported subroutines */
 
 
-int mm_getfield(mfp,offset,mlen,h,fvalue,buflen)
+int mm_getfield(mfp,moff,mlen,h,fvalue,buflen)
 bfile		*mfp ;
-offset_t	offset ;
+offset_t	moff ;
 int		mlen ;
 const char	h[] ;
 char		fvalue[] ;
 int		buflen ;
 {
-	offset_t	moff ;
-	const int	llen = LINEBUFLEN ;
-	int		rs = SR_OK ;
-	int		i, l, ml, len ;
+	int		rs ;
 	int		flen = 0 ;
 	int		f_bol, f_eol ;
 	int		f_lookmore = FALSE ;
 	int		f_boh = FALSE ;
-	const char	*cp ;
-	char		lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUG
 	if (BATST(g.uo,UOV_CF_DEBUG)) 
@@ -119,16 +113,18 @@ int		buflen ;
 	    "mm_getfield: trying %s\n",h) ;
 #endif
 
-	moff = offset ;
-	if (bseek(mfp,moff,SEEK_SET) < 0) 
-		return BAD ;
+	if ((rs = bseek(mfp,moff,SEEK_SET)) >= 0) {
+	    const int	llen = LINEBUFLEN ;
+	    int		i, l, ml, len ;
+	    cchar	*cp ;
+	    char	lbuf[LINEBUFLEN + 1] ;
 
 	buflen -= 3 ;
 	fvalue[0] = '\0' ;
 	len = 0 ;
 	f_bol = TRUE ;
 	while ((len < mlen) && (flen < buflen) &&
-	    ((l = breadline(mfp,lbuf,LINEBUFLEN)) > 0)) {
+	    ((l = breadline(mfp,lbuf,llen)) > 0)) {
 
 #if	CF_DEBUG
 	    if (BATST(g.uo,UOV_CF_DEBUG)) 
@@ -208,7 +204,9 @@ int		buflen ;
 #endif
 
 	fvalue[flen] = '\0' ;
-	return ((flen > 0) ? flen : BAD) ;
+	} /* end if (bseek) */
+
+	return (flen > 0) ? flen : rs ;
 }
 /* end subroutine (mm_getfield) */
 

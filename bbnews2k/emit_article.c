@@ -6,8 +6,9 @@
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* run-time debugging */
 #define	CF_DELREMOTE	0		/* ? */
-#define	CF_SIGJMP	0		/* jump? */
 #define	CF_LINECHECK	0		/* |proglinecheck()| */
+#define	CF_DELREMOTE	0		/* |delremote()| */
+#define	CF_ISUS		0		/* |isus()| */
 
 
 /* revision history:
@@ -152,12 +153,15 @@ extern const char	*monthname[] ;
 /* forward references */
 
 static int	deluser() ;
-static int	delremote() ;
-static int	isus(bfile *,const char *) ;
 static int	hastabs(const char *) ;
 
-static void	rslowit() ;
-static void	onintr() ;
+#if	CF_ISUS
+static int	isus(bfile *,const char *) ;
+#endif
+
+#if	CF_DEKREMOTE
+static int	delremote() ;
+#endif
 
 
 /* local variables */
@@ -196,56 +200,43 @@ const char	ngdir[] ;
 const char	af[] ;
 {
 	struct passwd	*pp ;
-
-	struct tm	ts, *timep ;
-
 	struct ustat	sb ;
-
-	bfile	afile, *afp = &afile ;
-	bfile	helpfname, *hfp = &helpfname ;
-	bfile	savefile, *sfp = &savefile ;
-
+	bfile		afile, *afp = &afile ;
+	bfile		helpfname, *hfp = &helpfname ;
+	bfile		savefile, *sfp = &savefile ;
 	const int	llen = LINEBUFLEN ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	args, i, j, len ;
-	int	lines, showlines ;
-	int	c, badreads ;
-	int	ip, op ;
-	int	sl, cl ;
-	int	indent = INDENT ;
-	int	f_continue ;
-	int	f_text = TRUE ;
-	int	f_header ;
-	int	f_a, f_b, f_c, f_d, f_e, f_f ;
-	int	f_board ;
-	int	f_newsgroups ;
-	int	f_date = FALSE ;
-	int	f_from = FALSE ;
-	int	f_articleid = FALSE ;
-	int	f_shown = FALSE ;
-
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i, len ;
+	int		lines, showlines ;
+	int		c, badreads ;
+	int		ip, op ;
+	int		sl, cl ;
+	int		indent = INDENT ;
+	int		f_continue ;
+	int		f_text = TRUE ;
+	int		f_newsgroups ;
+	int		f_date = FALSE ;
+	int		f_from = FALSE ;
+	int		f_articleid = FALSE ;
+	int		f_shown = FALSE ;
+	int		f_a, f_b, f_c, f_d, f_e, f_f ;
 	const char	*un = pip->username ;
 	const char	*fmt ;
 	const char	*cp, *cp2 ;
-	const char	*sp ;
 	const char	*ofname ;
 	const char	*oflags ;
 	const char	*resp ;
 
-	char	lbuf[LINEBUFLEN + 1], *lbp ;
-	char	outbuf[(2*LINEBUFLEN) + 1], *obp ;
-	char	hv_date[TIMEBUFLEN + 1] ;
-	char	hv_articleid[LINEBUFLEN + 1] ;
-	char	hv_newsgroups[MAXPATHLEN + 1] ;
-	char	buf[BUFLEN + 1] ;
-	char	s[BUFSIZE + 1] ;
-	char	toks[10][COLS] ;
-	char	afname[MAXPATHLEN + 1] ;
-	char	response[ANSLEN + 1] ;
-	char	indent_string[INDENTLEN + 1] ;
-	char	hv_subject[LINEBUFLEN + 1] ;
+	char		lbuf[LINEBUFLEN + 1], *lbp ;
+	char		outbuf[(2*LINEBUFLEN) + 1], *obp ;
+	char		hv_date[TIMEBUFLEN + 1] ;
+	char		hv_newsgroups[MAXPATHLEN + 1] ;
+	char		hv_subject[LINEBUFLEN + 1] ;
+	char		buf[BUFLEN + 1] ;
+	char		afname[MAXPATHLEN + 1] ;
+	char		response[ANSLEN + 1] ;
+	char		indent_string[INDENTLEN + 1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -314,11 +305,6 @@ start:
 	    goto ret0 ;
 	}
 
-#if	CF_SIGJMP
-	if (setjmp(jmpenv)) goto finish ;
-	signal(SIGINT, onintr) ;
-#endif /* CF_SIGJMP */
-
 /* if we are an ANSI terminal, pop the screen! */
 
 	if (pip->f.popscreen)
@@ -333,10 +319,8 @@ start:
 
 /* go through the header loops */
 
-	f_header = TRUE ;
 	f_continue = FALSE ;
 	f_a = f_b = f_c = f_d = f_e = f_f = FALSE ;
-	f_board = FALSE ;
 	f_newsgroups = FALSE ;
 	while ((len = breadline(afp,lbuf,llen)) > 0) {
 
@@ -370,7 +354,6 @@ start:
 	            f_continue,CHAR_ISWHITE(lbuf[0])) ;
 #endif
 
-	        if (f_a) f_board = TRUE ;
 	        if (f_b) f_newsgroups = TRUE ;
 
 	        if (f_c) {
@@ -433,11 +416,11 @@ start:
 			cp += 1 ;
 
 	            lines += 1 ;
-	            if (pip->f.popscreen)
+	            if (pip->f.popscreen) {
 	                fmt = (hastabs(cp)) ? "%s%s: %K%s\n" : "%s%s: %s%K\n" ;
-
-	            else
+	            } else {
 	                fmt = "%s%s: %s\n" ;
+		    }
 
 	            bprintf(pip->ofp,fmt,
 	                indent_string,HK_NEWSGROUPS,cp) ;
@@ -661,20 +644,16 @@ start:
 #endif
 
 	    if (! f_date) {
+		struct tm	ts, *timep ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
 			debugprintf("emit_article: getting file time \n") ;
 #endif
 
-#ifdef	SYSV
 	        timep = 
 	            (struct tm *) localtime_r((time_t *) &sb.st_mtime,
 	            &ts) ;
-#else
-	        timep = 
-	            (struct tm *) localtime((time_t *) &sb.st_mtime) ;
-#endif
 
 	        bufprintf(hv_date,TIMEBUFLEN,
 			"%02d %3s %4d %02d:%02d %s",
@@ -693,8 +672,9 @@ start:
 	        lines += 1 ;
 	        if (pip->f.popscreen) {
 	            fmt = "%s%s:       %s%K\n" ;
-	        } else
+	        } else {
 	            fmt = "%s%s:       %s\n" ;
+		}
 
 	        bprintf(pip->ofp,fmt,
 	            indent_string,HK_DATE,
@@ -1037,16 +1017,16 @@ prompt:
 	    debugprintf("emit_article: prompt\n") ;
 #endif
 
-	s[0] = '\0' ;
 	bprintf(pip->ofp,
 	    "next, previous, review, follow, reply,") ;
 
 	if (pip->f.popscreen) {
 	    bprintf(pip->ofp,
 	        " save, print, quit? [next] %J") ;
-	} else
+	} else {
 	    bprintf(pip->ofp,
 	        " save, print, quit? [next] ") ;
+	}
 
 	if (pip->f.interactive)
 	    bflush(pip->ofp) ;
@@ -1465,8 +1445,6 @@ prompt:
 
 	} /* end switch (on user command) */
 
-/* exit this article */
-exit:
 	bputc(pip->ofp, '\n') ;
 
 ret0:
@@ -1489,7 +1467,7 @@ const char	username[] ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    debugprintf("emit_article/deluser: entered\n") ;
+	    debugprintf("emit_article/deluser: ent\n") ;
 #endif
 
 	for (i = 0 ; deleteusers[i] != NULL ; i += 1) {
@@ -1510,6 +1488,7 @@ const char	username[] ;
 
 
 /* delete an article which is on a remote machine */
+#if	CF_DEKREMOTE
 static int delremote(pip,afname)
 struct proginfo	*pip ;
 char		afname[] ;
@@ -1547,7 +1526,7 @@ char		afname[] ;
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
-	    debugprintf("delremote: entered afname=%s\n",afname) ;
+	    debugprintf("delremote: ent afname=%s\n",afname) ;
 #endif
 
 	if ((rs = bopen(hfp,bbhostsfname,"r",0666)) >= 0) {
@@ -1612,8 +1591,6 @@ char		afname[] ;
 
 /* pop it another way, also! */
 
-	        rslowit(lbp,cmd) ;
-
 	    } /* end while */
 
 	    bclose(hfp) ;
@@ -1625,23 +1602,22 @@ char		afname[] ;
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutine (delremote) */
+#endif /* CF_DELREMOTE */
 
 
 /* is this host us (lookup in "us" file) */
+#if	CF_ISUS
 static int isus(nfp,hostbuf)
 bfile		*nfp ;
 const char	hostbuf[] ;
 {
 	const int	llen = LINEBUFLEN ;
-
-	int	rs ;
-	int	cl ;
-	int	f = FALSE ;
-
+	int		rs ;
+	int		cl ;
+	int		f = FALSE ;
 	const char	*lbp ;
 	const char	*cp ;
-
-	char	lbuf[LINEBUFLEN + 1] ;
+	char		lbuf[LINEBUFLEN + 1] ;
 
 
 	bseek(nfp,0L,SEEK_SET) ;
@@ -1662,47 +1638,18 @@ const char	hostbuf[] ;
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (isus) */
+#endif /* CF_ISUS */
 
 
-static void rslowit(hostname,cmd)
-char	hostname[] ;
-char	cmd[] ;
-{
-	int	rs1 ;
-
-	char	buf[CMDBUFLEN + 1] ;
-
-
-	rs1 = bufprintf(buf,CMDBUFLEN,
-	    "rslow > /dev/null 2>&1 -Un %s!/usr/spool/uucppublic/rslow %s",
-	    hostname,cmd) ;
-
-	if (rs1 >= 0)
-	    system(buf) ;
-
-}
-/* end subroutine (rslowit) */
-
-
-static int hastabs(s)
-const char	s[] ;
+static int hastabs(cchar *s)
 {
 
-
-	while (*s && (*s != '\t'))
-		s += 1 ;
+	while (*s && (*s != '\t')) {
+	    s += 1 ;
+	}
 
 	return (*s) ? TRUE : FALSE ;
 }
 /* end subroutine (hastabs) */
-
-#if	CF_SIGJMP
-static void onintr()
-{
-
-	longjmp(jmpenv, 1) ;
-}
-/* end subroutine (inintr) */
-#endif /* CF_SIGJMP */
 
 

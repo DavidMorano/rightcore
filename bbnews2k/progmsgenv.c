@@ -57,7 +57,6 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	matocasestr(const char **,int,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -65,12 +64,8 @@ extern int	debugprinthex(const char *,int,const char *,int) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
-
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*timestr_log(time_t,char *) ;
-extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */
@@ -84,7 +79,7 @@ extern char	*timestr_logz(time_t,char *) ;
 
 /* forward references */
 
-static int progmsgenv_beginer(PROGINFO *pip) ;
+static int	progmsgenv_beginer(PROGINFO *pip) ;
 
 
 /* local variables */
@@ -148,7 +143,7 @@ static int progmsgenv_beginer(PROGINFO *pip)
 	if (! pip->open.envdate) {
 	    struct timeb	*nowp = &pip->now ;
 	    DATER		*dp = &pip->envdate ;
-	    const char	*zn = pip->zname ;
+	    const char		*zn = pip->zname ;
 	    if ((rs = dater_start(dp,nowp,zn,-1)) >= 0) {
 		time_t		t = pip->daytime ;
 		const int	isdst = nowp->dstflag ;

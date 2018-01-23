@@ -96,25 +96,17 @@ char		ufname[] ;
 struct userstat	**ubpp ;
 {
 	struct ustat	sn, ss, stbuf ;
-
 	struct userstat	us ;
-
 	MKDIRLIST	*pdp ;
-
 	BBNEWSRC	ung ;
 	BBNEWSRC_ENT	unge ;
-
 	bfile		sfile, *sfp = &sfile ;
 	bfile		nfile, *nfp = &nfile ;
 	bfile		lfile, *lfp = &lfile ;
-
 	time_t		daytime ;
 	time_t		mtime_user ;
-
 	ulong		ulw ;
-
 	size_t		msize ;
-
 	int		rs, rs2, len ;
 	int		sfd, nfd, lfd ;
 	int		i, j, fd ;
@@ -124,19 +116,15 @@ struct userstat	**ubpp ;
 	int		f_subscribe ;
 	int		f_show ;
 	int		f_first ;
-
 	const char	*cp, *cp2 ;
-
-	char	lfname[MAXPATHLEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
-	char	*env ;
-
-	void	*p ;
-
+	char		lfname[MAXPATHLEN + 1] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
+	char		*env ;
+	void		*p ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	    debugprintf("get_bds: entered\n") ;
+	    debugprintf("get_bds: ent\n") ;
 #endif
 
 /* get all newsgroup names (that we can read) and the "stat"s on them */

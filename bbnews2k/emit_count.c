@@ -79,19 +79,15 @@ ARTLIST_ENT	*ap ;
 const char	ngdir[] ;
 const char	af[] ;
 {
-	int	rs = EMIT_OK ;
-
+	int		rs = EMIT_OK ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))
-	    debugprintf("emit_count: entered ng=%s af=%s\n",ngdir,af) ;
+	    debugprintf("emit_count: ent ng=%s af=%s\n",ngdir,af) ;
 #endif
 
-	if (ngdir == NULL)
-	    return SR_FAULT ;
-
-	if (af == NULL)
-	    return SR_FAULT ;
+	if (ngdir == NULL) return SR_FAULT ;
+	if (af == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5))

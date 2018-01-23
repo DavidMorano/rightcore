@@ -20,7 +20,7 @@
 
 */
 
-/* Copyright © 1998,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1995,1998,2017 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -206,28 +206,23 @@ int artlist_sort(ARTLIST *alp,int sortmode,int f_reverse)
 	if (alp->magic != ARTLIST_MAGIC) return SR_NOTOPEN ;
 
 	switch (sortmode) {
-
 /* modify time on file */
 	default:
 	case 0:
 	    cmpfunc = (! f_reverse) ? cmpartforward : cmpartreverse ;
 	    break ;
-
 /* arrive */
 	case 1:
 	    cmpfunc = (! f_reverse) ? cmpaf : cmpar ;
 	    break ;
-
 /* post */
 	case 2:
 	    cmpfunc = (! f_reverse) ? cmppf : cmppr ;
 	    break ;
-
 /* compose */
 	case 3:
 	    cmpfunc = (! f_reverse) ? cmpcf : cmpcr ;
 	    break ;
-
 	} /* end switch */
 
 	rs = vechand_sort(&alp->arts,cmpfunc) ;
@@ -358,8 +353,9 @@ static int entry_start(ARTLIST_ENT *ep,DATER *dp,cchar *ngdir,cchar *name)
 			ep->name = NULL ;
 		    }
 		} /* end if (memory-allocation) */
-	    } else
+	    } else {
 	        rs = SR_ISDIR ;
+	    }
 	} /* end if (stat) */
 
 	return rs ;
@@ -417,7 +413,7 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 {
 	bfile		afile ;
 	int		rs ;
-	const char	*cp ;
+	int		rs1 ;
 
 	if ((rs = bopen(&afile,name,"r",0666)) >= 0) {
 	    MAILMSG	am ;
@@ -431,6 +427,8 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 	            time_t	ta[ARTLIST_NET] ;
 	            int		rs1 ;
 	            int		n ;
+		    int		v ;
+		    cchar	*cp ;
 
 /* get the envelope times (post & arrive) if there are any */
 
@@ -457,8 +455,9 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 	        } else if (n == 1) {
 	            ep->ptime = ep->atime = ta[0] ;
 
-	        } else if (n == 0)
+	        } else if (n == 0) {
 	            ep->ptime = ep->atime = ep->mtime ;
+		}
 
 /* get the message (composition) time (if there is one) */
 
@@ -466,8 +465,11 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 
 	            rs1 = dater_setmsg(dp,cp,rs1) ;
 
-	            if (rs1 >= 0)
-	                dater_gettime(dp,&ep->ctime) ;
+	            if (rs1 >= 0) {
+			time_t	t ;
+	                dater_gettime(dp,&t) ;
+			ep->ctime = t ;
+		    }
 
 	        } /* end if (message date) */
 
@@ -477,8 +479,11 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 
 	            rs1 = sfbracketval(cp,rs1,&cp) ;
 
-	            if (rs1 > 0)
-	                uc_mallocstrw(cp,rs1,&ep->messageid) ;
+	            if (rs1 > 0) {
+			cchar	*ccp ;
+	                uc_mallocstrw(cp,rs1,&ccp) ;
+		        ep->messageid = ccp ;
+		    }
 
 	        } /* end if (message-id) */
 
@@ -488,17 +493,19 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 
 	            rs1 = sfbracketval(cp,rs1,&cp) ;
 
-	            if (rs1 > 0)
-	                uc_mallocstrw(cp,rs1,&ep->articleid) ;
+	            if (rs1 > 0) {
+			cchar	*ccp ;
+	                uc_mallocstrw(cp,rs1,&ccp) ;
+		        ep->articleid = ccp ;
+		    }
 
 	        } /* end if (article-id) */
 
 /* get the content length if it is specified */
 
 	        if ((rs1 = mailmsg_hdrival(&am,"content-length",0,&cp)) > 0) {
-
-	            rs1 = cfdeci(cp,rs1,&ep->clen) ;
-
+	            rs1 = cfdeci(cp,rs1,&v) ;
+		    ep->clen = v ;
 	        } /* end if (article content length) */
 
 /* get the number of lines in the article body (if present) */
@@ -511,23 +518,25 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 		if (rs1 <= 0)
 		    rs1 = mailmsg_hdrival(&am,"x-lines",0,&cp) ;
 
-	        if (rs1 > 0)
-	            rs1 = cfdeci(cp,rs1,&ep->lines) ;
+	        if (rs1 > 0) {
+	            rs1 = cfdeci(cp,rs1,&v) ;
+		    ep->lines = v ;
+		}
 
 /* get the FROM information */
 
 	        if ((rs1 = mailmsg_hdrval(&am,"from",&cp)) >= 0) {
-
-	            uc_mallocstrw(cp,rs1,&ep->from) ;
-
+		    cchar	*ccp ;
+	            uc_mallocstrw(cp,rs1,&ccp) ;
+		    ep->from = ccp ;
 	        } /* end if (from) */
 
 /* get the newsgroups */
 
 	        if ((rs1 = mailmsg_hdrval(&am,"newsgroups",&cp)) >= 0) {
-
-	            uc_mallocstrw(cp,rs1,&ep->newsgroups) ;
-
+		    cchar	*cpp ;
+	            uc_mallocstrw(cp,rs1,&cpp) ;
+		    ep->newsgroups = cpp ;
 	        } /* end if (newsgroups) */
 
 /* get the subject */
@@ -541,7 +550,7 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 		     rs1 = mailmsg_hdrval(&am,"subj",&cp) ;
 
 	        if (rs1 >= 0) {
-		    int	cl = strnlen(cp,rs1) ;
+		    int		cl = strnlen(cp,rs1) ;
 		    char	*bp ;
 		    if ((rs = uc_malloc((cl+1),&bp)) >= 0) {
 			if ((rs = snwcpycompact(bp,cl,cp,rs1)) >= 0) {
@@ -555,10 +564,12 @@ static int entry_load(ARTLIST_ENT *ep,DATER *dp,cchar *name)
 /* done with extracting header values with this article */
 
 		} /* end if (loadfile) */
-	        mailmsg_finish(&am) ;
+	        rs1 = mailmsg_finish(&am) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (opened MAILMSG object) */
 
-	    bclose(&afile) ;
+	    rs1 = bclose(&afile) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (open-file) */
 
 	return rs ;

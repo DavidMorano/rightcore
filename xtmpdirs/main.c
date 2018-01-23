@@ -80,15 +80,10 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath1w(char *,const char *,int) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
-extern int	headkeymat(const char *,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecui(const char *,int,uint *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
-extern int	mklogid(char *,int,const char *,int,int) ;
-extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
-extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
-extern int	getgid_def(const char *,gid_t) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
 extern int	isFailOpen(int) ;
@@ -108,7 +103,6 @@ extern int	strlinelen(const char *,int,int) ;
 
 extern cchar	*getourenv(const char **,const char *) ;
 
-extern char	*strdcpy3(char *,int,const char *,const char *,const char *) ;
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
@@ -572,8 +566,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,pip->version) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,pip->version) ;
 	}
 
 /* get some program information */
@@ -615,6 +608,10 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    pip->n = rs ;
 	}
 
+	if (rs >= 0) {
+	    if ((ai_pos < 0) || (ai_max < 0)) rs = SR_BUGCHECK ;
+	}
+
 	if (pip->tmpdname != NULL) pip->final.tmpdir = TRUE ;
 
 	if (rs >= 0) {
@@ -628,9 +625,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-/* get the group information that we need */
-
-	pip->gid_tmp = getgid_def(TMPGNAME,TMPGID) ;
+/* continue */
 
 	if (rs >= 0) {
 	    USERINFO	u ;

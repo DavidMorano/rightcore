@@ -17,7 +17,7 @@
 
 /*******************************************************************************
 
-	We calculate the combinations of the given number *without* repititions.
+	We calculate the combinations n-C-k *without* repititions.
 
 	Synopsis:
 	LONG combinations(int n,int k)
@@ -31,18 +31,28 @@
 
 	= Notes:
 
+	· Combinations *without* repetition (this subroutine):
+
+	special cases
+	
 	+ k == 0 -> ans = 1
 	+ k == 1 -> ans = n 
 	+ k == n -> ans = 1
 	+ k > n  -> ans = 0		(sort of a special case)
 
-	Note for combinations *with* repitition:
+	general (classic n-choose-k)
+
+		{     n!      }
+		{------------ }
+		{ k! · (n-k)! }
+
+	· Note for combinations *with* repitition:
 
 	For combinations *with* repitition the result is:
 
-		(n-k-1)!	  { n-k-1 }   { n-k-1  }
-	        --------	= { ----- } = { ------ }
-		k! · (n-1)!	  {   k!  }   { (n-1)! }
+		 (n-k-1)!	  { n-k-1 }   { n-k-1 }
+	        -----------	= {       } = {       }
+		k! · (n-1)!	  {   k   }   {  n-1  }
 
 	Combination *with* repitition are also called "multicombinations."
 	A subroutine for multicombinations is provied (below) and is:

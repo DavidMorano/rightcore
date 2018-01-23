@@ -280,6 +280,7 @@ struct proginfo {
 	void		*userlist ;	/* user-list state */
 	void		*config ;	/* configuration */
 	void		*pcsconf ;	/* save space when not needed */
+	void		*hdr ;		/* for HDRDECODE */
 	PROGINFO_FL	have, final, f, changed ;
 	PROGINFO_FL	open ;
 	struct timeb	now ;
