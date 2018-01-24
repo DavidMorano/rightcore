@@ -291,11 +291,13 @@ progout.o:		progout.c $(INCS)
 
 progarts.o:		progarts.c $(INCS) ng.h retpath.h article.h
 
+progartmaint.o:		progartmaint.c $(INCS)
+
 progmsgfromname.o:	progmsgfromname.c $(INCS)
 
 progmsgfromaddr.o:	progmsgfromaddr.c $(INCS)
 
-mkmsgid.o:		mkmsgid.c $(INCS)
+progmsgid.o:		progmsgid.c $(INCS)
 
 broadcast.o:		broadcast.c $(INCS) ng.h retpath.h
 
@@ -360,6 +362,8 @@ emaentry_getbestaddr.o:	emaentry_getbestaddr.c ema.h
 base64.o:		base64.c base64.h
 
 tmz.o:			tmz.c tmz.h
+
+fsdirtree.o:		fsdirtree.c fsdirtree.h
 
 
 pcsconfs.o:		pcsconfs.c pcsconfs.h

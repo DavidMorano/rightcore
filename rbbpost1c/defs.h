@@ -180,6 +180,8 @@ typedef unsigned long	utime_t	;
 
 #define	ARGINFO		struct arginfo
 
+#define	TDINFO		struct tdinfo
+
 
 struct proginfo_flags {
 	uint		progdash:1 ;
@@ -203,6 +205,7 @@ struct proginfo_flags {
 	uint		spam:1 ;
 	uint		artexpires:1 ;
 	uint		artmaint:1 ;
+	uint		artcores:1 ;
 	uint		mime:1 ;
 	uint		dis_inline:1 ;
 } ;

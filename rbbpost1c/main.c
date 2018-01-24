@@ -249,7 +249,7 @@ static int	pcsconf_mkdir() ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"TMPDIR",
@@ -268,6 +268,7 @@ static cchar *argopts[] = {
 	"et",
 	"expires",
 	"maint",
+	"cores",
 	NULL
 } ;
 
@@ -290,6 +291,7 @@ enum argopts {
 	argopt_et,
 	argopt_expire,
 	argopt_maint,
+	argopt_cores,
 	argopt_overlast
 } ;
 
@@ -315,33 +317,21 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static const char	*akonames[] = {
 	"squery",
+	"expires",
+	"maint",
+	"cores",
 	NULL
 } ;
 
 enum akonames {
 	akoname_squery,
+	akoname_expires,
+	akoname_maint,
+	akoname_cores,
 	akoname_overlast
 } ;
-
-#ifdef	COMMENT
-
-static cchar	*configkeys[] = {
-	"newsdir",
-	"timestamp",
-	"mincheck",
-	NULL
-} ;
-
-enum configkeys {
-	configkey_newsdir,
-	configkey_timestamp,
-	configkey_mincheck,
-	configkey_overlast
-} ;
-
-#endif /* COMMENT */
 
 static const uchar	aterms[] = {
 	0x00, 0x2E, 0x00, 0x00,
@@ -708,6 +698,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* article-expire mode */
 	                case argopt_expire:
 	                    pip->f.artexpires = TRUE ;
+	                    pip->final.artexpires = TRUE ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
@@ -720,11 +711,25 @@ int main(int argc,cchar *argv[],cchar *envv[])
 /* article-maintenance mode */
 	                case argopt_maint:
 	                    pip->f.artmaint = TRUE ;
+	                    pip->final.artmaint = TRUE ;
 	                    if (f_optequal) {
 	                        f_optequal = FALSE ;
 	                        if (avl) {
 	                            rs = optbool(avp,avl) ;
 	                            pip->f.artmaint = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+
+/* core removal in article spool area */
+	                case argopt_cores:
+	                    pip->f.artcores = TRUE ;
+	                    pip->final.artcores = TRUE ;
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl) {
+	                            rs = optbool(avp,avl) ;
+	                            pip->f.artcores = (rs > 0) ;
 	                        }
 	                    }
 	                    break ;
@@ -1252,6 +1257,39 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
+	                case akoname_expires:
+	                    if (! pip->final.artexpires) {
+	                        pip->have.artexpires = TRUE ;
+	                        pip->final.artexpires = TRUE ;
+	                        pip->f.artexpires = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.artexpires = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_maint:
+	                    if (! pip->final.artmaint) {
+	                        pip->have.artmaint = TRUE ;
+	                        pip->final.artmaint = TRUE ;
+	                        pip->f.artmaint = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.artmaint = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
+	                case akoname_cores:
+	                    if (! pip->final.artcores) {
+	                        pip->have.artcores = TRUE ;
+	                        pip->final.artcores = TRUE ;
+	                        pip->f.artcores = TRUE ;
+	                        if (vl > 0) {
+	                            rs = optbool(vp,vl) ;
+	                            pip->f.artcores = (rs > 0) ;
+	                        }
+	                    }
+	                    break ;
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
@@ -1265,6 +1303,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	        keyopt_curend(kop,&kcur) ;
 	    } /* end if (keyopts-cursor */
 	} /* end if (ok) */
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(3))
+	debugprintf("main/progopts: ret rs=%d c=%u\n",rs,c) ;
+#endif
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -1823,10 +1866,7 @@ cchar		*sp ;
 /* end subroutine (procartloader) */
 
 
-static int procartdel(pip,tip,aip)
-PROGINFO	*pip ;
-struct tdinfo	*tip ;
-ARTICLE		*aip ;
+static int procartdel(PROGINFO *pip,TDINFO *tip,ARTICLE *aip)
 {
 	const int	st = articlestr_articleid ;
 	int		rs ;
@@ -1975,7 +2015,7 @@ static int procartdname(PROGINFO *pip,struct tdinfo *tip)
 	cchar		*artcname = ARTCNAME ;
 
 	if ((rs = mkpath2(tip->tdname,pip->newsdname,artcname)) >= 0) {
-	    struct ustat	sb ;
+	    USTAT	sb ;
 	    if ((rs = u_stat(tip->tdname,&sb)) == SR_NOENT) {
 	        const mode_t	m = (0775 | S_ISGID) ;
 	        if ((rs = mkdirs(tip->tdname,m)) >= 0) {

@@ -38,6 +38,7 @@
 
 #include	<vsystem.h>
 #include	<bfile.h>
+#include	<fsdirtree.h>
 #include	<fsdir.h>
 #include	<char.h>
 #include	<mailmsg.h>
@@ -115,34 +116,35 @@
 
 /* external subroutines */
 
-extern int	sncpy1(char *,int,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
-extern int	sfsub(const char *,int,const char *,const char **) ;
-extern int	sfshrink(const char *,int,const char **) ;
-extern int	sfbasename(const char *,int,const char **) ;
-extern int	nextfield(const char *,int,const char **) ;
-extern int	matstr(const char **,const char *,int) ;
-extern int	matcasestr(const char **,const char *,int) ;
-extern int	cfdeci(const char *,int,int *) ;
+extern int	sncpy1(char *,int,cchar *) ;
+extern int	mkpath1(char *,cchar *) ;
+extern int	mkpath2(char *,cchar *,cchar *) ;
+extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
+extern int	sfsub(cchar *,int,cchar *,cchar **) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
+extern int	sfbasename(cchar *,int,cchar **) ;
+extern int	nextfield(cchar *,int,cchar **) ;
+extern int	matstr(cchar **,cchar *,int) ;
+extern int	matcasestr(cchar **,cchar *,int) ;
+extern int	cfdeci(cchar *,int,int *) ;
 extern int	strwcmp(cchar *,cchar *,int) ;
-extern int	mktmpfile(char *,mode_t,const char *) ;
-extern int	mkbestaddr(char *,int,const char *,int) ;
-extern int	pathadd(char *,int,const char *) ;
+extern int	mktmpfile(char *,mode_t,cchar *) ;
+extern int	mkbestaddr(char *,int,cchar *,int) ;
+extern int	pathadd(char *,int,cchar *) ;
 extern int	removes(cchar *) ;
-extern int	bufprintf(char *,int,const char *,...) ;
-extern int	hasuc(const char *,int) ;
+extern int	bufprintf(char *,int,char *,...) ;
+extern int	hasuc(cchar *,int) ;
 extern int	isprintlatin(int) ;
-extern int	hasNotDots(const char *,int) ;
+extern int	hasNotDots(cchar *,int) ;
 extern int	isOneOf(const int *,int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotValid(int) ;
 extern int	isNotAccess(int) ;
 
-extern int	mailmsg_loadline(MAILMSG *,const char *,int) ;
+extern int	mailmsg_loadline(MAILMSG *,cchar *,int) ;
 extern int	mailmsg_loadfile(MAILMSG *,bfile *) ;
-extern int	ema_haveaddr(EMA *,const char *,int) ;
-extern int	emaentry_getbestaddr(EMAENTRY *,const char **) ;
+extern int	ema_haveaddr(EMA *,cchar *,int) ;
+extern int	emaentry_getbestaddr(EMAENTRY *,cchar **) ;
 
 extern int	hdrextnum(const char *,int) ;
 
@@ -154,15 +156,6 @@ extern int	proglog_printf(PROGINFO *,cchar *,...) ;
 extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
-
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strdcpy1w(char *,int,const char *,int) ;
-extern char	*strnchr(const char *,int,int) ;
-extern char	*strnpbrk(const char *,int,const char *) ;
-extern char	*strwset(char *,int,int) ;
-extern char	*timestr_edate(time_t,char *) ;
-extern char	*timestr_hdate(time_t,char *) ;
-extern char	*timestr_logz(time_t,char *) ;
 
 
 /* external variables */
@@ -197,19 +190,19 @@ struct artinfo {
 
 /* forward references */
 
+static int	procartfiles(PROGINFO *) ;
+static int	procmsg(PROGINFO *,PROCDATA *,cchar *,int) ;
+static int	procmsger(PROGINFO *,PROCDATA *,const char *,int) ;
+static int	procmsgexpires(PROGINFO *,PROCDATA *,ARTINFO *) ;
+static int	procmsgmaint(PROGINFO *,PROCDATA *,ARTINFO *) ;
+static int	procmsgdel(PROGINFO *,PROCDATA *,ARTINFO *) ;
+
 static int	procdata_start(PROCDATA *,char *,int) ;
 static int	procdata_finish(PROCDATA *) ;
 
 static int	artinfo_start(ARTINFO *,char *,const char *,int) ;
 static int	artinfo_ngs(ARTINFO *,MAILMSG *,EMA **) ;
 static int	artinfo_finish(ARTINFO *) ;
-
-static int	procmsg(PROGINFO *,PROCDATA *,cchar *,int) ;
-
-static int	procmsger(PROGINFO *,PROCDATA *,const char *,int) ;
-static int	procmsgexpires(PROGINFO *,PROCDATA *,ARTINFO *) ;
-static int	procmsgmaint(PROGINFO *,PROCDATA *,ARTINFO *) ;
-static int	procmsgdel(PROGINFO *,PROCDATA *,ARTINFO *) ;
 
 
 /* local variables */
@@ -218,7 +211,7 @@ static int	procmsgdel(PROGINFO *,PROCDATA *,ARTINFO *) ;
 /* exported subroutines */
 
 
-int progartmaint(PROGINFO *pip,struct tdinfo *tip)
+int progartmaint(PROGINFO *pip,TDINFO *tip)
 {
 	PROCDATA	pd ;
 	int		rs ;
@@ -235,27 +228,29 @@ int progartmaint(PROGINFO *pip,struct tdinfo *tip)
 	    proglog_printf(pip,fmt,pip->f.artexpires,pip->f.artmaint) ;
 	}
 
-	if ((rs = procdata_start(&pd,tip->tdname,tip->tdlen)) >= 0) {
-	    FSDIR	artdir ;
-	    FSDIR_ENT	de ;
+	if ((rs = procartfiles(pip)) >= 0) {
+	    if ((rs = procdata_start(&pd,tip->tdname,tip->tdlen)) >= 0) {
+	        FSDIR	artdir ;
+	        FSDIR_ENT	de ;
 
-	    if ((rs = fsdir_open(&artdir,tip->tdname)) >= 0) {
-	        while ((rs = fsdir_read(&artdir,&de)) > 0) {
-	            int		el = rs ;
-	            cchar	*ep = de.name ;
-	            if (hasNotDots(ep,el)) {
-	                c += 1 ;
-	                rs = procmsg(pip,&pd,ep,el) ;
-	            } /* end if (hasNotDots) */
-	            if (rs < 0) break ;
-	        } /* end while (reading dir entries) */
-	        rs1 = fsdir_close(&artdir) ;
+	        if ((rs = fsdir_open(&artdir,tip->tdname)) >= 0) {
+	            while ((rs = fsdir_read(&artdir,&de)) > 0) {
+	                int		el = rs ;
+	                cchar	*ep = de.name ;
+	                if (hasNotDots(ep,el)) {
+	                    c += 1 ;
+	                    rs = procmsg(pip,&pd,ep,el) ;
+	                } /* end if (hasNotDots) */
+	                if (rs < 0) break ;
+	            } /* end while (reading dir entries) */
+	            rs1 = fsdir_close(&artdir) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end subroutine (fsdir_open) */
+
+	        rs1 = procdata_finish(&pd) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end subroutine (fsdir_open) */
-
-	    rs1 = procdata_finish(&pd) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end subroutine (procdata) */
+	    } /* end subroutine (procdata) */
+	} /* end subroutine (procartfiles) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -270,6 +265,54 @@ int progartmaint(PROGINFO *pip,struct tdinfo *tip)
 /* local subroutines */
 
 
+static int procartfiles(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if ((pip->newsdname != NULL) && pip->f.artcores) {
+	    const int	flen = MAXPATHLEN ;
+	    char	*fbuf ;
+	    if ((rs = uc_malloc((flen+1),&fbuf)) >= 0) {
+		if ((rs = mkpath1(fbuf,pip->newsdname)) >= 0) {
+	            fsdirtree	dt ;
+		    int		fo = 0 ;
+		    int		dl = (flen-(rs+1)) ;
+		    char	*dp = (fbuf+(rs+1)) ;
+		    fbuf[rs] = '/' ;
+	            fo |= (FSDIRTREE_MFOLLOW | FSDIRTREE_MUNIQ) ;
+	            if ((rs = fsdirtree_open(&dt,pip->newsdname,fo)) >= 0) {
+		        USTAT	sb ;
+		        while ((rs = fsdirtree_read(&dt,&sb,dp,dl)) > 0) {
+			    if (! S_ISDIR(sb.st_mode)) {
+			        int	cl ;
+			        cchar	*cp ;
+			        if ((cl = sfbasename(dp,rs,&cp)) > 0) {
+				    if (hasNotDots(cp,cl)) {
+				        if (strwcmp("core",cp,cl) == 0) {
+					    rs = uc_unlink(fbuf) ;
+				        }
+				    }
+			        }
+			    }
+		            if (rs < 0) break ;
+		        } /* end while */
+		        rs1 = fsdirtree_close(&dt) ;
+		        if (rs >= 0) rs = rs1 ;
+	            } /* end if (fsdirtree) */
+		} /* end if (mkpath) */
+		rs1 = uc_free(fbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	   } /* end if (m-a-f) */
+	} /* end if (have news-spool directory) */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(5))
+	debugprintf("progartmaint/procartfiles: ret rs=%d\n",rs) ;
+#endif
+	return rs ;
+}
+/* end subroutine (procartfiles) */
+
+
 /* process the current message */
 static int procmsg(PROGINFO *pip,PROCDATA *pdp,cchar *ep,int el)
 {
@@ -278,20 +321,20 @@ static int procmsg(PROGINFO *pip,PROCDATA *pdp,cchar *ep,int el)
 	const int	tdlen = pdp->tdlen ;
 	int		rs ;
 	int		rs1 ;
-	char		*tdname = pdp->tdname ;
+	char		*abuf = pdp->tdname ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
-	    debugprintf("progartmaint/procmsg: ent fn=%s\n",tdname) ;
+	    debugprintf("progartmaint/procmsg: ent dn=%s\n",pdp->tdname) ;
 	    debugprintf("progartmaint/procmsg: fn=%t\n",ep,el) ;
 	}
 #endif
 
-	if ((rs = pathadd(tdname,tdlen,ep)) >= 0) {
+	if ((rs = pathadd(abuf,tdlen,ep)) >= 0) {
 	    if (strwcmp("core",ep,el) == 0) {
-		rs = removes(tdname) ;
+		rs = removes(abuf) ;
 	    } else {
-	        if ((rs = bopen(afp,tdname,"r",0666)) >= 0) {
+	        if ((rs = bopen(afp,abuf,"r",0666)) >= 0) {
 		    USTAT	sb ;
 		    if ((rs = bstat(afp,&sb)) >= 0) {
 		        if (S_ISREG(sb.st_mode)) {
@@ -313,7 +356,7 @@ static int procmsg(PROGINFO *pip,PROCDATA *pdp,cchar *ep,int el)
 	        } /* end if (b-file) */
 	    } /* end if (name of file) */
 	} /* end if (path-add) */
-	tdname[tdlen] = '\0' ;
+	abuf[tdlen] = '\0' ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -416,8 +459,8 @@ static int procmsgmaint(PROGINFO *pip,PROCDATA *pdp,ARTINFO *aip)
 	if ((rs = artinfo_ngs(aip,pdp->msgp,&emap)) > 0) {
 	    int	i ;
 	    for (i = 0 ; ema_get(emap,i,&ep) >= 0 ; i += 1) {
-	        const char	*np ;
-	        int		nl ;
+	        int	nl ;
+	        cchar	*np ;
 	        if ((rs = emaentry_getbestaddr(ep,&np)) > 0) {
 	            char	abuf[MAXPATHLEN+1] ;
 	            nl = rs ;

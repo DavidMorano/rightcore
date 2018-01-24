@@ -145,7 +145,7 @@ static int	interested(int,mode_t) ;
 /* exported subroutines */
 
 
-int fsdirtree_open(FSDIRTREE *op,cchar dname[],int opts)
+int fsdirtree_open(FSDIRTREE *op,cchar *dname,int opts)
 {
 	int		rs ;
 
@@ -531,11 +531,12 @@ int fsdirtree_prune(FSDIRTREE *op,cchar **prune)
 static int fsdirtree_dirbegin(FSDIRTREE *pip)
 {
 	HDB		*dbp = &pip->dirids ;
+	hdbcmpfunc_t	cf = (hdbcmpfunc_t) diridcmp ;
 	const int	n = 50 ;
 	const int	at = 1 ;	/* use 'lookaside(3dam)' */
 	int		rs ;
 
-	rs = hdb_start(dbp,n,at,diridhash,diridcmp) ;
+	rs = hdb_start(dbp,n,at,diridhash,cf) ;
 	pip->f.dirids = (rs >= 0) ;
 
 	return rs ;
