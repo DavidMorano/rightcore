@@ -986,8 +986,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if ((rs >= 0) && (lip->max == 0) && (argval != NULL)) {
-	    rs = cfdeci(argval,-1,&v) ;
-	    lip->max = MAX(0,v) ;
+	    rs = optvalue(argval,-1) ;
+	    lip->max = rs ;
 	}
 
 /* other initilization */

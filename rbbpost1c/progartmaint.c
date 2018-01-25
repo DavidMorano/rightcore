@@ -146,15 +146,15 @@ extern int	mailmsg_loadfile(MAILMSG *,bfile *) ;
 extern int	ema_haveaddr(EMA *,cchar *,int) ;
 extern int	emaentry_getbestaddr(EMAENTRY *,cchar **) ;
 
-extern int	hdrextnum(const char *,int) ;
+extern int	hdrextnum(cchar *,int) ;
 
-extern int	progngdname(PROGINFO *,char *,const char *,int) ;
+extern int	progngdname(PROGINFO *,char *,cchar *,int) ;
 
 extern int	proglog_printf(PROGINFO *,cchar *,...) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 
@@ -213,7 +213,6 @@ static int	artinfo_finish(ARTINFO *) ;
 
 int progartmaint(PROGINFO *pip,TDINFO *tip)
 {
-	PROCDATA	pd ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
@@ -229,13 +228,14 @@ int progartmaint(PROGINFO *pip,TDINFO *tip)
 	}
 
 	if ((rs = procartfiles(pip)) >= 0) {
+	    PROCDATA	pd ;
 	    if ((rs = procdata_start(&pd,tip->tdname,tip->tdlen)) >= 0) {
-	        FSDIR	artdir ;
+	        FSDIR		artdir ;
 	        FSDIR_ENT	de ;
 
 	        if ((rs = fsdir_open(&artdir,tip->tdname)) >= 0) {
 	            while ((rs = fsdir_read(&artdir,&de)) > 0) {
-	                int		el = rs ;
+	                int	el = rs ;
 	                cchar	*ep = de.name ;
 	                if (hasNotDots(ep,el)) {
 	                    c += 1 ;
@@ -316,8 +316,6 @@ static int procartfiles(PROGINFO *pip)
 /* process the current message */
 static int procmsg(PROGINFO *pip,PROCDATA *pdp,cchar *ep,int el)
 {
-	MAILMSG		amsg, *msgp = &amsg ;
-	bfile		afile, *afp = &afile ;
 	const int	tdlen = pdp->tdlen ;
 	int		rs ;
 	int		rs1 ;
@@ -334,10 +332,12 @@ static int procmsg(PROGINFO *pip,PROCDATA *pdp,cchar *ep,int el)
 	    if (strwcmp("core",ep,el) == 0) {
 		rs = removes(abuf) ;
 	    } else {
+		bfile	afile, *afp = &afile ;
 	        if ((rs = bopen(afp,abuf,"r",0666)) >= 0) {
 		    USTAT	sb ;
 		    if ((rs = bstat(afp,&sb)) >= 0) {
 		        if (S_ISREG(sb.st_mode)) {
+			    MAILMSG	amsg, *msgp = &amsg ;
 	        	    if ((rs = mailmsg_start(msgp)) >= 0) {
 	            	        pdp->msgp = msgp ;
 
@@ -457,7 +457,7 @@ static int procmsgmaint(PROGINFO *pip,PROCDATA *pdp,ARTINFO *aip)
 #endif
 
 	if ((rs = artinfo_ngs(aip,pdp->msgp,&emap)) > 0) {
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; ema_get(emap,i,&ep) >= 0 ; i += 1) {
 	        int	nl ;
 	        cchar	*np ;
@@ -476,8 +476,8 @@ static int procmsgmaint(PROGINFO *pip,PROCDATA *pdp,ARTINFO *aip)
 	                        if ((rs = uc_access(abuf,R_OK)) >= 0) {
 	                            c += 1 ;
 	                        } else if (isNotAccess(rs)) {
-	                            uc_unlink(abuf) ;
-	                            rs = SR_OK ;
+	                            rs = uc_unlink(abuf) ;
+	                            if (rs == SR_NOENT) rs = SR_OK ;
 	                        } else if (isNotPresent(rs)) {
 	                            rs = SR_OK ;
 	                        }
@@ -589,7 +589,8 @@ static int procmsgdel(PROGINFO *pip,PROCDATA *pdp,ARTINFO *aip)
 	            rs = uc_unlink(abuf) ;
 
 	        } /* end if (path-add) */
-	        nulstr_finish(&a) ;
+	        rs1 = nulstr_finish(&a) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (nulstr) */
 	} /* end if (article-stage) */
 
@@ -652,8 +653,8 @@ static int artinfo_ngs(ARTINFO *aip,MAILMSG *msgp,EMA **rpp)
 
 	if (! aip->f.ngema) {
 	    int		vl ;
-	    const char	*hdr = HN_NEWSGROUPS ;
-	    const char	*vp ;
+	    cchar	*hdr = HN_NEWSGROUPS ;
+	    cchar	*vp ;
 	    aip->f.ngema = TRUE ;
 	    if ((rs = mailmsg_hdrval(msgp,hdr,&vp)) >= 0) {
 	        EMA	*ngp = &aip->ngema ;

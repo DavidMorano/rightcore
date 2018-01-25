@@ -12,14 +12,10 @@
 /* revision history:
 
 	= 1998-06-01, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 2006-04-05, David A­D­ Morano
-
 	Enhanced to add dev-inode uniqueness checking.
-
 
 */
 
@@ -138,7 +134,7 @@ static int	cmpuniq(struct fileuniq *,struct fileuniq *,int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -188,7 +184,7 @@ enum progmodes {
 	progmode_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -196,7 +192,7 @@ static const struct pivars	initvars = {
 	VARPRLOCAL
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -568,7 +564,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl) {
-	                            const char	*po = po_sufacc ;
+	                            cchar	*po = po_sufacc ;
 	                            rs = loadsuf(pip,&aparams,po,argp,argl) ;
 	                        }
 	                    } else
@@ -582,7 +578,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
 	                        if (argl) {
-	                            const char	*po = po_sufrej ;
+	                            cchar	*po = po_sufrej ;
 	                            rs = loadsuf(pip,&aparams,po,argp,argl) ;
 	                        }
 	                    } else
@@ -595,8 +591,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                        argp = argv[++ai] ;
 	                        argr -= 1 ;
 	                        argl = strlen(argp) ;
-	                        if (argl)
+	                        if (argl) {
 	                            rs = keyopt_loads(&akopts,argp,argl) ;
+				}
 	                    } else
 	                        rs = SR_INVALID ;
 	                    break ;
@@ -720,16 +717,16 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -784,8 +781,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	    break ;
 	} /* end switch */
 
-	if (cp != NULL)
+	if ((rs >= 0) && (cp != NULL)) {
 	    proginfo_setbanner(pip,cp) ;
+	}
 
 	if (f_usage)
 	    usage(pip) ;
@@ -803,7 +801,15 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 /* progopts */
 
-	rs = procopts(pip,&akopts,&aparams) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts,&aparams) ;
+	}
+
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto retearly ;
@@ -862,27 +868,30 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	ainfo.ai_max = ai_max ;
 	ainfo.ai_pos = ai_pos ;
 
-	if ((rs = procuniq_begin(pip)) >= 0) {
-	    if ((rs = procsuf_begin(pip,&aparams,po_sufacc,po_sufrej)) >= 0) {
-	        ARGINFO	*aip = &ainfo ;
-	        BITS	*bop = &pargs ;
-	        cchar	*ofn = ofname ;
-	        cchar	*ifn = ifname ;
-	        cchar	*afn = afname ;
+	if (rs >= 0) {
+	    if ((rs = procuniq_begin(pip)) >= 0) {
+	        PARAMOPT	*pop = &aparams ;
+	        if ((rs = procsuf_begin(pip,pop,po_sufacc,po_sufrej)) >= 0) {
+	            ARGINFO	*aip = &ainfo ;
+	            BITS	*bop = &pargs ;
+	            cchar	*ofn = ofname ;
+	            cchar	*ifn = ifname ;
+	            cchar	*afn = afname ;
 
-	        rs = process(pip,aip,bop,ofn,ifn,afn) ;
+	            rs = process(pip,aip,bop,ofn,ifn,afn) ;
 
-	        if ((rs >= 0) && (pip->debuglevel > 0)) {
-	            bprintf(pip->efp,"%s: processed files=%d\n",
-	                pip->progname,rs) ;
-	        }
+	            if ((rs >= 0) && (pip->debuglevel > 0)) {
+	                bprintf(pip->efp,"%s: processed files=%d\n",
+	                    pip->progname,rs) ;
+	            }
 
-	        rs1 = procsuf_end(pip) ;
+	            rs1 = procsuf_end(pip) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (procsuf) */
+	        rs1 = procuniq_end(pip) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (procsuf) */
-	    rs1 = procuniq_end(pip) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (procuniq) */
+	    } /* end if (procuniq) */
+	} /* end if (ok) */
 
 /* done */
 	if ((rs < 0) && (ex == EX_OK)) {
@@ -986,10 +995,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop,PARAMOPT *pop)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 
-	if ((cp = getenv(VAROPTS)) != NULL)
+	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
@@ -1000,9 +1010,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop,PARAMOPT *pop)
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
-	            vl = keyopt_fetch(kop,kp,NULL,&vp) ;
-
 	            if ((oi = matostr(progopts,2,kp,kl)) >= 0) {
+
+	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                c += 1 ;
 	                switch (oi) {
@@ -1166,9 +1176,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	            }
 	        }
 	        if (rs < 0) {
-	            bprintf(pip->efp,
-	                "%s: processing error (%d) in file=%s\n",
-	                pip->progname,rs,cp) ;
+		    fmt = "%s: processing error (%d) in file=%s\n" ;
+	            bprintf(pip->efp,fmt,pn,rs,cp) ;
 	            break ;
 	        }
 	    } /* end for */
@@ -1198,9 +1207,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	            }
 
 	            if (rs < 0) {
-	                bprintf(pip->efp,
-	                    "%s: processing error (%d) in file=%t\n",
-	                    pip->progname,rs,cp,cl) ;
+			fmt = "%s: processing error (%d) in file=%t\n" ;
+	                bprintf(pip->efp,fmt,pn,rs,cp,cl) ;
 	                break ;
 	            }
 	        } /* end while */
@@ -1271,7 +1279,6 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar fname[])
 	int		wlen = 0 ;
 	int		f_filetype ;
 	int		f_suf = TRUE ;
-	int		f_islink = FALSE ;
 	int		f_isreg = FALSE ;
 	int		f_accept = FALSE ;
 	int		f_process = TRUE ;
@@ -1294,7 +1301,7 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar fname[])
 
 	if (f_suf && (pip->f.sufacc || pip->f.sufrej)) {
 	    int		sl ;
-	    const char	*tp, *sp ;
+	    cchar	*tp, *sp ;
 	    if ((tp = strnrchr(bnp,bnl,'.')) != NULL) {
 	        sp = (tp+1) ;
 	        sl = ((bnp+bnl)-(tp+1)) ;
@@ -1331,12 +1338,11 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar fname[])
 
 	if (pip->f.f_name && f_process && (! f_accept)) {
 
-	    rs1 = hdbstr_fetch(&pip->ndb,bnp,bnl,NULL,NULL) ;
-	    if (rs1 < 0) {
-	        if (rs1 != SR_NOENT)
-	            rs = rs1 ;
-	    } else
+	    if ((rs1 = hdbstr_fetch(&pip->ndb,bnp,bnl,NULL,NULL)) >= 0) {
 	        f_process = FALSE ;
+	    } else {
+	        if (rs1 != SR_NOENT) rs = rs1 ;
+	    }
 
 	} /* end if (previously named file) */
 
@@ -1348,10 +1354,10 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar fname[])
 	        uf.dev = sb.st_dev ;
 	        uf.ino = sb.st_ino ;
 	        uf.st_mode = sb.st_mode ;
-	        if (S_ISLNK(uf.st_mode)) f_islink = TRUE ;
-	        else if (S_ISREG(uf.st_mode)) f_isreg = TRUE ;
-	    } else
+	        if (S_ISREG(uf.st_mode)) f_isreg = TRUE ;
+	    } else {
 	        f_process = FALSE ;
+	    }
 	} /* end if */
 
 /* check for one of the restricted file types */
@@ -1384,12 +1390,11 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar fname[])
 	    key.buf = &uf ;
 	    key.len = sizeof(struct fileuniq) ;
 
-	    rs1 = hdb_fetch(&pip->udb,key,NULL,NULL) ;
-	    if (rs1 < 0) {
-	        if (rs1 != SR_NOENT)
-	            rs = rs1 ;
-	    } else
+	    if ((rs1 = hdb_fetch(&pip->udb,key,NULL,NULL)) >= 0) {
 	        f_process = FALSE ;
+	    } else {
+	        if (rs1 != SR_NOENT) rs = rs1 ;
+	    }
 
 	} /* end if (unique file) */
 
@@ -1397,8 +1402,9 @@ static int procfile(PROGINFO *pip,bfile *ofp,cchar fname[])
 
 	if ((rs >= 0) && pip->f.f_noprog && f_process && (! f_accept)) {
 	    if (f_isreg) {
-	        if (procnoprog(pip,&uf,fname) != 0)
+	        if (procnoprog(pip,&uf,fname) != 0) {
 	            f_process = FALSE ;
+		}
 	    }
 	} /* end if (program file) */
 
@@ -1449,7 +1455,8 @@ static int procuniq_begin(PROGINFO *pip)
 	int		rs = SR_OK ;
 
 	if (pip->f.f_uniq) {
-	    rs = hdb_start(&pip->udb,DEFLINKS,1,NULL,cmpuniq) ;
+	    hdbcmpfunc_t	cf = (hdbcmpfunc_t) cmpuniq ;
+	    rs = hdb_start(&pip->udb,DEFLINKS,1,NULL,cf) ;
 	}
 
 #if	CF_DEBUG
@@ -1468,8 +1475,8 @@ static int procuniq_end(PROGINFO *pip)
 	int		rs1 ;
 
 	if (pip->f.f_uniq) {
-	    HDB_CUR		cur ;
-	    HDB_DATUM		key, val ;
+	    HDB_CUR	cur ;
+	    HDB_DATUM	key, val ;
 
 	    pip->f.f_uniq = FALSE ;
 	    if ((rs = hdb_curbegin(&pip->udb,&cur)) >= 0) {
@@ -1534,23 +1541,24 @@ static int procsufs(PROGINFO *pip,PARAMOPT *pop,cchar *s)
 	    if (f) {
 	        if ((rs = vecpstr_start(vlp,5,0,0)) >= 0) {
 	            if ((rs = paramopt_curbegin(pop,&cur)) >= 0) {
-	                int		vl ;
-	                const char	*vp ;
+	                int	vl ;
+	                cchar	*vp ;
 	                while ((vl = paramopt_fetch(pop,s,&cur,&vp)) >= 0) {
-	                    if (vl == 0) continue ;
+	                    if (vl != 0) {
 #if	CF_DEBUG
-	                    if (DEBUGLEVEL(3))
-	                        debugprintf("main/procsufs: s=%t\n",vp,vl) ;
+	                        if (DEBUGLEVEL(3))
+	                            debugprintf("main/procsufs: s=%t\n",vp,vl) ;
 #endif
-	                    rs = vecpstr_add(vlp,vp,vl) ;
+	                        rs = vecpstr_add(vlp,vp,vl) ;
 
+			    }
 	                    if (rs < 0) break ;
 	                } /* end while */
 	                paramopt_curend(pop,&cur) ;
 	            } /* end if (cursor) */
 	        } /* end if (vecstr-started) */
 	    } /* end if */
-	} /* end if */
+	} /* end if (positive) */
 
 ret0:
 	return (rs >= 0) ? c : rs ;
@@ -1583,8 +1591,9 @@ static int procnoprog(PROGINFO *pip,struct fileuniq *ufp,cchar fname[])
 
 	    if (rs >= 0) {
 	        char	buf[10] ;
-	        if ((rs = u_read(fd,buf,4)) >= 4)
+	        if ((rs = u_read(fd,buf,4)) >= 4) {
 	            f = (memcmp(buf,"\177ELF",4) == 0) ;
+		}
 	    } /* end if (opened) */
 
 	    u_close(fd) ;
@@ -1601,7 +1610,7 @@ static int loadsuf(PROGINFO *pip,PARAMOPT *pop,cchar *s,cchar *ap,int al)
 	int		si ;
 	int		c = 0 ;
 	int		f_final = TRUE ;
-	const char	*var ;
+	cchar		*var ;
 
 	if (ap == NULL) goto ret0 ;
 

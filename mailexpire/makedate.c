@@ -1,2 +1,2 @@
 const char mailexpire_makedate[] =
-"@(#)mailexpire              171107_1303:10_USEST Rightcore Network Services" ;
+"@(#)mailexpire              180125_0045:06_USEST Rightcore Network Services" ;

@@ -71,7 +71,7 @@
 
 /* global variables */
 
-const char *mailmsghdrs_names[] = {
+const char	*mailmsghdrs_names[] = {
 	"From",			/* 0 */
 	"To",
 	"Date",
@@ -134,35 +134,31 @@ int mailmsghdrs_start(MAILMSGHDRS *mhp,MAILMSG *msgp)
 {
 	const int	n = (HI_NULL + 1) ;
 	int		rs ;
-	int		i ;
 	int		size ;
-	int		hl ;
 	int		c = 0 ;
-	const char	**mhnames = mailmsghdrs_names ;
-	const char	*hp ;
 	void		*p ;
 
 	if ((mhp == NULL) || (msgp == NULL)) return SR_FAULT ;
 
 	size = (n+1) * sizeof(char **) ;
 	if ((rs = uc_malloc(size,&p)) >= 0) {
+	    int		i ;
+	    cchar	**mhnames = mailmsghdrs_names ;
+	    cchar	*hp ;
 	    mhp->v = p ;
 
 	    for (i = 0 ; (i < n) && (mhnames[i] != NULL) ; i += 1) {
-
 	        mhp->v[i] = NULL ;
-	        hl = mailmsg_hdrval(msgp,mhnames[i],&hp) ;
-	        if (hl >= 0) {
-
+	        if ((rs = mailmsg_hdrval(msgp,mhnames[i],&hp)) >= 0) {
 	            mhp->v[i] = hp ;
 	            c += 1 ;
-
+		} else if (rs == SR_NOTFOUND) {
+		    rs = SR_OK ;
 	        } /* end if (message header search) */
-
 	    } /* end for (looping over header names) */
 
 	    mhp->v[i] = NULL ;
-	    mhp->magic = MAILMSGHDRS_MAGIC ;
+	    if (rs >= 0) mhp->magic = MAILMSGHDRS_MAGIC ;
 	} /* end if (memory-allocation) */
 
 	return (rs >= 0) ? c : rs ;

@@ -1,7 +1,9 @@
 == Sample project highlights
 
 Described here are projects that I have worked on as part of software
-business exploration (Rightcore Network Services).
+business exploration (Rightcore Network Services). These projects mostly
+are related to information technolofy related utilities, or web server
+related functions.
 
 
 = Network de-multiplexing server family
@@ -39,6 +41,12 @@ Dispatched sub-servers can be of serveral varieties:
 
 = File backup utilities
 
+This project consists of file backup utilities which perform five main
+functions.  These are in turn characterized into two groups.  The first group
+of functions form a conventional set of traditional backup 
+functions:
+
++ incremental backups 
 
 = UNIX account management
 

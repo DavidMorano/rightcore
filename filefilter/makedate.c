@@ -1,2 +1,2 @@
 const char filefilter_makedate[] =
-	"@(#)filefilter              160531_0726:55_USEDT Rightcore Network Services¹" ;
+"@(#)filefilter              180125_0921:57_USEST Rightcore Network Services" ;
