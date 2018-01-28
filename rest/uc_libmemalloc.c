@@ -147,6 +147,14 @@ int uc_libmalloc(int size,void *vp)
 /* end subroutine (uc_libmalloc) */
 
 
+int uc_libcalloc(int nelem,int esize,void *vp)
+{
+	const int	size = (nelem*esize) ;
+	return uc_libmalloc(size,vp) ;
+}
+/* end subroutine (uc_libcalloc) */
+
+
 int uc_libvalloc(int size,void *vp)
 {
 	const size_t	msize = size ;

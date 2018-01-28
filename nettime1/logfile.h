@@ -1,12 +1,12 @@
 /* logfile */
 
+/* last modified %G% version %I% */
+
 
 /* revision history:
 
 	= 1998-02-22, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 

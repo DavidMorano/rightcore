@@ -7,7 +7,6 @@
 #define	CF_SAFE1	1		/* safe-level=1 */
 #define	CF_SAFE2	1		/* safe-level=2 (more safe) */
 #define	CF_STRNLEN	0		/* use 'strnlen(3dam)' */
-#define	CF_VSTRSORT	0		/* use |vstrsort()| */
 
 
 /* revision history:
@@ -96,10 +95,6 @@ extern int	strlinelen(const char *,int,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
-#if	CF_VSTRSORT
-extern void	vstrsort(char **,int,int (*)()) ;
-#endif
-
 
 /* local structures */
 
@@ -119,14 +114,12 @@ static int	vecpstr_finchunks(VECPSTR *) ;
 static int	vecpstr_extstr(VECPSTR *,int) ;
 static int	vecpstr_newchunk(VECPSTR *,int) ;
 static int	vecpstr_extvec(VECPSTR *,int) ;
-static int	vecpstr_record(VECPSTR *,cchar *) ;
-static int	vecpstr_reset(VECPSTR *) ;
+static int	vecpstr_record(VECPSTR *,const char *) ;
 
-static int chunk_start(VECPSTR_CHUNK *,int,int) ;
-static int chunk_finish(VECPSTR_CHUNK *) ;
-static int chunk_check(VECPSTR_CHUNK *,int) ;
-static int chunk_add(VECPSTR_CHUNK *,cchar *,int,cchar **) ;
-static int chunk_addkeyval(VECPSTR_CHUNK *,cchar *,int,cchar *,int,cchar **) ;
+static int	chunk_start(VECPSTR_CHUNK *,int,int) ;
+static int	chunk_finish(VECPSTR_CHUNK *) ;
+static int	chunk_check(VECPSTR_CHUNK *,int) ;
+static int	chunk_add(VECPSTR_CHUNK *,const char *,int,const char **) ;
 
 static int	indexlen(int) ;
 static int	indexsize(int) ;
@@ -175,11 +168,13 @@ int vecpstr_finish(VECPSTR *op)
 	int		rs1 ;
 
 #if	CF_SAFE1
-	if (op == NULL) return SR_FAULT ;
+	if (op == NULL)
+	    return SR_FAULT ;
 #endif
 
 #if	CF_SAFE2
-	if (op->magic != VECPSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VECPSTR_MAGIC)
+	    return SR_NOTOPEN ;
 #endif
 
 	if (op->va != NULL) {
@@ -207,9 +202,11 @@ int vecpstr_audit(VECPSTR *op)
 	int		c = 0 ;
 	char		*cp ;
 
-	if (op == NULL) return SR_FAULT ;
+	if (op == NULL)
+	    return SR_FAULT ;
 
-	if (op->va == NULL) return SR_NOTOPEN ;
+	if (op->va == NULL)
+	    return SR_NOTOPEN ;
 
 	for (i = 0 ; i < op->i ; i += 1) {
 	    if (op->va[i] != NULL) {
@@ -235,7 +232,7 @@ int vecpstr_add(VECPSTR *op,cchar *sp,int sl)
 
 int vecpstr_adduniq(VECPSTR *op,cchar *sp,int sl)
 {
-	int		sch ;
+	register int	sch ;
 	int		rs ;
 	int		i ;
 	int		m ;
@@ -284,57 +281,13 @@ int vecpstr_adduniq(VECPSTR *op,cchar *sp,int sl)
 /* end subroutine (vecpstr_adduniq) */
 
 
-int vecpstr_addkeyval(vecpstr *op,cchar *kp,int kl,cchar *vp,int vl)
-{
-	int		rs = SR_OK ;
-	int		amount = 0 ;
-	int		i = 0 ;
-
-	if (op == NULL) return SR_FAULT ;
-	if (kp == NULL) return SR_FAULT ;
-
-#if	CF_SAFE2
-	if (op->magic != VECPSTR_MAGIC) return SR_NOTOPEN ;
-#endif
-
-	if (kl < 0) kl = strlen(kp) ;
-
-	amount += (kl+1) ;
-	if (vp != NULL) {
-	    if (vl < 0) vl = strlen(vp) ;
-	    amount += (vl+1) ;
-	}
-
-/* do we need to extend the table? */
-
-	if ((rs = vecpstr_extstr(op,amount)) >= 0) {
-	    cchar	*cp ;
-	    if ((rs = chunk_addkeyval(op->ccp,kp,kl,vp,vl,&cp)) >= 0) {
-	        rs = vecpstr_record(op,cp) ;
-	        i = rs ;
-	    }
-	}
-
-/* update table length */
-
-	if (rs >= 0) op->stsize += amount ;
-
-#if	CF_DEBUGS
-	debugprintf("vecpstr_store: ret rs=%d i=%u\n",rs,i) ;
-#endif
-
-	return (rs >= 0) ? i : rs ;
-}
-/* end subroutine (vecpstr_addkeyval) */
-
-
 /* store a string into the table */
 int vecpstr_store(VECPSTR *op,cchar *sp,int sl,cchar **rpp)
 {
 	int		rs = SR_OK ;
 	int		amount ;
 	int		i = 0 ;
-	cchar		*cp = NULL ;
+	const char	*cp ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
@@ -367,9 +320,8 @@ int vecpstr_store(VECPSTR *op,cchar *sp,int sl,cchar **rpp)
 
 	if (rs >= 0) op->stsize += amount ;
 
-	if (rpp != NULL) {
+	if (rpp != NULL)
 	    *rpp = (rs >= 0) ? cp : NULL ;
-	}
 
 #if	CF_DEBUGS
 	debugprintf("vecpstr_store: ret rs=%d\n",rs) ;
@@ -383,7 +335,7 @@ int vecpstr_store(VECPSTR *op,cchar *sp,int sl,cchar **rpp)
 /* is a given string already represented? */
 int vecpstr_already(VECPSTR *op,cchar *sp,int sl)
 {
-	int		sch ;
+	register int	sch ;
 	int		rs = SR_NOTFOUND ;
 	int		m ;
 	int		i ;
@@ -406,15 +358,15 @@ int vecpstr_already(VECPSTR *op,cchar *sp,int sl)
 
 /* do we have it already? */
 
-	sch = sp[0] ; /* ok: since all get promoted similarly */
-	for (i = 0 ; i < op->i ; i += 1) {
-	    ep = op->va[i] ;
-	    if (sch == ep[0]) {
-		m = nleadstr(ep,sp,sl) ;
-		if ((m == sl) && (ep[m] == '\0')) break ;
+	    sch = sp[0] ; /* ok: since all get promoted similarly */
+	    for (i = 0 ; i < op->i ; i += 1) {
+	        ep = op->va[i] ;
+	        if (sch == ep[0]) {
+	            m = nleadstr(ep,sp,sl) ;
+	            if ((m == sl) && (ep[m] == '\0')) break ;
+	        }
 	    }
-	} /* end for */
-	if (i < op->i) rs = i ;
+	    if (i < op->i) rs = i ;
 
 	return rs ;
 }
@@ -521,46 +473,20 @@ int vecpstr_del(vecpstr *op,int i)
 	if (op->f.oconserve) {
 
 	    while (op->i > i) {
+
 	        if (op->va[op->i - 1] != NULL) break ;
 	        op->i -= 1 ;
+
 	    } /* end while */
 
 	} /* end if */
 
-	if (f_fi && (i < op->fi)) {
+	if (f_fi && (i < op->fi))
 	    op->fi = i ;
-	}
 
 	return op->c ;
 }
 /* end subroutine (vecpstr_del) */
-
-
-int vecpstr_delall(VECPSTR *op)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-	rs1 = vecpstr_finchunks(op) ;
-	if (rs >= 0) rs = rs1 ;
-	op->ccp = NULL ;
-
-	rs1 = vechand_delall(&op->chunks) ;
-	if (rs >= 0) rs = rs1 ;
-
-	if (op->va != NULL) {
-	    rs1 = uc_free(op->va) ;
-	    if (rs >= 0) rs = rs1 ;
-	    op->va = NULL ;
-	}
-
-	if (rs >= 0) {
-	    rs = vecpstr_reset(op) ;
-	}
-
-	return rs ;
-}
-/* end subroutine (vecpstr_delall) */
 
 
 /* get the string count in the table */
@@ -627,10 +553,11 @@ int vecpstr_search(VECPSTR *op,cchar sp[],int (*vcmpfunc)(),cchar **rpp)
 
 #ifdef	COMMENT
 	if (! op->f.issorted) {
+
 	    op->f.issorted = TRUE ;
-	    if (op->i > 1) {
+	    if (op->i > 1)
 	        qsort(op->va,op->i,sizeof(char *),vcmpfunc) ;
-	    }
+
 	} /* end if (sorting) */
 #endif /* COMMENT */
 
@@ -653,13 +580,13 @@ int vecpstr_search(VECPSTR *op,cchar sp[],int (*vcmpfunc)(),cchar **rpp)
 	            if ((*vcmpfunc)(&sp,rpp2) == 0) break ;
 		}
 	    } /* end for */
+
 	    rs = (i < op->i) ? SR_OK : SR_NOTFOUND ;
 
 	} /* end if (sorted or not) */
 
-	if (rpp != NULL) {
+	if (rpp != NULL)
 	    *rpp = (rs >= 0) ? op->va[i] : NULL ;
-	}
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -698,9 +625,8 @@ int vecpstr_finder(VECPSTR *op,cchar sp[],int (*vcmpfunc)(),cchar **rpp)
 
 	if (i < op->i) {
 	    rs = i ;
-	    if (rpp != NULL) {
+	    if (rpp != NULL)
 	        *rpp = op->va[i] ;
-	    }
 	}
 
 	return rs ;
@@ -721,7 +647,7 @@ int vecpstr_finder(VECPSTR *op,cchar sp[],int (*vcmpfunc)(),cchar **rpp)
 
 int vecpstr_find(VECPSTR *op,cchar sp[])
 {
-	int		sch ;
+	register int	sch ;
 	int		rs = SR_NOTFOUND ;
 	int		i ;
 	const char	*ep ;
@@ -797,23 +723,14 @@ int vecpstr_strsize(VECPSTR *op)
 	int		size ;
 
 #if	CF_SAFE1
-	if (op == NULL) return SR_FAULT ;
+	if (op == NULL)
+	    return SR_FAULT ;
 #endif
 
 #if	CF_SAFE2
-	if (op->magic != VECPSTR_MAGIC) return SR_NOTOPEN ;
+	if (op->magic != VECPSTR_MAGIC)
+	    return SR_NOTOPEN ;
 #endif
-
-	if (! op->f.stsize) {
-	    int		i ;
-	    for (i = 0 ; op->va[i] != NULL ; i += 1) {
-	        if (op->va[i] != NULL) {
-	            size += (strlen(op->va[i]) + 1) ;
-		}
-	    } /* end for */
-	    op->stsize = size ;
-	    op->f.stsize = TRUE ;
-	} /* end if (calculating size) */
 
 	size = uceil(op->stsize,sizeof(int)) ;
 
@@ -823,7 +740,7 @@ int vecpstr_strsize(VECPSTR *op)
 
 
 /* make the string table */
-int vecpstr_strmk(VECPSTR *op,char *tab,int tabsize)
+int vecpstr_strmk(VECPSTR *op,char tab[],int tabsize)
 {
 	int		rs = SR_OK ;
 	int		size ;
@@ -857,9 +774,8 @@ int vecpstr_strmk(VECPSTR *op,char *tab,int tabsize)
 	    while (bp < (tab + tabsize)) {
 	        *bp++ = '\0' ;
 	    }
-	} else {
+	} else
 	    rs = SR_OVERFLOW ;
-	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -916,12 +832,10 @@ int vecpstr_recmkstr(VECPSTR *op,int *rec,int recsize,char *tab,int tabsize)
 		    }
 	        } /* end for */
 	        rec[c] = -1 ;
-	    } else {
+	    } else
 	        rs = SR_OVERFLOW ;
-	    }
-	} else {
+	} else
 	    rs = SR_OVERFLOW ;
-	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -944,8 +858,8 @@ int vecpstr_recmk(VECPSTR *op,int rec[],int recsize)
 	size = (op->i + 2) * sizeof(int) ;
 
 	if (recsize >= size) {
-	    int		i ;
-	    int		si = 0 ;
+	    int	i ;
+	    int	si = 0 ;
 	    rec[c++] = si ;
 	    si += 1 ;
 	    for (i = 0 ; op->va[i] != NULL ; i += 1) {
@@ -955,9 +869,8 @@ int vecpstr_recmk(VECPSTR *op,int rec[],int recsize)
 		}
 	    } /* end for */
 	    rec[c] = -1 ;
-	} else {
+	} else
 	    rs = SR_OVERFLOW ;
-	}
 
 	return (rs >= 0) ? c : rs ;
 }
@@ -1192,18 +1105,6 @@ static int vecpstr_record(VECPSTR *op,cchar *sp)
 /* end subroutine (vecpstr_record) */
 
 
-static int vecpstr_reset(VECPSTR *op)
-{
-	op->c = 0 ;
-	op->i = 0 ;
-	op->n = 0 ;
-	op->fi = 0 ;
-	op->stsize = 0 ;
-	return SR_OK ;
-}
-/* end subroutine (vecpstr_reset) */
-
-
 static int chunk_start(VECPSTR_CHUNK *ccp,int chunksize,int start)
 {
 	int		rs ;
@@ -1264,7 +1165,7 @@ static int chunk_check(VECPSTR_CHUNK *ccp,int amount)
 /* end subroutine (chunk_check) */
 
 
-static int chunk_add(VECPSTR_CHUNK *ccp,cchar *sp,int sl,cchar **rpp)
+static int chunk_add(VECPSTR_CHUNK *ccp,cchar sp[],int sl,cchar **spp)
 {
 	int		rs = SR_OK ;
 	int		amount = (sl + 1) ;
@@ -1280,45 +1181,19 @@ static int chunk_add(VECPSTR_CHUNK *ccp,cchar *sp,int sl,cchar **rpp)
 #endif
 
 	if (amount <= (ccp->tabsize - ccp->tablen)) {
-	    char	*bp = (ccp->tab + ccp->tablen) ;
-	    strwcpy(bp,sp,sl) ;
+
+	    *spp = (ccp->tab + ccp->tablen) ;
+	    strwcpy((ccp->tab + ccp->tablen),sp,sl) ;
+
 	    ccp->tablen += amount ;
 	    ccp->count += 1 ;
-	    *rpp = bp ;
-	} else {
-	    rs = SR_BUGCHECK ;
-	}
+
+	} else
+	    rs = SR_NOANODE ;
 
 	return rs ;
 }
 /* end subroutine (chunk_add) */
-
-
-static int chunk_addkeyval(VECPSTR_CHUNK *ccp,cchar *kp,int kl,
-		cchar *vp,int vl,cchar **rpp)
-{
-	const int	amount = (kl+1+vl+1) ;
-	int		rs = SR_OK ;
-
-	if (amount <= (ccp->tabsize - ccp->tablen)) {
-	    char	*bp = (ccp->tab + ccp->tablen) ;
-	    bp = strwcpy(bp,kp,kl) ;
-	    *bp++ = '=' ;
-	    if (vp != NULL) {
-	        strwcpy(bp,vp,vl) ;
-	    } else {
-		*bp++ = '\0' ;
-	    }
-	    ccp->tablen += amount ;
-	    ccp->count += 1 ;
-	    *rpp = bp ;
-	} else {
-	    rs = SR_BUGCHECK ;
-	}
-
-	return rs ;
-}
-/* end subroutine (chunk_addeyval) */
 
 
 static int indexlen(int n)
@@ -1331,7 +1206,7 @@ static int indexlen(int n)
 
 static int indexsize(int il)
 {
-	int		isize = ((il + 1) * 3 * sizeof(int)) ;
+	int		isize = (il + 1) * 3 * sizeof(int) ;
 	return isize ;
 }
 /* end subroutine (indexsize) */
@@ -1339,7 +1214,8 @@ static int indexsize(int il)
 
 static int vcmpdef(cchar **e1pp,cchar **e2pp)
 {
-	int		rc = 0 ;
+	int	rc = 0 ;
+
 	if ((*e1pp != NULL) || (*e2pp != NULL)) {
 	    if (*e1pp != NULL) {
 	        if (*e2pp != NULL) {

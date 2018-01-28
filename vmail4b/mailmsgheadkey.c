@@ -17,9 +17,9 @@
 
 /*******************************************************************************
 
-	This subroutine extracts the key of a header key, if one is
-	present in the supplied buffer.  A pointer to the key and the
-	length of the key is returned (if a key was present).
+        This subroutine extracts the key of a header key, if one is present in
+        the supplied buffer. A pointer to the key and the length of the key is
+        returned (if a key was present).
 
 	Synopsis:
 
@@ -76,20 +76,17 @@
 /* exported subroutines */
 
 
-int mailmsgheadkey(sp,sl,kpp)
-const char	*sp ;
-int		sl ;
-const char	**kpp ;
+int mailmsgheadkey(cchar *sp,int sl,cchar **kpp)
 {
 	int		kl ;
 	int		f_len = (sl >= 0) ;
 
 #if	CF_DEBUGS
-	if (! f_len)
-		sl = strlen(sp) ;
-	debugprintf("msgheadkey: line=>%t<\n",
-		sp,
-		((sp[sl - 1] == '\n') ? (sl - 1) : sl)) ;
+	{
+	if (! f_len) sl = strlen(sp) ;
+	debugprintf("msgheadkey: line=>%t<\n", sp,
+	    ((sp[sl - 1] == '\n') ? (sl - 1) : sl)) ;
+	}
 #endif /* CF_DEBUGS */
 
 /* skip leading white space (not including NLs) */

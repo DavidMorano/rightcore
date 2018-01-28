@@ -3,14 +3,12 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-
+	= 2001-11-01, David A­D­ Morano
 	Originally written for Rightcore Network Services.
-
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 
 #define	VERSION		"0"
@@ -29,10 +27,13 @@
 
 #define	VARBANNER	"USERINFO_BANNER"
 #define	VARSEARCHNAME	"USERINFO_NAME"
+#define	VAROPTS		"USERINFO_OPTS"
 #define	VARFILEROOT	"USERINFO_FILEROOT"
 #define	VARLOGTAB	"USERINFO_LOGTAB"
 #define	VARAFNAME	"USERINFO_AF"
 #define	VAREFNAME	"USERINFO_EF"
+#define	VAROFNAME	"USERINFO_OF"
+#define	VARIFNAME	"USERINFO_IF"
 
 #define	VARDEBUGFNAME	"USERINFO_DEBUGFILE"
 #define	VARDEBUGFD1	"USERINFO_DEBUGFD"

@@ -13,9 +13,7 @@
 /* revision history:
 
 	= 2004-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  
-
 
 */
 
@@ -101,12 +99,14 @@
 #include	<netdb.h>
 
 #include	<vsystem.h>
+#include	<ugetpid.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<vecstr.h>
 #include	<utmpacc.h>
 #include	<ctdec.h>
 #include	<ctdecf.h>
+#include	<cthex.h>
 #include	<field.h>
 #include	<uinfo.h>
 #include	<nulstr.h>
@@ -143,7 +143,6 @@ extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
 extern int	cfdeci(cchar *,int,int *) ;
 extern int	cfdecti(cchar *,int,int *) ;
-extern int	cthexui(char *,uint) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	statvfsdir(cchar *,struct statvfs *) ;
@@ -152,6 +151,8 @@ extern int	getsysdomain(char *,int) ;
 extern int	getuserhome(char *,int,cchar *) ;
 extern int	nusers(cchar *) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
+extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -173,10 +174,10 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 #if	CF_PERCACHE
-extern PERCACHE		pc ;		/* unitialized it stays in BSS */
+extern PERCACHE	pc ;			/* unitialized it stays in BSS */
 #endif
 
 
@@ -282,7 +283,7 @@ static void	ourfini() ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -312,7 +313,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -320,7 +321,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -334,7 +335,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static const char	*akonames[] = {
 	"utf",
 	"db",
 	NULL
@@ -347,7 +348,7 @@ enum akonames {
 } ;
 
 /* define the configuration keywords */
-static cchar *qopts[] = {
+static const char	*qopts[] = {
 	"sysname",
 	"nodename",
 	"release",
@@ -466,7 +467,7 @@ int b_la(int argc,cchar *argv[],void *contextp)
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_kshbegin(contextp)) >= 0) {
+	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
 	    cchar	**envv = (cchar **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
@@ -485,6 +486,9 @@ int p_la(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_la) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -544,7 +548,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -552,7 +556,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	pip->daytime = time(NULL) ;
 
 	pip->lip = lip ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -580,7 +584,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-	        const int ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -894,6 +898,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    shio_control(&errfile,SHIO_CSETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -911,10 +917,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -947,6 +954,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (rs >= 0) {
@@ -974,10 +986,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    cchar	*ofn = ofname ;
 	    cchar	*afn = afname ;
 	    rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
-	} else {
+	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	    usage(pip) ;
 	}
 
 /* done */
@@ -1000,7 +1014,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ex = mapex(mapexs,rs) ;
 	        break ;
 	    } /* end switch */
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
@@ -1061,9 +1075,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 #if	CF_PERCACHE
@@ -1578,7 +1589,7 @@ static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 	            id &= 0x00FFFFFF ;
 	            rs = ctdecui(vbuf,vlen,id) ;
 	        } else {
-	            rs = cthexui(vbuf,id) ;
+	            rs = cthexui(vbuf,vlen,id) ;
 	        }
 	    } /* end if */
 	    break ;
@@ -1808,34 +1819,36 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
+	VECSTR		*slp ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
 	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
+	slp = &lip->stores ;
 	if (! lip->open.stores) {
-	    rs = vecstr_start(&lip->stores,4,0) ;
+	    rs = vecstr_start(slp,4,0) ;
 	    lip->open.stores = (rs >= 0) ;
 	}
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
-
-	    if (*epp != NULL) oi = vecstr_findaddr(&lip->stores,*epp) ;
-
+	    if (*epp != NULL) {
+		oi = vecstr_findaddr(slp,*epp) ;
+	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
-	    } else
+	        rs = vecstr_store(slp,vp,len,epp) ;
+	    } else {
 	        *epp = NULL ;
-
-	    if ((rs >= 0) && (oi >= 0))
-	        vecstr_del(&lip->stores,oi) ;
-
-	} /* end if */
+	    }
+	    if ((rs >= 0) && (oi >= 0)) {
+	        vecstr_del(slp,oi) ;
+	    }
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -1961,8 +1974,9 @@ static int locinfo_sysdomain(LOCINFO *lip)
 	            len = (rs-1) ;
 	        }
 	    } /* end if (getsysdomain) */
-	} else
+	} else {
 	    len = strlen(lip->sysdomain) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
@@ -1990,8 +2004,9 @@ static int locinfo_fsdir(LOCINFO *lip)
 	            lip->f.allocfname = TRUE ;
 	        }
 	    }
-	} else
+	} else {
 	    rs = strlen(lip->fname) ;
+	}
 
 	return rs ;
 }
@@ -2267,7 +2282,7 @@ static int getrnum(PROGINFO *pip)
 	    v = uid ;
 	    rv += v ;
 
-	    pid = ucgetpid() ;
+	    pid = ugetpid() ;
 	    v = pid ;
 	    rv += v ;
 
@@ -2322,7 +2337,7 @@ static int getmem(PROGINFO *pip)
 		lip->init.mem = TRUE ;
 		lip->ti_mem = pip->daytime ;
 		if ((rs = sysmemutil(&sm)) >= 0) {
-		    long	ppm = ((1024 * 1024) / ps) ;
+		    const long	ppm = ((1024 * 1024) / ps) ;
 		    lip->pmu = rs ;
 	    	    lip->pmt = (sm.mt / ppm) ;
 	    	    lip->pma = (sm.ma / ppm) ;

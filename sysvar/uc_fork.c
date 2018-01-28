@@ -7,9 +7,7 @@
 /* revision history:
 
 	= 2000-05-14, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -38,7 +36,7 @@
 #include	<vsystem.h>
 #include	<sigblock.h>
 #include	<lockrw.h>
-#include	<ucgetpid.h>
+#include	<ugetpid.h>
 #include	<localmisc.h>
 
 
@@ -90,6 +88,7 @@ int ucfork_init()
 	} else {
 	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
 		rs = msleep(1) ;
+		if (rs == SR_INTR) break ;
 	    }
 	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
@@ -121,7 +120,7 @@ int uc_fork()
 	            rs = u_fork() ;
 	            if (rs == 0) { /* child */
 	                ucfork_fini() ;
-			ucsetpid(0) ;
+			usetpid(0) ;
 	                if ((rs = ucfork_init()) > 0) {
 	                    rs = 0 ;
 	                }
@@ -161,8 +160,9 @@ int uc_forklockend()
 	if ((rs = sigblock_start(&b,NULL)) >= 0) {
 	    if (uip->f_init) {
 	        rs = lockrw_unlock(&uip->lock) ;
-	    } else
+	    } else {
 	        rs = SR_NOANODE ;
+	    }
 	    sigblock_finish(&b) ;
 	} /* end if (sigblock) */
 	return rs ;

@@ -4,9 +4,7 @@
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	This subroutine was written for Rightcore Network Services.
-
 
 */
 
@@ -103,10 +101,12 @@ extern int vecpstr_start(VECPSTR *,int,int,int) ;
 extern int vecpstr_finish(VECPSTR *) ;
 extern int vecpstr_add(VECPSTR *,const char *,int) ;
 extern int vecpstr_adduniq(VECPSTR *,const char *,int) ;
+extern int vecpstr_addkeyval(VECPSTR *,cchar *,int,cchar *,int) ;
 extern int vecpstr_store(VECPSTR *,const char *,int,const char **) ;
 extern int vecpstr_already(VECPSTR *,const char *,int) ;
 extern int vecpstr_get(VECPSTR *,int,const char **) ;
 extern int vecpstr_del(VECPSTR *,int) ;
+extern int vecpstr_delall(VECPSTR *) ;
 extern int vecpstr_count(VECPSTR *) ;
 extern int vecpstr_sort(VECPSTR *,int (*)(const char **,const char **)) ;
 extern int vecpstr_search(VECPSTR *,const char *,int (*)(),const char **) ;

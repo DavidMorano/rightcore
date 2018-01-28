@@ -1,6 +1,7 @@
 /* logfile */
 
 /* perform logging operations on a file */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -11,10 +12,8 @@
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
-
-	This object module was originally written to create a logging
-	mechanism for PCS application programs.
-
+        This object module was originally written to create a logging mechanism
+        for PCS application programs.
 
 */
 
@@ -22,8 +21,8 @@
 
 /*******************************************************************************
 
-	This is a module to operate on a logfile.  The subroutines in
-	this module are:
+        This is a module to operate on a logfile. The subroutines in this module
+        are:
 
 		logfile_open
 		logfile_write
@@ -34,12 +33,12 @@
 		logfile_checksize
 		logfile_close
 
-	Although masking interrupts during the locking of the logfile
-	should NOT be necessary (since a terminated process releases all
-	file locks that it may have), it is a good precaution against some
-	stupid implementations of the NFS helper lock manager daemon.
-	We want to guard against a program terminating abruptly while
-	its lock is retained (for a time) back at the server.
+        Although masking interrupts during the locking of the logfile should NOT
+        be necessary (since a terminated process releases all file locks that it
+        may have), it is a good precaution against some stupid implementations
+        of the NFS helper lock manager daemon. We want to guard against a
+        program terminating abruptly while its lock is retained (for a time)
+        back at the server.
 
 
 *******************************************************************************/
@@ -62,6 +61,7 @@
 #include	<stdarg.h>
 
 #include	<vsystem.h>
+#include	<ugetpid.h>
 #include	<sigblock.h>
 #include	<ascii.h>
 #include	<localmisc.h>
@@ -151,6 +151,7 @@ struct colstate {
 int		logfile_write(LOGFILE *,const char *,int) ;
 int		logfile_vprintf(LOGFILE *,const char *,va_list) ;
 
+static int	logfile_loadid(LOGFILE *,cchar *) ;
 static int	logfile_mklogid(LOGFILE *) ;
 static int	logfile_fixlogid(LOGFILE *,int) ;
 static int	logfile_fileopen(LOGFILE *) ;
@@ -163,7 +164,6 @@ static int	logfile_mkline(LOGFILE *,const char *,int) ;
 static int	colstate_load(COLSTATE *,int,int) ;
 static int	colstate_linecols(COLSTATE *,const char *,int) ;
 
-static int	loadlogid(char *,int,const char *) ;
 static int	mkclean(char *,int,const char *,int) ;
 static int	hasourbad(const char *,int) ;
 static int	isourbad(int) ;
@@ -189,8 +189,7 @@ static const int	sigblocks[] = {
 int logfile_open(LOGFILE *op,cchar *lfname,int of,mode_t operm,cchar *logid)
 {
 	int		rs ;
-	int		cl ;
-	const char	*cp ;
+	cchar		*cp ;
 
 #if	CF_DEBUGS
 	debugprintf("logfile_open: ent lfname=%s\n", lfname) ;
@@ -220,13 +219,12 @@ int logfile_open(LOGFILE *op,cchar *lfname,int of,mode_t operm,cchar *logid)
 	            if (pip->operm >= 0)
 	                u_fchmod(op->lfd,pip->operm) ;
 #endif
-	            if ((logid == NULL) || (logid[0] == '\0')) {
+	            if ((logid != NULL) && (logid[0] != '\0')) {
+	                rs = logfile_loadid(op,logid) ;
+	            } else {
 	                rs = logfile_mklogid(op) ;
-	                cl = rs ;
-	            } else
-	                cl = loadlogid(op->logid,LOGFILE_LOGIDLEN,logid) ;
+		    }
 	            if (rs >= 0) {
-	                logfile_fixlogid(op,cl) ;
 	                op->percent = LOGFILE_PERCENT ;
 		        op->magic = LOGFILE_MAGIC ;
 	            }
@@ -351,22 +349,18 @@ int logfile_vprintf(LOGFILE *op,cchar *fmt,va_list ap)
 /* set (or reset) the log ID */
 int logfile_setid(LOGFILE *op,cchar *logid)
 {
-	int		rs = SR_OK ;
-	int		cl ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 
 	if (op->magic != LOGFILE_MAGIC) return SR_NOTOPEN ;
 
-	if (logid == NULL)
-	    logid = "*null*" ;
+	if (logid == NULL) logid = "*null*" ;
 
-	cl = loadlogid(op->logid,LOGFILE_LOGIDLEN,logid) ;
-
-	rs = logfile_fixlogid(op,cl) ;
+	rs = logfile_loadid(op,logid) ;
 
 #if	CF_DEBUGS
-	debugprintf("logfile_setid: ret\n") ;
+	debugprintf("logfile_setid: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -477,8 +471,8 @@ int logfile_check(LOGFILE *op,time_t daytime)
 #endif /* CF_DEBUGS */
 
 	if ((op->len > 0) && ((daytime - op->ti_data) >= TO_DATA)) {
-	        rs = logfile_iflush(op) ;
-	        len = rs ;
+	    rs = logfile_iflush(op) ;
+	    len = rs ;
 	} else if ((op->lfd >= 0) && (op->len == 0)) {
 	    int	f = TRUE ;
 	    f = f && ((daytime - op->ti_open) >= TO_OPEN) ;
@@ -594,9 +588,31 @@ int logfile_print(LOGFILE *op,cchar *sbuf,int slen)
 /* private subroutines */
 
 
+static int logfile_loadid(LOGFILE *op,cchar *logstr)
+{
+	const int	outlen = LOGFILE_LOGIDLEN ;
+	int		rs ;
+	int		i ;
+	int		len = 0 ;
+
+	for (i = 0 ; (i < outlen) && logstr[i] ; i += 1) {
+	    const int	ch = MKCHAR(logstr[i]) ;
+	    if (isprintlatin(ch)) {
+	        op->logid[len++] = logstr[i] ;
+	    }
+	} /* end for */
+	op->logid[len] = '\0' ;
+
+	rs = logfile_fixlogid(op,len) ;
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (logfile_loadid) */
+
+
 static int logfile_mklogid(LOGFILE *op)
 {
-	const pid_t	pid = ucgetpid() ;
+	const pid_t	pid = ugetpid() ;
 	const int	nlen = NODENAMELEN ;
 	int		rs ;
 	int		ll = 0 ;
@@ -606,9 +622,10 @@ static int logfile_mklogid(LOGFILE *op)
 	    const int	llen = LOGFILE_LOGIDLEN ;
 	    int		v = pid ;
 	    char	*lbuf = op->logid ;
-	    rs = mklogid(lbuf,llen,nbuf,rs,v) ;
-	    ll = rs ;
-	    op->logidlen = ll ;
+	    if ((rs = mklogid(lbuf,llen,nbuf,rs,v)) >= 0) {
+	        ll = rs ;
+		rs = logfile_fixlogid(op,rs) ;
+	    }
 	} /* end if (getnodename) */
 
 	return (rs >= 0) ? ll : rs ;
@@ -640,6 +657,11 @@ static int logfile_fileopen(LOGFILE *op)
 	    const int	of = (op->oflags | O_FLAGS1) ;
 	    if ((rs = uc_open(op->fname,of,op->operm)) >= 0) {
 		op->lfd = rs ;
+		if (op->lfd < 3) {
+		    if ((rs = uc_moveup(op->lfd,3)) >= 0) {
+			op->lfd = rs ;
+		    }
+		}
 		if (rs >= 0) {
 		    rs = uc_closeonexec(op->lfd,TRUE) ;
 		    op->ti_open = time(NULL) ;
@@ -690,24 +712,24 @@ static int logfile_iflush(LOGFILE *op)
 	    if ((rs = logfile_fileopen(op)) >= 0) {
 	        if ((rs = sigblock_start(&blocker,sigblocks)) >= 0) {
 
-	    rs1 = lockfile(op->lfd,F_WLOCK,0L,0L,TO_LOCK) ;
-	    f_havelock = (rs1 >= 0) ;
+	            rs1 = lockfile(op->lfd,F_WLOCK,0L,0L,TO_LOCK) ;
+	            f_havelock = (rs1 >= 0) ;
 
 #if	CF_DEBUGS
-	    debugprintf("logfile_iflush: lockfile() rs=%d\n",rs) ;
+	            debugprintf("logfile_iflush: lockfile() rs=%d\n",rs) ;
 #endif
 
 /* write it, lock or no lock */
 
-	    u_seek(op->lfd,0L,SEEK_END) ;
+	            u_seek(op->lfd,0L,SEEK_END) ;
 
-	    rs = uc_writen(op->lfd,op->buf,op->len) ;
-	    len = rs ;
-	    op->len = 0 ;
+	            rs = uc_writen(op->lfd,op->buf,op->len) ;
+	            len = rs ;
+	            op->len = 0 ;
 
 /* do we have a lock? -- unlock if we do */
 
-	    if (f_havelock) lockfile(op->lfd,F_ULOCK,0L,0L,0) ;
+	            if (f_havelock) lockfile(op->lfd,F_ULOCK,0L,0L,0) ;
 
 	    	    sigblock_finish(&blocker) ;
 	        } /* end if (sigblock) */
@@ -745,10 +767,8 @@ static int logfile_copylock(LOGFILE *op,int logsize)
 
 /* copy the rest of the file to the temporary file */
 
-	            if (rs >= 0)
-	                rs = uc_copy(op->lfd,fd,-1) ;
-
-	            if (rs >= 0) { /* rewind both files */
+	            if (rs >= 0) {
+	                if ((rs = uc_writedesc(fd,op->lfd,-1)) >= 0) {
 
 	                u_rewind(op->lfd) ;
 
@@ -761,7 +781,7 @@ static int logfile_copylock(LOGFILE *op,int logsize)
 
 /* copy the temporary data back to the original file */
 
-	                    if ((rs = uc_copy(fd,op->lfd,-1)) >= 0) {
+	                    if ((rs = uc_writedesc(op->lfd,fd,-1)) >= 0) {
 	                        ll = rs ;
 	                        foff = ll ;
 	                        if (foff > 0)
@@ -774,6 +794,7 @@ static int logfile_copylock(LOGFILE *op,int logsize)
 	                } /* end if (append-mode) */
 
 	            } /* end if (successfull-copy) */
+		    } /* end if (ok) */
 
 	            u_close(fd) ;
 	        } /* end if (open-tmp) */
@@ -866,23 +887,6 @@ static int colstate_linecols(COLSTATE *csp,cchar *sbuf,int slen)
 /* end subroutine (colstate_linecols) */
 
 
-static int loadlogid(char *outbuf,int outlen,cchar *logstr)
-{
-	int		i ;
-	int		len = 0 ;
-
-	for (i = 0 ; (i < outlen) && logstr[i] ; i += 1) {
-	    const int	ch = MKCHAR(logstr[i]) ;
-	    if (isprintlatin(ch)) {
-	        outbuf[len++] = ch ;
-	    }
-	} /* end for */
-
-	return len ;
-}
-/* end subroutine (loadlogid) */
-
-
 static int mkclean(char *outbuf,int outlen,cchar *sbuf,int slen)
 {
 	int		i ;
@@ -901,8 +905,8 @@ static int mkclean(char *outbuf,int outlen,cchar *sbuf,int slen)
 
 static int hasourbad(cchar *sp,int sl)
 {
-	register int	ch ;
-	register int	f = FALSE ;
+	int		ch ;
+	int		f = FALSE ;
 
 	while (sl && (sp[0] != '\0')) {
 

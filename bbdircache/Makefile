@@ -458,6 +458,8 @@ modload.o:		modload.c modload.h
 
 vecpstr.o:		vecpstr.c vecpstr.h
 
+vecpstr_addsubdirs.o:	vecpstr_addsubdirs.c vecpstr.h
+
 
 pcsconfs.o:		pcsconfs.c pcsconfs.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<

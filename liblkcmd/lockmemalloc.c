@@ -114,7 +114,7 @@
 
 #define	LOCKMEMALLOC	struct lockmemalloc
 
-#define	NDEBFNAME	"lockmemalloc.deb"
+#define	NDF		"lockmemalloc.deb"
 
 #define	TO_AGAIN	(5 * 60)
 
@@ -382,7 +382,7 @@ static int lockmemalloc_basemalloc(int size,void *vp)
 	} until ((rs >= 0) || f_exit) ;
 
 #if	CF_DEBUGN
-	nprintf(NDEBFNAME,"lockmemalloc_basemalloc: ret a=%p s=%u rs=%d\n",
+	nprintf(NDF,"lockmemalloc_basemalloc: ret a=%p s=%u rs=%d\n",
 	    (*rpp),size,rs) ;
 #endif
 
@@ -430,7 +430,7 @@ static int lockmemalloc_basevalloc(int size,void *vp)
 	} until ((rs >= 0) || f_exit) ;
 
 #if	CF_DEBUGN
-	nprintf(NDEBFNAME,"lockmemalloc_basevalloc: ret a=%p s=%u rs=%d\n",
+	nprintf(NDF,"lockmemalloc_basevalloc: ret a=%p s=%u rs=%d\n",
 	    (*rpp),size,rs) ;
 #endif
 
@@ -499,7 +499,7 @@ static int lockmemalloc_basefree(const void *vp)
 	    rs = SR_FAULT ;
 
 #if	CF_DEBUGN
-	nprintf(NDEBFNAME,"lockmemalloc_basefree: ret a=%p rs=%d\n",vp,rs) ;
+	nprintf(NDF,"lockmemalloc_basefree: ret a=%p rs=%d\n",vp,rs) ;
 #endif /* CF_DEBUGN */
 
 	return rs ;

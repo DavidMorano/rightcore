@@ -149,7 +149,6 @@ enum dispcmds {
 	dispcmd_timeout,
 	dispcmd_handle,
 	dispcmd_overlast
-
 } ;
 
 
@@ -535,7 +534,7 @@ static int uctimeout_workbegin(UCTIMEOUT *uip)
 	if (! uip->f.workready) {
 	    int		vo = 0 ;
 	    vo |= (VECHAND_OSTATIONARY|VECHAND_OREUSE| VECHAND_OCOMPACT) ;
-	    vo |= ( VECHAND_OSWAP| VECHAND_OCONSERVE) ;
+	    vo |= (VECHAND_OSWAP| VECHAND_OCONSERVE) ;
 	    if ((rs = vechand_start(&uip->ents,0,vo)) >= 0) {
 	        if ((rs = uctimeout_priqbegin(uip)) >= 0) {
 	            if ((rs = uctimeout_sigbegin(uip)) >= 0) {
@@ -552,8 +551,9 @@ static int uctimeout_workbegin(UCTIMEOUT *uip)
 	                        uctimeout_timerend(uip) ;
 	                    }
 	                } /* end if (uctimeout_timerbegin) */
-	                if (rs < 0)
+	                if (rs < 0) {
 	                    uctimeout_sigend(uip) ;
+			}
 	            } /* end if (uctimeout_sigbegin) */
 	            if (rs < 0) {
 	                uctimeout_priqend(uip) ;
@@ -692,9 +692,9 @@ static int uctimeout_sigbegin(UCTIMEOUT *uip)
 
 static int uctimeout_sigend(UCTIMEOUT *uip)
 {
-	sigset_t	ss ;
 	int		rs = SR_OK ;
 	if (! uip->f.wasblocked) {
+	    sigset_t	ss ;
 	    const int	scmd = SIG_UNBLOCK ;
 	    const int	sig = SIGTIMEOUT ;
 	    uc_sigsetempty(&ss) ;

@@ -5,17 +5,16 @@
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-#define	CF_ISAEXEC	0		/* use Solaris 'isaexec(3c)'? */
+#define	CF_DEBUGENV	0		/* debug environment */
+#define	CF_ISAEXEC	0		/* use Solaris® |isaexec(3c)| */
 #define	CF_ENVSORT	0		/* sort the environment? */
-#define	CF_UCFORK	1		/* use 'uc_fork(3uc)' */
+#define	CF_UCFORK	1		/* use |uc_fork(3uc)| */
 
 
 /* revision history:
 
 	= 1998-07-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -47,7 +46,7 @@
 
 	Implementation notes:  
 
-	Remember that the 'pipe(2)' system call creates two pipe file
+	Remember that the |pipe(2)| system call creates two pipe file
 	descriptors.  Both of these file descriptors are open for reading and
 	writing on System V UNIX®.  However, on BSD systems (or older BSD
 	systems assuming that they have not yet upgraded to the correct System
@@ -60,9 +59,9 @@
 	Also, note that since we are (very) likely to be running in a (hotly)
 	mutli-threaded environment, we have to be quite sure that we try to
 	only call async-signal-safe (really fork-safe) subroutines after the
-	'fork(2)' and before any 'exit(2)'.  The thing to avoid that might be
-	used by "accident" is a hidden 'malloc(3c)' for friend after the
-	'fork(2)' someplace.
+	|fork(2)| and before any |exit(2)|.  The thing to avoid that might be
+	used by "accident" is a hidden |malloc(3c)| (or friends) after the
+	|fork(2)| someplace.
 
 
 *******************************************************************************/
@@ -80,7 +79,8 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<vechand.h>
+#include	<ugetpid.h>
+#include	<envhelp.h>
 #include	<vecstr.h>
 #include	<ids.h>
 #include	<sigign.h>
@@ -123,7 +123,7 @@
 
 /* external subroutines */
 
-extern int	snshellunder(char *,int,pid_t,const char *) ;
+extern int	snshellunder(char *,int,pid_t,cchar *) ;
 extern int	sncpy1(char *,int,const char *,const char *) ;
 extern int	sncpy2(char *,int,const char *,const char *) ;
 extern int	sncpy2w(char *,int,const char *,const char *,int) ;
@@ -133,9 +133,6 @@ extern int	sfbasename(const char *,int,const char **) ;
 extern int	matkeystr(const char **,const char *,int) ;
 extern int	strkeycmp(const char *,const char *) ;
 extern int	vstrkeycmp(const void **,const void **) ;
-extern int	vecstr_adduniq(VECSTR *,const char *,int) ;
-extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
-extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	getprogpath(IDS *,VECSTR *,char *,const char *,int) ;
@@ -143,6 +140,11 @@ extern int	getpwd(char *,int) ;
 extern int	dupup(int,int) ;
 extern int	sigdefaults(const int *) ;
 extern int	sigignores(const int *) ;
+extern int	vecstr_adduniq(VECSTR *,const char *,int) ;
+extern int	vecstr_addpath(vecstr *,cchar *,int) ;
+extern int	vecstr_addcspath(vecstr *) ;
+extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
+extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -152,15 +154,23 @@ extern int	strlinelen(const char *,int,int) ;
 
 /* external variables */
 
-extern const char	**environ ;
+extern cchar	**environ ;
 
 
 /* forward reference */
 
-static int	loadpath(VECSTR *,const char *) ;
-static int	envadd(VECHAND *,VECSTR *,const char *,const char *,int) ;
+static int	spawnproc_pipes(SPAWNPROC *,cchar *,cchar **,cchar **) ;
+static int	spawnproc_parfin(SPAWNPROC *,int,int *,int (*)[2]) ;
 
+static void	spawnproc_child(SPAWNPROC *,cchar *,cchar **,cchar **,
+			int,int *,int (*)[2]) ;
+
+static int	envhelp_load(ENVHELP *,char *,cchar *,cchar **) ;
+
+static int	findprog(char *,char *,cchar *) ;
 static int	findxfile(IDS *,char *,const char *) ;
+static int	ourfork() ;
+static int	opendevnull(int *,int) ;
 
 #if	CF_DEBUGS
 static int showdev(int) ;
@@ -176,7 +186,6 @@ static const char	*envbads[] = {
 	"A__z",
 	"RANDOM",
 	"SECONDS",
-	"A__z",
 	NULL
 } ;
 
@@ -209,37 +218,31 @@ static const int	sigouts[] = {
 /* exported subroutines */
 
 
-int spawnproc(SPAWNPROC *psap,cchar fname[],cchar *argv[],cchar *envv[])
+int spawnproc(SPAWNPROC *psap,cchar *fname,cchar **argv,cchar **envv)
 {
-	vechand		env ;
-	vecstr		tmpstore ;
-	pid_t		pid = 0 ; /* ¥ GCC false complaint */
 	int		rs = SR_OK ;
-	int		pwdlen = -1 ;
-	int		i, w ;
-	int		opens[3] ;
-	int		pipes[3][2] ;
-	int		dupes[3] ;
-	int		opts ;
-	const char	*execfname ;
-	const char	**av ;
-	const char	**ev ;
-	const char	*arg[2] ;
-	const char	*cp ;
-	char		pwd[MAXPATHLEN + 1] ;
-	char		tmpfname[MAXPATHLEN + 1] ;
+	int		rs1 ;
+	int		pid = 0 ;
+	cchar		*efname = fname ;
+	char		pwd[MAXPATHLEN + 1] = { 0 } ;
+	char		pbuf[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
-	debugprintf("spawnproc: fname=%s\n", fname) ;
+	debugprintf("spawnproc: ent fname=%s\n",fname) ;
 	if (argv != NULL) {
+	    int	i ;
 	    for (i = 0 ; argv[i] != NULL ; i += 1) {
 	        debugprintf("spawnproc: argv[%u]=%s\n",i,argv[i]) ;
 	    }
 	}
+#endif /* CF_DEBUGS */
+
+#if	CF_DEBUGS && CF_DEBUGENV
 	if (envv != NULL) {
+	    int	i ;
 	    for (i = 0 ; envv[i] != NULL ; i += 1) {
 	        debugprintf("spawnproc: envv%03u=%t\n",i,
-	            envv[i],strlinelen(envv[i],-1,50)) ;
+	            envv[i],strlinelen(envv[i],-1,55)) ;
 	    }
 	}
 #endif /* CF_DEBUGS */
@@ -251,432 +254,39 @@ int spawnproc(SPAWNPROC *psap,cchar fname[],cchar *argv[],cchar *envv[])
 	if (fname[0] == '\0') return SR_INVALID ;
 
 #if	CF_DEBUGS
-	debugprintf("spawnproc: got in\n") ;
+	debugprintf("spawnproc: fname=%s\n",fname) ;
 #endif
-
-	pwd[0] = '\0' ;
-	for (i = 0 ; i < 3; i += 1) {
-	    opens[i] = -1 ;
-	    pipes[i][0] = -1 ;
-	    pipes[i][1] = -1 ;
-	    dupes[i] = -1 ;
-	} /* end for */
 
 /* find the program */
 
-	execfname = fname ;
 	if (fname[0] != '/') {
-
-	    if (strchr(fname,'/') != NULL) {
-
-	        if (pwd[0] == '\0') {
-	           rs = getpwd(pwd,MAXPATHLEN) ;
-		   pwdlen = rs ;
-		}
-
-	        if (rs >= 0)
-	            rs = mkpath2(tmpfname,pwd,fname) ;
-
-	        if (rs >= 0)
-	            rs = perm(tmpfname,-1,-1,NULL,X_OK) ;
-
-	    } else {
-	        IDS	id ;
-
-	        if ((rs = ids_load(&id)) >= 0) {
-
-	            rs = findxfile(&id,tmpfname,fname) ;
-	            if (rs > 0)
-	                execfname = tmpfname ;
-
-	            ids_release(&id) ;
-	        } /* end if */
-
-	    } /* end if */
-
-	} else
+	    if ((rs = findprog(pwd,pbuf,fname)) > 0) {
+	        efname = pbuf ;
+	    }
+	} else {
 	    rs = perm(fname,-1,-1,NULL,X_OK) ;
-
-	if (rs < 0)
-	    goto badnoprog ;
-
-#if	CF_DEBUGS
-	debugprintf("spawnproc: execfname=%s\n",execfname) ;
-#endif
-
-	opts = 0 ;
-#if	CF_ENVSORT
-	opts |= VECSTR_OSORTED ;
-#endif
-	opts |= VECSTR_OCOMPACT ;
-	rs = vechand_start(&env,NENV,opts) ;
-	if (rs < 0)
-	    goto badenv1 ;
-
-	rs = vecstr_start(&tmpstore,5,0) ;
-	if (rs < 0)
-	    goto badenv2 ;
-
-/* add the program filename ('envbuf' from above) */
-
-	{
-	    pid_t	pid = ucgetpid() ;
-	    const int	tlen = MAXPATHLEN ;
-	    char	tbuf[MAXPATHLEN+1] ;
-	    if ((rs = snshellunder(tbuf,tlen,pid,execfname)) > 0) {
-		rs = envadd(&env,&tmpstore,"_",tbuf,rs) ;
-	    }
 	}
 
-/* add the A0 variable */
-
-	if (rs >= 0) {
-	    int		zl = -1 ;
-	    const char	*zp = NULL ;
-	    if (argv != NULL) zp = argv[0] ;
-	    if (zp == NULL) {
-		zl = sfbasename(execfname,-1,&zp) ;
-	    }
-	    rs = envadd(&env,&tmpstore,"_A0",zp,zl) ;
-	} /* end block */
-
-	if (rs >= 0) {
-	    rs = envadd(&env,&tmpstore,"_EF",execfname,-1) ;
-	}
-
-/* add all other specified variables */
-
 #if	CF_DEBUGS
-	debugprintf("spawnproc: other variables\n") ;
+	debugprintf("spawnproc: mid1 rs=%d efname=%s\n",rs,efname) ;
 #endif
 
 	if (rs >= 0) {
-	    const char	**evv = envv ;
-	    const void	*vp ;
-
-#if	CF_DEBUGS
-	    debugprintf("spawnproc: environ(%p)\n",environ) ;
-	    debugprintf("spawnproc: evv(%p)\n",evv) ;
-#endif
-
-	    evv = envv ;
-	    if (evv == NULL) {
-	        if (environ == NULL) rs = SR_FAULT ;
-	        evv = environ ;
-	    }
-
-	    for (i = 0 ; (rs >= 0) && (evv[i] != NULL) ; i += 1) {
-
-	        if (matkeystr(envbads,evv[i],-1) < 0) {
-#if	CF_DEBUGS
-	            debugprintf("spawnproc: adding evv%03u=>%t<\n",i,
-	                evv[i],strlinelen(evv[i],-1,50)) ;
-#endif
-
-	            vp = (const void *) evv[i] ;
-	            rs = vechand_add(&env,vp) ;
-	        }
-
-	    } /* end for */
-
-	} /* end block */
-
-/* add other things that may not already be there */
-
-#if	CF_DEBUGS
-	debugprintf("spawnproc: def-path\n") ;
-#endif
-
-	if (rs >= 0) {
-	    const char	*var = VARPWD ;
-	    if (vechand_search(&env,var,vstrkeycmp,NULL) == SR_NOTFOUND) {
-		if (pwd[0] == '\0') {
-		    rs = getpwd(pwd,MAXPATHLEN) ;
-		    pwdlen = rs ;
-		}
-		if (rs >= 0)
-	            rs = envadd(&env,&tmpstore,var,pwd,pwdlen) ;
-	    }
-	}
-
-	if (rs >= 0) {
-	    const char	*var = VARPATH ;
-	    cp = DEFPATH ;
-	    if (vechand_search(&env,var,vstrkeycmp,NULL) == SR_NOTFOUND) {
-	        rs = envadd(&env,&tmpstore,var,cp,-1) ;
-	    }
-	}
-
-/* sort all environment variables */
-
-#if	CF_ENVSORT
-	if (rs >= 0)
-	    vechand_sort(&env,vstrkeycmp) ;
-#endif
-
-/* prepapre to spawn the program */
-
-#if	CF_DEBUGS
-	debugprintf("spawnproc: prepare to spawn\n") ;
-#endif
-
-	if (rs >= 0)
-	    rs = vechand_getvec(&env,&ev) ;
-
-#if	CF_DEBUGS
-	debugprintf("spawnproc: sorted vechand_getvec() rs=%d ev=%p\n",rs,ev) ;
-	for (i = 0 ; ev[i] != NULL ; i += 1)
-	    debugprintf("spawnproc: ev%03u=>%t<\n",i,
-	        ev[i],strlinelen(ev[i],-1,50)) ;
-#endif /* CF_DEBUGS */
-
-/* process the file descriptors as specified */
-
-	if (rs >= 0) {
-	    struct ustat	sb ;
-	    int		oflags ;
-
-#if	CF_DEBUGS
-	    debugprintf("spawnproc: file descriptors\n") ;
-#endif
-
-	    for (i = 0 ; (rs >= 0) && (i < 3) ; i += 1) {
-	        if (u_fstat(i,&sb) < 0) {
-	            oflags = (i == 0) ? O_RDONLY : O_WRONLY ;
-	            rs = u_open(NULLFNAME,oflags,0600) ;
-	            if (rs >= 0) opens[i] = i ;
-	        } /* end if (file wasn't open) */
-	    } /* end for */
-
-#if	CF_DEBUGS
-	    debugprintf("spawnproc: preopen rs=%d\n",rs) ;
-#endif
-
-	    for (i = 0 ; (rs >= 0) && (i < 3) ; i += 1) {
-
-#if	CF_DEBUGS
-	        debugprintf("spawnproc: checking fd=%u\n",i) ;
-#endif
-
-	        switch (psap->disp[i]) {
-
-	        case SPAWNPROC_DINHERIT:
-	            break ;
-
-	        case SPAWNPROC_DCREATE:
-	            rs = u_pipe(pipes[i]) ;
-	            if (rs < 0) {
-	                pipes[i][0] = -1 ;
-	                pipes[i][1] = -1 ;
+	    ENVHELP	e, *ehp = &e ;
+	    if ((rs = envhelp_start(ehp,envbads,envv)) >= 0) {
+	        if ((rs = envhelp_load(ehp,pwd,efname,argv)) >= 0) {
+	            cchar	**ev ;
+	            if ((rs = envhelp_getvec(ehp,&ev)) >= 0) {
+	                rs = spawnproc_pipes(psap,efname,argv,ev) ;
+	                pid = rs ;
 	            }
-	            break ;
+	        } /* end if (envhelp_load) */
+	        rs1 = envhelp_finish(ehp) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (envhelp_start) */
+	} /* end if (ok) */
 
-	        case SPAWNPROC_DDUP:
-	            rs = dupup(psap->fd[i],3) ;
-	            if (rs >= 0) dupes[i] = rs ;
-	            break ;
-
-	        } /* end switch */
-
-#if	CF_DEBUGS
-	        debugprintf("spawnproc: checked fd=%u rs=%d\n",i,rs) ;
-#endif
-
-	    } /* end for */
-
-	} /* end if (disposition) */
-
-#if	CF_DEBUGS
-	debugprintf("spawnproc: disposition rs=%d\n",rs) ;
-#endif
-
-	if (rs < 0)
-	    goto badopen ;
-
-/* we fork */
-
-#if	CF_DEBUGS
-	debugprintf("spawnproc: uc_fork() \n") ;
-#endif
-
-#if	CF_UCFORK
-	rs = uc_fork() ;
-#else
-	rs = u_fork() ;
-#endif /* CF_UCFORK */
-
-	pid = rs ;
-	if (rs == 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("spawnproc: inside fork\n") ;
-	    showdev(pipes[1][1]) ;
-#endif
-
-	    if (psap->opts & SPAWNPROC_OIGNINTR) {
-	        sigignores(sigigns) ;
-	    }
-
-	    if (psap->opts & SPAWNPROC_OSETSID) {
-	        setsid() ;
-	    } else if (psap->opts & SPAWNPROC_OSETPGRP) {
-	        setpgid(0,psap->pgrp) ;
-	    }
-
-	    if (psap->opts & SPAWNPROC_OSETCTTY) {
-	        SIGIGN	si ;
-	        pid_t	pgrp = getpgrp() ;
-	        if ((rs = sigign_start(&si,sigouts)) >= 0) {
-	            rs = uc_tcsetpgrp(psap->fd_ctty,pgrp) ;
-	            sigign_finish(&si) ;
-	        } /* end if (sigign) */
-	    } /* end if (set PGID for controlling terminal) */
-
-	    if (psap->opts & SPAWNPROC_OSIGDEFS) {
-	        sigdefaults(sigdefs) ;
-	    }
-
-	    if (rs >= 0) {
-	        for (i = 0 ; i < 3 ; i += 1) {
-	            switch (psap->disp[i]) {
-	            case SPAWNPROC_DINHERIT:
-	                break ;
-	            case SPAWNPROC_DDUP:
-	                u_dup2(dupes[i],i) ;
-	                u_close(dupes[i]) ;
-	                break ;
-	            case SPAWNPROC_DCREATE:
-	                w = (i == 0) ? 1 : 0 ;
-	                u_close(pipes[i][w]) ;
-	                w = (i != 0) ? 1 : 0 ;
-	                u_dup2(pipes[i][w],i) ;
-	                u_close(pipes[i][w]) ;
-	                break ;
-	            case SPAWNPROC_DCLOSE:
-	            default:
-	                u_close(i) ;
-	                break ;
-	            } /* end switch */
-	        } /* end for */
-	    } /* end if (disposition) */
-
-#if	CF_DEBUGS
-	    showdev(0) ;
-	    showdev(1) ;
-#endif
-
-	    av = argv ;
-	    if ((rs >= 0) && (argv == NULL)) {
-	        if (sfbasename(execfname,-1,&cp) > 0) {
-	            arg[0] = cp ;
-	            arg[1] = NULL ;
-	            av = arg ;
-		} else
-		    rs = SR_NOENT ;
-	    } /* end if (argument check) */
-
-/* do the exec */
-
-#if	CF_DEBUGS
-	    debugprintf("spawnproc: u_execve() \n") ;
-	    debugprintf("spawnproc: execfname=>%s<\n",execfname) ;
-	    for (i = 0 ; av[i] != NULL ; i += 1)
-	        debugprintf("spawnproc: av[%d]=>%s<\n",i,av[i]) ;
-	    debugprintf("spawnproc: ev=%p\n",ev) ;
-	    for (i = 0 ; ev[i] != NULL ; i += 1)
-	        debugprintf("spawnproc: ev%03u=>%t<\n",i,
-	            ev[i],strlinelen(ev[i],-1,50)) ;
-#endif /* CF_DEBUGS */
-
-	    if ((rs >= 0) && (psap->nice > 0)) {
-	        rs = u_nice(psap->nice) ;
-	    }
-
-	    if (rs >= 0) {
-
-#if	CF_ISAEXEC && defined(OSNAME_SunOS) && (OSNAME_SunOS > 0)
-	        rs = uc_isaexecve(execfname,av,ev) ;
-#else
-	        rs = uc_execve(execfname,av,ev) ;
-#endif
-
-#if	CF_DEBUGS
-	        debugprintf("spawnproc: u_execve() rs=%d\n",rs) ;
-#endif
-
-	    } /* end if (exec) */
-
-	    uc_exit(EX_NOEXEC) ;
-	} else if (rs < 0)
-	    goto badfork ;
-
-#if	CF_DEBUGS
-	debugprintf("spawnproc: pid_child=%u\n",pid) ;
-#endif
-
-/* close some pipe ends */
-
-	if (psap != NULL) {
-	    for (i = 0 ; i < 3 ; i += 1) {
-	        switch (psap->disp[i]) {
-	        case SPAWNPROC_DCREATE:
-	            w = (i != 0) ? 1 : 0 ;
-	            u_close(pipes[i][w]) ;
-	            w = (i == 0) ? 1 : 0 ;
-	            psap->fd[i] = pipes[i][w] ;
-	            break ;
-	        default:
-	            psap->fd[i] = -1 ;
-	            break ;
-	        } /* end switch */
-	    } /* end for */
-	} /* end if (disposition) */
-
-/* close whatever */
-ret3:
-	for (i = 0 ; i < 3 ; i += 1) {
-	    if (opens[i] >= 0) u_close(i) ;
-	    if (dupes[i] >= 0) u_close(dupes[i]) ;
-	} /* end for */
-
-	vecstr_finish(&tmpstore) ;
-
-	vechand_finish(&env) ;
-
-ret0:
-	if (rs >= 0) rs = pid ;
-	return rs ;
-
-/* bad stuff */
-badfork:
-badopen:
-	if (psap != NULL) {
-	    for (i = 0 ; i < 3 ; i += 1) {
-	        if (pipes[i][0] >= 0) {
-	            u_close(pipes[i][0]) ;
-	            u_close(pipes[i][1]) ;
-	        }
-	    } /* end for */
-	} /* end if (had arguments) */
-
-	if (psap != NULL) {
-	    for (i = 0 ; i < 3 ; i += 1)
-	        psap->fd[i] = -1 ;
-	}
-
-	goto ret3 ;
-
-badenv2:
-	vechand_finish(&env) ;
-
-badenv1:
-badnoprog:
-	if (psap != NULL) {
-	    for (i = 0 ; i < 3 ; i += 1)
-	        psap->fd[i] = -1 ;
-	}
-
-	goto ret0 ;
+	return (rs >= 0) ? pid : rs ;
 }
 /* end subroutine (spawnproc) */
 
@@ -684,82 +294,488 @@ badnoprog:
 /* local subroutines */
 
 
-static int envadd(VECHAND *ehp,VECSTR *tsp,cchar *kp,cchar *ep,int el)
+static int spawnproc_pipes(SPAWNPROC *psap,cchar *fname,
+		cchar **argv,cchar **ev)
 {
-	int	rs ;
+	int		rs ;
+	int		i ;
+	int		pid = 0 ;
+	int		con[2] ;
+	int		dupes[3] ;
+	int		pipes[3][2] ;
 
-	if ((rs = vecstr_envadd(tsp,kp,ep,el)) >= 0) {
-	    int		i = rs ;
-	    const char	*cp ;
-	    if ((rs = vecstr_get(tsp,i,&cp)) >= 0)
-	        rs = vechand_add(ehp,cp) ;
+#if	CF_DEBUGS && CF_DEBUGENV
+	debugprintf("spawnproc: sorted "
+	    "vechand_getvec() rs=%d ev=%p\n",
+	    rs,ev) ;
+	for (i = 0 ; ev[i] != NULL ; i += 1) {
+	    debugprintf("spawnproc: ev%03u=>%t<\n",i,
+	        ev[i],strlinelen(ev[i],-1,50)) ;
 	}
+#endif /* CF_DEBUGS */
+
+	for (i = 0 ; i < 3 ; i += 1) {
+	    pipes[i][0] = -1 ;
+	    pipes[i][1] = -1 ;
+	    dupes[i] = -1 ;
+	} /* end for */
+
+/* process the file descriptors as specified */
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc: file descriptors\n") ;
+#endif
+
+	if ((rs = uc_piper(con,3)) >= 0) {
+	    const int	pfd = con[0] ;
+	    const int	cfd = con[1] ;
+	    if ((rs = uc_closeonexec(cfd,TRUE)) >= 0) {
+
+	        for (i = 0 ; (rs >= 0) && (i < 3) ; i += 1) {
+#if	CF_DEBUGS
+	            debugprintf("spawnproc: checking fd=%u\n",i) ;
+	            debugprintf("spawnproc: disp=%d\n",psap->disp[i]) ;
+#endif
+	            switch (psap->disp[i]) {
+	            case SPAWNPROC_DINHERIT:
+	                break ;
+	            case SPAWNPROC_DCREATE:
+	                rs = u_pipe(pipes[i]) ;
+	                if (rs < 0) {
+	                    pipes[i][0] = -1 ;
+	                    pipes[i][1] = -1 ;
+	                }
+	                break ;
+	            case SPAWNPROC_DDUP:
+	                if ((rs = dupup(psap->fd[i],3)) >= 0) {
+	                    dupes[i] = rs ;
+	                }
+	                break ;
+	            } /* end switch */
+#if	CF_DEBUGS
+	            debugprintf("spawnproc: checked fd=%u rs=%d\n",i,rs) ;
+#endif
+	        } /* end for */
+
+	        if (rs >= 0) {
+	            if ((rs = ourfork()) == 0) { /* child */
+	                u_close(pfd) ;
+	                spawnproc_child(psap,fname,argv,ev,cfd,dupes,pipes) ;
+	            } else if (rs > 0) { /* parent */
+	                pid = rs ;
+	                if ((rs = u_close(cfd)) >= 0) {
+	                    rs = spawnproc_parfin(psap,pfd,dupes,pipes) ;
+	                }
+	            } /* end if (ourfork) */
+	        } /* end if (ok) */
+
+	        if (rs < 0) { /* error */
+	            for (i = 0 ; i < 3 ; i += 1) {
+	                int	j ;
+	                for (j = 0 ; j < 2 ; j += 1) {
+	                    if (pipes[i][j] >= 0) u_close(pipes[i][j]) ;
+	                }
+	                if (dupes[i] >= 0) u_close(dupes[i]) ;
+	                psap->fd[i] = -1 ;
+	            } /* end for */
+	        } /* end if (error) */
+
+	    } /* end if uc_closeonexec) */
+	    u_close(pfd) ; /* parent-file-descriptor */
+	} /* end if (uc_pipes) */
+
+	return (rs >= 0) ? pid : rs ;
+}
+/* end subroutine (spawnproc_pipes) */
+
+
+static int spawnproc_parfin(SPAWNPROC *psap,int pfd,int *dupes,int (*pipes)[2])
+{
+	int		rs = SR_OK ;
+	int		i ;
+	int		w ;
+	for (i = 0 ; i < 3 ; i += 1) {
+	    switch (psap->disp[i]) {
+	    case SPAWNPROC_DCREATE:
+	        w = (i != 0) ? 1 : 0 ;
+	        u_close(pipes[i][w]) ;
+	        pipes[i][w] = -1 ;
+	        w = (i == 0) ? 1 : 0 ;
+	        psap->fd[i] = pipes[i][w] ;
+	        break ;
+	    default:
+	        psap->fd[i] = -1 ;
+	        break ;
+	    } /* end switch */
+	} /* end for */
+	for (i = 0 ; i < 3 ; i += 1) {
+	    if (dupes[i] >= 0) {
+	        u_close(dupes[i]) ;
+	        dupes[i] = -1 ;
+	    }
+	} /* end for */
+	if (rs >= 0) {
+	    int	res ;
+	    if ((rs = u_read(pfd,&res,sizeof(int))) > 0) {
+	        rs = res ;
+	    }
+	} /* end if (ok) */
+	return rs ;
+}
+/* end subroutine (spawnproc_parfin) */
+
+
+static void spawnproc_child(SPAWNPROC *psap,cchar *fname,
+		cchar **argv,cchar **ev,int cfd,int *dupes,int (*pipes)[2])
+{
+	int		rs = SR_OK ;
+	int		i ;
+	int		opens[3] ;
+	cchar		**av ;
+	cchar		*arg[2] ;
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc: inside fork\n") ;
+	showdev(pipes[1][1]) ;
+#endif
+
+	for (i = 0 ; i < 3 ; i += 1) {
+	    opens[i] = -1 ;
+	}
+
+	if ((rs >= 0) && (psap->opts & SPAWNPROC_OIGNINTR)) {
+	    sigignores(sigigns) ;
+	}
+
+	if (rs >= 0) {
+	    if (psap->opts & SPAWNPROC_OSETSID) {
+	        setsid() ;
+	    } else if (psap->opts & SPAWNPROC_OSETPGRP) {
+	        rs = u_setpgid(0,psap->pgrp) ;
+	    }
+	}
+
+	if ((rs >= 0) && (psap->opts & SPAWNPROC_OSETCTTY)) {
+	    SIGIGN	si ;
+	    pid_t	pgrp = getpgrp() ;
+	    if ((rs = sigign_start(&si,sigouts)) >= 0) {
+	        rs = uc_tcsetpgrp(psap->fd_ctty,pgrp) ;
+	        sigign_finish(&si) ;
+	    } /* end if (sigign) */
+	} /* end if (set PGID for controlling terminal) */
+
+	if ((rs >= 0) && (psap->opts & SPAWNPROC_OSIGDEFS)) {
+	    sigdefaults(sigdefs) ;
+	}
+
+	if (rs >= 0) {
+	    int	w ;
+	    for (i = 0 ; i < 3 ; i += 1) {
+#if	CF_DEBUGS
+		debugprintf("spawnproc/child: tfd=%u w=%u\n",i,psap->disp[i]) ;
+#endif
+	        switch (psap->disp[i]) {
+	        case SPAWNPROC_DINHERIT:
+	            rs = opendevnull(opens,i) ;
+	            break ;
+	        case SPAWNPROC_DDUP:
+		    u_close(i) ;
+	            u_dup2(dupes[i],i) ;
+	            u_close(dupes[i]) ;
+	            break ;
+	        case SPAWNPROC_DCREATE:
+	            {
+	                w = (i == 0) ? 1 : 0 ;
+	                u_close(pipes[i][w]) ;
+	            }
+	            {
+	                w = (i != 0) ? 1 : 0 ;
+			u_close(i) ;
+	                u_dup2(pipes[i][w],i) ;
+	                u_close(pipes[i][w]) ;
+	            }
+	            break ;
+	        case SPAWNPROC_DCLOSE:
+	        default:
+	            break ;
+	        case SPAWNPROC_DNULL:
+	            u_close(i) ; /* may fail (already closed) */
+	            rs = opendevnull(opens,i) ;
+#if	CF_DEBUGS
+		    debugprintf("spawnproc: opendevnull() rs=%d\n",rs) ;
+#endif
+	            break ;
+	        } /* end switch */
+	        if (rs < 0) break ;
+	    } /* end for */
+	    for (i = 0 ; (rs >= 0) && (i < 3) ; i += 1) {
+	        switch (psap->disp[i]) {
+	        case SPAWNPROC_DCLOSE:
+	            u_close(i) ; /* may fail (already closed) */
+	            break ;
+	        } /* end switch */
+	    } /* end for */
+	} /* end if (disposition) */
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc: mid2\n") ;
+	showdev(0) ;
+	showdev(1) ;
+	showdev(2) ;
+#endif
+
+	av = argv ;
+	if ((rs >= 0) && (argv == NULL)) {
+	    cchar	*cp ;
+	    if (sfbasename(fname,-1,&cp) > 0) {
+	        arg[0] = cp ;
+	        arg[1] = NULL ;
+	        av = arg ;
+	    } else {
+	        rs = SR_NOENT ;
+	    }
+	} /* end if (argument check) */
+
+/* do the exec */
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc: efname=>%s<\n",fname) ;
+#if	CF_DEBUGENV
+	for (i = 0 ; av[i] != NULL ; i += 1) {
+	    debugprintf("spawnproc: av[%d]=>%s<\n",i,av[i]) ;
+	}
+	debugprintf("spawnproc: ev=%p\n",ev) ;
+	for (i = 0 ; ev[i] != NULL ; i += 1) {
+	    debugprintf("spawnproc: ev%03u=>%t<\n",i,
+	        ev[i],strlinelen(ev[i],-1,50)) ;
+	}
+#endif /* CF_DEBUGENV */
+#endif /* CF_DEBUGS */
+
+	if ((rs >= 0) && (psap->nice > 0)) {
+	    rs = u_nice(psap->nice) ;
+	}
+
+	if (rs >= 0) {
+
+#if	CF_ISAEXEC && defined(OSNAME_SunOS) && (OSNAME_SunOS > 0)
+	    rs = uc_isaexecve(fname,av,ev) ;
+#else
+	    rs = uc_execve(fname,av,ev) ;
+#endif
+
+#if	CF_DEBUGS
+	    debugprintf("spawnproc: u_execve() rs=%d\n",rs) ;
+#endif
+
+	    u_write(cfd,&rs,sizeof(int)) ;
+	} /* end if (exec) */
+
+	uc_exit(EX_NOEXEC) ;
+}
+/* end subroutine (spawnproc_child) */
+
+
+static int envhelp_load(ENVHELP *ehp,char *pwd,cchar *efname,cchar **argv)
+{
+	const int	rsn = SR_NOTFOUND ;
+	int		rs ;
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc/envhelp_load: ent efn=%s\n",efname) ;
+#endif
+
+	if ((rs = envhelp_envset(ehp,"_EF",efname,-1)) >= 0) {
+	    int		al = -1 ;
+	    cchar	*ap = NULL ;
+	    if (argv != NULL) ap = argv[0] ;
+	    if (ap == NULL) al = sfbasename(efname,-1,&ap) ;
+	    if ((rs = envhelp_envset(ehp,"_A0",ap,al)) >= 0) {
+		const int	sulen = (strlen(efname)+22) ;
+		char		*subuf ;
+		if ((rs = uc_malloc((sulen+1),&subuf)) >= 0) {
+	    	    const pid_t	pid = ugetpid() ;
+#if	CF_DEBUGS
+		    debugprintf("spawnproc/envhelp_load: pid=%u\n",pid) ;
+#endif
+	    	    if ((rs = snshellunder(subuf,sulen,pid,efname)) > 0) {
+#if	CF_DEBUGS
+		    debugprintf("spawnproc/envhelp_load: su=%s\n",subuf) ;
+#endif
+	       		rs = envhelp_envset(ehp,"_",subuf,rs) ;
+	    	    }
+	    	    uc_free(subuf) ;
+	        } /* end if (m-a-f) */
+	    } /* end if (envhelp_envset) */
+	} /* end if (envhelp_envset) */
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc/envhelp_load: mid1 rs=%d\n",rs) ;
+#endif
+
+	if (rs >= 0) {
+	    cchar	*var = VARPWD ;
+	    if ((rs = envhelp_present(ehp,var,-1,NULL)) == rsn) {
+	        int	pwdl = -1 ;
+	        rs = SR_OK ;
+	        if (pwd[0] == '\0') {
+	            rs = getpwd(pwd,MAXPATHLEN) ;
+	            pwdl = rs ;
+	        }
+	        if (rs >= 0) {
+	            rs = envhelp_envset(ehp,var,pwd,pwdl) ;
+	        }
+	    }
+	} /* end if (ok) */
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc/envhelp_load: mid2 rs=%d\n",rs) ;
+#endif
+
+	if (rs >= 0) {
+	    cchar	*var = VARPATH ;
+	    if ((rs = envhelp_present(ehp,var,-1,NULL)) == rsn) {
+	        const int	plen = (2*MAXPATHLEN) ;
+	        char		*pbuf ;
+	        if ((rs = uc_malloc((plen+1),&pbuf)) >= 0) {
+	            if ((rs = uc_confstr(_CS_PATH,pbuf,plen)) >= 0) {
+	                rs = envhelp_envset(ehp,var,pbuf,rs) ;
+	            } /* end if */
+	            uc_free(pbuf) ;
+	        } /* end if (m-a-f) */
+	    } /* end if (envhelp_present) */
+	} /* end if (ok) */
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc/envhelp_load: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
-/* end subroutine (envadd) */
+/* end subroutine (envhelp_load) */
 
 
-static int findxfile(IDS *idp,char rbuf[],cchar pn[])
+static int findprog(char *pwd,char *pbuf,cchar *fname)
 {
-	VECSTR		pl ;
-	int		rs = SR_NOENT ;
+	IDS		id ;
+	int		rs ;
 	int		rs1 ;
-	int		f_pwd = FALSE ;
-	const char	*sp = getenv(VARPATH) ;
-	char		pathbuf[PATHBUFLEN + 1] ;
+	int		pl = 0 ;
+	if ((rs = ids_load(&id)) >= 0) {
+	    if (strchr(fname,'/') != NULL) {
+	        if (pwd[0] == '\0') {
+	            rs = getpwd(pwd,MAXPATHLEN) ;
+	        }
+	        if (rs >= 0) {
+	            if ((rs = mkpath2(pbuf,pwd,fname)) >= 0) {
+	                USTAT	sb ;
+	                pl = rs ;
+	                if ((rs = uc_stat(pbuf,&sb)) >= 0) {
+	                    const int	am = X_OK ;
+	                    rs = sperm(&id,&sb,am) ;
+	                }
+	            } /* end if (mkpath) */
+	        } /* end if (ok) */
+	    } else {
+	        rs = findxfile(&id,pbuf,fname) ;
+	        pl = rs ;
+	    } /* end if */
+	    rs1 = ids_release(&id) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (ids) */
+	return (rs >= 0) ? pl : rs ;
+}
+/* end subroutine (findprog) */
+
+
+static int findxfile(IDS *idp,char *rbuf,cchar *pn)
+{
+	VECSTR		plist ;
+	int		rs ;
+	int		rs1 ;
+	int		pl = 0 ;
+
+#if	CF_DEBUGS
+	debugprintf("spawnproc/findxfile: ent pn=%s\n",pn) ;
+#endif
 
 	rbuf[0] = '\0' ;
+	if ((rs = vecstr_start(&plist,40,0)) >= 0) {
+	    cchar	*path = getenv(VARPATH) ;
 
-	if ((sp == NULL) || (sp[0] == '\0')) {
-	    rs1 = uc_confstr(_CS_PATH,pathbuf,PATHBUFLEN) ;
-	    if (rs1 >= 0)
-	        sp = pathbuf ;
-	}
+	    if ((path != NULL) && (path[0] != '\0')) {
+	        rs = vecstr_addpath(&plist,path,-1) ;
+	    } else {
+	        rs = vecstr_addcspath(&plist) ;
+	    }
 
-	if (sp != NULL) {
-	    if ((rs = vecstr_start(&pl,40,0)) >= 0) {
+	    if (rs >= 0) {
+	        rs = getprogpath(idp,&plist,rbuf,pn,-1) ;
+	        pl = rs ;
+	    }
 
-		if ((rs = loadpath(&pl,sp)) >= 0) {
-		    f_pwd = rs ;
-	            rs = getprogpath(idp,&pl,rbuf,pn,-1) ;
-		}
+	    rs1 = vecstr_finish(&plist) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (vecstr) */
 
-	        vecstr_finish(&pl) ;
-	    } /* end if (vecstr) */
-	} /* end if */
+#if	CF_DEBUGS
+	debugprintf("spawnproc/findxfile: ret rs=%d pl=%u\n",rs,pl) ;
+	debugprintf("spawnproc/findxfile: ret rbuf=%s\n",rbuf) ;
+#endif
 
-	return rs ;
+	return (rs >= 0) ? pl : rs ;
 }
 /* end subroutine (findxfile) */
 
 
-static int loadpath(VECSTR *plp,const char *sp)
+static int ourfork()
 {
-	int		rs = SR_OK ;
-	int		f_pwd = FALSE ;
-	const char	*tp ;
+	int		rs ;
 
-	        while ((tp = strchr(sp,':')) != NULL) {
-	            if ((tp - sp) == 0) f_pwd = TRUE ;
-	            rs = vecstr_adduniq(plp,sp,(tp - sp)) ;
-	            sp = (tp + 1) ;
-	            if (rs < 0) break ;
-	        } /* end while */
+#if	CF_UCFORK
+	rs = uc_fork() ;
+#else
+	rs = u_fork() ;
+#endif /* CF_UCFORK */
 
-	        if ((rs >= 0) && (sp[0] != '\0'))
-	            rs = vecstr_adduniq(plp,sp,-1) ;
-
-	return (rs >= 0) ? f_pwd : rs ;
+	return rs ;
 }
-/* end subroutine (loadpath) */
+/* end subroutine (ourfork) */
+
+
+static int opendevnull(int *opens,int i)
+{
+	struct ustat	sb ;
+	const int	rsbad = SR_BADF ;
+	int		rs ;
+	if ((rs = u_fstat(i,&sb)) == rsbad) {
+	    const mode_t	om = 0666 ;
+	    const int		of = (i == 0) ? O_RDONLY : O_WRONLY ;
+	    if ((rs = u_open(NULLFNAME,of,om)) >= 0) {
+	        const int	fd = rs ;
+	        if (fd != i) {
+	            if ((rs = u_dup2(fd,i)) >= 0) {
+	                opens[i] = rs ;
+	                u_close(fd) ;
+	            } /* end if (dup2) */
+	        } else {
+	            opens[i] = i ;
+	        }
+	        if (rs < 0) {
+	            u_close(fd) ;
+	        }
+	    } /* end if (open) */
+	} /* end if (stat) */
+	return rs ;
+}
+/* end subroutine (opendevnull) */
 
 
 #if	CF_DEBUGS
 static int showdev(int fd)
 {
 	struct ustat	sb ;
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 #ifdef	COMMENT
 	debugprintf("spawnproc/showdev: sizeof(st_ino)=%u sizeof(st_dev)=%u\n",
 	    sizeof(sb.st_ino),sizeof(sb.st_dev)) ;

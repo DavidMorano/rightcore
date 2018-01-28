@@ -1,2 +1,2 @@
 const char nsw_makedate[] =
-"@(#)nsw                     171111_2116:13_USEST Rightcore Network Services" ;
+"@(#)nsw                     180127_1626:39_EST Rightcore Network Services" ;

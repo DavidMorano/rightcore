@@ -449,7 +449,7 @@ static int subinfo_start(MAINTQOTD *sip,time_t dt,cchar *pr,
 	    if ((rs = subinfo_envbegin(sip)) >= 0) {
 	        if ((rs = subinfo_confbegin(sip)) >= 0) {
 		    const int	llen = LOGIDLEN ;
-		    const int	v = (int) ucgetpid() ;
+		    const int	v = (int) ugetpid() ;
 		    cchar	*nn = sip->nn ;
 		    char	lbuf[LOGIDLEN+1] ;
 		    if ((rs = mklogid(lbuf,llen,nn,5,v)) >= 0) {

@@ -341,7 +341,7 @@ OBJ27= cgi.o htm.o
 OBJ28= svckv.o svcent.o
 OBJ29= 
 OBJ30= 
-OBJ31= kshlib.o lockmemalloc.o 
+OBJ31= kshlib.o
 
 OBJ32= mailbox.o mailbox_getfrom.o mailbox_fromaddr.o mailmsgstage.o
 OBJ33= mailmsg.o mailmsg_loadmb.o mailmsg_enver.o

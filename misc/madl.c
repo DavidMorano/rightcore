@@ -1,25 +1,44 @@
-/* make down load */
+/* madl */
 
-#include	"rel.h"
-
-#include	<stdio.h>
+/* Make Down Load */
 
 
-/*****************************************************************************
+/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
 
 	This program will convert an SREC type input file into a 
 	BELLMAC assembly language source file.
 
 
-******************************************************************************/
+*******************************************************************************/
 
+
+#include	<envstandards.h>
+#include	<stdio.h>
+#include	<vsystem.h>
+#include	<cfdec.h>
+#include	<localmisc.h>
+#include	"rel.h"
+
+
+
+/* local defines */
 
 #define		EOL	'\n'		/* end of line mark */
 
-main()
-{
-	extern int	cfhex(), putshort() ;
 
+/* external subroutines */
+
+extern int	putshort() ;
+
+
+/* exported subroutines */
+
+
+/* ARGSUSED */
+int main(int argc,cchar **argv,cchar **envv)
+{
 	int	c, i, nsw, len, state ;
 
 	char	buf[8] ;
@@ -176,58 +195,6 @@ default:
 
 	return (OK) ;
 }
-/* end of subroutine */
-
-
-/* subroutine to convert a HEX string to a long word */
-int cfhex(len,s,rp)
-long	len ;
-char	*s ;
-unsigned long	*rp ;
-{
-	unsigned long	c, value, count ;
-
-	if (len == 0) goto cfh21 ;
-
-	value = 0 ;
-	count = 0 ;
-
-/* top of loop */
-cfh10:
-	len-- ;
-	c = (((unsigned long) s[len]) & 0x007F) ;
-
-	if (c < '0') goto cfh71 ;
-
-	if (c <= '9') goto cfh11 ;
-
-	c = c & 0x00DF ;		/* clear bit 5 for upper case */
-
-	if (c > 'F') goto cfh71 ;
-
-	if (c < 'A') goto cfh71 ;
-
-	c = c - 7 ;
-
-/* continue here if a good character */
-cfh11:
-	c = c & 0x000F ;
-	c = c << (count * 4) ;
-	value = value | c ;
-
-	if (len == 0) goto cfh21 ;	/* jump if out */
-
-	count++ ;
-	if (count < 8) goto cfh10 ;
-
-/* we are done looping */
-cfh21:
-	*rp = value ;
-	return (OK) ;
-
-cfh71:
-	return (BAD) ;
-
-}
+/* end subroutine (main) */
 
 

@@ -1,2 +1,2 @@
-const char makedate_makedate[] =
-"@(#)makedate                170102_0113:41_USEST Rightcore Network Services¹" ;
+const char filefilter_makedate[] =
+"@(#)filefilter              180125_0921:57_USEST Rightcore Network Services" ;

@@ -14,15 +14,11 @@
 /* revision history:
 
 	= 1998-03-85, David A­D­ Morano
-
 	This subroutine was originally written.
 
-
 	= 2001-02-01, David A­D­ Morano
-
 	I expanded the storage table size somewhat for larger programs.  We are
 	handling larger amounts of data now-a-days!
-
 
 */
 
@@ -73,6 +69,7 @@
 #include	<errno.h>
 
 #include	<vsystem.h>
+#include	<ugetpid.h>
 #include	<ptm.h>
 #include	<localmisc.h>
 
@@ -91,6 +88,14 @@
 #define	MODP2(v,n)	((v) & ((n) - 1))
 
 #define	TO_AGAIN	(5 * 60)
+
+
+/* typedefs */
+
+#ifndef	TYPEDEF_CVOID
+#define	TYPEDEF_CVOID	1
+typedef const void	cvoid ;
+#endif
 
 
 /* external subroutines */
@@ -139,22 +144,22 @@ struct ucmemalloc {
 
 /* forward references */
 
-static uint	mkhash(const void *) ;
+static uint	mkhash(cvoid *) ;
 
 int		ucmemalloc_init() ;
 
-static int	ucmemalloc_memreg(const void *,int) ;
-static int	ucmemalloc_memrel(const void *) ;
-static int	ucmemalloc_mempresent(const void *) ;
+static int	ucmemalloc_memreg(cvoid *,int) ;
+static int	ucmemalloc_memrel(cvoid *) ;
+static int	ucmemalloc_mempresent(cvoid *) ;
 
 static int	ucmemalloc_trackstart(UCMEMALLOC *,int) ;
 static int	ucmemalloc_trackstarter(UCMEMALLOC *,int) ;
 static int	ucmemalloc_trackfinish(UCMEMALLOC *) ;
 
 static int	ucmemalloc_trackmalloc(UCMEMALLOC *,int,void *) ;
-static int	ucmemalloc_trackrealloc(UCMEMALLOC *,const void *,int,void *) ;
-static int	ucmemalloc_trackfree(UCMEMALLOC *,const void *) ;
-static int	ucmemalloc_trackpresent(UCMEMALLOC *,const void *) ;
+static int	ucmemalloc_trackrealloc(UCMEMALLOC *,cvoid *,int,void *) ;
+static int	ucmemalloc_trackfree(UCMEMALLOC *,cvoid *) ;
+static int	ucmemalloc_trackpresent(UCMEMALLOC *,cvoid *) ;
 static int	ucmemalloc_trackout(UCMEMALLOC *,uint *) ;
 
 static int	hashindex(uint,int) ;
@@ -186,7 +191,7 @@ int ucmemalloc_init()
 	        if ((rs = uc_atfork(b,a,a)) >= 0) {
 	            if ((rs = uc_atexit(ucmemalloc_fini)) >= 0) {
 	                uip->f_initdone = TRUE ;
-			f = TRUE ;
+	                f = TRUE ;
 	            }
 	            if (rs < 0)
 	                uc_atforkrelease(b,a,a) ;
@@ -199,6 +204,7 @@ int ucmemalloc_init()
 	} else {
 	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
 	        rs = msleep(1) ;
+		if (rs == SR_INTR) break ;
 	    }
 	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
@@ -293,7 +299,7 @@ int uc_valloc(int size,void *vp)
 #endif /* CF_LIBMALLOC */
 
 
-int uc_realloc(const void *cp,int size,void *vp)
+int uc_realloc(cvoid *cp,int size,void *vp)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 	int		rs ;
@@ -315,7 +321,7 @@ int uc_realloc(const void *cp,int size,void *vp)
 /* end subroutine (uc_realloc) */
 
 
-int uc_free(const void *vp)
+int uc_free(cvoid *vp)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 	int		rs ;
@@ -382,6 +388,7 @@ int uc_mallinfo(uint *rp,int size)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 	int		rs ;
+	int		rs1 ;
 
 	if (rp == NULL) return SR_FAULT ;
 
@@ -403,9 +410,11 @@ int uc_mallinfo(uint *rp,int size)
 	            rp[ucmallreg_notalloc] = uip->err_noalloc ;
 	            rp[ucmallreg_notfree] = uip->err_nofree ;
 
-	            ptm_unlock(&uip->m) ;
+	            rs1 = ptm_unlock(&uip->m) ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (init) */
 
@@ -414,7 +423,7 @@ int uc_mallinfo(uint *rp,int size)
 /* end subroutine (uc_mallinfo) */
 
 
-int uc_mallpresent(const void *a)
+int uc_mallpresent(cvoid *a)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 	int		rs = SR_OK ;
@@ -450,6 +459,7 @@ int ucmallreg_enum(UCMALLREG_CUR *curp,UCMALLREG_REG *rp)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 	int		rs ;
+	int		rs1 ;
 	int		rsize = 0 ;
 
 	if (curp == NULL) return SR_FAULT ;
@@ -475,9 +485,11 @@ int ucmallreg_enum(UCMALLREG_CUR *curp,UCMALLREG_REG *rp)
 	            } else
 	                rs = SR_NOTFOUND ;
 
-	            ptm_unlock(&uip->m) ;
+	            rs1 = ptm_unlock(&uip->m) ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (init) */
 
@@ -492,16 +504,19 @@ int ucmallreg_enum(UCMALLREG_CUR *curp,UCMALLREG_REG *rp)
 static int ucmemalloc_trackstart(UCMEMALLOC *uip,int opts)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (! uip->f_track) {
 	    if ((rs = uc_forklockbegin(-1)) >= 0) {
 	        if ((rs = ptm_lock(&uip->m)) >= 0) {
-
-	            rs = ucmemalloc_trackstarter(uip,opts) ;
-
-	            ptm_unlock(&uip->m) ;
+	            {
+	                rs = ucmemalloc_trackstarter(uip,opts) ;
+	            }
+	            rs1 = ptm_unlock(&uip->m) ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (was not previously tracking) */
 
@@ -513,57 +528,53 @@ static int ucmemalloc_trackstart(UCMEMALLOC *uip,int opts)
 /* ARGSUSED */
 static int ucmemalloc_trackstarter(UCMEMALLOC *uip,int opts)
 {
-	const int	rtl = nextpowtwo(LIBUC_ENTLEN) ;
-	int		rs ;
-	int		size ;
+	int		rs = SR_OK ;
 
 #if	CF_DEBUGN
 	nprintf(NDF,"ucmemalloc_trackstarter: ent\n") ;
 #endif
 
-	rs = uip->err_rs ;
-	if (uip->err_rs < 0) goto ret0 ;
-	if (uip->f_track) goto ret0 ;
+	if ((uip->err_rs >= 0) && (! uip->f_track)) {
+	    const int	rtl = nextpowtwo(LIBUC_ENTLEN) ;
+	    int		size ;
 
-	uip->f_track = TRUE ;
-	uip->pagesize = getpagesize() ;
+	    uip->f_track = TRUE ;
+	    if (uip->pagesize == 0) uip->pagesize = getpagesize() ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_trackstarter: rtl=%u pagesize=%d\n",
-	    rtl,uip->pagesize) ;
+	    nprintf(NDF,"ucmemalloc_trackstarter: rtl=%u pagesize=%d\n",
+	        rtl,uip->pagesize) ;
 #endif
 
 /* map the registration (hash) table */
 
-	size = rtl * sizeof(UCMEMALLOC_ENT) ;
+	    size = rtl * sizeof(UCMEMALLOC_ENT) ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_trackstarter: size=%u\n",size) ;
+	    nprintf(NDF,"ucmemalloc_trackstarter: size=%u\n",size) ;
 #endif
 
-	{
-	    size_t	ms = uceil(size,uip->pagesize) ;
-	    int		mp = (PROT_READ | PROT_WRITE) ;
-	    int		mf = 0 ;
-	    void	*md ;
+	    {
+	        size_t	ms = uceil(size,uip->pagesize) ;
+	        int	mp = (PROT_READ | PROT_WRITE) ;
+	        int	mf = 0 ;
+	        void	*md ;
 
-	    mf |= MAP_PRIVATE ;
-	    mf |= MAP_ANON ;
+	        mf |= MAP_PRIVATE ;
+	        mf |= MAP_ANON ;
 #if	CF_NORESERVE && defined(MAP_NORESERVE)
-	    mf |= MAP_NORESERVE ;
+	        mf |= MAP_NORESERVE ;
 #endif
-	    if ((rs = u_mmap(NULL,ms,mp,mf,-1,0L,&md)) >= 0) {
-	        uip->regs = (UCMEMALLOC_ENT *) md ;
-	        uip->regs_size = ms ;
-	        uip->regs_total = rtl ;
-	    } /* end if (mmap) */
+	        if ((rs = u_mmap(NULL,ms,mp,mf,-1,0L,&md)) >= 0) {
+	            uip->regs = (UCMEMALLOC_ENT *) md ;
+	            uip->regs_size = ms ;
+	            uip->regs_total = rtl ;
+	        } /* end if (mmap) */
 
-	} /* end block */
+	    } /* end block */
+	    if (rs < 0) uip->err_rs = rs ;
 
-	if (rs < 0)
-	    uip->err_rs = rs ;
-
-ret0:
+	} /* end if */
 
 #if	CF_DEBUGN
 	nprintf(NDF,"ucmemalloc_trackstarter: ret rs=%d\n",rs) ;
@@ -577,6 +588,7 @@ ret0:
 static int ucmemalloc_trackfinish(UCMEMALLOC *uip)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (uip->f_track) {
 	    if ((rs = uc_forklockbegin(-1)) >= 0) {
@@ -590,9 +602,11 @@ static int ucmemalloc_trackfinish(UCMEMALLOC *uip)
 	                uip->regs_total = 0 ;
 	            }
 
-	            ptm_unlock(&uip->m) ;
+	            rs1 = ptm_unlock(&uip->m) ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (was tracking) */
 
@@ -604,6 +618,7 @@ static int ucmemalloc_trackfinish(UCMEMALLOC *uip)
 static int ucmemalloc_trackmalloc(UCMEMALLOC *uip,int size,void *vp)
 {
 	int		rs ;
+	int		rs1 ;
 
 #if	CF_DEBUGN
 	nprintf(NDF,"ucmemalloc_trackmalloc: err_rs=%d\n",
@@ -621,9 +636,11 @@ static int ucmemalloc_trackmalloc(UCMEMALLOC *uip,int size,void *vp)
 	                    rs = ucmemalloc_memreg(a,size) ;
 	                }
 
-	                ptm_unlock(&uip->m) ;
+	                rs1 = ptm_unlock(&uip->m) ;
+	                if (rs >= 0) rs = rs1 ;
 	            } /* end if (mutex) */
-	            uc_forklockend() ;
+	            rs1 = uc_forklockend() ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (forklock) */
 	    } else
 	        rs = SR_FAULT ;
@@ -634,11 +651,7 @@ static int ucmemalloc_trackmalloc(UCMEMALLOC *uip,int size,void *vp)
 /* end subroutine (ucmemalloc_trackmalloc) */
 
 
-static int ucmemalloc_trackrealloc(uip,cp,size,vp)
-UCMEMALLOC	*uip ;
-const void	*cp ;
-int		size ;
-void		*vp ;
+static int ucmemalloc_trackrealloc(UCMEMALLOC *uip,cvoid *cp,int size,void *vp)
 {
 	int		rs ;
 	int		rs1 ;
@@ -658,9 +671,11 @@ void		*vp ;
 
 	            } /* end if (librealloc) */
 
-	            ptm_unlock(&uip->m) ;
+	            rs1 = ptm_unlock(&uip->m) ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
-	        uc_forklockend() ;
+	        rs1 = uc_forklockend() ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (init) */
 
@@ -669,7 +684,7 @@ void		*vp ;
 /* end subroutine (ucmemalloc_trackrealloc) */
 
 
-static int ucmemalloc_trackfree(UCMEMALLOC *uip,const void *vp)
+static int ucmemalloc_trackfree(UCMEMALLOC *uip,cvoid *vp)
 {
 	int		rs ;
 	int		rs1 ;
@@ -681,14 +696,14 @@ static int ucmemalloc_trackfree(UCMEMALLOC *uip,const void *vp)
 	                rs = uc_libfree(vp) ;
 #if	CF_DEBUGN
 	                nprintf(NDF,"ucmemalloc_trackfree: "
-				"uc_libfree() rs=%d\n",rs) ;
+	                    "uc_libfree() rs=%d\n",rs) ;
 #endif /* CF_DEBUGN */
 	            }
 	            rs1 = ptm_unlock(&uip->m) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
 	        rs1 = uc_forklockend() ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (init) */
 
@@ -701,7 +716,7 @@ static int ucmemalloc_trackfree(UCMEMALLOC *uip,const void *vp)
 /* end subroutine (ucmemalloc_trackfree) */
 
 
-static int ucmemalloc_trackpresent(UCMEMALLOC *uip,const void *vp)
+static int ucmemalloc_trackpresent(UCMEMALLOC *uip,cvoid *vp)
 {
 	int		rs ;
 	int		rs1 ;
@@ -710,15 +725,15 @@ static int ucmemalloc_trackpresent(UCMEMALLOC *uip,const void *vp)
 	if ((rs = ucmemalloc_init()) >= 0) {
 	    if ((rs = uc_forklockbegin(-1)) >= 0) {
 	        if ((rs = ptm_lock(&uip->m)) >= 0) {
-		    {
+	            {
 	                rs = ucmemalloc_mempresent(vp) ;
-			len = rs ;
-		    }
+	                len = rs ;
+	            }
 	            rs1 = ptm_unlock(&uip->m) ;
-		    if (rs >= 0) rs = rs1 ;
+	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (mutex) */
 	        rs1 = uc_forklockend() ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (forklock) */
 	} /* end if (init) */
 
@@ -738,7 +753,9 @@ static int ucmemalloc_trackout(UCMEMALLOC *uip,uint *rp)
 	    rs = (out_size & INT_MAX) ;
 	}
 
-	if (rp != NULL) *rp = (rs >= 0) ? out_size : 0 ;
+	if (rp != NULL) {
+	    *rp = (rs >= 0) ? out_size : 0 ;
+	}
 
 	return rs ;
 }
@@ -746,93 +763,81 @@ static int ucmemalloc_trackout(UCMEMALLOC *uip,uint *rp)
 
 
 /* register an allocation */
-static int ucmemalloc_memreg(const void *a,int size)
+static int ucmemalloc_memreg(cvoid *a,int size)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
-	UCMEMALLOC_ENT	*tab ;
-	uint		hv ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		phi, hi ;
-	int		rtl ;
 
 #if	CF_DEBUGN
 	nprintf(NDF,"ucmemalloc_memreg: a=%p size=%u\n",a,size) ;
 #endif /* CF_DEBUGN */
 
 	uip->out_num += 1 ;
-	if (uip->out_num > uip->out_nummax)
+	if (uip->out_num > uip->out_nummax) {
 	    uip->out_nummax = uip->out_num ;
+	}
 
-	if ((! uip->f_track) || (uip->regs == NULL)) goto ret0 ;
-	rs = uip->err_rs ;
-	if (uip->err_rs < 0) goto ret0 ;
+	if (uip->f_track && (uip->regs != NULL)) {
+	    UCMEMALLOC_ENT	*tab = uip->regs ;
+	    uint		hv = mkhash(a) ;
+	    const int		rtl = uip->regs_total ;
+	    int			i ;
+	    int			phi, hi ;
 
 /* search */
 
-	tab = uip->regs ;
-	rtl = uip->regs_total ;
-	hv = mkhash(a) ;
-
-	hi = hashindex(hv,rtl) ;
+	    hi = hashindex(hv,rtl) ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_memreg: hi=%d\n",hi) ;
+	    nprintf(NDF,"ucmemalloc_memreg: hi=%d\n",hi) ;
 #endif /* CF_DEBUGN */
 
-	phi = hi ;
-	for (i = 0 ; hi && (a != tab[hi].a) && (i < rtl) ; i += 1) {
 	    phi = hi ;
-	    hi = tab[hi].next ;
-	} /* end for */
+	    for (i = 0 ; hi && (a != tab[hi].a) && (i < rtl) ; i += 1) {
+	        phi = hi ;
+	        hi = tab[hi].next ;
+	    } /* end for */
 
 /* take action on whether it was found or not */
 
-	if (hi == 0) { /* nout found - insert (new) */
+	    if (hi == 0) { /* nout found - insert (new) */
 
-	    hi = phi ;
-	    for (i = 0 ; (tab[hi].a != NULL) && (i < rtl) ; i += 1) {
-	        hi = hashindex((hi + 1),rtl) ;
-	    }
+	        hi = phi ;
+	        for (i = 0 ; (tab[hi].a != NULL) && (i < rtl) ; i += 1) {
+	            hi = hashindex((hi + 1),rtl) ;
+	        }
 
-	    if (i < rtl) {
+	        if (i < rtl) {
+	            tab[hi].a = (caddr_t) a ;
+	            tab[hi].size = size ;
+	            tab[hi].next = 0 ;
+	            uip->regs_used += 1 ;
+	            if (uip->regs_used > uip->regs_usedmax) {
+	                uip->regs_usedmax = uip->regs_used ;
+	            }
+	        } else {
+	            uip->err_overflow += 1 ;
+	        } /* end if */
+
+	    } else { /* found - error (already there) */
 
 #if	CF_DEBUGN
-	        nprintf(NDF,"ucmemalloc_memreg: inserting hi=%d\n",hi) ;
+	        nprintf(NDF,"ucmemalloc_memreg: changing hi=%d\n",hi) ;
 #endif /* CF_DEBUGN */
 
-	        tab[hi].a = (caddr_t) a ;
+	        rs = SR_EXIST ;
+	        uip->err_nofree += 1 ;
 	        tab[hi].size = size ;
-	        tab[hi].next = 0 ;
-
-	        uip->regs_used += 1 ;
-	        if (uip->regs_used > uip->regs_usedmax)
-	            uip->regs_usedmax = uip->regs_used ;
-
-	    } else {
-
-	        uip->err_overflow += 1 ;
+	        uip->err_rs = rs ;
 
 	    } /* end if */
 
-	} else { /* found - error (already there) */
-
-#if	CF_DEBUGN
-	    nprintf(NDF,"ucmemalloc_memreg: changing hi=%d\n",hi) ;
-#endif /* CF_DEBUGN */
-
-	    rs = SR_EXIST ;
-	    uip->err_nofree += 1 ;
-	    tab[hi].size = size ;
-	    uip->err_rs = rs ;
+	    uip->out_size += size ;
+	    if (uip->out_size > uip->out_sizemax) {
+	        uip->out_sizemax = uip->out_size ;
+	    }
 
 	} /* end if */
-
-	uip->out_size += size ;
-	if (uip->out_size > uip->out_sizemax)
-	    uip->out_sizemax = uip->out_size ;
-
-ret0:
 
 #if	CF_DEBUGN
 	nprintf(NDF,"ucmemalloc_memreg: ret rs=%d\n",rs) ;
@@ -844,84 +849,88 @@ ret0:
 
 
 /* release (or unregister) an allocation */
-static int ucmemalloc_memrel(const void *a)
+static int ucmemalloc_memrel(cvoid *a)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
-	UCMEMALLOC_ENT	*tab ;
-	uint		hv ;
 	int		rs = SR_OK ;
-	int		i ;
-	int		phi, hi ;
-	int		rtl ;
 
 #if	CF_DEBUGN
 	nprintf(NDF,"ucmemalloc_memrel: a=%p\n",a) ;
 #endif /* CF_DEBUGN */
 
-	if ((! uip->f_track) || (uip->regs == NULL)) goto ret0 ;
-	rs = uip->err_rs ;
-	if (uip->err_rs < 0) goto ret0 ;
+	if (uip->f_track && (uip->regs != NULL)) {
+	    UCMEMALLOC_ENT	*tab = uip->regs ;
+	    uint		hv = mkhash(a) ;
+	    const int		rtl = uip->regs_total ;
+	    int			i ;
+	    int			phi, hi ;
 
 /* search */
 
-	tab = uip->regs ;
-	rtl = uip->regs_total ;
-	hv = mkhash(a) ;
-
-	hi = hashindex(hv,rtl) ;
+	    hi = hashindex(hv,rtl) ;
 
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_memrel: hi=%u\n",hi) ;
+	    nprintf(NDF,"ucmemalloc_memrel: hi=%u\n",hi) ;
 #endif /* CF_DEBUGN */
 
-	phi = hi ;
-	for (i = 0 ; hi && (a != tab[hi].a) && (i < rtl) ; i += 1) {
 	    phi = hi ;
-	    hi = tab[hi].next ;
-	} /* end for */
+	    for (i = 0 ; hi && (a != tab[hi].a) && (i < rtl) ; i += 1) {
+	        phi = hi ;
+	        hi = tab[hi].next ;
+	    } /* end for */
 
-	if (i >= rtl) goto ret0 ; /* not-found due to no-space */
-
-	if (hi > 0) { /* found */
+	    if (i < rtl) {
 
 #if	CF_DEBUGN
-	    nprintf(NDF,"ucmemalloc_memrel: found size=%u\n",tab[hi].size) ;
+	        nprintf(NDF,"ucmemalloc_memrel: within hi=%u\n",hi) ;
+#endif
+
+	        if (hi > 0) { /* found */
+
+#if	CF_DEBUGN
+	            nprintf(NDF,"ucmemalloc_memrel: found size=%u\n",
+			tab[hi].size) ;
 #endif /* CF_DEBUGN */
 
-	    uip->out_num -= 1 ;
+	            uip->out_num -= 1 ;
 
 /* remove */
 
-	    tab[phi].next = tab[hi].next ;
-	    uip->out_size -= tab[hi].size ;
+	            tab[phi].next = tab[hi].next ;
+	            uip->out_size -= tab[hi].size ;
 
 #if	CF_CLEARFREE
-	    {
-	        caddr_t	a = (caddr_t) tab[hi].a ;
-	        int	s = tab[hi].size ;
-	        memset(a,0,s) ;
-	    }
+	            {
+	                caddr_t	a = (caddr_t) tab[hi].a ;
+	                int	s = tab[hi].size ;
+	                memset(a,0,s) ;
+	            }
 #endif /* CF_CLEARFREE */
 
-	    if (uip->regs_used > 0) {
-	        uip->regs_used -= 1 ;
-	    } else {
-	        uip->err_underflow += 1 ;
-	    }
+	            if (uip->regs_used > 0) {
+	                uip->regs_used -= 1 ;
+	            } else {
+	                uip->err_underflow += 1 ;
+	            }
 
-	    tab[hi].a = NULL ;
-	    tab[hi].size = 0 ;
-	    tab[hi].next = 0 ;
+	            tab[hi].a = NULL ;
+	            tab[hi].size = 0 ;
+	            tab[hi].next = 0 ;
 
-	} else { /* not-found */
+	        } else { /* not-found */
 
-	    rs = SR_BUGCHECK ;
-	    uip->err_noalloc += 1 ;
-	    uip->err_rs = rs ;
+#if	CF_DEBUGN
+	            nprintf(NDF,"ucmemalloc_memrel: not found {%p}\n",a) ;
+#endif /* CF_DEBUGN */
+
+	            rs = SR_NOTFOUND ;
+	            uip->err_noalloc += 1 ;
+	            uip->err_rs = rs ;
+
+	        } /* end if */
+	    } /* end if */
 
 	} /* end if */
-
-ret0:
 
 #if	CF_DEBUGN
 	nprintf(NDF,"ucmemalloc_memrel: ret rs=%d\n",rs) ;
@@ -933,7 +942,7 @@ ret0:
 
 
 /* is an allocation present? */
-static int ucmemalloc_mempresent(const void *a)
+static int ucmemalloc_mempresent(cvoid *a)
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 	int		rs = SR_OK ;
@@ -971,11 +980,11 @@ static void ucmemalloc_atforkbefore()
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_atforkbefore: pid=%d\n",ucgetpid()) ;
+	nprintf(NDF,"ucmemalloc_atforkbefore: pid=%d\n",ugetpid()) ;
 #endif
 	ptm_lock(&uip->m) ;
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_atforkbefore: ret pid=%d\n",ucgetpid()) ;
+	nprintf(NDF,"ucmemalloc_atforkbefore: ret pid=%d\n",ugetpid()) ;
 #endif
 }
 /* end subroutine (ucmemalloc_atforkbefore) */
@@ -985,17 +994,17 @@ static void ucmemalloc_atforkafter()
 {
 	UCMEMALLOC	*uip = &ucmemalloc_data ;
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_atforkafter: pid=%d\n",ucgetpid()) ;
+	nprintf(NDF,"ucmemalloc_atforkafter: pid=%d\n",ugetpid()) ;
 #endif
 	ptm_unlock(&uip->m) ;
 #if	CF_DEBUGN
-	nprintf(NDF,"ucmemalloc_atforkafter: ret pid=%d\n",ucgetpid()) ;
+	nprintf(NDF,"ucmemalloc_atforkafter: ret pid=%d\n",ugetpid()) ;
 #endif
 }
 /* end subroutine (ucmemalloc_atforkafter) */
 
 
-static uint mkhash(const void *a)
+static uint mkhash(cvoid *a)
 {
 	ulong	v = (ulong) a ;
 	return (uint) (v >> 3) ;

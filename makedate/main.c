@@ -12,16 +12,12 @@
 /* revision history:
 
 	= 1994-09-10, David A­D­ Morano
-
         This subroutine was copied from some previous generic subroutine
         front-end that already existed. The previous front-end for this program
         was tossed!
 
-
 	= 2000-09-02, David A­D­ Morano
-
 	I updated this to use some more general logging mechanism.
-
 
 */
 
@@ -123,7 +119,7 @@ static int	procuserinfo_logid(PROGINFO *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"TMPDIR",
 	"VERSION",
@@ -620,16 +616,16 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
