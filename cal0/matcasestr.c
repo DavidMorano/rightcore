@@ -9,34 +9,31 @@
 
 /* revision history:
 
-	- 1998-12-01, David A­D­ Morano
-
+	= 1998-12-01, David A­D­ Morano
 	Module was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/************************************************************************
+/*******************************************************************************
 
-	Check that the given string matches EXACTLY (case insensitively)
-	some string in the given array of strings.  If we get a match,
-	we return the array index.  If we do not match, we return
-	"less-than-zero".
+	Check that the given string matches EXACTLY (case insensitively) some
+	string in the given array of strings.  If we get a match, we return the
+	array index.  If we do not match, we return "less-than-zero".
 
 	Synopsis:
 
-	int matcasestr(a,s,slen)
+	int matcasestr(a,sp,sl)
 	const char	*a[] ;
-	const char	s[] ;
-	int		slen ;
+	const char	sp[] ;
+	int		sl ;
 
 	Arguments:
 
 	a		array of string to match against
-	s		string to test against array
-	slen		length of test string
+	sp		string to test against array
+	sl		length of test string
 
 	Returns:
 
@@ -44,7 +41,7 @@
 	<0		no match found
 
 
-**************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -82,48 +79,28 @@ extern int	touc(int) ;
 /* exported subroutines */
 
 
-int matcasestr(a,s,slen)
-const char	*a[] ;
-const char	s[] ;
-int		slen ;
+int matcasestr(cchar **a,cchar *sp,int sl)
 {
-	register int	lc = tolc(s[0]) ;
+	int		lc = tolc(sp[0]) ;
+	int		i ;
+	int		m ;
 
-	int	i ;
-	int	m ;
-
-
-	if (slen >= 0) {
-
+	if (sl >= 0) {
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
-
-		m = (lc == tolc(a[i][0])) ;
-		if (m > 0)
-		    m = nleadcasestr(a[i],s,slen) ;
-
-		    if ((m == slen) && (a[i][m] == '\0'))
-	                break ;
-
+		m = ((sl > 0) && (lc == tolc(a[i][0]))) ;
+		if (m > 0) m = nleadcasestr(a[i],sp,sl) ;
+		if ((m == sl) && (a[i][m] == '\0')) break ;
 	    } /* end for */
-
 	} else {
-
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
-
 		m = (lc == tolc(a[i][0])) ;
-		if (m > 0)
-	            m = nleadcasestr(a[i],s,-1) ;
-
-		    if ((a[i][m] == '\0') && (s[m] == '\0'))
-	                break ;
-
+		if (m > 0) m = nleadcasestr(a[i],sp,-1) ;
+		if ((a[i][m] == '\0') && (sp[m] == '\0')) break ;
 	    } /* end for */
-
 	} /* end if */
 
 	return (a[i] != NULL) ? i : -1 ;
 }
 /* end subroutine (matcasestr) */
-
 
 

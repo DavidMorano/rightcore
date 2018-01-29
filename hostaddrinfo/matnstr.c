@@ -1,6 +1,6 @@
 /* matnstr */
 
-/* matnstr (match a string) */
+/* match a counted string */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-12-01, David A­D­ Morano
-
 	Module was originally written.
-
 
 */
 
@@ -73,11 +71,10 @@ extern int	nleadcasestr(const char *,const char *,int) ;
 
 int matnstr(cchar **a,cchar *sp,int sl)
 {
-	register int	lc = sp[0] ; /* ok: everything promotes the same */
-	register int	i ;
+	int		lc = sp[0] ; /* ok: everything promotes the same */
+	int		i ;
 
-	if (sl < 0)
-	    sl = strlen(sp) ;
+	if (sl < 0) sl = strlen(sp) ;
 
 	for (i = 0 ; a[i] != NULL ; i += 1) {
 	    if ((lc == a[i][0]) && (strncmp(a[i],sp,sl) == 0)) break ;

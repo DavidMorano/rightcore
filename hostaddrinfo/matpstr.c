@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-04-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -81,35 +79,30 @@ extern int	nleadcasestr(const char *,const char *,int) ;
 
 int matpstr(cchar **a,int n,cchar *sp,int sl)
 {
-	register int	i ;
 	int		si ;
-	int		m, m_max ;
 
-	if (sl < 0)
-	    sl = strlen(sp) ;
+	if (sl < 0) sl = strlen(sp) ;
 
 	if (n >= 0) {
-	    register int	lc = sp[0] ; /* exveryting promotes */
-
-	    m_max = 0 ;
+	    const int	lc = sp[0] ; /* everything promotes */
+	    int		i ;
+	    int		m_max = 0 ;
+	    int		m ;
 	    si = -1 ;
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
-
-		m = (lc == a[i][0]) ;
-		if (m > 0)
+		if ((m = (lc == a[i][0])) > 0) {
 		    m = nleadstr(a[i],sp,sl) ;
-
-		if (((m >= n) && (m == sl)) || (a[i][m] == '\0')) {
+		}
+		if ((m == sl) && ((m >= n) || (a[i][m] == '\0'))) {
 		    if (m > m_max) {
 			m_max = m ;
 			si = i ;
 		    }
 		} /* end if */
-
 	    } /* end for */
-
-	} else
+	} else {
 	    si = matstr(a,sp,sl) ;
+	}
 
 	return si ;
 }

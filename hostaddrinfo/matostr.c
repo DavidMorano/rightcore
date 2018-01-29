@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-12-01, David A­D­ Morano
-
 	Module was originally written.
-
 
 */
 
@@ -61,6 +59,11 @@
 extern int	nleadstr(const char *,const char *,int) ;
 extern int	nleadcasestr(const char *,const char *,int) ;
 
+#if	CF_DEBUGS
+extern int	debugprintf(const char *,...) ;
+extern int	strlinelen(const char *,int,int) ;
+#endif
+
 
 /* external variables */
 
@@ -76,20 +79,19 @@ extern int	nleadcasestr(const char *,const char *,int) ;
 
 int matostr(cchar **a,int n,cchar *sp,int sl)
 {
-	register int	lc = sp[0] ; /* ok: everything promotes similarly */
-	register int	i ;
-	register int	m ;
+	const int	lc = sp[0] ; /* ok: everything promotes similarly */
+	int		i ;
+	int		m ;
 
-	if (sl < 0)
-	    sl = strlen(sp) ;
+	if (sl < 0) sl = strlen(sp) ;
 
 	for (i = 0 ; a[i] != NULL ; i += 1) {
-
-	    m = (lc == a[i][0]) ;
-	    if (m > 0) m = nleadstr(a[i],sp,sl) ;
-	    if ((m == sl) && ((m >= n) || (a[i][m] == '\0')))
+	    if ((m = (lc == a[i][0])) > 0) {
+	        m = nleadstr(a[i],sp,sl) ;
+	    }
+	    if ((m == sl) && ((m >= n) || (a[i][m] == '\0'))) {
 		break ;
-
+	    }
 	} /* end for */
 
 	return (a[i] != NULL) ? i : -1 ;

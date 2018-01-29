@@ -1,133 +1,116 @@
-/* This software is Copyright 1992 by Stan Barber. 
- *
- * Permission is hereby granted to copy, reproduce, redistribute or otherwise
- * use this software as long as: there is no monetary profit gained
- * specifically from the use or reproduction of this software, it is not
- * sold, rented, traded or otherwise marketed, and this copyright notice is
- * included prominently in any copy made. 
- *
- * The author make no claims as to the fitness or correctness of this software
- * for any use whatsoever, and it is provided as is. Any use of this software
- * is at the user's own risk. 
- */
+/* uname */
+
+/* UNIX® information (a cache for 'uname(2)' ) */
 
 
-static char	*rcsId = "@(#)$Id: uname.c,v 1.6 1992/08/03 04:55:23 sob RELEASE sob $";
+#define	CF_DEBUGS	0		/* compile-time debugging */
 
-#include <stdio.h>
-#include "config.h"
 
-#ifdef USG
-#include <string.h>
-#else
-#include <strings.h>
-#endif
+/* revision history:
 
-#ifdef DOUNAME
-# define DONE
-#endif /* DOUNAME */
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
 
-#ifdef GHNAME
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
+*/
 
-uname(uptr)
-char	*uptr;
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
+
+        This module serves as a cache (of sorts) for UNIX® information that is
+        related to the underlying machine and which does not (easily) change
+        during program exection.
+
+
+*******************************************************************************/
+
+
+#include	<envstandards.h>
+
+#include	<sys/types.h>
+#include	<sys/param.h>
+#include	<sys/utsname.h>
+#include	<string.h>
+
+#include	<vsystem.h>
+#include	<localmisc.h>
+
+#include	"uname.h"
+
+
+/* external subroutines */
+
+extern char	*strwcpy(char *,const char *,int) ;
+
+
+/* local structures */
+
+
+/* forward references */
+
+
+/* local variables */
+
+
+/* exported subroutines */
+
+
+int uname_start(UNAME *op)
 {
-	struct hostent *he;
+	const int	size = sizeof(struct utsname) ;
+	int		rs ;
+	void		*p ;
 
-	gethostname(uptr, 256);
+	if (op == NULL) return SR_FAULT ;
 
-	he = gethostbyname(uptr);
-	strncpy(uptr, he->h_name, 255);
-	uptr[255] = '\0';
+	if ((rs = uc_malloc(size,&p)) >= 0) {
+	    struct utsname	*unp = p ;
+	    if ((rs = u_uname(unp)) >= 0) {
+	        const int	nlen = NODENAMELEN ;
+	        int		size = 0 ;
+	        char		*bp ;
+	        size += (strnlen(unp->sysname,nlen) + 1) ;
+	        size += (strnlen(unp->nodename,nlen) + 1) ;
+	        size += (strnlen(unp->release,nlen) + 1) ;
+	        size += (strnlen(unp->version,nlen) + 1) ;
+	        size += (strnlen(unp->machine,nlen) + 1) ;
+	        if ((rs = uc_malloc(size,&bp)) >= 0) {
+	            op->a = bp ;
+	            op->sysname = bp ;
+	            bp = (strwcpy(bp,unp->sysname,nlen) + 1) ;
+	            op->nodename = bp ;
+	            bp = (strwcpy(bp,unp->nodename,nlen) + 1) ;
+	            op->release = bp ;
+	            bp = (strwcpy(bp,unp->release,nlen) + 1) ;
+	            op->version = bp ;
+	            bp = (strwcpy(bp,unp->version,nlen) + 1) ;
+	            op->machine = bp ;
+	            bp = (strwcpy(bp,unp->machine,nlen) + 1) ;
+	        } /* end if (memory-allocation) */
+	    } /* end if (uname) */
+	    uc_free(unp) ;
+	} /* end if (m-a) */
+
+	return rs ;
 }
-# define DONE
-#endif
-#ifdef PHOSTNAME
-uname(uptr)
-char *uptr;
+/* end subroutine (uname_start) */
+
+
+int uname_finish(UNAME *op)
 {
-	FILE *popen();
-	FILE *uucpf;
-	register char *p;
-	if (((uucpf = popen(PHOSTNAME, "r")) == NULL ||
-		fgets(uptr, 256, uucpf) == NULL) {
-			fprintf(stderr, "%s command failed. Contact your systems administrator.\n", PHOSTNAME);
-			pclose(uucpf);
-			exit(1);
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (op == NULL) return SR_FAULT ;
+
+	if (op->a != NULL) {
+	    rs1 = uc_free(op->a) ;
+	    if (rs >= 0) rs = rs1 ;
+	    op->a = NULL ;
 	}
-	p = index(uptr, '\n');
-	if (p)
-		*p = '\0';
-	if (uucpf != NULL)
-		pclose(uucpf);
-}
-#define DONE
-#endif /* PHOSTNAME */
 
-#ifdef HOSTFILE
-#ifndef	GHNAME
-uname(uptr)
-char *uptr;
-{
-    FILE * uucpf;
-    char * hostname;
-    register char *p;
+	return rs ;
+}
+/* end subroutine (uname_finish) */
 
-    if ((uucpf = fopen(HOSTFILE,"r")) == NULL) {
-	fprintf(stderr,"couldn't open \"%s\" to determine hostname\n", 
-		HOSTFILE); 
-	exit(1);
-    } else {
-	fgets(uptr, 256, uucpf);
-    }
-	p = index(uptr, '\n');
-	if (p)
-		*p = '\0';
-	if (uucpf != NULL)
-		fclose(uucpf);
-}
-#define DONE
-#endif
-#endif
-#ifdef WHOAMI
-#define	HDRFILE "/usr/include/whoami.h"
 
-uname(uptr)
-char *uptr;
-{
-	char buf[BUFSIZ];
-	FILE *fd;
-	
-	fd = fopen(HDRFILE, "r");
-	if (fd == NULL) {
-		fprintf(stderr, "Cannot open %s to determine hostname. Contact your system administrator.\n", HDRFILE);
-		exit(1);
-	}
-	
-	for (;;) {	/* each line in the file */
-		if (fgets(buf, sizeof buf, fd) == NULL) {
-			fprintf(stderr, "%s is corrupted. Please contact your system administrator\n", HDRFILE);
-			fclose(fd);
-			exit(1);
-		}
-		if (sscanf(buf, "#define sysname \"%[^\"]\"", uptr) == 1) {
-			fclose(fd);
-			return;
-		}
-	}
-}
-#define DONE
-#endif
-#ifndef DONE
-#ifdef SITENAME
-uname(uptr)
-char* uptr;
-{
-	strcpy(uptr,SITENAME);
-	return;
-}
-#endif
-#endif

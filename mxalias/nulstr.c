@@ -5,10 +5,8 @@
 
 /* revision history:
 
-	- 1998-02-01, David A­D­ Morano
-
+	= 1998-02-01, David A­D­ Morano
 	This subroutine was originally written.
-
 
 */
 
@@ -16,8 +14,8 @@
 
 /*******************************************************************************
 
-	This object module (NULSTR) provides support for creating
-	NUL-terminated strings when only a counted string is available.
+        This object module (NULSTR) provides support for creating NUL-terminated
+        strings when only a counted string is available.
 
 
 *******************************************************************************/
@@ -62,7 +60,7 @@ int nulstr_start(NULSTR *ssp,cchar *sp,int sl,cchar **rpp)
 	if (sl >= 0) {
 	    if (sp[sl] != '\0') {
 	        if (sl > NULSTR_SHORTLEN) {
-		    const char	*cp ;
+		    cchar	*cp ;
 	            if ((rs = uc_mallocstrw(sp,sl,&cp)) >= 0) {
 	                cl = (rs-1) ;
 	                *rpp = cp ;
@@ -72,10 +70,12 @@ int nulstr_start(NULSTR *ssp,cchar *sp,int sl,cchar **rpp)
 	            *rpp = ssp->buf ;
 	            cl = strwcpy(ssp->buf,sp,sl) - ssp->buf ;
 	        } /* end if */
-	    } else
+	    } else {
 	        cl = sl ;
-	} else
+	    }
+	} else {
 	    cl = strlen(sp) ;
+	}
 
 	return (rs >= 0) ? cl : rs ;
 }

@@ -10,11 +10,9 @@
 /* revision history:
 
 	= 1998-07-01, David A­D­ Morano
-
         This code module was originally written in C language but modeled
         somewhat from a prior VAX assembly language version of mine (circa 1980
         perhaps). This is why it looks so ugly!
-
 
 */
 
@@ -82,22 +80,6 @@ static const unsigned char	quotes[] = {
 	0x00, 0x00, 0x00, 0x00
 } ;
 
-#ifdef	COMMENT
-
-/* shell characters */
-static const unsigned char	metas[] = {
-	0x00, 0x02, 0x00, 0x00,
-	0x41, 0x03, 0x00, 0x58,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x10,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00
-} ;
-
-#endif /* COMMENT */
-
 /* 'double quote', 'back slash', 'pound', 'back accent', et cetera */
 static const unsigned char	doubles[] = {
 	0x00, 0x00, 0x00, 0x00,
@@ -147,7 +129,7 @@ int fieldterms(uchar *terms,int f_retain,cchar *s)
 
 	if (! f_retain) {
 	    for (i = 0 ; i < 32 ; i += 1) {
-		terms[i] = '\0' ;
+	        terms[i] = '\0' ;
 	    }
 	} /* end if */
 
@@ -190,7 +172,7 @@ int field_start(FIELD *fsbp,cchar *lp,int ll)
 	    ll -= 1 ;
 	} /* end while */
 
-	if (*lp == '\0') 
+	if (*lp == '\0')
 	    ll = 0 ;
 
 	fsbp->lp = (const uchar *) lp ;
@@ -218,7 +200,8 @@ int field_get(FIELD *fsbp,const uchar *terms,cchar **fpp)
 {
 	uint		ch ;
 	uint		qe ;
-	int		ll, fl ;
+	int		ll ;
+	int		fl = SR_NOTFOUND ;
 	int		term = '\0' ;
 	const uchar	*lp, *fp ;
 
@@ -242,84 +225,82 @@ int field_get(FIELD *fsbp,const uchar *terms,cchar **fpp)
 	} /* end while */
 
 	fp = lp ;
-	fl = -1 ;
-	if (ll <= 0)
-	    goto done ;
+	if (ll > 0) {
 
-	fl = 0 ;
+	    fl = 0 ;
 
 /* the character is not blank space -- is it a quote? */
 
-	ch = MKCHAR(*lp) ;
-	if (BATST(quotes,ch)) {
+	    ch = MKCHAR(*lp) ;
+	    if (BATST(quotes,ch)) {
 
 /* it is a quote character, so we prepare to extract it */
 
-	    qe = ch ;			/* set default quote end */
-	    lp += 1 ;
-	    ll -= 1 ;			/* skip over quote character */
-	    fp = lp ;	 		/* save field address */
+	        qe = ch ;			/* set default quote end */
+	        lp += 1 ;
+	        ll -= 1 ;			/* skip over quote character */
+	        fp = lp ;	 		/* save field address */
 
-	    while ((ll > 0) && ((ch = MKCHAR(*lp)) != qe)) {
+	        while ((ll > 0) && ((ch = MKCHAR(*lp)) != qe)) {
+	            lp += 1 ;
+	            ll -= 1 ;
+	        }
+
+	        fl = (lp - fp) ;
+	        lp += 1 ;
+	        ll -= 1 ;			/* skip over quote character */
+
+	    } else if (! BATST(terms,ch)) {
+
+	        fp = lp ;	 		/* save field address */
 	        lp += 1 ;
 	        ll -= 1 ;
-	    }
+	        while (ll > 0) {
 
-	    fl = (lp - fp) ;
-	    lp += 1 ;
-	    ll -= 1 ;			/* skip over quote character */
+	            ch = MKCHAR(*lp) ;
+	            if (BATST(terms,ch) || BATST(quotes,ch))
+	                break ;
 
-	} else if (! BATST(terms,ch)) {
+	            if (CHAR_ISWHITE(ch))
+	                break ;
 
-	    fp = lp ;	 		/* save field address */
-	    lp += 1 ;
-	    ll -= 1 ;
-	    while (ll > 0) {
+	            lp += 1 ;
+	            ll -= 1 ;
 
-	        ch = MKCHAR(*lp) ;
-	        if (BATST(terms,ch) || BATST(quotes,ch))
-	            break ;
+	        } /* end while */
 
-	        if (CHAR_ISWHITE(ch))
-	            break ;
+	        fl = (lp - fp) ;
 
+	    } /* end if (processing a field) */
+
+	    if ((ll > 0) && CHAR_ISWHITE(*lp)) {
+
+	        term = ' ' ;
+	        while ((ll > 0) && CHAR_ISWHITE(*lp)) {
+	            lp += 1 ;
+	            ll -= 1 ;
+	        } /* end while */
+
+	    } /* end if */
+
+	    ch = MKCHAR(*lp) ;
+	    if ((ll > 0) && BATST(terms,ch) && (! BATST(quotes,ch))) {
+	        term = ch ;
 	        lp += 1 ;
 	        ll -= 1 ;
+	    } /* end if */
 
-	    } /* end while */
+	} /* end if (positive) */
 
-	    fl = (lp - fp) ;
-
-	} /* end if (processing a field) */
-
-	if ((ll > 0) && CHAR_ISWHITE(*lp)) {
-
-	    term = ' ' ;
-	    while ((ll > 0) && CHAR_ISWHITE(*lp)) {
-	        lp += 1 ;
-	        ll -= 1 ;
-	    } /* end while */
-
-	} /* end if */
-
-	ch = MKCHAR(*lp) ;
-	if ((ll > 0) && BATST(terms,ch) && (! BATST(quotes,ch))) {
-
-	    term = ch ;
-	    lp += 1 ;
-	    ll -= 1 ;
-
-	} /* end if */
-
-done:
 	fsbp->ll = ll ;
 	fsbp->lp = lp ;
 	fsbp->fl = fl ;
 	fsbp->fp = (fl >= 0) ? fp : NULL ;
 	fsbp->term = term ;
 
-	if (fpp != NULL)
+	if (fpp != NULL) {
 	    *fpp = (const char *) fsbp->fp ;
+	}
 
 	return fl ;			/* return length of field */
 }
@@ -330,8 +311,9 @@ done:
 int field_term(FIELD *fsbp,const uchar *terms,cchar **fpp)
 {
 	uint		ch ;
-	int		ll, fl ;
+	int		ll ;
 	int		term = '\0' ;
+	int		fl = SR_NOTFOUND ;
 	const uchar	*lp, *fp ;
 
 	if (fsbp == NULL) return SR_FAULT ;
@@ -347,49 +329,44 @@ int field_term(FIELD *fsbp,const uchar *terms,cchar **fpp)
 	if (terms == NULL)
 	    terms = dterms ;
 
-	fl = -1 ;
-	if (ll <= 0)
-	    goto done ;
+	if (ll > 0) {
+	    fl = 0 ;
 
-	fl = 0 ;
+	    ch = MKCHAR(*lp) ;
+	    if (! BATST(terms,ch)) {
 
-	ch = MKCHAR(*lp) ;
-	if (! BATST(terms,ch)) {
-
-	    fp = lp ;	 		/* save field address */
-	    lp += 1 ;
-	    ll -= 1 ;
-	    while (ll > 0) {
-
-	        ch = MKCHAR(*lp) ;
-	        if (BATST(terms,ch))
-	            break ;
-
+	        fp = lp ;	 		/* save field address */
 	        lp += 1 ;
 	        ll -= 1 ;
+	        while (ll > 0) {
+	            ch = MKCHAR(*lp) ;
+	            if (BATST(terms,ch)) break ;
+	            lp += 1 ;
+	            ll -= 1 ;
+	        } /* end while */
 
-	    } /* end while */
+	        fl = (lp - fp) ;
 
-	    fl = (lp - fp) ;
+	    } /* end if (processing a field) */
 
-	} /* end if (processing a field) */
+	    ch = MKCHAR(*lp) ;
+	    if ((ll > 0) && BATST(terms,ch)) {
+	        term = ch ;
+	        lp += 1 ;
+	        ll -= 1 ;
+	    } /* end if */
 
-	ch = MKCHAR(*lp) ;
-	if ((ll > 0) && BATST(terms,ch)) {
-	    term = ch ;
-	    lp += 1 ;
-	    ll -= 1 ;
-	} /* end if */
+	} /* end if (positive) */
 
-done:
 	fsbp->ll = ll ;
 	fsbp->lp = lp ;
 	fsbp->fl = fl ;
 	fsbp->fp = (fl >= 0) ? fp : NULL ;
 	fsbp->term = term ;
 
-	if (fpp != NULL)
+	if (fpp != NULL) {
 	    *fpp = (const char *) fsbp->fp ;
+	}
 
 	return fl ;			/* return length of field */
 }
@@ -412,8 +389,8 @@ done:
 int field_sharg(FIELD *fsbp,const uchar *terms,char *fbuf,int flen)
 {
 	uint		ch ;
-	int		fl = SR_NOENT ; /* end-of-arguments */
 	int		ll ;
+	int		fl = SR_NOTFOUND ;
 	int		qe ;
 	int		nch ;
 	int		term = '\0' ;
@@ -440,137 +417,137 @@ int field_sharg(FIELD *fsbp,const uchar *terms,char *fbuf,int flen)
 	    ll -= 1 ;
 	}
 
-	if (ll <= 0) 
-	    goto done ;
-
 /* process the standard SHELL string */
 
-	while (ll > 0) {
+	if (ll > 0) {
 
-	    ch = MKCHAR(*lp) ;
-	    if (BATST(terms,ch) & (! BATST(quotes,ch))) 
-		break ;
+	    while (ll > 0) {
 
-	    if (CHAR_ISWHITE(ch)) 
-		break ;
+	        ch = MKCHAR(*lp) ;
+	        if (BATST(terms,ch) & (! BATST(quotes,ch)))
+	            break ;
 
-	    if (ch == '\"') {
+	        if (CHAR_ISWHITE(ch))
+	            break ;
 
-	        qe = ch ;
-		lp += 1 ;
-	        ll -= 1 ;
-	        while (ll > 0) {
+	        if (ch == '\"') {
 
-		    ch = MKCHAR(*lp) ;
-		    if (ll > 1)
-			nch = MKCHAR(lp[1]) ;
+	            qe = ch ;
+	            lp += 1 ;
+	            ll -= 1 ;
+	            while (ll > 0) {
 
-	            if ((ch == '\\') && (ll > 1) && BATST(doubles,nch)) {
+	                ch = MKCHAR(*lp) ;
+	                if (ll > 1)
+	                    nch = MKCHAR(lp[1]) ;
 
-	                lp += 1 ;
-	                ll -= 1 ;
-		        ch = MKCHAR(*lp) ;
-	                if (flen > 0) {
-	                    *bp++ = ch ;
-	                    flen -= 1 ;
-	                }
-	                lp += 1 ;
-	                ll -= 1 ;
+	                if ((ch == '\\') && (ll > 1) && BATST(doubles,nch)) {
 
-	            } else if (ch == qe) {
+	                    lp += 1 ;
+	                    ll -= 1 ;
+	                    ch = MKCHAR(*lp) ;
+	                    if (flen > 0) {
+	                        *bp++ = ch ;
+	                        flen -= 1 ;
+	                    }
+	                    lp += 1 ;
+	                    ll -= 1 ;
 
-	                lp += 1 ;
-	                ll -= 1 ;
-	                break ;
+	                } else if (ch == qe) {
 
-	            } else {
+	                    lp += 1 ;
+	                    ll -= 1 ;
+	                    break ;
 
-	                if (flen > 0) {
-	                    *bp++ = ch ;
-	                    flen -= 1 ;
-	                }
-	                lp += 1 ;
-	                ll -= 1 ;
+	                } else {
 
-	            } /* end if */
+	                    if (flen > 0) {
+	                        *bp++ = ch ;
+	                        flen -= 1 ;
+	                    }
+	                    lp += 1 ;
+	                    ll -= 1 ;
 
-	        } /* end while (processing the quoted portion) */
+	                } /* end if */
 
-	    } else if (ch == '\'') {
+	            } /* end while (processing the quoted portion) */
 
-	        qe = ch ;
-		lp += 1 ;
-	        ll -= 1 ;
-	        while (ll > 0) {
+	        } else if (ch == '\'') {
 
-		    ch = MKCHAR(*lp) ;
-	            if (ch == qe) {
+	            qe = ch ;
+	            lp += 1 ;
+	            ll -= 1 ;
+	            while (ll > 0) {
 
-	                lp += 1 ;
-	                ll -= 1 ;
-	                break ;
+	                ch = MKCHAR(*lp) ;
+	                if (ch == qe) {
 
-	            } else {
+	                    lp += 1 ;
+	                    ll -= 1 ;
+	                    break ;
 
-	                if (flen > 0) {
-	                    *bp++ = ch ;
-	                    flen -= 1 ;
-	                }
-	                lp += 1 ;
-	                ll -= 1 ;
+	                } else {
 
-	            } /* end if */
+	                    if (flen > 0) {
+	                        *bp++ = ch ;
+	                        flen -= 1 ;
+	                    }
+	                    lp += 1 ;
+	                    ll -= 1 ;
 
-	        } /* end while (processing the quoted portion) */
+	                } /* end if */
 
-	    } else if ((ch == '\\') && (ll > 1)) {
+	            } /* end while (processing the quoted portion) */
 
-	        lp += 1 ;
-	        ll -= 1 ;
-		ch = MKCHAR(*lp) ;
-	        if (flen > 0) {
-	            *bp++ = ch ;
-	            flen -= 1 ;
-	        }
-	        lp += 1 ;
-	        ll -= 1 ;
+	        } else if ((ch == '\\') && (ll > 1)) {
 
-	    } else {
+	            lp += 1 ;
+	            ll -= 1 ;
+	            ch = MKCHAR(*lp) ;
+	            if (flen > 0) {
+	                *bp++ = ch ;
+	                flen -= 1 ;
+	            }
+	            lp += 1 ;
+	            ll -= 1 ;
 
-	        if (flen > 0) {
-	            *bp++ = ch ;
-	            flen -= 1 ;
-	        }
-	        lp += 1 ;
-	        ll -= 1 ;
+	        } else {
 
-	    } /* end if */
+	            if (flen > 0) {
+	                *bp++ = ch ;
+	                flen -= 1 ;
+	            }
+	            lp += 1 ;
+	            ll -= 1 ;
 
-	} /* end while (main loop) */
+	        } /* end if */
+
+	    } /* end while (main loop) */
 
 /* do the terminator processing */
 
-	while ((ll > 0) && CHAR_ISWHITE(*lp)) {
-	    lp += 1 ;
-	    ll -= 1 ;
-	} /* end while */
+	    while ((ll > 0) && CHAR_ISWHITE(*lp)) {
+	        lp += 1 ;
+	        ll -= 1 ;
+	    } /* end while */
 
 /* we are at the end */
 
-	term = ' ' ;
-	ch = MKCHAR(*lp) ;
-	if (BATST(terms,ch) && (! BATST(quotes,ch))) {
-	    term = ch ;			/* save terminator */
-	    lp += 1 ;
-	    ll -= 1 ;			/* skip over the terminator */
-	} /* end if */
+	    if (ll > 0) {
+	        term = ' ' ;
+	        ch = MKCHAR(*lp) ;
+	        if (BATST(terms,ch) && (! BATST(quotes,ch))) {
+	            term = ch ;			/* save terminator */
+	            lp += 1 ;
+	            ll -= 1 ;			/* skip over the terminator */
+	        } /* end if */
+	    } /* end if (positive) */
 
-	fl = (bp - ((unsigned char *) fbuf)) ;
+	    fl = (bp - ((unsigned char *) fbuf)) ;
 
-/* we are out of here! */
-done:
+	} /* end if (positive) */
+
 	*bp = '\0' ;
-
 	fsbp->ll = ll ;
 	fsbp->lp = lp ;
 	fsbp->fl = fl ;

@@ -1,14 +1,12 @@
 /* ptma */
 
-/* POSIX Thread Mutex Attribute manipulation */
+/* POSIX® Thread Mutex Attribute manipulation */
 
 
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -52,40 +50,38 @@ int		ptma_create(PTMA *) ;
 /* exported subroutines */
 
 
-int ptma_init(PTMA *op)
-{
-	return ptma_create(op) ;
-}
-/* end subroutine (ptma_init) */
-
-
 int ptma_create(PTMA *op)
 {
 	int		rs ;
 	int		to_nomem = TO_NOMEM ;
+	int		f_exit = FALSE ;
 
-again:
-	rs = pthread_mutexattr_init(op) ;
-	if (rs > 0) rs = (- rs) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_NOMEM:
-	        if (to_nomem-- > 0) {
-			msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    } /* end switch */
-	} /* end if */
+	repeat {
+	    if ((rs = pthread_mutexattr_init(op)) > 0) rs = (- rs) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_NOMEM:
+	            if (to_nomem-- > 0) {
+		        msleep(1000) ;
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+		case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+		} /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
 /* end subroutine (ptma_create) */
 
 
-int ptma_destroy(op)
-PTMA	*op ;
+int ptma_destroy(PTMA *op)
 {
 	int		rs ;
 
@@ -98,9 +94,7 @@ PTMA	*op ;
 /* end subroutine (ptma_destroy) */
 
 
-int ptma_getprioceiling(op,oldp)
-PTMA	*op ;
-int	*oldp ;
+int ptma_getprioceiling(PTMA *op,int *oldp)
 {
 	int		rs ;
 
@@ -113,9 +107,7 @@ int	*oldp ;
 /* end subroutine (ptma_getprioceiling) */
 
 
-int ptma_setprioceiling(op,new)
-PTMA	*op ;
-int	new ;
+int ptma_setprioceiling(PTMA *op,int new)
 {
 	int		rs ;
 
@@ -128,9 +120,7 @@ int	new ;
 /* end subroutine (ptma_setprioceiling) */
 
 
-int ptma_getprotocol(op,oldp)
-PTMA	*op ;
-int	*oldp ;
+int ptma_getprotocol(PTMA *op,int *oldp)
 {
 	int		rs ;
 
@@ -143,9 +133,7 @@ int	*oldp ;
 /* end subroutine (ptma_getprotocol) */
 
 
-int ptma_setprotocol(op,new)
-PTMA	*op ;
-int	new ;
+int ptma_setprotocol(PTMA *op,int new)
 {
 	int		rs ;
 
@@ -158,9 +146,7 @@ int	new ;
 /* end subroutine (ptma_setprotocol) */
 
 
-int ptma_getpshared(op,oldp)
-PTMA	*op ;
-int	*oldp ;
+int ptma_getpshared(PTMA *op,int *oldp)
 {
 	int		rs ;
 
@@ -173,9 +159,7 @@ int	*oldp ;
 /* end subroutine (ptma_getpshared) */
 
 
-int ptma_setpshared(op,new)
-PTMA	*op ;
-int	new ;
+int ptma_setpshared(PTMA *op,int new)
 {
 	int		rs ;
 
@@ -188,9 +172,7 @@ int	new ;
 /* end subroutine (ptma_setpshared) */
 
 
-int ptma_getrobustnp(op,oldp)
-PTMA	*op ;
-int	*oldp ;
+int ptma_getrobustnp(PTMA *op,int *oldp)
 {
 	int		rs ;
 
@@ -203,9 +185,7 @@ int	*oldp ;
 /* end subroutine (ptma_getrobustnp) */
 
 
-int ptma_setrobustnp(op,new)
-PTMA	*op ;
-int	new ;
+int ptma_setrobustnp(PTMA *op,int new)
 {
 	int		rs ;
 
@@ -221,9 +201,7 @@ int	new ;
 /* end subroutine (ptma_setrobustnp) */
 
 
-int ptma_gettype(op,oldp)
-PTMA	*op ;
-int	*oldp ;
+int ptma_gettype(PTMA *op,int *oldp)
 {
 	int		rs ;
 
@@ -236,9 +214,7 @@ int	*oldp ;
 /* end subroutine (ptma_gettype) */
 
 
-int ptma_settype(op,new)
-PTMA	*op ;
-int	new ;
+int ptma_settype(PTMA *op,int new)
 {
 	int		rs ;
 

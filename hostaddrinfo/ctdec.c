@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -74,15 +72,8 @@
 /* local defines */
 
 #ifndef	DIGBUFLEN
-#define	DIGBUFLEN	45		/* can hold int128_t in decimal */
+#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
-
-#define MAXDECDIG_I	10		/* decimal digits in 'int' */
-#define MAXDECDIG_UI	10		/* decimal digits in 'uint' */
-#define MAXDECDIG_L	10		/* decimal digits in 'long' */
-#define MAXDECDIG_UL	10		/* decimal digits in 'ulong' */
-#define MAXDECDIG_L64	19		/* decimal digits in 'long64' */
-#define MAXDECDIG_UL64	20		/* decimal digits in 'ulong64' */
 
 
 /* external subroutines */
@@ -100,7 +91,7 @@ extern int	debugprinthexi(const char *,int) ;
 
 int		ctdeci(char *,int,int) ;
 
-static int	ictdec(char *,int,ULONG) ;
+static int	ictdec(char *,int,ulonglong) ;
 
 
 /* local variables */
@@ -119,7 +110,7 @@ int ctdec(char *dbuf,int dlen,int v)
 
 int ctdeci(char *dbuf,int dlen,int v)
 {
-	ULONG		ulv = (ULONG) v ;
+	ulonglong	ulv = (ulonglong) v ;
 	const int	diglen = DIGBUFLEN ;
 	int		rs ;
 	int		len ;
@@ -139,7 +130,7 @@ int ctdeci(char *dbuf,int dlen,int v)
 /* convert to an unsigned integer */
 int ctdecui(char *dbuf,int dlen,uint v)
 {
-	ULONG		ulv = (ULONG) v ;
+	ulonglong	ulv = (ulonglong) v ;
 	const int	diglen = DIGBUFLEN ;
 	int		rs ;
 	int		len ;
@@ -157,7 +148,7 @@ int ctdecui(char *dbuf,int dlen,uint v)
 /* convert to a signed long integer */
 int ctdecl(char *dbuf,int dlen,long v)
 {
-	ULONG		ulv = (ULONG) v ;
+	ulonglong	ulv = (ulonglong) v ;
 	const int	diglen = DIGBUFLEN ;
 	int		rs ;
 	int		len ;
@@ -177,7 +168,7 @@ int ctdecl(char *dbuf,int dlen,long v)
 /* convert to an unsigned long integer */
 int ctdecul(char *dbuf,int dlen,ulong v)
 {
-	ULONG		ulv = (ULONG) v ;
+	ulonglong	ulv = (ulonglong) v ;
 	const int	diglen = DIGBUFLEN ;
 	int		rs ;
 	int		len ;
@@ -193,9 +184,9 @@ int ctdecul(char *dbuf,int dlen,ulong v)
 
 
 /* convert to a signed long-long integer */
-int ctdecll(char *dbuf,int dlen,LONG v)
+int ctdecll(char *dbuf,int dlen,longlong v)
 {
-	ULONG		ulv = (ULONG) v ;
+	ulonglong	ulv = (ulonglong) v ;
 	const int	diglen = DIGBUFLEN ;
 	int		rs ;
 	int		len ;
@@ -213,9 +204,9 @@ int ctdecll(char *dbuf,int dlen,LONG v)
 
 
 /* convert to an unsigned long-long integer */
-int ctdecull(char *dbuf,int dlen,ULONG v)
+int ctdecull(char *dbuf,int dlen,ulonglong v)
 {
-	ULONG		ulv = (ULONG) v ;
+	ulonglong	ulv = (ulonglong) v ;
 	const int	diglen = DIGBUFLEN ;
 	int		rs ;
 	int		len ;
@@ -233,18 +224,18 @@ int ctdecull(char *dbuf,int dlen,ULONG v)
 /* local subroutines */
 
 
-static int ictdec(char *dbuf,int dlen,ULONG v)
+static int ictdec(char *dbuf,int dlen,ulonglong v)
 {
 	const int	b = 10 ;
-	register char	*rp = (dbuf + dlen) ;
+	char		*rp = (dbuf + dlen) ;
 
 	*rp = '\0' ;
 	if (v != 0) {
 
 #if	defined(_ILP32) /* may speed things up on some machines */
 	    if ((v & (~ULONG_MAX)) == 0LL) {
-		register ulong	lv = (ulong) v ;
-		register ulong	nv ;
+		ulong	lv = (ulong) v ;
+		ulong	nv ;
 		while (lv != 0) {
 	            nv = lv / b ;
 	            *--rp = (char) ((lv - (nv * b)) + '0') ;
@@ -253,8 +244,9 @@ static int ictdec(char *dbuf,int dlen,ULONG v)
 		v = lv ;
 	    }
 #endif /* _ILP32 */
+
 	    {
-		register ULONG	nv ;
+		ulonglong	nv ;
 	        while (v != 0) {
 	            nv = v / b ;
 	            *--rp = (char) ((v - (nv * b)) + '0') ;
@@ -262,8 +254,9 @@ static int ictdec(char *dbuf,int dlen,ULONG v)
 	        } /* end while */
 	    }
 
-	} else
+	} else {
 	    *--rp = '0' ;
+	}
 
 #if	CF_DEBUGS
 	{

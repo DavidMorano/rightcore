@@ -9,15 +9,13 @@
 /* revision history:
 
 	= 1998-04-10, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
-/****************************************************************************** 
+/*******************************************************************************
 
         Calculate the number of characters that two string have in common from
         their leading edges. If we get a match at all we return the number of
@@ -44,7 +42,7 @@
 	<0		no match
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */

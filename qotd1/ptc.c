@@ -1,14 +1,12 @@
 /* ptc */
 
-/* POSIX Thread Condition manipulation */
+/* POSIX® Thread Condition manipulation */
 
 
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -55,51 +53,46 @@ int		ptc_create(PTC *,PTCA *) ;
 /* exported subroutines */
 
 
-int ptc_init(PTC *op,PTCA *ap)
+int ptc_create(PTC *op,PTCA *ap)
 {
-	return ptc_create(op,ap) ;
-}
-/* end subroutine (ptc_init) */
+	int		rs ;
+	int		to_nomem = TO_NOMEM ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-
-int ptc_create(op,ap)
-PTC		*op ;
-PTCA		*ap ;
-{
-	int	rs ;
-	int	to_nomem = TO_NOMEM ;
-	int	to_again = TO_AGAIN ;
-
-again:
-	if ((rs = pthread_cond_init(op,ap)) > 0)
-	    rs = (- rs) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_NOMEM:
-	        if (to_nomem-- > 0) {
-		    msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    case SR_AGAIN:
-	        if (to_again-- > 0) {
-		    msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    } /* end switch */
-	} /* end if */
+	repeat {
+	    if ((rs = pthread_cond_init(op,ap)) > 0) rs = (- rs) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_NOMEM:
+	            if (to_nomem-- > 0) {
+		        msleep(1000) ;
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+		        msleep(1000) ;
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
 /* end subroutine (ptc_create) */
 
 
-int ptc_destroy(op)
-PTC		*op ;
+int ptc_destroy(PTC *op)
 {
-	int	rs ;
+	int		rs ;
 
 	if ((rs = pthread_cond_destroy(op)) > 0)
 	    rs = (- rs) ;
@@ -109,10 +102,9 @@ PTC		*op ;
 /* end subroutine (ptc_destroy) */
 
 
-int ptc_broadcast(op)
-PTC		*op ;
+int ptc_broadcast(PTC *op)
 {
-	int	rs ;
+	int		rs ;
 
 	if ((rs = pthread_cond_broadcast(op)) > 0)
 	    rs = (- rs) ;
@@ -122,10 +114,9 @@ PTC		*op ;
 /* end subroutine (ptc_broadcast) */
 
 
-int ptc_signal(op)
-PTC		*op ;
+int ptc_signal(PTC *op)
 {
-	int	rs ;
+	int		rs ;
 
 	if ((rs = pthread_cond_signal(op)) > 0)
 	    rs = (- rs) ;
@@ -135,11 +126,9 @@ PTC		*op ;
 /* end subroutine (ptc_signal) */
 
 
-int ptc_wait(op,mp)
-PTC		*op ;
-PTM		*mp ;
+int ptc_wait(PTC *op,PTM *mp)
 {
-	int	rs ;
+	int		rs ;
 
 	if ((rs = pthread_cond_wait(op,mp)) > 0)
 	    rs = (- rs) ;
@@ -149,12 +138,9 @@ PTM		*mp ;
 /* end subroutine (ptc_wait) */
 
 
-int ptc_waiter(op,mp,to)
-PTC		*op ;
-PTM		*mp ;
-int		to ;
+int ptc_waiter(PTC *op,PTM *mp,int to)
 {
-	int	rs ;
+	int		rs ;
 
 	if (to >= 0) {
 	    struct timespec	ts ;
@@ -170,12 +156,9 @@ int		to ;
 /* end subroutine (ptc_waiter) */
 
 
-int ptc_timedwait(op,mp,tp)
-PTC		*op ;
-PTM		*mp ;
-struct timespec	*tp ;
+int ptc_timedwait(PTC *op,PTM *mp,struct timespec *tp)
 {
-	int	rs ;
+	int		rs ;
 
 	if ((rs = pthread_cond_timedwait(op,mp,tp)) > 0)
 	    rs = (- rs) ;
@@ -185,12 +168,9 @@ struct timespec	*tp ;
 /* end subroutine (ptc_timedwait) */
 
 
-int ptc_reltimedwaitnp(op,mp,tp)
-PTC		*op ;
-PTM		*mp ;
-struct timespec	*tp ;
+int ptc_reltimedwaitnp(PTC *op,PTM *mp,struct timespec *tp)
 {
-	int	rs ;
+	int		rs ;
 
 	if ((rs = pthread_cond_reltimedwait_np(op,mp,tp)) > 0)
 	    rs = (- rs) ;

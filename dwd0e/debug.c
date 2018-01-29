@@ -1,6 +1,7 @@
 /* debug */
 
 /* debugging stubs */
+/* last modified %G% version %I% */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -9,9 +10,7 @@
 /* revision history:
 
 	= 1998-08-15, David A­D­ Morano
-
 	This was written to debug the REXEC program.
-
 
 */
 
@@ -32,9 +31,6 @@
 #include	<sys/stat.h>
 #include	<unistd.h>
 #include	<fcntl.h>
-#include	<signal.h>
-#include	<stropts.h>
-#include	<poll.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -56,18 +52,16 @@
 #define	TIMEBUFLEN	80
 #endif
 
-#ifndef	XDEBFILE
-#define	XDEBFILE	"/var/tmp/pcspoll.deb"
-#endif
-
 
 /* external subroutines */
 
 extern int	snopenflags(char *,int,int) ;
+extern int	snpollflags(char *,int,int) ;
+extern int	getdig(int) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 extern int	nprintf(const char *,const char *,...) ;
-extern int	debugprintf(const char *,...) ;
-extern int	debugprint(const char *,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprint(cchar *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -92,39 +86,26 @@ static int	checkbasebounds(const char *,int,void *) ;
 
 /* local variables */
 
-static const char	hextable[] = {
-	'0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-} ;
-
 
 /* exported subroutines */
 
 
-char *d_reventstr(int revents,char *buf,int buflen)
+#if	CF_DEBUGS
+int debuginit()
 {
+	int		rs = SR_OK ;
 
-#if	CF_DEBUGS
-	debugprintf("d_reventstr: ent\n") ;
-#endif
 
-	buf[0] = '\0' ;
-	bufprintf(buf,buflen,"%s %s %s %s %s %s %s %s %s",
-	    (revents & POLLIN) ? "I " : "  ",
-	    (revents & POLLRDNORM) ? "IN" : "  ",
-	    (revents & POLLRDBAND) ? "IB" : "  ",
-	    (revents & POLLPRI) ? "PR" : "  ",
-	    (revents & POLLWRNORM) ? "WN" : "  ",
-	    (revents & POLLWRBAND) ? "WB" : "  ",
-	    (revents & POLLERR) ? "ER" : "  ",
-	    (revents & POLLHUP) ? "HU" : "  ",
-	    (revents & POLLNVAL) ? "NV" : "  ") ;
+	return rs ;
+}
+/* end subroutine (debuginit) */
+#endif /* CF_DEBUGS */
 
-#if	CF_DEBUGS
-	debugprintf("d_reventstr: %s\n",buf) ;
-#endif
 
-	return buf ;
+char *d_reventstr(int revents,char *bp,int bl)
+{
+	snpollflags(bp,bl,revents) ;
+	return bp ;
 }
 /* end subroutine (d_reventstr) */
 
@@ -135,8 +116,9 @@ void d_whoopen(int *s)
 	int		rs ;
 	int		i ;
 
-	if (s != NULL)
+	if (s != NULL) {
 	    debugprintf("d_whoopen: %s\n",s) ;
+	}
 
 	for (i = 0 ; i < 20 ; i += 1) {
 	    if ((rs = u_fcntl(i,F_GETFL,0)) >= 0) {
@@ -184,7 +166,6 @@ int d_ispath(cchar *p)
 
 int gdb()
 {
-
 	return 0 ;
 }
 /* end subroutine (gdb) */
@@ -196,32 +177,22 @@ int mkhexstr(char *dbuf,int dlen,const void *vp,int vl)
 	int		i ;
 	int		ch ;
 	int		j = 0 ;
-	const uchar	*sp = (const uchar *) vp ;
-
+	cchar		*sp = (cchar *) vp ;
 	if (sl < 0) sl = strlen(sp) ;
-
 	for (i = 0 ; (dlen >= 3) && (i < sl) ; i += 1) {
-	    ch = sp[i] ;
-
+	    ch = MKCHAR(sp[i]) ;
 	    if (i > 0) dbuf[j++] = ' ' ;
-	    dbuf[j++] = hextable[(ch>>4)&15] ;
-	    dbuf[j++] = hextable[(ch>>0)&15] ;
-
+	    dbuf[j++] = getdig((ch>>4)&15) ;
+	    dbuf[j++] = getdig((ch>>0)&15) ;
 	    dlen -= ((i > 0) ? 3 : 2) ;
 	} /* end for */
 	dbuf[j] = '\0' ;
-
 	return j ;
 }
 /* end subroutine (mkhexstr) */
 
 
-int mkhexnstr(hbuf,hlen,maxcols,sbuf,slen)
-char		hbuf[] ;
-int		hlen ;
-const char	sbuf[] ;
-int		slen ;
-int		maxcols ;
+int mkhexnstr(char *hbuf,int hlen,int maxcols,cchar *sbuf,int slen)
 {
 	int		n = 0 ;
 
@@ -236,16 +207,13 @@ int		maxcols ;
 /* end subroutine (mkhexnstr) */
 
 
-int debugprinthex(ids,maxcols,sp,sl)
-const char	*ids ;
-int		maxcols ;
-const char	*sp ;
-int		sl ;
+int debugprinthex(cchar *ids,int maxcols,cchar *sp,int sl)
 {
+	const int	plen = PRINTBUFLEN ;
 	int		rs ;
 	int		idlen = 0 ;
 	int		wlen = 0 ;
-	char		printbuf[PRINTBUFLEN + 1] ;
+	char		pbuf[PRINTBUFLEN + 1] ;
 
 	if (ids != NULL) idlen = strlen(ids) ;
 
@@ -253,11 +221,11 @@ int		sl ;
 
 	if (idlen > 0) maxcols -= (idlen + 1) ;
 
-	if ((rs = mkhexnstr(printbuf,PRINTBUFLEN,maxcols,sp,sl)) >= 0) {
+	if ((rs = mkhexnstr(pbuf,plen,maxcols,sp,sl)) >= 0) {
 	    if (idlen > 0) {
-	        rs = debugprintf("%t %s\n",ids,idlen,printbuf) ;
+	        rs = debugprintf("%t %s\n",ids,idlen,pbuf) ;
 	    } else {
-	        rs = debugprintf("%s\n",printbuf) ;
+	        rs = debugprintf("%s\n",pbuf) ;
 	    }
 	    wlen = rs ;
 	}
@@ -267,24 +235,14 @@ int		sl ;
 /* end subroutine (debugprinthex) */
 
 
-int debugprinthexblock(ids,maxcols,vp,vl)
-const char	*ids ;
-int		maxcols ;
-const void	*vp ;
-int		vl ;
+int debugprinthexblock(cchar *ids,int maxcols,const void *vp,int vl)
 {
 	int		rs = SR_OK ;
 	int		idlen = 0 ;
-	int		n, i ;
-	int		pbl ;
-	int		cslen ;
-	int		cols ;
-	int		len ;
 	int		sl = vl ;
 	int		wlen = 0 ;
-	const char	*sp = (const char *) vp ;
+	cchar		*sp = (cchar *) vp ;
 	char		printbuf[PRINTBUFLEN + 1] ;
-	char		*pbp ;
 
 	if (ids != NULL) idlen = strlen(ids) ;
 
@@ -292,36 +250,34 @@ int		vl ;
 
 	if (sl < 0) sl = strlen(sp) ;
 
-	i = 0 ;
 	while ((rs >= 0) && (sl > 0)) {
-
-	    pbp = printbuf ;
-	    pbl = PRINTBUFLEN ;
-	    cols = maxcols ;
+	    char	*pbp = printbuf ;
+	    int		pbl = PRINTBUFLEN ;
+	    int		cols = maxcols ;
 
 	    if (ids != NULL) {
 	        if ((idlen+2) < pbl) {
-	            i = strwcpy(pbp,ids,idlen) - pbp ;
+		    int	i = strwcpy(pbp,ids,idlen) - pbp ;
 	            pbp[i++] = ':' ;
 	            pbp[i++] = ' ' ;
 	            pbp += i ;
 	            pbl -= i ;
 	            cols -= i ;
-	        } else
+	        } else {
 	            rs = SR_OVERFLOW ;
+		}
 	    }
 
 	    if (rs >= 0) {
-	        n = (cols / 3) ;
+	        const int	n = (cols / 3) ;
+		int		cslen ;
 	        cslen = MIN(n,sl) ;
-	        rs = mkhexstr(pbp,pbl,sp,cslen) ;
-	        sp += cslen ;
-	        sl -= cslen ;
-	    }
-
-	    if (rs >= 0) {
-	        len = debugprint(printbuf,-1) ;
-	        wlen += len ;
+	        if ((rs = mkhexstr(pbp,pbl,sp,cslen)) >= 0) {
+	            sp += cslen ;
+	            sl -= cslen ;
+	            rs = debugprint(printbuf,-1) ;
+	            wlen += rs ;
+		}
 	    }
 
 	} /* end while */
@@ -333,6 +289,7 @@ int		vl ;
 
 int hexblock(cchar *ids,cchar *ap,int n)
 {
+	const int	hexlen = HEXBUFLEN ;
 	int		i, sl ;
 	char		hexbuf[HEXBUFLEN + 3] ;
 
@@ -340,16 +297,11 @@ int hexblock(cchar *ids,cchar *ap,int n)
 	    debugprint(ids,-1) ;
 
 	for (i = 0 ; i < n ; i += 1) {
-
-	    sl = mkhexstr(hexbuf,HEXBUFLEN,ap,4) ;
-
+	    sl = mkhexstr(hexbuf,hexlen,ap,4) ;
 	    hexbuf[sl++] = '\n' ;
 	    hexbuf[sl] = '\0' ;
-
 	    ap += 4 ;
-
 	    debugprint(hexbuf,-1) ;
-
 	} /* end for */
 
 	return n ;
@@ -358,10 +310,7 @@ int hexblock(cchar *ids,cchar *ap,int n)
 
 
 /* audit a HOSTENT structure */
-int heaudit(hep,buf,buflen)
-struct hostent	*hep ;
-const char	buf[] ;
-int		buflen ;
+int heaudit(struct hostent *hep,cchar *buf,int buflen)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -372,8 +321,9 @@ int		buflen ;
 
 	if (buflen < 0) return SR_INVALID ;
 
-	if (rs >= 0)
+	if (rs >= 0) {
 	    rs = checkbasebounds(buf,buflen,hep->h_name) ;
+	}
 
 	if (rs >= 0) {
 	    cpp = hep->h_aliases ;
@@ -421,22 +371,35 @@ char *stroflags(char *buf,int oflags)
 /* local subroutines */
 
 
-static int checkbasebounds(bbuf,blen,vp)
-const char	bbuf[] ;
-int		blen ;
-void		*vp ;
+static int checkbasebounds(cchar *bbuf,int blen,void *vp)
 {
 	int		rs = SR_OK ;
-	const char	*tp = (const char *) vp ;
+	cchar		*tp = (cchar *) vp ;
 
-	if ((rs >= 0) && (tp < bbuf))
+	if (tp >= bbuf) {
+	    if (tp >= (bbuf + blen)) rs = SR_BADFMT ;
+	} else {
 	    rs = SR_BADFMT ;
-
-	if ((rs >= 0) && (tp >= (bbuf + blen)))
-	    rs = SR_BADFMT ;
+	}
 
 	return rs ;
 }
 /* end subroutine (checkbasebounds) */
+
+
+int debugprintfsize(cchar *id,int fd)
+{
+	USTAT		sb ;
+	int		rs ;
+	if ((rs = u_fstat(fd,&sb)) >= +0) {
+	    ulong	fs = sb.st_size ;
+#if	defined(_I32LPx)
+	    debugprintf("debugprintfsize: I32LPx\n") ;
+#endif
+	    debugprintf("debugprintfsize: %s size=%lu\n",id,fs) ;
+	}
+	return rs ;
+}
+/* end subroutine (debugprintstat) */
 
 

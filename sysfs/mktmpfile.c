@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-07-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -24,10 +22,10 @@
 
 	Synopsis:
 
-	int mktmpfile(rbuf,mode,intemplate)
+	int mktmpfile(rbuf,mode,template)
 	char		rbuf[] ;
 	mode_t		mode ;
-	const char	intemplate[] ;
+	const char	template[] ;
 
 	Arguments:
 
@@ -39,6 +37,12 @@
 
 	>=0	success and length of created file name
 	<0	failure w/ error number
+
+
+	Notes:
+	Q. What is with |uc_forklock(3uc)|?
+	A. We try to minimize child processes getting an extra (unknown to it)
+	   file-descriptor.
 
 
 *******************************************************************************/
@@ -62,7 +66,6 @@
 
 /* external subroutines */
 
-extern int	cthexl(char *,long) ;
 extern int	opentmpfile(const char *,int,mode_t,char *) ;
 
 
@@ -82,13 +85,16 @@ int mktmpfile(char *rbuf,mode_t om,cchar *inname)
 {
 	const int	of = (O_WRONLY|O_CLOEXEC) ;
 	int		rs ;
+	int		rs1 ;
 	int		len = 0 ;
-
-	if ((rs = opentmpfile(inname,of,om,rbuf)) >= 0) {
-	    u_close(rs) ;
-	    len = strlen(rbuf) ;
-	} /* end if */
-
+	if ((rs = uc_forklockbegin(-1)) >= 0) {
+	    if ((rs = opentmpfile(inname,of,om,rbuf)) >= 0) {
+	        u_close(rs) ;
+	        len = strlen(rbuf) ;
+	    } /* end if (opentmpfile) */
+	    rs1 = uc_forklockend() ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (uc_forklock) */
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (mktmpfile) */

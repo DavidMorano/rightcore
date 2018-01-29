@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  
-
 
 */
 
@@ -85,9 +83,6 @@
 #else
 #define	GETPW_NAME	getpw_name
 #endif /* CF_UGETPW */
-
-#undef	SUBINFO
-#define	SUBINFO		struct subinfo
 
 #ifndef	MAXNAMELEN
 #define	MAXNAMELEN	256
@@ -212,6 +207,7 @@ static const struct prmap	prmaps[] = {
 	{ "root", "/" },
 	{ "usr", "/usr" },
 	{ "xpg4", "/usr/xpg4" },
+	{ "xpg5", "/usr/xpg5" },
 	{ "xpg6", "/usr/xpg6" },
 	{ "dt", "/usr/dt" },
 	{ "ccs", "/usr/ccs" },
@@ -319,7 +315,7 @@ int mkpr(char *pbuf,int plen,cchar *prname,cchar *domain)
 /* local subroutines */
 
 
-static int subinfo_start(SUBINFO *sip,cchar prname[],cchar domain[])
+static int subinfo_start(SUBINFO *sip,cchar *prname,cchar *domain)
 {
 	int		rs = SR_OK ;
 
@@ -384,7 +380,7 @@ static int subinfo_id(SUBINFO *sip)
 /* end subroutine (subinfo_id) */
 
 
-static int subinfo_dir(SUBINFO *sip,cchar dname[],mode_t dm)
+static int subinfo_dir(SUBINFO *sip,cchar *dname,mode_t dm)
 {
 	struct ustat	sb ;
 	int		rs ;
@@ -409,7 +405,7 @@ static int subinfo_dir(SUBINFO *sip,cchar dname[],mode_t dm)
 /* end subroutine (subinfo_dir) */
 
 
-static int subinfo_env(SUBINFO *sip,char rbuf[],int rlen)
+static int subinfo_env(SUBINFO *sip,char *rbuf,int rlen)
 {
 	const int	elen = MAXNAMELEN ;
 	int		rs = SR_OK ;
@@ -426,7 +422,7 @@ static int subinfo_env(SUBINFO *sip,char rbuf[],int rlen)
 	    if (envp[0] != '\0') {
 		cchar	*cp ;
 	        if ((cp = getenv(envp)) != NULL) {
-	            if ((rs = sncpy1(rbuf,rlen,cp)) >= 0) {
+	            if ((rs = mknpath1(rbuf,rlen,cp)) >= 0) {
 	                len = rs ;
 		        if ((rs = subinfo_dir(sip,rbuf,DMODE)) == 0) {
 			    len = 0 ;
@@ -441,69 +437,69 @@ static int subinfo_env(SUBINFO *sip,char rbuf[],int rlen)
 /* end subroutine (subinfo_env) */
 
 
-static int subinfo_domain(SUBINFO *sip,char rbuf[],int rlen)
+static int subinfo_domain(SUBINFO *sip,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
-	int		dlen, i ;
-	int		m ;
 	int		len = 0 ;
-	char		dname[MAXHOSTNAMELEN + 1] ;
-	const char	*dnp ;
-	const char	*bnp ;
 
 	if (sip->domain == NULL)
 	    sip->domain = getenv(VARDOMAIN) ;
 
-	if ((sip->domain == NULL) || (sip->domain[0] == '\0'))
-	    goto ret0 ;
+	if ((sip->domain != NULL) && (sip->domain[0] != '\0')) {
+	    int		dlen = strlen(sip->domain) ;
+	    cchar	*dnp = sip->domain ;
 
 /* perform any necessary cleanup (needed because of NIS+ crap) */
 
-	dnp = sip->domain ;
-	dlen = strlen(sip->domain) ;
+	    while ((dlen > 0) && (sip->domain[dlen - 1] == '.')) {
+	        dlen -= 1 ;
+	    }
 
-	while ((dlen > 0) && (sip->domain[dlen - 1] == '.')) {
-	    dlen -= 1 ;
-	}
+	    if (dlen > 0) {
+	        char	dname[MAXHOSTNAMELEN + 1] ;
 
-	if (dlen <= 0)
-	    goto ret0 ;
-
-	if (hasuc(dnp,dlen)) {
-	    rs = sncpylc(dname,MAXHOSTNAMELEN,dnp) ;
-	    dnp = dname ;
-	}
-
-	if (rs < 0)
-	    goto ret0 ;
+	        if (hasuc(dnp,dlen)) {
+	            rs = sncpylc(dname,MAXHOSTNAMELEN,dnp) ;
+	            dnp = dname ;
+	        }
 
 /* do the lookup (this is a full string match) */
 
-	for (i = 0 ; domains[i].domain != NULL ; i += 1) {
-	    if ((m = nleadstr(domains[i].domain,dnp,dlen)) > 0) {
-	        if ((domains[i].domain[m] == '\0') && (m == dlen)) {
-	            break ;
-		}
-	    }
-	} /* end for */
+	        if (rs >= 0) {
+	            int		i ;
+		    int		m ;
+		    cchar	*bnp ;
 
-	bnp = domains[i].basedname ;
-	if ((domains[i].domain != NULL) && (bnp != NULL)) {
-	    if ((rs = mknpath2(rbuf,rlen,bnp,sip->dname)) >= 0) {
-	        len = rs ;
-	        if ((rs = subinfo_dir(sip,rbuf,DMODE)) == 0) {
-		    len = 0 ;
-		}
-	    }
-	} /* end if (got a domain match) */
+	            for (i = 0 ; domains[i].domain != NULL ; i += 1) {
+	                if ((m = nleadstr(domains[i].domain,dnp,dlen)) > 0) {
+	                    if ((domains[i].domain[m] == '\0') && (m == dlen)) {
+	                        break ;
+		            }
+	                }
+	            } /* end for */
 
-ret0:
+	            bnp = domains[i].basedname ;
+	            if ((domains[i].domain != NULL) && (bnp != NULL)) {
+	                if ((rs = mknpath2(rbuf,rlen,bnp,sip->dname)) >= 0) {
+	                    len = rs ;
+	                    if ((rs = subinfo_dir(sip,rbuf,DMODE)) == 0) {
+		                len = 0 ;
+		            }
+	                }
+	            } /* end if (got a domain match) */
+
+	        } /* end if (ok) */
+
+	    } /* end if (positive) */
+
+	} /* end if (have domain name) */
+
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (subinfo_domain) */
 
 
-static int subinfo_user(SUBINFO *sip,char rbuf[],int rlen)
+static int subinfo_user(SUBINFO *sip,char *rbuf,int rlen)
 {
 	struct passwd	pw ;
 	const int	pwlen = getbufsize(getbufsize_pw) ;
@@ -534,7 +530,7 @@ static int subinfo_user(SUBINFO *sip,char rbuf[],int rlen)
 		                } /* end if */
 
 		                if ((rs >= 0) && (len > 0)) {
-				    const mode_t	dm =- DMODE ;
+				    const mode_t	dm = DMODE ;
 	        		    if ((rs = subinfo_dir(sip,rbuf,dm)) == 0) {
 					len = 0 ;
 				    }
@@ -557,7 +553,7 @@ static int subinfo_user(SUBINFO *sip,char rbuf[],int rlen)
 /* end subroutine (subinfo_user) */
 
 
-static int subinfo_prmap(SUBINFO *sip,char rbuf[],int rlen)
+static int subinfo_prmap(SUBINFO *sip,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -573,7 +569,7 @@ static int subinfo_prmap(SUBINFO *sip,char rbuf[],int rlen)
 	} /* end for */
 
 	if (prmaps[i].prname != NULL) {
-	    if ((rs = sncpy1(rbuf,rlen,prmaps[i].dname)) >= 0) {
+	    if ((rs = mknpath1(rbuf,rlen,prmaps[i].dname)) >= 0) {
 	        len = rs ;
 	        if ((rs = subinfo_dir(sip,rbuf,DMODE)) == 0) {
 		    len = 0 ;
@@ -591,17 +587,18 @@ static int subinfo_home(SUBINFO *sip,char rbuf[],int rlen)
 	const int	hlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
-	const char	*cp ;
+	const char	*hd ;
 	char		hbuf[MAXPATHLEN+1] = { 0 } ;
 
-	if ((cp = getenv(VARHOME)) == NULL) {
+	if ((hd = getenv(VARHOME)) == NULL) {
 	    if ((rs = getuserhome(hbuf,hlen,"-")) >= 0) {
-		cp = hbuf ;
+		hd = hbuf ;
 	    }
 	} /* end if */
 
-	if ((rs >= 0) && (cp != NULL) && hbuf[0]) {
-	    if ((rs = mknpath3(rbuf,rlen,cp,HOMEBASEDNAME,sip->dname)) >= 0) {
+	if ((rs >= 0) && (hd != NULL) && hbuf[0]) {
+	    cchar	*addon = HOMEBASEDNAME ;
+	    if ((rs = mknpath3(rbuf,rlen,hd,addon,sip->dname)) >= 0) {
 	        len = rs ;
 	        if ((rs = subinfo_dir(sip,rbuf,DMODE)) == 0) {
 		    len = 0 ;
@@ -614,7 +611,7 @@ static int subinfo_home(SUBINFO *sip,char rbuf[],int rlen)
 /* end subroutine (subinfo_home) */
 
 
-static int subinfo_bases(SUBINFO *sip,char rbuf[],int rlen)
+static int subinfo_bases(SUBINFO *sip,char *rbuf,int rlen)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -622,7 +619,7 @@ static int subinfo_bases(SUBINFO *sip,char rbuf[],int rlen)
 
 	for (i = 0 ; basednames[i] != NULL ; i += 1) {
 	    if ((rs = dirsearch(basednames[i],sip->dname)) > 0) {
-	        if ((rs = mkpath2(rbuf,basednames[i],sip->dname)) >= 0) {
+	        if ((rs = mknpath2(rbuf,rlen,basednames[i],sip->dname)) >= 0) {
 		    len = rs ;
 		    if ((rs = subinfo_dir(sip,rbuf,DMODE)) == 0) {
 	                len = 0 ;
@@ -640,7 +637,7 @@ static int subinfo_bases(SUBINFO *sip,char rbuf[],int rlen)
 
 
 /* search a directory for an entry */
-static int dirsearch(cchar basedname[],cchar username[])
+static int dirsearch(cchar *basedname,cchar *username)
 {
 	FSDIR		dir ;
 	FSDIR_ENT	ds ;
@@ -649,7 +646,7 @@ static int dirsearch(cchar basedname[],cchar username[])
 	int		f_found = FALSE ;
 
 	if ((rs = fsdir_open(&dir,basedname)) >= 0) {
-	    const char	*fnp ;
+	    cchar	*fnp ;
 	    while ((rs = fsdir_read(&dir,&ds)) > 0) {
 		fnp = ds.name ;
 		if (fnp[0] != '.') {

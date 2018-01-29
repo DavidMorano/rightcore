@@ -1,2 +1,2 @@
 const char cutter_makedate[] =
-"@(#)cutter                  171024_1214:43_USEDT Rightcore Network Services" ;
+"@(#)cutter                  180129_0235:35_USEST Rightcore Network Services" ;

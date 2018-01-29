@@ -1,6 +1,6 @@
 /* ptm */
 
-/* POSIX Thread Mutex manipulation */
+/* POSIX® Thread Mutex manipulation */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-11-01, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -45,7 +43,7 @@
 
 /* number of polls per second */
 #undef	NLPS
-#define	NLPS		5
+#define	NLPS		5		/* every 200 milliseconds */
 
 
 /* external subroutines */
@@ -62,45 +60,43 @@ int		ptm_lockto(PTM *,int) ;
 /* exported subroutines */
 
 
-int ptm_init(PTM *op,PTMA *ap)
-{
-	return ptm_create(op,ap) ;
-}
-/* end subroutine (ptm_init) */
-
-
 int ptm_create(PTM *op,PTMA *ap)
 {
-	int	rs ;
-	int	to_nomem = TO_NOMEM ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_nomem = TO_NOMEM ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("ptm_init: op=%p ap=%p\n",op,ap) ;
+	debugprintf("ptm_create: op=%p ap=%p\n",op,ap) ;
 #endif
 
 	memset(op,0,sizeof(PTM)) ; /* doesn't hurt anything - right? */
 
-again:
-	rs = pthread_mutex_init(op,ap) ;
-	if (rs > 0) rs = (- rs) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_NOMEM:
-	        if (to_nomem-- > 0) {
+	repeat {
+	    if ((rs = pthread_mutex_init(op,ap)) > 0) rs = (- rs) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_NOMEM:
+	            if (to_nomem-- > 0) {
 			msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    case SR_AGAIN:
-	        if (to_again-- > 0) {
+		    } else {
+		        f_exit = TRUE ;
+		    }
+	            break ;
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
 			msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    } /* end switch */
-	} /* end if */
+		    } else {
+		        f_exit = TRUE ;
+		    }
+	            break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
@@ -109,7 +105,7 @@ again:
 
 int ptm_destroy(PTM *op)
 {
-	int	rs ;
+	int		rs ;
 
 	rs = pthread_mutex_destroy(op) ;
 	if (rs > 0)
@@ -122,7 +118,7 @@ int ptm_destroy(PTM *op)
 
 int ptm_setprioceiling(PTM *op,int new,int *oldp)
 {
-	int	rs ;
+	int		rs ;
 
 	rs = pthread_mutex_setprioceiling(op,new,oldp) ;
 	if (rs > 0)
@@ -135,7 +131,7 @@ int ptm_setprioceiling(PTM *op,int new,int *oldp)
 
 int ptm_getprioceiling(PTM *op,int *oldp)
 {
-	int	rs ;
+	int		rs ;
 
 	rs = pthread_mutex_getprioceiling(op,oldp) ;
 	if (rs > 0)
@@ -148,31 +144,37 @@ int ptm_getprioceiling(PTM *op,int *oldp)
 
 int ptm_lock(PTM *op)
 {
-	int	rs ;
-	int	to_nomem = TO_NOMEM ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_nomem = TO_NOMEM ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-again:
-	rs = pthread_mutex_lock(op) ;
-	if (rs > 0)
-	    rs = (- rs) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_NOMEM:
-	        if (to_nomem-- > 0) {
+	repeat {
+	    if ((rs = pthread_mutex_lock(op)) > 0) rs = (- rs) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_NOMEM:
+	            if (to_nomem-- > 0) {
 			msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    case SR_AGAIN:
-	        if (to_again-- > 0) {
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
 			msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    } /* end switch */
-	} /* end if */
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+		case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
@@ -195,36 +197,44 @@ int ptm_lockto(PTM *op,int to)
 	int		to_again = TO_AGAIN ;
 	int		cto ;
 	int		c = 0 ;
+	int		f_exit = FALSE ;
 
 	if (to < 0) to = (INT_MAX/(2*NLPS)) ;
 	cto = (to*NLPS) ;
 
-again:
-	rs = pthread_mutex_trylock(op) ;
-	if (rs > 0)
-	    rs = (- rs) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_NOMEM:
-	        if (to_nomem-- > 0) {
-		    msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    case SR_AGAIN:
-	        if (to_again-- > 0) {
-		    msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    } /* end switch */
-	} /* end if */
-
-	if ((rs == SR_BUSY) && (++c < cto)) {
-	    msleep(mint) ;
-	    goto again ;
-	}
+	repeat {
+	    if ((rs = pthread_mutex_trylock(op)) > 0) rs = (- rs) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_NOMEM:
+	            if (to_nomem-- > 0) {
+		        msleep(1000) ;
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+		        msleep(1000) ;
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+		case SR_BUSY:
+		    if (++c < cto) {
+	    		msleep(mint) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+		    break ;
+		case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
@@ -233,31 +243,37 @@ again:
 
 int ptm_trylock(PTM *op)
 {
-	int	rs ;
-	int	to_nomem = TO_NOMEM ;
-	int	to_again = TO_AGAIN ;
+	int		rs ;
+	int		to_nomem = TO_NOMEM ;
+	int		to_again = TO_AGAIN ;
+	int		f_exit = FALSE ;
 
-again:
-	rs = pthread_mutex_trylock(op) ;
-	if (rs > 0)
-	    rs = (- rs) ;
-
-	if (rs < 0) {
-	    switch (rs) {
-	    case SR_NOMEM:
-	        if (to_nomem-- > 0) {
-		    msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    case SR_AGAIN:
-	        if (to_again-- > 0) {
-		    msleep(1000) ;
-	            goto again ;
-		}
-	        break ;
-	    } /* end switch */
-	} /* end if */
+	repeat {
+	    if ((rs = pthread_mutex_trylock(op)) > 0) rs = (- rs) ;
+	    if (rs < 0) {
+	        switch (rs) {
+	        case SR_NOMEM:
+	            if (to_nomem-- > 0) {
+		        msleep(1000) ;
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+	        case SR_AGAIN:
+	            if (to_again-- > 0) {
+		        msleep(1000) ;
+		    } else {
+	                f_exit = TRUE ;
+		    }
+	            break ;
+		case SR_INTR:
+		    break ;
+		default:
+		    f_exit = TRUE ;
+		    break ;
+	        } /* end switch */
+	    } /* end if (error) */
+	} until ((rs >= 0) || f_exit) ;
 
 	return rs ;
 }
@@ -266,11 +282,10 @@ again:
 
 int ptm_unlock(PTM *op)
 {
-	int	rs ;
+	int		rs ;
 
 	rs = pthread_mutex_unlock(op) ;
-	if (rs > 0)
-	    rs = (- rs) ;
+	if (rs > 0) rs = (- rs) ;
 
 	return rs ;
 }

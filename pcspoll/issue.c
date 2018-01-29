@@ -7,7 +7,6 @@
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
 #define	CF_DEBUGN	0		/* extra-special debugging */
 #define	CF_WRITETO	1		/* time out writes */
-#define	CF_PARAMFILE	1		/* use 'paramfile(3dam)' */
 #define	CF_ISSUEAUDIT	0		/* call 'issue_audit()' */
 #define	CF_MAPPERAUDIT	0		/* call 'mapper_audit()' */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
@@ -16,10 +15,8 @@
 /* revision history:
 
 	= 2003-10-01, David A­D­ Morano
-
         This is a hack from numerous previous hacks (not enumerated here). This
         is a new version of this hack that is entirely different (much simpler).
-
 
 */
 
@@ -114,7 +111,7 @@
 #define	ENVBUFLEN	100
 
 #ifndef	DIGBUFLEN
-#define	DIGBUFLEN	45		/* can hold int128_t in decimal */
+#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
 #ifndef	POLLMULT
@@ -376,7 +373,7 @@ int issue_check(ISSUE *op,time_t dt)
 /* end subroutine (issue_check) */
 
 
-int issue_process(ISSUE *op,cchar groupname[],cchar *admins[],int fd)
+int issue_process(ISSUE *op,cchar *groupname,cchar **adms,int fd)
 {
 	int		rs ;
 	int		n ;
@@ -403,10 +400,11 @@ int issue_process(ISSUE *op,cchar groupname[],cchar *admins[],int fd)
 #if	CF_DEBUGS
 	{
 	    debugprintf("issue_process: tar groupname=%s\n",groupname) ;
-	    if (admins != NULL) {
+	    if (adms != NULL) {
 	        int	i ;
-	        for (i = 0 ; admins[i] != NULL ; i += 1)
-	            debugprintf("issue_process: a[%u]=%s\n",i,admins[i]) ;
+	        for (i = 0 ; adms[i] != NULL ; i += 1) {
+	            debugprintf("issue_process: a[%u]=%s\n",i,adms[i]) ;
+		}
 	    }
 	}
 #endif /* CF_DEBUGS */
@@ -422,7 +420,7 @@ int issue_process(ISSUE *op,cchar groupname[],cchar *admins[],int fd)
 	    if ((rs = strpack_start(&packer,128)) >= 0) {
 
 	        if ((rs = issue_envadds(op,&packer,ev,groupname)) >= 0) {
-	            rs = issue_processor(op,ev,admins,groupname,fd) ;
+	            rs = issue_processor(op,ev,adms,groupname,fd) ;
 	            wlen = rs ;
 	        }
 
@@ -459,8 +457,9 @@ static int issue_mapfind(ISSUE *op,time_t dt)
 	mapfname[0] = '\0' ;
 	if ((rs = issue_mapfname(op,mapfname)) >= 0) {
 	    if (mapfname[0] != '\0') {
-	        if ((rs = mapper_start(&op->mapper,dt,mapfname)) >= 0)
+	        if ((rs = mapper_start(&op->mapper,dt,mapfname)) >= 0) {
 	            op->nmaps += 1 ;
+		}
 	    }
 	} /* end if (map-fname) */
 
@@ -618,10 +617,12 @@ static int issue_envbegin(ISSUE *op)
 	        f = TRUE ;
 	        f = f && (ep[0] != '_') ;
 	        f = f && (matstr(envbad,ep,-1) < 0) ;
-	        if (f && (ep[0] == es))
+	        if (f && (ep[0] == es)) {
 	            f = (strncmp(envpre,ep,envprelen) != 0) ;
-	        if (f)
+		}
+	        if (f) {
 	            va[c++] = ep ;
+		}
 	    } /* end for */
 	    va[c] = NULL ;
 	    op->nenv = c ;
@@ -707,7 +708,7 @@ cchar *ep,int el)
 /* end subroutine (issue_envstore) */
 
 
-static int issue_processor(ISSUE *op,cchar **ev,cchar *adms[],cchar *gn,int fd)
+static int issue_processor(ISSUE *op,cchar **ev,cchar **adms,cchar *gn,int fd)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -882,7 +883,6 @@ static int mapper_check(ISSUE_MAPPER *mmp,time_t dt)
 
 	    if ((dt - mmp->ti_check) >= to) {
 
-#if	CF_PARAMFILE
 	        if ((rs = paramfile_check(&mmp->dirsfile,dt)) > 0) {
 
 	            {
@@ -894,28 +894,6 @@ static int mapper_check(ISSUE_MAPPER *mmp,time_t dt)
 	            nchanged = rs ;
 
 	        } /* end if */
-#else /* CF_PARAMFILE */
-	        {
-	            struct ustat	sb ;
-
-	            int	rs1 = u_stat(mmp->fname,&sb) ;
-
-
-	            if ((rs1 >= 0) && (sb.st_mtime > mmp->ti_mtime)) {
-
-	                {
-	                    mapper_mapfins(mmp) ;
-	                    vechand_delall(&mmp->mapdirs) ;
-	                }
-
-	                rs = mapper_mapload(mmp) ;
-	                nchanged = rs ;
-
-	            } /* end if (file mtime check) */
-
-	            mmp->ti_check = dt ;
-	        }
-#endif /* CF_PARAMFILE */
 
 	    } /* end if (map-object check) */
 
@@ -923,7 +901,8 @@ static int mapper_check(ISSUE_MAPPER *mmp,time_t dt)
 	} /* end if (read-write lock) */
 
 #if	CF_DEBUGS
-	debugprintf("issue/mapper_check: ret rs=%d nchanged=%u\n",rs,nchanged) ;
+	debugprintf("issue/mapper_check: ret rs=%d nchanged=%u\n",
+		rs,nchanged) ;
 #endif
 
 	return (rs >= 0) ? nchanged : rs ;
@@ -931,8 +910,8 @@ static int mapper_check(ISSUE_MAPPER *mmp,time_t dt)
 /* end subroutine (mapper_check) */
 
 
-static int mapper_process(ISSUE_MAPPER *mmp,cchar **ev,cchar *adms[],
-		cchar gn[],int fd)
+static int mapper_process(ISSUE_MAPPER *mmp,cchar **ev,cchar **adms,
+		cchar *gn,int fd)
 {
 	const int	to_lock = TO_LOCK ;
 	int		rs = SR_OK ;
@@ -959,10 +938,11 @@ static int mapper_process(ISSUE_MAPPER *mmp,cchar **ev,cchar *adms[],
 
 #if	CF_DEBUGS
 	    debugprintf("issue/mapper_process: gn=%s\n",gn) ;
-	    if (admins != NULL) {
+	    if (adms != NULL) {
 	        int	i ;
-	        for (i = 0 ; admins[i] != NULL ; i += 1)
+	        for (i = 0 ; adms[i] != NULL ; i += 1) {
 	            debugprintf("issue/mapper_process: a%u=%s\n",i,adms[i]) ;
+		}
 	    }
 #endif /* CF_DEBUGS */
 
@@ -976,7 +956,9 @@ static int mapper_process(ISSUE_MAPPER *mmp,cchar **ev,cchar *adms[],
 	    lockrw_unlock(&mmp->rwm) ;
 	} /* end if (read-write lock) */
 
+#if	CF_MAPPERAUDIT
 ret0:
+#endif /* CF_MAPPERAUDIT */
 
 #if	CF_DEBUGS
 	debugprintf("issue/mapper_process: ret rs=%d\n",rs) ;
@@ -987,8 +969,8 @@ ret0:
 /* end subroutine (mapper_process) */
 
 
-static int mapper_processor(ISSUE_MAPPER *mmp,cchar *ev[],cchar *adms[],
-		cchar gn[],int fd)
+static int mapper_processor(ISSUE_MAPPER *mmp,cchar **ev,cchar **adms,
+		cchar *gn,int fd)
 {
 	ISSUE_MAPDIR	*ep ;
 	int		rs = SR_OK ;
@@ -1019,8 +1001,6 @@ static int mapper_processor(ISSUE_MAPPER *mmp,cchar *ev[],cchar *adms[],
 }
 /* end subroutine (mapper_processor) */
 
-
-#if	CF_PARAMFILE
 
 static int mapper_mapload(ISSUE_MAPPER *mmp)
 {
@@ -1079,71 +1059,6 @@ static int mapper_mapload(ISSUE_MAPPER *mmp)
 }
 /* end subroutine (mapper_mapload) */
 
-#else /* CF_PARAMFILE */
-
-static int mapper_mapload(ISSUE_MAPPER *mmp)
-{
-	struct ustat	sb ;
-	bfile		mfile, *mfp = &mfile ;
-	int		rs = SR_OK ;
-	int		rs1 ;
-	int		len ;
-	int		kl, vl ;
-	int		sl ;
-	int		c = 0 ;
-	cchar		*tp, *sp ;
-	cchar		*kp, *vp ;
-	char		lbuf[LINEBUFLEN + 1] ;
-
-	if (mmp == NULL) return SR_FAULT ;
-
-	if (mmp->magic != ISSUE_MAPPERMAGIC) return SR_NOTOPEN ;
-
-	rs1 = bopen(mfp,mmp->fname,"r",0666) ;
-	if (rs1 < 0)
-	    goto ret0 ;
-
-	rs1 = bcontrol(mfp,BC_STAT,&sb) ;
-	if (rs1 < 0)
-	    goto ret1 ;
-
-	mmp->ti_mtime = sb.st_mtime ;
-	while ((rs = breadline(mfp,lbuf,LINEBUFLEN)) > 0) {
-	    len = rs ;
-
-	    sp = lbuf ;
-	    sl = len ;
-	    if (sp[0] == '#') continue ;
-
-	    if ((tp = strnchr(sp,sl,'#')) != NULL)
-	        sl = (tp - sp) ;
-
-	    kl = nextfield(sp,sl,&kp) ;
-	    if (kl == 0) continue ;
-
-	    sl -= ((kp + kl) - sp) ;
-	    sp = (kp + kl) ;
-
-	    vl = nextfield(sp,sl,&vp) ;
-	    if (vl == 0) continue ;
-
-	    c += 1 ;
-	    rs = mapper_mapadd(mmp,kp,kl,vp,vl) ;
-	    if (rs < 0)
-	        break ;
-
-	} /* end while (reading lines) */
-
-ret1:
-	bclose(mfp) ;
-
-ret0:
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (mapper_mapload) */
-
-#endif /* CF_PARAMFILE */
-
 
 static int mapper_mapadd(ISSUE_MAPPER *mmp,cchar *kp,int kl,cchar *vp,int vl)
 {
@@ -1186,13 +1101,14 @@ static int mapper_mapfins(ISSUE_MAPPER *mmp)
 	    debugprintf("mapper_mapfins: n=%d\n",rs1) ;
 #endif
 	    for (i = 0 ; (rs1 = vechand_get(mlp,i,&ep)) >= 0 ; i += 1) {
-	        if (ep == NULL) continue ;
-	        rs1 = mapdir_finish(ep) ;
-	        if (rs >= 0) rs = rs1 ;
-	        rs1 = vechand_del(mlp,i--) ;
-	        if (rs >= 0) rs = rs1 ;
-	        rs1 = uc_free(ep) ;
-	        if (rs >= 0) rs = rs1 ;
+	        if (ep != NULL) {
+	            rs1 = mapdir_finish(ep) ;
+	            if (rs >= 0) rs = rs1 ;
+	            rs1 = vechand_del(mlp,i--) ;
+	            if (rs >= 0) rs = rs1 ;
+	            rs1 = uc_free(ep) ;
+	            if (rs >= 0) rs = rs1 ;
+		}
 	    } /* end for */
 	} /* end if (vechand-count) */
 	if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
@@ -1295,8 +1211,8 @@ static int mapdir_finish(ISSUE_MAPDIR *ep)
 /* end subroutine (mapdir_finish) */
 
 
-static int mapdir_process(ISSUE_MAPDIR *ep,cchar *ev[],cchar *adms[],
-		cchar gn[],int fd)
+static int mapdir_process(ISSUE_MAPDIR *ep,cchar **ev,cchar **adms,
+		cchar *gn,int fd)
 {
 	const int	to_lock = TO_LOCK ;
 	int		rs = SR_OK ;
@@ -1307,7 +1223,7 @@ static int mapdir_process(ISSUE_MAPDIR *ep,cchar *ev[],cchar *adms[],
 	    int	i ;
 	    debugprintf("issue/mapdir_process: ent gn=%s\n",gn) ;
 	    debugprintf("issue/mapdir_process: dirname=%s\n",ep->dirname) ;
-	    if (admins != NULL) {
+	    if (adms != NULL) {
 	        for (i = 0 ; adms[i] != NULL ; i += 1) {
 	            debugprintf("issue/mapdir_process: a[%u]=%s\n",
 	                i,adms[i]) ;
@@ -1316,63 +1232,29 @@ static int mapdir_process(ISSUE_MAPDIR *ep,cchar *ev[],cchar *adms[],
 	}
 #endif /* CF_DEBUGS */
 
-	if (ep->dirname[0] == '\0')
-	    goto ret0 ;
-
-	if ((adms != NULL) && (adms[0] != NULL)) {
-	    if (matstr(adms,ep->admin,-1) < 0)
-	        goto ret0 ;
-	} /* end if (admins) */
-
-	if ((ep->dirname[0] == '~') && (ep->dname == NULL)) {
-
-#if	CF_DEBUGS
-	    debugprintf("issue/mapdir_process: mapdir_expand() \n") ;
-#endif
-
-	    rs = mapdir_expand(ep) ;
-
-#if	CF_DEBUGS
-	    debugprintf("issue/mapdir_process: mapdir_expand() rs=%d\n",rs) ;
-	    debugprintf("issue/mapdir_process: dname=%s\n",ep->dname) ;
-#endif
-
-	}
-
-	if (rs < 0)
-	    goto ret0 ;
-
-	if ((ep->dirname[0] == '~') && (ep->dname == NULL))
-	    goto ret0 ;
-
-	if ((rs = lockrw_rdlock(&ep->rwm,to_lock)) >= 0) {
-
-#if	CF_DEBUGS
-	    debugprintf("issue/mapdir_process: admin=%s\n",ep->admin) ;
-	    debugprintf("issue/mapdir_process: dirname=%s\n",ep->dirname) ;
-	    debugprintf("issue/mapdir_process: dname=%s\n",ep->dname) ;
-#endif
-
-	    if ((ep->dirname[0] != '~') || (ep->dname != NULL)) {
-
-#if	CF_DEBUGS
-	        debugprintf("issue/mapdir_process: mapdir_processor() \n") ;
-#endif
-
-	        rs = mapdir_processor(ep,ev,gn,fd) ;
-	        wlen += rs ;
-
-#if	CF_DEBUGS
-	        debugprintf("issue/mapdir_process: mapdir_processor() rs=%d\n",
-	            rs) ;
-#endif
-
-	    } /* end if */
-
-	    lockrw_unlock(&ep->rwm) ;
-	} /* end if (locked) */
-
-ret0:
+	if (ep->dirname[0] != '\0') {
+	    int	f_continue = TRUE ;
+	    if ((adms != NULL) && (adms[0] != NULL)) {
+	        f_continue = (matstr(adms,ep->admin,-1) >= 0) ;
+	    } /* end if (adms) */
+	    if (f_continue) {
+	        if ((ep->dirname[0] == '~') && (ep->dname == NULL)) {
+	            rs = mapdir_expand(ep) ;
+	        }
+	        if (rs >= 0) {
+	            if ((ep->dirname[0] != '~') || (ep->dname != NULL)) {
+	                if ((rs = lockrw_rdlock(&ep->rwm,to_lock)) >= 0) {
+			    cchar	*dn = ep->dirname ;
+	                    if ((dn[0] != '~') || (ep->dname != NULL)) {
+	                        rs = mapdir_processor(ep,ev,gn,fd) ;
+	        		wlen += rs ;
+	    		    } /* end if */
+	    		    lockrw_unlock(&ep->rwm) ;
+			} /* end if (locked) */
+		    } /* end if (acceptable) */
+		} /* end if (ok) */
+	    } /* end if (continued) */
+	} /* end if (non-nul) */
 
 #if	CF_DEBUGS
 	debugprintf("issue/mapdir_process: ret rs=%d wlen=%u\n",rs,wlen) ;
@@ -1416,99 +1298,71 @@ static int mapdir_expand(ISSUE_MAPDIR *ep)
 
 static int mapdir_expander(ISSUE_MAPDIR *ep)
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs = SR_OK ;
 	int		rs1 = SR_OK ;
-	int		unl ;
 	int		fl = 0 ;
-	cchar		*tp ;
-	cchar		*pp ;
-	cchar		*un = NULL ;
-	char		tmpfname[MAXPATHLEN + 1] ;
-	char		*pwbuf ;
 
 #if	CF_DEBUGS
 	debugprintf("issue/mapdir_expander: dirname=%s\n",ep->dirname) ;
 #endif
 
-	if ((ep->dirname == NULL) || (ep->dirname[0] != '~')) {
+	if ((ep->dirname != NULL) && (ep->dirname[0] == '~')) {
+	    struct passwd	pw ;
+	    const int		pwlen = getbufsize(getbufsize_pw) ;
+	    int			unl = -1 ;
+	    cchar		*un = (ep->dirname+1) ;
+	    cchar		*tp ;
+	    cchar		*pp = NULL ;
+	    char		ubuf[USERNAMELEN + 1] ;
+	    char		*pwbuf ;
+	    if ((tp = strchr(un,'/')) != NULL) {
+	        unl = (tp - un) ;
+	        pp = tp ;
+	    }
+	    if ((unl == 0) || (un[0] == '\0')) {
+	        un = ep->admin ;
+	        unl = -1 ;
+	    }
+	            if (unl >= 0) {
+	                strwcpy(ubuf,un,MIN(unl,USERNAMELEN)) ;
+	                un = ubuf ;
+	            }
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+		if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
+		    cchar	*uh = pw.pw_dir ;
+	    	    char	hbuf[MAXPATHLEN + 1] ;
+	            if (pp != NULL) {
+	                rs = mkpath2(hbuf,uh,pp) ;
+	                fl = rs ;
+	            } else {
+	                rs = mkpath1(hbuf,uh) ;
+	                fl = rs ;
+	            }
+	            if (rs >= 0) {
+	                cchar	*cp ;
+	                rs = uc_mallocstrw(hbuf,fl,&cp) ;
+	                if (rs >= 0) ep->dname = cp ;
+	            }
+		} else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
+	        } /* end if (getpw_name) */
+		uc_free(pwbuf) ;
+	    } /* end if (m-a-f) */
+	} else
 	    rs = SR_INVALID ;
-	    goto ret0 ;
-	}
 
-	un = (ep->dirname+1) ;
-	unl = -1 ;
-	pp = NULL ;
-	if ((tp = strchr(un,'/')) != NULL) {
-	    unl = (tp - un) ;
-	    pp = tp ;
-	}
-
-	if ((unl == 0) || (un[0] == '\0')) {
-	    un = ep->admin ;
-	    unl = -1 ;
-	}
-
-#if	CF_DEBUGS
-	debugprintf("issue/mapdir_expander: u=%t\n",un,unl) ;
-	if (pp != NULL)
-	    debugprintf("issue/mapdir_expander: pp=%s\n",pp) ;
-#endif
-
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-
-	{
-	    char	ubuf[USERNAMELEN + 1] ;
-	    if (unl >= 0) {
-	        strwcpy(ubuf,un,MIN(unl,USERNAMELEN)) ;
-	        un = ubuf ;
-	    }
-	    rs1 = GETPW_NAME(&pw,pwbuf,pwlen,un) ;
-	}
-
-	if (rs1 >= 0) {
-
-	    if (pp != NULL) {
-	        rs = mkpath2(tmpfname,pw.pw_dir,pp) ;
-	        fl = rs ;
-	    } else {
-	        rs = mkpath1(tmpfname,pw.pw_dir) ;
-	        fl = rs ;
-	    }
-
-#if	CF_DEBUGS
-	    debugprintf("issue/mapdir_expander: tmpfname=%s\n",tmpfname) ;
-	    debugprintf("issue/mapdir_expander: fl=%d\n",fl) ;
-#endif
-
-	    if (rs >= 0) {
-	        cchar	*cp ;
-	        rs = uc_mallocstrw(tmpfname,fl,&cp) ;
-	        if (rs >= 0) ep->dname = cp ;
-	    }
-
-	} /* end if */
-
-	    uc_free(pwbuf) ;
-	} /* end if (m-a) */
-
-ret0:
 	return (rs >= 0) ? fl : rs ;
 }
 /* end subroutine (mapdir_expander) */
 
 
-static int mapdir_processor(ISSUE_MAPDIR *ep,cchar *ev[],cchar gn[],int fd)
+static int mapdir_processor(ISSUE_MAPDIR *ep,cchar **ev,cchar *gn,int fd)
 {
-	struct ustat	sb ;
-	VECSTR		nums ;
-	FSDIR		d ;
-	FSDIR_ENT	de ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		n ;
 	int		wlen = 0 ;
+	int		f_continue = TRUE ;
 	cchar		*dn ;
 	cchar		*defname = ISSUE_DEFGROUP ;
 	cchar		*allname = ISSUE_ALLGROUP ;
@@ -1524,99 +1378,70 @@ static int mapdir_processor(ISSUE_MAPDIR *ep,cchar *ev[],cchar gn[],int fd)
 	dn = ep->dirname ;
 	if (dn[0] == '~') {
 	    dn = ep->dname ;
-	    if ((dn == NULL) || (dn[0] == '\0'))
-	        goto ret0 ;
+	    f_continue = ((dn != NULL) && (dn[0] != '\0')) ;
 	}
-
-	rs1 = u_stat(dn,&sb) ;
-	if (rs1 < 0) goto ret0 ;
-
-	{
-	    const int	envlen = ENVBUFLEN ;
-	    cchar	*post ;
-	    post = envstrs[envstr_admin] ;
-	    strdcpy4(env_admin,envlen,envpre,post,"=",ep->admin) ;
-	    post = envstrs[envstr_admindir] ;
-	    strdcpy4(env_admindir,envlen,envpre,post,"=",dn) ;
-	    for (n = 0 ; ev[n] != NULL ; n += 1) ;
-	    ev[n+0] = env_admin ;
-	    ev[n+1] = env_admindir ;
-	    ev[n+2] = NULL ;
-	}
-
-	if ((rs = vecstr_start(&nums,0,0)) >= 0) {
-	    int		i ;
-	    cchar	*strs[5] ;
-
-	    loadstrs(strs,gn,defname,allname,name) ;
-
-	    if ((rs = fsdir_open(&d,dn)) >= 0) {
-	        cchar	*tp ;
-
-	        while ((rs = fsdir_read(&d,&de)) > 0) {
-	            cchar	*den = de.name ;
-	            if (den[0] == '.') continue ;
-
-#if	CF_DEBUGS
-	            debugprintf("issue/mapdir_processor: den=%s\n",den) ;
-#endif
-
-	            tp = strchr(den,'.') ;
-	            if ((tp != NULL) && (strcmp((tp+1),name) == 0)) {
-	                cchar	*digp ;
-	                int	f = TRUE ;
-
-	                digp = strnpbrk(den,(tp-den),"0123456789") ;
-	                if (digp != NULL) {
-	                    f = hasalldig(digp,(tp-digp)) ;
-			}
-
-	                if (f) {
-	                    for (i = 0 ; i < 3 ; i += 1) {
-	                        f = isBaseMatch(den,strs[i],digp) ;
-	                        if (f) break ;
-	                    }
-	                }
-
-	                if (f) {
-	                    rs = vecstr_add(&nums,den,(tp-den)) ;
-			}
-
-	            } /* end if (have an ISSUE file) */
-
-	            if (rs < 0) break ;
-	        } /* end while (reading directory entries) */
-
-	        fsdir_close(&d) ;
-	    } /* end if (fsdir) */
-
-	    if (rs >= 0) {
-
-	        vecstr_sort(&nums,NULL) ;
-
-#if	CF_DEBUGS
+	if (f_continue) {
+	    struct ustat	sb ;
+	    if ((rs1 = u_stat(dn,&sb)) >= 0) {
+	        VECSTR		nums ;
+	        const int	envlen = ENVBUFLEN ;
+	        cchar		*post ;
+	        post = envstrs[envstr_admin] ;
+	        strdcpy4(env_admin,envlen,envpre,post,"=",ep->admin) ;
+	        post = envstrs[envstr_admindir] ;
+	        strdcpy4(env_admindir,envlen,envpre,post,"=",dn) ;
+	        for (n = 0 ; ev[n] != NULL ; n += 1) ;
+	        ev[n+0] = env_admin ;
+	        ev[n+1] = env_admindir ;
+	        ev[n+2] = NULL ;
+	        if ((rs = vecstr_start(&nums,0,0)) >= 0) {
+		    FSDIR	d ;
+		    FSDIR_ENT	de ;
+	            int		i ;
+	            cchar	*strs[5] ;
+	            loadstrs(strs,gn,defname,allname,name) ;
+	            if ((rs = fsdir_open(&d,dn)) >= 0) {
+	                cchar	*tp ;
+	                while ((rs = fsdir_read(&d,&de)) > 0) {
+	                    cchar	*den = de.name ;
+	                    if (den[0] != '.') {
+	                        if ((tp = strchr(den,'.')) != NULL) {
+	                            if (strcmp((tp+1),name) == 0) {
+	                	    int		f = TRUE ;
+	                	    cchar	*digp ;
+	                	    digp = strnpbrk(den,(tp-den),"0123456789") ;
+	                	    if (digp != NULL) {
+	                    	        f = hasalldig(digp,(tp-digp)) ;
+				    }
+	                	    if (f) {
+	                    	        for (i = 0 ; i < 3 ; i += 1) {
+	                        	    f = isBaseMatch(den,strs[i],digp) ;
+	                        	    if (f) break ;
+	                    	        }
+	                	    }
+	                            if (f) {
+	                                rs = vecstr_add(&nums,den,(tp-den)) ;
+			            }
+				    }
+	                        } /* end if (have an ISSUE file) */
+		            }
+	                    if (rs < 0) break ;
+	                } /* end while (reading directory entries) */
+	                rs1 = fsdir_close(&d) ;
+			if (rs >= 0) rs = rs1 ;
+	            } /* end if (fsdir) */
+	            if (rs >= 0) {
+	                vecstr_sort(&nums,NULL) ;
+	                rs = mapdir_processorthem(ep,ev,dn,&nums,strs,fd) ;
+	                wlen += rs ;
+	            } /* end if */
+	            vecstr_finish(&nums) ;
+	        } /* end if (nums) */
 	        {
-	            cchar	*bep ;
-	            for (i = 0 ; vecstr_get(&nums,i,&bep) >= 0 ; i += 1) {
-	                debugprintf("issue/mapdir_processor: i=%u bep=%s\n",
-	                    i,bep) ;
-		    }
+	            ev[n] = NULL ;
 	        }
-#endif /* CF_DEBUGS */
-
-	        rs = mapdir_processorthem(ep,ev,dn,&nums,strs,fd) ;
-	        wlen += rs ;
-
-	    } /* end if */
-
-	    vecstr_finish(&nums) ;
-	} /* end if (nums) */
-
-	{
-	    ev[n] = NULL ;
-	}
-
-ret0:
+	    } /* end if (u_stat) */
+	} /* end if (continued) */
 
 #if	CF_DEBUGS
 	debugprintf("issue/mapdir_processor: ret rs=%d wlen=%u\n",rs,wlen) ;
@@ -1627,24 +1452,22 @@ ret0:
 /* end subroutine (mapdir_processor) */
 
 
-static int mapdir_processorthem(ISSUE_MAPDIR *ep,cchar *ev[],cchar dn[],
+static int mapdir_processorthem(ISSUE_MAPDIR *ep,cchar **ev,cchar *dn,
 		VECSTR *blp,cchar **strs,int fd)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		wlen = 0 ;
-	cchar		*kn ;
+	cchar		*kn = strs[0] ;
 
-	kn = strs[0] ;
 	rs1 = mapdir_processorone(ep,ev,dn,blp,kn,fd) ;
-
 	if (isNotPresent(rs1)) {
 	    kn = strs[1] ;
 	    rs1 = mapdir_processorone(ep,ev,dn,blp,kn,fd) ;
 	    if (! isNotPresent(rs1)) rs = rs1 ;
-	} else
+	} else {
 	    rs = rs1 ;
-
+	}
 	if (rs > 0) wlen += rs ;
 
 	if (rs >= 0) {
@@ -1659,7 +1482,7 @@ static int mapdir_processorthem(ISSUE_MAPDIR *ep,cchar *ev[],cchar dn[],
 /* end subroutine (mapdir_processorthem) */
 
 
-static int mapdir_processorone(ISSUE_MAPDIR *ep,cchar *ev[],cchar *dn,
+static int mapdir_processorone(ISSUE_MAPDIR *ep,cchar **ev,cchar *dn,
 		VECSTR *blp,cchar *kn,int fd)
 {
 	const int	kl = strlen(kn) ;
@@ -1699,8 +1522,8 @@ static int mapdir_processorone(ISSUE_MAPDIR *ep,cchar *ev[],cchar *dn,
 
 
 /* we must return SR_NOENT if there was no file */
-static int mapdir_procout(ISSUE_MAPDIR *ep,cchar *ev[],cchar dn[],
-		cchar	gn[],int fd)
+static int mapdir_procout(ISSUE_MAPDIR *ep,cchar **ev,cchar *dn,
+		cchar *gn,int fd)
 {
 	const int	clen = MAXNAMELEN ;
 	int		rs ;
@@ -1731,7 +1554,7 @@ static int mapdir_procout(ISSUE_MAPDIR *ep,cchar *ev[],cchar dn[],
 /* end subroutine (mapdir_procout) */
 
 
-static int mapdir_procouter(ISSUE_MAPDIR *ep,cchar *ev[],cchar fname[],int ofd)
+static int mapdir_procouter(ISSUE_MAPDIR *ep,cchar **ev,cchar *fname,int ofd)
 {
 	const mode_t	operms = 0664 ;
 	const int	oflags = O_RDONLY ;
@@ -1766,7 +1589,7 @@ static int mapdir_procouter(ISSUE_MAPDIR *ep,cchar *ev[],cchar fname[],int ofd)
 	            if (rs < 0) break ;
 	    } /* end while */
 #else /* CF_WRITETO */
-	    rs = uc_copy(mfd,ofd,-1) ;
+	    rs = uc_writedesc(ofd,mfd,-1) ;
 	    wlen += rs ;
 #endif /* CF_WRITETO */
 
@@ -1784,7 +1607,7 @@ static int mapdir_procouter(ISSUE_MAPDIR *ep,cchar *ev[],cchar fname[],int ofd)
 
 #if	CF_WRITETO
 
-static int writeto(int wfd,cchar wbuf[],int wlen,int wto)
+static int writeto(int wfd,cchar *wbuf,int wlen,int wto)
 {
 	struct pollfd	fds[2] ;
 	time_t		dt = time(NULL) ;
@@ -1897,8 +1720,9 @@ static int isBaseMatch(cchar *den,cchar *bname,cchar *digp)
 	    int	bl = strlen(bname) ;
 	    int	m = nleadstr(den,bname,bl) ;
 	    f = (m == bl) && (den[m] == '.') ;
-	} else
+	} else {
 	    f = (strncmp(den,bname,(digp-den)) == 0) ;
+	}
 
 	return f ;
 }

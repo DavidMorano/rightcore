@@ -9,17 +9,13 @@
 /* revision history:
 
 	= 2001-12-03, David A­D­ Morano
-
 	This code was born out of frustration with cleaning up bad legacy code
 	(of which there is quite a bit -- like almost all of it).
 
-
 	= 2011-12-09, David A­D­ Morano
-
 	I got rid of the 'strlcpy(3c)' usage.  That subroutine just does not
 	represent my moral values!  I now do not know what prompted me to do
 	this (probably its extra complexity to use).
-
 
 */
 
@@ -27,8 +23,8 @@
 
 /*******************************************************************************
 
-	This subroutine constructs a file path out of one or more path
-	componets.
+        This subroutine constructs a file path out of one or more path
+        componets.
 
 
 *******************************************************************************/
@@ -144,7 +140,7 @@ int mknpathw(char *pbuf,int plen,int n,...)
 	    int		sl = -1 ;
 	    const char	*sp ;
 	    va_begin(ap,n) ;
-	    for (i = 0 ; (rs >= 0) && (i < n) ; i += 1) {
+	    for (i = 0 ; i < n ; i += 1) {
 
 	        sp = (const char *) va_arg(ap,char *) ;
 
@@ -169,9 +165,10 @@ int mknpathw(char *pbuf,int plen,int n,...)
 	                rs = SR_NAMETOOLONG ;
 	        }
 
+		if (rs < 0) break ;
 	    } /* end for */
 	    va_end(ap) ;
-	}
+	} /* end block */
 
 	*bp = '\0' ; /* in case of overflow */
 	return (rs >= 0) ? (bp - pbuf) : rs ;

@@ -8,10 +8,8 @@
 
 /* revision history:
 
-	- 1998-06-16, David A­D­ Morano
-
+	= 1998-06-16, David A­D­ Morano
 	This subroutine was originally written.
-
 
 */
 
@@ -19,9 +17,8 @@
 
 /*******************************************************************************
 
-	These subroutines manage some simple tasks for the GROUP object,
-	referenced as 'struct group'.  This object is defined
-	by UNIX® standards.
+        These subroutines manage some simple tasks for the GROUP object,
+        referenced as 'struct group'. This object is defined by UNIX® standards.
 
 
 *******************************************************************************/

@@ -9,10 +9,8 @@
 /* revision history:
 
 	= 2008-08-19, David A­D­ Morano
-
         This module was originally written because the read-write lock facility
         on Slowlaris® was broken when inside of a dynamically loaded module.
-
 
 */
 
@@ -22,7 +20,7 @@
 
 	The SlowLaris® implmentation of the POSIX® read-write lock is BROKEN!
 	We can all thank the "smart" Slowlaris® developers for that.
-	Hos did SlowLaris® manage to create a borken implementation?  Firstly,
+	How did SlowLaris® manage to create a borken implementation?  Firstly,
 	they thought that they were really smart people.  Secondly, from their
 	own literature, they created a read-write lock that was especially
 	"optimized," whatever that means. They forgot that it was more important
@@ -61,10 +59,6 @@
 
 /* local defines */
 
-#define	TO_NOSPC	5
-#define	TO_MFILE	5
-#define	TO_INTR		5
-
 
 /* external subroutines */
 
@@ -101,8 +95,9 @@ int lockrw_create(LOCKRW *psp,int f_shared)
 	        if (rs < 0)
 		    ptm_destroy(&psp->m) ;
 	    } /* end if (PTM created) */
-	} else
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 	return rs ;
 }
@@ -224,8 +219,9 @@ int lockrw_unlock(LOCKRW *psp)
 	    if (psp->readers > 0) psp->readers -= 1 ;
 	    if (psp->writers > 0) psp->writers -= 1 ;
 
-	    if ((psp->waitreaders > 0) || (psp->waitwriters > 0))
+	    if ((psp->waitreaders > 0) || (psp->waitwriters > 0)) {
 	        rs = ptc_broadcast(&psp->c) ;
+	    }
 
 	    rs1 = ptm_unlock(&psp->m) ;
 	    if (rs >= 0) rs = rs1 ;

@@ -6,9 +6,7 @@
 /* revision history:
 
 	= 1998-04-05, David A­D­ Morano
-
 	This module was adapted from assembly lanauge.
-
 
 */
 

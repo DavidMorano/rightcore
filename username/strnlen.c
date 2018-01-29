@@ -7,9 +7,7 @@
 /* revision history:
 
 	= 1998-03-17, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -57,8 +55,9 @@ int strnlen(const char *s,int n)
 	    for (i = 0 ; (i < n) && *s ; i += 1) {
 	        s += 1 ;
 	    }
-	} else
+	} else {
 	    i = strlen(s) ;
+	}
 	return i ;
 }
 /* end subroutine (strnlen) */

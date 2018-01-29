@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-03-24, David A­D­ Morano
-
 	This object module was originally written.
-
 
 */
 
@@ -19,14 +17,14 @@
 
 /*******************************************************************************
 
-	This subroutine can be used to construct strings or messages in a
-	buffer WITHOUT using the 'sprintf(3c)' subroutine.
+        This subroutine can be used to construct strings or messages in a buffer
+        WITHOUT using the 'sprintf(3c)' subroutine.
 
-	This module is useful when the user supplies a buffer of a specified
-	length and does not want to track the creation and destruction of an
-	associated object.  There is NO object (besides the user supplied
-	buffer -- which can be considered THE object) to create and then
-	destroy when using this module.
+        This module is useful when the user supplies a buffer of a specified
+        length and does not want to track the creation and destruction of an
+        associated object. There is NO object (besides the user supplied buffer
+        -- which can be considered THE object) to create and then destroy when
+        using this module.
 
 	The user must carefully track the buffer usage so that subsequent calls
 	can be supplied with the correct index value of the next available
@@ -56,9 +54,6 @@
 	    i += rs ;
 	}
 
-	if (rs < 0)
-	    goto bad ;
-
 
 *******************************************************************************/
 
@@ -73,13 +68,18 @@
 
 #include	<vsystem.h>
 #include	<ctdec.h>
+#include	<cthex.h>
 #include	<localmisc.h>
 
 
 /* local defines */
 
 #ifndef	DIGBUFLEN
-#define	DIGBUFLEN	45		/* can hold int128_t in decimal */
+#define	DIGBUFLEN	40		/* can hold int128_t in decimal */
+#endif
+
+#ifndef	HEXBUFLEN
+#define	HEXBUFLEN	32		/* can hold int128_t in decimal */
 #endif
 
 
@@ -196,21 +196,28 @@ int storebuf_strw(char *rbuf,int rlen,int i,cchar *sp,int sl)
 
 int storebuf_deci(char *rbuf,int rlen,int i,int v)
 {
+	const int	dlen = DIGBUFLEN ;
 	int		rs ;
 	int		len = 0 ;
 	char		*bp = (rbuf + i) ;
-	char		digbuf[DIGBUFLEN + 1] ;
 
 	if (i < 0)
 	    return SR_INVALID ;
 
 	*bp = '\0' ;
-	if ((rs = ctdeci(digbuf,DIGBUFLEN,v)) >= 0) {
-	    len = rs ;
-	    if ((rlen < 0) || ((rlen - i) >= len)) {
-	        strwcpy(bp,digbuf,len) ;
-	    } else
-		rs = SR_OVERFLOW ;
+	if ((rlen < 0) || ((rlen-i) >= dlen)) {
+	    if ((rs = ctdeci(bp,(rlen-i),v)) >= 0) {
+		len = rs ;
+	    }
+	} else {
+	    char	dbuf[DIGBUFLEN + 1] ;
+	    if ((rs = ctdeci(dbuf,dlen,v)) >= 0) {
+	        len = rs ;
+	        if ((rlen < 0) || ((rlen - i) >= len)) {
+	            strwcpy(bp,dbuf,len) ;
+	        } else
+		    rs = SR_OVERFLOW ;
+	    }
 	}
 
 	return (rs >= 0) ? len : rs ;
@@ -220,21 +227,28 @@ int storebuf_deci(char *rbuf,int rlen,int i,int v)
 
 int storebuf_decui(char *rbuf,int rlen,int i,uint uv)
 {
+	const int	dlen = DIGBUFLEN ;
 	int		rs ;
 	int		len = 0 ;
 	char		*bp = (rbuf + i) ;
-	char		digbuf[DIGBUFLEN + 1] ;
 
 	if (i < 0)
 	    return SR_INVALID ;
 
 	*bp = '\0' ;
-	if ((rs = ctdecui(digbuf,DIGBUFLEN,uv)) >= 0) {
-	    len = rs ;
-	    if ((rlen < 0) || ((rlen - i) >= len)) {
-	        strwcpy(bp,digbuf,len) ;
-	    } else
-		rs = SR_OVERFLOW ;
+	if ((rlen < 0) || ((rlen-i) >= dlen)) {
+	    if ((rs = ctdecui(bp,(rlen-i),uv)) >= 0) {
+		len = rs ;
+	    }
+	} else {
+	    char	dbuf[DIGBUFLEN + 1] ;
+	    if ((rs = ctdecui(dbuf,dlen,uv)) >= 0) {
+	        len = rs ;
+	        if ((rlen < 0) || ((rlen - i) >= len)) {
+	            strwcpy(bp,dbuf,len) ;
+	        } else
+		    rs = SR_OVERFLOW ;
+	    }
 	}
 
 	return (rs >= 0) ? len : rs ;
@@ -247,5 +261,44 @@ int storebuf_dec(char *rbuf,int rlen,int i,int v)
 	return storebuf_deci(rbuf,rlen,i,v) ;
 }
 /* end subroutine (storebuf_dec) */
+
+
+int storebuf_hexui(char *rbuf,int rlen,int i,uint uv)
+{
+	const int	dlen = HEXBUFLEN ;
+	int		rs ;
+	int		len = 0 ;
+	char		*bp = (rbuf + i) ;
+
+	if (i < 0)
+	    return SR_INVALID ;
+
+	*bp = '\0' ;
+	if ((rlen < 0) || ((rlen-i) >= dlen)) {
+	    if ((rs = cthexui(bp,(rlen-i),uv)) >= 0) {
+		len = rs ;
+	    }
+	} else {
+	    char	dbuf[HEXBUFLEN + 1] ;
+	    if ((rs = cthexui(dbuf,dlen,uv)) >= 0) {
+	        len = rs ;
+	        if ((rlen < 0) || ((rlen - i) >= len)) {
+	            strwcpy(bp,dbuf,len) ;
+	        } else
+		    rs = SR_OVERFLOW ;
+	    }
+	}
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (storebuf_hexui) */
+
+
+int storebuf_hexi(char *rbuf,int rlen,int i,int v)
+{
+	uint		uv = (uint) v ;
+	return storebuf_hexui(rbuf,rlen,i,uv) ;
+}
+/* end subroutine (storebuf_hexi) */
 
 

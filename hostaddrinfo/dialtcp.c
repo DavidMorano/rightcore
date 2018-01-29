@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 1998-04-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -99,6 +97,8 @@
 #include	<inetaddr.h>
 #endif
 
+#include	"dialopts.h"
+
 
 /* local defines */
 
@@ -130,7 +130,7 @@ extern int	getproto_name(cchar *,int) ;
 extern int	opensockaddr(int,int,int,struct sockaddr *,int) ;
 extern int	openaddrinfo(ADDRINFO *,int) ;
 extern int	hasalldig(cchar *,int) ;
-extern int	isOneOf(const int *,int) ;
+extern int	isFailConn(int) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
@@ -185,8 +185,6 @@ static int	try_inet(SUBINFO *) ;
 
 static int	subinfo_makeconn(SUBINFO *,int,struct sockaddr *) ;
 
-static int	isNotConn(int) ;
-
 #if	CF_DEBUGS
 extern int	mkhexstr(char *,int,const void *,int) ;
 static int	makeint(const void *) ;
@@ -194,16 +192,6 @@ static int	makeint(const void *) ;
 
 
 /* local variables */
-
-static const int	rsnoconn[] = {
-	SR_HOSTDOWN,
-	SR_CONNREFUSED,
-	SR_TIMEDOUT,
-	SR_HOSTUNREACH,
-	SR_NETUNREACH,
-	SR_NOTCONN,
-	0
-} ;
 
 
 /* exported subroutines */
@@ -237,7 +225,10 @@ int dialtcp(cchar *hostname,cchar *portspec,int af,int to,int opts)
 	            if ((rs = subinfo_addr(sip,af)) >= 0) {
 	                if ((rs = subinfo_try(sip)) >= 0) {
 	                    fd = rs ;
-	                    rs = dialsetopts(fd,opts) ;
+	                    rs = dialopts(fd,opts) ;
+#if	CF_DEBUGS
+			    debugprintf("dialtcp: dialopts() rs=%d\n",rs) ;
+#endif
 	                }
 	                if ((rs < 0) && (sip->count == 0)) {
 	                    rs = SR_HOSTUNREACH ;
@@ -317,7 +308,7 @@ static int subinfo_svc(SUBINFO *sip)
 	}
 
 #if	CF_DEBUGS
-	debugprintf("dialtcp/_svc: ret rs=%d port=%u\n",rs,port) ;
+	debugprintf("dialtcp/_svc: ret rs=%d port=%u\n",rs,sip->port) ;
 #endif
 
 	return rs ;
@@ -395,7 +386,7 @@ static int subinfo_tryone(SUBINFO *sip)
 
 /* first try IPv4 addresses */
 
-	    if ((isNotConn(rs) || (sip->count == 0)) && 
+	    if ((isFailConn(rs) || (sip->count == 0)) && 
 	        ((af == AF_UNSPEC) || (af == AF_INET4))) {
 
 	        rs1 = try_inet4(sip) ;
@@ -410,7 +401,7 @@ static int subinfo_tryone(SUBINFO *sip)
 
 /* now try IPv6 addresses */
 
-	    if ((isNotConn(rs) || (sip->count == 0)) && 
+	    if ((isFailConn(rs) || (sip->count == 0)) && 
 	        ((af == AF_UNSPEC) || (af == AF_INET6))) {
 
 	        rs1 = try_inet6(sip) ;
@@ -424,7 +415,7 @@ static int subinfo_tryone(SUBINFO *sip)
 	    } /* end if (IPv6) */
 
 #if	CF_TRYINET
-	    if (isNotConn(rs) || (sip->count == 0)) {
+	    if (isFailConn(rs) || (sip->count == 0)) {
 
 	        rs1 = try_inet(sip) ;
 	        fd = rs1 ;
@@ -438,10 +429,14 @@ static int subinfo_tryone(SUBINFO *sip)
 #endif /* CF_TRYINET */
 
 #if	CF_DEBUGS
-	    debugprintf("dialtcp/_tryone: rs=%d\n",rs) ;
+	    debugprintf("dialtcp/_tryone: fin rs=%d\n",rs) ;
 #endif
 
 	} /* end if */
+
+#if	CF_DEBUGS
+	debugprintf("dialtcp/_tryone: ret rs=%d\n",rs) ;
+#endif
 
 	return (rs >= 0) ? fd : rs ;
 }
@@ -456,14 +451,15 @@ static int try_inet4(SUBINFO *sip)
 	int		rs ;
 	int		rs1 ;
 	int		fd = -1 ;
+
 #if	CF_DEBUGS
-	debugprintf("dialtcp/try_inet4: hostname=%s\n",sip->hostname) ;
+	debugprintf("dialtcp/try_inet4: ent\n") ;
 #endif
 
 	if ((rs = hostinfo_start(&hi,af,sip->hostname)) >= 0) {
 	    SOCKADDRESS	server ;
 	    const int	pf = PF_INET4 ;
-	    uchar	da[2] ; /* dummy address (f/ initialization) */
+	    uchar	da[2] ; /* dummy address */
 
 	    da[0] = '\0' ;
 	    if ((rs = sockaddress_start(&server,af,da,sip->port,0)) >= 0) {
@@ -537,7 +533,7 @@ static int try_inet6(SUBINFO *sip)
 	int		fd = -1 ;
 
 #if	CF_DEBUGS
-	debugprintf("dialtcp/try_inet6: INET6\n") ;
+	debugprintf("dialtcp/try_inet6: ent\n") ;
 #endif
 
 	flags = AI_ADDRCONFIG ;
@@ -565,7 +561,7 @@ static int try_inet6(SUBINFO *sip)
 
 #if	CF_DEBUGS
 	                {
-	                    uchar	hexbuf[HEXBUFLEN + 1] ;
+	                    char	hexbuf[HEXBUFLEN + 1] ;
 	                    mkhexstr(hexbuf,HEXBUFLEN,ap,16) ;
 	                    debugprintf("dialtcp/try_inet6: a0= %s\n",
 				hexbuf) ;
@@ -610,10 +606,10 @@ static int try_inet6(SUBINFO *sip)
 static int try_addr(SUBINFO *sip)
 {
 	int		rs ;
-	int		fd = -1 ;
+	int		fd = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("dialtcp/try_addr: ADDR\n") ;
+	debugprintf("dialtcp/try_addr: ent\n") ;
 #endif
 
 	if ((rs = getprotofamily(sip->af)) >= 0) {
@@ -661,7 +657,7 @@ static int try_inet(SUBINFO *sip)
 	int		fd = -1 ;
 
 #if	CF_DEBUGS
-	debugprintf("dialtcp/try_inet: INET\n") ;
+	debugprintf("dialtcp/try_inet: ent\n") ;
 #endif
 
 	memset(&hint,0,sizeof(ADDRINFO)) ;
@@ -750,22 +746,15 @@ static int subinfo_makeconn(SUBINFO *sip,int pf,struct sockaddr *sap)
 /* end subroutine (subinfo_makeconn) */
 
 
-static int isNotConn(int rs)
-{
-	return isOneOf(rsnoconn,rs) ;
-}
-/* end subroutine (isNotConn) */
-
-
 #if	CF_DEBUGS
 static int makeint(const void *addr)
 {
 	int		hi = 0 ;
 	uchar		*us = (uchar *) addr ;
-	hi |= ((us[0] & 0xFF) << 24) ;
-	hi |= ((us[1] & 0xFF) << 16) ;
-	hi |= ((us[2] & 0xFF) << 8) ;
-	hi |= ((us[3] & 0xFF) << 0) ;
+	hi |= (MKCHAR(us[0]) << 24) ;
+	hi |= (MKCHAR(us[1]) << 16) ;
+	hi |= (MKCHAR(us[2]) << 8) ;
+	hi |= (MKCHAR(us[3]) << 0) ;
 	return hi ;
 }
 #endif /* CF_DEBUGS */

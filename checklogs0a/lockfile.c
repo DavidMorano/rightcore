@@ -9,11 +9,9 @@
 /* revision history:
 
 	= 1998-08-17, David A­D­ Morano
-
-	This subroutine was written as a generalization of the locking found in
-	many previous programs.  Why don't the OS suppliers write this
-	subroutine in addition to 'lockf(3c)'?
-
+        This subroutine was written as a generalization of the locking found in
+        many previous programs. Why don't the OS suppliers write this subroutine
+        in addition to 'lockf(3c)'?
 
 */
 

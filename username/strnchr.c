@@ -9,13 +9,11 @@
 /* revision history:
 
 	= 1999-06-08, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -57,8 +55,8 @@
 
 char *strnchr(cchar *sp,int sl,int sch)
 {
-	register int	f = FALSE ;
-	register cchar	*lsp ;
+	int		f = FALSE ;
+	cchar		*lsp ;
 	char		*rsp ;
 
 	sch &= 0xff ;
@@ -68,7 +66,7 @@ char *strnchr(cchar *sp,int sl,int sch)
 	    rsp = strchr(sp,sch) ;
 #else
 	    while (*sp) {
-	        f = ((*sp & 0xff) == sch) ;
+	        f = (MKCHAR(*sp) == sch) ;
 		if (f) break ;
 	        sp += 1 ;
 	    } /* end while */
@@ -79,7 +77,7 @@ char *strnchr(cchar *sp,int sl,int sch)
 
 	    lsp = (sp + sl) ;
 	    while ((sp < lsp) && *sp) {
-	        f = ((*sp & 0xff) == sch) ;
+	        f = (MKCHAR(*sp) == sch) ;
 		if (f) break ;
 	        sp += 1 ;
 	    } /* end while */

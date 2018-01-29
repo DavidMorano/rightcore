@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-04-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -95,7 +93,7 @@ extern int	inetpton(uchar *,int,int,const char *,int) ;
 extern int	getprotofamily(int) ;
 extern int	getproto_name(cchar *,int) ;
 extern int	openaddrinfo(ADDRINFO *,int) ;
-extern int	isOneOf(const int *,int) ;
+extern int	isFailConn(int) ;
 
 #if	CF_DEBUGS
 extern int	debugopen(const char *) ;
@@ -120,24 +118,12 @@ extern int	strlinelen(const char *,int,int) ;
 static int	opendialudp(int,cchar *,cchar *,int) ;
 static int	opendialudp_hint(ADDRINFO *,cchar *,cchar *,int) ;
 
-static int	isNotConn(int) ;
-
 
 /* local variables */
 
 static const int	pfs[] = {
 	PF_INET4,
 	PF_INET6,
-	0
-} ;
-
-static const int	rsnoconn[] = {
-	SR_HOSTDOWN,
-	SR_CONNREFUSED,
-	SR_TIMEDOUT,
-	SR_HOSTUNREACH,
-	SR_NETUNREACH,
-	SR_NOTCONN,
 	0
 } ;
 
@@ -217,7 +203,7 @@ static int opendialudp(int af,cchar *hostname,cchar *portspec,int to)
 	    if (hint.ai_family == PF_UNSPEC) {
 	        int	i ;
 	        rs = SR_NOTCONN ;
-	        for (i = 0 ; (pfs[i] > 0) && isNotConn(rs) ; i += 1) {
+	        for (i = 0 ; (pfs[i] > 0) && isFailConn(rs) ; i += 1) {
 	            hint.ai_family = pfs[i] ;
 	            rs = opendialudp_hint(&hint,hostname,portspec,to) ;
 	            if (rs >= 0) break ;
@@ -226,6 +212,10 @@ static int opendialudp(int af,cchar *hostname,cchar *portspec,int to)
 	        rs = opendialudp_hint(&hint,hostname,portspec,to) ;
 	    }
 	} /* end if (ok) */
+
+#if	CF_DEBUGS
+	debugprintf("opendialudp: ret rs=%d\n",rs) ;
+#endif
 
 	return rs ;
 }
@@ -238,6 +228,9 @@ static int opendialudp_hint(ADDRINFO *hip,cchar *hs,cchar *ps,int to)
 	int		rs ;
 	int		rs1 ;
 	int		fd = -1 ;
+#if	CF_DEBUGS
+	debugprintf("opendialudp_hint: ent hs=%s ps=%s\n",hs,ps) ;
+#endif
 	if ((rs = hostaddr_start(&ha,hs,ps,hip)) >= 0) {
 	    HOSTADDR_CUR	cur ;
 
@@ -269,6 +262,9 @@ static int opendialudp_hint(ADDRINFO *hip,cchar *hs,cchar *ps,int to)
 	                c += 1 ;
 	                rs = openaddrinfo(aip,to) ;
 	                fd = rs ;
+#if	CF_DEBUGS
+	        debugprintf("dialudp: openaddrinfo() rs=%d\n",rs) ;
+#endif
 	            } /* end if (protocol match) */
 
 	            if (fd >= 0) break ;
@@ -289,15 +285,11 @@ static int opendialudp_hint(ADDRINFO *hip,cchar *hs,cchar *ps,int to)
 	    if (rs >= 0) rs = rs1 ;
 	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 	} /* end if (hostaddr) */
+#if	CF_DEBUGS
+	debugprintf("opendialudp_hint: ret rs=%d fd=%u\n",rs,fd) ;
+#endif
 	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (opendialudp_hint) */
-
-
-static int isNotConn(int rs)
-{
-	return isOneOf(rsnoconn,rs) ;
-}
-/* end subroutine (isNotConn) */
 
 

@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -43,7 +41,7 @@
 
 /* external subroutines */
 
-extern int cvtdig(char *,ULONG,int,int) ;
+extern int cvtdig(char *,int,ulonglong,int,int) ;
 
 
 /* local structures */
@@ -51,7 +49,7 @@ extern int cvtdig(char *,ULONG,int,int) ;
 
 /* forward references */
 
-int	ctocti(char *,int) ;
+int	ctocti(char *,int,int) ;
 
 
 /* local variables */
@@ -60,70 +58,70 @@ int	ctocti(char *,int) ;
 /* exported subroutines */
 
 
-int ctoct(char *buf,int val)
+int ctoct(char *dp,int dl,int val)
 {
 
-	return ctocti(buf,val) ;
+	return ctocti(dp,dl,val) ;
 }
 /* end subroutine (ctoct) */
 
 
-int ctocti(char *buf,int val)
+int ctocti(char *dp,int dl,int val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(int) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (ctocti) */
 
 
-int ctoctui(char *buf,uint val)
+int ctoctui(char *dp,int dl,uint val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(uint) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (ctoctui) */
 
 
-int ctoctl(char *buf,long val)
+int ctoctl(char *dp,int dl,long val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(long) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (ctoctl) */
 
 
-int ctoctul(char *buf,ulong val)
+int ctoctul(char *dp,int dl,ulong val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(ulong) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (ctoctul) */
 
 
-int ctoctll(char *buf,LONG val)
+int ctoctll(char *dp,int dl,longlong val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(LONG) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (ctoctll) */
 
 
-int ctoctull(char *buf,ULONG val)
+int ctoctull(char *dp,int dl,ulonglong val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(ULONG) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (ctoctull) */
 

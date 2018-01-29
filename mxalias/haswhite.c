@@ -6,10 +6,8 @@
 /* revision history:
 
 	= 1998-10-10, David A­D­ Morano
-
-	This subroutine was originally written but modeled from assembly
-	language.
-
+        This subroutine was originally written but modeled from assembly
+        language.
 
 */
 

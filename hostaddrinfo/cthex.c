@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
 	This subroutine was originally written.
-
 
 */
 
@@ -43,7 +41,7 @@
 
 /* external subroutines */
 
-extern int cvtdig(char *,ULONG,int,int) ;
+extern int cvtdig(char *,int,ulonglong,int,int) ;
 
 
 /* local structures */
@@ -51,7 +49,7 @@ extern int cvtdig(char *,ULONG,int,int) ;
 
 /* forward references */
 
-int	cthexi(char *,int) ;
+int	cthexi(char *,int,int) ;
 
 
 /* local variables */
@@ -60,110 +58,121 @@ int	cthexi(char *,int) ;
 /* exported subroutines */
 
 
-int cthex(char *buf,int val)
+/* integer */
+int cthex(char *dp,int dl,int val)
 {
 
-	return cthexi(buf,val) ;
+	return cthexi(dp,dl,val) ;
 }
 /* end subroutine (cthex) */
 
 
-int cthexc(char *buf,int val)
+/* character */
+int cthexc(char *dp,int dl,int val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(char) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexc) */
 
 
-int cthexuc(char *buf,uint val)
+/* unsigned character */
+int cthexuc(char *dp,int dl,uint val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(uchar) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexuc) */
 
 
-int cthexs(char *buf,int val)
+/* short */
+int cthexs(char *dp,int dl,int val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(short) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexs) */
 
 
-int cthexus(char *buf,uint val)
+/* unsigned short */
+int cthexus(char *dp,int dl,uint val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(ushort) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexus) */
 
 
-int cthexi(char *buf,int val)
+/* integer */
+int cthexi(char *dp,int dl,int val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(int) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexi) */
 
 
-int cthexui(char *buf,uint val)
+/* unsigned integer */
+int cthexui(char *dp,int dl,uint val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(uint) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexui) */
 
 
-int cthexl(char *buf,long val)
+/* long */
+int cthexl(char *dp,int dl,long val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(long) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexl) */
 
 
-int cthexul(char *buf,ulong val)
+/* unsigned long */
+int cthexul(char *dp,int dl,ulong val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(ulong) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexul) */
 
 
-int cthexll(char *buf,LONG val)
+/* long-long */
+int cthexll(char *dp,int dl,longlong val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(LONG) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexll) */
 
 
-int cthexull(char *buf,ULONG val)
+/* unsigned long-long */
+int cthexull(char *dp,int dl,ulonglong val)
 {
+	ulonglong	v = val ;
 	const int	n = sizeof(ULONG) ;
-	ULONG		v = val ;
 
-	return cvtdig(buf,v,n,OURBASE) ;
+	return cvtdig(dp,dl,v,n,OURBASE) ;
 }
 /* end subroutine (cthexull) */
 

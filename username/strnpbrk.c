@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 1999-06-08, David A­D­ Morano
-
 	This subroutine was originally written for some reason.
-
 
 */
 
@@ -61,7 +59,7 @@
 
 char *strnpbrk(cchar *sp,int sl,cchar *ss)
 {
-	register int	ch ;
+	int		ch ;
 	int		f = FALSE ;
 	char		*rsp ;
 
@@ -71,7 +69,7 @@ char *strnpbrk(cchar *sp,int sl,cchar *ss)
 	    rsp = strpbrk(sp,ss) ;
 #else
 	    while (*sp) {
-		ch = (*sp & 0xff) ;
+		ch = MKCHAR(*sp) ;
 	        f = (strchr(ss,ch) != NULL) ;
 		if (f) break ;
 	        sp += 1 ;
@@ -85,7 +83,7 @@ char *strnpbrk(cchar *sp,int sl,cchar *ss)
 
 	    lsp = (sp+sl) ;
 	    while ((sp < lsp) && *sp) {
-		ch = (*sp & 0xff) ;
+		ch = MKCHAR(*sp) ;
 	        f = (strchr(ss,ch) != NULL) ;
 		if (f) break ;
 	        sp += 1 ;

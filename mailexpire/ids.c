@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -37,6 +35,11 @@
 	>=0		number of group IDs returned
 
 
+	Notes:
+
+	We allocate dynamically rather than use NGROUPS_MAX.
+
+
 *******************************************************************************/
 
 
@@ -48,7 +51,7 @@
 #include	<unistd.h>		/* for |getgroups(2)| */
 #include	<vsystem.h>
 #include	<localmisc.h>
-#include	"ids.h"			/* includes 'NGROUPS_MAX' */
+#include	"ids.h"
 
 
 /* local defines */
@@ -71,7 +74,9 @@ struct ids_reserve {
 
 /* forward references */
 
-int ids_init() ;
+int 		ids_init() ;
+
+static int	ids_ngids(IDS *) ;
 
 
 /* local variables */
@@ -82,6 +87,7 @@ static struct ids_reserve	ids_data ; /* zero-initialized */
 /* exported subroutines */
 
 
+/* special case of returning number of configured groups */
 int ids_init()
 {
 	IDS_RESERVE	*irp = &ids_data ;
@@ -141,15 +147,12 @@ int ids_release(IDS *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-
 	if (op == NULL) return SR_FAULT ;
-
 	if (op->gids != NULL) {
 	    rs1 = uc_free(op->gids) ;
 	    if (rs >= 0) rs = rs1 ;
 	    op->gids = NULL ;
 	}
-
 	return rs ;
 }
 /* end subroutine (ids_release) */
@@ -159,13 +162,10 @@ int ids_release(IDS *op)
 int ids_ngroups(IDS *op)
 {
 	int		n = 0 ;
-
 	if (op == NULL) return SR_FAULT ;
-
 	if (op->gids != NULL) {
 	    for (n = 0 ; op->gids[n] >= 0 ; n += 1) ;
 	}
-
 	return n ;
 }
 /* end subroutine (ids_ngroups) */
@@ -187,5 +187,46 @@ int ids_refresh(IDS *op)
 	return rs ;
 }
 /* end subroutine (ids_refresh) */
+
+
+/* copy constructor */
+int ids_copy(IDS *op,IDS *otherp)
+{
+	int		rs ;
+	op->uid = otherp->uid ;
+	op->euid = otherp->euid ;
+	op->gid = otherp->gid ;
+	op->egid = otherp->egid ;
+	if ((rs = ids_ngids(otherp)) >= 0) {
+	    const int	n = rs ;
+	    int		size = 0 ;
+	    void	*p ;
+	    size += ((n+1)*sizeof(gid_t)) ;
+	    if ((rs = uc_malloc(size,&p)) >= 0) {
+	        int	i ;
+		op->gids = p ;
+		for (i = 0 ; otherp->gids[i] ; i += 1) {
+		    op->gids[i] = otherp->gids[i] ;
+		} /* end for */
+		op->gids[i] = -1 ;
+	    } /* end if (m-a) */
+	} /* end if (ids_ngids) */
+	return rs ;
+}
+/* end subroutine (ids_refresh) */
+
+
+/* private subroutines */
+
+
+static int ids_ngids(IDS *op)
+{
+	int		i = 0 ;
+	if (op->gids != NULL) {
+	    for (i = 0 ; op->gids[i] >= 0 ; i += 1) ;
+	}
+	return i ;
+}
+/* end subroutine (ids_ngids) */
 
 

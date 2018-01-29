@@ -9,9 +9,7 @@
 /* revision history:
 
 	= 2002-07-13, David A­D­ Morano
-
 	This was originally written.
-
 
 */
 

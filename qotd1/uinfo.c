@@ -8,10 +8,8 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
-
+	= 2000-02-01, David A­D­ Morano
 	Originally written for Rightcore Network Services.
-
 
 */
 
@@ -135,8 +133,8 @@ int uinfo_init()
 	        void	(*a)() = uinfo_atforkafter ;
 	        if ((rs = uc_atfork(b,a,a)) >= 0) {
 	            if ((rs = uc_atexit(uinfo_fini)) >= 0) {
-	                f = TRUE ;
 	                uip->f_initdone = TRUE ;
+	                f = TRUE ;
 	            }
 	            if (rs < 0)
 	                uc_atforkrelease(b,a,a) ;
@@ -149,6 +147,7 @@ int uinfo_init()
 	} else {
 	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
 		rs = msleep(1) ;
+		if (rs == SR_INTR) rs = SR_OK ;
 	    }
 	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
@@ -282,7 +281,7 @@ int uinfo_aux(UINFO_AUX *uxp)
 	    if ((rs = uinfo_init()) >= 0) {
 	        UINFO_ALLOC	*uap = &uip->a ;
 
-	        if (uap->aux == NULL) {
+	        if (uap->aux == NULL) { /* allow race here */
 	            UINFO_AUX	aux ;
 	            const int	size = sizeof(UINFO_TMPAUX) ;
 	            const char	*nauxp = NULL ;
@@ -314,7 +313,7 @@ int uinfo_aux(UINFO_AUX *uxp)
 	                    } /* end if (memory-allocation) */
 	                } /* end if (uaux) */
 
-	                if (rs >= 0) {
+	                if (rs >= 0) { /* resolve possible race conditions */
 	                    if ((rs = uc_forklockbegin(-1)) >= 0) {
 	                        if ((rs = ptm_lock(&uip->m)) >= 0) {
 
@@ -348,22 +347,6 @@ int uinfo_aux(UINFO_AUX *uxp)
 
 
 /* local subroutines */
-
-
-static void uinfo_atforkbefore()
-{
-	UINFO		*uip = &uinfo_data ;
-	ptm_lock(&uip->m) ;
-}
-/* end subroutine (uinfo_atforkbefore) */
-
-
-static void uinfo_atforkafter()
-{
-	UINFO		*uip = &uinfo_data ;
-	ptm_unlock(&uip->m) ;
-}
-/* end subroutine (uinfo_atforkafter) */
 
 
 static int uinfo_getaux(UINFO_TMPAUX *tap)
@@ -406,5 +389,21 @@ static int uinfo_getaux(UINFO_TMPAUX *tap)
 	return rs ;
 }
 /* end subroutine (uinfo_getaux) */
+
+
+static void uinfo_atforkbefore()
+{
+	UINFO		*uip = &uinfo_data ;
+	ptm_lock(&uip->m) ;
+}
+/* end subroutine (uinfo_atforkbefore) */
+
+
+static void uinfo_atforkafter()
+{
+	UINFO		*uip = &uinfo_data ;
+	ptm_unlock(&uip->m) ;
+}
+/* end subroutine (uinfo_atforkafter) */
 
 
