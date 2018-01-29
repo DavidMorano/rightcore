@@ -12,9 +12,7 @@
 /* revision history:
 
 	= 2004-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  
-
 
 */
 
@@ -90,6 +88,7 @@ extern int	cfdeci(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
@@ -111,7 +110,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -135,6 +134,8 @@ static int	mainsub(int,cchar **,cchar **,void *) ;
 
 static int	usage(PROGINFO *) ;
 
+static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
+
 static int	locinfo_start(LOCINFO *,PROGINFO *) ;
 static int	locinfo_finish(LOCINFO *) ;
 static int	locinfo_dbname(LOCINFO *,const char *) ;
@@ -142,7 +143,7 @@ static int	locinfo_dbname(LOCINFO *,const char *) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -166,7 +167,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -174,7 +175,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -188,6 +189,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
+#ifdef	COMMENT
 static const uchar	aterms[] = {
 	0x00, 0x2E, 0x00, 0x00,
 	0x09, 0x00, 0x00, 0x00,
@@ -198,6 +200,7 @@ static const uchar	aterms[] = {
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00
 } ;
+#endif /* COMMENT */
 
 
 /* persistent local variables (special class of local variables) */
@@ -212,8 +215,8 @@ int b_uuidgen(int argc,cchar *argv[],void *contextp)
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_kshbegin(contextp)) >= 0) {
-	    const char	**envv = (const char **) environ ;
+	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
+	    cchar	**envv = (const char **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
 	    if (rs >= 0) rs = rs1 ;
@@ -233,15 +236,18 @@ int p_uuidgen(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_uuidgen) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	PROGINFO	pi, *pip = &pi ;
 	LOCINFO		li, *lip = &li ;
+	ARGINFO		ainfo ;
 	BITS		pargs ;
 	KEYOPT		akopts ;
 	SHIO		errfile ;
-	SHIO		outfile, *ofp = &outfile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
 	uint		mo_start = 0 ;
@@ -249,25 +255,20 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
-	int		pan = 0 ;
 	int		rs, rs1 ;
-	int		n, size, len ;
-	int		i, j ;
-	int		v ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
-	const char	*ofname = NULL ;
 	const char	*efname = NULL ;
+	const char	*ofname = NULL ;
 	const char	*dbname = NULL ;
 	const char	*cp ;
 
@@ -291,16 +292,15 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
 	pip->verboselevel = 1 ;
-
 	pip->daytime = time(NULL) ;
 
 	pip->lip = lip ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -328,7 +328,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-		const int ach = MKCHAR(argp[1]) ;
+		const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -521,11 +521,13 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
-	                        argp = argv[++ai] ;
-	                        argr -= 1 ;
-	                        argl = strlen(argp) ;
-	                        if (argl)
-	                            rs = keyopt_loads(&akopts,argp,argl) ;
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 				} else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -581,7 +583,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    shio_control(&errfile,SHIO_CSETBUFLINE,TRUE) ;
-	} else if (! isNotPresent(rs1)) {
+	} else if (! isFailOpen(rs1)) {
 	     if (rs >= 0) rs = rs1 ;
 	}
 
@@ -600,10 +602,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -641,6 +644,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (dbname == NULL) dbname = getourenv(envv,VARDBNAME) ;
@@ -651,34 +659,30 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 		pip->progname,dbname) ;
 #endif /* COMMENT */
 
-	locinfo_dbname(lip,dbname) ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
+	ainfo.argc = argc ;
+	ainfo.ai = ai ;
+	ainfo.argv = argv ;
+	ainfo.ai_max = ai_max ;
+	ainfo.ai_pos = ai_pos ;
 
-/* OK, we finally do our thing */
-
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = STDOUTFNAME ;
-
-	if ((rs = shio_open(ofp,ofname,"wct",0666)) >= 0) {
-	    MKUUID	uuid ;
-
-	    if ((rs = mkuuid(&uuid,0)) >= 0) {
-		const int	rlen = MAXNAMELEN ;
-		char		rbuf[MAXNAMELEN+1] ;
-		if ((rs = snmkuuid(rbuf,rlen,&uuid)) >= 0) {
-		    rs = shio_printline(ofp,rbuf,rs) ;
-		} /* end if (snmkuuid) */
-	    } /* end if (mkuuid) */
-
-	    rs1 = shio_close(ofp) ;
-	    if (rs >= 0) rs = rs1 ;
-	} else {
-	    ex = EX_CANTCREAT ;
-	    shio_printf(pip->efp,"%s: inaccessible output (%d)\n",
-		pip->progname,rs) ;
+	if (rs >= 0) {
+	    if ((rs = locinfo_dbname(lip,dbname)) >= 0) {
+		ARGINFO	*aip = &ainfo ;
+		BITS	*bop = &pargs ;
+		cchar	*ofn = ofname ;
+		cchar	*afn = afname ;
+		rs = process(pip,aip,bop,ofn,afn) ;
+	    }
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	    usage(pip) ;
 	}
 
-/* finish */
-done:
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    switch (rs) {
 	    case SR_INVALID:
@@ -698,7 +702,7 @@ done:
 	        ex = mapex(mapexs,rs) ;
 	        break ;
 	    } /* end switch */
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
@@ -763,10 +767,7 @@ badarg:
 	goto retearly ;
 
 }
-/* end subroutine (b_uuidgen) */
-
-
-/* local subroutines */
+/* end subroutine (mainsub) */
 
 
 static int usage(PROGINFO *pip)
@@ -787,6 +788,42 @@ static int usage(PROGINFO *pip)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (usage) */
+
+
+/* ARGSUSED */
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
+{
+	SHIO		ofile, *ofp = &ofile ;
+	int		rs ;
+	int		rs1 ;
+
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = STDOUTFNAME ;
+
+	if ((rs = shio_open(ofp,ofn,"wct",0666)) >= 0) {
+	    MKUUID	uuid ;
+
+	    if ((rs = mkuuid(&uuid,0)) >= 0) {
+		const int	rlen = MAXNAMELEN ;
+		char		rbuf[MAXNAMELEN+1] ;
+		if ((rs = snmkuuid(rbuf,rlen,&uuid)) >= 0) {
+		    rs = shio_print(ofp,rbuf,rs) ;
+		} /* end if (snmkuuid) */
+	    } /* end if (mkuuid) */
+
+	    rs1 = shio_close(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: inaccessible output (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    fmt = "%s: ofile=%s\n" ;
+	    shio_printf(pip->efp,fmt,pn,ofn) ;
+	}
+
+	return rs ;
+}
+/* end subroutine (process) */
 
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)

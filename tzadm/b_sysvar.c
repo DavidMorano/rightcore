@@ -13,10 +13,8 @@
 /* revision history:
 
 	= 2004-01-10, David A­D­ Morano
-
 	This is a complete rewrite of the previous code that performed this
 	function.
-
 
 */
 
@@ -154,6 +152,8 @@ extern int	vecstr_envfile(vecstr *,cchar *) ;
 extern int	sperm(IDS *,struct ustat *,int) ;
 extern int	isalnumlatin(int) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
+extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -179,7 +179,7 @@ extern char	*strnchr(cchar *,int,int) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -240,7 +240,7 @@ static int	hasweird(cchar *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -250,6 +250,7 @@ static cchar	*argopts[] = {
 	"af",
 	"ef",
 	"of",
+	"if",
 	"gf",
 	"db",
 	"df",
@@ -267,6 +268,7 @@ enum argopts {
 	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_gf,
 	argopt_db,
 	argopt_df,
@@ -274,7 +276,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -282,7 +284,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -296,7 +298,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*akonames[] = {
+static const char	*akonames[] = {
 	"set",
 	"list",
 	"dump",
@@ -336,7 +338,7 @@ static const uchar	fterms[32] = {
 	0x00, 0x00, 0x00, 0x00
 } ;
 
-static cchar	*wstrs[] = {
+static const char	*wstrs[] = {
 	"TZ",
 	"LANG",
 	"UMASK",
@@ -344,7 +346,7 @@ static cchar	*wstrs[] = {
 	NULL
 } ;
 
-static cchar	*pstrs[] = {
+static const char	*pstrs[] = {
 	"LC_",
 	NULL
 } ;
@@ -359,7 +361,7 @@ int b_sysvar(int argc,cchar *argv[],void *contextp)
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_kshbegin(contextp)) >= 0) {
+	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
 	    cchar	**envv = (cchar **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
@@ -378,6 +380,9 @@ int p_sysvar(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_sysvar) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -437,14 +442,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
 	pip->verboselevel = 1 ;
 
 	pip->lip = &li ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_USAGE ;
 	    goto badlocstart ;
@@ -477,7 +482,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-	        const int ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -619,6 +624,23 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            if (argl)
 	                                ofname = argp ;
 	                        } else
+	                            rs = SR_INVALID ;
+	                    }
+	                    break ;
+
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                cp = argp ;
+				} else
 	                            rs = SR_INVALID ;
 	                    }
 	                    break ;
@@ -867,6 +889,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    shio_control(&errfile,SHIO_CSETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0) goto badarg ;
@@ -879,16 +903,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -921,9 +945,18 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* load up the environment options */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
+
+	if (ofname == NULL) ofname = getourenv(envv,VAROFNAME) ;
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (dbname == NULL) dbname = getourenv(envv,VARDBNAME) ;
 	if (dbname == NULL) dbname = DBNAME ;
@@ -933,8 +966,9 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    dbname = tmpdbfname ;
 	}
 
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    shio_printf(pip->efp,"%s: dbname=%s\n",pip->progname,dbname) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -942,10 +976,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        lip->final.list,lip->f.list,lip->f.set,lip->f.query) ;
 #endif
 
-	if (rs < 0) goto badarg ;
-
 /* continue */
 
+	        memset(&ainfo,0,sizeof(ARGINFO)) ;
+	        ainfo.argc = argc ;
+	        ainfo.ai = ai ;
+	        ainfo.argv = argv ;
+	        ainfo.ai_max = ai_max ;
+	        ainfo.ai_pos = ai_pos ;
+
+	if (rs >= 0) {
 	if ((rs = ids_load(&pip->id)) >= 0) {
 	    int	f = FALSE ;
 
@@ -959,18 +999,19 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if ((rs >= 0) && ((n > 0) || lip->f.set)) {
 
 	        lip->f.set = TRUE ;
-	        rs = procsysdefs(pip) ;
-
-	        if (rs >= 0)
+	        if ((rs = procsysdefs(pip)) >= 0) {
 	            rs = procset(pip,dbname) ;
+		}
 
 	        if (pip->debuglevel > 0) {
+		    cchar	*pn = pip->progname ;
+		    cchar	*fmt ;
 	            if (rs >= 0) {
-	                shio_printf(pip->efp,"%s: loaded variables=%u\n",
-	                    pip->progname,rs) ;
+			fmt = "%s: loaded variables=%u\n" ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
 	            } else {
-	                shio_printf(pip->efp,"%s: load failure (%d)\n",
-	                    pip->progname,rs) ;
+			fmt = "%s: load failure (%d)\n" ;
+	                shio_printf(pip->efp,fmt,pn,rs) ;
 		    }
 	        }
 
@@ -978,14 +1019,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	    f = (lip->f.list || lip->f.query || lip->f.audit) ;
 	    if ((rs >= 0) && ((! lip->f.set) || f)) {
-
-	        memset(&ainfo,0,sizeof(ARGINFO)) ;
-	        ainfo.argc = argc ;
-	        ainfo.ai = ai ;
-	        ainfo.argv = argv ;
-	        ainfo.ai_max = ai_max ;
-	        ainfo.ai_pos = ai_pos ;
-
 	        if (rs >= 0) {
 	            cchar	*ofn = ofname ;
 	            cchar	*dfn = dbname ;
@@ -993,11 +1026,17 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            cchar	*gfn = gfname ;
 	            rs = procargs(pip,&ainfo,&pargs,ofn,dfn,afn,gfn) ;
 	        }
-
 	    } /* end if */
 
 	    ids_release(&pip->id) ;
 	} /* end if (ids) */
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	    usage(pip) ;
+	}
 
 /* done */
 	if ((rs < 0) && (ex == EX_OK)) {
@@ -1007,7 +1046,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            "%s: could not perform function (%d)\n",
 	            pip->progname,rs) ;
 	    }
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
@@ -1102,9 +1141,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)

@@ -17,9 +17,7 @@
 /* revision history:
 
 	= 2000-03-01, David A­D­ Morano
-
 	This subroutine was originally written as a KSH built-in command.
-
 
 */
 
@@ -72,6 +70,10 @@
 
 /* local defines */
 
+#ifndef	MAPEX
+#define	MAPEX		struct mapex
+#endif
+
 #ifndef	LINEBUFLEN
 #ifdef	LINE_MAX
 #define	LINEBUFLEN	MAX(2048,LINE_MAX)
@@ -99,10 +101,11 @@ extern int	cfdecti(cchar *,int,int *) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
 extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
-extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(cchar *) ;
@@ -120,7 +123,7 @@ extern char	*strnrchr(cchar *,int,int) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -156,6 +159,8 @@ static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procsetcase(PROGINFO *,cchar *,int) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *,cchar *) ;
 static int	procfile(PROGINFO *,void *,cchar *) ;
+static int	procfile_outer(PROGINFO *,SHIO *,char *,int,SHIO *) ;
+static int	procfile_reg(PROGINFO *,SHIO *,char *,int,SHIO *) ;
 static int	procdata(PROGINFO *,char *,int) ;
 static int	proclinebuf(PROGINFO *,SHIO *,cchar *,int) ;
 
@@ -174,7 +179,7 @@ static int	findnl(cchar *,int) ;
 
 /* local variables */
 
-static cchar *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -204,7 +209,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -212,7 +217,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -226,7 +231,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *akonames[] = {
+static const char	*akonames[] = {
 	"cvtcase",
 	"cc",
 	"casecvt",
@@ -258,7 +263,7 @@ enum akonames {
 	akoname_overlast
 } ;
 
-static cchar	*cases[] = {
+static const char	*cases[] = {
 	"upper",
 	"lower",
 	"fold",
@@ -275,7 +280,7 @@ int b_shcat(int argc,cchar *argv[],void *contextp)
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_kshbegin(contextp)) >= 0) {
+	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
 	    cchar	**envv = (cchar **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
@@ -294,6 +299,9 @@ int p_shcat(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	return mainsub(argc,argv,envv,contextp) ;
 }
 /* end subroutine (p_shcat) */
+
+
+/* local subroutines */
 
 
 /* ARGSUSED */
@@ -352,18 +360,14 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
-
-#if	CF_DEBUGS
-	debugprintf("b_shcat: initializing\n") ;
-#endif
 
 	pip->verboselevel = 1 ;
 
 	pip->lip = lip ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -395,7 +399,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-	        const int ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -662,7 +666,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
 	                            if (argl) {
-					KEYOPT	*kop = &akopts ;
+	                                KEYOPT	*kop = &akopts ;
 	                                rs = keyopt_loads(kop,argp,argl) ;
 	                            }
 	                        } else
@@ -741,7 +745,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    shio_control(&errfile,SHIO_CSETBUFLINE,TRUE) ;
-	} else if (! isNotPresent(rs1)) {
+	} else if (! isFailOpen(rs1)) {
 	    if (rs >= 0) rs = rs1 ;
 	}
 
@@ -764,10 +768,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -807,9 +812,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* some initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(pip->envv,VARAFNAME) ;
 
-	rs = procopts(pip,&akopts) ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 #ifdef	COMMENT
 	if (pip->tmpdname == NULL) pip->tmpdname = getourenv(envv,VARTMPDNAME) ;
@@ -865,7 +877,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    cchar	*ifn = ifname ;
 	    cchar	*afn = afname ;
 	    rs = procargs(pip,&ainfo,&pargs,ofn,ifn,afn) ;
-	} else {
+	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
 	    ex = EX_USAGE ;
@@ -882,12 +894,12 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	            cchar	*fmt = "%s: could not process (%d)\n" ;
 	            shio_printf(pip->efp,fmt,pn,rs) ;
 	        }
-		break ;
+	        break ;
 	    case SR_PIPE:
-		break ;
+	        break ;
 	    } /* end switch */
 	    ex = mapex(mapexs,rs) ;
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
@@ -955,9 +967,6 @@ badarg:
 /* end subroutine (mainsub) */
 
 
-/* local subroutines */
-
-
 static int usage(PROGINFO *pip)
 {
 	int		rs = SR_OK ;
@@ -1008,7 +1017,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case akoname_cvtcase:
 	                case akoname_casecvt:
 	                case akoname_cc:
@@ -1016,11 +1024,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        lip->have.cvtcase = TRUE ;
 	                        lip->final.cvtcase = TRUE ;
 	                        lip->f.cvtcase = TRUE ;
-	                        if (vl > 0)
+	                        if (vl > 0) {
 	                            rs = procsetcase(pip,vp,vl) ;
+	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufwhole:
 	                case akoname_whole:
 	                    if (! pip->final.bufwhole) {
@@ -1033,7 +1041,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufline:
 	                case akoname_line:
 	                    if (! pip->final.bufline) {
@@ -1046,7 +1053,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_bufnone:
 	                case akoname_none:
 	                case akoname_un:
@@ -1060,7 +1066,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_termout:
 	                    if (! lip->final.termout) {
 	                        lip->have.termout = TRUE ;
@@ -1072,14 +1077,11 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        }
 	                    }
 	                    break ;
-
 	                case akoname_empty:
 	                    break ;
-
 	                default:
 	                    rs = SR_INVALID ;
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;
@@ -1169,7 +1171,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	                f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
 	                f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	                if (f) {
-	                    cp = aip->argv[ai] ;
+	                    cp = argv[ai] ;
 	                    if (cp[0] != '\0') {
 	                        pan += 1 ;
 	                        rs = procfile(pip,ofp,cp) ;
@@ -1213,7 +1215,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 	                if (rs >= 0) rs = rs1 ;
 	            } else {
 	                if (! pip->f.quiet) {
-			    fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                    fmt = "%s: inaccessible argument-list (%d)\n" ;
 	                    shio_printf(pip->efp,fmt,pn,rs) ;
 	                    shio_printf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	                }
@@ -1253,21 +1255,16 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,
 
 
 /* process a file */
-static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
+static int procfile(PROGINFO *pip,void *ofp,cchar *fname)
 {
 	LOCINFO		*lip = pip->lip ;
 	SHIO		infile, *ifp = &infile ;
 	const int	to_open = pip->to_open ;
-	const int	to_read = pip->to_read ;
-	const int	llen = LINEBUFLEN ;
-	volatile int	*intarr[3] ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		len ;
 	int		wlen = 0 ;
 	int		f_stdin = FALSE ;
 	int		f_fifo = FALSE ;
-	char		lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -1276,13 +1273,7 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	}
 #endif
 
-	if (fname == NULL)
-	    return SR_FAULT ;
-
-	{
-	    int	i = 0 ;
-	    intarr[i] = NULL ;
-	}
+	if (fname == NULL) return SR_FAULT ;
 
 	if ((fname[0] == '\0') || (strcmp(fname,"-") == 0)) {
 	    fname = STDINFNAME ;
@@ -1295,18 +1286,19 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 	    int	rs1 = u_stat(fname,&sb) ;
 	    if (rs1 >= 0) f_fifo = S_ISFIFO(sb.st_mode) ;
 	}
+#else
+	if (f_stdin) f_stdin = 2 ;
 #endif /* CF_SPECIALFIFO */
 
 	if (rs >= 0) {
-	    int	i = 0 ;
-	    lbuf[i++] = 'r' ;
-	    if (f_fifo) lbuf[i++] = 'n' ;
-	    lbuf[i] = '\0' ;
-	}
-
-	if (rs >= 0) {
-	    if ((rs = shio_opene(ifp,fname,lbuf,0666,to_open)) >= 0) {
-	        const int	vlevel = pip->verboselevel ;
+	    int		i = 0 ;
+	    char	fbuf[USERNAMELEN+1] ; /* flags buffer */
+	    fbuf[i++] = 'r' ;
+	    if (f_fifo) fbuf[i++] = 'n' ;
+	    fbuf[i] = '\0' ;
+	    if ((rs = shio_opene(ifp,fname,fbuf,0666,to_open)) >= 0) {
+	        const int	llen = LINEBUFLEN ;
+	        char		lbuf[LINEBUFLEN + 1] ;
 
 	        if ((rs >= 0) && f_fifo)
 	            rs = shio_control(ifp,SHIO_CNONBLOCK,0) ;
@@ -1320,102 +1312,12 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 #endif
 
 	        if (lip->open.outer) {
-
-	            while (rs >= 0) {
-	                rs = shio_readlines(ifp,lbuf,llen,NULL) ;
-	                len = rs ;
-
-#if	CF_DEBUG
-	                if (DEBUGLEVEL(4))
-	                    debugprintf("b_shcat/procfile: "
-	                        "shio_readlines() rs=%d\n",
-	                        rs) ;
-#if	CF_DEBUGHEX
-	                if (rs >= 0)
-	                    debugprinthex("b_shcat/procfile: d=",
-	                        80,lbuf,len) ;
-#endif
-#endif /* CF_DEBUG */
-
-	                if ((rs >= 0) && (len == 0)) break ; /* EOF */
-
-	                if ((rs >= 0) && (vlevel > 0)) {
-	                    rs = locinfo_termoutprint(lip,ofp,lbuf,len) ;
-	                    wlen += rs ;
-	                } /* end if */
-
-	                if (rs >= 0) rs = lib_sigterm() ;
-	                if (rs >= 0) rs = lib_sigintr() ;
-	            } /* end while */
-
+	            rs = procfile_outer(pip,ofp,lbuf,llen,ifp) ;
+	            wlen += rs ;
 	        } else {
-
-	            while (rs >= 0) {
-
-#if	CF_READINTR
-	                rs = shio_readintr(ifp,lbuf,llen,to_read,intarr) ;
-	                len = rs ;
-#else /* CF_READINTR */
-	                if (pip->f.bufline || pip->f.bufnone) {
-	                    rs = shio_readlinetimed(ifp,lbuf,llen,to_read) ;
-	                    len = rs ;
-	                } else {
-	                    rs = shio_readintr(ifp,lbuf,llen,to_read,intarr) ;
-	                    len = rs ;
-	                }
-#endif /* CF_READINTR */
-
-#if	CF_DEBUG
-	                if (DEBUGLEVEL(4)) {
-	                    debugprintf("b_shcat/procfile: "
-	                        "shio_readintr() rs=%d\n", rs) ;
-	                    if (rs >= 0)
-	                        debugprintf("b_shcat/procfile: d=>%t<\n",
-	                            lbuf,strlinelen(lbuf,len,40)) ;
-	                }
-#endif /* CF_DEBUG */
-
-	                if ((rs >= 0) && (len == 0)) break ; /* EOF */
-
-	                if (rs == SR_AGAIN) {
-	                    rs = SR_OK ;
-	                    len = 0 ;
-	                }
-
-	                if ((rs >= 0) && (len > 0) && lip->f.cvtcase) {
-	                    rs = procdata(pip,lbuf,len) ;
-
-#if	CF_DEBUG
-	                    if (DEBUGLEVEL(4))
-	                        debugprintf("b_shcat/procfile: c=>%t<\n",
-	                            lbuf,strlinelen(lbuf,len,40)) ;
-#endif
-
-	                } /* end if (in-place data conversion) */
-
-	                if ((rs >= 0) && (len > 0) && (vlevel > 0)) {
-
-	                    if (pip->f.bufline) {
-	                        rs = proclinebuf(pip,ofp,lbuf,len) ;
-	                        wlen += rs ;
-	                    } else {
-	                        rs = shio_write(ofp,lbuf,len) ;
-	                        wlen += rs ;
-	                    }
-
-#if	CF_DEBUG
-	                    if (DEBUGLEVEL(4))
-	                        debugprintf("b_shcat/procfile: "
-	                            "shio_write() rs=%d\n", rs) ;
-#endif
-
-	                } /* end if (write) */
-
-	                if (rs >= 0) rs = lib_sigterm() ;
-	                if (rs >= 0) rs = lib_sigintr() ;
-	            } /* end while (reading lines) */
-
-	        } /* end if (outer) */
+	            rs = procfile_reg(pip,ofp,lbuf,llen,ifp) ;
+	            wlen += rs ;
+	        }
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(4))
@@ -1428,13 +1330,15 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 #endif
 
 	        rs1 = shio_close(ifp) ;
-		if (rs >= 0) rs = rs1 ;
+	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (file-output) */
 	} /* end if (ok) */
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: file=%s (%d)\n",
-	        pip->progname,fname,((rs >= 0) ? wlen : rs)) ;
+	    const int	v = ((rs >= 0) ? wlen : rs) ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: file=%s (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,fname,v) ;
 	}
 
 #if	CF_DEBUG
@@ -1447,7 +1351,118 @@ static int procfile(PROGINFO *pip,void *ofp,cchar fname[])
 /* end subroutine (procfile) */
 
 
-static int procdata(PROGINFO *pip,char lbuf[],int llen)
+static int procfile_outer(PROGINFO *pip,SHIO *ofp,char *lbuf,int llen,SHIO *ifp)
+{
+	LOCINFO		*lip = pip->lip ;
+	const int	vlevel = pip->verboselevel ;
+	int		rs = SR_OK ;
+	int		len ;
+	int		wlen = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_shcat/procfile_outer: ent\n") ;
+#endif
+
+	while (rs >= 0) {
+	    rs = shio_readlines(ifp,lbuf,llen,NULL) ;
+	    len = rs ;
+	    if ((rs >= 0) && (len == 0)) break ; /* EOF */
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4)) {
+	        debugprintf("b_shcat/procfile: "
+	            "shio_readlines() rs=%d\n",rs) ;
+	        debugprintf("b_shcat/procfile: "
+	            "l=>%t<\n",lbuf,strlinelen(lbuf,len,60)) ;
+#if	CF_DEBUGHEX
+	    if (rs >= 0)
+	        debugprinthex("b_shcat/procfile: d=",
+	            80,lbuf,len) ;
+#endif
+	    }
+#endif /* CF_DEBUG */
+
+	    if ((rs >= 0) && (vlevel > 0)) {
+	        rs = locinfo_termoutprint(lip,ofp,lbuf,len) ;
+	        wlen += rs ;
+	    } /* end if */
+
+	    if (rs >= 0) rs = lib_sigterm() ;
+	    if (rs >= 0) rs = lib_sigintr() ;
+	} /* end while */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end if (procfile_outer) */
+
+
+static int procfile_reg(PROGINFO *pip,SHIO *ofp,char *lbuf,int llen,SHIO *ifp)
+{
+	LOCINFO		*lip = pip->lip ;
+	const int	vlevel = pip->verboselevel ;
+	int		rs = SR_OK ;
+	int		len ;
+	int		wlen = 0 ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("b_shcat/procfile_outer: reg\n") ;
+#endif
+
+	while (rs >= 0) {
+	    rs = shio_readlines(ifp,lbuf,llen,NULL) ;
+	    len = rs ;
+	    if ((rs >= 0) && (len == 0)) break ; /* EOF */
+
+#if	CF_DEBUG
+	    if (DEBUGLEVEL(4)) {
+	        debugprintf("b_shcat/procfile: "
+	            "shio_readlines() rs=%d\n", rs) ;
+	        debugprintf("b_shcat/procfile: "
+	            "l=>%t<\n",lbuf,strlinelen(lbuf,len,60)) ;
+	    }
+#endif
+
+	    if ((rs >= 0) && (len > 0) && lip->f.cvtcase) {
+	        rs = procdata(pip,lbuf,len) ;
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("b_shcat/procfile: c=>%t<\n",
+	                lbuf,strlinelen(lbuf,len,40)) ;
+#endif
+
+	    } /* end if (in-place data conversion) */
+
+	    if ((rs >= 0) && (len > 0) && (vlevel > 0)) {
+
+	        if (pip->f.bufline) {
+	            rs = proclinebuf(pip,ofp,lbuf,len) ;
+	            wlen += rs ;
+	        } else {
+	            rs = shio_write(ofp,lbuf,len) ;
+	            wlen += rs ;
+	        }
+
+#if	CF_DEBUG
+	        if (DEBUGLEVEL(4))
+	            debugprintf("b_shcat/procfile: "
+	                "shio_write() rs=%d\n", rs) ;
+#endif
+
+	    } /* end if (write) */
+
+	    if (rs >= 0) rs = lib_sigterm() ;
+	    if (rs >= 0) rs = lib_sigintr() ;
+	} /* end while (reading lines) */
+
+	return (rs >= 0) ? wlen : rs ;
+}
+/* end subroutine (procfile_reg) */
+
+
+static int procdata(PROGINFO *pip,char *lbuf,int llen)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
@@ -1481,7 +1496,7 @@ static int procdata(PROGINFO *pip,char lbuf[],int llen)
 /* end subroutine (procdata) */
 
 
-static int proclinebuf(PROGINFO *pip,SHIO *ofp,cchar sbuf[],int slen)
+static int proclinebuf(PROGINFO *pip,SHIO *ofp,cchar *sbuf,int slen)
 {
 	int		rs = SR_OK ;
 	int		sl = slen ;
@@ -1489,6 +1504,14 @@ static int proclinebuf(PROGINFO *pip,SHIO *ofp,cchar sbuf[],int slen)
 	int		wlen = 0 ;
 	cchar		*sp = sbuf ;
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4)) {
+	    debugprintf("shcat/proclinebuf: ent\n") ;
+	    debugprintf("shcat/proclinebuf: s=>%t<\n",sp,sl) ;
+	}
+#endif
+
+	if (pip == NULL) return SR_FAULT ;
 	while ((rs >= 0) && (sl > 0)) {
 
 	    mlen = findnl(sp,sl) ;
@@ -1547,34 +1570,36 @@ static int locinfo_finish(LOCINFO *lip)
 
 
 #if	CF_LOCSETENT
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
+int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
+	VECSTR		*slp ;
 	int		rs = SR_OK ;
 	int		len = 0 ;
 
 	if (lip == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_FAULT ;
 
+	slp = &lip->stores ;
 	if (! lip->open.stores) {
-	    rs = vecstr_start(&lip->stores,4,0) ;
+	    rs = vecstr_start(slp,4,0) ;
 	    lip->open.stores = (rs >= 0) ;
 	}
 
 	if (rs >= 0) {
 	    int	oi = -1 ;
 	    if (*epp != NULL) {
-		oi = vecstr_findaddr(&lip->stores,*epp) ;
+	        oi = vecstr_findaddr(slp,*epp) ;
 	    }
 	    if (vp != NULL) {
 	        len = strnlen(vp,vl) ;
-	        rs = vecstr_store(&lip->stores,vp,len,epp) ;
+	        rs = vecstr_store(slp,vp,len,epp) ;
 	    } else {
 	        *epp = NULL ;
 	    }
 	    if ((rs >= 0) && (oi >= 0)) {
-	        vecstr_del(&lip->stores,oi) ;
+	        vecstr_del(slp,oi) ;
 	    }
-	} /* end if */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -1589,11 +1614,11 @@ static int locinfo_termoutbegin(LOCINFO *lip,void *ofp)
 	int		rs1 ;
 	int		f_termout = FALSE ;
 	cchar		*tstr = lip->termtype ;
-	cchar		*vp ;
 
 	if (! lip->f.cvtcase) {
 	    if (lip->f.termout || ((rs = shio_isterm(ofp)) > 0)) {
 	        int	ncols = COLUMNS ;
+	        cchar	*vp ;
 	        if ((vp = getourenv(pip->envv,VARCOLUMNS)) != NULL) {
 	            int	v ;
 	            rs1 = cfdeci(vp,-1,&v) ;
@@ -1605,6 +1630,7 @@ static int locinfo_termoutbegin(LOCINFO *lip,void *ofp)
 	            f_termout = TRUE ;
 	        }
 	    } /* end if (termout) */
+
 	} /* end if (! cvtcase) */
 
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
@@ -1636,7 +1662,7 @@ static int locinfo_termoutend(LOCINFO *lip)
 /* end subroutine (locinfo_termoutend) */
 
 
-static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
+static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar *lbuf,int llen)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs ;
@@ -1664,7 +1690,7 @@ static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
 	            }
 #endif
 
-	            rs = shio_printline(ofp,lp,ll) ;
+	            rs = shio_print(ofp,lp,ll) ;
 	            wlen += rs ;
 
 	            if (rs < 0) break ;
@@ -1672,7 +1698,7 @@ static int locinfo_termoutprint(LOCINFO *lip,void *ofp,cchar lbuf[],int llen)
 	        if ((rs >= 0) && (ll != SR_NOTFOUND)) rs = ll ;
 	    } /* end if (termoutprint) */
 	} else {
-	    rs = shio_printline(ofp,lbuf,llen) ;
+	    rs = shio_print(ofp,lbuf,llen) ;
 	    wlen += rs ;
 	}
 

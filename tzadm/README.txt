@@ -1,9 +1,9 @@
 TZADM
 
 This program is used to administer the in-memory version of the TIMEZONE
-database.  It is primarily meant to be run by a software-distribution
-administrator at system boot-up time in order to load the database into
-machine memory for the first time (since a boot-up).
+database. It is primarily meant to be run by a software-distribution
+administrator at system boot-up time in order to load the database into machine
+memory for the first time (since a boot-up).
 
 Synopsis:
 

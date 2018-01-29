@@ -13,9 +13,7 @@
 /* revision history:
 
 	= 2004-03-01, David A­D­ Morano
-
 	This subroutine was originally written.  
-
 
 */
 
@@ -60,6 +58,8 @@
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<field.h>
+#include	<ctdec.h>
+#include	<cthex.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -92,12 +92,6 @@ extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
 extern int	sfskipwhite(cchar *,int,cchar **) ;
 extern int	matstr(cchar **,cchar *,int) ;
 extern int	matostr(cchar **,int,cchar *,int) ;
-extern int	cfdeci(cchar *,int,int *) ;
-extern int	ctdeci(char *,int,int) ;
-extern int	ctdecui(char *,int,uint) ;
-extern int	ctdecl(char *,int,long) ;
-extern int	ctdecul(char *,int,ulong) ;
-extern int	cthexul(char *,ulong) ;
 extern int	optbool(cchar *,int) ;
 extern int	optvalue(cchar *,int) ;
 extern int	nleadstr(cchar *,cchar *,int) ;
@@ -105,6 +99,8 @@ extern int	statvfsdir(cchar *,struct statvfs *) ;
 extern int	bufprintf(char *,int,cchar *,...) ;
 extern int	getuserhome(char *,int,cchar *) ;
 extern int	isdigitlatin(int) ;
+extern int	isFailOpen(int) ;
+extern int	isNotPresent(int) ;
 
 extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
 extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
@@ -125,7 +121,7 @@ extern char	*timestr_elapsed(time_t,char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -164,7 +160,7 @@ static int	matextra(cchar **,int,cchar *,int) ;
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -188,7 +184,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -196,7 +192,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -211,7 +207,7 @@ static const struct mapex	mapexs[] = {
 } ;
 
 /* define the configuration keywords */
-static cchar	*qopts[] = {
+static const char	*qopts[] = {
 	"fsbs",
 	"fspbs",
 	"fstotal",
@@ -264,7 +260,7 @@ int b_fsinfo(int argc,cchar *argv[],void *contextp)
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_kshbegin(contextp)) >= 0) {
+	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
 	    cchar	**envv = (cchar **) environ ;
 	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
@@ -285,6 +281,9 @@ int p_fsinfo(int argc,cchar *argv[],cchar *envv[],void *contextp)
 /* end subroutine (p_fsinfo) */
 
 
+/* local subroutines */
+
+
 /* ARGSUSED */
 static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
@@ -303,14 +302,11 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	int		ai, ai_max, ai_pos ;
 	int		ai_continue = 1 ;
 	int		rs, rs1 ;
-	int		n, size, len, v ;
-	int		i, j ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_version = FALSE ;
 	int		f_usage = FALSE ;
 	int		f_help = FALSE ;
-	int		f ;
 
 	cchar		*argp, *aop, *akp, *avp ;
 	cchar		*argval = NULL ;
@@ -343,7 +339,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -351,7 +347,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	pip->daytime = time(NULL) ;
 
 	pip->lip = lip ;
-	rs = locinfo_start(lip,pip) ;
+	if (rs >= 0) rs = locinfo_start(lip,pip) ;
 	if (rs < 0) {
 	    ex = EX_OSERR ;
 	    goto badlocstart ;
@@ -379,7 +375,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
-	        const int ach = MKCHAR(argp[1]) ;
+	        const int	ach = MKCHAR(argp[1]) ;
 
 	        if (isdigitlatin(ach)) {
 
@@ -567,14 +563,27 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	                        f_version = TRUE ;
 	                        break ;
 
+			    case 'f':
+	                        if (argr > 0) {
+	                            argp = argv[++ai] ;
+	                            argr -= 1 ;
+	                            argl = strlen(argp) ;
+	                            if (argl)
+	                                statfname = argp ;
+	                        } else
+	                            rs = SR_INVALID ;
+	                        break ;
+
 /* options */
 	                    case 'o':
 	                        if (argr > 0) {
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
 	                        } else
 	                            rs = SR_INVALID ;
 	                        break ;
@@ -642,6 +651,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    shio_control(&errfile,SHIO_CSETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -653,16 +664,16 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -695,47 +706,45 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 /* statvfs initialization */
 
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
 	if (afname == NULL) afname = getourenv(envv,VARAFNAME) ;
 
 	if (statfname == NULL) {
-	    for (ai = ai_continue ; ai < argc ; ai += 1) {
-
-	        f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
-	        f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	        if (f) {
-	            statfname = argv[ai] ;
-	            ai_continue = (ai + 1) ;
-	            break ;
-	        }
-
-	    } /* end for */
+	    if ((cp = getourenv(envv,VARFPATH)) != NULL) {
+		statfname = cp ;
+	    }
 	} /* end if (getting file to append to) */
 
-	if ((statfname != NULL) && (statfname[0] == '-')) {
-	    if (un == NULL) un = "-" ;
-	    if (un[0] == '\0') rs = SR_INVALID ;
-	    if (rs >= 0) {
-	        char	hbuf[MAXPATHLEN+1] ;
-	        int	hlen = MAXPATHLEN ;
-	        if ((rs = getuserhome(hbuf,hlen,un)) >= 0) {
-	            int	hl = rs ;
-	            rs = locinfo_sethome(lip,hbuf,hl) ;
-	            if (rs >= 0) statfname = lip->homedname ;
-	        }
-	    }
-	    if (rs < 0) {
-	        ex = EX_NOUSER ;
+	if (rs >= 0) {
+	    if ((statfname == NULL) || (statfname[0] == '-')) {
+	        if (un == NULL) un = "-" ;
+	        if (un[0] == '\0') rs = SR_INVALID ;
+	        if (rs >= 0) {
+	            const int	hlen = MAXPATHLEN ;
+	            char	hbuf[MAXPATHLEN+1] ;
+	            if ((rs = getuserhome(hbuf,hlen,un)) >= 0) {
+	                if ((rs = locinfo_sethome(lip,hbuf,rs)) >= 0) {
+	                    statfname = lip->homedname ;
+		        }
+	            }
+		}
+	        if (rs < 0) {
+	            ex = EX_NOUSER ;
+		}
+	    } else {
+	        rs = locinfo_setpath(lip,statfname) ;
 	    }
 	} /* end if (user-home specified) */
 
-	if ((rs >= 0) && ((statfname == NULL) || (statfname[0] == '\0'))) {
-	    ex = EX_NOINPUT ;
-	    shio_printf(pip->efp,"%s: no file specified\n",
-	        pip->progname) ;
+	if ((rs >= 0) && (pip->debuglevel > 0) && (lip->filepath != NULL)) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: fn=%s\n" ;
+	    shio_printf(pip->efp,fmt,pn,lip->filepath) ;
 	}
-
-	if (rs >= 0)
-	    locinfo_setpath(lip,statfname) ;
 
 /* do the deed */
 
@@ -747,12 +756,21 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	ainfo.ai_pos = ai_pos ;
 	ainfo.ai_continue = ai_continue ;
 
-	if ((rs = statvfsdir(statfname,&lip->fss)) >= 0) {
-	    rs = procargs(pip,&ainfo,&pargs,ofname,afname) ;
-	} else {
-	    ex = EX_NOINPUT ;
-	    shio_printf(pip->efp,"%s: could not access file (%d)\n",
-	        pip->progname,rs) ;
+	if (rs >= 0) {
+	    if ((rs = statvfsdir(statfname,&lip->fss)) >= 0) {
+	        rs = procargs(pip,&ainfo,&pargs,ofname,afname) ;
+	    } else {
+		cchar	*pn = pip->progname ;
+		cchar	*fmt = "%s: could not access file-system (%d)\n" ;
+	        ex = EX_NOINPUT ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
+	    }
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	    usage(pip) ;
 	}
 
 /* done */
@@ -775,7 +793,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        ex = mapex(mapexs,rs) ;
 	        break ;
 	    } /* end switch */
-	} else if (rs >= 0) {
+	} else if ((rs >= 0) && (ex == EX_OK)) {
 	    if ((rs = lib_sigterm()) < 0) {
 	        ex = EX_TERM ;
 	    } else if ((rs = lib_sigintr()) < 0) {
@@ -836,9 +854,6 @@ badarg:
 
 }
 /* end subroutine (mainsub) */
-
-
-/* local subroutines */
 
 
 static int usage(PROGINFO *pip)
@@ -978,8 +993,11 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 	    } /* end if (processing file argument file list) */
 
 	    if ((rs >= 0) && (pan == 0)) {
-	        rs = SR_INVALID ;
-	        shio_printf(pip->efp,"%s: no specifications given\n",pn) ;
+		cl = -1 ;
+		cp = DEFSPEC ;
+		pan += 1 ;
+		rs = procspec(pip,ofp,cp,-1) ;
+		wlen += rs ;
 	    }
 
 	    rs1 = shio_close(ofp) ;
@@ -1020,12 +1038,13 @@ static int procspecs(PROGINFO *pip,void *ofp,cchar *lbuf,int len)
 
 
 /* process a specification name */
-static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
+static int procspec(PROGINFO *pip,void *ofp,cchar *rp,int rl)
 {
 	LOCINFO		*lip = pip->lip ;
 	struct statvfs	*fssp = &lip->fss ;
 	LONG		vt ;
 	LONG		v = -1 ;
+	const int	cvtlen = CVTBUFLEN ;
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		ri ;
@@ -1060,18 +1079,21 @@ static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 	}
 
 	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    if (ri >= 0) {
-	        shio_printf(pip->efp,"%s: spec=%t (%d)\n",
-	            pip->progname,rp,rl,ri) ;
+		fmt = "%s: spec=%t (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rp,rl,ri) ;
 	    } else {
-	        shio_printf(pip->efp,"%s: spec=%t notfound\n",
-	            pip->progname,rp,rl) ;
+		fmt = "%s: spec=%t notfound\n" ;
+	        shio_printf(pip->efp,fmt,pn,rp,rl) ;
 	    }
 	}
 
+	if (rs >= 0) {
+
 	cbp = cvtbuf ;
 	switch (ri) {
-
 	case qopt_fsbs:
 	    v = fssp->f_frsize ;
 	    break ;
@@ -1099,53 +1121,51 @@ static int procspec(PROGINFO *pip,void *ofp,cchar rp[],int rl)
 	        vt = fssp->f_blocks - fssp->f_bavail ;
 	        if (fssp->f_blocks != 0) {
 	            int per = +(vt * 100) / fssp->f_blocks ;
-	            rs = bufprintf(cvtbuf,CVTBUFLEN,"%u%%",per) ;
-	        } else 
-	            rs = sncpy1(cvtbuf,CVTBUFLEN,"na") ;
+	            rs = bufprintf(cvtbuf,cvtlen,"%u%%",per) ;
+	        } else {
+	            rs = sncpy1(cvtbuf,cvtlen,"na") ;
+		}
 	    }
 	    break ;
 	case qopt_fstype:
-	    rs = snwcpy(cvtbuf,CVTBUFLEN,fssp->f_basetype,FSTYPSZ) ;
+	    rs = snwcpy(cvtbuf,cvtlen,fssp->f_basetype,FSTYPSZ) ;
 	    break ;
 	case qopt_fsstr:
-	    rs = snwcpy(cvtbuf,CVTBUFLEN,fssp->f_fstr,32) ;
+	    rs = snwcpy(cvtbuf,cvtlen,fssp->f_fstr,32) ;
 	    break ;
 	case qopt_fsid:
 #if	CF_HEXID
-	    rs = cthexul(cvtbuf,fssp->f_fsid) ;
+	    rs = cthexul(cvtbuf,cvtlen,fssp->f_fsid) ;
 #else
-	    rs = ctdecul(cvtbuf,CVTBUFLEN,fssp->f_fsid) ;
+	    rs = ctdecul(cvtbuf,cvtlen,fssp->f_fsid) ;
 #endif /* CF_HEXID */
 	    break ;
 	case qopt_fsflags:
-
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("b_fsinfo/procspec: flags=%04lx\n",
-	            fssp->f_flag) ;
+	    if (DEBUGLEVEL(2)) 
+	        debugprintf("b_fsinfo/procspec: flags=%04lx\n",fssp->f_flag) ;
 #endif
-
-	    rs = snfsflags(cvtbuf,CVTBUFLEN,fssp->f_flag) ;
+	    rs = snfsflags(cvtbuf,cvtlen,fssp->f_flag) ;
 	    break ;
-
 	case qopt_fspath:
 	    cbp = lip->filepath ;
 	    break ;
-
 	default:
 	    rs = SR_INVALID ;
 	    break ;
-
 	} /* end switch */
 
-	if ((rs >= 0) && (v >= 0))
-	    rs = bufprintf(cvtbuf,CVTBUFLEN,"%llu",v) ;
+	if ((rs >= 0) && (v >= 0)) {
+	    rs = bufprintf(cvtbuf,cvtlen,"%llu",v) ;
+	}
 
 	if ((rs >= 0) && (pip->verboselevel > 0)) {
 	    rs1 = procout(pip,ofp,cbp) ;
 	    wlen += rs1 ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if */
+
+	} /* end if (ok) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -1164,7 +1184,7 @@ static int procout(PROGINFO *pip,SHIO *ofp,cchar *buf)
 
 	if (pip->verboselevel > 0) {
 	    if (buf == NULL) buf = "*" ;
-	    rs = shio_printline(ofp,buf,-1) ;
+	    rs = shio_print(ofp,buf,-1) ;
 	    wlen += rs ;
 	} /* end if */
 
@@ -1240,7 +1260,7 @@ static int locinfo_setpath(LOCINFO *lip,cchar *fpath)
 /* this is our extra little surprise */
 static int matextra(cchar *a[],int n,cchar *s,int slen)
 {
-	register int	lc = s[0] ;
+	const int	lc = s[0] ;
 	const int	shift = 2 ;
 	int		i ;
 	int		m ;

@@ -13,9 +13,9 @@
 /* revision history:
 
 	= 2011-01-25, David A­D­ Morano
-	Code was removed and placed in other files (so that they can be
-	compiled differently) due to AST-code conflicts over the system
-	socket-library structure definitions.
+        Code was removed and placed in other files (so that they can be compiled
+        differently) due to AST-code conflicts over the system socket-library
+        structure definitions.
 
 	= 2014-09-25, David A­D­ Morano
 	Some sort of enhancement.

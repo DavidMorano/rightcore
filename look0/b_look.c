@@ -1,4 +1,4 @@
-/* main (look) */
+/* b_look */
 
 /* this is the LOOK program (for looking up words in a dictionary) */
 
@@ -9,62 +9,29 @@
 #define	CF_CHAR		1		/* use 'char(3dam)' */
 
 
-/*-
- * Copyright (c) 1991, 1993
- *	The Regents of the University of California.  All rights reserved.
- *
- * This code is derived from software contributed to Berkeley by
- * David Hitz of Auspex Systems, Inc.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
- * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+/* revision history:
 
-/* Copyright © 1998,2011 David A­D­ Morano.  All rights reserved. */
+	= 2000-05-14, David A­D­ Morano
+	Originally written for Rightcore Network Services.
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1991, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n" ;
-#endif /* not lint */
+*/
 
-#ifndef lint
-static char sccsid[] = "@(#)look.c	8.1 (Berkeley) 6/14/93" ;
-#endif /* not lint */
+/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+
+/*******************************************************************************
+
+	This is a knock-off of the famous LOOK program.  It looks up strings
+	(which should be prefixes to words) in a sorted word list (contains
+	in a file).
+
+	A note from the BSD (I think) version of this program:
+ 	|
+	| The man page said that TABs and SPACEs participate in -d comparisons.
+	| In fact, they were ignored.  This implements historic practice, not
+	| the manual page.
 
 
-/*
- * look -- find lines in a sorted list.
- *
- * The man page said that TABs and SPACEs participate in -d comparisons.
- * In fact, they were ignored.  This implements historic practice, not
- * the manual page.
- */
+*******************************************************************************/
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -79,15 +46,14 @@ static char sccsid[] = "@(#)look.c	8.1 (Berkeley) 6/14/93" ;
 #include	<shell.h>
 #endif
 
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include	<sys/types.h>
+#include	<sys/param.h>
+#include	<sys/stat.h>
+#include	<sys/mman.h>
+#include	<limits.h>
+#include	<fcntl.h>
+#include	<stdlib.h>
+#include	<string.h>
 
 #include	<vsystem.h>
 #include	<bits.h>
@@ -101,6 +67,7 @@ static char sccsid[] = "@(#)look.c	8.1 (Berkeley) 6/14/93" ;
 #include	"kshlib.h"
 #include	"b_look.h"
 #include	"defs.h"
+#include	"lookword.h"
 
 
 /* local defines */
@@ -109,33 +76,12 @@ static char sccsid[] = "@(#)look.c	8.1 (Berkeley) 6/14/93" ;
 #define	LINEBUFLEN	2048
 #endif
 
-#ifndef	COLUMNS
-#define	COLUMNS		80
-#endif
-
 #undef	MAXSTRLEN
 #define	MAXSTRLEN	256		/* GNU man-page say this */
 
 #ifndef	WORDF
 #define	WORDF		"share/dict/words"
 #endif
-
-/*
- * FOLD and DICT convert characters to a normal form for comparison,
- * according to the user specified flags.
- *
- * DICT expects integers because it uses a non-character value to
- * indicate a character which should not participate in comparisons.
- */
-#define NO_COMPARE	(-2)
-
-#if	CF_CHAR
-#define FOLD(c)		CHAR_TOFC(c)
-#define DICT(c)		(isdict(c) ? (c) & 0xFF /* int */ : NO_COMPARE)
-#else /* CF_CHAR */
-#define FOLD(c) (isupper(c) ? tolower(c) : (char) (c))
-#define DICT(c) (isalnum(c) ? (c) & 0xFF /* int */ : NO_COMPARE)
-#endif /* CF_CHAR */
 
 #define	LOCINFO		struct locinfo
 #define	LOCINFO_FL	struct locinfo_flags
@@ -154,11 +100,13 @@ extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	strnndictcmp(const char *,int,const char *,int) ;
 extern int	isalnumlatin(int) ;
+extern int	isdigitlatin(int) ;
 extern int	isdict(int) ;
+extern int	isFailOpen(int) ;
+extern int	isNotPresent(int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
-			const struct pivars *) ;
+extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -168,6 +116,8 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
+extern cchar	*getourenv(cchar **,cchar *) ;
+
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnchr(const char *,int,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
@@ -175,7 +125,7 @@ extern char	*strnpbrk(const char *,int,const char *) ;
 
 /* external variables */
 
-extern char	**environ ;
+extern char	**environ ;		/* definition required by AT&T AST */
 
 
 /* local structures */
@@ -190,7 +140,7 @@ struct locinfo_flags {
 
 struct locinfo {
 	LOCINFO_FL	have, f, final, changed ;
-	struct proginfo	*pip ;
+	PROGINFO	*pip ;
 } ;
 
 struct word {
@@ -201,52 +151,30 @@ struct word {
 
 /* forward references */
 
-int		p_look(int,const char **,const char **,void *) ;
+static int	mainsub(int,cchar **,cchar **,void *) ;
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 
-static int	procsort(struct proginfo *,void *,const char *) ;
-static int	procsortread(struct proginfo *,vecobj *,const char *,int) ;
-static int	procsortout(struct proginfo *,void *,vecobj *) ;
+static int	procsort(PROGINFO *,void *,const char *) ;
+static int	procsortread(PROGINFO *,vecobj *,const char *,int) ;
+static int	procsortout(PROGINFO *,void *,vecobj *) ;
 
-static int	process(struct proginfo *,void *,const char *,
-			const char *) ;
-static int	look(struct proginfo *,void *,
-			const char *,const char *,const char *) ;
-static int	mksword(struct proginfo *,char *,int,const char *) ;
-
-static int      compare(struct proginfo *,
-			const char *,const char *,const char *,int *) ;
-
-static int	print_from(struct proginfo *,void *,const char *,
-			const char *,const char *) ;
+static int	procsearch(PROGINFO *,void *,cchar *,cchar *) ;
 
 static int	wordcmp(const void *,const void *) ;
-
-#if	CF_DEBUGS || CF_DEBUG
-static int	strtlen(const char *) ;
-#endif
-
-const char	*getourenv(const char **,const char *) ;
-
-static const char    *binary_search(struct proginfo *,const char *,
-			const char *,const char *) ;
-
-static const char    *linear_search(struct proginfo *,const char *,
-			const char *,const char *) ;
 
 
 /* local variables */
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
 	"HELP",
 	"sn",
-	"af",
 	"ef",
 	"of",
+	"if",
 	NULL
 } ;
 
@@ -256,13 +184,13 @@ enum argopts {
 	argopt_verbose,
 	argopt_help,
 	argopt_sn,
-	argopt_af,
 	argopt_ef,
 	argopt_of,
+	argopt_if,
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -270,7 +198,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -306,18 +234,15 @@ static const char	*wordfiles[] = {
 /* exported subroutines */
 
 
-int b_look(argc,argv,contextp)
-int		argc ;
-const char	*argv[] ;
-void		*contextp ;
+int b_look(int argc,cchar *argv[],void *contextp)
 {
 	int		rs ;
 	int		rs1 ;
 	int		ex = EX_OK ;
 
-	if ((rs = lib_kshbegin(contextp)) >= 0) {
+	if ((rs = lib_kshbegin(contextp,NULL)) >= 0) {
 	    const char	**envv = (const char **) environ ;
-	    ex = p_look(argc,argv,envv,contextp) ;
+	    ex = mainsub(argc,argv,envv,contextp) ;
 	    rs1 = lib_kshend() ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ksh) */
@@ -329,47 +254,53 @@ void		*contextp ;
 /* end subroutine (b_look) */
 
 
-int p_look(argc,argv,envv,contextp)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
-void		*contextp ;
+int p_look(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
-	struct proginfo	pi, *pip = &pi ;
-	struct locinfo	li, *lip = &li ;
+	return mainsub(argc,argv,envv,contextp) ;
+}
+/* end subroutine (p_look) */
+
+
+/* local subroutines */
+
+
+/* ARGSUSED */
+static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
+{
+	PROGINFO	pi, *pip = &pi ;
+	LOCINFO		li, *lip = &li ;
 	BITS		pargs ;
 	SHIO		errfile ;
 	SHIO		ofile, *ofp = &ofile ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	pan = 0 ;
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_version = FALSE ;
-	int	f_usage = FALSE ;
-	int	f_help = FALSE ;
-	int	f ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		pan = 0 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_version = FALSE ;
+	int		f_usage = FALSE ;
+	int		f_help = FALSE ;
+	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	char	tmpfname[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
-	const char	*afname = NULL ;
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*file ;
 	const char	*cp ;
 
-	char	string[MAXSTRLEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
+	char		string[MAXSTRLEN + 1] ;
 
 
 #if	CF_DEBUGS || CF_DEBUG
@@ -391,22 +322,21 @@ void		*contextp ;
 	}
 
 	if ((cp = getourenv(envv,VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
 	pip->verboselevel = 1 ;
 
 	pip->lip = lip ;
-
-	memset(lip,0,sizeof(struct locinfo)) ;
+	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
 
 	file = NULL ;
 
 	string[0] = '\0' ;
 
-	if (rs >= 0) rs = bits_start(&pargs,1) ;
+	if (rs >= 0) rs = bits_start(&pargs,0) ;
 	if (rs < 0) goto badpargs ;
 
 	ai_max = 0 ;
@@ -423,12 +353,13 @@ void		*contextp ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 	            argval = (argp + 1) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;
@@ -450,8 +381,6 @@ void		*contextp ;
 	                avl = 0 ;
 	                akl = aol ;
 	            }
-
-/* keyword match or only key letters? */
 
 	            if ((kwi = matostr(argopts,2,akp,akl)) >= 0) {
 
@@ -516,24 +445,6 @@ void		*contextp ;
 	                    }
 	                    break ;
 
-/* argument-file */
-	                case argopt_af:
-	                    if (f_optequal) {
-	                        f_optequal = FALSE ;
-	                        if (avl)
-	                            afname = avp ;
-	                    } else {
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                afname = argp ;
-	                        } else
-	                            rs = SR_INVALID ;
-	                    }
-	                    break ;
-
 /* error file name */
 	                case argopt_ef:
 	                    if (f_optequal) {
@@ -570,6 +481,23 @@ void		*contextp ;
 	                    }
 	                    break ;
 
+	                case argopt_if:
+	                    if (f_optequal) {
+	                        f_optequal = FALSE ;
+	                        if (avl)
+	                            cp = avp ;
+	                    } else {
+	                        if (argr > 0) {
+	                        argp = argv[++ai] ;
+	                        argr -= 1 ;
+	                        argl = strlen(argp) ;
+	                        if (argl)
+	                            cp = argp ;
+				} else
+	                            rs = SR_INVALID ;
+	                    }
+			    break ;
+
 /* handle all keyword defaults */
 	                default:
 	                    rs = SR_INVALID ;
@@ -580,7 +508,7 @@ void		*contextp ;
 	            } else {
 
 	                while (akl--) {
-	                    int	kc = (*akp & 0xff) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -646,12 +574,12 @@ void		*contextp ;
 
 /* quiet mode */
 	                    case 'q':
-	                        lip->f.q = TRUE ;
+	                        pip->verboselevel = 0 ;
 	                        if (f_optequal) {
 	                            f_optequal = FALSE ;
 	                            if (avl) {
 	                                rs = optbool(avp,avl) ;
-	                                lip->f.q = (rs > 0) ;
+	                                pip->verboselevel = rs ;
 	                            }
 	                        }
 	                        break ;
@@ -727,6 +655,8 @@ void		*contextp ;
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    shio_control(pip->efp,SHIO_CSETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if (rs < 0)
@@ -737,16 +667,18 @@ void		*contextp ;
 	    debugprintf("main: debuglevel=%u\n",pip->debuglevel) ;
 #endif
 
-	if (f_version)
+	if (f_version) {
 	    shio_printf(pip->efp,"%s: version %s\n",
 	        pip->progname,VERSION) ;
+	}
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -779,7 +711,10 @@ void		*contextp ;
 
 /* more initialization */
 
-	if (efname == NULL) afname = getourenv(envv,VARAFNAME) ;
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 /* process */
 
@@ -787,24 +722,20 @@ void		*contextp ;
 
 	    f = (ai <= ai_max) && (bits_test(&pargs,ai) > 0) ;
 	    f = f || ((ai > ai_pos) && (argv[ai] != NULL)) ;
-	    if (! f) continue ;
-
-	    cp = argv[ai] ;
-	    switch (pan) {
-
-	    case 0:
-	        if (! lip->final.d) lip->f.d = TRUE ;
-	        if (! lip->final.f) lip->f.f = TRUE ;
-	        strwcpy(string,cp,MAXSTRLEN) ;
-	        break ;
-
-	    case 1:
-	        file = cp ;
-	        break ;
-
-	    } /* end switch */
-
-	    pan += 1 ;
+	    if (f) {
+	        cp = argv[ai] ;
+		switch (pan) {
+	        case 0:
+	            if (! lip->final.d) lip->f.d = TRUE ;
+	            if (! lip->final.f) lip->f.f = TRUE ;
+	            strwcpy(string,cp,MAXSTRLEN) ;
+	            break ;
+	        case 1:
+	            file = cp ;
+	            break ;
+	        } /* end switch */
+	        pan += 1 ;
+	    }
 
 	} /* end for */
 
@@ -825,38 +756,32 @@ void		*contextp ;
 	        rs = perm(cp,-1,-1,NULL,R_OK) ;
 	    }
 
-	    if (rs < 0) {
+	    if (isNotPresent(rs)) {
 
 	        for (i = 0 ; prnames[i] != NULL ; i += 1) {
-
-	            cp = getourenv(envv,prnames[i]) ;
-
-	            if (cp == NULL) continue ;
-
-	            file = tmpfname ;
-	            mkpath2(tmpfname,cp,WORDF) ;
-
-	            rs = perm(tmpfname,-1,-1,NULL,R_OK) ;
+	            if ((cp = getourenv(envv,prnames[i])) != NULL) {
+	                file = tmpfname ;
+	                mkpath2(tmpfname,cp,WORDF) ;
+	                rs = perm(tmpfname,-1,-1,NULL,R_OK) ;
+		    }
 	            if (rs >= 0) break ;
-
 	        } /* end for */
 
 	    } /* end if (moderately tough measures) */
 
-	    if (rs < 0) {
+	    if (isNotPresent(rs)) {
 
 	        for (i = 0 ; wordfiles[i] != NULL ; i += 1) {
 
 	            rs = perm(wordfiles[i],-1,-1,NULL,R_OK) ;
-
 	            file = (char *) wordfiles[i] ;
-	            if (rs >= 0) break ;
 
+	            if (rs >= 0) break ;
 	        } /* end for */
 
 	    } /* end if (tough measures) */
 
-	    if (rs < 0)
+	    if (isNotPresent(rs))
 	        file = WORDSFNAME ;
 
 	} /* end if (finding file) */
@@ -884,6 +809,8 @@ void		*contextp ;
 
 /* print out a sorted list */
 
+	if (rs >= 0) {
+
 	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
 	    ofname = BFILE_STDOUT ;
 
@@ -892,13 +819,22 @@ void		*contextp ;
 	    if (lip->f.sort) {
 	        rs = procsort(pip,ofp,file) ;
 	    } else {
-	        rs = process(pip,ofp,file,string) ;
+	        rs = procsearch(pip,ofp,file,string) ;
 	    }
 
-	    shio_close(ofp) ;
+	    rs1 = shio_close(ofp) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (output-open) */
 
-done:
+	} else if (ex == EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    shio_printf(pip->efp,fmt,pn,rs) ;
+	    ex = EX_USAGE ;
+	    usage(pip) ;
+	}
+
+/* done */
 	if ((rs < 0) && (ex == EX_OK)) {
 	    ex = mapex(mapexs,rs) ;
 	} else if ((rs == 0) && (ex == EX_OK)) {
@@ -922,7 +858,6 @@ retearly:
 	    pip->efp = NULL ;
 	}
 
-ret1:
 	bits_finish(&pargs) ;
 
 badpargs:
@@ -953,30 +888,26 @@ badarg:
 	usage(pip) ;
 	goto retearly ;
 }
-/* end subroutine (main) */
+/* end subroutine (mainsub) */
 
 
-/* local subroutines */
-
-
-static int usage(pip)
-struct proginfo	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int		rs ;
+	int		rs = SR_OK ;
 	int		wlen = 0 ;
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
 	fmt = "%s: USAGE> %s [-df] [-w] <string> [<file>]\n" ;
-	rs = shio_printf(pip->efp,fmt,pn,pn) ;
+	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-of <ofile>] [-s]\n" ;
-	rs = shio_printf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\n" ;
-	rs = shio_printf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = shio_printf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	return (rs >= 0) ? wlen : rs ;
@@ -984,10 +915,7 @@ struct proginfo	*pip ;
 /* end subroutine (usage) */
 
 
-static int procsort(pip,ofp,fname)
-struct proginfo	*pip ;
-void		*ofp ;
-const char	fname[] ;
+static int procsort(PROGINFO *pip,void *ofp,cchar fname[])
 {
 	VECOBJ		wlist ;
 	const int	n = 250000 ;
@@ -1066,11 +994,7 @@ const char	fname[] ;
 
 
 /* read all of the words in */
-static int procsortread(pip,wlp,mdp,mdl)
-struct proginfo	*pip ;
-vecobj		*wlp ;
-const char	*mdp ;
-int		mdl ;
+static int procsortread(PROGINFO *pip,vecobj *wlp,cchar *mdp,int mdl)
 {
 	struct word	w ;
 	int		rs = SR_OK ;
@@ -1112,10 +1036,7 @@ int		mdl ;
 /* end subroutine (procsortread) */
 
 
-static int procsortout(pip,ofp,wlp)
-struct proginfo	*pip ;
-void		*ofp ;
-vecobj		*wlp ;
+static int procsortout(PROGINFO *pip,void *ofp,vecobj *wlp)
 {
 	struct word	*ep ;
 	int		rs = SR_OK ;
@@ -1124,8 +1045,10 @@ vecobj		*wlp ;
 
 	for (i = 0 ; vecobj_get(wlp,i,&ep) >= 0 ; i += 1) {
 	    if (ep == NULL) continue ;
-	    rs = shio_printline(ofp,ep->wp,ep->wl) ;
+	    rs = shio_print(ofp,ep->wp,ep->wl) ;
 	    wlen += rs ;
+	    if (rs >= 0) rs = lib_sigterm() ;
+	    if (rs >= 0) rs = lib_sigintr() ;
 	    if (rs < 0) break ;
 	} /* end for */
 
@@ -1134,431 +1057,45 @@ vecobj		*wlp ;
 /* end subroutine (procsortout) */
 
 
-static int process(pip,ofp,dfname,string)
-struct proginfo	*pip ;
-void		*ofp ;
-const char	dfname[] ;
-const char	string[] ;
+static int procsearch(PROGINFO *pip,void *ofp,cchar *dfname,cchar *string)
 {
+	LOCINFO		*lip = pip->lip ;
+	LOOKWORD	lw ;
 	int		rs ;
-
-	if ((rs = uc_open(dfname,O_RDONLY,0666)) >= 0) {
-	    int	fd = rs ;
-	    if ((rs = uc_fsize(fd)) >= 0) {
-	        size_t		ms = rs ;
-	        const int	mp = PROT_READ ;
-	        const int	mf = MAP_SHARED ;
-	        const char	*md ;
-	        if ((rs = u_mmap(NULL,ms,mp,mf,fd,0L,&md)) >= 0) {
-	            const char	*front = md ;
-	            const char	*back = (md+ms) ;
-
-	            rs = look(pip,ofp,string,front,back) ;
-
-	            u_munmap(md,ms) ;
-	        } /* end if (mapfile) */
-	    } /* end if (fsize) */
-	    u_close(fd) ;
-	} /* end if (file-open) */
-
-	return rs ;
-}
-/* end subroutine (process) */
-
-
-static int look(pip,ofp,string,front,back)
-struct proginfo	*pip ;
-void		*ofp ;
-const char	*string, *front, *back ;
-{
-	struct locinfo	*lip = pip->lip ;
-	const int	slen = NATURALWORDLEN ;
-	int		rs ;
+	int		rs1 ;
+	int		lo = 0 ;
 	int		c = 0 ;
-	char		sword[NATURALWORDLEN+1] ;
 
-	if ((rs = mksword(pip,sword,slen,string)) > 0) {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3)) {
-	        debugprintf("main/look: rewritten string=>%s<\n",sword) ;
-	        debugprintf("main/look: binary_search()\n") ;
-	    }
-#endif
-
-	    front = binary_search(pip,sword,front,back) ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("main/look: linear_search\n") ;
-#endif
-
-	    front = linear_search(pip,sword,front,back) ;
-
-	    if (front) {
-	        rs = print_from(pip,ofp,sword,front,back) ;
-	        c = rs ;
-	    }
-
-	} /* end if (mksword) */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("main/look: ret rs=%d c=%u\n",rs,c) ;
-#endif
+	if (lip->f.d) lo |= LOOKWORD_ODICT ;
+	if (lip->f.f) lo |= LOOKWORD_OFOLD ;
+	if (lip->f.w) lo |= LOOKWORD_OWORD ;
+	if ((rs = lookword_open(&lw,dfname,lo)) >= 0) {
+	    LOOKWORD_CUR	cur ;
+	    if ((rs = lookword_curbegin(&lw,&cur)) >= 0) {
+		if ((rs = lookword_lookup(&lw,&cur,string)) > 0) {
+		    const int	rlen = NATURALWORDLEN ;
+		    char	rbuf[NATURALWORDLEN+1] ;
+		    while ((rs = lookword_read(&lw,&cur,rbuf,rlen)) > 0) {
+			c += 1 ;
+			if (pip->verboselevel > 0) {
+			    rs = shio_print(ofp,rbuf,rs) ;
+			}
+			if (rs < 0) break ;
+		    } /* end while */
+		} /* end if (lookword_lookup) */
+		rs1 = lookword_curend(&lw,&cur) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (lookword-cur) */
+	    rs1 = lookword_close(&lw) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (lookword) */
 
 	return (rs >= 0) ? c : rs ;
 }
-/* end subroutine (look) */
+/* end subroutine (procsearch) */
 
 
-static int mksword(pip,rbuf,rlen,s)
-struct proginfo	*pip ;
-char		rbuf[] ;
-int		rlen ;
-const char	*s ;
-{
-	struct locinfo	*lip = pip->lip ;
-	int		rs = SR_OK ;
-	int		i ;
-	int		ch, dch, fch ;
-	const char	*readp ;
-	char		*writep ;
-
-	readp = s ;
-	writep = rbuf ;
-	for (i = 0 ; (i < rlen) && (s[i] != '\0') ; i += 1) {
-	    ch = MKCHAR(*readp++) ;
-	    if (ch == 0) break ;
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("main/look: och=%c\n",ch) ;
-#endif
-
-	    dch = (lip->f.d) ? DICT(ch) : ch ;
-
-
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("main/look: ch=%c dch=%c(%02x)\n",ch,dch,dch) ;
-#endif
-
-	    if (dch != NO_COMPARE) {
-		int	fch = (lip->f.f) ? FOLD(dch) : fch ;
-	        *(writep++) = fch ;
-	    }
-
-	} /* end for */
-	*writep = '\0' ;
-
-	return (rs >= 0) ? i : rs ;
-}
-/* end subroutine (mksword) */
-
-
-/*
- * Binary search for "string" in memory between "front" and "back".
- *
- * This routine is expected to return a pointer to the start of a line at
- * *or before* the first word matching "string".  Relaxing the constraint
- * this way simplifies the algorithm.
- *
- * Invariants:
- * 	'front' points to the beginning of a line at or before the first
- *	matching string.
- *
- * 	'back' points to the beginning of a line at or after the first
- *	matching line.
- *
- * Base of the Invariants.
- * 	front = NULL;
- *	back = EOF;
- *
- * Advancing the Invariants:
- *
- * 	p = first newline after halfway point from front to back.
- *
- * 	If the string at "p" is not greater than the string to match,
- *	p is the new front.  Otherwise it is the new back.
- *
- * Termination:
- *
- * 	The definition of the routine allows it [to] return at any point,
- *	since front is always at or before the line to print.
- *
- * 	In fact, it returns when the chosen "p" equals "back".  This
- *	implies that there exists a string [that] is [at] least half as long as
- *	(back - front), which in turn implies that a linear search will
- *	be no more expensive than the cost of simply printing a string or two.
- *
- * 	Trying to continue with binary search at this point would be
- *	more trouble than it's worth.
- */
-
-#define	SKIP_PAST_NEWLINE(p, back) \
-	while (((p) < (back)) && (*(p)++ != '\n')) ;
-
-static const char *binary_search(pip,string,front,back)
-struct proginfo	*pip ;
-const char	*string, *front, *back ;
-{
-	struct locinfo	*lip = pip->lip ;
-	int		rc = 0 ;
-	const char	*p ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    debugprintf("main/binary_search: string=%s\n",string) ;
-	    debugprintf("main/binary_search: front(%p) back(%p)\n",
-	        front,back) ;
-	}
-#endif
-
-	p = front + ((back - front) / 2) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    debugprintf("main/binary_search: p(%p)\n",p) ;
-	}
-#endif
-
-	SKIP_PAST_NEWLINE(p, back) ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    debugprintf("main/binary_search: after skip\n") ;
-	    debugprintf("main/binary_search: len(p)=%u\n",strtlen(p)) ;
-	    debugprintf("main/binary_search: starting p=%s\n",p) ;
-	}
-#endif
-
-/* If the file changes underneath us, make sure we don't infinitely loop. */
-
-	while ((p < back) && (back > front)) {
-
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(4)) {
-	        debugprintf("main/binary_search: p=%t\n",p,strtlen(p)) ;
-	    }
-#endif
-
-	    if ((rc = compare(pip,string, p, back,NULL)) > 0) {
-	        front = p ;
-	    } else
-	        back = p ;
-
-	    p = front + ((back - front) / 2) ;
-	    SKIP_PAST_NEWLINE(p, back) ;
-
-	} /* end while */
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("main/binary_search: ret front(%p)\n",front) ;
-#endif
-
-	return (front) ;
-}
-/* end subroutine (binary_search) */
-
-
-/*
- * Find the first line that starts with string, linearly searching from front
- * to back.
- *
- * Return NULL for no such line.
- *
- * This routine assumes:
- * 	+ front points at the first character in a line
- *	+ front is before or at the first line to be printed
- */
-
-static const char *linear_search(pip,string,front,back)
-struct proginfo	*pip ;
-const char	*string, *front, *back ;
-{
-	struct locinfo	*lip = pip->lip ;
-	int		rc = 0 ;
-
-	while (front < back) {
-
-	    rc = compare(pip,string, front, back,NULL) ;
-	    if (rc <= 0) break ;
-
-	    SKIP_PAST_NEWLINE(front, back) ;
-
-	} /* end while */
-
-	return ((rc == 0) ? front : NULL) ;
-}
-/* end subroutine (linear_search) */
-
-
-/* print as many lines as match string, starting at front */
-static int print_from(pip,ofp,string,front,back)
-struct proginfo	*pip ;
-void		*ofp ;
-const char	*string, *front, *back ;
-{
-	struct locinfo	*lip = pip->lip ;
-	int		rs = SR_OK ;
-	int		m ;
-	int		c = 0 ;
-	int		f_mat = TRUE ;
-	const char	*tp ;
-
-#if	CF_DEBUGS
-	debugprintf("main/print_from: s=>%s<\n",string) ;
-#endif
-
-	while ((rs >= 0) && (front < back) && 
-	    (compare(pip,string,front,back,NULL) == 0)) {
-
-	    if ((tp = strchr(front,'\n')) != NULL) {
-
-	        if (lip->f.w) {
-
-	            f_mat = (compare(pip,string,front,tp,&m) == 0) ;
-	            f_mat = f_mat && (string[m] == '\0') && (front[m] == '\n') ;
-	            if (f_mat) {
-	                c += 1 ;
-	                if (! lip->f.q) {
-	                    rs = shio_printline(ofp,front,(tp - front)) ;
-	                }
-	            }
-
-	        } else {
-
-	            c += 1 ;
-	            if (! lip->f.q) {
-	                rs = shio_printline(ofp,front,(tp - front)) ;
-	            }
-
-	        } /* end if (whole or partial) */
-
-	        front = (tp + 1) ;
-	    } else
-	        front = back ;
-
-	} /* end while */
-
-	return (rs >= 0) ? c : rs ;
-}
-/* end subroutine (print_from) */
-
-
-/*
- * Return LESS, GREATER, or EQUAL depending on how the string1 compares with
- * string2 (s1 ??? s2).
- *
- * 	o Matches up to len(s1) are EQUAL.
- *	o Matches up to len(s2) are GREATER.
- *
- * Compare understands about the -f and -d flags, and treats comparisons
- * appropriately.
- *
- * The string "s1" is NUL terminated.  The string s2 is '\n' terminated (or
- * "back" terminated).
- */
-
-static int compare(pip,s1,s2,back,np)
-struct proginfo	*pip ;
-const char	*s1, *s2, *back ;
-int		*np ;
-{
-	struct locinfo	*lip = pip->lip ;
-	int		ch1, ch2 ;
-	int		fch1, fch2 ;
-	int		i, j ;
-	int		rc = 0 ;
-	int		f = FALSE ;
-
-#if	CF_DEBUGS
-	{
-	    int	s2len = MIN(strtlen(s2),(back - s2)) ;
-#ifdef	COMMENT
-	    debugprintf("look/compare: s1(%p) s2(%p)\n",s1,s2) ;
-	    debugprinthex("look/compare: s1=",COLUMNS,s1,-1) ;
-	    debugprinthex("look/compare: s2=",COLUMNS,s2,s2len) ;
-#endif /* COMMENT */
-	    debugprintf("look/compare: s1=%s\n",s1) ;
-	    debugprintf("look/compare: s2=%t\n",s2,s2len) ;
-	}
-#endif /* CF_DEBUGS */
-
-	i = 0 ;
-	j = 0 ;
-	while (s1[i] && ((s2+j) < back) && (s2[j] != '\n')) {
-
-	    ch1 = (s1[i] & UCHAR_MAX) ;
-	    ch2 = (s2[j] & UCHAR_MAX) ;
-
-#ifdef	OPTIONAL
-	    if (lip->f.d && (! isdict(ch1))) {
-	        i += 1 ;		/* ignore character in comparison */
-	        continue ;
-	    }
-#endif /* OPTIONAL */
-
-	    if (lip->f.d && (! isdict(ch2))) {
-	        j += 1 ;		/* ignore character in comparison */
-	        continue ;
-	    }
-
-	    if (lip->f.f) {
-	        fch1 = FOLD(ch1) ;
-	        fch2 = FOLD(ch2) ;
-	        rc = (fch1 - fch2) ;
-
-#if	CF_DEBUGS
-	        debugprintf("look/compare: fch1=%c\n",fch1) ;
-	        debugprintf("look/compare: fch2=%c\n",fch2) ;
-	        debugprintf("look/compare: rc=%d\n",rc) ;
-#endif
-
-	    } else
-	        rc = (ch1 - ch2) ;
-
-#if	CF_DEBUGS
-	    debugprintf("look/compare: rc=%d\n",rc) ;
-#endif
-
-	    if (rc != 0) {
-	        f = TRUE ;
-	        break ;
-	    }
-
-	    i += 1 ;
-	    j += 1 ;
-
-	} /* end while */
-
-#ifdef	COMMENT
-	if ((! f) && (rc == 0)) {
-	    f = ((s1[i] == '\0') && (s2[j] == '\n')) ;
-	    if (! f)
-	        rc = ((s1[i]) ? 1 : 0) ;
-	}
-#else /* COMMENT */
-	if ((! f) && (rc == 0))
-	    rc = ((s1[i]) ? 1 : 0) ;
-#endif /* COMMENT */
-
-	if (np != NULL) *np = j ;
-
-#if	CF_DEBUGS
-	debugprintf("look/compare: ret i=%u rc=%d\n",i,rc) ;
-#endif
-
-	return rc ;
-}
-/* end subroutine (compare) */
-
-
-static int wordcmp(v1p,v2p)
-const void	*v1p, *v2p ;
+static int wordcmp(const void *v1p,const void *v2p)
 {
 	struct word	*e1p, **e1pp = (struct word **) v1p ;
 	struct word	*e2p, **e2pp = (struct word **) v2p ;
@@ -1579,19 +1116,5 @@ const void	*v1p, *v2p ;
 	return rc ;
 }
 /* end subroutine (wordcmp) */
-
-
-#if	CF_DEBUGS || CF_DEBUG
-static int strtlen(s)
-const char	s[] ;
-{
-	int		i ;
-	for (i = 0 ; *s && (*s != '\n') ; i += 1) {
-	    s += 1 ;
-	}
-	return i ;
-}
-/* end subroutine (strtlen) */
-#endif /* CF_DEBUGS */
 
 
