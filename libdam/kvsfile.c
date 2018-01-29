@@ -223,8 +223,9 @@ int kvsfile_open(KVSFILE *op,int ndef,cchar *atfname)
 	    size = sizeof(KVSFILE_KEY) ;
 	    opts = (VECOBJ_OSTATIONARY | VECOBJ_OREUSE) ;
 	    if ((rs = vecobj_start(&op->keys,size,n,opts)) >= 0) {
-	        uint	(*hk)(KVSFILE_ENT *,int) = hashkeyval ;
-	        if ((rs = hdb_start(&op->keyvals,ndef,0,hk,cmpkeyval)) >= 0) {
+		hdbcmpfunc_t	cf = (hdbcmpfunc_t) cmpkeyval ;
+		hdbhashfunc_t	hf = (hdbhashfunc_t) hashkeyval ;
+	        if ((rs = hdb_start(&op->keyvals,ndef,0,hf,cf)) >= 0) {
 	            if ((rs = hdb_start(&op->entries,ndef,0,NULL,NULL)) >= 0) {
 	                op->magic = KVSFILE_MAGIC ;
 	                op->ti_check = time(NULL) ;
