@@ -664,8 +664,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -725,8 +724,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	        if (un == NULL) un = "-" ;
 	        if (un[0] == '\0') rs = SR_INVALID ;
 	        if (rs >= 0) {
+	            const int	hlen = MAXPATHLEN ;
 	            char	hbuf[MAXPATHLEN+1] ;
-	            int	hlen = MAXPATHLEN ;
 	            if ((rs = getuserhome(hbuf,hlen,un)) >= 0) {
 	                if ((rs = locinfo_sethome(lip,hbuf,rs)) >= 0) {
 	                    statfname = lip->homedname ;
@@ -741,8 +740,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    }
 	} /* end if (user-home specified) */
 
-	if ((rs >= 0) && (lip->filepath != NULL)) {
-	    shio_printf(pip->efp,"%s: fn=%s\n",pip->progname,lip->filepath) ;
+	if ((rs >= 0) && (pip->debuglevel > 0) && (lip->filepath != NULL)) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: fn=%s\n" ;
+	    shio_printf(pip->efp,fmt,pn,lip->filepath) ;
 	}
 
 /* do the deed */
@@ -759,9 +760,10 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	    if ((rs = statvfsdir(statfname,&lip->fss)) >= 0) {
 	        rs = procargs(pip,&ainfo,&pargs,ofname,afname) ;
 	    } else {
+		cchar	*pn = pip->progname ;
+		cchar	*fmt = "%s: could not access file-system (%d)\n" ;
 	        ex = EX_NOINPUT ;
-	        shio_printf(pip->efp,"%s: could not access file (%d)\n",
-	            pip->progname,rs) ;
+	        shio_printf(pip->efp,fmt,pn,rs) ;
 	    }
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
@@ -1077,18 +1079,21 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *rp,int rl)
 	}
 
 	if (pip->debuglevel > 0) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt ;
 	    if (ri >= 0) {
-	        shio_printf(pip->efp,"%s: spec=%t (%d)\n",
-	            pip->progname,rp,rl,ri) ;
+		fmt = "%s: spec=%t (%d)\n" ;
+	        shio_printf(pip->efp,fmt,pn,rp,rl,ri) ;
 	    } else {
-	        shio_printf(pip->efp,"%s: spec=%t notfound\n",
-	            pip->progname,rp,rl) ;
+		fmt = "%s: spec=%t notfound\n" ;
+	        shio_printf(pip->efp,fmt,pn,rp,rl) ;
 	    }
 	}
 
+	if (rs >= 0) {
+
 	cbp = cvtbuf ;
 	switch (ri) {
-
 	case qopt_fsbs:
 	    v = fssp->f_frsize ;
 	    break ;
@@ -1117,8 +1122,9 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *rp,int rl)
 	        if (fssp->f_blocks != 0) {
 	            int per = +(vt * 100) / fssp->f_blocks ;
 	            rs = bufprintf(cvtbuf,cvtlen,"%u%%",per) ;
-	        } else 
+	        } else {
 	            rs = sncpy1(cvtbuf,cvtlen,"na") ;
+		}
 	    }
 	    break ;
 	case qopt_fstype:
@@ -1135,34 +1141,31 @@ static int procspec(PROGINFO *pip,void *ofp,cchar *rp,int rl)
 #endif /* CF_HEXID */
 	    break ;
 	case qopt_fsflags:
-
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("b_fsinfo/procspec: flags=%04lx\n",
-	            fssp->f_flag) ;
+	    if (DEBUGLEVEL(2)) 
+	        debugprintf("b_fsinfo/procspec: flags=%04lx\n",fssp->f_flag) ;
 #endif
-
 	    rs = snfsflags(cvtbuf,cvtlen,fssp->f_flag) ;
 	    break ;
-
 	case qopt_fspath:
 	    cbp = lip->filepath ;
 	    break ;
-
 	default:
 	    rs = SR_INVALID ;
 	    break ;
-
 	} /* end switch */
 
-	if ((rs >= 0) && (v >= 0))
+	if ((rs >= 0) && (v >= 0)) {
 	    rs = bufprintf(cvtbuf,cvtlen,"%llu",v) ;
+	}
 
 	if ((rs >= 0) && (pip->verboselevel > 0)) {
 	    rs1 = procout(pip,ofp,cbp) ;
 	    wlen += rs1 ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if */
+
+	} /* end if (ok) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))

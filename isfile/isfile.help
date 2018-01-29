@@ -24,7 +24,7 @@ Arguments:
 			f, e, l, d, b, c, p, s, D, r, w, x 
 -V		print command version to standard-error and then exit
 
-Returns:
+Exits:
 0		file meets criteria
 >0		file fails criteria or error
 

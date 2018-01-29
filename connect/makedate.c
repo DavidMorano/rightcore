@@ -1,2 +1,2 @@
 const char connect_makedate[] =
-"@(#)connect                 170525_1053:31_USEDT Rightcore Network Services" ;
+"@(#)connect                 180127_2215:02_EST Rightcore Network Services" ;

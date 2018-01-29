@@ -829,8 +829,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (f_version) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -1286,15 +1285,17 @@ static int procfile(PROGINFO *pip,cchar fname[])
 	                f_ok = ((pip->daytime - usb.st_mtime) >= lip->intage) ;
 	        } else if (isNotPresent(rs1)) {
 	            if (! f_needstat) f_ok = TRUE ;
-	        } else
+	        } else {
 	            rs = rs1 ;
+	        }
 	    } /* end if (intage) */
 
 	} else {
 	    if (isNotPresent(rs1)) {
 	        if (lip->intage > 0) f_ok = TRUE ;
-	    } else
+	    } else {
 	        rs = rs1 ;
+	    }
 	} /* end if */
 
 #if	CF_DEBUG
@@ -1529,8 +1530,7 @@ static int locinfo_ftypes(LOCINFO *lip)
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (paramfile-_cur) */
 
-	if (c > 0)
-	    lip->f.ftypes = TRUE ;
+	if (c > 0) lip->f.ftypes = TRUE ;
 
 	return (rs >= 0) ? c : rs ;
 }

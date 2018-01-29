@@ -291,7 +291,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early initialization */
 
@@ -571,8 +571,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* program root */
@@ -717,14 +716,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (dialspec != NULL) {
-
 	    dialer = matostr(dialers,1,dialspec,-1) ;
-
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))
 	        debugprintf("main: dialer=%d\n",dialer) ;
 #endif
-
 	} else {
 	    dialer = dialer_tcp ;
 	}
