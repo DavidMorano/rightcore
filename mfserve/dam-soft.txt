@@ -143,7 +143,7 @@ stored) to find those signals that violated specified cross-talk thresholds
 	- custom HDL to ABEL (a pseudo-standardized vendor language)
 	- FPGA native representation to factory standard
 	- SPICE <=> ADVICE 
-	- various program code format translations
+	- various object file code format translations:
 		­ a.out to SREC
 		­ COFF to SREC
 		­ COFF to Intel-Hex
@@ -368,6 +368,8 @@ Note: PCS - Personal Communications Services
 	- key extraction (MKKEY)
 	- index generation (MKINV)
 	- query processing (MKQUERY)
+	- output result display (MKTAGPRINT)
+	- analysis (MKANALYSIS)
 
 + mail clients (part of PCS software facility)
 	- one similar to MAILX
@@ -426,6 +428,8 @@ Note: PCS - Personal Communications Services
 	- mail message injection (IMAIL); with address expansion
 	- mailbox osrting and other processing (MBPROC)
 	- mailbox mail message expiration (MAILEXPIRE, MBEXPIRE)
+	- user mail alias access (MXALIAS)
+	- system mail alias management (MAILALIAS)
 
 + incremental backup utilities for UNIX
 	- backs up files within directory trees that changed since
@@ -442,39 +446,37 @@ Note: PCS - Personal Communications Services
 	- filesize
 
 = text document processing ('troff' family)
-		­ image inclusion
-		­ citation preprocessing ('referm' and 'mmcite')
-		­ cleaning (from MS and other bad sources), (TEXTCLEAN)
-		­ line inversion (LINEINVERT)
-		­ enhanced line folding (LINEFOLD)
-		­ typesetting text (TEXTSET)
-		­ typesetting cookies (COOKIESET)
-		­ citation-references (MMCITE, REFERM)
-		­ ROFF "tag" processing (GTAG)
+	­ image inclusion
+	­ citation preprocessing ('referm' and 'mmcite')
+	­ cleaning (from MS and other bad sources), (TEXTCLEAN)
+	­ line inversion (LINEINVERT)
+	­ enhanced line folding (LINEFOLD)
+	­ typesetting text (TEXTSET)
+	­ typesetting cookies (COOKIESET)
+	­ citation-references (MMCITE, REFERM)
+	­ ROFF "tag" processing (GTAG)
 
 = various network servers (TCPMUX, Telnet-like, login-plumbing)
 	- TCPMUXD and FINGER server (proof of server architecture)
 
 = enhanced UUCP family of software
-		­ including login daemon (PCSUUCPD)
+	· including login daemon (PCSUUCPD)
 
 = enhanced remote machine access:
-		­ rlogin
-		­ rsh
-		­ rcp
-
-= distributed grid program execution 
-	- CEX (client)
-	- MSU (machine status daemon)
-	- MSINFO (information, status
+	· rlogin
+	· rsh
+	· rcp
 
 = web page generation software (specific application purposes)
-		(MKARTICLES, HOMEPAGE, WEBCOUNTER, QUERYSTRING)
+	+ MKARTICLES
+	+ HOMEPAGE
+	+ WEBCOUNTER
+	+ QUERYSTRING
 
 = print spool submission (automatically formatted or semi-raw)
-	­ prt
-	­ prtfmt
-	­ prtdb (back-end database)
+	- prt
+	- prtfmt
+	- prtdb (back-end database)
 	- print device drivers (for print spoolers)
 
 + make tools
@@ -497,14 +499,15 @@ Note: PCS - Personal Communications Services
 	- pcsorg
 	- pcsprojinfo
 
-= utilities
+= numeric conversion utilities
 	- number conversion (common bases, roman numerals, words)
 	- temperature comversion
-	- number calculations
-		­ factorial (nF)
-		­ exponential (nEk)
-		­ permutations (nPk)
-		­ combinations (nCk)
+
++ specialized numeric calculator
+	- factorial (nF)
+	- exponential (nEk)
+	- permutations (nPk) , with and without repetitions
+	- combinations (nCk) , with and without repetitions
 
 = database
 	- program assembler instructions (database of)

@@ -8,23 +8,20 @@
 
 /* revision history:
 
-	= 1997-11-01, David A­D­ Morano
-
-	The subroutine was written to get some common code for the
-	printing of help files.
-
+	= 1998-11-01, David A­D­ Morano
+	The subroutine was written to get some common code for the printing of
+	help files.
 
 */
 
-/* Copyright © 1997 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine will search for a program helpfile and print it
-	out (by default to STDOUT).  A root filename is supplied (usually
-	'help') but along with a program root.  The "standard" places
-	within the program root directory tree are scanned for the help
-	file.
+	This subroutine will search for a program helpfile and print it out (by
+	default to STDOUT).  A root filename is supplied (usually 'help') but
+	along with a program root.  The "standard" places within the program
+	root directory tree are scanned for the help file.
 
 	Synopsis:
 
@@ -64,11 +61,9 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<signal.h>
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<vecstr.h>
@@ -83,8 +78,8 @@
 #define	KBUFLEN		40
 #endif
 
-#ifndef	ELBUFLEN
-#define	ELBUFLEN	(2*LINEBUFLEN)
+#ifndef	EBUFLEN
+#define	EBUFLEN		(2*LINEBUFLEN)
 #endif
 
 #ifndef	HELPSCHEDFNAME
@@ -99,8 +94,8 @@
 #define	LIBCNAME	"lib"
 #endif
 
-#ifndef	DEBUGFNAME
-#define	DEBUGFNAME	"printhelp.deb"
+#ifndef	NDF
+#define	NDF		"printhelp.deb"
 #endif
 
 
@@ -111,12 +106,17 @@ extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	sfbasename(const char *,int,const char **) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
-extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
+extern int	permsched(const char **,vecstr *,char *,int,cchar *,int) ;
 extern int	getnodedomain(char *,char *) ;
 extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_loadfile(VECSTR *,int,const char *) ;
 extern int	isNotPresent(int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpyuc(char *,const char *,int) ;
@@ -126,8 +126,7 @@ extern char	*strwcpyuc(char *,const char *,int) ;
 
 static int	findhelp(const char *,const char *,char *,const char *) ;
 static int	loadscheds(vecstr *,const char *,const char *) ;
-static int	procprint(const char *,const char *,void *,char *,int,
-			const char *) ;
+static int	procprint(cchar *,cchar *,void *,char *,int,cchar *) ;
 static int	procexpload(const char *,EXPCOOK *,const char *) ;
 static int	procout(EXPCOOK *,void *,char *,int,const char *) ;
 
@@ -169,21 +168,16 @@ enum expkeys {
 /* exported subroutines */
 
 
-int printhelp(fp,pr,sn,hfname)
-void		*fp ;
-const char	pr[] ;
-const char	sn[] ;
-const char	hfname[] ;
+int printhelp(void *fp,cchar *pr,cchar *sn,cchar *hfname)
 {
-	int	rs = SR_OK ;
-
-	char	tmpfname[MAXPATHLEN + 1] ;
-
+	const int	tlen = MAXPATHLEN ;
+	int		rs = SR_OK ;
 	const char	*fname ;
-
+	char		tbuf[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("printhelp: SFIO=%u\n",CF_SFIO) ;
+	debugprintf("printhelp: fp=%p\n",fp) ;
 #endif
 
 	if ((hfname == NULL) || (hfname[0] == '\0'))
@@ -191,57 +185,58 @@ const char	hfname[] ;
 
 #if	CF_SFIO
 	if (fp == NULL) {
-
+	    rs = SR_INVALID ;
 #if	CF_DEBUGS
 	    debugprintf("printhelp: no output file handle (SFIO mode)\n") ;
 #endif
-
-	    rs = SR_INVALID ;
-	    goto ret0 ;
 	}
 #endif /* CF_SFIO */
 
 #if	CF_DEBUGS
+	debugprintf("printhelp: cont rs=%d\n",rs) ;
 	debugprintf("printhelp: pr=%s\n",pr) ;
 	debugprintf("printhelp: sn=%s\n",sn) ;
 	debugprintf("printhelp: hfname=%s\n",hfname) ;
 #endif
 
-	fname = hfname ;
-	if ((pr != NULL) && (hfname[0] != '/')) {
+	if (rs >= 0) {
+
+	    fname = hfname ;
+	    if ((pr != NULL) && (hfname[0] != '/')) {
 
 #if	CF_DEBUGS
-	    debugprintf("printhelp: partial fname=%s\n",hfname) ;
+	        debugprintf("printhelp: partial fname=%s\n",hfname) ;
 #endif
 
-	    rs = SR_NOTFOUND ;
-	    if (strchr(hfname,'/') != NULL) {
-	        fname = tmpfname ;
-	        if ((rs = mkpath2(tmpfname,pr,hfname)) >= 0)
-	            rs = u_access(tmpfname,R_OK) ;
+	        rs = SR_NOTFOUND ;
+	        if (strchr(hfname,'/') != NULL) {
+	            fname = tbuf ;
+	            if ((rs = mkpath2(tbuf,pr,hfname)) >= 0)
+	                rs = u_access(tbuf,R_OK) ;
 
 #if	CF_DEBUGS
-	        debugprintf("printhelp: partial rs=%d hfname=%s\n",
-	            rs,tmpfname) ;
+	            debugprintf("printhelp: partial rs=%d hfname=%s\n",
+	                rs,tbuf) ;
 #endif
 
-	    } /* end if */
+	        } /* end if */
 
-	    if ((rs < 0) && isNotPresent(rs)) {
-	        fname = tmpfname ;
-	        rs = findhelp(pr,sn,tmpfname,hfname) ;
+	        if ((rs < 0) && isNotPresent(rs)) {
+	            fname = tbuf ;
+	            rs = findhelp(pr,sn,tbuf,hfname) ;
+	        }
+
+	    } /* end if (searching for file) */
+
+#if	CF_DEBUGS
+	    debugprintf("printhelp: mid rs=%d fname=%s\n",rs,fname) ;
+#endif
+
+	    if (rs >= 0) {
+	        rs = procprint(pr,sn,fp,tbuf,tlen,fname) ;
 	    }
 
-	} /* end if (searching for file) */
-
-#if	CF_DEBUGS
-	debugprintf("printhelp: mid rs=%d fname=%s\n",rs,fname) ;
-#endif
-
-	if (rs >= 0)
-	    rs = procprint(pr,sn,fp,tmpfname,MAXPATHLEN,fname) ;
-
-ret0:
+	} /* end if (ok) */
 
 #if	CF_DEBUGS
 	debugprintf("printhelp: ret rs=%d\n",rs) ;
@@ -255,17 +250,12 @@ ret0:
 /* local subroutines */
 
 
-static int findhelp(pr,sn,tmpfname,hfname)
-const char	*pr ;
-const char	*sn ;
-char		tmpfname[] ;
-const char	*hfname ;
+static int findhelp(cchar *pr,cchar *sn,char *tbuf,cchar *hfname)
 {
-	vecstr	hs ;
-
-	int	rs ;
-	int	f_hs = FALSE ;
-
+	vecstr		hs ;
+	const int	tlen = MAXPATHLEN ;
+	int		rs ;
+	int		f_hs = FALSE ;
 	const char	**spp = schedule ;
 
 #if	CF_DEBUGS
@@ -274,19 +264,23 @@ const char	*hfname ;
 
 /* first see if there is a "help schedule" in the ETC directory */
 
-	if ((rs = mkpath2(tmpfname,pr,HELPSCHEDFNAME)) >= 0) {
+	if ((rs = mkpath2(tbuf,pr,HELPSCHEDFNAME)) >= 0) {
 
-	    if ((rs = perm(tmpfname,-1,-1,NULL,R_OK)) >= 0) {
+	    if ((rs = perm(tbuf,-1,-1,NULL,R_OK)) >= 0) {
 		const int	opts = VECSTR_OCOMPACT ;
 
 	        if ((rs = vecstr_start(&hs,15,opts)) >= 0) {
 	            f_hs = TRUE ;
-	            if (vecstr_loadfile(&hs,FALSE,tmpfname) >= 0)
+	            if ((rs = vecstr_loadfile(&hs,FALSE,tbuf)) >= 0) {
 	                vecstr_getvec(&hs,&spp) ;
+		    } else if (isNotPresent(rs)) {
+			rs = SR_OK ;
+		    }
 	        }
 
-	    } else if (isNotPresent(rs))
+	    } else if (isNotPresent(rs)) {
 	        rs = SR_OK ;
+	    }
 
 	} /* end if (mkpath) */
 
@@ -304,17 +298,17 @@ const char	*hfname ;
 
 /* OK, do the look-up */
 
-	        if (rs >= 0)
-	            rs = permsched(spp,&svars,
-	                tmpfname,MAXPATHLEN, hfname,R_OK) ;
+	        if (rs >= 0) {
+	            rs = permsched(spp,&svars,tbuf,tlen,hfname,R_OK) ;
+		}
 
-	        if (isNotPresent(rs) && (spp != schedule))
-	            rs = permsched(schedule,&svars,
-	                tmpfname,MAXPATHLEN, hfname,R_OK) ;
+	        if (isNotPresent(rs) && (spp != schedule)) {
+	            rs = permsched(schedule,&svars,tbuf,tlen,hfname,R_OK) ;
+		}
 
 #if	CF_DEBUGS
 	        debugprintf("printhelp/findhelp: permsched() rs=%d\n",rs) ;
-	        debugprintf("printhelp/findhelp: tmpfname=%s\n",tmpfname) ;
+	        debugprintf("printhelp/findhelp: tbuf=%s\n",tbuf) ;
 #endif
 
 	        vecstr_finish(&svars) ;
@@ -335,39 +329,32 @@ const char	*hfname ;
 
 static int loadscheds(vecstr *slp,const char *pr,const char *sn)
 {
-	int	rs = SR_OK ;
-
+	int		rs = SR_OK ;
 
 	if (pr != NULL) rs = vecstr_envadd(slp,"r",pr,-1) ;
 
 	if (rs >= 0) rs = vecstr_envadd(slp,"l",LIBCNAME,-1) ;
 
-	if ((rs >= 0) && (sn != NULL))
+	if ((rs >= 0) && (sn != NULL)) {
 	    rs = vecstr_envadd(slp,"n",sn,-1) ;
+	}
 
 	return rs ;
 }
 /* end subroutine (loadscheds) */
 
 
-static int procprint(pr,sn,fp,lbuf,llen,fname)
-const char	*pr ;
-const char	*sn ;
-void		*fp ;
-int		llen ;
-char		lbuf[] ;
-const char	fname[] ;
+static int procprint(cchar *pr,cchar *sn,void *fp,char *rp,int rl,cchar *fn)
 {
-	EXPCOOK	c ;
-
-	int	rs ;
-	int	rs1 ;
-	int	wlen = 0 ;
+	EXPCOOK		c ;
+	int		rs ;
+	int		rs1 ;
+	int		wlen = 0 ;
 
 	if ((rs = expcook_start(&c)) >= 0) {
 	    if ((rs = procexpload(pr,&c,sn)) >= 0) {
 
-	        rs = procout(&c,fp,lbuf,llen,fname) ;
+	        rs = procout(&c,fp,rp,rl,fn) ;
 	        wlen += rs ;
 
 	    } /* end if (procexpload) */
@@ -380,15 +367,11 @@ const char	fname[] ;
 /* end subroutine (procprint) */
 
 
-static int procexpload(pr,ecp,sn)
-const char	*pr ;
-EXPCOOK		*ecp ;
-const char	*sn ;
+static int procexpload(cchar *pr,EXPCOOK *ecp,cchar *sn)
 {
-	int	rs ;
-
-	char	nn[NODENAMELEN+1] ;
-	char	dn[MAXHOSTNAMELEN+1] ;
+	int		rs ;
+	char		nn[NODENAMELEN+1] ;
+	char		dn[MAXHOSTNAMELEN+1] ;
 
 	if ((rs = getnodedomain(nn,dn)) >= 0) {
 	    const int	hlen = MAXHOSTNAMELEN ;
@@ -462,20 +445,20 @@ const char	*sn ;
 /* end subroutine (procexpload) */
 
 
-static int procout(ecp,fp,lbuf,llen,fname)
-EXPCOOK		*ecp ;
-void		*fp ;
-char		lbuf[] ;
-int		llen ;
-const char	*fname ;
+static int procout(EXPCOOK *ecp,void *fp,char lbuf[],int llen,cchar *fname)
 {
-	bfile	outfile ;
-	bfile	helpfile, *hfp = &helpfile ;
+#if	CF_SFIO
+#else
+	bfile		outfile ;
+#endif /* CF_SFIO */
+	bfile		helpfile, *hfp = &helpfile ;
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
 
-	int	rs = SR_OK ;
-	int	wlen = 0 ;
-	int	f_open = FALSE ;
-
+#if	CF_SFIO
+#else
+	int		f_open = FALSE ;
+#endif /* CF_SFIO */
 
 	if (lbuf == NULL) return SR_FAULT ;
 
@@ -490,7 +473,7 @@ const char	*fname ;
 #endif /* CF_SFIO */
 
 	if ((rs >= 0) && ((rs = bopen(hfp,fname,"r",0666)) >= 0)) {
-	    const int	elen = ELBUFLEN ;
+	    const int	elen = EBUFLEN ;
 	    char	*ebuf ;
 	    if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
 	        int	len ;

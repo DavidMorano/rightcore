@@ -210,16 +210,20 @@ int logsys_open(LOGSYS *op,int logfac,cchar *logtag,cchar *logid,int opts)
 
 /* the log ID */
 
-	if ((logid == NULL) || (logid[0] == '\0')) {
-	    cl = logsys_mklogid(op) ;
-	} else
-	    cl = loadlogid(op->logid,LOGSYS_LOGIDLEN,logid) ;
+	    if ((logid == NULL) || (logid[0] == '\0')) {
+	        cl = logsys_mklogid(op) ;
+	    } else {
+	        cl = loadlogid(op->logid,LOGSYS_LOGIDLEN,logid) ;
+	    }
 
-	logsys_fixlogid(op,cl) ;
-	op->magic = LOGSYS_MAGIC ;
+	    logsys_fixlogid(op,cl) ;
+	    op->magic = LOGSYS_MAGIC ;
 
-	} else
-	op->lfd = rs ;
+	    } else {
+	        op->lfd = rs ;
+	    }
+
+	} /* end if (m-a) */
 
 	return rs ;
 }

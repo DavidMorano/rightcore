@@ -6,17 +6,16 @@
 /* revision history:
 
 	= 1998-03-17, David A­D­ Morano
-
 	I enhanced this somewhat from my previous version.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	Here we simply extract the root-name of the software distribution
-	from our program-root directory.
+        Here we simply extract the root-name of the software distribution from
+        our program-root directory.
 
 
 *******************************************************************************/
@@ -37,7 +36,6 @@
 
 extern int	sfbasename(const char *,int,const char **) ;
 extern int	sfdirname(const char *,int,const char **) ;
-extern int	matstr(const char **,const char *,int) ;
 
 
 /* local variables */
@@ -56,14 +54,15 @@ int proginfo_rootname(PROGINFO *pip)
 
 	if (pip->rootname == NULL) {
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((cl = sfbasename(pip->pr,-1,&cp)) > 0) {
-		const char	**vpp = &pip->rootname ;
+		cchar	**vpp = &pip->rootname ;
 		rs = proginfo_setentry(pip,vpp,cp,cl) ;
 		len = rs ;
 	    }
-	} else
+	} else {
 	    len = strlen(pip->rootname) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }

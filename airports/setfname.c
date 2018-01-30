@@ -12,25 +12,18 @@
 
 /* revision history:
 
-	= 89/03/01, David A­D­ Morano
-
+	= 1989-03-01, David A­D­ Morano
 	This subroutine was originally written.  
 
-
-	= 98/06/01, David A­D­ Morano
-
+	= 1998-06-01, David A­D­ Morano
 	I enhanced the program a little to print out some other
 	information.
 
-
-	= 99/03/01, David A­D­ Morano
-
+	= 1999-03-01, David A­D­ Morano
 	I enhanced the program a little to to do something (I forget
 	what).
 
-
-	= 04/01/10, David A­D­ Morano
-
+	= 2004-01-10, David A­D­ Morano
 	The KSH program switched to using a fakey "large file" (64-bit
 	fake-out mode) compilation mode on Solaris.  This required
 	some checking to see if any references to 'u_stat()' had to be
@@ -38,9 +31,7 @@
 	here, its structure is not passed to other subroutines expecting
 	the regular 32-bit structure.
 
-
-	= 05/04/20, David A­D­ Morano
-
+	= 2005-04-20, David A­D­ Morano
 	I changed the program so that the configuration file is consulted
 	even if the program is not run in daemon-mode.	Previously, the
 	configuration file was only consulted when run in daemon-mode.
@@ -56,9 +47,9 @@
 	The single one-time invocation is still fast enough for the
 	non-smoker aged under 40 ! :-) :-)
 
-
 */
 
+/* Copyright © 1998,2004,2005 David A­D­ Morano.  All rights reserved. */
 
 /**************************************************************************
 
@@ -68,27 +59,17 @@
 *****************************************************************************/
 
 
-#if	defined(SFIO) || defined(KSHBUILTIN)
-#undef	CF_SFIO
-#define	CF_SFIO	1
-#endif
-
-#if	CF_SFIO
-#include	<shell.h>
-#endif
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<sys/stat.h>
-#include	<sys/wait.h>
 #include	<limits.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<netdb.h>
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<baops.h>
@@ -119,7 +100,6 @@
 #ifndef	DEBUGLEVEL
 #define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
 #endif
-
 
 
 /* external subroutines */
@@ -170,18 +150,16 @@ extern char	**environ ;
 
 
 int setfname(pip,fname,ebuf,el,f_def,dname,name,suf)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 char		fname[] ;
 const char	ebuf[] ;
 const char	dname[], name[], suf[] ;
 int		el ;
 int		f_def ;
 {
-	int	rs = 0 ;
-	int	ml ;
-
-	char	tmpname[MAXNAMELEN + 1], *np ;
-
+	int		rs = 0 ;
+	int		ml ;
+	char		tmpname[MAXNAMELEN + 1], *np ;
 
 	if ((f_def && (ebuf[0] == '\0')) ||
 	    (strcmp(ebuf,"+") == 0)) {
@@ -244,6 +222,5 @@ int		f_def ;
 	return rs ;
 }
 /* end subroutine (setfname) */
-
 
 

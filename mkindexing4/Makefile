@@ -369,15 +369,15 @@ txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
 
 txtindex.o:		txtindex.c txtindex.h txtindexes.h
 
-txtindeximkwait.o:	txtindexmkwait.c txtindexfu.h
+txtindeximkwait.o:	txtindexmkwait.c txtindexhdr.h
 
-txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+txtindexes.o:		txtindexes.c txtindexes.h txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexfu.o:		txtindexfu.c txtindexfu.h
+txtindexfu.o:		txtindexhdr.c txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 offindex.o:		offindex.c offindex.h

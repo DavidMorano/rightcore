@@ -196,7 +196,7 @@ int conslog_printf(CONSLOG *op,int logpri,const char fmt[],...)
 
 
 /* make a log entry */
-int conslog_vprintf(CONSLOG *op,int logpri,const char fmt[],va_list ap)
+int conslog_vprintf(CONSLOG *op,int logpri,cchar *fmt,va_list ap)
 {
 	int		rs = SR_OK ;
 	int		sl ;

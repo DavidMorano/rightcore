@@ -8,15 +8,13 @@
 
 /* revision history:
 
-	= 1997-11-01, David A­D­ Morano
-
+	= 1998-11-01, David A­D­ Morano
 	The subroutine was written to get some common code for the printing of
 	help files.
 
-
 */
 
-/* Copyright © 1997 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -96,8 +94,8 @@
 #define	LIBCNAME	"lib"
 #endif
 
-#ifndef	DEBUGFNAME
-#define	DEBUGFNAME	"printhelp.deb"
+#ifndef	NDF
+#define	NDF		"printhelp.deb"
 #endif
 
 
@@ -114,6 +112,11 @@ extern int	vecstr_envadd(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	vecstr_loadfile(VECSTR *,int,const char *) ;
 extern int	isNotPresent(int) ;
+
+#if	CF_DEBUGS
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strwcpyuc(char *,const char *,int) ;
@@ -167,12 +170,14 @@ enum expkeys {
 
 int printhelp(void *fp,cchar *pr,cchar *sn,cchar *hfname)
 {
+	const int	tlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
 	const char	*fname ;
-	char		tmpfname[MAXPATHLEN + 1] ;
+	char		tbuf[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("printhelp: SFIO=%u\n",CF_SFIO) ;
+	debugprintf("printhelp: fp=%p\n",fp) ;
 #endif
 
 	if ((hfname == NULL) || (hfname[0] == '\0'))
@@ -188,6 +193,7 @@ int printhelp(void *fp,cchar *pr,cchar *sn,cchar *hfname)
 #endif /* CF_SFIO */
 
 #if	CF_DEBUGS
+	debugprintf("printhelp: cont rs=%d\n",rs) ;
 	debugprintf("printhelp: pr=%s\n",pr) ;
 	debugprintf("printhelp: sn=%s\n",sn) ;
 	debugprintf("printhelp: hfname=%s\n",hfname) ;
@@ -204,20 +210,20 @@ int printhelp(void *fp,cchar *pr,cchar *sn,cchar *hfname)
 
 	        rs = SR_NOTFOUND ;
 	        if (strchr(hfname,'/') != NULL) {
-	            fname = tmpfname ;
-	            if ((rs = mkpath2(tmpfname,pr,hfname)) >= 0)
-	                rs = u_access(tmpfname,R_OK) ;
+	            fname = tbuf ;
+	            if ((rs = mkpath2(tbuf,pr,hfname)) >= 0)
+	                rs = u_access(tbuf,R_OK) ;
 
 #if	CF_DEBUGS
 	            debugprintf("printhelp: partial rs=%d hfname=%s\n",
-	                rs,tmpfname) ;
+	                rs,tbuf) ;
 #endif
 
 	        } /* end if */
 
 	        if ((rs < 0) && isNotPresent(rs)) {
-	            fname = tmpfname ;
-	            rs = findhelp(pr,sn,tmpfname,hfname) ;
+	            fname = tbuf ;
+	            rs = findhelp(pr,sn,tbuf,hfname) ;
 	        }
 
 	    } /* end if (searching for file) */
@@ -227,7 +233,7 @@ int printhelp(void *fp,cchar *pr,cchar *sn,cchar *hfname)
 #endif
 
 	    if (rs >= 0) {
-	        rs = procprint(pr,sn,fp,tmpfname,MAXPATHLEN,fname) ;
+	        rs = procprint(pr,sn,fp,tbuf,tlen,fname) ;
 	    }
 
 	} /* end if (ok) */
@@ -244,9 +250,10 @@ int printhelp(void *fp,cchar *pr,cchar *sn,cchar *hfname)
 /* local subroutines */
 
 
-static int findhelp(cchar *pr,cchar *sn,char *tmpfname,cchar *hfname)
+static int findhelp(cchar *pr,cchar *sn,char *tbuf,cchar *hfname)
 {
 	vecstr		hs ;
+	const int	tlen = MAXPATHLEN ;
 	int		rs ;
 	int		f_hs = FALSE ;
 	const char	**spp = schedule ;
@@ -257,20 +264,23 @@ static int findhelp(cchar *pr,cchar *sn,char *tmpfname,cchar *hfname)
 
 /* first see if there is a "help schedule" in the ETC directory */
 
-	if ((rs = mkpath2(tmpfname,pr,HELPSCHEDFNAME)) >= 0) {
+	if ((rs = mkpath2(tbuf,pr,HELPSCHEDFNAME)) >= 0) {
 
-	    if ((rs = perm(tmpfname,-1,-1,NULL,R_OK)) >= 0) {
+	    if ((rs = perm(tbuf,-1,-1,NULL,R_OK)) >= 0) {
 		const int	opts = VECSTR_OCOMPACT ;
 
 	        if ((rs = vecstr_start(&hs,15,opts)) >= 0) {
 	            f_hs = TRUE ;
-	            if (vecstr_loadfile(&hs,FALSE,tmpfname) >= 0) {
+	            if ((rs = vecstr_loadfile(&hs,FALSE,tbuf)) >= 0) {
 	                vecstr_getvec(&hs,&spp) ;
+		    } else if (isNotPresent(rs)) {
+			rs = SR_OK ;
 		    }
 	        }
 
-	    } else if (isNotPresent(rs))
+	    } else if (isNotPresent(rs)) {
 	        rs = SR_OK ;
+	    }
 
 	} /* end if (mkpath) */
 
@@ -289,18 +299,16 @@ static int findhelp(cchar *pr,cchar *sn,char *tmpfname,cchar *hfname)
 /* OK, do the look-up */
 
 	        if (rs >= 0) {
-	            rs = permsched(spp,&svars,
-	                tmpfname,MAXPATHLEN, hfname,R_OK) ;
+	            rs = permsched(spp,&svars,tbuf,tlen,hfname,R_OK) ;
 		}
 
 	        if (isNotPresent(rs) && (spp != schedule)) {
-	            rs = permsched(schedule,&svars,
-	                tmpfname,MAXPATHLEN, hfname,R_OK) ;
+	            rs = permsched(schedule,&svars,tbuf,tlen,hfname,R_OK) ;
 		}
 
 #if	CF_DEBUGS
 	        debugprintf("printhelp/findhelp: permsched() rs=%d\n",rs) ;
-	        debugprintf("printhelp/findhelp: tmpfname=%s\n",tmpfname) ;
+	        debugprintf("printhelp/findhelp: tbuf=%s\n",tbuf) ;
 #endif
 
 	        vecstr_finish(&svars) ;
@@ -439,11 +447,18 @@ static int procexpload(cchar *pr,EXPCOOK *ecp,cchar *sn)
 
 static int procout(EXPCOOK *ecp,void *fp,char lbuf[],int llen,cchar *fname)
 {
+#if	CF_SFIO
+#else
 	bfile		outfile ;
+#endif /* CF_SFIO */
 	bfile		helpfile, *hfp = &helpfile ;
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
+
+#if	CF_SFIO
+#else
 	int		f_open = FALSE ;
+#endif /* CF_SFIO */
 
 	if (lbuf == NULL) return SR_FAULT ;
 
