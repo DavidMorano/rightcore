@@ -1,4 +1,4 @@
-/* txtindexfu */
+/* txtindexhdr */
 
 /* text-index hash file */
 
@@ -24,7 +24,7 @@
 
 	Synopsis:
 
-	int txtindexfu(ep,f,hbuf,hlen)
+	int txtindexhdr(ep,f,hbuf,hlen)
 	TXTINDEXFU	*ep ;
 	int		f ;
 	char		hbuf[] ;
@@ -57,7 +57,7 @@
 #include	<endian.h>
 #include	<localmisc.h>
 
-#include	"txtindexfu.h"
+#include	"txtindexhdr.h"
 
 
 /* local defines */
@@ -111,7 +111,7 @@ enum his {
 /* exported subroutines */
 
 
-int txtindexfu(TXTINDEXFU *ep,int f,char *hbuf,int hlen)
+int txtindexhdr(TXTINDEXFU *ep,int f,char *hbuf,int hlen)
 {
 	uint		*header ;
 	const int	headsize = hi_overlast * sizeof(uint) ;
@@ -230,6 +230,6 @@ int txtindexfu(TXTINDEXFU *ep,int f,char *hbuf,int hlen)
 
 	return (rs >= 0) ? (bp - hbuf) : rs ;
 }
-/* end subroutine (txtindexfu) */
+/* end subroutine (txtindexhdr) */
 
 

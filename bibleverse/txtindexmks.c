@@ -106,7 +106,7 @@
 #include	<localmisc.h>
 
 #include	"txtindexmks.h"
-#include	"txtindexfu.h"
+#include	"txtindexhdr.h"
 #include	"naturalwords.h"
 
 
@@ -920,7 +920,7 @@ static int txtindexmks_mkhash(TXTINDEXMKS *op)
 	        debugprintf("txtindexmks_mkhash: maxwlen=%u\n",hdr.maxwlen) ;
 #endif /* CF_DEBUGS */
 
-	        if ((rs = txtindexfu(&hdr,0,hbuf,hlen)) >= 0) {
+	        if ((rs = txtindexhdr(&hdr,0,hbuf,hlen)) >= 0) {
 	            const int	bl = rs ;
 	            if ((rs = u_pwrite(op->nfd,hbuf,bl,0L)) >= 0) {
 	                const mode_t	om = op->om ;
@@ -997,7 +997,7 @@ static int txtindexmks_mkhashwrhdr(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
 	int		wlen = 0 ;
 	char		hbuf[HDRBUFLEN+1] ;
 	if (op == NULL) return SR_FAULT ; /* LINT */
-	if ((rs = txtindexfu(hdrp,0,hbuf,hlen)) >= 0) {
+	if ((rs = txtindexhdr(hdrp,0,hbuf,hlen)) >= 0) {
 	    const int	bl = rs ;
 	    rs = filebuf_writefill(hfp,hbuf,bl) ;
 	    wlen += rs ;

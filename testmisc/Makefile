@@ -664,3 +664,21 @@ main$(T22).o:		main$(T22).cc singlist.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T22).cc
 
 
+T23= vecint
+
+T23OBJa= main$(T23).o
+T23OBJb=
+T23OBJc=
+T23OBJd=
+
+T23OBJ= $(T23OBJa) $(T23OBJb) $(T23OBJc) $(T23OBJd)
+
+T23OBJS= $(CRTFRONT) $(T23OBJ) $(CRTC) $(CRTBACK)
+
+$(T23).x:		Makefile $(T23OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T23OBJS) -lm $(TLIBINFO) > $(T23).lm
+
+main$(T23).o:		main$(T23).cc singlist.hh
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T23).cc
+
+

@@ -170,7 +170,7 @@ OBJ14= makedate_get.o
 OBJ15=
 
 # optional to include shared-objects directly
-#OBJ16= txtindexfu.o offindex.o
+#OBJ16= txtindexhdr.o offindex.o
 #OBJ17= strtabfind.o 
 #OBJ18= 
 #OBJ19= txtindexmks.o txtindexes.o
@@ -187,11 +187,11 @@ OBJ= $(OBJA) $(OBJB) $(OBJC)
 
 OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
 
-SOBJ= txtindexes.o txtindexfu.o offindex.o strtabfind.o
+SOBJ= txtindexes.o txtindexhdr.o offindex.o strtabfind.o
 
-TISOBJ= txtindexes.o txtindexfu.o offindex.o strtabfind.o
+TISOBJ= txtindexes.o txtindexhdr.o offindex.o strtabfind.o
 
-MKSOBJ= txtindexmks.o txtindexfu.o strtabfind.o osetint.o
+MKSOBJ= txtindexmks.o txtindexhdr.o strtabfind.o osetint.o
 
 
 SRC= $(OBJ:.c=.o)
@@ -377,7 +377,7 @@ txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexhdr.h
 txtindexes.o:		txtindexes.c txtindexes.h txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexfu.o:		txtindexhdr.c txtindexhdr.h
+txtindexhdr.o:		txtindexhdr.c txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 offindex.o:		offindex.c offindex.h

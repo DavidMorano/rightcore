@@ -8,7 +8,8 @@ $ fsinfo [-f <file>] <spec(s)> ... [-af <afile>] [-V]
 
 Arguments:
 -f <file>	file to get file-system status on
-<spec(s)>	one of: fsutil fstotal fsavail fsfree fstype 
+<spec(s)>	one of: fsutil fstotal fsavail fsfree fstype fsused 	
+			fsbs fspbs fsstr fsid fsflags fspath
 -af <afile>	take spec(s) from file
 -V		print command version to standard-error and then exit
 

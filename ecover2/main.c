@@ -917,7 +917,7 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		c = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 
 	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
@@ -1157,18 +1157,18 @@ static int procinput_end(PROGINFO *pip,int ifd)
 static int procereport(PROGINFO *pip,FILEINFO *fip,int prs)
 {
 	int		rs = SR_OK ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	proglog_printf(pip,"mode=%c",
 	    ((pip->f.unscramble) ? 'd' : 'e')) ;
 
-	proglog_printf(pip,"sent cksum=\\x%08x (%u)",
-	    fip->cksum,fip->cksum) ;
+	fmt = "sent cksum=\\x%08x (%u)" ;
+	proglog_printf(pip,fmt,fip->cksum,fip->cksum) ;
 
 	proglog_printf(pip,"failed (%d)",prs) ;
 
 	if ((pip->debuglevel > 0) || (! pip->f.quiet)) {
-	    cchar	*pn = pip->progname ;
-	    cchar	*fmt ;
 	    fmt = "%s: failed (%d)\n" ;
 	    bprintf(pip->efp,fmt,pn,prs) ;
 	}

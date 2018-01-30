@@ -122,7 +122,7 @@ int editdistance(cchar *a,cchar *b)
 	} /* end if */
 	return (rs >= 0) ? el : rs ;
 }
-/* end subroutine (setint_start) */
+/* end subroutine (editdistance) */
 
 
 /* local subroutines */

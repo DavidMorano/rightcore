@@ -84,7 +84,7 @@
 #include	<localmisc.h>
 
 #include	"txtindexes.h"
-#include	"txtindexfu.h"
+#include	"txtindexhdr.h"
 #include	"offindex.h"
 #include	"naturalwords.h"
 
@@ -781,7 +781,7 @@ static int txtindexes_dbproc(TXTINDEXES *op,time_t dt)
 	int		c = 0 ;
 
 	hip = &op->ifi ;
-	if ((rs = txtindexfu(hip,1,fip->mapdata,fip->mapsize)) >= 0) {
+	if ((rs = txtindexhdr(hip,1,fip->mapdata,fip->mapsize)) >= 0) {
 	    if ((rs = txtindexes_hdrverify(op,dt)) >= 0) {
 	        mip->sdn = (char *) (fip->mapdata + hip->sdnoff) ;
 	        mip->sfn = (char *) (fip->mapdata + hip->sfnoff) ;

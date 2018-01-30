@@ -1,4 +1,4 @@
-/* minvec */
+/* mainvecint */
 /* lang=C++11 */
 
 
@@ -14,9 +14,16 @@
 
 /* Copyright © 2010 David A­D­ Morano.  All rights reserved. */
 
+/*******************************************************************************
+
+	This code tests the use of the VECINT object.
+
+
+*******************************************************************************/
+
+
 #include	<envstandards.h>
 #include	<sys/types.h>
-#include	<stdio.h>
 #include	<cstdlib>
 #include	<cinttypes>
 #include	<cstring>
