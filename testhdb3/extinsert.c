@@ -23,15 +23,15 @@
 	    } /* end for */
 
 	    if (ep != NULL) {
-
-	        while (ep->same != NULL)
+	        while (ep->same != NULL) {
 	            ep = ep ->same ;
-
+		}
 	        ep->same = nhep ;
-
-	    } else
+	    } else {
 	        htaddr[hi] = nhep ;
+	    }
 
-	} else
+	} else {
 		htaddr[hi] = nhep ;
+	}
 

@@ -219,10 +219,8 @@ int logsys_open(LOGSYS *op,int logfac,cchar *logtag,cchar *logid,int opts)
 	    logsys_fixlogid(op,cl) ;
 	    op->magic = LOGSYS_MAGIC ;
 
-	    } else {
-	        op->lfd = rs ;
-	    }
-
+	} else {
+	    op->lfd = rs ;
 	} /* end if (m-a) */
 
 	return rs ;

@@ -1855,8 +1855,7 @@ HDB_DATUM	*keyp ;
 
 #if	CF_DEBUGS && 0
 	mkprstr(prbuf,HDB_PRBUFLEN,keyp->buf,keyp->len) ;
-	debugprintf("hdb/getpoint: ent key=>%s<\n",
-	    prbuf) ;
+	debugprintf("hdb/getpoint: ent key=>%s<\n",prbuf) ;
 #endif
 
 	hi = hv % op->htlen ;
@@ -1868,18 +1867,18 @@ HDB_DATUM	*keyp ;
 	hepp = op->htaddr + hi ;
 	pep = NULL ;
 	for (ep = *hepp ; ep != NULL ; ep = ep->next) {
+	    int		f = TRUE ;
 
 #if	CF_DEBUGS && 0
 	    debugprintf("hdb/getpoint: top of loop\n") ;
 #endif
 
 	    hpkeydat = ep->key.buf ;
-	    if (hpkeydat == NULL)
-	        continue ;
+	    if (hpkeydat == NULL) continue ;
 
-	    if ((ep->hv == hv) && (ep->key.len == keylen) && 
-	        ((*op->cmpfunc)(hpkeydat, keydat, keylen) == 0))
-	        break ;
+	    f = f && (ep->hv == hv) && (ep->key.len == keylen) ;
+	    f = f && ((*op->cmpfunc)(hpkeydat,keydat,keylen) == 0) ;
+	    if (f) break ;
 
 	    pep = ep ;
 
@@ -1924,8 +1923,7 @@ HDB_DATUM	**rpp ;
 	for (ep = *hepp ; ep != NULL ; ep = ep->next) {
 
 	    hpkeydat = ep->key.buf ;
-	    if (hpkeydat == NULL)
-	        continue ;
+	    if (hpkeydat == NULL) continue ;
 
 	    f = (ep->hv == hv) ;
 	    f = f && (ep->key.len == keylen) ;

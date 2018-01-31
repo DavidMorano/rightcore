@@ -1,8 +1,10 @@
-/* unixext */
+/* extraunix */
 
 
-#define	CF_DEBUG	1
+#define	CF_DEBUGS	1		/* compile-time debugging */
 
+
+/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -15,6 +17,8 @@
 
 #include	<vsystem.h>
 
+
+/* local defines */
 
 
 /* forward references */
