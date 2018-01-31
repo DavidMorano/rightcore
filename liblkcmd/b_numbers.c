@@ -131,7 +131,7 @@ enum numtypes {
 	numtype_overlast
 } ;
 
-static cchar	*keys[] = {
+static const char	*keys[] = {
 	"e",
 	"p",
 	"mp",

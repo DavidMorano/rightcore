@@ -1045,11 +1045,13 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
-	int		ki ;
-	int		wi ;
 	int		c = 0 ;
 	int		cl ;
 	cchar		*cp ;
+
+	if ((cp = getourenv(pip->envv,VAROPTS)) != NULL) {
+	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2)) {
@@ -1064,68 +1066,67 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	}
 #endif /* CF_DEBUG */
 
-	for (ki = 0 ; progopts[ki] != NULL ; ki += 1) {
-	    KEYOPT_CUR	cur ;
-	    if ((rs = keyopt_curbegin(kop,&cur)) >= 0) {
+	if (rs >= 0) {
+	    int		ki ;
+	    int		wi ;
+	    for (ki = 0 ; progopts[ki] != NULL ; ki += 1) {
+	        KEYOPT_CUR	cur ;
+	        if ((rs = keyopt_curbegin(kop,&cur)) >= 0) {
 
-	        while (rs >= 0) {
-	            cl = keyopt_enumvalues(kop,progopts[ki],&cur,&cp) ;
-	            if (cl == SR_NOTFOUND) break ;
-		    rs = cl ;
-		    if (rs >= 0) {
-	                switch (ki) {
-	                case progopt_type:
-	                    if (cl > 0) {
-	                        wi = matostr(whiches,2,cp,cl) ;
-	                        switch (wi) {
-	                        case which_sum:
-	                            lip->f.sum = TRUE ;
-	                            break ;
-	                        case which_amean:
-	                            lip->f.amean = TRUE ;
-	                            break ;
-	                        case which_hmean:
-	                            lip->f.hmean = TRUE ;
-	                            break ;
-	                        case which_speedup:
-	                            lip->f.speedup = TRUE ;
-	                            break ;
-	                        } /* end switch */
-	                    } /* end if (non-zero value) */
-	                    break ;
-	                case progopt_sum:
-	                case progopt_asum:
-	                    lip->f.sum = TRUE ;
-	                    break ;
-	                case progopt_amean:
-	                    lip->f.amean = TRUE ;
-	                    break ;
-	                case progopt_hmean:
-	                    lip->f.hmean = TRUE ;
-	                    break ;
-	                case progopt_speedup:
-	                    lip->f.speedup = TRUE ;
-	                    break ;
-	                } /* end switch */
-		    } /* end if (ok) */
-	        } /* end while (enumerating) */
+	            while (rs >= 0) {
+	                cl = keyopt_enumvalues(kop,progopts[ki],&cur,&cp) ;
+	                if (cl == SR_NOTFOUND) break ;
+		        rs = cl ;
+		        if (rs >= 0) {
+	                    switch (ki) {
+	                    case progopt_type:
+	                        if (cl > 0) {
+	                            wi = matostr(whiches,2,cp,cl) ;
+	                            switch (wi) {
+	                            case which_sum:
+	                                lip->f.sum = TRUE ;
+	                                break ;
+	                            case which_amean:
+	                                lip->f.amean = TRUE ;
+	                                break ;
+	                            case which_hmean:
+	                                lip->f.hmean = TRUE ;
+	                                break ;
+	                            case which_speedup:
+	                                lip->f.speedup = TRUE ;
+	                                break ;
+	                            } /* end switch */
+	                        } /* end if (non-zero value) */
+	                        break ;
+	                    case progopt_sum:
+	                    case progopt_asum:
+	                        lip->f.sum = TRUE ;
+	                        break ;
+	                    case progopt_amean:
+	                        lip->f.amean = TRUE ;
+	                        break ;
+	                    case progopt_hmean:
+	                        lip->f.hmean = TRUE ;
+	                        break ;
+	                    case progopt_speedup:
+	                        lip->f.speedup = TRUE ;
+	                        break ;
+	                    } /* end switch */
+		        } /* end if (ok) */
+	            } /* end while (enumerating) */
 
-	        keyopt_curend(kop,&cur) ;
-	    } /* end if (keyopt-cur) */
-	} /* end for (progopts) */
+	            keyopt_curend(kop,&cur) ;
+	        } /* end if (keyopt-cur) */
+	    } /* end for (progopts) */
+	} /* end if (ok) */
 
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procopts) */
 
 
-static int process(pip,aip,bop,ofn,afn,ifn)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-cchar		*ofn ;
-cchar		*afn ;
-cchar		*ifn ;
+static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn,
+			cchar *ifn)
 {
 	SHIO		ofile, *ofp = &ofile ;
 	int		rs ;

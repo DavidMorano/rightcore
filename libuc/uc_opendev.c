@@ -127,7 +127,7 @@ int uc_opendev(cchar *fname,int of,mode_t om,cchar **envv,int to,int opts)
 	int		fl = -1 ;
 	int		fi ;
 	int		f_more = FALSE ;
-	const char	*tp ;
+	cchar		*tp ;
 
 #if	CF_DEBUGS
 	debugprintf("uc_opendev: fname=%s\n",fname) ;
@@ -305,7 +305,7 @@ static int inetargs_start(INETARGS *iap,const char *sp,int sl)
 		size += (iap->ia[i].p != NULL) ? (iap->ia[i].l+1) : 1 ;
 	    }
 	    if ((rs = uc_libmalloc(size,&bp)) >= 0) {
-		const char	*asp ;
+		cchar	*asp ;
 		iap->a = bp ;
 	        for (i = 0 ; i < da_overlast ; i += 1) {
 		    asp = bp ;
@@ -321,7 +321,8 @@ static int inetargs_start(INETARGS *iap,const char *sp,int sl)
 
 	return rs ;
 }
-/* end subroutine (netargs_start) */
+/* end subroutine (inetargs_start) */
+
 
 static int inetargs_finish(INETARGS *iap)
 {

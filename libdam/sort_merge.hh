@@ -17,7 +17,7 @@
 
 /*******************************************************************************
 
-	Inserion sort
+	Insertion sort
 
 	+ in-place
 	+ O(n^2)
@@ -61,6 +61,8 @@ static void sort_merging(Comp *cmp,T a,T tmp,int ib,int im,int ie)
 	} /* end if (nothing to sort) */
 }
 /* end subroutine (sort_mergerecurse) */
+
+
 template<typename T,typename Comp = std::greater<T>>
 static void sort_merger(Comp *cmp,T a,T tmp,int ib,int ie)
 {
@@ -72,6 +74,8 @@ static void sort_merger(Comp *cmp,T a,T tmp,int ib,int ie)
 	}
 }
 /* end subroutine (sort_merging) */
+
+
 template<typename T,typename Comp = std::greater<T>>
 int sort_merge(T a,int n)
 {

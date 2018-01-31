@@ -726,7 +726,7 @@ static int open_pseudopath(UCOPENINFO *oip,cchar *rp,int pi)
 	    {
 	        int		of = oip->oflags ;
 	        mode_t		om = oip->operms ;
-	        cchar	**envv = oip->envv ;
+	        cchar		**envv = oip->envv ;
 	        int		to = oip->to ;
 	        int		opts = oip->opts ;
 	        switch (pi) {

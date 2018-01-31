@@ -1,8 +1,7 @@
 MKWORDS
 
-This program creates a list of words (English words) from the given files.
-Words are parsed out from the input and written to the output one word per
-line.
+This program creates a list of words (English words) from the given files. Words
+are parsed out from the input and written to the output one word per line.
 
 Synopsis:
 $ mkwords [<file(s)> ...] [-af <afile>] [-u] [-c] [-V]
