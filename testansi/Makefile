@@ -109,7 +109,8 @@ LINTFLAGS= -uxn -Dlint
 NM= nm
 NMFLAGS= -xs
 
-CPP= cpp
+CPP= cpp -XA
+CPP= $(CC) -E
 
 
 INCS= config.h defs.h
@@ -139,11 +140,17 @@ default:		$(T).x
 
 all:			$(ALL)
 
+.i.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .cc.o:
 	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
+
+.c.i:
+	$(CPP) $(CPPFLAGS) $< > $(*).i
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -190,6 +197,8 @@ control:
 
 
 main.o:			main.c $(INCS)
+
+main.i:			main.c $(INCS)
 
 whatinfo.o:		whatinfo.c config.h
 

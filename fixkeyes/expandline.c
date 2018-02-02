@@ -3,7 +3,8 @@
 /* subroutine to expand a line out for TROFF rendering */
 
 
-#define	CF_DEBUG	1		/* compile-time */
+#define	CF_DEBUGS	0		/* compile-time */
+#define	CF_DEBUG	0		/* run-time */
 #define	CF_PREFIX	1		/* prefix? */
 
 
@@ -20,17 +21,12 @@
 
         This subroutine will take an input line and expand it out so that it
         will render correctly under TROFF processing. This subroutine also
-        peforms standard tab expansion to tabstop at every eight (8) columns.
+        peforms standard tab expansion to tabstops at every eight (8) columns.
 
 	Synopsis:
-
-	int expandline(ibp,il,obp,ol,flagp)
-	char		*ibp, *obp ;
-	int		il, ol ;
-	int		*flagp ;
+	int expandline(char *rbuf,int elen,cchar *ibp,int il,int *flagp)
 
 	Arguments:
-
 	- ibp		input buffer pointer
 	- ilen		input buffer length
 	- obp		output buffer pointer
@@ -38,7 +34,6 @@
 	- flags		flags to control the operation
 
 	Returns:
-
 	-		length of output line processed
 
 
@@ -80,10 +75,7 @@
 /* exported subroutines */
 
 
-int expandline(ibp,il,obp,ol,flagp)
-char		*ibp, *obp ;
-int		il, ol ;
-int		*flagp ;
+int expandline(char *obp,int ol,cchar *ibp,int il,int *flagp)
 {
 	int		c ;
 	int		j, k ;

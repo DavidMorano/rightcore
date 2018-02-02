@@ -1,0 +1,66 @@
+Professional References
+
+
+affiliation:	AT&T Bell Laboratories
+		Lucent Technologies
+		Philips Consumer Communications
+name:		William Aranguren
+email:		billaranguren@yahoo.com
+phone:		(732) 414-1341
+
+
+affiliation:	AT&T Bell Laboratories
+		Lucent Technologies
+name:		Robert Pritchard
+email:		rc.p@yahoo.com 
+
+
+affiliation:	AT&T Bell Laboratories
+name:		Glenn David Bergland
+email:		jonahdave@aol.com (prefers email contact only and
+		may need some time to respond due to work schedule)
+
+
+affiliation:	Adros Energy
+name:		Philip Morano
+email:		pmorano@adrosenergy.com
+phone:		(603) 860-0662
+street:		5 Fernwood Dr.
+city:		Merrimack, NH 03054-3233
+
+
+== Additional information on contacting the companies I worked for
+
++ Lucent Technologies
+
+Lucent Technologies was (before its inception) previously a part of AT&T
+Bell Laboratories (itself previously Bell Laboratories, and that owned
+by AT&T).
+
+Lucent technologies merged with Alcatel in 2006. The new name of the
+merged company is Alcatel-Lucent S.A.. Alcatel-Lucent is in bought by 
+Nokia and was folded into the Nokia company brand in January of 2016.
+
+The company can be reached at its web-site: networks.nokia.com
+
+- technology office in Sunnyvale, California (USA)
+	+1 (408) 737-0900
+- world headquarters in Espoo (Finland)
+	+358 10 44 99 000
+
++ Philips Consumer Communications
+
+This company was formed through a merger of a part of a subsidiary of
+Lucent Technologies and Royal Philips Electronics. The official merger
+was completed on Oct 7, 2016. The company subsequently was subsequently
+dissolved in 1998. Lucent Technologies solved its share after the
+dissolution to Motorola, itself subsequently bought by Google.
+
+For employement information during my time from January 1997 through
+October 1997, please contact Nokia above.
+
+From January 1997 through October 1997, although I worked in the Holmdel
+NJ location (co-located with both Lucent Technologies and AT&T), the
+official headquarters of the company was in Parsippany NJ (USA).
+
+

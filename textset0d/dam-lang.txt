@@ -1,0 +1,42 @@
+Software and hardware languages worked with (dam-lang)
+
+
+= hardware
+ABEL
+VHDL
+SPICE
+ADVICE (AT&T Bell Laboratories enhancement to SPICE)
+
+= assembly
+CDC-6x00
+PDP-8
+808x
+VAX-11
+M68xx0
+x86
+BellMac (AT&T microprocessor)
+ARM
+MIPS
+Alpha
+
+= high-level (general)
+BASIC
+FORTRAN
+Pascal
+Bourne
+KSH
+CSH
+BASH
+BS (AT&T Bell Laboratories; now apparently gone)
+C
+C++
+Prolog
+AWK
+TCL
+MATLAB
+Java
+AMPL
+
+= specialty (AT&T Bell Laboratories)
+Prarie
+

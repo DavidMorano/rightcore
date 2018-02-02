@@ -5,9 +5,7 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_DEBUG	0		/* run-time debugging */
-#define	CF_GETEXECNAME	1		/* use 'getexecname(3c)' */
 #define	CF_SIGNAL	1
-#define	CF_SHUTDOWN	0
 
 
 /* revision history:
@@ -165,7 +163,7 @@ static int	signal_num = 0 ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"DEBUG",
 	"VERSION",
@@ -195,7 +193,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const char *progopts[] = {
+static const char	*progopts[] = {
 	"pcspoll",
 	"loglen",
 	"cluster",

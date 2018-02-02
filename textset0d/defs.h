@@ -136,7 +136,7 @@ struct proginfo {
 	const char	*tmpdname ;
 	const char	*helpfname ;
 	const char	*blanks ;
-	const char	*blankstring ;
+	const char	*blanklines ;
 	const char	*headerstring ;
 	cchar		*fontname ;
 	void		*efp ;
@@ -147,12 +147,13 @@ struct proginfo {
 	int		pwdlen ;
 	int		debuglevel ;
 	int		verboselevel ;
-	int		pagelines ;
+	int		pagelines ;	/* lines per page */
 	int		coffset ;
 	int		ps ;		/* point-size */
 	int		vs ;		/* vertical-spacing */
-	int		fileno ;
-	int		page ;		/* pages (accumulated) */
+	int		fncol ;		/* column for beginning of filename */
+	int		files ;		/* files */
+	int		pages ;		/* pages (accumulated) */
 } ;
 
 struct pivars {

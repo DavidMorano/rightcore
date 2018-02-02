@@ -1,0 +1,24 @@
+Operating Systems worked on (dam-os)
+
+
++ CDC Kronos
++ DEC RSX-11M
++ DEC VMS 
++ UNIX System III
++ UNIX Release 4.x
++ UNIX System V Release 1
++ UNIX System V Release 2
++ UNIX System V Release 2p
++ UNIX System V Release 3
++ Amdahl UTS
++ UNIX System V Release 4
++ SunOS 4.x.x
++ SunOS 5.x
++ Sun Solaris x.x (many)
++ DEC BSD
++ IBM AIX
++ SGI IRIX
++ DEC True-64
++ Linux (RedHat)
+
+

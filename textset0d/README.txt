@@ -4,13 +4,11 @@ This program formats one or more input text files into an output TROFF source
 language file.
 
 Synopsis:
-
 $ textset [-l <lines>] [-<lines>] [-of <outfile>] [<file(s)> [...]]
 	[-f <font>] [-o <offset>] [-b <toplines>] [-DV]
 	[-p <point_size>] [-v <vertical_space>]
 
-where:
-
+Arguments:
 -<lines>		number of lines per page
 -l <lines>		number of lines per page
 <file(s)>		file(s) to process

@@ -338,7 +338,7 @@ int babycalcs_close(BABYCALCS *op)
 
 int babycalcs_check(BABYCALCS *op,time_t dt)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 
@@ -354,7 +354,7 @@ int babycalcs_check(BABYCALCS *op,time_t dt)
 int babycalcs_lookup(BABYCALCS *op,time_t datereq,uint *rp)
 {
 	time_t		dt = 0 ;
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (rp == NULL) return SR_FAULT ;
@@ -381,7 +381,7 @@ int babycalcs_lookup(BABYCALCS *op,time_t datereq,uint *rp)
 
 int babycalcs_info(BABYCALCS *op,BABYCALCS_INFO *bip)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (op == NULL) return SR_FAULT ;
 	if (bip == NULL) return SR_FAULT ;
@@ -812,14 +812,14 @@ static int babycalcs_shmwr(BABYCALCS *op,time_t dt,int fd,mode_t om)
 
 /* prepare the file-header */
 
-	    memset(&hf,0,sizeof(BABIESFU)) ;
-	    hf.vetu[0] = BABIESFU_VERSION ;
-	    hf.vetu[1] = ENDIAN ;
-	    hf.vetu[2] = 0 ;
-	    hf.vetu[3] = 0 ;
-	    hf.dbsize = (uint) op->dbsize ;
-	    hf.dbtime = (uint) op->ti_mdb ;
-	    hf.wtime = (uint) dt ;
+	memset(&hf,0,sizeof(BABIESFU)) ;
+	hf.vetu[0] = BABIESFU_VERSION ;
+	hf.vetu[1] = ENDIAN ;
+	hf.vetu[2] = 0 ;
+	hf.vetu[3] = 0 ;
+	hf.dbsize = (uint) op->dbsize ;
+	hf.dbtime = (uint) op->ti_mdb ;
+	hf.wtime = (uint) dt ;
 
 /* process */
 
@@ -953,6 +953,7 @@ static int babycalcs_openshmwait(BABYCALCS *op,cchar *shmname)
 	    fd = rs ;
 	    if (rs >= 0) break ;
 	    if (rs != SR_ACCESS) break ;
+	    msleep(1) ;
 	} /* end while */
 
 	if ((rs < 0) && (to == 0)) {
@@ -1040,7 +1041,7 @@ static int babycalcs_verify(BABYCALCS *op,time_t dt)
 static int babycalcs_lookshm(BABYCALCS *op,time_t dt,time_t datereq,uint *rp)
 {
 	sigset_t	oldsigmask, newsigmask ;
-	int		rs = SR_OK ;
+	int		rs ;
 
 	if (op->mapdata == NULL) return SR_BUGCHECK ;
 	if (op->mp == NULL) return SR_BUGCHECK ;
@@ -1055,16 +1056,15 @@ static int babycalcs_lookshm(BABYCALCS *op,time_t dt,time_t datereq,uint *rp)
 
 	    if ((rs = ptm_lock(op->mp)) >= 0) {
 
-	        rs = babycalcs_shmaccess(op,dt) ;
-
-	        if (rs >= 0)
+	        if ((rs = babycalcs_shmaccess(op,dt)) >= 0) {
 	            rs = babycalcs_lookproc(op,datereq,rp) ;
+		}
 
 	        ptm_unlock(op->mp) ;
 	    } /* end if (mutex lock) */
 
 	    u_sigprocmask(SIG_SETMASK,&oldsigmask,NULL) ;
-	} /* end if */
+	} /* end if (u_sigprocmask) */
 
 	return rs ;
 }
@@ -1158,17 +1158,17 @@ static int babycalcs_dbcheck(BABYCALCS *op,time_t dt)
 	            f = (sb.st_mtime > op->hf.dbtime) ;
 	            f = f || (sb.st_size != op->hf.dbsize) ;
 	            if (f) {
-	                rs = babycalcs_dbwait(op,dt,&sb) ;
-	                if (rs >= 0)
+	                if ((rs = babycalcs_dbwait(op,dt,&sb)) >= 0) {
 	                    rs = babycalcs_reloadshm(op,dt,&sb) ;
+			}
 	            }
 	        } else {
 	            f = (sb.st_mtime > op->ti_mdb) ;
 	            f = f || (sb.st_size != op->dbsize) ;
 	            if (f) {
-	                rs = babycalcs_dbwait(op,dt,&sb) ;
-	                if (rs >= 0)
+	                if ((rs = babycalcs_dbwait(op,dt,&sb)) >= 0) {
 	                    rs = babycalcs_reloadtxt(op,dt) ;
+			}
 	            }
 	        }
 	    } else if (isNotPresent(rs)) {
@@ -1188,31 +1188,33 @@ static int babycalcs_dbcheck(BABYCALCS *op,time_t dt)
 static int babycalcs_shminfo(BABYCALCS *op,BABYCALCS_INFO *bip)
 {
 	sigset_t	oldsigmask, newsigmask ;
-	int		rs = SR_OK ;
+	int		rs ;
+	int		rs1 ;
+	int		rv = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("babycalcs_shminfo: ent\n") ;
 #endif
 
-	if (op->mapdata == NULL)
-	    return SR_BUGCHECK ;
-
-	if (op->mp == NULL)
-	    return SR_BUGCHECK ;
+	if (op->mapdata == NULL) return SR_BUGCHECK ;
+	if (op->mp == NULL) return SR_BUGCHECK ;
 
 	uc_sigsetfill(&newsigmask) ;
 
 	if ((rs = u_sigprocmask(SIG_BLOCK,&newsigmask,&oldsigmask)) >= 0) {
 	    if ((rs = ptm_lock(op->mp)) >= 0) {
-
-	        rs = babycalcs_lookinfo(op,bip) ;
-
-	        ptm_unlock(op->mp) ;
+		{
+	            rs = babycalcs_lookinfo(op,bip) ;
+		    rv = rs ;
+		}
+	        rs1 = ptm_unlock(op->mp) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (mutex lock) */
-	    u_sigprocmask(SIG_SETMASK,&oldsigmask,NULL) ;
+	    rs1 = u_sigprocmask(SIG_SETMASK,&oldsigmask,NULL) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (procmask) */
 
-	return rs ;
+	return (rs >= 0) ? rv : rs ;
 }
 /* end subroutine (babycalcs_shminfo) */
 
@@ -1367,7 +1369,7 @@ static int babycalcs_shmupdate(BABYCALCS *op,time_t dt,USTAT *sbp,int fd)
 #endif
 
 	if ((rs = babycalcs_loadtxt(op)) >= 0) {
-	    uint		*hwp ;
+	    uint	*hwp ;
 	    const int	es = sizeof(BABYCALCS_ENT) ;
 	    int		nen = op->nentries ;
 	    int		neo = op->nentries ;
@@ -1555,9 +1557,7 @@ static int mkshmname(char *shmbuf,cchar *fp,int fl,cchar *dp,int dl)
 /* end subroutine (mkshmname) */
 
 
-static int vcmpentry(e1pp,e2pp)
-BABYCALCS_ENT	**e1pp ;
-BABYCALCS_ENT	**e2pp ;
+static int vcmpentry(BABYCALCS_ENT **e1pp,BABYCALCS_ENT **e2pp)
 {
 	int		rc = 0 ;
 	if ((*e1pp != NULL) || (*e2pp != NULL)) {

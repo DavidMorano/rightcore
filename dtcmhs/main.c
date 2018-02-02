@@ -1,6 +1,6 @@
-/* main */
+/* main (DTCMHS) */
 
-/* DTCM_HAVE server */
+/* DTCM Have Server */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -133,8 +133,7 @@ static int	usage(PROGINFO *) ;
 
 static void	sighand_int(int) ;
 
-static int	procmsg(PROGINFO *,int,char *,int,
-			struct sockaddr *,int) ;
+static int	procmsg(PROGINFO *,int,char *,int,struct sockaddr *,int) ;
 
 
 /* local variables */
@@ -160,7 +159,7 @@ static const int	sigints[] = {
 	0
 } ;
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",

@@ -1,0 +1,21 @@
+My current exceptional core skills would include:
+
++ real-time (embedded on either RTOS or Linux/UNIX), or not embedded on 
+  Linux/UNIX
++ high performance (and multi-threaded and-or multi-processed)
++ extensive and strong Object-Oriented-Architecture 
+  (OOA) / Object-Oriented-Design (OOD)
++ extensive experience w/ C/C++
++ extensive experience developing on a UNIX/Linux environment
++ high quality designs (no bugs) for the most demanding 
+  environments and applications
++ ability to work w/ hardware (either System-On-Chip, in embedded space, 
+  or otherwise)
++ custom and standard (Internet) networking
++ sockets and XNET/TLI networking APIs
++ strong ability to translate product requirements into architecture and coding
++ extensive documentation and communication skills
++ experience working in both large and small teams
++ experience with large project methodologies and documentation
+
+

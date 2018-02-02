@@ -66,8 +66,12 @@
 
 #define	MAXBLANKLINES	100
 #define	DEFBLANKLINES	2
+#define	DEFPOINT	10
 #define	DEFLINES	60
 #define	MAXLINES	180
-#define	DEFPOINT	10
+
+#ifndef	FNCOL
+#define	FNCOL		40
+#endif
 
 

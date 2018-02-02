@@ -2,7 +2,29 @@
 
 /* test something to do with ANSI compliance */
 
-#define	CF_MINUSONE	0
+#define	CF_MINUSONE	0		/* minus one */
+
+
+#ifdef	__STDC__
+
+#if	(((__STDC__) - 0) != 0)
+
+#if	(((__STDC__) - 0) == 1)
+/* #error	"STDC one " */
+#else
+#error	"STDC zero NOT"
+#endif
+
+#else
+#error	"STDC zero "
+#endif
+
+#else
+#error	"STDC not defined"
+#endif
+
+
+/* local defines */
 
 #include	<envstandards.h>
 #include	<bfile.h>
@@ -16,7 +38,8 @@ extern int	minus_one(int) ;
 
 /* forward references */
 
-static int printsub(bfile *,uint) ;
+static int	printsub(bfile *,uint) ;
+static int	sub4(bfile *) ;
 
 
 /* exported subroutines */
@@ -88,6 +111,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	    bprintf(ofp,"uc=%08x uv=%08x\n",ch,uv) ;
 	}
 
+/* fourth */
+
+	sub4(ofp) ;
+
 /* out of here */
 
 	bclose(ofp) ;
@@ -107,5 +134,12 @@ static int printsub(bfile *fp,uint v)
 	return bprintf(fp,"%08x\n",v) ;
 }
 /* end subroutine (printsub) */
+
+
+static int sub4(bfile *ofp) {
+	off_t	pos = ((off_t) -1) ;
+	bprintf(ofp,"off=%lld\n",pos) ;
+	return SR_OK ;
+}
 
 

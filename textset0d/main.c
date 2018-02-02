@@ -4,7 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compiltime-time debug print-outs */
-#define	CF_DEBUG	0		/* run-time debug print-outs */
+#define	CF_DEBUG	1		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 
 
@@ -14,6 +14,9 @@
         This subroutine was originally written but it was probably started from
         any one of the numerous subroutine which perform a similar
         "file-processing" fron end.
+
+	= 2018-02-01, David A­D­ Morano
+	Some refactoring.
 
 */
 
@@ -26,8 +29,8 @@
 
 	Synopsis:
 
-	$ textset [input_file [outfile]] [-DV] [-o offset] [-l lines] 
-		[-f font] [-p point_size] [-v vertical_space]
+	$ textset [<ifile>] [-DV] [-o <offset>] [-l <lines>] 
+		[-f <font>] [-p <point_size>] [-v <vertical_space>]
 
 
 *******************************************************************************/
@@ -105,10 +108,13 @@ static int	procleader(PROGINFO *,bfile *) ;
 static int	proctrailer(PROGINFO *,bfile *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,bfile *,cchar *) ;
 
+static int	procdata_begin(PROGINFO *pip,int blines) ;
+static int	procdata_end(PROGINFO *pip) ;
+
 
 /* local variables */
 
-static cchar	*argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"DEBUG",
 	"VERSION",
@@ -138,7 +144,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -146,7 +152,7 @@ static const struct pivars	initvars = {
 	VARPRLOCAL
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -158,7 +164,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar	*stdfonts[] = {
+static const char	*stdfonts[] = {
 	"R",
 	"I",
 	"B",
@@ -188,8 +194,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	int		pagelines = 0 ;
 	int		blanklines = DEFBLANKLINES ;
 	int		coffset = 0 ;		/* column offset */
-	int		xoffset = 0 ;		/* page X offset */
-	int		yoffset = 0 ;		/* page Y offset */
 	int		pointlen = 0 ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
@@ -206,8 +210,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*ofname = NULL ;
 	const char	*pointstring  = NULL ;
 	const char	*cp ;
-	char		blanks[LINEBUFLEN + 1] ;
-	char		blankstring[MAXBLANKLINES + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -546,32 +548,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	                            rs = SR_INVALID ;
 	                        break ;
 
-	                    case 'x':
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl) {
-	                                rs = optvalue(argp,argl) ;
-	                                xoffset = rs ;
-	                            }
-	                        } else
-	                            rs = SR_INVALID ;
-	                        break ;
-
-	                    case 'y':
-	                        if (argr > 0) {
-	                            argp = argv[++ai] ;
-	                            argr -= 1 ;
-	                            argl = strlen(argp) ;
-	                            if (argl) {
-	                                rs = optvalue(argp,argl) ;
-	                                yoffset = rs ;
-	                            }
-	                        } else
-	                            rs = SR_INVALID ;
-	                        break ;
-
 /* print a brief usage summary (and then exit!) */
 	                    case '?':
 	                        f_usage = TRUE ;
@@ -688,7 +664,7 @@ int main(int argc,cchar **argv,cchar **envv)
 /* establish working point size and vertical spacing */
 
 	if ((rs >= 0) && (pointstring != NULL)) {
-	    int	i ;
+	    int		i ;
 
 	    i = substring(pointstring,pointlen,".") ;
 
@@ -725,23 +701,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	        pip->progname,pip->ps,pip->vs) ;
 	}
 
-/* perform initialization processing */
-
-	{
-	    int		i = 0 ;
-	    char	*bp = blankstring ;
-	    for (i = 0 ; i < LINEBUFLEN ; i += 1) {
-	        blanks[i] = ' ' ;
-	    }
-	    pip->blanks = blanks ;
-	    for (i = 0 ; (i < blanklines) && (i < MAXBLANKLINES) ; i += 1) {
-	        *bp++ = '\n' ;
-	    }
-	    *bp = '\0' ;
-	}
-
-	pip->blankstring = blankstring ;
-
 /* continue */
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
@@ -752,9 +711,16 @@ int main(int argc,cchar **argv,cchar **envv)
 	ainfo.ai_pos = ai_pos ;
 
 	if (rs >= 0) {
-	    ARGINFO	*aip = &ainfo ;
-	    BITS	*bop = &pargs ;
-	    rs = process(pip,aip,bop,ofname,afname) ;
+	    pip->fncol = FNCOL ;
+	    if ((rs = procdata_begin(pip,blanklines)) >= 0) {
+		{
+	            ARGINFO	*aip = &ainfo ;
+	            BITS	*bop = &pargs ;
+	            rs = process(pip,aip,bop,ofname,afname) ;
+		}
+		rs1 = procdata_end(pip) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (procdata) */
 	} else if (ex == EX_OK) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
@@ -766,7 +732,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	if (pip->debuglevel > 0) {
 	    cchar	*pn = pip->progname ;
 	    cchar	*fmt = "%s: pages processed - %d\n" ;
-	    bprintf(pip->efp,fmt,pn,pip->page) ;
+	    bprintf(pip->efp,fmt,pn,pip->pages) ;
 	}
 
 /* done */
@@ -1040,5 +1006,58 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,bfile *ofp,cchar *afn)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (procargs) */
+
+
+static int procdata_begin(PROGINFO *pip,int blines)
+{
+	int		rs ;
+	char		*bp ;
+	if (blines > MAXBLANKLINES) blines = MAXBLANKLINES ;
+	if ((rs = uc_malloc((blines+1),&bp)) >= 0) {
+	    const int	llen = LINEBUFLEN ;
+	    int		i ;
+	    char	*lp ;
+	    pip->blanklines = bp ;
+	    for (i = 0 ; i < blines ; i += 1) {
+	        *bp++ = '\n' ;
+	    }
+	    *bp = '\0' ;
+	    if ((rs = uc_malloc((llen+1),&lp)) >= 0) {
+	        pip->blanks = lp ;
+	        for (i = 0 ; i < llen ; i += 1) {
+	            lp[i] = ' ' ;
+	        }
+		lp[i] = '\0' ;
+	    } /* end if (m-a) */
+	    if (rs < 0) {
+		uc_free(bp) ;
+		pip->blanklines = NULL ;
+	    }
+	} /* end if (m-a) */
+	return rs ;
+}
+/* end subroutine (procdata_begin) */
+
+
+static int procdata_end(PROGINFO *pip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+
+	if (pip->blanklines != NULL) {
+	    rs1 = uc_free(pip->blanklines) ;
+	    if (rs >= 0) rs = rs1 ;
+	    pip->blanklines = NULL ;
+	}
+
+	if (pip->blanks != NULL) {
+	    rs1 = uc_free(pip->blanks) ;
+	    if (rs >= 0) rs = rs1 ;
+	    pip->blanks = NULL ;
+	}
+
+	return rs ;
+}
+/* end subroutine (procdata_end) */
 
 

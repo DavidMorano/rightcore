@@ -1,0 +1,14 @@
+Some of my exceptional core skills would include:
+
++ extensive low-level hardware coding experience (assembly, C, and C++)
++ device driver design
++ hardware experience
++ designing for low power and high performance (and tradeoffs)
++ SoC experience
++ computer design experience
++ emulation experience
++ IC design experience and validation
++ various simulation experience
++ excellent experience w/ both hardware and firmware-software debugging
++ excellent communication skills and documentation experience
+
