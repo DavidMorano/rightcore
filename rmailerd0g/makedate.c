@@ -1,2 +1,2 @@
 const char rmailerd_makedate[] =
-	"@(#)rmailerd                141010_1314:36_USEDT Rightcore Network Services" ;
+"@(#)rmailerd                180202_2130:05_USEST Rightcore Network Services" ;

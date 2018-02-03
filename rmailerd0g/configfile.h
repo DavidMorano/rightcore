@@ -13,15 +13,12 @@
 #include	<vecstr.h>
 
 
-
-/* object defines */
-
+#define	CONFIGFILE_MAGIC	0x04311633
 #define	CONFIGFILE		struct configfile
 
 
-
 struct configfile {
-	unsigned long	magic ;		/* magic number */
+	uint		magic ;		/* magic number */
 	vecstr	defines ;	/* defined variables */
 	vecstr	unsets ;	/* unset ENV variables */
 	vecstr	exports ;	/* environment variables */
@@ -70,7 +67,6 @@ struct configfile {
 } ;
 
 
-
 #ifndef	CONFIGFILE_MASTER
 
 #ifdef	__cplusplus
@@ -86,8 +82,6 @@ extern int configfile_finish(CONFIGFILE *) ;
 
 #endif /* CONFIGFILE_MASTER */
 
-
 #endif /* CONFIGFILE_INCLUDE */
-
 
 

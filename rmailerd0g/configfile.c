@@ -11,28 +11,25 @@
 /* revision history:
 
 	= 2000-01-21, David A­D­ Morano
-
 	This subroutine was enhanced for use by LevoSim.
-
 
 */
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
 
-/******************************************************************************
+/*******************************************************************************
 
-	This is the old configuration file reader object.  It is cheap,
-	it is ill-conceived, it is a mess, it works well enough to be
-	used for cheap code.  I didn't want to use this junk for the
-	Levo machine simulator but time pressure decided for us !
+        This is the old configuration file reader object. It is cheap, it is
+        ill-conceived, it is a mess, it works well enough to be used for cheap
+        code. I didn't want to use this junk for the Levo machine simulator but
+        time pressure decided for us !
 
-	Although this whole configuration scheme is messy, it gives
-	us enough of what we need to get some configuration information
-	into the Levo machine simulator and to get a parameter file
-	name.  This is good enough for now.
+        Although this whole configuration scheme is messy, it gives us enough of
+        what we need to get some configuration information into the Levo machine
+        simulator and to get a parameter file name. This is good enough for now.
 
 
-******************************************************************************/
+*******************************************************************************/
 
 
 #define	CONFIGFILE_MASTER	1
@@ -61,8 +58,6 @@
 
 
 /* local defines */
-
-#define	CONFIGFILE_MAGIC	0x04311633
 
 #ifndef	LINEBUFLEN
 #ifdef	LINE_MAX
@@ -233,33 +228,29 @@ int configfile_start(csp,configfname)
 CONFIGFILE	*csp ;
 const char	configfname[] ;
 {
-	BUFFER	options ;
-
-	FIELD	fsb ;
-
-	bfile	cfile, *cfp = &cfile ;
-
-	vecstr	*vsp ;
-
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	i ;
-	int	c, len1, len ;
-	int	bl, cl ;
-	int	fl ;
-	int	line = 0 ;
-	int	noptions = 0 ;
+	BUFFER		options ;
+	FIELD		fsb ;
+	bfile		cfile, *cfp = &cfile ;
+	vecstr		*vsp ;
+	const int	llen = LINEBUFLEN ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	int		c, len1, len ;
+	int		bl, cl ;
+	int		fl ;
+	int		line = 0 ;
+	int		noptions = 0 ;
 
 	const char	*fp ;
-
-	char	linebuf[LINEBUFLEN + 1] ;
-	char	buf[BUFLEN + 1] ;
-	char	buf2[BUFLEN + 1] ;
-	char	*bp, *cp ;
-
+	const char	*cp ;
+	char		lbuf[LINEBUFLEN + 1] ;
+	char		buf[BUFLEN + 1] ;
+	char		buf2[BUFLEN + 1] ;
+	char		*bp ;
 
 #if	CF_DEBUGS
-	debugprintf("configfile_start: entered filename=%s\n",configfname) ;
+	debugprintf("configfile_start: ent filename=%s\n",configfname) ;
 #endif
 
 	if (csp == NULL)
@@ -317,13 +308,13 @@ const char	configfname[] ;
 	debugprintf("configfile_start: reading lines\n") ;
 #endif
 
-	while ((rs = breadline(cfp,linebuf,LINEBUFLEN)) > 0) {
-
+	while ((rs = breadline(cfp,lbuf,llen)) > 0) {
 	    len = rs ;
+
 	    line += 1 ;
 	    if (len == 1) continue ;	/* blank line */
 
-	    if (linebuf[--len] != '\n') {
+	    if (lbuf[--len] != '\n') {
 
 #ifdef	COMMENT
 	        f_trunc = TRUE ;
@@ -334,10 +325,10 @@ const char	configfname[] ;
 	        continue ;
 	    }
 
-	    if ((len == 0) || (linebuf[0] == '#'))
+	    if ((len == 0) || (lbuf[0] == '#'))
 	        continue ;
 
-	    if ((rs = field_start(&fsb,linebuf,len)) >= 0) {
+	    if ((rs = field_start(&fsb,lbuf,len)) >= 0) {
 
 	    	fl = field_get(&fsb,fterms,&fp) ;
 

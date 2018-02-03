@@ -89,24 +89,20 @@ static const uchar	fterms[32] = {
 /* exported subroutines */
 
 
-int procfileenv(programroot,fname,lp)
-char	programroot[] ;
-char	fname[] ;
-VECSTR	*lp ;
+int procfileenv(cchar *programroot,cchar *fname,VECSTR *lp)
 {
-	FIELD	fsb ;
-
-	bfile	file, *fp = &file ;
-
-	int	rs ;
-	int	c, len, cl ;
-
-	char	linebuf[LINEBUFLEN + 1] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	*cp ;
+	FIELD		fsb ;
+	bfile		file, *fp = &file ;
+	const int	llen = LINEBUFLEN ;
+	int		rs ;
+	int		c = 0 ;
+	int		len, cl ;
+	char		lbuf[LINEBUFLEN + 1] ;
+	char		buf[BUFLEN + 1], *bp ;
+	char		*cp ;
 
 #if	CF_DEBUGS
-	char	outname[MAXPATHLEN + 1] ;
+	char		outname[MAXPATHLEN + 1] ;
 #endif
 
 
@@ -126,18 +122,17 @@ VECSTR	*lp ;
 	debugprintf("procfileenv: opened\n") ;
 #endif
 
-	c = 0 ;
-	while ((rs = breadline(fp,linebuf,LINEBUFLEN)) > 0) {
+	while ((rs = breadline(fp,lbuf,llen)) > 0) {
 	    len = rs ;
 
-	    if (linebuf[len - 1] == '\n')
+	    if (lbuf[len - 1] == '\n')
 	        len -= 1 ;
 
 #if	CF_DEBUGS
-	    debugprintf("procfileenv: line> %t\n",linebuf,len) ;
+	    debugprintf("procfileenv: line> %t\n",lbuf,len) ;
 #endif
 
-	    cp = linebuf ;
+	    cp = lbuf ;
 	    cl = len ;
 	    while ((cl > 0) && CHAR_ISWHITE(*cp)) {
 		cp += 1 ;
@@ -150,7 +145,6 @@ VECSTR	*lp ;
 	    if ((rs = field_start(&fsb,cp,cl)) >= 0) {
 		int	fl ;
 		char	*fp ;
-
 
 	    fl = field_get(&fsb,fterms,&fp) ;
 

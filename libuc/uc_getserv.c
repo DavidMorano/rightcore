@@ -27,7 +27,7 @@
 	int uc_getservbyname(name,proto,sep,rbuf,rlen)
 	const char	name[] ;
 	const char	proto[] ;
-	struct hostent	*sep ;
+	struct srvent	*sep ;
 	char		rbuf[] ;
 	int		rlen ;
 
@@ -35,7 +35,7 @@
 
 	- name		name to lookup
 	- proto		service to lookup
-	- sep		pointer to 'hostent' structure
+	- sep		pointer to 'srvent' structure
 	- rbuf		user supplied buffer to hold result
 	- rlen		length of user supplied buffer
 
@@ -127,10 +127,7 @@ int uc_endservent()
 	return SR_OK ;
 }
 
-int uc_getservent(sep,rbuf,rlen)
-struct servent	*sep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getservent(struct servent *sep,char *rbuf,int rlen)
 {
 	struct servent	*rp ;
 	int		rs = SR_OK ;
@@ -189,12 +186,8 @@ int		rlen ;
 /* end subroutine (uc_getservent) */
 
 
-int uc_getservbyname(name,proto,sep,rbuf,rlen)
-const char	name[] ;
-const char	proto[] ;
-struct servent	*sep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getservbyname(cchar *name,cchar *proto,
+		struct servent *sep,char *rbuf,int rlen)
 {
 	struct servent	*rp ;
 	int		rs = SR_OK ;
@@ -261,12 +254,8 @@ int		rlen ;
 /* end subroutine (uc_getservbyname) */
 
 
-int uc_getservbyport(port,proto,sep,rbuf,rlen)
-int		port ;
-const char	proto[] ;
-struct servent	*sep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getservbyport(int port,cchar *proto,struct servent *sep,
+		char *rbuf,int rlen)
 {
 	struct servent	*rp ;
 	int		rs = SR_OK ;
@@ -358,10 +347,7 @@ static int servsize(struct servent *sep)
 
 #if	RF_SERVCOPY
 
-static int servcopy(sep,rbuf,rlen,rp)
-struct servent	*sep, *rp ;
-char		rbuf[] ;
-int		rlen ;
+static int servcopy(struct servent *sep,char *rbuf,int rlen,struct servent *rp)
 {
 	STOREITEM	ib ;
 	int		rs ;
@@ -379,7 +365,7 @@ int		rlen ;
 
 	        if ((rs = storeitem_ptab(&ib,n,&tab)) >= 0) {
 		    int		i ;
-		    const char	*aliases = rp->s_aliases ;
+		    cchar	*aliases = rp->s_aliases ;
 
 	            sep->s_aliases = (char **) tab ;
 	            for (i = 0 ; rp->s_aliases[i] != NULL ; i += 1) {
@@ -404,10 +390,7 @@ int		rlen ;
 }
 /* end subroutine (servcopy) */
 
-static int si_copystr(ibp,pp,p1)
-STOREITEM	*ibp ;
-const char	*p1 ;
-char		**pp ;
+static int si_copystr(STOREITEM *ibp,cchar *p1,char **pp)
 {
 	int		rs = SR_OK ;
 	const char	**cpp = (const char **) pp ;

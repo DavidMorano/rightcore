@@ -13,19 +13,18 @@ LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
 
-#LDCRTDIR= /opt/SUNWspro/WS6/lib
-#LDCRTDIR= /opt/SUNWspro/SC5.0/lib
-#LDCRTDIR= /opt/SUNWspro/SC4.0/lib
-#LDCRTDIR= /opt/SUNWspro/lib
-LDCRTDIR= $(SRCROOT)/lib
+LDCRTDIR= $(CGS_CRTDIR)
+VALDIR= $(CGS_VALDIR)
 
 
-CC= gcc
-GPP= g++
+CC= $(CGS_CC)
+GPP= $(CGS_GPP)
 
+GPPFLAGS= $(CGS_CCFLAGS)
 CCOPTS_GCCALL= -pthreads -fexceptions
 CCOPTS_CCALL= -MT
 
+CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
 CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
 CCOPTS_GCCLIBSPARC= -mno-app-regs
 
@@ -33,6 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -78,29 +78,35 @@ CFLAGS= $(CCOPTS)
 #LD= cc
 LD= ld
 
+
+LDRPATH=
+
 # regular
-LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH)
 # for profiling
 #LDFLAGS= -L/usr/lib/libp # -R$(LIBDIR)
 
 
-LIBDIRS= -L$(LIBDIR)
+LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
 LIB2= -ldebug
 LIB3= -luc -lu
-LIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
+LIB4= $(CGS_LIBS)
 LIB5= 
 LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
+LIBINFO= $(LIBDIRS) $(LIBS)
+
+
+VALUES= $(VALDIR)/$(CGS_VALUES)
 
 CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-VALUES= $(LDCRTDIR)/values-xa.o
 CRTBEGIN= $(LDCRTDIR)/crtbegin.o
 MCRT1= $(LDCRTDIR)/mcrt1.o
 GCRT1= $(LDCRTDIR)/gcrt1.o
@@ -135,7 +141,7 @@ OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
 OBJ01= 
 OBJ02= configfile.o checklockfile.o varsub_extras.o expander.o watch.o
 OBJ03= handle.o process.o mailenter.o
-OBJ04= ldebug.o util.o varsub_dumpfd.o
+OBJ04= ldebug.o varsub_dumpfd.o
 OBJ05= 
 OBJ06= procfileenv.o
 OBJ07= printhelp.o 
@@ -146,7 +152,7 @@ OBJ11= bopenroot.o getfname.o
 OBJ12=
 OBJ13=
 OBJ14=
-OBJ15=
+OBJ15= outbuf.o
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07) 
 OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
@@ -168,11 +174,11 @@ default:		$(T).x
 
 all:			$(ALL)
 
+.cc.o:
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
-
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<
@@ -196,7 +202,7 @@ $(T):			$(T).ee
 $(T).x:			$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
 	$(CC) -c makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS) > $(T).lm
+	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
 $(T).prof:		$(OBJ) Makefile
 	makedate -m $(T) > makedate.c
@@ -280,5 +286,6 @@ recipient.o:		recipient.c recipient.h
 
 address.o:		address.c address.h
 
+outbuf.o:		outbuf.c outbuf.h
 
 

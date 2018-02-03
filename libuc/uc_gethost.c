@@ -155,7 +155,7 @@ struct herrno {
 static int	gethosterr(int) ;
 
 #if	CF_DEBUGS
-static const char	*strherrno(int) ;
+static cchar	*strherrno(int) ;
 #endif /* CF_DEBUGS */
 
 
@@ -179,7 +179,7 @@ static struct herrno	herrnos[] = {
 
 int uc_sethostent(int stayopen)
 {
-	int	rs ;
+	int		rs ;
 	errno = 0 ;
 	if ((rs = sethostent(stayopen)) != 0) {
 	    rs = (errno == 0) ? SR_IO : (- errno) ;
@@ -191,7 +191,7 @@ int uc_sethostent(int stayopen)
 
 int uc_endhostent()
 {
-	int	rs ;
+	int		rs ;
 	errno = 0 ;
 	if ((rs = endhostent()) != 0) {
 	    rs = (errno == 0) ? SR_IO : (- errno) ;
@@ -208,9 +208,8 @@ char		hebuf[] ;
 int		helen ;
 {
 	struct hostent	*lp ;
-
-	int	rs = SR_OK ;
-	int	i ;
+	int		rs = SR_OK ;
+	int		i ;
 
 #if	CF_DEBUGS
 	debugprintf("uc_gethostent: ent helen=%d\n",helen) ;
@@ -225,7 +224,7 @@ int		helen ;
 
 #if	CF_USEREENT
 	{
-	    int	h_errno ;
+	    int		h_errno ;
 
 #if	CF_DEBUGS
 	    debugprintf("uc_gethostent: USEREENT=1\n") ;
@@ -257,8 +256,9 @@ int		helen ;
 
 	    if (rs >= 0) {
 	        rs = hostent_size(hep) ;
-	    } else if (rs == SR_AGAIN)
+	    } else if (rs == SR_AGAIN) {
 	        rs = SR_TIMEDOUT ;
+	    }
 
 	}
 #else /* CF_USEREENT */
@@ -279,8 +279,8 @@ int		helen ;
 	        errno = 0 ;
 	        h_errno = 0 ;
 	        lp = gethostent() ;
-
 	        if (lp != NULL) break ;
+
 	        rs = gethosterr(h_errno) ;
 	        if (rs != SR_AGAIN) break ;
 
@@ -294,8 +294,9 @@ int		helen ;
 
 	    if (rs >= 0) {
 	        rs = hostent_load(hep,hebuf,helen,lp) ;
-	    } else if (rs == SR_AGAIN)
+	    } else if (rs == SR_AGAIN) {
 	        rs = SR_TIMEDOUT ;
+	    }
 
 	}
 #endif /* CF_USEREENT */
@@ -319,9 +320,8 @@ char		hebuf[] ;
 int		helen ;
 {
 	struct hostent	*lp ;
-
-	int	rs = SR_OK ;
-	int	i ;
+	int		rs = SR_OK ;
+	int		i ;
 
 #if	CF_DEBUGS
 	debugprintf("uc_gethostbyname: name=>%s<\n", name) ;
@@ -407,8 +407,9 @@ int		helen ;
 
 	    if (rs >= 0) {
 	        rs = hostent_load(hep,hebuf,helen,lp) ;
-	    } else if (rs == SR_AGAIN)
+	    } else if (rs == SR_AGAIN) {
 	        rs = SR_TIMEDOUT ;
+	    }
 
 	}
 #endif /* CF_USEREENT */
@@ -417,9 +418,10 @@ int		helen ;
 	if (rs >= 0) {
 	    int	i ;
 	    if (hep->h_aliases != NULL) {
-	        for (i = 0 ; hep->h_aliases[i] != NULL ; i += 1)
+	        for (i = 0 ; hep->h_aliases[i] != NULL ; i += 1) {
 	            debugprintf("uc_gethostbyname: alias[%u]=>%s<\n",
 	                i,hep->h_aliases[i]) ;
+		}
 	    }
 	}
 #endif /* CF_DEBUGS */
@@ -479,6 +481,7 @@ int		helen ;
 	            hep,hebuf,helen,&h_errno) ;
 
 	        if (lp != NULL) break ;
+
 	        rs = gethosterr(h_errno) ;
 	        if (rs != SR_AGAIN) break ;
 
@@ -490,8 +493,9 @@ int		helen ;
 
 	    if (rs >= 0) {
 	        rs = hostent_size(hep) ;
-	    } else if (rs == SR_AGAIN)
+	    } else if (rs == SR_AGAIN) {
 	        rs = SR_TIMEDOUT ;
+	    }
 
 	}
 #else /* CF_USEREENT */
@@ -512,8 +516,8 @@ int		helen ;
 	        errno = 0 ;
 	        h_errno = 0 ;
 	        lp = gethostbyaddr(addr,addrlen,type) ;
-
 	        if (lp != NULL) break ;
+
 	        rs = gethosterr(h_errno) ;
 	        if (rs != SR_AGAIN) break ;
 
@@ -529,8 +533,9 @@ int		helen ;
 
 	    if (rs >= 0) {
 	        rs = hostent_load(hep,hebuf,helen,lp) ;
-	    } else if (rs == SR_AGAIN)
+	    } else if (rs == SR_AGAIN) {
 	        rs = SR_TIMEDOUT ;
+	    }
 
 	}
 #endif /* CF_USEREENT */

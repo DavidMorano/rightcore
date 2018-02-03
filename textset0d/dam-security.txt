@@ -13,9 +13,7 @@ is highlighted with these notes.
 	- write it to be SETUID to a lower privileged user to begin with
 	- UTMPX update (refactored)
 	- PTY ownership change (refactored)
-	- TCPMUXD - network listen server and sister family of servers
 	- DMAIL - mail delivery
-	- DTCMHS - Common Desktop Environment (CDE) calendar entry query
 
 + network related code needs to guard against spurious input
 	- classic input buffer overruns
@@ -24,7 +22,10 @@ is highlighted with these notes.
 
 + servers do not need to be privileged to acquire privilege
 	- call a special SETUID program to acquire privilege and then
-	pass the file-descriptor back to the server
+	pass the file-descriptor back to the server (|openport(3dam)|)
+	- TCPMUXD - network listen server and sister family of servers
+	- DTCMHS - Common Desktop Environment (CDE) calendar entry query
+	- COMSAT - mail notification
 
 + string management subroutines to only operate on counted strings
 	sncpyxxx()

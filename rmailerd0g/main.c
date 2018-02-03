@@ -11,9 +11,7 @@
 /* revision history:
 
 	= 1998-09-01, David A­D­ Morano
-
 	This program was originally written.
-
 
 */
 
@@ -21,16 +19,16 @@
 
 /*******************************************************************************
 
-	This subroutine forms the front-end part of a generic PCS daemon
-	type of program.  This front-end is used in a variety of PCS
-	daemons and other programs.
+        This subroutine forms the front-end part of a generic PCS daemon type of
+        program. This front-end is used in a variety of PCS daemons and other
+        programs.
 
-	This subroutine was originally part of the Personal Communications
-	Services (PCS) package but can also be used independently from it.
-	Historically, this was developed as part of an effort to maintain
-	high function (and reliable) email communications in the face
-	of increasingly draconian security restrictions imposed on the
-	computers in the DEFINITY development organization.
+        This subroutine was originally part of the Personal Communications
+        Services (PCS) package but can also be used independently from it.
+        Historically, this was developed as part of an effort to maintain high
+        function (and reliable) email communications in the face of increasingly
+        draconian security restrictions imposed on the computers in the DEFINITY
+        development organization.
 
 
 *******************************************************************************/
@@ -49,11 +47,11 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<netdb.h>
 
 #include	<vsystem.h>
+#include	<estrings.h>
 #include	<bfile.h>
 #include	<baops.h>
 #include	<keyopt.h>
@@ -94,9 +92,6 @@
 
 /* external subroutines */
 
-extern int	snsd(char *,int,const char *,uint) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	strkeycmp(const char *,const char *) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
@@ -107,17 +102,21 @@ extern int	vecstr_envset(vecstr *,const char *,const char *,int) ;
 extern int	perm(const char *,uid_t,gid_t,gid_t *,int) ;
 extern int	permsched(const char **,vecstr *,char *,int,const char *,int) ;
 extern int	getfname(const char *,const char *,int,char *) ;
-extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,
-			const char *,const char *) ;
+extern int	getportnum(cchar *,cchar *) ;
+extern int	logfile_userinfo(LOGFILE *,USERINFO *,time_t,cchar *,cchar *) ;
+extern int	bopenroot(bfile *,cchar *,cchar *,cchar *,char *,mode_t) ;
+extern int	isalphalatin(int) ;
+extern int	isdigitlatin(int) ;
+extern int	isNotPresent(int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
-			const struct pivars *) ;
+extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
 
+extern int	procfileenv(cchar *,cchar *,VECSTR *) ;
 extern int	varsub_subbuf(), varsub_merge() ;
 extern int	expander() ;
-extern int	watch(struct proginfo *,int,VECSTR *) ;
-extern int	handle(struct proginfo *,int,VECSTR *) ;
+extern int	watch(PROGINFO *,int,VECSTR *) ;
+extern int	handle(PROGINFO *,int,VECSTR *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
@@ -137,8 +136,8 @@ extern char	*timestr_logz(time_t,char *) ;
 
 /* forward references */
 
-static int	usage(struct proginfo *) ;
-static int	procopts(struct proginfo *,char *,int) ;
+static int	usage(PROGINFO *) ;
+static int	procopts(PROGINFO *,char *,int) ;
 
 
 /* local structures */
@@ -178,7 +177,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -203,16 +202,6 @@ static const char	*sched1[] = {
 	"%p/%e/%n/%n.%f",
 	"%p/%e/%n/%f",
 	"%p/%e/%n.%f",
-	"%p/%n.%f",
-	NULL
-} ;
-
-/* non-'conf' ETC stuff for all regular programs */
-static const char	*sched2[] = {
-	"%p/%e/%n/%n.%f",
-	"%p/%e/%n/%f",
-	"%p/%e/%n.%f",
-	"%p/%e/%f",
 	"%p/%n.%f",
 	NULL
 } ;
@@ -244,98 +233,73 @@ enum progopts {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo		pi, *pip = &pi ;
-
+	PROGINFO		pi, *pip = &pi ;
 	struct sockaddr_in	sa_server ;
-	struct sockaddr_in	sa_from ;
 	struct ustat		sb ;
 
-	struct servent	se, *sep ;
-
-	struct protoent	pe, *pep ;
-
-	struct hostent	he, *hep ;
-
 	struct group	ge ;
-
 	USERINFO	u ;
-
 	KEYOPT		akopts ;
-
 	VECSTR		schedvars ;
-
 	CONFIGFILE	cf ;
-
 	bfile		errfile ;
 	bfile		logfile ;
 	bfile		pidfile ;
-
 	vecstr		defines, exports ;
-
 	varsub		vsh_e, vsh_d ;
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
-	uint	mo_start = 0 ;
+	uint		mo_start = 0 ;
 #endif
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	argvalue = -1 ;
-	int	pan = 0 ;
-	int	rs, rs1 ;
-	int	len, i, j, k, l ;
-	int	v, s, proto ;
-	int	port = -1 ;
-	int	loglen = -1 ;
-	int	l2, sl ;
-	int	logfile_type = -1 ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_programroot = FALSE ;
-	int	f_freeconfigfname = FALSE ;
-	int	f_version = FALSE ;
-	int	f_usage = FALSE ;
-	int	f_help = FALSE ;
-	int	f ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		argvalue = -1 ;
+	int		pan = 0 ;
+	int		rs, rs1 ;
+	int		len, i, l ;
+	int		s, proto ;
+	int		port = -1 ;
+	int		loglen = -1 ;
+	int		l2, sl ;
+	int		logfile_type = -1 ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_programroot = FALSE ;
+	int		f_freeconfigfname = FALSE ;
+	int		f_version = FALSE ;
+	int		f_usage = FALSE ;
+	int		f_help = FALSE ;
+	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
-	char	argpresent[MAXARGGROUPS] ;
-	char	buf[BUFLEN + 1], *bp ;
-	char	buf2[BUFLEN + 1] ;
-	char	userbuf[USERINFO_LEN + 1] ;
-	char	timebuf[TIMEBUFLEN + 1] ;
-	char	nodename[NODENAMELEN + 1], domainname[MAXHOSTNAMELEN + 1] ;
-	char	tmpfname[MAXPATHLEN + 1] ;
-	char	pidfname[MAXPATHLEN + 1] ;
-	char	lockfname[MAXPATHLEN + 1] ;
-	char	logfname[MAXPATHLEN + 1] ;
-	char	xfnamebuf[MAXPATHLEN + 1] ;
-	char	pwd[MAXPATHLEN + 1] ;
+	char		argpresent[MAXARGGROUPS] ;
+	char		buf[BUFLEN + 1] ;
+	char		buf2[BUFLEN + 1] ;
+	char		userbuf[USERINFO_LEN + 1] ;
+	char		timebuf[TIMEBUFLEN + 1] ;
+	char		tmpfname[MAXPATHLEN + 1] ;
+	char		pidfname[MAXPATHLEN + 1] ;
+	char		lockfname[MAXPATHLEN + 1] ;
+	char		logfname[MAXPATHLEN + 1] ;
+	char		xfnamebuf[MAXPATHLEN + 1] ;
 	const char	*pr = NULL ;
 	const char	*sn = NULL ;
 	const char	*afname = NULL ;
 	const char	*efname = NULL ;
 	const char	*ifname = NULL ;
-	const char	*programroot = NULL ;
 	const char	*configfname = NULL ;
 	const char	*portspec = NULL ;
 	const char	*cp ;
 
-
 #if	CF_DEBUGS || CF_DEBUG
-	if ((cp = getenv(VARDEBUGFNAME)) == NULL) {
-	    if ((cp = getenv(VARDEBUGFD1)) == NULL)
-	        cp = getenv(VARDEBUGFD2) ;
+	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
+	    rs = debugopen(cp) ;
+	    debugprintf("main: starting DFD=%d\n",rs) ;
 	}
-	if (cp != NULL)
-	    debugopen(cp) ;
-	debugprintf("main: starting\n") ;
 #endif /* CF_DEBUGS */
 
 #if	(CF_DEBUGS || CF_DEBUG) && CF_DEBUGMALL
@@ -350,7 +314,7 @@ const char	*envv[] ;
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialization */
 
@@ -383,8 +347,10 @@ const char	*envv[] ;
 
 /* start parsing the arguments */
 
+	if (rs >= 0) {
 	rs = keyopt_start(&akopts) ;
 	pip->open.akopts = (rs >= 0) ;
+	}
 
 	for (ai = 0 ; ai < MAXARGGROUPS ; ai += 1) 
 		argpresent[ai] = 0 ;
@@ -404,12 +370,13 @@ const char	*envv[] ;
 	    f_optminus = (*argp == '-') ;
 	    f_optplus = (*argp == '+') ;
 	    if ((argl > 1) && (f_optminus || f_optplus)) {
+		const int	ach = MKCHAR(argp[1]) ;
 
-	        if (isdigit(argp[1])) {
+	        if (isdigitlatin(ach)) {
 
 		    argval = (argp + 1) ;
 
-	        } else if (argp[1] == '-') {
+	        } else if (ach == '-') {
 
 	            ai_pos = ai ;
 	            break ;
@@ -907,8 +874,10 @@ const char	*envv[] ;
 
 /* did we have a port specified on the invocation */
 
-	if ((port < 0) && (argvalue >= 0))
-		port = argvalue ;
+	if ((rs >= 0) && (port < 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    port = rs ;
+	}
 
 /* get some host/user information */
 
@@ -1290,8 +1259,10 @@ const char	*envv[] ;
 	        if (((l = varsub_subbuf(&vsh_d,&vsh_e,
 	            cf.port,-1,buf,BUFLEN)) > 0) &&
 	            ((l2 = expander(pip,buf,l,buf2,BUFLEN)) > 0)) {
+			const int	bch = MKCHAR(buf2[0]) ;
 
-	            if (isalpha(buf2[0])) {
+	            if (isalphalatin(bch)) {
+			struct servent	*sep ;
 
 	                sep = getservbyname(buf2, "tcp") ;
 
@@ -1440,17 +1411,12 @@ const char	*envv[] ;
 
 #if	CF_DEBUG
 	    if (pip->debuglevel > 1) {
-
 	        debugprintf("main: dumping defines\n") ;
-
 	        for (i = 0 ; vecstr_get(&defines,i,&cp) >= 0 ; i += 1)
 	            debugprintf("main: define> %s\n",cp) ;
-
 	        debugprintf("main: dumping exports\n") ;
-
 	        for (i = 0 ; vecstr_get(&exports,i,&cp) >= 0 ; i += 1)
 	            debugprintf("main: export> %s\n",cp) ;
-
 	    } /* end if (CF_DEBUG) */
 #endif /* CF_DEBUG */
 
@@ -1626,12 +1592,12 @@ const char	*envv[] ;
 
 	pip->gid = getgid() ;
 
-	rs = getgr_gid(&ge,buf,BUFLEN,pip->gid) ;
-	if (rs < 0) {
+	if ((rs = getgr_gid(&ge,buf,BUFLEN,pip->gid)) >= 0) {
+	    cp = ge.gr_name ;
+	} else if (isNotPresent(rs)) {
 	    cp = buf ;
 	    snsd(buf,BUFLEN,"G",(uint) pip->gid) ;
-	} else
-	    cp = ge.gr_name ;
+	}
 
 	pip->groupname = mallocstr(cp) ;
 
@@ -1643,33 +1609,29 @@ const char	*envv[] ;
 #endif
 
 	if (pip->f.daemon) {
-
-	    long	addr ;
-
+	    struct protoent	*pep ;
+	    long		addr ;
 
 /* look up some miscellaneous stuff in various databases */
 
 	    if (portspec != NULL) {
-
-	        if (getportnum(portspec,&port) < 0)
-	            goto badport ;
-
+		rs = getportnum("tcp",portspec) ;
+		port = rs ;
 	    }
 
 	    if (port < 0) {
+		struct servent	*sep ;
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
 	            debugprintf("main: default port \n") ;
 #endif
 
-	        sep = getservbyname(PORTNAME, "tcp") ;
-
-	        if (sep != NULL)
+	        if ((sep = getservbyname(PORTNAME,"tcp")) != NULL) {
 	            port = (int) ntohs(sep->s_port) ;
-
-	        else
+	        } else {
 	            port = PORT ;
+		}
 
 #if	CF_DEBUG
 	        if (pip->debuglevel > 1)
@@ -1685,13 +1647,11 @@ const char	*envv[] ;
 
 /* get the protocol number */
 
-	    pep = getprotobyname("tcp") ;
-
-	    if (pep != NULL)
+	    if ((pep = getprotobyname("tcp")) != NULL) {
 	        proto = pep->p_proto ;
-
-	    else
+	    } else {
 	        proto = IPPROTO_TCP ;
+	    }
 
 #if	CF_DEBUG
 	    if (pip->debuglevel > 1)
@@ -1760,11 +1720,8 @@ const char	*envv[] ;
 
 #ifdef	COMMENT
 	        for (i = 0 ; i < 3 ; i += 1) {
-
 	            u_close(i) ;
-
 	            (void) u_open("/dev/null",O_RDONLY,0666) ;
-
 	        } /* end for */
 #endif /* COMMENT */
 
@@ -1779,7 +1736,6 @@ const char	*envv[] ;
 			uc_exit(EX_OK) ;
 
 	        u_setsid() ;
-
 	    } /* end if (backgrounding) */
 
 	} else if ((ifname != NULL) && (ifname[0] != '\0')) {
@@ -1912,16 +1868,6 @@ const char	*envv[] ;
 
 	} else {
 
-#ifdef	COMMENT
-#if	CF_DEBUG
-	    if (DEBUGLEVEL(2))
-	        debugprintf("main: are we a socket on STDIN?\n") ;
-#endif
-
-	    if (! isasocket(s))
-	        goto badnotsocket ;
-#endif /* COMMENT */
-
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))
 	        debugprintf("main: calling 'handle'\n") ;
@@ -1941,14 +1887,15 @@ const char	*envv[] ;
 	    s = -1 ;
 	}
 
-done:
+/* done */
 	ex = (rs >= 0) ? EX_OK : EX_DATAERR ;
 
 /* we are done */
 daemonret:
-	if (pip->debuglevel > 0)
+	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
 	        pip->progname,ex,rs) ;
+	}
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
@@ -2066,18 +2013,6 @@ badlistinit:
 
 	goto badret ;
 
-badsrv:
-	bprintf(pip->efp,"%s: bad service table file (%d)\n",
-	    pip->progname,rs) ;
-
-	goto badret ;
-
-badnosrv:
-	bprintf(pip->efp,"%s: no service table file specified\n",
-	    pip->progname) ;
-
-	goto badret ;
-
 badconfig:
 	bprintf(pip->efp,
 	    "%s: error (%d) in configuration file starting at line %d\n",
@@ -2130,12 +2065,6 @@ badpidlock:
 
 	goto badret ;
 
-badport:
-	bprintf(pip->efp, "%s: bad port specified\n",
-	    pip->progname) ;
-
-	goto badret ;
-
 badsocket:
 	if (! pip->f.quiet)
 	    bprintf(pip->efp,
@@ -2176,14 +2105,6 @@ badpidfile3:
 
 	goto daemonret ;
 
-badnotsocket:
-	if (! pip->f.quiet)
-	    bprintf(pip->efp,
-	        "%s: the standard input is NOT a socket\n",
-	        pip->progname) ;
-
-	goto badret ;
-
 /* general bad return */
 badret:
 	ex = EX_DATAERR ;
@@ -2195,21 +2116,19 @@ badret:
 /* local subroutines */
 
 
-static int usage(pip)
-struct proginfo	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int	rs ;
-	int	wlen = 0 ;
-
+	int		rs = SR_OK ;
+	int		wlen = 0 ;
 	const char	*pn = pip->progname ;
 	const char	*fmt ;
 
-	fmt = "%s: USAGE> %s [{conf|-} [port]] [-C conf] [-p port]\n" ;
-	rs = bprintf(pip->efp,fmt,pn,pn) ;
+	fmt = "%s: USAGE> %s [{<conf>|-} [<port>]] [-C <conf>] [-p <port>]\n" ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn,pn) ;
 	wlen += rs ;
 
 	fmt = "%s:  [-Q] [-D] [-v[=n]] [-V]\n" ;
-	rs = bprintf(pip->efp,fmt,pn) ;
+	if (rs >= 0) rs = bprintf(pip->efp,fmt,pn) ;
 	wlen += rs ;
 
 	return (rs >= 0) ? wlen : rs ;
@@ -2230,22 +2149,16 @@ static const uchar	oterms[32] = {
 	0x00, 0x00, 0x00, 0x00,
 } ;
 
-static int procopts(pip,buf,buflen)
-struct proginfo	*pip ;
-char		buf[] ;
-int		buflen ;
+static int procopts(PROGINFO *pip,char *buf,int buflen)
 {
-	FIELD	rawopts ;
-
-	int	rs ;
-	int	fl ;
-	int	i ;
-	int	v ;
-	int	c = 0 ;
-
+	FIELD		rawopts ;
+	int		rs ;
+	int		fl ;
+	int		i ;
+	int		v ;
+	int		c = 0 ;
 	const char	*fp ;
 	const char	*tp ;
-
 
 #if	CF_DEBUG
 	if (pip->debuglevel > 1)
@@ -2255,11 +2168,8 @@ int		buflen ;
 	if ((rs = field_start(&rawopts,buf,buflen)) >= 0) {
 
 	while ((fl = field_get(&rawopts,oterms,&fp)) >= 0) {
-
 	    int		klen, vlen ;
-
 	    const char	*key, *val ;
-
 
 	    if (fl == 0) continue ;
 
@@ -2268,18 +2178,15 @@ int		buflen ;
 	    val = NULL ;
 	    vlen = 0 ;
 	    if ((tp = strnchr(fp,fl,'=')) != NULL) {
-
 	        klen = (tp - fp) ;
 	        val = (tp + 1) ;
 	        vlen = fl - (val - fp) ;
-
 	    }
 
 	    if ((i = matostr(progopts,2,key,klen)) >= 0) {
 
 		c += 1 ;
 	        switch (i) {
-
 	        case progopt_sender:
 	            pip->f.sender = TRUE ;
 	            if (vlen > 0) {
@@ -2287,11 +2194,9 @@ int		buflen ;
 	                    pip->f.sender = (v != 0) ? 1 : 0 ;
 	            }
 		    break ;
-
 		default:
 		    rs = SR_NOANODE ;
 		    break ;
-
 	        } /* end switch */
 
 	    } /* end if */
@@ -2305,6 +2210,5 @@ int		buflen ;
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (procopts) */
-
 
 

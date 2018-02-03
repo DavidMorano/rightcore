@@ -418,6 +418,8 @@ Full mail related utilities include (each too detailed to elaborate here):
 + VMAIL - a full interactive user mail agent
   (I use this for most of my own mail everyday)
 + NEWMAIL - new mail summary
++ RMAILER - mail injection client
++ RMAILERD - mail injection server
 
 
 == UNIX adaptation layer software

@@ -169,10 +169,7 @@ int uc_endprotoent()
 	return SR_OK ;
 }
 
-int uc_getprotoent(pep,rbuf,rlen)
-struct protoent	*pep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getprotoent(struct protoent *pep,char *rbuf,int rlen)
 {
 	struct protoent	*rp ;
 	int		rs = SR_OK ;
@@ -231,11 +228,7 @@ int		rlen ;
 /* end subroutine (uc_getprotoent) */
 
 
-int uc_getprotobyname(name,pep,rbuf,rlen)
-const char	name[] ;
-struct protoent	*pep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getprotobyname(cchar *name,struct protoent *pep,char *rbuf,int rlen)
 {
 	struct protoent	*rp ;
 	int		rs = SR_OK ;
@@ -302,11 +295,7 @@ int		rlen ;
 /* end subroutine (uc_getprotobyname) */
 
 
-int uc_getprotobynumber(proto,pep,rbuf,rlen)
-int		proto ;
-struct protoent	*pep ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getprotobynumber(int proto,struct protoent *pep,char *rbuf,int rlen)
 {
 	struct protoent	*rp ;
 	int		rs = SR_OK ;
@@ -376,7 +365,7 @@ int		rlen ;
 
 static int protosize(struct protoent *pep)
 {
-	int	size = 0 ;
+	int		size = 0 ;
 	if (pep->p_name != NULL) {
 	    size += (strlen(pep->p_name)+1) ;
 	}
@@ -394,10 +383,8 @@ static int protosize(struct protoent *pep)
 
 #if	RF_PROTOCOPY
 
-static int protocopy(pep,rbuf,rlen,rp)
-struct protoent	*pep, *rp ;
-char		rbuf[] ;
-int		rlen ;
+static int protocopy(struct protoent *pep,char *rbuf,int rlen,
+		struct protoent *rp)
 {
 	STOREITEM	ib ;
 	int		rs ;
@@ -438,10 +425,7 @@ int		rlen ;
 }
 /* end subroutine (protocopy) */
 
-static int si_copystr(ibp,pp,p1)
-STOREITEM	*ibp ;
-const char	*p1 ;
-char		**pp ;
+static int si_copystr(STOREITEM *ibp,cchar *p1,char **pp)
 {
 	int		rs = SR_OK ;
 	const char	**cpp = (const char **) pp ;
