@@ -265,24 +265,29 @@ int sreq_havefd(SREQ *op,int fd)
 /* end subroutine (sreq_havefd) */
 
 
+/* accummulate the service bufffer string */
 int sreq_svcaccum(SREQ *op,cchar *sp,int sl)
 {
 	int		rs ;
 	char		*bp ;
 	if (sl < 0) sl = strlen(sp) ;
-	if (op->svclen == 0) {
-	    if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
-	        strwcpy(bp,sp,sl) ;
-	        op->svcbuf = bp ;
-	        op->svclen = sl ;
+	if ((op->svclen + sl) < SREQ_SVCBUFLEN) {
+	    if (op->svclen == 0) {
+	        if ((rs = uc_malloc((sl+1),&bp)) >= 0) {
+	            strwcpy(bp,sp,sl) ;
+	            op->svcbuf = bp ;
+	            op->svclen = sl ;
+	        }
+	    } else {
+	        const int	nlen = (op->svclen+sl) ;
+	        if ((rs = uc_realloc(op->svcbuf,(nlen+1),&bp)) >= 0) {
+	            strwcpy((bp+op->svclen),sp,sl) ;
+	            op->svcbuf = bp ;
+	            op->svclen = nlen ;
+	        }
 	    }
 	} else {
-	    const int	nlen = (op->svclen+sl) ;
-	    if ((rs = uc_realloc(op->svcbuf,(nlen+1),&bp)) >= 0) {
-	        strwcpy((bp+op->svclen),sp,sl) ;
-	        op->svcbuf = bp ;
-	        op->svclen = nlen ;
-	    }
+	    rs = SR_PROTO ;
 	}
 	return rs ;
 }

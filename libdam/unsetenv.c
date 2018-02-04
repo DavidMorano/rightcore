@@ -21,9 +21,7 @@ extern char	*delenv(const char *) ;
 
 void unsetenv(cchar *name)
 {
-
 	(void) delenv(name) ;
-
 }
 /* end subroutine (unsetenv) */
 

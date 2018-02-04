@@ -19,7 +19,7 @@ CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
 GPPFLAGS= $(CGS_CCFLAGS)
-CCOPTS_GCCALL= -pthreads -fexceptions
+CCOPTS_GCCALL= -pthreads -fexceptions -std=gnu11
 CCOPTS_CCALL= -MT
 
 CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
@@ -140,17 +140,17 @@ default:		$(T).x
 
 all:			$(ALL)
 
-.i.o:
+.cc.o:
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .c.o:
-	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $<
 
-.cc.o:
-	$(GPP) -c $(CFLAGS) $(CPPFLAGS) $<
+.i.o:
+	$(CC) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 .c.i:
-	$(CPP) $(CPPFLAGS) $< > $(*).i
+	$(CC) $(CPPFLAGS) $< > $(*).i
 
 .c.ln:
 	$(LINT) -c -u $(CPPFLAGS) $<

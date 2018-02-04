@@ -11,10 +11,8 @@
 /* revision history:
 
 	= 1996-02-01, David A­D­ Morano
-
-	The program was written from scratch to do what the previous
-	program by the same name did.
-
+        The program was written from scratch to do what the previous program by
+        the same name did.
 
 */
 
@@ -37,7 +35,6 @@
 #include	<unistd.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bits.h>
@@ -71,19 +68,18 @@ extern int	optbool(const char *,int) ;
 extern int	optvalue(const char *,int) ;
 extern int	isdigitlatin(int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(struct proginfo *,const char *,
-			const struct pivars *) ;
-extern int	progfile(struct proginfo *,bfile *,const char *,int) ;
+extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
+extern int	progfile(PROGINFO *,bfile *,cchar *,int) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugopen(const char *) ;
-extern int	debugprintf(const char *,...) ;
+extern int	debugopen(cchar *) ;
+extern int	debugprintf(cchar *,...) ;
 extern int	debugclose() ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern int	sfskipwhite(const char *,int,const char **) ;
@@ -97,11 +93,10 @@ extern int	sfskipwhite(const char *,int,const char **) ;
 
 /* forward references */
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 
-static int	procopts(struct proginfo *,KEYOPT *) ;
-static int	procargs(struct proginfo *,struct arginfo *,BITS *,
-			const char *,const char *) ;
+static int	procopts(PROGINFO *,KEYOPT *) ;
+static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procfiles(PROGINFO *,bfile *,const char *,int) ;
 
 
@@ -143,7 +138,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -151,7 +146,7 @@ static const struct pivars	initvars = {
 	VARPRLOCAL
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -179,18 +174,6 @@ enum progopts {
 	progopt_overlast
 } ;
 
-static const char	*progmodes[] = {
-	"filesize",
-	"filefind",
-	NULL
-} ;
-
-enum progmodes {
-	progmode_filesize,
-	progmode_filefind,
-	progmode_overlast
-} ;
-
 static const uchar	aterms[] = {
 	0x00, 0x2E, 0x00, 0x00,
 	0x09, 0x00, 0x00, 0x00,
@@ -206,28 +189,25 @@ static const uchar	aterms[] = {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo	pi, *pip = &pi ;
-	struct arginfo	ainfo ;
+	PROGINFO	pi, *pip = &pi ;
+	ARGINFO		ainfo ;
 	KEYOPT		akopts ;
 	BITS		pargs ;
 	PARAMOPT	aparams ;
 	bfile		errfile ;
 
-	int	argr, argl, aol, akl, avl, kwi ;
-	int	ai, ai_max, ai_pos ;
-	int	rs, rs1 ;
-	int	cl ;
-	int	v ;
-	int	ex = EX_INFO ;
-	int	f_optminus, f_optplus, f_optequal ;
-	int	f_usage = FALSE ;
-	int	f_version = FALSE ;
-	int	f_help = FALSE ;
+	int		argr, argl, aol, akl, avl, kwi ;
+	int		ai, ai_max, ai_pos ;
+	int		rs, rs1 ;
+	int		cl ;
+	int		v ;
+	int		ex = EX_INFO ;
+	int		f_optminus, f_optplus, f_optequal ;
+	int		f_usage = FALSE ;
+	int		f_version = FALSE ;
+	int		f_help = FALSE ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -251,7 +231,7 @@ const char	*envv[] ;
 	    goto badprogstart ;
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* early things to initialize */
 
@@ -693,8 +673,7 @@ const char	*envv[] ;
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 	if (f_usage)
@@ -702,10 +681,11 @@ const char	*envv[] ;
 
 /* get the program root */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -729,25 +709,11 @@ const char	*envv[] ;
 	if (pmspec == NULL)
 	    pmspec = pip->progname ;
 
-	pip->progmode = matstr(progmodes,pmspec,-1) ;
-
-	if (pip->progmode < 0)
-	    pip->progmode = progmode_filesize ;
-
-#if	CF_DEBUG
-	if (DEBUGLEVEL(4)) {
-	    if (pip->progmode >= 0) {
-	        debugprintf("main: progmode=%s(%u)\n",
-	            progmodes[pip->progmode],pip->progmode) ;
-	    } else
-	        debugprintf("main: progmode=NONE\n") ;
-	}
-#endif /* CF_DEBUG */
-
 /* help file */
 
-	if (f_help)
+	if (f_help) {
 	    printhelp(NULL,pip->pr,pip->searchname,HELPFNAME) ;
+	}
 
 	if (f_help || f_version || f_usage)
 	    goto retearly ;
@@ -757,7 +723,14 @@ const char	*envv[] ;
 
 /* check a few more things */
 
-	rs = procopts(pip,&akopts) ;
+	if ((rs >= 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
+
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
+	}
 
 	if (rs < 0) {
 	    ex = EX_USAGE ;
@@ -769,43 +742,12 @@ const char	*envv[] ;
 	if (pip->tmpdname == NULL) pip->tmpdname = getenv(VARTMPDNAME) ;
 	if (pip->tmpdname == NULL) pip->tmpdname = TMPDNAME ;
 
-/* get ready */
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	debugprintf("main: mid1 rs=%d\n",rs) ;
+#endif
 
-	if ((rs = paramopt_havekey(&aparams,PO_SUFFIX)) > 0) {
-	    pip->f.suffix = TRUE ;
-	} /* end if */
-
-	if ((rs = paramopt_havekey(&aparams,PO_OPTION)) > 0) {
-	    PARAMOPT_CUR	cur ;
-	    const char		*vp ;
-
-	    paramopt_curbegin(&aparams,&cur) ;
-
-	    while (paramopt_enumvalues(&aparams,PO_OPTION,&cur,&vp) >= 0) {
-	        if (cp == NULL) continue ;
-
-	        if ((kwi = matostr(progopts,2,vp,-1)) >= 0) {
-
-	            switch (kwi) {
-
-	            case progopt_follow:
-	                pip->f.follow = TRUE ;
-	                break ;
-
-	            case progopt_nofollow:
-	                pip->f.follow = FALSE ;
-	                break ;
-
-	            } /* end switch */
-
-	        } /* end if (progopts) */
-
-	    } /* end while */
-
-	    paramopt_curend(&aparams,&cur) ;
-	} /* end if (progopts) */
-
-	memset(&ainfo,0,sizeof(struct arginfo)) ;
+	memset(&ainfo,0,sizeof(ARGINFO)) ;
 	ainfo.argc = argc ;
 	ainfo.ai = ai ;
 	ainfo.argv = argv ;
@@ -816,7 +758,17 @@ const char	*envv[] ;
 	    const char	*ofn = ofname ;
 	    const char	*afn = afname ;
 	    rs = procargs(pip,&ainfo,&pargs,ofn,afn) ;
+	} else if (ex != EX_OK) {
+	    cchar	*pn = pip->progname ;
+	    cchar	*fmt = "%s: invalid argument or configuration (%d)\n" ;
+	    ex = EX_USAGE ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
 	}
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(2))
+	debugprintf("main: mid2 rs=%d\n",rs) ;
+#endif
 
 	if (pip->debuglevel > 0) {
 	    bprintf(pip->efp,"%s: files total=%u scanned=%u fixed=%u\n",
@@ -884,7 +836,7 @@ badarg:
 
 
 static int usage(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -904,33 +856,31 @@ struct proginfo	*pip ;
 /* end subroutine (usage) */
 
 
-static int procopts(pip,kop)
-struct proginfo	*pip ;
-KEYOPT		*kop ;
+static int procopts(PROGINFO *pip,KEYOPT *kop)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
-	const char	*cp ;
+	cchar		*cp ;
 
-	if ((cp = getenv(VAROPTS)) != NULL)
+	if ((cp = getenv(VAROPTS)) != NULL) {
 	    rs = keyopt_loads(kop,cp,-1) ;
+	}
 
 	if (rs >= 0) {
 	    KEYOPT_CUR	kcur ;
 	    if ((keyopt_curbegin(kop,&kcur)) >= 0) {
-	        uint		v ;
-	        int		oi ;
-	        int		kl, vl ;
-	        const char	*kp, *vp ;
+	        uint	v ;
+	        int	oi ;
+	        int	kl, vl ;
+	        cchar	*kp, *vp ;
 
 	        while ((kl = keyopt_enumkeys(kop,&kcur,&kp)) >= 0) {
 
-	            vl = keyopt_enumvalues(kop,kp,NULL,&vp) ;
-
 	            if ((oi = matostr(progopts,2,kp,kl)) >= 0) {
 
-	                switch (oi) {
+	                vl = keyopt_enumvalues(kop,kp,NULL,&vp) ;
 
+	                switch (oi) {
 	                case progopt_backward:
 			   if (! pip->final.backward) {
 	                    c += 1 ;
@@ -941,7 +891,6 @@ KEYOPT		*kop ;
 	                        pip->f.backward = (v > 0) ? TRUE : FALSE ;
 			    }
 	                    break ;
-
 	                } /* end switch */
 
 	            } /* end if (valid option) */
@@ -958,25 +907,22 @@ KEYOPT		*kop ;
 /* end subroutine (procopts) */
 
 
-static int procargs(pip,aip,bop,ofname,afname)
-struct proginfo	*pip ;
-struct arginfo	*aip ;
-BITS		*bop ;
-const char	*ofname ;
-const char	*afname ;
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 {
 	bfile		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
-	if ((ofname == NULL) || (ofname[0] == '\0') || (ofname[0] == '-'))
-	    ofname = BFILE_STDOUT ;
+	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
+	    ofn = BFILE_STDOUT ;
 
-	if ((rs = bopen(ofp,ofname,"wct",0644)) >= 0) {
+	if ((rs = bopen(ofp,ofn,"wct",0644)) >= 0) {
 	    int		pan = 0 ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 	    pip->ofp = ofp ;
 
 	    if (rs >= 0) {
@@ -1001,15 +947,15 @@ const char	*afname ;
 
 /* process any files in the argument filename list file */
 
-	    if ((rs >= 0) && (afname != NULL) && (afname[0] != '\0')) {
+	    if ((rs >= 0) && (afn != NULL) && (afn[0] != '\0')) {
 	        bfile	afile, *afp = &afile ;
 
-	        if (strcmp(afname,"-") == 0)
-	            afname = BFILE_STDIN ;
+	        if (strcmp(afn,"-") == 0)
+	            afn = BFILE_STDIN ;
 
-	        if ((rs = bopen(afp,afname,"r",0666)) >= 0) {
+	        if ((rs = bopen(afp,afn,"r",0666)) >= 0) {
 	            const int	llen = LINEBUFLEN ;
-	            int	len ;
+	            int		len ;
 	            char	lbuf[LINEBUFLEN + 1] ;
 
 	            while ((rs = breadline(afp,lbuf,llen)) > 0) {
@@ -1033,27 +979,25 @@ const char	*afname ;
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
-	                bprintf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                bprintf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afname) ;
+			fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                bprintf(pip->efp,fmt,pn,rs) ;
+	                bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
 	        }
 
 	    } /* end if (processing file argument file list) */
 
 	    if ((rs >= 0) && (pip->verboselevel >= 2)) {
-	        bprintf(ofp,"files total=%u scanned=%u fixed=%u\n",
-	            pip->c_total,pip->c_scanned,pip->c_fixed) ;
+		fmt = "files total=%u scanned=%u fixed=%u\n" ;
+	        bprintf(ofp,fmt,pip->c_total,pip->c_scanned,pip->c_fixed) ;
 	    }
 
 	    pip->ofp = NULL ;
 	    rs1 = bclose(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
-	    bprintf(pip->efp,"%s: inaccessible output (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
 	}
 
 	return (rs >= 0) ? wlen : rs ;
@@ -1061,18 +1005,14 @@ const char	*afname ;
 /* end subroutine (procargs) */
 
 
-static int procfiles(pip,ofp,lbuf,llen)
-PROGINFO	*pip ;
-bfile		*ofp ;
-const char	*lbuf ;
-int		llen ;
+static int procfiles(PROGINFO *pip,bfile *ofp,cchar *lbuf,int llen)
 {
 	FIELD		fsb ;
 	int		rs ;
 	int		wlen = 0 ;
 	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
 	    int		fl ;
-	    const char	*fp ;
+	    cchar	*fp ;
 	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
 	        if (fl > 0) {
 	            rs = progfile(pip,ofp,fp,fl) ;

@@ -10,10 +10,8 @@
 /* revision history:
 
 	= 1998-03-01, David A­D­ Morano
-
-	The subroutine was adapted from others programs that did similar
-	types of functions.
-
+        The subroutine was adapted from others programs that did similar types
+        of functions.
 
 */
 
@@ -21,8 +19,8 @@
 
 /******************************************************************************
 
-	This subroutine provides the actual check and fix on the files
-	specified.
+        This subroutine provides the actual check and fix on the files
+        specified.
 
 
 ******************************************************************************/
@@ -38,7 +36,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 
 #include	<vsystem.h>
 #include	<bfile.h>
@@ -53,7 +50,7 @@
 /* local defines */
 
 #ifndef	SUFBUFLEN
-#define	SUFBUFLEN		MAXNAMELEN
+#define	SUFBUFLEN	MAXNAMELEN
 #endif
 
 
@@ -62,6 +59,14 @@
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mktmpfile(char *,mode_t,const char *) ;
 extern int	sfthing(const char *,int,const char *,const char **) ;
+
+#if	CF_DEBUGS || CF_DEBUG
+extern int	debugprintf(cchar *,...) ;
+extern int	debugclose() ;
+extern int	strlinelen(cchar *,int,int) ;
+#endif
+
+extern char	*strwcpy(char *,const char *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strnpbrk(const char *,int,const char *) ;
@@ -79,8 +84,8 @@ extern char	*timestr_logz(time_t,char *) ;
 /* forward references */
 
 static int	progfiler(PROGINFO *,bfile *,const char *) ;
-static int	fileneed(struct proginfo *,bfile *) ;
-static int	filefix(struct proginfo *,bfile *) ;
+static int	fileneed(PROGINFO *,bfile *) ;
+static int	filefix(PROGINFO *,bfile *) ;
 
 
 /* local variables */
@@ -97,17 +102,13 @@ static const char	ssp[] = {
 /* exported subroutines */
 
 
-int progfile(pip,ofp,fp,fl)
-struct proginfo	*pip ;
-bfile		*ofp ;
-const char	*fp ;
-int		fl ;
+int progfile(PROGINFO *pip,bfile *ofp,cchar *fp,int fl)
 {
 	NULSTR		n ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
-	const char	*fname ;
+	cchar		*fname ;
 	if (fp == NULL) return SR_FAULT ;
 	if ((rs = nulstr_start(&n,fp,fl,&fname)) >= 0) {
 	    rs = progfiler(pip,ofp,fname) ;
@@ -124,10 +125,7 @@ int		fl ;
 
 
 /* ARGSUSED */
-static int progfiler(pip,ofp,fname)
-struct proginfo	*pip ;
-bfile		*ofp ;
-const char	*fname ;
+static int progfiler(PROGINFO *pip,bfile *ofp,cchar *fname)
 {
 	bfile		infile ;
 	int		rs = SR_OK ;
@@ -138,25 +136,21 @@ const char	*fname ;
 	if (fname == NULL) return SR_FAULT ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("procfile: fname=%s\n",fname) ;
+	if (DEBUGLEVEL(3))
+	    debugprintf("procfiler: ent fname=%s\n",fname) ;
 #endif /* CF_DEBUG */
 
 	pip->c_total += 1 ;
 
 /* check if this file has the correct file-suffix */
 
-
 	if (! f_skipfile) {
 
 /* process this file */
 
-	    if ((fname[0] != '\0') && (fname[0] != '-')) {
-	        rs = bopen(&infile,fname,"rw",0666) ;
-	    } else
-	        rs = bopen(&infile,BFILE_STDIN,"drw",0666) ;
+	    if ((fname[0] == '\0') || (fname[0] == '-')) fname = BFILE_STDIN ;
 
-	    if (rs >= 0) {
+	    if ((rs = bopen(&infile,fname,"rw",0666)) >= 0) {
 
 	        rs1 = bcontrol(&infile,BC_LOCKWRITE,0) ;
 
@@ -166,8 +160,8 @@ const char	*fname ;
 	        }
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(2))
-	            debugprintf("procfile: fileneed()\n") ;
+	        if (DEBUGLEVEL(3))
+	            debugprintf("procfiler: fileneed()\n") ;
 #endif
 
 	        if (! f_skipfile) {
@@ -176,8 +170,8 @@ const char	*fname ;
 	            rs = fileneed(pip,&infile) ;
 
 #if	CF_DEBUG
-	            if (DEBUGLEVEL(2))
-	                debugprintf("procfile: fileneed() rs=%d\n",rs) ;
+	            if (DEBUGLEVEL(3))
+	                debugprintf("procfiler: fileneed() rs=%d\n",rs) ;
 #endif
 
 	        }
@@ -193,8 +187,8 @@ const char	*fname ;
 	                rs = filefix(pip,&infile) ;
 
 #if	CF_DEBUG
-	                if (DEBUGLEVEL(2))
-	                    debugprintf("procfile: filefix() rs=%d\n",rs) ;
+	                if (DEBUGLEVEL(3))
+	                    debugprintf("procfiler: filefix() rs=%d\n",rs) ;
 #endif
 
 	            } /* end if (allowed to do the change-fix) */
@@ -221,8 +215,8 @@ const char	*fname ;
 	}
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("procfile: ret rs=%d wlen=%u\n",rs,wlen) ;
+	if (DEBUGLEVEL(3))
+	    debugprintf("procfiler: ret rs=%d wlen=%u\n",rs,wlen) ;
 #endif
 
 	return (rs >= 0) ? wlen : rs ;
@@ -230,10 +224,9 @@ const char	*fname ;
 /* end subroutine (progfiler) */
 
 
-static int fileneed(pip,ifp)
-struct proginfo	*pip ;
-bfile		*ifp ;
+static int fileneed(PROGINFO *pip,bfile *ifp)
 {
+	const int	llen = LINEBUFLEN ;
 	int		rs ;
 	int		len ;
 	int		f_bol, f_eol ;
@@ -245,7 +238,7 @@ bfile		*ifp ;
 
 	f_need = FALSE ;
 	f_bol = TRUE ;
-	while ((rs = breadline(ifp,lbuf,LINEBUFLEN)) > 0) {
+	while ((rs = breadline(ifp,lbuf,llen)) > 0) {
 	    len = rs ;
 
 	    f_eol = (lbuf[len - 1] == '\n') ;
@@ -254,8 +247,8 @@ bfile		*ifp ;
 	    if (f_bol) {
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(2))
-	            debugprintf("process/fileneed: line=>%t<\n",
+	        if (DEBUGLEVEL(4))
+	            debugprintf("progfile/fileneed: line=>%t<\n",
 	                lbuf,
 	                ((lbuf[len - 1] == '\n') ? (len - 1) : len)) ;
 #endif
@@ -270,30 +263,38 @@ bfile		*ifp ;
 	    f_bol = f_eol ;
 	} /* end while (reading lines) */
 
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progfile/fileneed: ret rs=%d f_need=%u\n",rs,f_need) ;
+#endif
+
 	return (rs >= 0) ? f_need : rs ;
 }
 /* end subroutine (fileneed) */
 
 
-static int filefix(pip,ifp)
-struct proginfo	*pip ;
-bfile		*ifp ;
+static int filefix(PROGINFO *pip,bfile *ifp)
 {
 	bfile		tmpfile ;
 	offset_t	boff ;
 	offset_t	off ;
 	offset_t	off_seek = -1 ;
+	const int	llen = LINEBUFLEN ;
 	int		rs ;
 	int		len ;
 	int		kl, sl, cl ;
 	int		rlen ;
 	int		wlen = 0 ;
-	int		f_bol, f_eol ;
 	const char	*ss ;
 	const char	*kp, *sp, *cp ;
 	char		template[MAXPATHLEN + 1] ;
 	char		tmpfname[MAXPATHLEN + 1] ;
 	char		lbuf[LINEBUFLEN + 1] ;
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progfile/filefix: ent\n") ;
+#endif
 
 	ss = (pip->f.backward) ? ssp : ssb ;
 
@@ -319,17 +320,13 @@ bfile		*ifp ;
 
 	rlen = 0 ;
 	off = 0 ;
-	f_bol = TRUE ;
-	f_eol = FALSE ;
-	while ((rs = breadline(ifp,lbuf,LINEBUFLEN)) > 0) {
-
+	while ((rs = breadline(ifp,lbuf,llen)) > 0) {
 	    len = rs ;
-	    f_eol = (lbuf[len - 1] == '\n') ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))
 	        debugprintf("procfile/filefix: line=>%t<\n",
-	            lbuf,((f_eol) ? (len - 1) : len)) ;
+	            lbuf,strlinelen(lbuf,len,50)) ;
 #endif
 
 	    sp = lbuf ;
@@ -382,7 +379,6 @@ bfile		*ifp ;
 	    }
 
 	    off += len ;
-	    f_bol = f_eol ;
 
 	    if (rs < 0) break ;
 	} /* end while (reading lines) */
@@ -434,6 +430,12 @@ ret1:
 	}
 
 ret0:
+
+#if	CF_DEBUG
+	if (DEBUGLEVEL(4))
+	    debugprintf("progfile/filefix: ret rs=%d wlen=%u\n",rs,wlen) ;
+#endif
+
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (filefix) */

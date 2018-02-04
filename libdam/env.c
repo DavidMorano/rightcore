@@ -33,11 +33,19 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
-#include <stdlib.h>
-#include <string.h>
+#include	<stdlib.h>
+#include	<string.h>
 
 
 /* local defines */
+
+#define	CF_A		(defined(HAVE_SETENV) && (HAVE_SETENV != 0))
+#define	CF_B		(defined(SYSHAS_SETENV) && (SYSHAS_SETENV != 0))
+#define	CF_SETENV	(! (CF_A || CF_B))
+
+#define	CF_C		(defined(HAVE_UNSETENV) && (HAVE_UNSETENV != 0))
+#define	CF_D		(defined(SYSHAS_UNSETENV) && (SYSHAS_UNSETENV != 0))
+#define	CF_UNSETENV	(! (CF_C || CF_D))
 
 
 /* external variables */
@@ -45,42 +53,17 @@
 extern char	**environ ;
 
 
-/*
- * __findenv --
- *	Returns pointer to value associated with name, if any, else NULL.
- *	Sets offset to be the offset of the name/value combination in the
- *	environmental array, for use by setenv(3) and unsetenv(3).
- *	Explicitly removes '=' in argument name.
- *
- *	This routine *should* be a static; don't use it.
- */
+/* forward references */
 
-static char *__findenv(const char *name,int *offset)
-{
-	int 		len ;
-	char 		*np ;
-	char 		**p, *c ;
-
-	if (name == NULL || environ == NULL)
-	    return (NULL) ;
-
-	for (np = (char *) name ; *np && *np != '='; ++np)
-	    continue ;
-
-	len = np - name ;
-	for (p = environ; (c = *p) != NULL; ++p) {
-	    if (strncmp(c, name, len) == 0 && c[len] == '=') {
-	        *offset = p - environ ;
-	        return (c + len + 1) ;
-	    }
-	}
-
-	return NULL ;
-}
-/* end subroutine (__findenv) */
+#if	CF_SETENV || CF_UNSETENV
+static char	*__findenv(const char *,int *) ;
+#endif
 
 
-#if	(! defined(HAVE_SETENV)) && (! defined(SYSHAS_SETENV))
+/* exported subroutines */
+
+
+#if	CF_SETENV
 
 /*
  * setenv --
@@ -92,10 +75,7 @@ static char *__findenv(const char *name,int *offset)
  * PUBLIC: #endif
  */
 
-int setenv(name, value, rewrite)
-const char	name[] ;
-const char	value[] ;
-int		rewrite ;
+int setenv(const char *name,const char *value,int rewrite)
 {
 	static int	alloced ;		/* if allocated space before */
 	char 		*c ;
@@ -153,10 +133,10 @@ int		rewrite ;
 }
 /* end subroutine (setenv) */
 
-#endif /* HAVE_SETENV */
+#endif /* CF_SETENV */
 
 
-#if	(! defined(HAVE_UNSETENV)) && (! defined(SYSHAS_UNSETENV))
+#if	CF_UNSETENV
 
 /*
  * unsetenv(name) --
@@ -167,8 +147,7 @@ int		rewrite ;
  * PUBLIC: #endif
  */
 
-void unsetenv(name)
-const char	name[] ;
+void unsetenv(const char *name)
 {
 	char 		**p ;
 	int 		offset ;
@@ -183,6 +162,48 @@ const char	name[] ;
 }
 /* end subroutine (unsetenv) */
 
-#endif /* HAVE_UNSETEBV */
+#endif /* CF_UNSETENV */
+
+
+/* local subroutines */
+
+
+#if	CF_SETENV || CF_UNSETENV
+
+/*
+ * __findenv --
+ *	Returns pointer to value associated with name, if any, else NULL.
+ *	Sets offset to be the offset of the name/value combination in the
+ *	environmental array, for use by setenv(3) and unsetenv(3).
+ *	Explicitly removes '=' in argument name.
+ *
+ *	This routine *should* be a static; don't use it.
+ */
+
+static char *__findenv(const char *name,int *offset)
+{
+	int 		len ;
+	char 		*np ;
+	char 		**p, *c ;
+
+	if (name == NULL || environ == NULL)
+	    return (NULL) ;
+
+	for (np = (char *) name ; *np && *np != '='; ++np)
+	    continue ;
+
+	len = np - name ;
+	for (p = environ; (c = *p) != NULL; ++p) {
+	    if (strncmp(c, name, len) == 0 && c[len] == '=') {
+	        *offset = p - environ ;
+	        return (c + len + 1) ;
+	    }
+	}
+
+	return NULL ;
+}
+/* end subroutine (__findenv) */
+
+#endif /* (CF_SETENV || CF_UNSETENV) */
 
 

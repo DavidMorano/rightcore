@@ -1,2 +1,2 @@
 const char testansi_makedate[] =
-"@(#)testansi                180201_1319:45_USEST Rightcore Network Services" ;
+"@(#)testansi                180203_2054:56_USEST Rightcore Network Services" ;

@@ -18,6 +18,10 @@
         from the process environment list. There is no convenient way to
         un-delete this later.
 
+	This is an incredibly stupid hack.  This subroutine should *never* be
+	used.  It was only written to satisfy some stupid open-source programs
+	that I occassionally stoop too low to want to use!
+
 
 ******************************************************************************/
 
@@ -43,11 +47,9 @@ static int	namecmp(const char *,int,const char *) ;
 /* exported subroutines */
 
 
-const char *delenv(name)
-const char	name[] ;
+const char *delenv(const char *name)
 {
 	int		len ;
-
 	const char	**env = (const char **) environ ;
 	const char	*np ;
 	const char	*cp ;
@@ -62,10 +64,7 @@ const char	name[] ;
 
 	len = np - name ;
 	for (p1 = env ; *p1 != NULL ; p1 += 1) {
-
-	    if (namecmp(name,len,*p1) == 0) 
-		break ;
-
+	    if (namecmp(name,len,*p1) == 0) break ;
 	}
 
 	if (*p1 == NULL)
@@ -93,28 +92,18 @@ const char	name[] ;
 /* local subroutines */
 
 
-static int namecmp(name,namelen,entry)
-const char	name[] ;
-int		namelen ;
-const char	entry[] ;
+static int namecmp(const char *name,int namelen,const char *entry)
 {
 	const char	*nep = (name + namelen) ;
-	const char	*np ;
-	const char	*ep ;
+	const char	*np = name ;
+	const char	*ep = entry ;
 
-
-	np = name ;
-	ep = entry ;
 	while ((np < nep) && *ep && (*ep != '=')) {
-
-	    if (*np++ != *ep++) 
-		return 1 ;
-
+	    if (*np++ != *ep++) return 1 ;
 	}
 
 	return 0 ;
 }
 /* end subroutine (namecmp) */
-
 
 

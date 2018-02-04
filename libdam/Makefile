@@ -191,7 +191,7 @@ OBJ37= sfcookkey.o sfsubstance.o sfthing.o sfcenter.o sfrootname.o sfnamecomp.o
 OBJ38= sichr.o sicasechr.o sialpha.o sidigit.o sialnum.o sidquote.o sinext.o
 OBJ39= sisub.o sicasesub.o sibreak.o siskipwhite.o sibasename.o sispan.o 
 
-OBJ40= getenv3.o delenv.o env.o
+OBJ40= getenv3.o
 OBJ41= permsched.o
 OBJ42=
 OBJ43=

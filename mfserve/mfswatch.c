@@ -176,6 +176,7 @@ extern int	vecpstr_addcspath(vecpstr *) ;
 extern int	osetstr_loadfile(osetstr *,int,cchar *) ;
 extern int	hasnonwhite(cchar *,int) ;
 extern int	isasocket(int) ;
+extern int	isOneOf(const int *,int) ;
 extern int	isNotPresent(int) ;
 extern int	isNotAccess(int) ;
 extern int	isBadMsg(int) ;
@@ -296,6 +297,8 @@ static int	mfswatch_islong(PROGINFO *,vecstr *) ;
 
 static int	svcprocers(SVCPROCARGS *) ;
 
+static int	isBadService(int) ;
+
 
 /* local variables */
 
@@ -313,6 +316,18 @@ static cchar	*prbins[] = {
 	"bin",
 	"sbin",
 	NULL
+} ;
+
+static const int	rsnets[] = {
+	SR_PROTO,
+	SR_NETRESET,
+	SR_CONNABORTED,
+	SR_CONNRESET,
+	SR_NOBUFS,
+	SR_BADMSG,
+	SR_NAMETOOLONG,
+	SR_OVERFLOW,
+	0
 } ;
 
 
@@ -920,7 +935,12 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 	            } else if (rs == 0) {
 	                re = (POLLIN | POLLPRI) ;
 	                rs = mfswatch_pollreg(pip,fd,re) ;
-	            }
+	            } else if (isBadService(rs)) {
+	                    const int	f = rs ;
+	                    if ((rs = mfswatch_svcretstat(pip,jep,f)) >= 0) {
+	                        rs = mfswatch_jobretire(pip,jep) ;
+	                    }
+		    }
 	        } /* end if (in acquire state */
 	    } /* end if (sreqdb_get) */
 	} else if (rs == SR_NOTFOUND) {
@@ -990,7 +1010,7 @@ static int mfswatch_svcaccum(PROGINFO *pip,SREQ *jep,int fd,int re)
 	                        const int	js = sreqstate_svc ;
 	                        rs = sreq_setstate(jep,js) ;
 			    }
-	                }
+	                } /* end if (sreq_svcaccum) */
 	            } /* end if (u_read) */
 	        } else {
 	            if ((rs = u_read(fd,lbuf,rs)) > 0) {
@@ -2516,5 +2536,12 @@ static int svcprocers(SVCPROCARGS *sap)
 	return rs ;
 }
 /* end subroutine (svcprocers) */
+
+
+static int isBadService(int rs)
+{
+	return isOneOf(rsnets,rs) ;
+}
+/* end subroutine (isBadService) */
 
 

@@ -11,6 +11,7 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
+#include	<sys/param.h>		/* for MAXPATHLEN */
 #include	<sockaddress.h>
 #include	<osetstr.h>
 #include	<localmisc.h>
@@ -25,6 +26,7 @@
 #define	SREQ_SNCUR	struct sreq_sncur
 #define	SREQ_MAGIC	0x65918233
 #define	SREQ_JOBIDLEN	15			/* same as LOGIDLEN? */
+#define	SREQ_SVCBUFLEN	(5*MAXPATHLEN)		/* max service-buffer length */
 
 
 enum sreqstates {
