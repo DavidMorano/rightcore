@@ -22,10 +22,10 @@
 
         This is a conainer object (elements are stored within it). This also is
         implemented as a single-linked list of nodes. This object is very useful
-        for normal queue operations (insert at tail, remove at head). The follow
-        operations are supported:
+        for normal queue operations (insert at tail, remove at head). The 
+	following operations are supported:
 
-	+ instail		inserr at tail
+	+ instail		insert at tail
 	+ inshead		insert at head
 	+ remhead		remove from head
 
@@ -79,7 +79,7 @@ class singlist_node {
 	} ;
  	friend singlist<T> ;
  	friend singlist_iterator<T> ;
-} ;
+} ; /* end class (singlist_node) */
 
 template <typename T>
 class singlist_iterator {
@@ -144,7 +144,7 @@ public:
 	operator bool() {
 	    return (n != NULL) ;
 	} ;
-} ;
+} ; /* end class (singlist_iterator) */
 
 template <typename T>
 class singlist {
@@ -276,7 +276,7 @@ public:
 	        }
 	        head = nn ;
 	        rc = c++ ;		/* return previous value */
-	    }
+	    } /* end if */
 	    return rc ;
 	} ;
 	int insfront(const T &v) {
@@ -330,7 +330,7 @@ public:
 	    iterator it ;
 	    return it ;
 	} ;
-} ;
+} ; /* end class (singlist) */
 
 #endif /* SINGLIST_INCLUDE */
 

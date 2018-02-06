@@ -117,8 +117,9 @@ int qpdecoder_start(QPDECODER *op,int f_space)
 	if ((obp = new(nothrow) obuf) != NULL) {
 	    op->outbuf = (void *) obp ;
 	    op->magic = QPDECODER_MAGIC ;
-	} else
+	} else {
 	    rs = SR_NOMEM ;
+	}
 
 	return rs ;
 }
@@ -182,9 +183,9 @@ int qpdecoder_load(QPDECODER *op,cchar *sp,int sl)
 	            debugprintf("qpdecoder_load: f_esc=%u\n",op->f.esc) ;
 #endif
 	            if (op->f.esc) {
-	                int		ml = MIN(sl,(nl-op->rl)) ;
 	                const int	rl = op->rl ;
-	                char	*rb = op->rb ;
+	                int		ml = MIN(sl,(nl-op->rl)) ;
+	                char		*rb = op->rb ;
 	                strwcpy((rb+rl),sp,ml) ;
 	                op->rl += ml ;
 	                sp += ml ;
@@ -208,9 +209,9 @@ int qpdecoder_load(QPDECODER *op,cchar *sp,int sl)
 	                    sp += 1 ;
 	                    sl -= 1 ;
 	                    if (sl > 0) {
-	                        int		ml = MIN(sl,(nl-op->rl)) ;
 	                        const int	rl = op->rl ;
-	                        char	*rb = op->rb ;
+	                        int		ml = MIN(sl,(nl-op->rl)) ;
+	                        char		*rb = op->rb ;
 	                        strwcpy((rb+rl),sp,ml) ;
 	                        op->rl += ml ;
 	                        sp += ml ;
@@ -232,8 +233,9 @@ int qpdecoder_load(QPDECODER *op,cchar *sp,int sl)
 	            } /* end if (escape or not) */
 	        } /* end while */
 	    } /* end if (space or not) */
-	} else
+	} else {
 	    rs = SR_BUGCHECK ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("qpdecoder_load: ret rs=%d c=%u\n",rs,c) ;
@@ -272,8 +274,9 @@ int qpdecoder_read(QPDECODER *op,char *rbuf,int rlen)
 	        }
 	        rbuf[i] = '\0' ;
 	        rs = obp->adv(i) ;
-	    } else
+	    } else {
 	        rs = SR_BUGCHECK ;
+	    }
 	} /* end if (positive) */
 
 #if	CF_DEBUGS

@@ -26,11 +26,6 @@
 	purposes we employ the basic (and not so basic) means of accomplishing
 	this.  See the code for our various machinations.
 
-	¥ Note: The type 'int' is assumed to be atomic for multithreaded
-	synchronization purposes.  The atomic type |sig_atomic_t| is (just) an
-	'int', so we do not feel too guilty ourselves about using an 'int' as
-	an interlock.
-
 	Notes:
 
 	Q. The old age question: do these (public) subroutines need to be

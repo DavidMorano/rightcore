@@ -49,7 +49,9 @@
 
 /* local defines */
 
+#ifndef	DIRCACHE_MAGIC
 #define	DIRCACHE_MAGIC	"DIRCACHE"
+#endif
 
 
 /* external subroutines */
@@ -76,10 +78,10 @@ extern int	progpcsgid(PROGINFO *) ;
 
 /* forward references */
 
-static int procdiffer(PROGINFO *,VECPSTR *,const char *) ;
-static int procdircache(PROGINFO *,bfile *,VECPSTR *,const char *) ;
-static int procdircacher(PROGINFO *,vecpstr *,cchar *) ;
-static int procrem(PROGINFO *,cchar *,cchar *) ;
+static int	procdiffer(PROGINFO *,VECPSTR *,cchar *) ;
+static int	procdircache(PROGINFO *,bfile *,VECPSTR *,cchar *) ;
+static int	procdircacher(PROGINFO *,vecpstr *,cchar *) ;
+static int	procrem(PROGINFO *,cchar *,cchar *) ;
 
 
 /* local variables */
@@ -96,7 +98,7 @@ int progdname(PROGINFO *pip,bfile *ofp,cchar *np,int nl)
 	int		rs1 ;
 	int		c = 0 ;
 	int		f_updated = FALSE ;
-	const char	*newsdname ;
+	cchar		*newsdname ;
 
 	if (np == NULL) return SR_FAULT ;
 	if (np[0] == '\0') return SR_INVALID ;
@@ -262,7 +264,7 @@ static int procrem(PROGINFO *pip,cchar *tbuf,cchar *dcfname)
 {
 	int		rs ;
 	if ((rs = progpcsuid(pip)) >= 0) {
-	    const uid_t	uid_pcs = rs ;
+	    const uid_t		uid_pcs = rs ;
 	    if ((rs = progpcsgid(pip)) >= 0) {
 	        const gid_t	gid_pcs = rs ;
 	        int		f_chown ;

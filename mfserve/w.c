@@ -6,7 +6,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUG	1		/* switchable debug print-outs */
+#define	CF_DEBUG	0		/* switchable debug print-outs */
 #define	CF_UGETPW	1		/* use |ugetpw(3uc)| */
 #define	CF_SHLIB	0		/* shared-object library loading */
 
@@ -936,10 +936,10 @@ static int mfswatch_polljobs(PROGINFO *pip,int fd,int re)
 	                re = (POLLIN | POLLPRI) ;
 	                rs = mfswatch_pollreg(pip,fd,re) ;
 	            } else if (isBadService(rs)) {
-	                    const int	f = rs ;
-	                    if ((rs = mfswatch_svcretstat(pip,jep,f)) >= 0) {
-	                        rs = mfswatch_jobretire(pip,jep) ;
-	                    }
+	                const int	f = rs ;
+	                if ((rs = mfswatch_svcretstat(pip,jep,f)) >= 0) {
+	                    rs = mfswatch_jobretire(pip,jep) ;
+	                }
 		    }
 	        } /* end if (in acquire state */
 	    } /* end if (sreqdb_get) */

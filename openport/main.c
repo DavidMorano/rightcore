@@ -12,20 +12,14 @@
 /* revision history:
 
 	= 1989-03-01, David A­D­ Morano
-
 	This subroutine was originally written. 
 
-
 	= 1998-06-01, David A­D­ Morano
-
 	I enhanced the program a little.
 
-
 	= 2013-03-01, David A­D­ Morano
-
-	I added logging of requests to a file.
-	This would seem to be an appropriate security precaution.
-
+        I added logging of requests to a file. This would seem to be an
+        appropriate security precaution.
 
 */
 
@@ -55,7 +49,6 @@
 #include	<time.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<pwd.h>
 #include	<grp.h>
 #include	<netdb.h>
@@ -86,7 +79,7 @@
 
 #define	INETADDRSTRLEN	((INETXADDRLEN*2)+6)
 
-#define	DEBUGFNAME	"/tmp/openport.deb"
+#define	NDF		"/tmp/openport.deb"
 
 
 /* external subroutines */
@@ -109,9 +102,10 @@ extern int	vecpstr_adduniq(VECPSTR *,const char *,int) ;
 extern int	hasalldig(const char *,int) ;
 extern int	isdigitlatin(int) ;
 extern int	isNotPresent(int) ;
+extern int	isFailOpen(int) ;
 
-extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(PROGINFO *,cchar *,const struct pivars *) ;
+extern int	printhelp(void *,cchar *,cchar *,cchar *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
 
 extern int	proguserlist_begin(PROGINFO *) ;
 extern int	proguserlist_end(PROGINFO *) ;
@@ -178,7 +172,7 @@ static int	getprotoname(int,int,int,const char **) ;
 static volatile int	if_exit ;
 static volatile int	if_intr ;
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	"ROOT",
 	"VERSION",
 	"VERBOSE",
@@ -210,7 +204,7 @@ enum argopts {
 	argopt_overlast
 } ;
 
-static const struct pivars	initvars = {
+static const PIVARS	initvars = {
 	VARPROGRAMROOT1,
 	VARPROGRAMROOT2,
 	VARPROGRAMROOT3,
@@ -218,7 +212,7 @@ static const struct pivars	initvars = {
 	VARPRNAME
 } ;
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_PERM, EX_NOPERM },
 	{ SR_AGAIN, EX_TEMPFAIL },
@@ -233,7 +227,7 @@ static const struct mapex	mapexs[] = {
 	{ 0, 0 }
 } ;
 
-static cchar *progopts[] = {
+static const char	*progopts[] = {
 	"binder",
 	NULL
 } ;
@@ -243,7 +237,7 @@ enum progopts {
 	progopt_overlast
 } ;
 
-static cchar	*modes[] = {
+static const char	*modes[] = {
 	"query",
 	"binder",
 	NULL
@@ -331,7 +325,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	}
 
 	if ((cp = getenv(VARBANNER)) == NULL) cp = BANNER ;
-	proginfo_setbanner(pip,cp) ;
+	rs = proginfo_setbanner(pip,cp) ;
 
 /* initialize */
 
@@ -698,6 +692,8 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
+	} else if (! isFailOpen(rs1)) {
+	    if (rs >= 0) rs = rs1 ;
 	}
 
 	if ((rs >= 0) && (pip->debuglevel == 0)) {
@@ -716,16 +712,16 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get some program information */
 
-	rs = proginfo_setpiv(pip,pr,&initvars) ;
-
-	if (rs >= 0)
-	    rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	if (rs >= 0) {
+	    if ((rs = proginfo_setpiv(pip,pr,&initvars)) >= 0) {
+	        rs = proginfo_setsearchname(pip,VARSEARCHNAME,sn) ;
+	    }
+	}
 
 	if (rs < 0) {
 	    ex = EX_OSERR ;
@@ -752,6 +748,11 @@ int main(int argc,cchar **argv,cchar **envv)
 	ex = EX_OK ;
 
 /* some initialization */
+
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
+	    rs = optvalue(argval,-1) ;
+	    pip->n = rs ;
+	}
 
 	if (afname == NULL) afname = getenv(VARAFNAME) ;
 
@@ -1054,14 +1055,8 @@ static int procuserinfo_end(PROGINFO *pip)
 /* end subroutine (procuserinfo_end) */
 
 
-static int procargs(pip,aip,bop,cfd,dfn,ofn,afn)
-PROGINFO	*pip ;
-ARGINFO		*aip ;
-BITS		*bop ;
-int		cfd ;
-const char	*dfn ;
-const char	*ofn ;
-const char	*afn ;
+static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,int cfd,
+		cchar *dfn,cchar *ofn,cchar *afn)
 {
 	VECPSTR		al ;
 	int		rs ;
@@ -1435,9 +1430,9 @@ static int procbind(PROGINFO *pip,USERPORTS *dbp,int cfd)
 	        rrs = SR_PROTO ;
 	        if (m0.msgtype == openportmsgtype_request) {
 	            SOCKADDRESS	*saddrp = (SOCKADDRESS *) &m0.sa ;
-	            int	pf = m0.pf ;
-	            int	ptype = m0.ptype ;
-	            int	proto = m0.proto ;
+	            int		pf = m0.pf ;
+	            int		ptype = m0.ptype ;
+	            int		proto = m0.proto ;
 
 	            if (pip->open.logprog) {
 	                proglog_printf(pip,"pf=%u pt=%u proto=%u",
@@ -1589,7 +1584,7 @@ static int parsequery(struct query *qp,const char *sp,int sl)
 	qp->protop = NULL ;
 	qp->portp = NULL ;
 	if ((tp = strnchr(sp,sl,':')) != NULL) {
-	    const char	*cp = (tp+1) ;
+	    cchar	*cp = (tp+1) ;
 	    int		cl = ((sp+sl)-(tp+1)) ;
 
 	    qp->uidp = sp ;
@@ -1653,12 +1648,7 @@ static int getdefport(cchar *protostr,cchar *pp,int pl)
 /* end subroutine (getdefport) */
 
 
-static int openbind(pf,pt,proto,sap,sal)
-int		pf ;
-int		pt ;
-int		proto ;
-struct sockaddr	*sap ;
-int		sal ;
+static int openbind(int pf,int pt,int proto,SOCKADDR *sap,int sal)
 {
 	int		rs ;
 	int		fd = 0 ;
@@ -1680,9 +1670,7 @@ int		sal ;
 /* end subroutine (open-bind) */
 
 
-static int getprotoname(pf,ptype,proto,rpp)
-int		pf, ptype, proto ;
-const char	**rpp ;
+static int getprotoname(int pf,int ptype,int proto,cchar **rpp)
 {
 	int		rs = SR_NOTFOUND ;
 	int		i ;

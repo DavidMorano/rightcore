@@ -6,7 +6,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_DEBUG	1		/* switchable at invocation */
+#define	CF_DEBUG	0		/* switchable at invocation */
 
 
 /* revision history:

@@ -346,7 +346,7 @@ int pcsconf_audit(PCSCONF *op)
 	    } /* end if (mutex) */
 	} /* end if (have method) */
 
-	return rs ;
+	return (rs >= 0) ? vl : rs ;
 }
 /* end subroutine (pcsconf_audit) */
 

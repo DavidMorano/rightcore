@@ -20,11 +20,6 @@
         This module serves to provide two functions that manipulate the UNIX®
         UMASK.
 
-        ¥ Note: The type 'int' is assumed to be atomic for multithreaded
-        synchronization purposes. The atomic type |sig_atomic_t" is (just) an
-        'int', so we do not feel too guilty ourselves about using an 'int' as an
-        interlock.
-
 
 *******************************************************************************/
 

@@ -87,11 +87,12 @@ struct keyval {
 	} ;
 } ;
 
-struct subinfo {
+class subinfo {
 	QUERYSTRING	*op ;
 	vector<keyval>	kvs ;
 	char		*tbuf = NULL ;
 	int		tlen = 0 ;
+public:
 	subinfo(QUERYSTRING *aop) : op(aop) { } ;
 	~subinfo() {
 	    if (tbuf != NULL) {

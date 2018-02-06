@@ -124,7 +124,7 @@ OBJ06=
 OBJ07= printhelp.o
 OBJ08=
 OBJ09= tmpx.o tmpx_getuserterms.o tmpx_getsessions.o
-OBJ10= thrbase.o thrcomm.o
+OBJ10=
 OBJ11=
 OBJ12=
 OBJ13= 
@@ -251,10 +251,6 @@ tmpx.o:			tmpx.c tmpx.h
 tmpx_getuserlines.o:	tmpx_getuserlines.c tmpx.h
 
 tmpx_getuserterms.o:	tmpx_getuserterms.c tmpx.h
-
-thrbase.o:		thrbase.c thrbase.h
-
-thrcomm.o:		thrcomm.c thrcomm.h
 
 sesnotes.o:		sesnotes.c sesnotes.h sesmsg.h
 

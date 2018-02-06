@@ -1,2 +1,2 @@
 const char bbnews_makedate[] =
-"@(#)bbnews                  180124_1850:05_USEST Rightcore Network Services" ;
+"@(#)bbnews                  180205_1327:56_USEST Rightcore Network Services" ;

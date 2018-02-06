@@ -723,7 +723,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 /* check a few more things */
 
-	if ((rs >= 0) && (argval != NULL)) {
+	if ((rs >= 0) && (pip->n == 0) && (argval != NULL)) {
 	    rs = optvalue(argval,-1) ;
 	    pip->n = rs ;
 	}

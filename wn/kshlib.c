@@ -491,7 +491,9 @@ static int	kshlib_sesend(KSHLIB *) ;
 static int	kshlib_mq(KSHLIB *) ;
 #endif
 
+#if	CF_LOCKMEMALLOC
 int		lib_initmemalloc(int) ;
+#endif /* CF_LOCKMEMALLOC */
 
 static int	storenote_start(STORENOTE *,int,time_t,cchar *,cchar *,int) ;
 static int	storenote_finish(STORENOTE *) ;
@@ -512,7 +514,7 @@ static int	ndebugenv(cchar *,cchar **) ;
 
 /* local variables */
 
-static cchar	*defenviron[] = {
+static const char	*defenviron[] = {
 	"_PROCSTATE=screwed",
 	NULL
 } ;
@@ -551,7 +553,7 @@ enum runopts {
 	runopt_overlast
 } ;
 
-static cchar	*runopts[] = {
+static const char	*runopts[] = {
 	"notes",
 	"lognotes",
 	NULL
@@ -613,7 +615,7 @@ void lib_init(int flags,void *cxp)
 
 #if	CF_KSHRUN
 	{
-	    int	rs ;
+	    int		rs ;
 #if	CF_DEBUGN
 	    nprintf(NDF,"lib_init: KSHRUN\n") ;
 #endif

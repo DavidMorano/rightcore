@@ -7,7 +7,6 @@
 #define	CF_DEBUGS	0		/* non-switchable print-outs */
 #define	CF_DEBUG	0		/* switchable print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
-#define	CF_CHECKONC	0		/* check ONC */
 #define	CF_LOCSETENT	0		/* |locinfo_setentry()| */
 
 
@@ -428,8 +427,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                pip->tmpdname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -465,8 +465,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                pr = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -485,8 +486,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                cfname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -509,8 +511,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                pip->lfname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -527,8 +530,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                sn = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -545,8 +549,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                afname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -563,8 +568,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                efname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -581,8 +587,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                ofname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                    }
 	                    break ;
 
@@ -630,8 +637,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                cfname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                        break ;
 
 /* news directory */
@@ -642,8 +650,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argl = strlen(argp) ;
 	                            if (argl)
 	                                pip->newsdname = argp ;
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                        break ;
 
 /* daemon mode */
@@ -674,8 +683,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                                rs = cfdecti(argp,argl,&v) ;
 	                                mincheck = v ;
 	                            }
-	                        } else
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                        break ;
 
 /* options */
@@ -684,10 +694,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                            argp = argv[++ai] ;
 	                            argr -= 1 ;
 	                            argl = strlen(argp) ;
-	                            if (argl)
-	                                rs = keyopt_loads(&akopts,argp,argl) ;
-	                        } else
+	                            if (argl) {
+					KEYOPT	*kop = &akopts ;
+	                                rs = keyopt_loads(kop,argp,argl) ;
+				    }
+	                        } else {
 	                            rs = SR_INVALID ;
+				}
 	                        break ;
 
 /* quiet mode */
@@ -768,8 +781,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get our program root */
@@ -826,17 +838,9 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	pip->daytime = time(NULL) ;
 
-	rs = procopts(pip,&akopts) ;
-	if (rs < 0) {
-	    ex = EX_USAGE ;
-	    goto retearly ;
+	if (rs >= 0) {
+	    rs = procopts(pip,&akopts) ;
 	}
-
-#if	CF_CHECKONC
-	rs = checkonc(pip->pr,NULL,NULL,NULL) ;
-	pip->f.onckey = (rs >= 0) ;
-	if (rs < 0) goto retearly ;
-#endif
 
 	memset(&ainfo,0,sizeof(ARGINFO)) ;
 	ainfo.argc = argc ;
@@ -863,12 +867,13 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    if ((rs = pcspoll_start(&poll,pcp,sn)) >= 0) {
 	                        if ((rs = proglog_begin(pip,&u)) >= 0) {
 	                            if ((rs = proguserlist_begin(pip)) >= 0) {
-				        ARGINFO	*aip = &ainfo ;
-				        BITS	*bop = &pargs ;
-	                                cchar	*af = afname ;
-	                                cchar	*of = ofname ;
-	                                rs = procargs(pip,aip,bop,of,af) ;
-
+					{
+				            ARGINFO	*aip = &ainfo ;
+				            BITS	*bop = &pargs ;
+	                                    cchar	*af = afname ;
+	                                    cchar	*of = ofname ;
+	                                    rs = procargs(pip,aip,bop,of,af) ;
+					}
 	                                rs1 = proguserlist_end(pip) ;
 				        if (rs >= 0) rs = rs1 ;
 	                            } /* end if (proguserlist) */
@@ -1015,8 +1020,8 @@ badarg:
 
 int progpcsuid(PROGINFO *pip)
 {
-	LOCINFO	*lip = pip->lip ;
-	int	rs = SR_OK ;
+	LOCINFO		*lip = pip->lip ;
+	int		rs = SR_OK ;
 	if (lip->uid_pcs < 0) rs = locinfo_pcsids(lip) ;
 	if (rs >= 0) rs = (lip->uid_pcs & INT_MAX) ;
 	return rs ;
@@ -1026,8 +1031,8 @@ int progpcsuid(PROGINFO *pip)
 
 int progpcsgid(PROGINFO *pip)
 {
-	LOCINFO	*lip = pip->lip ;
-	int	rs = SR_OK ;
+	LOCINFO		*lip = pip->lip ;
+	int		rs = SR_OK ;
 	if (lip->gid_pcs < 0) rs = locinfo_pcsids(lip) ;
 	if (rs >= 0) rs = (lip->gid_pcs & INT_MAX) ;
 	return rs ;
@@ -1227,6 +1232,8 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *app,cchar *afn,cchar *ofn)
 	bfile		ofile, *ofp = &ofile ;
 	int		rs ;
 	int		rs1 ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	if ((ofn == NULL) || (ofn[0] == '\0') || (ofn[0] == '-'))
 	    ofn = BFILE_STDOUT ;
@@ -1285,11 +1292,9 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *app,cchar *afn,cchar *ofn)
 	            if (rs >= 0) rs = rs1 ;
 	        } else {
 	            if (! pip->f.quiet) {
-	                bprintf(pip->efp,
-	                    "%s: inaccessible argument-list (%d)\n",
-	                    pip->progname,rs) ;
-	                bprintf(pip->efp,"%s: afile=%s\n",
-	                    pip->progname,afn) ;
+			fmt = "%s: inaccessible argument-list (%d)\n" ;
+	                bprintf(pip->efp,fmt,pn,rs) ;
+	                bprintf(pip->efp,"%s: afile=%s\n",pn,afn) ;
 	            }
 	        } /* end if */
 
@@ -1319,8 +1324,9 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *app,cchar *afn,cchar *ofn)
 	    rs1 = bclose(ofp) ;
 	    if (rs >= 0) rs = rs1 ;
 	} else {
-	    bprintf(pip->efp,"%s: inaccessible output (%d)\n",
-	        pip->progname,rs) ;
+	    fmt = "%s: inaccessible output (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,rs) ;
+	    bprintf(pip->efp,"%s: ofile=%s\n",pn,ofn) ;
 	}
 
 	return rs ;
@@ -1370,9 +1376,9 @@ static int procnewsdname(PROGINFO *pip)
 	    const int	vlen = VBUFLEN ;
 	    char	vbuf[VBUFLEN+1] ;
 	    if ((rs = pcsconf_curbegin(pcp,&cur)) >= 0) {
-	        cchar	*k = "bb:newsdir" ;
+	        cchar		*k = "bb:newsdir" ;
 	        if ((rs1 = pcsconf_fetch(pcp,k,-1,&cur,vbuf,vlen)) >= 0) {
-	            int	vl = rs1 ;
+	            int		vl = rs1 ;
 	            if (vl > 0) {
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(3))
@@ -1458,16 +1464,18 @@ int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
 	if (epp == NULL) return SR_FAULT ;
 
 	oi = -1 ;
-	if (*epp != NULL)
+	if (*epp != NULL) {
 	    oi = vecstr_findaddr(&lip->stores,*epp) ;
+	}
 
 	if (vp != NULL) {
 	    len = strnlen(vp,vl) ;
 	    rs = vecstr_store(&lip->stores,vp,len,epp) ;
 	} /* end if (had a new entry) */
 
-	if ((rs >= 0) && (oi >= 0))
+	if ((rs >= 0) && (oi >= 0)) {
 	    vecstr_del(&lip->stores,oi) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }

@@ -183,7 +183,7 @@ OBJ17= mailmsg_envtimes.o
 OBJ18= sfbracketval.o
 OBJ19=
 OBJ20= pcsconf.o pcspoll.o
-OBJ21= thrbase.o thrcomm.o
+OBJ21=
 OBJ22= openpcsdircache.o
 OBJ23=
 
@@ -403,11 +403,7 @@ uterm.o:		uterm.c uterm.h
 
 pcsconf.o:		pcsconf.c pcsconf.h
 
-pcspoll.o:		pcspoll.c pcspoll.h pcsconf.h thrbase.h
-
-thrbase.o:		thrbase.c thrbase.h thrcomm.h
-
-thrcomm.o:		thrcomm.c thrcomm.h
+pcspoll.o:		pcspoll.c pcspoll.h pcsconf.h
 
 
 # testing

@@ -12,6 +12,7 @@
 #define	CF_EXP2		0		/* exp-2 */
 #define	CF_EXP3		0		/* exp-3 */
 #define	CF_EXP4		0		/* exp-4 */
+#define	CF_GENERIC	0		/* generic */
 
 
 /* local defines */
@@ -39,6 +40,13 @@ static int	printsub(bfile *,uint) ;
 #if	CF_EXP4
 static int	sub4(bfile *) ;
 #endif /* CF_EXP4 */
+
+#if	CF_GENERIC
+static int	findi(int) ;
+static int	findl(long) ;
+#endif /* CF_GENERIC */
+
+#define	ourfind(x)	_Generic((x),int:findi,long:findl)(x)
 
 
 /* exported subroutines */
@@ -158,6 +166,10 @@ int main(int argc,cchar **argv,cchar **envv)
 	sub4(ofp) ;
 #endif /* CF_EXP4 */
 
+#if	CF_GENERIC
+	bprintf(ofp,"%u\n",ourfind(2)) ;
+#endif
+
 /* out of here */
 
 	bclose(ofp) ;
@@ -188,5 +200,15 @@ static int sub4(bfile *ofp) {
 	return SR_OK ;
 }
 #endif /* CF_EXP4 */
+
+
+#if	CF_GENERIC
+static int findi(int x) {
+	return (x == 0) ;
+}
+static int findl(long x) {
+	return (x == 0) ;
+}
+#endif /* CF_GENERIC */
 
 

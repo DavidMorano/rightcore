@@ -1,2 +1,2 @@
 const char openport_makedate[] =
-"@(#)openport                170126_1924:44_USEST Rightcore Network Services¹" ;
+"@(#)openport                180205_1256:37_USEST Rightcore Network Services" ;
