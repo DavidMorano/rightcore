@@ -275,6 +275,7 @@ mark
 ()0(bstree_iter\(bstree_iter<T,Comp> &&it\) {)8 L
 ()0(if \(this != &it\) {)12 L
 ()0(n = it.n ;)16 L
+()0(it.n = NULL ;)16 L
 ()0(})12 L
 ()0(} ;)8 L
 ()0(bstree_iter<T,Comp> &operator = \(const bstree_iter<T,Comp> &it\) {)8 L
@@ -286,6 +287,7 @@ mark
 ()0(bstree_iter<T,Comp> &operator = \(bstree_iter<T,Comp> &&it\) {)8 L
 ()0(if \(this != &it\) {)12 L
 ()0(n = it.n ;)16 L
+()0(it.n = NULL ;)16 L
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
 ()0(} ;)8 L
@@ -319,8 +321,6 @@ mark
 ()0(return findnext\(1\) ;)12 L
 ()0(} ;)8 L
 ()0(bstree_iter<T,Comp> &operator += \(int inc\) {)8 L
-()0(return findnext\(inc\) ;)12 L
-()0(} ;)8 L
 cleartomark
 showpage
 saveobj restore
@@ -329,6 +329,8 @@ saveobj restore
 /saveobj save def
 mark
 4 pagesetup
+()0(return findnext\(inc\) ;)12 L
+()0(} ;)8 L
 ()0(bstree_iter<T,Comp> &operator + \(int inc\) {)8 L
 ()0(return findnext\(inc\) ;)12 L
 ()0(} ;)8 L
@@ -393,8 +395,6 @@ mark
 ()0(bstree_iter<T,Comp> it ;)12 L
 ()0(if \(root != NULL\) {)12 L
 ()0(if \(keycmp\(v,n->val\)\) { /* less */)16 L
-()0(if \(n->left != NULL\) {)20 L
-()0(it = FindNodeByVal\(n->left,v\) ;)24 L
 cleartomark
 showpage
 saveobj restore
@@ -403,6 +403,8 @@ saveobj restore
 /saveobj save def
 mark
 5 pagesetup
+()0(if \(n->left != NULL\) {)20 L
+()0(it = FindNodeByVal\(n->left,v\) ;)24 L
 ()0(})20 L
 ()0(} else if \(keyequal\(n->val,v\)\) { /* equal */)16 L
 ()0(it.setnode\(n\) ;)20 L
@@ -467,8 +469,6 @@ mark
 ()0(if \(n->left\) {)16 L
 ()0(i += walk\(vl,n->left\) ;)20 L
 ()0(})16 L
-()0(vl.push_back\(n->val\) ;)16 L
-()0(i += 1 ;)16 L
 cleartomark
 showpage
 saveobj restore
@@ -477,6 +477,8 @@ saveobj restore
 /saveobj save def
 mark
 6 pagesetup
+()0(vl.push_back\(n->val\) ;)16 L
+()0(i += 1 ;)16 L
 ()0(if \(n->right\) {)16 L
 ()0(i += walk\(vl,n->right\) ;)20 L
 ()0(})16 L
@@ -541,8 +543,6 @@ mark
 ()0(})12 L
 ()0(} ;)8 L
 ()0(bstree &operator = \(const std::initializer_list<T> &list\) {)8 L
-()0(if \(root != NULL\) clear\(\) ;)12 L
-()0(for \(const T &v : list\) {)12 L
 cleartomark
 showpage
 saveobj restore
@@ -551,6 +551,8 @@ saveobj restore
 /saveobj save def
 mark
 7 pagesetup
+()0(if \(root != NULL\) clear\(\) ;)12 L
+()0(for \(const T &v : list\) {)12 L
 ()0(add\(v\) ;)16 L
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
@@ -615,8 +617,6 @@ mark
 ()0(int del\(iterator it\) {)8 L
 ()0(int)12(rc = -1 ;)24 L
 ()0(if \(it\) {)12 L
-()0(nodetype)16(*n = it.n ; /* friend */)32 L
-()0(nodetype)16(*l, *r ;)32 L
 cleartomark
 showpage
 saveobj restore
@@ -625,6 +625,8 @@ saveobj restore
 /saveobj save def
 mark
 8 pagesetup
+()0(nodetype)16(*n = it.n ; /* friend */)32 L
+()0(nodetype)16(*l, *r ;)32 L
 ()0(l = n->left ;)16 L
 ()0(r = n->right ;)16 L
 ()0(if \(\(l != NULL\) || \(r != NULL\)\) { /* one or two children */)16 L
@@ -689,8 +691,6 @@ mark
 ()0(})12 L
 ()0(return c ;)12 L
 ()0(} ;)8 L
-()0(int maxval\(const T **rpp\) const {)8 L
-()0(if \(root != NULL\) {)12 L
 cleartomark
 showpage
 saveobj restore
@@ -699,6 +699,8 @@ saveobj restore
 /saveobj save def
 mark
 9 pagesetup
+()0(int maxval\(const T **rpp\) const {)8 L
+()0(if \(root != NULL\) {)12 L
 ()0(bstree_node<T,Comp>     *n = root ;)16 L
 ()0(while \(n->right != NULL\) {)16 L
 ()0(n = n->right ;)20 L
@@ -763,8 +765,6 @@ mark
 (#endif)l
 ()0(if \(rp != NULL\) {)12 L
 ()0(int     d_left = depthrecurse\(resp,\(i+1\),rp->left\) ;)16 L
-()0(int     d_right = depthrecurse\(resp,\(i+1\),rp->right\) ;)16 L
-()0(d = 1 ;)16 L
 cleartomark
 showpage
 saveobj restore
@@ -773,6 +773,8 @@ saveobj restore
 /saveobj save def
 mark
 10 pagesetup
+()0(int     d_right = depthrecurse\(resp,\(i+1\),rp->right\) ;)16 L
+()0(d = 1 ;)16 L
 ()0(d += std::max\(d_left,d_right\) ;)16 L
 ()0(} else {)12 L
 ()0(if \(resp != NULL\) {)16 L

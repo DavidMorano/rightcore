@@ -98,6 +98,7 @@ public:
 	singlist_iter(singlist_iter<T> &&it) {
 	    if (this != &it) {
 	        n = it.n ;
+		it.n = NULL ;
 	    }
 	} ;
 	singlist_iter &operator = (const singlist_iter<T> &it) {
@@ -109,6 +110,7 @@ public:
 	singlist_iter &operator = (singlist_iter<T> &&it) {
 	    if (this != &it) {
 	        n = it.n ;
+		it.n = NULL ;
 	    }
 	    return (*this) ;
 	} ;

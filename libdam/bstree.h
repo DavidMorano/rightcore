@@ -150,6 +150,7 @@ public:
 	bstree_iter(bstree_iter<T,Comp> &&it) {
 	    if (this != &it) {
 	        n = it.n ;
+		it.n = NULL ;
 	    }
 	} ;
 	bstree_iter<T,Comp> &operator = (const bstree_iter<T,Comp> &it) {
@@ -161,6 +162,7 @@ public:
 	bstree_iter<T,Comp> &operator = (bstree_iter<T,Comp> &&it) {
 	    if (this != &it) {
 	        n = it.n ;
+		it.n = NULL ;
 	    }
 	    return (*this) ;
 	} ;

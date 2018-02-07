@@ -215,6 +215,7 @@ mark
 ()0(singlist_iter\(singlist_iter<T> &&it\) {)8 L
 ()0(if \(this != &it\) {)12 L
 ()0(n = it.n ;)16 L
+()0(it.n = NULL ;)16 L
 ()0(})12 L
 ()0(} ;)8 L
 ()0(singlist_iter &operator = \(const singlist_iter<T> &it\) {)8 L
@@ -226,6 +227,7 @@ mark
 ()0(singlist_iter &operator = \(singlist_iter<T> &&it\) {)8 L
 ()0(if \(this != &it\) {)12 L
 ()0(n = it.n ;)16 L
+()0(it.n = NULL ;)16 L
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
 ()0(} ;)8 L
@@ -245,8 +247,6 @@ mark
 ()0(friend bool operator != \(const singlist_iter<T> &i1,)8 L
 ()0(const singlist_iter<T> &i2\) {)16 L
 ()0(return \(i1.n != i2.n\) ;)12 L
-()0(} ;)8 L
-()0(T &operator * \(\) const {)8 L
 cleartomark
 showpage
 saveobj restore
@@ -255,6 +255,8 @@ saveobj restore
 /saveobj save def
 mark
 3 pagesetup
+()0(} ;)8 L
+()0(T &operator * \(\) const {)8 L
 ()0(T &rv = defval ;)12 L
 ()0(if \(n != NULL\) {)12 L
 ()0(rv = n->val ;)16 L
@@ -319,8 +321,6 @@ mark
 ()0(al.c = 0 ;)16 L
 ()0(})12 L
 ()0(} ;)8 L
-()0(singlist &operator = \(const singlist<T> &al\) {)8 L
-()0(if \(this != &al\) {)12 L
 cleartomark
 showpage
 saveobj restore
@@ -329,6 +329,8 @@ saveobj restore
 /saveobj save def
 mark
 4 pagesetup
+()0(singlist &operator = \(const singlist<T> &al\) {)8 L
+()0(if \(this != &al\) {)12 L
 ()0(singlist_node<T>)16(*an = al.head ;)40 L
 ()0(if \(head != NULL\) clear\(\) ;)16 L
 ()0(while \(an != NULL\) {)16 L
@@ -393,8 +395,6 @@ mark
 ()0(} ;)8 L
 ()0(operator bool\(\) const {)8 L
 ()0(return \(c != 0\) ;)12 L
-()0(} ;)8 L
-()0(int clear\(\) {)8 L
 cleartomark
 showpage
 saveobj restore
@@ -403,6 +403,8 @@ saveobj restore
 /saveobj save def
 mark
 5 pagesetup
+()0(} ;)8 L
+()0(int clear\(\) {)8 L
 ()0(singlist_node<T>    *nn, *n = head ;)12 L
 ()0(int)12(rc = c ;)24 L
 ()0(while \(n != NULL\) {)12 L
@@ -467,8 +469,6 @@ mark
 ()0(return c ;)12 L
 ()0(} ;)8 L
 ()0(int getfront\(const T **rpp\) const {)8 L
-()0(*rpp = \(head != NULL\) ? &head->val : NULL ;)12 L
-()0(return c ;)12 L
 cleartomark
 showpage
 saveobj restore
@@ -477,6 +477,8 @@ saveobj restore
 /saveobj save def
 mark
 6 pagesetup
+()0(*rpp = \(head != NULL\) ? &head->val : NULL ;)12 L
+()0(return c ;)12 L
 ()0(} ;)8 L
 ()0(int getback\(const T **rpp\) const {)8 L
 ()0(*rpp = \(tail != NULL\) ? &tail->val : NULL ;)12 L
