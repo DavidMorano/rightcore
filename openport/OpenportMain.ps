@@ -1,0 +1,2016 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for ASCII files.
+%
+
+/#copies 1 store
+/Prologue (postprint.ps) def
+/aspectratio 1 def
+/font /Courier def
+/formsperpage 1 def
+/landscape false def
+/magnification 1 def
+/margin 10 def
+/orientation 0 def
+/pointsize 10 def
+/rotation 1 def
+/xoffset .25 def
+/yoffset .25 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	font findfont pointsize scalefont setfont
+	/charwidth (M) stringwidth pop def
+	/linespace pointsize pointsize .10 mul add neg def
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	height width div 1 min dup scale
+	0 linespace translate
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/pagesetup {/page exch def 0 0 moveto 0} bind def
+
+/L {
+	counttomark 2 idiv {charwidth mul currentpoint exch pop moveto show} repeat
+	linespace add dup 0 exch moveto
+} bind def
+
+/l {show linespace add dup 0 exch moveto} bind def
+
+/LL {
+	counttomark 2 idiv {charwidth mul currentpoint exch pop moveto show} repeat
+} bind def
+
+/done {/lastpage where {pop lastpage} if} def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+%%EndProlog
+%%BeginSetup
+mark
+setup
+%%EndSetup
+%%Page: 1 1
+/saveobj save def
+mark
+1 pagesetup
+(/* main */)l
+()l
+(/* program to create and bind a socket */)l
+(/* last modified %G% version %I% */)l
+()l
+()l
+(#define CF_DEBUGS)0(0)24(/* non-switchable debug print-outs */)40 L
+(#define CF_DEBUG)0(0)24(/* switchable at invocation */)40 L
+(#define CF_DEBUGMALL    1)0(/* debug memory-allocations */)40 L
+()l
+()l
+(/* revision history:)l
+()l
+()0(= 1989-03-01, David A\255D\255 Morano)8 L
+()0(This subroutine was originally written. )8 L
+()l
+()0(= 1998-06-01, David A\255D\255 Morano)8 L
+()0(I enhanced the program a little.)8 L
+()l
+()0(= 2013-03-01, David A\255D\255 Morano)8 L
+()0(I added logging of requests to a file. This would seem to be an)8 L
+()0(appropriate security precaution.)8 L
+()l
+(*/)l
+()l
+(/* Copyright \251 1989,1998,2013 David A\255D\255 Morano.  All rights reserved. */)l
+()l
+(/*******************************************************************************)l
+()l
+()0(Synopsis:)8 L
+()l
+()0($ openport )8 L
+()l
+()0(All transactions are done on STDIN.)8 L
+()l
+()l
+(*******************************************************************************/)l
+()l
+()l
+(#include)0(<envstandards.h>)16(/* MUST be first to configure */)40 L
+()l
+(#include)0(<sys/types.h>)16 L
+(#include)0(<sys/param.h>)16 L
+(#include)0(<sys/socket.h>)16 L
+(#include)0(<limits.h>)16 L
+(#include)0(<stropts.h>)16 L
+(#include)0(<unistd.h>)16 L
+(#include)0(<fcntl.h>)16 L
+(#include)0(<time.h>)16 L
+(#include)0(<stdlib.h>)16 L
+(#include)0(<string.h>)16 L
+(#include)0(<pwd.h>)16 L
+(#include)0(<grp.h>)16 L
+(#include)0(<netdb.h>)16 L
+()l
+(#include)0(<vsystem.h>)16 L
+(#include)0(<getbufsize.h>)16 L
+(#include)0(<bits.h>)16 L
+(#include)0(<keyopt.h>)16 L
+(#include)0(<bfile.h>)16 L
+(#include)0(<vecpstr.h>)16 L
+(#include)0(<userinfo.h>)16 L
+(#include)0(<msgbuf.h>)16 L
+(#include)0(<getax.h>)16 L
+(#include)0(<sockaddress.h>)16 L
+(#include)0(<exitcodes.h>)16 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 1 1
+%%Page: 2 2
+/saveobj save def
+mark
+2 pagesetup
+(#include)0(<localmisc.h>)16 L
+()l
+(#include)0("config.h")16 L
+(#include)0("defs.h")16 L
+(#include)0("userports.h")16 L
+(#include)0("openport.h")16 L
+(#include)0("proglog.h")16 L
+()l
+()l
+(/* local defines */)l
+()l
+(#define MBUFLEN)0(MSGBUFLEN)24 L
+()l
+(#define INETADDRSTRLEN  \(\(INETXADDRLEN*2\)+6\))l
+()l
+(#define NDF)0("/tmp/openport.deb")24 L
+()l
+()l
+(/* external subroutines */)l
+()l
+(extern int)0(snsds\(char *,int,cchar *,cchar *\) ;)16 L
+(extern int)0(sncpy3\(char *,int,const char *,const char *,const char *\) ;)16 L
+(extern int)0(mkpath2\(char *,const char *,const char *\) ;)16 L
+(extern int)0(mkpath3\(char *,const char *,const char *,const char *\) ;)16 L
+(extern int)0(sninetaddr\(char *,int,uint,const char *\) ;)16 L
+(extern int)0(sfshrink\(const char *,int,char **\) ;)16 L
+(extern int)0(sfskipwhite\(cchar *,int,cchar **\) ;)16 L
+(extern int)0(matstr\(const char **,const char *,int\) ;)16 L
+(extern int)0(matostr\(const char **,int,const char *,int\) ;)16 L
+(extern int)0(cfdeci\(const char *,int,int *\) ;)16 L
+(extern int)0(optbool\(const char *,int\) ;)16 L
+(extern int)0(optvalue\(const char *,int\) ;)16 L
+(extern int)0(getportnum\(const char *,const char *\) ;)16 L
+(extern int)0(getuid_user\(cchar *,int\) ;)16 L
+(extern int)0(vecpstr_adduniq\(VECPSTR *,const char *,int\) ;)16 L
+(extern int)0(hasalldig\(const char *,int\) ;)16 L
+(extern int)0(isdigitlatin\(int\) ;)16 L
+(extern int)0(isNotPresent\(int\) ;)16 L
+(extern int)0(isFailOpen\(int\) ;)16 L
+()l
+(extern int)0(printhelp\(void *,cchar *,cchar *,cchar *\) ;)16 L
+(extern int)0(proginfo_setpiv\(PROGINFO *,cchar *,const PIVARS *\) ;)16 L
+()l
+(extern int)0(proguserlist_begin\(PROGINFO *\) ;)16 L
+(extern int)0(proguserlist_end\(PROGINFO *\) ;)16 L
+()l
+(#if     CF_DEBUGS || CF_DEBUG)l
+(extern int)0(debugopen\(const char *\) ;)16 L
+(extern int)0(debugprintf\(const char *,...\) ;)16 L
+(extern int)0(debugclose\(\) ;)16 L
+(#endif)l
+()l
+(extern cchar    *getourenv\(cchar **,cchar *\) ;)l
+()l
+(extern char     *strdcpy1w\(char *,int,const char *,int\) ;)l
+(extern char     *strnchr\(const char *,int,int\) ;)l
+()l
+()l
+(/* external variables */)l
+()l
+()l
+(/* local structures */)l
+()l
+(struct query {)l
+()0(const char)8(*uidp ;)24 L
+()0(const char)8(*protop ;)24 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 2 2
+%%Page: 3 3
+/saveobj save def
+mark
+3 pagesetup
+()0(const char)8(*portp ;)24 L
+()0(int)8(uidl ;)24 L
+()0(int)8(protol ;)24 L
+()0(int)8(portl ;)24 L
+(} ;)l
+()l
+(struct prototupple {)l
+()0(int)8(pf ;)24 L
+()0(int)8(ptype ;)24 L
+()0(int)8(proto ;)24 L
+()0(const char)8(*name ;)24 L
+(} ;)l
+()l
+()l
+(/* forward references */)l
+()l
+(static int)0(usage\(PROGINFO *\) ;)16 L
+()l
+(static int)0(procuserinfo_begin\(PROGINFO *,USERINFO *\) ;)16 L
+(static int)0(procuserinfo_end\(PROGINFO *\) ;)16 L
+()l
+(static int)0(procopts\(PROGINFO *,KEYOPT *\) ;)16 L
+(static int)0(procargs\(PROGINFO *,ARGINFO *,BITS *,int,)16 L
+()0(cchar *,cchar *,cchar *\) ;)24 L
+(static int)0(process\(PROGINFO *,cchar *,cchar *,VECPSTR *,int\) ;)16 L
+(static int)0(procbind\(PROGINFO *,USERPORTS *,int\) ;)16 L
+(static int)0(proclist\(PROGINFO *,USERPORTS *,const char *,VECPSTR *\) ;)16 L
+(static int)0(proclistall\(PROGINFO *,USERPORTS *,bfile *\) ;)16 L
+(static int)0(proclistusers\(PROGINFO *,USERPORTS *,bfile *,VECPSTR *\) ;)16 L
+(static int)0(proclistquery\(PROGINFO *,USERPORTS *,bfile *,VECPSTR *\) ;)16 L
+()l
+(static int)0(parsequery\(struct query *,const char *,int\) ;)16 L
+(static int)0(getdefport\(const char *,const char *,int\) ;)16 L
+(static int)0(openbind\(int,int,int,struct sockaddr *,int\) ;)16 L
+(static int)0(getprotoname\(int,int,int,const char **\) ;)16 L
+()l
+()l
+(/* local variables */)l
+()l
+(static volatile int     if_exit ;)l
+(static volatile int     if_intr ;)l
+()l
+(static const char)0(*argopts[] = {)24 L
+()0("ROOT",)8 L
+()0("VERSION",)8 L
+()0("VERBOSE",)8 L
+()0("HELP",)8 L
+()0("sn",)8 L
+()0("af",)8 L
+()0("ef",)8 L
+()0("of",)8 L
+()0("if",)8 L
+()0("lf",)8 L
+()0("db",)8 L
+()0("query",)8 L
+()0(NULL)8 L
+(} ;)l
+()l
+(enum argopts {)l
+()0(argopt_root,)8 L
+()0(argopt_version,)8 L
+()0(argopt_verbose,)8 L
+()0(argopt_help,)8 L
+()0(argopt_sn,)8 L
+()0(argopt_af,)8 L
+()0(argopt_ef,)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 3 3
+%%Page: 4 4
+/saveobj save def
+mark
+4 pagesetup
+()0(argopt_of,)8 L
+()0(argopt_if,)8 L
+()0(argopt_lf,)8 L
+()0(argopt_db,)8 L
+()0(argopt_query,)8 L
+()0(argopt_overlast)8 L
+(} ;)l
+()l
+(static const PIVARS     initvars = {)l
+()0(VARPROGRAMROOT1,)8 L
+()0(VARPROGRAMROOT2,)8 L
+()0(VARPROGRAMROOT3,)8 L
+()0(PROGRAMROOT,)8 L
+()0(VARPRNAME)8 L
+(} ;)l
+()l
+(static const MAPEX)0(mapexs[] = {)24 L
+()0({ SR_NOENT, EX_NOUSER },)8 L
+()0({ SR_PERM, EX_NOPERM },)8 L
+()0({ SR_AGAIN, EX_TEMPFAIL },)8 L
+()0({ SR_DEADLK, EX_TEMPFAIL },)8 L
+()0({ SR_NOLCK, EX_TEMPFAIL },)8 L
+()0({ SR_TXTBSY, EX_TEMPFAIL },)8 L
+()0({ SR_ACCESS, EX_NOPERM },)8 L
+()0({ SR_REMOTE, EX_PROTOCOL },)8 L
+()0({ SR_NOSPC, EX_TEMPFAIL },)8 L
+()0({ SR_INTR, EX_INTR },)8 L
+()0({ SR_EXIT, EX_TERM },)8 L
+()0({ 0, 0 })8 L
+(} ;)l
+()l
+(static const char)0(*progopts[] = {)24 L
+()0("binder",)8 L
+()0(NULL)8 L
+(} ;)l
+()l
+(enum progopts {)l
+()0(progopt_binder,)8 L
+()0(progopt_overlast)8 L
+(} ;)l
+()l
+(static const char)0(*modes[] = {)24 L
+()0("query",)8 L
+()0("binder",)8 L
+()0(NULL)8 L
+(} ;)l
+()l
+(static const struct prototupple socknames[] = {)l
+()0({ PF_INET, SOCK_STREAM, IPPROTO_TCP, "tcp" },)8 L
+()0({ PF_INET, SOCK_STREAM, 0, "tcp" },)8 L
+()0({ PF_INET, SOCK_DGRAM, IPPROTO_UDP, "udp" },)8 L
+()0({ PF_INET, SOCK_DGRAM, 0, "udp" },)8 L
+(#ifdef  PF_INET6)l
+()0({ PF_INET6, SOCK_STREAM, IPPROTO_TCP, "tcp6" },)8 L
+()0({ PF_INET6, SOCK_STREAM, 0, "tcp6" },)8 L
+()0({ PF_INET6, SOCK_DGRAM, IPPROTO_UDP, "udp6" },)8 L
+()0({ PF_INET6, SOCK_DGRAM, 0, "udp6" },)8 L
+(#endif /* PF_INET6 */)l
+()0({ 0, 0, NULL })8 L
+(} ;)l
+()l
+(static const char)0(*defprotos[] = {)24 L
+()0("tcp",)8 L
+()0("udp",)8 L
+()0("ddp",)8 L
+()0(NULL)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 4 4
+%%Page: 5 5
+/saveobj save def
+mark
+5 pagesetup
+(} ;)l
+()l
+()l
+(/* exported subroutines */)l
+()l
+()l
+(int main\(int argc,cchar **argv,cchar **envv\))l
+({)l
+()0(PROGINFO)8(pi, *pip = &pi ;)24 L
+()0(ARGINFO)8(ainfo ;)24 L
+()0(BITS)8(pargs ;)24 L
+()0(KEYOPT)8(akopts ;)24 L
+()0(bfile)8(errfile ;)24 L
+()l
+(#if     \(CF_DEBUGS || CF_DEBUG\) && CF_DEBUGMALL)l
+()0(uint)8(mo_start = 0 ;)24 L
+(#endif)l
+()l
+()0(int)8(argr, argl, aol, akl, avl, kwi ;)24 L
+()0(int)8(ai, ai_max, ai_pos ;)24 L
+()0(int)8(rs, rs1 ;)24 L
+()0(int)8(cfd = FD_STDIN ;)24 L
+()0(int)8(ex = EX_INFO ;)24 L
+()0(int)8(f_optminus, f_optplus, f_optequal ;)24 L
+()0(int)8(f_version = FALSE ;)24 L
+()0(int)8(f_usage = FALSE ;)24 L
+()0(int)8(f_help = FALSE ;)24 L
+()0(int)8(f_inopen = FALSE ;)24 L
+()l
+()0(const char)8(*argp, *aop, *akp, *avp ;)24 L
+()0(const char)8(*argval = NULL ;)24 L
+()0(const char)8(*pr = NULL ;)24 L
+()0(const char)8(*sn = NULL ;)24 L
+()0(const char)8(*afname = NULL ;)24 L
+()0(const char)8(*efname = NULL ;)24 L
+()0(const char)8(*ofname = NULL ;)24 L
+()0(const char)8(*ifname = NULL ;)24 L
+()0(const char)8(*dbfname = NULL ;)24 L
+()0(const char)8(*cp ;)24 L
+()l
+()l
+()0(if_exit = 0 ;)8 L
+()0(if_intr = 0 ;)8 L
+()l
+(#if     CF_DEBUGS || CF_DEBUG)l
+()0(if \(\(cp = getourenv\(envv,VARDEBUGFNAME\)\) != NULL\) {)8 L
+()0(rs = debugopen\(cp\) ;)12 L
+()0(debugprintf\("main: starting DFD=%d\\n",rs\) ;)12 L
+()0(})8 L
+(#endif /* CF_DEBUGS */)l
+()l
+(#if     \(CF_DEBUGS || CF_DEBUG\) && CF_DEBUGMALL)l
+()0(uc_mallset\(1\) ;)8 L
+()0(uc_mallout\(&mo_start\) ;)8 L
+(#endif)l
+()l
+()0(rs = proginfo_start\(pip,envv,argv[0],VERSION\) ;)8 L
+()0(if \(rs < 0\) {)8 L
+()0(ex = EX_OSERR ;)12 L
+()0(goto badprogstart ;)12 L
+()0(})8 L
+()l
+()0(if \(\(cp = getenv\(VARBANNER\)\) == NULL\) cp = BANNER ;)8 L
+()0(rs = proginfo_setbanner\(pip,cp\) ;)8 L
+()l
+(/* initialize */)l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 5 5
+%%Page: 6 6
+/saveobj save def
+mark
+6 pagesetup
+()l
+()0(pip->verboselevel = 1 ;)8 L
+()0(pip->f.logprog = TRUE ;)8 L
+()l
+(/* start parsing the arguments */)l
+()l
+()0(if \(rs >= 0\) rs = bits_start\(&pargs,1\) ;)8 L
+()0(if \(rs < 0\) goto badpargs ;)8 L
+()l
+()0(rs = keyopt_start\(&akopts\) ;)8 L
+()0(pip->open.akopts = \(rs >= 0\) ;)8 L
+()l
+()0(ai_max = 0 ;)8 L
+()0(ai_pos = 0 ;)8 L
+()0(argr = argc ;)8 L
+()0(for \(ai = 0 ; \(ai < argc\) && \(argv[ai] != NULL\) ; ai += 1\) {)8 L
+()0(if \(rs < 0\) break ;)12 L
+()0(argr -= 1 ;)12 L
+()0(if \(ai == 0\) continue ;)12 L
+()l
+()0(argp = argv[ai] ;)12 L
+()0(argl = strlen\(argp\) ;)12 L
+()l
+()0(f_optminus = \(*argp == '-'\) ;)12 L
+()0(f_optplus = \(*argp == '+'\) ;)12 L
+()0(if \(\(argl > 1\) && \(f_optminus || f_optplus\)\) {)12 L
+()0(const int)16(ach = MKCHAR\(argp[1]\) ;)32 L
+()l
+()0(if \(isdigitlatin\(ach\)\) {)16 L
+()l
+()0(argval = \(argp + 1\) ;)20 L
+()l
+()0(} else if \(ach == '-'\) {)16 L
+()l
+()0(ai_pos = ai ;)20 L
+()0(break ;)20 L
+()l
+()0(} else {)16 L
+()l
+()0(aop = argp + 1 ;)20 L
+()0(akp = aop ;)20 L
+()0(aol = argl - 1 ;)20 L
+()0(f_optequal = FALSE ;)20 L
+()0(if \(\(avp = strchr\(aop,'='\)\) != NULL\) {)20 L
+()0(f_optequal = TRUE ;)24 L
+()0(akl = avp - aop ;)24 L
+()0(avp += 1 ;)24 L
+()0(avl = aop + argl - 1 - avp ;)24 L
+()0(aol = akl ;)24 L
+()0(} else {)20 L
+()0(avp = NULL ;)24 L
+()0(avl = 0 ;)24 L
+()0(akl = aol ;)24 L
+()0(})20 L
+()l
+()0(if \(\(kwi = matostr\(argopts,2,akp,akl\)\) >= 0\) {)20 L
+()l
+()0(switch \(kwi\) {)24 L
+()l
+(/* program root */)l
+()0(case argopt_root:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(pr = avp ;)36 L
+()0(} else {)28 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 6 6
+%%Page: 7 7
+/saveobj save def
+mark
+7 pagesetup
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(pr = argp ;)40 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* version */)l
+()0(case argopt_version:)24 L
+()0(f_version = TRUE ;)28 L
+()0(if \(f_optequal\))28 L
+()0(rs = SR_INVALID ;)32 L
+()0(break ;)28 L
+()l
+(/* verbose mode */)l
+()0(case argopt_verbose:)24 L
+()0(pip->verboselevel = 2 ;)28 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\) {)32 L
+()0(rs = optvalue\(avp,avl\) ;)36 L
+()0(pip->verboselevel = rs ;)36 L
+()0(})32 L
+()0(})28 L
+()0(break ;)28 L
+()l
+()0(case argopt_help:)24 L
+()0(f_help = TRUE ;)28 L
+()0(break ;)28 L
+()l
+(/* program search-name */)l
+()0(case argopt_sn:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(sn = avp ;)36 L
+()0(} else {)28 L
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(sn = argp ;)40 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* argument-list file */)l
+()0(case argopt_af:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(afname = avp ;)36 L
+()0(} else {)28 L
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(afname = argp ;)40 L
+()0(} else)32 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 7 7
+%%Page: 8 8
+/saveobj save def
+mark
+8 pagesetup
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* error file name */)l
+()0(case argopt_ef:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(efname = avp ;)36 L
+()0(} else {)28 L
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(efname = argp ;)40 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* output file name */)l
+()0(case argopt_of:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(ofname = avp ;)36 L
+()0(} else {)28 L
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(ofname = argp ;)40 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* input file name */)l
+()0(case argopt_if:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(ifname = avp ;)36 L
+()0(} else {)28 L
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(ifname = argp ;)40 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* log filename */)l
+()0(case argopt_lf:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(pip->lfname = avp ;)36 L
+()0(} else {)28 L
+()0(if \(argr > 0\) {)32 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 8 8
+%%Page: 9 9
+/saveobj save def
+mark
+9 pagesetup
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(pip->lfname = argp ;)40 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* data-base filename */)l
+()0(case argopt_db:)24 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\))32 L
+()0(dbfname = avp ;)36 L
+()0(} else {)28 L
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\))36 L
+()0(dbfname = argp ;)40 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* query mode */)l
+()0(case argopt_query:)24 L
+()0(pip->f.query = TRUE ;)28 L
+()0(if \(f_optequal\) {)28 L
+()0(f_optequal = FALSE ;)32 L
+()0(if \(avl\) {)32 L
+()0(rs = optbool\(avp,avl\) ;)36 L
+()0(pip->f.query = \(rs > 0\) ;)36 L
+()0(})32 L
+()0(})28 L
+()0(break ;)28 L
+()l
+(/* handle all keyword defaults */)l
+()0(default:)24 L
+()0(rs = SR_INVALID ;)28 L
+()0(break ;)28 L
+()l
+()0(} /* end switch */)24 L
+()l
+()0(} else {)20 L
+()l
+()0(while \(akl--\) {)24 L
+()0(const int   kc = \(*akp & 0xff\) ;)28 L
+()l
+()0(switch \(kc\) {)28 L
+()l
+(/* debug */)l
+()0(case 'D':)28 L
+()0(pip->debuglevel = 1 ;)32 L
+()0(if \(f_optequal\) {)32 L
+()0(f_optequal = FALSE ;)36 L
+()0(if \(avl\) {)36 L
+()0(rs = optvalue\(avp,avl\) ;)40 L
+()0(pip->debuglevel = rs ;)40 L
+()0(})36 L
+()0(})32 L
+()0(break ;)32 L
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 9 9
+%%Page: 10 10
+/saveobj save def
+mark
+10 pagesetup
+(/* quiet mode */)l
+()0(case 'Q':)28 L
+()0(pip->f.quiet = TRUE ;)32 L
+()0(break ;)32 L
+()l
+(/* version */)l
+()0(case 'V':)28 L
+()0(f_version = TRUE ;)32 L
+()0(break ;)32 L
+()l
+(/* all mode */)l
+()0(case 'a':)28 L
+()0(pip->f.all = TRUE ;)32 L
+()0(if \(f_optequal\) {)32 L
+()0(f_optequal = FALSE ;)36 L
+()0(if \(avl\) {)36 L
+()0(rs = optbool\(avp,avl\) ;)40 L
+()0(pip->f.all = \(rs > 0\) ;)40 L
+()0(})36 L
+()0(})32 L
+()0(break ;)32 L
+()l
+(/* binder mode */)l
+()0(case 'b':)28 L
+()0(pip->f.binder = TRUE ;)32 L
+()0(if \(f_optequal\) {)32 L
+()0(f_optequal = FALSE ;)36 L
+()0(if \(avl\) {)36 L
+()0(rs = optbool\(avp,avl\) ;)40 L
+()0(pip->f.binder = \(rs > 0\) ;)40 L
+()0(})36 L
+()0(})32 L
+()0(break ;)32 L
+()l
+(/* options */)l
+()0(case 'o':)28 L
+()0(if \(argr > 0\) {)32 L
+()0(argp = argv[++ai] ;)36 L
+()0(argr -= 1 ;)36 L
+()0(argl = strlen\(argp\) ;)36 L
+()0(if \(argl\) {)36 L
+()0(KEYOPT  *kop = &akopts ;)40 L
+()0(rs = keyopt_loads\(kop,argp,argl\) ;)40 L
+()0(})36 L
+()0(} else)32 L
+()0(rs = SR_INVALID ;)36 L
+()0(break ;)32 L
+()l
+()0(case 'q':)28 L
+()0(pip->verboselevel = 0 ;)32 L
+()0(break ;)32 L
+()l
+(/* verbose mode */)l
+()0(case 'v':)28 L
+()0(pip->verboselevel = 2 ;)32 L
+()0(if \(f_optequal\) {)32 L
+()0(f_optequal = FALSE ;)36 L
+()0(if \(avl\) {)36 L
+()0(rs = optvalue\(avp,avl\) ;)40 L
+()0(pip->verboselevel = rs ;)40 L
+()0(})36 L
+()0(})32 L
+()0(break ;)32 L
+()l
+()0(case '?':)28 L
+()0(f_usage = TRUE ;)32 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 10 10
+%%Page: 11 11
+/saveobj save def
+mark
+11 pagesetup
+()0(break ;)32 L
+()l
+()0(default:)28 L
+()0(rs = SR_INVALID ;)32 L
+()0(break ;)32 L
+()l
+()0(} /* end switch */)28 L
+()0(akp += 1 ;)28 L
+()l
+()0(if \(rs < 0\) break ;)28 L
+()0(} /* end while */)24 L
+()l
+()0(} /* end if \(individual option key letters\) */)20 L
+()l
+()0(} /* end if \(digits as argument or not\) */)16 L
+()l
+()0(} else {)12 L
+()l
+()0(rs = bits_set\(&pargs,ai\) ;)16 L
+()0(ai_max = ai ;)16 L
+()l
+()0(} /* end if \(key letter/word or positional\) */)12 L
+()l
+()0(ai_pos = ai ;)12 L
+()l
+()0(} /* end while \(all command line argument processing\) */)8 L
+()l
+()0(if \(efname == NULL\) efname = getenv\(VAREFNAME\) ;)8 L
+()0(if \(efname == NULL\) efname = getenv\(VARERRORFNAME\) ;)8 L
+()0(if \(efname == NULL\) efname = BFILE_STDERR ;)8 L
+()0(if \(\(rs1 = bopen\(&errfile,efname,"wca",0666\)\) >= 0\) {)8 L
+()0(pip->efp = &errfile ;)12 L
+()0(pip->open.errfile = TRUE ;)12 L
+()0(bcontrol\(&errfile,BC_SETBUFLINE,TRUE\) ;)12 L
+()0(} else if \(! isFailOpen\(rs1\)\) {)8 L
+()0(if \(rs >= 0\) rs = rs1 ;)12 L
+()0(})8 L
+()l
+()0(if \(\(rs >= 0\) && \(pip->debuglevel == 0\)\) {)8 L
+()0(if \(\(cp = getenv\(VARDEBUGLEVEL\)\) != NULL\) {)12 L
+()0(rs = optvalue\(cp,-1\) ;)16 L
+()0(pip->debuglevel = rs ;)16 L
+()0(})12 L
+()0(})8 L
+()l
+()0(if \(rs < 0\))8 L
+()0(goto badarg ;)12 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\))8 L
+()0(debugprintf\("main: debuglevel=%u\\n",pip->debuglevel\) ;)12 L
+(#endif)l
+()l
+()0(if \(f_version\) {)8 L
+()0(bprintf\(pip->efp,"%s: version %s\\n",pip->progname,VERSION\) ;)12 L
+()0(})8 L
+()l
+(/* get some program information */)l
+()l
+()0(if \(rs >= 0\) {)8 L
+()0(if \(\(rs = proginfo_setpiv\(pip,pr,&initvars\)\) >= 0\) {)12 L
+()0(rs = proginfo_setsearchname\(pip,VARSEARCHNAME,sn\) ;)16 L
+()0(})12 L
+()0(})8 L
+()l
+()0(if \(rs < 0\) {)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 11 11
+%%Page: 12 12
+/saveobj save def
+mark
+12 pagesetup
+()0(ex = EX_OSERR ;)12 L
+()0(goto retearly ;)12 L
+()0(})8 L
+()l
+()0(if \(pip->debuglevel > 0\) {)8 L
+()0(bprintf\(pip->efp,"%s: pr=%s\\n", pip->progname,pip->pr\) ;)12 L
+()0(bprintf\(pip->efp,"%s: sn=%s\\n", pip->progname,pip->searchname\) ;)12 L
+()0(} /* end if */)8 L
+()l
+()0(if \(f_usage\))8 L
+()0(usage\(pip\) ;)12 L
+()l
+(/* help file */)l
+()l
+()0(if \(f_help\))8 L
+()0(printhelp\(NULL,pip->pr,pip->searchname,HELPFNAME\) ;)12 L
+()l
+()0(if \(f_version || f_help || f_usage\))8 L
+()0(goto retearly ;)12 L
+()l
+()l
+()0(ex = EX_OK ;)8 L
+()l
+(/* some initialization */)l
+()l
+()0(if \(\(rs >= 0\) && \(pip->n == 0\) && \(argval != NULL\)\) {)8 L
+()0(rs = optvalue\(argval,-1\) ;)12 L
+()0(pip->n = rs ;)12 L
+()0(})8 L
+()l
+()0(if \(afname == NULL\) afname = getenv\(VARAFNAME\) ;)8 L
+()l
+()0(if \(pip->lfname == NULL\) pip->lfname = getenv\(VARLFNAME\) ;)8 L
+()l
+()0(if \(pip->tmpdname == NULL\) pip->tmpdname = getenv\(VARTMPDNAME\) ;)8 L
+()0(if \(pip->tmpdname == NULL\) pip->tmpdname = TMPDNAME ;)8 L
+()l
+()0(if \(pip->logsize == 0\) pip->logsize = LOGSIZE ;)8 L
+()l
+()0(rs = procopts\(pip,&akopts\) ;)8 L
+()l
+()0(if \(pip->f.binder\) {)8 L
+()0(dbfname = NULL ;)12 L
+()0(} else {)8 L
+()0(if \(dbfname == NULL\) dbfname = getenv\(VARDBFNAME\) ;)12 L
+()0(})8 L
+()0(if \(dbfname == NULL\) dbfname = USERPORTSFNAME ;)8 L
+()l
+()0(if \(\(rs >= 0\) && \(pip->debuglevel > 0\)\) {)8 L
+()0(cchar)12(*pn = pip->progname ;)24 L
+()0(cchar)12(*fmt ;)24 L
+()0(cchar)12(*ms ;)24 L
+()0(fmt = "%s: mode=%s\\n" ;)12 L
+()0(ms = \(pip->f.binder\) ? modes[1] : modes[0] ;)12 L
+()0(bprintf\(pip->efp,fmt,pn,ms\) ;)12 L
+()0(fmt = "%s: db=%s\\n" ;)12 L
+()0(bprintf\(pip->efp,fmt,pn,dbfname\) ;)12 L
+()0(})8 L
+()l
+()0(if \(\(rs >= 0\) && \(ifname != NULL\) && \(ifname[0] != '\\0'\)\) {)8 L
+()0(if \(ifname[0] != '-'\) {)12 L
+()0(f_inopen = TRUE ;)16 L
+()0(rs = uc_open\(ifname,O_RDWR,0777\) ;)16 L
+()0(cfd = rs ;)16 L
+()0(})12 L
+()0(})8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 12 12
+%%Page: 13 13
+/saveobj save def
+mark
+13 pagesetup
+()l
+(/* OK, we finally do our thing */)l
+()l
+()0(memset\(&ainfo,0,sizeof\(ARGINFO\)\) ;)8 L
+()0(ainfo.argc = argc ;)8 L
+()0(ainfo.ai = ai ;)8 L
+()0(ainfo.argv = argv ;)8 L
+()0(ainfo.ai_max = ai_max ;)8 L
+()0(ainfo.ai_pos = ai_pos ;)8 L
+()l
+()0(if \(rs >= 0\) {)8 L
+()0(USERINFO    u ;)12 L
+()0(if \(\(rs = userinfo_start\(&u,NULL\)\) >= 0\) {)12 L
+()0(if \(\(rs = procuserinfo_begin\(pip,&u\)\) >= 0\) {)16 L
+()0(if \(\(rs = proglog_begin\(pip,&u\)\) >= 0\) {)20 L
+()0(if \(\(rs = proguserlist_begin\(pip\)\) >= 0\) {)24 L
+()0({)28 L
+()0(ARGINFO)32(*aip = &ainfo ;)48 L
+()0(const char)32(*dfn = dbfname ;)48 L
+()0(const char)32(*afn = afname ;)48 L
+()0(const char)32(*ofn = ofname ;)48 L
+()0(rs = procargs\(pip,aip,&pargs,cfd,dfn,ofn,afn\) ;)32 L
+()0(})28 L
+()0(rs1 = proguserlist_end\(pip\) ;)28 L
+()0(if \(rs >= 0\) rs = rs1 ;)28 L
+()0(} /* end if \(proguserlist\) */)24 L
+()0(rs1 = proglog_end\(pip\) ;)24 L
+()0(if \(rs >= 0\) rs = rs1 ;)24 L
+()0(} /* end if \(proglog\) */)20 L
+()0(rs1 = procuserinfo_end\(pip\) ;)20 L
+()0(if \(rs >= 0\) rs = rs1 ;)20 L
+()0(} /* end if \(procuserinfo\) */)16 L
+()0(rs1 = userinfo_finish\(&u\) ;)16 L
+()0(if \(rs >= 0\) rs = rs1 ;)16 L
+()0(} else {)12 L
+()0(cchar   *pn = pip->progname ;)16 L
+()0(cchar   *fmt ;)16 L
+()0(ex = EX_NOUSER ;)16 L
+()0(fmt = "%s: userinfo failure \(%d\)\\n" ;)16 L
+()0(bprintf\(pip->efp,fmt,pn,rs\) ;)16 L
+()0(} /* end if \(userinfo\) */)12 L
+()0(} else {)8 L
+()0(cchar)12(*pn = pip->progname ;)24 L
+()0(cchar)12(*fmt = "%s: invalid argument or configuration \(%d\)\\n" ;)24 L
+()0(ex = EX_USAGE ;)12 L
+()0(bprintf\(pip->efp,fmt,pn,rs\) ;)12 L
+()0(usage\(pip\) ;)12 L
+()0(} /* end if \(ok\) */)8 L
+()l
+()0(if \(f_inopen && \(cfd >= 0\)\) {)8 L
+()0(f_inopen = FALSE ;)12 L
+()0(u_close\(cfd\) ;)12 L
+()0(})8 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\))8 L
+()0(debugprintf\("main: finishing rs=%d\\n",rs\) ;)12 L
+(#endif)l
+()l
+(/* done */)l
+()0(if \(\(rs < 0\) && \(ex == EX_OK\)\) {)8 L
+()0(switch \(rs\) {)12 L
+()0(case SR_INVALID:)12 L
+()0(ex = EX_USAGE ;)16 L
+()0(if \(! pip->f.quiet\) {)16 L
+()0(bprintf\(pip->efp,"%s: invalid query \(%d\)\\n",)20 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 13 13
+%%Page: 14 14
+/saveobj save def
+mark
+14 pagesetup
+()0(pip->progname,rs\) ;)24 L
+()0(})16 L
+()0(break ;)16 L
+()0(case SR_NOENT:)12 L
+()0(ex = EX_CANTCREAT ;)16 L
+()0(break ;)16 L
+()0(case SR_AGAIN:)12 L
+()0(ex = EX_TEMPFAIL ;)16 L
+()0(break ;)16 L
+()0(default:)12 L
+()0(ex = mapex\(mapexs,rs\) ;)16 L
+()0(break ;)16 L
+()0(} /* end switch */)12 L
+()0(} else if \(if_exit\) {)8 L
+()0(ex = EX_TERM ;)12 L
+()0(} else if \(if_intr\))8 L
+()0(ex = EX_INTR ;)12 L
+()l
+(retearly:)l
+()0(if \(pip->debuglevel > 0\) {)8 L
+()0(bprintf\(pip->efp,"%s: exiting ex=%u \(%d\)\\n",)12 L
+()0(pip->progname,ex,rs\) ;)16 L
+()0(})8 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\))8 L
+()0(debugprintf\("main: exiting ex=%u \(%d\)\\n",ex,rs\) ;)12 L
+(#endif)l
+()l
+()0(if \(pip->efp != NULL\) {)8 L
+()0(pip->open.errfile = FALSE ;)12 L
+()0(bclose\(pip->efp\) ;)12 L
+()0(pip->efp = NULL ;)12 L
+()0(})8 L
+()l
+()0(if \(pip->open.akopts\) {)8 L
+()0(pip->open.akopts = FALSE ;)12 L
+()0(keyopt_finish\(&akopts\) ;)12 L
+()0(})8 L
+()l
+()0(bits_finish\(&pargs\) ;)8 L
+()l
+(badpargs:)l
+()0(proginfo_finish\(pip\) ;)8 L
+()l
+(badprogstart:)l
+()l
+(#if     \(CF_DEBUGS || CF_DEBUG\) && CF_DEBUGMALL)l
+()0({)8 L
+()0(uint)12(mo ;)24 L
+()0(uc_mallout\(&mo\) ;)12 L
+()0(debugprintf\("main: final mallout=%u\\n",\(mo-mo_start\)\) ;)12 L
+()0(uc_mallset\(0\) ;)12 L
+()0(})8 L
+(#endif)l
+()l
+(#if     \(CF_DEBUGS || CF_DEBUG\))l
+()0(debugclose\(\) ;)8 L
+(#endif)l
+()l
+()0(return ex ;)8 L
+()l
+(/* the bad things */)l
+(badarg:)l
+()0(ex = EX_USAGE ;)8 L
+()0(bprintf\(pip->efp,"%s: invalid argument specified \(%d\)\\n",)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 14 14
+%%Page: 15 15
+/saveobj save def
+mark
+15 pagesetup
+()0(pip->progname,rs\) ;)12 L
+()0(usage\(pip\) ;)8 L
+()0(goto retearly ;)8 L
+()l
+(})l
+(/* end subroutine \(main\) */)l
+()l
+()l
+(/* local subroutines */)l
+()l
+()l
+(static int usage\(PROGINFO *pip\))l
+({)l
+()0(int)8(rs = SR_OK ;)24 L
+()0(int)8(wlen = 0 ;)24 L
+()0(const char)8(*pn = pip->progname ;)24 L
+()0(const char)8(*fmt ;)24 L
+()l
+()0(fmt = "%s: USAGE> %s [{ -b | -query [<query>] | -a | <user\(s\)> }]\\n" ;)8 L
+()0(if \(rs >= 0\) rs = bprintf\(pip->efp,fmt,pn,pn\) ;)8 L
+()0(wlen += rs ;)8 L
+()l
+()0(fmt = "%s:  [-af <afile>]\\n" ;)8 L
+()0(if \(rs >= 0\) rs = bprintf\(pip->efp,fmt,pn\) ;)8 L
+()0(wlen += rs ;)8 L
+()l
+()0(fmt = "%s:  [-Q] [-D] [-v[=<n>]] [-HELP] [-V]\\n" ;)8 L
+()0(if \(rs >= 0\) rs = bprintf\(pip->efp,fmt,pn\) ;)8 L
+()0(wlen += rs ;)8 L
+()l
+()0(return \(rs >= 0\) ? wlen : rs ;)8 L
+(})l
+(/* end subroutine \(usage\) */)l
+()l
+()l
+(static int procopts\(PROGINFO *pip,KEYOPT *kop\))l
+({)l
+()0(int)8(rs = SR_OK ;)24 L
+()0(int)8(c = 0 ;)24 L
+()0(cchar)8(*cp ;)24 L
+( )l
+()0(if \(\(cp = getourenv\(pip->envv,VAROPTS\)\) != NULL\) {)8 L
+()0(rs = keyopt_loads\(kop,cp,-1\) ;)12 L
+()0(})8 L
+()l
+()0(if \(rs >= 0\) {)8 L
+()0(KEYOPT_CUR  kcur ;)12 L
+()0(if \(\(rs = keyopt_curbegin\(kop,&kcur\)\) >= 0\) {)12 L
+()0(int     oi ;)16 L
+()0(int     kl, vl ;)16 L
+()0(cchar   *kp, *vp ;)16 L
+()l
+()0(while \(\(kl = keyopt_enumkeys\(kop,&kcur,&kp\)\) >= 0\) {)16 L
+()l
+()0(if \(\(oi = matostr\(progopts,3,kp,kl\)\) >= 0\) {)20 L
+()l
+()0(vl = keyopt_fetch\(kop,kp,NULL,&vp\) ;)24 L
+()l
+()0(switch \(oi\) {)24 L
+()l
+()0(case progopt_binder:)24 L
+()0(pip->f.binder = TRUE ;)28 L
+()0(if \(vl > 0\) {)28 L
+()0(rs = optbool\(vp,vl\) ;)32 L
+()0(pip->f.binder = \(rs > 0\) ;)32 L
+()0(})28 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 15 15
+%%Page: 16 16
+/saveobj save def
+mark
+16 pagesetup
+()0(break ;)28 L
+()l
+()0(} /* end switch */)24 L
+()l
+()0(c += 1 ;)24 L
+()0(} else)20 L
+()0(rs = SR_INVALID ;)24 L
+()l
+()0(if \(rs < 0\) break ;)20 L
+()0(} /* end while \(looping through key options\) */)16 L
+()l
+()0(keyopt_curend\(kop,&kcur\) ;)16 L
+()0(} /* end if \(keyopt-cur\) */)12 L
+()0(} /* end if \(ok\) */)8 L
+()l
+()0(return \(rs >= 0\) ? c : rs ;)8 L
+(})l
+(/* end subroutine \(procopts\) */)l
+()l
+()l
+(static int procuserinfo_begin\(PROGINFO *pip,USERINFO *uip\))l
+({)l
+()0(int)8(rs = SR_OK ;)24 L
+()l
+()0(pip->nodename = uip->nodename ;)8 L
+()0(pip->domainname = uip->domainname ;)8 L
+()0(pip->username = uip->username ;)8 L
+()0(pip->gecosname = uip->gecosname ;)8 L
+()0(pip->realname = uip->realname ;)8 L
+()0(pip->name = uip->name ;)8 L
+()0(pip->fullname = uip->fullname ;)8 L
+()0(pip->mailname = uip->mailname ;)8 L
+()0(pip->org = uip->organization ;)8 L
+()0(pip->logid = uip->logid ;)8 L
+()0(pip->pid = uip->pid ;)8 L
+()0(pip->uid = uip->uid ;)8 L
+()0(pip->euid = uip->euid ;)8 L
+()0(pip->gid = uip->gid ;)8 L
+()0(pip->egid = uip->egid ;)8 L
+()l
+()0(if \(rs >= 0\) {)8 L
+()0(const int   hlen = MAXHOSTNAMELEN ;)12 L
+()0(char)12(hbuf[MAXHOSTNAMELEN+1] ;)24 L
+()0(const char  *nn = pip->nodename ;)12 L
+()0(const char  *dn = pip->domainname ;)12 L
+()0(if \(\(rs = snsds\(hbuf,hlen,nn,dn\)\) >= 0\) {)12 L
+()0(const char)16(**vpp = &pip->hostname ;)32 L
+()0(rs = proginfo_setentry\(pip,vpp,hbuf,rs\) ;)16 L
+()0(})12 L
+()0(})8 L
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(procuserinfo_begin\) */)l
+()l
+()l
+(static int procuserinfo_end\(PROGINFO *pip\))l
+({)l
+()0(int)8(rs = SR_OK ;)24 L
+()l
+()0(if \(pip == NULL\) return SR_FAULT ;)8 L
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(procuserinfo_end\) */)l
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 16 16
+%%Page: 17 17
+/saveobj save def
+mark
+17 pagesetup
+()l
+(static int procargs\(PROGINFO *pip,ARGINFO *aip,BITS *bop,int cfd,)l
+()0(cchar *dfn,cchar *ofn,cchar *afn\))16 L
+({)l
+()0(VECPSTR)8(al ;)24 L
+()0(int)8(rs ;)24 L
+()0(int)8(rs1 ;)24 L
+()0(int)8(c = 0 ;)24 L
+()l
+()0(if \(\(rs = vecpstr_start\(&al,4,0,0\)\) >= 0\) {)8 L
+()0(int)12(pan = 0 ;)24 L
+()0(int)12(cl ;)24 L
+()0(cchar)12(*pn = pip->progname ;)24 L
+()0(cchar)12(*fmt ;)24 L
+()0(cchar)12(*cp ;)24 L
+()l
+()0(if \(rs >= 0\) {)12 L
+()0(int     ai ;)16 L
+()0(int     f ;)16 L
+()0(cchar   **argv = aip->argv ;)16 L
+()0(for \(ai = 1 ; ai < aip->argc ; ai += 1\) {)16 L
+()l
+()0(f = \(ai <= aip->ai_max\) && \(bits_test\(bop,ai\) > 0\) ;)20 L
+()0(f = f || \(\(ai > aip->ai_pos\) && \(argv[ai] != NULL\)\) ;)20 L
+()0(if \(f\) {)20 L
+()0(cp = argv[ai] ;)24 L
+()0(if \(cp[0] != '\\0'\) {)24 L
+()0(pan += 1 ;)28 L
+()0(rs = vecpstr_adduniq\(&al,cp,-1\) ;)28 L
+()0(if \(rs < INT_MAX\) c += 1 ;)28 L
+()0(})24 L
+()0(})20 L
+()l
+()0(if \(\(rs >= 0\) && if_exit\) rs = SR_EXIT ;)20 L
+()0(if \(\(rs >= 0\) && if_intr\) rs = SR_INTR ;)20 L
+()0(if \(rs < 0\) break ;)20 L
+()0(} /* end for \(handling positional arguments\) */)16 L
+()0(} /* end if \(ok\) */)12 L
+()l
+()0(if \(\(rs >= 0\) && \(afn != NULL\) && \(afn[0] != '\\0'\)\) {)12 L
+()0(bfile   afile, *afp = &afile ;)16 L
+()l
+()0(if \(strcmp\(afn,"-"\) == 0\))16 L
+()0(afn = BFILE_STDIN ;)20 L
+()l
+()0(if \(\(rs = bopen\(afp,afn,"r",0666\)\) >= 0\) {)16 L
+()0(const int   llen = LINEBUFLEN ;)20 L
+()0(char)20(lbuf[LINEBUFLEN + 1] ;)32 L
+()l
+()0(while \(\(rs = breadline\(afp,lbuf,llen\)\) > 0\) {)20 L
+()0(int     len = rs ;)24 L
+()l
+()0(if \(lbuf[len - 1] == '\\n'\) len -= 1 ;)24 L
+()0(lbuf[len] = '\\0' ;)24 L
+()l
+()0(if \(\(cl = sfskipwhite\(lbuf,len,&cp\)\) > 0\) {)24 L
+()0(if \(cp[0] != '#'\) {)28 L
+()0(pan += 1 ;)32 L
+()0(rs = vecpstr_adduniq\(&al,cp,cl\) ;)32 L
+()0(if \(rs < INT_MAX\) c += 1 ;)32 L
+()0(})28 L
+()0(})24 L
+()l
+()0(if \(\(rs >= 0\) && if_exit\) rs = SR_EXIT ;)24 L
+()0(if \(\(rs >= 0\) && if_intr\) rs = SR_INTR ;)24 L
+()0(if \(rs < 0\) break ;)24 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 17 17
+%%Page: 18 18
+/saveobj save def
+mark
+18 pagesetup
+()0(} /* end while \(reading lines\) */)20 L
+()l
+()0(rs1 = bclose\(afp\) ;)20 L
+()0(if \(rs >= 0\) rs = rs1 ;)20 L
+()0(} else {)16 L
+()0(if \(! pip->f.quiet\) {)20 L
+()0(fmt = "%s: inaccessible argument-list \(%d\)\\n" ;)24 L
+()0(bprintf\(pip->efp,fmt,pn,rs\) ;)24 L
+()0(bprintf\(pip->efp,"%s: afile=%s\\n",pn,afn\) ;)24 L
+()0(})20 L
+()0(} /* end if */)16 L
+()l
+()0(} /* end if \(processing file argument file list\) */)12 L
+()l
+(/* OK, we're good to go */)l
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\) {)12 L
+()0(debugprintf\("main: f_bind=%u\\n",pip->f.binder\) ;)16 L
+()0(debugprintf\("main: f_all=%u\\n",pip->f.all\) ;)16 L
+()0(debugprintf\("main: f_query=%u\\n",pip->f.query\) ;)16 L
+()0(})12 L
+(#endif)l
+()l
+()0(if \(rs >= 0\) {)12 L
+()0(rs = process\(pip,dfn,ofn,&al,cfd\) ;)16 L
+()0(})12 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\))12 L
+()0(debugprintf\("main: process\(\) rs=%d\\n",rs\) ;)16 L
+(#endif)l
+()l
+()0(rs1 = vecpstr_finish\(&al\) ;)12 L
+()0(if \(rs >= 0\) rs = rs1 ;)12 L
+()0(} /* end if \(vecpstr\) */)8 L
+()l
+()0(proglog_printf\(pip,"done \(%d\)",\(\(rs>=0\)?c:rs\)\) ;)8 L
+()l
+()0(return \(rs >= 0\) ? c : rs ;)8 L
+(})l
+(/* end subroutine \(procargs\) */)l
+()l
+()l
+(static int process\(PROGINFO *pip,cchar *dbfn,cchar *ofn,VECPSTR *alp,int cfd\))l
+({)l
+()0(USERPORTS)8(db ;)24 L
+()0(int)8(rs ;)24 L
+()0(int)8(rs1 ;)24 L
+()l
+()0({)8 L
+()0(cchar)12(*ms = \(pip->f.binder\) ? modes[1] : modes[0] ;)24 L
+()0(proglog_printf\(pip,"mode=%s",ms\) ;)12 L
+()0(proglog_printf\(pip,"db=%s",dbfn\) ;)12 L
+()0(})8 L
+()l
+()0(if \(\(rs = userports_open\(&db,dbfn\)\) >= 0\) {)8 L
+()0(if \(pip->f.binder\) {)12 L
+()0(rs = procbind\(pip,&db,cfd\) ;)16 L
+()0(} else {)12 L
+()0(rs = proclist\(pip,&db,ofn,alp\) ;)16 L
+()0(})12 L
+()0(rs1 = userports_close\(&db\) ;)12 L
+()0(if \(rs >= 0\) rs = rs1 ;)12 L
+()0(} /* end if \(userports\) */)8 L
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 18 18
+%%Page: 19 19
+/saveobj save def
+mark
+19 pagesetup
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(process\) */)l
+()l
+()l
+(static int proclist\(PROGINFO *pip,USERPORTS *dbp,cchar *ofn,VECPSTR *alp\))l
+({)l
+()0(bfile)8(ofile, *ofp = &ofile ;)24 L
+()0(int)8(rs ;)24 L
+()0(int)8(rs1 ;)24 L
+()l
+()0(if \(\(ofn == NULL\) || \(ofn[0] == '\\0'\) || \(ofn[0] == '-'\)\))8 L
+()0(ofn = BFILE_STDOUT ;)12 L
+()l
+()0(if \(\(rs = bopen\(ofp,ofn,"wct",0666\)\) >= 0\) {)8 L
+()l
+()0(if \(pip->f.all\) {)12 L
+()0(rs = proclistall\(pip,dbp,ofp\) ;)16 L
+()0(} else if \(pip->f.query\) {)12 L
+()0(rs = proclistquery\(pip,dbp,ofp,alp\) ;)16 L
+()0(} else {)12 L
+()0(rs = proclistusers\(pip,dbp,ofp,alp\) ;)16 L
+()0(} /* end if */)12 L
+()l
+()0(rs1 = bclose\(ofp\) ;)12 L
+()0(if \(rs >= 0\) rs = rs1 ;)12 L
+()0(} /* end if \(file-output\) */)8 L
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(proclist\) */)l
+()l
+()l
+(static int proclistall\(PROGINFO *pip,USERPORTS *dbp,bfile *ofp\))l
+({)l
+()0(USERPORTS_CUR   cur ;)8 L
+()0(USERPORTS_ENT   ent ;)8 L
+()0(int)8(rs ;)24 L
+()0(int)8(rs1 ;)24 L
+()l
+()0(if \(pip == NULL\) return SR_FAULT ;)8 L
+()l
+()0(if \(\(rs = userports_curbegin\(dbp,&cur\)\) >= 0\) {)8 L
+()0(cchar)12(*fmt = "%10u %16s %16s\\n" ;)24 L
+()l
+()0(while \(\(rs1 = userports_enum\(dbp,&cur,&ent\)\) >= 0\) {)12 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(3\)\))16 L
+()0(debugprintf\("main/proclistall: %10u %16s %16s\\n",)20 L
+()0(ent.uid,ent.protocol,ent.portname\) ;)24 L
+(#endif)l
+()l
+()0(rs = bprintf\(ofp,fmt,ent.uid,ent.protocol,ent.portname\) ;)16 L
+()l
+()0(if \(rs < 0\) break ;)16 L
+()0(} /* end while */)12 L
+()0(if \(\(rs >= 0\) && \(rs1 != SR_NOTFOUND\)\) rs = rs1 ;)12 L
+()l
+()0(rs1 = userports_curend\(dbp,&cur\) ;)12 L
+()0(if \(rs >= 0\) rs = rs1 ;)12 L
+()0(} /* end if \(userports\) */)8 L
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(proclistall\) */)l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 19 19
+%%Page: 20 20
+/saveobj save def
+mark
+20 pagesetup
+()l
+()l
+(static int proclistusers\(PROGINFO *pip,USERPORTS *dbp,bfile *ofp,VECPSTR *alp\))l
+({)l
+()0(USERPORTS_CUR   cur ;)8 L
+()0(USERPORTS_ENT   ent ;)8 L
+()0(uid_t)8(uid ;)24 L
+()0(int)8(rs ;)24 L
+()0(int)8(rs1 ;)24 L
+()0(int)8(i ;)24 L
+()0(const char)8(*up ;)24 L
+()l
+()0(if \(pip == NULL\) return SR_FAULT ;)8 L
+()l
+()0(for \(i = 0 ; vecpstr_get\(alp,i,&up\) >= 0 ; i += 1\) {)8 L
+()0(if \(up == NULL\) continue ;)12 L
+()l
+()0(if \(\(rs = getuid_user\(up,-1\)\) >= 0\) {)12 L
+()0(uid = rs ;)16 L
+()0(if \(\(rs = userports_curbegin\(dbp,&cur\)\) >= 0\) {)16 L
+()0(cchar)20(*fmt = "%10u %16s %16s\\n" ;)32 L
+()l
+()0(while \(\(rs1 = userports_fetch\(dbp,&cur,uid,&ent\)\) >= 0\) {)20 L
+()0({)24 L
+()0(rs = bprintf\(ofp,fmt,)28 L
+()0(ent.uid,ent.protocol,ent.portname\) ;)32 L
+()0(})24 L
+()0(if \(rs < 0\) break ;)24 L
+()0(} /* end while */)20 L
+()0(if \(\(rs >= 0\) && \(rs1 != SR_NOTFOUND\)\) rs = rs1 ;)20 L
+()l
+()0(userports_curend\(dbp,&cur\) ;)20 L
+()0(} /* end if \(cursor\) */)16 L
+()0(} else if \(rs == SR_INVALID\) {)12 L
+()0(rs = SR_OK ;)16 L
+()0(})12 L
+()l
+()0(if \(rs < 0\) break ;)12 L
+()0(} /* end for \(queries\) */)8 L
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(proclistusers\) */)l
+()l
+()l
+(/* ARGSUSED */)l
+(static int proclistquery\(PROGINFO *pip,USERPORTS *dbp,bfile *ofp,VECPSTR *alp\))l
+({)l
+()0(struct passwd   pw ;)8 L
+()0(struct query    q ;)8 L
+()0(const int)8(pwlen = getbufsize\(getbufsize_pw\) ;)24 L
+()0(int)8(rs ;)24 L
+()0(int)8(pl = 0 ;)24 L
+()0(int)8(c = 0 ;)24 L
+()0(char)8(*pwbuf ;)24 L
+()l
+(#if     CF_DEBUG)l
+()0(debugprintf\("main/proclistquery: ent\\n"\) ;)8 L
+(#endif)l
+()l
+()0(if \(\(rs = uc_malloc\(\(pwlen+1\),&pwbuf\)\) >= 0\) {)8 L
+()0(int)12(ulen = USERNAMELEN ;)24 L
+()0(uid_t)12(uid ;)24 L
+()0(int)12(i ;)24 L
+()0(const char  *up ;)12 L
+()0(char)12(ubuf[USERNAMELEN+1] ;)24 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 20 20
+%%Page: 21 21
+/saveobj save def
+mark
+21 pagesetup
+()0(for \(i = 0 ; vecpstr_get\(alp,i,&up\) >= 0 ; i += 1\) {)12 L
+()0(if \(up == NULL\) continue ;)16 L
+()l
+(#if     CF_DEBUG)l
+()0(debugprintf\("main/proclistquery: q=>%s<\\n",up\) ;)16 L
+(#endif)l
+()l
+()0(pl = parsequery\(&q,up,-1\) ;)16 L
+()l
+(#if     CF_DEBUG)l
+()0(debugprintf\("main/proclistquery: parsequery\(\) pl=%d\\n",pl\) ;)16 L
+()0(debugprintf\("main/proclistquery: uid=%t\\n",q.uidp,q.uidl\) ;)16 L
+()0(debugprintf\("main/proclistquery: proto=%t\\n",)16 L
+()0(q.protop,q.protol\) ;)24 L
+()0(debugprintf\("main/proclistquery: port=%t\\n",q.portp,q.portl\) ;)16 L
+(#endif)l
+()l
+()0(if \(pl == 0\) continue ;)16 L
+()l
+()0(if \(q.uidl > 0\) {)16 L
+()0(strdcpy1w\(ubuf,ulen,q.uidp,q.uidl\) ;)20 L
+()0(rs = getpw_name\(&pw,pwbuf,pwlen,ubuf\) ;)20 L
+()0(uid = pw.pw_uid ;)20 L
+(#if     CF_DEBUG)l
+()0(debugprintf\("main/proclistquery: getpw_name\(\) rs=%d\\n",rs\) ;)20 L
+(#endif)l
+()0(if \(\(rs == SR_NOTFOUND\) && hasalldig\(ubuf,-1\)\) {)20 L
+()0(int     v ;)24 L
+()0(rs = cfdeci\(ubuf,-1,&v\) ;)24 L
+()0(uid = v ;)24 L
+()0(})20 L
+()0(} else {)16 L
+()0(rs = SR_OK ;)20 L
+()0(uid = pip->uid ;)20 L
+()0(})16 L
+()l
+()0(if \(rs >= 0\) {)16 L
+()0(char)20(protostr[32+1] ;)32 L
+()0(int)20(port ;)32 L
+()0(protostr[0] = '\\0' ;)20 L
+()0(if \(q.protop != NULL\) {)20 L
+()0(strdcpy1w\(protostr,32,q.protop,q.protol\) ;)24 L
+()0(})20 L
+()0(rs = getdefport\(protostr,q.portp,q.portl\) ;)20 L
+()0(port = rs ;)20 L
+(#if     CF_DEBUG)l
+()0(debugprintf\("main/proclistquery: getdefport\(\) rs=%d\\n",rs\) ;)20 L
+(#endif)l
+()0(if \(rs == SR_NOTFOUND\) rs = SR_PERM ;)20 L
+()0(if \(rs >= 0\) {)20 L
+()0(rs = userports_query\(dbp,uid,protostr,port\) ;)24 L
+(#if     CF_DEBUG)l
+()0(debugprintf\("main/proclistquery: ")24 L
+()0("userports_query\(\) rs=%d\\n",rs\) ;)28 L
+(#endif)l
+()0(if \(rs >= 0\) c += 1 ;)24 L
+()0(else if \(rs == SR_NOTFOUND\) rs = SR_PERM ;)24 L
+()0(})20 L
+()0(} /* end if */)16 L
+()l
+()0(if \(rs < 0\) break ;)16 L
+()0(} /* end for \(queries\) */)12 L
+()0(uc_free\(pwbuf\) ;)12 L
+()0(} /* end if \(memory-allocation\) */)8 L
+()l
+(#if     CF_DEBUG)l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 21 21
+%%Page: 22 22
+/saveobj save def
+mark
+22 pagesetup
+()0(debugprintf\("main/proclistquery: ret rs=%d c=%u\\n",rs,c\) ;)8 L
+(#endif)l
+()l
+()0(return \(rs >= 0\) ? c : rs ;)8 L
+(})l
+(/* end subroutine \(proclistquery\) */)l
+()l
+()l
+(static int procbind\(PROGINFO *pip,USERPORTS *dbp,int cfd\))l
+({)l
+()0(struct openportmsg_request)8(m0 ;)40 L
+()0(struct openportmsg_response     m1 ;)8 L
+()0(const uid_t     uid_cur = pip->uid ;)8 L
+()0(const int)8(mlen = MBUFLEN ;)24 L
+()0(int)8(rrs = SR_BADFMT ;)24 L
+()0(int)8(rs ;)24 L
+()0(int)8(rs1 ;)24 L
+()0(int)8(port ;)24 L
+()0(int)8(sal ;)24 L
+()0(int)8(size ;)24 L
+()0(int)8(ml ;)24 L
+()0(int)8(fd = 0 ;)24 L
+()0(int)8(f_ok = FALSE ;)24 L
+()0(const char)8(*protoname ;)24 L
+()0(char)8(mbuf[MBUFLEN+1] ;)24 L
+()l
+(/* read in the arguments passed from caller */)l
+()l
+()0(if \(\(rs = u_read\(cfd,mbuf,mlen\)\) >= 0\) {)8 L
+()0(cchar)12(*fmt ;)24 L
+()0(ml = rs ;)12 L
+()l
+()0(if \(pip->open.logprog\))12 L
+()0(proglog_printf\(pip,"msgtype=%u",\(mbuf[0] & 0xff\)\) ;)16 L
+()l
+()0(if \(\(rs = openportmsg_request\(&m0,1,mbuf,ml\)\) >= 0\) {)12 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(4\)\))16 L
+()0(debugprintf\("main/procbind: openportmsg_request\(\) rs=%d",)20 L
+()0(rs\) ;)24 L
+(#endif)l
+()l
+()0(rrs = SR_PROTO ;)16 L
+()0(if \(m0.msgtype == openportmsgtype_request\) {)16 L
+()0(SOCKADDRESS *saddrp = \(SOCKADDRESS *\) &m0.sa ;)20 L
+()0(int)20(pf = m0.pf ;)32 L
+()0(int)20(ptype = m0.ptype ;)32 L
+()0(int)20(proto = m0.proto ;)32 L
+()l
+()0(if \(pip->open.logprog\) {)20 L
+()0(proglog_printf\(pip,"pf=%u pt=%u proto=%u",)24 L
+()0(pf,ptype,proto\) ;)28 L
+()0(})20 L
+()l
+(/* get the protoname */)l
+()l
+()0(rrs = getprotoname\(pf,ptype,proto,&protoname\) ;)20 L
+()l
+()0(if \(pip->open.logprog\) {)20 L
+()0(proglog_printf\(pip,"protoname\(%d\)=%s",)24 L
+()0(rrs,protoname\) ;)28 L
+()0(})20 L
+()l
+(/* get the port out of there */)l
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 22 22
+%%Page: 23 23
+/saveobj save def
+mark
+23 pagesetup
+()0(if \(rrs >= 0\) {)20 L
+()0(rrs = sockaddress_getport\(saddrp\) ;)24 L
+()0(port = rrs ;)24 L
+()l
+()0(if \(pip->open.logprog\) {)24 L
+()0(int)28(af ;)40 L
+()0(int)28(v = \(\(rrs >= 0\) ? port : rrs\) ;)40 L
+()0(char)28(addrbuf[INETXADDRLEN+1] ;)40 L
+()0(char)28(addrstr[INETADDRSTRLEN+1] ;)40 L
+()0(af = sockaddress_getaf\(saddrp\) ;)28 L
+()0(sockaddress_getaddr\(saddrp,addrbuf,INETXADDRLEN\) ;)28 L
+()0(sninetaddr\(addrstr,INETADDRSTRLEN,af,addrbuf\) ;)28 L
+()0(fmt = "af=%u addr=%s port=%d" ;)28 L
+()0(proglog_printf\(pip,fmt,af,addrstr,v\) ;)28 L
+()0(})24 L
+()l
+()0(})20 L
+()l
+()0(if \(rrs >= 0\) {)20 L
+()0(f_ok = TRUE ;)24 L
+()0(if \(port < IPPORT_RESERVED\) {)24 L
+()l
+()0(rrs = userports_query\(dbp,uid_cur,protoname,port\) ;)28 L
+()0(f_ok = \(rrs >= 0\) ;)28 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(4\)\))28 L
+()0(debugprintf\("main: userports_query\(\) rs=%d\\n",)32 L
+()0(rs\) ;)36 L
+(#endif)l
+()l
+()0(if \(pip->open.logprog\) {)28 L
+()0(proglog_printf\(pip,"query=%d",rrs\) ;)32 L
+()0(})28 L
+()l
+()0(} /* end if */)24 L
+()0(} /* end if \(validating port\) */)20 L
+()l
+(/* make the socket */)l
+()l
+()0(if \(\(rs >= 0\) && \(rrs >= 0\) && f_ok\) {)20 L
+()0(struct sockaddr *sap = \(struct sockaddr *\) saddrp ;)24 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(4\)\))24 L
+()0(debugprintf\("main: pf=%d ptype=%u p=%u\\n",)28 L
+()0(pf,ptype,proto\) ;)32 L
+(#endif)l
+()0(if \(\(rrs = sockaddress_getlen\(saddrp\)\) >= 0\) {)24 L
+()0(sal = rrs ;)28 L
+()l
+(#if     CF_DEBUGS)l
+()0(debugprinthex\("openbind: openbind\254",80,sap,sal\) ;)28 L
+(#endif)l
+()0(rrs = openbind\(pf,ptype,proto,sap,sal\) ;)28 L
+()0(fd = rrs ;)28 L
+()0(f_ok = \(rrs >= 0\) ;)28 L
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\))28 L
+()0(debugprintf\("main: openbind\(\) rs=%d\\n",rrs\) ;)32 L
+(#endif)l
+()l
+()0(if \(pip->open.logprog\) {)28 L
+()0(proglog_printf\(pip,"openfd=%d",rrs\) ;)32 L
+()0(})28 L
+()0(} /* end if \(sockaddress_getlen\) */)24 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 23 23
+%%Page: 24 24
+/saveobj save def
+mark
+24 pagesetup
+()l
+()0(} /* end if \(ok\) */)20 L
+()l
+()0(} /* end if \(valid request\) */)16 L
+()l
+()0(if \(rs >= 0\) { /* prepare the reponse */)16 L
+()l
+()0(size = sizeof\(struct openportmsg_response\) ;)20 L
+()0(memset\(&m1,0,size\) ;)20 L
+()0(m1.msgtype = openportmsgtype_response ;)20 L
+()0(m1.rs = rrs ;)20 L
+()l
+()0(if \(\(rs = openportmsg_response\(&m1,0,mbuf,mlen\)\) >= 0\) {)20 L
+()0(ml = rs ;)24 L
+()l
+()0(rs1 = uc_writen\(cfd,mbuf,ml\) ;)24 L
+()l
+()0(if \(\(rs1 >= 0\) && f_ok\) {)24 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\))28 L
+()0(debugprintf\("main: sending FD=%u\\n",fd\) ;)32 L
+(#endif)l
+()l
+()0(rs1 = u_ioctl\(cfd,I_SENDFD,fd\) ;)28 L
+()l
+(#if     CF_DEBUG)l
+()0(if \(DEBUGLEVEL\(2\)\))28 L
+()0(debugprintf\("main: u_ioctl\(\) rs=%d\\n",rs1\) ;)32 L
+(#endif)l
+()l
+()0(if \(pip->open.logprog\) {)28 L
+()0(proglog_printf\(pip,"sendfd\(%d\)=%d",)32 L
+()0(rs1,fd\) ;)36 L
+()0(})28 L
+()l
+()0(} /* end if \(sending FD\) */)24 L
+()l
+()0(if \(fd >= 0\) {)24 L
+()0(u_close\(fd\) ;)28 L
+()0(fd = -1 ;)28 L
+()0(})24 L
+()0(if \(rs >= 0\) rs = rs1 ;)24 L
+()0(} /* end if */)20 L
+()l
+()0(} /* end if \(ok\) */)16 L
+()0(} /* end if \(request\) */)12 L
+()0(} /* end if \(read data\) */)8 L
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(procbind\) */)l
+()l
+()l
+(/* parse out a query */)l
+(static int parsequery\(struct query *qp,const char *sp,int sl\))l
+({)l
+()0(const char)8(*tp ;)24 L
+()0(int)8(pl = 0 ;)24 L
+()l
+()0(if \(sl < 0\) sl = strlen\(sp\) ;)8 L
+()l
+()0(memset\(qp,0,sizeof\(struct query\)\) ;)8 L
+()l
+()0(qp->uidp = NULL ;)8 L
+()0(qp->protop = NULL ;)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 24 24
+%%Page: 25 25
+/saveobj save def
+mark
+25 pagesetup
+()0(qp->portp = NULL ;)8 L
+()0(if \(\(tp = strnchr\(sp,sl,':'\)\) != NULL\) {)8 L
+()0(cchar)12(*cp = \(tp+1\) ;)24 L
+()0(int)12(cl = \(\(sp+sl\)-\(tp+1\)\) ;)24 L
+()l
+()0(qp->uidp = sp ;)12 L
+()0(qp->uidl = \(tp-sp\) ;)12 L
+()l
+()0(if \(\(tp = strnchr\(cp,cl,':'\)\) != NULL\) {)12 L
+()0(qp->protop = cp ;)16 L
+()0(qp->protol = \(tp-cp\) ;)16 L
+()0(qp->portp = \(tp+1\) ;)16 L
+()0(qp->portl = \(\(cp+cl\)-\(tp+1\)\) ;)16 L
+()0(pl = qp->portl ;)16 L
+()0(} else {)12 L
+()0(qp->portp = cp ;)16 L
+()0(qp->portl = cl ;)16 L
+()0(pl = qp->portl ;)16 L
+()0(} /* end if */)12 L
+()l
+()0(} else {)8 L
+()l
+()0(qp->portp = sp ;)12 L
+()0(qp->portl = sl ;)12 L
+()0(pl = qp->portl ;)12 L
+()l
+()0(} /* end if */)8 L
+()l
+()0(return pl ;)8 L
+(})l
+(/* end subroutine \(parsequery\) */)l
+()l
+()l
+(/* get a port number */)l
+(static int getdefport\(cchar *protostr,cchar *pp,int pl\))l
+({)l
+()0(int)8(rs = SR_OK ;)24 L
+()0(int)8(i ;)24 L
+()0(char)8(portstr[32+1] ;)24 L
+()l
+()0(strdcpy1w\(portstr,32,pp,pl\) ;)8 L
+()l
+(#if     CF_DEBUGS)l
+()0(debugprintf\("main/getdefport: protostr=%s\\n",protostr\) ;)8 L
+()0(debugprintf\("main/getdefport: portstr=%s\\n",portstr\) ;)8 L
+(#endif)l
+()l
+()0(if \(protostr[0] == '\\0'\) {)8 L
+()0(for \(i = 0 ; defprotos[i] != NULL ; i += 1\) {)12 L
+()0(protostr = defprotos[i] ;)16 L
+()0(rs = getportnum\(protostr,portstr\) ;)16 L
+()0(if \(rs != SR_NOTFOUND\) break ;)16 L
+()0(} /* end for */)12 L
+()0(} else {)8 L
+()0(rs = getportnum\(protostr,portstr\) ;)12 L
+()0(})8 L
+()l
+(#if     CF_DEBUGS)l
+()0(debugprintf\("main/getdefport: ret rs=%d\\n",rs\) ;)8 L
+(#endif)l
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(getdefport\) */)l
+()l
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 25 25
+%%Page: 26 26
+/saveobj save def
+mark
+26 pagesetup
+(static int openbind\(int pf,int pt,int proto,SOCKADDR *sap,int sal\))l
+({)l
+()0(int)8(rs ;)24 L
+()0(int)8(fd = 0 ;)24 L
+()l
+(#if     CF_DEBUGS)l
+()0(debugprinthex\("openbind: ",80,sap,sal\) ;)8 L
+(#endif)l
+()l
+()0(if \(\(rs = u_socket\(pf,pt,proto\)\) >= 0\) {)8 L
+()0(fd = rs ;)12 L
+()0(if \(\(rs = uc_reuseaddr\(fd\)\) >= 0\) {)12 L
+()0(rs = u_bind\(fd,sap,sal\) ;)16 L
+()0(})12 L
+()0(if \(rs < 0\) u_close\(fd\) ;)12 L
+()0(} /* end if \(u_socket\) */)8 L
+()l
+()0(return \(rs >= 0\) ? fd : rs ;)8 L
+(})l
+(/* end subroutine \(open-bind\) */)l
+()l
+()l
+(static int getprotoname\(int pf,int ptype,int proto,cchar **rpp\))l
+({)l
+()0(int)8(rs = SR_NOTFOUND ;)24 L
+()0(int)8(i ;)24 L
+()0(int)8(f = FALSE ;)24 L
+()0(const char)8(*pn ;)24 L
+()l
+()0(for \(i = 0 ; socknames[i].name != NULL ; i += 1\) {)8 L
+()0(f = TRUE ;)12 L
+()0(f = f && \(socknames[i].pf == pf\) ;)12 L
+()0(f = f && \(socknames[i].ptype == ptype\) ;)12 L
+()0(f = f && \(socknames[i].proto == proto\) ;)12 L
+()0(if \(f\) break ;)12 L
+()0(} /* end for */)8 L
+()l
+()0(if \(f\) {)8 L
+()0(rs = SR_OK ;)12 L
+()0(pn = socknames[i].name ;)12 L
+()0(if \(strcmp\(pn,"tcp6"\) == 0\) pn = "tcp" ;)12 L
+()0(if \(rpp != NULL\) *rpp = pn ;)12 L
+()0(})8 L
+()l
+()0(return rs ;)8 L
+(})l
+(/* end subroutine \(getprotoname\) */)l
+()l
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 26 26
+%%Trailer
+done
+%%DocumentFonts: Courier
+%%Pages: 26

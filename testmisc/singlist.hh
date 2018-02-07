@@ -160,11 +160,13 @@ public:
 	typedef		T value_type ;
 	singlist() = default ;
 	singlist(const singlist<T> &al) {
-	    singlist_node<T>	*an = al.head ;
-	    if (head != NULL) clear() ;
-	    while (an != NULL) {
-		instail(an->val) ;
-	        an = an->next ;
+	    if (this != &al) {
+	        singlist_node<T>	*an = al.head ;
+	        if (head != NULL) clear() ;
+	        while (an != NULL) {
+		    instail(an->val) ;
+	            an = an->next ;
+	        }
 	    }
 	} ;
 	singlist(singlist<T> &&al) {
@@ -177,11 +179,13 @@ public:
 	    al.c = 0 ;
 	} ;
 	singlist &operator = (const singlist<T> &al) {
-	    singlist_node<T>	*an = al.head ;
-	    if (head != NULL) clear() ;
-	    while (an != NULL) {
-		instail(an->val) ;
-	        an = an->next ;
+	    if (this != &al) {
+	        singlist_node<T>	*an = al.head ;
+	        if (head != NULL) clear() ;
+	        while (an != NULL) {
+		    instail(an->val) ;
+	            an = an->next ;
+	        }
 	    }
 	} ;
 	singlist &operator = (singlist<T> &&al) {

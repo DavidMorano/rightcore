@@ -1,0 +1,498 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for ASCII files.
+%
+
+/#copies 1 store
+/Prologue (postprint.ps) def
+/aspectratio 1 def
+/font /Courier def
+/formsperpage 1 def
+/landscape false def
+/magnification 1 def
+/margin 10 def
+/orientation 0 def
+/pointsize 10 def
+/rotation 1 def
+/xoffset .25 def
+/yoffset .25 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	font findfont pointsize scalefont setfont
+	/charwidth (M) stringwidth pop def
+	/linespace pointsize pointsize .10 mul add neg def
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	height width div 1 min dup scale
+	0 linespace translate
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/pagesetup {/page exch def 0 0 moveto 0} bind def
+
+/L {
+	counttomark 2 idiv {charwidth mul currentpoint exch pop moveto show} repeat
+	linespace add dup 0 exch moveto
+} bind def
+
+/l {show linespace add dup 0 exch moveto} bind def
+
+/LL {
+	counttomark 2 idiv {charwidth mul currentpoint exch pop moveto show} repeat
+} bind def
+
+/done {/lastpage where {pop lastpage} if} def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+%%EndProlog
+%%BeginSetup
+mark
+setup
+%%EndSetup
+%%Page: 1 1
+/saveobj save def
+mark
+1 pagesetup
+(/* singlist */)l
+(/* lang=C++11 */)l
+()l
+(/* regular \(no-frills\) pointer queue \(not-circular\) */)l
+()l
+()l
+(#ifndef CF_DEBUGS)l
+(#define CF_DEBUGS)0(0)24(/* compile-time debugging */)40 L
+(#endif)l
+()l
+()l
+(/* revision history:)l
+()l
+()0(= 2013-03-03, David A\255D\255 Morano)8 L
+()0(Originally written for Rightcore Network Services.)8 L
+()l
+(*/)l
+()l
+(/* Copyright \251 2013 David A\255D\255 Morano.  All rights reserved. */)l
+()l
+(/*******************************************************************************)l
+()l
+()0(This is a conainer object \(elements are stored within it\). This also is)8 L
+()0(implemented as a single-linked list of nodes. This object is very useful)8 L
+()0(for normal queue operations \(insert at tail, remove at head\). The )8 L
+()0(following operations are supported:)8 L
+()l
+()0(+ instail)8(insert at tail)32 L
+()0(+ inshead)8(insert at head)32 L
+()0(+ remhead)8(remove from head)32 L
+()l
+()0(The only major operation \(for relatively normal queues\) which is *not*)8 L
+()0(supported is:)8 L
+()l
+()0(+ remtail)8(remove from tail)32 L
+()l
+()0(Enjoy.)8 L
+()l
+()l
+(*******************************************************************************/)l
+()l
+(#ifndef SINGLIST_INCLUDE)l
+(#define SINGLIST_INCLUDE)0(1)32 L
+()l
+()l
+(#include)0(<envstandards.h>)16(/* MUST be first to configure */)40 L
+(#include)0(<sys/types.h>)16 L
+(#include)0(<limits.h>)16 L
+(#include)0(<new>)16 L
+(#include)0(<initializer_list>)16 L
+(#include)0(<vsystem.h>)16 L
+(#include)0(<localmisc.h>)16 L
+()l
+()l
+(/* external subroutines */)l
+()l
+(#if     CF_DEBUGS)l
+(extern "C" int  debugprintf\(cchar *,...\) ;)l
+(extern "C" int  strlinelen\(cchar *,cchar *,int\) ;)l
+(#endif)l
+()l
+()l
+(/* local structures */)l
+()l
+(template <typename T>)l
+(class singlist ;)l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 1 1
+%%Page: 2 2
+/saveobj save def
+mark
+2 pagesetup
+()l
+(template <typename T>)l
+(class singlist_iterator ;)l
+()l
+(template <typename T>)l
+(class singlist_node {)l
+()0(singlist_node<T>)8(*next = NULL ;)32 L
+()0(singlist_node<T>)8(*prev = NULL ;)32 L
+()0(T)8(val ;)32 L
+()0(singlist_node\(const T &av\) : val\(av\) { )8 L
+()0(} ;)8 L
+()0(~singlist_node\(\) {)8 L
+()0(} ;)8 L
+()0(friend singlist<T> ;)8 L
+()0(friend singlist_iterator<T> ;)8 L
+(} ; /* end class \(singlist_node\) */)l
+()l
+(template <typename T>)l
+(class singlist_iterator {)l
+()0(singlist_node<T>)8(*n = NULL ;)32 L
+()0(mutable T)8(defval ;)32 L
+(public:)l
+()0(singlist_iterator\(\) { } ;)8 L
+()0(singlist_iterator\(singlist_node<T>* an\) : n\(an\) { } ;)8 L
+()0(singlist_iterator &operator = \(singlist_iterator<T> it\) {)8 L
+()0(n = it.n ;)12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist_iterator &operator = \(singlist_iterator<T> &it\) {)8 L
+()0(if \(this != &it\) {)12 L
+()0(n = it.n ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist_iterator &operator = \(singlist_iterator<T> *ip\) {)8 L
+()0(if \(this != ip\) {)12 L
+()0(n = ip->n ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(~singlist_iterator\(\) {)8 L
+()0(n = NULL ;)12 L
+()0(} ;)8 L
+()0(friend bool operator == \(const singlist_iterator<T> &i1,)8 L
+()0(const singlist_iterator<T> &i2\) {)16 L
+()0(return \(i1.n == i2.n\) ;)12 L
+()0(} ;)8 L
+()0(friend bool operator != \(const singlist_iterator<T> &i1,)8 L
+()0(const singlist_iterator<T> &i2\) {)16 L
+()0(return \(i1.n != i2.n\) ;)12 L
+()0(} ;)8 L
+()0(T &operator * \(\) const {)8 L
+()0(T &rv = defval ;)12 L
+()0(if \(n != NULL\) {)12 L
+()0(rv = n->val ;)16 L
+()0(})12 L
+()0(return rv ;)12 L
+()0(} ;)8 L
+()0(singlist_iterator &operator ++ \(\) { /* pre */)8 L
+()0(if \(n != NULL\) {)12 L
+()0(n = n->next ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist_iterator &operator ++ \(int\) { /* post */)8 L
+()0(if \(n != NULL\) {)12 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 2 2
+%%Page: 3 3
+/saveobj save def
+mark
+3 pagesetup
+()0(n = n->next ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist_iterator &operator += \(int inc\) {)8 L
+()0(if \(n != NULL\) {)12 L
+()0(while \(\(n != NULL\) && \(inc-- > 0\)\) {)16 L
+()0(n = n->next ;)20 L
+()0(})16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(operator int\(\) {)8 L
+()0(return \(n != NULL\) ;)12 L
+()0(} ;)8 L
+()0(operator bool\(\) {)8 L
+()0(return \(n != NULL\) ;)12 L
+()0(} ;)8 L
+(} ; /* end class \(singlist_iterator\) */)l
+()l
+(template <typename T>)l
+(class singlist {)l
+()0(singlist_node<T>)8(*head = NULL ;)32 L
+()0(singlist_node<T>)8(*tail = NULL ;)32 L
+()0(int)8(c = 0 ;)32 L
+(public:)l
+()0(typedef)8(singlist_iterator<T> iterator ;)24 L
+()0(typedef)8(T value_type ;)24 L
+()0(singlist\(\) = default ;)8 L
+()0(singlist\(const singlist<T> &al\) {)8 L
+()0(singlist_node<T>    *an = al.head ;)12 L
+()0(if \(head != NULL\) clear\(\) ;)12 L
+()0(while \(an != NULL\) {)12 L
+()0(instail\(an->val\) ;)16 L
+()0(an = an->next ;)16 L
+()0(})12 L
+()0(} ;)8 L
+()0(singlist\(singlist<T> &&al\) {)8 L
+()0(if \(head != NULL\) clear\(\) ;)12 L
+()0(head = al.head ;)12 L
+()0(tail = al.tail ;)12 L
+()0(c = al.c ;)12 L
+()0(al.head = NULL ;)12 L
+()0(al.tail = NULL ;)12 L
+()0(al.c = 0 ;)12 L
+()0(} ;)8 L
+()0(singlist &operator = \(const singlist<T> &al\) {)8 L
+()0(singlist_node<T>    *an = al.head ;)12 L
+()0(if \(head != NULL\) clear\(\) ;)12 L
+()0(while \(an != NULL\) {)12 L
+()0(instail\(an->val\) ;)16 L
+()0(an = an->next ;)16 L
+()0(})12 L
+()0(} ;)8 L
+()0(singlist &operator = \(singlist<T> &&al\) {)8 L
+()0(if \(head != NULL\) clear\(\) ;)12 L
+()0(head = al.head ;)12 L
+()0(tail = al.tail ;)12 L
+()0(c = al.c ;)12 L
+()0(al.head = NULL ;)12 L
+()0(al.tail = NULL ;)12 L
+()0(al.c = 0 ;)12 L
+()0(} ;)8 L
+()0(singlist\(const std::initializer_list<T> &list\) {)8 L
+()0(if \(head != NULL\) clear\(\) ;)12 L
+()0(for \(const T &v : list\) {)12 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 3 3
+%%Page: 4 4
+/saveobj save def
+mark
+4 pagesetup
+()0(instail\(v\) ;)16 L
+()0(})12 L
+()0(} ;)8 L
+()0(singlist &operator = \(const std::initializer_list<T> &list\) {)8 L
+()0(if \(head != NULL\) clear\(\) ;)12 L
+()0(for \(const T &v : list\) {)12 L
+()0(instail\(v\) ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist &operator += \(const std::initializer_list<T> &list\) {)8 L
+()0(for \(const T &v : list\) {)12 L
+()0(instail\(v\) ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist &operator += \(const T v\) {)8 L
+()0(instail\(v\) ;)12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(~singlist\(\) {)8 L
+()0(singlist_node<T>    *nn, *n = head ;)12 L
+()0(while \(n != NULL\) {)12 L
+()0(nn = n->next ;)16 L
+()0(delete n ;)16 L
+()0(n = nn ;)16 L
+()0(} /* end while */)12 L
+()0(head = NULL ;)12 L
+()0(tail = NULL ;)12 L
+()0(c = 0 ;)12 L
+()0(} ;)8 L
+()0(int count\(\) const {)8 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int empty\(\) const {)8 L
+()0(return \(c == 0\) ;)12 L
+()0(} ;)8 L
+()0(operator int\(\) const {)8 L
+()0(return \(c != 0\) ;)12 L
+()0(} ;)8 L
+()0(operator bool\(\) const {)8 L
+()0(return \(c != 0\) ;)12 L
+()0(} ;)8 L
+()0(int clear\(\) {)8 L
+()0(singlist_node<T>    *nn, *n = head ;)12 L
+()0(int)12(rc = c ;)24 L
+()0(while \(n != NULL\) {)12 L
+()0(nn = n->next ;)16 L
+()0(delete n ;)16 L
+()0(n = nn ;)16 L
+()0(rc += 1 ;)16 L
+()0(} /* end while */)12 L
+()0(head = NULL ;)12 L
+()0(tail = NULL ;)12 L
+()0(c = 0 ;)12 L
+()0(return rc ;)12 L
+()0(} ;)8 L
+()0(int instail\(const T &v\) {)8 L
+()0(singlist_node<T>    *nn = new\(std::nothrow\) singlist_node<T>\(v\) ;)12 L
+()0(int)12(rc = SR_NOMEM ; /* error indication */)32 L
+()0(if \(nn != NULL\) {)12 L
+()0(singlist_node<T>)16(*n = tail ;)40 L
+()0(if \(n != NULL\) {)16 L
+()0(n->next = nn ;)20 L
+()0(} else {)16 L
+()0(head = nn ;)20 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 4 4
+%%Page: 5 5
+/saveobj save def
+mark
+5 pagesetup
+()0(})16 L
+()0(tail = nn ;)16 L
+()0(rc = c++ ;)16(/* return previous value */)40 L
+()0(} /* end if \(allocation sycceeded\) */)12 L
+()0(return rc ;)12 L
+()0(} ;)8 L
+()0(int inshead\(const T &v\) {)8 L
+()0(singlist_node<T>    *nn = new\(std::nothrow\) singlist_node<T>\(v\) ;)12 L
+()0(int)12(rc = -1 ;)32 L
+()0(if \(nn != NULL\) {)12 L
+()0(singlist_node<T>)16(*n = head ;)40 L
+()0(if \(n != NULL\) {)16 L
+()0(nn->next = n->next ;)20 L
+()0(} else {)16 L
+()0(tail = nn ;)20 L
+()0(})16 L
+()0(head = nn ;)16 L
+()0(rc = c++ ;)16(/* return previous value */)40 L
+()0(} /* end if */)12 L
+()0(return rc ;)12 L
+()0(} ;)8 L
+()0(int insfront\(const T &v\) {)8 L
+()0(return inshead\(v\) ;)12 L
+()0(} ;)8 L
+()0(int insback\(const T &v\) {)8 L
+()0(return instail\(v\) ;)12 L
+()0(} ;)8 L
+()0(int ins\(const T &v\) {)8 L
+()0(return instail\(v\) ;)12 L
+()0(} ;)8 L
+()0(int add\(const T &v\) {)8 L
+()0(return instail\(v\) ;)12 L
+()0(} ;)8 L
+()0(int gethead\(const T **rpp\) const {)8 L
+()0(*rpp = \(head != NULL\) ? &head->val : NULL ;)12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int gettail\(const T **rpp\) const {)8 L
+()0(*rpp = \(tail != NULL\) ? &tail->val : NULL ;)12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int getfront\(const T **rpp\) const {)8 L
+()0(*rpp = \(head != NULL\) ? &head->val : NULL ;)12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int getback\(const T **rpp\) const {)8 L
+()0(*rpp = \(tail != NULL\) ? &tail->val : NULL ;)12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int remhead\(T *vp\) {)8 L
+()0(int)12(rs = SR_EMPTY ;)24 L
+()0(if \(head != NULL\) {)12 L
+()0(singlist_node<T>)16(*n = head ;)40 L
+()0(if \(vp != NULL\) *vp = n->val ;)16 L
+()0(head = n->next ;)16 L
+()0(if \(head == NULL\) tail = NULL ;)16 L
+()0(delete n ;)16 L
+()0(rs = --c ;)16 L
+()0(})12 L
+()0(return rs ;)12 L
+()0(} ;)8 L
+()0(int rem\(T *vp\) {)8 L
+()0(return remhead\(vp\) ;)12 L
+()0(} ;)8 L
+()0(iterator begin\(\) const {)8 L
+()0(iterator it\(head\) ;)12 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 5 5
+%%Page: 6 6
+/saveobj save def
+mark
+6 pagesetup
+()0(return it ;)12 L
+()0(} ;)8 L
+()0(iterator end\(\) const {)8 L
+()0(iterator it ;)12 L
+()0(return it ;)12 L
+()0(} ;)8 L
+(} ; /* end class \(singlist\) */)l
+()l
+(#endif /* SINGLIST_INCLUDE */)l
+()l
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 6 6
+%%Trailer
+done
+%%DocumentFonts: Courier
+%%Pages: 6

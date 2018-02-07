@@ -1,0 +1,772 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for ASCII files.
+%
+
+/#copies 1 store
+/Prologue (postprint.ps) def
+/aspectratio 1 def
+/font /Courier def
+/formsperpage 1 def
+/landscape false def
+/magnification 1 def
+/margin 10 def
+/orientation 0 def
+/pointsize 10 def
+/rotation 1 def
+/xoffset .25 def
+/yoffset .25 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	font findfont pointsize scalefont setfont
+	/charwidth (M) stringwidth pop def
+	/linespace pointsize pointsize .10 mul add neg def
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	height width div 1 min dup scale
+	0 linespace translate
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/pagesetup {/page exch def 0 0 moveto 0} bind def
+
+/L {
+	counttomark 2 idiv {charwidth mul currentpoint exch pop moveto show} repeat
+	linespace add dup 0 exch moveto
+} bind def
+
+/l {show linespace add dup 0 exch moveto} bind def
+
+/LL {
+	counttomark 2 idiv {charwidth mul currentpoint exch pop moveto show} repeat
+} bind def
+
+/done {/lastpage where {pop lastpage} if} def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+%%EndProlog
+%%BeginSetup
+mark
+setup
+%%EndSetup
+%%Page: 1 1
+/saveobj save def
+mark
+1 pagesetup
+(/* bstree */)l
+(/* lang=C++11 */)l
+()l
+(/* binary search tree */)l
+()l
+()l
+(#ifndef CF_DEBUGS)l
+(#define CF_DEBUGS)0(0)24(/* compile-time debugging */)40 L
+(#endif)l
+()l
+()l
+(/* revision history:)l
+()l
+()0(= 2013-03-03, David A\255D\255 Morano)8 L
+()0(Originally written for Rightcore Network Services.)8 L
+()l
+(*/)l
+()l
+(/* Copyright \251 2013 David A\255D\255 Morano.  All rights reserved. */)l
+()l
+(/*******************************************************************************)l
+()l
+()0(Binary-Search-Tree \(without rebalancing\))8 L
+()l
+()0(Notes:)8 L
+()l
+()0(Q. How do we handle iterative traversal?)8 L
+()l
+()0(A. There are at least three popular ways to handle iterative traveral:)8 L
+()l
+()0(1. maintain a stack of pointers to previous node at each level of the )8 L
+()0(tree; space would be O\(depth\))11 L
+()l
+()0(2. use a so-called "threaded" tree structure where each dangling)8 L
+()0(right-side node \(with no additional right-child\) actually)11 L
+()0(has a pointer to its in-order successor)11 L
+()l
+()0(3. use the "parent" method where each node has a pointer to its own)8 L
+()0(parent; we use this method below)11 L
+()l
+()0(The "parent" scheme:)8 L
+()l
+()0(If we find that there is no right-child \(from our current node\), we)8 L
+()0(traverse back up to our parent, checking \(at each step\) if we \(the)8 L
+()0(current node\) is equal to the right-child node of our parent. If we)8 L
+()0(arrive at our parent from its left-child, then our parent becomes the)8 L
+()0(next current node. If we arrive at our parent from its right-child node,)8 L
+()0(then we continue to go up in the tree until we either arrive at our)8 L
+()0(parent from a left-child or we reach the top of the tree \(the parent)8 L
+()0(itself has no parent\). At any node, we try to go down a right-child \(if)8 L
+()0(it exists\) and then its left-child, if it exists.)8 L
+()l
+()0(This, so-called, "parent" scheme uses up an extra pointer-amount of)8 L
+()0(space in each node, O\(n\) more space, but even though the "stack" scheme)8 L
+()0(only uses up O\(depth\), we prefer the "parent" scheme since we do not)8 L
+()0(have to go through the trouble if instantiating a stack in the first)8 L
+()0(place.)8 L
+()l
+()0(For reference, here is a stack solution \(pseudo code\):)8 L
+()l
+()0(class iterator {)8 L
+()0(stack<node> stack = new stack<node> ;)12 L
+()0(node)12(n ;)24 L
+()0(iterator\(node an\) : n\(an\) { } ;)12 L
+()0(iterator &findnext\(\) {)12 L
+()0(iterator)16(it\(nullptr\) ;)32 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 1 1
+%%Page: 2 2
+/saveobj save def
+mark
+2 pagesetup
+()0(while \(n != NULL\) {)16 L
+()0(stack.push\(n\) ;)20 L
+()0(n = n->left ;)20 L
+()0(})16 L
+()0(n = stack.pop\(\) ;)16 L
+()0(it = n ;)16 L
+()0(n = n->right ;)16 L
+()0(return it ;)16 L
+()0(} ;)12 L
+()0(} ;)8 L
+()l
+()l
+(*******************************************************************************/)l
+()l
+(#ifndef BSTREE_INCLUDE)l
+(#define BSTREE_INCLUDE  1)l
+()l
+()l
+(#include)0(<envstandards.h>)16(/* MUST be first to configure */)40 L
+(#include)0(<sys/types.h>)16 L
+(#include)0(<limits.h>)16 L
+(#include)0(<cinttypes>)16 L
+(#include)0(<new>)16 L
+(#include)0(<initializer_list>)16 L
+(#include)0(<algorithm>)16 L
+(#include)0(<functional>)16 L
+(#include)0(<stack>)16 L
+(#include)0(<vector>)16 L
+(#include)0(<vsystem.h>)16 L
+(#include)0(<localmisc.h>)16 L
+()l
+()l
+(/* external subroutines */)l
+()l
+(#if     CF_DEBUGS)l
+(extern "C" int  debugprintf\(cchar *,...\) ;)l
+(extern "C" int  strlinelen\(cchar *,cchar *,int\) ;)l
+(#endif)l
+()l
+()l
+(/* local structures */)l
+()l
+(template <typename T,typename Comp = std::less<T>>)l
+(class bstree ;)l
+()l
+(template <typename T,typename Comp = std::less<T>>)l
+(class bstree_iterator ;)l
+()l
+(template <typename T,typename Comp = std::less<T>>)l
+(class bstree_node {)l
+()0(bstree_node<T,Comp>     *parent = NULL ;)8 L
+()0(bstree_node<T,Comp>     *left = NULL ;)8 L
+()0(bstree_node<T,Comp>     *right = NULL ;)8 L
+()0(T)8(val ;)32 L
+()0(void SetVal\(const T v\) {)8 L
+()0(val = v ;)12 L
+()0(} ;)8 L
+(public:)l
+()0(bstree_node\(T av\) : val\(av\) { )8 L
+()0(} ;)8 L
+()0(~bstree_node\(\) {)8 L
+()0(} ;)8 L
+()0(friend bstree<T,Comp> ;)8 L
+()0(friend bstree_iterator<T,Comp> ;)8 L
+(} ; /* end class \(bstree_node\) */)l
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 2 2
+%%Page: 3 3
+/saveobj save def
+mark
+3 pagesetup
+(template <typename T,typename Comp>)l
+(class bstree_iterator {)l
+()0(typedef bstree_node<T,Comp>     nodetype ;)8 L
+()0(bstree_node<T,Comp>     *n = NULL ;)8 L
+()0(mutable T)8(defval ;)32 L
+()0(bstree_iterator<T,Comp> &findnext\(int\) ;)8 L
+()0(typedef bstree_iterator bit ;)8 L
+(public:)l
+()0(bstree_iterator\(\) { } ;)8 L
+()0(bstree_iterator\(bstree_node<T,Comp>* an\) : n\(an\) { } ;)8 L
+()0(bstree_iterator<T,Comp> &operator = \(bstree_iterator<T,Comp> it\) {)8 L
+()0(n = it.n ;)12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(bstree_iterator<T,Comp> &operator = \(bstree_iterator<T,Comp> &it\) {)8 L
+()0(if \(this != &it\) {)12 L
+()0(n = it.n ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(bstree_iterator<T,Comp> &operator = \(bstree_iterator<T,Comp> *ip\) {)8 L
+()0(if \(this != ip\) {)12 L
+()0(n = ip->n ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(bstree_iterator<T,Comp> &operator = \(bstree_node<T,Comp> *nn\) {)8 L
+()0(n = nn ;)12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(~bstree_iterator\(\) {)8 L
+()0(n = NULL ;)12 L
+()0(} ;)8 L
+()0(void setnode\(bstree_node<T,Comp> *nn\) {)8 L
+()0(n = nn ;)12 L
+()0(} ;)8 L
+()0(T &operator * \(\) const {)8 L
+()0(T &rv = defval ;)12 L
+()0(if \(n != NULL\) {)12 L
+()0(rv = n->val ;)16 L
+()0(})12 L
+()0(return rv ;)12 L
+()0(} ;)8 L
+()0(bstree_iterator<T,Comp> &operator ++ \(\) { /* pre-increment */)8 L
+()0(return findnext\(1\) ;)12 L
+()0(} ;)8 L
+()0(bstree_iterator<T,Comp>  &operator ++ \(int\) { /* post-increment */)8 L
+()0(return findnext\(1\) ;)12 L
+()0(} ;)8 L
+()0(bstree_iterator<T,Comp> &operator += \(int inc\) {)8 L
+()0(return findnext\(inc\) ;)12 L
+()0(} ;)8 L
+()0(bstree_iterator<T,Comp> &operator + \(int inc\) {)8 L
+()0(return findnext\(inc\) ;)12 L
+()0(} ;)8 L
+()0(operator int\(\) const {)8 L
+()0(return \(n != nullptr\) ;)12 L
+()0(} ;)8 L
+()0(operator bool\(\) const {)8 L
+()0(return \(n != nullptr\) ;)12 L
+()0(} ;)8 L
+()0(friend bool operator == \(const bstree_iterator<T,Comp> &i1,)8 L
+()0(const bstree_iterator<T,Comp> &i2\) {)16 L
+()0(return \(i1.n == i2.n\) ;)12 L
+()0(} ;)8 L
+()0(friend bool operator != \(const bstree_iterator<T,Comp> &i1,)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 3 3
+%%Page: 4 4
+/saveobj save def
+mark
+4 pagesetup
+()0(const bstree_iterator<T,Comp> &i2\) {)16 L
+()0(return \(i1.n != i2.n\) ;)12 L
+()0(} ;)8 L
+()0(friend bstree<T,Comp> ;)8 L
+(} ; /* end class \(bstree_iterator\) */)l
+()l
+(template <typename T,typename Comp>)l
+(bstree_iterator<T,Comp> &bstree_iterator<T,Comp>::findnext\(int inc\) {)l
+()0(if \(n != NULL\) {)8 L
+()0(if \(inc > 1\) {)12 L
+()0(findnext\(1\) ;)16 L
+()0(findnext\(inc-1\) ;)16 L
+()0(} else if \(inc > 0\) {)12 L
+()0(if \(n->right != NULL\) {)16 L
+()0(n = n->right ;)20 L
+()0(while \(n->left != NULL\) {)20 L
+()0(n = n->left ;)24 L
+()0(})20 L
+()0(} else {)16 L
+()0(bstree_node<T,Comp> *p = n->parent ;)20 L
+()0(while \(\(p != NULL\) && \(n == p->right\)\) {)20 L
+()0(n = p ;)24 L
+()0(p = p->parent;)24 L
+()0(})20 L
+()0(n = p ;)20 L
+()0(})16 L
+()0(} /* end if \(inc\) */)12 L
+()0(} /* end if \(not-NULL\) */)8 L
+()0(return \(*this\) ;)8 L
+(} /* end method \(fstree_iterator::findnext\) */)l
+()l
+(struct bstree_depth {)l
+()0(int)8(min = INT_MAX ;)24 L
+()0(int)8(max = 0 ;)24 L
+()0(void clear\(\) {)8 L
+()0(min = INT_MAX ;)12 L
+()0(max = 0 ;)12 L
+()0(} ;)8 L
+(} ;)l
+()l
+(template <typename T,typename Comp>)l
+(class bstree {)l
+()0(bstree_node<T,Comp>     *root = NULL ;)8 L
+()0(Comp)8(keycmp ;)32 L
+()0(int)8(c = 0 ;)32 L
+()0(typedef)8(bstree_node<T,Comp> nodetype ;)32 L
+()0(bstree_iterator<T,Comp> FindNodeByVal\(nodetype *n,const T &v\) const {)8 L
+()0(bstree_iterator<T,Comp>     it ;)12 L
+()0(if \(root != NULL\) {)12 L
+()0(if \(keycmp\(v,n->val\)\) { /* less */)16 L
+()0(if \(n->left != NULL\) {)20 L
+()0(it = FindNodeByVal\(n->left,v\) ;)24 L
+()0(})20 L
+()0(} else if \(keyequal\(n->val,v\)\) { /* equal */)16 L
+()0(it.setnode\(n\) ;)20 L
+()0(} else {)16 L
+()0(if \(n->right != NULL\) {)20 L
+()0(it = FindNodeByVal\(n->right,v\) ;)24 L
+()0(})20 L
+()0(})16 L
+()0(} /* end if non-null root\) */)12 L
+()0(return it ;)12 L
+()0(} ;)8 L
+()0(void ReplaceUsInParent\(nodetype *np,nodetype *c\) {)8 L
+()0(nodetype *p = np->parent ;)12 L
+()0(if \(p->left == np\) {)12 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 4 4
+%%Page: 5 5
+/saveobj save def
+mark
+5 pagesetup
+()0(p->left = c ;)16 L
+()0(} else {)12 L
+()0(p->right = c ;)16 L
+()0(})12 L
+()0(if \(c != NULL\) c->parent = p ;)12 L
+()0(} ;)8 L
+()0(nodetype *GetChild\(nodetype *np\) const {)8 L
+()0(return \(np->left != NULL\) ? np->left : np->right ;)12 L
+()0(} ;)8 L
+()0(nodetype *FindMinNode\(nodetype *np\) const {)8 L
+()0(while \(np->left != NULL\) {)12 L
+()0(np = np->left ;)16 L
+()0(})12 L
+()0(return np ;)12 L
+()0(})8 L
+()0(int delnodes\(bstree_node<T,Comp> *n\) {)8 L
+()0(int i = 0 ;)12 L
+()0(if \(n != NULL\) {)12 L
+()0(i += 1 ;)16 L
+()0(c += delnodes\(n->left\) ;)16 L
+()0(c += delnodes\(n->right\) ;)16 L
+()0(delete n ;)16 L
+()0(})12 L
+()0(return i ;)12 L
+()0(} ;)8 L
+()0(int insert\(bstree_node<T,Comp> *n,bstree_node<T,Comp> *nn\) {)8 L
+()0(int)12(d = 0 ;)24 L
+()0(if \(keycmp\(nn->val,n->val\)\) {)12 L
+()0(if \(n->left != NULL\) {)16 L
+()0(d = insert\(n->left,nn\) ;)20 L
+()0(} else {)16 L
+()0(nn->parent = n ;)20 L
+()0(n->left = nn ;)20 L
+()0(})16 L
+()0(} else {)12 L
+()0(if \(n->right != NULL\) {)16 L
+()0(d = insert\(n->right,nn\) ;)20 L
+()0(} else {)16 L
+()0(nn->parent = n ;)20 L
+()0(n->right = nn ;)20 L
+()0(})16 L
+()0(})12 L
+()0(return d ;)12 L
+()0(} ;)8 L
+()0(int walk\(std::vector<T> &vl,bstree_node<T,Comp> *n\) const {)8 L
+()0(int i = 0 ;)12 L
+()0(if \(n != NULL\) {)12 L
+()0(if \(n->left\) {)16 L
+()0(i += walk\(vl,n->left\) ;)20 L
+()0(})16 L
+()0(vl.push_back\(n->val\) ;)16 L
+()0(i += 1 ;)16 L
+()0(if \(n->right\) {)16 L
+()0(i += walk\(vl,n->right\) ;)20 L
+()0(})16 L
+()0(})12 L
+()0(return i ;)12 L
+()0(} ;)8 L
+()0(bool keyequal\(const T &v1,const T &v2\) const { /* equal */)8 L
+()0(bool f = TRUE ;)12 L
+()0(f = f && \(! keycmp\(v1,v2\)\) ;)12 L
+()0(f = f && \(! keycmp\(v2,v1\)\) ;)12 L
+()0(return f ;)12 L
+()0(} ;)8 L
+(public:)l
+()0(typedef)8(bstree_iterator<T,Comp> iterator ;)24 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 5 5
+%%Page: 6 6
+/saveobj save def
+mark
+6 pagesetup
+()0(typedef)8(T value_type ;)24 L
+()0(bstree\(\) { )8 L
+()0(} ;)8 L
+()0(bstree\(const bstree<T,Comp> &al\) {)8 L
+()0(if \(this != &al\) {)12 L
+()0(bstree_node<T,Comp>     *an = al.root ;)16 L
+()0(if \(root != NULL\) clear\(\) ;)16 L
+()0(while \(an != NULL\) {)16 L
+()0(add\(an->val\) ;)20 L
+()0(an = an->next ;)20 L
+()0(})16 L
+()0(})12 L
+()0(} ;)8 L
+()0(bstree\(const bstree<T,Comp> &&al\) {)8 L
+()0(if \(root != NULL\) clear\(\) ;)12 L
+()0(root = al.root ;)12 L
+()0(c = al.c ;)12 L
+()0(al.root = NULL ;)12 L
+()0(al.c = 0 ;)12 L
+()0(} ;)8 L
+()0(bstree &operator = \(const bstree<T,Comp> &al\) {)8 L
+()0(if \(this != &al\) {)12 L
+()0(bstree_node<T,Comp>     *an = al.root ;)16 L
+()0(if \(root != NULL\) clear\(\) ;)16 L
+()0(while \(an != NULL\) {)16 L
+()0(add\(an->val\) ;)20 L
+()0(an = an->next ;)20 L
+()0(})16 L
+()0(})12 L
+()0(} ;)8 L
+()0(bstree &operator = \(const bstree<T,Comp> &&al\) {)8 L
+()0(if \(root != NULL\) clear\(\) ;)12 L
+()0(root = al.root ;)12 L
+()0(c = al.c ;)12 L
+()0(al.root = NULL ;)12 L
+()0(al.c = 0 ;)12 L
+()0(} ;)8 L
+()0(bstree\(const std::initializer_list<T> &list\) {)8 L
+()0(if \(root != NULL\) clear\(\) ;)12 L
+()0(for \(const T &v : list\) {)12 L
+()0(add\(v\) ;)16 L
+()0(})12 L
+()0(} ;)8 L
+()0(bstree &operator = \(const std::initializer_list<T> &list\) {)8 L
+()0(if \(root != NULL\) clear\(\) ;)12 L
+()0(for \(const T &v : list\) {)12 L
+()0(add\(v\) ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(bstree &operator += \(const std::initializer_list<T> &list\) {)8 L
+()0(for \(const T &v : list\) {)12 L
+()0(add\(v\) ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(bstree &operator += \(const T v\) {)8 L
+()0(add\(v\) ;)12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(~bstree\(\) {)8 L
+()0(if \(root != NULL\) {)12 L
+()0(delnodes\(root\) ;)16 L
+()0(root = NULL ;)16 L
+()0(})12 L
+()0(c = 0 ;)12 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 6 6
+%%Page: 7 7
+/saveobj save def
+mark
+7 pagesetup
+()0(} ;)8 L
+()0(int clear\(\) {)8 L
+()0(int)12(rc = c ;)24 L
+()0(if \(root != NULL\) {)12 L
+()0(delnodes\(root\) ;)16 L
+()0(root = NULL ;)16 L
+()0(})12 L
+()0(c = 0 ;)12 L
+()0(return rc ;)12 L
+()0(} ;)8 L
+()0(int add\(const T v\) {)8 L
+()0(bstree_node<T,Comp> *nn = new bstree_node<T,Comp>\(v\) ;)12 L
+()0(int)12(rc = -1 ;)32 L
+()0(if \(nn != NULL\) {)12 L
+()0(if \(root != NULL\) {)16 L
+()0(insert\(root,nn\) ;)20 L
+()0(} else {)16 L
+()0(root = nn ;)20 L
+()0(})16 L
+()0(rc = ++c ;)16 L
+()0(})12 L
+()0(return rc ;)12 L
+()0(} ;)8 L
+()0(int add\(const std::initializer_list<T> il\) {)8 L
+()0(for \(const T &v : il\) {)12 L
+()0(add\(v\) ;)16 L
+()0(})12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(bstree &operator = \(const std::initializer_list<T> il\) {)8 L
+()0(for \(const T &v : il\) {)12 L
+()0(add\(v\) ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(int add\(const bstree<T,Comp> &other\) {)8 L
+()0(for\(const T &v : other\) {)12 L
+()0(add\(v\) ;)16 L
+()0(})12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int del\(iterator it\) {)8 L
+()0(int)12(rc = -1 ;)24 L
+()0(if \(it\) {)12 L
+()0(nodetype)16(*n = it.n ; /* friend */)32 L
+()0(nodetype)16(*l, *r ;)32 L
+()0(l = n->left ;)16 L
+()0(r = n->right ;)16 L
+()0(if \(\(l != NULL\) || \(r != NULL\)\) { /* one or two children */)16 L
+()0(if \(\(l != NULL\) && \(r != NULL\)\) { /* two children */)20 L
+()0(nodetype *np = FindMinNode\(n->right\) ;)24 L
+()0(n->SetVal\(np->val\) ;)24 L
+()0(ReplaceUsInParent\(np,np->right\) ;)24 L
+()0(delete np ;)24 L
+()0(} else { /* one child */)20 L
+()0(nodetype)24(*child = GetChild\(n\) ;)40 L
+()0(if \(n->parent != NULL\) {)24 L
+()0(ReplaceUsInParent\(n,child\) ;)28 L
+()0(} else {)24 L
+()0(root = child ;)28 L
+()0(if \(child != NULL\) child->parent = NULL ;)28 L
+()0(})24 L
+()0(it.setnode\(child\) ;)24 L
+()0(delete n ;)24 L
+()0(})20 L
+()0(} else { /* leaf node */)16 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 7 7
+%%Page: 8 8
+/saveobj save def
+mark
+8 pagesetup
+()0(if \(n->parent != NULL\) {)20 L
+()0(ReplaceUsInParent\(n,NULL\) ;)24 L
+()0(it.setnode\(n->parent\) ;)24 L
+()0(} else {)20 L
+()0(root = NULL ;)24 L
+()0(it.setnode\(nullptr\) ;)24 L
+()0(})20 L
+()0(delete n ;)20 L
+()0(})16 L
+()0(rc = --c ;)16 L
+()0(} /* end if \(iterator not at end\) */)12 L
+()0(return rc ;)12 L
+()0(} ;)8 L
+()0(int delval\(const T &v\) {)8 L
+()0(int)12(rc = -1 ;)24 L
+()0(if \(root != NULL\) {)12 L
+()0(iterator)16(it ;)32 L
+()0(if \(it = FindNodeByVal\(root,v\)\) {)16 L
+()0(rc = del\(it\) ;)20 L
+()0(})16 L
+()0(})12 L
+()0(return rc ;)12 L
+()0(} ;)8 L
+()0(int topval\(const T **rpp\) const {)8 L
+()0(if \(root != NULL\) {)12 L
+()0(bstree_node<T,Comp>     *n = root ;)16 L
+()0(*rpp = &n->val ;)16 L
+()0(} else {)12 L
+()0(*rpp = NULL ;)16 L
+()0(})12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int minval\(const T **rpp\) const {)8 L
+()0(if \(root != NULL\) {)12 L
+()0(bstree_node<T,Comp>     *n = root ;)16 L
+()0(while \(n->left != NULL\) {)16 L
+()0(n = n->left ;)20 L
+()0(})16 L
+()0(*rpp = &n->val ;)16 L
+()0(} else {)12 L
+()0(*rpp = NULL ;)16 L
+()0(})12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int maxval\(const T **rpp\) const {)8 L
+()0(if \(root != NULL\) {)12 L
+()0(bstree_node<T,Comp>     *n = root ;)16 L
+()0(while \(n->right != NULL\) {)16 L
+()0(n = n->right ;)20 L
+()0(})16 L
+()0(*rpp = &n->val ;)16 L
+()0(} else {)12 L
+()0(*rpp = NULL ;)16 L
+()0(})12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int count\(\) const {)8 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(int empty\(\) const {)8 L
+()0(return \(c == 0\) ;)12 L
+()0(} ;)8 L
+()0(operator int\(\) const {)8 L
+()0(return \(c != 0\) ;)12 L
+()0(} ;)8 L
+()0(operator bool\(\) const {)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 8 8
+%%Page: 9 9
+/saveobj save def
+mark
+9 pagesetup
+()0(return \(c != 0\) ;)12 L
+()0(} ;)8 L
+()0(int storevec\(std::vector<T> &vl\) {)8 L
+()0(int c = 0 ;)12 L
+()0(if \(root != NULL\) {)12 L
+()0(c = walk\(vl,root\) ;)16 L
+()0(})12 L
+()0(return c ;)12 L
+()0(} ;)8 L
+()0(iterator begin\(\) const {)8 L
+()0(iterator it ;)12 L
+()0(if \(root != NULL\) {)12 L
+()0(bstree_node<T,Comp>     *n = root ;)16 L
+()0(while \(n->left != NULL\) {)16 L
+()0(n = n->left ;)20 L
+()0(})16 L
+()0(it = iterator\(n\) ;)16 L
+()0(})12 L
+()0(return it ;)12 L
+()0(} ;)8 L
+()0(iterator end\(\) const {)8 L
+()0(iterator it ;)12 L
+()0(return it ;)12 L
+()0(} ;)8 L
+()0(iterator find\(const T& v\) const {)8 L
+()0(iterator it ;)12 L
+()0(if \(root != NULL\) {)12 L
+()0(it = FindNodeByVal\(root,v\) ;)16 L
+()0(})12 L
+()0(return it ;)12 L
+()0(} ;)8 L
+()0(int depth\(bstree_depth *resp\) {)8 L
+()0(int)12(d = 0 ;)24 L
+()0(if \(resp != NULL\) resp->clear\(\) ;)12 L
+()0(d = depthrecurse\(resp,0,root\) ;)12 L
+()0(return d ;)12 L
+()0(} ; /* end method \(depth\) */)8 L
+()0(int depthrecurse\(bstree_depth *resp,int i,bstree_node<T,Comp> *rp\) {)8 L
+()0(int)12(d = 0 ;)24 L
+(#if     CF_DEBUGS)l
+()0(debugprintf\("bstree::depthrecurse: ent i=%u\\n",i\) ;)12 L
+(#endif)l
+()0(if \(rp != NULL\) {)12 L
+()0(int     d_left = depthrecurse\(resp,\(i+1\),rp->left\) ;)16 L
+()0(int     d_right = depthrecurse\(resp,\(i+1\),rp->right\) ;)16 L
+()0(d = 1 ;)16 L
+()0(d += std::max\(d_left,d_right\) ;)16 L
+()0(} else {)12 L
+()0(if \(resp != NULL\) {)16 L
+()0(resp->min = std::min\(resp->min,i\) ;)21 L
+()0(resp->max = std::max\(resp->max,i\) ;)21 L
+()0(})16 L
+()0(})12 L
+(#if     CF_DEBUGS)l
+()0(debugprintf\("bstree::depthrecurse: ret d=%u\\n",d\) ;)12 L
+(#endif)l
+()0(return d ;)12 L
+(    } ; /* end method \(depthrecurse\) */)l
+(} ; /* end class \(bstree\) */)l
+()l
+(#endif /* BSTREE_INCLUDE */)l
+()l
+()l
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 9 9
+%%Trailer
+done
+%%DocumentFonts: Courier
+%%Pages: 9
