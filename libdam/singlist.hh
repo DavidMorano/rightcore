@@ -93,11 +93,15 @@ public:
 	    return (*this) ;
 	} ;
 	singlist_iterator &operator = (singlist_iterator<T> &it) {
-	    n = it.n ;
+	    if (this != &it) {
+	        n = it.n ;
+	    }
 	    return (*this) ;
 	} ;
 	singlist_iterator &operator = (singlist_iterator<T> *ip) {
-	    n = ip->n ;
+	    if (this != ip) {
+	        n = ip->n ;
+	    }
 	    return (*this) ;
 	} ;
 	~singlist_iterator() {

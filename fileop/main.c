@@ -55,6 +55,8 @@
 #include	<sigblock.h>
 #include	<bwops.h>
 #include	<cfdec.h>
+#include	<field.h>
+#include	<nulstr.h>
 #include	<ucmallreg.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
@@ -177,6 +179,7 @@ static int	procopts(PROGINFO *,KEYOPT *) ;
 static int	procfts(PROGINFO *) ;
 static int	process(PROGINFO *,ARGINFO *,BITS *,cchar *,cchar *) ;
 static int	procargs(PROGINFO *,ARGINFO *,BITS *,cchar *) ;
+static int	procnames(PROGINFO *,cchar *,int) ;
 static int	procname(PROGINFO *,cchar *) ;
 static int	procdir(PROGINFO *,cchar *,USTAT *) ;
 static int	procdirs(PROGINFO *,cchar *,int,USTAT *) ;
@@ -594,6 +597,17 @@ static const int	rsnostat[] = {
 	SR_NOTDIR,
 	SR_NOENT,
 	0
+} ;
+
+static const uchar	aterms[] = {
+	0x00, 0x2E, 0x00, 0x00,
+	0x09, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00
 } ;
 
 
@@ -2489,14 +2503,14 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	                    if ((rs = procsig(pip)) >= 0) {
 	                        pan += 1 ;
 	                        lbuf[((cp-lbuf)+cl)] = '\0' ;
-	                        rs = procname(pip,cp) ;
+	                        rs = procnames(pip,cp,cl) ;
 	                    } /* end if (procsig) */
 	                }
 	            }
 
 	            if (rs < 0) {
 	                fmt = "%s: error name=%s (%d)\n" ;
-	                bprintf(efp,pn,cp,rs) ;
+	                bprintf(efp,fmt,pn,cp,rs) ;
 	            }
 
 	            if (rs < 0) break ;
@@ -2540,6 +2554,37 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn)
 	return rs ;
 }
 /* end subroutine (procargs) */
+
+
+static int procnames(PROGINFO *pip,cchar *lbuf,int llen)
+{
+	FIELD		fsb ;
+	int		rs ;
+	int		rs1 ;
+	int		c = 0 ;
+	if (pip == NULL) return SR_FAULT ;
+	if ((rs = field_start(&fsb,lbuf,llen)) >= 0) {
+	    int		fl ;
+	    cchar	*fp ;
+	    while ((fl = field_get(&fsb,aterms,&fp)) >= 0) {
+	        if (fl > 0) {
+		    NULSTR	n ;
+		    cchar	*name ;
+		    if ((rs = nulstr_start(&n,fp,fl,&name)) >= 0) {
+	     	        rs = procname(pip,name) ;
+	                c += rs ;
+			rs1 = nulstr_finish(&n) ;
+			if (rs >= 0) rs = rs1 ;
+		    } /* end if (nulstr) */
+	        } /* end if (positive) */
+	        if (fsb.term == '#') break ;
+	        if (rs < 0) break ;
+	    } /* end while */
+	    field_finish(&fsb) ;
+	} /* end if (field) */
+	return (rs >= 0) ? c : rs ;
+}
+/* end subroutine (procnames) */
 
 
 int procname(PROGINFO *pip,cchar *name)
@@ -3532,9 +3577,9 @@ static int proctars_check(PROGINFO *pip)
 	        if (rs >= 0) rs = rs1 ;
 	    } /* end if (paramopt-cur) */
 	} else if (rs == 0) {
-	    fmt ="%s: no target directory specified\n" ;
+	    fmt = "%s: no target directory specified\n" ;
 	    rs = SR_INVALID ;
-	    bprintf(efp,fmt, pip->progname) ;
+	    bprintf(efp,fmt,pip->progname) ;
 	} /* end if */
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))

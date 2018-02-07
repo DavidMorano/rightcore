@@ -34,8 +34,6 @@
 #include	<vsystem.h>
 #include	<localmisc.h>
 
-#include	"singlist.hh"
-
 
 /* local defines */
 

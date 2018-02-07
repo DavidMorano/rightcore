@@ -379,6 +379,21 @@ Note: PCS - Personal Communications Services
 + mail transport (part of PCS software facility)
 	- network delivery transport switch (based on domain names)
 
++ other mail transport
+	- RMAILER - transport agent client (proprietary protocol)
+	- RMAILERD - transport server (proprietary protocol)
+
++ UNIX mail utilities
+	- local delivery to spool (DMAIL)
+	- local user mailbox delivery (DMAILBOX)
+	- mail message injection (IMAIL); with address expansion
+	- mailbox osrting and other processing (MBPROC)
+	- mailbox mail message expiration (MAILEXPIRE, MBEXPIRE)
+	- user mail alias access (MXALIAS)
+	- system mail alias management (MAILALIAS)
+	- create mail message (MKMSG)
+	- extract header values and addresses (EMA)
+
 + bulletin-board (part of PCS software facility)
 	- posting component
 	- user configuration component
@@ -421,17 +436,6 @@ Note: PCS - Personal Communications Services
 	- these are eseentially builtin programs to the Korn Shell
 	- some of these resemble standard UNIX utilities
 	- these have stand-alone UNIX versions also
-
-+ UNIX mail (specific)
-	- local delivery to spool (DMAIL)
-	- local user mailbox delivery (DMAILBOX)
-	- mail message injection (IMAIL); with address expansion
-	- mailbox osrting and other processing (MBPROC)
-	- mailbox mail message expiration (MAILEXPIRE, MBEXPIRE)
-	- user mail alias access (MXALIAS)
-	- system mail alias management (MAILALIAS)
-	- create mail message (MKMSG)
-	- extract header values and addresses (EMA)
 
 + incremental backup utilities for UNIX
 	- backs up files within directory trees that changed since

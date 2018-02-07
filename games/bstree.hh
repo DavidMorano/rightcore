@@ -145,11 +145,15 @@ public:
 	    return (*this) ;
 	} ;
 	bstree_iterator<T,Comp> &operator = (bstree_iterator<T,Comp> &it) {
-	    n = it.n ;
+	    if (this != &it) {
+	        n = it.n ;
+	    }
 	    return (*this) ;
 	} ;
 	bstree_iterator<T,Comp> &operator = (bstree_iterator<T,Comp> *ip) {
-	    n = ip->n ;
+	    if (this != ip) {
+	        n = ip->n ;
+	    }
 	    return (*this) ;
 	} ;
 	bstree_iterator<T,Comp> &operator = (bstree_node<T,Comp> *nn) {

@@ -512,7 +512,7 @@ hexdecoder.o:		hexdecoder.cc hexdecoder.h
 utf8decoder.o:		utf8decoder.cc utf8decoder.h
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
-obuf.o:			obuf.cc obuf.h
+obuf.o:			obuf.cc obuf.hh
 	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $<
 
 mapstrint.o:		mapstrint.c mapstrint.h
@@ -629,5 +629,28 @@ $(T06).o:		$(T06).cc
 
 $(T06).x:		Makefile $(T06OBJ)
 	$(GPP) -o $@ $(T06OBJ) $(TLIBINFO)
+
+
+T07= testobuf
+
+T07OBJa= $(T07).o 
+T07OBJb= obuf.o
+T07OBJc=
+T07OBJd=
+T07OBJe=
+T07OBJf=
+T07OBJg=
+T07OBJh=
+
+T07OBJ0= $(T07OBJa) $(T07OBJb) $(T07OBJc) $(T07OBJd)
+T07OBJ1= $(T07OBJe) $(T07OBJf) $(T07OBJg) $(T07OBJh)
+
+T07OBJ= $(T07OBJ0) $(T07OBJ1)
+
+$(T07).o:		$(T07).cc
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) $(T07).cc
+
+$(T07).x:		Makefile $(T07OBJ)
+	$(GPP) -o $@ $(T07OBJ) $(TLIBINFO)
 
 

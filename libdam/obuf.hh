@@ -35,6 +35,8 @@ class obuf {
 public:
 	obuf() : oi(0) { 
 	} ;
+	obuf(obuf & other) = delete ;
+	obuf &operator = (const obuf &other) = delete ;
 	obuf(cchar *sbuf) : oi(0) { 
 	    int	i ;
 	    for (i = 0 ; sbuf[i] ; i += 1) {
@@ -83,8 +85,7 @@ public:
 	    return rch ;
 	} ;
 	int adv(int al) ;
-} ;
-
+} ; /* end class (obuf) */
 
 #endif /* OBUF_INCLUDE */
 

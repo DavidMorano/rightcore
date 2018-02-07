@@ -124,7 +124,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	debugprintf("main: while-out rs=%d\n",rs) ;
 #endif
 		if (rs == SR_EMPTY) {
-		    cout << "eol rs=" << rs << endl ;
+		    cout << "EOL rs=" << rs << endl ;
 		    rs = SR_OK ;
 		}
 	    }

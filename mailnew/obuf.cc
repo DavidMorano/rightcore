@@ -4,9 +4,6 @@
 /* Output Buffer (object) */
 
 
-#define	CF_DEBUGS	0		/* non-switchable debug print-outs */
-
-
 /* revision history:
 
 	= 2016-06-29, David A­D­ Morano
