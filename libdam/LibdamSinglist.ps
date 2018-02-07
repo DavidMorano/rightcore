@@ -212,12 +212,12 @@ mark
 ()0(n = it.n ;)16 L
 ()0(})12 L
 ()0(} ;)8 L
-()0(singlist_iter\(const singlist_iter<T> &&it\) {)8 L
+()0(singlist_iter\(singlist_iter<T> &&it\) {)8 L
 ()0(if \(this != &it\) {)12 L
 ()0(n = it.n ;)16 L
 ()0(})12 L
 ()0(} ;)8 L
-()0(singlist_iter &operator = \(singlist_iter<T> &it\) {)8 L
+()0(singlist_iter &operator = \(const singlist_iter<T> &it\) {)8 L
 ()0(if \(this != &it\) {)12 L
 ()0(n = it.n ;)16 L
 ()0(})12 L
@@ -229,7 +229,7 @@ mark
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
 ()0(} ;)8 L
-()0(singlist_iter &operator = \(singlist_iter<T> *ip\) {)8 L
+()0(singlist_iter &operator = \(const singlist_iter<T> *ip\) {)8 L
 ()0(if \(this != ip\) {)12 L
 ()0(n = ip->n ;)16 L
 ()0(})12 L

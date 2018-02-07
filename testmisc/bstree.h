@@ -147,7 +147,7 @@ public:
 	        n = it.n ;
 	    }
 	} ;
-	bstree_iter(const bstree_iter<T,Comp> &&it) {
+	bstree_iter(bstree_iter<T,Comp> &&it) {
 	    if (this != &it) {
 	        n = it.n ;
 	    }

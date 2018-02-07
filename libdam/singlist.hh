@@ -95,12 +95,12 @@ public:
 	        n = it.n ;
 	    }
 	} ;
-	singlist_iter(const singlist_iter<T> &&it) {
+	singlist_iter(singlist_iter<T> &&it) {
 	    if (this != &it) {
 	        n = it.n ;
 	    }
 	} ;
-	singlist_iter &operator = (singlist_iter<T> &it) {
+	singlist_iter &operator = (const singlist_iter<T> &it) {
 	    if (this != &it) {
 	        n = it.n ;
 	    }
@@ -112,7 +112,7 @@ public:
 	    }
 	    return (*this) ;
 	} ;
-	singlist_iter &operator = (singlist_iter<T> *ip) {
+	singlist_iter &operator = (const singlist_iter<T> *ip) {
 	    if (this != ip) {
 	        n = ip->n ;
 	    }
