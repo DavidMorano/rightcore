@@ -110,7 +110,7 @@ template <typename T,typename Comp = std::less<T>>
 class bstree ;
 
 template <typename T,typename Comp = std::less<T>>
-class bstree_iterator ;
+class bstree_iter ;
 
 template <typename T,typename Comp = std::less<T>>
 class bstree_node {
@@ -124,43 +124,57 @@ class bstree_node {
 public:
 	bstree_node(T av) : val(av) { 
 	} ;
+	bstree_node(const bstree_node<T> &other) = delete ;
+	bstree_node &operator = (const bstree_node<T> &other) = delete ;
 	~bstree_node() {
 	} ;
  	friend bstree<T,Comp> ;
- 	friend bstree_iterator<T,Comp> ;
+ 	friend bstree_iter<T,Comp> ;
 } ; /* end class (bstree_node) */
 
 template <typename T,typename Comp>
-class bstree_iterator {
+class bstree_iter {
 	typedef bstree_node<T,Comp>	nodetype ;
 	bstree_node<T,Comp>	*n = NULL ;
 	mutable T		defval ;
-	bstree_iterator<T,Comp> &findnext(int) ;
-	typedef bstree_iterator	bit ;
+	bstree_iter<T,Comp>	&findnext(int) ;
+	typedef bstree_iter	bit ;
 public:
-	bstree_iterator() { } ;
-	bstree_iterator(bstree_node<T,Comp>* an) : n(an) { } ;
-	bstree_iterator<T,Comp> &operator = (bstree_iterator<T,Comp> it) {
-	    n = it.n ;
-	    return (*this) ;
+	bstree_iter() { } ;
+	bstree_iter(bstree_node<T,Comp>* an) : n(an) { } ;
+	bstree_iter(const bstree_iter<T,Comp> &it) {
+	    if (this != &it) {
+	        n = it.n ;
+	    }
 	} ;
-	bstree_iterator<T,Comp> &operator = (bstree_iterator<T,Comp> &it) {
+	bstree_iter(const bstree_iter<T,Comp> &&it) {
+	    if (this != &it) {
+	        n = it.n ;
+	    }
+	} ;
+	bstree_iter<T,Comp> &operator = (const bstree_iter<T,Comp> &it) {
 	    if (this != &it) {
 	        n = it.n ;
 	    }
 	    return (*this) ;
 	} ;
-	bstree_iterator<T,Comp> &operator = (bstree_iterator<T,Comp> *ip) {
+	bstree_iter<T,Comp> &operator = (bstree_iter<T,Comp> &&it) {
+	    if (this != &it) {
+	        n = it.n ;
+	    }
+	    return (*this) ;
+	} ;
+	bstree_iter<T,Comp> &operator = (const bstree_iter<T,Comp> *ip) {
 	    if (this != ip) {
 	        n = ip->n ;
 	    }
 	    return (*this) ;
 	} ;
-	bstree_iterator<T,Comp> &operator = (bstree_node<T,Comp> *nn) {
+	bstree_iter<T,Comp> &operator = (const bstree_node<T,Comp> *nn) {
 	    n = nn ;
 	    return (*this) ;
 	} ;
-	~bstree_iterator() {
+	~bstree_iter() {
 	    n = NULL ;
 	} ;
 	void setnode(bstree_node<T,Comp> *nn) {
@@ -173,16 +187,16 @@ public:
 	    }
 	    return rv ;
 	} ;
-	bstree_iterator<T,Comp> &operator ++ () { /* pre-increment */
+	bstree_iter<T,Comp> &operator ++ () { /* pre-increment */
 	    return findnext(1) ;
 	} ;
-	bstree_iterator<T,Comp>  &operator ++ (int) { /* post-increment */
+	bstree_iter<T,Comp>  &operator ++ (int) { /* post-increment */
 	    return findnext(1) ;
 	} ;
-	bstree_iterator<T,Comp> &operator += (int inc) {
+	bstree_iter<T,Comp> &operator += (int inc) {
 	    return findnext(inc) ;
 	} ;
-	bstree_iterator<T,Comp> &operator + (int inc) {
+	bstree_iter<T,Comp> &operator + (int inc) {
 	    return findnext(inc) ;
 	} ;
 	operator int() const {
@@ -191,19 +205,19 @@ public:
 	operator bool() const {
 	    return (n != nullptr) ;
 	} ;
-	friend bool operator == (const bstree_iterator<T,Comp> &i1,
-		const bstree_iterator<T,Comp> &i2) {
+	friend bool operator == (const bstree_iter<T,Comp> &i1,
+		const bstree_iter<T,Comp> &i2) {
 	    return (i1.n == i2.n) ;
 	} ;
-	friend bool operator != (const bstree_iterator<T,Comp> &i1,
-		const bstree_iterator<T,Comp> &i2) {
+	friend bool operator != (const bstree_iter<T,Comp> &i1,
+		const bstree_iter<T,Comp> &i2) {
 	    return (i1.n != i2.n) ;
 	} ;
 	friend bstree<T,Comp> ;
-} ; /* end class (bstree_iterator) */
+} ; /* end class (bstree_iter) */
 
 template <typename T,typename Comp>
-bstree_iterator<T,Comp> &bstree_iterator<T,Comp>::findnext(int inc) {
+bstree_iter<T,Comp> &bstree_iter<T,Comp>::findnext(int inc) {
 	if (n != NULL) {
 	    if (inc > 1) {
 		findnext(1) ;
@@ -225,7 +239,7 @@ bstree_iterator<T,Comp> &bstree_iterator<T,Comp>::findnext(int inc) {
 	    } /* end if (inc) */
         } /* end if (not-NULL) */
  	return (*this) ;
-} /* end method (fstree_iterator::findnext) */
+} /* end method (bstree_iterator::findnext) */
 
 struct bstree_depth {
 	int		min = INT_MAX ;
@@ -242,8 +256,8 @@ class bstree {
 	Comp			keycmp ;
 	int			c = 0 ;
 	typedef			bstree_node<T,Comp> nodetype ;
-        bstree_iterator<T,Comp> FindNodeByVal(nodetype *n,const T &v) const {
-	    bstree_iterator<T,Comp>	it ;
+        bstree_iter<T,Comp> FindNodeByVal(nodetype *n,const T &v) const {
+	    bstree_iter<T,Comp>	it ;
 	    if (root != NULL) {
 	        if (keycmp(v,n->val)) { /* less */
 	            if (n->left != NULL) {
@@ -327,7 +341,7 @@ class bstree {
 	    return f ;
 	} ;
 public:
-	typedef		bstree_iterator<T,Comp> iterator ;
+	typedef		bstree_iter<T,Comp> iterator ;
 	typedef		T value_type ;
 	bstree() { 
 	} ;
@@ -342,11 +356,13 @@ public:
 	    }
 	} ;
 	bstree(const bstree<T,Comp> &&al) {
-	    if (root != NULL) clear() ;
-	    root = al.root ;
-	    c = al.c ;
-	    al.root = NULL ;
-	    al.c = 0 ;
+	    if (this != &al) {
+	        if (root != NULL) clear() ;
+	        root = al.root ;
+	        c = al.c ;
+	        al.root = NULL ;
+	        al.c = 0 ;
+	    }
 	} ;
 	bstree &operator = (const bstree<T,Comp> &al) {
 	    if (this != &al) {
@@ -357,13 +373,17 @@ public:
 	            an = an->next ;
 	        }
 	    }
+	    return (*this) ;
 	} ;
 	bstree &operator = (const bstree<T,Comp> &&al) {
-	    if (root != NULL) clear() ;
-	    root = al.root ;
-	    c = al.c ;
-	    al.root = NULL ;
-	    al.c = 0 ;
+	    if (this != &al) {
+	        if (root != NULL) clear() ;
+	        root = al.root ;
+	        c = al.c ;
+	        al.root = NULL ;
+	        al.c = 0 ;
+	    }
+	    return (*this) ;
 	} ;
 	bstree(const std::initializer_list<T> &list) {
 	    if (root != NULL) clear() ;

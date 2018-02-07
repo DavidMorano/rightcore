@@ -183,70 +183,70 @@ mark
 2 pagesetup
 ()l
 (template <typename T>)l
-(class singlist_iterator ;)l
+(class singlist_iter ;)l
 ()l
 (template <typename T>)l
 (class singlist_node {)l
 ()0(singlist_node<T>)8(*next = NULL ;)32 L
 ()0(singlist_node<T>)8(*prev = NULL ;)32 L
 ()0(T)8(val ;)32 L
+()0(singlist_node\(const singlist_node<T> &other\) = delete ;)8 L
+()0(singlist_node &operator = \(const singlist_node<T> &other\) = delete ;)8 L
 ()0(singlist_node\(const T &av\) : val\(av\) { )8 L
 ()0(} ;)8 L
 ()0(~singlist_node\(\) {)8 L
 ()0(} ;)8 L
 ()0(friend singlist<T> ;)8 L
-()0(friend singlist_iterator<T> ;)8 L
+()0(friend singlist_iter<T> ;)8 L
 (} ; /* end class \(singlist_node\) */)l
 ()l
 (template <typename T>)l
-(class singlist_iterator {)l
+(class singlist_iter {)l
 ()0(singlist_node<T>)8(*n = NULL ;)32 L
 ()0(mutable T)8(defval ;)32 L
 (public:)l
-()0(singlist_iterator\(\) { } ;)8 L
-()0(singlist_iterator\(singlist_node<T>* an\) : n\(an\) { } ;)8 L
-()0(singlist_iterator &operator = \(singlist_iterator<T> it\) {)8 L
-()0(n = it.n ;)12 L
-()0(return \(*this\) ;)12 L
+()0(singlist_iter\(\) { } ;)8 L
+()0(singlist_iter\(singlist_node<T>* an\) : n\(an\) { } ;)8 L
+()0(singlist_iter\(const singlist_iter<T> &it\) {)8 L
+()0(if \(this != &it\) {)12 L
+()0(n = it.n ;)16 L
+()0(})12 L
 ()0(} ;)8 L
-()0(singlist_iterator &operator = \(singlist_iterator<T> &it\) {)8 L
+()0(singlist_iter\(const singlist_iter<T> &&it\) {)8 L
+()0(if \(this != &it\) {)12 L
+()0(n = it.n ;)16 L
+()0(})12 L
+()0(} ;)8 L
+()0(singlist_iter &operator = \(singlist_iter<T> &it\) {)8 L
 ()0(if \(this != &it\) {)12 L
 ()0(n = it.n ;)16 L
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
 ()0(} ;)8 L
-()0(singlist_iterator &operator = \(singlist_iterator<T> *ip\) {)8 L
+()0(singlist_iter &operator = \(singlist_iter<T> &&it\) {)8 L
+()0(if \(this != &it\) {)12 L
+()0(n = it.n ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist_iter &operator = \(singlist_iter<T> *ip\) {)8 L
 ()0(if \(this != ip\) {)12 L
 ()0(n = ip->n ;)16 L
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
 ()0(} ;)8 L
-()0(~singlist_iterator\(\) {)8 L
+()0(~singlist_iter\(\) {)8 L
 ()0(n = NULL ;)12 L
 ()0(} ;)8 L
-()0(friend bool operator == \(const singlist_iterator<T> &i1,)8 L
-()0(const singlist_iterator<T> &i2\) {)16 L
+()0(friend bool operator == \(const singlist_iter<T> &i1,)8 L
+()0(const singlist_iter<T> &i2\) {)16 L
 ()0(return \(i1.n == i2.n\) ;)12 L
 ()0(} ;)8 L
-()0(friend bool operator != \(const singlist_iterator<T> &i1,)8 L
-()0(const singlist_iterator<T> &i2\) {)16 L
+()0(friend bool operator != \(const singlist_iter<T> &i1,)8 L
+()0(const singlist_iter<T> &i2\) {)16 L
 ()0(return \(i1.n != i2.n\) ;)12 L
 ()0(} ;)8 L
 ()0(T &operator * \(\) const {)8 L
-()0(T &rv = defval ;)12 L
-()0(if \(n != NULL\) {)12 L
-()0(rv = n->val ;)16 L
-()0(})12 L
-()0(return rv ;)12 L
-()0(} ;)8 L
-()0(singlist_iterator &operator ++ \(\) { /* pre */)8 L
-()0(if \(n != NULL\) {)12 L
-()0(n = n->next ;)16 L
-()0(})12 L
-()0(return \(*this\) ;)12 L
-()0(} ;)8 L
-()0(singlist_iterator &operator ++ \(int\) { /* post */)8 L
-()0(if \(n != NULL\) {)12 L
 cleartomark
 showpage
 saveobj restore
@@ -255,11 +255,25 @@ saveobj restore
 /saveobj save def
 mark
 3 pagesetup
+()0(T &rv = defval ;)12 L
+()0(if \(n != NULL\) {)12 L
+()0(rv = n->val ;)16 L
+()0(})12 L
+()0(return rv ;)12 L
+()0(} ;)8 L
+()0(singlist_iter &operator ++ \(\) { /* pre */)8 L
+()0(if \(n != NULL\) {)12 L
 ()0(n = n->next ;)16 L
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
 ()0(} ;)8 L
-()0(singlist_iterator &operator += \(int inc\) {)8 L
+()0(singlist_iter &operator ++ \(int\) { /* post */)8 L
+()0(if \(n != NULL\) {)12 L
+()0(n = n->next ;)16 L
+()0(})12 L
+()0(return \(*this\) ;)12 L
+()0(} ;)8 L
+()0(singlist_iter &operator += \(int inc\) {)8 L
 ()0(if \(n != NULL\) {)12 L
 ()0(while \(\(n != NULL\) && \(inc-- > 0\)\) {)16 L
 ()0(n = n->next ;)20 L
@@ -273,7 +287,7 @@ mark
 ()0(operator bool\(\) {)8 L
 ()0(return \(n != NULL\) ;)12 L
 ()0(} ;)8 L
-(} ; /* end class \(singlist_iterator\) */)l
+(} ; /* end class \(singlist_iter\) */)l
 ()l
 (template <typename T>)l
 (class singlist {)l
@@ -281,46 +295,32 @@ mark
 ()0(singlist_node<T>)8(*tail = NULL ;)32 L
 ()0(int)8(c = 0 ;)32 L
 (public:)l
-()0(typedef)8(singlist_iterator<T> iterator ;)24 L
+()0(typedef)8(singlist_iter<T> iterator ;)24 L
 ()0(typedef)8(T value_type ;)24 L
 ()0(singlist\(\) = default ;)8 L
 ()0(singlist\(const singlist<T> &al\) {)8 L
-()0(singlist_node<T>    *an = al.head ;)12 L
-()0(if \(head != NULL\) clear\(\) ;)12 L
-()0(while \(an != NULL\) {)12 L
-()0(instail\(an->val\) ;)16 L
-()0(an = an->next ;)16 L
+()0(if \(this != &al\) {)12 L
+()0(singlist_node<T>)16(*an = al.head ;)40 L
+()0(if \(head != NULL\) clear\(\) ;)16 L
+()0(while \(an != NULL\) {)16 L
+()0(instail\(an->val\) ;)20 L
+()0(an = an->next ;)20 L
+()0(})16 L
 ()0(})12 L
 ()0(} ;)8 L
 ()0(singlist\(singlist<T> &&al\) {)8 L
-()0(if \(head != NULL\) clear\(\) ;)12 L
-()0(head = al.head ;)12 L
-()0(tail = al.tail ;)12 L
-()0(c = al.c ;)12 L
-()0(al.head = NULL ;)12 L
-()0(al.tail = NULL ;)12 L
-()0(al.c = 0 ;)12 L
-()0(} ;)8 L
-()0(singlist &operator = \(const singlist<T> &al\) {)8 L
-()0(singlist_node<T>    *an = al.head ;)12 L
-()0(if \(head != NULL\) clear\(\) ;)12 L
-()0(while \(an != NULL\) {)12 L
-()0(instail\(an->val\) ;)16 L
-()0(an = an->next ;)16 L
+()0(if \(this != &al\) {)12 L
+()0(if \(head != NULL\) clear\(\) ;)16 L
+()0(head = al.head ;)16 L
+()0(tail = al.tail ;)16 L
+()0(c = al.c ;)16 L
+()0(al.head = NULL ;)16 L
+()0(al.tail = NULL ;)16 L
+()0(al.c = 0 ;)16 L
 ()0(})12 L
 ()0(} ;)8 L
-()0(singlist &operator = \(singlist<T> &&al\) {)8 L
-()0(if \(head != NULL\) clear\(\) ;)12 L
-()0(head = al.head ;)12 L
-()0(tail = al.tail ;)12 L
-()0(c = al.c ;)12 L
-()0(al.head = NULL ;)12 L
-()0(al.tail = NULL ;)12 L
-()0(al.c = 0 ;)12 L
-()0(} ;)8 L
-()0(singlist\(const std::initializer_list<T> &list\) {)8 L
-()0(if \(head != NULL\) clear\(\) ;)12 L
-()0(for \(const T &v : list\) {)12 L
+()0(singlist &operator = \(const singlist<T> &al\) {)8 L
+()0(if \(this != &al\) {)12 L
 cleartomark
 showpage
 saveobj restore
@@ -329,6 +329,28 @@ saveobj restore
 /saveobj save def
 mark
 4 pagesetup
+()0(singlist_node<T>)16(*an = al.head ;)40 L
+()0(if \(head != NULL\) clear\(\) ;)16 L
+()0(while \(an != NULL\) {)16 L
+()0(instail\(an->val\) ;)20 L
+()0(an = an->next ;)20 L
+()0(})16 L
+()0(})12 L
+()0(} ;)8 L
+()0(singlist &operator = \(singlist<T> &&al\) {)8 L
+()0(if \(this != &al\) {)12 L
+()0(if \(head != NULL\) clear\(\) ;)16 L
+()0(head = al.head ;)16 L
+()0(tail = al.tail ;)16 L
+()0(c = al.c ;)16 L
+()0(al.head = NULL ;)16 L
+()0(al.tail = NULL ;)16 L
+()0(al.c = 0 ;)16 L
+()0(})12 L
+()0(} ;)8 L
+()0(singlist\(const std::initializer_list<T> &list\) {)8 L
+()0(if \(head != NULL\) clear\(\) ;)12 L
+()0(for \(const T &v : list\) {)12 L
 ()0(instail\(v\) ;)16 L
 ()0(})12 L
 ()0(} ;)8 L
@@ -373,6 +395,14 @@ mark
 ()0(return \(c != 0\) ;)12 L
 ()0(} ;)8 L
 ()0(int clear\(\) {)8 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 4 4
+%%Page: 5 5
+/saveobj save def
+mark
+5 pagesetup
 ()0(singlist_node<T>    *nn, *n = head ;)12 L
 ()0(int)12(rc = c ;)24 L
 ()0(while \(n != NULL\) {)12 L
@@ -395,14 +425,6 @@ mark
 ()0(n->next = nn ;)20 L
 ()0(} else {)16 L
 ()0(head = nn ;)20 L
-cleartomark
-showpage
-saveobj restore
-%%EndPage: 4 4
-%%Page: 5 5
-/saveobj save def
-mark
-5 pagesetup
 ()0(})16 L
 ()0(tail = nn ;)16 L
 ()0(rc = c++ ;)16(/* return previous value */)40 L
@@ -447,6 +469,14 @@ mark
 ()0(int getfront\(const T **rpp\) const {)8 L
 ()0(*rpp = \(head != NULL\) ? &head->val : NULL ;)12 L
 ()0(return c ;)12 L
+cleartomark
+showpage
+saveobj restore
+%%EndPage: 5 5
+%%Page: 6 6
+/saveobj save def
+mark
+6 pagesetup
 ()0(} ;)8 L
 ()0(int getback\(const T **rpp\) const {)8 L
 ()0(*rpp = \(tail != NULL\) ? &tail->val : NULL ;)12 L
@@ -469,14 +499,6 @@ mark
 ()0(} ;)8 L
 ()0(iterator begin\(\) const {)8 L
 ()0(iterator it\(head\) ;)12 L
-cleartomark
-showpage
-saveobj restore
-%%EndPage: 5 5
-%%Page: 6 6
-/saveobj save def
-mark
-6 pagesetup
 ()0(return it ;)12 L
 ()0(} ;)8 L
 ()0(iterator end\(\) const {)8 L

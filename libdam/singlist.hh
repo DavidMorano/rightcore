@@ -66,53 +66,67 @@ template <typename T>
 class singlist ;
 
 template <typename T>
-class singlist_iterator ;
+class singlist_iter ;
 
 template <typename T>
 class singlist_node {
 	singlist_node<T>	*next = NULL ;
 	singlist_node<T>	*prev = NULL ;
 	T			val ;
+	singlist_node(const singlist_node<T> &other) = delete ;
+	singlist_node &operator = (const singlist_node<T> &other) = delete ;
 	singlist_node(const T &av) : val(av) { 
 	} ;
 	~singlist_node() {
 	} ;
  	friend singlist<T> ;
- 	friend singlist_iterator<T> ;
+ 	friend singlist_iter<T> ;
 } ; /* end class (singlist_node) */
 
 template <typename T>
-class singlist_iterator {
+class singlist_iter {
 	singlist_node<T>	*n = NULL ;
 	mutable T		defval ;
 public:
-	singlist_iterator() { } ;
-	singlist_iterator(singlist_node<T>* an) : n(an) { } ;
-	singlist_iterator &operator = (singlist_iterator<T> it) {
-	    n = it.n ;
-	    return (*this) ;
+	singlist_iter() { } ;
+	singlist_iter(singlist_node<T>* an) : n(an) { } ;
+	singlist_iter(const singlist_iter<T> &it) {
+	    if (this != &it) {
+	        n = it.n ;
+	    }
 	} ;
-	singlist_iterator &operator = (singlist_iterator<T> &it) {
+	singlist_iter(const singlist_iter<T> &&it) {
+	    if (this != &it) {
+	        n = it.n ;
+	    }
+	} ;
+	singlist_iter &operator = (singlist_iter<T> &it) {
 	    if (this != &it) {
 	        n = it.n ;
 	    }
 	    return (*this) ;
 	} ;
-	singlist_iterator &operator = (singlist_iterator<T> *ip) {
+	singlist_iter &operator = (singlist_iter<T> &&it) {
+	    if (this != &it) {
+	        n = it.n ;
+	    }
+	    return (*this) ;
+	} ;
+	singlist_iter &operator = (singlist_iter<T> *ip) {
 	    if (this != ip) {
 	        n = ip->n ;
 	    }
 	    return (*this) ;
 	} ;
-	~singlist_iterator() {
+	~singlist_iter() {
 	    n = NULL ;
 	} ;
-	friend bool operator == (const singlist_iterator<T> &i1,
-		const singlist_iterator<T> &i2) {
+	friend bool operator == (const singlist_iter<T> &i1,
+		const singlist_iter<T> &i2) {
 	    return (i1.n == i2.n) ;
 	} ;
-	friend bool operator != (const singlist_iterator<T> &i1,
-		const singlist_iterator<T> &i2) {
+	friend bool operator != (const singlist_iter<T> &i1,
+		const singlist_iter<T> &i2) {
 	    return (i1.n != i2.n) ;
 	} ;
 	T &operator * () const {
@@ -122,19 +136,19 @@ public:
 	    }
 	    return rv ;
 	} ;
-	singlist_iterator &operator ++ () { /* pre */
+	singlist_iter &operator ++ () { /* pre */
 	    if (n != NULL) {
 	        n = n->next ;
 	    }
 	    return (*this) ;
 	} ;
-	singlist_iterator &operator ++ (int) { /* post */
+	singlist_iter &operator ++ (int) { /* post */
 	    if (n != NULL) {
 	        n = n->next ;
 	    }
 	    return (*this) ;
 	} ;
-	singlist_iterator &operator += (int inc) {
+	singlist_iter &operator += (int inc) {
 	    if (n != NULL) {
 		while ((n != NULL) && (inc-- > 0)) {
 	            n = n->next ;
@@ -148,7 +162,7 @@ public:
 	operator bool() {
 	    return (n != NULL) ;
 	} ;
-} ; /* end class (singlist_iterator) */
+} ; /* end class (singlist_iter) */
 
 template <typename T>
 class singlist {
@@ -156,7 +170,7 @@ class singlist {
 	singlist_node<T>	*tail = NULL ;
 	int			c = 0 ;
 public:
-	typedef		singlist_iterator<T> iterator ;
+	typedef		singlist_iter<T> iterator ;
 	typedef		T value_type ;
 	singlist() = default ;
 	singlist(const singlist<T> &al) {
@@ -170,13 +184,15 @@ public:
 	    }
 	} ;
 	singlist(singlist<T> &&al) {
-	    if (head != NULL) clear() ;
-	    head = al.head ;
-	    tail = al.tail ;
-	    c = al.c ;
-	    al.head = NULL ;
-	    al.tail = NULL ;
-	    al.c = 0 ;
+	    if (this != &al) {
+	        if (head != NULL) clear() ;
+	        head = al.head ;
+	        tail = al.tail ;
+	        c = al.c ;
+	        al.head = NULL ;
+	        al.tail = NULL ;
+	        al.c = 0 ;
+	    }
 	} ;
 	singlist &operator = (const singlist<T> &al) {
 	    if (this != &al) {
@@ -189,13 +205,15 @@ public:
 	    }
 	} ;
 	singlist &operator = (singlist<T> &&al) {
-	    if (head != NULL) clear() ;
-	    head = al.head ;
-	    tail = al.tail ;
-	    c = al.c ;
-	    al.head = NULL ;
-	    al.tail = NULL ;
-	    al.c = 0 ;
+	    if (this != &al) {
+	        if (head != NULL) clear() ;
+	        head = al.head ;
+	        tail = al.tail ;
+	        c = al.c ;
+	        al.head = NULL ;
+	        al.tail = NULL ;
+	        al.c = 0 ;
+	    }
 	} ;
 	singlist(const std::initializer_list<T> &list) {
 	    if (head != NULL) clear() ;
