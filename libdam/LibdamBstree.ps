@@ -504,7 +504,7 @@ mark
 ()0(})16 L
 ()0(})12 L
 ()0(} ;)8 L
-()0(bstree\(const bstree<T,Comp> &&al\) {)8 L
+()0(bstree\(bstree<T,Comp> &&al\) {)8 L
 ()0(if \(this != &al\) {)12 L
 ()0(if \(root != NULL\) clear\(\) ;)16 L
 ()0(root = al.root ;)16 L
@@ -524,7 +524,7 @@ mark
 ()0(})12 L
 ()0(return \(*this\) ;)12 L
 ()0(} ;)8 L
-()0(bstree &operator = \(const bstree<T,Comp> &&al\) {)8 L
+()0(bstree &operator = \(bstree<T,Comp> &&al\) {)8 L
 ()0(if \(this != &al\) {)12 L
 ()0(if \(root != NULL\) clear\(\) ;)16 L
 ()0(root = al.root ;)16 L

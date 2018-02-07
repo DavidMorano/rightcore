@@ -355,7 +355,7 @@ public:
 	        }
 	    }
 	} ;
-	bstree(const bstree<T,Comp> &&al) {
+	bstree(bstree<T,Comp> &&al) {
 	    if (this != &al) {
 	        if (root != NULL) clear() ;
 	        root = al.root ;
@@ -375,7 +375,7 @@ public:
 	    }
 	    return (*this) ;
 	} ;
-	bstree &operator = (const bstree<T,Comp> &&al) {
+	bstree &operator = (bstree<T,Comp> &&al) {
 	    if (this != &al) {
 	        if (root != NULL) clear() ;
 	        root = al.root ;
