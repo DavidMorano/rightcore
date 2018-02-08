@@ -17,6 +17,8 @@
 
 /*******************************************************************************
 
+	This is a small test of a binary search technique.
+
 	Synopsis:
 
 	$ testbins.x
@@ -150,6 +152,11 @@ int main(int argc,cchar *argv[],cchar *envv[])
 
 	if (rs >= 0) {
 	    const int	svals[] = { 3, 0, 1, 9, 7, 5, 10 } ;
+	    cout << "the values are:\n" ;
+	    for (auto v : values) {
+		cout << " " << v ;
+	    }
+	    cout << endl ;
 	    for (auto sch : svals) {
 	        int	front = 0 ;
 	        int	back = (nelem(values)-1) ;

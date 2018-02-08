@@ -682,3 +682,21 @@ main$(T23).o:		main$(T23).cc singlist.hh
 	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T23).cc
 
 
+T24= hide
+
+T24OBJa= main$(T24).o
+T24OBJb=
+T24OBJc=
+T24OBJd=
+
+T24OBJ= $(T24OBJa) $(T24OBJb) $(T24OBJc) $(T24OBJd)
+
+T24OBJS= $(CRTFRONT) $(T24OBJ) $(CRTC) $(CRTBACK)
+
+$(T24).x:		Makefile $(T24OBJ)
+	$(LD) -o $@ $(LDFLAGS) -z defs $(T24OBJS) -lm $(TLIBINFO) > $(T24).lm
+
+main$(T24).o:		main$(T24).cc singlist.hh
+	$(GPP) -c $(CCFLAGS) $(CPPFLAGS) main$(T24).cc
+
+
